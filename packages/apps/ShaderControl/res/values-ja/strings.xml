@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_shader_control">GammaOS シェーダー</string>
+    <string name="label_shader_mode">シェーダーモード</string>
+    <string name="shader_none">なし</string>
+    <string name="shader_blur_fill">ぼかし塗りつぶし（実験的）</string>
+    <string name="section_crt_params">CRT パラメータ</string>
+    <string name="section_lcd3x_params">LCD3x パラメータ</string>
+    <string name="section_lcd_shader_params">LCD シェーダーパラメータ</string>
+    <string name="section_blur_fill_params">ぼかし塗りつぶしパラメータ</string>
+    <string name="label_curv">画面の湾曲</string>
+    <string name="label_blur_strength">強度</string>
+    <string name="orientation_auto">自動</string>
+    <string name="orientation_vertical">垂直（ピラーボックス）</string>
+    <string name="orientation_horizontal">水平（レターボックス）</string>
+    <string name="btn_reset_crt">CRT をデフォルトにリセット</string>
+    <string name="btn_reset_lcd3x">LCD3x をデフォルトにリセット</string>
+    <string name="btn_reset_lcd_shader">LCD シェーダーをデフォルトにリセット</string>
+    <string name="btn_reset_blur_fill">ぼかし塗りつぶしをデフォルトにリセット</string>
+</resources>

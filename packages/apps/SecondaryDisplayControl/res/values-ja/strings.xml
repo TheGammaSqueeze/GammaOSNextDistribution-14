@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_secondary_display">GammaOS セカンダリディスプレイルーティング</string>
+    <string name="secondary_display_toggle_label">セカンダリディスプレイルーティングを有効にする</string>
+    <string name="secondary_display_toggle_summary">有効にすると、選択したアプリがセカンダリディスプレイで起動します（存在し、信頼されている場合）。persist.gammaos.secondary_display.enabled を使用します。</string>
+    <string name="apps_section_title">セカンダリディスプレイにルーティングされるアプリ</string>
+    <string name="apps_section_hint">persist.gammaos.secondary_display.packages に含めるアプリを選択してください。パッケージの完全一致がサポートされ、パッケージプレフィックスもサブパッケージに一致します。</string>
+</resources>

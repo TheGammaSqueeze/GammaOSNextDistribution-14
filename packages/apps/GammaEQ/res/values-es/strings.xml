@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="enable_eq">Activar EQ</string>
+    <string name="preset">Preajuste</string>
+    <string name="save_custom">Guardar personalizado</string>
+    <string name="reset_defaults">Restablecer</string>
+    <string name="apply">Aplicar</string>
+    <string name="preview_play">Reproducir vista previa</string>
+    <string name="preview_stop">Detener vista previa</string>
+    <string name="cryst_title">Presencia / Crystalizer</string>
+    <string name="lbp_title">Golpe de graves bajos</string>
+    <string name="wide_title">Ampliación estéreo</string>
+    <string name="enable">Activar</string>
+    <string name="amount">Cantidad</string>
+    <string name="limit">Límite</string>
+    <string name="thr">Umbral</string>
+    <string name="atk">Ataque</string>
+    <string name="rel">Liberación</string>
+</resources>

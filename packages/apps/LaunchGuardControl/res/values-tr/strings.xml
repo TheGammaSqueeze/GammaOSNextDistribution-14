@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_launch_guard">GammaOS Launch Guard</string>
+    <string name="launch_guard_toggle_label">Launch Guard\'ı etkinleştir</string>
+    <string name="launch_guard_toggle_summary">Etkinleştirildiğinde, seçili çağıran uygulamalardan başlatıldığında sistem seçili hedef uygulamaları zorla durduracaktır. Bu, bir uygulama hâlâ çalışırken yeniden başlatıldığında oluşan emülatör çökmelerini çözebilir.</string>
+    <string name="callers_section_title">Çağıran uygulamalar</string>
+    <string name="callers_section_hint">Launch Guard\'ı tetiklemesine izin verilen uygulamaları işaretleyin. Bu uygulamalar persist.gammaos.launch.guard.callers içinde yer almalıdır.</string>
+    <string name="targets_section_title">Hedef uygulamalar</string>
+    <string name="targets_section_hint">Bir çağıran uygulama tarafından başlatıldığında zorla yeniden başlatılacak uygulamaları işaretleyin. Bu uygulamalar persist.gammaos.launch.guard.targets içinde yer almalıdır.</string>
+</resources>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="enable_eq">Activați EQ</string>
+    <string name="preset">Presetare</string>
+    <string name="save_custom">Salvare personalizată</string>
+    <string name="reset_defaults">Resetare</string>
+    <string name="apply">Aplicare</string>
+    <string name="preview_play">Redare previzualizare</string>
+    <string name="preview_stop">Oprire previzualizare</string>
+    <string name="enable">Activare</string>
+    <string name="amount">Cantitate</string>
+    <string name="limit">Limită</string>
+    <string name="thr">Prag</string>
+</resources>

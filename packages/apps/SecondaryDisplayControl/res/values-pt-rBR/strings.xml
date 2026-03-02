@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_secondary_display">GammaOS Roteamento de tela secundária</string>
+    <string name="secondary_display_toggle_label">Ativar roteamento de tela secundária</string>
+    <string name="secondary_display_toggle_summary">Quando ativado, os apps selecionados serão iniciados na tela secundária (se houver uma presente e confiável). Usa persist.gammaos.secondary_display.enabled.</string>
+    <string name="apps_section_title">Apps roteados para a tela secundária</string>
+    <string name="apps_section_hint">Marque os apps que devem ser incluídos em persist.gammaos.secondary_display.packages. Correspondências exatas de pacotes são suportadas e prefixos de pacotes também corresponderão a subpacotes.</string>
+</resources>

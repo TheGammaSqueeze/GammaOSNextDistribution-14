@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_launch_guard">GammaOS Launch Guard</string>
+    <string name="launch_guard_toggle_label">Launch Guard を有効にする</string>
+    <string name="launch_guard_toggle_summary">有効にすると、選択された呼び出し元アプリから起動されたとき、選択されたターゲットアプリを強制停止します。実行中のアプリを再起動したときのエミュレーターのクラッシュを回避できます。</string>
+    <string name="callers_section_title">呼び出し元アプリ</string>
+    <string name="callers_section_hint">Launch Guard のトリガーを許可するアプリを選択してください。persist.gammaos.launch.guard.callers に含まれている必要があります。</string>
+    <string name="targets_section_title">ターゲットアプリ</string>
+    <string name="targets_section_hint">呼び出し元アプリから起動されたときに強制再起動するアプリを選択してください。persist.gammaos.launch.guard.targets に含まれている必要があります。</string>
+</resources>

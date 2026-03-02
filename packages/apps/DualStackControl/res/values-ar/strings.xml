@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_dualstack">GammaOS DualStack</string>
+    <string name="dualstack_toggle_label">تفعيل DualStack</string>
+    <string name="dualstack_toggle_summary">التحكم في تفعيل DualStack بشكل عام.</string>
+    <string name="apps_section_title">التطبيقات المفعّل لها DualStack</string>
+    <string name="apps_section_hint">حدد التطبيقات التي يجب تضمينها في persist.gammaos.dualstack.pkgs (و persist.gammaos.dualstack.pkgs_# إذا لزم الأمر).</string>
+    <string name="empty_app_list">لم يتم العثور على تطبيقات مستخدم.</string>
+    <string name="surfaceview_only_toggle_label">SurfaceView فقط</string>
+    <string name="surfaceview_only_toggle_summary">إخفاء عناصر واجهة النظام (مثل أشرطة الصوت وشريط المهام) أثناء المحاكاة.</string>
+</resources>

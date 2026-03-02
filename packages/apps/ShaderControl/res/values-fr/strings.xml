@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_shader_control">GammaOS Shaders</string>
+    <string name="label_shader_mode">Mode de shader</string>
+    <string name="shader_none">Aucun</string>
+    <string name="shader_blur_fill">Remplissage flou (EXPÉRIMENTAL)</string>
+    <string name="section_crt_params">Paramètres CRT</string>
+    <string name="section_lcd3x_params">Paramètres LCD3x</string>
+    <string name="section_lcd_shader_params">Paramètres de shader LCD</string>
+    <string name="section_blur_fill_params">Paramètres de remplissage flou</string>
+    <string name="hint_scroll_crt">Faites défiler pour voir toutes les options CRT</string>
+    <string name="hint_scroll_lcd3x">Faites défiler pour voir toutes les options LCD3x</string>
+    <string name="hint_scroll_lcd_shader">Faites défiler pour voir toutes les options de shader LCD</string>
+    <string name="hint_scroll_blur_fill">Faites défiler pour voir toutes les options de remplissage flou</string>
+    <string name="label_curv">Courbure de l\'écran</string>
+    <string name="label_blur_strength">Intensité</string>
+    <string name="orientation_auto">Automatique</string>
+    <string name="orientation_vertical">Vertical (pillarbox)</string>
+    <string name="orientation_horizontal">Horizontal (letterbox)</string>
+    <string name="btn_reset_crt">Réinitialiser CRT par défaut</string>
+    <string name="btn_reset_lcd3x">Réinitialiser LCD3x par défaut</string>
+    <string name="btn_reset_lcd_shader">Réinitialiser shader LCD par défaut</string>
+    <string name="btn_reset_blur_fill">Réinitialiser remplissage flou par défaut</string>
+</resources>

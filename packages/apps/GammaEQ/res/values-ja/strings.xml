@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="enable_eq">EQ を有効にする</string>
+    <string name="preset">プリセット</string>
+    <string name="save_custom">カスタムを保存</string>
+    <string name="reset_defaults">リセット</string>
+    <string name="apply">適用</string>
+    <string name="preview_play">プレビュー再生</string>
+    <string name="preview_stop">プレビュー停止</string>
+    <string name="cryst_title">プレゼンス / Crystalizer</string>
+    <string name="lbp_title">ローバスパンチ</string>
+    <string name="wide_title">ステレオワイド</string>
+    <string name="enable">有効</string>
+    <string name="amount">量</string>
+    <string name="limit">リミット</string>
+    <string name="thr">スレッショルド</string>
+    <string name="atk">アタック</string>
+    <string name="rel">リリース</string>
+</resources>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_dualstack">GammaOS DualStack</string>
+    <string name="dualstack_toggle_label">啟用 DualStack</string>
+    <string name="dualstack_toggle_summary">控制是否全域啟用 DualStack。</string>
+    <string name="apps_section_title">已啟用 DualStack 的應用程式</string>
+    <string name="apps_section_hint">勾選需要包含在 persist.gammaos.dualstack.pkgs（以及 persist.gammaos.dualstack.pkgs_#，如需要）中的應用程式。</string>
+    <string name="empty_app_list">未找到使用者應用程式。</string>
+    <string name="surfaceview_only_toggle_label">僅 SurfaceView</string>
+    <string name="surfaceview_only_toggle_summary">在模擬期間隱藏系統介面覆蓋層（例如音量列、工作列）。</string>
+</resources>

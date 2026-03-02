@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="enable_eq">Aktifkan EQ</string>
+    <string name="preset">Preset</string>
+    <string name="save_custom">Simpan Kustom</string>
+    <string name="reset_defaults">Atur Ulang</string>
+    <string name="apply">Terapkan</string>
+    <string name="preview_play">Putar Pratinjau</string>
+    <string name="preview_stop">Hentikan Pratinjau</string>
+    <string name="enable">Aktifkan</string>
+    <string name="amount">Jumlah</string>
+    <string name="limit">Batas</string>
+    <string name="thr">Ambang</string>
+</resources>

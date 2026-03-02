@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_dualstack">GammaOS DualStack</string>
+    <string name="dualstack_toggle_label">Activați DualStack</string>
+    <string name="dualstack_toggle_summary">Controlați dacă DualStack este activat global.</string>
+    <string name="apps_section_title">Aplicații cu DualStack activat</string>
+    <string name="apps_section_hint">Bifați aplicațiile care trebuie incluse în persist.gammaos.dualstack.pkgs (și persist.gammaos.dualstack.pkgs_# dacă este necesar).</string>
+    <string name="empty_app_list">Nu s-au găsit aplicații de utilizator.</string>
+    <string name="surfaceview_only_toggle_label">Doar SurfaceView</string>
+    <string name="surfaceview_only_toggle_summary">Ascundeți suprapunerile SystemUI (de exemplu, barele de volum, bara de activități) în timpul emulării.</string>
+</resources>

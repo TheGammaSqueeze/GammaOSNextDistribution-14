@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_joystick_led">LED du joystick</string>
+    <string name="label_color_options">Options de couleur</string>
+    <string name="label_control_targets">Cibles de contrôle</string>
+    <string name="label_brightness">Luminosité de la couleur</string>
+    <string name="label_saturation">Saturation de la couleur</string>
+    <string name="label_effect_speed">Vitesse de l\'effet</string>
+    <string name="target_both">Les deux</string>
+    <string name="target_left">Gauche</string>
+    <string name="target_right">Droite</string>
+    <string name="target_primary">Principal</string>
+    <string name="target_follow">Suivre</string>
+    <string name="label_custom_effects">Effets LED</string>
+    <string name="effect_follow_screen">Suivre le RGB de l\'écran</string>
+    <string name="effect_none">Fixe</string>
+    <string name="effect_off">Éteint</string>
+    <string name="label_split_colors">Séparer les couleurs</string>
+    <string name="label_follow_brightness">Suivre la luminosité de l\'écran</string>
+</resources>

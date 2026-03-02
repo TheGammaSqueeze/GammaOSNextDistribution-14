@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_joystick_led">Joystick LED</string>
+    <string name="label_color_options">Renk seçenekleri</string>
+    <string name="label_control_targets">Kontrol hedefleri</string>
+    <string name="label_brightness">Renk parlaklığı</string>
+    <string name="label_saturation">Renk doygunluğu</string>
+    <string name="label_effect_speed">Efekt hızı</string>
+    <string name="target_both">Her ikisi</string>
+    <string name="target_left">Sol</string>
+    <string name="target_right">Sağ</string>
+    <string name="target_primary">Birincil</string>
+    <string name="target_follow">Takip</string>
+    <string name="label_custom_effects">LED efektleri</string>
+    <string name="effect_follow_screen">Ekran RGB\'sini takip et</string>
+    <string name="effect_none">Sabit</string>
+    <string name="effect_off">Kapalı</string>
+    <string name="label_split_colors">Renkleri böl</string>
+    <string name="label_follow_brightness">Ekran parlaklığını takip et</string>
+</resources>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="enable_eq">Aktivér EQ</string>
+    <string name="preset">Forudindstilling</string>
+    <string name="save_custom">Gem brugerdefineret</string>
+    <string name="reset_defaults">Nulstil</string>
+    <string name="apply">Anvend</string>
+    <string name="preview_play">Afspil forhåndsvisning</string>
+    <string name="preview_stop">Stop forhåndsvisning</string>
+    <string name="enable">Aktivér</string>
+    <string name="amount">Mængde</string>
+    <string name="limit">Grænse</string>
+    <string name="thr">Tærskel</string>
+</resources>

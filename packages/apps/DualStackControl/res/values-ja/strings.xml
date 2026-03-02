@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_dualstack">GammaOS DualStack</string>
+    <string name="dualstack_toggle_label">DualStack を有効にする</string>
+    <string name="dualstack_toggle_summary">DualStack をグローバルに有効にするかを制御します。</string>
+    <string name="apps_section_title">DualStack が有効なアプリ</string>
+    <string name="apps_section_hint">persist.gammaos.dualstack.pkgs（必要に応じて persist.gammaos.dualstack.pkgs_#）に含めるアプリを選択してください。</string>
+    <string name="empty_app_list">ユーザーアプリが見つかりません。</string>
+    <string name="surfaceview_only_toggle_label">SurfaceView のみ</string>
+    <string name="surfaceview_only_toggle_summary">エミュレーション中に SystemUI オーバーレイ（音量バー、タスクバーなど）を非表示にします。</string>
+</resources>

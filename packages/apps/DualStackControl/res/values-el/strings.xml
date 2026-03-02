@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_dualstack">GammaOS DualStack</string>
+    <string name="dualstack_toggle_label">Ενεργοποίηση DualStack</string>
+    <string name="dualstack_toggle_summary">Ελέγξτε αν το DualStack είναι καθολικά ενεργοποιημένο.</string>
+    <string name="apps_section_title">Εφαρμογές με ενεργοποιημένο DualStack</string>
+    <string name="apps_section_hint">Επιλέξτε τις εφαρμογές που θα συμπεριληφθούν στο persist.gammaos.dualstack.pkgs (και persist.gammaos.dualstack.pkgs_# αν χρειαστεί).</string>
+    <string name="empty_app_list">Δεν βρέθηκαν εφαρμογές χρήστη.</string>
+    <string name="surfaceview_only_toggle_label">Μόνο SurfaceView</string>
+    <string name="surfaceview_only_toggle_summary">Απόκρυψη επικαλύψεων SystemUI (π.χ. ράβδοι έντασης, γραμμή εργασιών) κατά την εξομοίωση.</string>
+</resources>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_launch_guard">GammaOS Launch Guard</string>
+    <string name="launch_guard_toggle_label">Attiva Launch Guard</string>
+    <string name="launch_guard_toggle_summary">Se attivato, il sistema forzerà la chiusura delle app bersaglio selezionate quando vengono avviate dalle app chiamanti selezionate. Questo può risolvere i crash dell\'emulatore quando un\'app viene riavviata mentre è ancora in esecuzione.</string>
+    <string name="callers_section_title">App chiamanti</string>
+    <string name="callers_section_hint">Seleziona le app autorizzate ad attivare Launch Guard. Queste app devono essere incluse in persist.gammaos.launch.guard.callers.</string>
+    <string name="targets_section_title">App bersaglio</string>
+    <string name="targets_section_hint">Seleziona le app che devono essere riavviate forzatamente quando lanciate da un\'app chiamante. Queste app devono essere incluse in persist.gammaos.launch.guard.targets.</string>
+</resources>

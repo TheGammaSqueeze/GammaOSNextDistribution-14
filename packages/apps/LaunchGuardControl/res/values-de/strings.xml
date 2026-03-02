@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_launch_guard">GammaOS Launch Guard</string>
+    <string name="launch_guard_toggle_label">Launch Guard aktivieren</string>
+    <string name="launch_guard_toggle_summary">Wenn aktiviert, werden ausgewählte Ziel-Apps beim Start durch ausgewählte Aufrufer-Apps zwangsgestoppt. Dies kann Abstürze des Emulators vermeiden, wenn eine App erneut gestartet wird, während sie noch läuft.</string>
+    <string name="callers_section_title">Aufrufer-Apps</string>
+    <string name="callers_section_hint">Wähle die Apps, die Launch Guard auslösen dürfen. Diese Apps müssen in persist.gammaos.launch.guard.callers enthalten sein.</string>
+    <string name="targets_section_title">Ziel-Apps</string>
+    <string name="targets_section_hint">Wähle die Apps, die beim Start durch eine Aufrufer-App zwangsweise neu gestartet werden sollen. Diese Apps müssen in persist.gammaos.launch.guard.targets enthalten sein.</string>
+</resources>

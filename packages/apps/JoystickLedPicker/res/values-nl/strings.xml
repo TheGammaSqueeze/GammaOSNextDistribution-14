@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_joystick_led">Joystick-LED</string>
+    <string name="label_color_options">Kleuropties</string>
+    <string name="label_control_targets">Bedieningsdoelen</string>
+    <string name="label_brightness">Kleurhelderheid</string>
+    <string name="label_saturation">Kleurverzadiging</string>
+    <string name="label_effect_speed">Effectsnelheid</string>
+    <string name="target_both">Beide</string>
+    <string name="target_left">Links</string>
+    <string name="target_right">Rechts</string>
+    <string name="target_primary">Primair</string>
+    <string name="target_follow">Volgen</string>
+    <string name="label_custom_effects">LED-effecten</string>
+    <string name="effect_follow_screen">Scherm-RGB volgen</string>
+    <string name="effect_none">Vast</string>
+    <string name="effect_off">Uit</string>
+    <string name="label_split_colors">Kleuren splitsen</string>
+    <string name="label_follow_brightness">Schermhelderheid volgen</string>
+</resources>

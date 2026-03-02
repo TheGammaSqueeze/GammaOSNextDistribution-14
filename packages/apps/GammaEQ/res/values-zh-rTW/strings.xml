@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="enable_eq">啟用均衡器</string>
+    <string name="preset">預設</string>
+    <string name="save_custom">儲存自訂</string>
+    <string name="reset_defaults">重設</string>
+    <string name="apply">套用</string>
+    <string name="preview_play">播放預覽</string>
+    <string name="preview_stop">停止預覽</string>
+    <string name="cryst_title">臨場感 / Crystalizer</string>
+    <string name="lbp_title">低音力度</string>
+    <string name="wide_title">立體聲擴展</string>
+    <string name="enable">啟用</string>
+    <string name="amount">量</string>
+    <string name="limit">限制</string>
+    <string name="thr">閾值</string>
+    <string name="atk">起音</string>
+    <string name="rel">釋放</string>
+</resources>

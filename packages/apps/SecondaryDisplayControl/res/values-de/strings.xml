@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_secondary_display">GammaOS Sekundäranzeige-Routing</string>
+    <string name="secondary_display_toggle_label">Sekundäranzeige-Routing aktivieren</string>
+    <string name="secondary_display_toggle_summary">Wenn aktiviert, werden ausgewählte Apps auf dem Sekundärdisplay gestartet (falls eines vorhanden und vertrauenswürdig ist). Verwendet persist.gammaos.secondary_display.enabled.</string>
+    <string name="apps_section_title">Apps, die auf die Sekundäranzeige umgeleitet werden</string>
+    <string name="apps_section_hint">Wähle die Apps, die in persist.gammaos.secondary_display.packages eingetragen werden sollen. Exakte Paket-Übereinstimmungen und Paketpräfixe werden unterstützt.</string>
+</resources>

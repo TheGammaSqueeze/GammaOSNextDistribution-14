@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_secondary_display">GammaOS Enrutamiento de pantalla secundaria</string>
+    <string name="secondary_display_toggle_label">Activar enrutamiento de pantalla secundaria</string>
+    <string name="secondary_display_toggle_summary">Cuando está activado, las apps seleccionadas se lanzarán en la pantalla secundaria (si hay una presente y es de confianza). Usa persist.gammaos.secondary_display.enabled.</string>
+    <string name="apps_section_title">Apps dirigidas a la pantalla secundaria</string>
+    <string name="apps_section_hint">Marca las apps que deben incluirse en persist.gammaos.secondary_display.packages. Se admiten coincidencias exactas de paquetes y los prefijos de paquetes también coincidirán con subpaquetes.</string>
+</resources>

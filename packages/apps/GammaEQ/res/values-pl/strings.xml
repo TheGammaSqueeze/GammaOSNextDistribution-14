@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="enable_eq">Włącz EQ</string>
+    <string name="preset">Ustawienie wstępne</string>
+    <string name="save_custom">Zapisz niestandardowe</string>
+    <string name="reset_defaults">Zresetuj</string>
+    <string name="apply">Zastosuj</string>
+    <string name="preview_play">Odtwórz podgląd</string>
+    <string name="preview_stop">Zatrzymaj podgląd</string>
+    <string name="enable">Włącz</string>
+    <string name="amount">Ilość</string>
+    <string name="limit">Limit</string>
+    <string name="thr">Próg</string>
+    <string name="atk">Atak</string>
+    <string name="rel">Zwolnienie</string>
+</resources>

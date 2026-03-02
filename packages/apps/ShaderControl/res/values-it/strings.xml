@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_shader_control">GammaOS Shader</string>
+    <string name="label_shader_mode">Modalità shader</string>
+    <string name="shader_none">Nessuno</string>
+    <string name="shader_blur_fill">Riempimento sfocatura (SPERIMENTALE)</string>
+    <string name="section_crt_params">Parametri CRT</string>
+    <string name="section_lcd3x_params">Parametri LCD3x</string>
+    <string name="section_lcd_shader_params">Parametri shader LCD</string>
+    <string name="section_blur_fill_params">Parametri riempimento sfocatura</string>
+    <string name="label_curv">Curvatura dello schermo</string>
+    <string name="label_blur_strength">Intensità</string>
+    <string name="orientation_auto">Automatico</string>
+    <string name="orientation_vertical">Verticale (pillarbox)</string>
+    <string name="orientation_horizontal">Orizzontale (letterbox)</string>
+    <string name="btn_reset_crt">Ripristina CRT ai valori predefiniti</string>
+    <string name="btn_reset_lcd3x">Ripristina LCD3x ai valori predefiniti</string>
+    <string name="btn_reset_lcd_shader">Ripristina shader LCD ai valori predefiniti</string>
+    <string name="btn_reset_blur_fill">Ripristina riempimento sfocatura ai valori predefiniti</string>
+</resources>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_shader_control">GammaOS Шейдери</string>
+    <string name="label_shader_mode">Режим шейдера</string>
+    <string name="shader_none">Немає</string>
+    <string name="shader_blur_fill">Заливка розмиттям (ЕКСПЕРИМЕНТАЛЬНО)</string>
+    <string name="label_curv">Кривизна екрана</string>
+    <string name="label_blur_strength">Сила</string>
+    <string name="orientation_auto">Авто</string>
+    <string name="btn_reset_crt">Скинути CRT до стандартних</string>
+    <string name="btn_reset_lcd3x">Скинути LCD3x до стандартних</string>
+    <string name="btn_reset_lcd_shader">Скинути LCD-шейдер до стандартних</string>
+    <string name="btn_reset_blur_fill">Скинути заливку розмиттям до стандартних</string>
+</resources>

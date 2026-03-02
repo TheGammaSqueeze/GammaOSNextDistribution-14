@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="enable_eq">Ativar EQ</string>
+    <string name="preset">Predefinição</string>
+    <string name="save_custom">Guardar personalizado</string>
+    <string name="reset_defaults">Repor</string>
+    <string name="apply">Aplicar</string>
+    <string name="preview_play">Reproduzir pré-visualização</string>
+    <string name="preview_stop">Parar pré-visualização</string>
+    <string name="enable">Ativar</string>
+    <string name="amount">Quantidade</string>
+    <string name="limit">Limite</string>
+    <string name="thr">Limiar</string>
+</resources>

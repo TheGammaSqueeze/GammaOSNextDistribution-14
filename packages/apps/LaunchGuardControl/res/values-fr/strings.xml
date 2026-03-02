@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_launch_guard">GammaOS Launch Guard</string>
+    <string name="launch_guard_toggle_label">Activer Launch Guard</string>
+    <string name="launch_guard_toggle_summary">Lorsqu\'il est activé, le système force l\'arrêt des applications cibles sélectionnées lorsqu\'elles sont lancées depuis les applications appelantes sélectionnées. Cela peut résoudre les plantages de l\'émulateur lorsqu\'une application est relancée alors qu\'elle est encore en cours d\'exécution.</string>
+    <string name="callers_section_title">Applications appelantes</string>
+    <string name="callers_section_hint">Cochez les applications autorisées à déclencher Launch Guard. Ces applications doivent être incluses dans persist.gammaos.launch.guard.callers.</string>
+    <string name="targets_section_title">Applications cibles</string>
+    <string name="targets_section_hint">Cochez les applications qui doivent être redémarrées de force lorsqu\'elles sont lancées par une application appelante. Ces applications doivent être incluses dans persist.gammaos.launch.guard.targets.</string>
+</resources>

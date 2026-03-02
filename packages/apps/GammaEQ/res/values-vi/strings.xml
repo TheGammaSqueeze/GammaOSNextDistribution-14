@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="enable_eq">Bật EQ</string>
+    <string name="preset">Cài đặt sẵn</string>
+    <string name="save_custom">Lưu tùy chỉnh</string>
+    <string name="reset_defaults">Đặt lại</string>
+    <string name="apply">Áp dụng</string>
+    <string name="preview_play">Phát bản xem trước</string>
+    <string name="preview_stop">Dừng bản xem trước</string>
+    <string name="enable">Bật</string>
+    <string name="amount">Lượng</string>
+    <string name="limit">Giới hạn</string>
+    <string name="thr">Ngưỡng</string>
+</resources>

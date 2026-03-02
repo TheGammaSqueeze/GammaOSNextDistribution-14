@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_dualstack">GammaOS DualStack</string>
+    <string name="dualstack_toggle_label">Povolit DualStack</string>
+    <string name="dualstack_toggle_summary">Ovládejte, zda je DualStack globálně povolen.</string>
+    <string name="apps_section_title">Aplikace s povoleným DualStack</string>
+    <string name="apps_section_hint">Zaškrtněte aplikace, které mají být zahrnuty do persist.gammaos.dualstack.pkgs (a persist.gammaos.dualstack.pkgs_#, je-li třeba).</string>
+    <string name="empty_app_list">Nebyly nalezeny žádné uživatelské aplikace.</string>
+    <string name="surfaceview_only_toggle_label">Pouze SurfaceView</string>
+    <string name="surfaceview_only_toggle_summary">Skrýt překrytí SystemUI (např. pruhy hlasitosti, hlavní panel) během emulace.</string>
+</resources>

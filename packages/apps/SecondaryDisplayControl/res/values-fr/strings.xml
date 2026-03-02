@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_secondary_display">GammaOS Routage de l\'écran secondaire</string>
+    <string name="secondary_display_toggle_label">Activer le routage de l\'écran secondaire</string>
+    <string name="secondary_display_toggle_summary">Lorsqu\'il est activé, les applications sélectionnées seront lancées sur l\'écran secondaire (s\'il est présent et fiable). Utilise persist.gammaos.secondary_display.enabled.</string>
+    <string name="apps_section_title">Applications routées vers l\'écran secondaire</string>
+    <string name="apps_section_hint">Cochez les applications à inclure dans persist.gammaos.secondary_display.packages. Les correspondances exactes de paquets sont prises en charge, et les préfixes de paquets correspondront également aux sous-paquets.</string>
+</resources>

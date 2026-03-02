@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="enable_eq">EQ\'yı etkinleştir</string>
+    <string name="preset">Ön ayar</string>
+    <string name="save_custom">Özel kaydet</string>
+    <string name="reset_defaults">Sıfırla</string>
+    <string name="apply">Uygula</string>
+    <string name="preview_play">Önizleme oynat</string>
+    <string name="preview_stop">Önizlemeyi durdur</string>
+    <string name="enable">Etkinleştir</string>
+    <string name="amount">Miktar</string>
+    <string name="limit">Sınır</string>
+    <string name="thr">Eşik</string>
+    <string name="atk">Atak</string>
+    <string name="rel">Bırakma</string>
+</resources>

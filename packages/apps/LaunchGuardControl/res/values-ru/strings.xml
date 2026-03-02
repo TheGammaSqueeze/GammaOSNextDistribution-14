@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_launch_guard">GammaOS Launch Guard</string>
+    <string name="launch_guard_toggle_label">Включить Launch Guard</string>
+    <string name="launch_guard_toggle_summary">При включении система принудительно остановит выбранные целевые приложения при их запуске из выбранных вызывающих приложений. Это может решить проблему сбоя эмулятора при повторном запуске приложения, которое ещё работает.</string>
+    <string name="callers_section_title">Вызывающие приложения</string>
+    <string name="callers_section_hint">Отметьте приложения, которым разрешено активировать Launch Guard. Они должны быть включены в persist.gammaos.launch.guard.callers.</string>
+    <string name="targets_section_title">Целевые приложения</string>
+    <string name="targets_section_hint">Отметьте приложения, которые должны быть принудительно перезапущены при запуске вызывающим приложением. Они должны быть включены в persist.gammaos.launch.guard.targets.</string>
+</resources>

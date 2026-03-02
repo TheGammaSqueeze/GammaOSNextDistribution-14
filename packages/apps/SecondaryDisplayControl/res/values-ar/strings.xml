@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_secondary_display">GammaOS توجيه الشاشة الثانوية</string>
+    <string name="secondary_display_toggle_label">تفعيل توجيه الشاشة الثانوية</string>
+    <string name="secondary_display_toggle_summary">عند التفعيل، سيتم تشغيل التطبيقات المحددة على الشاشة الثانوية (إذا كانت موجودة وموثوقة). يستخدم persist.gammaos.secondary_display.enabled.</string>
+    <string name="apps_section_title">التطبيقات الموجهة إلى الشاشة الثانوية</string>
+    <string name="apps_section_hint">حدد التطبيقات التي يجب تضمينها في persist.gammaos.secondary_display.packages. يتم دعم المطابقة الدقيقة للحزم، وستطابق بادئات الحزم الحزم الفرعية أيضًا.</string>
+</resources>

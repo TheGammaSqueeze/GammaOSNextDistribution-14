@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_shader_control">GammaOS Shaders</string>
+    <string name="label_shader_mode">Modo de shader</string>
+    <string name="shader_none">Nenhum</string>
+    <string name="shader_blur_fill">Preenchimento desfocado (EXPERIMENTAL)</string>
+    <string name="label_curv">Curvatura da tela</string>
+    <string name="label_blur_strength">Intensidade</string>
+    <string name="orientation_auto">Automático</string>
+    <string name="btn_reset_crt">Redefinir CRT para padrão</string>
+    <string name="btn_reset_lcd3x">Redefinir LCD3x para padrão</string>
+    <string name="btn_reset_lcd_shader">Redefinir shader LCD para padrão</string>
+    <string name="btn_reset_blur_fill">Redefinir preenchimento desfocado para padrão</string>
+</resources>

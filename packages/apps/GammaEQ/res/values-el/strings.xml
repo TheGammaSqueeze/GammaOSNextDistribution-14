@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="enable_eq">Ενεργοποίηση EQ</string>
+    <string name="preset">Προεπιλογή</string>
+    <string name="save_custom">Αποθήκευση προσαρμοσμένου</string>
+    <string name="reset_defaults">Επαναφορά</string>
+    <string name="apply">Εφαρμογή</string>
+    <string name="preview_play">Αναπαραγωγή προεπισκόπησης</string>
+    <string name="preview_stop">Διακοπή προεπισκόπησης</string>
+    <string name="enable">Ενεργοποίηση</string>
+    <string name="amount">Ποσότητα</string>
+    <string name="limit">Όριο</string>
+    <string name="thr">Κατώφλι</string>
+</resources>

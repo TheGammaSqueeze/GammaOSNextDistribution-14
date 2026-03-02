@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_shader_control">GammaOS Shadery</string>
+    <string name="label_shader_mode">Tryb shadera</string>
+    <string name="shader_none">Brak</string>
+    <string name="shader_blur_fill">Wypełnienie rozmyciem (EKSPERYMENTALNE)</string>
+    <string name="label_curv">Krzywizna ekranu</string>
+    <string name="label_blur_strength">Siła</string>
+    <string name="orientation_auto">Automatycznie</string>
+    <string name="btn_reset_crt">Przywróć CRT do domyślnych</string>
+    <string name="btn_reset_lcd3x">Przywróć LCD3x do domyślnych</string>
+    <string name="btn_reset_lcd_shader">Przywróć shader LCD do domyślnych</string>
+    <string name="btn_reset_blur_fill">Przywróć wypełnienie rozmyciem do domyślnych</string>
+</resources>

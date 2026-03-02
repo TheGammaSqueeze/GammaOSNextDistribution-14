@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_shader_control">GammaOS Shaders</string>
+    <string name="label_shader_mode">Modo de shader</string>
+    <string name="shader_none">Ninguno</string>
+    <string name="shader_blur_fill">Relleno de desenfoque (EXPERIMENTAL)</string>
+    <string name="section_crt_params">Parámetros CRT</string>
+    <string name="section_lcd3x_params">Parámetros LCD3x</string>
+    <string name="section_lcd_shader_params">Parámetros de shader LCD</string>
+    <string name="section_blur_fill_params">Parámetros de relleno de desenfoque</string>
+    <string name="hint_scroll_crt">Desplaza para ver todas las opciones CRT</string>
+    <string name="hint_scroll_lcd3x">Desplaza para ver todas las opciones LCD3x</string>
+    <string name="hint_scroll_lcd_shader">Desplaza para ver todas las opciones de shader LCD</string>
+    <string name="hint_scroll_blur_fill">Desplaza para ver todas las opciones de relleno de desenfoque</string>
+    <string name="label_curv">Curvatura de pantalla</string>
+    <string name="label_blur_strength">Intensidad</string>
+    <string name="orientation_auto">Automático</string>
+    <string name="orientation_vertical">Vertical (pillarbox)</string>
+    <string name="orientation_horizontal">Horizontal (letterbox)</string>
+    <string name="btn_reset_crt">Restablecer CRT a valores predeterminados</string>
+    <string name="btn_reset_lcd3x">Restablecer LCD3x a valores predeterminados</string>
+    <string name="btn_reset_lcd_shader">Restablecer shader LCD a valores predeterminados</string>
+    <string name="btn_reset_blur_fill">Restablecer relleno de desenfoque a valores predeterminados</string>
+</resources>

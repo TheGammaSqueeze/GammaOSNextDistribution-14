@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_secondary_display">GammaOS İkincil ekran yönlendirme</string>
+    <string name="secondary_display_toggle_label">İkincil ekran yönlendirmeyi etkinleştir</string>
+    <string name="secondary_display_toggle_summary">Etkinleştirildiğinde, seçili uygulamalar ikincil ekranda başlatılacaktır (varsa ve güvenilirse). persist.gammaos.secondary_display.enabled kullanır.</string>
+    <string name="apps_section_title">İkincil ekrana yönlendirilen uygulamalar</string>
+    <string name="apps_section_hint">persist.gammaos.secondary_display.packages\'a dahil edilecek uygulamaları işaretleyin. Tam paket eşleşmeleri desteklenir ve paket önekleri alt paketlerle de eşleşir.</string>
+</resources>

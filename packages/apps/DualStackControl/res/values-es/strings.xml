@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_dualstack">GammaOS DualStack</string>
+    <string name="dualstack_toggle_label">Activar DualStack</string>
+    <string name="dualstack_toggle_summary">Controlar si DualStack está activado globalmente.</string>
+    <string name="apps_section_title">Apps con DualStack activado</string>
+    <string name="apps_section_hint">Marca las apps que deben incluirse en persist.gammaos.dualstack.pkgs (y persist.gammaos.dualstack.pkgs_# si es necesario).</string>
+    <string name="empty_app_list">No se encontraron apps de usuario.</string>
+    <string name="surfaceview_only_toggle_label">Solo SurfaceView</string>
+    <string name="surfaceview_only_toggle_summary">Ocultar elementos de SystemUI (por ejemplo, barras de volumen, barra de tareas) durante la emulación.</string>
+</resources>

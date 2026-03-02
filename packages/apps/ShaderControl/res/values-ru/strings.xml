@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_shader_control">GammaOS Шейдеры</string>
+    <string name="label_shader_mode">Режим шейдера</string>
+    <string name="shader_none">Нет</string>
+    <string name="shader_blur_fill">Заливка размытием (ЭКСПЕРИМЕНТАЛЬНО)</string>
+    <string name="section_crt_params">Параметры CRT</string>
+    <string name="section_lcd3x_params">Параметры LCD3x</string>
+    <string name="section_lcd_shader_params">Параметры LCD-шейдера</string>
+    <string name="section_blur_fill_params">Параметры заливки размытием</string>
+    <string name="hint_scroll_crt">Прокрутите, чтобы увидеть все параметры CRT</string>
+    <string name="hint_scroll_lcd3x">Прокрутите, чтобы увидеть все параметры LCD3x</string>
+    <string name="hint_scroll_lcd_shader">Прокрутите, чтобы увидеть все параметры LCD-шейдера</string>
+    <string name="hint_scroll_blur_fill">Прокрутите, чтобы увидеть все параметры заливки размытием</string>
+    <string name="label_curv">Кривизна экрана</string>
+    <string name="label_blur_strength">Сила</string>
+    <string name="orientation_auto">Авто</string>
+    <string name="orientation_vertical">Вертикальная (pillarbox)</string>
+    <string name="orientation_horizontal">Горизонтальная (letterbox)</string>
+    <string name="btn_reset_crt">Сбросить CRT к значениям по умолчанию</string>
+    <string name="btn_reset_lcd3x">Сбросить LCD3x к значениям по умолчанию</string>
+    <string name="btn_reset_lcd_shader">Сбросить LCD-шейдер к значениям по умолчанию</string>
+    <string name="btn_reset_blur_fill">Сбросить заливку размытием к значениям по умолчанию</string>
+</resources>

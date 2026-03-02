@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_dualstack">GammaOS DualStack</string>
+    <string name="dualstack_toggle_label">Включить DualStack</string>
+    <string name="dualstack_toggle_summary">Управление глобальным включением DualStack.</string>
+    <string name="apps_section_title">Приложения с включённым DualStack</string>
+    <string name="apps_section_hint">Отметьте приложения, которые должны быть включены в persist.gammaos.dualstack.pkgs (и persist.gammaos.dualstack.pkgs_# при необходимости).</string>
+    <string name="empty_app_list">Пользовательские приложения не найдены.</string>
+    <string name="surfaceview_only_toggle_label">Только SurfaceView</string>
+    <string name="surfaceview_only_toggle_summary">Скрывать элементы SystemUI (например, панели громкости, панель задач) во время эмуляции.</string>
+</resources>

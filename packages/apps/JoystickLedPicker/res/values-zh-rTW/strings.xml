@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_joystick_led">搖桿 LED</string>
+    <string name="label_color_options">顏色選項</string>
+    <string name="label_control_targets">控制目標</string>
+    <string name="label_brightness">顏色亮度</string>
+    <string name="label_saturation">顏色飽和度</string>
+    <string name="label_effect_speed">效果速度</string>
+    <string name="target_both">兩側</string>
+    <string name="target_left">左</string>
+    <string name="target_right">右</string>
+    <string name="target_primary">主要</string>
+    <string name="target_follow">跟隨</string>
+    <string name="label_custom_effects">LED 效果</string>
+    <string name="effect_follow_screen">跟隨螢幕 RGB</string>
+    <string name="effect_none">純色</string>
+    <string name="effect_off">關閉</string>
+    <string name="label_split_colors">分離顏色</string>
+    <string name="label_follow_brightness">跟隨螢幕亮度</string>
+</resources>

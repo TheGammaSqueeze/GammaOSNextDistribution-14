@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_dualstack">GammaOS DualStack</string>
+    <string name="dualstack_toggle_label">DualStack engedélyezése</string>
+    <string name="dualstack_toggle_summary">A DualStack globális engedélyezésének vezérlése.</string>
+    <string name="apps_section_title">DualStack-kal engedélyezett alkalmazások</string>
+    <string name="apps_section_hint">Jelöld be azokat az alkalmazásokat, amelyeket a persist.gammaos.dualstack.pkgs (és persist.gammaos.dualstack.pkgs_# ha szükséges) tartalmaz.</string>
+    <string name="empty_app_list">Nem találhatók felhasználói alkalmazások.</string>
+    <string name="surfaceview_only_toggle_label">Csak SurfaceView</string>
+    <string name="surfaceview_only_toggle_summary">A SystemUI elemek (pl. hangerőcsíkok, tálca) elrejtése emuláció közben.</string>
+</resources>

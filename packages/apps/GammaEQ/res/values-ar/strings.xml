@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="enable_eq">تفعيل المعادل</string>
+    <string name="preset">إعداد مسبق</string>
+    <string name="save_custom">حفظ مخصص</string>
+    <string name="reset_defaults">إعادة تعيين</string>
+    <string name="apply">تطبيق</string>
+    <string name="preview_play">تشغيل المعاينة</string>
+    <string name="preview_stop">إيقاف المعاينة</string>
+    <string name="cryst_title">الحضور / Crystalizer</string>
+    <string name="lbp_title">قوة الجهير المنخفض</string>
+    <string name="wide_title">توسيع الستيريو</string>
+    <string name="enable">تفعيل</string>
+    <string name="amount">الكمية</string>
+    <string name="limit">الحد</string>
+    <string name="thr">العتبة</string>
+    <string name="atk">الهجوم</string>
+    <string name="rel">الإفلات</string>
+</resources>

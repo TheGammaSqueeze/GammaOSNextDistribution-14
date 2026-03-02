@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="enable_eq">EQ inschakelen</string>
+    <string name="preset">Voorinstelling</string>
+    <string name="save_custom">Aangepast opslaan</string>
+    <string name="reset_defaults">Herstellen</string>
+    <string name="apply">Toepassen</string>
+    <string name="preview_play">Voorbeeld afspelen</string>
+    <string name="preview_stop">Voorbeeld stoppen</string>
+    <string name="enable">Inschakelen</string>
+    <string name="amount">Hoeveelheid</string>
+    <string name="limit">Limiet</string>
+    <string name="thr">Drempel</string>
+</resources>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_dualstack">GammaOS DualStack</string>
+    <string name="dualstack_toggle_label">DualStack 활성화</string>
+    <string name="dualstack_toggle_summary">DualStack의 전역 활성화 여부를 제어합니다.</string>
+    <string name="apps_section_title">DualStack이 활성화된 앱</string>
+    <string name="apps_section_hint">persist.gammaos.dualstack.pkgs(필요 시 persist.gammaos.dualstack.pkgs_#)에 포함할 앱을 선택하세요.</string>
+    <string name="empty_app_list">사용자 앱을 찾을 수 없습니다.</string>
+    <string name="surfaceview_only_toggle_label">SurfaceView만</string>
+    <string name="surfaceview_only_toggle_summary">에뮬레이션 중 SystemUI 오버레이(예: 볼륨 바, 작업 표시줄)를 숨깁니다.</string>
+</resources>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_secondary_display">GammaOS Định tuyến màn hình phụ</string>
+    <string name="secondary_display_toggle_label">Bật định tuyến màn hình phụ</string>
+    <string name="secondary_display_toggle_summary">Khi bật, các ứng dụng đã chọn sẽ được khởi chạy trên màn hình phụ (nếu có và đáng tin cậy). Sử dụng persist.gammaos.secondary_display.enabled.</string>
+    <string name="apps_section_title">Ứng dụng được định tuyến đến màn hình phụ</string>
+    <string name="apps_section_hint">Đánh dấu các ứng dụng cần đưa vào persist.gammaos.secondary_display.packages. Hỗ trợ khớp chính xác gói và tiền tố gói cũng sẽ khớp các gói con.</string>
+</resources>

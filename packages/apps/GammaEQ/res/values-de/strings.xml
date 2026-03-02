@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="enable_eq">EQ aktivieren</string>
+    <string name="preset">Voreinstellung</string>
+    <string name="save_custom">Benutzerdefiniert speichern</string>
+    <string name="reset_defaults">Zurücksetzen</string>
+    <string name="apply">Anwenden</string>
+    <string name="preview_play">Vorschau abspielen</string>
+    <string name="preview_stop">Vorschau stoppen</string>
+    <string name="cryst_title">Präsenz / Crystalizer</string>
+    <string name="lbp_title">Tiefer Bass-Punch</string>
+    <string name="wide_title">Stereo-Erweiterung</string>
+    <string name="enable">Aktivieren</string>
+    <string name="amount">Stärke</string>
+    <string name="limit">Grenze</string>
+    <string name="thr">Schwelle</string>
+    <string name="atk">Anstieg</string>
+    <string name="rel">Abklingen</string>
+</resources>

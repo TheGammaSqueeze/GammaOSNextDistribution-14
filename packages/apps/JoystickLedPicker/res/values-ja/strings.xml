@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_joystick_led">ジョイスティック LED</string>
+    <string name="label_color_options">カラーオプション</string>
+    <string name="label_control_targets">コントロール対象</string>
+    <string name="label_brightness">カラー明るさ</string>
+    <string name="label_saturation">カラー彩度</string>
+    <string name="label_effect_speed">エフェクト速度</string>
+    <string name="target_both">両方</string>
+    <string name="target_left">左</string>
+    <string name="target_right">右</string>
+    <string name="target_primary">プライマリ</string>
+    <string name="target_follow">フォロー</string>
+    <string name="label_custom_effects">LED エフェクト</string>
+    <string name="effect_follow_screen">画面 RGB に追従</string>
+    <string name="effect_none">単色</string>
+    <string name="effect_off">オフ</string>
+    <string name="label_split_colors">色の分割</string>
+    <string name="label_follow_brightness">画面の明るさに追従</string>
+</resources>

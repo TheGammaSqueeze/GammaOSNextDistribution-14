@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="enable_eq">Activer l\'EQ</string>
+    <string name="preset">Préréglage</string>
+    <string name="save_custom">Enregistrer personnalisé</string>
+    <string name="reset_defaults">Réinitialiser</string>
+    <string name="apply">Appliquer</string>
+    <string name="preview_play">Lire l\'aperçu</string>
+    <string name="preview_stop">Arrêter l\'aperçu</string>
+    <string name="cryst_title">Présence / Crystalizer</string>
+    <string name="lbp_title">Punch des basses profondes</string>
+    <string name="wide_title">Élargissement stéréo</string>
+    <string name="enable">Activer</string>
+    <string name="amount">Quantité</string>
+    <string name="limit">Limite</string>
+    <string name="thr">Seuil</string>
+    <string name="atk">Attaque</string>
+    <string name="rel">Relâchement</string>
+</resources>

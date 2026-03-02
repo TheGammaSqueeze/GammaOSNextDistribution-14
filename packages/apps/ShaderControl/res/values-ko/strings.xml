@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_shader_control">GammaOS 셰이더</string>
+    <string name="label_shader_mode">셰이더 모드</string>
+    <string name="shader_none">없음</string>
+    <string name="shader_blur_fill">블러 채우기 (실험적)</string>
+    <string name="section_crt_params">CRT 매개변수</string>
+    <string name="section_lcd3x_params">LCD3x 매개변수</string>
+    <string name="section_lcd_shader_params">LCD 셰이더 매개변수</string>
+    <string name="section_blur_fill_params">블러 채우기 매개변수</string>
+    <string name="label_curv">화면 곡률</string>
+    <string name="label_blur_strength">강도</string>
+    <string name="orientation_auto">자동</string>
+    <string name="orientation_vertical">세로 (필러박스)</string>
+    <string name="orientation_horizontal">가로 (레터박스)</string>
+    <string name="btn_reset_crt">CRT 기본값으로 초기화</string>
+    <string name="btn_reset_lcd3x">LCD3x 기본값으로 초기화</string>
+    <string name="btn_reset_lcd_shader">LCD 셰이더 기본값으로 초기화</string>
+    <string name="btn_reset_blur_fill">블러 채우기 기본값으로 초기화</string>
+</resources>

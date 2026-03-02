@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_secondary_display">GammaOS Przekierowanie drugiego ekranu</string>
+    <string name="secondary_display_toggle_label">Włącz przekierowanie drugiego ekranu</string>
+    <string name="secondary_display_toggle_summary">Po włączeniu wybrane aplikacje zostaną uruchomione na drugim ekranie (jeśli jest obecny i zaufany). Używa persist.gammaos.secondary_display.enabled.</string>
+    <string name="apps_section_title">Aplikacje przekierowane na drugi ekran</string>
+    <string name="apps_section_hint">Zaznacz aplikacje, które mają być uwzględnione w persist.gammaos.secondary_display.packages. Obsługiwane są dokładne dopasowania pakietów, a prefiksy pakietów będą również pasować do podpakietów.</string>
+</resources>

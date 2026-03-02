@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_joystick_led">Світлодіод джойстика</string>
+    <string name="label_color_options">Параметри кольору</string>
+    <string name="label_control_targets">Цілі керування</string>
+    <string name="label_brightness">Яскравість кольору</string>
+    <string name="label_saturation">Насиченість кольору</string>
+    <string name="label_effect_speed">Швидкість ефекту</string>
+    <string name="target_both">Обидва</string>
+    <string name="target_left">Лівий</string>
+    <string name="target_right">Правий</string>
+    <string name="target_primary">Основний</string>
+    <string name="target_follow">Слідувати</string>
+    <string name="label_custom_effects">LED-ефекти</string>
+    <string name="effect_follow_screen">Слідувати за RGB екрана</string>
+    <string name="effect_none">Постійний</string>
+    <string name="effect_off">Вимк.</string>
+    <string name="label_split_colors">Розділити кольори</string>
+    <string name="label_follow_brightness">Слідувати за яскравістю екрана</string>
+</resources>

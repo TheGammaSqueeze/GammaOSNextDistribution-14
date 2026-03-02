@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="enable_eq">Povolit EQ</string>
+    <string name="preset">Předvolba</string>
+    <string name="save_custom">Uložit vlastní</string>
+    <string name="reset_defaults">Obnovit</string>
+    <string name="apply">Použít</string>
+    <string name="preview_play">Přehrát náhled</string>
+    <string name="preview_stop">Zastavit náhled</string>
+    <string name="cryst_title">Presence / Crystalizer</string>
+    <string name="lbp_title">Punch hlubokých basů</string>
+    <string name="wide_title">Stereo rozšíření</string>
+    <string name="enable">Povolit</string>
+    <string name="amount">Množství</string>
+    <string name="limit">Limit</string>
+    <string name="thr">Práh</string>
+    <string name="atk">Náběh</string>
+    <string name="rel">Doběh</string>
+</resources>

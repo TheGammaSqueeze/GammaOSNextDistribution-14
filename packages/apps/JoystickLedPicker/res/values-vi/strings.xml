@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_joystick_led">LED joystick</string>
+    <string name="label_color_options">Tùy chọn màu</string>
+    <string name="label_control_targets">Mục tiêu điều khiển</string>
+    <string name="label_brightness">Độ sáng màu</string>
+    <string name="label_saturation">Độ bão hòa màu</string>
+    <string name="label_effect_speed">Tốc độ hiệu ứng</string>
+    <string name="target_both">Cả hai</string>
+    <string name="target_left">Trái</string>
+    <string name="target_right">Phải</string>
+    <string name="target_primary">Chính</string>
+    <string name="target_follow">Theo dõi</string>
+    <string name="label_custom_effects">Hiệu ứng LED</string>
+    <string name="effect_follow_screen">Theo dõi RGB màn hình</string>
+    <string name="effect_none">Cố định</string>
+    <string name="effect_off">Tắt</string>
+    <string name="label_split_colors">Chia tách màu</string>
+    <string name="label_follow_brightness">Theo dõi độ sáng màn hình</string>
+</resources>

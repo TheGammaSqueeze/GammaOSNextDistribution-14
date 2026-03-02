@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="enable_eq">Aktivera EQ</string>
+    <string name="preset">Förinställning</string>
+    <string name="save_custom">Spara anpassad</string>
+    <string name="reset_defaults">Återställ</string>
+    <string name="apply">Tillämpa</string>
+    <string name="preview_play">Spela förhandsgranskning</string>
+    <string name="preview_stop">Stoppa förhandsgranskning</string>
+    <string name="enable">Aktivera</string>
+    <string name="amount">Mängd</string>
+    <string name="limit">Gräns</string>
+    <string name="thr">Tröskel</string>
+</resources>

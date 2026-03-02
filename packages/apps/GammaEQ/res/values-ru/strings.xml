@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="enable_eq">Включить эквалайзер</string>
+    <string name="preset">Пресет</string>
+    <string name="save_custom">Сохранить пользовательский</string>
+    <string name="reset_defaults">Сброс</string>
+    <string name="apply">Применить</string>
+    <string name="preview_play">Воспроизвести превью</string>
+    <string name="preview_stop">Остановить превью</string>
+    <string name="cryst_title">Присутствие / Crystalizer</string>
+    <string name="lbp_title">Удар глубоких басов</string>
+    <string name="wide_title">Расширение стерео</string>
+    <string name="enable">Включить</string>
+    <string name="amount">Количество</string>
+    <string name="limit">Предел</string>
+    <string name="thr">Порог</string>
+    <string name="atk">Атака</string>
+    <string name="rel">Затухание</string>
+</resources>

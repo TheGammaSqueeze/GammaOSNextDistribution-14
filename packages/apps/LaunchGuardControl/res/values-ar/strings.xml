@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_launch_guard">GammaOS Launch Guard</string>
+    <string name="launch_guard_toggle_label">تفعيل Launch Guard</string>
+    <string name="launch_guard_toggle_summary">عند التفعيل، سيقوم النظام بإيقاف التطبيقات المستهدفة المحددة بالقوة عند تشغيلها من تطبيقات الاستدعاء المحددة. يمكن أن يحل هذا مشكلة تعطل المحاكي عند إعادة تشغيل تطبيق لا يزال قيد التشغيل.</string>
+    <string name="callers_section_title">تطبيقات الاستدعاء</string>
+    <string name="callers_section_hint">حدد التطبيقات المسموح لها بتفعيل Launch Guard. يجب تضمين هذه التطبيقات في persist.gammaos.launch.guard.callers.</string>
+    <string name="targets_section_title">التطبيقات المستهدفة</string>
+    <string name="targets_section_hint">حدد التطبيقات التي يجب إعادة تشغيلها بالقوة عند تشغيلها بواسطة تطبيق استدعاء. يجب تضمين هذه التطبيقات في persist.gammaos.launch.guard.targets.</string>
+</resources>

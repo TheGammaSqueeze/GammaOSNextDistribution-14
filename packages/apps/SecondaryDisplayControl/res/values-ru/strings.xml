@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_secondary_display">GammaOS Маршрутизация вторичного дисплея</string>
+    <string name="secondary_display_toggle_label">Включить маршрутизацию вторичного дисплея</string>
+    <string name="secondary_display_toggle_summary">При включении выбранные приложения будут запускаться на вторичном дисплее (если он подключён и является доверенным). Использует persist.gammaos.secondary_display.enabled.</string>
+    <string name="apps_section_title">Приложения, направляемые на вторичный дисплей</string>
+    <string name="apps_section_hint">Отметьте приложения, которые должны быть включены в persist.gammaos.secondary_display.packages. Поддерживаются точные совпадения пакетов, а префиксы пакетов будут соответствовать подпакетам.</string>
+</resources>

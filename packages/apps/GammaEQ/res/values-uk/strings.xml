@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="enable_eq">Увімкнути еквалайзер</string>
+    <string name="preset">Пресет</string>
+    <string name="save_custom">Зберегти користувацький</string>
+    <string name="reset_defaults">Скинути</string>
+    <string name="apply">Застосувати</string>
+    <string name="preview_play">Відтворити попередній перегляд</string>
+    <string name="preview_stop">Зупинити попередній перегляд</string>
+    <string name="enable">Увімкнути</string>
+    <string name="amount">Кількість</string>
+    <string name="limit">Межа</string>
+    <string name="thr">Поріг</string>
+    <string name="atk">Атака</string>
+    <string name="rel">Затухання</string>
+</resources>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_dualstack">GammaOS DualStack</string>
+    <string name="dualstack_toggle_label">DualStack\'ı etkinleştir</string>
+    <string name="dualstack_toggle_summary">DualStack\'ın genel olarak etkin olup olmadığını kontrol edin.</string>
+    <string name="apps_section_title">DualStack etkin uygulamalar</string>
+    <string name="apps_section_hint">persist.gammaos.dualstack.pkgs\'ye (ve gerekirse persist.gammaos.dualstack.pkgs_#\'a) dahil edilecek uygulamaları işaretleyin.</string>
+    <string name="empty_app_list">Kullanıcı uygulaması bulunamadı.</string>
+    <string name="surfaceview_only_toggle_label">Yalnızca SurfaceView</string>
+    <string name="surfaceview_only_toggle_summary">Emülasyon sırasında SystemUI katmanlarını (örn. ses çubukları, görev çubuğu) gizleyin.</string>
+</resources>

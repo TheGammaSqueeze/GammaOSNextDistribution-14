@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="enable_eq">Ota EQ käyttöön</string>
+    <string name="preset">Esiasetus</string>
+    <string name="save_custom">Tallenna mukautettu</string>
+    <string name="reset_defaults">Nollaa</string>
+    <string name="apply">Käytä</string>
+    <string name="preview_play">Toista esikatselu</string>
+    <string name="preview_stop">Pysäytä esikatselu</string>
+    <string name="enable">Ota käyttöön</string>
+    <string name="amount">Määrä</string>
+    <string name="limit">Raja</string>
+    <string name="thr">Kynnys</string>
+</resources>

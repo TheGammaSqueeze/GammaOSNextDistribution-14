@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_joystick_led">Светодиод джойстика</string>
+    <string name="label_color_options">Параметры цвета</string>
+    <string name="label_control_targets">Цели управления</string>
+    <string name="label_brightness">Яркость цвета</string>
+    <string name="label_saturation">Насыщенность цвета</string>
+    <string name="label_effect_speed">Скорость эффекта</string>
+    <string name="target_both">Оба</string>
+    <string name="target_left">Левый</string>
+    <string name="target_right">Правый</string>
+    <string name="target_primary">Основной</string>
+    <string name="target_follow">Следовать</string>
+    <string name="label_custom_effects">LED-эффекты</string>
+    <string name="effect_follow_screen">Следовать за RGB экрана</string>
+    <string name="effect_none">Постоянный</string>
+    <string name="effect_off">Выкл.</string>
+    <string name="label_split_colors">Разделить цвета</string>
+    <string name="label_follow_brightness">Следовать за яркостью экрана</string>
+</resources>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_dualstack">GammaOS DualStack</string>
+    <string name="dualstack_toggle_label">Ota DualStack käyttöön</string>
+    <string name="dualstack_toggle_summary">Hallitse, onko DualStack käytössä globaalisti.</string>
+    <string name="apps_section_title">Sovellukset, joilla DualStack on käytössä</string>
+    <string name="apps_section_hint">Valitse sovellukset, jotka sisällytetään asetukseen persist.gammaos.dualstack.pkgs (ja persist.gammaos.dualstack.pkgs_# tarvittaessa).</string>
+    <string name="empty_app_list">Käyttäjäsovelluksia ei löytynyt.</string>
+    <string name="surfaceview_only_toggle_label">Vain SurfaceView</string>
+    <string name="surfaceview_only_toggle_summary">Piilota SystemUI-kerrokset (esim. äänenvoimakkuuspalkit, tehtäväpalkki) emuloinnin aikana.</string>
+</resources>

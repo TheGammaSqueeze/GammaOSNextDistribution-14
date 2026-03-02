@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="enable_eq">EQ 활성화</string>
+    <string name="preset">프리셋</string>
+    <string name="save_custom">사용자 정의 저장</string>
+    <string name="reset_defaults">초기화</string>
+    <string name="apply">적용</string>
+    <string name="preview_play">미리 듣기</string>
+    <string name="preview_stop">미리 듣기 중지</string>
+    <string name="cryst_title">프레즌스 / Crystalizer</string>
+    <string name="lbp_title">로우 베이스 펀치</string>
+    <string name="wide_title">스테레오 와이드</string>
+    <string name="enable">활성화</string>
+    <string name="amount">양</string>
+    <string name="limit">제한</string>
+    <string name="thr">임계값</string>
+    <string name="atk">어택</string>
+    <string name="rel">릴리스</string>
+</resources>

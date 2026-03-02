@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_joystick_led">مصباح LED لعصا التحكم</string>
+    <string name="label_color_options">خيارات اللون</string>
+    <string name="label_control_targets">أهداف التحكم</string>
+    <string name="label_brightness">سطوع اللون</string>
+    <string name="label_saturation">تشبع اللون</string>
+    <string name="label_effect_speed">سرعة التأثير</string>
+    <string name="target_both">كلاهما</string>
+    <string name="target_left">يسار</string>
+    <string name="target_right">يمين</string>
+    <string name="target_primary">أساسي</string>
+    <string name="target_follow">متابعة</string>
+    <string name="label_custom_effects">تأثيرات LED</string>
+    <string name="effect_follow_screen">متابعة ألوان الشاشة</string>
+    <string name="effect_none">ثابت</string>
+    <string name="effect_off">إيقاف</string>
+    <string name="label_split_colors">تقسيم الألوان</string>
+    <string name="label_follow_brightness">متابعة سطوع الشاشة</string>
+</resources>

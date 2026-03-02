@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_launch_guard">GammaOS Launch Guard</string>
+    <string name="launch_guard_toggle_label">Włącz Launch Guard</string>
+    <string name="launch_guard_toggle_summary">Po włączeniu system wymusi zatrzymanie wybranych aplikacji docelowych, gdy zostaną uruchomione z wybranych aplikacji wywołujących. Może to rozwiązać problem zawieszania się emulatora, gdy aplikacja jest ponownie uruchamiana podczas działania.</string>
+    <string name="callers_section_title">Aplikacje wywołujące</string>
+    <string name="callers_section_hint">Zaznacz aplikacje, które mogą uruchamiać Launch Guard. Muszą być uwzględnione w persist.gammaos.launch.guard.callers.</string>
+    <string name="targets_section_title">Aplikacje docelowe</string>
+    <string name="targets_section_hint">Zaznacz aplikacje, które mają być wymuszone do ponownego uruchomienia przez aplikację wywołującą. Muszą być uwzględnione w persist.gammaos.launch.guard.targets.</string>
+</resources>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_dualstack">GammaOS DualStack</string>
+    <string name="dualstack_toggle_label">Aktifkan DualStack</string>
+    <string name="dualstack_toggle_summary">Kontrol apakah DualStack diaktifkan secara global.</string>
+    <string name="apps_section_title">Aplikasi dengan DualStack diaktifkan</string>
+    <string name="apps_section_hint">Centang aplikasi yang harus disertakan dalam persist.gammaos.dualstack.pkgs (dan persist.gammaos.dualstack.pkgs_# jika diperlukan).</string>
+    <string name="empty_app_list">Tidak ada aplikasi pengguna ditemukan.</string>
+    <string name="surfaceview_only_toggle_label">Hanya SurfaceView</string>
+    <string name="surfaceview_only_toggle_summary">Sembunyikan overlay SystemUI (misalnya bilah volume, bilah tugas) selama emulasi.</string>
+</resources>

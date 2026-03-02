@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_dualstack">GammaOS DualStack</string>
+    <string name="dualstack_toggle_label">Bật DualStack</string>
+    <string name="dualstack_toggle_summary">Kiểm soát việc bật DualStack trên toàn hệ thống.</string>
+    <string name="apps_section_title">Ứng dụng đã bật DualStack</string>
+    <string name="apps_section_hint">Đánh dấu các ứng dụng cần đưa vào persist.gammaos.dualstack.pkgs (và persist.gammaos.dualstack.pkgs_# nếu cần).</string>
+    <string name="empty_app_list">Không tìm thấy ứng dụng người dùng.</string>
+    <string name="surfaceview_only_toggle_label">Chỉ SurfaceView</string>
+    <string name="surfaceview_only_toggle_summary">Ẩn lớp phủ SystemUI (ví dụ: thanh âm lượng, thanh tác vụ) trong khi giả lập.</string>
+</resources>

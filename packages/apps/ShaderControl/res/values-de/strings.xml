@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_shader_control">GammaOS Shader</string>
+    <string name="label_shader_mode">Shader-Modus</string>
+    <string name="shader_none">Keiner</string>
+    <string name="shader_blur_fill">Unschärfefüllung (EXPERIMENTELL)</string>
+    <string name="section_crt_params">CRT-Parameter</string>
+    <string name="section_lcd3x_params">LCD3x-Parameter</string>
+    <string name="section_lcd_shader_params">LCD-Shader-Parameter</string>
+    <string name="section_blur_fill_params">Unschärfefüllungs-Parameter</string>
+    <string name="hint_scroll_crt">Scrollen, um alle CRT-Optionen zu sehen</string>
+    <string name="hint_scroll_lcd3x">Scrollen, um alle LCD3x-Optionen zu sehen</string>
+    <string name="hint_scroll_lcd_shader">Scrollen, um alle LCD-Shader-Optionen zu sehen</string>
+    <string name="hint_scroll_blur_fill">Scrollen, um alle Unschärfefüllungs-Optionen zu sehen</string>
+    <string name="label_curv">Bildschirmkrümmung</string>
+    <string name="label_blur_strength">Stärke</string>
+    <string name="orientation_auto">Automatisch</string>
+    <string name="orientation_vertical">Vertikal (Pillarbox)</string>
+    <string name="orientation_horizontal">Horizontal (Letterbox)</string>
+    <string name="btn_reset_crt">CRT auf Standard zurücksetzen</string>
+    <string name="btn_reset_lcd3x">LCD3x auf Standard zurücksetzen</string>
+    <string name="btn_reset_lcd_shader">LCD-Shader auf Standard zurücksetzen</string>
+    <string name="btn_reset_blur_fill">Unschärfefüllung auf Standard zurücksetzen</string>
+</resources>

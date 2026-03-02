@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_secondary_display">GammaOS Instradamento display secondario</string>
+    <string name="secondary_display_toggle_label">Attiva instradamento display secondario</string>
+    <string name="secondary_display_toggle_summary">Se attivato, le app selezionate verranno avviate sul display secondario (se presente e attendibile). Usa persist.gammaos.secondary_display.enabled.</string>
+    <string name="apps_section_title">App instradate al display secondario</string>
+    <string name="apps_section_hint">Seleziona le app da includere in persist.gammaos.secondary_display.packages. Sono supportate corrispondenze esatte dei pacchetti e i prefissi corrisponderanno anche ai sotto-pacchetti.</string>
+</resources>

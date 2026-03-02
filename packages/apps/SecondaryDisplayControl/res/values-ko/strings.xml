@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_secondary_display">GammaOS 보조 디스플레이 라우팅</string>
+    <string name="secondary_display_toggle_label">보조 디스플레이 라우팅 활성화</string>
+    <string name="secondary_display_toggle_summary">활성화하면 선택한 앱이 보조 디스플레이에서 실행됩니다(있고 신뢰할 수 있는 경우). persist.gammaos.secondary_display.enabled를 사용합니다.</string>
+    <string name="apps_section_title">보조 디스플레이로 라우팅되는 앱</string>
+    <string name="apps_section_hint">persist.gammaos.secondary_display.packages에 포함할 앱을 선택하세요. 정확한 패키지 일치가 지원되며 패키지 접두사는 하위 패키지도 일치합니다.</string>
+</resources>

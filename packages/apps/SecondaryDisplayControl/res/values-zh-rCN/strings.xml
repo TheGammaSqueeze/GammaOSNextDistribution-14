@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_secondary_display">GammaOS 副屏路由</string>
+    <string name="secondary_display_toggle_label">启用副屏路由</string>
+    <string name="secondary_display_toggle_summary">启用后，选定的应用将在副屏上启动（如果存在且受信任）。使用 persist.gammaos.secondary_display.enabled。</string>
+    <string name="apps_section_title">路由到副屏的应用</string>
+    <string name="apps_section_hint">勾选需要包含在 persist.gammaos.secondary_display.packages 中的应用。支持精确包名匹配，包前缀也将匹配子包。</string>
+</resources>

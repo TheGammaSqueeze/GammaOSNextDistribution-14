@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_shader_control">GammaOS Gölgelendiriciler</string>
+    <string name="label_shader_mode">Gölgelendirici modu</string>
+    <string name="shader_none">Hiçbiri</string>
+    <string name="shader_blur_fill">Bulanıklık dolgusu (DENEYSEL)</string>
+    <string name="label_curv">Ekran eğriliği</string>
+    <string name="label_blur_strength">Güç</string>
+    <string name="orientation_auto">Otomatik</string>
+    <string name="btn_reset_crt">CRT\'yi varsayılana sıfırla</string>
+    <string name="btn_reset_lcd3x">LCD3x\'i varsayılana sıfırla</string>
+    <string name="btn_reset_lcd_shader">LCD gölgelendiriciyi varsayılana sıfırla</string>
+    <string name="btn_reset_blur_fill">Bulanıklık dolgusunu varsayılana sıfırla</string>
+</resources>

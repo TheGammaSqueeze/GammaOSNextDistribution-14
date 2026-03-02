@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_launch_guard">GammaOS Launch Guard</string>
+    <string name="launch_guard_toggle_label">啟用 Launch Guard</string>
+    <string name="launch_guard_toggle_summary">啟用後，當選定的呼叫應用程式啟動選定的目標應用程式時，系統將強制停止目標應用程式。這可以解決應用程式在仍在執行時重新啟動導致模擬器崩潰的問題。</string>
+    <string name="callers_section_title">呼叫應用程式</string>
+    <string name="callers_section_hint">勾選允許觸發 Launch Guard 的應用程式。這些應用程式必須包含在 persist.gammaos.launch.guard.callers 中。</string>
+    <string name="targets_section_title">目標應用程式</string>
+    <string name="targets_section_hint">勾選被呼叫應用程式啟動時應強制重新啟動的應用程式。這些應用程式必須包含在 persist.gammaos.launch.guard.targets 中。</string>
+</resources>

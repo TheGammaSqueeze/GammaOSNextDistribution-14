@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="enable_eq">EQ engedélyezése</string>
+    <string name="preset">Előbeállítás</string>
+    <string name="save_custom">Egyéni mentése</string>
+    <string name="reset_defaults">Visszaállítás</string>
+    <string name="apply">Alkalmaz</string>
+    <string name="preview_play">Előnézet lejátszása</string>
+    <string name="preview_stop">Előnézet leállítása</string>
+    <string name="enable">Engedélyezés</string>
+    <string name="amount">Mennyiség</string>
+    <string name="limit">Korlát</string>
+    <string name="thr">Küszöb</string>
+</resources>

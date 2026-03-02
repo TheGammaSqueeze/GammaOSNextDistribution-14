@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_dualstack">GammaOS DualStack</string>
+    <string name="dualstack_toggle_label">DualStack inschakelen</string>
+    <string name="dualstack_toggle_summary">Bepaal of DualStack globaal is ingeschakeld.</string>
+    <string name="apps_section_title">Apps met DualStack ingeschakeld</string>
+    <string name="apps_section_hint">Vink de apps aan die in persist.gammaos.dualstack.pkgs (en persist.gammaos.dualstack.pkgs_# indien nodig) moeten worden opgenomen.</string>
+    <string name="empty_app_list">Geen gebruikersapps gevonden.</string>
+    <string name="surfaceview_only_toggle_label">Alleen SurfaceView</string>
+    <string name="surfaceview_only_toggle_summary">Verberg SystemUI-overlays (bijv. volumebalken, taakbalk) tijdens emulatie.</string>
+</resources>

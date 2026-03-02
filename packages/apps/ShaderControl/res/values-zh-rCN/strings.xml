@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_shader_control">GammaOS 着色器</string>
+    <string name="label_shader_mode">着色器模式</string>
+    <string name="shader_none">无</string>
+    <string name="shader_blur_fill">模糊填充（实验性）</string>
+    <string name="section_crt_params">CRT 参数</string>
+    <string name="section_lcd3x_params">LCD3x 参数</string>
+    <string name="section_lcd_shader_params">LCD 着色器参数</string>
+    <string name="section_blur_fill_params">模糊填充参数</string>
+    <string name="hint_scroll_crt">滚动查看所有 CRT 选项</string>
+    <string name="hint_scroll_lcd3x">滚动查看所有 LCD3x 选项</string>
+    <string name="hint_scroll_lcd_shader">滚动查看所有 LCD 着色器选项</string>
+    <string name="hint_scroll_blur_fill">滚动查看所有模糊填充选项</string>
+    <string name="label_curv">屏幕曲率</string>
+    <string name="label_blur_strength">强度</string>
+    <string name="orientation_auto">自动</string>
+    <string name="orientation_vertical">垂直（柱形框）</string>
+    <string name="orientation_horizontal">水平（信箱框）</string>
+    <string name="btn_reset_crt">重置 CRT 为默认值</string>
+    <string name="btn_reset_lcd3x">重置 LCD3x 为默认值</string>
+    <string name="btn_reset_lcd_shader">重置 LCD 着色器为默认值</string>
+    <string name="btn_reset_blur_fill">重置模糊填充为默认值</string>
+</resources>
