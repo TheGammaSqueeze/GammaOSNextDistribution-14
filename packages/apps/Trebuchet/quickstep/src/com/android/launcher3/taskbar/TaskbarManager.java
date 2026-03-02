@@ -70,6 +70,7 @@ import com.android.launcher3.statemanager.StatefulActivity;
 import com.android.launcher3.taskbar.unfold.NonDestroyableScopedUnfoldTransitionProgressProvider;
 import com.android.launcher3.uioverrides.QuickstepLauncher;
 import com.android.launcher3.util.DisplayController;
+import com.android.launcher3.util.NavigationMode;
 import com.android.launcher3.util.SettingsCache;
 import com.android.launcher3.util.SimpleBroadcastReceiver;
 import com.android.quickstep.AllAppsActionManager;
@@ -640,6 +641,24 @@ public class TaskbarManager {
             destroyExistingTaskbar();
 
             boolean isTaskbarEnabled = dp != null && isTaskbarEnabled(dp);
+
+            // GammaOS: On phones (sw < 600dp), the taskbar is only used for the
+            // 3-button nav "phone-taskbar" mode.  The cached DeviceProfile may
+            // have been built before the navigation overlay was applied at boot,
+            // so re-check the live navigation mode here to avoid a brief flash
+            // of hotseat/taskbar icons in gesture or 2-button navigation.
+            if (isTaskbarEnabled) {
+                int swDp = mContext.getResources()
+                        .getConfiguration().smallestScreenWidthDp;
+                if (swDp > 0 && swDp < 600) {
+                    NavigationMode navMode =
+                            DisplayController.getNavigationMode(mContext);
+                    if (navMode != NavigationMode.THREE_BUTTONS) {
+                        isTaskbarEnabled = false;
+                    }
+                }
+            }
+
             debugWhyTaskbarNotDestroyed("recreateTaskbar: isTaskbarEnabled=" + isTaskbarEnabled
                 + " [dp != null (i.e. mUserUnlocked)]=" + (dp != null)
                 + " FLAG_HIDE_NAVBAR_WINDOW=" + ENABLE_TASKBAR_NAVBAR_UNIFICATION

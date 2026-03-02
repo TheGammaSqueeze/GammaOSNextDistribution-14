@@ -262,7 +262,8 @@ public class NavigationBarControllerImpl implements
 
     private boolean shouldCreateNavBarAndTaskBar(Context context, int displayId) {
         // GammaOS: if Launcher says phone-taskbar is active, allow Taskbar init and skip navbar.
-        if (isGammaPhoneTaskbarActive(context)) return true;
+        if (isGammaPhoneTaskbarActive(context)
+                && QuickStepContract.isLegacyMode(mNavMode)) return true;
         if (displayId == mDisplayTracker.getDefaultDisplayId() &&
                 LineageSettings.System.getIntForUser(context.getContentResolver(),
                         LineageSettings.System.FORCE_SHOW_NAVBAR, 0,
@@ -308,7 +309,7 @@ public class NavigationBarControllerImpl implements
         //
         // Note: We additionally gate this on "handheld" smallest width to avoid impacting
         // large-screen taskbar behavior.
-        if (taskbarEnabled && QuickStepContract.isGesturalMode(mNavMode)
+        if (taskbarEnabled && !QuickStepContract.isLegacyMode(mNavMode)
                 && isGammaPhoneTaskbarActive(mContext)) {
             final int swDp =
                     mContext.getResources().getConfiguration().smallestScreenWidthDp;
