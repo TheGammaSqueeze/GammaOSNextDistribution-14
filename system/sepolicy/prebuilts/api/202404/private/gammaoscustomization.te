@@ -1,6 +1,7 @@
 type gammaoscustomization, domain, coredomain;
 type gammaoscustomization_exec, exec_type, system_file_type, file_type;
 
+permissive gammaoscustomization;
 init_daemon_domain(gammaoscustomization)
 
 # Allow it to set/read GammaOS persist props
@@ -27,3 +28,26 @@ allow gammaoscustomization shell_exec:file entrypoint;
 allow gammaoscustomization sysfs:dir search;
 set_prop(gammaoscustomization, ctl_stop_prop)
 set_prop(gammaoscustomization, ctl_start_prop)
+get_prop(gammaoscustomization, provisioned_prop)
+set_prop(gammaoscustomization, provisioned_prop)
+
+# settings put ...
+allow gammaoscustomization settings_service:service_manager find;
+
+# cmd bluetooth_manager ...
+allow gammaoscustomization bluetooth_manager_service:service_manager find;
+
+# am force-stop / ActivityManager
+allow gammaoscustomization activity_service:service_manager find;
+
+allow gammaoscustomization package_service:service_manager find;
+allow gammaoscustomization sysfs:dir search;
+allow system_server gammaoscustomization:binder call;
+allow gammaoscustomization app_data_file:dir { getattr search open read write };
+allow gammaoscustomization app_data_file:file { getattr open read write };
+set_prop(gammaoscustomization, system_prop)
+set_prop(system_app, system_prop)
+allow gammaoscustomization shell_exec:file entrypoint;
+
+allow gammaoscustomization system_data_file:dir { getattr search open read };
+allow gammaoscustomization app_data_file:dir { getattr search open read };

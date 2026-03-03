@@ -1674,10 +1674,13 @@ crashrecovery.rescue_boot_start u:object_r:crashrecovery_prop:s0 exact int
 persist.crashrecovery.enable_rescue u:object_r:crashrecovery_prop:s0 exact bool
 persist.crashrecovery.last_factory_reset u:object_r:crashrecovery_prop:s0 exact int
 
-# GammaOS persist properties
+# GammaOS properties
 persist.gammaos.    u:object_r:persist_gammaos_prop:s0  prefix
 persist.gammargb.   u:object_r:persist_gammaos_prop:s0  prefix
 persist.gamma.      u:object_r:persist_gammaos_prop:s0  prefix
+sys.gammaos.        u:object_r:persist_gammaos_prop:s0  prefix
+ro.gammaos.         u:object_r:persist_gammaos_prop:s0  prefix
+sys.gamma_tweak_update  u:object_r:persist_gammaos_prop:s0  exact
 
 # Gamma speaker tuning
 persist.sys.spk      u:object_r:persist_sys_spk_prop:s0       exact

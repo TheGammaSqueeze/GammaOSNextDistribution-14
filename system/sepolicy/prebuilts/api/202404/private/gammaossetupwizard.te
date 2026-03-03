@@ -1,0 +1,41 @@
+type gammaossetupwizard, domain, coredomain;
+type gammaossetupwizard_exec, exec_type, system_file_type, file_type;
+
+# Keep policy simple while iterating, like gammaoscustomization.
+permissive gammaossetupwizard;
+init_daemon_domain(gammaossetupwizard)
+
+# Allow it to set/read GammaOS persist props.
+set_prop(gammaossetupwizard, persist_gammaos_prop)
+get_prop(gammaossetupwizard, persist_gammaos_prop)
+
+# setup.sh also sets regular sys.* and persist.sys.* properties.
+set_prop(gammaossetupwizard, system_prop)
+
+# It uses lots of toolbox/system binaries and /system/bin/sh.
+allow gammaossetupwizard toolbox_exec:file { read open getattr execute execute_no_trans map };
+allow gammaossetupwizard system_file:file { read open getattr execute execute_no_trans map };
+allow gammaossetupwizard shell_exec:file { read open getattr map execute execute_no_trans };
+
+# Binder usage for talking to system services.
+binder_use(gammaossetupwizard)
+binder_call(gammaossetupwizard, system_server)
+allow gammaossetupwizard activity_service:service_manager find;
+allow gammaossetupwizard appops_service:service_manager find;
+allow gammaossetupwizard deviceidle_service:service_manager find;
+allow gammaossetupwizard package_service:service_manager find;
+allow gammaossetupwizard settings_service:service_manager find;
+allow gammaossetupwizard surfaceflinger_service:service_manager find;
+
+# Allow init control properties (ctl.start/ctl.stop).
+set_prop(gammaossetupwizard, ctl_stop_prop)
+set_prop(gammaossetupwizard, ctl_start_prop)
+
+# setup.sh redirects stdout/stderr to a file. Some commands (cmd, dumpsys)
+# pass that fd into system_server/surfaceflinger for output.
+# If SELinux is enforcing, those services must be allowed to *use* the fd,
+# otherwise you lose output (and some commands can fail).
+allow system_server gammaossetupwizard:fd use;
+allow system_server gammaossetupwizard:binder call;
+allow surfaceflinger gammaossetupwizard:fd use;
+allow surfaceflinger gammaossetupwizard:binder call;

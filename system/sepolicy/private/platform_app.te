@@ -137,4 +137,6 @@ neverallow { domain -init userdebug_or_eng(`-shell -platform_app') } persist_sys
 # app domains which access /dev/fuse should not run as platform_app
 neverallow platform_app fuse_device:chr_file *;
 set_prop(platform_app, persist_sys_gammaeq_prop)
+get_prop(platform_app, persist_sys_gammaeq_prop)
 set_prop(platform_app, persist_gammaos_prop)
+get_prop(platform_app, persist_gammaos_prop)

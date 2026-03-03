@@ -697,3 +697,7 @@ neverallow {
   -system_app
   -device_as_webcam
 } usb_uvc_enabled_prop:file no_rw_file_perms;
+
+type persist_sys_spk_prop, property_type;
+type persist_sys_gammaeq_prop, property_type;
+type persist_gammaos_prop, property_type;

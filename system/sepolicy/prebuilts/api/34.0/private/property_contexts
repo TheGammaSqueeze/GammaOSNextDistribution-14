@@ -1582,8 +1582,18 @@ persist.sysui.notification.builder_extras_override u:object_r:persist_sysui_buil
 ro.quick_start.oem_id u:object_r:quick_start_prop:s0 exact string
 ro.quick_start.device_id u:object_r:quick_start_prop:s0 exact string
 
-# GammaOS
-persist.gammaos. u:object_r:persist_sysui_builder_extras_prop:s0 prefix
-persist.gamma. u:object_r:persist_sysui_builder_extras_prop:s0 prefix
-persist.gammargb. u:object_r:persist_sysui_builder_extras_prop:s0
-persist.gamma u:object_r:persist_sysui_builder_extras_prop:s0 prefix
+# GammaOS properties
+persist.gammaos.    u:object_r:persist_gammaos_prop:s0  prefix
+persist.gammargb.   u:object_r:persist_gammaos_prop:s0  prefix
+persist.gamma.      u:object_r:persist_gammaos_prop:s0  prefix
+sys.gammaos.        u:object_r:persist_gammaos_prop:s0  prefix
+ro.gammaos.         u:object_r:persist_gammaos_prop:s0  prefix
+sys.gamma_tweak_update  u:object_r:persist_gammaos_prop:s0  exact
+
+# Gamma speaker tuning
+persist.sys.spk      u:object_r:persist_sys_spk_prop:s0       exact
+persist.sys.spk.     u:object_r:persist_sys_spk_prop:s0       prefix
+
+# GammaEQ routing
+persist.sys.gammaeq  u:object_r:persist_sys_gammaeq_prop:s0   exact
+persist.sys.gammaeq. u:object_r:persist_sys_gammaeq_prop:s0   prefix

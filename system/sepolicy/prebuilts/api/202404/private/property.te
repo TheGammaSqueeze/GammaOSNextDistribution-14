@@ -741,3 +741,6 @@ neverallow {
   -vendor_init
 } pm_archiving_enabled_prop:property_service set;
 
+type persist_sys_spk_prop, property_type;
+type persist_sys_gammaeq_prop, property_type;
+type persist_gammaos_prop, property_type;

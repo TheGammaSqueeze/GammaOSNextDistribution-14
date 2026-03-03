@@ -890,3 +890,5 @@
 /(system|product)/bin/check_dynamic_partitions  u:object_r:postinstall_exec:s0
 /(system|product)/bin/otapreopt_script          u:object_r:postinstall_exec:s0
 /(system|product)/bin/otapreopt                 u:object_r:postinstall_dexopt_exec:s0
+/system/bin/customization\.sh    u:object_r:gammaoscustomization_exec:s0
+/system/bin/setup\.sh            u:object_r:gammaossetupwizard_exec:s0

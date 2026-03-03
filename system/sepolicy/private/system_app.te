@@ -201,6 +201,8 @@ set_prop(system_app, persist_sys_spk_prop)
 
 # GammaEQ properties written by system UID apps (system_app domain)
 set_prop(system_app, persist_sys_gammaeq_prop)
+get_prop(system_app, persist_sys_gammaeq_prop)
+get_prop(system_app, persist_sys_spk_prop)
 set_prop(system_app, persist_gammaos_prop)
 get_prop(system_app, persist_gammaos_prop)
 allow system_app shell_exec:file { execute execute_no_trans read open getattr map };
