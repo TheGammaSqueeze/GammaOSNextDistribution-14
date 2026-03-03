@@ -26,6 +26,8 @@
         android:id="@+id/main_content_scrollable_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
         app:layout_behavior="com.android.settings.widget.HomepageAppBarScrollingViewBehavior">
 
         <LinearLayout

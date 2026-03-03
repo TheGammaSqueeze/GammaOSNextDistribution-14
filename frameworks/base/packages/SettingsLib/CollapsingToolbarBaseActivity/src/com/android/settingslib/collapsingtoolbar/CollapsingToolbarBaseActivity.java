@@ -19,6 +19,7 @@ package com.android.settingslib.collapsingtoolbar;
 import android.app.ActionBar;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -50,9 +51,16 @@ public class CollapsingToolbarBaseActivity extends FragmentActivity {
         public void setOuterTitle(CharSequence title) {
             CollapsingToolbarBaseActivity.super.setTitle(title);
         }
+
+        @Override
+        public boolean isAppBarExpansionBlocked() {
+            return mBlockAppBarExpansion;
+        }
     }
 
     private CollapsingToolbarDelegate mToolbardelegate;
+    // GammaOS: When true, blocks nested-scroll-driven toolbar expansion during DPAD nav.
+    private boolean mBlockAppBarExpansion;
 
     private int mCustomizeLayoutResId = 0;
 
@@ -114,6 +122,32 @@ public class CollapsingToolbarBaseActivity extends FragmentActivity {
     @Override
     public void setTitle(int titleId) {
         setTitle(getText(titleId));
+    }
+
+    // GammaOS: Collapse the AppBarLayout when DPAD navigation is used and block
+    // nested-scroll-driven re-expansion via CollapsingCoordinatorLayout's behavior.
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        if (event.getAction() == KeyEvent.ACTION_DOWN) {
+            switch (event.getKeyCode()) {
+                case KeyEvent.KEYCODE_DPAD_UP:
+                case KeyEvent.KEYCODE_DPAD_DOWN:
+                case KeyEvent.KEYCODE_DPAD_LEFT:
+                case KeyEvent.KEYCODE_DPAD_RIGHT:
+                    AppBarLayout appBar = getAppBarLayout();
+                    if (appBar != null) {
+                        appBar.setExpanded(false, false);
+                    }
+                    mBlockAppBarExpansion = true;
+                    break;
+            }
+        }
+        return super.dispatchKeyEvent(event);
+    }
+
+    /** GammaOS: Returns whether nested-scroll-driven AppBar expansion should be blocked. */
+    public boolean isAppBarExpansionBlocked() {
+        return mBlockAppBarExpansion;
     }
 
     @Override

@@ -28,6 +28,7 @@ import android.graphics.text.LineBreakConfig;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -70,6 +71,8 @@ public class SettingsBaseActivity extends FragmentActivity implements CategoryHa
     protected CollapsingToolbarLayout mCollapsingToolbarLayout;
     protected AppBarLayout mAppBarLayout;
     private Toolbar mToolbar;
+    // GammaOS: When true, the AppBarLayout behavior blocks nested-scroll-driven expansion.
+    private boolean mBlockAppBarExpansion;
 
     @Override
     public CategoryMixin getCategoryMixin() {
@@ -148,6 +151,28 @@ public class SettingsBaseActivity extends FragmentActivity implements CategoryHa
         super.setActionBar(toolbar);
 
         mToolbar = toolbar;
+    }
+
+    // GammaOS: Collapse the AppBarLayout when DPAD navigation is used and block
+    // nested-scroll-driven re-expansion. The collapsing toolbar wastes screen space
+    // on gaming handhelds. Simply calling setExpanded(false) races with RecyclerView's
+    // nested scroll from focus changes, which re-expands the toolbar causing a bounce.
+    // Setting mBlockAppBarExpansion makes the custom behavior in
+    // autoSetCollapsingToolbarLayoutScrolling() reject any expansion scroll events.
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        if (event.getAction() == KeyEvent.ACTION_DOWN && mAppBarLayout != null) {
+            switch (event.getKeyCode()) {
+                case KeyEvent.KEYCODE_DPAD_UP:
+                case KeyEvent.KEYCODE_DPAD_DOWN:
+                case KeyEvent.KEYCODE_DPAD_LEFT:
+                case KeyEvent.KEYCODE_DPAD_RIGHT:
+                    mAppBarLayout.setExpanded(false, false);
+                    mBlockAppBarExpansion = true;
+                    break;
+            }
+        }
+        return super.dispatchKeyEvent(event);
     }
 
     @Override
@@ -270,7 +295,33 @@ public class SettingsBaseActivity extends FragmentActivity implements CategoryHa
         }
         final CoordinatorLayout.LayoutParams params =
                 (CoordinatorLayout.LayoutParams) mAppBarLayout.getLayoutParams();
-        final AppBarLayout.Behavior behavior = new AppBarLayout.Behavior();
+        // GammaOS: Custom behavior that blocks nested-scroll-driven expansion when
+        // mBlockAppBarExpansion is set (i.e. during DPAD navigation). Negative dy in
+        // onNestedPreScroll means content is scrolling down / toolbar would expand.
+        final AppBarLayout.Behavior behavior = new AppBarLayout.Behavior() {
+            @Override
+            public void onNestedPreScroll(CoordinatorLayout coordinatorLayout,
+                    AppBarLayout child, View target, int dx, int dy,
+                    int[] consumed, int type) {
+                if (mBlockAppBarExpansion && dy < 0) {
+                    return;
+                }
+                super.onNestedPreScroll(coordinatorLayout, child, target,
+                        dx, dy, consumed, type);
+            }
+
+            @Override
+            public void onNestedScroll(CoordinatorLayout coordinatorLayout,
+                    AppBarLayout child, View target, int dxConsumed, int dyConsumed,
+                    int dxUnconsumed, int dyUnconsumed, int type, int[] consumed) {
+                if (mBlockAppBarExpansion && dyUnconsumed < 0) {
+                    return;
+                }
+                super.onNestedScroll(coordinatorLayout, child, target,
+                        dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed,
+                        type, consumed);
+            }
+        };
         behavior.setDragCallback(
                 new AppBarLayout.Behavior.DragCallback() {
                     @Override

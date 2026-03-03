@@ -702,9 +702,11 @@ public class SettingsHomepageActivity extends FragmentActivity implements
 
     private void initHomepageContainer() {
         final View view = findViewById(R.id.homepage_container);
-        // Prevent inner RecyclerView gets focus and invokes scrolling.
-        view.setFocusableInTouchMode(true);
-        view.requestFocus();
+        // GammaOS: Don't let the container grab focus. The original AOSP code made
+        // homepage_container focusableInTouchMode to prevent RecyclerView scroll jank,
+        // but this blocks DPAD navigation entirely because FocusFinder can't navigate
+        // from a focused parent into its own children. On gaming handhelds we need
+        // DPAD to reach the individual settings items directly.
     }
 
     private void updateHomepageAppBar() {

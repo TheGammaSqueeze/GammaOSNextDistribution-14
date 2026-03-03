@@ -56,6 +56,8 @@ public class CollapsingCoordinatorLayout extends CoordinatorLayout {
     private boolean mIsMatchParentHeight;
     private CollapsingToolbarLayout mCollapsingToolbarLayout;
     private AppBarLayout mAppBarLayout;
+    // GammaOS: When true, blocks nested-scroll-driven toolbar expansion during DPAD nav.
+    private boolean mBlockAppBarExpansion;
 
     public CollapsingCoordinatorLayout(@NonNull Context context) {
         this(context, /* attrs= */ null);
@@ -238,19 +240,55 @@ public class CollapsingCoordinatorLayout extends CoordinatorLayout {
         return findViewById(R.id.content_frame);
     }
 
+    /** GammaOS: Sets whether nested-scroll-driven AppBar expansion should be blocked. */
+    public void setBlockAppBarExpansion(boolean block) {
+        mBlockAppBarExpansion = block;
+    }
+
+    /** GammaOS: Returns whether nested-scroll-driven AppBar expansion is blocked. */
+    public boolean isAppBarExpansionBlocked() {
+        return mBlockAppBarExpansion;
+    }
+
     /** Returns the AppCompat Toolbar. */
     public androidx.appcompat.widget.Toolbar getSupportToolbar() {
         return (androidx.appcompat.widget.Toolbar)
             mCollapsingToolbarLayout.findViewById(R.id.support_action_bar);
     }
 
+    // GammaOS: Custom behavior that blocks nested-scroll-driven expansion when
+    // mBlockAppBarExpansion is set (i.e. during DPAD navigation). Negative dy in
+    // onNestedPreScroll means content is scrolling down / toolbar would expand.
     private void autoSetCollapsingToolbarLayoutScrolling() {
         if (mAppBarLayout == null) {
             return;
         }
         final CoordinatorLayout.LayoutParams params =
                 (CoordinatorLayout.LayoutParams) mAppBarLayout.getLayoutParams();
-        final AppBarLayout.Behavior behavior = new AppBarLayout.Behavior();
+        final AppBarLayout.Behavior behavior = new AppBarLayout.Behavior() {
+            @Override
+            public void onNestedPreScroll(CoordinatorLayout coordinatorLayout,
+                    AppBarLayout child, View target, int dx, int dy,
+                    int[] consumed, int type) {
+                if (mBlockAppBarExpansion && dy < 0) {
+                    return;
+                }
+                super.onNestedPreScroll(coordinatorLayout, child, target,
+                        dx, dy, consumed, type);
+            }
+
+            @Override
+            public void onNestedScroll(CoordinatorLayout coordinatorLayout,
+                    AppBarLayout child, View target, int dxConsumed, int dyConsumed,
+                    int dxUnconsumed, int dyUnconsumed, int type, int[] consumed) {
+                if (mBlockAppBarExpansion && dyUnconsumed < 0) {
+                    return;
+                }
+                super.onNestedScroll(coordinatorLayout, child, target,
+                        dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed,
+                        type, consumed);
+            }
+        };
         behavior.setDragCallback(
                 new AppBarLayout.Behavior.DragCallback() {
                     @Override
