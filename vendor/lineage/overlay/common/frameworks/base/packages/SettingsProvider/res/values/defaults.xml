@@ -29,4 +29,7 @@
 
     <!-- This is disabled by default, but turned on in SetupWizard -->
     <bool name="assisted_gps_enabled">false</bool>
+
+    <!-- Default lockscreen to none (no swipe). Users can still set a lock via Settings. -->
+    <bool name="def_lockscreen_disabled">true</bool>
 </resources>

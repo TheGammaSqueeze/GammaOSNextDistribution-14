@@ -11,8 +11,11 @@ import android.app.StatusBarManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.UserHandle;
 import android.provider.Settings;
 import android.util.Log;
+
+import com.android.internal.widget.LockPatternUtils;
 
 import org.lineageos.setupwizard.util.SetupWizardUtils;
 
@@ -69,6 +72,9 @@ public class SetupWizardApp extends Application {
         if (LOGV) {
             Log.v(TAG, "onCreate()");
         }
+        // Default lockscreen to none before any wizard flow (including GMS) runs.
+        new LockPatternUtils(this).setLockScreenDisabled(true, UserHandle.myUserId());
+
         sStatusBarManager = SetupWizardUtils.disableStatusBar(this);
         mHandler.postDelayed(mRadioTimeoutRunnable, SetupWizardApp.RADIO_READY_TIMEOUT);
         if (SetupWizardUtils.hasGMS(this)) {

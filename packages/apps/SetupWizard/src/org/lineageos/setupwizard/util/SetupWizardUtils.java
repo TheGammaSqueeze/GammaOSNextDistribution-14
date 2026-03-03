@@ -44,6 +44,8 @@ import android.os.SystemProperties;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.provider.Settings;
+
+import com.android.internal.widget.LockPatternUtils;
 import android.sysprop.TelephonyProperties;
 import android.telephony.SubscriptionInfo;
 import android.telephony.SubscriptionManager;
@@ -189,6 +191,10 @@ public class SetupWizardUtils {
             Settings.Secure.putInt(contentResolver,
                     Settings.Secure.TV_USER_SETUP_COMPLETE, 1);
         }
+
+        // Default lockscreen to none (no swipe to unlock).
+        // Users can still set a lock via Settings > Security > Screen lock.
+        new LockPatternUtils(context).setLockScreenDisabled(true, UserHandle.myUserId());
 
         handleEnableMetrics(context);
         handleNavKeys(context);
