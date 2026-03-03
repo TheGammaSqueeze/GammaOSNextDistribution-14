@@ -40,7 +40,8 @@
         android:layout_marginTop="@dimen/qqs_layout_margin_top"
         android:clipChildren="false"
         android:clipToPadding="false"
-        android:focusable="true"
+        android:focusable="false"
+        android:descendantFocusability="afterDescendants"
         android:paddingBottom="@dimen/qqs_layout_padding_bottom"
         android:importantForAccessibility="no">
     </com.android.systemui.qs.QuickQSPanel>

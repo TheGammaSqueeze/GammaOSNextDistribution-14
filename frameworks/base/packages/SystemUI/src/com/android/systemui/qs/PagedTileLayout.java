@@ -14,9 +14,12 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.AttributeSet;
+import android.view.FocusFinder;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.animation.Interpolator;
@@ -100,6 +103,9 @@ public class PagedTileLayout extends ViewPager implements QSTileLayout {
         setCurrentItem(0, false);
         mLayoutOrientation = getResources().getConfiguration().orientation;
         mLayoutDirection = getLayoutDirection();
+        // GammaOS: Prevent ViewPager itself from being focusable; only its tile children should
+        // receive DPAD focus. Without this, the ViewPager can intercept focus from tiles.
+        setFocusable(false);
     }
     private int mLastMaxHeight = -1;
 
@@ -810,6 +816,71 @@ public class PagedTileLayout extends ViewPager implements QSTileLayout {
 
     public void setLogger(QSLogger qsLogger) {
         mLogger = qsLogger;
+    }
+
+    // GammaOS: DPAD navigation support for page-boundary tile switching.
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        if (event.getAction() == KeyEvent.ACTION_DOWN && mPages.size() > 1) {
+            int keyCode = event.getKeyCode();
+            if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT
+                    || keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) {
+                View focused = findFocus();
+                if (focused != null && isDescendantOfThis(focused)) {
+                    int direction = (keyCode == KeyEvent.KEYCODE_DPAD_LEFT)
+                            ? View.FOCUS_LEFT : View.FOCUS_RIGHT;
+                    View next = FocusFinder.getInstance()
+                            .findNextFocus(this, focused, direction);
+                    if (next == null) {
+                        boolean goForward =
+                                (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) != isLayoutRtl();
+                        int currentPage = getCurrentPageNumber();
+                        if (goForward && currentPage < mPages.size() - 1) {
+                            setCurrentItem(currentPage + 1, true);
+                            post(this::focusFirstTileOnCurrentPage);
+                            return true;
+                        } else if (!goForward && currentPage > 0) {
+                            setCurrentItem(currentPage - 1, true);
+                            post(this::focusLastTileOnCurrentPage);
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return super.dispatchKeyEvent(event);
+    }
+
+    private boolean isDescendantOfThis(View view) {
+        ViewParent parent = view.getParent();
+        while (parent != null) {
+            if (parent == this) return true;
+            parent = parent.getParent();
+        }
+        return false;
+    }
+
+    private void focusFirstTileOnCurrentPage() {
+        int pageNum = getCurrentPageNumber();
+        if (pageNum >= 0 && pageNum < mPages.size()) {
+            TileLayout page = mPages.get(pageNum);
+            if (!page.mRecords.isEmpty()) {
+                View firstTile = (View) page.mRecords.get(0).tileView;
+                if (firstTile != null) firstTile.requestFocus();
+            }
+        }
+    }
+
+    private void focusLastTileOnCurrentPage() {
+        int pageNum = getCurrentPageNumber();
+        if (pageNum >= 0 && pageNum < mPages.size()) {
+            TileLayout page = mPages.get(pageNum);
+            if (!page.mRecords.isEmpty()) {
+                View lastTile = (View) page.mRecords.get(
+                        page.mRecords.size() - 1).tileView;
+                if (lastTile != null) lastTile.requestFocus();
+            }
+        }
     }
 
     public interface PageListener {

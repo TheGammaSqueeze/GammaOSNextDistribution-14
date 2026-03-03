@@ -26,4 +26,5 @@
     android:background="@drawable/qs_footer_actions_background"
     android:gravity="center_vertical|end"
     android:layout_gravity="bottom"
+    android:descendantFocusability="blocksDescendants"
 />

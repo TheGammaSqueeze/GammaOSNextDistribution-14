@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- GammaOS: Visible focus indicator for DPAD navigation of QS tiles -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_focused="true">
+        <shape>
+            <corners android:radius="@dimen/qs_corner_radius" />
+            <stroke android:width="3dp" android:color="#FF8C00" />
+            <solid android:color="@android:color/transparent" />
+        </shape>
+    </item>
+    <item android:drawable="@android:color/transparent" />
+</selector>

@@ -31,6 +31,8 @@
             android:minHeight="48dp"
             android:thumb="@null"
             android:background="@null"
+            android:foreground="@drawable/brightness_slider_focus_indicator"
+            android:defaultFocusHighlightEnabled="false"
             android:paddingStart="0dp"
             android:paddingEnd="0dp"
             android:progressDrawable="@drawable/brightness_progress_drawable"

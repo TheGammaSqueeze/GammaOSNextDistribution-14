@@ -19,6 +19,7 @@ package com.android.systemui.qs;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.util.AttributeSet;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.LinearLayout;
@@ -150,6 +151,25 @@ public class QuickQSPanel extends QSPanel {
     @Override
     protected QSEvent tileVisibleEvent() {
         return QSEvent.QQS_TILE_VISIBLE;
+    }
+
+    // GammaOS: When a QQS tile has focus via DPAD, intercept directional keys to
+    // auto-expand to full QS so all tiles become navigable.
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        if (event.getAction() == KeyEvent.ACTION_DOWN && !isInTouchMode()) {
+            int keyCode = event.getKeyCode();
+            if (keyCode == KeyEvent.KEYCODE_DPAD_UP
+                    || keyCode == KeyEvent.KEYCODE_DPAD_DOWN
+                    || keyCode == KeyEvent.KEYCODE_DPAD_LEFT
+                    || keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) {
+                if (performAccessibilityAction(
+                        AccessibilityNodeInfo.ACTION_EXPAND, null)) {
+                    return true;
+                }
+            }
+        }
+        return super.dispatchKeyEvent(event);
     }
 
     @Override

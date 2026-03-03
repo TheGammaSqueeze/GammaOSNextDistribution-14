@@ -184,6 +184,9 @@ open class QSTileViewImpl @JvmOverloads constructor(
         clipToPadding = false
         isFocusable = true
         background = createTileBackground()
+        // GammaOS: Bright white border when focused via DPAD for gamepad navigation
+        foreground = context.getDrawable(R.drawable.qs_tile_focus_indicator)
+        defaultFocusHighlightEnabled = false
         setColor(getBackgroundColorForState(QSTile.State.DEFAULT_STATE))
 
         val padding = resources.getDimensionPixelSize(R.dimen.qs_tile_padding)

@@ -40,6 +40,7 @@ import com.android.systemui.shade.TouchLogger;
 import com.android.systemui.util.LargeScreenUtils;
 
 import java.io.PrintWriter;
+import java.util.ArrayList;
 
 /**
  * Wrapper view with background which contains {@link QSPanel} and {@link QuickStatusBarHeader}
@@ -76,10 +77,27 @@ public class QSContainerImpl extends FrameLayout implements Dumpable {
     protected void onFinishInflate() {
         super.onFinishInflate();
         mQSPanelContainer = findViewById(R.id.expanded_qs_scroll_view);
+        // GammaOS: Prevent the scroll view from stealing DPAD focus from QQS tiles.
+        // ScrollView's constructor forces focusable=true, so we must override it here.
+        mQSPanelContainer.setFocusable(false);
         mQSPanel = findViewById(R.id.quick_settings_panel);
         mHeader = findViewById(R.id.header);
         mQSCustomizer = findViewById(R.id.qs_customize);
         setImportantForAccessibility(IMPORTANT_FOR_ACCESSIBILITY_NO);
+    }
+
+    // GammaOS: Exclude footer_actions (Compose settings/power buttons) from DPAD focus search.
+    // Compose manages its own focus system, so setDescendantFocusability() has no effect.
+    // Instead, we skip the ComposeView entirely when Android asks for focusable views.
+    @Override
+    public void addFocusables(ArrayList<View> views, int direction, int focusableMode) {
+        for (int i = 0; i < getChildCount(); i++) {
+            View child = getChildAt(i);
+            if (child.getId() == R.id.qs_footer_actions) {
+                continue;
+            }
+            child.addFocusables(views, direction, focusableMode);
+        }
     }
 
     void setSceneContainerEnabled(boolean enabled) {

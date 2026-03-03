@@ -27,7 +27,8 @@
     android:baselineAligned="false"
     android:clickable="false"
     android:clipChildren="false"
-    android:clipToPadding="false">
+    android:clipToPadding="false"
+    android:descendantFocusability="blocksDescendants">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -42,7 +43,7 @@
                 android:layout_weight="1"
                 android:clickable="true"
                 android:ellipsize="marquee"
-                android:focusable="true"
+                android:focusable="false"
                 android:gravity="center_vertical"
                 android:textDirection="locale"
                 android:textAlignment="viewStart"
@@ -55,7 +56,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_gravity="center_vertical"
-                android:focusable="true"
+                android:focusable="false"
                 android:importantForAccessibility="no"
                 android:tint="?attr/shadeActive"
                 android:visibility="gone" />
@@ -72,7 +73,7 @@
                     android:background="@drawable/qs_footer_edit_circle"
                     android:clickable="true"
                     android:contentDescription="@string/accessibility_quick_settings_edit"
-                    android:focusable="true"
+                    android:focusable="false"
                     android:padding="@dimen/qs_footer_icon_padding"
                     android:src="@*android:drawable/ic_mode_edit"
                     android:tint="?attr/onSurfaceVariant" />

@@ -372,7 +372,21 @@ public abstract class QSPanelControllerBase<T extends QSPanel> extends ViewContr
         } else {
             mUiEventLogger.log(mView.openPanelEvent());
             logTiles();
+            // GammaOS: Request focus on first tile for DPAD navigation in phone UI mode.
+            // This is a no-op when in touch mode (Android ignores focus requests in touch mode).
+            requestFocusOnFirstTile();
         }
+    }
+
+    private void requestFocusOnFirstTile() {
+        if (mRecords.isEmpty()) return;
+        View tileView = (View) mRecords.get(0).tileView;
+        if (tileView == null) return;
+        tileView.post(() -> {
+            if (tileView.isAttachedToWindow() && tileView.getVisibility() == View.VISIBLE) {
+                tileView.requestFocus();
+            }
+        });
     }
 
     /** */
