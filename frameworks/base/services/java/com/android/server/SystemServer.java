@@ -3342,6 +3342,15 @@ public final class SystemServer implements Dumpable {
         }
         t.traceEnd();
 
+        t.traceBegin("StartGammapadVibrationBridge");
+        try {
+            mSystemServiceManager.startService(
+                    com.android.server.gamepad.GammapadVibrationBridge.class);
+        } catch (Throwable e) {
+            reportWtf("starting GammapadVibrationBridge", e);
+        }
+        t.traceEnd();
+
         t.traceBegin("StartSystemUI");
         try {
             startSystemUi(context, windowManagerF);

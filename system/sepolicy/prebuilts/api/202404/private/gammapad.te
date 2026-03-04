@@ -1,0 +1,25 @@
+type gammapad, domain, coredomain;
+type gammapad_exec, exec_type, system_file_type, file_type;
+
+permissive gammapad;
+init_daemon_domain(gammapad)
+
+# Allow reading/writing GammaOS persist properties
+get_prop(gammapad, persist_gammaos_prop)
+set_prop(gammapad, persist_gammaos_prop)
+
+# Input device access (/dev/input/*)
+allow gammapad input_device:dir r_dir_perms;
+allow gammapad input_device:chr_file rw_file_perms;
+
+# Uinput access (/dev/uinput)
+allow gammapad uhid_device:chr_file rw_file_perms;
+
+# Hotplug inotify on /dev/input
+allow gammapad device:dir { open read watch };
+
+# Socket to vibration bridge in system_server (abstract Unix socket)
+allow gammapad system_server:unix_stream_socket connectto;
+
+# Basic system file access
+allow gammapad system_file:file { read open getattr execute execute_no_trans map };

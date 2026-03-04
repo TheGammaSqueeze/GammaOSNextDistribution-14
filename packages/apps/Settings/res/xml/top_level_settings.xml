@@ -21,6 +21,15 @@
     android:key="top_level_settings">
 
     <com.android.settings.widget.HomepagePreference
+        android:fragment="com.android.settings.handheld.HandheldDashboardFragment"
+        android:icon="@drawable/ic_settings_gamepad"
+        android:key="top_level_handheld"
+        android:order="-155"
+        android:title="@string/handheld_settings_title"
+        android:summary="@string/handheld_settings_summary"
+        settings:highlightableMenuKey="@string/menu_key_handheld"/>
+
+    <com.android.settings.widget.HomepagePreference
         android:fragment="com.android.settings.network.NetworkDashboardFragment"
         android:icon="@drawable/ic_settings_wireless"
         android:key="top_level_network"

@@ -141,6 +141,38 @@
 
         <activity android:name=".gestures.KeyHandler" />
 
+        <!-- Gamepad settings (System category) -->
+        <activity-alias
+            android:name=".input.GamepadSettings"
+            android:exported="true"
+            android:label="@string/gamepad_settings_title"
+            android:targetActivity="PartsActivity">
+            <intent-filter>
+                <action android:name="com.android.settings.action.IA_SETTINGS" />
+                <action android:name="org.lineageos.lineageparts.GAMEPAD_SETTINGS" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+
+            <meta-data
+                android:name="com.android.settings.category"
+                android:value="com.android.settings.category.ia.handheld" />
+            <meta-data
+                android:name="com.android.settings.icon"
+                android:resource="@drawable/ic_settings_gamepad" />
+            <meta-data
+                android:name="com.android.settings.icon_tintable"
+                android:value="true" />
+            <meta-data
+                android:name="com.android.settings.order"
+                android:value="-255" />
+            <meta-data
+                android:name="com.android.settings.profile"
+                android:value="primary_profile_only" />
+            <meta-data
+                android:name="com.android.settings.summary"
+                android:resource="@string/gamepad_settings_summary" />
+        </activity-alias>
+
         <!-- Profiles settings (System category) -->
         <activity-alias
             android:name=".profiles.ProfilesSettings"

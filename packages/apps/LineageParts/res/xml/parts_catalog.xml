@@ -33,6 +33,12 @@
           android:fragment="org.lineageos.lineageparts.input.ButtonSettings"
           lineage:xmlRes="@xml/button_settings" />
 
+    <part android:key="gamepad_settings"
+          android:title="@string/gamepad_settings_title"
+          android:summary="@string/gamepad_settings_summary"
+          android:fragment="org.lineageos.lineageparts.input.GamepadSettings"
+          lineage:xmlRes="@xml/gamepad_settings" />
+
     <part android:key="contributors"
           android:title="@string/contributors_cloud_fragment_title"
           android:fragment="org.lineageos.lineageparts.contributors.ContributorsCloudFragment"

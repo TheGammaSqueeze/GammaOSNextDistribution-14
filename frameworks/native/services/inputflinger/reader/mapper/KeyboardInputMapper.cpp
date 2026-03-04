@@ -286,7 +286,14 @@ std::list<NotifyArgs> KeyboardInputMapper::processKey(nsecs_t when, nsecs_t read
 
     if (getDeviceContext().mapKey(scanCode, usageCode, mMetaState, &keyCode, &keyMetaState,
                                   &policyFlags)) {
-        keyCode = AKEYCODE_UNKNOWN;
+        // For gamepad/joystick devices, use the raw scancode as the keycode so that
+        // buttons not defined in the .kl file still come through as unique key events
+        // instead of being collapsed to AKEYCODE_UNKNOWN.
+        if ((mSource & AINPUT_SOURCE_GAMEPAD) || (mSource & AINPUT_SOURCE_JOYSTICK)) {
+            keyCode = scanCode;
+        } else {
+            keyCode = AKEYCODE_UNKNOWN;
+        }
         keyMetaState = mMetaState;
         policyFlags = 0;
     }

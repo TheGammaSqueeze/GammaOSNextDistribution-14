@@ -1,0 +1,23 @@
+cc_binary {
+    name: "gammapad",
+    srcs: [
+        "main.cpp",
+        "GamepadManager.cpp",
+        "VirtualGamepad.cpp",
+        "InputTransformer.cpp",
+        "ForceFeedback.cpp",
+        "KeyLayoutParser.cpp",
+    ],
+    shared_libs: [
+        "libbase",
+        "liblog",
+        "libutils",
+        "libcutils",
+    ],
+    init_rc: ["gammapad.rc"],
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wno-unused-parameter",
+    ],
+}

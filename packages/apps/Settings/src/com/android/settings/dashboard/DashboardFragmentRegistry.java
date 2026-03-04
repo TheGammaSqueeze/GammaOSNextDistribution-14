@@ -32,6 +32,7 @@ import com.android.settings.deviceinfo.StorageDashboardFragment;
 import com.android.settings.deviceinfo.aboutphone.MyDeviceInfoFragment;
 import com.android.settings.display.NightDisplaySettings;
 import com.android.settings.emergency.EmergencyDashboardFragment;
+import com.android.settings.handheld.HandheldDashboardFragment;
 import com.android.settings.enterprise.EnterprisePrivacySettings;
 import com.android.settings.fuelgauge.SmartBatterySettings;
 import com.android.settings.fuelgauge.batterysaver.BatterySaverSettings;
@@ -135,6 +136,8 @@ public class DashboardFragmentRegistry {
                 CategoryKey.CATEGORY_SPECIAL_APP_ACCESS);
         PARENT_TO_CATEGORY_KEY_MAP.put(MoreSecurityPrivacyFragment.class.getName(),
                 CategoryKey.CATEGORY_MORE_SECURITY_PRIVACY_SETTINGS);
+        PARENT_TO_CATEGORY_KEY_MAP.put(HandheldDashboardFragment.class.getName(),
+                CategoryKey.CATEGORY_HANDHELD);
 
         CATEGORY_KEY_TO_PARENT_MAP = new ArrayMap<>(PARENT_TO_CATEGORY_KEY_MAP.size());
 
