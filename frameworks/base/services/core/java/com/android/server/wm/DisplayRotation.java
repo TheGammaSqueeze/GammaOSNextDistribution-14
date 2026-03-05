@@ -195,6 +195,13 @@ public class DisplayRotation {
     private boolean mRotatingSeamlessly;
 
     /**
+     * GammaOS: minimum interval between rotation changes to prevent vendor hwcomposer crashes
+     * (e.g. MTK BliterNode::invalidate) caused by rapid rotation transitions.
+     */
+    private static final long ROTATION_COOLDOWN_MS = 1500;
+    private long mLastRotationTimeMs;
+
+    /**
      * Behavior of rotation suggestions.
      *
      * @see Settings.Secure#SHOW_ROTATION_SUGGESTIONS
@@ -626,6 +633,16 @@ public class DisplayRotation {
             // No change.
             return false;
         }
+
+        // GammaOS: enforce a cooldown between rotation changes to prevent vendor hwcomposer
+        // blitter crashes (e.g. MTK BliterNode::invalidate) caused by rapid transitions.
+        final long now = SystemClock.elapsedRealtime();
+        if (now - mLastRotationTimeMs < ROTATION_COOLDOWN_MS) {
+            Slog.d(TAG, "Rotation " + oldRotation + " -> " + rotation
+                    + " throttled (cooldown)");
+            return false;
+        }
+        mLastRotationTimeMs = now;
 
         if (isDefaultDisplay) {
             mDisplayRotationCoordinator.onDefaultDisplayRotationChanged(rotation);

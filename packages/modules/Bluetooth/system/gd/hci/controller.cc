@@ -451,14 +451,13 @@ struct Controller::impl {
   }
 
   void read_default_erroneous_data_reporting_handler(CommandCompleteView view) {
-    ASSERT(view.GetCommandOpCode() == OpCode::READ_DEFAULT_ERRONEOUS_DATA_REPORTING);
     auto complete_view = ReadDefaultErroneousDataReportingCompleteView::Create(view);
-    // Check to see that the opcode was correct.
     // ASSERT(complete_view.IsValid()) is not used here to avoid process abort.
-    // Some devices, such as mokey_go32, may claim to support it but do not
-    // actually do so (b/277589118).
+    // Some devices may claim to support this command but return invalid
+    // responses (b/277589118). Validate before accessing any fields to
+    // prevent was_validated_ assertion failures.
     if (!complete_view.IsValid()) {
-      LOG_ERROR("invalid command complete view");
+      LOG_ERROR("invalid command complete view for READ_DEFAULT_ERRONEOUS_DATA_REPORTING");
       return;
     }
 
@@ -486,14 +485,13 @@ struct Controller::impl {
   }
 
   void write_default_erroneous_data_reporting_handler(CommandCompleteView view) {
-    ASSERT(view.GetCommandOpCode() == OpCode::WRITE_DEFAULT_ERRONEOUS_DATA_REPORTING);
     auto complete_view = WriteDefaultErroneousDataReportingCompleteView::Create(view);
-    // Check to see that the opcode was correct.
     // ASSERT(complete_view.IsValid()) is not used here to avoid process abort.
-    // Some devices, such as mokey_go32, may claim to support it but do not
-    // actually do so (b/277589118).
+    // Some devices may claim to support this command but return invalid
+    // responses (b/277589118). Validate before accessing any fields to
+    // prevent was_validated_ assertion failures.
     if (!complete_view.IsValid()) {
-      LOG_ERROR("invalid command complete view");
+      LOG_ERROR("invalid command complete view for WRITE_DEFAULT_ERRONEOUS_DATA_REPORTING");
       return;
     }
 

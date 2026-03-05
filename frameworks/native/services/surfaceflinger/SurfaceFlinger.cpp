@@ -3356,6 +3356,13 @@ CompositeResultsPerDisplay SurfaceFlinger::composite(
 
     refreshArgs.devOptForceClientComposition = mDebugDisableHWC;
 
+    // GammaOS: force GPU composition during display rotation transitions to work around
+    // vendor hwcomposer blitter crashes (e.g. MTK BliterNode::invalidate).
+    if (mRotationClientCompDeadline > 0 &&
+        systemTime(SYSTEM_TIME_MONOTONIC) < mRotationClientCompDeadline) {
+        refreshArgs.devOptForceClientComposition = true;
+    }
+
     // GammaOS: if post-processing shader is enabled, force GPU composition
     if (android::base::GetBoolProperty("persist.gammaos.shader.enable", false)) {
         refreshArgs.devOptForceClientComposition = true;
@@ -6431,6 +6438,14 @@ uint32_t SurfaceFlinger::setDisplayStateLocked(const DisplayState& s) {
     }
     if (what & DisplayState::eDisplayProjectionChanged) {
         if (state.orientation != s.orientation) {
+            // GammaOS: force GPU composition BEFORE committing the orientation change
+            // to prevent vendor hwcomposer blitter crashes (MTK BliterNode::invalidate)
+            // during the transition. Must happen here (transaction receive) rather than
+            // in processDisplayChanged (transaction commit) to win the race.
+            mRotationClientCompDeadline =
+                    systemTime(SYSTEM_TIME_MONOTONIC) + s2ns(2);
+            ALOGI("Display orientation changing (%d -> %d), forcing client composition for 2s",
+                  state.orientation, s.orientation);
             state.orientation = s.orientation;
             flags |= eDisplayTransactionNeeded;
         }
