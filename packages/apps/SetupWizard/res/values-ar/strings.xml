@@ -46,10 +46,8 @@
     <string name="navbar_navigation">التنقل باستخدام ثلاثة أزرار</string>
     <string name="hide_gesture_hint">إخفاء تلميحات التنقل الإيمائي</string>
     <string name="gs_calibration">معايرة وحدة التحكم</string>
-    <string name="gs_deadzone">المنطقة الميتة</string>
     <string name="gs_invert_left">عكس اليسار</string>
     <string name="gs_invert_right">عكس اليمين</string>
-    <string name="gs_calibration_mode">وضع المعايرة</string>
     <string name="gs_reset">إعادة تعيين</string>
     <string name="gs_continue">متابعة</string>
 </resources>

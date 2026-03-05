@@ -54,10 +54,8 @@
     <string name="dark">Темная</string>
     <string name="light">Светлая</string>
     <string name="gs_calibration">Калибровка контроллера</string>
-    <string name="gs_deadzone">Мёртвая зона</string>
     <string name="gs_invert_left">Инвертировать левый</string>
     <string name="gs_invert_right">Инвертировать правый</string>
-    <string name="gs_calibration_mode">Режим калибровки</string>
     <string name="gs_reset">Сброс</string>
     <string name="gs_continue">Далее</string>
 </resources>

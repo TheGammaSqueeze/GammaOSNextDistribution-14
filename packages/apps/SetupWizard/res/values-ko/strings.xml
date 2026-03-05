@@ -54,10 +54,8 @@
     <string name="dark">어두운 테마</string>
     <string name="light">밝은 테마</string>
     <string name="gs_calibration">컨트롤러 보정</string>
-    <string name="gs_deadzone">데드존</string>
     <string name="gs_invert_left">왼쪽 반전</string>
     <string name="gs_invert_right">오른쪽 반전</string>
-    <string name="gs_calibration_mode">보정 모드</string>
     <string name="gs_reset">초기화</string>
     <string name="gs_continue">계속</string>
 </resources>

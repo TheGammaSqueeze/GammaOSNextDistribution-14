@@ -54,10 +54,8 @@
     <string name="dark">Escuro</string>
     <string name="light">Claro</string>
     <string name="gs_calibration">Calibração do comando</string>
-    <string name="gs_deadzone">Zona morta</string>
     <string name="gs_invert_left">Inverter esquerdo</string>
     <string name="gs_invert_right">Inverter direito</string>
-    <string name="gs_calibration_mode">Modo de calibração</string>
     <string name="gs_reset">Repor</string>
     <string name="gs_continue">Continuar</string>
 </resources>

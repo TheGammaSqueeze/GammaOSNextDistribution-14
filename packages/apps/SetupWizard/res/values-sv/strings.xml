@@ -38,10 +38,8 @@
     <string name="dark">Mörkt</string>
     <string name="light">Ljust</string>
     <string name="gs_calibration">Kontrollkalibrering</string>
-    <string name="gs_deadzone">Dödzon</string>
     <string name="gs_invert_left">Invertera vänster</string>
     <string name="gs_invert_right">Invertera höger</string>
-    <string name="gs_calibration_mode">Kalibreringsläge</string>
     <string name="gs_reset">Återställ</string>
     <string name="gs_continue">Fortsätt</string>
 </resources>

@@ -54,10 +54,8 @@
     <string name="dark">ダーク</string>
     <string name="light">ライト</string>
     <string name="gs_calibration">コントローラーのキャリブレーション</string>
-    <string name="gs_deadzone">デッドゾーン</string>
     <string name="gs_invert_left">左を反転</string>
     <string name="gs_invert_right">右を反転</string>
-    <string name="gs_calibration_mode">キャリブレーションモード</string>
     <string name="gs_reset">リセット</string>
     <string name="gs_continue">続行</string>
 </resources>

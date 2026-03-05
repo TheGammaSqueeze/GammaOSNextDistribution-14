@@ -26,6 +26,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.recyclerview.widget.RecyclerView;
+
 import androidx.preference.CheckBoxPreference;
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
@@ -72,6 +74,10 @@ public class GamepadSettings extends SettingsPreferenceFragment
     private static final String KEY_CLEAR_CALIBRATION = "gamepad_clear_calibration";
     private static final String KEY_BLACKLIST_VPAD = "gamepad_blacklist_vpad";
     private static final String KEY_BLACKLIST_PASS = "gamepad_blacklist_pass";
+    private static final String KEY_ABXY_SWAP = "gamepad_abxy_swap";
+    private static final String KEY_INVERT_LEFT = "gamepad_invert_left";
+    private static final String KEY_INVERT_RIGHT = "gamepad_invert_right";
+    private static final String KEY_GLOBAL_SENSITIVITY = "gamepad_global_sensitivity";
     private static final String KEY_TEST = "gamepad_test";
 
     private static final String PROP_ENABLE = "persist.gammaos.gamepad.enable";
@@ -87,6 +93,10 @@ public class GamepadSettings extends SettingsPreferenceFragment
     private static final String PROP_PWM_INTENSITY = "persist.gammaos.gamepad.pwm_intensity";
     private static final String PROP_BLACKLIST_VPAD = "persist.gammaos.gamepad.blacklist_vpad";
     private static final String PROP_BLACKLIST_PASS = "persist.gammaos.gamepad.blacklist_pass";
+    private static final String PROP_ABXY_SWAP = "persist.gammaos.gamepad.abxy_swap";
+    private static final String PROP_INVERT_LEFT = "persist.gammaos.gamepad.invert_left";
+    private static final String PROP_INVERT_RIGHT = "persist.gammaos.gamepad.invert_right";
+    private static final String PROP_GLOBAL_SENSITIVITY = "persist.gammaos.gamepad.global_sensitivity";
     private static final String PROP_CONFIG_VERSION = "persist.gammaos.gamepad.config_version";
     private static final String PROP_DEVICE_NAME = "persist.gammaos.gamepad.device_name";
     private static final String PROP_DEVICE_VID = "persist.gammaos.gamepad.device_vid";
@@ -153,6 +163,10 @@ public class GamepadSettings extends SettingsPreferenceFragment
     private SeekBarPreference mDpadThresholdPref;
     private SwitchPreferenceCompat mPwmEnablePref;
     private SeekBarPreference mPwmIntensityPref;
+    private SwitchPreferenceCompat mAbxySwapPref;
+    private SwitchPreferenceCompat mInvertLeftPref;
+    private SwitchPreferenceCompat mInvertRightPref;
+    private ListPreference mGlobalSensitivityPref;
 
     private final List<String> mSelectedDevices = new ArrayList<>();
 
@@ -197,6 +211,34 @@ public class GamepadSettings extends SettingsPreferenceFragment
                 SystemProperties.getInt(PROP_PWM_ENABLE, 1) != 0);
         mPwmIntensityPref.setValue(
                 SystemProperties.getInt(PROP_PWM_INTENSITY, 200));
+
+        // Global quick-access toggles
+        mAbxySwapPref = findPreference(KEY_ABXY_SWAP);
+        mInvertLeftPref = findPreference(KEY_INVERT_LEFT);
+        mInvertRightPref = findPreference(KEY_INVERT_RIGHT);
+        mGlobalSensitivityPref = findPreference(KEY_GLOBAL_SENSITIVITY);
+
+        if (mAbxySwapPref != null) {
+            mAbxySwapPref.setChecked(
+                    SystemProperties.getInt(PROP_ABXY_SWAP, 0) != 0);
+            mAbxySwapPref.setOnPreferenceChangeListener(this);
+        }
+        if (mInvertLeftPref != null) {
+            mInvertLeftPref.setChecked(
+                    SystemProperties.getInt(PROP_INVERT_LEFT, 0) != 0);
+            mInvertLeftPref.setOnPreferenceChangeListener(this);
+        }
+        if (mInvertRightPref != null) {
+            mInvertRightPref.setChecked(
+                    SystemProperties.getInt(PROP_INVERT_RIGHT, 0) != 0);
+            mInvertRightPref.setOnPreferenceChangeListener(this);
+        }
+        if (mGlobalSensitivityPref != null) {
+            mGlobalSensitivityPref.setValue(
+                    String.valueOf(SystemProperties.getInt(PROP_GLOBAL_SENSITIVITY, 0)));
+            mGlobalSensitivityPref.setOnPreferenceChangeListener(this);
+            updateGlobalSensitivitySummary();
+        }
 
         // Initialize device preset from current VID/PID properties
         initDevicePreset();
@@ -288,6 +330,60 @@ public class GamepadSettings extends SettingsPreferenceFragment
                 });
 
         mInputManager = getContext().getSystemService(InputManager.class);
+
+        // Scroll to and highlight a specific preference when launched from QS tile
+        Bundle args = getArguments();
+        if (args != null) {
+            String targetKey = args.getString(":settings:fragment_args_key");
+            if (targetKey != null && !targetKey.isEmpty()) {
+                scrollToAndHighlight(targetKey);
+            }
+        }
+    }
+
+    private void scrollToAndHighlight(String key) {
+        // Delay to allow RecyclerView to layout, then scroll
+        mHandler.postDelayed(() -> {
+            scrollToPreference(key);
+            // Start flashing after scroll settles
+            mHandler.postDelayed(() -> flashPreference(key, 0), 400);
+        }, 300);
+    }
+
+    private void flashPreference(String key, int count) {
+        if (count >= 6) return; // 3 full cycles (dim + bright)
+        Preference pref = findPreference(key);
+        if (pref == null) return;
+
+        RecyclerView listView = getListView();
+        if (listView == null) return;
+
+        float alpha = (count % 2 == 0) ? 0.3f : 1.0f;
+
+        // Find the view for this preference by checking visible children
+        RecyclerView.Adapter<?> adapter = listView.getAdapter();
+        for (int i = 0; i < listView.getChildCount(); i++) {
+            View child = listView.getChildAt(i);
+            RecyclerView.ViewHolder vh = listView.getChildViewHolder(child);
+            if (vh != null) {
+                int pos = vh.getAdapterPosition();
+                if (pos >= 0 && adapter != null && pos < adapter.getItemCount()) {
+                    // Match by checking if scrollToPreference brought this into center
+                    // Use the preference's own adapter position via the list
+                    View prefView = listView.getLayoutManager().findViewByPosition(pos);
+                    if (prefView == child) {
+                        // Check tag or text match
+                        TextView titleView = child.findViewById(android.R.id.title);
+                        if (titleView != null && pref.getTitle() != null
+                                && pref.getTitle().equals(titleView.getText())) {
+                            child.setAlpha(alpha);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        mHandler.postDelayed(() -> flashPreference(key, count + 1), 300);
     }
 
     @Override
@@ -295,11 +391,35 @@ public class GamepadSettings extends SettingsPreferenceFragment
         super.onResume();
         populateControllerList();
         refreshRemapSummaries();
+        refreshToggleStates();
         mHandler.postDelayed(mRemapPollRunnable, REMAP_POLL_INTERVAL_MS);
 
         if (mInputManager != null) {
             mInputManager.registerInputDeviceListener(this, mHandler);
         }
+    }
+
+    /** Re-read all toggle props so Settings UI matches QS tile changes. */
+    private void refreshToggleStates() {
+        if (mEnablePref != null)
+            mEnablePref.setChecked(SystemProperties.getInt(PROP_ENABLE, 0) != 0);
+        if (mAnalogToDpadPref != null)
+            mAnalogToDpadPref.setChecked(SystemProperties.getInt(PROP_ANALOG_TO_DPAD, 0) != 0);
+        if (mDpadToAnalogPref != null)
+            mDpadToAnalogPref.setChecked(SystemProperties.getInt(PROP_DPAD_TO_ANALOG, 0) != 0);
+        if (mAbxySwapPref != null)
+            mAbxySwapPref.setChecked(SystemProperties.getInt(PROP_ABXY_SWAP, 0) != 0);
+        if (mInvertLeftPref != null)
+            mInvertLeftPref.setChecked(SystemProperties.getInt(PROP_INVERT_LEFT, 0) != 0);
+        if (mInvertRightPref != null)
+            mInvertRightPref.setChecked(SystemProperties.getInt(PROP_INVERT_RIGHT, 0) != 0);
+        if (mGlobalSensitivityPref != null) {
+            mGlobalSensitivityPref.setValue(
+                    String.valueOf(SystemProperties.getInt(PROP_GLOBAL_SENSITIVITY, 0)));
+            updateGlobalSensitivitySummary();
+        }
+        if (mPwmEnablePref != null)
+            mPwmEnablePref.setChecked(SystemProperties.getInt(PROP_PWM_ENABLE, 1) != 0);
     }
 
     @Override
@@ -1148,6 +1268,26 @@ public class GamepadSettings extends SettingsPreferenceFragment
                         String.valueOf((int) newValue));
                 bumpConfigVersion();
                 return true;
+            case KEY_ABXY_SWAP:
+                SystemProperties.set(PROP_ABXY_SWAP,
+                        (Boolean) newValue ? "1" : "0");
+                bumpConfigVersion();
+                return true;
+            case KEY_INVERT_LEFT:
+                SystemProperties.set(PROP_INVERT_LEFT,
+                        (Boolean) newValue ? "1" : "0");
+                bumpConfigVersion();
+                return true;
+            case KEY_INVERT_RIGHT:
+                SystemProperties.set(PROP_INVERT_RIGHT,
+                        (Boolean) newValue ? "1" : "0");
+                bumpConfigVersion();
+                return true;
+            case KEY_GLOBAL_SENSITIVITY:
+                SystemProperties.set(PROP_GLOBAL_SENSITIVITY, (String) newValue);
+                bumpConfigVersion();
+                updateGlobalSensitivitySummary();
+                return true;
         }
 
         return false;
@@ -1357,6 +1497,14 @@ public class GamepadSettings extends SettingsPreferenceFragment
                 })
                 .setNegativeButton(android.R.string.cancel, null)
                 .show();
+    }
+
+    private void updateGlobalSensitivitySummary() {
+        if (mGlobalSensitivityPref == null) return;
+        CharSequence entry = mGlobalSensitivityPref.getEntry();
+        if (entry != null) {
+            mGlobalSensitivityPref.setSummary(entry);
+        }
     }
 
     private void bumpConfigVersion() {

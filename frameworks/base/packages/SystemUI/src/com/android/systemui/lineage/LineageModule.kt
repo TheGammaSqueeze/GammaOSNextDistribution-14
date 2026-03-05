@@ -28,7 +28,6 @@ import com.android.systemui.qs.tiles.RightAnalogAxisTile;
 import com.android.systemui.qs.tiles.DpadAnalogToggleTile;
 import com.android.systemui.qs.tiles.GammaRGBTile;
 import com.android.systemui.qs.tiles.DCDimmingEmuTile;
-import com.android.systemui.qs.tiles.AnalogDeadzoneTile;
 import com.android.systemui.qs.tiles.AnalogCalibrationTile;
 import com.android.systemui.qs.tiles.DeepSleepModeTile;
 import com.android.systemui.qs.tiles.MappingEditorTile;
@@ -132,12 +131,6 @@ interface LineageModule {
     @IntoMap
     @StringKey(DCDimmingEmuTile.TILE_SPEC)
     fun bindDCDimmingEmuTile(dcDimmingEmuTile: DCDimmingEmuTile): QSTileImpl<*>
-
-    /** Inject AnalogDeadzoneTile into tileMap in QSModule */
-    @Binds
-    @IntoMap
-    @StringKey(AnalogDeadzoneTile.TILE_SPEC)
-    fun bindAnalogDeadzoneTile(analogDeadzoneTile: AnalogDeadzoneTile): QSTileImpl<*>
 
     /** Inject AnalogCalibrationTile into tileMap in QSModule */
     @Binds

@@ -19,15 +19,11 @@ package com.android.systemui.qs.tiles;
 
 import static com.android.internal.logging.MetricsLogger.VIEW_UNKNOWN;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
+import android.content.ComponentName;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.SystemProperties;
 import android.service.quicksettings.Tile;
-import android.util.Log;
 import android.view.View;
 
 import androidx.annotation.Nullable;
@@ -49,22 +45,12 @@ import com.android.systemui.qs.tileimpl.QSTileImpl.ResourceIcon;
 
 import javax.inject.Inject;
 
-/** Quick settings tile: Analog Calibration **/
+/** Quick settings tile: Analog Calibration — opens GamepadSettings calibration dialog **/
 public class AnalogCalibrationTile extends QSTileImpl<BooleanState> {
 
     public static final String TILE_SPEC = "analogcalibration";
 
-    private static final String PROP_CONTROL   = "persist.gammaos.calibrationmode";
-    private static final String CALIBRATOR_PKG = "com.gamma.analogcalibrator";
-
-    private static final int STATE_DISABLED = 0;
-    private static final int STATE_ENABLED  = 1;
-
-    private int currentState;
-
-    private final Icon mIconOn  = ResourceIcon.get(R.drawable.ic_qs_circle);
-    private final Icon mIconOff = ResourceIcon.get(R.drawable.ic_add_circle);
-    private final Receiver mReceiver = new Receiver();
+    private final Icon mIcon = ResourceIcon.get(R.drawable.ic_add_circle);
 
     @Inject
     public AnalogCalibrationTile(
@@ -80,13 +66,6 @@ public class AnalogCalibrationTile extends QSTileImpl<BooleanState> {
     ) {
         super(host, qsEventLogger, backgroundLooper, mainHandler, falsingManager, metricsLogger,
                 statusBarStateController, activityStarter, qsLogger);
-
-        // 1) Read persisted prop (default to OFF)
-        currentState = SystemProperties.getInt(PROP_CONTROL, STATE_DISABLED);
-        // 2) Re-apply it in case it's changed externally
-        applyState(currentState);
-        // 3) Listen for screen-off and boot so we can re-sync
-        mReceiver.init();
     }
 
     @Override
@@ -95,78 +74,29 @@ public class AnalogCalibrationTile extends QSTileImpl<BooleanState> {
     }
 
     @Override
-    protected void handleDestroy() {
-        super.handleDestroy();
-        mReceiver.destroy();
-    }
-
-    @Override
-    protected void handleSetListening(boolean listening) {
-        super.handleSetListening(listening);
-        if (listening) {
-            int newState = SystemProperties.getInt(PROP_CONTROL, STATE_DISABLED);
-            if (newState != currentState) {
-                currentState = newState;
-                refreshState();
-            }
-        }
-    }
-
-    @Override
     protected void handleClick(@Nullable View view) {
-        // Toggle OFF ⇄ ON
-        currentState = (currentState == STATE_ENABLED) ? STATE_DISABLED : STATE_ENABLED;
-        applyState(currentState);
-        refreshState();
-
-        // Close QS/notification shade and launch the calibrator app (if present).
-        startAnalogCalibratorWithShadeDismiss();
-    }
-
-    private void startAnalogCalibratorWithShadeDismiss() {
-        final Intent launchIntent =
-                mContext.getPackageManager().getLaunchIntentForPackage(CALIBRATOR_PKG);
-
-        mActivityStarter.postQSRunnableDismissingKeyguard(() -> {
-            if (launchIntent == null) {
-                if (Log.isLoggable("AnalogCalibrationTile", Log.DEBUG)) {
-                    Log.d("AnalogCalibrationTile", "Package not installed: " + CALIBRATOR_PKG);
-                }
-                return;
-            }
-
-            launchIntent.addFlags(
-                    Intent.FLAG_ACTIVITY_NEW_TASK
-                            | Intent.FLAG_ACTIVITY_CLEAR_TOP
-                            | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-
-            try {
-                // Prefer the explicit dismissShade path when available in your tree.
-                // This is the most common mechanism that actually collapses QS/notification shade.
-                mActivityStarter.startActivity(launchIntent, true /* dismissShade */);
-            } catch (Throwable t) {
-                Log.w("AnalogCalibrationTile", "Failed to launch " + CALIBRATOR_PKG, t);
-            }
-        });
+        // Open GamepadSettings — the calibration preference click is handled there
+        Intent intent = new Intent(Intent.ACTION_MAIN);
+        intent.setComponent(new ComponentName("org.lineageos.lineageparts",
+                "org.lineageos.lineageparts.input.GamepadSettings"));
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.putExtra(":settings:fragment_args_key", "gamepad_calibration");
+        mActivityStarter.postStartActivityDismissingKeyguard(intent, 0);
     }
 
     @Override
     protected void handleUpdateState(BooleanState state, Object arg) {
         state.label = mContext.getString(R.string.quick_settings_analog_calibration_label);
-        state.icon = (currentState == STATE_ENABLED) ? mIconOn : mIconOff;
-        state.secondaryLabel = (currentState == STATE_ENABLED) ? mContext.getString(R.string.quick_settings_tile_on) : mContext.getString(R.string.quick_settings_tile_off);
-        state.state = (currentState == STATE_ENABLED)
-                ? Tile.STATE_ACTIVE : Tile.STATE_INACTIVE;
+        state.icon = mIcon;
+        state.state = Tile.STATE_INACTIVE;
     }
 
     @Override
     public Intent getLongClickIntent() {
-        return null;
-    }
-
-    @Override
-    protected void handleLongClick(@Nullable View view) {
-        // no-op: we intercept the long-press here
+        Intent intent = new Intent(Intent.ACTION_MAIN);
+        intent.setComponent(new ComponentName("org.lineageos.lineageparts",
+                "org.lineageos.lineageparts.input.GamepadSettings"));
+        return intent;
     }
 
     @Override
@@ -177,45 +107,5 @@ public class AnalogCalibrationTile extends QSTileImpl<BooleanState> {
     @Override
     public int getMetricsCategory() {
         return VIEW_UNKNOWN;
-    }
-
-    /**
-     * Persist the current state into the system property.
-     */
-    private void applyState(int state) {
-        SystemProperties.set(PROP_CONTROL, Integer.toString(state));
-        if (Log.isLoggable("AnalogCalibrationTile", Log.DEBUG)) {
-            Log.d("AnalogCalibrationTile", PROP_CONTROL + "=" + state);
-        }
-    }
-
-    /**
-     * Receiver to re-sync state on screen-off and boot.
-     */
-    private final class Receiver extends BroadcastReceiver {
-        void init() {
-            IntentFilter filter = new IntentFilter();
-            filter.addAction(Intent.ACTION_SCREEN_OFF);
-            filter.addAction(Intent.ACTION_BOOT_COMPLETED);
-            mContext.registerReceiver(this, filter, null, mHandler);
-        }
-
-        void destroy() {
-            mContext.unregisterReceiver(this);
-        }
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            if (Intent.ACTION_SCREEN_OFF.equals(action)
-                    || Intent.ACTION_BOOT_COMPLETED.equals(action)) {
-                int newState = SystemProperties.getInt(PROP_CONTROL, STATE_DISABLED);
-                if (newState != currentState) {
-                    currentState = newState;
-                    applyState(currentState);
-                    refreshState();
-                }
-            }
-        }
     }
 }

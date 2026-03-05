@@ -50,6 +50,12 @@
         android:title="@string/gamepad_remap_category"
         android:dependency="gamepad_enable">
 
+        <SwitchPreferenceCompat
+            android:key="gamepad_abxy_swap"
+            android:title="@string/gamepad_abxy_swap_title"
+            android:summary="@string/gamepad_abxy_swap_summary"
+            android:defaultValue="false" />
+
         <Preference
             android:key="gamepad_axis_roles"
             android:title="@string/gamepad_axis_roles_title"
@@ -87,6 +93,25 @@
         android:key="gamepad_calibration_category"
         android:title="@string/gamepad_calibration_category"
         android:dependency="gamepad_enable">
+
+        <SwitchPreferenceCompat
+            android:key="gamepad_invert_left"
+            android:title="@string/gamepad_invert_left_title"
+            android:summary="@string/gamepad_invert_left_summary"
+            android:defaultValue="false" />
+
+        <SwitchPreferenceCompat
+            android:key="gamepad_invert_right"
+            android:title="@string/gamepad_invert_right_title"
+            android:summary="@string/gamepad_invert_right_summary"
+            android:defaultValue="false" />
+
+        <ListPreference
+            android:key="gamepad_global_sensitivity"
+            android:title="@string/gamepad_global_sensitivity_title"
+            android:entries="@array/gamepad_sensitivity_entries"
+            android:entryValues="@array/gamepad_sensitivity_values"
+            android:defaultValue="0" />
 
         <Preference
             android:key="gamepad_calibration"

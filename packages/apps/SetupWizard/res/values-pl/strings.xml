@@ -54,10 +54,8 @@
     <string name="dark">Ciemny</string>
     <string name="light">Jasny</string>
     <string name="gs_calibration">Kalibracja kontrolera</string>
-    <string name="gs_deadzone">Strefa martwa</string>
     <string name="gs_invert_left">Odwróć lewy</string>
     <string name="gs_invert_right">Odwróć prawy</string>
-    <string name="gs_calibration_mode">Tryb kalibracji</string>
     <string name="gs_reset">Zresetuj</string>
     <string name="gs_continue">Kontynuuj</string>
 </resources>

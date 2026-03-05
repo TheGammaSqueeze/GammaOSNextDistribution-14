@@ -14,7 +14,11 @@ namespace gammapad {
 InputTransformer::InputTransformer()
     : mAnalogToDpad(false),
       mDpadToAnalog(false),
-      mDpadThreshold(16384) {
+      mDpadThreshold(16384),
+      mAbxySwap(false),
+      mInvertLeft(false),
+      mInvertRight(false),
+      mGlobalSensitivity(0) {
 }
 
 void InputTransformer::loadConfig() {
@@ -128,13 +132,23 @@ void InputTransformer::loadConfig() {
         }
     }
 
+    // Global quick-access toggles
+    mAbxySwap = GetIntProperty("persist.gammaos.gamepad.abxy_swap", 0) != 0;
+    mInvertLeft = GetIntProperty("persist.gammaos.gamepad.invert_left", 0) != 0;
+    mInvertRight = GetIntProperty("persist.gammaos.gamepad.invert_right", 0) != 0;
+    mGlobalSensitivity = GetIntProperty("persist.gammaos.gamepad.global_sensitivity", 0);
+    mGlobalSensitivity = std::max(-3, std::min(3, mGlobalSensitivity));
+
     LOG(INFO) << "InputTransformer config loaded: "
               << mButtonRemap.size() << " button remaps, "
               << mAxisRemap.size() << " axis remaps, "
               << mCalibration.size() << " axis calibrations, "
               << mAxisButtons.size() << " axis-to-button triggers, "
               << "blacklistPass=" << mBlacklistPass.size() << ", "
-              << "a2d=" << mAnalogToDpad << " d2a=" << mDpadToAnalog;
+              << "a2d=" << mAnalogToDpad << " d2a=" << mDpadToAnalog << ", "
+              << "abxySwap=" << mAbxySwap
+              << " invertL=" << mInvertLeft << " invertR=" << mInvertRight
+              << " globalSens=" << mGlobalSensitivity;
 }
 
 void InputTransformer::setDeviceMaps(const std::unordered_map<int, int>& absMap,
@@ -161,6 +175,14 @@ bool InputTransformer::transform(struct input_event& ev,
         auto klIt = mDeviceKeyMap.find(ev.code);
         if (klIt != mDeviceKeyMap.end()) {
             ev.code = klIt->second;
+        }
+
+        // 1b. ABXY swap (before user button remap so swaps stack correctly)
+        if (mAbxySwap) {
+            if (ev.code == BTN_A) ev.code = BTN_B;
+            else if (ev.code == BTN_B) ev.code = BTN_A;
+            else if (ev.code == BTN_X) ev.code = BTN_Y;
+            else if (ev.code == BTN_Y) ev.code = BTN_X;
         }
 
         // 2. Apply user button remap
@@ -226,6 +248,19 @@ bool InputTransformer::transform(struct input_event& ev,
 
         // 4. Calibration (for stick axes)
         value = applyCalibration(code, value);
+
+        // 4b. Stick inversion (after calibration so center offsets are correct)
+        if (mInvertLeft && (code == ABS_X || code == ABS_Y)) value = -value;
+        if (mInvertRight && (code == ABS_RX || code == ABS_RY)) value = -value;
+
+        // 4d. Global sensitivity (layered on top of calibration + inversion)
+        if (mGlobalSensitivity != 0 &&
+            (code == ABS_X || code == ABS_Y || code == ABS_RX || code == ABS_RY)) {
+            // -3→50%, -2→75%, -1→90%, 0→100%, 1→110%, 2→125%, 3→150%
+            static const float kSensTable[] = {0.50f, 0.75f, 0.90f, 1.0f, 1.10f, 1.25f, 1.50f};
+            float mult = kSensTable[mGlobalSensitivity + 3];
+            value = std::max(-32768, std::min(32767, static_cast<int>(value * mult)));
+        }
 
         // 5. DPAD/analog swap
         if (mAnalogToDpad) {

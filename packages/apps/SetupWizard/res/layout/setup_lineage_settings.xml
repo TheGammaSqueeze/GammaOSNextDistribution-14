@@ -7,7 +7,6 @@
     android:background="#000000"
     android:fitsSystemWindows="false">
 
-    
     <ImageView
         android:id="@+id/gammaos_logo"
         android:layout_width="match_parent"
@@ -21,7 +20,7 @@
         android:id="@+id/headingTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Controller Calibration"
+        android:text="@string/gs_calibration"
         android:textSize="22sp"
         android:textStyle="bold"
         android:textColor="@android:color/white"
@@ -49,6 +48,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintWidth_percent="0.5" />
 
+    <!-- Main control area (visible in SETUP mode) -->
     <ScrollView
         android:id="@+id/control_scroll"
         android:layout_width="0dp"
@@ -65,111 +65,48 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
+            <!-- Controller chooser -->
+            <TextView
+                android:id="@+id/controller_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/gs_select_controller"
+                android:textColor="@android:color/white"
+                android:paddingBottom="8dp" />
+
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:scrollbars="none">
+
+                <LinearLayout
+                    android:id="@+id/controller_list"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal" />
+            </HorizontalScrollView>
+
+            <!-- Invert Left Stick -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Analog Sensitivity:"
+                android:text="@string/gs_invert_left"
                 android:textColor="@android:color/white"
-                android:paddingBottom="8dp"/>
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
-                <Button
-                    android:id="@+id/btn_sens_0"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:text="0%" />
-
-                <Button
-                    android:id="@+id/btn_sens_10"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:text="+10%" />
-
-                <Button
-                    android:id="@+id/btn_sens_25"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:text="+25%" />
-
-                <Button
-                    android:id="@+id/btn_sens_50"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:text="+50%" />
-            </LinearLayout>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Analog Deadzone: (ensure sticks don’t jitter at center; recommend 10%)"
-                android:textColor="@android:color/white"
-                android:paddingTop="8dp"/>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <Button
-                    android:id="@+id/btn_dead_0"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:text="0%" />
-
-                <Button
-                    android:id="@+id/btn_dead_5"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:text="5%" />
-
-                <Button
-                    android:id="@+id/btn_dead_10"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:text="10%" />
-
-                <Button
-                    android:id="@+id/btn_dead_15"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:text="15%" />
-
-                <Button
-                    android:id="@+id/btn_dead_20"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:text="20%" />
-            </LinearLayout>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Invert Left Stick:"
-                android:textColor="@android:color/white"
-                android:paddingTop="8dp"/>
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
                 <Button
                     android:id="@+id/btn_invert_left_off"
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
                     android:text="Off" />
+
                 <Button
                     android:id="@+id/btn_invert_left_on"
                     android:layout_width="0dp"
@@ -178,22 +115,27 @@
                     android:text="On" />
             </LinearLayout>
 
+            <!-- Invert Right Stick -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Invert Right Stick:"
+                android:text="@string/gs_invert_right"
                 android:textColor="@android:color/white"
-                android:paddingTop="8dp"/>
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp" />
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
+
                 <Button
                     android:id="@+id/btn_invert_right_off"
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
                     android:text="Off" />
+
                 <Button
                     android:id="@+id/btn_invert_right_on"
                     android:layout_width="0dp"
@@ -202,38 +144,101 @@
                     android:text="On" />
             </LinearLayout>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Calibration Mode:"
-                android:textColor="@android:color/white"
-                android:paddingTop="8dp"/>
-            <LinearLayout
+            <!-- Calibrate button -->
+            <Button
+                android:id="@+id/btn_calibrate"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                <Button
-                    android:id="@+id/btn_calibration_off"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:text="Off" />
-                <Button
-                    android:id="@+id/btn_calibration_on"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:text="On" />
-            </LinearLayout>
+                android:layout_marginTop="16dp"
+                android:text="@string/gs_calibrate" />
 
         </LinearLayout>
     </ScrollView>
+
+    <!-- Inline calibration area (GONE by default, shown during calibration) -->
+    <LinearLayout
+        android:id="@+id/calibration_area"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:gravity="center"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/left_stick_view"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView
+            android:id="@+id/calibration_instruction"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/white"
+            android:textSize="16sp"
+            android:gravity="center"
+            android:paddingBottom="16dp" />
+
+        <TextView
+            android:id="@+id/calibration_deadzone_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/white"
+            android:textSize="14sp"
+            android:visibility="gone" />
+
+        <SeekBar
+            android:id="@+id/calibration_deadzone_seekbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:max="8192"
+            android:progress="4096"
+            android:layout_marginTop="8dp"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/calibration_sensitivity_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/white"
+            android:textSize="14sp"
+            android:layout_marginTop="16dp"
+            android:visibility="gone" />
+
+        <SeekBar
+            android:id="@+id/calibration_sensitivity_seekbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:max="200"
+            android:progress="100"
+            android:layout_marginTop="8dp"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="24dp">
+
+            <Button
+                android:id="@+id/btn_cal_cancel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Cancel"
+                android:layout_marginEnd="16dp" />
+
+            <Button
+                android:id="@+id/btn_cal_continue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/gs_continue" />
+        </LinearLayout>
+    </LinearLayout>
 
     <Button
         android:id="@+id/continue_button"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Continue"
+        android:text="@string/gs_continue"
         android:layout_margin="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"

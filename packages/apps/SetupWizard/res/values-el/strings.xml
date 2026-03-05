@@ -54,10 +54,8 @@
     <string name="dark">Σκούρο</string>
     <string name="light">Ανοιχτόχρωμο</string>
     <string name="gs_calibration">Βαθμονόμηση χειριστηρίου</string>
-    <string name="gs_deadzone">Νεκρή ζώνη</string>
     <string name="gs_invert_left">Αντιστροφή αριστερού</string>
     <string name="gs_invert_right">Αντιστροφή δεξιού</string>
-    <string name="gs_calibration_mode">Λειτουργία βαθμονόμησης</string>
     <string name="gs_reset">Επαναφορά</string>
     <string name="gs_continue">Συνέχεια</string>
 </resources>

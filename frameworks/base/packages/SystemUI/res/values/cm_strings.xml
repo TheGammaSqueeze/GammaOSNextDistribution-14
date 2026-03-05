@@ -188,9 +188,6 @@
     <!-- DC Dimming tile -->
     <string name="quick_settings_dc_dimming_label">DC Dimming Emulation</string>
 
-    <!-- Analog deadzone tile -->
-    <string name="quick_settings_analog_deadzone_label">Analog Deadzone</string>
-
     <!-- Analog calibration tile -->
     <string name="quick_settings_analog_calibration_label">Analog Calibration</string>
 

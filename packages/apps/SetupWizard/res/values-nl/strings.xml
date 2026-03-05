@@ -54,10 +54,8 @@
     <string name="dark">Donker</string>
     <string name="light">Licht</string>
     <string name="gs_calibration">Controller-kalibratie</string>
-    <string name="gs_deadzone">Dode zone</string>
     <string name="gs_invert_left">Links inverteren</string>
     <string name="gs_invert_right">Rechts inverteren</string>
-    <string name="gs_calibration_mode">Kalibratiemodus</string>
     <string name="gs_reset">Herstellen</string>
     <string name="gs_continue">Doorgaan</string>
 </resources>

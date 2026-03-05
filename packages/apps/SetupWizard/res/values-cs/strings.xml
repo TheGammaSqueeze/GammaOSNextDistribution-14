@@ -54,10 +54,8 @@
     <string name="dark">Tmavý</string>
     <string name="light">Světlý</string>
     <string name="gs_calibration">Kalibrace ovladače</string>
-    <string name="gs_deadzone">Mrtvá zóna</string>
     <string name="gs_invert_left">Invertovat levou</string>
     <string name="gs_invert_right">Invertovat pravou</string>
-    <string name="gs_calibration_mode">Režim kalibrace</string>
     <string name="gs_reset">Resetovat</string>
     <string name="gs_continue">Pokračovat</string>
 </resources>

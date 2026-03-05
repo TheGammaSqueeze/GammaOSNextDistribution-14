@@ -54,10 +54,8 @@
     <string name="dark">Sombre</string>
     <string name="light">Clair</string>
     <string name="gs_calibration">Calibration de la manette</string>
-    <string name="gs_deadzone">Zone morte</string>
     <string name="gs_invert_left">Inverser gauche</string>
     <string name="gs_invert_right">Inverser droite</string>
-    <string name="gs_calibration_mode">Mode de calibration</string>
     <string name="gs_reset">Réinitialiser</string>
     <string name="gs_continue">Continuer</string>
 </resources>

@@ -127,6 +127,39 @@
     <string name="gamepad_blacklist_none">None</string>
     <string name="gamepad_blacklist_count">%d button(s) selected</string>
 
+    <!-- ABXY swap -->
+    <string name="gamepad_abxy_swap_title">ABXY swap</string>
+    <string name="gamepad_abxy_swap_summary">Swap A\u2194B and X\u2194Y buttons</string>
+
+    <!-- Stick inversion -->
+    <string name="gamepad_invert_left_title">Invert left stick</string>
+    <string name="gamepad_invert_left_summary">Invert both axes of the left analog stick</string>
+    <string name="gamepad_invert_right_title">Invert right stick</string>
+    <string name="gamepad_invert_right_summary">Invert both axes of the right analog stick</string>
+
+    <!-- Global sensitivity -->
+    <string name="gamepad_global_sensitivity_title">Analog sensitivity</string>
+
+    <!-- Sensitivity list entries -->
+    <string-array name="gamepad_sensitivity_entries">
+        <item>-50%</item>
+        <item>-25%</item>
+        <item>-10%</item>
+        <item>Off</item>
+        <item>+10%</item>
+        <item>+25%</item>
+        <item>+50%</item>
+    </string-array>
+    <string-array name="gamepad_sensitivity_values">
+        <item>-3</item>
+        <item>-2</item>
+        <item>-1</item>
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+    </string-array>
+
     <!-- Axis role mapping -->
     <string name="gamepad_axis_roles_title">Axis assignment</string>
     <string name="gamepad_axis_roles_summary">Assign physical axes to stick and trigger roles</string>

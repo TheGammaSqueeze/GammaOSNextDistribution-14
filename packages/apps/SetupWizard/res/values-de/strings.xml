@@ -54,10 +54,8 @@
     <string name="dark">Dunkel</string>
     <string name="light">Hell</string>
     <string name="gs_calibration">Controller-Kalibrierung</string>
-    <string name="gs_deadzone">Totzone</string>
     <string name="gs_invert_left">Links invertieren</string>
     <string name="gs_invert_right">Rechts invertieren</string>
-    <string name="gs_calibration_mode">Kalibrierungsmodus</string>
     <string name="gs_reset">Zurücksetzen</string>
     <string name="gs_continue">Weiter</string>
 </resources>
