@@ -373,6 +373,16 @@ compositionengine::Output::FrameFences Display::presentFrame() {
         return fences;
     }
 
+    // GammaOS: skip HWC presentDisplay() for a few frames after display rotation
+    // to work around vendor hwcomposer blitter crashes (MTK BliterNode::invalidate).
+    auto& state = editState();
+    if (state.skipHwcPresentFrames > 0) {
+        --state.skipHwcPresentFrames;
+        ALOGI("Skipping HWC presentDisplay for rotation transition (%d frames left)",
+              state.skipHwcPresentFrames);
+        return fences;
+    }
+
     auto& hwc = getCompositionEngine().getHwComposer();
 
     const TimePoint startTime = TimePoint::now();

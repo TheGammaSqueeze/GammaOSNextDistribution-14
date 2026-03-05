@@ -4926,6 +4926,15 @@ void SurfaceFlinger::processDisplayChanged(const wp<IBinder>& displayToken,
         if ((currentState.orientation != drawingState.orientation) ||
             (currentState.layerStackSpaceRect != drawingState.layerStackSpaceRect) ||
             (currentState.orientedDisplaySpaceRect != drawingState.orientedDisplaySpaceRect)) {
+            // GammaOS: when display orientation changes, skip HWC presentDisplay for
+            // a few frames to prevent vendor hwcomposer blitter crashes
+            // (MTK BliterNode::invalidate) during the transition.
+            if (currentState.orientation != drawingState.orientation) {
+                const int kSkipFrames = 5;
+                display->getCompositionDisplay()->editState().skipHwcPresentFrames = kSkipFrames;
+                ALOGI("Display orientation changed (%d -> %d), skipping %d HWC present frames",
+                      drawingState.orientation, currentState.orientation, kSkipFrames);
+            }
             display->setProjection(currentState.orientation, currentState.layerStackSpaceRect,
                                    currentState.orientedDisplaySpaceRect);
             if (display->getId() == mActiveDisplayId) {

@@ -171,6 +171,10 @@ struct OutputCompositionState {
     uint64_t lastOutputLayerHash = 0;
     uint64_t outputLayerHash = 0;
 
+    // GammaOS: number of frames to skip HWC presentDisplay() to work around
+    // vendor hwcomposer blitter crashes during display rotation transitions.
+    int skipHwcPresentFrames{0};
+
     ICEPowerCallback* powerCallback = nullptr;
 
     // Debugging
