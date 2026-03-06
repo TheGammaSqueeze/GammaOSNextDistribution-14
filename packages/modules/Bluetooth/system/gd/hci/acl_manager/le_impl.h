@@ -329,6 +329,7 @@ struct le_impl : public bluetooth::hci::LeAddressManagerCallback {
     connecting_le_.clear();
 
     direct_connect_remove(address_with_type);
+    reenable_scan_after_le_connect();
   }
 
   void on_le_connection_complete(LeMetaEventView packet) {
@@ -766,6 +767,7 @@ struct le_impl : public bluetooth::hci::LeAddressManagerCallback {
       case ConnectabilityState::ARMING:
         if (status != ErrorCode::SUCCESS) {
           LOG_ERROR("Le connection state machine armed failed status:%s", ErrorCodeText(status).c_str());
+          reenable_scan_after_le_connect();
         }
         connectability_state_ =
             (status == ErrorCode::SUCCESS) ? ConnectabilityState::ARMED : ConnectabilityState::DISARMED;
@@ -783,6 +785,20 @@ struct le_impl : public bluetooth::hci::LeAddressManagerCallback {
   void on_extended_create_connection(CommandStatusView status) {
     ASSERT(status.IsValid());
     ASSERT(status.GetCommandOpCode() == OpCode::LE_EXTENDED_CREATE_CONNECTION);
+    if (status.GetStatus() != ErrorCode::SUCCESS &&
+        extended_create_connection_is_feature_based_) {
+      // Extended create connection failed on a controller where we used
+      // feature-based detection (SupportsBleExtendedAdvertising) rather than
+      // Supported Commands. Fall back to legacy LE_CREATE_CONNECTION.
+      LOG_WARN(
+          "LE_EXTENDED_CREATE_CONNECTION failed (status:%s) with feature-based "
+          "detection, falling back to legacy LE_CREATE_CONNECTION",
+          ErrorCodeText(status.GetStatus()).c_str());
+      extended_create_connection_is_feature_based_ = false;
+      connectability_state_ = ConnectabilityState::ARMING;
+      arm_connectability_legacy();
+      return;
+    }
     update_connectability_state_after_armed(status.GetStatus());
   }
 
@@ -790,6 +806,23 @@ struct le_impl : public bluetooth::hci::LeAddressManagerCallback {
     ASSERT(status.IsValid());
     ASSERT(status.GetCommandOpCode() == OpCode::LE_CREATE_CONNECTION);
     update_connectability_state_after_armed(status.GetStatus());
+  }
+
+  void reenable_scan_after_le_connect() {
+    if (!scan_disabled_for_le_connect_) return;
+    scan_disabled_for_le_connect_ = false;
+    LOG_INFO("Re-enabling LE scan after connection attempt");
+    bool use_extended_scan = controller_->SupportsBleExtendedAdvertising();
+    if (use_extended_scan) {
+      hci_layer_->EnqueueCommand(
+          LeSetExtendedScanEnableBuilder::Create(
+              Enable::ENABLED, FilterDuplicates::DISABLED, 0, 0),
+          handler_->BindOnce([](CommandCompleteView) {}));
+    } else {
+      hci_layer_->EnqueueCommand(
+          LeSetScanEnableBuilder::Create(Enable::ENABLED, Enable::DISABLED),
+          handler_->BindOnce([](CommandCompleteView) {}));
+    }
   }
 
   void arm_connectability() {
@@ -839,7 +872,18 @@ struct le_impl : public bluetooth::hci::LeAddressManagerCallback {
       address_with_type = AddressWithType();
     }
 
-    if (controller_->IsSupported(OpCode::LE_EXTENDED_CREATE_CONNECTION)) {
+    // Use Supported Commands first, then fall back to LE features (Extended
+    // Advertising, C19) because some controllers (e.g. MediaTek) don't report
+    // LE_EXTENDED_CREATE_CONNECTION in Supported Commands despite requiring it.
+    // If the feature-based path fails, on_extended_create_connection will
+    // retry with legacy LE_CREATE_CONNECTION.
+    bool extended_via_supported_commands =
+        controller_->IsSupported(OpCode::LE_EXTENDED_CREATE_CONNECTION);
+    bool extended_via_features =
+        !extended_via_supported_commands &&
+        controller_->SupportsBleExtendedAdvertising();
+    if (extended_via_supported_commands || extended_via_features) {
+      extended_create_connection_is_feature_based_ = extended_via_features;
       bool only_init_1m_phy = os::GetSystemPropertyBool(kPropertyEnableBleOnlyInit1mPhy, kEnableBleOnlyInit1mPhy);
 
       uint8_t initiating_phys = PHY_LE_1M;
@@ -892,21 +936,183 @@ struct le_impl : public bluetooth::hci::LeAddressManagerCallback {
               parameters),
           handler_->BindOnce(&le_impl::on_extended_create_connection, common::Unretained(this)));
     } else {
-      le_acl_connection_interface_->EnqueueCommand(
-          LeCreateConnectionBuilder::Create(
-              le_scan_interval,
-              le_scan_window,
-              initiator_filter_policy,
-              address_with_type.GetAddressType(),
-              address_with_type.GetAddress(),
-              own_address_type,
-              conn_interval_min,
-              conn_interval_max,
-              conn_latency,
-              supervision_timeout,
-              0x00,
-              0x00),
-          handler_->BindOnce(&le_impl::on_create_connection, common::Unretained(this)));
+      // Fallback for controllers without Extended Advertising support.
+      // Disable scanning and use direct peer addressing to avoid
+      // COMMAND_DISALLOWED from LE_CREATE_CONNECTION.
+      InitiatorFilterPolicy legacy_filter_policy = initiator_filter_policy;
+      AddressWithType legacy_address = address_with_type;
+      if (initiator_filter_policy == InitiatorFilterPolicy::USE_FILTER_ACCEPT_LIST &&
+          !connecting_le_.empty()) {
+        legacy_filter_policy = InitiatorFilterPolicy::USE_PEER_ADDRESS;
+        legacy_address = *connecting_le_.begin();
+        LOG_INFO(
+            "Using direct peer addressing for legacy LE_CREATE_CONNECTION: %s",
+            ADDRESS_TO_LOGGABLE_CSTR(legacy_address));
+      }
+      LOG_INFO("Disabling LE scan before legacy LE_CREATE_CONNECTION");
+      scan_disabled_for_le_connect_ = true;
+      // Use LE features (Extended Advertising, C19) to detect extended scan
+      // support rather than Supported Commands bitmask, because some controllers
+      // (e.g. MediaTek) don't report LE_SET_EXTENDED_SCAN_ENABLE as supported
+      // despite handling it correctly.
+      bool use_extended_scan = controller_->SupportsBleExtendedAdvertising();
+      LOG_INFO("use_extended_scan=%d for scan disable before LE_CREATE_CONNECTION",
+               use_extended_scan);
+
+      // Chain: send create connection only AFTER scan disable completes.
+      // The two command interfaces (hci_layer_ and le_acl_connection_interface_)
+      // use separate queues, so sending both without waiting causes a race
+      // where the controller rejects LE_CREATE_CONNECTION with COMMAND_DISALLOWED
+      // because extended scanning is still active.
+      auto on_scan_disabled = handler_->BindOnce(
+          [](
+              le_impl* self,
+              InitiatorFilterPolicy filter_policy,
+              AddressWithType address,
+              OwnAddressType own_addr_type,
+              uint16_t scan_interval,
+              uint16_t scan_window,
+              uint16_t interval_min,
+              uint16_t interval_max,
+              uint16_t latency,
+              uint16_t timeout,
+              CommandCompleteView complete) {
+            auto complete_view = LeSetExtendedScanEnableCompleteView::Create(complete);
+            if (complete_view.IsValid()) {
+              LOG_INFO("Scan disable completed with status: 0x%02x",
+                       static_cast<int>(complete_view.GetStatus()));
+            } else {
+              LOG_INFO("Scan disable completed (non-extended or invalid view)");
+            }
+            LOG_INFO("Now sending LE_CREATE_CONNECTION after scan disabled");
+            self->le_acl_connection_interface_->EnqueueCommand(
+                LeCreateConnectionBuilder::Create(
+                    scan_interval,
+                    scan_window,
+                    filter_policy,
+                    address.GetAddressType(),
+                    address.GetAddress(),
+                    own_addr_type,
+                    interval_min,
+                    interval_max,
+                    latency,
+                    timeout,
+                    0x00,
+                    0x00),
+                self->handler_->BindOnce(
+                    &le_impl::on_create_connection, common::Unretained(self)));
+          },
+          common::Unretained(this),
+          legacy_filter_policy,
+          legacy_address,
+          own_address_type,
+          le_scan_interval,
+          le_scan_window,
+          conn_interval_min,
+          conn_interval_max,
+          conn_latency,
+          supervision_timeout);
+
+      if (use_extended_scan) {
+        hci_layer_->EnqueueCommand(
+            LeSetExtendedScanEnableBuilder::Create(
+                Enable::DISABLED, FilterDuplicates::DISABLED, 0, 0),
+            std::move(on_scan_disabled));
+      } else {
+        hci_layer_->EnqueueCommand(
+            LeSetScanEnableBuilder::Create(Enable::DISABLED, Enable::DISABLED),
+            std::move(on_scan_disabled));
+      }
+    }
+  }
+
+  void arm_connectability_legacy() {
+    // Called as fallback when LE_EXTENDED_CREATE_CONNECTION fails on a
+    // controller detected via SupportsBleExtendedAdvertising().
+    // Re-reads connection parameters and sends legacy LE_CREATE_CONNECTION
+    // with scan disable and direct peer addressing.
+    uint16_t le_scan_interval = os::GetSystemPropertyUint32(kPropertyConnScanIntervalSlow, kScanIntervalSlow);
+    uint16_t le_scan_window = os::GetSystemPropertyUint32(kPropertyConnScanWindowSlow, kScanWindowSlow);
+    if (!direct_connections_.empty()) {
+      le_scan_interval = os::GetSystemPropertyUint32(kPropertyConnScanIntervalFast, kScanIntervalFast);
+      le_scan_window = os::GetSystemPropertyUint32(kPropertyConnScanWindowFast, kScanWindowFast);
+    }
+    if (system_suspend_) {
+      le_scan_interval = kScanIntervalSystemSuspend;
+      le_scan_window = kScanWindowSystemSuspend;
+    }
+    OwnAddressType own_address_type =
+        static_cast<OwnAddressType>(le_address_manager_->GetInitiatorAddress().GetAddressType());
+    uint16_t conn_interval_min = os::GetSystemPropertyUint32(kPropertyMinConnInterval, kConnIntervalMin);
+    uint16_t conn_interval_max = os::GetSystemPropertyUint32(kPropertyMaxConnInterval, kConnIntervalMax);
+    uint16_t conn_latency = os::GetSystemPropertyUint32(kPropertyConnLatency, kConnLatency);
+    uint16_t supervision_timeout = os::GetSystemPropertyUint32(kPropertyConnSupervisionTimeout, kSupervisionTimeout);
+
+    InitiatorFilterPolicy legacy_filter_policy = InitiatorFilterPolicy::USE_FILTER_ACCEPT_LIST;
+    AddressWithType legacy_address = connection_peer_address_with_type_;
+    if (!connecting_le_.empty()) {
+      legacy_filter_policy = InitiatorFilterPolicy::USE_PEER_ADDRESS;
+      legacy_address = *connecting_le_.begin();
+      LOG_INFO(
+          "Fallback: using direct peer addressing for legacy LE_CREATE_CONNECTION: %s",
+          ADDRESS_TO_LOGGABLE_CSTR(legacy_address));
+    }
+
+    LOG_INFO("Fallback: disabling LE scan before legacy LE_CREATE_CONNECTION");
+    scan_disabled_for_le_connect_ = true;
+    bool use_extended_scan = controller_->SupportsBleExtendedAdvertising();
+
+    auto on_scan_disabled = handler_->BindOnce(
+        [](
+            le_impl* self,
+            InitiatorFilterPolicy filter_policy,
+            AddressWithType address,
+            OwnAddressType own_addr_type,
+            uint16_t scan_interval,
+            uint16_t scan_window,
+            uint16_t interval_min,
+            uint16_t interval_max,
+            uint16_t latency,
+            uint16_t timeout,
+            CommandCompleteView /* complete */) {
+          LOG_INFO("Fallback: scan disabled, now sending LE_CREATE_CONNECTION");
+          self->le_acl_connection_interface_->EnqueueCommand(
+              LeCreateConnectionBuilder::Create(
+                  scan_interval,
+                  scan_window,
+                  filter_policy,
+                  address.GetAddressType(),
+                  address.GetAddress(),
+                  own_addr_type,
+                  interval_min,
+                  interval_max,
+                  latency,
+                  timeout,
+                  0x00,
+                  0x00),
+              self->handler_->BindOnce(
+                  &le_impl::on_create_connection, common::Unretained(self)));
+        },
+        common::Unretained(this),
+        legacy_filter_policy,
+        legacy_address,
+        own_address_type,
+        le_scan_interval,
+        le_scan_window,
+        conn_interval_min,
+        conn_interval_max,
+        conn_latency,
+        supervision_timeout);
+
+    if (use_extended_scan) {
+      hci_layer_->EnqueueCommand(
+          LeSetExtendedScanEnableBuilder::Create(
+              Enable::DISABLED, FilterDuplicates::DISABLED, 0, 0),
+          std::move(on_scan_disabled));
+    } else {
+      hci_layer_->EnqueueCommand(
+          LeSetScanEnableBuilder::Create(Enable::DISABLED, Enable::DISABLED),
+          std::move(on_scan_disabled));
     }
   }
 
@@ -1004,6 +1210,7 @@ struct le_impl : public bluetooth::hci::LeAddressManagerCallback {
     LOG_INFO("on_create_connection_timeout, address: %s",
              ADDRESS_TO_LOGGABLE_CSTR(address_with_type));
     direct_connect_remove(address_with_type);
+    reenable_scan_after_le_connect();
 
     if (background_connections_.find(address_with_type) != background_connections_.end()) {
       disarm_connectability();
@@ -1171,6 +1378,7 @@ struct le_impl : public bluetooth::hci::LeAddressManagerCallback {
       if (pause_connection) {
         LOG_WARN("AckPause");
         le_address_manager_->AckPause(this);
+        reenable_scan_after_le_connect();
         return;
       }
     }
@@ -1179,6 +1387,7 @@ struct le_impl : public bluetooth::hci::LeAddressManagerCallback {
           "Attempting to disarm le connection state machine in unexpected state:%s",
           connectability_state_machine_text(connectability_state_).c_str());
     }
+    reenable_scan_after_le_connect();
   }
 
   void register_with_address_manager() {
@@ -1226,6 +1435,8 @@ struct le_impl : public bluetooth::hci::LeAddressManagerCallback {
   bool disarmed_while_arming_ = false;
   bool system_suspend_ = false;
   ConnectabilityState connectability_state_{ConnectabilityState::DISARMED};
+  bool scan_disabled_for_le_connect_ = false;
+  bool extended_create_connection_is_feature_based_ = false;
   std::map<AddressWithType, os::Alarm> create_connection_timeout_alarms_{};
 };
 

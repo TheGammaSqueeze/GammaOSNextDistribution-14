@@ -220,6 +220,44 @@ struct HciLayer::impl {
     } else {
       if (command_queue_.front().waiting_for_status_ == is_status) {
         command_queue_.front().GetCallback<TResponse>()->Invoke(std::move(response_view));
+      } else if (!is_status && command_queue_.front().waiting_for_status_) {
+        // Got CommandComplete but command expected CommandStatus.
+        // Some controllers (e.g. MediaTek) send CommandComplete instead of
+        // CommandStatus for certain commands. Synthesize a CommandStatus
+        // SUCCESS and invoke the status callback so upper-layer state
+        // machines (e.g. LE connection) progress correctly.
+        // Extract the error code from CommandComplete return parameters.
+        // Per BT spec, the first byte of return params is typically the
+        // status code.
+        CommandCompleteView cc_view = CommandCompleteView::Create(event);
+        uint8_t cc_status = 0x00;  // default SUCCESS
+        if (cc_view.IsValid()) {
+          auto payload = cc_view.GetPayload();
+          auto payload_it = payload.begin();
+          if (payload_it != payload.end()) {
+            cc_status = *payload_it;
+          }
+        }
+        LOG_WARN(
+            "Got CommandComplete for opcode 0x%02hx (%s) but CommandStatus was expected "
+            "(cc_status=0x%02x), synthesizing CommandStatus",
+            op_code,
+            OpCodeText(op_code).c_str(),
+            cc_status);
+        uint16_t op = static_cast<uint16_t>(op_code);
+        auto status_bytes = std::make_shared<std::vector<uint8_t>>(
+            std::vector<uint8_t>{
+                static_cast<uint8_t>(EventCode::COMMAND_STATUS),
+                0x04,
+                cc_status,  // status from CommandComplete
+                0x01,  // num_hci_command_packets
+                static_cast<uint8_t>(op & 0xFF),
+                static_cast<uint8_t>((op >> 8) & 0xFF)});
+        CommandStatusView synth_status = CommandStatusView::Create(
+            EventView::Create(PacketView<kLittleEndian>(status_bytes)));
+        ASSERT(synth_status.IsValid());
+        command_queue_.front().GetCallback<CommandStatusView>()->Invoke(
+            std::move(synth_status));
       } else {
         CommandCompleteView command_complete_view = CommandCompleteView::Create(
             EventView::Create(PacketView<kLittleEndian>(std::make_shared<std::vector<uint8_t>>(std::vector<uint8_t>()))));
@@ -378,13 +416,15 @@ struct HciLayer::impl {
         auto view = CommandCompleteView::Create(event);
         ASSERT(view.IsValid());
         auto op_code = view.GetCommandOpCode();
-        ASSERT_LOG(
-            op_code == OpCode::NONE,
-            "Received %s event with OpCode 0x%02hx (%s) without a waiting command"
-            "(is the HAL sending commands, but not handling the events?)",
-            EventCodeText(event_code).c_str(),
-            op_code,
-            OpCodeText(op_code).c_str());
+        if (op_code != OpCode::NONE) {
+          LOG_WARN(
+              "Received %s event with OpCode 0x%02hx (%s) without a waiting command"
+              " (unsolicited completion from controller, dropping)",
+              EventCodeText(event_code).c_str(),
+              op_code,
+              OpCodeText(op_code).c_str());
+          return;
+        }
       }
       if (event_code == EventCode::COMMAND_STATUS) {
         auto view = CommandStatusView::Create(event);

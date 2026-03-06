@@ -1032,6 +1032,8 @@ static void btu_hcif_hdl_command_complete(uint16_t opcode, uint8_t* p,
     case HCI_WRITE_PAGE_TOUT:
     case HCI_WRITE_SCAN_ENABLE:
     case HCI_WRITE_VOICE_SETTINGS:
+    case HCI_LE_SET_EXTENDED_SCAN_PARAMETERS:
+    case HCI_LE_SET_EXTENDED_SCAN_ENABLE:
       break;
 
     default:
