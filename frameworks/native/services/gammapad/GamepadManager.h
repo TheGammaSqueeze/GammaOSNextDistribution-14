@@ -30,6 +30,12 @@ struct PhysicalDevice {
     std::set<int> discoveredAxes;
     // Per-device discovered key codes
     std::set<int> discoveredKeys;
+    // Whether we unlinked the /dev node to hide it from games
+    bool nodeHidden = false;
+    // major/minor saved before unlink for mknod restore
+    dev_t devNumber = 0;
+    // File permissions saved before unlink
+    mode_t devMode = 0660;
 };
 
 class GamepadManager {
@@ -45,6 +51,9 @@ public:
 
     // Signal shutdown.
     void shutdown();
+
+    // Emergency restore of all hidden device nodes (async-signal-safe).
+    void restoreAllHiddenNodes();
 
 private:
     void loadConfig();
@@ -92,6 +101,7 @@ private:
     std::vector<std::string> mDeviceNames;
     int mConfigVersion;
     std::set<int> mBlacklistVpad;
+    bool mHideSourceNodes;
 
     std::unique_ptr<VirtualGamepad> mVirtualGamepad;
     std::unique_ptr<InputTransformer> mTransformer;
@@ -112,6 +122,11 @@ private:
 
     // All discovered axis scancodes from physical devices
     std::set<int> mDiscoveredAxes;
+
+    bool hideDeviceNode(PhysicalDevice& dev);
+    bool restoreDeviceNode(PhysicalDevice& dev);
+    void writeHiddenNodesState();
+    void recoverHiddenNodes();
 
     // fd -> PhysicalDevice
     std::unordered_map<int, PhysicalDevice> mDevices;

@@ -11,9 +11,12 @@
 #include <string.h>
 #include <sys/epoll.h>
 #include <sys/inotify.h>
+#include <sys/stat.h>
+#include <sys/sysmacros.h>
 #include <unistd.h>
 
 #include <chrono>
+#include <fstream>
 #include <sstream>
 #include <algorithm>
 
@@ -26,6 +29,8 @@ namespace gammapad {
 #define test_bit(nr, addr) (((addr)[BIT_WORD(nr)] & BIT_MASK(nr)) != 0)
 
 static constexpr const char* DEV_INPUT_PATH = "/dev/input";
+static constexpr const char* HIDDEN_NODES_DIR = "/data/misc/gammapad";
+static constexpr const char* HIDDEN_NODES_FILE = "/data/misc/gammapad/hidden_nodes";
 static constexpr int MAX_EPOLL_EVENTS = 16;
 static constexpr int CONFIG_CHECK_INTERVAL_MS = 1000;
 static constexpr int HOTPLUG_SETTLE_MS = 100;
@@ -61,7 +66,8 @@ GamepadManager::GamepadManager()
       mInotifyWd(-1),
       mRunning(false),
       mMerge(true),
-      mConfigVersion(0) {
+      mConfigVersion(0),
+      mHideSourceNodes(true) {
 }
 
 GamepadManager::~GamepadManager() {
@@ -130,6 +136,9 @@ bool GamepadManager::init() {
         return false;
     }
 
+    // Recover any hidden nodes from a previous crash
+    recoverHiddenNodes();
+
     // Scan and grab existing devices
     scanDevices();
 
@@ -153,6 +162,7 @@ void GamepadManager::loadConfig() {
 
     mMerge = GetIntProperty("persist.gammaos.gamepad.merge", 1) != 0;
     mConfigVersion = GetIntProperty("persist.gammaos.gamepad.config_version", 0);
+    mHideSourceNodes = GetIntProperty("persist.gammaos.gamepad.hide_source", 1) != 0;
 
     // Parse device names (semicolon-separated)
     mDeviceNames.clear();
@@ -245,6 +255,19 @@ void GamepadManager::run() {
 
 void GamepadManager::shutdown() {
     mRunning = false;
+}
+
+void GamepadManager::restoreAllHiddenNodes() {
+    // Async-signal-safe: only uses mknod, chown, unlink — no malloc, no logging
+    for (auto& [fd, dev] : mDevices) {
+        if (dev.nodeHidden) {
+            mknod(dev.path.c_str(), S_IFCHR | (dev.devMode & 07777), dev.devNumber);
+            chown(dev.path.c_str(), 1000, 1004);
+            dev.nodeHidden = false;
+        }
+    }
+    // Remove state file since we restored everything
+    unlink(HIDDEN_NODES_FILE);
 }
 
 void GamepadManager::scanDevices() {
@@ -406,6 +429,11 @@ bool GamepadManager::grabDevice(const std::string& path) {
     discoverDeviceCapabilities(fd, dev);
 
     mDevices[fd] = std::move(dev);
+
+    // Hide the physical device node so games can't see it
+    if (mHideSourceNodes) {
+        hideDeviceNode(mDevices[fd]);
+    }
 
     LOG(INFO) << "Grabbed device: " << path << " (" << name << ")"
               << (hasFF ? " [FF]" : "")
@@ -776,6 +804,9 @@ void GamepadManager::releaseDevice(int fd) {
 
     mForceFeedback->cancelDevice(fd);
 
+    // Restore hidden device node before closing
+    restoreDeviceNode(it->second);
+
     epoll_ctl(mEpollFd, EPOLL_CTL_DEL, fd, nullptr);
     ioctl(fd, EVIOCGRAB, 0);
     close(fd);
@@ -809,6 +840,8 @@ void GamepadManager::handleInputEvent(int fd) {
         if (n < 0) {
             if (errno == EAGAIN || errno == EWOULDBLOCK) break;
             if (errno == ENODEV) {
+                // Device unplugged — skip mknod restore since node is already gone
+                devIt->second.nodeHidden = false;
                 releaseDevice(fd);
                 return;
             }
@@ -850,18 +883,26 @@ void GamepadManager::handleInotifyEvent() {
             std::string path = std::string(DEV_INPUT_PATH) + "/" + event->name;
 
             if (event->mask & IN_CREATE) {
-                // Wait for device node to settle
-                usleep(HOTPLUG_SETTLE_MS * 1000);
-                bool grabbed = grabDevice(path);
-                if (grabbed) {
-                    needRebuild = true;
+                // Skip if we already have this path grabbed (self-triggered by mknod restore)
+                bool alreadyGrabbed = false;
+                for (const auto& [fd, dev] : mDevices) {
+                    if (dev.path == path) { alreadyGrabbed = true; break; }
+                }
+                if (!alreadyGrabbed) {
+                    // Wait for device node to settle
+                    usleep(HOTPLUG_SETTLE_MS * 1000);
+                    if (grabDevice(path)) {
+                        needRebuild = true;
+                    }
                 }
             } else if (event->mask & IN_DELETE) {
-                // Find and release by path
+                // Find and release by path, but skip if we intentionally hid this node
                 for (auto& [fd, dev] : mDevices) {
                     if (dev.path == path) {
-                        releaseDevice(fd);
-                        needRebuild = true;
+                        if (!dev.nodeHidden) {
+                            releaseDevice(fd);
+                            needRebuild = true;
+                        }
                         break;
                     }
                 }
@@ -1008,6 +1049,105 @@ bool GamepadManager::recreateVirtualGamepad(const std::set<int>& buttons,
     LOG(INFO) << "Virtual gamepad recreated with " << buttons.size()
               << " buttons and " << axes.size() << " axes";
     return true;
+}
+
+bool GamepadManager::hideDeviceNode(PhysicalDevice& dev) {
+    if (dev.nodeHidden) return true;
+
+    struct stat st;
+    if (stat(dev.path.c_str(), &st) < 0) {
+        LOG(WARNING) << "hideDeviceNode: stat failed for " << dev.path
+                     << ": " << strerror(errno);
+        return false;
+    }
+
+    dev.devNumber = st.st_rdev;
+    dev.devMode = st.st_mode;
+
+    if (unlink(dev.path.c_str()) < 0) {
+        LOG(WARNING) << "hideDeviceNode: unlink failed for " << dev.path
+                     << ": " << strerror(errno);
+        return false;
+    }
+
+    dev.nodeHidden = true;
+    writeHiddenNodesState();
+
+    LOG(INFO) << "Hidden device node: " << dev.path
+              << " (major=" << major(dev.devNumber)
+              << " minor=" << minor(dev.devNumber) << ")";
+    return true;
+}
+
+bool GamepadManager::restoreDeviceNode(PhysicalDevice& dev) {
+    if (!dev.nodeHidden) return true;
+
+    if (mknod(dev.path.c_str(), S_IFCHR | (dev.devMode & 07777), dev.devNumber) < 0) {
+        LOG(WARNING) << "restoreDeviceNode: mknod failed for " << dev.path
+                     << ": " << strerror(errno);
+        dev.nodeHidden = false;
+        writeHiddenNodesState();
+        return false;
+    }
+
+    // Restore ownership: system:input (1000:1004)
+    chown(dev.path.c_str(), 1000, 1004);
+
+    dev.nodeHidden = false;
+    writeHiddenNodesState();
+
+    LOG(INFO) << "Restored device node: " << dev.path;
+    return true;
+}
+
+void GamepadManager::writeHiddenNodesState() {
+    // Ensure directory exists
+    mkdir(HIDDEN_NODES_DIR, 0755);
+
+    std::ofstream ofs(HIDDEN_NODES_FILE, std::ios::trunc);
+    if (!ofs) {
+        LOG(WARNING) << "writeHiddenNodesState: failed to open " << HIDDEN_NODES_FILE;
+        return;
+    }
+
+    for (const auto& [fd, dev] : mDevices) {
+        if (dev.nodeHidden) {
+            ofs << dev.path << " "
+                << major(dev.devNumber) << " "
+                << minor(dev.devNumber) << " "
+                << std::oct << (dev.devMode & 07777) << std::dec << "\n";
+        }
+    }
+}
+
+void GamepadManager::recoverHiddenNodes() {
+    std::ifstream ifs(HIDDEN_NODES_FILE);
+    if (!ifs) return;  // No state file — nothing to recover
+
+    LOG(INFO) << "Recovering hidden device nodes from previous session";
+
+    std::string path;
+    unsigned int maj, min;
+    unsigned int mode;
+    while (ifs >> path >> maj >> min >> std::oct >> mode >> std::dec) {
+        // Check if the node is already present (ueventd may have recreated it)
+        struct stat st;
+        if (stat(path.c_str(), &st) == 0) {
+            LOG(INFO) << "  Node already exists: " << path << " (skipping)";
+            continue;
+        }
+
+        dev_t devNum = makedev(maj, min);
+        if (mknod(path.c_str(), S_IFCHR | (mode & 07777), devNum) < 0) {
+            LOG(WARNING) << "  Failed to restore " << path << ": " << strerror(errno);
+        } else {
+            chown(path.c_str(), 1000, 1004);
+            LOG(INFO) << "  Restored " << path;
+        }
+    }
+
+    // Clean up state file
+    unlink(HIDDEN_NODES_FILE);
 }
 
 } // namespace gammapad

@@ -2,6 +2,7 @@ service gammapad /system/bin/gammapad
     disabled
     user system
     group system input
+    capabilities MKNOD DAC_OVERRIDE
     seclabel u:r:gammapad:s0
     class main
 
@@ -10,3 +11,4 @@ on property:persist.gammaos.gamepad.enable=1 && property:sys.boot_completed=1
 
 on property:persist.gammaos.gamepad.enable=0
     stop gammapad
+    exec - root root -- /system/bin/gammapad_restore

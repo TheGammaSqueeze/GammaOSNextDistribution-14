@@ -16,6 +16,10 @@
     <string name="gamepad_merge_title">Merge controllers</string>
     <string name="gamepad_merge_summary">Combine all controllers into one virtual gamepad</string>
 
+    <!-- Hide source controllers -->
+    <string name="gamepad_hide_source_title">Hide source controllers</string>
+    <string name="gamepad_hide_source_summary">Remove physical controller device nodes so games only see the virtual gamepad</string>
+
     <!-- Controller list -->
     <string name="gamepad_devices_category">Controllers</string>
     <string name="gamepad_no_devices">No controllers detected</string>

@@ -58,6 +58,7 @@ public class GamepadSettings extends SettingsPreferenceFragment
 
     private static final String KEY_ENABLE = "gamepad_enable";
     private static final String KEY_MERGE = "gamepad_merge";
+    private static final String KEY_HIDE_SOURCE = "gamepad_hide_source";
     private static final String KEY_DEVICES_CATEGORY = "gamepad_devices_category";
     private static final String KEY_DEVICE_PRESET = "gamepad_device_preset";
     private static final String KEY_REMAP_BUTTONS = "gamepad_remap_buttons";
@@ -82,6 +83,7 @@ public class GamepadSettings extends SettingsPreferenceFragment
 
     private static final String PROP_ENABLE = "persist.gammaos.gamepad.enable";
     private static final String PROP_MERGE = "persist.gammaos.gamepad.merge";
+    private static final String PROP_HIDE_SOURCE = "persist.gammaos.gamepad.hide_source";
     private static final String PROP_DEVICES = "persist.gammaos.gamepad.devices";
     private static final String PROP_REMAP_BTN = "persist.gammaos.gamepad.remap_btn";
     private static final String PROP_REMAP_AXIS = "persist.gammaos.gamepad.remap_axis";
@@ -156,6 +158,7 @@ public class GamepadSettings extends SettingsPreferenceFragment
 
     private SwitchPreferenceCompat mEnablePref;
     private SwitchPreferenceCompat mMergePref;
+    private SwitchPreferenceCompat mHideSourcePref;
     private PreferenceCategory mDevicesCategory;
     private ListPreference mDevicePresetPref;
     private SwitchPreferenceCompat mAnalogToDpadPref;
@@ -188,6 +191,7 @@ public class GamepadSettings extends SettingsPreferenceFragment
 
         mEnablePref = findPreference(KEY_ENABLE);
         mMergePref = findPreference(KEY_MERGE);
+        mHideSourcePref = findPreference(KEY_HIDE_SOURCE);
         mDevicesCategory = findPreference(KEY_DEVICES_CATEGORY);
         mDevicePresetPref = findPreference(KEY_DEVICE_PRESET);
         mAnalogToDpadPref = findPreference(KEY_ANALOG_TO_DPAD);
@@ -201,6 +205,8 @@ public class GamepadSettings extends SettingsPreferenceFragment
                 SystemProperties.getInt(PROP_ENABLE, 0) != 0);
         mMergePref.setChecked(
                 SystemProperties.getInt(PROP_MERGE, 1) != 0);
+        mHideSourcePref.setChecked(
+                SystemProperties.getInt(PROP_HIDE_SOURCE, 1) != 0);
         mAnalogToDpadPref.setChecked(
                 SystemProperties.getInt(PROP_ANALOG_TO_DPAD, 0) != 0);
         mDpadToAnalogPref.setChecked(
@@ -246,6 +252,7 @@ public class GamepadSettings extends SettingsPreferenceFragment
         // Set listeners
         mEnablePref.setOnPreferenceChangeListener(this);
         mMergePref.setOnPreferenceChangeListener(this);
+        mHideSourcePref.setOnPreferenceChangeListener(this);
         mAnalogToDpadPref.setOnPreferenceChangeListener(this);
         mDpadToAnalogPref.setOnPreferenceChangeListener(this);
         mDpadThresholdPref.setOnPreferenceChangeListener(this);
@@ -1137,10 +1144,16 @@ public class GamepadSettings extends SettingsPreferenceFragment
             mDevicesCategory.addPreference(pref);
         }
 
-        // Show disconnected but selected controllers — enabled so they can be removed
+        // Show disconnected but selected controllers — enabled so they can be removed.
+        // When hide_source is active, the daemon unlinks physical device nodes so they
+        // won't appear in InputManager. Treat those as "hidden" not "disconnected".
+        boolean hideSourceActive =
+                SystemProperties.getInt(PROP_ENABLE, 0) != 0
+                && SystemProperties.getInt(PROP_HIDE_SOURCE, 1) != 0;
+
         List<String> disconnected = new ArrayList<>();
         for (String selectedName : mSelectedDevices) {
-            if (!connectedKernelNames.contains(selectedName)) {
+            if (!connectedKernelNames.contains(selectedName) && !hideSourceActive) {
                 disconnected.add(selectedName);
             }
         }
@@ -1237,6 +1250,11 @@ public class GamepadSettings extends SettingsPreferenceFragment
                 return true;
             case KEY_MERGE:
                 SystemProperties.set(PROP_MERGE,
+                        (Boolean) newValue ? "1" : "0");
+                bumpConfigVersion();
+                return true;
+            case KEY_HIDE_SOURCE:
+                SystemProperties.set(PROP_HIDE_SOURCE,
                         (Boolean) newValue ? "1" : "0");
                 bumpConfigVersion();
                 return true;

@@ -22,6 +22,14 @@
         android:defaultValue="true"
         android:dependency="gamepad_enable" />
 
+    <!-- Hide source controllers -->
+    <SwitchPreferenceCompat
+        android:key="gamepad_hide_source"
+        android:title="@string/gamepad_hide_source_title"
+        android:summary="@string/gamepad_hide_source_summary"
+        android:defaultValue="true"
+        android:dependency="gamepad_enable" />
+
     <!-- Controller list -->
     <PreferenceCategory
         android:key="gamepad_devices_category"

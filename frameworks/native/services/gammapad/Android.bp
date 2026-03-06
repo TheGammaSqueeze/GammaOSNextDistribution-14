@@ -21,3 +21,12 @@ cc_binary {
         "-Wno-unused-parameter",
     ],
 }
+
+cc_binary {
+    name: "gammapad_restore",
+    srcs: ["restore.cpp"],
+    cflags: [
+        "-Wall",
+        "-Werror",
+    ],
+}

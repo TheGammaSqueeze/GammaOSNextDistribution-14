@@ -9,8 +9,8 @@ get_prop(gammapad, persist_gammaos_prop)
 set_prop(gammapad, persist_gammaos_prop)
 
 # Input device access (/dev/input/*)
-allow gammapad input_device:dir r_dir_perms;
-allow gammapad input_device:chr_file rw_file_perms;
+allow gammapad input_device:dir { r_dir_perms add_name remove_name write };
+allow gammapad input_device:chr_file { rw_file_perms create unlink setattr };
 
 # Uinput access (/dev/uinput)
 allow gammapad uhid_device:chr_file rw_file_perms;
@@ -20,6 +20,10 @@ allow gammapad device:dir { open read watch };
 
 # Socket to vibration bridge in system_server (abstract Unix socket)
 allow gammapad system_server:unix_stream_socket connectto;
+
+# Crash recovery state file (/data/misc/gammapad/)
+allow gammapad system_data_file:dir { create write add_name remove_name search };
+allow gammapad system_data_file:file { create write open read unlink getattr };
 
 # Basic system file access
 allow gammapad system_file:file { read open getattr execute execute_no_trans map };

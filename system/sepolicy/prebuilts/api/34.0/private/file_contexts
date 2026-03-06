@@ -875,3 +875,4 @@
 /system/bin/customization\.sh    u:object_r:gammaoscustomization_exec:s0
 /system/bin/setup\.sh            u:object_r:gammaossetupwizard_exec:s0
 /system/bin/gammapad             u:object_r:gammapad_exec:s0
+/system/bin/gammapad_restore     u:object_r:gammapad_exec:s0

@@ -9,6 +9,7 @@ static gammapad::GamepadManager* gManager = nullptr;
 
 static void signalHandler(int sig) {
     if (gManager) {
+        gManager->restoreAllHiddenNodes();
         gManager->shutdown();
     }
 }
