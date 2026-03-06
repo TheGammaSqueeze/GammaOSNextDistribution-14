@@ -17,6 +17,8 @@
 package com.android.settings.datetime.timezone;
 
 import android.app.Activity;
+import android.app.timezonedetector.ManualTimeZoneSuggestion;
+import android.app.timezonedetector.TimeZoneDetector;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
@@ -62,6 +64,13 @@ public abstract class BaseTimeZoneInfoPicker extends BaseTimeZonePicker {
 
     private void onListItemClick(TimeZoneInfoItem item) {
         final TimeZoneInfo timeZoneInfo = item.mTimeZoneInfo;
+        // GammaOS: Apply timezone directly before finishing. When Settings is launched
+        // from a third-party launcher, intermediate SubSettings activities may be missing
+        // from the back stack, breaking the activity result chain to TimeZoneSettings.
+        ManualTimeZoneSuggestion suggestion = TimeZoneDetector.createManualTimeZoneSuggestion(
+                timeZoneInfo.getId(), "Settings: Set time zone");
+        TimeZoneDetector detector = getActivity().getSystemService(TimeZoneDetector.class);
+        detector.suggestManualTimeZone(suggestion);
         getActivity().setResult(Activity.RESULT_OK, prepareResultData(timeZoneInfo));
         getActivity().finish();
     }

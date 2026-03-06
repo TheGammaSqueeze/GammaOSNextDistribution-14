@@ -20,6 +20,8 @@ import static com.android.settingslib.datetime.ZoneGetter.capitalizeForStandalon
 
 import android.app.Activity;
 import android.app.settings.SettingsEnums;
+import android.app.timezonedetector.ManualTimeZoneSuggestion;
+import android.app.timezonedetector.TimeZoneDetector;
 import android.content.Intent;
 import android.icu.text.Collator;
 import android.icu.text.LocaleDisplayNames;
@@ -86,6 +88,11 @@ public class RegionSearchPicker extends BaseTimeZonePicker {
             final Intent resultData = new Intent()
                     .putExtra(EXTRA_RESULT_REGION_ID, regionId)
                     .putExtra(EXTRA_RESULT_TIME_ZONE_ID, timeZoneIds.get(0));
+            // GammaOS: Apply timezone directly before finishing. When Settings is
+            // launched from a third-party launcher, intermediate SubSettings activities
+            // may be missing from the back stack, breaking the activity result chain
+            // back to TimeZoneSettings.
+            applyTimeZone(timeZoneIds.get(0));
             getActivity().setResult(Activity.RESULT_OK, resultData);
             getActivity().finish();
         } else {
@@ -106,10 +113,24 @@ public class RegionSearchPicker extends BaseTimeZonePicker {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_CODE_ZONE_PICKER) {
             if (resultCode == Activity.RESULT_OK) {
+                // GammaOS: Apply timezone directly (same reason as in onListItemClick).
+                String tzId = data.getStringExtra(EXTRA_RESULT_TIME_ZONE_ID);
+                if (tzId != null) {
+                    applyTimeZone(tzId);
+                }
                 getActivity().setResult(Activity.RESULT_OK, data);
             }
             getActivity().finish();
         }
+    }
+
+    // GammaOS: Apply timezone directly via TimeZoneDetector so it takes effect even
+    // when the activity result chain to TimeZoneSettings is broken.
+    private void applyTimeZone(String tzId) {
+        ManualTimeZoneSuggestion suggestion =
+                TimeZoneDetector.createManualTimeZoneSuggestion(tzId, "Settings: Set time zone");
+        TimeZoneDetector detector = getActivity().getSystemService(TimeZoneDetector.class);
+        detector.suggestManualTimeZone(suggestion);
     }
 
     private List<RegionItem> createAdapterItem(Set<String> regionIds) {
