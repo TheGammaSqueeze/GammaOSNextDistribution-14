@@ -948,7 +948,7 @@ if getprop ro.vendor.build.fingerprint |grep -qiE \
         -e razer/cheryl ; then
     setprop media.settings.xml "/vendor/etc/media_profiles_vendor.xml"
 fi
-resetprop_phh service.adb.root 0
+resetprop_phh service.adb.root 1
 
 # This is for Samsung Galaxy devices with HBM FOD
 # On those devices, a magic Layer usageBits switches to "mask_brightness"

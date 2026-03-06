@@ -61,35 +61,8 @@
 static const char* root_seclabel = nullptr;
 
 static bool should_drop_privileges() {
-    // The properties that affect `adb root` and `adb unroot` are ro.secure and
-    // ro.debuggable. In this context the names don't make the expected behavior
-    // particularly obvious.
-    //
-    // ro.debuggable:
-    //   Allowed to become root, but not necessarily the default. Set to 1 on
-    //   eng and userdebug builds.
-    //
-    // ro.secure:
-    //   Drop privileges by default. Set to 1 on userdebug and user builds.
-    bool ro_secure = android::base::GetBoolProperty("ro.secure", true);
-    bool ro_debuggable = __android_log_is_debuggable();
-
-    // Drop privileges if ro.secure is set...
-    bool drop = ro_secure;
-
-    // ... except "adb root" lets you keep privileges in a debuggable build.
-    std::string prop = android::base::GetProperty("service.adb.root", "");
-    bool adb_root = (prop == "1");
-    bool adb_unroot = (prop == "0");
-    if (ro_debuggable && adb_root) {
-        drop = false;
-    }
-    // ... and "adb unroot" lets you explicitly drop privileges.
-    if (adb_unroot) {
-        drop = true;
-    }
-
-    return drop;
+    // GammaOS: always run adbd as root
+    return false;
 }
 
 static void drop_privileges(int server_port) {
