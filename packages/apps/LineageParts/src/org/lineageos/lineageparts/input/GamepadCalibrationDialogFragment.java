@@ -868,27 +868,31 @@ public class GamepadCalibrationDialogFragment extends DialogFragment {
 
     /** Get the daemon's ABS code for right stick X based on the active preset. */
     private int getRightStickAbsX() {
-        return isXboxWirelessPreset() ? ABS_Z : ABS_RX;
+        return usesStandardLayout() ? ABS_RX : ABS_Z;
     }
 
     /** Get the daemon's ABS code for right stick Y based on the active preset. */
     private int getRightStickAbsY() {
-        return isXboxWirelessPreset() ? ABS_RZ : ABS_RY;
+        return usesStandardLayout() ? ABS_RY : ABS_RZ;
     }
 
     /** Get the daemon's ABS code for left trigger based on the active preset. */
     private int getTriggerAbsLT() {
-        return isXboxWirelessPreset() ? ABS_BRAKE : ABS_Z;
+        return usesStandardLayout() ? ABS_Z : ABS_BRAKE;
     }
 
     /** Get the daemon's ABS code for right trigger based on the active preset. */
     private int getTriggerAbsRT() {
-        return isXboxWirelessPreset() ? ABS_GAS : ABS_RZ;
+        return usesStandardLayout() ? ABS_RZ : ABS_GAS;
     }
 
-    /** Check if the active preset is Xbox Wireless Controller (02fd). */
-    private boolean isXboxWirelessPreset() {
-        String pid = SystemProperties.get("persist.gammaos.gamepad.device_pid", "0x02fd")
+    /**
+     * Check if the daemon applies heuristic remapping to standard layout.
+     * PID 0x02fd uses standard layout (right stick=RX/RY, triggers=Z/RZ).
+     * All other PIDs use native layout (right stick=Z/RZ, triggers=GAS/BRAKE).
+     */
+    private boolean usesStandardLayout() {
+        String pid = SystemProperties.get("persist.gammaos.gamepad.device_pid", "0x0b13")
                 .replace("0x", "").toLowerCase();
         return "02fd".equals(pid) || "2fd".equals(pid);
     }

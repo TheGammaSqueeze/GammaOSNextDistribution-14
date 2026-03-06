@@ -31,7 +31,7 @@ public:
             const std::unordered_map<int, AxisInfo>& absInfo);
 
     // Apply heuristic axis remapping for controllers without a .kl file.
-    // Detects AYANEO-style layouts where ABS_Z/ABS_RZ are bipolar sticks
+    // Detects non-standard layouts where ABS_Z/ABS_RZ are bipolar sticks
     // and ABS_GAS/ABS_BRAKE are unipolar triggers, and remaps them to
     // standard Xbox layout (right stick on ABS_RX/ABS_RY, triggers on ABS_Z/ABS_RZ).
     static void applyHeuristicMapping(

@@ -21,10 +21,11 @@ static const std::set<int> kDefaultButtons = {
     BTN_THUMBL, BTN_THUMBR,
 };
 
-// Default axis set
+// Default axis set — matches Xbox Wireless Controller (BT) layout:
+// right stick on Z/RZ, triggers on GAS/BRAKE
 static const std::set<int> kDefaultAxes = {
-    ABS_X, ABS_Y, ABS_RX, ABS_RY,
-    ABS_Z, ABS_RZ,
+    ABS_X, ABS_Y, ABS_Z, ABS_RZ,
+    ABS_GAS, ABS_BRAKE,
     ABS_HAT0X, ABS_HAT0Y,
 };
 
@@ -65,9 +66,9 @@ bool VirtualGamepad::createDevice(const std::set<int>& buttons, const std::set<i
     // Set up device identity (Xbox controller compatible)
     struct uinput_setup setup = {};
     strncpy(setup.name, "GammaOS Virtual Gamepad", UINPUT_MAX_NAME_SIZE - 1);
-    setup.id.bustype = BUS_USB;
+    setup.id.bustype = BUS_BLUETOOTH;
     setup.id.vendor = 0x045e;   // Microsoft
-    setup.id.product = 0x02fd;  // Xbox Wireless Controller
+    setup.id.product = 0x0b13;  // Xbox Wireless Controller
     setup.id.version = 0x0100;
     setup.ff_effects_max = 16;
 
@@ -116,7 +117,7 @@ bool VirtualGamepad::createDevice(const std::set<int>& buttons,
     // Set up device identity with custom name/VID/PID
     struct uinput_setup setup = {};
     strncpy(setup.name, name.c_str(), UINPUT_MAX_NAME_SIZE - 1);
-    setup.id.bustype = BUS_USB;
+    setup.id.bustype = BUS_BLUETOOTH;
     setup.id.vendor = vendor;
     setup.id.product = product;
     setup.id.version = 0x0100;
@@ -206,13 +207,14 @@ bool VirtualGamepad::setupAxes(const std::set<int>& axes) {
             absSetup.absinfo.maximum = 1;
             absSetup.absinfo.fuzz = 0;
             absSetup.absinfo.flat = 0;
-        } else if (code == ABS_Z || code == ABS_RZ) {
+        } else if (code == ABS_GAS || code == ABS_BRAKE) {
+            // Triggers (unipolar)
             absSetup.absinfo.minimum = 0;
-            absSetup.absinfo.maximum = 1023;
+            absSetup.absinfo.maximum = 32767;
             absSetup.absinfo.fuzz = 0;
             absSetup.absinfo.flat = 0;
         } else {
-            // Stick axes: X, Y, RX, RY and any remapped axes
+            // Stick axes: X, Y, Z, RZ (and RX, RY if used)
             absSetup.absinfo.minimum = -32768;
             absSetup.absinfo.maximum = 32767;
             absSetup.absinfo.fuzz = 16;

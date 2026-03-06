@@ -272,7 +272,7 @@ void KeyLayoutParser::resolveAxisCollisions(
 void KeyLayoutParser::applyHeuristicMapping(
         std::unordered_map<int, int>& absMap,
         const std::unordered_map<int, AxisInfo>& absInfo) {
-    // Detect AYANEO-style layout:
+    // Detect non-standard layout:
     //   ABS_Z (sc=2) bipolar → right stick X (not a trigger)
     //   ABS_RZ (sc=5) bipolar → right stick Y (not a trigger)
     //   ABS_GAS (sc=9) unipolar → RT trigger
@@ -313,7 +313,7 @@ void KeyLayoutParser::applyHeuristicMapping(
     if (absInfo.count(ABS_RX) || absInfo.count(ABS_RY))
         return;
 
-    LOG(INFO) << "Heuristic: detected AYANEO-style layout, remapping to Xbox standard";
+    LOG(INFO) << "Heuristic: detected non-standard layout, remapping to Xbox standard";
 
     // Remove .kl-generated entries for ABS_RX/ABS_RY (from Generic.kl)
     // since the physical device doesn't have these scancodes

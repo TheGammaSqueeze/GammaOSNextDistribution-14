@@ -53,10 +53,11 @@ static const std::set<int> kDefaultButtons = {
     BTN_THUMBL, BTN_THUMBR,
 };
 
-// Default axis set (fallback when no physical devices discovered)
+// Default axis set — matches Xbox Wireless Controller (BT) layout:
+// right stick on Z/RZ, triggers on GAS/BRAKE
 static const std::set<int> kDefaultAxes = {
-    ABS_X, ABS_Y, ABS_RX, ABS_RY,
-    ABS_Z, ABS_RZ,
+    ABS_X, ABS_Y, ABS_Z, ABS_RZ,
+    ABS_GAS, ABS_BRAKE,
     ABS_HAT0X, ABS_HAT0Y,
 };
 
@@ -537,13 +538,16 @@ void GamepadManager::rebuildGlobalMaps() {
     }
 
     // Apply heuristic axis remapping for controllers without proper .kl mappings.
-    // Skip the heuristic when the virtual device preset uses a .kl that expects
-    // the native AYANEO-style layout (right stick on Z/RZ, triggers on GAS/BRAKE),
-    // e.g., Xbox Wireless Controller (PID 0x02fd).
+    // Skip the heuristic when the virtual device PID matches the physical
+    // controller's native layout (right stick on Z/RZ, triggers on GAS/BRAKE).
+    // PID 0x0b13 (Xbox Wireless Controller BT) already uses this layout natively,
+    // so remapping would put axes in the wrong places for apps expecting that PID.
     {
         int presetPid = android::base::GetIntProperty(
-                "persist.gammaos.gamepad.device_pid", 0x02fd);
-        if (presetPid != 0x02fd) {
+                "persist.gammaos.gamepad.device_pid", 0x0b13);
+        if (presetPid == 0x02fd) {
+            // PID 0x02fd expects standard layout (RX/RY=right stick, Z/RZ=triggers),
+            // so apply heuristic to remap from native to standard
             KeyLayoutParser::applyHeuristicMapping(mAbsMap, mAbsInfo);
         } else {
             LOG(INFO) << "Skipping heuristic: preset PID 0x"
@@ -656,6 +660,11 @@ void GamepadManager::createVirtualGamepadFromDiscovery() {
         if (!mDiscoveredAxes.count(sc)) continue;
         if (finalAxes.count(finalCode)) continue; // already added
 
+        // Skip HAT1X/HAT1Y — these are non-standard axes from some source
+        // controllers that real Xbox controllers don't have.
+        // Forwarding them confuses games that enumerate all axes.
+        if (finalCode == ABS_HAT1X || finalCode == ABS_HAT1Y) continue;
+
         finalAxes.insert(finalCode);
 
         VirtualGamepad::AxisSetup setup;
@@ -678,9 +687,9 @@ void GamepadManager::createVirtualGamepadFromDiscovery() {
         //   1. Bipolar trigger: .kl remapped a bipolar axis to trigger code
         //      (e.g., Xbox 360: sc=2→ABS_BRAKE, bipolar source)
         //   2. Unipolar trigger: heuristic/kl remapped a unipolar axis to trigger code
-        //      (e.g., AYANEO: sc=9(0..255)→ABS_RZ)
-        // Identity-mapped bipolar axes on trigger codes are STICKS, not triggers
-        // (e.g., AYANEO: ABS_Z bipolar = right stick, heuristic remaps to ABS_RX).
+        //      (e.g., sc=9(0..255)→ABS_RZ)
+        // Identity-mapped axes on Z/RZ with large unsigned range (>4096) are STICKS,
+        // not triggers (e.g., Xbox BT right stick on Z/RZ with 0..65535).
         if (finalCode == ABS_Z || finalCode == ABS_RZ ||
             finalCode == ABS_GAS || finalCode == ABS_BRAKE) {
             for (const auto& [sc2, fc2] : mAbsMap) {
@@ -688,22 +697,26 @@ void GamepadManager::createVirtualGamepadFromDiscovery() {
                     auto infoIt = mAbsInfo.find(sc2);
                     if (infoIt != mAbsInfo.end()) {
                         bool wasRemapped = (sc2 != finalCode);
+                        int pRange = infoIt->second.max - infoIt->second.min;
                         LOG(INFO) << "Trigger check: finalCode=" << finalCode
                                   << " sc=" << sc2 << " pMin=" << infoIt->second.min
-                                  << " remapped=" << wasRemapped;
+                                  << " pRange=" << pRange << " remapped=" << wasRemapped;
                         if (wasRemapped && infoIt->second.min < 0) {
                             // Bipolar source remapped to trigger code
                             setup.min = 0; setup.max = 32767;
                             setup.fuzz = 0; setup.flat = 0;
                             LOG(INFO) << "  -> bipolar trigger range 0..32767";
                             break;
-                        } else if (infoIt->second.min >= 0 &&
-                                   (infoIt->second.max - infoIt->second.min) > 2) {
-                            // Unipolar trigger (identity or remapped):
-                            // physical range is non-negative = always a trigger
-                            setup.min = 0; setup.max = 32767;
-                            setup.fuzz = 0; setup.flat = 0;
-                            LOG(INFO) << "  -> unipolar trigger range 0..32767";
+                        } else if (infoIt->second.min >= 0 && pRange > 2) {
+                            if (!wasRemapped && pRange > 4096) {
+                                // Large unsigned range identity-mapped = stick axis
+                                LOG(INFO) << "  -> unsigned stick (range " << pRange << "), keeping as stick";
+                            } else {
+                                // Unipolar trigger (identity with small range, or remapped)
+                                setup.min = 0; setup.max = 32767;
+                                setup.fuzz = 0; setup.flat = 0;
+                                LOG(INFO) << "  -> unipolar trigger range 0..32767";
+                            }
                             break;
                         }
                         // else: identity-mapped bipolar = stick, keep default range
@@ -725,7 +738,11 @@ void GamepadManager::createVirtualGamepadFromDiscovery() {
         if (code == ABS_HAT0X || code == ABS_HAT0Y) {
             setup.min = -1; setup.max = 1;
             setup.fuzz = 0; setup.flat = 0;
+        } else if (code == ABS_GAS || code == ABS_BRAKE) {
+            setup.min = 0; setup.max = 32767;
+            setup.fuzz = 0; setup.flat = 0;
         } else {
+            // Stick axes (X, Y, Z, RZ)
             setup.min = -32768; setup.max = 32767;
             setup.fuzz = 16; setup.flat = 128;
         }
@@ -765,7 +782,7 @@ void GamepadManager::createVirtualGamepadFromDiscovery() {
     std::string deviceName = GetProperty("persist.gammaos.gamepad.device_name",
                                          "Xbox Wireless Controller");
     int vid = GetIntProperty("persist.gammaos.gamepad.device_vid", 0x045e);
-    int pid = GetIntProperty("persist.gammaos.gamepad.device_pid", 0x02fd);
+    int pid = GetIntProperty("persist.gammaos.gamepad.device_pid", 0x0b13);
 
     // Remove old uinput fd from epoll
     if (mVirtualGamepad->isValid()) {

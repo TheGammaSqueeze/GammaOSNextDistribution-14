@@ -146,7 +146,7 @@ public class GamepadSettings extends SettingsPreferenceFragment
     // Device identity presets: value -> {name, vid, pid}
     private static final Map<String, String[]> DEVICE_PRESETS = new HashMap<>();
     static {
-        DEVICE_PRESETS.put("xbox_wireless", new String[]{"Xbox Wireless Controller", "045e", "02fd"});
+        DEVICE_PRESETS.put("xbox_wireless", new String[]{"Xbox Wireless Controller", "045e", "0b13"});
         DEVICE_PRESETS.put("xbox_360", new String[]{"Xbox 360 Controller", "045e", "028e"});
         DEVICE_PRESETS.put("xbox_one", new String[]{"Xbox One Controller", "045e", "02ea"});
         DEVICE_PRESETS.put("ps4", new String[]{"Sony DualShock 4", "054c", "05c4"});
@@ -494,7 +494,7 @@ public class GamepadSettings extends SettingsPreferenceFragment
         } else if ("custom".equals(value)) {
             String vid = SystemProperties.get(PROP_DEVICE_VID, "0x045e")
                     .replace("0x", "");
-            String pid = SystemProperties.get(PROP_DEVICE_PID, "0x02fd")
+            String pid = SystemProperties.get(PROP_DEVICE_PID, "0x0b13")
                     .replace("0x", "");
             mDevicePresetPref.setSummary(
                     getString(R.string.gamepad_device_preset_custom)
@@ -543,7 +543,7 @@ public class GamepadSettings extends SettingsPreferenceFragment
         EditText pidInput = new EditText(context);
         pidInput.setHint(getString(R.string.gamepad_device_custom_pid_title));
         pidInput.setInputType(InputType.TYPE_CLASS_TEXT);
-        pidInput.setText(SystemProperties.get(PROP_DEVICE_PID, "0x02fd")
+        pidInput.setText(SystemProperties.get(PROP_DEVICE_PID, "0x0b13")
                 .replace("0x", ""));
         layout.addView(pidInput);
 

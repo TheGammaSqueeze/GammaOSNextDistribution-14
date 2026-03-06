@@ -210,6 +210,9 @@ bool InputTransformer::transform(struct input_event& ev,
         }
         int code = ev.code;
 
+        // Drop HAT1X/HAT1Y — non-standard axes not present on real Xbox controllers
+        if (code == ABS_HAT1X || code == ABS_HAT1Y) return false;
+
         // 2. Normalize raw value based on per-device physical absinfo.
         auto infoIt = deviceAbsInfo.find(physicalCode);
         if (infoIt != deviceAbsInfo.end()) {
@@ -229,11 +232,17 @@ bool InputTransformer::transform(struct input_event& ev,
                     value = (int)((int64_t)value * 32767 / pMax);
                 }
             } else if (isTriggerCode && pMin >= 0 && pRange > 2) {
-                // Unipolar trigger: normalize [pMin, pMax] to [0, 32767].
-                // Handles both remapped (e.g., ABS_GAS→ABS_RZ) and identity-mapped
-                // (e.g., ABS_GAS stays ABS_GAS for Xbox Wireless preset) triggers.
-                value = (int)((int64_t)(value - pMin) * 32767 / pRange);
-            } else if (pRange > 2 && pRange != 65535 && pRange != 65534) {
+                // Distinguish unsigned sticks from actual triggers:
+                // Large range (>4096) identity-mapped on Z/RZ = unsigned stick axis,
+                // not a trigger (e.g., Xbox BT right stick on Z/RZ with 0..65535)
+                if (!wasRemapped && pRange > 4096) {
+                    // Unsigned stick — normalize to signed 16-bit like standard axes
+                    value = (int)((int64_t)(value - pMin) * 65535 / pRange) - 32768;
+                } else {
+                    // Unipolar trigger: normalize [pMin, pMax] to [0, 32767].
+                    value = (int)((int64_t)(value - pMin) * 32767 / pRange);
+                }
+            } else if (pRange > 2) {
                 // Standard axis: rescale full range to signed 16-bit
                 value = (int)((int64_t)(value - pMin) * 65535 / pRange) - 32768;
             }
@@ -251,11 +260,13 @@ bool InputTransformer::transform(struct input_event& ev,
 
         // 4b. Stick inversion (after calibration so center offsets are correct)
         if (mInvertLeft && (code == ABS_X || code == ABS_Y)) value = -value;
-        if (mInvertRight && (code == ABS_RX || code == ABS_RY)) value = -value;
+        if (mInvertRight && (code == ABS_RX || code == ABS_RY ||
+                              code == ABS_Z || code == ABS_RZ)) value = -value;
 
         // 4d. Global sensitivity (layered on top of calibration + inversion)
         if (mGlobalSensitivity != 0 &&
-            (code == ABS_X || code == ABS_Y || code == ABS_RX || code == ABS_RY)) {
+            (code == ABS_X || code == ABS_Y || code == ABS_RX || code == ABS_RY ||
+             code == ABS_Z || code == ABS_RZ)) {
             // -3→50%, -2→75%, -1→90%, 0→100%, 1→110%, 2→125%, 3→150%
             static const float kSensTable[] = {0.50f, 0.75f, 0.90f, 1.0f, 1.10f, 1.25f, 1.50f};
             float mult = kSensTable[mGlobalSensitivity + 3];
@@ -372,6 +383,8 @@ int InputTransformer::getStickPartner(int axis) {
         case ABS_Y:  return ABS_X;
         case ABS_RX: return ABS_RY;
         case ABS_RY: return ABS_RX;
+        case ABS_Z:  return ABS_RZ;
+        case ABS_RZ: return ABS_Z;
         default:     return -1;
     }
 }

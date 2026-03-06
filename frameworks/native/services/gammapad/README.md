@@ -7,7 +7,7 @@ GammaPad is a native Android daemon that grabs physical gamepad/joystick input d
 ```
 Physical HID Controllers
   ├── /dev/input/event0  (Xbox 360 pad)
-  ├── /dev/input/event1  (AYANEO built-in)
+  ├── /dev/input/event1  (built-in gamepad)
   └── ...
         │
         │  EVIOCGRAB (exclusive)
@@ -118,9 +118,13 @@ All properties use the `persist.gammaos.gamepad.` prefix and survive reboots.
 |----------|------|---------|-------------|
 | `device_name` | string | `Xbox Wireless Controller` | Name reported by the virtual uinput device. |
 | `device_vid` | hex int | `0x045e` | USB Vendor ID for the virtual device. |
-| `device_pid` | hex int | `0x02fd` | USB Product ID for the virtual device. |
+| `device_pid` | hex int | `0x0b13` | USB Product ID for the virtual device. |
 
 These control how the virtual gamepad appears to Android and apps. Preset values for common controllers (Xbox 360, Xbox One, PS4, PS5, Switch Pro) are available in the Settings UI.
+
+The PID determines the virtual device's axis layout:
+- **PID 0x0b13** (default, Xbox Wireless Controller BT): native layout — right stick on Z/RZ, triggers on GAS/BRAKE. Heuristic remapping is skipped.
+- **PID 0x02fd** (Xbox Wireless Controller): standard layout — right stick on RX/RY, triggers on Z/RZ. Heuristic remapping is applied to convert non-standard physical controllers to this layout.
 
 ### Button Remapping
 
@@ -142,10 +146,10 @@ Override automatic axis-to-role mapping. Each property stores the Linux ABS code
 |----------|------|-----------------|
 | `role_lx` | Left Stick X | `ABS_X` (0) |
 | `role_ly` | Left Stick Y | `ABS_Y` (1) |
-| `role_rx` | Right Stick X | `ABS_RX` (3) |
-| `role_ry` | Right Stick Y | `ABS_RY` (4) |
-| `role_lt` | Left Trigger | `ABS_Z` (2) |
-| `role_rt` | Right Trigger | `ABS_RZ` (5) |
+| `role_rx` | Right Stick X | `ABS_Z` (2) with PID 0x0b13, `ABS_RX` (3) with PID 0x02fd |
+| `role_ry` | Right Stick Y | `ABS_RZ` (5) with PID 0x0b13, `ABS_RY` (4) with PID 0x02fd |
+| `role_lt` | Left Trigger | `ABS_BRAKE` (10) with PID 0x0b13, `ABS_Z` (2) with PID 0x02fd |
+| `role_rt` | Right Trigger | `ABS_GAS` (9) with PID 0x0b13, `ABS_RZ` (5) with PID 0x02fd |
 
 ### Calibration
 
@@ -155,12 +159,12 @@ Per-axis calibration data stored as comma-separated values: `center,min,max,dead
 |----------|-------------|
 | `cal_axis0` | Left Stick X calibration |
 | `cal_axis1` | Left Stick Y calibration |
-| `cal_axis2` | ABS_Z calibration |
-| `cal_axis3` | Right Stick X calibration |
-| `cal_axis4` | Right Stick Y calibration |
-| `cal_axis5` | ABS_RZ calibration |
-| `cal_axis9` | ABS_GAS calibration |
-| `cal_axis10` | ABS_BRAKE calibration |
+| `cal_axis2` | ABS_Z calibration (right stick X with PID 0x0b13, left trigger with PID 0x02fd) |
+| `cal_axis3` | Right Stick X calibration (ABS_RX, used with PID 0x02fd) |
+| `cal_axis4` | Right Stick Y calibration (ABS_RY, used with PID 0x02fd) |
+| `cal_axis5` | ABS_RZ calibration (right stick Y with PID 0x0b13, right trigger with PID 0x02fd) |
+| `cal_axis9` | ABS_GAS calibration (right trigger with PID 0x0b13) |
+| `cal_axis10` | ABS_BRAKE calibration (left trigger with PID 0x0b13) |
 
 Fields:
 - **center**: Center offset to subtract from raw values
@@ -231,7 +235,7 @@ The parser handles:
 - `key` directives: maps physical scan codes to Android key constants
 - `split` axes: e.g., `axis 0x02 split 0x0a 0x09` splits a bipolar axis into two unipolar triggers
 
-A heuristic remapping (`applyHeuristicMapping`) handles controllers without `.kl` files by detecting common axis layouts (e.g., AYANEO-style: right stick on Z/RZ, triggers on GAS/BRAKE).
+A heuristic remapping (`applyHeuristicMapping`) handles controllers without `.kl` files by detecting common axis layouts (e.g., right stick on Z/RZ, triggers on GAS/BRAKE) and remapping them to standard Xbox 360 layout. The heuristic is only applied when the virtual device PID is 0x02fd; for PID 0x0b13 (default), axes pass through in their native layout.
 
 ## Hot Reload
 
