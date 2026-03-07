@@ -69,6 +69,12 @@ public final class ActivityMainBinding {
     public final TextView labelFollowBrightness;
     public final SwitchCompat switchFollowBrightness;
 
+    // LED brightness (static, when follow brightness is off)
+    public final TextView labelLedBrightness;
+    public final View layoutLedBrightness;
+    public final SeekBar ledBrightnessSlider;
+    public final TextView ledBrightnessValue;
+
     private ActivityMainBinding(View root) {
         this.root = root;
 
@@ -131,6 +137,12 @@ public final class ActivityMainBinding {
         // Follow brightness
         labelFollowBrightness  = root.findViewById(R.id.label_follow_brightness);
         switchFollowBrightness = root.findViewById(R.id.switch_follow_brightness);
+
+        // LED brightness
+        labelLedBrightness  = root.findViewById(R.id.label_led_brightness);
+        layoutLedBrightness = root.findViewById(R.id.layout_led_brightness);
+        ledBrightnessSlider = root.findViewById(R.id.led_brightness_slider);
+        ledBrightnessValue  = root.findViewById(R.id.led_brightness_value);
     }
 
     public static ActivityMainBinding inflate(LayoutInflater inflater) {

@@ -15,14 +15,15 @@
 
     <!-- New: Custom Effects -->
     <string name="label_custom_effects">LED Effects</string>
-    <string name="effect_follow_screen">Follow Screen RGB</string>
+    <string name="effect_follow_screen">Screen RGB</string>
     <string name="effect_none">Solid</string>
     <string name="effect_off">Off</string>
-    <string name="effect_1">Effect 1</string>
-    <string name="effect_2">Effect 2</string>
-    <string name="effect_3">Effect 3</string>
-    <string name="effect_4">Effect 4</string>
-    <string name="effect_5">Effect 5</string>
+    <string name="effect_1">E1</string>
+    <string name="effect_2">E2</string>
+    <string name="effect_3">E3</string>
+    <string name="effect_4">E4</string>
+    <string name="effect_5">E5</string>
     <string name="label_split_colors">Split colors</string>
     <string name="label_follow_brightness">Follow Screen Brightness</string>
+    <string name="label_led_brightness">LED Brightness</string>
 </resources>

@@ -46,6 +46,7 @@ private:
                                const std::vector<uint64_t>& b,
                                int& outR, int& outG, int& outB) const;
     void postAdjustWithBrightness(int& r, int& g, int& b) const;
+    void applyStaticLedBrightness(int& r, int& g, int& b) const;
     static std::string toHex(int r, int g, int b);
     static bool parseHexToRgb(const std::string& hex, int& r, int& g, int& b);
     int currentBrightnessKey() const; // 0..255 if scaling enabled, else -1

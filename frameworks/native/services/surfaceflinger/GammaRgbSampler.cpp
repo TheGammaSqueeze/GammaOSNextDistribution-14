@@ -131,7 +131,11 @@ void GammaRgbSampler::sampleNow(bool primaryOnly) {
     if (!mPreFxEnable.load()) return;
     int R=0,G=0,B=0;
     if (!tryGrabPreFxRGB(R,G,B, primaryOnly)) return;
-    if (mScaleWithBrightness.load()) postAdjustWithBrightness(R,G,B);
+    if (mScaleWithBrightness.load()) {
+        postAdjustWithBrightness(R,G,B);
+    } else {
+        applyStaticLedBrightness(R,G,B);
+    }
 
     // Publish immediate endpoint (and remember for in-between fade steps).
     const std::string hex = toHex(R,G,B);
@@ -210,7 +214,11 @@ void GammaRgbSampler::threadMain() {
                 if (!custom.empty() && (custom != mLastCustomHex || briKey != mLastBrightnessKey)) {
                     int r=0,g=0,b=0;
                     if (parseHexToRgb(custom, r,g,b)) {
-                        if (mScaleWithBrightness.load()) postAdjustWithBrightness(r,g,b);
+                        if (mScaleWithBrightness.load()) {
+                            postAdjustWithBrightness(r,g,b);
+                        } else {
+                            applyStaticLedBrightness(r,g,b);
+                        }
                         SetProperty("persist.gammaos.primary.rgb_hex", toHex(r,g,b));
                         mLastCustomHex = custom;
                         mLastBrightnessKey = briKey;
@@ -224,7 +232,11 @@ void GammaRgbSampler::threadMain() {
                 if (!left.empty() && (left != mLastLeftCustomHex || briKey != mLastBrightnessKey)) {
                     int r=0,g=0,b=0;
                     if (parseHexToRgb(left, r,g,b)) {
-                        if (mScaleWithBrightness.load()) postAdjustWithBrightness(r,g,b);
+                        if (mScaleWithBrightness.load()) {
+                            postAdjustWithBrightness(r,g,b);
+                        } else {
+                            applyStaticLedBrightness(r,g,b);
+                        }
                         SetProperty("persist.gammaos.rgb.left_hex", toHex(r,g,b));
                         mLastLeftCustomHex = left; wrote=true;
                     }
@@ -232,7 +244,11 @@ void GammaRgbSampler::threadMain() {
                 if (!right.empty() && (right != mLastRightCustomHex || briKey != mLastBrightnessKey)) {
                     int r=0,g=0,b=0;
                     if (parseHexToRgb(right, r,g,b)) {
-                        if (mScaleWithBrightness.load()) postAdjustWithBrightness(r,g,b);
+                        if (mScaleWithBrightness.load()) {
+                            postAdjustWithBrightness(r,g,b);
+                        } else {
+                            applyStaticLedBrightness(r,g,b);
+                        }
                         SetProperty("persist.gammaos.rgb.right_hex", toHex(r,g,b));
                         mLastRightCustomHex = right; wrote=true;
                     }
@@ -305,7 +321,11 @@ void GammaRgbSampler::threadMain() {
         if (got) {
             // Optionally scale with brightness first, so the history
             // buffering sees post-brightness colors (matches LED output).
-            if (mScaleWithBrightness.load()) postAdjustWithBrightness(R,G,B);
+            if (mScaleWithBrightness.load()) {
+                postAdjustWithBrightness(R,G,B);
+            } else {
+                applyStaticLedBrightness(R,G,B);
+            }
 
             // -----------------------------------------------------------------
             // Temporal smoothing:
@@ -837,6 +857,16 @@ void GammaRgbSampler::postAdjustWithBrightness(int& r, int& g, int& b) const {
     r = int(fr * 255.f + .5f);
     g = int(fg * 255.f + .5f);
     b = int(fb * 255.f + .5f);
+}
+
+void GammaRgbSampler::applyStaticLedBrightness(int& r, int& g, int& b) const {
+    int level = GetIntProperty("persist.gammaos.rgb.led_brightness", 255);
+    level = std::max(0, std::min(255, level));
+    if (level >= 255) return;
+    const float scale = level / 255.0f;
+    r = std::max(0, std::min(255, int(r * scale)));
+    g = std::max(0, std::min(255, int(g * scale)));
+    b = std::max(0, std::min(255, int(b * scale)));
 }
 
 std::string GammaRgbSampler::toHex(int r, int g, int b) {

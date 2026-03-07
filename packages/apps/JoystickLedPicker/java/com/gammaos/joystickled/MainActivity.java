@@ -50,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
 
         setupSplitColorsSwitch();
         setupBrightnessFollowSwitch();
+        setupLedBrightnessSlider();
     }
 
     // --- System property helpers / initial color ---------------------------------------------
@@ -686,24 +687,24 @@ public class MainActivity extends AppCompatActivity {
             //   • Hide Color Saturation
             //   • Show Effect Speed slider
 
-            // Brightness: keep visible
+            // Brightness row: keep visible (label is inline with slider)
             binding.labelBrightness.setVisibility(View.VISIBLE);
             binding.brightnessSlider.setVisibility(View.VISIBLE);
             binding.brightnessValue.setVisibility(View.VISIBLE);
 
-            // Saturation: hide for numbered effects
+            // Saturation row: hide for numbered effects
             binding.labelSaturation.setVisibility(View.GONE);
             binding.saturationSlider.setVisibility(View.GONE);
             binding.saturationValue.setVisibility(View.GONE);
-
-            if (binding.labelEffectSpeed != null) {
-                binding.labelEffectSpeed.setVisibility(View.VISIBLE);
+            // Hide parent row for saturation
+            if (binding.saturationSlider.getParent() instanceof View) {
+                ((View) binding.saturationSlider.getParent()).setVisibility(View.GONE);
             }
+
+            // Effect Speed row: show (label is now inside layoutEffectSpeed)
             if (binding.layoutEffectSpeed != null) {
                 binding.layoutEffectSpeed.setVisibility(View.VISIBLE);
             }
-            binding.effectSpeedSlider.setVisibility(View.VISIBLE);
-            binding.effectSpeedValue.setVisibility(View.VISIBLE);
 
             // Keep the Effect Speed slider in sync with the backing system property.
             int effectSpeed = getEffectSpeedFromProperty();
@@ -719,15 +720,15 @@ public class MainActivity extends AppCompatActivity {
             binding.labelSaturation.setVisibility(View.VISIBLE);
             binding.saturationSlider.setVisibility(View.VISIBLE);
             binding.saturationValue.setVisibility(View.VISIBLE);
-
-            if (binding.labelEffectSpeed != null) {
-                binding.labelEffectSpeed.setVisibility(View.GONE);
+            // Show parent row for saturation
+            if (binding.saturationSlider.getParent() instanceof View) {
+                ((View) binding.saturationSlider.getParent()).setVisibility(View.VISIBLE);
             }
+
+            // Effect Speed row: hide
             if (binding.layoutEffectSpeed != null) {
                 binding.layoutEffectSpeed.setVisibility(View.GONE);
             }
-            binding.effectSpeedSlider.setVisibility(View.GONE);
-            binding.effectSpeedValue.setVisibility(View.GONE);
         }
     }
 
@@ -999,8 +1000,46 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                         setBrightnessFollowEnabled(isChecked);
+                        updateLedBrightnessVisibility();
                     }
                 });
+    }
+
+    private void setupLedBrightnessSlider() {
+        int level = getLedBrightnessFromProperty();
+        binding.ledBrightnessSlider.setMax(255);
+        binding.ledBrightnessSlider.setProgress(level);
+        binding.ledBrightnessValue.setText(Math.round(level / 255f * 100f) + "%");
+        binding.ledBrightnessSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                binding.ledBrightnessValue.setText(Math.round(progress / 255f * 100f) + "%");
+                setSystemProperty("persist.gammaos.rgb.led_brightness", String.valueOf(progress));
+            }
+
+            @Override public void onStartTrackingTouch(SeekBar seekBar) { }
+            @Override public void onStopTrackingTouch(SeekBar seekBar) { }
+        });
+        updateLedBrightnessVisibility();
+    }
+
+    private int getLedBrightnessFromProperty() {
+        String raw = getSystemProperty("persist.gammaos.rgb.led_brightness", "255");
+        if (raw == null) return 255;
+        raw = raw.trim();
+        try {
+            int v = Integer.parseInt(raw);
+            return Math.max(0, Math.min(255, v));
+        } catch (NumberFormatException e) {
+            return 255;
+        }
+    }
+
+    private void updateLedBrightnessVisibility() {
+        boolean followBrightness = isBrightnessFollowEnabled();
+        int vis = followBrightness ? View.GONE : View.VISIBLE;
+        binding.labelLedBrightness.setVisibility(vis);
+        binding.layoutLedBrightness.setVisibility(vis);
     }
 
     private void updatePreviewFromHsv() {
