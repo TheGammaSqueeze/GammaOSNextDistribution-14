@@ -5145,4 +5145,6 @@
 
     <!-- GammaOS -->
     <string name="secondary_home_app_title">セカンダリホームアプリ</string>
+    <string name="handheld_settings_title">ハンドヘルド設定</string>
+    <string name="handheld_settings_summary">ゲームパッド、コントローラー、入力</string>
 </resources>

@@ -5147,4 +5147,6 @@
 
     <!-- GammaOS -->
     <string name="secondary_home_app_title">Dodatkowa aplikacja główna</string>
+    <string name="handheld_settings_title">Ustawienia urządzenia przenośnego</string>
+    <string name="handheld_settings_summary">Gamepad, kontrolery i wprowadzanie</string>
 </resources>

@@ -17,4 +17,9 @@
     <string name="effect_off">Uit</string>
     <string name="label_split_colors">Kleuren splitsen</string>
     <string name="label_follow_brightness">Schermhelderheid volgen</string>
+    <string name="effect_1">Effect 1</string>
+    <string name="effect_2">Effect 2</string>
+    <string name="effect_3">Effect 3</string>
+    <string name="effect_4">Effect 4</string>
+    <string name="effect_5">Effect 5</string>
 </resources>

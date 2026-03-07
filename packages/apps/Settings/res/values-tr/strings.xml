@@ -5145,4 +5145,6 @@
 
     <!-- GammaOS -->
     <string name="secondary_home_app_title">İkincil ana ekran uygulaması</string>
+    <string name="handheld_settings_title">Taşınabilir Ayarları</string>
+    <string name="handheld_settings_summary">Oyun kumandası, kontrolörler ve giriş</string>
 </resources>

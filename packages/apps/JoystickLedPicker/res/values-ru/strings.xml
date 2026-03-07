@@ -17,4 +17,9 @@
     <string name="effect_off">Выкл.</string>
     <string name="label_split_colors">Разделить цвета</string>
     <string name="label_follow_brightness">Следовать за яркостью экрана</string>
+    <string name="effect_1">Эффект 1</string>
+    <string name="effect_2">Эффект 2</string>
+    <string name="effect_3">Эффект 3</string>
+    <string name="effect_4">Эффект 4</string>
+    <string name="effect_5">Эффект 5</string>
 </resources>

@@ -5145,4 +5145,6 @@
 
     <!-- GammaOS -->
     <string name="secondary_home_app_title">Ứng dụng màn hình chính phụ</string>
+    <string name="handheld_settings_title">Cài đặt thiết bị cầm tay</string>
+    <string name="handheld_settings_summary">Tay cầm, bộ điều khiển và đầu vào</string>
 </resources>

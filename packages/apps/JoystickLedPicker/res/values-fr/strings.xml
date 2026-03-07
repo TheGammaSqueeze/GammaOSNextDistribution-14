@@ -17,4 +17,9 @@
     <string name="effect_off">Éteint</string>
     <string name="label_split_colors">Séparer les couleurs</string>
     <string name="label_follow_brightness">Suivre la luminosité de l\'écran</string>
+    <string name="effect_1">Effet 1</string>
+    <string name="effect_2">Effet 2</string>
+    <string name="effect_3">Effet 3</string>
+    <string name="effect_4">Effet 4</string>
+    <string name="effect_5">Effet 5</string>
 </resources>

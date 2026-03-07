@@ -17,4 +17,9 @@
     <string name="effect_off">Aus</string>
     <string name="label_split_colors">Geteilte Farben</string>
     <string name="label_follow_brightness">Bildschirmhelligkeit folgen</string>
+    <string name="effect_1">Effekt 1</string>
+    <string name="effect_2">Effekt 2</string>
+    <string name="effect_3">Effekt 3</string>
+    <string name="effect_4">Effekt 4</string>
+    <string name="effect_5">Effekt 5</string>
 </resources>

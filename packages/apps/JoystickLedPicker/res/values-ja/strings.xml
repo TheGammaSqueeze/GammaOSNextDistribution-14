@@ -17,4 +17,9 @@
     <string name="effect_off">オフ</string>
     <string name="label_split_colors">色の分割</string>
     <string name="label_follow_brightness">画面の明るさに追従</string>
+    <string name="effect_1">エフェクト 1</string>
+    <string name="effect_2">エフェクト 2</string>
+    <string name="effect_3">エフェクト 3</string>
+    <string name="effect_4">エフェクト 4</string>
+    <string name="effect_5">エフェクト 5</string>
 </resources>

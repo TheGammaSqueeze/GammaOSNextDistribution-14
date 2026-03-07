@@ -17,4 +17,9 @@
     <string name="effect_off">끄기</string>
     <string name="label_split_colors">색상 분리</string>
     <string name="label_follow_brightness">화면 밝기 추적</string>
+    <string name="effect_1">효과 1</string>
+    <string name="effect_2">효과 2</string>
+    <string name="effect_3">효과 3</string>
+    <string name="effect_4">효과 4</string>
+    <string name="effect_5">효과 5</string>
 </resources>

@@ -5149,4 +5149,6 @@
 
     <!-- GammaOS -->
     <string name="secondary_home_app_title">تطبيق الشاشة الثانوية</string>
+    <string name="handheld_settings_title">إعدادات الجهاز المحمول</string>
+    <string name="handheld_settings_summary">ذراع التحكم والمتحكمات والإدخال</string>
 </resources>

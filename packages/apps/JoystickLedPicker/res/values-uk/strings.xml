@@ -17,4 +17,9 @@
     <string name="effect_off">Вимк.</string>
     <string name="label_split_colors">Розділити кольори</string>
     <string name="label_follow_brightness">Слідувати за яскравістю екрана</string>
+    <string name="effect_1">Ефект 1</string>
+    <string name="effect_2">Ефект 2</string>
+    <string name="effect_3">Ефект 3</string>
+    <string name="effect_4">Ефект 4</string>
+    <string name="effect_5">Ефект 5</string>
 </resources>

@@ -5145,4 +5145,6 @@
 
     <!-- GammaOS -->
     <string name="secondary_home_app_title">App Home secondaria</string>
+    <string name="handheld_settings_title">Impostazioni portatile</string>
+    <string name="handheld_settings_summary">Gamepad, controller e input</string>
 </resources>

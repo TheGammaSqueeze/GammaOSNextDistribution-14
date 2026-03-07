@@ -17,4 +17,9 @@
     <string name="effect_off">Tắt</string>
     <string name="label_split_colors">Chia tách màu</string>
     <string name="label_follow_brightness">Theo dõi độ sáng màn hình</string>
+    <string name="effect_1">Hiệu ứng 1</string>
+    <string name="effect_2">Hiệu ứng 2</string>
+    <string name="effect_3">Hiệu ứng 3</string>
+    <string name="effect_4">Hiệu ứng 4</string>
+    <string name="effect_5">Hiệu ứng 5</string>
 </resources>

@@ -17,4 +17,9 @@
     <string name="effect_off">Desligado</string>
     <string name="label_split_colors">Dividir cores</string>
     <string name="label_follow_brightness">Seguir brilho da tela</string>
+    <string name="effect_1">Efeito 1</string>
+    <string name="effect_2">Efeito 2</string>
+    <string name="effect_3">Efeito 3</string>
+    <string name="effect_4">Efeito 4</string>
+    <string name="effect_5">Efeito 5</string>
 </resources>

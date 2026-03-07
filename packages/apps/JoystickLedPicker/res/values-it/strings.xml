@@ -17,4 +17,9 @@
     <string name="effect_off">Spento</string>
     <string name="label_split_colors">Dividi colori</string>
     <string name="label_follow_brightness">Segui luminosità dello schermo</string>
+    <string name="effect_1">Effetto 1</string>
+    <string name="effect_2">Effetto 2</string>
+    <string name="effect_3">Effetto 3</string>
+    <string name="effect_4">Effetto 4</string>
+    <string name="effect_5">Effetto 5</string>
 </resources>

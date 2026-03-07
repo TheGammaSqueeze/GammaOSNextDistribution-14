@@ -5147,4 +5147,6 @@
 
     <!-- GammaOS -->
     <string name="secondary_home_app_title">Вторинний додаток робочого столу</string>
+    <string name="handheld_settings_title">Налаштування портативного пристрою</string>
+    <string name="handheld_settings_summary">Геймпад, контролери та введення</string>
 </resources>

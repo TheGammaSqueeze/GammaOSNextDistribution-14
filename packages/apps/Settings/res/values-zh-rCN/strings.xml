@@ -5145,4 +5145,6 @@
 
     <!-- GammaOS -->
     <string name="secondary_home_app_title">次要主屏幕应用</string>
+    <string name="handheld_settings_title">掌机设置</string>
+    <string name="handheld_settings_summary">游戏手柄、控制器和输入</string>
 </resources>

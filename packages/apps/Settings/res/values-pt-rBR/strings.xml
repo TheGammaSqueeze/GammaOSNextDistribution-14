@@ -5145,4 +5145,6 @@
 
     <!-- GammaOS -->
     <string name="secondary_home_app_title">Aplicativo de tela inicial secundário</string>
+    <string name="handheld_settings_title">Configurações do portátil</string>
+    <string name="handheld_settings_summary">Controle, controladores e entrada</string>
 </resources>

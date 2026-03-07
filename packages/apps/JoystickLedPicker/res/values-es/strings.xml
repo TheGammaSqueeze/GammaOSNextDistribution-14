@@ -17,4 +17,9 @@
     <string name="effect_off">Apagado</string>
     <string name="label_split_colors">Dividir colores</string>
     <string name="label_follow_brightness">Seguir brillo de pantalla</string>
+    <string name="effect_1">Efecto 1</string>
+    <string name="effect_2">Efecto 2</string>
+    <string name="effect_3">Efecto 3</string>
+    <string name="effect_4">Efecto 4</string>
+    <string name="effect_5">Efecto 5</string>
 </resources>

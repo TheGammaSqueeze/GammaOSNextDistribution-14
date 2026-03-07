@@ -5145,4 +5145,6 @@
 
     <!-- GammaOS -->
     <string name="secondary_home_app_title">Sekundäre Start-App</string>
+    <string name="handheld_settings_title">Handheld-Einstellungen</string>
+    <string name="handheld_settings_summary">Gamepad, Controller und Eingabe</string>
 </resources>

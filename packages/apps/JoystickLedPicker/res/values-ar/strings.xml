@@ -17,4 +17,9 @@
     <string name="effect_off">إيقاف</string>
     <string name="label_split_colors">تقسيم الألوان</string>
     <string name="label_follow_brightness">متابعة سطوع الشاشة</string>
+    <string name="effect_1">تأثير 1</string>
+    <string name="effect_2">تأثير 2</string>
+    <string name="effect_3">تأثير 3</string>
+    <string name="effect_4">تأثير 4</string>
+    <string name="effect_5">تأثير 5</string>
 </resources>

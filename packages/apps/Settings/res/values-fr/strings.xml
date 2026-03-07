@@ -5145,4 +5145,6 @@
 
     <!-- GammaOS -->
     <string name="secondary_home_app_title">Application d\'accueil secondaire</string>
+    <string name="handheld_settings_title">Paramètres console portable</string>
+    <string name="handheld_settings_summary">Manette, contrôleurs et saisie</string>
 </resources>

@@ -17,4 +17,9 @@
     <string name="effect_off">Kapalı</string>
     <string name="label_split_colors">Renkleri böl</string>
     <string name="label_follow_brightness">Ekran parlaklığını takip et</string>
+    <string name="effect_1">Efekt 1</string>
+    <string name="effect_2">Efekt 2</string>
+    <string name="effect_3">Efekt 3</string>
+    <string name="effect_4">Efekt 4</string>
+    <string name="effect_5">Efekt 5</string>
 </resources>
