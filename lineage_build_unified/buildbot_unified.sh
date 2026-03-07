@@ -54,6 +54,10 @@ echo\
 START=`date +%s`
 BUILD_DATE="$(date -u +%Y%m%d)"
 
+# Keep BUILD_NUMBER short so ro.build.fingerprint stays within
+# the 91-character PROP_VALUE_MAX limit (see b/... and GitHub #164).
+export BUILD_NUMBER="${BUILD_NUMBER:-$BUILD_DATE}"
+
 prep_build() {
     echo "Preparing local manifests"
     mkdir -p .repo/local_manifests

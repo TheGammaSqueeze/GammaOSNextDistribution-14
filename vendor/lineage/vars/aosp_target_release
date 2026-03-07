@@ -1,2 +1,5 @@
 # Updated manually
 aosp_target_release=ap2a
+
+# Short BUILD_NUMBER keeps ro.build.fingerprint under PROP_VALUE_MAX (91 chars)
+export BUILD_NUMBER="${BUILD_NUMBER:-$(date -u +%Y%m%d)}"
