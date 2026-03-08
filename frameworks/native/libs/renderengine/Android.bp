@@ -100,6 +100,7 @@ filegroup {
         "skia/filters/GammaLcd3x.cpp",
         "skia/filters/GammaBlurFill.cpp",
         "skia/filters/GammaLcdShader.cpp",
+        "skia/filters/GammaCustomShader.cpp",
     ],
 }
 

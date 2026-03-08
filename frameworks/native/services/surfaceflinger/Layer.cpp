@@ -657,6 +657,11 @@ void Layer::preparePerFrameCompositionState() {
     if (drawShadows() || snapshot->stretchEffect.hasEffect()) {
         snapshot->forceClientComposition = true;
     }
+    // Force GPU composition when GammaOS shader post-processing is enabled,
+    // so that drawLayers() is called and the shader can be applied.
+    if (android::base::GetBoolProperty("persist.gammaos.shader.enable", false)) {
+        snapshot->forceClientComposition = true;
+    }
     // If there are no visible region changes, we still need to update blur parameters.
     snapshot->blurRegions = getBlurRegions();
     snapshot->backgroundBlurRadius = getBackgroundBlurRadius();
