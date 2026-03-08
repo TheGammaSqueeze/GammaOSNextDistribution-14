@@ -1,16 +1,48 @@
 package com.gammaos.shadercontrol;
 
+import android.content.Intent;
+import android.database.Cursor;
+import android.graphics.Color;
+import android.graphics.Typeface;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.FileObserver;
+import android.os.Handler;
+import android.os.Looper;
+import android.provider.DocumentsContract;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.button.MaterialButton;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -21,6 +53,28 @@ public class MainActivity extends AppCompatActivity {
     private RadioButton radioLcd3x;
     private RadioButton radioLcdShader;
     private RadioButton radioBlurFill;
+    private RadioButton radioCustom;
+
+    // Custom shader controls
+    private View groupCustom;
+    private TextView labelActivePreset;
+    private TextView labelPresetCount;
+    private RecyclerView recyclerPresets;
+    private PresetAdapter presetAdapter;
+    private final List<PresetEntry> presetList = new ArrayList<>();
+    private final Handler mainHandler = new Handler(Looper.getMainLooper());
+    private RadioGroup radioGroupCustomResScale;
+    private RadioButton radioResFull, radioRes3_4, radioRes1_2, radioRes1_4;
+    private MaterialButton btnBrowsePreset;
+    private LinearLayout containerShaderParams;
+    private FileObserver paramMetaObserver;
+    private ActivityResultLauncher<Intent> browsePresetLauncher;
+    private EditText editSearch;
+    private TextView labelCurrentPath;
+    private String currentBrowsePath = "";
+    private final List<PresetEntry> allBrowseEntries = new ArrayList<>();
+
+    private static final String DEFAULT_SHADER_ROOT = "/sdcard/GammaShader/shaders_slang";
 
     // CRT controls
     private View groupCrt;
@@ -84,6 +138,15 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        browsePresetLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                        handleBrowseResult(result.getData().getData());
+                    }
+                });
+
         setContentView(R.layout.activity_main);
 
         bindViews();
@@ -92,7 +155,17 @@ public class MainActivity extends AppCompatActivity {
         setupLcd3xControls();
         setupLcdShaderControls();
         setupBlurFillControls();
+        setupCustomControls();
         restoreInitialState();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (paramMetaObserver != null) {
+            paramMetaObserver.stopWatching();
+            paramMetaObserver = null;
+        }
     }
 
     private void bindViews() {
@@ -102,6 +175,21 @@ public class MainActivity extends AppCompatActivity {
         radioLcd3x = findViewById(R.id.radioLcd3x);
         radioLcdShader = findViewById(R.id.radioLcdShader);
         radioBlurFill = findViewById(R.id.radioBlurFill);
+        radioCustom = findViewById(R.id.radioCustom);
+
+        groupCustom = findViewById(R.id.groupCustom);
+        labelActivePreset = findViewById(R.id.labelActivePreset);
+        labelPresetCount = findViewById(R.id.labelPresetCount);
+        recyclerPresets = findViewById(R.id.recyclerPresets);
+        radioGroupCustomResScale = findViewById(R.id.radioGroupCustomResScale);
+        radioResFull = findViewById(R.id.radioResFull);
+        radioRes3_4 = findViewById(R.id.radioRes3_4);
+        radioRes1_2 = findViewById(R.id.radioRes1_2);
+        radioRes1_4 = findViewById(R.id.radioRes1_4);
+        btnBrowsePreset = findViewById(R.id.btnBrowsePreset);
+        containerShaderParams = findViewById(R.id.containerShaderParams);
+        editSearch = findViewById(R.id.editSearch);
+        labelCurrentPath = findViewById(R.id.labelCurrentPath);
 
         groupCrt = findViewById(R.id.groupCrt);
         seekScanPx = findViewById(R.id.seekScanPx);
@@ -219,6 +307,8 @@ public class MainActivity extends AppCompatActivity {
                 onModeSelectedLcdShader();
             } else if (checkedId == R.id.radioBlurFill) {
                 onModeSelectedBlurFill();
+            } else if (checkedId == R.id.radioCustom) {
+                onModeSelectedCustom();
             }
         });
     }
@@ -254,12 +344,20 @@ public class MainActivity extends AppCompatActivity {
         updateGroupsVisibility();
     }
 
+    private void onModeSelectedCustom() {
+        setSystemProperty("persist.gammaos.shader.enable", "1");
+        setSystemProperty("persist.gammaos.shader.type", "custom");
+        updateGroupsVisibility();
+        browseToDefault();
+    }
+
     private void updateGroupsVisibility() {
         int checkedId = radioGroupMode.getCheckedRadioButtonId();
         groupCrt.setVisibility(checkedId == R.id.radioCrt ? View.VISIBLE : View.GONE);
         groupLcd3x.setVisibility(checkedId == R.id.radioLcd3x ? View.VISIBLE : View.GONE);
         groupLcdShader.setVisibility(checkedId == R.id.radioLcdShader ? View.VISIBLE : View.GONE);
         groupBlurFill.setVisibility(checkedId == R.id.radioBlurFill ? View.VISIBLE : View.GONE);
+        groupCustom.setVisibility(checkedId == R.id.radioCustom ? View.VISIBLE : View.GONE);
     }
 
     private static boolean isLcdShaderType(String t) {
@@ -282,6 +380,8 @@ public class MainActivity extends AppCompatActivity {
             radioLcdShader.setChecked(true);
         } else if (isBlurFillType(type)) {
             radioBlurFill.setChecked(true);
+        } else if ("custom".equals(type)) {
+            radioCustom.setChecked(true);
         } else {
             // Default to crt-simple when enabled but unknown type
             radioCrt.setChecked(true);
@@ -292,6 +392,15 @@ public class MainActivity extends AppCompatActivity {
         loadLcd3xParamsFromProperties();
         loadLcdShaderParamsFromProperties();
         loadBlurFillParamsFromProperties();
+
+        // Set up custom shader state
+        String customPreset = getSystemProperty("persist.gammaos.shader.custom.preset", "");
+        if (presetAdapter != null) {
+            presetAdapter.setSelectedPath(customPreset);
+        }
+        if ("custom".equals(type) && shaderOn) {
+            browseToDefault();
+        }
 
         updateGroupsVisibility();
     }
@@ -764,6 +873,629 @@ public class MainActivity extends AppCompatActivity {
         setSystemPropertyFloat("persist.gammaos.shader.blurfill.luma_threshold", BLURFILL_LUMA_THRESHOLD_DEFAULT);
         setSystemProperty("persist.gammaos.shader.blurfill.orientation", BLURFILL_ORIENTATION_DEFAULT);
         loadBlurFillParamsFromProperties();
+    }
+
+    // ---- Custom shader preset support ----
+
+    private void setupCustomControls() {
+        presetAdapter = new PresetAdapter(presetList, entry -> {
+            if (entry.isFolder) {
+                editSearch.setText("");
+                browseTo(entry.absolutePath);
+            } else {
+                onPresetSelected(entry);
+            }
+        });
+        recyclerPresets.setLayoutManager(new LinearLayoutManager(this));
+        recyclerPresets.setAdapter(presetAdapter);
+
+        // Show current preset path if set
+        String current = getSystemProperty("persist.gammaos.shader.custom.preset", "");
+        if (!current.isEmpty()) {
+            labelActivePreset.setText(friendlyPresetName(current));
+        }
+
+        // Browse button — launches DocumentsUI / file picker for .slangp files
+        btnBrowsePreset.setOnClickListener(v -> {
+            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            intent.setType("*/*");
+            browsePresetLauncher.launch(intent);
+        });
+
+        // Search bar — filters current folder listing
+        editSearch.addTextChangedListener(new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            @Override
+            public void afterTextChanged(Editable s) {
+                filterBrowseEntries(s.toString());
+            }
+        });
+
+        // Resolution scale selector
+        radioGroupCustomResScale.setOnCheckedChangeListener((group, checkedId) -> {
+            if (checkedId == R.id.radioRes3_4) {
+                setSystemProperty("persist.gammaos.shader.custom.res_scale", "3/4");
+            } else if (checkedId == R.id.radioRes1_2) {
+                setSystemProperty("persist.gammaos.shader.custom.res_scale", "1/2");
+            } else if (checkedId == R.id.radioRes1_4) {
+                setSystemProperty("persist.gammaos.shader.custom.res_scale", "1/4");
+            } else {
+                setSystemProperty("persist.gammaos.shader.custom.res_scale", "full");
+            }
+        });
+
+        // Restore current resolution scale
+        loadCustomResScaleFromProperty();
+
+        // Watch for parameter metadata changes from SurfaceFlinger
+        loadShaderParams();
+        startParamMetaObserver();
+    }
+
+    private void loadCustomResScaleFromProperty() {
+        String scale = getSystemProperty("persist.gammaos.shader.custom.res_scale", "full");
+        switch (scale) {
+            case "3/4":
+                radioRes3_4.setChecked(true);
+                break;
+            case "1/2":
+                radioRes1_2.setChecked(true);
+                break;
+            case "1/4":
+                radioRes1_4.setChecked(true);
+                break;
+            default:
+                radioResFull.setChecked(true);
+                break;
+        }
+    }
+
+    private void onPresetSelected(PresetEntry entry) {
+        // If the preset is in /data/data/ (RetroArch app-private dir), SurfaceFlinger
+        // cannot access it due to DAC. Copy the preset and its referenced .slang files
+        // to /sdcard/GammaShader/.cache/ so SF can read them.
+        if (entry.absolutePath.startsWith("/data/data/") ||
+                entry.absolutePath.startsWith("/data/user/")) {
+            Executors.newSingleThreadExecutor().execute(() -> {
+                String cachedPath = copyPresetToCache(entry.absolutePath);
+                mainHandler.post(() -> {
+                    String path = cachedPath != null ? cachedPath : entry.absolutePath;
+                    setSystemProperty("persist.gammaos.shader.custom.preset", path);
+                    labelActivePreset.setText(entry.displayName);
+                    presetAdapter.setSelectedPath(entry.absolutePath);
+                    mainHandler.postDelayed(this::loadShaderParams, 1500);
+                });
+            });
+        } else {
+            setSystemProperty("persist.gammaos.shader.custom.preset", entry.absolutePath);
+            labelActivePreset.setText(entry.displayName);
+            presetAdapter.setSelectedPath(entry.absolutePath);
+            mainHandler.postDelayed(this::loadShaderParams, 1500);
+        }
+    }
+
+    /**
+     * Copy a .slangp preset and all .slang files it references to
+     * /sdcard/GammaShader/.cache/ so SurfaceFlinger can access them.
+     * Returns the cached preset path, or null on failure.
+     */
+    private String copyPresetToCache(String presetPath) {
+        try {
+            File src = new File(presetPath);
+            if (!src.exists()) return null;
+
+            File cacheDir = new File("/sdcard/GammaShader/.cache");
+            cacheDir.mkdirs();
+
+            // Read the preset and find referenced shader files
+            String content = readTextFile(src);
+            if (content == null) return null;
+
+            // Copy the preset file
+            File cachedPreset = new File(cacheDir, src.getName());
+            StringBuilder rewrittenContent = new StringBuilder();
+            String srcDir = src.getParent();
+
+            for (String line : content.split("\n")) {
+                String trimmed = line.trim();
+                // Rewrite shader paths: shader0 = "path/to/shader.slang"
+                if (trimmed.matches("shader\\d+\\s*=.*")) {
+                    int eq = trimmed.indexOf('=');
+                    String key = trimmed.substring(0, eq + 1);
+                    String val = trimmed.substring(eq + 1).trim().replace("\"", "");
+                    // Resolve relative path
+                    File shaderFile = val.startsWith("/") ? new File(val) : new File(srcDir, val);
+                    if (shaderFile.exists()) {
+                        File cachedShader = new File(cacheDir, shaderFile.getName());
+                        copyFile(shaderFile, cachedShader);
+                        rewrittenContent.append(key).append(" \"").append(cachedShader.getName()).append("\"\n");
+                    } else {
+                        rewrittenContent.append(line).append("\n");
+                    }
+                } else {
+                    rewrittenContent.append(line).append("\n");
+                }
+            }
+
+            writeTextFile(cachedPreset, rewrittenContent.toString());
+            return cachedPreset.getAbsolutePath();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private String readTextFile(File file) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            StringBuilder sb = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                sb.append(line).append("\n");
+            }
+            return sb.toString();
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
+    private void writeTextFile(File file, String content) throws IOException {
+        try (FileWriter writer = new FileWriter(file)) {
+            writer.write(content);
+        }
+    }
+
+    private void copyFile(File src, File dst) throws IOException {
+        try (java.io.FileInputStream in = new java.io.FileInputStream(src);
+             java.io.FileOutputStream out = new java.io.FileOutputStream(dst)) {
+            byte[] buf = new byte[8192];
+            int len;
+            while ((len = in.read(buf)) > 0) {
+                out.write(buf, 0, len);
+            }
+        }
+    }
+
+    private void browseToDefault() {
+        File root = new File(DEFAULT_SHADER_ROOT);
+        if (root.isDirectory()) {
+            browseTo(DEFAULT_SHADER_ROOT);
+        } else {
+            // Fallback to parent
+            browseTo("/sdcard/GammaShader");
+        }
+    }
+
+    private void browseTo(String dirPath) {
+        currentBrowsePath = dirPath;
+        labelCurrentPath.setText(dirPath);
+        labelPresetCount.setText(R.string.custom_searching);
+        presetList.clear();
+        allBrowseEntries.clear();
+        presetAdapter.notifyDataSetChanged();
+
+        Executors.newSingleThreadExecutor().execute(() -> {
+            List<PresetEntry> entries = new ArrayList<>();
+            File dir = new File(dirPath);
+
+            // Add ".." entry unless at filesystem root
+            if (dir.getParent() != null) {
+                PresetEntry up = new PresetEntry();
+                up.absolutePath = dir.getParent();
+                up.displayName = "..";
+                up.source = "";
+                up.isFolder = true;
+                entries.add(up);
+            }
+
+            File[] children = dir.listFiles();
+            if (children != null) {
+                // Separate folders and files, sort each group
+                List<File> folders = new ArrayList<>();
+                List<File> files = new ArrayList<>();
+                for (File f : children) {
+                    if (f.getName().startsWith(".")) continue;
+                    if (f.isDirectory()) {
+                        folders.add(f);
+                    } else if (f.getName().endsWith(".slangp")) {
+                        files.add(f);
+                    }
+                }
+                Collections.sort(folders, (a, b) -> a.getName().compareToIgnoreCase(b.getName()));
+                Collections.sort(files, (a, b) -> a.getName().compareToIgnoreCase(b.getName()));
+
+                for (File f : folders) {
+                    PresetEntry entry = new PresetEntry();
+                    entry.absolutePath = f.getAbsolutePath();
+                    entry.displayName = f.getName();
+                    entry.source = "";
+                    entry.isFolder = true;
+                    entries.add(entry);
+                }
+                for (File f : files) {
+                    PresetEntry entry = new PresetEntry();
+                    entry.absolutePath = f.getAbsolutePath();
+                    entry.displayName = f.getName();
+                    entry.source = "";
+                    entry.isFolder = false;
+                    entries.add(entry);
+                }
+            }
+
+            mainHandler.post(() -> {
+                allBrowseEntries.clear();
+                allBrowseEntries.addAll(entries);
+                presetList.clear();
+                presetList.addAll(entries);
+                presetAdapter.notifyDataSetChanged();
+                int fileCount = 0;
+                int folderCount = 0;
+                for (PresetEntry e : entries) {
+                    if (e.displayName.equals("..")) continue;
+                    if (e.isFolder) folderCount++;
+                    else fileCount++;
+                }
+                if (folderCount == 0 && fileCount == 0) {
+                    labelPresetCount.setText(R.string.custom_no_presets_found);
+                } else {
+                    labelPresetCount.setText(folderCount + " folders, " + fileCount + " presets");
+                }
+            });
+        });
+    }
+
+    private void filterBrowseEntries(String query) {
+        presetList.clear();
+        if (query == null || query.isEmpty()) {
+            presetList.addAll(allBrowseEntries);
+        } else {
+            String lower = query.toLowerCase(Locale.US);
+            for (PresetEntry e : allBrowseEntries) {
+                if (e.displayName.equals("..") || e.displayName.toLowerCase(Locale.US).contains(lower)) {
+                    presetList.add(e);
+                }
+            }
+        }
+        presetAdapter.notifyDataSetChanged();
+    }
+
+    private String friendlyPresetName(String absPath) {
+        if (absPath == null || absPath.isEmpty()) return getString(R.string.custom_no_preset);
+        int lastSlash = absPath.lastIndexOf('/');
+        if (lastSlash >= 0 && lastSlash < absPath.length() - 1) {
+            return absPath.substring(lastSlash + 1);
+        }
+        return absPath;
+    }
+
+    // ---- File picker result handling ----
+
+    private void handleBrowseResult(Uri uri) {
+        if (uri == null) return;
+        // Try to resolve the URI to a filesystem path
+        String path = resolveUriToPath(uri);
+        if (path != null && path.endsWith(".slangp")) {
+            setSystemProperty("persist.gammaos.shader.custom.preset", path);
+            labelActivePreset.setText(friendlyPresetName(path));
+            presetAdapter.setSelectedPath(path);
+            mainHandler.postDelayed(this::loadShaderParams, 1500);
+            return;
+        }
+        // Fallback: copy content via ContentResolver to GammaShader cache
+        Executors.newSingleThreadExecutor().execute(() -> {
+            String copied = copyUriToCache(uri);
+            if (copied != null) {
+                mainHandler.post(() -> {
+                    setSystemProperty("persist.gammaos.shader.custom.preset", copied);
+                    labelActivePreset.setText(friendlyPresetName(copied));
+                    presetAdapter.setSelectedPath(copied);
+                    mainHandler.postDelayed(this::loadShaderParams, 1500);
+                });
+            }
+        });
+    }
+
+    private String copyUriToCache(Uri uri) {
+        try {
+            File cacheDir = new File("/sdcard/GammaShader/.cache");
+            cacheDir.mkdirs();
+            // Determine filename from URI or display name
+            String name = "imported.slangp";
+            try (Cursor c = getContentResolver().query(uri,
+                    new String[]{android.provider.OpenableColumns.DISPLAY_NAME}, null, null, null)) {
+                if (c != null && c.moveToFirst()) {
+                    int idx = c.getColumnIndex(android.provider.OpenableColumns.DISPLAY_NAME);
+                    if (idx >= 0) name = c.getString(idx);
+                }
+            }
+            if (!name.endsWith(".slangp")) return null;
+            File dst = new File(cacheDir, name);
+            try (java.io.InputStream in = getContentResolver().openInputStream(uri);
+                 java.io.FileOutputStream out = new java.io.FileOutputStream(dst)) {
+                if (in == null) return null;
+                byte[] buf = new byte[8192];
+                int len;
+                while ((len = in.read(buf)) > 0) {
+                    out.write(buf, 0, len);
+                }
+            }
+            return dst.getAbsolutePath();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private String resolveUriToPath(Uri uri) {
+        // For content:// URIs from DocumentsUI, try to resolve the actual file path
+        if ("com.android.externalstorage.documents".equals(uri.getAuthority())) {
+            String docId = DocumentsContract.getDocumentId(uri);
+            String[] split = docId.split(":");
+            String type = split[0];
+            String relative = split.length > 1 ? split[1] : "";
+            if ("primary".equalsIgnoreCase(type)) {
+                return Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + relative;
+            }
+        }
+        // Fallback: try reading _data column
+        try (Cursor cursor = getContentResolver().query(uri, new String[]{"_data"}, null, null, null)) {
+            if (cursor != null && cursor.moveToFirst()) {
+                int idx = cursor.getColumnIndex("_data");
+                if (idx >= 0) return cursor.getString(idx);
+            }
+        } catch (Exception ignored) {}
+        // Last resort: use path from URI
+        if ("file".equals(uri.getScheme())) {
+            return uri.getPath();
+        }
+        return null;
+    }
+
+    // ---- Shader parameter sliders ----
+
+    private static final String PARAM_META_PATH = "/sdcard/GammaShader/.shader_param_meta";
+    private static final String PARAM_VALUES_PATH = "/sdcard/GammaShader/.shader_params";
+
+    private void startParamMetaObserver() {
+        File metaFile = new File(PARAM_META_PATH);
+        File dir = metaFile.getParentFile();
+        if (dir == null) return;
+        dir.mkdirs();
+        paramMetaObserver = new FileObserver(dir.getAbsolutePath(),
+                FileObserver.CLOSE_WRITE | FileObserver.MODIFY) {
+            @Override
+            public void onEvent(int event, @Nullable String path) {
+                if (".shader_param_meta".equals(path)) {
+                    mainHandler.post(() -> loadShaderParams());
+                }
+            }
+        };
+        paramMetaObserver.startWatching();
+    }
+
+    private void loadShaderParams() {
+        containerShaderParams.removeAllViews();
+        File metaFile = new File(PARAM_META_PATH);
+        if (!metaFile.exists() || !metaFile.canRead()) return;
+
+        List<ShaderParamMeta> params = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader(metaFile))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split("\\|", 6);
+                if (parts.length < 6) continue;
+                ShaderParamMeta p = new ShaderParamMeta();
+                p.id = parts[0];
+                p.desc = parts[1];
+                p.initial = Float.parseFloat(parts[2]);
+                p.min = Float.parseFloat(parts[3]);
+                p.max = Float.parseFloat(parts[4]);
+                p.step = Float.parseFloat(parts[5]);
+                p.current = p.initial;
+                params.add(p);
+            }
+        } catch (Exception e) {
+            return;
+        }
+
+        if (params.isEmpty()) return;
+
+        // Read current overrides
+        File valuesFile = new File(PARAM_VALUES_PATH);
+        if (valuesFile.exists()) {
+            try (BufferedReader reader = new BufferedReader(new FileReader(valuesFile))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    int eq = line.indexOf('=');
+                    if (eq < 0) continue;
+                    String id = line.substring(0, eq).trim();
+                    String val = line.substring(eq + 1).trim();
+                    for (ShaderParamMeta p : params) {
+                        if (p.id.equals(id)) {
+                            try { p.current = Float.parseFloat(val); } catch (Exception ignored) {}
+                            break;
+                        }
+                    }
+                }
+            } catch (Exception ignored) {}
+        }
+
+        // Section title
+        TextView title = new TextView(this);
+        title.setText(R.string.section_shader_params);
+        title.setTextSize(16);
+        title.setTypeface(null, Typeface.BOLD);
+        title.setTextColor(getColor(R.color.text_primary));
+        title.setPadding(0, 24, 0, 8);
+        containerShaderParams.addView(title);
+
+        // Create a slider for each parameter
+        for (ShaderParamMeta p : params) {
+            addParamSlider(p, params);
+        }
+    }
+
+    private void addParamSlider(ShaderParamMeta param, List<ShaderParamMeta> allParams) {
+        // Label row: description + value
+        android.widget.LinearLayout row = new android.widget.LinearLayout(this);
+        row.setOrientation(android.widget.LinearLayout.HORIZONTAL);
+        row.setLayoutParams(new ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        row.setPadding(0, 12, 0, 0);
+
+        TextView label = new TextView(this);
+        label.setText(param.desc);
+        label.setTextSize(13);
+        label.setTextColor(getColor(R.color.text_primary));
+        label.setLayoutParams(new android.widget.LinearLayout.LayoutParams(
+                0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        row.addView(label);
+
+        TextView valueText = new TextView(this);
+        valueText.setTextSize(13);
+        valueText.setTextColor(getColor(R.color.text_primary));
+        valueText.setGravity(Gravity.END);
+        valueText.setText(formatParamValue(param.current));
+        row.addView(valueText);
+
+        containerShaderParams.addView(row);
+
+        // SeekBar
+        SeekBar seekBar = new SeekBar(this);
+        seekBar.setLayoutParams(new ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        seekBar.setFocusable(true);
+
+        float range = param.max - param.min;
+        int steps = (param.step > 0) ? Math.max(1, Math.round(range / param.step)) : 100;
+        seekBar.setMax(steps);
+
+        // Set current position
+        int pos = Math.round((param.current - param.min) / param.step);
+        seekBar.setProgress(Math.max(0, Math.min(steps, pos)));
+
+        seekBar.setOnSeekBarChangeListener(new SimpleSeekListener() {
+            @Override
+            public void onProgressChanged(SeekBar sb, int progress, boolean fromUser) {
+                float value = param.min + progress * param.step;
+                value = Math.max(param.min, Math.min(param.max, value));
+                param.current = value;
+                valueText.setText(formatParamValue(value));
+                if (fromUser) {
+                    writeParamOverrides(allParams);
+                }
+            }
+        });
+        containerShaderParams.addView(seekBar);
+    }
+
+    private String formatParamValue(float value) {
+        if (value == (int) value) return String.valueOf((int) value);
+        return String.format(Locale.US, "%.3f", value);
+    }
+
+    private void writeParamOverrides(List<ShaderParamMeta> params) {
+        Executors.newSingleThreadExecutor().execute(() -> {
+            try {
+                File dir = new File("/sdcard/GammaShader");
+                dir.mkdirs();
+                try (FileWriter writer = new FileWriter(PARAM_VALUES_PATH)) {
+                    for (ShaderParamMeta p : params) {
+                        writer.write(p.id + "=" + p.current + "\n");
+                    }
+                }
+            } catch (IOException ignored) {}
+        });
+    }
+
+    static class ShaderParamMeta {
+        String id;
+        String desc;
+        float initial;
+        float min;
+        float max;
+        float step;
+        float current;
+    }
+
+    // ---- Preset data model ----
+
+    static class PresetEntry {
+        String absolutePath;
+        String displayName;
+        String source;
+        boolean isFolder;
+    }
+
+    // ---- Preset list adapter ----
+
+    interface OnPresetClickListener {
+        void onPresetClicked(PresetEntry entry);
+    }
+
+    static class PresetAdapter extends RecyclerView.Adapter<PresetAdapter.VH> {
+        private final List<PresetEntry> items;
+        private final OnPresetClickListener listener;
+        private String selectedPath = "";
+
+        PresetAdapter(List<PresetEntry> items, OnPresetClickListener listener) {
+            this.items = items;
+            this.listener = listener;
+        }
+
+        void setSelectedPath(String path) {
+            this.selectedPath = path != null ? path : "";
+            notifyDataSetChanged();
+        }
+
+        @NonNull
+        @Override
+        public VH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            TextView tv = new TextView(parent.getContext());
+            tv.setLayoutParams(new ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT));
+            tv.setPadding(24, 20, 24, 20);
+            tv.setTextSize(14);
+            tv.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
+            tv.setFocusable(true);
+            tv.setClickable(true);
+            tv.setBackgroundResource(R.drawable.focusable_background);
+            return new VH(tv);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull VH holder, int position) {
+            PresetEntry entry = items.get(position);
+            TextView tv = (TextView) holder.itemView;
+            if (entry.isFolder) {
+                tv.setText("\uD83D\uDCC1 " + entry.displayName);
+                tv.setTypeface(null, Typeface.BOLD);
+                tv.setTextColor(0xFFFF8A2A); // accent color
+            } else {
+                boolean isSelected = entry.absolutePath.equals(selectedPath);
+                tv.setText(entry.displayName);
+                tv.setTypeface(null, isSelected ? Typeface.BOLD : Typeface.NORMAL);
+                tv.setTextColor(0xFFFFFFFF); // text_primary
+            }
+            tv.setOnClickListener(v -> {
+                if (!entry.isFolder) {
+                    selectedPath = entry.absolutePath;
+                    notifyDataSetChanged();
+                }
+                listener.onPresetClicked(entry);
+            });
+        }
+
+        @Override
+        public int getItemCount() {
+            return items.size();
+        }
+
+        static class VH extends RecyclerView.ViewHolder {
+            VH(@NonNull View itemView) {
+                super(itemView);
+            }
+        }
     }
 
     // Simple helper to avoid implementing unused listener methods everywhere

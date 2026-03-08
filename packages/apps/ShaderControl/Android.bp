@@ -14,6 +14,7 @@ android_app {
     static_libs: [
         "com.google.android.material_material",
         "androidx.appcompat_appcompat",
+        "androidx.activity_activity",
         "androidx.cardview_cardview",
         "androidx.recyclerview_recyclerview",
         "androidx-constraintlayout_constraintlayout",

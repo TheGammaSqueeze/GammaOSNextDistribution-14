@@ -11,4 +11,20 @@
     <string name="btn_reset_lcd3x">Скинути LCD3x до стандартних</string>
     <string name="btn_reset_lcd_shader">Скинути LCD-шейдер до стандартних</string>
     <string name="btn_reset_blur_fill">Скинути заливку розмиттям до стандартних</string>
+    <string name="shader_custom">Користувацький (.slangp)</string>
+    <string name="section_custom_params">Користувацький пресет шейдера</string>
+    <string name="hint_custom">Виберіть .slangp-пресет, сумісний з RetroArch</string>
+    <string name="label_custom_preset">Активний пресет</string>
+    <string name="custom_no_preset">Пресет не вибрано</string>
+    <string name="custom_no_presets_found">Пресети .slangp не знайдено.\nРозмістіть пресети у /sdcard/GammaShader/ або встановіть RetroArch з пакетами шейдерів.</string>
+    <string name="custom_searching">Пошук пресетів шейдерів\u2026</string>
+    <string name="custom_preset_count">Знайдено пресетів: %d</string>
+    <string name="label_custom_res_scale">Базова роздільна здатність</string>
+    <string name="res_scale_full">Повна</string>
+    <string name="res_scale_3_4">3/4</string>
+    <string name="res_scale_1_2">1/2</string>
+    <string name="res_scale_1_4">1/4</string>
+    <string name="btn_browse_preset">Вибрати файл .slangp\u2026</string>
+    <string name="section_shader_params">Параметри шейдера</string>
+    <string name="hint_search_shaders">\u041f\u043e\u0448\u0443\u043a \u0448\u0435\u0439\u0434\u0435\u0440\u0456\u0432\u2026</string>
 </resources>

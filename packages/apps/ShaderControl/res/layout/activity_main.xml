@@ -92,6 +92,14 @@
                 android:layout_marginStart="16dp"
                 android:text="@string/shader_blur_fill"
                 android:background="@drawable/focusable_background" />
+
+            <RadioButton
+                android:id="@+id/radioCustom"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:text="@string/shader_custom"
+                android:background="@drawable/focusable_background" />
         </RadioGroup>
 
     </HorizontalScrollView>
@@ -900,6 +908,154 @@
                         android:text="@string/orientation_horizontal"
                         android:background="@drawable/focusable_background" />
                 </RadioGroup>
+            </LinearLayout>
+
+            <!-- Custom shader preset group -->
+            <LinearLayout
+                android:id="@+id/groupCustom"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingTop="16dp"
+                android:paddingBottom="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/section_custom_params"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_primary"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/hint_custom"
+                    android:textColor="@color/text_primary"
+                    android:textSize="12sp"
+                    android:layout_marginTop="4dp" />
+
+                <TextView
+                    android:id="@+id/labelActivePreset"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/custom_no_preset"
+                    android:textColor="@color/text_primary"
+                    android:textSize="14sp"
+                    android:textStyle="italic"
+                    android:layout_marginTop="8dp" />
+
+                <TextView
+                    android:id="@+id/labelPresetCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/custom_searching"
+                    android:textColor="@color/text_primary"
+                    android:textSize="12sp"
+                    android:layout_marginTop="8dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/label_custom_res_scale"
+                    android:textColor="@color/text_primary"
+                    android:textSize="14sp"
+                    android:layout_marginTop="12dp" />
+
+                <RadioGroup
+                    android:id="@+id/radioGroupCustomResScale"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="4dp">
+
+                    <RadioButton
+                        android:id="@+id/radioResFull"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/res_scale_full"
+                        android:background="@drawable/focusable_background" />
+
+                    <RadioButton
+                        android:id="@+id/radioRes3_4"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:text="@string/res_scale_3_4"
+                        android:background="@drawable/focusable_background" />
+
+                    <RadioButton
+                        android:id="@+id/radioRes1_2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:text="@string/res_scale_1_2"
+                        android:background="@drawable/focusable_background" />
+
+                    <RadioButton
+                        android:id="@+id/radioRes1_4"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:text="@string/res_scale_1_4"
+                        android:background="@drawable/focusable_background" />
+
+                </RadioGroup>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnBrowsePreset"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="@string/btn_browse_preset"
+                    android:focusable="true"
+                    android:textColor="@color/text_primary"
+                    app:strokeColor="@color/colorAccent"
+                    app:strokeWidth="2dp"
+                    app:cornerRadius="16dp"
+                    app:rippleColor="@color/colorAccent" />
+
+                <!-- Shader folder browser -->
+                <EditText
+                    android:id="@+id/editSearch"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/hint_search_shaders"
+                    android:inputType="text"
+                    android:textColor="@color/text_primary"
+                    android:textColorHint="#80808080"
+                    android:textSize="14sp"
+                    android:layout_marginTop="12dp"
+                    android:padding="12dp"
+                    android:background="@drawable/focusable_background"
+                    android:focusable="true" />
+
+                <TextView
+                    android:id="@+id/labelCurrentPath"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/colorAccent"
+                    android:textSize="12sp"
+                    android:layout_marginTop="6dp"
+                    android:singleLine="true"
+                    android:ellipsize="start" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recyclerPresets"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:nestedScrollingEnabled="false" />
+
+                <!-- Dynamic shader parameter sliders -->
+                <LinearLayout
+                    android:id="@+id/containerShaderParams"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginTop="12dp" />
+
             </LinearLayout>
 
         </LinearLayout>

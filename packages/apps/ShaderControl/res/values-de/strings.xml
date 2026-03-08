@@ -21,4 +21,20 @@
     <string name="btn_reset_lcd3x">LCD3x auf Standard zurücksetzen</string>
     <string name="btn_reset_lcd_shader">LCD-Shader auf Standard zurücksetzen</string>
     <string name="btn_reset_blur_fill">Unschärfefüllung auf Standard zurücksetzen</string>
+    <string name="shader_custom">Benutzerdefiniert (.slangp)</string>
+    <string name="section_custom_params">Benutzerdefiniertes Shader-Preset</string>
+    <string name="hint_custom">Wählen Sie ein RetroArch-kompatibles .slangp-Preset</string>
+    <string name="label_custom_preset">Aktives Preset</string>
+    <string name="custom_no_preset">Kein Preset ausgewählt</string>
+    <string name="custom_no_presets_found">Keine .slangp-Presets gefunden.\nLegen Sie Presets in /sdcard/GammaShader/ ab oder installieren Sie RetroArch mit Shader-Paketen.</string>
+    <string name="custom_searching">Suche nach Shader-Presets\u2026</string>
+    <string name="custom_preset_count">%d Presets gefunden</string>
+    <string name="label_custom_res_scale">Basisauflösung</string>
+    <string name="res_scale_full">Voll</string>
+    <string name="res_scale_3_4">3/4</string>
+    <string name="res_scale_1_2">1/2</string>
+    <string name="res_scale_1_4">1/4</string>
+    <string name="btn_browse_preset">.slangp-Datei suchen\u2026</string>
+    <string name="section_shader_params">Shader-Parameter</string>
+    <string name="hint_search_shaders">Shader suchen\u2026</string>
 </resources>
