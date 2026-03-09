@@ -94,11 +94,27 @@
                 android:background="@drawable/focusable_background" />
 
             <RadioButton
-                android:id="@+id/radioCustom"
+                android:id="@+id/radioCustomSksl"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
-                android:text="@string/shader_custom"
+                android:text="@string/shader_custom_sksl"
+                android:background="@drawable/focusable_background" />
+
+            <RadioButton
+                android:id="@+id/radioCustomVk"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:text="@string/shader_custom_vk"
+                android:background="@drawable/focusable_background" />
+
+            <RadioButton
+                android:id="@+id/radioCustomGl"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:text="@string/shader_custom_gl"
                 android:background="@drawable/focusable_background" />
         </RadioGroup>
 
@@ -928,9 +944,10 @@
                     android:textSize="18sp" />
 
                 <TextView
+                    android:id="@+id/labelCustomHint"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/hint_custom"
+                    android:text="@string/hint_custom_sksl"
                     android:textColor="@color/text_primary"
                     android:textSize="12sp"
                     android:layout_marginTop="4dp" />
@@ -1002,6 +1019,14 @@
 
                 </RadioGroup>
 
+                <!-- Dynamic shader parameter sliders (above file browser) -->
+                <LinearLayout
+                    android:id="@+id/containerShaderParams"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginTop="12dp" />
+
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnBrowsePreset"
                     style="@style/Widget.MaterialComponents.Button.OutlinedButton"
@@ -1047,14 +1072,6 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:nestedScrollingEnabled="false" />
-
-                <!-- Dynamic shader parameter sliders -->
-                <LinearLayout
-                    android:id="@+id/containerShaderParams"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_marginTop="12dp" />
 
             </LinearLayout>
 

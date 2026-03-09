@@ -53,10 +53,23 @@ public class MainActivity extends AppCompatActivity {
     private RadioButton radioLcd3x;
     private RadioButton radioLcdShader;
     private RadioButton radioBlurFill;
-    private RadioButton radioCustom;
+    private RadioButton radioCustomSksl;
+    private RadioButton radioCustomVk;
+    private RadioButton radioCustomGl;
+
+    // Current custom shader type determines file extension filter
+    // "custom" = SkSL transpiler (.slangp), "custom-vk" = Vulkan (.slangp), "custom-gl" = GLSL (.glslp)
+    private String customShaderType = "custom";
+
+    // 5-tap title to reveal hidden custom shader modes
+    private int titleTapCount = 0;
+    private long lastTitleTapTime = 0;
+    private boolean allCustomModesVisible = false;
+    private boolean hwuiUsesVulkan = false;
 
     // Custom shader controls
     private View groupCustom;
+    private TextView labelCustomHint;
     private TextView labelActivePreset;
     private TextView labelPresetCount;
     private RecyclerView recyclerPresets;
@@ -68,13 +81,15 @@ public class MainActivity extends AppCompatActivity {
     private MaterialButton btnBrowsePreset;
     private LinearLayout containerShaderParams;
     private FileObserver paramMetaObserver;
+    private final Runnable loadShaderParamsRunnable = this::loadShaderParams;
+    private String lastLoadedParamPreset = "";  // track which preset's params are currently shown
     private ActivityResultLauncher<Intent> browsePresetLauncher;
     private EditText editSearch;
     private TextView labelCurrentPath;
     private String currentBrowsePath = "";
     private final List<PresetEntry> allBrowseEntries = new ArrayList<>();
 
-    private static final String DEFAULT_SHADER_ROOT = "/sdcard/GammaShader/shaders_slang";
+    private static final String DEFAULT_SHADER_ROOT = "/sdcard/GammaShader";
 
     // CRT controls
     private View groupCrt;
@@ -160,6 +175,60 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    public boolean onKeyDown(int keyCode, android.view.KeyEvent event) {
+        if (keyCode == android.view.KeyEvent.KEYCODE_BACK
+                || keyCode == android.view.KeyEvent.KEYCODE_BUTTON_B) {
+            // If custom group is visible and we can navigate up, go up a directory
+            if (groupCustom.getVisibility() == View.VISIBLE
+                    && !currentBrowsePath.isEmpty()) {
+                File current = new File(currentBrowsePath);
+                String parent = current.getParent();
+                if (parent != null) {
+                    editSearch.setText("");
+                    browseTo(parent);
+                    return true;
+                }
+            }
+        }
+        // L1/R1 shoulder buttons: cycle to previous/next shader preset in the list
+        if (groupCustom.getVisibility() == View.VISIBLE
+                && (keyCode == android.view.KeyEvent.KEYCODE_BUTTON_L1
+                    || keyCode == android.view.KeyEvent.KEYCODE_BUTTON_R1)) {
+            cyclePreset(keyCode == android.view.KeyEvent.KEYCODE_BUTTON_R1);
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+    /** Cycle to the next (forward=true) or previous (forward=false) preset in the list. */
+    private void cyclePreset(boolean forward) {
+        if (presetList.isEmpty()) return;
+
+        // Find current selection index
+        String currentPath = getSystemProperty("persist.gammaos.shader.custom.preset", "");
+        int currentIdx = -1;
+        for (int i = 0; i < presetList.size(); i++) {
+            if (!presetList.get(i).isFolder && presetList.get(i).absolutePath.equals(currentPath)) {
+                currentIdx = i;
+                break;
+            }
+        }
+
+        // Find next/prev non-folder entry
+        int direction = forward ? 1 : -1;
+        int startIdx = (currentIdx >= 0) ? currentIdx + direction : 0;
+        for (int step = 0; step < presetList.size(); step++) {
+            int idx = ((startIdx + step * direction) % presetList.size() + presetList.size()) % presetList.size();
+            PresetEntry entry = presetList.get(idx);
+            if (!entry.isFolder) {
+                onPresetSelected(entry);
+                recyclerPresets.scrollToPosition(idx);
+                return;
+            }
+        }
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         if (paramMetaObserver != null) {
@@ -175,9 +244,44 @@ public class MainActivity extends AppCompatActivity {
         radioLcd3x = findViewById(R.id.radioLcd3x);
         radioLcdShader = findViewById(R.id.radioLcdShader);
         radioBlurFill = findViewById(R.id.radioBlurFill);
-        radioCustom = findViewById(R.id.radioCustom);
+        radioCustomSksl = findViewById(R.id.radioCustomSksl);
+        radioCustomVk = findViewById(R.id.radioCustomVk);
+        radioCustomGl = findViewById(R.id.radioCustomGl);
+
+        // Mark the recommended custom pipeline based on the HWUI rendering backend.
+        // If HWUI uses Vulkan (ro.hwui.use_vulkan=true), Vulkan shaders run natively
+        // on the same backend. Otherwise GL is the native path and most stable pipeline.
+        hwuiUsesVulkan = "true".equals(
+                getSystemProperty("ro.hwui.use_vulkan", ""));
+        if (hwuiUsesVulkan) {
+            radioCustomVk.setText(radioCustomVk.getText() + " \u2605");
+            // Hide non-recommended modes by default
+            radioCustomSksl.setVisibility(View.GONE);
+            radioCustomGl.setVisibility(View.GONE);
+        } else {
+            radioCustomGl.setText(radioCustomGl.getText() + " \u2605");
+            // Hide non-recommended modes by default
+            radioCustomSksl.setVisibility(View.GONE);
+            radioCustomVk.setVisibility(View.GONE);
+        }
+
+        // 5-tap on title to reveal all custom shader modes
+        TextView titleView = findViewById(R.id.title);
+        titleView.setOnClickListener(v -> {
+            long now = System.currentTimeMillis();
+            if (now - lastTitleTapTime > 1500) titleTapCount = 0;
+            lastTitleTapTime = now;
+            titleTapCount++;
+            if (titleTapCount >= 5 && !allCustomModesVisible) {
+                allCustomModesVisible = true;
+                radioCustomSksl.setVisibility(View.VISIBLE);
+                radioCustomVk.setVisibility(View.VISIBLE);
+                radioCustomGl.setVisibility(View.VISIBLE);
+            }
+        });
 
         groupCustom = findViewById(R.id.groupCustom);
+        labelCustomHint = findViewById(R.id.labelCustomHint);
         labelActivePreset = findViewById(R.id.labelActivePreset);
         labelPresetCount = findViewById(R.id.labelPresetCount);
         recyclerPresets = findViewById(R.id.recyclerPresets);
@@ -307,8 +411,12 @@ public class MainActivity extends AppCompatActivity {
                 onModeSelectedLcdShader();
             } else if (checkedId == R.id.radioBlurFill) {
                 onModeSelectedBlurFill();
-            } else if (checkedId == R.id.radioCustom) {
-                onModeSelectedCustom();
+            } else if (checkedId == R.id.radioCustomSksl) {
+                onModeSelectedCustom("custom");
+            } else if (checkedId == R.id.radioCustomVk) {
+                onModeSelectedCustom("custom-vk");
+            } else if (checkedId == R.id.radioCustomGl) {
+                onModeSelectedCustom("custom-gl");
             }
         });
     }
@@ -344,11 +452,27 @@ public class MainActivity extends AppCompatActivity {
         updateGroupsVisibility();
     }
 
-    private void onModeSelectedCustom() {
+    private void onModeSelectedCustom(String type) {
+        customShaderType = type;
         setSystemProperty("persist.gammaos.shader.enable", "1");
-        setSystemProperty("persist.gammaos.shader.type", "custom");
+        setSystemProperty("persist.gammaos.shader.type", type);
+        // Update hint text for current pipeline
+        if ("custom-gl".equals(type)) {
+            labelCustomHint.setText(R.string.hint_custom_gl);
+        } else if ("custom-vk".equals(type)) {
+            labelCustomHint.setText(R.string.hint_custom_vk);
+        } else {
+            labelCustomHint.setText(R.string.hint_custom_sksl);
+        }
         updateGroupsVisibility();
-        browseToDefault();
+        String preset = getSystemProperty("persist.gammaos.shader.custom.preset", "");
+        browseToPresetOrDefault(preset);
+    }
+
+    private boolean isCustomMode(int checkedId) {
+        return checkedId == R.id.radioCustomSksl
+            || checkedId == R.id.radioCustomVk
+            || checkedId == R.id.radioCustomGl;
     }
 
     private void updateGroupsVisibility() {
@@ -357,7 +481,7 @@ public class MainActivity extends AppCompatActivity {
         groupLcd3x.setVisibility(checkedId == R.id.radioLcd3x ? View.VISIBLE : View.GONE);
         groupLcdShader.setVisibility(checkedId == R.id.radioLcdShader ? View.VISIBLE : View.GONE);
         groupBlurFill.setVisibility(checkedId == R.id.radioBlurFill ? View.VISIBLE : View.GONE);
-        groupCustom.setVisibility(checkedId == R.id.radioCustom ? View.VISIBLE : View.GONE);
+        groupCustom.setVisibility(isCustomMode(checkedId) ? View.VISIBLE : View.GONE);
     }
 
     private static boolean isLcdShaderType(String t) {
@@ -380,8 +504,22 @@ public class MainActivity extends AppCompatActivity {
             radioLcdShader.setChecked(true);
         } else if (isBlurFillType(type)) {
             radioBlurFill.setChecked(true);
+        } else if ("custom-vk".equals(type)) {
+            customShaderType = "custom-vk";
+            // Ensure this button is visible even if hidden by default
+            radioCustomVk.setVisibility(View.VISIBLE);
+            radioCustomVk.setChecked(true);
+            labelCustomHint.setText(R.string.hint_custom_vk);
+        } else if ("custom-gl".equals(type)) {
+            customShaderType = "custom-gl";
+            radioCustomGl.setVisibility(View.VISIBLE);
+            radioCustomGl.setChecked(true);
+            labelCustomHint.setText(R.string.hint_custom_gl);
         } else if ("custom".equals(type)) {
-            radioCustom.setChecked(true);
+            customShaderType = "custom";
+            radioCustomSksl.setVisibility(View.VISIBLE);
+            radioCustomSksl.setChecked(true);
+            labelCustomHint.setText(R.string.hint_custom_sksl);
         } else {
             // Default to crt-simple when enabled but unknown type
             radioCrt.setChecked(true);
@@ -393,13 +531,13 @@ public class MainActivity extends AppCompatActivity {
         loadLcdShaderParamsFromProperties();
         loadBlurFillParamsFromProperties();
 
-        // Set up custom shader state
+        // Set up custom shader state — resume to the preset's parent folder
         String customPreset = getSystemProperty("persist.gammaos.shader.custom.preset", "");
         if (presetAdapter != null) {
             presetAdapter.setSelectedPath(customPreset);
         }
-        if ("custom".equals(type) && shaderOn) {
-            browseToDefault();
+        if (("custom".equals(type) || "custom-vk".equals(type) || "custom-gl".equals(type)) && shaderOn) {
+            browseToPresetOrDefault(customPreset);
         }
 
         updateGroupsVisibility();
@@ -895,7 +1033,7 @@ public class MainActivity extends AppCompatActivity {
             labelActivePreset.setText(friendlyPresetName(current));
         }
 
-        // Browse button — launches DocumentsUI / file picker for .slangp files
+        // Browse button — launches DocumentsUI / file picker for .slangp/.glslp files
         btnBrowsePreset.setOnClickListener(v -> {
             Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
             intent.addCategory(Intent.CATEGORY_OPENABLE);
@@ -953,8 +1091,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void onPresetSelected(PresetEntry entry) {
+        // Use the current custom shader type (set when the mode radio was selected)
+        String shaderType = customShaderType;
+
+        // Cancel any pending param load from a previous selection and clear stale params
+        mainHandler.removeCallbacks(loadShaderParamsRunnable);
+        containerShaderParams.removeAllViews();
+
+        // Clear stale param overrides so the new preset starts with its defaults
+        clearParamOverrides();
+
         // If the preset is in /data/data/ (RetroArch app-private dir), SurfaceFlinger
-        // cannot access it due to DAC. Copy the preset and its referenced .slang files
+        // cannot access it due to DAC. Copy the preset and its referenced shader files
         // to /sdcard/GammaShader/.cache/ so SF can read them.
         if (entry.absolutePath.startsWith("/data/data/") ||
                 entry.absolutePath.startsWith("/data/user/")) {
@@ -962,18 +1110,53 @@ public class MainActivity extends AppCompatActivity {
                 String cachedPath = copyPresetToCache(entry.absolutePath);
                 mainHandler.post(() -> {
                     String path = cachedPath != null ? cachedPath : entry.absolutePath;
+                    setSystemProperty("persist.gammaos.shader.type", shaderType);
                     setSystemProperty("persist.gammaos.shader.custom.preset", path);
                     labelActivePreset.setText(entry.displayName);
                     presetAdapter.setSelectedPath(entry.absolutePath);
-                    mainHandler.postDelayed(this::loadShaderParams, 1500);
+                    scheduleParamLoad(path);
                 });
             });
         } else {
+            setSystemProperty("persist.gammaos.shader.type", shaderType);
             setSystemProperty("persist.gammaos.shader.custom.preset", entry.absolutePath);
             labelActivePreset.setText(entry.displayName);
             presetAdapter.setSelectedPath(entry.absolutePath);
-            mainHandler.postDelayed(this::loadShaderParams, 1500);
+            scheduleParamLoad(entry.absolutePath);
         }
+    }
+
+    /** Schedule param metadata load with retry until the native side has written fresh data. */
+    private void scheduleParamLoad(String presetPath) {
+        lastLoadedParamPreset = "";  // force reload
+        // Delete stale meta so we know when native writes fresh data
+        new File(PARAM_META_PATH).delete();
+        // Poll for the new meta file (native writes it within ~1-2 frames)
+        final long startTime = System.currentTimeMillis();
+        Runnable pollForMeta = new Runnable() {
+            @Override
+            public void run() {
+                File meta = new File(PARAM_META_PATH);
+                if (meta.exists() && meta.length() > 0) {
+                    loadShaderParams();
+                    return;
+                }
+                // Retry for up to 3 seconds
+                if (System.currentTimeMillis() - startTime < 3000) {
+                    mainHandler.postDelayed(this, 200);
+                }
+            }
+        };
+        mainHandler.postDelayed(pollForMeta, 300);
+    }
+
+    /** Clear the .shader_params override file. */
+    private void clearParamOverrides() {
+        Executors.newSingleThreadExecutor().execute(() -> {
+            try {
+                new java.io.FileWriter(PARAM_VALUES_PATH).close();
+            } catch (IOException ignored) {}
+        });
     }
 
     /**
@@ -1056,13 +1239,35 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /** Returns true if the filename matches the expected preset extension for the current custom mode. */
+    private boolean matchesCustomExtension(String name) {
+        if ("custom-gl".equals(customShaderType)) {
+            return name.endsWith(".glslp");
+        }
+        // Both SkSL transpiler and Vulkan use .slangp
+        return name.endsWith(".slangp");
+    }
+
+    /** Browse to the parent folder of the given preset, or fall back to default root. */
+    private void browseToPresetOrDefault(String presetPath) {
+        if (presetPath != null && !presetPath.isEmpty()) {
+            File presetFile = new File(presetPath);
+            File parentDir = presetFile.getParentFile();
+            if (parentDir != null && parentDir.isDirectory()) {
+                browseTo(parentDir.getAbsolutePath());
+                return;
+            }
+        }
+        browseToDefault();
+    }
+
     private void browseToDefault() {
         File root = new File(DEFAULT_SHADER_ROOT);
         if (root.isDirectory()) {
             browseTo(DEFAULT_SHADER_ROOT);
         } else {
-            // Fallback to parent
-            browseTo("/sdcard/GammaShader");
+            // Fallback to sdcard root
+            browseTo("/sdcard");
         }
     }
 
@@ -1070,6 +1275,11 @@ public class MainActivity extends AppCompatActivity {
         currentBrowsePath = dirPath;
         labelCurrentPath.setText(dirPath);
         labelPresetCount.setText(R.string.custom_searching);
+
+        // Save parent ScrollView position before clearing the list
+        android.widget.ScrollView scrollParams = findViewById(R.id.scrollParams);
+        final int savedScrollY = scrollParams.getScrollY();
+
         presetList.clear();
         allBrowseEntries.clear();
         presetAdapter.notifyDataSetChanged();
@@ -1097,7 +1307,7 @@ public class MainActivity extends AppCompatActivity {
                     if (f.getName().startsWith(".")) continue;
                     if (f.isDirectory()) {
                         folders.add(f);
-                    } else if (f.getName().endsWith(".slangp")) {
+                    } else if (matchesCustomExtension(f.getName())) {
                         files.add(f);
                     }
                 }
@@ -1128,6 +1338,10 @@ public class MainActivity extends AppCompatActivity {
                 presetList.clear();
                 presetList.addAll(entries);
                 presetAdapter.notifyDataSetChanged();
+
+                // Restore parent ScrollView position so the browser stays in view
+                scrollParams.post(() -> scrollParams.scrollTo(0, savedScrollY));
+
                 int fileCount = 0;
                 int folderCount = 0;
                 for (PresetEntry e : entries) {
@@ -1136,12 +1350,28 @@ public class MainActivity extends AppCompatActivity {
                     else fileCount++;
                 }
                 if (folderCount == 0 && fileCount == 0) {
-                    labelPresetCount.setText(R.string.custom_no_presets_found);
+                    labelPresetCount.setText("custom-gl".equals(customShaderType)
+                            ? R.string.custom_no_presets_found_glslp
+                            : R.string.custom_no_presets_found_slangp);
                 } else {
                     labelPresetCount.setText(folderCount + " folders, " + fileCount + " presets");
                 }
+                // Scroll to the currently selected preset so it's visible
+                scrollToSelectedPreset();
             });
         });
+    }
+
+    /** Scroll the RecyclerView to show the currently selected preset. */
+    private void scrollToSelectedPreset() {
+        String selectedPath = getSystemProperty("persist.gammaos.shader.custom.preset", "");
+        if (selectedPath.isEmpty()) return;
+        for (int i = 0; i < presetList.size(); i++) {
+            if (presetList.get(i).absolutePath.equals(selectedPath)) {
+                recyclerPresets.scrollToPosition(i);
+                break;
+            }
+        }
     }
 
     private void filterBrowseEntries(String query) {
@@ -1174,11 +1404,15 @@ public class MainActivity extends AppCompatActivity {
         if (uri == null) return;
         // Try to resolve the URI to a filesystem path
         String path = resolveUriToPath(uri);
-        if (path != null && path.endsWith(".slangp")) {
+        if (path != null && matchesCustomExtension(path)) {
+            mainHandler.removeCallbacks(loadShaderParamsRunnable);
+            containerShaderParams.removeAllViews();
+            clearParamOverrides();
+            setSystemProperty("persist.gammaos.shader.type", customShaderType);
             setSystemProperty("persist.gammaos.shader.custom.preset", path);
             labelActivePreset.setText(friendlyPresetName(path));
             presetAdapter.setSelectedPath(path);
-            mainHandler.postDelayed(this::loadShaderParams, 1500);
+            scheduleParamLoad(path);
             return;
         }
         // Fallback: copy content via ContentResolver to GammaShader cache
@@ -1186,10 +1420,14 @@ public class MainActivity extends AppCompatActivity {
             String copied = copyUriToCache(uri);
             if (copied != null) {
                 mainHandler.post(() -> {
+                    mainHandler.removeCallbacks(loadShaderParamsRunnable);
+                    containerShaderParams.removeAllViews();
+                    clearParamOverrides();
+                    setSystemProperty("persist.gammaos.shader.type", customShaderType);
                     setSystemProperty("persist.gammaos.shader.custom.preset", copied);
                     labelActivePreset.setText(friendlyPresetName(copied));
                     presetAdapter.setSelectedPath(copied);
-                    mainHandler.postDelayed(this::loadShaderParams, 1500);
+                    scheduleParamLoad(copied);
                 });
             }
         });
@@ -1208,7 +1446,7 @@ public class MainActivity extends AppCompatActivity {
                     if (idx >= 0) name = c.getString(idx);
                 }
             }
-            if (!name.endsWith(".slangp")) return null;
+            if (!matchesCustomExtension(name)) return null;
             File dst = new File(cacheDir, name);
             try (java.io.InputStream in = getContentResolver().openInputStream(uri);
                  java.io.FileOutputStream out = new java.io.FileOutputStream(dst)) {
@@ -1443,8 +1681,16 @@ public class MainActivity extends AppCompatActivity {
         }
 
         void setSelectedPath(String path) {
+            String oldPath = this.selectedPath;
             this.selectedPath = path != null ? path : "";
-            notifyDataSetChanged();
+            if (oldPath.equals(this.selectedPath)) return;
+            // Use targeted updates to avoid resetting RecyclerView scroll position
+            for (int i = 0; i < items.size(); i++) {
+                String p = items.get(i).absolutePath;
+                if (p.equals(oldPath) || p.equals(this.selectedPath)) {
+                    notifyItemChanged(i);
+                }
+            }
         }
 
         @NonNull
@@ -1479,8 +1725,21 @@ public class MainActivity extends AppCompatActivity {
             }
             tv.setOnClickListener(v -> {
                 if (!entry.isFolder) {
+                    int oldPos = -1;
+                    String oldSel = selectedPath;
                     selectedPath = entry.absolutePath;
-                    notifyDataSetChanged();
+                    // Find and refresh the previously selected item
+                    if (!oldSel.isEmpty() && !oldSel.equals(entry.absolutePath)) {
+                        for (int i = 0; i < items.size(); i++) {
+                            if (items.get(i).absolutePath.equals(oldSel)) {
+                                oldPos = i;
+                                break;
+                            }
+                        }
+                    }
+                    int pos = holder.getAdapterPosition();
+                    if (pos != RecyclerView.NO_POSITION) notifyItemChanged(pos);
+                    if (oldPos >= 0) notifyItemChanged(oldPos);
                 }
                 listener.onPresetClicked(entry);
             });

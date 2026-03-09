@@ -21,12 +21,13 @@
     <string name="btn_reset_lcd3x">重置 LCD3x 为默认值</string>
     <string name="btn_reset_lcd_shader">重置 LCD 着色器为默认值</string>
     <string name="btn_reset_blur_fill">重置模糊填充为默认值</string>
-    <string name="shader_custom">自定义 (.slangp)</string>
+    <string name="shader_custom_sksl">自定义 (SkSL)</string>
+    <string name="shader_custom_vk">自定义 (Vulkan)</string>
+    <string name="shader_custom_gl">自定义 (GLSL)</string>
     <string name="section_custom_params">自定义着色器预设</string>
-    <string name="hint_custom">选择一个与 RetroArch 兼容的 .slangp 预设</string>
+
     <string name="label_custom_preset">当前预设</string>
     <string name="custom_no_preset">未选择预设</string>
-    <string name="custom_no_presets_found">未找到 .slangp 预设。\n请将预设放入 /sdcard/GammaShader/ 或安装带有着色器包的 RetroArch。</string>
     <string name="custom_searching">正在扫描着色器预设\u2026</string>
     <string name="custom_preset_count">找到 %d 个预设</string>
     <string name="label_custom_res_scale">基础分辨率</string>

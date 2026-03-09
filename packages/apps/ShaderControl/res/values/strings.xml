@@ -55,16 +55,21 @@
     <string name="btn_reset_lcd_shader">Reset LCD shader to defaults</string>
     <string name="btn_reset_blur_fill">Reset blur fill to defaults</string>
 
-    <string name="shader_custom">Custom (.slangp)</string>
+    <string name="shader_custom_sksl">Custom (SkSL)</string>
+    <string name="shader_custom_vk">Custom (Vulkan)</string>
+    <string name="shader_custom_gl">Custom (GLSL)</string>
     <string name="section_custom_params">Custom shader preset</string>
-    <string name="hint_custom">Select a RetroArch-compatible .slangp preset</string>
+    <string name="hint_custom_sksl">Select a .slangp preset — transpiled to SkSL at runtime</string>
+    <string name="hint_custom_vk">Select a .slangp preset — runs natively via Vulkan SPIR-V</string>
+    <string name="hint_custom_gl">Select a .glslp preset — runs natively via OpenGL ES</string>
     <string name="label_custom_preset">Active preset</string>
     <string name="custom_no_preset">No preset selected</string>
-    <string name="custom_no_presets_found">No .slangp presets found.\nPlace presets in /sdcard/GammaShader/ or install RetroArch with shader packs.</string>
+    <string name="custom_no_presets_found_slangp">No .slangp shader presets found.\nPlace .slangp presets in /sdcard/GammaShader/</string>
+    <string name="custom_no_presets_found_glslp">No .glslp shader presets found.\nPlace .glslp presets in /sdcard/GammaShader/</string>
     <string name="custom_searching">Scanning for shader presets\u2026</string>
     <string name="custom_preset_count">%d presets found</string>
 
-    <string name="btn_browse_preset">Browse for .slangp file\u2026</string>
+    <string name="btn_browse_preset">Browse for shader preset\u2026</string>
     <string name="hint_search_shaders">Search shaders\u2026</string>
     <string name="section_shader_params">Shader parameters</string>
     <string name="label_custom_res_scale">Base resolution</string>
