@@ -20,6 +20,7 @@
 #define ATRACE_TAG ATRACE_TAG_GRAPHICS
 
 #include "SkiaVkRenderEngine.h"
+#include "filters/GammaVulkanShaderChain.h"
 
 #include <GrBackendSemaphore.h>
 #include <GrContextOptions.h>
@@ -830,6 +831,116 @@ void SkiaVkRenderEngine::appendBackendSpecificInfoToDump(std::string& result) {
     for (const auto& name : sVulkanInterface.deviceExtensionNames) {
         StringAppendF(&result, "\n %s\n", name.c_str());
     }
+}
+
+// ---------------------------------------------------------------------------
+// GammaOS: Vulkan context bridge for native shader pipeline
+// ---------------------------------------------------------------------------
+
+// Standalone Vulkan context for when Skia uses the GL backend
+static struct {
+    bool initialized = false;
+    VkInstance instance = VK_NULL_HANDLE;
+    VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
+    VkDevice device = VK_NULL_HANDLE;
+    VkQueue queue = VK_NULL_HANDLE;
+    uint32_t queueFamily = 0;
+} sStandaloneVk;
+
+static bool initStandaloneVulkan() {
+    if (sStandaloneVk.initialized) return true;
+
+    // Create instance
+    VkApplicationInfo appInfo = {};
+    appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+    appInfo.pApplicationName = "GammaShader";
+    appInfo.apiVersion = VK_API_VERSION_1_0;
+
+    VkInstanceCreateInfo instInfo = {};
+    instInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+    instInfo.pApplicationInfo = &appInfo;
+    if (vkCreateInstance(&instInfo, nullptr, &sStandaloneVk.instance) != VK_SUCCESS) {
+        ALOGE("GammaVkShader: standalone vkCreateInstance failed");
+        return false;
+    }
+
+    // Pick first physical device
+    uint32_t gpuCount = 0;
+    vkEnumeratePhysicalDevices(sStandaloneVk.instance, &gpuCount, nullptr);
+    if (gpuCount == 0) {
+        ALOGE("GammaVkShader: no Vulkan physical devices");
+        return false;
+    }
+    std::vector<VkPhysicalDevice> gpus(gpuCount);
+    vkEnumeratePhysicalDevices(sStandaloneVk.instance, &gpuCount, gpus.data());
+    sStandaloneVk.physicalDevice = gpus[0];
+
+    // Find a graphics queue family
+    uint32_t queueFamilyCount = 0;
+    vkGetPhysicalDeviceQueueFamilyProperties(sStandaloneVk.physicalDevice,
+                                              &queueFamilyCount, nullptr);
+    std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
+    vkGetPhysicalDeviceQueueFamilyProperties(sStandaloneVk.physicalDevice,
+                                              &queueFamilyCount, queueFamilies.data());
+    sStandaloneVk.queueFamily = 0;
+    for (uint32_t i = 0; i < queueFamilyCount; i++) {
+        if (queueFamilies[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) {
+            sStandaloneVk.queueFamily = i;
+            break;
+        }
+    }
+
+    // Create logical device with one queue
+    float priority = 1.0f;
+    VkDeviceQueueCreateInfo queueInfo = {};
+    queueInfo.sType            = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+    queueInfo.queueFamilyIndex = sStandaloneVk.queueFamily;
+    queueInfo.queueCount       = 1;
+    queueInfo.pQueuePriorities = &priority;
+
+    VkDeviceCreateInfo devInfo = {};
+    devInfo.sType                = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+    devInfo.queueCreateInfoCount = 1;
+    devInfo.pQueueCreateInfos    = &queueInfo;
+
+    if (vkCreateDevice(sStandaloneVk.physicalDevice, &devInfo, nullptr,
+                        &sStandaloneVk.device) != VK_SUCCESS) {
+        ALOGE("GammaVkShader: standalone vkCreateDevice failed");
+        return false;
+    }
+
+    vkGetDeviceQueue(sStandaloneVk.device, sStandaloneVk.queueFamily, 0,
+                      &sStandaloneVk.queue);
+
+    sStandaloneVk.initialized = true;
+    ALOGI("GammaVkShader: standalone Vulkan context created (queueFamily=%u)",
+          sStandaloneVk.queueFamily);
+    return true;
+}
+
+bool gammaGetVkContext(GammaVkContext& out) {
+    // Try Skia's Vulkan backend first
+    if (sVulkanInterface.initialized) {
+        out.instance       = sVulkanInterface.instance;
+        out.physicalDevice = sVulkanInterface.physicalDevice;
+        out.device         = sVulkanInterface.device;
+        out.queue          = sVulkanInterface.queue;
+        out.queueFamily    = (uint32_t)sVulkanInterface.queueIndex;
+        out.getInstanceProcAddr = vkGetInstanceProcAddr;
+        out.getDeviceProcAddr   = vkGetDeviceProcAddr;
+        return true;
+    }
+
+    // Fall back to standalone Vulkan context
+    if (!initStandaloneVulkan()) return false;
+    out.instance       = sStandaloneVk.instance;
+    out.physicalDevice = sStandaloneVk.physicalDevice;
+    out.device         = sStandaloneVk.device;
+    out.queue          = sStandaloneVk.queue;
+    out.queueFamily    = sStandaloneVk.queueFamily;
+    out.getInstanceProcAddr = vkGetInstanceProcAddr;
+    out.getDeviceProcAddr   = vkGetDeviceProcAddr;
+    return true;
 }
 
 } // namespace skia

@@ -84,6 +84,8 @@
 #include "filters/GammaBlurFill.h"
 #include "filters/GammaLcdShader.h"
 #include "filters/GammaCustomShader.h"
+#include "filters/GammaVulkanShaderChain.h"
+#include "filters/GammaGLSLShaderChain.h"
 #include "log/log_main.h"
 #include "skia/debug/SkiaCapture.h"
 #include "skia/debug/SkiaMemoryReporter.h"
@@ -1243,8 +1245,12 @@ void SkiaRenderEngine::drawLayersInternal(
                 std::string shaderType = GetProperty("persist.gammaos.shader.type", "crt-simple");
                 if (shaderType.empty()) shaderType = "crt-simple";
                 if (debugLog) {
-                    ALOGD("GammaOS shader: type=%s, protected=%d",
-                          shaderType.c_str(), isProtected ? 1 : 0);
+                    ALOGD("GammaOS shader: type=%s, protected=%d, src=%dx%d, dst=%dx%d",
+                          shaderType.c_str(), isProtected ? 1 : 0,
+                          srcSurfaceForPost ? srcSurfaceForPost->width() : -1,
+                          srcSurfaceForPost ? srcSurfaceForPost->height() : -1,
+                          dstSurface ? dstSurface->width() : -1,
+                          dstSurface ? dstSurface->height() : -1);
                 }
 
                 if (shaderType == "lcd-shader" || shaderType == "lcd_shader" || shaderType == "lcdshader") {
@@ -1269,6 +1275,26 @@ void SkiaRenderEngine::drawLayersInternal(
                             defaultScanAngleDeg);             // default scanline angle (unused)
                 } else if (shaderType == "custom") {
                     appliedFx = GammaCustomShader::apply(
+                            dstSurface.get(),                 // target (write here)
+                            srcSurfaceForPost.get(),          // source (sample from here)
+                            mCapture.get(),                   // capture helper
+                            display.outputDataspace,          // output dataspace
+                            isProtected,                      // content protection
+                            testOverlay,                      // debug overlay
+                            false,                            // no CTM-BFI
+                            defaultScanAngleDeg);             // default scanline angle (unused)
+                } else if (shaderType == "custom-vk") {
+                    appliedFx = GammaVulkanShaderChain::apply(
+                            dstSurface.get(),                 // target (write here)
+                            srcSurfaceForPost.get(),          // source (sample from here)
+                            mCapture.get(),                   // capture helper
+                            display.outputDataspace,          // output dataspace
+                            isProtected,                      // content protection
+                            testOverlay,                      // debug overlay
+                            false,                            // no CTM-BFI
+                            defaultScanAngleDeg);             // default scanline angle (unused)
+                } else if (shaderType == "custom-gl") {
+                    appliedFx = GammaGLSLShaderChain::apply(
                             dstSurface.get(),                 // target (write here)
                             srcSurfaceForPost.get(),          // source (sample from here)
                             mCapture.get(),                   // capture helper

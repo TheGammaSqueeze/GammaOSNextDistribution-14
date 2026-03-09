@@ -50,6 +50,8 @@ cc_defaults {
         "libshaders",
         "libtonemap",
         "libsurfaceflinger_common",
+        "libglslang_ra",
+        "libspirv_cross_ra",
     ],
     local_include_dirs: ["include"],
     export_include_dirs: ["include"],
@@ -101,6 +103,8 @@ filegroup {
         "skia/filters/GammaBlurFill.cpp",
         "skia/filters/GammaLcdShader.cpp",
         "skia/filters/GammaCustomShader.cpp",
+        "skia/filters/GammaVulkanShaderChain.cpp",
+        "skia/filters/GammaGLSLShaderChain.cpp",
     ],
 }
 
@@ -110,7 +114,11 @@ filegroup {
 cc_defaults {
     name: "librenderengine_deps",
     defaults: ["skia_renderengine_deps"],
-    static_libs: ["libskia_renderengine"],
+    static_libs: [
+        "libskia_renderengine",
+        "libglslang_ra",
+        "libspirv_cross_ra",
+    ],
 }
 
 // Note: if compilation fails when adding librenderengine as a dependency, try adding
@@ -126,6 +134,7 @@ cc_library_static {
         "-fvisibility=hidden",
         "-Werror=format",
         "-Wno-unused-parameter",
+        "-DSPIRV_CROSS_EXCEPTIONS_TO_ASSERTIONS",
     ],
     srcs: [
         ":librenderengine_sources",
@@ -137,6 +146,10 @@ cc_library_static {
     ],
     include_dirs: [
         "external/skia/src/gpu",
+        "external/glslang",
+        "external/glslang/glslang/Public",
+        "external/glslang/SPIRV",
+        "external/spirv-cross",
     ],
     lto: {
         thin: true,

@@ -917,6 +917,10 @@ void SurfaceFlinger::bootFinished() {
 void chooseRenderEngineType(renderengine::RenderEngineCreationArgs::Builder& builder) {
     char prop[PROPERTY_VALUE_MAX];
     property_get(PROPERTY_DEBUG_RENDERENGINE_BACKEND, prop, "");
+    // GammaOS: allow persistent override via persist.gammaos.renderengine.backend
+    if (prop[0] == '\0') {
+        property_get("persist.gammaos.renderengine.backend", prop, "");
+    }
 
     if (strcmp(prop, "skiagl") == 0) {
         builder.setThreaded(renderengine::RenderEngine::Threaded::NO)
@@ -931,10 +935,26 @@ void chooseRenderEngineType(renderengine::RenderEngineCreationArgs::Builder& bui
         builder.setThreaded(renderengine::RenderEngine::Threaded::YES)
                 .setGraphicsApi(renderengine::RenderEngine::GraphicsApi::VK);
     } else {
+        // GammaOS: force Vulkan backend when custom-vk shaders are enabled
+        // (zero-copy GPU pipeline). Fall back to GL if Vulkan not available.
         const auto kVulkan = renderengine::RenderEngine::GraphicsApi::VK;
-        const bool useVulkan = FlagManager::getInstance().vulkan_renderengine() &&
-                renderengine::RenderEngine::canSupport(kVulkan);
+        bool forceVulkan = false;
+        {
+            char shaderType[PROPERTY_VALUE_MAX];
+            property_get("persist.gammaos.shader.type", shaderType, "");
+            forceVulkan = (strcmp(shaderType, "custom-vk") == 0);
+        }
+        bool useVulkan = forceVulkan ||
+                (FlagManager::getInstance().vulkan_renderengine() &&
+                 renderengine::RenderEngine::canSupport(kVulkan));
+        if (useVulkan && !renderengine::RenderEngine::canSupport(kVulkan)) {
+            ALOGW("GammaOS: Vulkan backend requested but not supported, falling back to GL");
+            useVulkan = false;
+        }
         builder.setGraphicsApi(useVulkan ? kVulkan : renderengine::RenderEngine::GraphicsApi::GL);
+        if (useVulkan) {
+            ALOGI("GammaOS: using Vulkan RenderEngine backend for custom-vk shader pipeline");
+        }
     }
 }
 
