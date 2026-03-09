@@ -74,6 +74,19 @@ static std::string resolvePath(const std::string& base, const std::string& rel) 
     return base + "/" + rel;
 }
 
+// Normalize /sdcard/ and /storage/emulated/0/ to /data/media/0/ so
+// SurfaceFlinger can read shader files without relying on FUSE mounts.
+static std::string normalizeStoragePath(const std::string& path) {
+    static const char* kSdcard = "/sdcard/";
+    static const char* kStorage = "/storage/emulated/0/";
+    static const char* kDataMedia = "/data/media/0/";
+    if (path.compare(0, strlen(kSdcard), kSdcard) == 0)
+        return kDataMedia + path.substr(strlen(kSdcard));
+    if (path.compare(0, strlen(kStorage), kStorage) == 0)
+        return kDataMedia + path.substr(strlen(kStorage));
+    return path;
+}
+
 // ---------------------------------------------------------------------------
 // .glslp preset parser
 // ---------------------------------------------------------------------------
@@ -428,6 +441,7 @@ struct GLSLPassState {
 struct GLSLChainState {
     std::vector<GLSLPassState> passes;
     GLuint quadVBO = 0;
+    GLuint quadVAO = 0;
     bool valid = false;
     std::string loadedPreset;
     int displayW = 0, displayH = 0;
@@ -439,6 +453,8 @@ struct GLSLChainState {
             if (p.outTexture) glDeleteTextures(1, &p.outTexture);
         }
         passes.clear();
+        if (quadVAO) glDeleteVertexArrays(1, &quadVAO);
+        quadVAO = 0;
         if (quadVBO) glDeleteBuffers(1, &quadVBO);
         quadVBO = 0;
         valid = false;
@@ -454,8 +470,42 @@ static GLSLChainState sChain;
 static GLSLPreset sPreset;
 static std::string sLoadedPath;
 static std::string sFailedPath;   // preset that failed initChain — skip until path changes
+static int sInitRetryCount = 0;   // retry counter for transient initChain failures
+static constexpr int kMaxInitRetries = 10;  // give up after this many failures
 static uint32_t sFrameCount = 0;
 static float sResScale = 1.0f;
+
+// Cached property state — refreshed every kPropRefreshInterval calls instead of every frame
+static constexpr uint32_t kPropRefreshInterval = 60;
+static struct {
+    bool debugLog = false;
+    bool shaderOn = false;
+    std::string type;
+    std::string presetPath;
+    std::string resScaleStr;
+    uint32_t callCount = 0;
+    uint32_t lastRefreshCall = 0;
+    bool bootCompleted = false;
+
+    void refresh() {
+        uint32_t call = ++callCount;
+        if (call - lastRefreshCall < kPropRefreshInterval && lastRefreshCall != 0) return;
+        lastRefreshCall = call;
+        debugLog = GetBoolProperty("persist.gammaos.shader.debug", false);
+        shaderOn = GetBoolProperty("persist.gammaos.shader.enable", false);
+        type = GetProperty("persist.gammaos.shader.type", "crt-simple");
+        presetPath = GetProperty("persist.gammaos.shader.custom.preset", "");
+        resScaleStr = GetProperty("persist.gammaos.shader.custom.res_scale", "full");
+        if (!bootCompleted)
+            bootCompleted = GetBoolProperty("sys.boot_completed", false);
+    }
+} sPropCache;
+
+// Param file mtime tracking — only re-read when file is modified
+static struct {
+    time_t lastMtime = 0;
+    std::string lastContent;
+} sParamFileCache;
 
 // Downscale FBO for res_scale < 1.0
 static struct {
@@ -463,6 +513,7 @@ static struct {
     GLuint fbo = 0;
     GLuint texture = 0;
     int width = 0, height = 0;
+    GLint locTex = -1;
 } sDownscale;
 
 static float parseResScale(const std::string& val) {
@@ -503,6 +554,7 @@ static GLuint downscaleTexture(GLuint srcTex, int srcW, int srcH,
         glLinkProgram(sDownscale.program);
         glDeleteShader(vsh);
         glDeleteShader(fsh);
+        sDownscale.locTex = glGetUniformLocation(sDownscale.program, "uTex");
     }
 
     if (sDownscale.width != dstW || sDownscale.height != dstH) {
@@ -533,7 +585,7 @@ static GLuint downscaleTexture(GLuint srcTex, int srcW, int srcH,
     glBindTexture(GL_TEXTURE_2D, srcTex);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glUniform1i(glGetUniformLocation(sDownscale.program, "uTex"), 0);
+    glUniform1i(sDownscale.locTex, 0);
     glDisable(GL_BLEND);
     glDisable(GL_DEPTH_TEST);
 
@@ -822,6 +874,20 @@ static bool initChain(GLSLPreset& preset, int viewW, int viewH) {
     glGenBuffers(1, &sChain.quadVBO);
     glBindBuffer(GL_ARRAY_BUFFER, sChain.quadVBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(quadData), quadData, GL_STATIC_DRAW);
+
+    // Create VAO to cache vertex attribute state — avoids 6+ GL calls per pass
+    glGenVertexArrays(1, &sChain.quadVAO);
+    glBindVertexArray(sChain.quadVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, sChain.quadVBO);
+    // VertexCoord: vec4 at offset 0, stride 8 floats
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE,
+                          8 * sizeof(float), (void*)0);
+    // TexCoord: vec4 at offset 4 floats
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE,
+                          8 * sizeof(float), (void*)(4 * sizeof(float)));
+    glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     sChain.displayW = viewW;
@@ -847,14 +913,19 @@ static bool renderChain(GLuint srcTexture, int srcW, int srcH,
     GLuint currentSrcTex = srcTexture;
     int currentW = srcW, currentH = srcH;
 
-    // MVP matrix: maps [0,1] quad to [-1,1] clip space
-    // x' = 2x - 1,  y' = 2y - 1
-    float mvp[16] = {
+    // MVP matrix: maps [0,1] quad to [-1,1] clip space (constant)
+    static const float mvp[16] = {
         2.0f, 0.0f, 0.0f, 0.0f,
         0.0f, 2.0f, 0.0f, 0.0f,
         0.0f, 0.0f, 1.0f, 0.0f,
        -1.0f,-1.0f, 0.0f, 1.0f,
     };
+
+    // Set GL state that doesn't change between passes
+    glDisable(GL_CULL_FACE);
+    glDisable(GL_BLEND);
+    glDisable(GL_DEPTH_TEST);
+    glBindVertexArray(sChain.quadVAO);
 
     for (int i = 0; i < numPasses; i++) {
         auto& gl = sChain.passes[i];
@@ -971,33 +1042,16 @@ static bool renderChain(GLuint srcTexture, int srcW, int srcH,
             }
         }
 
-        // Render state
-        glDisable(GL_CULL_FACE);
-        glDisable(GL_BLEND);
-        glDisable(GL_DEPTH_TEST);
-
-        // Draw fullscreen quad
-        glBindBuffer(GL_ARRAY_BUFFER, sChain.quadVBO);
-        // VertexCoord: vec4 at offset 0, stride 8 floats
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE,
-                              8 * sizeof(float), (void*)0);
-        // TexCoord: vec4 at offset 4 floats
-        glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE,
-                              8 * sizeof(float), (void*)(4 * sizeof(float)));
-
+        // Draw fullscreen quad (vertex state bound via VAO)
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-
-        glDisableVertexAttribArray(0);
-        glDisableVertexAttribArray(1);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
 
         // Update source for next pass
         currentSrcTex = gl.outTexture;
         currentW = gl.width;
         currentH = gl.height;
     }
+
+    glBindVertexArray(0);
 
     // Force alpha=255 in last pass FBO (CRT shaders often don't write alpha)
     {
@@ -1028,10 +1082,10 @@ bool GammaGLSLShaderChain::apply(SkSurface* dstSurface,
                                   float /*defaultScanAngleDeg*/) {
     if (!dstSurface || !srcSurface || !capture) return false;
 
-    const bool debugLog = GetBoolProperty("persist.gammaos.shader.debug", false);
-    const bool shaderOn = GetBoolProperty("persist.gammaos.shader.enable", false);
-    const std::string type = GetProperty("persist.gammaos.shader.type", "crt-simple");
-    if (!shaderOn || type != "custom-gl") return false;
+    // Refresh cached properties periodically instead of every frame
+    sPropCache.refresh();
+
+    if (!sPropCache.shaderOn || sPropCache.type != "custom-gl") return false;
 
     int dstW = dstSurface->width();
     int dstH = dstSurface->height();
@@ -1040,12 +1094,14 @@ bool GammaGLSLShaderChain::apply(SkSurface* dstSurface,
     if (dstW < 480 || dstH < 320) return false;
 
     // Wait for boot complete
-    if (!GetBoolProperty("sys.boot_completed", false)) return false;
+    if (!sPropCache.bootCompleted) return false;
+
+    const bool debugLog = sPropCache.debugLog;
 
     std::lock_guard<std::mutex> lock(sMutex);
 
-    // Load / reload preset
-    std::string presetPath = GetProperty("persist.gammaos.shader.custom.preset", "");
+    // Load / reload preset — normalize /sdcard/ to /data/media/0/
+    const std::string presetPath = normalizeStoragePath(sPropCache.presetPath);
     if (presetPath.empty()) {
         ALOGE("GammaGLShader: no preset path configured");
         return false;
@@ -1058,7 +1114,10 @@ bool GammaGLSLShaderChain::apply(SkSurface* dstSurface,
     bool needReload = (presetPath != sLoadedPath);
     if (needReload || (sPreset.passes.empty() && !presetPath.empty())) {
         sFailedPath.clear();  // new preset — clear failure cache
+        sInitRetryCount = 0;
         sPreset = {};
+        sParamFileCache.lastMtime = 0;  // force re-read of params for new preset
+        sParamFileCache.lastContent.clear();
         if (!parseGLSLPreset(presetPath, sPreset)) {
             // Don't cache failure — retry on next frame
             ALOGE("GammaGLShader: preset parse failed, will retry");
@@ -1159,9 +1218,6 @@ bool GammaGLSLShaderChain::apply(SkSurface* dstSurface,
         }
     }
 
-    // Flush Skia before we touch GL
-    grContext->flushAndSubmit(GrSyncCpu::kYes);
-
     // Save Skia's FBO
     GLint prevFBO = 0;
     glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prevFBO);
@@ -1181,7 +1237,7 @@ bool GammaGLSLShaderChain::apply(SkSurface* dstSurface,
     }
 
     // Apply resolution scale (downscale source before shader chain)
-    const std::string resScaleStr = GetProperty("persist.gammaos.shader.custom.res_scale", "full");
+    const std::string& resScaleStr = sPropCache.resScaleStr;
     float newResScale = parseResScale(resScaleStr);
     bool resScaleChanged = (newResScale != sResScale);
     sResScale = newResScale;
@@ -1210,24 +1266,43 @@ bool GammaGLSLShaderChain::apply(SkSurface* dstSurface,
     if (!sChain.valid || sChain.loadedPreset != sLoadedPath ||
         sChain.displayW != dstW || sChain.displayH != dstH || resScaleChanged) {
         if (!initChain(sPreset, dstW, dstH)) {
-            ALOGE("GammaGLShader: chain init failed for '%s'", presetPath.c_str());
-            sFailedPath = presetPath;  // cache failure — don't retry every frame
+            sInitRetryCount++;
+            if (sInitRetryCount >= kMaxInitRetries) {
+                ALOGE("GammaGLShader: chain init failed %d times for '%s', giving up",
+                      sInitRetryCount, presetPath.c_str());
+                sFailedPath = presetPath;
+            } else {
+                ALOGE("GammaGLShader: chain init failed for '%s' (attempt %d/%d)",
+                      presetPath.c_str(), sInitRetryCount, kMaxInitRetries);
+            }
             glBindFramebuffer(GL_FRAMEBUFFER, prevFBO);
             grContext->resetContext();
             return false;
         }
+        sInitRetryCount = 0;
         sChain.loadedPreset = sLoadedPath;
     }
 
-    // Apply parameter overrides
+    // Apply parameter overrides — only re-read file when mtime changes
     {
-        static std::string sLastParamsContent;
-        std::string paramsPath = "/data/media/0/GammaShader/.shader_params";
-        std::string content = readFile(paramsPath);
-        if (content != sLastParamsContent) {
-            sLastParamsContent = content;
+        static const char* sParamsPath = "/data/media/0/GammaShader/.shader_params";
+        struct stat st;
+        bool fileChanged = false;
+        if (stat(sParamsPath, &st) == 0) {
+            if (st.st_mtime != sParamFileCache.lastMtime) {
+                sParamFileCache.lastMtime = st.st_mtime;
+                sParamFileCache.lastContent = readFile(sParamsPath);
+                fileChanged = true;
+            }
+        } else if (sParamFileCache.lastMtime != 0) {
+            // File was deleted — reset
+            sParamFileCache.lastMtime = 0;
+            sParamFileCache.lastContent.clear();
+            fileChanged = true;
+        }
+        if (fileChanged) {
             for (auto& p : sPreset.params) p.current = p.initial;
-            std::istringstream pStream(content);
+            std::istringstream pStream(sParamFileCache.lastContent);
             std::string pLine;
             while (std::getline(pStream, pLine)) {
                 std::string tl = trim(pLine);
