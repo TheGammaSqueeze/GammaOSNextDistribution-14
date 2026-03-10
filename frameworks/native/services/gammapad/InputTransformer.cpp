@@ -30,6 +30,9 @@ void InputTransformer::loadConfig() {
     mAxisRemap.clear();
     mCalibration.clear();
     mAxisButtons.clear();
+    mCombos.clear();
+    mPhysicalHeld.clear();
+    mVirtualHeld.clear();
 
     // Parse button remaps: "from1:to1,from2:to2,..."
     std::string btnRemap = GetProperty("persist.gammaos.gamepad.remap_btn", "");
@@ -133,6 +136,10 @@ void InputTransformer::loadConfig() {
         }
     }
 
+    // Parse button combo mappings: "btn1+btn2=emit,btn1+btn2=emit,..."
+    std::string comboStr = GetProperty("persist.gammaos.gamepad.combo_map", "");
+    parseCombos(comboStr);
+
     // Global quick-access toggles
     mAbxySwap = GetIntProperty("persist.gammaos.gamepad.abxy_swap", 0) != 0;
     mInvertLeft = GetIntProperty("persist.gammaos.gamepad.invert_left", 0) != 0;
@@ -145,6 +152,7 @@ void InputTransformer::loadConfig() {
               << mAxisRemap.size() << " axis remaps, "
               << mCalibration.size() << " axis calibrations, "
               << mAxisButtons.size() << " axis-to-button triggers, "
+              << mCombos.size() << " combo mappings, "
               << "blacklistPass=" << mBlacklistPass.size() << ", "
               << "a2d=" << mAnalogToDpad << " d2a=" << mDpadToAnalog << ", "
               << "abxySwap=" << mAbxySwap
@@ -192,7 +200,12 @@ bool InputTransformer::transform(struct input_event& ev,
             ev.code = it->second;
         }
 
-        // 3. Suppress blacklisted passthrough buttons
+        // 3. Button combo processing (after all remapping, before blacklist)
+        if (!mCombos.empty() && processCombo(ev)) {
+            return false; // consumed by combo logic
+        }
+
+        // 4. Suppress blacklisted passthrough buttons
         if (mBlacklistPass.count(ev.code)) {
             return false;
         }
@@ -480,6 +493,176 @@ int InputTransformer::applyDeadzone(int value, int deadzone) {
 
 int InputTransformer::applySensitivity(int value, float sensitivity) {
     return static_cast<int>(value * sensitivity);
+}
+
+void InputTransformer::parseCombos(const std::string& comboStr) {
+    if (comboStr.empty()) return;
+
+    std::istringstream ss(comboStr);
+    std::string entry;
+    while (std::getline(ss, entry, ',')) {
+        // Format: "btn1+btn2=emit"
+        size_t plus = entry.find('+');
+        size_t eq = entry.find('=');
+        if (plus == std::string::npos || eq == std::string::npos || plus >= eq) continue;
+
+        int btn1 = std::atoi(entry.substr(0, plus).c_str());
+        int btn2 = std::atoi(entry.substr(plus + 1, eq - plus - 1).c_str());
+        int emit = std::atoi(entry.substr(eq + 1).c_str());
+
+        if (btn1 > 0 && btn2 > 0 && emit > 0) {
+            ComboMapping combo;
+            combo.btn1 = btn1;
+            combo.btn2 = btn2;
+            combo.emitBtn = emit;
+            combo.active = false;
+            mCombos.push_back(combo);
+            LOG(INFO) << "Combo: " << btn1 << "+" << btn2 << " -> " << emit;
+        }
+    }
+}
+
+bool InputTransformer::processCombo(struct input_event& ev) {
+    if (ev.type != EV_KEY) return false;
+
+    int code = ev.code;
+
+    if (ev.value == 1) {
+        // Button press
+        mPhysicalHeld.insert(code);
+
+        // Check if any combo is now complete
+        for (auto& combo : mCombos) {
+            if (combo.active) continue;
+            if (mPhysicalHeld.count(combo.btn1) && mPhysicalHeld.count(combo.btn2)) {
+                // Combo triggered! Recall any source buttons already on virtual pad
+                if (mVirtualHeld.count(combo.btn1)) {
+                    struct input_event rel = {};
+                    rel.type = EV_KEY;
+                    rel.code = combo.btn1;
+                    rel.value = 0;
+                    mExtraEvents.push_back(rel);
+                    struct input_event syn = {};
+                    syn.type = EV_SYN;
+                    syn.code = SYN_REPORT;
+                    mExtraEvents.push_back(syn);
+                    mVirtualHeld.erase(combo.btn1);
+                }
+                if (mVirtualHeld.count(combo.btn2)) {
+                    struct input_event rel = {};
+                    rel.type = EV_KEY;
+                    rel.code = combo.btn2;
+                    rel.value = 0;
+                    mExtraEvents.push_back(rel);
+                    struct input_event syn = {};
+                    syn.type = EV_SYN;
+                    syn.code = SYN_REPORT;
+                    mExtraEvents.push_back(syn);
+                    mVirtualHeld.erase(combo.btn2);
+                }
+
+                // Emit target press
+                struct input_event press = {};
+                press.type = EV_KEY;
+                press.code = combo.emitBtn;
+                press.value = 1;
+                mExtraEvents.push_back(press);
+                struct input_event syn = {};
+                syn.type = EV_SYN;
+                syn.code = SYN_REPORT;
+                mExtraEvents.push_back(syn);
+
+                mVirtualHeld.insert(combo.emitBtn);
+                combo.active = true;
+
+                LOG(VERBOSE) << "Combo activated: " << combo.btn1 << "+"
+                             << combo.btn2 << " -> " << combo.emitBtn;
+                return true; // consume this press
+            }
+        }
+
+        // No combo triggered, forward normally
+        mVirtualHeld.insert(code);
+        return false;
+
+    } else if (ev.value == 0) {
+        // Button release
+        mPhysicalHeld.erase(code);
+
+        // Check if this release deactivates any combo
+        for (auto& combo : mCombos) {
+            if (!combo.active) continue;
+            if (code == combo.btn1 || code == combo.btn2) {
+                // Deactivate combo, release target
+                struct input_event rel = {};
+                rel.type = EV_KEY;
+                rel.code = combo.emitBtn;
+                rel.value = 0;
+                mExtraEvents.push_back(rel);
+                struct input_event syn = {};
+                syn.type = EV_SYN;
+                syn.code = SYN_REPORT;
+                mExtraEvents.push_back(syn);
+
+                mVirtualHeld.erase(combo.emitBtn);
+                combo.active = false;
+
+                LOG(VERBOSE) << "Combo deactivated: " << combo.btn1 << "+"
+                             << combo.btn2 << " -> " << combo.emitBtn;
+                return true; // consume source release
+            }
+        }
+
+        // Not part of any active combo
+        if (mVirtualHeld.count(code)) {
+            mVirtualHeld.erase(code);
+            return false; // forward release normally
+        }
+        return true; // was recalled or consumed, don't forward
+
+    } else {
+        // Key repeat (value == 2) — suppress if part of active combo
+        for (const auto& combo : mCombos) {
+            if (combo.active && (code == combo.btn1 || code == combo.btn2)) {
+                return true; // consume repeat
+            }
+        }
+        return false; // forward repeat
+    }
+}
+
+std::set<int> InputTransformer::getComboEmitCodes() const {
+    std::set<int> codes;
+    for (const auto& combo : mCombos) {
+        codes.insert(combo.emitBtn);
+    }
+    return codes;
+}
+
+void InputTransformer::applyPerAppOverrides(const std::string& btnRemapStr,
+                                             const std::string& comboMapStr) {
+    // Merge per-app button remaps (per-app wins on conflict with global)
+    if (!btnRemapStr.empty()) {
+        std::istringstream ss(btnRemapStr);
+        std::string pair;
+        while (std::getline(ss, pair, ',')) {
+            size_t colon = pair.find(':');
+            if (colon != std::string::npos) {
+                int from = std::atoi(pair.substr(0, colon).c_str());
+                int to = std::atoi(pair.substr(colon + 1).c_str());
+                if (from != 0 && to != 0) {
+                    mButtonRemap[from] = to;
+                }
+            }
+        }
+    }
+
+    // Append per-app combos to global combos
+    parseCombos(comboMapStr);
+
+    LOG(INFO) << "Per-app overrides applied: "
+              << mButtonRemap.size() << " total button remaps, "
+              << mCombos.size() << " total combos";
 }
 
 } // namespace gammapad

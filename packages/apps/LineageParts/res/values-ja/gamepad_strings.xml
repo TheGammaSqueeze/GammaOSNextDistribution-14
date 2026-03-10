@@ -248,4 +248,35 @@
         <item>30</item>
         <item>40</item>
     </string-array>
+
+    <!-- Button combo mapping -->
+    <string name="gamepad_combo_map_title">ボタンコンビネーション</string>
+    <string name="gamepad_combo_map_summary">2つのボタンを同時に押すと別のボタンを出力</string>
+    <string name="gamepad_combo_map_none">コンビネーション未設定</string>
+    <string name="gamepad_combo_map_add">コンビネーションを追加\u2026</string>
+    <string name="gamepad_combo_map_clear_all">すべてのコンビネーションを消去</string>
+    <string name="gamepad_combo_map_saved">コンビネーションを保存しました</string>
+    <string name="gamepad_combo_map_cleared">すべてのコンビネーションを消去しました</string>
+    <string name="gamepad_combo_map_btn1">1番目のボタン</string>
+    <string name="gamepad_combo_map_btn2">2番目のボタン</string>
+    <string name="gamepad_combo_map_target">出力するボタン</string>
+
+    <!-- Per-app mapping -->
+    <string name="gamepad_perapp_category">アプリ別プロファイル</string>
+    <string name="gamepad_perapp_add">アプリ別プロファイルを追加\u2026</string>
+    <string name="gamepad_perapp_none">アプリ別プロファイル未設定</string>
+    <string name="gamepad_perapp_pick_app">アプリを選択</string>
+    <string name="gamepad_perapp_btn_remap">ボタン再割り当て</string>
+    <string name="gamepad_perapp_combo_map">コンビネーション</string>
+    <string name="gamepad_perapp_remove">プロファイルを削除</string>
+    <string name="gamepad_perapp_removed">プロファイルを削除しました</string>
+    <string name="gamepad_perapp_saved">プロファイルを保存しました</string>
+    <string name="gamepad_perapp_exists">このアプリのプロファイルは既に存在します</string>
+    <string name="gamepad_perapp_no_remaps">なし</string>
+    <string name="gamepad_perapp_edit">プロファイルを編集</string>
+    <string name="gamepad_perapp_add_btn_remap">ボタン再割り当てを追加\u2026</string>
+    <string name="gamepad_perapp_add_combo">コンビネーションを追加\u2026</string>
+    <string name="gamepad_perapp_clear_btn">ボタン再割り当てを消去</string>
+    <string name="gamepad_perapp_clear_combo">コンビネーションを消去</string>
+
 </resources>

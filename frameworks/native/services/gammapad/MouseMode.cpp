@@ -401,11 +401,9 @@ bool MouseMode::processEvent(const struct input_event& ev) {
             return true;
         }
 
-        // Consume combo button events while held (in both modes)
-        if (ev.type == EV_KEY &&
-            (ev.code == mComboBtn1Code || ev.code == mComboBtn2Code)) {
-            return true;
-        }
+        // While waiting for hold time, let combo button events pass through
+        // so they still function as normal buttons. They will be "recalled"
+        // (released) via flush events when mouse mode actually toggles.
     }
 
     // If mouse mode is not active, don't consume non-combo events

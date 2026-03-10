@@ -9,9 +9,14 @@
 
 package com.android.server.gamepad;
 
+import android.app.ActivityManager;
+import android.app.ActivityTaskManager;
+import android.app.TaskStackListener;
+import android.content.ComponentName;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.RemoteException;
 import android.os.SystemProperties;
 import android.os.VibrationAttributes;
 import android.os.VibrationEffect;
@@ -23,6 +28,8 @@ import android.util.Slog;
 import android.widget.Toast;
 
 import com.android.server.SystemService;
+
+import java.util.List;
 
 import java.io.InputStream;
 import java.io.IOException;
@@ -47,6 +54,7 @@ public class GammapadVibrationBridge extends SystemService {
     private final Handler mMainHandler = new Handler(Looper.getMainLooper());
     private Vibrator mVibrator;
     private LocalServerSocket mServerSocket;
+    private volatile String mLastFgPkg = "";
 
     // PWM thread state
     private volatile Thread mPwmThread;
@@ -70,6 +78,10 @@ public class GammapadVibrationBridge extends SystemService {
     @Override
     public void onBootPhase(int phase) {
         if (phase == SystemService.PHASE_BOOT_COMPLETED) {
+            // Register foreground app tracker for per-app gamepad profiles
+            // (independent of vibrator availability)
+            registerForegroundTracker();
+
             VibratorManager vm = mContext.getSystemService(VibratorManager.class);
             if (vm != null) {
                 mVibrator = vm.getDefaultVibrator();
@@ -82,6 +94,69 @@ public class GammapadVibrationBridge extends SystemService {
             Thread serverThread = new Thread(this::runServer, "GammapadVibServer");
             serverThread.setDaemon(true);
             serverThread.start();
+        }
+    }
+
+    private void registerForegroundTracker() {
+        try {
+            ActivityTaskManager.getService().registerTaskStackListener(
+                    new TaskStackListener() {
+                        @Override
+                        public void onTaskStackChanged() {
+                            updateForegroundPackage();
+                            // Re-check after a short delay since the task stack
+                            // may not have fully settled yet
+                            mMainHandler.postDelayed(
+                                    () -> updateForegroundPackage(), 300);
+                        }
+
+                        @Override
+                        public void onTaskMovedToFront(
+                                ActivityManager.RunningTaskInfo info) {
+                            if (info != null && info.topActivity != null) {
+                                String pkg = info.topActivity.getPackageName();
+                                if (pkg != null && !pkg.equals(mLastFgPkg)) {
+                                    mLastFgPkg = pkg;
+                                    SystemProperties.set(
+                                            "sys.gammaos.gamepad.fg_pkg", pkg);
+                                }
+                            }
+                            // Re-check in case the info was stale
+                            mMainHandler.postDelayed(
+                                    () -> updateForegroundPackage(), 300);
+                        }
+                    });
+            Slog.i(TAG, "Foreground app tracker registered");
+
+            // Periodic polling as a safety net to catch any missed transitions
+            mMainHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    updateForegroundPackage();
+                    mMainHandler.postDelayed(this, 1000);
+                }
+            }, 2000);
+        } catch (RemoteException e) {
+            Slog.e(TAG, "Failed to register TaskStackListener", e);
+        }
+    }
+
+    private void updateForegroundPackage() {
+        try {
+            List<ActivityManager.RunningTaskInfo> tasks =
+                    ActivityTaskManager.getService().getTasks(1,
+                            false /* filterOnlyVisibleRecents */,
+                            false /* keepIntentExtra */,
+                            -1 /* displayId */);
+            if (!tasks.isEmpty() && tasks.get(0).topActivity != null) {
+                String pkg = tasks.get(0).topActivity.getPackageName();
+                if (pkg != null && !pkg.equals(mLastFgPkg)) {
+                    mLastFgPkg = pkg;
+                    SystemProperties.set("sys.gammaos.gamepad.fg_pkg", pkg);
+                }
+            }
+        } catch (RemoteException e) {
+            Slog.w(TAG, "Failed to get foreground package", e);
         }
     }
 

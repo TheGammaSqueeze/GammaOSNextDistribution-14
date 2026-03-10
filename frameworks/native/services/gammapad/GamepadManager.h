@@ -67,6 +67,7 @@ private:
     void handleInotifyEvent();
     void handleUinputEvent();
     void checkConfigChange();
+    void checkForegroundApp();
     void drainMouseFlushEvents();
 
     bool shouldGrabDevice(const std::string& name);
@@ -104,6 +105,16 @@ private:
     int mConfigVersion;
     std::set<int> mBlacklistVpad;
     bool mHideSourceNodes;
+
+    // Per-app profile: package -> {btnRemap, comboMap}
+    struct PerAppProfile {
+        std::string btnRemap;
+        std::string comboMap;
+    };
+    std::unordered_map<std::string, PerAppProfile> mPerAppProfiles;
+    std::string mCurrentFgPkg;  // currently active foreground package
+    // All combo emit codes across all per-app profiles (for virtual device caps)
+    std::set<int> mPerAppComboCodes;
 
     std::unique_ptr<VirtualGamepad> mVirtualGamepad;
     std::unique_ptr<InputTransformer> mTransformer;

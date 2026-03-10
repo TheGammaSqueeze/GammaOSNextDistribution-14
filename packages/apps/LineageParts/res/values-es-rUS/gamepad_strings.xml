@@ -249,4 +249,35 @@
         <item>30</item>
         <item>40</item>
     </string-array>
+
+    <!-- Button combo mapping -->
+    <string name="gamepad_combo_map_title">Button combo mapping</string>
+    <string name="gamepad_combo_map_summary">Emit a button when two buttons are held together</string>
+    <string name="gamepad_combo_map_none">No combos configured</string>
+    <string name="gamepad_combo_map_add">Add combo\u2026</string>
+    <string name="gamepad_combo_map_clear_all">Clear all combos</string>
+    <string name="gamepad_combo_map_saved">Combo saved</string>
+    <string name="gamepad_combo_map_cleared">All combos cleared</string>
+    <string name="gamepad_combo_map_btn1">First button</string>
+    <string name="gamepad_combo_map_btn2">Second button</string>
+    <string name="gamepad_combo_map_target">Target button to emit</string>
+
+    <!-- Per-app mapping -->
+    <string name="gamepad_perapp_category">Per-App Profiles</string>
+    <string name="gamepad_perapp_add">Add per-app profile\u2026</string>
+    <string name="gamepad_perapp_none">No per-app profiles configured</string>
+    <string name="gamepad_perapp_pick_app">Choose app</string>
+    <string name="gamepad_perapp_btn_remap">Button remaps</string>
+    <string name="gamepad_perapp_combo_map">Combo mappings</string>
+    <string name="gamepad_perapp_remove">Remove profile</string>
+    <string name="gamepad_perapp_removed">Profile removed</string>
+    <string name="gamepad_perapp_saved">Profile saved</string>
+    <string name="gamepad_perapp_exists">A profile for this app already exists</string>
+    <string name="gamepad_perapp_no_remaps">None</string>
+    <string name="gamepad_perapp_edit">Edit profile</string>
+    <string name="gamepad_perapp_add_btn_remap">Add button remap\u2026</string>
+    <string name="gamepad_perapp_add_combo">Add combo\u2026</string>
+    <string name="gamepad_perapp_clear_btn">Clear button remaps</string>
+    <string name="gamepad_perapp_clear_combo">Clear combos</string>
+
 </resources>

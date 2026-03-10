@@ -248,4 +248,35 @@
         <item>30</item>
         <item>40</item>
     </string-array>
+
+    <!-- Button combo mapping -->
+    <string name="gamepad_combo_map_title">按鍵組合映射</string>
+    <string name="gamepad_combo_map_summary">同時按住兩個按鍵時觸發另一個按鍵</string>
+    <string name="gamepad_combo_map_none">No combos configured</string>
+    <string name="gamepad_combo_map_add">Add combo\u2026</string>
+    <string name="gamepad_combo_map_clear_all">Clear all combos</string>
+    <string name="gamepad_combo_map_saved">Combo saved</string>
+    <string name="gamepad_combo_map_cleared">All combos cleared</string>
+    <string name="gamepad_combo_map_btn1">First button</string>
+    <string name="gamepad_combo_map_btn2">Second button</string>
+    <string name="gamepad_combo_map_target">Target button to emit</string>
+
+    <!-- Per-app mapping -->
+    <string name="gamepad_perapp_category">應用程式專屬設定</string>
+    <string name="gamepad_perapp_add">新增應用程式設定\u2026</string>
+    <string name="gamepad_perapp_none">No per-app profiles configured</string>
+    <string name="gamepad_perapp_pick_app">選擇應用程式</string>
+    <string name="gamepad_perapp_btn_remap">Button remaps</string>
+    <string name="gamepad_perapp_combo_map">Combo mappings</string>
+    <string name="gamepad_perapp_remove">Remove profile</string>
+    <string name="gamepad_perapp_removed">Profile removed</string>
+    <string name="gamepad_perapp_saved">Profile saved</string>
+    <string name="gamepad_perapp_exists">A profile for this app already exists</string>
+    <string name="gamepad_perapp_no_remaps">None</string>
+    <string name="gamepad_perapp_edit">Edit profile</string>
+    <string name="gamepad_perapp_add_btn_remap">Add button remap\u2026</string>
+    <string name="gamepad_perapp_add_combo">Add combo\u2026</string>
+    <string name="gamepad_perapp_clear_btn">Clear button remaps</string>
+    <string name="gamepad_perapp_clear_combo">Clear combos</string>
+
 </resources>

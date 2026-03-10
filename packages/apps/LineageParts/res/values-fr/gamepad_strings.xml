@@ -249,4 +249,35 @@
         <item>30</item>
         <item>40</item>
     </string-array>
+
+    <!-- Button combo mapping -->
+    <string name="gamepad_combo_map_title">Combinaisons de boutons</string>
+    <string name="gamepad_combo_map_summary">Émettre un bouton lorsque deux boutons sont maintenus ensemble</string>
+    <string name="gamepad_combo_map_none">Aucune combinaison configurée</string>
+    <string name="gamepad_combo_map_add">Ajouter une combinaison\u2026</string>
+    <string name="gamepad_combo_map_clear_all">Effacer toutes les combinaisons</string>
+    <string name="gamepad_combo_map_saved">Combinaison enregistrée</string>
+    <string name="gamepad_combo_map_cleared">Toutes les combinaisons effacées</string>
+    <string name="gamepad_combo_map_btn1">Premier bouton</string>
+    <string name="gamepad_combo_map_btn2">Deuxième bouton</string>
+    <string name="gamepad_combo_map_target">Bouton cible à émettre</string>
+
+    <!-- Per-app mapping -->
+    <string name="gamepad_perapp_category">Profils par application</string>
+    <string name="gamepad_perapp_add">Ajouter un profil\u2026</string>
+    <string name="gamepad_perapp_none">Aucun profil configuré</string>
+    <string name="gamepad_perapp_pick_app">Choisir une application</string>
+    <string name="gamepad_perapp_btn_remap">Réassignations de boutons</string>
+    <string name="gamepad_perapp_combo_map">Combinaisons</string>
+    <string name="gamepad_perapp_remove">Supprimer le profil</string>
+    <string name="gamepad_perapp_removed">Profil supprimé</string>
+    <string name="gamepad_perapp_saved">Profil enregistré</string>
+    <string name="gamepad_perapp_exists">Un profil pour cette application existe déjà</string>
+    <string name="gamepad_perapp_no_remaps">Aucun</string>
+    <string name="gamepad_perapp_edit">Modifier le profil</string>
+    <string name="gamepad_perapp_add_btn_remap">Ajouter une réassignation\u2026</string>
+    <string name="gamepad_perapp_add_combo">Ajouter une combinaison\u2026</string>
+    <string name="gamepad_perapp_clear_btn">Effacer les réassignations</string>
+    <string name="gamepad_perapp_clear_combo">Effacer les combinaisons</string>
+
 </resources>

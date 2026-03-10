@@ -6,6 +6,11 @@
 package org.lineageos.lineageparts.input;
 
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
+import android.graphics.drawable.Drawable;
 import android.hardware.input.InputManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -14,13 +19,22 @@ import android.os.SystemProperties;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.app.AlertDialog;
+import android.text.Editable;
 import android.text.InputType;
+import android.text.TextWatcher;
 import android.view.Gravity;
 import android.view.InputDevice;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 import android.widget.EditText;
+import android.widget.Filter;
+import android.widget.Filterable;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.NumberPicker;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -81,6 +95,13 @@ public class GamepadSettings extends SettingsPreferenceFragment
     private static final String KEY_GLOBAL_SENSITIVITY = "gamepad_global_sensitivity";
     private static final String KEY_TEST = "gamepad_test";
 
+    // Combo mapping keys
+    private static final String KEY_COMBO_MAP = "gamepad_combo_map";
+
+    // Per-app profile keys
+    private static final String KEY_PERAPP_CATEGORY = "gamepad_perapp_category";
+    private static final String KEY_PERAPP_ADD = "gamepad_perapp_add";
+
     // Mouse mode keys
     private static final String KEY_MOUSE_ENABLE = "gamepad_mouse_enable";
     private static final String KEY_MOUSE_COMBO = "gamepad_mouse_combo";
@@ -113,6 +134,13 @@ public class GamepadSettings extends SettingsPreferenceFragment
     private static final String PROP_DEVICE_NAME = "persist.gammaos.gamepad.device_name";
     private static final String PROP_DEVICE_VID = "persist.gammaos.gamepad.device_vid";
     private static final String PROP_DEVICE_PID = "persist.gammaos.gamepad.device_pid";
+
+    // Combo mapping properties
+    private static final String PROP_COMBO_MAP = "persist.gammaos.gamepad.combo_map";
+
+    // Per-app profile properties
+    private static final String PROP_PA_COUNT = "persist.gammaos.gamepad.pa_count";
+    // Per profile: persist.gammaos.gamepad.paN_pkg, paN_btn, paN_combo
 
     // Mouse mode properties
     private static final String PROP_MOUSE_COMBO1 = "persist.gammaos.gamepad.mouse_combo1";
@@ -330,6 +358,18 @@ public class GamepadSettings extends SettingsPreferenceFragment
             updateBlacklistSummary(blacklistPassPref, PROP_BLACKLIST_PASS);
         }
 
+        Preference comboMapPref = findPreference(KEY_COMBO_MAP);
+        if (comboMapPref != null) {
+            comboMapPref.setOnPreferenceClickListener(this);
+            updateComboMapSummary(comboMapPref);
+        }
+
+        Preference perappAddPref = findPreference(KEY_PERAPP_ADD);
+        if (perappAddPref != null) {
+            perappAddPref.setOnPreferenceClickListener(this);
+        }
+        populatePerAppProfiles();
+
         Preference calibPref = findPreference(KEY_CALIBRATION);
         if (calibPref != null) {
             calibPref.setOnPreferenceClickListener(this);
@@ -486,6 +526,7 @@ public class GamepadSettings extends SettingsPreferenceFragment
         populateControllerList();
         refreshRemapSummaries();
         refreshToggleStates();
+        populatePerAppProfiles();
         mHandler.postDelayed(mRemapPollRunnable, REMAP_POLL_INTERVAL_MS);
 
         if (mInputManager != null) {
@@ -661,6 +702,10 @@ public class GamepadSettings extends SettingsPreferenceFragment
     }
 
     private void refreshRemapSummaries() {
+        Preference comboMapPref = findPreference(KEY_COMBO_MAP);
+        if (comboMapPref != null) {
+            updateComboMapSummary(comboMapPref);
+        }
         Preference axisRolesPref = findPreference(KEY_AXIS_ROLES);
         if (axisRolesPref != null) {
             updateAxisRolesSummary(axisRolesPref);
@@ -1486,11 +1531,21 @@ public class GamepadSettings extends SettingsPreferenceFragment
                     .addToBackStack(null)
                     .commit();
             return true;
+        } else if (KEY_COMBO_MAP.equals(key)) {
+            showComboMapDialog();
+            return true;
+        } else if (KEY_PERAPP_ADD.equals(key)) {
+            showPerAppPickerDialog();
+            return true;
         } else if (KEY_MOUSE_COMBO.equals(key)) {
             showMouseComboDialog();
             return true;
         } else if (KEY_MOUSE_BUTTONS.equals(key)) {
             showMouseButtonsDialog();
+            return true;
+        } else if (key != null && key.startsWith("gamepad_perapp_profile_")) {
+            int idx = Integer.parseInt(key.substring("gamepad_perapp_profile_".length()));
+            showPerAppEditDialog(idx);
             return true;
         }
 
@@ -1773,6 +1828,683 @@ public class GamepadSettings extends SettingsPreferenceFragment
                     bumpConfigVersion();
                     Preference btnPref = findPreference(KEY_MOUSE_BUTTONS);
                     if (btnPref != null) updateMouseButtonsSummary(btnPref);
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
+    }
+
+    // --- Combo mapping helpers ---
+
+    private void updateComboMapSummary(Preference pref) {
+        String comboStr = SystemProperties.get(PROP_COMBO_MAP, "");
+        if (comboStr.isEmpty()) {
+            pref.setSummary(R.string.gamepad_combo_map_none);
+            return;
+        }
+
+        StringBuilder sb = new StringBuilder();
+        String[] entries = comboStr.split(",");
+        for (String entry : entries) {
+            int plus = entry.indexOf('+');
+            int eq = entry.indexOf('=');
+            if (plus < 0 || eq < 0 || plus >= eq) continue;
+            try {
+                int btn1 = Integer.parseInt(entry.substring(0, plus));
+                int btn2 = Integer.parseInt(entry.substring(plus + 1, eq));
+                int emit = Integer.parseInt(entry.substring(eq + 1));
+                String n1 = BTN_NAMES.getOrDefault(btn1, "0x" + Integer.toHexString(btn1));
+                String n2 = BTN_NAMES.getOrDefault(btn2, "0x" + Integer.toHexString(btn2));
+                String ne = BTN_NAMES.getOrDefault(emit, "0x" + Integer.toHexString(emit));
+                if (sb.length() > 0) sb.append(", ");
+                sb.append(n1).append("+").append(n2).append(" \u2192 ").append(ne);
+            } catch (NumberFormatException e) {
+                // skip
+            }
+        }
+        pref.setSummary(sb.length() > 0 ? sb.toString()
+                : getString(R.string.gamepad_combo_map_none));
+    }
+
+    private void showComboMapDialog() {
+        Context context = getContext();
+        if (context == null) return;
+
+        String current = SystemProperties.get(PROP_COMBO_MAP, "");
+        List<String> items = new ArrayList<>();
+
+        // Show existing combos
+        String[] entries = current.isEmpty() ? new String[0] : current.split(",");
+        for (String entry : entries) {
+            int plus = entry.indexOf('+');
+            int eq = entry.indexOf('=');
+            if (plus < 0 || eq < 0) continue;
+            try {
+                int btn1 = Integer.parseInt(entry.substring(0, plus));
+                int btn2 = Integer.parseInt(entry.substring(plus + 1, eq));
+                int emit = Integer.parseInt(entry.substring(eq + 1));
+                String n1 = BTN_NAMES.getOrDefault(btn1, "0x" + Integer.toHexString(btn1));
+                String n2 = BTN_NAMES.getOrDefault(btn2, "0x" + Integer.toHexString(btn2));
+                String ne = BTN_NAMES.getOrDefault(emit, "0x" + Integer.toHexString(emit));
+                items.add(n1 + " + " + n2 + " \u2192 " + ne);
+            } catch (NumberFormatException e) {
+                items.add(entry);
+            }
+        }
+
+        int currentCount = items.size();
+        items.add(getString(R.string.gamepad_combo_map_add));
+        if (currentCount > 0) {
+            items.add(getString(R.string.gamepad_combo_map_clear_all));
+        }
+
+        new AlertDialog.Builder(context)
+                .setTitle(R.string.gamepad_combo_map_title)
+                .setItems(items.toArray(new String[0]), (d, which) -> {
+                    if (which < currentCount) {
+                        // Remove this combo
+                        StringBuilder sb = new StringBuilder();
+                        for (int i = 0; i < entries.length; i++) {
+                            if (i == which) continue;
+                            if (sb.length() > 0) sb.append(",");
+                            sb.append(entries[i]);
+                        }
+                        SystemProperties.set(PROP_COMBO_MAP, sb.toString());
+                        bumpConfigVersion();
+                        refreshRemapSummaries();
+                    } else if (which == currentCount) {
+                        showAddComboDialog();
+                    } else {
+                        SystemProperties.set(PROP_COMBO_MAP, "");
+                        bumpConfigVersion();
+                        refreshRemapSummaries();
+                        Toast.makeText(context, R.string.gamepad_combo_map_cleared,
+                                Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
+    }
+
+    private void showAddComboDialog() {
+        Context context = getContext();
+        if (context == null) return;
+
+        List<Integer> btnCodes = new ArrayList<>(BTN_NAMES.keySet());
+        java.util.Collections.sort(btnCodes);
+        String[] labels = new String[btnCodes.size()];
+        for (int i = 0; i < btnCodes.size(); i++) {
+            labels[i] = BTN_NAMES.get(btnCodes.get(i));
+        }
+
+        // Step 1: Pick first button
+        new AlertDialog.Builder(context)
+                .setTitle(R.string.gamepad_combo_map_btn1)
+                .setItems(labels, (d, which1) -> {
+                    int btn1 = btnCodes.get(which1);
+                    // Step 2: Pick second button
+                    new AlertDialog.Builder(context)
+                            .setTitle(R.string.gamepad_combo_map_btn2)
+                            .setItems(labels, (d2, which2) -> {
+                                int btn2 = btnCodes.get(which2);
+                                // Step 3: Pick target button
+                                new AlertDialog.Builder(context)
+                                        .setTitle(R.string.gamepad_combo_map_target)
+                                        .setItems(labels, (d3, which3) -> {
+                                            int emit = btnCodes.get(which3);
+                                            String current = SystemProperties.get(
+                                                    PROP_COMBO_MAP, "");
+                                            String rule = btn1 + "+" + btn2 + "=" + emit;
+                                            String newVal = current.isEmpty()
+                                                    ? rule : current + "," + rule;
+                                            SystemProperties.set(PROP_COMBO_MAP, newVal);
+                                            bumpConfigVersion();
+                                            refreshRemapSummaries();
+                                            Toast.makeText(context,
+                                                    R.string.gamepad_combo_map_saved,
+                                                    Toast.LENGTH_SHORT).show();
+                                        })
+                                        .setNegativeButton(android.R.string.cancel, null)
+                                        .show();
+                            })
+                            .setNegativeButton(android.R.string.cancel, null)
+                            .show();
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
+    }
+
+    // --- Per-app profile helpers ---
+
+    private void populatePerAppProfiles() {
+        PreferenceCategory perappCat = findPreference(KEY_PERAPP_CATEGORY);
+        if (perappCat == null) return;
+
+        // Remove all dynamically added profile preferences (keep the "add" button)
+        for (int i = perappCat.getPreferenceCount() - 1; i >= 0; i--) {
+            Preference p = perappCat.getPreference(i);
+            if (p.getKey() != null && p.getKey().startsWith("gamepad_perapp_profile_")) {
+                perappCat.removePreference(p);
+            }
+        }
+
+        int count = SystemProperties.getInt(PROP_PA_COUNT, 0);
+        PackageManager pm = getContext().getPackageManager();
+
+        for (int i = 0; i < count && i < 20; i++) {
+            String prefix = "persist.gammaos.gamepad.pa" + i;
+            String pkg = SystemProperties.get(prefix + "_pkg", "");
+            if (pkg.isEmpty()) continue;
+
+            String btnRemap = SystemProperties.get(prefix + "_btn", "");
+            String comboMap = SystemProperties.get(prefix + "_combo", "");
+
+            // Get app label
+            String appLabel = pkg;
+            try {
+                ApplicationInfo ai = pm.getApplicationInfo(pkg, 0);
+                appLabel = pm.getApplicationLabel(ai).toString();
+            } catch (PackageManager.NameNotFoundException e) {
+                // Use package name as fallback
+            }
+
+            // Build summary
+            StringBuilder summary = new StringBuilder();
+            if (!btnRemap.isEmpty()) {
+                int remapCount = btnRemap.split(",").length;
+                summary.append(remapCount).append(" remap(s)");
+            }
+            if (!comboMap.isEmpty()) {
+                int comboCount = comboMap.split(",").length;
+                if (summary.length() > 0) summary.append(", ");
+                summary.append(comboCount).append(" combo(s)");
+            }
+            if (summary.length() == 0) {
+                summary.append(getString(R.string.gamepad_perapp_no_remaps));
+            }
+
+            Preference pref = new Preference(getContext());
+            final int idx = i;
+            pref.setKey("gamepad_perapp_profile_" + i);
+            pref.setTitle(appLabel);
+            pref.setSummary(summary.toString());
+            pref.setOnPreferenceClickListener(this);
+
+            // Insert before the "add" button
+            Preference addPref = findPreference(KEY_PERAPP_ADD);
+            int addIdx = addPref != null ? perappCat.getPreferenceCount() - 1 : -1;
+            if (addIdx >= 0) {
+                pref.setOrder(addIdx);
+            }
+            perappCat.addPreference(pref);
+        }
+    }
+
+    private void showPerAppPickerDialog() {
+        Context context = getContext();
+        if (context == null) return;
+
+        PackageManager pm = context.getPackageManager();
+
+        // Get launchable apps only (excludes system services without a launcher icon)
+        Intent launchIntent = new Intent(Intent.ACTION_MAIN);
+        launchIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+        List<ResolveInfo> resolveList = pm.queryIntentActivities(launchIntent, 0);
+
+        List<ApplicationInfo> apps = new ArrayList<>();
+        Set<String> seen = new HashSet<>();
+        for (ResolveInfo ri : resolveList) {
+            String pkg = ri.activityInfo.packageName;
+            if (!seen.add(pkg)) continue;
+            try {
+                apps.add(pm.getApplicationInfo(pkg, 0));
+            } catch (PackageManager.NameNotFoundException e) {
+                // skip
+            }
+        }
+
+        // Sort by label
+        java.util.Collections.sort(apps, (a, b) -> {
+            String la = pm.getApplicationLabel(a).toString();
+            String lb = pm.getApplicationLabel(b).toString();
+            return la.compareToIgnoreCase(lb);
+        });
+
+        // Build dialog with search bar and list
+        LinearLayout root = new LinearLayout(context);
+        root.setOrientation(LinearLayout.VERTICAL);
+        int pad = (int) (16 * context.getResources().getDisplayMetrics().density);
+        root.setPadding(pad, pad, pad, 0);
+
+        EditText searchBox = new EditText(context);
+        searchBox.setHint("Search apps...");
+        searchBox.setSingleLine(true);
+        searchBox.setInputType(InputType.TYPE_CLASS_TEXT);
+        root.addView(searchBox);
+
+        ListView listView = new ListView(context);
+        root.addView(listView, new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+
+        AppPickerAdapter adapter = new AppPickerAdapter(context, pm, apps);
+        listView.setAdapter(adapter);
+
+        AlertDialog dialog = new AlertDialog.Builder(context)
+                .setTitle(R.string.gamepad_perapp_pick_app)
+                .setView(root)
+                .setNegativeButton(android.R.string.cancel, null)
+                .create();
+
+        listView.setOnItemClickListener((parent, view, position, id) -> {
+            ApplicationInfo ai = adapter.getItem(position);
+            if (ai == null) return;
+            String pkg = ai.packageName;
+
+            // Check if profile already exists
+            int count = SystemProperties.getInt(PROP_PA_COUNT, 0);
+            for (int i = 0; i < count; i++) {
+                String existing = SystemProperties.get(
+                        "persist.gammaos.gamepad.pa" + i + "_pkg", "");
+                if (pkg.equals(existing)) {
+                    Toast.makeText(context, R.string.gamepad_perapp_exists,
+                            Toast.LENGTH_SHORT).show();
+                    return;
+                }
+            }
+
+            // Create new profile
+            String prefix = "persist.gammaos.gamepad.pa" + count;
+            SystemProperties.set(prefix + "_pkg", pkg);
+            SystemProperties.set(prefix + "_btn", "");
+            SystemProperties.set(prefix + "_combo", "");
+            SystemProperties.set(PROP_PA_COUNT, String.valueOf(count + 1));
+            bumpConfigVersion();
+            populatePerAppProfiles();
+            dialog.dismiss();
+
+            showPerAppEditDialog(count);
+        });
+
+        searchBox.addTextChangedListener(new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int st, int c, int a) {}
+            @Override public void onTextChanged(CharSequence s, int st, int b, int c) {
+                adapter.getFilter().filter(s);
+            }
+            @Override public void afterTextChanged(Editable s) {}
+        });
+
+        dialog.show();
+    }
+
+    /** Adapter for the app picker with icon, label, package name, and filtering. */
+    private static class AppPickerAdapter extends BaseAdapter implements Filterable {
+        private final Context mContext;
+        private final PackageManager mPm;
+        private final List<ApplicationInfo> mAllApps;
+        private List<ApplicationInfo> mFiltered;
+        private final AppFilter mFilter;
+
+        AppPickerAdapter(Context context, PackageManager pm, List<ApplicationInfo> apps) {
+            mContext = context;
+            mPm = pm;
+            mAllApps = apps;
+            mFiltered = new ArrayList<>(apps);
+            mFilter = new AppFilter();
+        }
+
+        @Override public int getCount() { return mFiltered.size(); }
+        @Override public ApplicationInfo getItem(int pos) { return mFiltered.get(pos); }
+        @Override public long getItemId(int pos) { return pos; }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            LinearLayout row;
+            if (convertView instanceof LinearLayout) {
+                row = (LinearLayout) convertView;
+            } else {
+                row = new LinearLayout(mContext);
+                row.setOrientation(LinearLayout.HORIZONTAL);
+                row.setGravity(Gravity.CENTER_VERTICAL);
+                int dp8 = (int) (8 * mContext.getResources().getDisplayMetrics().density);
+                row.setPadding(dp8, dp8, dp8, dp8);
+
+                ImageView icon = new ImageView(mContext);
+                int iconSize = (int) (40 * mContext.getResources().getDisplayMetrics().density);
+                LinearLayout.LayoutParams iconLp = new LinearLayout.LayoutParams(iconSize, iconSize);
+                iconLp.setMarginEnd(dp8 * 2);
+                icon.setLayoutParams(iconLp);
+                icon.setTag("icon");
+                row.addView(icon);
+
+                LinearLayout textCol = new LinearLayout(mContext);
+                textCol.setOrientation(LinearLayout.VERTICAL);
+                TextView title = new TextView(mContext);
+                title.setTextSize(16);
+                title.setTag("title");
+                textCol.addView(title);
+                TextView sub = new TextView(mContext);
+                sub.setTextSize(12);
+                sub.setAlpha(0.7f);
+                sub.setTag("sub");
+                textCol.addView(sub);
+                row.addView(textCol);
+            }
+
+            ApplicationInfo ai = mFiltered.get(position);
+            ((ImageView) row.findViewWithTag("icon")).setImageDrawable(
+                    ai.loadIcon(mPm));
+            ((TextView) row.findViewWithTag("title")).setText(
+                    mPm.getApplicationLabel(ai));
+            ((TextView) row.findViewWithTag("sub")).setText(ai.packageName);
+            return row;
+        }
+
+        @Override public Filter getFilter() { return mFilter; }
+
+        private class AppFilter extends Filter {
+            @Override
+            protected FilterResults performFiltering(CharSequence constraint) {
+                FilterResults results = new FilterResults();
+                if (constraint == null || constraint.length() == 0) {
+                    results.values = new ArrayList<>(mAllApps);
+                    results.count = mAllApps.size();
+                } else {
+                    String query = constraint.toString().toLowerCase();
+                    List<ApplicationInfo> filtered = new ArrayList<>();
+                    for (ApplicationInfo ai : mAllApps) {
+                        String label = mPm.getApplicationLabel(ai).toString().toLowerCase();
+                        if (label.contains(query) || ai.packageName.toLowerCase().contains(query)) {
+                            filtered.add(ai);
+                        }
+                    }
+                    results.values = filtered;
+                    results.count = filtered.size();
+                }
+                return results;
+            }
+
+            @Override
+            @SuppressWarnings("unchecked")
+            protected void publishResults(CharSequence constraint, FilterResults results) {
+                mFiltered = (List<ApplicationInfo>) results.values;
+                notifyDataSetChanged();
+            }
+        }
+    }
+
+    private void showPerAppEditDialog(int profileIdx) {
+        Context context = getContext();
+        if (context == null) return;
+
+        String prefix = "persist.gammaos.gamepad.pa" + profileIdx;
+        String pkg = SystemProperties.get(prefix + "_pkg", "");
+        if (pkg.isEmpty()) return;
+
+        String btnRemap = SystemProperties.get(prefix + "_btn", "");
+        String comboMap = SystemProperties.get(prefix + "_combo", "");
+
+        PackageManager pm = context.getPackageManager();
+        String appLabel = pkg;
+        try {
+            ApplicationInfo ai = pm.getApplicationInfo(pkg, 0);
+            appLabel = pm.getApplicationLabel(ai).toString();
+        } catch (PackageManager.NameNotFoundException e) {
+            // fallback
+        }
+
+        List<String> items = new ArrayList<>();
+
+        // Show current button remaps
+        if (!btnRemap.isEmpty()) {
+            String[] pairs = btnRemap.split(",");
+            for (String pair : pairs) {
+                String[] parts = pair.split(":");
+                if (parts.length == 2) {
+                    try {
+                        int from = Integer.parseInt(parts[0]);
+                        int to = Integer.parseInt(parts[1]);
+                        String fn = BTN_NAMES.getOrDefault(from,
+                                "0x" + Integer.toHexString(from));
+                        String tn = BTN_NAMES.getOrDefault(to,
+                                "0x" + Integer.toHexString(to));
+                        items.add("Remap: " + fn + " \u2192 " + tn);
+                    } catch (NumberFormatException e) {
+                        items.add("Remap: " + pair);
+                    }
+                }
+            }
+        }
+
+        // Show current combos
+        if (!comboMap.isEmpty()) {
+            String[] combos = comboMap.split(",");
+            for (String entry : combos) {
+                int plus = entry.indexOf('+');
+                int eq = entry.indexOf('=');
+                if (plus >= 0 && eq > plus) {
+                    try {
+                        int b1 = Integer.parseInt(entry.substring(0, plus));
+                        int b2 = Integer.parseInt(entry.substring(plus + 1, eq));
+                        int em = Integer.parseInt(entry.substring(eq + 1));
+                        String n1 = BTN_NAMES.getOrDefault(b1,
+                                "0x" + Integer.toHexString(b1));
+                        String n2 = BTN_NAMES.getOrDefault(b2,
+                                "0x" + Integer.toHexString(b2));
+                        String ne = BTN_NAMES.getOrDefault(em,
+                                "0x" + Integer.toHexString(em));
+                        items.add("Combo: " + n1 + "+" + n2 + " \u2192 " + ne);
+                    } catch (NumberFormatException e) {
+                        items.add("Combo: " + entry);
+                    }
+                }
+            }
+        }
+
+        int existingCount = items.size();
+
+        items.add(getString(R.string.gamepad_perapp_add_btn_remap));
+        items.add(getString(R.string.gamepad_perapp_add_combo));
+        if (!btnRemap.isEmpty()) {
+            items.add(getString(R.string.gamepad_perapp_clear_btn));
+        }
+        if (!comboMap.isEmpty()) {
+            items.add(getString(R.string.gamepad_perapp_clear_combo));
+        }
+        items.add(getString(R.string.gamepad_perapp_remove));
+
+        new AlertDialog.Builder(context)
+                .setTitle(appLabel)
+                .setItems(items.toArray(new String[0]), (d, which) -> {
+                    if (which < existingCount) {
+                        // Tap on existing entry to remove it
+                        removePerAppEntry(profileIdx, which, btnRemap, comboMap);
+                    } else {
+                        int actionIdx = which - existingCount;
+                        int btnRemapCount = btnRemap.isEmpty() ? 0
+                                : btnRemap.split(",").length;
+                        int comboCount = comboMap.isEmpty() ? 0
+                                : comboMap.split(",").length;
+
+                        if (actionIdx == 0) {
+                            // Add button remap
+                            showPerAppAddRemapDialog(profileIdx);
+                        } else if (actionIdx == 1) {
+                            // Add combo
+                            showPerAppAddComboDialog(profileIdx);
+                        } else if (actionIdx == 2 && !btnRemap.isEmpty()) {
+                            // Clear button remaps
+                            SystemProperties.set(prefix + "_btn", "");
+                            bumpConfigVersion();
+                            populatePerAppProfiles();
+                        } else if ((actionIdx == 2 && btnRemap.isEmpty()
+                                    && !comboMap.isEmpty())
+                                || (actionIdx == 3 && !btnRemap.isEmpty()
+                                    && !comboMap.isEmpty())) {
+                            // Clear combos
+                            SystemProperties.set(prefix + "_combo", "");
+                            bumpConfigVersion();
+                            populatePerAppProfiles();
+                        } else {
+                            // Remove profile
+                            removePerAppProfile(profileIdx);
+                        }
+                    }
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
+    }
+
+    private void removePerAppEntry(int profileIdx, int entryIdx,
+                                    String btnRemap, String comboMap) {
+        String prefix = "persist.gammaos.gamepad.pa" + profileIdx;
+        int btnCount = btnRemap.isEmpty() ? 0 : btnRemap.split(",").length;
+
+        if (entryIdx < btnCount) {
+            // Remove button remap at entryIdx
+            String[] parts = btnRemap.split(",");
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < parts.length; i++) {
+                if (i == entryIdx) continue;
+                if (sb.length() > 0) sb.append(",");
+                sb.append(parts[i]);
+            }
+            SystemProperties.set(prefix + "_btn", sb.toString());
+        } else {
+            // Remove combo at (entryIdx - btnCount)
+            int comboIdx = entryIdx - btnCount;
+            String[] parts = comboMap.split(",");
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < parts.length; i++) {
+                if (i == comboIdx) continue;
+                if (sb.length() > 0) sb.append(",");
+                sb.append(parts[i]);
+            }
+            SystemProperties.set(prefix + "_combo", sb.toString());
+        }
+        bumpConfigVersion();
+        populatePerAppProfiles();
+    }
+
+    private void removePerAppProfile(int profileIdx) {
+        int count = SystemProperties.getInt(PROP_PA_COUNT, 0);
+        if (profileIdx >= count) return;
+
+        // Shift profiles down to fill the gap
+        for (int i = profileIdx; i < count - 1; i++) {
+            String srcPrefix = "persist.gammaos.gamepad.pa" + (i + 1);
+            String dstPrefix = "persist.gammaos.gamepad.pa" + i;
+            SystemProperties.set(dstPrefix + "_pkg",
+                    SystemProperties.get(srcPrefix + "_pkg", ""));
+            SystemProperties.set(dstPrefix + "_btn",
+                    SystemProperties.get(srcPrefix + "_btn", ""));
+            SystemProperties.set(dstPrefix + "_combo",
+                    SystemProperties.get(srcPrefix + "_combo", ""));
+        }
+
+        // Clear the last slot
+        String lastPrefix = "persist.gammaos.gamepad.pa" + (count - 1);
+        SystemProperties.set(lastPrefix + "_pkg", "");
+        SystemProperties.set(lastPrefix + "_btn", "");
+        SystemProperties.set(lastPrefix + "_combo", "");
+
+        SystemProperties.set(PROP_PA_COUNT, String.valueOf(count - 1));
+        bumpConfigVersion();
+        populatePerAppProfiles();
+
+        Toast.makeText(getContext(), R.string.gamepad_perapp_removed,
+                Toast.LENGTH_SHORT).show();
+    }
+
+    private void showPerAppAddRemapDialog(int profileIdx) {
+        Context context = getContext();
+        if (context == null) return;
+
+        List<Integer> btnCodes = new ArrayList<>(BTN_NAMES.keySet());
+        java.util.Collections.sort(btnCodes);
+        String[] labels = new String[btnCodes.size()];
+        for (int i = 0; i < btnCodes.size(); i++) {
+            labels[i] = BTN_NAMES.get(btnCodes.get(i));
+        }
+
+        String prefix = "persist.gammaos.gamepad.pa" + profileIdx;
+
+        // Pick source button
+        new AlertDialog.Builder(context)
+                .setTitle(R.string.gamepad_remap_dialog_title)
+                .setItems(labels, (d, which) -> {
+                    int fromCode = btnCodes.get(which);
+                    // Pick target button
+                    new AlertDialog.Builder(context)
+                            .setTitle(R.string.gamepad_remap_choose_target)
+                            .setItems(labels, (d2, which2) -> {
+                                int toCode = btnCodes.get(which2);
+                                String current = SystemProperties.get(
+                                        prefix + "_btn", "");
+                                String rule = fromCode + ":" + toCode;
+                                String newVal = current.isEmpty()
+                                        ? rule : current + "," + rule;
+                                SystemProperties.set(prefix + "_btn", newVal);
+                                bumpConfigVersion();
+                                populatePerAppProfiles();
+                                Toast.makeText(context,
+                                        R.string.gamepad_perapp_saved,
+                                        Toast.LENGTH_SHORT).show();
+                            })
+                            .setNegativeButton(android.R.string.cancel, null)
+                            .show();
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
+    }
+
+    private void showPerAppAddComboDialog(int profileIdx) {
+        Context context = getContext();
+        if (context == null) return;
+
+        List<Integer> btnCodes = new ArrayList<>(BTN_NAMES.keySet());
+        java.util.Collections.sort(btnCodes);
+        String[] labels = new String[btnCodes.size()];
+        for (int i = 0; i < btnCodes.size(); i++) {
+            labels[i] = BTN_NAMES.get(btnCodes.get(i));
+        }
+
+        String prefix = "persist.gammaos.gamepad.pa" + profileIdx;
+
+        // Step 1: First button
+        new AlertDialog.Builder(context)
+                .setTitle(R.string.gamepad_combo_map_btn1)
+                .setItems(labels, (d, w1) -> {
+                    int btn1 = btnCodes.get(w1);
+                    // Step 2: Second button
+                    new AlertDialog.Builder(context)
+                            .setTitle(R.string.gamepad_combo_map_btn2)
+                            .setItems(labels, (d2, w2) -> {
+                                int btn2 = btnCodes.get(w2);
+                                // Step 3: Target button
+                                new AlertDialog.Builder(context)
+                                        .setTitle(R.string.gamepad_combo_map_target)
+                                        .setItems(labels, (d3, w3) -> {
+                                            int emit = btnCodes.get(w3);
+                                            String current = SystemProperties.get(
+                                                    prefix + "_combo", "");
+                                            String rule = btn1 + "+" + btn2
+                                                    + "=" + emit;
+                                            String newVal = current.isEmpty()
+                                                    ? rule : current + "," + rule;
+                                            SystemProperties.set(
+                                                    prefix + "_combo", newVal);
+                                            bumpConfigVersion();
+                                            populatePerAppProfiles();
+                                            Toast.makeText(context,
+                                                    R.string.gamepad_perapp_saved,
+                                                    Toast.LENGTH_SHORT).show();
+                                        })
+                                        .setNegativeButton(
+                                                android.R.string.cancel, null)
+                                        .show();
+                            })
+                            .setNegativeButton(android.R.string.cancel, null)
+                            .show();
                 })
                 .setNegativeButton(android.R.string.cancel, null)
                 .show();

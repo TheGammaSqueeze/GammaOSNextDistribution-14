@@ -226,9 +226,51 @@ void GamepadManager::loadConfig() {
     mForceFeedback->loadConfig();
     if (mMouseMode) mMouseMode->loadConfig();
 
+    // Load per-app profiles
+    mPerAppProfiles.clear();
+    mPerAppComboCodes.clear();
+    int paCount = GetIntProperty("persist.gammaos.gamepad.pa_count", 0);
+    for (int i = 0; i < paCount && i < 20; i++) {
+        std::string prefix = "persist.gammaos.gamepad.pa" + std::to_string(i);
+        std::string pkg = GetProperty(prefix + "_pkg", "");
+        if (pkg.empty()) continue;
+
+        PerAppProfile profile;
+        profile.btnRemap = GetProperty(prefix + "_btn", "");
+        profile.comboMap = GetProperty(prefix + "_combo", "");
+        mPerAppProfiles[pkg] = profile;
+
+        // Collect combo emit codes for virtual device creation
+        if (!profile.comboMap.empty()) {
+            std::istringstream ss(profile.comboMap);
+            std::string entry;
+            while (std::getline(ss, entry, ',')) {
+                size_t eq = entry.find('=');
+                if (eq != std::string::npos) {
+                    int emit = std::atoi(entry.substr(eq + 1).c_str());
+                    if (emit > 0) mPerAppComboCodes.insert(emit);
+                }
+            }
+        }
+
+        LOG(INFO) << "Per-app profile: " << pkg
+                  << " btn=[" << profile.btnRemap << "]"
+                  << " combo=[" << profile.comboMap << "]";
+    }
+
+    // Apply per-app overrides if a foreground app is already tracked
+    if (!mCurrentFgPkg.empty()) {
+        auto it = mPerAppProfiles.find(mCurrentFgPkg);
+        if (it != mPerAppProfiles.end()) {
+            mTransformer->applyPerAppOverrides(it->second.btnRemap,
+                                                it->second.comboMap);
+        }
+    }
+
     LOG(INFO) << "Config loaded: merge=" << mMerge
               << " devices=" << mDeviceNames.size()
               << " blacklistVpad=" << mBlacklistVpad.size()
+              << " perAppProfiles=" << mPerAppProfiles.size()
               << " version=" << mConfigVersion;
 }
 
@@ -293,6 +335,7 @@ void GamepadManager::run() {
                 now - lastConfigCheck).count();
         if (elapsed >= CONFIG_CHECK_INTERVAL_MS) {
             checkConfigChange();
+            checkForegroundApp();
             // Check for external mouse mode toggle (QS tile) and combo timeout
             if (mMouseMode) {
                 if (mMouseMode->checkExternalToggle()) {
@@ -1095,6 +1138,61 @@ void GamepadManager::checkConfigChange() {
     }
 }
 
+void GamepadManager::checkForegroundApp() {
+    using android::base::GetProperty;
+
+    std::string fgPkg = GetProperty("sys.gammaos.gamepad.fg_pkg", "");
+    if (fgPkg == mCurrentFgPkg) return;
+
+    LOG(INFO) << "Foreground app changed: " << mCurrentFgPkg << " -> " << fgPkg;
+    mCurrentFgPkg = fgPkg;
+
+    // Reload base config from properties (resets to global mappings)
+    mTransformer->loadConfig();
+
+    // Also refresh per-app profiles from properties (in case they were
+    // changed via Settings since the last full loadConfig)
+    mPerAppProfiles.clear();
+    mPerAppComboCodes.clear();
+    int paCount = android::base::GetIntProperty("persist.gammaos.gamepad.pa_count", 0);
+    for (int i = 0; i < paCount && i < 20; i++) {
+        std::string prefix = "persist.gammaos.gamepad.pa" + std::to_string(i);
+        std::string pkg = GetProperty(prefix + "_pkg", "");
+        if (pkg.empty()) continue;
+
+        PerAppProfile profile;
+        profile.btnRemap = GetProperty(prefix + "_btn", "");
+        profile.comboMap = GetProperty(prefix + "_combo", "");
+        mPerAppProfiles[pkg] = profile;
+
+        if (!profile.comboMap.empty()) {
+            std::istringstream ss(profile.comboMap);
+            std::string entry;
+            while (std::getline(ss, entry, ',')) {
+                size_t eq = entry.find('=');
+                if (eq != std::string::npos) {
+                    int emit = std::atoi(entry.substr(eq + 1).c_str());
+                    if (emit > 0) mPerAppComboCodes.insert(emit);
+                }
+            }
+        }
+    }
+
+    // Apply per-app overrides if a profile exists for this package
+    if (!fgPkg.empty()) {
+        auto it = mPerAppProfiles.find(fgPkg);
+        if (it != mPerAppProfiles.end()) {
+            mTransformer->applyPerAppOverrides(it->second.btnRemap,
+                                                it->second.comboMap);
+            LOG(INFO) << "Applied per-app profile for: " << fgPkg
+                      << " btn=[" << it->second.btnRemap << "]"
+                      << " combo=[" << it->second.comboMap << "]";
+        } else {
+            LOG(INFO) << "No per-app profile for: " << fgPkg;
+        }
+    }
+}
+
 void GamepadManager::discoverDeviceKeys(int fd, std::set<int>& keys) {
     unsigned long keyBits[(KEY_MAX / BITS_PER_LONG) + 1] = {};
     if (ioctl(fd, EVIOCGBIT(EV_KEY, sizeof(keyBits)), keyBits) < 0) return;
@@ -1121,6 +1219,14 @@ std::pair<std::set<int>, std::set<int>> GamepadManager::computeRequiredCodes() c
     for (const auto& [from, to] : mTransformer->getAxisRemaps()) {
         axes.insert(to);
     }
+
+    // Add combo emit target buttons
+    for (int btn : mTransformer->getComboEmitCodes()) {
+        buttons.insert(btn);
+    }
+
+    // Add per-app combo emit buttons so the virtual device supports them
+    buttons.insert(mPerAppComboCodes.begin(), mPerAppComboCodes.end());
 
     // Add discovered axis final codes
     for (const auto& [sc, finalCode] : mAbsMap) {

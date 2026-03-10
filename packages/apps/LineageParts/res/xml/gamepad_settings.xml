@@ -85,6 +85,11 @@
             android:summary="@string/gamepad_axis_to_button_summary" />
 
         <Preference
+            android:key="gamepad_combo_map"
+            android:title="@string/gamepad_combo_map_title"
+            android:summary="@string/gamepad_combo_map_summary" />
+
+        <Preference
             android:key="gamepad_blacklist_vpad"
             android:title="@string/gamepad_blacklist_vpad_title"
             android:summary="@string/gamepad_blacklist_vpad_summary" />
@@ -244,6 +249,18 @@
             android:defaultValue="4"
             android:max="30"
             android:dependency="gamepad_mouse_enable" />
+
+    </PreferenceCategory>
+
+    <!-- Per-app profiles -->
+    <PreferenceCategory
+        android:key="gamepad_perapp_category"
+        android:title="@string/gamepad_perapp_category"
+        android:dependency="gamepad_enable">
+
+        <Preference
+            android:key="gamepad_perapp_add"
+            android:title="@string/gamepad_perapp_add" />
 
     </PreferenceCategory>
 

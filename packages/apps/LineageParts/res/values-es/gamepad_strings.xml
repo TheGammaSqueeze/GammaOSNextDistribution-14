@@ -249,4 +249,35 @@
         <item>30</item>
         <item>40</item>
     </string-array>
+
+    <!-- Button combo mapping -->
+    <string name="gamepad_combo_map_title">Combinaciones de botones</string>
+    <string name="gamepad_combo_map_summary">Emitir un botón al mantener dos botones a la vez</string>
+    <string name="gamepad_combo_map_none">No hay combinaciones configuradas</string>
+    <string name="gamepad_combo_map_add">Agregar combinación\u2026</string>
+    <string name="gamepad_combo_map_clear_all">Borrar todas las combinaciones</string>
+    <string name="gamepad_combo_map_saved">Combinación guardada</string>
+    <string name="gamepad_combo_map_cleared">Todas las combinaciones borradas</string>
+    <string name="gamepad_combo_map_btn1">Primer botón</string>
+    <string name="gamepad_combo_map_btn2">Segundo botón</string>
+    <string name="gamepad_combo_map_target">Botón objetivo a emitir</string>
+
+    <!-- Per-app mapping -->
+    <string name="gamepad_perapp_category">Perfiles por aplicación</string>
+    <string name="gamepad_perapp_add">Agregar perfil\u2026</string>
+    <string name="gamepad_perapp_none">No hay perfiles configurados</string>
+    <string name="gamepad_perapp_pick_app">Elegir aplicación</string>
+    <string name="gamepad_perapp_btn_remap">Reasignaciones de botones</string>
+    <string name="gamepad_perapp_combo_map">Combinaciones</string>
+    <string name="gamepad_perapp_remove">Eliminar perfil</string>
+    <string name="gamepad_perapp_removed">Perfil eliminado</string>
+    <string name="gamepad_perapp_saved">Perfil guardado</string>
+    <string name="gamepad_perapp_exists">Ya existe un perfil para esta aplicación</string>
+    <string name="gamepad_perapp_no_remaps">Ninguno</string>
+    <string name="gamepad_perapp_edit">Editar perfil</string>
+    <string name="gamepad_perapp_add_btn_remap">Agregar reasignación\u2026</string>
+    <string name="gamepad_perapp_add_combo">Agregar combinación\u2026</string>
+    <string name="gamepad_perapp_clear_btn">Borrar reasignaciones</string>
+    <string name="gamepad_perapp_clear_combo">Borrar combinaciones</string>
+
 </resources>
