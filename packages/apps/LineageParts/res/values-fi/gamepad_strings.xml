@@ -212,4 +212,40 @@
         <item>switch_pro</item>
         <item>custom</item>
     </string-array>
+
+    <!-- Mouse mode -->
+    <string name="gamepad_mouse_category">Hiiritila</string>
+    <string name="gamepad_mouse_enable_title">Ota hiiritila k\u00e4ytt\u00f6\u00f6n</string>
+    <string name="gamepad_mouse_enable_summary">K\u00e4yt\u00e4 peliohjaimia virtuaalisena hiiriosoittimena. Vaihda n\u00e4pp\u00e4inyhdistelm\u00e4ll\u00e4.</string>
+    <string name="gamepad_mouse_combo_title">Vaihtoyhdistelm\u00e4</string>
+    <string name="gamepad_mouse_combo_summary">N\u00e4pp\u00e4inyhdistelm\u00e4 hiiritilan kytkemiseksi p\u00e4\u00e4lle/pois</string>
+    <string name="gamepad_mouse_combo_current">%1$s + %2$s</string>
+    <string name="gamepad_mouse_hold_time_title">Painalluksen kesto (ms)</string>
+    <string name="gamepad_mouse_buttons_title">Painikkeiden m\u00e4\u00e4ritys</string>
+    <string name="gamepad_mouse_buttons_summary">M\u00e4\u00e4rit\u00e4 mitk\u00e4 painikkeet suorittavat napsautuksen, takaisin-toiminnon ja kakkospainikkeen</string>
+    <string name="gamepad_mouse_stick_speed_title">Analogitatin nopeus</string>
+    <string name="gamepad_mouse_dpad_speed_title">DPAD-nopeus</string>
+    <string name="gamepad_mouse_boost_title">Nopeustehostuskerroin</string>
+    <string name="gamepad_mouse_scroll_speed_title">Vieritysnopeus</string>
+    <string name="gamepad_mouse_btn_click">Vasen napsautus</string>
+    <string name="gamepad_mouse_btn_back">Takaisin</string>
+    <string name="gamepad_mouse_btn_rclick">Oikea napsautus</string>
+    <string name="gamepad_mouse_btn_boost">Nopeustehostus</string>
+    <string name="gamepad_mouse_combo_btn1">Ensimm\u00e4inen yhdistelm\u00e4painike</string>
+    <string name="gamepad_mouse_combo_btn2">Toinen yhdistelm\u00e4painike</string>
+    <string name="gamepad_mouse_mode_on">Hiiritila P\u00c4\u00c4LL\u00c4</string>
+    <string name="gamepad_mouse_mode_off">Hiiritila POIS</string>
+    <string name="gamepad_mouse_qs_tile_label">Hiiritila</string>
+    <string-array name="gamepad_mouse_boost_entries">
+        <item>1.5\u00d7</item>
+        <item>2\u00d7</item>
+        <item>3\u00d7</item>
+        <item>4\u00d7</item>
+    </string-array>
+    <string-array name="gamepad_mouse_boost_values">
+        <item>15</item>
+        <item>20</item>
+        <item>30</item>
+        <item>40</item>
+    </string-array>
 </resources>

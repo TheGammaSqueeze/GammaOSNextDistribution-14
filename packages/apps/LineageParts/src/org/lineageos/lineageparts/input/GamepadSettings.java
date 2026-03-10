@@ -81,6 +81,16 @@ public class GamepadSettings extends SettingsPreferenceFragment
     private static final String KEY_GLOBAL_SENSITIVITY = "gamepad_global_sensitivity";
     private static final String KEY_TEST = "gamepad_test";
 
+    // Mouse mode keys
+    private static final String KEY_MOUSE_ENABLE = "gamepad_mouse_enable";
+    private static final String KEY_MOUSE_COMBO = "gamepad_mouse_combo";
+    private static final String KEY_MOUSE_HOLD_TIME = "gamepad_mouse_hold_time";
+    private static final String KEY_MOUSE_BUTTONS = "gamepad_mouse_buttons";
+    private static final String KEY_MOUSE_STICK_SPEED = "gamepad_mouse_stick_speed";
+    private static final String KEY_MOUSE_DPAD_SPEED = "gamepad_mouse_dpad_speed";
+    private static final String KEY_MOUSE_BOOST = "gamepad_mouse_boost";
+    private static final String KEY_MOUSE_SCROLL_SPEED = "gamepad_mouse_scroll_speed";
+
     private static final String PROP_ENABLE = "persist.gammaos.gamepad.enable";
     private static final String PROP_MERGE = "persist.gammaos.gamepad.merge";
     private static final String PROP_HIDE_SOURCE = "persist.gammaos.gamepad.hide_source";
@@ -103,6 +113,19 @@ public class GamepadSettings extends SettingsPreferenceFragment
     private static final String PROP_DEVICE_NAME = "persist.gammaos.gamepad.device_name";
     private static final String PROP_DEVICE_VID = "persist.gammaos.gamepad.device_vid";
     private static final String PROP_DEVICE_PID = "persist.gammaos.gamepad.device_pid";
+
+    // Mouse mode properties
+    private static final String PROP_MOUSE_COMBO1 = "persist.gammaos.gamepad.mouse_combo1";
+    private static final String PROP_MOUSE_COMBO2 = "persist.gammaos.gamepad.mouse_combo2";
+    private static final String PROP_MOUSE_HOLD_MS = "persist.gammaos.gamepad.mouse_hold_ms";
+    private static final String PROP_MOUSE_STICK_SPEED = "persist.gammaos.gamepad.mouse_stick_speed";
+    private static final String PROP_MOUSE_DPAD_SPEED = "persist.gammaos.gamepad.mouse_dpad_speed";
+    private static final String PROP_MOUSE_BOOST = "persist.gammaos.gamepad.mouse_boost";
+    private static final String PROP_MOUSE_SCROLL_SPEED = "persist.gammaos.gamepad.mouse_scroll_speed";
+    private static final String PROP_MOUSE_BTN_CLICK = "persist.gammaos.gamepad.mouse_btn_click";
+    private static final String PROP_MOUSE_BTN_BACK = "persist.gammaos.gamepad.mouse_btn_back";
+    private static final String PROP_MOUSE_BTN_RCLICK = "persist.gammaos.gamepad.mouse_btn_rclick";
+    private static final String PROP_MOUSE_BTN_BOOST = "persist.gammaos.gamepad.mouse_btn_boost";
 
     // Standard button code to name mapping
     private static final Map<Integer, String> BTN_NAMES = new HashMap<>();
@@ -170,6 +193,14 @@ public class GamepadSettings extends SettingsPreferenceFragment
     private SwitchPreferenceCompat mInvertLeftPref;
     private SwitchPreferenceCompat mInvertRightPref;
     private ListPreference mGlobalSensitivityPref;
+
+    // Mouse mode preferences
+    private SwitchPreferenceCompat mMouseEnablePref;
+    private SeekBarPreference mMouseHoldTimePref;
+    private SeekBarPreference mMouseStickSpeedPref;
+    private SeekBarPreference mMouseDpadSpeedPref;
+    private ListPreference mMouseBoostPref;
+    private SeekBarPreference mMouseScrollSpeedPref;
 
     private final List<String> mSelectedDevices = new ArrayList<>();
 
@@ -317,6 +348,62 @@ public class GamepadSettings extends SettingsPreferenceFragment
         Preference testPref = findPreference(KEY_TEST);
         if (testPref != null) {
             testPref.setOnPreferenceClickListener(this);
+        }
+
+        // Mouse mode preferences
+        mMouseEnablePref = findPreference(KEY_MOUSE_ENABLE);
+        mMouseHoldTimePref = findPreference(KEY_MOUSE_HOLD_TIME);
+        mMouseStickSpeedPref = findPreference(KEY_MOUSE_STICK_SPEED);
+        mMouseDpadSpeedPref = findPreference(KEY_MOUSE_DPAD_SPEED);
+        mMouseBoostPref = findPreference(KEY_MOUSE_BOOST);
+        mMouseScrollSpeedPref = findPreference(KEY_MOUSE_SCROLL_SPEED);
+
+        if (mMouseEnablePref != null) {
+            // Mouse mode is always available; use combo1 prop existence as proxy
+            mMouseEnablePref.setChecked(
+                    !SystemProperties.get(PROP_MOUSE_COMBO1, "").isEmpty());
+            mMouseEnablePref.setOnPreferenceChangeListener(this);
+        }
+        if (mMouseHoldTimePref != null) {
+            mMouseHoldTimePref.setMin(500);
+            mMouseHoldTimePref.setValue(
+                    SystemProperties.getInt(PROP_MOUSE_HOLD_MS, 2000));
+            mMouseHoldTimePref.setOnPreferenceChangeListener(this);
+        }
+        if (mMouseStickSpeedPref != null) {
+            mMouseStickSpeedPref.setMin(1);
+            mMouseStickSpeedPref.setValue(
+                    SystemProperties.getInt(PROP_MOUSE_STICK_SPEED, 12));
+            mMouseStickSpeedPref.setOnPreferenceChangeListener(this);
+        }
+        if (mMouseDpadSpeedPref != null) {
+            mMouseDpadSpeedPref.setMin(1);
+            mMouseDpadSpeedPref.setValue(
+                    SystemProperties.getInt(PROP_MOUSE_DPAD_SPEED, 6));
+            mMouseDpadSpeedPref.setOnPreferenceChangeListener(this);
+        }
+        if (mMouseBoostPref != null) {
+            mMouseBoostPref.setValue(
+                    String.valueOf(SystemProperties.getInt(PROP_MOUSE_BOOST, 20)));
+            mMouseBoostPref.setOnPreferenceChangeListener(this);
+        }
+        if (mMouseScrollSpeedPref != null) {
+            mMouseScrollSpeedPref.setMin(1);
+            mMouseScrollSpeedPref.setValue(
+                    SystemProperties.getInt(PROP_MOUSE_SCROLL_SPEED, 4));
+            mMouseScrollSpeedPref.setOnPreferenceChangeListener(this);
+        }
+
+        Preference mouseComboPref = findPreference(KEY_MOUSE_COMBO);
+        if (mouseComboPref != null) {
+            mouseComboPref.setOnPreferenceClickListener(this);
+            updateMouseComboSummary(mouseComboPref);
+        }
+
+        Preference mouseButtonsPref = findPreference(KEY_MOUSE_BUTTONS);
+        if (mouseButtonsPref != null) {
+            mouseButtonsPref.setOnPreferenceClickListener(this);
+            updateMouseButtonsSummary(mouseButtonsPref);
         }
 
         // Load selected devices (kernel names)
@@ -1306,6 +1393,47 @@ public class GamepadSettings extends SettingsPreferenceFragment
                 bumpConfigVersion();
                 updateGlobalSensitivitySummary();
                 return true;
+
+            // Mouse mode settings
+            case KEY_MOUSE_ENABLE:
+                boolean mouseEnabled = (Boolean) newValue;
+                if (mouseEnabled) {
+                    // Set default combo if not configured yet
+                    if (SystemProperties.get(PROP_MOUSE_COMBO1, "").isEmpty()) {
+                        SystemProperties.set(PROP_MOUSE_COMBO1, "314"); // BTN_SELECT
+                        SystemProperties.set(PROP_MOUSE_COMBO2, "311"); // BTN_TR
+                    }
+                } else {
+                    // Clear combo props to disable
+                    SystemProperties.set(PROP_MOUSE_COMBO1, "");
+                    SystemProperties.set(PROP_MOUSE_COMBO2, "");
+                }
+                bumpConfigVersion();
+                return true;
+            case KEY_MOUSE_HOLD_TIME:
+                SystemProperties.set(PROP_MOUSE_HOLD_MS,
+                        String.valueOf((int) newValue));
+                bumpConfigVersion();
+                return true;
+            case KEY_MOUSE_STICK_SPEED:
+                SystemProperties.set(PROP_MOUSE_STICK_SPEED,
+                        String.valueOf((int) newValue));
+                bumpConfigVersion();
+                return true;
+            case KEY_MOUSE_DPAD_SPEED:
+                SystemProperties.set(PROP_MOUSE_DPAD_SPEED,
+                        String.valueOf((int) newValue));
+                bumpConfigVersion();
+                return true;
+            case KEY_MOUSE_BOOST:
+                SystemProperties.set(PROP_MOUSE_BOOST, (String) newValue);
+                bumpConfigVersion();
+                return true;
+            case KEY_MOUSE_SCROLL_SPEED:
+                SystemProperties.set(PROP_MOUSE_SCROLL_SPEED,
+                        String.valueOf((int) newValue));
+                bumpConfigVersion();
+                return true;
         }
 
         return false;
@@ -1357,6 +1485,12 @@ public class GamepadSettings extends SettingsPreferenceFragment
                     .replace(R.id.main_content, testFragment)
                     .addToBackStack(null)
                     .commit();
+            return true;
+        } else if (KEY_MOUSE_COMBO.equals(key)) {
+            showMouseComboDialog();
+            return true;
+        } else if (KEY_MOUSE_BUTTONS.equals(key)) {
+            showMouseButtonsDialog();
             return true;
         }
 
@@ -1523,6 +1657,125 @@ public class GamepadSettings extends SettingsPreferenceFragment
         if (entry != null) {
             mGlobalSensitivityPref.setSummary(entry);
         }
+    }
+
+    // --- Mouse mode helpers ---
+
+    private void updateMouseComboSummary(Preference pref) {
+        int btn1 = SystemProperties.getInt(PROP_MOUSE_COMBO1, 0x13a);
+        int btn2 = SystemProperties.getInt(PROP_MOUSE_COMBO2, 0x137);
+        String name1 = BTN_NAMES.getOrDefault(btn1, "0x" + Integer.toHexString(btn1));
+        String name2 = BTN_NAMES.getOrDefault(btn2, "0x" + Integer.toHexString(btn2));
+        pref.setSummary(getString(R.string.gamepad_mouse_combo_current, name1, name2));
+    }
+
+    private void updateMouseButtonsSummary(Preference pref) {
+        int click = SystemProperties.getInt(PROP_MOUSE_BTN_CLICK, 0x130);
+        int back = SystemProperties.getInt(PROP_MOUSE_BTN_BACK, 0x131);
+        int rclick = SystemProperties.getInt(PROP_MOUSE_BTN_RCLICK, 0x134);
+        int boost = SystemProperties.getInt(PROP_MOUSE_BTN_BOOST, 0x133);
+        String clickN = BTN_NAMES.getOrDefault(click, "0x" + Integer.toHexString(click));
+        String backN = BTN_NAMES.getOrDefault(back, "0x" + Integer.toHexString(back));
+        String rclickN = BTN_NAMES.getOrDefault(rclick, "0x" + Integer.toHexString(rclick));
+        String boostN = BTN_NAMES.getOrDefault(boost, "0x" + Integer.toHexString(boost));
+        pref.setSummary("Click=" + clickN + ", Back=" + backN
+                + ", RClick=" + rclickN + ", Boost=" + boostN);
+    }
+
+    private void showMouseComboDialog() {
+        Context context = getContext();
+        if (context == null) return;
+
+        // Button selection list
+        List<Integer> btnCodes = new ArrayList<>(BTN_NAMES.keySet());
+        java.util.Collections.sort(btnCodes);
+        String[] labels = new String[btnCodes.size()];
+        for (int i = 0; i < btnCodes.size(); i++) {
+            labels[i] = BTN_NAMES.get(btnCodes.get(i));
+        }
+
+        int currentBtn1 = SystemProperties.getInt(PROP_MOUSE_COMBO1, 0x13a);
+
+        new AlertDialog.Builder(context)
+                .setTitle(R.string.gamepad_mouse_combo_btn1)
+                .setItems(labels, (d, which) -> {
+                    int btn1 = btnCodes.get(which);
+                    // Now pick second button
+                    new AlertDialog.Builder(context)
+                            .setTitle(R.string.gamepad_mouse_combo_btn2)
+                            .setItems(labels, (d2, which2) -> {
+                                int btn2 = btnCodes.get(which2);
+                                SystemProperties.set(PROP_MOUSE_COMBO1,
+                                        String.valueOf(btn1));
+                                SystemProperties.set(PROP_MOUSE_COMBO2,
+                                        String.valueOf(btn2));
+                                bumpConfigVersion();
+                                Preference comboPref = findPreference(KEY_MOUSE_COMBO);
+                                if (comboPref != null) updateMouseComboSummary(comboPref);
+                            })
+                            .setNegativeButton(android.R.string.cancel, null)
+                            .show();
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
+    }
+
+    private void showMouseButtonsDialog() {
+        Context context = getContext();
+        if (context == null) return;
+
+        // Show dialog to configure each mouse button action
+        String[] roles = {
+            getString(R.string.gamepad_mouse_btn_click),
+            getString(R.string.gamepad_mouse_btn_back),
+            getString(R.string.gamepad_mouse_btn_rclick),
+            getString(R.string.gamepad_mouse_btn_boost),
+        };
+        String[] props = {
+            PROP_MOUSE_BTN_CLICK, PROP_MOUSE_BTN_BACK,
+            PROP_MOUSE_BTN_RCLICK, PROP_MOUSE_BTN_BOOST
+        };
+        int[] defaults = { 0x130, 0x131, 0x134, 0x133 }; // A, B, Y, X
+
+        // Build current values summary
+        String[] items = new String[roles.length];
+        for (int i = 0; i < roles.length; i++) {
+            int code = SystemProperties.getInt(props[i], defaults[i]);
+            String name = BTN_NAMES.getOrDefault(code, "0x" + Integer.toHexString(code));
+            items[i] = roles[i] + ": " + name;
+        }
+
+        new AlertDialog.Builder(context)
+                .setTitle(R.string.gamepad_mouse_buttons_title)
+                .setItems(items, (d, which) -> {
+                    showMouseButtonPicker(props[which], defaults[which], roles[which]);
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
+    }
+
+    private void showMouseButtonPicker(String prop, int defaultCode, String roleName) {
+        Context context = getContext();
+        if (context == null) return;
+
+        List<Integer> btnCodes = new ArrayList<>(BTN_NAMES.keySet());
+        java.util.Collections.sort(btnCodes);
+        String[] labels = new String[btnCodes.size()];
+        for (int i = 0; i < btnCodes.size(); i++) {
+            labels[i] = BTN_NAMES.get(btnCodes.get(i));
+        }
+
+        new AlertDialog.Builder(context)
+                .setTitle(roleName)
+                .setItems(labels, (d, which) -> {
+                    int code = btnCodes.get(which);
+                    SystemProperties.set(prop, String.valueOf(code));
+                    bumpConfigVersion();
+                    Preference btnPref = findPreference(KEY_MOUSE_BUTTONS);
+                    if (btnPref != null) updateMouseButtonsSummary(btnPref);
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
     }
 
     private void bumpConfigVersion() {

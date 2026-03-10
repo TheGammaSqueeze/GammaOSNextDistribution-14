@@ -212,4 +212,40 @@
         <item>switch_pro</item>
         <item>custom</item>
     </string-array>
+
+    <!-- Mouse mode -->
+    <string name="gamepad_mouse_category">滑鼠模式</string>
+    <string name="gamepad_mouse_enable_title">啟用滑鼠模式</string>
+    <string name="gamepad_mouse_enable_summary">將手把用作虛擬滑鼠游標。透過組合鍵長按切換。</string>
+    <string name="gamepad_mouse_combo_title">切換組合鍵</string>
+    <string name="gamepad_mouse_combo_summary">進入/退出滑鼠模式的按鈕組合</string>
+    <string name="gamepad_mouse_combo_current">%1$s + %2$s</string>
+    <string name="gamepad_mouse_hold_time_title">長按時間（毫秒）</string>
+    <string name="gamepad_mouse_buttons_title">按鈕對應</string>
+    <string name="gamepad_mouse_buttons_summary">設定用於點擊、返回和右鍵點擊的按鈕</string>
+    <string name="gamepad_mouse_stick_speed_title">搖桿速度</string>
+    <string name="gamepad_mouse_dpad_speed_title">DPAD 速度</string>
+    <string name="gamepad_mouse_boost_title">加速倍率</string>
+    <string name="gamepad_mouse_scroll_speed_title">捲動速度</string>
+    <string name="gamepad_mouse_btn_click">左鍵點擊</string>
+    <string name="gamepad_mouse_btn_back">返回</string>
+    <string name="gamepad_mouse_btn_rclick">右鍵點擊</string>
+    <string name="gamepad_mouse_btn_boost">加速</string>
+    <string name="gamepad_mouse_combo_btn1">第一組合鍵按鈕</string>
+    <string name="gamepad_mouse_combo_btn2">第二組合鍵按鈕</string>
+    <string name="gamepad_mouse_mode_on">滑鼠模式已開啟</string>
+    <string name="gamepad_mouse_mode_off">滑鼠模式已關閉</string>
+    <string name="gamepad_mouse_qs_tile_label">滑鼠模式</string>
+    <string-array name="gamepad_mouse_boost_entries">
+        <item>1.5\u00d7</item>
+        <item>2\u00d7</item>
+        <item>3\u00d7</item>
+        <item>4\u00d7</item>
+    </string-array>
+    <string-array name="gamepad_mouse_boost_values">
+        <item>15</item>
+        <item>20</item>
+        <item>30</item>
+        <item>40</item>
+    </string-array>
 </resources>

@@ -212,4 +212,40 @@
         <item>switch_pro</item>
         <item>custom</item>
     </string-array>
+
+    <!-- Mouse mode -->
+    <string name="gamepad_mouse_category">マウスモード</string>
+    <string name="gamepad_mouse_enable_title">マウスモードを有効にする</string>
+    <string name="gamepad_mouse_enable_summary">ゲームパッドを仮想マウスカーソルとして使用。コンボ長押しで切り替え。</string>
+    <string name="gamepad_mouse_combo_title">切り替えコンボ</string>
+    <string name="gamepad_mouse_combo_summary">マウスモードの開始/終了に使用するボタンの組み合わせ</string>
+    <string name="gamepad_mouse_combo_current">%1$s + %2$s</string>
+    <string name="gamepad_mouse_hold_time_title">長押し時間（ミリ秒）</string>
+    <string name="gamepad_mouse_buttons_title">ボタン割り当て</string>
+    <string name="gamepad_mouse_buttons_summary">クリック、戻る、右クリックに使用するボタンを設定</string>
+    <string name="gamepad_mouse_stick_speed_title">アナログスティック速度</string>
+    <string name="gamepad_mouse_dpad_speed_title">DPAD速度</string>
+    <string name="gamepad_mouse_boost_title">速度ブースト倍率</string>
+    <string name="gamepad_mouse_scroll_speed_title">スクロール速度</string>
+    <string name="gamepad_mouse_btn_click">左クリック</string>
+    <string name="gamepad_mouse_btn_back">戻る</string>
+    <string name="gamepad_mouse_btn_rclick">右クリック</string>
+    <string name="gamepad_mouse_btn_boost">速度ブースト</string>
+    <string name="gamepad_mouse_combo_btn1">第1コンボボタン</string>
+    <string name="gamepad_mouse_combo_btn2">第2コンボボタン</string>
+    <string name="gamepad_mouse_mode_on">マウスモード ON</string>
+    <string name="gamepad_mouse_mode_off">マウスモード OFF</string>
+    <string name="gamepad_mouse_qs_tile_label">マウスモード</string>
+    <string-array name="gamepad_mouse_boost_entries">
+        <item>1.5\u00d7</item>
+        <item>2\u00d7</item>
+        <item>3\u00d7</item>
+        <item>4\u00d7</item>
+    </string-array>
+    <string-array name="gamepad_mouse_boost_values">
+        <item>15</item>
+        <item>20</item>
+        <item>30</item>
+        <item>40</item>
+    </string-array>
 </resources>

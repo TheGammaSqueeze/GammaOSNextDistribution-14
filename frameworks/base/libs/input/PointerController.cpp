@@ -22,6 +22,7 @@
 #include <SkBlendMode.h>
 #include <SkCanvas.h>
 #include <SkColor.h>
+#include <android-base/properties.h>
 #include <android-base/stringprintf.h>
 #include <android-base/thread_annotations.h>
 #include <com_android_input_flags.h>
@@ -353,6 +354,10 @@ void PointerController::setCustomPointerIcon(const SpriteIcon& icon) {
 }
 
 void PointerController::doInactivityTimeout() {
+    // GammaOS: don't fade cursor on inactivity when gammapad mouse mode is active
+    if (android::base::GetBoolProperty("sys.gammaos.gamepad.mouse_active", false)) {
+        return;
+    }
     fade(Transition::GRADUAL);
 }
 

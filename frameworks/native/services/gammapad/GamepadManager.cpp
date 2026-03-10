@@ -37,8 +37,9 @@ static constexpr int HOTPLUG_SETTLE_MS = 100;
 
 // epoll data tags to distinguish event sources
 enum EpollTag : uint32_t {
-    TAG_INOTIFY = 0xFFFF0001,
-    TAG_UINPUT  = 0xFFFF0002,
+    TAG_INOTIFY     = 0xFFFF0001,
+    TAG_UINPUT      = 0xFFFF0002,
+    TAG_MOUSE_TIMER = 0xFFFF0003,
     // Physical device fds use the fd value directly
 };
 
@@ -88,6 +89,7 @@ bool GamepadManager::init() {
     mTransformer = std::make_unique<InputTransformer>();
     mForceFeedback = std::make_unique<ForceFeedback>();
     mVirtualGamepad = std::make_unique<VirtualGamepad>();
+    mMouseMode = std::make_unique<MouseMode>();
 
     loadConfig();
 
@@ -114,6 +116,22 @@ bool GamepadManager::init() {
         LOG(ERROR) << "Failed to add uinput to epoll: " << strerror(errno);
         return false;
     }
+
+    // Initialize mouse mode (creates timerfd)
+    int mouseTimerFd = mMouseMode->init();
+    if (mouseTimerFd >= 0) {
+        ev = {};
+        ev.events = EPOLLIN;
+        ev.data.u32 = TAG_MOUSE_TIMER;
+        if (epoll_ctl(mEpollFd, EPOLL_CTL_ADD, mouseTimerFd, &ev) < 0) {
+            LOG(ERROR) << "Failed to add mouse timer to epoll: " << strerror(errno);
+        }
+    }
+
+    // Wire up mouse mode toast callback through the vibration bridge
+    mMouseMode->setToastCallback([this](const std::string& msg) {
+        mForceFeedback->sendToast(msg);
+    });
 
     // Set up inotify for hotplug
     mInotifyFd = inotify_init1(IN_NONBLOCK);
@@ -206,6 +224,7 @@ void GamepadManager::loadConfig() {
 
     mTransformer->loadConfig();
     mForceFeedback->loadConfig();
+    if (mMouseMode) mMouseMode->loadConfig();
 
     LOG(INFO) << "Config loaded: merge=" << mMerge
               << " devices=" << mDeviceNames.size()
@@ -235,9 +254,36 @@ void GamepadManager::run() {
                 handleInotifyEvent();
             } else if (tag == TAG_UINPUT) {
                 handleUinputEvent();
+            } else if (tag == TAG_MOUSE_TIMER) {
+                if (mMouseMode) mMouseMode->tick();
             } else {
                 // Physical device input — tag holds the fd
                 handleInputEvent(static_cast<int>(tag));
+            }
+        }
+
+        // Re-grab devices that were released due to ENODEV (firmware re-enumeration).
+        // A replacement device at the same path may already exist but its inotify
+        // IN_CREATE was skipped because the old fd was still in mDevices.
+        if (!mPendingRescanPaths.empty()) {
+            bool rescanGrabbed = false;
+            for (const auto& path : mPendingRescanPaths) {
+                // Check if not already grabbed (could have been re-grabbed by inotify)
+                bool alreadyGrabbed = false;
+                for (const auto& [fd, dev] : mDevices) {
+                    if (dev.path == path) { alreadyGrabbed = true; break; }
+                }
+                if (!alreadyGrabbed) {
+                    usleep(HOTPLUG_SETTLE_MS * 1000);
+                    if (grabDevice(path)) {
+                        rescanGrabbed = true;
+                    }
+                }
+            }
+            mPendingRescanPaths.clear();
+            if (rescanGrabbed) {
+                rebuildGlobalMaps();
+                createVirtualGamepadFromDiscovery();
             }
         }
 
@@ -247,6 +293,13 @@ void GamepadManager::run() {
                 now - lastConfigCheck).count();
         if (elapsed >= CONFIG_CHECK_INTERVAL_MS) {
             checkConfigChange();
+            // Check for external mouse mode toggle (QS tile) and combo timeout
+            if (mMouseMode) {
+                if (mMouseMode->checkExternalToggle()) {
+                    drainMouseFlushEvents();
+                }
+                mMouseMode->checkComboTimeout();
+            }
             lastConfigCheck = now;
         }
     }
@@ -318,10 +371,10 @@ bool GamepadManager::grabDevice(const std::string& path) {
 
     LOG(INFO) << "Checking device: " << path << " (" << name << ")";
 
-    // Skip our own virtual device by checking phys identifier
+    // Skip our own virtual devices by checking phys identifier prefix
     char phys[256] = {};
     if (ioctl(fd, EVIOCGPHYS(sizeof(phys) - 1), phys) >= 0) {
-        if (strstr(phys, "gammapad-virtual")) {
+        if (strncmp(phys, "gammapad-", 9) == 0) {
             LOG(INFO) << "Skipping own virtual device: " << path
                       << " (phys=" << phys << ")";
             close(fd);
@@ -852,38 +905,77 @@ void GamepadManager::handleInputEvent(int fd) {
     // Get per-device absinfo for normalization
     const auto& deviceAbsInfo = devIt->second.absInfo;
 
+    bool mouseActive = mMouseMode && mMouseMode->isActive();
+
     while (true) {
         ssize_t n = read(fd, &ev, sizeof(ev));
         if (n < 0) {
             if (errno == EAGAIN || errno == EWOULDBLOCK) break;
             if (errno == ENODEV) {
-                // Device unplugged — skip mknod restore since node is already gone
+                // Device re-enumerated or unplugged.
+                // Save path for deferred rescan — a replacement device may
+                // already exist but its inotify IN_CREATE was discarded
+                // because this fd was still in mDevices at the time.
+                std::string path = devIt->second.path;
                 devIt->second.nodeHidden = false;
                 releaseDevice(fd);
+                mPendingRescanPaths.push_back(std::move(path));
                 return;
             }
             break;
         }
         if (n != sizeof(ev)) break;
 
-        // Skip SYN events during transform, we generate our own
+        // SYN events: forward to virtual gamepad only when mouse mode is off
         if (ev.type == EV_SYN) {
-            mVirtualGamepad->writeSyn();
+            if (mMouseMode && mMouseMode->processEvent(ev)) {
+                // Consumed by mouse mode (combo or active)
+            } else {
+                mVirtualGamepad->writeSyn();
+            }
+            // Flush any pending events from mouse mode toggle
+            drainMouseFlushEvents();
             continue;
         }
 
-        // Apply input transformation pipeline with per-device absinfo
+        // Apply input transformation pipeline with per-device absinfo.
+        // In mouse mode, skip analog/DPAD conversions so MouseMode gets
+        // clean stick and DPAD values separately.
+        mTransformer->setMouseMode(mouseActive);
+
         if (mTransformer->transform(ev, deviceAbsInfo)) {
-            mVirtualGamepad->writeEvent(ev);
+            // Check if mouse mode wants this event
+            if (mMouseMode && mMouseMode->processEvent(ev)) {
+                // Event consumed by mouse mode
+                drainMouseFlushEvents();
+                // Update mouseActive flag in case mode just toggled
+                mouseActive = mMouseMode->isActive();
+                mTransformer->setMouseMode(mouseActive);
+            } else {
+                mVirtualGamepad->writeEvent(ev);
+            }
         }
 
         // Write any extra events generated by axis-to-button
         const auto& extras = mTransformer->getExtraEvents();
         for (const auto& extra : extras) {
-            mVirtualGamepad->writeEvent(extra);
+            if (mMouseMode && mMouseMode->isActive()) {
+                mMouseMode->processEvent(extra);
+            } else {
+                mVirtualGamepad->writeEvent(extra);
+            }
         }
         mTransformer->clearExtraEvents();
     }
+}
+
+void GamepadManager::drainMouseFlushEvents() {
+    if (!mMouseMode) return;
+    const auto& flushEvents = mMouseMode->getFlushEvents();
+    for (const auto& fe : flushEvents) {
+        mVirtualGamepad->writeEvent(fe);
+    }
+    mMouseMode->clearFlushEvents();
 }
 
 void GamepadManager::handleInotifyEvent() {

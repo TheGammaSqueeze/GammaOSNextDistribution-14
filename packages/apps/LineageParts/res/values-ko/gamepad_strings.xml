@@ -212,4 +212,40 @@
         <item>switch_pro</item>
         <item>custom</item>
     </string-array>
+
+    <!-- Mouse mode -->
+    <string name="gamepad_mouse_category">마우스 모드</string>
+    <string name="gamepad_mouse_enable_title">마우스 모드 활성화</string>
+    <string name="gamepad_mouse_enable_summary">게임패드를 가상 마우스 커서로 사용합니다. 콤보 길게 누르기로 전환합니다.</string>
+    <string name="gamepad_mouse_combo_title">전환 콤보</string>
+    <string name="gamepad_mouse_combo_summary">마우스 모드 시작/종료에 사용할 버튼 조합</string>
+    <string name="gamepad_mouse_combo_current">%1$s + %2$s</string>
+    <string name="gamepad_mouse_hold_time_title">길게 누르기 시간 (ms)</string>
+    <string name="gamepad_mouse_buttons_title">버튼 매핑</string>
+    <string name="gamepad_mouse_buttons_summary">클릭, 뒤로 가기, 우클릭에 사용할 버튼 구성</string>
+    <string name="gamepad_mouse_stick_speed_title">아날로그 스틱 속도</string>
+    <string name="gamepad_mouse_dpad_speed_title">DPAD 속도</string>
+    <string name="gamepad_mouse_boost_title">속도 부스트 배율</string>
+    <string name="gamepad_mouse_scroll_speed_title">스크롤 속도</string>
+    <string name="gamepad_mouse_btn_click">좌클릭</string>
+    <string name="gamepad_mouse_btn_back">뒤로</string>
+    <string name="gamepad_mouse_btn_rclick">우클릭</string>
+    <string name="gamepad_mouse_btn_boost">속도 부스트</string>
+    <string name="gamepad_mouse_combo_btn1">첫 번째 콤보 버튼</string>
+    <string name="gamepad_mouse_combo_btn2">두 번째 콤보 버튼</string>
+    <string name="gamepad_mouse_mode_on">마우스 모드 ON</string>
+    <string name="gamepad_mouse_mode_off">마우스 모드 OFF</string>
+    <string name="gamepad_mouse_qs_tile_label">마우스 모드</string>
+    <string-array name="gamepad_mouse_boost_entries">
+        <item>1.5\u00d7</item>
+        <item>2\u00d7</item>
+        <item>3\u00d7</item>
+        <item>4\u00d7</item>
+    </string-array>
+    <string-array name="gamepad_mouse_boost_values">
+        <item>15</item>
+        <item>20</item>
+        <item>30</item>
+        <item>40</item>
+    </string-array>
 </resources>

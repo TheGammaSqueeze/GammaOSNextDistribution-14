@@ -4,6 +4,7 @@
 #include "InputTransformer.h"
 #include "ForceFeedback.h"
 #include "KeyLayoutParser.h"
+#include "MouseMode.h"
 
 #include <linux/input.h>
 #include <set>
@@ -66,6 +67,7 @@ private:
     void handleInotifyEvent();
     void handleUinputEvent();
     void checkConfigChange();
+    void drainMouseFlushEvents();
 
     bool shouldGrabDevice(const std::string& name);
 
@@ -106,6 +108,7 @@ private:
     std::unique_ptr<VirtualGamepad> mVirtualGamepad;
     std::unique_ptr<InputTransformer> mTransformer;
     std::unique_ptr<ForceFeedback> mForceFeedback;
+    std::unique_ptr<MouseMode> mMouseMode;
 
     // Collect all EV_KEY bits from a physical device
     void discoverDeviceKeys(int fd, std::set<int>& keys);
@@ -130,6 +133,11 @@ private:
 
     // fd -> PhysicalDevice
     std::unordered_map<int, PhysicalDevice> mDevices;
+
+    // Paths of devices released due to ENODEV that need a deferred rescan
+    // (the replacement device may already exist but inotify IN_CREATE was
+    // discarded because the old fd was still in mDevices at the time)
+    std::vector<std::string> mPendingRescanPaths;
 };
 
 } // namespace gammapad

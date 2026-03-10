@@ -18,7 +18,8 @@ InputTransformer::InputTransformer()
       mAbxySwap(false),
       mInvertLeft(false),
       mInvertRight(false),
-      mGlobalSensitivity(0) {
+      mGlobalSensitivity(0),
+      mMouseModeActive(false) {
 }
 
 void InputTransformer::loadConfig() {
@@ -250,7 +251,11 @@ bool InputTransformer::transform(struct input_event& ev,
 
         // 3. Process axis-to-button triggers (after normalization, before calibration)
         // Use mapped code (not physical scancode) so rules match virtual pad axis codes.
-        bool suppressAxis = processAxisButton(code, value);
+        // Skip in mouse mode — MouseMode handles all output directly.
+        bool suppressAxis = false;
+        if (!mMouseModeActive) {
+            suppressAxis = processAxisButton(code, value);
+        }
 
         // If a hijack-mode axis-to-button rule matched, suppress the ABS event
         if (suppressAxis) return false;
@@ -264,7 +269,8 @@ bool InputTransformer::transform(struct input_event& ev,
                               code == ABS_Z || code == ABS_RZ)) value = -value;
 
         // 4d. Global sensitivity (layered on top of calibration + inversion)
-        if (mGlobalSensitivity != 0 &&
+        // Skip in mouse mode — MouseMode has its own speed settings.
+        if (!mMouseModeActive && mGlobalSensitivity != 0 &&
             (code == ABS_X || code == ABS_Y || code == ABS_RX || code == ABS_RY ||
              code == ABS_Z || code == ABS_RZ)) {
             // -3→50%, -2→75%, -1→90%, 0→100%, 1→110%, 2→125%, 3→150%
@@ -274,6 +280,12 @@ bool InputTransformer::transform(struct input_event& ev,
         }
 
         // 5. DPAD/analog swap
+        // Skip in mouse mode — MouseMode needs raw stick and DPAD values separately.
+        if (mMouseModeActive) {
+            ev.value = value;
+            return true;
+        }
+
         if (mAnalogToDpad) {
             // Convert left stick to DPAD
             if (code == ABS_X) {

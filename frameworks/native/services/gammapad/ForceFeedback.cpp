@@ -257,6 +257,33 @@ void ForceFeedback::sendPwmVibration(uint16_t strong, uint16_t weak,
     }
 }
 
+void ForceFeedback::sendToast(const std::string& text) {
+    // Connect on demand
+    if (mBridgeFd < 0 && !connectBridge()) {
+        LOG(WARNING) << "Cannot send toast: bridge not connected";
+        return;
+    }
+
+    uint32_t magic = TOAST_MAGIC;
+    uint16_t len = static_cast<uint16_t>(
+        std::min(text.size(), static_cast<size_t>(1024)));
+
+    // Send in one buffer to avoid partial writes
+    size_t totalLen = 4 + 2 + len;
+    std::vector<uint8_t> buf(totalLen);
+    memcpy(buf.data(), &magic, 4);
+    memcpy(buf.data() + 4, &len, 2);
+    memcpy(buf.data() + 6, text.c_str(), len);
+
+    ssize_t n = send(mBridgeFd, buf.data(), totalLen, MSG_NOSIGNAL);
+    if (n < 0) {
+        LOG(WARNING) << "Toast send failed: " << strerror(errno);
+        disconnectBridge();
+    } else {
+        LOG(INFO) << "Toast sent: \"" << text << "\"";
+    }
+}
+
 int ForceFeedback::findPhysicalWithFF(
         std::unordered_map<int, PhysicalDevice>& devices) {
     for (auto& [fd, dev] : devices) {

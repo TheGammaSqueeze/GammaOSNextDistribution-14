@@ -212,4 +212,40 @@
         <item>switch_pro</item>
         <item>custom</item>
     </string-array>
+
+    <!-- Mouse mode -->
+    <string name="gamepad_mouse_category">Fare Modu</string>
+    <string name="gamepad_mouse_enable_title">Fare modunu etkinleştir</string>
+    <string name="gamepad_mouse_enable_summary">Kumandayı sanal fare imleci olarak kullan. Kombinasyon basılı tutarak geçiş yap.</string>
+    <string name="gamepad_mouse_combo_title">Geçiş kombinasyonu</string>
+    <string name="gamepad_mouse_combo_summary">Fare moduna giriş/çıkış düğme kombinasyonu</string>
+    <string name="gamepad_mouse_combo_current">%1$s + %2$s</string>
+    <string name="gamepad_mouse_hold_time_title">Basılı tutma süresi (ms)</string>
+    <string name="gamepad_mouse_buttons_title">Düğme ataması</string>
+    <string name="gamepad_mouse_buttons_summary">Tıklama, geri ve sağ tıklama düğmelerini yapılandır</string>
+    <string name="gamepad_mouse_stick_speed_title">Analog çubuk hızı</string>
+    <string name="gamepad_mouse_dpad_speed_title">DPAD hızı</string>
+    <string name="gamepad_mouse_boost_title">Hız artırma çarpanı</string>
+    <string name="gamepad_mouse_scroll_speed_title">Kaydırma hızı</string>
+    <string name="gamepad_mouse_btn_click">Sol tıklama</string>
+    <string name="gamepad_mouse_btn_back">Geri</string>
+    <string name="gamepad_mouse_btn_rclick">Sağ tıklama</string>
+    <string name="gamepad_mouse_btn_boost">Hız artırma</string>
+    <string name="gamepad_mouse_combo_btn1">Birinci kombinasyon düğmesi</string>
+    <string name="gamepad_mouse_combo_btn2">İkinci kombinasyon düğmesi</string>
+    <string name="gamepad_mouse_mode_on">Fare modu AÇIK</string>
+    <string name="gamepad_mouse_mode_off">Fare modu KAPALI</string>
+    <string name="gamepad_mouse_qs_tile_label">Fare Modu</string>
+    <string-array name="gamepad_mouse_boost_entries">
+        <item>1.5\u00d7</item>
+        <item>2\u00d7</item>
+        <item>3\u00d7</item>
+        <item>4\u00d7</item>
+    </string-array>
+    <string-array name="gamepad_mouse_boost_values">
+        <item>15</item>
+        <item>20</item>
+        <item>30</item>
+        <item>40</item>
+    </string-array>
 </resources>

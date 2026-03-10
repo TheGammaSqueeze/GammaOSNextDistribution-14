@@ -362,6 +362,13 @@ bool InputState::shouldCancelPreviousStream(const MotionEntry& motionEntry) cons
     // Cancel the current gesture if this is a start of a new gesture from a new device.
     if (actionMasked == AMOTION_EVENT_ACTION_DOWN ||
         actionMasked == AMOTION_EVENT_ACTION_HOVER_ENTER) {
+        // Allow mouse hover to coexist with an active touch from a different device.
+        // Without this, touch DOWN cancels mouse hover, then the subsequent
+        // mouse HOVER_ENTER re-cancels the touch, creating a cancel cycle that
+        // makes simultaneous touch + mouse usage impossible.
+        if (actionMasked == AMOTION_EVENT_ACTION_HOVER_ENTER && !lastMemento.hovering) {
+            return false;
+        }
         return true;
     }
     // By default, don't cancel any events.

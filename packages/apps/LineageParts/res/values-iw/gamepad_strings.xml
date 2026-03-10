@@ -212,4 +212,40 @@
         <item>switch_pro</item>
         <item>custom</item>
     </string-array>
+
+    <!-- Mouse mode -->
+    <string name="gamepad_mouse_category">מצב עכבר</string>
+    <string name="gamepad_mouse_enable_title">הפעל מצב עכבר</string>
+    <string name="gamepad_mouse_enable_summary">השתמש בבקר כסמן עכבר וירטואלי. החלף באמצעות לחיצה ארוכה על שילוב.</string>
+    <string name="gamepad_mouse_combo_title">שילוב החלפה</string>
+    <string name="gamepad_mouse_combo_summary">שילוב לחצנים לכניסה/יציאה ממצב עכבר</string>
+    <string name="gamepad_mouse_combo_current">%1$s + %2$s</string>
+    <string name="gamepad_mouse_hold_time_title">משך לחיצה (מ״ש)</string>
+    <string name="gamepad_mouse_buttons_title">מיפוי לחצנים</string>
+    <string name="gamepad_mouse_buttons_summary">הגדר אילו לחצנים מבצעים לחיצה, חזרה ולחיצה ימנית</string>
+    <string name="gamepad_mouse_stick_speed_title">מהירות ג\'ויסטיק אנלוגי</string>
+    <string name="gamepad_mouse_dpad_speed_title">מהירות DPAD</string>
+    <string name="gamepad_mouse_boost_title">מכפיל הגברת מהירות</string>
+    <string name="gamepad_mouse_scroll_speed_title">מהירות גלילה</string>
+    <string name="gamepad_mouse_btn_click">לחיצה שמאלית</string>
+    <string name="gamepad_mouse_btn_back">חזרה</string>
+    <string name="gamepad_mouse_btn_rclick">לחיצה ימנית</string>
+    <string name="gamepad_mouse_btn_boost">הגברת מהירות</string>
+    <string name="gamepad_mouse_combo_btn1">לחצן שילוב ראשון</string>
+    <string name="gamepad_mouse_combo_btn2">לחצן שילוב שני</string>
+    <string name="gamepad_mouse_mode_on">מצב עכבר פעיל</string>
+    <string name="gamepad_mouse_mode_off">מצב עכבר כבוי</string>
+    <string name="gamepad_mouse_qs_tile_label">מצב עכבר</string>
+    <string-array name="gamepad_mouse_boost_entries">
+        <item>1.5\u00d7</item>
+        <item>2\u00d7</item>
+        <item>3\u00d7</item>
+        <item>4\u00d7</item>
+    </string-array>
+    <string-array name="gamepad_mouse_boost_values">
+        <item>15</item>
+        <item>20</item>
+        <item>30</item>
+        <item>40</item>
+    </string-array>
 </resources>

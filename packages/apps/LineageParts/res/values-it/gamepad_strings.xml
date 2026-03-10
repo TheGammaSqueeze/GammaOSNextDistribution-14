@@ -212,4 +212,41 @@
         <item>switch_pro</item>
         <item>custom</item>
     </string-array>
+
+    <!-- Mouse mode -->
+    <string name="gamepad_mouse_category">Modalità mouse</string>
+    <string name="gamepad_mouse_enable_title">Abilita modalità mouse</string>
+    <string name="gamepad_mouse_enable_summary">Usa il gamepad come cursore del mouse virtuale. Attiva/disattiva con la combinazione.</string>
+    <string name="gamepad_mouse_combo_title">Combinazione di attivazione</string>
+    <string name="gamepad_mouse_combo_summary">Combinazione di pulsanti per entrare/uscire dalla modalità mouse</string>
+    <string name="gamepad_mouse_combo_current">%1$s + %2$s</string>
+    <string name="gamepad_mouse_hold_time_title">Durata pressione (ms)</string>
+    <string name="gamepad_mouse_buttons_title">Mappatura pulsanti</string>
+    <string name="gamepad_mouse_buttons_summary">Configura quali pulsanti eseguono clic, indietro e clic destro</string>
+    <string name="gamepad_mouse_stick_speed_title">Velocità stick analogico</string>
+    <string name="gamepad_mouse_dpad_speed_title">Velocità DPAD</string>
+    <string name="gamepad_mouse_boost_title">Moltiplicatore di velocità</string>
+    <string name="gamepad_mouse_scroll_speed_title">Velocità di scorrimento</string>
+    <string name="gamepad_mouse_btn_click">Clic sinistro</string>
+    <string name="gamepad_mouse_btn_back">Indietro</string>
+    <string name="gamepad_mouse_btn_rclick">Clic destro</string>
+    <string name="gamepad_mouse_btn_boost">Boost di velocità</string>
+    <string name="gamepad_mouse_combo_btn1">Primo pulsante combinazione</string>
+    <string name="gamepad_mouse_combo_btn2">Secondo pulsante combinazione</string>
+    <string name="gamepad_mouse_mode_on">Modalità mouse ATTIVA</string>
+    <string name="gamepad_mouse_mode_off">Modalità mouse DISATTIVA</string>
+    <string name="gamepad_mouse_qs_tile_label">Modalità mouse</string>
+
+    <string-array name="gamepad_mouse_boost_entries">
+        <item>1.5\u00d7</item>
+        <item>2\u00d7</item>
+        <item>3\u00d7</item>
+        <item>4\u00d7</item>
+    </string-array>
+    <string-array name="gamepad_mouse_boost_values">
+        <item>15</item>
+        <item>20</item>
+        <item>30</item>
+        <item>40</item>
+    </string-array>
 </resources>

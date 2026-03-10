@@ -1,6 +1,7 @@
 #define LOG_TAG "gammapad"
 
 #include <android-base/logging.h>
+#include <android-base/properties.h>
 #include <signal.h>
 
 #include "GamepadManager.h"
@@ -17,6 +18,9 @@ static void signalHandler(int sig) {
 int main(int argc, char** argv) {
     android::base::InitLogging(argv, android::base::LogdLogger());
     LOG(INFO) << "GammaPad daemon starting";
+
+    // Ensure mouse mode is off on daemon startup (never persist across reboots)
+    android::base::SetProperty("sys.gammaos.gamepad.mouse_active", "0");
 
     struct sigaction sa = {};
     sa.sa_handler = signalHandler;

@@ -212,4 +212,42 @@
         <item>switch_pro</item>
         <item>custom</item>
     </string-array>
+
+    <!-- Mouse mode -->
+    <string name="gamepad_mouse_category">Egér mód</string>
+    <string name="gamepad_mouse_enable_title">Egér mód engedélyezése</string>
+    <string name="gamepad_mouse_enable_summary">A gamepad használata virtuális egérkurzorként. Váltás kombó nyomva tartásával.</string>
+    <string name="gamepad_mouse_combo_title">Váltó kombináció</string>
+    <string name="gamepad_mouse_combo_summary">Gombkombináció az egér mód be-/kikapcsolásához</string>
+    <string name="gamepad_mouse_combo_current">%1$s + %2$s</string>
+    <string name="gamepad_mouse_hold_time_title">Nyomva tartás ideje (ms)</string>
+    <string name="gamepad_mouse_buttons_title">Gomb-hozzárendelés</string>
+    <string name="gamepad_mouse_buttons_summary">Kattintás, vissza és jobb kattintás gombjainak beállítása</string>
+    <string name="gamepad_mouse_stick_speed_title">Analóg kar sebessége</string>
+    <string name="gamepad_mouse_dpad_speed_title">DPAD sebesség</string>
+    <string name="gamepad_mouse_boost_title">Gyorsítás szorzó</string>
+    <string name="gamepad_mouse_scroll_speed_title">Görgetési sebesség</string>
+    <string name="gamepad_mouse_btn_click">Bal kattintás</string>
+    <string name="gamepad_mouse_btn_back">Vissza</string>
+    <string name="gamepad_mouse_btn_rclick">Jobb kattintás</string>
+    <string name="gamepad_mouse_btn_boost">Gyorsítás</string>
+    <string name="gamepad_mouse_combo_btn1">Első kombó gomb</string>
+    <string name="gamepad_mouse_combo_btn2">Második kombó gomb</string>
+    <string name="gamepad_mouse_mode_on">Egér mód BE</string>
+    <string name="gamepad_mouse_mode_off">Egér mód KI</string>
+    <string name="gamepad_mouse_qs_tile_label">Egér mód</string>
+
+    <!-- Mouse mode boost multiplier arrays -->
+    <string-array name="gamepad_mouse_boost_entries">
+        <item>1.5\u00d7</item>
+        <item>2\u00d7</item>
+        <item>3\u00d7</item>
+        <item>4\u00d7</item>
+    </string-array>
+    <string-array name="gamepad_mouse_boost_values">
+        <item>15</item>
+        <item>20</item>
+        <item>30</item>
+        <item>40</item>
+    </string-array>
 </resources>

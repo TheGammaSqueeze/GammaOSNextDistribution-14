@@ -1684,8 +1684,12 @@ std::list<NotifyArgs> TouchInputMapper::cookAndDispatch(nsecs_t when, nsecs_t re
     bool buttonsPressed = mCurrentRawState.buttonState & ~mLastRawState.buttonState;
     if (initialDown || buttonsPressed) {
         // If this is a touch screen, hide the pointer on an initial down.
+        // GammaOS: don't fade cursor when gammapad mouse mode is active
         if (mDeviceMode == DeviceMode::DIRECT) {
-            getContext()->fadePointer();
+            char val[PROPERTY_VALUE_MAX];
+            if (property_get("sys.gammaos.gamepad.mouse_active", val, "0") <= 0 || val[0] != '1') {
+                getContext()->fadePointer();
+            }
         }
 
         // if (mParameters.wake) {

@@ -212,4 +212,40 @@
         <item>switch_pro</item>
         <item>custom</item>
     </string-array>
+
+    <!-- Mouse mode -->
+    <string name="gamepad_mouse_category">鼠标模式</string>
+    <string name="gamepad_mouse_enable_title">启用鼠标模式</string>
+    <string name="gamepad_mouse_enable_summary">将手柄用作虚拟鼠标光标。通过组合键长按切换。</string>
+    <string name="gamepad_mouse_combo_title">切换组合键</string>
+    <string name="gamepad_mouse_combo_summary">进入/退出鼠标模式的按钮组合</string>
+    <string name="gamepad_mouse_combo_current">%1$s + %2$s</string>
+    <string name="gamepad_mouse_hold_time_title">长按时长（毫秒）</string>
+    <string name="gamepad_mouse_buttons_title">按钮映射</string>
+    <string name="gamepad_mouse_buttons_summary">配置用于点击、返回和右键点击的按钮</string>
+    <string name="gamepad_mouse_stick_speed_title">摇杆速度</string>
+    <string name="gamepad_mouse_dpad_speed_title">DPAD 速度</string>
+    <string name="gamepad_mouse_boost_title">加速倍率</string>
+    <string name="gamepad_mouse_scroll_speed_title">滚动速度</string>
+    <string name="gamepad_mouse_btn_click">左键点击</string>
+    <string name="gamepad_mouse_btn_back">返回</string>
+    <string name="gamepad_mouse_btn_rclick">右键点击</string>
+    <string name="gamepad_mouse_btn_boost">加速</string>
+    <string name="gamepad_mouse_combo_btn1">第一组合键按钮</string>
+    <string name="gamepad_mouse_combo_btn2">第二组合键按钮</string>
+    <string name="gamepad_mouse_mode_on">鼠标模式已开启</string>
+    <string name="gamepad_mouse_mode_off">鼠标模式已关闭</string>
+    <string name="gamepad_mouse_qs_tile_label">鼠标模式</string>
+    <string-array name="gamepad_mouse_boost_entries">
+        <item>1.5\u00d7</item>
+        <item>2\u00d7</item>
+        <item>3\u00d7</item>
+        <item>4\u00d7</item>
+    </string-array>
+    <string-array name="gamepad_mouse_boost_values">
+        <item>15</item>
+        <item>20</item>
+        <item>30</item>
+        <item>40</item>
+    </string-array>
 </resources>

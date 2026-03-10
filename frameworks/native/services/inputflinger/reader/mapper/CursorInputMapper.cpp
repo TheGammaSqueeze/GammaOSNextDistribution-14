@@ -26,6 +26,8 @@
 #include <ftl/enum.h>
 #include <input/AccelerationCurve.h>
 
+#include <android-base/properties.h>
+
 #include "CursorButtonAccumulator.h"
 #include "CursorScrollAccumulator.h"
 #include "PointerControllerInterface.h"
@@ -295,10 +297,15 @@ std::list<NotifyArgs> CursorInputMapper::sync(nsecs_t when, nsecs_t readTime) {
     mWheelYVelocityControl.move(when, nullptr, &vscroll);
     mWheelXVelocityControl.move(when, &hscroll, nullptr);
 
-    if (mEnableNewMousePointerBallistics) {
-        mNewPointerVelocityControl.move(when, &deltaX, &deltaY);
-    } else {
-        mOldPointerVelocityControl.move(when, &deltaX, &deltaY);
+    // GammaOS: skip mouse acceleration when gammapad mouse mode is active.
+    // Gammapad applies its own speed curve; framework acceleration on top
+    // causes cursor/touch position mismatch during drag.
+    if (!android::base::GetBoolProperty("sys.gammaos.gamepad.mouse_active", false)) {
+        if (mEnableNewMousePointerBallistics) {
+            mNewPointerVelocityControl.move(when, &deltaX, &deltaY);
+        } else {
+            mOldPointerVelocityControl.move(when, &deltaX, &deltaY);
+        }
     }
 
     float xCursorPosition = AMOTION_EVENT_INVALID_CURSOR_POSITION;

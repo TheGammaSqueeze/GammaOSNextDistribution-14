@@ -121,6 +121,8 @@ import com.android.server.input.debug.FocusEventDebugView;
 import com.android.server.inputmethod.InputMethodManagerInternal;
 import com.android.server.policy.WindowManagerPolicy;
 
+import android.os.SystemProperties;
+
 import libcore.io.IoUtils;
 
 import java.io.File;
@@ -612,6 +614,26 @@ public class InputManagerService extends IInputManager.Stub
         mKeyboardBacklightController.systemRunning();
         mKeyRemapper.systemRunning();
         mPointerIconCache.systemRunning();
+
+        // GammaOS: disable mouse pointer acceleration when gammapad mouse mode is active,
+        // so the daemon's internal cursor tracking stays in sync with the actual cursor.
+        // Poll the property every 500ms since addChangeCallback can be unreliable.
+        final int MSG_GAMMAOS_MOUSE_ACCEL_CHECK = 99;
+        final boolean[] lastMouseActive = {false};
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                boolean mouseActive = SystemProperties.getInt(
+                        "sys.gammaos.gamepad.mouse_active", 0) != 0;
+                if (mouseActive != lastMouseActive[0]) {
+                    lastMouseActive[0] = mouseActive;
+                    Slog.i(TAG, "GammaOS mouse mode changed: active=" + mouseActive
+                            + ", acceleration=" + !mouseActive);
+                    setMousePointerAccelerationEnabled(!mouseActive, Display.DEFAULT_DISPLAY);
+                }
+                mHandler.postDelayed(this, 500);
+            }
+        }, 2000);
     }
 
     private void reloadDeviceAliases() {

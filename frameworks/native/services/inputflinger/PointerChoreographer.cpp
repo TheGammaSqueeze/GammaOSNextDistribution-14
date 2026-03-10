@@ -17,6 +17,7 @@
 #define LOG_TAG "PointerChoreographer"
 
 #include <android-base/logging.h>
+#include <android-base/properties.h>
 #include <input/PrintTools.h>
 
 #include "PointerChoreographer.h"
@@ -26,6 +27,11 @@
 namespace android {
 
 namespace {
+
+// GammaOS: check if gammapad mouse mode is active (cursor should not auto-hide)
+static bool isGammapadMouseActive() {
+    return android::base::GetBoolProperty("sys.gammaos.gamepad.mouse_active", false);
+}
 
 bool isFromMouse(const NotifyMotionArgs& args) {
     return isFromSource(args.source, AINPUT_SOURCE_MOUSE) &&
@@ -227,8 +233,11 @@ void PointerChoreographer::processDrawingTabletEventLocked(const android::Notify
     if (args.action == AMOTION_EVENT_ACTION_HOVER_EXIT) {
         // TODO(b/315815559): Do not fade and reset the icon if the hover exit will be followed
         //   immediately by a DOWN event.
-        pc.fade(PointerControllerInterface::Transition::IMMEDIATE);
-        pc.updatePointerIcon(PointerIconStyle::TYPE_NOT_SPECIFIED);
+        // GammaOS: don't fade cursor when gammapad mouse mode is active
+        if (!isGammapadMouseActive()) {
+            pc.fade(PointerControllerInterface::Transition::IMMEDIATE);
+            pc.updatePointerIcon(PointerIconStyle::TYPE_NOT_SPECIFIED);
+        }
     } else if (canUnfadeOnDisplay(args.displayId)) {
         pc.unfade(PointerControllerInterface::Transition::IMMEDIATE);
     }
@@ -247,7 +256,10 @@ void PointerChoreographer::processTouchscreenAndStylusEventLocked(const NotifyMo
 
     if (const auto it = mMousePointersByDisplay.find(args.displayId);
         it != mMousePointersByDisplay.end() && args.action == AMOTION_EVENT_ACTION_DOWN) {
-        it->second->fade(PointerControllerInterface::Transition::GRADUAL);
+        // GammaOS: don't fade cursor when gammapad mouse mode is active
+        if (!isGammapadMouseActive()) {
+            it->second->fade(PointerControllerInterface::Transition::GRADUAL);
+        }
     }
 
     if (!mShowTouchesEnabled) {
@@ -302,8 +314,11 @@ void PointerChoreographer::processStylusHoverEventLocked(const NotifyMotionArgs&
     if (args.action == AMOTION_EVENT_ACTION_HOVER_EXIT) {
         // TODO(b/315815559): Do not fade and reset the icon if the hover exit will be followed
         //   immediately by a DOWN event.
-        pc.fade(PointerControllerInterface::Transition::IMMEDIATE);
-        pc.updatePointerIcon(PointerIconStyle::TYPE_NOT_SPECIFIED);
+        // GammaOS: don't fade cursor when gammapad mouse mode is active
+        if (!isGammapadMouseActive()) {
+            pc.fade(PointerControllerInterface::Transition::IMMEDIATE);
+            pc.updatePointerIcon(PointerIconStyle::TYPE_NOT_SPECIFIED);
+        }
     } else if (canUnfadeOnDisplay(args.displayId)) {
         pc.unfade(PointerControllerInterface::Transition::IMMEDIATE);
     }

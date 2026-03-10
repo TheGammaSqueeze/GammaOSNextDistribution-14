@@ -10,6 +10,8 @@
 package com.android.server.gamepad;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.SystemProperties;
 import android.os.VibrationAttributes;
 import android.os.VibrationEffect;
@@ -18,6 +20,7 @@ import android.os.VibratorManager;
 import android.net.LocalServerSocket;
 import android.net.LocalSocket;
 import android.util.Slog;
+import android.widget.Toast;
 
 import com.android.server.SystemService;
 
@@ -30,6 +33,7 @@ public class GammapadVibrationBridge extends SystemService {
     private static final String TAG = "GammapadVibrationBridge";
     private static final String SOCKET_NAME = "gammapad_vibrate";
     private static final int VIBRATION_MAGIC = 0x47504144; // "GPAD"
+    private static final int TOAST_MAGIC = 0x474D5347;    // "GMSG"
     private static final int MSG_SIZE = 12;
     private static final long MAX_DURATION_MS = 5000;
     private static final int MAX_AMPLITUDE = 255;
@@ -40,6 +44,7 @@ public class GammapadVibrationBridge extends SystemService {
     private static final int PWM_STEADY_THRESHOLD = 60000; // ~92% of 65535
 
     private final Context mContext;
+    private final Handler mMainHandler = new Handler(Looper.getMainLooper());
     private Vibrator mVibrator;
     private LocalServerSocket mServerSocket;
 
@@ -106,30 +111,39 @@ public class GammapadVibrationBridge extends SystemService {
 
     private void handleClient(LocalSocket client) {
         try (InputStream is = client.getInputStream()) {
-            byte[] buf = new byte[MSG_SIZE];
+            byte[] magicBuf = new byte[4];
             while (true) {
-                int bytesRead = 0;
-                while (bytesRead < MSG_SIZE) {
-                    int n = is.read(buf, bytesRead, MSG_SIZE - bytesRead);
-                    if (n < 0) {
-                        Slog.i(TAG, "Client disconnected");
-                        return;
+                // Read 4-byte magic to determine message type
+                readFully(is, magicBuf, 4);
+                int magic = ByteBuffer.wrap(magicBuf)
+                        .order(ByteOrder.LITTLE_ENDIAN).getInt();
+
+                if (magic == VIBRATION_MAGIC) {
+                    // Vibration message: 8 more bytes (strong + weak + duration)
+                    byte[] vibBuf = new byte[8];
+                    readFully(is, vibBuf, 8);
+                    ByteBuffer bb = ByteBuffer.wrap(vibBuf)
+                            .order(ByteOrder.LITTLE_ENDIAN);
+                    int strong = bb.getShort() & 0xFFFF;
+                    int weak = bb.getShort() & 0xFFFF;
+                    int duration = bb.getInt();
+                    processVibration(strong, weak, duration);
+                } else if (magic == TOAST_MAGIC) {
+                    // Toast message: 2-byte length + UTF-8 text
+                    byte[] lenBuf = new byte[2];
+                    readFully(is, lenBuf, 2);
+                    int len = ByteBuffer.wrap(lenBuf)
+                            .order(ByteOrder.LITTLE_ENDIAN).getShort() & 0xFFFF;
+                    if (len > 0 && len <= 1024) {
+                        byte[] textBuf = new byte[len];
+                        readFully(is, textBuf, len);
+                        String text = new String(textBuf, "UTF-8");
+                        showToast(text);
                     }
-                    bytesRead += n;
-                }
-
-                ByteBuffer bb = ByteBuffer.wrap(buf).order(ByteOrder.LITTLE_ENDIAN);
-                int magic = bb.getInt();
-                int strong = bb.getShort() & 0xFFFF;
-                int weak = bb.getShort() & 0xFFFF;
-                int duration = bb.getInt();
-
-                if (magic != VIBRATION_MAGIC) {
+                } else {
                     Slog.w(TAG, "Bad magic: 0x" + Integer.toHexString(magic));
-                    continue;
+                    return; // Desync — close this client
                 }
-
-                processVibration(strong, weak, duration);
             }
         } catch (IOException e) {
             Slog.w(TAG, "Client I/O error", e);
@@ -139,6 +153,34 @@ public class GammapadVibrationBridge extends SystemService {
             } catch (IOException ignored) {
             }
         }
+    }
+
+    /**
+     * Read exactly {@code count} bytes from the stream, blocking until all
+     * bytes are available or EOF is reached.
+     */
+    private static void readFully(InputStream is, byte[] buf, int count)
+            throws IOException {
+        int offset = 0;
+        while (offset < count) {
+            int n = is.read(buf, offset, count - offset);
+            if (n < 0) throw new IOException("EOF");
+            offset += n;
+        }
+    }
+
+    /**
+     * Show a toast on the main thread.
+     */
+    private void showToast(String text) {
+        Slog.i(TAG, "Toast: " + text);
+        mMainHandler.post(() -> {
+            try {
+                Toast.makeText(mContext, text, Toast.LENGTH_SHORT).show();
+            } catch (Exception e) {
+                Slog.w(TAG, "Failed to show toast", e);
+            }
+        });
     }
 
     private void processVibration(int strong, int weak, int durationMs) {

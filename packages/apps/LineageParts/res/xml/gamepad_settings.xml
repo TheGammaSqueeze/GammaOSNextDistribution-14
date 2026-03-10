@@ -185,6 +185,68 @@
 
     </PreferenceCategory>
 
+    <!-- Mouse mode -->
+    <PreferenceCategory
+        android:key="gamepad_mouse_category"
+        android:title="@string/gamepad_mouse_category"
+        android:dependency="gamepad_enable">
+
+        <SwitchPreferenceCompat
+            android:key="gamepad_mouse_enable"
+            android:title="@string/gamepad_mouse_enable_title"
+            android:summary="@string/gamepad_mouse_enable_summary"
+            android:defaultValue="false" />
+
+        <Preference
+            android:key="gamepad_mouse_combo"
+            android:title="@string/gamepad_mouse_combo_title"
+            android:summary="@string/gamepad_mouse_combo_summary"
+            android:dependency="gamepad_mouse_enable" />
+
+        <androidx.preference.SeekBarPreference
+            android:key="gamepad_mouse_hold_time"
+            android:title="@string/gamepad_mouse_hold_time_title"
+            android:defaultValue="2000"
+            android:max="5000"
+            android:dependency="gamepad_mouse_enable" />
+
+        <Preference
+            android:key="gamepad_mouse_buttons"
+            android:title="@string/gamepad_mouse_buttons_title"
+            android:summary="@string/gamepad_mouse_buttons_summary"
+            android:dependency="gamepad_mouse_enable" />
+
+        <androidx.preference.SeekBarPreference
+            android:key="gamepad_mouse_stick_speed"
+            android:title="@string/gamepad_mouse_stick_speed_title"
+            android:defaultValue="12"
+            android:max="30"
+            android:dependency="gamepad_mouse_enable" />
+
+        <androidx.preference.SeekBarPreference
+            android:key="gamepad_mouse_dpad_speed"
+            android:title="@string/gamepad_mouse_dpad_speed_title"
+            android:defaultValue="6"
+            android:max="20"
+            android:dependency="gamepad_mouse_enable" />
+
+        <ListPreference
+            android:key="gamepad_mouse_boost"
+            android:title="@string/gamepad_mouse_boost_title"
+            android:entries="@array/gamepad_mouse_boost_entries"
+            android:entryValues="@array/gamepad_mouse_boost_values"
+            android:defaultValue="20"
+            android:dependency="gamepad_mouse_enable" />
+
+        <androidx.preference.SeekBarPreference
+            android:key="gamepad_mouse_scroll_speed"
+            android:title="@string/gamepad_mouse_scroll_speed_title"
+            android:defaultValue="4"
+            android:max="30"
+            android:dependency="gamepad_mouse_enable" />
+
+    </PreferenceCategory>
+
     <!-- Testing -->
     <PreferenceCategory
         android:key="gamepad_testing_category"

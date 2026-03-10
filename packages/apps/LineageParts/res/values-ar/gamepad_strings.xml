@@ -212,4 +212,40 @@
         <item>switch_pro</item>
         <item>custom</item>
     </string-array>
+
+    <!-- Mouse mode -->
+    <string name="gamepad_mouse_category">وضع الفأرة</string>
+    <string name="gamepad_mouse_enable_title">تمكين وضع الفأرة</string>
+    <string name="gamepad_mouse_enable_summary">استخدام ذراع التحكم كمؤشر فأرة افتراضي. التبديل بالضغط المطول على التركيبة.</string>
+    <string name="gamepad_mouse_combo_title">تركيبة التبديل</string>
+    <string name="gamepad_mouse_combo_summary">تركيبة الأزرار للدخول/الخروج من وضع الفأرة</string>
+    <string name="gamepad_mouse_combo_current">%1$s + %2$s</string>
+    <string name="gamepad_mouse_hold_time_title">مدة الضغط المطول (مللي ثانية)</string>
+    <string name="gamepad_mouse_buttons_title">تعيين الأزرار</string>
+    <string name="gamepad_mouse_buttons_summary">تكوين أزرار النقر والرجوع والنقر بالزر الأيمن</string>
+    <string name="gamepad_mouse_stick_speed_title">سرعة العصا التناظرية</string>
+    <string name="gamepad_mouse_dpad_speed_title">سرعة DPAD</string>
+    <string name="gamepad_mouse_boost_title">مضاعف تعزيز السرعة</string>
+    <string name="gamepad_mouse_scroll_speed_title">سرعة التمرير</string>
+    <string name="gamepad_mouse_btn_click">نقرة يسرى</string>
+    <string name="gamepad_mouse_btn_back">رجوع</string>
+    <string name="gamepad_mouse_btn_rclick">نقرة يمنى</string>
+    <string name="gamepad_mouse_btn_boost">تعزيز السرعة</string>
+    <string name="gamepad_mouse_combo_btn1">زر التركيبة الأول</string>
+    <string name="gamepad_mouse_combo_btn2">زر التركيبة الثاني</string>
+    <string name="gamepad_mouse_mode_on">وضع الفأرة مفعّل</string>
+    <string name="gamepad_mouse_mode_off">وضع الفأرة معطّل</string>
+    <string name="gamepad_mouse_qs_tile_label">وضع الفأرة</string>
+    <string-array name="gamepad_mouse_boost_entries">
+        <item>1.5\u00d7</item>
+        <item>2\u00d7</item>
+        <item>3\u00d7</item>
+        <item>4\u00d7</item>
+    </string-array>
+    <string-array name="gamepad_mouse_boost_values">
+        <item>15</item>
+        <item>20</item>
+        <item>30</item>
+        <item>40</item>
+    </string-array>
 </resources>

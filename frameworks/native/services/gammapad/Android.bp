@@ -4,9 +4,12 @@ cc_binary {
         "main.cpp",
         "GamepadManager.cpp",
         "VirtualGamepad.cpp",
+        "VirtualMouse.cpp",
+        "VirtualTouchscreen.cpp",
         "InputTransformer.cpp",
         "ForceFeedback.cpp",
         "KeyLayoutParser.cpp",
+        "MouseMode.cpp",
     ],
     shared_libs: [
         "libbase",

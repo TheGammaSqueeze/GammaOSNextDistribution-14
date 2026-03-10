@@ -25,6 +25,10 @@
 #include <input/Input.h>
 #include <log/log.h>
 
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
 namespace {
 // Time to spend fading out the pointer completely.
 const nsecs_t POINTER_FADE_DURATION = 500 * 1000000LL; // 500 ms
@@ -101,12 +105,29 @@ void MouseCursorController::setPosition(float x, float y) {
     setPositionLocked(x, y);
 }
 
+// GammaOS: write cursor position to a shared file for gammapad daemon to read.
+// Uses a fixed-size binary format: two floats (x, y) = 8 bytes at offset 0.
+// Keeps fd open to avoid open/close overhead at 60Hz cursor updates.
+static void writeCursorPositionFile(float x, float y) {
+    static int fd = -1;
+    if (fd < 0) {
+        mkdir("/data/misc/gammapad", 0777);
+        fd = open("/data/misc/gammapad/cursor_pos",
+                  O_WRONLY | O_CREAT | O_TRUNC, 0666);
+        if (fd < 0) return;
+    }
+    float pos[2] = {x, y};
+    pwrite(fd, pos, sizeof(pos), 0);
+}
+
 void MouseCursorController::setPositionLocked(float x, float y) REQUIRES(mLock) {
     const auto bounds = getBoundsLocked();
     if (!bounds) return;
 
     mLocked.pointerX = std::max(bounds->left, std::min(bounds->right, x));
     mLocked.pointerY = std::max(bounds->top, std::min(bounds->bottom, y));
+
+    writeCursorPositionFile(mLocked.pointerX, mLocked.pointerY);
 
     updatePointerLocked();
 }

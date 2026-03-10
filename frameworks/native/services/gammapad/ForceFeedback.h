@@ -2,7 +2,9 @@
 
 #include <linux/input.h>
 #include <linux/uinput.h>
+#include <string>
 #include <unordered_map>
+#include <vector>
 
 namespace gammapad {
 
@@ -16,7 +18,9 @@ struct __attribute__((packed)) VibrationMessage {
     uint32_t duration;  // Duration in ms (0 = stop)
 };
 
-static constexpr uint32_t VIBRATION_MAGIC = 0x47504144;
+// Toast message: magic(4) + length(2) + utf8_text(length)
+static constexpr uint32_t VIBRATION_MAGIC = 0x47504144; // "GPAD"
+static constexpr uint32_t TOAST_MAGIC = 0x474D5347;     // "GMSG"
 
 class ForceFeedback {
 public:
@@ -49,6 +53,9 @@ public:
 
     // Cancel all active effects on a physical device (e.g., on disconnect).
     void cancelDevice(int physicalFd);
+
+    // Send a toast message to the bridge for on-screen display.
+    void sendToast(const std::string& text);
 
 private:
     void sendPwmVibration(uint16_t strong, uint16_t weak, uint32_t durationMs);
