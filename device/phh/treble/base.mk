@@ -128,7 +128,6 @@ PRODUCT_COPY_FILES += \
 PRODUCT_COPY_FILES += \
     gammaos/utils/xz:system/bin/xz \
     gammaos/utils/dtc:system/bin/dtc \
-    gammaos/utils/com.gamma.analogcalibrator.apk:system/app/GammaAnalog/com.gamma.analogcalibrator.apk \
     gammaos/utils/inotifywait:system/bin/inotifywait \
     gammaos/utils/fenix-148.0b9.multi.android-arm64-v8a.apk:system/etc/fenix-148.0b9.multi.android-arm64-v8a.apk \
     gammaos/customization.sh:system/bin/customization.sh \
@@ -305,6 +304,9 @@ PRODUCT_REMOVE_PACKAGES += \
     Iwlan \
     EuiccSupport \
     EuiccSupportPixel
+
+# ===== Low-RAM: exclude AudioFX (persistent service, ~13 MB) =====
+TARGET_EXCLUDES_AUDIOFX := true
 
 # ===== Low-RAM: remove unnecessary system apps =====
 PRODUCT_REMOVE_PACKAGES += \

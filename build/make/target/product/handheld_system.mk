@@ -38,13 +38,11 @@ PRODUCT_PACKAGES += \
     BluetoothMidiService \
     BookmarkProvider \
     BuiltInPrintService \
-    CalendarProvider \
     cameraserver \
     CameraExtensionsProxy \
     CaptivePortalLogin \
     CertInstaller \
     CredentialManager \
-    DeviceAsWebcam \
     DocumentsUI \
     DownloadProviderUi \
     EasterEgg \
@@ -53,13 +51,10 @@ PRODUCT_PACKAGES += \
     InputDevices \
     KeyChain \
     librs_jni \
-    ManagedProvisioning \
     MtpService \
     MusicFX \
     PacProcessor \
     preinstalled-packages-platform-handheld-system.xml \
-    PrintRecommendationService \
-    PrintSpooler \
     ProxyHandler \
     screenrecord \
     SecureElement \

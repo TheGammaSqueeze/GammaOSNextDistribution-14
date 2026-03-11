@@ -60,3 +60,46 @@ getprop | \
     while read -r svc ;do
         setprop ctl.stop "$svc"
     done
+
+# GammaOS: Disable bloat packages that can't be removed at build time
+# (APEX-bundled or deeply inherited). Only runs once per data wipe.
+if [ ! -f /data/local/tmp/.gammaos_debloated ]; then
+    for pkg in \
+        com.android.rkpdapp \
+        com.android.devicelockcontroller \
+        com.android.messaging \
+        com.android.providers.calendar \
+        com.android.phone
+    do
+        pm disable-user --user 0 "$pkg" 2>/dev/null
+    done
+    touch /data/local/tmp/.gammaos_debloated
+fi
+
+# GammaOS: Aggressively compact all processes starting immediately.
+# Loop for 60 seconds to catch processes as they spawn during boot.
+# Full compaction (madvise PAGEOUT) pushes cold pages to ZRAM.
+compact_all() {
+    # system_server via PID (native path — stronger than compactAllSystem)
+    ss_pid="$(pidof system_server 2>/dev/null)"
+    [ -n "$ss_pid" ] && am compact native full "$ss_pid" 2>/dev/null
+    # All managed (Java) processes
+    for proc in \
+        com.android.systemui \
+        com.android.launcher3 \
+        com.android.se \
+        com.android.networkstack.process \
+        com.android.inputmethod.latin \
+        com.android.providers.media.module \
+        android.ext.services \
+        com.android.permissioncontroller
+    do
+        am compact full "$proc" 2>/dev/null
+    done
+}
+
+end=$(($(date +%s) + 60))
+while [ "$(date +%s)" -lt "$end" ]; do
+    compact_all
+    sleep 10
+done
