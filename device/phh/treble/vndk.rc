@@ -1,8 +1,16 @@
 on post-fs
-    exec - root -- /system/bin/vndk-detect
-    exec - root -- /system/bin/rw-system.sh
+    # vndk-detect already runs from twrp.rc at post-fs; skip duplicate exec
+    start rw_system_early
     mount none /system/etc/usb_audio_policy_configuration.xml /vendor/etc/usb_audio_policy_configuration.xml bind
     setprop ro.vndk.version ${persist.sys.vndk}
+
+# Run rw-system.sh as a non-blocking service instead of a blocking exec.
+# This saves ~2 seconds off the critical boot path. The script does
+# device-specific fixups (keymaster, keylayout, props) that complete
+# well before services need them at the 'boot' phase.
+service rw_system_early /system/bin/rw-system.sh
+    oneshot
+    disabled
 
 service rw_system_late /system/bin/rw-system.sh --late
     oneshot
@@ -10,6 +18,12 @@ service rw_system_late /system/bin/rw-system.sh --late
 
 on property:init.svc.bootanim=running
     start rw_system_late
+
+# Start adbd as soon as APEX packages are activated (~12.9s) rather than
+# waiting for INIT:boot phase (~15.1s). The adbd binary lives inside
+# com.android.adbd APEX and isn't available until full apexd activation.
+on property:apexd.status=activated
+    start adbd
 
 on property:vold.decrypt=trigger_restart_framework
     exec - root -- /system/bin/phh-on-data.sh
