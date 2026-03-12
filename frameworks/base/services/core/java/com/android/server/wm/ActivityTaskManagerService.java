@@ -958,8 +958,10 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
             configuration.setLayoutDirection(configuration.locale);
         }
 
-        configuration.setGrammaticalGender(
-                mGrammaticalManagerInternal.retrieveSystemGrammaticalGender(configuration));
+        if (mGrammaticalManagerInternal != null) {
+            configuration.setGrammaticalGender(
+                    mGrammaticalManagerInternal.retrieveSystemGrammaticalGender(configuration));
+        }
 
         synchronized (mGlobalLock) {
             mForceResizableActivities = forceResizable;

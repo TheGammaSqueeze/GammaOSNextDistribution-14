@@ -1996,6 +1996,9 @@ public class AppStandbyController
      * This will only ever be called once - during device boot.
      */
     private void waitForAdminData() {
+        if (android.os.SystemProperties.getBoolean("sys.gammaos.minimal_boot", false)) {
+            return;
+        }
         if (mContext.getPackageManager().hasSystemFeature(PackageManager.FEATURE_DEVICE_ADMIN)) {
             ConcurrentUtils.waitForCountDownNoInterrupt(mAdminDataAvailableLatch,
                     WAIT_FOR_ADMIN_DATA_TIMEOUT_MS, "Wait for admin data");
@@ -2718,6 +2721,9 @@ public class AppStandbyController
 
         void updatePowerWhitelistCache() {
             try {
+                if (mDeviceIdleController == null) {
+                    return;
+                }
                 // Don't call out to DeviceIdleController with the lock held.
                 final String[] whitelistedPkgs =
                         mDeviceIdleController.getFullPowerWhitelistExceptIdle();
@@ -2781,7 +2787,7 @@ public class AppStandbyController
         String getActiveNetworkScorer() {
             NetworkScoreManager nsm = (NetworkScoreManager) mContext.getSystemService(
                     Context.NETWORK_SCORE_SERVICE);
-            return nsm.getActiveScorerPackage();
+            return nsm != null ? nsm.getActiveScorerPackage() : null;
         }
 
         public boolean isBoundWidgetPackage(AppWidgetManager appWidgetManager, String packageName,
@@ -2805,6 +2811,7 @@ public class AppStandbyController
             if (uid < 0
                     || aPkg == null
                     || !aPkg.isCrossProfile()
+                    || mCrossProfileAppsInternal == null
                     || !mCrossProfileAppsInternal
                             .verifyUidHasInteractAcrossProfilePermission(pkg, uid)) {
                 if (uid >= 0 && aPkg == null) {

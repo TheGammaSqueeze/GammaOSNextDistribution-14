@@ -38,6 +38,7 @@ PRODUCT_PACKAGES += \
     blkid \
     bmgr \
     bootanimation \
+    gammaos-nano \
     bootstat \
     boringssl_self_test \
     bpfloader \

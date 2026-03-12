@@ -29,26 +29,33 @@ import java.util.List;
 
 public class LogMteState {
     public static void register(Context context) {
-        context.getSystemService(StatsManager.class)
-                .setPullAtomCallback(
-                        FrameworkStatsLog.MTE_STATE,
-                        null, // use default PullAtomMetadata values
-                        DIRECT_EXECUTOR,
-                        new StatsManager.StatsPullAtomCallback() {
-                            @Override
-                            public int onPullAtom(int atomTag, List<StatsEvent> data) {
-                                if (atomTag != FrameworkStatsLog.MTE_STATE) {
-                                    throw new UnsupportedOperationException(
-                                            "Unknown tagId=" + atomTag);
+        try {
+            final StatsManager statsManager = context.getSystemService(StatsManager.class);
+            if (statsManager == null) {
+                return;
+            }
+            statsManager.setPullAtomCallback(
+                            FrameworkStatsLog.MTE_STATE,
+                            null, // use default PullAtomMetadata values
+                            DIRECT_EXECUTOR,
+                            new StatsManager.StatsPullAtomCallback() {
+                                @Override
+                                public int onPullAtom(int atomTag, List<StatsEvent> data) {
+                                    if (atomTag != FrameworkStatsLog.MTE_STATE) {
+                                        throw new UnsupportedOperationException(
+                                                "Unknown tagId=" + atomTag);
+                                    }
+                                    data.add(
+                                            FrameworkStatsLog.buildStatsEvent(
+                                                    FrameworkStatsLog.MTE_STATE,
+                                                    Zygote.nativeSupportsMemoryTagging()
+                                                            ? FrameworkStatsLog.MTE_STATE__STATE__ON
+                                                            : FrameworkStatsLog.MTE_STATE__STATE__OFF));
+                                    return StatsManager.PULL_SUCCESS;
                                 }
-                                data.add(
-                                        FrameworkStatsLog.buildStatsEvent(
-                                                FrameworkStatsLog.MTE_STATE,
-                                                Zygote.nativeSupportsMemoryTagging()
-                                                        ? FrameworkStatsLog.MTE_STATE__STATE__ON
-                                                        : FrameworkStatsLog.MTE_STATE__STATE__OFF));
-                                return StatsManager.PULL_SUCCESS;
-                            }
-                        });
+                            });
+        } catch (NullPointerException e) {
+            // StatsManagerService not available (e.g. nano/minimal boot)
+        }
     }
 }

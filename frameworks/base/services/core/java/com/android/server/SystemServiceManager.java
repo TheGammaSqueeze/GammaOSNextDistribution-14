@@ -299,10 +299,16 @@ public final class SystemServiceManager implements Dumpable {
                 try {
                     service.onBootPhase(mCurrentPhase);
                 } catch (Exception ex) {
-                    throw new RuntimeException("Failed to boot service "
-                            + service.getClass().getName()
-                            + ": onBootPhase threw an exception during phase "
-                            + mCurrentPhase, ex);
+                    if (android.os.SystemProperties.getBoolean(
+                            "sys.gammaos.minimal_boot", false)) {
+                        Slog.w(TAG, "GammaOS Nano: ignoring boot phase " + mCurrentPhase
+                                + " failure for " + service.getClass().getName() + ": " + ex);
+                    } else {
+                        throw new RuntimeException("Failed to boot service "
+                                + service.getClass().getName()
+                                + ": onBootPhase threw an exception during phase "
+                                + mCurrentPhase, ex);
+                    }
                 }
                 warnIfTooLong(SystemClock.elapsedRealtime() - time, service, "onBootPhase");
                 t.traceEnd();

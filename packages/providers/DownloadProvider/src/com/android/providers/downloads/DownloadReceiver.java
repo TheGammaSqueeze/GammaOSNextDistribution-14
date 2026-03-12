@@ -135,6 +135,11 @@ public class DownloadReceiver extends BroadcastReceiver {
     }
 
     private void handleBootCompleted(Context context) {
+        // GammaOS Nano: JobScheduler may not be running
+        if (context.getSystemService(android.app.job.JobScheduler.class) == null) {
+            return;
+        }
+
         // Show any relevant notifications for completed downloads
         getDownloadNotifier(context).update();
 

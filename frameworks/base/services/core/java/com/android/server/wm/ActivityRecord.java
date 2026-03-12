@@ -2166,8 +2166,10 @@ final class ActivityRecord extends WindowToken implements WindowManagerService.A
 
         ColorDisplayService.ColorDisplayServiceInternal cds = LocalServices.getService(
                 ColorDisplayService.ColorDisplayServiceInternal.class);
-        cds.attachColorTransformController(packageName, mUserId,
-                new WeakReference<>(mColorTransformController));
+        if (cds != null) {
+            cds.attachColorTransformController(packageName, mUserId,
+                    new WeakReference<>(mColorTransformController));
+        }
 
         mRootWindowContainer = _service.mRootWindowContainer;
         launchedFromPid = _launchedFromPid;

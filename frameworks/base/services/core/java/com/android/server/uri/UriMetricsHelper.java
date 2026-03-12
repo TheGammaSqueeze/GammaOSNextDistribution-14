@@ -46,15 +46,22 @@ final class UriMetricsHelper {
     }
 
     void registerPuller() {
-        final StatsManager statsManager = mContext.getSystemService(StatsManager.class);
-        statsManager.setPullAtomCallback(
-                FrameworkStatsLog.PERSISTENT_URI_PERMISSIONS_AMOUNT_PER_PACKAGE,
-                DAILY_PULL_METADATA,
-                DIRECT_EXECUTOR,
-                (atomTag, data) -> {
-                    reportPersistentUriPermissionsPerPackage(data);
-                    return StatsManager.PULL_SUCCESS;
-                });
+        try {
+            final StatsManager statsManager = mContext.getSystemService(StatsManager.class);
+            if (statsManager == null) {
+                return;
+            }
+            statsManager.setPullAtomCallback(
+                    FrameworkStatsLog.PERSISTENT_URI_PERMISSIONS_AMOUNT_PER_PACKAGE,
+                    DAILY_PULL_METADATA,
+                    DIRECT_EXECUTOR,
+                    (atomTag, data) -> {
+                        reportPersistentUriPermissionsPerPackage(data);
+                        return StatsManager.PULL_SUCCESS;
+                    });
+        } catch (NullPointerException e) {
+            // StatsManagerService not available (e.g. nano/minimal boot)
+        }
     }
 
     void reportPersistentUriFlushed(int amount) {

@@ -759,7 +759,10 @@ public final class ActiveServices {
     }
 
     void systemServicesReady() {
-        getAppStateTracker().addBackgroundRestrictedAppListener(new BackgroundRestrictedListener());
+        final AppStateTracker ast = getAppStateTracker();
+        if (ast != null) {
+            ast.addBackgroundRestrictedAppListener(new BackgroundRestrictedListener());
+        }
         mAppWidgetManagerInternal = LocalServices.getService(AppWidgetManagerInternal.class);
         setAllowListWhileInUsePermissionInFgs();
         initSystemExemptedFgsTypePermission();

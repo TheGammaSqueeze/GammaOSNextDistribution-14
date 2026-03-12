@@ -98,6 +98,9 @@ public class MountServiceIdler extends JobService {
      */
     public static void scheduleIdlePass(Context context) {
         JobScheduler tm = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
+        if (tm == null) {
+            return;
+        }
 
         final long today3AM = offsetFromTodayMidnight(0, 3).getTimeInMillis();
         final long today4AM = offsetFromTodayMidnight(0, 4).getTimeInMillis();

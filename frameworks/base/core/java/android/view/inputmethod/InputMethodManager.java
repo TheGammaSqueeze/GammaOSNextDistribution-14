@@ -1487,6 +1487,11 @@ public final class InputMethodManager {
     private static InputMethodManager createRealInstance(int displayId, Looper looper) {
         final IInputMethodManager service = IInputMethodManagerGlobalInvoker.getService();
         if (service == null) {
+            if (android.os.SystemProperties.getBoolean(
+                    "sys.gammaos.minimal_boot", false)) {
+                // Nano mode: IMMS not running, create stub IMM without server connection
+                return new InputMethodManager(service, displayId, looper);
+            }
             throw new IllegalStateException("IInputMethodManager is not available");
         }
         final InputMethodManager imm = new InputMethodManager(service, displayId, looper);

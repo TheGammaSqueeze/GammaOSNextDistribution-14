@@ -344,13 +344,17 @@ public class ThermalManagerService extends SystemService {
     }
 
     private void registerStatsCallbacks() {
-        final StatsManager statsManager = mContext.getSystemService(StatsManager.class);
-        if (statsManager != null) {
-            statsManager.setPullAtomCallback(
-                    FrameworkStatsLog.THERMAL_HEADROOM_THRESHOLDS,
-                    null, // use default PullAtomMetadata values
-                    DIRECT_EXECUTOR,
-                    this::onPullAtom);
+        try {
+            final StatsManager statsManager = mContext.getSystemService(StatsManager.class);
+            if (statsManager != null) {
+                statsManager.setPullAtomCallback(
+                        FrameworkStatsLog.THERMAL_HEADROOM_THRESHOLDS,
+                        null, // use default PullAtomMetadata values
+                        DIRECT_EXECUTOR,
+                        this::onPullAtom);
+            }
+        } catch (NullPointerException e) {
+            // StatsManagerService not available (e.g. nano/minimal boot)
         }
     }
 

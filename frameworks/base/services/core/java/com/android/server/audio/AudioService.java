@@ -6983,7 +6983,16 @@ public class AudioService extends IAudioService.Stub
 
         // If DND is off, no streams are muted by DND
         int zenModeAffectedStreams = 0;
-        final int zenMode = mNm.getZenMode();
+        int zenMode;
+        try {
+            if (mNm == null) {
+                return false;
+            }
+            zenMode = mNm.getZenMode();
+        } catch (NullPointerException e) {
+            // NotificationManagerService not available (e.g. nano/minimal boot)
+            return false;
+        }
 
         if (zenMode == Settings.Global.ZEN_MODE_NO_INTERRUPTIONS) {
             zenModeAffectedStreams |= 1 << AudioManager.STREAM_SYSTEM;

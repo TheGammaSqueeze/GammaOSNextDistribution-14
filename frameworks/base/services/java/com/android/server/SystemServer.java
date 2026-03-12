@@ -1517,6 +1517,13 @@ public final class SystemServer implements Dumpable {
         boolean enableVrService = context.getPackageManager().hasSystemFeature(
                 PackageManager.FEATURE_VR_MODE_HIGH_PERFORMANCE);
 
+        // GammaOS Nano: minimal boot mode - skip non-essential services for direct app launch
+        final boolean minimalBoot = SystemProperties.getBoolean(
+                "sys.gammaos.minimal_boot", false);
+        if (minimalBoot) {
+            Slog.i(TAG, "GammaOS Nano: MINIMAL BOOT MODE - skipping non-essential services");
+        }
+
         // For debugging RescueParty
         if (Build.IS_DEBUGGABLE && SystemProperties.getBoolean("debug.crash_system", false)) {
             throw new RuntimeException();
@@ -1528,6 +1535,7 @@ public final class SystemServer implements Dumpable {
             // ensure that it completes before the 32 bit relro process is forked
             // from the zygote. In the event that it takes too long, the webview
             // RELRO process will block, but it will do so without holding any locks.
+            if (!minimalBoot) {
             mZygotePreload = SystemServerInitThreadPool.submit(() -> {
                 try {
                     Slog.i(TAG, SECONDARY_ZYGOTE_PRELOAD);
@@ -1542,6 +1550,7 @@ public final class SystemServer implements Dumpable {
                     Slog.e(TAG, "Exception preloading default resources", ex);
                 }
             }, SECONDARY_ZYGOTE_PRELOAD);
+            } // !minimalBoot
 
             t.traceBegin("StartKeyAttestationApplicationIdProviderService");
             ServiceManager.addService("sec_key_att_app_id_provider",
@@ -1713,18 +1722,30 @@ public final class SystemServer implements Dumpable {
             mDisplayManagerService.windowManagerAndInputReady();
             t.traceEnd();
 
-            if (mFactoryTestMode == FactoryTest.FACTORY_TEST_LOW_LEVEL) {
-                Slog.i(TAG, "No Bluetooth Service (factory test)");
-            } else if (!context.getPackageManager().hasSystemFeature
-                    (PackageManager.FEATURE_BLUETOOTH)) {
-                Slog.i(TAG, "No Bluetooth Service (Bluetooth Hardware Not Present)");
-            } else {
-                t.traceBegin("StartBluetoothService");
-                mSystemServiceManager.startServiceFromJar(BLUETOOTH_SERVICE_CLASS,
-                    BLUETOOTH_APEX_SERVICE_JAR_PATH);
-                t.traceEnd();
+            // ======================================================================
+            // GammaOS Nano: In minimal boot mode, skip everything from here to the
+            // systemReady callback except AudioService. This eliminates ~120 services
+            // that are not needed for a single-app (RetroArch) launch.
+            // ======================================================================
+            if (minimalBoot) {
+                Slog.i(TAG, "GammaOS Nano: minimal boot - skipping Bluetooth and heavy services");
             }
 
+            if (!minimalBoot) {
+                if (mFactoryTestMode == FactoryTest.FACTORY_TEST_LOW_LEVEL) {
+                    Slog.i(TAG, "No Bluetooth Service (factory test)");
+                } else if (!context.getPackageManager().hasSystemFeature
+                        (PackageManager.FEATURE_BLUETOOTH)) {
+                    Slog.i(TAG, "No Bluetooth Service (Bluetooth Hardware Not Present)");
+                } else {
+                    t.traceBegin("StartBluetoothService");
+                    mSystemServiceManager.startServiceFromJar(BLUETOOTH_SERVICE_CLASS,
+                        BLUETOOTH_APEX_SERVICE_JAR_PATH);
+                    t.traceEnd();
+                }
+            }
+
+            if (!minimalBoot) {
             t.traceBegin("IpConnectivityMetrics");
             mSystemServiceManager.startService(IP_CONNECTIVITY_METRICS_CLASS);
             t.traceEnd();
@@ -1754,6 +1775,7 @@ public final class SystemServer implements Dumpable {
             t.traceBegin("StartLogcatManager");
             mSystemServiceManager.startService(LogcatManagerService.class);
             t.traceEnd();
+            } // !minimalBoot: IpConnectivity through Logcat
 
         } catch (Throwable e) {
             Slog.e("System", "******************************************");
@@ -1763,7 +1785,7 @@ public final class SystemServer implements Dumpable {
 
         // Before things start rolling, be sure we have decided whether
         // we are in safe mode.
-        final boolean safeMode = wm.detectSafeMode();
+        final boolean safeMode = minimalBoot ? false : wm.detectSafeMode();
         if (safeMode) {
             // If yes, immediately turn on the global setting for airplane mode.
             // Note that this does not send broadcasts at this stage because
@@ -1777,12 +1799,15 @@ public final class SystemServer implements Dumpable {
         }
 
         StatusBarManagerService statusBar = null;
+
         INotificationManager notification = null;
         CountryDetectorService countryDetector = null;
         ILockSettings lockSettings = null;
         MediaRouterService mediaRouter = null;
+        DevicePolicyManagerService.Lifecycle dpms = null;
+        HsumBootUserInitializer hsumBootUserInitializer = null;
 
-        // Bring up services needed for UI.
+        // InputMethodManagerService is required even in nano mode (apps need IInputMethodManager)
         if (mFactoryTestMode != FactoryTest.FACTORY_TEST_LOW_LEVEL) {
             t.traceBegin("StartInputMethodManagerLifecycle");
             String immsClassName = context.getResources().getString(
@@ -1798,7 +1823,10 @@ public final class SystemServer implements Dumpable {
                 }
             }
             t.traceEnd();
+        }
 
+        // Bring up remaining UI services (not needed in nano mode).
+        if (!minimalBoot && mFactoryTestMode != FactoryTest.FACTORY_TEST_LOW_LEVEL) {
             t.traceBegin("StartAccessibilityManagerService");
             try {
                 mSystemServiceManager.startService(ACCESSIBILITY_MANAGER_SERVICE_CLASS);
@@ -1832,6 +1860,7 @@ public final class SystemServer implements Dumpable {
                 }
                 t.traceEnd();
 
+                if (!minimalBoot) {
                 t.traceBegin("StartStorageStatsService");
                 try {
                     mSystemServiceManager.startService(STORAGE_STATS_SERVICE_CLASS);
@@ -1839,9 +1868,11 @@ public final class SystemServer implements Dumpable {
                     reportWtf("starting StorageStatsService", e);
                 }
                 t.traceEnd();
+                } // !minimalBoot: StorageStats
             }
         }
 
+        if (!minimalBoot) {
         // We start this here so that we update our configuration to set watch or television
         // as appropriate.
         t.traceBegin("StartUiModeManager");
@@ -1890,10 +1921,10 @@ public final class SystemServer implements Dumpable {
             reportWtf("performing fstrim", e);
         }
         t.traceEnd();
+        } // !minimalBoot: StorageStats through Fstrim
 
-        final DevicePolicyManagerService.Lifecycle dpms;
         if (mFactoryTestMode == FactoryTest.FACTORY_TEST_LOW_LEVEL) {
-            dpms = null;
+            // dpms already null
         } else {
             t.traceBegin("StartLockSettingsService");
             try {
@@ -1905,6 +1936,7 @@ public final class SystemServer implements Dumpable {
             }
             t.traceEnd();
 
+            if (!minimalBoot) { // GammaOS Nano: skip PersistentDataBlock through WallpaperEffects
             final boolean hasPdb = !SystemProperties.get(PERSISTENT_DATA_BLOCK_PROP).equals("");
             if (hasPdb) {
                 t.traceBegin("StartPersistentDataBlock");
@@ -2287,6 +2319,7 @@ public final class SystemServer implements Dumpable {
                     WALLPAPER_EFFECTS_GENERATION_MANAGER_SERVICE_CLASS);
                 t.traceEnd();
             }
+            } // !minimalBoot: PersistentDataBlock through WallpaperEffects
 
             t.traceBegin("StartAudioService");
             if (!isArc) {
@@ -2302,6 +2335,7 @@ public final class SystemServer implements Dumpable {
             }
             t.traceEnd();
 
+            if (!minimalBoot) { // GammaOS Nano: skip SoundTrigger through MIDI
             t.traceBegin("StartSoundTriggerMiddlewareService");
             mSystemServiceManager.startService(SoundTriggerMiddlewareService.Lifecycle.class);
             t.traceEnd();
@@ -2342,6 +2376,7 @@ public final class SystemServer implements Dumpable {
                 mSystemServiceManager.startService(MIDI_SERVICE_CLASS);
                 t.traceEnd();
             }
+            } // !minimalBoot: SoundTrigger through MIDI
 
             // Start ADB Debugging Service
             t.traceBegin("StartAdbService");
@@ -2362,6 +2397,7 @@ public final class SystemServer implements Dumpable {
                 t.traceEnd();
             }
 
+            if (!minimalBoot) { // GammaOS Nano: skip Serial through BackgroundInstall
             if (!isWatch) {
                 t.traceBegin("StartSerialService");
                 mSystemServiceManager.startService(SerialService.Lifecycle.class);
@@ -2672,8 +2708,10 @@ public final class SystemServer implements Dumpable {
             t.traceBegin("StartBackgroundInstallControlService");
             mSystemServiceManager.startService(BackgroundInstallControlService.class);
             t.traceEnd();
+            } // !minimalBoot: Serial through BackgroundInstall
         }
 
+        if (!minimalBoot) { // GammaOS Nano: skip MediaProjection through Lineage
         t.traceBegin("StartMediaProjectionManager");
         mSystemServiceManager.startService(MediaProjectionManagerService.class);
         t.traceEnd();
@@ -2846,7 +2884,9 @@ public final class SystemServer implements Dumpable {
         t.traceBegin("startTracingServiceProxy");
         mSystemServiceManager.startService(TracingServiceProxy.class);
         t.traceEnd();
+        } // !minimalBoot: MediaProjection through TracingServiceProxy
 
+        if (!minimalBoot) {
         // Lineage Services
         String externalServer = context.getResources().getString(
                 org.lineageos.platform.internal.R.string.config_externalSystemServer);
@@ -2866,6 +2906,7 @@ public final class SystemServer implements Dumpable {
                 | NoSuchMethodException e) {
             reportWtf("Making " + externalServer + " ready", e);
         }
+        } // !minimalBoot: Lineage services
 
         // It is now time to start up the app processes...
 
@@ -2884,9 +2925,10 @@ public final class SystemServer implements Dumpable {
         mSystemServiceManager.startBootPhase(t, SystemService.PHASE_LOCK_SETTINGS_READY);
         t.traceEnd();
 
+        if (!minimalBoot) {
         // Create initial user if needed, which should be done early since some system services rely
         // on it in their setup, but likely needs to be done after LockSettingsService is ready.
-        final HsumBootUserInitializer hsumBootUserInitializer =
+        hsumBootUserInitializer =
                 HsumBootUserInitializer.createInstance(
                         mActivityManagerService, mPackageManagerService, mContentResolver,
                         context.getResources().getBoolean(R.bool.config_isMainUserPermanentAdmin));
@@ -2908,6 +2950,7 @@ public final class SystemServer implements Dumpable {
             CommunalProfileInitializer.removeCommunalProfileIfPresent();
             t.traceEnd();
         }
+        } // !minimalBoot: HsumBootUserInitializer + CommunalProfile
 
         t.traceBegin("StartBootPhaseSystemServicesReady");
         mSystemServiceManager.startBootPhase(t, SystemService.PHASE_SYSTEM_SERVICES_READY);
@@ -2975,6 +3018,7 @@ public final class SystemServer implements Dumpable {
 
         mSystemServiceManager.setSafeMode(safeMode);
 
+        if (!minimalBoot) { // GammaOS Nano: skip DeviceSpecific through SensitiveContent
         // Start device specific services
         t.traceBegin("StartDeviceSpecificServices");
         final String[] classes = mSystemContext.getResources().getStringArray(
@@ -3043,8 +3087,11 @@ public final class SystemServer implements Dumpable {
             mSystemServiceManager.startService(SensitiveContentProtectionManagerService.class);
             t.traceEnd();
         }
+        } // !minimalBoot: DeviceSpecific through SensitiveContent
 
         // These are needed to propagate to the runnable below.
+        final DevicePolicyManagerService.Lifecycle dpmsF = dpms;
+        final HsumBootUserInitializer hsumBootUserInitializerF = hsumBootUserInitializer;
         final NetworkManagementService networkManagementF = networkManagement;
         final NetworkPolicyManagerService networkPolicyF = networkPolicy;
         final CountryDetectorService countryDetectorF = countryDetector;
@@ -3089,7 +3136,7 @@ public final class SystemServer implements Dumpable {
             // be completed before allowing 3rd party
             final String WEBVIEW_PREPARATION = "WebViewFactoryPreparation";
             Future<?> webviewPrep = null;
-            if (mWebViewUpdateService != null) {
+            if (!minimalBoot && mWebViewUpdateService != null) {
                 webviewPrep = SystemServerInitThreadPool.submit(() -> {
                     Slog.i(TAG, WEBVIEW_PREPARATION);
                     TimingsTraceAndSlog traceLog = TimingsTraceAndSlog.newAsyncLog();
@@ -3111,7 +3158,7 @@ public final class SystemServer implements Dumpable {
                     mDumper.addDumpable((Dumpable) cshs);
                 }
                 if (cshs instanceof DevicePolicySafetyChecker) {
-                    dpms.setDevicePolicySafetyChecker((DevicePolicySafetyChecker) cshs);
+                    dpmsF.setDevicePolicySafetyChecker((DevicePolicySafetyChecker) cshs);
                 }
                 t.traceEnd();
             }
@@ -3151,6 +3198,7 @@ public final class SystemServer implements Dumpable {
                 }
                 t.traceEnd();
             }
+            if (!minimalBoot) { // GammaOS Nano: skip network service readiness
             t.traceBegin("MakeNetworkManagementServiceReady");
             try {
                 if (networkManagementF != null) {
@@ -3201,6 +3249,7 @@ public final class SystemServer implements Dumpable {
                 reportWtf("making Network Policy Service ready", e);
             }
             t.traceEnd();
+            } // !minimalBoot: network readiness
 
             // Wait for all packages to be prepared
             mPackageManagerService.waitForAppDataPrepared();
@@ -3215,12 +3264,13 @@ public final class SystemServer implements Dumpable {
             mSystemServiceManager.startBootPhase(t, SystemService.PHASE_THIRD_PARTY_APPS_CAN_START);
             t.traceEnd();
 
-            if (hsumBootUserInitializer != null) {
+            if (hsumBootUserInitializerF != null) {
                 t.traceBegin("HsumBootUserInitializer.systemRunning");
-                hsumBootUserInitializer.systemRunning(t);
+                hsumBootUserInitializerF.systemRunning(t);
                 t.traceEnd();
             }
 
+            if (!minimalBoot) {
             t.traceBegin("StartNetworkStack");
             try {
                 // Note : the network stack is creating on-demand objects that need to send
@@ -3248,7 +3298,9 @@ public final class SystemServer implements Dumpable {
                 reportWtf("starting Tethering", e);
             }
             t.traceEnd();
+            } // !minimalBoot network stack
 
+            if (!minimalBoot) { // GammaOS Nano: skip non-essential service readiness
             t.traceBegin("MakeCountryDetectionServiceReady");
             try {
                 if (countryDetectorF != null) {
@@ -3267,6 +3319,7 @@ public final class SystemServer implements Dumpable {
                 reportWtf("Notifying NetworkTimeService running", e);
             }
             t.traceEnd();
+            } // !minimalBoot: CountryDetector + NetworkTimeUpdate
             t.traceBegin("MakeInputManagerServiceReady");
             try {
                 // TODO(BT) Pass parameter to input manager
@@ -3277,6 +3330,7 @@ public final class SystemServer implements Dumpable {
                 reportWtf("Notifying InputManagerService running", e);
             }
             t.traceEnd();
+            if (!minimalBoot) { // GammaOS Nano: skip Telephony through Incident
             t.traceBegin("MakeTelephonyRegistryReady");
             try {
                 if (telephonyRegistryF != null) {
@@ -3324,6 +3378,7 @@ public final class SystemServer implements Dumpable {
                 setIncrementalServiceSystemReady(mIncrementalServiceHandle);
                 t.traceEnd();
             }
+            } // !minimalBoot: Telephony through Incident
 
             t.traceBegin("OdsignStatsLogger");
             try {
@@ -3342,6 +3397,7 @@ public final class SystemServer implements Dumpable {
         }
         t.traceEnd();
 
+        if (!minimalBoot) {
         t.traceBegin("StartGammapadVibrationBridge");
         try {
             mSystemServiceManager.startService(
@@ -3358,6 +3414,61 @@ public final class SystemServer implements Dumpable {
             reportWtf("starting System UI", e);
         }
         t.traceEnd();
+        } else {
+            Slog.i(TAG, "GammaOS Nano: skipping SystemUI and GammapadVibrationBridge");
+            // Force boot animation exit since there's no SystemUI to trigger it
+            android.os.SystemProperties.set("service.bootanim.exit", "1");
+            // Unlock CE storage early so RetroArch can access SharedPreferences
+            try {
+                com.android.internal.widget.LockPatternUtils lockPatternUtils =
+                        new com.android.internal.widget.LockPatternUtils(context);
+                lockPatternUtils.unlockUserKeyIfUnsecured(android.os.UserHandle.USER_SYSTEM);
+                Slog.i(TAG, "GammaOS Nano: early CE storage unlock requested for user 0");
+            } catch (Exception e) {
+                Slog.w(TAG, "GammaOS Nano: early CE unlock failed: " + e);
+            }
+            // In nano mode no activity starts, so the normal boot completion chain
+            // (activity idle → checkFinishBooting → enableScreenAfterBoot → finishBooting)
+            // never fires. Post a delayed call to drive the chain directly:
+            // 1. enableScreenAfterBoot: sets mSystemBooted + mForceDisplayEnabled, calls
+            //    performEnableScreen which enables display and calls bootAnimationComplete
+            // 2. finishBooting: completes boot, unlocks user, triggers RetroArch launch
+            final WindowManagerService wmsRef = windowManagerF;
+            new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+                Slog.i(TAG, "GammaOS Nano: forcing boot completion chain");
+                // enableScreenAfterBoot sets mSystemBooted + mForceDisplayEnabled,
+                // then performEnableScreen enables display and calls bootAnimationComplete.
+                // bootAnimationComplete triggers finishBooting (which sets mCallFinishBooting
+                // on first call, then completes on second call via bootAnimationComplete).
+                if (wmsRef != null) {
+                    wmsRef.enableScreenAfterBoot();
+                }
+                // Also call finishBooting via ActivityManagerInternal — if bootAnimationComplete
+                // hasn't run yet, this sets mCallFinishBooting=true so the next
+                // bootAnimationComplete call will complete the boot.
+                try {
+                    com.android.server.LocalServices.getService(
+                            android.app.ActivityManagerInternal.class).finishBooting();
+                } catch (Exception e) {
+                    Slog.w(TAG, "GammaOS Nano: finishBooting failed: " + e);
+                }
+            }, 500);
+
+            // Fallback: ensure /sdcard/ gets mounted. The normal user unlock chain
+            // (finishBooting → onBootComplete → finishUserBoot → finishUserUnlocking →
+            // onUserUnlocking → StorageManagerService) is asynchronous across multiple
+            // handler threads. Explicitly dispatch onUserUnlocking after boot settles
+            // to ensure FUSE storage mount completes.
+            final SystemServiceManager ssmRef = mSystemServiceManager;
+            new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+                Slog.i(TAG, "GammaOS Nano: dispatching onUserUnlocking(0) for /sdcard/");
+                try {
+                    ssmRef.onUserUnlocking(android.os.UserHandle.USER_SYSTEM);
+                } catch (Exception e) {
+                    Slog.w(TAG, "GammaOS Nano: onUserUnlocking failed: " + e);
+                }
+            }, 2000);
+        }
 
         t.traceEnd(); // startOtherServices
     }

@@ -166,22 +166,30 @@ public class StatsPullAtomCallbackImpl implements StatsManager.StatsPullAtomCall
             return;
         }
 
-        StatsManager manager = mContext.getSystemService(StatsManager.class);
+        try {
+            StatsManager manager = mContext.getSystemService(StatsManager.class);
+            if (manager == null) {
+                Slog.e(TAG, "StatsManager not available, skipping statsd pullers");
+                return;
+            }
 
-        if (initPullOnDevicePowerMeasurement()) {
-            manager.setPullAtomCallback(
-                    FrameworkStatsLog.ON_DEVICE_POWER_MEASUREMENT,
-                    null, // use default PullAtomMetadata values
-                    ConcurrentUtils.DIRECT_EXECUTOR,
-                    this);
-        }
+            if (initPullOnDevicePowerMeasurement()) {
+                manager.setPullAtomCallback(
+                        FrameworkStatsLog.ON_DEVICE_POWER_MEASUREMENT,
+                        null, // use default PullAtomMetadata values
+                        ConcurrentUtils.DIRECT_EXECUTOR,
+                        this);
+            }
 
-        if (initSubsystemSleepState()) {
-            manager.setPullAtomCallback(
-                    FrameworkStatsLog.SUBSYSTEM_SLEEP_STATE,
-                    null, // use default PullAtomMetadata values
-                    ConcurrentUtils.DIRECT_EXECUTOR,
-                    this);
+            if (initSubsystemSleepState()) {
+                manager.setPullAtomCallback(
+                        FrameworkStatsLog.SUBSYSTEM_SLEEP_STATE,
+                        null, // use default PullAtomMetadata values
+                        ConcurrentUtils.DIRECT_EXECUTOR,
+                        this);
+            }
+        } catch (NullPointerException e) {
+            // StatsManagerService not available (e.g. nano/minimal boot)
         }
     }
 }

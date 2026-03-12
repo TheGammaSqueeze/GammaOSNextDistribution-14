@@ -1013,7 +1013,9 @@ public class MediaProvider extends ContentProvider {
 
                 if (mExternalDbFacade.onFileInserted(insertedRow.getMediaType(),
                         insertedRow.isPending())) {
-                    mPickerDataLayer.handleMediaEventNotification(/*localOnly=*/ true);
+                    if (mPickerDataLayer != null) {
+                        mPickerDataLayer.handleMediaEventNotification(/*localOnly=*/ true);
+                    }
                 }
 
                 mDatabaseBackupAndRecovery.backupVolumeDbData(helper, insertedRow);
@@ -1052,7 +1054,9 @@ public class MediaProvider extends ContentProvider {
                         oldRow.isPending(), newRow.isPending(),
                         oldRow.isFavorite(), newRow.isFavorite(),
                         oldRow.getSpecialFormat(), newRow.getSpecialFormat())) {
-                    mPickerDataLayer.handleMediaEventNotification(/*localOnly=*/ true);
+                    if (mPickerDataLayer != null) {
+                        mPickerDataLayer.handleMediaEventNotification(/*localOnly=*/ true);
+                    }
                 }
 
                 mDatabaseBackupAndRecovery.updateBackup(helper, oldRow, newRow);
@@ -1112,7 +1116,9 @@ public class MediaProvider extends ContentProvider {
 
                 if (mExternalDbFacade.onFileDeleted(deletedRow.getId(),
                         deletedRow.getMediaType())) {
-                    mPickerDataLayer.handleMediaEventNotification(/*localOnly=*/ true);
+                    if (mPickerDataLayer != null) {
+                        mPickerDataLayer.handleMediaEventNotification(/*localOnly=*/ true);
+                    }
                 }
 
                 mDatabaseBackupAndRecovery.deleteFromDbBackup(helper, deletedRow);
@@ -1367,13 +1373,26 @@ public class MediaProvider extends ContentProvider {
         mPickerDbFacade = new PickerDbFacade(context, pickerSyncLockManager);
         mPickerSyncController = PickerSyncController.initialize(context, mPickerDbFacade,
                 mConfigStore, pickerSyncLockManager);
-        mPickerDataLayer = PickerDataLayer.create(context, mPickerDbFacade, mPickerSyncController,
-                mConfigStore);
+        try {
+            mPickerDataLayer = PickerDataLayer.create(context, mPickerDbFacade,
+                    mPickerSyncController, mConfigStore);
+        } catch (Exception e) {
+            // GammaOS Nano: ConnectivityManager may be unavailable when network
+            // services are not started. PhotoPicker is not needed for FUSE storage.
+            Log.w(TAG, "PhotoPicker init failed (services unavailable?): " + e);
+        }
         mPickerUriResolver = new PickerUriResolver(context, mPickerDbFacade, mProjectionHelper,
                 mUriMatcher);
 
         if (SdkLevel.isAtLeastS()) {
-            mTranscodeHelper = new TranscodeHelperImpl(context, this, mConfigStore);
+            try {
+                mTranscodeHelper = new TranscodeHelperImpl(context, this, mConfigStore);
+            } catch (Exception e) {
+                // GammaOS Nano: TranscodeHelperImpl may fail when services
+                // (NotificationManager, etc.) are unavailable
+                Log.w(TAG, "TranscodeHelper init failed, using no-op: " + e);
+                mTranscodeHelper = new TranscodeHelperNoOp();
+            }
         } else {
             mTranscodeHelper = new TranscodeHelperNoOp();
         }
@@ -3676,14 +3695,16 @@ public class MediaProvider extends ContentProvider {
         }
 
         // TODO(b/195008831): Add test to verify that apps can't access
-        if (table == PICKER_INTERNAL_MEDIA_ALL) {
-            return mPickerDataLayer.fetchAllMedia(queryArgs);
-        } else if (table == PICKER_INTERNAL_MEDIA_LOCAL) {
-            return mPickerDataLayer.fetchLocalMedia(queryArgs);
-        } else if (table == PICKER_INTERNAL_ALBUMS_ALL) {
-            return mPickerDataLayer.fetchAllAlbums(queryArgs);
-        } else if (table == PICKER_INTERNAL_ALBUMS_LOCAL) {
-            return mPickerDataLayer.fetchLocalAlbums(queryArgs);
+        if (mPickerDataLayer != null) {
+            if (table == PICKER_INTERNAL_MEDIA_ALL) {
+                return mPickerDataLayer.fetchAllMedia(queryArgs);
+            } else if (table == PICKER_INTERNAL_MEDIA_LOCAL) {
+                return mPickerDataLayer.fetchLocalMedia(queryArgs);
+            } else if (table == PICKER_INTERNAL_ALBUMS_ALL) {
+                return mPickerDataLayer.fetchAllAlbums(queryArgs);
+            } else if (table == PICKER_INTERNAL_ALBUMS_LOCAL) {
+                return mPickerDataLayer.fetchLocalAlbums(queryArgs);
+            }
         }
 
         final DatabaseHelper helper = getDatabaseForUri(uri);
@@ -7126,7 +7147,9 @@ public class MediaProvider extends ContentProvider {
             throw new SecurityException(
                     getSecurityExceptionMessage("Picker media init"));
         }
-        mPickerDataLayer.initMediaData(PickerSyncRequestExtras.fromBundle(extras));
+        if (mPickerDataLayer != null) {
+            mPickerDataLayer.initMediaData(PickerSyncRequestExtras.fromBundle(extras));
+        }
         return null;
     }
 
@@ -7218,7 +7241,9 @@ public class MediaProvider extends ContentProvider {
     private Bundle getResultForNotifyCloudMediaChangedEvent(String arg) {
         final boolean notifyCloudEventResult;
         if (mPickerSyncController.isProviderEnabled(arg, Binder.getCallingUid())) {
-            mPickerDataLayer.handleMediaEventNotification(/*localOnly=*/ false);
+            if (mPickerDataLayer != null) {
+                mPickerDataLayer.handleMediaEventNotification(/*localOnly=*/ false);
+            }
             notifyCloudEventResult = true;
         } else {
             notifyCloudEventResult = false;

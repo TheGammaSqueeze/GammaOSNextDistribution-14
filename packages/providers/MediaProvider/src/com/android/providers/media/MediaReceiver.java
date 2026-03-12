@@ -21,12 +21,17 @@ import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 
 import com.android.providers.media.stableuris.job.StableUriIdleMaintenanceService;
 
 public class MediaReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
+        // GammaOS Nano: skip all broadcast handling when JobScheduler is unavailable
+        if (context.getSystemService(android.app.job.JobScheduler.class) == null) {
+            return;
+        }
         final String action = intent.getAction();
         if (Intent.ACTION_BOOT_COMPLETED.equals(action)) {
             // Register our idle maintenance service

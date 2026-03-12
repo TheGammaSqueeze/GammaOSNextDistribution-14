@@ -1460,6 +1460,7 @@ public class ActivityManagerService extends IActivityManager.Stub
 
     @GuardedBy("this") boolean mCallFinishBooting = false;
     @GuardedBy("this") boolean mBootAnimationComplete = false;
+    @GuardedBy("this") boolean mFinishedBooting = false;
 
     final Context mContext;
 
@@ -5153,11 +5154,24 @@ public class ActivityManagerService extends IActivityManager.Stub
                 mCallFinishBooting = true;
                 return;
             }
+            if (mFinishedBooting) {
+                return;
+            }
             mCallFinishBooting = false;
+            mFinishedBooting = true;
         }
 
         // Let the ART runtime in zygote and system_server know that the boot completed.
-        ZYGOTE_PROCESS.bootCompleted();
+        try {
+            ZYGOTE_PROCESS.bootCompleted();
+        } catch (RuntimeException e) {
+            if (android.os.SystemProperties.getBoolean(
+                    "sys.gammaos.minimal_boot", false)) {
+                Slog.w(TAG, "GammaOS Nano: ignoring zygote bootCompleted failure: " + e);
+            } else {
+                throw e;
+            }
+        }
         VMRuntime.bootCompleted();
 
         IntentFilter pkgFilter = new IntentFilter();
@@ -6984,6 +6998,14 @@ public class ActivityManagerService extends IActivityManager.Stub
                         .getPersistentApplications(STOCK_PM_FLAGS | matchFlags).getList();
                 for (ApplicationInfo app : apps) {
                     if (!"android".equals(app.packageName)) {
+                        // GammaOS Nano: skip all persistent apps (SystemUI, etc.) -
+                        // only RetroArch needs to run, launched via home activity redirect
+                        if (android.os.SystemProperties.getBoolean(
+                                "sys.gammaos.minimal_boot", false)) {
+                            Slog.i(TAG, "GammaOS Nano: skipping persistent app "
+                                    + app.packageName);
+                            continue;
+                        }
                         final ProcessRecord proc = addAppLocked(
                                 app, null, false, null /* ABI override */,
                                 ZYGOTE_POLICY_FLAG_BATCH_LAUNCH);
@@ -7263,6 +7285,13 @@ public class ActivityManagerService extends IActivityManager.Stub
         }
 
         if ((info.flags & PERSISTENT_MASK) == PERSISTENT_MASK) {
+            // GammaOS Nano: block persistent apps (except "android") from starting
+            if (android.os.SystemProperties.getBoolean(
+                    "sys.gammaos.minimal_boot", false)
+                    && !"android".equals(info.packageName)) {
+                Slog.i(TAG, "GammaOS Nano: blocking persistent app " + info.packageName);
+                return app;
+            }
             app.setPersistent(true);
             app.mState.setMaxAdj(ProcessList.PERSISTENT_PROC_ADJ);
         }
@@ -8875,7 +8904,9 @@ public class ActivityManagerService extends IActivityManager.Stub
             mUserController.onSystemReady();
             mAppOpsService.systemReady();
             mProcessList.onSystemReady();
-            mAppRestrictionController.onSystemReady();
+            if (!android.os.SystemProperties.getBoolean("sys.gammaos.minimal_boot", false)) {
+                mAppRestrictionController.onSystemReady();
+            }
             mSystemReady = true;
             initGammaOsBgProcessLimitWatcher();
             t.traceEnd();
@@ -9016,7 +9047,15 @@ public class ActivityManagerService extends IActivityManager.Stub
             // to a secondary user.
             // TODO(b/266158156): this workaround shouldn't be necessary once we move
             // the headless-user start logic to UserManager-land.
-            if (isBootingSystemUser && !UserManager.isHeadlessSystemUserMode()) {
+            // GammaOS Nano: skip home activity launch here. RetroArch needs CE storage
+            // unlocked and user state RUNNING_UNLOCKED, which happens after
+            // PHASE_BOOT_COMPLETED. Home will be launched from finishUserUnlocked().
+            if (android.os.SystemProperties.getBoolean("sys.gammaos.minimal_boot", false)) {
+                Slog.i(TAG, "GammaOS Nano: deferring home launch until user unlock completes");
+            }
+
+            if (!android.os.SystemProperties.getBoolean("sys.gammaos.minimal_boot", false)
+                    && isBootingSystemUser && !UserManager.isHeadlessSystemUserMode()) {
                 t.traceBegin("startHomeOnAllDisplays");
                 mAtmInternal.startHomeOnAllDisplays(currentUserId, "systemReady");
                 t.traceEnd();
@@ -13587,7 +13626,17 @@ public class ActivityManagerService extends IActivityManager.Stub
             // This app is persistent, so we need to keep its record around.
             // If it is not already on the pending app list, add it there
             // and start a new process for it.
-            if (mPersistentStartingProcesses.indexOf(app) < 0) {
+            // GammaOS Nano: don't restart persistent apps (SystemUI etc.) in nano mode
+            if (android.os.SystemProperties.getBoolean(
+                    "sys.gammaos.minimal_boot", false)
+                    && !"android".equals(app.processName)) {
+                Slog.i(TAG, "GammaOS Nano: not restarting persistent app "
+                        + app.processName);
+                if (!replacingPid) {
+                    mProcessList.removeProcessNameLocked(
+                            app.processName, app.uid, app);
+                }
+            } else if (mPersistentStartingProcesses.indexOf(app) < 0) {
                 mPersistentStartingProcesses.add(app);
                 restart = true;
             }

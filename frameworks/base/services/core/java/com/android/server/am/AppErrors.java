@@ -1056,6 +1056,8 @@ class AppErrors {
                         && now < crashShowErrorTime + ActivityManagerConstants.MIN_CRASH_INTERVAL;
                 if ((mService.mAtmInternal.canShowErrorDialogs() || showBackground)
                         && !crashSilenced && !shouldThottle
+                        && !android.os.SystemProperties.getBoolean(
+                                "sys.gammaos.minimal_boot", false)
                         && (showFirstCrash || showFirstCrashDevOption || data.repeating)) {
                     Slog.i(TAG, "Showing crash dialog for package " + packageName + " u" + userId);
                     errState.getDialogController().showCrashDialogs(data);

@@ -622,7 +622,13 @@ class UserController implements Handler.Callback {
                 // onBootComplete if boot has not yet completed.
                 if (mAllowUserUnlocking) {
                     // ACTION_LOCKED_BOOT_COMPLETED
-                    sendLockedBootCompletedBroadcast(resultTo, userId);
+                    // GammaOS Nano: skip broadcast - prevents boot receivers from waking apps
+                    if (!android.os.SystemProperties.getBoolean(
+                            "sys.gammaos.minimal_boot", false)) {
+                        sendLockedBootCompletedBroadcast(resultTo, userId);
+                    } else {
+                        Slogf.i(TAG, "GammaOS Nano: skipping LOCKED_BOOT_COMPLETED broadcast");
+                    }
                 }
             }
         }
@@ -731,6 +737,15 @@ class UserController implements Handler.Callback {
         }
         mInjector.getUserManagerInternal().setUserState(userId, uss.state);
         uss.mUnlockProgress.finish();
+
+        // GammaOS Nano: now that user is RUNNING_UNLOCKED and CE storage is available,
+        // launch the home activity (RetroArch). This is deferred from systemReady()
+        // because RetroArch needs SharedPreferences which requires CE unlock + user state.
+        if (userId == UserHandle.USER_SYSTEM
+                && android.os.SystemProperties.getBoolean("sys.gammaos.minimal_boot", false)) {
+            Slogf.i(TAG, "GammaOS Nano: user 0 fully unlocked, launching home activity");
+            mInjector.startHomeActivity(userId, "nanoUnlocked");
+        }
 
         // Get unaware persistent apps running and start any unaware providers
         // in already-running apps that are partially aware
@@ -844,11 +859,21 @@ class UserController implements Handler.Callback {
             return;
         }
 
-        // Spin up app widgets prior to boot-complete, so they can be ready promptly
-        mInjector.startUserWidgets(userId);
+        // GammaOS Nano: skip widgets and BOOT_COMPLETED broadcast to prevent waking other apps
+        final boolean minimalBoot = android.os.SystemProperties.getBoolean(
+                "sys.gammaos.minimal_boot", false);
+
+        if (!minimalBoot) {
+            // Spin up app widgets prior to boot-complete, so they can be ready promptly
+            mInjector.startUserWidgets(userId);
+        }
 
         mHandler.obtainMessage(USER_UNLOCKED_MSG, userId, 0).sendToTarget();
 
+        if (minimalBoot) {
+            Slogf.i(TAG, "GammaOS Nano: skipping BOOT_COMPLETED broadcast for user #" + userId);
+            mBootCompleted = true;
+        } else {
         Slogf.i(TAG, "Posting BOOT_COMPLETED user #" + userId);
         // Do not report secondary users, runtime restarts or first boot/upgrade
         if (userId == UserHandle.USER_SYSTEM
@@ -884,6 +909,7 @@ class UserController implements Handler.Callback {
                     getTemporaryAppAllowlistBroadcastOptions(REASON_BOOT_COMPLETED).toBundle(),
                     true, false, MY_PID, SYSTEM_UID, callingUid, callingPid, userId);
         });
+        } // !minimalBoot
     }
 
     int restartUser(final int userId, @UserStartMode int userStartMode) {

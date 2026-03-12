@@ -5776,17 +5776,24 @@ public class UserManagerService extends IUserManager.Stub {
 
     /** Register callbacks for statsd pulled atoms. */
     private void registerStatsCallbacks() {
-        final StatsManager statsManager = mContext.getSystemService(StatsManager.class);
-        statsManager.setPullAtomCallback(
-                FrameworkStatsLog.USER_INFO,
-                null, // use default PullAtomMetadata values
-                DIRECT_EXECUTOR,
-                this::onPullAtom);
-        statsManager.setPullAtomCallback(
-                FrameworkStatsLog.MULTI_USER_INFO,
-                null, // use default PullAtomMetadata values
-                DIRECT_EXECUTOR,
-                this::onPullAtom);
+        try {
+            final StatsManager statsManager = mContext.getSystemService(StatsManager.class);
+            if (statsManager == null) {
+                return;
+            }
+            statsManager.setPullAtomCallback(
+                    FrameworkStatsLog.USER_INFO,
+                    null, // use default PullAtomMetadata values
+                    DIRECT_EXECUTOR,
+                    this::onPullAtom);
+            statsManager.setPullAtomCallback(
+                    FrameworkStatsLog.MULTI_USER_INFO,
+                    null, // use default PullAtomMetadata values
+                    DIRECT_EXECUTOR,
+                    this::onPullAtom);
+        } catch (NullPointerException e) {
+            // StatsManagerService not available (e.g. nano/minimal boot)
+        }
     }
 
     /** Writes a UserInfo pulled atom for each user on the device. */

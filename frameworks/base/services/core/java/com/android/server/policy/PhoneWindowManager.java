@@ -7170,6 +7170,10 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     }
 
     private void bindKeyguard() {
+        // GammaOS Nano: skip keyguard (and SystemUI) in nano mode
+        if (android.os.SystemProperties.getBoolean("sys.gammaos.minimal_boot", false)) {
+            return;
+        }
         synchronized (mLock) {
             if (mKeyguardBound) {
                 return;

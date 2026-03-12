@@ -482,7 +482,9 @@ public class Notifier {
 
             // Start input as soon as we start waking up or going to sleep.
             mInputManagerInternal.setInteractive(interactive);
-            mInputMethodManagerInternal.setInteractive(interactive);
+            if (mInputMethodManagerInternal != null) {
+                mInputMethodManagerInternal.setInteractive(interactive);
+            }
 
             // Notify battery stats.
             try {

@@ -1509,6 +1509,62 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
 
         Intent homeIntent = null;
         ActivityInfo aInfo = null;
+
+        // GammaOS Nano: In minimal boot mode, launch RetroArch directly instead of home.
+        // Only redirect after CE storage is unlocked (RetroArch needs SharedPreferences).
+        final boolean minimalBoot = android.os.SystemProperties.getBoolean(
+                "sys.gammaos.minimal_boot", false);
+        final com.android.server.pm.UserManagerInternal umInternal = minimalBoot
+                ? com.android.server.LocalServices.getService(
+                        com.android.server.pm.UserManagerInternal.class)
+                : null;
+        if (minimalBoot && taskDisplayArea == getDefaultTaskDisplayArea()
+                && umInternal != null && umInternal.isUserUnlockingOrUnlocked(userId)) {
+            final String nanoApp = android.os.SystemProperties.get(
+                    "sys.gammaos.nano.launch_app", "com.retroarch.aarch64");
+            Slog.i(TAG, "GammaOS Nano: minimal boot - launching " + nanoApp + " as home");
+            // Find the launch activity using broad matching (including direct boot unaware)
+            try {
+                Intent launchIntent = new Intent(Intent.ACTION_MAIN);
+                launchIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+                launchIntent.setPackage(nanoApp);
+                java.util.List<android.content.pm.ResolveInfo> activities =
+                        mService.mContext.getPackageManager().queryIntentActivities(launchIntent,
+                                android.content.pm.PackageManager.MATCH_ALL
+                                | android.content.pm.PackageManager.MATCH_DIRECT_BOOT_UNAWARE
+                                | android.content.pm.PackageManager.MATCH_DIRECT_BOOT_AWARE);
+                Slog.i(TAG, "GammaOS Nano: queryIntentActivities returned " + activities.size()
+                        + " results for " + nanoApp);
+                if (!activities.isEmpty()) {
+                    aInfo = activities.get(0).activityInfo;
+                    homeIntent = new Intent(Intent.ACTION_MAIN);
+                    homeIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+                    homeIntent.setComponent(new ComponentName(
+                            aInfo.applicationInfo.packageName, aInfo.name));
+                    homeIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    homeIntent.putExtra(
+                            com.android.server.policy.WindowManagerPolicy.EXTRA_START_REASON,
+                            reason);
+                    final String myReason = reason + ":" + userId + ":"
+                            + android.os.UserHandle.getUserId(aInfo.applicationInfo.uid)
+                            + ":" + taskDisplayArea.getDisplayId();
+                    Slog.i(TAG, "GammaOS Nano: starting " + aInfo.name);
+                    mService.getActivityStartController().startHomeActivity(
+                            homeIntent, aInfo, myReason, taskDisplayArea);
+                    return true;
+                }
+            } catch (Exception e) {
+                Slog.e(TAG, "GammaOS Nano: error resolving " + nanoApp, e);
+            }
+            Slog.w(TAG, "GammaOS Nano: could not resolve " + nanoApp + ", falling back to home");
+        } else if (minimalBoot && taskDisplayArea == getDefaultTaskDisplayArea()) {
+            // Nano mode but user not unlocked yet — don't launch FallbackHome (it will crash).
+            // The system will retry via UserController.finishUserUnlocked().
+            Slog.i(TAG, "GammaOS Nano: user " + userId
+                    + " not yet unlocked, deferring home launch");
+            return false;
+        }
+
         if (taskDisplayArea == getDefaultTaskDisplayArea()
                 || mWmService.shouldPlacePrimaryHomeOnDisplay(
                         taskDisplayArea.getDisplayId(), userId)) {

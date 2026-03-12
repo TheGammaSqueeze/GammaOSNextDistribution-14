@@ -80,6 +80,7 @@ public class UsageStatsIdleService extends JobService {
     private static void scheduleJobInternal(Context context, JobInfo jobInfo,
             String namespace, int jobId) {
         JobScheduler jobScheduler = context.getSystemService(JobScheduler.class);
+        if (jobScheduler == null) return;
         jobScheduler = jobScheduler.forNamespace(namespace);
         final JobInfo pendingJob = jobScheduler.getPendingJob(jobId);
         // only schedule a new job if one doesn't exist already for this user

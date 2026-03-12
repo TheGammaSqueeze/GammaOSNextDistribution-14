@@ -523,8 +523,8 @@ on late-init
     # Should be before netd, but after apex, properties and logging is available.
     trigger load_bpf_programs
 
-    # Now we can start zygote.
-    trigger zygote-start
+    # GammaOS Nano: defer zygote until the nano menu signals boot.
+    # trigger zygote-start  # deferred to service.bootanim.nano_boot=1
 
     # Remove a file to wake up anything waiting for firmware.
     trigger firmware_mounts_complete
@@ -763,10 +763,10 @@ on property:init.svc.android.hardware.graphics.composer@2.1-service=running
 on property:init.svc.vendor.hwcomposer-2-1=running && property:init.svc.vendor.gralloc-4-0=running
     start surfaceflinger
 
-# Start boot animation as soon as SurfaceFlinger is available. BootAnimation can
-# fall back to system/product animations if /data is not yet available.
+# GammaOS Nano: start the minimal boot menu instead of bootanimation.
+# The original bootanim service is still defined but never started.
 on property:init.svc.surfaceflinger=running
-    start bootanim
+    start gammaos-nano
 
 on property:ro.product.cpu.abilist64=* && property:bootreceiver.enable=1
     # Set up a tracing instance for system_server to monitor error_report_end events.
@@ -1310,8 +1310,27 @@ on boot
     class_start core
 
 on nonencrypted
+    # GammaOS Nano: defer main/late_start until the nano menu signals boot.
+    # class_start main      # deferred to service.bootanim.nano_boot=1
+    # class_start late_start # deferred to service.bootanim.nano_boot=1
+
+# GammaOS Nano: when user selects "Boot Android", resume normal boot sequence.
+on property:service.bootanim.nano_boot=1
+    trigger zygote-start
     class_start main
     class_start late_start
+
+# GammaOS Nano: minimal RetroArch boot - start only what's needed.
+# Skips zygote_secondary (32-bit), avoids duplicate wait_for_prop/update_verifier
+# from zygote-start trigger, starts gatekeeperd early for faster CE unlock.
+on property:service.bootanim.nano_retroarch=1
+    setprop sys.gammaos.minimal_boot 1
+    wait_for_prop odsign.verification.done 1
+    exec_start update_verifier
+    start zygote
+    start zygote_secondary
+    start gatekeeperd
+    class_start main
 
 on property:sys.init_log_level=*
     loglevel ${sys.init_log_level}
@@ -1461,7 +1480,7 @@ on userspace-reboot-fs-remount
   umount /data_mirror/ref_profiles
   umount /data_mirror
   remount_userdata
-  start bootanim
+  start gammaos-nano
 
 on userspace-reboot-resume
   trigger userspace-reboot-fs-remount

@@ -3823,9 +3823,17 @@ public class WindowManagerService extends IWindowManager.Stub
             }
             mSystemBooted = true;
             hideBootMessagesLocked();
-            // If the screen still doesn't come up after 30 seconds, give
-            // up and turn it on.
-            mH.sendEmptyMessageDelayed(H.BOOT_TIMEOUT, 30 * 1000);
+            if (android.os.SystemProperties.getBoolean(
+                    "sys.gammaos.minimal_boot", false)) {
+                // Nano mode: no activity will go idle to trigger boot completion,
+                // so use a short timeout to force-enable the display and complete boot.
+                mForceDisplayEnabled = true;
+                mH.sendEmptyMessageDelayed(H.BOOT_TIMEOUT, 1000);
+            } else {
+                // If the screen still doesn't come up after 30 seconds, give
+                // up and turn it on.
+                mH.sendEmptyMessageDelayed(H.BOOT_TIMEOUT, 30 * 1000);
+            }
         }
 
         mPolicy.systemBooted();
@@ -3887,7 +3895,8 @@ public class WindowManagerService extends IWindowManager.Stub
                 return;
             }
 
-            if (!mShowingBootMessages && !mPolicy.canDismissBootAnimation()) {
+            if (!mShowingBootMessages && !mForceDisplayEnabled
+                    && !mPolicy.canDismissBootAnimation()) {
                 return;
             }
 

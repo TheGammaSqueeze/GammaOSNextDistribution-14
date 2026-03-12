@@ -1425,13 +1425,16 @@ public final class PermissionPolicyService extends SystemService {
 
             if (!pkg.getRequestedPermissions().contains(POST_NOTIFICATIONS)
                     || CompatChanges.isChangeEnabled(NOTIFICATION_PERM_CHANGE_ID, pkgName, user)
-                    || mKeyguardManager.isKeyguardLocked()) {
+                    || (mKeyguardManager != null && mKeyguardManager.isKeyguardLocked())) {
                 return false;
             }
 
             int uid = user.getUid(pkg.getUid());
             if (mNotificationManager == null) {
                 mNotificationManager = LocalServices.getService(NotificationManagerInternal.class);
+            }
+            if (mNotificationManager == null) {
+                return false;
             }
             boolean hasCreatedNotificationChannels = mNotificationManager
                     .getNumNotificationChannelsForPackage(pkgName, uid, true) > 0;

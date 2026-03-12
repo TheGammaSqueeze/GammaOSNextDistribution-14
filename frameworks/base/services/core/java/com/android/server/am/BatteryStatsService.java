@@ -503,13 +503,15 @@ public final class BatteryStatsService extends IBatteryStats.Stub
                 ServiceManager.getService(Context.NETWORKMANAGEMENT_SERVICE));
         final ConnectivityManager cm = mContext.getSystemService(ConnectivityManager.class);
         try {
-            if (!SdkLevel.isAtLeastV()) {
+            if (!SdkLevel.isAtLeastV() && nms != null) {
                 // On V+ devices, ConnectivityService calls BatteryStats API to update
                 // RadioPowerState change. So BatteryStatsService registers the callback only on
                 // pre V devices.
                 nms.registerObserver(mActivityChangeObserver);
             }
-            cm.registerDefaultNetworkCallback(mNetworkCallback);
+            if (cm != null) {
+                cm.registerDefaultNetworkCallback(mNetworkCallback);
+            }
         } catch (RemoteException e) {
             Slog.e(TAG, "Could not register INetworkManagement event observer " + e);
         }
@@ -908,21 +910,28 @@ public final class BatteryStatsService extends IBatteryStats.Stub
 
     /** Register callbacks for statsd pulled atoms. */
     private void registerStatsCallbacks() {
-        final StatsManager statsManager = mContext.getSystemService(StatsManager.class);
-        final StatsPullAtomCallbackImpl pullAtomCallback = new StatsPullAtomCallbackImpl();
+        try {
+            final StatsManager statsManager = mContext.getSystemService(StatsManager.class);
+            if (statsManager == null) {
+                return;
+            }
+            final StatsPullAtomCallbackImpl pullAtomCallback = new StatsPullAtomCallbackImpl();
 
-        statsManager.setPullAtomCallback(
-                FrameworkStatsLog.BATTERY_USAGE_STATS_SINCE_RESET,
-                null, // use default PullAtomMetadata values
-                DIRECT_EXECUTOR, pullAtomCallback);
-        statsManager.setPullAtomCallback(
-                FrameworkStatsLog.BATTERY_USAGE_STATS_SINCE_RESET_USING_POWER_PROFILE_MODEL,
-                null, // use default PullAtomMetadata values
-                DIRECT_EXECUTOR, pullAtomCallback);
-        statsManager.setPullAtomCallback(
-                FrameworkStatsLog.BATTERY_USAGE_STATS_BEFORE_RESET,
-                null, // use default PullAtomMetadata values
-                DIRECT_EXECUTOR, pullAtomCallback);
+            statsManager.setPullAtomCallback(
+                    FrameworkStatsLog.BATTERY_USAGE_STATS_SINCE_RESET,
+                    null, // use default PullAtomMetadata values
+                    DIRECT_EXECUTOR, pullAtomCallback);
+            statsManager.setPullAtomCallback(
+                    FrameworkStatsLog.BATTERY_USAGE_STATS_SINCE_RESET_USING_POWER_PROFILE_MODEL,
+                    null, // use default PullAtomMetadata values
+                    DIRECT_EXECUTOR, pullAtomCallback);
+            statsManager.setPullAtomCallback(
+                    FrameworkStatsLog.BATTERY_USAGE_STATS_BEFORE_RESET,
+                    null, // use default PullAtomMetadata values
+                    DIRECT_EXECUTOR, pullAtomCallback);
+        } catch (NullPointerException e) {
+            // StatsManagerService not available (e.g. nano/minimal boot)
+        }
     }
 
     /** StatsPullAtomCallback for pulling BatteryUsageStats data. */

@@ -177,7 +177,9 @@ public class KeyguardServiceDelegate {
         final DreamManagerInternal dreamManager =
                 LocalServices.getService(DreamManagerInternal.class);
 
-        dreamManager.registerDreamManagerStateListener(mDreamManagerStateListener);
+        if (dreamManager != null) {
+            dreamManager.registerDreamManagerStateListener(mDreamManagerStateListener);
+        }
     }
 
     private final ServiceConnection mKeyguardConnection = new ServiceConnection() {

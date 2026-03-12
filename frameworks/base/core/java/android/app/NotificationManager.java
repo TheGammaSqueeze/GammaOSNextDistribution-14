@@ -723,6 +723,7 @@ public class NotificationManager {
     public void notifyAsPackage(@NonNull String targetPackage, @Nullable String tag, int id,
             @NonNull Notification notification) {
         INotificationManager service = getService();
+        if (service == null) return;
         String sender = mContext.getPackageName();
 
         try {
@@ -741,6 +742,7 @@ public class NotificationManager {
     public void notifyAsUser(String tag, int id, Notification notification, UserHandle user)
     {
         INotificationManager service = getService();
+        if (service == null) return;
         String pkg = mContext.getPackageName();
 
         try {
@@ -849,6 +851,7 @@ public class NotificationManager {
     public void cancelAsUser(String tag, int id, UserHandle user)
     {
         INotificationManager service = getService();
+        if (service == null) return;
         String pkg = mContext.getPackageName();
         if (localLOGV) Log.v(TAG, pkg + ": cancel(" + id + ")");
         try {
@@ -866,6 +869,7 @@ public class NotificationManager {
     public void cancelAll()
     {
         INotificationManager service = getService();
+        if (service == null) return;
         String pkg = mContext.getPackageName();
         if (localLOGV) Log.v(TAG, pkg + ": cancelAll()");
         try {
@@ -973,6 +977,7 @@ public class NotificationManager {
      */
     public void createNotificationChannelGroups(@NonNull List<NotificationChannelGroup> groups) {
         INotificationManager service = getService();
+        if (service == null) return;
         try {
             service.createNotificationChannelGroups(mContext.getPackageName(),
                     new ParceledListSlice(groups));
@@ -1016,6 +1021,10 @@ public class NotificationManager {
      */
     public void createNotificationChannels(@NonNull List<NotificationChannel> channels) {
         INotificationManager service = getService();
+        if (service == null) {
+            // GammaOS Nano: NotificationManagerService may not be running
+            return;
+        }
         try {
             service.createNotificationChannels(mContext.getPackageName(),
                     new ParceledListSlice(channels));
@@ -1034,6 +1043,7 @@ public class NotificationManager {
      */
     public NotificationChannel getNotificationChannel(String channelId) {
         INotificationManager service = getService();
+        if (service == null) return null;
         try {
             return service.getNotificationChannel(mContext.getOpPackageName(),
                     mContext.getUserId(), mContext.getPackageName(), channelId);

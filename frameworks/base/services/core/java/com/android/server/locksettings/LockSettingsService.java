@@ -793,8 +793,12 @@ public class LockSettingsService extends ILockSettings.Stub {
 
     private void hideEncryptionNotification(UserHandle userHandle) {
         Slogf.d(TAG, "Hiding encryption notification for user %d", userHandle.getIdentifier());
-        mNotificationManager.cancelAsUser(null, SystemMessage.NOTE_FBE_ENCRYPTED_NOTIFICATION,
-            userHandle);
+        try {
+            mNotificationManager.cancelAsUser(null, SystemMessage.NOTE_FBE_ENCRYPTED_NOTIFICATION,
+                userHandle);
+        } catch (NullPointerException e) {
+            // NotificationManagerService not available (e.g. nano/minimal boot)
+        }
     }
 
     @VisibleForTesting

@@ -1355,7 +1355,9 @@ public class UsbDeviceManager implements ActivityTaskManagerInternal.ScreenObser
 
         protected void updateUsbNotification(boolean force) {
             if (mNotificationManager == null || !mUseUsbNotification
-                    || ("0".equals(getSystemProperty("persist.charging.notify", "")))) {
+                    || ("0".equals(getSystemProperty("persist.charging.notify", "")))
+                    || android.os.SystemProperties.getBoolean(
+                            "sys.gammaos.minimal_boot", false)) {
                 return;
             }
 
@@ -1504,9 +1506,14 @@ public class UsbDeviceManager implements ActivityTaskManagerInternal.ScreenObser
                     }
                     Notification notification = builder.build();
 
-                    mNotificationManager.notifyAsUser(null, id, notification,
-                            UserHandle.ALL);
-                    Slog.d(TAG, "push notification:" + title);
+                    try {
+                        mNotificationManager.notifyAsUser(null, id, notification,
+                                UserHandle.ALL);
+                        Slog.d(TAG, "push notification:" + title);
+                    } catch (NullPointerException e) {
+                        // NotificationManagerService not available (e.g. nano/minimal boot)
+                        Slog.w(TAG, "Cannot show USB notification: NMS unavailable");
+                    }
                     mUsbNotificationId = id;
                 }
             }
@@ -1518,7 +1525,9 @@ public class UsbDeviceManager implements ActivityTaskManagerInternal.ScreenObser
         }
 
         protected void updateAdbNotification(boolean force) {
-            if (mNotificationManager == null) return;
+            if (mNotificationManager == null
+                    || android.os.SystemProperties.getBoolean(
+                            "sys.gammaos.minimal_boot", false)) return;
             final int id = SystemMessage.NOTE_ADB_ACTIVE;
 
             if (isAdbEnabled() && mConnected) {

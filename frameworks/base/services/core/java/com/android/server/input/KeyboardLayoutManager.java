@@ -1179,9 +1179,13 @@ class KeyboardLayoutManager implements InputManager.InputDeviceListener {
                                 com.android.internal.R.color.system_notification_accent_color))
                         .setAutoCancel(true)
                         .build();
-        notificationManager.notifyAsUser(null,
-                SystemMessageProto.SystemMessage.NOTE_SELECT_KEYBOARD_LAYOUT,
-                notification, UserHandle.ALL);
+        try {
+            notificationManager.notifyAsUser(null,
+                    SystemMessageProto.SystemMessage.NOTE_SELECT_KEYBOARD_LAYOUT,
+                    notification, UserHandle.ALL);
+        } catch (NullPointerException e) {
+            // NotificationManagerService not available (e.g. nano/minimal boot)
+        }
     }
 
     @MainThread
@@ -1192,9 +1196,13 @@ class KeyboardLayoutManager implements InputManager.InputDeviceListener {
             return;
         }
 
-        notificationManager.cancelAsUser(null,
-                SystemMessageProto.SystemMessage.NOTE_SELECT_KEYBOARD_LAYOUT,
-                UserHandle.ALL);
+        try {
+            notificationManager.cancelAsUser(null,
+                    SystemMessageProto.SystemMessage.NOTE_SELECT_KEYBOARD_LAYOUT,
+                    UserHandle.ALL);
+        } catch (NullPointerException e) {
+            // NotificationManagerService not available (e.g. nano/minimal boot)
+        }
     }
 
     @MainThread

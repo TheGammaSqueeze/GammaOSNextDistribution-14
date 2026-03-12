@@ -291,6 +291,7 @@ public class SyncManager {
 
     private List<SyncOperation> getAllPendingSyncs() {
         verifyJobScheduler();
+        if (mJobScheduler == null) return java.util.Collections.emptyList();
         List<JobInfo> pendingJobs = mJobScheduler.getAllPendingJobs();
         final int numJobs = pendingJobs.size();
         final List<SyncOperation> pendingSyncs = new ArrayList<>(numJobs);
@@ -389,7 +390,9 @@ public class SyncManager {
     }
 
     private boolean readDataConnectionState() {
-        NetworkInfo networkInfo = getConnectivityManager().getActiveNetworkInfo();
+        ConnectivityManager cm = getConnectivityManager();
+        if (cm == null) return false;
+        NetworkInfo networkInfo = cm.getActiveNetworkInfo();
         return (networkInfo != null) && networkInfo.isConnected();
     }
 
@@ -584,8 +587,9 @@ public class SyncManager {
             }
             // Use a dedicated namespace to avoid conflicts with other jobs
             // scheduled by the system process.
-            mJobScheduler = mContext.getSystemService(JobScheduler.class)
-                    .forNamespace("SyncManager");
+            JobScheduler js = mContext.getSystemService(JobScheduler.class);
+            if (js == null) return;
+            mJobScheduler = js.forNamespace("SyncManager");
             migrateSyncJobNamespaceIfNeeded();
             // Get all persisted syncs from JobScheduler in the SyncManager namespace.
             List<JobInfo> pendingJobs = mJobScheduler.getAllPendingJobs();
@@ -3133,12 +3137,23 @@ public class SyncManager {
             mSyncManagerWakeLock.acquire();
             try {
                 handleSyncMessage(msg);
+            } catch (NullPointerException e) {
+                if (android.os.SystemProperties.getBoolean(
+                        "sys.gammaos.minimal_boot", false)) {
+                    Slog.w(TAG, "GammaOS Nano: SyncManager NPE (service unavailable): " + e);
+                } else {
+                    throw e;
+                }
             } finally {
                 mSyncManagerWakeLock.release();
             }
         }
 
         private void handleSyncMessage(Message msg) {
+            // In nano/minimal boot, JobScheduler isn't available. Skip all sync operations.
+            verifyJobScheduler();
+            if (mJobScheduler == null) return;
+
             final boolean isLoggable = Log.isLoggable(TAG, Log.VERBOSE);
 
             try {

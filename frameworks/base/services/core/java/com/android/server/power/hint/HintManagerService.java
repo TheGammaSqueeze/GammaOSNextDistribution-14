@@ -142,12 +142,19 @@ public final class HintManagerService extends SystemService {
     }
 
     private void registerStatsCallbacks() {
-        final StatsManager statsManager = mContext.getSystemService(StatsManager.class);
-        statsManager.setPullAtomCallback(
-                FrameworkStatsLog.ADPF_SYSTEM_COMPONENT_INFO,
-                null, // use default PullAtomMetadata values
-                DIRECT_EXECUTOR,
-                this::onPullAtom);
+        try {
+            final StatsManager statsManager = mContext.getSystemService(StatsManager.class);
+            if (statsManager == null) {
+                return;
+            }
+            statsManager.setPullAtomCallback(
+                    FrameworkStatsLog.ADPF_SYSTEM_COMPONENT_INFO,
+                    null, // use default PullAtomMetadata values
+                    DIRECT_EXECUTOR,
+                    this::onPullAtom);
+        } catch (NullPointerException e) {
+            // StatsManagerService not available (e.g. nano/minimal boot)
+        }
     }
 
     private int onPullAtom(int atomTag, @NonNull List<StatsEvent> data) {
