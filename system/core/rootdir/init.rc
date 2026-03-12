@@ -1321,14 +1321,11 @@ on property:service.bootanim.nano_boot=1
     class_start late_start
 
 # GammaOS Nano: minimal RetroArch boot - start only what's needed.
-# Skips zygote_secondary (32-bit), avoids duplicate wait_for_prop/update_verifier
-# from zygote-start trigger, starts gatekeeperd early for faster CE unlock.
+# Skip odsign wait and update_verifier — they verify OTA/ART integrity
+# which is unnecessary for a single-app nano boot. This saves ~1.9s.
 on property:service.bootanim.nano_retroarch=1
     setprop sys.gammaos.minimal_boot 1
-    wait_for_prop odsign.verification.done 1
-    exec_start update_verifier
     start zygote
-    start zygote_secondary
     start gatekeeperd
     class_start main
 

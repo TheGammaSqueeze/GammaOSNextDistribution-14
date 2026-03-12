@@ -68,6 +68,7 @@ public class StableUriIdleMaintenanceService extends JobService {
      */
     public static void scheduleIdlePass(Context context) {
         final JobScheduler scheduler = context.getSystemService(JobScheduler.class);
+        if (scheduler == null) return;
         if (scheduler.getPendingJob(IDLE_JOB_ID) == null) {
             final JobInfo job = new JobInfo.Builder(IDLE_JOB_ID,
                     new ComponentName(context,

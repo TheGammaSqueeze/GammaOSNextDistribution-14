@@ -158,19 +158,27 @@ public class SystemSensorManager extends SensorManager {
         ApplicationInfo appInfo = context.getApplicationInfo();
         mTargetSdkLevel = appInfo.targetSdkVersion;
         mContext = context;
-        mNativeInstance = nativeCreate(context.getOpPackageName());
+        // In GammaOS Nano minimal boot, native sensorservice is not running.
+        // nativeCreate() would block waiting for it. Return 0 (no sensors).
+        if (android.os.SystemProperties.getBoolean("sys.gammaos.minimal_boot", false)) {
+            mNativeInstance = 0;
+        } else {
+            mNativeInstance = nativeCreate(context.getOpPackageName());
+        }
         mIsPackageDebuggable = (0 != (appInfo.flags & ApplicationInfo.FLAG_DEBUGGABLE));
 
         // initialize the sensor list
-        for (int index = 0;; ++index) {
-            Sensor sensor = new Sensor();
-            if (android.companion.virtual.flags.Flags.enableNativeVdm()) {
-                if (!nativeGetDefaultDeviceSensorAtIndex(mNativeInstance, sensor, index)) break;
-            } else {
-                if (!nativeGetSensorAtIndex(mNativeInstance, sensor, index)) break;
+        if (mNativeInstance != 0) {
+            for (int index = 0;; ++index) {
+                Sensor sensor = new Sensor();
+                if (android.companion.virtual.flags.Flags.enableNativeVdm()) {
+                    if (!nativeGetDefaultDeviceSensorAtIndex(mNativeInstance, sensor, index)) break;
+                } else {
+                    if (!nativeGetSensorAtIndex(mNativeInstance, sensor, index)) break;
+                }
+                mFullSensorsList.add(sensor);
+                mHandleToSensor.put(sensor.getHandle(), sensor);
             }
-            mFullSensorsList.add(sensor);
-            mHandleToSensor.put(sensor.getHandle(), sensor);
         }
     }
 

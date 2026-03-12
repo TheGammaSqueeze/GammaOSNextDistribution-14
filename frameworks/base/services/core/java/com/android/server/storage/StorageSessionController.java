@@ -495,7 +495,9 @@ public final class StorageSessionController {
         Intent intent = new Intent(ExternalStorageService.SERVICE_INTERFACE);
         intent.setPackage(mExternalStorageServicePackageName);
         ResolveInfo resolveInfo = mContext.getPackageManager().resolveServiceAsUser(intent,
-                PackageManager.GET_SERVICES | PackageManager.GET_META_DATA, userId);
+                PackageManager.GET_SERVICES | PackageManager.GET_META_DATA
+                | PackageManager.MATCH_DIRECT_BOOT_AWARE
+                | PackageManager.MATCH_DIRECT_BOOT_UNAWARE, userId);
         if (resolveInfo == null) {
             return null;
         }

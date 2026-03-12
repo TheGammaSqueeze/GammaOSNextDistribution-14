@@ -124,18 +124,28 @@ public class ZygoteInit {
 
     static void preload(TimingsTraceLog bootTimingsTraceLog) {
         Log.d(TAG, "begin preload");
+        // GammaOS Nano: in minimal boot mode, skip heavy preloading.
+        // RetroArch is an NDK app that uses very few framework classes.
+        // Classes it needs will be loaded on demand (class-fault) which is
+        // faster than preloading 17,000 classes for a single-app boot.
+        final boolean minimalBoot = android.os.SystemProperties.getBoolean(
+                "sys.gammaos.minimal_boot", false);
         bootTimingsTraceLog.traceBegin("BeginPreload");
         beginPreload();
         bootTimingsTraceLog.traceEnd(); // BeginPreload
-        bootTimingsTraceLog.traceBegin("PreloadClasses");
-        preloadClasses();
-        bootTimingsTraceLog.traceEnd(); // PreloadClasses
-        bootTimingsTraceLog.traceBegin("CacheNonBootClasspathClassLoaders");
-        cacheNonBootClasspathClassLoaders();
-        bootTimingsTraceLog.traceEnd(); // CacheNonBootClasspathClassLoaders
-        bootTimingsTraceLog.traceBegin("PreloadResources");
-        Resources.preloadResources();
-        bootTimingsTraceLog.traceEnd(); // PreloadResources
+        if (!minimalBoot) {
+            bootTimingsTraceLog.traceBegin("PreloadClasses");
+            preloadClasses();
+            bootTimingsTraceLog.traceEnd(); // PreloadClasses
+            bootTimingsTraceLog.traceBegin("CacheNonBootClasspathClassLoaders");
+            cacheNonBootClasspathClassLoaders();
+            bootTimingsTraceLog.traceEnd(); // CacheNonBootClasspathClassLoaders
+            bootTimingsTraceLog.traceBegin("PreloadResources");
+            Resources.preloadResources();
+            bootTimingsTraceLog.traceEnd(); // PreloadResources
+        } else {
+            Log.i(TAG, "GammaOS Nano: skipping class/resource preload for minimal boot");
+        }
         Trace.traceBegin(Trace.TRACE_TAG_DALVIK, "PreloadAppProcessHALs");
         nativePreloadAppProcessHALs();
         Trace.traceEnd(Trace.TRACE_TAG_DALVIK);
@@ -143,12 +153,16 @@ public class ZygoteInit {
         maybePreloadGraphicsDriver();
         Trace.traceEnd(Trace.TRACE_TAG_DALVIK);
         preloadSharedLibraries();
-        preloadTextResources();
-        // Ask the WebViewFactory to do any initialization that must run in the zygote process,
-        // for memory sharing purposes.
-        WebViewFactory.prepareWebViewInZygote();
+        if (!minimalBoot) {
+            preloadTextResources();
+            // Ask the WebViewFactory to do any initialization that must run in the zygote process,
+            // for memory sharing purposes.
+            WebViewFactory.prepareWebViewInZygote();
+        }
         endPreload();
-        warmUpJcaProviders();
+        if (!minimalBoot) {
+            warmUpJcaProviders();
+        }
         Log.d(TAG, "end preload");
 
         sPreloadComplete = true;

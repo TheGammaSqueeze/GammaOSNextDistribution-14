@@ -59,6 +59,10 @@ public class MediaService extends JobIntentService {
     }
 
     public static void enqueueWork(Context context, Intent work) {
+        if (context.getSystemService(android.app.job.JobScheduler.class) == null) {
+            Log.w(TAG, "JobScheduler unavailable, skipping enqueueWork");
+            return;
+        }
         enqueueWork(context, MediaService.class, JOB_ID, work);
     }
 

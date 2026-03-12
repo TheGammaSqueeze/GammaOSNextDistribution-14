@@ -1386,9 +1386,13 @@ public final class SystemServer implements Dumpable {
 
         // The sensor service needs access to package manager service, app ops
         // service, and permissions service, therefore we start it after them.
-        t.traceBegin("StartSensorService");
-        mSystemServiceManager.startService(SensorService.class);
-        t.traceEnd();
+        final boolean minimalBootEarly = SystemProperties.getBoolean(
+                "sys.gammaos.minimal_boot", false);
+        if (!minimalBootEarly) {
+            t.traceBegin("StartSensorService");
+            mSystemServiceManager.startService(SensorService.class);
+            t.traceEnd();
+        }
         t.traceEnd(); // startBootstrapServices
     }
 
@@ -1397,6 +1401,9 @@ public final class SystemServer implements Dumpable {
      */
     private void startCoreServices(@NonNull TimingsTraceAndSlog t) {
         t.traceBegin("startCoreServices");
+
+        final boolean minimalBootEarly = SystemProperties.getBoolean(
+                "sys.gammaos.minimal_boot", false);
 
         // Service for system config
         t.traceBegin("StartSystemConfigService");
@@ -1416,12 +1423,13 @@ public final class SystemServer implements Dumpable {
         t.traceEnd();
 
         // Tracks whether the updatable WebView is in a ready state and watches for update installs.
-        if (mPackageManager.hasSystemFeature(PackageManager.FEATURE_WEBVIEW)) {
+        if (!minimalBootEarly && mPackageManager.hasSystemFeature(PackageManager.FEATURE_WEBVIEW)) {
             t.traceBegin("StartWebViewUpdateService");
             mWebViewUpdateService = mSystemServiceManager.startService(WebViewUpdateService.class);
             t.traceEnd();
         }
 
+        if (!minimalBootEarly) {
         // Tracks and caches the device state.
         t.traceBegin("StartCachedDeviceStateService");
         mSystemServiceManager.startService(CachedDeviceStateService.class);
@@ -1451,16 +1459,19 @@ public final class SystemServer implements Dumpable {
         t.traceBegin("StartBugreportManagerService");
         mSystemServiceManager.startService(BugreportManagerService.class);
         t.traceEnd();
+        } // !minimalBootEarly: CachedDeviceState through Bugreport
 
         // Service for GPU and GPU driver.
         t.traceBegin("GpuService");
         mSystemServiceManager.startService(GpuService.class);
         t.traceEnd();
 
+        if (!minimalBootEarly) {
         // Handles system process requests for remotely provisioned keys & data.
         t.traceBegin("StartRemoteProvisioningService");
         mSystemServiceManager.startService(RemoteProvisioningService.class);
         t.traceEnd();
+        } // !minimalBootEarly: RemoteProvisioning
 
         // TODO(b/277600174): Start CpuMonitorService on all builds and not just on debuggable
         // builds once the Android JobScheduler starts using this service.
@@ -1664,7 +1675,7 @@ public final class SystemServer implements Dumpable {
             mSystemServiceManager.startService(DeviceStateManagerService.class);
             t.traceEnd();
 
-            if (!disableCameraService) {
+            if (!disableCameraService && !minimalBoot) {
                 t.traceBegin("StartCameraServiceProxy");
                 mSystemServiceManager.startService(CameraServiceProxy.class);
                 t.traceEnd();
@@ -1672,7 +1683,9 @@ public final class SystemServer implements Dumpable {
 
             t.traceBegin("StartWindowManagerService");
             // WMS needs sensor service ready
-            mSystemServiceManager.startBootPhase(t, SystemService.PHASE_WAIT_FOR_SENSOR_SERVICE);
+            if (!minimalBoot) {
+                mSystemServiceManager.startBootPhase(t, SystemService.PHASE_WAIT_FOR_SENSOR_SERVICE);
+            }
             wm = WindowManagerService.main(context, inputManager, !mFirstBoot,
                     new PhoneWindowManager(), mActivityManagerService.mActivityTaskManager);
             ServiceManager.addService(Context.WINDOW_SERVICE, wm, /* allowIsolated= */ false,
