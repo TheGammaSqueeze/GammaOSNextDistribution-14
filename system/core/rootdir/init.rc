@@ -1320,14 +1320,20 @@ on property:service.bootanim.nano_boot=1
     class_start main
     class_start late_start
 
-# GammaOS Nano: minimal RetroArch boot - start only what's needed.
-# Skip odsign wait and update_verifier — they verify OTA/ART integrity
-# which is unnecessary for a single-app nano boot. This saves ~1.9s.
-on property:service.bootanim.nano_retroarch=1
+# GammaOS Nano: begin preloading the minimal Android runtime as soon as
+# the nano menu appears.  Zygote + SystemServer boot in the background
+# while the user browses the menu, so RetroArch launches almost instantly
+# once the user presses "RetroArch (Nano)".
+on property:service.bootanim.nano_preload=1
     setprop sys.gammaos.minimal_boot 1
     start zygote
     start gatekeeperd
     class_start main
+
+# GammaOS Nano: user selected RetroArch — signal the already-running
+# SystemServer to trigger the app launch via boot completion chain.
+on property:service.bootanim.nano_retroarch=1
+    setprop service.bootanim.exit 1
 
 on property:sys.init_log_level=*
     loglevel ${sys.init_log_level}

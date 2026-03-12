@@ -1523,25 +1523,60 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
             final String nanoApp = android.os.SystemProperties.get(
                     "sys.gammaos.nano.launch_app", "com.retroarch.aarch64");
             Slog.i(TAG, "GammaOS Nano: minimal boot - launching " + nanoApp + " as home");
-            // Find the launch activity using broad matching (including direct boot unaware)
             try {
-                Intent launchIntent = new Intent(Intent.ACTION_MAIN);
-                launchIntent.addCategory(Intent.CATEGORY_LAUNCHER);
-                launchIntent.setPackage(nanoApp);
-                java.util.List<android.content.pm.ResolveInfo> activities =
-                        mService.mContext.getPackageManager().queryIntentActivities(launchIntent,
-                                android.content.pm.PackageManager.MATCH_ALL
-                                | android.content.pm.PackageManager.MATCH_DIRECT_BOOT_UNAWARE
-                                | android.content.pm.PackageManager.MATCH_DIRECT_BOOT_AWARE);
-                Slog.i(TAG, "GammaOS Nano: queryIntentActivities returned " + activities.size()
-                        + " results for " + nanoApp);
-                if (!activities.isEmpty()) {
-                    aInfo = activities.get(0).activityInfo;
+                // Direct launch: resolve RetroActivityFuture and set intent extras
+                // that MainMenuActivity would normally provide. This saves ~300ms
+                // of Activity lifecycle overhead.
+                final String directActivity = nanoApp.equals("com.retroarch.aarch64")
+                        ? "com.retroarch.browser.retroactivity.RetroActivityFuture" : null;
+                if (directActivity != null) {
+                    android.content.pm.ApplicationInfo appInfo =
+                            mService.mContext.getPackageManager().getApplicationInfo(nanoApp,
+                                    android.content.pm.PackageManager.MATCH_ALL
+                                    | android.content.pm.PackageManager.MATCH_DIRECT_BOOT_UNAWARE);
+                    ComponentName comp = new ComponentName(nanoApp, directActivity);
+                    aInfo = mService.mContext.getPackageManager().getActivityInfo(comp,
+                            android.content.pm.PackageManager.MATCH_ALL
+                            | android.content.pm.PackageManager.MATCH_DIRECT_BOOT_UNAWARE);
                     homeIntent = new Intent(Intent.ACTION_MAIN);
                     homeIntent.addCategory(Intent.CATEGORY_LAUNCHER);
-                    homeIntent.setComponent(new ComponentName(
-                            aInfo.applicationInfo.packageName, aInfo.name));
+                    homeIntent.setComponent(comp);
                     homeIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    // RetroArch intent extras (normally set by MainMenuActivity)
+                    String dataDir = appInfo.dataDir; // /data/user/0/com.retroarch.aarch64
+                    homeIntent.putExtra("LIBRETRO", dataDir + "/cores/");
+                    homeIntent.putExtra("CONFIGFILE", dataDir + "/files/retroarch.cfg");
+                    homeIntent.putExtra("DATADIR", dataDir);
+                    homeIntent.putExtra("APK", appInfo.sourceDir);
+                    homeIntent.putExtra("SDCARD",
+                            android.os.Environment.getExternalStorageDirectory().getAbsolutePath());
+                    homeIntent.putExtra("EXTERNAL",
+                            android.os.Environment.getExternalStorageDirectory().getAbsolutePath()
+                            + "/Android/data/" + nanoApp + "/files");
+                    homeIntent.putExtra("IME", android.provider.Settings.Secure.getString(
+                            mService.mContext.getContentResolver(), "default_input_method"));
+                    Slog.i(TAG, "GammaOS Nano: direct launch " + directActivity
+                            + " dataDir=" + dataDir);
+                } else {
+                    // Non-RetroArch app: use LAUNCHER query as before
+                    Intent launchIntent = new Intent(Intent.ACTION_MAIN);
+                    launchIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+                    launchIntent.setPackage(nanoApp);
+                    java.util.List<android.content.pm.ResolveInfo> activities =
+                            mService.mContext.getPackageManager().queryIntentActivities(launchIntent,
+                                    android.content.pm.PackageManager.MATCH_ALL
+                                    | android.content.pm.PackageManager.MATCH_DIRECT_BOOT_UNAWARE
+                                    | android.content.pm.PackageManager.MATCH_DIRECT_BOOT_AWARE);
+                    if (!activities.isEmpty()) {
+                        aInfo = activities.get(0).activityInfo;
+                        homeIntent = new Intent(Intent.ACTION_MAIN);
+                        homeIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+                        homeIntent.setComponent(new ComponentName(
+                                aInfo.applicationInfo.packageName, aInfo.name));
+                        homeIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    }
+                }
+                if (aInfo != null) {
                     homeIntent.putExtra(
                             com.android.server.policy.WindowManagerPolicy.EXTRA_START_REASON,
                             reason);

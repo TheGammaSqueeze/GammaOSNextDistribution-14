@@ -3429,9 +3429,8 @@ public final class SystemServer implements Dumpable {
         t.traceEnd();
         } else {
             Slog.i(TAG, "GammaOS Nano: skipping SystemUI and GammapadVibrationBridge");
-            // Force boot animation exit since there's no SystemUI to trigger it
-            android.os.SystemProperties.set("service.bootanim.exit", "1");
-            // Unlock CE storage early so RetroArch can access SharedPreferences
+            // Unlock CE storage early so RetroArch can access SharedPreferences.
+            // This runs during the preload phase (while user is still in the menu).
             try {
                 com.android.internal.widget.LockPatternUtils lockPatternUtils =
                         new com.android.internal.widget.LockPatternUtils(context);
@@ -3440,47 +3439,50 @@ public final class SystemServer implements Dumpable {
             } catch (Exception e) {
                 Slog.w(TAG, "GammaOS Nano: early CE unlock failed: " + e);
             }
-            // In nano mode no activity starts, so the normal boot completion chain
-            // (activity idle → checkFinishBooting → enableScreenAfterBoot → finishBooting)
-            // never fires. Post a delayed call to drive the chain directly:
-            // 1. enableScreenAfterBoot: sets mSystemBooted + mForceDisplayEnabled, calls
-            //    performEnableScreen which enables display and calls bootAnimationComplete
-            // 2. finishBooting: completes boot, unlocks user, triggers RetroArch launch
+            // The nano menu preloads zygote+SystemServer in the background.
+            // Wait for the user to select "RetroArch (Nano)" (nano_retroarch=1)
+            // before firing the boot completion chain. A background thread polls
+            // the property so we don't block the main looper.
             final WindowManagerService wmsRef = windowManagerF;
-            new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
-                Slog.i(TAG, "GammaOS Nano: forcing boot completion chain");
-                // enableScreenAfterBoot sets mSystemBooted + mForceDisplayEnabled,
-                // then performEnableScreen enables display and calls bootAnimationComplete.
-                // bootAnimationComplete triggers finishBooting (which sets mCallFinishBooting
-                // on first call, then completes on second call via bootAnimationComplete).
-                if (wmsRef != null) {
-                    wmsRef.enableScreenAfterBoot();
-                }
-                // Also call finishBooting via ActivityManagerInternal — if bootAnimationComplete
-                // hasn't run yet, this sets mCallFinishBooting=true so the next
-                // bootAnimationComplete call will complete the boot.
-                try {
-                    com.android.server.LocalServices.getService(
-                            android.app.ActivityManagerInternal.class).finishBooting();
-                } catch (Exception e) {
-                    Slog.w(TAG, "GammaOS Nano: finishBooting failed: " + e);
-                }
-            }, 500);
-
-            // Fallback: ensure /sdcard/ gets mounted. The normal user unlock chain
-            // (finishBooting → onBootComplete → finishUserBoot → finishUserUnlocking →
-            // onUserUnlocking → StorageManagerService) is asynchronous across multiple
-            // handler threads. Explicitly dispatch onUserUnlocking after boot settles
-            // to ensure FUSE storage mount completes.
             final SystemServiceManager ssmRef = mSystemServiceManager;
-            new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
-                Slog.i(TAG, "GammaOS Nano: dispatching onUserUnlocking(0) for /sdcard/");
-                try {
-                    ssmRef.onUserUnlocking(android.os.UserHandle.USER_SYSTEM);
-                } catch (Exception e) {
-                    Slog.w(TAG, "GammaOS Nano: onUserUnlocking failed: " + e);
+            new Thread(() -> {
+                Slog.i(TAG, "GammaOS Nano: preload complete, waiting for user selection...");
+                // Poll for nano_retroarch — the user may take seconds or minutes.
+                // Also exit if nano_boot is set (user chose full Android instead).
+                while (!"1".equals(SystemProperties.get("service.bootanim.nano_retroarch"))) {
+                    if ("1".equals(SystemProperties.get("service.bootanim.nano_boot"))) {
+                        Slog.i(TAG, "GammaOS Nano: user chose full boot, aborting nano wait");
+                        return;
+                    }
+                    try { Thread.sleep(50); } catch (InterruptedException ignored) {}
                 }
-            }, 2000);
+                Slog.i(TAG, "GammaOS Nano: user selected RetroArch, completing boot");
+                // Post boot completion on the main looper.
+                new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
+                    // enableScreenAfterBoot sets mSystemBooted + mForceDisplayEnabled,
+                    // then performEnableScreen calls bootAnimationComplete which
+                    // triggers finishBooting.
+                    if (wmsRef != null) {
+                        wmsRef.enableScreenAfterBoot();
+                    }
+                    try {
+                        com.android.server.LocalServices.getService(
+                                android.app.ActivityManagerInternal.class).finishBooting();
+                    } catch (Exception e) {
+                        Slog.w(TAG, "GammaOS Nano: finishBooting failed: " + e);
+                    }
+                });
+                // Dispatch onUserUnlocking after a short delay to ensure FUSE mount.
+                try { Thread.sleep(1500); } catch (InterruptedException ignored) {}
+                new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
+                    Slog.i(TAG, "GammaOS Nano: dispatching onUserUnlocking(0) for /sdcard/");
+                    try {
+                        ssmRef.onUserUnlocking(android.os.UserHandle.USER_SYSTEM);
+                    } catch (Exception e) {
+                        Slog.w(TAG, "GammaOS Nano: onUserUnlocking failed: " + e);
+                    }
+                });
+            }, "NanoWaitThread").start();
         }
 
         t.traceEnd(); // startOtherServices
