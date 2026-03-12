@@ -5384,6 +5384,7 @@
   <java-symbol type="string" name="gammaos_kill_app" />
   <java-symbol type="string" name="gammaos_kill_all_background_apps" />
   <java-symbol type="string" name="gammaos_kill_all_apps" />
+  <java-symbol type="string" name="gammaos_boot_nano" />
   <java-symbol type="string" name="gammaos_controller_options" />
   <java-symbol type="string" name="gammaos_usb_options" />
   <java-symbol type="layout" name="header_battery_status" />

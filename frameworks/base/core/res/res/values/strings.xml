@@ -6451,6 +6451,9 @@ ul.</string>
     <!-- Title for preference of the GammaOS force close all apps. [CHAR LIMIT=50]-->
     <string name="gammaos_kill_all_apps">Kill all apps</string>
 
+    <!-- Title for preference of the GammaOS boot into nano mode. [CHAR LIMIT=50]-->
+    <string name="gammaos_boot_nano">Boot Nano</string>
+
     <!-- Title for preference of the GammaOS controller options. [CHAR LIMIT=50]-->
     <string name="gammaos_controller_options">Controller Options</string>
 

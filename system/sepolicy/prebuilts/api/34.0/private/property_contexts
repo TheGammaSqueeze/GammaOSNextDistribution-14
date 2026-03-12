@@ -1164,6 +1164,7 @@ service.bootanim.nano_boot u:object_r:bootanim_system_prop:s0 exact int
 service.bootanim.nano_preload u:object_r:bootanim_system_prop:s0 exact int
 service.bootanim.nano_retroarch u:object_r:bootanim_system_prop:s0 exact int
 service.bootanim.progress u:object_r:bootanim_system_prop:s0 exact int
+persist.bootanim.skip_nano u:object_r:bootanim_system_prop:s0 exact int
 
 sys.init.userspace_reboot.in_progress u:object_r:userspace_reboot_exported_prop:s0 exact bool
 sys.use_memfd                         u:object_r:use_memfd_prop:s0 exact bool

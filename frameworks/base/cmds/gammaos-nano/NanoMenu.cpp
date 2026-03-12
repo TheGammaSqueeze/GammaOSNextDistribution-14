@@ -455,12 +455,12 @@ void NanoMenu::handleSelect() {
         property_set("service.bootanim.nano_retroarch", "1");
         mExitRequested = true;
     } else if (label == "Boot Android") {
-        // Nano preload started minimal zygote+SystemServer (with many
-        // services skipped). Full Android needs all services, so set the
-        // nano_boot flag and let init handle the transition.
-        property_set("service.bootanim.nano_boot", "1");
-        property_set("service.bootanim.exit", "1");
-        mExitRequested = true;
+        // Minimal zygote+SystemServer are running with many services
+        // skipped.  Full Android needs a clean boot.  Set a persistent
+        // flag so init.rc skips the nano menu on the next boot and
+        // starts the full service stack.
+        property_set("persist.bootanim.skip_nano", "1");
+        property_set("sys.powerctl", "reboot");
     } else if (label == "Reboot") {
         property_set("sys.powerctl", "reboot");
     } else if (label == "Power Off") {
@@ -694,6 +694,14 @@ static EGLConfig getEglConfig(const EGLDisplay& display) {
 }
 
 status_t NanoMenu::readyToRun() {
+    // If "Boot Android" was selected, skip the nano menu entirely.
+    char skip[PROPERTY_VALUE_MAX] = {};
+    property_get("persist.bootanim.skip_nano", skip, "");
+    if (!strcmp(skip, "1")) {
+        ALOGI("GammaOS Nano: skip_nano=1, exiting for full Android boot");
+        return INVALID_OPERATION;
+    }
+
     const std::vector<PhysicalDisplayId> ids = SurfaceComposerClient::getPhysicalDisplayIds();
     if (ids.empty()) { ALOGE("No displays found"); return NAME_NOT_FOUND; }
 
@@ -737,11 +745,9 @@ status_t NanoMenu::readyToRun() {
     openInputDevices();
     initEffects();
 
-    // Begin preloading the minimal Android runtime in the background.
-    // Zygote + SystemServer will boot while the user is browsing the menu,
-    // so RetroArch launches near-instantly when selected.
-    ALOGI("NanoMenu: triggering background Android preload");
-    property_set("service.bootanim.nano_preload", "1");
+    // Zygote + SystemServer preload is triggered by init.rc on nonencrypted,
+    // before gammaos-nano even starts.  By the time the user sees the menu,
+    // Android is already booting in the background.
 
     return NO_ERROR;
 }

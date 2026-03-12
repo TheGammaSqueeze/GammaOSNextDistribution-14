@@ -577,6 +577,7 @@ class LegacyGlobalActions implements DialogInterface.OnDismissListener, DialogIn
         //mItems.add(getPerformanceOptionsAction());
         mItems.add(getKillBackgroundAppsAction());
         mItems.add(getKillAllAppsAction());
+        mItems.add(getBootNanoAction());
         //mItems.add(getHomeAction());
 
         // Override ActionsAdapter's getView method to set text color to white
@@ -1067,6 +1068,29 @@ class LegacyGlobalActions implements DialogInterface.OnDismissListener, DialogIn
 
             public boolean onLongPress() {
                 return false;
+            }
+
+            @Override
+            public boolean showDuringKeyguard() {
+                return true;
+            }
+
+            @Override
+            public boolean showBeforeProvisioning() {
+                return true;
+            }
+        };
+    }
+
+    private Action getBootNanoAction() {
+        return new SinglePressAction(R.drawable.ic_restart, R.string.gammaos_boot_nano) {
+
+            @Override
+            public void onPress() {
+                // Clear the skip flag so init.rc takes the nano preload path
+                SystemProperties.set("persist.bootanim.skip_nano", "0");
+                // Reboot into nano mode
+                mWindowManagerFuncs.reboot(false /* confirm */);
             }
 
             @Override
