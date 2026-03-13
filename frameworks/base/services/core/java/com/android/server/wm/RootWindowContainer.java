@@ -176,6 +176,8 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
 
     // GammaOS Nano: reentrance guard for nano app launch
     private static boolean sNanoLaunchInProgress = false;
+    // GammaOS Nano: black overlay surface shown while NanoMenu is active
+    private static android.view.SurfaceControl sNanoBlankOverlay;
 
     private static final int SET_BUTTON_BRIGHTNESS_OVERRIDE = 0;
     private static final int SET_SCREEN_BRIGHTNESS_OVERRIDE = 1;
@@ -1573,6 +1575,9 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                 } catch (Exception e) {
                     Slog.e(TAG, "GammaOS Nano: cleanup failed", e);
                 }
+                // Show a full-screen black overlay so when bootanim exits later,
+                // the display shows black instead of stale app surfaces.
+                showNanoBlankOverlay();
                 android.os.SystemProperties.set("sys.gammaos.nano.app_launched", "0");
                 android.os.SystemProperties.set("sys.gammaos.nano.restart", "1");
                 return true;
@@ -1687,11 +1692,15 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                     } finally {
                         sNanoLaunchInProgress = false;
                     }
+                    // Remove black overlay after app has time to draw first frame
+                    mService.mH.postDelayed(() -> hideNanoBlankOverlay(), 800);
                     return true;
                 }
             } catch (Exception e) {
                 Slog.e(TAG, "GammaOS Nano: error resolving " + nanoApp, e);
             }
+            // Remove overlay if launch failed
+            hideNanoBlankOverlay();
             Slog.w(TAG, "GammaOS Nano: could not resolve " + nanoApp + ", falling back to home");
         } else if (minimalBoot && taskDisplayArea == getDefaultTaskDisplayArea()) {
             // Nano mode but user not unlocked yet — don't launch FallbackHome (it will crash).
@@ -1744,6 +1753,50 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
         mService.getActivityStartController().startHomeActivity(homeIntent, aInfo, myReason,
                 taskDisplayArea);
         return true;
+    }
+
+    /** Show a full-screen black overlay on the default display (hides stale surfaces). */
+    private void showNanoBlankOverlay() {
+        try {
+            if (sNanoBlankOverlay != null && sNanoBlankOverlay.isValid()) {
+                return; // already showing
+            }
+            final DisplayContent dc = getDefaultDisplay();
+            if (dc == null) return;
+            sNanoBlankOverlay = dc.makeOverlay()
+                    .setName("GammaNanoBlank")
+                    .setColorLayer()
+                    .setCallsite("RootWindowContainer.showNanoBlankOverlay")
+                    .build();
+            android.view.SurfaceControl.Transaction t =
+                    new android.view.SurfaceControl.Transaction();
+            t.setLayer(sNanoBlankOverlay, Integer.MAX_VALUE);
+            t.setColor(sNanoBlankOverlay, new float[]{0f, 0f, 0f});
+            t.show(sNanoBlankOverlay);
+            t.apply();
+            Slog.i(TAG, "GammaOS Nano: showing black overlay");
+        } catch (Exception e) {
+            Slog.w(TAG, "GammaOS Nano: failed to show black overlay", e);
+        }
+    }
+
+    /** Remove the black overlay (called after the launched app draws its first frame). */
+    private void hideNanoBlankOverlay() {
+        try {
+            if (sNanoBlankOverlay == null || !sNanoBlankOverlay.isValid()) {
+                sNanoBlankOverlay = null;
+                return;
+            }
+            android.view.SurfaceControl.Transaction t =
+                    new android.view.SurfaceControl.Transaction();
+            t.remove(sNanoBlankOverlay);
+            t.apply();
+            sNanoBlankOverlay = null;
+            Slog.i(TAG, "GammaOS Nano: removed black overlay");
+        } catch (Exception e) {
+            Slog.w(TAG, "GammaOS Nano: failed to remove black overlay", e);
+            sNanoBlankOverlay = null;
+        }
     }
 
     /**

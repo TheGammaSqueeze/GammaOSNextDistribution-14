@@ -286,6 +286,7 @@ class LegacyGlobalActions implements DialogInterface.OnDismissListener, DialogIn
             Log.w(TAG, "Failed to disable GammaOS shader on GlobalActions show", e);
         }
         awakenIfNecessary();
+        mBrightnessPct = -1; // reset so create() reads fresh from DisplayManager
         mDialog = createDialog();
         prepareDialog();
 
@@ -645,7 +646,8 @@ class LegacyGlobalActions implements DialogInterface.OnDismissListener, DialogIn
         selector.addState(new int[]{android.R.attr.state_selected}, selectedBg);
         selector.addState(new int[]{}, new ColorDrawable(Color.TRANSPARENT));
         listView.setSelector(selector);
-        // GammaOS Nano: intercept DPAD left/right on brightness slider row
+        // GammaOS Nano: store ListView ref and intercept DPAD left/right on brightness slider row
+        mBrightnessListView = listView;
         if (isNanoMode) {
             dialog.setOnKeyListener((dlg, keyCode, event) -> {
                 if (event.getAction() != android.view.KeyEvent.ACTION_DOWN) return false;
@@ -803,9 +805,11 @@ class LegacyGlobalActions implements DialogInterface.OnDismissListener, DialogIn
     }
 
 
-    // Brightness slider view refs (held for DPAD key updates from ListView)
+    // Brightness slider state (held for DPAD key updates from ListView)
     private android.widget.ProgressBar mBrightnessPb;
     private android.widget.TextView mBrightnessTv;
+    private ListView mBrightnessListView;
+    private int mBrightnessPct = -1; // tracked pct to avoid dm.getBrightness() race
 
     private Action getBrightnessAction() {
         return new Action() {
@@ -817,14 +821,20 @@ class LegacyGlobalActions implements DialogInterface.OnDismissListener, DialogIn
             @Override
             public View create(Context context, View convertView, ViewGroup parent,
                     LayoutInflater inflater) {
-                final DisplayManager dm = (DisplayManager)
-                        context.getSystemService(Context.DISPLAY_SERVICE);
-                float cur = 0.5f;
-                if (dm != null) {
-                    float b = dm.getBrightness(Display.DEFAULT_DISPLAY);
-                    if (!Float.isNaN(b) && b >= 0) cur = b;
+                int pct;
+                if (mBrightnessPct >= 0) {
+                    pct = mBrightnessPct;
+                } else {
+                    final DisplayManager dm = (DisplayManager)
+                            context.getSystemService(Context.DISPLAY_SERVICE);
+                    float cur = 0.5f;
+                    if (dm != null) {
+                        float b = dm.getBrightness(Display.DEFAULT_DISPLAY);
+                        if (!Float.isNaN(b) && b >= 0) cur = b;
+                    }
+                    pct = (int) (cur * 100);
+                    mBrightnessPct = pct;
                 }
-                int pct = (int) (cur * 100);
                 float density = context.getResources().getDisplayMetrics().density;
 
                 // Match global_actions_item.xml: paddingStart=8dp, paddingEnd=16dp,
@@ -890,23 +900,26 @@ class LegacyGlobalActions implements DialogInterface.OnDismissListener, DialogIn
 
     /** Adjust brightness slider from DPAD left/right when brightness row is selected. */
     private boolean handleBrightnessDpad(int direction) {
-        if (mBrightnessPb == null || mBrightnessTv == null) return false;
+        if (mBrightnessPct < 0) mBrightnessPct = 50;
         DisplayManager dm = (DisplayManager) mContext.getSystemService(Context.DISPLAY_SERVICE);
         if (dm == null) return false;
-        int newPct = Math.max(1, Math.min(100, mBrightnessPb.getProgress() + direction * 5));
+        int newPct = Math.max(1, Math.min(100, mBrightnessPct + direction * 5));
+        mBrightnessPct = newPct;
         float brightness = newPct / 100f;
-        // Update UI directly — we're already on the UI thread from dialog key listener.
-        // Using post() deferred the update and ListView didn't redraw the child.
-        mBrightnessPb.setProgress(newPct);
-        mBrightnessTv.setText(newPct + "%");
-        // Force the parent to redraw in case ListView's drawing cache is stale
-        android.view.View parent = (android.view.View) mBrightnessPb.getParent();
-        if (parent != null) parent.invalidate();
         final long token = Binder.clearCallingIdentity();
         try {
             dm.setBrightness(Display.DEFAULT_DISPLAY, brightness);
         } finally {
             Binder.restoreCallingIdentity(token);
+        }
+        // Force ListView to rebuild views via adapter — create() will use mBrightnessPct.
+        // Save/restore selection so notifyDataSetChanged doesn't reset it.
+        if (mAdapter != null && mBrightnessListView != null) {
+            int sel = mBrightnessListView.getSelectedItemPosition();
+            mAdapter.notifyDataSetChanged();
+            if (sel >= 0) {
+                mBrightnessListView.setSelection(sel);
+            }
         }
         return true;
     }
