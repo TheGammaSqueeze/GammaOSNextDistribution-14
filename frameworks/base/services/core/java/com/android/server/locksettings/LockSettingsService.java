@@ -682,14 +682,19 @@ public class LockSettingsService extends ILockSettings.Stub {
 
     private void updateActivatedEncryptionNotifications(String reason) {
         for (UserInfo userInfo : mUserManager.getUsers()) {
-            Context userContext = mContext.createContextAsUser(UserHandle.of(userInfo.id), 0);
-            NotificationManager nm = (NotificationManager)
-                    userContext.getSystemService(Context.NOTIFICATION_SERVICE);
-            for (StatusBarNotification notification : nm.getActiveNotifications()) {
-                if (notification.getId() == SystemMessage.NOTE_FBE_ENCRYPTED_NOTIFICATION) {
-                    maybeShowEncryptionNotificationForUser(userInfo.id, reason);
-                    break;
+            try {
+                Context userContext = mContext.createContextAsUser(UserHandle.of(userInfo.id), 0);
+                NotificationManager nm = (NotificationManager)
+                        userContext.getSystemService(Context.NOTIFICATION_SERVICE);
+                if (nm == null) continue;
+                for (StatusBarNotification notification : nm.getActiveNotifications()) {
+                    if (notification.getId() == SystemMessage.NOTE_FBE_ENCRYPTED_NOTIFICATION) {
+                        maybeShowEncryptionNotificationForUser(userInfo.id, reason);
+                        break;
+                    }
                 }
+            } catch (NullPointerException e) {
+                // NotificationManagerService not running (e.g. nano minimal boot)
             }
         }
     }
