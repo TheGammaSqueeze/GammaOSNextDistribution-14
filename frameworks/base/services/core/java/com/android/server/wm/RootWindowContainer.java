@@ -1625,17 +1625,18 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                             | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     // RetroArch intent extras (normally set by MainMenuActivity)
                     String dataDir = appInfo.dataDir; // /data/user/0/com.retroarch.aarch64
-                    String extDir = android.os.Environment.getExternalStorageDirectory()
-                            .getAbsolutePath() + "/Android/data/" + nanoApp + "/files";
-                    // Use external storage config (user-customized) instead of internal default
+                    // Hardcode /storage/emulated/0 — Environment.getExternalStorageDirectory()
+                    // returns /dev/null during early boot before FUSE is mounted. By the time
+                    // RetroArch's process reads the file, FUSE will be ready.
+                    String sdcard = "/storage/emulated/0";
+                    String extDir = sdcard + "/Android/data/" + nanoApp + "/files";
                     String configFile = extDir + "/retroarch.cfg";
                     Slog.i(TAG, "GammaOS Nano: CONFIGFILE=" + configFile);
                     homeIntent.putExtra("LIBRETRO", dataDir + "/cores/");
                     homeIntent.putExtra("CONFIGFILE", configFile);
                     homeIntent.putExtra("DATADIR", dataDir);
                     homeIntent.putExtra("APK", appInfo.sourceDir);
-                    homeIntent.putExtra("SDCARD",
-                            android.os.Environment.getExternalStorageDirectory().getAbsolutePath());
+                    homeIntent.putExtra("SDCARD", sdcard);
                     homeIntent.putExtra("EXTERNAL", extDir);
                     homeIntent.putExtra("IME", android.provider.Settings.Secure.getString(
                             mService.mContext.getContentResolver(), "default_input_method"));
@@ -1661,11 +1662,11 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                     }
                 }
                 if (aInfo != null) {
-                    // Verify retroarch.cfg is readable before launching RetroArch
+                    // Verify retroarch.cfg exists via the underlying filesystem path
+                    // (FUSE may not be mounted yet, but /data/media/0 is accessible to system)
                     if (nanoApp.equals("com.retroarch.aarch64")) {
-                        String extDir = android.os.Environment.getExternalStorageDirectory()
-                                .getAbsolutePath() + "/Android/data/" + nanoApp + "/files";
-                        java.io.File cfgFile = new java.io.File(extDir + "/retroarch.cfg");
+                        String rawExtDir = "/data/media/0/Android/data/" + nanoApp + "/files";
+                        java.io.File cfgFile = new java.io.File(rawExtDir + "/retroarch.cfg");
                         if (!cfgFile.canRead()) {
                             Slog.w(TAG, "GammaOS Nano: retroarch.cfg not readable at "
                                     + cfgFile.getAbsolutePath() + ", creating default");
