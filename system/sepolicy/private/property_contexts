@@ -1215,6 +1215,7 @@ service.bootanim.exit       u:object_r:bootanim_system_prop:s0 exact int
 service.bootanim.nano_boot      u:object_r:bootanim_system_prop:s0 exact int
 service.bootanim.nano_preload   u:object_r:bootanim_system_prop:s0 exact int
 service.bootanim.nano_retroarch u:object_r:bootanim_system_prop:s0 exact int
+service.bootanim.nano_action    u:object_r:bootanim_system_prop:s0 exact string
 service.bootanim.progress       u:object_r:bootanim_system_prop:s0 exact int
 persist.bootanim.skip_nano  u:object_r:bootanim_system_prop:s0 exact int
 persist.bootanim.color1     u:object_r:bootanim_system_prop:s0 exact int

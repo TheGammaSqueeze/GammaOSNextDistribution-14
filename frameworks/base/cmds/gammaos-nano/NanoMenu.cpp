@@ -418,7 +418,6 @@ void NanoMenu::buildMenu() {
     mMenuItems.push_back({"Boot Android"});
     mMenuItems.push_back({"Recovery Mode"});
     mMenuItems.push_back({"Safe Mode"});
-    mMenuItems.push_back({"ADB Shell"});
     mMenuItems.push_back({"Reboot"});
     mMenuItems.push_back({"Power Off"});
     mSelectedIndex = 0;
@@ -455,18 +454,17 @@ void NanoMenu::handleSelect() {
         property_set("service.bootanim.nano_retroarch", "1");
         mExitRequested = true;
     } else if (label == "Boot Android") {
-        // Minimal zygote+SystemServer are running with many services
-        // skipped.  Full Android needs a clean boot.  Set a persistent
-        // flag so init.rc skips the nano menu on the next boot and
-        // starts the full service stack.
-        property_set("persist.bootanim.skip_nano", "1");
-        property_set("sys.powerctl", "reboot");
-    } else if (label == "Reboot") {
-        property_set("sys.powerctl", "reboot");
-    } else if (label == "Power Off") {
-        property_set("sys.powerctl", "shutdown");
+        // Full Android needs a clean boot.  Dispatch via nano_action so
+        // init (which has powerctl_prop access) handles the reboot.
+        property_set("service.bootanim.nano_action", "android");
     } else if (label == "Recovery Mode") {
-        property_set("sys.powerctl", "reboot,recovery");
+        property_set("service.bootanim.nano_action", "recovery");
+    } else if (label == "Safe Mode") {
+        property_set("service.bootanim.nano_action", "safemode");
+    } else if (label == "Reboot") {
+        property_set("service.bootanim.nano_action", "reboot");
+    } else if (label == "Power Off") {
+        property_set("service.bootanim.nano_action", "shutdown");
     }
 }
 
@@ -851,38 +849,62 @@ void NanoMenu::render() {
     updateEffect();
     renderEffect();
 
-    float baseW = 1080.0f;
-    float sf = mWidth / baseW;
-    if (sf < 1.0f) sf = 1.0f;
+    // Responsive scaling: fit to both width and height so the menu
+    // looks correct on any aspect ratio (4:3, 16:9, 16:10, 3:2, etc.)
+    float sf = fminf((float)mWidth / 1080.0f, (float)mHeight / 720.0f);
+    if (sf < 0.5f) sf = 0.5f;
+
+    int numItems = (int)mMenuItems.size();
+
+    // Font scales
+    float titleScale = 4.0f * sf;
+    float subScale   = 2.0f * sf;
+    float menuScale  = 3.0f * sf;
+    float footScale  = 1.5f * sf;
+
+    // Element heights
+    float titleH = FONT_CHAR_H * titleScale;
+    float subH   = FONT_CHAR_H * subScale;
+    float itemH  = FONT_CHAR_H * menuScale;
+    float footH  = FONT_CHAR_H * footScale;
+
+    // Gaps
+    float gap1 = 10.0f * sf;   // title → subtitle
+    float gap2 = 20.0f * sf;   // subtitle → separator
+    float sepH = 2.0f * sf;
+    float gap3 = 30.0f * sf;   // separator → menu
+    float itemSpacing = 12.0f * sf;
+    float gap4 = 20.0f * sf;   // menu → footer
+
+    // Place heading + menu in upper third of screen
+    float menuContentH = titleH + gap1 + subH + gap2 + sepH + gap3
+                        + numItems * itemH + (numItems - 1) * itemSpacing;
+    float startY = (mHeight - menuContentH) / 6.0f;
+    if (startY < 10.0f) startY = 10.0f;
 
     // Title
-    float titleScale = 4.0f * sf;
     float titleW = 12 * FONT_CHAR_W * titleScale;
     float titleX = (mWidth - titleW) / 2.0f;
-    float titleY = mHeight * 0.08f;
+    float titleY = startY;
     drawText("GammaOS Nano", titleX, titleY, titleScale,
              mWidth, mHeight, 0.0f, 0.85f, 1.0f, 1.0f);
 
     // Subtitle
-    float subScale = 2.0f * sf;
     const char* subtitle = "v0.1 - Proof of Concept";
     float subW = strlen(subtitle) * FONT_CHAR_W * subScale;
     float subX = (mWidth - subW) / 2.0f;
-    float subY = titleY + FONT_CHAR_H * titleScale + 10.0f * sf;
+    float subY = titleY + titleH + gap1;
     drawText(subtitle, subX, subY, subScale, mWidth, mHeight, 0.5f, 0.5f, 0.6f, 1.0f);
 
     // Separator
-    float sepY = subY + FONT_CHAR_H * subScale + 20.0f * sf;
-    drawQuad(mWidth * 0.1f, sepY, mWidth * 0.8f, 2.0f * sf, 0.3f, 0.3f, 0.4f, 1.0f);
+    float sepY = subY + subH + gap2;
+    drawQuad(mWidth * 0.1f, sepY, mWidth * 0.8f, sepH, 0.3f, 0.3f, 0.4f, 1.0f);
 
     // Menu items
-    float menuScale = 3.0f * sf;
-    float itemH = FONT_CHAR_H * menuScale;
-    float itemSpacing = 12.0f * sf;
-    float menuStartY = sepY + 30.0f * sf;
+    float menuStartY = sepY + sepH + gap3;
     float menuX = mWidth * 0.15f;
 
-    for (int i = 0; i < (int)mMenuItems.size(); i++) {
+    for (int i = 0; i < numItems; i++) {
         float itemY = menuStartY + i * (itemH + itemSpacing);
         bool selected = (i == mSelectedIndex);
         if (selected) {
@@ -898,14 +920,13 @@ void NanoMenu::render() {
         drawText(line.c_str(), menuX, itemY, menuScale, mWidth, mHeight, r, g, b, 1.0f);
     }
 
-    // Footer: effect name + controls
-    float footScale = 1.5f * sf;
+    // Footer
     char footer[128];
     snprintf(footer, sizeof(footer), "DPAD/VOL: Nav | A/PWR: Select | X: FX [%s]",
              kEffectNames[mCurrentEffect]);
     float footW = strlen(footer) * FONT_CHAR_W * footScale;
     float footX = (mWidth - footW) / 2.0f;
-    float footY = mHeight - 60.0f * sf;
+    float footY = mHeight - footH - startY;
     drawText(footer, footX, footY, footScale, mWidth, mHeight, 0.4f, 0.4f, 0.5f, 1.0f);
 
     glDisable(GL_BLEND);
@@ -919,11 +940,23 @@ void NanoMenu::render() {
 bool NanoMenu::threadLoop() {
     ALOGD("NanoMenu: entering main loop");
 
+    int exitCheckCounter = 0;
     while (!exitPending() && !mExitRequested) {
         pollInput();
         mEffectTime += 1.0f / 60.0f;
         render();
         usleep(16666); // ~60fps
+
+        // Check every ~0.5s if an external trigger requested exit
+        if (++exitCheckCounter >= 30) {
+            exitCheckCounter = 0;
+            char val[PROPERTY_VALUE_MAX] = {};
+            property_get("service.bootanim.exit", val, "0");
+            if (!strcmp(val, "1")) {
+                ALOGI("GammaOS Nano: service.bootanim.exit=1, exiting");
+                break;
+            }
+        }
     }
 
     ALOGD("NanoMenu: exiting main loop");

@@ -1338,6 +1338,27 @@ on nonencrypted && property:persist.bootanim.skip_nano=
 on property:service.bootanim.nano_retroarch=1
     setprop service.bootanim.exit 1
 
+# GammaOS Nano: action dispatcher — the nano menu runs in the bootanim
+# SELinux domain which cannot set sys.powerctl directly.  Instead it sets
+# service.bootanim.nano_action and init (which CAN set powerctl) acts on it.
+on property:service.bootanim.nano_action=reboot
+    setprop sys.powerctl reboot
+
+on property:service.bootanim.nano_action=shutdown
+    setprop sys.powerctl shutdown
+
+on property:service.bootanim.nano_action=recovery
+    setprop sys.powerctl reboot,recovery
+
+on property:service.bootanim.nano_action=android
+    setprop persist.bootanim.skip_nano 1
+    setprop sys.powerctl reboot
+
+on property:service.bootanim.nano_action=safemode
+    setprop persist.sys.safemode 1
+    setprop persist.bootanim.skip_nano 1
+    setprop sys.powerctl reboot
+
 on property:sys.init_log_level=*
     loglevel ${sys.init_log_level}
 
