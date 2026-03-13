@@ -174,6 +174,9 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
         implements DisplayManager.DisplayListener {
     private static final String TAG = TAG_WITH_CLASS_NAME ? "RootWindowContainer" : TAG_WM;
 
+    // GammaOS Nano: reentrance guard for nano app launch
+    private static boolean sNanoLaunchInProgress = false;
+
     private static final int SET_BUTTON_BRIGHTNESS_OVERRIDE = 0;
     private static final int SET_SCREEN_BRIGHTNESS_OVERRIDE = 1;
     private static final int SET_USER_ACTIVITY_TIMEOUT = 2;
@@ -1529,23 +1532,31 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
             final boolean appWasLaunched = "1".equals(
                     android.os.SystemProperties.get("sys.gammaos.nano.app_launched", "0"));
             if (appWasLaunched) {
-                // Guard against false exit detection: if the app was just launched
-                // (within 3s), this is a spurious call from another TDA in the same
-                // startHomeOnAllDisplays loop — skip cleanup.
-                long launchTime = 0;
-                try {
-                    launchTime = Long.parseLong(android.os.SystemProperties.get(
-                            "sys.gammaos.nano.launch_time", "0"));
-                } catch (NumberFormatException ignored) {}
-                if (android.os.SystemClock.elapsedRealtime() - launchTime < 3000) {
-                    Slog.i(TAG, "GammaOS Nano: app was just launched, skipping cleanup");
+                // Guard: skip cleanup if a nano launch is currently in progress
+                // (startHomeActivity triggers nested startHomeOnTaskDisplayArea calls)
+                if (sNanoLaunchInProgress) {
+                    Slog.i(TAG, "GammaOS Nano: launch in progress, skipping nested cleanup");
+                    return true;
+                }
+                // Check if the nano app process is still alive — don't clean up
+                // a running app (handles secondary display TDA calls)
+                final String nanoAppPkg = android.os.SystemProperties.get(
+                        "sys.gammaos.nano.launch_app", "com.retroarch.aarch64");
+                final boolean[] processAlive = {false};
+                forAllTasks(task -> {
+                    task.forAllActivities(r -> {
+                        if (r.packageName != null && r.packageName.equals(nanoAppPkg)
+                                && r.app != null && r.app.hasThread()) {
+                            processAlive[0] = true;
+                        }
+                    });
+                });
+                if (processAlive[0]) {
+                    Slog.i(TAG, "GammaOS Nano: app process still alive, skipping cleanup");
                     return true;
                 }
                 Slog.i(TAG, "GammaOS Nano: app exited, cleaning up and restarting nano menu");
-                // Remove any lingering tasks/activities for the nano app to prevent
-                // stale window/surface issues on relaunch
-                final String nanoAppPkg = android.os.SystemProperties.get(
-                        "sys.gammaos.nano.launch_app", "com.retroarch.aarch64");
+                // Remove all lingering tasks/activities for the nano app
                 try {
                     java.util.ArrayList<Task> tasksToRemove = new java.util.ArrayList<>();
                     forAllTasks(task -> {
@@ -1568,6 +1579,24 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
             }
             final String nanoApp = android.os.SystemProperties.get(
                     "sys.gammaos.nano.launch_app", "com.retroarch.aarch64");
+            // Pre-launch cleanup: remove any stale tasks/EXITING windows from
+            // previous instances to prevent InputDispatcher/surface conflicts.
+            try {
+                java.util.ArrayList<Task> staleTasks = new java.util.ArrayList<>();
+                forAllTasks(task -> {
+                    task.forAllActivities(r -> {
+                        if (r.packageName != null && r.packageName.equals(nanoApp)) {
+                            staleTasks.add(task);
+                        }
+                    });
+                });
+                for (Task t : staleTasks) {
+                    Slog.i(TAG, "GammaOS Nano: pre-launch removing stale task " + t);
+                    t.removeIfPossible("nano-pre-launch");
+                }
+            } catch (Exception e) {
+                Slog.w(TAG, "GammaOS Nano: pre-launch cleanup failed", e);
+            }
             Slog.i(TAG, "GammaOS Nano: minimal boot - launching " + nanoApp + " as home");
             try {
                 // Direct launch: resolve RetroActivityFuture and set intent extras
@@ -1650,11 +1679,14 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                             + android.os.UserHandle.getUserId(aInfo.applicationInfo.uid)
                             + ":" + taskDisplayArea.getDisplayId();
                     Slog.i(TAG, "GammaOS Nano: starting " + aInfo.name);
-                    android.os.SystemProperties.set("sys.gammaos.nano.launch_time",
-                            String.valueOf(android.os.SystemClock.elapsedRealtime()));
                     android.os.SystemProperties.set("sys.gammaos.nano.app_launched", "1");
-                    mService.getActivityStartController().startHomeActivity(
-                            homeIntent, aInfo, myReason, taskDisplayArea);
+                    sNanoLaunchInProgress = true;
+                    try {
+                        mService.getActivityStartController().startHomeActivity(
+                                homeIntent, aInfo, myReason, taskDisplayArea);
+                    } finally {
+                        sNanoLaunchInProgress = false;
+                    }
                     return true;
                 }
             } catch (Exception e) {

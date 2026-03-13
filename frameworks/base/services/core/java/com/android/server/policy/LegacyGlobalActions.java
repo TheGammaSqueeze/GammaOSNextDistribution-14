@@ -895,11 +895,13 @@ class LegacyGlobalActions implements DialogInterface.OnDismissListener, DialogIn
         if (dm == null) return false;
         int newPct = Math.max(1, Math.min(100, mBrightnessPb.getProgress() + direction * 5));
         float brightness = newPct / 100f;
-        final int finalPct = newPct;
-        mBrightnessPb.post(() -> {
-            mBrightnessPb.setProgress(finalPct);
-            mBrightnessTv.setText(finalPct + "%");
-        });
+        // Update UI directly — we're already on the UI thread from dialog key listener.
+        // Using post() deferred the update and ListView didn't redraw the child.
+        mBrightnessPb.setProgress(newPct);
+        mBrightnessTv.setText(newPct + "%");
+        // Force the parent to redraw in case ListView's drawing cache is stale
+        android.view.View parent = (android.view.View) mBrightnessPb.getParent();
+        if (parent != null) parent.invalidate();
         final long token = Binder.clearCallingIdentity();
         try {
             dm.setBrightness(Display.DEFAULT_DISPLAY, brightness);

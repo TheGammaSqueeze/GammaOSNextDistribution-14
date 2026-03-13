@@ -3468,6 +3468,19 @@ public final class SystemServer implements Dumpable {
                     if (wmsRef != null) {
                         wmsRef.enableScreenAfterBoot();
                     }
+                    // Disable all window/transition animations in nano mode
+                    try {
+                        android.content.ContentResolver cr = context.getContentResolver();
+                        android.provider.Settings.Global.putFloat(cr,
+                                android.provider.Settings.Global.WINDOW_ANIMATION_SCALE, 0f);
+                        android.provider.Settings.Global.putFloat(cr,
+                                android.provider.Settings.Global.TRANSITION_ANIMATION_SCALE, 0f);
+                        android.provider.Settings.Global.putFloat(cr,
+                                android.provider.Settings.Global.ANIMATOR_DURATION_SCALE, 0f);
+                        Slog.i(TAG, "GammaOS Nano: disabled all animations");
+                    } catch (Exception e) {
+                        Slog.w(TAG, "GammaOS Nano: failed to disable animations: " + e);
+                    }
                     try {
                         com.android.server.LocalServices.getService(
                                 android.app.ActivityManagerInternal.class).finishBooting();
