@@ -1544,15 +1544,18 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                     homeIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     // RetroArch intent extras (normally set by MainMenuActivity)
                     String dataDir = appInfo.dataDir; // /data/user/0/com.retroarch.aarch64
+                    String extDir = android.os.Environment.getExternalStorageDirectory()
+                            .getAbsolutePath() + "/Android/data/" + nanoApp + "/files";
+                    // Use external storage config (user-customized) instead of internal default
+                    String configFile = extDir + "/retroarch.cfg";
+                    Slog.i(TAG, "GammaOS Nano: CONFIGFILE=" + configFile);
                     homeIntent.putExtra("LIBRETRO", dataDir + "/cores/");
-                    homeIntent.putExtra("CONFIGFILE", dataDir + "/files/retroarch.cfg");
+                    homeIntent.putExtra("CONFIGFILE", configFile);
                     homeIntent.putExtra("DATADIR", dataDir);
                     homeIntent.putExtra("APK", appInfo.sourceDir);
                     homeIntent.putExtra("SDCARD",
                             android.os.Environment.getExternalStorageDirectory().getAbsolutePath());
-                    homeIntent.putExtra("EXTERNAL",
-                            android.os.Environment.getExternalStorageDirectory().getAbsolutePath()
-                            + "/Android/data/" + nanoApp + "/files");
+                    homeIntent.putExtra("EXTERNAL", extDir);
                     homeIntent.putExtra("IME", android.provider.Settings.Secure.getString(
                             mService.mContext.getContentResolver(), "default_input_method"));
                     Slog.i(TAG, "GammaOS Nano: direct launch " + directActivity
