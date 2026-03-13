@@ -90,6 +90,9 @@ import android.os.Handler;
 import android.os.SystemProperties;
 import android.app.Activity;
 import android.widget.Toast;
+import android.hardware.display.DisplayManager;
+import android.os.Binder;
+import android.view.Display;
 import android.os.BatteryManager;
 import android.widget.TextView;
 import android.view.Gravity;
@@ -138,6 +141,7 @@ class LegacyGlobalActions implements DialogInterface.OnDismissListener, DialogIn
     private ToggleAction mAirplaneModeOn;
 
     private ActionsAdapter mAdapter;
+    private int mBrightnessItemPosition = -1;
 
     private boolean mKeyguardShowing = false;
     private boolean mDeviceProvisioned = false;
@@ -569,16 +573,19 @@ class LegacyGlobalActions implements DialogInterface.OnDismissListener, DialogIn
         }
 
         // GammaOS - Add our own shortcuts
-        mItems.add(getKillForegroundAppAction());
-        mItems.add(getSettingsAction());
-        //mItems.add(getBrightnessOptionsAction());
-        //mItems.add(getControllerOptionsAction());
-       // mItems.add(getUSBOptionsAction());
-        //mItems.add(getPerformanceOptionsAction());
-        mItems.add(getKillBackgroundAppsAction());
-        mItems.add(getKillAllAppsAction());
-        mItems.add(getBootNanoAction());
-        //mItems.add(getHomeAction());
+        boolean isNanoMode = "1".equals(SystemProperties.get("sys.gammaos.minimal_boot", "0"));
+        if (isNanoMode) {
+            mItems.add(0, getBrightnessAction());
+            mBrightnessItemPosition = 0;
+            mItems.add(getPerformanceAction());
+        } else {
+            mBrightnessItemPosition = -1;
+            mItems.add(getKillForegroundAppAction());
+            mItems.add(getSettingsAction());
+            mItems.add(getKillBackgroundAppsAction());
+            mItems.add(getKillAllAppsAction());
+            mItems.add(getBootNanoAction());
+        }
 
         // Override ActionsAdapter's getView method to set text color to white
         mAdapter = new ActionsAdapter(mContext, mItems,
@@ -622,9 +629,37 @@ class LegacyGlobalActions implements DialogInterface.OnDismissListener, DialogIn
         ActionsDialog dialog = new ActionsDialog(mContext, params);
         dialog.setCanceledOnTouchOutside(false); // Handled by the custom class.
 
-        dialog.getListView().setItemsCanFocus(true);
-        dialog.getListView().setLongClickable(true);
-        dialog.getListView().setOnItemLongClickListener(
+        ListView listView = dialog.getListView();
+        listView.setItemsCanFocus(true);
+        listView.setLongClickable(true);
+        // Use a lighter selector for focused/selected items so it doesn't clash with white text
+        android.graphics.drawable.StateListDrawable selector = new android.graphics.drawable.StateListDrawable();
+        android.graphics.drawable.GradientDrawable focusedBg = new android.graphics.drawable.GradientDrawable();
+        focusedBg.setColor(Color.parseColor("#FF3A5FCD")); // Blue highlight
+        focusedBg.setCornerRadius(8);
+        selector.addState(new int[]{android.R.attr.state_focused}, focusedBg);
+        selector.addState(new int[]{android.R.attr.state_pressed}, focusedBg);
+        android.graphics.drawable.GradientDrawable selectedBg = new android.graphics.drawable.GradientDrawable();
+        selectedBg.setColor(Color.parseColor("#FF3A5FCD"));
+        selectedBg.setCornerRadius(8);
+        selector.addState(new int[]{android.R.attr.state_selected}, selectedBg);
+        selector.addState(new int[]{}, new ColorDrawable(Color.TRANSPARENT));
+        listView.setSelector(selector);
+        // GammaOS Nano: intercept DPAD left/right on brightness slider row
+        if (isNanoMode) {
+            dialog.setOnKeyListener((dlg, keyCode, event) -> {
+                if (event.getAction() != android.view.KeyEvent.ACTION_DOWN) return false;
+                int sel = listView.getSelectedItemPosition();
+                if (sel != 0) return false; // brightness is at position 0
+                if (keyCode == android.view.KeyEvent.KEYCODE_DPAD_RIGHT) {
+                    return handleBrightnessDpad(1);
+                } else if (keyCode == android.view.KeyEvent.KEYCODE_DPAD_LEFT) {
+                    return handleBrightnessDpad(-1);
+                }
+                return false;
+            });
+        }
+        listView.setOnItemLongClickListener(
                 new AdapterView.OnItemLongClickListener() {
                     @Override
                     public boolean onItemLongClick(AdapterView<?> parent, View view, int position,
@@ -768,160 +803,215 @@ class LegacyGlobalActions implements DialogInterface.OnDismissListener, DialogIn
     }
 
 
-    // private Action getPerformanceOptionsAction() {
-        // return new SinglePressAction(R.drawable.ic_menu,
-                // R.string.gammaos_performance_mode) {
+    // Brightness slider view refs (held for DPAD key updates from ListView)
+    private android.widget.ProgressBar mBrightnessPb;
+    private android.widget.TextView mBrightnessTv;
 
-            // public void onPress() {
-                // Intent intent = new Intent(mContext, PerformanceOptionsActivity.class);
-                // intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+    private Action getBrightnessAction() {
+        return new Action() {
+            @Override
+            public CharSequence getLabelForAccessibility(Context context) {
+                return context.getString(R.string.gammaos_brightness_settings);
+            }
 
-                // // Dismiss the dialog completely before launching the new activity
-                // if (mDialog != null && mDialog.isShowing()) {
-                    // mDialog.dismiss();
-                    // mDialog = null; // Clear the reference to help garbage collection
-                // }
+            @Override
+            public View create(Context context, View convertView, ViewGroup parent,
+                    LayoutInflater inflater) {
+                final DisplayManager dm = (DisplayManager)
+                        context.getSystemService(Context.DISPLAY_SERVICE);
+                float cur = 0.5f;
+                if (dm != null) {
+                    float b = dm.getBrightness(Display.DEFAULT_DISPLAY);
+                    if (!Float.isNaN(b) && b >= 0) cur = b;
+                }
+                int pct = (int) (cur * 100);
+                float density = context.getResources().getDisplayMetrics().density;
 
-                // mContext.startActivity(intent);
+                // Match global_actions_item.xml: paddingStart=8dp, paddingEnd=16dp,
+                // paddingTop/Bottom=6dp, minHeight=listPreferredItemHeight
+                android.widget.LinearLayout ll = new android.widget.LinearLayout(context);
+                ll.setOrientation(android.widget.LinearLayout.HORIZONTAL);
+                ll.setGravity(Gravity.CENTER_VERTICAL);
+                ll.setPadding((int) (8 * density), (int) (6 * density),
+                        (int) (16 * density), (int) (6 * density));
+                ll.setMinimumHeight((int) (64 * density));
 
-                // // Check if mContext is an instance of Activity and then call finish()
-                // if (mContext instanceof Activity) {
-                    // ((Activity) mContext).finish();
-                // }
-            // }
+                // Sun icon — 56dp container (matching icon ImageView in standard items)
+                // with scaleType center so the 24dp icon is centered within 56dp
+                ImageView icon = new ImageView(context);
+                icon.setImageResource(R.drawable.ic_gammaos_brightness);
+                icon.setColorFilter(0xFFFFFFFF, PorterDuff.Mode.SRC_IN);
+                icon.setScaleType(ImageView.ScaleType.CENTER);
+                android.widget.LinearLayout.LayoutParams iconLp =
+                        new android.widget.LinearLayout.LayoutParams(
+                                (int) (56 * density), (int) (56 * density));
+                iconLp.setMarginEnd((int) (8 * density));
+                ll.addView(icon, iconLp);
 
-            // public boolean onLongPress() {
-                // return false;
-            // }
+                // Progress bar
+                mBrightnessPb = new android.widget.ProgressBar(context,
+                        null, android.R.attr.progressBarStyleHorizontal);
+                mBrightnessPb.setMax(100);
+                mBrightnessPb.setProgress(pct);
+                mBrightnessPb.setProgressTintList(
+                        android.content.res.ColorStateList.valueOf(0xFFFFFFFF));
+                mBrightnessPb.setProgressBackgroundTintList(
+                        android.content.res.ColorStateList.valueOf(0x40FFFFFF));
+                android.widget.LinearLayout.LayoutParams pbLp =
+                        new android.widget.LinearLayout.LayoutParams(
+                                0, android.widget.LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f);
+                pbLp.setMarginEnd((int) (12 * density));
+                ll.addView(mBrightnessPb, pbLp);
 
-            // @Override
-            // public boolean showDuringKeyguard() {
-                // return true;
-            // }
+                // Percentage text
+                mBrightnessTv = new android.widget.TextView(context);
+                mBrightnessTv.setTextColor(Color.WHITE);
+                mBrightnessTv.setTextSize(14);
+                mBrightnessTv.setText(pct + "%");
+                mBrightnessTv.setMinWidth((int) (40 * density));
+                ll.addView(mBrightnessTv);
 
-            // @Override
-            // public boolean showBeforeProvisioning() {
-                // return true;
-            // }
+                return ll;
+            }
 
-        // };
-    // }
+            @Override
+            public void onPress() {
+                // Inline slider — no action on press
+            }
 
-    // private Action getControllerOptionsAction() {
-        // return new SinglePressAction(R.drawable.ic_menu,
-                // R.string.gammaos_controller_options) {
+            @Override
+            public boolean showDuringKeyguard() { return true; }
+            @Override
+            public boolean showBeforeProvisioning() { return true; }
+            @Override
+            public boolean isEnabled() { return true; }
+        };
+    }
 
-            // public void onPress() {
-                // Intent intent = new Intent(mContext, ControllerOptionsActivity.class);
-                // intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+    /** Adjust brightness slider from DPAD left/right when brightness row is selected. */
+    private boolean handleBrightnessDpad(int direction) {
+        if (mBrightnessPb == null || mBrightnessTv == null) return false;
+        DisplayManager dm = (DisplayManager) mContext.getSystemService(Context.DISPLAY_SERVICE);
+        if (dm == null) return false;
+        int newPct = Math.max(1, Math.min(100, mBrightnessPb.getProgress() + direction * 5));
+        float brightness = newPct / 100f;
+        final int finalPct = newPct;
+        mBrightnessPb.post(() -> {
+            mBrightnessPb.setProgress(finalPct);
+            mBrightnessTv.setText(finalPct + "%");
+        });
+        final long token = Binder.clearCallingIdentity();
+        try {
+            dm.setBrightness(Display.DEFAULT_DISPLAY, brightness);
+        } finally {
+            Binder.restoreCallingIdentity(token);
+        }
+        return true;
+    }
 
-                // // Dismiss the dialog completely before launching the new activity
-                // if (mDialog != null && mDialog.isShowing()) {
-                    // mDialog.dismiss();
-                    // mDialog = null; // Clear the reference to help garbage collection
-                // }
+    private void applyDarkDialogTheme(AlertDialog dialog) {
+        Window w = dialog.getWindow();
+        if (w == null) return;
+        float[] outerRadii = new float[] {16, 16, 16, 16, 16, 16, 16, 16};
+        RoundRectShape roundedRect = new RoundRectShape(outerRadii, null, null);
+        ShapeDrawable bg = new ShapeDrawable(roundedRect);
+        bg.getPaint().setColor(Color.parseColor("#FA111111"));
+        bg.getPaint().setStyle(Paint.Style.FILL);
+        w.setBackgroundDrawable(bg);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            w.addFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND);
+            WindowManager.LayoutParams lp = w.getAttributes();
+            lp.setBlurBehindRadius(20);
+            lp.dimAmount = 0.1f;
+            w.setAttributes(lp);
+            w.setBackgroundBlurRadius(50);
+        }
+        // Style title white
+        int titleId = mContext.getResources().getIdentifier("alertTitle", "id", "android");
+        if (titleId != 0) {
+            TextView title = dialog.findViewById(titleId);
+            if (title != null) title.setTextColor(Color.WHITE);
+        }
+        // Style buttons white
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(Color.WHITE);
+        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(Color.WHITE);
+    }
 
-                // mContext.startActivity(intent);
+    private Action getPerformanceAction() {
+        return new SinglePressAction(R.drawable.ic_gammaos_performance,
+                R.string.gammaos_performance_mode) {
 
-                // // Check if mContext is an instance of Activity and then call finish()
-                // if (mContext instanceof Activity) {
-                    // ((Activity) mContext).finish();
-                // }
-            // }
+            @Override
+            public void onPress() {
+                if (mDialog != null && mDialog.isShowing()) {
+                    mDialog.dismiss();
+                }
+                mHandler.post(() -> showPerformanceDialog());
+            }
 
-            // public boolean onLongPress() {
-                // return false;
-            // }
+            @Override
+            public boolean showDuringKeyguard() {
+                return true;
+            }
 
-            // @Override
-            // public boolean showDuringKeyguard() {
-                // return true;
-            // }
+            @Override
+            public boolean showBeforeProvisioning() {
+                return true;
+            }
+        };
+    }
 
-            // @Override
-            // public boolean showBeforeProvisioning() {
-                // return true;
-            // }
+    private void showPerformanceDialog() {
+        String current = SystemProperties.get("persist.gammaos.performance_mode", "stock");
+        final String[] modes = {"stock", "max", "powersave"};
+        final String[] labels = {"Normal", "Max Performance", "Power Saver"};
+        int checkedItem = 0;
+        for (int i = 0; i < modes.length; i++) {
+            if (modes[i].equals(current)) {
+                checkedItem = i;
+                break;
+            }
+        }
 
-        // };
-    // }
+        AlertDialog dialog = new AlertDialog.Builder(mContext, android.R.style.Theme_Material_Dialog)
+                .setTitle(R.string.gammaos_performance_mode)
+                .setSingleChoiceItems(labels, checkedItem, (dlg, which) -> {
+                    final String mode = modes[which];
+                    final long token = Binder.clearCallingIdentity();
+                    try {
+                        SystemProperties.set("persist.gammaos.performance_mode", mode);
+                    } finally {
+                        Binder.restoreCallingIdentity(token);
+                    }
+                    dlg.dismiss();
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .create();
 
-    // private Action getUSBOptionsAction() {
-        // return new SinglePressAction(R.drawable.ic_usb_48dp,
-                // R.string.gammaos_usb_options) {
-
-            // public void onPress() {
-                // Intent intent = new Intent(mContext, USBOptionsActivity.class);
-                // intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-
-                // // Dismiss the dialog completely before launching the new activity
-                // if (mDialog != null && mDialog.isShowing()) {
-                    // mDialog.dismiss();
-                    // mDialog = null; // Clear the reference to help garbage collection
-                // }
-
-                // mContext.startActivity(intent);
-
-                // // Check if mContext is an instance of Activity and then call finish()
-                // if (mContext instanceof Activity) {
-                    // ((Activity) mContext).finish();
-                // }
-            // }
-
-            // public boolean onLongPress() {
-                // return false;
-            // }
-
-            // @Override
-            // public boolean showDuringKeyguard() {
-                // return true;
-            // }
-
-            // @Override
-            // public boolean showBeforeProvisioning() {
-                // return true;
-            // }
-
-        // };
-    // }
-
-    // private Action getBrightnessOptionsAction() {
-        // return new SinglePressAction(com.android.internal.R.drawable.ic_menu, // Use an appropriate icon for brightness
-                // R.string.gammaos_brightness_settings) { // Define this string in your resources
-
-            // public void onPress() {
-                // Intent intent = new Intent(mContext, BrightnessControlActivity.class);
-                // intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-
-                // // Dismiss the dialog completely before launching the new activity
-                // if (mDialog != null && mDialog.isShowing()) {
-                    // mDialog.dismiss();
-                    // mDialog = null; // Clear the reference to help garbage collection
-                // }
-
-                // mContext.startActivity(intent);
-
-                // // Check if mContext is an instance of Activity and then call finish()
-                // if (mContext instanceof Activity) {
-                    // ((Activity) mContext).finish();
-                // }
-            // }
-
-            // public boolean onLongPress() {
-                // return false;
-            // }
-
-            // @Override
-            // public boolean showDuringKeyguard() {
-                // return true;
-            // }
-
-            // @Override
-            // public boolean showBeforeProvisioning() {
-                // return true;
-            // }
-        // };
-    // }
+        dialog.getWindow().setType(WindowManager.LayoutParams.TYPE_KEYGUARD_DIALOG);
+        dialog.show();
+        applyDarkDialogTheme(dialog);
+        // Style radio button text white
+        ListView lv = dialog.getListView();
+        if (lv != null) {
+            lv.setBackgroundColor(Color.TRANSPARENT);
+            for (int i = 0; i < lv.getChildCount(); i++) {
+                View child = lv.getChildAt(i);
+                if (child instanceof android.widget.CheckedTextView) {
+                    ((android.widget.CheckedTextView) child).setTextColor(Color.WHITE);
+                }
+            }
+            // Post to ensure items are laid out
+            lv.post(() -> {
+                for (int i = 0; i < lv.getChildCount(); i++) {
+                    View child = lv.getChildAt(i);
+                    if (child instanceof android.widget.CheckedTextView) {
+                        ((android.widget.CheckedTextView) child).setTextColor(Color.WHITE);
+                    }
+                }
+            });
+        }
+    }
 
     private Action getKillForegroundAppAction() {
         return new SinglePressAction(R.drawable.ic_close, R.string.gammaos_kill_app) {
@@ -1298,10 +1388,13 @@ class LegacyGlobalActions implements DialogInterface.OnDismissListener, DialogIn
     /** {@inheritDoc} */
     @Override
     public void onClick(DialogInterface dialog, int which) {
-        if (!(mAdapter.getItem(which) instanceof SilentModeTriStateAction)) {
+        Action action = mAdapter.getItem(which);
+        // Don't dismiss for brightness slider (inline control) or silent mode
+        if (!(action instanceof SilentModeTriStateAction)
+                && which != mBrightnessItemPosition) {
             dialog.dismiss();
         }
-        mAdapter.getItem(which).onPress();
+        action.onPress();
     }
 
     // note: the scheme below made more sense when we were planning on having

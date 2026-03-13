@@ -388,6 +388,9 @@ NanoMenu::NanoMenu()
       mFxLocResolution(-1), mFxLocEffect(-1),
       mSelectedIndex(0),
       mExitRequested(false),
+      mSelectHeld(false),
+      mBrightness(128), mMaxBrightness(255),
+      mShowBrightnessBar(false), mBrightnessBarTimer(0),
       mCurrentEffect(1),
       mEffectTime(0.0f) {
     mSession = new SurfaceComposerClient();
@@ -410,6 +413,35 @@ void NanoMenu::binderDied(const wp<IBinder>&) {
     ALOGD("SurfaceFlinger died, exiting...");
     kill(getpid(), SIGKILL);
     requestExit();
+}
+
+int NanoMenu::readSysfsInt(const char* path, int fallback) {
+    int fd = open(path, O_RDONLY);
+    if (fd < 0) return fallback;
+    char buf[32] = {};
+    read(fd, buf, sizeof(buf) - 1);
+    close(fd);
+    return atoi(buf);
+}
+
+void NanoMenu::writeSysfsInt(const char* path, int value) {
+    int fd = open(path, O_WRONLY);
+    if (fd < 0) { ALOGE("Cannot write %s", path); return; }
+    char buf[32];
+    int len = snprintf(buf, sizeof(buf), "%d", value);
+    write(fd, buf, len);
+    close(fd);
+}
+
+void NanoMenu::adjustBrightness(int direction) {
+    int step = mMaxBrightness / 10;
+    if (step < 1) step = 1;
+    mBrightness += step * direction;
+    if (mBrightness < 1) mBrightness = 1;
+    if (mBrightness > mMaxBrightness) mBrightness = mMaxBrightness;
+    writeSysfsInt("/sys/class/leds/lcd-backlight/brightness", mBrightness);
+    mShowBrightnessBar = true;
+    mBrightnessBarTimer = 90; // ~1.5s at 60fps
 }
 
 void NanoMenu::buildMenu() {
@@ -480,20 +512,30 @@ void NanoMenu::pollInput() {
     struct input_event ev;
     for (int fd : mInputFds) {
         while (read(fd, &ev, sizeof(ev)) == sizeof(ev)) {
-            if (ev.type == EV_KEY && ev.value == 1) {
-                switch (ev.code) {
-                case KEY_VOLUMEUP: case KEY_UP:
-                    handleUp(); break;
-                case KEY_VOLUMEDOWN: case KEY_DOWN:
-                    handleDown(); break;
-                case KEY_POWER: case KEY_ENTER: case BTN_SOUTH:
-                    handleSelect(); break;
-                case BTN_NORTH: // X button: cycle effect
-                    mCurrentEffect = (mCurrentEffect + 1) % (NUM_EFFECTS + 1);
-                    if (mCurrentEffect > 0 && mCurrentEffect <= 10) initEffects();
-                    ALOGD("Effect: %d (%s)", mCurrentEffect, kEffectNames[mCurrentEffect]);
-                    break;
-                default: break;
+            // Track SELECT button state
+            if (ev.type == EV_KEY && ev.code == BTN_SELECT) {
+                mSelectHeld = (ev.value != 0);
+            }
+            if (ev.type == EV_KEY && (ev.value == 1 || ev.value == 2)) {
+                // value 1 = press, value 2 = repeat (for hold-to-adjust)
+                if (mSelectHeld && (ev.code == KEY_VOLUMEUP || ev.code == KEY_VOLUMEDOWN)) {
+                    adjustBrightness(ev.code == KEY_VOLUMEUP ? 1 : -1);
+                } else if (ev.value == 1) {
+                    // Only handle menu nav on initial press, not repeat
+                    switch (ev.code) {
+                    case KEY_VOLUMEUP: case KEY_UP:
+                        handleUp(); break;
+                    case KEY_VOLUMEDOWN: case KEY_DOWN:
+                        handleDown(); break;
+                    case KEY_POWER: case KEY_ENTER: case BTN_SOUTH:
+                        handleSelect(); break;
+                    case BTN_NORTH:
+                        mCurrentEffect = (mCurrentEffect + 1) % (NUM_EFFECTS + 1);
+                        if (mCurrentEffect > 0 && mCurrentEffect <= 10) initEffects();
+                        ALOGD("Effect: %d (%s)", mCurrentEffect, kEffectNames[mCurrentEffect]);
+                        break;
+                    default: break;
+                    }
                 }
             }
             if (ev.type == EV_ABS) {
@@ -743,6 +785,10 @@ status_t NanoMenu::readyToRun() {
     openInputDevices();
     initEffects();
 
+    // Initialize brightness from sysfs
+    mMaxBrightness = readSysfsInt("/sys/class/leds/lcd-backlight/max_brightness", 255);
+    mBrightness = readSysfsInt("/sys/class/leds/lcd-backlight/brightness", mMaxBrightness / 2);
+
     // Zygote + SystemServer preload is triggered by init.rc on nonencrypted,
     // before gammaos-nano even starts.  By the time the user sees the menu,
     // Android is already booting in the background.
@@ -922,15 +968,65 @@ void NanoMenu::render() {
 
     // Footer
     char footer[128];
-    snprintf(footer, sizeof(footer), "DPAD/VOL: Nav | A/PWR: Select | X: FX [%s]",
+    snprintf(footer, sizeof(footer), "DPAD/VOL: Nav | A/PWR: Select | SEL+VOL: Brightness | X: FX [%s]",
              kEffectNames[mCurrentEffect]);
     float footW = strlen(footer) * FONT_CHAR_W * footScale;
     float footX = (mWidth - footW) / 2.0f;
     float footY = mHeight - footH - startY;
     drawText(footer, footX, footY, footScale, mWidth, mHeight, 0.4f, 0.4f, 0.5f, 1.0f);
 
+    // Brightness bar overlay
+    renderBrightnessBar();
+
     glDisable(GL_BLEND);
     eglSwapBuffers(mDisplay, mSurface);
+}
+
+void NanoMenu::renderBrightnessBar() {
+    if (!mShowBrightnessBar) return;
+    if (--mBrightnessBarTimer <= 0) {
+        mShowBrightnessBar = false;
+        return;
+    }
+
+    float sf = fminf((float)mWidth / 1080.0f, (float)mHeight / 720.0f);
+    if (sf < 0.5f) sf = 0.5f;
+
+    float barW = 250.0f * sf;
+    float barH = 20.0f * sf;
+    float pad = 12.0f * sf;
+    float iconScale = 1.5f * sf;
+    float textScale = 1.5f * sf;
+    float iconW = 8 * FONT_CHAR_W * iconScale; // "*" sun symbol
+    float bgW = iconW + pad + barW + pad + 50.0f * sf;
+    float bgH = barH + pad * 2;
+    float bgX = (mWidth - bgW) / 2.0f;
+    float bgY = pad;
+
+    // Background
+    drawQuad(bgX, bgY, bgW, bgH, 0.0f, 0.0f, 0.0f, 0.8f);
+
+    // Sun icon "*"
+    float iconX = bgX + pad;
+    float iconY = bgY + (bgH - FONT_CHAR_H * iconScale) / 2.0f;
+    drawText("*", iconX, iconY, iconScale, mWidth, mHeight, 1.0f, 0.9f, 0.3f, 1.0f);
+
+    // Progress bar background
+    float barX = iconX + iconW;
+    float barY = bgY + (bgH - barH) / 2.0f;
+    drawQuad(barX, barY, barW, barH, 0.3f, 0.3f, 0.3f, 1.0f);
+
+    // Progress bar fill
+    int pct = (mMaxBrightness > 0) ? (mBrightness * 100 / mMaxBrightness) : 0;
+    float fillW = barW * pct / 100.0f;
+    drawQuad(barX, barY, fillW, barH, 1.0f, 0.9f, 0.3f, 1.0f);
+
+    // Percentage text
+    char pctStr[8];
+    snprintf(pctStr, sizeof(pctStr), "%d%%", pct);
+    float textX = barX + barW + pad;
+    float textY = bgY + (bgH - FONT_CHAR_H * textScale) / 2.0f;
+    drawText(pctStr, textX, textY, textScale, mWidth, mHeight, 1.0f, 1.0f, 1.0f, 1.0f);
 }
 
 // ---------------------------------------------------------------------------

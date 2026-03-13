@@ -1337,6 +1337,9 @@ on nonencrypted && property:persist.bootanim.skip_nano=
 # SystemServer to trigger the app launch via boot completion chain.
 on property:service.bootanim.nano_retroarch=1
     setprop service.bootanim.exit 1
+    # Signal system_server to (re)start the nano app — needed for relaunch
+    # case where startHomeOnTaskDisplayArea won't trigger automatically
+    setprop sys.gammaos.nano.do_launch 1
 
 # GammaOS Nano: action dispatcher — the nano menu runs in the bootanim
 # SELinux domain which cannot set sys.powerctl directly.  Instead it sets
@@ -1358,6 +1361,13 @@ on property:service.bootanim.nano_action=safemode
     setprop persist.sys.safemode 1
     setprop persist.bootanim.skip_nano 1
     setprop sys.powerctl reboot
+
+# GammaOS Nano: restart the nano menu (e.g. when RetroArch exits)
+on property:sys.gammaos.nano.restart=1
+    setprop sys.gammaos.nano.restart 0
+    setprop service.bootanim.exit 0
+    setprop service.bootanim.nano_retroarch 0
+    start gammaos-nano
 
 on property:sys.init_log_level=*
     loglevel ${sys.init_log_level}

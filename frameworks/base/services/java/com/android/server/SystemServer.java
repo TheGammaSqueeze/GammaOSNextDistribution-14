@@ -3458,6 +3458,8 @@ public final class SystemServer implements Dumpable {
                     try { Thread.sleep(50); } catch (InterruptedException ignored) {}
                 }
                 Slog.i(TAG, "GammaOS Nano: user selected RetroArch, completing boot");
+                // Clear do_launch so the persistent callback doesn't also fire
+                SystemProperties.set("sys.gammaos.nano.do_launch", "0");
                 // Post boot completion on the main looper.
                 new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
                     // enableScreenAfterBoot sets mSystemBooted + mForceDisplayEnabled,
@@ -3484,6 +3486,32 @@ public final class SystemServer implements Dumpable {
                     }
                 });
             }, "NanoWaitThread").start();
+
+            // Persistent polling thread: watches for do_launch=1 (relaunch case)
+            // and triggers startHomeOnAllDisplays so RootWindowContainer launches the app.
+            new Thread(() -> {
+                // Wait for initial boot to complete before monitoring for relaunches
+                while (!"1".equals(SystemProperties.get("sys.boot_completed"))) {
+                    try { Thread.sleep(200); } catch (InterruptedException ignored) {}
+                }
+                Slog.i(TAG, "GammaOS Nano: relaunch monitor active");
+                while (true) {
+                    try { Thread.sleep(100); } catch (InterruptedException ignored) {}
+                    if (!"1".equals(SystemProperties.get("sys.gammaos.nano.do_launch"))) continue;
+                    SystemProperties.set("sys.gammaos.nano.do_launch", "0");
+                    Slog.i(TAG, "GammaOS Nano: do_launch detected, triggering relaunch");
+                    new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
+                        try {
+                            com.android.server.LocalServices.getService(
+                                    com.android.server.wm.ActivityTaskManagerInternal.class)
+                                    .startHomeOnAllDisplays(
+                                            android.os.UserHandle.USER_SYSTEM, "nano-relaunch");
+                        } catch (Exception e) {
+                            Slog.w(TAG, "GammaOS Nano: startHomeOnAllDisplays failed: " + e);
+                        }
+                    });
+                }
+            }, "NanoRelaunchMonitor").start();
         }
 
         t.traceEnd(); // startOtherServices

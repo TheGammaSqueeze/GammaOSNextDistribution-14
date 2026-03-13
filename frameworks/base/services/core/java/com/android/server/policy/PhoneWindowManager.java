@@ -527,10 +527,14 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     private GlobalActions mGlobalActions;
     private Handler mHandler;
 
-    // GammaOS Nano: minimal volume overlay for nano mode (no SystemUI volume panel)
+    // GammaOS Nano: minimal volume/brightness overlays for nano mode (no SystemUI)
     private android.view.View mNanoVolumeView;
+    private android.view.View mNanoBrightnessView;
     private android.view.WindowManager mNanoVolumeWM;
     private final Runnable mNanoVolumeDismiss = () -> dismissNanoVolumeIndicator();
+    private final Runnable mNanoBrightnessDismiss = () -> dismissNanoBrightnessIndicator();
+    // Track SELECT button for brightness combo
+    private boolean mSelectPressed = false;
 
     // FIXME This state is shared between the input reader and handler thread.
     // Technically it's broken and buggy but it has been like this for many years
@@ -1328,7 +1332,11 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         if (!mPowerKeyHandled) {
             mResolvedLongPressOnPowerBehavior = getResolvedLongPressOnPowerBehavior();
             if (!interactive) {
-                if ((event.getFlags() & KeyEvent.FLAG_LONG_PRESS) != 0) {
+                // GammaOS Nano: always wake on power press in nano mode
+                if (android.os.SystemProperties.getBoolean(
+                        "sys.gammaos.minimal_boot", false)) {
+                    wakeUpFromWakeKey(event);
+                } else if ((event.getFlags() & KeyEvent.FLAG_LONG_PRESS) != 0) {
                     wakeUpFromWakeKey(event);
                 } else if (mSupportLongPressPowerWhenNonInteractive &&
                         hasLongPressOnPowerBehavior()) {
@@ -5847,6 +5855,12 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 break;
             }
 
+            case KeyEvent.KEYCODE_BUTTON_SELECT: {
+                // GammaOS Nano: track SELECT button for brightness combo
+                mSelectPressed = down;
+                break;
+            }
+
             case KeyEvent.KEYCODE_VOLUME_DOWN:
             case KeyEvent.KEYCODE_VOLUME_UP:
             case KeyEvent.KEYCODE_VOLUME_MUTE: {
@@ -5855,16 +5869,24 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 if (android.os.SystemProperties.getBoolean(
                         "sys.gammaos.minimal_boot", false)) {
                     if (down && keyCode != KeyEvent.KEYCODE_VOLUME_MUTE) {
-                        int direction = (keyCode == KeyEvent.KEYCODE_VOLUME_UP)
-                                ? AudioManager.ADJUST_RAISE : AudioManager.ADJUST_LOWER;
-                        try {
-                            getAudioService().adjustStreamVolume(
-                                    AudioManager.STREAM_MUSIC, direction, 0,
-                                    mContext.getOpPackageName());
-                        } catch (Exception e) {
-                            Log.e(TAG, "Nano: volume adjust failed", e);
+                        if (mSelectPressed) {
+                            // SELECT + volume = brightness adjustment
+                            int direction = (keyCode == KeyEvent.KEYCODE_VOLUME_UP) ? 1 : -1;
+                            adjustScreenBrightness(direction);
+                            mHandler.post(() -> showNanoBrightnessIndicator());
+                        } else {
+                            // Plain volume adjustment
+                            int direction = (keyCode == KeyEvent.KEYCODE_VOLUME_UP)
+                                    ? AudioManager.ADJUST_RAISE : AudioManager.ADJUST_LOWER;
+                            try {
+                                getAudioService().adjustStreamVolume(
+                                        AudioManager.STREAM_MUSIC, direction, 0,
+                                        mContext.getOpPackageName());
+                            } catch (Exception e) {
+                                Log.e(TAG, "Nano: volume adjust failed", e);
+                            }
+                            mHandler.post(() -> showNanoVolumeIndicator());
                         }
-                        mHandler.post(() -> showNanoVolumeIndicator());
                     }
                     result &= ~ACTION_PASS_TO_USER;
                     break;
@@ -6573,24 +6595,37 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                         mContext.getSystemService(Context.WINDOW_SERVICE);
             }
 
-            // Build a simple horizontal ProgressBar
+            // Build a simple horizontal bar: [speaker icon] [progress bar] [percentage]
             if (mNanoVolumeView == null) {
+                float density = mContext.getResources().getDisplayMetrics().density;
                 android.widget.LinearLayout ll = new android.widget.LinearLayout(mContext);
                 ll.setOrientation(android.widget.LinearLayout.HORIZONTAL);
                 ll.setGravity(android.view.Gravity.CENTER_VERTICAL);
-                int pad = (int) (12 * mContext.getResources().getDisplayMetrics().density);
+                int pad = (int) (12 * density);
                 ll.setPadding(pad, pad / 2, pad, pad / 2);
                 ll.setBackgroundColor(0xCC000000);
+
+                // Speaker icon
+                android.widget.ImageView icon = new android.widget.ImageView(mContext);
+                icon.setImageResource(com.android.internal.R.drawable.ic_audio_vol);
+                icon.setColorFilter(0xFFFFFFFF, android.graphics.PorterDuff.Mode.SRC_IN);
+                android.widget.LinearLayout.LayoutParams iconLp =
+                        new android.widget.LinearLayout.LayoutParams(
+                                (int) (20 * density), (int) (20 * density));
+                iconLp.setMarginEnd((int) (8 * density));
+                ll.addView(icon, iconLp);
 
                 android.widget.ProgressBar pb = new android.widget.ProgressBar(mContext,
                         null, android.R.attr.progressBarStyleHorizontal);
                 pb.setMax(100);
                 pb.setProgress(pct);
-                pb.getProgressDrawable().setColorFilter(0xFFFFFFFF,
-                        android.graphics.PorterDuff.Mode.SRC_IN);
+                pb.setProgressTintList(
+                        android.content.res.ColorStateList.valueOf(0xFFFFFFFF));
+                pb.setProgressBackgroundTintList(
+                        android.content.res.ColorStateList.valueOf(0x40FFFFFF));
                 android.widget.LinearLayout.LayoutParams lp =
                         new android.widget.LinearLayout.LayoutParams(
-                                (int) (200 * mContext.getResources().getDisplayMetrics().density),
+                                (int) (200 * density),
                                 android.widget.LinearLayout.LayoutParams.WRAP_CONTENT);
                 lp.setMarginEnd(pad);
                 ll.addView(pb, lp);
@@ -6613,17 +6648,17 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                                         | android.view.WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
                                 android.graphics.PixelFormat.TRANSLUCENT);
                 wlp.gravity = android.view.Gravity.TOP | android.view.Gravity.CENTER_HORIZONTAL;
-                wlp.y = (int) (24 * mContext.getResources().getDisplayMetrics().density);
+                wlp.y = (int) (24 * density);
                 wlp.setTitle("NanoVolume");
                 mNanoVolumeWM.addView(mNanoVolumeView, wlp);
             } else {
-                // Update existing view
+                // Update existing view (icon at 0, progress at 1, text at 2)
                 android.widget.LinearLayout ll =
                         (android.widget.LinearLayout) mNanoVolumeView;
                 android.widget.ProgressBar pb =
-                        (android.widget.ProgressBar) ll.getChildAt(0);
+                        (android.widget.ProgressBar) ll.getChildAt(1);
                 android.widget.TextView tv =
-                        (android.widget.TextView) ll.getChildAt(1);
+                        (android.widget.TextView) ll.getChildAt(2);
                 pb.setProgress(pct);
                 tv.setText(pct + "%");
                 mNanoVolumeView.setVisibility(android.view.View.VISIBLE);
@@ -6640,6 +6675,106 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     private void dismissNanoVolumeIndicator() {
         if (mNanoVolumeView != null) {
             mNanoVolumeView.setVisibility(android.view.View.GONE);
+        }
+    }
+
+    // GammaOS Nano: minimal brightness indicator overlay (sun icon + bar)
+    private void showNanoBrightnessIndicator() {
+        try {
+            float currentBrightness = mDisplayManager.getBrightness(DEFAULT_DISPLAY);
+            float minBrightness = mPowerManager.getBrightnessConstraint(
+                    PowerManager.BRIGHTNESS_CONSTRAINT_TYPE_MINIMUM);
+            float maxBrightness = mPowerManager.getBrightnessConstraint(
+                    PowerManager.BRIGHTNESS_CONSTRAINT_TYPE_MAXIMUM);
+            int pct = (int) (((currentBrightness - minBrightness)
+                    / (maxBrightness - minBrightness)) * 100);
+            pct = Math.max(0, Math.min(100, pct));
+
+            if (mNanoVolumeWM == null) {
+                mNanoVolumeWM = (android.view.WindowManager)
+                        mContext.getSystemService(Context.WINDOW_SERVICE);
+            }
+
+            // Build: [sun icon] [progress bar] [percentage]
+            if (mNanoBrightnessView == null) {
+                float density = mContext.getResources().getDisplayMetrics().density;
+                android.widget.LinearLayout ll = new android.widget.LinearLayout(mContext);
+                ll.setOrientation(android.widget.LinearLayout.HORIZONTAL);
+                ll.setGravity(android.view.Gravity.CENTER_VERTICAL);
+                int pad = (int) (12 * density);
+                ll.setPadding(pad, pad / 2, pad, pad / 2);
+                ll.setBackgroundColor(0xCC000000);
+
+                // Sun icon
+                android.widget.ImageView icon = new android.widget.ImageView(mContext);
+                icon.setImageResource(com.android.internal.R.drawable.ic_gammaos_brightness);
+                icon.setColorFilter(0xFFFFFFFF, android.graphics.PorterDuff.Mode.SRC_IN);
+                android.widget.LinearLayout.LayoutParams iconLp =
+                        new android.widget.LinearLayout.LayoutParams(
+                                (int) (20 * density), (int) (20 * density));
+                iconLp.setMarginEnd((int) (8 * density));
+                ll.addView(icon, iconLp);
+
+                android.widget.ProgressBar pb = new android.widget.ProgressBar(mContext,
+                        null, android.R.attr.progressBarStyleHorizontal);
+                pb.setMax(100);
+                pb.setProgress(pct);
+                pb.setProgressTintList(
+                        android.content.res.ColorStateList.valueOf(0xFFFFFFFF));
+                pb.setProgressBackgroundTintList(
+                        android.content.res.ColorStateList.valueOf(0x40FFFFFF));
+                android.widget.LinearLayout.LayoutParams lp =
+                        new android.widget.LinearLayout.LayoutParams(
+                                (int) (200 * density),
+                                android.widget.LinearLayout.LayoutParams.WRAP_CONTENT);
+                lp.setMarginEnd(pad);
+                ll.addView(pb, lp);
+
+                android.widget.TextView tv = new android.widget.TextView(mContext);
+                tv.setTextColor(0xFFFFFFFF);
+                tv.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 14);
+                tv.setText(pct + "%");
+                ll.addView(tv);
+
+                mNanoBrightnessView = ll;
+
+                android.view.WindowManager.LayoutParams wlp =
+                        new android.view.WindowManager.LayoutParams(
+                                android.view.WindowManager.LayoutParams.WRAP_CONTENT,
+                                android.view.WindowManager.LayoutParams.WRAP_CONTENT,
+                                android.view.WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY,
+                                android.view.WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+                                        | android.view.WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+                                        | android.view.WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
+                                android.graphics.PixelFormat.TRANSLUCENT);
+                wlp.gravity = android.view.Gravity.TOP | android.view.Gravity.CENTER_HORIZONTAL;
+                wlp.y = (int) (24 * density);
+                wlp.setTitle("NanoBrightness");
+                mNanoVolumeWM.addView(mNanoBrightnessView, wlp);
+            } else {
+                // Update existing view (icon at 0, progress at 1, text at 2)
+                android.widget.LinearLayout ll =
+                        (android.widget.LinearLayout) mNanoBrightnessView;
+                android.widget.ProgressBar pb =
+                        (android.widget.ProgressBar) ll.getChildAt(1);
+                android.widget.TextView tv =
+                        (android.widget.TextView) ll.getChildAt(2);
+                pb.setProgress(pct);
+                tv.setText(pct + "%");
+                mNanoBrightnessView.setVisibility(android.view.View.VISIBLE);
+            }
+
+            // Auto-dismiss after 1.5 seconds
+            mHandler.removeCallbacks(mNanoBrightnessDismiss);
+            mHandler.postDelayed(mNanoBrightnessDismiss, 1500);
+        } catch (Exception e) {
+            Log.e(TAG, "Nano brightness indicator failed", e);
+        }
+    }
+
+    private void dismissNanoBrightnessIndicator() {
+        if (mNanoBrightnessView != null) {
+            mNanoBrightnessView.setVisibility(android.view.View.GONE);
         }
     }
 

@@ -110,6 +110,8 @@ class Charger {
     int RequestEnableSuspend();
     int RequestDisableSuspend();
     void BlankSecScreen();
+    void ForceBlankBacklight();
+    void ForceSuspend();
 
     bool have_battery_state_ = false;
     bool screen_blanked_ = false;
@@ -118,6 +120,7 @@ class Charger {
     int64_t next_key_check_ = 0;
     int64_t next_pwr_check_ = 0;
     int64_t wait_batt_level_timestamp_ = 0;
+    int64_t blank_fallback_deadline_ = 0;
 
     DirectRenderManager drm_;
     SrceenSwitch screen_switch_;

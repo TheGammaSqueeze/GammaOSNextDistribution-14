@@ -279,6 +279,41 @@ int Charger::RequestDisableSuspend() {
     return autosuspend_disable();
 }
 
+void Charger::ForceBlankBacklight() {
+    // Direct sysfs writes to kill the backlight.  On many MediaTek (and some
+    // other) SoCs the minui gr_fb_blank() path does not fully deassert the
+    // backlight-enable GPIO, leaving a visible glow even with PWM duty = 0.
+    // Writing brightness AND bl_power (when present) covers both LED-class and
+    // backlight-class drivers.
+    const char* brightness_paths[] = {
+            "/sys/class/leds/lcd-backlight/brightness",
+            "/sys/class/leds/lcd_backlight/brightness",
+            "/sys/class/leds/lcd_backlight0/brightness",
+    };
+    for (const char* p : brightness_paths) {
+        android::base::WriteStringToFile("0", p);
+    }
+
+    // backlight-class bl_power: 4 = FB_BLANK_POWERDOWN
+    std::unique_ptr<DIR, decltype(&closedir)> dir(opendir("/sys/class/backlight"), closedir);
+    if (dir) {
+        struct dirent* de;
+        while ((de = readdir(dir.get())) != nullptr) {
+            if (de->d_name[0] == '.') continue;
+            std::string p = std::string("/sys/class/backlight/") + de->d_name + "/bl_power";
+            android::base::WriteStringToFile("4", p);
+        }
+    }
+}
+
+void Charger::ForceSuspend() {
+    // Last-resort: write directly to /sys/power/state.  The normal
+    // autosuspend path may fail if wakeup sources are held or if
+    // ISystemSuspend never started (common in KPOC on GSI builds).
+    LOGW("charger: forcing suspend via /sys/power/state\n");
+    android::base::WriteStringToFile("mem", "/sys/power/state");
+}
+
 static void kick_animation(animation* anim) {
     anim->run = true;
 }
@@ -337,7 +372,25 @@ void Charger::UpdateScreenState(int64_t now) {
         // If timeout and battery level is still not ready, draw unknown battery
     }
 
-    if (healthd_draw_ == nullptr) return;
+    if (healthd_draw_ == nullptr) {
+        // Graphics init failed — no animation possible.  Use a timed fallback
+        // to blank the backlight and enter suspend so the display does not stay
+        // on indefinitely during offline charging.
+        if (!screen_blanked_) {
+            if (blank_fallback_deadline_ == 0) {
+                // First heartbeat with no graphics: arm a 10-second deadline so
+                // the bootloader splash / LK frame stays visible briefly.
+                blank_fallback_deadline_ = now + 10 * MSEC_PER_SEC;
+            } else if (now >= blank_fallback_deadline_) {
+                LOGW("[%" PRId64 "] no graphics — force-blanking backlight\n", now);
+                ForceBlankBacklight();
+                screen_blanked_ = true;
+                RequestEnableSuspend();
+                ForceSuspend();
+            }
+        }
+        return;
+    }
 
     /* animation is over, blank screen and leave */
     if (batt_anim_.num_cycles > 0 && batt_anim_.cur_cycle == batt_anim_.num_cycles) {
@@ -349,8 +402,13 @@ void Charger::UpdateScreenState(int64_t now) {
         }
         screen_blanked_ = true;
         LOGV("[%" PRId64 "] animation done\n", now);
+        // Force-blank via sysfs as a fallback — on some SoCs (notably
+        // MediaTek) gr_fb_blank alone does not fully power down the
+        // backlight hardware.
+        ForceBlankBacklight();
         if (configuration_->ChargerIsOnline()) {
             RequestEnableSuspend();
+            ForceSuspend();
         }
         return;
     }
@@ -369,6 +427,7 @@ void Charger::UpdateScreenState(int64_t now) {
     if (screen_blanked_) {
         healthd_draw_->blank_screen(false, static_cast<int>(drm_));
         screen_blanked_ = false;
+        blank_fallback_deadline_ = 0;
     }
 
     /* animation starting, set up the animation */

@@ -5382,6 +5382,8 @@
   <java-symbol type="string" name="gammaos_performance_mode" />
   <java-symbol type="string" name="gammaos_brightness_settings" />
   <java-symbol type="string" name="gammaos_kill_app" />
+  <java-symbol type="drawable" name="ic_gammaos_brightness" />
+  <java-symbol type="drawable" name="ic_gammaos_performance" />
   <java-symbol type="string" name="gammaos_kill_all_background_apps" />
   <java-symbol type="string" name="gammaos_kill_all_apps" />
   <java-symbol type="string" name="gammaos_boot_nano" />

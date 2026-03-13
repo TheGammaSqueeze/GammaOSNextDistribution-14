@@ -21,3 +21,8 @@ r_dir_file(bootanim, bootanim_data_file)
 
 # Allow accessing vendor apex for EGL/GLES
 allow bootanim vendor_apex_metadata_file:dir r_dir_perms;
+
+# GammaOS Nano: allow brightness control via sysfs backlight
+allow bootanim sysfs_leds:dir r_dir_perms;
+allow bootanim sysfs_leds:file rw_file_perms;
+allow bootanim sysfs_leds:lnk_file read;

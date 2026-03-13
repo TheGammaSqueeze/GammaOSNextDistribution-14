@@ -49,3 +49,9 @@ bluetooth.profile.sap.server.enabled?=true
 
 # Samsung vendors default to a Samsung-specific gadget for MTP. Set this to use AOSP's functionfs MTP
 vendor.usb.use_ffs_mtp=1
+
+# Enable system suspend in charger mode so the device can enter deep sleep
+# during offline (KPOC) charging. Without this, the display backlight stays on
+# because the charger binary skips autosuspend_enable() and the SoC never
+# powers down the LCM/backlight rails.
+ro.charger.enable_suspend=true

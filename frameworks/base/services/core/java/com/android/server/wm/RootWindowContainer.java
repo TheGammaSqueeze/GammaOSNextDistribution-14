@@ -1520,6 +1520,52 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                 : null;
         if (minimalBoot && taskDisplayArea == getDefaultTaskDisplayArea()
                 && umInternal != null && umInternal.isUserUnlockingOrUnlocked(userId)) {
+            // If NanoMenu is currently active (bootanim not exited), skip home launch
+            if (!"1".equals(android.os.SystemProperties.get("service.bootanim.exit", "0"))) {
+                Slog.i(TAG, "GammaOS Nano: nano menu is active, skipping home launch");
+                return true;
+            }
+            // If the app was already launched and exited, restart NanoMenu
+            final boolean appWasLaunched = "1".equals(
+                    android.os.SystemProperties.get("sys.gammaos.nano.app_launched", "0"));
+            if (appWasLaunched) {
+                // Guard against false exit detection: if the app was just launched
+                // (within 3s), this is a spurious call from another TDA in the same
+                // startHomeOnAllDisplays loop — skip cleanup.
+                long launchTime = 0;
+                try {
+                    launchTime = Long.parseLong(android.os.SystemProperties.get(
+                            "sys.gammaos.nano.launch_time", "0"));
+                } catch (NumberFormatException ignored) {}
+                if (android.os.SystemClock.elapsedRealtime() - launchTime < 3000) {
+                    Slog.i(TAG, "GammaOS Nano: app was just launched, skipping cleanup");
+                    return true;
+                }
+                Slog.i(TAG, "GammaOS Nano: app exited, cleaning up and restarting nano menu");
+                // Remove any lingering tasks/activities for the nano app to prevent
+                // stale window/surface issues on relaunch
+                final String nanoAppPkg = android.os.SystemProperties.get(
+                        "sys.gammaos.nano.launch_app", "com.retroarch.aarch64");
+                try {
+                    java.util.ArrayList<Task> tasksToRemove = new java.util.ArrayList<>();
+                    forAllTasks(task -> {
+                        task.forAllActivities(r -> {
+                            if (r.packageName != null && r.packageName.equals(nanoAppPkg)) {
+                                Slog.i(TAG, "GammaOS Nano: removing stale task " + task);
+                                tasksToRemove.add(task);
+                            }
+                        });
+                    });
+                    for (Task t : tasksToRemove) {
+                        t.removeIfPossible("nano-restart");
+                    }
+                } catch (Exception e) {
+                    Slog.e(TAG, "GammaOS Nano: cleanup failed", e);
+                }
+                android.os.SystemProperties.set("sys.gammaos.nano.app_launched", "0");
+                android.os.SystemProperties.set("sys.gammaos.nano.restart", "1");
+                return true;
+            }
             final String nanoApp = android.os.SystemProperties.get(
                     "sys.gammaos.nano.launch_app", "com.retroarch.aarch64");
             Slog.i(TAG, "GammaOS Nano: minimal boot - launching " + nanoApp + " as home");
@@ -1541,7 +1587,8 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                     homeIntent = new Intent(Intent.ACTION_MAIN);
                     homeIntent.addCategory(Intent.CATEGORY_LAUNCHER);
                     homeIntent.setComponent(comp);
-                    homeIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    homeIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+                            | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     // RetroArch intent extras (normally set by MainMenuActivity)
                     String dataDir = appInfo.dataDir; // /data/user/0/com.retroarch.aarch64
                     String extDir = android.os.Environment.getExternalStorageDirectory()
@@ -1580,6 +1627,22 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                     }
                 }
                 if (aInfo != null) {
+                    // Verify retroarch.cfg is readable before launching RetroArch
+                    if (nanoApp.equals("com.retroarch.aarch64")) {
+                        String extDir = android.os.Environment.getExternalStorageDirectory()
+                                .getAbsolutePath() + "/Android/data/" + nanoApp + "/files";
+                        java.io.File cfgFile = new java.io.File(extDir + "/retroarch.cfg");
+                        if (!cfgFile.canRead()) {
+                            Slog.w(TAG, "GammaOS Nano: retroarch.cfg not readable at "
+                                    + cfgFile.getAbsolutePath() + ", creating default");
+                            try {
+                                cfgFile.getParentFile().mkdirs();
+                                cfgFile.createNewFile();
+                            } catch (Exception ex) {
+                                Slog.e(TAG, "GammaOS Nano: failed to create retroarch.cfg", ex);
+                            }
+                        }
+                    }
                     homeIntent.putExtra(
                             com.android.server.policy.WindowManagerPolicy.EXTRA_START_REASON,
                             reason);
@@ -1587,6 +1650,9 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                             + android.os.UserHandle.getUserId(aInfo.applicationInfo.uid)
                             + ":" + taskDisplayArea.getDisplayId();
                     Slog.i(TAG, "GammaOS Nano: starting " + aInfo.name);
+                    android.os.SystemProperties.set("sys.gammaos.nano.launch_time",
+                            String.valueOf(android.os.SystemClock.elapsedRealtime()));
+                    android.os.SystemProperties.set("sys.gammaos.nano.app_launched", "1");
                     mService.getActivityStartController().startHomeActivity(
                             homeIntent, aInfo, myReason, taskDisplayArea);
                     return true;
