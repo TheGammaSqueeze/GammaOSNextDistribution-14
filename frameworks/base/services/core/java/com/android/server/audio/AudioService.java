@@ -4828,7 +4828,13 @@ public class AudioService extends IAudioService.Stub
 
     // No ringer or zen muted stream volumes can be changed unless it'll exit dnd
     private boolean volumeAdjustmentAllowedByDnd(int streamTypeAlias, int flags) {
-        switch (mNm.getZenMode()) {
+        int zenMode;
+        try {
+            zenMode = mNm.getZenMode();
+        } catch (NullPointerException e) {
+            return true; // NotificationManagerService unavailable (e.g. nano boot)
+        }
+        switch (zenMode) {
             case Settings.Global.ZEN_MODE_OFF:
                 return true;
             case Settings.Global.ZEN_MODE_NO_INTERRUPTIONS:

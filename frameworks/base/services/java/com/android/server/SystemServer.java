@@ -1949,6 +1949,11 @@ public final class SystemServer implements Dumpable {
             }
             t.traceEnd();
 
+            // FontManagerService must start before any UI dialog (including nano mode power menu)
+            t.traceBegin("StartFontManagerService");
+            mSystemServiceManager.startService(new FontManagerService.Lifecycle(context, safeMode));
+            t.traceEnd();
+
             if (!minimalBoot) { // GammaOS Nano: skip PersistentDataBlock through WallpaperEffects
             final boolean hasPdb = !SystemProperties.get(PERSISTENT_DATA_BLOCK_PROP).equals("");
             if (hasPdb) {
@@ -2083,10 +2088,6 @@ public final class SystemServer implements Dumpable {
             } catch (Throwable e) {
                 reportWtf("starting NetworkManagement Service", e);
             }
-            t.traceEnd();
-
-            t.traceBegin("StartFontManagerService");
-            mSystemServiceManager.startService(new FontManagerService.Lifecycle(context, safeMode));
             t.traceEnd();
 
             t.traceBegin("StartTextServicesManager");

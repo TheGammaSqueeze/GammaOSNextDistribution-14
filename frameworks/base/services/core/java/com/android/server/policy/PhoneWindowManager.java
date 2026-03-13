@@ -527,6 +527,11 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     private GlobalActions mGlobalActions;
     private Handler mHandler;
 
+    // GammaOS Nano: minimal volume overlay for nano mode (no SystemUI volume panel)
+    private android.view.View mNanoVolumeView;
+    private android.view.WindowManager mNanoVolumeWM;
+    private final Runnable mNanoVolumeDismiss = () -> dismissNanoVolumeIndicator();
+
     // FIXME This state is shared between the input reader and handler thread.
     // Technically it's broken and buggy but it has been like this for many years
     // and we have not yet seen any problems.  Someday we'll rewrite this logic
@@ -1375,6 +1380,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         if (count == 1) {
             mSideFpsEventHandler.notifyPowerPressed();
         }
+
         if (mDefaultDisplayPolicy.isScreenOnEarly() && !mDefaultDisplayPolicy.isScreenOnFully()) {
             Slog.i(TAG, "Suppressed redundant power key press while "
                     + "already in the process of turning the screen on.");
@@ -1661,6 +1667,18 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         final int behavior = mResolvedLongPressOnPowerBehavior;
         Slog.d(TAG, "powerLongPress: eventTime=" + eventTime
                 + " mResolvedLongPressOnPowerBehavior=" + mResolvedLongPressOnPowerBehavior);
+
+        // GammaOS Nano: in minimal boot mode, long press power always shows
+        // the global actions dialog (no SystemUI power menu available).
+        if (android.os.SystemProperties.getBoolean(
+                "sys.gammaos.minimal_boot", false)) {
+            mPowerKeyHandled = true;
+            performHapticFeedback(HapticFeedbackConstants.LONG_PRESS_POWER_BUTTON, false,
+                    "Power - Long Press - Nano Global Actions");
+            Slog.d(TAG, "GammaOS Nano: power long press -> global actions");
+            showGlobalActions();
+            return;
+        }
 
         switch (behavior) {
             case LONG_PRESS_POWER_NOTHING:
@@ -5832,6 +5850,25 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             case KeyEvent.KEYCODE_VOLUME_DOWN:
             case KeyEvent.KEYCODE_VOLUME_UP:
             case KeyEvent.KEYCODE_VOLUME_MUTE: {
+                // GammaOS Nano: handle volume directly in nano mode to avoid
+                // crash in MediaSessionManager (MediaSessionService not running).
+                if (android.os.SystemProperties.getBoolean(
+                        "sys.gammaos.minimal_boot", false)) {
+                    if (down && keyCode != KeyEvent.KEYCODE_VOLUME_MUTE) {
+                        int direction = (keyCode == KeyEvent.KEYCODE_VOLUME_UP)
+                                ? AudioManager.ADJUST_RAISE : AudioManager.ADJUST_LOWER;
+                        try {
+                            getAudioService().adjustStreamVolume(
+                                    AudioManager.STREAM_MUSIC, direction, 0,
+                                    mContext.getOpPackageName());
+                        } catch (Exception e) {
+                            Log.e(TAG, "Nano: volume adjust failed", e);
+                        }
+                        mHandler.post(() -> showNanoVolumeIndicator());
+                    }
+                    result &= ~ACTION_PASS_TO_USER;
+                    break;
+                }
                 // Eat all down & up keys when using volume wake.
                 // This disables volume control, music control, and "beep" on key up.
                 if (isWakeKey && mWakeOnVolumeKeyPress) {
@@ -6520,6 +6557,89 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         } catch (Exception e) {
             Log.e(TAG, "Error dispatching volume key in handleVolumeKey for event:"
                     + event, e);
+        }
+    }
+
+    // GammaOS Nano: minimal volume indicator overlay (no SystemUI volume panel)
+    private void showNanoVolumeIndicator() {
+        try {
+            AudioManager am = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
+            int vol = am.getStreamVolume(AudioManager.STREAM_MUSIC);
+            int max = am.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+            int pct = (max > 0) ? (vol * 100 / max) : 0;
+
+            if (mNanoVolumeWM == null) {
+                mNanoVolumeWM = (android.view.WindowManager)
+                        mContext.getSystemService(Context.WINDOW_SERVICE);
+            }
+
+            // Build a simple horizontal ProgressBar
+            if (mNanoVolumeView == null) {
+                android.widget.LinearLayout ll = new android.widget.LinearLayout(mContext);
+                ll.setOrientation(android.widget.LinearLayout.HORIZONTAL);
+                ll.setGravity(android.view.Gravity.CENTER_VERTICAL);
+                int pad = (int) (12 * mContext.getResources().getDisplayMetrics().density);
+                ll.setPadding(pad, pad / 2, pad, pad / 2);
+                ll.setBackgroundColor(0xCC000000);
+
+                android.widget.ProgressBar pb = new android.widget.ProgressBar(mContext,
+                        null, android.R.attr.progressBarStyleHorizontal);
+                pb.setMax(100);
+                pb.setProgress(pct);
+                pb.getProgressDrawable().setColorFilter(0xFFFFFFFF,
+                        android.graphics.PorterDuff.Mode.SRC_IN);
+                android.widget.LinearLayout.LayoutParams lp =
+                        new android.widget.LinearLayout.LayoutParams(
+                                (int) (200 * mContext.getResources().getDisplayMetrics().density),
+                                android.widget.LinearLayout.LayoutParams.WRAP_CONTENT);
+                lp.setMarginEnd(pad);
+                ll.addView(pb, lp);
+
+                android.widget.TextView tv = new android.widget.TextView(mContext);
+                tv.setTextColor(0xFFFFFFFF);
+                tv.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 14);
+                tv.setText(pct + "%");
+                ll.addView(tv);
+
+                mNanoVolumeView = ll;
+
+                android.view.WindowManager.LayoutParams wlp =
+                        new android.view.WindowManager.LayoutParams(
+                                android.view.WindowManager.LayoutParams.WRAP_CONTENT,
+                                android.view.WindowManager.LayoutParams.WRAP_CONTENT,
+                                android.view.WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY,
+                                android.view.WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+                                        | android.view.WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+                                        | android.view.WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
+                                android.graphics.PixelFormat.TRANSLUCENT);
+                wlp.gravity = android.view.Gravity.TOP | android.view.Gravity.CENTER_HORIZONTAL;
+                wlp.y = (int) (24 * mContext.getResources().getDisplayMetrics().density);
+                wlp.setTitle("NanoVolume");
+                mNanoVolumeWM.addView(mNanoVolumeView, wlp);
+            } else {
+                // Update existing view
+                android.widget.LinearLayout ll =
+                        (android.widget.LinearLayout) mNanoVolumeView;
+                android.widget.ProgressBar pb =
+                        (android.widget.ProgressBar) ll.getChildAt(0);
+                android.widget.TextView tv =
+                        (android.widget.TextView) ll.getChildAt(1);
+                pb.setProgress(pct);
+                tv.setText(pct + "%");
+                mNanoVolumeView.setVisibility(android.view.View.VISIBLE);
+            }
+
+            // Auto-dismiss after 1.5 seconds
+            mHandler.removeCallbacks(mNanoVolumeDismiss);
+            mHandler.postDelayed(mNanoVolumeDismiss, 1500);
+        } catch (Exception e) {
+            Log.e(TAG, "Nano volume indicator failed", e);
+        }
+    }
+
+    private void dismissNanoVolumeIndicator() {
+        if (mNanoVolumeView != null) {
+            mNanoVolumeView.setVisibility(android.view.View.GONE);
         }
     }
 
