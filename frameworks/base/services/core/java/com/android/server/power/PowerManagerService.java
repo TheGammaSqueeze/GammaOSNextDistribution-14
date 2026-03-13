@@ -1429,7 +1429,9 @@ public final class PowerManagerService extends SystemService
             mDisplayManagerInternal.registerDisplayGroupListener(displayGroupPowerChangeListener);
 
             // This DreamManager method does not acquire a lock, so it should be safe to call.
-            mDreamManager.registerDreamManagerStateListener(new DreamManagerStateListener());
+            if (mDreamManager != null) {
+                mDreamManager.registerDreamManagerStateListener(new DreamManagerStateListener());
+            }
 
             mWirelessChargerDetector = mInjector.createWirelessChargerDetector(sensorManager,
                     mInjector.createSuspendBlocker(
