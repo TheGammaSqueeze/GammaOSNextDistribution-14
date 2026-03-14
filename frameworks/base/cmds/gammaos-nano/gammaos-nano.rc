@@ -1,0 +1,8 @@
+service gammaos-nano /system/bin/gammaos-nano
+    class core animation
+    user graphics
+    group graphics input system
+    disabled
+    oneshot
+    ioprio rt 0
+    task_profiles MaxPerformance

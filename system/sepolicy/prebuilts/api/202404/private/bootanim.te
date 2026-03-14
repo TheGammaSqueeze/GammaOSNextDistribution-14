@@ -26,3 +26,10 @@ allow bootanim vendor_apex_metadata_file:dir r_dir_perms;
 allow bootanim sysfs_leds:dir r_dir_perms;
 allow bootanim sysfs_leds:file rw_file_perms;
 allow bootanim sysfs_leds:lnk_file read;
+
+# GammaOS Nano: allow exclusive input grab (EVIOCGRAB) for menu navigation
+allow bootanim input_device:dir r_dir_perms;
+allow bootanim input_device:chr_file { read write open ioctl getattr };
+
+# GammaOS Nano: read persist.gammaos.* properties (skip_nano check)
+get_prop(bootanim, persist_gammaos_prop)

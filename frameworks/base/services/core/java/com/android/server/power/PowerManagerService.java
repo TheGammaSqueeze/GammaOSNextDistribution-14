@@ -3473,6 +3473,15 @@ public final class PowerManagerService extends SystemService
                     groupNextTimeout = -1;
                 }
 
+                // GammaOS Nano: keep display always bright while the nano boot
+                // menu is active.  The menu grabs all input devices exclusively
+                // so no user activity ever reaches the framework.
+                if (SystemProperties.getBoolean("sys.gammaos.minimal_boot", false)
+                        && wakefulness == WAKEFULNESS_AWAKE) {
+                    groupUserActivitySummary = USER_ACTIVITY_SCREEN_BRIGHT;
+                    groupNextTimeout = Long.MAX_VALUE;
+                }
+
                 hasUserActivitySummary |= groupUserActivitySummary != 0;
 
                 if (nextTimeout == -1) {
@@ -3659,6 +3668,12 @@ public final class PowerManagerService extends SystemService
 
     @GuardedBy("mLock")
     private long getScreenOffTimeoutLocked(long sleepTimeout, long attentiveTimeout) {
+        // GammaOS Nano: keep display always on while the nano boot menu is active.
+        // The menu grabs all input devices exclusively, so no user activity reaches
+        // the framework — without this override the display dims and sleeps.
+        if (SystemProperties.getBoolean("sys.gammaos.minimal_boot", false)) {
+            return Long.MAX_VALUE;
+        }
         long timeout = mScreenOffTimeoutSetting;
         if (isMaximumScreenOffTimeoutFromDeviceAdminEnforcedLocked()) {
             timeout = Math.min(timeout, mMaximumScreenOffTimeoutFromDeviceAdmin);

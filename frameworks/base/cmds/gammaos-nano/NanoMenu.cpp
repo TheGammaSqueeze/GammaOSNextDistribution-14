@@ -483,10 +483,13 @@ void NanoMenu::openInputDevices() {
     }
     closedir(dir);
 
-    // Set up inotify to detect hotplugged input devices
+    // Set up inotify to detect hotplugged and replaced input devices.
+    // IN_DELETE is needed because gammapad may destroy+recreate device nodes
+    // to seize them; we must detect the deletion, drop our stale fd, and
+    // re-open+grab when the replacement IN_CREATE arrives.
     mInotifyFd = inotify_init1(IN_NONBLOCK | IN_CLOEXEC);
     if (mInotifyFd >= 0) {
-        inotify_add_watch(mInotifyFd, "/dev/input", IN_CREATE);
+        inotify_add_watch(mInotifyFd, "/dev/input", IN_CREATE | IN_DELETE);
         ALOGD("Watching /dev/input for hotplug");
     }
 }
@@ -575,20 +578,46 @@ void NanoMenu::checkInputHotplug() {
 
     for (char* ptr = buf; ptr < buf + len; ) {
         auto* ev = reinterpret_cast<struct inotify_event*>(ptr);
-        if (ev->len > 0 && strncmp(ev->name, "event", 5) == 0
-                && !mOpenedDevices.count(ev->name)) {
-            // Small delay for the device node to be fully ready
-            usleep(100000); // 100ms
-            char path[PATH_MAX];
-            snprintf(path, sizeof(path), "/dev/input/%s", ev->name);
-            int fd = open(path, O_RDONLY | O_NONBLOCK);
-            if (fd >= 0) {
-                if (ioctl(fd, EVIOCGRAB, 1) < 0) {
-                    ALOGW("EVIOCGRAB failed for hotplugged %s: %s", path, strerror(errno));
+        if (ev->len > 0 && strncmp(ev->name, "event", 5) == 0) {
+            if (ev->mask & IN_DELETE) {
+                // Device node was removed (gammapad hides+recreates devices).
+                // Close our stale fd and forget it so we re-grab on IN_CREATE.
+                if (mOpenedDevices.count(ev->name)) {
+                    char path[PATH_MAX];
+                    snprintf(path, sizeof(path), "/dev/input/%s", ev->name);
+                    // Find and close the fd for this device
+                    for (auto it = mInputFds.begin(); it != mInputFds.end(); ++it) {
+                        char fdPath[PATH_MAX];
+                        char procLink[64];
+                        snprintf(procLink, sizeof(procLink), "/proc/self/fd/%d", *it);
+                        ssize_t rl = readlink(procLink, fdPath, sizeof(fdPath) - 1);
+                        if (rl > 0) {
+                            fdPath[rl] = '\0';
+                            if (strstr(fdPath, ev->name) || strstr(fdPath, "(deleted)")) {
+                                ioctl(*it, EVIOCGRAB, 0);
+                                close(*it);
+                                mInputFds.erase(it);
+                                break;
+                            }
+                        }
+                    }
+                    mOpenedDevices.erase(ev->name);
+                    ALOGI("Device removed, dropped stale fd: %s", path);
                 }
-                mInputFds.push_back(fd);
-                mOpenedDevices.insert(ev->name);
-                ALOGI("Hotplugged + grabbed input device: %s", path);
+            } else if ((ev->mask & IN_CREATE) && !mOpenedDevices.count(ev->name)) {
+                // Small delay for the device node to be fully ready
+                usleep(100000); // 100ms
+                char path[PATH_MAX];
+                snprintf(path, sizeof(path), "/dev/input/%s", ev->name);
+                int fd = open(path, O_RDONLY | O_NONBLOCK);
+                if (fd >= 0) {
+                    if (ioctl(fd, EVIOCGRAB, 1) < 0) {
+                        ALOGW("EVIOCGRAB failed for hotplugged %s: %s", path, strerror(errno));
+                    }
+                    mInputFds.push_back(fd);
+                    mOpenedDevices.insert(ev->name);
+                    ALOGI("Hotplugged + grabbed input device: %s", path);
+                }
             }
         }
         ptr += sizeof(struct inotify_event) + ev->len;
