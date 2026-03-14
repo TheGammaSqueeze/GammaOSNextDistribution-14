@@ -1324,17 +1324,17 @@ on nonencrypted && property:persist.bootanim.skip_nano=1
     class_start main
     class_start late_start
 
-# GammaOS Nano: start zygote as early as possible — right after
-# persistent properties are loaded during post-fs-data, ~2s before
-# the normal 'on nonencrypted' trigger.
-on load_persist_props_action && property:persist.bootanim.skip_nano=0
+# GammaOS Nano: start zygote the moment the nano menu is running —
+# this fires right when surfaceflinger starts (class_start core),
+# before load_persist_props_action is processed from the queue.
+on property:init.svc.gammaos-nano=running
     setprop sys.gammaos.minimal_boot 1
     start zygote
     start gatekeeperd
 
 on nonencrypted && property:persist.bootanim.skip_nano=0
-    # Zygote + gatekeeperd already started from load_persist_props_action
-    # trigger above; just start remaining main-class services here.
+    # Zygote + gatekeeperd already started when gammaos-nano service
+    # started (property trigger above); just start main-class services here.
     class_start main
 
 on nonencrypted && property:persist.bootanim.skip_nano=

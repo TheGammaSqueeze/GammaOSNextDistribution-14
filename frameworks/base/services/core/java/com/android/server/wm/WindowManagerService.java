@@ -3930,8 +3930,25 @@ public class WindowManagerService extends IWindowManager.Stub
                 // stop boot animation
                 // formerly we would just kill the process, but we now ask it to exit so it
                 // can choose where to stop the animation.
-                SystemProperties.set("service.bootanim.exit", "1");
-                mBootAnimationStopped = true;
+                if (android.os.SystemProperties.getBoolean(
+                        "sys.gammaos.minimal_boot", false)
+                        && !"1".equals(android.os.SystemProperties.get(
+                        "service.bootanim.nano_retroarch"))) {
+                    // GammaOS Nano preload: keep the nano menu alive — user hasn't
+                    // selected yet.  Unblock finishBooting by calling bootAnimationComplete
+                    // (sets mBootAnimationComplete in AMS), then return early so we skip
+                    // SurfaceControl.bootFinished() which would also kill the bootanim.
+                    Slog.i(TAG, "GammaOS Nano: keeping nano menu alive (preload mode)");
+                    try {
+                        mActivityManager.bootAnimationComplete();
+                    } catch (RemoteException e) {
+                        Slog.w(TAG, "GammaOS Nano: bootAnimationComplete failed: " + e);
+                    }
+                    return;
+                } else {
+                    SystemProperties.set("service.bootanim.exit", "1");
+                    mBootAnimationStopped = true;
+                }
             }
 
             if (!mForceDisplayEnabled && !checkBootAnimationCompleteLocked()) {

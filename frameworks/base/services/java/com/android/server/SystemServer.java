@@ -3456,34 +3456,48 @@ public final class SystemServer implements Dumpable {
         t.traceEnd();
         } else {
             Slog.i(TAG, "GammaOS Nano: skipping SystemUI and GammapadVibrationBridge");
-            // CE unlock + FUSE mount already triggered earlier (phase 480 + 550).
-            // Wait for user to select RetroArch, then fire the boot completion chain.
+            // Preload RetroArch behind the nano menu: call finishBooting (which
+            // triggers user unlock + home activity launch) but NOT enableScreenAfterBoot
+            // (which would kill the bootanim overlay).  The nano menu stays visible
+            // until the user makes a selection.
             final WindowManagerService wmsRef = windowManagerF;
+            SystemProperties.set("sys.gammaos.nano.do_launch", "0");
+            SystemProperties.set("sys.gammaos.nano.preload", "1");
+            new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
+                Slog.i(TAG, "GammaOS Nano: preloading RetroArch behind nano menu");
+                if (wmsRef != null) {
+                    // Set mSystemBooted + mForceDisplayEnabled but keep nano menu
+                    // alive (WMS skips service.bootanim.exit when nano_retroarch!=1).
+                    wmsRef.enableScreenAfterBoot();
+                }
+                try {
+                    com.android.server.LocalServices.getService(
+                            android.app.ActivityManagerInternal.class).finishBooting();
+                } catch (Exception e) {
+                    Slog.w(TAG, "GammaOS Nano: finishBooting failed: " + e);
+                }
+            });
+
+            // Wait for user to select RetroArch, then enable screen (kills overlay).
             new Thread(() -> {
-                Slog.i(TAG, "GammaOS Nano: preload complete, waiting for user selection...");
                 while (!"1".equals(SystemProperties.get("service.bootanim.nano_retroarch"))) {
                     if ("1".equals(SystemProperties.get("service.bootanim.nano_boot"))) {
-                        Slog.i(TAG, "GammaOS Nano: user chose full boot, aborting nano wait");
+                        Slog.i(TAG, "GammaOS Nano: user chose full boot");
                         return;
                     }
                     try { Thread.sleep(50); } catch (InterruptedException ignored) {}
                 }
-                Slog.i(TAG, "GammaOS Nano: user selected RetroArch, completing boot");
-                SystemProperties.set("sys.gammaos.nano.do_launch", "0");
+                Slog.i(TAG, "GammaOS Nano: user selected RetroArch, enabling screen");
                 new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
                     if (wmsRef != null) {
-                        wmsRef.enableScreenAfterBoot();
-                    }
-                    // Animations are disabled via mAnimationsDisabled in WMS
-                    // (reads sys.gammaos.minimal_boot), no Settings.Global changes needed.
-                    try {
-                        com.android.server.LocalServices.getService(
-                                android.app.ActivityManagerInternal.class).finishBooting();
-                    } catch (Exception e) {
-                        Slog.w(TAG, "GammaOS Nano: finishBooting failed: " + e);
+                        // Use enableScreenIfNeeded (not enableScreenAfterBoot which
+                        // returns early because mSystemBooted is already true).
+                        // enableScreenIfNeeded -> performEnableScreen -> now
+                        // nano_retroarch=1 so it kills the bootanim normally.
+                        wmsRef.enableScreenIfNeeded();
                     }
                 });
-            }, "NanoWaitThread").start();
+            }, "NanoScreenThread").start();
 
             // Persistent polling thread: watches for do_launch=1 (relaunch case)
             // and triggers startHomeOnAllDisplays so RootWindowContainer launches the app.

@@ -1,0 +1,141 @@
+/*
+ * Copyright (C) 2026 GammaOS
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#ifndef GAMMAOS_NANO_MENU_H
+#define GAMMAOS_NANO_MENU_H
+
+#include <stdint.h>
+#include <string>
+#include <vector>
+#include <set>
+
+#include <utils/Thread.h>
+#include <binder/IBinder.h>
+
+#include <EGL/egl.h>
+#include <GLES2/gl2.h>
+
+namespace android {
+
+class Surface;
+class SurfaceComposerClient;
+class SurfaceControl;
+
+static const int MAX_PARTICLES = 400;
+static const int NUM_EFFECTS = 20;
+
+struct Particle {
+    float x, y, vx, vy, size;
+    float r, g, b, a;
+    float life, phase;
+};
+
+class NanoMenu : public Thread, public IBinder::DeathRecipient {
+public:
+    NanoMenu();
+    virtual ~NanoMenu();
+
+    sp<SurfaceComposerClient> session() const;
+
+    struct MenuItem {
+        std::string label;
+    };
+
+private:
+    virtual bool        threadLoop();
+    virtual status_t    readyToRun();
+    virtual void        onFirstRef();
+    virtual void        binderDied(const wp<IBinder>& who);
+
+    // Input handling
+    void openInputDevices();
+    void checkInputHotplug();
+    void pollInput();
+    void handleUp();
+    void handleDown();
+    void handleSelect();
+
+    // Brightness control
+    void adjustBrightness(int direction);
+    void renderBrightnessBar();
+    int readSysfsInt(const char* path, int fallback);
+    void writeSysfsInt(const char* path, int value);
+
+    // Rendering
+    void initShaders();
+    void render();
+    void drawQuad(float x, float y, float w, float h,
+                  float r, float g, float b, float a);
+
+    // Menu
+    void buildMenu();
+
+    // Effects
+    void initEffects();
+    void resetParticle(int i);
+    void updateEffect();
+    void renderEffect();
+
+    sp<SurfaceComposerClient> mSession;
+    int         mWidth;
+    int         mHeight;
+    EGLDisplay  mDisplay;
+    EGLContext  mContext;
+    EGLSurface  mSurface;
+    sp<IBinder> mDisplayToken;
+    sp<SurfaceControl> mFlingerSurfaceControl;
+    sp<Surface> mFlingerSurface;
+
+    // GL shader program
+    GLuint mShaderProgram;
+    GLint  mLocPosition;
+    GLint  mLocColor;
+
+    // Fullscreen effect shader
+    GLuint mFxProgram;
+    GLint  mFxLocPosition;
+    GLint  mFxLocTime;
+    GLint  mFxLocResolution;
+    GLint  mFxLocEffect;
+
+    // Menu state
+    std::vector<MenuItem> mMenuItems;
+    int mSelectedIndex;
+
+    // Input device fds
+    std::vector<int> mInputFds;
+    std::set<std::string> mOpenedDevices;
+    int mInotifyFd;
+
+    // Exit flag
+    bool mExitRequested;
+
+    // Brightness
+    bool mSelectHeld;
+    int mBrightness;
+    int mMaxBrightness;
+    bool mShowBrightnessBar;
+    int mBrightnessBarTimer;
+
+    // Effects
+    int mCurrentEffect; // 0 = none, 1..20 = effect
+    float mEffectTime;
+    Particle mParticles[MAX_PARTICLES];
+};
+
+} // namespace android
+
+#endif // GAMMAOS_NANO_MENU_H

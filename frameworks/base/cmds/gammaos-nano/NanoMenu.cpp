@@ -22,6 +22,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include <linux/input.h>
+#include <sys/inotify.h>
 #include <signal.h>
 
 #include <binder/IPCThreadState.h>
@@ -387,6 +388,7 @@ NanoMenu::NanoMenu()
       mFxProgram(0), mFxLocPosition(-1), mFxLocTime(-1),
       mFxLocResolution(-1), mFxLocEffect(-1),
       mSelectedIndex(0),
+      mInotifyFd(-1),
       mExitRequested(false),
       mSelectHeld(false),
       mBrightness(128), mMaxBrightness(255),
@@ -399,7 +401,11 @@ NanoMenu::NanoMenu()
 }
 
 NanoMenu::~NanoMenu() {
-    for (int fd : mInputFds) close(fd);
+    for (int fd : mInputFds) {
+        ioctl(fd, EVIOCGRAB, 0); // release grab
+        close(fd);
+    }
+    if (mInotifyFd >= 0) close(mInotifyFd);
 }
 
 void NanoMenu::onFirstRef() {
@@ -463,13 +469,26 @@ void NanoMenu::openInputDevices() {
         if (strncmp(entry->d_name, "event", 5) != 0) continue;
         char path[PATH_MAX];
         snprintf(path, sizeof(path), "/dev/input/%s", entry->d_name);
+        if (mOpenedDevices.count(entry->d_name)) continue;
         int fd = open(path, O_RDONLY | O_NONBLOCK);
         if (fd >= 0) {
+            // Exclusive grab: prevent Android InputReader from stealing events
+            if (ioctl(fd, EVIOCGRAB, 1) < 0) {
+                ALOGW("EVIOCGRAB failed for %s: %s", path, strerror(errno));
+            }
             mInputFds.push_back(fd);
-            ALOGD("Opened input device: %s", path);
+            mOpenedDevices.insert(entry->d_name);
+            ALOGD("Opened + grabbed input device: %s", path);
         }
     }
     closedir(dir);
+
+    // Set up inotify to detect hotplugged input devices
+    mInotifyFd = inotify_init1(IN_NONBLOCK | IN_CLOEXEC);
+    if (mInotifyFd >= 0) {
+        inotify_add_watch(mInotifyFd, "/dev/input", IN_CREATE);
+        ALOGD("Watching /dev/input for hotplug");
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -545,6 +564,34 @@ void NanoMenu::pollInput() {
                 }
             }
         }
+    }
+}
+
+void NanoMenu::checkInputHotplug() {
+    if (mInotifyFd < 0) return;
+    char buf[512] __attribute__((aligned(__alignof__(struct inotify_event))));
+    ssize_t len = read(mInotifyFd, buf, sizeof(buf));
+    if (len <= 0) return;
+
+    for (char* ptr = buf; ptr < buf + len; ) {
+        auto* ev = reinterpret_cast<struct inotify_event*>(ptr);
+        if (ev->len > 0 && strncmp(ev->name, "event", 5) == 0
+                && !mOpenedDevices.count(ev->name)) {
+            // Small delay for the device node to be fully ready
+            usleep(100000); // 100ms
+            char path[PATH_MAX];
+            snprintf(path, sizeof(path), "/dev/input/%s", ev->name);
+            int fd = open(path, O_RDONLY | O_NONBLOCK);
+            if (fd >= 0) {
+                if (ioctl(fd, EVIOCGRAB, 1) < 0) {
+                    ALOGW("EVIOCGRAB failed for hotplugged %s: %s", path, strerror(errno));
+                }
+                mInputFds.push_back(fd);
+                mOpenedDevices.insert(ev->name);
+                ALOGI("Hotplugged + grabbed input device: %s", path);
+            }
+        }
+        ptr += sizeof(struct inotify_event) + ev->len;
     }
 }
 
@@ -1039,6 +1086,7 @@ bool NanoMenu::threadLoop() {
     int exitCheckCounter = 0;
     while (!exitPending() && !mExitRequested) {
         pollInput();
+        checkInputHotplug();
         mEffectTime += 1.0f / 60.0f;
         render();
         usleep(16666); // ~60fps

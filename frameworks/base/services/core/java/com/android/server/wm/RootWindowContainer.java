@@ -1526,7 +1526,10 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
         if (minimalBoot && taskDisplayArea == getDefaultTaskDisplayArea()
                 && umInternal != null && umInternal.isUserUnlockingOrUnlocked(userId)) {
             // If NanoMenu is currently active (bootanim not exited), skip home launch
-            if (!"1".equals(android.os.SystemProperties.get("service.bootanim.exit", "0"))) {
+            // UNLESS we're in preload mode (preloading RetroArch behind the menu)
+            if (!"1".equals(android.os.SystemProperties.get("service.bootanim.exit", "0"))
+                    && !"1".equals(android.os.SystemProperties.get(
+                            "sys.gammaos.nano.preload", "0"))) {
                 Slog.i(TAG, "GammaOS Nano: nano menu is active, skipping home launch");
                 return true;
             }
