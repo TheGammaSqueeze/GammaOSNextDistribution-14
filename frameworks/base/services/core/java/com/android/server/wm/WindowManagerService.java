@@ -1370,6 +1370,11 @@ public class WindowManagerService extends IWindowManager.Stub
             mAnimationsDisabled = mPowerManagerInternal
                     .getLowPowerState(ServiceType.ANIMATION).batterySaverEnabled;
         }
+        // GammaOS Nano: force-disable animations in nano mode without
+        // touching Settings.Global (preserves user's normal-mode preferences).
+        if ("1".equals(android.os.SystemProperties.get("sys.gammaos.minimal_boot", "0"))) {
+            mAnimationsDisabled = true;
+        }
         mScreenFrozenLock = mPowerManager.newWakeLock(
                 PowerManager.PARTIAL_WAKE_LOCK, "SCREEN_FROZEN");
         mScreenFrozenLock.setReferenceCounted(false);
