@@ -36,8 +36,12 @@ cc_defaults {
     ],
 
     shared_libs: [
+        "android.hardware.light@2.0",
+        "android.hardware.light-V2-ndk",
         "libbase",
+        "libbinder_ndk",
         "libcutils",
+        "libhidlbase",
         "liblog",
         "libpng",
         "libsuspend",
@@ -269,6 +273,9 @@ cc_binary {
     shared_libs: [
         "android.hardware.health@2.0",
         "android.hardware.health@2.1",
+        "android.hardware.light@2.0",
+        "android.hardware.light-V2-ndk",
+        "libbinder_ndk",
     ],
 
     target: {
@@ -278,6 +285,8 @@ cc_binary {
                 "-DCHARGER_FORCE_NO_UI=1",
             ],
             exclude_shared_libs: [
+                "android.hardware.light-V2-ndk",
+                "libbinder_ndk",
                 "libpng",
             ],
             exclude_static_libs: [

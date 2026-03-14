@@ -35,3 +35,17 @@ allow charger_type input_device:dir r_dir_perms;
 allow charger_type input_device:chr_file r_file_perms;
 allow charger_type tty_device:chr_file rw_file_perms;
 allow charger_type proc_sysrq:file rw_file_perms;
+
+# Allow backlight control via sysfs (lcd-backlight brightness)
+allow charger_type sysfs_leds:dir r_dir_perms;
+allow charger_type sysfs_leds:file rw_file_perms;
+allow charger_type sysfs_leds:lnk_file read;
+
+# Allow Light HAL access for backlight control in charger mode
+# AIDL Light HAL (android.hardware.light.ILights)
+binder_use(charger_type)
+allow charger_type hal_light_service:service_manager find;
+binder_call(charger_type, hal_light_server)
+# HIDL Light HAL (android.hardware.light@2.0)
+hwbinder_use(charger_type)
+allow charger_type hal_light_hwservice:hwservice_manager find;

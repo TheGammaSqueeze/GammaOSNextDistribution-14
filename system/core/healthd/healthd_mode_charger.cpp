@@ -37,7 +37,9 @@
 #include <android-base/macros.h>
 #include <android-base/strings.h>
 
+#include <linux/fb.h>
 #include <linux/netlink.h>
+#include <sys/ioctl.h>
 #include <sys/socket.h>
 
 #include <cutils/android_get_control_file.h>
@@ -47,6 +49,11 @@
 #include <cutils/uevent.h>
 #include <sys/reboot.h>
 
+#include <android/hardware/light/2.0/ILight.h>
+#include <aidl/android/hardware/light/ILights.h>
+#include <aidl/android/hardware/light/HwLightState.h>
+#include <android/binder_manager.h>
+#include <android/binder_auto_utils.h>
 #include <suspend/autosuspend.h>
 
 #include "AnimationParser.h"
@@ -280,11 +287,152 @@ int Charger::RequestDisableSuspend() {
 }
 
 void Charger::ForceBlankBacklight() {
-    // Direct sysfs writes to kill the backlight.  On many MediaTek (and some
-    // other) SoCs the minui gr_fb_blank() path does not fully deassert the
-    // backlight-enable GPIO, leaving a visible glow even with PWM duty = 0.
-    // Writing brightness AND bl_power (when present) covers both LED-class and
-    // backlight-class drivers.
+    // Follow the stock MTK kpoc_charger path:
+    // 1. Set backlight to 0 via Light HAL (disables BLED on PMIC)
+    //    Try AIDL first (modern vendors), then HIDL 2.0 fallback
+    // 2. Issue FBIOBLANK to suspend the display pipeline
+    // 3. Fall back to sysfs writes if HAL is unavailable
+
+    bool light_hal_ok = false;
+
+    // --- Step 1a: AIDL Light HAL (android.hardware.light.ILights) ---
+    {
+        using aidl::android::hardware::light::ILights;
+        using aidl::android::hardware::light::HwLight;
+        using aidl::android::hardware::light::HwLightState;
+        using aidl::android::hardware::light::LightType;
+        using aidl::android::hardware::light::FlashMode;
+        using aidl::android::hardware::light::BrightnessMode;
+
+        std::string serviceName = std::string(ILights::descriptor) + "/default";
+        ndk::SpAIBinder binder(AServiceManager_checkService(serviceName.c_str()));
+        if (binder.get() != nullptr) {
+            auto lights = ILights::fromBinder(binder);
+            if (lights != nullptr) {
+                // Enumerate lights to find the backlight ID
+                std::vector<HwLight> hwLights;
+                ndk::ScopedAStatus getLightsStatus = lights->getLights(&hwLights);
+                int backlightId = -1;
+                if (getLightsStatus.isOk()) {
+                    for (const auto& hwLight : hwLights) {
+                        LOGW("charger: AIDL light id=%d type=%d\n",
+                             hwLight.id, static_cast<int>(hwLight.type));
+                        if (hwLight.type == LightType::BACKLIGHT) {
+                            backlightId = hwLight.id;
+                        }
+                    }
+                } else {
+                    LOGW("charger: AIDL getLights() failed, trying id=0\n");
+                    backlightId = 0;
+                }
+
+                if (backlightId >= 0) {
+                    // The vendor Light HAL caches brightness internally
+                    // (initial state = 0).  A direct set-to-0 is seen as
+                    // "no change" and the BLED regulator is never touched.
+                    // Prime the HAL on the first call by setting a non-zero
+                    // value, matching the stock MTK kpoc_charger behavior.
+                    // After RestoreBacklight() has run at least once, the
+                    // HAL's internal state is already non-zero, so priming
+                    // is no longer needed.
+                    if (!backlight_primed_) {
+                        HwLightState primeState;
+                        primeState.color = 0xFF969696;
+                        primeState.flashMode = FlashMode::NONE;
+                        primeState.flashOnMs = 0;
+                        primeState.flashOffMs = 0;
+                        primeState.brightnessMode = BrightnessMode::USER;
+                        ndk::ScopedAStatus primeStatus = lights->setLightState(
+                                backlightId, primeState);
+                        LOGW("charger: prime light id=%d to 0xFF969696: %s\n",
+                             backlightId, primeStatus.isOk() ? "ok" : "failed");
+                        usleep(100 * 1000);
+                        backlight_primed_ = true;
+                    }
+
+                    HwLightState offState;
+                    offState.color = 0x00000000;
+                    offState.flashMode = FlashMode::NONE;
+                    offState.flashOnMs = 0;
+                    offState.flashOffMs = 0;
+                    offState.brightnessMode = BrightnessMode::USER;
+                    ndk::ScopedAStatus status = lights->setLightState(
+                            backlightId, offState);
+                    if (status.isOk()) {
+                        LOGW("charger: set light id=%d to 0x0 via AIDL: ok\n",
+                             backlightId);
+                        light_hal_ok = true;
+                    } else {
+                        LOGW("charger: AIDL setLightState(id=%d) failed: %d/%s\n",
+                             backlightId, status.getExceptionCode(),
+                             status.getMessage() ? status.getMessage() : "unknown");
+                    }
+                } else {
+                    LOGW("charger: no BACKLIGHT type found in AIDL lights\n");
+                }
+            }
+        }
+    }
+
+    // --- Step 1b: HIDL 2.0 Light HAL fallback ---
+    if (!light_hal_ok) {
+        using ::android::hardware::light::V2_0::ILight;
+        using ::android::hardware::light::V2_0::LightState;
+        using ::android::hardware::light::V2_0::Type;
+        using ::android::hardware::light::V2_0::Flash;
+        using ::android::hardware::light::V2_0::Brightness;
+        using ::android::hardware::light::V2_0::Status;
+
+        auto light = ILight::getService();
+        if (light != nullptr) {
+            if (!backlight_primed_) {
+                LightState primeState = {};
+                primeState.color = 0xFF969696;
+                primeState.flashMode = Flash::NONE;
+                primeState.flashOnMs = 0;
+                primeState.flashOffMs = 0;
+                primeState.brightnessMode = Brightness::USER;
+                light->setLight(Type::BACKLIGHT, primeState);
+                LOGW("charger: prime HIDL backlight to 0xFF969696\n");
+                usleep(100 * 1000);
+                backlight_primed_ = true;
+            }
+
+            LightState offState = {};
+            offState.color = 0x00000000;
+            offState.flashMode = Flash::NONE;
+            offState.flashOnMs = 0;
+            offState.flashOffMs = 0;
+            offState.brightnessMode = Brightness::USER;
+            auto ret = light->setLight(Type::BACKLIGHT, offState);
+            if (ret.isOk()) {
+                LOGW("charger: set light to 0x0 via HIDL Light HAL: %s\n",
+                     ret == Status::SUCCESS ? "ok" : "not supported");
+                light_hal_ok = true;
+            } else {
+                LOGW("charger: HIDL Light HAL setLight failed\n");
+            }
+        }
+    }
+
+    if (!light_hal_ok) {
+        LOGW("charger: no Light HAL available, using sysfs fallback only\n");
+    }
+
+    // --- Step 2: FBIOBLANK — suspend the display pipeline ---
+    const char* fb_paths[] = {"/dev/graphics/fb0", "/dev/fb0"};
+    for (const char* path : fb_paths) {
+        int fd = open(path, O_RDWR);
+        if (fd >= 0) {
+            int ret = ioctl(fd, FBIOBLANK, FB_BLANK_POWERDOWN);
+            LOGW("charger: FBIOBLANK(POWERDOWN) on %s: %s\n", path,
+                 ret < 0 ? strerror(errno) : "ok");
+            close(fd);
+            break;
+        }
+    }
+
+    // --- Step 3: sysfs fallback for brightness/bl_power ---
     const char* brightness_paths[] = {
             "/sys/class/leds/lcd-backlight/brightness",
             "/sys/class/leds/lcd_backlight/brightness",
@@ -294,7 +442,6 @@ void Charger::ForceBlankBacklight() {
         android::base::WriteStringToFile("0", p);
     }
 
-    // backlight-class bl_power: 4 = FB_BLANK_POWERDOWN
     std::unique_ptr<DIR, decltype(&closedir)> dir(opendir("/sys/class/backlight"), closedir);
     if (dir) {
         struct dirent* de;
@@ -306,12 +453,86 @@ void Charger::ForceBlankBacklight() {
     }
 }
 
-void Charger::ForceSuspend() {
-    // Last-resort: write directly to /sys/power/state.  The normal
-    // autosuspend path may fail if wakeup sources are held or if
-    // ISystemSuspend never started (common in KPOC on GSI builds).
-    LOGW("charger: forcing suspend via /sys/power/state\n");
-    android::base::WriteStringToFile("mem", "/sys/power/state");
+
+void Charger::RestoreBacklight() {
+    // Restore the backlight after the display pipeline has been unblanked.
+    // Since ForceBlankBacklight() set brightness to 0 via Light HAL, the
+    // HAL's internal state is 0.  Setting to 0xFF969696 is a real change
+    // (0 → 602) so the kernel DISP_PWM driver will re-enable the BLED.
+    {
+        using aidl::android::hardware::light::ILights;
+        using aidl::android::hardware::light::HwLight;
+        using aidl::android::hardware::light::HwLightState;
+        using aidl::android::hardware::light::LightType;
+        using aidl::android::hardware::light::FlashMode;
+        using aidl::android::hardware::light::BrightnessMode;
+
+        std::string serviceName = std::string(ILights::descriptor) + "/default";
+        ndk::SpAIBinder binder(AServiceManager_checkService(serviceName.c_str()));
+        if (binder.get() != nullptr) {
+            auto lights = ILights::fromBinder(binder);
+            if (lights != nullptr) {
+                std::vector<HwLight> hwLights;
+                int backlightId = -1;
+                ndk::ScopedAStatus s = lights->getLights(&hwLights);
+                if (s.isOk()) {
+                    for (const auto& hwLight : hwLights) {
+                        if (hwLight.type == LightType::BACKLIGHT) {
+                            backlightId = hwLight.id;
+                        }
+                    }
+                } else {
+                    backlightId = 0;
+                }
+                if (backlightId >= 0) {
+                    HwLightState state;
+                    state.color = 0xFF969696;
+                    state.flashMode = FlashMode::NONE;
+                    state.flashOnMs = 0;
+                    state.flashOffMs = 0;
+                    state.brightnessMode = BrightnessMode::USER;
+                    ndk::ScopedAStatus status = lights->setLightState(
+                            backlightId, state);
+                    LOGW("charger: restore backlight id=%d to 0xFF969696: %s\n",
+                         backlightId, status.isOk() ? "ok" : "failed");
+                    backlight_primed_ = true;
+                    return;
+                }
+            }
+        }
+    }
+
+    // HIDL fallback
+    {
+        using ::android::hardware::light::V2_0::ILight;
+        using ::android::hardware::light::V2_0::LightState;
+        using ::android::hardware::light::V2_0::Type;
+        using ::android::hardware::light::V2_0::Flash;
+        using ::android::hardware::light::V2_0::Brightness;
+
+        auto light = ILight::getService();
+        if (light != nullptr) {
+            LightState state = {};
+            state.color = 0xFF969696;
+            state.flashMode = Flash::NONE;
+            state.flashOnMs = 0;
+            state.flashOffMs = 0;
+            state.brightnessMode = Brightness::USER;
+            light->setLight(Type::BACKLIGHT, state);
+            LOGW("charger: restore backlight via HIDL to 0xFF969696\n");
+            backlight_primed_ = true;
+            return;
+        }
+    }
+
+    // sysfs fallback
+    const char* brightness_paths[] = {
+            "/sys/class/leds/lcd-backlight/brightness",
+            "/sys/class/leds/lcd_backlight/brightness",
+    };
+    for (const char* p : brightness_paths) {
+        android::base::WriteStringToFile("150", p);
+    }
 }
 
 static void kick_animation(animation* anim) {
@@ -386,7 +607,6 @@ void Charger::UpdateScreenState(int64_t now) {
                 ForceBlankBacklight();
                 screen_blanked_ = true;
                 RequestEnableSuspend();
-                ForceSuspend();
             }
         }
         return;
@@ -396,19 +616,20 @@ void Charger::UpdateScreenState(int64_t now) {
     if (batt_anim_.num_cycles > 0 && batt_anim_.cur_cycle == batt_anim_.num_cycles) {
         reset_animation(&batt_anim_);
         next_screen_transition_ = -1;
+        // Disable the backlight BLED via Light HAL BEFORE suspending the
+        // display pipeline.  On MediaTek SoCs the BLED regulator change is
+        // silently dropped once primary_display_suspend has run, so the
+        // HAL call must come first.
+        ForceBlankBacklight();
         healthd_draw_->blank_screen(true, static_cast<int>(drm_));
         if (healthd_draw_->has_multiple_connectors()) {
             BlankSecScreen();
         }
         screen_blanked_ = true;
+        idle_blanked_ = true;
         LOGV("[%" PRId64 "] animation done\n", now);
-        // Force-blank via sysfs as a fallback — on some SoCs (notably
-        // MediaTek) gr_fb_blank alone does not fully power down the
-        // backlight hardware.
-        ForceBlankBacklight();
         if (configuration_->ChargerIsOnline()) {
             RequestEnableSuspend();
-            ForceSuspend();
         }
         return;
     }
@@ -426,6 +647,7 @@ void Charger::UpdateScreenState(int64_t now) {
 
     if (screen_blanked_) {
         healthd_draw_->blank_screen(false, static_cast<int>(drm_));
+        RestoreBacklight();
         screen_blanked_ = false;
         blank_fallback_deadline_ = 0;
     }
@@ -564,6 +786,8 @@ void Charger::ProcessKey(int code, int64_t now) {
 
     if (code == KEY_POWER) {
         if (key->down) {
+            // Clear idle-blank flag so the display can wake on key press
+            idle_blanked_ = false;
             int64_t reboot_timeout = key->timestamp + POWER_ON_KEY_TIME;
             if (now >= reboot_timeout) {
                 /* We do not currently support booting from charger mode on
@@ -636,18 +860,16 @@ void Charger::HandlePowerSupplyState(int64_t now) {
     if (!configuration_->ChargerIsOnline()) {
         RequestDisableSuspend();
         if (next_pwr_check_ == -1) {
-            /* Last cycle would have stopped at the extreme top of battery-icon
-             * Need to show the correct level corresponding to capacity.
-             *
-             * Reset next_screen_transition_ to update screen immediately.
-             * Reset & kick animation to show complete animation cycles
-             * when charger disconnected.
-             */
+            // If display was already idle-blanked after animation completed,
+            // don't re-kick the animation — just start the shutdown timer.
+            // Only a power key press should wake the display.
+            if (!idle_blanked_) {
+                next_screen_transition_ = now - 1;
+                reset_animation(&batt_anim_);
+                kick_animation(&batt_anim_);
+            }
             timer_shutdown =
                     property_get_int32(UNPLUGGED_SHUTDOWN_TIME_PROP, UNPLUGGED_SHUTDOWN_TIME);
-            next_screen_transition_ = now - 1;
-            reset_animation(&batt_anim_);
-            kick_animation(&batt_anim_);
             next_pwr_check_ = now + timer_shutdown;
             LOGW("[%" PRId64 "] device unplugged: shutting down in %" PRId64 " (@ %" PRId64 ")\n",
                  now, (int64_t)timer_shutdown, next_pwr_check_);
@@ -660,14 +882,13 @@ void Charger::HandlePowerSupplyState(int64_t now) {
     } else {
         /* online supply present, reset shutdown timer if set */
         if (next_pwr_check_ != -1) {
-            /* Reset next_screen_transition_ to update screen immediately.
-             * Reset & kick animation to show complete animation cycles
-             * when charger connected again.
-             */
-            RequestDisableSuspend();
-            next_screen_transition_ = now - 1;
-            reset_animation(&batt_anim_);
-            kick_animation(&batt_anim_);
+            // If display was already idle-blanked, don't re-kick animation.
+            if (!idle_blanked_) {
+                RequestDisableSuspend();
+                next_screen_transition_ = now - 1;
+                reset_animation(&batt_anim_);
+                kick_animation(&batt_anim_);
+            }
             LOGW("[%" PRId64 "] device plugged in: shutdown cancelled\n", now);
         }
         next_pwr_check_ = -1;

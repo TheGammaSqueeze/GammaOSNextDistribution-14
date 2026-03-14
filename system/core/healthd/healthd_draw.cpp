@@ -21,11 +21,14 @@
 #include <cutils/klog.h>
 #include <cutils/properties.h>
 #include <errno.h>
+#include <fcntl.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <dirent.h>
+#include <sys/ioctl.h>
 #include <sys/stat.h>
 #include <ctype.h>
+#include <linux/fb.h>
 
 #include "healthd_draw.h"
 
@@ -304,27 +307,59 @@ void HealthdDraw::init_mtk_backlight_paths() {
          backlight_restore_brightness_, backlight_max_brightness_);
 }
 
-void HealthdDraw::mtk_set_backlight_blank(bool blank) {
-    if (backlight_brightness_path_.empty()) return;
+// Issue FBIOBLANK directly on the framebuffer device.  On MediaTek SoCs this
+// triggers mtkfb_blank → mtkfb_early_suspend → primary_display_suspend, which
+// fully powers down the LCM and backlight enable pin.  The DRM backend's CRTC
+// disable does NOT trigger this kernel path, so the backlight stays on.
+static void mtk_fb_blank(bool blank) {
+    const char* fb_paths[] = {"/dev/graphics/fb0", "/dev/fb0"};
+    for (const char* path : fb_paths) {
+        int fd = open(path, O_RDWR);
+        if (fd < 0) continue;
+        int arg = blank ? FB_BLANK_POWERDOWN : FB_BLANK_UNBLANK;
+        int ret = ioctl(fd, FBIOBLANK, arg);
+        if (ret < 0) {
+            LOGW("FBIOBLANK(%d) on %s failed: %s\n", arg, path, strerror(errno));
+        } else {
+            LOGV("FBIOBLANK(%d) on %s succeeded\n", arg, path);
+        }
+        close(fd);
+        return;
+    }
+    LOGW("Could not open any framebuffer device for FBIOBLANK\n");
+}
 
+void HealthdDraw::mtk_set_backlight_blank(bool blank) {
     if (blank) {
         // Save the latest non-zero brightness before blanking.
-        uint32_t cur = read_u32_file(backlight_brightness_path_, backlight_restore_brightness_);
-        if (cur != 0) backlight_restore_brightness_ = cur;
+        if (!backlight_brightness_path_.empty()) {
+            uint32_t cur = read_u32_file(backlight_brightness_path_, backlight_restore_brightness_);
+            if (cur != 0) backlight_restore_brightness_ = cur;
+        }
 
-        // Some drivers honor bl_power, others only honor brightness. Apply both when possible.
+        // Issue FBIOBLANK first — this triggers the MTK display driver's
+        // full power-down sequence (LCM off + backlight enable pin deasserted).
+        mtk_fb_blank(true);
+
+        // Belt-and-suspenders: also write sysfs nodes.
         if (!backlight_power_path_.empty()) {
-            // 0 = unblank, 4 = powerdown (Linux backlight sysfs convention)
             (void)write_str_file(backlight_power_path_, "4");
         }
-        (void)write_u32_file(backlight_brightness_path_, 0);
+        if (!backlight_brightness_path_.empty()) {
+            (void)write_u32_file(backlight_brightness_path_, 0);
+        }
     } else {
+        // Unblank: restore fbdev first, then sysfs brightness.
+        mtk_fb_blank(false);
+
         if (!backlight_power_path_.empty()) {
             (void)write_str_file(backlight_power_path_, "0");
         }
         uint32_t restore = backlight_restore_brightness_;
         if (restore == 0) restore = (backlight_max_brightness_ ? backlight_max_brightness_ : 255);
-        (void)write_u32_file(backlight_brightness_path_, restore);
+        if (!backlight_brightness_path_.empty()) {
+            (void)write_u32_file(backlight_brightness_path_, restore);
+        }
     }
 }
 

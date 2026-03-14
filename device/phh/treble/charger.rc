@@ -9,9 +9,35 @@ service charger /system/bin/charger
     class charger
     user root
     group system root shell graphics input wakelock
-    capabilities SYS_BOOT
+    capabilities SYS_BOOT BLOCK_SUSPEND SYS_ADMIN
     seclabel u:r:charger:s0
 
 on charger && property:ro.hardware=mt*
     write /sys/class/leds/lcd-backlight/trigger "none"
     write /sys/class/android_usb/android0/enable 1
+
+    # --- MTK stock charger paths (from vendor init.mt6785.rc) ---
+    # Power/suspend permissions (stock sets these for kpoc_charger)
+    chown system system /sys/power/autosleep
+    chown system system /sys/power/state
+    chown system system /sys/power/wakeup_count
+    chown radio wakelock /sys/power/wake_lock
+    chown radio wakelock /sys/power/wake_unlock
+    chmod 0660 /sys/power/state
+    chmod 0660 /sys/power/wake_lock
+    chmod 0660 /sys/power/wake_unlock
+    chmod 0660 /sys/power/wakeup_count
+
+    # Synchronous PM and freeze timeout — required for reliable suspend entry
+    write /sys/power/pm_async 0
+    write /sys/power/pm_freeze_timeout 2000
+
+    # Backlight sysfs permissions
+    chown system system /sys/class/leds/lcd-backlight/brightness
+    chmod 0666 /sys/class/leds/lcd-backlight/brightness
+
+    # Framebuffer permissions for FBIOBLANK ioctl
+    chmod 0666 /dev/graphics/fb0
+
+    # Start vendor light HAL (stock uses it for backlight control)
+    start vendor.light-default

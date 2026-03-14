@@ -111,11 +111,13 @@ class Charger {
     int RequestDisableSuspend();
     void BlankSecScreen();
     void ForceBlankBacklight();
-    void ForceSuspend();
+    void RestoreBacklight();
 
     bool have_battery_state_ = false;
+    bool backlight_primed_ = false;
     bool screen_blanked_ = false;
     bool init_screen_ = false;
+    bool idle_blanked_ = false;
     int64_t next_screen_transition_ = 0;
     int64_t next_key_check_ = 0;
     int64_t next_pwr_check_ = 0;
