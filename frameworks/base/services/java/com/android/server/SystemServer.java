@@ -1949,6 +1949,29 @@ public final class SystemServer implements Dumpable {
             }
             t.traceEnd();
 
+            // GammaOS Nano: make LockSettings ready and unlock CE immediately,
+            // before AudioService (which takes ~1s).  In normal boot, this
+            // happens much later at MakeLockSettingsServiceReady.
+            if (minimalBoot && lockSettings != null) {
+                t.traceBegin("MakeLockSettingsServiceReady_Nano");
+                try {
+                    lockSettings.systemReady();
+                } catch (Throwable e) {
+                    reportWtf("making Lock Settings Service ready (nano)", e);
+                }
+                t.traceEnd();
+
+                try {
+                    com.android.internal.widget.LockPatternUtils lockPatternUtils =
+                            new com.android.internal.widget.LockPatternUtils(context);
+                    lockPatternUtils.unlockUserKeyIfUnsecured(
+                            android.os.UserHandle.USER_SYSTEM);
+                    Slog.i(TAG, "GammaOS Nano: early CE unlock (right after LockSettingsStart)");
+                } catch (Exception e) {
+                    Slog.w(TAG, "GammaOS Nano: early CE unlock failed: " + e);
+                }
+            }
+
             // FontManagerService must start before any UI dialog (including nano mode power menu)
             t.traceBegin("StartFontManagerService");
             mSystemServiceManager.startService(new FontManagerService.Lifecycle(context, safeMode));
@@ -2924,6 +2947,7 @@ public final class SystemServer implements Dumpable {
 
         // It is now time to start up the app processes...
 
+        if (!minimalBoot) {
         t.traceBegin("MakeLockSettingsServiceReady");
         if (lockSettings != null) {
             try {
@@ -2933,6 +2957,7 @@ public final class SystemServer implements Dumpable {
             }
         }
         t.traceEnd();
+        } // !minimalBoot: MakeLockSettingsServiceReady (done earlier in nano)
 
         // Needed by DevicePolicyManager for initialization
         t.traceBegin("StartBootPhaseLockSettingsReady");
@@ -3130,6 +3155,7 @@ public final class SystemServer implements Dumpable {
             t.traceBegin("StartActivityManagerReadyPhase");
             mSystemServiceManager.startBootPhase(t, SystemService.PHASE_ACTIVITY_MANAGER_READY);
             t.traceEnd();
+
             t.traceBegin("StartObservingNativeCrashes");
             try {
                 mActivityManagerService.startObservingNativeCrashes();
@@ -3430,26 +3456,11 @@ public final class SystemServer implements Dumpable {
         t.traceEnd();
         } else {
             Slog.i(TAG, "GammaOS Nano: skipping SystemUI and GammapadVibrationBridge");
-            // Unlock CE storage early so RetroArch can access SharedPreferences.
-            // This runs during the preload phase (while user is still in the menu).
-            try {
-                com.android.internal.widget.LockPatternUtils lockPatternUtils =
-                        new com.android.internal.widget.LockPatternUtils(context);
-                lockPatternUtils.unlockUserKeyIfUnsecured(android.os.UserHandle.USER_SYSTEM);
-                Slog.i(TAG, "GammaOS Nano: early CE storage unlock requested for user 0");
-            } catch (Exception e) {
-                Slog.w(TAG, "GammaOS Nano: early CE unlock failed: " + e);
-            }
-            // The nano menu preloads zygote+SystemServer in the background.
-            // Wait for the user to select "RetroArch (Nano)" (nano_retroarch=1)
-            // before firing the boot completion chain. A background thread polls
-            // the property so we don't block the main looper.
+            // CE unlock + FUSE mount already triggered earlier (phase 480 + 550).
+            // Wait for user to select RetroArch, then fire the boot completion chain.
             final WindowManagerService wmsRef = windowManagerF;
-            final SystemServiceManager ssmRef = mSystemServiceManager;
             new Thread(() -> {
                 Slog.i(TAG, "GammaOS Nano: preload complete, waiting for user selection...");
-                // Poll for nano_retroarch — the user may take seconds or minutes.
-                // Also exit if nano_boot is set (user chose full Android instead).
                 while (!"1".equals(SystemProperties.get("service.bootanim.nano_retroarch"))) {
                     if ("1".equals(SystemProperties.get("service.bootanim.nano_boot"))) {
                         Slog.i(TAG, "GammaOS Nano: user chose full boot, aborting nano wait");
@@ -3458,13 +3469,8 @@ public final class SystemServer implements Dumpable {
                     try { Thread.sleep(50); } catch (InterruptedException ignored) {}
                 }
                 Slog.i(TAG, "GammaOS Nano: user selected RetroArch, completing boot");
-                // Clear do_launch so the persistent callback doesn't also fire
                 SystemProperties.set("sys.gammaos.nano.do_launch", "0");
-                // Post boot completion on the main looper.
                 new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
-                    // enableScreenAfterBoot sets mSystemBooted + mForceDisplayEnabled,
-                    // then performEnableScreen calls bootAnimationComplete which
-                    // triggers finishBooting.
                     if (wmsRef != null) {
                         wmsRef.enableScreenAfterBoot();
                     }
@@ -3475,16 +3481,6 @@ public final class SystemServer implements Dumpable {
                                 android.app.ActivityManagerInternal.class).finishBooting();
                     } catch (Exception e) {
                         Slog.w(TAG, "GammaOS Nano: finishBooting failed: " + e);
-                    }
-                });
-                // Dispatch onUserUnlocking after a short delay to ensure FUSE mount.
-                try { Thread.sleep(1500); } catch (InterruptedException ignored) {}
-                new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
-                    Slog.i(TAG, "GammaOS Nano: dispatching onUserUnlocking(0) for /sdcard/");
-                    try {
-                        ssmRef.onUserUnlocking(android.os.UserHandle.USER_SYSTEM);
-                    } catch (Exception e) {
-                        Slog.w(TAG, "GammaOS Nano: onUserUnlocking failed: " + e);
                     }
                 });
             }, "NanoWaitThread").start();

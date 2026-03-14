@@ -1324,13 +1324,17 @@ on nonencrypted && property:persist.bootanim.skip_nano=1
     class_start main
     class_start late_start
 
-on nonencrypted && property:persist.bootanim.skip_nano=0
-    # GammaOS Nano: start the minimal Android runtime immediately so it
-    # boots in the background while the nano menu initializes and renders.
-    # This is the earliest safe point (post-fs-data is done, /data mounted).
+# GammaOS Nano: start zygote as early as possible — right after
+# persistent properties are loaded during post-fs-data, ~2s before
+# the normal 'on nonencrypted' trigger.
+on load_persist_props_action && property:persist.bootanim.skip_nano=0
     setprop sys.gammaos.minimal_boot 1
     start zygote
     start gatekeeperd
+
+on nonencrypted && property:persist.bootanim.skip_nano=0
+    # Zygote + gatekeeperd already started from load_persist_props_action
+    # trigger above; just start remaining main-class services here.
     class_start main
 
 on nonencrypted && property:persist.bootanim.skip_nano=
