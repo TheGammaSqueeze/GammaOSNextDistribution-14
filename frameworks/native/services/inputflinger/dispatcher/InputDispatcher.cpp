@@ -4416,6 +4416,11 @@ void InputDispatcher::notifyConfigurationChanged(const NotifyConfigurationChange
 }
 
 void InputDispatcher::notifyKey(const NotifyKeyArgs& args) {
+    // GammaOS Nano: drop all key events during nano→RetroArch transition
+    // to prevent queued inputs from being delivered when RetroArch gets focus.
+    if (android::base::GetBoolProperty("sys.gammaos.nano.drop_input", false)) {
+        return;
+    }
     ALOGD_IF(debugInboundEventDetails(),
              "notifyKey - id=%" PRIx32 ", eventTime=%" PRId64
              ", deviceId=%d, source=%s, displayId=%" PRId32
@@ -4497,6 +4502,10 @@ bool InputDispatcher::shouldSendKeyToInputFilterLocked(const NotifyKeyArgs& args
 }
 
 void InputDispatcher::notifyMotion(const NotifyMotionArgs& args) {
+    // GammaOS Nano: drop all motion events during nano→RetroArch transition
+    if (android::base::GetBoolProperty("sys.gammaos.nano.drop_input", false)) {
+        return;
+    }
     if (debugInboundEventDetails()) {
         ALOGD("notifyMotion - id=%" PRIx32 " eventTime=%" PRId64 ", deviceId=%d, source=%s, "
               "displayId=%" PRId32 ", policyFlags=0x%x, "

@@ -1755,6 +1755,14 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                     }
                     // Remove black overlay after app has time to draw first frame
                     mService.mH.postDelayed(() -> hideNanoBlankOverlay(), 800);
+                    // Re-enable input dispatch after RetroArch has time to get focus.
+                    // The nano menu set sys.gammaos.nano.drop_input=1 to make
+                    // InputDispatcher silently drop events during the transition.
+                    mService.mH.postDelayed(() -> {
+                        android.os.SystemProperties.set(
+                                "sys.gammaos.nano.drop_input", "0");
+                        Slog.i(TAG, "GammaOS Nano: input dispatch re-enabled");
+                    }, 1500);
                     return true;
                 }
             } catch (Exception e) {

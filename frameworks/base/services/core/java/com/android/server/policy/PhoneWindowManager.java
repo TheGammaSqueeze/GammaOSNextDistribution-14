@@ -5664,6 +5664,16 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         ensureRetroarchEntryState();
         final int keyCode = event.getKeyCode();
         final boolean down = event.getAction() == KeyEvent.ACTION_DOWN;
+
+        // GammaOS Nano: swallow power key entirely while nano menu is active.
+        // The power button is used for menu navigation — prevent sleep/wake.
+        if (keyCode == KeyEvent.KEYCODE_POWER
+                && android.os.SystemProperties.getBoolean(
+                        "sys.gammaos.minimal_boot", false)
+                && !"1".equals(android.os.SystemProperties.get(
+                        "sys.gammaos.nano.app_launched", "0"))) {
+            return 0; // consume — don't queue, don't wake, don't sleep
+        }
         // Keep an accurate "physical BACK" signal for combo logic
         if (keyCode == KeyEvent.KEYCODE_BACK) {
             if (down) {
@@ -6076,6 +6086,15 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             }
 
             case KeyEvent.KEYCODE_POWER: {
+                // GammaOS Nano: in nano mode, power button is used for menu
+                // navigation — skip sleep/wake handling entirely.
+                if (android.os.SystemProperties.getBoolean(
+                        "sys.gammaos.minimal_boot", false)
+                        && !"1".equals(android.os.SystemProperties.get(
+                                "sys.gammaos.nano.app_launched", "0"))) {
+                    result &= ~ACTION_PASS_TO_USER;
+                    break;
+                }
                 logKeyboardSystemsEventOnActionUp(event, KeyboardLogEvent.TOGGLE_POWER);
                 EventLogTags.writeInterceptPower(
                         KeyEvent.actionToString(event.getAction()),

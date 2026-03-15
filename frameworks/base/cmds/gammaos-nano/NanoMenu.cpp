@@ -783,6 +783,9 @@ void NanoMenu::handleSelect() {
         // Flag so next nano menu restart returns to Recently Played
         property_set("sys.gammaos.nano.return_recent", "1");
         property_set("service.bootanim.nano_retroarch", "1");
+        // Tell InputDispatcher to drop events immediately — prevents a fast
+        // double-press A from queuing a second event before the transition.
+        property_set("sys.gammaos.nano.drop_input", "1");
         // Don't exit yet — wait for the select key to be released so the
         // key-up event passes through Android's InputReader before RetroArch
         // gets focus. Otherwise the A press leaks to RetroArch as a phantom input.
@@ -795,6 +798,7 @@ void NanoMenu::handleSelect() {
     const auto& label = mMenuItems[mSelectedIndex].label;
     if (label == "RetroArch (Nano)") {
         property_set("service.bootanim.nano_retroarch", "1");
+        property_set("sys.gammaos.nano.drop_input", "1");
         mWaitForRelease = true;
     } else if (label == "Recently Played") {
         if (!mStorageReady) return; // greyed out, ignore
@@ -1619,7 +1623,7 @@ bool NanoMenu::threadLoop() {
             exitCheckCounter = 0;
             char val[PROPERTY_VALUE_MAX] = {};
             property_get("service.bootanim.exit", val, "0");
-            if (!strcmp(val, "1")) {
+            if (!strcmp(val, "1") && !mWaitForRelease) {
                 ALOGI("GammaOS Nano: service.bootanim.exit=1, exiting");
                 break;
             }
@@ -1634,9 +1638,8 @@ bool NanoMenu::threadLoop() {
         }
     }
 
-    // Transition: grab input, show "Loading...", wait for RetroArch to start.
-    // Keeps the nano surface alive so there's no blank screen, and prevents
-    // InputReader from queuing phantom events during the transition.
+    // Transition: grab input devices. drop_input was already set in handleSelect()
+    // to block InputDispatcher from the moment the user pressed A.
     for (int fd : mInputFds) {
         ioctl(fd, EVIOCGRAB, 1);
     }
