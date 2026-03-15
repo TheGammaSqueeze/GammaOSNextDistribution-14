@@ -1,7 +1,7 @@
 service gammaos-nano /system/bin/gammaos-nano
     class core animation
     user graphics
-    group graphics input system
+    group graphics input system media_rw
     disabled
     oneshot
     ioprio rt 0

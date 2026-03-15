@@ -33,3 +33,13 @@ allow bootanim input_device:chr_file { read write open ioctl getattr };
 
 # GammaOS Nano: read persist.gammaos.* properties (skip_nano check)
 get_prop(bootanim, persist_gammaos_prop)
+
+# GammaOS Nano: set sys.gammaos.nano.launch_* properties for direct game launch
+set_prop(bootanim, persist_gammaos_prop)
+
+# GammaOS Nano: read RetroArch playlist from /data/media/0/
+# Traverse /data/media/ directory (media_userdir_file)
+allow bootanim media_userdir_file:dir { search getattr open read };
+# Traverse and read files under /data/media/0/... (media_rw_data_file)
+allow bootanim media_rw_data_file:dir { search getattr open read };
+allow bootanim media_rw_data_file:file { read getattr open };

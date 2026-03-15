@@ -3462,12 +3462,13 @@ public final class SystemServer implements Dumpable {
             // until the user makes a selection.
             final WindowManagerService wmsRef = windowManagerF;
             SystemProperties.set("sys.gammaos.nano.do_launch", "0");
-            SystemProperties.set("sys.gammaos.nano.preload", "1");
+            // No preload — boot Android services but don't launch RetroArch
+            // until the user explicitly selects it from the nano menu.
+            // This avoids force-stop cascades and zombie processes.
+            SystemProperties.set("sys.gammaos.nano.preload", "0");
             new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
-                Slog.i(TAG, "GammaOS Nano: preloading RetroArch behind nano menu");
+                Slog.i(TAG, "GammaOS Nano: finishing boot (no preload)");
                 if (wmsRef != null) {
-                    // Set mSystemBooted + mForceDisplayEnabled but keep nano menu
-                    // alive (WMS skips service.bootanim.exit when nano_retroarch!=1).
                     wmsRef.enableScreenAfterBoot();
                 }
                 try {
@@ -3490,10 +3491,6 @@ public final class SystemServer implements Dumpable {
                 Slog.i(TAG, "GammaOS Nano: user selected RetroArch, enabling screen");
                 new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
                     if (wmsRef != null) {
-                        // Use enableScreenIfNeeded (not enableScreenAfterBoot which
-                        // returns early because mSystemBooted is already true).
-                        // enableScreenIfNeeded -> performEnableScreen -> now
-                        // nano_retroarch=1 so it kills the bootanim normally.
                         wmsRef.enableScreenIfNeeded();
                     }
                 });

@@ -54,6 +54,19 @@ public:
         std::string label;
     };
 
+    struct RecentEntry {
+        std::string label;
+        std::string romPath;
+        std::string corePath;
+        std::string coreName;
+        std::string dbName;  // system/platform name from playlist
+    };
+
+    enum MenuState {
+        MENU_MAIN = 0,
+        MENU_RECENT = 1
+    };
+
 private:
     virtual bool        threadLoop();
     virtual status_t    readyToRun();
@@ -67,6 +80,8 @@ private:
     void handleUp();
     void handleDown();
     void handleSelect();
+    void handleBack();
+    void loadRecentPlaylist();
 
     // Brightness control
     void adjustBrightness(int direction);
@@ -122,6 +137,20 @@ private:
 
     // Exit flag
     bool mExitRequested;
+    bool mWaitForRelease; // wait for select key release before exiting
+
+    // Submenu state
+    MenuState mMenuState;
+    std::vector<RecentEntry> mRecentEntries;
+    int mRecentSelectedIndex;
+    bool mRecentLoaded;  // true if playlist file was readable
+    bool mStorageReady;  // true once /data/media/0 is accessible (CE unlocked)
+
+    // Scrolling text state for long game names in Recently Played
+    float mScrollOffset;
+    int   mScrollDir;       // 1 = scrolling left, -1 = scrolling right
+    int   mScrollPause;     // frames to pause at each end before reversing
+    int   mLastScrolledIdx; // which item index was scrolling (reset on change)
 
     // Brightness
     bool mSelectHeld;

@@ -1536,7 +1536,44 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
             // If the app was already launched and exited, restart NanoMenu
             final boolean appWasLaunched = "1".equals(
                     android.os.SystemProperties.get("sys.gammaos.nano.app_launched", "0"));
-            if (appWasLaunched) {
+            // If a direct game launch is pending (from Recently Played), force-stop
+            // any running RetroArch instance and skip the appWasLaunched cleanup so
+            // the code falls through to the normal launch path with ROM extras.
+            final String pendingRom = android.os.SystemProperties.get(
+                    "sys.gammaos.nano.launch_rom", "");
+            if (appWasLaunched && !pendingRom.isEmpty()) {
+                Slog.i(TAG, "GammaOS Nano: game launch pending, "
+                        + "force-stopping running instance");
+                final String nanoAppPkg = android.os.SystemProperties.get(
+                        "sys.gammaos.nano.launch_app", "com.retroarch.aarch64");
+                try {
+                    android.app.IActivityManager am =
+                            android.app.ActivityManager.getService();
+                    am.forceStopPackage(nanoAppPkg, userId);
+                } catch (Exception ex) {
+                    Slog.w(TAG, "GammaOS Nano: force-stop failed", ex);
+                }
+                // Remove stale tasks before relaunch
+                try {
+                    java.util.ArrayList<Task> staleTasks = new java.util.ArrayList<>();
+                    forAllTasks(task -> {
+                        task.forAllActivities(r -> {
+                            if (r.packageName != null
+                                    && r.packageName.equals(nanoAppPkg)) {
+                                staleTasks.add(task);
+                            }
+                        });
+                    });
+                    for (Task t : staleTasks) {
+                        t.removeIfPossible("nano-game-relaunch");
+                    }
+                } catch (Exception e) {
+                    Slog.w(TAG, "GammaOS Nano: pre-relaunch cleanup failed", e);
+                }
+                android.os.SystemProperties.set(
+                        "sys.gammaos.nano.app_launched", "0");
+                // Fall through to the launch path below
+            } else if (appWasLaunched) {
                 // Guard: skip cleanup if a nano launch is currently in progress
                 // (startHomeActivity triggers nested startHomeOnTaskDisplayArea calls)
                 if (sNanoLaunchInProgress) {
@@ -1557,7 +1594,8 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                     });
                 });
                 if (processAlive[0]) {
-                    Slog.i(TAG, "GammaOS Nano: app process still alive, skipping cleanup");
+                    Slog.i(TAG, "GammaOS Nano: app process still alive, "
+                            + "skipping cleanup");
                     return true;
                 }
                 Slog.i(TAG, "GammaOS Nano: app exited, cleaning up and restarting nano menu");
@@ -1643,6 +1681,25 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                     homeIntent.putExtra("EXTERNAL", extDir);
                     homeIntent.putExtra("IME", android.provider.Settings.Secure.getString(
                             mService.mContext.getContentResolver(), "default_input_method"));
+                    // Check if nano menu requested a specific game launch
+                    String launchRom = android.os.SystemProperties.get(
+                            "sys.gammaos.nano.launch_rom", "");
+                    String launchCore = android.os.SystemProperties.get(
+                            "sys.gammaos.nano.launch_core", "");
+                    if (!launchRom.isEmpty()) {
+                        Slog.i(TAG, "GammaOS Nano: direct game launch ROM="
+                                + launchRom + " CORE=" + launchCore);
+                        homeIntent.putExtra("ROM", launchRom);
+                        if (!launchCore.isEmpty()) {
+                            // Override LIBRETRO with specific core path
+                            homeIntent.putExtra("LIBRETRO", launchCore);
+                        }
+                        // Clear properties immediately to prevent relaunch loops
+                        android.os.SystemProperties.set(
+                                "sys.gammaos.nano.launch_rom", "");
+                        android.os.SystemProperties.set(
+                                "sys.gammaos.nano.launch_core", "");
+                    }
                     Slog.i(TAG, "GammaOS Nano: direct launch " + directActivity
                             + " dataDir=" + dataDir);
                 } else {

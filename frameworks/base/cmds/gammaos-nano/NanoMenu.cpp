@@ -19,6 +19,7 @@
 #include <fcntl.h>
 #include <dirent.h>
 #include <unistd.h>
+#include <sys/stat.h>
 #include <math.h>
 #include <stdlib.h>
 #include <linux/input.h>
@@ -378,6 +379,28 @@ static float randf(float lo, float hi) { return lo + randf() * (hi - lo); }
 // NanoMenu implementation
 // ---------------------------------------------------------------------------
 
+// ---------------------------------------------------------------------------
+// Minimal JSON string value extractor for playlist parsing
+// ---------------------------------------------------------------------------
+
+static std::string extractJsonString(const std::string& json, const std::string& key,
+                                     size_t searchStart, size_t searchEnd) {
+    std::string needle = "\"" + key + "\"";
+    size_t keyPos = json.find(needle, searchStart);
+    if (keyPos == std::string::npos || keyPos > searchEnd) return "";
+    size_t colonPos = json.find(':', keyPos + needle.size());
+    if (colonPos == std::string::npos || colonPos > searchEnd) return "";
+    size_t qStart = json.find('"', colonPos + 1);
+    if (qStart == std::string::npos || qStart > searchEnd) return "";
+    size_t qEnd = qStart + 1;
+    while (qEnd < json.size() && qEnd <= searchEnd) {
+        if (json[qEnd] == '"' && json[qEnd - 1] != '\\') break;
+        qEnd++;
+    }
+    if (qEnd > json.size()) return "";
+    return json.substr(qStart + 1, qEnd - qStart - 1);
+}
+
 NanoMenu::NanoMenu()
     : Thread(false),
       mWidth(0), mHeight(0),
@@ -390,6 +413,15 @@ NanoMenu::NanoMenu()
       mSelectedIndex(0),
       mInotifyFd(-1),
       mExitRequested(false),
+      mWaitForRelease(false),
+      mMenuState(MENU_MAIN),
+      mRecentSelectedIndex(0),
+      mRecentLoaded(false),
+      mStorageReady(false),
+      mScrollOffset(0.0f),
+      mScrollDir(1),
+      mScrollPause(0),
+      mLastScrolledIdx(-1),
       mSelectHeld(false),
       mBrightness(128), mMaxBrightness(255),
       mShowBrightnessBar(false), mBrightnessBarTimer(0),
@@ -402,7 +434,7 @@ NanoMenu::NanoMenu()
 
 NanoMenu::~NanoMenu() {
     for (int fd : mInputFds) {
-        ioctl(fd, EVIOCGRAB, 0); // release grab
+        ioctl(fd, EVIOCGRAB, 0); // release grab (always, in case exit-grab was applied)
         close(fd);
     }
     if (mInotifyFd >= 0) close(mInotifyFd);
@@ -446,6 +478,10 @@ void NanoMenu::adjustBrightness(int direction) {
     if (mBrightness < 1) mBrightness = 1;
     if (mBrightness > mMaxBrightness) mBrightness = mMaxBrightness;
     writeSysfsInt("/sys/class/leds/lcd-backlight/brightness", mBrightness);
+    // Sync brightness to persist property (shared with Android)
+    char buf[32];
+    snprintf(buf, sizeof(buf), "%d", mBrightness);
+    property_set("persist.gammaos.nano.brightness", buf);
     mShowBrightnessBar = true;
     mBrightnessBarTimer = 90; // ~1.5s at 60fps
 }
@@ -453,12 +489,124 @@ void NanoMenu::adjustBrightness(int direction) {
 void NanoMenu::buildMenu() {
     mMenuItems.clear();
     mMenuItems.push_back({"RetroArch (Nano)"});
+    mMenuItems.push_back({"Recently Played"});
     mMenuItems.push_back({"Boot Android"});
     mMenuItems.push_back({"Recovery Mode"});
     mMenuItems.push_back({"Safe Mode"});
     mMenuItems.push_back({"Reboot"});
     mMenuItems.push_back({"Power Off"});
     mSelectedIndex = 0;
+    mMenuState = MENU_MAIN;
+    mRecentSelectedIndex = 0;
+
+    // If returning from a game launched via Recently Played, go straight back
+    char returnRecent[PROPERTY_VALUE_MAX] = {};
+    property_get("sys.gammaos.nano.return_recent", returnRecent, "0");
+    if (!strcmp(returnRecent, "1")) {
+        property_set("sys.gammaos.nano.return_recent", "0");
+        mSelectedIndex = 1; // "Recently Played"
+        // Try loading playlist; if storage isn't ready yet, the render loop
+        // will keep polling and auto-load when available
+        if (mStorageReady) {
+            loadRecentPlaylist();
+        }
+        mMenuState = MENU_RECENT;
+        mRecentSelectedIndex = 0;
+        ALOGD("NanoMenu: returning to Recently Played after game exit");
+    }
+}
+
+void NanoMenu::loadRecentPlaylist() {
+    mRecentEntries.clear();
+    mRecentLoaded = false;
+    // Read from raw filesystem path (bypasses FUSE, works before FUSE mount).
+    // /data/media/0 is the backing store for emulated storage — accessible
+    // after CE unlock even before FUSE is mounted.
+    const char* path = "/data/media/0/RetroArch/playlists/builtin/content_history.lpl";
+    int fd = open(path, O_RDONLY);
+    if (fd < 0) {
+        ALOGW("NanoMenu: cannot open %s: %s", path, strerror(errno));
+        // mRecentLoaded stays false — UI will show "storage not ready" message
+        return;
+    }
+    mRecentLoaded = true;
+    struct stat st;
+    if (fstat(fd, &st) < 0 || st.st_size <= 0 || st.st_size > 1024 * 1024) {
+        close(fd);
+        return;
+    }
+    std::string content(st.st_size, '\0');
+    ssize_t bytesRead = read(fd, &content[0], st.st_size);
+    close(fd);
+    if (bytesRead <= 0) return;
+    content.resize(bytesRead);
+
+    // Find "items" array
+    size_t itemsPos = content.find("\"items\"");
+    if (itemsPos == std::string::npos) return;
+    size_t arrayStart = content.find('[', itemsPos);
+    if (arrayStart == std::string::npos) return;
+
+    // Find matching ]
+    size_t arrayEnd = std::string::npos;
+    int depth = 0;
+    bool inStr = false;
+    for (size_t i = arrayStart; i < content.size(); i++) {
+        char c = content[i];
+        if (c == '"' && (i == 0 || content[i - 1] != '\\')) inStr = !inStr;
+        if (!inStr) {
+            if (c == '[') depth++;
+            if (c == ']') { depth--; if (depth == 0) { arrayEnd = i; break; } }
+        }
+    }
+    if (arrayEnd == std::string::npos) return;
+
+    // Parse each item object
+    size_t pos = arrayStart + 1;
+    static const int MAX_RECENT = 8;
+    while (pos < arrayEnd && (int)mRecentEntries.size() < MAX_RECENT) {
+        size_t objStart = content.find('{', pos);
+        if (objStart == std::string::npos || objStart > arrayEnd) break;
+        // Find matching }
+        int objDepth = 0;
+        bool objInStr = false;
+        size_t objEnd = std::string::npos;
+        for (size_t i = objStart; i <= arrayEnd; i++) {
+            char c = content[i];
+            if (c == '"' && (i == 0 || content[i - 1] != '\\')) objInStr = !objInStr;
+            if (!objInStr) {
+                if (c == '{') objDepth++;
+                if (c == '}') { objDepth--; if (objDepth == 0) { objEnd = i; break; } }
+            }
+        }
+        if (objEnd == std::string::npos) break;
+
+        RecentEntry entry;
+        entry.label = extractJsonString(content, "label", objStart, objEnd);
+        entry.romPath = extractJsonString(content, "path", objStart, objEnd);
+        entry.corePath = extractJsonString(content, "core_path", objStart, objEnd);
+        entry.coreName = extractJsonString(content, "core_name", objStart, objEnd);
+        entry.dbName = extractJsonString(content, "db_name", objStart, objEnd);
+
+        if (!entry.romPath.empty() && entry.romPath != "DETECT") {
+            if (entry.label.empty()) {
+                // Use filename as label
+                size_t slash = entry.romPath.rfind('/');
+                entry.label = (slash != std::string::npos)
+                    ? entry.romPath.substr(slash + 1) : entry.romPath;
+            }
+            mRecentEntries.push_back(entry);
+        }
+        pos = objEnd + 1;
+    }
+    ALOGD("NanoMenu: loaded %zu recent entries from %s", mRecentEntries.size(), path);
+}
+
+void NanoMenu::handleBack() {
+    if (mMenuState == MENU_RECENT) {
+        mMenuState = MENU_MAIN;
+        mRecentSelectedIndex = 0;
+    }
 }
 
 void NanoMenu::openInputDevices() {
@@ -472,13 +620,19 @@ void NanoMenu::openInputDevices() {
         if (mOpenedDevices.count(entry->d_name)) continue;
         int fd = open(path, O_RDONLY | O_NONBLOCK);
         if (fd >= 0) {
-            // Exclusive grab: prevent Android InputReader from stealing events
-            if (ioctl(fd, EVIOCGRAB, 1) < 0) {
-                ALOGW("EVIOCGRAB failed for %s: %s", path, strerror(errno));
+            // Exclusive grab: prevent Android InputReader from stealing events.
+            // Gated by property — disable when preload is off to avoid input
+            // ownership issues during app transitions.
+            if (android::base::GetBoolProperty("persist.gammaos.nano.grab_input", false)) {
+                if (ioctl(fd, EVIOCGRAB, 1) < 0) {
+                    ALOGW("EVIOCGRAB failed for %s: %s", path, strerror(errno));
+                }
+                ALOGD("Opened + grabbed input device: %s", path);
+            } else {
+                ALOGD("Opened input device (no grab): %s", path);
             }
             mInputFds.push_back(fd);
             mOpenedDevices.insert(entry->d_name);
-            ALOGD("Opened + grabbed input device: %s", path);
         }
     }
     closedir(dir);
@@ -499,14 +653,41 @@ void NanoMenu::openInputDevices() {
 // ---------------------------------------------------------------------------
 
 void NanoMenu::handleSelect() {
+    if (mMenuState == MENU_RECENT) {
+        int numEntries = (int)mRecentEntries.size();
+        // Last item is "< Back"
+        if (mRecentSelectedIndex >= numEntries) {
+            handleBack();
+            return;
+        }
+        // Launch the selected game directly into RetroArch
+        const auto& entry = mRecentEntries[mRecentSelectedIndex];
+        ALOGI("NanoMenu: launching game: %s core: %s",
+              entry.romPath.c_str(), entry.corePath.c_str());
+        android::base::SetProperty("sys.gammaos.nano.launch_rom", entry.romPath);
+        android::base::SetProperty("sys.gammaos.nano.launch_core", entry.corePath);
+        // Flag so next nano menu restart returns to Recently Played
+        property_set("sys.gammaos.nano.return_recent", "1");
+        property_set("service.bootanim.nano_retroarch", "1");
+        // Don't exit yet — wait for the select key to be released so the
+        // key-up event passes through Android's InputReader before RetroArch
+        // gets focus. Otherwise the A press leaks to RetroArch as a phantom input.
+        mWaitForRelease = true;
+        return;
+    }
+
+    // Main menu
     ALOGD("Select item %d: %s", mSelectedIndex, mMenuItems[mSelectedIndex].label.c_str());
     const auto& label = mMenuItems[mSelectedIndex].label;
     if (label == "RetroArch (Nano)") {
-        // Zygote + SystemServer are already booting from nano_preload.
-        // Signal the app launch — init.rc nano_retroarch trigger will
-        // set service.bootanim.exit so the nano menu surface goes away.
         property_set("service.bootanim.nano_retroarch", "1");
-        mExitRequested = true;
+        mWaitForRelease = true;
+    } else if (label == "Recently Played") {
+        if (!mStorageReady) return; // greyed out, ignore
+        // Load playlist from RetroArch's content_history.lpl (needs CE unlock)
+        loadRecentPlaylist();
+        mMenuState = MENU_RECENT;
+        mRecentSelectedIndex = 0;
     } else if (label == "Boot Android") {
         // Full Android needs a clean boot.  Dispatch via nano_action so
         // init (which has powerctl_prop access) handles the reboot.
@@ -523,17 +704,56 @@ void NanoMenu::handleSelect() {
 }
 
 void NanoMenu::handleUp() {
-    if (mSelectedIndex > 0) mSelectedIndex--;
+    if (mMenuState == MENU_RECENT) {
+        if (mRecentSelectedIndex > 0) mRecentSelectedIndex--;
+    } else {
+        if (mSelectedIndex > 0) {
+            mSelectedIndex--;
+            // Skip greyed-out "Recently Played" when storage isn't ready
+            if (!mStorageReady && mSelectedIndex < (int)mMenuItems.size()
+                && mMenuItems[mSelectedIndex].label == "Recently Played"
+                && mSelectedIndex > 0) {
+                mSelectedIndex--;
+            }
+        }
+    }
 }
 
 void NanoMenu::handleDown() {
-    if (mSelectedIndex < (int)mMenuItems.size() - 1) mSelectedIndex++;
+    if (mMenuState == MENU_RECENT) {
+        int maxIdx = (int)mRecentEntries.size(); // "< Back" is at this index
+        if (mRecentSelectedIndex < maxIdx) mRecentSelectedIndex++;
+    } else {
+        int last = (int)mMenuItems.size() - 1;
+        if (mSelectedIndex < last) {
+            mSelectedIndex++;
+            // Skip greyed-out "Recently Played" when storage isn't ready
+            if (!mStorageReady && mSelectedIndex < (int)mMenuItems.size()
+                && mMenuItems[mSelectedIndex].label == "Recently Played"
+                && mSelectedIndex < last) {
+                mSelectedIndex++;
+            }
+        }
+    }
 }
 
 void NanoMenu::pollInput() {
     struct input_event ev;
     for (int fd : mInputFds) {
         while (read(fd, &ev, sizeof(ev)) == sizeof(ev)) {
+            // Wait-for-release: after a launch is triggered, keep running
+            // until the select key is released. This ensures Android's
+            // InputReader sees the full press-release cycle before RetroArch
+            // gets focus, preventing phantom A-button presses.
+            if (mWaitForRelease) {
+                if (ev.type == EV_KEY && ev.value == 0
+                    && (ev.code == KEY_POWER || ev.code == KEY_ENTER
+                        || ev.code == BTN_SOUTH)) {
+                    ALOGD("NanoMenu: select key released, exiting now");
+                    mExitRequested = true;
+                }
+                continue; // discard all other events while waiting
+            }
             // Track SELECT button state
             if (ev.type == EV_KEY && ev.code == BTN_SELECT) {
                 mSelectHeld = (ev.value != 0);
@@ -551,6 +771,8 @@ void NanoMenu::pollInput() {
                         handleDown(); break;
                     case KEY_POWER: case KEY_ENTER: case BTN_SOUTH:
                         handleSelect(); break;
+                    case BTN_EAST: case KEY_BACK:
+                        handleBack(); break;
                     case BTN_NORTH:
                         mCurrentEffect = (mCurrentEffect + 1) % (NUM_EFFECTS + 1);
                         if (mCurrentEffect > 0 && mCurrentEffect <= 10) initEffects();
@@ -611,8 +833,10 @@ void NanoMenu::checkInputHotplug() {
                 snprintf(path, sizeof(path), "/dev/input/%s", ev->name);
                 int fd = open(path, O_RDONLY | O_NONBLOCK);
                 if (fd >= 0) {
-                    if (ioctl(fd, EVIOCGRAB, 1) < 0) {
-                        ALOGW("EVIOCGRAB failed for hotplugged %s: %s", path, strerror(errno));
+                    if (android::base::GetBoolProperty("persist.gammaos.nano.grab_input", false)) {
+                        if (ioctl(fd, EVIOCGRAB, 1) < 0) {
+                            ALOGW("EVIOCGRAB failed for hotplugged %s: %s", path, strerror(errno));
+                        }
                     }
                     mInputFds.push_back(fd);
                     mOpenedDevices.insert(ev->name);
@@ -861,9 +1085,19 @@ status_t NanoMenu::readyToRun() {
     openInputDevices();
     initEffects();
 
-    // Initialize brightness from sysfs
+    // Initialize brightness — restore from persist property (synced with Android),
+    // falling back to current sysfs value
     mMaxBrightness = readSysfsInt("/sys/class/leds/lcd-backlight/max_brightness", 255);
-    mBrightness = readSysfsInt("/sys/class/leds/lcd-backlight/brightness", mMaxBrightness / 2);
+    char savedBrightness[PROPERTY_VALUE_MAX] = {};
+    property_get("persist.gammaos.nano.brightness", savedBrightness, "");
+    if (savedBrightness[0] != '\0') {
+        mBrightness = atoi(savedBrightness);
+        if (mBrightness < 1) mBrightness = 1;
+        if (mBrightness > mMaxBrightness) mBrightness = mMaxBrightness;
+        writeSysfsInt("/sys/class/leds/lcd-backlight/brightness", mBrightness);
+    } else {
+        mBrightness = readSysfsInt("/sys/class/leds/lcd-backlight/brightness", mMaxBrightness / 2);
+    }
 
     // Zygote + SystemServer preload is triggered by init.rc on nonencrypted,
     // before gammaos-nano even starts.  By the time the user sees the menu,
@@ -976,13 +1210,105 @@ void NanoMenu::render() {
     float sf = fminf((float)mWidth / 1080.0f, (float)mHeight / 720.0f);
     if (sf < 0.5f) sf = 0.5f;
 
-    int numItems = (int)mMenuItems.size();
-
     // Font scales
     float titleScale = 4.0f * sf;
     float subScale   = 2.0f * sf;
-    float menuScale  = 3.0f * sf;
     float footScale  = 1.5f * sf;
+
+    // Build display items based on menu state
+    std::vector<std::string> displayItems;
+    int currentSelected;
+    const char* title;
+    std::string subtitleStr;
+    char footerBuf[160];
+    float menuScale;
+
+    if (mMenuState == MENU_RECENT) {
+        title = "Recently Played";
+        menuScale = 3.0f * sf;
+
+        // Poll storage while in submenu — auto-load once available
+        if (!mStorageReady) {
+            if (access("/data/media/0", R_OK) == 0) {
+                mStorageReady = true;
+                loadRecentPlaylist();
+            }
+        }
+
+        for (const auto& entry : mRecentEntries) {
+            std::string item = entry.label;
+            if (item.empty()) {
+                // Use filename from ROM path
+                size_t slash = entry.romPath.rfind('/');
+                item = (slash != std::string::npos)
+                    ? entry.romPath.substr(slash + 1) : entry.romPath;
+            }
+            // Strip file extension for cleaner display
+            size_t dot = item.rfind('.');
+            if (dot != std::string::npos && dot > 0) item = item.substr(0, dot);
+            // Append system + core: "Game Name  [System - Core]"
+            // No truncation — scrolling handles overflow for selected item
+            if (!entry.coreName.empty() && entry.coreName != "DETECT") {
+                // Extract short core name from "Platform (CoreName)" format
+                std::string coreName = entry.coreName;
+                size_t pStart = coreName.rfind('(');
+                size_t pEnd = coreName.rfind(')');
+                if (pStart != std::string::npos && pEnd != std::string::npos
+                    && pEnd > pStart) {
+                    coreName = coreName.substr(pStart + 1, pEnd - pStart - 1);
+                }
+                // Build suffix: "System - Core"
+                std::string sysName;
+                if (!entry.dbName.empty()) {
+                    // db_name may have pipe-separated names; use first one
+                    sysName = entry.dbName;
+                    size_t pipe = sysName.find('|');
+                    if (pipe != std::string::npos) sysName = sysName.substr(0, pipe);
+                } else if (pStart != std::string::npos && pStart > 0) {
+                    // Fall back: extract platform from "Platform (Core)" format
+                    sysName = entry.coreName.substr(0, pStart);
+                    // Trim trailing whitespace
+                    while (!sysName.empty() && sysName.back() == ' ')
+                        sysName.pop_back();
+                }
+                std::string suffix;
+                if (!sysName.empty()) {
+                    suffix = sysName + " - " + coreName;
+                } else {
+                    suffix = coreName;
+                }
+                item += "  [" + suffix + "]";
+            }
+            displayItems.push_back(item);
+        }
+        displayItems.push_back("< Back");
+        currentSelected = mRecentSelectedIndex;
+        if (!mStorageReady) {
+            subtitleStr = "Please wait, unlocking storage...";
+        } else if (mRecentEntries.empty()) {
+            subtitleStr = "No recent games found";
+        } else {
+            char buf[64];
+            snprintf(buf, sizeof(buf), "%zu game%s", mRecentEntries.size(),
+                     mRecentEntries.size() == 1 ? "" : "s");
+            subtitleStr = buf;
+        }
+        snprintf(footerBuf, sizeof(footerBuf),
+                 "DPAD/VOL: Nav | A/PWR: Select | B: Back | SEL+VOL: Brightness");
+    } else {
+        title = "GammaOS Nano";
+        menuScale = 3.0f * sf;
+        for (const auto& item : mMenuItems) {
+            displayItems.push_back(item.label);
+        }
+        currentSelected = mSelectedIndex;
+        subtitleStr = "v0.1 - Proof of Concept";
+        snprintf(footerBuf, sizeof(footerBuf),
+                 "DPAD/VOL: Nav | A/PWR: Select | SEL+VOL: Brightness | X: FX [%s]",
+                 kEffectNames[mCurrentEffect]);
+    }
+
+    int numItems = (int)displayItems.size();
 
     // Element heights
     float titleH = FONT_CHAR_H * titleScale;
@@ -991,32 +1317,34 @@ void NanoMenu::render() {
     float footH  = FONT_CHAR_H * footScale;
 
     // Gaps
-    float gap1 = 10.0f * sf;   // title → subtitle
-    float gap2 = 20.0f * sf;   // subtitle → separator
+    float gap1 = 10.0f * sf;   // title -> subtitle
+    float gap2 = 20.0f * sf;   // subtitle -> separator
     float sepH = 2.0f * sf;
-    float gap3 = 30.0f * sf;   // separator → menu
+    float gap3 = 30.0f * sf;   // separator -> menu
     float itemSpacing = 12.0f * sf;
-    float gap4 = 20.0f * sf;   // menu → footer
 
-    // Place heading + menu in upper third of screen
+    // Place heading using the main menu's item count (7) so the title,
+    // subtitle, separator, and footer stay at identical positions regardless
+    // of which menu state is active.
+    int layoutItems = 7; // main menu item count — used as the reference layout
     float menuContentH = titleH + gap1 + subH + gap2 + sepH + gap3
-                        + numItems * itemH + (numItems - 1) * itemSpacing;
+                        + layoutItems * itemH + (layoutItems - 1) * itemSpacing;
     float startY = (mHeight - menuContentH) / 6.0f;
     if (startY < 10.0f) startY = 10.0f;
 
     // Title
-    float titleW = 12 * FONT_CHAR_W * titleScale;
+    float titleW = strlen(title) * FONT_CHAR_W * titleScale;
     float titleX = (mWidth - titleW) / 2.0f;
     float titleY = startY;
-    drawText("GammaOS Nano", titleX, titleY, titleScale,
+    drawText(title, titleX, titleY, titleScale,
              mWidth, mHeight, 0.0f, 0.85f, 1.0f, 1.0f);
 
     // Subtitle
-    const char* subtitle = "v0.1 - Proof of Concept";
-    float subW = strlen(subtitle) * FONT_CHAR_W * subScale;
+    float subW = subtitleStr.size() * FONT_CHAR_W * subScale;
     float subX = (mWidth - subW) / 2.0f;
     float subY = titleY + titleH + gap1;
-    drawText(subtitle, subX, subY, subScale, mWidth, mHeight, 0.5f, 0.5f, 0.6f, 1.0f);
+    drawText(subtitleStr.c_str(), subX, subY, subScale,
+             mWidth, mHeight, 0.5f, 0.5f, 0.6f, 1.0f);
 
     // Separator
     float sepY = subY + subH + gap2;
@@ -1026,30 +1354,95 @@ void NanoMenu::render() {
     float menuStartY = sepY + sepH + gap3;
     float menuX = mWidth * 0.15f;
 
+    // Available text width for menu items (from menuX to 85% of screen)
+    float maxTextW = mWidth * 0.85f - menuX;
+    float charW = FONT_CHAR_W * menuScale;
+
     for (int i = 0; i < numItems; i++) {
         float itemY = menuStartY + i * (itemH + itemSpacing);
-        bool selected = (i == mSelectedIndex);
-        if (selected) {
+        bool selected = (i == currentSelected);
+
+        // Grey out "Recently Played" in main menu when storage isn't ready
+        bool greyed = (mMenuState == MENU_MAIN && !mStorageReady
+                       && displayItems[i] == "Recently Played");
+
+        if (selected && !greyed) {
             drawQuad(mWidth * 0.10f, itemY - 4.0f * sf,
                      mWidth * 0.80f, itemH + 8.0f * sf,
                      0.0f, 0.35f, 0.6f, 0.8f);
         }
-        const char* prefix = selected ? "> " : "  ";
-        std::string line = std::string(prefix) + mMenuItems[i].label;
-        float r = selected ? 1.0f : 0.7f;
-        float g = selected ? 1.0f : 0.7f;
-        float b = selected ? 1.0f : 0.75f;
-        drawText(line.c_str(), menuX, itemY, menuScale, mWidth, mHeight, r, g, b, 1.0f);
+        const char* prefix = (selected && !greyed) ? "> " : "  ";
+        float r, g, b;
+        if (greyed) {
+            r = 0.35f; g = 0.35f; b = 0.4f; // dimmed
+        } else if (selected) {
+            r = 1.0f; g = 1.0f; b = 1.0f;
+        } else {
+            r = 0.7f; g = 0.7f; b = 0.75f;
+        }
+
+        // Draw prefix at fixed position
+        float prefixW = 2 * charW; // "> " or "  " is always 2 chars
+        drawText(prefix, menuX, itemY, menuScale, mWidth, mHeight, r, g, b, 1.0f);
+
+        // Content area: from after prefix to end of blue selection bar
+        float contentLeft = menuX + prefixW;
+        float contentRight = mWidth * 0.90f; // right edge of selection bar
+        float contentW = contentRight - contentLeft;
+        float textW = displayItems[i].size() * charW;
+
+        // Horizontal scroll for selected items that overflow (Recently Played)
+        float drawX = contentLeft;
+        bool scrolling = false;
+        if (selected && !greyed && mMenuState == MENU_RECENT
+            && textW > contentW && i < (int)mRecentEntries.size()) {
+            scrolling = true;
+            // Reset scroll when selection changes
+            if (mLastScrolledIdx != i) {
+                mLastScrolledIdx = i;
+                mScrollOffset = 0.0f;
+                mScrollDir = 1;
+                mScrollPause = 60; // pause ~1s at start before scrolling
+            }
+            float overflow = textW - contentW;
+            if (mScrollPause > 0) {
+                mScrollPause--;
+            } else {
+                mScrollOffset += mScrollDir * 1.5f * sf; // scroll speed
+                if (mScrollOffset >= overflow) {
+                    mScrollOffset = overflow;
+                    mScrollDir = -1;
+                    mScrollPause = 60;
+                } else if (mScrollOffset <= 0.0f) {
+                    mScrollOffset = 0.0f;
+                    mScrollDir = 1;
+                    mScrollPause = 60;
+                }
+            }
+            drawX = contentLeft - mScrollOffset;
+        }
+
+        // Scissor clip: all game entries in MENU_RECENT clip at the bar's right edge.
+        // Selected items clip at both left and right (for scroll), unselected only right.
+        bool needsClip = scrolling
+            || (mMenuState == MENU_RECENT && i < (int)mRecentEntries.size()
+                && textW > contentW);
+        if (needsClip) {
+            glEnable(GL_SCISSOR_TEST);
+            glScissor((int)contentLeft, 0, (int)contentW, mHeight);
+        }
+        drawText(displayItems[i].c_str(), drawX, itemY, menuScale,
+                 mWidth, mHeight, r, g, b, 1.0f);
+        if (needsClip) {
+            glDisable(GL_SCISSOR_TEST);
+        }
     }
 
     // Footer
-    char footer[128];
-    snprintf(footer, sizeof(footer), "DPAD/VOL: Nav | A/PWR: Select | SEL+VOL: Brightness | X: FX [%s]",
-             kEffectNames[mCurrentEffect]);
-    float footW = strlen(footer) * FONT_CHAR_W * footScale;
+    float footW = strlen(footerBuf) * FONT_CHAR_W * footScale;
     float footX = (mWidth - footW) / 2.0f;
     float footY = mHeight - footH - startY;
-    drawText(footer, footX, footY, footScale, mWidth, mHeight, 0.4f, 0.4f, 0.5f, 1.0f);
+    drawText(footerBuf, footX, footY, footScale, mWidth, mHeight, 0.4f, 0.4f, 0.5f, 1.0f);
 
     // Brightness bar overlay
     renderBrightnessBar();
@@ -1129,10 +1522,57 @@ bool NanoMenu::threadLoop() {
                 ALOGI("GammaOS Nano: service.bootanim.exit=1, exiting");
                 break;
             }
+            // Probe storage readiness (CE unlock) until it becomes available
+            if (!mStorageReady) {
+                if (access("/data/media/0", R_OK) == 0) {
+                    mStorageReady = true;
+                    ALOGI("GammaOS Nano: storage is now accessible");
+                }
+            }
         }
     }
 
-    ALOGD("NanoMenu: exiting main loop");
+    // Transition: grab input, show "Loading...", wait for RetroArch to start.
+    // Keeps the nano surface alive so there's no blank screen, and prevents
+    // InputReader from queuing phantom events during the transition.
+    for (int fd : mInputFds) {
+        ioctl(fd, EVIOCGRAB, 1);
+    }
+    ALOGD("NanoMenu: showing loading screen, waiting for RetroArch");
+    {
+        float sf = fminf((float)mWidth / 1080.0f, (float)mHeight / 720.0f);
+        if (sf < 0.5f) sf = 0.5f;
+        float loadScale = 3.0f * sf;
+        struct input_event drain_ev;
+        char launched[PROPERTY_VALUE_MAX] = {};
+        for (int wait = 0; wait < 600; wait++) { // max ~10s
+            // Drain all queued input events
+            for (int fd : mInputFds) {
+                while (read(fd, &drain_ev, sizeof(drain_ev)) == sizeof(drain_ev)) {}
+            }
+            // Render loading screen
+            glViewport(0, 0, mWidth, mHeight);
+            glClearColor(0.05f, 0.05f, 0.10f, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT);
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            const char* loadMsg = "Loading...";
+            float loadW = strlen(loadMsg) * FONT_CHAR_W * loadScale;
+            float loadX = (mWidth - loadW) / 2.0f;
+            float loadY = (mHeight - FONT_CHAR_H * loadScale) / 2.0f;
+            drawText(loadMsg, loadX, loadY, loadScale,
+                     mWidth, mHeight, 0.6f, 0.6f, 0.7f, 1.0f);
+            glDisable(GL_BLEND);
+            eglSwapBuffers(mDisplay, mSurface);
+
+            property_get("sys.gammaos.nano.app_launched", launched, "0");
+            if (!strcmp(launched, "1")) {
+                ALOGD("NanoMenu: RetroArch launched, exiting");
+                break;
+            }
+            usleep(16666);
+        }
+    }
     eglMakeCurrent(mDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
     eglDestroyContext(mDisplay, mContext);
     eglDestroySurface(mDisplay, mSurface);

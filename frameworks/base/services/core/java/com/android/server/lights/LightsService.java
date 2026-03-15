@@ -448,6 +448,15 @@ public class LightsService extends SystemService {
                 brightnessMode = mLastBrightnessMode;
             }
 
+            // GammaOS Nano: sync backlight brightness to persist property so
+            // the nano boot menu can restore it on next boot.
+            if (mHwLight.id == 0 && color != mColor) {
+                // color for backlight = brightness in the low byte (0-255)
+                int brightness = color & 0xFF;
+                android.os.SystemProperties.set("persist.gammaos.nano.brightness",
+                        Integer.toString(brightness));
+            }
+
             if (!mInitialized || color != mColor || mode != mMode || onMS != mOnMS ||
                     offMS != mOffMS || mBrightnessMode != brightnessMode || mModesUpdate) {
                 if (DEBUG) {
