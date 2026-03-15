@@ -1,0 +1,53 @@
+// Build SPIRV-Cross as a static library for GammaOS native shader pipeline.
+// Source: RetroArch deps/SPIRV-Cross (Apache-2.0 license)
+
+package {
+    default_applicable_licenses: ["external_spirv_cross_license"],
+}
+
+license {
+    name: "external_spirv_cross_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+    ],
+    license_text: ["LICENSE"],
+}
+
+cc_library_static {
+    name: "libspirv_cross_ra",
+    vendor_available: true,
+
+    cflags: [
+        "-Wall",
+        "-Wno-unused-parameter",
+        "-Wno-unused-variable",
+        "-Wno-missing-field-initializers",
+        "-Wno-sign-compare",
+        "-Wno-implicit-fallthrough",
+        "-Wno-unused-function",
+        "-fno-exceptions",
+        "-fno-rtti",
+        "-DSPIRV_CROSS_EXCEPTIONS_TO_ASSERTIONS",
+    ],
+
+    local_include_dirs: [
+        ".",
+        "include",
+    ],
+
+    export_include_dirs: [
+        ".",
+        "include",
+    ],
+
+    srcs: [
+        "spirv_cross.cpp",
+        "spirv_cfg.cpp",
+        "spirv_glsl.cpp",
+        "spirv_parser.cpp",
+        "spirv_cross_parsed_ir.cpp",
+        "spirv_reflect.cpp",
+        "spirv_cross_util.cpp",
+    ],
+}

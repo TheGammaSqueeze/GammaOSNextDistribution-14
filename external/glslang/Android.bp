@@ -1,0 +1,111 @@
+// Build glslang as a static library for GammaOS native shader pipeline.
+// Source: RetroArch deps/glslang (MIT license)
+
+package {
+    default_applicable_licenses: ["external_glslang_license"],
+}
+
+license {
+    name: "external_glslang_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-BSD",
+        "SPDX-license-identifier-MIT",
+    ],
+    license_text: ["LICENSE.txt"],
+}
+
+cc_library_static {
+    name: "libglslang_ra",
+    vendor_available: true,
+
+    cflags: [
+        "-Wall",
+        "-Wno-unused-parameter",
+        "-Wno-unused-variable",
+        "-Wno-missing-field-initializers",
+        "-Wno-implicit-fallthrough",
+        "-Wno-sign-compare",
+        "-Wno-unused-function",
+        "-Wno-deprecated-declarations",
+        "-Wno-unused-private-field",
+        "-Wno-ignored-qualifiers",
+        "-fno-exceptions",
+        "-fno-rtti",
+        "-DENABLE_HLSL=1",
+    ],
+
+    local_include_dirs: [
+        ".",
+        "glslang/Public",
+        "glslang/MachineIndependent",
+        "glslang/OSDependent",
+        "SPIRV",
+        "OGLCompilersDLL",
+        "hlsl",
+    ],
+
+    export_include_dirs: [
+        ".",
+        "glslang/Public",
+        "SPIRV",
+    ],
+
+    srcs: [
+        // SPIRV generation
+        "SPIRV/GlslangToSpv.cpp",
+        "SPIRV/InReadableOrder.cpp",
+        "SPIRV/Logger.cpp",
+        "SPIRV/SpvBuilder.cpp",
+
+        // GenericCodeGen
+        "glslang/GenericCodeGen/CodeGen.cpp",
+        "glslang/GenericCodeGen/Link.cpp",
+
+        // OGLCompilersDLL
+        "OGLCompilersDLL/InitializeDll.cpp",
+
+        // MachineIndependent - core parser
+        "glslang/MachineIndependent/Constant.cpp",
+        "glslang/MachineIndependent/InfoSink.cpp",
+        "glslang/MachineIndependent/Initialize.cpp",
+        "glslang/MachineIndependent/IntermTraverse.cpp",
+        "glslang/MachineIndependent/Intermediate.cpp",
+        "glslang/MachineIndependent/ParseContextBase.cpp",
+        "glslang/MachineIndependent/ParseHelper.cpp",
+        "glslang/MachineIndependent/PoolAlloc.cpp",
+        "glslang/MachineIndependent/RemoveTree.cpp",
+        "glslang/MachineIndependent/Scan.cpp",
+        "glslang/MachineIndependent/ShaderLang.cpp",
+        "glslang/MachineIndependent/SymbolTable.cpp",
+        "glslang/MachineIndependent/Versions.cpp",
+        "glslang/MachineIndependent/attribute.cpp",
+        "glslang/MachineIndependent/glslang_tab.cpp",
+        "glslang/MachineIndependent/intermOut.cpp",
+        "glslang/MachineIndependent/iomapper.cpp",
+        "glslang/MachineIndependent/limits.cpp",
+        "glslang/MachineIndependent/linkValidate.cpp",
+        "glslang/MachineIndependent/parseConst.cpp",
+        "glslang/MachineIndependent/propagateNoContraction.cpp",
+        "glslang/MachineIndependent/reflection.cpp",
+
+        // MachineIndependent/preprocessor
+        "glslang/MachineIndependent/preprocessor/Pp.cpp",
+        "glslang/MachineIndependent/preprocessor/PpAtom.cpp",
+        "glslang/MachineIndependent/preprocessor/PpContext.cpp",
+        "glslang/MachineIndependent/preprocessor/PpScanner.cpp",
+        "glslang/MachineIndependent/preprocessor/PpTokens.cpp",
+
+        // OSDependent (Unix/Android)
+        "glslang/OSDependent/Unix/ossource.cpp",
+
+        // HLSL support (referenced by MachineIndependent even when unused)
+        "hlsl/hlslAttributes.cpp",
+        "hlsl/hlslGrammar.cpp",
+        "hlsl/hlslOpMap.cpp",
+        "hlsl/hlslParseHelper.cpp",
+        "hlsl/hlslParseables.cpp",
+        "hlsl/hlslScanContext.cpp",
+        "hlsl/hlslTokenStream.cpp",
+    ],
+}

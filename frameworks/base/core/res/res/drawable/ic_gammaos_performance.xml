@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2024 GammaOS
+     Licensed under the Apache License, Version 2.0
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Lightning bolt icon for performance -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M7,2v11h3v9l7,-12h-4l4,-8z"/>
+</vector>

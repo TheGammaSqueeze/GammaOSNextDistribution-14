@@ -1,0 +1,36 @@
+package {
+    default_applicable_licenses: ["frameworks_base_license"],
+}
+
+cc_binary {
+    name: "gammaos-nano",
+
+    cflags: [
+        "-DGL_GLEXT_PROTOTYPES",
+        "-DEGL_EGLEXT_PROTOTYPES",
+        "-Wall",
+        "-Werror",
+        "-Wunused",
+        "-Wunreachable-code",
+        "-Wno-deprecated-declarations",
+    ],
+
+    srcs: [
+        "main.cpp",
+        "NanoMenu.cpp",
+    ],
+
+    shared_libs: [
+        "libbase",
+        "libbinder",
+        "libcutils",
+        "liblog",
+        "libutils",
+        "libui",
+        "libgui",
+        "libEGL",
+        "libGLESv2",
+    ],
+
+    init_rc: ["gammaos-nano.rc"],
+}
