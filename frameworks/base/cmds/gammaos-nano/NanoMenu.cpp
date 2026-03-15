@@ -71,6 +71,22 @@ static const char FRAGMENT_SHADER[] = R"(
     }
 )";
 
+// Batched particle shader — per-vertex position + color, single draw call
+static const char PARTICLE_VERTEX_SHADER[] = R"(
+    attribute vec2 aPosition;
+    attribute vec4 aColor;
+    varying vec4 vColor;
+    void main() {
+        gl_Position = vec4(aPosition, 0.0, 1.0);
+        vColor = aColor;
+    }
+)";
+static const char PARTICLE_FRAGMENT_SHADER[] = R"(
+    precision mediump float;
+    varying vec4 vColor;
+    void main() { gl_FragColor = vColor; }
+)";
+
 // Fullscreen procedural effect shader (effects 11-20)
 static const char FX_VERTEX_SHADER[] = R"(
     attribute vec4 aPosition;
@@ -178,6 +194,29 @@ static const char* kEffectNames[NUM_EFFECTS + 1] = {
     "Plasma", "Static", "Scanlines", "Mosaic", "Matrix",
     "Fire", "Aurora", "Ripple", "Checkerboard", "Spiral"
 };
+
+// Active effects — removed: Dust(10), Static(12), Scanlines(13), Mosaic(14), Matrix(15)
+static const int kActiveEffects[] = {
+    0,  // None
+    1,  // Snow
+    2,  // Rain
+    3,  // Confetti
+    4,  // Sparks
+    5,  // Fireflies
+    6,  // Bubbles
+    7,  // Starfield
+    8,  // Embers
+    9,  // Leaves
+    11, // Plasma
+    16, // Fire
+    17, // Aurora
+    18, // Ripple
+    19, // Checkerboard
+    20, // Spiral
+};
+static const int kNumActiveEffects = sizeof(kActiveEffects) / sizeof(kActiveEffects[0]);
+// Index into kActiveEffects (NOT the effect ID itself)
+static int sActiveEffectIdx = 0;
 
 // ---------------------------------------------------------------------------
 // Font data (8x16 CP437 bitmap, ASCII 32..126)
@@ -408,9 +447,11 @@ NanoMenu::NanoMenu()
       mContext(EGL_NO_CONTEXT),
       mSurface(EGL_NO_SURFACE),
       mShaderProgram(0), mLocPosition(-1), mLocColor(-1),
+      mParticleProgram(0), mParticleLocPosition(-1), mParticleLocColor(-1),
       mFxProgram(0), mFxLocPosition(-1), mFxLocTime(-1),
       mFxLocResolution(-1), mFxLocEffect(-1),
       mSelectedIndex(0),
+      mDisplayDirty(true),
       mInotifyFd(-1),
       mExitRequested(false),
       mWaitForRelease(false),
@@ -430,6 +471,9 @@ NanoMenu::NanoMenu()
     mSession = new SurfaceComposerClient();
     srand(elapsedRealtime());
     memset(mParticles, 0, sizeof(mParticles));
+    // Randomize starting effect (skip index 0 which is "None")
+    sActiveEffectIdx = 1 + (rand() % (kNumActiveEffects - 1));
+    mCurrentEffect = kActiveEffects[sActiveEffectIdx];
 }
 
 NanoMenu::~NanoMenu() {
@@ -514,6 +558,75 @@ void NanoMenu::buildMenu() {
         mRecentSelectedIndex = 0;
         ALOGD("NanoMenu: returning to Recently Played after game exit");
     }
+    mDisplayDirty = true;
+}
+
+void NanoMenu::rebuildDisplayItems() {
+    mDisplayItems.clear();
+    if (mMenuState == MENU_RECENT) {
+        mTitle = "Recently Played";
+        for (const auto& entry : mRecentEntries) {
+            std::string item = entry.label;
+            if (item.empty()) {
+                size_t slash = entry.romPath.rfind('/');
+                item = (slash != std::string::npos)
+                    ? entry.romPath.substr(slash + 1) : entry.romPath;
+            }
+            // Strip file extension
+            size_t dot = item.rfind('.');
+            if (dot != std::string::npos && dot > 0) item = item.substr(0, dot);
+            // Append system + core
+            if (!entry.coreName.empty() && entry.coreName != "DETECT") {
+                std::string coreName = entry.coreName;
+                size_t pStart = coreName.rfind('(');
+                size_t pEnd = coreName.rfind(')');
+                if (pStart != std::string::npos && pEnd != std::string::npos
+                    && pEnd > pStart) {
+                    coreName = coreName.substr(pStart + 1, pEnd - pStart - 1);
+                }
+                std::string sysName;
+                if (!entry.dbName.empty()) {
+                    sysName = entry.dbName;
+                    size_t pipe = sysName.find('|');
+                    if (pipe != std::string::npos) sysName = sysName.substr(0, pipe);
+                } else if (pStart != std::string::npos && pStart > 0) {
+                    sysName = entry.coreName.substr(0, pStart);
+                    while (!sysName.empty() && sysName.back() == ' ')
+                        sysName.pop_back();
+                }
+                if (!sysName.empty()) {
+                    item += "  [" + sysName + " - " + coreName + "]";
+                } else {
+                    item += "  [" + coreName + "]";
+                }
+            }
+            mDisplayItems.push_back(item);
+        }
+        mDisplayItems.push_back("< Back");
+        if (!mStorageReady) {
+            mSubtitle = "Please wait, unlocking storage...";
+        } else if (mRecentEntries.empty()) {
+            mSubtitle = "No recent games found";
+        } else {
+            char buf[64];
+            snprintf(buf, sizeof(buf), "%zu game%s", mRecentEntries.size(),
+                     mRecentEntries.size() == 1 ? "" : "s");
+            mSubtitle = buf;
+        }
+        mFooter = "DPAD/VOL: Nav | A/PWR: Select | B: Back | SEL+VOL: Brightness";
+    } else {
+        mTitle = "GammaOS Nano";
+        for (const auto& item : mMenuItems) {
+            mDisplayItems.push_back(item.label);
+        }
+        mSubtitle = "v0.1 - Proof of Concept";
+        char buf[160];
+        snprintf(buf, sizeof(buf),
+                 "DPAD/VOL: Nav | A/PWR: Select | SEL+VOL: Brightness | X: FX [%s]",
+                 kEffectNames[mCurrentEffect]);
+        mFooter = buf;
+    }
+    mDisplayDirty = false;
 }
 
 void NanoMenu::loadRecentPlaylist() {
@@ -606,6 +719,7 @@ void NanoMenu::handleBack() {
     if (mMenuState == MENU_RECENT) {
         mMenuState = MENU_MAIN;
         mRecentSelectedIndex = 0;
+        mDisplayDirty = true;
     }
 }
 
@@ -688,6 +802,7 @@ void NanoMenu::handleSelect() {
         loadRecentPlaylist();
         mMenuState = MENU_RECENT;
         mRecentSelectedIndex = 0;
+        mDisplayDirty = true;
     } else if (label == "Boot Android") {
         // Full Android needs a clean boot.  Dispatch via nano_action so
         // init (which has powerctl_prop access) handles the reboot.
@@ -774,8 +889,10 @@ void NanoMenu::pollInput() {
                     case BTN_EAST: case KEY_BACK:
                         handleBack(); break;
                     case BTN_NORTH:
-                        mCurrentEffect = (mCurrentEffect + 1) % (NUM_EFFECTS + 1);
-                        if (mCurrentEffect > 0 && mCurrentEffect <= 10) initEffects();
+                        sActiveEffectIdx = (sActiveEffectIdx + 1) % kNumActiveEffects;
+                        mCurrentEffect = kActiveEffects[sActiveEffectIdx];
+                        if (mCurrentEffect >= 1 && mCurrentEffect <= 10) initEffects();
+                        mDisplayDirty = true; // footer shows effect name
                         ALOGD("Effect: %d (%s)", mCurrentEffect, kEffectNames[mCurrentEffect]);
                         break;
                     default: break;
@@ -862,55 +979,55 @@ void NanoMenu::resetParticle(int i) {
     case 1: // Snow
         p.x = randf(0, w); p.y = randf(-h, 0);
         p.vx = randf(-0.3f, 0.3f); p.vy = randf(0.5f, 2.0f);
-        p.size = randf(2, 5); p.r = 1; p.g = 1; p.b = 1; p.a = randf(0.15f, 0.4f);
+        p.size = randf(4, 10); p.r = 1; p.g = 1; p.b = 1; p.a = randf(0.15f, 0.4f);
         break;
     case 2: // Rain
         p.x = randf(0, w); p.y = randf(-h, 0);
         p.vx = randf(0.5f, 1.5f); p.vy = randf(8.0f, 16.0f);
-        p.size = randf(1, 2); p.r = 0.5f; p.g = 0.7f; p.b = 1; p.a = randf(0.1f, 0.3f);
+        p.size = randf(2, 4); p.r = 0.5f; p.g = 0.7f; p.b = 1; p.a = randf(0.1f, 0.3f);
         break;
     case 3: // Confetti
         p.x = randf(0, w); p.y = randf(-h, 0);
         p.vx = randf(-1, 1); p.vy = randf(0.5f, 3.0f);
-        p.size = randf(3, 7); p.r = randf(0.3f,1); p.g = randf(0.3f,1); p.b = randf(0.3f,1);
+        p.size = randf(6, 14); p.r = randf(0.3f,1); p.g = randf(0.3f,1); p.b = randf(0.3f,1);
         p.a = randf(0.15f, 0.35f);
         break;
     case 4: // Sparks
         p.x = randf(w*0.2f, w*0.8f); p.y = h;
         p.vx = randf(-2, 2); p.vy = randf(-8.0f, -3.0f);
-        p.size = randf(2, 4); p.r = 1; p.g = randf(0.4f, 0.8f); p.b = 0.1f;
+        p.size = randf(4, 8); p.r = 1; p.g = randf(0.4f, 0.8f); p.b = 0.1f;
         p.a = randf(0.2f, 0.5f); p.life = 1.0f;
         break;
     case 5: // Fireflies
         p.x = randf(0, w); p.y = randf(0, h);
         p.vx = randf(-0.5f, 0.5f); p.vy = randf(-0.5f, 0.5f);
-        p.size = randf(2, 5); p.r = 0.8f; p.g = 1.0f; p.b = 0.3f;
+        p.size = randf(4, 10); p.r = 0.8f; p.g = 1.0f; p.b = 0.3f;
         p.a = randf(0.05f, 0.3f);
         break;
     case 6: // Bubbles
         p.x = randf(0, w); p.y = h + randf(0, h);
         p.vx = randf(-0.3f, 0.3f); p.vy = randf(-3.0f, -1.0f);
-        p.size = randf(4, 12); p.r = 0.6f; p.g = 0.8f; p.b = 1.0f; p.a = randf(0.08f, 0.2f);
+        p.size = randf(8, 20); p.r = 0.6f; p.g = 0.8f; p.b = 1.0f; p.a = randf(0.08f, 0.2f);
         break;
     case 7: // Starfield
         p.x = w * 0.5f; p.y = h * 0.5f;
         { float angle = randf(0, 6.28f); float speed = randf(1, 6);
           p.vx = cosf(angle) * speed; p.vy = sinf(angle) * speed; }
-        p.size = randf(1, 3); p.r = 1; p.g = 1; p.b = 1; p.a = 0.05f; p.life = 0.0f;
+        p.size = randf(2, 6); p.r = 1; p.g = 1; p.b = 1; p.a = 0.05f; p.life = 0.0f;
         break;
     case 8: // Embers
         p.x = randf(0, w); p.y = h + randf(0, 100);
         p.vx = randf(-0.5f, 0.5f); p.vy = randf(-2.0f, -0.5f);
-        p.size = randf(2, 4); p.r = 1; p.g = randf(0.2f, 0.5f); p.b = 0;
+        p.size = randf(4, 8); p.r = 1; p.g = randf(0.2f, 0.5f); p.b = 0;
         p.a = randf(0.1f, 0.35f); p.life = 1.0f;
         break;
     case 9: // Leaves
         p.x = randf(0, w); p.y = randf(-h, 0);
         p.vx = randf(-1, 1); p.vy = randf(0.5f, 2.0f);
-        p.size = randf(3, 8); p.r = randf(0.3f, 0.6f); p.g = randf(0.5f, 0.8f); p.b = 0.1f;
+        p.size = randf(6, 14); p.r = randf(0.3f, 0.6f); p.g = randf(0.5f, 0.8f); p.b = 0.1f;
         p.a = randf(0.1f, 0.25f);
         break;
-    case 10: // Dust
+    case 10: // Dust (disabled but keep code)
         p.x = randf(0, w); p.y = randf(0, h);
         p.vx = randf(-0.2f, 0.2f); p.vy = randf(-0.2f, 0.2f);
         p.size = randf(1, 3); p.r = 0.7f; p.g = 0.7f; p.b = 0.7f; p.a = randf(0.05f, 0.15f);
@@ -996,12 +1113,39 @@ void NanoMenu::renderEffect() {
     if (mCurrentEffect == 0) return;
 
     if (mCurrentEffect >= 1 && mCurrentEffect <= 10) {
-        // Particle effects: draw each particle as a small quad
+        // Batched particle rendering: build one vertex+color buffer, single draw call
+        static GLfloat pVerts[MAX_PARTICLES * 6 * 2];
+        static GLfloat pColors[MAX_PARTICLES * 6 * 4];
+        float invW = 2.0f / mWidth, invH = 2.0f / mHeight;
+        int n = 0;
         for (int i = 0; i < MAX_PARTICLES; i++) {
             const Particle& p = mParticles[i];
             if (p.a <= 0.0f) continue;
-            drawQuad(p.x - p.size * 0.5f, p.y - p.size * 0.5f,
-                     p.size, p.size, p.r, p.g, p.b, p.a);
+            float hs = p.size * 0.5f;
+            float x0 = (p.x - hs) * invW - 1.0f;
+            float y0 = 1.0f - (p.y + hs) * invH;
+            float x1 = (p.x + hs) * invW - 1.0f;
+            float y1 = 1.0f - (p.y - hs) * invH;
+            int vi = n * 12;
+            pVerts[vi]= x0; pVerts[vi+1]= y0; pVerts[vi+2]= x1; pVerts[vi+3]= y0;
+            pVerts[vi+4]= x1; pVerts[vi+5]= y1; pVerts[vi+6]= x1; pVerts[vi+7]= y1;
+            pVerts[vi+8]= x0; pVerts[vi+9]= y1; pVerts[vi+10]= x0; pVerts[vi+11]= y0;
+            int ci = n * 24;
+            for (int v = 0; v < 6; v++) {
+                pColors[ci + v*4] = p.r; pColors[ci + v*4+1] = p.g;
+                pColors[ci + v*4+2] = p.b; pColors[ci + v*4+3] = p.a;
+            }
+            n++;
+        }
+        if (n > 0) {
+            glUseProgram(mParticleProgram);
+            glVertexAttribPointer(mParticleLocPosition, 2, GL_FLOAT, GL_FALSE, 0, pVerts);
+            glEnableVertexAttribArray(mParticleLocPosition);
+            glVertexAttribPointer(mParticleLocColor, 4, GL_FLOAT, GL_FALSE, 0, pColors);
+            glEnableVertexAttribArray(mParticleLocColor);
+            glDrawArrays(GL_TRIANGLES, 0, n * 6);
+            glDisableVertexAttribArray(mParticleLocPosition);
+            glDisableVertexAttribArray(mParticleLocColor);
         }
     } else if (mCurrentEffect >= 11 && mCurrentEffect <= 20) {
         // Fullscreen procedural shader
@@ -1123,6 +1267,13 @@ void NanoMenu::initShaders() {
         sTextLocColor    = glGetUniformLocation(sTextProgram, "uColor");
         glDeleteShader(vs); glDeleteShader(fs);
     }
+    {   GLuint vs = compileShader(GL_VERTEX_SHADER, PARTICLE_VERTEX_SHADER);
+        GLuint fs = compileShader(GL_FRAGMENT_SHADER, PARTICLE_FRAGMENT_SHADER);
+        mParticleProgram = linkProgram(vs, fs);
+        mParticleLocPosition = glGetAttribLocation(mParticleProgram, "aPosition");
+        mParticleLocColor    = glGetAttribLocation(mParticleProgram, "aColor");
+        glDeleteShader(vs); glDeleteShader(fs);
+    }
     {   GLuint vs = compileShader(GL_VERTEX_SHADER, FX_VERTEX_SHADER);
         GLuint fs = compileShader(GL_FRAGMENT_SHADER, FX_FRAGMENT_SHADER);
         mFxProgram = linkProgram(vs, fs);
@@ -1154,37 +1305,57 @@ void NanoMenu::drawQuad(float x, float y, float w, float h,
     glDisableVertexAttribArray(mLocPosition);
 }
 
+// Batched text: builds vertex+UV arrays for the entire string, draws once.
+// Max 256 chars per call (1536 vertices). Reduces ~100 draw calls to ~10.
+static const int TEXT_MAX_CHARS = 256;
+static GLfloat sTextVerts[TEXT_MAX_CHARS * 6 * 2];
+static GLfloat sTextUVs[TEXT_MAX_CHARS * 6 * 2];
+
 static void drawText(const char* str, float px, float py,
                      float scale, float screenW, float screenH,
                      float r, float g, float b, float a) {
     if (!str || !*str) return;
     const int numCharsInAtlas = FONT_LAST_CHAR - FONT_FIRST_CHAR + 1;
     const float charTexW = 1.0f / numCharsInAtlas;
+    float charW = FONT_CHAR_W * scale;
+    float charH = FONT_CHAR_H * scale;
+    float invW = 2.0f / screenW, invH = 2.0f / screenH;
+    int n = 0;
+    for (const char* p = str; *p && n < TEXT_MAX_CHARS; p++, n++) {
+        char ch = *p;
+        if (ch < FONT_FIRST_CHAR || ch > FONT_LAST_CHAR) ch = '?';
+        int idx = ch - FONT_FIRST_CHAR;
+        float u0 = idx * charTexW, u1 = u0 + charTexW;
+        float x0 = px * invW - 1.0f;
+        float y1 = 1.0f - py * invH;
+        float x1 = (px + charW) * invW - 1.0f;
+        float y0 = 1.0f - (py + charH) * invH;
+        int vi = n * 12;
+        sTextVerts[vi]= x0; sTextVerts[vi+1]= y0;
+        sTextVerts[vi+2]= x1; sTextVerts[vi+3]= y0;
+        sTextVerts[vi+4]= x1; sTextVerts[vi+5]= y1;
+        sTextVerts[vi+6]= x1; sTextVerts[vi+7]= y1;
+        sTextVerts[vi+8]= x0; sTextVerts[vi+9]= y1;
+        sTextVerts[vi+10]= x0; sTextVerts[vi+11]= y0;
+        int ui = n * 12;
+        sTextUVs[ui]= u0; sTextUVs[ui+1]= 1;
+        sTextUVs[ui+2]= u1; sTextUVs[ui+3]= 1;
+        sTextUVs[ui+4]= u1; sTextUVs[ui+5]= 0;
+        sTextUVs[ui+6]= u1; sTextUVs[ui+7]= 0;
+        sTextUVs[ui+8]= u0; sTextUVs[ui+9]= 0;
+        sTextUVs[ui+10]= u0; sTextUVs[ui+11]= 1;
+        px += charW;
+    }
     glUseProgram(sTextProgram);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, sFontTexture);
     glUniform1i(sTextLocTexture, 0);
     glUniform4f(sTextLocColor, r, g, b, a);
-    float charW = FONT_CHAR_W * scale;
-    float charH = FONT_CHAR_H * scale;
-    for (const char* p = str; *p; p++) {
-        char ch = *p;
-        if (ch < FONT_FIRST_CHAR || ch > FONT_LAST_CHAR) ch = '?';
-        int idx = ch - FONT_FIRST_CHAR;
-        float u0 = idx * charTexW, u1 = (idx + 1) * charTexW;
-        float x0 = (px / screenW) * 2.0f - 1.0f;
-        float y0 = 1.0f - ((py + charH) / screenH) * 2.0f;
-        float x1 = ((px + charW) / screenW) * 2.0f - 1.0f;
-        float y1 = 1.0f - (py / screenH) * 2.0f;
-        GLfloat verts[] = { x0,y0, x1,y0, x1,y1, x1,y1, x0,y1, x0,y0 };
-        GLfloat uvs[] = { u0,1, u1,1, u1,0, u1,0, u0,0, u0,1 };
-        glVertexAttribPointer(sTextLocPosition, 2, GL_FLOAT, GL_FALSE, 0, verts);
-        glEnableVertexAttribArray(sTextLocPosition);
-        glVertexAttribPointer(sTextLocTexCoord, 2, GL_FLOAT, GL_FALSE, 0, uvs);
-        glEnableVertexAttribArray(sTextLocTexCoord);
-        glDrawArrays(GL_TRIANGLES, 0, 6);
-        px += charW;
-    }
+    glVertexAttribPointer(sTextLocPosition, 2, GL_FLOAT, GL_FALSE, 0, sTextVerts);
+    glEnableVertexAttribArray(sTextLocPosition);
+    glVertexAttribPointer(sTextLocTexCoord, 2, GL_FLOAT, GL_FALSE, 0, sTextUVs);
+    glEnableVertexAttribArray(sTextLocTexCoord);
+    glDrawArrays(GL_TRIANGLES, 0, n * 6);
     glDisableVertexAttribArray(sTextLocPosition);
     glDisableVertexAttribArray(sTextLocTexCoord);
 }
@@ -1215,100 +1386,22 @@ void NanoMenu::render() {
     float subScale   = 2.0f * sf;
     float footScale  = 1.5f * sf;
 
-    // Build display items based on menu state
-    std::vector<std::string> displayItems;
-    int currentSelected;
-    const char* title;
-    std::string subtitleStr;
-    char footerBuf[160];
-    float menuScale;
+    // Rebuild display items only when state changes (avoids per-frame heap allocs)
+    if (mDisplayDirty) rebuildDisplayItems();
 
-    if (mMenuState == MENU_RECENT) {
-        title = "Recently Played";
-        menuScale = 3.0f * sf;
-
-        // Poll storage while in submenu — auto-load once available
-        if (!mStorageReady) {
-            if (access("/data/media/0", R_OK) == 0) {
-                mStorageReady = true;
-                loadRecentPlaylist();
-            }
+    // Poll storage while in Recent submenu — auto-load once available
+    if (mMenuState == MENU_RECENT && !mStorageReady) {
+        if (access("/data/media/0", R_OK) == 0) {
+            mStorageReady = true;
+            loadRecentPlaylist();
+            mDisplayDirty = true;
+            rebuildDisplayItems();
         }
-
-        for (const auto& entry : mRecentEntries) {
-            std::string item = entry.label;
-            if (item.empty()) {
-                // Use filename from ROM path
-                size_t slash = entry.romPath.rfind('/');
-                item = (slash != std::string::npos)
-                    ? entry.romPath.substr(slash + 1) : entry.romPath;
-            }
-            // Strip file extension for cleaner display
-            size_t dot = item.rfind('.');
-            if (dot != std::string::npos && dot > 0) item = item.substr(0, dot);
-            // Append system + core: "Game Name  [System - Core]"
-            // No truncation — scrolling handles overflow for selected item
-            if (!entry.coreName.empty() && entry.coreName != "DETECT") {
-                // Extract short core name from "Platform (CoreName)" format
-                std::string coreName = entry.coreName;
-                size_t pStart = coreName.rfind('(');
-                size_t pEnd = coreName.rfind(')');
-                if (pStart != std::string::npos && pEnd != std::string::npos
-                    && pEnd > pStart) {
-                    coreName = coreName.substr(pStart + 1, pEnd - pStart - 1);
-                }
-                // Build suffix: "System - Core"
-                std::string sysName;
-                if (!entry.dbName.empty()) {
-                    // db_name may have pipe-separated names; use first one
-                    sysName = entry.dbName;
-                    size_t pipe = sysName.find('|');
-                    if (pipe != std::string::npos) sysName = sysName.substr(0, pipe);
-                } else if (pStart != std::string::npos && pStart > 0) {
-                    // Fall back: extract platform from "Platform (Core)" format
-                    sysName = entry.coreName.substr(0, pStart);
-                    // Trim trailing whitespace
-                    while (!sysName.empty() && sysName.back() == ' ')
-                        sysName.pop_back();
-                }
-                std::string suffix;
-                if (!sysName.empty()) {
-                    suffix = sysName + " - " + coreName;
-                } else {
-                    suffix = coreName;
-                }
-                item += "  [" + suffix + "]";
-            }
-            displayItems.push_back(item);
-        }
-        displayItems.push_back("< Back");
-        currentSelected = mRecentSelectedIndex;
-        if (!mStorageReady) {
-            subtitleStr = "Please wait, unlocking storage...";
-        } else if (mRecentEntries.empty()) {
-            subtitleStr = "No recent games found";
-        } else {
-            char buf[64];
-            snprintf(buf, sizeof(buf), "%zu game%s", mRecentEntries.size(),
-                     mRecentEntries.size() == 1 ? "" : "s");
-            subtitleStr = buf;
-        }
-        snprintf(footerBuf, sizeof(footerBuf),
-                 "DPAD/VOL: Nav | A/PWR: Select | B: Back | SEL+VOL: Brightness");
-    } else {
-        title = "GammaOS Nano";
-        menuScale = 3.0f * sf;
-        for (const auto& item : mMenuItems) {
-            displayItems.push_back(item.label);
-        }
-        currentSelected = mSelectedIndex;
-        subtitleStr = "v0.1 - Proof of Concept";
-        snprintf(footerBuf, sizeof(footerBuf),
-                 "DPAD/VOL: Nav | A/PWR: Select | SEL+VOL: Brightness | X: FX [%s]",
-                 kEffectNames[mCurrentEffect]);
     }
 
-    int numItems = (int)displayItems.size();
+    float menuScale = 3.0f * sf;
+    int currentSelected = (mMenuState == MENU_RECENT) ? mRecentSelectedIndex : mSelectedIndex;
+    int numItems = (int)mDisplayItems.size();
 
     // Element heights
     float titleH = FONT_CHAR_H * titleScale;
@@ -1333,17 +1426,17 @@ void NanoMenu::render() {
     if (startY < 10.0f) startY = 10.0f;
 
     // Title
-    float titleW = strlen(title) * FONT_CHAR_W * titleScale;
+    float titleW = mTitle.size() * FONT_CHAR_W * titleScale;
     float titleX = (mWidth - titleW) / 2.0f;
     float titleY = startY;
-    drawText(title, titleX, titleY, titleScale,
+    drawText(mTitle.c_str(), titleX, titleY, titleScale,
              mWidth, mHeight, 0.0f, 0.85f, 1.0f, 1.0f);
 
     // Subtitle
-    float subW = subtitleStr.size() * FONT_CHAR_W * subScale;
+    float subW = mSubtitle.size() * FONT_CHAR_W * subScale;
     float subX = (mWidth - subW) / 2.0f;
     float subY = titleY + titleH + gap1;
-    drawText(subtitleStr.c_str(), subX, subY, subScale,
+    drawText(mSubtitle.c_str(), subX, subY, subScale,
              mWidth, mHeight, 0.5f, 0.5f, 0.6f, 1.0f);
 
     // Separator
@@ -1364,7 +1457,7 @@ void NanoMenu::render() {
 
         // Grey out "Recently Played" in main menu when storage isn't ready
         bool greyed = (mMenuState == MENU_MAIN && !mStorageReady
-                       && displayItems[i] == "Recently Played");
+                       && mDisplayItems[i] == "Recently Played");
 
         if (selected && !greyed) {
             drawQuad(mWidth * 0.10f, itemY - 4.0f * sf,
@@ -1389,7 +1482,7 @@ void NanoMenu::render() {
         float contentLeft = menuX + prefixW;
         float contentRight = mWidth * 0.90f; // right edge of selection bar
         float contentW = contentRight - contentLeft;
-        float textW = displayItems[i].size() * charW;
+        float textW = mDisplayItems[i].size() * charW;
 
         // Horizontal scroll for selected items that overflow (Recently Played)
         float drawX = contentLeft;
@@ -1431,7 +1524,7 @@ void NanoMenu::render() {
             glEnable(GL_SCISSOR_TEST);
             glScissor((int)contentLeft, 0, (int)contentW, mHeight);
         }
-        drawText(displayItems[i].c_str(), drawX, itemY, menuScale,
+        drawText(mDisplayItems[i].c_str(), drawX, itemY, menuScale,
                  mWidth, mHeight, r, g, b, 1.0f);
         if (needsClip) {
             glDisable(GL_SCISSOR_TEST);
@@ -1439,10 +1532,10 @@ void NanoMenu::render() {
     }
 
     // Footer
-    float footW = strlen(footerBuf) * FONT_CHAR_W * footScale;
+    float footW = mFooter.size() * FONT_CHAR_W * footScale;
     float footX = (mWidth - footW) / 2.0f;
     float footY = mHeight - footH - startY;
-    drawText(footerBuf, footX, footY, footScale, mWidth, mHeight, 0.4f, 0.4f, 0.5f, 1.0f);
+    drawText(mFooter.c_str(), footX, footY, footScale, mWidth, mHeight, 0.4f, 0.4f, 0.5f, 1.0f);
 
     // Brightness bar overlay
     renderBrightnessBar();
@@ -1509,12 +1602,20 @@ bool NanoMenu::threadLoop() {
     while (!exitPending() && !mExitRequested) {
         pollInput();
         checkInputHotplug();
-        mEffectTime += 1.0f / 60.0f;
+
+        // Adaptive framerate: 20fps for effects, ~10fps when idle.
+        bool animating = (mCurrentEffect != 0) || mShowBrightnessBar
+                         || mWaitForRelease
+                         || (mMenuState == MENU_RECENT && mScrollOffset > 0.0f);
+        int frameTimeUs = animating ? 50000 : 100000; // 20fps vs 10fps
+        float dt = animating ? (1.0f / 20.0f) : (1.0f / 10.0f);
+        mEffectTime += dt;
         render();
-        usleep(16666); // ~60fps
+        usleep(frameTimeUs);
 
         // Check every ~0.5s if an external trigger requested exit
-        if (++exitCheckCounter >= 30) {
+        int exitCheckInterval = animating ? 30 : 5; // 30*16ms or 5*100ms
+        if (++exitCheckCounter >= exitCheckInterval) {
             exitCheckCounter = 0;
             char val[PROPERTY_VALUE_MAX] = {};
             property_get("service.bootanim.exit", val, "0");
@@ -1526,6 +1627,7 @@ bool NanoMenu::threadLoop() {
             if (!mStorageReady) {
                 if (access("/data/media/0", R_OK) == 0) {
                     mStorageReady = true;
+                    mDisplayDirty = true;
                     ALOGI("GammaOS Nano: storage is now accessible");
                 }
             }

@@ -34,8 +34,8 @@ class Surface;
 class SurfaceComposerClient;
 class SurfaceControl;
 
-static const int MAX_PARTICLES = 400;
-static const int NUM_EFFECTS = 20;
+static const int MAX_PARTICLES = 150;
+static const int NUM_EFFECTS = 20; // total effect IDs (some disabled)
 
 struct Particle {
     float x, y, vx, vy, size;
@@ -97,6 +97,7 @@ private:
 
     // Menu
     void buildMenu();
+    void rebuildDisplayItems();
 
     // Effects
     void initEffects();
@@ -119,6 +120,11 @@ private:
     GLint  mLocPosition;
     GLint  mLocColor;
 
+    // Batched particle shader (per-vertex color)
+    GLuint mParticleProgram;
+    GLint  mParticleLocPosition;
+    GLint  mParticleLocColor;
+
     // Fullscreen effect shader
     GLuint mFxProgram;
     GLint  mFxLocPosition;
@@ -129,6 +135,13 @@ private:
     // Menu state
     std::vector<MenuItem> mMenuItems;
     int mSelectedIndex;
+
+    // Pre-computed display strings (rebuilt on state change, not every frame)
+    std::vector<std::string> mDisplayItems;
+    std::string mTitle;
+    std::string mSubtitle;
+    std::string mFooter;
+    bool mDisplayDirty; // true when display items need rebuild
 
     // Input device fds
     std::vector<int> mInputFds;
