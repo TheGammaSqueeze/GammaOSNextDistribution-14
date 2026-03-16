@@ -32,8 +32,15 @@ bool StartPropertySetThread::threadLoop() {
     // Clear BootAnimation exit flag
     property_set("service.bootanim.exit", "0");
     property_set("service.bootanim.progress", "0");
-    // Start GammaOS Nano menu instead of BootAnimation
-    property_set("ctl.start", "gammaos-nano");
+    // Start GammaOS Nano menu only when explicitly enabled (skip_nano=0).
+    // First boot (property unset) and normal mode (skip_nano=1) use bootanim.
+    char skip[PROPERTY_VALUE_MAX] = {};
+    property_get("persist.bootanim.skip_nano", skip, "");
+    if (!strcmp(skip, "0")) {
+        property_set("ctl.start", "gammaos-nano");
+    } else {
+        property_set("ctl.start", "bootanim");
+    }
     // Exit immediately
     return false;
 }

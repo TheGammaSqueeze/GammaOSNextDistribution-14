@@ -1201,11 +1201,12 @@ static EGLConfig getEglConfig(const EGLDisplay& display) {
 }
 
 status_t NanoMenu::readyToRun() {
-    // If "Boot Android" was selected, skip the nano menu entirely.
+    // Only run the nano menu when explicitly enabled (skip_nano=0).
+    // Exit for "Boot Android" (skip_nano=1) and first boot (property unset).
     char skip[PROPERTY_VALUE_MAX] = {};
     property_get("persist.bootanim.skip_nano", skip, "");
-    if (!strcmp(skip, "1")) {
-        ALOGI("GammaOS Nano: skip_nano=1, exiting for full Android boot");
+    if (strcmp(skip, "0") != 0) {
+        ALOGI("GammaOS Nano: skip_nano='%s' (not '0'), exiting", skip);
         return INVALID_OPERATION;
     }
 
