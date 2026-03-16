@@ -765,8 +765,13 @@ on property:init.svc.vendor.hwcomposer-2-1=running && property:init.svc.vendor.g
 
 # GammaOS Nano: start the nano boot menu instead of bootanimation,
 # but only when nano mode is enabled. Normal boot uses bootanim.
+# Also start zygote + main services in parallel — don't wait for the
+# nano menu to be fully running before starting the Android stack.
 on property:init.svc.surfaceflinger=running && property:persist.bootanim.skip_nano=0
     start gammaos-nano
+    setprop sys.gammaos.minimal_boot 1
+    start zygote
+    start gatekeeperd
 
 on property:init.svc.surfaceflinger=running && property:persist.bootanim.skip_nano=1
     start bootanim
@@ -1324,17 +1329,14 @@ on nonencrypted && property:persist.bootanim.skip_nano=1
     class_start main
     class_start late_start
 
-# GammaOS Nano: start zygote the moment the nano menu is running —
-# this fires right when surfaceflinger starts (class_start core),
-# before load_persist_props_action is processed from the queue.
+# GammaOS Nano: zygote + gatekeeperd already started from the
+# surfaceflinger property trigger above, in parallel with this menu.
 on property:init.svc.gammaos-nano=running
-    setprop sys.gammaos.minimal_boot 1
-    start zygote
-    start gatekeeperd
+    # Nothing extra needed here — kept as a hook for future use.
 
 on nonencrypted && property:persist.bootanim.skip_nano=0
-    # Zygote + gatekeeperd already started when gammaos-nano service
-    # started (property trigger above); just start main-class services here.
+    # Zygote + gatekeeperd already started from the surfaceflinger
+    # property trigger; just start main-class services here.
     class_start main
     # Stop 32-bit zygote in nano mode — not needed and wastes memory/CPU.
     stop zygote_secondary

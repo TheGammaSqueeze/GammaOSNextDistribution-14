@@ -736,7 +736,10 @@ public class ZygoteInit {
 
         /* For child process */
         if (pid == 0) {
-            if (hasSecondZygote(abiList)) {
+            // GammaOS Nano: skip waiting for 32-bit zygote — it's stopped in nano mode
+            // and would otherwise block system_server for 60s (ZYGOTE_CONNECT_TIMEOUT_MS).
+            if (hasSecondZygote(abiList)
+                    && !"1".equals(SystemProperties.get("sys.gammaos.minimal_boot"))) {
                 waitForSecondaryZygote(socketName);
             }
 
