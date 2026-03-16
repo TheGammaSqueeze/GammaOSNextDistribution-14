@@ -1336,6 +1336,8 @@ on nonencrypted && property:persist.bootanim.skip_nano=0
     # Zygote + gatekeeperd already started when gammaos-nano service
     # started (property trigger above); just start main-class services here.
     class_start main
+    # Stop 32-bit zygote in nano mode — not needed and wastes memory/CPU.
+    stop zygote_secondary
 
 on nonencrypted && property:persist.bootanim.skip_nano=
     # Property unset (first boot) — boot into normal Android so the user
