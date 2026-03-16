@@ -1378,6 +1378,12 @@ on property:service.bootanim.nano_action=safemode
     setprop persist.bootanim.skip_nano 1
     setprop sys.powerctl reboot
 
+# GammaOS Nano: Quick Resume — send ESC key to RetroArch to close it
+# gracefully before shutdown/reboot so it saves state.
+on property:sys.gammaos.nano.qr_send_esc=1
+    setprop sys.gammaos.nano.qr_send_esc 0
+    exec_background -- /system/bin/input keyevent 111
+
 # GammaOS Nano: restart the nano menu (e.g. when RetroArch exits)
 on property:sys.gammaos.nano.restart=1
     setprop sys.gammaos.nano.restart 0

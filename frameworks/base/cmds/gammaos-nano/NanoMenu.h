@@ -83,6 +83,10 @@ private:
     void handleBack();
     void loadRecentPlaylist();
 
+    // Quick Resume
+    void prepareQuickResume(const char* action);
+    bool isRetroArchRunning();
+
     // Brightness control
     void adjustBrightness(int direction);
     void renderBrightnessBar();
@@ -176,6 +180,9 @@ private:
     int mCurrentEffect; // 0 = none, 1..20 = effect
     float mEffectTime;
     Particle mParticles[MAX_PARTICLES];
+
+    // Quick Resume
+    bool mQuickResumeEnabled;
 };
 
 } // namespace android

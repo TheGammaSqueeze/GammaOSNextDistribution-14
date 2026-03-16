@@ -467,13 +467,17 @@ NanoMenu::NanoMenu()
       mBrightness(128), mMaxBrightness(255),
       mShowBrightnessBar(false), mBrightnessBarTimer(0),
       mCurrentEffect(1),
-      mEffectTime(0.0f) {
+      mEffectTime(0.0f),
+      mQuickResumeEnabled(false) {
     mSession = new SurfaceComposerClient();
     srand(elapsedRealtime());
     memset(mParticles, 0, sizeof(mParticles));
     // Randomize starting effect (skip index 0 which is "None")
     sActiveEffectIdx = 1 + (rand() % (kNumActiveEffects - 1));
     mCurrentEffect = kActiveEffects[sActiveEffectIdx];
+    // Load Quick Resume toggle from persistent property
+    mQuickResumeEnabled = android::base::GetBoolProperty(
+            "persist.gammaos.nano.quick_resume", false);
 }
 
 NanoMenu::~NanoMenu() {
@@ -613,16 +617,16 @@ void NanoMenu::rebuildDisplayItems() {
                      mRecentEntries.size() == 1 ? "" : "s");
             mSubtitle = buf;
         }
-        mFooter = "DPAD/VOL: Nav | A/PWR: Select | B: Back | SEL+VOL: Brightness";
+        mFooter = "DPAD/VOL: Nav | A/PWR: Select | B: Back | R: Quick Resume";
     } else {
         mTitle = "GammaOS Nano";
         for (const auto& item : mMenuItems) {
             mDisplayItems.push_back(item.label);
         }
         mSubtitle = "v0.1 - Proof of Concept";
-        char buf[160];
+        char buf[200];
         snprintf(buf, sizeof(buf),
-                 "DPAD/VOL: Nav | A/PWR: Select | SEL+VOL: Brightness | X: FX [%s]",
+                 "DPAD/VOL: Nav | A/PWR: Select | X: FX [%s] | R: Quick Resume",
                  kEffectNames[mCurrentEffect]);
         mFooter = buf;
     }
@@ -816,9 +820,17 @@ void NanoMenu::handleSelect() {
     } else if (label == "Safe Mode") {
         property_set("service.bootanim.nano_action", "safemode");
     } else if (label == "Reboot") {
-        property_set("service.bootanim.nano_action", "reboot");
+        if (mQuickResumeEnabled) {
+            prepareQuickResume("reboot");
+        } else {
+            property_set("service.bootanim.nano_action", "reboot");
+        }
     } else if (label == "Power Off") {
-        property_set("service.bootanim.nano_action", "shutdown");
+        if (mQuickResumeEnabled) {
+            prepareQuickResume("shutdown");
+        } else {
+            property_set("service.bootanim.nano_action", "shutdown");
+        }
     }
 }
 
@@ -898,6 +910,13 @@ void NanoMenu::pollInput() {
                         if (mCurrentEffect >= 1 && mCurrentEffect <= 10) initEffects();
                         mDisplayDirty = true; // footer shows effect name
                         ALOGD("Effect: %d (%s)", mCurrentEffect, kEffectNames[mCurrentEffect]);
+                        break;
+                    case BTN_TR: case KEY_R:
+                        mQuickResumeEnabled = !mQuickResumeEnabled;
+                        property_set("persist.gammaos.nano.quick_resume",
+                                     mQuickResumeEnabled ? "1" : "0");
+                        mDisplayDirty = true;
+                        ALOGD("Quick Resume: %s", mQuickResumeEnabled ? "ON" : "OFF");
                         break;
                     default: break;
                     }
@@ -1544,6 +1563,28 @@ void NanoMenu::render() {
     // Brightness bar overlay
     renderBrightnessBar();
 
+    // Quick Resume indicator (top-right corner)
+    {
+        float qrScale = 1.5f * sf;
+        float dotSize = 10.0f * sf;
+        float pad = 15.0f * sf;
+        const char* qrLabel = "Quick Resume";
+        float qrLabelW = strlen(qrLabel) * FONT_CHAR_W * qrScale;
+        float qrX = mWidth - qrLabelW - pad;
+        float dotX = qrX + qrLabelW / 2.0f - dotSize / 2.0f;
+        float dotY = pad;
+        float labelY = dotY + dotSize + 5.0f * sf;
+        if (mQuickResumeEnabled) {
+            drawQuad(dotX, dotY, dotSize, dotSize, 0.0f, 0.85f, 0.0f, 1.0f);
+            drawText(qrLabel, qrX, labelY, qrScale,
+                     mWidth, mHeight, 0.4f, 0.7f, 0.4f, 0.8f);
+        } else {
+            drawQuad(dotX, dotY, dotSize, dotSize, 0.85f, 0.0f, 0.0f, 1.0f);
+            drawText(qrLabel, qrX, labelY, qrScale,
+                     mWidth, mHeight, 0.5f, 0.35f, 0.35f, 0.6f);
+        }
+    }
+
     glDisable(GL_BLEND);
     eglSwapBuffers(mDisplay, mSurface);
 }
@@ -1601,6 +1642,89 @@ void NanoMenu::renderBrightnessBar() {
 
 bool NanoMenu::threadLoop() {
     ALOGD("NanoMenu: entering main loop");
+
+    // Quick Resume: auto-launch into saved game on boot if prepared
+    if (mQuickResumeEnabled) {
+        std::string qrPrepared = android::base::GetProperty(
+                "persist.gammaos.nano.qr_prepared", "0");
+        if (qrPrepared == "1") {
+            std::string qrRom = android::base::GetProperty(
+                    "persist.gammaos.nano.qr_rom", "");
+            std::string qrCore = android::base::GetProperty(
+                    "persist.gammaos.nano.qr_core", "");
+            if (!qrRom.empty() && !qrCore.empty()) {
+                // Show "Quick Resuming..." screen for ~1s while checking
+                // for SELECT button hold (bypass)
+                bool bypass = false;
+                float sf = fminf((float)mWidth / 1080.0f,
+                                 (float)mHeight / 720.0f);
+                if (sf < 0.5f) sf = 0.5f;
+                float loadScale = 3.0f * sf;
+                float hintScale = 1.5f * sf;
+
+                for (int frame = 0; frame < 20 && !bypass; frame++) {
+                    // Check current key state via ioctl
+                    for (int fd : mInputFds) {
+                        unsigned char keyState[(KEY_MAX + 7) / 8] = {};
+                        if (ioctl(fd, EVIOCGKEY(sizeof(keyState)),
+                                  keyState) >= 0) {
+                            if (keyState[BTN_SELECT / 8]
+                                    & (1 << (BTN_SELECT % 8))) {
+                                bypass = true;
+                            }
+                        }
+                        // Also drain events for SELECT press
+                        struct input_event ev;
+                        while (read(fd, &ev, sizeof(ev)) == sizeof(ev)) {
+                            if (ev.type == EV_KEY && ev.code == BTN_SELECT
+                                    && ev.value != 0) {
+                                bypass = true;
+                            }
+                        }
+                    }
+                    // Render quick resume screen
+                    glViewport(0, 0, mWidth, mHeight);
+                    glClearColor(0.05f, 0.05f, 0.10f, 1.0f);
+                    glClear(GL_COLOR_BUFFER_BIT);
+                    glEnable(GL_BLEND);
+                    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                    const char* msg = "Quick Resuming...";
+                    float msgW = strlen(msg) * FONT_CHAR_W * loadScale;
+                    float msgX = (mWidth - msgW) / 2.0f;
+                    float msgY = (mHeight - FONT_CHAR_H * loadScale) / 2.0f;
+                    drawText(msg, msgX, msgY, loadScale,
+                             mWidth, mHeight, 0.6f, 0.6f, 0.7f, 1.0f);
+                    const char* hint = "Hold SELECT to cancel";
+                    float hintW = strlen(hint) * FONT_CHAR_W * hintScale;
+                    float hintX = (mWidth - hintW) / 2.0f;
+                    float hintY = msgY + FONT_CHAR_H * loadScale + 20.0f * sf;
+                    drawText(hint, hintX, hintY, hintScale,
+                             mWidth, mHeight, 0.4f, 0.4f, 0.5f, 1.0f);
+                    glDisable(GL_BLEND);
+                    eglSwapBuffers(mDisplay, mSurface);
+                    usleep(50000); // 50ms per frame, ~1s total
+                }
+
+                if (!bypass) {
+                    ALOGI("Quick Resume: launching ROM=%s CORE=%s",
+                          qrRom.c_str(), qrCore.c_str());
+                    android::base::SetProperty(
+                            "sys.gammaos.nano.launch_rom", qrRom);
+                    android::base::SetProperty(
+                            "sys.gammaos.nano.launch_core", qrCore);
+                    property_set("sys.gammaos.nano.return_recent", "1");
+                    property_set("service.bootanim.nano_retroarch", "1");
+                    property_set("sys.gammaos.nano.drop_input", "1");
+                    property_set("persist.gammaos.nano.qr_prepared", "0");
+                    mExitRequested = true;
+                } else {
+                    ALOGI("Quick Resume: bypassed by SELECT hold");
+                }
+            }
+            // Always clear prepared flag after checking
+            property_set("persist.gammaos.nano.qr_prepared", "0");
+        }
+    }
 
     int exitCheckCounter = 0;
     while (!exitPending() && !mExitRequested) {
@@ -1687,6 +1811,66 @@ bool NanoMenu::threadLoop() {
     eglReleaseThread();
     IPCThreadState::self()->stopProcess();
     return false;
+}
+
+// ---------------------------------------------------------------------------
+// Quick Resume helpers
+// ---------------------------------------------------------------------------
+
+bool NanoMenu::isRetroArchRunning() {
+    DIR* dir = opendir("/proc");
+    if (!dir) return false;
+    struct dirent* entry;
+    while ((entry = readdir(dir)) != nullptr) {
+        if (entry->d_type != DT_DIR) continue;
+        char* end;
+        long pid = strtol(entry->d_name, &end, 10);
+        if (*end != '\0' || pid <= 0) continue;
+        char cmdPath[64];
+        snprintf(cmdPath, sizeof(cmdPath), "/proc/%ld/cmdline", pid);
+        int fd = open(cmdPath, O_RDONLY);
+        if (fd < 0) continue;
+        char cmdline[256] = {};
+        read(fd, cmdline, sizeof(cmdline) - 1);
+        close(fd);
+        if (strstr(cmdline, "retroarch")) {
+            closedir(dir);
+            return true;
+        }
+    }
+    closedir(dir);
+    return false;
+}
+
+void NanoMenu::prepareQuickResume(const char* action) {
+    // If RetroArch is still running, send ESC to close it gracefully
+    if (isRetroArchRunning()) {
+        ALOGI("Quick Resume: RetroArch still running, sending ESC");
+        property_set("sys.gammaos.nano.qr_send_esc", "1");
+        // Wait for RetroArch to exit (max 5 seconds)
+        for (int i = 0; i < 50 && isRetroArchRunning(); i++) {
+            usleep(100000); // 100ms
+        }
+        if (isRetroArchRunning()) {
+            ALOGW("Quick Resume: RetroArch did not exit after ESC, proceeding anyway");
+        }
+    }
+
+    // Load the most recent playlist entry
+    loadRecentPlaylist();
+    if (!mRecentEntries.empty()) {
+        const auto& entry = mRecentEntries[0];
+        android::base::SetProperty("persist.gammaos.nano.qr_rom", entry.romPath);
+        android::base::SetProperty("persist.gammaos.nano.qr_core", entry.corePath);
+        property_set("persist.gammaos.nano.qr_prepared", "1");
+        ALOGI("Quick Resume: saved ROM=%s CORE=%s",
+              entry.romPath.c_str(), entry.corePath.c_str());
+    } else {
+        ALOGW("Quick Resume: no recent entries found, skipping save");
+    }
+
+    // Proceed with the requested action
+    property_set("service.bootanim.nano_action", action);
 }
 
 } // namespace android

@@ -488,6 +488,15 @@ public final class ShutdownThread extends Thread {
         metricShutdownStart();
         metricStarted(METRIC_SYSTEM_SERVER);
 
+        // GammaOS Nano: Quick Resume — save the current game before shutdown
+        // so we can boot straight back into it on next nano boot.
+        // Only runs in nano mode with quick resume enabled.
+        if (SystemProperties.getBoolean("sys.gammaos.minimal_boot", false)
+                && SystemProperties.getBoolean(
+                        "persist.gammaos.nano.quick_resume", false)) {
+            nanoQuickResumePrepare();
+        }
+
         // Start dumping check points for this shutdown in a separate thread.
         Thread dumpCheckPointsThread = ShutdownCheckPoints.newDumpThread(
                 new File(CHECK_POINTS_FILE_BASENAME));
@@ -923,6 +932,134 @@ public final class ShutdownThread extends Thread {
     private static VibrationEffect createDefaultVibrationEffect() {
         return VibrationEffect.createOneShot(
                 DEFAULT_SHUTDOWN_VIBRATE_MS, VibrationEffect.DEFAULT_AMPLITUDE);
+    }
+
+    /**
+     * GammaOS Nano: Quick Resume preparation.
+     * Sends ESC to RetroArch (bringing it to the foreground first), waits for
+     * it to close, then reads the content history playlist and saves the most
+     * recent game's ROM + core to persist properties so the next nano boot can
+     * launch straight back into the game.
+     */
+    private void nanoQuickResumePrepare() {
+        try {
+            Slog.i(TAG, "GammaOS Nano: Quick Resume - preparing before shutdown");
+
+            // Check if RetroArch is actually running
+            if (!isNanoAppRunning("retroarch")) {
+                Slog.i(TAG, "GammaOS Nano: RetroArch not running, "
+                        + "reading playlist directly");
+            } else {
+                // Dismiss the shutdown progress dialog so RetroArch
+                // becomes the focused window and can receive the ESC key.
+                if (mProgressDialog != null) {
+                    mHandler.post(() -> {
+                        try {
+                            mProgressDialog.dismiss();
+                        } catch (Exception e) { /* ignore */ }
+                    });
+                }
+                try { Thread.sleep(400); } catch (InterruptedException e) { }
+
+                // Send ESC key via InputManager — same pattern used by
+                // PhoneWindowManager.triggerVirtualKeypress() for the
+                // back-long-press → ESC override in RetroArch.
+                android.hardware.input.InputManager im =
+                        android.hardware.input.InputManager.getInstance();
+                long now = SystemClock.uptimeMillis();
+                final android.view.KeyEvent downEvent = new android.view.KeyEvent(
+                        now, now, android.view.KeyEvent.ACTION_DOWN,
+                        android.view.KeyEvent.KEYCODE_ESCAPE, 0, 0,
+                        android.view.KeyCharacterMap.VIRTUAL_KEYBOARD, 0,
+                        android.view.KeyEvent.FLAG_FROM_SYSTEM,
+                        android.view.InputDevice.SOURCE_KEYBOARD);
+                final android.view.KeyEvent upEvent =
+                        android.view.KeyEvent.changeAction(
+                                downEvent, android.view.KeyEvent.ACTION_UP);
+                im.injectInputEvent(downEvent,
+                        android.hardware.input.InputManager
+                                .INJECT_INPUT_EVENT_MODE_ASYNC);
+                im.injectInputEvent(upEvent,
+                        android.hardware.input.InputManager
+                                .INJECT_INPUT_EVENT_MODE_ASYNC);
+                Slog.i(TAG, "GammaOS Nano: ESC key injected");
+
+                // Wait for RetroArch to exit (max 5 seconds)
+                for (int i = 0; i < 50; i++) {
+                    if (!isNanoAppRunning("retroarch")) break;
+                    try { Thread.sleep(100); } catch (InterruptedException e) { }
+                }
+                if (isNanoAppRunning("retroarch")) {
+                    Slog.w(TAG, "GammaOS Nano: RetroArch still running "
+                            + "after ESC, proceeding anyway");
+                }
+            }
+
+            // Read the RetroArch content history playlist and save the
+            // most recent entry to persist properties.
+            java.io.File playlist = new java.io.File(
+                    "/data/media/0/RetroArch/playlists/builtin/"
+                    + "content_history.lpl");
+            if (playlist.canRead()) {
+                StringBuilder sb = new StringBuilder();
+                try (java.io.BufferedReader br = new java.io.BufferedReader(
+                        new java.io.FileReader(playlist))) {
+                    char[] buf = new char[4096];
+                    int n;
+                    while ((n = br.read(buf)) > 0) {
+                        sb.append(buf, 0, n);
+                    }
+                }
+                org.json.JSONObject json =
+                        new org.json.JSONObject(sb.toString());
+                org.json.JSONArray items = json.getJSONArray("items");
+                if (items.length() > 0) {
+                    org.json.JSONObject first = items.getJSONObject(0);
+                    String romPath = first.optString("path", "");
+                    String corePath = first.optString("core_path", "");
+                    if (!romPath.isEmpty() && !corePath.isEmpty()
+                            && !"DETECT".equals(romPath)) {
+                        SystemProperties.set(
+                                "persist.gammaos.nano.qr_rom", romPath);
+                        SystemProperties.set(
+                                "persist.gammaos.nano.qr_core", corePath);
+                        SystemProperties.set(
+                                "persist.gammaos.nano.qr_prepared", "1");
+                        Slog.i(TAG, "GammaOS Nano: Quick Resume saved ROM="
+                                + romPath + " CORE=" + corePath);
+                    }
+                }
+            } else {
+                Slog.w(TAG, "GammaOS Nano: playlist not readable");
+            }
+        } catch (Exception e) {
+            Slog.w(TAG, "GammaOS Nano: Quick Resume preparation failed", e);
+        }
+    }
+
+    /** Check if a process with the given name substring is running. */
+    private static boolean isNanoAppRunning(String name) {
+        java.io.File procDir = new java.io.File("/proc");
+        String[] entries = procDir.list();
+        if (entries == null) return false;
+        for (String entry : entries) {
+            try {
+                Integer.parseInt(entry);
+            } catch (NumberFormatException e) {
+                continue;
+            }
+            try (java.io.FileInputStream fis = new java.io.FileInputStream(
+                    "/proc/" + entry + "/cmdline")) {
+                byte[] data = new byte[256];
+                int len = fis.read(data);
+                if (len > 0 && new String(data, 0, len).contains(name)) {
+                    return true;
+                }
+            } catch (Exception e) {
+                // Skip unreadable proc entries
+            }
+        }
+        return false;
     }
 
     /** Utility class to inject instances, for easy testing. */
