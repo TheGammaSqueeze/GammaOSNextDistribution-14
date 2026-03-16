@@ -554,6 +554,14 @@ public final class SystemServiceManager implements Dumpable {
                         }
                         break;
                     case USER_UNLOCKING:
+                        // GammaOS Nano: skip non-essential unlock callbacks to
+                        // speed up the path to RetroArch launch. Only
+                        // StorageManagerService is needed for CE storage.
+                        if (android.os.SystemProperties.getBoolean(
+                                "sys.gammaos.minimal_boot", false)
+                                && !serviceName.contains("StorageManager")) {
+                            break;
+                        }
                         service.onUserUnlocking(curUser);
                         break;
                     case USER_UNLOCKED:

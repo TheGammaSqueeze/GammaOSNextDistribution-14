@@ -1141,7 +1141,9 @@ on post-fs-data
     # Create directories for boot animation.
     mkdir /data/misc/bootanim 0755 system system
 
-    exec_start derive_sdk
+    # GammaOS: start derive_sdk asynchronously — it only sets informational
+    # build.version.extensions.* properties that nothing blocks on.
+    start derive_sdk
 
     init_user0
 
@@ -1172,10 +1174,9 @@ on post-fs-data
     setprop keystore.boot_level 1000000000
 
     # Allow apexd to snapshot and restore device encrypted apex data in the case
-    # of a rollback. This should be done immediately after DE_user data keys
-    # are loaded. APEXes should not access this data until this has been
-    # completed and apexd.status becomes "ready".
-    exec_start apexd-snapshotde
+    # of a rollback. Run async — nothing in the boot path blocks on
+    # apexd.status becoming "ready".
+    start apexd-snapshotde
 
     # sys.memfd_use set to false by default, which keeps it disabled
     # until it is confirmed that apps and vendor processes don't make
