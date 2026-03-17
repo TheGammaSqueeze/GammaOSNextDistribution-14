@@ -1639,7 +1639,7 @@ public final class SystemServer implements Dumpable {
             mSystemServiceManager.startService(ROLE_SERVICE_CLASS);
             t.traceEnd();
 
-            if (!isTv) {
+            if (!isTv && !minimalBoot) {
                 t.traceBegin("StartVibratorManagerService");
                 mSystemServiceManager.startService(VibratorManagerService.Lifecycle.class);
                 t.traceEnd();
@@ -2457,6 +2457,7 @@ public final class SystemServer implements Dumpable {
                 t.traceEnd();
             }
 
+            if (!minimalBoot) { // GammaOS Nano: skip ColorDisplay through MediaSession
             t.traceBegin("StartColorDisplay");
             mSystemServiceManager.startService(ColorDisplayService.class);
             t.traceEnd();
@@ -2601,6 +2602,7 @@ public final class SystemServer implements Dumpable {
             t.traceBegin("StartMediaSessionService");
             mSystemServiceManager.startService(MEDIA_SESSION_SERVICE_CLASS);
             t.traceEnd();
+            } // !minimalBoot: ColorDisplay through MediaSession
 
             if (mPackageManager.hasSystemFeature(PackageManager.FEATURE_HDMI_CEC)) {
                 t.traceBegin("StartHdmiControlService");
@@ -3466,18 +3468,18 @@ public final class SystemServer implements Dumpable {
             // until the user explicitly selects it from the nano menu.
             // This avoids force-stop cascades and zombie processes.
             SystemProperties.set("sys.gammaos.nano.preload", "0");
-            new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
-                Slog.i(TAG, "GammaOS Nano: finishing boot (no preload)");
-                if (wmsRef != null) {
-                    wmsRef.enableScreenAfterBoot();
-                }
-                try {
-                    com.android.server.LocalServices.getService(
-                            android.app.ActivityManagerInternal.class).finishBooting();
-                } catch (Exception e) {
-                    Slog.w(TAG, "GammaOS Nano: finishBooting failed: " + e);
-                }
-            });
+            // GammaOS Nano: call finishBooting directly instead of posting
+            // to main handler — avoids handler queue delay (~0.5s savings).
+            Slog.i(TAG, "GammaOS Nano: finishing boot (no preload)");
+            if (wmsRef != null) {
+                wmsRef.enableScreenAfterBoot();
+            }
+            try {
+                com.android.server.LocalServices.getService(
+                        android.app.ActivityManagerInternal.class).finishBooting();
+            } catch (Exception e) {
+                Slog.w(TAG, "GammaOS Nano: finishBooting failed: " + e);
+            }
 
             // Wait for user to select RetroArch, then enable screen (kills overlay).
             new Thread(() -> {
@@ -3521,6 +3523,7 @@ public final class SystemServer implements Dumpable {
                     });
                 }
             }, "NanoRelaunchMonitor").start();
+
         }
 
         t.traceEnd(); // startOtherServices
