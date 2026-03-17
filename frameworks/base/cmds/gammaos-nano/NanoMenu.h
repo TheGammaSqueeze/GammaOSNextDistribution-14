@@ -21,6 +21,10 @@
 #include <string>
 #include <vector>
 #include <set>
+#include <unordered_map>
+
+#include <ft2build.h>
+#include FT_FREETYPE_H
 
 #include <utils/Thread.h>
 #include <binder/IBinder.h>
@@ -43,6 +47,15 @@ struct Particle {
     float life, phase;
 };
 
+struct GlyphInfo {
+    float u0, v0, u1, v1;  // UV coords in atlas
+    int bmpW, bmpH;        // raw bitmap size in atlas
+    int bearingX, bearingY; // offset from baseline
+    int advance;            // horizontal advance in pixels
+    bool color;             // true for color emoji (BGRA)
+    float scaleW, scaleH;  // display scale (for emoji normalization)
+};
+
 class NanoMenu : public Thread, public IBinder::DeathRecipient {
 public:
     NanoMenu();
@@ -62,9 +75,15 @@ public:
         std::string dbName;  // system/platform name from playlist
     };
 
+    struct AppEntry {
+        std::string packageName;
+        std::string label;
+    };
+
     enum MenuState {
         MENU_MAIN = 0,
-        MENU_RECENT = 1
+        MENU_RECENT = 1,
+        MENU_APPS = 2
     };
 
 private:
@@ -82,9 +101,10 @@ private:
     void handleSelect();
     void handleBack();
     void loadRecentPlaylist();
+    void loadInstalledApps();
 
     // Quick Resume
-    void prepareQuickResume(const char* action);
+    void prepareShutdown(const char* action);
     bool isRetroArchRunning();
 
     // Brightness control
@@ -95,6 +115,11 @@ private:
 
     // Rendering
     void initShaders();
+    void initFonts();
+    void ensureGlyph(uint32_t codepoint);
+    void drawText(const char* str, float px, float py, float scale,
+                  float r, float g, float b, float a);
+    float measureText(const char* str, float scale);
     void render();
     void drawQuad(float x, float y, float w, float h,
                   float r, float g, float b, float a);
@@ -163,11 +188,19 @@ private:
     bool mRecentLoaded;  // true if playlist file was readable
     bool mStorageReady;  // true once /data/media/0 is accessible (CE unlocked)
 
-    // Scrolling text state for long game names in Recently Played
+    // Applications submenu
+    std::vector<AppEntry> mAppEntries;
+    int mAppSelectedIndex;
+    bool mAppsLoaded;
+
+    // Scrolling text state for long game names in Recently Played / Applications
     float mScrollOffset;
     int   mScrollDir;       // 1 = scrolling left, -1 = scrolling right
     int   mScrollPause;     // frames to pause at each end before reversing
     int   mLastScrolledIdx; // which item index was scrolling (reset on change)
+
+    // Vertical menu scroll for submenus with more items than fit on screen
+    int mMenuScrollTop;     // first visible item index
 
     // Brightness
     bool mSelectHeld;
@@ -183,6 +216,24 @@ private:
 
     // Quick Resume
     bool mQuickResumeEnabled;
+
+    // FreeType font rendering
+    static const int MAX_FT_FACES = 4;
+    FT_Library mFtLib;
+    FT_Face mFtFaces[MAX_FT_FACES];
+    int mFtNumFaces;
+    int mFontSize;  // render pixel size
+    GLuint mGlyphAtlasTex;
+    int mAtlasW, mAtlasH;
+    int mAtlasCurX, mAtlasCurY, mAtlasRowH;
+    std::unordered_map<uint32_t, GlyphInfo> mGlyphCache;
+
+    // Text shader (per-vertex color for emoji support)
+    GLuint mTextProgram;
+    GLint  mTextLocPosition;
+    GLint  mTextLocTexCoord;
+    GLint  mTextLocColor;
+    GLint  mTextLocTexture;
 };
 
 } // namespace android

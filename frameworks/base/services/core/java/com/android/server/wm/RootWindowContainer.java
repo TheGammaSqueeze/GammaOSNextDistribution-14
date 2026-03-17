@@ -176,6 +176,11 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
 
     // GammaOS Nano: reentrance guard for nano app launch
     private static boolean sNanoLaunchInProgress = false;
+    // GammaOS Nano: crash detection — track launch attempts to avoid crash loops
+    private static int sNanoCrashCount = 0;
+    private static long sNanoLastLaunchTime = 0;
+    private static final int NANO_MAX_CRASH_COUNT = 3;
+    private static final long NANO_CRASH_WINDOW_MS = 10000; // 10 seconds
     // GammaOS Nano: black overlay surface shown while NanoMenu is active
     private static android.view.SurfaceControl sNanoBlankOverlay;
 
@@ -1525,6 +1530,13 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                 : null;
         if (minimalBoot && taskDisplayArea == getDefaultTaskDisplayArea()
                 && umInternal != null && umInternal.isUserUnlockingOrUnlocked(userId)) {
+            // If a kill-and-restart is in progress, skip all launches — the nano
+            // menu will be restarted by the killing side via sys.gammaos.nano.restart.
+            if ("1".equals(android.os.SystemProperties.get(
+                    "sys.gammaos.nano.killing", "0"))) {
+                Slog.i(TAG, "GammaOS Nano: kill in progress, skipping home launch");
+                return true;
+            }
             // If NanoMenu is currently active (bootanim not exited), skip home launch
             // UNLESS we're in preload mode (preloading RetroArch behind the menu)
             if (!"1".equals(android.os.SystemProperties.get("service.bootanim.exit", "0"))
@@ -1578,6 +1590,16 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                 // (startHomeActivity triggers nested startHomeOnTaskDisplayArea calls)
                 if (sNanoLaunchInProgress) {
                     Slog.i(TAG, "GammaOS Nano: launch in progress, skipping nested cleanup");
+                    return true;
+                }
+                // Grace period: don't trigger "app exited" within 2s of the last
+                // launch — the new process may not have registered activities yet,
+                // which makes the process-alive check falsely report it as dead.
+                long now = android.os.SystemClock.uptimeMillis();
+                if (sNanoLastLaunchTime > 0
+                        && now - sNanoLastLaunchTime < 2000) {
+                    Slog.i(TAG, "GammaOS Nano: within launch grace period, "
+                            + "skipping premature cleanup");
                     return true;
                 }
                 // Check if the nano app process is still alive — don't clean up
@@ -1722,6 +1744,51 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                     }
                 }
                 if (aInfo != null) {
+                    // Crash loop detection: if this app keeps crashing shortly after
+                    // launch, give up and restart the nano menu instead.
+                    long now = android.os.SystemClock.uptimeMillis();
+                    if (now - sNanoLastLaunchTime < NANO_CRASH_WINDOW_MS) {
+                        sNanoCrashCount++;
+                    } else {
+                        sNanoCrashCount = 1; // reset counter
+                    }
+                    sNanoLastLaunchTime = now;
+                    if (sNanoCrashCount > NANO_MAX_CRASH_COUNT) {
+                        Slog.e(TAG, "GammaOS Nano: " + nanoApp + " crashed "
+                                + sNanoCrashCount + " times, returning to nano menu");
+                        sNanoCrashCount = 0;
+                        try {
+                            android.app.IActivityManager am =
+                                    android.app.ActivityManager.getService();
+                            am.forceStopPackage(nanoApp, userId);
+                        } catch (Exception ex) {
+                            Slog.w(TAG, "GammaOS Nano: force-stop after crash failed", ex);
+                        }
+                        // Clean up stale tasks
+                        try {
+                            java.util.ArrayList<Task> crashTasks = new java.util.ArrayList<>();
+                            forAllTasks(task -> {
+                                task.forAllActivities(r -> {
+                                    if (r.packageName != null
+                                            && r.packageName.equals(nanoApp)) {
+                                        crashTasks.add(task);
+                                    }
+                                });
+                            });
+                            for (Task t : crashTasks) {
+                                t.removeIfPossible("nano-crash-loop");
+                            }
+                        } catch (Exception e) {
+                            Slog.w(TAG, "GammaOS Nano: crash cleanup failed", e);
+                        }
+                        showNanoBlankOverlay();
+                        android.os.SystemProperties.set(
+                                "sys.gammaos.nano.app_launched", "0");
+                        android.os.SystemProperties.set(
+                                "sys.gammaos.nano.restart", "1");
+                        return true;
+                    }
+
                     // Verify retroarch.cfg exists via the underlying filesystem path
                     // (FUSE may not be mounted yet, but /data/media/0 is accessible to system)
                     if (nanoApp.equals("com.retroarch.aarch64")) {
@@ -1754,7 +1821,11 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                         sNanoLaunchInProgress = false;
                     }
                     // Remove black overlay after app has time to draw first frame
-                    mService.mH.postDelayed(() -> hideNanoBlankOverlay(), 800);
+                    // and reset crash counter (app survived long enough)
+                    mService.mH.postDelayed(() -> {
+                        hideNanoBlankOverlay();
+                        sNanoCrashCount = 0;
+                    }, 800);
                     // Re-enable input dispatch after RetroArch has time to get focus.
                     // The nano menu set sys.gammaos.nano.drop_input=1 to make
                     // InputDispatcher silently drop events during the transition.

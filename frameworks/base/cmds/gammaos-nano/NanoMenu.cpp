@@ -16,6 +16,7 @@
 
 #define LOG_TAG "GammaOSNano"
 
+#include <algorithm>
 #include <fcntl.h>
 #include <dirent.h>
 #include <unistd.h>
@@ -219,155 +220,33 @@ static const int kNumActiveEffects = sizeof(kActiveEffects) / sizeof(kActiveEffe
 static int sActiveEffectIdx = 0;
 
 // ---------------------------------------------------------------------------
-// Font data (8x16 CP437 bitmap, ASCII 32..126)
+// Font layout constants (kept for layout compatibility)
 // ---------------------------------------------------------------------------
-
-// clang-format off
-static const uint8_t kFont8x16[][16] = {
-    {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0x18,0x3C,0x3C,0x3C,0x18,0x18,0x18,0x00,0x18,0x18,0x00,0x00,0x00,0x00},
-    {0x00,0x66,0x66,0x66,0x24,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0x00,0x6C,0x6C,0xFE,0x6C,0x6C,0x6C,0xFE,0x6C,0x6C,0x00,0x00,0x00,0x00},
-    {0x18,0x18,0x7C,0xC6,0xC2,0xC0,0x7C,0x06,0x06,0x86,0xC6,0x7C,0x18,0x18,0x00,0x00},
-    {0x00,0x00,0x00,0x00,0xC2,0xC6,0x0C,0x18,0x30,0x60,0xC6,0x86,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0x38,0x6C,0x6C,0x38,0x76,0xDC,0xCC,0xCC,0xCC,0x76,0x00,0x00,0x00,0x00},
-    {0x00,0x30,0x30,0x30,0x60,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0x0C,0x18,0x30,0x30,0x30,0x30,0x30,0x30,0x18,0x0C,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0x30,0x18,0x0C,0x0C,0x0C,0x0C,0x0C,0x0C,0x18,0x30,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0x00,0x00,0x00,0x66,0x3C,0xFF,0x3C,0x66,0x00,0x00,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0x00,0x00,0x00,0x18,0x18,0x7E,0x18,0x18,0x00,0x00,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x18,0x18,0x18,0x30,0x00,0x00,0x00},
-    {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0xFE,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x18,0x18,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0x00,0x00,0x02,0x06,0x0C,0x18,0x30,0x60,0xC0,0x80,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0x7C,0xC6,0xC6,0xCE,0xDE,0xF6,0xE6,0xC6,0xC6,0x7C,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0x18,0x38,0x78,0x18,0x18,0x18,0x18,0x18,0x18,0x7E,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0x7C,0xC6,0x06,0x0C,0x18,0x30,0x60,0xC0,0xC6,0xFE,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0x7C,0xC6,0x06,0x06,0x3C,0x06,0x06,0x06,0xC6,0x7C,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0x0C,0x1C,0x3C,0x6C,0xCC,0xFE,0x0C,0x0C,0x0C,0x1E,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0xFE,0xC0,0xC0,0xC0,0xFC,0x06,0x06,0x06,0xC6,0x7C,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0x38,0x60,0xC0,0xC0,0xFC,0xC6,0xC6,0xC6,0xC6,0x7C,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0xFE,0xC6,0x06,0x06,0x0C,0x18,0x30,0x30,0x30,0x30,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0x7C,0xC6,0xC6,0xC6,0x7C,0xC6,0xC6,0xC6,0xC6,0x7C,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0x7C,0xC6,0xC6,0xC6,0x7E,0x06,0x06,0x06,0x0C,0x78,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0x00,0x00,0x18,0x18,0x00,0x00,0x00,0x18,0x18,0x00,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0x00,0x00,0x18,0x18,0x00,0x00,0x00,0x18,0x18,0x30,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0x00,0x06,0x0C,0x18,0x30,0x60,0x30,0x18,0x0C,0x06,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0x00,0x00,0x00,0x7E,0x00,0x00,0x7E,0x00,0x00,0x00,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0x00,0x60,0x30,0x18,0x0C,0x06,0x0C,0x18,0x30,0x60,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0x7C,0xC6,0xC6,0x0C,0x18,0x18,0x18,0x00,0x18,0x18,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0x7C,0xC6,0xC6,0xC6,0xDE,0xDE,0xDE,0xDC,0xC0,0x7C,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0x10,0x38,0x6C,0xC6,0xC6,0xFE,0xC6,0xC6,0xC6,0xC6,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0xFC,0x66,0x66,0x66,0x7C,0x66,0x66,0x66,0x66,0xFC,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0x3C,0x66,0xC2,0xC0,0xC0,0xC0,0xC0,0xC2,0x66,0x3C,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0xF8,0x6C,0x66,0x66,0x66,0x66,0x66,0x66,0x6C,0xF8,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0xFE,0x66,0x62,0x68,0x78,0x68,0x60,0x62,0x66,0xFE,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0xFE,0x66,0x62,0x68,0x78,0x68,0x60,0x60,0x60,0xF0,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0x3C,0x66,0xC2,0xC0,0xC0,0xDE,0xC6,0xC6,0x66,0x3A,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0xC6,0xC6,0xC6,0xC6,0xFE,0xC6,0xC6,0xC6,0xC6,0xC6,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0x3C,0x18,0x18,0x18,0x18,0x18,0x18,0x18,0x18,0x3C,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0x1E,0x0C,0x0C,0x0C,0x0C,0x0C,0xCC,0xCC,0xCC,0x78,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0xE6,0x66,0x6C,0x6C,0x78,0x78,0x6C,0x66,0x66,0xE6,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0xF0,0x60,0x60,0x60,0x60,0x60,0x60,0x62,0x66,0xFE,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0xC6,0xEE,0xFE,0xFE,0xD6,0xC6,0xC6,0xC6,0xC6,0xC6,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0xC6,0xE6,0xF6,0xFE,0xDE,0xCE,0xC6,0xC6,0xC6,0xC6,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0x7C,0xC6,0xC6,0xC6,0xC6,0xC6,0xC6,0xC6,0xC6,0x7C,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0xFC,0x66,0x66,0x66,0x7C,0x60,0x60,0x60,0x60,0xF0,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0x7C,0xC6,0xC6,0xC6,0xC6,0xC6,0xC6,0xD6,0xDE,0x7C,0x0C,0x0E,0x00,0x00},
-    {0x00,0x00,0xFC,0x66,0x66,0x66,0x7C,0x6C,0x66,0x66,0x66,0xE6,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0x7C,0xC6,0xC6,0x60,0x38,0x0C,0x06,0xC6,0xC6,0x7C,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0xFF,0xDB,0x99,0x18,0x18,0x18,0x18,0x18,0x18,0x3C,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0xC6,0xC6,0xC6,0xC6,0xC6,0xC6,0xC6,0xC6,0xC6,0x7C,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0xC6,0xC6,0xC6,0xC6,0xC6,0xC6,0xC6,0x6C,0x38,0x10,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0xC6,0xC6,0xC6,0xC6,0xC6,0xD6,0xD6,0xFE,0x6C,0x6C,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0xC6,0xC6,0x6C,0x7C,0x38,0x38,0x7C,0x6C,0xC6,0xC6,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0xCC,0xCC,0xCC,0xCC,0x78,0x30,0x30,0x30,0x30,0x78,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0xFE,0xC6,0x86,0x0C,0x18,0x30,0x60,0xC2,0xC6,0xFE,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0x3C,0x30,0x30,0x30,0x30,0x30,0x30,0x30,0x30,0x3C,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0x00,0x80,0xC0,0xE0,0x70,0x38,0x1C,0x0E,0x06,0x02,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0x3C,0x0C,0x0C,0x0C,0x0C,0x0C,0x0C,0x0C,0x0C,0x3C,0x00,0x00,0x00,0x00},
-    {0x10,0x38,0x6C,0xC6,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0xFF,0x00,0x00,0x00},
-    {0x00,0x30,0x18,0x0C,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0x00,0x00,0x00,0x78,0x0C,0x7C,0xCC,0xCC,0xCC,0x76,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0xE0,0x60,0x60,0x78,0x6C,0x66,0x66,0x66,0x66,0x7C,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0x00,0x00,0x00,0x7C,0xC6,0xC0,0xC0,0xC0,0xC6,0x7C,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0x1C,0x0C,0x0C,0x3C,0x6C,0xCC,0xCC,0xCC,0xCC,0x76,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0x00,0x00,0x00,0x7C,0xC6,0xFE,0xC0,0xC0,0xC6,0x7C,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0x1C,0x36,0x32,0x30,0x78,0x30,0x30,0x30,0x30,0x78,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0x00,0x00,0x00,0x76,0xCC,0xCC,0xCC,0xCC,0xCC,0x7C,0x0C,0xCC,0x78,0x00},
-    {0x00,0x00,0xE0,0x60,0x60,0x6C,0x76,0x66,0x66,0x66,0x66,0xE6,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0x18,0x18,0x00,0x38,0x18,0x18,0x18,0x18,0x18,0x3C,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0x06,0x06,0x00,0x0E,0x06,0x06,0x06,0x06,0x06,0x06,0x66,0x66,0x3C,0x00},
-    {0x00,0x00,0xE0,0x60,0x60,0x66,0x6C,0x78,0x78,0x6C,0x66,0xE6,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0x38,0x18,0x18,0x18,0x18,0x18,0x18,0x18,0x18,0x3C,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0x00,0x00,0x00,0xEC,0xFE,0xD6,0xD6,0xD6,0xD6,0xC6,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0x00,0x00,0x00,0xDC,0x66,0x66,0x66,0x66,0x66,0x66,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0x00,0x00,0x00,0x7C,0xC6,0xC6,0xC6,0xC6,0xC6,0x7C,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0x00,0x00,0x00,0xDC,0x66,0x66,0x66,0x66,0x66,0x7C,0x60,0x60,0xF0,0x00},
-    {0x00,0x00,0x00,0x00,0x00,0x76,0xCC,0xCC,0xCC,0xCC,0xCC,0x7C,0x0C,0x0C,0x1E,0x00},
-    {0x00,0x00,0x00,0x00,0x00,0xDC,0x76,0x66,0x60,0x60,0x60,0xF0,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0x00,0x00,0x00,0x7C,0xC6,0x60,0x38,0x0C,0xC6,0x7C,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0x10,0x30,0x30,0xFC,0x30,0x30,0x30,0x30,0x36,0x1C,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0x00,0x00,0x00,0xCC,0xCC,0xCC,0xCC,0xCC,0xCC,0x76,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0x00,0x00,0x00,0xC6,0xC6,0xC6,0xC6,0x6C,0x38,0x10,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0x00,0x00,0x00,0xC6,0xC6,0xD6,0xD6,0xD6,0xFE,0x6C,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0x00,0x00,0x00,0xC6,0x6C,0x38,0x38,0x38,0x6C,0xC6,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0x00,0x00,0x00,0xC6,0xC6,0xC6,0xC6,0xC6,0xC6,0x7E,0x06,0x0C,0xF8,0x00},
-    {0x00,0x00,0x00,0x00,0x00,0xFE,0xCC,0x18,0x30,0x60,0xC6,0xFE,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0x0E,0x18,0x18,0x18,0x70,0x18,0x18,0x18,0x18,0x0E,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0x18,0x18,0x18,0x18,0x00,0x18,0x18,0x18,0x18,0x18,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0x70,0x18,0x18,0x18,0x0E,0x18,0x18,0x18,0x18,0x70,0x00,0x00,0x00,0x00},
-    {0x00,0x00,0x76,0xDC,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00},
-};
-// clang-format on
 
 static const int FONT_CHAR_W = 8;
 static const int FONT_CHAR_H = 16;
-static const int FONT_FIRST_CHAR = 32;
-static const int FONT_LAST_CHAR = 126;
 
-static GLuint createFontTexture() {
-    const int numChars = FONT_LAST_CHAR - FONT_FIRST_CHAR + 1;
-    const int atlasW = FONT_CHAR_W * numChars;
-    const int atlasH = FONT_CHAR_H;
-    std::vector<uint8_t> pixels(atlasW * atlasH, 0);
-    for (int ch = 0; ch < numChars; ch++) {
-        for (int row = 0; row < FONT_CHAR_H; row++) {
-            uint8_t bits = kFont8x16[ch][row];
-            for (int col = 0; col < FONT_CHAR_W; col++) {
-                if ((bits >> (7 - col)) & 1)
-                    pixels[row * atlasW + ch * FONT_CHAR_W + col] = 255;
-            }
-        }
-    }
-    GLuint tex;
-    glGenTextures(1, &tex);
-    glBindTexture(GL_TEXTURE_2D, tex);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, atlasW, atlasH, 0,
-                 GL_LUMINANCE, GL_UNSIGNED_BYTE, pixels.data());
-    return tex;
-}
-
-// Text rendering shader
+// Text rendering shader (per-vertex color for emoji support)
 static const char TEXT_VERTEX_SHADER[] = R"(
-    attribute vec4 aPosition;
+    attribute vec2 aPosition;
     attribute vec2 aTexCoord;
+    attribute vec4 aColor;
     varying vec2 vTexCoord;
-    void main() { gl_Position = aPosition; vTexCoord = aTexCoord; }
+    varying vec4 vColor;
+    void main() {
+        gl_Position = vec4(aPosition, 0.0, 1.0);
+        vTexCoord = aTexCoord;
+        vColor = aColor;
+    }
 )";
 static const char TEXT_FRAGMENT_SHADER[] = R"(
     precision mediump float;
     varying vec2 vTexCoord;
+    varying vec4 vColor;
     uniform sampler2D uTexture;
-    uniform vec4 uColor;
     void main() {
-        float alpha = texture2D(uTexture, vTexCoord).r;
-        gl_FragColor = vec4(uColor.rgb, uColor.a * alpha);
+        vec4 texel = texture2D(uTexture, vTexCoord);
+        gl_FragColor = texel * vColor;
     }
 )";
 
@@ -400,12 +279,7 @@ static GLuint linkProgram(GLuint vs, GLuint fs) {
     return prog;
 }
 
-static GLuint sTextProgram = 0;
-static GLint  sTextLocPosition = -1;
-static GLint  sTextLocTexCoord = -1;
-static GLint  sTextLocTexture = -1;
-static GLint  sTextLocColor = -1;
-static GLuint sFontTexture = 0;
+
 
 // ---------------------------------------------------------------------------
 // Random helpers
@@ -459,19 +333,31 @@ NanoMenu::NanoMenu()
       mRecentSelectedIndex(0),
       mRecentLoaded(false),
       mStorageReady(false),
+      mAppSelectedIndex(0),
+      mAppsLoaded(false),
       mScrollOffset(0.0f),
       mScrollDir(1),
       mScrollPause(0),
       mLastScrolledIdx(-1),
+      mMenuScrollTop(0),
       mSelectHeld(false),
       mBrightness(128), mMaxBrightness(255),
       mShowBrightnessBar(false), mBrightnessBarTimer(0),
       mCurrentEffect(1),
       mEffectTime(0.0f),
-      mQuickResumeEnabled(false) {
+      mQuickResumeEnabled(false),
+      mFtLib(nullptr),
+      mFtNumFaces(0),
+      mFontSize(48),
+      mGlyphAtlasTex(0),
+      mAtlasW(0), mAtlasH(0),
+      mAtlasCurX(0), mAtlasCurY(0), mAtlasRowH(0),
+      mTextProgram(0), mTextLocPosition(-1), mTextLocTexCoord(-1),
+      mTextLocColor(-1), mTextLocTexture(-1) {
     mSession = new SurfaceComposerClient();
     srand(elapsedRealtime());
     memset(mParticles, 0, sizeof(mParticles));
+    memset(mFtFaces, 0, sizeof(mFtFaces));
     // Randomize starting effect (skip index 0 which is "None")
     sActiveEffectIdx = 1 + (rand() % (kNumActiveEffects - 1));
     mCurrentEffect = kActiveEffects[sActiveEffectIdx];
@@ -535,9 +421,14 @@ void NanoMenu::adjustBrightness(int direction) {
 }
 
 void NanoMenu::buildMenu() {
+    // Reset launch_app to default so RetroArch launches work after returning
+    // from a non-RetroArch app launched via the Applications submenu.
+    property_set("sys.gammaos.nano.launch_app", "com.retroarch.aarch64");
+
     mMenuItems.clear();
     mMenuItems.push_back({"RetroArch (Nano)"});
     mMenuItems.push_back({"Recently Played"});
+    mMenuItems.push_back({"Applications"});
     mMenuItems.push_back({"Boot Android"});
     mMenuItems.push_back({"Recovery Mode"});
     mMenuItems.push_back({"Safe Mode"});
@@ -546,6 +437,7 @@ void NanoMenu::buildMenu() {
     mSelectedIndex = 0;
     mMenuState = MENU_MAIN;
     mRecentSelectedIndex = 0;
+    mAppSelectedIndex = 0;
 
     // If returning from a game launched via Recently Played, go straight back
     char returnRecent[PROPERTY_VALUE_MAX] = {};
@@ -561,6 +453,19 @@ void NanoMenu::buildMenu() {
         mMenuState = MENU_RECENT;
         mRecentSelectedIndex = 0;
         ALOGD("NanoMenu: returning to Recently Played after game exit");
+    }
+    // If returning from an app launched via Applications, go straight back
+    char returnApps[PROPERTY_VALUE_MAX] = {};
+    property_get("sys.gammaos.nano.return_apps", returnApps, "0");
+    if (!strcmp(returnApps, "1")) {
+        property_set("sys.gammaos.nano.return_apps", "0");
+        mSelectedIndex = 2; // "Applications"
+        if (mStorageReady) {
+            loadInstalledApps();
+        }
+        mMenuState = MENU_APPS;
+        mAppSelectedIndex = 0;
+        ALOGD("NanoMenu: returning to Applications after app exit");
     }
     mDisplayDirty = true;
 }
@@ -618,6 +523,23 @@ void NanoMenu::rebuildDisplayItems() {
             mSubtitle = buf;
         }
         mFooter = "DPAD/VOL: Nav | A/PWR: Select | B: Back | R: Quick Resume";
+    } else if (mMenuState == MENU_APPS) {
+        mTitle = "Applications";
+        for (const auto& app : mAppEntries) {
+            mDisplayItems.push_back(app.label);
+        }
+        mDisplayItems.push_back("< Back");
+        if (!mStorageReady) {
+            mSubtitle = "Please wait, unlocking storage...";
+        } else if (mAppEntries.empty()) {
+            mSubtitle = "No installed apps found";
+        } else {
+            char buf[64];
+            snprintf(buf, sizeof(buf), "%zu app%s", mAppEntries.size(),
+                     mAppEntries.size() == 1 ? "" : "s");
+            mSubtitle = buf;
+        }
+        mFooter = "DPAD/VOL: Nav | A/PWR: Select | B: Back | HOME: Return";
     } else {
         mTitle = "GammaOS Nano";
         for (const auto& item : mMenuItems) {
@@ -719,10 +641,130 @@ void NanoMenu::loadRecentPlaylist() {
     ALOGD("NanoMenu: loaded %zu recent entries from %s", mRecentEntries.size(), path);
 }
 
+void NanoMenu::loadInstalledApps() {
+    mAppEntries.clear();
+    mAppsLoaded = false;
+    // Parse /data/system/packages.list — the authoritative package database.
+    // Format: <pkg> <uid> <debug> <dataDir> <seinfo> <gids> <prof> <ver> <hasCode> <installer>
+    // User-installed apps have @null as the last field (no system partition).
+    const char* path = "/data/system/packages.list";
+    int fd = open(path, O_RDONLY);
+    if (fd < 0) {
+        ALOGW("NanoMenu: cannot open %s: %s", path, strerror(errno));
+        return;
+    }
+    mAppsLoaded = true;
+    struct stat st;
+    if (fstat(fd, &st) < 0 || st.st_size <= 0 || st.st_size > 2 * 1024 * 1024) {
+        close(fd);
+        return;
+    }
+    std::string content(st.st_size, '\0');
+    ssize_t bytesRead = read(fd, &content[0], st.st_size);
+    close(fd);
+    if (bytesRead <= 0) return;
+    content.resize(bytesRead);
+
+    // Parse line by line
+    size_t pos = 0;
+    while (pos < content.size()) {
+        size_t eol = content.find('\n', pos);
+        if (eol == std::string::npos) eol = content.size();
+        std::string line = content.substr(pos, eol - pos);
+        pos = eol + 1;
+        if (line.empty()) continue;
+
+        // Only include user-installed apps (installer = @null)
+        if (line.size() < 6 || line.substr(line.size() - 5) != "@null") continue;
+
+        // Extract package name (first field, space-delimited)
+        size_t space = line.find(' ');
+        if (space == std::string::npos) continue;
+        std::string pkgName = line.substr(0, space);
+
+        // Skip RetroArch, system-like, and internal packages
+        if (pkgName == "com.retroarch.aarch64") continue;
+        if (pkgName.find("com.android.") == 0) continue;
+        if (pkgName.find("org.lineageos.") == 0) continue;
+        if (pkgName.find("com.gammaos.") == 0) continue;
+        if (pkgName.find("com.topjohnwu.") == 0) continue;
+
+        // Build a human-readable label from the package name:
+        // take the last segment and capitalize first letter
+        std::string label = pkgName;
+        size_t lastDot = pkgName.rfind('.');
+        if (lastDot != std::string::npos && lastDot + 1 < pkgName.size()) {
+            label = pkgName.substr(lastDot + 1);
+            if (!label.empty() && label[0] >= 'a' && label[0] <= 'z') {
+                label[0] -= 32; // capitalize
+            }
+        }
+        // Replace underscores with spaces for readability
+        for (char& c : label) {
+            if (c == '_') c = ' ';
+        }
+        AppEntry app;
+        app.packageName = pkgName;
+        app.label = label;
+        mAppEntries.push_back(app);
+    }
+    // Resolve actual app labels from the cache written by SystemServer.
+    // Format: "package.name|Human Label\n"
+    {
+        const char* labelPath = "/data/system/nano_app_labels.txt";
+        int labelFd = open(labelPath, O_RDONLY);
+        if (labelFd >= 0) {
+            struct stat labelSt;
+            if (fstat(labelFd, &labelSt) == 0 && labelSt.st_size > 0
+                    && labelSt.st_size < 512 * 1024) {
+                std::string labelContent(labelSt.st_size, '\0');
+                ssize_t labelRead = read(labelFd, &labelContent[0], labelSt.st_size);
+                if (labelRead > 0) {
+                    labelContent.resize(labelRead);
+                    size_t lpos = 0;
+                    while (lpos < labelContent.size()) {
+                        size_t leol = labelContent.find('\n', lpos);
+                        if (leol == std::string::npos) leol = labelContent.size();
+                        std::string lline = labelContent.substr(lpos, leol - lpos);
+                        lpos = leol + 1;
+                        size_t lpipe = lline.find('|');
+                        if (lpipe == std::string::npos) continue;
+                        std::string lpkg = lline.substr(0, lpipe);
+                        std::string llabel = lline.substr(lpipe + 1);
+                        if (llabel.empty()) continue;
+                        for (auto& app : mAppEntries) {
+                            if (app.packageName == lpkg) {
+                                app.label = llabel;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            close(labelFd);
+        } else {
+            ALOGW("NanoMenu: label cache not available yet: %s", strerror(errno));
+        }
+    }
+
+    // Sort alphabetically by label
+    std::sort(mAppEntries.begin(), mAppEntries.end(),
+              [](const AppEntry& a, const AppEntry& b) {
+                  return a.label < b.label;
+              });
+    ALOGD("NanoMenu: loaded %zu installed apps from packages.list", mAppEntries.size());
+}
+
 void NanoMenu::handleBack() {
     if (mMenuState == MENU_RECENT) {
         mMenuState = MENU_MAIN;
         mRecentSelectedIndex = 0;
+        mMenuScrollTop = 0;
+        mDisplayDirty = true;
+    } else if (mMenuState == MENU_APPS) {
+        mMenuState = MENU_MAIN;
+        mAppSelectedIndex = 0;
+        mMenuScrollTop = 0;
         mDisplayDirty = true;
     }
 }
@@ -797,6 +839,28 @@ void NanoMenu::handleSelect() {
         return;
     }
 
+    if (mMenuState == MENU_APPS) {
+        int numApps = (int)mAppEntries.size();
+        // Last item is "< Back"
+        if (mAppSelectedIndex >= numApps) {
+            handleBack();
+            return;
+        }
+        // Launch the selected app
+        const auto& app = mAppEntries[mAppSelectedIndex];
+        ALOGI("NanoMenu: launching app: %s", app.packageName.c_str());
+        android::base::SetProperty("sys.gammaos.nano.launch_app", app.packageName);
+        // Clear any ROM/core properties so RootWindowContainer uses generic launch
+        android::base::SetProperty("sys.gammaos.nano.launch_rom", "");
+        android::base::SetProperty("sys.gammaos.nano.launch_core", "");
+        // Flag so next nano menu restart returns to Applications
+        property_set("sys.gammaos.nano.return_apps", "1");
+        property_set("service.bootanim.nano_retroarch", "1");
+        property_set("sys.gammaos.nano.drop_input", "1");
+        mWaitForRelease = true;
+        return;
+    }
+
     // Main menu
     ALOGD("Select item %d: %s", mSelectedIndex, mMenuItems[mSelectedIndex].label.c_str());
     const auto& label = mMenuItems[mSelectedIndex].label;
@@ -810,6 +874,14 @@ void NanoMenu::handleSelect() {
         loadRecentPlaylist();
         mMenuState = MENU_RECENT;
         mRecentSelectedIndex = 0;
+        mMenuScrollTop = 0;
+        mDisplayDirty = true;
+    } else if (label == "Applications") {
+        if (!mStorageReady) return; // greyed out, ignore
+        loadInstalledApps();
+        mMenuState = MENU_APPS;
+        mAppSelectedIndex = 0;
+        mMenuScrollTop = 0;
         mDisplayDirty = true;
     } else if (label == "Boot Android") {
         // Full Android needs a clean boot.  Dispatch via nano_action so
@@ -820,31 +892,35 @@ void NanoMenu::handleSelect() {
     } else if (label == "Safe Mode") {
         property_set("service.bootanim.nano_action", "safemode");
     } else if (label == "Reboot") {
-        if (mQuickResumeEnabled) {
-            prepareQuickResume("reboot");
-        } else {
-            property_set("service.bootanim.nano_action", "reboot");
-        }
+        prepareShutdown("reboot");
     } else if (label == "Power Off") {
-        if (mQuickResumeEnabled) {
-            prepareQuickResume("shutdown");
-        } else {
-            property_set("service.bootanim.nano_action", "shutdown");
-        }
+        prepareShutdown("shutdown");
     }
 }
 
 void NanoMenu::handleUp() {
     if (mMenuState == MENU_RECENT) {
         if (mRecentSelectedIndex > 0) mRecentSelectedIndex--;
+    } else if (mMenuState == MENU_APPS) {
+        if (mAppSelectedIndex > 0) mAppSelectedIndex--;
     } else {
         if (mSelectedIndex > 0) {
             mSelectedIndex--;
-            // Skip greyed-out "Recently Played" when storage isn't ready
-            if (!mStorageReady && mSelectedIndex < (int)mMenuItems.size()
-                && mMenuItems[mSelectedIndex].label == "Recently Played"
-                && mSelectedIndex > 0) {
-                mSelectedIndex--;
+            // Skip greyed-out items when storage isn't ready
+            if (!mStorageReady && mSelectedIndex < (int)mMenuItems.size()) {
+                const auto& lbl = mMenuItems[mSelectedIndex].label;
+                if ((lbl == "Recently Played" || lbl == "Applications")
+                    && mSelectedIndex > 0) {
+                    mSelectedIndex--;
+                    // Check again for the other greyed item
+                    if (!mStorageReady && mSelectedIndex < (int)mMenuItems.size()) {
+                        const auto& lbl2 = mMenuItems[mSelectedIndex].label;
+                        if ((lbl2 == "Recently Played" || lbl2 == "Applications")
+                            && mSelectedIndex > 0) {
+                            mSelectedIndex--;
+                        }
+                    }
+                }
             }
         }
     }
@@ -854,15 +930,28 @@ void NanoMenu::handleDown() {
     if (mMenuState == MENU_RECENT) {
         int maxIdx = (int)mRecentEntries.size(); // "< Back" is at this index
         if (mRecentSelectedIndex < maxIdx) mRecentSelectedIndex++;
+    } else if (mMenuState == MENU_APPS) {
+        int maxIdx = (int)mAppEntries.size(); // "< Back" is at this index
+        if (mAppSelectedIndex < maxIdx) mAppSelectedIndex++;
     } else {
         int last = (int)mMenuItems.size() - 1;
         if (mSelectedIndex < last) {
             mSelectedIndex++;
-            // Skip greyed-out "Recently Played" when storage isn't ready
-            if (!mStorageReady && mSelectedIndex < (int)mMenuItems.size()
-                && mMenuItems[mSelectedIndex].label == "Recently Played"
-                && mSelectedIndex < last) {
-                mSelectedIndex++;
+            // Skip greyed-out items when storage isn't ready
+            if (!mStorageReady && mSelectedIndex < (int)mMenuItems.size()) {
+                const auto& lbl = mMenuItems[mSelectedIndex].label;
+                if ((lbl == "Recently Played" || lbl == "Applications")
+                    && mSelectedIndex < last) {
+                    mSelectedIndex++;
+                    // Check again for the other greyed item
+                    if (!mStorageReady && mSelectedIndex < (int)mMenuItems.size()) {
+                        const auto& lbl2 = mMenuItems[mSelectedIndex].label;
+                        if ((lbl2 == "Recently Played" || lbl2 == "Applications")
+                            && mSelectedIndex < last) {
+                            mSelectedIndex++;
+                        }
+                    }
+                }
             }
         }
     }
@@ -1284,11 +1373,11 @@ void NanoMenu::initShaders() {
     }
     {   GLuint vs = compileShader(GL_VERTEX_SHADER, TEXT_VERTEX_SHADER);
         GLuint fs = compileShader(GL_FRAGMENT_SHADER, TEXT_FRAGMENT_SHADER);
-        sTextProgram = linkProgram(vs, fs);
-        sTextLocPosition = glGetAttribLocation(sTextProgram, "aPosition");
-        sTextLocTexCoord = glGetAttribLocation(sTextProgram, "aTexCoord");
-        sTextLocTexture  = glGetUniformLocation(sTextProgram, "uTexture");
-        sTextLocColor    = glGetUniformLocation(sTextProgram, "uColor");
+        mTextProgram = linkProgram(vs, fs);
+        mTextLocPosition = glGetAttribLocation(mTextProgram, "aPosition");
+        mTextLocTexCoord = glGetAttribLocation(mTextProgram, "aTexCoord");
+        mTextLocColor    = glGetAttribLocation(mTextProgram, "aColor");
+        mTextLocTexture  = glGetUniformLocation(mTextProgram, "uTexture");
         glDeleteShader(vs); glDeleteShader(fs);
     }
     {   GLuint vs = compileShader(GL_VERTEX_SHADER, PARTICLE_VERTEX_SHADER);
@@ -1307,7 +1396,7 @@ void NanoMenu::initShaders() {
         mFxLocEffect     = glGetUniformLocation(mFxProgram, "uEffect");
         glDeleteShader(vs); glDeleteShader(fs);
     }
-    sFontTexture = createFontTexture();
+    initFonts();
 }
 
 // ---------------------------------------------------------------------------
@@ -1329,31 +1418,239 @@ void NanoMenu::drawQuad(float x, float y, float w, float h,
     glDisableVertexAttribArray(mLocPosition);
 }
 
-// Batched text: builds vertex+UV arrays for the entire string, draws once.
-// Max 256 chars per call (1536 vertices). Reduces ~100 draw calls to ~10.
+// ---------------------------------------------------------------------------
+// FreeType font initialization
+// ---------------------------------------------------------------------------
+
+void NanoMenu::initFonts() {
+    if (FT_Init_FreeType(&mFtLib) != 0) {
+        ALOGE("NanoMenu: FreeType init failed");
+        return;
+    }
+    mFtNumFaces = 0;
+    const char* fontPaths[] = {
+        "/system/fonts/Roboto-Regular.ttf",
+        "/system/fonts/DroidSans.ttf",
+        "/system/fonts/NotoColorEmoji.ttf",
+    };
+    for (const char* path : fontPaths) {
+        if (mFtNumFaces >= MAX_FT_FACES) break;
+        if (FT_New_Face(mFtLib, path, 0, &mFtFaces[mFtNumFaces]) == 0) {
+            ALOGD("NanoMenu: loaded font: %s", path);
+            mFtNumFaces++;
+        } else {
+            ALOGW("NanoMenu: failed to load font: %s", path);
+        }
+    }
+    mFontSize = 48; // base render size
+    for (int i = 0; i < mFtNumFaces; i++) {
+        if (!FT_HAS_COLOR(mFtFaces[i])) {
+            FT_Set_Pixel_Sizes(mFtFaces[i], 0, mFontSize);
+        }
+    }
+    // Create RGBA glyph atlas
+    mAtlasW = 2048;
+    mAtlasH = 2048;
+    mAtlasCurX = 1; // start at 1 to avoid bleeding from edge
+    mAtlasCurY = 1;
+    mAtlasRowH = 0;
+    glGenTextures(1, &mGlyphAtlasTex);
+    glBindTexture(GL_TEXTURE_2D, mGlyphAtlasTex);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    std::vector<uint8_t> blank(mAtlasW * mAtlasH * 4, 0);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, mAtlasW, mAtlasH, 0,
+                 GL_RGBA, GL_UNSIGNED_BYTE, blank.data());
+    ALOGD("NanoMenu: font atlas %dx%d, %d faces loaded", mAtlasW, mAtlasH, mFtNumFaces);
+}
+
+// ---------------------------------------------------------------------------
+// Glyph caching
+// ---------------------------------------------------------------------------
+
+void NanoMenu::ensureGlyph(uint32_t cp) {
+    if (mGlyphCache.count(cp)) return;
+    if (mFtNumFaces == 0) return;
+
+    FT_Face face = nullptr;
+    FT_UInt gi = 0;
+    bool isColorFace = false;
+    for (int i = 0; i < mFtNumFaces; i++) {
+        gi = FT_Get_Char_Index(mFtFaces[i], cp);
+        if (gi != 0) {
+            face = mFtFaces[i];
+            isColorFace = FT_HAS_COLOR(face);
+            break;
+        }
+    }
+    if (!face) {
+        // Fallback to '?' in primary font
+        face = mFtFaces[0];
+        gi = FT_Get_Char_Index(face, '?');
+        isColorFace = false;
+    }
+    if (!face || gi == 0) return;
+
+    // For emoji, select a strike size close to our font size
+    if (isColorFace && FT_HAS_FIXED_SIZES(face)) {
+        int bestIdx = 0;
+        int bestDiff = 99999;
+        for (int i = 0; i < face->num_fixed_sizes; i++) {
+            int diff = abs(face->available_sizes[i].height - mFontSize);
+            if (diff < bestDiff) { bestDiff = diff; bestIdx = i; }
+        }
+        FT_Select_Size(face, bestIdx);
+    } else if (!isColorFace) {
+        FT_Set_Pixel_Sizes(face, 0, mFontSize);
+    }
+
+    FT_Int32 loadFlags = FT_LOAD_RENDER;
+    if (isColorFace) loadFlags |= FT_LOAD_COLOR;
+    if (FT_Load_Glyph(face, gi, loadFlags) != 0) return;
+
+    FT_Bitmap* bmp = &face->glyph->bitmap;
+    int bw = (int)bmp->width;
+    int bh = (int)bmp->rows;
+    bool isColor = (bmp->pixel_mode == FT_PIXEL_MODE_BGRA);
+
+    // Pack into atlas (row-based, simple packer)
+    if (bw > 0 && bh > 0) {
+        if (mAtlasCurX + bw + 1 > mAtlasW) {
+            mAtlasCurX = 1;
+            mAtlasCurY += mAtlasRowH + 1;
+            mAtlasRowH = 0;
+        }
+        if (mAtlasCurY + bh + 1 > mAtlasH) {
+            ALOGW("NanoMenu: glyph atlas full at cp=%u", cp);
+            return;
+        }
+
+        // Convert to RGBA
+        std::vector<uint8_t> rgba(bw * bh * 4, 0);
+        for (int y = 0; y < bh; y++) {
+            for (int x = 0; x < bw; x++) {
+                int di = (y * bw + x) * 4;
+                if (isColor) {
+                    int si = y * bmp->pitch + x * 4;
+                    rgba[di + 0] = bmp->buffer[si + 2]; // B->R
+                    rgba[di + 1] = bmp->buffer[si + 1]; // G->G
+                    rgba[di + 2] = bmp->buffer[si + 0]; // R->B
+                    rgba[di + 3] = bmp->buffer[si + 3]; // A
+                } else {
+                    uint8_t a = bmp->buffer[y * bmp->pitch + x];
+                    rgba[di + 0] = 255;
+                    rgba[di + 1] = 255;
+                    rgba[di + 2] = 255;
+                    rgba[di + 3] = a;
+                }
+            }
+        }
+        glBindTexture(GL_TEXTURE_2D, mGlyphAtlasTex);
+        glTexSubImage2D(GL_TEXTURE_2D, 0, mAtlasCurX, mAtlasCurY,
+                        bw, bh, GL_RGBA, GL_UNSIGNED_BYTE, rgba.data());
+    }
+
+    GlyphInfo info = {};
+    if (bw > 0 && bh > 0) {
+        info.u0 = (float)mAtlasCurX / mAtlasW;
+        info.v0 = (float)mAtlasCurY / mAtlasH;
+        info.u1 = (float)(mAtlasCurX + bw) / mAtlasW;
+        info.v1 = (float)(mAtlasCurY + bh) / mAtlasH;
+    }
+    info.bmpW = bw;
+    info.bmpH = bh;
+    info.bearingX = face->glyph->bitmap_left;
+    info.bearingY = face->glyph->bitmap_top;
+    info.advance = (int)(face->glyph->advance.x >> 6);
+    info.color = isColor;
+
+    // For emoji, compute scale factor to normalize to mFontSize
+    if (isColor && bh > 0) {
+        float s = (float)mFontSize / (float)bh;
+        info.scaleW = s;
+        info.scaleH = s;
+        info.advance = mFontSize; // square emoji advance
+    } else {
+        info.scaleW = 1.0f;
+        info.scaleH = 1.0f;
+    }
+
+    mGlyphCache[cp] = info;
+
+    if (bw > 0 && bh > 0) {
+        mAtlasCurX += bw + 1;
+        if (bh + 1 > mAtlasRowH) mAtlasRowH = bh + 1;
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Text measurement and rendering
+// ---------------------------------------------------------------------------
+
+float NanoMenu::measureText(const char* str, float scale) {
+    if (!str || !*str) return 0.0f;
+    float pixelScale = (FONT_CHAR_H * scale) / (float)mFontSize;
+    float width = 0.0f;
+    for (const char* p = str; *p; ) {
+        uint32_t cp;
+        uint8_t b0 = (uint8_t)*p;
+        if (b0 < 0x80) { cp = b0; p++; }
+        else if ((b0 & 0xE0) == 0xC0) { cp = ((b0 & 0x1F) << 6) | (p[1] & 0x3F); p += 2; }
+        else if ((b0 & 0xF0) == 0xE0) { cp = ((b0 & 0x0F) << 12) | ((p[1] & 0x3F) << 6) | (p[2] & 0x3F); p += 3; }
+        else if ((b0 & 0xF8) == 0xF0) { cp = ((b0 & 0x07) << 18) | ((p[1] & 0x3F) << 12) | ((p[2] & 0x3F) << 6) | (p[3] & 0x3F); p += 4; }
+        else { p++; continue; }
+        ensureGlyph(cp);
+        auto it = mGlyphCache.find(cp);
+        if (it != mGlyphCache.end()) {
+            width += it->second.advance * it->second.scaleW * pixelScale;
+        }
+    }
+    return width;
+}
+
 static const int TEXT_MAX_CHARS = 256;
 static GLfloat sTextVerts[TEXT_MAX_CHARS * 6 * 2];
 static GLfloat sTextUVs[TEXT_MAX_CHARS * 6 * 2];
+static GLfloat sTextColors[TEXT_MAX_CHARS * 6 * 4];
 
-static void drawText(const char* str, float px, float py,
-                     float scale, float screenW, float screenH,
-                     float r, float g, float b, float a) {
-    if (!str || !*str) return;
-    const int numCharsInAtlas = FONT_LAST_CHAR - FONT_FIRST_CHAR + 1;
-    const float charTexW = 1.0f / numCharsInAtlas;
-    float charW = FONT_CHAR_W * scale;
-    float charH = FONT_CHAR_H * scale;
-    float invW = 2.0f / screenW, invH = 2.0f / screenH;
+void NanoMenu::drawText(const char* str, float px, float py, float scale,
+                        float r, float g, float b, float a) {
+    if (!str || !*str || mFtNumFaces == 0) return;
+    float pixelScale = (FONT_CHAR_H * scale) / (float)mFontSize;
+    float invW = 2.0f / mWidth, invH = 2.0f / mHeight;
+    // baseline: py is the top of the text area, add ascent to get baseline
+    float baseline = py + mFontSize * pixelScale * 0.8f; // approximate ascent at 80%
     int n = 0;
-    for (const char* p = str; *p && n < TEXT_MAX_CHARS; p++, n++) {
-        char ch = *p;
-        if (ch < FONT_FIRST_CHAR || ch > FONT_LAST_CHAR) ch = '?';
-        int idx = ch - FONT_FIRST_CHAR;
-        float u0 = idx * charTexW, u1 = u0 + charTexW;
-        float x0 = px * invW - 1.0f;
-        float y1 = 1.0f - py * invH;
-        float x1 = (px + charW) * invW - 1.0f;
-        float y0 = 1.0f - (py + charH) * invH;
+    for (const char* p = str; *p && n < TEXT_MAX_CHARS; ) {
+        uint32_t cp;
+        uint8_t b0 = (uint8_t)*p;
+        if (b0 < 0x80) { cp = b0; p++; }
+        else if ((b0 & 0xE0) == 0xC0) { cp = ((b0 & 0x1F) << 6) | (p[1] & 0x3F); p += 2; }
+        else if ((b0 & 0xF0) == 0xE0) { cp = ((b0 & 0x0F) << 12) | ((p[1] & 0x3F) << 6) | (p[2] & 0x3F); p += 3; }
+        else if ((b0 & 0xF8) == 0xF0) { cp = ((b0 & 0x07) << 18) | ((p[1] & 0x3F) << 12) | ((p[2] & 0x3F) << 6) | (p[3] & 0x3F); p += 4; }
+        else { p++; continue; }
+
+        ensureGlyph(cp);
+        auto it = mGlyphCache.find(cp);
+        if (it == mGlyphCache.end()) continue;
+        const GlyphInfo& gi = it->second;
+        if (gi.bmpW == 0 || gi.bmpH == 0) {
+            px += gi.advance * gi.scaleW * pixelScale;
+            continue;
+        }
+
+        float gw = gi.bmpW * gi.scaleW * pixelScale;
+        float gh = gi.bmpH * gi.scaleH * pixelScale;
+        float gx = px + gi.bearingX * gi.scaleW * pixelScale;
+        float gy = baseline - gi.bearingY * gi.scaleH * pixelScale;
+
+        float x0 = gx * invW - 1.0f;
+        float y0 = 1.0f - (gy + gh) * invH;
+        float x1 = (gx + gw) * invW - 1.0f;
+        float y1 = 1.0f - gy * invH;
+
         int vi = n * 12;
         sTextVerts[vi]= x0; sTextVerts[vi+1]= y0;
         sTextVerts[vi+2]= x1; sTextVerts[vi+3]= y0;
@@ -1362,26 +1659,42 @@ static void drawText(const char* str, float px, float py,
         sTextVerts[vi+8]= x0; sTextVerts[vi+9]= y1;
         sTextVerts[vi+10]= x0; sTextVerts[vi+11]= y0;
         int ui = n * 12;
-        sTextUVs[ui]= u0; sTextUVs[ui+1]= 1;
-        sTextUVs[ui+2]= u1; sTextUVs[ui+3]= 1;
-        sTextUVs[ui+4]= u1; sTextUVs[ui+5]= 0;
-        sTextUVs[ui+6]= u1; sTextUVs[ui+7]= 0;
-        sTextUVs[ui+8]= u0; sTextUVs[ui+9]= 0;
-        sTextUVs[ui+10]= u0; sTextUVs[ui+11]= 1;
-        px += charW;
+        sTextUVs[ui]= gi.u0; sTextUVs[ui+1]= gi.v1;
+        sTextUVs[ui+2]= gi.u1; sTextUVs[ui+3]= gi.v1;
+        sTextUVs[ui+4]= gi.u1; sTextUVs[ui+5]= gi.v0;
+        sTextUVs[ui+6]= gi.u1; sTextUVs[ui+7]= gi.v0;
+        sTextUVs[ui+8]= gi.u0; sTextUVs[ui+9]= gi.v0;
+        sTextUVs[ui+10]= gi.u0; sTextUVs[ui+11]= gi.v1;
+        // Per-vertex color: for color emoji use white (pass-through), else use text color
+        float cr = gi.color ? 1.0f : r;
+        float cg = gi.color ? 1.0f : g;
+        float cb = gi.color ? 1.0f : b;
+        float ca = a;
+        int ci = n * 24;
+        for (int v = 0; v < 6; v++) {
+            sTextColors[ci + v*4] = cr;
+            sTextColors[ci + v*4 + 1] = cg;
+            sTextColors[ci + v*4 + 2] = cb;
+            sTextColors[ci + v*4 + 3] = ca;
+        }
+        px += gi.advance * gi.scaleW * pixelScale;
+        n++;
     }
-    glUseProgram(sTextProgram);
+    if (n == 0) return;
+    glUseProgram(mTextProgram);
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, sFontTexture);
-    glUniform1i(sTextLocTexture, 0);
-    glUniform4f(sTextLocColor, r, g, b, a);
-    glVertexAttribPointer(sTextLocPosition, 2, GL_FLOAT, GL_FALSE, 0, sTextVerts);
-    glEnableVertexAttribArray(sTextLocPosition);
-    glVertexAttribPointer(sTextLocTexCoord, 2, GL_FLOAT, GL_FALSE, 0, sTextUVs);
-    glEnableVertexAttribArray(sTextLocTexCoord);
+    glBindTexture(GL_TEXTURE_2D, mGlyphAtlasTex);
+    glUniform1i(mTextLocTexture, 0);
+    glVertexAttribPointer(mTextLocPosition, 2, GL_FLOAT, GL_FALSE, 0, sTextVerts);
+    glEnableVertexAttribArray(mTextLocPosition);
+    glVertexAttribPointer(mTextLocTexCoord, 2, GL_FLOAT, GL_FALSE, 0, sTextUVs);
+    glEnableVertexAttribArray(mTextLocTexCoord);
+    glVertexAttribPointer(mTextLocColor, 4, GL_FLOAT, GL_FALSE, 0, sTextColors);
+    glEnableVertexAttribArray(mTextLocColor);
     glDrawArrays(GL_TRIANGLES, 0, n * 6);
-    glDisableVertexAttribArray(sTextLocPosition);
-    glDisableVertexAttribArray(sTextLocTexCoord);
+    glDisableVertexAttribArray(mTextLocPosition);
+    glDisableVertexAttribArray(mTextLocTexCoord);
+    glDisableVertexAttribArray(mTextLocColor);
 }
 
 // ---------------------------------------------------------------------------
@@ -1413,18 +1726,20 @@ void NanoMenu::render() {
     // Rebuild display items only when state changes (avoids per-frame heap allocs)
     if (mDisplayDirty) rebuildDisplayItems();
 
-    // Poll storage while in Recent submenu — auto-load once available
-    if (mMenuState == MENU_RECENT && !mStorageReady) {
+    // Poll storage while in submenu — auto-load once available
+    if ((mMenuState == MENU_RECENT || mMenuState == MENU_APPS) && !mStorageReady) {
         if (access("/data/media/0", R_OK) == 0) {
             mStorageReady = true;
-            loadRecentPlaylist();
+            if (mMenuState == MENU_RECENT) loadRecentPlaylist();
+            else loadInstalledApps();
             mDisplayDirty = true;
             rebuildDisplayItems();
         }
     }
 
     float menuScale = 3.0f * sf;
-    int currentSelected = (mMenuState == MENU_RECENT) ? mRecentSelectedIndex : mSelectedIndex;
+    int currentSelected = (mMenuState == MENU_APPS) ? mAppSelectedIndex
+                        : (mMenuState == MENU_RECENT) ? mRecentSelectedIndex : mSelectedIndex;
     int numItems = (int)mDisplayItems.size();
 
     // Element heights
@@ -1443,25 +1758,25 @@ void NanoMenu::render() {
     // Place heading using the main menu's item count (7) so the title,
     // subtitle, separator, and footer stay at identical positions regardless
     // of which menu state is active.
-    int layoutItems = 7; // main menu item count — used as the reference layout
+    int layoutItems = 8; // main menu item count — used as the reference layout
     float menuContentH = titleH + gap1 + subH + gap2 + sepH + gap3
                         + layoutItems * itemH + (layoutItems - 1) * itemSpacing;
     float startY = (mHeight - menuContentH) / 6.0f;
     if (startY < 10.0f) startY = 10.0f;
 
     // Title
-    float titleW = mTitle.size() * FONT_CHAR_W * titleScale;
+    float titleW = measureText(mTitle.c_str(), titleScale);
     float titleX = (mWidth - titleW) / 2.0f;
     float titleY = startY;
     drawText(mTitle.c_str(), titleX, titleY, titleScale,
-             mWidth, mHeight, 0.0f, 0.85f, 1.0f, 1.0f);
+             0.0f, 0.85f, 1.0f, 1.0f);
 
     // Subtitle
-    float subW = mSubtitle.size() * FONT_CHAR_W * subScale;
+    float subW = measureText(mSubtitle.c_str(), subScale);
     float subX = (mWidth - subW) / 2.0f;
     float subY = titleY + titleH + gap1;
     drawText(mSubtitle.c_str(), subX, subY, subScale,
-             mWidth, mHeight, 0.5f, 0.5f, 0.6f, 1.0f);
+             0.5f, 0.5f, 0.6f, 1.0f);
 
     // Separator
     float sepY = subY + subH + gap2;
@@ -1475,13 +1790,41 @@ void NanoMenu::render() {
     float maxTextW = mWidth * 0.85f - menuX;
     float charW = FONT_CHAR_W * menuScale;
 
-    for (int i = 0; i < numItems; i++) {
-        float itemY = menuStartY + i * (itemH + itemSpacing);
+    // Calculate how many items fit on screen (between menu start and footer)
+    float footY = mHeight - footH - startY;
+    float availableH = footY - menuStartY - 10.0f * sf;
+    int maxVisibleItems = (int)(availableH / (itemH + itemSpacing));
+    if (maxVisibleItems < 1) maxVisibleItems = 1;
+
+    // Vertical scrolling for submenus with more items than fit
+    if (mMenuState != MENU_MAIN && numItems > maxVisibleItems) {
+        // Ensure selected item is visible
+        if (currentSelected < mMenuScrollTop) {
+            mMenuScrollTop = currentSelected;
+        } else if (currentSelected >= mMenuScrollTop + maxVisibleItems) {
+            mMenuScrollTop = currentSelected - maxVisibleItems + 1;
+        }
+        // Clamp
+        if (mMenuScrollTop > numItems - maxVisibleItems) {
+            mMenuScrollTop = numItems - maxVisibleItems;
+        }
+        if (mMenuScrollTop < 0) mMenuScrollTop = 0;
+    } else {
+        mMenuScrollTop = 0;
+    }
+
+    int renderEnd = (mMenuState != MENU_MAIN && numItems > maxVisibleItems)
+                  ? mMenuScrollTop + maxVisibleItems : numItems;
+    if (renderEnd > numItems) renderEnd = numItems;
+
+    for (int i = mMenuScrollTop; i < renderEnd; i++) {
+        float itemY = menuStartY + (i - mMenuScrollTop) * (itemH + itemSpacing);
         bool selected = (i == currentSelected);
 
-        // Grey out "Recently Played" in main menu when storage isn't ready
+        // Grey out "Recently Played" and "Applications" in main menu when storage isn't ready
         bool greyed = (mMenuState == MENU_MAIN && !mStorageReady
-                       && mDisplayItems[i] == "Recently Played");
+                       && (mDisplayItems[i] == "Recently Played"
+                           || mDisplayItems[i] == "Applications"));
 
         if (selected && !greyed) {
             drawQuad(mWidth * 0.10f, itemY - 4.0f * sf,
@@ -1500,19 +1843,22 @@ void NanoMenu::render() {
 
         // Draw prefix at fixed position
         float prefixW = 2 * charW; // "> " or "  " is always 2 chars
-        drawText(prefix, menuX, itemY, menuScale, mWidth, mHeight, r, g, b, 1.0f);
+        drawText(prefix, menuX, itemY, menuScale, r, g, b, 1.0f);
 
         // Content area: from after prefix to end of blue selection bar
         float contentLeft = menuX + prefixW;
         float contentRight = mWidth * 0.90f; // right edge of selection bar
         float contentW = contentRight - contentLeft;
-        float textW = mDisplayItems[i].size() * charW;
+        float textW = measureText(mDisplayItems[i].c_str(), menuScale);
 
         // Horizontal scroll for selected items that overflow (Recently Played)
         float drawX = contentLeft;
         bool scrolling = false;
-        if (selected && !greyed && mMenuState == MENU_RECENT
-            && textW > contentW && i < (int)mRecentEntries.size()) {
+        if (selected && !greyed
+            && (mMenuState == MENU_RECENT || mMenuState == MENU_APPS)
+            && textW > contentW
+            && ((mMenuState == MENU_RECENT && i < (int)mRecentEntries.size())
+                || (mMenuState == MENU_APPS && i < (int)mAppEntries.size()))) {
             scrolling = true;
             // Reset scroll when selection changes
             if (mLastScrolledIdx != i) {
@@ -1542,24 +1888,25 @@ void NanoMenu::render() {
         // Scissor clip: all game entries in MENU_RECENT clip at the bar's right edge.
         // Selected items clip at both left and right (for scroll), unselected only right.
         bool needsClip = scrolling
-            || (mMenuState == MENU_RECENT && i < (int)mRecentEntries.size()
-                && textW > contentW);
+            || ((mMenuState == MENU_RECENT && i < (int)mRecentEntries.size()
+                 && textW > contentW)
+                || (mMenuState == MENU_APPS && i < (int)mAppEntries.size()
+                    && textW > contentW));
         if (needsClip) {
             glEnable(GL_SCISSOR_TEST);
             glScissor((int)contentLeft, 0, (int)contentW, mHeight);
         }
         drawText(mDisplayItems[i].c_str(), drawX, itemY, menuScale,
-                 mWidth, mHeight, r, g, b, 1.0f);
+                 r, g, b, 1.0f);
         if (needsClip) {
             glDisable(GL_SCISSOR_TEST);
         }
     }
 
-    // Footer
-    float footW = mFooter.size() * FONT_CHAR_W * footScale;
+    // Footer (footY already computed above for scroll calculations)
+    float footW = measureText(mFooter.c_str(), footScale);
     float footX = (mWidth - footW) / 2.0f;
-    float footY = mHeight - footH - startY;
-    drawText(mFooter.c_str(), footX, footY, footScale, mWidth, mHeight, 0.4f, 0.4f, 0.5f, 1.0f);
+    drawText(mFooter.c_str(), footX, footY, footScale, 0.4f, 0.4f, 0.5f, 1.0f);
 
     // Brightness bar overlay
     renderBrightnessBar();
@@ -1570,7 +1917,7 @@ void NanoMenu::render() {
         float dotSize = 10.0f * sf;
         float pad = 15.0f * sf;
         const char* qrLabel = "Quick Resume";
-        float qrLabelW = strlen(qrLabel) * FONT_CHAR_W * qrScale;
+        float qrLabelW = measureText(qrLabel, qrScale);
         float qrX = mWidth - qrLabelW - pad;
         float dotX = qrX + qrLabelW / 2.0f - dotSize / 2.0f;
         float dotY = pad;
@@ -1578,11 +1925,11 @@ void NanoMenu::render() {
         if (mQuickResumeEnabled) {
             drawQuad(dotX, dotY, dotSize, dotSize, 0.0f, 0.85f, 0.0f, 1.0f);
             drawText(qrLabel, qrX, labelY, qrScale,
-                     mWidth, mHeight, 0.4f, 0.7f, 0.4f, 0.8f);
+                     0.4f, 0.7f, 0.4f, 0.8f);
         } else {
             drawQuad(dotX, dotY, dotSize, dotSize, 0.85f, 0.0f, 0.0f, 1.0f);
             drawText(qrLabel, qrX, labelY, qrScale,
-                     mWidth, mHeight, 0.5f, 0.35f, 0.35f, 0.6f);
+                     0.5f, 0.35f, 0.35f, 0.6f);
         }
     }
 
@@ -1605,7 +1952,7 @@ void NanoMenu::renderBrightnessBar() {
     float pad = 12.0f * sf;
     float iconScale = 1.5f * sf;
     float textScale = 1.5f * sf;
-    float iconW = 8 * FONT_CHAR_W * iconScale; // "*" sun symbol
+    float iconW = measureText("*", iconScale);
     float bgW = iconW + pad + barW + pad + 50.0f * sf;
     float bgH = barH + pad * 2;
     float bgX = (mWidth - bgW) / 2.0f;
@@ -1617,7 +1964,7 @@ void NanoMenu::renderBrightnessBar() {
     // Sun icon "*"
     float iconX = bgX + pad;
     float iconY = bgY + (bgH - FONT_CHAR_H * iconScale) / 2.0f;
-    drawText("*", iconX, iconY, iconScale, mWidth, mHeight, 1.0f, 0.9f, 0.3f, 1.0f);
+    drawText("*", iconX, iconY, iconScale, 1.0f, 0.9f, 0.3f, 1.0f);
 
     // Progress bar background
     float barX = iconX + iconW;
@@ -1634,7 +1981,7 @@ void NanoMenu::renderBrightnessBar() {
     snprintf(pctStr, sizeof(pctStr), "%d%%", pct);
     float textX = barX + barW + pad;
     float textY = bgY + (bgH - FONT_CHAR_H * textScale) / 2.0f;
-    drawText(pctStr, textX, textY, textScale, mWidth, mHeight, 1.0f, 1.0f, 1.0f, 1.0f);
+    drawText(pctStr, textX, textY, textScale, 1.0f, 1.0f, 1.0f, 1.0f);
 }
 
 // ---------------------------------------------------------------------------
@@ -1690,17 +2037,17 @@ bool NanoMenu::threadLoop() {
                     glEnable(GL_BLEND);
                     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
                     const char* msg = "Quick Resuming...";
-                    float msgW = strlen(msg) * FONT_CHAR_W * loadScale;
+                    float msgW = measureText(msg, loadScale);
                     float msgX = (mWidth - msgW) / 2.0f;
                     float msgY = (mHeight - FONT_CHAR_H * loadScale) / 2.0f;
                     drawText(msg, msgX, msgY, loadScale,
-                             mWidth, mHeight, 0.6f, 0.6f, 0.7f, 1.0f);
+                             0.6f, 0.6f, 0.7f, 1.0f);
                     const char* hint = "Hold SELECT to cancel";
-                    float hintW = strlen(hint) * FONT_CHAR_W * hintScale;
+                    float hintW = measureText(hint, hintScale);
                     float hintX = (mWidth - hintW) / 2.0f;
                     float hintY = msgY + FONT_CHAR_H * loadScale + 20.0f * sf;
                     drawText(hint, hintX, hintY, hintScale,
-                             mWidth, mHeight, 0.4f, 0.4f, 0.5f, 1.0f);
+                             0.4f, 0.4f, 0.5f, 1.0f);
                     glDisable(GL_BLEND);
                     eglSwapBuffers(mDisplay, mSurface);
                     usleep(50000); // 50ms per frame, ~1s total
@@ -1735,7 +2082,8 @@ bool NanoMenu::threadLoop() {
         // Adaptive framerate: 20fps for effects, ~10fps when idle.
         bool animating = (mCurrentEffect != 0) || mShowBrightnessBar
                          || mWaitForRelease
-                         || (mMenuState == MENU_RECENT && mScrollOffset > 0.0f);
+                         || ((mMenuState == MENU_RECENT || mMenuState == MENU_APPS)
+                             && mScrollOffset > 0.0f);
         int frameTimeUs = animating ? 50000 : 100000; // 20fps vs 10fps
         float dt = animating ? (1.0f / 20.0f) : (1.0f / 10.0f);
         mEffectTime += dt;
@@ -1787,11 +2135,11 @@ bool NanoMenu::threadLoop() {
             glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             const char* loadMsg = "Loading...";
-            float loadW = strlen(loadMsg) * FONT_CHAR_W * loadScale;
+            float loadW = measureText(loadMsg, loadScale);
             float loadX = (mWidth - loadW) / 2.0f;
             float loadY = (mHeight - FONT_CHAR_H * loadScale) / 2.0f;
             drawText(loadMsg, loadX, loadY, loadScale,
-                     mWidth, mHeight, 0.6f, 0.6f, 0.7f, 1.0f);
+                     0.6f, 0.6f, 0.7f, 1.0f);
             glDisable(GL_BLEND);
             eglSwapBuffers(mDisplay, mSurface);
 
@@ -1843,31 +2191,32 @@ bool NanoMenu::isRetroArchRunning() {
     return false;
 }
 
-void NanoMenu::prepareQuickResume(const char* action) {
-    // If RetroArch is still running, send ESC to close it gracefully
+void NanoMenu::prepareShutdown(const char* action) {
+    // Always close RetroArch gracefully if running (saves state via ESC)
     if (isRetroArchRunning()) {
-        ALOGI("Quick Resume: RetroArch still running, sending ESC");
+        ALOGI("NanoMenu: RetroArch still running, sending ESC to close gracefully");
         property_set("sys.gammaos.nano.qr_send_esc", "1");
-        // Wait for RetroArch to exit (max 5 seconds)
         for (int i = 0; i < 50 && isRetroArchRunning(); i++) {
             usleep(100000); // 100ms
         }
         if (isRetroArchRunning()) {
-            ALOGW("Quick Resume: RetroArch did not exit after ESC, proceeding anyway");
+            ALOGW("NanoMenu: RetroArch did not exit after ESC, proceeding anyway");
         }
     }
 
-    // Load the most recent playlist entry
-    loadRecentPlaylist();
-    if (!mRecentEntries.empty()) {
-        const auto& entry = mRecentEntries[0];
-        android::base::SetProperty("persist.gammaos.nano.qr_rom", entry.romPath);
-        android::base::SetProperty("persist.gammaos.nano.qr_core", entry.corePath);
-        property_set("persist.gammaos.nano.qr_prepared", "1");
-        ALOGI("Quick Resume: saved ROM=%s CORE=%s",
-              entry.romPath.c_str(), entry.corePath.c_str());
-    } else {
-        ALOGW("Quick Resume: no recent entries found, skipping save");
+    // Quick Resume: save ROM/core for auto-launch on next boot
+    if (mQuickResumeEnabled) {
+        loadRecentPlaylist();
+        if (!mRecentEntries.empty()) {
+            const auto& entry = mRecentEntries[0];
+            android::base::SetProperty("persist.gammaos.nano.qr_rom", entry.romPath);
+            android::base::SetProperty("persist.gammaos.nano.qr_core", entry.corePath);
+            property_set("persist.gammaos.nano.qr_prepared", "1");
+            ALOGI("Quick Resume: saved ROM=%s CORE=%s",
+                  entry.romPath.c_str(), entry.corePath.c_str());
+        } else {
+            ALOGW("Quick Resume: no recent entries found, skipping save");
+        }
     }
 
     // Proceed with the requested action

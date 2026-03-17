@@ -488,12 +488,10 @@ public final class ShutdownThread extends Thread {
         metricShutdownStart();
         metricStarted(METRIC_SYSTEM_SERVER);
 
-        // GammaOS Nano: Quick Resume — save the current game before shutdown
-        // so we can boot straight back into it on next nano boot.
-        // Only runs in nano mode with quick resume enabled.
-        if (SystemProperties.getBoolean("sys.gammaos.minimal_boot", false)
-                && SystemProperties.getBoolean(
-                        "persist.gammaos.nano.quick_resume", false)) {
+        // GammaOS Nano: always close RetroArch gracefully before shutdown
+        // so it can save state. If Quick Resume is also enabled, save the
+        // ROM/core for auto-launch on next boot.
+        if (SystemProperties.getBoolean("sys.gammaos.minimal_boot", false)) {
             nanoQuickResumePrepare();
         }
 
@@ -995,6 +993,14 @@ public final class ShutdownThread extends Thread {
                 }
             }
 
+            // Quick Resume: save ROM/core for auto-launch on next boot
+            // (only if Quick Resume is enabled)
+            if (!SystemProperties.getBoolean(
+                    "persist.gammaos.nano.quick_resume", false)) {
+                Slog.i(TAG, "GammaOS Nano: Quick Resume not enabled, "
+                        + "skipping playlist save");
+                return;
+            }
             // Read the RetroArch content history playlist and save the
             // most recent entry to persist properties.
             java.io.File playlist = new java.io.File(

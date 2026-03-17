@@ -5456,6 +5456,48 @@ class Task extends TaskFragment {
             return null;
         }
         if (r.isActivityTypeHome() && mAtmService.mHomeProcess == app) {
+            // GammaOS Nano: in minimal boot mode, if the nano app keeps crashing
+            // as a home activity, force-stop it and restart the nano menu instead
+            // of letting the system endlessly restart it.
+            if (android.os.SystemProperties.getBoolean("sys.gammaos.minimal_boot", false)
+                    && "1".equals(android.os.SystemProperties.get(
+                            "sys.gammaos.nano.app_launched", "0"))) {
+                final String nanoApp = android.os.SystemProperties.get(
+                        "sys.gammaos.nano.launch_app", "com.retroarch.aarch64");
+                if (r.packageName != null && r.packageName.equals(nanoApp)) {
+                    Slog.e(TAG, "GammaOS Nano: home activity " + nanoApp
+                            + " crashed, returning to nano menu");
+                    // Set killing guard and reset state synchronously to
+                    // block any concurrent startHomeOnTaskDisplayArea calls.
+                    android.os.SystemProperties.set(
+                            "sys.gammaos.nano.killing", "1");
+                    android.os.SystemProperties.set(
+                            "sys.gammaos.nano.app_launched", "0");
+                    android.os.SystemProperties.set(
+                            "sys.gammaos.nano.drop_input", "0");
+                    android.os.SystemProperties.set(
+                            "sys.gammaos.nano.launch_app", "com.retroarch.aarch64");
+                    // Defer force-stop and restart to handler — the nano menu's
+                    // first instance needs time to exit before init can start
+                    // a new one (oneshot service can't restart while running).
+                    final String appToKill = nanoApp;
+                    mAtmService.mH.postDelayed(() -> {
+                        try {
+                            android.app.IActivityManager am =
+                                    android.app.ActivityManager.getService();
+                            am.forceStopPackage(appToKill,
+                                    android.os.UserHandle.USER_SYSTEM);
+                        } catch (Exception ex) {
+                            Slog.w(TAG, "GammaOS Nano: force-stop failed", ex);
+                        }
+                        android.os.SystemProperties.set(
+                                "sys.gammaos.nano.restart", "1");
+                        android.os.SystemProperties.set(
+                                "sys.gammaos.nano.killing", "0");
+                    }, 2000); // 2s delay for nano menu exit
+                    return null;
+                }
+            }
             // Home activities should not be force-finished as we have nothing else to go
             // back to. AppErrors will get to it after two crashes in MIN_CRASH_INTERVAL.
             Slog.w(TAG, "  Not force finishing home activity "

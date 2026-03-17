@@ -30,6 +30,7 @@ cc_binary {
         "libgui",
         "libEGL",
         "libGLESv2",
+        "libft2",
     ],
 
     init_rc: ["gammaos-nano.rc"],

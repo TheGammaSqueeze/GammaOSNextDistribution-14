@@ -1753,6 +1753,18 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     }
 
     private void backLongPress() {
+        // GammaOS Nano: in nano mode, long-press back on RetroArch sends ESC
+        // (save state, close gracefully). For other apps, use the normal behavior.
+        if (android.os.SystemProperties.getBoolean("sys.gammaos.minimal_boot", false)
+                && "1".equals(android.os.SystemProperties.get(
+                        "sys.gammaos.nano.app_launched", "0"))) {
+            String fgApp = getForegroundAppPackageName();
+            if (fgApp != null && fgApp.toLowerCase().contains("retroarch")) {
+                triggerVirtualKeypress(KeyEvent.KEYCODE_ESCAPE);
+                return;
+            }
+        }
+
         // When retroarch override is enabled...
         if (SystemProperties.getInt("persist.gammaos.retroarchoverride.backbutton", 0) == 1) {
             // If the block flag is set due to a concurrent physical key, consume the event.
@@ -2191,6 +2203,15 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     private void handleShortPressOnHome(KeyEvent event) {
         logKeyboardSystemsEvent(event, KeyboardLogEvent.HOME);
 
+        // GammaOS Nano: if in minimal boot mode and an app is running,
+        // force-stop the app and restart the nano menu
+        if (android.os.SystemProperties.getBoolean("sys.gammaos.minimal_boot", false)
+                && "1".equals(android.os.SystemProperties.get(
+                        "sys.gammaos.nano.app_launched", "0"))) {
+            nanoKillAppAndRestart();
+            return;
+        }
+
         // Turn on the connected TV and switch HDMI input if we're a HDMI playback device.
         final HdmiControl hdmiControl = getHdmiControl();
         if (hdmiControl != null) {
@@ -2207,6 +2228,32 @@ public class PhoneWindowManager implements WindowManagerPolicy {
 
         // Go home!
         launchHomeFromHotKey(event.getDisplayId());
+    }
+
+    private void nanoKillAppAndRestart() {
+        final String nanoAppPkg = android.os.SystemProperties.get(
+                "sys.gammaos.nano.launch_app", "com.retroarch.aarch64");
+        Slog.i(TAG, "GammaOS Nano: killing " + nanoAppPkg + " and returning to nano menu");
+        // Set guard to prevent RootWindowContainer from launching anything
+        // while we're tearing down the current app.
+        android.os.SystemProperties.set("sys.gammaos.nano.killing", "1");
+        // Reset state BEFORE force-stop to prevent RootWindowContainer from
+        // re-launching the app when it detects the process death.
+        android.os.SystemProperties.set("sys.gammaos.nano.app_launched", "0");
+        android.os.SystemProperties.set("sys.gammaos.nano.launch_app",
+                "com.retroarch.aarch64");
+        android.os.SystemProperties.set("sys.gammaos.nano.drop_input", "0");
+        try {
+            android.app.ActivityManager am = (android.app.ActivityManager)
+                    mContext.getSystemService(android.content.Context.ACTIVITY_SERVICE);
+            am.forceStopPackage(nanoAppPkg);
+        } catch (Exception e) {
+            Slog.w(TAG, "GammaOS Nano: force-stop failed", e);
+        }
+        // Directly trigger nano menu restart via init property
+        android.os.SystemProperties.set("sys.gammaos.nano.restart", "1");
+        // Clear guard after restart is triggered
+        android.os.SystemProperties.set("sys.gammaos.nano.killing", "0");
     }
 
     /**

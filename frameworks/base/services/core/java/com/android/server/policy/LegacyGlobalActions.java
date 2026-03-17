@@ -579,6 +579,7 @@ class LegacyGlobalActions implements DialogInterface.OnDismissListener, DialogIn
             mItems.add(0, getBrightnessAction());
             mBrightnessItemPosition = 0;
             mItems.add(getPerformanceAction());
+            mItems.add(getKillForegroundAppAction());
         } else {
             mBrightnessItemPosition = -1;
             mItems.add(getKillForegroundAppAction());
@@ -1044,6 +1045,17 @@ class LegacyGlobalActions implements DialogInterface.OnDismissListener, DialogIn
 
                         // Set sys.mem_clear=1 and then reset to 0 after 1 second
                         setMemoryClearProp();
+
+                        // In nano mode, trigger return to nano menu after kill
+                        if ("1".equals(SystemProperties.get("sys.gammaos.minimal_boot", "0"))
+                                && "1".equals(SystemProperties.get(
+                                        "sys.gammaos.nano.app_launched", "0"))) {
+                            SystemProperties.set("sys.gammaos.nano.app_launched", "0");
+                            SystemProperties.set("sys.gammaos.nano.launch_app",
+                                    "com.retroarch.aarch64");
+                            SystemProperties.set("sys.gammaos.nano.drop_input", "0");
+                            SystemProperties.set("sys.gammaos.nano.restart", "1");
+                        }
 
                     } catch (Exception e) {
                         Toast.makeText(mContext, "Close app error: " + e.getMessage(), Toast.LENGTH_LONG).show();

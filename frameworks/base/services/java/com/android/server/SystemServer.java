@@ -1450,16 +1450,17 @@ public final class SystemServer implements Dumpable {
         mSystemServiceManager.startService(ROLLBACK_MANAGER_SERVICE_CLASS);
         t.traceEnd();
 
-        // Tracks native tombstones.
-        t.traceBegin("StartNativeTombstoneManagerService");
-        mSystemServiceManager.startService(NativeTombstoneManagerService.class);
-        t.traceEnd();
-
         // Service to capture bugreports.
         t.traceBegin("StartBugreportManagerService");
         mSystemServiceManager.startService(BugreportManagerService.class);
         t.traceEnd();
         } // !minimalBootEarly: CachedDeviceState through Bugreport
+
+        // NativeTombstoneManager must start even in nano boot — apps with ad SDKs
+        // call getHistoricalProcessExitReasons() which NPEs without it.
+        t.traceBegin("StartNativeTombstoneManagerService");
+        mSystemServiceManager.startService(NativeTombstoneManagerService.class);
+        t.traceEnd();
 
         // Service for GPU and GPU driver.
         t.traceBegin("GpuService");
@@ -1885,13 +1886,13 @@ public final class SystemServer implements Dumpable {
             }
         }
 
-        if (!minimalBoot) {
-        // We start this here so that we update our configuration to set watch or television
-        // as appropriate.
+        // UiModeManager must start even in nano boot — many apps call
+        // UiModeManager.getCurrentModeType() in onCreate and crash if it's null.
         t.traceBegin("StartUiModeManager");
         mSystemServiceManager.startService(UiModeManagerService.class);
         t.traceEnd();
 
+        if (!minimalBoot) {
         t.traceBegin("StartLocaleManagerService");
         try {
             mSystemServiceManager.startService(LocaleManagerService.class);
@@ -3523,6 +3524,42 @@ public final class SystemServer implements Dumpable {
                     });
                 }
             }, "NanoRelaunchMonitor").start();
+
+            // Write app label cache for the nano menu (C++ side can't resolve
+            // resource-based labels). Runs once after user unlock so
+            // PackageManager can resolve all labels.
+            new Thread(() -> {
+                // Wait for user unlock so PM can resolve resource labels
+                while (!"1".equals(SystemProperties.get("sys.boot_completed"))) {
+                    try { Thread.sleep(200); } catch (InterruptedException ignored) {}
+                }
+                try { Thread.sleep(500); } catch (InterruptedException ignored) {}
+                try {
+                    android.content.pm.PackageManager pm = mSystemContext.getPackageManager();
+                    java.util.List<android.content.pm.ApplicationInfo> apps =
+                            pm.getInstalledApplications(
+                                    android.content.pm.PackageManager.MATCH_ALL);
+                    StringBuilder sb = new StringBuilder();
+                    for (android.content.pm.ApplicationInfo info : apps) {
+                        CharSequence label = pm.getApplicationLabel(info);
+                        if (label != null && label.length() > 0) {
+                            sb.append(info.packageName).append('|')
+                              .append(label).append('\n');
+                        }
+                    }
+                    java.io.File cacheFile = new java.io.File(
+                            "/data/system/nano_app_labels.txt");
+                    java.io.FileWriter fw = new java.io.FileWriter(cacheFile);
+                    fw.write(sb.toString());
+                    fw.close();
+                    // Make it readable by graphics group
+                    cacheFile.setReadable(true, false);
+                    Slog.i(TAG, "GammaOS Nano: wrote app label cache ("
+                            + apps.size() + " apps)");
+                } catch (Exception e) {
+                    Slog.w(TAG, "GammaOS Nano: failed to write app label cache", e);
+                }
+            }, "NanoLabelCache").start();
 
         }
 
