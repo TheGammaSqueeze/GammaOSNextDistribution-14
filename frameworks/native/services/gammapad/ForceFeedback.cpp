@@ -5,9 +5,15 @@
 
 #include <android-base/logging.h>
 #include <android-base/properties.h>
+#include <algorithm>
+#include <chrono>
+#include <dirent.h>
 #include <errno.h>
+#include <fcntl.h>
+#include <fstream>
 #include <stddef.h>
 #include <string.h>
+#include <sys/ioctl.h>
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <unistd.h>
@@ -17,26 +23,71 @@ namespace gammapad {
 static constexpr const char* BRIDGE_SOCKET_NAME = "gammapad_vibrate";
 static constexpr int MAX_EFFECTS = 16;
 
+// Resolve a device name (e.g. "sc27xx:vibrator") to its /dev/input/eventN path
+// by opening each event device and querying EVIOCGNAME.
+// If the input already starts with '/', return it as-is (literal path).
+static std::string resolveFFDevicePath(const std::string& nameOrPath) {
+    if (nameOrPath.empty()) return "";
+    if (nameOrPath[0] == '/') return nameOrPath;
+
+    std::string result;
+    for (int i = 0; i < 20; i++) {
+        std::string devPath = "/dev/input/event" + std::to_string(i);
+        int fd = open(devPath.c_str(), O_RDONLY);
+        if (fd < 0) continue;
+
+        char name[256] = {};
+        if (ioctl(fd, EVIOCGNAME(sizeof(name)), name) >= 0) {
+            // Trim trailing whitespace
+            size_t len = strlen(name);
+            while (len > 0 && (name[len-1] == '\n' || name[len-1] == ' '))
+                name[--len] = '\0';
+            if (nameOrPath == name) {
+                result = devPath;
+            }
+        }
+        close(fd);
+        if (!result.empty()) break;
+    }
+    return result;
+}
+
 ForceFeedback::ForceFeedback()
     : mPwmEnabled(true),
       mPwmIntensity(255),
-      mBridgeFd(-1) {
+      mBridgeFd(-1),
+      mDirectFFfd(-1),
+      mDirectFFEffectId(-1) {
 }
 
 ForceFeedback::~ForceFeedback() {
+    closeDirectFF();
     disconnectBridge();
 }
 
 void ForceFeedback::loadConfig() {
     using android::base::GetIntProperty;
+    using android::base::GetProperty;
 
     mPwmEnabled = GetIntProperty("persist.gammaos.gamepad.pwm_enable", 1) != 0;
     mPwmIntensity = GetIntProperty("persist.gammaos.gamepad.pwm_intensity", 255);
     if (mPwmIntensity < 0) mPwmIntensity = 0;
     if (mPwmIntensity > 255) mPwmIntensity = 255;
 
+    std::string ffDevice = GetProperty("persist.gammaos.gamepad.ff_vibrate_device", "");
+    std::string newPath = resolveFFDevicePath(ffDevice);
+    if (!ffDevice.empty() && newPath.empty()) {
+        LOG(WARNING) << "Could not resolve FF device: " << ffDevice;
+    }
+    if (newPath != mDirectFFPath) {
+        closeDirectFF();
+        mDirectFFPath = newPath;
+    }
+
     LOG(INFO) << "ForceFeedback config: pwm=" << mPwmEnabled
-              << " intensity=" << mPwmIntensity;
+              << " intensity=" << mPwmIntensity
+              << " directFF=" << (ffDevice.empty() ? "(none)" : ffDevice)
+              << " resolved=" << (mDirectFFPath.empty() ? "(none)" : mDirectFFPath);
 }
 
 bool ForceFeedback::connectBridge() {
@@ -199,11 +250,19 @@ void ForceFeedback::handlePlayStop(const struct input_event& ev,
             duration = 1000;
         }
 
-        sendPwmVibration(strong, weak, duration);
+        if (!mDirectFFPath.empty()) {
+            sendDirectFFVibration(strong, weak, duration);
+        } else {
+            sendPwmVibration(strong, weak, duration);
+        }
     } else if (!play) {
         // Stop vibration
         LOG(INFO) << "FF PWM stop";
-        sendPwmVibration(0, 0, 0);
+        if (!mDirectFFPath.empty()) {
+            sendDirectFFVibration(0, 0, 0);
+        } else {
+            sendPwmVibration(0, 0, 0);
+        }
     }
 }
 
@@ -213,8 +272,12 @@ void ForceFeedback::cancelDevice(int physicalFd) {
         devIt->second.playing = false;
         ++devIt;
     }
-    // Send stop to bridge
-    sendPwmVibration(0, 0, 0);
+    // Send stop
+    if (!mDirectFFPath.empty()) {
+        sendDirectFFVibration(0, 0, 0);
+    } else {
+        sendPwmVibration(0, 0, 0);
+    }
 }
 
 void ForceFeedback::sendPwmVibration(uint16_t strong, uint16_t weak,
@@ -255,6 +318,226 @@ void ForceFeedback::sendPwmVibration(uint16_t strong, uint16_t weak,
     } else {
         LOG(INFO) << "Bridge send OK: " << n << " bytes";
     }
+}
+
+bool ForceFeedback::openDirectFF() {
+    if (mDirectFFfd >= 0) return true;
+    if (mDirectFFPath.empty()) return false;
+
+    mDirectFFfd = open(mDirectFFPath.c_str(), O_RDWR);
+    if (mDirectFFfd < 0) {
+        LOG(WARNING) << "Failed to open direct FF device " << mDirectFFPath
+                     << ": " << strerror(errno);
+        return false;
+    }
+
+    // Verify the device supports FF_RUMBLE
+    // Use uint8_t array to avoid unsigned long size ambiguity across architectures
+    uint8_t ffBits[(FF_MAX / 8) + 1] = {};
+    if (ioctl(mDirectFFfd, EVIOCGBIT(EV_FF, sizeof(ffBits)), ffBits) < 0) {
+        LOG(WARNING) << "Cannot query FF capabilities: " << strerror(errno);
+        close(mDirectFFfd);
+        mDirectFFfd = -1;
+        return false;
+    }
+
+    bool hasRumble = (ffBits[FF_RUMBLE / 8] >> (FF_RUMBLE % 8)) & 1;
+    if (!hasRumble) {
+        LOG(WARNING) << "Device " << mDirectFFPath << " does not support FF_RUMBLE"
+                     << " (byte " << (FF_RUMBLE / 8) << " = 0x"
+                     << std::hex << (int)ffBits[FF_RUMBLE / 8] << std::dec << ")";
+        close(mDirectFFfd);
+        mDirectFFfd = -1;
+        return false;
+    }
+
+    // Upload a persistent FF_RUMBLE effect (kernel assigns ID)
+    struct ff_effect effect = {};
+    effect.type = FF_RUMBLE;
+    effect.id = -1;
+    effect.replay.length = 0;
+    effect.replay.delay = 0;
+    if (ioctl(mDirectFFfd, EVIOCSFF, &effect) < 0) {
+        LOG(WARNING) << "Failed to upload FF effect: " << strerror(errno);
+        close(mDirectFFfd);
+        mDirectFFfd = -1;
+        return false;
+    }
+    mDirectFFEffectId = effect.id;
+
+    LOG(INFO) << "Direct FF opened: " << mDirectFFPath
+              << " effectId=" << mDirectFFEffectId;
+    return true;
+}
+
+void ForceFeedback::closeDirectFF() {
+    stopDirectPwm();
+    if (mDirectFFfd >= 0) {
+        if (mDirectFFEffectId >= 0) {
+            struct input_event ev = {};
+            ev.type = EV_FF;
+            ev.code = static_cast<uint16_t>(mDirectFFEffectId);
+            ev.value = 0;
+            write(mDirectFFfd, &ev, sizeof(ev));
+
+            ioctl(mDirectFFfd, EVIOCRMFF, mDirectFFEffectId);
+            mDirectFFEffectId = -1;
+        }
+        close(mDirectFFfd);
+        mDirectFFfd = -1;
+    }
+}
+
+void ForceFeedback::stopDirectPwm() {
+    mDirectPwmStop.store(true, std::memory_order_relaxed);
+    if (mDirectPwmThread.joinable()) {
+        mDirectPwmThread.join();
+    }
+}
+
+void ForceFeedback::directPwmLoop(int onUs, int offUs, int totalMs) {
+    auto endTime = std::chrono::steady_clock::now()
+                   + std::chrono::milliseconds(totalMs);
+
+    struct input_event evOn = {};
+    evOn.type = EV_FF;
+    evOn.code = static_cast<uint16_t>(mDirectFFEffectId);
+    evOn.value = 1;
+
+    struct input_event evOff = {};
+    evOff.type = EV_FF;
+    evOff.code = static_cast<uint16_t>(mDirectFFEffectId);
+    evOff.value = 0;
+
+    // Upload a short-duration effect for PWM pulses
+    struct ff_effect effect = {};
+    effect.type = FF_RUMBLE;
+    effect.id = mDirectFFEffectId;
+    effect.u.rumble.strong_magnitude = 0xFFFF;
+    effect.u.rumble.weak_magnitude = 0xFFFF;
+    effect.replay.length = static_cast<uint16_t>((onUs + offUs) / 1000 + 2);
+    effect.replay.delay = 0;
+    ioctl(mDirectFFfd, EVIOCSFF, &effect);
+
+    while (!mDirectPwmStop.load(std::memory_order_relaxed)
+           && std::chrono::steady_clock::now() < endTime) {
+        // ON
+        write(mDirectFFfd, &evOn, sizeof(evOn));
+        usleep(onUs);
+
+        if (mDirectPwmStop.load(std::memory_order_relaxed)) break;
+
+        // OFF
+        write(mDirectFFfd, &evOff, sizeof(evOff));
+        usleep(offUs);
+    }
+
+    // Ensure motor is off
+    write(mDirectFFfd, &evOff, sizeof(evOff));
+}
+
+// PWM parameters matching the bridge path
+static constexpr int DIRECT_PWM_PERIOD_US = 8000;  // 8ms
+static constexpr int DIRECT_PWM_STEADY_THRESHOLD = 60000;  // ~92% of 65535
+
+void ForceFeedback::sendDirectFFVibration(uint16_t strong, uint16_t weak,
+                                          uint32_t durationMs) {
+    if (!mPwmEnabled) return;
+
+    // Open on demand
+    if (mDirectFFfd < 0 && !openDirectFF()) {
+        sendPwmVibration(strong, weak, durationMs);
+        return;
+    }
+
+    // Apply intensity scaling
+    strong = static_cast<uint16_t>((static_cast<uint32_t>(strong) * mPwmIntensity) / 255);
+    weak = static_cast<uint16_t>((static_cast<uint32_t>(weak) * mPwmIntensity) / 255);
+
+    // Stop command
+    if (durationMs == 0 || (strong == 0 && weak == 0)) {
+        stopDirectPwm();
+        struct input_event ev = {};
+        ev.type = EV_FF;
+        ev.code = static_cast<uint16_t>(mDirectFFEffectId);
+        ev.value = 0;
+        write(mDirectFFfd, &ev, sizeof(ev));
+        LOG(INFO) << "Direct FF stop";
+        return;
+    }
+
+    // Enforce minimum vibration floor
+    if (strong > 0 && strong < 16384) strong = 16384;
+    if (weak > 0 && weak < 8192) weak = 8192;
+
+    int magnitude = std::max(strong, weak);
+
+    // High magnitude: steady vibration (no PWM needed)
+    if (magnitude >= DIRECT_PWM_STEADY_THRESHOLD) {
+        stopDirectPwm();
+
+        struct ff_effect effect = {};
+        effect.type = FF_RUMBLE;
+        effect.id = mDirectFFEffectId;
+        effect.u.rumble.strong_magnitude = strong;
+        effect.u.rumble.weak_magnitude = weak;
+        effect.replay.length = static_cast<uint16_t>(
+                durationMs > 65535 ? 65535 : durationMs);
+        effect.replay.delay = 0;
+
+        if (ioctl(mDirectFFfd, EVIOCSFF, &effect) < 0) {
+            LOG(WARNING) << "Direct FF effect update failed: " << strerror(errno);
+            closeDirectFF();
+            return;
+        }
+
+        struct input_event ev = {};
+        ev.type = EV_FF;
+        ev.code = static_cast<uint16_t>(mDirectFFEffectId);
+        ev.value = 1;
+        write(mDirectFFfd, &ev, sizeof(ev));
+
+        LOG(INFO) << "Direct FF steady: strong=" << strong << " weak=" << weak
+                  << " duration=" << durationMs;
+        return;
+    }
+
+    // PWM: duty cycle based on magnitude
+    int onUs = (magnitude * DIRECT_PWM_PERIOD_US) / 65535;
+    int offUs = DIRECT_PWM_PERIOD_US - onUs;
+
+    if (onUs <= 0) return;
+    if (offUs <= 0) {
+        // Full duty cycle — treat as steady
+        stopDirectPwm();
+        struct ff_effect effect = {};
+        effect.type = FF_RUMBLE;
+        effect.id = mDirectFFEffectId;
+        effect.u.rumble.strong_magnitude = 0xFFFF;
+        effect.u.rumble.weak_magnitude = 0xFFFF;
+        effect.replay.length = static_cast<uint16_t>(
+                durationMs > 65535 ? 65535 : durationMs);
+        effect.replay.delay = 0;
+        ioctl(mDirectFFfd, EVIOCSFF, &effect);
+
+        struct input_event ev = {};
+        ev.type = EV_FF;
+        ev.code = static_cast<uint16_t>(mDirectFFEffectId);
+        ev.value = 1;
+        write(mDirectFFfd, &ev, sizeof(ev));
+        return;
+    }
+
+    // Stop any existing PWM thread, then start a new one
+    stopDirectPwm();
+    mDirectPwmStop.store(false, std::memory_order_relaxed);
+    mDirectPwmThread = std::thread(&ForceFeedback::directPwmLoop,
+                                   this, onUs, offUs,
+                                   static_cast<int>(durationMs));
+
+    LOG(INFO) << "Direct FF PWM: magnitude=" << magnitude
+              << " onUs=" << onUs << " offUs=" << offUs
+              << " duration=" << durationMs;
 }
 
 void ForceFeedback::sendToast(const std::string& text) {

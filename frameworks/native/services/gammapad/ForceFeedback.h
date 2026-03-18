@@ -2,7 +2,9 @@
 
 #include <linux/input.h>
 #include <linux/uinput.h>
+#include <atomic>
 #include <string>
+#include <thread>
 #include <unordered_map>
 #include <vector>
 
@@ -61,9 +63,25 @@ private:
     void sendPwmVibration(uint16_t strong, uint16_t weak, uint32_t durationMs);
     int findPhysicalWithFF(std::unordered_map<int, PhysicalDevice>& devices);
 
+    // Direct FF output (bypasses HAL for low-latency PWM)
+    bool openDirectFF();
+    void closeDirectFF();
+    void sendDirectFFVibration(uint16_t strong, uint16_t weak, uint32_t durationMs);
+
     bool mPwmEnabled;
     int mPwmIntensity;  // 0-255
     int mBridgeFd;
+
+    // Direct FF state
+    std::string mDirectFFPath;
+    int mDirectFFfd;
+    int mDirectFFEffectId;
+
+    // Direct FF PWM thread
+    std::atomic<bool> mDirectPwmStop{true};
+    std::thread mDirectPwmThread;
+    void stopDirectPwm();
+    void directPwmLoop(int onUs, int offUs, int totalMs);
 
     // Virtual effect ID -> effect details for PWM path
     struct VirtualEffect {

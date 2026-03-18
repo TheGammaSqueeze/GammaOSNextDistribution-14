@@ -85,6 +85,7 @@ public class GamepadSettings extends SettingsPreferenceFragment
     private static final String KEY_DPAD_THRESHOLD = "gamepad_dpad_threshold";
     private static final String KEY_PWM_ENABLE = "gamepad_pwm_enable";
     private static final String KEY_PWM_INTENSITY = "gamepad_pwm_intensity";
+    private static final String KEY_FF_DEVICE = "gamepad_ff_device";
     private static final String KEY_TEST_VIBRATION = "gamepad_test_vibration";
     private static final String KEY_CLEAR_CALIBRATION = "gamepad_clear_calibration";
     private static final String KEY_BLACKLIST_VPAD = "gamepad_blacklist_vpad";
@@ -124,6 +125,7 @@ public class GamepadSettings extends SettingsPreferenceFragment
     private static final String PROP_DPAD_THRESHOLD = "persist.gammaos.gamepad.dpad_threshold";
     private static final String PROP_PWM_ENABLE = "persist.gammaos.gamepad.pwm_enable";
     private static final String PROP_PWM_INTENSITY = "persist.gammaos.gamepad.pwm_intensity";
+    private static final String PROP_FF_DEVICE = "persist.gammaos.gamepad.ff_vibrate_device";
     private static final String PROP_BLACKLIST_VPAD = "persist.gammaos.gamepad.blacklist_vpad";
     private static final String PROP_BLACKLIST_PASS = "persist.gammaos.gamepad.blacklist_pass";
     private static final String PROP_ABXY_SWAP = "persist.gammaos.gamepad.abxy_swap";
@@ -217,6 +219,7 @@ public class GamepadSettings extends SettingsPreferenceFragment
     private SeekBarPreference mDpadThresholdPref;
     private SwitchPreferenceCompat mPwmEnablePref;
     private SeekBarPreference mPwmIntensityPref;
+    private Preference mFFDevicePref;
     private SwitchPreferenceCompat mAbxySwapPref;
     private SwitchPreferenceCompat mInvertLeftPref;
     private SwitchPreferenceCompat mInvertRightPref;
@@ -258,6 +261,7 @@ public class GamepadSettings extends SettingsPreferenceFragment
         mDpadThresholdPref = findPreference(KEY_DPAD_THRESHOLD);
         mPwmEnablePref = findPreference(KEY_PWM_ENABLE);
         mPwmIntensityPref = findPreference(KEY_PWM_INTENSITY);
+        mFFDevicePref = findPreference(KEY_FF_DEVICE);
 
         // Load current values from properties
         mEnablePref.setChecked(
@@ -276,6 +280,7 @@ public class GamepadSettings extends SettingsPreferenceFragment
                 SystemProperties.getInt(PROP_PWM_ENABLE, 1) != 0);
         mPwmIntensityPref.setValue(
                 SystemProperties.getInt(PROP_PWM_INTENSITY, 200));
+        updateFFDeviceSummary();
 
         // Global quick-access toggles
         mAbxySwapPref = findPreference(KEY_ABXY_SWAP);
@@ -378,6 +383,10 @@ public class GamepadSettings extends SettingsPreferenceFragment
         Preference clearCalibPref = findPreference(KEY_CLEAR_CALIBRATION);
         if (clearCalibPref != null) {
             clearCalibPref.setOnPreferenceClickListener(this);
+        }
+
+        if (mFFDevicePref != null) {
+            mFFDevicePref.setOnPreferenceClickListener(this);
         }
 
         Preference testVibPref = findPreference(KEY_TEST_VIBRATION);
@@ -555,6 +564,7 @@ public class GamepadSettings extends SettingsPreferenceFragment
         }
         if (mPwmEnablePref != null)
             mPwmEnablePref.setChecked(SystemProperties.getInt(PROP_PWM_ENABLE, 1) != 0);
+        updateFFDeviceSummary();
     }
 
     @Override
@@ -1521,6 +1531,9 @@ public class GamepadSettings extends SettingsPreferenceFragment
         } else if (KEY_CLEAR_CALIBRATION.equals(key)) {
             clearCalibration();
             return true;
+        } else if (KEY_FF_DEVICE.equals(key)) {
+            showFFDeviceDialog();
+            return true;
         } else if (KEY_TEST_VIBRATION.equals(key)) {
             showVibrationTestDialog();
             return true;
@@ -1550,6 +1563,59 @@ public class GamepadSettings extends SettingsPreferenceFragment
         }
 
         return false;
+    }
+
+    private void showFFDeviceDialog() {
+        String current = SystemProperties.get(PROP_FF_DEVICE, "");
+
+        // Scan /sys/class/input/event*/device/name for input devices
+        List<String> values = new ArrayList<>();
+        List<String> labels = new ArrayList<>();
+        values.add("");
+        labels.add("None (use vibration bridge)");
+        for (int i = 0; i < 20; i++) {
+            String sysPath = "/sys/class/input/event" + i + "/device/name";
+            File nameFile = new File(sysPath);
+            if (!nameFile.exists()) continue;
+            try {
+                BufferedReader br = new BufferedReader(new FileReader(nameFile));
+                String devName = br.readLine();
+                br.close();
+                if (devName != null && !devName.isEmpty()) {
+                    devName = devName.trim();
+                    values.add(devName);
+                    labels.add(devName + " (event" + i + ")");
+                }
+            } catch (IOException ignored) {}
+        }
+
+        int selected = values.indexOf(current);
+        if (selected < 0) selected = 0;
+
+        new AlertDialog.Builder(getContext())
+                .setTitle(R.string.gamepad_ff_device_dialog_title)
+                .setSingleChoiceItems(
+                        labels.toArray(new String[0]), selected,
+                        (dialog, which) -> {
+                            String chosen = values.get(which);
+                            SystemProperties.set(PROP_FF_DEVICE, chosen);
+                            updateFFDeviceSummary();
+                            bumpConfigVersion();
+                            dialog.dismiss();
+                        })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
+    }
+
+    private void updateFFDeviceSummary() {
+        if (mFFDevicePref == null) return;
+        String path = SystemProperties.get(PROP_FF_DEVICE, "");
+        if (path.isEmpty()) {
+            mFFDevicePref.setSummary(R.string.gamepad_ff_device_summary_none);
+        } else {
+            mFFDevicePref.setSummary(
+                    getString(R.string.gamepad_ff_device_summary_set, path));
+        }
     }
 
     private void showVibrationTestDialog() {

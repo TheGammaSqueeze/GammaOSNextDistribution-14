@@ -75,6 +75,10 @@
     <string name="gamepad_pwm_enable_title">PWM vibration</string>
     <string name="gamepad_pwm_enable_summary">Use device vibrator for controllers without native rumble</string>
     <string name="gamepad_pwm_intensity_title">Vibration intensity</string>
+    <string name="gamepad_ff_device_title">Direct FF device</string>
+    <string name="gamepad_ff_device_summary_none">Not configured (using vibration bridge)</string>
+    <string name="gamepad_ff_device_summary_set">Low-latency output via %s</string>
+    <string name="gamepad_ff_device_dialog_title">FF vibrator device path</string>
 
     <!-- Remap summary -->
     <string name="gamepad_remap_none">No remaps configured</string>

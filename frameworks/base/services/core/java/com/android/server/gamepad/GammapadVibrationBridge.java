@@ -271,33 +271,29 @@ public class GammapadVibrationBridge extends SystemService {
         // Clamp duration
         long clampedDuration = Math.min(durationMs, MAX_DURATION_MS);
 
-        // Get intensity multiplier from settings (0-100, default 50)
-        int intensityPct = SystemProperties.getInt(
-                "persist.gammaos.gamepad.pwm_intensity", 50);
-        float intensityMul = intensityPct / 100f;
-
-        // Compute magnitude: use the stronger of the two, apply intensity
+        // Compute magnitude from the stronger of the two channels.
+        // Note: intensity scaling is already applied by the native gammapad
+        // daemon before sending over the bridge — do NOT scale again here.
         int magnitude = Math.max(strong, weak);
-        int adjusted = Math.min(65535, (int) (magnitude * intensityMul));
 
-        if (adjusted <= 0) {
+        if (magnitude <= 0) {
             stopPwm();
             cancelVibrator();
             return;
         }
 
         // High magnitude or short duration: use steady vibration (no PWM)
-        if (adjusted >= PWM_STEADY_THRESHOLD || clampedDuration <= PWM_PERIOD_MS * 2) {
+        if (magnitude >= PWM_STEADY_THRESHOLD || clampedDuration <= PWM_PERIOD_MS * 2) {
             stopPwm();
             int amplitude = Math.min(MAX_AMPLITUDE,
-                    (adjusted * MAX_AMPLITUDE) / 65535);
+                    (magnitude * MAX_AMPLITUDE) / 65535);
             amplitude = Math.max(1, amplitude);
             vibrateOneShot(clampedDuration, amplitude);
             return;
         }
 
         // PWM: duty cycle based on magnitude
-        int onMs = (adjusted * PWM_PERIOD_MS) / 65535;
+        int onMs = (magnitude * PWM_PERIOD_MS) / 65535;
         int offMs = PWM_PERIOD_MS - onMs;
 
         // Edge cases: avoid degenerate PWM

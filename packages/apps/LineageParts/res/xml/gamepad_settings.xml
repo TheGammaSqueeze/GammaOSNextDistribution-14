@@ -184,6 +184,12 @@
             android:dependency="gamepad_pwm_enable" />
 
         <Preference
+            android:key="gamepad_ff_device"
+            android:title="@string/gamepad_ff_device_title"
+            android:summary="@string/gamepad_ff_device_summary_none"
+            android:dependency="gamepad_pwm_enable" />
+
+        <Preference
             android:key="gamepad_test_vibration"
             android:title="@string/gamepad_test_vibration_title"
             android:summary="@string/gamepad_test_vibration_summary" />
