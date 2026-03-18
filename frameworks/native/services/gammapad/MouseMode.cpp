@@ -10,6 +10,7 @@
 #include <linux/fb.h>
 #include <sys/ioctl.h>
 #include <fcntl.h>
+#include <algorithm>
 #include <cmath>
 #include <cstdio>
 #include <fstream>
@@ -59,6 +60,7 @@ MouseMode::MouseMode()
       mCursorY(0.0f),
       mScreenW(0),
       mScreenH(0),
+      mOrientation(0),
       mCursorPosFd(-1),
       mDragX(0.0f),
       mDragY(0.0f),
@@ -165,6 +167,69 @@ void MouseMode::detectScreenSize() {
     LOG(WARNING) << "MouseMode: could not detect screen size from any source";
 }
 
+void MouseMode::detectTouchOrientation() {
+    // DRM/fb0/sysfs report the native panel resolution (pre-rotation).
+    // SurfaceFlinger's primary_display_orientation rotates the display, so
+    // the logical display dimensions are swapped relative to the panel for
+    // 90°/270°. We swap mScreenW/mScreenH to get the display dimensions
+    // that cursor coordinates operate in.
+    //
+    // InputFlinger DOES apply primary_touch_orientation to our virtual
+    // touchscreen (it's classified as internal). So the virtual touchscreen
+    // must be created with panel dimensions (swapped back), and we must
+    // pre-apply the inverse rotation to touch coordinates.
+    std::string orient = android::base::GetProperty(
+        "ro.surface_flinger.primary_display_orientation", "ORIENTATION_0");
+    if (orient == "ORIENTATION_90") mOrientation = 90;
+    else if (orient == "ORIENTATION_180") mOrientation = 180;
+    else if (orient == "ORIENTATION_270") mOrientation = 270;
+    else mOrientation = 0;
+
+    if ((mOrientation == 90 || mOrientation == 270) && mScreenW > 0 && mScreenH > 0) {
+        std::swap(mScreenW, mScreenH);
+        LOG(INFO) << "MouseMode: swapped to display dims for orientation "
+                  << mOrientation << "°: " << mScreenW << "x" << mScreenH;
+    } else {
+        LOG(INFO) << "MouseMode: display orientation: " << mOrientation
+                  << "° (no swap needed)";
+    }
+}
+
+void MouseMode::displayToRaw(int displayX, int displayY,
+                               int& rawX, int& rawY) const {
+    // InputFlinger applies primary_touch_orientation to our virtual touchscreen
+    // (confirmed: InputDeviceOrientation=1, RawToDisplay=ROT_270 for 90°).
+    //
+    // The virtual touchscreen uses display dimensions (mScreenW x mScreenH)
+    // because using panel dimensions causes InputFlinger to DISABLE the mapper.
+    // This means the ROT includes non-square scaling.
+    //
+    // For 90° (ROT_270 raw→display, empirically confirmed):
+    //   displayX = rawY * W / H
+    //   displayY = (rawMaxX - rawX) * H / W
+    // Inverse:
+    //   rawX = (W-1) - displayY * W / H
+    //   rawY = displayX * H / W
+    switch (mOrientation) {
+        case 90:
+            rawX = (mScreenW - 1) - displayY * mScreenW / mScreenH;
+            rawY = displayX * mScreenH / mScreenW;
+            break;
+        case 180:
+            rawX = (mScreenW - 1) - displayX;
+            rawY = (mScreenH - 1) - displayY;
+            break;
+        case 270:
+            rawX = displayY * mScreenW / mScreenH;
+            rawY = (mScreenH - 1) - displayX * mScreenH / mScreenW;
+            break;
+        default:
+            rawX = displayX;
+            rawY = displayY;
+            break;
+    }
+}
+
 bool MouseMode::readCursorPosition() {
     if (mCursorPosFd < 0) {
         mCursorPosFd = open("/data/misc/gammapad/cursor_pos", O_RDONLY);
@@ -208,6 +273,7 @@ void MouseMode::loadConfig() {
                                     BTN_X);
 
     detectScreenSize();
+    detectTouchOrientation();
 
     LOG(INFO) << "MouseMode config: combo=" << mComboBtn1Code << "+" << mComboBtn2Code
               << " hold=" << mComboHoldMs << "ms"
@@ -267,8 +333,9 @@ void MouseMode::setActive(bool active) {
     mScrollAccumY = 0.0f;
 
     if (mActive) {
-        // Re-detect screen size in case it changed
+        // Re-detect screen size and orientation in case they changed
         detectScreenSize();
+        detectTouchOrientation();
 
         if (mScreenW <= 0 || mScreenH <= 0) {
             LOG(ERROR) << "MouseMode: cannot activate - screen size unknown";
@@ -291,7 +358,9 @@ void MouseMode::setActive(bool active) {
             return;
         }
 
-        // Create virtual touchscreen for touch simulation
+        // Create virtual touchscreen with display dimensions. Using panel
+        // dimensions causes InputFlinger to DISABLE the mapper, so we must
+        // use display dims and compensate for the rotation in displayToRaw().
         mTouchscreen = std::make_unique<VirtualTouchscreen>();
         if (!mTouchscreen->create(mScreenW, mScreenH)) {
             LOG(ERROR) << "MouseMode: failed to create VirtualTouchscreen";
@@ -427,9 +496,12 @@ bool MouseMode::processEvent(const struct input_event& ev) {
                     readCursorPosition();
                     mDragX = mCursorX;
                     mDragY = mCursorY;
-                    LOG(INFO) << "MouseMode: touch at cursor (" << mDragX << "," << mDragY << ")";
-                    mTouchscreen->touchDown(static_cast<int>(mDragX),
-                                            static_cast<int>(mDragY));
+                    int rawX, rawY;
+                    displayToRaw(static_cast<int>(mDragX),
+                                 static_cast<int>(mDragY), rawX, rawY);
+                    LOG(INFO) << "MouseMode: touch at cursor (" << mDragX << "," << mDragY
+                              << ") raw=(" << rawX << "," << rawY << ")";
+                    mTouchscreen->touchDown(rawX, rawY);
                 } else {
                     mTouchscreen->touchUp();
                 }
@@ -568,8 +640,10 @@ void MouseMode::tick() {
             if (mDragY < 0) mDragY = 0;
             if (mDragX >= mScreenW) mDragX = mScreenW - 1;
             if (mDragY >= mScreenH) mDragY = mScreenH - 1;
-            mTouchscreen->touchMove(static_cast<int>(mDragX),
-                                    static_cast<int>(mDragY));
+            int rawX, rawY;
+            displayToRaw(static_cast<int>(mDragX),
+                         static_cast<int>(mDragY), rawX, rawY);
+            mTouchscreen->touchMove(rawX, rawY);
         }
         // Always move mouse cursor (even during drag so cursor follows the touch)
         mMouse->move(intDx, intDy);

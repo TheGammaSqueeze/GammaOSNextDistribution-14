@@ -62,6 +62,11 @@ private:
     void startTimer();
     void stopTimer();
     void detectScreenSize();
+    void detectTouchOrientation();
+
+    // Transform display-space coordinates to raw touchscreen coordinates,
+    // counteracting InputFlinger's primary_touch_orientation rotation.
+    void displayToRaw(int displayX, int displayY, int& rawX, int& rawY) const;
 
     // Read actual cursor position from framework shared file.
     // Updates mCursorX/mCursorY. Returns true on success.
@@ -102,6 +107,7 @@ private:
     float mCursorY;
     int mScreenW;
     int mScreenH;
+    int mOrientation;  // 0, 90, 180, 270 from ro.input_flinger.primary_touch_orientation
     int mCursorPosFd;  // cached fd for reading cursor position file
 
     // Drag position tracking (independent of mouse cursor during drags)
