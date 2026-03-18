@@ -2009,6 +2009,11 @@ void NanoMenu::renderBrightnessBar() {
 bool NanoMenu::threadLoop() {
     ALOGD("NanoMenu: entering main loop");
 
+    // Re-read quick resume flag — the constructor runs before persist props
+    // are loaded, so the value read there may be stale (always false).
+    mQuickResumeEnabled = android::base::GetBoolProperty(
+            "persist.gammaos.nano.quick_resume", false);
+
     // Quick Resume: auto-launch into saved game on boot if prepared
     if (mQuickResumeEnabled) {
         std::string qrPrepared = android::base::GetProperty(
