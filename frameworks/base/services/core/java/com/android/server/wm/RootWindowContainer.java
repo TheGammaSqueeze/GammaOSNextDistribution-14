@@ -1621,6 +1621,10 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                     return true;
                 }
                 Slog.i(TAG, "GammaOS Nano: app exited, cleaning up and restarting nano menu");
+                // User exited back to the nano menu — clear Quick Resume so
+                // the next boot doesn't auto-launch a game they quit out of.
+                android.os.SystemProperties.set(
+                        "persist.gammaos.nano.qr_prepared", "0");
                 // Remove all lingering tasks/activities for the nano app
                 try {
                     java.util.ArrayList<Task> tasksToRemove = new java.util.ArrayList<>();
@@ -1784,6 +1788,8 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                         showNanoBlankOverlay();
                         android.os.SystemProperties.set(
                                 "sys.gammaos.nano.app_launched", "0");
+                        android.os.SystemProperties.set(
+                                "persist.gammaos.nano.qr_prepared", "0");
                         android.os.SystemProperties.set(
                                 "sys.gammaos.nano.restart", "1");
                         return true;
