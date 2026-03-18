@@ -1290,13 +1290,31 @@ static EGLConfig getEglConfig(const EGLDisplay& display) {
 }
 
 status_t NanoMenu::readyToRun() {
-    // Only run the nano menu when explicitly enabled (skip_nano=0).
-    // Exit for "Boot Android" (skip_nano=1) and first boot (property unset).
+    // Started unconditionally by StartPropertySetThread for the fastest nano
+    // mode path.  persist.* properties may not be available yet (loaded after
+    // /data mount), so wait for init to signal that they are ready.
     char skip[PROPERTY_VALUE_MAX] = {};
     property_get("persist.bootanim.skip_nano", skip, "");
     if (strcmp(skip, "0") != 0) {
-        ALOGI("GammaOS Nano: skip_nano='%s' (not '0'), exiting", skip);
-        return INVALID_OPERATION;
+        // Property is "1", empty, or not yet loaded.  If persist props are not
+        // ready, wait — the value could change once /data mounts.
+        char ready[PROPERTY_VALUE_MAX] = {};
+        property_get("ro.persistent_properties.ready", ready, "");
+        if (strcmp(ready, "true") != 0) {
+            ALOGI("GammaOS Nano: persist props not ready, waiting...");
+            for (int i = 0; i < 500; i++) { // max 5s
+                usleep(10000); // 10ms
+                property_get("ro.persistent_properties.ready", ready, "");
+                if (!strcmp(ready, "true")) break;
+            }
+            // Re-read after persist props loaded
+            property_get("persist.bootanim.skip_nano", skip, "");
+        }
+        if (strcmp(skip, "0") != 0) {
+            ALOGI("GammaOS Nano: skip_nano='%s' (not '0'), starting bootanim", skip);
+            property_set("ctl.start", "bootanim");
+            _exit(0); // terminate — bootanim takes over
+        }
     }
 
     const std::vector<PhysicalDisplayId> ids = SurfaceComposerClient::getPhysicalDisplayIds();

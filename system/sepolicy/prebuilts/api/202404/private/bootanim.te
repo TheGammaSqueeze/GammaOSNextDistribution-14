@@ -34,6 +34,9 @@ allow bootanim input_device:chr_file { read write open ioctl getattr };
 # GammaOS Nano: read persist.gammaos.* properties (skip_nano check)
 get_prop(bootanim, persist_gammaos_prop)
 
+# GammaOS Nano: allow handing off to bootanim when nano mode is disabled
+set_prop(bootanim, ctl_bootanim_prop)
+
 # GammaOS Nano: set sys.gammaos.nano.launch_* properties for direct game launch
 set_prop(bootanim, persist_gammaos_prop)
 
