@@ -99,6 +99,10 @@
     <string name="quick_settings_deep_sleep_label">وضع النوم العميق</string>
     <string name="quick_settings_mapping_editor_label">تعديل تعيينات الأزرار</string>
     <string name="quick_settings_mapping_editor_short">تعديل التعيينات</string>
+    <!-- Screen map tile -->
+    <string name="quick_settings_screen_map_label">تعيين الشاشة</string>
+    <string name="quick_settings_screen_map_on">التعيين نشط</string>
+    <string name="quick_settings_screen_map_off">التعيين متوقف</string>
     <string name="quick_settings_retroarch_override_label">تجاوز زر قائمة RetroArch</string>
     <string name="quick_settings_usb_controller_label">وحدة تحكم USB</string>
     <string name="quick_settings_usb_controller_on">وحدة تحكم USB مفعلة</string>

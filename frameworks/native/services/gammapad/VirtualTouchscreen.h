@@ -7,6 +7,9 @@ namespace gammapad {
 
 class VirtualTouchscreen {
 public:
+    // Android InputReader caps at 16 pointers (MAX_POINTERS in Input.h)
+    static constexpr int MAX_SLOTS = 16;
+
     VirtualTouchscreen();
     ~VirtualTouchscreen();
 
@@ -14,23 +17,35 @@ public:
     bool create(int screenW, int screenH);
     void destroy();
 
+    // Single-slot convenience methods (operate on slot 0, backward compat with MouseMode)
     void touchDown(int x, int y);
     void touchMove(int x, int y);
     void touchUp();
+    bool isTouching() const { return mSlotTouching[0]; }
 
-    bool isTouching() const { return mTouching; }
+    // Multi-slot methods for screen mapping
+    void touchDown(int slot, int x, int y);
+    void touchMove(int slot, int x, int y);
+    void touchUp(int slot);
+    bool isSlotTouching(int slot) const;
+
     bool isValid() const { return mFd >= 0; }
     int fd() const { return mFd; }
+
+    // Returns true if any slot is currently touching
+    bool isAnyTouching() const;
 
 private:
     void sendEvent(int type, int code, int value);
     void sendSync();
+    void updateBtnTouch();
 
     int mFd;
-    bool mTouching;
+    bool mSlotTouching[MAX_SLOTS];
     int mScreenW;
     int mScreenH;
-    int mTrackId;
+    int mSlotTrackId[MAX_SLOTS];
+    int mNextTrackId;
 };
 
 } // namespace gammapad

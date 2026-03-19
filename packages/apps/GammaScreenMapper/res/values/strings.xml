@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Screen Mapper</string>
+    <string name="add_point">Add Mapping Point</string>
+    <string name="clear_all">Clear All</string>
+    <string name="save">Save</string>
+    <string name="transparency">Transparency</string>
+    <string name="notification_channel">Screen Mapper</string>
+    <string name="notification_title">Screen Mapper Active</string>
+    <string name="notification_text">Tap to edit mappings</string>
+    <string name="no_mapping">No mapping for this app</string>
+    <string name="mapping_saved">Mapping saved</string>
+    <string name="select_button">Select Button</string>
+    <string name="cancel">Cancel</string>
+
+    <!-- Button labels -->
+    <string name="btn_a">A</string>
+    <string name="btn_b">B</string>
+    <string name="btn_x">X</string>
+    <string name="btn_y">Y</string>
+    <string name="btn_lb">LB</string>
+    <string name="btn_rb">RB</string>
+    <string name="btn_lt">LT</string>
+    <string name="btn_rt">RT</string>
+    <string name="btn_l3">L3</string>
+    <string name="btn_r3">R3</string>
+    <string name="btn_start">Start</string>
+    <string name="btn_select">Select</string>
+    <string name="btn_lstick">L-Stick</string>
+    <string name="btn_rstick">R-Stick</string>
+    <string name="btn_dpad">DPAD</string>
+</resources>

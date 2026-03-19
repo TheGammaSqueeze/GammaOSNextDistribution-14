@@ -101,6 +101,10 @@
     <string name="quick_settings_deep_sleep_label">Mod somn profund</string>
     <string name="quick_settings_mapping_editor_label">Editare mapări butoane</string>
     <string name="quick_settings_mapping_editor_short">Editare mapări</string>
+    <!-- Screen map tile -->
+    <string name="quick_settings_screen_map_label">Mapare Ecran</string>
+    <string name="quick_settings_screen_map_on">Mapare Activă</string>
+    <string name="quick_settings_screen_map_off">Mapare Dezactivată</string>
     <string name="quick_settings_usb_controller_label">Controller USB</string>
     <string name="quick_settings_usb_controller_on">Controller USB activat</string>
     <string name="quick_settings_usb_controller_off">Controller USB dezactivat</string>

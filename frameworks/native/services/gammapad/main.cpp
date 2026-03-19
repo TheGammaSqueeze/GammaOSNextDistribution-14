@@ -19,8 +19,11 @@ int main(int argc, char** argv) {
     android::base::InitLogging(argv, android::base::LogdLogger());
     LOG(INFO) << "GammaPad daemon starting";
 
-    // Ensure mouse mode is off on daemon startup (never persist across reboots)
+    // Ensure mouse mode is off on daemon startup
     android::base::SetProperty("sys.gammaos.gamepad.mouse_active", "0");
+    // Sync screen map volatile property from persistent user intent
+    std::string screenMapEnabled = android::base::GetProperty("persist.gammaos.screenmap.enabled", "0");
+    android::base::SetProperty("sys.gammaos.screenmap.active", screenMapEnabled);
 
     struct sigaction sa = {};
     sa.sa_handler = signalHandler;

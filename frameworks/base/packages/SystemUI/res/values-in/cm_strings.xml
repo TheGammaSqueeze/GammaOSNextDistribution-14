@@ -109,6 +109,10 @@
     <string name="quick_settings_deep_sleep_label">Mode Tidur Dalam</string>
     <string name="quick_settings_mapping_editor_label">Edit Pemetaan Tombol</string>
     <string name="quick_settings_mapping_editor_short">Edit Pemetaan</string>
+    <!-- Screen map tile -->
+    <string name="quick_settings_screen_map_label">Pemetaan Layar</string>
+    <string name="quick_settings_screen_map_on">Pemetaan Aktif</string>
+    <string name="quick_settings_screen_map_off">Pemetaan Nonaktif</string>
     <string name="quick_settings_retroarch_override_label">Override Tombol Menu RetroArch</string>
     <string name="quick_settings_usb_controller_label">Kontroler USB</string>
     <string name="quick_settings_usb_controller_on">Kontroler USB Aktif</string>

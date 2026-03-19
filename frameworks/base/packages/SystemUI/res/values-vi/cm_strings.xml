@@ -117,6 +117,10 @@
     <string name="quick_settings_deep_sleep_label">Chế độ ngủ sâu</string>
     <string name="quick_settings_mapping_editor_label">Sửa ánh xạ nút</string>
     <string name="quick_settings_mapping_editor_short">Sửa ánh xạ</string>
+    <!-- Screen map tile -->
+    <string name="quick_settings_screen_map_label">Ánh xạ Màn hình</string>
+    <string name="quick_settings_screen_map_on">Ánh xạ Đang bật</string>
+    <string name="quick_settings_screen_map_off">Ánh xạ Đã tắt</string>
     <string name="quick_settings_retroarch_override_label">Ghi đè nút menu RetroArch</string>
     <string name="quick_settings_usb_controller_label">Tay cầm USB</string>
     <string name="quick_settings_usb_controller_on">Tay cầm USB đã bật</string>

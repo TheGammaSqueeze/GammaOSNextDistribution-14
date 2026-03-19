@@ -117,6 +117,10 @@
     <string name="quick_settings_deep_sleep_label">Tryb głębokiego uśpienia</string>
     <string name="quick_settings_mapping_editor_label">Edytuj przypisania przycisków</string>
     <string name="quick_settings_mapping_editor_short">Edytuj przypisania</string>
+    <!-- Screen map tile -->
+    <string name="quick_settings_screen_map_label">Mapowanie Ekranu</string>
+    <string name="quick_settings_screen_map_on">Mapowanie Aktywne</string>
+    <string name="quick_settings_screen_map_off">Mapowanie Wyłączone</string>
     <string name="quick_settings_retroarch_override_label">Nadpisanie przycisku menu RetroArch</string>
     <string name="quick_settings_usb_controller_label">Kontroler USB</string>
     <string name="quick_settings_usb_controller_on">Kontroler USB włączony</string>

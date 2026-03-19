@@ -5,6 +5,7 @@
 #include "ForceFeedback.h"
 #include "KeyLayoutParser.h"
 #include "MouseMode.h"
+#include "ScreenMapMode.h"
 
 #include <linux/input.h>
 #include <set>
@@ -120,6 +121,7 @@ private:
     std::unique_ptr<InputTransformer> mTransformer;
     std::unique_ptr<ForceFeedback> mForceFeedback;
     std::unique_ptr<MouseMode> mMouseMode;
+    std::unique_ptr<ScreenMapMode> mScreenMapMode;
 
     // Collect all EV_KEY bits from a physical device
     void discoverDeviceKeys(int fd, std::set<int>& keys);

@@ -117,6 +117,10 @@
     <string name="quick_settings_deep_sleep_label">Mély alvás mód</string>
     <string name="quick_settings_mapping_editor_label">Gomb-hozzárendelések szerkesztése</string>
     <string name="quick_settings_mapping_editor_short">Hozzárendelések szerkesztése</string>
+    <!-- Screen map tile -->
+    <string name="quick_settings_screen_map_label">Képernyő-leképezés</string>
+    <string name="quick_settings_screen_map_on">Leképezés Aktív</string>
+    <string name="quick_settings_screen_map_off">Leképezés Ki</string>
     <string name="quick_settings_retroarch_override_label">RetroArch menügomb felülírás</string>
     <string name="quick_settings_usb_controller_label">USB vezérlő</string>
     <string name="quick_settings_usb_controller_on">USB vezérlő engedélyezve</string>

@@ -31,6 +31,7 @@ import com.android.systemui.qs.tiles.DCDimmingEmuTile;
 import com.android.systemui.qs.tiles.AnalogCalibrationTile;
 import com.android.systemui.qs.tiles.DeepSleepModeTile;
 import com.android.systemui.qs.tiles.MappingEditorTile;
+import com.android.systemui.qs.tiles.ScreenMapTile;
 import com.android.systemui.qs.tiles.RetroArchMenuButtonOverrideTile;
 import com.android.systemui.qs.tiles.USBControllerSwitchTile;
 import com.android.systemui.qs.tiles.ImmersiveModeTile;
@@ -252,6 +253,12 @@ interface LineageModule {
     @IntoMap
     @StringKey(MappingEditorTile.TILE_SPEC)
     fun bindMappingEditorTile(mappingEditorTile: MappingEditorTile): QSTileImpl<*>
+
+    /** Inject ScreenMapTile into tileMap in QSModule */
+    @Binds
+    @IntoMap
+    @StringKey(ScreenMapTile.TILE_SPEC)
+    fun bindScreenMapTile(screenMapTile: ScreenMapTile): QSTileImpl<*>
 
     /** Inject CaffeineTile into tileMap in QSModule */
     @Binds

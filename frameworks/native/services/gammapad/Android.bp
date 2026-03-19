@@ -10,6 +10,7 @@ cc_binary {
         "ForceFeedback.cpp",
         "KeyLayoutParser.cpp",
         "MouseMode.cpp",
+        "ScreenMapMode.cpp",
     ],
     shared_libs: [
         "libbase",

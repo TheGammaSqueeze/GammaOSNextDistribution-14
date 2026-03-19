@@ -105,6 +105,10 @@
     <string name="quick_settings_deep_sleep_label">Dyb dvaletilstand</string>
     <string name="quick_settings_mapping_editor_label">Rediger knaptilknytninger</string>
     <string name="quick_settings_mapping_editor_short">Rediger tilknytninger</string>
+    <!-- Screen map tile -->
+    <string name="quick_settings_screen_map_label">Skærmkortlægning</string>
+    <string name="quick_settings_screen_map_on">Kortlægning Aktiv</string>
+    <string name="quick_settings_screen_map_off">Kortlægning Fra</string>
     <string name="quick_settings_retroarch_override_label">RetroArch-menutast tilsidesæt</string>
     <string name="quick_settings_usb_controller_label">USB-controller</string>
     <string name="quick_settings_usb_controller_on">USB-controller aktiveret</string>

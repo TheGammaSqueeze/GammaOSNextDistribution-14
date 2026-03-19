@@ -117,6 +117,10 @@
     <string name="quick_settings_deep_sleep_label">딥 슬립 모드</string>
     <string name="quick_settings_mapping_editor_label">버튼 매핑 편집</string>
     <string name="quick_settings_mapping_editor_short">매핑 편집</string>
+    <!-- Screen map tile -->
+    <string name="quick_settings_screen_map_label">화면 매핑</string>
+    <string name="quick_settings_screen_map_on">매핑 활성</string>
+    <string name="quick_settings_screen_map_off">매핑 비활성</string>
     <string name="quick_settings_retroarch_override_label">RetroArch 메뉴 버튼 오버라이드</string>
     <string name="quick_settings_usb_controller_label">USB 컨트롤러</string>
     <string name="quick_settings_usb_controller_on">USB 컨트롤러 활성화됨</string>

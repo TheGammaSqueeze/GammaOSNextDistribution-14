@@ -117,6 +117,10 @@
     <string name="quick_settings_deep_sleep_label">Modo sueño profundo</string>
     <string name="quick_settings_mapping_editor_label">Editar asignaciones de botones</string>
     <string name="quick_settings_mapping_editor_short">Editar asignaciones</string>
+    <!-- Screen map tile -->
+    <string name="quick_settings_screen_map_label">Mapeo de Pantalla</string>
+    <string name="quick_settings_screen_map_on">Mapeo Activo</string>
+    <string name="quick_settings_screen_map_off">Mapeo Desactivado</string>
     <string name="quick_settings_retroarch_override_label">Anular botón menú RetroArch</string>
     <string name="quick_settings_usb_controller_label">Mando USB</string>
     <string name="quick_settings_usb_controller_on">Mando USB activado</string>

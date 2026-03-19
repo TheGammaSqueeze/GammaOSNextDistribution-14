@@ -16,6 +16,7 @@ PRODUCT_PACKAGES += \
     ShaderControl \
     DualStackControl \
     GammaEQ \
+    GammaScreenMapper \
     LaunchGuardControl \
     SecondaryDisplayControl \
     gammapad \

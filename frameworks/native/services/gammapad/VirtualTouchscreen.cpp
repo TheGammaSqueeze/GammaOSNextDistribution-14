@@ -13,9 +13,12 @@ namespace gammapad {
 static constexpr const char* kPhysId = "gammapad-touch";
 
 VirtualTouchscreen::VirtualTouchscreen()
-    : mFd(-1), mTouching(false),
+    : mFd(-1),
       mScreenW(0), mScreenH(0),
-      mTrackId(60000) {}
+      mNextTrackId(60000) {
+    memset(mSlotTouching, 0, sizeof(mSlotTouching));
+    memset(mSlotTrackId, 0, sizeof(mSlotTrackId));
+}
 
 VirtualTouchscreen::~VirtualTouchscreen() {
     destroy();
@@ -54,14 +57,13 @@ bool VirtualTouchscreen::create(int screenW, int screenH) {
     {
         struct uinput_abs_setup abs_setup = {};
 
-        // ABS_MT_SLOT: single touch (slot 0 only).
+        // ABS_MT_SLOT: support up to MAX_SLOTS simultaneous touches.
         // max must be > 0 for Android InputReader to use Protocol B
         // (slot-based multitouch). With max=0, InputReader falls back to
-        // Protocol A which resets slot data on every SYN_REPORT, losing
-        // X/pressure on MOVE events that only change Y.
+        // Protocol A which resets slot data on every SYN_REPORT.
         abs_setup.code = ABS_MT_SLOT;
         abs_setup.absinfo.minimum = 0;
-        abs_setup.absinfo.maximum = 1;
+        abs_setup.absinfo.maximum = MAX_SLOTS - 1;
         if (ioctl(mFd, UI_ABS_SETUP, &abs_setup) < 0) goto fail;
 
         // ABS_MT_TRACKING_ID
@@ -125,7 +127,8 @@ bool VirtualTouchscreen::create(int screenW, int screenH) {
         }
     }
 
-    LOG(INFO) << "VirtualTouchscreen: created virtual device (" << mScreenW << "x" << mScreenH << ")";
+    LOG(INFO) << "VirtualTouchscreen: created virtual device (" << mScreenW << "x" << mScreenH
+              << ", " << MAX_SLOTS << " slots)";
     return true;
 
 fail:
@@ -137,8 +140,11 @@ fail:
 
 void VirtualTouchscreen::destroy() {
     if (mFd >= 0) {
-        if (mTouching) {
-            touchUp();
+        // Release all active touches
+        for (int i = 0; i < MAX_SLOTS; i++) {
+            if (mSlotTouching[i]) {
+                touchUp(i);
+            }
         }
         ioctl(mFd, UI_DEV_DESTROY);
         close(mFd);
@@ -164,8 +170,31 @@ void VirtualTouchscreen::sendSync() {
     sendEvent(EV_SYN, SYN_REPORT, 0);
 }
 
-void VirtualTouchscreen::touchDown(int x, int y) {
+void VirtualTouchscreen::updateBtnTouch() {
+    bool anyTouching = isAnyTouching();
+    // BTN_TOUCH/BTN_TOOL_FINGER reflect whether any finger is down
+    sendEvent(EV_KEY, BTN_TOUCH, anyTouching ? 1 : 0);
+    sendEvent(EV_KEY, BTN_TOOL_FINGER, anyTouching ? 1 : 0);
+}
+
+bool VirtualTouchscreen::isAnyTouching() const {
+    for (int i = 0; i < MAX_SLOTS; i++) {
+        if (mSlotTouching[i]) return true;
+    }
+    return false;
+}
+
+bool VirtualTouchscreen::isSlotTouching(int slot) const {
+    if (slot < 0 || slot >= MAX_SLOTS) return false;
+    return mSlotTouching[slot];
+}
+
+// --- Multi-slot methods ---
+
+void VirtualTouchscreen::touchDown(int slot, int x, int y) {
     if (mFd < 0) return;
+    if (slot < 0 || slot >= MAX_SLOTS) return;
+    if (mSlotTouching[slot]) return; // already touching in this slot
 
     // Clamp to screen bounds
     if (x < 0) x = 0;
@@ -174,34 +203,37 @@ void VirtualTouchscreen::touchDown(int x, int y) {
     if (y >= mScreenH) y = mScreenH - 1;
 
     // Increment tracking ID to ensure kernel sees a new touch
-    mTrackId++;
-    if (mTrackId > 65000) mTrackId = 60000;
+    mNextTrackId++;
+    if (mNextTrackId > 65000) mNextTrackId = 60000;
+    mSlotTrackId[slot] = mNextTrackId;
 
-    sendEvent(EV_ABS, ABS_MT_SLOT, 0);
-    sendEvent(EV_ABS, ABS_MT_TRACKING_ID, mTrackId);
+    sendEvent(EV_ABS, ABS_MT_SLOT, slot);
+    sendEvent(EV_ABS, ABS_MT_TRACKING_ID, mSlotTrackId[slot]);
     sendEvent(EV_ABS, ABS_MT_POSITION_X, x);
     sendEvent(EV_ABS, ABS_MT_POSITION_Y, y);
     sendEvent(EV_ABS, ABS_MT_PRESSURE, 200);
     sendEvent(EV_ABS, ABS_MT_TOUCH_MAJOR, 40);
     sendEvent(EV_ABS, ABS_MT_WIDTH_MAJOR, 40);
-    sendEvent(EV_KEY, BTN_TOUCH, 1);
-    sendEvent(EV_KEY, BTN_TOOL_FINGER, 1);
+
+    mSlotTouching[slot] = true;
+    updateBtnTouch();
     sendSync();
 
-    mTouching = true;
-
-    LOG(INFO) << "TouchDown: (" << x << "," << y << ") tid=" << mTrackId;
+    LOG(INFO) << "TouchDown slot=" << slot << " (" << x << "," << y
+              << ") tid=" << mSlotTrackId[slot];
 }
 
-void VirtualTouchscreen::touchMove(int x, int y) {
-    if (mFd < 0 || !mTouching) return;
+void VirtualTouchscreen::touchMove(int slot, int x, int y) {
+    if (mFd < 0) return;
+    if (slot < 0 || slot >= MAX_SLOTS) return;
+    if (!mSlotTouching[slot]) return;
 
     if (x < 0) x = 0;
     if (y < 0) y = 0;
     if (x >= mScreenW) x = mScreenW - 1;
     if (y >= mScreenH) y = mScreenH - 1;
 
-    sendEvent(EV_ABS, ABS_MT_SLOT, 0);
+    sendEvent(EV_ABS, ABS_MT_SLOT, slot);
     sendEvent(EV_ABS, ABS_MT_POSITION_X, x);
     sendEvent(EV_ABS, ABS_MT_POSITION_Y, y);
     sendEvent(EV_ABS, ABS_MT_PRESSURE, 200);
@@ -210,19 +242,22 @@ void VirtualTouchscreen::touchMove(int x, int y) {
     sendSync();
 }
 
-void VirtualTouchscreen::touchUp() {
-    if (mFd < 0 || !mTouching) return;
+void VirtualTouchscreen::touchUp(int slot) {
+    if (mFd < 0) return;
+    if (slot < 0 || slot >= MAX_SLOTS) return;
+    if (!mSlotTouching[slot]) return;
 
-    sendEvent(EV_ABS, ABS_MT_SLOT, 0);
+    sendEvent(EV_ABS, ABS_MT_SLOT, slot);
     sendEvent(EV_ABS, ABS_MT_TRACKING_ID, -1);
-    sendEvent(EV_KEY, BTN_TOUCH, 0);
-    sendEvent(EV_KEY, BTN_TOOL_FINGER, 0);
+
+    mSlotTouching[slot] = false;
+    updateBtnTouch();
     sendSync();
 
     // Reset the kernel's cached position for this slot to an impossible value.
     // This ensures the next touchDown's real coordinates won't be suppressed
     // by the kernel's duplicate ABS event filtering.
-    sendEvent(EV_ABS, ABS_MT_SLOT, 0);
+    sendEvent(EV_ABS, ABS_MT_SLOT, slot);
     sendEvent(EV_ABS, ABS_MT_POSITION_X, -1);
     sendEvent(EV_ABS, ABS_MT_POSITION_Y, -1);
     sendEvent(EV_ABS, ABS_MT_PRESSURE, 0);
@@ -230,9 +265,21 @@ void VirtualTouchscreen::touchUp() {
     sendEvent(EV_ABS, ABS_MT_WIDTH_MAJOR, 0);
     sendSync();
 
-    mTouching = false;
+    LOG(INFO) << "TouchUp slot=" << slot;
+}
 
-    LOG(INFO) << "TouchUp";
+// --- Single-slot convenience methods (backward compat with MouseMode) ---
+
+void VirtualTouchscreen::touchDown(int x, int y) {
+    touchDown(0, x, y);
+}
+
+void VirtualTouchscreen::touchMove(int x, int y) {
+    touchMove(0, x, y);
+}
+
+void VirtualTouchscreen::touchUp() {
+    touchUp(0);
 }
 
 } // namespace gammapad

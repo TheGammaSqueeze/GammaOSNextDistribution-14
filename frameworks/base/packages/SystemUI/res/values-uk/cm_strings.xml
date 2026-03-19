@@ -92,6 +92,10 @@
     <string name="quick_settings_deep_sleep_label">Режим глибокого сну</string>
     <string name="quick_settings_mapping_editor_label">Редагувати призначення кнопок</string>
     <string name="quick_settings_mapping_editor_short">Редагувати призначення</string>
+    <!-- Screen map tile -->
+    <string name="quick_settings_screen_map_label">Карта екрана</string>
+    <string name="quick_settings_screen_map_on">Мапінг активний</string>
+    <string name="quick_settings_screen_map_off">Мапінг вимкнено</string>
     <string name="quick_settings_retroarch_override_label">Перевизначення кнопки меню RetroArch</string>
     <string name="quick_settings_usb_controller_label">USB-контролер</string>
     <string name="quick_settings_usb_controller_on">USB-контролер увімкнено</string>

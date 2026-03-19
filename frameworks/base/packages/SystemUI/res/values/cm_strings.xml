@@ -198,6 +198,11 @@
     <string name="quick_settings_mapping_editor_label">Edit Button Mappings</string>
     <string name="quick_settings_mapping_editor_short">Edit Mappings</string>
 
+    <!-- Screen map tile -->
+    <string name="quick_settings_screen_map_label">Screen Map</string>
+    <string name="quick_settings_screen_map_on">Mapping Active</string>
+    <string name="quick_settings_screen_map_off">Mapping Off</string>
+
     <!-- RetroArch menu button override tile -->
     <string name="quick_settings_retroarch_override_label">RetroArch Menu Button Override</string>
 

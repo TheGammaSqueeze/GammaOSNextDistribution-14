@@ -117,6 +117,10 @@
     <string name="quick_settings_deep_sleep_label">Derin Uyku Modu</string>
     <string name="quick_settings_mapping_editor_label">Düğme Eşlemelerini Düzenle</string>
     <string name="quick_settings_mapping_editor_short">Eşlemeleri Düzenle</string>
+    <!-- Screen map tile -->
+    <string name="quick_settings_screen_map_label">Ekran Eşleme</string>
+    <string name="quick_settings_screen_map_on">Eşleme Aktif</string>
+    <string name="quick_settings_screen_map_off">Eşleme Kapalı</string>
     <string name="quick_settings_retroarch_override_label">RetroArch Menü Düğmesi Geçersiz Kılma</string>
     <string name="quick_settings_usb_controller_label">USB Kumanda</string>
     <string name="quick_settings_usb_controller_on">USB Kumanda Etkin</string>

@@ -102,6 +102,10 @@
     <string name="quick_settings_deep_sleep_label">Syvä unitila</string>
     <string name="quick_settings_mapping_editor_label">Muokkaa painikemäärityksiä</string>
     <string name="quick_settings_mapping_editor_short">Muokkaa määrityksiä</string>
+    <!-- Screen map tile -->
+    <string name="quick_settings_screen_map_label">Näyttökartoitus</string>
+    <string name="quick_settings_screen_map_on">Kartoitus Aktiivinen</string>
+    <string name="quick_settings_screen_map_off">Kartoitus Pois</string>
     <string name="quick_settings_retroarch_override_label">RetroArch-valikkopainikkeen ohitus</string>
     <string name="quick_settings_usb_controller_label">USB-ohjain</string>
     <string name="quick_settings_usb_controller_on">USB-ohjain käytössä</string>

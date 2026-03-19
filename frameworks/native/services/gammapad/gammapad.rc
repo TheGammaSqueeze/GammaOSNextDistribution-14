@@ -8,6 +8,7 @@ service gammapad /system/bin/gammapad
 
 on post-fs-data
     mkdir /data/misc/gammapad 0777 system system
+    mkdir /data/misc/gammapad/screenmap 0777 system system
 
 on property:persist.gammaos.gamepad.enable=1 && property:sys.boot_completed=1
     start gammapad

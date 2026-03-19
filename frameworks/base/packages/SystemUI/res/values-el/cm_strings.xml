@@ -117,6 +117,10 @@
     <string name="quick_settings_deep_sleep_label">Λειτουργία βαθύ ύπνου</string>
     <string name="quick_settings_mapping_editor_label">Επεξεργασία αντιστοιχίσεων κουμπιών</string>
     <string name="quick_settings_mapping_editor_short">Επεξεργασία αντιστοιχίσεων</string>
+    <!-- Screen map tile -->
+    <string name="quick_settings_screen_map_label">Αντιστοίχιση Οθόνης</string>
+    <string name="quick_settings_screen_map_on">Αντιστοίχιση Ενεργή</string>
+    <string name="quick_settings_screen_map_off">Αντιστοίχιση Ανενεργή</string>
     <string name="quick_settings_retroarch_override_label">Παράκαμψη κουμπιού μενού RetroArch</string>
     <string name="quick_settings_usb_controller_label">Χειριστήριο USB</string>
     <string name="quick_settings_usb_controller_on">Χειριστήριο USB ενεργό</string>
