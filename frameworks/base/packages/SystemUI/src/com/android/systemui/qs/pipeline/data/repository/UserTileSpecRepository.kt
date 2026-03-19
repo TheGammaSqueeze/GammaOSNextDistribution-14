@@ -2,6 +2,7 @@ package com.android.systemui.qs.pipeline.data.repository
 
 import android.annotation.UserIdInt
 import android.database.ContentObserver
+import android.os.SystemProperties
 import android.provider.Settings
 import com.android.systemui.common.coroutine.ConflatedCallbackFlow
 import com.android.systemui.dagger.qualifiers.Application
@@ -69,6 +70,11 @@ constructor(
                                 }
                             }
                         }
+                    }
+                    .map { tiles ->
+                        val blacklisted = loadBlacklistedTileSpecs()
+                        if (blacklisted.isEmpty()) tiles
+                        else tiles.filter { it.spec !in blacklisted }
                     }
                     .flowOn(backgroundDispatcher)
                     .stateIn(applicationScope)
@@ -140,11 +146,14 @@ constructor(
     }
 
     private fun parseTileSpecs(fromSettings: List<TileSpec>, user: Int): List<TileSpec> {
-        return if (fromSettings.isNotEmpty()) {
+        val blacklisted = loadBlacklistedTileSpecs()
+        val tiles = if (fromSettings.isNotEmpty()) {
             fromSettings.also { logger.logParsedTiles(it, false, user) }
         } else {
             defaultTiles.also { logger.logParsedTiles(it, true, user) }
         }
+        return if (blacklisted.isEmpty()) tiles
+               else tiles.filter { it.spec !in blacklisted }
     }
 
     private suspend fun loadTilesFromSettingsAndParse(userId: Int): List<TileSpec> {
@@ -226,6 +235,22 @@ constructor(
         private const val CHANGES_BUFFER_SIZE = 10
 
         private fun String.toTilesList() = TilesSettingConverter.toTilesList(this)
+
+        private fun loadBlacklistedTileSpecs(): Set<String> {
+            val sb = StringBuilder()
+            val base = SystemProperties.get("persist.gammaos.qs.blacklist", "").trim()
+            if (base.isNotEmpty()) sb.append(base)
+            for (i in 0 until 5) {
+                val part = SystemProperties.get("persist.gammaos.qs.blacklist_$i", "").trim()
+                if (part.isEmpty()) continue
+                if (sb.isNotEmpty() && sb.last() != ',') sb.append(',')
+                sb.append(part)
+            }
+            return sb.toString().split(",")
+                .map { it.trim() }
+                .filter { it.isNotEmpty() && !it.contains(' ') }
+                .toSet()
+        }
 
         fun reconcileTiles(
             currentTiles: List<TileSpec>,

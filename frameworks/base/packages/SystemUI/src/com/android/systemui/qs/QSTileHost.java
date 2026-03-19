@@ -18,6 +18,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.os.SystemProperties;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.provider.Settings.Secure;
@@ -67,6 +68,7 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.function.Predicate;
@@ -556,6 +558,41 @@ public class QSTileHost implements QSHost, Tunable, PluginListener<QSFactory>, P
         return mTileSpecs;
     }
 
+    /**
+     * Loads the set of blacklisted QS tile specs from system properties.
+     *
+     * Uses persist.gammaos.qs.blacklist (and _0 through _4 fragments) to allow
+     * device-specific tile filtering. Tile specs listed here will be silently
+     * removed from the active tile list.
+     */
+    private static Set<String> loadBlacklistedTileSpecs() {
+        final Set<String> blacklisted = new HashSet<>();
+        // Support a single property and up to 5 numbered fragments (_0 .. _4)
+        // to work around PROP_VALUE_MAX.
+        StringBuilder sb = new StringBuilder();
+        String base = SystemProperties.get("persist.gammaos.qs.blacklist", "").trim();
+        if (!base.isEmpty()) {
+            sb.append(base);
+        }
+        for (int i = 0; i < 5; i++) {
+            String part = SystemProperties.get(
+                    "persist.gammaos.qs.blacklist_" + i, "").trim();
+            if (part.isEmpty()) continue;
+            if (sb.length() > 0 && sb.charAt(sb.length() - 1) != ',') {
+                sb.append(',');
+            }
+            sb.append(part);
+        }
+        for (String raw : sb.toString().split(",")) {
+            if (raw == null) continue;
+            String spec = raw.trim();
+            if (!spec.isEmpty() && spec.indexOf(' ') == -1) {
+                blacklisted.add(spec);
+            }
+        }
+        return blacklisted;
+    }
+
     protected static List<String> loadTileSpecs(Context context, String tileList) {
         final Resources res = context.getResources();
 
@@ -568,6 +605,10 @@ public class QSTileHost implements QSHost, Tunable, PluginListener<QSFactory>, P
         final ArrayList<String> tiles = new ArrayList<String>();
         boolean addedDefault = false;
         Set<String> addedSpecs = new ArraySet<>();
+        final Set<String> blacklisted = loadBlacklistedTileSpecs();
+        if (!blacklisted.isEmpty()) {
+            Log.d(TAG, "QS tile blacklist active: " + blacklisted);
+        }
         for (String tile : tileList.split(",")) {
             tile = tile.trim();
             if (tile.isEmpty()) continue;
@@ -575,7 +616,7 @@ public class QSTileHost implements QSHost, Tunable, PluginListener<QSFactory>, P
                 if (!addedDefault) {
                     List<String> defaultSpecs = QSHost.getDefaultSpecs(context.getResources());
                     for (String spec : defaultSpecs) {
-                        if (!addedSpecs.contains(spec)) {
+                        if (!addedSpecs.contains(spec) && !blacklisted.contains(spec)) {
                             tiles.add(spec);
                             addedSpecs.add(spec);
                         }
@@ -583,7 +624,7 @@ public class QSTileHost implements QSHost, Tunable, PluginListener<QSFactory>, P
                     addedDefault = true;
                 }
             } else {
-                if (!addedSpecs.contains(tile)) {
+                if (!addedSpecs.contains(tile) && !blacklisted.contains(tile)) {
                     tiles.add(tile);
                     addedSpecs.add(tile);
                 }
