@@ -1040,12 +1040,12 @@ void SurfaceFlinger::init() FTL_FAKE_GUARD(kMainThreadContext) {
         return snapshot;
     });
 
-    // GammaOS: when debug.sf.disable_hwc_overlays is set (e.g. by rw-system.sh for
-    // MediaTek VNDK ≤ 30 devices whose BliterNode::invalidate() aborts), permanently
-    // force GPU composition so the vendor HWC blitter is never invoked.
+    // GammaOS: when debug.sf.disable_hwc_overlays is set (e.g. by vndk.rc / rw-system.sh
+    // for MediaTek VNDK ≤ 30 devices whose BliterNode::invalidate() aborts), force GPU
+    // composition during boot and for 10 s after sys.boot_completed, then allow HWC.
     if (base::GetBoolProperty("debug.sf.disable_hwc_overlays"s, false)) {
-        mDebugDisableHWC = true;
-        ALOGI("GammaOS: debug.sf.disable_hwc_overlays=1, forcing permanent GPU composition");
+        mMtkBootGpuCompDeadline = INT64_MAX;
+        ALOGI("GammaOS: debug.sf.disable_hwc_overlays=1, forcing GPU composition until boot+10s");
     }
 
     // Commit secondary display(s).
@@ -3384,14 +3384,34 @@ CompositeResultsPerDisplay SurfaceFlinger::composite(
 
     refreshArgs.devOptForceClientComposition = mDebugDisableHWC;
 
-    // GammaOS: disable HWC overlays when the property is set (e.g. for MediaTek
-    // devices whose BliterNode::invalidate() crashes).  Checked per-frame so the
-    // property takes effect even when set after SurfaceFlinger starts.
-    if (!mDebugDisableHWC &&
-        base::GetBoolProperty("debug.sf.disable_hwc_overlays"s, false)) {
-        mDebugDisableHWC = true;
-        ALOGI("GammaOS: debug.sf.disable_hwc_overlays=1, forcing permanent GPU composition");
-        refreshArgs.devOptForceClientComposition = true;
+    // GammaOS: time-limited GPU composition for MediaTek boot crash mitigation.
+    // Forces GPU comp during boot, then for 10 s after sys.boot_completed.
+    {
+        nsecs_t mtkDeadline = mMtkBootGpuCompDeadline.load();
+        if (mtkDeadline == INT64_MAX) {
+            // Waiting for boot to complete
+            if (base::GetBoolProperty("sys.boot_completed"s, false)) {
+                mtkDeadline = systemTime(SYSTEM_TIME_MONOTONIC) + s2ns(10);
+                mMtkBootGpuCompDeadline = mtkDeadline;
+                ALOGI("GammaOS: boot completed, GPU composition for 10 s on MTK device");
+            }
+            refreshArgs.devOptForceClientComposition = true;
+        } else if (mtkDeadline > 0) {
+            // Countdown active
+            if (systemTime(SYSTEM_TIME_MONOTONIC) < mtkDeadline) {
+                refreshArgs.devOptForceClientComposition = true;
+            } else {
+                mMtkBootGpuCompDeadline = -1;  // done — never re-trigger
+                ALOGI("GammaOS: MTK boot GPU composition period ended, allowing HWC overlays");
+            }
+        } else if (mtkDeadline == 0 && !mDebugDisableHWC &&
+                   base::GetBoolProperty("debug.sf.disable_hwc_overlays"s, false)) {
+            // Late detection: property set after SurfaceFlinger::init()
+            mMtkBootGpuCompDeadline = INT64_MAX;
+            refreshArgs.devOptForceClientComposition = true;
+            ALOGI("GammaOS: debug.sf.disable_hwc_overlays=1 (late), forcing GPU comp until boot+10s");
+        }
+        // mtkDeadline == -1: done, HWC re-enabled — nothing to do
     }
 
     // GammaOS: force GPU composition during display rotation transitions to work around

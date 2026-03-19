@@ -1329,10 +1329,13 @@ private:
 
     std::atomic_uint mDebugFlashDelay = 0;
     std::atomic_bool mDebugDisableHWC = false;
-    // GammaOS: force GPU composition to work around vendor hwcomposer blitter crashes
-    // (e.g. MTK BliterNode::invalidate).  Set at boot (initial HWC stabilisation) and
-    // on display rotation transitions.
+    // GammaOS: force GPU composition during display rotation transitions to work around
+    // vendor hwcomposer blitter crashes (e.g. MTK BliterNode::invalidate).
     std::atomic<nsecs_t> mForceGpuCompDeadline{0};
+    // GammaOS: time-limited GPU composition for MediaTek boot crash mitigation.
+    // 0 = not yet detected, INT64_MAX = waiting for sys.boot_completed,
+    // >0 = real deadline, -1 = done (HWC re-enabled).
+    std::atomic<nsecs_t> mMtkBootGpuCompDeadline{0};
     std::atomic_bool mDebugDisableTransformHint = false;
     std::atomic<nsecs_t> mDebugInTransaction = 0;
     std::atomic_bool mForceFullDamage = false;
