@@ -937,6 +937,14 @@ if [ "$vndk" -le 28 ] && getprop ro.hardware |grep -q -e mt6761 -e mt6763 -e mt6
     setprop debug.stagefright.ccodec 0
 fi
 
+# GammaOS: MediaTek vendor HWC (VNDK <= 30) crashes in BliterNode::invalidate()
+# on the first hardware overlay composition, crashing composer@2.1-service and
+# cascading to a full system restart.  Disable HWC overlays so all layer
+# composition goes through GPU (RenderEngine), avoiding the blitter entirely.
+if [ "$vndk" -le 30 ] && getprop ro.hardware |grep -q -e mt6761 -e mt6763 -e mt6765 -e mt6785 -e mt8768 -e mt6779 -e mt6771 -e mt8766;then
+    setprop debug.sf.disable_hwc_overlays 1
+fi
+
 if getprop ro.omc.build.version |grep -qE .;then
 	for f in $(find /odm -name \*.apk);do
 		mount /system/phh/empty $f

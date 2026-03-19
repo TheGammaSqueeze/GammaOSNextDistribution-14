@@ -124,6 +124,27 @@ on property:persist.sys.phh.enable_sf_gl_backpressure=*
 on property:persist.sys.phh.dynamic_fps=*
     setprop ro.surface_flinger.use_content_detection_for_refresh_rate ${persist.sys.phh.dynamic_fps}
 
+# GammaOS: disable HWC overlays on MediaTek SoCs to prevent
+# BliterNode::invalidate() crashes in the vendor hwcomposer.
+# Property triggers fire as soon as ro.hardware is set (early-init),
+# well before SurfaceFlinger starts.
+on property:ro.hardware=mt6761
+    setprop debug.sf.disable_hwc_overlays 1
+on property:ro.hardware=mt6763
+    setprop debug.sf.disable_hwc_overlays 1
+on property:ro.hardware=mt6765
+    setprop debug.sf.disable_hwc_overlays 1
+on property:ro.hardware=mt6771
+    setprop debug.sf.disable_hwc_overlays 1
+on property:ro.hardware=mt6779
+    setprop debug.sf.disable_hwc_overlays 1
+on property:ro.hardware=mt6785
+    setprop debug.sf.disable_hwc_overlays 1
+on property:ro.hardware=mt8766
+    setprop debug.sf.disable_hwc_overlays 1
+on property:ro.hardware=mt8768
+    setprop debug.sf.disable_hwc_overlays 1
+
 # Set watchdog timer to 30 seconds and pet it every 10 seconds to get a 20 second margin
 service watchdogd-gsi /system/bin/watchdogd 10 20
     class core

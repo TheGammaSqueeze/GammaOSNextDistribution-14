@@ -1040,6 +1040,14 @@ void SurfaceFlinger::init() FTL_FAKE_GUARD(kMainThreadContext) {
         return snapshot;
     });
 
+    // GammaOS: when debug.sf.disable_hwc_overlays is set (e.g. by rw-system.sh for
+    // MediaTek VNDK ≤ 30 devices whose BliterNode::invalidate() aborts), permanently
+    // force GPU composition so the vendor HWC blitter is never invoked.
+    if (base::GetBoolProperty("debug.sf.disable_hwc_overlays"s, false)) {
+        mDebugDisableHWC = true;
+        ALOGI("GammaOS: debug.sf.disable_hwc_overlays=1, forcing permanent GPU composition");
+    }
+
     // Commit secondary display(s).
     processDisplayChangesLocked();
 
@@ -3376,10 +3384,20 @@ CompositeResultsPerDisplay SurfaceFlinger::composite(
 
     refreshArgs.devOptForceClientComposition = mDebugDisableHWC;
 
+    // GammaOS: disable HWC overlays when the property is set (e.g. for MediaTek
+    // devices whose BliterNode::invalidate() crashes).  Checked per-frame so the
+    // property takes effect even when set after SurfaceFlinger starts.
+    if (!mDebugDisableHWC &&
+        base::GetBoolProperty("debug.sf.disable_hwc_overlays"s, false)) {
+        mDebugDisableHWC = true;
+        ALOGI("GammaOS: debug.sf.disable_hwc_overlays=1, forcing permanent GPU composition");
+        refreshArgs.devOptForceClientComposition = true;
+    }
+
     // GammaOS: force GPU composition during display rotation transitions to work around
     // vendor hwcomposer blitter crashes (e.g. MTK BliterNode::invalidate).
-    if (mRotationClientCompDeadline > 0 &&
-        systemTime(SYSTEM_TIME_MONOTONIC) < mRotationClientCompDeadline) {
+    if (mForceGpuCompDeadline > 0 &&
+        systemTime(SYSTEM_TIME_MONOTONIC) < mForceGpuCompDeadline) {
         refreshArgs.devOptForceClientComposition = true;
     }
 
@@ -6471,7 +6489,7 @@ uint32_t SurfaceFlinger::setDisplayStateLocked(const DisplayState& s) {
             // to prevent vendor hwcomposer blitter crashes (MTK BliterNode::invalidate)
             // during the transition. Must happen here (transaction receive) rather than
             // in processDisplayChanged (transaction commit) to win the race.
-            mRotationClientCompDeadline =
+            mForceGpuCompDeadline =
                     systemTime(SYSTEM_TIME_MONOTONIC) + s2ns(2);
             ALOGI("Display orientation changing (%d -> %d), forcing client composition for 2s",
                   state.orientation, s.orientation);
