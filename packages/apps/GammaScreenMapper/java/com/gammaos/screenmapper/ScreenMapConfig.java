@@ -79,20 +79,22 @@ public class ScreenMapConfig {
         }
     }
 
-    public static boolean save(String pkg, List<MappingPoint> points) {
+    public static boolean save(String pkg, List<MappingPoint> points, int opacity) {
         File dir = new File(CONFIG_DIR);
         if (!dir.exists()) dir.mkdirs();
 
         File file = new File(dir, pkg + ".conf");
         try (FileWriter writer = new FileWriter(file)) {
             writer.write("# Screen mapping config for " + pkg + "\n");
+            writer.write("opacity " + opacity + "\n");
             for (MappingPoint p : points) {
                 writer.write(p.getTypeString() + " " + p.x + " " + p.y
                         + " " + p.radius + " " + p.buttonCode + "\n");
             }
             // Bump config version to trigger gammapad reload
             bumpConfigVersion();
-            Log.i(TAG, "Saved " + points.size() + " mappings for " + pkg);
+            Log.i(TAG, "Saved " + points.size() + " mappings for " + pkg
+                    + " opacity=" + opacity);
             return true;
         } catch (IOException e) {
             Log.e(TAG, "Failed to save config for " + pkg, e);
@@ -126,6 +128,24 @@ public class ScreenMapConfig {
             Log.e(TAG, "Failed to load config for " + pkg, e);
         }
         return points;
+    }
+
+    public static int loadOpacity(String pkg) {
+        File file = new File(CONFIG_DIR, pkg + ".conf");
+        if (!file.exists()) return 100;
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                line = line.trim();
+                if (line.startsWith("opacity ")) {
+                    return Integer.parseInt(line.substring(8).trim());
+                }
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to load opacity for " + pkg, e);
+        }
+        return 100;
     }
 
     public static boolean exists(String pkg) {

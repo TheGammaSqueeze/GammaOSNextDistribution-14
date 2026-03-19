@@ -88,6 +88,8 @@ public class MappingPointView extends View {
     private float mPinchStartDist;
     private int mPinchStartRadius;
 
+    private float mOverlayAlpha = 1.0f;
+
     private OnPointClickedListener mClickListener;
     private OnPointRemovedListener mRemoveListener;
 
@@ -158,6 +160,7 @@ public class MappingPointView extends View {
             // Play mode: neutral dark semi-transparent
             mCirclePaint.setColor(Color.argb(120, 30, 30, 30));
         }
+        applyAlpha();
         invalidate();
     }
 
@@ -170,11 +173,16 @@ public class MappingPointView extends View {
     }
 
     public void setOverlayAlpha(float alpha) {
-        int baseAlpha = Color.alpha(getColorForButton(mPoint.buttonCode, mPoint.type));
-        mCirclePaint.setAlpha((int) (baseAlpha * alpha / 255f));
-        mBorderPaint.setAlpha((int) (255 * alpha));
-        mTextPaint.setAlpha((int) (255 * alpha));
+        mOverlayAlpha = alpha;
+        applyAlpha();
         invalidate();
+    }
+
+    private void applyAlpha() {
+        int baseAlpha = Color.alpha(mCirclePaint.getColor());
+        mCirclePaint.setAlpha((int) (baseAlpha * mOverlayAlpha));
+        mBorderPaint.setAlpha((int) (255 * mOverlayAlpha));
+        mTextPaint.setAlpha((int) (255 * mOverlayAlpha));
     }
 
     public boolean isSelected() { return mSelected; }

@@ -34,6 +34,8 @@ public class ScreenMapEditorView extends FrameLayout {
     private boolean mEditorMode = true;
     private Runnable mOnCloseListener;
     private Runnable mOnSaveListener;
+    private int mOpacity = 100;
+    private SeekBar mOpacitySeekBar;
 
     // Responsive sizes computed from screen dimensions
     private int mScreenW, mScreenH;
@@ -120,18 +122,19 @@ public class ScreenMapEditorView extends FrameLayout {
         mToolbar.addView(scrollView);
 
         // Opacity slider — fills remaining space, tall touch target like QS brightness bar
-        SeekBar seekBar = new SeekBar(context);
+        mOpacitySeekBar = new SeekBar(context);
         int sliderHeight = Math.max((int) (36 * mDensity), shortEdge / 20);
         LinearLayout.LayoutParams seekLp = new LinearLayout.LayoutParams(
                 0, sliderHeight, 1f);
         seekLp.setMargins(btnMargin * 2, 0, btnMargin * 2, 0);
-        seekBar.setLayoutParams(seekLp);
-        seekBar.setMax(100);
-        seekBar.setProgress(100);
-        seekBar.setPadding(0, 0, 0, 0);
-        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        mOpacitySeekBar.setLayoutParams(seekLp);
+        mOpacitySeekBar.setMax(100);
+        mOpacitySeekBar.setProgress(mOpacity);
+        mOpacitySeekBar.setPadding(0, 0, 0, 0);
+        mOpacitySeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar bar, int progress, boolean fromUser) {
+                mOpacity = progress;
                 float alpha = progress / 100f;
                 for (MappingPointView pv : mPointViews) {
                     pv.setOverlayAlpha(alpha);
@@ -140,7 +143,7 @@ public class ScreenMapEditorView extends FrameLayout {
             @Override public void onStartTrackingTouch(SeekBar bar) {}
             @Override public void onStopTrackingTouch(SeekBar bar) {}
         });
-        mToolbar.addView(seekBar);
+        mToolbar.addView(mOpacitySeekBar);
 
         // Save button (pinned right, always visible)
         Button saveBtn = makeToolbarButton(context, "Save", toolbarTextSp, btnHPad, btnVPad, btnMargin);
@@ -191,10 +194,19 @@ public class ScreenMapEditorView extends FrameLayout {
 
     private void loadExistingConfig() {
         List<ScreenMapConfig.MappingPoint> points = ScreenMapConfig.load(mPackageName);
+        mOpacity = ScreenMapConfig.loadOpacity(mPackageName);
         for (ScreenMapConfig.MappingPoint p : points) {
             // Apply responsive radius if the saved radius doesn't match current screen
             applyResponsiveRadius(p);
             addPointView(p);
+        }
+        // Apply saved opacity to all loaded points
+        if (mOpacitySeekBar != null) {
+            mOpacitySeekBar.setProgress(mOpacity);
+        }
+        float alpha = mOpacity / 100f;
+        for (MappingPointView pv : mPointViews) {
+            pv.setOverlayAlpha(alpha);
         }
     }
 
@@ -352,13 +364,15 @@ public class ScreenMapEditorView extends FrameLayout {
             ScreenMapConfig.delete(mPackageName);
             Toast.makeText(getContext(), "Mapping cleared", Toast.LENGTH_SHORT).show();
         } else {
-            ScreenMapConfig.save(mPackageName, points);
+            ScreenMapConfig.save(mPackageName, points, mOpacity);
             SystemProperties.set("sys.gammaos.screenmap.active", "1");
             Toast.makeText(getContext(), "Mapping saved", Toast.LENGTH_SHORT).show();
         }
 
         if (mOnSaveListener != null) mOnSaveListener.run();
     }
+
+    public int getOpacity() { return mOpacity; }
 
     public List<ScreenMapConfig.MappingPoint> getPoints() {
         List<ScreenMapConfig.MappingPoint> points = new ArrayList<>();
