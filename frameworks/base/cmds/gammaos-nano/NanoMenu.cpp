@@ -826,6 +826,15 @@ void NanoMenu::handleSelect() {
               entry.romPath.c_str(), entry.corePath.c_str());
         android::base::SetProperty("sys.gammaos.nano.launch_rom", entry.romPath);
         android::base::SetProperty("sys.gammaos.nano.launch_core", entry.corePath);
+        // Prime Quick Resume now — the persist write has time to flush to disk
+        // while the game runs. ShutdownThread may update ROM/core from the
+        // playlist if the user loaded a different game, but this ensures the
+        // flag survives even if the reboot races the persist write.
+        if (mQuickResumeEnabled) {
+            android::base::SetProperty("persist.gammaos.nano.qr_rom", entry.romPath);
+            android::base::SetProperty("persist.gammaos.nano.qr_core", entry.corePath);
+            property_set("persist.gammaos.nano.qr_prepared", "1");
+        }
         // Flag so next nano menu restart returns to Recently Played
         property_set("sys.gammaos.nano.return_recent", "1");
         property_set("service.bootanim.nano_retroarch", "1");
@@ -2086,14 +2095,17 @@ bool NanoMenu::threadLoop() {
                     property_set("sys.gammaos.nano.return_recent", "1");
                     property_set("service.bootanim.nano_retroarch", "1");
                     property_set("sys.gammaos.nano.drop_input", "1");
-                    property_set("persist.gammaos.nano.qr_prepared", "0");
+                    // Keep qr_prepared=1 so an unclean reboot during
+                    // gameplay still quick-resumes. Cleared on game exit.
                     mExitRequested = true;
                 } else {
                     ALOGI("Quick Resume: bypassed by SELECT hold");
+                    property_set("persist.gammaos.nano.qr_prepared", "0");
                 }
+            } else {
+                // ROM or core path empty/invalid — stale data
+                property_set("persist.gammaos.nano.qr_prepared", "0");
             }
-            // Always clear prepared flag after checking
-            property_set("persist.gammaos.nano.qr_prepared", "0");
         }
     }
 
