@@ -205,3 +205,9 @@ set_prop(system_app, persist_gammaos_prop)
 get_prop(system_app, persist_gammaos_prop)
 allow system_app shell_exec:file { execute execute_no_trans read open getattr map };
 
+# Allow system apps to start gammaos-ota and set OTA properties
+set_prop(system_app, ctl_gammaosota_prop)
+set_prop(system_app, ctl_start_prop)
+set_prop(system_app, ctl_stop_prop)
+set_prop(system_app, gammaosota_prop)
+

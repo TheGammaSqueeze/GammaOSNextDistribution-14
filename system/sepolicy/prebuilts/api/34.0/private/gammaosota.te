@@ -1,0 +1,111 @@
+type gammaosota, domain, coredomain;
+type gammaosota_exec, exec_type, system_file_type, file_type;
+
+init_daemon_domain(gammaosota)
+
+# Block device access (modeled after update_engine_common)
+allow gammaosota block_device:dir r_dir_perms;
+allow gammaosota boot_block_device:blk_file rw_file_perms;
+allow gammaosota system_block_device:blk_file rw_file_perms;
+allow gammaosota dm_device:blk_file rw_file_perms;
+allow gammaosota dm_device:chr_file rw_file_perms;
+allow gammaosota super_block_device_type:blk_file rw_file_perms;
+allowxperm gammaosota super_block_device_type:blk_file ioctl { BLKIOMIN BLKALIGNOFF };
+allowxperm gammaosota dev_type:blk_file ioctl {
+    BLKDISCARD
+    BLKDISCARDZEROES
+    BLKROGET
+    BLKROSET
+    BLKSECDISCARD
+    BLKZEROOUT
+};
+
+# Sysfs for libdm
+r_dir_file(gammaosota, sysfs_dm)
+allow gammaosota sysfs:dir r_dir_perms;
+
+# Proc access
+allow gammaosota proc:file { read write open getattr };
+allow gammaosota proc_cmdline:file r_file_perms;
+allow gammaosota proc_drop_caches:file { write open getattr };
+
+# Tmpfs staging (/dev/gammaos-ota-stage/)
+# /dev is type 'device', need write access to create staging dir there
+allow gammaosota device:dir { create write add_name remove_name search getattr open read };
+allow gammaosota device:file { create_file_perms execute execute_no_trans };
+allow gammaosota tmpfs:dir create_dir_perms;
+allow gammaosota tmpfs:file { create_file_perms execute execute_no_trans };
+allow gammaosota tmpfs:filesystem { mount };
+allow gammaosota gammaosota_exec:file { read execute execute_no_trans getattr open map };
+allow gammaosota system_file:file { read open getattr execute execute_no_trans map };
+allow gammaosota toolbox_exec:file { read open getattr execute execute_no_trans map };
+allow gammaosota shell_exec:file { read open getattr execute execute_no_trans map };
+allow gammaosota self:process { execmem setexec };
+
+# Sysfs access (memory management, etc. — needed by cp, sh during staging)
+# Note: sysfs_mm may be vendor-defined, use broader sysfs access
+allow gammaosota sysfs:file r_file_perms;
+
+# /data access
+allow gammaosota system_data_file:dir create_dir_perms;
+allow gammaosota system_data_file:file create_file_perms;
+allow gammaosota media_rw_data_file:dir r_dir_perms;
+allow gammaosota media_rw_data_file:file r_file_perms;
+allow gammaosota media_userdir_file:dir { search getattr open read };
+
+# Display rendering + GPU HAL access
+binder_use(gammaosota)
+binder_call(gammaosota, surfaceflinger)
+allow gammaosota surfaceflinger_service:service_manager find;
+allow gammaosota gpu_service:service_manager find;
+allow gammaosota gpu_device:chr_file rw_file_perms;
+allow gammaosota gpu_device:dir r_dir_perms;
+allow gammaosota vendor_apex_metadata_file:dir r_dir_perms;
+
+# Gralloc/GPU HAL (needed for EGL surface rendering)
+# Use hal_* attributes (platform-defined) not vendor-specific types
+hal_client_domain(gammaosota, hal_graphics_allocator)
+hal_client_domain(gammaosota, hal_graphics_composer)
+allow gammaosota same_process_hal_file:file { read open getattr map execute };
+allow gammaosota same_process_hal_file:dir r_dir_perms;
+allow gammaosota vendor_file:file { read open getattr map execute };
+
+# Input handling
+allow gammaosota input_device:dir r_dir_perms;
+allow gammaosota input_device:chr_file { read write open ioctl getattr };
+allow gammaosota device:dir { open read watch };
+
+# Properties
+get_prop(gammaosota, persist_gammaos_prop)
+set_prop(gammaosota, persist_gammaos_prop)
+set_prop(gammaosota, ctl_stop_prop)
+set_prop(gammaosota, ctl_start_prop)
+get_prop(gammaosota, build_prop)
+set_prop(gammaosota, powerctl_prop)
+
+# Capabilities
+allow gammaosota self:capability { sys_admin dac_override dac_read_search sys_boot mknod fowner };
+
+# Metadata partition
+allow gammaosota metadata_block_device:blk_file r_file_perms;
+allow gammaosota metadata_file:dir r_dir_perms;
+allow gammaosota ota_metadata_file:dir rw_dir_perms;
+allow gammaosota ota_metadata_file:file create_file_perms;
+
+# Staged files in /dev/ are labeled 'device' — need full file access for binaries/libs
+allow gammaosota device:file { create read write open getattr map execute execute_no_trans };
+
+# lpdump binder access
+binder_call(gammaosota, lpdumpd)
+allow gammaosota lpdump_service:service_manager find;
+
+# Vendor directory traversal (lptools reads vendor paths)
+allow gammaosota vendor_file:dir r_dir_perms;
+
+# Shell/test data dirs on /data (lptools traverses these)
+allow gammaosota shell_data_file:dir { search getattr };
+allow gammaosota shell_test_data_file:dir { search read getattr };
+
+# Logging
+allow gammaosota logdr_socket:sock_file write;
+allow gammaosota logd:unix_stream_socket connectto;

@@ -1603,3 +1603,7 @@ get_prop(system_server, persist_gammaos_prop)
 get_prop(system_server, persist_sys_gammaeq_prop)
 get_prop(system_server, persist_sys_spk_prop)
 
+# Allow system_server to start gammaos-ota and set OTA properties
+set_prop(system_server, ctl_gammaosota_prop)
+set_prop(system_server, gammaosota_prop)
+

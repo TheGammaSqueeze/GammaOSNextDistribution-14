@@ -54,7 +54,7 @@
     <string name="snack_download_failed">Icceḍ usider. Txilek senqed tuqqna-k γer internet sakin ɛreḍ tikelt nniḍen ticki.</string>
     <string name="snack_download_verification_failed">Icceḍ usenqed n ulqem.</string>
     <string name="snack_download_verified">Asider yemmed.</string>
-    <string name="header_title_text">LineageOS\n%1$s</string>
+    <string name="header_title_text">GammaOS\nNext</string>
     <string name="header_android_version">Android <xliff:g id="version" example="7.1.2">%1$s</xliff:g></string>
     <string name="header_last_updates_check">Asenqed aneggaru: <xliff:g id="date" example="1 January 1970">%1$s</xliff:g>(<xliff:g id="time" example="01:23">%2$s</xliff:g>)</string>
     <string name="list_build_version">LineageOS <xliff:g id="version" example="14.1">%1$s</xliff:g></string>

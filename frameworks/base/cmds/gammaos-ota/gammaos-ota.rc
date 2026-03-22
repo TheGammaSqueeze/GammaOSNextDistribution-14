@@ -1,0 +1,8 @@
+service gammaos-ota /system/bin/gammaos-ota
+    class core
+    user root
+    group root system graphics input media_rw
+    disabled
+    oneshot
+    ioprio rt 0
+    task_profiles MaxPerformance

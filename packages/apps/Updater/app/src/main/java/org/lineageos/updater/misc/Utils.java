@@ -153,8 +153,12 @@ public class Utils {
 
     public static String getServerURL(Context context) {
         String incrementalVersion = SystemProperties.get(Constants.PROP_BUILD_VERSION_INCREMENTAL);
-        String device = SystemProperties.get(Constants.PROP_NEXT_DEVICE,
-                SystemProperties.get(Constants.PROP_DEVICE));
+        // Prefer ro.gammaos.device, fall back to ro.lineage.device
+        String device = SystemProperties.get(Constants.PROP_GAMMAOS_DEVICE, "");
+        if (device.isEmpty()) {
+            device = SystemProperties.get(Constants.PROP_NEXT_DEVICE,
+                    SystemProperties.get(Constants.PROP_DEVICE));
+        }
         String type = SystemProperties.get(Constants.PROP_RELEASE_TYPE).toLowerCase(Locale.ROOT);
 
         String serverUrl = SystemProperties.get(Constants.PROP_UPDATER_URI);

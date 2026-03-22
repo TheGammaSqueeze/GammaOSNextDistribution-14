@@ -68,7 +68,7 @@
     <string name="snack_download_verification_failed">இற்றை சரிபார்ப்பு தோல்வியுற்றது.</string>
     <string name="snack_download_verified">பதிவிறக்கம் முடிவுற்றது.</string>
     <string name="snack_update_not_installable">தற்போதைய கட்டமைப்பின் மீது, இந்த இற்றையை நிறுவ முடியாது.</string>
-    <string name="header_title_text">LineageOS\n%1$s</string>
+    <string name="header_title_text">GammaOS\nNext</string>
     <string name="header_android_version">Android <xliff:g id="version" example="7.1.2">%1$s</xliff:g></string>
     <string name="header_last_updates_check">கடைசியாகச் சரிபார்க்கப்பட்டது: <xliff:g id="date" example="1 January 1970">%1$s</xliff:g> (<xliff:g id="time" example="01:23">%2$s</xliff:g>)</string>
     <string name="list_build_version">LineageOS <xliff:g id="version" example="14.1">%1$s</xliff:g></string>

@@ -11,6 +11,10 @@
         android:title="@string/local_update_import"
         app:showAsAction="never" />
     <item
+        android:id="@+id/menu_manual_update"
+        android:title="@string/gammaos_manual_update"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/menu_preferences"
         android:title="@string/menu_preferences"
         app:showAsAction="never" />

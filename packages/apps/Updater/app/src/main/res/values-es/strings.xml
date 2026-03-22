@@ -68,7 +68,7 @@
     <string name="snack_download_verification_failed">Ha fallado la verificación de la actualización.</string>
     <string name="snack_download_verified">Descarga completada.</string>
     <string name="snack_update_not_installable">Esta actualización no puede instalarse sobre la versión actual.</string>
-    <string name="header_title_text">LineageOS\n%1$s</string>
+    <string name="header_title_text">GammaOS\nNext</string>
     <string name="header_android_version">Android <xliff:g id="version" example="7.1.2">%1$s</xliff:g></string>
     <string name="header_last_updates_check">Última comprobación: <xliff:g id="date" example="1 January 1970">%1$s</xliff:g> (<xliff:g id="time" example="01:23">%2$s</xliff:g>)</string>
     <string name="list_build_version">LineageOS <xliff:g id="version" example="14.1">%1$s</xliff:g></string>

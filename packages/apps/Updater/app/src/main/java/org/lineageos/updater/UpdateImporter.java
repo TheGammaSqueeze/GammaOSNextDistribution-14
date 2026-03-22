@@ -165,6 +165,18 @@ public class UpdateImporter {
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
     private void verifyPackage(File file) throws Exception {
+        // Check if this is a GammaOS OTA package (contains manifest.json)
+        // GammaOS OTA zips use their own SHA-256 verification, not AOSP signing
+        try (ZipFile zip = new ZipFile(file)) {
+            if (zip.getEntry("manifest.json") != null) {
+                Log.i(TAG, "GammaOS OTA package detected — skipping RecoverySystem verification");
+                return;
+            }
+        } catch (IOException e) {
+            Log.w(TAG, "Failed to check zip for manifest.json", e);
+        }
+
+        // Standard LineageOS/AOSP package — verify signature
         try {
             android.os.RecoverySystem.verifyPackage(file, null, null);
         } catch (Exception e) {

@@ -44,6 +44,12 @@ public final class Constants {
     public static final String PROP_BUILD_VERSION_INCREMENTAL = "ro.build.version.incremental";
     public static final String PROP_DEVICE = "ro.lineage.device";
     public static final String PROP_NEXT_DEVICE = "ro.updater.next_device";
+    public static final String PROP_GAMMAOS_DEVICE = "ro.gammaos.device";
+
+    public static final String PROP_GAMMAOS_OTA_PACKAGE = "sys.gammaos.ota.package";
+    public static final String PROP_GAMMAOS_OTA_AUTOINSTALL = "sys.gammaos.ota.autoinstall";
+
+    public static final String GAMMAOS_OTA_DIR = "/data/gammaos_ota";
     public static final String PROP_RELEASE_TYPE = "ro.lineage.releasetype";
     public static final String PROP_UPDATER_ALLOW_DOWNGRADING = "lineage.updater.allow_downgrading";
     public static final String PROP_UPDATER_URI = "lineage.updater.uri";

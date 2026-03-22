@@ -199,22 +199,10 @@ public class UpdaterService extends Service {
             if (update.getPersistentStatus() != UpdateStatus.Persistent.VERIFIED) {
                 throw new IllegalArgumentException(update.getDownloadId() + " is not verified");
             }
-            try {
-                if (Utils.isABUpdate(update.getFile())) {
-                    ABUpdateInstaller installer = ABUpdateInstaller.getInstance(this,
-                            mUpdaterController);
-                    installer.install(downloadId);
-                } else {
-                    UpdateInstaller installer = UpdateInstaller.getInstance(this,
-                            mUpdaterController);
-                    installer.install(downloadId);
-                }
-            } catch (IOException e) {
-                Log.e(TAG, "Could not install update", e);
-                mUpdaterController.getActualUpdate(downloadId)
-                        .setStatus(UpdateStatus.INSTALLATION_FAILED);
-                mUpdaterController.notifyUpdateChange(downloadId);
-            }
+            // GammaOS: Use our native OTA flasher for all update types
+            GammaOtaInstaller installer = new GammaOtaInstaller(this,
+                    mUpdaterController);
+            installer.install(downloadId);
         } else if (ACTION_INSTALL_STOP.equals(intent.getAction())) {
             if (UpdateInstaller.isInstalling()) {
                 UpdateInstaller installer = UpdateInstaller.getInstance(this,

@@ -46,3 +46,7 @@ allow bootanim media_userdir_file:dir { search getattr open read };
 # Traverse and read files under /data/media/0/... (media_rw_data_file)
 allow bootanim media_rw_data_file:dir { search getattr open read };
 allow bootanim media_rw_data_file:file { read getattr open };
+
+# GammaOS OTA: allow NanoMenu to trigger OTA mode
+set_prop(bootanim, ctl_gammaosota_prop)
+set_prop(bootanim, gammaosota_prop)

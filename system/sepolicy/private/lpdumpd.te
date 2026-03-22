@@ -34,6 +34,7 @@ allow lpdumpd ota_metadata_file:file r_file_perms;
 neverallow {
     domain
     -dumpstate
+    -gammaosota
     -lpdumpd
     -shell
 } lpdump_service:service_manager find;
@@ -41,6 +42,7 @@ neverallow {
 neverallow {
     domain
     -dumpstate
+    -gammaosota
     -lpdumpd
     -shell
     -servicemanager

@@ -485,17 +485,8 @@ public class UpdatesListAdapter extends RecyclerView.Adapter<UpdatesListAdapter.
                     .setPositiveButton(android.R.string.ok, null);
         }
         UpdateInfo update = mUpdaterController.getUpdate(downloadId);
-        int resId;
-        try {
-            if (Utils.isABUpdate(update.getFile())) {
-                resId = R.string.apply_update_dialog_message_ab;
-            } else {
-                resId = R.string.apply_update_dialog_message;
-            }
-        } catch (IOException e) {
-            Log.e(TAG, "Could not determine the type of the update");
-            return null;
-        }
+        // GammaOS: all updates use the same in-place flash mechanism
+        int resId = R.string.apply_update_dialog_message;
 
         String buildDate = StringGenerator.getDateLocalizedUTC(mActivity,
                 DateFormat.MEDIUM, update.getTimestamp());
@@ -507,8 +498,15 @@ public class UpdatesListAdapter extends RecyclerView.Adapter<UpdatesListAdapter.
                         mActivity.getString(android.R.string.ok)))
                 .setPositiveButton(android.R.string.ok,
                         (dialog, which) -> {
+                            // Show a blocking progress dialog — stays visible until
+                            // gammaos-ota takes over the display. Never auto-dismiss;
+                            // the OTA's fullscreen UI will cover it, then framework
+                            // stops (zygote killed) which destroys the activity.
+                            android.app.ProgressDialog.show(mActivity,
+                                    "GammaOS System Update",
+                                    "Preparing update...\nDo not power off your device.",
+                                    true, false);
                             Utils.triggerUpdate(mActivity, downloadId);
-                            maybeShowInfoDialog();
                         })
                 .setNegativeButton(android.R.string.cancel, null);
     }

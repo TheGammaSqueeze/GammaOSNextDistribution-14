@@ -744,3 +744,5 @@ neverallow {
 type persist_sys_spk_prop, property_type;
 type persist_sys_gammaeq_prop, property_type;
 type persist_gammaos_prop, property_type;
+type gammaosota_prop, property_type;
+type ctl_gammaosota_prop, property_type;

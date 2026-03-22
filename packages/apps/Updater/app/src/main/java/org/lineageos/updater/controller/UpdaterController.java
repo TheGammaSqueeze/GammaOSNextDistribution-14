@@ -274,6 +274,13 @@ public class UpdaterController {
     }
 
     private boolean verifyPackage(File file) {
+        // GammaOS OTA: skip RecoverySystem.verifyPackage() signature check.
+        // Our OTA packages use SHA-256 verification in the gammaos-ota binary instead
+        // of standard Android OTA signing. The integrity is verified at flash time.
+        if (file.exists() && file.length() > 0) {
+            Log.i(TAG, "GammaOS OTA: skipping RecoverySystem signature check, file OK: " + file.length() + " bytes");
+            return true;
+        }
         try {
             android.os.RecoverySystem.verifyPackage(file, null, null);
             Log.e(TAG, "Verification successful");

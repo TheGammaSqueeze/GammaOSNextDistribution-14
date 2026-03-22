@@ -15,8 +15,8 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="app_name">Updater</string>
-    <string name="display_name">Updater</string>
+    <string name="app_name">GammaOS Update</string>
+    <string name="display_name">GammaOS Update</string>
 
     <!-- Directory where the update files will be downloaded and stored.
          WARNING: The application can and will delete any unknown file. -->
@@ -24,7 +24,7 @@
 
     <!-- Directory where the downloads will be exported to.
          The path is relative to the root of the external storage.-->
-    <string name="export_path" translatable="false">LineageOS updates/</string>
+    <string name="export_path" translatable="false">GammaOS updates/</string>
 
     <!--
         Optional placeholders replaced at runtime:
@@ -32,7 +32,7 @@
           {type} - Build type
           {incr} - Incremental version
     -->
-    <string name="updater_server_url" translatable="false">https://download.lineageos.org/api/v1/{device}/{type}/{incr}</string>
+    <string name="updater_server_url" translatable="false">https://ota.gammaos.sh/api/v1/{device}/{type}</string>
 
     <string name="verification_failed_notification">Verification failed</string>
     <string name="verifying_download_notification">Verifying update</string>
@@ -84,10 +84,10 @@
     <string name="menu_copy_url">Copy URL</string>
     <string name="menu_export_update">Export update</string>
     <string name="menu_show_changelog">Show changelog</string>
-    <string name="menu_changelog_url" translatable="false">https://download.lineageos.org/<xliff:g id="device_name">%1$s</xliff:g>/changes</string>
+    <string name="menu_changelog_url" translatable="false">https://ota.gammaos.sh/<xliff:g id="device_name">%1$s</xliff:g>/changes</string>
     <string name="menu_ab_perf_mode">Prioritize update process</string>
     <string name="menu_update_recovery">Update recovery</string>
-    <string name="toast_forced_update_recovery">It is impossible to disable Lineage Recovery updates on this device.</string>
+    <string name="toast_forced_update_recovery">It is impossible to disable recovery updates on this device.</string>
 
     <string name="snack_updates_found">New updates found</string>
     <string name="snack_no_updates_found">No new updates found</string>
@@ -99,12 +99,12 @@
 
     <string name="snack_update_not_installable">This update can\'t be installed on top of the current build.</string>
 
-    <string name="header_title_text">LineageOS\n%1$s</string>
+    <string name="header_title_text">GammaOS\nNext</string>
     <string name="header_android_version">Android <xliff:g id="version" example="7.1.2">%1$s</xliff:g></string>
     <string name="header_last_updates_check">Last checked: <xliff:g id="date" example="1 January 1970">%1$s</xliff:g> (<xliff:g id="time" example="01:23">%2$s</xliff:g>)</string>
 
-    <string name="list_build_version">LineageOS <xliff:g id="version" example="14.1">%1$s</xliff:g></string>
-    <string name="list_build_version_date">LineageOS <xliff:g id="version" example="14.1">%1$s</xliff:g> - <xliff:g id="date" example="July 11, 2017">%2$s</xliff:g></string>
+    <string name="list_build_version">GammaOS <xliff:g id="version" example="14.1">%1$s</xliff:g></string>
+    <string name="list_build_version_date">GammaOS <xliff:g id="version" example="14.1">%1$s</xliff:g> - <xliff:g id="date" example="July 11, 2017">%2$s</xliff:g></string>
     <string name="list_download_progress_newer"><xliff:g id="filesize_without_unit" example="12.2">%1$s</xliff:g> of <xliff:g id="filesize_without_unit" example="310 MB">%2$s</xliff:g></string>
     <string name="list_download_progress_eta_newer"><xliff:g id="filesize_without_unit" example="12.2">%1$s</xliff:g> of <xliff:g id="filesize_without_unit" example="310 MB">%2$s</xliff:g> (<xliff:g id="eta" example="3 minutes left">%3$s</xliff:g>)</string>
     <string name="list_verifying_update">Verifying update</string>
@@ -122,8 +122,8 @@
     <string name="confirm_delete_dialog_message">Delete the selected update file?</string>
 
     <string name="apply_update_dialog_title">Apply update</string>
-    <string name="apply_update_dialog_message">You are about to install <xliff:g id="update_name">%1$s</xliff:g>.\n\nIf you press <xliff:g id="ok">%2$s</xliff:g>, the device will restart itself in recovery mode to install the update.\n\nNote: This feature requires a compatible Recovery or updates will need to be installed manually.</string>
-    <string name="apply_update_dialog_message_ab">You are about to install <xliff:g id="update_name">%1$s</xliff:g>.\n\nIf you press <xliff:g id="ok">%2$s</xliff:g>, the device will begin installing in the background.\n\nOnce completed, you will be prompted to reboot.</string>
+    <string name="apply_update_dialog_message">You are about to install <xliff:g id="update_name">%1$s</xliff:g>.\n\nIf you press <xliff:g id="ok">%2$s</xliff:g>, the device will enter update mode and flash the update directly.\n\nDo not power off your device during the update.</string>
+    <string name="apply_update_dialog_message_ab">You are about to install <xliff:g id="update_name">%1$s</xliff:g>.\n\nIf you press <xliff:g id="ok">%2$s</xliff:g>, the device will enter update mode and flash the update directly.\n\nDo not power off your device during the update.</string>
 
     <string name="cancel_installation_dialog_message">Cancel the installation?</string>
 
@@ -156,7 +156,7 @@
 
     <string name="blocked_update_dialog_title">Update blocked</string>
     <string name="blocked_update_dialog_message">This update cannot be installed using the updater app.  Please read <xliff:g id="info_url">%1$s</xliff:g> for more information.</string>
-    <string name="blocked_update_info_url" translatable="false">https://wiki.lineageos.org/devices/<xliff:g id="device_name">%1$s</xliff:g>/upgrade/</string>
+    <string name="blocked_update_info_url" translatable="false">https://ota.gammaos.sh/devices/<xliff:g id="device_name">%1$s</xliff:g>/upgrade/</string>
 
     <string name="export_channel_title">Export completion</string>
     <string name="new_updates_channel_title">New updates</string>
@@ -164,8 +164,17 @@
     <string name="update_failed_channel_title">Update failed</string>
 
     <string name="info_dialog_title">Did you know?</string>
-    <string name="info_dialog_message">LineageOS updates are full installation packages. That means you can always install only the latest update, even if you skipped some in between!</string>
+    <string name="info_dialog_message">GammaOS updates are full installation packages. That means you can always install only the latest update, even if you skipped some in between!</string>
     <string name="info_dialog_ok">Thanks for the info!</string>
+
+    <!-- GammaOS OTA strings -->
+    <string name="gammaos_manual_update">Install from storage</string>
+    <string name="gammaos_manual_update_summary">Select an update package from internal or external storage</string>
+    <string name="gammaos_preparing_update">Preparing update\u2026</string>
+    <string name="gammaos_extracting_update">Extracting update package\u2026</string>
+    <string name="gammaos_launching_updater">Launching update mode\u2026</string>
+    <string name="gammaos_update_failed_extract">Failed to extract update package</string>
+    <string name="gammaos_update_no_manifest">Update package does not contain a valid manifest</string>
 
     <string name="local_update_import">Local update</string>
     <string name="local_update_import_progress">Importing local update\u2026</string>

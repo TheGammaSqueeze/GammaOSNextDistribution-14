@@ -2,3 +2,6 @@ on post-fs-data
     # Create an additional OTA package directory that unlike /data/ota_package
     # will not be touched by GmsCore.
     mkdir /data/lineageos_updates 0770 system cache encryption=Require
+
+    # GammaOS OTA staging directory — used by gammaos-ota for extracted update packages
+    mkdir /data/gammaos_ota 0771 system system encryption=None

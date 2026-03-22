@@ -67,6 +67,7 @@ import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.snackbar.Snackbar;
 
 import org.json.JSONException;
+
 import org.lineageos.updater.controller.UpdaterController;
 import org.lineageos.updater.controller.UpdaterService;
 import org.lineageos.updater.download.DownloadClient;
@@ -86,6 +87,7 @@ import java.util.UUID;
 public class UpdatesActivity extends UpdatesListActivity implements UpdateImporter.Callbacks {
 
     private static final String TAG = "UpdatesActivity";
+    private static final int REQUEST_DIRECT_INSTALL = 9062;
     private UpdaterService mUpdaterService;
     private BroadcastReceiver mBroadcastReceiver;
 
@@ -284,7 +286,12 @@ public class UpdatesActivity extends UpdatesListActivity implements UpdateImport
             startActivity(openUrl);
             return true;
         } else if (itemId == R.id.menu_local_update) {
+            // "Local update" — use Android file picker to select a zip from storage
             mUpdateImporter.openImportPicker();
+            return true;
+        } else if (itemId == R.id.menu_manual_update) {
+            // "Install from storage" — pick a zip and install directly via gammaos-ota
+            openDirectInstallPicker();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -296,11 +303,128 @@ public class UpdatesActivity extends UpdatesListActivity implements UpdateImport
         return true;
     }
 
+    @SuppressWarnings("deprecation")
+    private void openDirectInstallPicker() {
+        final Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT)
+                .addCategory(Intent.CATEGORY_OPENABLE)
+                .setType("application/zip");
+        startActivityForResult(intent, REQUEST_DIRECT_INSTALL);
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if (requestCode == REQUEST_DIRECT_INSTALL && resultCode == Activity.RESULT_OK
+                && data != null && data.getData() != null) {
+            handleDirectInstall(data.getData());
+            return;
+        }
         if (!mUpdateImporter.onResult(requestCode, resultCode, data)) {
             super.onActivityResult(requestCode, resultCode, data);
         }
+    }
+
+    @SuppressWarnings("deprecation")
+    private void handleDirectInstall(Uri uri) {
+        ProgressDialog progress = ProgressDialog.show(this,
+                getString(R.string.gammaos_manual_update),
+                "Copying and extracting update package...\nDo not power off your device.",
+                true, false);
+
+        new Thread(() -> {
+            try {
+                // Copy the selected file to OTA directory
+                File otaDir = new File(Constants.GAMMAOS_OTA_DIR);
+                if (!otaDir.exists()) otaDir.mkdirs();
+
+                // Clean previous files
+                File[] existing = otaDir.listFiles();
+                if (existing != null) {
+                    for (File f : existing) {
+                        if (f.isDirectory()) {
+                            File[] children = f.listFiles();
+                            if (children != null) {
+                                for (File c : children) c.delete();
+                            }
+                        }
+                        f.delete();
+                    }
+                }
+
+                // Copy URI to temp zip
+                File tempZip = new File(otaDir, "update.zip");
+                try (java.io.InputStream in = getContentResolver().openInputStream(uri);
+                     java.io.FileOutputStream out = new java.io.FileOutputStream(tempZip)) {
+                    byte[] buf = new byte[1024 * 1024];
+                    int len;
+                    while ((len = in.read(buf)) > 0) {
+                        out.write(buf, 0, len);
+                    }
+                }
+
+                // Extract zip contents to OTA directory
+                try (java.util.zip.ZipInputStream zis =
+                        new java.util.zip.ZipInputStream(new java.io.FileInputStream(tempZip))) {
+                    java.util.zip.ZipEntry entry;
+                    byte[] buf = new byte[1024 * 1024];
+                    while ((entry = zis.getNextEntry()) != null) {
+                        if (entry.getName().contains("..")) continue;
+                        File outFile = new File(otaDir, entry.getName());
+                        if (entry.isDirectory()) {
+                            outFile.mkdirs();
+                            continue;
+                        }
+                        outFile.getParentFile().mkdirs();
+                        try (java.io.FileOutputStream fos = new java.io.FileOutputStream(outFile)) {
+                            int len2;
+                            while ((len2 = zis.read(buf)) > 0) {
+                                fos.write(buf, 0, len2);
+                            }
+                        }
+                        zis.closeEntry();
+                    }
+                }
+
+                // Delete temp zip
+                tempZip.delete();
+
+                // Check for manifest
+                if (!new File(otaDir, "manifest.json").exists()) {
+                    runOnUiThread(() -> {
+                        progress.dismiss();
+                        new AlertDialog.Builder(this)
+                                .setTitle(R.string.gammaos_manual_update)
+                                .setMessage("Not a valid GammaOS OTA package (no manifest.json)")
+                                .setPositiveButton(android.R.string.ok, null)
+                                .show();
+                    });
+                    return;
+                }
+
+                // Launch gammaos-ota service
+                android.os.SystemProperties.set(Constants.PROP_GAMMAOS_OTA_PACKAGE,
+                        Constants.GAMMAOS_OTA_DIR);
+                android.os.SystemProperties.set(Constants.PROP_GAMMAOS_OTA_AUTOINSTALL, "1");
+                android.os.SystemProperties.set("ctl.start", "gammaos-ota");
+
+                Log.i(TAG, "Direct install: extracted and launched gammaos-ota");
+
+                runOnUiThread(() -> {
+                    progress.dismiss();
+                    // gammaos-ota takes over from here
+                });
+
+            } catch (Exception e) {
+                Log.e(TAG, "Direct install failed", e);
+                runOnUiThread(() -> {
+                    progress.dismiss();
+                    new AlertDialog.Builder(this)
+                            .setTitle(R.string.gammaos_manual_update)
+                            .setMessage("Failed to install: " + e.getMessage())
+                            .setPositiveButton(android.R.string.ok, null)
+                            .show();
+                });
+            }
+        }, "DirectInstall").start();
     }
 
     @Override

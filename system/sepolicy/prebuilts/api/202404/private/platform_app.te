@@ -142,3 +142,7 @@ get_prop(platform_app, persist_sys_gammaeq_prop)
 set_prop(platform_app, persist_gammaos_prop)
 get_prop(platform_app, persist_gammaos_prop)
 
+# Allow platform apps (Updater) to start gammaos-ota and set OTA properties
+set_prop(platform_app, ctl_gammaosota_prop)
+set_prop(platform_app, gammaosota_prop)
+

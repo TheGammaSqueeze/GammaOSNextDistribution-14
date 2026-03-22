@@ -59,7 +59,7 @@
     <string name="snack_download_verification_failed">Eguneraketaren egiaztaketak huts egin du.</string>
     <string name="snack_download_verified">Deskarga osatuta.</string>
     <string name="snack_update_not_installable">Eguneraketa hau ezin da instalatu uneko konpilazioaren gainean.</string>
-    <string name="header_title_text">LineageOS\n%1$s</string>
+    <string name="header_title_text">GammaOS\nNext</string>
     <string name="header_android_version">Android <xliff:g id="version" example="7.1.2">%1$s</xliff:g></string>
     <string name="header_last_updates_check">Azken egiaztaketa: <xliff:g id="date" example="1 January 1970">%1$s</xliff:g> (<xliff:g id="time" example="01:23">%2$s</xliff:g>)</string>
     <string name="list_build_version">LineageOS <xliff:g id="version" example="14.1">%1$s</xliff:g></string>
