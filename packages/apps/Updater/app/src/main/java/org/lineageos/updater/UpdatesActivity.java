@@ -408,9 +408,11 @@ public class UpdatesActivity extends UpdatesListActivity implements UpdateImport
 
                 Log.i(TAG, "Direct install: extracted and launched gammaos-ota");
 
+                // Keep the progress dialog visible — gammaos-ota will overlay its
+                // own fullscreen UI on top, and the reboot cleans everything up.
+                // Do NOT dismiss here to avoid a brief flash of the Updater UI.
                 runOnUiThread(() -> {
-                    progress.dismiss();
-                    // gammaos-ota takes over from here
+                    progress.setMessage("Installing system update...\nDo not power off your device.");
                 });
 
             } catch (Exception e) {
