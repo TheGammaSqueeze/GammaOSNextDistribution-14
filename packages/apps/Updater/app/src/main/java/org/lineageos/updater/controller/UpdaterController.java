@@ -274,28 +274,13 @@ public class UpdaterController {
     }
 
     private boolean verifyPackage(File file) {
-        // GammaOS OTA: skip RecoverySystem.verifyPackage() signature check.
-        // Our OTA packages use SHA-256 verification in the gammaos-ota binary instead
-        // of standard Android OTA signing. The integrity is verified at flash time.
-        if (file.exists() && file.length() > 0) {
-            Log.i(TAG, "GammaOS OTA: skipping RecoverySystem signature check, file OK: " + file.length() + " bytes");
-            return true;
-        }
-        try {
-            android.os.RecoverySystem.verifyPackage(file, null, null);
-            Log.e(TAG, "Verification successful");
-            return true;
-        } catch (Exception e) {
-            Log.e(TAG, "Verification failed", e);
-            if (file.exists()) {
-                //noinspection ResultOfMethodCallIgnored
-                file.delete();
-            } else {
-                // The download was probably stopped. Exit silently
-                Log.e(TAG, "Error while verifying the file", e);
-            }
-            return false;
-        }
+        // GammaOS OTA: always skip RecoverySystem.verifyPackage() signature check.
+        // GammaOS OTA packages are not AOSP-signed. Integrity is verified at flash
+        // time by the gammaos-ota binary via SHA-256 checksums in manifest.json.
+        Log.i(TAG, "GammaOS OTA: skipping RecoverySystem signature check, file: " +
+                file.getAbsolutePath() + " exists=" + file.exists() +
+                " length=" + file.length());
+        return file.exists() && file.length() > 0;
     }
 
     private boolean fixUpdateStatus(Update update) {

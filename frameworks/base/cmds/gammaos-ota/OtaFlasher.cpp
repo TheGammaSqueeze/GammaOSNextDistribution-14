@@ -19,6 +19,7 @@
 #include "OtaFlasher.h"
 #include "XzDecompressor.h"
 
+#include <liblp/liblp.h>
 #include <unordered_map>
 #include <inttypes.h>
 #include <limits.h>
@@ -514,9 +515,6 @@ void OtaFlasher::dropCaches() {
 
 bool OtaFlasher::flash(const OtaManifest& manifest) {
     logToFile("INFO", "=== FLASH STARTED ===");
-    // Phase: Stop framework
-    notifyStatus(FlashPhase::STOPPING_FRAMEWORK);
-    stopFramework();
 
     auto physicals = manifest.physicalPartitions();
     auto logicals = manifest.logicalPartitions();
@@ -525,20 +523,107 @@ bool OtaFlasher::flash(const OtaManifest& manifest) {
     logToFile("INFO", "Total partitions to flash: %d (physical=%zu, logical=%zu)",
               totalParts, physicals.size(), logicals.size());
 
+    // === PRE-RESIZE PHASE (before stopping framework) ===
+    // Resize logical partitions and cache the new extent layout from lpdump
+    // while the framework (and lpdump's binder service) is still alive.
+    // The actual dmctl replace + write happens after stopping the framework.
+    std::string slot = getSlotSuffix();
+    for (const auto* part : logicals) {
+        std::string dmName = part->name + slot;
+        // Try without slot suffix if slotted version doesn't exist
+        std::string dmPath = getDmDevPath(dmName);
+        if (dmPath.empty()) {
+            dmName = part->name;
+            dmPath = getDmDevPath(dmName);
+        }
+        uint64_t currentSize = getBlockDevSize(dmPath);
+        if (part->size > currentSize) {
+            logToFile("INFO", "PRE-RESIZE: %s needs to grow %llu -> %llu (+%llu bytes)",
+                      dmName.c_str(), (unsigned long long)currentSize,
+                      (unsigned long long)part->size,
+                      (unsigned long long)(part->size - currentSize));
+
+            // Step 1: lptools resize (update super metadata)
+            std::string resizeCmd = "lptools resize " + dmName + " " + std::to_string(part->size);
+            std::string resizeOut;
+            if (!execCommand(resizeCmd, &resizeOut)) {
+                logToFile("ERROR", "PRE-RESIZE: lptools resize FAILED for %s: %s",
+                          dmName.c_str(), resizeOut.c_str());
+                return false;
+            }
+            logToFile("INFO", "PRE-RESIZE: lptools resize OK for %s", dmName.c_str());
+
+            // Step 2: Read new extent layout directly from super metadata via liblp
+            // This is the authoritative source — same as what init uses on reboot.
+            std::vector<OtaFlasher::CachedExtent> cachedExtents;
+            {
+                uint32_t slotNum = 0; // slot _a = 0, _b = 1
+                auto metadata = android::fs_mgr::ReadMetadata("/dev/block/by-name/super", slotNum);
+                if (metadata) {
+                    for (const auto& p : metadata->partitions) {
+                        if (std::string(p.name) == dmName) {
+                            uint64_t dmSector = 0;
+                            for (uint32_t i = 0; i < p.num_extents; i++) {
+                                const auto& ext = metadata->extents[p.first_extent_index + i];
+                                cachedExtents.push_back({
+                                    dmSector,
+                                    dmSector + ext.num_sectors,
+                                    ext.target_data
+                                });
+                                dmSector += ext.num_sectors;
+                            }
+                            break;
+                        }
+                    }
+                } else {
+                    logToFile("ERROR", "PRE-RESIZE: ReadMetadata failed for super partition");
+                }
+            }
+
+            logToFile("INFO", "PRE-RESIZE: cached %zu extents for %s from lpdump",
+                      cachedExtents.size(), dmName.c_str());
+            for (size_t i = 0; i < cachedExtents.size(); i++) {
+                logToFile("INFO", "  cached_extent[%zu]: dm=%llu-%llu offset=%llu",
+                          i, (unsigned long long)cachedExtents[i].dmStart,
+                          (unsigned long long)cachedExtents[i].dmEnd,
+                          (unsigned long long)cachedExtents[i].physOffset);
+            }
+
+            // Store in a map for use by flashLogical later
+            mCachedExtents[dmName] = std::move(cachedExtents);
+        }
+    }
+
+    // Phase: Stop framework
+    notifyStatus(FlashPhase::STOPPING_FRAMEWORK);
+    stopFramework();
+
     // Phase: Flash physical partitions (safe — not mounted)
+    // Physical partition failures are non-fatal: log a warning and continue.
+    // The user can still boot if a physical partition fails (e.g. RO-protected boot).
+    std::vector<std::string> physicalFailures;
     for (const auto* part : physicals) {
         logToFile("INFO", "--- Flashing physical partition %d/%d: %s ---",
                   idx + 1, totalParts, part->name.c_str());
         notifyStatus(FlashPhase::FLASHING_PHYSICAL, part->name, idx, totalParts, 0);
-        if (!flashPhysical(*part)) {
-            logToFile("ERROR", "FLASH FAILED: physical partition %s", part->name.c_str());
-            notifyStatus(FlashPhase::FAILED, part->name, idx, totalParts, 0,
-                         "Failed to flash " + part->name);
-            return false;
+        if (!flashPhysical(*part, idx, totalParts)) {
+            logToFile("WARN", "Physical partition %s: FAILED (non-fatal, continuing)",
+                      part->name.c_str());
+            physicalFailures.push_back(part->name);
+        } else {
+            logToFile("INFO", "Physical partition %s: DONE", part->name.c_str());
         }
-        logToFile("INFO", "Physical partition %s: DONE", part->name.c_str());
         notifyStatus(FlashPhase::FLASHING_PHYSICAL, part->name, idx, totalParts, 100);
         idx++;
+    }
+    if (!physicalFailures.empty()) {
+        std::string failList;
+        for (const auto& f : physicalFailures) {
+            if (!failList.empty()) failList += ", ";
+            failList += f;
+        }
+        logToFile("WARN", "Physical partitions that failed: %s (continuing with logical)",
+                  failList.c_str());
     }
 
     // Phase: Flash logical partitions (point of no return)
@@ -546,7 +631,7 @@ bool OtaFlasher::flash(const OtaManifest& manifest) {
         logToFile("INFO", "--- Flashing logical partition %d/%d: %s (POINT OF NO RETURN) ---",
                   idx + 1, totalParts, part->name.c_str());
         notifyStatus(FlashPhase::FLASHING_LOGICAL, part->name, idx, totalParts, 0);
-        if (!flashLogical(*part)) {
+        if (!flashLogical(*part, idx, totalParts)) {
             logToFile("ERROR", "FLASH FAILED: logical partition %s", part->name.c_str());
             notifyStatus(FlashPhase::FAILED, part->name, idx, totalParts, 0,
                          "Failed to flash " + part->name);
@@ -562,7 +647,7 @@ bool OtaFlasher::flash(const OtaManifest& manifest) {
     return true;
 }
 
-bool OtaFlasher::flashPhysical(const OtaPartition& part) {
+bool OtaFlasher::flashPhysical(const OtaPartition& part, int partIdx, int partCount) {
     std::string xzPath = mPackageDir + "/" + part.file;
     logToFile("INFO", "flashPhysical: %s, file=%s, size=%llu",
               part.name.c_str(), part.file.c_str(), (unsigned long long)part.size);
@@ -573,10 +658,10 @@ bool OtaFlasher::flashPhysical(const OtaPartition& part) {
     logToFile("INFO", "  Decompressing %s -> %s (staging)", xzPath.c_str(), stagingFile.c_str());
 
     // Show decompression progress
-    notifyStatus(FlashPhase::DECOMPRESSING, part.name, 0, 1, 0);
-    auto decompProgress = [this, &part](uint64_t written, uint64_t total) {
+    notifyStatus(FlashPhase::DECOMPRESSING, part.name, partIdx, partCount, 0);
+    auto decompProgress = [this, &part, partIdx, partCount](uint64_t written, uint64_t total) {
         int pct = (total > 0) ? (int)((written * 100) / total) : 0;
-        notifyStatus(FlashPhase::DECOMPRESSING, part.name, 0, 1, pct);
+        notifyStatus(FlashPhase::DECOMPRESSING, part.name, partIdx, partCount, pct);
     };
     if (!XzDecompressor::decompressToFile(xzPath, stagingFile, part.size, decompProgress)) {
         ALOGE("Failed to decompress %s to staging", part.name.c_str());
@@ -594,63 +679,85 @@ bool OtaFlasher::flashPhysical(const OtaPartition& part) {
     // Drop caches to free memory used by the decompression
     dropCaches();
 
-    // Detect A/B vs non-A/B: check if _a slot exists for this partition
+    // Detect A/B vs non-A/B
     std::string slotA = "/dev/block/by-name/" + part.name + "_a";
     std::string noSlot = "/dev/block/by-name/" + part.name;
     bool isAB = (access(slotA.c_str(), F_OK) == 0);
     logToFile("INFO", "  A/B detection: %s exists=%s → %s device",
               slotA.c_str(), isAB ? "yes" : "no", isAB ? "A/B" : "non-A/B");
 
+    bool anySlotSucceeded = false;
+
     if (isAB) {
+        // Flash both slots — if one fails, continue with the other
         const char* slots[] = {"_a", "_b"};
         for (const char* slot : slots) {
             std::string blockDev = "/dev/block/by-name/" + part.name + slot;
-            if (access(blockDev.c_str(), W_OK) != 0) {
-                ALOGW("Slot %s not found for %s, skipping", slot, part.name.c_str());
-                logToFile("WARN", "Slot %s not writable for %s — skipping", slot, part.name.c_str());
+            if (access(blockDev.c_str(), F_OK) != 0) {
+                logToFile("WARN", "  Slot %s not found for %s — skipping", slot, part.name.c_str());
                 continue;
             }
+
+            // Clear read-only flag if set (physical partitions are often RO-protected)
+            std::string setrwCmd = "blockdev --setrw " + blockDev;
+            std::string setrwOut;
+            if (execCommand(setrwCmd, &setrwOut)) {
+                logToFile("INFO", "  Cleared RO flag on %s", blockDev.c_str());
+            } else {
+                logToFile("WARN", "  Failed to clear RO flag on %s", blockDev.c_str());
+            }
+
             logToFile("INFO", "  Writing %s -> %s", stagingFile.c_str(), blockDev.c_str());
-            auto physProgress = [this, &part](uint64_t written, uint64_t total) {
+            auto physProgress = [this, &part, partIdx, partCount](uint64_t written, uint64_t total) {
                 int pct = (int)((written * 100) / total);
-                notifyStatus(FlashPhase::FLASHING_PHYSICAL, part.name, 0, 1, pct);
-                // Progress is rendered by OtaMenu's EGL render loop via notifyStatus
+                notifyStatus(FlashPhase::FLASHING_PHYSICAL, part.name, partIdx, partCount, pct);
             };
             if (!XzDecompressor::writeFileToBlock(stagingFile, blockDev, part.size, physProgress)) {
-                ALOGE("Failed to write %s to %s", part.name.c_str(), blockDev.c_str());
-                logToFile("ERROR", "Write FAILED: %s -> %s", stagingFile.c_str(), blockDev.c_str());
-                unlink(stagingFile.c_str());
-                return false;
+                ALOGW("Failed to write %s to slot %s (non-fatal)", part.name.c_str(), slot);
+                logToFile("WARN", "  Slot %s write FAILED for %s (continuing)", slot, part.name.c_str());
+            } else {
+                logToFile("INFO", "  Slot %s for %s: write complete", slot, part.name.c_str());
+                anySlotSucceeded = true;
             }
-            logToFile("INFO", "  Slot %s for %s: write complete", slot, part.name.c_str());
         }
     } else {
+        // Non-A/B: single device
         std::string blockDev = noSlot;
-        if (access(blockDev.c_str(), W_OK) != 0) {
-            ALOGE("Partition %s not writable at %s", part.name.c_str(), blockDev.c_str());
-            logToFile("ERROR", "Partition not writable: %s", blockDev.c_str());
+        if (access(blockDev.c_str(), F_OK) != 0) {
+            ALOGE("Partition %s not found at %s", part.name.c_str(), blockDev.c_str());
+            logToFile("ERROR", "Partition not found: %s", blockDev.c_str());
             unlink(stagingFile.c_str());
             return false;
         }
+
+        // Clear read-only flag
+        std::string setrwCmd = "blockdev --setrw " + blockDev;
+        std::string setrwOut;
+        execCommand(setrwCmd, &setrwOut);
+
         logToFile("INFO", "  Writing %s -> %s (non-A/B)", stagingFile.c_str(), blockDev.c_str());
-        auto physProgress = [this, &part](uint64_t written, uint64_t total) {
-            notifyStatus(FlashPhase::FLASHING_PHYSICAL, part.name, 0, 1,
+        auto physProgress = [this, &part, partIdx, partCount](uint64_t written, uint64_t total) {
+            notifyStatus(FlashPhase::FLASHING_PHYSICAL, part.name, partIdx, partCount,
                          (int)((written * 100) / total));
         };
         if (!XzDecompressor::writeFileToBlock(stagingFile, blockDev, part.size, physProgress)) {
-            ALOGE("Failed to write %s to %s", part.name.c_str(), blockDev.c_str());
-            logToFile("ERROR", "Write FAILED: %s -> %s", stagingFile.c_str(), blockDev.c_str());
-            unlink(stagingFile.c_str());
-            return false;
+            ALOGW("Failed to write %s (non-fatal)", part.name.c_str());
+            logToFile("WARN", "  Write FAILED for %s (non-A/B, continuing)", part.name.c_str());
+        } else {
+            logToFile("INFO", "  Partition %s: write complete (non-A/B)", part.name.c_str());
+            anySlotSucceeded = true;
         }
-        logToFile("INFO", "  Partition %s: write complete (non-A/B)", part.name.c_str());
+    }
+
+    if (!anySlotSucceeded) {
+        logToFile("WARN", "  No slots succeeded for %s — partition unchanged", part.name.c_str());
     }
 
     unlink(stagingFile.c_str());
     return true;
 }
 
-bool OtaFlasher::flashLogical(const OtaPartition& part) {
+bool OtaFlasher::flashLogical(const OtaPartition& part, int partIdx, int partCount) {
     std::string slot = getSlotSuffix();
     // Try with slot suffix first, then without (non-A/B)
     std::string dmName = part.name + slot;
@@ -718,12 +825,12 @@ bool OtaFlasher::flashLogical(const OtaPartition& part) {
 
     // Show decompression progress — distinct from the "Writing" phase
     logToFile("INFO", "  UI: Switching to DECOMPRESSING phase");
-    notifyStatus(FlashPhase::DECOMPRESSING, part.name, 0, 1, 0);
+    notifyStatus(FlashPhase::DECOMPRESSING, part.name, partIdx, partCount, 0);
     usleep(500000); // 500ms to ensure the render loop draws the initial frame
     int lastLoggedPct = -1;
-    auto decompProgress = [this, &part, &lastLoggedPct](uint64_t written, uint64_t total) {
+    auto decompProgress = [this, &part, &lastLoggedPct, partIdx, partCount](uint64_t written, uint64_t total) {
         int pct = (total > 0) ? (int)((written * 100) / total) : 0;
-        notifyStatus(FlashPhase::DECOMPRESSING, part.name, 0, 1, pct);
+        notifyStatus(FlashPhase::DECOMPRESSING, part.name, partIdx, partCount, pct);
         // Log every 10%
         if (pct / 10 > lastLoggedPct / 10) {
             lastLoggedPct = pct;
@@ -750,16 +857,16 @@ bool OtaFlasher::flashLogical(const OtaPartition& part) {
     // the system partition content changes and SF's state becomes invalid.
     // The screen will go blank during the write (30-60s), then reboot.
     logToFile("INFO", "  UI: Switching to FLASHING_LOGICAL phase");
-    notifyStatus(FlashPhase::FLASHING_LOGICAL, part.name, 0, 1, 0);
+    notifyStatus(FlashPhase::FLASHING_LOGICAL, part.name, partIdx, partCount, 0);
     logToFile("INFO", "  Showing DO NOT POWER OFF warning (last SF frame)...");
     usleep(500000); // 500ms to ensure the render loop draws the frame
 
     // Write decompressed file to block device with progress reporting
     logToFile("INFO", "  Writing %s -> %s (%llu bytes)", stagingFile.c_str(), dmPath.c_str(),
               (unsigned long long)part.size);
-    auto writeProgress = [this, &part](uint64_t written, uint64_t total) {
+    auto writeProgress = [this, &part, partIdx, partCount](uint64_t written, uint64_t total) {
         int pct = (int)((written * 100) / total);
-        notifyStatus(FlashPhase::FLASHING_LOGICAL, part.name, 0, 1, pct);
+        notifyStatus(FlashPhase::FLASHING_LOGICAL, part.name, partIdx, partCount, pct);
         // Update direct display progress (fbdev/DRM)
         std::string status = "Flashing " + part.name + "...";
         // Progress is rendered by OtaMenu's EGL render loop via notifyStatus
@@ -803,16 +910,24 @@ bool OtaFlasher::flashLogical(const OtaPartition& part) {
 bool OtaFlasher::resizeLogicalPartition(const std::string& dmName, uint64_t newSize) {
     logToFile("INFO", "resizeLogicalPartition: %s -> %llu bytes", dmName.c_str(), (unsigned long long)newSize);
 
-    // Step 1: Update super partition metadata
-    std::string resizeCmd = "lptools resize " + dmName + " " + std::to_string(newSize);
-    logToFile("INFO", "  Step 1: %s", resizeCmd.c_str());
-    std::string resizeOut;
-    if (!execCommand(resizeCmd, &resizeOut)) {
-        ALOGE("lptools resize failed: %s", resizeOut.c_str());
-        logToFile("ERROR", "lptools resize FAILED: %s", resizeOut.c_str());
-        return false;
+    // Check if lptools resize was already done in the pre-resize phase
+    bool alreadyResized = (mCachedExtents.count(dmName) > 0);
+
+    if (!alreadyResized) {
+        // Step 1: Update super partition metadata (not pre-resized)
+        std::string resizeCmd = "lptools resize " + dmName + " " + std::to_string(newSize);
+        logToFile("INFO", "  Step 1: %s", resizeCmd.c_str());
+        std::string resizeOut;
+        if (!execCommand(resizeCmd, &resizeOut)) {
+            ALOGE("lptools resize failed: %s", resizeOut.c_str());
+            logToFile("ERROR", "lptools resize FAILED: %s", resizeOut.c_str());
+            return false;
+        }
+        logToFile("INFO", "  lptools resize OK: %s", resizeOut.c_str());
+    } else {
+        logToFile("INFO", "  Step 1: lptools resize already done in pre-resize phase (cached %zu extents)",
+                  mCachedExtents[dmName].size());
     }
-    logToFile("INFO", "  lptools resize OK: %s", resizeOut.c_str());
 
     // Step 2: Try to unmap + remap the dm device
     // This may fail if the partition is mounted (e.g., system at /)
@@ -904,22 +1019,34 @@ bool OtaFlasher::resizeLogicalPartition(const std::string& dmName, uint64_t newS
                   (unsigned long long)currentSectors, (unsigned long long)newSectors,
                   (long long)(newSectors - currentSectors));
 
-        // Build new dmctl replace command: keep existing extents + extend last one
-        // or add new extent if the resize allocated new physical blocks
-        // After lptools resize, the metadata has the correct extents — we can read them
-        // by querying lptools free to know where the new space was allocated.
-        // Simplest: extend the last extent by the delta sectors
+        // Use cached extents from pre-resize phase (read from lpdump while
+        // binder service was alive). This is the authoritative extent layout
+        // that init will use on reboot.
         std::string replaceCmd = "dmctl replace " + dmName;
-        for (size_t i = 0; i < extents.size(); i++) {
-            const auto& e = extents[i];
-            uint64_t sectors = e.dmEnd - e.dmStart;
-            if (i == extents.size() - 1 && newSectors > currentSectors) {
-                // Extend the last extent by the delta
-                sectors += (newSectors - currentSectors);
+        auto cachedIt = mCachedExtents.find(dmName);
+        if (cachedIt != mCachedExtents.end() && !cachedIt->second.empty()) {
+            logToFile("INFO", "  Using %zu cached extents from pre-resize lpdump",
+                      cachedIt->second.size());
+            for (const auto& ce : cachedIt->second) {
+                uint64_t sectors = ce.dmEnd - ce.dmStart;
+                replaceCmd += " linear " + std::to_string(ce.dmStart) + " " +
+                              std::to_string(sectors) + " " + devStr + " " +
+                              std::to_string(ce.physOffset);
             }
-            replaceCmd += " linear " + std::to_string(e.dmStart) + " " +
-                          std::to_string(sectors) + " " + devStr + " " +
-                          std::to_string(e.physOffset);
+        } else {
+            // Fallback: extend last extent (legacy behavior — may cause mismatch
+            // between live dm table and super metadata on reboot)
+            logToFile("WARN", "  No cached extents — falling back to last-extent extension");
+            for (size_t i = 0; i < extents.size(); i++) {
+                const auto& e = extents[i];
+                uint64_t sectors = e.dmEnd - e.dmStart;
+                if (i == extents.size() - 1 && newSectors > currentSectors) {
+                    sectors += (newSectors - currentSectors);
+                }
+                replaceCmd += " linear " + std::to_string(e.dmStart) + " " +
+                              std::to_string(sectors) + " " + devStr + " " +
+                              std::to_string(e.physOffset);
+            }
         }
 
         ALOGI("dmctl replace cmd: %s", replaceCmd.c_str());

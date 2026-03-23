@@ -19,6 +19,7 @@
 
 #include <string>
 #include <vector>
+#include <map>
 #include <functional>
 #include <cstdio>
 
@@ -101,8 +102,8 @@ private:
                       int idx = 0, int count = 0, int progress = 0,
                       const std::string& error = "");
 
-    bool flashPhysical(const OtaPartition& part);
-    bool flashLogical(const OtaPartition& part);
+    bool flashPhysical(const OtaPartition& part, int partIdx = 0, int partCount = 1);
+    bool flashLogical(const OtaPartition& part, int partIdx = 0, int partCount = 1);
     bool resizeLogicalPartition(const std::string& dmName, uint64_t newSize);
     uint64_t getBlockDevSize(const std::string& path);
     std::string getDmDevPath(const std::string& dmName);
@@ -118,6 +119,12 @@ private:
     FlashStatusCallback mCallback;
     std::string mPackageDir;
     OtaDisplay mDisplay;  // Direct framebuffer/DRM display for progress during flash
+
+    // Cached extent layouts from lpdump (read before stopping framework)
+    struct CachedExtent {
+        uint64_t dmStart, dmEnd, physOffset;
+    };
+    std::map<std::string, std::vector<CachedExtent>> mCachedExtents;
 
     // Libs to copy for tmpfs staging
     static const std::vector<std::string> REQUIRED_SYSTEM_LIBS;
