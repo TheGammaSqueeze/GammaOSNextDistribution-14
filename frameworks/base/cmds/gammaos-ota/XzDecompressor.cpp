@@ -363,6 +363,9 @@ std::string XzDecompressor::sha256BlockDev(const std::string& blockDevPath, uint
     uint8_t* buf = static_cast<uint8_t*>(aligned_buf);
 
     uint64_t remaining = size;
+    uint64_t totalRead = 0;
+    uint64_t lastFlushOffset = 0;
+    static const uint64_t VERIFY_FLUSH_INTERVAL = 256 * 1024 * 1024; // 256MB
     while (remaining > 0) {
         // O_DIRECT requires reads aligned to block size
         size_t toRead = BUF_SIZE;
@@ -376,6 +379,17 @@ std::string XzDecompressor::sha256BlockDev(const std::string& blockDevPath, uint
         size_t hashBytes = ((uint64_t)n > remaining) ? (size_t)remaining : (size_t)n;
         SHA256_Update(&ctx, buf, hashBytes);
         remaining -= hashBytes;
+        totalRead += hashBytes;
+
+        // Periodic cache drop every 256MB to prevent OOM on low-RAM devices
+        if (totalRead - lastFlushOffset >= VERIFY_FLUSH_INTERVAL) {
+            int cacheFd = open("/proc/sys/vm/drop_caches", O_WRONLY);
+            if (cacheFd >= 0) {
+                write(cacheFd, "3", 1);
+                close(cacheFd);
+            }
+            lastFlushOffset = totalRead;
+        }
     }
     close(fd);
     free(aligned_buf);

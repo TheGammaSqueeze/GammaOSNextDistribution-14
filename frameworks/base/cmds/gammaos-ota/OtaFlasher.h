@@ -110,6 +110,7 @@ private:
     bool execCommand(const std::string& cmd, std::string* output = nullptr);
     void stopFramework();
     void dropCaches();
+    void dumpSuperMetadata(const char* label);
 
     static constexpr const char* STAGE_DIR = "/dev/gammaos-ota-stage";
     static constexpr const char* BACKUP_DIR = "/data/gammaos_ota/backup";

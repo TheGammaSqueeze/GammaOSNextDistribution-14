@@ -840,9 +840,13 @@ void OtaMenu::runFlashSequence() {
         OtaFlasher::logToFile("INFO", "=== OTA FLASH SEQUENCE: SUCCESS ===");
         OtaFlasher::logToFile("INFO", "========================================");
         mState = STATE_SUCCESS;
-        // Cleanup and reboot from flash thread — render loop can't run
-        // because SurfaceFlinger was stopped during flash
-        sleep(2); // Brief pause so state is visible if SF is somehow still up
+        // Wait for the 5-second countdown to complete before rebooting.
+        // SurfaceFlinger is alive so the render loop shows the countdown.
+        // Sync all filesystems to ensure all writes are flushed to disk.
+        sync();
+        OtaFlasher::logToFile("INFO", "Waiting 5 seconds for countdown + final sync...");
+        sleep(5);
+        sync(); // Final sync before reboot
         mFlasher.reboot();
     } else {
         OtaFlasher::logToFile("ERROR", "Verification failed for %zu partition(s)",

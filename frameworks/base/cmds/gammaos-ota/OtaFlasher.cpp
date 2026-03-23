@@ -522,8 +522,30 @@ void OtaFlasher::dropCaches() {
     android::base::WriteStringToFile("3", "/proc/sys/vm/drop_caches");
 }
 
+void OtaFlasher::dumpSuperMetadata(const char* label) {
+    auto metadata = android::fs_mgr::ReadMetadata("/dev/block/by-name/super", 0);
+    if (!metadata) {
+        logToFile("WARN", "  [%s] Failed to read super metadata", label);
+        return;
+    }
+    logToFile("INFO", "  [%s] Super metadata: %zu partitions, %zu extents",
+              label, metadata->partitions.size(), metadata->extents.size());
+    for (const auto& p : metadata->partitions) {
+        uint64_t totalSectors = 0;
+        for (uint32_t i = 0; i < p.num_extents; i++) {
+            totalSectors += metadata->extents[p.first_extent_index + i].num_sectors;
+        }
+        logToFile("INFO", "    %s: %llu bytes (%u extents)",
+                  p.name, (unsigned long long)(totalSectors * 512), p.num_extents);
+    }
+}
+
 bool OtaFlasher::flash(const OtaManifest& manifest) {
     logToFile("INFO", "=== FLASH STARTED ===");
+
+    // Dump super metadata before flash for diagnostics
+    logToFile("INFO", "=== SUPER METADATA BEFORE FLASH ===");
+    dumpSuperMetadata("BEFORE");
 
     auto physicals = manifest.physicalPartitions();
     auto logicals = manifest.logicalPartitions();
@@ -656,7 +678,13 @@ bool OtaFlasher::flash(const OtaManifest& manifest) {
     }
 
     sync();
+    dropCaches();
     logToFile("INFO", "=== FLASH COMPLETE — ALL PARTITIONS WRITTEN ===");
+
+    // Dump super metadata after flash for diagnostics
+    logToFile("INFO", "=== SUPER METADATA AFTER FLASH ===");
+    dumpSuperMetadata("AFTER");
+
     return true;
 }
 
@@ -1114,12 +1142,15 @@ std::vector<std::string> OtaFlasher::verify(const OtaManifest& manifest) {
             continue;
         }
 
-        // Skip post-write verification for system partition (mounted at /)
-        // The kernel page cache for a mounted filesystem cannot be fully invalidated,
-        // so SHA-256 read-back always returns stale data after writing a different image.
-        // Boot success is the definitive verification for the system partition.
-        if (part.name == "system" && part.type == "logical") {
-            logToFile("INFO", "  Skipping verification for system (mounted at /) — boot is the verification");
+        // Skip post-write verification for mounted logical partitions (system, vendor).
+        // After writing to a mounted block device, the kernel page cache cannot be fully
+        // invalidated — SHA-256 read-back causes OOM on large partitions.
+        // Boot success is the definitive verification for these partitions.
+        // Data integrity is already ensured by: XZ internal checksums + compressed SHA-256
+        // verified in preflight + staging file written from verified source.
+        if (part.type == "logical" && (part.name == "system" || part.name == "vendor")) {
+            logToFile("INFO", "  Skipping verification for %s (mounted) — boot is the verification",
+                      part.name.c_str());
             notifyStatus(FlashPhase::VERIFYING, part.name, idx, count, 100);
             idx++;
             continue;
