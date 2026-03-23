@@ -483,7 +483,7 @@ void OtaFlasher::stopFramework() {
     // Bind-mount tmpfs directories over /system paths so nothing reads from
     // the system block device during the flash. This prevents kernel page cache
     // conflicts that cause crashes when the block device content changes.
-    logToFile("INFO", "Bind-mounting tmpfs over /system paths...");
+    logToFile("INFO", "Bind-mounting tmpfs over /system and /vendor paths...");
     std::string binDir = std::string(STAGE_DIR) + "/bin";
     std::string libDir = std::string(STAGE_DIR) + "/lib64";
     // mount --bind our staged tmpfs dirs over the system dirs
@@ -492,14 +492,23 @@ void OtaFlasher::stopFramework() {
     execCommand("mount --bind " + libDir + " /system/lib64");
     logToFile("INFO", "  Bind-mounted %s -> /system/lib64", libDir.c_str());
 
+    // Also bind-mount tmpfs over /vendor to prevent page cache conflicts
+    // when writing to the vendor partition. Without this, writing a large
+    // image to the vendor block device while /vendor is mounted can cause
+    // kernel page cache conflicts → OOM/crash.
+    execCommand("mount -t tmpfs tmpfs /vendor");
+    logToFile("INFO", "  Mounted tmpfs over /vendor");
+
     logToFile("INFO", "Syncing filesystems...");
     sync();
     // Aggressively drop ALL caches — this forces the kernel to release all
-    // cached pages from the system block device
+    // cached pages from the system and vendor block devices
     logToFile("INFO", "Dropping caches (aggressive)...");
     dropCaches();
     usleep(500000);
     dropCaches(); // Second pass to catch any stragglers
+    usleep(500000);
+    dropCaches(); // Third pass — critical for large multi-partition writes
 
     // Display progress is handled by OtaMenu's EGL render loop via notifyStatus.
     // SurfaceFlinger is kept alive so EGL rendering works throughout the flash.
@@ -639,6 +648,10 @@ bool OtaFlasher::flash(const OtaManifest& manifest) {
         }
         logToFile("INFO", "Logical partition %s: DONE", part->name.c_str());
         notifyStatus(FlashPhase::FLASHING_LOGICAL, part->name, idx, totalParts, 100);
+        // Drop caches between partitions to relieve memory pressure
+        // Critical for multi-partition writes where total data exceeds RAM
+        sync();
+        dropCaches();
         idx++;
     }
 
@@ -1332,6 +1345,7 @@ void OtaFlasher::reboot() {
     logToFile("INFO", "Unmounting bind-mounts...");
     umount("/system/bin");
     umount("/system/lib64");
+    umount("/vendor");
     logToFile("INFO", "Bind-mounts removed");
 
     // Close direct display

@@ -259,6 +259,8 @@ bool XzDecompressor::writeFileToBlock(const std::string& filePath,
 
     uint8_t* buf = new uint8_t[BUF_SIZE];
     uint64_t totalWritten = 0;
+    uint64_t lastFlushOffset = 0;
+    static const uint64_t FLUSH_INTERVAL = 256 * 1024 * 1024; // 256MB
     bool success = true;
 
     while (totalWritten < size) {
@@ -285,6 +287,20 @@ bool XzDecompressor::writeFileToBlock(const std::string& filePath,
         }
         if (!success) break;
         totalWritten += (uint64_t)nread;
+
+        // Periodic flush: sync + drop caches every 256MB to prevent
+        // page cache accumulation on low-RAM devices
+        if (totalWritten - lastFlushOffset >= FLUSH_INTERVAL) {
+            fsync(outFd);
+            sync();
+            // Drop page caches to free memory
+            int cacheFd = open("/proc/sys/vm/drop_caches", O_WRONLY);
+            if (cacheFd >= 0) {
+                write(cacheFd, "3", 1);
+                close(cacheFd);
+            }
+            lastFlushOffset = totalWritten;
+        }
 
         // Report progress
         if (progress) {
