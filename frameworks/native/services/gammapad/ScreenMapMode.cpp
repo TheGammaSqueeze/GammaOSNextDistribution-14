@@ -93,29 +93,26 @@ void ScreenMapMode::detectScreenSize() {
         }
     }
 
-    for (int card = 0; card < 4; card++) {
-        for (int conn = 0; conn < 4; conn++) {
-            char path[256];
-            snprintf(path, sizeof(path), "/sys/class/drm/card%d-HDMI-A-%d/modes", card, conn + 1);
-            std::ifstream drm(path);
-            if (!drm.is_open()) {
-                snprintf(path, sizeof(path), "/sys/class/drm/card%d-DSI-%d/modes", card, conn + 1);
-                drm.open(path);
-            }
-            if (!drm.is_open()) {
-                snprintf(path, sizeof(path), "/sys/class/drm/card%d-eDP-%d/modes", card, conn + 1);
-                drm.open(path);
-            }
-            if (drm.is_open()) {
-                std::string mode;
-                if (std::getline(drm, mode)) {
-                    w = 0; h = 0;
-                    if (sscanf(mode.c_str(), "%dx%d", &w, &h) == 2 && w > 0 && h > 0) {
-                        mScreenW = w;
-                        mScreenH = h;
-                        LOG(INFO) << "ScreenMapMode: screen size from DRM (" << path << "): "
-                                  << mScreenW << "x" << mScreenH;
-                        return;
+    {
+        static const char* kConnTypes[] = { "DSI", "eDP", "HDMI-A", "DP" };
+        for (int card = 0; card < 4; card++) {
+            for (const char* type : kConnTypes) {
+                for (int conn = 1; conn <= 4; conn++) {
+                    char path[256];
+                    snprintf(path, sizeof(path),
+                             "/sys/class/drm/card%d-%s-%d/modes", card, type, conn);
+                    std::ifstream drm(path);
+                    if (!drm.is_open()) continue;
+                    std::string mode;
+                    if (std::getline(drm, mode)) {
+                        w = 0; h = 0;
+                        if (sscanf(mode.c_str(), "%dx%d", &w, &h) == 2 && w > 0 && h > 0) {
+                            mScreenW = w;
+                            mScreenH = h;
+                            LOG(INFO) << "ScreenMapMode: screen size from DRM (" << path << "): "
+                                      << mScreenW << "x" << mScreenH;
+                            return;
+                        }
                     }
                 }
             }
@@ -126,18 +123,30 @@ void ScreenMapMode::detectScreenSize() {
 }
 
 void ScreenMapMode::detectTouchOrientation() {
-    std::string orient = android::base::GetProperty(
+    // Display orientation — for W/H swap (panel→display dimensions)
+    std::string displayOrient = android::base::GetProperty(
         "ro.surface_flinger.primary_display_orientation", "ORIENTATION_0");
-    if (orient == "ORIENTATION_90") mOrientation = 90;
-    else if (orient == "ORIENTATION_180") mOrientation = 180;
-    else if (orient == "ORIENTATION_270") mOrientation = 270;
-    else mOrientation = 0;
+    int displayDeg = 0;
+    if (displayOrient == "ORIENTATION_90") displayDeg = 90;
+    else if (displayOrient == "ORIENTATION_180") displayDeg = 180;
+    else if (displayOrient == "ORIENTATION_270") displayDeg = 270;
 
-    if ((mOrientation == 90 || mOrientation == 270) && mScreenW > 0 && mScreenH > 0) {
+    if ((displayDeg == 90 || displayDeg == 270) && mScreenW > 0 && mScreenH > 0) {
         std::swap(mScreenW, mScreenH);
-        LOG(INFO) << "ScreenMapMode: swapped to display dims for orientation "
-                  << mOrientation << "°: " << mScreenW << "x" << mScreenH;
     }
+
+    // Touch orientation — for displayToRaw() inverse rotation.
+    // If not set, InputFlinger defaults to ROTATION_0 (no rotation).
+    std::string touchOrient = android::base::GetProperty(
+        "ro.input_flinger.primary_touch_orientation", "");
+    mOrientation = 0;
+    if (touchOrient == "ORIENTATION_90") mOrientation = 90;
+    else if (touchOrient == "ORIENTATION_180") mOrientation = 180;
+    else if (touchOrient == "ORIENTATION_270") mOrientation = 270;
+
+    LOG(INFO) << "ScreenMapMode: display orientation=" << displayDeg
+              << "° touch orientation=" << mOrientation
+              << "° screen=" << mScreenW << "x" << mScreenH;
 }
 
 void ScreenMapMode::displayToRaw(int displayX, int displayY,

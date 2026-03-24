@@ -237,15 +237,20 @@ bool InputTransformer::transform(struct input_event& ev,
             bool isTriggerCode = (code == ABS_Z || code == ABS_RZ ||
                                   code == ABS_GAS || code == ABS_BRAKE);
             bool wasRemapped = (physicalCode != code);
+            // Physical stick axes should never be treated as triggers,
+            // even when .kl remaps them to a trigger code (e.g., ABS_RX→ABS_Z).
+            bool isPhysicalStick = (physicalCode == ABS_X || physicalCode == ABS_Y ||
+                                    physicalCode == ABS_RX || physicalCode == ABS_RY);
 
-            if (isTriggerCode && pMin < 0 && pRange > 1000 && wasRemapped) {
+            if (isTriggerCode && pMin < 0 && pRange > 1000 && wasRemapped
+                    && !isPhysicalStick) {
                 // Bipolar trigger: .kl remapped a bipolar axis to a trigger code
                 // (e.g., Xbox 360: ABS_Z→ABS_BRAKE). Rest at 0, active [0, pMax].
                 if (value < 0) value = 0;
                 if (pMax > 0) {
                     value = (int)((int64_t)value * 32767 / pMax);
                 }
-            } else if (isTriggerCode && pMin >= 0 && pRange > 2) {
+            } else if (isTriggerCode && pMin >= 0 && pRange > 2 && !isPhysicalStick) {
                 // Distinguish unsigned sticks from actual triggers:
                 // Large range (>4096) identity-mapped on Z/RZ = unsigned stick axis,
                 // not a trigger (e.g., Xbox BT right stick on Z/RZ with 0..65535)

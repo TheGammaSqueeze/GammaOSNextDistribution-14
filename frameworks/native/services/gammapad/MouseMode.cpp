@@ -131,33 +131,29 @@ void MouseMode::detectScreenSize() {
     }
 
     // 4. Try DRM mode info from sysfs
-    // Look for connected DRM connectors with active mode
-    for (int card = 0; card < 4; card++) {
-        for (int conn = 0; conn < 4; conn++) {
-            char path[256];
-            snprintf(path, sizeof(path),
-                     "/sys/class/drm/card%d-HDMI-A-%d/modes", card, conn + 1);
-            std::ifstream drm(path);
-            if (!drm.is_open()) {
-                snprintf(path, sizeof(path),
-                         "/sys/class/drm/card%d-DSI-%d/modes", card, conn + 1);
-                drm.open(path);
-            }
-            if (!drm.is_open()) {
-                snprintf(path, sizeof(path),
-                         "/sys/class/drm/card%d-eDP-%d/modes", card, conn + 1);
-                drm.open(path);
-            }
-            if (drm.is_open()) {
-                std::string mode;
-                if (std::getline(drm, mode)) {
-                    w = 0; h = 0;
-                    if (sscanf(mode.c_str(), "%dx%d", &w, &h) == 2 && w > 0 && h > 0) {
-                        mScreenW = w;
-                        mScreenH = h;
-                        LOG(INFO) << "MouseMode: screen size from DRM (" << path << "): "
-                                  << mScreenW << "x" << mScreenH;
-                        return;
+    // Look for connected DRM connectors with active mode.
+    // Try each connector type independently — a file may exist but be empty
+    // (e.g., HDMI-A-1 with no display attached), so don't let it block DSI/eDP.
+    {
+        static const char* kConnTypes[] = { "DSI", "eDP", "HDMI-A", "DP" };
+        for (int card = 0; card < 4; card++) {
+            for (const char* type : kConnTypes) {
+                for (int conn = 1; conn <= 4; conn++) {
+                    char path[256];
+                    snprintf(path, sizeof(path),
+                             "/sys/class/drm/card%d-%s-%d/modes", card, type, conn);
+                    std::ifstream drm(path);
+                    if (!drm.is_open()) continue;
+                    std::string mode;
+                    if (std::getline(drm, mode)) {
+                        w = 0; h = 0;
+                        if (sscanf(mode.c_str(), "%dx%d", &w, &h) == 2 && w > 0 && h > 0) {
+                            mScreenW = w;
+                            mScreenH = h;
+                            LOG(INFO) << "MouseMode: screen size from DRM (" << path << "): "
+                                      << mScreenW << "x" << mScreenH;
+                            return;
+                        }
                     }
                 }
             }
@@ -168,31 +164,45 @@ void MouseMode::detectScreenSize() {
 }
 
 void MouseMode::detectTouchOrientation() {
-    // DRM/fb0/sysfs report the native panel resolution (pre-rotation).
-    // SurfaceFlinger's primary_display_orientation rotates the display, so
-    // the logical display dimensions are swapped relative to the panel for
-    // 90°/270°. We swap mScreenW/mScreenH to get the display dimensions
-    // that cursor coordinates operate in.
+    // Two separate orientation properties control different things:
     //
-    // InputFlinger DOES apply primary_touch_orientation to our virtual
-    // touchscreen (it's classified as internal). So the virtual touchscreen
-    // must be created with panel dimensions (swapped back), and we must
-    // pre-apply the inverse rotation to touch coordinates.
-    std::string orient = android::base::GetProperty(
-        "ro.surface_flinger.primary_display_orientation", "ORIENTATION_0");
-    if (orient == "ORIENTATION_90") mOrientation = 90;
-    else if (orient == "ORIENTATION_180") mOrientation = 180;
-    else if (orient == "ORIENTATION_270") mOrientation = 270;
-    else mOrientation = 0;
+    // 1. primary_display_orientation: how SurfaceFlinger rotates the display.
+    //    A native 1080x1920 panel with ORIENTATION_270 becomes 1920x1080 display.
+    //    We use this to swap mScreenW/mScreenH to get logical display dimensions.
+    //
+    // 2. primary_touch_orientation: how InputFlinger rotates virtual touchscreen
+    //    raw coordinates. If NOT set, InputFlinger defaults to ROTATION_0 (no
+    //    rotation). We use this for displayToRaw() inverse compensation.
+    //
+    // These can differ: a device may rotate the display but not set touch
+    // orientation (e.g., when the vendor's physical touch panel driver handles
+    // rotation internally).
 
-    if ((mOrientation == 90 || mOrientation == 270) && mScreenW > 0 && mScreenH > 0) {
+    // Display orientation — for W/H swap
+    std::string displayOrient = android::base::GetProperty(
+        "ro.surface_flinger.primary_display_orientation", "ORIENTATION_0");
+    int displayDeg = 0;
+    if (displayOrient == "ORIENTATION_90") displayDeg = 90;
+    else if (displayOrient == "ORIENTATION_180") displayDeg = 180;
+    else if (displayOrient == "ORIENTATION_270") displayDeg = 270;
+
+    if ((displayDeg == 90 || displayDeg == 270) && mScreenW > 0 && mScreenH > 0) {
         std::swap(mScreenW, mScreenH);
-        LOG(INFO) << "MouseMode: swapped to display dims for orientation "
-                  << mOrientation << "°: " << mScreenW << "x" << mScreenH;
-    } else {
-        LOG(INFO) << "MouseMode: display orientation: " << mOrientation
-                  << "° (no swap needed)";
+        LOG(INFO) << "MouseMode: swapped to display dims for display orientation "
+                  << displayDeg << "°: " << mScreenW << "x" << mScreenH;
     }
+
+    // Touch orientation — for displayToRaw() inverse rotation
+    std::string touchOrient = android::base::GetProperty(
+        "ro.input_flinger.primary_touch_orientation", "");
+    mOrientation = 0;
+    if (touchOrient == "ORIENTATION_90") mOrientation = 90;
+    else if (touchOrient == "ORIENTATION_180") mOrientation = 180;
+    else if (touchOrient == "ORIENTATION_270") mOrientation = 270;
+
+    LOG(INFO) << "MouseMode: display orientation=" << displayDeg
+              << "° touch orientation=" << mOrientation
+              << "° screen=" << mScreenW << "x" << mScreenH;
 }
 
 void MouseMode::displayToRaw(int displayX, int displayY,

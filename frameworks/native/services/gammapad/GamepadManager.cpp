@@ -820,16 +820,29 @@ void GamepadManager::createVirtualGamepadFromDiscovery() {
                         LOG(INFO) << "Trigger check: finalCode=" << finalCode
                                   << " sc=" << sc2 << " pMin=" << infoIt->second.min
                                   << " pRange=" << pRange << " remapped=" << wasRemapped;
+                        // Physical stick axes (ABS_X/Y/RX/RY) should
+                        // never be given trigger range, even when .kl
+                        // remaps them to a trigger code (e.g., ABS_RX→ABS_Z).
+                        bool isPhysicalStick = (sc2 == ABS_X || sc2 == ABS_Y ||
+                                                sc2 == ABS_RX || sc2 == ABS_RY);
                         if (wasRemapped && infoIt->second.min < 0) {
-                            // Bipolar source remapped to trigger code
-                            setup.min = 0; setup.max = 32767;
-                            setup.fuzz = 0; setup.flat = 0;
-                            LOG(INFO) << "  -> bipolar trigger range 0..32767";
+                            if (isPhysicalStick) {
+                                // Bipolar stick remapped to trigger code — keep stick range
+                                LOG(INFO) << "  -> bipolar stick (sc=" << sc2 << "), keeping stick range";
+                            } else {
+                                // Bipolar trigger: e.g., Xbox 360 ABS_Z→ABS_BRAKE
+                                setup.min = 0; setup.max = 32767;
+                                setup.fuzz = 0; setup.flat = 0;
+                                LOG(INFO) << "  -> bipolar trigger range 0..32767";
+                            }
                             break;
                         } else if (infoIt->second.min >= 0 && pRange > 2) {
                             if (!wasRemapped && pRange > 4096) {
                                 // Large unsigned range identity-mapped = stick axis
                                 LOG(INFO) << "  -> unsigned stick (range " << pRange << "), keeping as stick";
+                            } else if (isPhysicalStick) {
+                                // Unsigned stick remapped to trigger code — keep stick range
+                                LOG(INFO) << "  -> unsigned stick (sc=" << sc2 << "), keeping stick range";
                             } else {
                                 // Unipolar trigger (identity with small range, or remapped)
                                 setup.min = 0; setup.max = 32767;
