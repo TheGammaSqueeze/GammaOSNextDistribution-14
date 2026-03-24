@@ -1621,10 +1621,20 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                     return true;
                 }
                 Slog.i(TAG, "GammaOS Nano: app exited, cleaning up and restarting nano menu");
-                // User exited back to the nano menu — clear Quick Resume so
-                // the next boot doesn't auto-launch a game they quit out of.
+                // User exited back to the nano menu — clear Quick Resume and
+                // stale launch properties so the next boot/restart doesn't
+                // auto-launch a game they quit out of.
+                // Skip qr_prepared clear during shutdown — the handleSelect()
+                // priming is already on disk and must survive the reboot.
+                if (!"1".equals(android.os.SystemProperties.get(
+                        "sys.gammaos.nano.shutting_down", "0"))) {
+                    android.os.SystemProperties.set(
+                            "persist.gammaos.nano.qr_prepared", "0");
+                }
                 android.os.SystemProperties.set(
-                        "persist.gammaos.nano.qr_prepared", "0");
+                        "sys.gammaos.nano.launch_rom", "");
+                android.os.SystemProperties.set(
+                        "sys.gammaos.nano.launch_core", "");
                 // Remove all lingering tasks/activities for the nano app
                 try {
                     java.util.ArrayList<Task> tasksToRemove = new java.util.ArrayList<>();
@@ -1790,6 +1800,10 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                                 "sys.gammaos.nano.app_launched", "0");
                         android.os.SystemProperties.set(
                                 "persist.gammaos.nano.qr_prepared", "0");
+                        android.os.SystemProperties.set(
+                                "sys.gammaos.nano.launch_rom", "");
+                        android.os.SystemProperties.set(
+                                "sys.gammaos.nano.launch_core", "");
                         android.os.SystemProperties.set(
                                 "sys.gammaos.nano.restart", "1");
                         return true;

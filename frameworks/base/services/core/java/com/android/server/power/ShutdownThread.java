@@ -488,12 +488,10 @@ public final class ShutdownThread extends Thread {
         metricShutdownStart();
         metricStarted(METRIC_SYSTEM_SERVER);
 
-        // GammaOS Nano: always close RetroArch gracefully before shutdown
-        // so it can save state. If Quick Resume is also enabled, save the
-        // ROM/core for auto-launch on next boot.
-        if (SystemProperties.getBoolean("sys.gammaos.minimal_boot", false)) {
-            nanoQuickResumePrepare();
-        }
+        // GammaOS: always close RetroArch gracefully before shutdown so it
+        // can save state (works in both nano mode and normal Android).
+        // Quick Resume priming only happens in nano mode.
+        nanoShutdownRetroArch();
 
         // Start dumping check points for this shutdown in a separate thread.
         Thread dumpCheckPointsThread = ShutdownCheckPoints.newDumpThread(
@@ -939,31 +937,90 @@ public final class ShutdownThread extends Thread {
      * recent game's ROM + core to persist properties so the next nano boot can
      * launch straight back into the game.
      */
-    private void nanoQuickResumePrepare() {
+    /**
+     * GammaOS: close RetroArch gracefully (ESC → save state) and optionally
+     * prime Quick Resume.  Called on every shutdown/reboot regardless of mode.
+     */
+    private void nanoShutdownRetroArch() {
         try {
-            Slog.i(TAG, "GammaOS Nano: Quick Resume - preparing before shutdown");
-
-            // Check if RetroArch is actually running
             if (!isNanoAppRunning("retroarch")) {
-                Slog.i(TAG, "GammaOS Nano: RetroArch not running, "
-                        + "reading playlist directly");
-            } else {
-                // Dismiss the shutdown progress dialog so RetroArch
-                // becomes the focused window and can receive the ESC key.
-                if (mProgressDialog != null) {
-                    mHandler.post(() -> {
-                        try {
-                            mProgressDialog.dismiss();
-                        } catch (Exception e) { /* ignore */ }
-                    });
-                }
-                try { Thread.sleep(400); } catch (InterruptedException e) { }
+                Slog.i(TAG, "GammaOS: RetroArch not running, nothing to do");
+                return;
+            }
+            Slog.i(TAG, "GammaOS: closing RetroArch gracefully before shutdown");
 
-                // Send ESC key via InputManager — same pattern used by
-                // PhoneWindowManager.triggerVirtualKeypress() for the
-                // back-long-press → ESC override in RetroArch.
-                android.hardware.input.InputManager im =
-                        android.hardware.input.InputManager.getInstance();
+            final boolean nanoMode = SystemProperties.getBoolean(
+                    "sys.gammaos.minimal_boot", false);
+            // In nano mode, tell RWC not to clear qr_prepared when RetroArch
+            // exits from the ESC injection — handleSelect() priming must
+            // survive the reboot.
+            if (nanoMode) {
+                SystemProperties.set("sys.gammaos.nano.shutting_down", "1");
+            }
+
+            // Dismiss system dialogs and bring RetroArch to foreground so
+            // the ESC key reaches it.  In normal Android, the global actions
+            // dialog or shutdown progress dialog may have focus.
+            if (mProgressDialog != null) {
+                mHandler.post(() -> {
+                    try {
+                        mProgressDialog.dismiss();
+                    } catch (Exception e) { /* ignore */ }
+                });
+            }
+            try {
+                // Dismiss any remaining system dialogs (power menu, etc.)
+                mContext.sendBroadcast(new Intent(
+                        Intent.ACTION_CLOSE_SYSTEM_DIALOGS));
+            } catch (Exception e) {
+                Slog.w(TAG, "GammaOS: failed to close system dialogs", e);
+            }
+            // Bring RetroArch to foreground so it receives the ESC key.
+            // Use moveTaskToFront — RetroArch's activity doesn't have
+            // MAIN+LAUNCHER so startActivity won't find it.
+            try {
+                android.app.ActivityManager am = mContext.getSystemService(
+                        android.app.ActivityManager.class);
+                java.util.List<android.app.ActivityManager.RunningTaskInfo> tasks =
+                        am.getRunningTasks(20);
+                for (android.app.ActivityManager.RunningTaskInfo task : tasks) {
+                    if (task.baseActivity != null && "com.retroarch.aarch64"
+                            .equals(task.baseActivity.getPackageName())) {
+                        am.moveTaskToFront(task.taskId, 0);
+                        Slog.i(TAG, "GammaOS: moved RetroArch task "
+                                + task.taskId + " to front");
+                        break;
+                    }
+                }
+            } catch (Exception e) {
+                Slog.w(TAG, "GammaOS: failed to bring RetroArch to front", e);
+            }
+            // Spam ESC + moveTaskToFront until RetroArch exits.
+            // The global actions dialog may steal focus; repeatedly bringing
+            // RetroArch to front and injecting ESC ensures it lands.
+            android.hardware.input.InputManager im =
+                    android.hardware.input.InputManager.getInstance();
+            android.app.ActivityManager amSvc = mContext.getSystemService(
+                    android.app.ActivityManager.class);
+            int retroTaskId = -1;
+            try {
+                for (android.app.ActivityManager.RunningTaskInfo t :
+                        amSvc.getRunningTasks(20)) {
+                    if (t.baseActivity != null && "com.retroarch.aarch64"
+                            .equals(t.baseActivity.getPackageName())) {
+                        retroTaskId = t.taskId;
+                        break;
+                    }
+                }
+            } catch (Exception e) { /* ignore */ }
+
+            Slog.i(TAG, "GammaOS: spamming ESC + moveToFront (task "
+                    + retroTaskId + ")");
+            for (int i = 0; i < 30 && isNanoAppRunning("retroarch"); i++) {
+                if (retroTaskId >= 0) {
+                    try { amSvc.moveTaskToFront(retroTaskId, 0); }
+                    catch (Exception e) { /* ignore */ }
+                }
                 long now = SystemClock.uptimeMillis();
                 final android.view.KeyEvent downEvent = new android.view.KeyEvent(
                         now, now, android.view.KeyEvent.ACTION_DOWN,
@@ -980,24 +1037,39 @@ public final class ShutdownThread extends Thread {
                 im.injectInputEvent(upEvent,
                         android.hardware.input.InputManager
                                 .INJECT_INPUT_EVENT_MODE_ASYNC);
-                Slog.i(TAG, "GammaOS Nano: ESC key injected");
-
-                // Wait for RetroArch to exit (max 5 seconds)
-                for (int i = 0; i < 50; i++) {
-                    if (!isNanoAppRunning("retroarch")) break;
-                    try { Thread.sleep(100); } catch (InterruptedException e) { }
-                }
-                if (isNanoAppRunning("retroarch")) {
-                    Slog.w(TAG, "GammaOS Nano: RetroArch still running "
-                            + "after ESC, proceeding anyway");
-                }
+                try { Thread.sleep(200); } catch (InterruptedException e) { }
+            }
+            if (!isNanoAppRunning("retroarch")) {
+                Slog.i(TAG, "GammaOS: RetroArch exited gracefully");
+            }
+            final boolean retroArchExited = !isNanoAppRunning("retroarch");
+            if (!retroArchExited) {
+                Slog.w(TAG, "GammaOS: RetroArch still running after ESC, "
+                        + "proceeding anyway");
             }
 
-            // Quick Resume: save ROM/core for auto-launch on next boot
-            // (only if Quick Resume is enabled)
+            // Quick Resume: only prime if the next boot will be nano mode
+            // (either already in nano, or "Boot Nano" set skip_nano=0) AND
+            // RetroArch exited gracefully.  Otherwise force-clear qr_prepared.
+            final boolean bootingNano = "0".equals(SystemProperties.get(
+                    "persist.bootanim.skip_nano", "1"));
+            if (!nanoMode && !bootingNano) {
+                Slog.i(TAG, "GammaOS: not in/booting nano mode, "
+                        + "clearing QR and skipping priming");
+                SystemProperties.set(
+                        "persist.gammaos.nano.qr_prepared", "0");
+                return;
+            }
+            if (!retroArchExited) {
+                Slog.w(TAG, "GammaOS: RetroArch didn't exit gracefully, "
+                        + "clearing QR to avoid launching with lost progress");
+                SystemProperties.set(
+                        "persist.gammaos.nano.qr_prepared", "0");
+                return;
+            }
             if (!SystemProperties.getBoolean(
                     "persist.gammaos.nano.quick_resume", false)) {
-                Slog.i(TAG, "GammaOS Nano: Quick Resume not enabled, "
+                Slog.i(TAG, "GammaOS: Quick Resume not enabled, "
                         + "skipping playlist save");
                 return;
             }

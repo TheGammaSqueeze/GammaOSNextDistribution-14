@@ -2023,6 +2023,11 @@ void NanoMenu::renderBrightnessBar() {
 bool NanoMenu::threadLoop() {
     ALOGD("NanoMenu: entering main loop");
 
+    // readyToRun() sets service.bootanim.exit=1 to kill the vendor bootanim.
+    // Reset it here so our own exit check (further below) doesn't immediately
+    // terminate the menu on restarts.
+    property_set("service.bootanim.exit", "0");
+
     // Re-read quick resume flag — the constructor runs before persist props
     // are loaded, so the value read there may be stale (always false).
     mQuickResumeEnabled = android::base::GetBoolProperty(
@@ -2244,20 +2249,11 @@ void NanoMenu::prepareShutdown(const char* action) {
         }
     }
 
-    // Quick Resume: save ROM/core for auto-launch on next boot
-    if (mQuickResumeEnabled) {
-        loadRecentPlaylist();
-        if (!mRecentEntries.empty()) {
-            const auto& entry = mRecentEntries[0];
-            android::base::SetProperty("persist.gammaos.nano.qr_rom", entry.romPath);
-            android::base::SetProperty("persist.gammaos.nano.qr_core", entry.corePath);
-            property_set("persist.gammaos.nano.qr_prepared", "1");
-            ALOGI("Quick Resume: saved ROM=%s CORE=%s",
-                  entry.romPath.c_str(), entry.corePath.c_str());
-        } else {
-            ALOGW("Quick Resume: no recent entries found, skipping save");
-        }
-    }
+    // Quick Resume is primed at game launch time (handleSelect) and by
+    // ShutdownThread when the user reboots from within RetroArch via legacy
+    // global actions.  Do NOT re-prime here — the nano menu only runs after
+    // the user has exited RetroArch, so priming here would cause a stale
+    // game to auto-launch on the next boot.
 
     // Proceed with the requested action
     property_set("service.bootanim.nano_action", action);

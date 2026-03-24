@@ -5476,6 +5476,10 @@ class Task extends TaskFragment {
                     android.os.SystemProperties.set(
                             "sys.gammaos.nano.drop_input", "0");
                     android.os.SystemProperties.set(
+                            "sys.gammaos.nano.launch_rom", "");
+                    android.os.SystemProperties.set(
+                            "sys.gammaos.nano.launch_core", "");
+                    android.os.SystemProperties.set(
                             "sys.gammaos.nano.launch_app", "com.retroarch.aarch64");
                     // Defer force-stop and restart to handler — the nano menu's
                     // first instance needs time to exit before init can start

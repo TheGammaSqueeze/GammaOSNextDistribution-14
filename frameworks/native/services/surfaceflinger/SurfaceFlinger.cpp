@@ -1044,7 +1044,10 @@ void SurfaceFlinger::init() FTL_FAKE_GUARD(kMainThreadContext) {
     // for MediaTek VNDK ≤ 30 devices whose BliterNode::invalidate() aborts), force GPU
     // composition during boot, through setup wizard, and for 10 s after provisioning
     // completes, then allow HWC.
-    if (base::GetBoolProperty("debug.sf.disable_hwc_overlays"s, false)) {
+    // Skip in nano mode — forced GPU composition stalls eglSwapBuffers for the
+    // nano menu's boot animation surface (~19s block).
+    if (base::GetBoolProperty("debug.sf.disable_hwc_overlays"s, false)
+            && base::GetProperty("persist.bootanim.skip_nano"s, "1") != "0") {
         mMtkBootGpuCompDeadline = INT64_MAX;
         ALOGI("GammaOS: debug.sf.disable_hwc_overlays=1, forcing GPU composition until provisioned+10s");
     }
@@ -3410,8 +3413,10 @@ CompositeResultsPerDisplay SurfaceFlinger::composite(
                 ALOGI("GammaOS: MTK boot GPU composition period ended, allowing HWC overlays");
             }
         } else if (mtkDeadline == 0 && !mDebugDisableHWC &&
-                   base::GetBoolProperty("debug.sf.disable_hwc_overlays"s, false)) {
+                   base::GetBoolProperty("debug.sf.disable_hwc_overlays"s, false)
+                   && base::GetProperty("persist.bootanim.skip_nano"s, "1") != "0") {
             // Late detection: property set after SurfaceFlinger::init()
+            // Skip in nano mode (skip_nano=0) — forced GPU composition stalls the boot surface.
             mMtkBootGpuCompDeadline = INT64_MAX;
             refreshArgs.devOptForceClientComposition = true;
             ALOGI("GammaOS: debug.sf.disable_hwc_overlays=1 (late), forcing GPU comp until provisioned+10s");
