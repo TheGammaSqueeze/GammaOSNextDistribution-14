@@ -1326,6 +1326,11 @@ status_t NanoMenu::readyToRun() {
         }
     }
 
+    // Nano mode is active — tell any boot animation instance to exit.
+    // Vendor init may start bootanim independently (e.g. in on late-fs),
+    // so it can be running alongside us with the same z-layer.
+    property_set("service.bootanim.exit", "1");
+
     const std::vector<PhysicalDisplayId> ids = SurfaceComposerClient::getPhysicalDisplayIds();
     if (ids.empty()) { ALOGE("No displays found"); return NAME_NOT_FOUND; }
 
@@ -1345,7 +1350,7 @@ status_t NanoMenu::readyToRun() {
     Rect forcedRes(0, 0, resolution.width, resolution.height);
     Rect physRes(0, 0, displayMode.resolution.width, displayMode.resolution.height);
     t.setDisplayProjection(mDisplayToken, ui::ROTATION_0, forcedRes, physRes);
-    t.setLayer(control, 0x40000000).apply();
+    t.setLayer(control, 0x40000001).apply();
 
     sp<Surface> s = control->getSurface();
     EGLDisplay display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
