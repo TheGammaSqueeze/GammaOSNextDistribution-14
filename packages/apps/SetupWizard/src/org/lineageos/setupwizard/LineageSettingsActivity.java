@@ -11,6 +11,7 @@ import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -122,6 +123,9 @@ public class LineageSettingsActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Keep screen on for the entire setup process
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         // Ensure content extends behind system bars.
         try {
@@ -716,6 +720,9 @@ public class LineageSettingsActivity extends Activity {
             mLastRX_z = ev.getAxisValue(MotionEvent.AXIS_Z);
             mLastRY_z = ev.getAxisValue(MotionEvent.AXIS_RZ);
 
+            // Auto-detect which axis pair the right stick uses (runs once)
+            detectRightStick();
+
             // Use detected pair or default
             if (mRightStickDetected && mDetectedAndroidAxisRX == 0) {
                 mLastRX = mLastRX_z; mLastRY = mLastRY_z;
@@ -753,7 +760,6 @@ public class LineageSettingsActivity extends Activity {
                     trackRange(mLastX, mLastY, true);
                     break;
                 case CAL_RIGHT_RANGE:
-                    detectRightStick();
                     trackRange(mLastRX, mLastRY, false);
                     break;
             }
