@@ -850,7 +850,6 @@ void NanoMenu::handleSelect() {
         char buf[32];
         snprintf(buf, sizeof(buf), "%" PRId64, fenceNs);
         property_set("sys.gammaos.nano.drop_fence_ns", buf);
-        ALOGD("NanoMenu: drop_input=1 fence_ns=%s", buf);
         // Don't exit yet — wait for the select key to be released so the
         // key-up event passes through Android's InputReader before RetroArch
         // gets focus. Otherwise the A press leaks to RetroArch as a phantom input.
@@ -2036,7 +2035,6 @@ bool NanoMenu::threadLoop() {
     // Clear any stale drop_input/fence from a previous instance.
     property_set("sys.gammaos.nano.drop_input", "0");
     property_set("sys.gammaos.nano.drop_fence_ns", "0");
-    ALOGD("NanoMenu: startup — cleared drop_input and drop_fence_ns");
 
     // readyToRun() sets service.bootanim.exit=1 to kill the vendor bootanim.
     // Reset it here so our own exit check (further below) doesn't immediately

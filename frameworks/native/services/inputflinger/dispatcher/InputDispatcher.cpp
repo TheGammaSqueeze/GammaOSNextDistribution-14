@@ -1132,7 +1132,6 @@ void InputDispatcher::dispatchOnceInnerLocked(nsecs_t& nextWakeupTime) {
             if (typedEntry->hasFocus &&
                 android::base::GetBoolProperty("sys.gammaos.nano.drop_input", false)) {
                 android::base::SetProperty("sys.gammaos.nano.drop_input", "0");
-                ALOGI("GammaOS Nano: drop_input cleared on focus gain");
             }
             break;
         }
@@ -1172,24 +1171,12 @@ void InputDispatcher::dispatchOnceInnerLocked(nsecs_t& nextWakeupTime) {
                         "sys.gammaos.nano.drop_fence_ns", 0);
                 if (dropReason == DropReason::NOT_DROPPED && fenceNs > 0 &&
                     keyEntry->eventTime <= fenceNs) {
-                    ALOGI("GammaOS Nano: dropping KEY (code=%d action=%d) "
-                          "eventTime=%" PRId64 " <= fence=%" PRId64,
-                          keyEntry->keyCode, keyEntry->action,
-                          keyEntry->eventTime, fenceNs);
                     dropReason = DropReason::POLICY;
                     resetKeyRepeatLocked();
-                } else if (fenceNs > 0) {
-                    ALOGI("GammaOS Nano: passing KEY (code=%d action=%d) "
-                          "eventTime=%" PRId64 " > fence=%" PRId64,
-                          keyEntry->keyCode, keyEntry->action,
-                          keyEntry->eventTime, fenceNs);
                 }
             }
-            // Also drop if the boolean gate is still active (belt-and-suspenders).
             if (dropReason == DropReason::NOT_DROPPED &&
                 android::base::GetBoolProperty("sys.gammaos.nano.drop_input", false)) {
-                ALOGI("GammaOS Nano: dropping KEY (code=%d) via drop_input boolean",
-                      keyEntry->keyCode);
                 dropReason = DropReason::POLICY;
                 resetKeyRepeatLocked();
             }
@@ -4469,8 +4456,6 @@ void InputDispatcher::notifyKey(const NotifyKeyArgs& args) {
     // GammaOS Nano: drop all key events during nano→RetroArch transition
     // to prevent queued inputs from being delivered when RetroArch gets focus.
     if (android::base::GetBoolProperty("sys.gammaos.nano.drop_input", false)) {
-        ALOGI("GammaOS Nano: notifyKey DROP code=%d action=%d eventTime=%" PRId64,
-              args.keyCode, args.action, args.eventTime);
         return;
     }
     ALOGD_IF(debugInboundEventDetails(),
