@@ -39,7 +39,7 @@ class SurfaceComposerClient;
 class SurfaceControl;
 
 static const int MAX_PARTICLES = 150;
-static const int NUM_EFFECTS = 20; // total effect IDs (some disabled)
+static const int NUM_EFFECTS = 21; // total effect IDs (some disabled)
 
 struct Particle {
     float x, y, vx, vy, size;
@@ -161,6 +161,12 @@ private:
     GLint  mFxLocResolution;
     GLint  mFxLocEffect;
 
+    // XMB background shader (PS3-style volumetric ribbons, 60fps)
+    GLuint mXmbProgram;
+    GLint  mXmbLocPosition;
+    GLint  mXmbLocTime;
+    GLint  mXmbLocResolution;
+
     // Menu state
     std::vector<MenuItem> mMenuItems;
     int mSelectedIndex;
@@ -202,6 +208,9 @@ private:
     // Vertical menu scroll for submenus with more items than fit on screen
     int mMenuScrollTop;     // first visible item index
 
+    // Analog stick state
+    bool mStickYTriggered; // prevents repeat until stick returns to center
+
     // Brightness
     bool mSelectHeld;
     int mBrightness;
@@ -210,7 +219,8 @@ private:
     int mBrightnessBarTimer;
 
     // Effects
-    int mCurrentEffect; // 0 = none, 1..20 = effect
+    int mCurrentEffect; // 0 = none, 1..21 = effect
+    bool mInShadowPass; // prevents recursive shadow in drawText
     float mEffectTime;
     Particle mParticles[MAX_PARTICLES];
 

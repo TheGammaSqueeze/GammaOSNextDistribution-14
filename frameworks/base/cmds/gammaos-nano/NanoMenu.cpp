@@ -184,6 +184,78 @@ static const char FX_FRAGMENT_SHADER[] = R"(
     }
 )";
 
+// XMB wave background shader — PS3-style flowing ribbons
+// Analytical screen-space approach: no loops, no ray marching
+// 3 ribbon bands with multi-harmonic sine waves + sparkle dust
+static const char XMB_FRAGMENT_SHADER[] = R"(
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+    precision highp float;
+#else
+    precision mediump float;
+#endif
+    uniform float uTime;
+    uniform vec2 uResolution;
+
+    float xmbHash(vec2 p) {
+        return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
+    }
+
+    // HSV to RGB — strong saturated colors for cycling background
+    vec3 hsv2rgb(float h, float s, float v) {
+        vec3 p = abs(fract(vec3(h) + vec3(0.0, 2.0/3.0, 1.0/3.0)) * 6.0 - 3.0);
+        return v * mix(vec3(1.0), clamp(p - 1.0, 0.0, 1.0), s);
+    }
+
+    void main() {
+        vec2 uv = gl_FragCoord.xy / uResolution;
+        float t = mod(uTime, 628.318);
+
+        // Aspect-corrected x for spatial frequency matching
+        float x = (uv.x - 0.5) * uResolution.x / uResolution.y;
+
+        // --- Three flowing ribbon bands (analytical distance field) ---
+        float ribbon = 0.0;
+
+        // Ribbon 1: wide primary wave
+        float cy1 = 0.44 + 0.08 * sin(x * 1.0 + t * 0.25)
+                         + 0.03 * sin(x * 2.2 + t * 0.7)
+                         + 0.015 * sin(x * 4.0 - t * 0.3);
+        ribbon += smoothstep(0.07, 0.0, abs(uv.y - cy1)) * 0.35;
+
+        // Ribbon 2: narrower, slightly offset
+        float cy2 = 0.47 + 0.06 * sin(x * 1.05 + t * 0.24 + 0.5)
+                         + 0.025 * sin(x * 2.5 - t * 0.35 + 1.5);
+        ribbon += smoothstep(0.05, 0.0, abs(uv.y - cy2)) * 0.25;
+
+        // Ribbon 3: thin accent band
+        float cy3 = 0.41 + 0.09 * sin(x * 0.95 + t * 0.26 + 1.2)
+                         + 0.04 * sin(x * 1.8 + t * 0.42 + 2.0);
+        ribbon += smoothstep(0.06, 0.0, abs(uv.y - cy3)) * 0.20;
+
+        ribbon = clamp(ribbon, 0.0, 1.0);
+
+        // Slowly cycle hue (~8 min full cycle), always start on blue
+        float hue = fract(uTime * 0.002 + 0.6);
+        vec3 tint = hsv2rgb(hue, 0.85, 0.65);
+
+        // Gradient: dark tint at bottom → full tint at top
+        vec3 col = mix(tint * 0.15, tint, smoothstep(0.0, 1.0, uv.y));
+
+        // Blend ribbons toward white
+        col = mix(col, vec3(1.0), ribbon * 0.7);
+
+        // Sparkle dust near ribbons
+        vec2 grid = floor(gl_FragCoord.xy / 6.0);
+        float seed = xmbHash(grid);
+        float sparkle = step(0.97, seed)
+                       * pow(sin(t * 4.0 + seed * 628.0) * 0.5 + 0.5, 2.0)
+                       * smoothstep(0.0, 0.1, ribbon) * 0.5;
+        col += vec3(sparkle);
+
+        gl_FragColor = vec4(col, 1.0);
+    }
+)";
+
 // ---------------------------------------------------------------------------
 // Effect names
 // ---------------------------------------------------------------------------
@@ -193,7 +265,8 @@ static const char* kEffectNames[NUM_EFFECTS + 1] = {
     "Snow", "Rain", "Confetti", "Sparks", "Fireflies",
     "Bubbles", "Starfield", "Embers", "Leaves", "Dust",
     "Plasma", "Static", "Scanlines", "Mosaic", "Matrix",
-    "Fire", "Aurora", "Ripple", "Checkerboard", "Spiral"
+    "Fire", "Aurora", "Ripple", "Checkerboard", "Spiral",
+    "XMB"
 };
 
 // Active effects — removed: Dust(10), Static(12), Scanlines(13), Mosaic(14), Matrix(15)
@@ -214,6 +287,7 @@ static const int kActiveEffects[] = {
     18, // Ripple
     19, // Checkerboard
     20, // Spiral
+    21, // XMB
 };
 static const int kNumActiveEffects = sizeof(kActiveEffects) / sizeof(kActiveEffects[0]);
 // Index into kActiveEffects (NOT the effect ID itself)
@@ -340,10 +414,12 @@ NanoMenu::NanoMenu()
       mScrollPause(0),
       mLastScrolledIdx(-1),
       mMenuScrollTop(0),
+      mStickYTriggered(false),
       mSelectHeld(false),
       mBrightness(128), mMaxBrightness(255),
       mShowBrightnessBar(false), mBrightnessBarTimer(0),
       mCurrentEffect(1),
+      mInShadowPass(false),
       mEffectTime(0.0f),
       mQuickResumeEnabled(false),
       mFtLib(nullptr),
@@ -358,9 +434,23 @@ NanoMenu::NanoMenu()
     srand(elapsedRealtime());
     memset(mParticles, 0, sizeof(mParticles));
     memset(mFtFaces, 0, sizeof(mFtFaces));
-    // Randomize starting effect (skip index 0 which is "None")
-    sActiveEffectIdx = 1 + (rand() % (kNumActiveEffects - 1));
-    mCurrentEffect = kActiveEffects[sActiveEffectIdx];
+    // Restore persisted wallpaper effect, default to XMB (21)
+    char wallpaper[PROPERTY_VALUE_MAX] = {};
+    property_get("persist.gammaos.nano.wallpaper", wallpaper, "21");
+    int savedEffect = atoi(wallpaper);
+    bool found = false;
+    for (int i = 0; i < kNumActiveEffects; i++) {
+        if (kActiveEffects[i] == savedEffect) {
+            sActiveEffectIdx = i;
+            mCurrentEffect = savedEffect;
+            found = true;
+            break;
+        }
+    }
+    if (!found) {
+        sActiveEffectIdx = kNumActiveEffects - 1; // XMB
+        mCurrentEffect = kActiveEffects[sActiveEffectIdx];
+    }
     // Load Quick Resume toggle from persistent property
     mQuickResumeEnabled = android::base::GetBoolProperty(
             "persist.gammaos.nano.quick_resume", false);
@@ -1017,6 +1107,8 @@ void NanoMenu::pollInput() {
                         if (mCurrentEffect >= 1 && mCurrentEffect <= 10) initEffects();
                         mDisplayDirty = true; // footer shows effect name
                         ALOGD("Effect: %d (%s)", mCurrentEffect, kEffectNames[mCurrentEffect]);
+                        { char buf[16]; snprintf(buf, sizeof(buf), "%d", mCurrentEffect);
+                          property_set("persist.gammaos.nano.wallpaper", buf); }
                         break;
                     case BTN_TR: case KEY_R:
                         mQuickResumeEnabled = !mQuickResumeEnabled;
@@ -1033,6 +1125,19 @@ void NanoMenu::pollInput() {
                 if (ev.code == ABS_HAT0Y) {
                     if (ev.value < 0) handleUp();
                     else if (ev.value > 0) handleDown();
+                } else if (ev.code == ABS_Y) {
+                    // Left stick Y: signed range -32768..32767, 90% deadzone
+                    // Threshold naturally filters touchscreen ABS_Y (max ~960)
+                    int threshold = 29490; // 90% of 32767
+                    if (ev.value < -threshold && !mStickYTriggered) {
+                        handleUp();
+                        mStickYTriggered = true;
+                    } else if (ev.value > threshold && !mStickYTriggered) {
+                        handleDown();
+                        mStickYTriggered = true;
+                    } else if (ev.value > -threshold && ev.value < threshold) {
+                        mStickYTriggered = false;
+                    }
                 }
             }
         }
@@ -1288,6 +1393,16 @@ void NanoMenu::renderEffect() {
         glEnableVertexAttribArray(mFxLocPosition);
         glDrawArrays(GL_TRIANGLES, 0, 6);
         glDisableVertexAttribArray(mFxLocPosition);
+    } else if (mCurrentEffect == 21) {
+        // XMB: PS3-style volumetric ribbon background (dedicated shader, 60fps)
+        GLfloat verts[] = { -1,-1, 1,-1, 1,1, 1,1, -1,1, -1,-1 };
+        glUseProgram(mXmbProgram);
+        glUniform1f(mXmbLocTime, mEffectTime);
+        glUniform2f(mXmbLocResolution, (float)mWidth, (float)mHeight);
+        glVertexAttribPointer(mXmbLocPosition, 2, GL_FLOAT, GL_FALSE, 0, verts);
+        glEnableVertexAttribArray(mXmbLocPosition);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+        glDisableVertexAttribArray(mXmbLocPosition);
     }
 }
 
@@ -1435,6 +1550,14 @@ void NanoMenu::initShaders() {
         mFxLocTime       = glGetUniformLocation(mFxProgram, "uTime");
         mFxLocResolution = glGetUniformLocation(mFxProgram, "uResolution");
         mFxLocEffect     = glGetUniformLocation(mFxProgram, "uEffect");
+        glDeleteShader(vs); glDeleteShader(fs);
+    }
+    {   GLuint vs = compileShader(GL_VERTEX_SHADER, FX_VERTEX_SHADER);
+        GLuint fs = compileShader(GL_FRAGMENT_SHADER, XMB_FRAGMENT_SHADER);
+        mXmbProgram = linkProgram(vs, fs);
+        mXmbLocPosition   = glGetAttribLocation(mXmbProgram, "aPosition");
+        mXmbLocTime       = glGetUniformLocation(mXmbProgram, "uTime");
+        mXmbLocResolution = glGetUniformLocation(mXmbProgram, "uResolution");
         glDeleteShader(vs); glDeleteShader(fs);
     }
     initFonts();
@@ -1659,6 +1782,16 @@ static GLfloat sTextColors[TEXT_MAX_CHARS * 6 * 4];
 void NanoMenu::drawText(const char* str, float px, float py, float scale,
                         float r, float g, float b, float a) {
     if (!str || !*str || mFtNumFaces == 0) return;
+    // Black outline: draw text at 4 cardinal offsets in black, then normal on top
+    if (!mInShadowPass) {
+        float off = fmaxf(1.0f, scale * 0.4f);
+        mInShadowPass = true;
+        drawText(str, px - off, py, scale, 0.0f, 0.0f, 0.0f, a * 0.8f);
+        drawText(str, px + off, py, scale, 0.0f, 0.0f, 0.0f, a * 0.8f);
+        drawText(str, px, py - off, scale, 0.0f, 0.0f, 0.0f, a * 0.8f);
+        drawText(str, px, py + off, scale, 0.0f, 0.0f, 0.0f, a * 0.8f);
+        mInShadowPass = false;
+    }
     float pixelScale = (FONT_CHAR_H * scale) / (float)mFontSize;
     float invW = 2.0f / mWidth, invH = 2.0f / mHeight;
     // baseline: py is the top of the text area, add ascent to get baseline
@@ -2137,14 +2270,27 @@ bool NanoMenu::threadLoop() {
         pollInput();
         checkInputHotplug();
 
-        // Adaptive framerate: 20fps for effects, ~10fps when idle.
+        // Adaptive framerate: 60fps for XMB, 20fps for other effects, ~10fps idle.
+        bool xmbActive = (mCurrentEffect == 21);
         bool animating = (mCurrentEffect != 0) || mShowBrightnessBar
                          || mWaitForRelease
                          || ((mMenuState == MENU_RECENT || mMenuState == MENU_APPS)
                              && mScrollOffset > 0.0f);
-        int frameTimeUs = animating ? 50000 : 100000; // 20fps vs 10fps
-        float dt = animating ? (1.0f / 20.0f) : (1.0f / 10.0f);
+        int frameTimeUs;
+        float dt;
+        if (xmbActive) {
+            frameTimeUs = 33333; // 30fps (motion blur via per-depth time smear)
+            dt = 1.0f / 30.0f;
+        } else if (animating) {
+            frameTimeUs = 50000; // 20fps
+            dt = 1.0f / 20.0f;
+        } else {
+            frameTimeUs = 100000; // 10fps
+            dt = 1.0f / 10.0f;
+        }
         mEffectTime += dt;
+        // Wrap time to prevent float precision degradation over extended runtime
+        if (mEffectTime > 50000.0f) mEffectTime -= 50000.0f;
         render();
         usleep(frameTimeUs);
 
