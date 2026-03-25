@@ -1846,14 +1846,9 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                         hideNanoBlankOverlay();
                         sNanoCrashCount = 0;
                     }, 800);
-                    // Re-enable input dispatch after RetroArch has time to get focus.
-                    // The nano menu set sys.gammaos.nano.drop_input=1 to make
-                    // InputDispatcher silently drop events during the transition.
-                    mService.mH.postDelayed(() -> {
-                        android.os.SystemProperties.set(
-                                "sys.gammaos.nano.drop_input", "0");
-                        Slog.i(TAG, "GammaOS Nano: input dispatch re-enabled");
-                    }, 1500);
+                    // NanoMenu clears drop_input itself after key release + EVIOCGRAB.
+                    // No timer fallback here — NanoMenu startup clears any stale
+                    // drop_input from a crashed instance.
                     return true;
                 }
             } catch (Exception e) {

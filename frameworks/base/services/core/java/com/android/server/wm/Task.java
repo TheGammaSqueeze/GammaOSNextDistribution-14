@@ -5473,8 +5473,9 @@ class Task extends TaskFragment {
                             "sys.gammaos.nano.killing", "1");
                     android.os.SystemProperties.set(
                             "sys.gammaos.nano.app_launched", "0");
-                    android.os.SystemProperties.set(
-                            "sys.gammaos.nano.drop_input", "0");
+                    // Note: do NOT clear drop_input here — NanoMenu's startup
+                    // handles stale values, and clearing here can race with a
+                    // concurrent launch that just set drop_input=1.
                     android.os.SystemProperties.set(
                             "sys.gammaos.nano.launch_rom", "");
                     android.os.SystemProperties.set(

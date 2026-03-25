@@ -1126,6 +1126,14 @@ void InputDispatcher::dispatchOnceInnerLocked(nsecs_t& nextWakeupTime) {
             dispatchFocusLocked(currentTime, typedEntry);
             done = true;
             dropReason = DropReason::NOT_DROPPED; // focus events are never dropped
+            // GammaOS Nano: clear the boolean gate on focus GAIN so notifyKey()
+            // stops blocking new events. The timestamp fence independently
+            // handles stale pre-transition events in the dispatch path.
+            if (typedEntry->hasFocus &&
+                android::base::GetBoolProperty("sys.gammaos.nano.drop_input", false)) {
+                android::base::SetProperty("sys.gammaos.nano.drop_input", "0");
+                ALOGI("GammaOS Nano: drop_input cleared on focus gain");
+            }
             break;
         }
 
@@ -1156,6 +1164,35 @@ void InputDispatcher::dispatchOnceInnerLocked(nsecs_t& nextWakeupTime) {
         case EventEntry::Type::KEY: {
             std::shared_ptr<const KeyEntry> keyEntry =
                     std::static_pointer_cast<const KeyEntry>(mPendingEvent);
+            // GammaOS Nano: timestamp fence — drop key events that occurred
+            // before the nano transition started. This handles the race where
+            // the A-DOWN was queued before drop_input was set.
+            {
+                int64_t fenceNs = android::base::GetIntProperty<int64_t>(
+                        "sys.gammaos.nano.drop_fence_ns", 0);
+                if (dropReason == DropReason::NOT_DROPPED && fenceNs > 0 &&
+                    keyEntry->eventTime <= fenceNs) {
+                    ALOGI("GammaOS Nano: dropping KEY (code=%d action=%d) "
+                          "eventTime=%" PRId64 " <= fence=%" PRId64,
+                          keyEntry->keyCode, keyEntry->action,
+                          keyEntry->eventTime, fenceNs);
+                    dropReason = DropReason::POLICY;
+                    resetKeyRepeatLocked();
+                } else if (fenceNs > 0) {
+                    ALOGI("GammaOS Nano: passing KEY (code=%d action=%d) "
+                          "eventTime=%" PRId64 " > fence=%" PRId64,
+                          keyEntry->keyCode, keyEntry->action,
+                          keyEntry->eventTime, fenceNs);
+                }
+            }
+            // Also drop if the boolean gate is still active (belt-and-suspenders).
+            if (dropReason == DropReason::NOT_DROPPED &&
+                android::base::GetBoolProperty("sys.gammaos.nano.drop_input", false)) {
+                ALOGI("GammaOS Nano: dropping KEY (code=%d) via drop_input boolean",
+                      keyEntry->keyCode);
+                dropReason = DropReason::POLICY;
+                resetKeyRepeatLocked();
+            }
             if (dropReason == DropReason::NOT_DROPPED && isStaleEvent(currentTime, *keyEntry)) {
                 dropReason = DropReason::STALE;
             }
@@ -1173,6 +1210,19 @@ void InputDispatcher::dispatchOnceInnerLocked(nsecs_t& nextWakeupTime) {
         case EventEntry::Type::MOTION: {
             std::shared_ptr<const MotionEntry> motionEntry =
                     std::static_pointer_cast<const MotionEntry>(mPendingEvent);
+            // GammaOS Nano: timestamp fence for motion events.
+            {
+                int64_t fenceNs = android::base::GetIntProperty<int64_t>(
+                        "sys.gammaos.nano.drop_fence_ns", 0);
+                if (dropReason == DropReason::NOT_DROPPED && fenceNs > 0 &&
+                    motionEntry->eventTime <= fenceNs) {
+                    dropReason = DropReason::POLICY;
+                }
+            }
+            if (dropReason == DropReason::NOT_DROPPED &&
+                android::base::GetBoolProperty("sys.gammaos.nano.drop_input", false)) {
+                dropReason = DropReason::POLICY;
+            }
             if (dropReason == DropReason::NOT_DROPPED && isStaleEvent(currentTime, *motionEntry)) {
                 // The event is stale. However, only drop stale events if there isn't an ongoing
                 // gesture. That would allow us to complete the processing of the current stroke.
@@ -4419,6 +4469,8 @@ void InputDispatcher::notifyKey(const NotifyKeyArgs& args) {
     // GammaOS Nano: drop all key events during nano→RetroArch transition
     // to prevent queued inputs from being delivered when RetroArch gets focus.
     if (android::base::GetBoolProperty("sys.gammaos.nano.drop_input", false)) {
+        ALOGI("GammaOS Nano: notifyKey DROP code=%d action=%d eventTime=%" PRId64,
+              args.keyCode, args.action, args.eventTime);
         return;
     }
     ALOGD_IF(debugInboundEventDetails(),

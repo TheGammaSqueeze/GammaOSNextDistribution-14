@@ -841,6 +841,16 @@ void NanoMenu::handleSelect() {
         // Tell InputDispatcher to drop events immediately — prevents a fast
         // double-press A from queuing a second event before the transition.
         property_set("sys.gammaos.nano.drop_input", "1");
+        // Set a timestamp fence — InputDispatcher drops any events with
+        // eventTime <= this value, covering the race where the A-DOWN was
+        // queued before drop_input was set.
+        struct timespec ts;
+        clock_gettime(CLOCK_MONOTONIC, &ts);
+        int64_t fenceNs = (int64_t)ts.tv_sec * 1000000000LL + ts.tv_nsec;
+        char buf[32];
+        snprintf(buf, sizeof(buf), "%" PRId64, fenceNs);
+        property_set("sys.gammaos.nano.drop_fence_ns", buf);
+        ALOGD("NanoMenu: drop_input=1 fence_ns=%s", buf);
         // Don't exit yet — wait for the select key to be released so the
         // key-up event passes through Android's InputReader before RetroArch
         // gets focus. Otherwise the A press leaks to RetroArch as a phantom input.
@@ -2023,6 +2033,11 @@ void NanoMenu::renderBrightnessBar() {
 bool NanoMenu::threadLoop() {
     ALOGD("NanoMenu: entering main loop");
 
+    // Clear any stale drop_input/fence from a previous instance.
+    property_set("sys.gammaos.nano.drop_input", "0");
+    property_set("sys.gammaos.nano.drop_fence_ns", "0");
+    ALOGD("NanoMenu: startup — cleared drop_input and drop_fence_ns");
+
     // readyToRun() sets service.bootanim.exit=1 to kill the vendor bootanim.
     // Reset it here so our own exit check (further below) doesn't immediately
     // terminate the menu on restarts.
@@ -2161,6 +2176,10 @@ bool NanoMenu::threadLoop() {
     for (int fd : mInputFds) {
         ioctl(fd, EVIOCGRAB, 1);
     }
+    // Do NOT clear drop_input here. The A-DOWN may still be sitting in
+    // InputDispatcher's queue waiting for a focused window. InputDispatcher
+    // will clear drop_input itself when it processes a FOCUS entry (which
+    // arrives after all stale events have been dropped).
     ALOGD("NanoMenu: showing loading screen, waiting for RetroArch");
     {
         float sf = fminf((float)mWidth / 1080.0f, (float)mHeight / 720.0f);
