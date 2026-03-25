@@ -2266,7 +2266,20 @@ bool NanoMenu::threadLoop() {
     }
 
     int exitCheckCounter = 0;
+    bool stockClocksApplied = false;
     while (!exitPending() && !mExitRequested) {
+        // Apply stock clocks once boot is fully complete (PerformanceTile
+        // re-syncs performance_mode on boot_completed, so we must wait)
+        if (!stockClocksApplied) {
+            char bootDone[PROPERTY_VALUE_MAX] = {};
+            property_get("sys.boot_completed", bootDone, "0");
+            if (!strcmp(bootDone, "1")) {
+                usleep(1000000); // 1s margin for PerformanceTile sync
+                system("/vendor/bin/setclock_stock.sh");
+                stockClocksApplied = true;
+                ALOGD("NanoMenu: applied stock clocks after boot_completed");
+            }
+        }
         pollInput();
         checkInputHotplug();
 
@@ -2313,6 +2326,16 @@ bool NanoMenu::threadLoop() {
                 }
             }
         }
+    }
+
+    // Only re-apply performance clocks when launching an app (not on bootanim.exit)
+    if (mExitRequested) {
+        char mode[PROPERTY_VALUE_MAX] = {};
+        property_get("persist.gammaos.performance_mode", mode, "stock");
+        char cmd[128];
+        snprintf(cmd, sizeof(cmd), "/vendor/bin/setclock_%s.sh", mode);
+        ALOGI("NanoMenu: re-applying performance mode '%s': %s", mode, cmd);
+        system(cmd);
     }
 
     // Transition: grab input devices. drop_input was already set in handleSelect()
