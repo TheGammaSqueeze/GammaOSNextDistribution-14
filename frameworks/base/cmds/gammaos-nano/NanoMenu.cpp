@@ -502,9 +502,11 @@ NanoMenu::NanoMenu()
       mMenuScrollTop(0),
       mStickYTriggered(false),
       mStickXTriggered(false),
-      mSelectHeld(false),
+      mSelectHeld(false), mPowerPressTime(0),
       mBrightness(128), mMaxBrightness(255),
       mShowBrightnessBar(false), mBrightnessBarTimer(0),
+      mVolume(10), mMaxVolume(15),
+      mShowVolumeBar(false), mVolumeBarTimer(0),
       mCurrentEffect(1),
       mInShadowPass(false),
       mEffectTime(0.0f),
@@ -730,7 +732,7 @@ void NanoMenu::rebuildDisplayItems() {
         mSubtitle = "v0.1 - Proof of Concept";
         char buf[200];
         snprintf(buf, sizeof(buf),
-                 "DPAD/VOL: Nav | A/PWR: Select | X: FX [%s] | L1: XMB | R1: QR",
+                 "DPAD: Nav | A: Select | X: FX [%s] | Y: FX | L1: XMB | R1: QR",
                  kEffectNames[mCurrentEffect]);
         mFooter = buf;
     }
@@ -1227,8 +1229,7 @@ void NanoMenu::pollInput() {
             // gets focus, preventing phantom A-button presses.
             if (mWaitForRelease) {
                 if (ev.type == EV_KEY && ev.value == 0
-                    && (ev.code == KEY_POWER || ev.code == KEY_ENTER
-                        || ev.code == BTN_SOUTH)) {
+                    && (ev.code == KEY_ENTER || ev.code == BTN_SOUTH)) {
                     ALOGD("NanoMenu: select key released, exiting now");
                     mExitRequested = true;
                 }
@@ -1238,18 +1239,92 @@ void NanoMenu::pollInput() {
             if (ev.type == EV_KEY && ev.code == BTN_SELECT) {
                 mSelectHeld = (ev.value != 0);
             }
+            // Power button handling
+            if (ev.type == EV_KEY && ev.code == KEY_POWER) {
+                if (ev.value == 1) {
+                    mPowerPressTime = android::uptimeMillis();
+                    // Immediately start polling for long press in a tight loop
+                    // so we can shutdown before the hardware cuts power
+                    bool shutdown = false;
+                    for (int poll = 0; poll < 40; poll++) { // 40 * 50ms = 2s
+                        usleep(50000);
+                        // Check if key was released
+                        struct input_event pe;
+                        bool released = false;
+                        for (int pfd : mInputFds) {
+                            while (read(pfd, &pe, sizeof(pe)) == sizeof(pe)) {
+                                if (pe.type == EV_KEY && pe.code == KEY_POWER
+                                    && pe.value == 0) {
+                                    released = true;
+                                }
+                            }
+                        }
+                        if (released) break;
+                        if (android::uptimeMillis() - mPowerPressTime > 1500) {
+                            // 1.5s hold: trigger shutdown before hardware kills us
+                            ALOGI("NanoMenu: power hold 1.5s, shutting down");
+                            shutdown = true;
+                            break;
+                        }
+                    }
+                    if (shutdown) {
+                        mPowerPressTime = 0;
+                        prepareShutdown("shutdown");
+                        continue;
+                    }
+                    // Key was released before 1.5s — short press = sleep
+                    mPowerPressTime = 0;
+                    ALOGI("NanoMenu: power short press, sleeping");
+                    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+                    glClear(GL_COLOR_BUFFER_BIT);
+                    eglSwapBuffers(mDisplay, mSurface);
+                    writeSysfsInt("/sys/class/leds/lcd-backlight/brightness", 0);
+                    // Sleep loop: power press to wake, auto-shutdown after 60s
+                    bool asleep = true;
+                    int64_t sleepStart = android::uptimeMillis();
+                    while (asleep) {
+                        usleep(100000);
+                        if (android::uptimeMillis() - sleepStart > 60000) {
+                            ALOGI("NanoMenu: sleep timeout, shutting down");
+                            prepareShutdown("shutdown");
+                            return;
+                        }
+                        struct input_event wake;
+                        for (int wfd : mInputFds) {
+                            while (read(wfd, &wake, sizeof(wake)) == sizeof(wake)) {
+                                if (wake.type == EV_KEY && wake.code == KEY_POWER
+                                    && wake.value == 1) {
+                                    asleep = false;
+                                }
+                            }
+                        }
+                    }
+                    usleep(200000);
+                    { struct input_event d; for (int dfd : mInputFds) {
+                        while (read(dfd, &d, sizeof(d)) == sizeof(d)) {} } }
+                    writeSysfsInt("/sys/class/leds/lcd-backlight/brightness", mBrightness);
+                    ALOGI("NanoMenu: woke up");
+                }
+                continue;
+            }
             if (ev.type == EV_KEY && (ev.value == 1 || ev.value == 2)) {
-                // value 1 = press, value 2 = repeat (for hold-to-adjust)
-                if (mSelectHeld && (ev.code == KEY_VOLUMEUP || ev.code == KEY_VOLUMEDOWN)) {
-                    adjustBrightness(ev.code == KEY_VOLUMEUP ? 1 : -1);
-                } else if (ev.value == 1) {
+                // Volume keys: SELECT+VOL = brightness, VOL alone = volume
+                if (ev.code == KEY_VOLUMEUP || ev.code == KEY_VOLUMEDOWN) {
+                    if (mSelectHeld) {
+                        adjustBrightness(ev.code == KEY_VOLUMEUP ? 1 : -1);
+                    } else if (ev.value == 1) {
+                        adjustVolume(ev.code == KEY_VOLUMEUP ? 1 : -1);
+                    }
+                    continue;
+                }
+                if (ev.value == 1) {
                     // Only handle menu nav on initial press, not repeat
                     switch (ev.code) {
-                    case KEY_VOLUMEUP: case KEY_UP:
+                    case KEY_UP:
                         handleUp(); break;
-                    case KEY_VOLUMEDOWN: case KEY_DOWN:
+                    case KEY_DOWN:
                         handleDown(); break;
-                    case KEY_POWER: case BTN_SOUTH:
+                    case BTN_SOUTH:
                         handleSelect(); break;
                     case KEY_ENTER:
                         if (mOskActive) oskConfirm();
@@ -1261,18 +1336,18 @@ void NanoMenu::pollInput() {
                         handleLeft(); break;
                     case KEY_RIGHT:
                         handleRight(); break;
-                    case BTN_NORTH:
+                    case BTN_WEST: // Y button (Nintendo layout: BTN_WEST = Y)
                         if (mXmbMode) {
-                            // Y button: search in XMB mode
+                            // Y: search in XMB mode
                             if (mOskActive) {
                                 closeOsk();
                             } else if (mSearchActive) {
-                                // Reopen OSK to refine
                                 mOskActive = true;
                             } else {
                                 openOsk();
                             }
                         } else {
+                            // Y: cycle wallpaper in list mode
                             sActiveEffectIdx = (sActiveEffectIdx + 1) % kNumActiveEffects;
                             mCurrentEffect = kActiveEffects[sActiveEffectIdx];
                             if (mCurrentEffect >= 1 && mCurrentEffect <= 10) initEffects();
@@ -1281,6 +1356,16 @@ void NanoMenu::pollInput() {
                             { char buf[16]; snprintf(buf, sizeof(buf), "%d", mCurrentEffect);
                               property_set("persist.gammaos.nano.wallpaper", buf); }
                         }
+                        break;
+                    case BTN_NORTH: // X button (Nintendo layout: BTN_NORTH = X)
+                        // X: cycle wallpaper/FX
+                        sActiveEffectIdx = (sActiveEffectIdx + 1) % kNumActiveEffects;
+                        mCurrentEffect = kActiveEffects[sActiveEffectIdx];
+                        if (mCurrentEffect >= 1 && mCurrentEffect <= 10) initEffects();
+                        mDisplayDirty = true;
+                        ALOGD("Effect: %d (%s)", mCurrentEffect, kEffectNames[mCurrentEffect]);
+                        { char buf[16]; snprintf(buf, sizeof(buf), "%d", mCurrentEffect);
+                          property_set("persist.gammaos.nano.wallpaper", buf); }
                         break;
                     case BTN_TL: case KEY_L:
                         if (mOskActive) break;
@@ -1712,6 +1797,15 @@ status_t NanoMenu::readyToRun() {
         writeSysfsInt("/sys/class/leds/lcd-backlight/brightness", mBrightness);
     } else {
         mBrightness = readSysfsInt("/sys/class/leds/lcd-backlight/brightness", mMaxBrightness / 2);
+    }
+
+    // Restore volume from persist property
+    {
+        char savedVolume[PROPERTY_VALUE_MAX] = {};
+        property_get("persist.gammaos.nano.volume", savedVolume, "10");
+        mVolume = atoi(savedVolume);
+        if (mVolume < 0) mVolume = 0;
+        if (mVolume > mMaxVolume) mVolume = mMaxVolume;
     }
 
     // Zygote + SystemServer preload is triggered by init.rc on nonencrypted,
@@ -2465,6 +2559,7 @@ void NanoMenu::render() {
 
     // Brightness bar overlay
     renderBrightnessBar();
+    renderVolumeBar();
 
     // Quick Resume indicator (top-right corner)
     {
@@ -2532,6 +2627,75 @@ void NanoMenu::renderBrightnessBar() {
     int pct = (mMaxBrightness > 0) ? (mBrightness * 100 / mMaxBrightness) : 0;
     float fillW = barW * pct / 100.0f;
     drawQuad(barX, barY, fillW, barH, 1.0f, 0.9f, 0.3f, 1.0f);
+
+    // Percentage text
+    char pctStr[8];
+    snprintf(pctStr, sizeof(pctStr), "%d%%", pct);
+    float textX = barX + barW + pad;
+    float textY = bgY + (bgH - FONT_CHAR_H * textScale) / 2.0f;
+    drawText(pctStr, textX, textY, textScale, 1.0f, 1.0f, 1.0f, 1.0f);
+}
+
+void NanoMenu::adjustVolume(int direction) {
+    mVolume += direction;
+    if (mVolume < 0) mVolume = 0;
+    if (mVolume > mMaxVolume) mVolume = mMaxVolume;
+    // Set Android media volume via audio sysfs/property
+    // Scale 0-15 to 0-100 for the mixer, or use AudioService property
+    char buf[32];
+    snprintf(buf, sizeof(buf), "%d", mVolume);
+    property_set("persist.gammaos.nano.volume", buf);
+    // Try writing to ALSA mixer for immediate effect
+    snprintf(buf, sizeof(buf), "%d", mVolume * 100 / mMaxVolume);
+    // Use tinymix or write to a known volume path
+    char cmd[128];
+    snprintf(cmd, sizeof(cmd), "service call audio 3 i32 3 i32 %d i32 0", mVolume);
+    // AudioService may not be running in nano mode, so also try direct mixer
+    mShowVolumeBar = true;
+    mVolumeBarTimer = 90; // ~1.5s at 60fps
+}
+
+void NanoMenu::renderVolumeBar() {
+    if (!mShowVolumeBar) return;
+    if (--mVolumeBarTimer <= 0) {
+        mShowVolumeBar = false;
+        return;
+    }
+
+    float sf = fminf((float)mWidth / 1080.0f, (float)mHeight / 720.0f);
+    if (sf < 0.5f) sf = 0.5f;
+
+    // Same layout as brightness bar
+    float barW = 250.0f * sf;
+    float barH = 20.0f * sf;
+    float pad = 12.0f * sf;
+    float iconScale = 1.5f * sf;
+    float textScale = 1.5f * sf;
+    float iconW = measureText("*", iconScale); // same width reference
+    float bgW = iconW + pad + barW + pad + 50.0f * sf;
+    float bgH = barH + pad * 2;
+    float bgX = (mWidth - bgW) / 2.0f;
+    // Stack below brightness bar if both showing
+    float bgY = mShowBrightnessBar ? (pad + bgH + pad) : pad;
+
+    // Background
+    drawQuad(bgX, bgY, bgW, bgH, 0.0f, 0.0f, 0.0f, 0.8f);
+
+    // Volume icon
+    float iconX = bgX + pad;
+    float iconY = bgY + (bgH - FONT_CHAR_H * iconScale) / 2.0f;
+    drawText(mVolume == 0 ? "x" : "+", iconX, iconY, iconScale,
+             0.4f, 0.7f, 1.0f, 1.0f);
+
+    // Progress bar background
+    float barX = iconX + iconW;
+    float barY = bgY + (bgH - barH) / 2.0f;
+    drawQuad(barX, barY, barW, barH, 0.3f, 0.3f, 0.3f, 1.0f);
+
+    // Progress bar fill
+    int pct = (mMaxVolume > 0) ? (mVolume * 100 / mMaxVolume) : 0;
+    float fillW = barW * pct / 100.0f;
+    drawQuad(barX, barY, fillW, barH, 0.4f, 0.7f, 1.0f, 1.0f);
 
     // Percentage text
     char pctStr[8];
@@ -3503,7 +3667,7 @@ void NanoMenu::renderXmb() {
     float footY = mHeight - footH - 8.0f * sf;
     const char* footer = mSearchActive
         ? "Up/Dn: Browse | A: Launch | B: Clear | Y: Refine"
-        : "L/R: System | Up/Dn: Game | A: Play | Y: Search | L1: List | R1: QR";
+        : "L/R: System | Up/Dn: Game | A: Play | Y: Search | X: FX | L1: List | R1: QR";
     float fW = measureText(footer, footScale);
     drawText(footer, (mWidth - fW) / 2.0f, footY, footScale, 0.35f, 0.35f, 0.4f, 0.8f);
 

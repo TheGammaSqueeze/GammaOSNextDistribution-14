@@ -163,6 +163,10 @@ private:
     // Brightness control
     void adjustBrightness(int direction);
     void renderBrightnessBar();
+
+    // Volume control
+    void adjustVolume(int direction);
+    void renderVolumeBar();
     int readSysfsInt(const char* path, int fallback);
     void writeSysfsInt(const char* path, int value);
 
@@ -265,12 +269,17 @@ private:
     bool mStickYTriggered; // prevents repeat until stick returns to center
     bool mStickXTriggered; // prevents repeat for horizontal axis
 
-    // Brightness
+    // Brightness / power
     bool mSelectHeld;
+    int64_t mPowerPressTime;
     int mBrightness;
     int mMaxBrightness;
     bool mShowBrightnessBar;
     int mBrightnessBarTimer;
+    int mVolume;
+    int mMaxVolume;
+    bool mShowVolumeBar;
+    int mVolumeBarTimer;
 
     // Effects
     int mCurrentEffect; // 0 = none, 1..21 = effect
