@@ -31,6 +31,8 @@ cc_binary {
         "libEGL",
         "libGLESv2",
         "libft2",
+        "libpng",
+        "libz",
     ],
 
     init_rc: ["gammaos-nano.rc"],

@@ -1753,14 +1753,31 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     }
 
     private void backLongPress() {
-        // GammaOS Nano: in nano mode, long-press back on RetroArch sends ESC
-        // (save state, close gracefully). For other apps, use the normal behavior.
+        // GammaOS Nano: in nano mode, long-press back handles app exit.
+        // RetroArch: send ESC (save state, close gracefully).
+        // Standalone emulators: force-stop and restart nano menu.
         if (android.os.SystemProperties.getBoolean("sys.gammaos.minimal_boot", false)
                 && "1".equals(android.os.SystemProperties.get(
                         "sys.gammaos.nano.app_launched", "0"))) {
             String fgApp = getForegroundAppPackageName();
             if (fgApp != null && fgApp.toLowerCase().contains("retroarch")) {
                 triggerVirtualKeypress(KeyEvent.KEYCODE_ESCAPE);
+                return;
+            }
+            // For standalone emulators (PPSSPP, Drastic, Flycast, Mupen64Plus, etc.):
+            // force-stop the app and signal nano menu restart
+            if (fgApp != null) {
+                Slog.i(TAG, "GammaOS Nano: long-press back on standalone app " + fgApp
+                        + ", force-stopping and restarting nano menu");
+                try {
+                    mContext.getSystemService(android.app.ActivityManager.class)
+                            .forceStopPackage(fgApp);
+                } catch (Exception e) {
+                    Slog.e(TAG, "GammaOS Nano: force-stop failed", e);
+                }
+                // Signal nano menu restart
+                android.os.SystemProperties.set("sys.gammaos.nano.app_launched", "0");
+                android.os.SystemProperties.set("sys.gammaos.nano.restart", "1");
                 return;
             }
         }

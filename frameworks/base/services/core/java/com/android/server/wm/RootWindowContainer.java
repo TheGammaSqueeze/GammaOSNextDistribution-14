@@ -179,6 +179,86 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
     // GammaOS Nano: crash detection — track launch attempts to avoid crash loops
     private static int sNanoCrashCount = 0;
     private static long sNanoLastLaunchTime = 0;
+
+    /**
+     * Parse an am-start-style intent string for standalone emulator launches.
+     * Supports: -n component, -a action, -d data, -t type, -e/-es extra string,
+     *           --activity-clear-task, --activity-clear-top
+     */
+    /**
+     * Parse a simplified am-start-style intent string.
+     * Uses \t (tab) as the token delimiter to avoid issues with spaces in
+     * file URIs. The NanoMenu native code separates args with tabs.
+     * Falls back to space-split if no tabs found (legacy compat).
+     */
+    private Intent parseAmIntent(String args, String fallbackPkg) {
+        Intent intent = new Intent();
+        // Use tab delimiter if present, otherwise space
+        String[] tokens = args.contains("\t") ? args.split("\t")
+                                              : args.split("\\s+");
+        for (int i = 0; i < tokens.length; i++) {
+            String tok = tokens[i].trim();
+            if (tok.isEmpty()) continue;
+            switch (tok) {
+                case "-n":
+                    if (i + 1 < tokens.length) {
+                        ComponentName comp = ComponentName.unflattenFromString(
+                                tokens[++i].trim());
+                        if (comp != null) intent.setComponent(comp);
+                    }
+                    break;
+                case "-a":
+                    if (i + 1 < tokens.length) intent.setAction(tokens[++i].trim());
+                    break;
+                case "-d":
+                    if (i + 1 < tokens.length) {
+                        String dataStr = tokens[++i].trim();
+                        // If type was already set, use setDataAndType to preserve both
+                        String existingType = intent.getType();
+                        if (existingType != null) {
+                            intent.setDataAndType(android.net.Uri.parse(dataStr), existingType);
+                        } else {
+                            intent.setData(android.net.Uri.parse(dataStr));
+                        }
+                    }
+                    break;
+                case "-t":
+                    if (i + 1 < tokens.length) {
+                        String typeStr = tokens[++i].trim();
+                        // If data was already set, use setDataAndType to preserve both
+                        android.net.Uri existingData = intent.getData();
+                        if (existingData != null) {
+                            intent.setDataAndType(existingData, typeStr);
+                        } else {
+                            intent.setType(typeStr);
+                        }
+                    }
+                    break;
+                case "-e": case "-es":
+                    if (i + 2 < tokens.length) {
+                        intent.putExtra(tokens[i + 1].trim(), tokens[i + 2].trim());
+                        i += 2;
+                    }
+                    break;
+                case "-c":
+                    if (i + 1 < tokens.length) intent.addCategory(tokens[++i].trim());
+                    break;
+                case "--activity-clear-task":
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    break;
+                case "--activity-clear-top":
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    break;
+                case "--activity-no-history":
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                    break;
+            }
+        }
+        if (intent.getComponent() == null && fallbackPkg != null) {
+            intent.setPackage(fallbackPkg);
+        }
+        return intent;
+    }
     private static final int NANO_MAX_CRASH_COUNT = 3;
     private static final long NANO_CRASH_WINDOW_MS = 10000; // 10 seconds
     // GammaOS Nano: black overlay surface shown while NanoMenu is active
@@ -1607,15 +1687,23 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                 final String nanoAppPkg = android.os.SystemProperties.get(
                         "sys.gammaos.nano.launch_app", "com.retroarch.aarch64");
                 final boolean[] processAlive = {false};
+                final boolean[] allFinishing = {true};
                 forAllTasks(task -> {
                     task.forAllActivities(r -> {
                         if (r.packageName != null && r.packageName.equals(nanoAppPkg)
                                 && r.app != null && r.app.hasThread()) {
                             processAlive[0] = true;
+                            if (!r.finishing && !r.isState(
+                                    ActivityRecord.State.STOPPING,
+                                    ActivityRecord.State.STOPPED,
+                                    ActivityRecord.State.DESTROYING,
+                                    ActivityRecord.State.DESTROYED)) {
+                                allFinishing[0] = false;
+                            }
                         }
                     });
                 });
-                if (processAlive[0]) {
+                if (processAlive[0] && !allFinishing[0]) {
                     Slog.i(TAG, "GammaOS Nano: app process still alive, "
                             + "skipping cleanup");
                     return true;
@@ -1635,6 +1723,8 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                         "sys.gammaos.nano.launch_rom", "");
                 android.os.SystemProperties.set(
                         "sys.gammaos.nano.launch_core", "");
+                android.os.SystemProperties.set(
+                        "sys.gammaos.nano.launch_intent", "");
                 // Remove all lingering tasks/activities for the nano app
                 try {
                     java.util.ArrayList<Task> tasksToRemove = new java.util.ArrayList<>();
@@ -1739,22 +1829,70 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                     Slog.i(TAG, "GammaOS Nano: direct launch " + directActivity
                             + " dataDir=" + dataDir);
                 } else {
-                    // Non-RetroArch app: use LAUNCHER query as before
-                    Intent launchIntent = new Intent(Intent.ACTION_MAIN);
-                    launchIntent.addCategory(Intent.CATEGORY_LAUNCHER);
-                    launchIntent.setPackage(nanoApp);
-                    java.util.List<android.content.pm.ResolveInfo> activities =
-                            mService.mContext.getPackageManager().queryIntentActivities(launchIntent,
-                                    android.content.pm.PackageManager.MATCH_ALL
-                                    | android.content.pm.PackageManager.MATCH_DIRECT_BOOT_UNAWARE
-                                    | android.content.pm.PackageManager.MATCH_DIRECT_BOOT_AWARE);
-                    if (!activities.isEmpty()) {
-                        aInfo = activities.get(0).activityInfo;
-                        homeIntent = new Intent(Intent.ACTION_MAIN);
-                        homeIntent.addCategory(Intent.CATEGORY_LAUNCHER);
-                        homeIntent.setComponent(new ComponentName(
-                                aInfo.applicationInfo.packageName, aInfo.name));
-                        homeIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    // Non-RetroArch app: check for launch_intent (standalone emulators)
+                    // Intent is stored in a file because it exceeds PROP_VALUE_MAX (92 bytes)
+                    String launchIntentStr = android.os.SystemProperties.get(
+                            "sys.gammaos.nano.launch_intent", "");
+                    if ("file".equals(launchIntentStr)) {
+                        try {
+                            java.io.File intentFile = new java.io.File(
+                                    "/data/system/nano_launch_intent.txt");
+                            if (intentFile.exists()) {
+                                launchIntentStr = new String(
+                                        java.nio.file.Files.readAllBytes(intentFile.toPath()),
+                                        java.nio.charset.StandardCharsets.UTF_8).trim();
+                                intentFile.delete();
+                                Slog.i(TAG, "GammaOS Nano: read launch_intent from file ("
+                                        + launchIntentStr.length() + " bytes)");
+                            } else {
+                                launchIntentStr = "";
+                            }
+                        } catch (Exception e) {
+                            Slog.e(TAG, "GammaOS Nano: failed to read intent file", e);
+                            launchIntentStr = "";
+                        }
+                    }
+                    if (!launchIntentStr.isEmpty()) {
+                        // Parse am-start-style intent args for standalone emulators
+                        // (Drastic, PPSSPP, Flycast, etc.)
+                        try {
+                            homeIntent = parseAmIntent(launchIntentStr, nanoApp);
+                            if (homeIntent != null) {
+                                homeIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+                                        | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                ComponentName comp = homeIntent.getComponent();
+                                if (comp != null) {
+                                    aInfo = mService.mContext.getPackageManager().getActivityInfo(comp,
+                                            android.content.pm.PackageManager.MATCH_ALL
+                                            | android.content.pm.PackageManager.MATCH_DIRECT_BOOT_UNAWARE);
+                                }
+                                Slog.i(TAG, "GammaOS Nano: standalone launch intent="
+                                        + homeIntent.toString());
+                            }
+                        } catch (Exception e) {
+                            Slog.e(TAG, "GammaOS Nano: failed to parse launch_intent: " + e);
+                        }
+                        android.os.SystemProperties.set(
+                                "sys.gammaos.nano.launch_intent", "");
+                    }
+                    if (homeIntent == null || aInfo == null) {
+                        // Fallback: use LAUNCHER query
+                        Intent launchIntent = new Intent(Intent.ACTION_MAIN);
+                        launchIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+                        launchIntent.setPackage(nanoApp);
+                        java.util.List<android.content.pm.ResolveInfo> activities =
+                                mService.mContext.getPackageManager().queryIntentActivities(launchIntent,
+                                        android.content.pm.PackageManager.MATCH_ALL
+                                        | android.content.pm.PackageManager.MATCH_DIRECT_BOOT_UNAWARE
+                                        | android.content.pm.PackageManager.MATCH_DIRECT_BOOT_AWARE);
+                        if (!activities.isEmpty()) {
+                            aInfo = activities.get(0).activityInfo;
+                            homeIntent = new Intent(Intent.ACTION_MAIN);
+                            homeIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+                            homeIntent.setComponent(new ComponentName(
+                                    aInfo.applicationInfo.packageName, aInfo.name));
+                            homeIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        }
                     }
                 }
                 if (aInfo != null) {

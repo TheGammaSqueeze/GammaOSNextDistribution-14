@@ -80,6 +80,39 @@ public:
         std::string label;
     };
 
+    struct XmbSystem {
+        std::string name;
+        std::string shortname;
+        std::string romDir;        // Directory name under ROMs/
+        std::string coreSo;        // RetroArch core .so filename (empty for standalone)
+        std::string launchPkg;     // Package name for standalone emulators
+        std::string launchIntent;  // Intent template ({file.uri} placeholder)
+        float iconR, iconG, iconB; // Icon color
+        std::string acceptExts;    // Comma-separated accepted extensions
+        std::string activePath;    // The path that was successfully opened for scanning
+        std::vector<std::string> roms;         // Sorted filenames
+        std::vector<std::string> displayNames; // Pre-stripped display names (parallel)
+        bool scanned;
+        bool pathExists;
+        bool isStandalone() const { return !launchPkg.empty(); }
+    };
+
+    struct SearchResult {
+        int sysIdx;
+        int gameIdx;
+    };
+
+    struct XmbRecentEntry {
+        std::string romPath;       // Full ROM path for launch
+        std::string coreSo;        // Core .so or empty for standalone
+        std::string launchPkg;     // Package for standalone
+        std::string launchIntent;  // Intent template for standalone
+        std::string displayName;   // Game display name
+        std::string systemName;    // System shortname (e.g. "NES")
+        std::string romDir;        // ROM directory name
+        bool standalone;
+    };
+
     enum MenuState {
         MENU_MAIN = 0,
         MENU_RECENT = 1,
@@ -98,10 +131,30 @@ private:
     void pollInput();
     void handleUp();
     void handleDown();
+    void handleLeft();
+    void handleRight();
     void handleSelect();
     void handleBack();
     void loadRecentPlaylist();
     void loadInstalledApps();
+
+    // XMB mode
+    void initXmbSystems();
+    void scanRomPaths();
+    void renderXmb();
+    void launchXmbGame();
+    void loadXmbRecent();
+    void saveXmbRecent();
+    void addXmbRecent(int sysIdx, int gameIdx);
+
+    // On-screen keyboard (search)
+    void openOsk();
+    void closeOsk();
+    void oskType(char c);
+    void oskBackspace();
+    void oskConfirm();
+    void updateSearchResults();
+    void renderOsk();
 
     // Quick Resume
     void prepareShutdown(const char* action);
@@ -210,6 +263,7 @@ private:
 
     // Analog stick state
     bool mStickYTriggered; // prevents repeat until stick returns to center
+    bool mStickXTriggered; // prevents repeat for horizontal axis
 
     // Brightness
     bool mSelectHeld;
@@ -226,6 +280,33 @@ private:
 
     // Quick Resume
     bool mQuickResumeEnabled;
+
+    // XMB mode
+    bool mXmbMode;
+    std::vector<XmbRecentEntry> mXmbRecent; // Recently played from XMB
+    int mXmbRecentMax;                       // Max entries to keep
+    std::vector<XmbSystem> mXmbSystems;
+    int mXmbSystemIndex;       // Currently selected system
+    int mXmbGameIndex;         // Currently selected game in current system
+    float mXmbAnimX;           // Animated horizontal position (lerps to mXmbSystemIndex)
+    float mXmbAnimY;           // Animated vertical position (lerps to mXmbGameIndex)
+    int mXmbGameScrollTop;     // First visible game in list
+    bool mXmbRomScanDone;      // ROM paths have been scanned
+
+    // Icon rendering
+    void initIconTextures();
+    void drawIcon(int iconIdx, float x, float y, float size,
+                  float r, float g, float b, float a);
+    GLuint mIconTextures[16]; // One texture per system icon + history
+
+    // On-screen keyboard (search)
+    bool mOskActive;           // OSK is visible and receiving input
+    std::string mOskQuery;     // Current search query
+    int mOskCursorX;           // OSK grid cursor column
+    int mOskCursorY;           // OSK grid cursor row
+    std::vector<SearchResult> mSearchResults;
+    int mSearchSelectedIndex;
+    bool mSearchActive;        // Search results being displayed
 
     // FreeType font rendering
     static const int MAX_FT_FACES = 4;

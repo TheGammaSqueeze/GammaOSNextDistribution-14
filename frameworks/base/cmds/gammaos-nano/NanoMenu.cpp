@@ -43,8 +43,10 @@
 
 #include <GLES2/gl2.h>
 #include <EGL/eglext.h>
+#include <png.h>
 
 #include "NanoMenu.h"
+#include "xmb_icons.h"
 
 namespace android {
 
@@ -294,6 +296,90 @@ static const int kNumActiveEffects = sizeof(kActiveEffects) / sizeof(kActiveEffe
 static int sActiveEffectIdx = 0;
 
 // ---------------------------------------------------------------------------
+// XMB system definitions (from Daijisho database)
+// ---------------------------------------------------------------------------
+
+struct SystemDef {
+    const char* name;
+    const char* shortname;
+    const char* romDir;       // Directory name under /sdcard/ROMs/
+    const char* coreSo;       // RetroArch core .so filename (empty for standalone)
+    const char* launchPkg;    // Package name for standalone emulators (empty for RetroArch)
+    const char* launchIntent; // Intent template for standalone ({file.uri} placeholder)
+    float r, g, b;            // Icon color
+    const char* acceptExts;   // Comma-separated accepted extensions (lowercase, with dots)
+};
+
+// For RetroArch cores: coreSo is set, launchPkg/launchIntent are empty
+// For standalone emulators: coreSo is empty, launchPkg+launchIntent are set
+// Intent uses {file.uri} as placeholder for the ROM URI
+static const SystemDef kXmbSystemDefs[] = {
+    {"NES",             "NES",  "nes",          "nestopia_libretro_android.so",               "", "",
+     0.89f, 0.00f, 0.06f, ".nes,.fds,.unf,.unif"},
+    {"SNES",            "SNES", "snes",         "snes9x_libretro_android.so",                "", "",
+     0.48f, 0.49f, 0.49f, ".smc,.sfc,.fig,.swc"},
+    {"Game Boy",        "GB",   "gb",           "gambatte_libretro_android.so",              "", "",
+     0.61f, 0.73f, 0.06f, ".gb"},
+    {"Game Boy Color",  "GBC",  "gbc",          "gambatte_libretro_android.so",              "", "",
+     0.42f, 0.25f, 0.63f, ".gbc,.gb"},
+    {"Game Boy Advance","GBA",  "gba",          "gpsp_libretro_android.so",                  "", "",
+     0.36f, 0.25f, 0.63f, ".gba"},
+    {"Nintendo 64",     "N64",  "n64",          "mupen64plus_next_gles3_libretro_android.so", "", "",
+     0.00f, 0.60f, 0.00f, ".n64,.v64,.z64,.ndd"},
+    {"Nintendo DS",     "NDS",  "nds",          "",
+     "com.dsemu.drastic",
+     "-n com.dsemu.drastic/.DraSticActivity -d {file.uri} --activity-clear-task --activity-clear-top",
+     0.63f, 0.63f, 0.63f, ".nds"},
+    {"Genesis",         "GEN",  "genesis",      "genesis_plus_gx_libretro_android.so",       "", "",
+     0.00f, 0.38f, 0.66f, ".md,.gen,.smd,.bin"},
+    {"Master System",   "SMS",  "mastersystem", "genesis_plus_gx_libretro_android.so",       "", "",
+     0.78f, 0.00f, 0.00f, ".sms,.sg"},
+    {"Game Gear",       "GG",   "gamegear",     "genesis_plus_gx_libretro_android.so",       "", "",
+     0.09f, 0.09f, 0.85f, ".gg"},
+    {"PlayStation",     "PSX",  "psx",          "pcsx_rearmed_libretro_android.so",          "", "",
+     0.00f, 0.19f, 0.53f, ".cue,.pbp,.chd,.iso,.m3u,.img"},
+    {"PSP",             "PSP",  "psp",          "",
+     "org.ppsspp.ppsspp",
+     "-n org.ppsspp.ppsspp/.PpssppActivity -a android.intent.action.VIEW -d {file.uri} -t application/octet-stream --activity-clear-task --activity-clear-top",
+     0.10f, 0.10f, 0.10f, ".iso,.cso,.pbp"},
+    {"Dreamcast",       "DC",   "dreamcast",    "",
+     "com.flycast.emulator",
+     "-n com.flycast.emulator/com.flycast.emulator.MainActivity -a android.intent.action.VIEW -d {file.uri}",
+     1.00f, 0.50f, 0.00f, ".cdi,.gdi,.chd,.cue"},
+    {"Neo Geo Pocket",  "NGP",  "ngpc",         "mednafen_ngp_libretro_android.so",          "", "",
+     0.50f, 0.50f, 0.50f, ".ngp,.ngc,.npc"},
+    {"PICO-8",          "P-8",  "pico8",        "fake08_libretro_android.so",                "", "",
+     1.00f, 0.00f, 0.30f, ".p8,.png"},
+};
+static const int kNumXmbSystemDefs = sizeof(kXmbSystemDefs) / sizeof(kXmbSystemDefs[0]);
+
+// OSK keyboard layout
+static const char kOskLayout[3][9] = {
+    {'A','B','C','D','E','F','G','H','I'},
+    {'J','K','L','M','N','O','P','Q','R'},
+    {'S','T','U','V','W','X','Y','Z',' '},
+};
+static const int kOskRows = 3;
+static const int kOskCols = 9;
+
+// Case-insensitive substring search
+static bool containsInsensitive(const std::string& haystack, const std::string& needle) {
+    if (needle.empty()) return true;
+    if (haystack.size() < needle.size()) return false;
+    for (size_t i = 0; i <= haystack.size() - needle.size(); i++) {
+        bool match = true;
+        for (size_t j = 0; j < needle.size(); j++) {
+            char a = haystack[i + j], b = needle[j];
+            if (a >= 'A' && a <= 'Z') a += 32;
+            if (b >= 'A' && b <= 'Z') b += 32;
+            if (a != b) { match = false; break; }
+        }
+        if (match) return true;
+    }
+    return false;
+}
+
+// ---------------------------------------------------------------------------
 // Font layout constants (kept for layout compatibility)
 // ---------------------------------------------------------------------------
 
@@ -415,6 +501,7 @@ NanoMenu::NanoMenu()
       mLastScrolledIdx(-1),
       mMenuScrollTop(0),
       mStickYTriggered(false),
+      mStickXTriggered(false),
       mSelectHeld(false),
       mBrightness(128), mMaxBrightness(255),
       mShowBrightnessBar(false), mBrightnessBarTimer(0),
@@ -422,6 +509,11 @@ NanoMenu::NanoMenu()
       mInShadowPass(false),
       mEffectTime(0.0f),
       mQuickResumeEnabled(false),
+      mXmbMode(false), mXmbRecentMax(50), mXmbSystemIndex(0), mXmbGameIndex(0),
+      mXmbAnimX(0.0f), mXmbAnimY(0.0f),
+      mXmbGameScrollTop(0), mXmbRomScanDone(false),
+      mOskActive(false), mOskCursorX(0), mOskCursorY(0),
+      mSearchSelectedIndex(0), mSearchActive(false),
       mFtLib(nullptr),
       mFtNumFaces(0),
       mFontSize(48),
@@ -638,7 +730,7 @@ void NanoMenu::rebuildDisplayItems() {
         mSubtitle = "v0.1 - Proof of Concept";
         char buf[200];
         snprintf(buf, sizeof(buf),
-                 "DPAD/VOL: Nav | A/PWR: Select | X: FX [%s] | R: Quick Resume",
+                 "DPAD/VOL: Nav | A/PWR: Select | X: FX [%s] | L1: XMB | R1: QR",
                  kEffectNames[mCurrentEffect]);
         mFooter = buf;
     }
@@ -846,6 +938,24 @@ void NanoMenu::loadInstalledApps() {
 }
 
 void NanoMenu::handleBack() {
+    if (mOskActive) {
+        closeOsk();
+        return;
+    }
+    if (mXmbMode) {
+        if (mSearchActive) {
+            mSearchActive = false;
+            mOskQuery.clear();
+            mSearchResults.clear();
+        } else {
+            // Exit XMB mode back to text menu
+            mXmbMode = false;
+            property_set("persist.gammaos.nano.xmb_mode", "0");
+            mMenuState = MENU_MAIN;
+            mDisplayDirty = true;
+        }
+        return;
+    }
     if (mMenuState == MENU_RECENT) {
         mMenuState = MENU_MAIN;
         mRecentSelectedIndex = 0;
@@ -903,6 +1013,15 @@ void NanoMenu::openInputDevices() {
 // ---------------------------------------------------------------------------
 
 void NanoMenu::handleSelect() {
+    if (mOskActive) {
+        char ch = kOskLayout[mOskCursorY][mOskCursorX];
+        oskType(ch);
+        return;
+    }
+    if (mXmbMode) {
+        launchXmbGame();
+        return;
+    }
     if (mMenuState == MENU_RECENT) {
         int numEntries = (int)mRecentEntries.size();
         // Last item is "< Back"
@@ -1007,6 +1126,18 @@ void NanoMenu::handleSelect() {
 }
 
 void NanoMenu::handleUp() {
+    if (mOskActive) {
+        if (mOskCursorY > 0) mOskCursorY--;
+        return;
+    }
+    if (mXmbMode) {
+        if (mSearchActive) {
+            if (mSearchSelectedIndex > 0) mSearchSelectedIndex--;
+        } else {
+            if (mXmbGameIndex > 0) mXmbGameIndex--;
+        }
+        return;
+    }
     if (mMenuState == MENU_RECENT) {
         if (mRecentSelectedIndex > 0) mRecentSelectedIndex--;
     } else if (mMenuState == MENU_APPS) {
@@ -1035,6 +1166,27 @@ void NanoMenu::handleUp() {
 }
 
 void NanoMenu::handleDown() {
+    if (mOskActive) {
+        if (mOskCursorY < kOskRows - 1) mOskCursorY++;
+        return;
+    }
+    if (mXmbMode) {
+        if (mSearchActive) {
+            int maxIdx = (int)mSearchResults.size() - 1;
+            if (mSearchSelectedIndex < maxIdx) mSearchSelectedIndex++;
+        } else if (mXmbSystemIndex == -1) {
+            // Recently Played
+            int maxIdx = (int)mXmbRecent.size() - 1;
+            if (mXmbGameIndex < maxIdx) mXmbGameIndex++;
+        } else {
+            int selSys = mXmbSystemIndex;
+            if (selSys >= 0 && selSys < (int)mXmbSystems.size()) {
+                int maxIdx = (int)mXmbSystems[selSys].roms.size() - 1;
+                if (mXmbGameIndex < maxIdx) mXmbGameIndex++;
+            }
+        }
+        return;
+    }
     if (mMenuState == MENU_RECENT) {
         int maxIdx = (int)mRecentEntries.size(); // "< Back" is at this index
         if (mRecentSelectedIndex < maxIdx) mRecentSelectedIndex++;
@@ -1097,18 +1249,51 @@ void NanoMenu::pollInput() {
                         handleUp(); break;
                     case KEY_VOLUMEDOWN: case KEY_DOWN:
                         handleDown(); break;
-                    case KEY_POWER: case KEY_ENTER: case BTN_SOUTH:
+                    case KEY_POWER: case BTN_SOUTH:
                         handleSelect(); break;
+                    case KEY_ENTER:
+                        if (mOskActive) oskConfirm();
+                        else handleSelect();
+                        break;
                     case BTN_EAST: case KEY_BACK:
                         handleBack(); break;
+                    case KEY_LEFT:
+                        handleLeft(); break;
+                    case KEY_RIGHT:
+                        handleRight(); break;
                     case BTN_NORTH:
-                        sActiveEffectIdx = (sActiveEffectIdx + 1) % kNumActiveEffects;
-                        mCurrentEffect = kActiveEffects[sActiveEffectIdx];
-                        if (mCurrentEffect >= 1 && mCurrentEffect <= 10) initEffects();
-                        mDisplayDirty = true; // footer shows effect name
-                        ALOGD("Effect: %d (%s)", mCurrentEffect, kEffectNames[mCurrentEffect]);
-                        { char buf[16]; snprintf(buf, sizeof(buf), "%d", mCurrentEffect);
-                          property_set("persist.gammaos.nano.wallpaper", buf); }
+                        if (mXmbMode) {
+                            // Y button: search in XMB mode
+                            if (mOskActive) {
+                                closeOsk();
+                            } else if (mSearchActive) {
+                                // Reopen OSK to refine
+                                mOskActive = true;
+                            } else {
+                                openOsk();
+                            }
+                        } else {
+                            sActiveEffectIdx = (sActiveEffectIdx + 1) % kNumActiveEffects;
+                            mCurrentEffect = kActiveEffects[sActiveEffectIdx];
+                            if (mCurrentEffect >= 1 && mCurrentEffect <= 10) initEffects();
+                            mDisplayDirty = true;
+                            ALOGD("Effect: %d (%s)", mCurrentEffect, kEffectNames[mCurrentEffect]);
+                            { char buf[16]; snprintf(buf, sizeof(buf), "%d", mCurrentEffect);
+                              property_set("persist.gammaos.nano.wallpaper", buf); }
+                        }
+                        break;
+                    case BTN_TL: case KEY_L:
+                        if (mOskActive) break;
+                        mXmbMode = !mXmbMode;
+                        property_set("persist.gammaos.nano.xmb_mode",
+                                     mXmbMode ? "1" : "0");
+                        if (!mXmbMode) {
+                            mMenuState = MENU_MAIN;
+                            mSearchActive = false;
+                            mOskActive = false;
+                        }
+                        mDisplayDirty = true;
+                        ALOGD("XMB Mode: %s", mXmbMode ? "ON" : "OFF");
                         break;
                     case BTN_TR: case KEY_R:
                         mQuickResumeEnabled = !mQuickResumeEnabled;
@@ -1122,9 +1307,24 @@ void NanoMenu::pollInput() {
                 }
             }
             if (ev.type == EV_ABS) {
-                if (ev.code == ABS_HAT0Y) {
+                if (ev.code == ABS_HAT0X) {
+                    if (ev.value < 0) handleLeft();
+                    else if (ev.value > 0) handleRight();
+                } else if (ev.code == ABS_HAT0Y) {
                     if (ev.value < 0) handleUp();
                     else if (ev.value > 0) handleDown();
+                } else if (ev.code == ABS_X) {
+                    // Left stick X: horizontal navigation
+                    int threshold = 29490; // 90% of 32767
+                    if (ev.value < -threshold && !mStickXTriggered) {
+                        handleLeft();
+                        mStickXTriggered = true;
+                    } else if (ev.value > threshold && !mStickXTriggered) {
+                        handleRight();
+                        mStickXTriggered = true;
+                    } else if (ev.value > -threshold && ev.value < threshold) {
+                        mStickXTriggered = false;
+                    }
                 } else if (ev.code == ABS_Y) {
                     // Left stick Y: signed range -32768..32767, 90% deadzone
                     // Threshold naturally filters touchscreen ABS_Y (max ~960)
@@ -1495,6 +1695,8 @@ status_t NanoMenu::readyToRun() {
     ALOGD("NanoMenu: display %dx%d", mWidth, mHeight);
     initShaders();
     buildMenu();
+    initXmbSystems();
+    loadXmbRecent();
     openInputDevices();
     initEffects();
 
@@ -1561,6 +1763,177 @@ void NanoMenu::initShaders() {
         glDeleteShader(vs); glDeleteShader(fs);
     }
     initFonts();
+    initIconTextures();
+}
+
+// ---------------------------------------------------------------------------
+// Icon texture rendering (monochrome 32x32 icons, tinted at draw time)
+// ---------------------------------------------------------------------------
+
+// Map system index to RetroArch XMB monochrome icon filename
+static const char* kIconPngNames[16] = {
+    "Nintendo - Nintendo Entertainment System.png",    // 0: nes
+    "Nintendo - Super Nintendo Entertainment System.png", // 1: snes
+    "Nintendo - Game Boy.png",                          // 2: gb
+    "Nintendo - Game Boy Color.png",                    // 3: gbc
+    "Nintendo - Game Boy Advance.png",                  // 4: gba
+    "Sega - Mega Drive - Genesis.png",                  // 5: genesis
+    "Sega - Master System - Mark III.png",              // 6: mastersystem
+    "Sega - Game Gear.png",                             // 7: gamegear
+    "Sega - Dreamcast.png",                             // 8: dreamcast
+    "Nintendo - Nintendo 64.png",                       // 9: n64
+    "Nintendo - Nintendo DS.png",                       // 10: nds
+    "Sony - PlayStation.png",                           // 11: psx
+    "Sony - PlayStation Portable.png",                  // 12: psp
+    "SNK - Neo Geo Pocket Color.png",                   // 13: ngpc
+    "PICO-8.png",                                       // 14: pico8
+    "history.png",                                      // 15: recently played
+};
+
+static const char* kIconPngDir = "/data/system/nano_icons";
+
+// Load a PNG as white + alpha RGBA texture. Returns true on success.
+static bool loadPngAsAlphaTexture(const char* path, GLuint* outTex) {
+    FILE* fp = fopen(path, "rb");
+    if (!fp) return false;
+
+    png_byte header[8];
+    if (fread(header, 1, 8, fp) != 8 || png_sig_cmp(header, 0, 8)) {
+        fclose(fp);
+        return false;
+    }
+
+    png_structp png = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
+    if (!png) { fclose(fp); return false; }
+    png_infop info = png_create_info_struct(png);
+    if (!info) { png_destroy_read_struct(&png, nullptr, nullptr); fclose(fp); return false; }
+
+    if (setjmp(png_jmpbuf(png))) {
+        png_destroy_read_struct(&png, &info, nullptr);
+        fclose(fp);
+        return false;
+    }
+
+    png_init_io(png, fp);
+    png_set_sig_bytes(png, 8);
+    png_read_info(png, info);
+
+    int width = png_get_image_width(png, info);
+    int height = png_get_image_height(png, info);
+    png_byte colorType = png_get_color_type(png, info);
+    png_byte bitDepth = png_get_bit_depth(png, info);
+
+    // Expand to RGBA regardless of input format
+    if (colorType == PNG_COLOR_TYPE_PALETTE) png_set_palette_to_rgb(png);
+    if (colorType == PNG_COLOR_TYPE_GRAY && bitDepth < 8) png_set_expand_gray_1_2_4_to_8(png);
+    if (colorType == PNG_COLOR_TYPE_GRAY || colorType == PNG_COLOR_TYPE_GRAY_ALPHA)
+        png_set_gray_to_rgb(png);
+    if (bitDepth == 16) png_set_strip_16(png);
+    // Handle transparency: tRNS chunk → alpha channel
+    bool hasTrns = png_get_valid(png, info, PNG_INFO_tRNS) != 0;
+    if (hasTrns) png_set_tRNS_to_alpha(png);
+    // Add opaque alpha only if no alpha exists
+    bool hasAlpha = (colorType & PNG_COLOR_MASK_ALPHA) || hasTrns;
+    if (!hasAlpha) png_set_filler(png, 0xFF, PNG_FILLER_AFTER);
+
+    png_read_update_info(png, info);
+
+    // Read image rows
+    std::vector<uint8_t> pixels(width * height * 4);
+    std::vector<png_bytep> rows(height);
+    for (int y = 0; y < height; y++)
+        rows[y] = pixels.data() + y * width * 4;
+    png_read_image(png, rows.data());
+    png_destroy_read_struct(&png, &info, nullptr);
+    fclose(fp);
+
+    // Convert to white + alpha: these are monochrome white-on-transparent icons,
+    // so just set RGB=255 and preserve the original alpha channel.
+    for (int p = 0; p < width * height; p++) {
+        // Keep original alpha (already correct from tRNS expansion)
+        pixels[p * 4 + 0] = 255;
+        pixels[p * 4 + 1] = 255;
+        pixels[p * 4 + 2] = 255;
+    }
+
+    GLuint tex;
+    glGenTextures(1, &tex);
+    glBindTexture(GL_TEXTURE_2D, tex);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,
+                 GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+    *outTex = tex;
+    ALOGD("NanoMenu: loaded PNG icon %s (%dx%d)", path, width, height);
+    return true;
+}
+
+void NanoMenu::initIconTextures() {
+    memset(mIconTextures, 0, sizeof(mIconTextures));
+    int pngLoaded = 0;
+    for (int i = 0; i < 16; i++) {
+        // Try loading high-res PNG from RetroArch assets
+        std::string pngPath = std::string(kIconPngDir) + "/" + kIconPngNames[i];
+        if (loadPngAsAlphaTexture(pngPath.c_str(), &mIconTextures[i])) {
+            pngLoaded++;
+            continue;
+        }
+        // Fallback: embedded 32x32 alpha mask
+        const uint8_t* src = kSystemIcons[i];
+        uint8_t rgba[kIconSize * kIconSize * 4];
+        for (int p = 0; p < kIconSize * kIconSize; p++) {
+            rgba[p * 4 + 0] = 255;
+            rgba[p * 4 + 1] = 255;
+            rgba[p * 4 + 2] = 255;
+            rgba[p * 4 + 3] = src[p];
+        }
+        GLuint tex;
+        glGenTextures(1, &tex);
+        glBindTexture(GL_TEXTURE_2D, tex);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, kIconSize, kIconSize, 0,
+                     GL_RGBA, GL_UNSIGNED_BYTE, rgba);
+        mIconTextures[i] = tex;
+    }
+    ALOGD("NanoMenu: loaded %d PNG + %d embedded icon textures", pngLoaded, 16 - pngLoaded);
+}
+
+void NanoMenu::drawIcon(int iconIdx, float x, float y, float size,
+                        float r, float g, float b, float a) {
+    if (iconIdx < 0 || iconIdx >= 16 || mIconTextures[iconIdx] == 0) return;
+
+    float x0 = (x / mWidth) * 2.0f - 1.0f;
+    float y0 = 1.0f - ((y + size) / mHeight) * 2.0f;
+    float x1 = ((x + size) / mWidth) * 2.0f - 1.0f;
+    float y1 = 1.0f - (y / mHeight) * 2.0f;
+
+    GLfloat verts[] = { x0,y0, x1,y0, x1,y1, x1,y1, x0,y1, x0,y0 };
+    GLfloat uvs[]   = { 0,1, 1,1, 1,0, 1,0, 0,0, 0,1 };
+    GLfloat colors[6 * 4];
+    for (int i = 0; i < 6; i++) {
+        colors[i*4+0] = r; colors[i*4+1] = g;
+        colors[i*4+2] = b; colors[i*4+3] = a;
+    }
+
+    glUseProgram(mTextProgram); // reuse text shader (texture * vertex color)
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, mIconTextures[iconIdx]);
+    glUniform1i(mTextLocTexture, 0);
+    glVertexAttribPointer(mTextLocPosition, 2, GL_FLOAT, GL_FALSE, 0, verts);
+    glEnableVertexAttribArray(mTextLocPosition);
+    glVertexAttribPointer(mTextLocTexCoord, 2, GL_FLOAT, GL_FALSE, 0, uvs);
+    glEnableVertexAttribArray(mTextLocTexCoord);
+    glVertexAttribPointer(mTextLocColor, 4, GL_FLOAT, GL_FALSE, 0, colors);
+    glEnableVertexAttribArray(mTextLocColor);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    glDisableVertexAttribArray(mTextLocPosition);
+    glDisableVertexAttribArray(mTextLocTexCoord);
+    glDisableVertexAttribArray(mTextLocColor);
 }
 
 // ---------------------------------------------------------------------------
@@ -1887,6 +2260,10 @@ void NanoMenu::render() {
     updateEffect();
     renderEffect();
 
+    if (mXmbMode) {
+        renderXmb();
+    } else {
+
     // Responsive scaling: fit to both width and height so the menu
     // looks correct on any aspect ratio (4:3, 16:9, 16:10, 3:2, etc.)
     float sf = fminf((float)mWidth / 1080.0f, (float)mHeight / 720.0f);
@@ -2082,11 +2459,15 @@ void NanoMenu::render() {
     float footX = (mWidth - footW) / 2.0f;
     drawText(mFooter.c_str(), footX, footY, footScale, 0.4f, 0.4f, 0.5f, 1.0f);
 
+    } // end !mXmbMode text menu
+
     // Brightness bar overlay
     renderBrightnessBar();
 
     // Quick Resume indicator (top-right corner)
     {
+        float sf = fminf((float)mWidth / 1080.0f, (float)mHeight / 720.0f);
+        if (sf < 0.5f) sf = 0.5f;
         float qrScale = 1.5f * sf;
         float dotSize = 10.0f * sf;
         float pad = 15.0f * sf;
@@ -2159,6 +2540,954 @@ void NanoMenu::renderBrightnessBar() {
 }
 
 // ---------------------------------------------------------------------------
+// XMB System Initialization
+// ---------------------------------------------------------------------------
+
+void NanoMenu::initXmbSystems() {
+    mXmbSystems.clear();
+    mXmbSystems.reserve(kNumXmbSystemDefs);
+    for (int i = 0; i < kNumXmbSystemDefs; i++) {
+        XmbSystem sys;
+        sys.name = kXmbSystemDefs[i].name;
+        sys.shortname = kXmbSystemDefs[i].shortname;
+        sys.romDir = kXmbSystemDefs[i].romDir;
+        sys.coreSo = kXmbSystemDefs[i].coreSo;
+        sys.launchPkg = kXmbSystemDefs[i].launchPkg;
+        sys.launchIntent = kXmbSystemDefs[i].launchIntent;
+        sys.iconR = kXmbSystemDefs[i].r;
+        sys.iconG = kXmbSystemDefs[i].g;
+        sys.iconB = kXmbSystemDefs[i].b;
+        sys.acceptExts = kXmbSystemDefs[i].acceptExts;
+        sys.scanned = false;
+        sys.pathExists = false;
+
+        // Allow prop overrides per system
+        char propBuf[PROPERTY_VALUE_MAX] = {};
+        char propKey[128];
+        snprintf(propKey, sizeof(propKey), "persist.gammaos.nano.xmb.%s.dir",
+                 kXmbSystemDefs[i].romDir);
+        property_get(propKey, propBuf, "");
+        if (propBuf[0]) sys.romDir = propBuf;
+
+        snprintf(propKey, sizeof(propKey), "persist.gammaos.nano.xmb.%s.core",
+                 kXmbSystemDefs[i].romDir);
+        property_get(propKey, propBuf, "");
+        if (propBuf[0]) sys.coreSo = propBuf;
+
+        // Try loading cached file list from DE storage
+        {
+            std::string cachePath = "/data/system/nano_xmb_cache/" + sys.romDir + ".list";
+            int cfd = open(cachePath.c_str(), O_RDONLY);
+            if (cfd >= 0) {
+                struct stat cst;
+                if (fstat(cfd, &cst) == 0 && cst.st_size > 0 && cst.st_size < 512 * 1024) {
+                    std::string content(cst.st_size, '\0');
+                    ssize_t rd = read(cfd, &content[0], cst.st_size);
+                    if (rd > 0) {
+                        content.resize(rd);
+                        size_t pos = 0;
+                        bool firstLine = true;
+                        while (pos < content.size()) {
+                            size_t eol = content.find('\n', pos);
+                            if (eol == std::string::npos) eol = content.size();
+                            std::string line = content.substr(pos, eol - pos);
+                            pos = eol + 1;
+                            if (line.empty()) continue;
+                            if (firstLine) {
+                                sys.activePath = line;
+                                sys.pathExists = true;
+                                firstLine = false;
+                            } else {
+                                sys.roms.push_back(line);
+                            }
+                        }
+                        // Pre-compute display names from cache
+                        for (const auto& rom : sys.roms) {
+                            std::string dn = rom;
+                            size_t d = dn.rfind('.');
+                            if (d != std::string::npos) dn = dn.substr(0, d);
+                            sys.displayNames.push_back(std::move(dn));
+                        }
+                        if (!sys.roms.empty()) {
+                            ALOGD("NanoMenu: %s: loaded %zu ROMs from cache",
+                                  sys.name.c_str(), sys.roms.size());
+                        }
+                    }
+                }
+                close(cfd);
+            }
+        }
+
+        mXmbSystems.push_back(std::move(sys));
+    }
+    ALOGD("NanoMenu: initialized %d XMB systems", (int)mXmbSystems.size());
+}
+
+// ---------------------------------------------------------------------------
+// ROM Path Scanning
+// ---------------------------------------------------------------------------
+
+void NanoMenu::scanRomPaths() {
+    ALOGD("NanoMenu: scanning ROM paths");
+    for (auto& sys : mXmbSystems) {
+        if (sys.scanned) continue;
+
+        // Build candidate paths in priority order:
+        // 1. Raw filesystem (bypasses FUSE, works earliest after CE unlock)
+        // 2. FUSE-mounted internal storage (available after vold)
+        // 3. External SD card volumes (enumerated from /storage/)
+        // 4. Prop-overridden custom path
+        const std::string romDir = sys.romDir;
+        std::vector<std::string> scanPaths;
+        scanPaths.push_back("/data/media/0/ROMs/" + romDir);
+        scanPaths.push_back("/sdcard/ROMs/" + romDir);
+        scanPaths.push_back("/storage/emulated/0/ROMs/" + romDir);
+
+        // Enumerate external storage volumes (/storage/XXXX-XXXX/ROMs/)
+        {
+            DIR* storageDir = opendir("/storage");
+            if (storageDir) {
+                struct dirent* sEntry;
+                while ((sEntry = readdir(storageDir)) != nullptr) {
+                    if (sEntry->d_name[0] == '.') continue;
+                    // Skip "emulated" and "self" — those are internal
+                    if (!strcmp(sEntry->d_name, "emulated")) continue;
+                    if (!strcmp(sEntry->d_name, "self")) continue;
+                    std::string extPath = "/storage/";
+                    extPath += sEntry->d_name;
+                    extPath += "/ROMs/" + romDir;
+                    scanPaths.push_back(extPath);
+                }
+                closedir(storageDir);
+            }
+            // Also try /mnt/media_rw/ for raw external SD access
+            DIR* mntDir = opendir("/mnt/media_rw");
+            if (mntDir) {
+                struct dirent* mEntry;
+                while ((mEntry = readdir(mntDir)) != nullptr) {
+                    if (mEntry->d_name[0] == '.') continue;
+                    std::string extPath = "/mnt/media_rw/";
+                    extPath += mEntry->d_name;
+                    extPath += "/ROMs/" + romDir;
+                    scanPaths.push_back(extPath);
+                }
+                closedir(mntDir);
+            }
+        }
+
+        // Check for prop-overridden custom path
+        char customPath[PROPERTY_VALUE_MAX] = {};
+        char propKey[128];
+        snprintf(propKey, sizeof(propKey), "persist.gammaos.nano.xmb.%s.path", romDir.c_str());
+        property_get(propKey, customPath, "");
+
+        DIR* dir = nullptr;
+        std::string activePath;
+
+        // If custom path is set, try it first
+        if (customPath[0]) {
+            dir = opendir(customPath);
+            if (dir) activePath = customPath;
+        }
+
+        // Try all candidate paths
+        if (!dir) {
+            for (const auto& path : scanPaths) {
+                dir = opendir(path.c_str());
+                if (dir) {
+                    activePath = path;
+                    break;
+                }
+            }
+        }
+
+        if (!dir) {
+            // Not ready yet — leave scanned=false so we retry next check
+            sys.pathExists = false;
+            ALOGD("NanoMenu: %s: no accessible path found (will retry)", sys.name.c_str());
+            continue;
+        }
+        sys.scanned = true;
+        sys.pathExists = true;
+        sys.activePath = activePath;
+
+        // Clear any cached data — fresh scan replaces it
+        sys.roms.clear();
+        sys.displayNames.clear();
+
+        // Build extension set from comma-separated list
+        std::set<std::string> exts;
+        {
+            const std::string& extStr = sys.acceptExts;
+            size_t pos = 0;
+            while (pos < extStr.size()) {
+                size_t comma = extStr.find(',', pos);
+                if (comma == std::string::npos) comma = extStr.size();
+                std::string ext = extStr.substr(pos, comma - pos);
+                // Trim whitespace
+                while (!ext.empty() && ext[0] == ' ') ext.erase(0, 1);
+                if (!ext.empty()) exts.insert(ext);
+                pos = comma + 1;
+            }
+        }
+
+        // Always accept .zip and .7z (RetroArch can extract these)
+        exts.insert(".zip");
+        exts.insert(".7z");
+
+        struct dirent* entry;
+        while ((entry = readdir(dir)) != nullptr) {
+            if (entry->d_name[0] == '.') continue; // skip hidden
+            if (entry->d_type == DT_DIR) continue;  // skip directories
+
+            std::string name(entry->d_name);
+            size_t dot = name.rfind('.');
+            if (dot == std::string::npos) continue;
+
+            // Skip known non-ROM files
+            std::string ext = name.substr(dot);
+            for (size_t i = 0; i < ext.size(); i++) {
+                if (ext[i] >= 'A' && ext[i] <= 'Z') ext[i] += 32;
+            }
+            if (ext == ".txt" || ext == ".jpg" || ext == ".png" || ext == ".xml"
+                || ext == ".srm" || ext == ".sav" || ext == ".state" || ext == ".rtc"
+                || ext == ".dat" || ext == ".bak" || ext == ".cfg" || ext == ".log") {
+                continue;
+            }
+
+            if (!exts.count(ext)) continue;
+
+            // Skip 0-byte files (dummy/placeholder files)
+            {
+                std::string fullPath = activePath + "/" + name;
+                struct stat st;
+                if (stat(fullPath.c_str(), &st) == 0 && st.st_size == 0) continue;
+            }
+
+            sys.roms.push_back(name);
+        }
+        closedir(dir);
+
+        // Sort alphabetically (case-insensitive)
+        std::sort(sys.roms.begin(), sys.roms.end(),
+                  [](const std::string& a, const std::string& b) {
+                      for (size_t i = 0; i < a.size() && i < b.size(); i++) {
+                          char ca = a[i], cb = b[i];
+                          if (ca >= 'A' && ca <= 'Z') ca += 32;
+                          if (cb >= 'A' && cb <= 'Z') cb += 32;
+                          if (ca != cb) return ca < cb;
+                      }
+                      return a.size() < b.size();
+                  });
+
+        // Pre-compute display names (strip extension)
+        sys.displayNames.reserve(sys.roms.size());
+        for (const auto& rom : sys.roms) {
+            std::string dn = rom;
+            size_t d = dn.rfind('.');
+            if (d != std::string::npos) dn = dn.substr(0, d);
+            sys.displayNames.push_back(std::move(dn));
+        }
+
+        ALOGD("NanoMenu: %s: %zu ROMs in %s", sys.name.c_str(),
+              sys.roms.size(), activePath.c_str());
+
+        // Save cache to DE storage (accessible before CE unlock)
+        {
+            std::string cacheDir = "/data/system/nano_xmb_cache";
+            mkdir(cacheDir.c_str(), 0755);
+            std::string cachePath = cacheDir + "/" + sys.romDir + ".list";
+            int cfd = open(cachePath.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
+            if (cfd >= 0) {
+                // First line: active path
+                std::string header = activePath + "\n";
+                write(cfd, header.c_str(), header.size());
+                for (const auto& rom : sys.roms) {
+                    std::string line = rom + "\n";
+                    write(cfd, line.c_str(), line.size());
+                }
+                close(cfd);
+            }
+        }
+    }
+    // Only mark scan complete if all systems were scanned
+    bool allScanned = true;
+    for (const auto& s : mXmbSystems) {
+        if (!s.scanned) { allScanned = false; break; }
+    }
+    mXmbRomScanDone = allScanned;
+}
+
+// ---------------------------------------------------------------------------
+// XMB Recently Played
+// ---------------------------------------------------------------------------
+
+static const char* kXmbRecentFile = "/data/system/nano_xmb_recent.list";
+
+void NanoMenu::loadXmbRecent() {
+    mXmbRecent.clear();
+    int fd = open(kXmbRecentFile, O_RDONLY);
+    if (fd < 0) return;
+    struct stat st;
+    if (fstat(fd, &st) != 0 || st.st_size == 0 || st.st_size > 256 * 1024) {
+        close(fd); return;
+    }
+    std::string content(st.st_size, '\0');
+    ssize_t rd = read(fd, &content[0], st.st_size);
+    close(fd);
+    if (rd <= 0) return;
+    content.resize(rd);
+
+    // Format: one entry per 7 lines (romPath, coreSo, launchPkg, launchIntent,
+    //         displayName, systemName, romDir) separated by \n, entries by \n\n
+    size_t pos = 0;
+    while (pos < content.size() && (int)mXmbRecent.size() < mXmbRecentMax) {
+        XmbRecentEntry e;
+        auto readLine = [&]() -> std::string {
+            size_t eol = content.find('\n', pos);
+            if (eol == std::string::npos) eol = content.size();
+            std::string line = content.substr(pos, eol - pos);
+            pos = eol + 1;
+            return line;
+        };
+        e.romPath = readLine();
+        if (e.romPath.empty()) { pos++; continue; }
+        e.coreSo = readLine();
+        e.launchPkg = readLine();
+        e.launchIntent = readLine();
+        e.displayName = readLine();
+        e.systemName = readLine();
+        e.romDir = readLine();
+        e.standalone = !e.launchPkg.empty();
+        // Skip blank separator line
+        if (pos < content.size() && content[pos] == '\n') pos++;
+        mXmbRecent.push_back(std::move(e));
+    }
+    ALOGD("NanoMenu: loaded %zu recent XMB entries", mXmbRecent.size());
+}
+
+void NanoMenu::saveXmbRecent() {
+    int fd = open(kXmbRecentFile, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+    if (fd < 0) return;
+    chmod(kXmbRecentFile, 0644);
+    for (const auto& e : mXmbRecent) {
+        std::string block = e.romPath + "\n" + e.coreSo + "\n" + e.launchPkg + "\n"
+            + e.launchIntent + "\n" + e.displayName + "\n" + e.systemName + "\n"
+            + e.romDir + "\n\n";
+        write(fd, block.c_str(), block.size());
+    }
+    close(fd);
+}
+
+void NanoMenu::addXmbRecent(int sysIdx, int gameIdx) {
+    if (sysIdx < 0 || sysIdx >= (int)mXmbSystems.size()) return;
+    const auto& sys = mXmbSystems[sysIdx];
+    if (gameIdx < 0 || gameIdx >= (int)sys.roms.size()) return;
+
+    XmbRecentEntry e;
+    // Build the launch path the same way launchXmbGame does
+    if (!sys.activePath.empty()) {
+        e.romPath = sys.activePath + "/" + sys.roms[gameIdx];
+        if (e.romPath.find("/data/media/0/") == 0) {
+            e.romPath = "/sdcard/" + e.romPath.substr(14);
+        }
+    } else {
+        e.romPath = "/sdcard/ROMs/" + sys.romDir + "/" + sys.roms[gameIdx];
+    }
+    e.coreSo = sys.coreSo;
+    e.launchPkg = sys.launchPkg;
+    e.launchIntent = sys.launchIntent;
+    e.displayName = sys.displayNames[gameIdx];
+    e.systemName = sys.shortname;
+    e.romDir = sys.romDir;
+    e.standalone = sys.isStandalone();
+
+    // Remove duplicate if already in list
+    for (auto it = mXmbRecent.begin(); it != mXmbRecent.end(); ++it) {
+        if (it->romPath == e.romPath) {
+            mXmbRecent.erase(it);
+            break;
+        }
+    }
+    // Insert at front (most recent first)
+    mXmbRecent.insert(mXmbRecent.begin(), std::move(e));
+    // Cap size
+    if ((int)mXmbRecent.size() > mXmbRecentMax) {
+        mXmbRecent.resize(mXmbRecentMax);
+    }
+    saveXmbRecent();
+}
+
+// ---------------------------------------------------------------------------
+// XMB Navigation
+// ---------------------------------------------------------------------------
+
+void NanoMenu::handleLeft() {
+    if (mOskActive) {
+        if (mOskCursorX > 0) mOskCursorX--;
+        return;
+    }
+    if (!mXmbMode) return;
+    if (mSearchActive) return;
+    // Index -1 = Recently Played, 0..N-1 = systems
+    if (mXmbSystemIndex > -1) {
+        // Don't go to Recently Played if it's empty
+        if (mXmbSystemIndex == 0 && mXmbRecent.empty()) return;
+        mXmbSystemIndex--;
+        mXmbGameIndex = 0;
+        mXmbGameScrollTop = 0;
+        mDisplayDirty = true;
+    }
+}
+
+void NanoMenu::handleRight() {
+    if (mOskActive) {
+        int maxCol = kOskCols - 1;
+        if (mOskCursorX < maxCol) mOskCursorX++;
+        return;
+    }
+    if (!mXmbMode) return;
+    if (mSearchActive) return;
+    int numSys = (int)mXmbSystems.size();
+    if (numSys == 0) return;
+    if (mXmbSystemIndex < numSys - 1) {
+        mXmbSystemIndex++;
+        mXmbGameIndex = 0;
+        mXmbGameScrollTop = 0;
+        mDisplayDirty = true;
+    }
+}
+
+void NanoMenu::launchXmbGame() {
+    int sysIdx, gameIdx;
+
+    // Recently Played mode (index -1): launch directly from recent entry
+    if (mXmbSystemIndex == -1 && !mSearchActive) {
+        if (mXmbRecent.empty()) return;
+        if (mXmbGameIndex < 0 || mXmbGameIndex >= (int)mXmbRecent.size()) return;
+        const auto& re = mXmbRecent[mXmbGameIndex];
+
+        // Move to front of recent list
+        if (mXmbGameIndex > 0) {
+            XmbRecentEntry moved = mXmbRecent[mXmbGameIndex];
+            mXmbRecent.erase(mXmbRecent.begin() + mXmbGameIndex);
+            mXmbRecent.insert(mXmbRecent.begin(), std::move(moved));
+            saveXmbRecent();
+        }
+
+        if (re.standalone) {
+            // Build content URI and intent file
+            std::string filename = re.romPath;
+            size_t lastSlash = filename.rfind('/');
+            if (lastSlash != std::string::npos) filename = filename.substr(lastSlash + 1);
+            std::string encodedFilename;
+            for (char c : filename) {
+                if (c == ' ') encodedFilename += "%20";
+                else if (c == '(') encodedFilename += "%28";
+                else if (c == ')') encodedFilename += "%29";
+                else if (c == '&') encodedFilename += "%26";
+                else encodedFilename += c;
+            }
+            std::string contentUri = "content://com.android.externalstorage.documents/tree/primary%3AROMs%2F"
+                + re.romDir + "/document/primary%3AROMs%2F" + re.romDir + "%2F" + encodedFilename;
+            std::string intent = re.launchIntent;
+            size_t pos = intent.find("{file.uri}");
+            if (pos != std::string::npos) intent.replace(pos, 10, contentUri);
+            std::string tabIntent;
+            { const char* p = intent.c_str(); while (*p) { while (*p == ' ') p++;
+              if (!*p) break; if (!tabIntent.empty()) tabIntent += '\t';
+              const char* s = p; while (*p && *p != ' ') p++; tabIntent.append(s, p - s); } }
+            android::base::SetProperty("sys.gammaos.nano.launch_app", re.launchPkg);
+            { const char* f = "/data/system/nano_launch_intent.txt";
+              int ifd = open(f, O_WRONLY|O_CREAT|O_TRUNC, 0666);
+              if (ifd >= 0) { write(ifd, tabIntent.c_str(), tabIntent.size()); close(ifd); chmod(f, 0644); }
+              android::base::SetProperty("sys.gammaos.nano.launch_intent", "file"); }
+            android::base::SetProperty("sys.gammaos.nano.launch_rom", "");
+            android::base::SetProperty("sys.gammaos.nano.launch_core", "");
+        } else {
+            std::string corePath = "/data/data/com.retroarch.aarch64/cores/" + re.coreSo;
+            android::base::SetProperty("sys.gammaos.nano.launch_rom", re.romPath);
+            android::base::SetProperty("sys.gammaos.nano.launch_core", corePath);
+            android::base::SetProperty("sys.gammaos.nano.launch_app", "com.retroarch.aarch64");
+            android::base::SetProperty("sys.gammaos.nano.launch_intent", "");
+            if (mQuickResumeEnabled) {
+                android::base::SetProperty("persist.gammaos.nano.qr_rom", re.romPath);
+                android::base::SetProperty("persist.gammaos.nano.qr_core", corePath);
+                property_set("persist.gammaos.nano.qr_prepared", "1");
+            }
+        }
+        ALOGI("NanoMenu XMB: recent launch %s [%s]", re.displayName.c_str(), re.systemName.c_str());
+        mSearchActive = false; mOskActive = false;
+        property_set("sys.gammaos.nano.return_recent", "0");
+        property_set("sys.gammaos.nano.return_apps", "0");
+        property_set("service.bootanim.nano_retroarch", "1");
+        property_set("sys.gammaos.nano.drop_input", "1");
+        struct timespec ts; clock_gettime(CLOCK_MONOTONIC, &ts);
+        int64_t fenceNs = (int64_t)ts.tv_sec * 1000000000LL + ts.tv_nsec;
+        char buf[32]; snprintf(buf, sizeof(buf), "%" PRId64, fenceNs);
+        property_set("sys.gammaos.nano.drop_fence_ns", buf);
+        mWaitForRelease = true;
+        return;
+    }
+
+    if (mSearchActive) {
+        // Launch from search results
+        if (mSearchResults.empty()) return;
+        if (mSearchSelectedIndex < 0 || mSearchSelectedIndex >= (int)mSearchResults.size())
+            return;
+        sysIdx = mSearchResults[mSearchSelectedIndex].sysIdx;
+        gameIdx = mSearchResults[mSearchSelectedIndex].gameIdx;
+    } else {
+        // Launch from current system
+        sysIdx = mXmbSystemIndex;
+        gameIdx = mXmbGameIndex;
+    }
+
+    if (sysIdx < 0 || sysIdx >= (int)mXmbSystems.size()) return;
+    const auto& sys = mXmbSystems[sysIdx];
+    if (gameIdx < 0 || gameIdx >= (int)sys.roms.size()) return;
+
+    // Build launch path — use /sdcard/ROMs/ prefix for FUSE access (RetroArch runs
+    // after FUSE mount). If the ROM was found on an external path, use that directly.
+    std::string romPath;
+    if (!sys.activePath.empty()) {
+        romPath = sys.activePath + "/" + sys.roms[gameIdx];
+        // Convert raw /data/media/0/ paths to /sdcard/ for app access
+        if (romPath.find("/data/media/0/") == 0) {
+            romPath = "/sdcard/" + romPath.substr(14);
+        }
+    } else {
+        romPath = "/sdcard/ROMs/" + sys.romDir + "/" + sys.roms[gameIdx];
+    }
+
+    if (sys.isStandalone()) {
+        // Standalone emulator: build content:// URI matching SAF format
+        // that Daijisho/Android uses for document providers.
+        // Format: content://com.android.externalstorage.documents/tree/
+        //         primary%3AROMs%2F{dir}/document/primary%3AROMs%2F{dir}%2F{filename}
+        std::string filename = sys.roms[gameIdx];
+        // URL-encode the filename (spaces, parens, ampersands, etc.)
+        std::string encodedFilename;
+        for (char c : filename) {
+            if (c == ' ') encodedFilename += "%20";
+            else if (c == '(') encodedFilename += "%28";
+            else if (c == ')') encodedFilename += "%29";
+            else if (c == '&') encodedFilename += "%26";
+            else if (c == '+') encodedFilename += "%2B";
+            else if (c == '!') encodedFilename += "%21";
+            else if (c == '\'') encodedFilename += "%27";
+            else encodedFilename += c;
+        }
+        std::string contentUri = "content://com.android.externalstorage.documents/tree/primary%3AROMs%2F"
+            + sys.romDir + "/document/primary%3AROMs%2F" + sys.romDir + "%2F" + encodedFilename;
+
+        // Build tab-separated intent for RootWindowContainer's parseAmIntent()
+        std::string intent = sys.launchIntent;
+        size_t pos = intent.find("{file.uri}");
+        if (pos != std::string::npos) {
+            intent.replace(pos, 10, contentUri);
+        }
+        // Convert to tab-separated tokens
+        std::string tabIntent;
+        {
+            const char* p = intent.c_str();
+            while (*p) {
+                while (*p == ' ') p++;
+                if (!*p) break;
+                if (!tabIntent.empty()) tabIntent += '\t';
+                const char* start = p;
+                while (*p && *p != ' ') p++;
+                tabIntent.append(start, p - start);
+            }
+        }
+        ALOGI("NanoMenu XMB: standalone launch %s uri=%s",
+              sys.launchPkg.c_str(), contentUri.c_str());
+        android::base::SetProperty("sys.gammaos.nano.launch_app", sys.launchPkg);
+        // Intent string exceeds PROP_VALUE_MAX (92 bytes), write to file instead
+        {
+            const char* intentFile = "/data/system/nano_launch_intent.txt";
+            int ifd = open(intentFile, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+            if (ifd >= 0) {
+                write(ifd, tabIntent.c_str(), tabIntent.size());
+                close(ifd);
+                // Ensure system_server (uid 1000) can read it
+                chmod(intentFile, 0644);
+                // Signal that an intent file is available
+                android::base::SetProperty("sys.gammaos.nano.launch_intent", "file");
+            } else {
+                ALOGE("NanoMenu: failed to write intent file: %s", strerror(errno));
+                android::base::SetProperty("sys.gammaos.nano.launch_intent", "");
+            }
+        }
+        // Clear RetroArch-specific props
+        android::base::SetProperty("sys.gammaos.nano.launch_rom", "");
+        android::base::SetProperty("sys.gammaos.nano.launch_core", "");
+    } else {
+        // RetroArch core
+        std::string corePath = "/data/data/com.retroarch.aarch64/cores/" + sys.coreSo;
+        ALOGI("NanoMenu XMB: launching %s core=%s", romPath.c_str(), corePath.c_str());
+        android::base::SetProperty("sys.gammaos.nano.launch_rom", romPath);
+        android::base::SetProperty("sys.gammaos.nano.launch_core", corePath);
+        android::base::SetProperty("sys.gammaos.nano.launch_app", "com.retroarch.aarch64");
+        android::base::SetProperty("sys.gammaos.nano.launch_intent", "");
+
+        // Prime Quick Resume (only for RetroArch games)
+        if (mQuickResumeEnabled) {
+            android::base::SetProperty("persist.gammaos.nano.qr_rom", romPath);
+            android::base::SetProperty("persist.gammaos.nano.qr_core", corePath);
+            property_set("persist.gammaos.nano.qr_prepared", "1");
+        }
+    }
+
+    // Record in recently played (only for system launches, not recent replays)
+    if (!mSearchActive) {
+        addXmbRecent(sysIdx, gameIdx);
+    } else {
+        // For search results, also record
+        addXmbRecent(sysIdx, gameIdx);
+    }
+
+    // Clear search state
+    mSearchActive = false;
+    mOskActive = false;
+
+    // Flag return-to-XMB and return to recently played on comeback
+    property_set("sys.gammaos.nano.return_recent", "0");
+    property_set("sys.gammaos.nano.return_apps", "0");
+    // Signal to return to recently played when app exits
+    property_set("sys.gammaos.nano.xmb_return_recent", "1");
+    property_set("service.bootanim.nano_retroarch", "1");
+    property_set("sys.gammaos.nano.drop_input", "1");
+
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    int64_t fenceNs = (int64_t)ts.tv_sec * 1000000000LL + ts.tv_nsec;
+    char buf[32];
+    snprintf(buf, sizeof(buf), "%" PRId64, fenceNs);
+    property_set("sys.gammaos.nano.drop_fence_ns", buf);
+
+    mWaitForRelease = true;
+}
+
+// ---------------------------------------------------------------------------
+// On-Screen Keyboard (Search)
+// ---------------------------------------------------------------------------
+
+void NanoMenu::openOsk() {
+    mOskActive = true;
+    mOskQuery.clear();
+    mOskCursorX = 0;
+    mOskCursorY = 0;
+    mSearchResults.clear();
+    mSearchSelectedIndex = 0;
+    mSearchActive = false;
+}
+
+void NanoMenu::closeOsk() {
+    mOskActive = false;
+    if (mOskQuery.empty()) {
+        mSearchActive = false;
+    }
+}
+
+void NanoMenu::oskType(char c) {
+    if (mOskQuery.size() < 32) {
+        mOskQuery += c;
+        updateSearchResults();
+    }
+}
+
+void NanoMenu::oskBackspace() {
+    if (!mOskQuery.empty()) {
+        mOskQuery.pop_back();
+        updateSearchResults();
+    }
+}
+
+void NanoMenu::oskConfirm() {
+    mOskActive = false;
+    if (!mOskQuery.empty()) {
+        mSearchActive = true;
+        mSearchSelectedIndex = 0;
+        updateSearchResults();
+    } else {
+        mSearchActive = false;
+    }
+}
+
+void NanoMenu::updateSearchResults() {
+    mSearchResults.clear();
+    if (mOskQuery.empty()) return;
+    for (int s = 0; s < (int)mXmbSystems.size(); s++) {
+        const auto& sys = mXmbSystems[s];
+        for (int g = 0; g < (int)sys.displayNames.size(); g++) {
+            if (containsInsensitive(sys.displayNames[g], mOskQuery)) {
+                mSearchResults.push_back({s, g});
+                if (mSearchResults.size() >= 100) return; // cap results
+            }
+        }
+    }
+    mSearchActive = !mSearchResults.empty() || !mOskQuery.empty();
+}
+
+void NanoMenu::renderOsk() {
+    if (!mOskActive) return;
+
+    float sf = fminf((float)mWidth / 1080.0f, (float)mHeight / 720.0f);
+    if (sf < 0.5f) sf = 0.5f;
+
+    float oskScale = 2.5f * sf;
+    float charW = FONT_CHAR_W * oskScale * 3.0f; // wider spacing for grid
+    float charH = FONT_CHAR_H * oskScale;
+    float pad = 15.0f * sf;
+
+    // OSK background
+    float gridW = kOskCols * charW + pad * 2;
+    float gridH = (kOskRows + 1) * (charH + 8.0f * sf) + pad * 2; // +1 for query line
+    float bgX = (mWidth - gridW) / 2.0f;
+    float bgY = mHeight - gridH - pad;
+    drawQuad(bgX, bgY, gridW, gridH, 0.0f, 0.0f, 0.0f, 0.85f);
+
+    // Query line
+    float queryY = bgY + pad;
+    std::string queryDisplay = "Search: " + mOskQuery + "_";
+    float queryScale = 2.0f * sf;
+    drawText(queryDisplay.c_str(), bgX + pad, queryY, queryScale,
+             0.0f, 0.85f, 1.0f, 1.0f);
+
+    // Keyboard grid
+    float gridStartY = queryY + charH + 12.0f * sf;
+    float gridStartX = bgX + pad;
+
+    for (int row = 0; row < kOskRows; row++) {
+        for (int col = 0; col < kOskCols; col++) {
+            float cx = gridStartX + col * charW;
+            float cy = gridStartY + row * (charH + 8.0f * sf);
+            bool selected = (row == mOskCursorY && col == mOskCursorX);
+
+            if (selected) {
+                drawQuad(cx - 2.0f * sf, cy - 2.0f * sf,
+                         charW - 4.0f * sf, charH + 4.0f * sf,
+                         0.0f, 0.35f, 0.6f, 0.9f);
+            }
+
+            char ch = kOskLayout[row][col];
+            char str[2] = {ch, '\0'};
+            if (ch == ' ') str[0] = '_'; // display space as underscore
+            float cr = selected ? 1.0f : 0.7f;
+            float cg = selected ? 1.0f : 0.7f;
+            float cb = selected ? 1.0f : 0.7f;
+            drawText(str, cx + charW * 0.25f, cy, oskScale, cr, cg, cb, 1.0f);
+        }
+    }
+
+    // Help text
+    float helpY = gridStartY + kOskRows * (charH + 8.0f * sf) + 4.0f * sf;
+    float helpScale = 1.5f * sf;
+    drawText("A:Type  B:Delete  Start:Search  Y:Cancel",
+             bgX + pad, helpY, helpScale, 0.4f, 0.4f, 0.5f, 1.0f);
+}
+
+// ---------------------------------------------------------------------------
+// XMB Rendering
+// ---------------------------------------------------------------------------
+
+void NanoMenu::renderXmb() {
+    float sf = fminf((float)mWidth / 1080.0f, (float)mHeight / 720.0f);
+    if (sf < 0.5f) sf = 0.5f;
+
+    // Smooth animation (tuned for 60fps, snappy feel)
+    float animSpeed = 0.18f;
+    mXmbAnimX += ((float)mXmbSystemIndex - mXmbAnimX) * animSpeed;
+    if (fabsf(mXmbAnimX - mXmbSystemIndex) < 0.01f) mXmbAnimX = mXmbSystemIndex;
+    float targetY = mSearchActive ? (float)mSearchSelectedIndex : (float)mXmbGameIndex;
+    mXmbAnimY += (targetY - mXmbAnimY) * animSpeed;
+    if (fabsf(mXmbAnimY - targetY) < 0.01f) mXmbAnimY = targetY;
+
+    int numSys = (int)mXmbSystems.size();
+    if (numSys == 0) return;
+
+    // PSP-style: white/gray icons, no gold tint
+    float iconR = 0.85f, iconG = 0.85f, iconB = 0.85f;
+    float dimIconR = 0.45f, dimIconG = 0.45f, dimIconB = 0.45f;
+
+    // Layout — based on RetroArch XMB driver constants (xmb.c lines 6160-6243)
+    // Reference: 1280x720, scale_factor ~1.0
+    float scaleFactor = sf;
+    float iconSize = 100.0f * scaleFactor;              // Base icon size (scaled by zoom)
+    float catActiveZoom = 1.0f;                         // Selected category scale
+    float catPassiveZoom = 0.55f;                       // Unselected category scale
+    float itemActiveZoom = 0.8f;                        // Selected item scale
+    float itemPassiveZoom = 0.4f;                       // Unselected item scale
+    float iconSpacingH = 160.0f * scaleFactor;          // Horizontal category spacing
+    float iconSpacingV = 110.0f * scaleFactor;          // Vertical item spacing
+    float marginTop = 180.0f * scaleFactor;             // Top of icon bar from screen top
+    float marginLeft = 120.0f * scaleFactor;            // Left edge of selected category
+    float labelLeft = 20.0f * scaleFactor;              // Text gap from icon right edge
+    float aboveItemOff = -1.5f;                         // Items above selected
+    float underItemOff = 2.5f;                          // Items below: room for cat name
+    float iconBarY = marginTop;
+    float selIconX = marginLeft;
+    float textScale = 2.2f * sf;
+    float selTextScale = 2.8f * sf;
+    float footScale = 1.4f * sf;
+    float catNameScale = 1.8f * sf;
+
+    bool isRecent = (mXmbSystemIndex == -1);
+
+    // --- Horizontal category bar (icons along the horizontal axis) ---
+    // Each category icon is centered at iconBarY, positioned horizontally
+    // relative to the selected one. Selected = full size, others = half size.
+
+    auto drawCatIcon = [&](int idx, float hOffset, bool isSel, int iconId) {
+        float zoom = isSel ? catActiveZoom : catPassiveZoom;
+        float sz = iconSize * zoom;
+        float alpha = isSel ? 1.0f : fmaxf(0.15f, 1.0f - fabsf(hOffset) * 0.15f);
+        float ix = selIconX + hOffset * iconSpacingH;
+        float iy = iconBarY - sz / 2.0f;
+        if (ix < -sz || ix > mWidth + sz) return; // cull
+        float cr = isSel ? iconR : dimIconR;
+        float cg = isSel ? iconG : dimIconG;
+        float cb = isSel ? iconB : dimIconB;
+        drawIcon(iconId, ix, iy, sz, cr, cg, cb, alpha);
+        if (isSel) {
+            const char* name = (idx == -1) ? "Recently Played"
+                             : (idx >= 0 && idx < numSys) ? mXmbSystems[idx].name.c_str()
+                             : "";
+            // Category name below the icon (PS3 style)
+            float nameY = iy + sz + 4.0f * sf;
+            drawText(name, ix, nameY, catNameScale, 0.8f, 0.8f, 0.8f, 0.9f);
+        }
+    };
+
+    // Recently Played (index -1)
+    if (!mXmbRecent.empty()) {
+        float hOff = -1.0f - mXmbAnimX;
+        drawCatIcon(-1, hOff, isRecent, 15);
+    }
+    // System icons
+    for (int i = 0; i < numSys; i++) {
+        float hOff = (float)i - mXmbAnimX;
+        if (fabsf(hOff) > 8.0f) continue;
+        drawCatIcon(i, hOff, !isRecent && i == mXmbSystemIndex, i < 16 ? i : 0);
+    }
+
+    // --- Vertical item list (XMB: selected at icon bar, above close, below with gap) ---
+    float selSz = iconSize * catActiveZoom;
+    float textStartX = selIconX + selSz + labelLeft;
+    float contentRight = mWidth * 0.93f;
+
+    int numItems = 0;
+    bool hasItems = true;
+    if (isRecent) {
+        numItems = (int)mXmbRecent.size();
+    } else if (mSearchActive) {
+        numItems = (int)mSearchResults.size();
+    } else {
+        int si = mXmbSystemIndex;
+        if (si >= 0 && si < numSys) numItems = (int)mXmbSystems[si].roms.size();
+    }
+    if (numItems == 0) hasItems = false;
+
+    int curIdx = isRecent ? mXmbGameIndex
+               : mSearchActive ? mSearchSelectedIndex : mXmbGameIndex;
+    if (curIdx >= numItems) curIdx = numItems - 1;
+    if (curIdx < 0) curIdx = 0;
+
+    if (hasItems) {
+        int maxAbove = (int)(iconBarY / iconSpacingV) + 1;
+        int maxBelow = (int)((mHeight - iconBarY) / iconSpacingV) + 1;
+        int startItem = curIdx - maxAbove;
+        int endItem = curIdx + maxBelow;
+        if (startItem < 0) startItem = 0;
+        if (endItem >= numItems) endItem = numItems - 1;
+
+        // Items start below the category icon + name
+        float selCatSz = iconSize * catActiveZoom;
+        float itemListTop = iconBarY + selCatSz / 2.0f + FONT_CHAR_H * catNameScale + 90.0f * sf;
+
+        for (int i = startItem; i <= endItem; i++) {
+            // All items flow downward from itemListTop.
+            // Selected item is at itemListTop, items above go up, items below go down.
+            float animCur = mXmbAnimY;
+            float relPos = (float)i - animCur;
+            float fy = itemListTop + relPos * iconSpacingV;
+            // Clip: don't draw items that overlap the category icon/name area
+            float clipTop = iconBarY + selCatSz / 2.0f + 10.0f * sf;
+            if (fy < clipTop - iconSpacingV * 0.3f || fy > mHeight + iconSpacingV) continue;
+
+            bool isSel = (fabsf((float)i - animCur) < 0.5f);
+            float iAlpha = isSel ? 1.0f : 0.55f;
+            float tSc = isSel ? selTextScale : textScale;
+
+            // Get display text
+            std::string displayText;
+            std::string sysLabel;
+            if (isRecent && i < (int)mXmbRecent.size()) {
+                displayText = mXmbRecent[i].displayName;
+                sysLabel = mXmbRecent[i].systemName;
+            } else if (mSearchActive && i < (int)mSearchResults.size()) {
+                const auto& res = mSearchResults[i];
+                if (res.sysIdx < numSys) {
+                    displayText = mXmbSystems[res.sysIdx].displayNames[res.gameIdx];
+                    sysLabel = mXmbSystems[res.sysIdx].shortname;
+                }
+            } else {
+                int si = mXmbSystemIndex;
+                if (si >= 0 && si < numSys && i < (int)mXmbSystems[si].displayNames.size()) {
+                    displayText = mXmbSystems[si].displayNames[i];
+                }
+            }
+
+            // Text — no per-item icon (category icon is on the horizontal bar only)
+            float tx = textStartX;
+            float ty = fy - FONT_CHAR_H * tSc * 0.4f;
+            float tr = isSel ? 1.0f : 0.6f;
+            float tg = isSel ? 1.0f : 0.6f;
+            float tb = isSel ? 1.0f : 0.6f;
+
+            glEnable(GL_SCISSOR_TEST);
+            glScissor((int)tx, 0, (int)(contentRight - tx), mHeight);
+            drawText(displayText.c_str(), tx, ty, tSc, tr, tg, tb, iAlpha);
+            if (isSel && !sysLabel.empty()) {
+                float tagY = ty + FONT_CHAR_H * tSc + 2.0f * sf;
+                drawText(sysLabel.c_str(), tx, tagY, catNameScale * 0.9f,
+                         0.5f, 0.5f, 0.55f, 0.7f);
+            }
+            glDisable(GL_SCISSOR_TEST);
+        }
+    } else if (!mSearchActive) {
+        const char* msg = isRecent ? "No recently played games"
+                        : (mXmbSystemIndex >= 0 && mXmbSystemIndex < numSys
+                           && mXmbSystems[mXmbSystemIndex].pathExists)
+                          ? "No games found" : "ROM folder not found";
+        float msgW = measureText(msg, textScale);
+        drawText(msg, (mWidth - msgW) / 2.0f, iconBarY + 40.0f * sf,
+                 textScale, 0.5f, 0.5f, 0.5f, 0.7f);
+    }
+
+    // Footer
+    float footH = FONT_CHAR_H * footScale;
+    float footY = mHeight - footH - 8.0f * sf;
+    const char* footer = mSearchActive
+        ? "Up/Dn: Browse | A: Launch | B: Clear | Y: Refine"
+        : "L/R: System | Up/Dn: Game | A: Play | Y: Search | L1: List | R1: QR";
+    float fW = measureText(footer, footScale);
+    drawText(footer, (mWidth - fW) / 2.0f, footY, footScale, 0.35f, 0.35f, 0.4f, 0.8f);
+
+    // Search indicator
+    if (mSearchActive && !mOskActive) {
+        char searchHdr[64];
+        snprintf(searchHdr, sizeof(searchHdr), "Search: \"%s\"", mOskQuery.c_str());
+        drawText(searchHdr, 10.0f * sf, footY - FONT_CHAR_H * footScale - 4.0f * sf,
+                 footScale, 0.7f, 0.7f, 0.2f, 0.9f);
+    }
+
+    // OSK overlay
+    renderOsk();
+}
+
+// ---------------------------------------------------------------------------
 // Main loop
 // ---------------------------------------------------------------------------
 
@@ -2178,6 +3507,20 @@ bool NanoMenu::threadLoop() {
     // are loaded, so the value read there may be stale (always false).
     mQuickResumeEnabled = android::base::GetBoolProperty(
             "persist.gammaos.nano.quick_resume", false);
+    mXmbMode = android::base::GetBoolProperty(
+            "persist.gammaos.nano.xmb_mode", false);
+    // If returning from a game, go to Recently Played
+    if (mXmbMode && android::base::GetBoolProperty(
+            "sys.gammaos.nano.xmb_return_recent", false)) {
+        property_set("sys.gammaos.nano.xmb_return_recent", "0");
+        loadXmbRecent(); // Refresh
+        if (!mXmbRecent.empty()) {
+            mXmbSystemIndex = -1; // Recently Played
+            mXmbGameIndex = 0;    // Most recent item
+            mXmbAnimX = -1.0f;
+            mXmbGameScrollTop = 0;
+        }
+    }
 
     // Quick Resume: auto-launch into saved game on boot if prepared
     if (mQuickResumeEnabled) {
@@ -2283,17 +3626,25 @@ bool NanoMenu::threadLoop() {
         pollInput();
         checkInputHotplug();
 
-        // Adaptive framerate: 60fps for XMB, 20fps for other effects, ~10fps idle.
+        // Adaptive framerate:
+        //   60fps during XMB animation (smooth transitions)
+        //   30fps for XMB background effect
+        //   20fps for other effects
+        //   ~10fps idle
         bool xmbActive = (mCurrentEffect == 21);
+        bool xmbAnimating = mXmbMode && (fabsf(mXmbAnimX - mXmbSystemIndex) > 0.01f
+                                         || fabsf(mXmbAnimY - (mSearchActive
+                                             ? (float)mSearchSelectedIndex
+                                             : (float)mXmbGameIndex)) > 0.01f);
         bool animating = (mCurrentEffect != 0) || mShowBrightnessBar
                          || mWaitForRelease
                          || ((mMenuState == MENU_RECENT || mMenuState == MENU_APPS)
                              && mScrollOffset > 0.0f);
         int frameTimeUs;
         float dt;
-        if (xmbActive) {
-            frameTimeUs = 33333; // 30fps (motion blur via per-depth time smear)
-            dt = 1.0f / 30.0f;
+        if (xmbActive || mXmbMode) {
+            frameTimeUs = 16666; // 60fps for XMB
+            dt = 1.0f / 60.0f;
         } else if (animating) {
             frameTimeUs = 50000; // 20fps
             dt = 1.0f / 20.0f;
@@ -2324,6 +3675,10 @@ bool NanoMenu::threadLoop() {
                     mDisplayDirty = true;
                     ALOGI("GammaOS Nano: storage is now accessible");
                 }
+            }
+            // Keep retrying ROM scan until all systems found
+            if (mStorageReady && !mXmbRomScanDone) {
+                scanRomPaths();
             }
         }
     }

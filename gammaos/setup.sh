@@ -158,6 +158,28 @@ chown -R $launcheruser:$launchergroup /data/data/com.retroarch.aarch64 && \
 chown -R $launcheruser:media_rw /sdcard/RetroArch && \
 chown -R $launcheruser:ext_data_rw /sdcard/Android/data/com.retroarch.aarch64
 
+echo "Copying XMB icons for Nano boot menu."
+mkdir -p /data/system/nano_icons
+for f in \
+    "Nintendo - Nintendo Entertainment System.png" \
+    "Nintendo - Super Nintendo Entertainment System.png" \
+    "Nintendo - Game Boy.png" \
+    "Nintendo - Game Boy Color.png" \
+    "Nintendo - Game Boy Advance.png" \
+    "Sega - Mega Drive - Genesis.png" \
+    "Sega - Master System - Mark III.png" \
+    "Sega - Game Gear.png" \
+    "Sega - Dreamcast.png" \
+    "Nintendo - Nintendo 64.png" \
+    "Nintendo - Nintendo DS.png" \
+    "Sony - PlayStation.png" \
+    "Sony - PlayStation Portable.png" \
+    "SNK - Neo Geo Pocket Color.png" \
+    "history.png"; do
+    cp "/data/user/0/com.retroarch.aarch64/assets/xmb/monochrome/png/$f" /data/system/nano_icons/ 2>/dev/null
+done
+chmod 644 /data/system/nano_icons/*.png 2>/dev/null
+
 echo "Installing GammaOS Splash app."
 pm install /system/etc/gammaos-displayloading.apk
 appops set com.gammaos.displayloading SYSTEM_ALERT_WINDOW allow
