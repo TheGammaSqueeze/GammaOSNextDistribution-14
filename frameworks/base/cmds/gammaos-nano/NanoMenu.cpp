@@ -3705,6 +3705,20 @@ bool NanoMenu::threadLoop() {
             "persist.gammaos.nano.quick_resume", false);
     mXmbMode = android::base::GetBoolProperty(
             "persist.gammaos.nano.xmb_mode", false);
+    // Re-read wallpaper effect (constructor ran before persist props loaded)
+    {
+        char wallpaper[PROPERTY_VALUE_MAX] = {};
+        property_get("persist.gammaos.nano.wallpaper", wallpaper, "21");
+        int savedEffect = atoi(wallpaper);
+        for (int i = 0; i < kNumActiveEffects; i++) {
+            if (kActiveEffects[i] == savedEffect) {
+                sActiveEffectIdx = i;
+                mCurrentEffect = savedEffect;
+                if (mCurrentEffect >= 1 && mCurrentEffect <= 10) initEffects();
+                break;
+            }
+        }
+    }
     // If returning from a game, restore the XMB position + color
     {
         std::string retSys = android::base::GetProperty(
@@ -3877,8 +3891,11 @@ bool NanoMenu::threadLoop() {
             dt = 1.0f / 10.0f;
         }
         mEffectTime += dt;
-        // Wrap time to prevent float precision degradation over extended runtime
-        if (mEffectTime > 50000.0f) mEffectTime -= 50000.0f;
+        // Wrap time early to prevent mediump float precision degradation.
+        // sin()/cos() with large args stutter on mediump (10-bit mantissa).
+        // 62.83 = 10*2*PI — max shader multiplier is ~5x, so peak arg ~314,
+        // well within mediump precision.
+        if (mEffectTime > 62.83f) mEffectTime -= 62.83f;
         render();
         usleep(frameTimeUs);
 
