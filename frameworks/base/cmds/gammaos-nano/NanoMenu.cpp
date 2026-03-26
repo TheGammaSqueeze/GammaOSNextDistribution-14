@@ -1771,23 +1771,24 @@ void NanoMenu::initShaders() {
 // ---------------------------------------------------------------------------
 
 // Map system index to RetroArch XMB monochrome icon filename
+// Order MUST match kXmbSystemDefs: NES,SNES,GB,GBC,GBA,N64,NDS,GEN,SMS,GG,PSX,PSP,DC,NGP,P8,history
 static const char* kIconPngNames[16] = {
-    "Nintendo - Nintendo Entertainment System.png",    // 0: nes
-    "Nintendo - Super Nintendo Entertainment System.png", // 1: snes
-    "Nintendo - Game Boy.png",                          // 2: gb
-    "Nintendo - Game Boy Color.png",                    // 3: gbc
-    "Nintendo - Game Boy Advance.png",                  // 4: gba
-    "Sega - Mega Drive - Genesis.png",                  // 5: genesis
-    "Sega - Master System - Mark III.png",              // 6: mastersystem
-    "Sega - Game Gear.png",                             // 7: gamegear
-    "Sega - Dreamcast.png",                             // 8: dreamcast
-    "Nintendo - Nintendo 64.png",                       // 9: n64
-    "Nintendo - Nintendo DS.png",                       // 10: nds
-    "Sony - PlayStation.png",                           // 11: psx
-    "Sony - PlayStation Portable.png",                  // 12: psp
-    "SNK - Neo Geo Pocket Color.png",                   // 13: ngpc
-    "PICO-8.png",                                       // 14: pico8
-    "history.png",                                      // 15: recently played
+    "Nintendo - Nintendo Entertainment System.png",       // 0: NES
+    "Nintendo - Super Nintendo Entertainment System.png", // 1: SNES
+    "Nintendo - Game Boy.png",                            // 2: GB
+    "Nintendo - Game Boy Color.png",                      // 3: GBC
+    "Nintendo - Game Boy Advance.png",                    // 4: GBA
+    "Nintendo - Nintendo 64.png",                         // 5: N64
+    "Nintendo - Nintendo DS.png",                         // 6: NDS
+    "Sega - Mega Drive - Genesis.png",                    // 7: Genesis
+    "Sega - Master System - Mark III.png",                // 8: Master System
+    "Sega - Game Gear.png",                               // 9: Game Gear
+    "Sony - PlayStation.png",                             // 10: PSX
+    "Sony - PlayStation Portable.png",                    // 11: PSP
+    "Sega - Dreamcast.png",                               // 12: Dreamcast
+    "SNK - Neo Geo Pocket Color.png",                     // 13: NGP
+    "PICO-8.png",                                         // 14: PICO-8
+    "history.png",                                        // 15: Recently Played
 };
 
 static const char* kIconPngDir = "/data/system/nano_icons";
@@ -1873,9 +1874,10 @@ static bool loadPngAsAlphaTexture(const char* path, GLuint* outTex) {
 void NanoMenu::initIconTextures() {
     memset(mIconTextures, 0, sizeof(mIconTextures));
     int pngLoaded = 0;
-    for (int i = 0; i < 16; i++) {
-        // Try loading high-res PNG from RetroArch assets
-        std::string pngPath = std::string(kIconPngDir) + "/" + kIconPngNames[i];
+    for (int i = 0; i < 17; i++) {
+        // Try loading high-res PNG from RetroArch assets (only for system icons 0-15)
+        std::string pngPath;
+        if (i < 16) pngPath = std::string(kIconPngDir) + "/" + kIconPngNames[i];
         if (loadPngAsAlphaTexture(pngPath.c_str(), &mIconTextures[i])) {
             pngLoaded++;
             continue;
@@ -1905,7 +1907,7 @@ void NanoMenu::initIconTextures() {
 
 void NanoMenu::drawIcon(int iconIdx, float x, float y, float size,
                         float r, float g, float b, float a) {
-    if (iconIdx < 0 || iconIdx >= 16 || mIconTextures[iconIdx] == 0) return;
+    if (iconIdx < 0 || iconIdx >= 17 || mIconTextures[iconIdx] == 0) return;
 
     float x0 = (x / mWidth) * 2.0f - 1.0f;
     float y0 = 1.0f - ((y + size) / mHeight) * 2.0f;
@@ -3018,6 +3020,11 @@ void NanoMenu::launchXmbGame() {
         }
         ALOGI("NanoMenu XMB: recent launch %s [%s]", re.displayName.c_str(), re.systemName.c_str());
         mSearchActive = false; mOskActive = false;
+        // Save return state: go back to recently played
+        property_set("sys.gammaos.nano.xmb_return_sys", "-1");
+        property_set("sys.gammaos.nano.xmb_return_game", "0");
+        { char cb[32]; snprintf(cb, sizeof(cb), "%.2f", mEffectTime);
+          property_set("sys.gammaos.nano.xmb_color_phase", cb); }
         property_set("sys.gammaos.nano.return_recent", "0");
         property_set("sys.gammaos.nano.return_apps", "0");
         property_set("service.bootanim.nano_retroarch", "1");
@@ -3151,11 +3158,27 @@ void NanoMenu::launchXmbGame() {
     mSearchActive = false;
     mOskActive = false;
 
-    // Flag return-to-XMB and return to recently played on comeback
+    // Save return state: system + game index so we go back to the right place
+    {
+        char buf[32];
+        // If launched from a system (not recently played or search), return to that system
+        if (!mSearchActive && mXmbSystemIndex >= 0) {
+            snprintf(buf, sizeof(buf), "%d", mXmbSystemIndex);
+            property_set("sys.gammaos.nano.xmb_return_sys", buf);
+            snprintf(buf, sizeof(buf), "%d", gameIdx);
+            property_set("sys.gammaos.nano.xmb_return_game", buf);
+        } else {
+            // Recently played or search: return to recently played
+            property_set("sys.gammaos.nano.xmb_return_sys", "-1");
+            property_set("sys.gammaos.nano.xmb_return_game", "0");
+        }
+        // Save XMB background color phase (effectTime drives hue cycle)
+        snprintf(buf, sizeof(buf), "%.2f", mEffectTime);
+        property_set("sys.gammaos.nano.xmb_color_phase", buf);
+    }
+
     property_set("sys.gammaos.nano.return_recent", "0");
     property_set("sys.gammaos.nano.return_apps", "0");
-    // Signal to return to recently played when app exits
-    property_set("sys.gammaos.nano.xmb_return_recent", "1");
     property_set("service.bootanim.nano_retroarch", "1");
     property_set("sys.gammaos.nano.drop_input", "1");
 
@@ -3319,7 +3342,7 @@ void NanoMenu::renderXmb() {
     float catPassiveZoom = 0.55f;                       // Unselected category scale
     float itemActiveZoom = 0.8f;                        // Selected item scale
     float itemPassiveZoom = 0.4f;                       // Unselected item scale
-    float iconSpacingH = 160.0f * scaleFactor;          // Horizontal category spacing
+    float iconSpacingH = 200.0f * scaleFactor;          // Horizontal category spacing (wider)
     float iconSpacingV = 110.0f * scaleFactor;          // Vertical item spacing
     float marginTop = 180.0f * scaleFactor;             // Top of icon bar from screen top
     float marginLeft = 120.0f * scaleFactor;            // Left edge of selected category
@@ -3354,9 +3377,11 @@ void NanoMenu::renderXmb() {
             const char* name = (idx == -1) ? "Recently Played"
                              : (idx >= 0 && idx < numSys) ? mXmbSystems[idx].name.c_str()
                              : "";
-            // Category name below the icon (PS3 style)
-            float nameY = iy + sz + 4.0f * sf;
-            drawText(name, ix, nameY, catNameScale, 0.8f, 0.8f, 0.8f, 0.9f);
+            // Category name centered below the icon (PS3 style)
+            float nameY = iy + sz + 6.0f * sf;
+            float nameW = measureText(name, catNameScale);
+            float nameCX = ix + sz / 2.0f - nameW / 2.0f;
+            drawText(name, nameCX, nameY, catNameScale, 0.8f, 0.8f, 0.8f, 0.9f);
         }
     };
 
@@ -3404,7 +3429,7 @@ void NanoMenu::renderXmb() {
 
         // Items start below the category icon + name
         float selCatSz = iconSize * catActiveZoom;
-        float itemListTop = iconBarY + selCatSz / 2.0f + FONT_CHAR_H * catNameScale + 90.0f * sf;
+        float itemListTop = iconBarY + selCatSz / 2.0f + FONT_CHAR_H * catNameScale + 140.0f * sf;
 
         for (int i = startItem; i <= endItem; i++) {
             // All items flow downward from itemListTop.
@@ -3439,8 +3464,15 @@ void NanoMenu::renderXmb() {
                 }
             }
 
-            // Text — no per-item icon (category icon is on the horizontal bar only)
-            float tx = textStartX;
+            // Game disc icon next to each item
+            float itemIconSz = isSel ? 50.0f * sf : 30.0f * sf;
+            float iconX = selIconX + (iconSize * catActiveZoom) / 2.0f - itemIconSz / 2.0f;
+            float iconY = fy - itemIconSz / 2.0f;
+            drawIcon(16, iconX, iconY, itemIconSz,
+                     isSel ? iconR : dimIconR, isSel ? iconG : dimIconG,
+                     isSel ? iconB : dimIconB, iAlpha);
+
+            float tx = iconX + itemIconSz + 10.0f * sf;
             float ty = fy - FONT_CHAR_H * tSc * 0.4f;
             float tr = isSel ? 1.0f : 0.6f;
             float tg = isSel ? 1.0f : 0.6f;
@@ -3509,16 +3541,44 @@ bool NanoMenu::threadLoop() {
             "persist.gammaos.nano.quick_resume", false);
     mXmbMode = android::base::GetBoolProperty(
             "persist.gammaos.nano.xmb_mode", false);
-    // If returning from a game, go to Recently Played
-    if (mXmbMode && android::base::GetBoolProperty(
-            "sys.gammaos.nano.xmb_return_recent", false)) {
-        property_set("sys.gammaos.nano.xmb_return_recent", "0");
-        loadXmbRecent(); // Refresh
-        if (!mXmbRecent.empty()) {
-            mXmbSystemIndex = -1; // Recently Played
-            mXmbGameIndex = 0;    // Most recent item
-            mXmbAnimX = -1.0f;
+    // If returning from a game, restore the XMB position + color
+    {
+        std::string retSys = android::base::GetProperty(
+                "sys.gammaos.nano.xmb_return_sys", "");
+        if (mXmbMode && !retSys.empty()) {
+            int returnSysIdx = atoi(retSys.c_str());
+            int returnGameIdx = atoi(android::base::GetProperty(
+                    "sys.gammaos.nano.xmb_return_game", "0").c_str());
+            // Clear so we don't re-apply on next restart
+            property_set("sys.gammaos.nano.xmb_return_sys", "");
+            property_set("sys.gammaos.nano.xmb_return_game", "");
+
+            if (returnSysIdx == -1) {
+                // Return to Recently Played
+                loadXmbRecent();
+                if (!mXmbRecent.empty()) {
+                    mXmbSystemIndex = -1;
+                    mXmbGameIndex = 0;
+                    mXmbAnimX = -1.0f;
+                }
+            } else if (returnSysIdx >= 0 && returnSysIdx < (int)mXmbSystems.size()) {
+                // Return to specific system + game
+                mXmbSystemIndex = returnSysIdx;
+                mXmbGameIndex = returnGameIdx;
+                mXmbAnimX = (float)returnSysIdx;
+                mXmbAnimY = (float)returnGameIdx;
+                ALOGD("NanoMenu: returning to system %d game %d",
+                      returnSysIdx, returnGameIdx);
+            }
             mXmbGameScrollTop = 0;
+        }
+        // Restore XMB background color phase
+        std::string colorPhase = android::base::GetProperty(
+                "sys.gammaos.nano.xmb_color_phase", "");
+        if (!colorPhase.empty()) {
+            mEffectTime = atof(colorPhase.c_str());
+            property_set("sys.gammaos.nano.xmb_color_phase", "");
+            ALOGD("NanoMenu: restored color phase %.2f", mEffectTime);
         }
     }
 

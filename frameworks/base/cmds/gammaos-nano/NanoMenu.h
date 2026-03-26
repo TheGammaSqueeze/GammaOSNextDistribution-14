@@ -297,7 +297,7 @@ private:
     void initIconTextures();
     void drawIcon(int iconIdx, float x, float y, float size,
                   float r, float g, float b, float a);
-    GLuint mIconTextures[16]; // One texture per system icon + history
+    GLuint mIconTextures[17]; // 0-14=systems, 15=history, 16=game item
 
     // On-screen keyboard (search)
     bool mOskActive;           // OSK is visible and receiving input
