@@ -141,6 +141,17 @@
 
         <activity android:name=".gestures.KeyHandler" />
 
+        <!-- Standalone gamepad calibration (launched from SetupWizard etc.) -->
+        <activity
+            android:name=".input.GamepadCalibrationActivity"
+            android:exported="true"
+            android:theme="@android:style/Theme.DeviceDefault.NoActionBar">
+            <intent-filter>
+                <action android:name="org.lineageos.lineageparts.GAMEPAD_CALIBRATION" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
         <!-- Gamepad settings (System category) -->
         <activity-alias
             android:name=".input.GamepadSettings"

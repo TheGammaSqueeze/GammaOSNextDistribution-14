@@ -902,6 +902,11 @@ public class GamepadCalibrationDialogFragment extends DialogFragment {
         SystemProperties.set(PROP_CONFIG_VERSION, String.valueOf(version + 1));
     }
 
+    /** Callback for hosts that need to know when the dialog is dismissed. */
+    public interface OnCalibrationDismissListener {
+        void onCalibrationDismissed(boolean completed);
+    }
+
     @Override
     public void onDismiss(@NonNull android.content.DialogInterface dialog) {
         super.onDismiss(dialog);
@@ -912,6 +917,12 @@ public class GamepadCalibrationDialogFragment extends DialogFragment {
                         mOriginalCalStrings[i]);
             }
             bumpConfigVersion();
+        }
+        // Notify host activity if it implements the listener
+        android.app.Activity activity = getActivity();
+        if (activity instanceof OnCalibrationDismissListener) {
+            ((OnCalibrationDismissListener) activity)
+                    .onCalibrationDismissed(mCalibrationCompleted);
         }
     }
 
