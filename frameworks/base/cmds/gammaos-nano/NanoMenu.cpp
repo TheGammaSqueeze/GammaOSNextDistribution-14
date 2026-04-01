@@ -17,6 +17,7 @@
 #define LOG_TAG "GammaOSNano"
 
 #include <algorithm>
+#include <thread>
 #include <fcntl.h>
 #include <dirent.h>
 #include <unistd.h>
@@ -44,6 +45,15 @@
 #include <GLES2/gl2.h>
 #include <EGL/eglext.h>
 #include <png.h>
+
+#include <aidl/android/hardware/light/ILights.h>
+#include <aidl/android/hardware/light/HwLight.h>
+
+#include "LibretroRunner.h"
+#include <aidl/android/hardware/light/HwLightState.h>
+#include <aidl/android/hardware/light/LightType.h>
+#include <android/binder_manager.h>
+#include <android/hardware/light/2.0/ILight.h>
 
 #include "NanoMenu.h"
 #include "xmb_icons.h"
@@ -236,8 +246,8 @@ static const char XMB_FRAGMENT_SHADER[] = R"(
 
         ribbon = clamp(ribbon, 0.0, 1.0);
 
-        // Slowly cycle hue (~8 min full cycle), always start on blue
-        float hue = fract(uTime * 0.002 + 0.6);
+        // Slowly cycle hue — full rainbow over ~500s (~8 min).
+        float hue = fract(t * 0.002 + 0.6);
         vec3 tint = hsv2rgb(hue, 0.85, 0.65);
 
         // Gradient: dark tint at bottom → full tint at top
@@ -589,13 +599,45 @@ void NanoMenu::writeSysfsInt(const char* path, int value) {
     close(fd);
 }
 
+// Set backlight brightness via the ILights AIDL HAL (portable across devices).
+// Returns true if HAL call succeeded, false if HAL not available yet.
+bool NanoMenu::setBrightnessViaHal(int brightness) {
+    using aidl::android::hardware::light::ILights;
+    using aidl::android::hardware::light::HwLight;
+    using aidl::android::hardware::light::HwLightState;
+    using aidl::android::hardware::light::LightType;
+
+    ndk::SpAIBinder binder(
+            AServiceManager_checkService("android.hardware.light.ILights/default"));
+    if (!binder.get()) {
+        return false;
+    }
+    std::shared_ptr<ILights> hal = ILights::fromBinder(binder);
+    if (!hal) {
+        return false;
+    }
+
+    std::vector<HwLight> lights;
+    hal->getLights(&lights);
+    for (const auto& light : lights) {
+        if (light.type == LightType::BACKLIGHT) {
+            HwLightState state{};
+            // Standard Android convention: brightness in alpha channel of ARGB
+            state.color = 0xFF000000 | (brightness << 16) | (brightness << 8) | brightness;
+            hal->setLightState(light.id, state);
+            return true;
+        }
+    }
+    return false;
+}
+
 void NanoMenu::adjustBrightness(int direction) {
     int step = mMaxBrightness / 10;
     if (step < 1) step = 1;
     mBrightness += step * direction;
     if (mBrightness < 1) mBrightness = 1;
     if (mBrightness > mMaxBrightness) mBrightness = mMaxBrightness;
-    writeSysfsInt("/sys/class/leds/lcd-backlight/brightness", mBrightness);
+    setBrightnessViaHal(mBrightness);
     // Sync brightness to persist property (shared with Android)
     char buf[32];
     snprintf(buf, sizeof(buf), "%d", mBrightness);
@@ -1037,6 +1079,9 @@ void NanoMenu::handleSelect() {
               entry.romPath.c_str(), entry.corePath.c_str());
         android::base::SetProperty("sys.gammaos.nano.launch_rom", entry.romPath);
         android::base::SetProperty("sys.gammaos.nano.launch_core", entry.corePath);
+        // Trigger DE cache populate (ROM first, then delta sync everything)
+        property_set("sys.gammaos.nano.cache_ready", "0");
+        property_set("sys.gammaos.nano.cache_op", "populate");
         // Prime Quick Resume now — the persist write has time to flush to disk
         // while the game runs. ShutdownThread may update ROM/core from the
         // playlist if the user loaded a different game, but this ensures the
@@ -1278,7 +1323,7 @@ void NanoMenu::pollInput() {
                     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
                     glClear(GL_COLOR_BUFFER_BIT);
                     eglSwapBuffers(mDisplay, mSurface);
-                    writeSysfsInt("/sys/class/leds/lcd-backlight/brightness", 0);
+                    setBrightnessViaHal(0);
                     // Sleep loop: power press to wake, auto-shutdown after 60s
                     bool asleep = true;
                     int64_t sleepStart = android::uptimeMillis();
@@ -1302,7 +1347,7 @@ void NanoMenu::pollInput() {
                     usleep(200000);
                     { struct input_event d; for (int dfd : mInputFds) {
                         while (read(dfd, &d, sizeof(d)) == sizeof(d)) {} } }
-                    writeSysfsInt("/sys/class/leds/lcd-backlight/brightness", mBrightness);
+                    setBrightnessViaHal(mBrightness);
                     ALOGI("NanoMenu: woke up");
                 }
                 continue;
@@ -1794,9 +1839,94 @@ status_t NanoMenu::readyToRun() {
         mBrightness = atoi(savedBrightness);
         if (mBrightness < 1) mBrightness = 1;
         if (mBrightness > mMaxBrightness) mBrightness = mMaxBrightness;
-        writeSysfsInt("/sys/class/leds/lcd-backlight/brightness", mBrightness);
     } else {
         mBrightness = readSysfsInt("/sys/class/leds/lcd-backlight/brightness", mMaxBrightness / 2);
+    }
+    // Apply brightness async — the lights HAL may not be up yet during early boot.
+    // Spawn a thread that waits for the HAL then sets the saved brightness.
+    // Tries AIDL ILights first (Android 13+), falls back to HIDL ILight@2.0.
+    {
+        int brightness = mBrightness;
+        std::thread([brightness]() {
+            // Try AIDL first
+            {
+                using aidl::android::hardware::light::ILights;
+                using aidl::android::hardware::light::HwLight;
+                using aidl::android::hardware::light::HwLightState;
+                using aidl::android::hardware::light::LightType;
+
+                ndk::SpAIBinder binder(AServiceManager_checkService(
+                        "android.hardware.light.ILights/default"));
+                if (binder.get()) {
+                    std::shared_ptr<ILights> hal = ILights::fromBinder(binder);
+                    if (hal) {
+                        std::vector<HwLight> lights;
+                        hal->getLights(&lights);
+                        for (const auto& light : lights) {
+                            if (light.type == LightType::BACKLIGHT) {
+                                HwLightState state{};
+                                state.color = 0xFF000000 | (brightness << 16) | (brightness << 8) | brightness;
+                                hal->setLightState(light.id, state);
+                                ALOGI("NanoMenu: brightness %d via AIDL ILights", brightness);
+                                return;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // AIDL not available yet — wait for HIDL or AIDL, whichever comes first
+            using HidlLight = ::android::hardware::light::V2_0::ILight;
+            using HidlType = ::android::hardware::light::V2_0::Type;
+            using HidlLightState = ::android::hardware::light::V2_0::LightState;
+            using HidlBrightness = ::android::hardware::light::V2_0::Brightness;
+            using HidlFlash = ::android::hardware::light::V2_0::Flash;
+
+            // Poll for either HAL (100ms intervals, up to 5s)
+            for (int i = 0; i < 50; i++) {
+                // Try AIDL
+                {
+                    using aidl::android::hardware::light::ILights;
+                    using aidl::android::hardware::light::HwLight;
+                    using aidl::android::hardware::light::HwLightState;
+                    using aidl::android::hardware::light::LightType;
+
+                    ndk::SpAIBinder binder(AServiceManager_checkService(
+                            "android.hardware.light.ILights/default"));
+                    if (binder.get()) {
+                        std::shared_ptr<ILights> hal = ILights::fromBinder(binder);
+                        if (hal) {
+                            std::vector<HwLight> lights;
+                            hal->getLights(&lights);
+                            for (const auto& light : lights) {
+                                if (light.type == LightType::BACKLIGHT) {
+                                    HwLightState state{};
+                                    state.color = 0xFF000000 | (brightness << 16) | (brightness << 8) | brightness;
+                                    hal->setLightState(light.id, state);
+                                    ALOGI("NanoMenu: brightness %d via AIDL ILights", brightness);
+                                    return;
+                                }
+                            }
+                        }
+                    }
+                }
+                // Try HIDL
+                {
+                    android::sp<HidlLight> hal = HidlLight::getService();
+                    if (hal != nullptr) {
+                        HidlLightState state{};
+                        state.color = 0xFF000000 | (brightness << 16) | (brightness << 8) | brightness;
+                        state.flashMode = HidlFlash::NONE;
+                        state.brightnessMode = HidlBrightness::USER;
+                        hal->setLight(HidlType::BACKLIGHT, state);
+                        ALOGI("NanoMenu: brightness %d via HIDL ILight@2.0", brightness);
+                        return;
+                    }
+                }
+                usleep(100000); // 100ms
+            }
+            ALOGW("NanoMenu: lights HAL not available after 5s, brightness not set");
+        }).detach();
     }
 
     // Restore volume from persist property
@@ -1887,8 +2017,64 @@ static const char* kIconPngNames[16] = {
 
 static const char* kIconPngDir = "/data/system/nano_icons";
 
-// Load a PNG as white + alpha RGBA texture. Returns true on success.
-static bool loadPngAsAlphaTexture(const char* path, GLuint* outTex) {
+// Decode PNG pixel data from any source.
+// If monoWhite is true, forces RGB to white and uses alpha for shape (monochrome icons).
+// If monoWhite is false, preserves original RGBA colors (colored icons like PICO-8).
+static bool decodePngToRGBA(png_structp png, png_infop info,
+                            int* outW, int* outH, std::vector<uint8_t>* outPixels,
+                            bool monoWhite = true) {
+    int width = png_get_image_width(png, info);
+    int height = png_get_image_height(png, info);
+    png_byte colorType = png_get_color_type(png, info);
+    png_byte bitDepth = png_get_bit_depth(png, info);
+
+    if (colorType == PNG_COLOR_TYPE_PALETTE) png_set_palette_to_rgb(png);
+    if (colorType == PNG_COLOR_TYPE_GRAY && bitDepth < 8) png_set_expand_gray_1_2_4_to_8(png);
+    if (colorType == PNG_COLOR_TYPE_GRAY || colorType == PNG_COLOR_TYPE_GRAY_ALPHA)
+        png_set_gray_to_rgb(png);
+    if (bitDepth == 16) png_set_strip_16(png);
+    bool hasTrns = png_get_valid(png, info, PNG_INFO_tRNS) != 0;
+    if (hasTrns) png_set_tRNS_to_alpha(png);
+    bool hasAlpha = (colorType & PNG_COLOR_MASK_ALPHA) || hasTrns;
+    if (!hasAlpha) png_set_filler(png, 0xFF, PNG_FILLER_AFTER);
+    png_read_update_info(png, info);
+
+    outPixels->resize(width * height * 4);
+    std::vector<png_bytep> rows(height);
+    for (int y = 0; y < height; y++)
+        rows[y] = outPixels->data() + y * width * 4;
+    png_read_image(png, rows.data());
+
+    if (monoWhite) {
+        // White + alpha: preserve alpha, set RGB=255
+        for (int p = 0; p < width * height; p++) {
+            (*outPixels)[p * 4 + 0] = 255;
+            (*outPixels)[p * 4 + 1] = 255;
+            (*outPixels)[p * 4 + 2] = 255;
+        }
+    }
+    *outW = width;
+    *outH = height;
+    return true;
+}
+
+// Upload decoded RGBA pixels as a GL texture with mipmaps.
+static GLuint createIconTexture(const uint8_t* pixels, int width, int height) {
+    GLuint tex;
+    glGenTextures(1, &tex);
+    glBindTexture(GL_TEXTURE_2D, tex);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,
+                 GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+    glGenerateMipmap(GL_TEXTURE_2D);
+    return tex;
+}
+
+// Load a PNG as RGBA texture from file. Returns true on success.
+static bool loadPngAsAlphaTexture(const char* path, GLuint* outTex, bool monoWhite = true) {
     FILE* fp = fopen(path, "rb");
     if (!fp) return false;
 
@@ -1913,90 +2099,90 @@ static bool loadPngAsAlphaTexture(const char* path, GLuint* outTex) {
     png_set_sig_bytes(png, 8);
     png_read_info(png, info);
 
-    int width = png_get_image_width(png, info);
-    int height = png_get_image_height(png, info);
-    png_byte colorType = png_get_color_type(png, info);
-    png_byte bitDepth = png_get_bit_depth(png, info);
-
-    // Expand to RGBA regardless of input format
-    if (colorType == PNG_COLOR_TYPE_PALETTE) png_set_palette_to_rgb(png);
-    if (colorType == PNG_COLOR_TYPE_GRAY && bitDepth < 8) png_set_expand_gray_1_2_4_to_8(png);
-    if (colorType == PNG_COLOR_TYPE_GRAY || colorType == PNG_COLOR_TYPE_GRAY_ALPHA)
-        png_set_gray_to_rgb(png);
-    if (bitDepth == 16) png_set_strip_16(png);
-    // Handle transparency: tRNS chunk → alpha channel
-    bool hasTrns = png_get_valid(png, info, PNG_INFO_tRNS) != 0;
-    if (hasTrns) png_set_tRNS_to_alpha(png);
-    // Add opaque alpha only if no alpha exists
-    bool hasAlpha = (colorType & PNG_COLOR_MASK_ALPHA) || hasTrns;
-    if (!hasAlpha) png_set_filler(png, 0xFF, PNG_FILLER_AFTER);
-
-    png_read_update_info(png, info);
-
-    // Read image rows
-    std::vector<uint8_t> pixels(width * height * 4);
-    std::vector<png_bytep> rows(height);
-    for (int y = 0; y < height; y++)
-        rows[y] = pixels.data() + y * width * 4;
-    png_read_image(png, rows.data());
+    int width, height;
+    std::vector<uint8_t> pixels;
+    if (!decodePngToRGBA(png, info, &width, &height, &pixels, monoWhite)) {
+        png_destroy_read_struct(&png, &info, nullptr);
+        fclose(fp);
+        return false;
+    }
     png_destroy_read_struct(&png, &info, nullptr);
     fclose(fp);
 
-    // Convert to white + alpha: these are monochrome white-on-transparent icons,
-    // so just set RGB=255 and preserve the original alpha channel.
-    for (int p = 0; p < width * height; p++) {
-        // Keep original alpha (already correct from tRNS expansion)
-        pixels[p * 4 + 0] = 255;
-        pixels[p * 4 + 1] = 255;
-        pixels[p * 4 + 2] = 255;
+    *outTex = createIconTexture(pixels.data(), width, height);
+    ALOGD("NanoMenu: loaded PNG icon %s (%dx%d, %s)", path, width, height,
+          monoWhite ? "mono" : "color");
+    return true;
+}
+
+// Memory read callback for libpng
+struct MemPngState { const uint8_t* data; size_t offset; size_t size; };
+static void pngReadFromMemory(png_structp png, png_bytep out, png_size_t count) {
+    MemPngState* state = (MemPngState*)png_get_io_ptr(png);
+    if (state->offset + count > state->size) {
+        png_error(png, "read past end");
+        return;
+    }
+    memcpy(out, state->data + state->offset, count);
+    state->offset += count;
+}
+
+// Load a PNG from in-memory data as texture. Returns true on success.
+// If monoWhite is false, preserves original colors (for colored icons like PICO-8).
+static bool loadPngFromMemory(const uint8_t* pngData, int pngSize, GLuint* outTex,
+                              bool monoWhite = true) {
+    if (pngSize < 8 || png_sig_cmp(pngData, 0, 8)) return false;
+
+    png_structp png = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
+    if (!png) return false;
+    png_infop info = png_create_info_struct(png);
+    if (!info) { png_destroy_read_struct(&png, nullptr, nullptr); return false; }
+
+    if (setjmp(png_jmpbuf(png))) {
+        png_destroy_read_struct(&png, &info, nullptr);
+        return false;
     }
 
-    GLuint tex;
-    glGenTextures(1, &tex);
-    glBindTexture(GL_TEXTURE_2D, tex);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,
-                 GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
-    *outTex = tex;
-    ALOGD("NanoMenu: loaded PNG icon %s (%dx%d)", path, width, height);
+    MemPngState memState = { pngData, 8, (size_t)pngSize };
+    png_set_read_fn(png, &memState, pngReadFromMemory);
+    png_set_sig_bytes(png, 8);
+    png_read_info(png, info);
+
+    int width, height;
+    std::vector<uint8_t> pixels;
+    if (!decodePngToRGBA(png, info, &width, &height, &pixels, monoWhite)) {
+        png_destroy_read_struct(&png, &info, nullptr);
+        return false;
+    }
+    png_destroy_read_struct(&png, &info, nullptr);
+
+    *outTex = createIconTexture(pixels.data(), width, height);
+    ALOGD("NanoMenu: loaded embedded PNG icon (%dx%d, %s)", width, height,
+          monoWhite ? "mono" : "color");
     return true;
 }
 
 void NanoMenu::initIconTextures() {
     memset(mIconTextures, 0, sizeof(mIconTextures));
-    int pngLoaded = 0;
+    int fileLoaded = 0, embeddedLoaded = 0;
     for (int i = 0; i < 17; i++) {
-        // Try loading high-res PNG from RetroArch assets (only for system icons 0-15)
+        // Try loading high-res PNG from on-device RetroArch assets
+        bool mono = (i != 14); // PICO-8 (index 14) keeps its original colors
         std::string pngPath;
         if (i < 16) pngPath = std::string(kIconPngDir) + "/" + kIconPngNames[i];
-        if (loadPngAsAlphaTexture(pngPath.c_str(), &mIconTextures[i])) {
-            pngLoaded++;
+        if (loadPngAsAlphaTexture(pngPath.c_str(), &mIconTextures[i], mono)) {
+            fileLoaded++;
             continue;
         }
-        // Fallback: embedded 32x32 alpha mask
-        const uint8_t* src = kSystemIcons[i];
-        uint8_t rgba[kIconSize * kIconSize * 4];
-        for (int p = 0; p < kIconSize * kIconSize; p++) {
-            rgba[p * 4 + 0] = 255;
-            rgba[p * 4 + 1] = 255;
-            rgba[p * 4 + 2] = 255;
-            rgba[p * 4 + 3] = src[p];
+        // Fallback: embedded 256x256 PNG data
+        const EmbeddedIcon& icon = kEmbeddedIcons[i];
+        if (loadPngFromMemory(icon.data, icon.size, &mIconTextures[i], mono)) {
+            embeddedLoaded++;
+            continue;
         }
-        GLuint tex;
-        glGenTextures(1, &tex);
-        glBindTexture(GL_TEXTURE_2D, tex);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, kIconSize, kIconSize, 0,
-                     GL_RGBA, GL_UNSIGNED_BYTE, rgba);
-        mIconTextures[i] = tex;
+        ALOGE("NanoMenu: failed to load icon %d from file or embedded data", i);
     }
-    ALOGD("NanoMenu: loaded %d PNG + %d embedded icon textures", pngLoaded, 16 - pngLoaded);
+    ALOGD("NanoMenu: loaded %d file + %d embedded icon textures", fileLoaded, embeddedLoaded);
 }
 
 void NanoMenu::drawIcon(int iconIdx, float x, float y, float size,
@@ -3010,6 +3196,7 @@ void NanoMenu::loadXmbRecent() {
     while (pos < content.size() && (int)mXmbRecent.size() < mXmbRecentMax) {
         XmbRecentEntry e;
         auto readLine = [&]() -> std::string {
+            if (pos >= content.size()) return {};
             size_t eol = content.find('\n', pos);
             if (eol == std::string::npos) eol = content.size();
             std::string line = content.substr(pos, eol - pos);
@@ -3176,6 +3363,9 @@ void NanoMenu::launchXmbGame() {
             android::base::SetProperty("sys.gammaos.nano.launch_core", corePath);
             android::base::SetProperty("sys.gammaos.nano.launch_app", "com.retroarch.aarch64");
             android::base::SetProperty("sys.gammaos.nano.launch_intent", "");
+            // Trigger DE cache populate
+            property_set("sys.gammaos.nano.cache_ready", "0");
+            property_set("sys.gammaos.nano.cache_op", "populate");
             if (mQuickResumeEnabled) {
                 android::base::SetProperty("persist.gammaos.nano.qr_rom", re.romPath);
                 android::base::SetProperty("persist.gammaos.nano.qr_core", corePath);
@@ -3188,7 +3378,7 @@ void NanoMenu::launchXmbGame() {
         property_set("sys.gammaos.nano.xmb_return_sys", "-1");
         property_set("sys.gammaos.nano.xmb_return_game", "0");
         { char cb[32]; snprintf(cb, sizeof(cb), "%.2f", mEffectTime);
-          property_set("sys.gammaos.nano.xmb_color_phase", cb); }
+          property_set("persist.gammaos.nano.xmb_color_phase", cb); }
         property_set("sys.gammaos.nano.return_recent", "0");
         property_set("sys.gammaos.nano.return_apps", "0");
         property_set("service.bootanim.nano_retroarch", "1");
@@ -3301,6 +3491,9 @@ void NanoMenu::launchXmbGame() {
         android::base::SetProperty("sys.gammaos.nano.launch_core", corePath);
         android::base::SetProperty("sys.gammaos.nano.launch_app", "com.retroarch.aarch64");
         android::base::SetProperty("sys.gammaos.nano.launch_intent", "");
+        // Trigger DE cache populate
+        property_set("sys.gammaos.nano.cache_ready", "0");
+        property_set("sys.gammaos.nano.cache_op", "populate");
 
         // Prime Quick Resume (only for RetroArch games)
         if (mQuickResumeEnabled) {
@@ -3338,7 +3531,7 @@ void NanoMenu::launchXmbGame() {
         }
         // Save XMB background color phase (effectTime drives hue cycle)
         snprintf(buf, sizeof(buf), "%.2f", mEffectTime);
-        property_set("sys.gammaos.nano.xmb_color_phase", buf);
+        property_set("persist.gammaos.nano.xmb_color_phase", buf);
     }
 
     property_set("sys.gammaos.nano.return_recent", "0");
@@ -3750,9 +3943,13 @@ bool NanoMenu::threadLoop() {
             }
             mXmbGameScrollTop = 0;
         }
-        // Restore XMB background color phase
+        // Restore XMB background color phase (check both persist and sys)
         std::string colorPhase = android::base::GetProperty(
-                "sys.gammaos.nano.xmb_color_phase", "");
+                "persist.gammaos.nano.xmb_color_phase", "");
+        if (colorPhase.empty()) {
+            colorPhase = android::base::GetProperty(
+                    "sys.gammaos.nano.xmb_color_phase", "");
+        }
         if (!colorPhase.empty()) {
             mEffectTime = atof(colorPhase.c_str());
             property_set("sys.gammaos.nano.xmb_color_phase", "");
@@ -3825,16 +4022,297 @@ bool NanoMenu::threadLoop() {
                 if (!bypass) {
                     ALOGI("Quick Resume: launching ROM=%s CORE=%s",
                           qrRom.c_str(), qrCore.c_str());
-                    android::base::SetProperty(
-                            "sys.gammaos.nano.launch_rom", qrRom);
-                    android::base::SetProperty(
-                            "sys.gammaos.nano.launch_core", qrCore);
-                    property_set("sys.gammaos.nano.return_recent", "1");
-                    property_set("service.bootanim.nano_retroarch", "1");
-                    property_set("sys.gammaos.nano.drop_input", "1");
-                    // Keep qr_prepared=1 so an unclean reboot during
-                    // gameplay still quick-resumes. Cleared on game exit.
-                    mExitRequested = true;
+
+                    // Find matching system + game for return navigation.
+                    // Extract ROM filename and parent dir from qrRom path.
+                    int returnSysIdx = -1, returnGameIdx = 0;
+                    {
+                        std::string romFile = qrRom;
+                        size_t lastSlash = romFile.rfind('/');
+                        std::string romFilename = (lastSlash != std::string::npos)
+                                ? romFile.substr(lastSlash + 1) : romFile;
+                        // Parent dir is the system dir (e.g. "snes")
+                        std::string parentDir;
+                        if (lastSlash != std::string::npos && lastSlash > 0) {
+                            size_t prevSlash = romFile.rfind('/', lastSlash - 1);
+                            if (prevSlash != std::string::npos)
+                                parentDir = romFile.substr(prevSlash + 1,
+                                        lastSlash - prevSlash - 1);
+                        }
+                        for (int si = 0; si < (int)mXmbSystems.size(); si++) {
+                            if (mXmbSystems[si].romDir == parentDir) {
+                                returnSysIdx = si;
+                                // Find game in this system's rom list
+                                for (int gi = 0; gi < (int)mXmbSystems[si].roms.size(); gi++) {
+                                    if (mXmbSystems[si].roms[gi] == romFilename) {
+                                        returnGameIdx = gi;
+                                        break;
+                                    }
+                                }
+                                break;
+                            }
+                        }
+                        ALOGI("Quick Resume: return sys=%d game=%d (dir=%s file=%s)",
+                              returnSysIdx, returnGameIdx,
+                              parentDir.c_str(), romFilename.c_str());
+                    }
+
+                    // Try native libretro launch from DE cache first.
+                    // This runs the game directly in NanoMenu's EGL context,
+                    // bypassing the Android framework entirely (~T+3.5s).
+                    std::string cacheDir = "/data/system/nano_cache";
+                    std::string cachedCore = cacheDir + "/cores/";
+                    std::string cachedRom = cacheDir + "/rom/";
+                    std::string romFile, coreFile;
+
+                    // Find cached ROM and core (match core from QR property)
+                    {
+                        DIR* d = opendir((cacheDir + "/rom").c_str());
+                        if (d) {
+                            struct dirent* e;
+                            while ((e = readdir(d)) != nullptr) {
+                                std::string name(e->d_name);
+                                if (name == "." || name == "..") continue;
+                                // ROM file (not .srm, .state, .sav, .png)
+                                if (name.find(".srm") == std::string::npos &&
+                                    name.find(".state") == std::string::npos &&
+                                    name.find(".sav") == std::string::npos &&
+                                    name.find(".png") == std::string::npos) {
+                                    romFile = cacheDir + "/rom/" + name;
+                                }
+                            }
+                            closedir(d);
+                        }
+                        // Match core from QR property (basename), not blindly first .so
+                        std::string qrCoreBase = qrCore;
+                        size_t lastSlash = qrCoreBase.rfind('/');
+                        if (lastSlash != std::string::npos)
+                            qrCoreBase = qrCoreBase.substr(lastSlash + 1);
+                        std::string candidateCore = cacheDir + "/cores/" + qrCoreBase;
+                        struct stat cst;
+                        if (!qrCoreBase.empty() && stat(candidateCore.c_str(), &cst) == 0) {
+                            coreFile = candidateCore;
+                        } else {
+                            // Fallback: first .so in cache
+                            d = opendir((cacheDir + "/cores").c_str());
+                            if (d) {
+                                struct dirent* e;
+                                while ((e = readdir(d)) != nullptr) {
+                                    std::string name(e->d_name);
+                                    if (name.find(".so") != std::string::npos) {
+                                        coreFile = cacheDir + "/cores/" + name;
+                                        break;
+                                    }
+                                }
+                                closedir(d);
+                            }
+                        }
+                    }
+
+                    bool nativeLaunch = false;
+                    if (!romFile.empty() && !coreFile.empty()) {
+                        // Find save state and SRAM in the ROM cache dir
+                        std::string baseName = romFile;
+                        size_t dotPos = baseName.rfind('.');
+                        if (dotPos != std::string::npos)
+                            baseName = baseName.substr(0, dotPos);
+                        std::string statePath = baseName + ".state.auto";
+                        std::string sramPath = baseName + ".srm";
+
+                        // Check if state/sram exist
+                        struct stat st;
+                        if (stat(statePath.c_str(), &st) != 0) statePath.clear();
+                        if (stat(sramPath.c_str(), &st) != 0) sramPath.clear();
+
+                        ALOGI("Quick Resume: trying native libretro launch");
+                        ALOGI("  core=%s", coreFile.c_str());
+                        ALOGI("  rom=%s", romFile.c_str());
+                        ALOGI("  state=%s", statePath.c_str());
+                        ALOGI("  sram=%s", sramPath.c_str());
+
+                        LibretroRunner runner;
+                        if (runner.init(coreFile, romFile, statePath, sramPath)) {
+                            ALOGI("Quick Resume: native libretro loading screen active!");
+                            nativeLaunch = true;
+
+                            // Set properties for RetroArch handoff
+                            android::base::SetProperty(
+                                    "sys.gammaos.nano.launch_rom", qrRom);
+                            android::base::SetProperty(
+                                    "sys.gammaos.nano.launch_core", qrCore);
+                            property_set("sys.gammaos.nano.cache_ready", "0");
+                            property_set("sys.gammaos.nano.cache_op", "populate");
+
+                            // Live loading screen: core runs in real-time with
+                            // grayscale→color transition. The game is actually
+                            // playing behind the desaturation + gradient overlay.
+                            // User can play while "loading." When RetroArch takes
+                            // over, the game is already running — seamless handoff.
+                            float saturation = 0.15f;  // start slightly colorized
+                            float gradient = 1.0f;     // strong gradient (full black at bottom)
+                            // Extract ROM display name (strip path + extension)
+                            std::string romName = romFile;
+                            size_t sl = romName.rfind('/');
+                            if (sl != std::string::npos) romName = romName.substr(sl + 1);
+                            size_t dot = romName.rfind('.');
+                            if (dot != std::string::npos) romName = romName.substr(0, dot);
+                            bool bootComplete = false;
+                            int64_t bootCompleteTime = 0;
+                            float textScale = fminf((float)mWidth / 1080.0f,
+                                                    (float)mHeight / 720.0f);
+                            if (textScale < 0.5f) textScale = 0.5f;
+                            float loadScale = 2.5f * textScale;
+
+                            while (!exitPending()) {
+                                // Poll input — game is live, user can play
+                                for (int fd : mInputFds) {
+                                    struct input_event ev;
+                                    while (read(fd, &ev, sizeof(ev)) == sizeof(ev)) {
+                                        if (ev.type == EV_KEY) {
+                                            bool pressed = (ev.value != 0);
+                                            switch (ev.code) {
+                                            case BTN_A:      runner.setButton(0, RETRO_DEVICE_ID_JOYPAD_B, pressed); break;
+                                            case BTN_B:      runner.setButton(0, RETRO_DEVICE_ID_JOYPAD_A, pressed); break;
+                                            case BTN_X:      runner.setButton(0, RETRO_DEVICE_ID_JOYPAD_Y, pressed); break;
+                                            case BTN_Y:      runner.setButton(0, RETRO_DEVICE_ID_JOYPAD_X, pressed); break;
+                                            case BTN_TL:     runner.setButton(0, RETRO_DEVICE_ID_JOYPAD_L, pressed); break;
+                                            case BTN_TR:     runner.setButton(0, RETRO_DEVICE_ID_JOYPAD_R, pressed); break;
+                                            case BTN_TL2:    runner.setButton(0, RETRO_DEVICE_ID_JOYPAD_L2, pressed); break;
+                                            case BTN_TR2:    runner.setButton(0, RETRO_DEVICE_ID_JOYPAD_R2, pressed); break;
+                                            case BTN_SELECT: runner.setButton(0, RETRO_DEVICE_ID_JOYPAD_SELECT, pressed); break;
+                                            case BTN_START:  runner.setButton(0, RETRO_DEVICE_ID_JOYPAD_START, pressed); break;
+                                            case BTN_THUMBL: runner.setButton(0, RETRO_DEVICE_ID_JOYPAD_L3, pressed); break;
+                                            case BTN_THUMBR: runner.setButton(0, RETRO_DEVICE_ID_JOYPAD_R3, pressed); break;
+                                            case KEY_UP:     runner.setButton(0, RETRO_DEVICE_ID_JOYPAD_UP, pressed); break;
+                                            case KEY_DOWN:   runner.setButton(0, RETRO_DEVICE_ID_JOYPAD_DOWN, pressed); break;
+                                            case KEY_LEFT:   runner.setButton(0, RETRO_DEVICE_ID_JOYPAD_LEFT, pressed); break;
+                                            case KEY_RIGHT:  runner.setButton(0, RETRO_DEVICE_ID_JOYPAD_RIGHT, pressed); break;
+                                            }
+                                        } else if (ev.type == EV_ABS) {
+                                            if (ev.code == ABS_HAT0X) {
+                                                runner.setButton(0, RETRO_DEVICE_ID_JOYPAD_LEFT, ev.value < 0);
+                                                runner.setButton(0, RETRO_DEVICE_ID_JOYPAD_RIGHT, ev.value > 0);
+                                            } else if (ev.code == ABS_HAT0Y) {
+                                                runner.setButton(0, RETRO_DEVICE_ID_JOYPAD_UP, ev.value < 0);
+                                                runner.setButton(0, RETRO_DEVICE_ID_JOYPAD_DOWN, ev.value > 0);
+                                            } else if (ev.code == ABS_X) {
+                                                runner.setAnalog(0, RETRO_DEVICE_INDEX_ANALOG_LEFT,
+                                                    RETRO_DEVICE_ID_ANALOG_X, (int16_t)((ev.value - 128) * 256));
+                                            } else if (ev.code == ABS_Y) {
+                                                runner.setAnalog(0, RETRO_DEVICE_INDEX_ANALOG_LEFT,
+                                                    RETRO_DEVICE_ID_ANALOG_Y, (int16_t)((ev.value - 128) * 256));
+                                            } else if (ev.code == ABS_RX) {
+                                                runner.setAnalog(0, RETRO_DEVICE_INDEX_ANALOG_RIGHT,
+                                                    RETRO_DEVICE_ID_ANALOG_X, (int16_t)((ev.value - 128) * 256));
+                                            } else if (ev.code == ABS_RY) {
+                                                runner.setAnalog(0, RETRO_DEVICE_INDEX_ANALOG_RIGHT,
+                                                    RETRO_DEVICE_ID_ANALOG_Y, (int16_t)((ev.value - 128) * 256));
+                                            }
+                                        }
+                                    }
+                                }
+
+                                // Check boot progress
+                                if (!bootComplete) {
+                                    char val[PROPERTY_VALUE_MAX] = {};
+                                    property_get("sys.boot_completed", val, "0");
+                                    if (strcmp(val, "1") == 0) {
+                                        bootComplete = true;
+                                        bootCompleteTime = elapsedRealtime();
+                                        ALOGI("Quick Resume: boot complete, "
+                                              "transitioning to full color");
+                                    } else {
+                                        // Slow creep toward color during boot
+                                        saturation = fminf(saturation + 0.0003f, 0.35f);
+                                        gradient = fmaxf(gradient - 0.0002f, 0.7f);
+                                    }
+                                }
+
+                                if (bootComplete) {
+                                    // Ramp to full color over ~0.8s (ease-out)
+                                    int64_t elapsed = elapsedRealtime() - bootCompleteTime;
+                                    float t = fminf((float)elapsed / 800.0f, 1.0f);
+                                    t = 1.0f - (1.0f - t) * (1.0f - t);
+                                    saturation = 0.35f + t * 0.65f;
+                                    gradient = 0.7f * (1.0f - t);
+
+                                    if (t >= 1.0f) {
+                                        // Fully saturated — hand off to RetroArch
+                                        ALOGI("Quick Resume: handoff to RetroArch");
+                                        runner.saveState(baseName + ".state.auto");
+                                        runner.saveSRAM(baseName + ".srm");
+                                        runner.shutdown();
+                                        // Set return navigation to matching system/game
+                                        { char buf[32];
+                                          snprintf(buf, sizeof(buf), "%d", returnSysIdx);
+                                          property_set("sys.gammaos.nano.xmb_return_sys", buf);
+                                          snprintf(buf, sizeof(buf), "%d", returnGameIdx);
+                                          property_set("sys.gammaos.nano.xmb_return_game", buf);
+                                        }
+                                        property_set("sys.gammaos.nano.return_recent", "0");
+                                        property_set("service.bootanim.nano_retroarch", "1");
+                                        property_set("sys.gammaos.nano.drop_input", "1");
+                                        mExitRequested = true;
+                                        break;
+                                    }
+                                }
+
+                                // Run core + render with desaturation + gradient
+                                runner.runFrame(mWidth, mHeight, saturation, gradient);
+
+                                // Text overlay
+                                glEnable(GL_BLEND);
+                                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                                const char* msg = "Quick Resuming...";
+                                float msgW = measureText(msg, loadScale);
+                                float msgX = (mWidth - msgW) / 2.0f;
+                                float msgY = mHeight * 0.75f;
+                                float pulse = 0.7f + 0.3f * sinf(
+                                        (float)elapsedRealtime() * 0.004f);
+                                float textAlpha = pulse * fmaxf(1.2f - saturation, 0.0f);
+                                if (textAlpha > 0.05f) {
+                                    if (textAlpha > 1.0f) textAlpha = 1.0f;
+                                    drawText(msg, msgX, msgY, loadScale,
+                                             1.0f, 1.0f, 1.0f, textAlpha);
+                                    // ROM name below
+                                    float nameScale = 1.5f * textScale;
+                                    float nameW = measureText(romName.c_str(), nameScale);
+                                    float nameX = (mWidth - nameW) / 2.0f;
+                                    float nameY = msgY + FONT_CHAR_H * loadScale + 12.0f * textScale;
+                                    drawText(romName.c_str(), nameX, nameY, nameScale,
+                                             0.7f, 0.7f, 0.8f, textAlpha * 0.8f);
+                                }
+                                glDisable(GL_BLEND);
+
+                                eglSwapBuffers(mDisplay, mSurface);
+                                usleep(16666); // ~60fps
+                            }
+                        } else {
+                            ALOGW("Quick Resume: native libretro init failed, "
+                                  "falling back to RetroArch APK");
+                        }
+                    }
+
+                    // Fallback: normal RetroArch APK launch
+                    if (!nativeLaunch) {
+                        android::base::SetProperty(
+                                "sys.gammaos.nano.launch_rom", qrRom);
+                        android::base::SetProperty(
+                                "sys.gammaos.nano.launch_core", qrCore);
+                        property_set("sys.gammaos.nano.cache_ready", "0");
+                        property_set("sys.gammaos.nano.cache_op", "populate");
+                        // Set return navigation to matching system/game
+                        { char buf[32];
+                          snprintf(buf, sizeof(buf), "%d", returnSysIdx);
+                          property_set("sys.gammaos.nano.xmb_return_sys", buf);
+                          snprintf(buf, sizeof(buf), "%d", returnGameIdx);
+                          property_set("sys.gammaos.nano.xmb_return_game", buf);
+                        }
+                        property_set("sys.gammaos.nano.return_recent", "0");
+                        property_set("service.bootanim.nano_retroarch", "1");
+                        property_set("sys.gammaos.nano.drop_input", "1");
+                        mExitRequested = true;
+                    }
                 } else {
                     ALOGI("Quick Resume: bypassed by SELECT hold");
                     property_set("persist.gammaos.nano.qr_prepared", "0");
@@ -3895,7 +4373,7 @@ bool NanoMenu::threadLoop() {
         // sin()/cos() with large args stutter on mediump (10-bit mantissa).
         // 62.83 = 10*2*PI — max shader multiplier is ~5x, so peak arg ~314,
         // well within mediump precision.
-        if (mEffectTime > 62.83f) mEffectTime -= 62.83f;
+        if (mEffectTime > 628.318f) mEffectTime -= 628.318f;
         render();
         usleep(frameTimeUs);
 

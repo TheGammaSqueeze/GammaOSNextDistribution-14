@@ -13,6 +13,11 @@ on post-fs-data
 on property:persist.gammaos.gamepad.enable=1 && property:sys.boot_completed=1
     start gammapad
 
+# In nano mode, start gammapad as soon as SF is running so the controller
+# is ready when the menu appears, without waiting for boot_completed.
+on property:persist.gammaos.gamepad.enable=1 && property:sys.gammaos.minimal_boot=1 && property:init.svc.surfaceflinger=running
+    start gammapad
+
 on property:persist.gammaos.gamepad.enable=0
     stop gammapad
     exec - root root -- /system/bin/gammapad_restore

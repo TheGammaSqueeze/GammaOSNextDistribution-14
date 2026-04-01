@@ -19052,9 +19052,12 @@ public class ActivityManagerService extends IActivityManager.Stub
                     HostingRecord hostingRecord =
                             new HostingRecord(hostingType, hostingName, isTop);
                     ProcessRecord rec = getProcessRecordLocked(processName, info.uid);
+                    // GammaOS Nano: allow process start during boot for
+                    // nano-prefork (pre-warm RetroArch before AudioService)
+                    final boolean allowBoot = "nano-prefork".equals(hostingType);
                     ProcessRecord app = startProcessLocked(processName, info, knownToBeDead,
                             0 /* intentFlags */, hostingRecord,
-                            ZYGOTE_POLICY_FLAG_LATENCY_SENSITIVE, false /* allowWhileBooting */,
+                            ZYGOTE_POLICY_FLAG_LATENCY_SENSITIVE, allowBoot,
                             false /* isolated */);
                 }
             } finally {

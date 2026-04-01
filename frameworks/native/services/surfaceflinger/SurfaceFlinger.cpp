@@ -1065,7 +1065,10 @@ void SurfaceFlinger::init() FTL_FAKE_GUARD(kMainThreadContext) {
 
     mPowerAdvisor->init();
 
-    if (base::GetBoolProperty("service.sf.prime_shader_cache"s, true)) {
+    // Skip shader cache priming in nano/minimal boot mode for faster startup.
+    // NanoMenu uses its own simple GL shaders and doesn't need the SF cache.
+    const bool minimalBoot = base::GetBoolProperty("sys.gammaos.minimal_boot"s, false);
+    if (base::GetBoolProperty("service.sf.prime_shader_cache"s, true) && !minimalBoot) {
         if (setSchedFifo(false) != NO_ERROR) {
             ALOGW("Can't set SCHED_OTHER for primeCache");
         }

@@ -49,5 +49,13 @@ set_prop(gammaoscustomization, system_prop)
 set_prop(system_app, system_prop)
 allow gammaoscustomization shell_exec:file entrypoint;
 
-allow gammaoscustomization system_data_file:dir { getattr search open read };
-allow gammaoscustomization app_data_file:dir { getattr search open read };
+allow gammaoscustomization system_data_file:dir { getattr search open read write create add_name remove_name mounton };
+allow gammaoscustomization system_data_file:file { getattr open read write create mounton };
+allow gammaoscustomization app_data_file:dir { getattr search open read mounton };
+allow gammaoscustomization app_data_file:file { getattr open read mounton };
+allow gammaoscustomization media_rw_data_file:dir { getattr search open read mounton };
+allow gammaoscustomization media_rw_data_file:file { getattr open read mounton };
+allow gammaoscustomization mnt_user_file:dir { getattr search open read write create add_name mounton };
+allow gammaoscustomization mnt_user_file:file { getattr open read write create mounton };
+allow gammaoscustomization labeledfs:filesystem { mount unmount };
+allow gammaoscustomization tmpfs:filesystem { mount unmount };

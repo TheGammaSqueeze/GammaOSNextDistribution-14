@@ -1971,6 +1971,97 @@ public final class SystemServer implements Dumpable {
                 } catch (Exception e) {
                     Slog.w(TAG, "GammaOS Nano: early CE unlock failed: " + e);
                 }
+
+                // GammaOS Nano: If DE cache exists and QR prepared, set up bind
+                // mounts over CE paths and trigger early RetroArch launch.
+                // This runs on a background thread so AudioService can proceed
+                // on the main thread in parallel.
+                new Thread(() -> {
+                    try {
+                        if (!"1".equals(SystemProperties.get(
+                                "persist.gammaos.nano.qr_prepared", "0"))) {
+                            Slog.i(TAG, "GammaOS Nano: no QR prepared, skipping cache mount");
+                            return;
+                        }
+                        java.io.File manifest = new java.io.File(
+                                "/data/system/nano_cache/manifest");
+                        if (!manifest.exists()) {
+                            Slog.i(TAG, "GammaOS Nano: no cache manifest, skipping mount");
+                            return;
+                        }
+                        // Wait for CE paths to be accessible (fscrypt key just installed).
+                        // No FUSE wait needed — we pass DE cache paths directly in
+                        // the intent, bypassing FUSE entirely.
+                        for (int i = 0; i < 20; i++) {
+                            if (new java.io.File("/data/user/0").canRead()) break;
+                            try { Thread.sleep(100); } catch (InterruptedException ie) {}
+                        }
+                        if (!new java.io.File("/data/user/0").canRead()) {
+                            Slog.w(TAG, "GammaOS Nano: CE paths not accessible, skipping");
+                            return;
+                        }
+                        // Cache exists and CE is ready. The native libretro
+                        // runner in NanoMenu reads from cache directly — no
+                        // need to set cache_mounted (which would cause RA to
+                        // use DE cache paths instead of real FUSE paths).
+                        Slog.i(TAG, "GammaOS Nano: DE cache verified, "
+                                + "native libretro will use it directly");
+                        // Post a self-retrying Runnable to the main handler.
+                        // It queues behind AudioService. When it runs, it checks
+                        // if boot_completed is set (finishBooting has run). If
+                        // not, re-posts with 20ms delay. Once boot phases are
+                        // done, launches immediately — ~20ms after finishBooting.
+                        Slog.i(TAG, "GammaOS Nano: queueing launch on main handler");
+                        SystemProperties.set("service.bootanim.exit", "1");
+                        final android.os.Handler mh = new android.os.Handler(
+                                android.os.Looper.getMainLooper());
+                        final Runnable[] launcher = new Runnable[1];
+                        launcher[0] = () -> {
+                            if (!"1".equals(SystemProperties.get(
+                                    "sys.boot_completed", "0"))) {
+                                mh.postDelayed(launcher[0], 20);
+                                return;
+                            }
+                            // Only launch if not already running (the normal
+                            // finishUserUnlocked path may have launched it first)
+                            boolean alreadyRunning = false;
+                            try {
+                                android.app.ActivityManager am = context.getSystemService(
+                                        android.app.ActivityManager.class);
+                                for (android.app.ActivityManager.RunningAppProcessInfo p :
+                                        am.getRunningAppProcesses()) {
+                                    if ("com.retroarch.aarch64".equals(p.processName)) {
+                                        alreadyRunning = true;
+                                        break;
+                                    }
+                                }
+                            } catch (Exception re) { /* ignore */ }
+                            if (alreadyRunning) {
+                                Slog.i(TAG, "GammaOS Nano: RetroArch already running "
+                                        + "(launched by finishUserUnlocked)");
+                                return;
+                            }
+                            Slog.i(TAG, "GammaOS Nano: boot complete, "
+                                    + "launching RetroArch from cache");
+                            try {
+                                com.android.server.LocalServices.getService(
+                                    com.android.server.wm.ActivityTaskManagerInternal
+                                            .class)
+                                    .startHomeOnAllDisplays(
+                                        android.os.UserHandle.USER_SYSTEM,
+                                        "nanoCacheLaunch");
+                            } catch (Exception e) {
+                                Slog.w(TAG, "GammaOS Nano: cache launch failed, "
+                                        + "falling back: " + e);
+                                SystemProperties.set(
+                                        "sys.gammaos.nano.do_launch", "1");
+                            }
+                        };
+                        mh.post(launcher[0]);
+                    } catch (Exception e) {
+                        Slog.w(TAG, "GammaOS Nano: early cache mount failed: " + e);
+                    }
+                }, "NanoCacheEarlyLaunch").start();
             }
 
             // FontManagerService must start before any UI dialog (including nano mode power menu)
@@ -2359,19 +2450,24 @@ public final class SystemServer implements Dumpable {
             }
             } // !minimalBoot: PersistentDataBlock through WallpaperEffects
 
-            t.traceBegin("StartAudioService");
-            if (!isArc) {
-                mSystemServiceManager.startService(AudioService.Lifecycle.class);
-            } else {
-                String className = context.getResources()
-                        .getString(R.string.config_deviceSpecificAudioService);
-                try {
-                    mSystemServiceManager.startService(className + "$Lifecycle");
-                } catch (Throwable e) {
-                    reportWtf("starting " + className, e);
-                }
+            if (minimalBoot) {
+                Slog.i(TAG, "GammaOS Nano: starting AudioService (cache signal runs in parallel)");
             }
-            t.traceEnd();
+            {
+                t.traceBegin("StartAudioService");
+                if (!isArc) {
+                    mSystemServiceManager.startService(AudioService.Lifecycle.class);
+                } else {
+                    String className = context.getResources()
+                            .getString(R.string.config_deviceSpecificAudioService);
+                    try {
+                        mSystemServiceManager.startService(className + "$Lifecycle");
+                    } catch (Throwable e) {
+                        reportWtf("starting " + className, e);
+                    }
+                }
+                t.traceEnd();
+            }
 
             if (!minimalBoot) { // GammaOS Nano: skip SoundTrigger through MIDI
             t.traceBegin("StartSoundTriggerMiddlewareService");
@@ -3501,6 +3597,8 @@ public final class SystemServer implements Dumpable {
                         wmsRef.enableScreenIfNeeded();
                     }
                 });
+                // Cache is only used for native libretro preview — no bind
+                // mounts to tear down. RetroArch uses real FUSE paths.
             }, "NanoScreenThread").start();
 
             // Persistent polling thread: watches for do_launch=1 (relaunch case)

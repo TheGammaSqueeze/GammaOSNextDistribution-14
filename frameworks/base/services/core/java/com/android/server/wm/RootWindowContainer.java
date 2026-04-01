@@ -1608,8 +1608,11 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                 ? com.android.server.LocalServices.getService(
                         com.android.server.pm.UserManagerInternal.class)
                 : null;
+        final boolean cacheReady = "1".equals(android.os.SystemProperties.get(
+                "sys.gammaos.nano.cache_mounted", "0"));
         if (minimalBoot && taskDisplayArea == getDefaultTaskDisplayArea()
-                && umInternal != null && umInternal.isUserUnlockingOrUnlocked(userId)) {
+                && umInternal != null
+                && (umInternal.isUserUnlockingOrUnlocked(userId) || cacheReady)) {
             // If a kill-and-restart is in progress, skip all launches — the nano
             // menu will be restarted by the killing side via sys.gammaos.nano.restart.
             if ("1".equals(android.os.SystemProperties.get(
@@ -1718,6 +1721,9 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                         "sys.gammaos.nano.shutting_down", "0"))) {
                     android.os.SystemProperties.set(
                             "persist.gammaos.nano.qr_prepared", "0");
+                    // Clear cached ROM (user intentionally exited; saves stay)
+                    android.os.SystemProperties.set(
+                            "sys.gammaos.nano.cache_op", "clear_rom");
                 }
                 android.os.SystemProperties.set(
                         "sys.gammaos.nano.launch_rom", "");
@@ -1792,12 +1798,33 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                             | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     // RetroArch intent extras (normally set by MainMenuActivity)
                     String dataDir = appInfo.dataDir; // /data/user/0/com.retroarch.aarch64
-                    // Hardcode /storage/emulated/0 — Environment.getExternalStorageDirectory()
-                    // returns /dev/null during early boot before FUSE is mounted. By the time
-                    // RetroArch's process reads the file, FUSE will be ready.
                     String sdcard = "/storage/emulated/0";
                     String extDir = sdcard + "/Android/data/" + nanoApp + "/files";
                     String configFile = extDir + "/retroarch.cfg";
+                    // Check if nano menu requested a specific game launch
+                    String launchRom = android.os.SystemProperties.get(
+                            "sys.gammaos.nano.launch_rom", "");
+                    String launchCore = android.os.SystemProperties.get(
+                            "sys.gammaos.nano.launch_core", "");
+
+                    // GammaOS Nano: When DE cache is ready, use direct DE cache
+                    // paths instead of FUSE paths. This eliminates the ~3s FUSE
+                    // wait — game loads from /data/system/nano_cache/ directly.
+                    if (cacheReady && !launchRom.isEmpty()) {
+                        String cacheDir = "/data/system/nano_cache";
+                        String romFile = new java.io.File(launchRom).getName();
+                        String coreFile = !launchCore.isEmpty()
+                                ? new java.io.File(launchCore).getName() : "";
+                        configFile = cacheDir + "/config/retroarch.cfg";
+                        launchRom = cacheDir + "/rom/" + romFile;
+                        if (!coreFile.isEmpty()) {
+                            launchCore = cacheDir + "/cores/" + coreFile;
+                        }
+                        Slog.i(TAG, "GammaOS Nano: using DE cache paths"
+                                + " ROM=" + launchRom + " CORE=" + launchCore
+                                + " CONFIG=" + configFile);
+                    }
+
                     Slog.i(TAG, "GammaOS Nano: CONFIGFILE=" + configFile);
                     homeIntent.putExtra("LIBRETRO", dataDir + "/cores/");
                     homeIntent.putExtra("CONFIGFILE", configFile);
@@ -1807,17 +1834,11 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                     homeIntent.putExtra("EXTERNAL", extDir);
                     homeIntent.putExtra("IME", android.provider.Settings.Secure.getString(
                             mService.mContext.getContentResolver(), "default_input_method"));
-                    // Check if nano menu requested a specific game launch
-                    String launchRom = android.os.SystemProperties.get(
-                            "sys.gammaos.nano.launch_rom", "");
-                    String launchCore = android.os.SystemProperties.get(
-                            "sys.gammaos.nano.launch_core", "");
                     if (!launchRom.isEmpty()) {
                         Slog.i(TAG, "GammaOS Nano: direct game launch ROM="
                                 + launchRom + " CORE=" + launchCore);
                         homeIntent.putExtra("ROM", launchRom);
                         if (!launchCore.isEmpty()) {
-                            // Override LIBRETRO with specific core path
                             homeIntent.putExtra("LIBRETRO", launchCore);
                         }
                         // Clear properties immediately to prevent relaunch loops

@@ -1,4 +1,25 @@
 ###########################################
+# Entries in this file describe the security context associated with a file
+# path. They are used when building the device image, to include the security
+# context within the extended file attributes of the file system. They are also
+# used at runtime when calling restorecon.
+#
+# Entries are merged with other file_contexts from other partitions (e.g.,
+# vendor or odm, see the full list at libselinux/src/android/android.c).
+#
+# The entries are evaluated by the following rules:
+# - Static entries (that is, not using regular expressions) are always
+#   evaluated first.
+# - The first matching entry is used.
+# - Entries are evaluated from the bottom to the top.
+#
+# Based on these rules, it is recommended that the less specific entries appear
+# first. For instance:
+#    /dev(/.*)?        u:object_r:device:s0
+#    /dev/block(/.*)?  u:object_r:block_device:s0
+#    /dev/block/my_dev u:object_r:my_dev:s0
+#
+
 # Root
 /                   u:object_r:rootfs:s0
 
@@ -32,6 +53,8 @@
 /second_stage_resources u:object_r:tmpfs:s0
 /sys                u:object_r:sysfs:s0
 /apex               u:object_r:apex_mnt_dir:s0
+/bootstrap-apex     u:object_r:apex_mnt_dir:s0
+/tmp                u:object_r:shell_data_file:s0
 
 # Postinstall directories
 /postinstall         u:object_r:postinstall_mnt_dir:s0
@@ -106,6 +129,7 @@
 /dev/gnss[0-9]+		u:object_r:gnss_device:s0
 /dev/fb[0-9]*		u:object_r:graphics_device:s0
 /dev/graphics(/.*)?	u:object_r:graphics_device:s0
+/dev/hidraw[0-9]+	u:object_r:hidraw_device:s0
 /dev/hw_random		u:object_r:hw_random_device:s0
 /dev/hwbinder		u:object_r:hwbinder_device:s0
 /dev/input(/.*)?	u:object_r:input_device:s0
@@ -118,7 +142,6 @@
 /dev/pmsg0		u:object_r:pmsg_device:s0
 /dev/pn544		u:object_r:nfc_device:s0
 /dev/port		u:object_r:port_device:s0
-/dev/ppp		u:object_r:ppp_device:s0
 /dev/ptmx		u:object_r:ptmx_device:s0
 /dev/pvrsrvkm		u:object_r:gpu_device:s0
 /dev/kmsg		u:object_r:kmsg_device:s0
@@ -133,6 +156,7 @@
 /dev/snd(/.*)?		u:object_r:audio_device:s0
 /dev/socket(/.*)?	u:object_r:socket_device:s0
 /dev/socket/adbd	u:object_r:adbd_socket:s0
+/dev/socket/aconfigd	u:object_r:aconfigd_socket:s0
 /dev/socket/dnsproxyd	u:object_r:dnsproxyd_socket:s0
 /dev/socket/dumpstate	u:object_r:dumpstate_socket:s0
 /dev/socket/fwmarkd	u:object_r:fwmarkd_socket:s0
@@ -143,7 +167,7 @@
 /dev/socket/statsdw	u:object_r:statsdw_socket:s0
 /dev/socket/mdns	u:object_r:mdns_socket:s0
 /dev/socket/mdnsd	u:object_r:mdnsd_socket:s0
-/dev/socket/mtpd	u:object_r:mtpd_socket:s0
+/dev/socket/ot-daemon(/.*)?  u:object_r:ot_daemon_socket:s0
 /dev/socket/pdx/system/buffer_hub	u:object_r:pdx_bufferhub_dir:s0
 /dev/socket/pdx/system/buffer_hub/client	u:object_r:pdx_bufferhub_client_endpoint_socket:s0
 /dev/socket/pdx/system/performance	u:object_r:pdx_performance_dir:s0
@@ -156,7 +180,6 @@
 /dev/socket/prng_seeder	u:object_r:prng_seeder_socket:s0
 /dev/socket/property_service	u:object_r:property_socket:s0
 /dev/socket/property_service_for_system  u:object_r:property_socket:s0
-/dev/socket/racoon	u:object_r:racoon_socket:s0
 /dev/socket/recovery    u:object_r:recovery_socket:s0
 /dev/socket/rild	u:object_r:rild_socket:s0
 /dev/socket/rild-debug	u:object_r:rild_debug_socket:s0
@@ -192,6 +215,7 @@
 /dev/urandom		u:object_r:random_device:s0
 /dev/usb_accessory	u:object_r:usbaccessory_device:s0
 /dev/v4l-touch[0-9]*	u:object_r:input_device:s0
+/dev/vfio(/.*)?		u:object_r:vfio_device:s0
 /dev/vhost-vsock	u:object_r:kvm_device:s0
 /dev/video[0-9]*	u:object_r:video_device:s0
 /dev/vndbinder		u:object_r:vndbinder_device:s0
@@ -199,19 +223,13 @@
 /dev/xt_qtaguid	u:object_r:qtaguid_device:s0
 /dev/zero		u:object_r:zero_device:s0
 /dev/__properties__ u:object_r:properties_device:s0
+/dev/__properties__/appcompat_override u:object_r:properties_device:s0
 /dev/__properties__/property_info   u:object_r:property_info:s0
+/dev/__properties__/appcompat_override/property_info   u:object_r:property_info:s0
 #############################
 # Linker configuration
 #
 /linkerconfig(/.*)?          u:object_r:linkerconfig_file:s0
-
-# Apex sepoolicy files.
-/dev/selinux/apex_file_contexts                 u:object_r:file_contexts_file:s0
-/dev/selinux/apex_seapp_contexts                u:object_r:seapp_contexts_file:s0
-/dev/selinux/apex_service_contexts              u:object_r:service_contexts_file:s0
-/dev/selinux/apex_property_contexts             u:object_r:property_contexts_file:s0
-/dev/selinux/apex_hwservice_contexts            u:object_r:hwservice_contexts_file:s0
-/dev/selinux/apex_mac_permissions\.xml          u:object_r:mac_perms_file:s0
 
 #############################
 # System files
@@ -253,11 +271,11 @@
 /system/bin/run-as	--	u:object_r:runas_exec:s0
 /system/bin/bootanimation u:object_r:bootanim_exec:s0
 /system/bin/gammaos-nano u:object_r:bootanim_exec:s0
+/system/bin/nano_cache\.sh u:object_r:gammaoscustomization_exec:s0
 /system/bin/bootstat		u:object_r:bootstat_exec:s0
 /system/bin/app_process32	u:object_r:zygote_exec:s0
 /system/bin/app_process64	u:object_r:zygote_exec:s0
 /system/bin/servicemanager	u:object_r:servicemanager_exec:s0
-/system/bin/hwservicemanager	u:object_r:hwservicemanager_exec:s0
 /system/bin/surfaceflinger	u:object_r:surfaceflinger_exec:s0
 /system/bin/gpuservice	u:object_r:gpuservice_exec:s0
 /system/bin/bufferhubd	u:object_r:bufferhubd_exec:s0
@@ -303,9 +321,6 @@
 /system/bin/dhcpcd      u:object_r:dhcp_exec:s0
 /system/bin/dhcpcd-6\.8\.2	u:object_r:dhcp_exec:s0
 /system/bin/dmesgd	u:object_r:dmesgd_exec:s0
-/system/bin/mtpd	u:object_r:mtp_exec:s0
-/system/bin/pppd	u:object_r:ppp_exec:s0
-/system/bin/racoon	u:object_r:racoon_exec:s0
 /system/xbin/su		u:object_r:su_exec:s0
 /system/bin/dnsmasq     u:object_r:dnsmasq_exec:s0
 /system/bin/linker(64)? u:object_r:system_linker_exec:s0
@@ -321,6 +336,7 @@
 /system/bin/rss_hwm_reset	u:object_r:rss_hwm_reset_exec:s0
 /system/bin/perfetto        u:object_r:perfetto_exec:s0
 /system/bin/mtectrl         u:object_r:mtectrl_exec:s0
+/system/bin/misctrl         u:object_r:misctrl_exec:s0
 /system/bin/traced        u:object_r:traced_exec:s0
 /system/bin/traced_perf        u:object_r:traced_perf_exec:s0
 /system/bin/traced_probes        u:object_r:traced_probes_exec:s0
@@ -342,18 +358,20 @@
 /system/bin/profcollectctl       u:object_r:profcollectd_exec:s0
 /system/bin/storaged             u:object_r:storaged_exec:s0
 /system/bin/virtual_touchpad     u:object_r:virtual_touchpad_exec:s0
+/system/bin/virtual_camera       u:object_r:virtual_camera_exec:s0
 /system/bin/hw/android\.frameworks\.bufferhub@1\.0-service    u:object_r:fwk_bufferhub_exec:s0
-/system/bin/hw/android\.hidl\.allocator@1\.0-service          u:object_r:hal_allocator_default_exec:s0
 /system/bin/hw/android\.system\.suspend-service               u:object_r:system_suspend_exec:s0
+/(system|system_ext|product)/etc/aconfig(/.*)?                u:object_r:system_aconfig_storage_file:s0
 /system/etc/cgroups\.json               u:object_r:cgroup_desc_file:s0
 /system/etc/task_profiles/cgroups_[0-9]+\.json               u:object_r:cgroup_desc_api_file:s0
 /system/etc/event-log-tags              u:object_r:system_event_log_tags_file:s0
+/system/etc/font_fallback.xml           u:object_r:system_font_fallback_file:s0
 /system/etc/group                       u:object_r:system_group_file:s0
 /system/etc/ld\.config.*                u:object_r:system_linker_config_file:s0
 /system/etc/passwd                      u:object_r:system_passwd_file:s0
 /system/etc/seccomp_policy(/.*)?        u:object_r:system_seccomp_policy_file:s0
 /system/etc/security/cacerts(/.*)?      u:object_r:system_security_cacerts_file:s0
-/system/etc/selinux/mapping/[0-9]+\.[0-9]+\.cil       u:object_r:sepolicy_file:s0
+/system/etc/selinux/mapping/[0-9]+\.[0-9]+(\.compat)?\.cil       u:object_r:sepolicy_file:s0
 /system/etc/selinux/plat_mac_permissions\.xml u:object_r:mac_perms_file:s0
 /system/etc/selinux/plat_property_contexts  u:object_r:property_contexts_file:s0
 /system/etc/selinux/plat_service_contexts  u:object_r:service_contexts_file:s0
@@ -371,8 +389,9 @@
 /system/bin/stats                u:object_r:stats_exec:s0
 /system/bin/statsd               u:object_r:statsd_exec:s0
 /system/bin/bpfloader            u:object_r:bpfloader_exec:s0
-/system/bin/btfloader            u:object_r:bpfloader_exec:s0
+/system/bin/netbpfload           u:object_r:bpfloader_exec:s0
 /system/bin/watchdogd            u:object_r:watchdogd_exec:s0
+/system/bin/aconfigd             u:object_r:aconfigd_exec:s0
 /system/bin/apexd                u:object_r:apexd_exec:s0
 /system/bin/gsid                 u:object_r:gsid_exec:s0
 /system/bin/simpleperf           u:object_r:simpleperf_exec:s0
@@ -385,6 +404,7 @@
 /system/bin/cardisplayproxyd     u:object_r:automotive_display_service_exec:s0
 /system/bin/evsmanagerd          u:object_r:evsmanagerd_exec:s0
 /system/bin/android\.automotive\.evs\.manager@1\.[0-9]+ u:object_r:evsmanagerd_exec:s0
+/system/bin/uprobestats           u:object_r:uprobestats_exec:s0
 
 #############################
 # Vendor files
@@ -396,6 +416,7 @@
 /(vendor|system/vendor)/etc(/.*)?              u:object_r:vendor_configs_file:s0
 /(vendor|system/vendor)/etc/cgroups\.json      u:object_r:vendor_cgroup_desc_file:s0
 /(vendor|system/vendor)/etc/task_profiles\.json    u:object_r:vendor_task_profiles_file:s0
+/(vendor|system/vendor)/etc/avf/microdroid(/.*)?   u:object_r:vendor_microdroid_file:s0
 
 /(vendor|system/vendor)/lib(64)?/egl(/.*)?     u:object_r:same_process_hal_file:s0
 
@@ -412,6 +433,8 @@
 /(vendor|system/vendor)/apex(/[^/]+){0,2}                      u:object_r:vendor_apex_file:s0
 /(vendor|system/vendor)/bin/misc_writer                        u:object_r:vendor_misc_writer_exec:s0
 /(vendor|system/vendor)/bin/boringssl_self_test(32|64)         u:object_r:vendor_boringssl_self_test_exec:s0
+
+/(vendor|system/vendor)/etc/aconfig(/.*)?                      u:object_r:vendor_aconfig_storage_file:s0
 
 # HAL location
 /(vendor|system/vendor)/lib(64)?/hw            u:object_r:vendor_hal_file:s0
@@ -443,6 +466,9 @@
 
 /oem(/.*)?              u:object_r:oemfs:s0
 /oem/overlay(/.*)?      u:object_r:vendor_overlay_file:s0
+/oem/media/bootanimation.zip            u:object_r:bootanim_oem_file:s0
+/oem/media/shutdownanimation.zip        u:object_r:bootanim_oem_file:s0
+/oem/media/userspace-reboot.zip         u:object_r:bootanim_oem_file:s0
 
 # The precompiled monolithic sepolicy will be under /odm only when
 # BOARD_USES_ODMIMAGE is true: a separate odm.img is built.
@@ -497,6 +523,9 @@
 /(system_ext|system/system_ext)/bin/aidl_lazy_cb_test_server u:object_r:aidl_lazy_test_server_exec:s0
 /(system_ext|system/system_ext)/bin/hidl_lazy_test_server    u:object_r:hidl_lazy_test_server_exec:s0
 /(system_ext|system/system_ext)/bin/hidl_lazy_cb_test_server u:object_r:hidl_lazy_test_server_exec:s0
+/(system_ext|system/system_ext)/bin/hwservicemanager         u:object_r:hwservicemanager_exec:s0
+/(system_ext|system/system_ext)/bin/hw/android\.hidl\.allocator@1\.0-service u:object_r:hal_allocator_default_exec:s0
+
 
 /(system_ext|system/system_ext)/bin/canhalconfigurator(-aidl)? u:object_r:canhalconfigurator_exec:s0
 
@@ -565,7 +594,6 @@
 /data/gsi_persistent_data    u:object_r:gsi_persistent_data_file:s0
 /data/gsi/ota(/.*)?    u:object_r:ota_image_data_file:s0
 /data/tombstones(/.*)?	u:object_r:tombstone_data_file:s0
-/data/vendor/tombstones/wifi(/.*)? u:object_r:tombstone_wifi_data_file:s0
 /data/local/tests(/.*)?	u:object_r:shell_test_data_file:s0
 /data/local/tmp(/.*)?	u:object_r:shell_data_file:s0
 /data/local/tmp/ltp(/.*)?   u:object_r:nativetest_data_file:s0
@@ -601,9 +629,10 @@
 /data/misc/apexdata(/.*)?       u:object_r:apex_module_data_file:s0
 /data/misc/apexdata/com\.android\.art(/.*)?           u:object_r:apex_art_data_file:s0
 /data/misc/apexdata/com\.android\.compos(/.*)?        u:object_r:apex_compos_data_file:s0
+/data/misc/apexdata/com\.android\.virt(/.*)?          u:object_r:apex_virt_data_file:s0
 /data/misc/apexdata/com\.android\.permission(/.*)?    u:object_r:apex_system_server_data_file:s0
 /data/misc/apexdata/com\.android\.scheduling(/.*)?    u:object_r:apex_system_server_data_file:s0
-/data/misc/apexdata/com\.android\.tethering(/.*)?     u:object_r:apex_system_server_data_file:s0
+/data/misc/apexdata/com\.android\.tethering(/.*)?     u:object_r:apex_tethering_data_file:s0
 /data/misc/apexdata/com\.android\.uwb(/.*)?           u:object_r:apex_system_server_data_file:s0
 /data/misc/apexdata/com\.android\.wifi(/.*)?          u:object_r:apex_system_server_data_file:s0
 /data/misc/apexrollback(/.*)?   u:object_r:apex_rollback_data_file:s0
@@ -635,13 +664,16 @@
 /data/misc/media(/.*)?          u:object_r:media_data_file:s0
 /data/misc/net(/.*)?            u:object_r:net_data_file:s0
 /data/misc/network_watchlist(/.*)? u:object_r:network_watchlist_data_file:s0
+/data/misc/telephonyconfig(/.*)? u:object_r:radio_data_file:s0
 /data/misc/nfc/logs(/.*)?       u:object_r:nfc_logs_data_file:s0
 /data/misc/odrefresh(/.*)?      u:object_r:odrefresh_data_file:s0
 /data/misc/odsign(/.*)?         u:object_r:odsign_data_file:s0
 /data/misc/odsign/metrics(/.*)? u:object_r:odsign_metrics_file:s0
-/data/misc/perfetto-traces/bugreport(.*)? u:object_r:perfetto_traces_bugreport_data_file:s0
-/data/misc/perfetto-traces(/.*)?          u:object_r:perfetto_traces_data_file:s0
-/data/misc/perfetto-configs(/.*)?         u:object_r:perfetto_configs_data_file:s0
+/data/misc/perfetto-traces(/.*)?           u:object_r:perfetto_traces_data_file:s0
+/data/misc/perfetto-traces/bugreport(.*)?  u:object_r:perfetto_traces_bugreport_data_file:s0
+/data/misc/perfetto-traces/profiling(/.*)? u:object_r:perfetto_traces_profiling_data_file:s0
+/data/misc/perfetto-configs(/.*)?          u:object_r:perfetto_configs_data_file:s0
+/data/misc/uprobestats-configs(/.*)?      u:object_r:uprobestats_configs_data_file:s0
 /data/misc/prereboot(/.*)?      u:object_r:prereboot_data_file:s0
 /data/misc/profcollectd(/.*)?   u:object_r:profcollectd_data_file:s0
 /data/misc/radio(/.*)?          u:object_r:radio_core_data_file:s0
@@ -666,6 +698,7 @@
 /data/misc/vold(/.*)?           u:object_r:vold_data_file:s0
 /data/misc/update_engine(/.*)?  u:object_r:update_engine_data_file:s0
 /data/misc/update_engine_log(/.*)?  u:object_r:update_engine_log_data_file:s0
+/data/misc/snapuserd_log(/.*)?  u:object_r:snapuserd_log_data_file:s0
 /data/system/dropbox(/.*)?      u:object_r:dropbox_data_file:s0
 /data/system/heapdump(/.*)?     u:object_r:heapdump_data_file:s0
 /data/misc/trace(/.*)?          u:object_r:method_trace_data_file:s0
@@ -681,6 +714,7 @@
 /data/vendor_ce/.*              u:object_r:vendor_data_file:s0
 /data/vendor_de                 u:object_r:vendor_userdir_file:s0
 /data/vendor_de/.*              u:object_r:vendor_data_file:s0
+/data/vendor/tombstones/wifi(/.*)? u:object_r:tombstone_wifi_data_file:s0
 
 # storaged proto files
 /data/misc_de/[0-9]+/storaged(/.*)?       u:object_r:storaged_data_file:s0
@@ -735,21 +769,12 @@
 /data/incremental/MT_[^/]+/mount/.blocks_written        u:object_r:incremental_control_file:s0
 
 # Boot animation data
-/data/bootanim(/.*)? u:object_r:bootanim_data_file:s0
+/data/misc/bootanim(/.*)? u:object_r:bootanim_data_file:s0
 #############################
 # Expanded data files
 #
 /mnt/expand                                         u:object_r:mnt_expand_file:s0
-# CAREFUL: the two system_data_file patterns below can't be replaced with one
-# pattern "/mnt/expand/[^/]+(/.*)?", since SELinux would prioritize that over
-# "/mnt/expand/[^/]+/user".  This is because when a path is matched by two
-# patterns that contain regex meta-characters, SELinux just chooses the longer
-# pattern (or the later pattern if the patterns are the same length), rather
-# than the pattern containing fewer regex meta-characters.  Splitting the
-# pattern into "/mnt/expand/[^/]+" and "/mnt/expand/[^/]+/.*" works around this
-# problem, except for 1-character filenames which we aren't using.
-/mnt/expand/[^/]+                                   u:object_r:system_data_file:s0
-/mnt/expand/[^/]+/.*                                u:object_r:system_data_file:s0
+/mnt/expand/[^/]+(/.*)?                             u:object_r:system_data_file:s0
 /mnt/expand/[^/]+/app(/.*)?                         u:object_r:apk_data_file:s0
 /mnt/expand/[^/]+/app/[^/]+/oat(/.*)?               u:object_r:dalvikcache_data_file:s0
 # /mnt/expand/..../app/[randomStringA]/[packageName]-[randomStringB]/base.apk layout
@@ -839,11 +864,12 @@
 /metadata/password_slots(/.*)?    u:object_r:password_slot_metadata_file:s0
 /metadata/ota(/.*)?       u:object_r:ota_metadata_file:s0
 /metadata/bootstat(/.*)?  u:object_r:metadata_bootstat_file:s0
-/metadata/sepolicy(/.*)?    u:object_r:sepolicy_metadata_file:s0
 /metadata/staged-install(/.*)?    u:object_r:staged_install_file:s0
 /metadata/userspacereboot(/.*)?    u:object_r:userspace_reboot_metadata_file:s0
 /metadata/watchdog(/.*)?    u:object_r:watchdog_metadata_file:s0
 /metadata/repair-mode(/.*)?    u:object_r:repair_mode_metadata_file:s0
+/metadata/aconfig(/.*)?    u:object_r:aconfig_storage_metadata_file:s0
+/metadata/aconfig/flags(/.*)?    u:object_r:aconfig_storage_flags_metadata_file:s0
 
 #############################
 # asec containers
@@ -874,6 +900,7 @@
 /(system|product)/bin/check_dynamic_partitions  u:object_r:postinstall_exec:s0
 /(system|product)/bin/otapreopt_script          u:object_r:postinstall_exec:s0
 /(system|product)/bin/otapreopt                 u:object_r:postinstall_dexopt_exec:s0
+
 /system/bin/customization\.sh    u:object_r:gammaoscustomization_exec:s0
 /system/bin/setup\.sh            u:object_r:gammaossetupwizard_exec:s0
 /system/bin/gammapad             u:object_r:gammapad_exec:s0

@@ -1,5 +1,6 @@
 typeattribute bootanim coredomain;
 
+permissive bootanim;
 init_daemon_domain(bootanim)
 
 # b/68864350

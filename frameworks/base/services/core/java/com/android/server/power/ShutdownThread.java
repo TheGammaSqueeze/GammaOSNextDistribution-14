@@ -1048,6 +1048,31 @@ public final class ShutdownThread extends Thread {
                         + "proceeding anyway");
             }
 
+            // Delta sync saves/states/config to DE cache so next boot's
+            // bind mount has the freshest data from this session.
+            if (retroArchExited) {
+                try {
+                    java.io.File manifest = new java.io.File(
+                            "/data/system/nano_cache/manifest");
+                    if (manifest.exists()) {
+                        Slog.i(TAG, "GammaOS: syncing RetroArch data to DE cache");
+                        SystemProperties.set("sys.gammaos.nano.cache_op",
+                                "sync_to_cache");
+                        // Wait for sync to complete (up to 5s)
+                        for (int i = 0; i < 50; i++) {
+                            if (!"running".equals(SystemProperties.get(
+                                    "init.svc.nano_cache_sync_to_cache", "")))
+                                break;
+                            try { Thread.sleep(100); }
+                            catch (InterruptedException ie) {}
+                        }
+                        Slog.i(TAG, "GammaOS: DE cache sync complete");
+                    }
+                } catch (Exception e) {
+                    Slog.w(TAG, "GammaOS: DE cache sync failed: " + e);
+                }
+            }
+
             // Quick Resume: only prime if the next boot will be nano mode
             // (either already in nano, or "Boot Nano" set skip_nano=0) AND
             // RetroArch exited gracefully.  Otherwise force-clear qr_prepared.

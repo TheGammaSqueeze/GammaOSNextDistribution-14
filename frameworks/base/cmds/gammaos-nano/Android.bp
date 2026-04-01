@@ -18,11 +18,13 @@ cc_binary {
     srcs: [
         "main.cpp",
         "NanoMenu.cpp",
+        "LibretroRunner.cpp",
     ],
 
     shared_libs: [
         "libbase",
         "libbinder",
+        "libbinder_ndk",
         "libcutils",
         "liblog",
         "libutils",
@@ -33,6 +35,9 @@ cc_binary {
         "libft2",
         "libpng",
         "libz",
+        "android.hardware.light-V2-ndk",
+        "android.hardware.light@2.0",
+        "libhidlbase",
     ],
 
     init_rc: ["gammaos-nano.rc"],

@@ -162,6 +162,7 @@ private:
 
     // Brightness control
     void adjustBrightness(int direction);
+    bool setBrightnessViaHal(int brightness);
     void renderBrightnessBar();
 
     // Volume control

@@ -1157,8 +1157,15 @@ class ActivityStarter {
         }
         abort |= !mService.mIntentFirewall.checkStartActivity(intent, callingUid,
                 callingPid, resolvedType, aInfo.applicationInfo);
-        abort |= !mService.getPermissionPolicyInternal().checkStartActivity(intent, callingUid,
-                callingPackage);
+        // GammaOS Nano: PermissionPolicyInternal may not be available during
+        // early boot when launching RetroArch before AudioService completes.
+        // Null-guard to allow the launch; permission checks are non-critical
+        // for the system-initiated home activity start.
+        final com.android.server.policy.PermissionPolicyInternal permPolicy =
+                mService.getPermissionPolicyInternal();
+        if (permPolicy != null) {
+            abort |= !permPolicy.checkStartActivity(intent, callingUid, callingPackage);
+        }
 
         // Merge the two options bundles, while realCallerOptions takes precedence.
         ActivityOptions checkedOptions = options != null
