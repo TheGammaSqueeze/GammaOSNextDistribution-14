@@ -19,7 +19,12 @@ InputTransformer::InputTransformer()
       mInvertLeft(false),
       mInvertRight(false),
       mGlobalSensitivity(0),
-      mMouseModeActive(false) {
+      mMouseModeActive(false),
+      mDpadKeysToHat(false),
+      mDpadUpHeld(false),
+      mDpadDownHeld(false),
+      mDpadLeftHeld(false),
+      mDpadRightHeld(false) {
 }
 
 void InputTransformer::loadConfig() {
@@ -32,6 +37,7 @@ void InputTransformer::loadConfig() {
     mAxisButtons.clear();
     mCombos.clear();
     mPhysicalHeld.clear();
+    mDpadUpHeld = mDpadDownHeld = mDpadLeftHeld = mDpadRightHeld = false;
     mVirtualHeld.clear();
 
     // Parse button remaps: "from1:to1,from2:to2,..."
@@ -186,6 +192,30 @@ bool InputTransformer::transform(struct input_event& ev,
             ev.code = klIt->second;
         }
 
+        // 1a. Convert DPAD key events to HAT axis events when the source
+        //     device has DPAD buttons but no HAT axes.
+        if (mDpadKeysToHat && ev.value != 2 /* skip autorepeat */) {
+            bool isDpad = true;
+            if (ev.code == KEY_UP) mDpadUpHeld = (ev.value != 0);
+            else if (ev.code == KEY_DOWN) mDpadDownHeld = (ev.value != 0);
+            else if (ev.code == KEY_LEFT) mDpadLeftHeld = (ev.value != 0);
+            else if (ev.code == KEY_RIGHT) mDpadRightHeld = (ev.value != 0);
+            else isDpad = false;
+
+            if (isDpad) {
+                if (ev.code == KEY_UP || ev.code == KEY_DOWN) {
+                    ev.type = EV_ABS;
+                    ev.code = ABS_HAT0Y;
+                    ev.value = (mDpadDownHeld ? 1 : 0) - (mDpadUpHeld ? 1 : 0);
+                } else {
+                    ev.type = EV_ABS;
+                    ev.code = ABS_HAT0X;
+                    ev.value = (mDpadRightHeld ? 1 : 0) - (mDpadLeftHeld ? 1 : 0);
+                }
+                return true;
+            }
+        }
+
         // 1b. ABXY swap (before user button remap so swaps stack correctly)
         if (mAbxySwap) {
             if (ev.code == BTN_A) ev.code = BTN_B;
@@ -235,7 +265,8 @@ bool InputTransformer::transform(struct input_event& ev,
             int pRange = pMax - pMin;
 
             bool isTriggerCode = (code == ABS_Z || code == ABS_RZ ||
-                                  code == ABS_GAS || code == ABS_BRAKE);
+                                  code == ABS_GAS || code == ABS_BRAKE)
+                                 && !mForceStickAxes.count(code);
             bool wasRemapped = (physicalCode != code);
             // Physical stick axes should never be treated as triggers,
             // even when .kl remaps them to a trigger code (e.g., ABS_RX→ABS_Z).

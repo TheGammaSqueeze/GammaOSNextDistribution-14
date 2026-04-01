@@ -773,6 +773,33 @@ void GamepadManager::createVirtualGamepadFromDiscovery() {
     std::set<int> finalAxes;
     std::vector<VirtualGamepad::AxisSetup> axisSetups;
 
+    // Detect if ABS_Z/ABS_RZ are right stick axes rather than triggers.
+    // Pattern: device has Z/RZ + GAS/BRAKE (dedicated triggers) but no RX/RY.
+    std::set<int> allFinalCodes;
+    for (const auto& [sc, fc] : mAbsMap) {
+        if (mDiscoveredAxes.count(sc)) allFinalCodes.insert(fc);
+    }
+    std::set<int> forceStickAxes;
+    bool hasGasOrBrake = allFinalCodes.count(ABS_GAS) || allFinalCodes.count(ABS_BRAKE);
+    bool hasRxRy = allFinalCodes.count(ABS_RX) || allFinalCodes.count(ABS_RY);
+    if (hasGasOrBrake && !hasRxRy) {
+        if (allFinalCodes.count(ABS_Z)) forceStickAxes.insert(ABS_Z);
+        if (allFinalCodes.count(ABS_RZ)) forceStickAxes.insert(ABS_RZ);
+        if (!forceStickAxes.empty()) {
+            LOG(INFO) << "Right stick detected on Z/RZ (device has GAS/BRAKE, no RX/RY)";
+        }
+    }
+    mTransformer->setForceStickAxes(forceStickAxes);
+
+    // Detect if source device has DPAD buttons but no HAT axes.
+    bool hasDpadKeys = mDiscoveredKeys.count(KEY_UP) || mDiscoveredKeys.count(KEY_DOWN) ||
+                       mDiscoveredKeys.count(KEY_LEFT) || mDiscoveredKeys.count(KEY_RIGHT);
+    bool hasHatAxes = allFinalCodes.count(ABS_HAT0X) || allFinalCodes.count(ABS_HAT0Y);
+    mTransformer->setDpadKeysToHat(hasDpadKeys && !hasHatAxes);
+    if (hasDpadKeys && !hasHatAxes) {
+        LOG(INFO) << "DPAD keys will be converted to HAT axis events";
+    }
+
     // Collect all final axis codes from the absMap
     for (const auto& [sc, finalCode] : mAbsMap) {
         if (finalCode < 0 || finalCode > ABS_MAX) continue;
@@ -809,7 +836,12 @@ void GamepadManager::createVirtualGamepadFromDiscovery() {
         //      (e.g., sc=9(0..255)→ABS_RZ)
         // Identity-mapped axes on Z/RZ with large unsigned range (>4096) are STICKS,
         // not triggers (e.g., Xbox BT right stick on Z/RZ with 0..65535).
-        if (finalCode == ABS_Z || finalCode == ABS_RZ ||
+        // Also: if the device has Z/RZ alongside GAS/BRAKE (dedicated triggers)
+        // but no RX/RY, then Z/RZ are the right stick, not triggers.
+        if (forceStickAxes.count(finalCode)) {
+            LOG(INFO) << "Trigger check: finalCode=" << finalCode
+                      << " -> force-stick (Z/RZ are right stick on this device)";
+        } else if (finalCode == ABS_Z || finalCode == ABS_RZ ||
             finalCode == ABS_GAS || finalCode == ABS_BRAKE) {
             for (const auto& [sc2, fc2] : mAbsMap) {
                 if (fc2 == finalCode && mDiscoveredAxes.count(sc2)) {

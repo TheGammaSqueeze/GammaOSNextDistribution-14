@@ -78,6 +78,16 @@ public:
     // triggers, and global sensitivity so MouseMode gets clean values.
     void setMouseMode(bool active) { mMouseModeActive = active; }
 
+    // Mark axis codes that should be treated as sticks even though they share
+    // codes with triggers (e.g., ABS_Z/ABS_RZ when the device uses them as
+    // the right stick instead of triggers).
+    void setForceStickAxes(const std::set<int>& axes) { mForceStickAxes = axes; }
+
+    // Enable conversion of DPAD key events (KEY_UP/DOWN/LEFT/RIGHT) to
+    // ABS_HAT0X/ABS_HAT0Y axis events.  Used when the source device has
+    // DPAD buttons but no HAT axes.
+    void setDpadKeysToHat(bool enable) { mDpadKeysToHat = enable; }
+
 private:
     int applyCalibration(int axis, int value);
     int applyDeadzone(int value, int deadzone);
@@ -137,6 +147,13 @@ private:
 
     // Mouse mode flag: skip conversions, axis-to-button, global sensitivity
     bool mMouseModeActive;
+
+    // Axes forced to stick normalization (bipolar, centered at 0)
+    std::set<int> mForceStickAxes;
+
+    // DPAD key → HAT axis conversion
+    bool mDpadKeysToHat;
+    bool mDpadUpHeld, mDpadDownHeld, mDpadLeftHeld, mDpadRightHeld;
 };
 
 } // namespace gammapad
