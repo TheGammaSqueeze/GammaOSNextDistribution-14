@@ -459,44 +459,49 @@ bool GamepadManager::grabDevice(const std::string& path) {
     bool hasAbs = test_bit(EV_ABS, evBits);
     bool hasKey = test_bit(EV_KEY, evBits);
 
-    if (!hasAbs || !hasKey) {
-        LOG(INFO) << "Skipping " << name << ": hasAbs=" << hasAbs << " hasKey=" << hasKey;
-        close(fd);
-        return false;
-    }
-
-    // Check for joystick-like axes (ABS_X or ABS_HAT0X)
-    unsigned long absBits[(ABS_MAX / BITS_PER_LONG) + 1] = {};
-    if (ioctl(fd, EVIOCGBIT(EV_ABS, sizeof(absBits)), absBits) < 0) {
-        close(fd);
-        return false;
-    }
-
-    bool hasStick = test_bit(ABS_X, absBits) || test_bit(ABS_HAT0X, absBits);
-    if (!hasStick) {
-        LOG(INFO) << "Skipping " << name << ": no stick axes";
-        close(fd);
-        return false;
-    }
-
-    // Check for gamepad buttons (BTN_A or BTN_GAMEPAD range)
-    unsigned long keyBits[(KEY_MAX / BITS_PER_LONG) + 1] = {};
-    if (ioctl(fd, EVIOCGBIT(EV_KEY, sizeof(keyBits)), keyBits) < 0) {
-        close(fd);
-        return false;
-    }
-
-    bool hasGamepadBtn = test_bit(BTN_A, keyBits) || test_bit(BTN_GAMEPAD, keyBits);
-    if (!hasGamepadBtn) {
-        LOG(INFO) << "Skipping " << name << ": no gamepad buttons (BTN_A/BTN_GAMEPAD)";
-        close(fd);
-        return false;
-    }
-
-    // Check name filter
     std::string nameStr(name);
-    if (!shouldGrabDevice(nameStr)) {
-        LOG(INFO) << "Skipping " << name << ": not in device filter";
+    bool userSelected = shouldGrabDevice(nameStr);
+
+    // Devices explicitly selected by the user bypass gamepad capability checks.
+    // This allows key-only secondary inputs (e.g., mtk-pmic-keys) to be grabbed
+    // and routed through the virtual gamepad for remapping.
+    if (!userSelected) {
+        if (!hasAbs || !hasKey) {
+            LOG(INFO) << "Skipping " << name << ": hasAbs=" << hasAbs << " hasKey=" << hasKey;
+            close(fd);
+            return false;
+        }
+
+        // Check for joystick-like axes (ABS_X or ABS_HAT0X)
+        unsigned long absBits[(ABS_MAX / BITS_PER_LONG) + 1] = {};
+        if (ioctl(fd, EVIOCGBIT(EV_ABS, sizeof(absBits)), absBits) < 0) {
+            close(fd);
+            return false;
+        }
+
+        bool hasStick = test_bit(ABS_X, absBits) || test_bit(ABS_HAT0X, absBits);
+        if (!hasStick) {
+            LOG(INFO) << "Skipping " << name << ": no stick axes";
+            close(fd);
+            return false;
+        }
+
+        // Check for gamepad buttons (BTN_A or BTN_GAMEPAD range)
+        unsigned long keyBits[(KEY_MAX / BITS_PER_LONG) + 1] = {};
+        if (ioctl(fd, EVIOCGBIT(EV_KEY, sizeof(keyBits)), keyBits) < 0) {
+            close(fd);
+            return false;
+        }
+
+        bool hasGamepadBtn = test_bit(BTN_A, keyBits) || test_bit(BTN_GAMEPAD, keyBits);
+        if (!hasGamepadBtn) {
+            LOG(INFO) << "Skipping " << name << ": no gamepad buttons (BTN_A/BTN_GAMEPAD)";
+            close(fd);
+            return false;
+        }
+    } else if (!hasKey) {
+        // User-selected but no key capability at all — nothing to route
+        LOG(INFO) << "Skipping " << name << ": user-selected but no EV_KEY";
         close(fd);
         return false;
     }
