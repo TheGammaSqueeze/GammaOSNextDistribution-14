@@ -4351,6 +4351,19 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             }
         }
 
+        // GammaOS: HOME in RetroArch sends ESC to close gracefully,
+        // mirroring the BACK behavior (short press → ESC, long press → ESC).
+        if (keyCode == KeyEvent.KEYCODE_HOME) {
+            String fgApp = getForegroundAppPackageName();
+            if (fgApp != null && fgApp.toLowerCase().contains("retroarch")) {
+                if (down && repeatCount == 0) {
+                    // Consume down, send ESC on first press
+                    triggerVirtualKeypress(KeyEvent.KEYCODE_ESCAPE);
+                }
+                return true; // consume all HOME events in RetroArch
+            }
+        }
+
         // GammaOS: when gamepad button capture UI is active, consume HOME
         // and notify the capture dialog via property (HOME cannot be passed
         // to apps — Android launches the home screen regardless).
