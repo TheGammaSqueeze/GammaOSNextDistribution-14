@@ -47,6 +47,7 @@ namespace skia {
 
 using base::StringAppendF;
 
+__attribute__((unused))
 static bool checkGlError(const char* op, int lineNumber) {
     bool errorFound = false;
     GLint error = glGetError();
@@ -142,34 +143,77 @@ static status_t selectEGLConfig(EGLDisplay display, EGLint format, EGLint render
 
 std::unique_ptr<SkiaGLRenderEngine> SkiaGLRenderEngine::create(
         const RenderEngineCreationArgs& args) {
-    // initialize EGL for the default display
-    EGLDisplay display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
-    if (!eglInitialize(display, nullptr, nullptr)) {
-        LOG_ALWAYS_FATAL("failed to initialize EGL");
-    }
+    // GPU/gralloc drivers may not be fully initialized during early boot.
+    // Retry the full EGL init sequence — on devices where the GPU is ready
+    // this succeeds immediately with no overhead.
+    const int kMaxRetries = 25;
+    const int kRetryDelayUs = 200000; // 200ms
+    EGLDisplay display = EGL_NO_DISPLAY;
+    EGLConfig config = EGL_NO_CONFIG_KHR;
 
-    const auto eglVersion = eglQueryString(display, EGL_VERSION);
-    if (!eglVersion) {
-        checkGlError(__FUNCTION__, __LINE__);
-        LOG_ALWAYS_FATAL("eglQueryString(EGL_VERSION) failed");
-    }
+    for (int attempt = 0; ; attempt++) {
+        // Re-acquire and re-initialize EGL on each attempt so the driver
+        // can discover hardware that wasn't ready on an earlier try.
+        display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+        if (!eglInitialize(display, nullptr, nullptr)) {
+            if (attempt >= kMaxRetries) {
+                LOG_ALWAYS_FATAL("failed to initialize EGL after %d retries", attempt);
+            }
+            ALOGW("EGL init failed, GPU may not be ready (attempt %d/%d)",
+                  attempt + 1, kMaxRetries);
+            usleep(kRetryDelayUs);
+            continue;
+        }
 
-    const auto eglExtensions = eglQueryString(display, EGL_EXTENSIONS);
-    if (!eglExtensions) {
-        checkGlError(__FUNCTION__, __LINE__);
-        LOG_ALWAYS_FATAL("eglQueryString(EGL_EXTENSIONS) failed");
+        const auto eglVersion = eglQueryString(display, EGL_VERSION);
+        const auto eglExtensions = eglQueryString(display, EGL_EXTENSIONS);
+        if (!eglVersion || !eglExtensions) {
+            if (attempt >= kMaxRetries) {
+                LOG_ALWAYS_FATAL("eglQueryString failed after %d retries", attempt);
+            }
+            eglTerminate(display);
+            usleep(kRetryDelayUs);
+            continue;
+        }
+
+        auto& extensions = GLExtensions::getInstance();
+        extensions.initWithEGLStrings(eglVersion, eglExtensions);
+
+        config = EGL_NO_CONFIG_KHR;
+        if (!extensions.hasNoConfigContext()) {
+            status_t err;
+            err = selectEGLConfig(display, args.pixelFormat, EGL_OPENGL_ES3_BIT, &config);
+            if (err != NO_ERROR) {
+                err = selectEGLConfig(display, args.pixelFormat, EGL_OPENGL_ES2_BIT, &config);
+                if (err != NO_ERROR) {
+                    err = selectEGLConfig(display, args.pixelFormat, 0, &config);
+                }
+            }
+            if (err != NO_ERROR) {
+                if (attempt >= kMaxRetries) {
+                    LOG_ALWAYS_FATAL("no suitable EGLConfig found, giving up after %d retries"
+                                     " (format: %d, vendor: %s, version: %s)",
+                                     attempt, args.pixelFormat,
+                                     eglQueryString(display, EGL_VENDOR),
+                                     eglQueryString(display, EGL_VERSION));
+                }
+                if (attempt == 0) {
+                    ALOGW("no suitable EGLConfig found, waiting for GPU driver");
+                }
+                eglTerminate(display);
+                usleep(kRetryDelayUs);
+                continue;
+            }
+        }
+
+        if (attempt > 0) {
+            ALOGI("EGL initialized after %d retries (%dms)",
+                  attempt, attempt * (kRetryDelayUs / 1000));
+        }
+        break;
     }
 
     auto& extensions = GLExtensions::getInstance();
-    extensions.initWithEGLStrings(eglVersion, eglExtensions);
-
-    // The code assumes that ES2 or later is available if this extension is
-    // supported.
-    EGLConfig config = EGL_NO_CONFIG_KHR;
-    if (!extensions.hasNoConfigContext()) {
-        config = chooseEglConfig(display, args.pixelFormat, /*logConfig*/ true);
-    }
-
     EGLContext protectedContext = EGL_NO_CONTEXT;
     const std::optional<RenderEngine::ContextPriority> priority = createContextPriority(args);
     if (args.enableProtectedContext && extensions.hasProtectedContent()) {
