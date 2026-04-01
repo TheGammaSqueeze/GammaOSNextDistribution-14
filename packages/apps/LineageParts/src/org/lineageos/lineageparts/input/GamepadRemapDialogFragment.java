@@ -9,6 +9,8 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.SystemProperties;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -535,8 +537,9 @@ public class GamepadRemapDialogFragment extends DialogFragment {
                 .setNegativeButton(R.string.cancel, null)
                 .create();
 
-        // Restore existing remaps if dialog is dismissed without capture
+        // Restore existing remaps and stop capture mode if dismissed without capture.
         dialog.setOnDismissListener(d -> {
+            stopCaptureMode();
             if (mRemapsDisabled) {
                 restoreRemaps();
             }
@@ -579,20 +582,58 @@ public class GamepadRemapDialogFragment extends DialogFragment {
         mRemapsDisabled = false;
     }
 
+    private Handler mCaptureHandler;
+    private Runnable mCapturePoll;
+
     private void setupKeyCapture(AlertDialog dialog, Context context,
             androidx.fragment.app.FragmentManager fm) {
+        // Tell PhoneWindowManager to consume HOME and write captured scancode
+        // to a property (HOME can't be passed to apps — Android always goes home).
+        SystemProperties.set("sys.gammaos.gamepad.capture_mode", "1");
+        SystemProperties.set("sys.gammaos.gamepad.captured_key", "");
+
+        // Poll for system-intercepted keys (HOME) that PhoneWindowManager captured
+        // on our behalf.  When found, inject a synthetic KeyEvent into the dialog so
+        // it flows through the same OnKeyListener path as regular button captures.
+        mCaptureHandler = new Handler(Looper.getMainLooper());
+        mCapturePoll = new Runnable() {
+            @Override
+            public void run() {
+                if (!mListening) return;
+                String captured = SystemProperties.get(
+                        "sys.gammaos.gamepad.captured_key", "");
+                if (!captured.isEmpty()) {
+                    SystemProperties.set("sys.gammaos.gamepad.captured_key", "");
+                    int scanCode;
+                    try {
+                        scanCode = Integer.parseInt(captured);
+                    } catch (NumberFormatException e) {
+                        mCaptureHandler.postDelayed(this, 100);
+                        return;
+                    }
+                    // Inject synthetic HOME key with the real scancode so the
+                    // OnKeyListener captures it through the normal path.
+                    long now = android.os.SystemClock.uptimeMillis();
+                    KeyEvent synth = new KeyEvent(now, now,
+                            KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_HOME,
+                            0 /* repeat */, 0 /* metaState */,
+                            -1 /* deviceId */, scanCode);
+                    dialog.dispatchKeyEvent(synth);
+                    return;
+                }
+                mCaptureHandler.postDelayed(this, 100);
+            }
+        };
+        mCaptureHandler.postDelayed(mCapturePoll, 100);
+
         dialog.setOnKeyListener((d, keyCode, event) -> {
             if (!mListening) return false;
-            if (event.getAction() != KeyEvent.ACTION_DOWN) return false;
 
-            // Accept any gamepad/joystick button
-            if (!isGamepadKey(keyCode, event)) return false;
+            // Consume all key events (DOWN, UP, repeat) from non-touchscreen
+            // devices while listening to prevent BACK dismiss and HOME navigation.
+            if (isTouchscreenEvent(event)) return false;
+            if (event.getAction() != KeyEvent.ACTION_DOWN) return true;
 
-            // Use the raw scancode from the KeyEvent when available.
-            // This gives us the actual Linux evdev code directly, avoiding
-            // the lossy androidToEvdev() reverse-mapping which collapses
-            // unmapped buttons (e.g., vendor codes 0x2f1, 0x2f2) into
-            // the same evdev code.
             int scanCode = event.getScanCode();
             int evdevCode;
             if (scanCode > 0) {
@@ -602,22 +643,39 @@ public class GamepadRemapDialogFragment extends DialogFragment {
                 if (evdevCode < 0) return false;
             }
 
-            mCapturedEvdevCode = evdevCode;
-            mListening = false;
-
-            Log.d(TAG, "Captured: keyCode=" + keyCode
-                    + " scanCode=" + scanCode
-                    + " evdevCode=" + evdevCode
-                    + " (0x" + Integer.toHexString(evdevCode) + ")"
-                    + " mRemaps.size=" + mRemaps.size());
-
-            // Prevent dismiss handler from restoring — we'll handle it
-            mRemapsDisabled = false;
-            dialog.setOnDismissListener(null);
-            dialog.dismiss();
-            showTargetSelection(context, fm);
+            stopCaptureMode();
+            finishCapture(dialog, context, fm, evdevCode, keyCode, scanCode);
             return true;
         });
+    }
+
+    /** Stop capture mode polling and clear system properties. */
+    private void stopCaptureMode() {
+        if (mCaptureHandler != null && mCapturePoll != null) {
+            mCaptureHandler.removeCallbacks(mCapturePoll);
+        }
+        SystemProperties.set("sys.gammaos.gamepad.capture_mode", "0");
+        SystemProperties.set("sys.gammaos.gamepad.captured_key", "");
+    }
+
+    private void finishCapture(AlertDialog dialog, Context context,
+            androidx.fragment.app.FragmentManager fm,
+            int evdevCode, int keyCode, int scanCode) {
+        mCapturedEvdevCode = evdevCode;
+        mListening = false;
+
+        Log.d(TAG, "Captured: keyCode=" + keyCode
+                + " scanCode=" + scanCode
+                + " evdevCode=" + evdevCode
+                + " (0x" + Integer.toHexString(evdevCode) + ")"
+                + " mRemaps.size=" + mRemaps.size());
+
+        // Prevent dismiss handler from restoring — we'll handle it
+        mRemapsDisabled = false;
+        stopCaptureMode();
+        dialog.setOnDismissListener(null);
+        dialog.dismiss();
+        showTargetSelection(context, fm);
     }
 
     /**
@@ -635,6 +693,13 @@ public class GamepadRemapDialogFragment extends DialogFragment {
             }
         }
         return false;
+    }
+
+    /** Reject events from touchscreen devices during capture. */
+    private boolean isTouchscreenEvent(KeyEvent event) {
+        if (event.getDevice() == null) return false;
+        int source = event.getDevice().getSources();
+        return (source & android.view.InputDevice.SOURCE_TOUCHSCREEN) != 0;
     }
 
     /**

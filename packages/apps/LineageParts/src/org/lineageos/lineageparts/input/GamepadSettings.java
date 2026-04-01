@@ -1246,10 +1246,18 @@ public class GamepadSettings extends SettingsPreferenceFragment
             if (device == null) continue;
 
             int sources = device.getSources();
-            boolean isGamepad =
-                    (sources & InputDevice.SOURCE_GAMEPAD) == InputDevice.SOURCE_GAMEPAD
-                    || (sources & InputDevice.SOURCE_JOYSTICK) == InputDevice.SOURCE_JOYSTICK;
-            if (!isGamepad) continue;
+            // Skip touchscreens and mice — only show key/button input devices
+            if ((sources & InputDevice.SOURCE_TOUCHSCREEN) != 0) continue;
+            if ((sources & InputDevice.SOURCE_MOUSE) != 0
+                    && (sources & InputDevice.SOURCE_GAMEPAD) == 0) continue;
+            // Must have at least keyboard, gamepad, joystick, or DPAD keys
+            boolean hasKeys = (sources & InputDevice.SOURCE_GAMEPAD) != 0
+                    || (sources & InputDevice.SOURCE_JOYSTICK) != 0
+                    || (sources & InputDevice.SOURCE_KEYBOARD) != 0
+                    || (sources & InputDevice.SOURCE_DPAD) != 0;
+            if (!hasKeys) continue;
+            // Skip purely internal virtual keyboards (no physical keys)
+            if (device.isVirtual()) continue;
 
             // Skip our own virtual device (match by sysfs phys or name)
             String deviceName = device.getName();

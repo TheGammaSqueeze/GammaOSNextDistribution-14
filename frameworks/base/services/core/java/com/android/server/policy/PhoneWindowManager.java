@@ -4351,6 +4351,25 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             }
         }
 
+        // GammaOS: when gamepad button capture UI is active, consume HOME
+        // and notify the capture dialog via property (HOME cannot be passed
+        // to apps — Android launches the home screen regardless).
+        // BACK is handled by the dialog's OnKeyListener directly.
+        if (SystemProperties.getInt("sys.gammaos.gamepad.capture_mode", 0) == 1) {
+            if (keyCode == KeyEvent.KEYCODE_HOME && down && repeatCount == 0) {
+                int scanCode = event.getScanCode();
+                SystemProperties.set("sys.gammaos.gamepad.captured_key",
+                        String.valueOf(scanCode > 0 ? scanCode : keyCode + 0x100));
+                return true; // consume — don't launch home
+            }
+            if (keyCode == KeyEvent.KEYCODE_HOME) {
+                return true; // consume UP/repeat too
+            }
+            if (keyCode == KeyEvent.KEYCODE_BACK) {
+                return false; // BACK can pass to app dialog
+            }
+        }
+
         switch (keyCode) {
             case KeyEvent.KEYCODE_HOME:
                 return handleHomeShortcuts(focusedToken, event);
