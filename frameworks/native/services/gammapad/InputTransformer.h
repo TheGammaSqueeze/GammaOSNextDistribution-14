@@ -119,6 +119,8 @@ private:
 
     // Last normalized value per axis (post center-offset + range-normalize, pre-deadzone)
     std::unordered_map<int, int> mLastNormalized;
+    // Last post-calibration output per axis (for circle-to-square partner lookup)
+    std::unordered_map<int, int> mLastOutput;
 
     bool mAnalogToDpad;
     bool mDpadToAnalog;

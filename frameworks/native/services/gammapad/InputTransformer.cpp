@@ -317,6 +317,28 @@ bool InputTransformer::transform(struct input_event& ev,
         if (mInvertRight && (code == ABS_RX || code == ABS_RY ||
                               code == ABS_Z || code == ABS_RZ)) value = -value;
 
+        // 4c. Circle-to-square expansion for paired stick axes.
+        // Physical sticks have a circular gate so diagonals only reach ~70%
+        // of each axis. Radially scale so the circle maps to the full square.
+        {
+            int partner = getStickPartner(code);
+            if (partner >= 0 && mCalibration.count(code) && mCalibration.count(partner)) {
+                mLastOutput[code] = value;
+                auto partnerIt = mLastOutput.find(partner);
+                if (partnerIt != mLastOutput.end()) {
+                    float fx = static_cast<float>(value);
+                    float fy = static_cast<float>(partnerIt->second);
+                    float maxComp = std::max(std::abs(fx), std::abs(fy));
+                    if (maxComp > 0.0f) {
+                        float mag = std::sqrt(fx * fx + fy * fy);
+                        float scale = mag / maxComp;
+                        value = std::max(-32768, std::min(32767,
+                                static_cast<int>(fx * scale)));
+                    }
+                }
+            }
+        }
+
         // 4d. Global sensitivity (layered on top of calibration + inversion)
         // Skip in mouse mode — MouseMode has its own speed settings.
         if (!mMouseModeActive && mGlobalSensitivity != 0 &&
