@@ -1,0 +1,372 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="gammaos_toolbox_title">GammaOS Toolbox</string>
+    <string name="gammaos_toolbox_summary">Erweiterte Systemeigenschafts-Overrides</string>
+    <string name="gammaos_toolbox_warning">Warnung: Diese Einstellungen veraendern systemnahe Eigenschaften. Einige Optionen sind moeglicherweise nicht fuer Ihr Geraet oder Ihre Hardware geeignet. Falsche Werte koennen Anzeigefehler, Leistungsprobleme oder Instabilitaet verursachen. Nutzung auf eigene Gefahr.</string>
+    <string name="gammaos_toolbox_restore_default">Standard wiederherstellen</string>
+    <string name="gammaos_toolbox_value_not_set">Nicht gesetzt</string>
+
+    <string name="gammaos_toolbox_category_display">Anzeige</string>
+    <string name="gammaos_toolbox_category_display_description">Steuert die Darstellung von Inhalten, einschliesslich Bildwiederholrate, Rotation, Kompositionsmodus und immersivem Verhalten. Diese Einstellungen betreffen das primaere Display und die allgemeine Rendering-Pipeline.</string>
+    <string name="gammaos_toolbox_immersive_title">Immersiven Modus erzwingen</string>
+    <string name="gammaos_toolbox_immersive_summary">Statusleiste und Navigationsleiste systemweit ausblenden. Die Leisten koennen weiterhin durch Wischen vom Rand eingeblendet werden.</string>
+    <string name="gammaos_toolbox_refresh_lock_title">Bildwiederholrate sperren</string>
+    <string name="gammaos_toolbox_refresh_lock_summary">Das Display dauerhaft auf der hoechsten verfuegbaren Bildwiederholrate halten. Verhindert, dass das System diese dynamisch senkt.</string>
+    <string name="gammaos_toolbox_refresh_rate_title">Ziel-Bildwiederholrate (Hz)</string>
+    <string name="gammaos_toolbox_refresh_rate_summary">Eine bestimmte feste Bildwiederholrate in Hz festlegen. Wird nur wirksam, wenn die Bildwiederholraten-Sperre aktiviert ist. 0 fuer automatisch.</string>
+    <string name="gammaos_toolbox_display_tweaks_title">Display-Timing-Optimierungen</string>
+    <string name="gammaos_toolbox_display_tweaks_summary">GammaOS Display-Timing-Optimierungen fuer VSync, Scheduler und HWComposer aktivieren. Verbessert das Frame-Pacing auf unterstuetzter Hardware.</string>
+    <string name="gammaos_toolbox_force_client_comp_title">Client-Komposition erzwingen</string>
+    <string name="gammaos_toolbox_force_client_comp_summary">Alle Ebenen zur GPU-Komposition (Client) zwingen statt Hardware-Overlays zu verwenden. Nuetzlich bei visuellen Artefakten durch HWComposer.</string>
+    <string name="gammaos_toolbox_rotation_cooldown_title">Rotations-Abklingzeit (ms)</string>
+    <string name="gammaos_toolbox_rotation_cooldown_summary">Mindestzeit in Millisekunden zwischen Display-Rotationswechseln. Verhindert schnelles Rotationsflackern. 0 zum Deaktivieren.</string>
+    <string name="gammaos_toolbox_desktop_fullscreen_title">Desktop-Modus Vollbild</string>
+    <string name="gammaos_toolbox_desktop_fullscreen_summary">Apps im Desktop-Modus im Vollbild statt im Fenstermodus starten. Nuetzlich fuer Geraete ohne Zeigereingabe.</string>
+    <string name="gammaos_toolbox_display_unique_names_title">Eindeutige Anzeigenamen</string>
+    <string name="gammaos_toolbox_display_unique_names_summary">Jedem angeschlossenen Display basierend auf der Hardware-Identitaet einen eindeutigen Namen zuweisen. Hilft bei der Unterscheidung von Displays in Multi-Monitor-Konfigurationen.</string>
+    <string name="gammaos_toolbox_keep_underlay_title">Untergrund bei Benachrichtigungen beibehalten</string>
+    <string name="gammaos_toolbox_keep_underlay_summary">Die darunterliegende App sichtbar halten, wenn die Benachrichtigungsleiste heruntergezogen wird, anstatt sie abzudunkeln.</string>
+    <string name="gammaos_toolbox_renderengine_backend_title">RenderEngine-Backend</string>
+    <string name="gammaos_toolbox_renderengine_backend_summary">Das GPU-Rendering-Backend ueberschreiben. Leer lassen fuer Systemstandard. Moegliche Werte: skiagl, skiaglthreaded, skiavk.</string>
+    <string name="gammaos_toolbox_vsync_period_title">VSync-Periodenoverride (ns)</string>
+    <string name="gammaos_toolbox_vsync_period_summary">Die VSync-Periode in Nanosekunden ueberschreiben. 0 fuer die native Periode des Displays. Beispiel: 8333333 fuer 120 Hz.</string>
+    <string name="gammaos_toolbox_square_sticky_title">Quadratische Haltedauer (ms)</string>
+    <string name="gammaos_toolbox_square_sticky_summary">Zeit in Millisekunden, die das Display nach einer Rotation im quadratischen Seitenverhaeltnis verbleibt, bevor es zurueckwechselt. Standard: 1200.</string>
+
+    <string name="gammaos_toolbox_category_bfi">Black Frame Insertion (BFI)</string>
+    <string name="gammaos_toolbox_category_bfi_description">Fuegt schwarze oder abgedunkelte Frames zwischen Inhaltsframes ein, um Bewegungsunschaerfe zu reduzieren und CRT-aehnliche Bewegungsklarheit zu simulieren. Erfordert ein Display mit hoher Bildwiederholrate (120 Hz empfohlen). Zwei Modi verfuegbar: CTM (Farbtransformationsmatrix, hardwarebeschleunigt) und RE (RenderEngine, Software).</string>
+    <string name="gammaos_toolbox_bfi_enable_title">BFI aktivieren</string>
+    <string name="gammaos_toolbox_bfi_enable_summary">Schwarze Frames zwischen Inhaltsframes einfuegen fuer reduzierte Bewegungsunschaerfe.</string>
+    <string name="gammaos_toolbox_bfi_mode_title">BFI-Modus</string>
+    <string name="gammaos_toolbox_bfi_mode_summary">CTM nutzt Hardware-Farbtransformation (schneller, empfohlen). RE nutzt RenderEngine (flexibler, hoeherer Overhead).</string>
+    <string name="gammaos_toolbox_bfi_preset_title">BFI-Voreinstellung</string>
+    <string name="gammaos_toolbox_bfi_preset_summary">Benannte Voreinstellung fuer das Tastverhaeltnis-Muster. Leer lassen fuer manuelle Mustersteuerung.</string>
+    <string name="gammaos_toolbox_bfi_pattern_title">BFI-Muster</string>
+    <string name="gammaos_toolbox_bfi_pattern_summary">Benutzerdefiniertes Tastverhaeltnis-Muster als kommagetrennte Helligkeitswerte (0,0\u20131,0). Ueberschreibt die Voreinstellung, falls gesetzt.</string>
+    <string name="gammaos_toolbox_bfi_black_floor_title">Schwarzwert-Untergrenze</string>
+    <string name="gammaos_toolbox_bfi_black_floor_summary">Minimale Helligkeit fuer schwarze Frames (0,0\u20131,0). Manche Panels flackern bei echtem Null. Versuchen Sie 0,01 bei Flackern.</string>
+    <string name="gammaos_toolbox_bfi_polarity_title">Polaritaetsperiode (ms)</string>
+    <string name="gammaos_toolbox_bfi_polarity_summary">Intervall in Millisekunden fuer die BFI-Polaritaetsumkehr. Verhindert DC-Bias auf OLED-Panels. Standard: 1000.</string>
+    <string name="gammaos_toolbox_bfi_subframe_enable_title">Sub-Frame BFI</string>
+    <string name="gammaos_toolbox_bfi_subframe_enable_summary">Sub-Frame BFI mittels RenderEngine fuer feinkoernigere Schwarzeinfuegung innerhalb eines einzelnen VSync aktivieren.</string>
+    <string name="gammaos_toolbox_bfi_subframe_phase_title">Sub-Frame-Phasenschritt</string>
+    <string name="gammaos_toolbox_bfi_subframe_phase_summary">Phasenversatz pro Sub-Frame. Steuert die zeitliche Beziehung zwischen Sub-Frames. Standard: 0,5.</string>
+    <string name="gammaos_toolbox_bfi_subframe_cadence_title">Sub-Frame-Kadenz-Minimum</string>
+    <string name="gammaos_toolbox_bfi_subframe_cadence_summary">Minimaler Kadenz-Multiplikator fuer Sub-Frame-Einfuegung. Niedrigere Werte erlauben aggressivere Einfuegung. Standard: 1,0.</string>
+    <string name="gammaos_toolbox_bfi_seam_brightness_title">Naht-Helligkeit</string>
+    <string name="gammaos_toolbox_bfi_seam_brightness_summary">Helligkeitsstufe fuer den Naht-Frame (Frame 0). Steuert die Helligkeit der Uebergangszone.</string>
+    <string name="gammaos_toolbox_bfi_seam_follow_title">Naht-Folgehelligkeit</string>
+    <string name="gammaos_toolbox_bfi_seam_follow_summary">Helligkeitsstufe fuer den Folge-Frame (Frame 1). Steuert die hintere Kante der Naht.</string>
+
+    <string name="gammaos_toolbox_category_bfi_flip">BFI-Flip-Uebergang</string>
+    <string name="gammaos_toolbox_category_bfi_flip_description">Feinabstimmung des Ein-/Ausblenduebergangs zwischen Inhalts- und Schwarzframes. Steuert die Glaette, Farbkorrektur und Dimmkurve der BFI-Uebergaenge.</string>
+    <string name="gammaos_toolbox_bfi_flip_out_frames_title">Ausblend-Frames</string>
+    <string name="gammaos_toolbox_bfi_flip_out_frames_summary">Anzahl der Frames fuer den Ausblenduebergang (Inhalt zu Schwarz). Standard: 10.</string>
+    <string name="gammaos_toolbox_bfi_flip_in_frames_title">Einblend-Frames</string>
+    <string name="gammaos_toolbox_bfi_flip_in_frames_summary">Anzahl der Frames fuer den Einblenduebergang (Schwarz zu Inhalt). Standard: 10.</string>
+    <string name="gammaos_toolbox_bfi_flip_sat_title">Flip-Saettigung</string>
+    <string name="gammaos_toolbox_bfi_flip_sat_summary">Saettigungsmultiplikator waehrend Flip-Uebergaengen. Standard: 1,0. Hoehere Werte verstaerken die Farbintensitaet waehrend der Uebergaenge.</string>
+    <string name="gammaos_toolbox_bfi_flip_gamma_title">Flip-Gamma</string>
+    <string name="gammaos_toolbox_bfi_flip_gamma_summary">Gammakorrektur waehrend Flip-Uebergaengen. Standard: 1,0. Werte unter 1,0 hellen Mitteltoene auf, ueber 1,0 dunkeln sie ab.</string>
+    <string name="gammaos_toolbox_bfi_flip_use_auto_title">Automatische Abdunkelung</string>
+    <string name="gammaos_toolbox_bfi_flip_use_auto_summary">Dimmstufen automatisch fuer sanfte Uebergaenge berechnen, anstatt manuelle Anfangs-/Endwerte zu verwenden.</string>
+    <string name="gammaos_toolbox_bfi_flip_auto_dip_title">Automatische Dimmstufe</string>
+    <string name="gammaos_toolbox_bfi_flip_auto_dip_summary">Ziel-Helligkeitsabsenkung fuer den automatischen Dimmmodus. Standard: 0,92. Niedrigere Werte erzeugen staerkere Abdunkelung.</string>
+    <string name="gammaos_toolbox_bfi_flip_contrast_enable_title">Kontrastanpassung</string>
+    <string name="gammaos_toolbox_bfi_flip_contrast_enable_summary">Kontrastanpassung waehrend Flip-Uebergaengen fuer verbesserte Bildqualitaet aktivieren.</string>
+    <string name="gammaos_toolbox_bfi_flip_contrast_title">Kontraststufe</string>
+    <string name="gammaos_toolbox_bfi_flip_contrast_summary">Kontrastmultiplikator waehrend Uebergaengen. Standard: 1,0. Werte ueber 1,0 erhoehen den Kontrast.</string>
+    <string name="gammaos_toolbox_bfi_flip_contrast_pivot_title">Kontrast-Drehpunkt</string>
+    <string name="gammaos_toolbox_bfi_flip_contrast_pivot_summary">Helligkeits-Drehpunkt fuer die Kontrastanpassung. Standard: 0,5. Werte darueber/darunter verschieben den Kontrast-Mittelpunkt.</string>
+    <string name="gammaos_toolbox_bfi_flip_contrast_hw_title">Hardware-Kontrast</string>
+    <string name="gammaos_toolbox_bfi_flip_contrast_hw_summary">Hardware-Farbtransformation fuer Kontrast verwenden statt Software. Effizienter, aber mit eingeschraenktem Bereich.</string>
+    <string name="gammaos_toolbox_bfi_flip_zero_eps_title">Null-Epsilon-Begrenzung</string>
+    <string name="gammaos_toolbox_bfi_flip_zero_eps_summary">Nahezu-Null-Werte waehrend Uebergaengen auf exakt Null begrenzen. Verhindert Restleuchten bei dunklen Frames.</string>
+    <string name="gammaos_toolbox_bfi_flip_rgb_r_title">Rotkanal-Verstaerkung</string>
+    <string name="gammaos_toolbox_bfi_flip_rgb_r_summary">Rotkanal-Verstaerkungsmultiplikator waehrend Flip-Uebergaengen. Standard: 1,0.</string>
+    <string name="gammaos_toolbox_bfi_flip_rgb_g_title">Gruenkanal-Verstaerkung</string>
+    <string name="gammaos_toolbox_bfi_flip_rgb_g_summary">Gruenkanal-Verstaerkungsmultiplikator waehrend Flip-Uebergaengen. Standard: 1,0.</string>
+    <string name="gammaos_toolbox_bfi_flip_rgb_b_title">Blaukanal-Verstaerkung</string>
+    <string name="gammaos_toolbox_bfi_flip_rgb_b_summary">Blaukanal-Verstaerkungsmultiplikator waehrend Flip-Uebergaengen. Standard: 1,0.</string>
+
+    <string name="gammaos_toolbox_category_shader">CRT-Shader</string>
+    <string name="gammaos_toolbox_category_shader_description">Wendet GPU-basierte CRT-Scanline- und Phosphor-Effekte auf die Displayausgabe ueber SurfaceFlinger an. Erzeugt einen Retro-CRT-Monitorlook. Erfordert GPU-Client-Komposition und erzeugt zusaetzlichen Rendering-Overhead.</string>
+    <string name="gammaos_toolbox_shader_enable_title">CRT-Shader aktivieren</string>
+    <string name="gammaos_toolbox_shader_enable_summary">CRT-Scanline- und Phosphor-Effekte auf die gesamte Displayausgabe anwenden.</string>
+    <string name="gammaos_toolbox_shader_type_title">Shader-Typ</string>
+    <string name="gammaos_toolbox_shader_type_summary">Name der Shader-Voreinstellung. Leer lassen fuer den Standard-CRT-Shader.</string>
+    <string name="gammaos_toolbox_shader_bp_grace_title">Backpressure-Toleranzframes</string>
+    <string name="gammaos_toolbox_shader_bp_grace_summary">Anzahl der Frames, bei denen Backpressure-Pruefungen nach einem Shader-Wechsel uebersprungen werden. Verhindert Stocken waehrend Shader-Uebergaengen. Standard: 6.</string>
+
+    <string name="gammaos_toolbox_category_dualstack">Dual-Stack-Anzeige</string>
+    <string name="gammaos_toolbox_category_dualstack_description">Rendert dieselbe App gleichzeitig in verschiedenen Aufloesungen auf internem und externem Display. Das interne Display zeigt eine niedrigere Aufloesung fuer bessere Leistung, waehrend das externe die volle Aufloesung anzeigt. Geeignet fuer Gaming auf einem externen Monitor bei aktivem eingebautem Bildschirm.</string>
+    <string name="gammaos_toolbox_dualstack_enable_title">Dual-Stack aktivieren</string>
+    <string name="gammaos_toolbox_dualstack_enable_summary">Dual-Aufloesungs-Rendering ueber internes und externes Display aktivieren.</string>
+    <string name="gammaos_toolbox_dualstack_swap_title">Display-Rollen tauschen</string>
+    <string name="gammaos_toolbox_dualstack_swap_summary">Tauschen, welches Display die hohe und welches die niedrige Aufloesung erhaelt.</string>
+    <string name="gammaos_toolbox_dualstack_pkgs_title">Erlaubte Pakete</string>
+    <string name="gammaos_toolbox_dualstack_pkgs_summary">Kommagetrennte Liste von Paketnamen, die Dual-Stack-Rendering verwenden sollen.</string>
+    <string name="gammaos_toolbox_dualstack_kill_title">Pakete beim Wechsel beenden</string>
+    <string name="gammaos_toolbox_dualstack_kill_summary">Apps beim Wechsel zwischen Dual-Stack- und Normalmodus zwangsbeenden, um einen sauberen Zustand sicherzustellen.</string>
+    <string name="gammaos_toolbox_dualstack_nn_title">Naechster-Nachbar-Skalierung</string>
+    <string name="gammaos_toolbox_dualstack_nn_summary">Naechster-Nachbar-Skalierung (scharfe Pixel) fuer das niedrigaufloesende Display verwenden. Deaktivieren fuer bilineare (weiche) Skalierung.</string>
+    <string name="gammaos_toolbox_dualstack_sv_only_title">Nur SurfaceView</string>
+    <string name="gammaos_toolbox_dualstack_sv_only_summary">Dual-Stack nur auf SurfaceView-Ebenen (Spielinhalte) anwenden und UI-Elemente in nativer Aufloesung belassen.</string>
+    <string name="gammaos_toolbox_dualstack_keep_sysui_title">SystemUI sichtbar halten</string>
+    <string name="gammaos_toolbox_dualstack_keep_sysui_summary">SystemUI (Statusleiste, Navigation) in voller Aufloesung im Nur-SurfaceView-Modus sichtbar halten.</string>
+    <string name="gammaos_toolbox_dualstack_max_fb_title">Max. Framebuffer-Puffer</string>
+    <string name="gammaos_toolbox_dualstack_max_fb_summary">Maximale Anzahl erfasster Framebuffer-Puffer im Dual-Stack-Modus. Standard: 3.</string>
+    <string name="gammaos_toolbox_dualstack_no_backpressure_title">GL-Backpressure deaktivieren</string>
+    <string name="gammaos_toolbox_dualstack_no_backpressure_summary">OpenGL-Backpressure im Dual-Stack-Modus deaktivieren. Verhindert Frame-Drops, kann aber die Latenz erhoehen.</string>
+
+    <string name="gammaos_toolbox_category_external">Externes Display</string>
+    <string name="gammaos_toolbox_category_external_description">Steuert, wie externe Displays (HDMI, USB-C, DisplayPort) behandelt werden. Umfasst Optionen zum Festlegen eines externen Displays als primaer, erzwungenen Spiegelmodus, App-Weiterleitung und Aufloesungsanpassungen.</string>
+    <string name="gammaos_toolbox_ext_primary_title">Externes als primaeres Display</string>
+    <string name="gammaos_toolbox_ext_primary_summary">Das externe Display als primaeres Display behandeln. Der eingebaute Bildschirm wird sekundaer.</string>
+    <string name="gammaos_toolbox_ext_force_mirror_title">Spiegelmodus erzwingen</string>
+    <string name="gammaos_toolbox_ext_force_mirror_summary">Alle externen Displays zum Spiegeln des primaeren Displays zwingen, anstatt den Desktop zu erweitern.</string>
+    <string name="gammaos_toolbox_ext_mirror_resize_title">Spiegelgroessenanpassung</string>
+    <string name="gammaos_toolbox_ext_mirror_resize_summary">Spiegelausgabe an die Aufloesung des externen Displays anpassen, anstatt zu strecken.</string>
+    <string name="gammaos_toolbox_ext_half_4k_title">4K-Aufloesung halbieren</string>
+    <string name="gammaos_toolbox_ext_half_4k_summary">4K-externe-Displays auf halbe Aufloesung (1080p) reduzieren. Verbessert die Leistung auf Geraeten, die mit voller 4K-Ausgabe Schwierigkeiten haben.</string>
+    <string name="gammaos_toolbox_ext_sec_force_on_title">Sekundaeres Display erzwungen einschalten</string>
+    <string name="gammaos_toolbox_ext_sec_force_on_summary">Das sekundaere Display eingeschaltet lassen, auch wenn das System es normalerweise ausschalten wuerde.</string>
+    <string name="gammaos_toolbox_secondary_home_title">Sekundaere Display-Home-App</string>
+    <string name="gammaos_toolbox_secondary_home_summary">Paketname oder Komponente fuer den sekundaeren Display-Launcher. Beispiel: com.android.launcher3/.secondarydisplay.SecondaryDisplayLauncher</string>
+    <string name="gammaos_toolbox_sec_display_enable_title">Apps auf sekundaeres Display leiten</string>
+    <string name="gammaos_toolbox_sec_display_enable_summary">Angegebene Apps automatisch auf dem sekundaeren statt dem primaeren Display starten.</string>
+    <string name="gammaos_toolbox_sec_display_pkgs_title">Sekundaere Display-Pakete</string>
+    <string name="gammaos_toolbox_sec_display_pkgs_summary">Kommagetrennte Liste von Paketpraefix-Namen, die auf das sekundaere Display geleitet werden sollen.</string>
+    <string name="gammaos_toolbox_display_delay_primary_title">Primaere Display-Frameverzoegerung</string>
+    <string name="gammaos_toolbox_display_delay_primary_summary">Anzahl der Frames, um die die primaere Displayausgabe verzoegert wird. Fuer Display-Synchronisation. Standard: 0.</string>
+    <string name="gammaos_toolbox_display_delay_external_title">Externe Display-Frameverzoegerung</string>
+    <string name="gammaos_toolbox_display_delay_external_summary">Anzahl der Frames, um die die externe Displayausgabe verzoegert wird. Fuer Display-Synchronisation. Standard: 0.</string>
+
+    <string name="gammaos_toolbox_category_multidisplay">Multi-Display</string>
+    <string name="gammaos_toolbox_category_multidisplay_description">Steuerung fuer Multi-Display-Fokus, Eingabe und Helligkeitsverhalten. Diese Einstellungen beeinflussen, wie das System Fokus und Eingabe ueber mehrere angeschlossene Displays hinweg verwaltet.</string>
+    <string name="gammaos_toolbox_dual_focus_title">Dual-Display-Fokus</string>
+    <string name="gammaos_toolbox_dual_focus_summary">Beiden Displays gleichzeitigen Eingabefokus erlauben. Ermoeglicht unabhaengige Interaktion auf jedem Display.</string>
+    <string name="gammaos_toolbox_split_brightness_title">Getrennte Helligkeitssteuerung</string>
+    <string name="gammaos_toolbox_split_brightness_summary">Unabhaengige Helligkeitssteuerung fuer jedes angeschlossene Display erlauben, anstatt einheitlicher Helligkeit.</string>
+
+    <string name="gammaos_toolbox_category_ime">Eingabemethode</string>
+    <string name="gammaos_toolbox_category_ime_description">Steuert, wo die Bildschirmtastatur (IME) in Multi-Display-Konfigurationen erscheint. Die Tastatur kann an ein bestimmtes Display angeheftet oder auf den sekundaeren Bildschirm verschoben werden.</string>
+    <string name="gammaos_toolbox_ime_pin_title">IME an Display anheften</string>
+    <string name="gammaos_toolbox_ime_pin_summary">Die Bildschirmtastatur an ein bestimmtes Display anheften, anstatt dem fokussierten Fenster zu folgen.</string>
+    <string name="gammaos_toolbox_ime_display_id_title">IME-Display-ID</string>
+    <string name="gammaos_toolbox_ime_display_id_summary">Display-ID, auf der die IME bei Anheftung erscheinen soll. 0 = eingebautes Display, 1+ = externe Displays.</string>
+    <string name="gammaos_toolbox_ime_swap_title">IME auf sekundaeres Display verschieben</string>
+    <string name="gammaos_toolbox_ime_swap_summary">Die Tastatur auf das erste Nicht-Standard-Display verschieben. Wird nur verwendet, wenn keine explizite Display-ID gesetzt ist.</string>
+
+    <string name="gammaos_toolbox_category_audio">Audio</string>
+    <string name="gammaos_toolbox_category_audio_description">Audio-Routing und Lautstaerke-Overrides. Umfasst chipsatzspezifische HDMI-Audio-Korrekturen fuer Unisoc- und Allwinner-SoCs.</string>
+    <string name="gammaos_toolbox_audio_multivolume_title">Multi-Lautstaerkesteuerung</string>
+    <string name="gammaos_toolbox_audio_multivolume_summary">Unabhaengige Lautstaerkesteuerung fuer verschiedene Audio-Streams (Medien, Benachrichtigungen, Wecker) aktivieren.</string>
+    <string name="gammaos_toolbox_unisoc_hdmi_title">Unisoc HDMI-Audio</string>
+    <string name="gammaos_toolbox_unisoc_hdmi_summary">HDMI-Audioausgabe auf Unisoc-Chipsaetzen aktivieren. Nur fuer Unisoc-basierte Geraete anwendbar.</string>
+    <string name="gammaos_toolbox_allwinner_hdmi_title">Allwinner HDMI-Audio</string>
+    <string name="gammaos_toolbox_allwinner_hdmi_summary">HDMI-Audioausgabe auf Allwinner-Chipsaetzen aktivieren. Nur fuer Allwinner-basierte Geraete anwendbar.</string>
+
+    <string name="gammaos_toolbox_category_gamepad">Gamepad (GammaPad)</string>
+    <string name="gammaos_toolbox_category_gamepad_description">GammaPad-Daemon-Konfiguration. Erfasst physische Gamepad-Eingabegeraete, vereint sie zu einem einzigen virtuellen Xbox-Controller und bietet Tastenbelegung, Stick-Kalibrierung und Mausmodus-Emulation.</string>
+    <string name="gammaos_toolbox_gamepad_enable_title">GammaPad aktivieren</string>
+    <string name="gammaos_toolbox_gamepad_enable_summary">Den GammaPad-Daemon starten, um Gamepad-Eingabegeraete zu erfassen und umzubelegen.</string>
+    <string name="gammaos_toolbox_gamepad_merge_title">Geraete zusammenfuehren</string>
+    <string name="gammaos_toolbox_gamepad_merge_summary">Mehrere physische Eingabegeraete zu einem einzigen virtuellen Gamepad zusammenfuehren.</string>
+    <string name="gammaos_toolbox_gamepad_hide_source_title">Physische Geraete ausblenden</string>
+    <string name="gammaos_toolbox_gamepad_hide_source_summary">Die originalen physischen Geraeteknoten vor Apps verbergen, wenn sie von GammaPad erfasst werden.</string>
+    <string name="gammaos_toolbox_gamepad_devices_title">Zu erfassende Geraete</string>
+    <string name="gammaos_toolbox_gamepad_devices_summary">Kommagetrennte Geraetebezeichnungen zur Erfassung. Leer lassen fuer automatische Gamepad-Erkennung.</string>
+    <string name="gammaos_toolbox_gamepad_abxy_swap_title">ABXY-Layout tauschen</string>
+    <string name="gammaos_toolbox_gamepad_abxy_swap_summary">A/B- und X/Y-Tastenpositionen zwischen Xbox- und Nintendo-Layout tauschen.</string>
+    <string name="gammaos_toolbox_gamepad_invert_left_title">Linken Stick invertieren</string>
+    <string name="gammaos_toolbox_gamepad_invert_left_summary">Die Y-Achse des linken Analogsticks invertieren.</string>
+    <string name="gammaos_toolbox_gamepad_invert_right_title">Rechten Stick invertieren</string>
+    <string name="gammaos_toolbox_gamepad_invert_right_summary">Die Y-Achse des rechten Analogsticks invertieren.</string>
+    <string name="gammaos_toolbox_gamepad_analog_dpad_title">Analogstick zu Steuerkreuz</string>
+    <string name="gammaos_toolbox_gamepad_analog_dpad_summary">Eingaben des linken Analogsticks in Steuerkreuz-Richtungsereignisse umwandeln.</string>
+    <string name="gammaos_toolbox_gamepad_dpad_analog_title">Steuerkreuz zu Analogstick</string>
+    <string name="gammaos_toolbox_gamepad_dpad_analog_summary">Steuerkreuz-Richtungseingaben in Ereignisse des linken Analogsticks umwandeln.</string>
+    <string name="gammaos_toolbox_gamepad_dpad_threshold_title">Steuerkreuz-Schwellenwert</string>
+    <string name="gammaos_toolbox_gamepad_dpad_threshold_summary">Analogstick-Auslenkungsschwelle (0\u2013100) zum Ausloesen eines Steuerkreuz-Ereignisses. Standard: 50.</string>
+    <string name="gammaos_toolbox_gamepad_sensitivity_title">Globale Stick-Empfindlichkeit</string>
+    <string name="gammaos_toolbox_gamepad_sensitivity_summary">Globale Empfindlichkeitsanpassung fuer alle Analogsticks. 0 = Standard, positive Werte erhoehen, negative verringern.</string>
+    <string name="gammaos_toolbox_gamepad_pwm_enable_title">PWM-Vibration</string>
+    <string name="gammaos_toolbox_gamepad_pwm_enable_summary">PWM-basierte Vibrationsausgabe fuer Ruetteleffekte aktivieren.</string>
+    <string name="gammaos_toolbox_gamepad_pwm_intensity_title">PWM-Vibrationsintensitaet</string>
+    <string name="gammaos_toolbox_gamepad_pwm_intensity_summary">Vibrationsintenstitaetsstufe (0\u2013255). Standard: 255.</string>
+    <string name="gammaos_toolbox_gamepad_device_name_title">Virtueller Geraetename</string>
+    <string name="gammaos_toolbox_gamepad_device_name_summary">Name, den das virtuelle Gamepad-Geraet meldet. Standard: Xbox Wireless Controller.</string>
+    <string name="gammaos_toolbox_gamepad_remap_btn_title">Tastenbelegung</string>
+    <string name="gammaos_toolbox_gamepad_remap_btn_summary">Konfiguration der Tastenbelegung. Format: src1=dst1,src2=dst2 (Linux-Keycodes).</string>
+    <string name="gammaos_toolbox_gamepad_remap_axis_title">Achsenbelegung</string>
+    <string name="gammaos_toolbox_gamepad_remap_axis_summary">Konfiguration der Achsenbelegung. Format: src1=dst1,src2=dst2 (Linux-Achsencodes).</string>
+    <string name="gammaos_toolbox_gamepad_combo_map_title">Tastenkombinations-Zuordnung</string>
+    <string name="gammaos_toolbox_gamepad_combo_map_summary">Tastenkombinationen auf einzelne Tastenereignisse abbilden. Format: btn1+btn2=key,btn3+btn4=key.</string>
+    <string name="gammaos_toolbox_gamepad_axis_btn_title">Achse-zu-Taste-Zuordnung</string>
+    <string name="gammaos_toolbox_gamepad_axis_btn_summary">Achsenereignisse auf Tastendruecke abbilden. Format: axis:threshold=key (z.B. 5:128=304).</string>
+    <string name="gammaos_toolbox_gamepad_ff_device_title">Force-Feedback-Geraet</string>
+    <string name="gammaos_toolbox_gamepad_ff_device_summary">Pfad zum Force-Feedback-Geraet fuer Vibrationsausgabe. Leer lassen fuer automatische Erkennung.</string>
+    <string name="gammaos_toolbox_gamepad_blacklist_pass_title">Passthrough-Ausschlussliste</string>
+    <string name="gammaos_toolbox_gamepad_blacklist_pass_summary">Kommagetrennte Geraetebezeichnungen, die von der Erfassung ausgeschlossen und direkt durchgereicht werden sollen.</string>
+    <string name="gammaos_toolbox_gamepad_screenmap_title">Bildschirmzuordnung</string>
+    <string name="gammaos_toolbox_gamepad_screenmap_summary">Gamepad-Taste-zu-Touchscreen-Zuordnungsmodus aktivieren.</string>
+
+    <string name="gammaos_toolbox_category_mouse">Mausmodus</string>
+    <string name="gammaos_toolbox_category_mouse_description">GammaPad-Mausemulationsmodus konfigurieren. Bei Aktivierung ueber eine Tastenkombination steuert der Gamepad-Analogstick einen Mauszeiger. Nuetzlich fuer die Navigation in Apps ohne Touch-Eingabe.</string>
+    <string name="gammaos_toolbox_mouse_stick_speed_title">Stick-Zeigergeschwindigkeit</string>
+    <string name="gammaos_toolbox_mouse_stick_speed_summary">Zeigerbewegungsgeschwindigkeit bei Verwendung des Analogsticks. Standard: 12.</string>
+    <string name="gammaos_toolbox_mouse_dpad_speed_title">Steuerkreuz-Zeigergeschwindigkeit</string>
+    <string name="gammaos_toolbox_mouse_dpad_speed_summary">Zeigerbewegungsgeschwindigkeit bei Verwendung des Steuerkreuzes. Standard: 6.</string>
+    <string name="gammaos_toolbox_mouse_boost_title">Boost-Multiplikator</string>
+    <string name="gammaos_toolbox_mouse_boost_summary">Geschwindigkeitsmultiplikator bei gedrueckter Boost-Taste (Wert / 10). Standard: 20 (2,0x).</string>
+    <string name="gammaos_toolbox_mouse_scroll_speed_title">Scrollgeschwindigkeit</string>
+    <string name="gammaos_toolbox_mouse_scroll_speed_summary">Scrollrad-Geschwindigkeit bei Verwendung des rechten Analogsticks (Wert / 10). Standard: 4 (0,4x).</string>
+
+    <string name="gammaos_toolbox_category_rgb">RGB-LED-Sampler</string>
+    <string name="gammaos_toolbox_category_rgb_description">Erfasst dominante Bildschirmfarben und gibt sie an Gamepad- oder Geraete-RGB-LEDs fuer Umgebungslichteffekte (Ambilight-Stil) aus. Laeuft in SurfaceFlinger fuer latenzarme Abtastung.</string>
+    <string name="gammaos_toolbox_rgb_enable_title">RGB-Sampler aktivieren</string>
+    <string name="gammaos_toolbox_rgb_enable_summary">Bildschirmfarben erfassen und an RGB-LEDs fuer Umgebungsbeleuchtung ausgeben.</string>
+    <string name="gammaos_toolbox_rgb_fps_title">Abtastrate (FPS)</string>
+    <string name="gammaos_toolbox_rgb_fps_summary">Wie oft pro Sekunde die Bildschirmfarben abgetastet werden. Bereich: 1\u201360. Standard: 6.</string>
+    <string name="gammaos_toolbox_rgb_led_brightness_title">LED-Helligkeit</string>
+    <string name="gammaos_toolbox_rgb_led_brightness_summary">Maximale LED-Helligkeitsstufe (0\u2013255). Standard: 255.</string>
+    <string name="gammaos_toolbox_rgb_scale_brightness_title">An Displayhelligkeit anpassen</string>
+    <string name="gammaos_toolbox_rgb_scale_brightness_summary">LEDs proportional zur Display-Hintergrundbeleuchtung dimmen.</string>
+    <string name="gammaos_toolbox_rgb_fade_enable_title">Fliessende Uebergaenge</string>
+    <string name="gammaos_toolbox_rgb_fade_enable_summary">Sanft zwischen Farbwechseln ueberblenden, anstatt sofort umzuschalten.</string>
+    <string name="gammaos_toolbox_rgb_fade_fps_title">Ueberblendrate (FPS)</string>
+    <string name="gammaos_toolbox_rgb_fade_fps_summary">Animations-Bildrate fuer fliessende Uebergaenge. Bereich: 1\u2013240. Standard: 60.</string>
+    <string name="gammaos_toolbox_rgb_pre_fx_title">Vor Effekten abtasten</string>
+    <string name="gammaos_toolbox_rgb_pre_fx_summary">Bildschirmfarben vor Anwendung von CRT-Shader- und BFI-Effekten abtasten. Erzeugt genauere Farben.</string>
+    <string name="gammaos_toolbox_rgb_effect_title">LED-Effekt</string>
+    <string name="gammaos_toolbox_rgb_effect_summary">Benannter LED-Animationseffekt. Leer lassen fuer bildschirmabgetasteten Farbmodus.</string>
+    <string name="gammaos_toolbox_rgb_split_title">Links/Rechts aufteilen</string>
+    <string name="gammaos_toolbox_rgb_split_summary">Linke und rechte Bildschirmhaelfte separat abtasten fuer Dual-Zonen-LED-Konfigurationen.</string>
+    <string name="gammaos_toolbox_rgb_sat_boost_title">Saettigungsverstaerkung</string>
+    <string name="gammaos_toolbox_rgb_sat_boost_summary">Farbsaettigung fuer lebendigere LED-Ausgabe verstaerken. Standard: 1,4.</string>
+
+    <string name="gammaos_toolbox_category_launch_guard">Start-Schutz</string>
+    <string name="gammaos_toolbox_category_launch_guard_description">Verhindert, dass bestimmte Aufrufer-Apps bestimmte Ziel-Apps starten. Nuetzlich zum Blockieren ungewollter App-Starts von Frontends wie Daijishou oder ES-DE, die versehentlich den falschen Emulator starten koennen.</string>
+    <string name="gammaos_toolbox_launch_guard_enable_title">Start-Schutz aktivieren</string>
+    <string name="gammaos_toolbox_launch_guard_enable_summary">Bestimmte Aufrufer am Starten bestimmter Ziel-Apps hindern.</string>
+    <string name="gammaos_toolbox_launch_guard_callers_title">Aufrufer-Pakete</string>
+    <string name="gammaos_toolbox_launch_guard_callers_summary">Kommagetrennte Liste von Paketnamen, die am Starten von Zielen gehindert werden sollen.</string>
+    <string name="gammaos_toolbox_launch_guard_targets_title">Ziel-Pakete</string>
+    <string name="gammaos_toolbox_launch_guard_targets_summary">Kommagetrennte Liste von Paketnamen, deren Start durch Aufrufer blockiert werden soll.</string>
+
+    <string name="gammaos_toolbox_category_system">System</string>
+    <string name="gammaos_toolbox_category_system_description">Verschiedene Overrides auf Systemebene, einschliesslich Sichtbarkeit von Schnelleinstellungs-Kacheln, Hintergrundprozess-Limits, Weckgesten-Filterung und Leistungsmodus-Auswahl.</string>
+    <string name="gammaos_toolbox_qs_blacklist_title">Schnelleinstellungs-Kachel-Ausschlussliste</string>
+    <string name="gammaos_toolbox_qs_blacklist_summary">Kommagetrennte Liste von Schnelleinstellungs-Kachelnamen, die aus der Kachelauswahl ausgeblendet werden sollen.</string>
+    <string name="gammaos_toolbox_bg_process_limit_title">Hintergrundprozess-Limit</string>
+    <string name="gammaos_toolbox_bg_process_limit_summary">Maximale Anzahl erlaubter Hintergrundprozesse. Niedrigere Werte geben RAM frei, koennen aber Apps beenden. Standard: systemverwaltet.</string>
+    <string name="gammaos_toolbox_gesture_wake_title">Weckgesten-Filter</string>
+    <string name="gammaos_toolbox_gesture_wake_summary">Bestimmte Weckgesten filtern, um versehentliches Aufwecken des Bildschirms zu verhindern. Kommagetrennte Gestenbezeichner.</string>
+    <string name="gammaos_toolbox_performance_mode_title">Leistungsmodus</string>
+    <string name="gammaos_toolbox_performance_mode_summary">Leistungsprofil fuer CPU-/GPU-Governor-Optimierung. Optionen: stock, performance, powersave.</string>
+
+    <string name="gammaos_toolbox_category_shader_crt">CRT Simple Shader</string>
+    <string name="gammaos_toolbox_category_shader_crt_description">Feinabstimmung des CRT-Simple-Shadereffekts. Steuert Scanline-Erscheinungsbild, Kruemmung, Vignette und Unschaerfeintensitaet.</string>
+    <string name="gammaos_toolbox_shader_crt_scan_px_title">Scanline-Pixelanzahl</string>
+    <string name="gammaos_toolbox_shader_crt_scan_px_summary">Anzahl der Pixel pro Scanline. Standard: 4.</string>
+    <string name="gammaos_toolbox_shader_crt_scan_strength_title">Scanline-Staerke</string>
+    <string name="gammaos_toolbox_shader_crt_scan_strength_summary">Scanline-Dunkelheitsintensitaet (0,0\u20131,0). Standard: 0,4.</string>
+    <string name="gammaos_toolbox_shader_crt_curv_title">Kruemmung</string>
+    <string name="gammaos_toolbox_shader_crt_curv_summary">Bildschirmkruemmungsstaerke. Standard: 0,03. Hoehere Werte verstaerken die Tonnenverzerrung.</string>
+    <string name="gammaos_toolbox_shader_crt_vignette_title">Vignette</string>
+    <string name="gammaos_toolbox_shader_crt_vignette_summary">Randverdunkelungsintensitaet (0,0\u20131,0). Standard: 0,01.</string>
+    <string name="gammaos_toolbox_shader_crt_edge_soft_title">Kantenweichzeichnung (px)</string>
+    <string name="gammaos_toolbox_shader_crt_edge_soft_summary">Anzahl der Pixel fuer Kantenweichzeichnung. Standard: 4.</string>
+    <string name="gammaos_toolbox_shader_crt_blur_title">Unschaerfeintensitaet</string>
+    <string name="gammaos_toolbox_shader_crt_blur_summary">Phosphor-Glow-Unschaerfeintensitaet (0,0\u20131,0). Standard: 0.</string>
+    <string name="gammaos_toolbox_shader_crt_half_res_title">Halbe Aufloesung</string>
+    <string name="gammaos_toolbox_shader_crt_half_res_summary">CRT-Effekt in halber Aufloesung rendern fuer bessere Leistung.</string>
+
+    <string name="gammaos_toolbox_category_shader_lcd3x">LCD3x Shader</string>
+    <string name="gammaos_toolbox_category_shader_lcd3x_description">LCD3x Shader simuliert ein LCD-Subpixelraster. Erzeugt einen Retro-Handheld-LCD-Look.</string>
+    <string name="gammaos_toolbox_shader_lcd3x_half_res_title">Halbe Aufloesung</string>
+    <string name="gammaos_toolbox_shader_lcd3x_half_res_summary">LCD3x in halber Aufloesung rendern fuer bessere Leistung.</string>
+    <string name="gammaos_toolbox_shader_lcd3x_brighten_scan_title">Scanline-Helligkeit</string>
+    <string name="gammaos_toolbox_shader_lcd3x_brighten_scan_summary">Scanline-Helligkeitsmultiplikator. Standard: 4,0.</string>
+    <string name="gammaos_toolbox_shader_lcd3x_brighten_lcd_title">LCD-Helligkeit</string>
+    <string name="gammaos_toolbox_shader_lcd3x_brighten_lcd_summary">Gesamte LCD-Helligkeitsmultiplikator. Standard: 4,0.</string>
+    <string name="gammaos_toolbox_shader_lcd3x_grid_x_title">Raster-Pixelbreite</string>
+    <string name="gammaos_toolbox_shader_lcd3x_grid_x_summary">Horizontale Groesse des Subpixelrasters. Standard: 4,0.</string>
+    <string name="gammaos_toolbox_shader_lcd3x_grid_y_title">Raster-Pixelhoehe</string>
+    <string name="gammaos_toolbox_shader_lcd3x_grid_y_summary">Vertikale Groesse des Subpixelrasters. Standard: 4,0.</string>
+
+    <string name="gammaos_toolbox_category_shader_lcd">LCD Shader</string>
+    <string name="gammaos_toolbox_category_shader_lcd_description">LCD-Shader mit Reaktionszeitsimulation, Subpixel-Rendering und Scanline-Effekten. Fortgeschrittener als LCD3x.</string>
+    <string name="gammaos_toolbox_shader_lcd_half_res_title">Halbe Aufloesung</string>
+    <string name="gammaos_toolbox_shader_lcd_half_res_summary">LCD-Shader in halber Aufloesung rendern fuer bessere Leistung.</string>
+    <string name="gammaos_toolbox_shader_lcd_response_title">Reaktionszeit</string>
+    <string name="gammaos_toolbox_shader_lcd_response_summary">Simulierte LCD-Reaktionszeit (0,0\u20130,78). Standard: 0. Hoehere Werte fuegen Bewegungsunschaerfe hinzu.</string>
+    <string name="gammaos_toolbox_shader_lcd_scan_strength_title">Scanline-Staerke</string>
+    <string name="gammaos_toolbox_shader_lcd_scan_strength_summary">Scanline-Sichtbarkeit (0,0\u20131,0). Standard: 0,20.</string>
+    <string name="gammaos_toolbox_shader_lcd_subpixel_title">Subpixel-Staerke</string>
+    <string name="gammaos_toolbox_shader_lcd_subpixel_summary">RGB-Subpixelraster-Intensitaet (0,0\u20131,0). Standard: 0,40.</string>
+    <string name="gammaos_toolbox_shader_lcd_gap_strength_title">Lueckenstaerke</string>
+    <string name="gammaos_toolbox_shader_lcd_gap_strength_summary">Inter-Pixel-Lueckendunkelheit (0,0\u20131,0). Standard: 0,10.</string>
+    <string name="gammaos_toolbox_shader_lcd_gap_px_title">Lueckengroesse (px)</string>
+    <string name="gammaos_toolbox_shader_lcd_gap_px_summary">Inter-Pixel-Lueckenbreite (0,0\u20130,45). Standard: 0,05.</string>
+
+    <string name="gammaos_toolbox_category_shader_blurfill">Blur-Fill-Shader</string>
+    <string name="gammaos_toolbox_category_shader_blurfill_description">Fuellt Letterbox-/Pillarbox-Balken mit einer unscharfen Version des Spielinhalts anstelle von schwarzen Balken.</string>
+    <string name="gammaos_toolbox_shader_blurfill_sigma_title">Unschaerfe-Sigma</string>
+    <string name="gammaos_toolbox_shader_blurfill_sigma_summary">Gauss-Unschaerferadius (0,1\u201364,0). Standard: 12,0. Hoeher = mehr Unschaerfe.</string>
+    <string name="gammaos_toolbox_shader_blurfill_strength_title">Staerke</string>
+    <string name="gammaos_toolbox_shader_blurfill_strength_summary">Unschaerfefuell-Deckkraft (0,0\u20131,0). Standard: 1,0.</string>
+    <string name="gammaos_toolbox_shader_blurfill_edge_px_title">Randpixel</string>
+    <string name="gammaos_toolbox_shader_blurfill_edge_px_summary">Anzahl der Randpixel fuer die Fuellzone. Standard: 160.</string>
+    <string name="gammaos_toolbox_shader_blurfill_feather_title">Weiche Kante (px)</string>
+    <string name="gammaos_toolbox_shader_blurfill_feather_summary">Weichzeichnungsbreite am Inhaltsrand. Standard: 40.</string>
+    <string name="gammaos_toolbox_shader_blurfill_res_scale_title">Aufloesungsskalierung</string>
+    <string name="gammaos_toolbox_shader_blurfill_res_scale_summary">Aufloesungsskalierung fuer Unschaerfequelle (0,1\u20131,0). Standard: 0,5. Niedriger = schneller.</string>
+    <string name="gammaos_toolbox_shader_blurfill_orientation_title">Ausrichtung</string>
+    <string name="gammaos_toolbox_shader_blurfill_orientation_summary">Fuellausrichtung: auto, horizontal oder vertical. Standard: auto.</string>
+
+    <string name="gammaos_toolbox_shader_custom_preset_title">Benutzerdefinierte Shader-Voreinstellung</string>
+    <string name="gammaos_toolbox_shader_custom_preset_summary">Pfad zu einer .slangp-Shader-Preset-Datei auf dem Geraet.</string>
+    <string name="gammaos_toolbox_shader_custom_res_scale_title">Benutzerdefinierte Aufloesungsskalierung</string>
+    <string name="gammaos_toolbox_shader_custom_res_scale_summary">Herunterskalierungsfaktor fuer benutzerdefinierten Shader. Werte: 1/2, 1/3, 1/4 oder eine Dezimalzahl.</string>
+
+    <string name="gammaos_toolbox_dualstack_blast_tune_title">BLAST-Puffer-Optimierung</string>
+    <string name="gammaos_toolbox_dualstack_blast_tune_summary">BLAST-Pufferwarteschlangen-Optimierung fuer Dual-Stack-Modus aktivieren.</string>
+    <string name="gammaos_toolbox_dualstack_blast_async_title">BLAST-Asynchronmodus</string>
+    <string name="gammaos_toolbox_dualstack_blast_async_summary">Asynchrone Puffereinreichung im Dual-Stack-BLAST-Modus verwenden.</string>
+
+    <string name="gammaos_toolbox_category_power">Energie &amp; Leistung</string>
+    <string name="gammaos_toolbox_category_power_description">Energieverwaltung, Lueftersteuerung und Prozessbegrenzung. Diese beeinflussen Akkulaufzeit, Waermeverhalten und Systemreaktionsfaehigkeit.</string>
+    <string name="gammaos_toolbox_fan_mode_title">Lueftermodus</string>
+    <string name="gammaos_toolbox_fan_mode_summary">Lueftersteuerungsprofil fuer Geraete mit aktiver Kuehlung. Geraetespezifische Werte.</string>
+    <string name="gammaos_toolbox_ultra_low_power_title">Ultra-Energiesparmodus</string>
+    <string name="gammaos_toolbox_ultra_low_power_summary">Tiefschlaf- / Ultra-Energiesparmodus aktivieren. Friert Hintergrund-Apps aggressiv ein.</string>
+    <string name="gammaos_toolbox_ultra_low_power_exclude_title">Energiespar-Einfrier-Ausnahmen</string>
+    <string name="gammaos_toolbox_ultra_low_power_exclude_summary">Kommagetrennte Paketnamen, die vom Einfrieren im Ultra-Energiesparmodus ausgenommen werden sollen.</string>
+
+    <string name="gammaos_toolbox_category_retro">RetroArch &amp; Emulation</string>
+    <string name="gammaos_toolbox_category_retro_description">Spezifische Overrides fuer RetroArch und Emulation. Steuert das Zurueck-Tasten-Verhalten und LED-Anzeigen fuer Retro-Geraete.</string>
+    <string name="gammaos_toolbox_retroarch_backbutton_title">RetroArch Zurueck-Tasten-Override</string>
+    <string name="gammaos_toolbox_retroarch_backbutton_summary">Das Zurueck-Tasten-Verhalten in RetroArch ueberschreiben. 0 = Standard, 1 = ueberschreiben.</string>
+    <string name="gammaos_toolbox_startselectled_title">Start/Select-LED-Anzeige</string>
+    <string name="gammaos_toolbox_startselectled_summary">LED-Anzeigen fuer Start/Select-Tasten auf Retro-Geraeten aktivieren.</string>
+
+    <string name="gammaos_toolbox_category_usb">USB &amp; Docking</string>
+    <string name="gammaos_toolbox_category_usb_description">USB-Controller-Moduswechsel und Docking-Verhalten. Beeinflusst, wie das Geraet USB-Peripheriegeraete und den Dockmodus behandelt.</string>
+    <string name="gammaos_toolbox_usb_controller_switch_title">USB-Controller-Moduswechsel</string>
+    <string name="gammaos_toolbox_usb_controller_switch_summary">USB-Controller-Modus beim Docken/Entdocken automatisch umschalten.</string>
+    <string name="gammaos_toolbox_dc_dimming_title">DC-Dimming-Emulation</string>
+    <string name="gammaos_toolbox_dc_dimming_summary">DC-Dimming per Software emulieren, um PWM-Flackern bei niedriger Helligkeit zu reduzieren.</string>
+
+    <string name="gammaos_toolbox_taskbar_dual_title">Dual-Display-Taskleiste</string>
+    <string name="gammaos_toolbox_taskbar_dual_summary">Eine Taskleiste auf beiden Displays im Multi-Display-Modus anzeigen.</string>
+    <string name="gammaos_toolbox_wallpaper_multidisplay_title">Multi-Display-Hintergrundbild</string>
+    <string name="gammaos_toolbox_wallpaper_multidisplay_summary">Hintergrundbild auf allen angeschlossenen Displays rendern.</string>
+
+    <string name="gammaos_toolbox_qs_override_title">Standard-QS-Kacheln ueberschreiben</string>
+    <string name="gammaos_toolbox_qs_override_summary">Das Standard-Layout der Schnelleinstellungs-Kacheln ueberschreiben. Kommagetrennte Kachelklassennamen.</string>
+
+    <string name="gammaos_toolbox_bfi_mode_ctm">CTM (Hardware)</string>
+    <string name="gammaos_toolbox_bfi_mode_re">RE (Software)</string>
+</resources>

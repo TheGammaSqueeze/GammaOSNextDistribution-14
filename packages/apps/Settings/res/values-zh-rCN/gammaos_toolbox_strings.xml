@@ -1,0 +1,372 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="gammaos_toolbox_title">GammaOS Toolbox</string>
+    <string name="gammaos_toolbox_summary">高级系统属性覆盖</string>
+    <string name="gammaos_toolbox_warning">警告：这些设置会修改底层系统属性。某些选项可能不适用于您的设备或硬件。错误地更改值可能会导致显示故障、性能问题或系统不稳定。请自行承担风险。</string>
+    <string name="gammaos_toolbox_restore_default">恢复默认值</string>
+    <string name="gammaos_toolbox_value_not_set">未设置</string>
+
+    <string name="gammaos_toolbox_category_display">显示</string>
+    <string name="gammaos_toolbox_category_display_description">控制显示渲染内容的方式，包括刷新率、旋转、合成模式和沉浸式行为。这些设置影响主显示屏和通用渲染管线。</string>
+    <string name="gammaos_toolbox_immersive_title">强制沉浸模式</string>
+    <string name="gammaos_toolbox_immersive_summary">全局隐藏状态栏和导航栏。仍可通过从边缘滑动来显示。</string>
+    <string name="gammaos_toolbox_refresh_lock_title">锁定刷新率</string>
+    <string name="gammaos_toolbox_refresh_lock_summary">强制显示屏始终保持最高可用刷新率。阻止系统动态降低刷新率。</string>
+    <string name="gammaos_toolbox_refresh_rate_title">目标刷新率 (Hz)</string>
+    <string name="gammaos_toolbox_refresh_rate_summary">设置特定的固定刷新率（Hz）。仅在启用刷新率锁定时生效。设为 0 表示自动。</string>
+    <string name="gammaos_toolbox_display_tweaks_title">显示时序调整</string>
+    <string name="gammaos_toolbox_display_tweaks_summary">启用 GammaOS 显示时序优化，用于 VSync、调度器和 HWComposer。在支持的硬件上改善帧节奏。</string>
+    <string name="gammaos_toolbox_force_client_comp_title">强制客户端合成</string>
+    <string name="gammaos_toolbox_force_client_comp_summary">强制所有图层使用 GPU（客户端）合成，而非硬件叠加。在 HWComposer 导致视觉异常时有用。</string>
+    <string name="gammaos_toolbox_rotation_cooldown_title">旋转冷却时间 (ms)</string>
+    <string name="gammaos_toolbox_rotation_cooldown_summary">显示旋转变更之间的最短时间（毫秒）。防止快速旋转闪烁。设为 0 以禁用。</string>
+    <string name="gammaos_toolbox_desktop_fullscreen_title">桌面模式全屏</string>
+    <string name="gammaos_toolbox_desktop_fullscreen_summary">强制桌面模式下的应用以全屏而非窗口化方式启动。适用于没有指针输入的设备。</string>
+    <string name="gammaos_toolbox_display_unique_names_title">唯一显示名称</string>
+    <string name="gammaos_toolbox_display_unique_names_summary">根据硬件标识为每个连接的显示器分配唯一名称。有助于在多显示器设置中区分显示器。</string>
+    <string name="gammaos_toolbox_keep_underlay_title">下拉时保持底层可见</string>
+    <string name="gammaos_toolbox_keep_underlay_summary">下拉通知栏时保持底层应用可见，而不是将其变暗。</string>
+    <string name="gammaos_toolbox_renderengine_backend_title">RenderEngine 后端</string>
+    <string name="gammaos_toolbox_renderengine_backend_summary">覆盖 GPU 渲染后端。留空使用系统默认值。可选值：skiagl、skiaglthreaded、skiavk。</string>
+    <string name="gammaos_toolbox_vsync_period_title">VSync 周期覆盖 (ns)</string>
+    <string name="gammaos_toolbox_vsync_period_summary">覆盖 VSync 周期（纳秒）。设为 0 以使用显示器原生周期。示例：8333333 对应 120 Hz。</string>
+    <string name="gammaos_toolbox_square_sticky_title">方形保持时间 (ms)</string>
+    <string name="gammaos_toolbox_square_sticky_summary">旋转后显示屏保持正方形比例的时间（毫秒），之后恢复原始比例。默认：1200。</string>
+
+    <string name="gammaos_toolbox_category_bfi">黑帧插入 (BFI)</string>
+    <string name="gammaos_toolbox_category_bfi_description">在内容帧之间插入黑色或暗淡帧，以减少运动模糊并模拟 CRT 级别的运动清晰度。需要高刷新率显示屏（建议 120 Hz）。提供两种模式：CTM（颜色变换矩阵，硬件加速）和 RE（RenderEngine，软件实现）。</string>
+    <string name="gammaos_toolbox_bfi_enable_title">启用 BFI</string>
+    <string name="gammaos_toolbox_bfi_enable_summary">在内容帧之间插入黑帧以减少运动模糊。</string>
+    <string name="gammaos_toolbox_bfi_mode_title">BFI 模式</string>
+    <string name="gammaos_toolbox_bfi_mode_summary">CTM 使用硬件颜色变换（更快，推荐）。RE 使用 RenderEngine（更灵活，开销更高）。</string>
+    <string name="gammaos_toolbox_bfi_preset_title">BFI 预设</string>
+    <string name="gammaos_toolbox_bfi_preset_summary">命名的占空比模式预设。留空以手动控制模式。</string>
+    <string name="gammaos_toolbox_bfi_pattern_title">BFI 模式</string>
+    <string name="gammaos_toolbox_bfi_pattern_summary">自定义占空比模式，以逗号分隔的亮度值（0.0\u20131.0）。如果设置则覆盖预设。</string>
+    <string name="gammaos_toolbox_bfi_black_floor_title">黑色底限</string>
+    <string name="gammaos_toolbox_bfi_black_floor_summary">黑帧最低亮度（0.0\u20131.0）。某些面板在绝对零值时会闪烁。如有闪烁请尝试 0.01。</string>
+    <string name="gammaos_toolbox_bfi_polarity_title">极性周期 (ms)</string>
+    <string name="gammaos_toolbox_bfi_polarity_summary">BFI 极性反转的间隔时间（毫秒）。防止 OLED 面板上的直流偏置。默认：1000。</string>
+    <string name="gammaos_toolbox_bfi_subframe_enable_title">子帧 BFI</string>
+    <string name="gammaos_toolbox_bfi_subframe_enable_summary">启用使用 RenderEngine 的子帧 BFI，以在单个 VSync 内进行更精细的黑帧插入。</string>
+    <string name="gammaos_toolbox_bfi_subframe_phase_title">子帧相位步进</string>
+    <string name="gammaos_toolbox_bfi_subframe_phase_summary">每个子帧的相位偏移步进。控制子帧之间的时序关系。默认：0.5。</string>
+    <string name="gammaos_toolbox_bfi_subframe_cadence_title">子帧节奏最小值</string>
+    <string name="gammaos_toolbox_bfi_subframe_cadence_summary">子帧插入的最小节奏倍率。较低的值允许更激进的插入。默认：1.0。</string>
+    <string name="gammaos_toolbox_bfi_seam_brightness_title">接缝亮度</string>
+    <string name="gammaos_toolbox_bfi_seam_brightness_summary">接缝帧（帧 0）的亮度级别。控制过渡区域的亮度。</string>
+    <string name="gammaos_toolbox_bfi_seam_follow_title">接缝跟随亮度</string>
+    <string name="gammaos_toolbox_bfi_seam_follow_summary">跟随帧（帧 1）的亮度级别。控制接缝的尾部边缘。</string>
+
+    <string name="gammaos_toolbox_category_bfi_flip">BFI 翻转过渡</string>
+    <string name="gammaos_toolbox_category_bfi_flip_description">微调内容帧与黑帧之间的淡入/淡出过渡。控制 BFI 过渡的平滑度、颜色校正和调光曲线。</string>
+    <string name="gammaos_toolbox_bfi_flip_out_frames_title">淡出帧数</string>
+    <string name="gammaos_toolbox_bfi_flip_out_frames_summary">淡出（内容到黑色）过渡的帧数。默认：10。</string>
+    <string name="gammaos_toolbox_bfi_flip_in_frames_title">淡入帧数</string>
+    <string name="gammaos_toolbox_bfi_flip_in_frames_summary">淡入（黑色到内容）过渡的帧数。默认：10。</string>
+    <string name="gammaos_toolbox_bfi_flip_sat_title">翻转饱和度</string>
+    <string name="gammaos_toolbox_bfi_flip_sat_summary">翻转过渡期间的饱和度倍率。默认：1.0。更高的值增强过渡期间的色彩鲜艳度。</string>
+    <string name="gammaos_toolbox_bfi_flip_gamma_title">翻转伽马</string>
+    <string name="gammaos_toolbox_bfi_flip_gamma_summary">翻转过渡期间的伽马校正。默认：1.0。低于 1.0 使中间调变亮，高于 1.0 使其变暗。</string>
+    <string name="gammaos_toolbox_bfi_flip_use_auto_title">自动调光</string>
+    <string name="gammaos_toolbox_bfi_flip_use_auto_summary">自动计算调光级别以实现平滑过渡，而非使用手动的起始/结束调光值。</string>
+    <string name="gammaos_toolbox_bfi_flip_auto_dip_title">自动调光级别</string>
+    <string name="gammaos_toolbox_bfi_flip_auto_dip_summary">自动调光模式的目标亮度下降值。默认：0.92。较低的值产生更深的调光。</string>
+    <string name="gammaos_toolbox_bfi_flip_contrast_enable_title">对比度调整</string>
+    <string name="gammaos_toolbox_bfi_flip_contrast_enable_summary">在翻转过渡期间启用对比度调整以提高视觉质量。</string>
+    <string name="gammaos_toolbox_bfi_flip_contrast_title">对比度级别</string>
+    <string name="gammaos_toolbox_bfi_flip_contrast_summary">过渡期间的对比度倍率。默认：1.0。高于 1.0 增加对比度。</string>
+    <string name="gammaos_toolbox_bfi_flip_contrast_pivot_title">对比度支点</string>
+    <string name="gammaos_toolbox_bfi_flip_contrast_pivot_summary">对比度调整的亮度支点。默认：0.5。高于/低于此值会偏移对比度中点。</string>
+    <string name="gammaos_toolbox_bfi_flip_contrast_hw_title">硬件对比度</string>
+    <string name="gammaos_toolbox_bfi_flip_contrast_hw_summary">使用硬件颜色变换进行对比度调整，而非软件方式。更高效但范围有限。</string>
+    <string name="gammaos_toolbox_bfi_flip_zero_eps_title">零值截断</string>
+    <string name="gammaos_toolbox_bfi_flip_zero_eps_summary">在过渡期间将接近零的值截断为精确零。防止暗帧上的残余辉光。</string>
+    <string name="gammaos_toolbox_bfi_flip_rgb_r_title">红色通道增益</string>
+    <string name="gammaos_toolbox_bfi_flip_rgb_r_summary">翻转过渡期间的红色通道增益倍率。默认：1.0。</string>
+    <string name="gammaos_toolbox_bfi_flip_rgb_g_title">绿色通道增益</string>
+    <string name="gammaos_toolbox_bfi_flip_rgb_g_summary">翻转过渡期间的绿色通道增益倍率。默认：1.0。</string>
+    <string name="gammaos_toolbox_bfi_flip_rgb_b_title">蓝色通道增益</string>
+    <string name="gammaos_toolbox_bfi_flip_rgb_b_summary">翻转过渡期间的蓝色通道增益倍率。默认：1.0。</string>
+
+    <string name="gammaos_toolbox_category_shader">CRT 着色器</string>
+    <string name="gammaos_toolbox_category_shader_description">通过 SurfaceFlinger 将基于 GPU 的 CRT 扫描线和荧光粉效果应用到显示输出。营造复古 CRT 显示器外观。需要 GPU 客户端合成，并增加渲染开销。</string>
+    <string name="gammaos_toolbox_shader_enable_title">启用 CRT 着色器</string>
+    <string name="gammaos_toolbox_shader_enable_summary">将 CRT 扫描线和荧光粉效果应用到所有显示输出。</string>
+    <string name="gammaos_toolbox_shader_type_title">着色器类型</string>
+    <string name="gammaos_toolbox_shader_type_summary">着色器预设名称。留空使用默认 CRT 着色器。</string>
+    <string name="gammaos_toolbox_shader_bp_grace_title">背压宽限帧数</string>
+    <string name="gammaos_toolbox_shader_bp_grace_summary">着色器更改后跳过背压检查的帧数。防止着色器切换期间卡顿。默认：6。</string>
+
+    <string name="gammaos_toolbox_category_dualstack">双栈显示</string>
+    <string name="gammaos_toolbox_category_dualstack_description">在内部和外部显示器上同时以不同分辨率渲染同一应用。内部显示器显示低分辨率版本以提高性能，外部显示器显示完整分辨率。用于在外接显示器上玩游戏同时保持内置屏幕活跃。</string>
+    <string name="gammaos_toolbox_dualstack_enable_title">启用双栈</string>
+    <string name="gammaos_toolbox_dualstack_enable_summary">启用内部和外部显示器之间的双分辨率渲染。</string>
+    <string name="gammaos_toolbox_dualstack_swap_title">交换显示角色</string>
+    <string name="gammaos_toolbox_dualstack_swap_summary">交换哪个显示器获得高分辨率输出，哪个获得低分辨率输出。</string>
+    <string name="gammaos_toolbox_dualstack_pkgs_title">允许的包</string>
+    <string name="gammaos_toolbox_dualstack_pkgs_summary">以逗号分隔的应使用双栈渲染的包名列表。</string>
+    <string name="gammaos_toolbox_dualstack_kill_title">切换时终止应用</string>
+    <string name="gammaos_toolbox_dualstack_kill_summary">在双栈和正常模式之间切换时强制停止应用以确保状态干净。</string>
+    <string name="gammaos_toolbox_dualstack_nn_title">最近邻缩放</string>
+    <string name="gammaos_toolbox_dualstack_nn_summary">对低分辨率显示器使用最近邻（锐利像素）缩放。禁用则使用双线性（平滑）缩放。</string>
+    <string name="gammaos_toolbox_dualstack_sv_only_title">仅 SurfaceView</string>
+    <string name="gammaos_toolbox_dualstack_sv_only_summary">仅对 SurfaceView 图层（游戏内容）应用双栈，UI 元素保持原生分辨率。</string>
+    <string name="gammaos_toolbox_dualstack_keep_sysui_title">保持 SystemUI 可见</string>
+    <string name="gammaos_toolbox_dualstack_keep_sysui_summary">在仅 SurfaceView 模式下保持 SystemUI（状态栏、导航栏）以完整分辨率可见。</string>
+    <string name="gammaos_toolbox_dualstack_max_fb_title">最大帧缓冲数</string>
+    <string name="gammaos_toolbox_dualstack_max_fb_summary">双栈模式下帧缓冲获取缓冲区的最大数量。默认：3。</string>
+    <string name="gammaos_toolbox_dualstack_no_backpressure_title">禁用 GL 背压</string>
+    <string name="gammaos_toolbox_dualstack_no_backpressure_summary">在双栈模式下禁用 OpenGL 背压。防止丢帧但可能增加延迟。</string>
+
+    <string name="gammaos_toolbox_category_external">外部显示</string>
+    <string name="gammaos_toolbox_category_external_description">控制外部显示器（HDMI、USB-C、DisplayPort）的处理方式。包括将外部显示器设为主显示器、强制镜像模式、路由特定应用和分辨率调整选项。</string>
+    <string name="gammaos_toolbox_ext_primary_title">外部显示器为主</string>
+    <string name="gammaos_toolbox_ext_primary_summary">将外部显示器视为主显示器。内置屏幕变为副显示器。</string>
+    <string name="gammaos_toolbox_ext_force_mirror_title">强制镜像模式</string>
+    <string name="gammaos_toolbox_ext_force_mirror_summary">强制所有外部显示器镜像主显示器，而不是扩展桌面。</string>
+    <string name="gammaos_toolbox_ext_mirror_resize_title">镜像调整大小</string>
+    <string name="gammaos_toolbox_ext_mirror_resize_summary">调整镜像输出以匹配外部显示器分辨率，而不是拉伸。</string>
+    <string name="gammaos_toolbox_ext_half_4k_title">4K 分辨率减半</string>
+    <string name="gammaos_toolbox_ext_half_4k_summary">将 4K 外部显示器降至半分辨率 (1080p)。改善无法流畅输出完整 4K 的设备性能。</string>
+    <string name="gammaos_toolbox_ext_sec_force_on_title">强制副显示器开启</string>
+    <string name="gammaos_toolbox_ext_sec_force_on_summary">即使系统通常会关闭副显示器，仍保持其电源开启。</string>
+    <string name="gammaos_toolbox_secondary_home_title">副显示器主屏应用</string>
+    <string name="gammaos_toolbox_secondary_home_summary">副显示器启动器的包名或组件。示例：com.android.launcher3/.secondarydisplay.SecondaryDisplayLauncher</string>
+    <string name="gammaos_toolbox_sec_display_enable_title">将应用路由到副显示器</string>
+    <string name="gammaos_toolbox_sec_display_enable_summary">自动在副显示器而非主显示器上启动指定应用。</string>
+    <string name="gammaos_toolbox_sec_display_pkgs_title">副显示器包</string>
+    <string name="gammaos_toolbox_sec_display_pkgs_summary">以逗号分隔的要路由到副显示器的包名前缀列表。</string>
+    <string name="gammaos_toolbox_display_delay_primary_title">主显示帧延迟</string>
+    <string name="gammaos_toolbox_display_delay_primary_summary">主显示器输出延迟的帧数。用于显示同步。默认：0。</string>
+    <string name="gammaos_toolbox_display_delay_external_title">外部显示帧延迟</string>
+    <string name="gammaos_toolbox_display_delay_external_summary">外部显示器输出延迟的帧数。用于显示同步。默认：0。</string>
+
+    <string name="gammaos_toolbox_category_multidisplay">多显示器</string>
+    <string name="gammaos_toolbox_category_multidisplay_description">多显示器焦点、输入和亮度行为的控制。这些设置影响系统在多个连接显示器之间处理焦点和输入的方式。</string>
+    <string name="gammaos_toolbox_dual_focus_title">双显示器焦点</string>
+    <string name="gammaos_toolbox_dual_focus_summary">允许两个显示器同时拥有输入焦点。实现在每个显示器上的独立交互。</string>
+    <string name="gammaos_toolbox_split_brightness_title">分离亮度控制</string>
+    <string name="gammaos_toolbox_split_brightness_summary">允许为每个连接的显示器独立控制亮度，而不是统一亮度。</string>
+
+    <string name="gammaos_toolbox_category_ime">输入法</string>
+    <string name="gammaos_toolbox_category_ime_description">控制多显示器设置中软键盘 (IME) 的显示位置。将键盘固定到特定显示器或切换到副屏。</string>
+    <string name="gammaos_toolbox_ime_pin_title">固定 IME 到显示器</string>
+    <string name="gammaos_toolbox_ime_pin_summary">将软键盘固定到特定显示器，而不是跟随焦点窗口。</string>
+    <string name="gammaos_toolbox_ime_display_id_title">IME 显示器 ID</string>
+    <string name="gammaos_toolbox_ime_display_id_summary">固定时 IME 应显示的显示器 ID。0 = 内置显示器，1+ = 外部显示器。</string>
+    <string name="gammaos_toolbox_ime_swap_title">将 IME 切换到副屏</string>
+    <string name="gammaos_toolbox_ime_swap_summary">将键盘移到第一个非默认显示器。仅在未设置明确显示器 ID 时使用。</string>
+
+    <string name="gammaos_toolbox_category_audio">音频</string>
+    <string name="gammaos_toolbox_category_audio_description">音频路由和音量控制覆盖。包括 Unisoc 和 Allwinner SoC 的芯片级 HDMI 音频修复。</string>
+    <string name="gammaos_toolbox_audio_multivolume_title">多音量控制</string>
+    <string name="gammaos_toolbox_audio_multivolume_summary">为不同音频流（媒体、通知、闹钟）启用独立音量控制。</string>
+    <string name="gammaos_toolbox_unisoc_hdmi_title">Unisoc HDMI 音频</string>
+    <string name="gammaos_toolbox_unisoc_hdmi_summary">在 Unisoc 芯片组上启用 HDMI 音频输出。仅适用于基于 Unisoc 的设备。</string>
+    <string name="gammaos_toolbox_allwinner_hdmi_title">Allwinner HDMI 音频</string>
+    <string name="gammaos_toolbox_allwinner_hdmi_summary">在 Allwinner 芯片组上启用 HDMI 音频输出。仅适用于基于 Allwinner 的设备。</string>
+
+    <string name="gammaos_toolbox_category_gamepad">游戏手柄 (GammaPad)</string>
+    <string name="gammaos_toolbox_category_gamepad_description">GammaPad 守护进程配置。捕获物理游戏手柄输入设备，合并为单个虚拟 Xbox 控制器，并提供按键重映射、摇杆校准和鼠标模式仿真。</string>
+    <string name="gammaos_toolbox_gamepad_enable_title">启用 GammaPad</string>
+    <string name="gammaos_toolbox_gamepad_enable_summary">启动 GammaPad 守护进程以捕获和重映射游戏手柄输入设备。</string>
+    <string name="gammaos_toolbox_gamepad_merge_title">合并设备</string>
+    <string name="gammaos_toolbox_gamepad_merge_summary">将多个物理输入设备合并为单个虚拟游戏手柄。</string>
+    <string name="gammaos_toolbox_gamepad_hide_source_title">隐藏物理设备</string>
+    <string name="gammaos_toolbox_gamepad_hide_source_summary">当被 GammaPad 捕获时，对应用隐藏原始物理设备节点。</string>
+    <string name="gammaos_toolbox_gamepad_devices_title">要捕获的设备</string>
+    <string name="gammaos_toolbox_gamepad_devices_summary">以逗号分隔的要捕获的设备名称。留空以自动检测游戏手柄。</string>
+    <string name="gammaos_toolbox_gamepad_abxy_swap_title">交换 ABXY 布局</string>
+    <string name="gammaos_toolbox_gamepad_abxy_swap_summary">在 Xbox 和 Nintendo 布局之间交换 A/B 和 X/Y 按钮位置。</string>
+    <string name="gammaos_toolbox_gamepad_invert_left_title">反转左摇杆</string>
+    <string name="gammaos_toolbox_gamepad_invert_left_summary">反转左模拟摇杆的 Y 轴。</string>
+    <string name="gammaos_toolbox_gamepad_invert_right_title">反转右摇杆</string>
+    <string name="gammaos_toolbox_gamepad_invert_right_summary">反转右模拟摇杆的 Y 轴。</string>
+    <string name="gammaos_toolbox_gamepad_analog_dpad_title">模拟摇杆转方向键</string>
+    <string name="gammaos_toolbox_gamepad_analog_dpad_summary">将左模拟摇杆输入转换为方向键事件。</string>
+    <string name="gammaos_toolbox_gamepad_dpad_analog_title">方向键转模拟摇杆</string>
+    <string name="gammaos_toolbox_gamepad_dpad_analog_summary">将方向键输入转换为左模拟摇杆事件。</string>
+    <string name="gammaos_toolbox_gamepad_dpad_threshold_title">方向键阈值</string>
+    <string name="gammaos_toolbox_gamepad_dpad_threshold_summary">触发方向键事件的模拟摇杆偏转阈值（0\u2013100）。默认：50。</string>
+    <string name="gammaos_toolbox_gamepad_sensitivity_title">全局摇杆灵敏度</string>
+    <string name="gammaos_toolbox_gamepad_sensitivity_summary">所有模拟摇杆的全局灵敏度调整。0 = 默认，正值增加，负值减少。</string>
+    <string name="gammaos_toolbox_gamepad_pwm_enable_title">PWM 振动</string>
+    <string name="gammaos_toolbox_gamepad_pwm_enable_summary">为振动效果启用基于 PWM 的振动输出。</string>
+    <string name="gammaos_toolbox_gamepad_pwm_intensity_title">PWM 振动强度</string>
+    <string name="gammaos_toolbox_gamepad_pwm_intensity_summary">振动强度级别（0\u2013255）。默认：255。</string>
+    <string name="gammaos_toolbox_gamepad_device_name_title">虚拟设备名称</string>
+    <string name="gammaos_toolbox_gamepad_device_name_summary">虚拟游戏手柄设备报告的名称。默认：Xbox Wireless Controller。</string>
+    <string name="gammaos_toolbox_gamepad_remap_btn_title">按键重映射</string>
+    <string name="gammaos_toolbox_gamepad_remap_btn_summary">按键重映射配置。格式：src1=dst1,src2=dst2（Linux 键码）。</string>
+    <string name="gammaos_toolbox_gamepad_remap_axis_title">轴重映射</string>
+    <string name="gammaos_toolbox_gamepad_remap_axis_summary">轴重映射配置。格式：src1=dst1,src2=dst2（Linux 轴码）。</string>
+    <string name="gammaos_toolbox_gamepad_combo_map_title">组合键映射</string>
+    <string name="gammaos_toolbox_gamepad_combo_map_summary">将按键组合映射为单个键事件。格式：btn1+btn2=key,btn3+btn4=key。</string>
+    <string name="gammaos_toolbox_gamepad_axis_btn_title">轴到按键映射</string>
+    <string name="gammaos_toolbox_gamepad_axis_btn_summary">将轴事件映射为按键按下。格式：axis:threshold=key（例如 5:128=304）。</string>
+    <string name="gammaos_toolbox_gamepad_ff_device_title">力反馈设备</string>
+    <string name="gammaos_toolbox_gamepad_ff_device_summary">振动输出的力反馈设备路径。留空以自动检测。</string>
+    <string name="gammaos_toolbox_gamepad_blacklist_pass_title">直通黑名单</string>
+    <string name="gammaos_toolbox_gamepad_blacklist_pass_summary">以逗号分隔的要排除捕获并直接传递的设备名称。</string>
+    <string name="gammaos_toolbox_gamepad_screenmap_title">屏幕映射</string>
+    <string name="gammaos_toolbox_gamepad_screenmap_summary">启用游戏手柄按钮到触摸屏映射模式。</string>
+
+    <string name="gammaos_toolbox_category_mouse">鼠标模式</string>
+    <string name="gammaos_toolbox_category_mouse_description">配置 GammaPad 鼠标仿真模式。通过按键组合激活后，游戏手柄模拟摇杆控制鼠标光标。适用于无触摸输入的应用导航。</string>
+    <string name="gammaos_toolbox_mouse_stick_speed_title">摇杆光标速度</string>
+    <string name="gammaos_toolbox_mouse_stick_speed_summary">使用模拟摇杆时的光标移动速度。默认：12。</string>
+    <string name="gammaos_toolbox_mouse_dpad_speed_title">方向键光标速度</string>
+    <string name="gammaos_toolbox_mouse_dpad_speed_summary">使用方向键时的光标移动速度。默认：6。</string>
+    <string name="gammaos_toolbox_mouse_boost_title">加速倍率</string>
+    <string name="gammaos_toolbox_mouse_boost_summary">按住加速按钮时的速度倍率（值 / 10）。默认：20（2.0 倍）。</string>
+    <string name="gammaos_toolbox_mouse_scroll_speed_title">滚动速度</string>
+    <string name="gammaos_toolbox_mouse_scroll_speed_summary">使用右模拟摇杆时的滚轮速度（值 / 10）。默认：4（0.4 倍）。</string>
+
+    <string name="gammaos_toolbox_category_rgb">RGB LED 采样器</string>
+    <string name="gammaos_toolbox_category_rgb_description">采样屏幕主色并输出到游戏手柄或设备 RGB LED，实现环境光效果（Ambilight 风格）。在 SurfaceFlinger 中运行以实现低延迟采样。</string>
+    <string name="gammaos_toolbox_rgb_enable_title">启用 RGB 采样器</string>
+    <string name="gammaos_toolbox_rgb_enable_summary">采样屏幕颜色并输出到 RGB LED 以实现环境照明。</string>
+    <string name="gammaos_toolbox_rgb_fps_title">采样率 (FPS)</string>
+    <string name="gammaos_toolbox_rgb_fps_summary">每秒采样屏幕颜色的次数。范围：1\u201360。默认：6。</string>
+    <string name="gammaos_toolbox_rgb_led_brightness_title">LED 亮度</string>
+    <string name="gammaos_toolbox_rgb_led_brightness_summary">最大 LED 亮度级别（0\u2013255）。默认：255。</string>
+    <string name="gammaos_toolbox_rgb_scale_brightness_title">随显示亮度缩放</string>
+    <string name="gammaos_toolbox_rgb_scale_brightness_summary">根据显示背光级别按比例调暗 LED。</string>
+    <string name="gammaos_toolbox_rgb_fade_enable_title">淡入淡出过渡</string>
+    <string name="gammaos_toolbox_rgb_fade_enable_summary">颜色变化时平滑渐变，而非瞬间切换。</string>
+    <string name="gammaos_toolbox_rgb_fade_fps_title">渐变帧率 (FPS)</string>
+    <string name="gammaos_toolbox_rgb_fade_fps_summary">渐变过渡的动画帧率。范围：1\u2013240。默认：60。</string>
+    <string name="gammaos_toolbox_rgb_pre_fx_title">效果前采样</string>
+    <string name="gammaos_toolbox_rgb_pre_fx_summary">在应用 CRT 着色器和 BFI 效果之前采样屏幕颜色。产生更准确的颜色。</string>
+    <string name="gammaos_toolbox_rgb_effect_title">LED 效果</string>
+    <string name="gammaos_toolbox_rgb_effect_summary">命名的 LED 动画效果。留空使用屏幕采样颜色模式。</string>
+    <string name="gammaos_toolbox_rgb_split_title">左右分离</string>
+    <string name="gammaos_toolbox_rgb_split_summary">分别采样屏幕左半部分和右半部分，适用于双区 LED 设置。</string>
+    <string name="gammaos_toolbox_rgb_sat_boost_title">饱和度增强</string>
+    <string name="gammaos_toolbox_rgb_sat_boost_summary">增强颜色饱和度以获得更鲜艳的 LED 输出。默认：1.4。</string>
+
+    <string name="gammaos_toolbox_category_launch_guard">启动守卫</string>
+    <string name="gammaos_toolbox_category_launch_guard_description">阻止指定的调用方应用启动指定的目标应用。适用于阻止 Daijishou 或 ES-DE 等前端意外启动错误模拟器。</string>
+    <string name="gammaos_toolbox_launch_guard_enable_title">启用启动守卫</string>
+    <string name="gammaos_toolbox_launch_guard_enable_summary">阻止指定调用方启动指定目标应用。</string>
+    <string name="gammaos_toolbox_launch_guard_callers_title">调用方包</string>
+    <string name="gammaos_toolbox_launch_guard_callers_summary">以逗号分隔的应被阻止启动目标的包名列表。</string>
+    <string name="gammaos_toolbox_launch_guard_targets_title">目标包</string>
+    <string name="gammaos_toolbox_launch_guard_targets_summary">以逗号分隔的调用方应被阻止启动的包名列表。</string>
+
+    <string name="gammaos_toolbox_category_system">系统</string>
+    <string name="gammaos_toolbox_category_system_description">杂项系统级覆盖，包括快速设置磁贴可见性、后台进程限制、唤醒手势过滤和性能模式选择。</string>
+    <string name="gammaos_toolbox_qs_blacklist_title">快速设置磁贴黑名单</string>
+    <string name="gammaos_toolbox_qs_blacklist_summary">以逗号分隔的要从磁贴选择器中隐藏的快速设置磁贴名称列表。</string>
+    <string name="gammaos_toolbox_bg_process_limit_title">后台进程限制</string>
+    <string name="gammaos_toolbox_bg_process_limit_summary">允许的最大后台进程数。较低的值释放内存但可能终止应用。默认：系统管理。</string>
+    <string name="gammaos_toolbox_gesture_wake_title">唤醒手势过滤</string>
+    <string name="gammaos_toolbox_gesture_wake_summary">过滤特定唤醒手势以防止意外唤醒屏幕。以逗号分隔的手势标识符。</string>
+    <string name="gammaos_toolbox_performance_mode_title">性能模式</string>
+    <string name="gammaos_toolbox_performance_mode_summary">CPU/GPU 调速器调优的性能配置。选项：stock、performance、powersave。</string>
+
+    <string name="gammaos_toolbox_category_shader_crt">CRT Simple 着色器</string>
+    <string name="gammaos_toolbox_category_shader_crt_description">微调 CRT Simple 着色器效果。控制扫描线外观、曲率、暗角和模糊强度。</string>
+    <string name="gammaos_toolbox_shader_crt_scan_px_title">扫描线像素数</string>
+    <string name="gammaos_toolbox_shader_crt_scan_px_summary">每条扫描线的像素数。默认：4。</string>
+    <string name="gammaos_toolbox_shader_crt_scan_strength_title">扫描线强度</string>
+    <string name="gammaos_toolbox_shader_crt_scan_strength_summary">扫描线暗度强度（0.0\u20131.0）。默认：0.4。</string>
+    <string name="gammaos_toolbox_shader_crt_curv_title">曲率</string>
+    <string name="gammaos_toolbox_shader_crt_curv_summary">屏幕曲率程度。默认：0.03。更高的值增加桶形畸变。</string>
+    <string name="gammaos_toolbox_shader_crt_vignette_title">暗角</string>
+    <string name="gammaos_toolbox_shader_crt_vignette_summary">边缘暗化强度（0.0\u20131.0）。默认：0.01。</string>
+    <string name="gammaos_toolbox_shader_crt_edge_soft_title">边缘柔化 (px)</string>
+    <string name="gammaos_toolbox_shader_crt_edge_soft_summary">边缘柔化的像素数。默认：4。</string>
+    <string name="gammaos_toolbox_shader_crt_blur_title">模糊强度</string>
+    <string name="gammaos_toolbox_shader_crt_blur_summary">荧光粉辉光模糊强度（0.0\u20131.0）。默认：0。</string>
+    <string name="gammaos_toolbox_shader_crt_half_res_title">半分辨率</string>
+    <string name="gammaos_toolbox_shader_crt_half_res_summary">以半分辨率渲染 CRT 效果以提升性能。</string>
+
+    <string name="gammaos_toolbox_category_shader_lcd3x">LCD3x 着色器</string>
+    <string name="gammaos_toolbox_category_shader_lcd3x_description">LCD3x 着色器模拟 LCD 子像素网格。产生复古掌机 LCD 外观。</string>
+    <string name="gammaos_toolbox_shader_lcd3x_half_res_title">半分辨率</string>
+    <string name="gammaos_toolbox_shader_lcd3x_half_res_summary">以半分辨率渲染 LCD3x 以提升性能。</string>
+    <string name="gammaos_toolbox_shader_lcd3x_brighten_scan_title">扫描线亮度</string>
+    <string name="gammaos_toolbox_shader_lcd3x_brighten_scan_summary">扫描线亮度倍率。默认：4.0。</string>
+    <string name="gammaos_toolbox_shader_lcd3x_brighten_lcd_title">LCD 亮度</string>
+    <string name="gammaos_toolbox_shader_lcd3x_brighten_lcd_summary">整体 LCD 亮度倍率。默认：4.0。</string>
+    <string name="gammaos_toolbox_shader_lcd3x_grid_x_title">网格像素宽度</string>
+    <string name="gammaos_toolbox_shader_lcd3x_grid_x_summary">子像素网格的水平大小。默认：4.0。</string>
+    <string name="gammaos_toolbox_shader_lcd3x_grid_y_title">网格像素高度</string>
+    <string name="gammaos_toolbox_shader_lcd3x_grid_y_summary">子像素网格的垂直大小。默认：4.0。</string>
+
+    <string name="gammaos_toolbox_category_shader_lcd">LCD 着色器</string>
+    <string name="gammaos_toolbox_category_shader_lcd_description">带响应时间模拟、子像素渲染和扫描线效果的 LCD 着色器。比 LCD3x 更高级。</string>
+    <string name="gammaos_toolbox_shader_lcd_half_res_title">半分辨率</string>
+    <string name="gammaos_toolbox_shader_lcd_half_res_summary">以半分辨率渲染 LCD 着色器以提升性能。</string>
+    <string name="gammaos_toolbox_shader_lcd_response_title">响应时间</string>
+    <string name="gammaos_toolbox_shader_lcd_response_summary">模拟 LCD 响应时间（0.0\u20130.78）。默认：0。更高的值增加运动模糊。</string>
+    <string name="gammaos_toolbox_shader_lcd_scan_strength_title">扫描强度</string>
+    <string name="gammaos_toolbox_shader_lcd_scan_strength_summary">扫描线可见度（0.0\u20131.0）。默认：0.20。</string>
+    <string name="gammaos_toolbox_shader_lcd_subpixel_title">子像素强度</string>
+    <string name="gammaos_toolbox_shader_lcd_subpixel_summary">RGB 子像素网格强度（0.0\u20131.0）。默认：0.40。</string>
+    <string name="gammaos_toolbox_shader_lcd_gap_strength_title">间隙强度</string>
+    <string name="gammaos_toolbox_shader_lcd_gap_strength_summary">像素间隙暗度（0.0\u20131.0）。默认：0.10。</string>
+    <string name="gammaos_toolbox_shader_lcd_gap_px_title">间隙大小 (px)</string>
+    <string name="gammaos_toolbox_shader_lcd_gap_px_summary">像素间隙宽度（0.0\u20130.45）。默认：0.05。</string>
+
+    <string name="gammaos_toolbox_category_shader_blurfill">模糊填充着色器</string>
+    <string name="gammaos_toolbox_category_shader_blurfill_description">用模糊的游戏内容填充信箱/柱状黑边，代替黑色条带。</string>
+    <string name="gammaos_toolbox_shader_blurfill_sigma_title">模糊 Sigma</string>
+    <string name="gammaos_toolbox_shader_blurfill_sigma_summary">高斯模糊半径（0.1\u201364.0）。默认：12.0。值越高越模糊。</string>
+    <string name="gammaos_toolbox_shader_blurfill_strength_title">强度</string>
+    <string name="gammaos_toolbox_shader_blurfill_strength_summary">模糊填充不透明度（0.0\u20131.0）。默认：1.0。</string>
+    <string name="gammaos_toolbox_shader_blurfill_edge_px_title">边缘像素</string>
+    <string name="gammaos_toolbox_shader_blurfill_edge_px_summary">填充区域的边缘像素数。默认：160。</string>
+    <string name="gammaos_toolbox_shader_blurfill_feather_title">羽化 (px)</string>
+    <string name="gammaos_toolbox_shader_blurfill_feather_summary">内容边缘的羽化/混合宽度。默认：40。</string>
+    <string name="gammaos_toolbox_shader_blurfill_res_scale_title">分辨率缩放</string>
+    <string name="gammaos_toolbox_shader_blurfill_res_scale_summary">模糊源的分辨率缩放（0.1\u20131.0）。默认：0.5。越低越快。</string>
+    <string name="gammaos_toolbox_shader_blurfill_orientation_title">方向</string>
+    <string name="gammaos_toolbox_shader_blurfill_orientation_summary">填充方向：auto、horizontal 或 vertical。默认：auto。</string>
+
+    <string name="gammaos_toolbox_shader_custom_preset_title">自定义着色器预设</string>
+    <string name="gammaos_toolbox_shader_custom_preset_summary">设备上 .slangp 着色器预设文件的路径。</string>
+    <string name="gammaos_toolbox_shader_custom_res_scale_title">自定义分辨率缩放</string>
+    <string name="gammaos_toolbox_shader_custom_res_scale_summary">自定义着色器的降采样因子。值：1/2、1/3、1/4 或小数。</string>
+
+    <string name="gammaos_toolbox_dualstack_blast_tune_title">BLAST 缓冲区调优</string>
+    <string name="gammaos_toolbox_dualstack_blast_tune_summary">启用双栈模式的 BLAST 缓冲队列调优。</string>
+    <string name="gammaos_toolbox_dualstack_blast_async_title">BLAST 异步模式</string>
+    <string name="gammaos_toolbox_dualstack_blast_async_summary">在双栈 BLAST 模式下使用异步缓冲提交。</string>
+
+    <string name="gammaos_toolbox_category_power">电源与性能</string>
+    <string name="gammaos_toolbox_category_power_description">电源管理、风扇控制和进程限制。这些设置影响电池续航、散热行为和系统响应速度。</string>
+    <string name="gammaos_toolbox_fan_mode_title">风扇模式</string>
+    <string name="gammaos_toolbox_fan_mode_summary">带主动散热设备的风扇控制配置文件。设备特定值。</string>
+    <string name="gammaos_toolbox_ultra_low_power_title">超低功耗模式</string>
+    <string name="gammaos_toolbox_ultra_low_power_summary">启用深度睡眠/超低功耗节能模式。积极冻结后台应用。</string>
+    <string name="gammaos_toolbox_ultra_low_power_exclude_title">低功耗冻结排除</string>
+    <string name="gammaos_toolbox_ultra_low_power_exclude_summary">以逗号分隔的在超低功耗模式下排除进程冻结的包名。</string>
+
+    <string name="gammaos_toolbox_category_retro">RetroArch 与模拟</string>
+    <string name="gammaos_toolbox_category_retro_description">RetroArch 和模拟器的专用覆盖。控制返回键行为和复古风格设备的 LED 指示灯。</string>
+    <string name="gammaos_toolbox_retroarch_backbutton_title">RetroArch 返回键覆盖</string>
+    <string name="gammaos_toolbox_retroarch_backbutton_summary">覆盖 RetroArch 内的返回键行为。0 = 默认，1 = 覆盖。</string>
+    <string name="gammaos_toolbox_startselectled_title">Start/Select LED 指示灯</string>
+    <string name="gammaos_toolbox_startselectled_summary">在复古风格设备上启用 Start/Select 按钮的 LED 指示灯。</string>
+
+    <string name="gammaos_toolbox_category_usb">USB 与扩展坞</string>
+    <string name="gammaos_toolbox_category_usb_description">USB 控制器模式切换和显示扩展坞行为。影响设备处理 USB 外设和扩展坞模式的方式。</string>
+    <string name="gammaos_toolbox_usb_controller_switch_title">USB 控制器模式切换</string>
+    <string name="gammaos_toolbox_usb_controller_switch_summary">连接/断开扩展坞时自动切换 USB 控制器模式。</string>
+    <string name="gammaos_toolbox_dc_dimming_title">DC 调光模拟</string>
+    <string name="gammaos_toolbox_dc_dimming_summary">以软件方式模拟 DC 调光，减少低亮度下的 PWM 闪烁。</string>
+
+    <string name="gammaos_toolbox_taskbar_dual_title">双显示器任务栏</string>
+    <string name="gammaos_toolbox_taskbar_dual_summary">在多显示器模式下两个显示器上都显示任务栏。</string>
+    <string name="gammaos_toolbox_wallpaper_multidisplay_title">多显示器壁纸</string>
+    <string name="gammaos_toolbox_wallpaper_multidisplay_summary">强制壁纸在所有连接的显示器上渲染。</string>
+
+    <string name="gammaos_toolbox_qs_override_title">快速设置默认磁贴覆盖</string>
+    <string name="gammaos_toolbox_qs_override_summary">覆盖默认的快速设置磁贴布局。以逗号分隔的磁贴类名。</string>
+
+    <string name="gammaos_toolbox_bfi_mode_ctm">CTM（硬件）</string>
+    <string name="gammaos_toolbox_bfi_mode_re">RE（软件）</string>
+</resources>

@@ -1517,4 +1517,14 @@
         <item>2</item>
     </string-array>
 
+    <!-- GammaOS Toolbox: BFI mode entries -->
+    <string-array name="gammaos_bfi_mode_entries">
+        <item>@string/gammaos_toolbox_bfi_mode_ctm</item>
+        <item>@string/gammaos_toolbox_bfi_mode_re</item>
+    </string-array>
+    <string-array name="gammaos_bfi_mode_values" translatable="false">
+        <item>ctm</item>
+        <item>re</item>
+    </string-array>
+
 </resources>

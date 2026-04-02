@@ -1,0 +1,371 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="gammaos_toolbox_title">GammaOS Toolbox</string>
+    <string name="gammaos_toolbox_summary">ଉନ୍ନତ ସିଷ୍ଟମ ପ୍ରପର୍ଟି ଓଭରରାଇଡ୍</string>
+    <string name="gammaos_toolbox_warning">ଚେତାବନୀ: ଏହି ସେଟିଂସ୍ ନିମ୍ନ-ସ୍ତରର ସିଷ୍ଟମ ପ୍ରପର୍ଟିଗୁଡ଼ିକୁ ପରିବର୍ତ୍ତନ କରେ। କିଛି ବିକଳ୍ପ ଆପଣଙ୍କ ଡିଭାଇସ୍ କିମ୍ବା ହାର୍ଡୱେର ପାଇଁ ପ୍ରଯୁଜ୍ୟ ନହୋଇପାରେ। ଭୁଲ ମୂଲ୍ୟ ପରିବର୍ତ୍ତନ ଡିସ୍‌ପ୍ଲେ ସମସ୍ୟା, କାର୍ଯ୍ୟସମ୍ପାଦନ ସମସ୍ୟା, କିମ୍ବା ଅସ୍ଥିରତା ସୃଷ୍ଟି କରିପାରେ। ନିଜ ଦାୟିତ୍ୱରେ ଆଗକୁ ବଢ଼ନ୍ତୁ।</string>
+    <string name="gammaos_toolbox_restore_default">ଡିଫଲ୍ଟ ପୁନଃସ୍ଥାପନ କରନ୍ତୁ</string>
+    <string name="gammaos_toolbox_value_not_set">ସେଟ୍ ହୋଇନାହିଁ</string>
+
+    <string name="gammaos_toolbox_category_display">ଡିସ୍‌ପ୍ଲେ</string>
+    <string name="gammaos_toolbox_category_display_description">ରିଫ୍ରେସ୍ ରେଟ୍, ଘୂର୍ଣ୍ଣନ, କମ୍ପୋଜିସନ୍ ମୋଡ୍, ଏବଂ ଇମର୍ସିଭ ଆଚରଣ ସହିତ ଡିସ୍‌ପ୍ଲେ କିପରି ବିଷୟବସ୍ତୁ ରେଣ୍ଡର କରେ ତାହା ନିୟନ୍ତ୍ରଣ କରେ। ଏଗୁଡ଼ିକ ପ୍ରାଥମିକ ଡିସ୍‌ପ୍ଲେ ଏବଂ ସାଧାରଣ ରେଣ୍ଡରିଂ ପାଇପଲାଇନ୍‌ ଉପରେ ପ୍ରଭାବ ପକାଏ।</string>
+    <string name="gammaos_toolbox_immersive_title">ଇମର୍ସିଭ ମୋଡ୍ ବାଧ୍ୟ କରନ୍ତୁ</string>
+    <string name="gammaos_toolbox_immersive_summary">ସିଷ୍ଟମ-ବ୍ୟାପୀ ସ୍ଥିତି ବାର ଏବଂ ନାଭିଗେସନ୍ ବାର ଲୁଚାନ୍ତୁ। କିନାରାରୁ ସ୍ୱାଇପ୍ କରି ବାରଗୁଡ଼ିକୁ ଦେଖାଯାଇପାରେ।</string>
+    <string name="gammaos_toolbox_refresh_lock_title">ରିଫ୍ରେସ୍ ରେଟ୍ ଲକ୍ କରନ୍ତୁ</string>
+    <string name="gammaos_toolbox_refresh_lock_summary">ଡିସ୍‌ପ୍ଲେକୁ ସର୍ବଦା ସର୍ବୋଚ୍ଚ ଉପଲବ୍ଧ ରିଫ୍ରେସ୍ ରେଟ୍‌ରେ ରହିବାକୁ ବାଧ୍ୟ କରନ୍ତୁ। ସିଷ୍ଟମକୁ ଏହାକୁ ଗତିଶୀଳ ଭାବରେ ହ୍ରାସ କରିବାରୁ ରୋକନ୍ତୁ।</string>
+    <string name="gammaos_toolbox_refresh_rate_title">ଲକ୍ଷ୍ୟ ରିଫ୍ରେସ୍ ରେଟ୍ (Hz)</string>
+    <string name="gammaos_toolbox_refresh_rate_summary">Hz ରେ ଏକ ନିର୍ଦ୍ଦିଷ୍ଟ ସ୍ଥିର ରିଫ୍ରେସ୍ ରେଟ୍ ସେଟ୍ କରନ୍ତୁ। ରିଫ୍ରେସ୍ ରେଟ୍ ଲକ୍ ସକ୍ଷମ ହେଲେ ହିଁ ପ୍ରଭାବୀ ହୁଏ। ସ୍ୱୟଂଚାଳିତ ପାଇଁ 0 ସେଟ୍ କରନ୍ତୁ।</string>
+    <string name="gammaos_toolbox_display_tweaks_title">ଡିସ୍‌ପ୍ଲେ ଟାଇମିଂ ସମନ୍ୱୟ</string>
+    <string name="gammaos_toolbox_display_tweaks_summary">VSync, ସେଡ୍ୟୁଲର୍, ଏବଂ HWComposer ପାଇଁ GammaOS ଡିସ୍‌ପ୍ଲେ ଟାଇମିଂ ଅନୁକୂଳନ ସକ୍ଷମ କରନ୍ତୁ। ସମର୍ଥିତ ହାର୍ଡୱେରରେ ଫ୍ରେମ ପେସିଂ ଉନ୍ନତ କରେ।</string>
+    <string name="gammaos_toolbox_force_client_comp_title">କ୍ଲାଏଣ୍ଟ କମ୍ପୋଜିସନ୍ ବାଧ୍ୟ କରନ୍ତୁ</string>
+    <string name="gammaos_toolbox_force_client_comp_summary">ହାର୍ଡୱେର ଓଭରଲେ ବଦଳରେ ସମସ୍ତ ସ୍ତରକୁ GPU (କ୍ଲାଏଣ୍ଟ) କମ୍ପୋଜିସନ୍ ବ୍ୟବହାର କରିବାକୁ ବାଧ୍ୟ କରନ୍ତୁ। HWComposer ଦୃଶ୍ୟ ସମସ୍ୟା ସୃଷ୍ଟି କଲେ ଉପଯୋଗୀ।</string>
+    <string name="gammaos_toolbox_rotation_cooldown_title">ଘୂର୍ଣ୍ଣନ କୁଲଡାଉନ (ms)</string>
+    <string name="gammaos_toolbox_rotation_cooldown_summary">ଡିସ୍‌ପ୍ଲେ ଘୂର୍ଣ୍ଣନ ପରିବର୍ତ୍ତନ ମଧ୍ୟରେ ମିଲିସେକେଣ୍ଡରେ ସର୍ବନିମ୍ନ ସମୟ। ଦ୍ରୁତ ଘୂର୍ଣ୍ଣନ ଝଲକ ରୋକେ। ନିଷ୍କ୍ରିୟ କରିବାକୁ 0 ସେଟ୍ କରନ୍ତୁ।</string>
+    <string name="gammaos_toolbox_desktop_fullscreen_title">ଡେସ୍କଟପ୍ ମୋଡ୍ ଫୁଲସ୍କ୍ରୀନ</string>
+    <string name="gammaos_toolbox_desktop_fullscreen_summary">ଡେସ୍କଟପ୍ ମୋଡ୍‌ରେ ଆପ୍‌ଗୁଡ଼ିକୁ ୱିଣ୍ଡୋ ବଦଳରେ ଫୁଲସ୍କ୍ରୀନ ଲଞ୍ଚ କରିବାକୁ ବାଧ୍ୟ କରନ୍ତୁ। ପଏଣ୍ଟର ଇନପୁଟ୍ ବିନା ଡିଭାଇସ୍ ପାଇଁ ଉପଯୋଗୀ।</string>
+    <string name="gammaos_toolbox_display_unique_names_title">ଅନନ୍ୟ ଡିସ୍‌ପ୍ଲେ ନାମ</string>
+    <string name="gammaos_toolbox_display_unique_names_summary">ହାର୍ଡୱେର ପରିଚୟ ଆଧାରରେ ପ୍ରତ୍ୟେକ ସଂଯୁକ୍ତ ଡିସ୍‌ପ୍ଲେକୁ ଅନନ୍ୟ ନାମ ନ୍ୟସ୍ତ କରନ୍ତୁ। ମଲ୍ଟି-ମନିଟର ସେଟଅପ୍‌ରେ ଡିସ୍‌ପ୍ଲେ ଚିହ୍ନଟ ପାଇଁ ସାହାଯ୍ୟ କରେ।</string>
+    <string name="gammaos_toolbox_keep_underlay_title">ସେଡ୍‌ରେ ଅଣ୍ଡରଲେ ରଖନ୍ତୁ</string>
+    <string name="gammaos_toolbox_keep_underlay_summary">ବିଜ୍ଞପ୍ତି ସେଡ୍ ଟାଣିଲେ ଅନ୍ତର୍ନିହିତ ଆପ୍‌କୁ ଅନ୍ଧାର ନକରି ଦୃଶ୍ୟମାନ ରଖନ୍ତୁ।</string>
+    <string name="gammaos_toolbox_renderengine_backend_title">RenderEngine ବ୍ୟାକେଣ୍ଡ</string>
+    <string name="gammaos_toolbox_renderengine_backend_summary">GPU ରେଣ୍ଡରିଂ ବ୍ୟାକେଣ୍ଡ ଓଭରରାଇଡ୍ କରନ୍ତୁ। ସିଷ୍ଟମ ଡିଫଲ୍ଟ ପାଇଁ ଖାଲି ଛାଡ଼ନ୍ତୁ। ସମ୍ଭାବ୍ୟ ମୂଲ୍ୟ: skiagl, skiaglthreaded, skiavk।</string>
+    <string name="gammaos_toolbox_vsync_period_title">VSync ପିରିଅଡ୍ ଓଭରରାଇଡ୍ (ns)</string>
+    <string name="gammaos_toolbox_vsync_period_summary">ନ୍ୟାନୋସେକେଣ୍ଡରେ VSync ପିରିଅଡ୍ ଓଭରରାଇଡ୍ କରନ୍ତୁ। ଡିସ୍‌ପ୍ଲେର ନେଟିଭ ପିରିଅଡ୍ ବ୍ୟବହାର ପାଇଁ 0 ସେଟ୍ କରନ୍ତୁ। ଉଦାହରଣ: 120 Hz ପାଇଁ 8333333।</string>
+    <string name="gammaos_toolbox_square_sticky_title">ବର୍ଗାକାର ଷ୍ଟିକି ଅବଧି (ms)</string>
+    <string name="gammaos_toolbox_square_sticky_summary">ଘୂର୍ଣ୍ଣନ ପରେ ଡିସ୍‌ପ୍ଲେ ବର୍ଗାକାର ଆସ୍ପେକ୍ଟ ରେସିଓରେ ରହିବା ସମୟ (ମିଲିସେକେଣ୍ଡ) ପୂର୍ବରୁ ଫେରିଯିବା। ଡିଫଲ୍ଟ: 1200।</string>
+
+    <string name="gammaos_toolbox_category_bfi">Black Frame Insertion (BFI)</string>
+    <string name="gammaos_toolbox_category_bfi_description">ଗତି ଝାପସା ହ୍ରାସ ଏବଂ CRT-ପରି ଗତି ସ୍ପଷ୍ଟତା ଅନୁକରଣ ପାଇଁ ବିଷୟବସ୍ତୁ ଫ୍ରେମ ମଧ୍ୟରେ କଳା କିମ୍ବା ମନ୍ଦ ଫ୍ରେମ ଭର୍ତ୍ତି କରେ। ଏକ ଉଚ୍ଚ ରିଫ୍ରେସ୍ ରେଟ୍ ଡିସ୍‌ପ୍ଲେ ଆବଶ୍ୟକ (120 Hz ସୁପାରିଶ)। ଦୁଇଟି ମୋଡ୍ ଉପଲବ୍ଧ: CTM (କଲର ଟ୍ରାନ୍ସଫର୍ମ ମ୍ୟାଟ୍ରିକ୍ସ, ହାର୍ଡୱେର-ତ୍ୱରିତ) ଏବଂ RE (RenderEngine, ସଫ୍ଟୱେର)।</string>
+    <string name="gammaos_toolbox_bfi_enable_title">BFI ସକ୍ଷମ କରନ୍ତୁ</string>
+    <string name="gammaos_toolbox_bfi_enable_summary">ଗତି ଝାପସା ହ୍ରାସ ପାଇଁ ବିଷୟବସ୍ତୁ ଫ୍ରେମ ମଧ୍ୟରେ କଳା ଫ୍ରେମ ଭର୍ତ୍ତି କରନ୍ତୁ।</string>
+    <string name="gammaos_toolbox_bfi_mode_title">BFI ମୋଡ୍</string>
+    <string name="gammaos_toolbox_bfi_mode_summary">CTM ହାର୍ଡୱେର କଲର ଟ୍ରାନ୍ସଫର୍ମ ବ୍ୟବହାର କରେ (ଦ୍ରୁତ, ସୁପାରିଶ)। RE RenderEngine ବ୍ୟବହାର କରେ (ଅଧିକ ନମନୀୟ, ଅଧିକ ଓଭରହେଡ୍)।</string>
+    <string name="gammaos_toolbox_bfi_preset_title">BFI ପ୍ରିସେଟ୍</string>
+    <string name="gammaos_toolbox_bfi_preset_summary">ଡ୍ୟୁଟି ସାଇକଲ ପ୍ୟାଟର୍ନ ପାଇଁ ନାମିତ ପ୍ରିସେଟ୍। ମ୍ୟାନୁଆଲ ପ୍ୟାଟର୍ନ ନିୟନ୍ତ୍ରଣ ପାଇଁ ଖାଲି ଛାଡ଼ନ୍ତୁ।</string>
+    <string name="gammaos_toolbox_bfi_pattern_title">BFI ପ୍ୟାଟର୍ନ</string>
+    <string name="gammaos_toolbox_bfi_pattern_summary">କମା-ପୃଥକ ଉଜ୍ଜ୍ୱଳତା ମୂଲ୍ୟ (0.0\u20131.0) ଭାବେ କଷ୍ଟମ ଡ୍ୟୁଟି ସାଇକଲ ପ୍ୟାଟର୍ନ। ସେଟ୍ ହେଲେ ପ୍ରିସେଟ୍ ଓଭରରାଇଡ୍ କରେ।</string>
+    <string name="gammaos_toolbox_bfi_black_floor_title">କଳା ତଳ</string>
+    <string name="gammaos_toolbox_bfi_black_floor_summary">କଳା ଫ୍ରେମ ପାଇଁ ସର୍ବନିମ୍ନ ଉଜ୍ଜ୍ୱଳତା (0.0\u20131.0)। କିଛି ପ୍ୟାନେଲ ଶୂନ୍ୟରେ ଝଲକ କରେ। ଝଲକ ଦେଖିଲେ 0.01 ଚେଷ୍ଟା କରନ୍ତୁ।</string>
+    <string name="gammaos_toolbox_bfi_polarity_title">ପୋଲାରିଟି ପିରିଅଡ୍ (ms)</string>
+    <string name="gammaos_toolbox_bfi_polarity_summary">BFI ପୋଲାରିଟି ଓଲଟା ପାଇଁ ମିଲିସେକେଣ୍ଡରେ ବ୍ୟବଧାନ। OLED ପ୍ୟାନେଲରେ DC ବାଇସ୍ ରୋକେ। ଡିଫଲ୍ଟ: 1000।</string>
+    <string name="gammaos_toolbox_bfi_subframe_enable_title">ସବ-ଫ୍ରେମ BFI</string>
+    <string name="gammaos_toolbox_bfi_subframe_enable_summary">ଏକ VSync ମଧ୍ୟରେ ସୂକ୍ଷ୍ମ କଳା ଭର୍ତ୍ତି ପାଇଁ RenderEngine ବ୍ୟବହାର କରି ସବ-ଫ୍ରେମ BFI ସକ୍ଷମ କରନ୍ତୁ।</string>
+    <string name="gammaos_toolbox_bfi_subframe_phase_title">ସବ-ଫ୍ରେମ ଫେଜ୍ ଷ୍ଟେପ୍</string>
+    <string name="gammaos_toolbox_bfi_subframe_phase_summary">ପ୍ରତି ସବ-ଫ୍ରେମ ଫେଜ୍ ଅଫସେଟ୍ ଷ୍ଟେପ୍। ସବ-ଫ୍ରେମ ମଧ୍ୟରେ ଟାଇମିଂ ସମ୍ପର୍କ ନିୟନ୍ତ୍ରଣ କରେ। ଡିଫଲ୍ଟ: 0.5।</string>
+    <string name="gammaos_toolbox_bfi_subframe_cadence_title">ସବ-ଫ୍ରେମ କେଡେନ୍ସ ସର୍ବନିମ୍ନ</string>
+    <string name="gammaos_toolbox_bfi_subframe_cadence_summary">ସବ-ଫ୍ରେମ ଭର୍ତ୍ତି ପାଇଁ ସର୍ବନିମ୍ନ କେଡେନ୍ସ ଗୁଣକ। କମ ମୂଲ୍ୟ ଅଧିକ ଆକ୍ରମଣାତ୍ମକ ଭର୍ତ୍ତିକୁ ଅନୁମତି ଦିଏ। ଡିଫଲ୍ଟ: 1.0।</string>
+    <string name="gammaos_toolbox_bfi_seam_brightness_title">ସୀମ ଉଜ୍ଜ୍ୱଳତା</string>
+    <string name="gammaos_toolbox_bfi_seam_brightness_summary">ସୀମ ଫ୍ରେମ (ଫ୍ରେମ 0) ପାଇଁ ଉଜ୍ଜ୍ୱଳତା ସ୍ତର। ପରିବର୍ତ୍ତନ ଜୋନ୍ ଉଜ୍ଜ୍ୱଳତା ନିୟନ୍ତ୍ରଣ କରେ।</string>
+    <string name="gammaos_toolbox_bfi_seam_follow_title">ସୀମ ଅନୁସରଣ ଉଜ୍ଜ୍ୱଳତା</string>
+    <string name="gammaos_toolbox_bfi_seam_follow_summary">ଅନୁସରଣ ଫ୍ରେମ (ଫ୍ରେମ 1) ପାଇଁ ଉଜ୍ଜ୍ୱଳତା ସ୍ତର। ସୀମର ପଛ କିନାରା ନିୟନ୍ତ୍ରଣ କରେ।</string>
+
+    <string name="gammaos_toolbox_category_bfi_flip">BFI ଫ୍ଲିପ୍ ପରିବର୍ତ୍ତନ</string>
+    <string name="gammaos_toolbox_category_bfi_flip_description">ବିଷୟବସ୍ତୁ ଏବଂ କଳା ଫ୍ରେମ ମଧ୍ୟରେ ଫେଡ୍-ଇନ/ଫେଡ୍-ଆଉଟ ପରିବର୍ତ୍ତନକୁ ସୂକ୍ଷ୍ମ-ସମନ୍ୱୟ କରନ୍ତୁ। BFI ପରିବର୍ତ୍ତନର ମସୃଣତା, ରଙ୍ଗ ସଂଶୋଧନ, ଏବଂ ଡିମିଂ ବକ୍ରରେଖା ନିୟନ୍ତ୍ରଣ କରେ।</string>
+    <string name="gammaos_toolbox_bfi_flip_out_frames_title">ଫେଡ୍-ଆଉଟ ଫ୍ରେମ</string>
+    <string name="gammaos_toolbox_bfi_flip_out_frames_summary">ଫେଡ୍-ଆଉଟ (ବିଷୟବସ୍ତୁରୁ କଳା) ପରିବର୍ତ୍ତନ ପାଇଁ ଫ୍ରେମ ସଂଖ୍ୟା। ଡିଫଲ୍ଟ: 10।</string>
+    <string name="gammaos_toolbox_bfi_flip_in_frames_title">ଫେଡ୍-ଇନ ଫ୍ରେମ</string>
+    <string name="gammaos_toolbox_bfi_flip_in_frames_summary">ଫେଡ୍-ଇନ (କଳାରୁ ବିଷୟବସ୍ତୁ) ପରିବର୍ତ୍ତନ ପାଇଁ ଫ୍ରେମ ସଂଖ୍ୟା। ଡିଫଲ୍ଟ: 10।</string>
+    <string name="gammaos_toolbox_bfi_flip_sat_title">ଫ୍ଲିପ୍ ସ୍ୟାଚୁରେସନ୍</string>
+    <string name="gammaos_toolbox_bfi_flip_sat_summary">ଫ୍ଲିପ୍ ପରିବର୍ତ୍ତନ ସମୟରେ ସ୍ୟାଚୁରେସନ୍ ଗୁଣକ। ଡିଫଲ୍ଟ: 1.0। ଅଧିକ ମୂଲ୍ୟ ପରିବର୍ତ୍ତନ ସମୟରେ ରଙ୍ଗ ଜୀବନ୍ତତା ବଢ଼ାଏ।</string>
+    <string name="gammaos_toolbox_bfi_flip_gamma_title">ଫ୍ଲିପ୍ ଗାମା</string>
+    <string name="gammaos_toolbox_bfi_flip_gamma_summary">ଫ୍ଲିପ୍ ପରିବର୍ତ୍ତନ ସମୟରେ ଗାମା ସଂଶୋଧନ। ଡିଫଲ୍ଟ: 1.0। 1.0 ତଳର ମୂଲ୍ୟ ମଧ୍ୟ-ଟୋନ ଉଜ୍ଜ୍ୱଳ କରେ, 1.0 ଉପର ଅନ୍ଧାର କରେ।</string>
+    <string name="gammaos_toolbox_bfi_flip_use_auto_title">ସ୍ୱୟଂ ଡିମିଂ</string>
+    <string name="gammaos_toolbox_bfi_flip_use_auto_summary">ମ୍ୟାନୁଆଲ ଆରମ୍ଭ/ଶେଷ ଡିମ ମୂଲ୍ୟ ବଦଳରେ ମସୃଣ ପରିବର୍ତ୍ତନ ପାଇଁ ସ୍ୱୟଂଚାଳିତ ଡିମ ସ୍ତର ଗଣନା କରନ୍ତୁ।</string>
+    <string name="gammaos_toolbox_bfi_flip_auto_dip_title">ସ୍ୱୟଂ ଡିପ ସ୍ତର</string>
+    <string name="gammaos_toolbox_bfi_flip_auto_dip_summary">ସ୍ୱୟଂ ଡିମିଂ ମୋଡ୍ ପାଇଁ ଲକ୍ଷ୍ୟ ଉଜ୍ଜ୍ୱଳତା ଡିପ। ଡିଫଲ୍ଟ: 0.92। କମ ମୂଲ୍ୟ ଗଭୀର ଡିମିଂ ଉତ୍ପାଦନ କରେ।</string>
+    <string name="gammaos_toolbox_bfi_flip_contrast_enable_title">କଣ୍ଟ୍ରାଷ୍ଟ ସମନ୍ୱୟ</string>
+    <string name="gammaos_toolbox_bfi_flip_contrast_enable_summary">ଉନ୍ନତ ଦୃଶ୍ୟ ଗୁଣବତ୍ତା ପାଇଁ ଫ୍ଲିପ୍ ପରିବର୍ତ୍ତନ ସମୟରେ କଣ୍ଟ୍ରାଷ୍ଟ ସମନ୍ୱୟ ସକ୍ଷମ କରନ୍ତୁ।</string>
+    <string name="gammaos_toolbox_bfi_flip_contrast_title">କଣ୍ଟ୍ରାଷ୍ଟ ସ୍ତର</string>
+    <string name="gammaos_toolbox_bfi_flip_contrast_summary">ପରିବର୍ତ୍ତନ ସମୟରେ କଣ୍ଟ୍ରାଷ୍ଟ ଗୁଣକ। ଡିଫଲ୍ଟ: 1.0। 1.0 ଉପର ମୂଲ୍ୟ କଣ୍ଟ୍ରାଷ୍ଟ ବଢ଼ାଏ।</string>
+    <string name="gammaos_toolbox_bfi_flip_contrast_pivot_title">କଣ୍ଟ୍ରାଷ୍ଟ ପିଭଟ୍</string>
+    <string name="gammaos_toolbox_bfi_flip_contrast_pivot_summary">କଣ୍ଟ୍ରାଷ୍ଟ ସମନ୍ୱୟ ପାଇଁ ଉଜ୍ଜ୍ୱଳତା ପିଭଟ୍ ବିନ୍ଦୁ। ଡିଫଲ୍ଟ: 0.5। ଉପର/ତଳ ମୂଲ୍ୟ କଣ୍ଟ୍ରାଷ୍ଟ ମଧ୍ୟବିନ୍ଦୁ ସ୍ଥାନାନ୍ତର କରେ।</string>
+    <string name="gammaos_toolbox_bfi_flip_contrast_hw_title">ହାର୍ଡୱେର କଣ୍ଟ୍ରାଷ୍ଟ</string>
+    <string name="gammaos_toolbox_bfi_flip_contrast_hw_summary">ସଫ୍ଟୱେର ବଦଳରେ କଣ୍ଟ୍ରାଷ୍ଟ ପାଇଁ ହାର୍ଡୱେର କଲର ଟ୍ରାନ୍ସଫର୍ମ ବ୍ୟବହାର କରନ୍ତୁ। ଅଧିକ କାର୍ଯ୍ୟକ୍ଷମ କିନ୍ତୁ ସୀମିତ ପରିସର।</string>
+    <string name="gammaos_toolbox_bfi_flip_zero_eps_title">ଶୂନ୍ୟ ଏପ୍ସିଲନ କ୍ଲ୍ୟାମ୍ପ</string>
+    <string name="gammaos_toolbox_bfi_flip_zero_eps_summary">ପରିବର୍ତ୍ତନ ସମୟରେ ପ୍ରାୟ-ଶୂନ୍ୟ ମୂଲ୍ୟକୁ ସଠିକ୍ ଶୂନ୍ୟରେ କ୍ଲ୍ୟାମ୍ପ କରନ୍ତୁ। ଅନ୍ଧାର ଫ୍ରେମରେ ଅବଶିଷ୍ଟ ଆଲୋକ ରୋକେ।</string>
+    <string name="gammaos_toolbox_bfi_flip_rgb_r_title">ଲାଲ ଚ୍ୟାନେଲ ଗେନ</string>
+    <string name="gammaos_toolbox_bfi_flip_rgb_r_summary">ଫ୍ଲିପ୍ ପରିବର୍ତ୍ତନ ସମୟରେ ଲାଲ ଚ୍ୟାନେଲ ଗେନ ଗୁଣକ। ଡିଫଲ୍ଟ: 1.0।</string>
+    <string name="gammaos_toolbox_bfi_flip_rgb_g_title">ସବୁଜ ଚ୍ୟାନେଲ ଗେନ</string>
+    <string name="gammaos_toolbox_bfi_flip_rgb_g_summary">ଫ୍ଲିପ୍ ପରିବର୍ତ୍ତନ ସମୟରେ ସବୁଜ ଚ୍ୟାନେଲ ଗେନ ଗୁଣକ। ଡିଫଲ୍ଟ: 1.0।</string>
+    <string name="gammaos_toolbox_bfi_flip_rgb_b_title">ନୀଳ ଚ୍ୟାନେଲ ଗେନ</string>
+    <string name="gammaos_toolbox_bfi_flip_rgb_b_summary">ଫ୍ଲିପ୍ ପରିବର୍ତ୍ତନ ସମୟରେ ନୀଳ ଚ୍ୟାନେଲ ଗେନ ଗୁଣକ। ଡିଫଲ୍ଟ: 1.0।</string>
+
+    <string name="gammaos_toolbox_category_shader">CRT ସେଡର</string>
+    <string name="gammaos_toolbox_category_shader_description">SurfaceFlinger ମାଧ୍ୟମରେ ଡିସ୍‌ପ୍ଲେ ଆଉଟପୁଟ୍‌ରେ GPU-ଆଧାରିତ CRT ସ୍କ୍ୟାନଲାଇନ ଏବଂ ଫସ୍ଫର ଇଫେକ୍ଟ ପ୍ରୟୋଗ କରେ। ଏକ ରେଟ୍ରୋ CRT ମନିଟର ଲୁକ୍ ସୃଷ୍ଟି କରେ। GPU କ୍ଲାଏଣ୍ଟ କମ୍ପୋଜିସନ୍ ଆବଶ୍ୟକ ଏବଂ ରେଣ୍ଡରିଂ ଓଭରହେଡ୍ ଯୋଗ କରେ।</string>
+    <string name="gammaos_toolbox_shader_enable_title">CRT ସେଡର ସକ୍ଷମ କରନ୍ତୁ</string>
+    <string name="gammaos_toolbox_shader_enable_summary">ସମସ୍ତ ଡିସ୍‌ପ୍ଲେ ଆଉଟପୁଟ୍‌ରେ CRT ସ୍କ୍ୟାନଲାଇନ ଏବଂ ଫସ୍ଫର ଇଫେକ୍ଟ ପ୍ରୟୋଗ କରନ୍ତୁ।</string>
+    <string name="gammaos_toolbox_shader_type_title">ସେଡର ପ୍ରକାର</string>
+    <string name="gammaos_toolbox_shader_type_summary">ସେଡର ପ୍ରିସେଟ୍ ନାମ। ଡିଫଲ୍ଟ CRT ସେଡର ପାଇଁ ଖାଲି ଛାଡ଼ନ୍ତୁ।</string>
+    <string name="gammaos_toolbox_shader_bp_grace_title">ବ୍ୟାକପ୍ରେସର ଗ୍ରେସ ଫ୍ରେମ</string>
+    <string name="gammaos_toolbox_shader_bp_grace_summary">ସେଡର ପରିବର୍ତ୍ତନ ପରେ ବ୍ୟାକପ୍ରେସର ଯାଞ୍ଚ ଛାଡ଼ିବା ଫ୍ରେମ ସଂଖ୍ୟା। ସେଡର ପରିବର୍ତ୍ତନ ସମୟରେ ଅଟକା ରୋକେ। ଡିଫଲ୍ଟ: 6।</string>
+
+    <string name="gammaos_toolbox_category_shader_crt">CRT Simple ସେଡର</string>
+    <string name="gammaos_toolbox_category_shader_crt_description">CRT Simple ସେଡର ଇଫେକ୍ଟ ସୂକ୍ଷ୍ମ-ସମନ୍ୱୟ କରନ୍ତୁ। ସ୍କ୍ୟାନଲାଇନ ଦୃଶ୍ୟ, ବକ୍ରତା, ଭିନେଟ, ଏବଂ ଧୁଆଁ ତୀବ୍ରତା ନିୟନ୍ତ୍ରଣ କରେ।</string>
+    <string name="gammaos_toolbox_shader_crt_scan_px_title">ସ୍କ୍ୟାନଲାଇନ ପିକ୍ସେଲ ସଂଖ୍ୟା</string>
+    <string name="gammaos_toolbox_shader_crt_scan_px_summary">ପ୍ରତି ସ୍କ୍ୟାନଲାଇନ ପିକ୍ସେଲ ସଂଖ୍ୟା। ଡିଫଲ୍ଟ: 4।</string>
+    <string name="gammaos_toolbox_shader_crt_scan_strength_title">ସ୍କ୍ୟାନଲାଇନ ଶକ୍ତି</string>
+    <string name="gammaos_toolbox_shader_crt_scan_strength_summary">ସ୍କ୍ୟାନଲାଇନ ଅନ୍ଧାର ତୀବ୍ରତା (0.0\u20131.0)। ଡିଫଲ୍ଟ: 0.4।</string>
+    <string name="gammaos_toolbox_shader_crt_curv_title">ବକ୍ରତା</string>
+    <string name="gammaos_toolbox_shader_crt_curv_summary">ସ୍କ୍ରୀନ ବକ୍ରତା ପରିମାଣ। ଡିଫଲ୍ଟ: 0.03। ଅଧିକ ମୂଲ୍ୟ ବ୍ୟାରେଲ ବିକୃତି ବଢ଼ାଏ।</string>
+    <string name="gammaos_toolbox_shader_crt_vignette_title">ଭିନେଟ</string>
+    <string name="gammaos_toolbox_shader_crt_vignette_summary">କିନାରା ଅନ୍ଧାର ତୀବ୍ରତା (0.0\u20131.0)। ଡିଫଲ୍ଟ: 0.01।</string>
+    <string name="gammaos_toolbox_shader_crt_edge_soft_title">କିନାରା ନରମତା (px)</string>
+    <string name="gammaos_toolbox_shader_crt_edge_soft_summary">କିନାରା ନରମ କରିବା ପାଇଁ ପିକ୍ସେଲ ସଂଖ୍ୟା। ଡିଫଲ୍ଟ: 4।</string>
+    <string name="gammaos_toolbox_shader_crt_blur_title">ଧୁଆଁ ତୀବ୍ରତା</string>
+    <string name="gammaos_toolbox_shader_crt_blur_summary">ଫସ୍ଫର ଆଲୋକ ଧୁଆଁ ତୀବ୍ରତା (0.0\u20131.0)। ଡିଫଲ୍ଟ: 0।</string>
+    <string name="gammaos_toolbox_shader_crt_half_res_title">ଅର୍ଦ୍ଧ ରେଜୋଲୁସନ</string>
+    <string name="gammaos_toolbox_shader_crt_half_res_summary">ଉନ୍ନତ କାର୍ଯ୍ୟସମ୍ପାଦନ ପାଇଁ ଅର୍ଦ୍ଧ ରେଜୋଲୁସନରେ CRT ଇଫେକ୍ଟ ରେଣ୍ଡର କରନ୍ତୁ।</string>
+
+    <string name="gammaos_toolbox_category_shader_lcd3x">LCD3x ସେଡର</string>
+    <string name="gammaos_toolbox_category_shader_lcd3x_description">LCD3x ସେଡର ଏକ LCD ସବପିକ୍ସେଲ ଗ୍ରିଡ ଅନୁକରଣ କରେ। ଏକ ରେଟ୍ରୋ ହ୍ୟାଣ୍ଡହେଲ୍ଡ LCD ଲୁକ ଉତ୍ପାଦନ କରେ।</string>
+    <string name="gammaos_toolbox_shader_lcd3x_half_res_title">ଅର୍ଦ୍ଧ ରେଜୋଲୁସନ</string>
+    <string name="gammaos_toolbox_shader_lcd3x_half_res_summary">ଉନ୍ନତ କାର୍ଯ୍ୟସମ୍ପାଦନ ପାଇଁ ଅର୍ଦ୍ଧ ରେଜୋଲୁସନରେ LCD3x ରେଣ୍ଡର କରନ୍ତୁ।</string>
+    <string name="gammaos_toolbox_shader_lcd3x_brighten_scan_title">ସ୍କ୍ୟାନଲାଇନ ଉଜ୍ଜ୍ୱଳତା</string>
+    <string name="gammaos_toolbox_shader_lcd3x_brighten_scan_summary">ସ୍କ୍ୟାନଲାଇନ ଉଜ୍ଜ୍ୱଳତା ଗୁଣକ। ଡିଫଲ୍ଟ: 4.0।</string>
+    <string name="gammaos_toolbox_shader_lcd3x_brighten_lcd_title">LCD ଉଜ୍ଜ୍ୱଳତା</string>
+    <string name="gammaos_toolbox_shader_lcd3x_brighten_lcd_summary">ସାମଗ୍ରିକ LCD ଉଜ୍ଜ୍ୱଳତା ଗୁଣକ। ଡିଫଲ୍ଟ: 4.0।</string>
+    <string name="gammaos_toolbox_shader_lcd3x_grid_x_title">ଗ୍ରିଡ ପିକ୍ସେଲ ଓସାର</string>
+    <string name="gammaos_toolbox_shader_lcd3x_grid_x_summary">ସବପିକ୍ସେଲ ଗ୍ରିଡର ଭୂସମାନ୍ତର ଆକାର। ଡିଫଲ୍ଟ: 4.0।</string>
+    <string name="gammaos_toolbox_shader_lcd3x_grid_y_title">ଗ୍ରିଡ ପିକ୍ସେଲ ଉଚ୍ଚତା</string>
+    <string name="gammaos_toolbox_shader_lcd3x_grid_y_summary">ସବପିକ୍ସେଲ ଗ୍ରିଡର ଲମ୍ବ ଆକାର। ଡିଫଲ୍ଟ: 4.0।</string>
+
+    <string name="gammaos_toolbox_category_shader_lcd">LCD ସେଡର</string>
+    <string name="gammaos_toolbox_category_shader_lcd_description">ପ୍ରତିକ୍ରିୟା ସମୟ ଅନୁକରଣ, ସବପିକ୍ସେଲ ରେଣ୍ଡରିଂ, ଏବଂ ସ୍କ୍ୟାନଲାଇନ ଇଫେକ୍ଟ ସହ LCD ସେଡର। LCD3x ଠାରୁ ଅଧିକ ଉନ୍ନତ।</string>
+    <string name="gammaos_toolbox_shader_lcd_half_res_title">ଅର୍ଦ୍ଧ ରେଜୋଲୁସନ</string>
+    <string name="gammaos_toolbox_shader_lcd_half_res_summary">ଉନ୍ନତ କାର୍ଯ୍ୟସମ୍ପାଦନ ପାଇଁ ଅର୍ଦ୍ଧ ରେଜୋଲୁସନରେ LCD ସେଡର ରେଣ୍ଡର କରନ୍ତୁ।</string>
+    <string name="gammaos_toolbox_shader_lcd_response_title">ପ୍ରତିକ୍ରିୟା ସମୟ</string>
+    <string name="gammaos_toolbox_shader_lcd_response_summary">ଅନୁକରଣ LCD ପ୍ରତିକ୍ରିୟା ସମୟ (0.0\u20130.78)। ଡିଫଲ୍ଟ: 0। ଅଧିକ ମୂଲ୍ୟ ଗତି ଝାପସା ଯୋଗ କରେ।</string>
+    <string name="gammaos_toolbox_shader_lcd_scan_strength_title">ସ୍କ୍ୟାନ ଶକ୍ତି</string>
+    <string name="gammaos_toolbox_shader_lcd_scan_strength_summary">ସ୍କ୍ୟାନଲାଇନ ଦୃଶ୍ୟତା (0.0\u20131.0)। ଡିଫଲ୍ଟ: 0.20।</string>
+    <string name="gammaos_toolbox_shader_lcd_subpixel_title">ସବପିକ୍ସେଲ ଶକ୍ତି</string>
+    <string name="gammaos_toolbox_shader_lcd_subpixel_summary">RGB ସବପିକ୍ସେଲ ଗ୍ରିଡ ତୀବ୍ରତା (0.0\u20131.0)। ଡିଫଲ୍ଟ: 0.40।</string>
+    <string name="gammaos_toolbox_shader_lcd_gap_strength_title">ଗ୍ୟାପ ଶକ୍ତି</string>
+    <string name="gammaos_toolbox_shader_lcd_gap_strength_summary">ଅନ୍ତର-ପିକ୍ସେଲ ଗ୍ୟାପ ଅନ୍ଧାରତା (0.0\u20131.0)। ଡିଫଲ୍ଟ: 0.10।</string>
+    <string name="gammaos_toolbox_shader_lcd_gap_px_title">ଗ୍ୟାପ ଆକାର (px)</string>
+    <string name="gammaos_toolbox_shader_lcd_gap_px_summary">ଅନ୍ତର-ପିକ୍ସେଲ ଗ୍ୟାପ ଓସାର (0.0\u20130.45)। ଡିଫଲ୍ଟ: 0.05।</string>
+
+    <string name="gammaos_toolbox_category_shader_blurfill">Blur Fill ସେଡର</string>
+    <string name="gammaos_toolbox_category_shader_blurfill_description">କଳା ବାର ବଦଳରେ ଲେଟରବକ୍ସ/ପିଲରବକ୍ସ ବାରକୁ ଗେମ ବିଷୟବସ୍ତୁର ଏକ ଧୁଆଁ ସଂସ୍କରଣରେ ଭରେ।</string>
+    <string name="gammaos_toolbox_shader_blurfill_sigma_title">ଧୁଆଁ ସିଗମା</string>
+    <string name="gammaos_toolbox_shader_blurfill_sigma_summary">ଗସିଆନ ଧୁଆଁ ବ୍ୟାସାର୍ଦ୍ଧ (0.1\u201364.0)। ଡିଫଲ୍ଟ: 12.0। ଅଧିକ = ଅଧିକ ଧୁଆଁ।</string>
+    <string name="gammaos_toolbox_shader_blurfill_strength_title">ଶକ୍ତି</string>
+    <string name="gammaos_toolbox_shader_blurfill_strength_summary">ଧୁଆଁ ଭରଣ ଅପାସିଟି (0.0\u20131.0)। ଡିଫଲ୍ଟ: 1.0।</string>
+    <string name="gammaos_toolbox_shader_blurfill_edge_px_title">କିନାରା ପିକ୍ସେଲ</string>
+    <string name="gammaos_toolbox_shader_blurfill_edge_px_summary">ଭରଣ ଜୋନ ପାଇଁ କିନାରା ପିକ୍ସେଲ ସଂଖ୍ୟା। ଡିଫଲ୍ଟ: 160।</string>
+    <string name="gammaos_toolbox_shader_blurfill_feather_title">ଫେଦର (px)</string>
+    <string name="gammaos_toolbox_shader_blurfill_feather_summary">ବିଷୟବସ୍ତୁ କିନାରାରେ ଫେଦରିଂ/ମିଶ୍ରଣ ଓସାର। ଡିଫଲ୍ଟ: 40।</string>
+    <string name="gammaos_toolbox_shader_blurfill_res_scale_title">ରେଜୋଲୁସନ ସ୍କେଲ</string>
+    <string name="gammaos_toolbox_shader_blurfill_res_scale_summary">ଧୁଆଁ ଉତ୍ସ ପାଇଁ ରେଜୋଲୁସନ ସ୍କେଲ (0.1\u20131.0)। ଡିଫଲ୍ଟ: 0.5। କମ = ଦ୍ରୁତ।</string>
+    <string name="gammaos_toolbox_shader_blurfill_orientation_title">ଓରିଏଣ୍ଟେସନ</string>
+    <string name="gammaos_toolbox_shader_blurfill_orientation_summary">ଭରଣ ଓରିଏଣ୍ଟେସନ: auto, horizontal, କିମ୍ବା vertical। ଡିଫଲ୍ଟ: auto।</string>
+
+    <string name="gammaos_toolbox_shader_custom_preset_title">କଷ୍ଟମ ସେଡର ପ୍ରିସେଟ</string>
+    <string name="gammaos_toolbox_shader_custom_preset_summary">ଡିଭାଇସରେ ଏକ .slangp ସେଡର ପ୍ରିସେଟ ଫାଇଲର ପଥ।</string>
+    <string name="gammaos_toolbox_shader_custom_res_scale_title">କଷ୍ଟମ ରେଜୋଲୁସନ ସ୍କେଲ</string>
+    <string name="gammaos_toolbox_shader_custom_res_scale_summary">କଷ୍ଟମ ସେଡର ପାଇଁ ଡାଉନସ୍କେଲ ଫ୍ୟାକ୍ଟର। ମୂଲ୍ୟ: 1/2, 1/3, 1/4, କିମ୍ବା ଏକ ଦଶମିକ।</string>
+
+    <string name="gammaos_toolbox_category_dualstack">ଡୁଆଲ-ଷ୍ଟାକ ଡିସ୍‌ପ୍ଲେ</string>
+    <string name="gammaos_toolbox_category_dualstack_description">ଆଭ୍ୟନ୍ତରୀଣ ଏବଂ ବାହ୍ୟ ଡିସ୍‌ପ୍ଲେରେ ଏକ ସମୟରେ ଭିନ୍ନ ରେଜୋଲୁସନରେ ସମାନ ଆପ୍ ରେଣ୍ଡର କରେ। କାର୍ଯ୍ୟସମ୍ପାଦନ ପାଇଁ ଆଭ୍ୟନ୍ତରୀଣ ଡିସ୍‌ପ୍ଲେ ନିମ୍ନ-ରେଜୋଲୁସନ ସଂସ୍କରଣ ଦେଖାଏ ଏବଂ ବାହ୍ୟ ଡିସ୍‌ପ୍ଲେ ପୂର୍ଣ୍ଣ ରେଜୋଲୁସନ ଦେଖାଏ। ନିର୍ମିତ ସ୍କ୍ରୀନ ସକ୍ରିୟ ରଖି ବାହ୍ୟ ମନିଟରରେ ଗେମିଂ ପାଇଁ ବ୍ୟବହୃତ।</string>
+    <string name="gammaos_toolbox_dualstack_enable_title">ଡୁଆଲ-ଷ୍ଟାକ ସକ୍ଷମ କରନ୍ତୁ</string>
+    <string name="gammaos_toolbox_dualstack_enable_summary">ଆଭ୍ୟନ୍ତରୀଣ ଏବଂ ବାହ୍ୟ ଡିସ୍‌ପ୍ଲେରେ ଡୁଆଲ-ରେଜୋଲୁସନ ରେଣ୍ଡରିଂ ସକ୍ଷମ କରନ୍ତୁ।</string>
+    <string name="gammaos_toolbox_dualstack_swap_title">ଡିସ୍‌ପ୍ଲେ ଭୂମିକା ବଦଳାନ୍ତୁ</string>
+    <string name="gammaos_toolbox_dualstack_swap_summary">କେଉଁ ଡିସ୍‌ପ୍ଲେ ଉଚ୍ଚ-ରେଜୋଲୁସନ ଏବଂ କେଉଁଟି ନିମ୍ନ-ରେଜୋଲୁସନ ଆଉଟପୁଟ୍ ପାଏ ତାହା ବଦଳାନ୍ତୁ।</string>
+    <string name="gammaos_toolbox_dualstack_pkgs_title">ଅନୁମୋଦିତ ପ୍ୟାକେଜ</string>
+    <string name="gammaos_toolbox_dualstack_pkgs_summary">ଡୁଆଲ-ଷ୍ଟାକ ରେଣ୍ଡରିଂ ବ୍ୟବହାର କରିବା ଉଚିତ ପ୍ୟାକେଜ ନାମର କମା-ପୃଥକ ତାଲିକା।</string>
+    <string name="gammaos_toolbox_dualstack_kill_title">ସ୍ୱିଚ୍ କଲେ ପ୍ୟାକେଜ ବନ୍ଦ କରନ୍ତୁ</string>
+    <string name="gammaos_toolbox_dualstack_kill_summary">ସ୍ୱଚ୍ଛ ସ୍ଥିତି ନିଶ୍ଚିତ କରିବାକୁ ଡୁଆଲ-ଷ୍ଟାକ ଏବଂ ସାଧାରଣ ମୋଡ୍ ମଧ୍ୟରେ ସ୍ୱିଚ୍ କଲେ ଆପ୍ ବଳପୂର୍ବକ ବନ୍ଦ କରନ୍ତୁ।</string>
+    <string name="gammaos_toolbox_dualstack_nn_title">ନିକଟତମ ପଡ଼ୋଶୀ ସ୍କେଲିଂ</string>
+    <string name="gammaos_toolbox_dualstack_nn_summary">ନିମ୍ନ-ରେଜୋଲୁସନ ଡିସ୍‌ପ୍ଲେ ପାଇଁ ନିକଟତମ ପଡ଼ୋଶୀ (ସ୍ପଷ୍ଟ ପିକ୍ସେଲ) ସ୍କେଲିଂ ବ୍ୟବହାର କରନ୍ତୁ। ବାଇଲିନିୟର (ମସୃଣ) ସ୍କେଲିଂ ପାଇଁ ନିଷ୍କ୍ରିୟ କରନ୍ତୁ।</string>
+    <string name="gammaos_toolbox_dualstack_sv_only_title">କେବଳ SurfaceView</string>
+    <string name="gammaos_toolbox_dualstack_sv_only_summary">କେବଳ SurfaceView ସ୍ତର (ଗେମ ବିଷୟବସ୍ତୁ) ରେ ଡୁଆଲ-ଷ୍ଟାକ ପ୍ରୟୋଗ କରନ୍ତୁ ଏବଂ UI ଉପାଦାନଗୁଡ଼ିକୁ ନେଟିଭ ରେଜୋଲୁସନରେ ଛାଡ଼ନ୍ତୁ।</string>
+    <string name="gammaos_toolbox_dualstack_keep_sysui_title">SystemUI ଦୃଶ୍ୟମାନ ରଖନ୍ତୁ</string>
+    <string name="gammaos_toolbox_dualstack_keep_sysui_summary">SurfaceView-ମାତ୍ର ମୋଡ୍‌ରେ SystemUI (ସ୍ଥିତି ବାର, ନାଭିଗେସନ) ପୂର୍ଣ୍ଣ ରେଜୋଲୁସନରେ ଦୃଶ୍ୟମାନ ରଖନ୍ତୁ।</string>
+    <string name="gammaos_toolbox_dualstack_max_fb_title">ସର୍ବାଧିକ ଫ୍ରେମବଫର ବଫର</string>
+    <string name="gammaos_toolbox_dualstack_max_fb_summary">ଡୁଆଲ-ଷ୍ଟାକ ମୋଡ୍‌ରେ ସର୍ବାଧିକ ଅଧିଗ୍ରହିତ ଫ୍ରେମବଫର ବଫର ସଂଖ୍ୟା। ଡିଫଲ୍ଟ: 3।</string>
+    <string name="gammaos_toolbox_dualstack_no_backpressure_title">GL ବ୍ୟାକପ୍ରେସର ନିଷ୍କ୍ରିୟ</string>
+    <string name="gammaos_toolbox_dualstack_no_backpressure_summary">ଡୁଆଲ-ଷ୍ଟାକ ମୋଡ୍‌ରେ OpenGL ବ୍ୟାକପ୍ରେସର ନିଷ୍କ୍ରିୟ କରନ୍ତୁ। ଫ୍ରେମ ଡ୍ରପ ରୋକେ କିନ୍ତୁ ବିଳମ୍ବ ବଢ଼ାଇପାରେ।</string>
+    <string name="gammaos_toolbox_dualstack_blast_tune_title">BLAST ବଫର ଟ୍ୟୁନିଂ</string>
+    <string name="gammaos_toolbox_dualstack_blast_tune_summary">ଡୁଆଲ-ଷ୍ଟାକ ମୋଡ ପାଇଁ BLAST ବଫର କ୍ୟୁ ଟ୍ୟୁନିଂ ସକ୍ଷମ କରନ୍ତୁ।</string>
+    <string name="gammaos_toolbox_dualstack_blast_async_title">BLAST ଏସିଙ୍କ ମୋଡ</string>
+    <string name="gammaos_toolbox_dualstack_blast_async_summary">ଡୁଆଲ-ଷ୍ଟାକ BLAST ମୋଡରେ ଏସିଙ୍କ୍ରୋନସ ବଫର ସବମିସନ ବ୍ୟବହାର କରନ୍ତୁ।</string>
+
+    <string name="gammaos_toolbox_category_external">ବାହ୍ୟ ଡିସ୍‌ପ୍ଲେ</string>
+    <string name="gammaos_toolbox_category_external_description">ବାହ୍ୟ ଡିସ୍‌ପ୍ଲେ (HDMI, USB-C, DisplayPort) କିପରି ପରିଚାଳିତ ହୁଏ ତାହା ନିୟନ୍ତ୍ରଣ କରେ। ବାହ୍ୟ ଡିସ୍‌ପ୍ଲେକୁ ପ୍ରାଥମିକ କରିବା, ମିରର ମୋଡ୍ ବାଧ୍ୟ କରିବା, ନିର୍ଦ୍ଦିଷ୍ଟ ଆପ୍ ରାଉଟିଂ, ଏବଂ ରେଜୋଲୁସନ ସମନ୍ୱୟ ବିକଳ୍ପ ଅନ୍ତର୍ଭୁକ୍ତ।</string>
+    <string name="gammaos_toolbox_ext_primary_title">ବାହ୍ୟକୁ ପ୍ରାଥମିକ ଭାବେ</string>
+    <string name="gammaos_toolbox_ext_primary_summary">ବାହ୍ୟ ଡିସ୍‌ପ୍ଲେକୁ ପ୍ରାଥମିକ ଡିସ୍‌ପ୍ଲେ ଭାବେ ବ୍ୟବହାର କରନ୍ତୁ। ନିର୍ମିତ ସ୍କ୍ରୀନ ଗୌଣ ହୁଏ।</string>
+    <string name="gammaos_toolbox_ext_force_mirror_title">ମିରର ମୋଡ୍ ବାଧ୍ୟ କରନ୍ତୁ</string>
+    <string name="gammaos_toolbox_ext_force_mirror_summary">ଡେସ୍କଟପ ବିସ୍ତାର ବଦଳରେ ସମସ୍ତ ବାହ୍ୟ ଡିସ୍‌ପ୍ଲେକୁ ପ୍ରାଥମିକ ଡିସ୍‌ପ୍ଲେ ମିରର କରିବାକୁ ବାଧ୍ୟ କରନ୍ତୁ।</string>
+    <string name="gammaos_toolbox_ext_mirror_resize_title">ମିରର ପୁନଃଆକାର</string>
+    <string name="gammaos_toolbox_ext_mirror_resize_summary">ସ୍ଟ୍ରେଚିଂ ବଦଳରେ ବାହ୍ୟ ଡିସ୍‌ପ୍ଲେ ରେଜୋଲୁସନ ସହ ମେଳ ଖାଇବାକୁ ମିରର ଆଉଟପୁଟ୍ ପୁନଃଆକାର କରନ୍ତୁ।</string>
+    <string name="gammaos_toolbox_ext_half_4k_title">4K ରେଜୋଲୁସନ ଅର୍ଦ୍ଧ କରନ୍ତୁ</string>
+    <string name="gammaos_toolbox_ext_half_4k_summary">4K ବାହ୍ୟ ଡିସ୍‌ପ୍ଲେକୁ ଅର୍ଦ୍ଧ ରେଜୋଲୁସନ (1080p) ରେ ହ୍ରାସ କରନ୍ତୁ। ପୂର୍ଣ୍ଣ 4K ଆଉଟପୁଟ୍‌ରେ ସଂଘର୍ଷ କରୁଥିବା ଡିଭାଇସ୍‌ରେ କାର୍ଯ୍ୟସମ୍ପାଦନ ଉନ୍ନତ କରେ।</string>
+    <string name="gammaos_toolbox_ext_sec_force_on_title">ଗୌଣ ଡିସ୍‌ପ୍ଲେ ବାଧ୍ୟ ଚାଲୁ</string>
+    <string name="gammaos_toolbox_ext_sec_force_on_summary">ସିଷ୍ଟମ ସାଧାରଣତଃ ବନ୍ଦ କରିବା ସମୟରେ ମଧ୍ୟ ଗୌଣ ଡିସ୍‌ପ୍ଲେ ଚାଲୁ ରଖନ୍ତୁ।</string>
+    <string name="gammaos_toolbox_secondary_home_title">ଗୌଣ ଡିସ୍‌ପ୍ଲେ ହୋମ ଆପ୍</string>
+    <string name="gammaos_toolbox_secondary_home_summary">ଗୌଣ ଡିସ୍‌ପ୍ଲେ ଲଞ୍ଚର ପାଇଁ ପ୍ୟାକେଜ ନାମ କିମ୍ବା କମ୍ପୋନେଣ୍ଟ। ଉଦାହରଣ: com.android.launcher3/.secondarydisplay.SecondaryDisplayLauncher</string>
+    <string name="gammaos_toolbox_sec_display_enable_title">ଗୌଣକୁ ଆପ୍ ରାଉଟ କରନ୍ତୁ</string>
+    <string name="gammaos_toolbox_sec_display_enable_summary">ନିର୍ଦ୍ଦିଷ୍ଟ ଆପ୍‌ଗୁଡ଼ିକୁ ପ୍ରାଥମିକ ବଦଳରେ ଗୌଣ ଡିସ୍‌ପ୍ଲେରେ ସ୍ୱୟଂଚାଳିତ ଲଞ୍ଚ କରନ୍ତୁ।</string>
+    <string name="gammaos_toolbox_sec_display_pkgs_title">ଗୌଣ ଡିସ୍‌ପ୍ଲେ ପ୍ୟାକେଜ</string>
+    <string name="gammaos_toolbox_sec_display_pkgs_summary">ଗୌଣ ଡିସ୍‌ପ୍ଲେକୁ ରାଉଟ କରିବାକୁ ପ୍ୟାକେଜ ପ୍ରିଫିକ୍ସର କମା-ପୃଥକ ତାଲିକା।</string>
+    <string name="gammaos_toolbox_display_delay_primary_title">ପ୍ରାଥମିକ ଡିସ୍‌ପ୍ଲେ ଫ୍ରେମ ବିଳମ୍ବ</string>
+    <string name="gammaos_toolbox_display_delay_primary_summary">ପ୍ରାଥମିକ ଡିସ୍‌ପ୍ଲେ ଆଉଟପୁଟ୍ ବିଳମ୍ବ କରିବାକୁ ଫ୍ରେମ ସଂଖ୍ୟା। ଡିସ୍‌ପ୍ଲେ ସିଙ୍କ୍ରୋନାଇଜେସନ ପାଇଁ ବ୍ୟବହୃତ। ଡିଫଲ୍ଟ: 0।</string>
+    <string name="gammaos_toolbox_display_delay_external_title">ବାହ୍ୟ ଡିସ୍‌ପ୍ଲେ ଫ୍ରେମ ବିଳମ୍ବ</string>
+    <string name="gammaos_toolbox_display_delay_external_summary">ବାହ୍ୟ ଡିସ୍‌ପ୍ଲେ ଆଉଟପୁଟ୍ ବିଳମ୍ବ କରିବାକୁ ଫ୍ରେମ ସଂଖ୍ୟା। ଡିସ୍‌ପ୍ଲେ ସିଙ୍କ୍ରୋନାଇଜେସନ ପାଇଁ ବ୍ୟବହୃତ। ଡିଫଲ୍ଟ: 0।</string>
+
+    <string name="gammaos_toolbox_category_multidisplay">ମଲ୍ଟି-ଡିସ୍‌ପ୍ଲେ</string>
+    <string name="gammaos_toolbox_category_multidisplay_description">ମଲ୍ଟି-ଡିସ୍‌ପ୍ଲେ ଫୋକସ, ଇନପୁଟ, ଏବଂ ଉଜ୍ଜ୍ୱଳତା ଆଚରଣ ପାଇଁ ନିୟନ୍ତ୍ରଣ। ଏହି ସେଟିଂସ ଏକାଧିକ ସଂଯୁକ୍ତ ଡିସ୍‌ପ୍ଲେରେ ସିଷ୍ଟମ ଫୋକସ ଏବଂ ଇନପୁଟ୍ କିପରି ପରିଚାଳନା କରେ ତାହା ପ୍ରଭାବିତ କରେ।</string>
+    <string name="gammaos_toolbox_dual_focus_title">ଡୁଆଲ ଡିସ୍‌ପ୍ଲେ ଫୋକସ</string>
+    <string name="gammaos_toolbox_dual_focus_summary">ଉଭୟ ଡିସ୍‌ପ୍ଲେକୁ ଏକସାଥୀ ଇନପୁଟ ଫୋକସ ରଖିବାକୁ ଅନୁମତି ଦିଅନ୍ତୁ। ପ୍ରତ୍ୟେକ ଡିସ୍‌ପ୍ଲେରେ ସ୍ୱତନ୍ତ୍ର ଇଣ୍ଟରାକ୍ସନ ସକ୍ଷମ କରେ।</string>
+    <string name="gammaos_toolbox_split_brightness_title">ବିଭକ୍ତ ଉଜ୍ଜ୍ୱଳତା ନିୟନ୍ତ୍ରଣ</string>
+    <string name="gammaos_toolbox_split_brightness_summary">ଏକୀକୃତ ଉଜ୍ଜ୍ୱଳତା ବଦଳରେ ପ୍ରତ୍ୟେକ ସଂଯୁକ୍ତ ଡିସ୍‌ପ୍ଲେ ପାଇଁ ସ୍ୱତନ୍ତ୍ର ଉଜ୍ଜ୍ୱଳତା ନିୟନ୍ତ୍ରଣ ଅନୁମତି ଦିଅନ୍ତୁ।</string>
+
+    <string name="gammaos_toolbox_category_ime">ଇନପୁଟ ପଦ୍ଧତି</string>
+    <string name="gammaos_toolbox_category_ime_description">ମଲ୍ଟି-ଡିସ୍‌ପ୍ଲେ ସେଟଅପ୍‌ରେ ସଫ୍ଟୱେର କୀବୋର୍ଡ (IME) କେଉଁଠାରେ ଦେଖାଯାଏ ତାହା ନିୟନ୍ତ୍ରଣ କରେ। କୀବୋର୍ଡକୁ ଏକ ନିର୍ଦ୍ଦିଷ୍ଟ ଡିସ୍‌ପ୍ଲେରେ ପିନ କରନ୍ତୁ କିମ୍ବା ଗୌଣ ସ୍କ୍ରୀନକୁ ସ୍ୱାପ କରନ୍ତୁ।</string>
+    <string name="gammaos_toolbox_ime_pin_title">ଡିସ୍‌ପ୍ଲେରେ IME ପିନ କରନ୍ତୁ</string>
+    <string name="gammaos_toolbox_ime_pin_summary">ଫୋକସ୍ ୱିଣ୍ଡୋ ଅନୁସରଣ ବଦଳରେ ସଫ୍ଟୱେର କୀବୋର୍ଡକୁ ଏକ ନିର୍ଦ୍ଦିଷ୍ଟ ଡିସ୍‌ପ୍ଲେରେ ପିନ କରନ୍ତୁ।</string>
+    <string name="gammaos_toolbox_ime_display_id_title">IME ଡିସ୍‌ପ୍ଲେ ID</string>
+    <string name="gammaos_toolbox_ime_display_id_summary">ପିନ ହେଲେ IME କେଉଁ ଡିସ୍‌ପ୍ଲେରେ ଦେଖାଯିବ ସେହି ଡିସ୍‌ପ୍ଲେ ID। 0 = ନିର୍ମିତ ଡିସ୍‌ପ୍ଲେ, 1+ = ବାହ୍ୟ ଡିସ୍‌ପ୍ଲେ।</string>
+    <string name="gammaos_toolbox_ime_swap_title">IME ଗୌଣକୁ ସ୍ୱାପ କରନ୍ତୁ</string>
+    <string name="gammaos_toolbox_ime_swap_summary">କୀବୋର୍ଡକୁ ପ୍ରଥମ ଅଣ-ଡିଫଲ୍ଟ ଡିସ୍‌ପ୍ଲେକୁ ସ୍ଥାନାନ୍ତର କରନ୍ତୁ। କୌଣସି ସ୍ପଷ୍ଟ ଡିସ୍‌ପ୍ଲେ ID ସେଟ୍ ନହେଲେ ହିଁ ବ୍ୟବହୃତ।</string>
+
+    <string name="gammaos_toolbox_category_audio">ଅଡିଓ</string>
+    <string name="gammaos_toolbox_category_audio_description">ଅଡିଓ ରାଉଟିଂ ଏବଂ ଭଲ୍ୟୁମ ନିୟନ୍ତ୍ରଣ ଓଭରରାଇଡ୍। Unisoc ଏବଂ Allwinner SoC ପାଇଁ ଚିପସେଟ୍-ନିର୍ଦ୍ଦିଷ୍ଟ HDMI ଅଡିଓ ସମାଧାନ ଅନ୍ତର୍ଭୁକ୍ତ।</string>
+    <string name="gammaos_toolbox_audio_multivolume_title">ମଲ୍ଟି-ଭଲ୍ୟୁମ ନିୟନ୍ତ୍ରଣ</string>
+    <string name="gammaos_toolbox_audio_multivolume_summary">ବିଭିନ୍ନ ଅଡିଓ ଷ୍ଟ୍ରୀମ (ମିଡିଆ, ବିଜ୍ଞପ୍ତି, ଆଲାର୍ମ) ପାଇଁ ସ୍ୱତନ୍ତ୍ର ଭଲ୍ୟୁମ ନିୟନ୍ତ୍ରଣ ସକ୍ଷମ କରନ୍ତୁ।</string>
+    <string name="gammaos_toolbox_unisoc_hdmi_title">Unisoc HDMI ଅଡିଓ</string>
+    <string name="gammaos_toolbox_unisoc_hdmi_summary">Unisoc ଚିପସେଟ୍‌ରେ HDMI ଅଡିଓ ଆଉଟପୁଟ୍ ସକ୍ଷମ କରନ୍ତୁ। କେବଳ Unisoc-ଆଧାରିତ ଡିଭାଇସ୍ ପାଇଁ ପ୍ରଯୁଜ୍ୟ।</string>
+    <string name="gammaos_toolbox_allwinner_hdmi_title">Allwinner HDMI ଅଡିଓ</string>
+    <string name="gammaos_toolbox_allwinner_hdmi_summary">Allwinner ଚିପସେଟ୍‌ରେ HDMI ଅଡିଓ ଆଉଟପୁଟ୍ ସକ୍ଷମ କରନ୍ତୁ। କେବଳ Allwinner-ଆଧାରିତ ଡିଭାଇସ୍ ପାଇଁ ପ୍ରଯୁଜ୍ୟ।</string>
+
+    <string name="gammaos_toolbox_category_gamepad">ଗେମପ୍ୟାଡ୍ (GammaPad)</string>
+    <string name="gammaos_toolbox_category_gamepad_description">GammaPad ଡେମନ୍ କନଫିଗରେସନ୍। ଭୌତିକ ଗେମପ୍ୟାଡ୍ ଇନପୁଟ ଡିଭାଇସ୍ କ୍ୟାପ୍ଚର କରେ, ସେଗୁଡ଼ିକୁ ଏକ ଭର୍ଚୁଆଲ Xbox କଣ୍ଟ୍ରୋଲରରେ ମିଶ୍ରଣ କରେ, ଏବଂ ବଟନ ରିମ୍ୟାପିଂ, ଷ୍ଟିକ୍ କ୍ୟାଲିବ୍ରେସନ, ଏବଂ ମାଉସ ମୋଡ୍ ଇମୁଲେସନ ପ୍ରଦାନ କରେ।</string>
+    <string name="gammaos_toolbox_gamepad_enable_title">GammaPad ସକ୍ଷମ କରନ୍ତୁ</string>
+    <string name="gammaos_toolbox_gamepad_enable_summary">ଗେମପ୍ୟାଡ୍ ଇନପୁଟ ଡିଭାଇସ୍ କ୍ୟାପ୍ଚର ଏବଂ ରିମ୍ୟାପ କରିବାକୁ GammaPad ଡେମନ ଆରମ୍ଭ କରନ୍ତୁ।</string>
+    <string name="gammaos_toolbox_gamepad_merge_title">ଡିଭାଇସ୍ ମିଶ୍ରଣ କରନ୍ତୁ</string>
+    <string name="gammaos_toolbox_gamepad_merge_summary">ଏକାଧିକ ଭୌତିକ ଇନପୁଟ ଡିଭାଇସ୍‌କୁ ଏକ ଭର୍ଚୁଆଲ ଗେମପ୍ୟାଡ୍‌ରେ ମିଳାନ୍ତୁ।</string>
+    <string name="gammaos_toolbox_gamepad_hide_source_title">ଭୌତିକ ଡିଭାଇସ ଲୁଚାନ୍ତୁ</string>
+    <string name="gammaos_toolbox_gamepad_hide_source_summary">GammaPad ଦ୍ୱାରା କ୍ୟାପ୍ଚର ହେଲେ ଆପ୍‌ଗୁଡ଼ିକରୁ ମୂଳ ଭୌତିକ ଡିଭାଇସ ନୋଡ ଲୁଚାନ୍ତୁ।</string>
+    <string name="gammaos_toolbox_gamepad_devices_title">କ୍ୟାପ୍ଚର କରିବାକୁ ଡିଭାଇସ</string>
+    <string name="gammaos_toolbox_gamepad_devices_summary">କ୍ୟାପ୍ଚର କରିବାକୁ କମା-ପୃଥକ ଡିଭାଇସ ନାମ। ଗେମପ୍ୟାଡ ସ୍ୱୟଂ-ଚିହ୍ନଟ ପାଇଁ ଖାଲି ଛାଡ଼ନ୍ତୁ।</string>
+    <string name="gammaos_toolbox_gamepad_abxy_swap_title">ABXY ଲେଆଉଟ ବଦଳାନ୍ତୁ</string>
+    <string name="gammaos_toolbox_gamepad_abxy_swap_summary">Xbox ଏବଂ Nintendo ଲେଆଉଟ ମଧ୍ୟରେ A/B ଏବଂ X/Y ବଟନ ସ୍ଥିତି ବଦଳାନ୍ତୁ।</string>
+    <string name="gammaos_toolbox_gamepad_invert_left_title">ବାମ ଷ୍ଟିକ ଓଲଟାନ୍ତୁ</string>
+    <string name="gammaos_toolbox_gamepad_invert_left_summary">ବାମ ଆନାଲଗ ଷ୍ଟିକ୍‌ର Y-ଅକ୍ଷ ଓଲଟାନ୍ତୁ।</string>
+    <string name="gammaos_toolbox_gamepad_invert_right_title">ଡାହାଣ ଷ୍ଟିକ ଓଲଟାନ୍ତୁ</string>
+    <string name="gammaos_toolbox_gamepad_invert_right_summary">ଡାହାଣ ଆନାଲଗ ଷ୍ଟିକ୍‌ର Y-ଅକ୍ଷ ଓଲଟାନ୍ତୁ।</string>
+    <string name="gammaos_toolbox_gamepad_analog_dpad_title">ଆନାଲଗ ଷ୍ଟିକ୍‌ରୁ D-pad</string>
+    <string name="gammaos_toolbox_gamepad_analog_dpad_summary">ବାମ ଆନାଲଗ ଷ୍ଟିକ ଇନପୁଟକୁ D-pad ଦିଗନିର୍ଦ୍ଦେଶ ଇଭେଣ୍ଟରେ ରୂପାନ୍ତର କରନ୍ତୁ।</string>
+    <string name="gammaos_toolbox_gamepad_dpad_analog_title">D-pad ରୁ ଆନାଲଗ ଷ୍ଟିକ</string>
+    <string name="gammaos_toolbox_gamepad_dpad_analog_summary">D-pad ଦିଗନିର୍ଦ୍ଦେଶ ଇନପୁଟକୁ ବାମ ଆନାଲଗ ଷ୍ଟିକ ଇଭେଣ୍ଟରେ ରୂପାନ୍ତର କରନ୍ତୁ।</string>
+    <string name="gammaos_toolbox_gamepad_dpad_threshold_title">D-pad ଥ୍ରେସହୋଲ୍ଡ</string>
+    <string name="gammaos_toolbox_gamepad_dpad_threshold_summary">D-pad ଇଭେଣ୍ଟ ଟ୍ରିଗର କରିବାକୁ ଆନାଲଗ ଷ୍ଟିକ ବିଚ୍ୟୁତି ଥ୍ରେସହୋଲ୍ଡ (0\u2013100)। ଡିଫଲ୍ଟ: 50।</string>
+    <string name="gammaos_toolbox_gamepad_sensitivity_title">ଗ୍ଲୋବାଲ ଷ୍ଟିକ ସମ୍ବେଦନଶୀଳତା</string>
+    <string name="gammaos_toolbox_gamepad_sensitivity_summary">ସମସ୍ତ ଆନାଲଗ ଷ୍ଟିକ ପାଇଁ ଗ୍ଲୋବାଲ ସମ୍ବେଦନଶୀଳତା ସମନ୍ୱୟ। 0 = ଡିଫଲ୍ଟ, ଧନାତ୍ମକ ମୂଲ୍ୟ ବଢ଼ାଏ, ଋଣାତ୍ମକ ହ୍ରାସ କରେ।</string>
+    <string name="gammaos_toolbox_gamepad_pwm_enable_title">PWM କମ୍ପନ</string>
+    <string name="gammaos_toolbox_gamepad_pwm_enable_summary">ରମ୍ବଲ ଇଫେକ୍ଟ ପାଇଁ PWM-ଆଧାରିତ କମ୍ପନ ଆଉଟପୁଟ ସକ୍ଷମ କରନ୍ତୁ।</string>
+    <string name="gammaos_toolbox_gamepad_pwm_intensity_title">PWM କମ୍ପନ ତୀବ୍ରତା</string>
+    <string name="gammaos_toolbox_gamepad_pwm_intensity_summary">କମ୍ପନ ତୀବ୍ରତା ସ୍ତର (0\u2013255)। ଡିଫଲ୍ଟ: 255।</string>
+    <string name="gammaos_toolbox_gamepad_device_name_title">ଭର୍ଚୁଆଲ ଡିଭାଇସ ନାମ</string>
+    <string name="gammaos_toolbox_gamepad_device_name_summary">ଭର୍ଚୁଆଲ ଗେମପ୍ୟାଡ ଡିଭାଇସ ଦ୍ୱାରା ରିପୋର୍ଟ ହୋଇଥିବା ନାମ। ଡିଫଲ୍ଟ: Xbox Wireless Controller।</string>
+    <string name="gammaos_toolbox_gamepad_remap_btn_title">ବଟନ ରିମ୍ୟାପ</string>
+    <string name="gammaos_toolbox_gamepad_remap_btn_summary">ବଟନ ରିମ୍ୟାପିଂ କନଫିଗରେସନ। ଫର୍ମାଟ: src1=dst1,src2=dst2 (Linux କୀକୋଡ)।</string>
+    <string name="gammaos_toolbox_gamepad_remap_axis_title">ଅକ୍ଷ ରିମ୍ୟାପ</string>
+    <string name="gammaos_toolbox_gamepad_remap_axis_summary">ଅକ୍ଷ ରିମ୍ୟାପିଂ କନଫିଗରେସନ। ଫର୍ମାଟ: src1=dst1,src2=dst2 (Linux ଅକ୍ଷ କୋଡ)।</string>
+    <string name="gammaos_toolbox_gamepad_combo_map_title">ବଟନ କಮ୍ବୋ ମ୍ୟାପ</string>
+    <string name="gammaos_toolbox_gamepad_combo_map_summary">ବଟନ ସମ୍ମିଳନକୁ ଏକ କୀ ଇଭେଣ୍ଟରେ ମ୍ୟାପ କରନ୍ତୁ। ଫର୍ମାଟ: btn1+btn2=key,btn3+btn4=key।</string>
+    <string name="gammaos_toolbox_gamepad_axis_btn_title">ଅକ୍ଷ-ରୁ-ବଟନ ମ୍ୟାପ</string>
+    <string name="gammaos_toolbox_gamepad_axis_btn_summary">ଅକ୍ଷ ଇଭେଣ୍ଟକୁ ବଟନ ପ୍ରେସରେ ମ୍ୟାପ କରନ୍ତୁ। ଫର୍ମାଟ: axis:threshold=key (ଉଦା. 5:128=304)।</string>
+    <string name="gammaos_toolbox_gamepad_ff_device_title">ଫୋର୍ସ ଫିଡବ୍ୟାକ ଡିଭାଇସ</string>
+    <string name="gammaos_toolbox_gamepad_ff_device_summary">କମ୍ପନ ଆଉଟପୁଟ ପାଇଁ ଫୋର୍ସ ଫିଡବ୍ୟାକ ଡିଭାଇସର ପଥ। ସ୍ୱୟଂ-ଚିହ୍ନଟ ପାଇଁ ଖାଲି ଛାଡ଼ନ୍ତୁ।</string>
+    <string name="gammaos_toolbox_gamepad_blacklist_pass_title">ପାସ୍‌ଥ୍ରୋ ବ୍ଲ୍ୟାକଲିଷ୍ଟ</string>
+    <string name="gammaos_toolbox_gamepad_blacklist_pass_summary">କ୍ୟାପ୍ଚରରୁ ବାଦ ଦେଇ ସିଧା ପାସ୍ କରିବାକୁ କମା-ପୃଥକ ଡିଭାଇସ ନାମ।</string>
+    <string name="gammaos_toolbox_gamepad_screenmap_title">ସ୍କ୍ରୀନ ମ୍ୟାପିଂ</string>
+    <string name="gammaos_toolbox_gamepad_screenmap_summary">ଗେମପ୍ୟାଡ ବଟନ-ରୁ-ଟଚ ସ୍କ୍ରୀନ ମ୍ୟାପିଂ ମୋଡ ସକ୍ଷମ କରନ୍ତୁ।</string>
+
+    <string name="gammaos_toolbox_category_mouse">ମାଉସ ମୋଡ</string>
+    <string name="gammaos_toolbox_category_mouse_description">GammaPad ମାଉସ ଇମୁଲେସନ ମୋଡ କନଫିଗର କରନ୍ତୁ। ଏକ ବଟନ କମ୍ବୋ ଦ୍ୱାରା ସକ୍ରିୟ ହେଲେ, ଗେମପ୍ୟାଡ ଆନାଲଗ ଷ୍ଟିକ ଏକ ମାଉସ କର୍ସର ନିୟନ୍ତ୍ରଣ କରେ। ଟଚ ଇନପୁଟ ବିନା ଆପ ନାଭିଗେଟ କରିବାକୁ ଉପଯୋଗୀ।</string>
+    <string name="gammaos_toolbox_mouse_stick_speed_title">ଷ୍ଟିକ କର୍ସର ଗତି</string>
+    <string name="gammaos_toolbox_mouse_stick_speed_summary">ଆନାଲଗ ଷ୍ଟିକ ବ୍ୟବହାର କଲେ କର୍ସର ଗତିବେଗ। ଡିଫଲ୍ଟ: 12।</string>
+    <string name="gammaos_toolbox_mouse_dpad_speed_title">D-pad କର୍ସର ଗତି</string>
+    <string name="gammaos_toolbox_mouse_dpad_speed_summary">D-pad ବ୍ୟବହାର କଲେ କର୍ସର ଗତିବେଗ। ଡିଫଲ୍ଟ: 6।</string>
+    <string name="gammaos_toolbox_mouse_boost_title">ବୁଷ୍ଟ ଗୁଣକ</string>
+    <string name="gammaos_toolbox_mouse_boost_summary">ବୁଷ୍ଟ ବଟନ ଧରିଲେ ଗତି ଗୁଣକ (ମୂଲ୍ୟ / 10)। ଡିଫଲ୍ଟ: 20 (2.0x)।</string>
+    <string name="gammaos_toolbox_mouse_scroll_speed_title">ସ୍କ୍ରୋଲ ଗତି</string>
+    <string name="gammaos_toolbox_mouse_scroll_speed_summary">ଡାହାଣ ଆନାଲଗ ଷ୍ଟିକ ବ୍ୟବହାର କଲେ ସ୍କ୍ରୋଲ ହ୍ୱୀଲ ଗତି (ମୂଲ୍ୟ / 10)। ଡିଫଲ୍ଟ: 4 (0.4x)।</string>
+
+    <string name="gammaos_toolbox_category_rgb">RGB LED ସ୍ୟାମ୍ପଲର</string>
+    <string name="gammaos_toolbox_category_rgb_description">ଆମ୍ବିଏଣ୍ଟ ଲାଇଟିଂ ଇଫେକ୍ଟ (Ambilight-ଶୈଳୀ) ପାଇଁ ପ୍ରମୁଖ ସ୍କ୍ରୀନ ରଙ୍ଗ ସ୍ୟାମ୍ପଲ କରେ ଏବଂ ଗେମପ୍ୟାଡ କିମ୍ବା ଡିଭାଇସ RGB LED କୁ ଆଉଟପୁଟ କରେ। କମ-ବିଳମ୍ବ ସ୍ୟାମ୍ପଲିଂ ପାଇଁ SurfaceFlinger ଭିତରେ ଚାଲେ।</string>
+    <string name="gammaos_toolbox_rgb_enable_title">RGB ସ୍ୟାମ୍ପଲର ସକ୍ଷମ କରନ୍ତୁ</string>
+    <string name="gammaos_toolbox_rgb_enable_summary">ଆମ୍ବିଏଣ୍ଟ ଲାଇଟିଂ ପାଇଁ ସ୍କ୍ରୀନ ରଙ୍ଗ ସ୍ୟାମ୍ପଲ କରନ୍ତୁ ଏବଂ RGB LED କୁ ଆଉଟପୁଟ କରନ୍ତୁ।</string>
+    <string name="gammaos_toolbox_rgb_fps_title">ସ୍ୟାମ୍ପଲ ରେଟ (FPS)</string>
+    <string name="gammaos_toolbox_rgb_fps_summary">ପ୍ରତି ସେକେଣ୍ଡରେ କେତେ ଥର ସ୍କ୍ରୀନ ରଙ୍ଗ ସ୍ୟାମ୍ପଲ କରିବ। ପରିସର: 1\u201360। ଡିଫଲ୍ଟ: 6।</string>
+    <string name="gammaos_toolbox_rgb_led_brightness_title">LED ଉଜ୍ଜ୍ୱଳତା</string>
+    <string name="gammaos_toolbox_rgb_led_brightness_summary">ସର୍ବାଧିକ LED ଉଜ୍ଜ୍ୱଳତା ସ୍ତର (0\u2013255)। ଡିଫଲ୍ଟ: 255।</string>
+    <string name="gammaos_toolbox_rgb_scale_brightness_title">ଡିସ୍‌ପ୍ଲେ ଉଜ୍ଜ୍ୱଳତା ସହ ସ୍କେଲ</string>
+    <string name="gammaos_toolbox_rgb_scale_brightness_summary">ଡିସ୍‌ପ୍ଲେ ବ୍ୟାକଲାଇଟ ସ୍ତର ଅନୁପାତରେ LED ଡିମ କରନ୍ତୁ।</string>
+    <string name="gammaos_toolbox_rgb_fade_enable_title">ଫେଡ ପରିବର୍ତ୍ତନ</string>
+    <string name="gammaos_toolbox_rgb_fade_enable_summary">ତୁରନ୍ତ ବଦଳିବା ବଦଳରେ ରଙ୍ଗ ପରିବର୍ତ୍ତନ ମଧ୍ୟରେ ମସୃଣ ଫେଡ କରନ୍ତୁ।</string>
+    <string name="gammaos_toolbox_rgb_fade_fps_title">ଫେଡ ରେଟ (FPS)</string>
+    <string name="gammaos_toolbox_rgb_fade_fps_summary">ଫେଡ ପରିବର୍ତ୍ତନ ପାଇଁ ଆନିମେସନ ଫ୍ରେମରେଟ। ପରିସର: 1\u2013240। ଡିଫଲ୍ଟ: 60।</string>
+    <string name="gammaos_toolbox_rgb_pre_fx_title">ଇଫେକ୍ଟ ପୂର୍ବରୁ ସ୍ୟାମ୍ପଲ</string>
+    <string name="gammaos_toolbox_rgb_pre_fx_summary">CRT ସେଡର ଏବଂ BFI ଇଫେକ୍ଟ ପ୍ରୟୋଗ ପୂର୍ବରୁ ସ୍କ୍ରୀନ ରଙ୍ଗ ସ୍ୟାମ୍ପଲ କରନ୍ତୁ। ଅଧିକ ସଠିକ ରଙ୍ଗ ଉତ୍ପାଦନ କରେ।</string>
+    <string name="gammaos_toolbox_rgb_effect_title">LED ଇଫେକ୍ଟ</string>
+    <string name="gammaos_toolbox_rgb_effect_summary">ନାମିତ LED ଆନିମେସନ ଇଫେକ୍ଟ। ସ୍କ୍ରୀନ-ସ୍ୟାମ୍ପଲ ରଙ୍ଗ ମୋଡ ପାଇଁ ଖାଲି ଛାଡ଼ନ୍ତୁ।</string>
+    <string name="gammaos_toolbox_rgb_split_title">ବାମ/ଡାହାଣ ବିଭାଜନ</string>
+    <string name="gammaos_toolbox_rgb_split_summary">ଡୁଆଲ-ଜୋନ LED ସେଟଅପ ପାଇଁ ସ୍କ୍ରୀନର ବାମ ଏବଂ ଡାହାଣ ଅର୍ଦ୍ଧ ଅଲଗା ସ୍ୟାମ୍ପଲ କରନ୍ତୁ।</string>
+    <string name="gammaos_toolbox_rgb_sat_boost_title">ସ୍ୟାଚୁରେସନ ବୁଷ୍ଟ</string>
+    <string name="gammaos_toolbox_rgb_sat_boost_summary">ଅଧିକ ଜୀବନ୍ତ LED ଆଉଟପୁଟ ପାଇଁ ରଙ୍ଗ ସ୍ୟାଚୁରେସନ ବୁଷ୍ଟ କରନ୍ତୁ। ଡିଫଲ୍ଟ: 1.4।</string>
+
+    <string name="gammaos_toolbox_category_launch_guard">ଲଞ୍ଚ ଗାର୍ଡ</string>
+    <string name="gammaos_toolbox_category_launch_guard_description">ନିର୍ଦ୍ଦିଷ୍ଟ କଲର ଆପ୍‌ଗୁଡ଼ିକୁ ନିର୍ଦ୍ଦିଷ୍ଟ ଲକ୍ଷ୍ୟ ଆପ ଲଞ୍ଚ କରିବାରୁ ରୋକେ। Daijishou କିମ୍ବା ES-DE ପରି ଫ୍ରଣ୍ଟଏଣ୍ଡରୁ ଅନାବଶ୍ୟକ ଆପ ଲଞ୍ଚ ବ୍ଲକ କରିବାକୁ ଉପଯୋଗୀ ଯାହା ଭୁଲ ଇମୁଲେଟର ଆକସ୍ମିକ ଲଞ୍ଚ କରିପାରେ।</string>
+    <string name="gammaos_toolbox_launch_guard_enable_title">ଲଞ୍ଚ ଗାର୍ଡ ସକ୍ଷମ କରନ୍ତୁ</string>
+    <string name="gammaos_toolbox_launch_guard_enable_summary">ନିର୍ଦ୍ଦିଷ୍ଟ କଲରମାନଙ୍କୁ ନିର୍ଦ୍ଦିଷ୍ଟ ଲକ୍ଷ୍ୟ ଆପ ଲଞ୍ଚ କରିବାରୁ ବ୍ଲକ କରନ୍ତୁ।</string>
+    <string name="gammaos_toolbox_launch_guard_callers_title">କଲର ପ୍ୟାକେଜ</string>
+    <string name="gammaos_toolbox_launch_guard_callers_summary">ଲକ୍ଷ୍ୟ ଲଞ୍ଚ କରିବାରୁ ବ୍ଲକ କରିବା ଉଚିତ ପ୍ୟାକେଜ ନାମର କମା-ପୃଥକ ତାଲିକା।</string>
+    <string name="gammaos_toolbox_launch_guard_targets_title">ଲକ୍ଷ୍ୟ ପ୍ୟାକେଜ</string>
+    <string name="gammaos_toolbox_launch_guard_targets_summary">କଲରମାନଙ୍କୁ ଲଞ୍ଚ କରିବାରୁ ବ୍ଲକ କରିବା ଉଚିତ ପ୍ୟାକେଜ ନାମର କମା-ପୃଥକ ତାଲିକା।</string>
+
+    <string name="gammaos_toolbox_category_system">ସିଷ୍ଟମ</string>
+    <string name="gammaos_toolbox_category_system_description">କ୍ୱିକ ସେଟିଂସ ଟାଇଲ ଦୃଶ୍ୟତା, ପୃଷ୍ଠଭୂମି ପ୍ରକ୍ରିୟା ସୀମା, ଜାଗ ଜେଶ୍ଚର ଫିଲ୍ଟରିଂ, ଏବଂ କାର୍ଯ୍ୟସମ୍ପାଦନ ମୋଡ ଚୟନ ସହିତ ବିବିଧ ସିଷ୍ଟମ-ସ୍ତର ଓଭରରାଇଡ।</string>
+    <string name="gammaos_toolbox_qs_blacklist_title">QS ଟାଇଲ ବ୍ଲ୍ୟାକଲିଷ୍ଟ</string>
+    <string name="gammaos_toolbox_qs_blacklist_summary">ଟାଇଲ ପିକରରୁ ଲୁଚାଇବାକୁ କ୍ୱିକ ସେଟିଂସ ଟାଇଲ ନାମର କମା-ପୃଥକ ତାଲିକା।</string>
+    <string name="gammaos_toolbox_bg_process_limit_title">ପୃଷ୍ଠଭୂମି ପ୍ରକ୍ରିୟା ସୀମା</string>
+    <string name="gammaos_toolbox_bg_process_limit_summary">ସର୍ବାଧିକ ଅନୁମୋଦିତ ପୃଷ୍ଠଭୂମି ପ୍ରକ୍ରିୟା ସଂଖ୍ୟା। କମ ମୂଲ୍ୟ RAM ମୁକ୍ତ କରେ କିନ୍ତୁ ଆପ ବନ୍ଦ କରିପାରେ। ଡିଫଲ୍ଟ: ସିଷ୍ଟମ ପରିଚାଳିତ।</string>
+    <string name="gammaos_toolbox_gesture_wake_title">ଜାଗ ଜେଶ୍ଚର ଫିଲ୍ଟର</string>
+    <string name="gammaos_toolbox_gesture_wake_summary">ଆକସ୍ମିକ ସ୍କ୍ରୀନ ଜାଗ ରୋକିବାକୁ ନିର୍ଦ୍ଦିଷ୍ଟ ଜାଗ ଜେଶ୍ଚର ଫିଲ୍ଟର କରନ୍ତୁ। କମା-ପୃଥକ ଜେଶ୍ଚର ଚିହ୍ନଟକାରୀ।</string>
+    <string name="gammaos_toolbox_performance_mode_title">କାର୍ଯ୍ୟସମ୍ପାଦନ ମୋଡ</string>
+    <string name="gammaos_toolbox_performance_mode_summary">CPU/GPU ଗଭର୍ଣ୍ଣର ଟ୍ୟୁନିଂ ପାଇଁ କାର୍ଯ୍ୟସମ୍ପାଦନ ପ୍ରୋଫାଇଲ। ବିକଳ୍ପ: stock, performance, powersave।</string>
+
+    <string name="gammaos_toolbox_category_power">ଶକ୍ତି ଏବଂ କାର୍ଯ୍ୟସମ୍ପାଦନ</string>
+    <string name="gammaos_toolbox_category_power_description">ଶକ୍ତି ପରିଚାଳନା, ଫ୍ୟାନ ନିୟନ୍ତ୍ରଣ, ଏବଂ ପ୍ରକ୍ରିୟା ସୀମିତ। ଏଗୁଡ଼ିକ ବ୍ୟାଟେରୀ ଜୀବନ, ଥର୍ମାଲ ଆଚରଣ, ଏବଂ ସିଷ୍ଟମ ପ୍ରତିକ୍ରିୟାଶୀଳତାକୁ ପ୍ରଭାବିତ କରେ।</string>
+    <string name="gammaos_toolbox_fan_mode_title">ଫ୍ୟାନ ମୋଡ</string>
+    <string name="gammaos_toolbox_fan_mode_summary">ସକ୍ରିୟ କୁଲିଂ ଥିବା ଡିଭାଇସ ପାଇଁ ଫ୍ୟାନ ନିୟନ୍ତ୍ରଣ ପ୍ରୋଫାଇଲ। ଡିଭାଇସ-ନିର୍ଦ୍ଦିଷ୍ଟ ମୂଲ୍ୟ।</string>
+    <string name="gammaos_toolbox_ultra_low_power_title">ଅତି କମ ଶକ୍ତି ମୋଡ</string>
+    <string name="gammaos_toolbox_ultra_low_power_summary">ଡୀପ ସ୍ଲିପ / ଅତି-କମ-ଶକ୍ତି ସଞ୍ଚୟ ମୋଡ ସକ୍ଷମ କରନ୍ତୁ। ଆକ୍ରମଣାତ୍ମକ ଭାବରେ ପୃଷ୍ଠଭୂମି ଆପ ଫ୍ରିଜ କରେ।</string>
+    <string name="gammaos_toolbox_ultra_low_power_exclude_title">କମ ଶକ୍ତି ଫ୍ରିଜ ବାଦ</string>
+    <string name="gammaos_toolbox_ultra_low_power_exclude_summary">ଅତି କମ ଶକ୍ତି ମୋଡରେ ପ୍ରକ୍ରିୟା ଫ୍ରିଜିଂରୁ ବାଦ ଦେବାକୁ କମା-ପୃଥକ ପ୍ୟାକେଜ ନାମ।</string>
+
+    <string name="gammaos_toolbox_category_retro">RetroArch ଏବଂ ଇମୁଲେସନ</string>
+    <string name="gammaos_toolbox_category_retro_description">RetroArch ଏବଂ ଇମୁଲେସନ ପାଇଁ ନିର୍ଦ୍ଦିଷ୍ଟ ଓଭରରାଇଡ। ରେଟ୍ରୋ-ଶୈଳୀ ଡିଭାଇସ ପାଇଁ ବ୍ୟାକ ବଟନ ଆଚରଣ ଏବଂ LED ସୂଚକ ନିୟନ୍ତ୍ରଣ କରେ।</string>
+    <string name="gammaos_toolbox_retroarch_backbutton_title">RetroArch ବ୍ୟାକ ବଟନ ଓଭରରାଇଡ</string>
+    <string name="gammaos_toolbox_retroarch_backbutton_summary">RetroArch ଭିତରେ ବ୍ୟାକ ବଟନ ଆଚରଣ ଓଭରରାଇଡ କରନ୍ତୁ। 0 = ଡିଫଲ୍ଟ, 1 = ଓଭରରାଇଡ।</string>
+    <string name="gammaos_toolbox_startselectled_title">Start/Select LED ସୂଚକ</string>
+    <string name="gammaos_toolbox_startselectled_summary">ରେଟ୍ରୋ-ଶୈଳୀ ଡିଭାଇସରେ Start/Select ବଟନ ପାଇଁ LED ସୂଚକ ସକ୍ଷମ କରନ୍ତୁ।</string>
+
+    <string name="gammaos_toolbox_category_usb">USB ଏବଂ ଡକିଂ</string>
+    <string name="gammaos_toolbox_category_usb_description">USB କଣ୍ଟ୍ରୋଲର ମୋଡ ସ୍ୱିଚିଂ ଏବଂ ଡିସ୍‌ପ୍ଲେ ଡକିଂ ଆଚରଣ। ଡିଭାଇସ USB ପେରିଫେରାଲ ଏବଂ ଡକ୍ଡ ମୋଡ କିପରି ପରିଚାଳନା କରେ ତାହା ପ୍ରଭାବିତ କରେ।</string>
+    <string name="gammaos_toolbox_usb_controller_switch_title">USB କଣ୍ଟ୍ରୋଲର ମୋଡ ସ୍ୱିଚ</string>
+    <string name="gammaos_toolbox_usb_controller_switch_summary">ଡକ୍/ଅନଡକ୍ ହେଲେ ସ୍ୱୟଂଚାଳିତ USB କଣ୍ଟ୍ରୋଲର ମୋଡ ସ୍ୱିଚ କରନ୍ତୁ।</string>
+    <string name="gammaos_toolbox_dc_dimming_title">DC ଡିମିଂ ଇମୁଲେସନ</string>
+    <string name="gammaos_toolbox_dc_dimming_summary">କମ ଉଜ୍ଜ୍ୱଳତାରେ PWM ଝଲକ ହ୍ରାସ ପାଇଁ ସଫ୍ଟୱେରରେ DC ଡିମିଂ ଅନୁକରଣ କରନ୍ତୁ।</string>
+
+    <string name="gammaos_toolbox_taskbar_dual_title">ଡୁଆଲ-ଡିସ୍‌ପ୍ଲେ ଟାସ୍କବାର</string>
+    <string name="gammaos_toolbox_taskbar_dual_summary">ମଲ୍ଟି-ଡିସ୍‌ପ୍ଲେ ମୋଡରେ ଉଭୟ ଡିସ୍‌ପ୍ଲେରେ ଟାସ୍କବାର ଦେଖାନ୍ତୁ।</string>
+    <string name="gammaos_toolbox_wallpaper_multidisplay_title">ମଲ୍ଟି-ଡିସ୍‌ପ୍ଲେ ୱାଲପେପର</string>
+    <string name="gammaos_toolbox_wallpaper_multidisplay_summary">ସମସ୍ତ ସଂଯୁକ୍ତ ଡିସ୍‌ପ୍ଲେରେ ୱାଲପେପର ରେଣ୍ଡର କରିବାକୁ ବାଧ୍ୟ କରନ୍ତୁ।</string>
+
+    <string name="gammaos_toolbox_qs_override_title">QS ଡିଫଲ୍ଟ ଟାଇଲ ଓଭରରାଇଡ</string>
+    <string name="gammaos_toolbox_qs_override_summary">ଡିଫଲ୍ଟ କ୍ୱିକ ସେଟିଂସ ଟାଇଲ ଲେଆଉଟ ଓଭରରାଇଡ କରନ୍ତୁ। କମା-ପୃଥକ ଟାଇଲ କ୍ଲାସ ନାମ।</string>
+
+    <string name="gammaos_toolbox_bfi_mode_ctm">CTM (ହାର୍ଡୱେର)</string>
+    <string name="gammaos_toolbox_bfi_mode_re">RE (ସଫ୍ଟୱେର)</string>
+</resources>

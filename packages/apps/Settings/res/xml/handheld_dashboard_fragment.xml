@@ -20,4 +20,11 @@
     android:key="handheld_dashboard_screen"
     android:title="@string/handheld_settings_title">
 
+    <Preference
+        android:key="gammaos_toolbox"
+        android:icon="@drawable/ic_gammaos_toolbox"
+        android:title="@string/gammaos_toolbox_title"
+        android:summary="@string/gammaos_toolbox_summary"
+        android:fragment="com.android.settings.handheld.GammaOSToolboxFragment" />
+
 </PreferenceScreen>

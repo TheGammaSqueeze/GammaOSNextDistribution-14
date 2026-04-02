@@ -1,0 +1,372 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="gammaos_toolbox_title">GammaOS Toolbox</string>
+    <string name="gammaos_toolbox_summary">고급 시스템 속성 재정의</string>
+    <string name="gammaos_toolbox_warning">경고: 이 설정은 저수준 시스템 속성을 수정합니다. 일부 옵션은 사용자의 기기나 하드웨어에 적용되지 않을 수 있습니다. 값을 잘못 변경하면 디스플레이 결함, 성능 문제 또는 불안정을 초래할 수 있습니다. 자기 책임하에 진행하십시오.</string>
+    <string name="gammaos_toolbox_restore_default">기본값 복원</string>
+    <string name="gammaos_toolbox_value_not_set">설정되지 않음</string>
+
+    <string name="gammaos_toolbox_category_display">디스플레이</string>
+    <string name="gammaos_toolbox_category_display_description">새로고침률, 회전, 합성 모드, 몰입형 동작을 포함한 디스플레이 렌더링 방식을 제어합니다. 기본 디스플레이와 일반 렌더링 파이프라인에 영향을 줍니다.</string>
+    <string name="gammaos_toolbox_immersive_title">몰입 모드 강제</string>
+    <string name="gammaos_toolbox_immersive_summary">시스템 전체에서 상태 표시줄과 탐색 표시줄을 숨깁니다. 가장자리에서 스와이프하여 표시줄을 다시 나타낼 수 있습니다.</string>
+    <string name="gammaos_toolbox_refresh_lock_title">새로고침률 잠금</string>
+    <string name="gammaos_toolbox_refresh_lock_summary">디스플레이가 항상 가장 높은 새로고침률을 유지하도록 강제합니다. 시스템이 동적으로 낮추는 것을 방지합니다.</string>
+    <string name="gammaos_toolbox_refresh_rate_title">목표 새로고침률 (Hz)</string>
+    <string name="gammaos_toolbox_refresh_rate_summary">특정 고정 새로고침률을 Hz 단위로 설정합니다. 새로고침률 잠금이 활성화된 경우에만 적용됩니다. 자동은 0으로 설정하십시오.</string>
+    <string name="gammaos_toolbox_display_tweaks_title">디스플레이 타이밍 조정</string>
+    <string name="gammaos_toolbox_display_tweaks_summary">VSync, 스케줄러 및 HWComposer를 위한 GammaOS 디스플레이 타이밍 최적화를 활성화합니다. 지원되는 하드웨어에서 프레임 페이싱을 개선합니다.</string>
+    <string name="gammaos_toolbox_force_client_comp_title">클라이언트 합성 강제</string>
+    <string name="gammaos_toolbox_force_client_comp_summary">하드웨어 오버레이 대신 모든 레이어가 GPU(클라이언트) 합성을 사용하도록 강제합니다. HWComposer가 시각적 아티팩트를 유발할 때 유용합니다.</string>
+    <string name="gammaos_toolbox_rotation_cooldown_title">회전 대기 시간 (ms)</string>
+    <string name="gammaos_toolbox_rotation_cooldown_summary">디스플레이 회전 변경 사이의 최소 시간(밀리초). 빠른 회전 깜박임을 방지합니다. 비활성화하려면 0으로 설정하십시오.</string>
+    <string name="gammaos_toolbox_desktop_fullscreen_title">데스크톱 모드 전체 화면</string>
+    <string name="gammaos_toolbox_desktop_fullscreen_summary">데스크톱 모드에서 앱이 창 모드 대신 전체 화면으로 실행되도록 강제합니다. 포인터 입력이 없는 기기에 유용합니다.</string>
+    <string name="gammaos_toolbox_display_unique_names_title">고유 디스플레이 이름</string>
+    <string name="gammaos_toolbox_display_unique_names_summary">하드웨어 식별을 기반으로 연결된 각 디스플레이에 고유 이름을 할당합니다. 다중 모니터 설정에서 디스플레이를 구분하는 데 도움이 됩니다.</string>
+    <string name="gammaos_toolbox_keep_underlay_title">알림 창에서 하단 앱 유지</string>
+    <string name="gammaos_toolbox_keep_underlay_summary">알림 창을 내렸을 때 하단 앱을 어둡게 하지 않고 계속 표시합니다.</string>
+    <string name="gammaos_toolbox_renderengine_backend_title">RenderEngine 백엔드</string>
+    <string name="gammaos_toolbox_renderengine_backend_summary">GPU 렌더링 백엔드를 재정의합니다. 시스템 기본값을 사용하려면 비워두십시오. 가능한 값: skiagl, skiaglthreaded, skiavk.</string>
+    <string name="gammaos_toolbox_vsync_period_title">VSync 주기 재정의 (ns)</string>
+    <string name="gammaos_toolbox_vsync_period_summary">VSync 주기를 나노초 단위로 재정의합니다. 디스플레이의 기본 주기를 사용하려면 0으로 설정하십시오. 예: 120 Hz는 8333333.</string>
+    <string name="gammaos_toolbox_square_sticky_title">정사각형 유지 시간 (ms)</string>
+    <string name="gammaos_toolbox_square_sticky_summary">회전 후 디스플레이가 정사각형 비율을 유지하는 시간(밀리초). 이후 원래 비율로 돌아갑니다. 기본값: 1200.</string>
+
+    <string name="gammaos_toolbox_category_bfi">블랙 프레임 삽입 (BFI)</string>
+    <string name="gammaos_toolbox_category_bfi_description">콘텐츠 프레임 사이에 검은색 또는 어두운 프레임을 삽입하여 모션 블러를 줄이고 CRT 수준의 움직임 선명도를 시뮬레이션합니다. 고주사율 디스플레이가 필요합니다(120 Hz 권장). 두 가지 모드 제공: CTM(색상 변환 매트릭스, 하드웨어 가속) 및 RE(RenderEngine, 소프트웨어).</string>
+    <string name="gammaos_toolbox_bfi_enable_title">BFI 활성화</string>
+    <string name="gammaos_toolbox_bfi_enable_summary">모션 블러를 줄이기 위해 콘텐츠 프레임 사이에 블랙 프레임을 삽입합니다.</string>
+    <string name="gammaos_toolbox_bfi_mode_title">BFI 모드</string>
+    <string name="gammaos_toolbox_bfi_mode_summary">CTM은 하드웨어 색상 변환을 사용합니다(더 빠름, 권장). RE는 RenderEngine을 사용합니다(더 유연, 오버헤드 더 높음).</string>
+    <string name="gammaos_toolbox_bfi_preset_title">BFI 프리셋</string>
+    <string name="gammaos_toolbox_bfi_preset_summary">듀티 사이클 패턴의 명명된 프리셋. 수동 패턴 제어를 하려면 비워두십시오.</string>
+    <string name="gammaos_toolbox_bfi_pattern_title">BFI 패턴</string>
+    <string name="gammaos_toolbox_bfi_pattern_summary">쉼표로 구분된 밝기 값(0.0\u20131.0)으로 된 사용자 지정 듀티 사이클 패턴. 설정하면 프리셋을 재정의합니다.</string>
+    <string name="gammaos_toolbox_bfi_black_floor_title">블랙 플로어</string>
+    <string name="gammaos_toolbox_bfi_black_floor_summary">블랙 프레임의 최소 밝기(0.0\u20131.0). 일부 패널은 완전한 0에서 깜박입니다. 깜박이면 0.01을 시도하십시오.</string>
+    <string name="gammaos_toolbox_bfi_polarity_title">극성 주기 (ms)</string>
+    <string name="gammaos_toolbox_bfi_polarity_summary">BFI 극성 반전의 간격(밀리초). OLED 패널의 DC 바이어스를 방지합니다. 기본값: 1000.</string>
+    <string name="gammaos_toolbox_bfi_subframe_enable_title">서브프레임 BFI</string>
+    <string name="gammaos_toolbox_bfi_subframe_enable_summary">단일 VSync 내에서 더 세밀한 블랙 삽입을 위해 RenderEngine을 사용하는 서브프레임 BFI를 활성화합니다.</string>
+    <string name="gammaos_toolbox_bfi_subframe_phase_title">서브프레임 위상 스텝</string>
+    <string name="gammaos_toolbox_bfi_subframe_phase_summary">서브프레임당 위상 오프셋 스텝. 서브프레임 간의 타이밍 관계를 제어합니다. 기본값: 0.5.</string>
+    <string name="gammaos_toolbox_bfi_subframe_cadence_title">서브프레임 최소 케이던스</string>
+    <string name="gammaos_toolbox_bfi_subframe_cadence_summary">서브프레임 삽입의 최소 케이던스 배율. 낮은 값은 더 공격적인 삽입을 허용합니다. 기본값: 1.0.</string>
+    <string name="gammaos_toolbox_bfi_seam_brightness_title">이음새 밝기</string>
+    <string name="gammaos_toolbox_bfi_seam_brightness_summary">이음새 프레임(프레임 0)의 밝기 수준. 전환 영역의 밝기를 제어합니다.</string>
+    <string name="gammaos_toolbox_bfi_seam_follow_title">이음새 후속 밝기</string>
+    <string name="gammaos_toolbox_bfi_seam_follow_summary">후속 프레임(프레임 1)의 밝기 수준. 이음새의 뒤쪽 가장자리를 제어합니다.</string>
+
+    <string name="gammaos_toolbox_category_bfi_flip">BFI 플립 전환</string>
+    <string name="gammaos_toolbox_category_bfi_flip_description">콘텐츠 프레임과 블랙 프레임 사이의 페이드인/페이드아웃 전환을 미세 조정합니다. BFI 전환의 부드러움, 색상 보정, 디밍 곡선을 제어합니다.</string>
+    <string name="gammaos_toolbox_bfi_flip_out_frames_title">페이드아웃 프레임 수</string>
+    <string name="gammaos_toolbox_bfi_flip_out_frames_summary">페이드아웃(콘텐츠에서 블랙으로) 전환의 프레임 수. 기본값: 10.</string>
+    <string name="gammaos_toolbox_bfi_flip_in_frames_title">페이드인 프레임 수</string>
+    <string name="gammaos_toolbox_bfi_flip_in_frames_summary">페이드인(블랙에서 콘텐츠로) 전환의 프레임 수. 기본값: 10.</string>
+    <string name="gammaos_toolbox_bfi_flip_sat_title">플립 채도</string>
+    <string name="gammaos_toolbox_bfi_flip_sat_summary">플립 전환 중 채도 배율. 기본값: 1.0. 높은 값은 전환 중 색상 생동감을 높입니다.</string>
+    <string name="gammaos_toolbox_bfi_flip_gamma_title">플립 감마</string>
+    <string name="gammaos_toolbox_bfi_flip_gamma_summary">플립 전환 중 감마 보정. 기본값: 1.0. 1.0 미만은 중간 톤을 밝게, 1.0 초과는 어둡게 합니다.</string>
+    <string name="gammaos_toolbox_bfi_flip_use_auto_title">자동 디밍</string>
+    <string name="gammaos_toolbox_bfi_flip_use_auto_summary">수동 시작/종료 디밍 값 대신 부드러운 전환을 위한 디밍 수준을 자동으로 계산합니다.</string>
+    <string name="gammaos_toolbox_bfi_flip_auto_dip_title">자동 디밍 수준</string>
+    <string name="gammaos_toolbox_bfi_flip_auto_dip_summary">자동 디밍 모드의 목표 밝기 감소값. 기본값: 0.92. 낮은 값은 더 깊은 디밍을 만듭니다.</string>
+    <string name="gammaos_toolbox_bfi_flip_contrast_enable_title">대비 조정</string>
+    <string name="gammaos_toolbox_bfi_flip_contrast_enable_summary">향상된 시각 품질을 위해 플립 전환 중 대비 조정을 활성화합니다.</string>
+    <string name="gammaos_toolbox_bfi_flip_contrast_title">대비 수준</string>
+    <string name="gammaos_toolbox_bfi_flip_contrast_summary">전환 중 대비 배율. 기본값: 1.0. 1.0 초과는 대비를 높입니다.</string>
+    <string name="gammaos_toolbox_bfi_flip_contrast_pivot_title">대비 기준점</string>
+    <string name="gammaos_toolbox_bfi_flip_contrast_pivot_summary">대비 조정의 밝기 기준점. 기본값: 0.5. 이 값보다 높거나 낮으면 대비 중간점이 이동합니다.</string>
+    <string name="gammaos_toolbox_bfi_flip_contrast_hw_title">하드웨어 대비</string>
+    <string name="gammaos_toolbox_bfi_flip_contrast_hw_summary">소프트웨어 대신 하드웨어 색상 변환을 사용하여 대비를 조정합니다. 더 효율적이지만 범위가 제한됩니다.</string>
+    <string name="gammaos_toolbox_bfi_flip_zero_eps_title">제로 엡실론 클램프</string>
+    <string name="gammaos_toolbox_bfi_flip_zero_eps_summary">전환 중 0에 가까운 값을 정확히 0으로 클램프합니다. 어두운 프레임의 잔여 글로우를 방지합니다.</string>
+    <string name="gammaos_toolbox_bfi_flip_rgb_r_title">빨강 채널 게인</string>
+    <string name="gammaos_toolbox_bfi_flip_rgb_r_summary">플립 전환 중 빨강 채널 게인 배율. 기본값: 1.0.</string>
+    <string name="gammaos_toolbox_bfi_flip_rgb_g_title">초록 채널 게인</string>
+    <string name="gammaos_toolbox_bfi_flip_rgb_g_summary">플립 전환 중 초록 채널 게인 배율. 기본값: 1.0.</string>
+    <string name="gammaos_toolbox_bfi_flip_rgb_b_title">파랑 채널 게인</string>
+    <string name="gammaos_toolbox_bfi_flip_rgb_b_summary">플립 전환 중 파랑 채널 게인 배율. 기본값: 1.0.</string>
+
+    <string name="gammaos_toolbox_category_shader">CRT 셰이더</string>
+    <string name="gammaos_toolbox_category_shader_description">SurfaceFlinger를 통해 GPU 기반 CRT 스캔라인 및 형광체 효과를 디스플레이 출력에 적용합니다. 레트로 CRT 모니터 외관을 만듭니다. GPU 클라이언트 합성이 필요하며 렌더링 오버헤드가 추가됩니다.</string>
+    <string name="gammaos_toolbox_shader_enable_title">CRT 셰이더 활성화</string>
+    <string name="gammaos_toolbox_shader_enable_summary">모든 디스플레이 출력에 CRT 스캔라인 및 형광체 효과를 적용합니다.</string>
+    <string name="gammaos_toolbox_shader_type_title">셰이더 유형</string>
+    <string name="gammaos_toolbox_shader_type_summary">셰이더 프리셋 이름. 기본 CRT 셰이더를 사용하려면 비워두십시오.</string>
+    <string name="gammaos_toolbox_shader_bp_grace_title">백프레셔 유예 프레임</string>
+    <string name="gammaos_toolbox_shader_bp_grace_summary">셰이더 변경 후 백프레셔 검사를 건너뛸 프레임 수. 셰이더 전환 중 멈춤을 방지합니다. 기본값: 6.</string>
+
+    <string name="gammaos_toolbox_category_dualstack">듀얼 스택 디스플레이</string>
+    <string name="gammaos_toolbox_category_dualstack_description">내부 및 외부 디스플레이에서 동시에 다른 해상도로 같은 앱을 렌더링합니다. 내부 디스플레이는 성능을 위해 저해상도 버전을, 외부는 전체 해상도를 표시합니다. 내장 화면을 활성 상태로 유지하면서 외부 모니터에서 게임할 때 사용합니다.</string>
+    <string name="gammaos_toolbox_dualstack_enable_title">듀얼 스택 활성화</string>
+    <string name="gammaos_toolbox_dualstack_enable_summary">내부 및 외부 디스플레이 간 이중 해상도 렌더링을 활성화합니다.</string>
+    <string name="gammaos_toolbox_dualstack_swap_title">디스플레이 역할 교환</string>
+    <string name="gammaos_toolbox_dualstack_swap_summary">어떤 디스플레이가 고해상도를, 어떤 것이 저해상도 출력을 받을지 교환합니다.</string>
+    <string name="gammaos_toolbox_dualstack_pkgs_title">허용된 패키지</string>
+    <string name="gammaos_toolbox_dualstack_pkgs_summary">듀얼 스택 렌더링을 사용해야 하는 패키지 이름의 쉼표로 구분된 목록.</string>
+    <string name="gammaos_toolbox_dualstack_kill_title">전환 시 앱 강제 종료</string>
+    <string name="gammaos_toolbox_dualstack_kill_summary">깨끗한 상태를 보장하기 위해 듀얼 스택과 일반 모드 전환 시 앱을 강제 종료합니다.</string>
+    <string name="gammaos_toolbox_dualstack_nn_title">최근접 이웃 스케일링</string>
+    <string name="gammaos_toolbox_dualstack_nn_summary">저해상도 디스플레이에 최근접 이웃(선명한 픽셀) 스케일링을 사용합니다. 비활성화하면 바이리니어(부드러운) 스케일링을 사용합니다.</string>
+    <string name="gammaos_toolbox_dualstack_sv_only_title">SurfaceView만</string>
+    <string name="gammaos_toolbox_dualstack_sv_only_summary">SurfaceView 레이어(게임 콘텐츠)에만 듀얼 스택을 적용하고 UI 요소는 기본 해상도를 유지합니다.</string>
+    <string name="gammaos_toolbox_dualstack_keep_sysui_title">SystemUI 표시 유지</string>
+    <string name="gammaos_toolbox_dualstack_keep_sysui_summary">SurfaceView 전용 모드에서 SystemUI(상태 표시줄, 내비게이션)를 전체 해상도로 계속 표시합니다.</string>
+    <string name="gammaos_toolbox_dualstack_max_fb_title">최대 프레임버퍼 수</string>
+    <string name="gammaos_toolbox_dualstack_max_fb_summary">듀얼 스택 모드에서 획득된 프레임버퍼 버퍼의 최대 수. 기본값: 3.</string>
+    <string name="gammaos_toolbox_dualstack_no_backpressure_title">GL 백프레셔 비활성화</string>
+    <string name="gammaos_toolbox_dualstack_no_backpressure_summary">듀얼 스택 모드에서 OpenGL 백프레셔를 비활성화합니다. 프레임 드롭을 방지하지만 지연이 증가할 수 있습니다.</string>
+
+    <string name="gammaos_toolbox_category_external">외부 디스플레이</string>
+    <string name="gammaos_toolbox_category_external_description">외부 디스플레이(HDMI, USB-C, DisplayPort)가 처리되는 방식을 제어합니다. 외부 디스플레이를 기본 디스플레이로 설정, 미러 모드 강제, 특정 앱 라우팅, 해상도 조정 옵션을 포함합니다.</string>
+    <string name="gammaos_toolbox_ext_primary_title">외부를 기본으로</string>
+    <string name="gammaos_toolbox_ext_primary_summary">외부 디스플레이를 기본 디스플레이로 취급합니다. 내장 화면이 보조가 됩니다.</string>
+    <string name="gammaos_toolbox_ext_force_mirror_title">미러 모드 강제</string>
+    <string name="gammaos_toolbox_ext_force_mirror_summary">데스크톱 확장 대신 모든 외부 디스플레이가 기본 디스플레이를 미러링하도록 강제합니다.</string>
+    <string name="gammaos_toolbox_ext_mirror_resize_title">미러 크기 조정</string>
+    <string name="gammaos_toolbox_ext_mirror_resize_summary">늘리지 않고 외부 디스플레이 해상도에 맞게 미러 출력 크기를 조정합니다.</string>
+    <string name="gammaos_toolbox_ext_half_4k_title">4K 해상도 절반으로</string>
+    <string name="gammaos_toolbox_ext_half_4k_summary">4K 외부 디스플레이를 절반 해상도(1080p)로 줄입니다. 전체 4K 출력이 어려운 기기의 성능을 개선합니다.</string>
+    <string name="gammaos_toolbox_ext_sec_force_on_title">보조 디스플레이 강제 켜기</string>
+    <string name="gammaos_toolbox_ext_sec_force_on_summary">시스템이 일반적으로 끌 때도 보조 디스플레이 전원을 켜진 상태로 유지합니다.</string>
+    <string name="gammaos_toolbox_secondary_home_title">보조 디스플레이 홈 앱</string>
+    <string name="gammaos_toolbox_secondary_home_summary">보조 디스플레이 런처의 패키지 이름 또는 컴포넌트. 예: com.android.launcher3/.secondarydisplay.SecondaryDisplayLauncher</string>
+    <string name="gammaos_toolbox_sec_display_enable_title">앱을 보조 디스플레이로 라우팅</string>
+    <string name="gammaos_toolbox_sec_display_enable_summary">지정된 앱을 기본 디스플레이 대신 보조 디스플레이에서 자동으로 실행합니다.</string>
+    <string name="gammaos_toolbox_sec_display_pkgs_title">보조 디스플레이 패키지</string>
+    <string name="gammaos_toolbox_sec_display_pkgs_summary">보조 디스플레이로 라우팅할 패키지 이름 접두사의 쉼표로 구분된 목록.</string>
+    <string name="gammaos_toolbox_display_delay_primary_title">기본 디스플레이 프레임 지연</string>
+    <string name="gammaos_toolbox_display_delay_primary_summary">기본 디스플레이 출력을 지연시킬 프레임 수. 디스플레이 동기화에 사용됩니다. 기본값: 0.</string>
+    <string name="gammaos_toolbox_display_delay_external_title">외부 디스플레이 프레임 지연</string>
+    <string name="gammaos_toolbox_display_delay_external_summary">외부 디스플레이 출력을 지연시킬 프레임 수. 디스플레이 동기화에 사용됩니다. 기본값: 0.</string>
+
+    <string name="gammaos_toolbox_category_multidisplay">멀티 디스플레이</string>
+    <string name="gammaos_toolbox_category_multidisplay_description">다중 디스플레이 포커스, 입력 및 밝기 동작을 위한 컨트롤. 여러 연결된 디스플레이 간에 시스템이 포커스와 입력을 처리하는 방식에 영향을 줍니다.</string>
+    <string name="gammaos_toolbox_dual_focus_title">듀얼 디스플레이 포커스</string>
+    <string name="gammaos_toolbox_dual_focus_summary">두 디스플레이가 동시에 입력 포커스를 가질 수 있도록 합니다. 각 디스플레이에서 독립적인 상호작용이 가능합니다.</string>
+    <string name="gammaos_toolbox_split_brightness_title">분리 밝기 제어</string>
+    <string name="gammaos_toolbox_split_brightness_summary">통합 밝기 대신 연결된 각 디스플레이에 대해 독립적인 밝기 제어를 허용합니다.</string>
+
+    <string name="gammaos_toolbox_category_ime">입력 방법</string>
+    <string name="gammaos_toolbox_category_ime_description">다중 디스플레이 설정에서 소프트웨어 키보드(IME)가 나타나는 위치를 제어합니다. 키보드를 특정 디스플레이에 고정하거나 보조 화면으로 전환합니다.</string>
+    <string name="gammaos_toolbox_ime_pin_title">IME를 디스플레이에 고정</string>
+    <string name="gammaos_toolbox_ime_pin_summary">포커스 창을 따르지 않고 소프트웨어 키보드를 특정 디스플레이에 고정합니다.</string>
+    <string name="gammaos_toolbox_ime_display_id_title">IME 디스플레이 ID</string>
+    <string name="gammaos_toolbox_ime_display_id_summary">고정 시 IME가 나타날 디스플레이 ID. 0 = 내장 디스플레이, 1+ = 외부 디스플레이.</string>
+    <string name="gammaos_toolbox_ime_swap_title">IME를 보조 화면으로 전환</string>
+    <string name="gammaos_toolbox_ime_swap_summary">키보드를 첫 번째 비기본 디스플레이로 이동합니다. 명시적 디스플레이 ID가 설정되지 않은 경우에만 사용됩니다.</string>
+
+    <string name="gammaos_toolbox_category_audio">오디오</string>
+    <string name="gammaos_toolbox_category_audio_description">오디오 라우팅 및 볼륨 제어 재정의. Unisoc 및 Allwinner SoC용 칩셋 전용 HDMI 오디오 수정을 포함합니다.</string>
+    <string name="gammaos_toolbox_audio_multivolume_title">다중 볼륨 제어</string>
+    <string name="gammaos_toolbox_audio_multivolume_summary">다른 오디오 스트림(미디어, 알림, 알람)에 대해 독립적인 볼륨 제어를 활성화합니다.</string>
+    <string name="gammaos_toolbox_unisoc_hdmi_title">Unisoc HDMI 오디오</string>
+    <string name="gammaos_toolbox_unisoc_hdmi_summary">Unisoc 칩셋에서 HDMI 오디오 출력을 활성화합니다. Unisoc 기반 기기에만 적용됩니다.</string>
+    <string name="gammaos_toolbox_allwinner_hdmi_title">Allwinner HDMI 오디오</string>
+    <string name="gammaos_toolbox_allwinner_hdmi_summary">Allwinner 칩셋에서 HDMI 오디오 출력을 활성화합니다. Allwinner 기반 기기에만 적용됩니다.</string>
+
+    <string name="gammaos_toolbox_category_gamepad">게임패드 (GammaPad)</string>
+    <string name="gammaos_toolbox_category_gamepad_description">GammaPad 데몬 구성. 물리적 게임패드 입력 장치를 캡처하여 단일 가상 Xbox 컨트롤러로 병합하고 버튼 리매핑, 스틱 캘리브레이션, 마우스 모드 에뮬레이션을 제공합니다.</string>
+    <string name="gammaos_toolbox_gamepad_enable_title">GammaPad 활성화</string>
+    <string name="gammaos_toolbox_gamepad_enable_summary">게임패드 입력 장치를 캡처하고 리매핑하기 위해 GammaPad 데몬을 시작합니다.</string>
+    <string name="gammaos_toolbox_gamepad_merge_title">장치 병합</string>
+    <string name="gammaos_toolbox_gamepad_merge_summary">여러 물리적 입력 장치를 단일 가상 게임패드로 결합합니다.</string>
+    <string name="gammaos_toolbox_gamepad_hide_source_title">물리적 장치 숨기기</string>
+    <string name="gammaos_toolbox_gamepad_hide_source_summary">GammaPad가 캡처할 때 원본 물리적 장치 노드를 앱에서 숨깁니다.</string>
+    <string name="gammaos_toolbox_gamepad_devices_title">캡처할 장치</string>
+    <string name="gammaos_toolbox_gamepad_devices_summary">캡처할 장치 이름의 쉼표로 구분된 목록. 게임패드를 자동 감지하려면 비워두십시오.</string>
+    <string name="gammaos_toolbox_gamepad_abxy_swap_title">ABXY 레이아웃 교환</string>
+    <string name="gammaos_toolbox_gamepad_abxy_swap_summary">Xbox와 Nintendo 레이아웃 사이에서 A/B 및 X/Y 버튼 위치를 교환합니다.</string>
+    <string name="gammaos_toolbox_gamepad_invert_left_title">왼쪽 스틱 반전</string>
+    <string name="gammaos_toolbox_gamepad_invert_left_summary">왼쪽 아날로그 스틱의 Y축을 반전합니다.</string>
+    <string name="gammaos_toolbox_gamepad_invert_right_title">오른쪽 스틱 반전</string>
+    <string name="gammaos_toolbox_gamepad_invert_right_summary">오른쪽 아날로그 스틱의 Y축을 반전합니다.</string>
+    <string name="gammaos_toolbox_gamepad_analog_dpad_title">아날로그 스틱을 D-pad로</string>
+    <string name="gammaos_toolbox_gamepad_analog_dpad_summary">왼쪽 아날로그 스틱 입력을 D-pad 방향 이벤트로 변환합니다.</string>
+    <string name="gammaos_toolbox_gamepad_dpad_analog_title">D-pad를 아날로그 스틱으로</string>
+    <string name="gammaos_toolbox_gamepad_dpad_analog_summary">D-pad 방향 입력을 왼쪽 아날로그 스틱 이벤트로 변환합니다.</string>
+    <string name="gammaos_toolbox_gamepad_dpad_threshold_title">D-pad 임계값</string>
+    <string name="gammaos_toolbox_gamepad_dpad_threshold_summary">D-pad 이벤트를 트리거하기 위한 아날로그 스틱 편향 임계값(0\u2013100). 기본값: 50.</string>
+    <string name="gammaos_toolbox_gamepad_sensitivity_title">글로벌 스틱 감도</string>
+    <string name="gammaos_toolbox_gamepad_sensitivity_summary">모든 아날로그 스틱의 글로벌 감도 조정. 0 = 기본값, 양수는 증가, 음수는 감소.</string>
+    <string name="gammaos_toolbox_gamepad_pwm_enable_title">PWM 진동</string>
+    <string name="gammaos_toolbox_gamepad_pwm_enable_summary">진동 효과를 위한 PWM 기반 진동 출력을 활성화합니다.</string>
+    <string name="gammaos_toolbox_gamepad_pwm_intensity_title">PWM 진동 강도</string>
+    <string name="gammaos_toolbox_gamepad_pwm_intensity_summary">진동 강도 수준(0\u2013255). 기본값: 255.</string>
+    <string name="gammaos_toolbox_gamepad_device_name_title">가상 장치 이름</string>
+    <string name="gammaos_toolbox_gamepad_device_name_summary">가상 게임패드 장치가 보고하는 이름. 기본값: Xbox Wireless Controller.</string>
+    <string name="gammaos_toolbox_gamepad_remap_btn_title">버튼 리매핑</string>
+    <string name="gammaos_toolbox_gamepad_remap_btn_summary">버튼 리매핑 구성. 형식: src1=dst1,src2=dst2 (Linux 키코드).</string>
+    <string name="gammaos_toolbox_gamepad_remap_axis_title">축 리매핑</string>
+    <string name="gammaos_toolbox_gamepad_remap_axis_summary">축 리매핑 구성. 형식: src1=dst1,src2=dst2 (Linux 축 코드).</string>
+    <string name="gammaos_toolbox_gamepad_combo_map_title">버튼 콤보 매핑</string>
+    <string name="gammaos_toolbox_gamepad_combo_map_summary">버튼 조합을 단일 키 이벤트에 매핑합니다. 형식: btn1+btn2=key,btn3+btn4=key.</string>
+    <string name="gammaos_toolbox_gamepad_axis_btn_title">축에서 버튼으로 매핑</string>
+    <string name="gammaos_toolbox_gamepad_axis_btn_summary">축 이벤트를 버튼 누름에 매핑합니다. 형식: axis:threshold=key (예: 5:128=304).</string>
+    <string name="gammaos_toolbox_gamepad_ff_device_title">포스 피드백 장치</string>
+    <string name="gammaos_toolbox_gamepad_ff_device_summary">진동 출력을 위한 포스 피드백 장치 경로. 자동 감지하려면 비워두십시오.</string>
+    <string name="gammaos_toolbox_gamepad_blacklist_pass_title">패스스루 블랙리스트</string>
+    <string name="gammaos_toolbox_gamepad_blacklist_pass_summary">캡처에서 제외하고 직접 전달할 장치 이름의 쉼표로 구분된 목록.</string>
+    <string name="gammaos_toolbox_gamepad_screenmap_title">화면 매핑</string>
+    <string name="gammaos_toolbox_gamepad_screenmap_summary">게임패드 버튼을 터치 스크린에 매핑하는 모드를 활성화합니다.</string>
+
+    <string name="gammaos_toolbox_category_mouse">마우스 모드</string>
+    <string name="gammaos_toolbox_category_mouse_description">GammaPad 마우스 에뮬레이션 모드를 구성합니다. 버튼 조합으로 활성화하면 게임패드 아날로그 스틱이 마우스 커서를 제어합니다. 터치 입력 없이 앱을 탐색하는 데 유용합니다.</string>
+    <string name="gammaos_toolbox_mouse_stick_speed_title">스틱 커서 속도</string>
+    <string name="gammaos_toolbox_mouse_stick_speed_summary">아날로그 스틱 사용 시 커서 이동 속도. 기본값: 12.</string>
+    <string name="gammaos_toolbox_mouse_dpad_speed_title">D-pad 커서 속도</string>
+    <string name="gammaos_toolbox_mouse_dpad_speed_summary">D-pad 사용 시 커서 이동 속도. 기본값: 6.</string>
+    <string name="gammaos_toolbox_mouse_boost_title">부스트 배율</string>
+    <string name="gammaos_toolbox_mouse_boost_summary">부스트 버튼을 누르고 있을 때의 속도 배율(값 / 10). 기본값: 20 (2.0배).</string>
+    <string name="gammaos_toolbox_mouse_scroll_speed_title">스크롤 속도</string>
+    <string name="gammaos_toolbox_mouse_scroll_speed_summary">오른쪽 아날로그 스틱 사용 시 스크롤 휠 속도(값 / 10). 기본값: 4 (0.4배).</string>
+
+    <string name="gammaos_toolbox_category_rgb">RGB LED 샘플러</string>
+    <string name="gammaos_toolbox_category_rgb_description">화면의 주요 색상을 샘플링하여 게임패드 또는 기기 RGB LED에 출력하여 앰비언트 조명 효과(Ambilight 스타일)를 구현합니다. 저지연 샘플링을 위해 SurfaceFlinger 내에서 실행됩니다.</string>
+    <string name="gammaos_toolbox_rgb_enable_title">RGB 샘플러 활성화</string>
+    <string name="gammaos_toolbox_rgb_enable_summary">화면 색상을 샘플링하여 RGB LED에 출력하여 앰비언트 조명을 구현합니다.</string>
+    <string name="gammaos_toolbox_rgb_fps_title">샘플링 속도 (FPS)</string>
+    <string name="gammaos_toolbox_rgb_fps_summary">초당 화면 색상을 샘플링하는 횟수. 범위: 1\u201360. 기본값: 6.</string>
+    <string name="gammaos_toolbox_rgb_led_brightness_title">LED 밝기</string>
+    <string name="gammaos_toolbox_rgb_led_brightness_summary">최대 LED 밝기 수준(0\u2013255). 기본값: 255.</string>
+    <string name="gammaos_toolbox_rgb_scale_brightness_title">디스플레이 밝기에 맞춤</string>
+    <string name="gammaos_toolbox_rgb_scale_brightness_summary">디스플레이 백라이트 수준에 비례하여 LED를 어둡게 합니다.</string>
+    <string name="gammaos_toolbox_rgb_fade_enable_title">페이드 전환</string>
+    <string name="gammaos_toolbox_rgb_fade_enable_summary">즉시 전환하는 대신 색상 변경 사이를 부드럽게 페이드합니다.</string>
+    <string name="gammaos_toolbox_rgb_fade_fps_title">페이드 속도 (FPS)</string>
+    <string name="gammaos_toolbox_rgb_fade_fps_summary">페이드 전환의 애니메이션 프레임률. 범위: 1\u2013240. 기본값: 60.</string>
+    <string name="gammaos_toolbox_rgb_pre_fx_title">효과 전 샘플링</string>
+    <string name="gammaos_toolbox_rgb_pre_fx_summary">CRT 셰이더 및 BFI 효과가 적용되기 전에 화면 색상을 샘플링합니다. 더 정확한 색상을 생성합니다.</string>
+    <string name="gammaos_toolbox_rgb_effect_title">LED 효과</string>
+    <string name="gammaos_toolbox_rgb_effect_summary">명명된 LED 애니메이션 효과. 화면 샘플링 색상 모드를 사용하려면 비워두십시오.</string>
+    <string name="gammaos_toolbox_rgb_split_title">좌우 분리</string>
+    <string name="gammaos_toolbox_rgb_split_summary">듀얼 존 LED 설정을 위해 화면의 왼쪽과 오른쪽 절반을 별도로 샘플링합니다.</string>
+    <string name="gammaos_toolbox_rgb_sat_boost_title">채도 부스트</string>
+    <string name="gammaos_toolbox_rgb_sat_boost_summary">더 선명한 LED 출력을 위해 색상 채도를 높입니다. 기본값: 1.4.</string>
+
+    <string name="gammaos_toolbox_category_launch_guard">런치 가드</string>
+    <string name="gammaos_toolbox_category_launch_guard_description">지정된 호출자 앱이 지정된 대상 앱을 실행하는 것을 방지합니다. Daijishou나 ES-DE 같은 프론트엔드가 실수로 잘못된 에뮬레이터를 실행하는 것을 차단하는 데 유용합니다.</string>
+    <string name="gammaos_toolbox_launch_guard_enable_title">런치 가드 활성화</string>
+    <string name="gammaos_toolbox_launch_guard_enable_summary">지정된 호출자가 지정된 대상 앱을 실행하는 것을 차단합니다.</string>
+    <string name="gammaos_toolbox_launch_guard_callers_title">호출자 패키지</string>
+    <string name="gammaos_toolbox_launch_guard_callers_summary">대상을 실행하지 못하도록 차단할 패키지 이름의 쉼표로 구분된 목록.</string>
+    <string name="gammaos_toolbox_launch_guard_targets_title">대상 패키지</string>
+    <string name="gammaos_toolbox_launch_guard_targets_summary">호출자가 실행하지 못하도록 차단할 패키지 이름의 쉼표로 구분된 목록.</string>
+
+    <string name="gammaos_toolbox_category_system">시스템</string>
+    <string name="gammaos_toolbox_category_system_description">빠른 설정 타일 표시, 백그라운드 프로세스 제한, 웨이크 제스처 필터링, 성능 모드 선택을 포함한 기타 시스템 수준 재정의.</string>
+    <string name="gammaos_toolbox_qs_blacklist_title">빠른 설정 타일 블랙리스트</string>
+    <string name="gammaos_toolbox_qs_blacklist_summary">타일 선택기에서 숨길 빠른 설정 타일 이름의 쉼표로 구분된 목록.</string>
+    <string name="gammaos_toolbox_bg_process_limit_title">백그라운드 프로세스 제한</string>
+    <string name="gammaos_toolbox_bg_process_limit_summary">허용되는 최대 백그라운드 프로세스 수. 낮은 값은 RAM을 확보하지만 앱이 종료될 수 있습니다. 기본값: 시스템 관리.</string>
+    <string name="gammaos_toolbox_gesture_wake_title">웨이크 제스처 필터</string>
+    <string name="gammaos_toolbox_gesture_wake_summary">실수로 화면이 켜지는 것을 방지하기 위해 특정 웨이크 제스처를 필터링합니다. 쉼표로 구분된 제스처 식별자.</string>
+    <string name="gammaos_toolbox_performance_mode_title">성능 모드</string>
+    <string name="gammaos_toolbox_performance_mode_summary">CPU/GPU 거버너 튜닝을 위한 성능 프로파일. 옵션: stock, performance, powersave.</string>
+
+    <string name="gammaos_toolbox_category_shader_crt">CRT Simple 셰이더</string>
+    <string name="gammaos_toolbox_category_shader_crt_description">CRT Simple 셰이더 효과를 미세 조정합니다. 스캔라인 외관, 곡률, 비네팅, 블러 강도를 제어합니다.</string>
+    <string name="gammaos_toolbox_shader_crt_scan_px_title">스캔라인 픽셀 수</string>
+    <string name="gammaos_toolbox_shader_crt_scan_px_summary">스캔라인당 픽셀 수. 기본값: 4.</string>
+    <string name="gammaos_toolbox_shader_crt_scan_strength_title">스캔라인 강도</string>
+    <string name="gammaos_toolbox_shader_crt_scan_strength_summary">스캔라인 어둡기 강도(0.0\u20131.0). 기본값: 0.4.</string>
+    <string name="gammaos_toolbox_shader_crt_curv_title">곡률</string>
+    <string name="gammaos_toolbox_shader_crt_curv_summary">화면 곡률 정도. 기본값: 0.03. 높은 값은 배럴 왜곡을 증가시킵니다.</string>
+    <string name="gammaos_toolbox_shader_crt_vignette_title">비네팅</string>
+    <string name="gammaos_toolbox_shader_crt_vignette_summary">가장자리 어둡기 강도(0.0\u20131.0). 기본값: 0.01.</string>
+    <string name="gammaos_toolbox_shader_crt_edge_soft_title">가장자리 부드러움 (px)</string>
+    <string name="gammaos_toolbox_shader_crt_edge_soft_summary">가장자리 부드럽게 처리할 픽셀 수. 기본값: 4.</string>
+    <string name="gammaos_toolbox_shader_crt_blur_title">블러 강도</string>
+    <string name="gammaos_toolbox_shader_crt_blur_summary">형광체 글로우 블러 강도(0.0\u20131.0). 기본값: 0.</string>
+    <string name="gammaos_toolbox_shader_crt_half_res_title">절반 해상도</string>
+    <string name="gammaos_toolbox_shader_crt_half_res_summary">더 나은 성능을 위해 CRT 효과를 절반 해상도로 렌더링합니다.</string>
+
+    <string name="gammaos_toolbox_category_shader_lcd3x">LCD3x 셰이더</string>
+    <string name="gammaos_toolbox_category_shader_lcd3x_description">LCD3x 셰이더는 LCD 서브픽셀 그리드를 시뮬레이션합니다. 레트로 휴대용 LCD 외관을 만듭니다.</string>
+    <string name="gammaos_toolbox_shader_lcd3x_half_res_title">절반 해상도</string>
+    <string name="gammaos_toolbox_shader_lcd3x_half_res_summary">더 나은 성능을 위해 LCD3x를 절반 해상도로 렌더링합니다.</string>
+    <string name="gammaos_toolbox_shader_lcd3x_brighten_scan_title">스캔라인 밝기</string>
+    <string name="gammaos_toolbox_shader_lcd3x_brighten_scan_summary">스캔라인 밝기 배율. 기본값: 4.0.</string>
+    <string name="gammaos_toolbox_shader_lcd3x_brighten_lcd_title">LCD 밝기</string>
+    <string name="gammaos_toolbox_shader_lcd3x_brighten_lcd_summary">전체 LCD 밝기 배율. 기본값: 4.0.</string>
+    <string name="gammaos_toolbox_shader_lcd3x_grid_x_title">그리드 픽셀 너비</string>
+    <string name="gammaos_toolbox_shader_lcd3x_grid_x_summary">서브픽셀 그리드의 수평 크기. 기본값: 4.0.</string>
+    <string name="gammaos_toolbox_shader_lcd3x_grid_y_title">그리드 픽셀 높이</string>
+    <string name="gammaos_toolbox_shader_lcd3x_grid_y_summary">서브픽셀 그리드의 수직 크기. 기본값: 4.0.</string>
+
+    <string name="gammaos_toolbox_category_shader_lcd">LCD 셰이더</string>
+    <string name="gammaos_toolbox_category_shader_lcd_description">응답 시간 시뮬레이션, 서브픽셀 렌더링, 스캔라인 효과가 있는 LCD 셰이더. LCD3x보다 더 고급입니다.</string>
+    <string name="gammaos_toolbox_shader_lcd_half_res_title">절반 해상도</string>
+    <string name="gammaos_toolbox_shader_lcd_half_res_summary">더 나은 성능을 위해 LCD 셰이더를 절반 해상도로 렌더링합니다.</string>
+    <string name="gammaos_toolbox_shader_lcd_response_title">응답 시간</string>
+    <string name="gammaos_toolbox_shader_lcd_response_summary">시뮬레이션 LCD 응답 시간(0.0\u20130.78). 기본값: 0. 높은 값은 모션 블러를 추가합니다.</string>
+    <string name="gammaos_toolbox_shader_lcd_scan_strength_title">스캔 강도</string>
+    <string name="gammaos_toolbox_shader_lcd_scan_strength_summary">스캔라인 가시성(0.0\u20131.0). 기본값: 0.20.</string>
+    <string name="gammaos_toolbox_shader_lcd_subpixel_title">서브픽셀 강도</string>
+    <string name="gammaos_toolbox_shader_lcd_subpixel_summary">RGB 서브픽셀 그리드 강도(0.0\u20131.0). 기본값: 0.40.</string>
+    <string name="gammaos_toolbox_shader_lcd_gap_strength_title">간격 강도</string>
+    <string name="gammaos_toolbox_shader_lcd_gap_strength_summary">픽셀 간 간격 어둡기(0.0\u20131.0). 기본값: 0.10.</string>
+    <string name="gammaos_toolbox_shader_lcd_gap_px_title">간격 크기 (px)</string>
+    <string name="gammaos_toolbox_shader_lcd_gap_px_summary">픽셀 간 간격 너비(0.0\u20130.45). 기본값: 0.05.</string>
+
+    <string name="gammaos_toolbox_category_shader_blurfill">블러 채우기 셰이더</string>
+    <string name="gammaos_toolbox_category_shader_blurfill_description">레터박스/필러박스 바를 검은 바 대신 블러 처리된 게임 콘텐츠로 채웁니다.</string>
+    <string name="gammaos_toolbox_shader_blurfill_sigma_title">블러 시그마</string>
+    <string name="gammaos_toolbox_shader_blurfill_sigma_summary">가우시안 블러 반경(0.1\u201364.0). 기본값: 12.0. 높을수록 더 흐려집니다.</string>
+    <string name="gammaos_toolbox_shader_blurfill_strength_title">강도</string>
+    <string name="gammaos_toolbox_shader_blurfill_strength_summary">블러 채우기 불투명도(0.0\u20131.0). 기본값: 1.0.</string>
+    <string name="gammaos_toolbox_shader_blurfill_edge_px_title">가장자리 픽셀</string>
+    <string name="gammaos_toolbox_shader_blurfill_edge_px_summary">채우기 영역의 가장자리 픽셀 수. 기본값: 160.</string>
+    <string name="gammaos_toolbox_shader_blurfill_feather_title">페더링 (px)</string>
+    <string name="gammaos_toolbox_shader_blurfill_feather_summary">콘텐츠 가장자리의 페더링/블렌딩 너비. 기본값: 40.</string>
+    <string name="gammaos_toolbox_shader_blurfill_res_scale_title">해상도 스케일</string>
+    <string name="gammaos_toolbox_shader_blurfill_res_scale_summary">블러 소스의 해상도 스케일(0.1\u20131.0). 기본값: 0.5. 낮을수록 빠릅니다.</string>
+    <string name="gammaos_toolbox_shader_blurfill_orientation_title">방향</string>
+    <string name="gammaos_toolbox_shader_blurfill_orientation_summary">채우기 방향: auto, horizontal 또는 vertical. 기본값: auto.</string>
+
+    <string name="gammaos_toolbox_shader_custom_preset_title">사용자 지정 셰이더 프리셋</string>
+    <string name="gammaos_toolbox_shader_custom_preset_summary">기기의 .slangp 셰이더 프리셋 파일 경로.</string>
+    <string name="gammaos_toolbox_shader_custom_res_scale_title">사용자 지정 해상도 스케일</string>
+    <string name="gammaos_toolbox_shader_custom_res_scale_summary">사용자 지정 셰이더의 다운스케일 팩터. 값: 1/2, 1/3, 1/4 또는 소수.</string>
+
+    <string name="gammaos_toolbox_dualstack_blast_tune_title">BLAST 버퍼 튜닝</string>
+    <string name="gammaos_toolbox_dualstack_blast_tune_summary">듀얼 스택 모드의 BLAST 버퍼 큐 튜닝을 활성화합니다.</string>
+    <string name="gammaos_toolbox_dualstack_blast_async_title">BLAST 비동기 모드</string>
+    <string name="gammaos_toolbox_dualstack_blast_async_summary">듀얼 스택 BLAST 모드에서 비동기 버퍼 제출을 사용합니다.</string>
+
+    <string name="gammaos_toolbox_category_power">전원 및 성능</string>
+    <string name="gammaos_toolbox_category_power_description">전원 관리, 팬 제어 및 프로세스 제한. 배터리 수명, 발열 동작 및 시스템 응답성에 영향을 줍니다.</string>
+    <string name="gammaos_toolbox_fan_mode_title">팬 모드</string>
+    <string name="gammaos_toolbox_fan_mode_summary">능동 냉각 기기의 팬 제어 프로파일. 기기별 값.</string>
+    <string name="gammaos_toolbox_ultra_low_power_title">초저전력 모드</string>
+    <string name="gammaos_toolbox_ultra_low_power_summary">딥 슬립/초저전력 절전 모드를 활성화합니다. 백그라운드 앱을 적극적으로 동결합니다.</string>
+    <string name="gammaos_toolbox_ultra_low_power_exclude_title">저전력 동결 제외</string>
+    <string name="gammaos_toolbox_ultra_low_power_exclude_summary">초저전력 모드에서 프로세스 동결에서 제외할 패키지 이름의 쉼표로 구분된 목록.</string>
+
+    <string name="gammaos_toolbox_category_retro">RetroArch 및 에뮬레이션</string>
+    <string name="gammaos_toolbox_category_retro_description">RetroArch 및 에뮬레이션에 특화된 재정의. 뒤로 버튼 동작과 레트로 스타일 기기의 LED 표시를 제어합니다.</string>
+    <string name="gammaos_toolbox_retroarch_backbutton_title">RetroArch 뒤로 버튼 재정의</string>
+    <string name="gammaos_toolbox_retroarch_backbutton_summary">RetroArch 내 뒤로 버튼 동작을 재정의합니다. 0 = 기본값, 1 = 재정의.</string>
+    <string name="gammaos_toolbox_startselectled_title">Start/Select LED 표시</string>
+    <string name="gammaos_toolbox_startselectled_summary">레트로 스타일 기기에서 Start/Select 버튼의 LED 표시를 활성화합니다.</string>
+
+    <string name="gammaos_toolbox_category_usb">USB 및 도킹</string>
+    <string name="gammaos_toolbox_category_usb_description">USB 컨트롤러 모드 전환 및 디스플레이 도킹 동작. USB 주변기기 및 도킹 모드 처리 방식에 영향을 줍니다.</string>
+    <string name="gammaos_toolbox_usb_controller_switch_title">USB 컨트롤러 모드 전환</string>
+    <string name="gammaos_toolbox_usb_controller_switch_summary">도킹/언도킹 시 USB 컨트롤러 모드를 자동으로 전환합니다.</string>
+    <string name="gammaos_toolbox_dc_dimming_title">DC 디밍 에뮬레이션</string>
+    <string name="gammaos_toolbox_dc_dimming_summary">낮은 밝기에서 PWM 깜박임을 줄이기 위해 소프트웨어로 DC 디밍을 에뮬레이션합니다.</string>
+
+    <string name="gammaos_toolbox_taskbar_dual_title">듀얼 디스플레이 작업 표시줄</string>
+    <string name="gammaos_toolbox_taskbar_dual_summary">멀티 디스플레이 모드에서 두 디스플레이 모두에 작업 표시줄을 표시합니다.</string>
+    <string name="gammaos_toolbox_wallpaper_multidisplay_title">멀티 디스플레이 배경화면</string>
+    <string name="gammaos_toolbox_wallpaper_multidisplay_summary">모든 연결된 디스플레이에서 배경화면을 강제로 렌더링합니다.</string>
+
+    <string name="gammaos_toolbox_qs_override_title">기본 QS 타일 재정의</string>
+    <string name="gammaos_toolbox_qs_override_summary">기본 빠른 설정 타일 레이아웃을 재정의합니다. 쉼표로 구분된 타일 클래스 이름.</string>
+
+    <string name="gammaos_toolbox_bfi_mode_ctm">CTM (하드웨어)</string>
+    <string name="gammaos_toolbox_bfi_mode_re">RE (소프트웨어)</string>
+</resources>
