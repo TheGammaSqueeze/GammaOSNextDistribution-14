@@ -38,6 +38,16 @@ public:
             std::unordered_map<int, int>& absMap,
             const std::unordered_map<int, AxisInfo>& absInfo);
 
+    // Normalize a device's axis layout to match the target preset PID.
+    // Detects the device's native right-stick/trigger layout from absInfo
+    // and remaps axis codes so all devices output in the same coordinate space.
+    //   0x0b13 (Xbox BT native): right stick=Z/RZ, triggers=GAS/BRAKE
+    //   0x02fd (Xbox 360 standard): right stick=RX/RY, triggers=Z/RZ
+    static void normalizeToPreset(
+            std::unordered_map<int, int>& absMap,
+            const std::unordered_map<int, AxisInfo>& absInfo,
+            int presetPid);
+
 private:
     static void parseLine(const std::string& line,
                           std::unordered_map<int, int>& absMap,

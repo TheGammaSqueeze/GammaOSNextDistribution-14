@@ -614,84 +614,63 @@ void GamepadManager::rebuildGlobalMaps() {
     mDiscoveredAxes.clear();
     mDiscoveredKeys.clear();
 
-    // Merge capabilities from all grabbed devices
+    int presetPid = android::base::GetIntProperty(
+            "persist.gammaos.gamepad.device_pid", 0x0b13);
+
+    // Build per-device maps: parse .kl individually for each device so
+    // controllers with different axis layouts get correct mappings.
     for (auto& [fd, dev] : mDevices) {
-        // Merge discovered axes and keys
+        // Start with identity mappings for this device's axes/keys
+        dev.absMap.clear();
+        dev.keyMap.clear();
+        for (int code : dev.discoveredAxes) dev.absMap[code] = code;
+        for (int code : dev.discoveredKeys) dev.keyMap[code] = code;
+
+        // Parse .kl for this device's VID/PID
+        KeyLayoutParser::parse(dev.vendor, dev.product, dev.absMap, dev.keyMap);
+
+        // Prune .kl entries for axes this device doesn't have
+        {
+            std::vector<int> toErase;
+            for (const auto& [sc, fc] : dev.absMap) {
+                if (!dev.discoveredAxes.count(sc)) toErase.push_back(sc);
+            }
+            for (int sc : toErase) dev.absMap.erase(sc);
+        }
+
+        // Normalize axis layout to match the preset PID's expected output.
+        // This detects each device's native right-stick/trigger layout and
+        // remaps so all devices output in the same coordinate space.
+        KeyLayoutParser::normalizeToPreset(dev.absMap, dev.absInfo, presetPid);
+
+        // Resolve axis collisions within this device
+        KeyLayoutParser::resolveAxisCollisions(dev.absMap, dev.absInfo);
+
+        LOG(INFO) << "Device " << dev.name << " maps: "
+                  << dev.absMap.size() << " abs, " << dev.keyMap.size() << " key";
+
+        // Merge into global maps for virtual gamepad creation
         mDiscoveredAxes.insert(dev.discoveredAxes.begin(), dev.discoveredAxes.end());
         mDiscoveredKeys.insert(dev.discoveredKeys.begin(), dev.discoveredKeys.end());
-
-        // Set identity mappings for all discovered axes/keys
-        for (int code : dev.discoveredAxes) {
-            if (mAbsMap.find(code) == mAbsMap.end()) {
-                mAbsMap[code] = code;
-            }
+        for (const auto& [sc, fc] : dev.absMap) {
+            if (mAbsMap.find(sc) == mAbsMap.end()) mAbsMap[sc] = fc;
         }
-        for (int code : dev.discoveredKeys) {
-            if (mKeyMap.find(code) == mKeyMap.end()) {
-                mKeyMap[code] = code;
-            }
+        for (const auto& [sc, fc] : dev.keyMap) {
+            if (mKeyMap.find(sc) == mKeyMap.end()) mKeyMap[sc] = fc;
         }
-
-        // Merge absinfo (last device wins for overlapping scancodes)
         for (const auto& [code, info] : dev.absInfo) {
             mAbsInfo[code] = info;
         }
     }
 
-    // Parse .kl files for each device (using their VID/PID)
-    // Use the first device's VID/PID for .kl lookup (devices in merge mode
-    // should generally be the same type)
-    if (!mDevices.empty()) {
-        auto& firstDev = mDevices.begin()->second;
-        KeyLayoutParser::parse(firstDev.vendor, firstDev.product, mAbsMap, mKeyMap);
-    }
+    LOG(INFO) << "Preset PID 0x" << std::hex << presetPid << std::dec;
 
-    // Prune absMap entries for scancodes not present on any physical device.
-    // The .kl file may add mappings for standard scancodes (e.g., ABS_RX, ABS_RY)
-    // that the physical device doesn't actually have.
-    {
-        std::vector<int> toErase;
-        for (const auto& [sc, fc] : mAbsMap) {
-            if (!mDiscoveredAxes.count(sc)) {
-                toErase.push_back(sc);
-            }
-        }
-        for (int sc : toErase) {
-            mAbsMap.erase(sc);
-        }
-    }
-
-    // Apply heuristic axis remapping for controllers without proper .kl mappings.
-    // Skip the heuristic when the virtual device PID matches the physical
-    // controller's native layout (right stick on Z/RZ, triggers on GAS/BRAKE).
-    // PID 0x0b13 (Xbox Wireless Controller BT) already uses this layout natively,
-    // so remapping would put axes in the wrong places for apps expecting that PID.
-    {
-        int presetPid = android::base::GetIntProperty(
-                "persist.gammaos.gamepad.device_pid", 0x0b13);
-        if (presetPid == 0x02fd) {
-            // PID 0x02fd expects standard layout (RX/RY=right stick, Z/RZ=triggers),
-            // so apply heuristic to remap from native to standard
-            KeyLayoutParser::applyHeuristicMapping(mAbsMap, mAbsInfo);
-        } else {
-            LOG(INFO) << "Skipping heuristic: preset PID 0x"
-                      << std::hex << presetPid << std::dec
-                      << " uses native axis layout";
-        }
-    }
-
-    // Resolve axis collisions
-    KeyLayoutParser::resolveAxisCollisions(mAbsMap, mAbsInfo);
-
-    // Apply user-configured role overrides
+    // Apply user-configured role overrides to global maps
     applyRoleMappings();
 
-    // Apply user axis remaps at the mAbsMap level (not in transform pipeline).
-    // This ensures remaps work regardless of which physical scancode the axis
-    // arrives on, since mAbsMap already resolved .kl and role mappings.
+    // Apply user axis remaps at the global mAbsMap level
     const auto& axisRemaps = mTransformer->getAxisRemaps();
     if (!axisRemaps.empty()) {
-        // Build completed permutation (auto-swap like roles)
         std::unordered_map<int, int> remapPerm = axisRemaps;
         for (const auto& [from, to] : axisRemaps) {
             if (remapPerm.find(to) == remapPerm.end()) {
@@ -708,7 +687,7 @@ void GamepadManager::rebuildGlobalMaps() {
         }
     }
 
-    // Push the merged maps to the transformer
+    // Push the global merged maps to the transformer (used as fallback)
     mTransformer->setDeviceMaps(mAbsMap, mKeyMap);
 
     LOG(INFO) << "Global maps rebuilt: "
@@ -1020,6 +999,13 @@ void GamepadManager::handleInputEvent(int fd) {
 
     // Get per-device absinfo for normalization
     const auto& deviceAbsInfo = devIt->second.absInfo;
+
+    // Set per-device axis/key maps so the transformer uses the correct
+    // .kl mapping for this specific controller (different controllers
+    // may have different axis layouts even with the same axis codes).
+    if (!devIt->second.absMap.empty() || !devIt->second.keyMap.empty()) {
+        mTransformer->setDeviceMaps(devIt->second.absMap, devIt->second.keyMap);
+    }
 
     bool mouseActive = mMouseMode && mMouseMode->isActive();
     bool screenMapActive = mScreenMapMode && mScreenMapMode->isActive();

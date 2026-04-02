@@ -32,6 +32,9 @@ struct PhysicalDevice {
     std::set<int> discoveredAxes;
     // Per-device discovered key codes
     std::set<int> discoveredKeys;
+    // Per-device .kl-based axis/key mappings (scancode -> final code)
+    std::unordered_map<int, int> absMap;
+    std::unordered_map<int, int> keyMap;
     // Whether we unlinked the /dev node to hide it from games
     bool nodeHidden = false;
     // major/minor saved before unlink for mknod restore

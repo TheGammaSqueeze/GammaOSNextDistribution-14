@@ -330,4 +330,68 @@ void KeyLayoutParser::applyHeuristicMapping(
     LOG(INFO) << "Heuristic: ABS_Z->ABS_RX, ABS_RZ->ABS_RY, ABS_BRAKE->ABS_Z, ABS_GAS->ABS_RZ";
 }
 
+void KeyLayoutParser::normalizeToPreset(
+        std::unordered_map<int, int>& absMap,
+        const std::unordered_map<int, AxisInfo>& absInfo,
+        int presetPid) {
+    // Detect the device's CURRENT axis layout from the post-.kl final codes,
+    // not from physical scancodes.  A vendor .kl may have already remapped
+    // axes to the target layout (e.g., RX→Z), so we must check final codes
+    // to avoid double-remapping.
+    std::set<int> finalCodes;
+    for (const auto& [sc, fc] : absMap) finalCodes.insert(fc);
+
+    bool hasFinalRX = finalCodes.count(ABS_RX) > 0;
+    bool hasFinalRY = finalCodes.count(ABS_RY) > 0;
+    bool hasFinalZ = finalCodes.count(ABS_Z) > 0;
+    bool hasFinalRZ = finalCodes.count(ABS_RZ) > 0;
+    bool hasFinalGAS = finalCodes.count(ABS_GAS) > 0;
+    bool hasFinalBRAKE = finalCodes.count(ABS_BRAKE) > 0;
+
+    // Classify: where does the right stick end up in the final codes?
+    enum class RStickPos { NONE, RX_RY, Z_RZ };
+    RStickPos rstick = RStickPos::NONE;
+
+    if (hasFinalRX && hasFinalRY && !hasFinalZ && !hasFinalRZ) {
+        // Final codes have RX/RY but no Z/RZ → right stick is on RX/RY
+        rstick = RStickPos::RX_RY;
+    } else if (hasFinalZ && hasFinalRZ && !hasFinalRX && !hasFinalRY) {
+        // Final codes have Z/RZ but no RX/RY → right stick is on Z/RZ
+        rstick = RStickPos::Z_RZ;
+    } else if (hasFinalRX && hasFinalRY && hasFinalZ && hasFinalRZ) {
+        // Has both sets: right stick is on RX/RY, triggers on Z/RZ
+        rstick = RStickPos::RX_RY;
+    }
+
+    // Determine what the preset expects
+    RStickPos targetRStick = (presetPid == 0x02fd)
+            ? RStickPos::RX_RY   // Xbox 360 standard
+            : RStickPos::Z_RZ;   // 0x0b13 native Xbox BT
+
+    // If already matching or not enough info, nothing to do
+    if (rstick == RStickPos::NONE) return;
+    if (rstick == targetRStick) return;
+
+    // Need to swap: device has right stick on one set, preset expects another.
+    if (rstick == RStickPos::RX_RY && targetRStick == RStickPos::Z_RZ) {
+        // Device: rstick=RX/RY, triggers=Z/RZ → Preset: rstick=Z/RZ, triggers=GAS/BRAKE
+        LOG(INFO) << "normalizeToPreset: RX/RY→Z/RZ (right stick), Z/RZ→GAS/BRAKE (triggers)";
+        for (auto& [sc, fc] : absMap) {
+            if (fc == ABS_RX) fc = ABS_Z;
+            else if (fc == ABS_RY) fc = ABS_RZ;
+            else if (fc == ABS_Z) fc = ABS_BRAKE;
+            else if (fc == ABS_RZ) fc = ABS_GAS;
+        }
+    } else if (rstick == RStickPos::Z_RZ && targetRStick == RStickPos::RX_RY) {
+        // Device: rstick=Z/RZ, triggers=GAS/BRAKE → Preset: rstick=RX/RY, triggers=Z/RZ
+        LOG(INFO) << "normalizeToPreset: Z/RZ→RX/RY (right stick), GAS/BRAKE→Z/RZ (triggers)";
+        for (auto& [sc, fc] : absMap) {
+            if (fc == ABS_Z) fc = ABS_RX;
+            else if (fc == ABS_RZ) fc = ABS_RY;
+            else if (fc == ABS_GAS) fc = ABS_RZ;
+            else if (fc == ABS_BRAKE) fc = ABS_Z;
+        }
+    }
+}
+
 } // namespace gammapad
