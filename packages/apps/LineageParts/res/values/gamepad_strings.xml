@@ -60,7 +60,7 @@
     <string name="gamepad_calibration_cleared">Calibration cleared</string>
     <string name="gamepad_calibration_continue">Continue</string>
     <string name="gamepad_calibration_sensitivity_label">Sensitivity: %d%%</string>
-    <string name="gamepad_calibration_deadzone_label">Deadzone: %d</string>
+    <string name="gamepad_calibration_deadzone_label">Deadzone: %d%%</string>
 
     <!-- Analog/DPAD conversion -->
     <string name="gamepad_conversion_category">Analog / DPAD</string>

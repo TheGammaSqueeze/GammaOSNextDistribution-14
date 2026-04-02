@@ -1191,29 +1191,43 @@ void GamepadManager::checkConfigChange() {
         "persist.gammaos.gamepad.config_version", 0);
     if (version != mConfigVersion) {
         LOG(INFO) << "Config version changed " << mConfigVersion
-                  << " -> " << version << ", reloading";
+                  << " -> " << version;
 
-        // Release all devices and reload config
-        releaseAllDevices();
-
-        loadConfig();
-
-        scanDevices();
-
-        // Rebuild and recreate with updated config + discovered capabilities
-        if (!mDevices.empty()) {
-            rebuildGlobalMaps();
-            createVirtualGamepadFromDiscovery();
-        } else {
-            auto [reqButtons, reqAxes] = computeRequiredCodes();
-            if (reqButtons != mVirtualGamepad->getButtons()
-                    || reqAxes != mVirtualGamepad->getAxes()) {
-                LOG(INFO) << "Code change detected, recreating virtual device";
-                recreateVirtualGamepad(reqButtons, reqAxes);
-            }
+        // Check if only calibration/transform config changed (no device or
+        // remap changes).  A lightweight reload avoids releasing/re-grabbing
+        // physical devices which causes raw events to leak to apps briefly.
+        bool needFullReload = android::base::GetIntProperty(
+                "persist.gammaos.gamepad.full_reload", 0) == 1;
+        if (needFullReload) {
+            android::base::SetProperty("persist.gammaos.gamepad.full_reload", "0");
         }
 
-        mForceFeedback->connectBridge();
+        if (needFullReload) {
+            LOG(INFO) << "Full config reload (devices + virtual pad)";
+            releaseAllDevices();
+            loadConfig();
+            scanDevices();
+
+            if (!mDevices.empty()) {
+                rebuildGlobalMaps();
+                createVirtualGamepadFromDiscovery();
+            } else {
+                auto [reqButtons, reqAxes] = computeRequiredCodes();
+                if (reqButtons != mVirtualGamepad->getButtons()
+                        || reqAxes != mVirtualGamepad->getAxes()) {
+                    LOG(INFO) << "Code change detected, recreating virtual device";
+                    recreateVirtualGamepad(reqButtons, reqAxes);
+                }
+            }
+            mForceFeedback->connectBridge();
+        } else {
+            LOG(INFO) << "Lightweight config reload (calibration/transform only)";
+            mTransformer->loadConfig();
+            if (mMouseMode) mMouseMode->loadConfig();
+            if (mScreenMapMode) mScreenMapMode->loadConfig();
+        }
+
+        mConfigVersion = version;
     }
 }
 

@@ -230,8 +230,8 @@ public class GamepadCalibrationDialogFragment extends DialogFragment {
         mStickControlsContainer.addView(mDeadzoneLabel, matchWrap());
 
         mDeadzoneSeekbar = new SeekBar(ctx);
-        mDeadzoneSeekbar.setMax(8192);
-        mDeadzoneSeekbar.setProgress(4096);
+        mDeadzoneSeekbar.setMax(50); // 0-50%
+        mDeadzoneSeekbar.setProgress(deadzoneToPercent(mCurrentDeadzone));
         LinearLayout.LayoutParams seekParams = matchWrap();
         seekParams.topMargin = 8;
         mStickControlsContainer.addView(mDeadzoneSeekbar, seekParams);
@@ -239,11 +239,11 @@ public class GamepadCalibrationDialogFragment extends DialogFragment {
         mDeadzoneSeekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                mCurrentDeadzone = progress;
+                mCurrentDeadzone = percentToDeadzone(progress);
                 mDeadzoneLabel.setText(getString(
                         R.string.gamepad_calibration_deadzone_label, progress));
                 if (mStickView.getVisibility() == View.VISIBLE) {
-                    mStickView.setDeadzone(progress / 32767f);
+                    mStickView.setDeadzone(mCurrentDeadzone / 32767f);
                 }
                 if (fromUser) {
                     applyDeadzoneImmediately();
@@ -326,8 +326,8 @@ public class GamepadCalibrationDialogFragment extends DialogFragment {
         mTriggerContainer.addView(mTriggerDeadzoneLabel, trigDzLabelParams);
 
         mTriggerDeadzoneSeekbar = new SeekBar(ctx);
-        mTriggerDeadzoneSeekbar.setMax(8192);
-        mTriggerDeadzoneSeekbar.setProgress(mTriggerDeadzone);
+        mTriggerDeadzoneSeekbar.setMax(50); // 0-50%
+        mTriggerDeadzoneSeekbar.setProgress(deadzoneToPercent(mTriggerDeadzone));
         LinearLayout.LayoutParams trigDzSeekParams = matchWrap();
         trigDzSeekParams.topMargin = 8;
         mTriggerContainer.addView(mTriggerDeadzoneSeekbar, trigDzSeekParams);
@@ -336,7 +336,7 @@ public class GamepadCalibrationDialogFragment extends DialogFragment {
                 new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                mTriggerDeadzone = progress;
+                mTriggerDeadzone = percentToDeadzone(progress);
                 mTriggerDeadzoneLabel.setText(getString(
                         R.string.gamepad_calibration_deadzone_label, progress));
                 if (fromUser) {
@@ -452,10 +452,17 @@ public class GamepadCalibrationDialogFragment extends DialogFragment {
                 mStickView.setPosition(mLastX, mLastY);
                 break;
             case LEFT_ADJUST: {
-                float lx = applyDisplayDeadzone(mLastX, mCurrentDeadzone / 32767f);
-                float ly = applyDisplayDeadzone(mLastY, mCurrentDeadzone / 32767f);
-                float ls = mCurrentSensitivity / 100f;
-                mStickView.setPosition(clamp(lx * ls), clamp(ly * ls));
+                // Daemon has center+range+sensitivity but deadzone=0 during ADJUST.
+                // UI applies circular deadzone: zero inside, pass through outside.
+                // The dot snaps to center inside the red circle and appears at
+                // the circle edge when the stick escapes the deadzone.
+                float lDz = mCurrentDeadzone / 32767f;
+                float lMag = (float) Math.sqrt(mLastX * mLastX + mLastY * mLastY);
+                if (lMag < lDz) {
+                    mStickView.setPosition(0f, 0f);
+                } else {
+                    mStickView.setPosition(clamp(mLastX), clamp(mLastY));
+                }
                 break;
             }
             case RIGHT_RANGE:
@@ -464,10 +471,13 @@ public class GamepadCalibrationDialogFragment extends DialogFragment {
                 mStickView.setPosition(mLastRX, mLastRY);
                 break;
             case RIGHT_ADJUST: {
-                float rrx = applyDisplayDeadzone(mLastRX, mCurrentDeadzone / 32767f);
-                float rry = applyDisplayDeadzone(mLastRY, mCurrentDeadzone / 32767f);
-                float rs = mCurrentSensitivity / 100f;
-                mStickView.setPosition(clamp(rrx * rs), clamp(rry * rs));
+                float rDz = mCurrentDeadzone / 32767f;
+                float rMag = (float) Math.sqrt(mLastRX * mLastRX + mLastRY * mLastRY);
+                if (rMag < rDz) {
+                    mStickView.setPosition(0f, 0f);
+                } else {
+                    mStickView.setPosition(clamp(mLastRX), clamp(mLastRY));
+                }
                 break;
             }
             case TRIGGERS: {
@@ -553,6 +563,16 @@ public class GamepadCalibrationDialogFragment extends DialogFragment {
         if (absVal < deadzone) return 0f;
         float sign = value > 0 ? 1f : -1f;
         return sign * (absVal - deadzone) / (1f - deadzone);
+    }
+
+    /** Convert raw deadzone (0-32767) to percentage (0-50). */
+    private static int deadzoneToPercent(int raw) {
+        return Math.round(raw * 100f / 32767f);
+    }
+
+    /** Convert percentage (0-50) to raw deadzone (0-16383). */
+    private static int percentToDeadzone(int pct) {
+        return Math.round(pct * 32767f / 100f);
     }
 
     private LinearLayout.LayoutParams matchWrap() {
@@ -661,9 +681,10 @@ public class GamepadCalibrationDialogFragment extends DialogFragment {
         mStickControlsContainer.setVisibility(View.VISIBLE);
         mTriggerContainer.setVisibility(View.GONE);
 
+        int dzPct = deadzoneToPercent(mCurrentDeadzone);
         mDeadzoneLabel.setText(getString(
-                R.string.gamepad_calibration_deadzone_label, mCurrentDeadzone));
-        mDeadzoneSeekbar.setProgress(mCurrentDeadzone);
+                R.string.gamepad_calibration_deadzone_label, dzPct));
+        mDeadzoneSeekbar.setProgress(dzPct);
 
         mSensLabel.setText(getString(
                 R.string.gamepad_calibration_sensitivity_label, mCurrentSensitivity));
@@ -677,9 +698,10 @@ public class GamepadCalibrationDialogFragment extends DialogFragment {
 
         mLeftTriggerBar.setValue(0f);
         mRightTriggerBar.setValue(0f);
+        int trigDzPct = deadzoneToPercent(mTriggerDeadzone);
         mTriggerDeadzoneLabel.setText(getString(
-                R.string.gamepad_calibration_deadzone_label, mTriggerDeadzone));
-        mTriggerDeadzoneSeekbar.setProgress(mTriggerDeadzone);
+                R.string.gamepad_calibration_deadzone_label, trigDzPct));
+        mTriggerDeadzoneSeekbar.setProgress(trigDzPct);
     }
 
     private void advanceStep() {
@@ -718,12 +740,11 @@ public class GamepadCalibrationDialogFragment extends DialogFragment {
                     mMinX = -32768; mMaxX = 32767;
                     mMinY = -32768; mMaxY = 32767;
                 }
-                // Save the range calibration now so it takes effect
+                // Save center+range with deadzone=0 so the daemon passes raw
+                // centered values for the ADJUST step's display deadzone.
                 float leftSens = mLeftSensitivity / 100f;
-                saveAxisCalibration(ABS_X, mCenterX, mMinX, mMaxX,
-                        mLeftDeadzone, leftSens);
-                saveAxisCalibration(ABS_Y, mCenterY, mMinY, mMaxY,
-                        mLeftDeadzone, leftSens);
+                saveAxisCalibration(ABS_X, mCenterX, mMinX, mMaxX, 0, leftSens);
+                saveAxisCalibration(ABS_Y, mCenterY, mMinY, mMaxY, 0, leftSens);
                 bumpConfigVersion();
                 // Move to left stick adjustment
                 mCurrentStep = Step.LEFT_ADJUST;
@@ -797,37 +818,35 @@ public class GamepadCalibrationDialogFragment extends DialogFragment {
     private void applyDeadzoneImmediately() {
         if (mCurrentStep == Step.LEFT_ADJUST) {
             mLeftDeadzone = mCurrentDeadzone;
-            float sens = mLeftSensitivity / 100f;
-            saveAxisCalibration(ABS_X, mCenterX, mMinX, mMaxX,
-                    mLeftDeadzone, sens);
-            saveAxisCalibration(ABS_Y, mCenterY, mMinY, mMaxY,
-                    mLeftDeadzone, sens);
         } else if (mCurrentStep == Step.RIGHT_ADJUST) {
             mRightDeadzone = mCurrentDeadzone;
-            float sens = mRightSensitivity / 100f;
-            saveAxisCalibration(getRightStickAbsX(), mCenterRX, mMinRX, mMaxRX,
-                    mRightDeadzone, sens);
-            saveAxisCalibration(getRightStickAbsY(), mCenterRY, mMinRY, mMaxRY,
-                    mRightDeadzone, sens);
         }
-        bumpConfigVersion();
+        // During ADJUST, save to daemon with deadzone=0 so raw centered
+        // values reach the UI. The UI applies its own display deadzone
+        // for visual feedback. The actual deadzone is saved when the user
+        // advances to the next step via saveCalibration().
+        pushLiveCalibration();
     }
 
     private void applySensitivityImmediately() {
         if (mCurrentStep == Step.LEFT_ADJUST) {
             mLeftSensitivity = mCurrentSensitivity;
-            float sens = mLeftSensitivity / 100f;
-            saveAxisCalibration(ABS_X, mCenterX, mMinX, mMaxX,
-                    mLeftDeadzone, sens);
-            saveAxisCalibration(ABS_Y, mCenterY, mMinY, mMaxY,
-                    mLeftDeadzone, sens);
         } else if (mCurrentStep == Step.RIGHT_ADJUST) {
             mRightSensitivity = mCurrentSensitivity;
+        }
+        pushLiveCalibration();
+    }
+
+    /** Push calibration to daemon with deadzone=0 for live preview. */
+    private void pushLiveCalibration() {
+        if (mCurrentStep == Step.LEFT_ADJUST) {
+            float sens = mLeftSensitivity / 100f;
+            saveAxisCalibration(ABS_X, mCenterX, mMinX, mMaxX, 0, sens);
+            saveAxisCalibration(ABS_Y, mCenterY, mMinY, mMaxY, 0, sens);
+        } else if (mCurrentStep == Step.RIGHT_ADJUST) {
             float sens = mRightSensitivity / 100f;
-            saveAxisCalibration(getRightStickAbsX(), mCenterRX, mMinRX, mMaxRX,
-                    mRightDeadzone, sens);
-            saveAxisCalibration(getRightStickAbsY(), mCenterRY, mMinRY, mMaxRY,
-                    mRightDeadzone, sens);
+            saveAxisCalibration(getRightStickAbsX(), mCenterRX, mMinRX, mMaxRX, 0, sens);
+            saveAxisCalibration(getRightStickAbsY(), mCenterRY, mMinRY, mMaxRY, 0, sens);
         }
         bumpConfigVersion();
     }

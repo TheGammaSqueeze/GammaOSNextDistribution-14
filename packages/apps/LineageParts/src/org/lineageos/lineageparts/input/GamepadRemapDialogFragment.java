@@ -892,6 +892,7 @@ public class GamepadRemapDialogFragment extends DialogFragment {
     }
 
     private void bumpConfigVersion() {
+        SystemProperties.set("persist.gammaos.gamepad.full_reload", "1");
         int version = SystemProperties.getInt(PROP_CONFIG_VERSION, 0);
         SystemProperties.set(PROP_CONFIG_VERSION, String.valueOf(version + 1));
     }
