@@ -343,4 +343,6 @@
     <string name="gammaos_toolbox_qs_override_summary">Anular el dise\u00f1o predeterminado de mosaicos de Ajustes r\u00e1pidos. Nombres de clases de mosaicos separados por comas.</string>
     <string name="gammaos_toolbox_bfi_mode_ctm">CTM (Hardware)</string>
     <string name="gammaos_toolbox_bfi_mode_re">RE (Software)</string>
+    <string name="gammaos_toolbox_taskbar_phone_title">Barra de tareas con Todas las apps</string>
+    <string name="gammaos_toolbox_taskbar_phone_summary">Reemplaza la barra de navegación de 3 botones estándar con una barra de tareas que incluye un ícono de Todas las aplicaciones. Se aplica en tiempo real. Desactiva para volver a la navegación AOSP de 3 botones.</string>
 </resources>

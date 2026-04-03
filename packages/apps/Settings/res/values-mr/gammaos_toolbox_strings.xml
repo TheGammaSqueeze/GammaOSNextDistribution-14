@@ -268,4 +268,6 @@
 
     <string name="gammaos_toolbox_bfi_mode_ctm">CTM (हार्डवेअर)</string>
     <string name="gammaos_toolbox_bfi_mode_re">RE (सॉफ्टवेअर)</string>
+    <string name="gammaos_toolbox_taskbar_phone_title">सर্व अॅप্ससह फdownloadsोन टॅस্कbar</string>
+    <string name="gammaos_toolbox_taskbar_phone_summary">स্टdownloadsक 3-बdownloadsटण नdownloadsव্हdownloadsगेशन बार सर্व अॅप্स आdownloadsयकॅनdownloadsसह टॅस্कbar ने बदला.</string>
 </resources>

@@ -1215,6 +1215,12 @@
         android:title="@string/gammaos_toolbox_category_multidisplay">
 
         <SwitchPreference
+            android:key="persist.gammaos.taskbar.phone"
+            android:title="@string/gammaos_toolbox_taskbar_phone_title"
+            android:summary="@string/gammaos_toolbox_taskbar_phone_summary"
+            android:defaultValue="true" />
+
+        <SwitchPreference
             android:key="persist.gammaos.taskbar.dual"
             android:title="@string/gammaos_toolbox_taskbar_dual_title"
             android:summary="@string/gammaos_toolbox_taskbar_dual_summary"

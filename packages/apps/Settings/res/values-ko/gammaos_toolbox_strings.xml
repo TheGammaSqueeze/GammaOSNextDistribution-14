@@ -369,4 +369,6 @@
 
     <string name="gammaos_toolbox_bfi_mode_ctm">CTM (하드웨어)</string>
     <string name="gammaos_toolbox_bfi_mode_re">RE (소프트웨어)</string>
+    <string name="gammaos_toolbox_taskbar_phone_title">모든 앱이 포함된 폰 작업 표시줄</string>
+    <string name="gammaos_toolbox_taskbar_phone_summary">기본 3버튼 탐색 바를 모든 앱 아이콘이 포함된 작업 표시줄로 교체합니다. 실시간으로 적용됩니다. 기본 AOSP 3버튼 탐색으로 되돌리려면 비활성화하세요.</string>
 </resources>

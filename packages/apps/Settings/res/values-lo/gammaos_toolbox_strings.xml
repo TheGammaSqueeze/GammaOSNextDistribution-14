@@ -253,4 +253,6 @@
     <string name="gammaos_toolbox_performance_mode_summary">ໂປຣໄຟລ໌ປະສິດທິພາບສຳລັບການປັບ CPU/GPU governor. ຕົວເລືອກ: stock, performance, powersave.</string>
     <string name="gammaos_toolbox_bfi_mode_ctm">CTM (ຮາດແວ)</string>
     <string name="gammaos_toolbox_bfi_mode_re">RE (ຊອບແວ)</string>
+    <string name="gammaos_toolbox_taskbar_phone_title">ແdownloadຖບbar ໂທdownศัບ ກັdownload App ທັdownload້ງ່osedownload</string>
+    <string name="gammaos_toolbox_taskbar_phone_summary">ປ່omeນ ແdownloadຖບ navigation 3 ປุ່ม มาdownloadตรฐาน</string>
 </resources>

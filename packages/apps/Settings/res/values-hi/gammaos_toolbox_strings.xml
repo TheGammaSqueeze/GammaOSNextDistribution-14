@@ -268,4 +268,6 @@
 
     <string name="gammaos_toolbox_bfi_mode_ctm">CTM (हार्डवेयर)</string>
     <string name="gammaos_toolbox_bfi_mode_re">RE (सॉफ़्टवेयर)</string>
+    <string name="gammaos_toolbox_taskbar_phone_title">सभी ऐप्स के साथ फ़ोन टास्कबार</string>
+    <string name="gammaos_toolbox_taskbar_phone_summary">स्टॉक 3-बटन नेविगेशन बार को सभी ऐप्स आइकन वाले टास्कबार से बदलें। रीयल टाइम में लागू होता है। स्टॉक AOSP 3-बटन नेविगेशन पर लौटने के लिए अक्षम करें।</string>
 </resources>

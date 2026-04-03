@@ -365,4 +365,6 @@
 
     <string name="gammaos_toolbox_bfi_mode_ctm">CTM（ハードウェア）</string>
     <string name="gammaos_toolbox_bfi_mode_re">RE（ソフトウェア）</string>
+    <string name="gammaos_toolbox_taskbar_phone_title">全アプリ付きフォンタスクバー</string>
+    <string name="gammaos_toolbox_taskbar_phone_summary">標準の3ボタンナビゲーションバーを、全アプリアイコン付きのタスクバーに置き換えます。リアルタイムで適用されます。標準のAOSP 3ボタンナビゲーションに戻すには無効にしてください。</string>
 </resources>

@@ -268,4 +268,6 @@
 
     <string name="gammaos_toolbox_bfi_mode_ctm">CTM (ဟာ့ဒ်ဝဲ)</string>
     <string name="gammaos_toolbox_bfi_mode_re">RE (ဆော့ဖ်ဝဲ)</string>
+    <string name="gammaos_toolbox_taskbar_phone_title">App အားလုံးပါသော ဖုန်း Taskbar</string>
+    <string name="gammaos_toolbox_taskbar_phone_summary">စံ 3-ခလုတ် လမ်းညွှန်ဘားကို App အားလုံး အိုင်ကွန်ပါသော Taskbar ဖြင့် အစားထိုးပါ။</string>
 </resources>

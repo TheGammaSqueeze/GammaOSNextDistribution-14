@@ -343,4 +343,6 @@
     <string name="gammaos_toolbox_qs_override_summary">पूर्वनिर्धारित Quick Settings टाइल लेआउट ओभरराइड गर्नुहोस्। अल्पविरामले छुट्याइएका टाइल क्लास नामहरू।</string>
     <string name="gammaos_toolbox_bfi_mode_ctm">CTM (हार्डवेयर)</string>
     <string name="gammaos_toolbox_bfi_mode_re">RE (सफ्टवेयर)</string>
+    <string name="gammaos_toolbox_taskbar_phone_title">सबै एdownloadsपsसहdownloadsत फdownloadsोन Taskbar</string>
+    <string name="gammaos_toolbox_taskbar_phone_summary">स্token 3-बdownloadsटन नdownloadsव্हdownloadsगेशन बारdownloadsलdownloadsई सबdownloadsै एdownloadsपs आdownloadsइकdownloadsन भएकdownloadsो Taskbar ले बदdownloadsल্नुहdownloadsोस্।</string>
 </resources>

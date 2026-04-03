@@ -253,4 +253,6 @@
     <string name="gammaos_toolbox_performance_mode_summary">Profil kinerja untuk penyesuaian governor CPU/GPU. Opsi: stock, performance, powersave.</string>
     <string name="gammaos_toolbox_bfi_mode_ctm">CTM (Perangkat Keras)</string>
     <string name="gammaos_toolbox_bfi_mode_re">RE (Perangkat Lunak)</string>
+    <string name="gammaos_toolbox_taskbar_phone_title">Bilah tugas ponsel dengan Semua Aplikasi</string>
+    <string name="gammaos_toolbox_taskbar_phone_summary">Ganti bilah navigasi 3 tombol standar dengan bilah tugas yang menyertakan ikon Semua Aplikasi. Diterapkan secara real time. Nonaktifkan untuk kembali ke navigasi AOSP 3 tombol standar.</string>
 </resources>

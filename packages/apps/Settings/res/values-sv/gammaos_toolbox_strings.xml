@@ -343,4 +343,6 @@
     <string name="gammaos_toolbox_qs_override_summary">Åsidosätt standardlayouten för snabbinställningspaneler. Kommaseparerade panelklassnamn.</string>
     <string name="gammaos_toolbox_bfi_mode_ctm">CTM (hårdvara)</string>
     <string name="gammaos_toolbox_bfi_mode_re">RE (mjukvara)</string>
+    <string name="gammaos_toolbox_taskbar_phone_title">Aktivitetsfält med Alla appar</string>
+    <string name="gammaos_toolbox_taskbar_phone_summary">Ersätt den vanliga 3-knappars navigationsfältet med ett aktivitetsfält som inkluderar en Alla appar-ikon. Tillämpas i realtid. Inaktivera för att återgå till standard AOSP 3-knappars navigering.</string>
 </resources>

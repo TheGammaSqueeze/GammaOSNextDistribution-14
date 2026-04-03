@@ -253,4 +253,6 @@
     <string name="gammaos_toolbox_performance_mode_summary">Профіль прадукцыйнасці для наладкі губернатара CPU/GPU. Варыянты: stock, performance, powersave.</string>
     <string name="gammaos_toolbox_bfi_mode_ctm">CTM (Апаратны)</string>
     <string name="gammaos_toolbox_bfi_mode_re">RE (Праграмны)</string>
+    <string name="gammaos_toolbox_taskbar_phone_title">Панэль задач тэлефона з Усімі праграмамі</string>
+    <string name="gammaos_toolbox_taskbar_phone_summary">Замяніць стандартную 3-кнопкавую панэль навігацыі на панэль задач з значком Усіх праграм. Прымяняецца ў рэальным часе. Адключыце, каб вярнуцца да стандартнай AOSP 3-кнопкавай навігацыі.</string>
 </resources>

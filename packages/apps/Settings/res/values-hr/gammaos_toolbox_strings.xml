@@ -268,4 +268,6 @@
 
     <string name="gammaos_toolbox_bfi_mode_ctm">CTM (hardver)</string>
     <string name="gammaos_toolbox_bfi_mode_re">RE (softver)</string>
+    <string name="gammaos_toolbox_taskbar_phone_title">Traka zadataka s Sve aplikacije</string>
+    <string name="gammaos_toolbox_taskbar_phone_summary">Zamijenite standardnu navigacijsku traku s 3 gumba trakom zadataka koja uključuje ikonu Sve aplikacije. Primjenjuje se u stvarnom vremenu. Onemogućite za povratak na standardnu AOSP navigaciju s 3 gumba.</string>
 </resources>

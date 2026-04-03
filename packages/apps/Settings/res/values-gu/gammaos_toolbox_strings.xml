@@ -268,4 +268,6 @@
 
     <string name="gammaos_toolbox_bfi_mode_ctm">CTM (હાર્ડવેર)</string>
     <string name="gammaos_toolbox_bfi_mode_re">RE (સૉફ્ટવેર)</string>
+    <string name="gammaos_toolbox_taskbar_phone_title">બધી એપ્લિકેશનો સાથે ફોન ટાસ્કબાર</string>
+    <string name="gammaos_toolbox_taskbar_phone_summary">સ્ટોક 3-બટન નેવિગેશન બારને બધી એપ્લિકેશનો આયકન ધરાવતી ટાસ્કબાર સાથે બદલો. રીઅલ ટાઇમમાં લાગુ થાય છે. સ્ટોક AOSP 3-બટન નેવિગેશન પર પાછા ફરવા માટે અક્ષમ કરો.</string>
 </resources>

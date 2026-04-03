@@ -343,4 +343,6 @@
     <string name="gammaos_toolbox_qs_override_summary">تجاوز تخطيط مربعات الإعدادات السريعة الافتراضي. أسماء فئات المربعات مفصولة بفواصل.</string>
     <string name="gammaos_toolbox_bfi_mode_ctm">CTM (عتاد)</string>
     <string name="gammaos_toolbox_bfi_mode_re">RE (برمجي)</string>
+    <string name="gammaos_toolbox_taskbar_phone_title">شريط المهام مع جميع التطبيقات</string>
+    <string name="gammaos_toolbox_taskbar_phone_summary">استبدل شريط التنقل ذو الأزرار الثلاثة بشريط مهام يتضمن رمز جميع التطبيقات. يُطبق في الوقت الفعلي. قم بالتعطيل للعودة إلى تنقل AOSP القياسي ذي الأزرار الثلاثة.</string>
 </resources>

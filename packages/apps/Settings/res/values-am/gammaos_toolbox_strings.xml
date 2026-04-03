@@ -253,4 +253,6 @@
     <string name="gammaos_toolbox_performance_mode_summary">ለ CPU/GPU ገዢ ማስተካከያ የአፈጻጸም መገለጫ። አማራጮች: stock, performance, powersave.</string>
     <string name="gammaos_toolbox_bfi_mode_ctm">CTM (ሃርድዌር)</string>
     <string name="gammaos_toolbox_bfi_mode_re">RE (ሶፍትዌር)</string>
+    <string name="gammaos_toolbox_taskbar_phone_title">ከሁሉም መተግበሪያዎች ጋር የስልክ ተግባር አሞሌ</string>
+    <string name="gammaos_toolbox_taskbar_phone_summary">መደበኛውን 3-አዝራር ናቪጌሽን አሞሌ በሁሉም መተግበሪያዎች አዶ ያካተተ ተግባር አሞሌ ይተኩ። በቅጽበት ይተገበራል። ወደ መደበኛ AOSP 3-አዝራር ናቪጌሽን ለመመለስ ያሰናክሉ።</string>
 </resources>

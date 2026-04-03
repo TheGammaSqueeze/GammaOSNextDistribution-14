@@ -268,4 +268,6 @@
 
     <string name="gammaos_toolbox_bfi_mode_ctm">CTM (Perkakasan)</string>
     <string name="gammaos_toolbox_bfi_mode_re">RE (Perisian)</string>
+    <string name="gammaos_toolbox_taskbar_phone_title">Bar tugas telefon dengan Semua Apl</string>
+    <string name="gammaos_toolbox_taskbar_phone_summary">Gantikan bar navigasi 3 butang standard dengan bar tugas yang menyertakan ikon Semua Apl. Digunakan secara masa nyata. Lumpuhkan untuk kembali ke navigasi AOSP 3 butang standard.</string>
 </resources>

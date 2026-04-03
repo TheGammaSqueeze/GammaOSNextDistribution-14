@@ -343,4 +343,6 @@
     <string name="gammaos_toolbox_qs_override_summary">បដិសេធប្លង់ប៊្លុកការកំណត់រហ័សលំនាំដើម។ ឈ្មោះថ្នាក់ប៊្លុកបំបែកដោយសញ្ញាក្បៀស។</string>
     <string name="gammaos_toolbox_bfi_mode_ctm">CTM (ផ្នែករឹង)</string>
     <string name="gammaos_toolbox_bfi_mode_re">RE (កម្មវិធី)</string>
+    <string name="gammaos_toolbox_taskbar_phone_title">របារភារកិច្ចទូរស័ org७ជាមួយកម্មវិធីទា orgंងអស់</string>
+    <string name="gammaos_toolbox_taskbar_phone_summary">ជំនួសរបាររុករក 3 ប៊ូតុងស្តង់ដារដោយរបារភារកិច្ចដែលរួមបញ្ចូលរូបតំណាងកម্មវិធីទា orgंងអស់។</string>
 </resources>

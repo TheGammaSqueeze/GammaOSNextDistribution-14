@@ -933,6 +933,9 @@ public class NavigationBarView extends FrameLayout {
 
     // GammaOS: mirror NavigationBarControllerImpl’s check
     private boolean isGammaPhoneTaskbarActive() {
+        if (!android.os.SystemProperties.getBoolean("persist.gammaos.taskbar.phone", true)) {
+            return false;
+        }
         try {
             return android.provider.Settings.Secure.getInt(
                     getContext().getContentResolver(), "gamma_taskbar_phone_active", 0) == 1;

@@ -268,4 +268,6 @@
 
     <string name="gammaos_toolbox_bfi_mode_ctm">CTM (سخت‌افزاری)</string>
     <string name="gammaos_toolbox_bfi_mode_re">RE (نرم‌افزاری)</string>
+    <string name="gammaos_toolbox_taskbar_phone_title">نوار وظیفه تلفن با همه برنامه‌ها</string>
+    <string name="gammaos_toolbox_taskbar_phone_summary">نوار ناوبری ۳ دکمه‌ای استاندارد را با نوار وظیفه‌ای که شامل نماد همه برنامه‌ها است جایگزین کنید. در زمان واقعی اعمال می‌شود. برای بازگشت به ناوبری ۳ دکمه‌ای AOSP غیرفعال کنید.</string>
 </resources>

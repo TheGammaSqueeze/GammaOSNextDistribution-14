@@ -57,6 +57,7 @@ import android.graphics.Rect;
 import android.hardware.display.DisplayManager;
 import android.os.IRemoteCallback;
 import android.os.Process;
+import android.os.SystemProperties;
 import android.os.Trace;
 import android.provider.Settings;
 import android.util.Log;
@@ -391,15 +392,23 @@ public class TaskbarActivityContext extends BaseTaskbarContext {
         mControllers.taskbarViewController.resetIconAlignmentController();
     }
 
+    private android.database.ContentObserver mGammaToggleObserver;
+
     public void init(@NonNull TaskbarSharedState sharedState) {
-        // GammaOS: signal SystemUI to suppress legacy navbar whenever 3-button nav is active.
-        // Only the DEFAULT_DISPLAY taskbar should touch this flag; secondary taskbars must not
-        // clobber the primary display's navbar decision.
+        // GammaOS: signal SystemUI to suppress legacy navbar whenever 3-button nav is active
+        // AND the phone-taskbar prop is enabled.
         if (getDisplay() != null && getDisplay().getDisplayId() == Display.DEFAULT_DISPLAY) {
+            boolean phoneTaskbar = SystemProperties.getBoolean(
+                    "persist.gammaos.taskbar.phone", true);
             android.provider.Settings.Secure.putInt(getContentResolver(),
-                    "gamma_taskbar_phone_active", isThreeButtonNav() ? 1 : 0);
+                    "gamma_taskbar_phone_active",
+                    (phoneTaskbar && isThreeButtonNav()) ? 1 : 0);
             android.util.Log.d("GammaTaskbar",
-                    "Signalled SystemUI: 3-button taskbar ACTIVE? " + isThreeButtonNav());
+                    "Signalled SystemUI: 3-button taskbar ACTIVE? "
+                    + (phoneTaskbar && isThreeButtonNav()));
+
+            // GammaOS: The SettingsCache listener in TaskbarManager handles
+            // recreation when gamma_phone_taskbar_toggle changes.
         }
 
         mImeDrawsImeNavBar = getBoolByName(IME_DRAWS_IME_NAV_BAR_RES_NAME, getResources(), false);
@@ -865,6 +874,11 @@ public class TaskbarActivityContext extends BaseTaskbarContext {
      * Called when this instance of taskbar is no longer needed
      */
     public void onDestroy() {
+        // GammaOS: unregister toggle observer
+        if (mGammaToggleObserver != null) {
+            getContentResolver().unregisterContentObserver(mGammaToggleObserver);
+            mGammaToggleObserver = null;
+        }
         // GammaOS: clear the suppression flag (DEFAULT_DISPLAY only; see init()).
         if (getDisplay() != null && getDisplay().getDisplayId() == Display.DEFAULT_DISPLAY) {
             android.provider.Settings.Secure.putInt(getContentResolver(),
@@ -878,6 +892,18 @@ public class TaskbarActivityContext extends BaseTaskbarContext {
             // Only remove if we actually added and the view is still attached.
             if (mAddedWindow && mDragLayer != null && mDragLayer.isAttachedToWindow()) {
                 mWindowManager.removeViewImmediate(mDragLayer);
+            }
+        }
+        // GammaOS: always try to remove the drag layer when phone-taskbar prop is off,
+        // regardless of feature flags, to avoid zombie TYPE_NAVIGATION_BAR windows.
+        if (!SystemProperties.getBoolean("persist.gammaos.taskbar.phone", true)) {
+            if (mDragLayer != null && mDragLayer.isAttachedToWindow()) {
+                try {
+                    mWindowManager.removeViewImmediate(mDragLayer);
+                    android.util.Log.d("GammaTaskbar", "Force-removed DragLayer window");
+                } catch (Throwable t) {
+                    android.util.Log.w("GammaTaskbar", "Failed to remove DragLayer", t);
+                }
             }
             mAddedWindow = false;
         }

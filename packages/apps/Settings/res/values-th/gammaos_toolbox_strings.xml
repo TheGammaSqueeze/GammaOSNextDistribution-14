@@ -253,4 +253,6 @@
     <string name="gammaos_toolbox_performance_mode_summary">โปรไฟล์ประสิทธิภาพสำหรับการปรับแต่ง CPU/GPU governor ตัวเลือก: stock, performance, powersave</string>
     <string name="gammaos_toolbox_bfi_mode_ctm">CTM (ฮาร์ดแวร์)</string>
     <string name="gammaos_toolbox_bfi_mode_re">RE (ซอฟต์แวร์)</string>
+    <string name="gammaos_toolbox_taskbar_phone_title">แdownloadถบงานโทรศัพท์พร้อมแอปทั้งหมด</string>
+    <string name="gammaos_toolbox_taskbar_phone_summary">แทนที่แถบนำทาง 3 ปุ่มมาตรฐานด้วยแถบงานที่มีไอคอนแอปทั้งหมด</string>
 </resources>

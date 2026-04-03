@@ -159,7 +159,69 @@ public class NavigationBarControllerImpl implements
         mIsPhone =
                 mContext.getResources().getIntArray(R.array.config_foldedDeviceStates).length == 0;
         dumpManager.registerDumpable(this);
+
+        // GammaOS: observe gamma_taskbar_phone_active so SystemUI reacts in real time
+        // when Trebuchet toggles it (or when the user manually changes it).
+        mContext.getContentResolver().registerContentObserver(
+                android.provider.Settings.Secure.getUriFor("gamma_taskbar_phone_active"),
+                false,
+                new android.database.ContentObserver(mHandler) {
+                    @Override
+                    public void onChange(boolean selfChange) {
+                        Log.d("GammaNavbar", "gamma_taskbar_phone_active changed, updating navbar");
+                        updateNavbarForTaskbar();
+                    }
+                },
+                android.os.UserHandle.USER_ALL);
+
+        // GammaOS: poll persist.gammaos.taskbar.phone every 2s to detect setprop changes.
+        // SystemProperties.addChangeCallback is unreliable on some builds.
+        mGammaPhoneTaskbarProp = SystemProperties.getBoolean("persist.gammaos.taskbar.phone", true);
+        Runnable propPoller = new Runnable() {
+            @Override
+            public void run() {
+                boolean newVal = SystemProperties.getBoolean("persist.gammaos.taskbar.phone", true);
+                if (newVal != mGammaPhoneTaskbarProp) {
+                    mGammaPhoneTaskbarProp = newVal;
+                    Log.d("GammaNavbar", "persist.gammaos.taskbar.phone -> " + newVal);
+                    // Poke the trigger so Trebuchet's SettingsCache listener fires
+                    // and cleans up its tracked taskbar windows.
+                    try {
+                        android.provider.Settings.Secure.putInt(
+                                mContext.getContentResolver(),
+                                "gamma_phone_taskbar_toggle", newVal ? 1 : 0);
+                    } catch (Throwable ignored) {}
+                    // After Trebuchet cleans up its tracked windows, kill its
+                    // process to remove any leaked zombie TYPE_NAVIGATION_BAR
+                    // windows. Use IActivityManager.killApplication directly
+                    // since SystemUI has the necessary system permissions.
+                    mHandler.postDelayed(() -> {
+                        Log.d("GammaNavbar", "Killing launcher3 process");
+                        try {
+                            android.app.IActivityManager iam =
+                                    android.app.ActivityManager.getService();
+                            iam.forceStopPackage("com.android.launcher3",
+                                    android.os.UserHandle.USER_ALL);
+                        } catch (Throwable t) {
+                            Log.w("GammaNavbar", "Kill failed, trying killBg", t);
+                            try {
+                                android.app.ActivityManager am = mContext.getSystemService(
+                                        android.app.ActivityManager.class);
+                                am.killBackgroundProcesses("com.android.launcher3");
+                            } catch (Throwable t2) {
+                                Log.w("GammaNavbar", "killBg also failed", t2);
+                            }
+                        }
+                        mHandler.postDelayed(() -> updateNavbarForTaskbar(), 2000);
+                    }, 1000);
+                }
+                mHandler.postDelayed(this, 2000);
+            }
+        };
+        mHandler.postDelayed(propPoller, 2000);
     }
+
+    private volatile boolean mGammaPhoneTaskbarProp;
 
     @Override
     public void onConfigChanged(Configuration newConfig) {
@@ -253,6 +315,9 @@ public class NavigationBarControllerImpl implements
     // When active, treat Taskbar as "initialized" even on phones so we don't create
     // the legacy 3-button NavigationBar (and its input consumer) on the default display.
     private boolean isGammaPhoneTaskbarActive(Context context) {
+        if (!SystemProperties.getBoolean("persist.gammaos.taskbar.phone", true)) {
+            return false;
+        }
         try {
             return android.provider.Settings.Secure.getIntForUser(
                     context.getContentResolver(), "gamma_taskbar_phone_active", 0,
@@ -264,6 +329,11 @@ public class NavigationBarControllerImpl implements
         // GammaOS: if Launcher says phone-taskbar is active, allow Taskbar init and skip navbar.
         if (isGammaPhoneTaskbarActive(context)
                 && QuickStepContract.isLegacyMode(mNavMode)) return true;
+        // GammaOS: when phone-taskbar is disabled in 3-button mode, force-allow navbar
+        // creation even if the device doesn't have hardware nav buttons.
+        if (!SystemProperties.getBoolean("persist.gammaos.taskbar.phone", true)
+                && QuickStepContract.isLegacyMode(mNavMode)
+                && displayId == mDisplayTracker.getDefaultDisplayId()) return true;
         if (displayId == mDisplayTracker.getDefaultDisplayId() &&
                 LineageSettings.System.getIntForUser(context.getContentResolver(),
                         LineageSettings.System.FORCE_SHOW_NAVBAR, 0,
@@ -293,6 +363,26 @@ public class NavigationBarControllerImpl implements
         boolean taskbarShown = initializeTaskbarIfNecessary();
         if (!taskbarShown && mNavigationBars.get(mContext.getDisplayId()) == null) {
             createNavigationBar(mContext.getDisplay(), null, null);
+        }
+        // GammaOS: if phone-taskbar prop is disabled and we're in 3-button mode,
+        // force-create the stock navbar even if the device has no hardware nav buttons.
+        if (!taskbarShown
+                && !SystemProperties.getBoolean("persist.gammaos.taskbar.phone", true)
+                && QuickStepContract.isLegacyMode(mNavMode)
+                && mNavigationBars.get(mDisplayTracker.getDefaultDisplayId()) == null) {
+            Log.d("GammaNavbar", "Force-creating stock navbar (phone-taskbar disabled)");
+            createNavigationBar(mContext.getDisplay(), null, null);
+        }
+        // GammaOS: if the taskbar is now active but a stock navbar still exists on the
+        // default display, remove it so they don't overlap.
+        if (taskbarShown) {
+            int defaultId = mDisplayTracker.getDefaultDisplayId();
+            NavigationBar existing = mNavigationBars.get(defaultId);
+            if (existing != null) {
+                Log.d("GammaNavbar", "Removing stock navbar (taskbar is active)");
+                existing.destroyView();
+                mNavigationBars.remove(defaultId);
+            }
         }
         return taskbarShown;
     }

@@ -268,4 +268,6 @@
 
     <string name="gammaos_toolbox_bfi_mode_ctm">CTM (Maskinvare)</string>
     <string name="gammaos_toolbox_bfi_mode_re">RE (Programvare)</string>
+    <string name="gammaos_toolbox_taskbar_phone_title">Oppgavelinje med Alle apper</string>
+    <string name="gammaos_toolbox_taskbar_phone_summary">Erstatt standard 3-knappers navigasjonslinje med en oppgavelinje som inkluderer et Alle apper-ikon. Gjelder i sanntid. Deaktiver for å gå tilbake til standard AOSP 3-knappers navigasjon.</string>
 </resources>

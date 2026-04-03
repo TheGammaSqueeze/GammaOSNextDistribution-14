@@ -343,4 +343,6 @@
     <string name="gammaos_toolbox_qs_override_summary">පෙරනිමි ඉක්මන් සැකසුම් ටයිල් පිරිසැලසුම අභිබවනය කරන්න. කොමාවෙන් වෙන් කළ ටයිල් පන්ති නාම.</string>
     <string name="gammaos_toolbox_bfi_mode_ctm">CTM (දෘඩාංග)</string>
     <string name="gammaos_toolbox_bfi_mode_re">RE (මෘදුකාංග)</string>
+    <string name="gammaos_toolbox_taskbar_phone_title">සම্බ্adෂද යedd্um্ සහෂ ඩdownloads্ම Taskbar</string>
+    <string name="gammaos_toolbox_taskbar_phone_summary"></string>
 </resources>

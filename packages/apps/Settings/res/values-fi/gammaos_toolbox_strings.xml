@@ -268,4 +268,6 @@
 
     <string name="gammaos_toolbox_bfi_mode_ctm">CTM (laitteisto)</string>
     <string name="gammaos_toolbox_bfi_mode_re">RE (ohjelmisto)</string>
+    <string name="gammaos_toolbox_taskbar_phone_title">Puhelimen tehtäväpalkki ja Kaikki sovellukset</string>
+    <string name="gammaos_toolbox_taskbar_phone_summary">Korvaa tavallisen 3-painikkeisen navigointipalkin tehtäväpalkilla, jossa on Kaikki sovellukset -kuvake. Otetaan käyttöön reaaliajassa. Poista käytöstä palataksesi AOSP:n 3-painikkeiseen navigointiin.</string>
 </resources>

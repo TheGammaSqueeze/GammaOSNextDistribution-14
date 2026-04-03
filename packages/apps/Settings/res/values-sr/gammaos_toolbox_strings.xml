@@ -268,4 +268,6 @@
 
     <string name="gammaos_toolbox_bfi_mode_ctm">CTM (\u0425\u0430\u0440\u0434\u0432\u0435\u0440\u0441\u043a\u0438)</string>
     <string name="gammaos_toolbox_bfi_mode_re">RE (\u0421\u043e\u0444\u0442\u0432\u0435\u0440\u0441\u043a\u0438)</string>
+    <string name="gammaos_toolbox_taskbar_phone_title">Трака задатака са Све апlikациjeе</string>
+    <string name="gammaos_toolbox_taskbar_phone_summary">Замените стandardну 3-тasterаску навigациону траку traком задataka са ikonсом Свe аplikациje. Примenjуje сe у реalном wrемenу.</string>
 </resources>

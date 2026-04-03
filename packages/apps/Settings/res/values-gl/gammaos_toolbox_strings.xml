@@ -268,4 +268,6 @@
 
     <string name="gammaos_toolbox_bfi_mode_ctm">CTM (Hardware)</string>
     <string name="gammaos_toolbox_bfi_mode_re">RE (Software)</string>
+    <string name="gammaos_toolbox_taskbar_phone_title">Barra de tarefas con Todas as apps</string>
+    <string name="gammaos_toolbox_taskbar_phone_summary">Substitúe a barra de navegación de 3 botóns estándar cunha barra de tarefas que inclúe unha icona de Todas as aplicacións. Aplícase en tempo real. Desactiva para volver á navegación AOSP de 3 botóns.</string>
 </resources>

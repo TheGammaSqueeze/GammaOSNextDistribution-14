@@ -268,4 +268,6 @@
 
     <string name="gammaos_toolbox_bfi_mode_ctm">CTM (Υλικό)</string>
     <string name="gammaos_toolbox_bfi_mode_re">RE (Λογισμικό)</string>
+    <string name="gammaos_toolbox_taskbar_phone_title">Γραμμή εργασιών τηλεφώνου με Όλες τις εφαρμογές</string>
+    <string name="gammaos_toolbox_taskbar_phone_summary">Αντικαταστήστε τη βασική γραμμή πλοήγησης 3 κουμπιών με μια γραμμή εργασιών που περιλαμβάνει εικονίδιο Όλων των εφαρμογών. Εφαρμόζεται σε πραγματικό χρόνο. Απενεργοποιήστε για επαναφορά στη βασική πλοήγηση AOSP 3 κουμπιών.</string>
 </resources>

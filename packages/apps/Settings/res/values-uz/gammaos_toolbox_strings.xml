@@ -343,4 +343,6 @@
     <string name="gammaos_toolbox_qs_override_summary">Standart tez sozlamalar plitkalari tartibini bekor qilish. Vergul bilan ajratilgan plitka klass nomlari.</string>
     <string name="gammaos_toolbox_bfi_mode_ctm">CTM (Apparat)</string>
     <string name="gammaos_toolbox_bfi_mode_re">RE (Dasturiy)</string>
+    <string name="gammaos_toolbox_taskbar_phone_title">Barcha ilovalar bilan telefon vazifalar paneli</string>
+    <string name="gammaos_toolbox_taskbar_phone_summary">Standart 3 tugmali navigatsiya panelini Barcha ilovalar belgisini oʻz ichiga olgan vazifalar paneli bilan almashtiring. Real vaqtda qoʻllaniladi. Standart AOSP 3 tugmali navigatsiyaga qaytish uchun oʻchiring.</string>
 </resources>

@@ -343,4 +343,6 @@
     <string name="gammaos_toolbox_qs_override_summary">Az alap\u00e9rtelmezett Gyors be\u00e1ll\u00edt\u00e1sok csempeelrendez\u00e9s fel\u00fcl\u00edr\u00e1sa. Vessz\u0151vel elv\u00e1lasztott csempe oszt\u00e1lynevek.</string>
     <string name="gammaos_toolbox_bfi_mode_ctm">CTM (Hardveres)</string>
     <string name="gammaos_toolbox_bfi_mode_re">RE (Szoftveres)</string>
+    <string name="gammaos_toolbox_taskbar_phone_title">Tálca az Összes alkalmazással</string>
+    <string name="gammaos_toolbox_taskbar_phone_summary">Cserélje le a hagyományos 3 gombos navigációs sávot egy tálcára, amely tartalmaz egy Összes alkalmazás ikont. Valós időben érvényesül. Tiltsa le a hagyományos AOSP 3 gombos navigációhoz való visszatéréshez.</string>
 </resources>

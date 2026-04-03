@@ -253,4 +253,6 @@
     <string name="gammaos_toolbox_performance_mode_summary">H\u1ed3 s\u01a1 hi\u1ec7u su\u1ea5t cho \u0111i\u1ec1u ch\u1ec9nh b\u1ed9 \u0111i\u1ec1u khi\u1ec3n CPU/GPU. T\u00f9y ch\u1ecdn: stock, performance, powersave.</string>
     <string name="gammaos_toolbox_bfi_mode_ctm">CTM (Ph\u1ea7n c\u1ee9ng)</string>
     <string name="gammaos_toolbox_bfi_mode_re">RE (Ph\u1ea7n m\u1ec1m)</string>
+    <string name="gammaos_toolbox_taskbar_phone_title">Thanh tác vụ điện thoại với Tất cả ứng dụng</string>
+    <string name="gammaos_toolbox_taskbar_phone_summary">Thay thế thanh điều hướng 3 nút tiêu chuẩn bằng thanh tác vụ có biểu tượng Tất cả ứng dụng. Áp dụng theo thời gian thực. Tắt để quay lại điều hướng AOSP 3 nút tiêu chuẩn.</string>
 </resources>

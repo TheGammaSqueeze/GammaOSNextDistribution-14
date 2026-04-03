@@ -268,4 +268,6 @@
 
     <string name="gammaos_toolbox_bfi_mode_ctm">CTM (Harduerik)</string>
     <string name="gammaos_toolbox_bfi_mode_re">RE (Softuerik)</string>
+    <string name="gammaos_toolbox_taskbar_phone_title">Shiriti i detyrave me Të gjitha aplikacionet</string>
+    <string name="gammaos_toolbox_taskbar_phone_summary">Zëvendësoni shiritin e navigimit me 3 butona me një shirit detyrash që përfshin një ikonë Të gjitha aplikacionet. Zbatohet në kohë reale. Çaktivizoni për t\u2019u kthyer te navigimi AOSP me 3 butona.</string>
 </resources>

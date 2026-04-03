@@ -242,6 +242,7 @@ public class GammaOSToolboxFragment extends SettingsPreferenceFragment {
         DEFAULTS.put("persist.gammaos.dcdimmingemulation", "false");
 
         // Desktop extras
+        DEFAULTS.put("persist.gammaos.taskbar.phone", "true");
         DEFAULTS.put("persist.gammaos.taskbar.dual", "false");
         DEFAULTS.put("persist.gammaos.wallpaper.force_multidisplay", "false");
     }
@@ -301,6 +302,13 @@ public class GammaOSToolboxFragment extends SettingsPreferenceFragment {
                 SystemProperties.set(key, val ? "1" : "0");
             } else {
                 SystemProperties.set(key, String.valueOf(val));
+            }
+            // GammaOS: phone-taskbar toggle needs a Secure setting poke to
+            // notify Trebuchet (ContentObserver) in addition to the prop.
+            if ("persist.gammaos.taskbar.phone".equals(key)) {
+                android.provider.Settings.Secure.putInt(
+                        getActivity().getContentResolver(),
+                        "gamma_phone_taskbar_toggle", val ? 1 : 0);
             }
             return true;
         });

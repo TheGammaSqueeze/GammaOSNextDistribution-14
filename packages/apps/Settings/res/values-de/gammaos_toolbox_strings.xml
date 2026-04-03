@@ -369,4 +369,6 @@
 
     <string name="gammaos_toolbox_bfi_mode_ctm">CTM (Hardware)</string>
     <string name="gammaos_toolbox_bfi_mode_re">RE (Software)</string>
+    <string name="gammaos_toolbox_taskbar_phone_title">Telefon-Taskleiste mit Alle Apps</string>
+    <string name="gammaos_toolbox_taskbar_phone_summary">Ersetzt die Standard-3-Tasten-Navigationsleiste durch eine Taskleiste mit Alle-Apps-Symbol. Wird in Echtzeit angewendet. Deaktivieren, um zur Standard-AOSP-3-Tasten-Navigation zurückzukehren.</string>
 </resources>

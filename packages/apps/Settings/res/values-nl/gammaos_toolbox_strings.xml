@@ -343,4 +343,6 @@
     <string name="gammaos_toolbox_qs_override_summary">Overschrijf de standaard Quick Settings-tegelindeling. Kommagescheiden tegelklassenamen.</string>
     <string name="gammaos_toolbox_bfi_mode_ctm">CTM (Hardware)</string>
     <string name="gammaos_toolbox_bfi_mode_re">RE (Software)</string>
+    <string name="gammaos_toolbox_taskbar_phone_title">Taakbalk met Alle apps</string>
+    <string name="gammaos_toolbox_taskbar_phone_summary">Vervang de standaard 3-knops navigatiebalk door een taakbalk met een Alle apps-pictogram. Wordt in realtime toegepast. Schakel uit om terug te keren naar standaard AOSP 3-knops navigatie.</string>
 </resources>

@@ -268,4 +268,6 @@
 
     <string name="gammaos_toolbox_bfi_mode_ctm">CTM (Strojni)</string>
     <string name="gammaos_toolbox_bfi_mode_re">RE (Programski)</string>
+    <string name="gammaos_toolbox_taskbar_phone_title">Opravilna vrstica z Vse aplikacije</string>
+    <string name="gammaos_toolbox_taskbar_phone_summary">Zamenjajte standardno 3-gumbno navigacijsko vrstico z opravilno vrstico, ki vključuje ikono Vse aplikacije. Velja v realnem času. Onemogočite za vrnitev na standardno AOSP 3-gumbno navigacijo.</string>
 </resources>

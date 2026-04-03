@@ -343,4 +343,6 @@
     <string name="gammaos_toolbox_qs_override_summary">Hnekkja sj\u00e1lfgefinni fl\u00fdtistillingarfl\u00edsauppsetningu. Kommuski\u00f0 fl\u00edsaflokkan\u00f6fn.</string>
     <string name="gammaos_toolbox_bfi_mode_ctm">CTM (V\u00e9lb\u00fana\u00f0ur)</string>
     <string name="gammaos_toolbox_bfi_mode_re">RE (Hugb\u00fana\u00f0ur)</string>
+    <string name="gammaos_toolbox_taskbar_phone_title">Verkefnastika síma með Öllum forritum</string>
+    <string name="gammaos_toolbox_taskbar_phone_summary">Skipta út venjulegri 3-hnappa yfirlitsstikunni fyrir verkefnastiku sem inniheldur Öll forrit tákn. Á við í rauntíma. Slökkva til að snúa aftur í venjulega AOSP 3-hnappa yfirlit.</string>
 </resources>

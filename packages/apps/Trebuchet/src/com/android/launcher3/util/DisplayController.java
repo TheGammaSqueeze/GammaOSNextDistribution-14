@@ -441,12 +441,18 @@ public class DisplayController implements ComponentCallbacks, SafeCloseable {
          * Returns {@code true} if the bounds represent a tablet.
          */
         public boolean isTablet(WindowBounds bounds) {
-            // GammaOS: Force tablet UI (taskbar) whenever 3‑button navigation is active,
-            // regardless of smallest width / DPI.
-            if (navigationMode == NavigationMode.THREE_BUTTONS) {
+            // GammaOS: Force tablet UI (taskbar) whenever 3‑button navigation is active
+            // AND the phone-taskbar feature is enabled via persist.gammaos.taskbar.phone.
+            if (navigationMode == NavigationMode.THREE_BUTTONS
+                    && isGammaPhoneTaskbarEnabled()) {
                 return true;
             }
             return smallestSizeDp(bounds) >= MIN_TABLET_WIDTH;
+        }
+
+        private static boolean isGammaPhoneTaskbarEnabled() {
+            return "true".equals(
+                    Utilities.getSystemProperty("persist.gammaos.taskbar.phone", "true"));
         }
 
         /** Getter for {@link #navigationMode} to allow mocking. */

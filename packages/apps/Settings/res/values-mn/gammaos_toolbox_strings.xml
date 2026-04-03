@@ -268,4 +268,6 @@
 
     <string name="gammaos_toolbox_bfi_mode_ctm">CTM (Техник хангамж)</string>
     <string name="gammaos_toolbox_bfi_mode_re">RE (Програм хангамж)</string>
+    <string name="gammaos_toolbox_taskbar_phone_title">Бүх аppliнdownloadsтай утасны taskbar</string>
+    <string name="gammaos_toolbox_taskbar_phone_summary">Стandartтdownloads 3 товчdownloads навdownloadsгdownloads мөрийг Бүх аppliн товчdownloads бүхий taskbar-аар солих.</string>
 </resources>

@@ -268,4 +268,6 @@
 
     <string name="gammaos_toolbox_bfi_mode_ctm">CTM (Hardv\u00e9rov\u00fd)</string>
     <string name="gammaos_toolbox_bfi_mode_re">RE (Softv\u00e9rov\u00fd)</string>
+    <string name="gammaos_toolbox_taskbar_phone_title">Panel úloh so Všetkými aplikáciami</string>
+    <string name="gammaos_toolbox_taskbar_phone_summary">Nahraďte štandardný 3-tlačidlový navigačný panel panelom úloh s ikonou Všetky aplikácie. Aplikuje sa v reálnom čase. Deaktivujte pre návrat k štandardnej 3-tlačidlovej navigácii AOSP.</string>
 </resources>

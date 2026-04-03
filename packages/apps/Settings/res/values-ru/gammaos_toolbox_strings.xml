@@ -268,4 +268,6 @@
 
     <string name="gammaos_toolbox_bfi_mode_ctm">CTM (\u0410\u043f\u043f\u0430\u0440\u0430\u0442\u043d\u044b\u0439)</string>
     <string name="gammaos_toolbox_bfi_mode_re">RE (\u041f\u0440\u043e\u0433\u0440\u0430\u043c\u043c\u043d\u044b\u0439)</string>
+    <string name="gammaos_toolbox_taskbar_phone_title">Панель задач с Все приложения</string>
+    <string name="gammaos_toolbox_taskbar_phone_summary">Заменяет стандartную панель навигации с 3 кнопками на панель задач со значком Все приложения. Применяется в реальном времeni. Отключите для возврата к стандartной навигации AOSP с 3 кнопками.</string>
 </resources>

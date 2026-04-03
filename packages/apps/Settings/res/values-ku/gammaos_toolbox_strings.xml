@@ -343,4 +343,6 @@
     <string name="gammaos_toolbox_qs_override_summary">Sêwirana kaşîyên Mîhengên Bilez ên bingehîn serdest bike. Navên çînên kaşîyan bi vîrgulê veqetandî.</string>
     <string name="gammaos_toolbox_bfi_mode_ctm">CTM (Hardware)</string>
     <string name="gammaos_toolbox_bfi_mode_re">RE (Nermalav)</string>
+    <string name="gammaos_toolbox_taskbar_phone_title">Taskbar bi Hemû Sepanan</string>
+    <string name="gammaos_toolbox_taskbar_phone_summary">Barê navîgasyonê yê standard ê 3-bişkojkan bi taskbarê ku îkona Hemû Sepanan tê de heye biguherîne. Di wextê rastîn de tê sepandin. Ji bo vegerîna navîgasyona AOSP ya standard a 3-bişkojkan neçalak bikin.</string>
 </resources>

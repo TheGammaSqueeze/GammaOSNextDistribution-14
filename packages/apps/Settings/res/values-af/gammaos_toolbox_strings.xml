@@ -253,4 +253,6 @@
     <string name="gammaos_toolbox_performance_mode_summary">Werkverrigtingsprofiel vir CPU/GPU-goewerneurstemming. Opsies: stock, performance, powersave.</string>
     <string name="gammaos_toolbox_bfi_mode_ctm">CTM (Hardeware)</string>
     <string name="gammaos_toolbox_bfi_mode_re">RE (Sagteware)</string>
+    <string name="gammaos_toolbox_taskbar_phone_title">Foonwerkbalk met Alle Toepassings</string>
+    <string name="gammaos_toolbox_taskbar_phone_summary">Vervang die standaard 3-knoppie navigasiebalk met \'n werkbalk wat \'n Alle Toepassings-ikoon insluit. Word intyds toegepas. Deaktiveer om terug te keer na standaard AOSP 3-knoppie navigasie.</string>
 </resources>

@@ -253,4 +253,6 @@
     <string name="gammaos_toolbox_performance_mode_summary">CPU/GPU గవర్నర్ ట్యూనింగ్ కోసం పెర్ఫార్మెన్స్ ప్రొఫైల్. ఎంపికలు: stock, performance, powersave.</string>
     <string name="gammaos_toolbox_bfi_mode_ctm">CTM (హార్డ్‌వేర్)</string>
     <string name="gammaos_toolbox_bfi_mode_re">RE (సాఫ్ట్‌వేర్)</string>
+    <string name="gammaos_toolbox_taskbar_phone_title">అన্ని అ্ప্ల্తో ఫdownloadsोన্ Taskbar</string>
+    <string name="gammaos_toolbox_taskbar_phone_summary"></string>
 </resources>

@@ -343,4 +343,6 @@
     <string name="gammaos_toolbox_qs_override_summary">ডিফল্ট দ্ৰুত ছেটিংছ টাইল লেআউট অভাৰৰাইড কৰক। কমা-বিভক্ত টাইল ক্লাছ নাম।</string>
     <string name="gammaos_toolbox_bfi_mode_ctm">CTM (হাৰ্ডৱেৰ)</string>
     <string name="gammaos_toolbox_bfi_mode_re">RE (চফ্টৱেৰ)</string>
+    <string name="gammaos_toolbox_taskbar_phone_title">সকলো এপসহ ফোন টাস্কবাৰ</string>
+    <string name="gammaos_toolbox_taskbar_phone_summary">ষ্টক 3-বুটাম নেভিগেশ্বন বাৰক এটা সকলো এপ আইকনসহ টাস্কবাৰেৰে সলনি কৰক। ৰিয়েল টাইমত প্ৰযোজ্য হয়। ষ্টক AOSP 3-বুটাম নেভিগেশ্বনলৈ ঘূৰি যাবলৈ নিষ্ক্ৰিয় কৰক।</string>
 </resources>

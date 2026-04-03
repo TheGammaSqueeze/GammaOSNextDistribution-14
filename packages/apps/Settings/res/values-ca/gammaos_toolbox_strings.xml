@@ -268,4 +268,6 @@
 
     <string name="gammaos_toolbox_bfi_mode_ctm">CTM (Maquinari)</string>
     <string name="gammaos_toolbox_bfi_mode_re">RE (Programari)</string>
+    <string name="gammaos_toolbox_taskbar_phone_title">Barra de tasques amb Totes les aplicacions</string>
+    <string name="gammaos_toolbox_taskbar_phone_summary">Substitueix la barra de navegació de 3 botons per una barra de tasques amb una icona de Totes les aplicacions. S\u2019aplica en temps real. Desactiveu per tornar a la navegació AOSP de 3 botons.</string>
 </resources>

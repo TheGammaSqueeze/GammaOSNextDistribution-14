@@ -13437,6 +13437,8 @@
     <string name="gammaos_toolbox_dc_dimming_summary">Emulate DC dimming in software to reduce PWM flicker at low brightness.</string>
 
     <!-- GammaOS Toolbox: Desktop & Taskbar -->
+    <string name="gammaos_toolbox_taskbar_phone_title">Phone taskbar with All Apps</string>
+    <string name="gammaos_toolbox_taskbar_phone_summary">Replace the stock 3-button navigation bar with a taskbar that includes an All Apps icon. Applies in real time. Disable to revert to stock AOSP 3-button navigation.</string>
     <string name="gammaos_toolbox_taskbar_dual_title">Dual-display taskbar</string>
     <string name="gammaos_toolbox_taskbar_dual_summary">Show a taskbar on both displays in multi-display mode.</string>
     <string name="gammaos_toolbox_wallpaper_multidisplay_title">Multi-display wallpaper</string>

@@ -369,4 +369,6 @@
 
     <string name="gammaos_toolbox_bfi_mode_ctm">CTM（硬件）</string>
     <string name="gammaos_toolbox_bfi_mode_re">RE（软件）</string>
+    <string name="gammaos_toolbox_taskbar_phone_title">带全部应用的手机任务栏</string>
+    <string name="gammaos_toolbox_taskbar_phone_summary">将标准三键导航栏替换为包含全部应用图标的任务栏。实时生效。禁用可恢复为标准 AOSP 三键导航。</string>
 </resources>

@@ -48,6 +48,7 @@ import android.hardware.display.DisplayManager;
 import android.hardware.display.DisplayManagerGlobal;
 import android.net.Uri;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.SystemProperties;
 import android.os.Trace;
 import android.provider.Settings;
@@ -101,6 +102,7 @@ public class TaskbarManager {
 
     // GammaOS: enable a second taskbar on decorated secondary displays
     private static final String PROP_DUAL_TASKBAR = "persist.gammaos.taskbar.dual";
+    private static final String PROP_PHONE_TASKBAR = "persist.gammaos.taskbar.phone";
     private static final int INVALID_DISPLAY = -1;
 
     // GammaOS: force taskbar recreation on display size/bounds changes (e.g. HDMI mirroring WM size).
@@ -130,6 +132,10 @@ public class TaskbarManager {
     private static final Uri NAV_BAR_KIDS_MODE = Settings.Secure.getUriFor(
             Settings.Secure.NAV_BAR_KIDS_MODE);
 
+    // GammaOS: URI for real-time phone-taskbar toggle
+    private static final Uri GAMMA_PHONE_TASKBAR_URI = Settings.Secure.getUriFor(
+            "gamma_phone_taskbar_toggle");
+
     private static final Uri ENABLE_TASKBAR_URI = LineageSettings.System.getUriFor(
             LineageSettings.System.ENABLE_TASKBAR);
 
@@ -139,6 +145,7 @@ public class TaskbarManager {
     private WindowManager mWindowManager;
     private FrameLayout mTaskbarRootLayout;
     private boolean mAddedWindow;
+    private volatile boolean mPhoneTaskbarEnabled;
 
     // GammaOS: secondary display taskbar (optional)
     private WindowManager mSecondaryWindowManager;
@@ -419,6 +426,23 @@ public class TaskbarManager {
                 .register(USER_SETUP_COMPLETE_URI, mOnSettingsChangeListener);
         SettingsCache.INSTANCE.get(mContext)
                 .register(NAV_BAR_KIDS_MODE, mOnSettingsChangeListener);
+        // GammaOS: observe the phone-taskbar toggle via SettingsCache (reliable).
+        // On disable: destroy all taskbar windows. On enable: just recreate.
+        SettingsCache.INSTANCE.get(mContext)
+                .register(GAMMA_PHONE_TASKBAR_URI, c -> {
+                    boolean enabled = SystemProperties.getBoolean(PROP_PHONE_TASKBAR, true);
+                    Log.d(TAG, "gamma_phone_taskbar_toggle changed, prop=" + enabled);
+                    if (!enabled) {
+                        // Destroy tracked taskbar windows
+                        destroyExistingTaskbar();
+                        removeTaskbarRootViewFromWindow();
+                        SystemUiProxy sysui = SystemUiProxy.INSTANCE.get(mContext);
+                        sysui.setTaskbarEnabled(false);
+                        sysui.notifyTaskbarStatus(false, false);
+                    } else {
+                        recreateTaskbar();
+                    }
+                });
         mEnableTaskBarListener = c -> {
             // Create the illusion of this taking effect immediately
             // Also needed because TaskbarManager inits before SystemUiProxy on start
@@ -516,7 +540,10 @@ public class TaskbarManager {
         destroySecondaryTaskbarIfAny();
         DeviceProfile dp = mUserUnlocked ?
                 LauncherAppState.getIDP(mContext).getDeviceProfile(mContext) : null;
-        if (dp == null || !isTaskbarEnabled(dp)) {
+        // GammaOS: also check the phone-taskbar prop — the cached DP may still
+        // report isTaskbarPresent=true even after the prop was toggled off.
+        boolean phoneTaskbarOff = !SystemProperties.getBoolean(PROP_PHONE_TASKBAR, true);
+        if (dp == null || !isTaskbarEnabled(dp) || phoneTaskbarOff) {
             removeTaskbarRootViewFromWindow();
         }
     }
@@ -642,19 +669,26 @@ public class TaskbarManager {
 
             boolean isTaskbarEnabled = dp != null && isTaskbarEnabled(dp);
 
-            // GammaOS: On phones (sw < 600dp), the taskbar is only used for the
-            // 3-button nav "phone-taskbar" mode.  The cached DeviceProfile may
-            // have been built before the navigation overlay was applied at boot,
-            // so re-check the live navigation mode here to avoid a brief flash
-            // of hotseat/taskbar icons in gesture or 2-button navigation.
-            if (isTaskbarEnabled) {
+            // GammaOS: On phones (sw < 600dp), the taskbar state is driven by the
+            // phone-taskbar prop + 3-button nav mode, overriding the cached DeviceProfile.
+            {
                 int swDp = mContext.getResources()
                         .getConfiguration().smallestScreenWidthDp;
                 if (swDp > 0 && swDp < 600) {
                     NavigationMode navMode =
                             DisplayController.getNavigationMode(mContext);
-                    if (navMode != NavigationMode.THREE_BUTTONS) {
+                    boolean phoneTaskbar = SystemProperties.getBoolean(
+                            PROP_PHONE_TASKBAR, true);
+                    if (!phoneTaskbar || navMode != NavigationMode.THREE_BUTTONS) {
+                        // Force-disable: prop off or not 3-button
                         isTaskbarEnabled = false;
+                    } else if (phoneTaskbar && navMode == NavigationMode.THREE_BUTTONS
+                            && !isTaskbarEnabled) {
+                        // Force-enable: prop on + 3-button but DP says no taskbar.
+                        // Rebuild IDP on a worker thread to avoid ANR, then recreate.
+                        // For now, skip — launcher will pick it up on next restart.
+                        Log.d(TAG, "Phone taskbar enabled but DP has no taskbar; "
+                                + "will activate on next launcher restart");
                     }
                 }
             }

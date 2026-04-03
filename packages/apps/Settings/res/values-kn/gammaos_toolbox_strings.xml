@@ -253,4 +253,6 @@
     <string name="gammaos_toolbox_performance_mode_summary">CPU/GPU ಗವರ್ನರ್ ಟ್ಯೂನಿಂಗ್‌ಗಾಗಿ ಕಾರ್ಯಕ್ಷಮತೆ ಪ್ರೊಫೈಲ್. ಆಯ್ಕೆಗಳು: stock, performance, powersave.</string>
     <string name="gammaos_toolbox_bfi_mode_ctm">CTM (ಹಾರ್ಡ್‌ವೇರ್)</string>
     <string name="gammaos_toolbox_bfi_mode_re">RE (ಸಾಫ್ಟ್‌ವೇರ್)</string>
+    <string name="gammaos_toolbox_taskbar_phone_title">ಎಲ্ಲಾ ಅಪ্ಲಿಕೇಶನ্ಗಳೊಂದಿगे ಫೋನ্ ಟಾಸ্ಕ্ಬಾρ</string>
+    <string name="gammaos_toolbox_taskbar_phone_summary">ಸ্ಟಾक্ 3-�ట্ನ ನ্యಾsearchವ্ゲ-ション �ార্を ఆల্ ア-ప্ス ア-ків্న্ ಟ (্ス্ク্ба-ρ に ち্か্え্ます。</string>
 </resources>

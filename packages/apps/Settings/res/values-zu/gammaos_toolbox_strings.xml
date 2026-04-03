@@ -253,4 +253,6 @@
     <string name="gammaos_toolbox_performance_mode_summary">Iphrofayili yokusebenza yokulungisa i-CPU/GPU governor. Izinketho: stock, performance, powersave.</string>
     <string name="gammaos_toolbox_bfi_mode_ctm">CTM (I-Hardware)</string>
     <string name="gammaos_toolbox_bfi_mode_re">RE (Isofthiwe)</string>
+    <string name="gammaos_toolbox_taskbar_phone_title">Ibha yomsebenzi yefoni enezinhlelo Zonke</string>
+    <string name="gammaos_toolbox_taskbar_phone_summary">Shintsha ibha yokuzulazula yamaqhosha ama-3 ejwayelekile ngebha yomsebenzi equkethe isithonjana sezinhlelo Zonke. Isebenza ngesikhathi sangempela. Khubaza ukuze ubuyele ekuzulazuleni kwe-AOSP yamaqhosha ama-3 ejwayelekile.</string>
 </resources>
