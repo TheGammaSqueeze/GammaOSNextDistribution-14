@@ -27,6 +27,7 @@ import android.graphics.Rect;
 import android.app.TaskStackListener;
 import android.hardware.input.InputManager;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.os.Process;
 import android.os.SystemClock;
 import android.os.SystemProperties;
@@ -222,6 +223,7 @@ final class DualStackController {
     // DualStackController.maybeApplyDisplayProjectionsLocked() →
     // updateMirroringIfNeeded() → clearForcedTallSizeIfNeeded().
     private boolean mClearingTallSize;
+    private boolean mNeedSecondaryResync;
     // Re-try latch used when we enabled dual-stack but the BLAST wasn't up yet
     private boolean mAwaitingFirstValidSurface;
 
@@ -306,6 +308,44 @@ final class DualStackController {
     }
 
     void updateMirroringIfNeeded(Transaction t) {
+        // GammaOS: NanoMenu signals us to clear the forced display size when it
+        // restarts after a DualStack app exits. NanoMenu can't call wm size reset
+        // directly (runs as graphics user), so it sets this property. We also
+        // suppress DualStack while NanoMenu is active (bootanim not exited),
+        // because the previous app is still "top resumed" underneath NanoMenu
+        // and DualStack would re-apply the forced size on every traversal.
+        if ("1".equals(SystemProperties.get("sys.gammaos.nano.clear_forced_size", "0"))) {
+            SystemProperties.set("sys.gammaos.nano.clear_forced_size", "0");
+            setRuntimeDualStackActive(false);
+            mLastKillTaskId = -1;
+            mLastElevateTaskId = -1;
+            cancelDeferredForcedTallSizeClearLocked();
+            clearForcedTallSizeIfNeeded();
+            teardown(t);
+            resyncSecondaryLayerStackLocked(t);
+            mNeedSecondaryResync = true; // Also resync on next DualStack activation
+            Slog.d(TAG, "DualStack: NanoMenu requested forced size clear");
+            return;
+        }
+
+        // GammaOS: While NanoMenu is active, suppress DualStack entirely. The
+        // previous DualStack app may still be the "top resumed activity" underneath
+        // NanoMenu's native overlay, but we must not maintain the forced tall size
+        // or mirrors while NanoMenu is rendering. We use a dedicated property
+        // instead of service.bootanim.exit because NanoMenu temporarily sets
+        // bootanim.exit=1 during readyToRun() to kill the vendor bootanim.
+        if ("1".equals(SystemProperties.get("sys.gammaos.nano.menu_active", "0"))) {
+            if (mForcedTallSizeApplied) {
+                cancelDeferredForcedTallSizeClearLocked();
+                clearForcedTallSizeIfNeeded();
+                teardown(t);
+                setRuntimeDualStackActive(false);
+                resyncSecondaryLayerStackLocked(t);
+                mNeedSecondaryResync = true;
+            }
+            return;
+        }
+
         reloadProperties();
         if (!mEnabled) {
             cancelDeferredForcedTallSizeClearLocked();
@@ -401,6 +441,12 @@ final class DualStackController {
         // Track the currently top-resumed ActivityRecord for logging / debugging.
         mActiveActivity = top;
 
+        // GammaOS: Resync secondary layer stack if needed (after NanoMenu set it to 0).
+        if (mNeedSecondaryResync) {
+            resyncSecondaryLayerStackLocked(t);
+            mNeedSecondaryResync = false;
+        }
+
         // Always ensure our mirrors are bound to the current render surface on each traversal.
         // createSurfacesIfNeeded() will cheaply no-op when the source hasn't changed and
         // both mirrors are already valid.
@@ -438,6 +484,29 @@ final class DualStackController {
         }
     }
 
+    /**
+     * GammaOS: Re-sync the secondary display's SF-side layer stack. NanoMenu sets it
+     * to 0 for wallpaper mirroring via native SurfaceComposerClient, but the Java
+     * DisplayDevice.mCurrentLayerStack stays at 2. Without this re-sync, the secondary
+     * display shows the primary's content stretched.
+     */
+    private void resyncSecondaryLayerStackLocked(Transaction t) {
+        final DisplayContent secondary = findSecondaryInternalDisplayLocked();
+        if (secondary == null) return;
+        final DisplayInfo secInfo = secondary.getDisplayInfo();
+        if (secInfo.address instanceof android.view.DisplayAddress.Physical) {
+            final long physId = ((android.view.DisplayAddress.Physical) secInfo.address)
+                    .getPhysicalDisplayId();
+            final IBinder secToken = com.android.server.display.DisplayControl
+                    .getPhysicalDisplayToken(physId);
+            if (secToken != null) {
+                t.setDisplayLayerStack(secToken, secondary.getDisplayId());
+                Slog.d(TAG, "DualStack: re-synced secondary to layerStack="
+                        + secondary.getDisplayId());
+            }
+        }
+    }
+
     private DisplayContent findSecondaryInternalDisplayLocked() {
         final DisplayContent[] out = new DisplayContent[1];
         mWm.mRoot.forAllDisplays(dc -> {
@@ -468,13 +537,10 @@ final class DualStackController {
             return;
         }
 
-        final DisplayInfo current = primary.getDisplayInfo();
-        // If we're already effectively at the desired logical size, just mark it applied.
-        if (current.logicalWidth == DUALSTACK_TALL_WIDTH
-                && current.logicalHeight == DUALSTACK_TALL_HEIGHT) {
-            mForcedTallSizeApplied = true;
-            return;
-        }
+        // GammaOS: Don't short-circuit based on Java-side logicalWidth/Height.
+        // NanoMenu may have reset the SF-side projection to 640x480 via native
+        // setDisplayProjection while the Java side still reports 640x960.
+        // Always call setForcedDisplaySize to ensure SF is re-synced.
 
         try {
             // This updates DisplayContent, DisplayFrames, app configuration, and

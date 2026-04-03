@@ -172,6 +172,7 @@ class UserItemsCombiner {
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private String getUpdatableEnterpriseString(String updatableStringId, int defaultStringId) {
+        if (mDpm == null) return mResources.getString(defaultStringId);
         return mDpm.getResources().getString(
                 updatableStringId, () -> mResources.getString(defaultStringId));
     }

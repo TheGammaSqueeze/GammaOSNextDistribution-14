@@ -92,6 +92,7 @@ final class GridDocumentHolder extends DocumentHolder {
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private void setUpdatableWorkProfileIcon(Context context) {
         DevicePolicyManager dpm = context.getSystemService(DevicePolicyManager.class);
+        if (dpm == null) return;
         Drawable drawable = dpm.getResources().getDrawable(WORK_PROFILE_ICON, SOLID_COLORED, () ->
                 context.getDrawable(R.drawable.ic_briefcase));
         mIconBadge.setImageDrawable(drawable);

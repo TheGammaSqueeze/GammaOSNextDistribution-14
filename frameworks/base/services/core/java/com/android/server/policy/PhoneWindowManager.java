@@ -1769,15 +1769,32 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             if (fgApp != null) {
                 Slog.i(TAG, "GammaOS Nano: long-press back on standalone app " + fgApp
                         + ", force-stopping and restarting nano menu");
+                // Signal nano menu restart FIRST, before killing the app.
+                // This ensures menu_active=1 is set before the framework tries
+                // to restart the killed app's task.
+                android.os.SystemProperties.set("sys.gammaos.nano.app_launched", "0");
+                android.os.SystemProperties.set("sys.gammaos.nano.restart", "1");
                 try {
+                    // Remove all tasks for this package from the recent tasks list,
+                    // then force-stop the package. Order matters: removing tasks first
+                    // prevents the framework from restarting the process.
+                    android.app.IActivityTaskManager atm =
+                            android.app.ActivityTaskManager.getService();
+                    java.util.List<android.app.ActivityManager.RecentTaskInfo> tasks =
+                            atm.getRecentTasks(100, 0, mCurrentUserId).getList();
+                    for (android.app.ActivityManager.RecentTaskInfo ti : tasks) {
+                        if (ti.baseActivity != null
+                                && fgApp.equals(ti.baseActivity.getPackageName())) {
+                            atm.removeTask(ti.taskId);
+                            Slog.i(TAG, "GammaOS Nano: removed task " + ti.taskId
+                                    + " for " + fgApp);
+                        }
+                    }
                     mContext.getSystemService(android.app.ActivityManager.class)
                             .forceStopPackage(fgApp);
                 } catch (Exception e) {
                     Slog.e(TAG, "GammaOS Nano: force-stop failed", e);
                 }
-                // Signal nano menu restart
-                android.os.SystemProperties.set("sys.gammaos.nano.app_launched", "0");
-                android.os.SystemProperties.set("sys.gammaos.nano.restart", "1");
                 return;
             }
         }

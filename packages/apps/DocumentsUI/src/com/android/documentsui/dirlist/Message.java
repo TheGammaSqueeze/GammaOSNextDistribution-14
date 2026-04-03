@@ -468,6 +468,7 @@ abstract class Message {
         private String getUpdatableEnterpriseString(String updatableStringId, int defaultStringId) {
             DevicePolicyManager dpm = mEnv.getContext().getSystemService(
                     DevicePolicyManager.class);
+            if (dpm == null) return mEnv.getContext().getString(defaultStringId);
             return dpm.getResources().getString(
                     updatableStringId, () -> mEnv.getContext().getString(defaultStringId));
         }
@@ -484,6 +485,7 @@ abstract class Message {
         private Drawable getUpdatableWorkProfileIcon() {
             DevicePolicyManager dpm = mEnv.getContext().getSystemService(
                     DevicePolicyManager.class);
+            if (dpm == null) return mEnv.getContext().getDrawable(R.drawable.work_off);
             return dpm.getResources().getDrawable(
                     WORK_PROFILE_OFF_ICON, OUTLINE,
                     () -> mEnv.getContext().getDrawable(R.drawable.work_off));

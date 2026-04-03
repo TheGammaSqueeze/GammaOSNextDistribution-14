@@ -561,7 +561,7 @@ public class WallpaperManager {
         public void addOnColorsChangedListener(@NonNull OnColorsChangedListener callback,
                 @Nullable Handler handler, int userId, int displayId) {
             synchronized (this) {
-                if (!mColorCallbackRegistered) {
+                if (!mColorCallbackRegistered && mService != null) {
                     try {
                         mService.registerWallpaperColorsCallback(this, userId, displayId);
                         mColorCallbackRegistered = true;
@@ -586,13 +586,15 @@ public class WallpaperManager {
                     }
                     areas.add(area);
                 }
-                try {
-                    // one way returns immediately
-                    mService.addOnLocalColorsChangedListener(mLocalColorCallback, regions, which,
-                            userId, displayId);
-                } catch (RemoteException e) {
-                    // Can't get colors, connection lost.
-                    Log.e(TAG, "Can't register for local color updates", e);
+                if (mService != null) {
+                    try {
+                        // one way returns immediately
+                        mService.addOnLocalColorsChangedListener(mLocalColorCallback, regions,
+                                which, userId, displayId);
+                    } catch (RemoteException e) {
+                        // Can't get colors, connection lost.
+                        Log.e(TAG, "Can't register for local color updates", e);
+                    }
                 }
             }
         }
@@ -672,7 +674,7 @@ public class WallpaperManager {
 
         WallpaperColors getWallpaperColors(int which, int userId, int displayId) {
             checkExactlyOneWallpaperFlagSet(which);
-
+            if (mService == null) return null;
             try {
                 return mService.getWallpaperColors(which, userId, displayId);
             } catch (RemoteException e) {
@@ -907,9 +909,12 @@ public class WallpaperManager {
     /*package*/ WallpaperManager(IWallpaperManager service, @UiContext Context context,
             Handler handler) {
         mContext = context;
-        if (service != null) {
-            initGlobals(service, context.getMainLooper());
-        }
+        // GammaOS: Always initialize sGlobals, even with null service. In nano boot
+        // mode, the wallpaper service may not be available yet, but apps like
+        // SecondaryDisplayLauncher still call WallpaperManager APIs. Without this,
+        // sGlobals stays null and causes NPE crashes, which triggers Content Recording
+        // fallback on the secondary display (breaking DualStack rendering).
+        initGlobals(service, context.getMainLooper());
         // Check if supports mixed color spaces composition in hardware.
         mWcgEnabled = context.getResources().getConfiguration().isScreenWideColorGamut()
                 && context.getResources().getBoolean(R.bool.config_enableWcgMode);
@@ -1794,6 +1799,7 @@ public class WallpaperManager {
     @UnsupportedAppUsage
     public @Nullable WallpaperColors getWallpaperColors(int which, int userId) {
         StrictMode.assertUiContext(mContext, "getWallpaperColors");
+        if (sGlobals == null) return null;
         return sGlobals.getWallpaperColors(which, userId, mContext.getDisplayId());
     }
 

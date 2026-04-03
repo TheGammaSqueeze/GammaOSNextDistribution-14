@@ -227,6 +227,9 @@ public abstract class DocumentHolder
         String updatableStringId = isWorkProfile ? PREVIEW_WORK_FILE_ACCESSIBILITY : UNDEFINED;
         int defaultStringId =
                 isWorkProfile ? R.string.preview_work_file : R.string.preview_file;
+        if (dpm == null) {
+            return itemView.getResources().getString(defaultStringId, fileName);
+        }
         return dpm.getResources().getString(
                 updatableStringId,
                 () -> itemView.getResources().getString(defaultStringId, fileName),

@@ -293,6 +293,16 @@ abstract class DisplayDevice {
     }
 
     /**
+     * GammaOS: Invalidate the cached layer stack so the next configureDisplayLocked
+     * call will re-set it on SurfaceFlinger regardless of whether the Java-side value
+     * matches. Used when native code (NanoMenu) changes the SF-side layer stack
+     * directly without going through the Java framework.
+     */
+    public final void invalidateLayerStackLocked() {
+        mCurrentLayerStack = -2; // Force mismatch on next setLayerStackLocked call
+    }
+
+    /**
      * Sets the display flags while in a transaction.
      *
      * Valid display flags:
@@ -317,7 +327,11 @@ abstract class DisplayDevice {
      */
     public final void setProjectionLocked(SurfaceControl.Transaction t, int orientation,
             Rect layerStackRect, Rect displayRect) {
-        if (mCurrentOrientation != orientation
+        // GammaOS: Always push projection to SF. NanoMenu may have overridden the
+        // SF-side projection via native setDisplayProjection while the Java cache
+        // still reports the old values. Without this, the cache check below skips
+        // the SF call and the display stays at the wrong projection.
+        if (true || mCurrentOrientation != orientation
                 || mCurrentLayerStackRect == null
                 || !mCurrentLayerStackRect.equals(layerStackRect)
                 || mCurrentDisplayRect == null

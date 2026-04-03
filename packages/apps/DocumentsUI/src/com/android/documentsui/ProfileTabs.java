@@ -232,6 +232,7 @@ public class ProfileTabs implements ProfileTabsAddons {
     private String getUpdatableEnterpriseString(String updatableStringId, int defaultStringId) {
         DevicePolicyManager dpm = mTabsContainer.getContext().getSystemService(
                 DevicePolicyManager.class);
+        if (dpm == null) return mTabsContainer.getContext().getString(defaultStringId);
         return dpm.getResources().getString(
                 updatableStringId,
                 () -> mTabsContainer.getContext().getString(defaultStringId));

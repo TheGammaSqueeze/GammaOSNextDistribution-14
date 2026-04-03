@@ -199,6 +199,10 @@ private:
     EGLContext  mContext;
     EGLSurface  mSurface;
     sp<IBinder> mDisplayToken;
+    std::vector<sp<IBinder>> mSecondaryDisplayTokens; // GammaOS: secondary display tokens
+    std::vector<sp<SurfaceControl>> mSecondaryWallpaperControls; // GammaOS: wallpaper on secondaries
+    std::vector<EGLSurface> mSecondaryEglSurfaces; // GammaOS: EGL surfaces for secondary wallpaper
+    std::vector<sp<Surface>> mSecondarySurfaces; // GammaOS: keep refs alive
     sp<SurfaceControl> mFlingerSurfaceControl;
     sp<Surface> mFlingerSurface;
 

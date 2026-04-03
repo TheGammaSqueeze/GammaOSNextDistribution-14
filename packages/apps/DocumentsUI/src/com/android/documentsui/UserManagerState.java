@@ -512,6 +512,7 @@ public interface UserManagerState {
         @RequiresApi(Build.VERSION_CODES.TIRAMISU)
         private Drawable getWorkProfileBadge() {
             DevicePolicyManager dpm = mContext.getSystemService(DevicePolicyManager.class);
+            if (dpm == null) return mContext.getDrawable(R.drawable.ic_briefcase);
             Drawable drawable = dpm.getResources().getDrawable(WORK_PROFILE_ICON, SOLID_COLORED,
                     () ->
                             mContext.getDrawable(R.drawable.ic_briefcase));

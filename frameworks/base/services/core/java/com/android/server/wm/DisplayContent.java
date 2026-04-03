@@ -6931,6 +6931,15 @@ class DisplayContent extends RootDisplayArea implements WindowManagerPolicy.Disp
      * from DMS, false if there was no ContentRecordingSession created.
      */
     boolean setDisplayMirroring() {
+        // GammaOS: In nano/minimal boot mode, do not auto-mirror displays. The secondary
+        // display may temporarily lack content (SecondaryDisplayLauncher not yet started),
+        // and the Content Recording fallback creates a display-level mirror with incorrect
+        // scaling that breaks DualStack rendering. Each display should maintain its own
+        // unique content — DualStack handles the split when needed.
+        if (android.os.SystemProperties.getBoolean("sys.gammaos.minimal_boot", false)) {
+            return false;
+        }
+
         int mirrorDisplayId = mWmService.mDisplayManagerInternal.getDisplayIdToMirror(mDisplayId);
         if (mirrorDisplayId == INVALID_DISPLAY) {
             return false;

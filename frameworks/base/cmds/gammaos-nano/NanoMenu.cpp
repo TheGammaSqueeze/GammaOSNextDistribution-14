@@ -35,6 +35,7 @@
 #include <utils/SystemClock.h>
 
 #include <ui/DisplayMode.h>
+#include <ui/LayerStack.h>
 #include <ui/PixelFormat.h>
 #include <ui/Rect.h>
 
@@ -561,6 +562,20 @@ NanoMenu::NanoMenu()
 }
 
 NanoMenu::~NanoMenu() {
+    // GammaOS: Clean up secondary display wallpaper resources.
+    for (size_t i = 0; i < mSecondaryEglSurfaces.size(); i++) {
+        eglDestroySurface(mDisplay, mSecondaryEglSurfaces[i]);
+    }
+    mSecondaryEglSurfaces.clear();
+    mSecondarySurfaces.clear();
+    if (!mSecondaryWallpaperControls.empty()) {
+        SurfaceComposerClient::Transaction t;
+        for (size_t i = 0; i < mSecondaryWallpaperControls.size(); i++) {
+            t.reparent(mSecondaryWallpaperControls[i], nullptr);
+        }
+        t.apply();
+        mSecondaryWallpaperControls.clear();
+    }
     for (int fd : mInputFds) {
         ioctl(fd, EVIOCGRAB, 0); // release grab (always, in case exit-grab was applied)
         close(fd);
@@ -1079,6 +1094,12 @@ void NanoMenu::handleSelect() {
               entry.romPath.c_str(), entry.corePath.c_str());
         android::base::SetProperty("sys.gammaos.nano.launch_rom", entry.romPath);
         android::base::SetProperty("sys.gammaos.nano.launch_core", entry.corePath);
+        // Track launched package so NanoMenu can force-stop it on next restart
+        {
+            char launchApp[PROPERTY_VALUE_MAX] = {};
+            property_get("sys.gammaos.nano.launch_app", launchApp, "com.retroarch.aarch64");
+            android::base::SetProperty("sys.gammaos.nano.launched_pkg", launchApp);
+        }
         // Trigger DE cache populate (ROM first, then delta sync everything)
         property_set("sys.gammaos.nano.cache_ready", "0");
         property_set("sys.gammaos.nano.cache_op", "populate");
@@ -1124,6 +1145,8 @@ void NanoMenu::handleSelect() {
         const auto& app = mAppEntries[mAppSelectedIndex];
         ALOGI("NanoMenu: launching app: %s", app.packageName.c_str());
         android::base::SetProperty("sys.gammaos.nano.launch_app", app.packageName);
+        // Track launched package so NanoMenu can force-stop it on next restart
+        android::base::SetProperty("sys.gammaos.nano.launched_pkg", app.packageName);
         // Clear any ROM/core properties so RootWindowContainer uses generic launch
         android::base::SetProperty("sys.gammaos.nano.launch_rom", "");
         android::base::SetProperty("sys.gammaos.nano.launch_core", "");
@@ -1803,8 +1826,73 @@ status_t NanoMenu::readyToRun() {
     SurfaceComposerClient::Transaction t;
     Rect forcedRes(0, 0, resolution.width, resolution.height);
     Rect physRes(0, 0, displayMode.resolution.width, displayMode.resolution.height);
+    // GammaOS: Always set the primary display projection to physical resolution.
+    // NanoMenu renders at 640x480 and needs the display projection to match.
+    // If DualStack left it at 640x960, NanoMenu would appear compressed.
+    // DualStack invalidates the Java-side cache when it later re-applies 640x960.
     t.setDisplayProjection(mDisplayToken, ui::ROTATION_0, forcedRes, physRes);
-    t.setLayer(control, 0x40000001).apply();
+    t.setLayer(control, 0x40000001);
+
+    // GammaOS: Signal that NanoMenu is active. DualStackController checks this
+    // to suppress DualStack while NanoMenu is rendering.
+    property_set("sys.gammaos.nano.menu_active", "1");
+    // Only clear forced display size if DualStack was actually active. Sending the
+    // clear signal unconditionally triggers DualStack teardown + display reconfig
+    // events that interfere with subsequent app launches.
+    {
+        char dsActive[PROPERTY_VALUE_MAX] = {};
+        property_get("sys.gammaos.dualstack.active", dsActive, "0");
+        if (!strcmp(dsActive, "1")) {
+            property_set("sys.gammaos.dualstack.active", "0");
+            property_set("sys.gammaos.nano.clear_forced_size", "1");
+            ALOGD("NanoMenu: signaled DualStack clear (was active)");
+        }
+    }
+
+    // GammaOS: Signal the framework to kill the previous foreground app.
+    // NanoMenu runs as graphics user and can't call am force-stop directly.
+    // The framework (RootWindowContainer) picks up this property and kills the app.
+    {
+        char lastApp[PROPERTY_VALUE_MAX] = {};
+        property_get("sys.gammaos.nano.launched_pkg", lastApp, "");
+        if (lastApp[0] != '\0') {
+            property_set("sys.gammaos.nano.kill_pkg", lastApp);
+            ALOGD("NanoMenu: signaled framework to kill: %s", lastApp);
+            property_set("sys.gammaos.nano.launched_pkg", "");
+        }
+    }
+    ALOGD("NanoMenu: signaled framework to clear forced display size");
+
+    // GammaOS: Create a wallpaper surface on each secondary display.
+    // Instead of changing layer stacks (which desyncs SF from the Java framework
+    // and breaks DualStack), create a separate surface on each secondary display's
+    // own layer stack. The wallpaper shader renders to this surface independently.
+    for (size_t i = 1; i < ids.size(); i++) {
+        sp<IBinder> secToken = SurfaceComposerClient::getPhysicalDisplayToken(ids[i]);
+        if (secToken == nullptr) continue;
+
+        DisplayMode secMode;
+        if (SurfaceComposerClient::getActiveDisplayMode(secToken, &secMode) != NO_ERROR)
+            continue;
+
+        ui::Size secRes = secMode.resolution;
+        sp<SurfaceControl> secControl = session()->createSurface(
+            String8("GammaOSNano-Secondary"), secRes.getWidth(), secRes.getHeight(),
+            PIXEL_FORMAT_RGB_565, ISurfaceComposerClient::eOpaque);
+
+        // Place on the secondary display's layer stack (i*2 for internal displays)
+        SurfaceComposerClient::Transaction secT;
+        secT.setLayer(secControl, 0x40000001);
+        secT.setLayerStack(secControl, ui::LayerStack::fromValue(i * 2));
+        secT.show(secControl);
+        secT.apply();
+
+        mSecondaryDisplayTokens.push_back(secToken);
+        mSecondaryWallpaperControls.push_back(secControl);
+        ALOGD("NanoMenu: created wallpaper surface on secondary display %zu (%dx%d, layerStack=%zu)",
+                i, secRes.getWidth(), secRes.getHeight(), i * 2);
+    }
+    t.apply();
 
     sp<Surface> s = control->getSurface();
     EGLDisplay display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
@@ -1823,6 +1911,27 @@ status_t NanoMenu::readyToRun() {
     mFlingerSurfaceControl = control; mFlingerSurface = s;
 
     ALOGD("NanoMenu: display %dx%d", mWidth, mHeight);
+
+    // GammaOS: Create EGL surfaces for secondary wallpaper rendering.
+    // Immediately render a black frame so the surface appears at the same time
+    // as the primary. The real wallpaper starts after initShaders()/initEffects().
+    for (size_t i = 0; i < mSecondaryWallpaperControls.size(); i++) {
+        sp<Surface> secSurf = mSecondaryWallpaperControls[i]->getSurface();
+        EGLSurface secEgl = eglCreateWindowSurface(display, config, secSurf.get(), nullptr);
+        if (secEgl != EGL_NO_SURFACE) {
+            mSecondaryEglSurfaces.push_back(secEgl);
+            mSecondarySurfaces.push_back(secSurf);
+            // Prime the surface with a black frame so it's visible immediately
+            eglMakeCurrent(display, secEgl, secEgl, context);
+            glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT);
+            eglSwapBuffers(display, secEgl);
+            ALOGD("NanoMenu: created and primed EGL surface for secondary %zu", i);
+        }
+    }
+    // Switch back to primary
+    eglMakeCurrent(display, surface, surface, context);
+
     initShaders();
     buildMenu();
     initXmbSystems();
@@ -2773,6 +2882,19 @@ void NanoMenu::render() {
 
     glDisable(GL_BLEND);
     eglSwapBuffers(mDisplay, mSurface);
+
+    // GammaOS: Render wallpaper to secondary display(s).
+    // Switch to each secondary EGL surface, render just the wallpaper effect, swap back.
+    for (size_t i = 0; i < mSecondaryEglSurfaces.size(); i++) {
+        eglMakeCurrent(mDisplay, mSecondaryEglSurfaces[i], mSecondaryEglSurfaces[i], mContext);
+        glViewport(0, 0, mWidth, mHeight); // secondary has same resolution
+        renderEffect(); // render just the wallpaper shader
+        eglSwapBuffers(mDisplay, mSecondaryEglSurfaces[i]);
+    }
+    // Switch back to primary
+    if (!mSecondaryEglSurfaces.empty()) {
+        eglMakeCurrent(mDisplay, mSurface, mSurface, mContext);
+    }
 }
 
 void NanoMenu::renderBrightnessBar() {
@@ -4401,6 +4523,9 @@ bool NanoMenu::threadLoop() {
             }
         }
     }
+
+    // GammaOS: Clear menu_active flag so DualStack can re-enable when app launches.
+    property_set("sys.gammaos.nano.menu_active", "0");
 
     // Only re-apply performance clocks when launching an app (not on bootanim.exit)
     if (mExitRequested) {

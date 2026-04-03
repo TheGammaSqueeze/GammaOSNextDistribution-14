@@ -1610,6 +1610,18 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                 : null;
         final boolean cacheReady = "1".equals(android.os.SystemProperties.get(
                 "sys.gammaos.nano.cache_mounted", "0"));
+        // GammaOS Nano: Skip secondary display home launch entirely in minimal boot.
+        // Services like LauncherApps are not running, so SecondaryDisplayLauncher
+        // will crash-loop with NPE on ILauncherApps.addOnAppsChangedListener.
+        if (minimalBoot && taskDisplayArea != getDefaultTaskDisplayArea()) {
+            Slog.i(TAG, "GammaOS Nano: skipping secondary home launch on "
+                    + taskDisplayArea + " in minimal boot");
+            return true;
+        }
+        // Note: Do NOT check menu_active here. It creates a race condition where
+        // NanoMenu sets nano_retroarch=1 (triggering app launch) but menu_active
+        // is still "1" for a few ms until the main loop exits. The task removal
+        // in PhoneWindowManager handles cleanup instead.
         if (minimalBoot && taskDisplayArea == getDefaultTaskDisplayArea()
                 && umInternal != null
                 && (umInternal.isUserUnlockingOrUnlocked(userId) || cacheReady)) {

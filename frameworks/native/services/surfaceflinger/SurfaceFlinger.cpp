@@ -1141,6 +1141,31 @@ void SurfaceFlinger::readPersistentProperties() {
 
     mForceColorMode =
             static_cast<ui::ColorMode>(base::GetIntProperty("persist.sys.sf.color_mode"s, 0));
+
+    // GammaOS: Re-read DualStack SF properties that were initially read during the
+    // constructor, before persist properties were available from /data. At constructor
+    // time (~4.7s from init), persist props aren't loaded yet (~8.9s). This second
+    // read at bootFinished() applies the correct values.
+    const bool gammaDualStackEnabled =
+            base::GetBoolProperty("persist.gammaos.dualstack.enabled"s, false);
+    if (gammaDualStackEnabled) {
+        int64_t req = base::GetIntProperty<int64_t>(
+                "persist.gammaos.dualstack.sf.max_fb_acquired_buffers"s, 3);
+        if (req < 2) req = 2;
+        if (req > 6) req = 6;
+        if (req > maxFrameBufferAcquiredBuffers) {
+            ALOGI("GammaOS DualStack: (late) maxFrameBufferAcquiredBuffers %lld -> %lld",
+                  (long long)maxFrameBufferAcquiredBuffers, (long long)req);
+            maxFrameBufferAcquiredBuffers = req;
+        }
+        if (base::GetBoolProperty(
+                "persist.gammaos.dualstack.sf.disable_gl_backpressure"s, true)) {
+            if (mBackpressureGpuComposition) {
+                mBackpressureGpuComposition = false;
+                ALOGI("GammaOS DualStack: (late) disabling GL backpressure");
+            }
+        }
+    }
 }
 
 void SurfaceFlinger::startBootAnim() {
