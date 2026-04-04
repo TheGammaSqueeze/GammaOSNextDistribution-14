@@ -249,6 +249,10 @@ private:
     // and support headless mode by injecting a fake display with synthetic VSYNC.
     std::optional<VSyncState> mVSyncState GUARDED_BY(mMutex);
 
+    // GammaOS: Track connected displays so we can replay hotplug events to late-registering
+    // clients (e.g. DisplayManagerService), eliminating the multi-second WaitForDisplay stall.
+    std::vector<PhysicalDisplayId> mConnectedDisplays GUARDED_BY(mMutex);
+
     // State machine for event loop.
     enum class State {
         Idle,

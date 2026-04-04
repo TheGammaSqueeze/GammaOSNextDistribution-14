@@ -96,7 +96,15 @@ final class LocalDisplayAdapter extends DisplayAdapter {
 
     private final SurfaceControlProxy mSurfaceControlProxy;
 
-    private final boolean mIsBootDisplayModeSupported;
+    // GammaOS: lazily initialized to avoid blocking on SF binder during boot
+    private Boolean mIsBootDisplayModeSupported;
+
+    private boolean isBootDisplayModeSupported() {
+        if (mIsBootDisplayModeSupported == null) {
+            mIsBootDisplayModeSupported = mSurfaceControlProxy.getBootDisplayModeSupport();
+        }
+        return mIsBootDisplayModeSupported;
+    }
 
     private final DisplayNotificationManager mDisplayNotificationManager;
 
@@ -146,7 +154,10 @@ final class LocalDisplayAdapter extends DisplayAdapter {
         mDisplayNotificationManager = displayNotificationManager;
         mInjector = injector;
         mSurfaceControlProxy = mInjector.getSurfaceControlProxy();
-        mIsBootDisplayModeSupported = mSurfaceControlProxy.getBootDisplayModeSupport();
+        // GammaOS: defer getBootDisplayModeSupport() to avoid blocking on SF's main thread
+        // during early boot. The call schedules work on SF's main thread via future.get(),
+        // which stalls ~7s while SF processes initial display configuration.
+        // The value is only needed later for mode changes, so lazy init is safe.
     }
 
     @Override
@@ -553,7 +564,7 @@ final class LocalDisplayAdapter extends DisplayAdapter {
 
                 if (preferredRecord != null) {
                     int preferredModeId = preferredRecord.mMode.getModeId();
-                    if (mIsBootDisplayModeSupported && mSystemPreferredModeId != preferredModeId) {
+                    if (isBootDisplayModeSupported() && mSystemPreferredModeId != preferredModeId) {
                         mSystemPreferredModeId = preferredModeId;
                         preferredModeChanged = true;
                     }
@@ -1293,7 +1304,7 @@ final class LocalDisplayAdapter extends DisplayAdapter {
             }
             updateDeviceInfoLocked();
 
-            if (!mIsBootDisplayModeSupported) {
+            if (!isBootDisplayModeSupported()) {
                 return;
             }
             if (mUserPreferredModeId == INVALID_MODE_ID) {

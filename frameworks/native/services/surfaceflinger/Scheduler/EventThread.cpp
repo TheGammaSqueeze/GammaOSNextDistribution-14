@@ -348,6 +348,16 @@ status_t EventThread::registerDisplayEventConnection(const sp<EventThreadConnect
     }
 
     mDisplayEventConnections.push_back(connection);
+
+    // GammaOS: Replay hotplug connected events for displays that were already discovered
+    // before this client registered. Without this, clients like DisplayManagerService stall
+    // for seconds waiting for a hotplug event that was already dispatched.
+    for (const auto& displayId : mConnectedDisplays) {
+        ALOGI("EventThread %s: replaying hotplug for display %s to new connection %p",
+              mThreadName, to_string(displayId).c_str(), connection.get());
+        connection->postEvent(makeHotplug(displayId, systemTime(), true));
+    }
+
     mCondition.notify_all();
     return NO_ERROR;
 }
@@ -490,6 +500,19 @@ void EventThread::threadMain(std::unique_lock<std::mutex>& lock) {
                     } else if (!event->hotplug.connected && mVSyncState &&
                                mVSyncState->displayId == event->header.displayId) {
                         mVSyncState.reset();
+                    }
+                    // GammaOS: Track connected displays for hotplug replay
+                    if (event->hotplug.connected) {
+                        auto& id = event->header.displayId;
+                        if (std::find(mConnectedDisplays.begin(), mConnectedDisplays.end(), id) ==
+                                mConnectedDisplays.end()) {
+                            mConnectedDisplays.push_back(id);
+                        }
+                    } else {
+                        auto& id = event->header.displayId;
+                        mConnectedDisplays.erase(
+                                std::remove(mConnectedDisplays.begin(), mConnectedDisplays.end(), id),
+                                mConnectedDisplays.end());
                     }
                 } else {
                     // Ignore vsync stuff on an error.
