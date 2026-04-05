@@ -2064,10 +2064,26 @@ public final class SystemServer implements Dumpable {
                 }, "NanoCacheEarlyLaunch").start();
             }
 
-            // FontManagerService must start before any UI dialog (including nano mode power menu)
-            t.traceBegin("StartFontManagerService");
-            mSystemServiceManager.startService(new FontManagerService.Lifecycle(context, safeMode));
-            t.traceEnd();
+            // FontManagerService must start before any UI dialog (including nano mode power menu).
+            // GammaOS Nano: in minimal_boot, defer to a background thread since QR doesn't
+            // need fonts until user opens power menu — save ~1.9s on critical path.
+            if (minimalBoot) {
+                final Context fontCtx = context;
+                final boolean fontSafeMode = safeMode;
+                new Thread(() -> {
+                    try {
+                        mSystemServiceManager.startService(
+                                new FontManagerService.Lifecycle(fontCtx, fontSafeMode));
+                        Slog.i(TAG, "GammaOS Nano: FontManagerService started (deferred)");
+                    } catch (Throwable thr) {
+                        Slog.w(TAG, "GammaOS Nano: deferred FontManagerService failed", thr);
+                    }
+                }, "NanoFontDefer").start();
+            } else {
+                t.traceBegin("StartFontManagerService");
+                mSystemServiceManager.startService(new FontManagerService.Lifecycle(context, safeMode));
+                t.traceEnd();
+            }
 
             if (!minimalBoot) { // GammaOS Nano: skip PersistentDataBlock through WallpaperEffects
             final boolean hasPdb = !SystemProperties.get(PERSISTENT_DATA_BLOCK_PROP).equals("");
@@ -3603,15 +3619,24 @@ public final class SystemServer implements Dumpable {
 
             // Persistent polling thread: watches for do_launch=1 (relaunch case)
             // and triggers startHomeOnAllDisplays so RootWindowContainer launches the app.
+            //
+            // GammaOS: start monitoring as soon as user 0 CE storage is ready
+            // (sys.user.0.ce_available=true) rather than waiting for full boot_completed.
+            // This lets Quick Resume hand off to RetroArch several seconds earlier.
+            // ATMS.startHomeOnAllDisplays is safe once CE storage is unlocked.
             new Thread(() -> {
-                // Wait for initial boot to complete before monitoring for relaunches
-                while (!"1".equals(SystemProperties.get("sys.boot_completed"))) {
-                    try { Thread.sleep(200); } catch (InterruptedException ignored) {}
+                // Fast-path: if do_launch was already set by QR (racing ahead of unlock),
+                // the monitor picks it up as soon as CE storage is ready.
+                while (!"true".equals(SystemProperties.get("sys.user.0.ce_available"))
+                        && !"1".equals(SystemProperties.get("sys.boot_completed"))) {
+                    try { Thread.sleep(25); } catch (InterruptedException ignored) {}
                 }
                 Slog.i(TAG, "GammaOS Nano: relaunch monitor active");
                 while (true) {
-                    try { Thread.sleep(100); } catch (InterruptedException ignored) {}
-                    if (!"1".equals(SystemProperties.get("sys.gammaos.nano.do_launch"))) continue;
+                    if (!"1".equals(SystemProperties.get("sys.gammaos.nano.do_launch"))) {
+                        try { Thread.sleep(25); } catch (InterruptedException ignored) {}
+                        continue;
+                    }
                     SystemProperties.set("sys.gammaos.nano.do_launch", "0");
                     Slog.i(TAG, "GammaOS Nano: do_launch detected, triggering relaunch");
                     new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {

@@ -744,6 +744,9 @@ class UserController implements Handler.Callback {
         if (userId == UserHandle.USER_SYSTEM
                 && android.os.SystemProperties.getBoolean("sys.gammaos.minimal_boot", false)) {
             Slogf.i(TAG, "GammaOS Nano: user 0 fully unlocked, launching home activity");
+            // Signal NanoMenu (Quick Resume) that home launch is happening so it
+            // can exit its desaturation loop and hand off to RetroArch immediately.
+            android.os.SystemProperties.set("sys.gammaos.nano.home_launching", "1");
             mInjector.startHomeActivity(userId, "nanoUnlocked");
         }
 

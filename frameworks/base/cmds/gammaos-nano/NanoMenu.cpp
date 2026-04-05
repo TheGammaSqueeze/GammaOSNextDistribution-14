@@ -4885,14 +4885,28 @@ bool NanoMenu::threadLoop() {
                                     }
                                 }
 
-                                // Check boot progress
+                                // Check boot progress. Trigger the color transition as soon as
+                                // possible using the earliest valid signal:
+                                //   1. sys.gammaos.nano.home_launching=1 — UserController has
+                                //      called startHomeActivity(nanoUnlocked). Earliest signal.
+                                //   2. sys.user.0.ce_available=true — user CE storage mounted.
+                                //   3. sys.boot_completed=1 — full boot (fallback).
                                 if (!bootComplete) {
                                     char val[PROPERTY_VALUE_MAX] = {};
-                                    property_get("sys.boot_completed", val, "0");
-                                    if (strcmp(val, "1") == 0) {
+                                    property_get("sys.gammaos.nano.home_launching", val, "");
+                                    bool ready = (strcmp(val, "1") == 0);
+                                    if (!ready) {
+                                        property_get("sys.user.0.ce_available", val, "");
+                                        ready = (strcmp(val, "true") == 0);
+                                    }
+                                    if (!ready) {
+                                        property_get("sys.boot_completed", val, "0");
+                                        ready = (strcmp(val, "1") == 0);
+                                    }
+                                    if (ready) {
                                         bootComplete = true;
                                         bootCompleteTime = elapsedRealtime();
-                                        ALOGI("Quick Resume: boot complete, "
+                                        ALOGI("Quick Resume: user ready, "
                                               "transitioning to full color");
                                     } else {
                                         // Slow creep toward color during boot
@@ -4910,12 +4924,14 @@ bool NanoMenu::threadLoop() {
                                     gradient = 0.7f * (1.0f - t);
 
                                     if (t >= 1.0f) {
-                                        // Fully saturated — hand off to RetroArch
+                                        // Fully saturated — hand off to RetroArch.
+                                        // Fire do_launch FIRST so NanoRelaunchMonitor can start
+                                        // the home activity in parallel while we save state.
+                                        // This also bypasses the slow init property trigger
+                                        // chain (service.bootanim.nano_retroarch → do_launch
+                                        // via init.rc action, which can queue behind boot_completed
+                                        // actions for several seconds).
                                         ALOGI("Quick Resume: handoff to RetroArch");
-                                        runner.saveState(baseName + ".state.auto");
-                                        runner.saveSRAM(baseName + ".srm");
-                                        runner.shutdown();
-                                        // Set return navigation to matching system/game
                                         { char buf[32];
                                           snprintf(buf, sizeof(buf), "%d", returnSysIdx);
                                           property_set("sys.gammaos.nano.xmb_return_sys", buf);
@@ -4923,8 +4939,17 @@ bool NanoMenu::threadLoop() {
                                           property_set("sys.gammaos.nano.xmb_return_game", buf);
                                         }
                                         property_set("sys.gammaos.nano.return_recent", "0");
-                                        property_set("service.bootanim.nano_retroarch", "1");
                                         property_set("sys.gammaos.nano.drop_input", "1");
+                                        // Direct: trigger the relaunch monitor immediately.
+                                        property_set("sys.gammaos.nano.do_launch", "1");
+                                        // Also set legacy nano_retroarch for init side-effects
+                                        // (service.bootanim.exit, etc) but don't depend on it.
+                                        property_set("service.bootanim.nano_retroarch", "1");
+
+                                        // Now save state + SRAM in parallel with RetroArch launch
+                                        runner.saveState(baseName + ".state.auto");
+                                        runner.saveSRAM(baseName + ".srm");
+                                        runner.shutdown();
                                         mExitRequested = true;
                                         break;
                                     }
