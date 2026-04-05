@@ -36,6 +36,7 @@
 #include <utils/SystemClock.h>
 
 #include <ui/DisplayMode.h>
+#include <ui/DisplayState.h>
 #include <ui/LayerStack.h>
 #include <ui/PixelFormat.h>
 #include <ui/Rect.h>
@@ -500,6 +501,7 @@ NanoMenu::NanoMenu()
       mDisplay(EGL_NO_DISPLAY),
       mContext(EGL_NO_CONTEXT),
       mSurface(EGL_NO_SURFACE),
+      mAppliedLayerStack(UINT32_MAX),
       mShaderProgram(0), mLocPosition(-1), mLocColor(-1),
       mParticleProgram(0), mParticleLocPosition(-1), mParticleLocColor(-1),
       mFxProgram(0), mFxLocPosition(-1), mFxLocTime(-1),
@@ -2332,9 +2334,47 @@ status_t NanoMenu::readyToRun() {
     tlog("getPhysicalDisplayIds returned");
     if (ids.empty()) { ALOGE("No displays found"); return NAME_NOT_FOUND; }
 
-    mDisplayToken = SurfaceComposerClient::getPhysicalDisplayToken(ids.front());
+    // GammaOS: persist.gammaos.nano.primary_display selects which physical display
+    // port NanoMenu renders on (and which display nano-launched apps target).
+    // Value is a port number (0 = first physical port, 1 = second, ...). Falls back
+    // to ids.front() if the configured port is not found. Dualstack-whitelisted apps
+    // still launch on the real primary — that routing is enforced in RootWindowContainer.
+    PhysicalDisplayId chosenId = ids.front();
+    {
+        char primaryProp[PROPERTY_VALUE_MAX] = {};
+        property_get("persist.gammaos.nano.primary_display", primaryProp, "0");
+        const int wantPort = atoi(primaryProp);
+        for (const PhysicalDisplayId& pid : ids) {
+            if (static_cast<int>(pid.getPort()) == wantPort) {
+                chosenId = pid;
+                break;
+            }
+        }
+        ALOGI("NanoMenu: primary_display prop='%s' chosen port=%d",
+              primaryProp, static_cast<int>(chosenId.getPort()));
+    }
+
+    mDisplayToken = SurfaceComposerClient::getPhysicalDisplayToken(chosenId);
     if (mDisplayToken == nullptr) return NAME_NOT_FOUND;
     tlog("getPhysicalDisplayToken");
+
+    // GammaOS: Look up the chosen display's layer stack so the NanoMenu surface
+    // can be attached to it. Layers only show up on a display whose layerStack
+    // matches the layer's layerStack, so without this the surface stays on the
+    // default (port 0) display regardless of which token we targeted above.
+    // NOTE: SurfaceFlinger's layerStack for a given display can change after
+    // DisplayManagerService finishes assigning logical display IDs (seen on
+    // dual-DSI RK3568: port 1 starts at layerStack=1, becomes 2 after DMS).
+    // The render loop re-queries and re-applies setLayerStack to handle that.
+    ui::DisplayState chosenDisplayState;
+    ui::LayerStack chosenLayerStack = ui::DEFAULT_LAYER_STACK;
+    if (SurfaceComposerClient::getDisplayState(mDisplayToken, &chosenDisplayState) == NO_ERROR) {
+        chosenLayerStack = chosenDisplayState.layerStack;
+        ALOGI("NanoMenu: chosen display layerStack=%u", chosenLayerStack.id);
+    } else {
+        ALOGW("NanoMenu: getDisplayState failed, using default layerStack");
+    }
+    mAppliedLayerStack = chosenLayerStack.id;
 
     DisplayMode displayMode;
     const status_t error = SurfaceComposerClient::getActiveDisplayMode(mDisplayToken, &displayMode);
@@ -2356,6 +2396,8 @@ status_t NanoMenu::readyToRun() {
     // DualStack invalidates the Java-side cache when it later re-applies 640x960.
     t.setDisplayProjection(mDisplayToken, ui::ROTATION_0, forcedRes, physRes);
     t.setLayer(control, 0x40000001);
+    // GammaOS: Route the NanoMenu surface to the chosen display's layer stack.
+    t.setLayerStack(control, chosenLayerStack);
 
     // GammaOS: Signal that NanoMenu is active. DualStackController checks this
     // to suppress DualStack while NanoMenu is rendering.
@@ -5109,6 +5151,25 @@ bool NanoMenu::threadLoop() {
                     mStorageReady = true;
                     mDisplayDirty = true;
                     ALOGI("GammaOS Nano: storage is now accessible");
+                }
+            }
+            // GammaOS Nano: Keep the surface's layer stack in sync with the
+            // chosen display. SurfaceFlinger's initial layerStack for the display
+            // can change once DisplayManagerService finishes assigning logical
+            // display IDs (e.g. port 1 starts at layerStack=1 but becomes 2). We
+            // re-query and re-apply here so the NanoMenu surface follows the
+            // chosen physical display even after DMS reassigns.
+            if (mDisplayToken != nullptr && mFlingerSurfaceControl != nullptr) {
+                ui::DisplayState cur;
+                if (SurfaceComposerClient::getDisplayState(mDisplayToken, &cur)
+                        == NO_ERROR
+                        && cur.layerStack.id != mAppliedLayerStack) {
+                    SurfaceComposerClient::Transaction lt;
+                    lt.setLayerStack(mFlingerSurfaceControl, cur.layerStack);
+                    lt.apply();
+                    ALOGI("NanoMenu: layerStack changed %u → %u, reapplied",
+                          mAppliedLayerStack, cur.layerStack.id);
+                    mAppliedLayerStack = cur.layerStack.id;
                 }
             }
             // Keep retrying ROM scan until all systems found

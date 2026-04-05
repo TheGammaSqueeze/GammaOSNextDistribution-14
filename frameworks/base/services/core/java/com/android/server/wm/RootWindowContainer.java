@@ -1570,6 +1570,21 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
             displayId = rootTask != null ? rootTask.getDisplayId() : DEFAULT_DISPLAY;
         }
 
+        // GammaOS Nano: Redirect home launches to the configured nano target display
+        // in minimal boot. Callers like UserController.finishUserUnlocked() pass
+        // DEFAULT_DISPLAY unconditionally, which would otherwise skip the secondary
+        // display entirely when persist.gammaos.nano.primary_display selects it.
+        if (SystemProperties.getBoolean("sys.gammaos.minimal_boot", false)) {
+            final String nanoApp = SystemProperties.get(
+                    "sys.gammaos.nano.launch_app", "com.retroarch.aarch64");
+            final int nanoTarget = getNanoTargetDisplayId(nanoApp);
+            if (nanoTarget != displayId && getDisplayContent(nanoTarget) != null) {
+                Slog.i(TAG, "GammaOS Nano: redirecting startHomeOnDisplay from "
+                        + displayId + " to nano target " + nanoTarget);
+                displayId = nanoTarget;
+            }
+        }
+
         final DisplayContent display = getDisplayContent(displayId);
         return display.reduceOnAllTaskDisplayAreas((taskDisplayArea, result) ->
                         result | startHomeOnTaskDisplayArea(userId, reason, taskDisplayArea,
@@ -1610,19 +1625,43 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                 : null;
         final boolean cacheReady = "1".equals(android.os.SystemProperties.get(
                 "sys.gammaos.nano.cache_mounted", "0"));
-        // GammaOS Nano: Skip secondary display home launch entirely in minimal boot.
+        // GammaOS Nano: Pick the display that nano-launched apps should target.
+        // Default is DEFAULT_DISPLAY. Users can override via
+        // persist.gammaos.nano.primary_display (physical port number) to route
+        // nano mode to a different screen. Dualstack-whitelisted packages are
+        // always routed to DEFAULT_DISPLAY so DualStackController can render
+        // them across both screens as usual.
+        final String nanoAppPkgForRoute = minimalBoot
+                ? android.os.SystemProperties.get(
+                        "sys.gammaos.nano.launch_app", "com.retroarch.aarch64")
+                : "";
+        final int nanoTargetDisplayId = minimalBoot
+                ? getNanoTargetDisplayId(nanoAppPkgForRoute)
+                : DEFAULT_DISPLAY;
+        final TaskDisplayArea nanoTargetTda;
+        if (minimalBoot) {
+            final DisplayContent targetDc = getDisplayContent(nanoTargetDisplayId);
+            nanoTargetTda = targetDc != null
+                    ? targetDc.getDefaultTaskDisplayArea()
+                    : getDefaultTaskDisplayArea();
+        } else {
+            nanoTargetTda = null;
+        }
+        // GammaOS Nano: Skip every TDA that is not the configured nano target.
         // Services like LauncherApps are not running, so SecondaryDisplayLauncher
-        // will crash-loop with NPE on ILauncherApps.addOnAppsChangedListener.
-        if (minimalBoot && taskDisplayArea != getDefaultTaskDisplayArea()) {
-            Slog.i(TAG, "GammaOS Nano: skipping secondary home launch on "
-                    + taskDisplayArea + " in minimal boot");
+        // would crash-loop on any other display with NPE on
+        // ILauncherApps.addOnAppsChangedListener.
+        if (minimalBoot && taskDisplayArea != nanoTargetTda) {
+            Slog.i(TAG, "GammaOS Nano: skipping TDA displayId="
+                    + taskDisplayArea.getDisplayId()
+                    + " (nano target=" + nanoTargetDisplayId + ")");
             return true;
         }
         // Note: Do NOT check menu_active here. It creates a race condition where
         // NanoMenu sets nano_retroarch=1 (triggering app launch) but menu_active
         // is still "1" for a few ms until the main loop exits. The task removal
         // in PhoneWindowManager handles cleanup instead.
-        if (minimalBoot && taskDisplayArea == getDefaultTaskDisplayArea()
+        if (minimalBoot && taskDisplayArea == nanoTargetTda
                 && umInternal != null
                 && (umInternal.isUserUnlockingOrUnlocked(userId) || cacheReady)) {
             // If a kill-and-restart is in progress, skip all launches — the nano
@@ -2028,7 +2067,14 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
             // Remove overlay if launch failed
             hideNanoBlankOverlay();
             Slog.w(TAG, "GammaOS Nano: could not resolve " + nanoApp + ", falling back to home");
-        } else if (minimalBoot && taskDisplayArea == getDefaultTaskDisplayArea()) {
+            // When the nano target isn't the default TDA (user moved nano to a
+            // non-primary display), falling through would try SecondaryDisplayLauncher
+            // which crash-loops in minimal boot. Just return false — the system will
+            // retry via finishUserUnlocked().
+            if (nanoTargetTda != getDefaultTaskDisplayArea()) {
+                return false;
+            }
+        } else if (minimalBoot && taskDisplayArea == nanoTargetTda) {
             // Nano mode but user not unlocked yet — don't launch FallbackHome (it will crash).
             // The system will retry via UserController.finishUserUnlocked().
             Slog.i(TAG, "GammaOS Nano: user " + userId
@@ -2293,6 +2339,45 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                 || mWmService.shouldPlacePrimaryHomeOnDisplay(displayId)));
     }
  
+    /**
+     * GammaOS Nano: Resolve which logical displayId a nano-launched app should run on.
+     *
+     * <p>Reads {@code persist.gammaos.nano.primary_display} (physical port number).
+     * Port 0 (or unset) means the real default display. A non-zero value searches the
+     * attached displays for one whose physical port matches and returns that display's
+     * id, falling back to {@link #DEFAULT_DISPLAY} if no match is found.
+     *
+     * <p>DualStack-whitelisted packages always return {@link #DEFAULT_DISPLAY} so that
+     * {@link com.android.server.wm.DualStackController} can continue to drive dual-stack
+     * rendering from the real primary.
+     */
+    int getNanoTargetDisplayId(String nanoAppPkg) {
+        if (nanoAppPkg != null && !nanoAppPkg.isEmpty()
+                && com.android.server.dualstack.DualStackPropertyUtils
+                        .isPackageWhitelisted(nanoAppPkg)) {
+            return DEFAULT_DISPLAY;
+        }
+        final int wantPort = SystemProperties.getInt(
+                "persist.gammaos.nano.primary_display", 0);
+        if (wantPort <= 0) {
+            return DEFAULT_DISPLAY;
+        }
+        final int count = getChildCount();
+        for (int i = 0; i < count; i++) {
+            final DisplayContent dc = getChildAt(i);
+            final android.view.DisplayInfo di = dc.getDisplayInfo();
+            if (di != null
+                    && di.address instanceof android.view.DisplayAddress.Physical) {
+                final int port = ((android.view.DisplayAddress.Physical) di.address)
+                        .getPort();
+                if (port == wantPort) {
+                    return dc.getDisplayId();
+                }
+            }
+        }
+        return DEFAULT_DISPLAY;
+    }
+
     /**
      * GammaOS: Return the first trusted non-default display id, or INVALID_DISPLAY if none is
      * available. This allows us to route specific packages (for example Retroarch) to always

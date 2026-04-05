@@ -199,6 +199,7 @@ private:
     EGLContext  mContext;
     EGLSurface  mSurface;
     sp<IBinder> mDisplayToken;
+    uint32_t mAppliedLayerStack; // GammaOS: last layer stack applied to the nano surface
     std::vector<sp<IBinder>> mSecondaryDisplayTokens; // GammaOS: secondary display tokens
     std::vector<sp<SurfaceControl>> mSecondaryWallpaperControls; // GammaOS: wallpaper on secondaries
     std::vector<EGLSurface> mSecondaryEglSurfaces; // GammaOS: EGL surfaces for secondary wallpaper
