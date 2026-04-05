@@ -7314,6 +7314,15 @@ void SurfaceFlinger::initializeDisplays() {
             setPowerModeInternal(getDisplayDeviceLocked(id), hal::PowerMode::ON);
         }
     }
+
+    // GammaOS: Skip the BOOTLOADER stage gate so HWC presents frames immediately.
+    // Without this, composition is blocked until the first buffer is latched (line 2992).
+    // On dual-DSI devices this prevents the display from updating for 20+ seconds.
+    // NanoMenu IS our bootanimation, so entering BOOTANIMATION early is correct.
+    if (mBootStage == BootStage::BOOTLOADER) {
+        ALOGI("GammaOS: early boot stage transition BOOTLOADER → BOOTANIMATION");
+        mBootStage = BootStage::BOOTANIMATION;
+    }
 }
 
 void SurfaceFlinger::setPowerModeInternal(const sp<DisplayDevice>& display, hal::PowerMode mode) {
@@ -7373,15 +7382,15 @@ void SurfaceFlinger::setPowerModeInternal(const sp<DisplayDevice>& display, hal:
         }
 
         getHwComposer().setPowerMode(displayId, mode);
-        if (mode != hal::PowerMode::DOZE_SUSPEND &&
-            (displayId == mActiveDisplayId || FlagManager::getInstance().multithreaded_present())) {
+        // GammaOS: Enable vsync + composition for ALL powered-on displays, not just
+        // the active one. On dual-DSI devices (RG DS RK3568) the follower display
+        // stays on synthetic vsync without this, blocking HWC present for 20+ seconds.
+        if (mode != hal::PowerMode::DOZE_SUSPEND) {
             const bool enable =
                     mScheduler->getVsyncSchedule(displayId)->getPendingHardwareVsyncState();
             requestHardwareVsync(displayId, enable);
 
-            if (displayId == mActiveDisplayId) {
-                mScheduler->enableSyntheticVsync(false);
-            }
+            mScheduler->enableSyntheticVsync(false);
 
             constexpr bool kAllowToEnable = true;
             mScheduler->resyncToHardwareVsync(displayId, kAllowToEnable, activeMode.get());

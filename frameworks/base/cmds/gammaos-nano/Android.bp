@@ -21,6 +21,10 @@ cc_binary {
         "LibretroRunner.cpp",
     ],
 
+    header_libs: [
+        "libdrm_headers",
+    ],
+
     shared_libs: [
         "libbase",
         "libbinder",
@@ -38,6 +42,7 @@ cc_binary {
         "android.hardware.light-V2-ndk",
         "android.hardware.light@2.0",
         "libhidlbase",
+        "libnativewindow",
     ],
 
     init_rc: ["gammaos-nano.rc"],
