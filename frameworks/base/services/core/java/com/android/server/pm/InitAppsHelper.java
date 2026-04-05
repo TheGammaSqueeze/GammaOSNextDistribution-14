@@ -300,6 +300,9 @@ final class InitAppsHelper {
                 + " , timePerPackage: "
                 + (dataPackagesCount == 0 ? 0 : dataScanTime / dataPackagesCount)
                 + " , cached: " + cachedNonSystemApps);
+        // GammaOS: persist APEX signing cache after scan completes so future boots
+        // can skip cert re-collection for unchanged APEX packages.
+        ScanPackageUtils.saveApexSigCacheIfDirty();
         if (mIsDeviceUpgrading && dataPackagesCount > 0) {
             //CHECKSTYLE:OFF IndentationCheck
             FrameworkStatsLog.write(

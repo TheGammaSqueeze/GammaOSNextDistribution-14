@@ -982,10 +982,154 @@ final class ScanPackageUtils {
         return changedAbiCodePath;
     }
 
+    // GammaOS: persistent APEX signing details cache.
+    // APEX packages don't get PackageSetting entries stored in packages.xml, so the
+    // normal "ps != null && mtime matches" fast-path in collectCertificatesLI never
+    // hits for them. Result: every boot re-verifies ~39 APEX files (~1.2s of crypto
+    // work) even though apexd has already cryptographically validated each APEX at
+    // mount time. We add a simple file-backed cache keyed by (path, mtime, size).
+    private static final String APEX_SIG_CACHE_PATH = "/data/system/apex_sig_cache.bin";
+    private static final int APEX_SIG_CACHE_VERSION = 1;
+    private static java.util.Map<String, SigningDetails> sApexSigCache = null;
+    private static boolean sApexSigCacheDirty = false;
+
+    private static synchronized java.util.Map<String, SigningDetails> loadApexSigCache() {
+        if (sApexSigCache != null) return sApexSigCache;
+        sApexSigCache = new java.util.HashMap<>();
+        java.io.File f = new java.io.File(APEX_SIG_CACHE_PATH);
+        if (!f.exists()) return sApexSigCache;
+        try (java.io.DataInputStream dis = new java.io.DataInputStream(
+                new java.io.BufferedInputStream(new java.io.FileInputStream(f)))) {
+            int ver = dis.readInt();
+            if (ver != APEX_SIG_CACHE_VERSION) return sApexSigCache;
+            int count = dis.readInt();
+            for (int i = 0; i < count; i++) {
+                String key = dis.readUTF();
+                int numSigs = dis.readInt();
+                android.content.pm.Signature[] sigs = new android.content.pm.Signature[numSigs];
+                for (int j = 0; j < numSigs; j++) {
+                    int len = dis.readInt();
+                    byte[] bytes = new byte[len];
+                    dis.readFully(bytes);
+                    sigs[j] = new android.content.pm.Signature(bytes);
+                }
+                int schemeVer = dis.readInt();
+                try {
+                    SigningDetails sd = new SigningDetails(sigs, schemeVer);
+                    sApexSigCache.put(key, sd);
+                } catch (Throwable t) {
+                    // Skip corrupt entry
+                }
+            }
+            Slog.i(TAG, "GammaOS: loaded " + sApexSigCache.size() + " APEX signing cache entries");
+        } catch (Throwable t) {
+            Slog.w(TAG, "GammaOS: failed to load APEX signing cache, starting fresh: " + t);
+            sApexSigCache.clear();
+        }
+        return sApexSigCache;
+    }
+
+    public static synchronized void saveApexSigCacheIfDirty() {
+        if (!sApexSigCacheDirty || sApexSigCache == null) return;
+        java.io.File f = new java.io.File(APEX_SIG_CACHE_PATH);
+        java.io.File tmp = new java.io.File(APEX_SIG_CACHE_PATH + ".tmp");
+        try (java.io.DataOutputStream dos = new java.io.DataOutputStream(
+                new java.io.BufferedOutputStream(new java.io.FileOutputStream(tmp)))) {
+            dos.writeInt(APEX_SIG_CACHE_VERSION);
+            dos.writeInt(sApexSigCache.size());
+            for (java.util.Map.Entry<String, SigningDetails> e : sApexSigCache.entrySet()) {
+                dos.writeUTF(e.getKey());
+                android.content.pm.Signature[] sigs = e.getValue().getSignatures();
+                dos.writeInt(sigs == null ? 0 : sigs.length);
+                if (sigs != null) {
+                    for (android.content.pm.Signature s : sigs) {
+                        byte[] bytes = s.toByteArray();
+                        dos.writeInt(bytes.length);
+                        dos.write(bytes);
+                    }
+                }
+                dos.writeInt(e.getValue().getSignatureSchemeVersion());
+            }
+        } catch (Throwable t) {
+            Slog.w(TAG, "GammaOS: failed to save APEX signing cache: " + t);
+            tmp.delete();
+            return;
+        }
+        if (!tmp.renameTo(f)) {
+            Slog.w(TAG, "GammaOS: failed to rename APEX signing cache temp file");
+            tmp.delete();
+            return;
+        }
+        sApexSigCacheDirty = false;
+        Slog.i(TAG, "GammaOS: saved " + sApexSigCache.size() + " APEX signing cache entries");
+    }
+
+    private static String apexCacheKey(String path, long mtime, long size) {
+        return path + "|" + mtime + "|" + size;
+    }
+
+    private static boolean isApexPath(String path) {
+        if (path == null) return false;
+        // APEX files live in:
+        //   /system/apex/*.apex, /system/system_ext/apex/*.apex, /vendor/apex/*.apex,
+        //   /data/apex/active/*.apex, /data/apex/decompressed/*.apex
+        return path.endsWith(".apex") && (path.contains("/apex/") || path.contains("/vendor/apex/"));
+    }
+
     public static void collectCertificatesLI(PackageSetting ps, ParsedPackage parsedPackage,
             Settings.VersionInfo settingsVersionForPackage, boolean forceCollect,
             boolean skipVerify, boolean isPreNMR1Upgrade)
             throws PackageManagerException {
+        // GammaOS: fast path for APEX packages. Apexd already cryptographically
+        // validates each APEX before mounting using keys in /system/etc/security/apex/.
+        // PMS re-collecting certificates is redundant work. Use a persistent cache
+        // keyed by (path, mtime, size) to avoid the ~30ms cert parse per APEX.
+        // Note: parsedPackage.isApex() is set later in scanPackageOnlyLI, so use
+        // path-based detection here.
+        if (isApexPath(parsedPackage.getPath()) && !forceCollect) {
+            try {
+                java.io.File apexFile = new java.io.File(parsedPackage.getPath());
+                long mtime = apexFile.lastModified();
+                long size = apexFile.length();
+                String key = apexCacheKey(parsedPackage.getPath(), mtime, size);
+                java.util.Map<String, SigningDetails> cache = loadApexSigCache();
+                SigningDetails cached;
+                synchronized (ScanPackageUtils.class) {
+                    cached = cache.get(key);
+                }
+                if (cached != null && cached.getSignatures() != null
+                        && cached.getSignatures().length > 0) {
+                    parsedPackage.setSigningDetails(new SigningDetails(cached));
+                    return;
+                }
+                // Miss — do the full collection, then cache the result.
+                Trace.traceBegin(TRACE_TAG_PACKAGE_MANAGER, "collectCertificates(apex miss)");
+                try {
+                    final ParseTypeImpl input = ParseTypeImpl.forDefaultParsing();
+                    final ParseResult<SigningDetails> result = ParsingPackageUtils.getSigningDetails(
+                            input, parsedPackage, skipVerify);
+                    if (result.isError()) {
+                        throw new PackageManagerException(result.getErrorCode(),
+                                result.getErrorMessage(), result.getException());
+                    }
+                    SigningDetails sd = result.getResult();
+                    parsedPackage.setSigningDetails(sd);
+                    synchronized (ScanPackageUtils.class) {
+                        cache.put(key, sd);
+                        sApexSigCacheDirty = true;
+                    }
+                } finally {
+                    Trace.traceEnd(TRACE_TAG_PACKAGE_MANAGER);
+                }
+                return;
+            } catch (PackageManagerException pme) {
+                throw pme;
+            } catch (Throwable t) {
+                Slog.w(TAG, "GammaOS: APEX sig cache error, falling through to normal path: " + t);
+                // Fall through to normal path below
+            }
+        }
+
         // When upgrading from pre-N MR1, verify the package time stamp using the package
         // directory and not the APK file.
         final long lastModifiedTime = isPreNMR1Upgrade
