@@ -14355,40 +14355,32 @@ public class AudioService extends IAudioService.Stub
             if (!isEnabled()) {
                 return;
             }
-            if ((flags & AudioManager.FLAG_FROM_KEY) == 0) {
-                return;
-            }
             if (streamTypeAlias != AudioSystem.STREAM_MUSIC) {
                 return;
             }
 
-            final int requestedDeltaUi = directionToUiDelta(direction);
-            if (requestedDeltaUi == 0) {
-                return;
-            }
-
+            // GammaOS: sync the display map to the new stream volume. This fires
+            // for all STREAM_MUSIC adjustments (user key presses go through this
+            // path; so do programmatic adjustSuggestedStreamVolume calls from
+            // media sessions). Previously gated on FLAG_FROM_KEY which excluded
+            // some legit paths (including some volume key dispatches), causing
+            // the display map to drift out of sync with volume_music_speaker and
+            // overwrite the user's setting on the next boot.
             final int globalUiAfter = (newIndex + 5) / 10;
-            final int minUi = getMusicMinVolumeUiLocked();
-            final int maxUi = getMusicMaxVolumeUiLocked();
-
             synchronized (mLock) {
                 if (mDisplayToVolumeIndex.size() == 0) {
-                    // Initialize lazily if we haven't yet.
                     initDisplayMapLocked(/*reason=*/ "adjust_stream_volume");
                 }
+                // Pin every display to the new global UI volume. Individual per-
+                // display deltas can still be applied via other code paths later.
                 for (int i = 0; i < mDisplayToVolumeIndex.size(); i++) {
-                    final int displayId = mDisplayToVolumeIndex.keyAt(i);
-                    final int current = mDisplayToVolumeIndex.valueAt(i);
-                    int updated = clampUiVolume(current + requestedDeltaUi, minUi, maxUi);
-                    // Do not allow per-display volumes above the global stream volume.
-                    updated = Math.min(updated, globalUiAfter);
-                    mDisplayToVolumeIndex.put(displayId, updated);
+                    mDisplayToVolumeIndex.put(mDisplayToVolumeIndex.keyAt(i), globalUiAfter);
                 }
                 persistDisplayMapLocked(mDisplayToVolumeIndex);
             }
 
             // Update shapers for currently active players.
-            applyPlayerAttenuations(getActivePlaybackConfigurations(), /*reason=*/ "key_adjust");
+            applyPlayerAttenuations(getActivePlaybackConfigurations(), /*reason=*/ "adjust_stream");
         }
 
         void onSetStreamVolume(int streamType, int index, int flags, @Nullable AudioDeviceAttributes ada) {
@@ -14402,15 +14394,16 @@ public class AudioService extends IAudioService.Stub
                 }
             }
 
-            // Only treat explicit UI-driven changes as applying to all displays.
-            if ((flags & (AudioManager.FLAG_SHOW_UI | AudioManager.FLAG_FROM_KEY)) == 0) {
-                return;
-            }
-
             final int streamTypeAlias = mStreamVolumeAlias[streamType];
             if (streamTypeAlias != AudioSystem.STREAM_MUSIC) {
                 return;
             }
+
+            // GammaOS: Sync the map on ALL STREAM_MUSIC set-volume calls, not
+            // only explicit UI-driven ones. `cmd audio set-volume` passes
+            // flags=0 but is the path used by NanoMenu's volume key handling
+            // (since NanoMenu grabs input via EVIOCGRAB, physical volume keys
+            // never reach PhoneWindowManager and never get FLAG_FROM_KEY set).
 
             // Treat programmatic global volume sets as applying to all displays.
             final int globalUi = getCurrentGlobalMusicVolumeUiLocked();
@@ -14463,13 +14456,32 @@ public class AudioService extends IAudioService.Stub
                     /*notifyForDescendants=*/ false,
                     mSettingsObserver);
 
+            // GammaOS: sync the per-display map FROM the current global stream volume
+            // on boot. The stream volume was just restored from volume_music_speaker
+            // in settings_system.xml, which is authoritative for the user's chosen
+            // media volume. If we instead initialized the map from its own stale
+            // Settings.Global entry and then reconciled, we'd overwrite the user's
+            // volume with the stale max-of-displays value from a previous boot.
+            final int currentGlobalUi;
             synchronized (mLock) {
-                initDisplayMapLocked(/*reason=*/ "enable");
-                // Persist any normalization (adding missing displays, removing stale ones).
+                currentGlobalUi = getCurrentGlobalMusicVolumeUiLocked();
+                mDisplayToVolumeIndex.clear();
+                // Populate every connected display with the current global volume.
+                // onDisplayAdded will pick up any displays that connect later.
+                final IntArray connected = getConnectedDisplayIds();
+                for (int i = 0; i < connected.size(); i++) {
+                    mDisplayToVolumeIndex.put(connected.get(i), currentGlobalUi);
+                }
+                if (mDisplayToVolumeIndex.indexOfKey(DEFAULT_DISPLAY_ID) < 0) {
+                    mDisplayToVolumeIndex.put(DEFAULT_DISPLAY_ID, currentGlobalUi);
+                }
                 persistDisplayMapLocked(mDisplayToVolumeIndex);
             }
-
-            reconcileAndApply(/*reason=*/ "enable");
+            // NOTE: intentionally NOT calling reconcileAndApply here — doing so would
+            // push the map max back onto the global stream volume. We've already
+            // aligned the map with the stream on this boot. Per-player attenuations
+            // are applied as players start playing via onPlaybackConfigChange.
+            applyPlayerAttenuations(getActivePlaybackConfigurations(), /*reason=*/ "enable");
         }
 
         private void disable() {

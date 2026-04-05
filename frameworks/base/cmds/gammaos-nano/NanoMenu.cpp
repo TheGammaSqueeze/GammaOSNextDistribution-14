@@ -18,6 +18,7 @@
 
 #include <algorithm>
 #include <thread>
+#include <mutex>
 #include <fcntl.h>
 #include <dirent.h>
 #include <unistd.h>
@@ -2296,13 +2297,11 @@ status_t NanoMenu::readyToRun() {
     };
     tlog("readyToRun enter");
     // Started unconditionally by StartPropertySetThread for the fastest nano
-    // mode path.  persist.* properties may not be available yet (loaded after
-    // /data mount), so wait for init to signal that they are ready.
-    char skip[PROPERTY_VALUE_MAX] = {};
-    property_get("persist.bootanim.skip_nano", skip, "");
-    if (strcmp(skip, "0") != 0) {
-        // Property is "1", empty, or not yet loaded.  If persist props are not
-        // ready, wait — the value could change once /data mounts.
+    // mode path. persist.* properties may not be available yet (loaded after
+    // /data mount), so ALWAYS wait for init to signal they are ready before
+    // reading any persist.* prop. This ensures volume, brightness, wallpaper,
+    // quick resume state etc. are correctly restored across reboots.
+    {
         char ready[PROPERTY_VALUE_MAX] = {};
         property_get("ro.persistent_properties.ready", ready, "");
         if (strcmp(ready, "true") != 0) {
@@ -2312,14 +2311,15 @@ status_t NanoMenu::readyToRun() {
                 property_get("ro.persistent_properties.ready", ready, "");
                 if (!strcmp(ready, "true")) break;
             }
-            // Re-read after persist props loaded
-            property_get("persist.bootanim.skip_nano", skip, "");
         }
-        if (strcmp(skip, "0") != 0) {
-            ALOGI("GammaOS Nano: skip_nano='%s' (not '0'), starting bootanim", skip);
-            property_set("ctl.start", "bootanim");
-            _exit(0); // terminate — bootanim takes over
-        }
+    }
+
+    char skip[PROPERTY_VALUE_MAX] = {};
+    property_get("persist.bootanim.skip_nano", skip, "");
+    if (strcmp(skip, "0") != 0) {
+        ALOGI("GammaOS Nano: skip_nano='%s' (not '0'), starting bootanim", skip);
+        property_set("ctl.start", "bootanim");
+        _exit(0); // terminate — bootanim takes over
     }
 
     tlog("persist props resolved");
@@ -3494,17 +3494,27 @@ void NanoMenu::adjustVolume(int direction) {
     mVolume += direction;
     if (mVolume < 0) mVolume = 0;
     if (mVolume > mMaxVolume) mVolume = mMaxVolume;
-    // Set Android media volume via audio sysfs/property
-    // Scale 0-15 to 0-100 for the mixer, or use AudioService property
+    // Persist NanoMenu's own 0-mMaxVolume UI value for the bar display.
     char buf[32];
     snprintf(buf, sizeof(buf), "%d", mVolume);
     property_set("persist.gammaos.nano.volume", buf);
-    // Try writing to ALSA mixer for immediate effect
-    snprintf(buf, sizeof(buf), "%d", mVolume * 100 / mMaxVolume);
-    // Use tinymix or write to a known volume path
-    char cmd[128];
-    snprintf(cmd, sizeof(cmd), "service call audio 3 i32 3 i32 %d i32 0", mVolume);
-    // AudioService may not be running in nano mode, so also try direct mixer
+
+    // Actually tell Android's AudioService to change STREAM_MUSIC.
+    // NanoMenu has the input devices grabbed via EVIOCGRAB, so physical volume
+    // keys never reach PhoneWindowManager the usual way. We inject a synthetic
+    // KeyEvent via `input keyevent`, which goes through InputManager →
+    // InputDispatcher → PhoneWindowManager.handleVolumeKey → AudioService.
+    // That path updates volume_music_speaker AND the gammaos per-display
+    // volume map, so it persists across reboots.
+    const char* keyCode = (direction > 0) ? "KEYCODE_VOLUME_UP" : "KEYCODE_VOLUME_DOWN";
+    std::string cmd = std::string("/system/bin/input keyevent ") + keyCode + " 2>/dev/null";
+    std::thread([cmd]() {
+        int rc = system(cmd.c_str());
+        if (rc != 0) {
+            ALOGW("NanoMenu: input keyevent volume failed rc=%d", rc);
+        }
+    }).detach();
+
     mShowVolumeBar = true;
     mVolumeBarTimer = 90; // ~1.5s at 60fps
 }
