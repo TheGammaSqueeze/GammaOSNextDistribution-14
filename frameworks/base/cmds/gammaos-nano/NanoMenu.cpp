@@ -1815,6 +1815,7 @@ static int sDrmFd = -1;
 static std::vector<DrmDisplay> sDrmDisplays;
 static bool sDrmActive = false; // true while DRM fallback is rendering
 static bool sDrmZeroCopy = false; // true if AHB/FBO setup succeeded
+static int sDrmRotationDeg = 0;  // from ro.surface_flinger.primary_display_orientation
 
 // EGL extensions for zero-copy path
 static PFNEGLCREATEIMAGEKHRPROC sEglCreateImageKHR = nullptr;
@@ -1934,6 +1935,23 @@ static void drmEarlySplash() {
     if (sDrmActive) {
         ALOGW("NanoMenu DRM splash: %zu displays active for direct rendering", sDrmDisplays.size());
     }
+
+    // GammaOS: Read the install orientation so DRM direct rendering can rotate
+    // content to match the physical panel orientation. Without this, DRM direct
+    // rendering outputs unrotated content and the menu appears sideways on devices
+    // with a rotated install orientation (e.g. portrait panel used landscape).
+    {
+        char orient[PROPERTY_VALUE_MAX] = {};
+        property_get("ro.surface_flinger.primary_display_orientation", orient, "");
+        if (!strcmp(orient, "ORIENTATION_90")) sDrmRotationDeg = 90;
+        else if (!strcmp(orient, "ORIENTATION_180")) sDrmRotationDeg = 180;
+        else if (!strcmp(orient, "ORIENTATION_270")) sDrmRotationDeg = 270;
+        else sDrmRotationDeg = 0;
+        if (sDrmRotationDeg != 0) {
+            ALOGI("NanoMenu DRM: installOrientation=%s → rotate %d°",
+                  orient, sDrmRotationDeg);
+        }
+    }
 }
 
 // Set up fast GPU→DRM rendering via AHardwareBuffer.
@@ -1963,9 +1981,17 @@ static void drmSetupZeroCopy(EGLDisplay eglDpy) {
         return;
     }
 
-    // Use primary display dimensions for the render target
+    // Use primary display dimensions for the render target.
+    // If the install orientation is 90/270, swap w/h so the GL render target
+    // matches the LOGICAL view dimensions (portrait on a landscape panel, etc.).
+    // The drmFlipAll blit rotates back to physical panel dimensions.
     uint32_t w = sDrmDisplays[0].w;
     uint32_t h = sDrmDisplays[0].h;
+    if (sDrmRotationDeg == 90 || sDrmRotationDeg == 270) {
+        std::swap(w, h);
+        ALOGI("NanoMenu DRM zero-copy: swapped AHB to logical %ux%u (panel %ux%u)",
+              w, h, sDrmDisplays[0].w, sDrmDisplays[0].h);
+    }
 
     // Allocate AHardwareBuffer: GPU color output + CPU read for memcpy to DRM
     AHardwareBuffer_Desc desc = {};
@@ -2077,23 +2103,54 @@ static void drmFlipAll() {
 
     // Copy AHB → each display's back buffer. GL is bottom-up, DRM top-down → flip Y.
     // AHB is RGBA; DRM dumb buffer is XRGB (B and R swapped).
+    // When install orientation is non-zero, the AHB holds logically-rotated content
+    // that must be rotated back to physical panel layout during the blit.
     for (auto& d : sDrmDisplays) {
         int idx = 1 - d.activeBuffer;
         DrmBuffer& buf = d.buffers[idx];
         uint8_t* dst = (uint8_t*)buf.mapped;
-        uint32_t copyH = std::min(sAhbTarget.h, d.h);
-        uint32_t copyW = std::min(sAhbTarget.w, d.w);
+        const uint32_t srcW = sAhbTarget.w;
+        const uint32_t srcH = sAhbTarget.h;
+        const uint32_t dstW = d.w;
+        const uint32_t dstH = d.h;
 
-        for (uint32_t y = 0; y < copyH; y++) {
-            uint32_t* srcRow = (uint32_t*)((uint8_t*)ahbPtr + (sAhbTarget.h - 1 - y) * ahbStride);
-            uint32_t* dstRow = (uint32_t*)(dst + y * buf.pitch);
-            for (uint32_t x = 0; x < copyW; x++) {
-                // RGBA → XRGB: swap R and B channels
-                uint32_t rgba = srcRow[x];
-                dstRow[x] = 0xFF000000 |
-                            ((rgba >> 16) & 0xFF) |        // R → low (B slot)
-                            (rgba & 0xFF00) |              // G
-                            ((rgba & 0xFF) << 16);         // B → high (R slot)
+        for (uint32_t dy = 0; dy < dstH; dy++) {
+            uint32_t* dstRow = (uint32_t*)(dst + dy * buf.pitch);
+            for (uint32_t dx = 0; dx < dstW; dx++) {
+                // Map destination (panel) pixel → source (AHB) pixel with rotation.
+                // GL is bottom-up so source Y is flipped: ahb_y = srcH-1-sy.
+                uint32_t sx, sy;
+                switch (sDrmRotationDeg) {
+                case 90:
+                    // 90° CW: panel(dx,dy) ← logical(dy, srcW-1-dx)
+                    sx = dy;
+                    sy = srcW - 1 - dx;
+                    break;
+                case 180:
+                    sx = srcW - 1 - dx;
+                    sy = dy; // Y flip already handled below
+                    break;
+                case 270:
+                    // 270° CW: panel(dx,dy) ← logical(srcH-1-dy, dx)
+                    sx = srcH - 1 - dy;
+                    sy = dx;
+                    break;
+                default: // 0°
+                    sx = dx;
+                    sy = srcH - 1 - dy; // GL Y flip
+                    break;
+                }
+                // For non-zero rotation, apply GL Y flip on the source
+                if (sDrmRotationDeg != 0) {
+                    sy = srcH - 1 - sy;
+                }
+                if (sx >= srcW || sy >= srcH) continue;
+                uint32_t* srcRow = (uint32_t*)((uint8_t*)ahbPtr + sy * ahbStride);
+                uint32_t rgba = srcRow[sx];
+                dstRow[dx] = 0xFF000000 |
+                             ((rgba >> 16) & 0xFF) |
+                             (rgba & 0xFF00) |
+                             ((rgba & 0xFF) << 16);
             }
         }
     }
@@ -2450,6 +2507,16 @@ status_t NanoMenu::readyToRun() {
 
     mDisplay = display; mContext = context; mSurface = surface;
     mWidth = w; mHeight = h;
+    // GammaOS: While DRM direct rendering is active, use the logical
+    // (rotation-adjusted) dimensions so the UI layout renders in the
+    // correct orientation. After DRM stops and SF takes over, these
+    // will be used as-is by eglSwapBuffers — SF applies the install
+    // orientation rotation at composition time.
+    if (sDrmActive && (sDrmRotationDeg == 90 || sDrmRotationDeg == 270)) {
+        std::swap(mWidth, mHeight);
+        ALOGI("NanoMenu: swapped logical dims to %dx%d (panel %dx%d)",
+              mWidth, mHeight, w, h);
+    }
     mFlingerSurfaceControl = control; mFlingerSurface = s;
 
     ALOGD("NanoMenu: display %dx%d", mWidth, mHeight);
@@ -3460,6 +3527,17 @@ void NanoMenu::render() {
             property_get("sys.boot_completed", bootDone, "0");
             if (!strcmp(bootDone, "1")) {
                 drmStop();
+                // GammaOS: If DRM was rendering at logical (rotated) dims,
+                // restore mWidth/mHeight to the SF EGL surface dimensions
+                // so the eglSwapBuffers path renders at the correct size.
+                // SF applies the install orientation rotation at composite.
+                if (sDrmRotationDeg == 90 || sDrmRotationDeg == 270) {
+                    EGLint sw, sh;
+                    eglQuerySurface(mDisplay, mSurface, EGL_WIDTH, &sw);
+                    eglQuerySurface(mDisplay, mSurface, EGL_HEIGHT, &sh);
+                    mWidth = sw; mHeight = sh;
+                    ALOGI("NanoMenu: DRM stopped, restored dims to %dx%d", mWidth, mHeight);
+                }
             }
         }
     } else {

@@ -3887,6 +3887,14 @@ public class WindowManagerService extends IWindowManager.Stub
     }
 
     private void performEnableScreen() {
+        // GammaOS Nano: track whether the preload path wants us to signal
+        // bootAnimationComplete after dropping mGlobalLock. AMS.bootAnimationComplete
+        // must NEVER be called while holding the WMS global lock, because a concurrent
+        // BroadcastQueueModernImpl.scheduleReceiverColdLocked → ProcessList →
+        // ATMService.onProcessRemoved path on the AMS handler holds the AMS lock and
+        // waits for WMS — reversing the lock order deadlocks system_server (seen as a
+        // watchdog kill during Quick Resume).
+        boolean nanoPreloadBootAnimComplete = false;
         synchronized (mGlobalLock) {
             ProtoLog.i(WM_DEBUG_BOOT, "performEnableScreen: mDisplayEnabled=%b"
                             + " mForceDisplayEnabled=%b" + " mShowingBootMessages=%b"
@@ -3935,44 +3943,50 @@ public class WindowManagerService extends IWindowManager.Stub
                         && !"1".equals(android.os.SystemProperties.get(
                         "service.bootanim.nano_retroarch"))) {
                     // GammaOS Nano preload: keep the nano menu alive — user hasn't
-                    // selected yet.  Unblock finishBooting by calling bootAnimationComplete
-                    // (sets mBootAnimationComplete in AMS), then return early so we skip
-                    // SurfaceControl.bootFinished() which would also kill the bootanim.
+                    // selected yet. Skip SurfaceControl.bootFinished() (would kill the
+                    // bootanim) and defer bootAnimationComplete to after the lock drops.
                     Slog.i(TAG, "GammaOS Nano: keeping nano menu alive (preload mode)");
-                    try {
-                        mActivityManager.bootAnimationComplete();
-                    } catch (RemoteException e) {
-                        Slog.w(TAG, "GammaOS Nano: bootAnimationComplete failed: " + e);
-                    }
-                    return;
+                    nanoPreloadBootAnimComplete = true;
                 } else {
                     SystemProperties.set("service.bootanim.exit", "1");
                     mBootAnimationStopped = true;
                 }
             }
+            if (!nanoPreloadBootAnimComplete) {
+                if (!mForceDisplayEnabled && !checkBootAnimationCompleteLocked()) {
+                    ProtoLog.i(WM_DEBUG_BOOT, "performEnableScreen: Waiting for anim complete");
+                    return;
+                }
 
-            if (!mForceDisplayEnabled && !checkBootAnimationCompleteLocked()) {
-                ProtoLog.i(WM_DEBUG_BOOT, "performEnableScreen: Waiting for anim complete");
-                return;
+                if (!SurfaceControl.bootFinished()) {
+                    ProtoLog.w(WM_ERROR, "performEnableScreen: bootFinished() failed.");
+                    return;
+                }
+
+                EventLogTags.writeWmBootAnimationDone(SystemClock.uptimeMillis());
+                Trace.asyncTraceEnd(TRACE_TAG_WINDOW_MANAGER, "Stop bootanim", 0);
+                mDisplayEnabled = true;
+                ProtoLog.i(WM_DEBUG_SCREEN_ON, "******************** ENABLING SCREEN!");
+
+                // Enable input dispatch.
+                mInputManagerCallback.setEventDispatchingLw(mEventDispatchingEnabled);
             }
-
-            if (!SurfaceControl.bootFinished()) {
-                ProtoLog.w(WM_ERROR, "performEnableScreen: bootFinished() failed.");
-                return;
-            }
-
-            EventLogTags.writeWmBootAnimationDone(SystemClock.uptimeMillis());
-            Trace.asyncTraceEnd(TRACE_TAG_WINDOW_MANAGER, "Stop bootanim", 0);
-            mDisplayEnabled = true;
-            ProtoLog.i(WM_DEBUG_SCREEN_ON, "******************** ENABLING SCREEN!");
-
-            // Enable input dispatch.
-            mInputManagerCallback.setEventDispatchingLw(mEventDispatchingEnabled);
         }
 
         try {
             mActivityManager.bootAnimationComplete();
         } catch (RemoteException e) {
+            if (nanoPreloadBootAnimComplete) {
+                Slog.w(TAG, "GammaOS Nano: bootAnimationComplete failed: " + e);
+            }
+        }
+
+        // GammaOS Nano: In preload mode we intentionally skip enableScreenAfterBoot,
+        // updateRotationUnchecked, and the trailing transition-ready signal. The nano
+        // menu owns the display until the user picks an app; stock boot completion
+        // happens later when performEnableScreen runs again with nano_retroarch=1.
+        if (nanoPreloadBootAnimComplete) {
+            return;
         }
 
         mPolicy.enableScreenAfterBoot();
