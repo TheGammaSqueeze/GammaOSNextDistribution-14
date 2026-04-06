@@ -5209,7 +5209,12 @@ bool NanoMenu::threadLoop() {
                                 glDisable(GL_BLEND);
 
                                 drmFrameEnd(mDisplay, mSurface);
-                                usleep(16666); // ~60fps
+                                // DRM path: GPU finish + AHB copy already takes
+                                // ~13-20ms, providing natural frame pacing.
+                                // Only sleep on the eglSwapBuffers path.
+                                if (!sDrmActive) {
+                                    usleep(16666);
+                                }
                             }
                         } else {
                             ALOGW("Quick Resume: native libretro init failed, "
