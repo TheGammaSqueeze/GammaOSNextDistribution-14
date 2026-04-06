@@ -211,11 +211,13 @@ private:
     GLuint mShaderProgram;
     GLint  mLocPosition;
     GLint  mLocColor;
+    GLint  mLocRotation; // DRM orientation rotation
 
     // Batched particle shader (per-vertex color)
     GLuint mParticleProgram;
     GLint  mParticleLocPosition;
     GLint  mParticleLocColor;
+    GLint  mParticleLocRotation;
 
     // Fullscreen effect shader
     GLuint mFxProgram;
@@ -223,12 +225,16 @@ private:
     GLint  mFxLocTime;
     GLint  mFxLocResolution;
     GLint  mFxLocEffect;
+    GLint  mFxLocRotation;
+    GLint  mFxLocCoordSwap;
 
     // XMB background shader (PS3-style volumetric ribbons, 60fps)
     GLuint mXmbProgram;
     GLint  mXmbLocPosition;
     GLint  mXmbLocTime;
     GLint  mXmbLocResolution;
+    GLint  mXmbLocRotation;
+    GLint  mXmbLocCoordSwap;
 
     // Menu state
     std::vector<MenuItem> mMenuItems;
@@ -340,6 +346,7 @@ private:
     GLint  mTextLocTexCoord;
     GLint  mTextLocColor;
     GLint  mTextLocTexture;
+    GLint  mTextLocRotation;
 };
 
 } // namespace android

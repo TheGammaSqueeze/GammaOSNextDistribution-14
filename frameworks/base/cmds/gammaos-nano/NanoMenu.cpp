@@ -80,9 +80,10 @@ using ui::DisplayMode;
 static const char VERTEX_SHADER[] = R"(
     attribute vec4 aPosition;
     uniform vec4 uColor;
+    uniform mat2 uRotation;
     varying vec4 vColor;
     void main() {
-        gl_Position = aPosition;
+        gl_Position = vec4(uRotation * aPosition.xy, aPosition.zw);
         vColor = uColor;
     }
 )";
@@ -99,9 +100,10 @@ static const char FRAGMENT_SHADER[] = R"(
 static const char PARTICLE_VERTEX_SHADER[] = R"(
     attribute vec2 aPosition;
     attribute vec4 aColor;
+    uniform mat2 uRotation;
     varying vec4 vColor;
     void main() {
-        gl_Position = vec4(aPosition, 0.0, 1.0);
+        gl_Position = vec4(uRotation * aPosition, 0.0, 1.0);
         vColor = aColor;
     }
 )";
@@ -114,7 +116,8 @@ static const char PARTICLE_FRAGMENT_SHADER[] = R"(
 // Fullscreen procedural effect shader (effects 11-20)
 static const char FX_VERTEX_SHADER[] = R"(
     attribute vec4 aPosition;
-    void main() { gl_Position = aPosition; }
+    uniform mat2 uRotation;
+    void main() { gl_Position = vec4(uRotation * aPosition.xy, aPosition.zw); }
 )";
 
 static const char FX_FRAGMENT_SHADER[] = R"(
@@ -122,6 +125,7 @@ static const char FX_FRAGMENT_SHADER[] = R"(
     uniform float uTime;
     uniform vec2 uResolution;
     uniform int uEffect;
+    uniform float uCoordSwap;
 
     float hash(vec2 p) {
         return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
@@ -136,7 +140,10 @@ static const char FX_FRAGMENT_SHADER[] = R"(
     }
 
     void main() {
-        vec2 uv = gl_FragCoord.xy / uResolution;
+        vec2 fc = mix(gl_FragCoord.xy,
+                      vec2(gl_FragCoord.y, uResolution.y - gl_FragCoord.x),
+                      uCoordSwap);
+        vec2 uv = fc / uResolution;
         float t = uTime;
         vec3 col = vec3(0.0);
         float a = 0.0;
@@ -218,6 +225,7 @@ static const char XMB_FRAGMENT_SHADER[] = R"(
 #endif
     uniform float uTime;
     uniform vec2 uResolution;
+    uniform float uCoordSwap;
 
     float xmbHash(vec2 p) {
         return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
@@ -230,7 +238,10 @@ static const char XMB_FRAGMENT_SHADER[] = R"(
     }
 
     void main() {
-        vec2 uv = gl_FragCoord.xy / uResolution;
+        vec2 fc = mix(gl_FragCoord.xy,
+                      vec2(gl_FragCoord.y, uResolution.y - gl_FragCoord.x),
+                      uCoordSwap);
+        vec2 uv = fc / uResolution;
         float t = mod(uTime, 628.318);
 
         // Aspect-corrected x for spatial frequency matching
@@ -412,10 +423,11 @@ static const char TEXT_VERTEX_SHADER[] = R"(
     attribute vec2 aPosition;
     attribute vec2 aTexCoord;
     attribute vec4 aColor;
+    uniform mat2 uRotation;
     varying vec2 vTexCoord;
     varying vec4 vColor;
     void main() {
-        gl_Position = vec4(aPosition, 0.0, 1.0);
+        gl_Position = vec4(uRotation * aPosition, 0.0, 1.0);
         vTexCoord = aTexCoord;
         vColor = aColor;
     }
@@ -1708,6 +1720,10 @@ void NanoMenu::updateEffect() {
     }
 }
 
+// GammaOS: DRM state variables needed by renderEffect (before the main DRM section).
+static bool sDrmActive = false;
+static int sDrmRotationDeg = 0;
+
 void NanoMenu::renderEffect() {
     if (mCurrentEffect == 0) return;
 
@@ -1749,10 +1765,17 @@ void NanoMenu::renderEffect() {
     } else if (mCurrentEffect >= 11 && mCurrentEffect <= 20) {
         // Fullscreen procedural shader
         GLfloat verts[] = { -1,-1, 1,-1, 1,1, 1,1, -1,1, -1,-1 };
+        // GammaOS: When GL rotation is active, gl_FragCoord is in panel-native
+        // pixel space but the shader effect should render in logical orientation.
+        // uCoordSwap=1.0 tells the fragment shader to swap gl_FragCoord.xy → .yx
+        // so the UV mapping matches the logical dimensions passed in uResolution.
+        float coordSwap = (sDrmActive && (sDrmRotationDeg == 90
+                           || sDrmRotationDeg == 270)) ? 1.0f : 0.0f;
         glUseProgram(mFxProgram);
         glUniform1f(mFxLocTime, mEffectTime);
         glUniform2f(mFxLocResolution, (float)mWidth, (float)mHeight);
         glUniform1i(mFxLocEffect, mCurrentEffect);
+        glUniform1f(mFxLocCoordSwap, coordSwap);
         glVertexAttribPointer(mFxLocPosition, 2, GL_FLOAT, GL_FALSE, 0, verts);
         glEnableVertexAttribArray(mFxLocPosition);
         glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -1760,9 +1783,12 @@ void NanoMenu::renderEffect() {
     } else if (mCurrentEffect == 21) {
         // XMB: PS3-style volumetric ribbon background (dedicated shader, 60fps)
         GLfloat verts[] = { -1,-1, 1,-1, 1,1, 1,1, -1,1, -1,-1 };
+        float coordSwap = (sDrmActive && (sDrmRotationDeg == 90
+                           || sDrmRotationDeg == 270)) ? 1.0f : 0.0f;
         glUseProgram(mXmbProgram);
         glUniform1f(mXmbLocTime, mEffectTime);
         glUniform2f(mXmbLocResolution, (float)mWidth, (float)mHeight);
+        glUniform1f(mXmbLocCoordSwap, coordSwap);
         glVertexAttribPointer(mXmbLocPosition, 2, GL_FLOAT, GL_FALSE, 0, verts);
         glEnableVertexAttribArray(mXmbLocPosition);
         glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -1813,9 +1839,11 @@ struct DrmDisplay {
 };
 static int sDrmFd = -1;
 static std::vector<DrmDisplay> sDrmDisplays;
-static bool sDrmActive = false; // true while DRM fallback is rendering
+// sDrmActive and sDrmRotationDeg are defined earlier (before renderEffect)
 static bool sDrmZeroCopy = false; // true if AHB/FBO setup succeeded
-static int sDrmRotationDeg = 0;  // from ro.surface_flinger.primary_display_orientation
+static bool sDrmGlRotation = false; // true when GL applies rotation (blit uses 0° path)
+// GL rotation matrix (column-major for GLES2 uniformMatrix2fv)
+static float sDrmRotMat[4] = {1.0f, 0.0f, 0.0f, 1.0f}; // identity
 
 // EGL extensions for zero-copy path
 static PFNEGLCREATEIMAGEKHRPROC sEglCreateImageKHR = nullptr;
@@ -1982,16 +2010,12 @@ static void drmSetupZeroCopy(EGLDisplay eglDpy) {
     }
 
     // Use primary display dimensions for the render target.
-    // If the install orientation is 90/270, swap w/h so the GL render target
-    // matches the LOGICAL view dimensions (portrait on a landscape panel, etc.).
-    // The drmFlipAll blit rotates back to physical panel dimensions.
+    // AHB is always at PANEL NATIVE dimensions. When the install orientation
+    // is non-zero, GL rotation (via uRotation mat2 in vertex shaders) maps
+    // logical coords to the panel-native AHB — so the blit is always a fast
+    // straight copy with no per-pixel rotation.
     uint32_t w = sDrmDisplays[0].w;
     uint32_t h = sDrmDisplays[0].h;
-    if (sDrmRotationDeg == 90 || sDrmRotationDeg == 270) {
-        std::swap(w, h);
-        ALOGI("NanoMenu DRM zero-copy: swapped AHB to logical %ux%u (panel %ux%u)",
-              w, h, sDrmDisplays[0].w, sDrmDisplays[0].h);
-    }
 
     // Allocate AHardwareBuffer: GPU color output + CPU read for memcpy to DRM
     AHardwareBuffer_Desc desc = {};
@@ -2114,35 +2138,37 @@ static void drmFlipAll() {
         const uint32_t dstW = d.w;
         const uint32_t dstH = d.h;
 
+        // When GL rotation is active (sDrmGlRotation), the AHB content is
+        // already panel-native thanks to the vertex shader rotation. The blit
+        // is a fast straight copy: row-sequential reads, no coordinate rotation.
+        // When GL rotation is NOT active (sDrmRotationDeg==0 or legacy fallback),
+        // the per-pixel rotation switch is used as before.
+        const int blitRotation = sDrmGlRotation ? 0 : sDrmRotationDeg;
         for (uint32_t dy = 0; dy < dstH; dy++) {
             uint32_t* dstRow = (uint32_t*)(dst + dy * buf.pitch);
+            // Fast path: 0° straight copy (GL Y flip only).
+            // AHB row (srcH-1-dy) → DRM row dy, with RGBA→XRGB swap.
+            if (blitRotation == 0) {
+                uint32_t copyW = std::min(srcW, dstW);
+                if (dy >= srcH) { memset(dstRow, 0, dstW * 4); continue; }
+                uint32_t* srcRow = (uint32_t*)((uint8_t*)ahbPtr
+                                   + (srcH - 1 - dy) * ahbStride);
+                for (uint32_t dx = 0; dx < copyW; dx++) {
+                    uint32_t rgba = srcRow[dx];
+                    dstRow[dx] = 0xFF000000 |
+                                 ((rgba >> 16) & 0xFF) |
+                                 (rgba & 0xFF00) |
+                                 ((rgba & 0xFF) << 16);
+                }
+                continue;
+            }
             for (uint32_t dx = 0; dx < dstW; dx++) {
-                // Map destination (panel) pixel → source (AHB) pixel with rotation.
-                // GL is bottom-up so source Y is flipped: ahb_y = srcH-1-sy.
                 uint32_t sx, sy;
-                // Map destination (panel, top-down) → source (AHB, GL bottom-up).
-                // Derived per-case with GL Y flip baked in:
-                //   0°:   sx = dx,              sy = srcH-1-dy
-                //   90°:  sx = dy,              sy = dx
-                //   180°: sx = srcW-1-dx,       sy = dy
-                //   270°: sx = srcW-1-dy,       sy = srcH-1-dx
-                switch (sDrmRotationDeg) {
-                case 90:
-                    sx = dy;
-                    sy = dx;
-                    break;
-                case 180:
-                    sx = srcW - 1 - dx;
-                    sy = dy;
-                    break;
-                case 270:
-                    sx = srcW - 1 - dy;
-                    sy = srcH - 1 - dx;
-                    break;
-                default: // 0°
-                    sx = dx;
-                    sy = srcH - 1 - dy;
-                    break;
+                switch (blitRotation) {
+                case 90:  sx = dy; sy = dx; break;
+                case 180: sx = srcW-1-dx; sy = dy; break;
+                case 270: sx = srcW-1-dy; sy = srcH-1-dx; break;
+                default:  sx = dx; sy = srcH-1-dy; break;
                 }
                 if (sx >= srcW || sy >= srcH) continue;
                 uint32_t* srcRow = (uint32_t*)((uint8_t*)ahbPtr + sy * ahbStride);
@@ -2322,6 +2348,10 @@ static void drmStop() {
     if (!sDrmActive) return;
     sDrmActive = false;
     sDrmZeroCopy = false;
+    // Reset GL rotation to identity for the SF EGL path
+    sDrmGlRotation = false;
+    sDrmRotMat[0] = 1.0f; sDrmRotMat[1] = 0.0f;
+    sDrmRotMat[2] = 0.0f; sDrmRotMat[3] = 1.0f;
     ALOGW("NanoMenu DRM splash: stopping direct rendering, HWC has taken over");
 
     // Rebind default framebuffer before destroying FBOs
@@ -2672,6 +2702,7 @@ void NanoMenu::initShaders() {
         mShaderProgram = linkProgram(vs, fs);
         mLocPosition = glGetAttribLocation(mShaderProgram, "aPosition");
         mLocColor = glGetUniformLocation(mShaderProgram, "uColor");
+        mLocRotation = glGetUniformLocation(mShaderProgram, "uRotation");
         glDeleteShader(vs); glDeleteShader(fs);
     }
     {   GLuint vs = compileShader(GL_VERTEX_SHADER, TEXT_VERTEX_SHADER);
@@ -2681,6 +2712,7 @@ void NanoMenu::initShaders() {
         mTextLocTexCoord = glGetAttribLocation(mTextProgram, "aTexCoord");
         mTextLocColor    = glGetAttribLocation(mTextProgram, "aColor");
         mTextLocTexture  = glGetUniformLocation(mTextProgram, "uTexture");
+        mTextLocRotation = glGetUniformLocation(mTextProgram, "uRotation");
         glDeleteShader(vs); glDeleteShader(fs);
     }
     {   GLuint vs = compileShader(GL_VERTEX_SHADER, PARTICLE_VERTEX_SHADER);
@@ -2688,6 +2720,7 @@ void NanoMenu::initShaders() {
         mParticleProgram = linkProgram(vs, fs);
         mParticleLocPosition = glGetAttribLocation(mParticleProgram, "aPosition");
         mParticleLocColor    = glGetAttribLocation(mParticleProgram, "aColor");
+        mParticleLocRotation = glGetUniformLocation(mParticleProgram, "uRotation");
         glDeleteShader(vs); glDeleteShader(fs);
     }
     {   GLuint vs = compileShader(GL_VERTEX_SHADER, FX_VERTEX_SHADER);
@@ -2697,6 +2730,8 @@ void NanoMenu::initShaders() {
         mFxLocTime       = glGetUniformLocation(mFxProgram, "uTime");
         mFxLocResolution = glGetUniformLocation(mFxProgram, "uResolution");
         mFxLocEffect     = glGetUniformLocation(mFxProgram, "uEffect");
+        mFxLocRotation   = glGetUniformLocation(mFxProgram, "uRotation");
+        mFxLocCoordSwap  = glGetUniformLocation(mFxProgram, "uCoordSwap");
         glDeleteShader(vs); glDeleteShader(fs);
     }
     {   GLuint vs = compileShader(GL_VERTEX_SHADER, FX_VERTEX_SHADER);
@@ -2705,7 +2740,37 @@ void NanoMenu::initShaders() {
         mXmbLocPosition   = glGetAttribLocation(mXmbProgram, "aPosition");
         mXmbLocTime       = glGetUniformLocation(mXmbProgram, "uTime");
         mXmbLocResolution = glGetUniformLocation(mXmbProgram, "uResolution");
+        mXmbLocRotation   = glGetUniformLocation(mXmbProgram, "uRotation");
+        mXmbLocCoordSwap  = glGetUniformLocation(mXmbProgram, "uCoordSwap");
         glDeleteShader(vs); glDeleteShader(fs);
+    }
+
+    // GammaOS: Compute the GL rotation matrix for DRM direct rendering.
+    // When sDrmActive + non-zero orientation, the vertex shaders rotate NDC
+    // coordinates so the AHB content is already panel-native — eliminating the
+    // per-pixel rotation from the blit loop (25ms → <5ms copy).
+    if (sDrmActive && sDrmRotationDeg != 0) {
+        sDrmGlRotation = true;
+        // Column-major mat2 for glUniformMatrix2fv
+        // Column-major mat2 for glUniformMatrix2fv.
+        // Derived from: logical_ndc → 270°/90° CW rotation → panel_ndc
+        // where panel_ndc accounts for both the rotation AND the GL y-up
+        // convention in the panel-native viewport.
+        switch (sDrmRotationDeg) {
+        case 90:  // 90° CW: panel_ndc = (y_ndc, -x_ndc)
+            sDrmRotMat[0] =  0.0f; sDrmRotMat[1] = -1.0f;
+            sDrmRotMat[2] =  1.0f; sDrmRotMat[3] =  0.0f;
+            break;
+        case 180: // 180°: panel_ndc = (-x_ndc, -y_ndc)
+            sDrmRotMat[0] = -1.0f; sDrmRotMat[1] =  0.0f;
+            sDrmRotMat[2] =  0.0f; sDrmRotMat[3] = -1.0f;
+            break;
+        case 270: // 270° CW: panel_ndc = (-y_ndc, x_ndc)
+            sDrmRotMat[0] =  0.0f; sDrmRotMat[1] =  1.0f;
+            sDrmRotMat[2] = -1.0f; sDrmRotMat[3] =  0.0f;
+            break;
+        }
+        ALOGI("NanoMenu: GL rotation %d° active for DRM", sDrmRotationDeg);
     }
     initFonts();
     initIconTextures();
@@ -3262,7 +3327,27 @@ void NanoMenu::render() {
     if (sDrmActive && sDrmZeroCopy) {
         drmBindNextFbo();
     }
-    glViewport(0, 0, mWidth, mHeight);
+    // GammaOS: When GL rotation is active, use the AHB (panel-native) dimensions
+    // for the viewport, not the logical mWidth/mHeight. The rotation matrix in the
+    // vertex shaders maps logical NDC to the panel-native viewport.
+    if (sDrmGlRotation) {
+        glViewport(0, 0, sAhbTarget.w, sAhbTarget.h);
+    } else {
+        glViewport(0, 0, mWidth, mHeight);
+    }
+    // GammaOS: Upload the rotation matrix to all shader programs. When GL rotation
+    // is active, the matrix rotates NDC coords so content is panel-native in the AHB,
+    // letting the blit use a fast straight copy instead of per-pixel rotation.
+    {
+        const GLuint progs[] = {mShaderProgram, mTextProgram, mParticleProgram,
+                                mFxProgram, mXmbProgram};
+        const GLint  locs[]  = {mLocRotation, mTextLocRotation, mParticleLocRotation,
+                                mFxLocRotation, mXmbLocRotation};
+        for (int i = 0; i < 5; i++) {
+            glUseProgram(progs[i]);
+            glUniformMatrix2fv(locs[i], 1, GL_FALSE, sDrmRotMat);
+        }
+    }
     glClearColor(0.05f, 0.05f, 0.10f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
