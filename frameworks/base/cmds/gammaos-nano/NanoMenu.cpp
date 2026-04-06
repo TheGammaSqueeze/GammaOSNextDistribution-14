@@ -2120,29 +2120,29 @@ static void drmFlipAll() {
                 // Map destination (panel) pixel → source (AHB) pixel with rotation.
                 // GL is bottom-up so source Y is flipped: ahb_y = srcH-1-sy.
                 uint32_t sx, sy;
+                // Map destination (panel, top-down) → source (AHB, GL bottom-up).
+                // Derived per-case with GL Y flip baked in:
+                //   0°:   sx = dx,              sy = srcH-1-dy
+                //   90°:  sx = dy,              sy = dx
+                //   180°: sx = srcW-1-dx,       sy = dy
+                //   270°: sx = srcW-1-dy,       sy = srcH-1-dx
                 switch (sDrmRotationDeg) {
                 case 90:
-                    // 90° CW: panel(dx,dy) ← logical(dy, srcW-1-dx)
                     sx = dy;
-                    sy = srcW - 1 - dx;
+                    sy = dx;
                     break;
                 case 180:
                     sx = srcW - 1 - dx;
-                    sy = dy; // Y flip already handled below
+                    sy = dy;
                     break;
                 case 270:
-                    // 270° CW: panel(dx,dy) ← logical(srcH-1-dy, dx)
-                    sx = srcH - 1 - dy;
-                    sy = dx;
+                    sx = srcW - 1 - dy;
+                    sy = srcH - 1 - dx;
                     break;
                 default: // 0°
                     sx = dx;
-                    sy = srcH - 1 - dy; // GL Y flip
+                    sy = srcH - 1 - dy;
                     break;
-                }
-                // For non-zero rotation, apply GL Y flip on the source
-                if (sDrmRotationDeg != 0) {
-                    sy = srcH - 1 - sy;
                 }
                 if (sx >= srcW || sy >= srcH) continue;
                 uint32_t* srcRow = (uint32_t*)((uint8_t*)ahbPtr + sy * ahbStride);
@@ -2507,16 +2507,10 @@ status_t NanoMenu::readyToRun() {
 
     mDisplay = display; mContext = context; mSurface = surface;
     mWidth = w; mHeight = h;
-    // GammaOS: While DRM direct rendering is active, use the logical
-    // (rotation-adjusted) dimensions so the UI layout renders in the
-    // correct orientation. After DRM stops and SF takes over, these
-    // will be used as-is by eglSwapBuffers — SF applies the install
-    // orientation rotation at composition time.
-    if (sDrmActive && (sDrmRotationDeg == 90 || sDrmRotationDeg == 270)) {
-        std::swap(mWidth, mHeight);
-        ALOGI("NanoMenu: swapped logical dims to %dx%d (panel %dx%d)",
-              mWidth, mHeight, w, h);
-    }
+    // NOTE: eglQuerySurface returns logical (rotation-applied) dimensions
+    // because SurfaceFlinger reports the active display mode with install
+    // orientation already factored in. Do NOT swap mWidth/mHeight here —
+    // the AHB swap in drmSetupZeroCopy ensures the render target matches.
     mFlingerSurfaceControl = control; mFlingerSurface = s;
 
     ALOGD("NanoMenu: display %dx%d", mWidth, mHeight);
@@ -3527,17 +3521,6 @@ void NanoMenu::render() {
             property_get("sys.boot_completed", bootDone, "0");
             if (!strcmp(bootDone, "1")) {
                 drmStop();
-                // GammaOS: If DRM was rendering at logical (rotated) dims,
-                // restore mWidth/mHeight to the SF EGL surface dimensions
-                // so the eglSwapBuffers path renders at the correct size.
-                // SF applies the install orientation rotation at composite.
-                if (sDrmRotationDeg == 90 || sDrmRotationDeg == 270) {
-                    EGLint sw, sh;
-                    eglQuerySurface(mDisplay, mSurface, EGL_WIDTH, &sw);
-                    eglQuerySurface(mDisplay, mSurface, EGL_HEIGHT, &sh);
-                    mWidth = sw; mHeight = sh;
-                    ALOGI("NanoMenu: DRM stopped, restored dims to %dx%d", mWidth, mHeight);
-                }
             }
         }
     } else {
