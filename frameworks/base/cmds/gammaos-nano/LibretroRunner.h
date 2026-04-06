@@ -27,6 +27,12 @@ public:
               const std::string& saveStatePath,
               const std::string& saveRamPath);
 
+    // Set the GL rotation matrix for DRM orientation-aware rendering.
+    // Called by NanoMenu before runFrame when DRM direct mode is active.
+    void setRotationMatrix(const float mat[4]) {
+        for (int i = 0; i < 4; i++) mRotationMatrix[i] = mat[i];
+    }
+
     // Run one frame: processes input, runs core, renders to current GL context
     // saturation: 0.0=grayscale, 1.0=full color
     // gradient: 0.0=no gradient, 1.0=full black gradient at bottom
@@ -113,6 +119,8 @@ private:
     GLint mVideoLocSwizzle = -1;
     GLint mVideoLocSaturation = -1;
     GLint mVideoLocGradient = -1;
+    GLint mVideoLocRotation = -1;
+    float mRotationMatrix[4] = {1.0f, 0.0f, 0.0f, 1.0f}; // identity
     float mAspectRatio = 0.0f;  // from core's retro_system_av_info
     unsigned mFrameWidth = 0;
     unsigned mFrameHeight = 0;

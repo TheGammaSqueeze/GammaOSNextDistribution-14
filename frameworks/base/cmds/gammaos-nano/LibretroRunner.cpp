@@ -30,9 +30,10 @@ LibretroRunner* LibretroRunner::sInstance = nullptr;
 static const char* kVideoVS =
     "attribute vec2 aPosition;\n"
     "attribute vec2 aTexCoord;\n"
+    "uniform mat2 uRotation;\n"
     "varying vec2 vTexCoord;\n"
     "void main() {\n"
-    "    gl_Position = vec4(aPosition, 0.0, 1.0);\n"
+    "    gl_Position = vec4(uRotation * aPosition, 0.0, 1.0);\n"
     "    vTexCoord = aTexCoord;\n"
     "}\n";
 
@@ -306,6 +307,7 @@ void LibretroRunner::initVideoGL() {
     mVideoLocSwizzle = glGetUniformLocation(mVideoProgram, "uSwizzle");
     mVideoLocSaturation = glGetUniformLocation(mVideoProgram, "uSaturation");
     mVideoLocGradient = glGetUniformLocation(mVideoProgram, "uGradient");
+    mVideoLocRotation = glGetUniformLocation(mVideoProgram, "uRotation");
 
     glGenTextures(1, &mFrameTex);
     glBindTexture(GL_TEXTURE_2D, mFrameTex);
@@ -357,7 +359,13 @@ void LibretroRunner::renderFrame(int screenWidth, int screenHeight,
                                   float saturation, float gradient) {
     if (!mFrameTex || !mFrameWidth || !mFrameHeight) return;
 
-    glViewport(0, 0, screenWidth, screenHeight);
+    // GammaOS: When rotation is active, the caller has already set the viewport
+    // to panel-native AHB dims. Don't override it — the rotation matrix maps
+    // logical NDC (from the aspect-corrected quad) to panel-native NDC.
+    bool hasRotation = (mRotationMatrix[0] != 1.0f || mRotationMatrix[3] != 1.0f);
+    if (!hasRotation) {
+        glViewport(0, 0, screenWidth, screenHeight);
+    }
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
@@ -381,6 +389,11 @@ void LibretroRunner::renderFrame(int screenWidth, int screenHeight,
     };
 
     glUseProgram(mVideoProgram);
+    // GammaOS: Apply the DRM rotation matrix if set. NanoMenu uploads it
+    // via setRotationMatrix() before calling runFrame during DRM direct mode.
+    if (mVideoLocRotation >= 0) {
+        glUniformMatrix2fv(mVideoLocRotation, 1, GL_FALSE, mRotationMatrix);
+    }
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, mFrameTex);
     glUniform1i(mVideoLocTexture, 0);

@@ -4846,6 +4846,17 @@ bool NanoMenu::threadLoop() {
                 float loadScale = 3.0f * sf;
                 float hintScale = 1.5f * sf;
 
+                // GammaOS: Ensure rotation uniforms are set for the QR screens.
+                // initShaders() set them, but re-upload here to be safe — the
+                // QR path runs before the main render loop.
+                if (sDrmGlRotation) {
+                    const GLuint progs[] = {mShaderProgram, mTextProgram};
+                    const GLint  locs[]  = {mLocRotation, mTextLocRotation};
+                    for (int i = 0; i < 2; i++) {
+                        glUseProgram(progs[i]);
+                        glUniformMatrix2fv(locs[i], 1, GL_FALSE, sDrmRotMat);
+                    }
+                }
                 for (int frame = 0; frame < 20 && !bypass; frame++) {
                     // Check current key state via ioctl
                     for (int fd : mInputFds) {
@@ -4868,7 +4879,11 @@ bool NanoMenu::threadLoop() {
                     }
                     // Render quick resume screen — route through DRM if active
                     drmFrameBegin();
-                    glViewport(0, 0, mWidth, mHeight);
+                    if (sDrmGlRotation) {
+                        glViewport(0, 0, sAhbTarget.w, sAhbTarget.h);
+                    } else {
+                        glViewport(0, 0, mWidth, mHeight);
+                    }
                     glClearColor(0.05f, 0.05f, 0.10f, 1.0f);
                     glClear(GL_COLOR_BUFFER_BIT);
                     glEnable(GL_BLEND);
@@ -5002,6 +5017,9 @@ bool NanoMenu::threadLoop() {
                         ALOGI("  sram=%s", sramPath.c_str());
 
                         LibretroRunner runner;
+                        if (sDrmGlRotation) {
+                            runner.setRotationMatrix(sDrmRotMat);
+                        }
                         if (runner.init(coreFile, romFile, statePath, sramPath)) {
                             ALOGI("Quick Resume: native libretro loading screen active!");
                             nativeLaunch = true;
@@ -5156,10 +5174,17 @@ bool NanoMenu::threadLoop() {
                                 // Bind AHB FBO so libretro + overlay render through DRM path
                                 drmFrameBegin();
 
-                                // Run core + render with desaturation + gradient
+                                // Run core + render with desaturation + gradient.
+                                // Pass LOGICAL dims for aspect ratio correction;
+                                // the rotation matrix maps logical NDC → panel NDC.
                                 runner.runFrame(mWidth, mHeight, saturation, gradient);
 
-                                // Text overlay
+                                // Text overlay — restore viewport for rotated rendering
+                                if (sDrmGlRotation) {
+                                    glViewport(0, 0, sAhbTarget.w, sAhbTarget.h);
+                                } else {
+                                    glViewport(0, 0, mWidth, mHeight);
+                                }
                                 glEnable(GL_BLEND);
                                 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
                                 const char* msg = "Quick Resuming...";
@@ -5348,6 +5373,15 @@ bool NanoMenu::threadLoop() {
     // will clear drop_input itself when it processes a FOCUS entry (which
     // arrives after all stale events have been dropped).
     ALOGD("NanoMenu: showing loading screen, waiting for RetroArch");
+    // GammaOS: Ensure rotation uniforms are set for the loading screen path.
+    if (sDrmGlRotation) {
+        const GLuint progs[] = {mShaderProgram, mTextProgram};
+        const GLint  locs[]  = {mLocRotation, mTextLocRotation};
+        for (int i = 0; i < 2; i++) {
+            glUseProgram(progs[i]);
+            glUniformMatrix2fv(locs[i], 1, GL_FALSE, sDrmRotMat);
+        }
+    }
     {
         float sf = fminf((float)mWidth / 1080.0f, (float)mHeight / 720.0f);
         if (sf < 0.5f) sf = 0.5f;
@@ -5361,7 +5395,11 @@ bool NanoMenu::threadLoop() {
             }
             // Render loading screen — route through DRM if active
             drmFrameBegin();
-            glViewport(0, 0, mWidth, mHeight);
+            if (sDrmGlRotation) {
+                glViewport(0, 0, sAhbTarget.w, sAhbTarget.h);
+            } else {
+                glViewport(0, 0, mWidth, mHeight);
+            }
             glClearColor(0.05f, 0.05f, 0.10f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT);
             glEnable(GL_BLEND);
