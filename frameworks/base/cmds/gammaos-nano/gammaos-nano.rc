@@ -1,7 +1,7 @@
 service gammaos-nano /system/bin/gammaos-nano
     class core animation
     user graphics
-    group graphics input system media_rw package_info
+    group graphics input system media_rw sdcard_rw everybody external_storage package_info
     disabled
     oneshot
     ioprio rt 0

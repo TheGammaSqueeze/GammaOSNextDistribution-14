@@ -28,6 +28,7 @@
 #include <linux/input.h>
 #include <sys/inotify.h>
 #include <signal.h>
+#include <strings.h>
 
 #include <binder/IPCThreadState.h>
 #include <cutils/properties.h>
@@ -548,6 +549,8 @@ NanoMenu::NanoMenu()
       mXmbMode(false), mXmbRecentMax(50), mXmbSystemIndex(0), mXmbGameIndex(0),
       mXmbAnimX(0.0f), mXmbAnimY(0.0f),
       mXmbGameScrollTop(0), mXmbRomScanDone(false),
+      mXmbBootCompleted(false),
+      mBgScanResultReady(false), mBgScanThreadRunning(false),
       mOskActive(false), mOskCursorX(0), mOskCursorY(0),
       mSearchSelectedIndex(0), mSearchActive(false),
       mFtLib(nullptr),
@@ -1326,8 +1329,11 @@ void NanoMenu::pollInput() {
                 }
                 continue; // discard all other events while waiting
             }
-            // Track SELECT button state
+            // Track SELECT button state; in XMB mode, press refreshes game lists
             if (ev.type == EV_KEY && ev.code == BTN_SELECT) {
+                if (ev.value == 1 && mXmbMode) {
+                    forceRescanAllSystems();
+                }
                 mSelectHeld = (ev.value != 0);
             }
             // Power button handling
@@ -2376,7 +2382,16 @@ static void drmStop() {
 status_t NanoMenu::readyToRun() {
     // GammaOS: Show DRM splash immediately — before any SF/HWC setup.
     // This replaces the U-Boot logo with a dark screen within milliseconds.
-    drmEarlySplash();
+    // Skip DRM on restarts (returning from app) — HWC is already active.
+    {
+        char bootDone[PROPERTY_VALUE_MAX] = {};
+        property_get("sys.boot_completed", bootDone, "0");
+        if (strcmp(bootDone, "1") != 0) {
+            drmEarlySplash();
+        } else {
+            ALOGI("NanoMenu: skipping DRM splash (already booted)");
+        }
+    }
 
     int64_t t0 = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL;
     auto tlog = [&](const char* label) {
@@ -3778,6 +3793,7 @@ void NanoMenu::initXmbSystems() {
         sys.acceptExts = kXmbSystemDefs[i].acceptExts;
         sys.scanned = false;
         sys.pathExists = false;
+        sys.lastScanTime = 0;
 
         // Allow prop overrides per system
         char propBuf[PROPERTY_VALUE_MAX] = {};
@@ -3793,6 +3809,7 @@ void NanoMenu::initXmbSystems() {
         if (propBuf[0]) sys.coreSo = propBuf;
 
         // Try loading cached file list from DE storage
+        // Cache format: each line is a full ROM path
         {
             std::string cachePath = "/data/system/nano_xmb_cache/" + sys.romDir + ".list";
             int cfd = open(cachePath.c_str(), O_RDONLY);
@@ -3804,24 +3821,27 @@ void NanoMenu::initXmbSystems() {
                     if (rd > 0) {
                         content.resize(rd);
                         size_t pos = 0;
-                        bool firstLine = true;
                         while (pos < content.size()) {
                             size_t eol = content.find('\n', pos);
                             if (eol == std::string::npos) eol = content.size();
                             std::string line = content.substr(pos, eol - pos);
                             pos = eol + 1;
                             if (line.empty()) continue;
-                            if (firstLine) {
-                                sys.activePath = line;
-                                sys.pathExists = true;
-                                firstLine = false;
-                            } else {
-                                sys.roms.push_back(line);
-                            }
+                            sys.roms.push_back(line);
                         }
-                        // Pre-compute display names from cache
+                        // Derive activePath from the directory of the first ROM
+                        if (!sys.roms.empty()) {
+                            size_t ls = sys.roms[0].rfind('/');
+                            if (ls != std::string::npos) {
+                                sys.activePath = sys.roms[0].substr(0, ls);
+                            }
+                            sys.pathExists = true;
+                        }
+                        // Pre-compute display names from cache (strip path + extension)
                         for (const auto& rom : sys.roms) {
                             std::string dn = rom;
+                            size_t sl = dn.rfind('/');
+                            if (sl != std::string::npos) dn = dn.substr(sl + 1);
                             size_t d = dn.rfind('.');
                             if (d != std::string::npos) dn = dn.substr(0, d);
                             sys.displayNames.push_back(std::move(dn));
@@ -3836,102 +3856,122 @@ void NanoMenu::initXmbSystems() {
             }
         }
 
+        // If cache had ROMs, mark as scanned so we don't clear them
+        // during early boot. Background rescan will update after boot_completed.
+        if (!sys.roms.empty()) {
+            sys.scanned = true;
+        }
+
         mXmbSystems.push_back(std::move(sys));
     }
     ALOGD("NanoMenu: initialized %d XMB systems", (int)mXmbSystems.size());
+
+    // If all systems loaded from cache, mark scan as done
+    bool allCached = true;
+    for (const auto& s : mXmbSystems) {
+        if (!s.scanned) { allCached = false; break; }
+    }
+    if (allCached) mXmbRomScanDone = true;
 }
 
 // ---------------------------------------------------------------------------
 // ROM Path Scanning
 // ---------------------------------------------------------------------------
 
+// Helper: find a case-insensitive match for 'target' in directory 'parent'
+static std::string findCaseInsensitive(const std::string& parent, const std::string& target) {
+    DIR* d = opendir(parent.c_str());
+    if (!d) return "";
+    struct dirent* e;
+    while ((e = readdir(d)) != nullptr) {
+        if (strcasecmp(e->d_name, target.c_str()) == 0) {
+            std::string result = parent + "/" + e->d_name;
+            closedir(d);
+            return result;
+        }
+    }
+    closedir(d);
+    return "";
+}
+
 void NanoMenu::scanRomPaths() {
     ALOGD("NanoMenu: scanning ROM paths");
     for (auto& sys : mXmbSystems) {
         if (sys.scanned) continue;
 
-        // Build candidate paths in priority order:
-        // 1. Raw filesystem (bypasses FUSE, works earliest after CE unlock)
-        // 2. FUSE-mounted internal storage (available after vold)
-        // 3. External SD card volumes (enumerated from /storage/)
-        // 4. Prop-overridden custom path
         const std::string romDir = sys.romDir;
+
+        // Build candidate paths — these are directories to scan for ROMs.
+        // We scan ALL accessible paths (not just the best one) and merge results.
         std::vector<std::string> scanPaths;
+
+        // 1. Internal storage (raw + FUSE)
         scanPaths.push_back("/data/media/0/ROMs/" + romDir);
         scanPaths.push_back("/sdcard/ROMs/" + romDir);
         scanPaths.push_back("/storage/emulated/0/ROMs/" + romDir);
 
-        // Enumerate external storage volumes (/storage/XXXX-XXXX/ROMs/)
+        // 2. External volumes — case-insensitive matching for ROMs dir and system dir
+        auto addExternalVolume = [&](const std::string& base) {
+            // Try exact paths first (fast)
+            scanPaths.push_back(base + "/ROMs/" + romDir);
+            scanPaths.push_back(base + "/roms/" + romDir);
+            scanPaths.push_back(base + "/" + romDir);
+            // Case-insensitive: find ROMs-like folder, then system folder within
+            std::string romsDir = findCaseInsensitive(base, "ROMs");
+            if (!romsDir.empty()) {
+                std::string sysDir = findCaseInsensitive(romsDir, romDir);
+                if (!sysDir.empty()) scanPaths.push_back(sysDir);
+            }
+            // Also try system dir directly at volume root (case-insensitive)
+            std::string directDir = findCaseInsensitive(base, romDir);
+            if (!directDir.empty()) scanPaths.push_back(directDir);
+        };
+
         {
             DIR* storageDir = opendir("/storage");
             if (storageDir) {
                 struct dirent* sEntry;
                 while ((sEntry = readdir(storageDir)) != nullptr) {
                     if (sEntry->d_name[0] == '.') continue;
-                    // Skip "emulated" and "self" — those are internal
                     if (!strcmp(sEntry->d_name, "emulated")) continue;
                     if (!strcmp(sEntry->d_name, "self")) continue;
-                    std::string extPath = "/storage/";
-                    extPath += sEntry->d_name;
-                    extPath += "/ROMs/" + romDir;
-                    scanPaths.push_back(extPath);
+                    std::string base = std::string("/storage/") + sEntry->d_name;
+                    addExternalVolume(base);
                 }
                 closedir(storageDir);
             }
-            // Also try /mnt/media_rw/ for raw external SD access
             DIR* mntDir = opendir("/mnt/media_rw");
             if (mntDir) {
                 struct dirent* mEntry;
                 while ((mEntry = readdir(mntDir)) != nullptr) {
                     if (mEntry->d_name[0] == '.') continue;
-                    std::string extPath = "/mnt/media_rw/";
-                    extPath += mEntry->d_name;
-                    extPath += "/ROMs/" + romDir;
-                    scanPaths.push_back(extPath);
+                    std::string base = std::string("/mnt/media_rw/") + mEntry->d_name;
+                    addExternalVolume(base);
                 }
                 closedir(mntDir);
             }
         }
 
-        // Check for prop-overridden custom path
+        // 3. Prop-overridden custom path
         char customPath[PROPERTY_VALUE_MAX] = {};
         char propKey[128];
         snprintf(propKey, sizeof(propKey), "persist.gammaos.nano.xmb.%s.path", romDir.c_str());
         property_get(propKey, customPath, "");
-
-        DIR* dir = nullptr;
-        std::string activePath;
-
-        // If custom path is set, try it first
         if (customPath[0]) {
-            dir = opendir(customPath);
-            if (dir) activePath = customPath;
+            // Custom path gets highest priority — insert at front
+            scanPaths.insert(scanPaths.begin(), std::string(customPath));
         }
 
-        // Try all candidate paths
-        if (!dir) {
-            for (const auto& path : scanPaths) {
-                dir = opendir(path.c_str());
-                if (dir) {
-                    activePath = path;
-                    break;
-                }
+        // Deduplicate candidate paths (realpath-based would be ideal but too slow;
+        // just skip exact string duplicates)
+        {
+            std::set<std::string> seen;
+            std::vector<std::string> unique;
+            for (auto& p : scanPaths) {
+                if (seen.insert(p).second) unique.push_back(std::move(p));
             }
+            scanPaths = std::move(unique);
         }
-
-        if (!dir) {
-            // Not ready yet — leave scanned=false so we retry next check
-            sys.pathExists = false;
-            ALOGD("NanoMenu: %s: no accessible path found (will retry)", sys.name.c_str());
-            continue;
-        }
-        sys.scanned = true;
-        sys.pathExists = true;
-        sys.activePath = activePath;
-
-        // Clear any cached data — fresh scan replaces it
-        sys.roms.clear();
-        sys.displayNames.clear();
 
         // Build extension set from comma-separated list
         std::set<std::string> exts;
@@ -3942,84 +3982,136 @@ void NanoMenu::scanRomPaths() {
                 size_t comma = extStr.find(',', pos);
                 if (comma == std::string::npos) comma = extStr.size();
                 std::string ext = extStr.substr(pos, comma - pos);
-                // Trim whitespace
                 while (!ext.empty() && ext[0] == ' ') ext.erase(0, 1);
                 if (!ext.empty()) exts.insert(ext);
                 pos = comma + 1;
             }
         }
-
-        // Always accept .zip and .7z (RetroArch can extract these)
         exts.insert(".zip");
         exts.insert(".7z");
 
-        struct dirent* entry;
-        while ((entry = readdir(dir)) != nullptr) {
-            if (entry->d_name[0] == '.') continue; // skip hidden
-            if (entry->d_type == DT_DIR) continue;  // skip directories
+        // Clear any cached data — fresh scan replaces it
+        sys.roms.clear();
+        sys.displayNames.clear();
+        sys.activePaths.clear();
 
-            std::string name(entry->d_name);
-            size_t dot = name.rfind('.');
-            if (dot == std::string::npos) continue;
+        // Track filenames already seen (case-insensitive) for deduplication
+        std::set<std::string> seenFilenames;
+        // Per-path ROM count for determining activePath (largest collection)
+        std::string bestPath;
+        int bestCount = 0;
+        bool anyPath = false;
 
-            // Skip known non-ROM files
-            std::string ext = name.substr(dot);
-            for (size_t i = 0; i < ext.size(); i++) {
-                if (ext[i] >= 'A' && ext[i] <= 'Z') ext[i] += 32;
+        // Scan ALL candidate paths and merge results
+        for (const auto& candidatePath : scanPaths) {
+            DIR* dir = opendir(candidatePath.c_str());
+            if (!dir) continue;
+
+            int pathRomCount = 0;
+            struct dirent* entry;
+            while ((entry = readdir(dir)) != nullptr) {
+                if (entry->d_name[0] == '.') continue;
+                if (entry->d_type == DT_DIR) continue;
+
+                std::string name(entry->d_name);
+                size_t dot = name.rfind('.');
+                if (dot == std::string::npos) continue;
+
+                // Skip known non-ROM files
+                std::string ext = name.substr(dot);
+                for (size_t i = 0; i < ext.size(); i++) {
+                    if (ext[i] >= 'A' && ext[i] <= 'Z') ext[i] += 32;
+                }
+                if (ext == ".txt" || ext == ".jpg" || ext == ".png" || ext == ".xml"
+                    || ext == ".srm" || ext == ".sav" || ext == ".state" || ext == ".rtc"
+                    || ext == ".dat" || ext == ".bak" || ext == ".cfg" || ext == ".log") {
+                    continue;
+                }
+
+                if (!exts.count(ext)) continue;
+
+                // Deduplicate by filename (case-insensitive) — first found wins
+                std::string nameLower = name;
+                for (size_t i = 0; i < nameLower.size(); i++) {
+                    if (nameLower[i] >= 'A' && nameLower[i] <= 'Z') nameLower[i] += 32;
+                }
+                if (!seenFilenames.insert(nameLower).second) continue;
+
+                // Skip 0-byte files (dummy/placeholder files)
+                std::string fullPath = candidatePath + "/" + name;
+                {
+                    struct stat st;
+                    if (stat(fullPath.c_str(), &st) == 0 && st.st_size == 0) continue;
+                }
+
+                sys.roms.push_back(fullPath);
+                pathRomCount++;
             }
-            if (ext == ".txt" || ext == ".jpg" || ext == ".png" || ext == ".xml"
-                || ext == ".srm" || ext == ".sav" || ext == ".state" || ext == ".rtc"
-                || ext == ".dat" || ext == ".bak" || ext == ".cfg" || ext == ".log") {
-                continue;
+            closedir(dir);
+
+            if (pathRomCount > 0) {
+                sys.activePaths.push_back(candidatePath);
+                anyPath = true;
+                if (pathRomCount > bestCount) {
+                    bestCount = pathRomCount;
+                    bestPath = candidatePath;
+                }
             }
-
-            if (!exts.count(ext)) continue;
-
-            // Skip 0-byte files (dummy/placeholder files)
-            {
-                std::string fullPath = activePath + "/" + name;
-                struct stat st;
-                if (stat(fullPath.c_str(), &st) == 0 && st.st_size == 0) continue;
-            }
-
-            sys.roms.push_back(name);
         }
-        closedir(dir);
 
-        // Sort alphabetically (case-insensitive)
+        if (!anyPath) {
+            sys.pathExists = false;
+            ALOGD("NanoMenu: %s: no accessible path found (will retry)", sys.name.c_str());
+            continue;
+        }
+
+        sys.scanned = true;
+        sys.pathExists = true;
+        sys.activePath = bestPath;
+        sys.lastScanTime = elapsedRealtime();
+
+        // Sort by display name (case-insensitive) — extract filename, strip extension
         std::sort(sys.roms.begin(), sys.roms.end(),
                   [](const std::string& a, const std::string& b) {
-                      for (size_t i = 0; i < a.size() && i < b.size(); i++) {
-                          char ca = a[i], cb = b[i];
+                      // Extract filename from full path
+                      size_t sa = a.rfind('/');
+                      size_t sb = b.rfind('/');
+                      const char* na = (sa != std::string::npos) ? a.c_str() + sa + 1 : a.c_str();
+                      const char* nb = (sb != std::string::npos) ? b.c_str() + sb + 1 : b.c_str();
+                      // Case-insensitive compare
+                      for (size_t i = 0; na[i] && nb[i]; i++) {
+                          char ca = na[i], cb = nb[i];
                           if (ca >= 'A' && ca <= 'Z') ca += 32;
                           if (cb >= 'A' && cb <= 'Z') cb += 32;
                           if (ca != cb) return ca < cb;
                       }
-                      return a.size() < b.size();
+                      // Shorter name first if prefixes match
+                      size_t la = strlen(na), lb = strlen(nb);
+                      return la < lb;
                   });
 
-        // Pre-compute display names (strip extension)
+        // Pre-compute display names (strip path + extension)
         sys.displayNames.reserve(sys.roms.size());
         for (const auto& rom : sys.roms) {
             std::string dn = rom;
+            size_t sl = dn.rfind('/');
+            if (sl != std::string::npos) dn = dn.substr(sl + 1);
             size_t d = dn.rfind('.');
             if (d != std::string::npos) dn = dn.substr(0, d);
             sys.displayNames.push_back(std::move(dn));
         }
 
-        ALOGD("NanoMenu: %s: %zu ROMs in %s", sys.name.c_str(),
-              sys.roms.size(), activePath.c_str());
+        ALOGD("NanoMenu: %s: %zu ROMs across %zu paths (primary: %s)",
+              sys.name.c_str(), sys.roms.size(), sys.activePaths.size(),
+              bestPath.c_str());
 
-        // Save cache to DE storage (accessible before CE unlock)
+        // Save cache to DE storage — each line is a full ROM path
         {
             std::string cacheDir = "/data/system/nano_xmb_cache";
             mkdir(cacheDir.c_str(), 0755);
             std::string cachePath = cacheDir + "/" + sys.romDir + ".list";
             int cfd = open(cachePath.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
             if (cfd >= 0) {
-                // First line: active path
-                std::string header = activePath + "\n";
-                write(cfd, header.c_str(), header.size());
                 for (const auto& rom : sys.roms) {
                     std::string line = rom + "\n";
                     write(cfd, line.c_str(), line.size());
@@ -4034,6 +4126,416 @@ void NanoMenu::scanRomPaths() {
         if (!s.scanned) { allScanned = false; break; }
     }
     mXmbRomScanDone = allScanned;
+}
+
+// Scan a single system's ROM paths into temp buffers. Only updates
+// the system's rom/displayNames/activePath if the result differs from
+// the current data. Returns true if the system was updated.
+bool NanoMenu::scanOneSystemAsync(int sysIdx) {
+    if (sysIdx < 0 || sysIdx >= (int)mXmbSystems.size()) return false;
+    auto& sys = mXmbSystems[sysIdx];
+    const std::string romDir = sys.romDir;
+
+    // Build candidate paths (same logic as scanRomPaths)
+    std::vector<std::string> scanPaths;
+    scanPaths.push_back("/data/media/0/ROMs/" + romDir);
+    scanPaths.push_back("/sdcard/ROMs/" + romDir);
+    scanPaths.push_back("/storage/emulated/0/ROMs/" + romDir);
+
+    auto addExternalVolume = [&](const std::string& base) {
+        scanPaths.push_back(base + "/ROMs/" + romDir);
+        scanPaths.push_back(base + "/roms/" + romDir);
+        scanPaths.push_back(base + "/" + romDir);
+        std::string romsDir = findCaseInsensitive(base, "ROMs");
+        if (!romsDir.empty()) {
+            std::string sysDir = findCaseInsensitive(romsDir, romDir);
+            if (!sysDir.empty()) scanPaths.push_back(sysDir);
+        }
+        std::string directDir = findCaseInsensitive(base, romDir);
+        if (!directDir.empty()) scanPaths.push_back(directDir);
+    };
+
+    {
+        DIR* storageDir = opendir("/storage");
+        if (storageDir) {
+            struct dirent* sEntry;
+            while ((sEntry = readdir(storageDir)) != nullptr) {
+                if (sEntry->d_name[0] == '.') continue;
+                if (!strcmp(sEntry->d_name, "emulated")) continue;
+                if (!strcmp(sEntry->d_name, "self")) continue;
+                addExternalVolume(std::string("/storage/") + sEntry->d_name);
+            }
+            closedir(storageDir);
+        }
+        DIR* mntDir = opendir("/mnt/media_rw");
+        if (mntDir) {
+            struct dirent* mEntry;
+            while ((mEntry = readdir(mntDir)) != nullptr) {
+                if (mEntry->d_name[0] == '.') continue;
+                addExternalVolume(std::string("/mnt/media_rw/") + mEntry->d_name);
+            }
+            closedir(mntDir);
+        }
+    }
+
+    char customPath[PROPERTY_VALUE_MAX] = {};
+    char propKey[128];
+    snprintf(propKey, sizeof(propKey), "persist.gammaos.nano.xmb.%s.path", romDir.c_str());
+    property_get(propKey, customPath, "");
+    if (customPath[0]) scanPaths.insert(scanPaths.begin(), std::string(customPath));
+
+    // Deduplicate paths
+    {
+        std::set<std::string> seen;
+        std::vector<std::string> unique;
+        for (auto& p : scanPaths) {
+            if (seen.insert(p).second) unique.push_back(std::move(p));
+        }
+        scanPaths = std::move(unique);
+    }
+
+    // Build extension set
+    std::set<std::string> exts;
+    {
+        const std::string& extStr = sys.acceptExts;
+        size_t pos = 0;
+        while (pos < extStr.size()) {
+            size_t comma = extStr.find(',', pos);
+            if (comma == std::string::npos) comma = extStr.size();
+            std::string ext = extStr.substr(pos, comma - pos);
+            while (!ext.empty() && ext[0] == ' ') ext.erase(0, 1);
+            if (!ext.empty()) exts.insert(ext);
+            pos = comma + 1;
+        }
+    }
+    exts.insert(".zip");
+    exts.insert(".7z");
+
+    // Scan into TEMP buffers (don't touch sys.roms yet)
+    std::vector<std::string> newRoms;
+    std::vector<std::string> newActivePaths;
+    std::set<std::string> seenFilenames;
+    std::string newBestPath;
+    int bestCount = 0;
+
+    for (const auto& candidatePath : scanPaths) {
+        DIR* dir = opendir(candidatePath.c_str());
+        if (!dir) continue;
+
+        int pathRomCount = 0;
+        struct dirent* entry;
+        while ((entry = readdir(dir)) != nullptr) {
+            if (entry->d_name[0] == '.') continue;
+            if (entry->d_type == DT_DIR) continue;
+
+            std::string name(entry->d_name);
+            size_t dot = name.rfind('.');
+            if (dot == std::string::npos) continue;
+
+            std::string ext = name.substr(dot);
+            for (size_t i = 0; i < ext.size(); i++) {
+                if (ext[i] >= 'A' && ext[i] <= 'Z') ext[i] += 32;
+            }
+            if (ext == ".txt" || ext == ".jpg" || ext == ".png" || ext == ".xml"
+                || ext == ".srm" || ext == ".sav" || ext == ".state" || ext == ".rtc"
+                || ext == ".dat" || ext == ".bak" || ext == ".cfg" || ext == ".log") {
+                continue;
+            }
+            if (!exts.count(ext)) continue;
+
+            std::string nameLower = name;
+            for (size_t i = 0; i < nameLower.size(); i++) {
+                if (nameLower[i] >= 'A' && nameLower[i] <= 'Z') nameLower[i] += 32;
+            }
+            if (!seenFilenames.insert(nameLower).second) continue;
+
+            std::string fullPath = candidatePath + "/" + name;
+            {
+                struct stat st;
+                if (stat(fullPath.c_str(), &st) == 0 && st.st_size == 0) continue;
+            }
+
+            newRoms.push_back(fullPath);
+            pathRomCount++;
+        }
+        closedir(dir);
+
+        if (pathRomCount > 0) {
+            newActivePaths.push_back(candidatePath);
+            if (pathRomCount > bestCount) {
+                bestCount = pathRomCount;
+                newBestPath = candidatePath;
+            }
+        }
+    }
+
+    // Sort by display name
+    std::sort(newRoms.begin(), newRoms.end(),
+              [](const std::string& a, const std::string& b) {
+                  size_t sa = a.rfind('/');
+                  size_t sb = b.rfind('/');
+                  const char* na = (sa != std::string::npos) ? a.c_str() + sa + 1 : a.c_str();
+                  const char* nb = (sb != std::string::npos) ? b.c_str() + sb + 1 : b.c_str();
+                  for (size_t i = 0; na[i] && nb[i]; i++) {
+                      char ca = na[i], cb = nb[i];
+                      if (ca >= 'A' && ca <= 'Z') ca += 32;
+                      if (cb >= 'A' && cb <= 'Z') cb += 32;
+                      if (ca != cb) return ca < cb;
+                  }
+                  return strlen(na) < strlen(nb);
+              });
+
+    ALOGD("NanoMenu: %s: scan found %zu ROMs across %zu paths (current: %zu ROMs)",
+          sys.name.c_str(), newRoms.size(), newActivePaths.size(), sys.roms.size());
+
+    // Check if result differs from current data
+    bool changed = (newRoms != sys.roms);
+
+    // Guard against downgrading cached data when storage is partially
+    // mounted (e.g., SD card not yet available after reboot). Only
+    // replace with fewer ROMs if the new scan found at least as many
+    // source directories. Otherwise storage likely isn't fully mounted.
+    if (changed && !newRoms.empty() && newRoms.size() < sys.roms.size()
+        && sys.scanned) {
+        // Check if new scan covered as many directories as before.
+        // activePaths may be empty (cache-loaded), so fall back to
+        // comparing new path count against unique dirs in current ROMs.
+        size_t curPathCount = sys.activePaths.size();
+        if (curPathCount == 0 && !sys.roms.empty()) {
+            // Estimate from current ROM paths
+            std::set<std::string> dirs;
+            for (const auto& r : sys.roms) {
+                size_t sl = r.rfind('/');
+                if (sl != std::string::npos) dirs.insert(r.substr(0, sl));
+            }
+            curPathCount = dirs.size();
+        }
+        if (newActivePaths.size() < curPathCount) {
+            // Fewer paths scanned — storage not fully mounted yet.
+            sys.lastScanTime = elapsedRealtime();
+            return false;
+        }
+    }
+
+    if (changed || !sys.scanned) {
+        // Swap in new data atomically (fast — just pointer swaps)
+        sys.roms = std::move(newRoms);
+        sys.activePaths = std::move(newActivePaths);
+        sys.activePath = newBestPath;
+        sys.pathExists = !sys.roms.empty();
+
+        // Rebuild display names
+        sys.displayNames.clear();
+        sys.displayNames.reserve(sys.roms.size());
+        for (const auto& rom : sys.roms) {
+            std::string dn = rom;
+            size_t sl = dn.rfind('/');
+            if (sl != std::string::npos) dn = dn.substr(sl + 1);
+            size_t d = dn.rfind('.');
+            if (d != std::string::npos) dn = dn.substr(0, d);
+            sys.displayNames.push_back(std::move(dn));
+        }
+
+        // Update cache file
+        std::string cacheDir = "/data/system/nano_xmb_cache";
+        mkdir(cacheDir.c_str(), 0755);
+        std::string cachePath = cacheDir + "/" + sys.romDir + ".list";
+        int cfd = open(cachePath.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
+        if (cfd >= 0) {
+            for (const auto& rom : sys.roms) {
+                std::string line = rom + "\n";
+                write(cfd, line.c_str(), line.size());
+            }
+            close(cfd);
+        }
+
+        if (changed) {
+            ALOGD("NanoMenu: %s: %zu ROMs across %zu paths (primary: %s)",
+                  sys.name.c_str(), sys.roms.size(), sys.activePaths.size(),
+                  sys.activePath.c_str());
+            mDisplayDirty = true;
+        }
+    }
+
+    sys.scanned = true;
+    sys.lastScanTime = elapsedRealtime();
+    return changed;
+}
+
+void NanoMenu::forceRescanAllSystems() {
+    // Launch a background thread to scan all systems. The thread builds
+    // results in mBgScanResults; the render loop swaps them in when ready.
+    if (mBgScanThreadRunning) return; // already scanning
+    mBgScanThreadRunning = true;
+    ALOGI("NanoMenu: launching background scan thread");
+    std::thread(&NanoMenu::bgScanThreadFunc, this).detach();
+}
+
+// Background thread: scans all systems and stores results for the render
+// thread to pick up. Never touches sys.roms/displayNames directly — only
+// writes to mBgScanResults behind a mutex.
+void NanoMenu::bgScanThreadFunc() {
+    int numSys = (int)mXmbSystems.size();
+    std::vector<BgScanResult> results(numSys);
+
+    for (int si = 0; si < numSys; si++) {
+        const auto& sys = mXmbSystems[si];
+        const std::string romDir = sys.romDir;
+        auto& res = results[si];
+        res.valid = false;
+
+        // Build candidate paths (same logic as scanOneSystemAsync)
+        std::vector<std::string> scanPaths;
+        scanPaths.push_back("/data/media/0/ROMs/" + romDir);
+        scanPaths.push_back("/sdcard/ROMs/" + romDir);
+        scanPaths.push_back("/storage/emulated/0/ROMs/" + romDir);
+
+        auto addVol = [&](const std::string& base) {
+            scanPaths.push_back(base + "/ROMs/" + romDir);
+            scanPaths.push_back(base + "/roms/" + romDir);
+            scanPaths.push_back(base + "/" + romDir);
+            std::string romsDir = findCaseInsensitive(base, "ROMs");
+            if (!romsDir.empty()) {
+                std::string sd = findCaseInsensitive(romsDir, romDir);
+                if (!sd.empty()) scanPaths.push_back(sd);
+            }
+            std::string dd = findCaseInsensitive(base, romDir);
+            if (!dd.empty()) scanPaths.push_back(dd);
+        };
+
+        {
+            DIR* d = opendir("/storage");
+            if (d) {
+                struct dirent* e;
+                while ((e = readdir(d)) != nullptr) {
+                    if (e->d_name[0] == '.') continue;
+                    if (!strcmp(e->d_name, "emulated")) continue;
+                    if (!strcmp(e->d_name, "self")) continue;
+                    addVol(std::string("/storage/") + e->d_name);
+                }
+                closedir(d);
+            }
+            d = opendir("/mnt/media_rw");
+            if (d) {
+                struct dirent* e;
+                while ((e = readdir(d)) != nullptr) {
+                    if (e->d_name[0] == '.') continue;
+                    addVol(std::string("/mnt/media_rw/") + e->d_name);
+                }
+                closedir(d);
+            }
+        }
+
+        char customPath[PROPERTY_VALUE_MAX] = {};
+        char propKey[128];
+        snprintf(propKey, sizeof(propKey), "persist.gammaos.nano.xmb.%s.path",
+                 romDir.c_str());
+        property_get(propKey, customPath, "");
+        if (customPath[0])
+            scanPaths.insert(scanPaths.begin(), std::string(customPath));
+
+        // Deduplicate
+        { std::set<std::string> seen;
+          std::vector<std::string> uniq;
+          for (auto& p : scanPaths)
+              if (seen.insert(p).second) uniq.push_back(std::move(p));
+          scanPaths = std::move(uniq);
+        }
+
+        // Build extension set
+        std::set<std::string> exts;
+        { const std::string& es = sys.acceptExts;
+          size_t pos = 0;
+          while (pos < es.size()) {
+              size_t c = es.find(',', pos);
+              if (c == std::string::npos) c = es.size();
+              std::string ext = es.substr(pos, c - pos);
+              while (!ext.empty() && ext[0] == ' ') ext.erase(0, 1);
+              if (!ext.empty()) exts.insert(ext);
+              pos = c + 1;
+          }
+        }
+        exts.insert(".zip");
+        exts.insert(".7z");
+
+        // Scan all paths, merge
+        std::set<std::string> seenNames;
+        std::string bestPath;
+        int bestCount = 0;
+
+        for (const auto& cp : scanPaths) {
+            DIR* dir = opendir(cp.c_str());
+            if (!dir) continue;
+            int cnt = 0;
+            struct dirent* entry;
+            while ((entry = readdir(dir)) != nullptr) {
+                if (entry->d_name[0] == '.') continue;
+                if (entry->d_type == DT_DIR) continue;
+                std::string name(entry->d_name);
+                size_t dot = name.rfind('.');
+                if (dot == std::string::npos) continue;
+                std::string ext = name.substr(dot);
+                for (size_t i = 0; i < ext.size(); i++)
+                    if (ext[i] >= 'A' && ext[i] <= 'Z') ext[i] += 32;
+                if (ext == ".txt" || ext == ".jpg" || ext == ".png" || ext == ".xml"
+                    || ext == ".srm" || ext == ".sav" || ext == ".state" || ext == ".rtc"
+                    || ext == ".dat" || ext == ".bak" || ext == ".cfg" || ext == ".log")
+                    continue;
+                if (!exts.count(ext)) continue;
+                std::string nl = name;
+                for (size_t i = 0; i < nl.size(); i++)
+                    if (nl[i] >= 'A' && nl[i] <= 'Z') nl[i] += 32;
+                if (!seenNames.insert(nl).second) continue;
+                std::string fp = cp + "/" + name;
+                struct stat st;
+                if (stat(fp.c_str(), &st) == 0 && st.st_size == 0) continue;
+                res.roms.push_back(fp);
+                cnt++;
+            }
+            closedir(dir);
+            if (cnt > 0) {
+                res.activePaths.push_back(cp);
+                res.valid = true;
+                if (cnt > bestCount) { bestCount = cnt; bestPath = cp; }
+            }
+        }
+        res.activePath = bestPath;
+
+        // Sort by display name
+        std::sort(res.roms.begin(), res.roms.end(),
+                  [](const std::string& a, const std::string& b) {
+                      size_t sa = a.rfind('/'), sb = b.rfind('/');
+                      const char* na = sa != std::string::npos ? a.c_str()+sa+1 : a.c_str();
+                      const char* nb = sb != std::string::npos ? b.c_str()+sb+1 : b.c_str();
+                      for (size_t i = 0; na[i] && nb[i]; i++) {
+                          char ca = na[i], cb = nb[i];
+                          if (ca >= 'A' && ca <= 'Z') ca += 32;
+                          if (cb >= 'A' && cb <= 'Z') cb += 32;
+                          if (ca != cb) return ca < cb;
+                      }
+                      return strlen(na) < strlen(nb);
+                  });
+
+        // Build display names
+        res.displayNames.reserve(res.roms.size());
+        for (const auto& rom : res.roms) {
+            std::string dn = rom;
+            size_t sl = dn.rfind('/');
+            if (sl != std::string::npos) dn = dn.substr(sl + 1);
+            size_t d = dn.rfind('.');
+            if (d != std::string::npos) dn = dn.substr(0, d);
+            res.displayNames.push_back(std::move(dn));
+        }
+    }
+
+    // Publish results for the render thread
+    {
+        std::lock_guard<std::mutex> lock(mBgScanMutex);
+        mBgScanResults = std::move(results);
+        mBgScanResultReady = true;
+    }
+    mBgScanThreadRunning = false;
+    ALOGI("NanoMenu: background scan thread complete");
 }
 
 // ---------------------------------------------------------------------------
@@ -4104,14 +4606,14 @@ void NanoMenu::addXmbRecent(int sysIdx, int gameIdx) {
     if (gameIdx < 0 || gameIdx >= (int)sys.roms.size()) return;
 
     XmbRecentEntry e;
-    // Build the launch path the same way launchXmbGame does
-    if (!sys.activePath.empty()) {
-        e.romPath = sys.activePath + "/" + sys.roms[gameIdx];
-        if (e.romPath.find("/data/media/0/") == 0) {
-            e.romPath = "/sdcard/" + e.romPath.substr(14);
-        }
-    } else {
-        e.romPath = "/sdcard/ROMs/" + sys.romDir + "/" + sys.roms[gameIdx];
+    // roms[] contains full paths — use directly, convert for app access
+    e.romPath = sys.roms[gameIdx];
+    if (e.romPath.find("/data/media/0/") == 0) {
+        e.romPath = "/sdcard/" + e.romPath.substr(14);
+    }
+    if (e.romPath.find("/mnt/media_rw/") == 0) {
+        // Convert raw SD path to FUSE path for app access
+        e.romPath = "/storage/" + e.romPath.substr(14);
     }
     e.coreSo = sys.coreSo;
     e.launchPkg = sys.launchPkg;
@@ -4205,10 +4707,36 @@ void NanoMenu::launchXmbGame() {
                 else if (c == '(') encodedFilename += "%28";
                 else if (c == ')') encodedFilename += "%29";
                 else if (c == '&') encodedFilename += "%26";
+                else if (c == '+') encodedFilename += "%2B";
+                else if (c == '!') encodedFilename += "%21";
+                else if (c == '\'') encodedFilename += "%27";
                 else encodedFilename += c;
             }
-            std::string contentUri = "content://com.android.externalstorage.documents/tree/primary%3AROMs%2F"
-                + re.romDir + "/document/primary%3AROMs%2F" + re.romDir + "%2F" + encodedFilename;
+            // Determine volume ID from romPath (same logic as launchXmbGame)
+            std::string volumeId = "primary";
+            std::string relDir = "ROMs%2F" + re.romDir;
+            if (re.romPath.find("/storage/") == 0) {
+                std::string work = re.romPath.substr(9);
+                size_t sl1 = work.find('/');
+                if (sl1 != std::string::npos) {
+                    std::string uuid = work.substr(0, sl1);
+                    if (uuid != "emulated") {
+                        size_t lastSl = work.rfind('/');
+                        std::string subdir = work.substr(sl1 + 1, lastSl - sl1 - 1);
+                        std::string encodedDir;
+                        for (char c : subdir) {
+                            if (c == '/') encodedDir += "%2F";
+                            else if (c == ' ') encodedDir += "%20";
+                            else encodedDir += c;
+                        }
+                        volumeId = uuid;
+                        relDir = encodedDir;
+                    }
+                }
+            }
+            std::string treeRoot = volumeId + "%3A" + relDir;
+            std::string contentUri = "content://com.android.externalstorage.documents/tree/"
+                + treeRoot + "/document/" + treeRoot + "%2F" + encodedFilename;
             std::string intent = re.launchIntent;
             size_t pos = intent.find("{file.uri}");
             if (pos != std::string::npos) intent.replace(pos, 10, contentUri);
@@ -4274,25 +4802,25 @@ void NanoMenu::launchXmbGame() {
     const auto& sys = mXmbSystems[sysIdx];
     if (gameIdx < 0 || gameIdx >= (int)sys.roms.size()) return;
 
-    // Build launch path — use /sdcard/ROMs/ prefix for FUSE access (RetroArch runs
-    // after FUSE mount). If the ROM was found on an external path, use that directly.
-    std::string romPath;
-    if (!sys.activePath.empty()) {
-        romPath = sys.activePath + "/" + sys.roms[gameIdx];
-        // Convert raw /data/media/0/ paths to /sdcard/ for app access
-        if (romPath.find("/data/media/0/") == 0) {
-            romPath = "/sdcard/" + romPath.substr(14);
-        }
-    } else {
-        romPath = "/sdcard/ROMs/" + sys.romDir + "/" + sys.roms[gameIdx];
+    // roms[] contains full paths — use directly, convert for app access
+    std::string romPath = sys.roms[gameIdx];
+    if (romPath.find("/data/media/0/") == 0) {
+        romPath = "/sdcard/" + romPath.substr(14);
+    }
+    if (romPath.find("/mnt/media_rw/") == 0) {
+        // Convert raw SD path to FUSE path for app access
+        // /mnt/media_rw/UUID/dir/file -> /storage/UUID/dir/file
+        romPath = "/storage/" + romPath.substr(14);
     }
 
     if (sys.isStandalone()) {
-        // Standalone emulator: build content:// URI matching SAF format
-        // that Daijisho/Android uses for document providers.
-        // Format: content://com.android.externalstorage.documents/tree/
-        //         primary%3AROMs%2F{dir}/document/primary%3AROMs%2F{dir}%2F{filename}
-        std::string filename = sys.roms[gameIdx];
+        // Standalone emulator: build content:// URI matching SAF format.
+        // Internal: content://.../tree/primary%3AROMs%2F{dir}/document/primary%3AROMs%2F{dir}%2F{file}
+        // External: content://.../tree/{UUID}%3A{subdir}/document/{UUID}%3A{subdir}%2F{file}
+        std::string fullRomPath = sys.roms[gameIdx];
+        std::string filename;
+        { size_t ls = fullRomPath.rfind('/');
+          filename = (ls != std::string::npos) ? fullRomPath.substr(ls + 1) : fullRomPath; }
         // URL-encode the filename (spaces, parens, ampersands, etc.)
         std::string encodedFilename;
         for (char c : filename) {
@@ -4305,8 +4833,42 @@ void NanoMenu::launchXmbGame() {
             else if (c == '\'') encodedFilename += "%27";
             else encodedFilename += c;
         }
-        std::string contentUri = "content://com.android.externalstorage.documents/tree/primary%3AROMs%2F"
-            + sys.romDir + "/document/primary%3AROMs%2F" + sys.romDir + "%2F" + encodedFilename;
+        // Determine volume ID and relative subdir from the full path
+        // /data/media/0/ROMs/<dir>/file → primary, ROMs/<dir>
+        // /sdcard/ROMs/<dir>/file → primary, ROMs/<dir>
+        // /storage/emulated/0/ROMs/<dir>/file → primary, ROMs/<dir>
+        // /mnt/media_rw/<UUID>/<subdir>/file → <UUID>, <subdir>
+        // /storage/<UUID>/<subdir>/file → <UUID>, <subdir>
+        std::string volumeId = "primary";
+        std::string relDir = "ROMs%2F" + sys.romDir;
+        if (fullRomPath.find("/mnt/media_rw/") == 0 || fullRomPath.find("/storage/") == 0) {
+            // Extract UUID and relative dir from path
+            std::string work = fullRomPath;
+            if (work.find("/mnt/media_rw/") == 0) work = work.substr(14);
+            else if (work.find("/storage/") == 0) work = work.substr(9);
+            // work = "UUID/subdir/file" or "UUID/ROMs/subdir/file" etc.
+            size_t sl1 = work.find('/');
+            if (sl1 != std::string::npos) {
+                std::string uuid = work.substr(0, sl1);
+                if (uuid != "emulated") {
+                    // Extract the dir portion between UUID/ and /filename
+                    size_t lastSl = work.rfind('/');
+                    std::string subdir = work.substr(sl1 + 1, lastSl - sl1 - 1);
+                    // URL-encode the subdir (/ → %2F)
+                    std::string encodedDir;
+                    for (char c : subdir) {
+                        if (c == '/') encodedDir += "%2F";
+                        else if (c == ' ') encodedDir += "%20";
+                        else encodedDir += c;
+                    }
+                    volumeId = uuid;
+                    relDir = encodedDir;
+                }
+            }
+        }
+        std::string treeRoot = volumeId + "%3A" + relDir;
+        std::string contentUri = "content://com.android.externalstorage.documents/tree/"
+            + treeRoot + "/document/" + treeRoot + "%2F" + encodedFilename;
 
         // Build tab-separated intent for RootWindowContainer's parseAmIntent()
         std::string intent = sys.launchIntent;
@@ -4873,7 +5435,10 @@ bool NanoMenu::threadLoop() {
                                 returnSysIdx = si;
                                 // Find game in this system's rom list
                                 for (int gi = 0; gi < (int)mXmbSystems[si].roms.size(); gi++) {
-                                    if (mXmbSystems[si].roms[gi] == romFilename) {
+                                    std::string romBase = mXmbSystems[si].roms[gi];
+                                    { size_t ls = romBase.rfind('/');
+                                      if (ls != std::string::npos) romBase = romBase.substr(ls + 1); }
+                                    if (romBase == romFilename) {
                                         returnGameIdx = gi;
                                         break;
                                     }
@@ -5302,9 +5867,89 @@ bool NanoMenu::threadLoop() {
                     mAppliedLayerStack = cur.layerStack.id;
                 }
             }
-            // Keep retrying ROM scan until all systems found
-            if (mStorageReady && !mXmbRomScanDone) {
-                scanRomPaths();
+            // Background ROM scanning — all I/O runs on a separate thread.
+            // The render thread only does a quick lock-free check + swap.
+            if (mStorageReady) {
+                // Check boot_completed once → trigger initial background scan
+                if (!mXmbBootCompleted) {
+                    char val[PROPERTY_VALUE_MAX] = {};
+                    property_get("sys.boot_completed", val, "0");
+                    if (!strcmp(val, "1")) {
+                        mXmbBootCompleted = true;
+                        forceRescanAllSystems();
+                    }
+                }
+
+                // Pick up results from background scan thread (lock-free check)
+                if (mBgScanResultReady) {
+                    std::lock_guard<std::mutex> lock(mBgScanMutex);
+                    if (mBgScanResultReady) {
+                        for (int i = 0; i < (int)mXmbSystems.size()
+                                 && i < (int)mBgScanResults.size(); i++) {
+                            auto& sys = mXmbSystems[i];
+                            auto& res = mBgScanResults[i];
+                            // Guard: don't replace with fewer ROMs when storage
+                            // is partially mounted. Two checks:
+                            // 1. Path count: if fewer source dirs, storage not ready
+                            // 2. Time: never remove entries within 60s of boot_completed
+                            if (res.roms.size() < sys.roms.size() && sys.scanned) {
+                                // Time guard: always block within 60s of boot
+                                static int64_t sBootCompletedTime = 0;
+                                if (sBootCompletedTime == 0)
+                                    sBootCompletedTime = elapsedRealtime();
+                                if ((elapsedRealtime() - sBootCompletedTime) < 60000)
+                                    continue;
+                                // Path guard: block if fewer paths accessible
+                                size_t curPaths = sys.activePaths.size();
+                                if (curPaths == 0 && !sys.roms.empty()) {
+                                    std::set<std::string> dirs;
+                                    for (const auto& r : sys.roms) {
+                                        size_t sl = r.rfind('/');
+                                        if (sl != std::string::npos)
+                                            dirs.insert(r.substr(0, sl));
+                                    }
+                                    curPaths = dirs.size();
+                                }
+                                if (res.activePaths.size() < curPaths) continue;
+                            }
+                            if (res.roms != sys.roms || !sys.scanned) {
+                                sys.roms = std::move(res.roms);
+                                sys.displayNames = std::move(res.displayNames);
+                                sys.activePaths = std::move(res.activePaths);
+                                sys.activePath = std::move(res.activePath);
+                                sys.pathExists = !sys.roms.empty();
+                                mDisplayDirty = true;
+                                // Update cache file
+                                std::string cacheDir = "/data/system/nano_xmb_cache";
+                                mkdir(cacheDir.c_str(), 0755);
+                                std::string cp = cacheDir + "/" + sys.romDir + ".list";
+                                int cfd = open(cp.c_str(), O_WRONLY|O_CREAT|O_TRUNC, 0644);
+                                if (cfd >= 0) {
+                                    for (const auto& r : sys.roms) {
+                                        std::string l = r + "\n";
+                                        write(cfd, l.c_str(), l.size());
+                                    }
+                                    close(cfd);
+                                }
+                            }
+                            sys.scanned = true;
+                            sys.lastScanTime = elapsedRealtime();
+                        }
+                        mBgScanResultReady = false;
+                        mXmbRomScanDone = true;
+                    }
+                }
+
+                // Periodic rescan every 30s (runs on background thread,
+                // zero impact on render)
+                if (mXmbBootCompleted && !mBgScanThreadRunning
+                    && !mXmbSystems.empty()) {
+                    int64_t now = elapsedRealtime();
+                    if (mXmbSystems[0].lastScanTime > 0 &&
+                        (now - mXmbSystems[0].lastScanTime) > 30000) {
+                        forceRescanAllSystems();
+                    }
+                }
             }
         }
     }

@@ -89,11 +89,13 @@ public:
         std::string launchIntent;  // Intent template ({file.uri} placeholder)
         float iconR, iconG, iconB; // Icon color
         std::string acceptExts;    // Comma-separated accepted extensions
-        std::string activePath;    // The path that was successfully opened for scanning
-        std::vector<std::string> roms;         // Sorted filenames
-        std::vector<std::string> displayNames; // Pre-stripped display names (parallel)
+        std::string activePath;    // Primary path (largest collection) — for backward compat
+        std::vector<std::string> activePaths; // ALL directories with ROMs for this system
+        std::vector<std::string> roms;         // Sorted FULL PATHS (e.g., /storage/UUID/nes/game.nes)
+        std::vector<std::string> displayNames; // Pre-stripped display names (parallel to roms)
         bool scanned;
         bool pathExists;
+        int64_t lastScanTime;     // elapsedRealtime() of last scan — for periodic rescan
         bool isStandalone() const { return !launchPkg.empty(); }
     };
 
@@ -141,6 +143,8 @@ private:
     // XMB mode
     void initXmbSystems();
     void scanRomPaths();
+    void forceRescanAllSystems();
+    bool scanOneSystemAsync(int sysIdx);
     void renderXmb();
     void launchXmbGame();
     void loadXmbRecent();
@@ -313,6 +317,21 @@ private:
     float mXmbAnimY;           // Animated vertical position (lerps to mXmbGameIndex)
     int mXmbGameScrollTop;     // First visible game in list
     bool mXmbRomScanDone;      // ROM paths have been scanned
+    bool mXmbBootCompleted;    // true after sys.boot_completed=1
+
+    // Background scan thread — scans ROM paths off the render thread
+    struct BgScanResult {
+        std::vector<std::string> roms;
+        std::vector<std::string> displayNames;
+        std::vector<std::string> activePaths;
+        std::string activePath;
+        bool valid;              // true if scan found at least one path
+    };
+    std::mutex mBgScanMutex;
+    std::vector<BgScanResult> mBgScanResults; // one per system, guarded by mutex
+    bool mBgScanResultReady;                  // set by thread, cleared by render loop
+    bool mBgScanThreadRunning;                // true while thread is active
+    void bgScanThreadFunc();                  // the thread entry point
 
     // Icon rendering
     void initIconTextures();
