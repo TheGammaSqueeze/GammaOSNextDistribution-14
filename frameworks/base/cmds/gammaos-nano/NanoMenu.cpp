@@ -4837,15 +4837,6 @@ bool NanoMenu::threadLoop() {
             std::string qrCore = android::base::GetProperty(
                     "persist.gammaos.nano.qr_core", "");
             if (!qrRom.empty() && !qrCore.empty()) {
-                // Show "Quick Resuming..." screen for ~1s while checking
-                // for SELECT button hold (bypass)
-                bool bypass = false;
-                float sf = fminf((float)mWidth / 1080.0f,
-                                 (float)mHeight / 720.0f);
-                if (sf < 0.5f) sf = 0.5f;
-                float loadScale = 3.0f * sf;
-                float hintScale = 1.5f * sf;
-
                 // GammaOS: Ensure rotation uniforms are set for the QR screens.
                 // initShaders() set them, but re-upload here to be safe — the
                 // QR path runs before the main render loop.
@@ -4857,55 +4848,7 @@ bool NanoMenu::threadLoop() {
                         glUniformMatrix2fv(locs[i], 1, GL_FALSE, sDrmRotMat);
                     }
                 }
-                for (int frame = 0; frame < 20 && !bypass; frame++) {
-                    // Check current key state via ioctl
-                    for (int fd : mInputFds) {
-                        unsigned char keyState[(KEY_MAX + 7) / 8] = {};
-                        if (ioctl(fd, EVIOCGKEY(sizeof(keyState)),
-                                  keyState) >= 0) {
-                            if (keyState[BTN_SELECT / 8]
-                                    & (1 << (BTN_SELECT % 8))) {
-                                bypass = true;
-                            }
-                        }
-                        // Also drain events for SELECT press
-                        struct input_event ev;
-                        while (read(fd, &ev, sizeof(ev)) == sizeof(ev)) {
-                            if (ev.type == EV_KEY && ev.code == BTN_SELECT
-                                    && ev.value != 0) {
-                                bypass = true;
-                            }
-                        }
-                    }
-                    // Render quick resume screen — route through DRM if active
-                    drmFrameBegin();
-                    if (sDrmGlRotation) {
-                        glViewport(0, 0, sAhbTarget.w, sAhbTarget.h);
-                    } else {
-                        glViewport(0, 0, mWidth, mHeight);
-                    }
-                    glClearColor(0.05f, 0.05f, 0.10f, 1.0f);
-                    glClear(GL_COLOR_BUFFER_BIT);
-                    glEnable(GL_BLEND);
-                    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-                    const char* msg = "Quick Resuming...";
-                    float msgW = measureText(msg, loadScale);
-                    float msgX = (mWidth - msgW) / 2.0f;
-                    float msgY = (mHeight - FONT_CHAR_H * loadScale) / 2.0f;
-                    drawText(msg, msgX, msgY, loadScale,
-                             0.6f, 0.6f, 0.7f, 1.0f);
-                    const char* hint = "Hold SELECT to cancel";
-                    float hintW = measureText(hint, hintScale);
-                    float hintX = (mWidth - hintW) / 2.0f;
-                    float hintY = msgY + FONT_CHAR_H * loadScale + 20.0f * sf;
-                    drawText(hint, hintX, hintY, hintScale,
-                             0.4f, 0.4f, 0.5f, 1.0f);
-                    glDisable(GL_BLEND);
-                    drmFrameEnd(mDisplay, mSurface);
-                    usleep(50000); // 50ms per frame, ~1s total
-                }
 
-                if (!bypass) {
                     ALOGI("Quick Resume: launching ROM=%s CORE=%s",
                           qrRom.c_str(), qrCore.c_str());
 
@@ -4996,6 +4939,7 @@ bool NanoMenu::threadLoop() {
                     }
 
                     bool nativeLaunch = false;
+                    bool qrCancelled = false;
                     if (!romFile.empty() && !coreFile.empty()) {
                         // Find save state and SRAM in the ROM cache dir
                         std::string baseName = romFile;
@@ -5052,13 +4996,18 @@ bool NanoMenu::threadLoop() {
                             if (textScale < 0.5f) textScale = 0.5f;
                             float loadScale = 2.5f * textScale;
 
-                            while (!exitPending()) {
-                                // Poll input — game is live, user can play
+                            while (!exitPending() && !qrCancelled) {
+                                // Poll input — game is live, user can play.
+                                // SELECT cancels QR and returns to NanoMenu.
                                 for (int fd : mInputFds) {
                                     struct input_event ev;
                                     while (read(fd, &ev, sizeof(ev)) == sizeof(ev)) {
                                         if (ev.type == EV_KEY) {
                                             bool pressed = (ev.value != 0);
+                                            if (ev.code == BTN_SELECT && pressed) {
+                                                qrCancelled = true;
+                                                break;
+                                            }
                                             switch (ev.code) {
                                             case BTN_A:      runner.setButton(0, RETRO_DEVICE_ID_JOYPAD_B, pressed); break;
                                             case BTN_B:      runner.setButton(0, RETRO_DEVICE_ID_JOYPAD_A, pressed); break;
@@ -5068,7 +5017,6 @@ bool NanoMenu::threadLoop() {
                                             case BTN_TR:     runner.setButton(0, RETRO_DEVICE_ID_JOYPAD_R, pressed); break;
                                             case BTN_TL2:    runner.setButton(0, RETRO_DEVICE_ID_JOYPAD_L2, pressed); break;
                                             case BTN_TR2:    runner.setButton(0, RETRO_DEVICE_ID_JOYPAD_R2, pressed); break;
-                                            case BTN_SELECT: runner.setButton(0, RETRO_DEVICE_ID_JOYPAD_SELECT, pressed); break;
                                             case BTN_START:  runner.setButton(0, RETRO_DEVICE_ID_JOYPAD_START, pressed); break;
                                             case BTN_THUMBL: runner.setButton(0, RETRO_DEVICE_ID_JOYPAD_L3, pressed); break;
                                             case BTN_THUMBR: runner.setButton(0, RETRO_DEVICE_ID_JOYPAD_R3, pressed); break;
@@ -5099,6 +5047,7 @@ bool NanoMenu::threadLoop() {
                                             }
                                         }
                                     }
+                                    if (qrCancelled) break;
                                 }
 
                                 // Check boot progress. Trigger the color transition as soon as
@@ -5216,14 +5165,23 @@ bool NanoMenu::threadLoop() {
                                     usleep(16666);
                                 }
                             }
+
+                            if (qrCancelled) {
+                                ALOGI("Quick Resume: cancelled by SELECT, "
+                                      "returning to menu");
+                                runner.shutdown();
+                                property_set("persist.gammaos.nano.qr_prepared", "0");
+                                // Don't set mExitRequested — fall through to NanoMenu
+                            }
                         } else {
                             ALOGW("Quick Resume: native libretro init failed, "
                                   "falling back to RetroArch APK");
                         }
                     }
 
-                    // Fallback: normal RetroArch APK launch
-                    if (!nativeLaunch) {
+                    // Fallback: normal RetroArch APK launch (only if native
+                    // didn't launch and user didn't cancel)
+                    if (!nativeLaunch && !qrCancelled) {
                         android::base::SetProperty(
                                 "sys.gammaos.nano.launch_rom", qrRom);
                         android::base::SetProperty(
@@ -5242,10 +5200,6 @@ bool NanoMenu::threadLoop() {
                         property_set("sys.gammaos.nano.drop_input", "1");
                         mExitRequested = true;
                     }
-                } else {
-                    ALOGI("Quick Resume: bypassed by SELECT hold");
-                    property_set("persist.gammaos.nano.qr_prepared", "0");
-                }
             } else {
                 // ROM or core path empty/invalid — stale data
                 property_set("persist.gammaos.nano.qr_prepared", "0");
