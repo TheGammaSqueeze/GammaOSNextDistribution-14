@@ -5288,6 +5288,8 @@ void NanoMenu::renderXmb() {
             float itemIconSz = isSel ? 50.0f * sf : 30.0f * sf;
             float iconX = itemIconBaseX - itemIconSz / 2.0f;
             float iconY = fy - itemIconSz / 2.0f;
+            // Set scissor to include icon + text area (icon is left of text)
+            glScissor((int)iconX, 0, (int)(contentRight - iconX), mHeight);
             drawIcon(16, iconX, iconY, itemIconSz,
                      isSel ? iconR : dimIconR, isSel ? iconG : dimIconG,
                      isSel ? iconB : dimIconB, iAlpha);
@@ -5298,6 +5300,7 @@ void NanoMenu::renderXmb() {
             float tg = isSel ? 1.0f : 0.6f;
             float tb = isSel ? 1.0f : 0.6f;
 
+            // Narrow scissor for text clipping (prevents overflow past content area)
             glScissor((int)tx, 0, (int)(contentRight - tx), mHeight);
             drawText(displayText, tx, ty, tSc, tr, tg, tb, iAlpha);
             if (isSel && sysLabel && *sysLabel) {
@@ -5434,9 +5437,12 @@ bool NanoMenu::threadLoop() {
                     "persist.gammaos.nano.qr_core", "");
             if (!qrRom.empty() && !qrCore.empty()) {
                 // GammaOS: Ensure rotation uniforms are set for the QR screens.
-                // initShaders() set them, but re-upload here to be safe — the
-                // QR path runs before the main render loop.
-                if (sDrmGlRotation) {
+                // The QR path runs before render(), which uploads the matrix
+                // every frame. Without this, the text shader's uRotation is
+                // the GL default zero matrix in HWC mode, collapsing all text
+                // vertices to origin. Always upload — identity in HWC mode,
+                // rotation matrix in DRM mode.
+                {
                     const GLuint progs[] = {mShaderProgram, mTextProgram};
                     const GLint  locs[]  = {mLocRotation, mTextLocRotation};
                     for (int i = 0; i < 2; i++) {

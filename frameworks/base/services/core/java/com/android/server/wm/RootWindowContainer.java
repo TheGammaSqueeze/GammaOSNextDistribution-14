@@ -1734,16 +1734,6 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                     android.os.SystemProperties.set(
                             "sys.gammaos.nano.launch_pending", "0");
                 }
-                // Grace period: don't trigger "app exited" within 2s of the last
-                // launch — the new process may not have registered activities yet,
-                // which makes the process-alive check falsely report it as dead.
-                long now = android.os.SystemClock.uptimeMillis();
-                if (sNanoLastLaunchTime > 0
-                        && now - sNanoLastLaunchTime < 2000) {
-                    Slog.i(TAG, "GammaOS Nano: within launch grace period, "
-                            + "skipping premature cleanup");
-                    return true;
-                }
                 // Check if the nano app process is still alive — don't clean up
                 // a running app (handles secondary display TDA calls)
                 final String nanoAppPkg = android.os.SystemProperties.get(
@@ -1765,6 +1755,19 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                         }
                     });
                 });
+                // Grace period: don't trigger "app exited" within 2s of the last
+                // launch — the new process may not have registered activities yet,
+                // which makes the process-alive check falsely report it as dead.
+                // But skip the grace period if the app is actively exiting (all
+                // activities finishing) — don't get stuck on the last frame.
+                long now = android.os.SystemClock.uptimeMillis();
+                if (sNanoLastLaunchTime > 0
+                        && now - sNanoLastLaunchTime < 2000
+                        && !allFinishing[0]) {
+                    Slog.i(TAG, "GammaOS Nano: within launch grace period, "
+                            + "skipping premature cleanup");
+                    return true;
+                }
                 if (processAlive[0] && !allFinishing[0]) {
                     Slog.i(TAG, "GammaOS Nano: app process still alive, "
                             + "skipping cleanup");
