@@ -297,9 +297,12 @@ private:
     bool mShowVolumeBar;
     int mVolumeBarTimer;
 
+    // Frame timing
+    int64_t mLastFrameNs;  // monotonic clock from previous frame
+    float mFrameDt;        // seconds elapsed since last frame (clamped)
+
     // Effects
     int mCurrentEffect; // 0 = none, 1..21 = effect
-    bool mInShadowPass; // prevents recursive shadow in drawText
     float mEffectTime;
     Particle mParticles[MAX_PARTICLES];
 

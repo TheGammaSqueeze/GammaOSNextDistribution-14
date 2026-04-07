@@ -542,8 +542,9 @@ NanoMenu::NanoMenu()
       mShowBrightnessBar(false), mBrightnessBarTimer(0),
       mVolume(10), mMaxVolume(15),
       mShowVolumeBar(false), mVolumeBarTimer(0),
+      mLastFrameNs(0),
+      mFrameDt(1.0f / 60.0f),
       mCurrentEffect(1),
-      mInShadowPass(false),
       mEffectTime(0.0f),
       mQuickResumeEnabled(false),
       mXmbMode(false), mXmbRecentMax(50), mXmbSystemIndex(0), mXmbGameIndex(0),
@@ -3230,30 +3231,57 @@ float NanoMenu::measureText(const char* str, float scale) {
     return width;
 }
 
+// 5x capacity: 4 shadow passes + 1 main pass batched into one draw
 static const int TEXT_MAX_CHARS = 256;
-static GLfloat sTextVerts[TEXT_MAX_CHARS * 6 * 2];
-static GLfloat sTextUVs[TEXT_MAX_CHARS * 6 * 2];
-static GLfloat sTextColors[TEXT_MAX_CHARS * 6 * 4];
+static const int TEXT_BUF_QUADS = TEXT_MAX_CHARS * 5;
+static GLfloat sTextVerts[TEXT_BUF_QUADS * 6 * 2];
+static GLfloat sTextUVs[TEXT_BUF_QUADS * 6 * 2];
+static GLfloat sTextColors[TEXT_BUF_QUADS * 6 * 4];
+
+// Helper: emit one glyph quad into the batch buffers at position n.
+static inline void emitGlyph(int n, float x0, float y0, float x1, float y1,
+                              float u0, float v0, float u1, float v1,
+                              float cr, float cg, float cb, float ca) {
+    int vi = n * 12;
+    sTextVerts[vi]= x0; sTextVerts[vi+1]= y0;
+    sTextVerts[vi+2]= x1; sTextVerts[vi+3]= y0;
+    sTextVerts[vi+4]= x1; sTextVerts[vi+5]= y1;
+    sTextVerts[vi+6]= x1; sTextVerts[vi+7]= y1;
+    sTextVerts[vi+8]= x0; sTextVerts[vi+9]= y1;
+    sTextVerts[vi+10]= x0; sTextVerts[vi+11]= y0;
+    int ui = n * 12;
+    sTextUVs[ui]= u0; sTextUVs[ui+1]= v1;
+    sTextUVs[ui+2]= u1; sTextUVs[ui+3]= v1;
+    sTextUVs[ui+4]= u1; sTextUVs[ui+5]= v0;
+    sTextUVs[ui+6]= u1; sTextUVs[ui+7]= v0;
+    sTextUVs[ui+8]= u0; sTextUVs[ui+9]= v0;
+    sTextUVs[ui+10]= u0; sTextUVs[ui+11]= v1;
+    int ci = n * 24;
+    for (int v = 0; v < 6; v++) {
+        sTextColors[ci + v*4] = cr;
+        sTextColors[ci + v*4 + 1] = cg;
+        sTextColors[ci + v*4 + 2] = cb;
+        sTextColors[ci + v*4 + 3] = ca;
+    }
+}
 
 void NanoMenu::drawText(const char* str, float px, float py, float scale,
                         float r, float g, float b, float a) {
     if (!str || !*str || mFtNumFaces == 0) return;
-    // Black outline: draw text at 4 cardinal offsets in black, then normal on top
-    if (!mInShadowPass) {
-        float off = fmaxf(1.0f, scale * 0.4f);
-        mInShadowPass = true;
-        drawText(str, px - off, py, scale, 0.0f, 0.0f, 0.0f, a * 0.8f);
-        drawText(str, px + off, py, scale, 0.0f, 0.0f, 0.0f, a * 0.8f);
-        drawText(str, px, py - off, scale, 0.0f, 0.0f, 0.0f, a * 0.8f);
-        drawText(str, px, py + off, scale, 0.0f, 0.0f, 0.0f, a * 0.8f);
-        mInShadowPass = false;
-    }
     float pixelScale = (FONT_CHAR_H * scale) / (float)mFontSize;
     float invW = 2.0f / mWidth, invH = 2.0f / mHeight;
-    // baseline: py is the top of the text area, add ascent to get baseline
-    float baseline = py + mFontSize * pixelScale * 0.8f; // approximate ascent at 80%
-    int n = 0;
-    for (const char* p = str; *p && n < TEXT_MAX_CHARS; ) {
+    float baseline = py + mFontSize * pixelScale * 0.8f;
+    float off = fmaxf(1.0f, scale * 0.4f);
+    // Pixel offset in NDC
+    float offX = off * invW;
+    float offY = off * invH;
+
+    // First pass: parse glyphs and compute base positions
+    struct GlyphPos { float x0, y0, x1, y1, u0, v0, u1, v1; bool color; };
+    GlyphPos glyphs[TEXT_MAX_CHARS];
+    int nGlyphs = 0;
+    float curX = px;
+    for (const char* p = str; *p && nGlyphs < TEXT_MAX_CHARS; ) {
         uint32_t cp;
         uint8_t b0 = (uint8_t)*p;
         if (b0 < 0x80) { cp = b0; p++; }
@@ -3267,50 +3295,53 @@ void NanoMenu::drawText(const char* str, float px, float py, float scale,
         if (it == mGlyphCache.end()) continue;
         const GlyphInfo& gi = it->second;
         if (gi.bmpW == 0 || gi.bmpH == 0) {
-            px += gi.advance * gi.scaleW * pixelScale;
+            curX += gi.advance * gi.scaleW * pixelScale;
             continue;
         }
 
         float gw = gi.bmpW * gi.scaleW * pixelScale;
         float gh = gi.bmpH * gi.scaleH * pixelScale;
-        float gx = px + gi.bearingX * gi.scaleW * pixelScale;
+        float gx = curX + gi.bearingX * gi.scaleW * pixelScale;
         float gy = baseline - gi.bearingY * gi.scaleH * pixelScale;
 
-        float x0 = gx * invW - 1.0f;
-        float y0 = 1.0f - (gy + gh) * invH;
-        float x1 = (gx + gw) * invW - 1.0f;
-        float y1 = 1.0f - gy * invH;
-
-        int vi = n * 12;
-        sTextVerts[vi]= x0; sTextVerts[vi+1]= y0;
-        sTextVerts[vi+2]= x1; sTextVerts[vi+3]= y0;
-        sTextVerts[vi+4]= x1; sTextVerts[vi+5]= y1;
-        sTextVerts[vi+6]= x1; sTextVerts[vi+7]= y1;
-        sTextVerts[vi+8]= x0; sTextVerts[vi+9]= y1;
-        sTextVerts[vi+10]= x0; sTextVerts[vi+11]= y0;
-        int ui = n * 12;
-        sTextUVs[ui]= gi.u0; sTextUVs[ui+1]= gi.v1;
-        sTextUVs[ui+2]= gi.u1; sTextUVs[ui+3]= gi.v1;
-        sTextUVs[ui+4]= gi.u1; sTextUVs[ui+5]= gi.v0;
-        sTextUVs[ui+6]= gi.u1; sTextUVs[ui+7]= gi.v0;
-        sTextUVs[ui+8]= gi.u0; sTextUVs[ui+9]= gi.v0;
-        sTextUVs[ui+10]= gi.u0; sTextUVs[ui+11]= gi.v1;
-        // Per-vertex color: for color emoji use white (pass-through), else use text color
-        float cr = gi.color ? 1.0f : r;
-        float cg = gi.color ? 1.0f : g;
-        float cb = gi.color ? 1.0f : b;
-        float ca = a;
-        int ci = n * 24;
-        for (int v = 0; v < 6; v++) {
-            sTextColors[ci + v*4] = cr;
-            sTextColors[ci + v*4 + 1] = cg;
-            sTextColors[ci + v*4 + 2] = cb;
-            sTextColors[ci + v*4 + 3] = ca;
-        }
-        px += gi.advance * gi.scaleW * pixelScale;
-        n++;
+        GlyphPos& gp = glyphs[nGlyphs];
+        gp.x0 = gx * invW - 1.0f;
+        gp.y0 = 1.0f - (gy + gh) * invH;
+        gp.x1 = (gx + gw) * invW - 1.0f;
+        gp.y1 = 1.0f - gy * invH;
+        gp.u0 = gi.u0; gp.v0 = gi.v0;
+        gp.u1 = gi.u1; gp.v1 = gi.v1;
+        gp.color = gi.color;
+        curX += gi.advance * gi.scaleW * pixelScale;
+        nGlyphs++;
     }
-    if (n == 0) return;
+    if (nGlyphs == 0) return;
+
+    // Batch all 5 passes into one vertex buffer: 4 shadow offsets (black) + 1 main
+    int n = 0;
+    float shadowA = a * 0.8f;
+    // Shadow offsets: left, right, up, down
+    static const float dirs[4][2] = {{-1,0},{1,0},{0,-1},{0,1}};
+    for (int d = 0; d < 4; d++) {
+        float dx = dirs[d][0] * offX;
+        float dy = dirs[d][1] * offY;
+        for (int i = 0; i < nGlyphs && n < TEXT_BUF_QUADS; i++, n++) {
+            const GlyphPos& gp = glyphs[i];
+            emitGlyph(n, gp.x0 + dx, gp.y0 + dy, gp.x1 + dx, gp.y1 + dy,
+                      gp.u0, gp.v0, gp.u1, gp.v1,
+                      0.0f, 0.0f, 0.0f, shadowA);
+        }
+    }
+    // Main pass (on top)
+    for (int i = 0; i < nGlyphs && n < TEXT_BUF_QUADS; i++, n++) {
+        const GlyphPos& gp = glyphs[i];
+        float cr = gp.color ? 1.0f : r;
+        float cg = gp.color ? 1.0f : g;
+        float cb = gp.color ? 1.0f : b;
+        emitGlyph(n, gp.x0, gp.y0, gp.x1, gp.y1,
+                  gp.u0, gp.v0, gp.u1, gp.v1, cr, cg, cb, a);
+    }
+
     glUseProgram(mTextProgram);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, mGlyphAtlasTex);
@@ -3610,8 +3641,7 @@ void NanoMenu::render() {
     // Either way, skip eglSwapBuffers (it blocks when HWC doesn't consume buffers).
     if (sDrmActive) {
         if (sDrmZeroCopy) {
-            glFlush(); // ensure GPU commands issued before page flip
-            drmFlipAll();
+            drmFlipAll(); // includes glFinish + CPU blit + page flip
         } else {
             drmPushFrame(mWidth, mHeight);
         }
@@ -5104,13 +5134,16 @@ void NanoMenu::renderXmb() {
     float sf = fminf((float)mWidth / 1080.0f, (float)mHeight / 720.0f);
     if (sf < 0.5f) sf = 0.5f;
 
-    // Smooth animation (tuned for 60fps, snappy feel)
-    float animSpeed = 0.18f;
-    mXmbAnimX += ((float)mXmbSystemIndex - mXmbAnimX) * animSpeed;
-    if (fabsf(mXmbAnimX - mXmbSystemIndex) < 0.01f) mXmbAnimX = mXmbSystemIndex;
+    // Smooth animation — frame-rate-independent exponential decay.
+    // decay = 1 - e^(-speed * dt); at 60fps with speed=12: ~0.18 per frame (matches old feel).
+    // At 30fps: ~0.33 per frame — animation converges at the same wall-clock rate.
+    float dt = mFrameDt;
+    float decay = 1.0f - expf(-12.0f * dt);
+    mXmbAnimX += ((float)mXmbSystemIndex - mXmbAnimX) * decay;
+    if (fabsf(mXmbAnimX - mXmbSystemIndex) < 0.005f) mXmbAnimX = mXmbSystemIndex;
     float targetY = mSearchActive ? (float)mSearchSelectedIndex : (float)mXmbGameIndex;
-    mXmbAnimY += (targetY - mXmbAnimY) * animSpeed;
-    if (fabsf(mXmbAnimY - targetY) < 0.01f) mXmbAnimY = targetY;
+    mXmbAnimY += (targetY - mXmbAnimY) * decay;
+    if (fabsf(mXmbAnimY - targetY) < 0.005f) mXmbAnimY = targetY;
 
     int numSys = (int)mXmbSystems.size();
     if (numSys == 0) return;
@@ -5216,42 +5249,44 @@ void NanoMenu::renderXmb() {
         float selCatSz = iconSize * catActiveZoom;
         float itemListTop = iconBarY + selCatSz / 2.0f + FONT_CHAR_H * catNameScale + 140.0f * sf;
 
+        // Enable scissor once for the entire item list
+        float clipTop = iconBarY + selCatSz / 2.0f + 10.0f * sf;
+        float animCur = mXmbAnimY;
+        // Pre-compute icon X (same for all items)
+        float itemIconBaseX = selIconX + (iconSize * catActiveZoom) / 2.0f;
+
+        glEnable(GL_SCISSOR_TEST);
         for (int i = startItem; i <= endItem; i++) {
-            // All items flow downward from itemListTop.
-            // Selected item is at itemListTop, items above go up, items below go down.
-            float animCur = mXmbAnimY;
             float relPos = (float)i - animCur;
             float fy = itemListTop + relPos * iconSpacingV;
-            // Clip: don't draw items that overlap the category icon/name area
-            float clipTop = iconBarY + selCatSz / 2.0f + 10.0f * sf;
             if (fy < clipTop - iconSpacingV * 0.3f || fy > mHeight + iconSpacingV) continue;
 
             bool isSel = (fabsf((float)i - animCur) < 0.5f);
             float iAlpha = isSel ? 1.0f : 0.55f;
             float tSc = isSel ? selTextScale : textScale;
 
-            // Get display text
-            std::string displayText;
-            std::string sysLabel;
+            // Get display text — use const refs to avoid std::string copies
+            const char* displayText = "";
+            const char* sysLabel = nullptr;
             if (isRecent && i < (int)mXmbRecent.size()) {
-                displayText = mXmbRecent[i].displayName;
-                sysLabel = mXmbRecent[i].systemName;
+                displayText = mXmbRecent[i].displayName.c_str();
+                sysLabel = mXmbRecent[i].systemName.c_str();
             } else if (mSearchActive && i < (int)mSearchResults.size()) {
                 const auto& res = mSearchResults[i];
                 if (res.sysIdx < numSys) {
-                    displayText = mXmbSystems[res.sysIdx].displayNames[res.gameIdx];
-                    sysLabel = mXmbSystems[res.sysIdx].shortname;
+                    displayText = mXmbSystems[res.sysIdx].displayNames[res.gameIdx].c_str();
+                    sysLabel = mXmbSystems[res.sysIdx].shortname.c_str();
                 }
             } else {
                 int si = mXmbSystemIndex;
                 if (si >= 0 && si < numSys && i < (int)mXmbSystems[si].displayNames.size()) {
-                    displayText = mXmbSystems[si].displayNames[i];
+                    displayText = mXmbSystems[si].displayNames[i].c_str();
                 }
             }
 
             // Game disc icon next to each item
             float itemIconSz = isSel ? 50.0f * sf : 30.0f * sf;
-            float iconX = selIconX + (iconSize * catActiveZoom) / 2.0f - itemIconSz / 2.0f;
+            float iconX = itemIconBaseX - itemIconSz / 2.0f;
             float iconY = fy - itemIconSz / 2.0f;
             drawIcon(16, iconX, iconY, itemIconSz,
                      isSel ? iconR : dimIconR, isSel ? iconG : dimIconG,
@@ -5263,16 +5298,15 @@ void NanoMenu::renderXmb() {
             float tg = isSel ? 1.0f : 0.6f;
             float tb = isSel ? 1.0f : 0.6f;
 
-            glEnable(GL_SCISSOR_TEST);
             glScissor((int)tx, 0, (int)(contentRight - tx), mHeight);
-            drawText(displayText.c_str(), tx, ty, tSc, tr, tg, tb, iAlpha);
-            if (isSel && !sysLabel.empty()) {
+            drawText(displayText, tx, ty, tSc, tr, tg, tb, iAlpha);
+            if (isSel && sysLabel && *sysLabel) {
                 float tagY = ty + FONT_CHAR_H * tSc + 2.0f * sf;
-                drawText(sysLabel.c_str(), tx, tagY, catNameScale * 0.9f,
+                drawText(sysLabel, tx, tagY, catNameScale * 0.9f,
                          0.5f, 0.5f, 0.55f, 0.7f);
             }
-            glDisable(GL_SCISSOR_TEST);
         }
+        glDisable(GL_SCISSOR_TEST);
     } else if (!mSearchActive) {
         const char* msg = isRecent ? "No recently played games"
                         : (mXmbSystemIndex >= 0 && mXmbSystemIndex < numSys
@@ -5805,30 +5839,42 @@ bool NanoMenu::threadLoop() {
                          || ((mMenuState == MENU_RECENT || mMenuState == MENU_APPS)
                              && mScrollOffset > 0.0f);
         int frameTimeUs;
-        float dt;
         if (sDrmActive) {
-            // GammaOS: While DRM fallback is active, force 60fps so boot feels smooth.
-            // The drmPushFrame path does its own pacing via CPU copy + page flip wait.
             frameTimeUs = 16666;
-            dt = 1.0f / 60.0f;
         } else if (xmbActive || mXmbMode) {
             frameTimeUs = 16666; // 60fps for XMB
-            dt = 1.0f / 60.0f;
         } else if (animating) {
             frameTimeUs = 50000; // 20fps
-            dt = 1.0f / 20.0f;
         } else {
             frameTimeUs = 100000; // 10fps
-            dt = 1.0f / 10.0f;
         }
-        mEffectTime += dt;
+        // Measure real frame delta for animations
+        {
+            struct timespec ts;
+            clock_gettime(CLOCK_MONOTONIC, &ts);
+            int64_t nowNs = (int64_t)ts.tv_sec * 1000000000LL + ts.tv_nsec;
+            if (mLastFrameNs > 0) {
+                float dt = (float)(nowNs - mLastFrameNs) / 1e9f;
+                // Clamp to avoid huge jumps on stalls (e.g. first frame, suspend)
+                if (dt < 0.001f) dt = 0.001f;
+                if (dt > 0.1f) dt = 0.1f;
+                mFrameDt = dt;
+            }
+            mLastFrameNs = nowNs;
+        }
+        mEffectTime += mFrameDt;
         // Wrap time early to prevent mediump float precision degradation.
         // sin()/cos() with large args stutter on mediump (10-bit mantissa).
         // 62.83 = 10*2*PI — max shader multiplier is ~5x, so peak arg ~314,
         // well within mediump precision.
         if (mEffectTime > 628.318f) mEffectTime -= 628.318f;
         render();
-        usleep(frameTimeUs);
+        // Frame pacing: eglSwapBuffers and drmFlipAll already block on vsync,
+        // so skip usleep at 60fps to avoid double-throttling.
+        // Only sleep when intentionally running below display refresh rate.
+        if (frameTimeUs > 16666) {
+            usleep(frameTimeUs);
+        }
 
         // Check every ~0.5s if an external trigger requested exit
         int exitCheckInterval = animating ? 30 : 5; // 30*16ms or 5*100ms
