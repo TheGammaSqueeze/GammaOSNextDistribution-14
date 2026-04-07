@@ -192,6 +192,9 @@ public class SideFpsEventHandler implements View.OnClickListener {
 
         final FingerprintManager fingerprintManager =
                 mContext.getSystemService(FingerprintManager.class);
+        if (fingerprintManager == null) {
+            return;
+        }
         fingerprintManager.addAuthenticatorsRegisteredCallback(
                 new IFingerprintAuthenticatorsRegisteredCallback.Stub() {
                     @Override
