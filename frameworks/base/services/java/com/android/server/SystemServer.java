@@ -2085,7 +2085,13 @@ public final class SystemServer implements Dumpable {
                 t.traceEnd();
             }
 
-            if (!minimalBoot) { // GammaOS Nano: skip PersistentDataBlock through WallpaperEffects
+            // GammaOS Nano: DeviceIdleController must start even in minimal boot —
+            // NetworkPolicyManager (needed by ConnectivityService) depends on it.
+            t.traceBegin("StartDeviceIdleController");
+            mSystemServiceManager.startService(DEVICE_IDLE_CONTROLLER_CLASS);
+            t.traceEnd();
+
+            if (!minimalBoot) { // GammaOS Nano: skip PersistentDataBlock through Smartspace
             final boolean hasPdb = !SystemProperties.get(PERSISTENT_DATA_BLOCK_PROP).equals("");
             if (hasPdb) {
                 t.traceBegin("StartPersistentDataBlock");
@@ -2110,9 +2116,7 @@ public final class SystemServer implements Dumpable {
                 t.traceEnd();
             }
 
-            t.traceBegin("StartDeviceIdleController");
-            mSystemServiceManager.startService(DEVICE_IDLE_CONTROLLER_CLASS);
-            t.traceEnd();
+            // DeviceIdleController already started above (before !minimalBoot block)
 
             // Always start the Device Policy Manager, so that the API is compatible with
             // API8.
@@ -2195,7 +2199,54 @@ public final class SystemServer implements Dumpable {
             } else {
                 Slog.d(TAG, "SmartspaceManagerService not defined by OEM or disabled by flag");
             }
+            } // !minimalBoot: PersistentDataBlock through Smartspace
 
+            // GammaOS Nano: NotificationManager must start even in minimal boot —
+            // many apps need it for foreground services (notification channels).
+            if (minimalBoot) {
+                t.traceBegin("StartNotificationManager");
+                try {
+                    mSystemServiceManager.startService(NotificationManagerService.class);
+                    SystemNotificationChannels.removeDeprecated(context);
+                    SystemNotificationChannels.createAll(context);
+                } catch (Throwable e) {
+                    Slog.w(TAG, "GammaOS Nano: NotificationManager failed", e);
+                }
+                t.traceEnd();
+            }
+
+            if (minimalBoot) {
+                // GammaOS Nano: start ConnectivityService and its dependency chain
+                // on a background thread — apps like Firefox and Daijisho call
+                // getSystemService(CONNECTIVITY_SERVICE) in onCreate() and NPE if
+                // it's null.  DeviceIdleController is started above so
+                // NetworkPolicyManager can be constructed.
+                final Context nanoCtx = context;
+                new Thread(() -> {
+                    try {
+                        Slog.i(TAG, "GammaOS Nano: starting connectivity stack (bg)");
+                        ConnectivityModuleConnector.getInstance().init(nanoCtx);
+                        NetworkStackClient.getInstance().init();
+                        NetworkManagementService nm = NetworkManagementService.create(nanoCtx);
+                        ServiceManager.addService(Context.NETWORKMANAGEMENT_SERVICE, nm);
+                        mSystemServiceManager.startServiceFromJar(
+                                NETWORK_STATS_SERVICE_INITIALIZER_CLASS,
+                                CONNECTIVITY_SERVICE_APEX_PATH);
+                        NetworkPolicyManagerService np = new NetworkPolicyManagerService(
+                                nanoCtx, mActivityManagerService, nm);
+                        ServiceManager.addService(Context.NETWORK_POLICY_SERVICE, np);
+                        mSystemServiceManager.startServiceFromJar(
+                                CONNECTIVITY_SERVICE_INITIALIZER_CLASS,
+                                CONNECTIVITY_SERVICE_APEX_PATH);
+                        np.bindConnectivityManager();
+                        Slog.i(TAG, "GammaOS Nano: connectivity stack ready");
+                    } catch (Throwable e) {
+                        Slog.e(TAG, "GammaOS Nano: connectivity stack failed", e);
+                    }
+                }, "NanoConnectivity").start();
+            }
+
+            if (!minimalBoot) {
             t.traceBegin("InitConnectivityModuleConnector");
             try {
                 ConnectivityModuleConnector.getInstance().init(context);
@@ -2325,7 +2376,9 @@ public final class SystemServer implements Dumpable {
                     CONNECTIVITY_SERVICE_APEX_PATH);
             networkPolicy.bindConnectivityManager();
             t.traceEnd();
+            } // !minimalBoot: full networking stack
 
+            if (!minimalBoot) { // GammaOS Nano: skip SecurityState through WallpaperEffects
             t.traceBegin("StartSecurityStateManagerService");
             try {
                 ServiceManager.addService(Context.SECURITY_STATE_SERVICE,
@@ -2464,7 +2517,7 @@ public final class SystemServer implements Dumpable {
                     WALLPAPER_EFFECTS_GENERATION_MANAGER_SERVICE_CLASS);
                 t.traceEnd();
             }
-            } // !minimalBoot: PersistentDataBlock through WallpaperEffects
+            } // !minimalBoot: SecurityState through WallpaperEffects
 
             if (minimalBoot) {
                 Slog.i(TAG, "GammaOS Nano: starting AudioService (cache signal runs in parallel)");
@@ -2570,14 +2623,16 @@ public final class SystemServer implements Dumpable {
                 t.traceEnd();
             }
 
+            // TODO(aml-jobscheduler): Think about how to do it properly.
+            // GammaOS Nano: in minimal boot, JobScheduler starts on the bg
+            // connectivity thread (needs ConnectivityManager).
+            t.traceBegin("StartJobScheduler");
+            mSystemServiceManager.startService(JOB_SCHEDULER_SERVICE_CLASS);
+            t.traceEnd();
+
             if (!minimalBoot) { // GammaOS Nano: skip ColorDisplay through MediaSession
             t.traceBegin("StartColorDisplay");
             mSystemServiceManager.startService(ColorDisplayService.class);
-            t.traceEnd();
-
-            // TODO(aml-jobscheduler): Think about how to do it properly.
-            t.traceBegin("StartJobScheduler");
-            mSystemServiceManager.startService(JOB_SCHEDULER_SERVICE_CLASS);
             t.traceEnd();
 
             t.traceBegin("StartSoundTrigger");
@@ -2863,6 +2918,12 @@ public final class SystemServer implements Dumpable {
             } // !minimalBoot: Serial through BackgroundInstall
         }
 
+        // GammaOS Nano: ClipboardService must start even in minimal boot —
+        // apps like Firefox call getSystemService(CLIPBOARD_SERVICE) and crash if null.
+        t.traceBegin("StartClipboardService");
+        mSystemServiceManager.startService(ClipboardService.class);
+        t.traceEnd();
+
         if (!minimalBoot) { // GammaOS Nano: skip MediaProjection through Lineage
         t.traceBegin("StartMediaProjectionManager");
         mSystemServiceManager.startService(MediaProjectionManagerService.class);
@@ -3023,10 +3084,7 @@ public final class SystemServer implements Dumpable {
             Slog.d(TAG, "TranslationService not defined by OEM");
         }
 
-        // NOTE: ClipboardService depends on ContentCapture and Autofill
-        t.traceBegin("StartClipboardService");
-        mSystemServiceManager.startService(ClipboardService.class);
-        t.traceEnd();
+        // ClipboardService already started above (before !minimalBoot block)
 
         t.traceBegin("AppServiceManager");
         mSystemServiceManager.startService(AppBindingService.Lifecycle.class);
@@ -3353,7 +3411,7 @@ public final class SystemServer implements Dumpable {
                 }
                 t.traceEnd();
             }
-            if (!minimalBoot) { // GammaOS Nano: skip network service readiness
+            if (!minimalBoot) { // GammaOS Nano: skip network readiness (bg thread handles it)
             t.traceBegin("MakeNetworkManagementServiceReady");
             try {
                 if (networkManagementF != null) {
@@ -3419,13 +3477,26 @@ public final class SystemServer implements Dumpable {
             mSystemServiceManager.startBootPhase(t, SystemService.PHASE_THIRD_PARTY_APPS_CAN_START);
             t.traceEnd();
 
+            // GammaOS Nano: start JobScheduler here in minimal boot — it needs
+            // ConnectivityManager (bg thread) and PowerManager (main thread).
+            // By this point the bg connectivity thread has had time to finish.
+            if (minimalBoot) {
+                t.traceBegin("StartJobScheduler_Nano");
+                try {
+                    mSystemServiceManager.startService(JOB_SCHEDULER_SERVICE_CLASS);
+                } catch (Throwable e) {
+                    Slog.w(TAG, "GammaOS Nano: JobScheduler failed", e);
+                }
+                t.traceEnd();
+            }
+
             if (hsumBootUserInitializerF != null) {
                 t.traceBegin("HsumBootUserInitializer.systemRunning");
                 hsumBootUserInitializerF.systemRunning(t);
                 t.traceEnd();
             }
 
-            if (!minimalBoot) {
+            if (!minimalBoot) { // GammaOS Nano: bg thread handles network stack
             t.traceBegin("StartNetworkStack");
             try {
                 // Note : the network stack is creating on-demand objects that need to send
@@ -3453,7 +3524,7 @@ public final class SystemServer implements Dumpable {
                 reportWtf("starting Tethering", e);
             }
             t.traceEnd();
-            } // !minimalBoot network stack
+            } // !minimalBoot: network stack
 
             if (!minimalBoot) { // GammaOS Nano: skip non-essential service readiness
             t.traceBegin("MakeCountryDetectionServiceReady");
@@ -3639,6 +3710,10 @@ public final class SystemServer implements Dumpable {
                     }
                     SystemProperties.set("sys.gammaos.nano.do_launch", "0");
                     Slog.i(TAG, "GammaOS Nano: do_launch detected, triggering relaunch");
+                    // Signal RootWindowContainer to reset the launch grace period
+                    // BEFORE posting to main looper — prevents the "app exited" check
+                    // from firing before the new app process has started.
+                    SystemProperties.set("sys.gammaos.nano.launch_pending", "1");
                     new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
                         try {
                             com.android.server.LocalServices.getService(

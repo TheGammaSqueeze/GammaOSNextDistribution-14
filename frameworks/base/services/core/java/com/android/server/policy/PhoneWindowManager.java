@@ -776,6 +776,30 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     private long mBackDownTime = 0;
     private boolean mRetroarchBlockOverride = false;
 
+    // GammaOS Nano: 10-second BACK hold emergency exit — fires even if app is frozen
+    private static final long NANO_BACK_EMERGENCY_MS = 10000;
+    private final Runnable mNanoBackEmergencyRunnable = () -> {
+        if (!android.os.SystemProperties.getBoolean("sys.gammaos.minimal_boot", false)) return;
+        // Trigger if app is launched OR if drop_input is stuck (crash left it set)
+        boolean appLaunched = "1".equals(android.os.SystemProperties.get(
+                "sys.gammaos.nano.app_launched", "0"));
+        boolean dropStuck = "1".equals(android.os.SystemProperties.get(
+                "sys.gammaos.nano.drop_input", "0"));
+        if (appLaunched || dropStuck) {
+            Slog.i(TAG, "GammaOS Nano: 10s BACK hold emergency exit triggered"
+                    + " (appLaunched=" + appLaunched + " dropStuck=" + dropStuck + ")");
+            // Clear drop_input unconditionally so nano menu can receive input
+            android.os.SystemProperties.set("sys.gammaos.nano.drop_input", "0");
+            if (appLaunched) {
+                nanoKillAppAndRestart();
+            } else {
+                // Just restart nano menu
+                android.os.SystemProperties.set("sys.gammaos.nano.restart", "1");
+            }
+        }
+    };
+    private boolean mNanoBackEmergencyPending = false;
+
     // Track injected BTN_SELECT state so we can guarantee key-up on app switches.
     private boolean mRetroarchSelectDown = false;
     private String mRetroarchSelectDevicePath = null;
@@ -2265,6 +2289,10 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     }
 
     private void nanoKillAppAndRestart() {
+        // Cancel any pending emergency exit timer
+        mHandler.removeCallbacks(mNanoBackEmergencyRunnable);
+        mNanoBackEmergencyPending = false;
+
         final String nanoAppPkg = android.os.SystemProperties.get(
                 "sys.gammaos.nano.launch_app", "com.retroarch.aarch64");
         Slog.i(TAG, "GammaOS Nano: killing " + nanoAppPkg + " and returning to nano menu");
@@ -5792,6 +5820,25 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             if (down) {
                 mBackPressed = true;
                 mBackDownTime = SystemClock.uptimeMillis();
+                // GammaOS Nano: start 10s emergency exit timer when BACK is pressed
+                // while an app is running or drop_input is stuck from a crash.
+                if (!mNanoBackEmergencyPending
+                        && android.os.SystemProperties.getBoolean(
+                                "sys.gammaos.minimal_boot", false)
+                        && ("1".equals(android.os.SystemProperties.get(
+                                "sys.gammaos.nano.app_launched", "0"))
+                            || "1".equals(android.os.SystemProperties.get(
+                                "sys.gammaos.nano.drop_input", "0")))) {
+                    mNanoBackEmergencyPending = true;
+                    mHandler.postDelayed(mNanoBackEmergencyRunnable,
+                            NANO_BACK_EMERGENCY_MS);
+                }
+            } else {
+                // BACK released — cancel emergency timer
+                if (mNanoBackEmergencyPending) {
+                    mHandler.removeCallbacks(mNanoBackEmergencyRunnable);
+                    mNanoBackEmergencyPending = false;
+                }
             }
         }
         boolean isWakeKey = (policyFlags & WindowManagerPolicy.FLAG_WAKE) != 0

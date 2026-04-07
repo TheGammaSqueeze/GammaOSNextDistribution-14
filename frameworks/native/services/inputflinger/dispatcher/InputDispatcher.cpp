@@ -1176,6 +1176,7 @@ void InputDispatcher::dispatchOnceInnerLocked(nsecs_t& nextWakeupTime) {
                 }
             }
             if (dropReason == DropReason::NOT_DROPPED &&
+                keyEntry->keyCode != 4 /* AKEYCODE_BACK */ &&
                 android::base::GetBoolProperty("sys.gammaos.nano.drop_input", false)) {
                 dropReason = DropReason::POLICY;
                 resetKeyRepeatLocked();
@@ -4455,7 +4456,10 @@ void InputDispatcher::notifyConfigurationChanged(const NotifyConfigurationChange
 void InputDispatcher::notifyKey(const NotifyKeyArgs& args) {
     // GammaOS Nano: drop all key events during nano→RetroArch transition
     // to prevent queued inputs from being delivered when RetroArch gets focus.
-    if (android::base::GetBoolProperty("sys.gammaos.nano.drop_input", false)) {
+    // Always allow BACK (keyCode 4) through so the 10s emergency exit works
+    // even when an app crashes during launch and drop_input is never cleared.
+    if (android::base::GetBoolProperty("sys.gammaos.nano.drop_input", false)
+            && args.keyCode != 4 /* AKEYCODE_BACK */) {
         return;
     }
     ALOGD_IF(debugInboundEventDetails(),

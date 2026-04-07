@@ -1726,6 +1726,14 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                     Slog.i(TAG, "GammaOS Nano: launch in progress, skipping nested cleanup");
                     return true;
                 }
+                // If NanoRelaunchMonitor signaled a new launch is pending,
+                // reset the grace period and consume the flag.
+                if ("1".equals(android.os.SystemProperties.get(
+                        "sys.gammaos.nano.launch_pending", "0"))) {
+                    sNanoLastLaunchTime = android.os.SystemClock.uptimeMillis();
+                    android.os.SystemProperties.set(
+                            "sys.gammaos.nano.launch_pending", "0");
+                }
                 // Grace period: don't trigger "app exited" within 2s of the last
                 // launch — the new process may not have registered activities yet,
                 // which makes the process-alive check falsely report it as dead.
@@ -1803,6 +1811,8 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                 // the display shows black instead of stale app surfaces.
                 showNanoBlankOverlay();
                 android.os.SystemProperties.set("sys.gammaos.nano.app_launched", "0");
+                // Clear drop_input so the nano menu can receive input on restart
+                android.os.SystemProperties.set("sys.gammaos.nano.drop_input", "0");
                 android.os.SystemProperties.set("sys.gammaos.nano.restart", "1");
                 return true;
             }
@@ -2043,6 +2053,10 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                             + ":" + taskDisplayArea.getDisplayId();
                     Slog.i(TAG, "GammaOS Nano: starting " + aInfo.name);
                     android.os.SystemProperties.set("sys.gammaos.nano.app_launched", "1");
+                    // Reset grace period so subsequent startHomeOnTaskDisplayArea calls
+                    // (e.g. from NanoRelaunchMonitor) don't falsely trigger "app exited"
+                    // before the new process has registered activities.
+                    sNanoLastLaunchTime = android.os.SystemClock.uptimeMillis();
                     sNanoLaunchInProgress = true;
                     try {
                         mService.getActivityStartController().startHomeActivity(
