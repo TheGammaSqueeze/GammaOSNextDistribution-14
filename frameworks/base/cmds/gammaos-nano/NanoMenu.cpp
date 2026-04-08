@@ -6072,12 +6072,13 @@ bool NanoMenu::threadLoop() {
     property_set("sys.gammaos.nano.menu_active", "0");
 
     // Only re-apply performance clocks when launching an app (not on bootanim.exit)
+    // Run in background — setclock_max.sh has a 20s retry loop that must not block exit.
     if (mExitRequested) {
         char mode[PROPERTY_VALUE_MAX] = {};
         property_get("persist.gammaos.performance_mode", mode, "stock");
         char cmd[128];
-        snprintf(cmd, sizeof(cmd), "/vendor/bin/setclock_%s.sh", mode);
-        ALOGI("NanoMenu: re-applying performance mode '%s': %s", mode, cmd);
+        snprintf(cmd, sizeof(cmd), "/vendor/bin/setclock_%s.sh &", mode);
+        ALOGI("NanoMenu: re-applying performance mode '%s' (background)", mode);
         system(cmd);
     }
 
