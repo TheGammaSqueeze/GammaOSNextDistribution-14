@@ -1796,6 +1796,10 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 // Signal nano menu restart FIRST, before killing the app.
                 // This ensures menu_active=1 is set before the framework tries
                 // to restart the killed app's task.
+                // Clear pending_exit — the long-press handler handles the exit
+                // directly; a stale pending_exit would wipe launch_intent on
+                // the next game launch via do_launch.
+                android.os.SystemProperties.set("sys.gammaos.nano.pending_exit", "0");
                 android.os.SystemProperties.set("sys.gammaos.nano.app_launched", "0");
                 android.os.SystemProperties.set("sys.gammaos.nano.restart", "1");
                 try {

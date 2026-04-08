@@ -1684,22 +1684,35 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
             // Bypass ALL grace periods and process checks — go straight to cleanup.
             if ("1".equals(android.os.SystemProperties.get(
                     "sys.gammaos.nano.pending_exit", "0"))) {
-                Slog.i(TAG, "GammaOS Nano: pending_exit set, immediate cleanup");
-                android.os.SystemProperties.set("sys.gammaos.nano.pending_exit", "0");
-                if (!"1".equals(android.os.SystemProperties.get(
-                        "sys.gammaos.nano.shutting_down", "0"))) {
+                // If a new standalone launch is pending (NanoMenu just wrote a
+                // fresh intent file), consume pending_exit but skip cleanup so
+                // the launch path below can read and use launch_intent.
+                String pendingIntent = android.os.SystemProperties.get(
+                        "sys.gammaos.nano.launch_intent", "");
+                if ("file".equals(pendingIntent)) {
+                    Slog.i(TAG, "GammaOS Nano: pending_exit set but new launch "
+                            + "pending, skipping cleanup");
                     android.os.SystemProperties.set(
-                            "persist.gammaos.nano.qr_prepared", "0");
-                    android.os.SystemProperties.set(
-                            "sys.gammaos.nano.cache_op", "clear_rom");
+                            "sys.gammaos.nano.pending_exit", "0");
+                    // Fall through to the launch path
+                } else {
+                    Slog.i(TAG, "GammaOS Nano: pending_exit set, immediate cleanup");
+                    android.os.SystemProperties.set("sys.gammaos.nano.pending_exit", "0");
+                    if (!"1".equals(android.os.SystemProperties.get(
+                            "sys.gammaos.nano.shutting_down", "0"))) {
+                        android.os.SystemProperties.set(
+                                "persist.gammaos.nano.qr_prepared", "0");
+                        android.os.SystemProperties.set(
+                                "sys.gammaos.nano.cache_op", "clear_rom");
+                    }
+                    android.os.SystemProperties.set("sys.gammaos.nano.launch_rom", "");
+                    android.os.SystemProperties.set("sys.gammaos.nano.launch_core", "");
+                    android.os.SystemProperties.set("sys.gammaos.nano.launch_intent", "");
+                    android.os.SystemProperties.set("sys.gammaos.nano.app_launched", "0");
+                    android.os.SystemProperties.set("sys.gammaos.nano.drop_input", "0");
+                    android.os.SystemProperties.set("sys.gammaos.nano.restart", "1");
+                    return true;
                 }
-                android.os.SystemProperties.set("sys.gammaos.nano.launch_rom", "");
-                android.os.SystemProperties.set("sys.gammaos.nano.launch_core", "");
-                android.os.SystemProperties.set("sys.gammaos.nano.launch_intent", "");
-                android.os.SystemProperties.set("sys.gammaos.nano.app_launched", "0");
-                android.os.SystemProperties.set("sys.gammaos.nano.drop_input", "0");
-                android.os.SystemProperties.set("sys.gammaos.nano.restart", "1");
-                return true;
             }
             // If the app was already launched and exited, restart NanoMenu
             final boolean appWasLaunched = "1".equals(
