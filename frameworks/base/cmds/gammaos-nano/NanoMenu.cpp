@@ -122,7 +122,11 @@ static const char FX_VERTEX_SHADER[] = R"(
 )";
 
 static const char FX_FRAGMENT_SHADER[] = R"(
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+    precision highp float;
+#else
     precision mediump float;
+#endif
     uniform float uTime;
     uniform vec2 uResolution;
     uniform int uEffect;
@@ -139,7 +143,6 @@ static const char FX_FRAGMENT_SHADER[] = R"(
         float c = hash(i + vec2(0,1)); float d = hash(i + vec2(1,1));
         return mix(mix(a,b,f.x), mix(c,d,f.x), f.y);
     }
-
     void main() {
         vec2 fc = mix(gl_FragCoord.xy,
                       vec2(gl_FragCoord.y, uResolution.y - gl_FragCoord.x),
@@ -176,12 +179,28 @@ static const char FX_FRAGMENT_SHADER[] = R"(
             col = vec3(0.0, bright, bright * 0.3);
             a = bright * 0.4;
         } else if (uEffect == 16) { // Fire
-            float n = noise(vec2(uv.x * 6.0, uv.y * 4.0 - t * 3.0));
-            float n2 = noise(vec2(uv.x * 12.0, uv.y * 8.0 - t * 5.0));
-            float fire = (1.0 - uv.y) * (n * 0.6 + n2 * 0.4);
-            fire = pow(fire, 1.5);
-            col = vec3(fire * 1.5, fire * 0.6, fire * 0.1);
-            a = fire * 0.25;
+            // Distorted sine waves — no grid noise, no blockiness
+            float y = 1.0 - uv.y; // 0=top, 1=bottom
+            float x = uv.x;
+            // Three flame layers: each is a sine wave distorted vertically
+            // to create rising, turbulent tongue shapes
+            float d1 = sin(y * 3.0 - t * 3.5) * 1.8;
+            float d2 = sin(y * 4.5 - t * 4.5) * 1.2;
+            float d3 = sin(y * 2.5 - t * 2.8) * 2.2;
+            float f1 = sin(x * 8.0 + d1 + t * 0.4) * 0.5 + 0.5;
+            float f2 = sin(x * 12.0 - d2 + t * 0.7 + 2.1) * 0.5 + 0.5;
+            float f3 = sin(x * 5.0 + d3 - t * 0.3 + 4.2) * 0.5 + 0.5;
+            float turb = f1 * 0.4 + f2 * 0.35 + f3 * 0.25;
+            // Height envelope: bright base, fading tips
+            float fire = turb * y * y;
+            fire = pow(fire, 1.3);
+            // Realistic fire colors: red → orange → yellow → white
+            col = vec3(
+                smoothstep(0.05, 0.5, fire),
+                smoothstep(0.2, 0.8, fire) * 0.85,
+                smoothstep(0.5, 1.0, fire) * 0.4
+            );
+            a = smoothstep(0.0, 0.06, fire) * 0.3;
         } else if (uEffect == 17) { // Aurora
             float wave = sin(uv.x * 8.0 + t) * 0.05 + sin(uv.x * 3.0 - t * 0.7) * 0.08;
             float band = smoothstep(0.15, 0.0, abs(uv.y - 0.8 - wave));
@@ -232,7 +251,6 @@ static const char XMB_FRAGMENT_SHADER[] = R"(
         return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
     }
 
-    // HSV to RGB — strong saturated colors for cycling background
     vec3 hsv2rgb(float h, float s, float v) {
         vec3 p = abs(fract(vec3(h) + vec3(0.0, 2.0/3.0, 1.0/3.0)) * 6.0 - 3.0);
         return v * mix(vec3(1.0), clamp(p - 1.0, 0.0, 1.0), s);
@@ -243,47 +261,43 @@ static const char XMB_FRAGMENT_SHADER[] = R"(
                       vec2(gl_FragCoord.y, uResolution.y - gl_FragCoord.x),
                       uCoordSwap);
         vec2 uv = fc / uResolution;
-        float t = mod(uTime, 628.318);
+        float t = uTime;
 
-        // Aspect-corrected x for spatial frequency matching
         float x = (uv.x - 0.5) * uResolution.x / uResolution.y;
 
-        // --- Three flowing ribbon bands (analytical distance field) ---
-        float ribbon = 0.0;
+        // Shared sine terms — reused across ribbons to cut sin() calls
+        // from 7 down to 4 while keeping multi-harmonic look
+        float s1 = sin(x + t * 0.25);
+        float s2 = sin(x * 2.2 + t * 0.7);
+        float s3 = sin(x * 1.05 + t * 0.24 + 0.5);
+        float s4 = sin(x * 1.8 + t * 0.42 + 2.0);
 
-        // Ribbon 1: wide primary wave
-        float cy1 = 0.44 + 0.08 * sin(x * 1.0 + t * 0.25)
-                         + 0.03 * sin(x * 2.2 + t * 0.7)
-                         + 0.015 * sin(x * 4.0 - t * 0.3);
+        float ribbon = 0.0;
+        float cy1 = 0.44 + 0.08 * s1 + 0.03 * s2;
         ribbon += smoothstep(0.07, 0.0, abs(uv.y - cy1)) * 0.35;
 
-        // Ribbon 2: narrower, slightly offset
-        float cy2 = 0.47 + 0.06 * sin(x * 1.05 + t * 0.24 + 0.5)
-                         + 0.025 * sin(x * 2.5 - t * 0.35 + 1.5);
+        float cy2 = 0.47 + 0.06 * s3 + 0.025 * s2;
         ribbon += smoothstep(0.05, 0.0, abs(uv.y - cy2)) * 0.25;
 
-        // Ribbon 3: thin accent band
-        float cy3 = 0.41 + 0.09 * sin(x * 0.95 + t * 0.26 + 1.2)
-                         + 0.04 * sin(x * 1.8 + t * 0.42 + 2.0);
+        float cy3 = 0.41 + 0.09 * s1 + 0.04 * s4;
         ribbon += smoothstep(0.06, 0.0, abs(uv.y - cy3)) * 0.20;
 
         ribbon = clamp(ribbon, 0.0, 1.0);
 
-        // Slowly cycle hue — full rainbow over ~500s (~8 min).
         float hue = fract(t * 0.002 + 0.6);
         vec3 tint = hsv2rgb(hue, 0.85, 0.65);
 
-        // Gradient: dark tint at bottom → full tint at top
-        vec3 col = mix(tint * 0.15, tint, smoothstep(0.0, 1.0, uv.y));
-
-        // Blend ribbons toward white
+        // Gradient: dark tint at top, full tint at bottom
+        vec3 col = mix(tint, tint * 0.15, smoothstep(0.0, 1.0, uv.y));
         col = mix(col, vec3(1.0), ribbon * 0.7);
 
-        // Sparkle dust near ribbons
+        // Sparkle: cheap fract-based pulse instead of sin+pow
         vec2 grid = floor(gl_FragCoord.xy / 6.0);
         float seed = xmbHash(grid);
-        float sparkle = step(0.97, seed)
-                       * pow(sin(t * 4.0 + seed * 628.0) * 0.5 + 0.5, 2.0)
+        float pulse = fract(t * 0.5 + seed * 17.0);
+        pulse = 1.0 - abs(pulse * 2.0 - 1.0); // triangle wave 0→1→0
+        pulse *= pulse; // sharpen
+        float sparkle = step(0.97, seed) * pulse
                        * smoothstep(0.0, 0.1, ribbon) * 0.5;
         col += vec3(sparkle);
 
@@ -5837,11 +5851,11 @@ bool NanoMenu::threadLoop() {
         checkInputHotplug();
 
         // Adaptive framerate:
-        //   60fps during XMB animation (smooth transitions)
-        //   30fps for XMB background effect
-        //   20fps for other effects
+        //   60fps for DRM, XMB, or procedural effects (vsync-locked, no usleep)
+        //   20fps for particle effects
         //   ~10fps idle
         bool xmbActive = (mCurrentEffect == 21);
+        bool proceduralFx = (mCurrentEffect >= 11 && mCurrentEffect <= 20);
         bool xmbAnimating = mXmbMode && (fabsf(mXmbAnimX - mXmbSystemIndex) > 0.01f
                                          || fabsf(mXmbAnimY - (mSearchActive
                                              ? (float)mSearchSelectedIndex
@@ -5851,14 +5865,12 @@ bool NanoMenu::threadLoop() {
                          || ((mMenuState == MENU_RECENT || mMenuState == MENU_APPS)
                              && mScrollOffset > 0.0f);
         int frameTimeUs;
-        if (sDrmActive) {
-            frameTimeUs = 16666;
-        } else if (xmbActive || mXmbMode) {
-            frameTimeUs = 16666; // 60fps for XMB
+        if (sDrmActive || xmbActive || mXmbMode || proceduralFx) {
+            frameTimeUs = 16666; // 60fps — vsync-locked, no usleep
         } else if (animating) {
-            frameTimeUs = 50000; // 20fps
+            frameTimeUs = 50000; // 20fps for particles
         } else {
-            frameTimeUs = 100000; // 10fps
+            frameTimeUs = 100000; // 10fps idle
         }
         // Measure real frame delta for animations
         {
@@ -5875,17 +5887,23 @@ bool NanoMenu::threadLoop() {
             mLastFrameNs = nowNs;
         }
         mEffectTime += mFrameDt;
-        // Wrap time early to prevent mediump float precision degradation.
-        // sin()/cos() with large args stutter on mediump (10-bit mantissa).
-        // 62.83 = 10*2*PI — max shader multiplier is ~5x, so peak arg ~314,
-        // well within mediump precision.
-        if (mEffectTime > 628.318f) mEffectTime -= 628.318f;
+        // Wrap time to prevent mediump float precision degradation and to
+        // align with XMB hue cycle (rate 0.002 → period 500s). Wrapping at
+        // exactly 500s ensures fract(t*0.002+offset) is seamless.
+        if (mEffectTime > 500.0f) mEffectTime -= 500.0f;
         render();
-        // Frame pacing: eglSwapBuffers and drmFlipAll already block on vsync,
-        // so skip usleep at 60fps to avoid double-throttling.
-        // Only sleep when intentionally running below display refresh rate.
+        // Frame pacing: at 60fps, eglSwapBuffers vsync-blocks — no sleep needed.
+        // For lower rates, sleep the remaining time to hit the target frame period.
+        // Clock-based: measure actual elapsed time so variable swap durations
+        // don't cause frame-to-frame jitter.
         if (frameTimeUs > 16666) {
-            usleep(frameTimeUs);
+            struct timespec tsNow;
+            clock_gettime(CLOCK_MONOTONIC, &tsNow);
+            int64_t nowUs = (int64_t)tsNow.tv_sec * 1000000LL + tsNow.tv_nsec / 1000LL;
+            int64_t frameStartUs = mLastFrameNs / 1000LL;
+            int64_t elapsedUs = nowUs - frameStartUs;
+            int64_t remainUs = (int64_t)frameTimeUs - elapsedUs;
+            if (remainUs > 1000) usleep((useconds_t)remainUs);
         }
 
         // Check every ~0.5s if an external trigger requested exit
