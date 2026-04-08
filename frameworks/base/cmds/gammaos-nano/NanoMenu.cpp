@@ -4716,14 +4716,19 @@ void NanoMenu::launchXmbGame() {
     if (mXmbSystemIndex == -1 && !mSearchActive) {
         if (mXmbRecent.empty()) return;
         if (mXmbGameIndex < 0 || mXmbGameIndex >= (int)mXmbRecent.size()) return;
-        const auto& re = mXmbRecent[mXmbGameIndex];
+        // Take a copy — the vector reorder below invalidates references.
+        XmbRecentEntry re = mXmbRecent[mXmbGameIndex];
 
-        // Move to front of recent list
+        // Move to front of recent list — only on disk, not in-memory.
+        // Modifying the vector causes a visible shuffle during the
+        // transition frames before NanoMenu exits.
         if (mXmbGameIndex > 0) {
-            XmbRecentEntry moved = mXmbRecent[mXmbGameIndex];
-            mXmbRecent.erase(mXmbRecent.begin() + mXmbGameIndex);
-            mXmbRecent.insert(mXmbRecent.begin(), std::move(moved));
+            std::vector<XmbRecentEntry> saved = mXmbRecent;
+            saved.erase(saved.begin() + mXmbGameIndex);
+            saved.insert(saved.begin(), re);
+            std::swap(mXmbRecent, saved);
             saveXmbRecent();
+            std::swap(mXmbRecent, saved); // restore in-memory order
         }
 
         if (re.standalone) {
@@ -5400,6 +5405,7 @@ bool NanoMenu::threadLoop() {
                     mXmbSystemIndex = -1;
                     mXmbGameIndex = 0;
                     mXmbAnimX = -1.0f;
+                    mXmbAnimY = 0.0f;
                 }
             } else if (returnSysIdx >= 0 && returnSysIdx < (int)mXmbSystems.size()) {
                 // Return to specific system + game

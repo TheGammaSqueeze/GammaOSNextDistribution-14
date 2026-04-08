@@ -1833,6 +1833,13 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             // If retroarch is foregrounded, send ESC on long press instead.
             String fgApp = getForegroundAppPackageName();
             if (fgApp != null && fgApp.toLowerCase().contains("retroarch")) {
+                // Signal that the user initiated an exit — bypass the grace
+                // period in startHomeOnTaskDisplayArea for instant return.
+                if (android.os.SystemProperties.getBoolean(
+                        "sys.gammaos.minimal_boot", false)) {
+                    android.os.SystemProperties.set(
+                            "sys.gammaos.nano.pending_exit", "1");
+                }
                 triggerVirtualKeypress(KeyEvent.KEYCODE_ESCAPE);
                 return;
             }
@@ -5820,6 +5827,17 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             if (down) {
                 mBackPressed = true;
                 mBackDownTime = SystemClock.uptimeMillis();
+                // GammaOS Nano: signal pending exit so the grace period in
+                // startHomeOnTaskDisplayArea is bypassed for instant cleanup.
+                // Safe even if the user doesn't actually exit — the flag is
+                // only consumed when the home activity is actually restarted.
+                if (android.os.SystemProperties.getBoolean(
+                        "sys.gammaos.minimal_boot", false)
+                        && "1".equals(android.os.SystemProperties.get(
+                                "sys.gammaos.nano.app_launched", "0"))) {
+                    android.os.SystemProperties.set(
+                            "sys.gammaos.nano.pending_exit", "1");
+                }
                 // GammaOS Nano: start 10s emergency exit timer when BACK is pressed
                 // while an app is running or drop_input is stuck from a crash.
                 if (!mNanoBackEmergencyPending

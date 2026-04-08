@@ -179,6 +179,7 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
     // GammaOS Nano: crash detection — track launch attempts to avoid crash loops
     private static int sNanoCrashCount = 0;
     private static long sNanoLastLaunchTime = 0;
+    private static boolean sNanoGraceRetryPending = false;
 
     /**
      * Parse an am-start-style intent string for standalone emulator launches.
@@ -1679,6 +1680,27 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                 Slog.i(TAG, "GammaOS Nano: nano menu is active, skipping home launch");
                 return true;
             }
+            // Pending exit: user-initiated ESC exit from PhoneWindowManager.
+            // Bypass ALL grace periods and process checks — go straight to cleanup.
+            if ("1".equals(android.os.SystemProperties.get(
+                    "sys.gammaos.nano.pending_exit", "0"))) {
+                Slog.i(TAG, "GammaOS Nano: pending_exit set, immediate cleanup");
+                android.os.SystemProperties.set("sys.gammaos.nano.pending_exit", "0");
+                if (!"1".equals(android.os.SystemProperties.get(
+                        "sys.gammaos.nano.shutting_down", "0"))) {
+                    android.os.SystemProperties.set(
+                            "persist.gammaos.nano.qr_prepared", "0");
+                    android.os.SystemProperties.set(
+                            "sys.gammaos.nano.cache_op", "clear_rom");
+                }
+                android.os.SystemProperties.set("sys.gammaos.nano.launch_rom", "");
+                android.os.SystemProperties.set("sys.gammaos.nano.launch_core", "");
+                android.os.SystemProperties.set("sys.gammaos.nano.launch_intent", "");
+                android.os.SystemProperties.set("sys.gammaos.nano.app_launched", "0");
+                android.os.SystemProperties.set("sys.gammaos.nano.drop_input", "0");
+                android.os.SystemProperties.set("sys.gammaos.nano.restart", "1");
+                return true;
+            }
             // If the app was already launched and exited, restart NanoMenu
             final boolean appWasLaunched = "1".equals(
                     android.os.SystemProperties.get("sys.gammaos.nano.app_launched", "0"));
@@ -1755,17 +1777,75 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                         }
                     });
                 });
-                // Grace period: don't trigger "app exited" within 2s of the last
+                // Grace period: don't trigger "app exited" within 1s of the last
                 // launch — the new process may not have registered activities yet,
                 // which makes the process-alive check falsely report it as dead.
-                // But skip the grace period if the app is actively exiting (all
-                // activities finishing) — don't get stuck on the last frame.
+                // Bypass entirely when pending_exit is set (user-initiated ESC exit).
+                boolean pendingExit = "1".equals(android.os.SystemProperties.get(
+                        "sys.gammaos.nano.pending_exit", "0"));
                 long now = android.os.SystemClock.uptimeMillis();
-                if (sNanoLastLaunchTime > 0
-                        && now - sNanoLastLaunchTime < 2000
-                        && !allFinishing[0]) {
-                    Slog.i(TAG, "GammaOS Nano: within launch grace period, "
-                            + "skipping premature cleanup");
+                long elapsed = sNanoLastLaunchTime > 0
+                        ? now - sNanoLastLaunchTime : Long.MAX_VALUE;
+                if (elapsed < 1000 && !pendingExit) {
+                    Slog.i(TAG, "GammaOS Nano: within launch grace period ("
+                            + elapsed + "ms), scheduling deferred cleanup check");
+                    // Schedule a deferred cleanup that bypasses the grace period.
+                    // Directly check if the app died and clean up — don't re-enter
+                    // startHomeOnTaskDisplayArea (which resets sNanoLastLaunchTime).
+                    if (!sNanoGraceRetryPending) {
+                        sNanoGraceRetryPending = true;
+                        mService.mH.postDelayed(() -> {
+                            synchronized (mService.mGlobalLock) {
+                                sNanoGraceRetryPending = false;
+                                if (!"1".equals(android.os.SystemProperties.get(
+                                        "sys.gammaos.nano.app_launched", "0"))) {
+                                    return; // already cleaned up
+                                }
+                                // Re-check if process is still alive
+                                final String pkg = android.os.SystemProperties.get(
+                                        "sys.gammaos.nano.launch_app",
+                                        "com.retroarch.aarch64");
+                                final boolean[] alive = {false};
+                                forAllTasks(task -> {
+                                    task.forAllActivities(r -> {
+                                        if (r.packageName != null
+                                                && r.packageName.equals(pkg)
+                                                && r.app != null
+                                                && r.app.hasThread()
+                                                && !r.finishing) {
+                                            alive[0] = true;
+                                        }
+                                    });
+                                });
+                                if (!alive[0]) {
+                                    Slog.i(TAG, "GammaOS Nano: deferred cleanup — "
+                                            + "app died during grace period, restarting");
+                                    android.os.SystemProperties.set(
+                                            "sys.gammaos.nano.pending_exit", "0");
+                                    // Mirror the full cleanup from the normal exit path
+                                    if (!"1".equals(android.os.SystemProperties.get(
+                                            "sys.gammaos.nano.shutting_down", "0"))) {
+                                        android.os.SystemProperties.set(
+                                                "persist.gammaos.nano.qr_prepared", "0");
+                                        android.os.SystemProperties.set(
+                                                "sys.gammaos.nano.cache_op", "clear_rom");
+                                    }
+                                    android.os.SystemProperties.set(
+                                            "sys.gammaos.nano.launch_rom", "");
+                                    android.os.SystemProperties.set(
+                                            "sys.gammaos.nano.launch_core", "");
+                                    android.os.SystemProperties.set(
+                                            "sys.gammaos.nano.launch_intent", "");
+                                    android.os.SystemProperties.set(
+                                            "sys.gammaos.nano.app_launched", "0");
+                                    android.os.SystemProperties.set(
+                                            "sys.gammaos.nano.drop_input", "0");
+                                    android.os.SystemProperties.set(
+                                            "sys.gammaos.nano.restart", "1");
+                                }
+                            }
+                        }, 1200);
+                    }
                     return true;
                 }
                 if (processAlive[0] && !allFinishing[0]) {
@@ -1773,7 +1853,9 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                             + "skipping cleanup");
                     return true;
                 }
-                Slog.i(TAG, "GammaOS Nano: app exited, cleaning up and restarting nano menu");
+                Slog.i(TAG, "GammaOS Nano: app exited, cleaning up and restarting nano menu"
+                        + (pendingExit ? " (pending_exit bypass)" : ""));
+                android.os.SystemProperties.set("sys.gammaos.nano.pending_exit", "0");
                 // User exited back to the nano menu — clear Quick Resume and
                 // stale launch properties so the next boot/restart doesn't
                 // auto-launch a game they quit out of.
