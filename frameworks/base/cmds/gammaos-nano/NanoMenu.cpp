@@ -3853,7 +3853,9 @@ void NanoMenu::initXmbSystems() {
         if (propBuf[0]) sys.coreSo = propBuf;
 
         // Try loading cached file list from DE storage
-        // Cache format: each line is a full ROM path
+        // Cache format: each line is a full ROM path.
+        // Legacy compat: if line 1 is a directory and remaining lines
+        // are bare filenames, prepend the directory to each filename.
         {
             std::string cachePath = "/data/system/nano_xmb_cache/" + sys.romDir + ".list";
             int cfd = open(cachePath.c_str(), O_RDONLY);
@@ -3864,14 +3866,41 @@ void NanoMenu::initXmbSystems() {
                     ssize_t rd = read(cfd, &content[0], cst.st_size);
                     if (rd > 0) {
                         content.resize(rd);
+                        std::vector<std::string> lines;
                         size_t pos = 0;
                         while (pos < content.size()) {
                             size_t eol = content.find('\n', pos);
                             if (eol == std::string::npos) eol = content.size();
                             std::string line = content.substr(pos, eol - pos);
                             pos = eol + 1;
-                            if (line.empty()) continue;
-                            sys.roms.push_back(line);
+                            if (!line.empty()) lines.push_back(std::move(line));
+                        }
+                        // Detect legacy format: first line is a directory,
+                        // rest are bare filenames (no '/' in them)
+                        std::string dirPrefix;
+                        if (lines.size() >= 2 && lines[0].find('/') != std::string::npos) {
+                            bool allBare = true;
+                            for (size_t i = 1; i < lines.size(); i++) {
+                                if (lines[i].find('/') != std::string::npos) {
+                                    allBare = false;
+                                    break;
+                                }
+                            }
+                            if (allBare) {
+                                dirPrefix = lines[0];
+                                // Remove trailing slash if present
+                                if (!dirPrefix.empty() && dirPrefix.back() == '/')
+                                    dirPrefix.pop_back();
+                                lines.erase(lines.begin());
+                                ALOGD("NanoMenu: %s: legacy cache format, dir=%s",
+                                      sys.name.c_str(), dirPrefix.c_str());
+                            }
+                        }
+                        for (auto& l : lines) {
+                            if (!dirPrefix.empty())
+                                sys.roms.push_back(dirPrefix + "/" + l);
+                            else
+                                sys.roms.push_back(std::move(l));
                         }
                         // Derive activePath from the directory of the first ROM
                         if (!sys.roms.empty()) {
@@ -5566,18 +5595,27 @@ bool NanoMenu::threadLoop() {
                     bool nativeLaunch = false;
                     bool qrCancelled = false;
                     if (!romFile.empty() && !coreFile.empty()) {
-                        // Find save state and SRAM in the ROM cache dir
-                        std::string baseName = romFile;
-                        size_t dotPos = baseName.rfind('.');
+                        // Find save state and SRAM — check states/saves subdirs
+                        // first, then fall back to rom/ dir (depends on RA config)
+                        std::string romBase = romFile;
+                        size_t slashPos = romBase.rfind('/');
+                        if (slashPos != std::string::npos)
+                            romBase = romBase.substr(slashPos + 1);
+                        size_t dotPos = romBase.rfind('.');
                         if (dotPos != std::string::npos)
-                            baseName = baseName.substr(0, dotPos);
-                        std::string statePath = baseName + ".state.auto";
-                        std::string sramPath = baseName + ".srm";
-
-                        // Check if state/sram exist
+                            romBase = romBase.substr(0, dotPos);
+                        std::string statePath, sramPath;
                         struct stat st;
-                        if (stat(statePath.c_str(), &st) != 0) statePath.clear();
-                        if (stat(sramPath.c_str(), &st) != 0) sramPath.clear();
+                        // State: try states/ then rom/
+                        std::string s1 = cacheDir + "/states/" + romBase + ".state.auto";
+                        std::string s2 = cacheDir + "/rom/" + romBase + ".state.auto";
+                        if (stat(s1.c_str(), &st) == 0) statePath = s1;
+                        else if (stat(s2.c_str(), &st) == 0) statePath = s2;
+                        // SRAM: try saves/ then rom/
+                        std::string r1 = cacheDir + "/saves/" + romBase + ".srm";
+                        std::string r2 = cacheDir + "/rom/" + romBase + ".srm";
+                        if (stat(r1.c_str(), &st) == 0) sramPath = r1;
+                        else if (stat(r2.c_str(), &st) == 0) sramPath = r2;
 
                         ALOGI("Quick Resume: trying native libretro launch");
                         ALOGI("  core=%s", coreFile.c_str());
@@ -5737,8 +5775,8 @@ bool NanoMenu::threadLoop() {
                                         property_set("service.bootanim.nano_retroarch", "1");
 
                                         // Now save state + SRAM in parallel with RetroArch launch
-                                        runner.saveState(baseName + ".state.auto");
-                                        runner.saveSRAM(baseName + ".srm");
+                                        runner.saveState(cacheDir + "/states/" + romBase + ".state.auto");
+                                        runner.saveSRAM(cacheDir + "/saves/" + romBase + ".srm");
                                         runner.shutdown();
                                         mExitRequested = true;
                                         break;
