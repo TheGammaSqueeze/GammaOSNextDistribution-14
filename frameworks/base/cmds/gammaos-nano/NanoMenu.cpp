@@ -6675,6 +6675,33 @@ bool NanoMenu::threadLoop() {
             usleep(16666);
         }
     }
+    // GammaOS: tear down secondary wallpaper EGL surfaces / SurfaceControls
+    // BEFORE eglTerminate. The destructor (~NanoMenu) was previously doing
+    // this cleanup, but by then eglTerminate had already invalidated the
+    // EGL display, leaving the underlying BLASTBufferQueue's GraphicBuffers
+    // in an inconsistent state. The buffer release path then tried to call
+    // freeBuffer through the gralloc mapper after its RegisteredHandlePool
+    // mutex was effectively destroyed, aborting with FORTIFY:
+    //   pthread_mutex_lock called on a destroyed mutex
+    // (backtrace: ~SurfaceControl → ~BBQSurface → ~BLASTBufferQueue →
+    //  ~GraphicBuffer → freeBuffer → RegisteredHandlePool::remove).
+    // Cleaning up here, while the EGL display is still alive, avoids the
+    // crash. The destructor's identical cleanup becomes a no-op because the
+    // vectors are already empty.
+    for (size_t i = 0; i < mSecondaryEglSurfaces.size(); i++) {
+        eglDestroySurface(mDisplay, mSecondaryEglSurfaces[i]);
+    }
+    mSecondaryEglSurfaces.clear();
+    mSecondarySurfaces.clear();
+    if (!mSecondaryWallpaperControls.empty()) {
+        SurfaceComposerClient::Transaction t;
+        for (size_t i = 0; i < mSecondaryWallpaperControls.size(); i++) {
+            t.reparent(mSecondaryWallpaperControls[i], nullptr);
+        }
+        t.apply();
+        mSecondaryWallpaperControls.clear();
+    }
+
     eglMakeCurrent(mDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
     eglDestroyContext(mDisplay, mContext);
     eglDestroySurface(mDisplay, mSurface);
