@@ -1697,6 +1697,26 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                     // Fall through to the launch path
                 } else {
                     Slog.i(TAG, "GammaOS Nano: pending_exit set, immediate cleanup");
+                    // GammaOS: force-stop the package to kill any orphan
+                    // non-activity-bound process (e.g. Drastic's emulator
+                    // thread) that survives a long-press-back exit. Without
+                    // this the orphan keeps running at realtime priority
+                    // and starves the XMB. The sNanoLaunchInProgress flag
+                    // breaks the resumeTopActivities → startHome recursion.
+                    sNanoLaunchInProgress = true;
+                    try {
+                        final String pkg = android.os.SystemProperties.get(
+                                "sys.gammaos.nano.launch_app");
+                        if (!pkg.isEmpty()) {
+                            android.app.IActivityManager am =
+                                    android.app.ActivityManager.getService();
+                            am.forceStopPackage(pkg, userId);
+                        }
+                    } catch (Exception ex) {
+                        Slog.w(TAG, "GammaOS Nano: pending_exit force-stop failed", ex);
+                    } finally {
+                        sNanoLaunchInProgress = false;
+                    }
                     android.os.SystemProperties.set("sys.gammaos.nano.pending_exit", "0");
                     if (!"1".equals(android.os.SystemProperties.get(
                             "sys.gammaos.nano.shutting_down", "0"))) {
@@ -1872,6 +1892,23 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                                 if (!alive[0]) {
                                     Slog.i(TAG, "GammaOS Nano: deferred cleanup — "
                                             + "app died during grace period, restarting");
+                                    // GammaOS: also force-stop the package to
+                                    // kill any orphan non-activity-bound
+                                    // process (e.g. Drastic's emulator
+                                    // thread) that's still alive after the
+                                    // activity exited. sNanoLaunchInProgress
+                                    // breaks the resumeTopActivities →
+                                    // startHome recursion.
+                                    sNanoLaunchInProgress = true;
+                                    try {
+                                        android.app.IActivityManager am =
+                                                android.app.ActivityManager.getService();
+                                        am.forceStopPackage(pkg, userId);
+                                    } catch (Exception ex) {
+                                        Slog.w(TAG, "GammaOS Nano: deferred orphan force-stop failed", ex);
+                                    } finally {
+                                        sNanoLaunchInProgress = false;
+                                    }
                                     android.os.SystemProperties.set(
                                             "sys.gammaos.nano.pending_exit", "0");
                                     // Mirror the full cleanup from the normal exit path
@@ -1915,6 +1952,29 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                 }
                 Slog.i(TAG, "GammaOS Nano: app exited, cleaning up and restarting nano menu"
                         + (pendingExit ? " (pending_exit bypass)" : ""));
+                // GammaOS: force-stop the package even though no live activity
+                // record exists. Some emulators (Drastic in particular) keep a
+                // non-activity-bound emulator thread running after the activity
+                // is force-finished — the process keeps running at realtime
+                // priority eating a whole CPU core, which makes the XMB feel
+                // slow. Calling forceStopPackage here guarantees the orphan
+                // is gone before nano takes over the home slot.
+                //
+                // forceStopPackage synchronously calls resumeTopActivities →
+                // startHomeOnTaskDisplayArea, which would re-enter this very
+                // branch (appWasLaunched is still 1 — we clear it below).
+                // Set sNanoLaunchInProgress so the existing reentry guard at
+                // the top of the else-if branch catches the recursion.
+                sNanoLaunchInProgress = true;
+                try {
+                    android.app.IActivityManager am =
+                            android.app.ActivityManager.getService();
+                    am.forceStopPackage(nanoAppPkg, userId);
+                } catch (Exception ex) {
+                    Slog.w(TAG, "GammaOS Nano: orphan force-stop failed", ex);
+                } finally {
+                    sNanoLaunchInProgress = false;
+                }
                 android.os.SystemProperties.set("sys.gammaos.nano.pending_exit", "0");
                 // User exited back to the nano menu — clear Quick Resume and
                 // stale launch properties so the next boot/restart doesn't
