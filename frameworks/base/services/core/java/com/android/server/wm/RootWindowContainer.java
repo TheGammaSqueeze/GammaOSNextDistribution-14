@@ -1708,6 +1708,16 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                     android.os.SystemProperties.set("sys.gammaos.nano.launch_rom", "");
                     android.os.SystemProperties.set("sys.gammaos.nano.launch_core", "");
                     android.os.SystemProperties.set("sys.gammaos.nano.launch_intent", "");
+                    // GammaOS: also clear launch_app. If we leave it set, a
+                    // racing startHomeOnTaskDisplayArea call (which can fire
+                    // before the cleanup-triggered nano restart sets restart=1
+                    // → nano alive) sees launch_app still pointing at the app
+                    // we just exited and the launch path's LAUNCHER fallback
+                    // re-launches the same app with no game args, then it
+                    // immediately exits and bounces back to nano. Repro: open
+                    // a Drastic game, exit via long-press back, pick the same
+                    // game again — first attempt bounces, second works.
+                    android.os.SystemProperties.set("sys.gammaos.nano.launch_app", "");
                     android.os.SystemProperties.set("sys.gammaos.nano.app_launched", "0");
                     android.os.SystemProperties.set("sys.gammaos.nano.drop_input", "0");
                     android.os.SystemProperties.set("sys.gammaos.nano.restart", "1");
@@ -1869,6 +1879,14 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                                             "sys.gammaos.nano.launch_core", "");
                                     android.os.SystemProperties.set(
                                             "sys.gammaos.nano.launch_intent", "");
+                                    // GammaOS: clear launch_app so the next
+                                    // home selection doesn't accidentally
+                                    // re-launch the app via the LAUNCHER
+                                    // fallback. Same root cause as the
+                                    // pending_exit and appWasLaunched cleanup
+                                    // paths above.
+                                    android.os.SystemProperties.set(
+                                            "sys.gammaos.nano.launch_app", "");
                                     android.os.SystemProperties.set(
                                             "sys.gammaos.nano.app_launched", "0");
                                     android.os.SystemProperties.set(
@@ -1908,6 +1926,12 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                         "sys.gammaos.nano.launch_core", "");
                 android.os.SystemProperties.set(
                         "sys.gammaos.nano.launch_intent", "");
+                // GammaOS: clear launch_app along with the other launch state
+                // so a racing startHomeOnTaskDisplayArea can't re-launch the
+                // just-exited app via the LAUNCHER fallback. Same root cause
+                // as the pending_exit cleanup above.
+                android.os.SystemProperties.set(
+                        "sys.gammaos.nano.launch_app", "");
                 // Remove all lingering tasks/activities for the nano app
                 try {
                     java.util.ArrayList<Task> tasksToRemove = new java.util.ArrayList<>();
@@ -1936,6 +1960,18 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
             }
             final String nanoApp = android.os.SystemProperties.get(
                     "sys.gammaos.nano.launch_app", "com.retroarch.aarch64");
+            // GammaOS: if launch_app is empty (cleared by an exit cleanup
+            // path because the user just exited the previous app), don't
+            // launch anything from this code path. Falling through with an
+            // empty package or the default RetroArch fallback would
+            // re-launch the just-exited app or RetroArch with no game args,
+            // bouncing the user back to nano. Returning false here lets the
+            // standard home selection run, which lands on nano.
+            if (nanoApp.isEmpty()) {
+                Slog.i(TAG, "GammaOS Nano: launch_app empty after exit, "
+                        + "falling through to standard home selection");
+                return false;
+            }
             // Pre-launch cleanup: remove any stale tasks/EXITING windows from
             // previous instances to prevent InputDispatcher/surface conflicts.
             try {
