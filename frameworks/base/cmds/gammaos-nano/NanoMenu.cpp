@@ -6602,6 +6602,41 @@ bool NanoMenu::threadLoop() {
                     mAppliedLayerStack = cur.layerStack.id;
                 }
             }
+            // GammaOS: Defensive recovery for the secondary (wallpaper-only)
+            // displays. After exiting a DualStack app, DualStackController
+            // tears down its forced tall size via clearForcedDisplaySize,
+            // which triggers a display reconfiguration on DEFAULT_DISPLAY.
+            // The reconfiguration applies the orientation policy of whatever
+            // is still considered the "top resumed activity" — usually the
+            // dying portrait emulator — and rotates the secondary display
+            // to ROTATION_270 a few seconds after we returned to nano. The
+            // wallpaper then renders sideways (480x640 instead of 640x480).
+            // We can't suppress that race from this side, so just poll the
+            // secondary display states each ~0.5s and re-apply ROTATION_0
+            // whenever the rotation drifts. Cheap: bounded by the number of
+            // secondary displays (typically one).
+            for (size_t i = 0; i < mSecondaryDisplayTokens.size(); i++) {
+                const sp<IBinder>& token = mSecondaryDisplayTokens[i];
+                if (token == nullptr) continue;
+                ui::DisplayState state;
+                if (SurfaceComposerClient::getDisplayState(token, &state) != NO_ERROR) {
+                    continue;
+                }
+                if (state.orientation == ui::ROTATION_0) continue;
+                DisplayMode mode;
+                if (SurfaceComposerClient::getActiveDisplayMode(token, &mode) != NO_ERROR) {
+                    continue;
+                }
+                ui::Size res = mode.resolution;
+                Rect bounds(0, 0, res.width, res.height);
+                SurfaceComposerClient::Transaction t;
+                t.setDisplayProjection(token, ui::ROTATION_0, bounds, bounds);
+                t.apply();
+                ALOGI("NanoMenu: secondary display %zu rotated to %d, "
+                      "reset to ROTATION_0 (%dx%d)",
+                      i, static_cast<int>(state.orientation),
+                      res.width, res.height);
+            }
             // Background ROM scanning — all I/O runs on a separate thread.
             // The render thread only does a quick lock-free check + swap.
             if (mStorageReady) {
