@@ -1556,56 +1556,142 @@ void NanoMenu::checkInputHotplug() {
     if (mInotifyFd < 0) return;
     char buf[512] __attribute__((aligned(__alignof__(struct inotify_event))));
     ssize_t len = read(mInotifyFd, buf, sizeof(buf));
-    if (len <= 0) return;
-
-    for (char* ptr = buf; ptr < buf + len; ) {
-        auto* ev = reinterpret_cast<struct inotify_event*>(ptr);
-        if (ev->len > 0 && strncmp(ev->name, "event", 5) == 0) {
-            if (ev->mask & IN_DELETE) {
-                // Device node was removed (gammapad hides+recreates devices).
-                // Close our stale fd and forget it so we re-grab on IN_CREATE.
-                if (mOpenedDevices.count(ev->name)) {
-                    char path[PATH_MAX];
-                    snprintf(path, sizeof(path), "/dev/input/%s", ev->name);
-                    // Find and close the fd for this device
-                    for (auto it = mInputFds.begin(); it != mInputFds.end(); ++it) {
-                        char fdPath[PATH_MAX];
-                        char procLink[64];
-                        snprintf(procLink, sizeof(procLink), "/proc/self/fd/%d", *it);
-                        ssize_t rl = readlink(procLink, fdPath, sizeof(fdPath) - 1);
-                        if (rl > 0) {
-                            fdPath[rl] = '\0';
-                            if (strstr(fdPath, ev->name) || strstr(fdPath, "(deleted)")) {
-                                ioctl(*it, EVIOCGRAB, 0);
-                                close(*it);
-                                mInputFds.erase(it);
-                                break;
+    if (len > 0) {
+        for (char* ptr = buf; ptr < buf + len; ) {
+            auto* ev = reinterpret_cast<struct inotify_event*>(ptr);
+            if (ev->len > 0 && strncmp(ev->name, "event", 5) == 0) {
+                if (ev->mask & IN_DELETE) {
+                    // Device node was removed (gammapad hides+recreates devices).
+                    // Close our stale fd and forget it so we re-grab on IN_CREATE.
+                    //
+                    // BUG fix: only match the fd whose path corresponds to the
+                    // deleted device. The previous code OR'd against any
+                    // "(deleted)" fd, which closed the wrong fd when multiple
+                    // devices were being torn down nearly simultaneously
+                    // (gammapad's swap of event12 races with EventHub removing
+                    // event10, etc). The result was that nano permanently lost
+                    // the Xbox controller because event12's fd got closed by
+                    // event10's IN_DELETE event, leaving stale state in
+                    // mOpenedDevices that suppressed IN_CREATE re-opening.
+                    if (mOpenedDevices.count(ev->name)) {
+                        char path[PATH_MAX];
+                        snprintf(path, sizeof(path), "/dev/input/%s", ev->name);
+                        for (auto it = mInputFds.begin(); it != mInputFds.end(); ++it) {
+                            char fdPath[PATH_MAX];
+                            char procLink[64];
+                            snprintf(procLink, sizeof(procLink), "/proc/self/fd/%d", *it);
+                            ssize_t rl = readlink(procLink, fdPath, sizeof(fdPath) - 1);
+                            if (rl > 0) {
+                                fdPath[rl] = '\0';
+                                // Match only by exact device name. The path may
+                                // also have " (deleted)" appended once the kernel
+                                // marks it removed; tolerate that suffix.
+                                char wantPath[PATH_MAX];
+                                snprintf(wantPath, sizeof(wantPath), "/dev/input/%s", ev->name);
+                                size_t wantLen = strlen(wantPath);
+                                if (strncmp(fdPath, wantPath, wantLen) == 0 &&
+                                        (fdPath[wantLen] == '\0' ||
+                                         fdPath[wantLen] == ' ')) {
+                                    ioctl(*it, EVIOCGRAB, 0);
+                                    close(*it);
+                                    mInputFds.erase(it);
+                                    break;
+                                }
                             }
                         }
+                        mOpenedDevices.erase(ev->name);
+                        ALOGI("Device removed, dropped stale fd: %s", path);
                     }
-                    mOpenedDevices.erase(ev->name);
-                    ALOGI("Device removed, dropped stale fd: %s", path);
-                }
-            } else if ((ev->mask & IN_CREATE) && !mOpenedDevices.count(ev->name)) {
-                // Small delay for the device node to be fully ready
-                usleep(100000); // 100ms
-                char path[PATH_MAX];
-                snprintf(path, sizeof(path), "/dev/input/%s", ev->name);
-                int fd = open(path, O_RDONLY | O_NONBLOCK);
-                if (fd >= 0) {
-                    if (android::base::GetBoolProperty("persist.gammaos.nano.grab_input", false)) {
-                        if (ioctl(fd, EVIOCGRAB, 1) < 0) {
-                            ALOGW("EVIOCGRAB failed for hotplugged %s: %s", path, strerror(errno));
+                } else if ((ev->mask & IN_CREATE) && !mOpenedDevices.count(ev->name)) {
+                    // Small delay for the device node to be fully ready
+                    usleep(100000); // 100ms
+                    char path[PATH_MAX];
+                    snprintf(path, sizeof(path), "/dev/input/%s", ev->name);
+                    int fd = open(path, O_RDONLY | O_NONBLOCK);
+                    if (fd >= 0) {
+                        if (android::base::GetBoolProperty("persist.gammaos.nano.grab_input", false)) {
+                            if (ioctl(fd, EVIOCGRAB, 1) < 0) {
+                                ALOGW("EVIOCGRAB failed for hotplugged %s: %s", path, strerror(errno));
+                            }
                         }
+                        mInputFds.push_back(fd);
+                        mOpenedDevices.insert(ev->name);
+                        ALOGI("Hotplugged + grabbed input device: %s", path);
                     }
-                    mInputFds.push_back(fd);
-                    mOpenedDevices.insert(ev->name);
-                    ALOGI("Hotplugged + grabbed input device: %s", path);
                 }
             }
+            ptr += sizeof(struct inotify_event) + ev->len;
         }
-        ptr += sizeof(struct inotify_event) + ev->len;
     }
+
+    // GammaOS: defensive sweep for missed devices. The inotify handler above
+    // can lose track of devices when multiple are torn down/recreated nearly
+    // simultaneously (typical with gammapad swaps). Periodically rescan
+    // /dev/input and reconcile against mOpenedDevices: open anything missing,
+    // and drop any fd that has gone "(deleted)" without a matching IN_DELETE.
+    // Ratelimited to once per second to keep cost negligible.
+    static int64_t sLastSweepNs = 0;
+    int64_t nowNs = systemTime(SYSTEM_TIME_MONOTONIC);
+    if (nowNs - sLastSweepNs < 1000000000LL) return;
+    sLastSweepNs = nowNs;
+
+    // (1) Drop any of our fds that point to a deleted inode. This handles
+    // the case where gammapad recreated a device under the same name without
+    // us seeing the IN_DELETE.
+    for (auto it = mInputFds.begin(); it != mInputFds.end(); ) {
+        char fdPath[PATH_MAX];
+        char procLink[64];
+        snprintf(procLink, sizeof(procLink), "/proc/self/fd/%d", *it);
+        ssize_t rl = readlink(procLink, fdPath, sizeof(fdPath) - 1);
+        if (rl > 0) {
+            fdPath[rl] = '\0';
+            if (strstr(fdPath, "(deleted)")) {
+                // Recover the device name from the path so we can also
+                // erase it from mOpenedDevices and let the rescan re-open it.
+                const char* base = strrchr(fdPath, '/');
+                if (base) {
+                    base++;
+                    char nameOnly[64];
+                    size_t i = 0;
+                    while (base[i] && base[i] != ' ' && i < sizeof(nameOnly) - 1) {
+                        nameOnly[i] = base[i];
+                        i++;
+                    }
+                    nameOnly[i] = '\0';
+                    mOpenedDevices.erase(nameOnly);
+                    ALOGI("Sweep: dropped stale fd %s", fdPath);
+                }
+                ioctl(*it, EVIOCGRAB, 0);
+                close(*it);
+                it = mInputFds.erase(it);
+                continue;
+            }
+        }
+        ++it;
+    }
+
+    // (2) Open any /dev/input/event* that we don't currently have.
+    DIR* dir = opendir("/dev/input");
+    if (!dir) return;
+    struct dirent* entry;
+    while ((entry = readdir(dir)) != nullptr) {
+        if (strncmp(entry->d_name, "event", 5) != 0) continue;
+        if (mOpenedDevices.count(entry->d_name)) continue;
+        char path[PATH_MAX];
+        snprintf(path, sizeof(path), "/dev/input/%s", entry->d_name);
+        int fd = open(path, O_RDONLY | O_NONBLOCK);
+        if (fd >= 0) {
+            if (android::base::GetBoolProperty("persist.gammaos.nano.grab_input", false)) {
+                if (ioctl(fd, EVIOCGRAB, 1) < 0) {
+                    ALOGW("EVIOCGRAB failed for swept %s: %s", path, strerror(errno));
+                }
+            }
+            mInputFds.push_back(fd);
+            mOpenedDevices.insert(entry->d_name);
+            ALOGI("Sweep: opened previously-missed input device %s", path);
+        }
+    }
+    closedir(dir);
 }
 
 // ---------------------------------------------------------------------------
