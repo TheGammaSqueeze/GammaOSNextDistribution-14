@@ -1728,11 +1728,20 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
             final boolean appWasLaunched = "1".equals(
                     android.os.SystemProperties.get("sys.gammaos.nano.app_launched", "0"));
             // If a direct game launch is pending (from Recently Played), force-stop
-            // any running RetroArch instance and skip the appWasLaunched cleanup so
-            // the code falls through to the normal launch path with ROM extras.
+            // any running instance and skip the appWasLaunched cleanup so the code
+            // falls through to the launch path with the new game state.
+            // Detect "new launch pending" via either rom (libretro/RetroArch path)
+            // or intent file (standalone emulator path — Drastic, PPSSPP, Flycast).
+            // Without the intent check, picking a Drastic game right after exiting
+            // a Drastic game would hit the else-if grace-period branch and the
+            // user's launch request would silently die in the deferred cleanup.
             final String pendingRom = android.os.SystemProperties.get(
                     "sys.gammaos.nano.launch_rom", "");
-            if (appWasLaunched && !pendingRom.isEmpty()) {
+            final String pendingIntentFlag = android.os.SystemProperties.get(
+                    "sys.gammaos.nano.launch_intent", "");
+            final boolean newLaunchPending =
+                    !pendingRom.isEmpty() || !pendingIntentFlag.isEmpty();
+            if (appWasLaunched && newLaunchPending) {
                 // Re-entrancy guard. forceStopPackage below synchronously
                 // calls resumeTopActivities → resumeFocusedTasksTopActivities
                 // → startHomeOnTaskDisplayArea, recursing back into this same
@@ -1958,20 +1967,21 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                 android.os.SystemProperties.set("sys.gammaos.nano.restart", "1");
                 return true;
             }
-            final String nanoApp = android.os.SystemProperties.get(
-                    "sys.gammaos.nano.launch_app", "com.retroarch.aarch64");
-            // GammaOS: if launch_app is empty (cleared by an exit cleanup
-            // path because the user just exited the previous app), don't
-            // launch anything from this code path. Falling through with an
-            // empty package or the default RetroArch fallback would
-            // re-launch the just-exited app or RetroArch with no game args,
-            // bouncing the user back to nano. Returning false here lets the
-            // standard home selection run, which lands on nano.
-            if (nanoApp.isEmpty()) {
+            // GammaOS: read launch_app WITHOUT a default. SystemProperties.get
+            // with a default returns the default when the value is empty —
+            // that swallows our intentional clear-to-empty in the exit
+            // cleanup paths and the launch path then thinks the user wants
+            // RetroArch. Use the no-default get and treat empty as
+            // "no launch pending". Default to RetroArch only when we
+            // actually want to fall through with a real value below.
+            String nanoAppRaw = android.os.SystemProperties.get(
+                    "sys.gammaos.nano.launch_app");
+            if (nanoAppRaw.isEmpty()) {
                 Slog.i(TAG, "GammaOS Nano: launch_app empty after exit, "
                         + "falling through to standard home selection");
                 return false;
             }
+            final String nanoApp = nanoAppRaw;
             // Pre-launch cleanup: remove any stale tasks/EXITING windows from
             // previous instances to prevent InputDispatcher/surface conflicts.
             try {
