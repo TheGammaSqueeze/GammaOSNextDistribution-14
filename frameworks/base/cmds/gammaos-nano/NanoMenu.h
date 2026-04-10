@@ -185,6 +185,10 @@ private:
     void render();
     void drawQuad(float x, float y, float w, float h,
                   float r, float g, float b, float a);
+    // GammaOS: Create EGL surfaces on every non-primary physical display so the
+    // post-HWC render loop can drive wallpaper-only rendering on those panels.
+    // Idempotent — first call wires the surfaces, subsequent calls are no-ops.
+    void setupSecondaryEglSurfaces();
 
     // Menu
     void buildMenu();

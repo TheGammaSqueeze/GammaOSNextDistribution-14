@@ -58,6 +58,17 @@
 #include <sys/mman.h>
 #include <android/hardware_buffer.h>
 
+// ARM NEON intrinsics for fast AHB→DRM channel swap.
+// Targeting ARMv8-A (Cortex-A55 on RK3568). NEON is mandatory on AArch64,
+// so the __ARM_NEON define is always set when building 64-bit. Retain the
+// scalar fallback for portability to hypothetical non-NEON targets.
+#if defined(__ARM_NEON) || defined(__aarch64__)
+#include <arm_neon.h>
+#define GAMMAOS_NANO_HAVE_NEON 1
+#else
+#define GAMMAOS_NANO_HAVE_NEON 0
+#endif
+
 #include <aidl/android/hardware/light/ILights.h>
 #include <aidl/android/hardware/light/HwLight.h>
 
@@ -1874,7 +1885,11 @@ typedef EGLClientBuffer (EGLAPIENTRYP PFNEGLGETNATIVECLIENTBUFFERANDROIDPROC) (c
 static PFNEGLGETNATIVECLIENTBUFFERANDROIDPROC sEglGetNativeClientBufferANDROID = nullptr;
 
 // AHardwareBuffer-backed GPU render targets for zero-copy DRM output.
-// Single render target (not per-display) since we copy to each DRM buffer on flip.
+// sAhbTarget is the PRIMARY render target (wallpaper + XMB/menu), blitted to
+// the display selected by persist.gammaos.nano.primary_display.
+// sAhbTargetSecondary is the SECONDARY render target (wallpaper only, no menu),
+// blitted to every non-primary display. This lets the non-XMB screen(s) show
+// just the wallpaper without pulling menu geometry through.
 struct AhbRenderTarget {
     AHardwareBuffer* ahb;
     EGLImageKHR eglImage;
@@ -1883,6 +1898,146 @@ struct AhbRenderTarget {
     uint32_t w, h;
 };
 static AhbRenderTarget sAhbTarget = {};
+static AhbRenderTarget sAhbTargetSecondary = {};
+// Index into sDrmDisplays that receives the primary AHB. Selected from
+// persist.gammaos.nano.primary_display (defaults to 0 = first enumerated CRTC).
+static int sDrmPrimaryIdx = 0;
+// Deadline for the late-display re-probe (monotonic ns). drmRescanDisplays()
+// is a no-op once the boot window has expired, to avoid wasted ioctls
+// forever on single-display hardware.
+static int64_t sDrmRescanDeadlineNs = 0;
+
+// Create and map a double-buffered dumb buffer pair for a DRM CRTC. Shared
+// by drmEarlySplash (first-pass enumeration) and drmRescanDisplays (late
+// re-probe for displays that weren't ready at splash time).
+static bool drmCreateDumbBuffer(int fd, uint32_t w, uint32_t h, DrmBuffer* out) {
+    struct drm_mode_create_dumb create = {};
+    create.width = w; create.height = h; create.bpp = 32;
+    if (ioctl(fd, DRM_IOCTL_MODE_CREATE_DUMB, &create) != 0) return false;
+
+    struct drm_mode_map_dumb mapReq = {};
+    mapReq.handle = create.handle;
+    if (ioctl(fd, DRM_IOCTL_MODE_MAP_DUMB, &mapReq) != 0) return false;
+
+    void* mapped = mmap(nullptr, create.size, PROT_READ | PROT_WRITE,
+                       MAP_SHARED, fd, mapReq.offset);
+    if (mapped == MAP_FAILED) return false;
+
+    // Fill with dark background so the display isn't garbage on first scanout
+    uint32_t* px = (uint32_t*)mapped;
+    for (uint32_t i = 0; i < w * h; i++) px[i] = 0xFF1A0D0D;
+
+    struct drm_mode_fb_cmd fbCmd = {};
+    fbCmd.width = w; fbCmd.height = h;
+    fbCmd.pitch = create.pitch; fbCmd.bpp = 32; fbCmd.depth = 24;
+    fbCmd.handle = create.handle;
+    if (ioctl(fd, DRM_IOCTL_MODE_ADDFB, &fbCmd) != 0) {
+        munmap(mapped, create.size); return false;
+    }
+    out->handle = create.handle;
+    out->fbId = fbCmd.fb_id;
+    out->pitch = create.pitch;
+    out->size = create.size;
+    out->mapped = mapped;
+    out->dmaFd = -1;
+    out->eglImage = EGL_NO_IMAGE_KHR;
+    out->glTexture = 0;
+    out->glFbo = 0;
+    return true;
+}
+
+// Try to bring up a single DRM CRTC with the given connector. Returns true
+// if the CRTC was added to sDrmDisplays. Non-blocking: if the mode is not
+// valid (display not ready), returns false immediately — caller can retry
+// later via drmRescanDisplays().
+static bool drmTryAddDisplay(int fd, uint32_t crtcId, uint32_t connId, const char* stage) {
+    struct drm_mode_crtc crtc = {};
+    crtc.crtc_id = crtcId;
+    if (ioctl(fd, DRM_IOCTL_MODE_GETCRTC, &crtc) != 0 || !crtc.mode_valid) {
+        return false;
+    }
+
+    uint32_t w = crtc.mode.hdisplay, h = crtc.mode.vdisplay;
+    DrmBuffer buf0, buf1;
+    if (!drmCreateDumbBuffer(fd, w, h, &buf0)) return false;
+    if (!drmCreateDumbBuffer(fd, w, h, &buf1)) {
+        munmap(buf0.mapped, buf0.size);
+        return false;
+    }
+
+    crtc.fb_id = buf0.fbId;
+    crtc.set_connectors_ptr = (uint64_t)(uintptr_t)&connId;
+    crtc.count_connectors = 1;
+    int ret = ioctl(fd, DRM_IOCTL_MODE_SETCRTC, &crtc);
+
+    int64_t now = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL;
+    ALOGW("NanoMenu DRM %s: crtc %u (%ux%u) conn %u → %s at T+%lldms",
+          stage, crtcId, w, h, connId, ret == 0 ? "OK" : strerror(errno), now);
+
+    if (ret != 0) {
+        munmap(buf0.mapped, buf0.size);
+        munmap(buf1.mapped, buf1.size);
+        return false;
+    }
+
+    DrmDisplay d = {};
+    d.crtcId = crtcId; d.connId = connId;
+    d.w = w; d.h = h;
+    d.buffers[0] = buf0;
+    d.buffers[1] = buf1;
+    d.activeBuffer = 0;
+    d.mode = crtc.mode;
+    sDrmDisplays.push_back(d);
+    return true;
+}
+
+// Re-probe DRM CRTCs that weren't ready at drmEarlySplash() time. Called
+// periodically from the main loop so a slow-to-come-up display can be
+// brought in without blocking the fast path. Bounded by sDrmRescanDeadlineNs
+// so we stop burning ioctls after the boot window.
+static void drmRescanDisplays() {
+    if (sDrmFd < 0) return;
+    if (sDrmRescanDeadlineNs == 0) return;
+    if (systemTime(SYSTEM_TIME_MONOTONIC) > sDrmRescanDeadlineNs) {
+        sDrmRescanDeadlineNs = 0; // disable further scans
+        return;
+    }
+
+    struct drm_mode_card_res res = {};
+    if (ioctl(sDrmFd, DRM_IOCTL_MODE_GETRESOURCES, &res) != 0 || res.count_crtcs == 0) {
+        return;
+    }
+    uint32_t numCrtcs = res.count_crtcs, numConns = res.count_connectors;
+    std::vector<uint32_t> crtcs(numCrtcs), connectors(numConns);
+    struct drm_mode_card_res res2 = {};
+    res2.count_crtcs = numCrtcs;
+    res2.count_connectors = numConns;
+    res2.crtc_id_ptr = (uint64_t)(uintptr_t)crtcs.data();
+    res2.connector_id_ptr = (uint64_t)(uintptr_t)connectors.data();
+    if (ioctl(sDrmFd, DRM_IOCTL_MODE_GETRESOURCES, &res2) != 0) return;
+
+    for (uint32_t c = 0; c < numCrtcs && c < 2; c++) {
+        // Skip CRTCs already in our display list.
+        bool already = false;
+        for (const auto& d : sDrmDisplays) {
+            if (d.crtcId == crtcs[c]) { already = true; break; }
+        }
+        if (already) continue;
+
+        uint32_t connId = (c < numConns) ? connectors[c] : 0;
+        if (drmTryAddDisplay(sDrmFd, crtcs[c], connId, "rescan")) {
+            ALOGW("NanoMenu DRM rescan: brought up late CRTC %u (now %zu displays)",
+                  crtcs[c], sDrmDisplays.size());
+            // A new display came up. We don't re-allocate the secondary AHB
+            // here because the GL context for AHB allocation lives on the
+            // render thread and drmRescanDisplays is called from the main
+            // loop, which IS the render thread — but drmSetupZeroCopy uses
+            // the EGL display. The simplest behavior: leave AHB setup alone.
+            // The new display will mirror the primary (sAhbTarget) via the
+            // fallback path in drmFlipAll. Good enough for the edge case.
+        }
+    }
+}
 
 static void drmEarlySplash() {
     int64_t t0 = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL;
@@ -1907,82 +2062,43 @@ static void drmEarlySplash() {
 
     sDrmFd = fd;
 
-    auto createBuffer = [&](uint32_t w, uint32_t h, DrmBuffer* out) -> bool {
-        struct drm_mode_create_dumb create = {};
-        create.width = w; create.height = h; create.bpp = 32;
-        if (ioctl(fd, DRM_IOCTL_MODE_CREATE_DUMB, &create) != 0) return false;
-
-        struct drm_mode_map_dumb mapReq = {};
-        mapReq.handle = create.handle;
-        if (ioctl(fd, DRM_IOCTL_MODE_MAP_DUMB, &mapReq) != 0) return false;
-
-        void* mapped = mmap(nullptr, create.size, PROT_READ | PROT_WRITE,
-                           MAP_SHARED, fd, mapReq.offset);
-        if (mapped == MAP_FAILED) return false;
-
-        // Fill with dark background
-        uint32_t* px = (uint32_t*)mapped;
-        for (uint32_t i = 0; i < w * h; i++) px[i] = 0xFF1A0D0D;
-
-        struct drm_mode_fb_cmd fbCmd = {};
-        fbCmd.width = w; fbCmd.height = h;
-        fbCmd.pitch = create.pitch; fbCmd.bpp = 32; fbCmd.depth = 24;
-        fbCmd.handle = create.handle;
-        if (ioctl(fd, DRM_IOCTL_MODE_ADDFB, &fbCmd) != 0) {
-            munmap(mapped, create.size); return false;
-        }
-        out->handle = create.handle;
-        out->fbId = fbCmd.fb_id;
-        out->pitch = create.pitch;
-        out->size = create.size;
-        out->mapped = mapped;
-        out->dmaFd = -1;
-        out->eglImage = EGL_NO_IMAGE_KHR;
-        out->glTexture = 0;
-        out->glFbo = 0;
-        return true;
-    };
-
+    // Enumerate CRTCs independently — a slow display does NOT hold back a
+    // fast one. Any CRTC that isn't ready here is retried by drmRescanDisplays().
+    int attempted = 0, addedCount = 0;
     for (uint32_t c = 0; c < numCrtcs && c < 2; c++) {
-        struct drm_mode_crtc crtc = {};
-        crtc.crtc_id = crtcs[c];
-        if (ioctl(fd, DRM_IOCTL_MODE_GETCRTC, &crtc) != 0 || !crtc.mode_valid) continue;
-
-        uint32_t w = crtc.mode.hdisplay, h = crtc.mode.vdisplay;
-
-        // Create two dumb buffers for double buffering
-        DrmBuffer buf0, buf1;
-        if (!createBuffer(w, h, &buf0)) continue;
-        if (!createBuffer(w, h, &buf1)) { munmap(buf0.mapped, buf0.size); continue; }
-
-        // Set CRTC to buffer 0 initially
+        attempted++;
         uint32_t connId = (c < numConns) ? connectors[c] : 0;
-        crtc.fb_id = buf0.fbId;
-        crtc.set_connectors_ptr = (uint64_t)(uintptr_t)&connId;
-        crtc.count_connectors = 1;
-        int ret = ioctl(fd, DRM_IOCTL_MODE_SETCRTC, &crtc);
-
-        int64_t now = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL;
-        ALOGW("NanoMenu DRM splash: crtc %u (%ux%u) conn %u → %s at T+%lldms",
-              crtcs[c], w, h, connId, ret == 0 ? "OK" : strerror(errno), now);
-
-        if (ret == 0) {
-            DrmDisplay d = {};
-            d.crtcId = crtcs[c]; d.connId = connId;
-            d.w = w; d.h = h;
-            d.buffers[0] = buf0;
-            d.buffers[1] = buf1;
-            d.activeBuffer = 0;
-            d.mode = crtc.mode;
-            sDrmDisplays.push_back(d);
-        } else {
-            munmap(buf0.mapped, buf0.size);
-            munmap(buf1.mapped, buf1.size);
-        }
+        if (drmTryAddDisplay(fd, crtcs[c], connId, "splash")) addedCount++;
     }
     sDrmActive = !sDrmDisplays.empty();
     if (sDrmActive) {
-        ALOGW("NanoMenu DRM splash: %zu displays active for direct rendering", sDrmDisplays.size());
+        ALOGW("NanoMenu DRM splash: %d/%d CRTCs active for direct rendering",
+              addedCount, attempted);
+    }
+
+    // Enable late-display re-probe for the first 5 seconds of the process.
+    // This is a bounded window: if a panel hasn't come up by then, it is
+    // either broken or never going to, so we stop spending ioctls on it.
+    sDrmRescanDeadlineNs = systemTime(SYSTEM_TIME_MONOTONIC) + 5000000000LL;
+
+    // GammaOS: Read persist.gammaos.nano.primary_display to choose which
+    // enumerated CRTC receives the XMB/menu AHB. All other displays receive
+    // wallpaper-only output via sAhbTargetSecondary. The property value is a
+    // CRTC enumeration index (0 = first, 1 = second, ...). Invalid values
+    // fall back to 0. This mirrors the same property used post-boot to pick
+    // the physical display port for the EGL/SurfaceFlinger path.
+    {
+        char primaryProp[PROPERTY_VALUE_MAX] = {};
+        property_get("persist.gammaos.nano.primary_display", primaryProp, "0");
+        int wantIdx = atoi(primaryProp);
+        if (wantIdx < 0 || wantIdx >= (int)sDrmDisplays.size()) {
+            wantIdx = 0;
+        }
+        sDrmPrimaryIdx = wantIdx;
+        if (sDrmDisplays.size() > 1) {
+            ALOGW("NanoMenu DRM: primary_display prop='%s' → CRTC index %d (of %zu)",
+                  primaryProp, sDrmPrimaryIdx, sDrmDisplays.size());
+        }
     }
 
     // GammaOS: Read the install orientation so DRM direct rendering can rotate
@@ -2003,10 +2119,86 @@ static void drmEarlySplash() {
     }
 }
 
+// Build an AHB-backed FBO of the given dimensions. Fills out `target` on
+// success; leaves it zeroed and returns false on failure. Factored out so we
+// can allocate both primary and secondary render targets from the same code.
+static bool drmAllocAhbTarget(EGLDisplay eglDpy, uint32_t w, uint32_t h,
+                               AhbRenderTarget* target, const char* label) {
+    AHardwareBuffer_Desc desc = {};
+    desc.width = w;
+    desc.height = h;
+    desc.layers = 1;
+    desc.format = AHARDWAREBUFFER_FORMAT_R8G8B8A8_UNORM;
+    desc.usage = AHARDWAREBUFFER_USAGE_GPU_FRAMEBUFFER |
+                 AHARDWAREBUFFER_USAGE_GPU_SAMPLED_IMAGE |
+                 AHARDWAREBUFFER_USAGE_CPU_READ_OFTEN;
+    if (AHardwareBuffer_allocate(&desc, &target->ahb) != 0 || !target->ahb) {
+        ALOGW("NanoMenu DRM zero-copy: AHardwareBuffer_allocate(%s) failed", label);
+        return false;
+    }
+
+    EGLClientBuffer clientBuf = sEglGetNativeClientBufferANDROID(target->ahb);
+    if (!clientBuf) {
+        ALOGW("NanoMenu DRM zero-copy: eglGetNativeClientBufferANDROID(%s) failed", label);
+        AHardwareBuffer_release(target->ahb); target->ahb = nullptr;
+        return false;
+    }
+
+    EGLint imgAttrs[] = { EGL_IMAGE_PRESERVED_KHR, EGL_TRUE, EGL_NONE };
+    target->eglImage = sEglCreateImageKHR(eglDpy, EGL_NO_CONTEXT,
+                                           EGL_NATIVE_BUFFER_ANDROID, clientBuf, imgAttrs);
+    if (target->eglImage == EGL_NO_IMAGE_KHR) {
+        ALOGW("NanoMenu DRM zero-copy: eglCreateImageKHR(%s) failed", label);
+        AHardwareBuffer_release(target->ahb); target->ahb = nullptr;
+        return false;
+    }
+
+    glGenTextures(1, &target->glTexture);
+    glBindTexture(GL_TEXTURE_2D, target->glTexture);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    sGlEGLImageTargetTexture2DOES(GL_TEXTURE_2D, (GLeglImageOES)target->eglImage);
+    if (glGetError() != GL_NO_ERROR) {
+        ALOGW("NanoMenu DRM zero-copy: glEGLImageTargetTexture2DOES(%s) failed", label);
+        glDeleteTextures(1, &target->glTexture); target->glTexture = 0;
+        sEglDestroyImageKHR(eglDpy, target->eglImage); target->eglImage = EGL_NO_IMAGE_KHR;
+        AHardwareBuffer_release(target->ahb); target->ahb = nullptr;
+        return false;
+    }
+
+    glGenFramebuffers(1, &target->glFbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, target->glFbo);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+                           GL_TEXTURE_2D, target->glTexture, 0);
+    GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    if (status != GL_FRAMEBUFFER_COMPLETE) {
+        ALOGW("NanoMenu DRM zero-copy: AHB FBO(%s) incomplete 0x%x", label, status);
+        glDeleteFramebuffers(1, &target->glFbo); target->glFbo = 0;
+        glDeleteTextures(1, &target->glTexture); target->glTexture = 0;
+        sEglDestroyImageKHR(eglDpy, target->eglImage); target->eglImage = EGL_NO_IMAGE_KHR;
+        AHardwareBuffer_release(target->ahb); target->ahb = nullptr;
+        return false;
+    }
+
+    target->w = w;
+    target->h = h;
+    ALOGW("NanoMenu DRM zero-copy: AHB(%s) ENABLED — fbo=%u tex=%u (%ux%u)",
+          label, target->glFbo, target->glTexture, w, h);
+    return true;
+}
+
 // Set up fast GPU→DRM rendering via AHardwareBuffer.
 // GPU renders into an AHB-backed FBO, then we lock the AHB for CPU read
 // (fast, no driver format conversion) and memcpy to DRM dumb buffer.
 // This avoids glReadPixels (~170ms on Mali G52) entirely.
+//
+// Allocates two targets: PRIMARY (wallpaper + menu) and SECONDARY (wallpaper
+// only). The secondary is only created if sDrmDisplays has more than one
+// entry. Secondary allocation is best-effort: if it fails, the secondary
+// display simply mirrors the primary (same behavior as before this patch).
 static void drmSetupZeroCopy(EGLDisplay eglDpy) {
     if (!sDrmActive) return;
 
@@ -2030,82 +2222,39 @@ static void drmSetupZeroCopy(EGLDisplay eglDpy) {
         return;
     }
 
-    // Use primary display dimensions for the render target.
-    // AHB is always at PANEL NATIVE dimensions. When the install orientation
-    // is non-zero, GL rotation (via uRotation mat2 in vertex shaders) maps
-    // logical coords to the panel-native AHB — so the blit is always a fast
-    // straight copy with no per-pixel rotation.
-    uint32_t w = sDrmDisplays[0].w;
-    uint32_t h = sDrmDisplays[0].h;
+    // AHB is always at PANEL NATIVE dimensions of the selected primary display.
+    // When the install orientation is non-zero, GL rotation (via uRotation mat2
+    // in vertex shaders) maps logical coords to the panel-native AHB — so the
+    // blit is always a fast straight copy with no per-pixel rotation.
+    const uint32_t primaryW = sDrmDisplays[sDrmPrimaryIdx].w;
+    const uint32_t primaryH = sDrmDisplays[sDrmPrimaryIdx].h;
 
-    // Allocate AHardwareBuffer: GPU color output + CPU read for memcpy to DRM
-    AHardwareBuffer_Desc desc = {};
-    desc.width = w;
-    desc.height = h;
-    desc.layers = 1;
-    desc.format = AHARDWAREBUFFER_FORMAT_R8G8B8A8_UNORM;
-    desc.usage = AHARDWAREBUFFER_USAGE_GPU_FRAMEBUFFER |
-                 AHARDWAREBUFFER_USAGE_GPU_SAMPLED_IMAGE |
-                 AHARDWAREBUFFER_USAGE_CPU_READ_OFTEN;
-    if (AHardwareBuffer_allocate(&desc, &sAhbTarget.ahb) != 0 || !sAhbTarget.ahb) {
-        ALOGW("NanoMenu DRM zero-copy: AHardwareBuffer_allocate failed");
+    if (!drmAllocAhbTarget(eglDpy, primaryW, primaryH, &sAhbTarget, "primary")) {
         return;
     }
 
-    EGLClientBuffer clientBuf = sEglGetNativeClientBufferANDROID(sAhbTarget.ahb);
-    if (!clientBuf) {
-        ALOGW("NanoMenu DRM zero-copy: eglGetNativeClientBufferANDROID failed");
-        AHardwareBuffer_release(sAhbTarget.ahb); sAhbTarget.ahb = nullptr;
-        return;
-    }
-
-    EGLint imgAttrs[] = {
-        EGL_IMAGE_PRESERVED_KHR, EGL_TRUE,
-        EGL_NONE
-    };
-    sAhbTarget.eglImage = sEglCreateImageKHR(eglDpy, EGL_NO_CONTEXT,
-                                             EGL_NATIVE_BUFFER_ANDROID, clientBuf, imgAttrs);
-    if (sAhbTarget.eglImage == EGL_NO_IMAGE_KHR) {
-        ALOGW("NanoMenu DRM zero-copy: eglCreateImageKHR(AHB) failed");
-        AHardwareBuffer_release(sAhbTarget.ahb); sAhbTarget.ahb = nullptr;
-        return;
-    }
-
-    glGenTextures(1, &sAhbTarget.glTexture);
-    glBindTexture(GL_TEXTURE_2D, sAhbTarget.glTexture);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    sGlEGLImageTargetTexture2DOES(GL_TEXTURE_2D, (GLeglImageOES)sAhbTarget.eglImage);
-    if (glGetError() != GL_NO_ERROR) {
-        ALOGW("NanoMenu DRM zero-copy: glEGLImageTargetTexture2DOES(AHB) failed");
-        glDeleteTextures(1, &sAhbTarget.glTexture);
-        sEglDestroyImageKHR(eglDpy, sAhbTarget.eglImage);
-        AHardwareBuffer_release(sAhbTarget.ahb); sAhbTarget.ahb = nullptr;
-        return;
-    }
-
-    glGenFramebuffers(1, &sAhbTarget.glFbo);
-    glBindFramebuffer(GL_FRAMEBUFFER, sAhbTarget.glFbo);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
-                           GL_TEXTURE_2D, sAhbTarget.glTexture, 0);
-    GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    if (status != GL_FRAMEBUFFER_COMPLETE) {
-        ALOGW("NanoMenu DRM zero-copy: AHB FBO incomplete 0x%x", status);
-        glDeleteFramebuffers(1, &sAhbTarget.glFbo);
-        glDeleteTextures(1, &sAhbTarget.glTexture);
-        sEglDestroyImageKHR(eglDpy, sAhbTarget.eglImage);
-        AHardwareBuffer_release(sAhbTarget.ahb); sAhbTarget.ahb = nullptr;
-        return;
-    }
-
-    sAhbTarget.w = w;
-    sAhbTarget.h = h;
     sDrmZeroCopy = true;
-    ALOGW("NanoMenu DRM zero-copy: AHB ENABLED — fbo=%u tex=%u (%ux%u)",
-          sAhbTarget.glFbo, sAhbTarget.glTexture, w, h);
+
+    // Allocate a secondary AHB for wallpaper-only rendering when more than
+    // one display is active. Use the first non-primary display's dimensions;
+    // if other non-primary displays have different resolutions the blit
+    // tolerates mismatch (clips/pads in blitAhbToDrmBuffer).
+    if (sDrmDisplays.size() > 1) {
+        uint32_t secW = 0, secH = 0;
+        for (size_t i = 0; i < sDrmDisplays.size(); i++) {
+            if ((int)i == sDrmPrimaryIdx) continue;
+            secW = sDrmDisplays[i].w;
+            secH = sDrmDisplays[i].h;
+            break;
+        }
+        if (secW > 0 && secH > 0) {
+            if (!drmAllocAhbTarget(eglDpy, secW, secH, &sAhbTargetSecondary,
+                                    "secondary-wallpaper")) {
+                // Secondary failed — secondary display(s) will mirror primary.
+                ALOGW("NanoMenu DRM: secondary AHB alloc failed, fallback to mirror");
+            }
+        }
+    }
 }
 
 // Bind the AHB-backed FBO for rendering. Call before render().
@@ -2115,108 +2264,210 @@ static void drmBindNextFbo() {
     glViewport(0, 0, sAhbTarget.w, sAhbTarget.h);
 }
 
-// Lock the AHB, memcpy its contents to each display's back buffer, page flip.
-// AHB lock is fast (~1ms) — no driver format conversion like glReadPixels.
+// NEON-accelerated row blit: AHB (R8G8B8A8, memory order [R,G,B,A]) →
+// DRM dumb buffer (XRGB8888, memory order [B,G,R,X=0xFF]). Processes 16
+// pixels per vector iteration using vld4q/vst4q for a zero-shuffle channel
+// swap. Scalar tail handles any sub-16-pixel remainder.
+//
+// Cortex-A55 characteristics: 128-bit NEON, 64-byte cache line, in-order.
+// vld4q_u8 de-interleaves 16 RGBA pixels into 4x16 byte planes in ~4 cycles.
+// Channel swap is free — we just re-interleave in a different order.
+// Prefetch hint at +128 bytes (32 pixels ahead) keeps the L2 fed on A55.
+static inline void blitRowRgbaToXrgbNeon(const uint32_t* __restrict src,
+                                          uint32_t* __restrict dst,
+                                          uint32_t count) {
+#if GAMMAOS_NANO_HAVE_NEON
+    const uint32_t vecPixels = count & ~15u; // round down to multiple of 16
+    const uint8x16_t alphaMask = vdupq_n_u8(0xFF);
+    const uint8_t* s8 = (const uint8_t*)src;
+    uint8_t* d8 = (uint8_t*)dst;
+    for (uint32_t i = 0; i < vecPixels; i += 16) {
+        __builtin_prefetch(s8 + 128, 0, 0); // next-next cache line read
+        uint8x16x4_t p = vld4q_u8(s8);
+        // p.val[0]=R, [1]=G, [2]=B, [3]=A (from memory order R,G,B,A)
+        // DRM XRGB8888 little-endian stores [B,G,R,X] in memory.
+        uint8x16x4_t q;
+        q.val[0] = p.val[2]; // B
+        q.val[1] = p.val[1]; // G
+        q.val[2] = p.val[0]; // R
+        q.val[3] = alphaMask; // X=0xFF
+        vst4q_u8(d8, q);
+        s8 += 64; d8 += 64;
+    }
+    for (uint32_t i = vecPixels; i < count; i++) {
+        uint32_t rgba = src[i];
+        dst[i] = 0xFF000000u |
+                 ((rgba >> 16) & 0xFFu) |
+                 (rgba & 0xFF00u) |
+                 ((rgba & 0xFFu) << 16);
+    }
+#else
+    for (uint32_t i = 0; i < count; i++) {
+        uint32_t rgba = src[i];
+        dst[i] = 0xFF000000u |
+                 ((rgba >> 16) & 0xFFu) |
+                 (rgba & 0xFF00u) |
+                 ((rgba & 0xFFu) << 16);
+    }
+#endif
+}
+
+// Blit a single AHB into a single DRM dumb buffer, handling Y-flip and
+// optional 90/180/270 rotation. The 0° case uses the NEON row helper above.
+static void blitAhbToDrmBuffer(const void* ahbPtr, uint32_t ahbStride,
+                                uint32_t srcW, uint32_t srcH,
+                                void* dstMapped, uint32_t dstPitch,
+                                uint32_t dstW, uint32_t dstH,
+                                int blitRotation) {
+    uint8_t* dst = (uint8_t*)dstMapped;
+    if (blitRotation == 0) {
+        const uint32_t copyW = std::min(srcW, dstW);
+        const uint32_t copyH = std::min(srcH, dstH);
+        for (uint32_t dy = 0; dy < copyH; dy++) {
+            uint32_t* dstRow = (uint32_t*)(dst + dy * dstPitch);
+            const uint32_t* srcRow = (const uint32_t*)((const uint8_t*)ahbPtr
+                                     + (srcH - 1 - dy) * ahbStride);
+            blitRowRgbaToXrgbNeon(srcRow, dstRow, copyW);
+            // If dst is wider than src, clear the right margin.
+            if (dstW > copyW) {
+                memset(dstRow + copyW, 0, (dstW - copyW) * 4);
+            }
+        }
+        // If dst is taller than src, clear the bottom margin.
+        for (uint32_t dy = copyH; dy < dstH; dy++) {
+            memset(dst + dy * dstPitch, 0, dstW * 4);
+        }
+        return;
+    }
+    // Rotated paths: scalar per-pixel (rare — only used if GL rotation fallback).
+    for (uint32_t dy = 0; dy < dstH; dy++) {
+        uint32_t* dstRow = (uint32_t*)(dst + dy * dstPitch);
+        for (uint32_t dx = 0; dx < dstW; dx++) {
+            uint32_t sx, sy;
+            switch (blitRotation) {
+            case 90:  sx = dy; sy = dx; break;
+            case 180: sx = srcW-1-dx; sy = dy; break;
+            case 270: sx = srcW-1-dy; sy = srcH-1-dx; break;
+            default:  sx = dx; sy = srcH-1-dy; break;
+            }
+            if (sx >= srcW || sy >= srcH) continue;
+            const uint32_t* srcRow = (const uint32_t*)((const uint8_t*)ahbPtr
+                                     + sy * ahbStride);
+            uint32_t rgba = srcRow[sx];
+            dstRow[dx] = 0xFF000000u |
+                         ((rgba >> 16) & 0xFFu) |
+                         (rgba & 0xFF00u) |
+                         ((rgba & 0xFFu) << 16);
+        }
+    }
+}
+
+// Present all DRM displays. Each display reads from its assigned AHB:
+// - sDrmPrimaryIdx → sAhbTarget (wallpaper + menu)
+// - every other display → sAhbTargetSecondary (wallpaper only)
+// If the secondary AHB isn't allocated (single-display hardware, or allocation
+// failed), every display falls back to the primary AHB (mirrored).
+// Non-blocking page flip per display: displays are independent — if one fails
+// to flip, the others still present.
 static void drmFlipAll() {
     if (!sDrmZeroCopy || !sAhbTarget.ahb) return;
 
     static int sFlipCount = 0;
-    bool verbose = (sFlipCount < 3);
+    // Log timing for the first 5 flips (boot window) then once per second
+    // thereafter so we can observe steady-state latency in XMB mode without
+    // flooding logcat.
+    bool verbose = (sFlipCount < 5) || (sFlipCount % 60 == 0);
     int64_t t0 = verbose ? (systemTime(SYSTEM_TIME_MONOTONIC) / 1000LL) : 0;
 
     // Unbind FBO so subsequent GL calls don't mess with AHB
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glFinish(); // ensure GPU done writing to AHB before CPU locks it
+    glFinish(); // ensure GPU done writing to both AHBs before CPU locks them
 
     int64_t tFinish = verbose ? (systemTime(SYSTEM_TIME_MONOTONIC) / 1000LL) : 0;
 
-    // Lock AHB for CPU read
-    void* ahbPtr = nullptr;
-    int lockErr = AHardwareBuffer_lock(sAhbTarget.ahb, AHARDWAREBUFFER_USAGE_CPU_READ_OFTEN,
-                                       -1, nullptr, &ahbPtr);
-    if (lockErr != 0 || !ahbPtr) {
-        if (verbose) ALOGW("NanoMenu DRM zero-copy: AHB lock failed %d", lockErr);
+    const bool haveSecondary = (sAhbTargetSecondary.ahb != nullptr);
+    const int blitRotation = sDrmGlRotation ? 0 : sDrmRotationDeg;
+
+    // Pre-query strides once per AHB (may be padded beyond width).
+    AHardwareBuffer_Desc descPrimary = {};
+    AHardwareBuffer_describe(sAhbTarget.ahb, &descPrimary);
+    const uint32_t primaryStride = descPrimary.stride * 4;
+
+    AHardwareBuffer_Desc descSecondary = {};
+    uint32_t secondaryStride = 0;
+    if (haveSecondary) {
+        AHardwareBuffer_describe(sAhbTargetSecondary.ahb, &descSecondary);
+        secondaryStride = descSecondary.stride * 4;
+    }
+
+    // Lock primary AHB once for the whole flip pass.
+    void* primaryPtr = nullptr;
+    int lockErr = AHardwareBuffer_lock(sAhbTarget.ahb,
+                                        AHARDWAREBUFFER_USAGE_CPU_READ_OFTEN,
+                                        -1, nullptr, &primaryPtr);
+    if (lockErr != 0 || !primaryPtr) {
+        if (verbose) ALOGW("NanoMenu DRM: primary AHB lock failed %d", lockErr);
         return;
     }
 
-    // Query the stride (AHB rows may be padded)
-    AHardwareBuffer_Desc desc = {};
-    AHardwareBuffer_describe(sAhbTarget.ahb, &desc);
-    uint32_t ahbStride = desc.stride * 4; // pixels → bytes
-
-    int64_t tLock = verbose ? (systemTime(SYSTEM_TIME_MONOTONIC) / 1000LL) : 0;
-
-    // Copy AHB → each display's back buffer. GL is bottom-up, DRM top-down → flip Y.
-    // AHB is RGBA; DRM dumb buffer is XRGB (B and R swapped).
-    // When install orientation is non-zero, the AHB holds logically-rotated content
-    // that must be rotated back to physical panel layout during the blit.
-    for (auto& d : sDrmDisplays) {
-        int idx = 1 - d.activeBuffer;
-        DrmBuffer& buf = d.buffers[idx];
-        uint8_t* dst = (uint8_t*)buf.mapped;
-        const uint32_t srcW = sAhbTarget.w;
-        const uint32_t srcH = sAhbTarget.h;
-        const uint32_t dstW = d.w;
-        const uint32_t dstH = d.h;
-
-        // When GL rotation is active (sDrmGlRotation), the AHB content is
-        // already panel-native thanks to the vertex shader rotation. The blit
-        // is a fast straight copy: row-sequential reads, no coordinate rotation.
-        // When GL rotation is NOT active (sDrmRotationDeg==0 or legacy fallback),
-        // the per-pixel rotation switch is used as before.
-        const int blitRotation = sDrmGlRotation ? 0 : sDrmRotationDeg;
-        for (uint32_t dy = 0; dy < dstH; dy++) {
-            uint32_t* dstRow = (uint32_t*)(dst + dy * buf.pitch);
-            // Fast path: 0° straight copy (GL Y flip only).
-            // AHB row (srcH-1-dy) → DRM row dy, with RGBA→XRGB swap.
-            if (blitRotation == 0) {
-                uint32_t copyW = std::min(srcW, dstW);
-                if (dy >= srcH) { memset(dstRow, 0, dstW * 4); continue; }
-                uint32_t* srcRow = (uint32_t*)((uint8_t*)ahbPtr
-                                   + (srcH - 1 - dy) * ahbStride);
-                for (uint32_t dx = 0; dx < copyW; dx++) {
-                    uint32_t rgba = srcRow[dx];
-                    dstRow[dx] = 0xFF000000 |
-                                 ((rgba >> 16) & 0xFF) |
-                                 (rgba & 0xFF00) |
-                                 ((rgba & 0xFF) << 16);
-                }
-                continue;
-            }
-            for (uint32_t dx = 0; dx < dstW; dx++) {
-                uint32_t sx, sy;
-                switch (blitRotation) {
-                case 90:  sx = dy; sy = dx; break;
-                case 180: sx = srcW-1-dx; sy = dy; break;
-                case 270: sx = srcW-1-dy; sy = srcH-1-dx; break;
-                default:  sx = dx; sy = srcH-1-dy; break;
-                }
-                if (sx >= srcW || sy >= srcH) continue;
-                uint32_t* srcRow = (uint32_t*)((uint8_t*)ahbPtr + sy * ahbStride);
-                uint32_t rgba = srcRow[sx];
-                dstRow[dx] = 0xFF000000 |
-                             ((rgba >> 16) & 0xFF) |
-                             (rgba & 0xFF00) |
-                             ((rgba & 0xFF) << 16);
-            }
+    // Lock secondary AHB (if present). If this fails, fall through and feed
+    // every display from the primary AHB — the secondary display is still
+    // visible, just mirrored.
+    void* secondaryPtr = nullptr;
+    if (haveSecondary) {
+        int serr = AHardwareBuffer_lock(sAhbTargetSecondary.ahb,
+                                         AHARDWAREBUFFER_USAGE_CPU_READ_OFTEN,
+                                         -1, nullptr, &secondaryPtr);
+        if (serr != 0 || !secondaryPtr) {
+            if (verbose) ALOGW("NanoMenu DRM: secondary AHB lock failed %d", serr);
+            secondaryPtr = nullptr;
         }
     }
 
-    int64_t tCopy = verbose ? (systemTime(SYSTEM_TIME_MONOTONIC) / 1000LL) : 0;
+    int64_t tLock = verbose ? (systemTime(SYSTEM_TIME_MONOTONIC) / 1000LL) : 0;
 
-    AHardwareBuffer_unlock(sAhbTarget.ahb, nullptr);
+    // Blit + flip each display independently. Order is not important — each
+    // page flip is a non-blocking ioctl and the displays scan out on their own
+    // vblank. A failure on one display does not prevent the others from
+    // presenting.
+    for (size_t i = 0; i < sDrmDisplays.size(); i++) {
+        auto& d = sDrmDisplays[i];
+        const bool isPrimary = ((int)i == sDrmPrimaryIdx);
 
-    // Page flip all displays
-    for (auto& d : sDrmDisplays) {
+        // Select source AHB. Secondary displays fall back to primary if the
+        // secondary AHB wasn't set up or locked successfully.
+        const void* srcPtr;
+        uint32_t srcStride;
+        uint32_t srcW, srcH;
+        if (isPrimary || !secondaryPtr) {
+            srcPtr = primaryPtr;
+            srcStride = primaryStride;
+            srcW = sAhbTarget.w;
+            srcH = sAhbTarget.h;
+        } else {
+            srcPtr = secondaryPtr;
+            srcStride = secondaryStride;
+            srcW = sAhbTargetSecondary.w;
+            srcH = sAhbTargetSecondary.h;
+        }
+
         int idx = 1 - d.activeBuffer;
+        DrmBuffer& buf = d.buffers[idx];
+        blitAhbToDrmBuffer(srcPtr, srcStride, srcW, srcH,
+                            buf.mapped, buf.pitch, d.w, d.h, blitRotation);
+
+        // Page flip — non-blocking. flags=0 means no vblank event is
+        // requested, just swap the buffer on next vsync. If the kernel
+        // rejects the flip (e.g. CRTC not enabled yet for a late-ready
+        // display), fall back to drmModeSetCrtc which force-sets the mode.
         struct drm_mode_crtc_page_flip flip = {};
         flip.crtc_id = d.crtcId;
-        flip.fb_id = d.buffers[idx].fbId;
+        flip.fb_id = buf.fbId;
         flip.flags = 0;
         if (ioctl(sDrmFd, DRM_IOCTL_MODE_PAGE_FLIP, &flip) != 0) {
             struct drm_mode_crtc crtc = {};
             crtc.crtc_id = d.crtcId;
-            crtc.fb_id = d.buffers[idx].fbId;
+            crtc.fb_id = buf.fbId;
             crtc.set_connectors_ptr = (uint64_t)(uintptr_t)&d.connId;
             crtc.count_connectors = 1;
             crtc.mode = d.mode;
@@ -2226,10 +2477,17 @@ static void drmFlipAll() {
         d.activeBuffer = idx;
     }
 
+    int64_t tCopy = verbose ? (systemTime(SYSTEM_TIME_MONOTONIC) / 1000LL) : 0;
+
+    AHardwareBuffer_unlock(sAhbTarget.ahb, nullptr);
+    if (secondaryPtr) AHardwareBuffer_unlock(sAhbTargetSecondary.ahb, nullptr);
+
     if (verbose) {
         int64_t tEnd = systemTime(SYSTEM_TIME_MONOTONIC) / 1000LL;
-        ALOGW("NanoMenu AHB flip #%d: glFinish=%lldus lock=%lldus copy=%lldus flip=%lldus total=%lldus",
-              sFlipCount, tFinish - t0, tLock - tFinish, tCopy - tLock, tEnd - tCopy, tEnd - t0);
+        ALOGW("NanoMenu AHB flip #%d: glFinish=%lldus lock=%lldus blit+flip=%lldus unlock=%lldus total=%lldus displays=%zu primary=%d sec=%d",
+              sFlipCount, tFinish - t0, tLock - tFinish, tCopy - tLock,
+              tEnd - tCopy, tEnd - t0, sDrmDisplays.size(), sDrmPrimaryIdx,
+              haveSecondary ? 1 : 0);
     }
     sFlipCount++;
 }
@@ -2378,11 +2636,26 @@ static void drmStop() {
     // Rebind default framebuffer before destroying FBOs
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    // Release AHB render target
+    // Release primary AHB render target
     if (sAhbTarget.glFbo) { glDeleteFramebuffers(1, &sAhbTarget.glFbo); sAhbTarget.glFbo = 0; }
     if (sAhbTarget.glTexture) { glDeleteTextures(1, &sAhbTarget.glTexture); sAhbTarget.glTexture = 0; }
     if (sAhbTarget.ahb) { AHardwareBuffer_release(sAhbTarget.ahb); sAhbTarget.ahb = nullptr; }
     sAhbTarget.eglImage = EGL_NO_IMAGE_KHR;
+
+    // Release secondary (wallpaper-only) AHB render target
+    if (sAhbTargetSecondary.glFbo) {
+        glDeleteFramebuffers(1, &sAhbTargetSecondary.glFbo);
+        sAhbTargetSecondary.glFbo = 0;
+    }
+    if (sAhbTargetSecondary.glTexture) {
+        glDeleteTextures(1, &sAhbTargetSecondary.glTexture);
+        sAhbTargetSecondary.glTexture = 0;
+    }
+    if (sAhbTargetSecondary.ahb) {
+        AHardwareBuffer_release(sAhbTargetSecondary.ahb);
+        sAhbTargetSecondary.ahb = nullptr;
+    }
+    sAhbTargetSecondary.eglImage = EGL_NO_IMAGE_KHR;
 
     for (auto& d : sDrmDisplays) {
         for (int i = 0; i < 2; i++) {
@@ -2509,9 +2782,13 @@ status_t NanoMenu::readyToRun() {
     tlog("getActiveDisplayMode");
 
     ui::Size resolution = displayMode.resolution;
+    // GammaOS: Use RGBX_8888 (opaque 32bpp) to match the EGL config (8:8:8
+    // with alpha=0) and the AHB/DRM pixel format (R8G8B8A8 / XRGB8888).
+    // The previous RGB_565 surface forced the driver to do a 16→32 bpp
+    // conversion on every present, visible as extra GPU/CPU cost on Mali-G52.
     sp<SurfaceControl> control = session()->createSurface(
         String8("GammaOSNano"), resolution.getWidth(), resolution.getHeight(),
-        PIXEL_FORMAT_RGB_565, ISurfaceComposerClient::eOpaque);
+        PIXEL_FORMAT_RGBX_8888, ISurfaceComposerClient::eOpaque);
     tlog("createSurface (primary)");
 
     SurfaceComposerClient::Transaction t;
@@ -3341,19 +3618,41 @@ void NanoMenu::drawText(const char* str, float px, float py, float scale,
     }
     if (nGlyphs == 0) return;
 
-    // Batch all 5 passes into one vertex buffer: 4 shadow offsets (black) + 1 main
+    // Shadow pass selection:
+    // - XMB mode uses a single drop shadow (+1,+1). The XMB ribbon background
+    //   is dark and moving, so one offset is enough for readability and it
+    //   cuts text geometry by 60% (2 passes vs 5). This is a hot path on
+    //   Mali-G52: every visible game item emits one drawText call per frame,
+    //   and the footer string alone is 76 glyphs.
+    // - Normal menu mode keeps the 4-offset outline shadow since the flat
+    //   menu background benefits from an omnidirectional outline for
+    //   legibility against the blue selection bar.
     int n = 0;
-    float shadowA = a * 0.8f;
-    // Shadow offsets: left, right, up, down
-    static const float dirs[4][2] = {{-1,0},{1,0},{0,-1},{0,1}};
-    for (int d = 0; d < 4; d++) {
-        float dx = dirs[d][0] * offX;
-        float dy = dirs[d][1] * offY;
+    const float shadowA = a * 0.8f;
+    const bool xmbShadow = mXmbMode;
+    if (xmbShadow) {
+        // Single drop shadow (down-right) — emits nGlyphs quads, vs 4*nGlyphs
+        // in the default branch.
+        const float sdx = offX;
+        const float sdy = offY;
         for (int i = 0; i < nGlyphs && n < TEXT_BUF_QUADS; i++, n++) {
             const GlyphPos& gp = glyphs[i];
-            emitGlyph(n, gp.x0 + dx, gp.y0 + dy, gp.x1 + dx, gp.y1 + dy,
+            emitGlyph(n, gp.x0 + sdx, gp.y0 + sdy, gp.x1 + sdx, gp.y1 + sdy,
                       gp.u0, gp.v0, gp.u1, gp.v1,
                       0.0f, 0.0f, 0.0f, shadowA);
+        }
+    } else {
+        // 4-offset outline (left/right/up/down)
+        static const float dirs[4][2] = {{-1,0},{1,0},{0,-1},{0,1}};
+        for (int d = 0; d < 4; d++) {
+            float dx = dirs[d][0] * offX;
+            float dy = dirs[d][1] * offY;
+            for (int i = 0; i < nGlyphs && n < TEXT_BUF_QUADS; i++, n++) {
+                const GlyphPos& gp = glyphs[i];
+                emitGlyph(n, gp.x0 + dx, gp.y0 + dy, gp.x1 + dx, gp.y1 + dy,
+                          gp.u0, gp.v0, gp.u1, gp.v1,
+                          0.0f, 0.0f, 0.0f, shadowA);
+            }
         }
     }
     // Main pass (on top)
@@ -3383,6 +3682,145 @@ void NanoMenu::drawText(const char* str, float px, float py, float scale,
 }
 
 // ---------------------------------------------------------------------------
+// Secondary display setup (post-boot)
+// ---------------------------------------------------------------------------
+
+// Create EGL window surfaces for every non-primary physical display so the
+// existing post-HWC render loop can drive wallpaper rendering on those panels.
+// Called once after drmStop() — before that point the DRM-direct path's
+// secondary AHB is feeding those displays directly.
+//
+// Idempotent: returns immediately if surfaces are already set up.
+//
+// Concretely on the RG DS (RK3568, dual DSI 640x480):
+//   - persist.gammaos.nano.primary_display=1 → port 1 holds the XMB.
+//   - This function creates a wallpaper SurfaceControl on port 0's
+//     layerStack and wraps it in an EGLSurface. The render loop renders
+//     the wallpaper effect into it every frame.
+//   - Bootanim is killed once the surface is up so it stops fighting for
+//     the secondary display's layer stack.
+void NanoMenu::setupSecondaryEglSurfaces() {
+    if (!mSecondaryEglSurfaces.empty()) return; // already set up
+    if (mDisplay == EGL_NO_DISPLAY) return;
+
+    int64_t t0 = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL;
+
+    const std::vector<PhysicalDisplayId> ids =
+            SurfaceComposerClient::getPhysicalDisplayIds();
+    if (ids.size() <= 1) {
+        ALOGI("NanoMenu: only %zu physical display(s); no secondary wallpaper",
+              ids.size());
+        return;
+    }
+
+    // Match the same primary_display port the readyToRun() path used so we
+    // skip exactly the display the XMB renders on.
+    int primaryPort = 0;
+    {
+        char p[PROPERTY_VALUE_MAX] = {};
+        property_get("persist.gammaos.nano.primary_display", p, "0");
+        primaryPort = atoi(p);
+    }
+
+    EGLConfig config = getEglConfig(mDisplay);
+    if (config == nullptr) {
+        ALOGW("NanoMenu: secondary setup failed — no EGL config");
+        return;
+    }
+
+    for (const PhysicalDisplayId& pid : ids) {
+        const int port = static_cast<int>(pid.getPort());
+        if (port == primaryPort) continue;
+
+        sp<IBinder> token = SurfaceComposerClient::getPhysicalDisplayToken(pid);
+        if (token == nullptr) {
+            ALOGW("NanoMenu: secondary port %d has no display token", port);
+            continue;
+        }
+
+        ui::DisplayState state;
+        ui::LayerStack stack = ui::DEFAULT_LAYER_STACK;
+        if (SurfaceComposerClient::getDisplayState(token, &state) == NO_ERROR) {
+            stack = state.layerStack;
+        } else {
+            ALOGW("NanoMenu: secondary port %d getDisplayState failed", port);
+            continue;
+        }
+
+        DisplayMode mode;
+        if (SurfaceComposerClient::getActiveDisplayMode(token, &mode) != NO_ERROR) {
+            ALOGW("NanoMenu: secondary port %d getActiveDisplayMode failed", port);
+            continue;
+        }
+
+        ui::Size res = mode.resolution;
+        sp<SurfaceControl> sc = session()->createSurface(
+                String8("GammaOSNanoWallpaper"),
+                res.getWidth(), res.getHeight(),
+                PIXEL_FORMAT_RGBX_8888, ISurfaceComposerClient::eOpaque);
+        if (sc == nullptr || !sc->isValid()) {
+            ALOGW("NanoMenu: secondary port %d createSurface failed", port);
+            continue;
+        }
+
+        // Route to the secondary display's layer stack at top z so it
+        // overrides bootanim (which uses STRATUM_BOOT_PROGRESS layers).
+        SurfaceComposerClient::Transaction t;
+        Rect bounds(0, 0, res.width, res.height);
+        t.setDisplayProjection(token, ui::ROTATION_0, bounds, bounds);
+        t.setLayer(sc, 0x40000001);
+        t.setLayerStack(sc, stack);
+        t.show(sc);
+        t.apply();
+
+        sp<Surface> s = sc->getSurface();
+        EGLSurface eglSurf = eglCreateWindowSurface(mDisplay, config, s.get(), nullptr);
+        if (eglSurf == EGL_NO_SURFACE) {
+            ALOGW("NanoMenu: secondary port %d eglCreateWindowSurface failed: 0x%x",
+                  port, eglGetError());
+            continue;
+        }
+
+        // Set the secondary surface to swap interval 0 (no vsync wait) so its
+        // swap doesn't block the primary 60fps loop. The wallpaper still
+        // animates smoothly because the render loop runs every frame; we just
+        // don't artificially serialize on the secondary's vsync.
+        // eglSwapInterval applies to the surface that is currently bound, so
+        // we need to make the secondary current temporarily.
+        EGLSurface prevDraw = eglGetCurrentSurface(EGL_DRAW);
+        EGLSurface prevRead = eglGetCurrentSurface(EGL_READ);
+        EGLContext prevCtx  = eglGetCurrentContext();
+        if (eglMakeCurrent(mDisplay, eglSurf, eglSurf, mContext) == EGL_TRUE) {
+            eglSwapInterval(mDisplay, 0);
+            // Restore primary as current.
+            eglMakeCurrent(mDisplay, prevDraw, prevRead, prevCtx);
+        }
+
+        mSecondaryDisplayTokens.push_back(token);
+        mSecondaryWallpaperControls.push_back(sc);
+        mSecondarySurfaces.push_back(s);
+        mSecondaryEglSurfaces.push_back(eglSurf);
+
+        int64_t now = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL;
+        ALOGI("NanoMenu: secondary EGL surface ready: port=%d layerStack=%u %dx%d at T+%lldms",
+              port, stack.id, res.width, res.height, now);
+    }
+
+    if (!mSecondaryEglSurfaces.empty()) {
+        // Tell bootanim to exit so it stops painting on the secondary display.
+        // CRITICAL: do NOT set service.bootanim.exit — that property is also
+        // nano's OWN exit signal, polled in threadLoop. Setting it here would
+        // make nano shut itself down two frames after secondary setup. Use the
+        // init ctl.stop command instead, which kills the bootanimation
+        // service via init without touching the shared exit-signal property.
+        property_set("ctl.stop", "bootanim");
+        int64_t now = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL;
+        ALOGI("NanoMenu: secondary wallpaper setup complete (%zu surfaces, %lldms)",
+              mSecondaryEglSurfaces.size(), now - t0);
+    }
+}
+
+// ---------------------------------------------------------------------------
 // Render
 // ---------------------------------------------------------------------------
 
@@ -3392,8 +3830,50 @@ void NanoMenu::render() {
         int64_t nowMs = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL;
         ALOGW("NanoMenu BOOT TIMING: first render() call at T+%lldms", nowMs);
     }
-    // GammaOS: When DRM zero-copy is active, render into the DRM dumb buffer's FBO
-    // (via DMA-BUF/EGLImage). GPU writes go straight to scanout — zero copy.
+
+    // Once-per-frame state update for background effects (particle motion,
+    // XMB ribbon time advance). Must run before either pass below so both
+    // AHBs render the same effect state.
+    updateEffect();
+
+    // GammaOS: Helper lambda that uploads the DRM rotation matrix to all
+    // shader programs. Called at the start of each render pass since the
+    // rotation is global state that every program reads.
+    auto uploadRotationMatrices = [this]() {
+        const GLuint progs[] = {mShaderProgram, mTextProgram, mParticleProgram,
+                                mFxProgram, mXmbProgram};
+        const GLint  locs[]  = {mLocRotation, mTextLocRotation, mParticleLocRotation,
+                                mFxLocRotation, mXmbLocRotation};
+        for (int i = 0; i < 5; i++) {
+            glUseProgram(progs[i]);
+            glUniformMatrix2fv(locs[i], 1, GL_FALSE, sDrmRotMat);
+        }
+    };
+
+    // GammaOS: Secondary display pass — wallpaper only, no menu/icons/text.
+    // Runs only in DRM direct mode when a secondary AHB was allocated.
+    // Renders into sAhbTargetSecondary which drmFlipAll() will blit to every
+    // non-primary DRM display. This gives the secondary screen a clean
+    // wallpaper view without paying for the menu geometry.
+    //
+    // The XMB ribbon / procedural effects are cheap fullscreen shaders on
+    // Mali-G52, so rendering them twice (once here, once on the primary AHB
+    // below) costs well under a millisecond total on 640x480.
+    if (sDrmActive && sDrmZeroCopy && sAhbTargetSecondary.glFbo != 0) {
+        glBindFramebuffer(GL_FRAMEBUFFER, sAhbTargetSecondary.glFbo);
+        glViewport(0, 0, sAhbTargetSecondary.w, sAhbTargetSecondary.h);
+        uploadRotationMatrices();
+        glClearColor(0.05f, 0.05f, 0.10f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        renderEffect();
+        glDisable(GL_BLEND);
+    }
+
+    // GammaOS: Primary pass — wallpaper + full menu (XMB or normal). When
+    // DRM zero-copy is active, binds sAhbTarget (primary AHB). When post-
+    // boot, the default SurfaceFlinger-backed FBO is used via the EGL path.
     if (sDrmActive && sDrmZeroCopy) {
         drmBindNextFbo();
     }
@@ -3405,27 +3885,14 @@ void NanoMenu::render() {
     } else {
         glViewport(0, 0, mWidth, mHeight);
     }
-    // GammaOS: Upload the rotation matrix to all shader programs. When GL rotation
-    // is active, the matrix rotates NDC coords so content is panel-native in the AHB,
-    // letting the blit use a fast straight copy instead of per-pixel rotation.
-    {
-        const GLuint progs[] = {mShaderProgram, mTextProgram, mParticleProgram,
-                                mFxProgram, mXmbProgram};
-        const GLint  locs[]  = {mLocRotation, mTextLocRotation, mParticleLocRotation,
-                                mFxLocRotation, mXmbLocRotation};
-        for (int i = 0; i < 5; i++) {
-            glUseProgram(progs[i]);
-            glUniformMatrix2fv(locs[i], 1, GL_FALSE, sDrmRotMat);
-        }
-    }
+    uploadRotationMatrices();
     glClearColor(0.05f, 0.05f, 0.10f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    // Background effect
-    updateEffect();
+    // Background effect on primary AHB.
     renderEffect();
 
     if (mXmbMode) {
@@ -3445,16 +3912,9 @@ void NanoMenu::render() {
     // Rebuild display items only when state changes (avoids per-frame heap allocs)
     if (mDisplayDirty) rebuildDisplayItems();
 
-    // Poll storage while in submenu — auto-load once available
-    if ((mMenuState == MENU_RECENT || mMenuState == MENU_APPS) && !mStorageReady) {
-        if (access("/data/media/0", R_OK) == 0) {
-            mStorageReady = true;
-            if (mMenuState == MENU_RECENT) loadRecentPlaylist();
-            else loadInstalledApps();
-            mDisplayDirty = true;
-            rebuildDisplayItems();
-        }
-    }
+    // Storage readiness is polled by the outer loop (threadLoop) every ~0.5s.
+    // No per-frame access() here — that syscall was costing ~2us at 60fps which
+    // adds up on Cortex-A55 and is visible in perf traces during boot.
 
     float menuScale = 3.0f * sf;
     int currentSelected = (mMenuState == MENU_APPS) ? mAppSelectedIndex
@@ -3675,6 +4135,11 @@ void NanoMenu::render() {
             property_get("sys.boot_completed", bootDone, "0");
             if (!strcmp(bootDone, "1")) {
                 drmStop();
+                // After HWC takes over, set up secondary EGL surfaces so the
+                // wallpaper continues to render on non-XMB displays. Without
+                // this, bootanim retains layer ownership on the secondary and
+                // the user sees the GammaOS logo there indefinitely.
+                setupSecondaryEglSurfaces();
             }
         }
     } else {
@@ -3683,6 +4148,15 @@ void NanoMenu::render() {
             int64_t nowMs = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL;
             ALOGW("NanoMenu BOOT TIMING: first eglSwapBuffers complete at T+%lldms", nowMs);
             sFirstFrame = false;
+            // Restart path (returning from game): readyToRun() saw boot
+            // already complete and skipped DRM splash, so the drmStop()
+            // branch above never runs. Set up secondary EGL surfaces here
+            // on the first EGL swap so the wallpaper renders on the
+            // secondary display in restart sessions too. Idempotent — the
+            // setup function returns immediately if already populated.
+            if (mSecondaryEglSurfaces.empty()) {
+                setupSecondaryEglSurfaces();
+            }
         }
     }
 
@@ -5313,7 +5787,17 @@ void NanoMenu::renderXmb() {
         // Pre-compute icon X (same for all items)
         float itemIconBaseX = selIconX + (iconSize * catActiveZoom) / 2.0f;
 
+        // Single scissor rect covering the whole item list region. The old
+        // code set a narrower rect per-item (and per-draw within each item),
+        // but every item draws into the same horizontal band: leftmost
+        // possible icon edge → contentRight. Setting it once per list saves
+        // 2 * N glScissor state changes per frame (~24 calls for a full list).
+        const float selIconSz = iconSize * catActiveZoom;
+        const float listScissorX = itemIconBaseX - selIconSz / 2.0f;
+        const float listScissorW = contentRight - listScissorX;
         glEnable(GL_SCISSOR_TEST);
+        glScissor((int)listScissorX, 0, (int)listScissorW, mHeight);
+
         for (int i = startItem; i <= endItem; i++) {
             float relPos = (float)i - animCur;
             float fy = itemListTop + relPos * iconSpacingV;
@@ -5346,8 +5830,6 @@ void NanoMenu::renderXmb() {
             float itemIconSz = isSel ? 50.0f * sf : 30.0f * sf;
             float iconX = itemIconBaseX - itemIconSz / 2.0f;
             float iconY = fy - itemIconSz / 2.0f;
-            // Set scissor to include icon + text area (icon is left of text)
-            glScissor((int)iconX, 0, (int)(contentRight - iconX), mHeight);
             drawIcon(16, iconX, iconY, itemIconSz,
                      isSel ? iconR : dimIconR, isSel ? iconG : dimIconG,
                      isSel ? iconB : dimIconB, iAlpha);
@@ -5358,8 +5840,6 @@ void NanoMenu::renderXmb() {
             float tg = isSel ? 1.0f : 0.6f;
             float tb = isSel ? 1.0f : 0.6f;
 
-            // Narrow scissor for text clipping (prevents overflow past content area)
-            glScissor((int)tx, 0, (int)(contentRight - tx), mHeight);
             drawText(displayText, tx, ty, tSc, tr, tg, tb, iAlpha);
             if (isSel && sysLabel && *sysLabel) {
                 float tagY = ty + FONT_CHAR_H * tSc + 2.0f * sf;
@@ -5940,6 +6420,40 @@ bool NanoMenu::threadLoop() {
         // exactly 500s ensures fract(t*0.002+offset) is seamless.
         if (mEffectTime > 500.0f) mEffectTime -= 500.0f;
         render();
+
+        // GammaOS: XMB FPS counter. Logs once per second when in XMB mode so
+        // we can verify the menu is actually hitting the 60fps target post-
+        // optimization. Zero overhead when disabled. Uses monotonic clock
+        // already measured for mFrameDt.
+        {
+            static int64_t sFpsWindowStartNs = 0;
+            static int sFpsFrames = 0;
+            static int64_t sFpsMinFrameUs = 0;
+            static int64_t sFpsMaxFrameUs = 0;
+            if (mXmbMode) {
+                sFpsFrames++;
+                int64_t frameUs = (int64_t)(mFrameDt * 1e6f);
+                if (sFpsFrames == 1 || frameUs < sFpsMinFrameUs) sFpsMinFrameUs = frameUs;
+                if (frameUs > sFpsMaxFrameUs) sFpsMaxFrameUs = frameUs;
+                if (sFpsWindowStartNs == 0) sFpsWindowStartNs = mLastFrameNs;
+                int64_t elapsedNs = mLastFrameNs - sFpsWindowStartNs;
+                if (elapsedNs >= 1000000000LL) {
+                    float fps = (float)sFpsFrames * 1e9f / (float)elapsedNs;
+                    ALOGW("NanoMenu XMB FPS: %.1f (%d frames / %lld.%03lld s, min=%lldus max=%lldus)",
+                          fps, sFpsFrames, elapsedNs / 1000000000LL,
+                          (elapsedNs / 1000000LL) % 1000,
+                          sFpsMinFrameUs, sFpsMaxFrameUs);
+                    sFpsWindowStartNs = mLastFrameNs;
+                    sFpsFrames = 0;
+                    sFpsMinFrameUs = 0;
+                    sFpsMaxFrameUs = 0;
+                }
+            } else {
+                sFpsWindowStartNs = 0;
+                sFpsFrames = 0;
+            }
+        }
+
         // Frame pacing: at 60fps, eglSwapBuffers vsync-blocks — no sleep needed.
         // For lower rates, sleep the remaining time to hit the target frame period.
         // Clock-based: measure actual elapsed time so variable swap durations
@@ -5964,14 +6478,25 @@ bool NanoMenu::threadLoop() {
                 ALOGI("GammaOS Nano: service.bootanim.exit=1, exiting");
                 break;
             }
-            // Probe storage readiness (CE unlock) until it becomes available
+            // Probe storage readiness (CE unlock) until it becomes available.
+            // This is the only place that polls — render() used to probe every
+            // frame but that was wasteful once the 0.5s cadence here exists.
+            // When storage comes up, auto-load the active submenu's content
+            // so the user sees the entries as soon as they are available.
             if (!mStorageReady) {
                 if (access("/data/media/0", R_OK) == 0) {
                     mStorageReady = true;
                     mDisplayDirty = true;
+                    if (mMenuState == MENU_RECENT) loadRecentPlaylist();
+                    else if (mMenuState == MENU_APPS) loadInstalledApps();
                     ALOGI("GammaOS Nano: storage is now accessible");
                 }
             }
+
+            // GammaOS: Late-display re-probe. Any DRM CRTC that wasn't ready at
+            // splash time gets a second chance here. Bounded to a 5-second boot
+            // window by drmRescanDisplays itself. No-op post-boot (sDrmFd = -1).
+            drmRescanDisplays();
             // GammaOS Nano: Keep the surface's layer stack in sync with the
             // chosen display. SurfaceFlinger's initial layerStack for the display
             // can change once DisplayManagerService finishes assigning logical

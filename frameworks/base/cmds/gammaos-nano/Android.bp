@@ -13,7 +13,27 @@ cc_binary {
         "-Wunused",
         "-Wunreachable-code",
         "-Wno-deprecated-declarations",
+        // GammaOS: aggressive optimization for Nano render hot path.
+        // NanoMenu has no IEEE float correctness requirements and the blit
+        // loops benefit from vectorization/unrolling.
+        "-O3",
+        "-ffast-math",
+        "-fno-math-errno",
+        "-fno-trapping-math",
     ],
+
+    arch: {
+        arm64: {
+            cflags: [
+                // Tune pipeline scheduling for Cortex-A55 (RG DS / RK3568 and
+                // most handheld targets). This does NOT change the target
+                // architecture baseline (still ARMv8-A); it only hints at
+                // A55's in-order 2-wide issue to help instruction scheduling.
+                // The binary remains compatible with any ARMv8-A device.
+                "-mtune=cortex-a55",
+            ],
+        },
+    },
 
     srcs: [
         "main.cpp",
