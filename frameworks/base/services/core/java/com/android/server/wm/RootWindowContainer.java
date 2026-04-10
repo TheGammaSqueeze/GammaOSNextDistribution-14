@@ -1723,16 +1723,36 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
             final String pendingRom = android.os.SystemProperties.get(
                     "sys.gammaos.nano.launch_rom", "");
             if (appWasLaunched && !pendingRom.isEmpty()) {
+                // Re-entrancy guard. forceStopPackage below synchronously
+                // calls resumeTopActivities → resumeFocusedTasksTopActivities
+                // → startHomeOnTaskDisplayArea, recursing back into this same
+                // branch BEFORE forceStopPackage returns. Without the guard
+                // the recursion is unbounded (pendingRom and app_launched
+                // are still set on re-entry) and SystemServer dies with a
+                // StackOverflowError. Repro: launch any nano game, exit,
+                // launch a different package's game.
+                if (sNanoLaunchInProgress) {
+                    Slog.i(TAG, "GammaOS Nano: nested startHome during "
+                            + "force-stop, skipping");
+                    return true;
+                }
                 Slog.i(TAG, "GammaOS Nano: game launch pending, "
                         + "force-stopping running instance");
                 final String nanoAppPkg = android.os.SystemProperties.get(
                         "sys.gammaos.nano.launch_app", "com.retroarch.aarch64");
+                sNanoLaunchInProgress = true;
                 try {
                     android.app.IActivityManager am =
                             android.app.ActivityManager.getService();
                     am.forceStopPackage(nanoAppPkg, userId);
                 } catch (Exception ex) {
                     Slog.w(TAG, "GammaOS Nano: force-stop failed", ex);
+                } finally {
+                    // Scope the guard to the actual recursive call only.
+                    // After forceStopPackage returns, the launch path below
+                    // will (re)set the flag around startHomeActivity itself
+                    // via its own try/finally.
+                    sNanoLaunchInProgress = false;
                 }
                 // Remove stale tasks before relaunch
                 try {
