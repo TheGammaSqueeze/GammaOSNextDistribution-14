@@ -2395,19 +2395,6 @@ static void drmStop() {
 }
 
 status_t NanoMenu::readyToRun() {
-    // GammaOS: Show DRM splash immediately — before any SF/HWC setup.
-    // This replaces the U-Boot logo with a dark screen within milliseconds.
-    // Skip DRM on restarts (returning from app) — HWC is already active.
-    {
-        char bootDone[PROPERTY_VALUE_MAX] = {};
-        property_get("sys.boot_completed", bootDone, "0");
-        if (strcmp(bootDone, "1") != 0) {
-            drmEarlySplash();
-        } else {
-            ALOGI("NanoMenu: skipping DRM splash (already booted)");
-        }
-    }
-
     int64_t t0 = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL;
     auto tlog = [&](const char* label) {
         int64_t now = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL;
@@ -2415,11 +2402,18 @@ status_t NanoMenu::readyToRun() {
         t0 = now;
     };
     tlog("readyToRun enter");
-    // Started unconditionally by StartPropertySetThread for the fastest nano
-    // mode path. persist.* properties may not be available yet (loaded after
-    // /data mount), so ALWAYS wait for init to signal they are ready before
-    // reading any persist.* prop. This ensures volume, brightness, wallpaper,
-    // quick resume state etc. are correctly restored across reboots.
+
+    // GammaOS: Before doing ANYTHING that touches the display (DRM master grab,
+    // SF transactions), confirm we are actually in nano boot mode. StartPropertySetThread
+    // already gates this, but gammaos-nano can also be (re)started by other init triggers
+    // (ctl restarts, userspace reboot, app exit relaunch), so a defensive check here
+    // prevents DRM takeover in normal boot if any of those paths fire unexpectedly.
+    //
+    // persist.* properties may not be available yet (loaded after /data mount), so
+    // ALWAYS wait for init to signal they are ready before reading persist.bootanim.skip_nano.
+    // Reading it too early would return an empty string and we would proceed into the
+    // nano path in normal boot — blanking the display via drmEarlySplash() and causing
+    // a multi-second black gap between bootloader and bootanim.
     {
         char ready[PROPERTY_VALUE_MAX] = {};
         property_get("ro.persistent_properties.ready", ready, "");
@@ -2436,12 +2430,28 @@ status_t NanoMenu::readyToRun() {
     char skip[PROPERTY_VALUE_MAX] = {};
     property_get("persist.bootanim.skip_nano", skip, "");
     if (strcmp(skip, "0") != 0) {
-        ALOGI("GammaOS Nano: skip_nano='%s' (not '0'), starting bootanim", skip);
+        ALOGI("GammaOS Nano: skip_nano='%s' (not '0'), starting bootanim (no DRM touch)", skip);
         property_set("ctl.start", "bootanim");
-        _exit(0); // terminate — bootanim takes over
+        _exit(0); // terminate — bootanim takes over, stock boot flow continues
     }
 
     tlog("persist props resolved");
+
+    // GammaOS: Nano mode is confirmed active. Show DRM splash now — before any
+    // SF/HWC setup. This replaces the U-Boot logo with a dark screen within
+    // milliseconds on devices where HWC composition isn't ready yet (e.g.
+    // dual-DSI RG DS RK3568). Skip DRM on restarts (returning from app) —
+    // HWC is already active by then.
+    {
+        char bootDone[PROPERTY_VALUE_MAX] = {};
+        property_get("sys.boot_completed", bootDone, "0");
+        if (strcmp(bootDone, "1") != 0) {
+            drmEarlySplash();
+        } else {
+            ALOGI("NanoMenu: skipping DRM splash (already booted)");
+        }
+    }
+    tlog("drmEarlySplash done");
     // Nano mode is active — tell any boot animation instance to exit.
     // Vendor init may start bootanim independently (e.g. in on late-fs),
     // so it can be running alongside us with the same z-layer.

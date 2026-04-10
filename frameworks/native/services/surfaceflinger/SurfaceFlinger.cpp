@@ -7315,12 +7315,18 @@ void SurfaceFlinger::initializeDisplays() {
         }
     }
 
-    // GammaOS: Skip the BOOTLOADER stage gate so HWC presents frames immediately.
-    // Without this, composition is blocked until the first buffer is latched (line 2992).
-    // On dual-DSI devices this prevents the display from updating for 20+ seconds.
-    // NanoMenu IS our bootanimation, so entering BOOTANIMATION early is correct.
-    if (mBootStage == BootStage::BOOTLOADER) {
-        ALOGI("GammaOS: early boot stage transition BOOTLOADER → BOOTANIMATION");
+    // GammaOS: In nano/minimal boot only, skip the BOOTLOADER stage gate so HWC
+    // presents frames immediately. Without this, composition is blocked until the
+    // first buffer is latched (line 2992). On dual-DSI devices this would otherwise
+    // leave the U-Boot logo on screen for 20+ seconds while NanoMenu renders.
+    // NanoMenu IS our bootanimation in nano mode, so entering BOOTANIMATION early
+    // is correct there. In normal Android boot we MUST keep the stock behavior
+    // (transition only on first newDataLatched, line 2685): otherwise SF starts
+    // composing empty frames before bootanimation has rendered anything, wiping
+    // the bootloader logo to black for several seconds until bootanim catches up.
+    if (mBootStage == BootStage::BOOTLOADER &&
+        base::GetBoolProperty("sys.gammaos.minimal_boot"s, false)) {
+        ALOGI("GammaOS: early boot stage transition BOOTLOADER → BOOTANIMATION (nano)");
         mBootStage = BootStage::BOOTANIMATION;
     }
 }

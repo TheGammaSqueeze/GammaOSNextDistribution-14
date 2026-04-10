@@ -15,6 +15,8 @@
  */
 
 #include <cutils/properties.h>
+#include <string.h>
+#include <unistd.h>
 #include "StartPropertySetThread.h"
 
 namespace android {
@@ -32,12 +34,50 @@ bool StartPropertySetThread::threadLoop() {
     // Clear BootAnimation exit flag
     property_set("service.bootanim.exit", "0");
     property_set("service.bootanim.progress", "0");
-    // Start gammaos-nano unconditionally — it checks persist.bootanim.skip_nano
-    // in readyToRun() (after waiting for persist props to load from /data) and
-    // hands off to bootanim if nano mode is not enabled.  This gives nano mode
-    // the fastest possible path to the menu.
-    // SELinux: ctl.gammaos-nano is mapped to ctl_bootanim_prop in property_contexts.
-    property_set("ctl.start", "gammaos-nano");
+
+    // GammaOS: Decide between starting gammaos-nano (nano boot) or the stock
+    // bootanim (normal Android boot) based on persist.bootanim.skip_nano.
+    //
+    // Persist props are loaded from /data shortly after mount, signaled via
+    // ro.persistent_properties.ready=true. At the moment this thread runs, they
+    // MAY not be available yet — reading persist.bootanim.skip_nano directly
+    // would return an empty string and we'd misidentify the boot mode. We wait
+    // here (up to 5s, typically ~10ms) for init to signal readiness so the
+    // decision is reliable.
+    //
+    // This wait is safe because StartPropertySetThread is intentionally a
+    // separate thread (see header comment + b/34499826) so SurfaceFlinger's
+    // init is not blocked by property_set calls.
+    //
+    // In normal Android boot we MUST start stock bootanim and NOT gammaos-nano.
+    // If gammaos-nano starts, it will grab DRM master via drmEarlySplash() and
+    // wipe the bootloader logo to black before handing off to bootanim — the
+    // user sees several seconds of black screen between bootloader and bootanim.
+    {
+        char ready[PROPERTY_VALUE_MAX] = {};
+        property_get("ro.persistent_properties.ready", ready, "");
+        if (strcmp(ready, "true") != 0) {
+            for (int i = 0; i < 500; i++) { // max 5s
+                usleep(10000); // 10ms
+                property_get("ro.persistent_properties.ready", ready, "");
+                if (strcmp(ready, "true") == 0) break;
+            }
+        }
+    }
+
+    char skipNano[PROPERTY_VALUE_MAX] = {};
+    property_get("persist.bootanim.skip_nano", skipNano, "");
+    if (strcmp(skipNano, "0") == 0) {
+        // Nano boot mode active — gammaos-nano takes over the boot sequence
+        // (it manages bootanim internally).
+        // SELinux: ctl.gammaos-nano is mapped to ctl_bootanim_prop in property_contexts.
+        property_set("ctl.start", "gammaos-nano");
+    } else {
+        // Normal Android boot, first boot (empty prop), or explicit skip_nano=1
+        // — start the stock boot animation. gammaos-nano must NOT run here
+        // because it would take over the DRM master during early boot.
+        property_set("ctl.start", "bootanim");
+    }
     // Exit immediately
     return false;
 }
