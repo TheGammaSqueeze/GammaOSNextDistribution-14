@@ -182,6 +182,50 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
     private static boolean sNanoGraceRetryPending = false;
 
     /**
+     * GammaOS Nano: read the launch ROM path with a file fallback.
+     *
+     * The {@code sys.gammaos.nano.launch_rom} property is subject to
+     * Android's {@code PROP_VALUE_MAX} (92 bytes). ROMs on external SD
+     * at {@code /storage/<UUID>/...} routinely exceed that limit and
+     * cause the property write in NanoMenu to silently fail, leaving
+     * the consumer (this class + the nano_cache.sh DE cache populate)
+     * with no ROM path. NanoMenu mirrors the value into
+     * {@code /data/system/nano_launch_rom.txt} alongside the property
+     * set, so we can fall back to the file when the property is empty.
+     */
+    private static String getNanoLaunchRom() {
+        String rom = android.os.SystemProperties.get(
+                "sys.gammaos.nano.launch_rom", "");
+        if (!rom.isEmpty()) return rom;
+        try {
+            java.io.File f = new java.io.File("/data/system/nano_launch_rom.txt");
+            if (f.exists() && f.length() > 0) {
+                return new String(
+                        java.nio.file.Files.readAllBytes(f.toPath()),
+                        java.nio.charset.StandardCharsets.UTF_8).trim();
+            }
+        } catch (Exception e) {
+            /* ignore — fall through to empty */
+        }
+        return "";
+    }
+
+    /**
+     * GammaOS Nano: clear both the {@code launch_rom} property and its
+     * companion backup file. Must be used in place of a bare property
+     * set-to-empty so stale file content cannot resurrect in
+     * {@link #getNanoLaunchRom()} and trigger phantom re-launch cycles.
+     */
+    private static void clearNanoLaunchRom() {
+        android.os.SystemProperties.set("sys.gammaos.nano.launch_rom", "");
+        try {
+            new java.io.File("/data/system/nano_launch_rom.txt").delete();
+        } catch (Exception e) {
+            /* ignore */
+        }
+    }
+
+    /**
      * Parse an am-start-style intent string for standalone emulator launches.
      * Supports: -n component, -a action, -d data, -t type, -e/-es extra string,
      *           --activity-clear-task, --activity-clear-top
@@ -1725,7 +1769,7 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                         android.os.SystemProperties.set(
                                 "sys.gammaos.nano.cache_op", "clear_rom");
                     }
-                    android.os.SystemProperties.set("sys.gammaos.nano.launch_rom", "");
+                    clearNanoLaunchRom();
                     android.os.SystemProperties.set("sys.gammaos.nano.launch_core", "");
                     android.os.SystemProperties.set("sys.gammaos.nano.launch_intent", "");
                     // GammaOS: also clear launch_app. If we leave it set, a
@@ -1755,8 +1799,7 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
             // Without the intent check, picking a Drastic game right after exiting
             // a Drastic game would hit the else-if grace-period branch and the
             // user's launch request would silently die in the deferred cleanup.
-            final String pendingRom = android.os.SystemProperties.get(
-                    "sys.gammaos.nano.launch_rom", "");
+            final String pendingRom = getNanoLaunchRom();
             final String pendingIntentFlag = android.os.SystemProperties.get(
                     "sys.gammaos.nano.launch_intent", "");
             final boolean newLaunchPending =
@@ -1919,8 +1962,7 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                                         android.os.SystemProperties.set(
                                                 "sys.gammaos.nano.cache_op", "clear_rom");
                                     }
-                                    android.os.SystemProperties.set(
-                                            "sys.gammaos.nano.launch_rom", "");
+                                    clearNanoLaunchRom();
                                     android.os.SystemProperties.set(
                                             "sys.gammaos.nano.launch_core", "");
                                     android.os.SystemProperties.set(
@@ -1989,8 +2031,7 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                     android.os.SystemProperties.set(
                             "sys.gammaos.nano.cache_op", "clear_rom");
                 }
-                android.os.SystemProperties.set(
-                        "sys.gammaos.nano.launch_rom", "");
+                clearNanoLaunchRom();
                 android.os.SystemProperties.set(
                         "sys.gammaos.nano.launch_core", "");
                 android.os.SystemProperties.set(
@@ -2087,8 +2128,7 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                     String extDir = sdcard + "/Android/data/" + nanoApp + "/files";
                     String configFile = extDir + "/retroarch.cfg";
                     // Check if nano menu requested a specific game launch
-                    String launchRom = android.os.SystemProperties.get(
-                            "sys.gammaos.nano.launch_rom", "");
+                    String launchRom = getNanoLaunchRom();
                     String launchCore = android.os.SystemProperties.get(
                             "sys.gammaos.nano.launch_core", "");
 
@@ -2127,8 +2167,7 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                             homeIntent.putExtra("LIBRETRO", launchCore);
                         }
                         // Clear properties immediately to prevent relaunch loops
-                        android.os.SystemProperties.set(
-                                "sys.gammaos.nano.launch_rom", "");
+                        clearNanoLaunchRom();
                         android.os.SystemProperties.set(
                                 "sys.gammaos.nano.launch_core", "");
                     }
@@ -2261,8 +2300,7 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                                 "sys.gammaos.nano.app_launched", "0");
                         android.os.SystemProperties.set(
                                 "persist.gammaos.nano.qr_prepared", "0");
-                        android.os.SystemProperties.set(
-                                "sys.gammaos.nano.launch_rom", "");
+                        clearNanoLaunchRom();
                         android.os.SystemProperties.set(
                                 "sys.gammaos.nano.launch_core", "");
                         android.os.SystemProperties.set(

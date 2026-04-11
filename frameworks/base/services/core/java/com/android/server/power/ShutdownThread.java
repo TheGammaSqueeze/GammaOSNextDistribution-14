@@ -1125,6 +1125,23 @@ public final class ShutdownThread extends Thread {
                             && !"DETECT".equals(romPath)) {
                         SystemProperties.set(
                                 "persist.gammaos.nano.qr_rom", romPath);
+                        // GammaOS: mirror to the file fallback. The qr_rom
+                        // property is capped at PROP_VALUE_MAX (92 bytes),
+                        // and external SD paths like /storage/<UUID>/...
+                        // routinely exceed that limit, silently failing the
+                        // SetProperty above. NanoMenu and nano_cache.sh both
+                        // fall back to /data/system/nano_qr_rom.txt when
+                        // the property is empty, so write it unconditionally.
+                        try {
+                            java.io.File qrFile = new java.io.File(
+                                    "/data/system/nano_qr_rom.txt");
+                            java.nio.file.Files.write(qrFile.toPath(),
+                                    romPath.getBytes(
+                                            java.nio.charset.StandardCharsets.UTF_8));
+                            qrFile.setReadable(true, false);
+                        } catch (Exception e) {
+                            Slog.w(TAG, "GammaOS Nano: failed to write qr_rom file", e);
+                        }
                         SystemProperties.set(
                                 "persist.gammaos.nano.qr_core", corePath);
                         SystemProperties.set(

@@ -56,6 +56,44 @@ to_raw_path() {
     local p="$1"
     p=$(echo "$p" | sed 's|^/storage/emulated/0/|/data/media/0/|')
     p=$(echo "$p" | sed 's|^/sdcard/|/data/media/0/|')
+    # External SD: /storage/<UUID>/ -> /mnt/media_rw/<UUID>/
+    # The gammaoscustomization init domain cannot access the user FUSE
+    # view under /storage/, so rewrite external SD paths to the raw
+    # vold mount at /mnt/media_rw/<UUID>/ which is readable from init.
+    p=$(echo "$p" | sed 's|^/storage/|/mnt/media_rw/|')
+    echo "$p"
+}
+
+# Resolve the active ROM path from launch_rom / qr_rom with file
+# fallbacks. External SD paths (/storage/<UUID>/...) routinely exceed
+# PROP_VALUE_MAX (92 bytes) and cause the property write in NanoMenu
+# to silently fail; the backup files /data/system/nano_launch_rom.txt
+# and /data/system/nano_qr_rom.txt keep the value reachable.
+#
+# resolve_launch_rom — for do_populate (retroarch): prefers launch_rom
+#   (the current launch target), with qr_rom as a defensive fallback.
+# resolve_qr_rom     — for do_populate_drastic: uses ONLY qr_rom. The
+#   drastic NanoMenu path explicitly clears launch_rom, so a stale
+#   launch_rom file from a previous retroarch launch must not bleed
+#   into the drastic rom staging path.
+resolve_launch_rom() {
+    local p="$(getprop sys.gammaos.nano.launch_rom)"
+    if [ -z "$p" ] && [ -s /data/system/nano_launch_rom.txt ]; then
+        p=$(cat /data/system/nano_launch_rom.txt)
+    fi
+    if [ -z "$p" ]; then
+        p="$(getprop persist.gammaos.nano.qr_rom)"
+    fi
+    if [ -z "$p" ] && [ -s /data/system/nano_qr_rom.txt ]; then
+        p=$(cat /data/system/nano_qr_rom.txt)
+    fi
+    echo "$p"
+}
+resolve_qr_rom() {
+    local p="$(getprop persist.gammaos.nano.qr_rom)"
+    if [ -z "$p" ] && [ -s /data/system/nano_qr_rom.txt ]; then
+        p=$(cat /data/system/nano_qr_rom.txt)
+    fi
     echo "$p"
 }
 
@@ -89,13 +127,10 @@ cfg_get() {
 do_populate() {
     log_i "populate: starting"
 
-    local rom_path="$(getprop sys.gammaos.nano.launch_rom)"
+    local rom_path="$(resolve_launch_rom)"
     local core_path="$(getprop sys.gammaos.nano.launch_core)"
 
-    # Fallback to QR persist properties if launch props were already cleared
-    if [ -z "$rom_path" ]; then
-        rom_path="$(getprop persist.gammaos.nano.qr_rom)"
-    fi
+    # Fallback to QR persist core if launch prop was already cleared
     if [ -z "$core_path" ]; then
         core_path="$(getprop persist.gammaos.nano.qr_core)"
     fi
@@ -602,10 +637,12 @@ do_populate_drastic() {
     fi
 
     # ---- Copy the ROM ----
-    local rom_path="$(getprop sys.gammaos.nano.launch_rom)"
-    if [ -z "$rom_path" ]; then
-        rom_path="$(getprop persist.gammaos.nano.qr_rom)"
-    fi
+    # Stage the ROM into the drastic DE cache. If any step of this
+    # fails we clear qr_prepared so the next boot falls back to the
+    # plain XMB instead of the drastic QR fast-path, which would
+    # dead-lock on an empty rom dir.
+    local rom_staged=0
+    local rom_path="$(resolve_qr_rom)"
     if [ -n "$rom_path" ]; then
         local rom_raw=$(to_raw_path "$rom_path")
         if [ -f "$rom_raw" ]; then
@@ -615,14 +652,19 @@ do_populate_drastic() {
             cp -p "$rom_raw" "$dcache/rom/$rom_file" 2>/dev/null
             if [ -f "$dcache/rom/$rom_file" ]; then
                 log_i "populate_drastic: cached ROM $rom_file"
+                rom_staged=1
             else
                 log_e "populate_drastic: failed to copy ROM from $rom_raw"
             fi
         else
-            log_w "populate_drastic: ROM not found at $rom_raw"
+            log_w "populate_drastic: ROM not found at $rom_raw (resolved from $rom_path)"
         fi
     else
-        log_w "populate_drastic: no ROM path in launch_rom or qr_rom"
+        log_w "populate_drastic: no ROM path in launch_rom, qr_rom, or nano_*_rom.txt"
+    fi
+    if [ "$rom_staged" = "0" ]; then
+        log_w "populate_drastic: ROM staging failed -- clearing qr_prepared so next boot falls back to XMB"
+        setprop persist.gammaos.nano.qr_prepared 0
     fi
 
     # ---- Permissions: world-readable for dirs, writable for user-subdirs ----

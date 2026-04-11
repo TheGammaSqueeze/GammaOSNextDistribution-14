@@ -387,7 +387,13 @@ static const SystemDef kXmbSystemDefs[] = {
      0.00f, 0.60f, 0.00f, ".n64,.v64,.z64,.ndd"},
     {"Nintendo DS",     "NDS",  "nds",          "",
      "com.dsemu.drastic",
-     "-n com.dsemu.drastic/.DraSticActivity -d {file.uri} --activity-clear-task --activity-clear-top",
+     // -a android.intent.action.VIEW is required: drastic's DraSticActivity
+     // has two intent filters, a MAIN/LAUNCHER one (its main menu) and a
+     // VIEW one (scheme=file|content, path=*.nds, which loads the ROM).
+     // Without -a, Android defaults to ACTION_MAIN and drops into the main
+     // menu instead of auto-loading the content URI. PPSSPP and Flycast
+     // both use the same -a android.intent.action.VIEW pattern.
+     "-n com.dsemu.drastic/.DraSticActivity -a android.intent.action.VIEW -d {file.uri} --activity-clear-task --activity-clear-top",
      0.63f, 0.63f, 0.63f, ".nds"},
     {"Genesis",         "GEN",  "genesis",      "genesis_plus_gx_libretro_android.so",       "", "",
      0.00f, 0.38f, 0.66f, ".md,.gen,.smd,.bin"},
@@ -436,6 +442,80 @@ static bool containsInsensitive(const std::string& haystack, const std::string& 
         if (match) return true;
     }
     return false;
+}
+
+// GammaOS: path props routinely exceed PROP_VALUE_MAX (92 bytes) when
+// ROMs live on external SD at /storage/<UUID>/..., so the prop set
+// silently fails. Mirror the path into a plain text file alongside so
+// readers can fall back when the prop is empty. Empty values unlink
+// the file so a stale path can never resurrect in the fallback read.
+static void writePathFile(const char* path, const std::string& value) {
+    if (value.empty()) {
+        unlink(path);
+        return;
+    }
+    int fd = open(path, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+    if (fd >= 0) {
+        write(fd, value.c_str(), value.size());
+        close(fd);
+        chmod(path, 0644);
+    }
+}
+static std::string readPathFile(const char* path) {
+    int fd = open(path, O_RDONLY);
+    if (fd < 0) return std::string();
+    char buf[4096];
+    ssize_t n = read(fd, buf, sizeof(buf));
+    close(fd);
+    if (n <= 0) return std::string();
+    std::string s(buf, (size_t)n);
+    // Strip trailing whitespace/newlines to tolerate shell-written files.
+    while (!s.empty() && (s.back() == '\n' || s.back() == '\r' ||
+                          s.back() == ' '  || s.back() == '\t')) {
+        s.pop_back();
+    }
+    return s;
+}
+static void setLaunchRomPath(const std::string& romPath) {
+    android::base::SetProperty("sys.gammaos.nano.launch_rom", romPath);
+    writePathFile("/data/system/nano_launch_rom.txt", romPath);
+}
+static void setQrRomPath(const std::string& romPath) {
+    android::base::SetProperty("persist.gammaos.nano.qr_rom", romPath);
+    writePathFile("/data/system/nano_qr_rom.txt", romPath);
+}
+static std::string getQrRomPath() {
+    std::string p = android::base::GetProperty(
+            "persist.gammaos.nano.qr_rom", "");
+    if (!p.empty()) return p;
+    return readPathFile("/data/system/nano_qr_rom.txt");
+}
+
+// GammaOS: returns true when the QR ROM's backing storage is mounted.
+//
+// On cold boot vold defers external SD scanning until after the secure
+// keyguard step, so /mnt/media_rw/<UUID>/ doesn't exist for ~3-5
+// seconds after gammaos-nano comes up. The drastic QR handoff fires a
+// content:// URI pointing at that volume, and if the ContentProvider
+// can't resolve the file (because vold hasn't mounted it yet), drastic
+// silently falls back to its main menu instead of routing to
+// DraSticEmuActivity. By blocking the handoff until the raw vold mount
+// point exists we guarantee the URI is resolvable when drastic looks
+// it up. ROMs on /sdcard or /data/media/0 don't need this gate -- they
+// live on /data which is up before NanoMenu starts.
+static bool isQrRomStorageReady() {
+    std::string qrRom = getQrRomPath();
+    if (qrRom.empty()) return true;
+    if (qrRom.find("/storage/") != 0) return true;
+    std::string rest = qrRom.substr(9); // skip "/storage/"
+    size_t slash = rest.find('/');
+    if (slash == std::string::npos) return true;
+    std::string uuid = rest.substr(0, slash);
+    if (uuid == "emulated" || uuid == "self") return true;
+    std::string rawDir = "/mnt/media_rw/" + uuid;
+    struct stat st;
+    if (stat(rawDir.c_str(), &st) != 0) return false;
+    return S_ISDIR(st.st_mode);
 }
 
 // ---------------------------------------------------------------------------
@@ -1145,7 +1225,7 @@ void NanoMenu::handleSelect() {
         const auto& entry = mRecentEntries[mRecentSelectedIndex];
         ALOGI("NanoMenu: launching game: %s core: %s",
               entry.romPath.c_str(), entry.corePath.c_str());
-        android::base::SetProperty("sys.gammaos.nano.launch_rom", entry.romPath);
+        setLaunchRomPath(entry.romPath);
         android::base::SetProperty("sys.gammaos.nano.launch_core", entry.corePath);
         // Track launched package so NanoMenu can force-stop it on next restart
         {
@@ -1161,7 +1241,7 @@ void NanoMenu::handleSelect() {
         // playlist if the user loaded a different game, but this ensures the
         // flag survives even if the reboot races the persist write.
         if (mQuickResumeEnabled) {
-            android::base::SetProperty("persist.gammaos.nano.qr_rom", entry.romPath);
+            setQrRomPath(entry.romPath);
             android::base::SetProperty("persist.gammaos.nano.qr_core", entry.corePath);
             property_set("persist.gammaos.nano.qr_prepared", "1");
         }
@@ -1201,7 +1281,7 @@ void NanoMenu::handleSelect() {
         // Track launched package so NanoMenu can force-stop it on next restart
         android::base::SetProperty("sys.gammaos.nano.launched_pkg", app.packageName);
         // Clear any ROM/core properties so RootWindowContainer uses generic launch
-        android::base::SetProperty("sys.gammaos.nano.launch_rom", "");
+        setLaunchRomPath("");
         android::base::SetProperty("sys.gammaos.nano.launch_core", "");
         // Flag so next nano menu restart returns to Applications
         property_set("sys.gammaos.nano.return_apps", "1");
@@ -5567,7 +5647,7 @@ void NanoMenu::launchXmbGame() {
               int ifd = open(f, O_WRONLY|O_CREAT|O_TRUNC, 0666);
               if (ifd >= 0) { write(ifd, tabIntent.c_str(), tabIntent.size()); close(ifd); chmod(f, 0644); }
               android::base::SetProperty("sys.gammaos.nano.launch_intent", "file"); }
-            android::base::SetProperty("sys.gammaos.nano.launch_rom", "");
+            setLaunchRomPath("");
             android::base::SetProperty("sys.gammaos.nano.launch_core", "");
 
             // GammaOS: Drastic quick-resume prime (recent-played path).
@@ -5581,8 +5661,7 @@ void NanoMenu::launchXmbGame() {
             // populate_drastic reads qr_rom to find the ROM file; with
             // QR disabled there would be no path to stage.
             if (re.launchPkg == "com.dsemu.drastic" && mQuickResumeEnabled) {
-                android::base::SetProperty(
-                        "persist.gammaos.nano.qr_rom", re.romPath);
+                setQrRomPath(re.romPath);
                 // Non-filename sentinel distinguishes drastic QR from
                 // libretro QR (which stores a full core .so path).
                 android::base::SetProperty(
@@ -5621,7 +5700,7 @@ void NanoMenu::launchXmbGame() {
             }
         } else {
             std::string corePath = "/data/data/com.retroarch.aarch64/cores/" + re.coreSo;
-            android::base::SetProperty("sys.gammaos.nano.launch_rom", re.romPath);
+            setLaunchRomPath(re.romPath);
             android::base::SetProperty("sys.gammaos.nano.launch_core", corePath);
             android::base::SetProperty("sys.gammaos.nano.launch_app", "com.retroarch.aarch64");
             android::base::SetProperty("sys.gammaos.nano.launch_intent", "");
@@ -5629,7 +5708,7 @@ void NanoMenu::launchXmbGame() {
             property_set("sys.gammaos.nano.cache_ready", "0");
             property_set("sys.gammaos.nano.cache_op", "populate");
             if (mQuickResumeEnabled) {
-                android::base::SetProperty("persist.gammaos.nano.qr_rom", re.romPath);
+                setQrRomPath(re.romPath);
                 android::base::SetProperty("persist.gammaos.nano.qr_core", corePath);
                 property_set("persist.gammaos.nano.qr_prepared", "1");
                 // Overlay name for QR preview: basename without extension.
@@ -5787,7 +5866,7 @@ void NanoMenu::launchXmbGame() {
             }
         }
         // Clear RetroArch-specific props
-        android::base::SetProperty("sys.gammaos.nano.launch_rom", "");
+        setLaunchRomPath("");
         android::base::SetProperty("sys.gammaos.nano.launch_core", "");
 
         // GammaOS: Drastic quick-resume prime (XMB system path).
@@ -5799,8 +5878,7 @@ void NanoMenu::launchXmbGame() {
         // QR there is no target boot to prepare, and populate_drastic
         // reads qr_rom to find the ROM path.
         if (sys.launchPkg == "com.dsemu.drastic" && mQuickResumeEnabled) {
-            android::base::SetProperty(
-                    "persist.gammaos.nano.qr_rom", romPath);
+            setQrRomPath(romPath);
             android::base::SetProperty(
                     "persist.gammaos.nano.qr_core", "drastic");
             property_set("persist.gammaos.nano.qr_prepared", "1");
@@ -5834,7 +5912,7 @@ void NanoMenu::launchXmbGame() {
         // RetroArch core
         std::string corePath = "/data/data/com.retroarch.aarch64/cores/" + sys.coreSo;
         ALOGI("NanoMenu XMB: launching %s core=%s", romPath.c_str(), corePath.c_str());
-        android::base::SetProperty("sys.gammaos.nano.launch_rom", romPath);
+        setLaunchRomPath(romPath);
         android::base::SetProperty("sys.gammaos.nano.launch_core", corePath);
         android::base::SetProperty("sys.gammaos.nano.launch_app", "com.retroarch.aarch64");
         android::base::SetProperty("sys.gammaos.nano.launch_intent", "");
@@ -5844,7 +5922,7 @@ void NanoMenu::launchXmbGame() {
 
         // Prime Quick Resume (only for RetroArch games)
         if (mQuickResumeEnabled) {
-            android::base::SetProperty("persist.gammaos.nano.qr_rom", romPath);
+            setQrRomPath(romPath);
             android::base::SetProperty("persist.gammaos.nano.qr_core", corePath);
             property_set("persist.gammaos.nano.qr_prepared", "1");
             // Overlay name for QR preview: basename without extension.
@@ -6420,6 +6498,14 @@ bool NanoMenu::threadLoop() {
             int64_t bootCompleteTime = 0;
             bool bootComplete = false;
             bool handoffFired = false;
+            // Storage-readiness gate for the QR handoff. We hold the
+            // handoff until the QR ROM's underlying volume is mounted
+            // (vold defers external SD scan ~3-5s after boot start),
+            // otherwise drastic resolves the content URI to "not found"
+            // and falls back to its main menu.
+            bool handoffStorageWaitLogged = false;
+            int64_t handoffWaitStartMs = 0;
+            const int64_t handoffWaitTimeoutMs = 10000; // 10s ceiling
 
             // Shared overlay draw — "Quick Resuming..." + ROM name.
             // Matches the libretro QR loop's pattern at 6687-6702.
@@ -6525,6 +6611,40 @@ bool NanoMenu::threadLoop() {
                     // fires handoff -- the smoke test runs the DS
                     // indefinitely for interactive debugging.
                     if (t >= 1.0f && drasticQrHandoff && !handoffFired) {
+                        // Gate handoff on the QR ROM's storage being
+                        // ready. If the ROM lives on external SD, vold
+                        // mounts the volume ~3-5s after boot starts,
+                        // and the handoff content URI cannot resolve
+                        // before then. Hold the handoff (keep rendering
+                        // the loading screen) until the mount is up, or
+                        // until handoffWaitTimeoutMs has elapsed as a
+                        // safety net.
+                        bool storageReady = isQrRomStorageReady();
+                        if (!storageReady) {
+                            if (handoffWaitStartMs == 0) {
+                                handoffWaitStartMs = elapsedRealtime();
+                            }
+                            int64_t waited = elapsedRealtime() - handoffWaitStartMs;
+                            if (!handoffStorageWaitLogged) {
+                                ALOGI("drastic QR: handoff held -- "
+                                      "waiting for QR ROM storage mount");
+                                handoffStorageWaitLogged = true;
+                            }
+                            if (waited < handoffWaitTimeoutMs) {
+                                // Skip the handoff this frame; the next
+                                // frame will retry. Continue rendering
+                                // the loading-style overlay so the user
+                                // sees a steady screen.
+                                continue;
+                            }
+                            ALOGW("drastic QR: storage wait timed out "
+                                  "after %lldms -- firing handoff anyway",
+                                  (long long)waited);
+                        } else if (handoffStorageWaitLogged) {
+                            int64_t waited = elapsedRealtime() - handoffWaitStartMs;
+                            ALOGI("drastic QR: storage ready after %lldms wait",
+                                  (long long)waited);
+                        }
                         handoffFired = true;
                         ALOGI("drastic QR: handoff to com.dsemu.drastic");
                         // Recreate /data/system/nano_launch_intent.txt
@@ -6657,8 +6777,7 @@ bool NanoMenu::threadLoop() {
         std::string qrPrepared = android::base::GetProperty(
                 "persist.gammaos.nano.qr_prepared", "0");
         if (qrPrepared == "1") {
-            std::string qrRom = android::base::GetProperty(
-                    "persist.gammaos.nano.qr_rom", "");
+            std::string qrRom = getQrRomPath();
             std::string qrCore = android::base::GetProperty(
                     "persist.gammaos.nano.qr_core", "");
             // GammaOS: Skip the libretro QR path for the drastic
