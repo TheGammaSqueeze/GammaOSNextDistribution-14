@@ -1778,17 +1778,18 @@ public class PhoneWindowManager implements WindowManagerPolicy {
 
     private void backLongPress() {
         // GammaOS Nano: in nano mode, long-press back handles app exit.
-        // RetroArch: send ESC (save state, close gracefully).
+        // RetroArch / DraStic: send ESC (save state, close gracefully).
         // Standalone emulators: force-stop and restart nano menu.
         if (android.os.SystemProperties.getBoolean("sys.gammaos.minimal_boot", false)
                 && "1".equals(android.os.SystemProperties.get(
                         "sys.gammaos.nano.app_launched", "0"))) {
             String fgApp = getForegroundAppPackageName();
-            if (fgApp != null && fgApp.toLowerCase().contains("retroarch")) {
+            if (fgApp != null && (fgApp.toLowerCase().contains("retroarch")
+                    || fgApp.toLowerCase().contains("drastic"))) {
                 triggerVirtualKeypress(KeyEvent.KEYCODE_ESCAPE);
                 return;
             }
-            // For standalone emulators (PPSSPP, Drastic, Flycast, Mupen64Plus, etc.):
+            // For standalone emulators (PPSSPP, Flycast, Mupen64Plus, etc.):
             // force-stop the app and signal nano menu restart
             if (fgApp != null) {
                 Slog.i(TAG, "GammaOS Nano: long-press back on standalone app " + fgApp
@@ -1834,9 +1835,10 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 mRetroarchBlockOverride = false;
                 return;
             }
-            // If retroarch is foregrounded, send ESC on long press instead.
+            // If retroarch or DraStic is foregrounded, send ESC on long press instead.
             String fgApp = getForegroundAppPackageName();
-            if (fgApp != null && fgApp.toLowerCase().contains("retroarch")) {
+            if (fgApp != null && (fgApp.toLowerCase().contains("retroarch")
+                    || fgApp.toLowerCase().contains("drastic"))) {
                 // Signal that the user initiated an exit — bypass the grace
                 // period in startHomeOnTaskDisplayArea for instant return.
                 if (android.os.SystemProperties.getBoolean(

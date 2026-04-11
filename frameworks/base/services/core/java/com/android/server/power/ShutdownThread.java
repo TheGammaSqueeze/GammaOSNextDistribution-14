@@ -488,10 +488,11 @@ public final class ShutdownThread extends Thread {
         metricShutdownStart();
         metricStarted(METRIC_SYSTEM_SERVER);
 
-        // GammaOS: always close RetroArch gracefully before shutdown so it
-        // can save state (works in both nano mode and normal Android).
-        // Quick Resume priming only happens in nano mode.
+        // GammaOS: always close RetroArch and DraStic gracefully before
+        // shutdown so they can save state (works in both nano mode and
+        // normal Android). Quick Resume priming only happens in nano mode.
         nanoShutdownRetroArch();
+        nanoShutdownDraStic();
 
         // Start dumping check points for this shutdown in a separate thread.
         Thread dumpCheckPointsThread = ShutdownCheckPoints.newDumpThread(
@@ -1137,6 +1138,93 @@ public final class ShutdownThread extends Thread {
             }
         } catch (Exception e) {
             Slog.w(TAG, "GammaOS Nano: Quick Resume preparation failed", e);
+        }
+    }
+
+    /**
+     * GammaOS: close DraStic gracefully (ESC → save state) before shutdown.
+     * Mirrors the core of nanoShutdownRetroArch() but without Quick Resume
+     * priming or DE cache sync, which are RetroArch-specific.
+     */
+    private void nanoShutdownDraStic() {
+        try {
+            if (!isNanoAppRunning("drastic")) {
+                return;
+            }
+            Slog.i(TAG, "GammaOS: closing DraStic gracefully before shutdown");
+
+            // Dismiss system dialogs so the ESC key reaches DraStic.
+            if (mProgressDialog != null) {
+                mHandler.post(() -> {
+                    try {
+                        mProgressDialog.dismiss();
+                    } catch (Exception e) { /* ignore */ }
+                });
+            }
+            try {
+                mContext.sendBroadcast(new Intent(
+                        Intent.ACTION_CLOSE_SYSTEM_DIALOGS));
+            } catch (Exception e) {
+                Slog.w(TAG, "GammaOS: failed to close system dialogs", e);
+            }
+
+            // Bring DraStic to the foreground so it receives ESC.
+            android.app.ActivityManager amSvc = mContext.getSystemService(
+                    android.app.ActivityManager.class);
+            int drasticTaskId = -1;
+            try {
+                java.util.List<android.app.ActivityManager.RunningTaskInfo> tasks =
+                        amSvc.getRunningTasks(20);
+                for (android.app.ActivityManager.RunningTaskInfo task : tasks) {
+                    if (task.baseActivity != null && "com.dsemu.drastic"
+                            .equals(task.baseActivity.getPackageName())) {
+                        drasticTaskId = task.taskId;
+                        amSvc.moveTaskToFront(drasticTaskId, 0);
+                        Slog.i(TAG, "GammaOS: moved DraStic task "
+                                + drasticTaskId + " to front");
+                        break;
+                    }
+                }
+            } catch (Exception e) {
+                Slog.w(TAG, "GammaOS: failed to bring DraStic to front", e);
+            }
+
+            // Spam ESC + moveTaskToFront until DraStic exits.
+            android.hardware.input.InputManager im =
+                    android.hardware.input.InputManager.getInstance();
+            Slog.i(TAG, "GammaOS: spamming ESC + moveToFront for DraStic "
+                    + "(task " + drasticTaskId + ")");
+            for (int i = 0; i < 30 && isNanoAppRunning("drastic"); i++) {
+                if (drasticTaskId >= 0) {
+                    try { amSvc.moveTaskToFront(drasticTaskId, 0); }
+                    catch (Exception e) { /* ignore */ }
+                }
+                long now = SystemClock.uptimeMillis();
+                final android.view.KeyEvent downEvent = new android.view.KeyEvent(
+                        now, now, android.view.KeyEvent.ACTION_DOWN,
+                        android.view.KeyEvent.KEYCODE_ESCAPE, 0, 0,
+                        android.view.KeyCharacterMap.VIRTUAL_KEYBOARD, 0,
+                        android.view.KeyEvent.FLAG_FROM_SYSTEM,
+                        android.view.InputDevice.SOURCE_KEYBOARD);
+                final android.view.KeyEvent upEvent =
+                        android.view.KeyEvent.changeAction(
+                                downEvent, android.view.KeyEvent.ACTION_UP);
+                im.injectInputEvent(downEvent,
+                        android.hardware.input.InputManager
+                                .INJECT_INPUT_EVENT_MODE_ASYNC);
+                im.injectInputEvent(upEvent,
+                        android.hardware.input.InputManager
+                                .INJECT_INPUT_EVENT_MODE_ASYNC);
+                try { Thread.sleep(200); } catch (InterruptedException e) { }
+            }
+            if (!isNanoAppRunning("drastic")) {
+                Slog.i(TAG, "GammaOS: DraStic exited gracefully");
+            } else {
+                Slog.w(TAG, "GammaOS: DraStic still running after ESC, "
+                        + "proceeding anyway");
+            }
+        } catch (Exception e) {
+            Slog.w(TAG, "GammaOS: DraStic graceful shutdown failed", e);
         }
     }
 
