@@ -1538,6 +1538,22 @@ public class DisplayRotation {
             return false;
         }
 
+        // Fast path: DualStackController advertises an active session on the
+        // default display via sys.gammaos.dualstack.active. Trust that flag
+        // unconditionally on the default display. This is load-bearing during
+        // Activity relaunches (e.g. DraSticEmuActivity re-launching after the
+        // forced tall size is applied): the top-resumed activity can briefly be
+        // null or not yet back in RESUMED state, which would otherwise let
+        // DisplayRotation compute a landscape rotation from the app's requested
+        // orientation and leave the primary panel stuck at ROTATION_270 with
+        // a 960x640 logical canvas, completely breaking the DualStack mirror
+        // math which assumes a 640x960 portrait canvas.
+        if (mDisplayContent.getDisplayId() == Display.DEFAULT_DISPLAY
+                && android.os.SystemProperties.getBoolean(
+                        "sys.gammaos.dualstack.active", false)) {
+            return true;
+        }
+
         // Only consider the top-resumed app.
         final ActivityRecord top = mService.mRoot.getTopResumedActivity();
         if (top == null) {
@@ -1571,6 +1587,15 @@ public class DisplayRotation {
         }
         if (mDisplayContent.getDisplayId() == Display.DEFAULT_DISPLAY) {
             return false;
+        }
+
+        // Fast path: trust the runtime DualStack-active flag so we don't
+        // accidentally rotate the secondary panel during an Activity relaunch
+        // when the top-resumed activity on the default display is briefly
+        // unstable. Same rationale as the primary-display variant above.
+        if (android.os.SystemProperties.getBoolean(
+                "sys.gammaos.dualstack.active", false)) {
+            return true;
         }
 
         // Mirror the orientation lock used on the primary display, but applied here to the

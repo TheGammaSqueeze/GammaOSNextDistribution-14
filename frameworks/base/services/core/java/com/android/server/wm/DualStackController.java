@@ -223,6 +223,10 @@ final class DualStackController {
     // DualStackController.maybeApplyDisplayProjectionsLocked() →
     // updateMirroringIfNeeded() → clearForcedTallSizeIfNeeded().
     private boolean mClearingTallSize;
+    // Set while we are re-applying the forced tall size to prevent re-entrant
+    // recursion through reconfigureDisplayLocked() → updateMirroringIfNeeded() →
+    // applyForcedTallSizeIfNeeded().
+    private boolean mApplyingTallSize;
     private boolean mNeedSecondaryResync;
     // Re-try latch used when we enabled dual-stack but the BLAST wasn't up yet
     private boolean mAwaitingFirstValidSurface;
@@ -416,15 +420,35 @@ final class DualStackController {
             return;
         }
 
-        setRuntimeDualStackActive(true);
-        applyForcedTallSizeIfNeeded();
-
         // Treat the dual-stack "session" as Task-scoped, not Activity-scoped.
         // This avoids tearing down mirrors on Emu <-> GameMenu swaps within the same task.
+        // We detect this BEFORE applying the forced tall size so we can force a full
+        // re-apply on session boundaries — NanoMenu's native setDisplayProjection can
+        // reset SF's layerStackSpace to 640x480 while the Java-side base size still
+        // reports 640x960, and we have no callback from SF to know this happened.
+        // Dropping mForcedTallSizeApplied here guarantees that applyForcedTallSizeIfNeeded
+        // below will actually call setForcedDisplaySize and push a fresh projection
+        // transaction down to SurfaceFlinger.
         final boolean enteringNewDualStackTask = mActiveTask != topTask;
         final boolean taskOrDisplayChanged =
                 mActiveTask != topTask
                 || mSecondaryDisplayId != secondary.getDisplayId();
+        if (enteringNewDualStackTask) {
+            mForcedTallSizeApplied = false;
+        }
+
+        setRuntimeDualStackActive(true);
+        applyForcedTallSizeIfNeeded();
+
+        // On a fresh DualStack session, also push the projection transaction
+        // directly to SF. WM's setForcedDisplaySize path is a no-op at the SF
+        // level when mBaseDisplayWidth/Height are already at 640x960 from the
+        // previous session, but SF's own projection may still be at 640x480 if
+        // NanoMenu took over the display in between. This direct push covers
+        // that case without needing a two-step bounce through the initial size.
+        if (enteringNewDualStackTask) {
+            resyncPrimaryProjectionLocked(t);
+        }
 
         if (taskOrDisplayChanged) {
             teardown(t);
@@ -485,6 +509,57 @@ final class DualStackController {
     }
 
     /**
+     * GammaOS: Force the primary display's SF-side projection back to the tall
+     * logical canvas (640x960 -> 640x480 physical). NanoMenu calls
+     * SurfaceComposerClient::Transaction::setDisplayProjection natively during
+     * its own takeover with the physical resolution, which overwrites whatever
+     * forced tall projection WM had set. When we come back out of NanoMenu, WM's
+     * reconfigureDisplayLocked() does not re-push the projection to SF unless
+     * mBaseDisplayWidth/Height actually changed (they did not — they stayed at
+     * 640x960 across the exit/re-enter cycle), so WindowManagerService and
+     * SurfaceFlinger end up desynced: Java thinks layerStack 0 is 640x960 but
+     * SF actually has it at 640x480, and every mirror sourceCrop computed
+     * downstream is wrong. Pushing the projection directly via the transaction
+     * we already own here is the only reliable way to resync that state without
+     * bouncing the forced size through initial -> target, which would flicker.
+     */
+    private void resyncPrimaryProjectionLocked(Transaction t) {
+        final DisplayContent primary = mWm.mRoot.getDisplayContent(DEFAULT_DISPLAY);
+        if (primary == null) return;
+        final DisplayInfo primaryInfo = primary.getDisplayInfo();
+        if (primaryInfo == null
+                || !(primaryInfo.address instanceof android.view.DisplayAddress.Physical)) {
+            return;
+        }
+        final long physId = ((android.view.DisplayAddress.Physical) primaryInfo.address)
+                .getPhysicalDisplayId();
+        final IBinder token = com.android.server.display.DisplayControl
+                .getPhysicalDisplayToken(physId);
+        if (token == null) return;
+
+        // Source rect is the tall forced logical canvas that the DualStack mirrors
+        // will crop into. Destination rect is the real physical panel. SF will
+        // scale / compress the 640x960 layer stack into the 640x480 panel, which
+        // is exactly the same projection WM's own reconfigureDisplayLocked path
+        // would have set if it had pushed one.
+        final Rect layerStackRect = new Rect(0, 0,
+                DUALSTACK_TALL_WIDTH, DUALSTACK_TALL_HEIGHT);
+        final int physW = primary.mInitialDisplayWidth > 0
+                ? primary.mInitialDisplayWidth : 640;
+        final int physH = primary.mInitialDisplayHeight > 0
+                ? primary.mInitialDisplayHeight : 480;
+        final Rect displayRect = new Rect(0, 0, physW, physH);
+        try {
+            t.setDisplayProjection(token, android.view.Surface.ROTATION_0,
+                    layerStackRect, displayRect);
+            Slog.d(TAG, "DualStack: re-synced primary projection layerStack="
+                    + layerStackRect + " display=" + displayRect);
+        } catch (Throwable e) {
+            Slog.w(TAG, "Failed to re-sync primary display projection", e);
+        }
+    }
+
+    /**
      * GammaOS: Re-sync the secondary display's SF-side layer stack. NanoMenu sets it
      * to 0 for wallpaper mirroring via native SurfaceComposerClient, but the Java
      * DisplayDevice.mCurrentLayerStack stays at 2. Without this re-sync, the secondary
@@ -528,7 +603,11 @@ final class DualStackController {
      * actually see the 640x960 canvas.
      */
     void applyForcedTallSizeIfNeeded() {
-        if (mForcedTallSizeApplied) {
+        // Re-entrancy guard: setForcedDisplaySize below triggers
+        // reconfigureDisplayLocked() which can call back into
+        // updateMirroringIfNeeded() before our setForcedDisplaySize call
+        // returns. Without this guard we would recurse into ourselves.
+        if (mApplyingTallSize) {
             return;
         }
 
@@ -537,11 +616,33 @@ final class DualStackController {
             return;
         }
 
-        // GammaOS: Don't short-circuit based on Java-side logicalWidth/Height.
-        // NanoMenu may have reset the SF-side projection to 640x480 via native
-        // setDisplayProjection while the Java side still reports 640x960.
-        // Always call setForcedDisplaySize to ensure SF is re-synced.
+        // Short-circuit only when BOTH the cached flag says we've applied AND
+        // the Java-side base display size actually matches our target. Either
+        // condition alone isn't sufficient:
+        //
+        //  - The flag alone can lie if a vendor boot script or another system
+        //    path reset the forced display size out from under us (for example
+        //    the RG DS vendor's remove_virtual_inputs.sh historically looped
+        //    `wm size 640x480` early in boot). Checking the actual size catches
+        //    this and makes us self-heal on the next traversal.
+        //
+        //  - The Java size alone can also lie if SurfaceFlinger's layerStackSpace
+        //    got reset out of band while Java's mBaseDisplayWidth/Height stayed
+        //    at 640x960. NanoMenu does exactly this via native setDisplayProjection
+        //    when it takes over the primary display during an app-exit cycle,
+        //    and we have no direct signal that SF is now desynced. Forcing a
+        //    fresh setForcedDisplaySize transaction whenever the flag is false
+        //    re-pushes the projection down to SF and keeps the mirror math
+        //    valid after a drastic exit-and-reenter round trip.
+        final int currentW = primary.mBaseDisplayWidth;
+        final int currentH = primary.mBaseDisplayHeight;
+        if (mForcedTallSizeApplied
+                && currentW == DUALSTACK_TALL_WIDTH
+                && currentH == DUALSTACK_TALL_HEIGHT) {
+            return;
+        }
 
+        mApplyingTallSize = true;
         try {
             // This updates DisplayContent, DisplayFrames, app configuration, and
             // also drives the DisplayManager / SurfaceFlinger side.
@@ -551,9 +652,34 @@ final class DualStackController {
             mForcedTallSizeApplied = true;
             Slog.d(TAG, "DualStack forced tall size "
                     + DUALSTACK_TALL_WIDTH + "x" + DUALSTACK_TALL_HEIGHT
-                    + " on display " + DEFAULT_DISPLAY);
+                    + " on display " + DEFAULT_DISPLAY
+                    + " (was " + currentW + "x" + currentH + ")");
+
+            // Forcing the base size is not enough: the display's rotation may
+            // still be non-zero (e.g. ROTATION_270 from a landscape-only
+            // activity like DraSticEmuActivity that briefly held the display
+            // while drastic was exiting and re-entering). With rotation != 0,
+            // the logical canvas comes out as 960x640 instead of 640x960 and
+            // every downstream crop/scale computation here is wrong. Kick a
+            // rotation re-evaluation now; our updated isDualStackNaturalRotationLocked()
+            // honours sys.gammaos.dualstack.active (which we already set in
+            // updateMirroringIfNeeded before calling us) and will pin the
+            // default display back to ROTATION_0.
+            final int currentRot = primary.getRotation();
+            if (currentRot != android.view.Surface.ROTATION_0) {
+                final boolean rotChanged =
+                        primary.getDisplayRotation().updateRotationUnchecked(
+                                true /* forceUpdate */);
+                if (rotChanged) {
+                    primary.sendNewConfiguration();
+                    Slog.d(TAG, "DualStack forced default display rotation back to 0"
+                            + " (was " + currentRot + ")");
+                }
+            }
         } catch (Exception e) {
             Slog.w(TAG, "Failed to apply forced tall display size", e);
+        } finally {
+            mApplyingTallSize = false;
         }
     }
 
