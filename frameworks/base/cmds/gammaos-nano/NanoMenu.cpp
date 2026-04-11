@@ -73,6 +73,7 @@
 #include <aidl/android/hardware/light/HwLight.h>
 
 #include "LibretroRunner.h"
+#include "DrasticRunner.h"
 #include <aidl/android/hardware/light/HwLightState.h>
 #include <aidl/android/hardware/light/LightType.h>
 #include <android/binder_manager.h>
@@ -1960,6 +1961,13 @@ static std::vector<DrmDisplay> sDrmDisplays;
 // sDrmActive and sDrmRotationDeg are defined earlier (before renderEffect)
 static bool sDrmZeroCopy = false; // true if AHB/FBO setup succeeded
 static bool sDrmGlRotation = false; // true when GL applies rotation (blit uses 0° path)
+
+// GammaOS: Drastic QR fast-path flag. When persist.gammaos.nano.drastic_smoke=1,
+// NanoMenu skips its normal init (particle/fx/XMB shader compiles, ROM
+// scanning, icon textures) and enters a dedicated drastic render loop at
+// the top of threadLoop. This matches the libretro QR architecture and
+// cuts ~700ms+ off the boot-to-first-frame time.
+static bool sDrasticQrFastPath = false;
 // GL rotation matrix (column-major for GLES2 uniformMatrix2fv)
 static float sDrmRotMat[4] = {1.0f, 0.0f, 0.0f, 1.0f}; // identity
 
@@ -2796,6 +2804,21 @@ status_t NanoMenu::readyToRun() {
 
     tlog("persist props resolved");
 
+    // GammaOS: Detect drastic QR fast-path early so subsequent init
+    // stages can skip heavy work (particle/fx/XMB shader compiles,
+    // ROM scanning, icon texture load) and go straight to the drastic
+    // render loop. This is the analog of the libretro minimal boot
+    // path. Read the drastic_smoke persist property directly; we
+    // don't want a race with waiting for NanoMenu's other props.
+    {
+        char v[PROPERTY_VALUE_MAX] = {};
+        property_get("persist.gammaos.nano.drastic_smoke", v, "0");
+        sDrasticQrFastPath = (strcmp(v, "1") == 0);
+        if (sDrasticQrFastPath) {
+            ALOGW("NanoMenu: drastic QR fast-path ACTIVE, skipping heavy init");
+        }
+    }
+
     // GammaOS: Nano mode is confirmed active. Show DRM splash now — before any
     // SF/HWC setup. This replaces the U-Boot logo with a dark screen within
     // milliseconds on devices where HWC composition isn't ready yet (e.g.
@@ -2959,10 +2982,17 @@ status_t NanoMenu::readyToRun() {
     initShaders();
     tlog("shaders compiled");
     buildMenu();
-    initXmbSystems();
-    loadXmbRecent();
+    if (!sDrasticQrFastPath) {
+        initXmbSystems();
+        loadXmbRecent();
+    }
     openInputDevices();
-    initEffects();
+    if (!sDrasticQrFastPath) {
+        initEffects();
+    }
+    if (sDrasticQrFastPath) {
+        tlog("drastic fast-path skipped XMB+effects");
+    }
 
     // Initialize brightness — restore from persist property (synced with Android),
     // falling back to current sysfs value
@@ -3118,34 +3148,49 @@ void NanoMenu::initShaders() {
         mTextLocRotation = glGetUniformLocation(mTextProgram, "uRotation");
         glDeleteShader(vs); glDeleteShader(fs);
     }
-    {   GLuint vs = compileShader(GL_VERTEX_SHADER, PARTICLE_VERTEX_SHADER);
-        GLuint fs = compileShader(GL_FRAGMENT_SHADER, PARTICLE_FRAGMENT_SHADER);
-        mParticleProgram = linkProgram(vs, fs);
-        mParticleLocPosition = glGetAttribLocation(mParticleProgram, "aPosition");
-        mParticleLocColor    = glGetAttribLocation(mParticleProgram, "aColor");
-        mParticleLocRotation = glGetUniformLocation(mParticleProgram, "uRotation");
-        glDeleteShader(vs); glDeleteShader(fs);
-    }
-    {   GLuint vs = compileShader(GL_VERTEX_SHADER, FX_VERTEX_SHADER);
-        GLuint fs = compileShader(GL_FRAGMENT_SHADER, FX_FRAGMENT_SHADER);
-        mFxProgram = linkProgram(vs, fs);
-        mFxLocPosition   = glGetAttribLocation(mFxProgram, "aPosition");
-        mFxLocTime       = glGetUniformLocation(mFxProgram, "uTime");
-        mFxLocResolution = glGetUniformLocation(mFxProgram, "uResolution");
-        mFxLocEffect     = glGetUniformLocation(mFxProgram, "uEffect");
-        mFxLocRotation   = glGetUniformLocation(mFxProgram, "uRotation");
-        mFxLocCoordSwap  = glGetUniformLocation(mFxProgram, "uCoordSwap");
-        glDeleteShader(vs); glDeleteShader(fs);
-    }
-    {   GLuint vs = compileShader(GL_VERTEX_SHADER, FX_VERTEX_SHADER);
-        GLuint fs = compileShader(GL_FRAGMENT_SHADER, XMB_FRAGMENT_SHADER);
-        mXmbProgram = linkProgram(vs, fs);
-        mXmbLocPosition   = glGetAttribLocation(mXmbProgram, "aPosition");
-        mXmbLocTime       = glGetUniformLocation(mXmbProgram, "uTime");
-        mXmbLocResolution = glGetUniformLocation(mXmbProgram, "uResolution");
-        mXmbLocRotation   = glGetUniformLocation(mXmbProgram, "uRotation");
-        mXmbLocCoordSwap  = glGetUniformLocation(mXmbProgram, "uCoordSwap");
-        glDeleteShader(vs); glDeleteShader(fs);
+    // GammaOS: Drastic QR fast-path skips the particle/fx/XMB shaders
+    // entirely. They are expensive (~500-700ms cumulative on a Mali
+    // G52) and only used by NanoMenu's normal render() path, which
+    // the drastic QR loop bypasses. Set all unused locations to -1
+    // so uploadRotationMatrices / renderEffect etc. can detect and
+    // skip them if ever reached accidentally.
+    if (!sDrasticQrFastPath) {
+        {   GLuint vs = compileShader(GL_VERTEX_SHADER, PARTICLE_VERTEX_SHADER);
+            GLuint fs = compileShader(GL_FRAGMENT_SHADER, PARTICLE_FRAGMENT_SHADER);
+            mParticleProgram = linkProgram(vs, fs);
+            mParticleLocPosition = glGetAttribLocation(mParticleProgram, "aPosition");
+            mParticleLocColor    = glGetAttribLocation(mParticleProgram, "aColor");
+            mParticleLocRotation = glGetUniformLocation(mParticleProgram, "uRotation");
+            glDeleteShader(vs); glDeleteShader(fs);
+        }
+        {   GLuint vs = compileShader(GL_VERTEX_SHADER, FX_VERTEX_SHADER);
+            GLuint fs = compileShader(GL_FRAGMENT_SHADER, FX_FRAGMENT_SHADER);
+            mFxProgram = linkProgram(vs, fs);
+            mFxLocPosition   = glGetAttribLocation(mFxProgram, "aPosition");
+            mFxLocTime       = glGetUniformLocation(mFxProgram, "uTime");
+            mFxLocResolution = glGetUniformLocation(mFxProgram, "uResolution");
+            mFxLocEffect     = glGetUniformLocation(mFxProgram, "uEffect");
+            mFxLocRotation   = glGetUniformLocation(mFxProgram, "uRotation");
+            mFxLocCoordSwap  = glGetUniformLocation(mFxProgram, "uCoordSwap");
+            glDeleteShader(vs); glDeleteShader(fs);
+        }
+        {   GLuint vs = compileShader(GL_VERTEX_SHADER, FX_VERTEX_SHADER);
+            GLuint fs = compileShader(GL_FRAGMENT_SHADER, XMB_FRAGMENT_SHADER);
+            mXmbProgram = linkProgram(vs, fs);
+            mXmbLocPosition   = glGetAttribLocation(mXmbProgram, "aPosition");
+            mXmbLocTime       = glGetUniformLocation(mXmbProgram, "uTime");
+            mXmbLocResolution = glGetUniformLocation(mXmbProgram, "uResolution");
+            mXmbLocRotation   = glGetUniformLocation(mXmbProgram, "uRotation");
+            mXmbLocCoordSwap  = glGetUniformLocation(mXmbProgram, "uCoordSwap");
+            glDeleteShader(vs); glDeleteShader(fs);
+        }
+    } else {
+        mParticleProgram = 0; mFxProgram = 0; mXmbProgram = 0;
+        mParticleLocPosition = mParticleLocColor = mParticleLocRotation = -1;
+        mFxLocPosition = mFxLocTime = mFxLocResolution = -1;
+        mFxLocEffect = mFxLocRotation = mFxLocCoordSwap = -1;
+        mXmbLocPosition = mXmbLocTime = mXmbLocResolution = -1;
+        mXmbLocRotation = mXmbLocCoordSwap = -1;
     }
 
     // GammaOS: Compute the GL rotation matrix for DRM direct rendering.
@@ -3176,7 +3221,12 @@ void NanoMenu::initShaders() {
         ALOGI("NanoMenu: GL rotation %d° active for DRM", sDrmRotationDeg);
     }
     initFonts();
-    initIconTextures();
+    // GammaOS: Drastic QR fast-path skips icon texture init -- icons
+    // are only used by the XMB/menu render() path which isn't reached
+    // during drastic QR. Saves ~100-200ms + ~8 MB of GL memory.
+    if (!sDrasticQrFastPath) {
+        initIconTextures();
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -3936,6 +3986,75 @@ void NanoMenu::render() {
         }
     };
 
+    // GammaOS: Drastic quick-resume dual-screen split.
+    //
+    // When DrasticRunner is active (smoke test path or production QR
+    // for NDS ROMs), both displays are repurposed to show the two DS
+    // screens full-size:
+    //   primary display  (port 1 on RG DS) -> TOP DS screen
+    //   secondary display (port 0)          -> BOTTOM DS screen
+    // The wallpaper + XMB are suppressed on both passes. A gradient +
+    // "Quick Resuming..." text overlay matches the LibretroRunner QR
+    // look, with a fade from desaturated+dark to full color once
+    // boot_completed fires.
+    DrasticRunner* drastic = DrasticRunner::getInstance();
+    const bool drasticActive = drastic && drastic->isInitialized();
+    static float sDrasticSaturation = 0.15f;
+    static float sDrasticGradient   = 1.0f;
+    if (drasticActive) {
+        // Idempotent: initSurface is a no-op after the first call.
+        drastic->initSurface(mWidth, mHeight);
+        // Push the DRM rotation matrix so our DS quads come out in
+        // panel-native orientation (matching NanoMenu's XMB).
+        drastic->setRotationMatrix(sDrmRotMat);
+        // Pull fresh pixels ONCE per frame, then reuse the textures
+        // across both display passes.
+        drastic->updatePixels();
+
+        // Advance the fade. Mirror LibretroRunner's QR transition:
+        // creep gently during boot, ramp fast once home_launching or
+        // boot_completed fires.
+        char val[PROPERTY_VALUE_MAX] = {};
+        bool ready = false;
+        property_get("sys.gammaos.nano.home_launching", val, "");
+        ready = (strcmp(val, "1") == 0);
+        if (!ready) {
+            property_get("sys.boot_completed", val, "0");
+            ready = (strcmp(val, "1") == 0);
+        }
+        if (ready) {
+            sDrasticSaturation = fminf(sDrasticSaturation + 0.01f, 1.0f);
+            sDrasticGradient   = fmaxf(sDrasticGradient   - 0.01f, 0.0f);
+        } else {
+            sDrasticSaturation = fminf(sDrasticSaturation + 0.0004f, 0.35f);
+            sDrasticGradient   = fmaxf(sDrasticGradient   - 0.0003f, 0.7f);
+        }
+    }
+
+    // Small inline "Quick Resuming..." + ROM name overlay used by both
+    // drastic passes. Matches LibretroRunner's libretro QR loop.
+    auto drawDrasticQrOverlay = [this](int vpW, int vpH,
+                                        float saturation, float gradient) {
+        (void)gradient;
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        float textScale = fminf((float)vpW / 1080.0f, (float)vpH / 720.0f);
+        if (textScale < 0.5f) textScale = 0.5f;
+        float loadScale = 2.5f * textScale;
+        const char* msg = "Quick Resuming...";
+        float msgW = measureText(msg, loadScale);
+        float msgX = ((float)vpW - msgW) / 2.0f;
+        float msgY = (float)vpH * 0.78f;
+        float pulse = 0.7f + 0.3f * sinf((float)elapsedRealtime() * 0.004f);
+        float textAlpha = pulse * fmaxf(1.2f - saturation, 0.0f);
+        if (textAlpha > 0.05f) {
+            if (textAlpha > 1.0f) textAlpha = 1.0f;
+            drawText(msg, msgX, msgY, loadScale,
+                     1.0f, 1.0f, 1.0f, textAlpha);
+        }
+        glDisable(GL_BLEND);
+    };
+
     // GammaOS: Secondary display pass — wallpaper only, no menu/icons/text.
     // Runs only in DRM direct mode when a secondary AHB was allocated.
     // Renders into sAhbTargetSecondary which drmFlipAll() will blit to every
@@ -3949,12 +4068,20 @@ void NanoMenu::render() {
         glBindFramebuffer(GL_FRAMEBUFFER, sAhbTargetSecondary.glFbo);
         glViewport(0, 0, sAhbTargetSecondary.w, sAhbTargetSecondary.h);
         uploadRotationMatrices();
-        glClearColor(0.05f, 0.05f, 0.10f, 1.0f);
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        renderEffect();
-        glDisable(GL_BLEND);
+        if (drasticActive) {
+            // Secondary display -> BOTTOM DS screen fullscreen.
+            drastic->renderBottomScreen(sDrasticSaturation, sDrasticGradient);
+            drawDrasticQrOverlay(sAhbTargetSecondary.w,
+                                 sAhbTargetSecondary.h,
+                                 sDrasticSaturation, sDrasticGradient);
+        } else {
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            renderEffect();
+            glDisable(GL_BLEND);
+        }
     }
 
     // GammaOS: Primary pass — wallpaper + full menu (XMB or normal). When
@@ -3972,11 +4099,22 @@ void NanoMenu::render() {
         glViewport(0, 0, mWidth, mHeight);
     }
     uploadRotationMatrices();
-    glClearColor(0.05f, 0.05f, 0.10f, 1.0f);
+    glClearColor(drasticActive ? 0.0f : 0.05f,
+                 drasticActive ? 0.0f : 0.05f,
+                 drasticActive ? 0.0f : 0.10f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    // Primary pass -> TOP DS screen fullscreen + QR overlay when
+    // drastic quick-resume is active. Skip the wallpaper + XMB.
+    if (drasticActive) {
+        drastic->renderTopScreen(sDrasticSaturation, sDrasticGradient);
+        int vpW = sDrmGlRotation ? sAhbTarget.w : mWidth;
+        int vpH = sDrmGlRotation ? sAhbTarget.h : mHeight;
+        drawDrasticQrOverlay(vpW, vpH, sDrasticSaturation, sDrasticGradient);
+    } else {
 
     // Background effect on primary AHB.
     renderEffect();
@@ -4202,6 +4340,7 @@ void NanoMenu::render() {
                      0.5f, 0.35f, 0.35f, 0.6f);
         }
     }
+    } // close drasticActive-else wrapper
 
     glDisable(GL_BLEND);
 
@@ -4246,12 +4385,22 @@ void NanoMenu::render() {
         }
     }
 
-    // GammaOS: Render wallpaper to secondary display(s).
-    // Switch to each secondary EGL surface, render just the wallpaper effect, swap back.
+    // GammaOS: Render wallpaper (or bottom DS screen when drastic QR
+    // is active) to secondary display(s). Switch to each secondary
+    // EGL surface, render, swap.
     for (size_t i = 0; i < mSecondaryEglSurfaces.size(); i++) {
         eglMakeCurrent(mDisplay, mSecondaryEglSurfaces[i], mSecondaryEglSurfaces[i], mContext);
         glViewport(0, 0, mWidth, mHeight); // secondary has same resolution
-        renderEffect(); // render just the wallpaper shader
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+        if (drasticActive) {
+            // Secondary display -> bottom DS screen fullscreen.
+            drastic->renderBottomScreen(sDrasticSaturation, sDrasticGradient);
+            drawDrasticQrOverlay(mWidth, mHeight,
+                                 sDrasticSaturation, sDrasticGradient);
+        } else {
+            renderEffect();
+        }
         eglSwapBuffers(mDisplay, mSecondaryEglSurfaces[i]);
     }
     // Switch back to primary
@@ -6048,6 +6197,164 @@ bool NanoMenu::threadLoop() {
             mEffectTime = atof(colorPhase.c_str());
             property_set("sys.gammaos.nano.xmb_color_phase", "");
             ALOGD("NanoMenu: restored color phase %.2f", mEffectTime);
+        }
+    }
+
+    // GammaOS: Drastic QR fast-path dedicated render loop.
+    //
+    // When sDrasticQrFastPath is set (persist.gammaos.nano.drastic_smoke=1),
+    // NanoMenu takes over the render pipeline directly with a tight
+    // loop that drives drastic's getScreenBuffers output into both
+    // displays via drmFrameBegin/End. This mirrors the libretro QR
+    // loop below but with the dual-screen split (primary = top DS,
+    // secondary = bottom DS) and without the normal XMB cycle.
+    //
+    // Key timing win: the loop starts here at threadLoop entry (right
+    // after readyToRun finishes), NOT via NanoMenu::render() which
+    // would add another pass of boot-timing overhead. Combined with
+    // skipping particle/fx/XMB shader compiles in readyToRun, this
+    // brings the drastic first frame ~800ms closer to boot.
+    if (sDrasticQrFastPath) {
+        DrasticRunner* drastic = DrasticRunner::getInstance();
+        if (drastic && drastic->isInitialized()) {
+            ALOGW("NanoMenu: drastic QR fast-path loop entered");
+            int64_t loopStart = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL;
+            ALOGW("NanoMenu BOOT TIMING: drastic QR loop entry at T+%lldms",
+                  loopStart);
+
+            drastic->initSurface(mWidth, mHeight);
+            drastic->setRotationMatrix(sDrmRotMat);
+
+            float saturation = 0.15f;
+            float gradient   = 1.0f;
+            float textScale = fminf((float)mWidth / 1080.0f,
+                                     (float)mHeight / 720.0f);
+            if (textScale < 0.5f) textScale = 0.5f;
+            float loadScale = 2.5f * textScale;
+
+            // Upload rotation matrices once -- they persist on the
+            // text shader until we change programs.
+            if (sDrmGlRotation || mTextLocRotation >= 0) {
+                glUseProgram(mTextProgram);
+                glUniformMatrix2fv(mTextLocRotation, 1, GL_FALSE, sDrmRotMat);
+            }
+
+            bool firstFrameLogged = false;
+            int64_t bootCompleteTime = 0;
+            bool bootComplete = false;
+
+            while (!exitPending()) {
+                // Pull fresh DS frame ONCE per iteration.
+                drastic->updatePixels();
+
+                // Pass 1: secondary display → bottom DS screen.
+                if (sDrmActive && sDrmZeroCopy &&
+                    sAhbTargetSecondary.glFbo != 0) {
+                    glBindFramebuffer(GL_FRAMEBUFFER,
+                                       sAhbTargetSecondary.glFbo);
+                    glViewport(0, 0, sAhbTargetSecondary.w,
+                                sAhbTargetSecondary.h);
+                    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+                    glClear(GL_COLOR_BUFFER_BIT);
+                    drastic->renderBottomScreen(saturation, gradient);
+                    // Text overlay on secondary
+                    glEnable(GL_BLEND);
+                    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                    const char* msg = "Quick Resuming...";
+                    float msgW = measureText(msg, loadScale);
+                    float msgX = ((float)sAhbTargetSecondary.w - msgW) / 2.0f;
+                    float msgY = (float)sAhbTargetSecondary.h * 0.78f;
+                    float pulse = 0.7f + 0.3f * sinf(
+                            (float)elapsedRealtime() * 0.004f);
+                    float textAlpha = pulse * fmaxf(1.2f - saturation, 0.0f);
+                    if (textAlpha > 0.05f) {
+                        if (textAlpha > 1.0f) textAlpha = 1.0f;
+                        drawText(msg, msgX, msgY, loadScale,
+                                 1.0f, 1.0f, 1.0f, textAlpha);
+                    }
+                    glDisable(GL_BLEND);
+                }
+
+                // Pass 2: primary display → top DS screen.
+                drmFrameBegin();
+                if (sDrmGlRotation) {
+                    glViewport(0, 0, sAhbTarget.w, sAhbTarget.h);
+                } else {
+                    glViewport(0, 0, mWidth, mHeight);
+                }
+                glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+                glClear(GL_COLOR_BUFFER_BIT);
+                drastic->renderTopScreen(saturation, gradient);
+                int vpW = sDrmGlRotation ? sAhbTarget.w : mWidth;
+                int vpH = sDrmGlRotation ? sAhbTarget.h : mHeight;
+                glEnable(GL_BLEND);
+                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                {
+                    const char* msg = "Quick Resuming...";
+                    float msgW = measureText(msg, loadScale);
+                    float msgX = ((float)vpW - msgW) / 2.0f;
+                    float msgY = (float)vpH * 0.78f;
+                    float pulse = 0.7f + 0.3f * sinf(
+                            (float)elapsedRealtime() * 0.004f);
+                    float textAlpha = pulse * fmaxf(1.2f - saturation, 0.0f);
+                    if (textAlpha > 0.05f) {
+                        if (textAlpha > 1.0f) textAlpha = 1.0f;
+                        drawText(msg, msgX, msgY, loadScale,
+                                 1.0f, 1.0f, 1.0f, textAlpha);
+                    }
+                }
+                glDisable(GL_BLEND);
+                drmFrameEnd(mDisplay, mSurface);
+
+                if (!firstFrameLogged) {
+                    int64_t now = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL;
+                    ALOGW("NanoMenu BOOT TIMING: drastic first frame at T+%lldms",
+                          now);
+                    firstFrameLogged = true;
+                }
+
+                // Check for handoff conditions
+                char val[PROPERTY_VALUE_MAX] = {};
+                bool ready = false;
+                property_get("sys.gammaos.nano.home_launching", val, "");
+                ready = (strcmp(val, "1") == 0);
+                if (!ready) {
+                    property_get("sys.boot_completed", val, "0");
+                    ready = (strcmp(val, "1") == 0);
+                }
+                if (ready && !bootComplete) {
+                    bootComplete = true;
+                    bootCompleteTime = elapsedRealtime();
+                    ALOGI("drastic QR: transitioning to full color");
+                }
+
+                if (bootComplete) {
+                    int64_t elapsed = elapsedRealtime() - bootCompleteTime;
+                    float t = fminf((float)elapsed / 800.0f, 1.0f);
+                    t = 1.0f - (1.0f - t) * (1.0f - t);
+                    saturation = 0.35f + t * 0.65f;
+                    gradient = 0.7f * (1.0f - t);
+                    // Keep rendering forever (or until exitPending) --
+                    // drastic stays live until the process tears down.
+                    // Production handoff hook would go here.
+                } else {
+                    saturation = fminf(saturation + 0.0003f, 0.35f);
+                    gradient = fmaxf(gradient - 0.0002f, 0.7f);
+                }
+            }
+
+            if (mExitRequested) {
+                ALOGI("NanoMenu: drastic QR loop exiting");
+                return false;
+            }
+        } else {
+            ALOGW("NanoMenu: drastic QR fast-path active but DrasticRunner "
+                  "not initialized -- exiting to avoid shader crash");
+            // The fast path skipped compiling particle/fx/XMB shaders,
+            // so the normal render() would crash on glUseProgram(0).
+            // Safer to exit and let init restart us.
+            mExitRequested = true;
+            return false;
         }
     }
 

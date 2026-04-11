@@ -418,16 +418,244 @@ do_clear_rom() {
 }
 
 # ============================================================
+# POPULATE_DRASTIC: Cache drastic native libs + BIOS + ROM
+# Drastic is a commercial emulator; we never ship its binary.
+# We source libdrastic_arm64.so from the user's installed APK
+# at runtime. If drastic isn't installed, fall back gracefully
+# (the Nano path will use the intent launch instead of native
+# quick-resume).
+#
+# Layout produced:
+#   $CACHE/drastic/libdrastic_arm64.so
+#   $CACHE/drastic/libdrastic_cpu.so
+#   $CACHE/drastic/system/drastic_bios_arm7.bin
+#   $CACHE/drastic/system/drastic_bios_arm9.bin
+#   $CACHE/drastic/system/nds_firmware_modified.bin
+#   $CACHE/drastic/system/game_database.xml
+#   $CACHE/drastic/user/config/           (empty; drastic writes here)
+#   $CACHE/drastic/rom/<romfile>.nds
+#
+# The /user and /system split mirrors drastic's "User/" and
+# "DraStic/" virtual path prefixes (see DraSticPathCache.smali
+# getRealPath). FakeJNI.DraSticPathCache::open translates those
+# prefixes to the corresponding cache subdirectories.
+# ============================================================
+do_populate_drastic() {
+    log_i "populate_drastic: starting"
+
+    local dcache="$CACHE/drastic"
+
+    # ---- Locate the installed drastic APK ----
+    local apk_dir=""
+    local apk_path=""
+    for d in /data/app/~~*/com.dsemu.drastic-*; do
+        [ -d "$d" ] || continue
+        apk_dir="$d"
+        apk_path="$d/base.apk"
+        break
+    done
+    if [ -z "$apk_dir" ] || [ ! -f "$apk_path" ]; then
+        log_w "populate_drastic: com.dsemu.drastic not installed"
+        setprop sys.gammaos.nano.cache_ready 1
+        return 1
+    fi
+    log_i "populate_drastic: drastic APK at $apk_path"
+
+    # ---- Locate the source native lib dir ----
+    # Android normally extracts native libs to <apk_dir>/lib/arm64/ when
+    # extractNativeLibs=true, or leaves them inside the APK when false.
+    # We handle both.
+    local src_lib_dir="$apk_dir/lib/arm64"
+    local use_unzip=0
+    if [ ! -f "$src_lib_dir/libdrastic_arm64.so" ]; then
+        log_i "populate_drastic: native libs not extracted, will unzip from APK"
+        use_unzip=1
+    fi
+
+    # ---- Build cache directory structure ----
+    # User writable subdirs drastic expects:
+    #   backup/     -- .dsv save files (autosave, created fresh)
+    #   savestates/ -- .dss save states
+    #   microphone/ -- recorded mic input
+    #   input_record/ -- replay records
+    #   cheats/     -- .cht cheat files
+    #   slot2/      -- GBA slot2 cartridge dumps
+    # Missing subdirs trigger fclose(NULL) crashes when drastic's
+    # open-for-write path fails with ENOENT.
+    mkdir -p "$dcache/system" \
+             "$dcache/user/config" \
+             "$dcache/user/backup" \
+             "$dcache/user/savestates" \
+             "$dcache/user/microphone" \
+             "$dcache/user/input_record" \
+             "$dcache/user/cheats" \
+             "$dcache/user/slot2" \
+             "$dcache/rom" 2>/dev/null
+
+    # ---- Copy / extract native libs ----
+    if [ "$use_unzip" = "0" ]; then
+        delta_sync_file "$src_lib_dir/libdrastic_arm64.so" "$dcache/libdrastic_arm64.so"
+        delta_sync_file "$src_lib_dir/libdrastic_cpu.so"  "$dcache/libdrastic_cpu.so"
+    else
+        # unzip -j strips directory components
+        unzip -o -j -q "$apk_path" "lib/arm64-v8a/libdrastic_arm64.so" -d "$dcache" 2>/dev/null
+        unzip -o -j -q "$apk_path" "lib/arm64-v8a/libdrastic_cpu.so"  -d "$dcache" 2>/dev/null
+    fi
+    if [ ! -f "$dcache/libdrastic_arm64.so" ]; then
+        log_e "populate_drastic: failed to obtain libdrastic_arm64.so"
+        setprop sys.gammaos.nano.cache_ready 1
+        return 1
+    fi
+
+    # ---- Binary patch: short-circuit drastic's initialize_audio ----
+    #
+    # Drastic's initialize_audio at libdrastic_arm64.so:0x1d760
+    # calls libOpenSLES::slCreateEngine, which internally does a
+    # binder waitForService("media.audio_flinger"). On cold boot,
+    # that wait blocks for ~15 seconds because audioserver only
+    # registers its binder service near sys.boot_completed time.
+    # Drastic's DS CPU emulation is gated on initialize_audio
+    # returning, so the user-visible first frame lands at T+15s.
+    #
+    # Patch: replace the function entry with a single `ret`. The
+    # caller at 0x7304c does not check the return value, and
+    # drastic's per-frame audio mix loop is gated on _SoundEnabled
+    # config so the NULL audio objects at master+0x10..0x28 are
+    # never touched after init when sound is disabled. Confirmed
+    # safe via cross-agent disasm analysis.
+    #
+    # Offset: 0x1d760 (120672)
+    # Original: ff 43 03 d1  (d10343ff = sub sp, sp, #0xd0)
+    # Patched:  c0 03 5f d6  (d65f03c0 = ret)
+    #
+    # Idempotent: if already patched, no-op.
+    local lib="$dcache/libdrastic_arm64.so"
+    local cur_hdr
+    cur_hdr=$(dd if="$lib" bs=1 count=4 skip=120672 2>/dev/null | od -An -v -tx1 | tr -d ' \n')
+    if [ "$cur_hdr" = "ff4303d1" ]; then
+        log_i "populate_drastic: patching libdrastic initialize_audio (0x1d760)"
+        printf '\xc0\x03\x5f\xd6' | dd of="$lib" bs=1 count=4 seek=120672 conv=notrunc 2>/dev/null
+        # Verify
+        cur_hdr=$(dd if="$lib" bs=1 count=4 skip=120672 2>/dev/null | od -An -v -tx1 | tr -d ' \n')
+        if [ "$cur_hdr" = "c0035fd6" ]; then
+            log_i "populate_drastic: patch verified"
+        else
+            log_w "populate_drastic: patch verify FAILED (got $cur_hdr)"
+        fi
+    elif [ "$cur_hdr" = "c0035fd6" ]; then
+        log_i "populate_drastic: libdrastic already patched"
+    else
+        log_w "populate_drastic: unexpected bytes at 0x1d760 ($cur_hdr) -- skipping patch"
+    fi
+
+    # Make libdrastic_arm64.so group-writable so gammaos-nano
+    # (group system) can re-apply the patch if needed. 0664 instead
+    # of the default 0644.
+    chmod 0664 "$lib" 2>/dev/null
+    chown root:system "$lib" 2>/dev/null
+
+    # ---- Copy system files from drastic's app data (BIOS, firmware, db) ----
+    # These live at /data/user/0/com.dsemu.drastic/files/DraStic/ on a
+    # drastic install that has been launched at least once. On a fresh
+    # install the BIOS bins may only exist inside drastic_bios.zip.
+    local drastic_root="/data/user/0/com.dsemu.drastic/files/DraStic"
+    if [ -d "$drastic_root/system" ]; then
+        delta_sync_file "$drastic_root/system/drastic_bios_arm7.bin" "$dcache/system/drastic_bios_arm7.bin"
+        delta_sync_file "$drastic_root/system/drastic_bios_arm9.bin" "$dcache/system/drastic_bios_arm9.bin"
+        delta_sync_file "$drastic_root/system/nds_firmware_modified.bin" "$dcache/system/nds_firmware_modified.bin"
+    fi
+    # game_database.xml lives at the DraStic root, not under system/ --
+    # drastic requests it via the bare "DraStic/game_database.xml"
+    # virtual path.
+    if [ -f "$drastic_root/game_database.xml" ]; then
+        delta_sync_file "$drastic_root/game_database.xml" "$dcache/game_database.xml"
+    fi
+
+    # Fallback: if we don't have the extracted BIOS binaries, unzip them
+    # from drastic_bios.zip (ships with the drastic APK assets).
+    if [ ! -f "$dcache/system/drastic_bios_arm7.bin" ] || \
+       [ ! -f "$dcache/system/drastic_bios_arm9.bin" ]; then
+        if [ -f "$drastic_root/drastic_bios.zip" ]; then
+            log_i "populate_drastic: extracting drastic_bios.zip"
+            unzip -o -j -q "$drastic_root/drastic_bios.zip" \
+                "drastic_bios_arm7.bin" "drastic_bios_arm9.bin" \
+                -d "$dcache/system" 2>/dev/null
+        else
+            # Last-resort: pull from APK assets
+            unzip -o -j -q "$apk_path" "assets/drastic_bios.zip" -d "$dcache" 2>/dev/null
+            if [ -f "$dcache/drastic_bios.zip" ]; then
+                unzip -o -j -q "$dcache/drastic_bios.zip" \
+                    "drastic_bios_arm7.bin" "drastic_bios_arm9.bin" \
+                    -d "$dcache/system" 2>/dev/null
+                rm -f "$dcache/drastic_bios.zip"
+            fi
+        fi
+    fi
+    if [ ! -f "$dcache/system/drastic_bios_arm7.bin" ]; then
+        log_w "populate_drastic: drastic_bios_arm7.bin missing (drastic may refuse to boot ROMs)"
+    fi
+
+    # ---- Copy user's drastic.cfg if it exists ----
+    # Missing config is fine -- drastic builds one from defaults.
+    if [ -f "$drastic_root/config/drastic.cfg" ]; then
+        delta_sync_file "$drastic_root/config/drastic.cfg" "$dcache/user/config/drastic.cfg"
+    fi
+
+    # ---- Copy the ROM ----
+    local rom_path="$(getprop sys.gammaos.nano.launch_rom)"
+    if [ -z "$rom_path" ]; then
+        rom_path="$(getprop persist.gammaos.nano.qr_rom)"
+    fi
+    if [ -n "$rom_path" ]; then
+        local rom_raw=$(to_raw_path "$rom_path")
+        if [ -f "$rom_raw" ]; then
+            local rom_file=$(basename "$rom_raw")
+            # Clear any previous ROM before copying the new one
+            rm -f "$dcache/rom/"*.nds 2>/dev/null
+            cp -p "$rom_raw" "$dcache/rom/$rom_file" 2>/dev/null
+            if [ -f "$dcache/rom/$rom_file" ]; then
+                log_i "populate_drastic: cached ROM $rom_file"
+            else
+                log_e "populate_drastic: failed to copy ROM from $rom_raw"
+            fi
+        else
+            log_w "populate_drastic: ROM not found at $rom_raw"
+        fi
+    else
+        log_w "populate_drastic: no ROM path in launch_rom or qr_rom"
+    fi
+
+    # ---- Permissions: world-readable for dirs, writable for user-subdirs ----
+    # The dirs under user/ need to be writable by the bootanim-domain
+    # gammaos-nano process (UID 1003 "graphics") so drastic can create
+    # its autosave .dsv files on first boot.
+    chmod 0755 "$dcache" "$dcache/system" "$dcache/rom" 2>/dev/null
+    chmod 0777 "$dcache/user" \
+               "$dcache/user/config" \
+               "$dcache/user/backup" \
+               "$dcache/user/savestates" \
+               "$dcache/user/microphone" \
+               "$dcache/user/input_record" \
+               "$dcache/user/cheats" \
+               "$dcache/user/slot2" 2>/dev/null
+    find "$dcache" -type f -exec chmod 0644 {} \; 2>/dev/null
+
+    log_i "populate_drastic: done"
+    setprop sys.gammaos.nano.cache_ready 1
+}
+
+# ============================================================
 # Main dispatch
 # ============================================================
 OP="$1"
 case "$OP" in
-    populate)       do_populate ;;
-    mount)          do_mount ;;
-    unmount)        do_unmount ;;
-    sync_back)      do_sync_back ;;
-    sync_to_cache)  do_sync_to_cache ;;
-    clear_rom)      do_clear_rom ;;
+    populate)         do_populate ;;
+    populate_drastic) do_populate_drastic ;;
+    mount)            do_mount ;;
+    unmount)          do_unmount ;;
+    sync_back)        do_sync_back ;;
+    sync_to_cache)    do_sync_to_cache ;;
+    clear_rom)        do_clear_rom ;;
     *)
         log_e "unknown operation: $OP"
         exit 1

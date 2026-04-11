@@ -2,7 +2,9 @@ service gammaos-nano /system/bin/gammaos-nano
     class core animation
     user graphics
     group graphics input system media_rw sdcard_rw everybody external_storage package_info
+    capabilities SYS_NICE
     disabled
     oneshot
     ioprio rt 0
+    rlimit rtprio 99 99
     task_profiles MaxPerformance
