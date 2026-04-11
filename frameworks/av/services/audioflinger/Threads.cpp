@@ -372,6 +372,27 @@ static std::string toString(const std::vector<audio_latency_mode_t>& elements) {
     return s;
 }
 
+// GammaEQ: cached writer for sys.gammaeq.route.spk.
+//
+// __system_property_set() is extremely expensive (opens a socket to init's
+// property_service, writes, waits for ack, closes). Calling it on every audio
+// mix cycle showed up as ~25% of audioserver CPU in profiles. Cache the last
+// value we wrote in a static atomic so redundant writes become a single
+// relaxed-load and a comparison.
+//
+// All sys.gammaeq.route.spk writers in this process MUST go through this
+// helper for the cache to remain coherent. FastMixer only reads the property,
+// no other code in the tree writes it, so the cache is authoritative.
+static inline void setGammaEqRouteSpkCached(bool on) {
+    static std::atomic<int> sCached{-1};  // -1 = unknown, 0 = "0", 1 = "1"
+    const int desired = on ? 1 : 0;
+    if (sCached.load(std::memory_order_relaxed) == desired) {
+        return;  // already at desired value, skip the syscall
+    }
+    sCached.store(desired, std::memory_order_relaxed);
+    (void)property_set("sys.gammaeq.route.spk", on ? "1" : "0");
+}
+
 // GammaEQ: route flag helper
 //  - Write "1" immediately if SPEAKER present.
 //  - Before boot complete, never write "0" (avoid early non-audible routes).
@@ -410,7 +431,7 @@ static inline void updateGammaEqSpeakerRouteProp(const DeviceTypeSet& outDevices
     }
     if (onSpeaker) {
         if (kDebug) ALOGD("GammaEQ.route write=1 (speaker present): devices=[%s]", devBuf);
-        (void)property_set("sys.gammaeq.route.spk", "1");
+        setGammaEqRouteSpkCached(true);
         return;
     }
     if (!bootComplete) {
@@ -418,7 +439,7 @@ static inline void updateGammaEqSpeakerRouteProp(const DeviceTypeSet& outDevices
         return;
     }
     if (kDebug) ALOGD("GammaEQ.route write=0: devices=[%s]", devBuf);
-    (void)property_set("sys.gammaeq.route.spk", "0");
+    setGammaEqRouteSpkCached(false);
 }
  
 // GammaEQ: we must avoid non-mixer transient output threads (DIRECT/OFFLOAD/etc.) clearing the
@@ -446,7 +467,7 @@ static inline void updateGammaEqSpeakerRoutePropForThread(
     // If speaker is present, always assert "1" regardless of thread type.
     for (const auto& d : outDevices) {
         if (d == AUDIO_DEVICE_OUT_SPEAKER || d == AUDIO_DEVICE_OUT_SPEAKER_SAFE) {
-            (void)property_set("sys.gammaeq.route.spk", "1");
+            setGammaEqRouteSpkCached(true);
             return;
         }
     }
@@ -4099,15 +4120,32 @@ ssize_t PlaybackThread::threadLoop_write()
     //
     // Updating the flag here ties it to actual audio output activity instead of config-event
     // ordering and ensures the speaker path re-asserts "1" as soon as it resumes.
-    if (mBytesRemaining > 0 && gammaeqMasterEnabled() && gammaeqSpeakerOnlyEnabled()
-            && !gammaeqForceAllOutputs()) {
-        DeviceTypeSet devs;
-        {
-            // outDeviceTypes_l() requires ThreadBase::mutex() held.
-            audio_utils::lock_guard _l(mutex());
-            devs = outDeviceTypes_l();
+    //
+    // PERF: this runs inside the mix loop, which fires every ~5-20ms. Throttle the entire
+    // self-heal block to ~100ms via a thread_local timestamp so we are not (a) acquiring
+    // mutex() per buffer, (b) doing 3 property_get_bool reads per buffer, or (c) calling
+    // updateGammaEqSpeakerRouteProp per buffer. setGammaEqRouteSpkCached additionally
+    // dedups the actual property_set syscall, so steady-state cost is one monotonic-clock
+    // read per buffer plus one timestamp comparison; the route check itself runs ~10x/sec.
+    // 100ms latency is well within audio routing tolerance, and immediate route changes
+    // still arrive via CFG_EVENT_UPDATE_OUT_DEVICE which calls the helper directly.
+    {
+        thread_local int64_t sLastSelfHealNs = 0;
+        constexpr int64_t kSelfHealIntervalNs = 100 * 1000 * 1000LL;  // 100ms
+        const int64_t nowNs = systemTime(SYSTEM_TIME_MONOTONIC);
+        if (mBytesRemaining > 0 && (nowNs - sLastSelfHealNs) >= kSelfHealIntervalNs) {
+            sLastSelfHealNs = nowNs;
+            if (gammaeqMasterEnabled() && gammaeqSpeakerOnlyEnabled()
+                    && !gammaeqForceAllOutputs()) {
+                DeviceTypeSet devs;
+                {
+                    // outDeviceTypes_l() requires ThreadBase::mutex() held.
+                    audio_utils::lock_guard _l(mutex());
+                    devs = outDeviceTypes_l();
+                }
+                updateGammaEqSpeakerRouteProp(devs);
+            }
         }
-        updateGammaEqSpeakerRouteProp(devs);
     }
 
     // If an NBAIO sink is present, use it to write the normal mixer's submix
