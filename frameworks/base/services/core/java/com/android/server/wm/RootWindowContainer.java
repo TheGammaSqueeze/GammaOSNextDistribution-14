@@ -2139,7 +2139,18 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                     // Intent is stored in a file because it exceeds PROP_VALUE_MAX (92 bytes)
                     String launchIntentStr = android.os.SystemProperties.get(
                             "sys.gammaos.nano.launch_intent", "");
-                    if ("file".equals(launchIntentStr)) {
+                    // Single-use consumption: once launch_intent has been
+                    // observed as "file", clear it regardless of whether the
+                    // file was readable. A lingering "file" value causes the
+                    // next startHomeOnTaskDisplayArea call to observe
+                    // newLaunchPending=true with appWasLaunched=true, which
+                    // tries to force-stop the just-launched package and
+                    // deadlocks on the AMS lock while holding the WMS lock.
+                    // Observed via drastic QR handoff: the QR handoff sets
+                    // launch_intent="file" but the intent file was already
+                    // consumed (deleted) by an earlier launch cycle.
+                    final boolean hadFileIntent = "file".equals(launchIntentStr);
+                    if (hadFileIntent) {
                         try {
                             java.io.File intentFile = new java.io.File(
                                     "/data/system/nano_launch_intent.txt");
@@ -2151,6 +2162,8 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                                 Slog.i(TAG, "GammaOS Nano: read launch_intent from file ("
                                         + launchIntentStr.length() + " bytes)");
                             } else {
+                                Slog.i(TAG, "GammaOS Nano: launch_intent=file but no intent "
+                                        + "file on disk, will fall back to LAUNCHER");
                                 launchIntentStr = "";
                             }
                         } catch (Exception e) {
@@ -2178,6 +2191,10 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                         } catch (Exception e) {
                             Slog.e(TAG, "GammaOS Nano: failed to parse launch_intent: " + e);
                         }
+                    }
+                    // Always clear launch_intent after observing "file",
+                    // regardless of parse success. See comment above.
+                    if (hadFileIntent) {
                         android.os.SystemProperties.set(
                                 "sys.gammaos.nano.launch_intent", "");
                     }
