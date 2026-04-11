@@ -2808,14 +2808,35 @@ status_t NanoMenu::readyToRun() {
     // stages can skip heavy work (particle/fx/XMB shader compiles,
     // ROM scanning, icon texture load) and go straight to the drastic
     // render loop. This is the analog of the libretro minimal boot
-    // path. Read the drastic_smoke persist property directly; we
-    // don't want a race with waiting for NanoMenu's other props.
+    // path. Read the props directly; we don't want a race with
+    // waiting for NanoMenu's other props.
+    //
+    // Two trigger conditions:
+    //   1) persist.gammaos.nano.drastic_smoke=1 -- debug smoke-test
+    //      knob, still used by runDrasticInitIfNeeded() in main.cpp
+    //      for A/B service-wait experiments.
+    //   2) persist.gammaos.nano.qr_prepared=1 AND qr_core="drastic"
+    //      -- real QR path primed by launchXmbGame() when the user
+    //      opens a Nintendo DS game. The "drastic" sentinel in
+    //      qr_core distinguishes drastic QR from libretro QR (which
+    //      stores a full core .so path).
     {
-        char v[PROPERTY_VALUE_MAX] = {};
-        property_get("persist.gammaos.nano.drastic_smoke", v, "0");
-        sDrasticQrFastPath = (strcmp(v, "1") == 0);
+        char smoke[PROPERTY_VALUE_MAX] = {};
+        property_get("persist.gammaos.nano.drastic_smoke", smoke, "0");
+        bool smokeActive = (strcmp(smoke, "1") == 0);
+
+        char qp[PROPERTY_VALUE_MAX] = {};
+        char qc[PROPERTY_VALUE_MAX] = {};
+        property_get("persist.gammaos.nano.qr_prepared", qp, "0");
+        property_get("persist.gammaos.nano.qr_core", qc, "");
+        bool drasticQrPrimed = (strcmp(qp, "1") == 0) &&
+                               (strcmp(qc, "drastic") == 0);
+
+        sDrasticQrFastPath = smokeActive || drasticQrPrimed;
         if (sDrasticQrFastPath) {
-            ALOGW("NanoMenu: drastic QR fast-path ACTIVE, skipping heavy init");
+            ALOGW("NanoMenu: drastic QR fast-path ACTIVE "
+                  "(smoke=%d qr_primed=%d), skipping heavy init",
+                  smokeActive ? 1 : 0, drasticQrPrimed ? 1 : 0);
         }
     }
 
@@ -5548,6 +5569,56 @@ void NanoMenu::launchXmbGame() {
               android::base::SetProperty("sys.gammaos.nano.launch_intent", "file"); }
             android::base::SetProperty("sys.gammaos.nano.launch_rom", "");
             android::base::SetProperty("sys.gammaos.nano.launch_core", "");
+
+            // GammaOS: Drastic quick-resume prime (recent-played path).
+            // When launching a Nintendo DS game via drastic with QR
+            // enabled, also populate the DE cache (libdrastic + BIOS +
+            // firmware + ROM + audio patch) and prime QR props with the
+            // "drastic" sentinel. Next boot will hit DrasticRunner
+            // directly and show the live DS framebuffer in NanoMenu at
+            // ~T+1.5s, mirroring the libretro QR path for RetroArch
+            // cores. Guarded on mQuickResumeEnabled because
+            // populate_drastic reads qr_rom to find the ROM file; with
+            // QR disabled there would be no path to stage.
+            if (re.launchPkg == "com.dsemu.drastic" && mQuickResumeEnabled) {
+                android::base::SetProperty(
+                        "persist.gammaos.nano.qr_rom", re.romPath);
+                // Non-filename sentinel distinguishes drastic QR from
+                // libretro QR (which stores a full core .so path).
+                android::base::SetProperty(
+                        "persist.gammaos.nano.qr_core", "drastic");
+                property_set("persist.gammaos.nano.qr_prepared", "1");
+                // Derive overlay name (basename without extension)
+                std::string gameName = filename;
+                size_t dotPos = gameName.rfind('.');
+                if (dotPos != std::string::npos) gameName.erase(dotPos);
+                android::base::SetProperty(
+                        "persist.gammaos.nano.qr_game_name", gameName);
+                // Persistent copy of the tab-separated intent for the
+                // drastic QR handoff path. The primary intent file at
+                // /data/system/nano_launch_intent.txt is consumed and
+                // deleted by RootWindowContainer on first launch. Next
+                // boot's QR handoff needs to re-issue the same specific
+                // drastic-activity-with-content-URI intent to drop the
+                // user straight into the game (instead of drastic's
+                // own main menu). We stash a copy under a dedicated
+                // path that nothing else consumes, and the QR handoff
+                // threadLoop() block re-creates the primary intent
+                // file from this copy before firing do_launch.
+                { const char* qf = "/data/system/nano_drastic_qr_intent.txt";
+                  int qfd = open(qf, O_WRONLY|O_CREAT|O_TRUNC, 0666);
+                  if (qfd >= 0) {
+                      write(qfd, tabIntent.c_str(), tabIntent.size());
+                      close(qfd);
+                      chmod(qf, 0644);
+                  } }
+                // Kick populate_drastic AFTER qr_rom so nano_cache.sh
+                // can read it for the ROM path. Order matters here --
+                // the init property trigger fires synchronously on
+                // cache_op change.
+                property_set("sys.gammaos.nano.cache_ready", "0");
+                property_set("sys.gammaos.nano.cache_op", "populate_drastic");
+            }
         } else {
             std::string corePath = "/data/data/com.retroarch.aarch64/cores/" + re.coreSo;
             android::base::SetProperty("sys.gammaos.nano.launch_rom", re.romPath);
@@ -5561,6 +5632,16 @@ void NanoMenu::launchXmbGame() {
                 android::base::SetProperty("persist.gammaos.nano.qr_rom", re.romPath);
                 android::base::SetProperty("persist.gammaos.nano.qr_core", corePath);
                 property_set("persist.gammaos.nano.qr_prepared", "1");
+                // Overlay name for QR preview: basename without extension.
+                // Read by both libretro QR and drastic QR from the same prop.
+                std::string gameName;
+                { size_t ls = re.romPath.rfind('/');
+                  gameName = (ls != std::string::npos)
+                          ? re.romPath.substr(ls + 1) : re.romPath; }
+                size_t dotPos = gameName.rfind('.');
+                if (dotPos != std::string::npos) gameName.erase(dotPos);
+                android::base::SetProperty(
+                        "persist.gammaos.nano.qr_game_name", gameName);
             }
         }
         ALOGI("NanoMenu XMB: recent launch %s [%s]", re.displayName.c_str(), re.systemName.c_str());
@@ -5708,6 +5789,47 @@ void NanoMenu::launchXmbGame() {
         // Clear RetroArch-specific props
         android::base::SetProperty("sys.gammaos.nano.launch_rom", "");
         android::base::SetProperty("sys.gammaos.nano.launch_core", "");
+
+        // GammaOS: Drastic quick-resume prime (XMB system path).
+        // Same contract as the recent-played standalone branch: prime
+        // the QR props with the "drastic" sentinel and kick
+        // populate_drastic so nano_cache.sh caches libdrastic + BIOS +
+        // ROM (with the idempotent 4-byte audio patch) against the
+        // next boot. Guarded on mQuickResumeEnabled because without
+        // QR there is no target boot to prepare, and populate_drastic
+        // reads qr_rom to find the ROM path.
+        if (sys.launchPkg == "com.dsemu.drastic" && mQuickResumeEnabled) {
+            android::base::SetProperty(
+                    "persist.gammaos.nano.qr_rom", romPath);
+            android::base::SetProperty(
+                    "persist.gammaos.nano.qr_core", "drastic");
+            property_set("persist.gammaos.nano.qr_prepared", "1");
+            // Derive overlay name (basename without extension)
+            std::string gameName = filename;
+            size_t dotPos = gameName.rfind('.');
+            if (dotPos != std::string::npos) gameName.erase(dotPos);
+            android::base::SetProperty(
+                    "persist.gammaos.nano.qr_game_name", gameName);
+            // Persistent copy of the tab-separated intent for drastic
+            // QR handoff. See the matching recent-played branch for
+            // the full rationale: the primary nano_launch_intent.txt
+            // is consumed once by RootWindowContainer and deleted, so
+            // next boot's QR handoff needs to recreate it from this
+            // stash to drop the user straight into the game instead
+            // of drastic's own main menu.
+            { const char* qf = "/data/system/nano_drastic_qr_intent.txt";
+              int qfd = open(qf, O_WRONLY|O_CREAT|O_TRUNC, 0666);
+              if (qfd >= 0) {
+                  write(qfd, tabIntent.c_str(), tabIntent.size());
+                  close(qfd);
+                  chmod(qf, 0644);
+              } }
+            // Kick populate_drastic AFTER qr_rom so nano_cache.sh can
+            // read the path. The init property trigger fires
+            // synchronously on cache_op change.
+            property_set("sys.gammaos.nano.cache_ready", "0");
+            property_set("sys.gammaos.nano.cache_op", "populate_drastic");
+        }
     } else {
         // RetroArch core
         std::string corePath = "/data/data/com.retroarch.aarch64/cores/" + sys.coreSo;
@@ -5725,6 +5847,16 @@ void NanoMenu::launchXmbGame() {
             android::base::SetProperty("persist.gammaos.nano.qr_rom", romPath);
             android::base::SetProperty("persist.gammaos.nano.qr_core", corePath);
             property_set("persist.gammaos.nano.qr_prepared", "1");
+            // Overlay name for QR preview: basename without extension.
+            // Read by both libretro QR and drastic QR from the same prop.
+            std::string gameName;
+            { size_t ls = romPath.rfind('/');
+              gameName = (ls != std::string::npos)
+                      ? romPath.substr(ls + 1) : romPath; }
+            size_t dotPos = gameName.rfind('.');
+            if (dotPos != std::string::npos) gameName.erase(dotPos);
+            android::base::SetProperty(
+                    "persist.gammaos.nano.qr_game_name", gameName);
         }
     }
 
@@ -6202,12 +6334,13 @@ bool NanoMenu::threadLoop() {
 
     // GammaOS: Drastic QR fast-path dedicated render loop.
     //
-    // When sDrasticQrFastPath is set (persist.gammaos.nano.drastic_smoke=1),
-    // NanoMenu takes over the render pipeline directly with a tight
-    // loop that drives drastic's getScreenBuffers output into both
-    // displays via drmFrameBegin/End. This mirrors the libretro QR
-    // loop below but with the dual-screen split (primary = top DS,
-    // secondary = bottom DS) and without the normal XMB cycle.
+    // When sDrasticQrFastPath is set (debug smoke-test prop OR the
+    // real QR path primed via qr_core="drastic"), NanoMenu takes over
+    // the render pipeline directly with a tight loop that drives
+    // drastic's getScreenBuffers output into both displays via
+    // drmFrameBegin/End. This mirrors the libretro QR loop below but
+    // with the dual-screen split (primary = top DS, secondary =
+    // bottom DS) and without the normal XMB cycle.
     //
     // Key timing win: the loop starts here at threadLoop entry (right
     // after readyToRun finishes), NOT via NanoMenu::render() which
@@ -6225,12 +6358,56 @@ bool NanoMenu::threadLoop() {
             drastic->initSurface(mWidth, mHeight);
             drastic->setRotationMatrix(sDrmRotMat);
 
+            // Determine whether this is the real QR path (primed by
+            // launchXmbGame) or the smoke-test debug path. The real
+            // path will trigger an app handoff when the fade finishes;
+            // the smoke path keeps rendering indefinitely.
+            bool drasticQrHandoff = false;
+            {
+                char qc[PROPERTY_VALUE_MAX] = {};
+                char qp[PROPERTY_VALUE_MAX] = {};
+                property_get("persist.gammaos.nano.qr_core", qc, "");
+                property_get("persist.gammaos.nano.qr_prepared", qp, "0");
+                drasticQrHandoff = (strcmp(qc, "drastic") == 0) &&
+                                   (strcmp(qp, "1") == 0);
+            }
+
+            // Load the game name once so the overlay has a stable
+            // label across the loop. Matches the libretro QR pattern.
+            std::string drasticGameName = android::base::GetProperty(
+                    "persist.gammaos.nano.qr_game_name", "");
+            if (drasticGameName.empty()) {
+                // Fallback: scan the cached drastic rom dir for the
+                // single staged .nds file. populate_drastic only
+                // keeps one ROM at a time.
+                DIR* d = opendir(
+                        "/data/system/nano_cache/drastic/rom");
+                if (d) {
+                    struct dirent* e;
+                    while ((e = readdir(d)) != nullptr) {
+                        std::string name(e->d_name);
+                        if (name == "." || name == "..") continue;
+                        if (name.size() >= 4 &&
+                            name.compare(name.size() - 4, 4, ".nds") == 0) {
+                            size_t dotPos = name.rfind('.');
+                            drasticGameName = (dotPos != std::string::npos)
+                                    ? name.substr(0, dotPos) : name;
+                            break;
+                        }
+                    }
+                    closedir(d);
+                }
+            }
+            ALOGI("drastic QR: overlay name=\"%s\" handoff=%d",
+                  drasticGameName.c_str(), drasticQrHandoff ? 1 : 0);
+
             float saturation = 0.15f;
             float gradient   = 1.0f;
             float textScale = fminf((float)mWidth / 1080.0f,
                                      (float)mHeight / 720.0f);
             if (textScale < 0.5f) textScale = 0.5f;
             float loadScale = 2.5f * textScale;
+            float nameScale = 1.5f * textScale;
 
             // Upload rotation matrices once -- they persist on the
             // text shader until we change programs.
@@ -6242,6 +6419,37 @@ bool NanoMenu::threadLoop() {
             bool firstFrameLogged = false;
             int64_t bootCompleteTime = 0;
             bool bootComplete = false;
+            bool handoffFired = false;
+
+            // Shared overlay draw — "Quick Resuming..." + ROM name.
+            // Matches the libretro QR loop's pattern at 6687-6702.
+            auto drawOverlay = [&](int vpW, int vpH) {
+                glEnable(GL_BLEND);
+                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                const char* msg = "Quick Resuming...";
+                float msgW = measureText(msg, loadScale);
+                float msgX = ((float)vpW - msgW) / 2.0f;
+                float msgY = (float)vpH * 0.78f;
+                float pulse = 0.7f + 0.3f * sinf(
+                        (float)elapsedRealtime() * 0.004f);
+                float textAlpha = pulse * fmaxf(1.2f - saturation, 0.0f);
+                if (textAlpha > 0.05f) {
+                    if (textAlpha > 1.0f) textAlpha = 1.0f;
+                    drawText(msg, msgX, msgY, loadScale,
+                             1.0f, 1.0f, 1.0f, textAlpha);
+                    if (!drasticGameName.empty()) {
+                        float nameW = measureText(
+                                drasticGameName.c_str(), nameScale);
+                        float nameX = ((float)vpW - nameW) / 2.0f;
+                        float nameY = msgY +
+                                FONT_CHAR_H * loadScale + 12.0f * textScale;
+                        drawText(drasticGameName.c_str(),
+                                 nameX, nameY, nameScale,
+                                 0.7f, 0.7f, 0.8f, textAlpha * 0.8f);
+                    }
+                }
+                glDisable(GL_BLEND);
+            };
 
             while (!exitPending()) {
                 // Pull fresh DS frame ONCE per iteration.
@@ -6257,22 +6465,8 @@ bool NanoMenu::threadLoop() {
                     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
                     glClear(GL_COLOR_BUFFER_BIT);
                     drastic->renderBottomScreen(saturation, gradient);
-                    // Text overlay on secondary
-                    glEnable(GL_BLEND);
-                    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-                    const char* msg = "Quick Resuming...";
-                    float msgW = measureText(msg, loadScale);
-                    float msgX = ((float)sAhbTargetSecondary.w - msgW) / 2.0f;
-                    float msgY = (float)sAhbTargetSecondary.h * 0.78f;
-                    float pulse = 0.7f + 0.3f * sinf(
-                            (float)elapsedRealtime() * 0.004f);
-                    float textAlpha = pulse * fmaxf(1.2f - saturation, 0.0f);
-                    if (textAlpha > 0.05f) {
-                        if (textAlpha > 1.0f) textAlpha = 1.0f;
-                        drawText(msg, msgX, msgY, loadScale,
-                                 1.0f, 1.0f, 1.0f, textAlpha);
-                    }
-                    glDisable(GL_BLEND);
+                    drawOverlay(sAhbTargetSecondary.w,
+                                sAhbTargetSecondary.h);
                 }
 
                 // Pass 2: primary display → top DS screen.
@@ -6287,23 +6481,7 @@ bool NanoMenu::threadLoop() {
                 drastic->renderTopScreen(saturation, gradient);
                 int vpW = sDrmGlRotation ? sAhbTarget.w : mWidth;
                 int vpH = sDrmGlRotation ? sAhbTarget.h : mHeight;
-                glEnable(GL_BLEND);
-                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-                {
-                    const char* msg = "Quick Resuming...";
-                    float msgW = measureText(msg, loadScale);
-                    float msgX = ((float)vpW - msgW) / 2.0f;
-                    float msgY = (float)vpH * 0.78f;
-                    float pulse = 0.7f + 0.3f * sinf(
-                            (float)elapsedRealtime() * 0.004f);
-                    float textAlpha = pulse * fmaxf(1.2f - saturation, 0.0f);
-                    if (textAlpha > 0.05f) {
-                        if (textAlpha > 1.0f) textAlpha = 1.0f;
-                        drawText(msg, msgX, msgY, loadScale,
-                                 1.0f, 1.0f, 1.0f, textAlpha);
-                    }
-                }
-                glDisable(GL_BLEND);
+                drawOverlay(vpW, vpH);
                 drmFrameEnd(mDisplay, mSurface);
 
                 if (!firstFrameLogged) {
@@ -6334,19 +6512,135 @@ bool NanoMenu::threadLoop() {
                     t = 1.0f - (1.0f - t) * (1.0f - t);
                     saturation = 0.35f + t * 0.65f;
                     gradient = 0.7f * (1.0f - t);
-                    // Keep rendering forever (or until exitPending) --
-                    // drastic stays live until the process tears down.
-                    // Production handoff hook would go here.
+                    // When fade completes, hand off to the real
+                    // drastic activity — identical pattern to
+                    // LibretroRunner's handoff to RetroArch at line
+                    // ~6645. The intent file was already written by
+                    // launchXmbGame() when the user selected the NDS
+                    // game; we just need to kick
+                    // NanoRelaunchMonitor via do_launch so it reads
+                    // the file and starts DraSticActivity.
+                    //
+                    // Smoke-test mode (qr_core != "drastic") never
+                    // fires handoff -- the smoke test runs the DS
+                    // indefinitely for interactive debugging.
+                    if (t >= 1.0f && drasticQrHandoff && !handoffFired) {
+                        handoffFired = true;
+                        ALOGI("drastic QR: handoff to com.dsemu.drastic");
+                        // Recreate /data/system/nano_launch_intent.txt
+                        // from the persistent copy written by
+                        // launchXmbGame's drastic QR prime path. The
+                        // original intent file is consumed and deleted
+                        // by RootWindowContainer on first launch; the
+                        // persistent stash is our source of truth for
+                        // every subsequent QR-triggered launch. Without
+                        // this, the framework falls back to the plain
+                        // LAUNCHER intent and drastic opens on its own
+                        // main menu instead of the primed game.
+                        {
+                            const char* src =
+                                    "/data/system/nano_drastic_qr_intent.txt";
+                            const char* dst =
+                                    "/data/system/nano_launch_intent.txt";
+                            int sfd = open(src, O_RDONLY);
+                            if (sfd >= 0) {
+                                char buf[4096];
+                                ssize_t n = read(sfd, buf, sizeof(buf));
+                                close(sfd);
+                                if (n > 0) {
+                                    int dfd = open(
+                                            dst,
+                                            O_WRONLY | O_CREAT | O_TRUNC,
+                                            0666);
+                                    if (dfd >= 0) {
+                                        write(dfd, buf, (size_t)n);
+                                        close(dfd);
+                                        chmod(dst, 0644);
+                                        ALOGI("drastic QR: restored intent "
+                                              "file from QR stash (%zd bytes)",
+                                              n);
+                                    } else {
+                                        ALOGW("drastic QR: failed to open "
+                                              "%s for write: %s",
+                                              dst, strerror(errno));
+                                    }
+                                } else {
+                                    ALOGW("drastic QR: QR intent stash "
+                                          "empty or unreadable");
+                                }
+                            } else {
+                                ALOGW("drastic QR: no QR intent stash at "
+                                      "%s, framework will fall back to "
+                                      "LAUNCHER", src);
+                            }
+                        }
+                        android::base::SetProperty(
+                                "sys.gammaos.nano.launch_app",
+                                "com.dsemu.drastic");
+                        android::base::SetProperty(
+                                "sys.gammaos.nano.launch_intent", "file");
+                        android::base::SetProperty(
+                                "sys.gammaos.nano.launch_rom", "");
+                        android::base::SetProperty(
+                                "sys.gammaos.nano.launch_core", "");
+                        // mXmbSystems is empty under the fast path so
+                        // we can't compute a precise return position;
+                        // default to recently-played (sys=-1).
+                        property_set(
+                                "sys.gammaos.nano.xmb_return_sys", "-1");
+                        property_set(
+                                "sys.gammaos.nano.xmb_return_game", "0");
+                        property_set(
+                                "sys.gammaos.nano.return_recent", "0");
+                        property_set(
+                                "sys.gammaos.nano.drop_input", "1");
+                        // Fire both the direct do_launch trigger and
+                        // the legacy nano_retroarch property. The
+                        // direct trigger is the primary mechanism;
+                        // the legacy prop keeps init-driven
+                        // side-effects firing (bootanim exit etc).
+                        property_set(
+                                "sys.gammaos.nano.do_launch", "1");
+                        property_set(
+                                "service.bootanim.nano_retroarch", "1");
+                        // DrasticRunner keeps running in the
+                        // background until the process exits -- the
+                        // real drastic activity will launch from a
+                        // cold DS BIOS but resume via drastic's own
+                        // autosave, which is identical UX to
+                        // launching drastic through the framework.
+                        mExitRequested = true;
+                        break;
+                    }
                 } else {
                     saturation = fminf(saturation + 0.0003f, 0.35f);
                     gradient = fmaxf(gradient - 0.0002f, 0.7f);
                 }
             }
 
-            if (mExitRequested) {
-                ALOGI("NanoMenu: drastic QR loop exiting");
-                return false;
-            }
+            ALOGI("NanoMenu: drastic QR loop exiting "
+                  "(handoff=%d exitRequested=%d)",
+                  handoffFired ? 1 : 0, mExitRequested ? 1 : 0);
+            // Intentionally fall through to the rest of threadLoop()
+            // instead of returning false immediately. The
+            // libretro-QR block below is guarded against
+            // qr_core="drastic" (just logs and no-ops), and the main
+            // XMB render loop at ~7049 is gated on !mExitRequested
+            // (which we already set during handoff). By falling
+            // through, control reaches the common cleanup path at
+            // ~7325 which clears sys.gammaos.nano.menu_active=0 AND
+            // runs the "Loading..." screen until the real drastic
+            // activity binds. Both are critical:
+            //   1) Clearing menu_active unblocks DualStackController
+            //      so it can mirror drastic's window from the primary
+            //      display to the secondary, matching the retroarch
+            //      dualstack behavior. Without this, the secondary
+            //      display stays frozen on NanoMenu's last QR-preview
+            //      frame while drastic only draws to the primary.
+            //   2) The loading-screen render loop keeps gammaos-nano
+            //      painting both displays via DRM while the real
+            //      drastic is coming up, so there is no visible gap
+            //      between NanoMenu exit and drastic's first frame.
         } else {
             ALOGW("NanoMenu: drastic QR fast-path active but DrasticRunner "
                   "not initialized -- exiting to avoid shader crash");
@@ -6367,7 +6661,17 @@ bool NanoMenu::threadLoop() {
                     "persist.gammaos.nano.qr_rom", "");
             std::string qrCore = android::base::GetProperty(
                     "persist.gammaos.nano.qr_core", "");
-            if (!qrRom.empty() && !qrCore.empty()) {
+            // GammaOS: Skip the libretro QR path for the drastic
+            // sentinel. The drastic QR render loop above handles
+            // qr_core="drastic" entirely (and returns false before
+            // we reach here in the normal flow). This guard is a
+            // safety net for races where sDrasticQrFastPath was not
+            // set at readyToRun time but the prop is now "drastic".
+            if (qrCore == "drastic") {
+                ALOGW("Quick Resume: qr_core=drastic reached libretro "
+                      "branch unexpectedly (sDrasticQrFastPath=%d) -- "
+                      "skipping libretro launch", sDrasticQrFastPath ? 1 : 0);
+            } else if (!qrRom.empty() && !qrCore.empty()) {
                 // GammaOS: Ensure rotation uniforms are set for the QR screens.
                 // The QR path runs before render(), which uploads the matrix
                 // every frame. Without this, the text shader's uRotation is

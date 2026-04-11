@@ -1432,6 +1432,13 @@ service nano_cache_clear_rom /system/bin/sh /system/bin/nano_cache.sh clear_rom
     group root system media_rw
     seclabel u:r:gammaoscustomization:s0
 
+service nano_cache_populate_drastic /system/bin/sh /system/bin/nano_cache.sh populate_drastic
+    disabled
+    oneshot
+    user root
+    group root system media_rw
+    seclabel u:r:gammaoscustomization:s0
+
 on property:sys.gammaos.nano.cache_op=populate
     restart nano_cache_populate
 
@@ -1449,6 +1456,9 @@ on property:sys.gammaos.nano.cache_op=sync_to_cache
 
 on property:sys.gammaos.nano.cache_op=clear_rom
     restart nano_cache_clear_rom
+
+on property:sys.gammaos.nano.cache_op=populate_drastic
+    restart nano_cache_populate_drastic
 
 # GammaOS Nano: restart the nano menu (e.g. when RetroArch exits)
 on property:sys.gammaos.nano.restart=1

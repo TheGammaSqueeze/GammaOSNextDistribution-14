@@ -67,11 +67,19 @@ static void waitForSurfaceFlinger() {
     }
 }
 
-// Drastic in-process quick-resume smoke test.
+// Drastic in-process quick-resume init.
 //
-// Gated on persist.gammaos.nano.drastic_smoke=1 so it's dormant in
-// normal boots. Runs a full DrasticRunner::init() against the DE
-// cache at /data/system/nano_cache/drastic/, which exercises:
+// Fires on either of:
+//   (1) persist.gammaos.nano.drastic_smoke=1     -- debug smoke test
+//       (also accepts wait_audio / wait_system / wait_boot / ... for
+//       service-gate A/B experiments)
+//   (2) persist.gammaos.nano.qr_prepared=1 AND
+//       persist.gammaos.nano.qr_core="drastic"   -- real QR path
+//       primed by launchXmbGame() when the user opens a Nintendo DS
+//       game from NanoMenu's XMB.
+//
+// In either case the function runs DrasticRunner::init() against the
+// DE cache at /data/system/nano_cache/drastic/, which exercises:
 //   Phase 1 (FakeJNI JNI_OnLoad)
 //   Phase 3 (onInit + applyConfig + startGame)
 //
@@ -81,9 +89,10 @@ static void waitForSurfaceFlinger() {
 // boot path afterward, and the drastic threads just hum along until
 // the process exits at framework handoff.
 //
-// The smoke property is left set for repeat testing -- it's harmless
-// on devices without drastic installed (runner returns false and
-// we just continue).
+// The QR path deliberately skips the wait_* service-gate modes: we
+// want drastic running ASAP (before system_server is up) so the
+// first frame lands at ~T+1.5s, not T+5s.
+//
 // Wait-for-service helper. Polls an init.svc.<name> property every
 // 25 ms until it reports "running", up to the given timeout. Used by
 // the smoke test's service-gate mode so we can A/B test whether the
@@ -198,65 +207,84 @@ static bool waitForService(const char* serviceName, int timeoutMs) {
     return false;
 }
 
-static void runDrasticSmokeTestIfRequested() {
-    char val[PROPERTY_VALUE_MAX] = {};
-    property_get("persist.gammaos.nano.drastic_smoke", val, "0");
-    if (val[0] == 0 || strcmp(val, "0") == 0) return;
+static void runDrasticInitIfNeeded() {
+    // Read both triggers up front so we know which mode we're in.
+    char smoke[PROPERTY_VALUE_MAX] = {};
+    property_get("persist.gammaos.nano.drastic_smoke", smoke, "0");
+    bool smokeActive = !(smoke[0] == 0 || strcmp(smoke, "0") == 0);
 
-    // val is one of:
-    //   "1"            -> run immediately (original behavior)
-    //   "wait_audio"   -> wait for audioserver, then run
-    //   "wait_system"  -> wait for system_server, then run
-    //   "wait_vendor"  -> wait for vendor.hwcomposer-2-1 or similar
-    //   "wait_boot"    -> wait for sys.boot_completed=1
-    //
-    // Used to A/B test whether the boot-time 15s stall is caused
-    // by drastic waiting for a specific service to be ready.
-    if (strcmp(val, "wait_audio") == 0) {
-        ALOGI("drastic smoke: waiting for audioserver...");
-        waitForService("audioserver", 30000);
-    } else if (strcmp(val, "wait_system") == 0) {
-        ALOGI("drastic smoke: waiting for system_server...");
-        waitForService("system_server", 60000);
-    } else if (strcmp(val, "wait_boot") == 0) {
-        ALOGI("drastic smoke: waiting for sys.boot_completed...");
-        char bc[PROPERTY_VALUE_MAX] = {};
-        int elapsed = 0;
-        while (elapsed < 90000) {
-            property_get("sys.boot_completed", bc, "");
-            if (strcmp(bc, "1") == 0) break;
-            usleep(100 * 1000);
-            elapsed += 100;
+    char qp[PROPERTY_VALUE_MAX] = {};
+    char qc[PROPERTY_VALUE_MAX] = {};
+    property_get("persist.gammaos.nano.qr_prepared", qp, "0");
+    property_get("persist.gammaos.nano.qr_core", qc, "");
+    bool qrActive = (strcmp(qp, "1") == 0) && (strcmp(qc, "drastic") == 0);
+
+    if (!smokeActive && !qrActive) return;
+
+    // Tag used in all subsequent logs. Smoke wins when both are set
+    // so A/B tests stay reproducible.
+    const char* tag = smokeActive ? "drastic smoke" : "drastic QR init";
+
+    if (smokeActive) {
+        // smoke values are one of:
+        //   "1"            -> run immediately (original behavior)
+        //   "wait_audio"   -> wait for audioserver, then run
+        //   "wait_system"  -> wait for system_server, then run
+        //   "wait_vendor"  -> wait for vendor.hwcomposer-2-1 or similar
+        //   "wait_boot"    -> wait for sys.boot_completed=1
+        //
+        // Used to A/B test whether the boot-time 15s stall is caused
+        // by drastic waiting for a specific service to be ready. The
+        // QR path deliberately skips these gates -- we want drastic
+        // up ASAP, not after audioserver or system_server.
+        if (strcmp(smoke, "wait_audio") == 0) {
+            ALOGI("%s: waiting for audioserver...", tag);
+            waitForService("audioserver", 30000);
+        } else if (strcmp(smoke, "wait_system") == 0) {
+            ALOGI("%s: waiting for system_server...", tag);
+            waitForService("system_server", 60000);
+        } else if (strcmp(smoke, "wait_boot") == 0) {
+            ALOGI("%s: waiting for sys.boot_completed...", tag);
+            char bc[PROPERTY_VALUE_MAX] = {};
+            int elapsed = 0;
+            while (elapsed < 90000) {
+                property_get("sys.boot_completed", bc, "");
+                if (strcmp(bc, "1") == 0) break;
+                usleep(100 * 1000);
+                elapsed += 100;
+            }
+            ALOGI("%s: boot_completed after %dms", tag, elapsed);
+        } else if (strcmp(smoke, "wait_sf") == 0) {
+            ALOGI("%s: waiting for surfaceflinger...", tag);
+            waitForService("surfaceflinger", 30000);
+        } else if (strcmp(smoke, "wait_audio_hal") == 0) {
+            ALOGI("%s: waiting for vendor.audio-hal...", tag);
+            waitForService("vendor.audio-hal", 30000);
+        } else if (strcmp(smoke, "wait_media") == 0) {
+            ALOGI("%s: waiting for media stack...", tag);
+            waitForService("vendor.audio-hal", 30000);
+            waitForService("audioserver", 30000);
+            waitForService("mediaserver", 30000);
+            waitForService("media", 30000);
+        } else if (strcmp(smoke, "wait_zygote_secondary") == 0) {
+            // zygote_secondary = the 64-bit zygote on split-zygote devices,
+            // or the only zygote on pure 64-bit. Often the last init svc
+            // to come up before ActivityManager starts.
+            ALOGI("%s: waiting for zygote_secondary...", tag);
+            waitForService("zygote_secondary", 60000);
         }
-        ALOGI("drastic smoke: boot_completed after %dms", elapsed);
-    } else if (strcmp(val, "wait_sf") == 0) {
-        ALOGI("drastic smoke: waiting for surfaceflinger...");
-        waitForService("surfaceflinger", 30000);
-    } else if (strcmp(val, "wait_audio_hal") == 0) {
-        ALOGI("drastic smoke: waiting for vendor.audio-hal...");
-        waitForService("vendor.audio-hal", 30000);
-    } else if (strcmp(val, "wait_media") == 0) {
-        ALOGI("drastic smoke: waiting for media stack...");
-        waitForService("vendor.audio-hal", 30000);
-        waitForService("audioserver", 30000);
-        waitForService("mediaserver", 30000);
-        waitForService("media", 30000);
-    } else if (strcmp(val, "wait_zygote_secondary") == 0) {
-        // zygote_secondary = the 64-bit zygote on split-zygote devices,
-        // or the only zygote on pure 64-bit. Often the last init svc
-        // to come up before ActivityManager starts.
-        ALOGI("drastic smoke: waiting for zygote_secondary...");
-        waitForService("zygote_secondary", 60000);
     }
 
-    ALOGI("drastic smoke: starting");
+    ALOGI("%s: starting (smoke=%d qr=%d)", tag,
+          smokeActive ? 1 : 0, qrActive ? 1 : 0);
 
     const std::string cacheDir = "/data/system/nano_cache/drastic";
 
     // Discover the ROM by scanning the cache/rom/ subdir for the
     // first .nds file. populate_drastic only keeps one ROM at a time
     // so this gives us the currently-staged ROM without needing to
-    // plumb another property through.
+    // plumb another property through. Works for both smoke (debug
+    // test rom) and QR (user-selected rom from NanoMenu XMB).
     std::string romPath;
     {
         std::string romDir = cacheDir + "/rom";
@@ -276,26 +304,26 @@ static void runDrasticSmokeTestIfRequested() {
         }
     }
     if (romPath.empty()) {
-        ALOGW("drastic smoke: no ROM in %s/rom -- skipping", cacheDir.c_str());
+        ALOGW("%s: no ROM in %s/rom -- skipping", tag, cacheDir.c_str());
         return;
     }
-    ALOGI("drastic smoke: rom=%s", romPath.c_str());
+    ALOGI("%s: rom=%s", tag, romPath.c_str());
 
     // Heap-allocate the runner so the background threads drastic
     // spawns during startGame keep their state alive after this
     // function returns. We intentionally never delete it.
     auto* runner = new android::DrasticRunner();
     bool ok = runner->init(cacheDir, romPath);
-    ALOGI("drastic smoke: DrasticRunner::init returned %s",
+    ALOGI("%s: DrasticRunner::init returned %s", tag,
           ok ? "true" : "false");
     if (!ok) {
-        ALOGW("drastic smoke: init failed -- see earlier logs");
+        ALOGW("%s: init failed -- see earlier logs", tag);
         // Don't delete the runner even on failure -- we don't know
         // which stage failed, and if drastic already spawned threads
         // before the failure, destroying the runner would race them.
     }
 
-    ALOGI("drastic smoke: done");
+    ALOGI("%s: done", tag);
 }
 
 // On-demand drastic QR preview trigger for interactive debugging.
@@ -647,7 +675,7 @@ int main() {
     // NanoMenu boot path.
     startDrasticLibPreloadThread();
 
-    runDrasticSmokeTestIfRequested();
+    runDrasticInitIfNeeded();
     startDrasticQrTestWatcher();
 
     sp<ProcessState> proc(ProcessState::self());
