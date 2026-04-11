@@ -1153,6 +1153,20 @@ public final class ShutdownThread extends Thread {
             }
             Slog.i(TAG, "GammaOS: closing DraStic gracefully before shutdown");
 
+            // GammaOS: in nano mode, tell RootWindowContainer's post-exit
+            // cleanup path NOT to clear qr_prepared when DraStic exits from
+            // the ESC injection below. The Quick Resume priming done by
+            // launchXmbGame() / the QR handoff MUST survive the reboot so
+            // the next boot brings the preview back. Mirrors the logic in
+            // nanoShutdownRetroArch(). Without this flag, reboot-from-inside
+            // drastic (power menu) clears qr_prepared and the next boot
+            // shows plain XMB instead of the drastic QR preview.
+            final boolean nanoMode = SystemProperties.getBoolean(
+                    "sys.gammaos.minimal_boot", false);
+            if (nanoMode) {
+                SystemProperties.set("sys.gammaos.nano.shutting_down", "1");
+            }
+
             // Dismiss system dialogs so the ESC key reaches DraStic.
             if (mProgressDialog != null) {
                 mHandler.post(() -> {
