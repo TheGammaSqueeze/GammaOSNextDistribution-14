@@ -117,7 +117,9 @@ DrasticRunner* DrasticRunner::getInstance() {
 // destination row, the content also appeared horizontally doubled).
 // So: 256x192 per-screen buffers, 256x192 textures, _Hires3D OFF.
 static constexpr long kDefaultConfigBits =
-    0x10000000L;           // _Threaded3D (bit 28)
+    0x10000000L            // _Threaded3D (bit 28)
+  | 0x10000000000L         // _DisableEdgeMarking (bit 40) -- skip 3D edge pass
+  | 0x20000000000L;        // _Hires3D (bit 41) -- 2x internal 3D resolution
 
 // Native DS resolution: 256x192 per screen, RGBA8888, one jint per
 // pixel. getScreenBuffers writes exactly 49152 ints per screen.
@@ -285,6 +287,7 @@ bool DrasticRunner::init(const std::string& cacheDir,
     loadSym(mSetFirmwareUserdata, "Java_com_dsemu_drastic_DraSticJNI_setFirmwareUserdata");
     loadSym(mSetAutosaveInterval, "Java_com_dsemu_drastic_DraSticJNI_setAutosaveInterval");
     loadSym(mSetAudioVolume,      "Java_com_dsemu_drastic_DraSticJNI_setAudioVolume");
+    loadSym(mFxLoad,                "Java_com_dsemu_drastic_DraSticJNI_fxLoad"); // optional
     if (!loadSym(mFxSetup,          "Java_com_dsemu_drastic_DraSticJNI_fxSetup")) return false;
     if (!loadSym(mRenderFrame,      "Java_com_dsemu_drastic_DraSticJNI_renderFrame")) return false;
     if (!loadSym(mSignalScreen,     "Java_com_dsemu_drastic_DraSticJNI_signalScreen")) return false;
@@ -367,11 +370,14 @@ bool DrasticRunner::init(const std::string& cacheDir,
         mSetAudioVolume(env, fakeCls, 40);
     }
     if (mSetFirmwareUserdata) {
-        jstring nick = env->NewStringUTF("Player");
+        jstring nick = env->NewStringUTF("GammaOS");
         if (nick) {
-            ALOGI("DrasticRunner: setFirmwareUserdata(\"Player\", "
-                  "0xFF806B80)");
-            mSetFirmwareUserdata(env, fakeCls, nick, 0xFF806B80);
+            // Packed firmware userdata: (bday_day << 24) | (bday_month << 16) | (color << 8) | language
+            // Language: 1=English, Color: 0=grey, Birthday: Jan 1
+            const int fwPacked = (1 << 24) | (1 << 16) | (0 << 8) | 1; // 0x01010001
+            ALOGI("DrasticRunner: setFirmwareUserdata(\"GammaOS\", "
+                  "0x%08x)", fwPacked);
+            mSetFirmwareUserdata(env, fakeCls, nick, fwPacked);
             ALOGI("DrasticRunner: setFirmwareUserdata returned");
         }
     }
@@ -410,14 +416,33 @@ bool DrasticRunner::init(const std::string& cacheDir,
     // if the actual viewport we later initSurface with is different,
     // drastic re-uses the fxSetup dimensions only as a state marker
     // for which slot in the framebuffer pool to write into.
-    if (mFxSetup) {
+    // Phase 7: fxSetup sets a one-shot sentinel in BSS+2888. If we
+    // call it here (no GL context), it writes dimensions/flags but
+    // skips the GL work (shader compile, VAO). Then initSurface's
+    // fxSetup on the GL thread sees the sentinel already set and
+    // no-ops, so GL is never initialized --> black screen.
+    //
+    // When renderFrame is available, we SKIP the early fxSetup so
+    // the initSurface call is the first (and only) fxSetup, running
+    // on the GL thread with the correct portrait viewport. startGame
+    // may stall ~1-2s longer without the early fxSetup but SCHED_RR
+    // boost compensates.
+    //
+    // When renderFrame is NOT available (fallback to getScreenBuffers),
+    // the early fxSetup is still needed because the sentinel must be
+    // set before startGame to avoid the 14s futex stall, and the GL
+    // parts aren't needed for getScreenBuffers.
+    if (mFxSetup && !mRenderFrame) {
         ALOGI("DrasticRunner: early fxSetup(%d, %d, 0, 0, 640, 480) "
-              "from init thread (pre-startGame)",
+              "from init thread (pre-startGame, legacy path)",
               kDsScreenW, kDsScreenH);
         mFxSetup(env, fakeCls,
                  kDsScreenW, kDsScreenH, 0, 0,
                  /*viewW*/ 640, /*viewH*/ 480);
         ALOGI("DrasticRunner: early fxSetup returned");
+    } else if (mFxSetup && mRenderFrame) {
+        ALOGI("DrasticRunner: skipping early fxSetup (renderFrame path "
+              "-- initSurface will call fxSetup on the GL thread)");
     }
 
     ALOGI("DrasticRunner: spawning startGame thread with rom=%s",
@@ -584,6 +609,35 @@ bool DrasticRunner::init(const std::string& cacheDir,
 
     mInitialized = true;
 
+    // Set the DS RTC to Jan 1 2020 00:00. With setAutosaveInterval(0)
+    // and _RtcSystemTime clear, drastic's RTC handler computes time
+    // from an internal offset at master+0x14c4a0 plus the emulated
+    // cycle counter. The offset defaults to 0 (DS epoch = 2000-01-01).
+    // Writing 631152000 (seconds from 2000-01-01 to 2020-01-01) sets
+    // the base date to 2020.
+    //
+    // master base is at offset 0x14c000 from the .so load address.
+    // We derive the load address from a known symbol (updateInput at
+    // file offset 0x1a5d8).
+    {
+        Dl_info info;
+        if (mUpdateInput && dladdr((void*)mUpdateInput, &info)
+                && info.dli_fbase) {
+            uintptr_t soBase = (uintptr_t)info.dli_fbase;
+            volatile uint64_t* rtcOffset =
+                    (volatile uint64_t*)(soBase + 0x14c4a0);
+            // 20 years: 2000..2004..2008..2012..2016..2020 = 5 leap years
+            // = 20*365 + 5 = 7305 days = 631,152,000 seconds
+            *rtcOffset = 631152000ULL;
+            ALOGI("DrasticRunner: RTC offset set to 631152000 "
+                  "(2020-01-01) at %p (soBase=%p)",
+                  (void*)rtcOffset, (void*)soBase);
+        } else {
+            ALOGW("DrasticRunner: could not resolve .so base for "
+                  "RTC offset write");
+        }
+    }
+
     // Publish ourselves as the singleton so NanoMenu's render thread
     // can pick us up and call initSurface() / renderOneFrame().
     sInstance.store(this, std::memory_order_release);
@@ -623,11 +677,12 @@ static const char* kDrasticFs =
     "uniform float uSaturation;\n"  // 0=grayscale, 1=full color
     "uniform float uGradient;\n"    // 0=none, 1=strong dark gradient
     "void main() {\n"
-    // DS framebuffer is BGRA-packed in drastic (little-endian ABGR
-    // int). Our jint upload as RGBA gives us BGR + alpha -- swizzle
-    // so colors look right.
     "  vec4 c = texture2D(uTex, vUv);\n"
-    "  vec3 rgb = vec3(c.b, c.g, c.r);\n"
+    // renderFrame uploads in native RGB order -- no swizzle needed.
+    // (The old getScreenBuffers path used BGRA jint packing which
+    // needed a .bgr swizzle, but renderFrame's glTexSubImage2D
+    // uploads in the correct channel order.)
+    "  vec3 rgb = c.rgb;\n"
     "  float gray = dot(rgb, vec3(0.299, 0.587, 0.114));\n"
     "  rgb = mix(vec3(gray), rgb, uSaturation);\n"
     "  float fade = smoothstep(0.35, 0.85, vUv.y) * uGradient;\n"
@@ -668,32 +723,35 @@ static GLuint drLinkProgram(const char* vs, const char* fs) {
     return p;
 }
 
-void DrasticRunner::initSurface(int viewportW, int viewportH) {
+void DrasticRunner::initSurface(int viewportW, int viewportH,
+                                bool dualDisplay) {
     if (mSurfaceReady) return;
-    if (!mInitialized || !mGetScreenBuffers) {
+    if (!mInitialized) {
         ALOGE("DrasticRunner::initSurface: not initialized");
         return;
     }
 
-    // Call drastic's fxSetup even though we don't use its GL path.
-    // Phase 5 v3 finding: without fxSetup, drastic's internal frame
-    // compositing is incomplete -- sprites and 3D layers are missing
-    // from the getScreenBuffers output, leaving only the static
-    // background. fxSetup initialises drastic's internal framebuffer
-    // pool indices and the swap chain that getScreenBuffers reads
-    // from. See DraSticGlView$j.smali:3193 (onSurfaceChanged).
-    if (mFxSetup) {
-        ALOGI("DrasticRunner::initSurface: fxSetup(%d, %d, 0, 0, %d, %d)",
-              kDsScreenW, kDsScreenH, viewportW, viewportH);
-        mFxSetup(mFakeEnv, mFakeCls,
-                 kDsScreenW, kDsScreenH, 0, 0,
-                 viewportW, viewportH);
-    }
+    mDualDisplay = dualDisplay;
+    mUseRenderFrame = (mRenderFrame != nullptr);
 
-    // Destination arrays are already allocated in init() so the
-    // background pixel-pull thread can use them immediately.
+    // Portrait offscreen dimensions: both DS screens stacked.
+    // Each screen gets the full viewport width; height is doubled
+    // for dual-display (top screen + bottom screen stacked).
+    mOffscreenW = viewportW;
+    mOffscreenH = dualDisplay ? viewportH * 2 : viewportH;
 
-    // GL: compile shader, gen textures, build quad VBO.
+    // Call fxSetup with the offscreen dimensions. This initializes
+    // drastic's internal shader pipeline, texture pool, and viewport
+    // for the renderFrame path. The vertex data drastic creates will
+    // lay out both screens in a portrait stack within this viewport.
+    // IMPORTANT: compile our blit shader and create GL resources
+    // BEFORE calling fxSetup. renderFrame relies on fxSetup's GL
+    // state (program, vertex attribs, texture bindings) being intact.
+    // If we compile shaders after fxSetup, the active GL program
+    // changes and renderFrame draws black. By doing our setup first,
+    // fxSetup has the last word on GL state.
+    //
+    // Compile the blit shader (samples offscreen texture -> display).
     mQuadProgram = drLinkProgram(kDrasticVs, kDrasticFs);
     mQuadPosLoc      = glGetAttribLocation(mQuadProgram, "aPos");
     mQuadTexLoc      = glGetAttribLocation(mQuadProgram, "aUv");
@@ -702,42 +760,232 @@ void DrasticRunner::initSurface(int viewportW, int viewportH) {
     mQuadGradLoc     = glGetUniformLocation(mQuadProgram, "uGradient");
     mQuadRotLoc      = glGetUniformLocation(mQuadProgram, "uRotation");
 
-    auto setupTex = [](unsigned int tex) {
+    auto setupTex = [](unsigned int tex, int w, int h) {
         glBindTexture(GL_TEXTURE_2D, tex);
-        // Linear filtering -- the DS screens are tiny (256x192) and
-        // look blocky on a 640x480+ panel without interpolation.
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, kDsScreenW, kDsScreenH, 0,
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
                      GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
     };
-    glGenTextures(1, &mTopTex);
-    setupTex(mTopTex);
-    glGenTextures(1, &mBotTex);
-    setupTex(mBotTex);
+
+    if (mUseRenderFrame) {
+        // DON'T stop the pixel-pull thread yet -- we need it to
+        // detect when the DS producer has produced its first frame.
+        // Without the early fxSetup (skipped for renderFrame path),
+        // startGame stalls until initSurface's fxSetup runs, then
+        // needs ~500ms to produce the first frame. renderFrame
+        // returns empty data until then. The pixel-pull thread's
+        // mShadowReady flag tells us when frame data is available.
+        // We stop the pixel-pull once renderFrame takes over.
+        ALOGI("DrasticRunner: keeping pixel-pull alive as frame detector");
+
+        // Create textures for drastic's renderFrame to upload into.
+        // renderFrame calls glTexSubImage2D with dimensions from
+        // fxSetup's BSS state. With _Hires3D the upload is 512x384
+        // per screen. Size the textures to EXACTLY match the upload
+        // so the content fills the entire texture (no black borders
+        // from oversized textures).
+        int dsTexW = 512, dsTexH = 384; // matches fxSetup's texW/texH
+        glGenTextures(1, &mDsTopTex);
+        setupTex(mDsTopTex, dsTexW, dsTexH);
+        glGenTextures(1, &mDsBotTex);
+        setupTex(mDsBotTex, dsTexW, dsTexH);
+
+        // Create the offscreen FBO + color attachment. drastic's
+        // renderFrame draws into this FBO, then we blit halves to
+        // the display FBOs.
+        glGenTextures(1, &mOffscreenTex);
+        setupTex(mOffscreenTex, mOffscreenW, mOffscreenH);
+        glGenFramebuffers(1, &mOffscreenFbo);
+        glBindFramebuffer(GL_FRAMEBUFFER, mOffscreenFbo);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+                               GL_TEXTURE_2D, mOffscreenTex, 0);
+        GLenum fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+        if (fboStatus != GL_FRAMEBUFFER_COMPLETE) {
+            ALOGE("DrasticRunner: offscreen FBO incomplete: 0x%x",
+                  fboStatus);
+            mUseRenderFrame = false;
+        } else {
+            ALOGI("DrasticRunner: offscreen FBO %dx%d ready",
+                  mOffscreenW, mOffscreenH);
+        }
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    }
+
+    if (!mUseRenderFrame) {
+        // Fallback: legacy getScreenBuffers textures.
+        glGenTextures(1, &mTopTex);
+        setupTex(mTopTex, kDsScreenW, kDsScreenH);
+        glGenTextures(1, &mBotTex);
+        setupTex(mBotTex, kDsScreenW, kDsScreenH);
+    }
 
     glGenBuffers(1, &mQuadVbo);
+
+    // Call fxSetup LAST so drastic's GL state (program, vertex
+    // attribs, texture bindings) is the active state when
+    // renderFrame runs. renderFrame does NOT call glUseProgram or
+    // set vertex attribs -- it relies entirely on fxSetup's state.
+    if (mFxSetup && mUseRenderFrame) {
+        // fxLoad loads drastic's shader files (.dfx) from the system
+        // shaders dir. Must be called BEFORE fxSetup which compiles
+        // them. The real app calls fxLoad(shaderPath, 0, 0x8A0).
+        // Our FakeJNI translates "DraStic/shaders/Linear.dfx" to
+        // {cacheRoot}/system/shaders/Linear.dfx.
+        if (mFxLoad) {
+            // fxLoad takes an absolute filesystem path to the .dfx
+            // shader file. The real app builds this from SYS_PREFIX
+            // (e.g. "/data/user/0/com.dsemu.drastic/files/DraStic/")
+            // + "shaders/Linear.dfx". Our cache equivalent is at
+            // /data/system/nano_cache/drastic/system/shaders/.
+            const char* sp =
+                    "/data/system/nano_cache/drastic/system/shaders/Linear.dfx";
+            jstring shaderJStr =
+                    ((JNIEnv*)mFakeEnv)->NewStringUTF(sp);
+            int rc = mFxLoad(mFakeEnv, mFakeCls,
+                             (void*)shaderJStr, 0, 0x8A0);
+            ALOGI("DrasticRunner::initSurface: fxLoad(\"%s\") = %d",
+                  sp, rc);
+        }
+        // fxSetup args from smali (DraSticGlView$j onSurfaceChanged):
+        //   arg1/2 = DS texture resolution (256x192 or 512x384 with hires)
+        //   arg3/4 = 0, 0
+        //   arg5/6 = surface/viewport width, height
+        // With _Hires3D: texW=512, texH=384.
+        int texW = 512, texH = 384; // _Hires3D enabled
+        ALOGI("DrasticRunner::initSurface: fxSetup(%d, %d, 0, 0, %d, %d) "
+              "[called LAST, after all our GL setup]",
+              texW, texH, mOffscreenW, mOffscreenH);
+        mFxSetup(mFakeEnv, mFakeCls,
+                 texW, texH, 0, 0,
+                 mOffscreenW, mOffscreenH);
+        // Capture drastic's program ID immediately after fxSetup
+        // while it's still the active program. Needed for rebinding
+        // in renderDsToOffscreen on subsequent frames.
+        GLint prog = 0;
+        glGetIntegerv(GL_CURRENT_PROGRAM, &prog);
+        mDrasticGlProgram = (unsigned int)prog;
+        ALOGI("DrasticRunner::initSurface: drastic GL program = %u",
+              mDrasticGlProgram);
+    } else if (mFxSetup) {
+        // Legacy path: fxSetup for getScreenBuffers. Order doesn't
+        // matter since getScreenBuffers doesn't use GL state.
+        mFxSetup(mFakeEnv, mFakeCls,
+                 kDsScreenW, kDsScreenH, 0, 0,
+                 viewportW, viewportH);
+    }
 
     mViewportW = viewportW;
     mViewportH = viewportH;
     mSurfaceReady = true;
-    ALOGI("DrasticRunner::initSurface: Option B ready (viewport %dx%d)",
-          viewportW, viewportH);
+    ALOGI("DrasticRunner::initSurface: ready (viewport %dx%d, "
+          "offscreen %dx%d, renderFrame=%d, dual=%d)",
+          viewportW, viewportH, mOffscreenW, mOffscreenH,
+          mUseRenderFrame ? 1 : 0, dualDisplay ? 1 : 0);
+}
+
+void DrasticRunner::renderDsToOffscreen() {
+    if (!mSurfaceReady || !mUseRenderFrame || !mRenderFrame) return;
+
+    // Wait for the DS producer to have at least one frame ready.
+    // Without the early fxSetup, startGame needs ~500ms after
+    // initSurface's fxSetup before the first frame appears. The
+    // pixel-pull thread detects this via mShadowReady. Until then,
+    // renderFrame would draw empty data (black).
+    if (!mShadowReady.load(std::memory_order_acquire)) return;
+
+    // Stop the pixel-pull thread on the first renderFrame call.
+    // From here on, renderFrame handles frame consumption directly
+    // and must not compete with getScreenBuffers for the mutex.
+    static bool sPixelPullStopped = false;
+    if (!sPixelPullStopped && mPixelPullRunning.load()) {
+        ALOGI("DrasticRunner: first frame ready, stopping pixel-pull "
+              "for renderFrame takeover");
+        mPixelPullRunning.store(false);
+        usleep(50000); // 50ms grace for the pull thread to exit
+        sPixelPullStopped = true;
+    }
+
+    // Save and bind offscreen FBO.
+    GLint prevFbo = 0;
+    glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prevFbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, mOffscreenFbo);
+    glViewport(0, 0, mOffscreenW, mOffscreenH);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    // Restore drastic's GL program (fxSetup left it bound, but
+    // our drawDsQuad blit switches to mQuadProgram each frame).
+    if (mDrasticGlProgram != 0) {
+        glUseProgram(mDrasticGlProgram);
+    }
+
+    // Call drastic's renderFrame into the offscreen FBO.
+    mRenderFrame(mFakeEnv, mFakeCls, (int)mDsTopTex, (int)mDsBotTex, 0);
+
+    // Diagnostic: check if renderFrame uploaded data into the DS textures.
+    // Read back a pixel from mDsTopTex via a temp FBO.
+    static bool sTexDiagDone = false;
+    if (!sTexDiagDone) {
+        GLuint tmpFbo;
+        glGenFramebuffers(1, &tmpFbo);
+        glBindFramebuffer(GL_FRAMEBUFFER, tmpFbo);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+                               GL_TEXTURE_2D, mDsTopTex, 0);
+        unsigned char tp[4] = {};
+        glReadPixels(128, 96, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, tp);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+                               GL_TEXTURE_2D, mDsBotTex, 0);
+        unsigned char bp[4] = {};
+        glReadPixels(128, 96, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, bp);
+        glBindFramebuffer(GL_FRAMEBUFFER, mOffscreenFbo);
+        glDeleteFramebuffers(1, &tmpFbo);
+        ALOGW("DrasticRunner: TEX DIAG: topTex center=[%d,%d,%d,%d] "
+              "botTex center=[%d,%d,%d,%d]",
+              tp[0], tp[1], tp[2], tp[3],
+              bp[0], bp[1], bp[2], bp[3]);
+        sTexDiagDone = true;
+    }
+
+    // Diagnostic: full grid scan of the offscreen FBO.
+    static int sDiagCount = 0;
+    if (sDiagCount < 1) {
+        int nonBlack = 0;
+        int firstX = -1, firstY = -1;
+        unsigned char firstPx[4] = {};
+        for (int gy = 0; gy < 20; gy++) {
+            for (int gx = 0; gx < 20; gx++) {
+                int px = gx * mOffscreenW / 20 + mOffscreenW / 40;
+                int py = gy * mOffscreenH / 20 + mOffscreenH / 40;
+                unsigned char c[4] = {};
+                glReadPixels(px, py, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, c);
+                if (c[0] || c[1] || c[2]) {
+                    if (firstX < 0) {
+                        firstX = px; firstY = py;
+                        memcpy(firstPx, c, 4);
+                    }
+                    nonBlack++;
+                }
+            }
+        }
+        ALOGW("DrasticRunner: GRID SCAN: %d/400 non-black, first at "
+              "(%d,%d) RGBA=[%d,%d,%d,%d] fbo=%u offscreen=%dx%d",
+              nonBlack, firstX, firstY,
+              firstPx[0], firstPx[1], firstPx[2], firstPx[3],
+              mOffscreenFbo, mOffscreenW, mOffscreenH);
+        sDiagCount++;
+    }
+
+    // Restore the previous FBO binding.
+    glBindFramebuffer(GL_FRAMEBUFFER, (GLuint)prevFbo);
 }
 
 void DrasticRunner::updatePixels() {
     if (!mSurfaceReady) return;
-    // Non-blocking: only upload if the background pull thread has
-    // produced at least one frame. Before that, the GL textures
-    // retain whatever the previous render wrote (initially black).
+    if (mUseRenderFrame) return; // renderDsToOffscreen replaces this
     if (!mShadowReady.load(std::memory_order_acquire)) return;
-
-    // Upload shadow to GL textures. Hold the mutex only during the
-    // memcpy-equivalent glTexSubImage2D call -- GPU driver will
-    // consume the source pointer synchronously so we're safe to
-    // release the lock immediately after.
     {
         std::lock_guard<std::mutex> lock(mShadowMutex);
         glBindTexture(GL_TEXTURE_2D, mTopTex);
@@ -749,56 +997,26 @@ void DrasticRunner::updatePixels() {
     }
 }
 
-void DrasticRunner::drawFullscreenDsQuad(unsigned int tex,
-                                          float saturation,
-                                          float gradient) {
+void DrasticRunner::drawDsQuad(unsigned int tex, float vMin, float vMax,
+                                float saturation, float gradient) {
     if (!mSurfaceReady) return;
 
-    // Read the current glViewport so we can compute an aspect-
-    // preserving letterbox for the DS 256:192 (4:3) screen.
-    GLint viewport[4] = {};
-    glGetIntegerv(GL_VIEWPORT, viewport);
-    const float vw = (float)viewport[2];
-    const float vh = (float)viewport[3];
-    if (vw <= 0.0f || vh <= 0.0f) return;
+    // Fill the entire viewport -- no letterboxing. Each DS screen
+    // stretches to fill its display (640x480 for the RG DS).
+    const float x0 = -1.0f, y0 = -1.0f, x1 = 1.0f, y1 = 1.0f;
 
-    const float dsAspect = 256.0f / 192.0f;
-    const float vpAspect = vw / vh;
-
-    // NDC coordinates in logical (non-rotated) space. We fill the
-    // viewport edge-to-edge on the tighter axis and letterbox the
-    // other. For a 4:3 panel matching the DS aspect this collapses
-    // to (-1,-1)..(1,1) with no bars.
-    float x0 = -1.0f, y0 = -1.0f, x1 = 1.0f, y1 = 1.0f;
-    if (vpAspect > dsAspect) {
-        // Panel wider than DS -- pillarbox left/right.
-        float w = dsAspect / vpAspect;
-        x0 = -w; x1 = w;
-    } else if (vpAspect < dsAspect) {
-        // Panel taller than DS -- letterbox top/bottom.
-        float h = vpAspect / dsAspect;
-        y0 = -h; y1 = h;
-    }
-
-    // Vertex data: (x, y, u, v). V is flipped because drastic writes
-    // the DS framebuffer top-to-bottom but OpenGL texel rows are
-    // bottom-to-top.
+    // UV coordinates: u spans full width, v spans the requested
+    // vertical slice of the source texture.
     const float verts[16] = {
-        x0, y1, 0.0f, 0.0f,
-        x1, y1, 1.0f, 0.0f,
-        x0, y0, 0.0f, 1.0f,
-        x1, y0, 1.0f, 1.0f,
+        x0, y1, 0.0f, vMin,
+        x1, y1, 1.0f, vMin,
+        x0, y0, 0.0f, vMax,
+        x1, y0, 1.0f, vMax,
     };
 
     glUseProgram(mQuadProgram);
-    // Upload our cached DRM rotation matrix (identity unless
-    // NanoMenu explicitly called setRotationMatrix before this
-    // pass). Without this, the DS quad would be rendered in
-    // logical NDC while the rest of NanoMenu's UI is in panel-
-    // native NDC, causing orientation mismatch on rotated panels.
-    if (mQuadRotLoc >= 0) {
+    if (mQuadRotLoc >= 0)
         glUniformMatrix2fv(mQuadRotLoc, 1, GL_FALSE, mRotationMatrix);
-    }
     if (mQuadSatLoc >= 0) glUniform1f(mQuadSatLoc, saturation);
     if (mQuadGradLoc >= 0) glUniform1f(mQuadGradLoc, gradient);
     if (mQuadSamplerLoc >= 0) glUniform1i(mQuadSamplerLoc, 0);
@@ -826,11 +1044,33 @@ void DrasticRunner::drawFullscreenDsQuad(unsigned int tex,
 }
 
 void DrasticRunner::renderTopScreen(float saturation, float gradient) {
-    drawFullscreenDsQuad(mTopTex, saturation, gradient);
+    if (mUseRenderFrame) {
+        // renderFrame uploaded DS data into mDsTopTex. Draw it
+        // directly with our blit shader (drastic's own draw into
+        // the offscreen FBO doesn't produce visible output -- the
+        // vertex data/draw calls fail silently for unknown reasons).
+        drawDsQuad(mDsTopTex, 0.0f, 1.0f, saturation, gradient);
+    } else {
+        drawDsQuad(mTopTex, 0.0f, 1.0f, saturation, gradient);
+    }
 }
 
 void DrasticRunner::renderBottomScreen(float saturation, float gradient) {
-    drawFullscreenDsQuad(mBotTex, saturation, gradient);
+    if (mUseRenderFrame) {
+        drawDsQuad(mDsBotTex, 0.0f, 1.0f, saturation, gradient);
+    } else {
+        drawDsQuad(mBotTex, 0.0f, 1.0f, saturation, gradient);
+    }
+}
+
+void DrasticRunner::renderBothScreens(float saturation, float gradient) {
+    if (mUseRenderFrame) {
+        // Single display: draw top screen (bottom screen not shown).
+        // TODO: implement split-view for single display.
+        drawDsQuad(mDsTopTex, 0.0f, 1.0f, saturation, gradient);
+    } else {
+        drawDsQuad(mTopTex, 0.0f, 1.0f, saturation, gradient);
+    }
 }
 
 void DrasticRunner::setInput(int bitmask) {

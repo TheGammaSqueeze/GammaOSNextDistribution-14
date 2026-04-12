@@ -48,26 +48,39 @@ public:
     bool isInitialized() const { return mInitialized; }
 
     // Phase 4: GL surface bring-up. Must be called on the thread that
-    // owns the EGL context (NanoMenu render thread). Creates our own
-    // quad shader + two DS screen textures. Subsequent calls are
-    // no-ops.
-    void initSurface(int viewportW, int viewportH);
+    // owns the EGL context (NanoMenu render thread). Sets up drastic's
+    // GL pipeline via fxSetup for the renderFrame path, creates an
+    // offscreen FBO for portrait-mode dual-screen compositing, and
+    // compiles the blit shader for display output. Subsequent calls
+    // are no-ops. dualDisplay=true creates a portrait FBO (WxH*2)
+    // for split-screen output to two displays.
+    void initSurface(int viewportW, int viewportH, bool dualDisplay);
 
-    // Pull the latest DS framebuffer pixels from drastic and upload
-    // to the top/bottom GL textures. Should be called ONCE per frame,
-    // BEFORE any draw calls, on the EGL-context thread. After this,
-    // renderTopScreen/renderBottomScreen can be called as many times
-    // as needed in the same frame (e.g. once per display pass).
+    // Render both DS screens into the offscreen FBO via drastic's
+    // renderFrame. Must be called ONCE per frame, BEFORE any
+    // renderTopScreen/renderBottomScreen calls. Replaces the old
+    // updatePixels() + getScreenBuffers path with drastic's native
+    // GL compositing, which includes hi-res 3D and all rendering
+    // layers.
+    void renderDsToOffscreen();
+
+    // Legacy pixel-pull path (getScreenBuffers). Still functional
+    // but missing some rendering layers. Use renderDsToOffscreen()
+    // for full-fidelity output.
     void updatePixels();
 
-    // Draw the top DS screen filling the current viewport. Applies
-    // saturation (0 = grayscale, 1 = full color) and gradient
-    // (0 = none, 1 = strong dark gradient at bottom) just like
-    // LibretroRunner's QR overlay shader.
+    // Draw the top DS screen filling the current viewport. Blits
+    // from the top half of the offscreen FBO (if renderDsToOffscreen
+    // was called) with saturation/gradient overlay.
     void renderTopScreen(float saturation, float gradient);
 
     // Draw the bottom DS screen filling the current viewport.
     void renderBottomScreen(float saturation, float gradient);
+
+    // Draw BOTH DS screens (stacked portrait) into the current
+    // viewport. For single-display devices where both screens need
+    // to appear on one panel.
+    void renderBothScreens(float saturation, float gradient);
 
     // Push the DRM rotation matrix (same 2x2 that NanoMenu uses for
     // its own shaders). Mirrors LibretroRunner::setRotationMatrix.
@@ -195,6 +208,8 @@ private:
     typedef void (*setAudioVolume_t)(void* env, void* cls, int vol);
 
     // Phase 4 GL entry points.
+    typedef int  (*fxLoad_t)(void* env, void* cls,
+                             void* shaderPathJStr, int arg2, int arg3);
     typedef void (*fxSetup_t)(void* env, void* cls,
                               int texW, int texH, int a, int b,
                               int viewW, int viewH);
@@ -221,6 +236,7 @@ private:
     setFirmwareUserdata_t mSetFirmwareUserdata = nullptr;
     setAutosaveInterval_t mSetAutosaveInterval = nullptr;
     setAudioVolume_t     mSetAudioVolume = nullptr;
+    fxLoad_t            mFxLoad = nullptr;
     fxSetup_t           mFxSetup = nullptr;
     renderFrame_t       mRenderFrame = nullptr;
     signalScreen_t      mSignalScreen = nullptr;
@@ -229,11 +245,35 @@ private:
     updateInput_t       mUpdateInput = nullptr;
     getScreenBuffers_t  mGetScreenBuffers = nullptr;
 
-    // Option B rendering state (NanoMenu-thread owned).
+    // Legacy getScreenBuffers pixel arrays (kept for fallback).
     void* mTopArr = nullptr;   // jintArray of 256*192 pixels
     void* mBotArr = nullptr;
+
+    // Offscreen FBO for renderFrame compositing. drastic renders
+    // both screens (portrait stacked) into this FBO, then we blit
+    // the top/bottom halves to the respective display FBOs.
+    unsigned int mOffscreenFbo = 0;
+    unsigned int mOffscreenTex = 0;
+    int  mOffscreenW = 0;
+    int  mOffscreenH = 0;
+    bool mDualDisplay = false;
+    bool mUseRenderFrame = false;
+
+    // Textures that drastic's renderFrame uploads DS framebuffer
+    // data into (via glTexSubImage2D inside renderFrame).
+    unsigned int mDsTopTex = 0;
+    unsigned int mDsBotTex = 0;
+
+    // Legacy getScreenBuffers textures (for fallback path).
     unsigned int mTopTex = 0;  // GLuint
     unsigned int mBotTex = 0;
+
+    // Drastic's GL program ID (set by fxSetup, captured before we
+    // compile our own shaders). Must be rebound before renderFrame.
+    unsigned int mDrasticGlProgram = 0;
+
+    // Blit shader: samples the offscreen texture (or legacy DS
+    // textures) and applies saturation/gradient overlay.
     unsigned int mQuadProgram = 0;
     int  mQuadPosLoc = -1;
     int  mQuadTexLoc = -1;
@@ -244,15 +284,13 @@ private:
     unsigned int mQuadVbo = 0;
 
     // 2x2 NDC rotation matrix (column-major, identity by default).
-    // Mirrors NanoMenu's sDrmRotMat so we can render the DS quads in
-    // the same panel-native orientation as the rest of the UI.
     float mRotationMatrix[4] = {1.0f, 0.0f, 0.0f, 1.0f};
 
-    // Internal: draw one DS screen quad (fullscreen, letterboxed to
-    // preserve the 256:192 = 4:3 aspect ratio against the current
-    // viewport). `tex` is the top or bottom texture; sat/grad are
-    // the overlay uniforms.
-    void drawFullscreenDsQuad(unsigned int tex, float saturation, float gradient);
+    // Internal: draw a quad from a source texture region into the
+    // current viewport with saturation/gradient. vMin/vMax control
+    // which vertical slice of the source texture is sampled.
+    void drawDsQuad(unsigned int tex, float vMin, float vMax,
+                    float saturation, float gradient);
 
     // Cached fake env / cls for render-thread calls. Set during init()
     // and reused from initSurface / renderOneFrame.

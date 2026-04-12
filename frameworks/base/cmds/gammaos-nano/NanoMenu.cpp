@@ -4111,7 +4111,7 @@ void NanoMenu::render() {
     static float sDrasticGradient   = 1.0f;
     if (drasticActive) {
         // Idempotent: initSurface is a no-op after the first call.
-        drastic->initSurface(mWidth, mHeight);
+        drastic->initSurface(mWidth, mHeight, false);
         // Push the DRM rotation matrix so our DS quads come out in
         // panel-native orientation (matching NanoMenu's XMB).
         drastic->setRotationMatrix(sDrmRotMat);
@@ -6440,7 +6440,12 @@ bool NanoMenu::threadLoop() {
             ALOGW("NanoMenu BOOT TIMING: drastic QR loop entry at T+%lldms",
                   loopStart);
 
-            drastic->initSurface(mWidth, mHeight);
+            // Max clocks for smooth DS emulation during QR preview.
+            system("/vendor/bin/setclock_max.sh");
+
+            bool hasDualDisplay = (sDrmActive && sDrmZeroCopy &&
+                                    sAhbTargetSecondary.glFbo != 0);
+            drastic->initSurface(mWidth, mHeight, hasDualDisplay);
             drastic->setRotationMatrix(sDrmRotMat);
 
             // Determine whether this is the real QR path (primed by
@@ -6667,19 +6672,17 @@ bool NanoMenu::threadLoop() {
                 }
                 if (qrCancelled) break;
 
-                // Push the accumulated button state to drastic. Zero
-                // is safe (no buttons). We deliberately clear the
-                // SELECT bit (not in our mapping) so a gamepad that
-                // fires BTN_SELECT never leaks into the DS KEYINPUT
-                // as a real DS Select — SELECT is nano-only.
+                // Push the accumulated button state to drastic.
                 drastic->setInput(dsBtnMask & ~DrasticRunner::kDsBtnSelect);
 
-                // Pull fresh DS frame ONCE per iteration.
-                drastic->updatePixels();
+                // Render both DS screens into the offscreen FBO via
+                // drastic's renderFrame (hi-res 3D, all layers).
+                // Returns immediately (no-op) until the DS producer
+                // has generated its first frame.
+                drastic->renderDsToOffscreen();
 
-                // Pass 1: secondary display → bottom DS screen.
-                if (sDrmActive && sDrmZeroCopy &&
-                    sAhbTargetSecondary.glFbo != 0) {
+                if (hasDualDisplay) {
+                    // Pass 1: secondary display -> bottom DS screen.
                     glBindFramebuffer(GL_FRAMEBUFFER,
                                        sAhbTargetSecondary.glFbo);
                     glViewport(0, 0, sAhbTargetSecondary.w,
@@ -6689,22 +6692,49 @@ bool NanoMenu::threadLoop() {
                     drastic->renderBottomScreen(saturation, gradient);
                     drawOverlay(sAhbTargetSecondary.w,
                                 sAhbTargetSecondary.h);
-                }
 
-                // Pass 2: primary display → top DS screen.
-                drmFrameBegin();
-                if (sDrmGlRotation) {
-                    glViewport(0, 0, sAhbTarget.w, sAhbTarget.h);
+                    // Pass 2: primary display -> top DS screen.
+                    drmFrameBegin();
+                    if (sDrmGlRotation) {
+                        glViewport(0, 0, sAhbTarget.w, sAhbTarget.h);
+                    } else {
+                        glViewport(0, 0, mWidth, mHeight);
+                    }
+                    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+                    glClear(GL_COLOR_BUFFER_BIT);
+                    drastic->renderTopScreen(saturation, gradient);
                 } else {
-                    glViewport(0, 0, mWidth, mHeight);
+                    // Single display: both screens stacked.
+                    drmFrameBegin();
+                    if (sDrmGlRotation) {
+                        glViewport(0, 0, sAhbTarget.w, sAhbTarget.h);
+                    } else {
+                        glViewport(0, 0, mWidth, mHeight);
+                    }
+                    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+                    glClear(GL_COLOR_BUFFER_BIT);
+                    drastic->renderBothScreens(saturation, gradient);
                 }
-                glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-                glClear(GL_COLOR_BUFFER_BIT);
-                drastic->renderTopScreen(saturation, gradient);
                 int vpW = sDrmGlRotation ? sAhbTarget.w : mWidth;
                 int vpH = sDrmGlRotation ? sAhbTarget.h : mHeight;
                 drawOverlay(vpW, vpH);
                 drmFrameEnd(mDisplay, mSurface);
+
+                // Vsync: block until the primary display's next
+                // vertical blank. Without this, the loop runs
+                // unthrottled (~2ms/frame on Mali G52) and the DRM
+                // page flip with flags=0 is fire-and-forget, causing
+                // severe jitter/tearing at ~45fps effective. The
+                // vblank wait gates the loop to exactly 60fps (or
+                // whatever the panel refresh rate is).
+                if (sDrmFd >= 0 && !sDrmDisplays.empty()) {
+                    union drm_wait_vblank vbl = {};
+                    vbl.request.type = (enum drm_vblank_seq_type)(
+                            _DRM_VBLANK_RELATIVE
+                            | ((sDrmPrimaryIdx & 0x1f) << _DRM_VBLANK_HIGH_CRTC_SHIFT));
+                    vbl.request.sequence = 1;
+                    ioctl(sDrmFd, DRM_IOCTL_WAIT_VBLANK, &vbl);
+                }
 
                 if (!firstFrameLogged) {
                     int64_t now = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL;
