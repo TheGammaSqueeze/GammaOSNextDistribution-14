@@ -194,19 +194,24 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
      * set, so we can fall back to the file when the property is empty.
      */
     private static String getNanoLaunchRom() {
-        String rom = android.os.SystemProperties.get(
-                "sys.gammaos.nano.launch_rom", "");
-        if (!rom.isEmpty()) return rom;
+        // Prefer the file over the prop. External SD paths routinely
+        // exceed PROP_VALUE_MAX (92 bytes) and the prop write silently
+        // fails, leaving it empty or stale. The file is always written
+        // regardless of length, so it is the source of truth.
         try {
             java.io.File f = new java.io.File("/data/system/nano_launch_rom.txt");
             if (f.exists() && f.length() > 0) {
-                return new String(
+                String fromFile = new String(
                         java.nio.file.Files.readAllBytes(f.toPath()),
                         java.nio.charset.StandardCharsets.UTF_8).trim();
+                if (!fromFile.isEmpty()) return fromFile;
             }
         } catch (Exception e) {
-            /* ignore — fall through to empty */
+            /* ignore — fall through to prop */
         }
+        String rom = android.os.SystemProperties.get(
+                "sys.gammaos.nano.launch_rom", "");
+        if (!rom.isEmpty()) return rom;
         return "";
     }
 

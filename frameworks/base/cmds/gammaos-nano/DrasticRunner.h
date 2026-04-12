@@ -76,6 +76,61 @@ public:
         for (int i = 0; i < 4; i++) mRotationMatrix[i] = mat[i];
     }
 
+    // Inject gamepad button state into drastic's running core so the
+    // user can play the game during the QR preview window. The bitmask
+    // uses drastic's internal bit order (NOT the DS hardware KEYINPUT
+    // order), active-high. Build the mask with the kDsBtn* constants
+    // below — never hardcode hex values.
+    //
+    // The render thread should call this every frame with the latest
+    // accumulated state (the running DS CPU reads from master+0x48c
+    // on its own thread — see nano_drastic_qr.md Phase 7 notes).
+    //
+    // No-op if drastic isn't initialized or updateInput failed to load.
+    void setInput(int bitmask);
+
+    // Like setInput but also forwards touch state. touchX/touchY are
+    // in DS screen coordinates (0..255 x, 0..191 y). touchHeld is the
+    // "finger down" flag drastic uses to gate the touch state consumer.
+    void setInputWithTouch(int bitmask, int touchX, int touchY,
+                           bool touchHeld);
+
+    // Park drastic's worker threads without tearing down the loaded
+    // libraries. Matches shutdown()'s pauseSystem call but skips the
+    // destructive quitSystem step, so the state is recoverable if we
+    // later want to resume. Used when QR is cancelled by the user and
+    // we fall through to the NanoMenu XMB instead of handing off.
+    void pauseDrastic();
+
+    // Drastic button bitmask — NOT the DS hardware KEYINPUT order.
+    // Source: n0/i.smali `R:[I` array cross-checked with the updateInput
+    // disasm at 0x1a5d8 by the drastic-android-mod session. See
+    // nano-startup-timing-answers.md Phase 7 for the dialogue.
+    //
+    // Polarity: active-high (1 = pressed). Drastic inverts internally
+    // before servicing the ARM9's REG_KEYINPUT MMIO read.
+    //
+    // Bits 12..30 are reserved / trap doors (screen-swap, fast forward,
+    // quick save/load, radial menu, microphone, etc.) and must NEVER be
+    // set directly from the nano side — they route through Java
+    // interface callbacks that our fake-JNI layer does not implement.
+    //
+    // Bit 31 is drastic's pointer-down indicator (touchscreen tap). The
+    // setInputWithTouch() method packages that bit with the touchHeld
+    // flag. Callers to setInput() stay out of bit 31 entirely.
+    static constexpr int kDsBtnUp     = 1 << 0;   // 0x001
+    static constexpr int kDsBtnDown   = 1 << 1;   // 0x002
+    static constexpr int kDsBtnLeft   = 1 << 2;   // 0x004
+    static constexpr int kDsBtnRight  = 1 << 3;   // 0x008
+    static constexpr int kDsBtnA      = 1 << 4;   // 0x010
+    static constexpr int kDsBtnB      = 1 << 5;   // 0x020
+    static constexpr int kDsBtnX      = 1 << 6;   // 0x040
+    static constexpr int kDsBtnY      = 1 << 7;   // 0x080
+    static constexpr int kDsBtnL      = 1 << 8;   // 0x100
+    static constexpr int kDsBtnR      = 1 << 9;   // 0x200
+    static constexpr int kDsBtnStart  = 1 << 10;  // 0x400
+    static constexpr int kDsBtnSelect = 1 << 11;  // 0x800
+
     // Singleton accessor. Stored as a file-scope pointer inside the
     // .cpp; set in init(), never cleared. NanoMenu's render loop uses
     // this to call initSurface/renderOneFrame without the smoke test

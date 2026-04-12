@@ -833,6 +833,53 @@ void DrasticRunner::renderBottomScreen(float saturation, float gradient) {
     drawFullscreenDsQuad(mBotTex, saturation, gradient);
 }
 
+void DrasticRunner::setInput(int bitmask) {
+    setInputWithTouch(bitmask, 0, 0, false);
+}
+
+void DrasticRunner::setInputWithTouch(int bitmask, int touchX, int touchY,
+                                      bool touchHeld) {
+    if (!mInitialized || !mUpdateInput) return;
+    // updateInput(JNIEnv*, jclass, int bitmask, int touchPacked, int held)
+    //
+    // Native side at 0x1a5d8 stores:
+    //   master+0x48c = bitmask & 0x7fffffff     (button bits 0..11 used)
+    //   master+0x490 = held
+    //   master+0x494 = asr(touchPacked, 16)     (touch Y, signed top half)
+    //   master+0x498 = touchPacked & 0xffff     (touch X, low half)
+    //   master+0x4bf = (bitmask >> 31) & 1      (pointer-down flag)
+    //
+    // The bit layout confirmed via drastic-android-mod disasm analysis:
+    // bits 0..11 are the 12 DS buttons (see kDsBtn* constants), bits
+    // 12..30 are reserved / trap-door indices we must not touch, and
+    // bit 31 is the touchscreen pointer-down indicator. Clamp the
+    // caller's mask to 0..11 so we can never accidentally trip a
+    // trap-door index even if the caller passed a stray bit.
+    int fullBitmask = bitmask & 0x00000fff;
+    if (touchHeld) fullBitmask |= 0x80000000;
+    // Drastic packs touch as (y << 16) | x, high half signed. Clamp to
+    // DS bottom-screen space so the emulated touchscreen MMIO handler
+    // sees coordinates in [0..255, 0..191] as the real hardware would.
+    if (touchX < 0) touchX = 0;
+    if (touchX > 255) touchX = 255;
+    if (touchY < 0) touchY = 0;
+    if (touchY > 191) touchY = 191;
+    const int touchPacked =
+            ((touchY & 0xffff) << 16) | (touchX & 0xffff);
+    const int held = touchHeld ? 1 : 0;
+    mUpdateInput(mFakeEnv, mFakeCls, fullBitmask, touchPacked, held);
+}
+
+void DrasticRunner::pauseDrastic() {
+    if (!mInitialized || !mPauseSystem) return;
+    // Reuse the cached fake env/cls — the render thread calls this
+    // live, so unlike shutdown() we have a valid env on hand. The
+    // disasm of pauseSystem (see findings.md) does not dereference
+    // env, so either would work; prefer the cached pair for symmetry
+    // with setInput.
+    mPauseSystem(mFakeEnv, mFakeCls, 1);
+}
+
 void DrasticRunner::shutdown() {
     // Stop the background pixel-pull thread FIRST so it unblocks
     // from getScreenBuffers and stops calling into drastic state

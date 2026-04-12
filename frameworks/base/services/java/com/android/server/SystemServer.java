@@ -1983,6 +1983,20 @@ public final class SystemServer implements Dumpable {
                             Slog.i(TAG, "GammaOS Nano: no QR prepared, skipping cache mount");
                             return;
                         }
+                        // GammaOS: Drastic QR handles its own handoff
+                        // from NanoMenu's render loop (do_launch when
+                        // the fade completes). This early-launch path
+                        // is only for libretro QR → RetroArch. Skip
+                        // entirely for drastic so we don't set
+                        // bootanim.exit=1 (which tells RWC "nano has
+                        // exited") while NanoMenu is still rendering
+                        // the drastic preview.
+                        if ("drastic".equals(SystemProperties.get(
+                                "persist.gammaos.nano.qr_core", ""))) {
+                            Slog.i(TAG, "GammaOS Nano: drastic QR active, "
+                                    + "skipping early RetroArch launch");
+                            return;
+                        }
                         java.io.File manifest = new java.io.File(
                                 "/data/system/nano_cache/manifest");
                         if (!manifest.exists()) {

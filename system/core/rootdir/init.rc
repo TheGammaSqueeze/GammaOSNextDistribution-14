@@ -1467,6 +1467,16 @@ on property:sys.gammaos.nano.restart=1
     setprop service.bootanim.nano_retroarch 0
     start gammaos-nano
 
+# GammaOS Nano: deferred restart after QR cancel. gammaos-nano sets
+# this prop and immediately exits. init waits 500ms for the process
+# to fully die, then triggers the normal restart. We can't use
+# system() or fork() from inside gammaos-nano because drastic's
+# worker threads hold mutexes that deadlock the forked child.
+on property:sys.gammaos.nano.restart_after_cancel=1
+    setprop sys.gammaos.nano.restart_after_cancel 0
+    exec -- /system/bin/sleep 1
+    setprop sys.gammaos.nano.restart 1
+
 on property:sys.init_log_level=*
     loglevel ${sys.init_log_level}
 

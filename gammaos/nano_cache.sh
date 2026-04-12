@@ -77,22 +77,43 @@ to_raw_path() {
 #   launch_rom file from a previous retroarch launch must not bleed
 #   into the drastic rom staging path.
 resolve_launch_rom() {
-    local p="$(getprop sys.gammaos.nano.launch_rom)"
-    if [ -z "$p" ] && [ -s /data/system/nano_launch_rom.txt ]; then
+    # For RetroArch populate: prefer file-backed paths over props at
+    # each tier. Props silently fail for paths > 92 bytes, leaving
+    # stale values from shorter previous-session paths. Files are
+    # always written regardless of length.
+    #
+    # Priority chain:
+    #   1. nano_launch_rom.txt (current session's launch target)
+    #   2. sys.gammaos.nano.launch_rom prop (fallback if file missing)
+    #   3. nano_qr_rom.txt (defensive: last QR-primed ROM)
+    #   4. persist.gammaos.nano.qr_rom prop (last resort)
+    local p=""
+    if [ -s /data/system/nano_launch_rom.txt ]; then
         p=$(cat /data/system/nano_launch_rom.txt)
+    fi
+    if [ -z "$p" ]; then
+        p="$(getprop sys.gammaos.nano.launch_rom)"
+    fi
+    if [ -z "$p" ] && [ -s /data/system/nano_qr_rom.txt ]; then
+        p=$(cat /data/system/nano_qr_rom.txt)
     fi
     if [ -z "$p" ]; then
         p="$(getprop persist.gammaos.nano.qr_rom)"
     fi
-    if [ -z "$p" ] && [ -s /data/system/nano_qr_rom.txt ]; then
-        p=$(cat /data/system/nano_qr_rom.txt)
-    fi
     echo "$p"
 }
 resolve_qr_rom() {
-    local p="$(getprop persist.gammaos.nano.qr_rom)"
-    if [ -z "$p" ] && [ -s /data/system/nano_qr_rom.txt ]; then
+    # Prefer the file-backed path over the persist prop. The file is
+    # always written regardless of path length, but the persist prop
+    # silently fails for paths > 92 bytes (PROP_VALUE_MAX). Without
+    # this priority, a stale short prop survives across sessions and
+    # populate_drastic caches the wrong ROM.
+    local p=""
+    if [ -s /data/system/nano_qr_rom.txt ]; then
         p=$(cat /data/system/nano_qr_rom.txt)
+    fi
+    if [ -z "$p" ]; then
+        p="$(getprop persist.gammaos.nano.qr_rom)"
     fi
     echo "$p"
 }
@@ -647,8 +668,11 @@ do_populate_drastic() {
         local rom_raw=$(to_raw_path "$rom_path")
         if [ -f "$rom_raw" ]; then
             local rom_file=$(basename "$rom_raw")
-            # Clear any previous ROM before copying the new one
-            rm -f "$dcache/rom/"*.nds 2>/dev/null
+            # Clear ALL previous ROMs before copying the new one.
+            # Previous code only cleared *.nds, leaving stale non-NDS
+            # files from cross-system QR primes (e.g. a GBA ROM cached
+            # when the user switched from a libretro QR to drastic QR).
+            rm -f "$dcache/rom/"* 2>/dev/null
             cp -p "$rom_raw" "$dcache/rom/$rom_file" 2>/dev/null
             if [ -f "$dcache/rom/$rom_file" ]; then
                 log_i "populate_drastic: cached ROM $rom_file"
