@@ -329,8 +329,9 @@ bool DrasticRunner::init(const std::string& cacheDir,
     // The disasm at 0x17df4 shows only w3 (versionCode) and w4 (sdkInt)
     // are actually read; the context is ignored. Pass nullptr for it.
     ALOGI("DrasticRunner: calling onInit");
-    mOnInit(env, fakeCls, nullptr, 1, 34);
+    mOnInit(env, fakeCls, nullptr, 109, 33);
     ALOGI("DrasticRunner: onInit returned");
+
 
     // ---- Phase 5: applyConfig ----
     ALOGI("DrasticRunner: calling applyConfig(0x%lx)", kDefaultConfigBits);
@@ -509,7 +510,7 @@ bool DrasticRunner::init(const std::string& cacheDir,
                                         /*arg3 cfg*/   kDefaultConfigBits,
                                         /*arg4*/       0,
                                         /*arg5 insrt*/ 0,
-                                        /*arg6 clock*/ 0L);
+                                        /*arg6 clock*/ -1L);
         // Reaching here is unexpected -- startGame is drastic's main
         // emulator loop and normally runs until the process exits.
         ALOGW("DrasticRunner: startGame RETURNED (unexpected) rc=%d",
@@ -678,10 +679,6 @@ static const char* kDrasticFs =
     "uniform float uGradient;\n"    // 0=none, 1=strong dark gradient
     "void main() {\n"
     "  vec4 c = texture2D(uTex, vUv);\n"
-    // renderFrame uploads in native RGB order -- no swizzle needed.
-    // (The old getScreenBuffers path used BGRA jint packing which
-    // needed a .bgr swizzle, but renderFrame's glTexSubImage2D
-    // uploads in the correct channel order.)
     "  vec3 rgb = c.rgb;\n"
     "  float gray = dot(rgb, vec3(0.299, 0.587, 0.114));\n"
     "  rgb = mix(vec3(gray), rgb, uSaturation);\n"
@@ -889,97 +886,44 @@ void DrasticRunner::initSurface(int viewportW, int viewportH,
 void DrasticRunner::renderDsToOffscreen() {
     if (!mSurfaceReady || !mUseRenderFrame || !mRenderFrame) return;
 
-    // Wait for the DS producer to have at least one frame ready.
-    // Without the early fxSetup, startGame needs ~500ms after
-    // initSurface's fxSetup before the first frame appears. The
-    // pixel-pull thread detects this via mShadowReady. Until then,
-    // renderFrame would draw empty data (black).
-    if (!mShadowReady.load(std::memory_order_acquire)) return;
-
     // Stop the pixel-pull thread on the first renderFrame call.
-    // From here on, renderFrame handles frame consumption directly
-    // and must not compete with getScreenBuffers for the mutex.
+    // We take over frame consumption via waitScreen + renderFrame.
+    // The pixel-pull must be stopped first because both it and us
+    // call waitScreen, and the condvar only wakes one waiter per
+    // producer signal.
     static bool sPixelPullStopped = false;
     if (!sPixelPullStopped && mPixelPullRunning.load()) {
-        ALOGI("DrasticRunner: first frame ready, stopping pixel-pull "
-              "for renderFrame takeover");
+        ALOGI("DrasticRunner: stopping pixel-pull for renderFrame "
+              "takeover");
         mPixelPullRunning.store(false);
         usleep(50000); // 50ms grace for the pull thread to exit
+        // Kick the producer with signalScreen in case it's blocked
+        // waiting for the getScreenBuffers consumer ack. The pixel-
+        // pull may have exited mid-loop without calling signalScreen,
+        // leaving the producer stuck. This one-time kick resumes
+        // the producer so subsequent waitScreen calls get signaled.
+        if (mSignalScreen) {
+            mSignalScreen(mFakeEnv, mFakeCls);
+            ALOGI("DrasticRunner: signalScreen kick after pixel-pull stop");
+        }
         sPixelPullStopped = true;
     }
 
-    // Save and bind offscreen FBO.
-    GLint prevFbo = 0;
-    glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prevFbo);
-    glBindFramebuffer(GL_FRAMEBUFFER, mOffscreenFbo);
-    glViewport(0, 0, mOffscreenW, mOffscreenH);
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
+    // waitScreen blocks until the DS CPU producer has fully
+    // composited a frame (all 2D layers + 3D rasterizer workers
+    // complete). Without this, renderFrame reads mid-composition
+    // and 3D sprites/models are missing or corrupted.
+    if (mWaitScreen) {
+        mWaitScreen(mFakeEnv, mFakeCls);
+    }
 
-    // Restore drastic's GL program (fxSetup left it bound, but
-    // our drawDsQuad blit switches to mQuadProgram each frame).
+    // renderFrame uploads the complete framebuffer into our textures.
     if (mDrasticGlProgram != 0) {
         glUseProgram(mDrasticGlProgram);
     }
-
-    // Call drastic's renderFrame into the offscreen FBO.
     mRenderFrame(mFakeEnv, mFakeCls, (int)mDsTopTex, (int)mDsBotTex, 0);
 
-    // Diagnostic: check if renderFrame uploaded data into the DS textures.
-    // Read back a pixel from mDsTopTex via a temp FBO.
-    static bool sTexDiagDone = false;
-    if (!sTexDiagDone) {
-        GLuint tmpFbo;
-        glGenFramebuffers(1, &tmpFbo);
-        glBindFramebuffer(GL_FRAMEBUFFER, tmpFbo);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
-                               GL_TEXTURE_2D, mDsTopTex, 0);
-        unsigned char tp[4] = {};
-        glReadPixels(128, 96, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, tp);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
-                               GL_TEXTURE_2D, mDsBotTex, 0);
-        unsigned char bp[4] = {};
-        glReadPixels(128, 96, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, bp);
-        glBindFramebuffer(GL_FRAMEBUFFER, mOffscreenFbo);
-        glDeleteFramebuffers(1, &tmpFbo);
-        ALOGW("DrasticRunner: TEX DIAG: topTex center=[%d,%d,%d,%d] "
-              "botTex center=[%d,%d,%d,%d]",
-              tp[0], tp[1], tp[2], tp[3],
-              bp[0], bp[1], bp[2], bp[3]);
-        sTexDiagDone = true;
-    }
-
-    // Diagnostic: full grid scan of the offscreen FBO.
-    static int sDiagCount = 0;
-    if (sDiagCount < 1) {
-        int nonBlack = 0;
-        int firstX = -1, firstY = -1;
-        unsigned char firstPx[4] = {};
-        for (int gy = 0; gy < 20; gy++) {
-            for (int gx = 0; gx < 20; gx++) {
-                int px = gx * mOffscreenW / 20 + mOffscreenW / 40;
-                int py = gy * mOffscreenH / 20 + mOffscreenH / 40;
-                unsigned char c[4] = {};
-                glReadPixels(px, py, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, c);
-                if (c[0] || c[1] || c[2]) {
-                    if (firstX < 0) {
-                        firstX = px; firstY = py;
-                        memcpy(firstPx, c, 4);
-                    }
-                    nonBlack++;
-                }
-            }
-        }
-        ALOGW("DrasticRunner: GRID SCAN: %d/400 non-black, first at "
-              "(%d,%d) RGBA=[%d,%d,%d,%d] fbo=%u offscreen=%dx%d",
-              nonBlack, firstX, firstY,
-              firstPx[0], firstPx[1], firstPx[2], firstPx[3],
-              mOffscreenFbo, mOffscreenW, mOffscreenH);
-        sDiagCount++;
-    }
-
-    // Restore the previous FBO binding.
-    glBindFramebuffer(GL_FRAMEBUFFER, (GLuint)prevFbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void DrasticRunner::updatePixels() {
