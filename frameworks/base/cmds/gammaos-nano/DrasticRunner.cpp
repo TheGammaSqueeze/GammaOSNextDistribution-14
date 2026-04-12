@@ -119,7 +119,18 @@ DrasticRunner* DrasticRunner::getInstance() {
 static constexpr long kDefaultConfigBits =
     0x10000000L            // _Threaded3D (bit 28)
   | 0x10000000000L         // _DisableEdgeMarking (bit 40) -- skip 3D edge pass
-  | 0x20000000000L;        // _Hires3D (bit 41) -- 2x internal 3D resolution
+  | 0x20000000000L         // _Hires3D (bit 41) -- 2x internal 3D resolution
+  | 0x4000000000000L;      // _m0 (bit 50) -- sets master+0x4b8=1 via the
+                           //   canonical applyConfig path. Per
+                           //   drastic-android-mod disasm at
+                           //   libdrastic+0x17c8c the config bit 50 extracts
+                           //   into master+0x4b8. The real Drastic app has
+                           //   this bit set; without it nano leaves +0x4b8=0
+                           //   which participates in the BG-layer priority
+                           //   bug. Flowing through applyConfig (rather than
+                           //   raw-patching +0x4b8) survives because drastic
+                           //   itself never re-clears bits it just set via
+                           //   this entry.
 
 // Native DS resolution: 256x192 per screen, RGBA8888, one jint per
 // pixel. getScreenBuffers writes exactly 49152 ints per screen.
@@ -332,6 +343,14 @@ bool DrasticRunner::init(const std::string& cacheDir,
     mOnInit(env, fakeCls, nullptr, 109, 33);
     ALOGI("DrasticRunner: onInit returned");
 
+    // The early (post-onInit) master-state patch attempted in an
+    // earlier iteration was ineffective: drastic resets all of
+    // 0x10 / 0x14 / 0x4b8 / 0x9140 between onInit and the first
+    // rendered frame. The +0x4b8 case is now handled cleanly by
+    // setting config bit 50 (_m0) in kDefaultConfigBits above, which
+    // flows through applyConfig and survives. The remaining writes
+    // are retried post-startGame by a monitor thread spawned just
+    // after mStartGameThread.detach(), further down this function.
 
     // ---- Phase 5: applyConfig ----
     ALOGI("DrasticRunner: calling applyConfig(0x%lx)", kDefaultConfigBits);
@@ -522,6 +541,93 @@ bool DrasticRunner::init(const std::string& cacheDir,
     // cores) doesn't starve drastic. See drasticBoostThread comment.
     drasticBoostThread(mStartGameThread.native_handle(), "startGame");
     mStartGameThread.detach();
+
+    // ---- Post-startGame master-state patch ----
+    //
+    // A/B dump comparison against the real Drastic app identified 13
+    // u32 scalars in master that differ between nano and the real app
+    // regardless of which game is loaded. Patching them to the real-
+    // app values fixes the BG-layer priority rendering bug.
+    //
+    // Engine A (near master+0x0):
+    //   +0x00010  android=6 nano=1    (renderer capability, paired)
+    //   +0x00014  android=6 nano=1    (renderer capability, paired)
+    //   +0x09140  android=0 nano=1    (flag, inverted direction)
+    // Second symmetric capability cluster near master+0x8b680:
+    //   +0x8b68c  android=6 nano=1    (mirrors +0x10)
+    //   +0x8b690  android=6 nano=1    (mirrors +0x14)
+    //   +0x8ba98  android=0 nano=2    (inverted)
+    //   +0x8bab8  android=1 nano=0
+    //   +0x8bad0  android=1 nano=0
+    //   +0x8badc  android=1 nano=0
+    //   +0x8bae8  android=3 nano=0
+    //   +0x8bb00  android=1 nano=0
+    //   +0x8bb10  android=1 nano=0
+    //   +0x8bb28  android=1 nano=0
+    //
+    // Two other diffs from the same methodology are not patched here:
+    //   +0x004b8 -- handled cleanly via applyConfig bit 50 (_m0) above
+    //   +0x017a4 / +0x017a8 -- backed by a NULL pointer cluster at
+    //       +0x17b0..+0x17cc on nano; flipping the flags without
+    //       populating the pointers would deref NULL.
+    //
+    // Timing:
+    //   Drastic's startGame init overwrites these values once during
+    //   its own setup, then never touches them again. Empirical monitor
+    //   (30 passes x 100ms) showed 11/13 reset at the 100ms mark and
+    //   zero drift from 200ms onward. A one-shot 250ms-delayed patch
+    //   is enough; we intentionally run it on a detached thread so
+    //   init() does not block.
+    //
+    // Guarded by persist.gammaos.nano.drastic_master_patch
+    // (default "1", set "0" to disable for A/B comparison).
+    {
+        char patchEnable[PROPERTY_VALUE_MAX] = {};
+        property_get("persist.gammaos.nano.drastic_master_patch",
+                     patchEnable, "1");
+        bool applyPatch = (patchEnable[0] != '0');
+
+        Dl_info patchInfo;
+        if (applyPatch && mUpdateInput &&
+                dladdr((void*)mUpdateInput, &patchInfo) &&
+                patchInfo.dli_fbase) {
+            uint8_t* master = (uint8_t*)(
+                    (uintptr_t)patchInfo.dli_fbase + 0x14c000);
+            std::thread([master]() {
+                pthread_setname_np(pthread_self(), "drastic-patch");
+                struct Target { size_t off; uint32_t value; };
+                static const Target targets[] = {
+                    { 0x00010, 6 }, { 0x00014, 6 }, { 0x09140, 0 },
+                    { 0x8b68c, 6 }, { 0x8b690, 6 }, { 0x8ba98, 0 },
+                    { 0x8bab8, 1 }, { 0x8bad0, 1 }, { 0x8badc, 1 },
+                    { 0x8bae8, 3 }, { 0x8bb00, 1 }, { 0x8bb10, 1 },
+                    { 0x8bb28, 1 },
+                };
+                const int kNumTargets =
+                        sizeof(targets)/sizeof(targets[0]);
+
+                // Wait past drastic's one-shot reset window.
+                usleep(250 * 1000);
+
+                int rewrote = 0;
+                for (int i = 0; i < kNumTargets; i++) {
+                    uint32_t cur;
+                    memcpy(&cur, master + targets[i].off, 4);
+                    if (cur != targets[i].value) {
+                        memcpy(master + targets[i].off,
+                               &targets[i].value, 4);
+                        rewrote++;
+                    }
+                }
+                ALOGW("DrasticRunner: master-state patch: "
+                      "rewrote %d / %d targets", rewrote, kNumTargets);
+            }).detach();
+            ALOGW("DrasticRunner: master-state patch scheduled "
+                  "(runs 250ms after startGame)");
+        } else if (!applyPatch) {
+            ALOGW("DrasticRunner: master-state patch disabled via prop");
+        }
+    }
 
     // Pre-allocate the int arrays for getScreenBuffers RIGHT HERE
     // (rather than waiting for initSurface on the render thread).
