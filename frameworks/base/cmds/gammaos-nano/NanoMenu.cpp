@@ -60,6 +60,7 @@
 #include <drm_mode.h>
 #include <drm_fourcc.h>
 #include <sys/mman.h>
+#include <poll.h>
 #include <android/hardware_buffer.h>
 
 // ARM NEON intrinsics for fast AHB→DRM channel swap.
@@ -2052,6 +2053,56 @@ static std::vector<DrmDisplay> sDrmDisplays;
 // sDrmActive and sDrmRotationDeg are defined earlier (before renderEffect)
 static bool sDrmZeroCopy = false; // true if AHB/FBO setup succeeded
 static bool sDrmGlRotation = false; // true when GL applies rotation (blit uses 0° path)
+// On some panels (observed: Anbernic RK3576 / RGVITA, DSI command-mode) the
+// kernel's DRM_IOCTL_WAIT_VBLANK never fires because the driver doesn't
+// generate vblank interrupts unless a DRM_MODE_PAGE_FLIP_EVENT was requested
+// on the prior flip. The ioctl then hits the kernel's 3-second wait timeout
+// and returns EIO on every call, pinning the render loop to ~0.3 fps. The
+// first slow wait flips this flag so subsequent iterations skip the ioctl
+// entirely. To keep the render loop vsync-locked (no tearing) without the
+// vblank gate, every page flip now requests DRM_MODE_PAGE_FLIP_EVENT and
+// the render thread drains those events from the DRM fd between frames.
+// That gives per-flip completion signals that work on video-mode AND
+// command-mode panels -- no tearing, proper 60 fps cap at the panel's
+// native refresh rate.
+static bool sDrmVblankBroken = false;
+// Count of page flip events that have been requested but not yet drained.
+// Incremented on successful DRM_IOCTL_MODE_PAGE_FLIP submission, decremented
+// as events arrive on the DRM fd. Always kept in balance between iterations
+// so the render loop stays sync'd to the panel.
+static int sPendingFlipEvents = 0;
+// Runtime kill-switch for the entire vsync gate. Read once per process from
+// persist.gammaos.nano.vsync (default 1). When 0, both render loops skip
+// DRM_IOCTL_WAIT_VBLANK and drmDrainPageFlipEvents and instead pace via
+// usleep so we still cap at 60 fps -- just without the DRM-side gating.
+// Lets us isolate vsync overhead (DRM ioctls, kbase event queue interaction)
+// from the rendering work itself. Will tear because page flips no longer
+// align with panel scanout.
+static int sVsyncEnabled = -1;
+// Helper: when vsync is disabled, cap iter rate at 60 fps via usleep on a
+// monotonic deadline. Same call site as the vsync gate so the loop runs at
+// the same effective rate -- only the pacing source changes.
+static void drmPaceWithoutVsync() {
+    static int64_t sNextDeadlineUs = 0;
+    constexpr int64_t kFrameUs = 16667;  // ~60 Hz
+    int64_t nowUs = systemTime(SYSTEM_TIME_MONOTONIC) / 1000LL;
+    if (sNextDeadlineUs == 0) {
+        sNextDeadlineUs = nowUs + kFrameUs;
+        return;
+    }
+    if (nowUs < sNextDeadlineUs) {
+        usleep((useconds_t)(sNextDeadlineUs - nowUs));
+        nowUs = systemTime(SYSTEM_TIME_MONOTONIC) / 1000LL;
+    }
+    // If we were already past the deadline (slow frame), reset to "now" so
+    // we don't try to catch up by submitting back-to-back -- just keep
+    // pacing at 60 fps from the current moment.
+    if (nowUs > sNextDeadlineUs + kFrameUs) {
+        sNextDeadlineUs = nowUs + kFrameUs;
+    } else {
+        sNextDeadlineUs += kFrameUs;
+    }
+}
 
 // GammaOS: Drastic QR fast-path flag. When persist.gammaos.nano.drastic_smoke=1,
 // NanoMenu skips its normal init (particle/fx/XMB shader compiles, ROM
@@ -2069,6 +2120,29 @@ static PFNGLEGLIMAGETARGETTEXTURE2DOESPROC sGlEGLImageTargetTexture2DOES = nullp
 typedef EGLClientBuffer (EGLAPIENTRYP PFNEGLGETNATIVECLIENTBUFFERANDROIDPROC) (const struct AHardwareBuffer *buffer);
 static PFNEGLGETNATIVECLIENTBUFFERANDROIDPROC sEglGetNativeClientBufferANDROID = nullptr;
 
+// EGL_ANDROID_native_fence_sync extension for per-slot GPU→CPU sync. Used
+// by the triple-buffer ring: instead of a global glFinish() inside
+// drmFlipRingSlot (which drains the ENTIRE shared Mali kbase queue),
+// we insert a native fence after each slot's render and pass that fence
+// fd to AHardwareBuffer_lock at present time. The lock waits on ONLY
+// that slot's dma-fence -- no cross-slot coupling -- so Mali kbase
+// housekeeping stalls that affect IN-FLIGHT slots (N-1, N) cannot
+// delay the wait for an already-complete older slot (N-2).
+#ifndef EGL_SYNC_NATIVE_FENCE_ANDROID
+#define EGL_SYNC_NATIVE_FENCE_ANDROID 0x3144
+#endif
+#ifndef EGL_NO_NATIVE_FENCE_FD_ANDROID
+#define EGL_NO_NATIVE_FENCE_FD_ANDROID -1
+#endif
+typedef EGLSyncKHR (EGLAPIENTRYP PFNEGLCREATESYNCKHRPROC_LOCAL)(EGLDisplay, EGLenum, const EGLint*);
+typedef EGLBoolean (EGLAPIENTRYP PFNEGLDESTROYSYNCKHRPROC_LOCAL)(EGLDisplay, EGLSyncKHR);
+typedef EGLint (EGLAPIENTRYP PFNEGLDUPNATIVEFENCEFDANDROIDPROC_LOCAL)(EGLDisplay, EGLSyncKHR);
+static PFNEGLCREATESYNCKHRPROC_LOCAL sEglCreateSyncKHR = nullptr;
+static PFNEGLDESTROYSYNCKHRPROC_LOCAL sEglDestroySyncKHR = nullptr;
+static PFNEGLDUPNATIVEFENCEFDANDROIDPROC_LOCAL sEglDupNativeFenceFDANDROID = nullptr;
+// Stashed EGLDisplay for the ring's fence lifecycle. Set in drmSetupZeroCopy.
+static EGLDisplay sRingEglDpy = EGL_NO_DISPLAY;
+
 // AHardwareBuffer-backed GPU render targets for zero-copy DRM output.
 // sAhbTarget is the PRIMARY render target (wallpaper + XMB/menu), blitted to
 // the display selected by persist.gammaos.nano.primary_display.
@@ -2082,8 +2156,47 @@ struct AhbRenderTarget {
     GLuint glFbo;
     uint32_t w, h;
 };
-static AhbRenderTarget sAhbTarget = {};
-static AhbRenderTarget sAhbTargetSecondary = {};
+// Triple-buffered AHB ring for drastic QR preview. The 5-7 s Mali kbase
+// housekeeping cadence stalls glFinish() in drmFlipAll() for 7-17 ms,
+// manifesting as visible frame drops on the same cadence. Presenting a
+// slot whose GPU work was submitted ~2 frames ago moves glFinish off the
+// critical path: by the time we want to present, the work is already
+// complete, so glFinish returns in microseconds. See
+// docs/triple-buffer-plan.md for the full rationale and implementation
+// staging. Slot 0 is also used by the XMB single-buffered path (unchanged),
+// so sAhbTarget/sAhbTargetSecondary below are just compat references to
+// ring slot 0 -- every caller that names them keeps working unchanged.
+static constexpr int AHB_RING_DEPTH = 3;
+static AhbRenderTarget sAhbRingPrimary[AHB_RING_DEPTH] = {};
+static AhbRenderTarget sAhbRingSecondary[AHB_RING_DEPTH] = {};
+// Per-slot EGL native fences. Inserted into the GL stream AFTER all draws
+// for a slot complete (glFlush is implied by eglCreateSyncKHR). Consumed
+// at present time: we dup the fence fd and pass it to AHardwareBuffer_lock
+// which waits on just that slot's dma-fence -- per-slot scoped wait, not
+// the global glFinish drain the ring first used (which was an own-goal on
+// this stack because glFinish blocks on ALL in-flight GPU work).
+static EGLSyncKHR sAhbRingSyncPrimary[AHB_RING_DEPTH] = {
+    EGL_NO_SYNC_KHR, EGL_NO_SYNC_KHR, EGL_NO_SYNC_KHR
+};
+// Render-thread-only ring state (no cross-thread sharing).
+// renderIdx = slot we will render into on the next iteration.
+// presentIdx = slot we will present on the next iteration (valid after priming).
+// primedCount = bootstrap counter; presents begin once it reaches AHB_RING_DEPTH-1.
+static int sRingRenderIdx = 0;
+static int sRingPresentIdx = 0;
+static int sRingPrimedCount = 0;
+
+// Compat macros: existing code refers to sAhbTarget / sAhbTargetSecondary
+// and used to be the SINGLE target before the ring landed. These now resolve
+// to the currently-active ring slot (sRingRenderIdx) so every reader
+// automatically follows the ring cursor without touching the ~40 call sites.
+// When ring mode is disabled sRingRenderIdx stays 0, giving identical
+// behavior to the pre-ring single-buffer world. Macros (not references)
+// because references are bound once at init and can't follow a changing
+// index.
+#define sAhbTarget           (sAhbRingPrimary[sRingRenderIdx])
+#define sAhbTargetSecondary  (sAhbRingSecondary[sRingRenderIdx])
+
 // Index into sDrmDisplays that receives the primary AHB. Selected from
 // persist.gammaos.nano.primary_display (defaults to 0 = first enumerated CRTC).
 static int sDrmPrimaryIdx = 0;
@@ -2394,11 +2507,25 @@ static void drmSetupZeroCopy(EGLDisplay eglDpy) {
             eglGetProcAddress("glEGLImageTargetTexture2DOES");
     sEglGetNativeClientBufferANDROID = (PFNEGLGETNATIVECLIENTBUFFERANDROIDPROC)
             eglGetProcAddress("eglGetNativeClientBufferANDROID");
+    // EGL_ANDROID_native_fence_sync: used by the triple-buffer ring to
+    // pass a per-slot dma-fence fd to AHardwareBuffer_lock so the wait
+    // is scoped to ONE slot's GPU work, not the whole kbase queue.
+    sEglCreateSyncKHR = (PFNEGLCREATESYNCKHRPROC_LOCAL)
+            eglGetProcAddress("eglCreateSyncKHR");
+    sEglDestroySyncKHR = (PFNEGLDESTROYSYNCKHRPROC_LOCAL)
+            eglGetProcAddress("eglDestroySyncKHR");
+    sEglDupNativeFenceFDANDROID = (PFNEGLDUPNATIVEFENCEFDANDROIDPROC_LOCAL)
+            eglGetProcAddress("eglDupNativeFenceFDANDROID");
+    sRingEglDpy = eglDpy;
 
     if (!sEglCreateImageKHR || !sGlEGLImageTargetTexture2DOES || !sEglGetNativeClientBufferANDROID) {
         ALOGW("NanoMenu DRM zero-copy: EGL/GL ext functions not available");
         return;
     }
+    const bool haveFenceSync = sEglCreateSyncKHR && sEglDestroySyncKHR &&
+                               sEglDupNativeFenceFDANDROID;
+    ALOGW("NanoMenu DRM zero-copy: EGL native fence sync %s",
+          haveFenceSync ? "ENABLED" : "NOT AVAILABLE (ring will fall back to glFinish)");
 
     const char* exts = eglQueryString(eglDpy, EGL_EXTENSIONS);
     if (!exts || !strstr(exts, "EGL_ANDROID_image_native_buffer") ||
@@ -2414,8 +2541,37 @@ static void drmSetupZeroCopy(EGLDisplay eglDpy) {
     const uint32_t primaryW = sDrmDisplays[sDrmPrimaryIdx].w;
     const uint32_t primaryH = sDrmDisplays[sDrmPrimaryIdx].h;
 
-    if (!drmAllocAhbTarget(eglDpy, primaryW, primaryH, &sAhbTarget, "primary")) {
-        return;
+    // Allocate all AHB_RING_DEPTH primary slots. Slot 0 is the "classic"
+    // single-buffered target used by XMB and the default QR path;
+    // slots 1..2 only get used when the QR loop opts into the triple-
+    // buffer ring path (Step 4). We pay the +30 MB up-front so the ring
+    // can be enabled/disabled at runtime via a prop without reallocating.
+    for (int i = 0; i < AHB_RING_DEPTH; i++) {
+        char label[32];
+        snprintf(label, sizeof(label), "primary[%d]", i);
+        if (!drmAllocAhbTarget(eglDpy, primaryW, primaryH,
+                               &sAhbRingPrimary[i], label)) {
+            // Release any previously-allocated slots and bail. We stay
+            // in the pre-AHB path (readback via glReadPixels) because
+            // the ring has to be "all or nothing" -- a partially-allocated
+            // ring would corrupt any attempt to advance renderIdx.
+            for (int j = 0; j < i; j++) {
+                if (sAhbRingPrimary[j].glFbo) {
+                    glDeleteFramebuffers(1, &sAhbRingPrimary[j].glFbo);
+                }
+                if (sAhbRingPrimary[j].glTexture) {
+                    glDeleteTextures(1, &sAhbRingPrimary[j].glTexture);
+                }
+                if (sAhbRingPrimary[j].eglImage != EGL_NO_IMAGE_KHR) {
+                    sEglDestroyImageKHR(eglDpy, sAhbRingPrimary[j].eglImage);
+                }
+                if (sAhbRingPrimary[j].ahb) {
+                    AHardwareBuffer_release(sAhbRingPrimary[j].ahb);
+                }
+                sAhbRingPrimary[j] = {};
+            }
+            return;
+        }
     }
 
     sDrmZeroCopy = true;
@@ -2433,10 +2589,34 @@ static void drmSetupZeroCopy(EGLDisplay eglDpy) {
             break;
         }
         if (secW > 0 && secH > 0) {
-            if (!drmAllocAhbTarget(eglDpy, secW, secH, &sAhbTargetSecondary,
-                                    "secondary-wallpaper")) {
-                // Secondary failed — secondary display(s) will mirror primary.
-                ALOGW("NanoMenu DRM: secondary AHB alloc failed, fallback to mirror");
+            for (int i = 0; i < AHB_RING_DEPTH; i++) {
+                char label[48];
+                snprintf(label, sizeof(label), "secondary-wallpaper[%d]", i);
+                if (!drmAllocAhbTarget(eglDpy, secW, secH,
+                                       &sAhbRingSecondary[i], label)) {
+                    // Partial secondary allocation. Roll back so either
+                    // all secondary slots exist or none do -- matches the
+                    // primary-ring policy. Secondary displays then mirror
+                    // the primary AHB (same as single-display fallback).
+                    ALOGW("NanoMenu DRM: secondary AHB slot %d alloc failed, "
+                          "rolling back to mirror", i);
+                    for (int j = 0; j < i; j++) {
+                        if (sAhbRingSecondary[j].glFbo) {
+                            glDeleteFramebuffers(1, &sAhbRingSecondary[j].glFbo);
+                        }
+                        if (sAhbRingSecondary[j].glTexture) {
+                            glDeleteTextures(1, &sAhbRingSecondary[j].glTexture);
+                        }
+                        if (sAhbRingSecondary[j].eglImage != EGL_NO_IMAGE_KHR) {
+                            sEglDestroyImageKHR(eglDpy, sAhbRingSecondary[j].eglImage);
+                        }
+                        if (sAhbRingSecondary[j].ahb) {
+                            AHardwareBuffer_release(sAhbRingSecondary[j].ahb);
+                        }
+                        sAhbRingSecondary[j] = {};
+                    }
+                    break;
+                }
             }
         }
     }
@@ -2547,15 +2727,24 @@ static void blitAhbToDrmBuffer(const void* ahbPtr, uint32_t ahbStride,
     }
 }
 
-// Present all DRM displays. Each display reads from its assigned AHB:
-// - sDrmPrimaryIdx → sAhbTarget (wallpaper + menu)
-// - every other display → sAhbTargetSecondary (wallpaper only)
+// Present one ring slot to all DRM displays. Each display reads from its
+// assigned AHB in the given ring slot:
+// - sDrmPrimaryIdx → sAhbRingPrimary[idx] (wallpaper + menu)
+// - every other display → sAhbRingSecondary[idx] (wallpaper only)
 // If the secondary AHB isn't allocated (single-display hardware, or allocation
 // failed), every display falls back to the primary AHB (mirrored).
 // Non-blocking page flip per display: displays are independent — if one fails
 // to flip, the others still present.
-static void drmFlipAll() {
-    if (!sDrmZeroCopy || !sAhbTarget.ahb) return;
+//
+// When called with idx=0, this is exactly the classic single-buffered path
+// (drmFlipAll). The triple-buffer QR path calls it with idx=0,1,2 on a
+// rolling 2-frame-old schedule so glFinish() observes mostly-complete GPU
+// work.
+static void drmFlipRingSlot(int idx) {
+    if (idx < 0 || idx >= AHB_RING_DEPTH) return;
+    AhbRenderTarget& prim = sAhbRingPrimary[idx];
+    AhbRenderTarget& sec  = sAhbRingSecondary[idx];
+    if (!sDrmZeroCopy || !prim.ahb) return;
 
     static int sFlipCount = 0;
     // Log timing for the first 5 flips (boot window) then once per
@@ -2569,45 +2758,80 @@ static void drmFlipAll() {
 
     // Unbind FBO so subsequent GL calls don't mess with AHB
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glFinish(); // ensure GPU done writing to both AHBs before CPU locks them
+
+    // Per-slot fence path: if a native fence was inserted after this slot's
+    // render, dup its fd and pass to AHardwareBuffer_lock so only this
+    // slot's dma-fence is waited on. Otherwise (legacy single-buffered
+    // path, or fence-sync extension missing) fall back to glFinish() --
+    // which is a global drain but preserves correctness.
+    int primaryFenceFd = -1;
+    bool fenceUsed = false;
+    if (sAhbRingSyncPrimary[idx] != EGL_NO_SYNC_KHR &&
+        sEglDupNativeFenceFDANDROID && sEglDestroySyncKHR &&
+        sRingEglDpy != EGL_NO_DISPLAY) {
+        primaryFenceFd = sEglDupNativeFenceFDANDROID(
+                sRingEglDpy, sAhbRingSyncPrimary[idx]);
+        // Dup returns EGL_NO_NATIVE_FENCE_FD_ANDROID (-1) on failure. In
+        // that case we fall back to glFinish below.
+        if (primaryFenceFd >= 0) {
+            fenceUsed = true;
+        }
+        // The sync is consumed: destroy it here. A fresh one will be made
+        // after the NEXT render into this slot (see QR render loop).
+        sEglDestroySyncKHR(sRingEglDpy, sAhbRingSyncPrimary[idx]);
+        sAhbRingSyncPrimary[idx] = EGL_NO_SYNC_KHR;
+    }
+    if (!fenceUsed) {
+        glFinish(); // ensure GPU done writing to both AHBs before CPU locks them
+    }
 
     int64_t tFinish = verbose ? (systemTime(SYSTEM_TIME_MONOTONIC) / 1000LL) : 0;
 
-    const bool haveSecondary = (sAhbTargetSecondary.ahb != nullptr);
+    const bool haveSecondary = (sec.ahb != nullptr);
     const int blitRotation = sDrmGlRotation ? 0 : sDrmRotationDeg;
 
     // Pre-query strides once per AHB (may be padded beyond width).
     AHardwareBuffer_Desc descPrimary = {};
-    AHardwareBuffer_describe(sAhbTarget.ahb, &descPrimary);
+    AHardwareBuffer_describe(prim.ahb, &descPrimary);
     const uint32_t primaryStride = descPrimary.stride * 4;
 
     AHardwareBuffer_Desc descSecondary = {};
     uint32_t secondaryStride = 0;
     if (haveSecondary) {
-        AHardwareBuffer_describe(sAhbTargetSecondary.ahb, &descSecondary);
+        AHardwareBuffer_describe(sec.ahb, &descSecondary);
         secondaryStride = descSecondary.stride * 4;
     }
 
-    // Lock primary AHB once for the whole flip pass.
+    // Lock primary AHB once for the whole flip pass. Pass the slot's fence
+    // fd (or -1 when fenceUsed=false, meaning glFinish already drained).
+    // AHB_lock consumes the fd on success; on failure we must close it.
     void* primaryPtr = nullptr;
-    int lockErr = AHardwareBuffer_lock(sAhbTarget.ahb,
+    int lockErr = AHardwareBuffer_lock(prim.ahb,
                                         AHARDWAREBUFFER_USAGE_CPU_READ_OFTEN,
-                                        -1, nullptr, &primaryPtr);
+                                        fenceUsed ? primaryFenceFd : -1,
+                                        nullptr, &primaryPtr);
     if (lockErr != 0 || !primaryPtr) {
-        if (verbose) ALOGW("NanoMenu DRM: primary AHB lock failed %d", lockErr);
+        if (fenceUsed && primaryFenceFd >= 0) {
+            close(primaryFenceFd); // ownership not transferred on failure
+        }
+        if (verbose) ALOGW("NanoMenu DRM: primary AHB lock failed %d (slot=%d)",
+                           lockErr, idx);
         return;
     }
 
-    // Lock secondary AHB (if present). If this fails, fall through and feed
-    // every display from the primary AHB — the secondary display is still
-    // visible, just mirrored.
+    // Lock secondary AHB (if present). Same slot's fence covers both
+    // primary and secondary renders (they're done in sequence, fence
+    // inserted after both). Since the fence fd was consumed by the
+    // primary lock, pass -1 here -- the primary's wait has already
+    // guaranteed both surfaces' GPU work is complete.
     void* secondaryPtr = nullptr;
     if (haveSecondary) {
-        int serr = AHardwareBuffer_lock(sAhbTargetSecondary.ahb,
+        int serr = AHardwareBuffer_lock(sec.ahb,
                                          AHARDWAREBUFFER_USAGE_CPU_READ_OFTEN,
                                          -1, nullptr, &secondaryPtr);
         if (serr != 0 || !secondaryPtr) {
-            if (verbose) ALOGW("NanoMenu DRM: secondary AHB lock failed %d", serr);
+            if (verbose) ALOGW("NanoMenu DRM: secondary AHB lock failed %d (slot=%d)",
+                               serr, idx);
             secondaryPtr = nullptr;
         }
     }
@@ -2630,13 +2854,13 @@ static void drmFlipAll() {
         if (isPrimary || !secondaryPtr) {
             srcPtr = primaryPtr;
             srcStride = primaryStride;
-            srcW = sAhbTarget.w;
-            srcH = sAhbTarget.h;
+            srcW = prim.w;
+            srcH = prim.h;
         } else {
             srcPtr = secondaryPtr;
             srcStride = secondaryStride;
-            srcW = sAhbTargetSecondary.w;
-            srcH = sAhbTargetSecondary.h;
+            srcW = sec.w;
+            srcH = sec.h;
         }
 
         int idx = 1 - d.activeBuffer;
@@ -2661,16 +2885,59 @@ static void drmFlipAll() {
         //   Other errors: fall back to drmModeSetCrtc, which handles
         //     the one-time "CRTC not enabled yet" case at the
         //     startup splash where the CRTC needs to be primed.
+        // Page flip submission. Two pacing modes:
+        //
+        // - Working vblank (default, RG DS / RK3568): flags=0. The render
+        //   loop sync's via DRM_IOCTL_WAIT_VBLANK. No page-flip events
+        //   requested -> nothing to drain, and on dual-display setups we
+        //   avoid waiting for cross-CRTC event timing skew (which on RG DS
+        //   was adding ~8ms to the drain on top of WAIT_VBLANK -> dropping
+        //   us into 30-fps pacing). This preserves the 60-fps behavior
+        //   that landed in commit 10885f101d7.
+        //
+        // - Broken vblank (RK3576 / RGVITA, DSI command-mode): flags=
+        //   DRM_MODE_PAGE_FLIP_EVENT. The render loop sync's via
+        //   drmDrainPageFlipEvents which reads the events the kernel posts
+        //   when the flip latches. WAIT_VBLANK on these panels never fires
+        //   so it's skipped after detection (sDrmVblankBroken=true).
+        //
+        // sDrmVblankBroken flips true the first time WAIT_VBLANK exceeds
+        // 100ms, after which all flips request the EVENT flag.
         struct drm_mode_crtc_page_flip flip = {};
         flip.crtc_id = d.crtcId;
         flip.fb_id = buf.fbId;
-        flip.flags = 0;
+        // Only request EVENT when we're going to drain it (vsync gate ON
+        // and broken-vblank path active). When vsync is disabled at runtime
+        // we'd never call the drainer, and unread events would pile up in
+        // the DRM fd's queue until the kernel drops them.
+        const bool wantEvent = sDrmVblankBroken && (sVsyncEnabled != 0);
+        flip.flags = wantEvent ? DRM_MODE_PAGE_FLIP_EVENT : 0;
         int flipRc = ioctl(sDrmFd, DRM_IOCTL_MODE_PAGE_FLIP, &flip);
+        if (flipRc == 0 && wantEvent) {
+            sPendingFlipEvents++;
+        }
         if (flipRc != 0) {
             if (errno == EBUSY) {
                 // Drop this flip. Keep the previous buffer as active
                 // so the next iteration's page flip targets the
                 // correct slot for the double-buffer rotation.
+                //
+                // Rate-limited diagnostic: EBUSY means the last flip
+                // for this CRTC has not landed yet. Visible as a
+                // stutter on the affected display. Counts accumulate
+                // per CRTC so cross-display correlation is possible.
+                static int64_t sLastEbusyLogMs = 0;
+                static uint32_t sEbusyCount[8] = {0};
+                if (i < 8) sEbusyCount[i]++;
+                int64_t nowMs = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL;
+                if (nowMs - sLastEbusyLogMs >= 500) {
+                    sLastEbusyLogMs = nowMs;
+                    ALOGW("NanoMenu DRM flip EBUSY: display=%zu primary=%d "
+                          "flipCount=%d ebusy=[%u/%u/%u/%u]",
+                          i, (int)(isPrimary ? 1 : 0), sFlipCount,
+                          sEbusyCount[0], sEbusyCount[1],
+                          sEbusyCount[2], sEbusyCount[3]);
+                }
                 continue;
             }
             struct drm_mode_crtc crtc = {};
@@ -2687,8 +2954,8 @@ static void drmFlipAll() {
 
     int64_t tCopy = verbose ? (systemTime(SYSTEM_TIME_MONOTONIC) / 1000LL) : 0;
 
-    AHardwareBuffer_unlock(sAhbTarget.ahb, nullptr);
-    if (secondaryPtr) AHardwareBuffer_unlock(sAhbTargetSecondary.ahb, nullptr);
+    AHardwareBuffer_unlock(prim.ahb, nullptr);
+    if (secondaryPtr) AHardwareBuffer_unlock(sec.ahb, nullptr);
 
     {
         int64_t tEnd = systemTime(SYSTEM_TIME_MONOTONIC) / 1000LL;
@@ -2701,16 +2968,90 @@ static void drmFlipAll() {
                        (nowMs - sLastSlowLogMs >= 1000);
         if (periodic || logSlow) {
             if (logSlow) sLastSlowLogMs = nowMs;
-            ALOGW("NanoMenu AHB flip #%d: glFinish=%lldus "
+            ALOGW("NanoMenu AHB flip #%d slot=%d sync=%s: wait=%lldus "
                   "lock=%lldus blit+flip=%lldus unlock=%lldus "
                   "total=%lldus displays=%zu primary=%d sec=%d",
-                  sFlipCount, tFinish - t0, tLock - tFinish,
+                  sFlipCount, idx, fenceUsed ? "fence" : "glFinish",
+                  tFinish - t0, tLock - tFinish,
                   tCopy - tLock, tEnd - tCopy, tot,
                   sDrmDisplays.size(), sDrmPrimaryIdx,
                   haveSecondary ? 1 : 0);
         }
     }
     sFlipCount++;
+}
+
+// Legacy single-buffered path. Preserves XMB behavior and default QR flow
+// (triple_buffer=0). Flips slot 0, which is exactly what every non-ring
+// caller was doing before the ring landed.
+static void drmFlipAll() {
+    drmFlipRingSlot(0);
+}
+
+// Drain all pending page-flip completion events from the DRM fd. Called
+// once per render iteration AFTER the page flips have been submitted --
+// blocks until every submitted flip has latched, giving us vsync-accurate
+// pacing on both video-mode and command-mode panels.
+//
+// Replaces DRM_IOCTL_WAIT_VBLANK on panels where the kernel doesn't
+// generate periodic vblank interrupts (RK3576 DSI command-mode). Works
+// uniformly on all DRM drivers because every DRM driver that implements
+// page flipping also implements the flip-complete event.
+//
+// Uses poll() with a 100 ms timeout per event so a dropped/missing event
+// (driver bug) doesn't wedge the render thread forever. If an event is
+// lost we log once and bail; sPendingFlipEvents will drift and the next
+// iteration's EBUSY drops will naturally re-sync.
+static void drmDrainPageFlipEvents() {
+    if (sDrmFd < 0 || sPendingFlipEvents <= 0) return;
+    char buf[4096];
+    static int64_t sLastTimeoutLogMs = 0;
+    while (sPendingFlipEvents > 0) {
+        struct pollfd pfd = {};
+        pfd.fd = sDrmFd;
+        pfd.events = POLLIN;
+        int pr = poll(&pfd, 1, 100);
+        if (pr < 0) {
+            if (errno == EINTR) continue;
+            // fd broken -- abandon the drain so we don't spin
+            sPendingFlipEvents = 0;
+            return;
+        }
+        if (pr == 0) {
+            // Timeout. Rate-limit the log to once per second so a panel
+            // that never posts events doesn't flood logcat.
+            int64_t nowMs = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL;
+            if (nowMs - sLastTimeoutLogMs >= 1000) {
+                sLastTimeoutLogMs = nowMs;
+                ALOGW("NanoMenu: page-flip event drain timeout, "
+                      "pending=%d -- resyncing",
+                      sPendingFlipEvents);
+            }
+            // Reset so we don't accumulate stale debt.
+            sPendingFlipEvents = 0;
+            return;
+        }
+        ssize_t n = read(sDrmFd, buf, sizeof(buf));
+        if (n <= 0) {
+            if (n < 0 && errno == EINTR) continue;
+            sPendingFlipEvents = 0;
+            return;
+        }
+        // Walk the event records. Each one starts with a drm_event header
+        // (type + length). Events of type DRM_EVENT_FLIP_COMPLETE match
+        // the flips we just issued; other event types (rare) are ignored.
+        char* p = buf;
+        char* end = buf + n;
+        while (p + sizeof(struct drm_event) <= end) {
+            struct drm_event* ev = (struct drm_event*)p;
+            if (ev->length == 0 || p + ev->length > end) break;
+            if (ev->type == DRM_EVENT_FLIP_COMPLETE &&
+                sPendingFlipEvents > 0) {
+                sPendingFlipEvents--;
+            }
+            p += ev->length;
+        }
+    }
 }
 
 // Helper: bind AHB FBO before rendering a frame (no-op if DRM inactive).
@@ -2857,26 +3198,46 @@ static void drmStop() {
     // Rebind default framebuffer before destroying FBOs
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    // Release primary AHB render target
-    if (sAhbTarget.glFbo) { glDeleteFramebuffers(1, &sAhbTarget.glFbo); sAhbTarget.glFbo = 0; }
-    if (sAhbTarget.glTexture) { glDeleteTextures(1, &sAhbTarget.glTexture); sAhbTarget.glTexture = 0; }
-    if (sAhbTarget.ahb) { AHardwareBuffer_release(sAhbTarget.ahb); sAhbTarget.ahb = nullptr; }
-    sAhbTarget.eglImage = EGL_NO_IMAGE_KHR;
-
-    // Release secondary (wallpaper-only) AHB render target
-    if (sAhbTargetSecondary.glFbo) {
-        glDeleteFramebuffers(1, &sAhbTargetSecondary.glFbo);
-        sAhbTargetSecondary.glFbo = 0;
+    // Release all ring slots. sAhbTarget / sAhbTargetSecondary are refs to
+    // slot 0 so they tear down with the ring. The EGLDisplay is retrieved
+    // once and reused for every slot's eglDestroyImageKHR.
+    EGLDisplay eglDpy = eglGetCurrentDisplay();
+    auto releaseSlot = [&](AhbRenderTarget& t) {
+        if (t.glFbo) { glDeleteFramebuffers(1, &t.glFbo); t.glFbo = 0; }
+        if (t.glTexture) { glDeleteTextures(1, &t.glTexture); t.glTexture = 0; }
+        if (t.eglImage != EGL_NO_IMAGE_KHR && eglDpy != EGL_NO_DISPLAY &&
+            sEglDestroyImageKHR) {
+            sEglDestroyImageKHR(eglDpy, t.eglImage);
+        }
+        t.eglImage = EGL_NO_IMAGE_KHR;
+        if (t.ahb) { AHardwareBuffer_release(t.ahb); t.ahb = nullptr; }
+        t.w = 0; t.h = 0;
+    };
+    for (int i = 0; i < AHB_RING_DEPTH; i++) {
+        releaseSlot(sAhbRingPrimary[i]);
+        releaseSlot(sAhbRingSecondary[i]);
+        // Release any lingering EGL fence for this slot. These normally
+        // get destroyed when drmFlipRingSlot consumes them, but a
+        // pending fence can outlive the loop if QR was interrupted
+        // mid-render.
+        if (sAhbRingSyncPrimary[i] != EGL_NO_SYNC_KHR &&
+            sEglDestroySyncKHR && sRingEglDpy != EGL_NO_DISPLAY) {
+            sEglDestroySyncKHR(sRingEglDpy, sAhbRingSyncPrimary[i]);
+        }
+        sAhbRingSyncPrimary[i] = EGL_NO_SYNC_KHR;
     }
-    if (sAhbTargetSecondary.glTexture) {
-        glDeleteTextures(1, &sAhbTargetSecondary.glTexture);
-        sAhbTargetSecondary.glTexture = 0;
-    }
-    if (sAhbTargetSecondary.ahb) {
-        AHardwareBuffer_release(sAhbTargetSecondary.ahb);
-        sAhbTargetSecondary.ahb = nullptr;
-    }
-    sAhbTargetSecondary.eglImage = EGL_NO_IMAGE_KHR;
+    // Reset ring cursors so a subsequent drmSetupZeroCopy starts fresh.
+    sRingRenderIdx = 0;
+    sRingPresentIdx = 0;
+    sRingPrimedCount = 0;
+    sRingEglDpy = EGL_NO_DISPLAY;
+    // Drain any outstanding page flip events before handing the DRM fd
+    // back (or closing it). Otherwise the kernel holds buffers hostage
+    // and the next CRTC user (SurfaceFlinger on restart, for instance)
+    // gets stuck because its first commit is blocked on our unconsumed
+    // flip. 50 ms is plenty -- events arrive at panel refresh rate.
+    drmDrainPageFlipEvents();
+    sPendingFlipEvents = 0;
 
     for (auto& d : sDrmDisplays) {
         for (int i = 0; i < 2; i++) {
@@ -4221,8 +4582,10 @@ void NanoMenu::render() {
         if (drasticActive) {
             // Secondary display -> BOTTOM DS screen fullscreen.
             drastic->renderBottomScreen(sDrasticSaturation, sDrasticGradient);
-            drawDrasticQrOverlay(sAhbTargetSecondary.w,
-                                 sAhbTargetSecondary.h,
+            // drawText inside the overlay lambda uses mWidth/mHeight for
+            // pixel->NDC; panel-native AHB dims would mis-project the text
+            // on rotated single-display devices (RK3576 1080x1920).
+            drawDrasticQrOverlay(mWidth, mHeight,
                                  sDrasticSaturation, sDrasticGradient);
         } else {
             glEnable(GL_BLEND);
@@ -4259,9 +4622,11 @@ void NanoMenu::render() {
     // drastic quick-resume is active. Skip the wallpaper + XMB.
     if (drasticActive) {
         drastic->renderTopScreen(sDrasticSaturation, sDrasticGradient);
-        int vpW = sDrmGlRotation ? sAhbTarget.w : mWidth;
-        int vpH = sDrmGlRotation ? sAhbTarget.h : mHeight;
-        drawDrasticQrOverlay(vpW, vpH, sDrasticSaturation, sDrasticGradient);
+        // drawText in the overlay uses mWidth/mHeight internally; the
+        // shader's uRotation uniform handles the panel rotation. Passing
+        // AHB dims here drops the text off-NDC on rotated panels.
+        drawDrasticQrOverlay(mWidth, mHeight,
+                             sDrasticSaturation, sDrasticGradient);
     } else {
 
     // Background effect on primary AHB.
@@ -4445,7 +4810,36 @@ void NanoMenu::render() {
                     && textW > contentW));
         if (needsClip) {
             glEnable(GL_SCISSOR_TEST);
-            glScissor((int)contentLeft, 0, (int)contentW, mHeight);
+            // Scissor is applied in FBO pixel coords AFTER the vertex
+            // shader's rotation, so the logical-landscape rect we want
+            // (a horizontal band across the menu column) needs to be
+            // remapped to the panel-native FBO before glScissor. Without
+            // this, on a 90/270-rotated panel the scissor still clips a
+            // landscape band of the FBO, which only covers a fraction of
+            // the rotated content -- text outside that fraction gets
+            // truncated. RK3576 (1080x1920 portrait, 270° install) is
+            // the device that surfaced this.
+            int sx, sy, sw, sh;
+            int lx = (int)contentLeft, ly = 0, lw = (int)contentW,
+                lh = (int)mHeight;
+            switch (sDrmGlRotation ? sDrmRotationDeg : 0) {
+            case 90:
+                sx = ly; sy = mWidth - lx - lw;
+                sw = lh; sh = lw;
+                break;
+            case 180:
+                sx = mWidth - lx - lw; sy = mHeight - ly - lh;
+                sw = lw; sh = lh;
+                break;
+            case 270:
+                sx = mHeight - ly - lh; sy = lx;
+                sw = lh; sh = lw;
+                break;
+            default:
+                sx = lx; sy = ly; sw = lw; sh = lh;
+                break;
+            }
+            glScissor(sx, sy, sw, sh);
         }
         drawText(mDisplayItems[i].c_str(), drawX, itemY, menuScale,
                  r, g, b, 1.0f);
@@ -4498,7 +4892,70 @@ void NanoMenu::render() {
     // Either way, skip eglSwapBuffers (it blocks when HWC doesn't consume buffers).
     if (sDrmActive) {
         if (sDrmZeroCopy) {
-            drmFlipAll(); // includes glFinish + CPU blit + page flip
+            // XMB ring path: same triple-buffer mechanism used by drastic QR.
+            // Decouples glFinish (GPU wait, ~11 ms on RK3576 1080x1920) from
+            // the CPU-side blit+flip (~10 ms) by presenting a slot whose GPU
+            // work is ~2 iterations old -- its fence is already signaled so
+            // the per-slot AHB_lock returns fast, and we don't block the
+            // render thread on the current slot's in-flight GPU work. Gated
+            // on persist.gammaos.nano.triple_buffer (same prop as QR). Resolved
+            // once per process since the prop + slot availability don't change
+            // at runtime.
+            static int sXmbRingEnabled = -1;
+            if (sXmbRingEnabled < 0) {
+                char prop[PROPERTY_VALUE_MAX] = {};
+                property_get("persist.gammaos.nano.triple_buffer", prop, "1");
+                const bool flagOn = (prop[0] == '1');
+                bool slotsOk = (sEglCreateSyncKHR != nullptr) &&
+                               (sRingEglDpy != EGL_NO_DISPLAY);
+                for (int i = 0; i < AHB_RING_DEPTH && slotsOk; i++) {
+                    if (sAhbRingPrimary[i].glFbo == 0) slotsOk = false;
+                }
+                sXmbRingEnabled = (flagOn && slotsOk) ? 1 : 0;
+                if (sXmbRingEnabled) {
+                    sRingRenderIdx = 0;
+                    sRingPresentIdx = 0;
+                    sRingPrimedCount = 0;
+                }
+                ALOGW("NanoMenu XMB ring %s (flag=%d slotsOk=%d)",
+                      sXmbRingEnabled ? "ENABLED" : "disabled",
+                      flagOn ? 1 : 0, slotsOk ? 1 : 0);
+            }
+
+            if (sXmbRingEnabled) {
+                const int renderIdxNow = sRingRenderIdx;
+                // Unbind the AHB FBO and insert a native fence. This implicit
+                // flush kicks the GPU without waiting -- the fence will signal
+                // when all commands issued for this slot complete.
+                glBindFramebuffer(GL_FRAMEBUFFER, 0);
+                if (sAhbRingSyncPrimary[renderIdxNow] != EGL_NO_SYNC_KHR
+                        && sEglDestroySyncKHR) {
+                    sEglDestroySyncKHR(sRingEglDpy,
+                            sAhbRingSyncPrimary[renderIdxNow]);
+                }
+                sAhbRingSyncPrimary[renderIdxNow] = sEglCreateSyncKHR(
+                        sRingEglDpy, EGL_SYNC_NATIVE_FENCE_ANDROID, nullptr);
+                if (sAhbRingSyncPrimary[renderIdxNow] == EGL_NO_SYNC_KHR) {
+                    // Fence creation failed -- explicit flush so downstream
+                    // drmFlipRingSlot's glFinish fallback observes our work.
+                    glFlush();
+                }
+                // Advance render cursor BEFORE present so the macro
+                // sAhbTarget resolves to the next slot on the next render()
+                // call. Present uses presentIdx which lags by 2 (ring depth
+                // minus 1), reading an older slot whose fence is signaled.
+                sRingRenderIdx = (renderIdxNow + 1) % AHB_RING_DEPTH;
+                if (sRingPrimedCount >= AHB_RING_DEPTH - 1) {
+                    const int presentIdxNow = sRingPresentIdx;
+                    drmFlipRingSlot(presentIdxNow);
+                    sRingPresentIdx =
+                            (presentIdxNow + 1) % AHB_RING_DEPTH;
+                } else {
+                    sRingPrimedCount++;
+                }
+            } else {
+                drmFlipAll(); // includes glFinish + CPU blit + page flip
+            }
         } else {
             drmPushFrame(mWidth, mHeight);
         }
@@ -4518,14 +4975,55 @@ void NanoMenu::render() {
         // completed one vblank, matching the QR loop's pacing at
         // line ~6822 of this file and giving us a stable 60 fps lock
         // as long as the per-frame work fits inside 16.67 ms.
-        if (sDrmFd >= 0 && !sDrmDisplays.empty()) {
-            union drm_wait_vblank vbl = {};
-            vbl.request.type = (enum drm_vblank_seq_type)(
-                    _DRM_VBLANK_RELATIVE
-                    | ((sDrmPrimaryIdx & 0x1f)
-                       << _DRM_VBLANK_HIGH_CRTC_SHIFT));
-            vbl.request.sequence = 1;
-            ioctl(sDrmFd, DRM_IOCTL_WAIT_VBLANK, &vbl);
+        // Render-loop sync. Two paths:
+        //
+        // - Working vblank (default): DRM_IOCTL_WAIT_VBLANK with relative
+        //   sequence=1 blocks until the next panel vblank. Cheap (one
+        //   ioctl) and ignores cross-CRTC timing on dual-display setups.
+        //
+        // - Broken vblank (RK3576 DSI command-mode): the kernel's vblank
+        //   queue never wakes -> WAIT_VBLANK hits the 3s timeout. The
+        //   first slow wait flips sDrmVblankBroken; subsequent iterations
+        //   skip the ioctl and pace via drmDrainPageFlipEvents() instead
+        //   (which reads the per-flip events those panels DO generate).
+        //
+        // The whole gate can be disabled at runtime with
+        // persist.gammaos.nano.vsync=0 (default 1) -- diagnostic, lets us
+        // measure vsync overhead vs other sources of jitter. Read once.
+        if (sVsyncEnabled < 0) {
+            char vp[PROPERTY_VALUE_MAX] = {};
+            property_get("persist.gammaos.nano.vsync", vp, "1");
+            sVsyncEnabled = (vp[0] == '0') ? 0 : 1;
+            ALOGW("NanoMenu vsync gate %s",
+                  sVsyncEnabled ? "ENABLED" : "DISABLED (no WAIT_VBLANK / no event drain)");
+        }
+        if (sVsyncEnabled) {
+            if (sDrmFd >= 0 && !sDrmDisplays.empty() && !sDrmVblankBroken) {
+                int64_t vblT0 = systemTime(SYSTEM_TIME_MONOTONIC) / 1000LL;
+                union drm_wait_vblank vbl = {};
+                vbl.request.type = (enum drm_vblank_seq_type)(
+                        _DRM_VBLANK_RELATIVE
+                        | ((sDrmPrimaryIdx & 0x1f)
+                           << _DRM_VBLANK_HIGH_CRTC_SHIFT));
+                vbl.request.sequence = 1;
+                ioctl(sDrmFd, DRM_IOCTL_WAIT_VBLANK, &vbl);
+                int64_t vblElapsed =
+                        systemTime(SYSTEM_TIME_MONOTONIC) / 1000LL - vblT0;
+                if (vblElapsed > 100000) {
+                    sDrmVblankBroken = true;
+                    ALOGW("NanoMenu: DRM_IOCTL_WAIT_VBLANK took %lld us -- "
+                          "switching to page-flip-event pacing",
+                          (long long)vblElapsed);
+                }
+            }
+            // Drain pending events. No-op when sDrmVblankBroken is false
+            // (no events were requested). Becomes the actual sync gate
+            // when vblank is broken.
+            drmDrainPageFlipEvents();
+        } else {
+            // Vsync disabled: still cap the render rate at 60 fps so we
+            // can compare CPU/pacing fairly. Tearing is expected.
+            drmPaceWithoutVsync();
         }
 
         // GammaOS: drmStop() is no longer called from here.
@@ -6326,7 +6824,34 @@ void NanoMenu::renderXmb() {
         const float listScissorX = itemIconBaseX - selIconSz / 2.0f;
         const float listScissorW = contentRight - listScissorX;
         glEnable(GL_SCISSOR_TEST);
-        glScissor((int)listScissorX, 0, (int)listScissorW, mHeight);
+        // Remap logical-landscape scissor box to FBO pixels for the
+        // current rotation. Without this, on a 90/270-rotated panel
+        // the scissor only covers a fraction of the rotated content
+        // and game name text gets truncated. See identical block at
+        // ~line 4763 for full rationale.
+        {
+            int sx, sy, sw, sh;
+            int lx = (int)listScissorX, ly = 0,
+                lw = (int)listScissorW, lh = (int)mHeight;
+            switch (sDrmGlRotation ? sDrmRotationDeg : 0) {
+            case 90:
+                sx = ly; sy = mWidth - lx - lw;
+                sw = lh; sh = lw;
+                break;
+            case 180:
+                sx = mWidth - lx - lw; sy = mHeight - ly - lh;
+                sw = lw; sh = lh;
+                break;
+            case 270:
+                sx = mHeight - ly - lh; sy = lx;
+                sw = lh; sh = lw;
+                break;
+            default:
+                sx = lx; sy = ly; sw = lw; sh = lh;
+                break;
+            }
+            glScissor(sx, sy, sw, sh);
+        }
 
         for (int i = startItem; i <= endItem; i++) {
             float relPos = (float)i - animCur;
@@ -6762,6 +7287,41 @@ bool NanoMenu::threadLoop() {
             // face-button events are lost.
             int hotplugCounter = 0;
 
+            // GammaOS: Triple-buffer AHB ring opt-in for this QR session.
+            // Read persist.gammaos.nano.triple_buffer ONCE at loop entry so
+            // toggling it mid-run doesn't desync ring cursors. When on, the
+            // QR render body writes into sAhbRingPrimary[renderIdx] and the
+            // glFinish() in drmFlipRingSlot presents slot (renderIdx-2) --
+            // see docs/triple-buffer-plan.md for rationale. Falls back to
+            // single-buffered slot 0 if any required slot wasn't allocated
+            // (OOM path), so the prop is safe to leave on by default.
+            bool qrUseTripleBuffer = false;
+            {
+                char prop[PROPERTY_VALUE_MAX] = {};
+                property_get("persist.gammaos.nano.triple_buffer", prop, "0");
+                qrUseTripleBuffer = (prop[0] == '1');
+                if (qrUseTripleBuffer) {
+                    // Every primary slot must exist. When hasDualDisplay,
+                    // every secondary slot must exist too.
+                    for (int i = 0; i < AHB_RING_DEPTH; i++) {
+                        if (sAhbRingPrimary[i].glFbo == 0 ||
+                            (hasDualDisplay && sAhbRingSecondary[i].glFbo == 0)) {
+                            qrUseTripleBuffer = false;
+                            ALOGW("drastic QR: triple_buffer disabled, "
+                                  "slot %d not fully allocated", i);
+                            break;
+                        }
+                    }
+                }
+                if (qrUseTripleBuffer) {
+                    sRingRenderIdx = 0;
+                    sRingPresentIdx = 0;
+                    sRingPrimedCount = 0;
+                }
+                ALOGW("drastic QR: triple_buffer=%d",
+                      qrUseTripleBuffer ? 1 : 0);
+            }
+
             while (!exitPending() && !qrCancelled) {
                 // Check for new input devices every ~0.5s (30 frames
                 // at 60fps). Cheap: inotify_read is non-blocking.
@@ -6896,24 +7456,39 @@ bool NanoMenu::threadLoop() {
                 // marginal render-thread savings.
                 const bool showOverlay = true;
 
+                // GammaOS: Triple-buffer ring slot for this frame's render
+                // pass. When qrUseTripleBuffer is on, rotates through the 3
+                // slots so the present-side glFinish() inside drmFlipRingSlot
+                // observes work submitted ~2 frames earlier -- almost always
+                // complete, so the wait is microseconds instead of 7-17 ms
+                // when Mali kbase housekeeping hits. When off, always slot 0
+                // (exactly the classic single-buffered path).
+                const int renderIdx = qrUseTripleBuffer ? sRingRenderIdx : 0;
+                AhbRenderTarget& primTgt = sAhbRingPrimary[renderIdx];
+                AhbRenderTarget& secTgt  = sAhbRingSecondary[renderIdx];
+
                 if (hasDualDisplay) {
                     // Pass 1: secondary display -> bottom DS screen.
-                    glBindFramebuffer(GL_FRAMEBUFFER,
-                                       sAhbTargetSecondary.glFbo);
-                    glViewport(0, 0, sAhbTargetSecondary.w,
-                                sAhbTargetSecondary.h);
+                    glBindFramebuffer(GL_FRAMEBUFFER, secTgt.glFbo);
+                    glViewport(0, 0, secTgt.w, secTgt.h);
                     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
                     glClear(GL_COLOR_BUFFER_BIT);
                     drastic->renderBottomScreen(saturation, gradient);
                     if (showOverlay) {
-                        drawOverlay(sAhbTargetSecondary.w,
-                                    sAhbTargetSecondary.h);
+                        // drawText hard-codes mWidth/mHeight for pixel->NDC
+                        // (the logical landscape space; rotation handled by
+                        // the text shader's uRotation uniform). Using AHB
+                        // dims here would mis-project text on any device
+                        // where primary AHB size != mWidth/mHeight (e.g.
+                        // portrait panels pushed through a landscape
+                        // logical surface, like RK3576 1080x1920).
+                        drawOverlay(mWidth, mHeight);
                     }
 
                     // Pass 2: primary display -> top DS screen.
-                    drmFrameBegin();
+                    glBindFramebuffer(GL_FRAMEBUFFER, primTgt.glFbo);
                     if (sDrmGlRotation) {
-                        glViewport(0, 0, sAhbTarget.w, sAhbTarget.h);
+                        glViewport(0, 0, primTgt.w, primTgt.h);
                     } else {
                         glViewport(0, 0, mWidth, mHeight);
                     }
@@ -6922,9 +7497,9 @@ bool NanoMenu::threadLoop() {
                     drastic->renderTopScreen(saturation, gradient);
                 } else {
                     // Single display: both screens stacked.
-                    drmFrameBegin();
+                    glBindFramebuffer(GL_FRAMEBUFFER, primTgt.glFbo);
                     if (sDrmGlRotation) {
-                        glViewport(0, 0, sAhbTarget.w, sAhbTarget.h);
+                        glViewport(0, 0, primTgt.w, primTgt.h);
                     } else {
                         glViewport(0, 0, mWidth, mHeight);
                     }
@@ -6933,12 +7508,69 @@ bool NanoMenu::threadLoop() {
                     drastic->renderBothScreens(saturation, gradient);
                 }
                 if (showOverlay) {
-                    int vpW = sDrmGlRotation ? sAhbTarget.w : mWidth;
-                    int vpH = sDrmGlRotation ? sAhbTarget.h : mHeight;
-                    drawOverlay(vpW, vpH);
+                    // drawText always uses mWidth/mHeight internally for
+                    // pixel->NDC. Passing AHB dims here drops the text off
+                    // the visible NDC region on any device where the AHB
+                    // is panel-native (portrait) but the logical surface
+                    // is landscape (RK3576 case: AHB 1080x1920, mWidth/H
+                    // 1920x1080 -> text msgY=0.78*1920=1497 becomes NDC
+                    // y=-1.77, clipped). The rotation matrix already maps
+                    // mWidth/mHeight-space NDC to the panel via the text
+                    // shader's uRotation uniform.
+                    drawOverlay(mWidth, mHeight);
                 }
                 const int64_t phaseT2 = nowUs();
-                drmFrameEnd(mDisplay, mSurface);
+
+                if (qrUseTripleBuffer) {
+                    // Unbind so subsequent state doesn't accidentally land
+                    // on the AHB FBO. eglCreateSyncKHR with NATIVE_FENCE
+                    // flushes implicitly, so we do NOT call glFlush --
+                    // the fence object IS our kick-and-record.
+                    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+                    // Record a per-slot EGL native fence. Signals when
+                    // every GL command issued to this point (including
+                    // this slot's AHB renders) has completed on the GPU.
+                    // At present time -- 2 iters later, when this slot
+                    // rotates back into presentIdx -- drmFlipRingSlot
+                    // will dup this fence's fd and pass it to
+                    // AHardwareBuffer_lock for a per-slot dma-fence wait.
+                    // That sidesteps the global glFinish drain that was
+                    // the original ring's bottleneck.
+                    if (sEglCreateSyncKHR && sRingEglDpy != EGL_NO_DISPLAY) {
+                        // If a previous fence is still hanging around
+                        // (e.g. lock failed earlier and didn't consume
+                        // it), destroy it before overwriting.
+                        if (sAhbRingSyncPrimary[renderIdx] != EGL_NO_SYNC_KHR
+                            && sEglDestroySyncKHR) {
+                            sEglDestroySyncKHR(sRingEglDpy,
+                                    sAhbRingSyncPrimary[renderIdx]);
+                        }
+                        sAhbRingSyncPrimary[renderIdx] = sEglCreateSyncKHR(
+                                sRingEglDpy,
+                                EGL_SYNC_NATIVE_FENCE_ANDROID, nullptr);
+                        if (sAhbRingSyncPrimary[renderIdx] == EGL_NO_SYNC_KHR) {
+                            // Fence creation failed -- glFinish fallback
+                            // in drmFlipRingSlot will kick in.
+                            glFlush();
+                        }
+                    } else {
+                        glFlush();
+                    }
+                    sRingRenderIdx = (renderIdx + 1) % AHB_RING_DEPTH;
+                    // Bootstrap: first AHB_RING_DEPTH-1 iterations just
+                    // render and don't present, so the ring gets primed
+                    // with real content before we start rotating.
+                    if (sRingPrimedCount >= AHB_RING_DEPTH - 1) {
+                        const int presentIdx = sRingPresentIdx;
+                        drmFlipRingSlot(presentIdx);
+                        sRingPresentIdx =
+                                (presentIdx + 1) % AHB_RING_DEPTH;
+                    } else {
+                        sRingPrimedCount++;
+                    }
+                } else {
+                    drmFrameEnd(mDisplay, mSurface);
+                }
                 const int64_t phaseT3 = nowUs();
 
                 // Vsync: block until the primary display's next
@@ -6948,13 +7580,49 @@ bool NanoMenu::threadLoop() {
                 // severe jitter/tearing at ~45fps effective. The
                 // vblank wait gates the loop to exactly 60fps (or
                 // whatever the panel refresh rate is).
-                if (sDrmFd >= 0 && !sDrmDisplays.empty()) {
-                    union drm_wait_vblank vbl = {};
-                    vbl.request.type = (enum drm_vblank_seq_type)(
-                            _DRM_VBLANK_RELATIVE
-                            | ((sDrmPrimaryIdx & 0x1f) << _DRM_VBLANK_HIGH_CRTC_SHIFT));
-                    vbl.request.sequence = 1;
-                    ioctl(sDrmFd, DRM_IOCTL_WAIT_VBLANK, &vbl);
+                // Render-loop sync. Try DRM_IOCTL_WAIT_VBLANK first -- works
+                // on every panel with periodic vblank interrupts (RG DS /
+                // RK3568) and avoids the cross-CRTC event timing skew that
+                // page-flip-event drain hits on dual-display setups. On
+                // panels where the kernel's vblank queue never wakes
+                // (RK3576 DSI command-mode), the first call hits the 3s
+                // timeout, sDrmVblankBroken flips, and from then on
+                // drmDrainPageFlipEvents() is the sync gate.
+                //
+                // The whole gate can be disabled at runtime with
+                // persist.gammaos.nano.vsync=0 -- diagnostic only, lets us
+                // measure vsync overhead vs other sources of jitter.
+                if (sVsyncEnabled < 0) {
+                    char vp[PROPERTY_VALUE_MAX] = {};
+                    property_get("persist.gammaos.nano.vsync", vp, "1");
+                    sVsyncEnabled = (vp[0] == '0') ? 0 : 1;
+                    ALOGW("NanoMenu QR vsync gate %s",
+                          sVsyncEnabled ? "ENABLED" : "DISABLED");
+                }
+                if (sVsyncEnabled) {
+                    if (sDrmFd >= 0 && !sDrmDisplays.empty() && !sDrmVblankBroken) {
+                        int64_t vblT0 = systemTime(SYSTEM_TIME_MONOTONIC) / 1000LL;
+                        union drm_wait_vblank vbl = {};
+                        vbl.request.type = (enum drm_vblank_seq_type)(
+                                _DRM_VBLANK_RELATIVE
+                                | ((sDrmPrimaryIdx & 0x1f)
+                                   << _DRM_VBLANK_HIGH_CRTC_SHIFT));
+                        vbl.request.sequence = 1;
+                        ioctl(sDrmFd, DRM_IOCTL_WAIT_VBLANK, &vbl);
+                        int64_t vblElapsed =
+                                systemTime(SYSTEM_TIME_MONOTONIC) / 1000LL - vblT0;
+                        if (vblElapsed > 100000) {
+                            sDrmVblankBroken = true;
+                            ALOGW("NanoMenu QR: DRM_IOCTL_WAIT_VBLANK took %lld us "
+                                  "-- switching to page-flip-event pacing",
+                                  (long long)vblElapsed);
+                        }
+                    }
+                    drmDrainPageFlipEvents();
+                } else {
+                    // Vsync disabled: cap loop at 60 fps via usleep so we
+                    // compare CPU fairly. Tearing expected.
+                    drmPaceWithoutVsync();
                 }
                 const int64_t phaseT4 = nowUs();
 

@@ -280,11 +280,22 @@ static void runDrasticInitIfNeeded() {
 
     const std::string cacheDir = "/data/system/nano_cache/drastic";
 
-    // Discover the ROM by scanning the cache/rom/ subdir for the
-    // first .nds file. populate_drastic only keeps one ROM at a time
-    // so this gives us the currently-staged ROM without needing to
-    // plumb another property through. Works for both smoke (debug
-    // test rom) and QR (user-selected rom from NanoMenu XMB).
+    // Discover the ROM by scanning the cache/rom/ subdir for the first
+    // drastic-loadable file. populate_drastic only keeps one ROM at a time
+    // so this gives us the currently-staged ROM without needing to plumb
+    // another property through. Works for both smoke (debug test rom) and
+    // QR (user-selected rom from NanoMenu XMB).
+    //
+    // Accepted extensions: drastic natively loads both raw .nds and common
+    // archive containers (.zip, .7z, .rar) by extracting the inner ROM at
+    // load time. The cache preserves the user's original filename/extension,
+    // so archive ROMs (common for distribution) were previously invisible to
+    // this scanner and the QR would silently fall through to XMB.
+    auto hasExt = [](const std::string& name, const char* ext) {
+        size_t elen = strlen(ext);
+        return name.size() >= elen &&
+               strcasecmp(name.c_str() + name.size() - elen, ext) == 0;
+    };
     std::string romPath;
     {
         std::string romDir = cacheDir + "/rom";
@@ -294,8 +305,8 @@ static void runDrasticInitIfNeeded() {
             while ((e = readdir(d)) != nullptr) {
                 std::string name(e->d_name);
                 if (name == "." || name == "..") continue;
-                if (name.size() >= 4 &&
-                    name.compare(name.size() - 4, 4, ".nds") == 0) {
+                if (hasExt(name, ".nds") || hasExt(name, ".zip") ||
+                    hasExt(name, ".7z")  || hasExt(name, ".rar")) {
                     romPath = romDir + "/" + name;
                     break;
                 }
@@ -397,12 +408,25 @@ static void startDrasticQrTestWatcher() {
                             DIR* d = opendir(romDir.c_str());
                             if (d) {
                                 struct dirent* e;
+                                auto endsWith = [](const std::string& s,
+                                                   const char* ext) {
+                                    size_t elen = strlen(ext);
+                                    return s.size() >= elen &&
+                                           strcasecmp(s.c_str() + s.size() - elen,
+                                                      ext) == 0;
+                                };
                                 while ((e = readdir(d)) != nullptr) {
                                     std::string name(e->d_name);
                                     if (name == "." || name == "..") continue;
-                                    if (name.size() >= 4 &&
-                                        name.compare(name.size() - 4,
-                                                     4, ".nds") == 0) {
+                                    // Accept drastic-loadable containers:
+                                    // raw .nds and .zip/.7z/.rar archives
+                                    // drastic unpacks internally. Without
+                                    // this the scanner only saw .nds and
+                                    // archive ROMs silently dropped QR.
+                                    if (endsWith(name, ".nds") ||
+                                        endsWith(name, ".zip") ||
+                                        endsWith(name, ".7z")  ||
+                                        endsWith(name, ".rar")) {
                                         romPath = romDir + "/" + name;
                                         break;
                                     }
