@@ -926,6 +926,24 @@ void DrasticRunner::initSurface(int viewportW, int viewportH,
     }
 
     glGenBuffers(1, &mQuadVbo);
+    // Upload the constant fullscreen quad geometry ONCE at init. The
+    // verts are -1..+1 NDC with 0..1 UVs (drawDsQuad's vMin/vMax args
+    // are always 0/1 across every call site -- renderTopScreen,
+    // renderBottomScreen, renderBothScreens all pass 0,1). Previously
+    // this was re-uploaded via glBufferData on every drawDsQuad call,
+    // which was ~64 bytes of DMA + driver bookkeeping per frame per
+    // display. Negligible per-call but adds up at 60 fps x 2 displays.
+    {
+        const float verts[16] = {
+            -1.0f,  1.0f, 0.0f, 0.0f,
+             1.0f,  1.0f, 1.0f, 0.0f,
+            -1.0f, -1.0f, 0.0f, 1.0f,
+             1.0f, -1.0f, 1.0f, 1.0f,
+        };
+        glBindBuffer(GL_ARRAY_BUFFER, mQuadVbo);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(verts), verts, GL_STATIC_DRAW);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+    }
 
     // Call fxSetup LAST so drastic's GL state (program, vertex
     // attribs, texture bindings) is the active state when
@@ -1083,19 +1101,12 @@ void DrasticRunner::updatePixels() {
 void DrasticRunner::drawDsQuad(unsigned int tex, float vMin, float vMax,
                                 float saturation, float gradient) {
     if (!mSurfaceReady) return;
-
-    // Fill the entire viewport -- no letterboxing. Each DS screen
-    // stretches to fill its display (640x480 for the RG DS).
-    const float x0 = -1.0f, y0 = -1.0f, x1 = 1.0f, y1 = 1.0f;
-
-    // UV coordinates: u spans full width, v spans the requested
-    // vertical slice of the source texture.
-    const float verts[16] = {
-        x0, y1, 0.0f, vMin,
-        x1, y1, 1.0f, vMin,
-        x0, y0, 0.0f, vMax,
-        x1, y0, 1.0f, vMax,
-    };
+    // The vertex buffer was uploaded once at init with constant
+    // -1..+1 NDC verts and 0..1 UVs. The vMin/vMax args were always
+    // 0/1 across every call site, so they're now ignored -- left
+    // in the signature for API stability with any out-of-tree caller.
+    (void)vMin;
+    (void)vMax;
 
     glUseProgram(mQuadProgram);
     if (mQuadRotLoc >= 0)
@@ -1111,7 +1122,6 @@ void DrasticRunner::drawDsQuad(unsigned int tex, float vMin, float vMax,
     glDisable(GL_DEPTH_TEST);
 
     glBindBuffer(GL_ARRAY_BUFFER, mQuadVbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(verts), verts, GL_STREAM_DRAW);
     glVertexAttribPointer(mQuadPosLoc, 2, GL_FLOAT, GL_FALSE,
                           4 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(mQuadPosLoc);

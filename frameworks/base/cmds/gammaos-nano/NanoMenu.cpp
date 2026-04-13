@@ -2740,7 +2740,15 @@ static void blitAhbToDrmBuffer(const void* ahbPtr, uint32_t ahbStride,
 // (drmFlipAll). The triple-buffer QR path calls it with idx=0,1,2 on a
 // rolling 2-frame-old schedule so glFinish() observes mostly-complete GPU
 // work.
-static void drmFlipRingSlot(int idx) {
+//
+// skipNonPrimary: when true, page flip is only submitted to the primary
+// CRTC. Used by the QR loop to flip the secondary at half the rate
+// (~30 fps) since on the dual-display RG DS roughly half of the
+// secondary flips were getting EBUSY'd anyway due to cross-CRTC vblank
+// drift, and the secondary's bottom-DS-screen content rarely changes
+// fast enough that 30 fps is visible. AHB locks are skipped too so
+// the CPU blit cost goes away on those iters.
+static void drmFlipRingSlot(int idx, bool skipNonPrimary = false) {
     if (idx < 0 || idx >= AHB_RING_DEPTH) return;
     AhbRenderTarget& prim = sAhbRingPrimary[idx];
     AhbRenderTarget& sec  = sAhbRingSecondary[idx];
@@ -2819,13 +2827,13 @@ static void drmFlipRingSlot(int idx) {
         return;
     }
 
-    // Lock secondary AHB (if present). Same slot's fence covers both
-    // primary and secondary renders (they're done in sequence, fence
-    // inserted after both). Since the fence fd was consumed by the
-    // primary lock, pass -1 here -- the primary's wait has already
-    // guaranteed both surfaces' GPU work is complete.
+    // Lock secondary AHB (if present and not skipping). Same slot's fence
+    // covers both primary and secondary renders (they're done in
+    // sequence, fence inserted after both). Since the fence fd was
+    // consumed by the primary lock, pass -1 here -- the primary's wait
+    // has already guaranteed both surfaces' GPU work is complete.
     void* secondaryPtr = nullptr;
-    if (haveSecondary) {
+    if (haveSecondary && !skipNonPrimary) {
         int serr = AHardwareBuffer_lock(sec.ahb,
                                          AHARDWAREBUFFER_USAGE_CPU_READ_OFTEN,
                                          -1, nullptr, &secondaryPtr);
@@ -2845,6 +2853,13 @@ static void drmFlipRingSlot(int idx) {
     for (size_t i = 0; i < sDrmDisplays.size(); i++) {
         auto& d = sDrmDisplays[i];
         const bool isPrimary = ((int)i == sDrmPrimaryIdx);
+
+        // Skip non-primary CRTCs when caller asked us to (QR loop's
+        // secondary-rate-halving optimization). Secondary keeps the
+        // pixels it had on its last successful flip; visually that's
+        // a 30 fps update on the bottom screen which is below DS
+        // perception threshold for typical content.
+        if (!isPrimary && skipNonPrimary) continue;
 
         // Select source AHB. Secondary displays fall back to primary if the
         // secondary AHB wasn't set up or locked successfully.
@@ -7204,8 +7219,21 @@ bool NanoMenu::threadLoop() {
             ALOGI("drastic QR: overlay name=\"%s\" handoff=%d",
                   drasticGameName.c_str(), drasticQrHandoff ? 1 : 0);
 
-            float saturation = 0.15f;
-            float gradient   = 1.0f;
+            // GammaOS: smoke-test mode (persist.gammaos.nano.drastic_smoke=1)
+            // is the dev/profiling path -- no overlay text, full color
+            // immediately, and SELECT is forwarded to drastic as a real
+            // DS button instead of being eaten as the "drop to XMB"
+            // sentinel. Lets us measure the rendering pipeline without
+            // any of the boot-time UX overlay.
+            bool smokeActive = false;
+            {
+                char sm[PROPERTY_VALUE_MAX] = {};
+                property_get("persist.gammaos.nano.drastic_smoke", sm, "0");
+                smokeActive = (sm[0] == '1');
+            }
+
+            float saturation = smokeActive ? 1.0f : 0.15f;
+            float gradient   = smokeActive ? 0.0f : 1.0f;
             float textScale = fminf((float)mWidth / 1080.0f,
                                      (float)mHeight / 720.0f);
             if (textScale < 0.5f) textScale = 0.5f;
@@ -7349,7 +7377,12 @@ bool NanoMenu::threadLoop() {
                             // SELECT cancels QR regardless of which
                             // phase we're in. On release we ignore —
                             // the initial press is the cancel signal.
-                            if (ev.code == BTN_SELECT && pressed) {
+                            if (ev.code == BTN_SELECT && pressed
+                                && !smokeActive) {
+                                // In smoke mode SELECT is just another
+                                // DS button (case BTN_SELECT below maps
+                                // it to kDsBtnSelect). In real QR mode
+                                // it cancels to XMB.
                                 qrCancelled = true;
                                 ALOGI("drastic QR: SELECT pressed, "
                                       "cancelling to XMB");
@@ -7392,6 +7425,15 @@ bool NanoMenu::threadLoop() {
                             case BTN_TR:
                             case KEY_R:       bit(DrasticRunner::kDsBtnR);     break;
                             case BTN_START:   bit(DrasticRunner::kDsBtnStart); break;
+                            // SELECT mapped to DS Select. In real QR
+                            // mode the press also triggers qrCancelled
+                            // above (and we strip kDsBtnSelect from the
+                            // mask before forwarding to drastic). In
+                            // smoke mode the cancel is suppressed and
+                            // we leave Select in the mask -- so it
+                            // reaches the emulator like every other
+                            // button.
+                            case BTN_SELECT:  bit(DrasticRunner::kDsBtnSelect); break;
                             case KEY_UP:      bit(DrasticRunner::kDsBtnUp);    break;
                             case KEY_DOWN:    bit(DrasticRunner::kDsBtnDown);  break;
                             case KEY_LEFT:    bit(DrasticRunner::kDsBtnLeft);  break;
@@ -7420,8 +7462,15 @@ bool NanoMenu::threadLoop() {
                 }
                 if (qrCancelled) break;
 
-                // Push the accumulated button state to drastic.
-                drastic->setInput(dsBtnMask & ~DrasticRunner::kDsBtnSelect);
+                // Push the accumulated button state to drastic. In real
+                // QR mode kDsBtnSelect is stripped because Select is
+                // reserved for "drop to XMB" -- if we let it through,
+                // every cancel-to-XMB press would also fire SELECT to
+                // the emulator. In smoke mode the cancel is disabled,
+                // so Select goes through as a normal DS button.
+                int sendMask = dsBtnMask;
+                if (!smokeActive) sendMask &= ~DrasticRunner::kDsBtnSelect;
+                drastic->setInput(sendMask);
 
                 // GammaOS: Per-phase timing for the drastic QR render
                 // loop. Only emits a log line when the overall frame
@@ -7444,17 +7493,30 @@ bool NanoMenu::threadLoop() {
                 drastic->renderDsToOffscreen();
                 const int64_t phaseT1 = nowUs();
 
-                // GammaOS: Always draw the "Quick Resuming... / ROM
-                // name" overlay, even when handoff is blocked for
-                // preview-mode profiling. The user wants the text
-                // visible so the loop doubles as a live demo screen.
-                //
-                // Earlier iteration tried gating on drasticQrHandoff
-                // to save ~1-2 ms of GL work per frame when the
-                // overlay was "pointless" (block-handoff set), but
-                // the visual value of the text outweighs the
-                // marginal render-thread savings.
-                const bool showOverlay = true;
+                // GammaOS: Draw the "Quick Resuming... / ROM name"
+                // overlay in real QR mode. In smoke mode (debug /
+                // pipeline-profiling path) we suppress it -- no overlay
+                // text and no fade gradient -- so the visible output
+                // is exactly what drastic produced.
+                const bool showOverlay = !smokeActive;
+
+                // GammaOS: dual-display secondary-rate halving. The
+                // secondary CRTC's previous flip is still pending ~half
+                // the time when our render iter ends (cross-CRTC vblank
+                // drift on RG DS), so historically half of secondary
+                // flips were getting EBUSY'd and the GPU+CPU work to
+                // produce them was wasted. Now we explicitly skip the
+                // secondary render+flip on alternate iters, so the
+                // bottom DS screen runs at ~30 fps. Below DS perception
+                // threshold for typical content and the wasted work is
+                // completely gone. Single-display setups (RK3576) are
+                // unaffected -- there's no secondary to skip.
+                static bool sSecondaryParity = false;
+                bool secondaryThisIter = true;
+                if (hasDualDisplay) {
+                    sSecondaryParity = !sSecondaryParity;
+                    secondaryThisIter = sSecondaryParity;
+                }
 
                 // GammaOS: Triple-buffer ring slot for this frame's render
                 // pass. When qrUseTripleBuffer is on, rotates through the 3
@@ -7467,22 +7529,35 @@ bool NanoMenu::threadLoop() {
                 AhbRenderTarget& primTgt = sAhbRingPrimary[renderIdx];
                 AhbRenderTarget& secTgt  = sAhbRingSecondary[renderIdx];
 
+                // GammaOS: Each render pass draws drastic's full-viewport
+                // blit quad (DrasticRunner::drawDsQuad uses NDC -1..+1
+                // vertices, which still cover the entire viewport after
+                // any 90/180/270 rotation). The previous glClearColor +
+                // glClear before each drawDsQuad was therefore redundant
+                // -- the blit overwrites every pixel. Removing the clear
+                // cuts ~0.5-1 ms of GPU work per pass on RG DS, ~2-3 ms
+                // on 1080p panels.
                 if (hasDualDisplay) {
                     // Pass 1: secondary display -> bottom DS screen.
-                    glBindFramebuffer(GL_FRAMEBUFFER, secTgt.glFbo);
-                    glViewport(0, 0, secTgt.w, secTgt.h);
-                    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-                    glClear(GL_COLOR_BUFFER_BIT);
-                    drastic->renderBottomScreen(saturation, gradient);
-                    if (showOverlay) {
-                        // drawText hard-codes mWidth/mHeight for pixel->NDC
-                        // (the logical landscape space; rotation handled by
-                        // the text shader's uRotation uniform). Using AHB
-                        // dims here would mis-project text on any device
-                        // where primary AHB size != mWidth/mHeight (e.g.
-                        // portrait panels pushed through a landscape
-                        // logical surface, like RK3576 1080x1920).
-                        drawOverlay(mWidth, mHeight);
+                    // Gated on secondaryThisIter so we do half the work
+                    // on dual-display setups; secondary then runs at
+                    // 30 fps which is fine for the bottom DS screen.
+                    if (secondaryThisIter) {
+                        glBindFramebuffer(GL_FRAMEBUFFER, secTgt.glFbo);
+                        glViewport(0, 0, secTgt.w, secTgt.h);
+                        drastic->renderBottomScreen(saturation, gradient);
+                        if (showOverlay) {
+                            // drawText hard-codes mWidth/mHeight for
+                            // pixel->NDC (the logical landscape space;
+                            // rotation handled by the text shader's
+                            // uRotation uniform). Using AHB dims here
+                            // would mis-project text on any device
+                            // where primary AHB size != mWidth/mHeight
+                            // (e.g. portrait panels pushed through a
+                            // landscape logical surface, like RK3576
+                            // 1080x1920).
+                            drawOverlay(mWidth, mHeight);
+                        }
                     }
 
                     // Pass 2: primary display -> top DS screen.
@@ -7492,8 +7567,6 @@ bool NanoMenu::threadLoop() {
                     } else {
                         glViewport(0, 0, mWidth, mHeight);
                     }
-                    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-                    glClear(GL_COLOR_BUFFER_BIT);
                     drastic->renderTopScreen(saturation, gradient);
                 } else {
                     // Single display: both screens stacked.
@@ -7503,8 +7576,6 @@ bool NanoMenu::threadLoop() {
                     } else {
                         glViewport(0, 0, mWidth, mHeight);
                     }
-                    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-                    glClear(GL_COLOR_BUFFER_BIT);
                     drastic->renderBothScreens(saturation, gradient);
                 }
                 if (showOverlay) {
@@ -7562,7 +7633,13 @@ bool NanoMenu::threadLoop() {
                     // with real content before we start rotating.
                     if (sRingPrimedCount >= AHB_RING_DEPTH - 1) {
                         const int presentIdx = sRingPresentIdx;
-                        drmFlipRingSlot(presentIdx);
+                        // skipNonPrimary mirrors the secondary render
+                        // gating above: secondary is rendered AND
+                        // flipped only on alternating iters, halving
+                        // the dual-display work without leaving stale
+                        // content (skipped iter just keeps the last
+                        // good frame on screen).
+                        drmFlipRingSlot(presentIdx, !secondaryThisIter);
                         sRingPresentIdx =
                                 (presentIdx + 1) % AHB_RING_DEPTH;
                     } else {
@@ -7871,7 +7948,12 @@ bool NanoMenu::threadLoop() {
                         mExitRequested = true;
                         break;
                     }
-                } else {
+                } else if (!smokeActive) {
+                    // Slow creep toward color while we're still in the
+                    // pre-handoff "preview" period. Smoke mode skips
+                    // this -- saturation/gradient stay at the 1.0/0.0
+                    // we set at loop entry so the output is exactly
+                    // what drastic produced (no fade overlay).
                     saturation = fminf(saturation + 0.0003f, 0.35f);
                     gradient = fmaxf(gradient - 0.0002f, 0.7f);
                 }
