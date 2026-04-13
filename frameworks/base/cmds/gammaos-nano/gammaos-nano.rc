@@ -2,9 +2,16 @@ service gammaos-nano /system/bin/gammaos-nano
     class core animation
     user graphics
     group graphics input system media_rw sdcard_rw everybody external_storage package_info
-    capabilities SYS_NICE
+    capabilities SYS_NICE IPC_LOCK SYS_RESOURCE
     disabled
     oneshot
     ioprio rt 0
     rlimit rtprio 99 99
+    rlimit memlock 536870912 536870912
     task_profiles MaxPerformance
+
+# Stretch kernel dirty-page writeback cadence from 5s to 60s.
+# Default 500cs causes periodic memory-bandwidth contention every ~5s,
+# which manifests as visible microhitches during drastic QR preview.
+on boot
+    write /proc/sys/vm/dirty_writeback_centisecs 6000

@@ -1015,15 +1015,48 @@ void DrasticRunner::renderDsToOffscreen() {
         sPixelPullStopped = true;
     }
 
-    // waitScreen blocks until the DS CPU producer has fully
-    // composited a frame (all 2D layers + 3D rasterizer workers
-    // complete). Without this, renderFrame reads mid-composition
-    // and 3D sprites/models are missing or corrupted.
-    if (mWaitScreen) {
-        mWaitScreen(mFakeEnv, mFakeCls);
-    }
+    // GammaOS (2026-04-13): Removed the mWaitScreen() call here.
+    //
+    // Previously we called waitScreen before renderFrame on the
+    // assumption (backed by an earlier comment) that without it
+    // renderFrame would read a mid-composited slot and produce
+    // missing 3D layers or corrupted sprites. drastic-android-mod's
+    // later trace of renderFrame (0x1ceac) clarified that renderFrame
+    // locks its own framebuffer-slot mutex (BSS+0x98c) which the
+    // producer also takes when flipping the double-buffer slot --
+    // i.e. renderFrame cannot observe a partial slot on its own.
+    // waitScreen only gates "there is a NEWER frame than last time",
+    // not correctness.
+    //
+    // Keeping waitScreen here was coupling the render thread's
+    // framerate to drastic's producer rate. When drastic's rasterizer
+    // occasionally overran 16.67 ms per frame (common with _Hires3D
+    // + complex scenes), the render thread blocked in waitScreen,
+    // missed its own vblank, and fell into a 30 fps lock for the
+    // duration of drastic's stall. Profiling showed the QR preview
+    // oscillating 30-60 fps with avg 45 fps.
+    //
+    // By skipping waitScreen we let renderFrame simply upload
+    // whatever the current complete slot is each vblank. When
+    // drastic is keeping up: every upload is a new frame (60 fps).
+    // When drastic is momentarily slow: we upload the same slot
+    // twice (visually a duplicate frame, invisible to the user at
+    // 60 Hz) but the render thread still hits the next vblank, so
+    // the display stays at 60 fps.
 
     // renderFrame uploads the complete framebuffer into our textures.
+    // Bind the offscreen FBO first so drastic's internal glDrawArrays
+    // (which it issues alongside the texSubImage uploads -- see
+    // renderFrame disasm at libdrastic+0x1ceac) lands in a scratch
+    // buffer we do not sample. Without this bind the drastic draw
+    // writes into whichever FBO was last active (often the primary
+    // AHB from the previous vblank), so the GPU does a full-screen
+    // fragment shader pass that our own renderer then clears over
+    // before drawing -- adds 5-7 ms to glFinish during sustained
+    // frames.
+    if (mOffscreenFbo != 0) {
+        glBindFramebuffer(GL_FRAMEBUFFER, mOffscreenFbo);
+    }
     if (mDrasticGlProgram != 0) {
         glUseProgram(mDrasticGlProgram);
     }

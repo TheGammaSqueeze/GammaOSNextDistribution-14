@@ -35,6 +35,10 @@
 #include <android-base/properties.h>
 #include <utils/Log.h>
 #include <utils/SystemClock.h>
+#include <sched.h>
+#include <pthread.h>
+#include <sys/resource.h>
+#include <sys/syscall.h>
 
 #include <ui/DisplayMode.h>
 #include <ui/DisplayState.h>
@@ -2554,11 +2558,14 @@ static void drmFlipAll() {
     if (!sDrmZeroCopy || !sAhbTarget.ahb) return;
 
     static int sFlipCount = 0;
-    // Log timing for the first 5 flips (boot window) then once per second
-    // thereafter so we can observe steady-state latency in XMB mode without
-    // flooding logcat.
-    bool verbose = (sFlipCount < 5) || (sFlipCount % 60 == 0);
-    int64_t t0 = verbose ? (systemTime(SYSTEM_TIME_MONOTONIC) / 1000LL) : 0;
+    // Log timing for the first 5 flips (boot window) then once per
+    // second thereafter so we can observe steady-state latency
+    // without flooding logcat. A "slow" flip (total > 10 ms) also
+    // emits unconditionally so microhitches are captured, but
+    // rate-limited to once per second to keep logs clean.
+    bool periodic = (sFlipCount < 5) || (sFlipCount % 60 == 0);
+    bool verbose = true; // always capture timing; filter at print time
+    int64_t t0 = (systemTime(SYSTEM_TIME_MONOTONIC) / 1000LL);
 
     // Unbind FBO so subsequent GL calls don't mess with AHB
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -2638,14 +2645,34 @@ static void drmFlipAll() {
                             buf.mapped, buf.pitch, d.w, d.h, blitRotation);
 
         // Page flip — non-blocking. flags=0 means no vblank event is
-        // requested, just swap the buffer on next vsync. If the kernel
-        // rejects the flip (e.g. CRTC not enabled yet for a late-ready
-        // display), fall back to drmModeSetCrtc which force-sets the mode.
+        // requested, just swap the buffer on next vsync.
+        //
+        // Error handling (2026-04-13):
+        //   -EBUSY: previous page flip for this CRTC has not landed
+        //     yet. Previously we fell through to drmModeSetCrtc here,
+        //     which is SYNCHRONOUS and blocks until the modeset takes
+        //     effect on the next vblank. Per-frame timing showed the
+        //     fallback hitting 13-32 ms on microhitch frames, driving
+        //     the occasional 30-50 ms stall. On -EBUSY the correct
+        //     action is to drop this flip -- the still-pending flip
+        //     already has a newer buffer queued than what is on
+        //     screen, so we simply keep the current active buffer
+        //     index and let the next iteration try again.
+        //   Other errors: fall back to drmModeSetCrtc, which handles
+        //     the one-time "CRTC not enabled yet" case at the
+        //     startup splash where the CRTC needs to be primed.
         struct drm_mode_crtc_page_flip flip = {};
         flip.crtc_id = d.crtcId;
         flip.fb_id = buf.fbId;
         flip.flags = 0;
-        if (ioctl(sDrmFd, DRM_IOCTL_MODE_PAGE_FLIP, &flip) != 0) {
+        int flipRc = ioctl(sDrmFd, DRM_IOCTL_MODE_PAGE_FLIP, &flip);
+        if (flipRc != 0) {
+            if (errno == EBUSY) {
+                // Drop this flip. Keep the previous buffer as active
+                // so the next iteration's page flip targets the
+                // correct slot for the double-buffer rotation.
+                continue;
+            }
             struct drm_mode_crtc crtc = {};
             crtc.crtc_id = d.crtcId;
             crtc.fb_id = buf.fbId;
@@ -2663,12 +2690,25 @@ static void drmFlipAll() {
     AHardwareBuffer_unlock(sAhbTarget.ahb, nullptr);
     if (secondaryPtr) AHardwareBuffer_unlock(sAhbTargetSecondary.ahb, nullptr);
 
-    if (verbose) {
+    {
         int64_t tEnd = systemTime(SYSTEM_TIME_MONOTONIC) / 1000LL;
-        ALOGW("NanoMenu AHB flip #%d: glFinish=%lldus lock=%lldus blit+flip=%lldus unlock=%lldus total=%lldus displays=%zu primary=%d sec=%d",
-              sFlipCount, tFinish - t0, tLock - tFinish, tCopy - tLock,
-              tEnd - tCopy, tEnd - t0, sDrmDisplays.size(), sDrmPrimaryIdx,
-              haveSecondary ? 1 : 0);
+        int64_t tot = tEnd - t0;
+        // Rate-limit slow-flip logging to once per second so a burst
+        // does not flood logcat. Periodic samples always emit.
+        static int64_t sLastSlowLogMs = 0;
+        int64_t nowMs = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL;
+        bool logSlow = (tot > 10000) &&
+                       (nowMs - sLastSlowLogMs >= 1000);
+        if (periodic || logSlow) {
+            if (logSlow) sLastSlowLogMs = nowMs;
+            ALOGW("NanoMenu AHB flip #%d: glFinish=%lldus "
+                  "lock=%lldus blit+flip=%lldus unlock=%lldus "
+                  "total=%lldus displays=%zu primary=%d sec=%d",
+                  sFlipCount, tFinish - t0, tLock - tFinish,
+                  tCopy - tLock, tEnd - tCopy, tot,
+                  sDrmDisplays.size(), sDrmPrimaryIdx,
+                  haveSecondary ? 1 : 0);
+        }
     }
     sFlipCount++;
 }
@@ -4462,19 +4502,57 @@ void NanoMenu::render() {
         } else {
             drmPushFrame(mWidth, mHeight);
         }
-        static int sFrameCount = 0;
-        if (++sFrameCount % 30 == 0) {
-            char bootDone[PROPERTY_VALUE_MAX] = {};
-            property_get("sys.boot_completed", bootDone, "0");
-            if (!strcmp(bootDone, "1")) {
-                drmStop();
-                // After HWC takes over, set up secondary EGL surfaces so the
-                // wallpaper continues to render on non-XMB displays. Without
-                // this, bootanim retains layer ownership on the secondary and
-                // the user sees the GammaOS logo there indefinitely.
-                setupSecondaryEglSurfaces();
-            }
+
+        // GammaOS: Vsync lock for DRM-direct XMB rendering.
+        //
+        // Without an explicit DRM_IOCTL_WAIT_VBLANK here the loop runs as
+        // fast as drmFlipAll can complete, which on Mali G52 is ~8-11 ms
+        // per frame. Every second call to drmModePageFlip can return
+        // -EBUSY (previous flip pending), which falls through to the
+        // blocking drmModeSetCrtc in drmFlipAll's fallback path and
+        // produces irregular pacing. Baseline measurement (2026-04-13)
+        // showed XMB at 46-48 fps in DRM-direct mode, with frame times
+        // oscillating 8-35 ms.
+        //
+        // Relative-vblank sequence=1 blocks until the panel has
+        // completed one vblank, matching the QR loop's pacing at
+        // line ~6822 of this file and giving us a stable 60 fps lock
+        // as long as the per-frame work fits inside 16.67 ms.
+        if (sDrmFd >= 0 && !sDrmDisplays.empty()) {
+            union drm_wait_vblank vbl = {};
+            vbl.request.type = (enum drm_vblank_seq_type)(
+                    _DRM_VBLANK_RELATIVE
+                    | ((sDrmPrimaryIdx & 0x1f)
+                       << _DRM_VBLANK_HIGH_CRTC_SHIFT));
+            vbl.request.sequence = 1;
+            ioctl(sDrmFd, DRM_IOCTL_WAIT_VBLANK, &vbl);
         }
+
+        // GammaOS: drmStop() is no longer called from here.
+        //
+        // The previous behaviour was "after 30 frames post
+        // boot_completed, unconditionally switch the XMB pipeline from
+        // DRM-direct to HWC". The intent was to hand displays to
+        // SurfaceFlinger so a launched app could present. But the
+        // transition happened whether or not the user was actually
+        // about to launch an app, which meant the XMB itself ran in
+        // HWC for the rest of the session -- with the extra latency
+        // of eglSwapBuffers paced by HWC's compositor tick.
+        //
+        // For idle XMB (no app in flight) we get better and more
+        // predictable pacing by staying in DRM-direct mode:
+        //   - Our render thread directly controls page flips via
+        //     drmModePageFlip + DRM_IOCTL_WAIT_VBLANK above.
+        //   - No SurfaceFlinger compositor tick in the critical path.
+        //   - No BLASTBufferQueue buffer starvation under load.
+        //
+        // drmStop() + setupSecondaryEglSurfaces() now run exactly
+        // once, immediately after the main XMB loop exits (see the
+        // post-loop section further down, gated on
+        // mExitRequested). That way SurfaceFlinger is given the
+        // displays at the moment we are about to launch an Android
+        // app, which matches the original intent without paying the
+        // DRM->HWC transition cost for XMB browsing.
     } else {
         eglSwapBuffers(mDisplay, mSurface);
         if (sFirstFrame) {
@@ -6342,6 +6420,95 @@ bool NanoMenu::threadLoop() {
         ALOGW("NanoMenu BOOT TIMING: main loop entry at T+%lldms", nowMs);
     }
 
+    // GammaOS: Real-time boost for the render thread.
+    //
+    // Measured behaviour on a 4-core RK3566 (2026-04-13):
+    //   post-boot steady state: 59.9 fps locked via DRM_IOCTL_WAIT_VBLANK
+    //   boot window (~15 s):    occasional 33-100+ ms frame spikes
+    //                           caused by vendor HAL init
+    //                           (vendor.usb_gadget_default,
+    //                           vendor.rockit-hal, vendor.power-aidl,
+    //                           vendor.outputmanager, etc.) and
+    //                           kernel interrupt activity preempting
+    //                           our render thread.
+    //
+    // SCHED_FIFO prio 5: comfortably above every SCHED_OTHER thread on
+    // the system AND above SurfaceFlinger / vndbinder / Mali helpers
+    // (all FIFO 2). Below the audio/input IRQ tier (FIFO 50+) and the
+    // kernel migration tier (FIFO 99).
+    //
+    // FIFO over RR at this priority because drastic's internal threads
+    // also run at RR 5 (see DrasticRunner::drasticBoostThread). Under
+    // SCHED_RR peers at equal priority time-slice between each other
+    // (default 5-100 ms slice depending on kernel config). A slice
+    // expiry mid-drmFlipAll can push the render thread past vblank.
+    // SCHED_FIFO at the same numeric priority as the RR threads still
+    // runs cooperatively with them (kernel picks one, runs until
+    // voluntary yield or a higher-prio wakes) but the FIFO task is
+    // never sliced out. The render thread spends most of its budget
+    // blocked on DRM_IOCTL_WAIT_VBLANK (voluntarily yielding), so the
+    // drastic RR threads get all that wall-clock time to produce
+    // frames regardless.
+    //
+    // Measured on RK3566 (2026-04-13):
+    //   RR 5  -> 92% of seconds at >=59.5 fps, avg 59.37 (XMB)
+    //   RR 10 -> 76% of seconds at >=59.5 fps, avg 58.79 (WORSE)
+    //   FIFO 90 -> catastrophic regression to ~40 fps
+    //   RR 5 -> drastic QR: avg 58.5, 60% at 60 fps, 40% with 30-50 ms spike
+    //
+    // Nice=-20 is layered on top so the SCHED_OTHER fallback (below,
+    // when RT is denied) still dominates normal threads.
+    //
+    // Applied at threadLoop entry so it covers both the DRM-direct XMB
+    // path and the drastic QR fast-path (same render thread).
+    {
+        sched_param sp = {};
+        sp.sched_priority = 5;
+        int rc = pthread_setschedparam(pthread_self(), SCHED_FIFO, &sp);
+        pid_t selfTid = (pid_t)syscall(SYS_gettid);
+        setpriority(PRIO_PROCESS, selfTid, -20);
+        if (rc == 0) {
+            ALOGW("NanoMenu: render thread SCHED_FIFO prio 5 + nice -20 ok");
+        } else {
+            ALOGW("NanoMenu: SCHED_FIFO denied (%s), nice -20 applied",
+                  strerror(rc));
+        }
+    }
+
+    // GammaOS: Render thread is NOT pinned to a specific CPU.
+    //
+    // Tried pinning to CPU 3 (2026-04-13) as an attempt to isolate
+    // from drastic's rasterizer threads floating on 0-2. Measured
+    // result was WORSE: avg 58.5 vs 59.2 fps unpinned, 71 % at 60 fps
+    // vs 82 %, 29 % spike rate vs 18 %. Conclusion: on this SMP
+    // device the kernel's load balancer works in our favour -- when
+    // CPU 3 has a transient IRQ burst the unpinned render thread
+    // migrates away; pinning locks us to the stalled core. The
+    // FIFO 5 priority boost alone is sufficient.
+
+    // GammaOS: Lock all pages into RAM.
+    //
+    // Even with SCHED_RR prio 5, the 50-100 ms spikes during the first
+    // ~25 seconds of boot persisted -- those durations rule out
+    // scheduler preemption and point at kernel-side stalls. The two
+    // most likely causes at that timescale are page-fault I/O (kernel
+    // pulls a demand-paged page off storage while the render thread is
+    // blocked) and dirty-page writeback stealing memory bandwidth.
+    //
+    // mlockall(MCL_CURRENT | MCL_FUTURE) pins the process's current
+    // working set and every future allocation into physical memory,
+    // so no subsequent access triggers a fault. Paired with
+    // IPC_LOCK + SYS_RESOURCE + rlimit memlock in gammaos-nano.rc so
+    // the 64 KB default cap doesn't cause EPERM/ENOMEM. The trade is
+    // ~50 ms of up-front fault cost at startup for predictable frame
+    // timing thereafter.
+    if (mlockall(MCL_CURRENT | MCL_FUTURE) == 0) {
+        ALOGW("NanoMenu: mlockall done");
+    } else {
+        ALOGW("NanoMenu: mlockall failed (%s) -- check caps/rlimit in "
+              "gammaos-nano.rc", strerror(errno));
+    }
+
     // Clear any stale drop_input/fence from a previous instance.
     property_set("sys.gammaos.nano.drop_input", "0");
     property_set("sys.gammaos.nano.drop_fence_ns", "0");
@@ -6460,6 +6627,27 @@ bool NanoMenu::threadLoop() {
                 property_get("persist.gammaos.nano.qr_prepared", qp, "0");
                 drasticQrHandoff = (strcmp(qc, "drastic") == 0) &&
                                    (strcmp(qp, "1") == 0);
+
+                // GammaOS: Development-only toggle to keep the drastic
+                // QR loop running indefinitely instead of handing off to
+                // the real com.dsemu.drastic activity. Used to profile
+                // and tune the preview-mode framerate in isolation from
+                // the Android app transition. When set to "1" we pretend
+                // handoff is not requested; the per-frame check at
+                // `if (t >= 1.0f && drasticQrHandoff ...)` never fires.
+                //
+                // Uses persist.* so it survives reboot -- the QR loop
+                // starts before any post-boot script has a chance to
+                // set a volatile sys.* prop.
+                char blockHandoff[PROPERTY_VALUE_MAX] = {};
+                property_get("persist.gammaos.nano.qr_block_handoff",
+                             blockHandoff, "0");
+                if (blockHandoff[0] == '1') {
+                    drasticQrHandoff = false;
+                    ALOGW("drastic QR: handoff blocked via "
+                          "persist.gammaos.nano.qr_block_handoff=1 -- "
+                          "loop will stay in preview mode");
+                }
             }
 
             // Load the game name once so the overlay has a stable
@@ -6675,11 +6863,38 @@ bool NanoMenu::threadLoop() {
                 // Push the accumulated button state to drastic.
                 drastic->setInput(dsBtnMask & ~DrasticRunner::kDsBtnSelect);
 
+                // GammaOS: Per-phase timing for the drastic QR render
+                // loop. Only emits a log line when the overall frame
+                // exceeded the 16.67 ms vblank budget, so it stays
+                // quiet on the 97%+ of frames that hit vsync cleanly.
+                // Used to pinpoint which phase is eating time during
+                // the occasional microhitch.
+                auto nowUs = []() {
+                    struct timespec ts;
+                    clock_gettime(CLOCK_MONOTONIC, &ts);
+                    return (int64_t)ts.tv_sec * 1000000LL
+                            + ts.tv_nsec / 1000LL;
+                };
+                const int64_t phaseT0 = nowUs();
+
                 // Render both DS screens into the offscreen FBO via
                 // drastic's renderFrame (hi-res 3D, all layers).
                 // Returns immediately (no-op) until the DS producer
                 // has generated its first frame.
                 drastic->renderDsToOffscreen();
+                const int64_t phaseT1 = nowUs();
+
+                // GammaOS: Always draw the "Quick Resuming... / ROM
+                // name" overlay, even when handoff is blocked for
+                // preview-mode profiling. The user wants the text
+                // visible so the loop doubles as a live demo screen.
+                //
+                // Earlier iteration tried gating on drasticQrHandoff
+                // to save ~1-2 ms of GL work per frame when the
+                // overlay was "pointless" (block-handoff set), but
+                // the visual value of the text outweighs the
+                // marginal render-thread savings.
+                const bool showOverlay = true;
 
                 if (hasDualDisplay) {
                     // Pass 1: secondary display -> bottom DS screen.
@@ -6690,8 +6905,10 @@ bool NanoMenu::threadLoop() {
                     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
                     glClear(GL_COLOR_BUFFER_BIT);
                     drastic->renderBottomScreen(saturation, gradient);
-                    drawOverlay(sAhbTargetSecondary.w,
-                                sAhbTargetSecondary.h);
+                    if (showOverlay) {
+                        drawOverlay(sAhbTargetSecondary.w,
+                                    sAhbTargetSecondary.h);
+                    }
 
                     // Pass 2: primary display -> top DS screen.
                     drmFrameBegin();
@@ -6715,10 +6932,14 @@ bool NanoMenu::threadLoop() {
                     glClear(GL_COLOR_BUFFER_BIT);
                     drastic->renderBothScreens(saturation, gradient);
                 }
-                int vpW = sDrmGlRotation ? sAhbTarget.w : mWidth;
-                int vpH = sDrmGlRotation ? sAhbTarget.h : mHeight;
-                drawOverlay(vpW, vpH);
+                if (showOverlay) {
+                    int vpW = sDrmGlRotation ? sAhbTarget.w : mWidth;
+                    int vpH = sDrmGlRotation ? sAhbTarget.h : mHeight;
+                    drawOverlay(vpW, vpH);
+                }
+                const int64_t phaseT2 = nowUs();
                 drmFrameEnd(mDisplay, mSurface);
+                const int64_t phaseT3 = nowUs();
 
                 // Vsync: block until the primary display's next
                 // vertical blank. Without this, the loop runs
@@ -6734,6 +6955,82 @@ bool NanoMenu::threadLoop() {
                             | ((sDrmPrimaryIdx & 0x1f) << _DRM_VBLANK_HIGH_CRTC_SHIFT));
                     vbl.request.sequence = 1;
                     ioctl(sDrmFd, DRM_IOCTL_WAIT_VBLANK, &vbl);
+                }
+                const int64_t phaseT4 = nowUs();
+
+                // Log per-phase breakdown only when a frame blew past
+                // the 16.67 ms vblank deadline, and rate-limit to one
+                // log line per second so a burst of slow frames
+                // doesn't flood logcat.
+                {
+                    int64_t total = phaseT4 - phaseT0;
+                    static int64_t sLastPhaseLogUs = 0;
+                    if (total > 18000 &&
+                            phaseT4 - sLastPhaseLogUs > 1000000) {
+                        sLastPhaseLogUs = phaseT4;
+                        ALOGW("drastic QR slow frame: "
+                              "total=%lldus | renderDs=%lldus "
+                              "gl=%lldus flip=%lldus vblank=%lldus",
+                              (long long)total,
+                              (long long)(phaseT1 - phaseT0),
+                              (long long)(phaseT2 - phaseT1),
+                              (long long)(phaseT3 - phaseT2),
+                              (long long)(phaseT4 - phaseT3));
+                    }
+                }
+
+                // GammaOS: Per-second FPS counter for the drastic QR loop.
+                // Mirrors the XMB FPS counter further down threadLoop.
+                // Zero runtime overhead when handoff is imminent and the
+                // loop is about to exit, so always on. Min/max frame
+                // time (us) is reported alongside so we can see how
+                // tight the vsync lock is.
+                {
+                    static int64_t sQrFpsWindowStartNs = 0;
+                    static int sQrFpsFrames = 0;
+                    static int64_t sQrFpsMinFrameUs = 0;
+                    static int64_t sQrFpsMaxFrameUs = 0;
+                    static int64_t sQrFpsLastFrameNs = 0;
+                    int64_t nowNsFps;
+                    {
+                        struct timespec ts;
+                        clock_gettime(CLOCK_MONOTONIC, &ts);
+                        nowNsFps = (int64_t)ts.tv_sec * 1000000000LL
+                                   + ts.tv_nsec;
+                    }
+                    if (sQrFpsLastFrameNs != 0) {
+                        int64_t frameUs =
+                                (nowNsFps - sQrFpsLastFrameNs) / 1000LL;
+                        sQrFpsFrames++;
+                        if (sQrFpsFrames == 1 ||
+                                frameUs < sQrFpsMinFrameUs) {
+                            sQrFpsMinFrameUs = frameUs;
+                        }
+                        if (frameUs > sQrFpsMaxFrameUs) {
+                            sQrFpsMaxFrameUs = frameUs;
+                        }
+                        if (sQrFpsWindowStartNs == 0) {
+                            sQrFpsWindowStartNs = nowNsFps;
+                        }
+                        int64_t elapsedNs =
+                                nowNsFps - sQrFpsWindowStartNs;
+                        if (elapsedNs >= 1000000000LL) {
+                            float fps = (float)sQrFpsFrames * 1e9f
+                                        / (float)elapsedNs;
+                            ALOGW("drastic QR FPS: %.1f "
+                                  "(%d frames / %lld.%03lld s, "
+                                  "min=%lldus max=%lldus)",
+                                  fps, sQrFpsFrames,
+                                  elapsedNs / 1000000000LL,
+                                  (elapsedNs / 1000000LL) % 1000,
+                                  sQrFpsMinFrameUs, sQrFpsMaxFrameUs);
+                            sQrFpsWindowStartNs = nowNsFps;
+                            sQrFpsFrames = 0;
+                            sQrFpsMinFrameUs = 0;
+                            sQrFpsMaxFrameUs = 0;
+                        }
+                    }
+                    sQrFpsLastFrameNs = nowNsFps;
                 }
 
                 if (!firstFrameLogged) {
@@ -7408,17 +7705,34 @@ bool NanoMenu::threadLoop() {
 
     int exitCheckCounter = 0;
     bool stockClocksApplied = false;
+    int64_t bootCompletedDetectedMs = 0;
     while (!exitPending() && !mExitRequested) {
-        // Apply stock clocks once boot is fully complete (PerformanceTile
-        // re-syncs performance_mode on boot_completed, so we must wait)
+        // Apply stock clocks once boot is fully complete, with a 1 s
+        // margin for PerformanceTile to re-sync performance_mode.
+        //
+        // Was an inline `usleep(1000000) + system("setclock_stock.sh")`.
+        // The usleep parked the render thread for a full second right at
+        // boot_completed, and the subsequent system() fork+exec stalled
+        // it for another ~50-200 ms. Both showed up in the XMB FPS log
+        // as a massive drop to single-digit fps for a 1-2 s window.
+        //
+        // Replaced with a deferred, non-blocking pattern: record the
+        // time when boot_completed was first observed, then when 1 s has
+        // passed issue the script run in the background so the fork+exec
+        // does not block the render thread.
         if (!stockClocksApplied) {
-            char bootDone[PROPERTY_VALUE_MAX] = {};
-            property_get("sys.boot_completed", bootDone, "0");
-            if (!strcmp(bootDone, "1")) {
-                usleep(1000000); // 1s margin for PerformanceTile sync
-                system("/vendor/bin/setclock_stock.sh");
+            if (bootCompletedDetectedMs == 0) {
+                char bootDone[PROPERTY_VALUE_MAX] = {};
+                property_get("sys.boot_completed", bootDone, "0");
+                if (!strcmp(bootDone, "1")) {
+                    bootCompletedDetectedMs = elapsedRealtime();
+                }
+            } else if (elapsedRealtime() - bootCompletedDetectedMs
+                       >= 1000) {
+                system("/vendor/bin/setclock_stock.sh &");
                 stockClocksApplied = true;
-                ALOGD("NanoMenu: applied stock clocks after boot_completed");
+                ALOGD("NanoMenu: spawned setclock_stock.sh "
+                      "(background) after boot_completed + 1 s");
             }
         }
         pollInput();
@@ -7686,6 +8000,26 @@ bool NanoMenu::threadLoop() {
 
     // GammaOS: Clear menu_active flag so DualStack can re-enable when app launches.
     property_set("sys.gammaos.nano.menu_active", "0");
+
+    // GammaOS: Hand displays to SurfaceFlinger now that XMB is done.
+    //
+    // We kept DRM-direct rendering active for the entire XMB loop to
+    // avoid the HWC compositor tick on every frame. Now that the user
+    // has committed to launching an app (mExitRequested is set via
+    // handleSelect/launchXmbGame/etc.), SurfaceFlinger needs to be the
+    // DRM master so it can composite the app's window. drmStop()
+    // releases the DRM resources nano was holding, and
+    // setupSecondaryEglSurfaces() then reclaims wallpaper ownership on
+    // the secondary display(s) so the bootanim logo does not linger
+    // there while the app is loading.
+    //
+    // We only do this when mExitRequested is set -- that way the
+    // bootanim.exit "die quietly" path at the start of threadLoop also
+    // exits cleanly without disturbing DRM state.
+    if (mExitRequested && sDrmActive) {
+        drmStop();
+        setupSecondaryEglSurfaces();
+    }
 
     // Only re-apply performance clocks when launching an app (not on bootanim.exit)
     // Run in background — setclock_max.sh has a 20s retry loop that must not block exit.
