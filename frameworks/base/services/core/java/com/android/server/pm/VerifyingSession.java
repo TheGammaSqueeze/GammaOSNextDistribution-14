@@ -339,6 +339,12 @@ final class VerifyingSession {
      * Check whether or not integrity verification has been enabled.
      */
     private boolean isIntegrityVerificationEnabled() {
+        // GammaOS Nano: AppIntegrityManagerService is not started in minimal boot,
+        // so the integrity broadcast has no receiver and times out after 30s, which
+        // rejects every install. Skip the check entirely while nano is active.
+        if (SystemProperties.getBoolean("sys.gammaos.minimal_boot", false)) {
+            return false;
+        }
         // We are not exposing this as a user-configurable setting because we don't want to provide
         // an easy way to get around the integrity check.
         return DEFAULT_INTEGRITY_VERIFY_ENABLE;
