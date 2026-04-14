@@ -1131,9 +1131,10 @@ void DrasticRunner::drawDsQuad(unsigned int tex, float vMin, float vMax,
 
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
-    glDisableVertexAttribArray(mQuadPosLoc);
-    glDisableVertexAttribArray(mQuadTexLoc);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    // End-of-call cleanup removed -- the next drawDsQuad call (or any
+    // GL state update in the render loop) will re-configure vertex
+    // attribs and buffer bindings. Skipping these saves ~3 GL state
+    // changes per call and avoids driver shadow-state updates.
 }
 
 void DrasticRunner::renderTopScreen(float saturation, float gradient) {
