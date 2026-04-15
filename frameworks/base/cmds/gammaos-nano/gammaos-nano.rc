@@ -2,10 +2,46 @@ service gammaos-nano /system/bin/gammaos-nano
     class core animation
     user graphics
     group graphics input system media_rw sdcard_rw everybody external_storage package_info
-    capabilities SYS_NICE IPC_LOCK SYS_RESOURCE
+    # SETUID/SETGID required for the drastic-nano shim fork path
+    # (nano forks app_process and setuid+setgid to stock drastic's
+    # UID so the shim can read /data/data/com.dsemu.drastic/*).
+    capabilities SYS_NICE IPC_LOCK SYS_RESOURCE SETUID SETGID
+    # NanoBridge listener used by the out-of-process drastic-nano shim
+    # (com.dsemu.drastic.nano). Init creates the socket at
+    # /dev/socket/gammaos_nano_bridge before the service starts so
+    # bootanim doesn't need to bind() itself (which SELinux denies);
+    # the service inherits the fd via android_get_control_socket.
+    # Mode 0666 because the shim runs as stock drastic's UID, not
+    # graphics, and needs read/write.
+    socket gammaos_nano_bridge stream 0666 graphics graphics
     disabled
     oneshot
     ioprio rt 0
     rlimit rtprio 99 99
     rlimit memlock 536870912 536870912
     task_profiles MaxPerformance
+
+# Drastic-nano shim launcher. Started by gammaos-nano via
+# `setprop ctl.start gammaos_drastic_shim` after writing the ROM / APK
+# prop triplet. init does the fork+exec of the launcher binary, which
+# then drops to stock drastic's UID and execs app_process.
+service gammaos_drastic_shim /system/bin/gammaos_drastic_shim_launcher
+    class nano
+    user root
+    capabilities SETUID SETGID
+    disabled
+    oneshot
+    seclabel u:r:gammaos_drastic_nano:s0
+
+# SurfaceFlingerAIDL stub service. Started by nano during the drastic-
+# nano handoff branch, AFTER `ctl.stop surfaceflinger`, so that the
+# shim's SurfaceView.<init> -> SCC.onFirstRef() -> waitForService
+# lookup resolves instantly to our empty binder instead of blocking.
+# See frameworks/base/cmds/gammaos-nano/SfAidlStub.cpp.
+# Not oneshot -- must stay alive as long as the shim is running.
+service gammaos_sf_stub /system/bin/gammaos_sf_stub
+    class nano_sf_stub
+    user system
+    group graphics
+    disabled
+    seclabel u:r:gammaos_sf_stub:s0

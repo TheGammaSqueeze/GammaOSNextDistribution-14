@@ -19,6 +19,7 @@ PRODUCT_PACKAGES += \
     GammaScreenMapper \
     LaunchGuardControl \
     SecondaryDisplayControl \
+    GammaDrasticNanoShim \
     gammapad \
     gammapad_restore \
     gammaos-ota

@@ -1,0 +1,56 @@
+// GammaDrasticNanoShim -- the overlay APK that runs drastic out-of-process
+// against gammaos-nano's DRM-owned AHB ring. Produced by the
+// drastic-android-mod project's nano-shim/build.sh and dropped into this
+// directory as a prebuilt.
+//
+// android_app_import re-signs the APK with the GammaOS platform key
+// during system image assembly; the upstream debug signature is
+// discarded.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_app_import {
+    name: "GammaDrasticNanoShim",
+    apk: "drastic-nano-shim.apk",
+    certificate: "platform",
+    privileged: true,
+    presigned: false,
+    // Only present when the user has opted into the nano-shim flow; no
+    // harm leaving it on the system image in the default off state.
+    required: [
+        "GammaDrasticNanoShim.libdrastic_arm64",
+        "GammaDrasticNanoShim.libdrastic_cpu",
+        "GammaDrasticNanoShim.libdrastic_nano_shim",
+    ],
+}
+
+// android_app_import doesn't auto-extract native libs from the APK
+// zip (that happens at PackageManager install time for normal APKs,
+// not for system prebuilts). Ship the libs separately to a known
+// path the shim's NanoDraSticEntry checks first.
+prebuilt_etc {
+    name: "GammaDrasticNanoShim.libdrastic_arm64",
+    filename: "libdrastic_arm64.so",
+    src: "lib/arm64-v8a/libdrastic_arm64.so",
+    sub_dir: "drastic_nano",
+}
+
+prebuilt_etc {
+    name: "GammaDrasticNanoShim.libdrastic_cpu",
+    filename: "libdrastic_cpu.so",
+    src: "lib/arm64-v8a/libdrastic_cpu.so",
+    sub_dir: "drastic_nano",
+}
+
+// Shim's own EglSurfaceWrap JNI lib. Installed next to the drastic
+// natives and staged by ShimLauncher into drastic's datadir so
+// System.loadLibrary("drastic_nano_shim") can resolve it from the
+// shim classloader's namespace.
+prebuilt_etc {
+    name: "GammaDrasticNanoShim.libdrastic_nano_shim",
+    filename: "libdrastic_nano_shim.so",
+    src: "lib/arm64-v8a/libdrastic_nano_shim.so",
+    sub_dir: "drastic_nano",
+}

@@ -41,6 +41,7 @@ cc_binary {
         "LibretroRunner.cpp",
         "FakeJNI.cpp",
         "DrasticRunner.cpp",
+        "NanoBridgeServer.cpp",
     ],
 
     header_libs: [
@@ -66,7 +67,78 @@ cc_binary {
         "android.hardware.light@2.0",
         "libhidlbase",
         "libnativewindow",
+        "libselinux",
     ],
 
     init_rc: ["gammaos-nano.rc"],
+
+    required: [
+        // Bridge lib is loaded by the drastic-nano shim running under
+        // app_process; gammaos-nano itself links the server source
+        // directly. Listing here guarantees the .so ships to
+        // /system/lib64/ even though the nano binary doesn't dlopen it.
+        "libgammaos_nano_bridge",
+        // Shim launcher is exec'd by init when nano fires
+        // `setprop ctl.start gammaos_drastic_shim`.
+        "gammaos_drastic_shim_launcher",
+        // SF AIDL stub used during drastic-nano handoff so the shim's
+        // SurfaceView.<init> -> waitForService("SurfaceFlingerAIDL")
+        // returns immediately after we ctl.stop surfaceflinger.
+        "gammaos_sf_stub",
+    ],
+}
+
+// Tiny init-service binary that drops to stock drastic's UID and
+// execs app_process to bring up the drastic-nano shim. Lives outside
+// gammaos-nano's multi-threaded context so its fork+exec is clean.
+cc_binary {
+    name: "gammaos_drastic_shim_launcher",
+    srcs: ["ShimLauncher.cpp"],
+    cflags: ["-Wall", "-Werror"],
+    shared_libs: ["libcutils", "liblog"],
+}
+
+// SurfaceFlingerAIDL stub. Registered by init after nano stops the real
+// surfaceflinger so the drastic-nano shim's SurfaceView.<init> ->
+// SurfaceComposerClient.onFirstRef() -> waitForService lookup resolves
+// to this empty binder instead of blocking forever. See SfAidlStub.cpp
+// for rationale and flow.
+cc_binary {
+    name: "gammaos_sf_stub",
+    srcs: ["SfAidlStub.cpp"],
+    cflags: ["-Wall", "-Werror"],
+    shared_libs: [
+        "libbinder",
+        "libutils",
+        "liblog",
+    ],
+}
+
+// Bridge shim loaded by com.dsemu.drastic.nano (GammaDrasticNanoShim) under
+// app_process. Implements the NanoBridge JNI surface in
+// frameworks/base/cmds/gammaos-nano/NanoBridge.h by connecting to
+// gammaos-nano's UNIX socket. Ships as /system/lib64/libgammaos_nano_bridge.so
+// and the shim loads it via System.loadLibrary("gammaos_nano_bridge").
+cc_library_shared {
+    name: "libgammaos_nano_bridge",
+
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wunused",
+    ],
+
+    srcs: [
+        "NanoBridgeClient.cpp",
+        "NanoAnw.cpp",
+    ],
+
+    header_libs: [
+        "jni_headers",
+    ],
+
+    shared_libs: [
+        "liblog",
+        "libnativewindow",
+    ],
 }

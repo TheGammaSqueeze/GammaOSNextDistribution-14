@@ -23,7 +23,13 @@
 #include <dirent.h>
 #include <unistd.h>
 #include <sys/stat.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <sys/capability.h>
+#include <linux/capability.h>
+#include <grp.h>
 #include <math.h>
+#include <selinux/selinux.h>
 #include <stdlib.h>
 #include <linux/input.h>
 #include <sys/inotify.h>
@@ -58,6 +64,8 @@
 // DRM direct framebuffer for early boot splash
 #include <drm.h>
 #include <drm_mode.h>
+
+#include "NanoBridge.h"
 #include <drm_fourcc.h>
 #include <sys/mman.h>
 #include <poll.h>
@@ -738,7 +746,19 @@ void NanoMenu::onFirstRef() {
 
 sp<SurfaceComposerClient> NanoMenu::session() const { return mSession; }
 
+// Set by the nano-shim handoff branch right before it issues
+// `ctl.stop surfaceflinger`. When true, binderDied below treats
+// the SF death as intentional and does NOT kill nano -- nano needs
+// to keep running to service the NanoBridge socket for the shim
+// process.
+static std::atomic<bool> sShimHandoffActive{false};
+
 void NanoMenu::binderDied(const wp<IBinder>&) {
+    if (sShimHandoffActive.load()) {
+        ALOGI("SurfaceFlinger died but nano-shim handoff is "
+              "active; staying alive to service NanoBridge");
+        return;
+    }
     ALOGD("SurfaceFlinger died, exiting...");
     kill(getpid(), SIGKILL);
     requestExit();
@@ -8190,6 +8210,425 @@ if (sRingPrimedCount >= 2) {
                                   (long long)waited);
                         }
                         handoffFired = true;
+
+                        // Opt-in branch: if persist.gammaos.nano.drastic_app=1
+                        // we skip the framework-based am-start handoff and
+                        // instead fork app_process with the
+                        // GammaDrasticNanoShim classpath so drastic runs
+                        // inside the minimal-boot environment (SF never
+                        // starts). The DrasticRunner QR instance is torn
+                        // down first so the shim process can claim DRM's
+                        // AHB ring via NanoBridge. When unset (default),
+                        // we fall through to the legacy am-start path
+                        // below -- the real drastic Activity boots after
+                        // system_server comes up, exactly as today.
+                        //
+                        // See docs dialogue with drastic-android-mod for
+                        // the lifecycle and the NanoBridge surface. The
+                        // fork-exec itself is not yet implemented; this
+                        // branch is the handoff skeleton.
+                        {
+                            char drasticAppProp[PROPERTY_VALUE_MAX] = {};
+                            property_get(
+                                    "persist.gammaos.nano.drastic_app",
+                                    drasticAppProp, "0");
+                            if (drasticAppProp[0] == '1') {
+                                ALOGI("drastic QR: nano-shim handoff "
+                                      "path selected (persist.gammaos."
+                                      "nano.drastic_app=1)");
+
+                                // Step 1: release DrasticRunner's
+                                // fake-JNI DS CPU threads. The shim's
+                                // ART will re-dlopen libdrastic_arm64
+                                // fresh; without pauseDrastic, the
+                                // original worker pool continues running
+                                // in nano.
+                                DrasticRunner* drastic =
+                                        DrasticRunner::getInstance();
+                                if (drastic) {
+                                    drastic->pauseDrastic();
+                                    ALOGI("drastic QR nano-shim: paused "
+                                          "DrasticRunner fake-JNI path");
+                                }
+
+                                // Step 2: bring the NanoBridge server
+                                // up if it's not already. main.cpp
+                                // starts it only when the opt-in prop
+                                // was set at boot; defensively call it
+                                // again here -- the server is
+                                // idempotent.
+                                if (!android::nano_bridge::startServer()) {
+                                    ALOGW("drastic QR nano-shim: Bridge "
+                                          "server failed to start -- "
+                                          "shim will fail to connect");
+                                }
+
+                                // Step 3: look up stock drastic's UID
+                                // by stat'ing its app-private dir. We
+                                // need this UID for setuid + setgid in
+                                // the fork child so the shim sees stock
+                                // drastic's files under
+                                // /data/data/com.dsemu.drastic/ as its
+                                // own.
+                                struct stat stockStat = {};
+                                uid_t stockUid = 0;
+                                gid_t stockGid = 0;
+                                if (stat("/data/data/com.dsemu.drastic",
+                                         &stockStat) == 0) {
+                                    stockUid = stockStat.st_uid;
+                                    stockGid = stockStat.st_gid;
+                                    ALOGI("drastic QR nano-shim: stock "
+                                          "drastic uid=%u gid=%u",
+                                          stockUid, stockGid);
+                                } else {
+                                    ALOGW("drastic QR nano-shim: cannot "
+                                          "stat stock drastic datadir "
+                                          "(%s); shim launch aborted",
+                                          strerror(errno));
+                                    goto legacy_handoff;
+                                }
+
+                                // Step 4: resolve the shim APK path and
+                                // the stock drastic APK path. Both are
+                                // fixed: shim under /system/priv-app,
+                                // stock under /data/app.
+                                std::string shimApk =
+                                        "/system/priv-app/"
+                                        "GammaDrasticNanoShim/"
+                                        "GammaDrasticNanoShim.apk";
+                                std::string drasticApk;
+                                {
+                                    DIR* d = opendir("/data/app");
+                                    if (d) {
+                                        struct dirent* e;
+                                        while ((e = readdir(d)) != nullptr) {
+                                            std::string name(e->d_name);
+                                            // Android 11+ puts apps in
+                                            // ~/data/app/~~hash1==/pkg-hash2==/
+                                            if (name.substr(0, 2) != "~~") continue;
+                                            std::string inner = std::string("/data/app/") + name;
+                                            DIR* d2 = opendir(inner.c_str());
+                                            if (!d2) continue;
+                                            struct dirent* e2;
+                                            while ((e2 = readdir(d2)) != nullptr) {
+                                                std::string n2(e2->d_name);
+                                                if (n2.find("com.dsemu.drastic-") == 0 &&
+                                                    n2.find("nano") == std::string::npos) {
+                                                    drasticApk = inner + "/" + n2 + "/base.apk";
+                                                    break;
+                                                }
+                                            }
+                                            closedir(d2);
+                                            if (!drasticApk.empty()) break;
+                                        }
+                                        closedir(d);
+                                    }
+                                }
+                                if (drasticApk.empty()) {
+                                    ALOGW("drastic QR nano-shim: stock "
+                                          "drastic APK not found under "
+                                          "/data/app; shim launch "
+                                          "aborted");
+                                    goto legacy_handoff;
+                                }
+                                ALOGI("drastic QR nano-shim: drastic apk=%s",
+                                      drasticApk.c_str());
+                                ALOGI("drastic QR nano-shim: shim apk=%s",
+                                      shimApk.c_str());
+
+                                // Step 5: resolve ROM path. Use the
+                                // REAL /storage path the user picked,
+                                // not the nano_cache staging copy.
+                                // Stock drastic expects ROMs under
+                                // /storage/<UUID>/nds/ via its
+                                // normal ACTION_VIEW content:// flow;
+                                // the shim mirrors that. Source of
+                                // truth: /data/system/nano_qr_rom.txt
+                                // (getQrRomPath). Skip nano_cache --
+                                // that file is mode 0770:root:media_rw
+                                // with a longer path and isn't what
+                                // drastic's DraSticPathCache expects.
+                                std::string romPath = getQrRomPath();
+                                if (romPath.empty()) {
+                                    ALOGW("drastic QR nano-shim: "
+                                          "getQrRomPath returned empty; "
+                                          "shim launch aborted");
+                                    goto legacy_handoff;
+                                }
+                                ALOGI("drastic QR nano-shim: rom=%s",
+                                      romPath.c_str());
+
+                                // Step 6: fork + setuid + setexeccon +
+                                // exec. The classpath lists shim first
+                                // so its DraSticGlView wins (see expert
+                                // dialog 2026-04-15 on PathClassLoader
+                                // scan order).
+                                std::string classpathArg =
+                                        std::string("-Djava.class.path=")
+                                        + shimApk + ":" + drasticApk;
+
+                                // Init-service based launch. Fork+exec
+                                // of app_process directly from
+                                // gammaos-nano's multi-threaded
+                                // context hits a bionic linker
+                                // failure ("libnativeloader.so not
+                                // found") no matter how we sanitise
+                                // the child (setuid, capset, vfork,
+                                // shell intermediary, fd close -- all
+                                // tried, all still fail). Init's own
+                                // fork+exec is single-threaded and
+                                // clean, so we hand the job to init
+                                // via ctl.start and a tiny launcher
+                                // binary reading args from props.
+                                property_set(
+                                        "persist.gammaos.nano.drastic_rom",
+                                        romPath.c_str());
+                                property_set(
+                                        "persist.gammaos.nano.drastic_apk",
+                                        drasticApk.c_str());
+                                property_set(
+                                        "persist.gammaos.nano.drastic_shim",
+                                        shimApk.c_str());
+                                // Point the shim at the prebuilt_etc-
+                                // staged libs which carry the
+                                // expert's v10 longjmp + audio
+                                // patches. /system/etc/drastic_nano
+                                // is outside the app classloader's
+                                // namespace permitted.paths -- so
+                                // separately stage the libs to a
+                                // namespace-accessible location as
+                                // root from ShimLauncher before exec.
+                                // That's still TODO; for this
+                                // iteration we hand the shim the
+                                // /system/etc path and let the shim's
+                                // updated findShimLibDir (v10) resolve
+                                // via its own fallback chain. If
+                                // dlopen still fails on namespace
+                                // accessibility, we copy libs from
+                                // /system/etc to drastic's nano_cache
+                                // from ShimLauncher (root can write).
+                                property_set(
+                                        "persist.gammaos.nano.drastic_libdir",
+                                        "/system/etc/drastic_nano");
+                                // Stop the framework's compositor
+                                // chain so DRM master can return to
+                                // nano. On RK3568 the vendor HWC
+                                // (hwcomposer-3) is the actual DRM
+                                // master holder; SF is its client.
+                                // Both must go for nano's drmSet
+                                // Master to succeed.
+                                // Option C implementation: stop SF +
+                                // HWC (free DRM master) and then start
+                                // gammaos_sf_stub before the shim so the
+                                // shim's SurfaceView.<init> -> SCC.
+                                // onFirstRef() -> waitForService
+                                // ("SurfaceFlingerAIDL") lookup resolves
+                                // to our empty binder instead of
+                                // blocking forever. See SfAidlStub.cpp.
+                                sShimHandoffActive.store(true);
+                                ALOGI("drastic QR nano-shim: stopping "
+                                      "hwcomposer-3 then surfaceflinger "
+                                      "(Option C: SF AIDL stub)");
+                                property_set("ctl.stop", "hwcomposer-3");
+                                usleep(200000);
+                                property_set("ctl.stop", "surfaceflinger");
+                                usleep(300000);
+                                // TODO: nano reinit DRM master here
+                                // (drmOpen + drmSetMaster, or call
+                                // existing drmEarlySplash equivalent).
+                                ALOGI("drastic QR nano-shim: SF + "
+                                      "HWC stopped, starting SF stub");
+
+                                // Start the SF AIDL stub service.
+                                // Init spawns /system/bin/gammaos_sf_stub
+                                // in the gammaos_sf_stub domain, which
+                                // registers an empty binder under names
+                                // SurfaceFlingerAIDL and SurfaceFlinger
+                                // via servicemanager. Give it time to
+                                // finish registration before the shim
+                                // issues its waitForService lookup.
+                                property_set(
+                                        "ctl.start",
+                                        "gammaos_sf_stub");
+                                usleep(300000);
+                                ALOGI("drastic QR nano-shim: SF stub "
+                                      "started, forking shim");
+
+                                property_set(
+                                        "ctl.start",
+                                        "gammaos_drastic_shim");
+                                ALOGI("drastic QR nano-shim: "
+                                      "triggered init service "
+                                      "gammaos_drastic_shim via "
+                                      "ctl.start; nano stays alive "
+                                      "to service the NanoBridge "
+                                      "socket for the shim");
+                                // Do NOT set mExitRequested -- nano
+                                // needs to keep running so
+                                // NanoBridgeServer can accept the
+                                // shim's handshake and route
+                                // queueBuffer calls into the DRM
+                                // ring. Also swallow future QR
+                                // handoff triggers so we don't fire
+                                // another shim.
+                                handoffFired = true;
+                                break;
+#if 0
+                                // Legacy fork path kept for reference;
+                                // not reached. Hit a bionic linker
+                                // failure in every variant (fork,
+                                // vfork, setuid yes/no, capset, fd
+                                // close, sh-c, etc). Init-service
+                                // launcher above is the working path.
+                                pid_t pid = vfork();
+                                if (pid == 0) {
+                                    // Child.
+                                    setsid();
+
+                                    // Build a minimal environment so
+                                    // app_process / ART can find the
+                                    // boot classpath, dex2oat paths,
+                                    // and data dirs. Nano's own env
+                                    // is empty (init-launched service
+                                    // without env inheritance).
+                                    setenv("PATH",
+                                           "/product/bin:"
+                                           "/apex/com.android.runtime/bin:"
+                                           "/apex/com.android.art/bin:"
+                                           "/system_ext/bin:"
+                                           "/system/bin:/system/xbin:"
+                                           "/odm/bin:/vendor/bin:"
+                                           "/vendor/xbin", 1);
+                                    setenv("ANDROID_ROOT", "/system", 1);
+                                    setenv("ANDROID_DATA", "/data", 1);
+                                    setenv("ANDROID_ART_ROOT",
+                                           "/apex/com.android.art", 1);
+                                    setenv("ANDROID_I18N_ROOT",
+                                           "/apex/com.android.i18n", 1);
+                                    setenv("ANDROID_TZDATA_ROOT",
+                                           "/apex/com.android.tzdata", 1);
+
+                                    // BOOTCLASSPATH / DEX2OATBOOTCLASSPATH
+                                    // / SYSTEMSERVERCLASSPATH are
+                                    // populated by derive_classpath
+                                    // during boot and cached at
+                                    // /data/system/environ. Source
+                                    // them from there.
+                                    // derive_classpath format:
+                                    //   export NAME VALUE\n
+                                    auto loadEnvFromFile = [](const char* path) {
+                                        FILE* f = fopen(path, "r");
+                                        if (!f) return;
+                                        char line[16384];
+                                        while (fgets(line, sizeof(line), f)) {
+                                            size_t n = strlen(line);
+                                            while (n > 0 && (line[n-1] == '\n' ||
+                                                             line[n-1] == '\r')) {
+                                                line[--n] = 0;
+                                            }
+                                            if (strncmp(line, "export ", 7) != 0) continue;
+                                            char* name = line + 7;
+                                            char* space = strchr(name, ' ');
+                                            if (!space) continue;
+                                            *space = 0;
+                                            char* val = space + 1;
+                                            setenv(name, val, 1);
+                                        }
+                                        fclose(f);
+                                    };
+                                    loadEnvFromFile("/data/system/environ/classpath");
+
+                                    // Setgid/setuid FIRST while we
+                                    // still have CAP_SETGID/SETUID,
+                                    // then capset to drop all caps so
+                                    // the linker's AT_SECURE logic
+                                    // doesn't fire on exec and
+                                    // libnativeloader.so resolves via
+                                    // the ART-apex namespace link.
+                                    // Close inherited file descriptors
+                                    // beyond 0/1/2. Nano has open DRM
+                                    // fds, EGL, the bridge listen
+                                    // socket, etc. which bleed into
+                                    // the child; worth ruling out as
+                                    // the cause of the linker's
+                                    // libnativeloader.so failure.
+                                    {
+                                        DIR* d = opendir("/proc/self/fd");
+                                        if (d) {
+                                            struct dirent* e;
+                                            while ((e = readdir(d)) != nullptr) {
+                                                int fd = atoi(e->d_name);
+                                                if (fd > 2) close(fd);
+                                            }
+                                            closedir(d);
+                                        }
+                                    }
+
+                                    (void)stockUid;
+                                    (void)stockGid;
+                                    // Shell intermediary: `su X -c cmd`
+                                    // style setup. Without this,
+                                    // direct exec of app_process from
+                                    // a fork of gammaos-nano hits a
+                                    // "CANNOT LINK ... libnativeloader
+                                    // not found" linker failure that
+                                    // DOES NOT reproduce when the
+                                    // same UID runs app_process via a
+                                    // shell. The shell in between
+                                    // normalises whatever state is
+                                    // off (likely related to
+                                    // linkerconfig selection based on
+                                    // caller context). Cost: one
+                                    // extra exec, <10ms.
+                                    {
+                                        std::string cmd =
+                                                "exec /system/bin/app_process ";
+                                        cmd += classpathArg;
+                                        cmd += " /system/bin ";
+                                        cmd += "gammaos.drastic.NanoDraSticEntry ";
+                                        cmd += "\""; cmd += romPath; cmd += "\" ";
+                                        cmd += "\""; cmd += drasticApk; cmd += "\"";
+                                        execl("/system/bin/sh",
+                                              "sh", "-c", cmd.c_str(),
+                                              nullptr);
+                                    }
+                                    _exit(93);  // exec failed
+                                } else if (pid > 0) {
+                                    ALOGI("drastic QR nano-shim: forked "
+                                          "pid=%d; nano continues "
+                                          "holding DRM master",
+                                          pid);
+                                    // Park the nano main loop: let the
+                                    // existing render loop continue but
+                                    // stop driving DrasticRunner's XMB;
+                                    // the shim now owns rendering via
+                                    // NanoBridge. On shim exit we'd
+                                    // normally loop back to XMB; v1
+                                    // treats the shim as a one-shot
+                                    // session -- exit nano when shim
+                                    // exits. Wait in a background
+                                    // thread so the main render loop
+                                    // keeps going.
+                                    std::thread([pid]() {
+                                        int status = 0;
+                                        waitpid(pid, &status, 0);
+                                        ALOGI("drastic QR nano-shim: "
+                                              "child exited (status=0x%x)",
+                                              status);
+                                    }).detach();
+                                    mExitRequested = true;
+                                    break;
+                                } else {
+                                    ALOGE("drastic QR nano-shim: fork "
+                                          "failed (%s); falling back to "
+                                          "am-start", strerror(errno));
+                                    // fall through to legacy path
+                                }
+#endif
+                            }
+                        }
+                        legacy_handoff:
+
                         ALOGI("drastic QR: handoff to com.dsemu.drastic");
                         // Recreate /data/system/nano_launch_intent.txt
                         // from the persistent copy written by

@@ -1,0 +1,32 @@
+# gammaos_sf_stub -- SurfaceFlingerAIDL stub service spawned by init
+# during the drastic-nano handoff branch. See SfAidlStub.cpp for
+# rationale. Registers an empty binder under the "SurfaceFlingerAIDL"
+# and "SurfaceFlinger" service names so the shim's waitForService
+# lookups resolve instantly after we stop the real surfaceflinger.
+#
+# The stub never implements any ISurfaceComposer methods; actual
+# drastic rendering is steered through NanoBridge -> nano's DRM ring.
+#
+# Permissive during bringup. Tighten once stable.
+
+type gammaos_sf_stub, domain, coredomain;
+
+permissive gammaos_sf_stub;
+
+# Init spawns us via seclabel in gammaos-nano.rc; init transitions us
+# into this domain and exec's /system/bin/gammaos_sf_stub.
+allow init gammaos_sf_stub:process { transition };
+allow gammaos_sf_stub system_file:file { rx_file_perms entrypoint };
+dontaudit init gammaos_sf_stub:process noatsecure;
+
+# Binder setup: talk to servicemanager and register as
+# surfaceflinger_service. Note: cannot use the add_service() macro
+# here because it emits a neverallow that forbids any OTHER domain
+# from adding surfaceflinger_service -- that would contradict
+# surfaceflinger.te's own allow rule. Emit only the allow lines.
+binder_use(gammaos_sf_stub)
+allow gammaos_sf_stub surfaceflinger_service:service_manager { add find };
+
+# Log to logd.
+allow gammaos_sf_stub logdr_socket:sock_file write;
+allow gammaos_sf_stub logd:unix_stream_socket connectto;

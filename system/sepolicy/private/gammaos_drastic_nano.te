@@ -1,0 +1,69 @@
+# gammaos_drastic_nano -- SELinux domain for the out-of-process drastic
+# shim running under app_process, forked by gammaos-nano.
+#
+# Transition: bootanim (gammaos-nano's domain) exec's /system/bin/
+# app_process with setexeccon("u:r:gammaos_drastic_nano:s0"), which
+# lands the new process in this domain. Zygote is NOT involved; we
+# deliberately bypass its UID/domain transition.
+#
+# The shim runs as stock drastic's UID to access
+# /data/data/com.dsemu.drastic/ directly (single source of truth for
+# saves/shaders/savestates per user constraint, 2026-04-15).
+#
+# Permissive during bringup. We'll tighten once the first-run denial
+# pattern stabilises.
+
+type gammaos_drastic_nano, domain, coredomain;
+
+permissive gammaos_drastic_nano;
+
+# Allow bootanim (nano) to transition into this domain via
+# setexeccon + exec(zygote_exec) pattern.
+allow bootanim gammaos_drastic_nano:process { transition dyntransition };
+allow bootanim gammaos_drastic_nano:file { rx_file_perms };
+allow gammaos_drastic_nano zygote_exec:file { read execute open getattr map entrypoint };
+allow gammaos_drastic_nano bootanim:fd use;
+dontaudit bootanim gammaos_drastic_nano:process noatsecure;
+
+# Stock drastic app_data_file access. Drastic's UID set (c-category
+# labels) is what the shim runs under; those labels auto-apply to any
+# files the shim creates, and existing files from drastic are readable
+# since categories match.
+allow gammaos_drastic_nano app_data_file:dir create_dir_perms;
+allow gammaos_drastic_nano app_data_file:file create_file_perms;
+allow gammaos_drastic_nano app_data_file:lnk_file create_file_perms;
+
+# ART / dex2oat / dalvik-cache. App_process loads the DEX and may
+# trigger compilation into /data/dalvik-cache.
+allow gammaos_drastic_nano dalvikcache_data_file:dir r_dir_perms;
+allow gammaos_drastic_nano dalvikcache_data_file:file r_file_perms;
+allow gammaos_drastic_nano system_data_file:dir r_dir_perms;
+allow gammaos_drastic_nano system_file:file { read open getattr execute execute_no_trans map };
+allow gammaos_drastic_nano system_lib_file:dir r_dir_perms;
+allow gammaos_drastic_nano system_lib_file:file { read open getattr execute map };
+
+# NanoBridge socket connection. Init creates the socket file in
+# /dev/socket/; without a service-specific socket type it inherits
+# the generic device label. Allow the shim to reach it.
+allow gammaos_drastic_nano bootanim:unix_stream_socket connectto;
+allow gammaos_drastic_nano device:sock_file { read write };
+
+# Graphics -- EGL, GPU ioctls, Mali kbase. Drastic renders via GLES2.
+allow gammaos_drastic_nano gpu_device:chr_file rw_file_perms;
+allow gammaos_drastic_nano ion_device:chr_file rw_file_perms;
+allow gammaos_drastic_nano dmabuf_system_heap_device:chr_file r_file_perms;
+allow gammaos_drastic_nano hal_graphics_allocator:fd use;
+
+# Standard ashmem / shared memory for ART + AHB transfers.
+allow gammaos_drastic_nano ashmem_device:chr_file rw_file_perms;
+allow gammaos_drastic_nano tmpfs:file { read write getattr map execute };
+
+# Properties the shim and drastic read.
+get_prop(gammaos_drastic_nano, persist_gammaos_prop)
+get_prop(gammaos_drastic_nano, system_prop)
+get_prop(gammaos_drastic_nano, bluetooth_prop)
+get_prop(gammaos_drastic_nano, debug_prop)
+
+# Logging.
+allow gammaos_drastic_nano logdr_socket:sock_file write;
+allow gammaos_drastic_nano logd:unix_stream_socket connectto;

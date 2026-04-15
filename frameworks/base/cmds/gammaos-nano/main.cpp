@@ -41,6 +41,7 @@
 
 #include "DrasticRunner.h"
 #include "FakeJNI.h"
+#include "NanoBridge.h"
 #include "NanoMenu.h"
 
 using namespace android;
@@ -701,6 +702,27 @@ int main() {
 
     runDrasticInitIfNeeded();
     startDrasticQrTestWatcher();
+
+    // NanoBridge socket: started only when the user has opted into
+    // the drastic-nano shim path. Otherwise we leave no listener so
+    // the socket path doesn't pollute /dev/socket and an attacker
+    // can't reach the (stub) handlers. When the shim spawns via
+    // fork+app_process from NanoMenu.cpp's handoff branch, the
+    // NanoMenu path re-invokes nano_bridge::startServer() right
+    // before the fork so the listener is guaranteed up by the time
+    // the shim's libgammaos_nano_bridge.so tries to connect.
+    {
+        char drasticAppProp[PROPERTY_VALUE_MAX] = {};
+        property_get("persist.gammaos.nano.drastic_app",
+                     drasticAppProp, "0");
+        if (drasticAppProp[0] == '1') {
+            ALOGI("NanoBridge: opt-in flag set, starting bridge server");
+            if (!android::nano_bridge::startServer()) {
+                ALOGW("NanoBridge: startServer() failed -- the shim "
+                      "will fail to connect; check socket path perms");
+            }
+        }
+    }
 
     sp<ProcessState> proc(ProcessState::self());
     ProcessState::self()->startThreadPool();
