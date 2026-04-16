@@ -1,0 +1,151 @@
+/*
+ * Copyright (C) 2026 GammaOS
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#ifndef GAMMAOS_NANO_MENU_UTILS_H
+#define GAMMAOS_NANO_MENU_UTILS_H
+
+#include <string>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/stat.h>
+
+#include <android-base/properties.h>
+#include <cutils/properties.h>
+
+namespace android {
+
+// OSK keyboard layout (shared between NanoMenuXmb.cpp and NanoMenu.cpp input handling)
+static const char kOskLayout[3][9] = {
+    {'A','B','C','D','E','F','G','H','I'},
+    {'J','K','L','M','N','O','P','Q','R'},
+    {'S','T','U','V','W','X','Y','Z',' '},
+};
+static const int kOskRows = 3;
+static const int kOskCols = 9;
+
+// Case-insensitive substring search
+inline bool containsInsensitive(const std::string& haystack, const std::string& needle) {
+    if (needle.empty()) return true;
+    if (haystack.size() < needle.size()) return false;
+    for (size_t i = 0; i <= haystack.size() - needle.size(); i++) {
+        bool match = true;
+        for (size_t j = 0; j < needle.size(); j++) {
+            char a = haystack[i + j], b = needle[j];
+            if (a >= 'A' && a <= 'Z') a += 32;
+            if (b >= 'A' && b <= 'Z') b += 32;
+            if (a != b) { match = false; break; }
+        }
+        if (match) return true;
+    }
+    return false;
+}
+
+// GammaOS: path props routinely exceed PROP_VALUE_MAX (92 bytes) when
+// ROMs live on external SD at /storage/<UUID>/..., so the prop set
+// silently fails. Mirror the path into a plain text file alongside so
+// readers can fall back when the prop is empty. Empty values unlink
+// the file so a stale path can never resurrect in the fallback read.
+inline void writePathFile(const char* path, const std::string& value) {
+    if (value.empty()) {
+        unlink(path);
+        return;
+    }
+    int fd = open(path, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+    if (fd >= 0) {
+        write(fd, value.c_str(), value.size());
+        close(fd);
+        chmod(path, 0644);
+    }
+}
+
+inline std::string readPathFile(const char* path) {
+    int fd = open(path, O_RDONLY);
+    if (fd < 0) return std::string();
+    char buf[4096];
+    ssize_t n = read(fd, buf, sizeof(buf));
+    close(fd);
+    if (n <= 0) return std::string();
+    std::string s(buf, (size_t)n);
+    // Strip trailing whitespace/newlines to tolerate shell-written files.
+    while (!s.empty() && (s.back() == '\n' || s.back() == '\r' ||
+                          s.back() == ' '  || s.back() == '\t')) {
+        s.pop_back();
+    }
+    return s;
+}
+
+inline void setLaunchRomPath(const std::string& romPath) {
+    android::base::SetProperty("sys.gammaos.nano.launch_rom", romPath);
+    writePathFile("/data/system/nano_launch_rom.txt", romPath);
+}
+
+inline void setQrRomPath(const std::string& romPath) {
+    android::base::SetProperty("persist.gammaos.nano.qr_rom", romPath);
+    writePathFile("/data/system/nano_qr_rom.txt", romPath);
+}
+
+inline std::string getQrRomPath() {
+    // Prefer the file over the persist prop. External SD paths
+    // (e.g. /storage/<UUID>/nds/<long name>.nds) routinely exceed
+    // PROP_VALUE_MAX (92 bytes) and the prop write silently fails,
+    // leaving a stale short path from a previous session. The file
+    // is always written regardless of length, so it's the source of
+    // truth. Fall back to the prop only when the file is missing
+    // (e.g. first boot, or the file was manually deleted).
+    std::string p = readPathFile("/data/system/nano_qr_rom.txt");
+    if (!p.empty()) return p;
+    return android::base::GetProperty(
+            "persist.gammaos.nano.qr_rom", "");
+}
+
+// Drastic nano ROM path -- separate from QR ROM path so drastic nano
+// and QR drastic can coexist without overwriting each other's state.
+// The getter lives in main.cpp (separate compilation unit) where it's
+// used for boot-time ROM discovery.
+inline void setDrasticNanoRomPath(const std::string& romPath) {
+    writePathFile("/data/system/nano_drastic_nano_rom.txt", romPath);
+}
+
+// GammaOS: returns true when the QR ROM's backing storage is mounted.
+//
+// On cold boot vold defers external SD scanning until after the secure
+// keyguard step, so /mnt/media_rw/<UUID>/ doesn't exist for ~3-5
+// seconds after gammaos-nano comes up. The drastic QR handoff fires a
+// content:// URI pointing at that volume, and if the ContentProvider
+// can't resolve the file (because vold hasn't mounted it yet), drastic
+// silently falls back to its main menu instead of routing to
+// DraSticEmuActivity. By blocking the handoff until the raw vold mount
+// point exists we guarantee the URI is resolvable when drastic looks
+// it up. ROMs on /sdcard or /data/media/0 don't need this gate -- they
+// live on /data which is up before NanoMenu starts.
+inline bool isQrRomStorageReady() {
+    std::string qrRom = getQrRomPath();
+    if (qrRom.empty()) return true;
+    if (qrRom.find("/storage/") != 0) return true;
+    std::string rest = qrRom.substr(9); // skip "/storage/"
+    size_t slash = rest.find('/');
+    if (slash == std::string::npos) return true;
+    std::string uuid = rest.substr(0, slash);
+    if (uuid == "emulated" || uuid == "self") return true;
+    std::string rawDir = "/mnt/media_rw/" + uuid;
+    struct stat st;
+    if (stat(rawDir.c_str(), &st) != 0) return false;
+    return S_ISDIR(st.st_mode);
+}
+
+} // namespace android
+
+#endif // GAMMAOS_NANO_MENU_UTILS_H

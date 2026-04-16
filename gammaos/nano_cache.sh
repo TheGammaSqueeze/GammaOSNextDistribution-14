@@ -663,7 +663,15 @@ do_populate_drastic() {
     # plain XMB instead of the drastic QR fast-path, which would
     # dead-lock on an empty rom dir.
     local rom_staged=0
-    local rom_path="$(resolve_qr_rom)"
+    # Drastic nano uses its own ROM path file so it doesn't collide
+    # with QR drastic state. Check it first, fall back to QR path.
+    local rom_path=""
+    if [ -s /data/system/nano_drastic_nano_rom.txt ]; then
+        rom_path=$(cat /data/system/nano_drastic_nano_rom.txt)
+    fi
+    if [ -z "$rom_path" ]; then
+        rom_path="$(resolve_qr_rom)"
+    fi
     if [ -n "$rom_path" ]; then
         local rom_raw=$(to_raw_path "$rom_path")
         if [ -f "$rom_raw" ]; then

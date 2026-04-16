@@ -263,6 +263,7 @@ private:
     // Exit flag
     bool mExitRequested;
     bool mWaitForRelease; // wait for select key release before exiting
+    bool mDrasticNanoPending; // drastic nano: waiting for cache, then restart
 
     // Submenu state
     MenuState mMenuState;

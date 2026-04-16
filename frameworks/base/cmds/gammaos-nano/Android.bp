@@ -38,6 +38,8 @@ cc_binary {
     srcs: [
         "main.cpp",
         "NanoMenu.cpp",
+        "NanoMenuDrm.cpp",
+        "NanoMenuXmb.cpp",
         "LibretroRunner.cpp",
         "FakeJNI.cpp",
         "DrasticRunner.cpp",

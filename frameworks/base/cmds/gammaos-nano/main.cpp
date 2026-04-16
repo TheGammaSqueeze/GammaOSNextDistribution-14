@@ -280,24 +280,98 @@ static void runDrasticInitIfNeeded() {
 
     const std::string cacheDir = "/data/system/nano_cache/drastic";
 
-    // Discover the ROM by scanning the cache/rom/ subdir for the first
-    // drastic-loadable file. populate_drastic only keeps one ROM at a time
-    // so this gives us the currently-staged ROM without needing to plumb
-    // another property through. Works for both smoke (debug test rom) and
-    // QR (user-selected rom from NanoMenu XMB).
-    //
-    // Accepted extensions: drastic natively loads both raw .nds and common
-    // archive containers (.zip, .7z, .rar) by extracting the inner ROM at
-    // load time. The cache preserves the user's original filename/extension,
-    // so archive ROMs (common for distribution) were previously invisible to
-    // this scanner and the QR would silently fall through to XMB.
-    auto hasExt = [](const std::string& name, const char* ext) {
-        size_t elen = strlen(ext);
-        return name.size() >= elen &&
-               strcasecmp(name.c_str() + name.size() - elen, ext) == 0;
-    };
+    // Check if drastic nano mode is active. When enabled, we load the
+    // ROM from its real storage path instead of the cache copy, and
+    // wait for external storage to mount if needed.
+    char dnProp[PROPERTY_VALUE_MAX] = {};
+    property_get("persist.gammaos.nano.drastic_nano", dnProp, "0");
+    bool drasticNano = (dnProp[0] == '1');
+
     std::string romPath;
-    {
+
+    if (drasticNano) {
+        // Drastic nano: read real ROM path from the nano drastic file.
+        {
+            int fd = open("/data/system/nano_drastic_nano_rom.txt",
+                          O_RDONLY);
+            if (fd >= 0) {
+                char buf[4096];
+                ssize_t n = read(fd, buf, sizeof(buf));
+                close(fd);
+                if (n > 0) {
+                    romPath.assign(buf, (size_t)n);
+                    while (!romPath.empty() &&
+                           (romPath.back() == '\n' ||
+                            romPath.back() == '\r' ||
+                            romPath.back() == ' ')) {
+                        romPath.pop_back();
+                    }
+                }
+            }
+        }
+        if (romPath.empty()) {
+            ALOGW("%s: drastic nano active but no ROM path in "
+                  "nano_drastic_nano_rom.txt -- skipping", tag);
+            return;
+        }
+        // Wait for external storage to mount. SD cards can take a few
+        // seconds after boot. We check if the ROM file is accessible,
+        // polling up to 15s. Internal storage (/data/) is always
+        // available, so this only blocks for external paths.
+        if (access(romPath.c_str(), R_OK) != 0) {
+            ALOGI("%s: drastic nano ROM not accessible yet, "
+                  "waiting for storage mount...", tag);
+            int waitMs = 0;
+            while (waitMs < 15000) {
+                usleep(100 * 1000);
+                waitMs += 100;
+                if (access(romPath.c_str(), R_OK) == 0) break;
+            }
+            if (access(romPath.c_str(), R_OK) != 0) {
+                // Real path not accessible (e.g. FUSE not mounted in
+                // this mount namespace during mid-session restart).
+                // Fall back to the cached ROM copy which populate_drastic
+                // already placed in the cache dir.
+                ALOGW("%s: drastic nano ROM not accessible after 15s: "
+                      "%s -- trying cache fallback",
+                      tag, romPath.c_str());
+                std::string romDir = cacheDir + "/rom";
+                DIR* d = opendir(romDir.c_str());
+                if (d) {
+                    struct dirent* e;
+                    while ((e = readdir(d)) != nullptr) {
+                        std::string name(e->d_name);
+                        if (name == "." || name == "..") continue;
+                        if (name.size() >= 4 &&
+                            strcasecmp(name.c_str() + name.size() - 4,
+                                       ".nds") == 0) {
+                            romPath = romDir + "/" + name;
+                            break;
+                        }
+                    }
+                    closedir(d);
+                }
+                if (access(romPath.c_str(), R_OK) != 0) {
+                    ALOGW("%s: cache fallback also failed -- skipping",
+                          tag);
+                    return;
+                }
+                ALOGI("%s: using cached ROM: %s", tag,
+                      romPath.c_str());
+            } else {
+                ALOGI("%s: drastic nano ROM accessible after %dms",
+                      tag, waitMs);
+            }
+        }
+        ALOGI("%s: drastic nano rom=%s", tag, romPath.c_str());
+    } else {
+        // Normal QR/smoke: discover ROM from cache directory.
+        auto hasExt = [](const std::string& name, const char* ext) {
+            size_t elen = strlen(ext);
+            return name.size() >= elen &&
+                   strcasecmp(name.c_str() + name.size() - elen,
+                              ext) == 0;
+        };
         std::string romDir = cacheDir + "/rom";
         DIR* d = opendir(romDir.c_str());
         if (d) {
@@ -313,12 +387,13 @@ static void runDrasticInitIfNeeded() {
             }
             closedir(d);
         }
+        if (romPath.empty()) {
+            ALOGW("%s: no ROM in %s/rom -- skipping",
+                  tag, cacheDir.c_str());
+            return;
+        }
+        ALOGI("%s: rom=%s", tag, romPath.c_str());
     }
-    if (romPath.empty()) {
-        ALOGW("%s: no ROM in %s/rom -- skipping", tag, cacheDir.c_str());
-        return;
-    }
-    ALOGI("%s: rom=%s", tag, romPath.c_str());
 
     // Heap-allocate the runner so the background threads drastic
     // spawns during startGame keep their state alive after this
