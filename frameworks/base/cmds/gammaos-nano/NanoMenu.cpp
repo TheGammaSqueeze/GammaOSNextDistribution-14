@@ -2668,8 +2668,15 @@ if (sRingPrimedCount >= 2) {
     // will clear drop_input itself when it processes a FOCUS entry (which
     // arrives after all stale events have been dropped).
     ALOGD("NanoMenu: showing loading screen, waiting for RetroArch");
-    // GammaOS: Ensure rotation uniforms are set for the loading screen path.
-    if (sDrmGlRotation) {
+    // GammaOS: Upload the rotation matrix unconditionally. After drmStop()
+    // above, sDrmGlRotation is false and sDrmRotMat is the identity matrix,
+    // but the text program's uRotation uniform still holds the previous
+    // DRM rotation from the QR/XMB session. Without this upload the
+    // loading text renders with the stale rotation while the viewport is
+    // logical (mWidth/mHeight) — the net effect is the "Loading..." string
+    // appears upside-down or sideways on panels installed at 90/180/270.
+    // Gating on sDrmGlRotation (the previous behavior) skipped the reset.
+    {
         const GLuint progs[] = {mShaderProgram, mTextProgram};
         const GLint  locs[]  = {mLocRotation, mTextLocRotation};
         for (int i = 0; i < 2; i++) {

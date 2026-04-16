@@ -1148,6 +1148,13 @@ void NanoMenu::launchXmbGame() {
                     mOskActive = false;
                     return;
                 }
+            } else if (re.launchPkg != "com.dsemu.drastic") {
+                // Non-drastic standalone (PPSSPP, etc.): clear any stale
+                // QR prime so the next nano start does not auto-resume an
+                // unrelated drastic/retroarch game. Drastic+QR-disabled
+                // paths fall through without touching prime state.
+                property_set("persist.gammaos.nano.qr_prepared", "0");
+                android::base::SetProperty("persist.gammaos.nano.qr_core", "");
             }
         } else {
             std::string corePath = "/data/data/com.retroarch.aarch64/cores/" + re.coreSo;
@@ -1324,6 +1331,12 @@ void NanoMenu::launchXmbGame() {
                 mOskActive = false;
                 return;
             }
+        } else if (sys.launchPkg != "com.dsemu.drastic") {
+            // Non-drastic standalone (PPSSPP, etc.): clear any stale QR
+            // prime so the next nano start does not auto-resume an
+            // unrelated drastic/retroarch game.
+            property_set("persist.gammaos.nano.qr_prepared", "0");
+            android::base::SetProperty("persist.gammaos.nano.qr_core", "");
         }
     } else {
         // RetroArch core

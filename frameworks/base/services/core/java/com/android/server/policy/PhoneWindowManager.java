@@ -1803,6 +1803,24 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 android.os.SystemProperties.set("sys.gammaos.nano.pending_exit", "0");
                 android.os.SystemProperties.set("sys.gammaos.nano.app_launched", "0");
                 android.os.SystemProperties.set("sys.gammaos.nano.restart", "1");
+                // GammaOS Nano: Clear ALL launch state BEFORE force-stopping the
+                // app. forceStopPackage below synchronously triggers
+                // resumeTopActivities → startHomeOnTaskDisplayArea, which in the
+                // minimal-boot branch reads launch_app / launch_intent and
+                // immediately relaunches whatever it points at. Without this
+                // clear, the just-killed app gets relaunched in the background
+                // while the nano menu is coming up — user sees XMB but hears
+                // the app's audio loop back in. Symptom is racy because
+                // init.rc's `on property:sys.gammaos.nano.restart=1` action
+                // clears bootanim.exit = 0 which changes the skip-home-launch
+                // short-circuit condition; when the init action processes
+                // BEFORE forceStopPackage returns the short-circuit fires and
+                // the app stays dead, when it processes AFTER the app gets
+                // relaunched.
+                android.os.SystemProperties.set("sys.gammaos.nano.launch_app", "");
+                android.os.SystemProperties.set("sys.gammaos.nano.launch_intent", "");
+                android.os.SystemProperties.set("sys.gammaos.nano.launch_core", "");
+                android.os.SystemProperties.set("sys.gammaos.nano.launch_rom", "");
                 try {
                     // Remove all tasks for this package from the recent tasks list,
                     // then force-stop the package. Order matters: removing tasks first

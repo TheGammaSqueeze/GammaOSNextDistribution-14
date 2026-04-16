@@ -351,6 +351,12 @@ void NanoMenu::handleSelect() {
         // Clear any ROM/core properties so RootWindowContainer uses generic launch
         setLaunchRomPath("");
         android::base::SetProperty("sys.gammaos.nano.launch_core", "");
+        // Clear any stale Quick Resume priming: the user is launching a
+        // non-drastic/non-retroarch app, so a leftover qr_prepared=1 from an
+        // earlier game would otherwise auto-resume that game on the next
+        // nano start instead of returning the user to Applications.
+        property_set("persist.gammaos.nano.qr_prepared", "0");
+        android::base::SetProperty("persist.gammaos.nano.qr_core", "");
         // Flag so next nano menu restart returns to Applications
         property_set("sys.gammaos.nano.return_apps", "1");
         property_set("service.bootanim.nano_retroarch", "1");
@@ -384,10 +390,18 @@ void NanoMenu::handleSelect() {
     } else if (label == "Boot Android") {
         // Full Android needs a clean boot.  Dispatch via nano_action so
         // init (which has powerctl_prop access) handles the reboot.
+        // Clear QR priming: the user is leaving nano for full Android,
+        // not resuming a game.
+        property_set("persist.gammaos.nano.qr_prepared", "0");
+        android::base::SetProperty("persist.gammaos.nano.qr_core", "");
         property_set("service.bootanim.nano_action", "android");
     } else if (label == "Recovery Mode") {
+        property_set("persist.gammaos.nano.qr_prepared", "0");
+        android::base::SetProperty("persist.gammaos.nano.qr_core", "");
         property_set("service.bootanim.nano_action", "recovery");
     } else if (label == "Safe Mode") {
+        property_set("persist.gammaos.nano.qr_prepared", "0");
+        android::base::SetProperty("persist.gammaos.nano.qr_core", "");
         property_set("service.bootanim.nano_action", "safemode");
     } else if (label == "Reboot") {
         prepareShutdown("reboot");

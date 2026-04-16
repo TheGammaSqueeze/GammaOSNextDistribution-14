@@ -282,6 +282,9 @@ void NanoMenu::drawIcon(int iconIdx, float x, float y, float size,
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, mIconTextures[iconIdx]);
     glUniform1i(mTextLocTexture, 0);
+    // Unbind any VBO (see drawText) so the client pointers below are
+    // read correctly.
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
     glVertexAttribPointer(mTextLocPosition, 2, GL_FLOAT, GL_FALSE, 0, verts);
     glEnableVertexAttribArray(mTextLocPosition);
     glVertexAttribPointer(mTextLocTexCoord, 2, GL_FLOAT, GL_FALSE, 0, uvs);
@@ -305,6 +308,11 @@ void NanoMenu::drawQuad(float x, float y, float w, float h,
     float x1 = ((x + w) / mWidth) * 2.0f - 1.0f;
     float y1 = 1.0f - (y / mHeight) * 2.0f;
     GLfloat verts[] = { x0,y0, x1,y0, x1,y1, x1,y1, x0,y1, x0,y0 };
+    // Unbind any VBO so the glVertexAttribPointer below is treated as a
+    // client memory pointer. DrasticRunner::drawDsQuad leaves mQuadVbo
+    // bound; without this, the client pointer `verts` gets interpreted
+    // as a byte offset into mQuadVbo and the quad renders from garbage.
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
     glUseProgram(mShaderProgram);
     glUniform4f(mLocColor, r, g, b, a);
     glVertexAttribPointer(mLocPosition, 2, GL_FLOAT, GL_FALSE, 0, verts);
@@ -642,6 +650,15 @@ void NanoMenu::drawText(const char* str, float px, float py, float scale,
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, mGlyphAtlasTex);
     glUniform1i(mTextLocTexture, 0);
+    // Unbind any VBO so the glVertexAttribPointer calls below use the
+    // client memory pointers (sTextVerts/UVs/Colors). DrasticRunner's
+    // drawDsQuad leaves GL_ARRAY_BUFFER bound to mQuadVbo; without this
+    // unbind the driver treats our pointers as byte offsets into that
+    // VBO and the glyph verts come out of garbage — visible as the
+    // "Quick Resuming..." overlay missing during drastic QR preview on
+    // dual-display devices where the secondary pass runs immediately
+    // after drastic's drawDsQuad.
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
     glVertexAttribPointer(mTextLocPosition, 2, GL_FLOAT, GL_FALSE, 0, sTextVerts);
     glEnableVertexAttribArray(mTextLocPosition);
     glVertexAttribPointer(mTextLocTexCoord, 2, GL_FLOAT, GL_FALSE, 0, sTextUVs);
