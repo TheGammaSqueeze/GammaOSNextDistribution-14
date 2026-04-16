@@ -1,0 +1,1436 @@
+/*
+ * Copyright (C) 2026 GammaOS
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+// Rendering primitives and the main frame composer. Contains:
+//   - PNG decode + icon texture loading (file + embedded fallbacks)
+//   - drawIcon / drawQuad
+//   - FreeType font init + glyph atlas caching
+//   - measureText / drawText (batched, rotation-aware)
+//   - setupSecondaryEglSurfaces (post-boot wallpaper surfaces)
+//   - render() — per-frame orchestrator (drastic QR passes, XMB, text menu,
+//     brightness/volume HUDs, DRM/HWC present, secondary EGL swap)
+//
+// Extracted from NanoMenu.cpp — behavior unchanged.
+
+#define LOG_TAG "GammaOSNano"
+
+#include <algorithm>
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <setjmp.h>
+#include <vector>
+#include <string>
+
+#include <android-base/properties.h>
+#include <cutils/properties.h>
+#include <utils/Log.h>
+#include <utils/SystemClock.h>
+
+#include <ui/DisplayMode.h>
+#include <ui/DisplayState.h>
+#include <ui/LayerStack.h>
+#include <ui/PixelFormat.h>
+#include <ui/Rect.h>
+
+#include <gui/Surface.h>
+#include <gui/SurfaceComposerClient.h>
+
+#include <EGL/egl.h>
+#include <EGL/eglext.h>
+#include <GLES2/gl2.h>
+#include <GLES2/gl2ext.h>
+#include <png.h>
+
+#include "DrasticRunner.h"
+#include "NanoMenu.h"
+#include "NanoMenuDrm.h"
+#include "NanoMenuShaders.h"
+#include "xmb_icons.h"
+
+namespace android {
+
+using ui::DisplayMode;
+
+// ---------------------------------------------------------------------------
+// Icon texture rendering (monochrome 32x32 icons, tinted at draw time)
+// ---------------------------------------------------------------------------
+
+// Map system index to RetroArch XMB monochrome icon filename
+// Order MUST match kXmbSystemDefs (in NanoMenuXmb.cpp): NES,SNES,GB,GBC,GBA,N64,NDS,GEN,SMS,GG,PSX,PSP,DC,NGP,P8,history
+static const char* kIconPngNames[16] = {
+    "Nintendo - Nintendo Entertainment System.png",       // 0: NES
+    "Nintendo - Super Nintendo Entertainment System.png", // 1: SNES
+    "Nintendo - Game Boy.png",                            // 2: GB
+    "Nintendo - Game Boy Color.png",                      // 3: GBC
+    "Nintendo - Game Boy Advance.png",                    // 4: GBA
+    "Nintendo - Nintendo 64.png",                         // 5: N64
+    "Nintendo - Nintendo DS.png",                         // 6: NDS
+    "Sega - Mega Drive - Genesis.png",                    // 7: Genesis
+    "Sega - Master System - Mark III.png",                // 8: Master System
+    "Sega - Game Gear.png",                               // 9: Game Gear
+    "Sony - PlayStation.png",                             // 10: PSX
+    "Sony - PlayStation Portable.png",                    // 11: PSP
+    "Sega - Dreamcast.png",                               // 12: Dreamcast
+    "SNK - Neo Geo Pocket Color.png",                     // 13: NGP
+    "PICO-8.png",                                         // 14: PICO-8
+    "history.png",                                        // 15: Recently Played
+};
+
+static const char* kIconPngDir = "/data/system/nano_icons";
+
+// Decode PNG pixel data from any source.
+// If monoWhite is true, forces RGB to white and uses alpha for shape (monochrome icons).
+// If monoWhite is false, preserves original RGBA colors (colored icons like PICO-8).
+static bool decodePngToRGBA(png_structp png, png_infop info,
+                            int* outW, int* outH, std::vector<uint8_t>* outPixels,
+                            bool monoWhite = true) {
+    int width = png_get_image_width(png, info);
+    int height = png_get_image_height(png, info);
+    png_byte colorType = png_get_color_type(png, info);
+    png_byte bitDepth = png_get_bit_depth(png, info);
+
+    if (colorType == PNG_COLOR_TYPE_PALETTE) png_set_palette_to_rgb(png);
+    if (colorType == PNG_COLOR_TYPE_GRAY && bitDepth < 8) png_set_expand_gray_1_2_4_to_8(png);
+    if (colorType == PNG_COLOR_TYPE_GRAY || colorType == PNG_COLOR_TYPE_GRAY_ALPHA)
+        png_set_gray_to_rgb(png);
+    if (bitDepth == 16) png_set_strip_16(png);
+    bool hasTrns = png_get_valid(png, info, PNG_INFO_tRNS) != 0;
+    if (hasTrns) png_set_tRNS_to_alpha(png);
+    bool hasAlpha = (colorType & PNG_COLOR_MASK_ALPHA) || hasTrns;
+    if (!hasAlpha) png_set_filler(png, 0xFF, PNG_FILLER_AFTER);
+    png_read_update_info(png, info);
+
+    outPixels->resize(width * height * 4);
+    std::vector<png_bytep> rows(height);
+    for (int y = 0; y < height; y++)
+        rows[y] = outPixels->data() + y * width * 4;
+    png_read_image(png, rows.data());
+
+    if (monoWhite) {
+        // White + alpha: preserve alpha, set RGB=255
+        for (int p = 0; p < width * height; p++) {
+            (*outPixels)[p * 4 + 0] = 255;
+            (*outPixels)[p * 4 + 1] = 255;
+            (*outPixels)[p * 4 + 2] = 255;
+        }
+    }
+    *outW = width;
+    *outH = height;
+    return true;
+}
+
+// Upload decoded RGBA pixels as a GL texture with mipmaps.
+static GLuint createIconTexture(const uint8_t* pixels, int width, int height) {
+    GLuint tex;
+    glGenTextures(1, &tex);
+    glBindTexture(GL_TEXTURE_2D, tex);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,
+                 GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+    glGenerateMipmap(GL_TEXTURE_2D);
+    return tex;
+}
+
+// Load a PNG as RGBA texture from file. Returns true on success.
+static bool loadPngAsAlphaTexture(const char* path, GLuint* outTex, bool monoWhite = true) {
+    FILE* fp = fopen(path, "rb");
+    if (!fp) return false;
+
+    png_byte header[8];
+    if (fread(header, 1, 8, fp) != 8 || png_sig_cmp(header, 0, 8)) {
+        fclose(fp);
+        return false;
+    }
+
+    png_structp png = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
+    if (!png) { fclose(fp); return false; }
+    png_infop info = png_create_info_struct(png);
+    if (!info) { png_destroy_read_struct(&png, nullptr, nullptr); fclose(fp); return false; }
+
+    if (setjmp(png_jmpbuf(png))) {
+        png_destroy_read_struct(&png, &info, nullptr);
+        fclose(fp);
+        return false;
+    }
+
+    png_init_io(png, fp);
+    png_set_sig_bytes(png, 8);
+    png_read_info(png, info);
+
+    int width, height;
+    std::vector<uint8_t> pixels;
+    if (!decodePngToRGBA(png, info, &width, &height, &pixels, monoWhite)) {
+        png_destroy_read_struct(&png, &info, nullptr);
+        fclose(fp);
+        return false;
+    }
+    png_destroy_read_struct(&png, &info, nullptr);
+    fclose(fp);
+
+    *outTex = createIconTexture(pixels.data(), width, height);
+    ALOGD("NanoMenu: loaded PNG icon %s (%dx%d, %s)", path, width, height,
+          monoWhite ? "mono" : "color");
+    return true;
+}
+
+// Memory read callback for libpng
+struct MemPngState { const uint8_t* data; size_t offset; size_t size; };
+static void pngReadFromMemory(png_structp png, png_bytep out, png_size_t count) {
+    MemPngState* state = (MemPngState*)png_get_io_ptr(png);
+    if (state->offset + count > state->size) {
+        png_error(png, "read past end");
+        return;
+    }
+    memcpy(out, state->data + state->offset, count);
+    state->offset += count;
+}
+
+// Load a PNG from in-memory data as texture. Returns true on success.
+// If monoWhite is false, preserves original colors (for colored icons like PICO-8).
+static bool loadPngFromMemory(const uint8_t* pngData, int pngSize, GLuint* outTex,
+                              bool monoWhite = true) {
+    if (pngSize < 8 || png_sig_cmp(pngData, 0, 8)) return false;
+
+    png_structp png = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
+    if (!png) return false;
+    png_infop info = png_create_info_struct(png);
+    if (!info) { png_destroy_read_struct(&png, nullptr, nullptr); return false; }
+
+    if (setjmp(png_jmpbuf(png))) {
+        png_destroy_read_struct(&png, &info, nullptr);
+        return false;
+    }
+
+    MemPngState memState = { pngData, 8, (size_t)pngSize };
+    png_set_read_fn(png, &memState, pngReadFromMemory);
+    png_set_sig_bytes(png, 8);
+    png_read_info(png, info);
+
+    int width, height;
+    std::vector<uint8_t> pixels;
+    if (!decodePngToRGBA(png, info, &width, &height, &pixels, monoWhite)) {
+        png_destroy_read_struct(&png, &info, nullptr);
+        return false;
+    }
+    png_destroy_read_struct(&png, &info, nullptr);
+
+    *outTex = createIconTexture(pixels.data(), width, height);
+    ALOGD("NanoMenu: loaded embedded PNG icon (%dx%d, %s)", width, height,
+          monoWhite ? "mono" : "color");
+    return true;
+}
+
+void NanoMenu::initIconTextures() {
+    memset(mIconTextures, 0, sizeof(mIconTextures));
+    int fileLoaded = 0, embeddedLoaded = 0;
+    for (int i = 0; i < 17; i++) {
+        // Try loading high-res PNG from on-device RetroArch assets
+        bool mono = (i != 14); // PICO-8 (index 14) keeps its original colors
+        std::string pngPath;
+        if (i < 16) pngPath = std::string(kIconPngDir) + "/" + kIconPngNames[i];
+        if (loadPngAsAlphaTexture(pngPath.c_str(), &mIconTextures[i], mono)) {
+            fileLoaded++;
+            continue;
+        }
+        // Fallback: embedded 256x256 PNG data
+        const EmbeddedIcon& icon = kEmbeddedIcons[i];
+        if (loadPngFromMemory(icon.data, icon.size, &mIconTextures[i], mono)) {
+            embeddedLoaded++;
+            continue;
+        }
+        ALOGE("NanoMenu: failed to load icon %d from file or embedded data", i);
+    }
+    ALOGD("NanoMenu: loaded %d file + %d embedded icon textures", fileLoaded, embeddedLoaded);
+}
+
+void NanoMenu::drawIcon(int iconIdx, float x, float y, float size,
+                        float r, float g, float b, float a) {
+    if (iconIdx < 0 || iconIdx >= 17 || mIconTextures[iconIdx] == 0) return;
+
+    float x0 = (x / mWidth) * 2.0f - 1.0f;
+    float y0 = 1.0f - ((y + size) / mHeight) * 2.0f;
+    float x1 = ((x + size) / mWidth) * 2.0f - 1.0f;
+    float y1 = 1.0f - (y / mHeight) * 2.0f;
+
+    GLfloat verts[] = { x0,y0, x1,y0, x1,y1, x1,y1, x0,y1, x0,y0 };
+    GLfloat uvs[]   = { 0,1, 1,1, 1,0, 1,0, 0,0, 0,1 };
+    GLfloat colors[6 * 4];
+    for (int i = 0; i < 6; i++) {
+        colors[i*4+0] = r; colors[i*4+1] = g;
+        colors[i*4+2] = b; colors[i*4+3] = a;
+    }
+
+    glUseProgram(mTextProgram); // reuse text shader (texture * vertex color)
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, mIconTextures[iconIdx]);
+    glUniform1i(mTextLocTexture, 0);
+    glVertexAttribPointer(mTextLocPosition, 2, GL_FLOAT, GL_FALSE, 0, verts);
+    glEnableVertexAttribArray(mTextLocPosition);
+    glVertexAttribPointer(mTextLocTexCoord, 2, GL_FLOAT, GL_FALSE, 0, uvs);
+    glEnableVertexAttribArray(mTextLocTexCoord);
+    glVertexAttribPointer(mTextLocColor, 4, GL_FLOAT, GL_FALSE, 0, colors);
+    glEnableVertexAttribArray(mTextLocColor);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    glDisableVertexAttribArray(mTextLocPosition);
+    glDisableVertexAttribArray(mTextLocTexCoord);
+    glDisableVertexAttribArray(mTextLocColor);
+}
+
+// ---------------------------------------------------------------------------
+// Drawing helpers
+// ---------------------------------------------------------------------------
+
+void NanoMenu::drawQuad(float x, float y, float w, float h,
+                         float r, float g, float b, float a) {
+    float x0 = (x / mWidth) * 2.0f - 1.0f;
+    float y0 = 1.0f - ((y + h) / mHeight) * 2.0f;
+    float x1 = ((x + w) / mWidth) * 2.0f - 1.0f;
+    float y1 = 1.0f - (y / mHeight) * 2.0f;
+    GLfloat verts[] = { x0,y0, x1,y0, x1,y1, x1,y1, x0,y1, x0,y0 };
+    glUseProgram(mShaderProgram);
+    glUniform4f(mLocColor, r, g, b, a);
+    glVertexAttribPointer(mLocPosition, 2, GL_FLOAT, GL_FALSE, 0, verts);
+    glEnableVertexAttribArray(mLocPosition);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    glDisableVertexAttribArray(mLocPosition);
+}
+
+// ---------------------------------------------------------------------------
+// FreeType font initialization
+// ---------------------------------------------------------------------------
+
+void NanoMenu::initFonts() {
+    if (FT_Init_FreeType(&mFtLib) != 0) {
+        ALOGE("NanoMenu: FreeType init failed");
+        return;
+    }
+    mFtNumFaces = 0;
+    const char* fontPaths[] = {
+        "/system/fonts/Roboto-Regular.ttf",
+        "/system/fonts/DroidSans.ttf",
+        "/system/fonts/NotoColorEmoji.ttf",
+    };
+    for (const char* path : fontPaths) {
+        if (mFtNumFaces >= MAX_FT_FACES) break;
+        if (FT_New_Face(mFtLib, path, 0, &mFtFaces[mFtNumFaces]) == 0) {
+            ALOGD("NanoMenu: loaded font: %s", path);
+            mFtNumFaces++;
+        } else {
+            ALOGW("NanoMenu: failed to load font: %s", path);
+        }
+    }
+    mFontSize = 48; // base render size
+    for (int i = 0; i < mFtNumFaces; i++) {
+        if (!FT_HAS_COLOR(mFtFaces[i])) {
+            FT_Set_Pixel_Sizes(mFtFaces[i], 0, mFontSize);
+        }
+    }
+    // Create RGBA glyph atlas
+    mAtlasW = 2048;
+    mAtlasH = 2048;
+    mAtlasCurX = 1; // start at 1 to avoid bleeding from edge
+    mAtlasCurY = 1;
+    mAtlasRowH = 0;
+    glGenTextures(1, &mGlyphAtlasTex);
+    glBindTexture(GL_TEXTURE_2D, mGlyphAtlasTex);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    std::vector<uint8_t> blank(mAtlasW * mAtlasH * 4, 0);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, mAtlasW, mAtlasH, 0,
+                 GL_RGBA, GL_UNSIGNED_BYTE, blank.data());
+    ALOGD("NanoMenu: font atlas %dx%d, %d faces loaded", mAtlasW, mAtlasH, mFtNumFaces);
+}
+
+// ---------------------------------------------------------------------------
+// Glyph caching
+// ---------------------------------------------------------------------------
+
+void NanoMenu::ensureGlyph(uint32_t cp) {
+    if (mGlyphCache.count(cp)) return;
+    if (mFtNumFaces == 0) return;
+
+    FT_Face face = nullptr;
+    FT_UInt gi = 0;
+    bool isColorFace = false;
+    for (int i = 0; i < mFtNumFaces; i++) {
+        gi = FT_Get_Char_Index(mFtFaces[i], cp);
+        if (gi != 0) {
+            face = mFtFaces[i];
+            isColorFace = FT_HAS_COLOR(face);
+            break;
+        }
+    }
+    if (!face) {
+        // Fallback to '?' in primary font
+        face = mFtFaces[0];
+        gi = FT_Get_Char_Index(face, '?');
+        isColorFace = false;
+    }
+    if (!face || gi == 0) return;
+
+    // For emoji, select a strike size close to our font size
+    if (isColorFace && FT_HAS_FIXED_SIZES(face)) {
+        int bestIdx = 0;
+        int bestDiff = 99999;
+        for (int i = 0; i < face->num_fixed_sizes; i++) {
+            int diff = abs(face->available_sizes[i].height - mFontSize);
+            if (diff < bestDiff) { bestDiff = diff; bestIdx = i; }
+        }
+        FT_Select_Size(face, bestIdx);
+    } else if (!isColorFace) {
+        FT_Set_Pixel_Sizes(face, 0, mFontSize);
+    }
+
+    FT_Int32 loadFlags = FT_LOAD_RENDER;
+    if (isColorFace) loadFlags |= FT_LOAD_COLOR;
+    if (FT_Load_Glyph(face, gi, loadFlags) != 0) return;
+
+    FT_Bitmap* bmp = &face->glyph->bitmap;
+    int bw = (int)bmp->width;
+    int bh = (int)bmp->rows;
+    bool isColor = (bmp->pixel_mode == FT_PIXEL_MODE_BGRA);
+
+    // Pack into atlas (row-based, simple packer)
+    if (bw > 0 && bh > 0) {
+        if (mAtlasCurX + bw + 1 > mAtlasW) {
+            mAtlasCurX = 1;
+            mAtlasCurY += mAtlasRowH + 1;
+            mAtlasRowH = 0;
+        }
+        if (mAtlasCurY + bh + 1 > mAtlasH) {
+            ALOGW("NanoMenu: glyph atlas full at cp=%u", cp);
+            return;
+        }
+
+        // Convert to RGBA
+        std::vector<uint8_t> rgba(bw * bh * 4, 0);
+        for (int y = 0; y < bh; y++) {
+            for (int x = 0; x < bw; x++) {
+                int di = (y * bw + x) * 4;
+                if (isColor) {
+                    int si = y * bmp->pitch + x * 4;
+                    rgba[di + 0] = bmp->buffer[si + 2]; // B->R
+                    rgba[di + 1] = bmp->buffer[si + 1]; // G->G
+                    rgba[di + 2] = bmp->buffer[si + 0]; // R->B
+                    rgba[di + 3] = bmp->buffer[si + 3]; // A
+                } else {
+                    uint8_t a = bmp->buffer[y * bmp->pitch + x];
+                    rgba[di + 0] = 255;
+                    rgba[di + 1] = 255;
+                    rgba[di + 2] = 255;
+                    rgba[di + 3] = a;
+                }
+            }
+        }
+        glBindTexture(GL_TEXTURE_2D, mGlyphAtlasTex);
+        glTexSubImage2D(GL_TEXTURE_2D, 0, mAtlasCurX, mAtlasCurY,
+                        bw, bh, GL_RGBA, GL_UNSIGNED_BYTE, rgba.data());
+    }
+
+    GlyphInfo info = {};
+    if (bw > 0 && bh > 0) {
+        info.u0 = (float)mAtlasCurX / mAtlasW;
+        info.v0 = (float)mAtlasCurY / mAtlasH;
+        info.u1 = (float)(mAtlasCurX + bw) / mAtlasW;
+        info.v1 = (float)(mAtlasCurY + bh) / mAtlasH;
+    }
+    info.bmpW = bw;
+    info.bmpH = bh;
+    info.bearingX = face->glyph->bitmap_left;
+    info.bearingY = face->glyph->bitmap_top;
+    info.advance = (int)(face->glyph->advance.x >> 6);
+    info.color = isColor;
+
+    // For emoji, compute scale factor to normalize to mFontSize
+    if (isColor && bh > 0) {
+        float s = (float)mFontSize / (float)bh;
+        info.scaleW = s;
+        info.scaleH = s;
+        info.advance = mFontSize; // square emoji advance
+    } else {
+        info.scaleW = 1.0f;
+        info.scaleH = 1.0f;
+    }
+
+    mGlyphCache[cp] = info;
+
+    if (bw > 0 && bh > 0) {
+        mAtlasCurX += bw + 1;
+        if (bh + 1 > mAtlasRowH) mAtlasRowH = bh + 1;
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Text measurement and rendering
+// ---------------------------------------------------------------------------
+
+float NanoMenu::measureText(const char* str, float scale) {
+    if (!str || !*str) return 0.0f;
+    float pixelScale = (FONT_CHAR_H * scale) / (float)mFontSize;
+    float width = 0.0f;
+    for (const char* p = str; *p; ) {
+        uint32_t cp;
+        uint8_t b0 = (uint8_t)*p;
+        if (b0 < 0x80) { cp = b0; p++; }
+        else if ((b0 & 0xE0) == 0xC0) { cp = ((b0 & 0x1F) << 6) | (p[1] & 0x3F); p += 2; }
+        else if ((b0 & 0xF0) == 0xE0) { cp = ((b0 & 0x0F) << 12) | ((p[1] & 0x3F) << 6) | (p[2] & 0x3F); p += 3; }
+        else if ((b0 & 0xF8) == 0xF0) { cp = ((b0 & 0x07) << 18) | ((p[1] & 0x3F) << 12) | ((p[2] & 0x3F) << 6) | (p[3] & 0x3F); p += 4; }
+        else { p++; continue; }
+        ensureGlyph(cp);
+        auto it = mGlyphCache.find(cp);
+        if (it != mGlyphCache.end()) {
+            width += it->second.advance * it->second.scaleW * pixelScale;
+        }
+    }
+    return width;
+}
+
+// 5x capacity: 4 shadow passes + 1 main pass batched into one draw
+static const int TEXT_MAX_CHARS = 256;
+static const int TEXT_BUF_QUADS = TEXT_MAX_CHARS * 5;
+static GLfloat sTextVerts[TEXT_BUF_QUADS * 6 * 2];
+static GLfloat sTextUVs[TEXT_BUF_QUADS * 6 * 2];
+static GLfloat sTextColors[TEXT_BUF_QUADS * 6 * 4];
+
+// Helper: emit one glyph quad into the batch buffers at position n.
+static inline void emitGlyph(int n, float x0, float y0, float x1, float y1,
+                              float u0, float v0, float u1, float v1,
+                              float cr, float cg, float cb, float ca) {
+    int vi = n * 12;
+    sTextVerts[vi]= x0; sTextVerts[vi+1]= y0;
+    sTextVerts[vi+2]= x1; sTextVerts[vi+3]= y0;
+    sTextVerts[vi+4]= x1; sTextVerts[vi+5]= y1;
+    sTextVerts[vi+6]= x1; sTextVerts[vi+7]= y1;
+    sTextVerts[vi+8]= x0; sTextVerts[vi+9]= y1;
+    sTextVerts[vi+10]= x0; sTextVerts[vi+11]= y0;
+    int ui = n * 12;
+    sTextUVs[ui]= u0; sTextUVs[ui+1]= v1;
+    sTextUVs[ui+2]= u1; sTextUVs[ui+3]= v1;
+    sTextUVs[ui+4]= u1; sTextUVs[ui+5]= v0;
+    sTextUVs[ui+6]= u1; sTextUVs[ui+7]= v0;
+    sTextUVs[ui+8]= u0; sTextUVs[ui+9]= v0;
+    sTextUVs[ui+10]= u0; sTextUVs[ui+11]= v1;
+    int ci = n * 24;
+    for (int v = 0; v < 6; v++) {
+        sTextColors[ci + v*4] = cr;
+        sTextColors[ci + v*4 + 1] = cg;
+        sTextColors[ci + v*4 + 2] = cb;
+        sTextColors[ci + v*4 + 3] = ca;
+    }
+}
+
+void NanoMenu::drawText(const char* str, float px, float py, float scale,
+                        float r, float g, float b, float a) {
+    if (!str || !*str || mFtNumFaces == 0) return;
+    float pixelScale = (FONT_CHAR_H * scale) / (float)mFontSize;
+    float invW = 2.0f / mWidth, invH = 2.0f / mHeight;
+    float baseline = py + mFontSize * pixelScale * 0.8f;
+    float off = fmaxf(1.0f, scale * 0.4f);
+    // Pixel offset in NDC
+    float offX = off * invW;
+    float offY = off * invH;
+
+    // First pass: parse glyphs and compute base positions
+    struct GlyphPos { float x0, y0, x1, y1, u0, v0, u1, v1; bool color; };
+    GlyphPos glyphs[TEXT_MAX_CHARS];
+    int nGlyphs = 0;
+    float curX = px;
+    for (const char* p = str; *p && nGlyphs < TEXT_MAX_CHARS; ) {
+        uint32_t cp;
+        uint8_t b0 = (uint8_t)*p;
+        if (b0 < 0x80) { cp = b0; p++; }
+        else if ((b0 & 0xE0) == 0xC0) { cp = ((b0 & 0x1F) << 6) | (p[1] & 0x3F); p += 2; }
+        else if ((b0 & 0xF0) == 0xE0) { cp = ((b0 & 0x0F) << 12) | ((p[1] & 0x3F) << 6) | (p[2] & 0x3F); p += 3; }
+        else if ((b0 & 0xF8) == 0xF0) { cp = ((b0 & 0x07) << 18) | ((p[1] & 0x3F) << 12) | ((p[2] & 0x3F) << 6) | (p[3] & 0x3F); p += 4; }
+        else { p++; continue; }
+
+        ensureGlyph(cp);
+        auto it = mGlyphCache.find(cp);
+        if (it == mGlyphCache.end()) continue;
+        const GlyphInfo& gi = it->second;
+        if (gi.bmpW == 0 || gi.bmpH == 0) {
+            curX += gi.advance * gi.scaleW * pixelScale;
+            continue;
+        }
+
+        float gw = gi.bmpW * gi.scaleW * pixelScale;
+        float gh = gi.bmpH * gi.scaleH * pixelScale;
+        float gx = curX + gi.bearingX * gi.scaleW * pixelScale;
+        float gy = baseline - gi.bearingY * gi.scaleH * pixelScale;
+
+        GlyphPos& gp = glyphs[nGlyphs];
+        gp.x0 = gx * invW - 1.0f;
+        gp.y0 = 1.0f - (gy + gh) * invH;
+        gp.x1 = (gx + gw) * invW - 1.0f;
+        gp.y1 = 1.0f - gy * invH;
+        gp.u0 = gi.u0; gp.v0 = gi.v0;
+        gp.u1 = gi.u1; gp.v1 = gi.v1;
+        gp.color = gi.color;
+        curX += gi.advance * gi.scaleW * pixelScale;
+        nGlyphs++;
+    }
+    if (nGlyphs == 0) return;
+
+    // Shadow pass selection:
+    // - XMB mode uses a single drop shadow (+1,+1). The XMB ribbon background
+    //   is dark and moving, so one offset is enough for readability and it
+    //   cuts text geometry by 60% (2 passes vs 5). This is a hot path on
+    //   Mali-G52: every visible game item emits one drawText call per frame,
+    //   and the footer string alone is 76 glyphs.
+    // - Normal menu mode keeps the 4-offset outline shadow since the flat
+    //   menu background benefits from an omnidirectional outline for
+    //   legibility against the blue selection bar.
+    int n = 0;
+    const float shadowA = a * 0.8f;
+    const bool xmbShadow = mXmbMode;
+    if (xmbShadow) {
+        // Single drop shadow (down-right) — emits nGlyphs quads, vs 4*nGlyphs
+        // in the default branch.
+        const float sdx = offX;
+        const float sdy = offY;
+        for (int i = 0; i < nGlyphs && n < TEXT_BUF_QUADS; i++, n++) {
+            const GlyphPos& gp = glyphs[i];
+            emitGlyph(n, gp.x0 + sdx, gp.y0 + sdy, gp.x1 + sdx, gp.y1 + sdy,
+                      gp.u0, gp.v0, gp.u1, gp.v1,
+                      0.0f, 0.0f, 0.0f, shadowA);
+        }
+    } else {
+        // 4-offset outline (left/right/up/down)
+        static const float dirs[4][2] = {{-1,0},{1,0},{0,-1},{0,1}};
+        for (int d = 0; d < 4; d++) {
+            float dx = dirs[d][0] * offX;
+            float dy = dirs[d][1] * offY;
+            for (int i = 0; i < nGlyphs && n < TEXT_BUF_QUADS; i++, n++) {
+                const GlyphPos& gp = glyphs[i];
+                emitGlyph(n, gp.x0 + dx, gp.y0 + dy, gp.x1 + dx, gp.y1 + dy,
+                          gp.u0, gp.v0, gp.u1, gp.v1,
+                          0.0f, 0.0f, 0.0f, shadowA);
+            }
+        }
+    }
+    // Main pass (on top)
+    for (int i = 0; i < nGlyphs && n < TEXT_BUF_QUADS; i++, n++) {
+        const GlyphPos& gp = glyphs[i];
+        float cr = gp.color ? 1.0f : r;
+        float cg = gp.color ? 1.0f : g;
+        float cb = gp.color ? 1.0f : b;
+        emitGlyph(n, gp.x0, gp.y0, gp.x1, gp.y1,
+                  gp.u0, gp.v0, gp.u1, gp.v1, cr, cg, cb, a);
+    }
+
+    glUseProgram(mTextProgram);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, mGlyphAtlasTex);
+    glUniform1i(mTextLocTexture, 0);
+    glVertexAttribPointer(mTextLocPosition, 2, GL_FLOAT, GL_FALSE, 0, sTextVerts);
+    glEnableVertexAttribArray(mTextLocPosition);
+    glVertexAttribPointer(mTextLocTexCoord, 2, GL_FLOAT, GL_FALSE, 0, sTextUVs);
+    glEnableVertexAttribArray(mTextLocTexCoord);
+    glVertexAttribPointer(mTextLocColor, 4, GL_FLOAT, GL_FALSE, 0, sTextColors);
+    glEnableVertexAttribArray(mTextLocColor);
+    glDrawArrays(GL_TRIANGLES, 0, n * 6);
+    glDisableVertexAttribArray(mTextLocPosition);
+    glDisableVertexAttribArray(mTextLocTexCoord);
+    glDisableVertexAttribArray(mTextLocColor);
+}
+
+// ---------------------------------------------------------------------------
+// Secondary display setup (post-boot)
+// ---------------------------------------------------------------------------
+
+// Create EGL window surfaces for every non-primary physical display so the
+// existing post-HWC render loop can drive wallpaper rendering on those panels.
+// Called once after drmStop() — before that point the DRM-direct path's
+// secondary AHB is feeding those displays directly.
+//
+// Idempotent: returns immediately if surfaces are already set up.
+//
+// Concretely on the RG DS (RK3568, dual DSI 640x480):
+//   - persist.gammaos.nano.primary_display=1 → port 1 holds the XMB.
+//   - This function creates a wallpaper SurfaceControl on port 0's
+//     layerStack and wraps it in an EGLSurface. The render loop renders
+//     the wallpaper effect into it every frame.
+//   - Bootanim is killed once the surface is up so it stops fighting for
+//     the secondary display's layer stack.
+void NanoMenu::setupSecondaryEglSurfaces() {
+    if (!mSecondaryEglSurfaces.empty()) return; // already set up
+    if (mDisplay == EGL_NO_DISPLAY) return;
+
+    int64_t t0 = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL;
+
+    const std::vector<PhysicalDisplayId> ids =
+            SurfaceComposerClient::getPhysicalDisplayIds();
+    if (ids.size() <= 1) {
+        ALOGI("NanoMenu: only %zu physical display(s); no secondary wallpaper",
+              ids.size());
+        return;
+    }
+
+    // Match the same primary_display port the readyToRun() path used so we
+    // skip exactly the display the XMB renders on.
+    int primaryPort = 0;
+    {
+        char p[PROPERTY_VALUE_MAX] = {};
+        property_get("persist.gammaos.nano.primary_display", p, "0");
+        primaryPort = atoi(p);
+    }
+
+    EGLConfig config = getEglConfig(mDisplay);
+    if (config == nullptr) {
+        ALOGW("NanoMenu: secondary setup failed — no EGL config");
+        return;
+    }
+
+    for (const PhysicalDisplayId& pid : ids) {
+        const int port = static_cast<int>(pid.getPort());
+        if (port == primaryPort) continue;
+
+        sp<IBinder> token = SurfaceComposerClient::getPhysicalDisplayToken(pid);
+        if (token == nullptr) {
+            ALOGW("NanoMenu: secondary port %d has no display token", port);
+            continue;
+        }
+
+        ui::DisplayState state;
+        ui::LayerStack stack = ui::DEFAULT_LAYER_STACK;
+        if (SurfaceComposerClient::getDisplayState(token, &state) == NO_ERROR) {
+            stack = state.layerStack;
+        } else {
+            ALOGW("NanoMenu: secondary port %d getDisplayState failed", port);
+            continue;
+        }
+
+        DisplayMode mode;
+        if (SurfaceComposerClient::getActiveDisplayMode(token, &mode) != NO_ERROR) {
+            ALOGW("NanoMenu: secondary port %d getActiveDisplayMode failed", port);
+            continue;
+        }
+
+        ui::Size res = mode.resolution;
+        sp<SurfaceControl> sc = session()->createSurface(
+                String8("GammaOSNanoWallpaper"),
+                res.getWidth(), res.getHeight(),
+                PIXEL_FORMAT_RGBX_8888, ISurfaceComposerClient::eOpaque);
+        if (sc == nullptr || !sc->isValid()) {
+            ALOGW("NanoMenu: secondary port %d createSurface failed", port);
+            continue;
+        }
+
+        // Route to the secondary display's layer stack at top z so it
+        // overrides bootanim (which uses STRATUM_BOOT_PROGRESS layers).
+        SurfaceComposerClient::Transaction t;
+        Rect bounds(0, 0, res.width, res.height);
+        t.setDisplayProjection(token, ui::ROTATION_0, bounds, bounds);
+        t.setLayer(sc, 0x40000001);
+        t.setLayerStack(sc, stack);
+        t.show(sc);
+        t.apply();
+
+        sp<Surface> s = sc->getSurface();
+        EGLSurface eglSurf = eglCreateWindowSurface(mDisplay, config, s.get(), nullptr);
+        if (eglSurf == EGL_NO_SURFACE) {
+            ALOGW("NanoMenu: secondary port %d eglCreateWindowSurface failed: 0x%x",
+                  port, eglGetError());
+            continue;
+        }
+
+        // Set the secondary surface to swap interval 0 (no vsync wait) so its
+        // swap doesn't block the primary 60fps loop. The wallpaper still
+        // animates smoothly because the render loop runs every frame; we just
+        // don't artificially serialize on the secondary's vsync.
+        // eglSwapInterval applies to the surface that is currently bound, so
+        // we need to make the secondary current temporarily.
+        EGLSurface prevDraw = eglGetCurrentSurface(EGL_DRAW);
+        EGLSurface prevRead = eglGetCurrentSurface(EGL_READ);
+        EGLContext prevCtx  = eglGetCurrentContext();
+        if (eglMakeCurrent(mDisplay, eglSurf, eglSurf, mContext) == EGL_TRUE) {
+            eglSwapInterval(mDisplay, 0);
+            // Restore primary as current.
+            eglMakeCurrent(mDisplay, prevDraw, prevRead, prevCtx);
+        }
+
+        mSecondaryDisplayTokens.push_back(token);
+        mSecondaryWallpaperControls.push_back(sc);
+        mSecondarySurfaces.push_back(s);
+        mSecondaryEglSurfaces.push_back(eglSurf);
+
+        int64_t now = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL;
+        ALOGI("NanoMenu: secondary EGL surface ready: port=%d layerStack=%u %dx%d at T+%lldms",
+              port, stack.id, res.width, res.height, now);
+    }
+
+    if (!mSecondaryEglSurfaces.empty()) {
+        // Tell bootanim to exit so it stops painting on the secondary display.
+        // CRITICAL: do NOT set service.bootanim.exit — that property is also
+        // nano's OWN exit signal, polled in threadLoop. Setting it here would
+        // make nano shut itself down two frames after secondary setup. Use the
+        // init ctl.stop command instead, which kills the bootanimation
+        // service via init without touching the shared exit-signal property.
+        property_set("ctl.stop", "bootanim");
+        int64_t now = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL;
+        ALOGI("NanoMenu: secondary wallpaper setup complete (%zu surfaces, %lldms)",
+              mSecondaryEglSurfaces.size(), now - t0);
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Render
+// ---------------------------------------------------------------------------
+
+void NanoMenu::render() {
+    static bool sFirstFrame = true;
+    if (sFirstFrame) {
+        int64_t nowMs = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL;
+        ALOGW("NanoMenu BOOT TIMING: first render() call at T+%lldms", nowMs);
+    }
+
+    // Once-per-frame state update for background effects (particle motion,
+    // XMB ribbon time advance). Must run before either pass below so both
+    // AHBs render the same effect state.
+    updateEffect();
+
+    // GammaOS: Helper lambda that uploads the DRM rotation matrix to all
+    // shader programs. Called at the start of each render pass since the
+    // rotation is global state that every program reads.
+    auto uploadRotationMatrices = [this]() {
+        const GLuint progs[] = {mShaderProgram, mTextProgram, mParticleProgram,
+                                mFxProgram, mXmbProgram};
+        const GLint  locs[]  = {mLocRotation, mTextLocRotation, mParticleLocRotation,
+                                mFxLocRotation, mXmbLocRotation};
+        for (int i = 0; i < 5; i++) {
+            glUseProgram(progs[i]);
+            glUniformMatrix2fv(locs[i], 1, GL_FALSE, sDrmRotMat);
+        }
+    };
+
+    // GammaOS: Drastic quick-resume dual-screen split.
+    //
+    // When DrasticRunner is active (smoke test path or production QR
+    // for NDS ROMs), both displays are repurposed to show the two DS
+    // screens full-size:
+    //   primary display  (port 1 on RG DS) -> TOP DS screen
+    //   secondary display (port 0)          -> BOTTOM DS screen
+    // The wallpaper + XMB are suppressed on both passes. A gradient +
+    // "Quick Resuming..." text overlay matches the LibretroRunner QR
+    // look, with a fade from desaturated+dark to full color once
+    // boot_completed fires.
+    DrasticRunner* drastic = DrasticRunner::getInstance();
+    const bool drasticActive = drastic && drastic->isInitialized();
+    static float sDrasticSaturation = 0.15f;
+    static float sDrasticGradient   = 1.0f;
+    if (drasticActive) {
+        // Idempotent: initSurface is a no-op after the first call.
+        drastic->initSurface(mWidth, mHeight, false);
+        // Push the DRM rotation matrix so our DS quads come out in
+        // panel-native orientation (matching NanoMenu's XMB).
+        drastic->setRotationMatrix(sDrmRotMat);
+        // Pull fresh pixels ONCE per frame, then reuse the textures
+        // across both display passes.
+        drastic->updatePixels();
+
+        // Advance the fade. Mirror LibretroRunner's QR transition:
+        // creep gently during boot, ramp fast once home_launching or
+        // boot_completed fires.
+        char val[PROPERTY_VALUE_MAX] = {};
+        bool ready = false;
+        property_get("sys.gammaos.nano.home_launching", val, "");
+        ready = (strcmp(val, "1") == 0);
+        if (!ready) {
+            property_get("sys.boot_completed", val, "0");
+            ready = (strcmp(val, "1") == 0);
+        }
+        if (ready) {
+            sDrasticSaturation = fminf(sDrasticSaturation + 0.01f, 1.0f);
+            sDrasticGradient   = fmaxf(sDrasticGradient   - 0.01f, 0.0f);
+        } else {
+            sDrasticSaturation = fminf(sDrasticSaturation + 0.0004f, 0.35f);
+            sDrasticGradient   = fmaxf(sDrasticGradient   - 0.0003f, 0.7f);
+        }
+    }
+
+    // Small inline "Quick Resuming..." + ROM name overlay used by both
+    // drastic passes. Matches LibretroRunner's libretro QR loop.
+    auto drawDrasticQrOverlay = [this](int vpW, int vpH,
+                                        float saturation, float gradient) {
+        (void)gradient;
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        float textScale = fminf((float)vpW / 1080.0f, (float)vpH / 720.0f);
+        if (textScale < 0.5f) textScale = 0.5f;
+        float loadScale = 2.5f * textScale;
+        const char* msg = "Quick Resuming...";
+        float msgW = measureText(msg, loadScale);
+        float msgX = ((float)vpW - msgW) / 2.0f;
+        float msgY = (float)vpH * 0.78f;
+        float pulse = 0.7f + 0.3f * sinf((float)elapsedRealtime() * 0.004f);
+        float textAlpha = pulse * fmaxf(1.2f - saturation, 0.0f);
+        if (textAlpha > 0.05f) {
+            if (textAlpha > 1.0f) textAlpha = 1.0f;
+            drawText(msg, msgX, msgY, loadScale,
+                     1.0f, 1.0f, 1.0f, textAlpha);
+        }
+        glDisable(GL_BLEND);
+    };
+
+    // GammaOS: Secondary display pass — wallpaper only, no menu/icons/text.
+    // Runs only in DRM direct mode when a secondary AHB was allocated.
+    // Renders into sAhbTargetSecondary which drmFlipAll() will blit to every
+    // non-primary DRM display. This gives the secondary screen a clean
+    // wallpaper view without paying for the menu geometry.
+    //
+    // The XMB ribbon / procedural effects are cheap fullscreen shaders on
+    // Mali-G52, so rendering them twice (once here, once on the primary AHB
+    // below) costs well under a millisecond total on 640x480.
+    if (sDrmActive && sDrmZeroCopy && sAhbTargetSecondary.glFbo != 0) {
+        glBindFramebuffer(GL_FRAMEBUFFER, sAhbTargetSecondary.glFbo);
+        glViewport(0, 0, sAhbTargetSecondary.w, sAhbTargetSecondary.h);
+        uploadRotationMatrices();
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+        if (drasticActive) {
+            // Secondary display -> BOTTOM DS screen fullscreen.
+            drastic->renderBottomScreen(sDrasticSaturation, sDrasticGradient);
+            // drawText inside the overlay lambda uses mWidth/mHeight for
+            // pixel->NDC; panel-native AHB dims would mis-project the text
+            // on rotated single-display devices (RK3576 1080x1920).
+            drawDrasticQrOverlay(mWidth, mHeight,
+                                 sDrasticSaturation, sDrasticGradient);
+        } else {
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            renderEffect();
+            glDisable(GL_BLEND);
+        }
+    }
+
+    // GammaOS: Primary pass — wallpaper + full menu (XMB or normal). When
+    // DRM zero-copy is active, binds sAhbTarget (primary AHB). When post-
+    // boot, the default SurfaceFlinger-backed FBO is used via the EGL path.
+    if (sDrmActive && sDrmZeroCopy) {
+        drmBindNextFbo();
+    }
+    // GammaOS: When GL rotation is active, use the AHB (panel-native) dimensions
+    // for the viewport, not the logical mWidth/mHeight. The rotation matrix in the
+    // vertex shaders maps logical NDC to the panel-native viewport.
+    if (sDrmGlRotation) {
+        glViewport(0, 0, sAhbTarget.w, sAhbTarget.h);
+    } else {
+        glViewport(0, 0, mWidth, mHeight);
+    }
+    uploadRotationMatrices();
+    glClearColor(drasticActive ? 0.0f : 0.05f,
+                 drasticActive ? 0.0f : 0.05f,
+                 drasticActive ? 0.0f : 0.10f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    // Primary pass -> TOP DS screen fullscreen + QR overlay when
+    // drastic quick-resume is active. Skip the wallpaper + XMB.
+    if (drasticActive) {
+        drastic->renderTopScreen(sDrasticSaturation, sDrasticGradient);
+        // drawText in the overlay uses mWidth/mHeight internally; the
+        // shader's uRotation uniform handles the panel rotation. Passing
+        // AHB dims here drops the text off-NDC on rotated panels.
+        drawDrasticQrOverlay(mWidth, mHeight,
+                             sDrasticSaturation, sDrasticGradient);
+    } else {
+
+    // Background effect on primary AHB.
+    renderEffect();
+
+    if (mXmbMode) {
+        renderXmb();
+    } else {
+
+    // Responsive scaling: fit to both width and height so the menu
+    // looks correct on any aspect ratio (4:3, 16:9, 16:10, 3:2, etc.)
+    float sf = fminf((float)mWidth / 1080.0f, (float)mHeight / 720.0f);
+    if (sf < 0.5f) sf = 0.5f;
+
+    // Font scales
+    float titleScale = 4.0f * sf;
+    float subScale   = 2.0f * sf;
+    float footScale  = 1.5f * sf;
+
+    // Rebuild display items only when state changes (avoids per-frame heap allocs)
+    if (mDisplayDirty) rebuildDisplayItems();
+
+    // Storage readiness is polled by the outer loop (threadLoop) every ~0.5s.
+    // No per-frame access() here — that syscall was costing ~2us at 60fps which
+    // adds up on Cortex-A55 and is visible in perf traces during boot.
+
+    float menuScale = 3.0f * sf;
+    int currentSelected = (mMenuState == MENU_APPS) ? mAppSelectedIndex
+                        : (mMenuState == MENU_RECENT) ? mRecentSelectedIndex : mSelectedIndex;
+    int numItems = (int)mDisplayItems.size();
+
+    // Element heights
+    float titleH = FONT_CHAR_H * titleScale;
+    float subH   = FONT_CHAR_H * subScale;
+    float itemH  = FONT_CHAR_H * menuScale;
+    float footH  = FONT_CHAR_H * footScale;
+
+    // Gaps
+    float gap1 = 10.0f * sf;   // title -> subtitle
+    float gap2 = 20.0f * sf;   // subtitle -> separator
+    float sepH = 2.0f * sf;
+    float gap3 = 30.0f * sf;   // separator -> menu
+    float itemSpacing = 12.0f * sf;
+
+    // Place heading using the main menu's item count (7) so the title,
+    // subtitle, separator, and footer stay at identical positions regardless
+    // of which menu state is active.
+    int layoutItems = 8; // main menu item count — used as the reference layout
+    float menuContentH = titleH + gap1 + subH + gap2 + sepH + gap3
+                        + layoutItems * itemH + (layoutItems - 1) * itemSpacing;
+    float startY = (mHeight - menuContentH) / 6.0f;
+    if (startY < 10.0f) startY = 10.0f;
+
+    // Title
+    float titleW = measureText(mTitle.c_str(), titleScale);
+    float titleX = (mWidth - titleW) / 2.0f;
+    float titleY = startY;
+    drawText(mTitle.c_str(), titleX, titleY, titleScale,
+             0.0f, 0.85f, 1.0f, 1.0f);
+
+    // Subtitle
+    float subW = measureText(mSubtitle.c_str(), subScale);
+    float subX = (mWidth - subW) / 2.0f;
+    float subY = titleY + titleH + gap1;
+    drawText(mSubtitle.c_str(), subX, subY, subScale,
+             0.5f, 0.5f, 0.6f, 1.0f);
+
+    // Separator
+    float sepY = subY + subH + gap2;
+    drawQuad(mWidth * 0.1f, sepY, mWidth * 0.8f, sepH, 0.3f, 0.3f, 0.4f, 1.0f);
+
+    // Menu items
+    float menuStartY = sepY + sepH + gap3;
+    float menuX = mWidth * 0.15f;
+
+    // Available text width for menu items (from menuX to 85% of screen)
+    float maxTextW = mWidth * 0.85f - menuX;
+    float charW = FONT_CHAR_W * menuScale;
+
+    // Calculate how many items fit on screen (between menu start and footer)
+    float footY = mHeight - footH - startY;
+    float availableH = footY - menuStartY - 10.0f * sf;
+    int maxVisibleItems = (int)(availableH / (itemH + itemSpacing));
+    if (maxVisibleItems < 1) maxVisibleItems = 1;
+
+    // Vertical scrolling for submenus with more items than fit
+    if (mMenuState != MENU_MAIN && numItems > maxVisibleItems) {
+        // Ensure selected item is visible
+        if (currentSelected < mMenuScrollTop) {
+            mMenuScrollTop = currentSelected;
+        } else if (currentSelected >= mMenuScrollTop + maxVisibleItems) {
+            mMenuScrollTop = currentSelected - maxVisibleItems + 1;
+        }
+        // Clamp
+        if (mMenuScrollTop > numItems - maxVisibleItems) {
+            mMenuScrollTop = numItems - maxVisibleItems;
+        }
+        if (mMenuScrollTop < 0) mMenuScrollTop = 0;
+    } else {
+        mMenuScrollTop = 0;
+    }
+
+    int renderEnd = (mMenuState != MENU_MAIN && numItems > maxVisibleItems)
+                  ? mMenuScrollTop + maxVisibleItems : numItems;
+    if (renderEnd > numItems) renderEnd = numItems;
+
+    for (int i = mMenuScrollTop; i < renderEnd; i++) {
+        float itemY = menuStartY + (i - mMenuScrollTop) * (itemH + itemSpacing);
+        bool selected = (i == currentSelected);
+
+        // Grey out "Recently Played" and "Applications" in main menu when storage isn't ready
+        bool greyed = (mMenuState == MENU_MAIN && !mStorageReady
+                       && (mDisplayItems[i] == "Recently Played"
+                           || mDisplayItems[i] == "Applications"));
+
+        if (selected && !greyed) {
+            drawQuad(mWidth * 0.10f, itemY - 4.0f * sf,
+                     mWidth * 0.80f, itemH + 8.0f * sf,
+                     0.0f, 0.35f, 0.6f, 0.8f);
+        }
+        const char* prefix = (selected && !greyed) ? "> " : "  ";
+        float r, g, b;
+        if (greyed) {
+            r = 0.35f; g = 0.35f; b = 0.4f; // dimmed
+        } else if (selected) {
+            r = 1.0f; g = 1.0f; b = 1.0f;
+        } else {
+            r = 0.7f; g = 0.7f; b = 0.75f;
+        }
+
+        // Draw prefix at fixed position
+        float prefixW = 2 * charW; // "> " or "  " is always 2 chars
+        drawText(prefix, menuX, itemY, menuScale, r, g, b, 1.0f);
+
+        // Content area: from after prefix to end of blue selection bar
+        float contentLeft = menuX + prefixW;
+        float contentRight = mWidth * 0.90f; // right edge of selection bar
+        float contentW = contentRight - contentLeft;
+        float textW = measureText(mDisplayItems[i].c_str(), menuScale);
+
+        // Horizontal scroll for selected items that overflow (Recently Played)
+        float drawX = contentLeft;
+        bool scrolling = false;
+        if (selected && !greyed
+            && (mMenuState == MENU_RECENT || mMenuState == MENU_APPS)
+            && textW > contentW
+            && ((mMenuState == MENU_RECENT && i < (int)mRecentEntries.size())
+                || (mMenuState == MENU_APPS && i < (int)mAppEntries.size()))) {
+            scrolling = true;
+            // Reset scroll when selection changes
+            if (mLastScrolledIdx != i) {
+                mLastScrolledIdx = i;
+                mScrollOffset = 0.0f;
+                mScrollDir = 1;
+                mScrollPause = 60; // pause ~1s at start before scrolling
+            }
+            float overflow = textW - contentW;
+            if (mScrollPause > 0) {
+                mScrollPause--;
+            } else {
+                mScrollOffset += mScrollDir * 1.5f * sf; // scroll speed
+                if (mScrollOffset >= overflow) {
+                    mScrollOffset = overflow;
+                    mScrollDir = -1;
+                    mScrollPause = 60;
+                } else if (mScrollOffset <= 0.0f) {
+                    mScrollOffset = 0.0f;
+                    mScrollDir = 1;
+                    mScrollPause = 60;
+                }
+            }
+            drawX = contentLeft - mScrollOffset;
+        }
+
+        // Scissor clip: all game entries in MENU_RECENT clip at the bar's right edge.
+        // Selected items clip at both left and right (for scroll), unselected only right.
+        bool needsClip = scrolling
+            || ((mMenuState == MENU_RECENT && i < (int)mRecentEntries.size()
+                 && textW > contentW)
+                || (mMenuState == MENU_APPS && i < (int)mAppEntries.size()
+                    && textW > contentW));
+        if (needsClip) {
+            glEnable(GL_SCISSOR_TEST);
+            // Scissor is applied in FBO pixel coords AFTER the vertex
+            // shader's rotation, so the logical-landscape rect we want
+            // (a horizontal band across the menu column) needs to be
+            // remapped to the panel-native FBO before glScissor. Without
+            // this, on a 90/270-rotated panel the scissor still clips a
+            // landscape band of the FBO, which only covers a fraction of
+            // the rotated content -- text outside that fraction gets
+            // truncated. RK3576 (1080x1920 portrait, 270° install) is
+            // the device that surfaced this.
+            int sx, sy, sw, sh;
+            int lx = (int)contentLeft, ly = 0, lw = (int)contentW,
+                lh = (int)mHeight;
+            switch (sDrmGlRotation ? sDrmRotationDeg : 0) {
+            case 90:
+                sx = ly; sy = mWidth - lx - lw;
+                sw = lh; sh = lw;
+                break;
+            case 180:
+                sx = mWidth - lx - lw; sy = mHeight - ly - lh;
+                sw = lw; sh = lh;
+                break;
+            case 270:
+                sx = mHeight - ly - lh; sy = lx;
+                sw = lh; sh = lw;
+                break;
+            default:
+                sx = lx; sy = ly; sw = lw; sh = lh;
+                break;
+            }
+            glScissor(sx, sy, sw, sh);
+        }
+        drawText(mDisplayItems[i].c_str(), drawX, itemY, menuScale,
+                 r, g, b, 1.0f);
+        if (needsClip) {
+            glDisable(GL_SCISSOR_TEST);
+        }
+    }
+
+    // Footer (footY already computed above for scroll calculations)
+    float footW = measureText(mFooter.c_str(), footScale);
+    float footX = (mWidth - footW) / 2.0f;
+    drawText(mFooter.c_str(), footX, footY, footScale, 0.4f, 0.4f, 0.5f, 1.0f);
+
+    } // end !mXmbMode text menu
+
+    // Brightness bar overlay
+    renderBrightnessBar();
+    renderVolumeBar();
+
+    // Quick Resume indicator (top-right corner)
+    {
+        float sf = fminf((float)mWidth / 1080.0f, (float)mHeight / 720.0f);
+        if (sf < 0.5f) sf = 0.5f;
+        float qrScale = 1.5f * sf;
+        float dotSize = 10.0f * sf;
+        float pad = 15.0f * sf;
+        const char* qrLabel = "Quick Resume";
+        float qrLabelW = measureText(qrLabel, qrScale);
+        float qrX = mWidth - qrLabelW - pad;
+        float dotX = qrX + qrLabelW / 2.0f - dotSize / 2.0f;
+        float dotY = pad;
+        float labelY = dotY + dotSize + 5.0f * sf;
+        if (mQuickResumeEnabled) {
+            drawQuad(dotX, dotY, dotSize, dotSize, 0.0f, 0.85f, 0.0f, 1.0f);
+            drawText(qrLabel, qrX, labelY, qrScale,
+                     0.4f, 0.7f, 0.4f, 0.8f);
+        } else {
+            drawQuad(dotX, dotY, dotSize, dotSize, 0.85f, 0.0f, 0.0f, 1.0f);
+            drawText(qrLabel, qrX, labelY, qrScale,
+                     0.5f, 0.35f, 0.35f, 0.6f);
+        }
+    }
+    } // close drasticActive-else wrapper
+
+    glDisable(GL_BLEND);
+
+    // GammaOS: DRM direct rendering path.
+    // - Zero-copy: GPU rendered straight into the scanout FBO; just page flip.
+    // - Fallback: glReadPixels → CPU copy to dumb buffer → page flip.
+    // Either way, skip eglSwapBuffers (it blocks when HWC doesn't consume buffers).
+    if (sDrmActive) {
+        if (sDrmZeroCopy) {
+            // XMB ring path: same triple-buffer mechanism used by drastic QR.
+            // Decouples glFinish (GPU wait, ~11 ms on RK3576 1080x1920) from
+            // the CPU-side blit+flip (~10 ms) by presenting a slot whose GPU
+            // work is ~2 iterations old -- its fence is already signaled so
+            // the per-slot AHB_lock returns fast, and we don't block the
+            // render thread on the current slot's in-flight GPU work. Gated
+            // on persist.gammaos.nano.triple_buffer (same prop as QR). Resolved
+            // once per process since the prop + slot availability don't change
+            // at runtime.
+            static int sXmbRingEnabled = -1;
+            if (sXmbRingEnabled < 0) {
+                char prop[PROPERTY_VALUE_MAX] = {};
+                property_get("persist.gammaos.nano.triple_buffer", prop, "1");
+                const bool flagOn = (prop[0] == '1');
+                bool slotsOk = (sEglCreateSyncKHR != nullptr) &&
+                               (sRingEglDpy != EGL_NO_DISPLAY);
+                for (int i = 0; i < AHB_RING_DEPTH && slotsOk; i++) {
+                    if (sAhbRingPrimary[i].glFbo == 0) slotsOk = false;
+                }
+                sXmbRingEnabled = (flagOn && slotsOk) ? 1 : 0;
+                if (sXmbRingEnabled) {
+                    sRingRenderIdx = 0;
+                    sRingPresentIdx = 0;
+                    sRingPrimedCount = 0;
+                }
+                ALOGW("NanoMenu XMB ring %s (flag=%d slotsOk=%d)",
+                      sXmbRingEnabled ? "ENABLED" : "disabled",
+                      flagOn ? 1 : 0, slotsOk ? 1 : 0);
+            }
+
+            if (sXmbRingEnabled) {
+                const int renderIdxNow = sRingRenderIdx;
+                // Unbind the AHB FBO and insert a native fence. This implicit
+                // flush kicks the GPU without waiting -- the fence will signal
+                // when all commands issued for this slot complete.
+                glBindFramebuffer(GL_FRAMEBUFFER, 0);
+                if (sAhbRingSyncPrimary[renderIdxNow] != EGL_NO_SYNC_KHR
+                        && sEglDestroySyncKHR) {
+                    sEglDestroySyncKHR(sRingEglDpy,
+                            sAhbRingSyncPrimary[renderIdxNow]);
+                }
+                sAhbRingSyncPrimary[renderIdxNow] = sEglCreateSyncKHR(
+                        sRingEglDpy, EGL_SYNC_NATIVE_FENCE_ANDROID, nullptr);
+                if (sAhbRingSyncPrimary[renderIdxNow] == EGL_NO_SYNC_KHR) {
+                    // Fence creation failed -- explicit flush so downstream
+                    // drmFlipRingSlot's glFinish fallback observes our work.
+                    glFlush();
+                }
+                // Advance render cursor BEFORE present so the macro
+                // sAhbTarget resolves to the next slot on the next render()
+                // call. Present uses presentIdx which lags by 2 (ring depth
+                // minus 1), reading an older slot whose fence is signaled.
+                sRingRenderIdx = (renderIdxNow + 1) % AHB_RING_DEPTH;
+                // Threshold = 2 (not depth-1) keeps present-lag at 2 regardless of
+// ring depth. With depth N and lag L, slot M is rendered at iter M
+// and re-rendered at iter M+N, but display still owns it through
+// iter M+L+1. Race-free requires L <= N-2. With depth 4 and L=2
+// (this threshold), we have 1 slot of headroom = no GL/scanout
+// races on the DRM PRIME path.
+if (sRingPrimedCount >= 2) {
+                    const int presentIdxNow = sRingPresentIdx;
+                    drmFlipRingSlot(presentIdxNow);
+                    sRingPresentIdx =
+                            (presentIdxNow + 1) % AHB_RING_DEPTH;
+                } else {
+                    sRingPrimedCount++;
+                }
+            } else {
+                drmFlipAll(); // includes glFinish + CPU blit + page flip
+            }
+        } else {
+            drmPushFrame(mWidth, mHeight);
+        }
+
+        // GammaOS: Vsync lock for DRM-direct XMB rendering.
+        //
+        // Without an explicit DRM_IOCTL_WAIT_VBLANK here the loop runs as
+        // fast as drmFlipAll can complete, which on Mali G52 is ~8-11 ms
+        // per frame. Every second call to drmModePageFlip can return
+        // -EBUSY (previous flip pending), which falls through to the
+        // blocking drmModeSetCrtc in drmFlipAll's fallback path and
+        // produces irregular pacing. Baseline measurement (2026-04-13)
+        // showed XMB at 46-48 fps in DRM-direct mode, with frame times
+        // oscillating 8-35 ms.
+        //
+        // Relative-vblank sequence=1 blocks until the panel has
+        // completed one vblank, matching the QR loop's pacing at
+        // line ~6822 of this file and giving us a stable 60 fps lock
+        // as long as the per-frame work fits inside 16.67 ms.
+        // Render-loop sync. Two paths:
+        //
+        // - Working vblank (default): DRM_IOCTL_WAIT_VBLANK with relative
+        //   sequence=1 blocks until the next panel vblank. Cheap (one
+        //   ioctl) and ignores cross-CRTC timing on dual-display setups.
+        //
+        // - Broken vblank (RK3576 DSI command-mode): the kernel's vblank
+        //   queue never wakes -> WAIT_VBLANK hits the 3s timeout. The
+        //   first slow wait flips sDrmVblankBroken; subsequent iterations
+        //   skip the ioctl and pace via drmDrainPageFlipEvents() instead
+        //   (which reads the per-flip events those panels DO generate).
+        //
+        // The whole gate can be disabled at runtime with
+        // persist.gammaos.nano.vsync=0 (default 1) -- diagnostic, lets us
+        // measure vsync overhead vs other sources of jitter. Read once.
+        if (sVsyncEnabled < 0) {
+            char vp[PROPERTY_VALUE_MAX] = {};
+            property_get("persist.gammaos.nano.vsync", vp, "1");
+            sVsyncEnabled = (vp[0] == '0') ? 0 : 1;
+            ALOGW("NanoMenu vsync gate %s",
+                  sVsyncEnabled ? "ENABLED" : "DISABLED (no WAIT_VBLANK / no event drain)");
+        }
+        if (sVsyncEnabled) {
+            // WAIT_VBLANK is only safe on single-CRTC setups with working
+            // vblank. Multi-CRTC setups (RG DS dual DSI) pace via
+            // drmDrainPageFlipEvents instead so the sync gate waits for
+            // flips on BOTH displays to complete. Broken-vblank panels
+            // (RK3576 DSI command-mode) also skip WAIT_VBLANK.
+            if (sDrmFd >= 0 && !sDrmDisplays.empty() &&
+                !sDrmVblankBroken && sDrmDisplays.size() <= 1) {
+                int64_t vblT0 = systemTime(SYSTEM_TIME_MONOTONIC) / 1000LL;
+                union drm_wait_vblank vbl = {};
+                vbl.request.type = (enum drm_vblank_seq_type)(
+                        _DRM_VBLANK_RELATIVE
+                        | ((sDrmPrimaryIdx & 0x1f)
+                           << _DRM_VBLANK_HIGH_CRTC_SHIFT));
+                vbl.request.sequence = 1;
+                ioctl(sDrmFd, DRM_IOCTL_WAIT_VBLANK, &vbl);
+                int64_t vblElapsed =
+                        systemTime(SYSTEM_TIME_MONOTONIC) / 1000LL - vblT0;
+                if (vblElapsed > 100000) {
+                    sDrmVblankBroken = true;
+                    ALOGW("NanoMenu: DRM_IOCTL_WAIT_VBLANK took %lld us -- "
+                          "switching to page-flip-event pacing",
+                          (long long)vblElapsed);
+                }
+            }
+            // Drain pending events. No-op when no events were requested
+            // (single-display + working vblank). Sync gate for broken-vblank
+            // and multi-display setups.
+            drmDrainPageFlipEvents();
+        } else {
+            // Vsync disabled: still cap the render rate at 60 fps so we
+            // can compare CPU/pacing fairly. Tearing is expected.
+            drmPaceWithoutVsync();
+        }
+
+        // GammaOS: drmStop() is no longer called from here.
+        //
+        // The previous behaviour was "after 30 frames post
+        // boot_completed, unconditionally switch the XMB pipeline from
+        // DRM-direct to HWC". The intent was to hand displays to
+        // SurfaceFlinger so a launched app could present. But the
+        // transition happened whether or not the user was actually
+        // about to launch an app, which meant the XMB itself ran in
+        // HWC for the rest of the session -- with the extra latency
+        // of eglSwapBuffers paced by HWC's compositor tick.
+        //
+        // For idle XMB (no app in flight) we get better and more
+        // predictable pacing by staying in DRM-direct mode:
+        //   - Our render thread directly controls page flips via
+        //     drmModePageFlip + DRM_IOCTL_WAIT_VBLANK above.
+        //   - No SurfaceFlinger compositor tick in the critical path.
+        //   - No BLASTBufferQueue buffer starvation under load.
+        //
+        // drmStop() + setupSecondaryEglSurfaces() now run exactly
+        // once, immediately after the main XMB loop exits (see the
+        // post-loop section further down, gated on
+        // mExitRequested). That way SurfaceFlinger is given the
+        // displays at the moment we are about to launch an Android
+        // app, which matches the original intent without paying the
+        // DRM->HWC transition cost for XMB browsing.
+    } else {
+        eglSwapBuffers(mDisplay, mSurface);
+        if (sFirstFrame) {
+            int64_t nowMs = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL;
+            ALOGW("NanoMenu BOOT TIMING: first eglSwapBuffers complete at T+%lldms", nowMs);
+            sFirstFrame = false;
+            // Restart path (returning from game): readyToRun() saw boot
+            // already complete and skipped DRM splash, so the drmStop()
+            // branch above never runs. Set up secondary EGL surfaces here
+            // on the first EGL swap so the wallpaper renders on the
+            // secondary display in restart sessions too. Idempotent — the
+            // setup function returns immediately if already populated.
+            if (mSecondaryEglSurfaces.empty()) {
+                setupSecondaryEglSurfaces();
+            }
+        }
+    }
+
+    // GammaOS: Render wallpaper (or bottom DS screen when drastic QR
+    // is active) to secondary display(s). Switch to each secondary
+    // EGL surface, render, swap.
+    for (size_t i = 0; i < mSecondaryEglSurfaces.size(); i++) {
+        eglMakeCurrent(mDisplay, mSecondaryEglSurfaces[i], mSecondaryEglSurfaces[i], mContext);
+        glViewport(0, 0, mWidth, mHeight); // secondary has same resolution
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+        if (drasticActive) {
+            // Secondary display -> bottom DS screen fullscreen.
+            drastic->renderBottomScreen(sDrasticSaturation, sDrasticGradient);
+            drawDrasticQrOverlay(mWidth, mHeight,
+                                 sDrasticSaturation, sDrasticGradient);
+        } else {
+            renderEffect();
+        }
+        eglSwapBuffers(mDisplay, mSecondaryEglSurfaces[i]);
+    }
+    // Switch back to primary
+    if (!mSecondaryEglSurfaces.empty()) {
+        eglMakeCurrent(mDisplay, mSurface, mSurface, mContext);
+    }
+}
+
+} // namespace android

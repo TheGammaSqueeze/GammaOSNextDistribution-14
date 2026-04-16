@@ -1,0 +1,708 @@
+/*
+ * Copyright (C) 2026 GammaOS
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+// Input device discovery + hotplug, event polling, and the D-pad/face-button
+// dispatch table used by the non-XMB menu. XMB-specific input
+// (handleLeft/handleRight, OSK handling) lives in NanoMenuXmb.cpp.
+//
+// Extracted from NanoMenu.cpp — behavior unchanged.
+
+#define LOG_TAG "GammaOSNano"
+
+#include <dirent.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <inttypes.h>
+#include <cinttypes>
+#include <string.h>
+#include <errno.h>
+
+#include <linux/input.h>
+#include <sys/inotify.h>
+#include <sys/ioctl.h>
+#include <sys/stat.h>
+#include <time.h>
+
+#include <GLES2/gl2.h>
+#include <EGL/egl.h>
+
+#include <android-base/properties.h>
+#include <cutils/properties.h>
+#include <utils/Log.h>
+#include <utils/SystemClock.h>
+
+#include "NanoMenu.h"
+#include "NanoMenuShaders.h"
+#include "NanoMenuUtils.h"
+
+namespace android {
+
+// ---------------------------------------------------------------------------
+// Input device discovery + hotplug
+// ---------------------------------------------------------------------------
+
+void NanoMenu::openInputDevices() {
+    DIR* dir = opendir("/dev/input");
+    if (!dir) { ALOGE("Cannot open /dev/input"); return; }
+    struct dirent* entry;
+    while ((entry = readdir(dir)) != nullptr) {
+        if (strncmp(entry->d_name, "event", 5) != 0) continue;
+        char path[PATH_MAX];
+        snprintf(path, sizeof(path), "/dev/input/%s", entry->d_name);
+        if (mOpenedDevices.count(entry->d_name)) continue;
+        int fd = open(path, O_RDONLY | O_NONBLOCK);
+        if (fd >= 0) {
+            // Exclusive grab: prevent Android InputReader from stealing events.
+            // Gated by property — disable when preload is off to avoid input
+            // ownership issues during app transitions.
+            if (android::base::GetBoolProperty("persist.gammaos.nano.grab_input", false)) {
+                if (ioctl(fd, EVIOCGRAB, 1) < 0) {
+                    ALOGW("EVIOCGRAB failed for %s: %s", path, strerror(errno));
+                }
+                ALOGD("Opened + grabbed input device: %s", path);
+            } else {
+                ALOGD("Opened input device (no grab): %s", path);
+            }
+            mInputFds.push_back(fd);
+            mOpenedDevices.insert(entry->d_name);
+        }
+    }
+    closedir(dir);
+
+    // Set up inotify to detect hotplugged and replaced input devices.
+    // IN_DELETE is needed because gammapad may destroy+recreate device nodes
+    // to seize them; we must detect the deletion, drop our stale fd, and
+    // re-open+grab when the replacement IN_CREATE arrives.
+    mInotifyFd = inotify_init1(IN_NONBLOCK | IN_CLOEXEC);
+    if (mInotifyFd >= 0) {
+        inotify_add_watch(mInotifyFd, "/dev/input", IN_CREATE | IN_DELETE);
+        ALOGD("Watching /dev/input for hotplug");
+    }
+}
+
+void NanoMenu::checkInputHotplug() {
+    if (mInotifyFd < 0) return;
+    char buf[512] __attribute__((aligned(__alignof__(struct inotify_event))));
+    ssize_t len = read(mInotifyFd, buf, sizeof(buf));
+    if (len > 0) {
+        for (char* ptr = buf; ptr < buf + len; ) {
+            auto* ev = reinterpret_cast<struct inotify_event*>(ptr);
+            if (ev->len > 0 && strncmp(ev->name, "event", 5) == 0) {
+                if (ev->mask & IN_DELETE) {
+                    // Device node was removed (gammapad hides+recreates devices).
+                    // Close our stale fd and forget it so we re-grab on IN_CREATE.
+                    //
+                    // BUG fix: only match the fd whose path corresponds to the
+                    // deleted device. The previous code OR'd against any
+                    // "(deleted)" fd, which closed the wrong fd when multiple
+                    // devices were being torn down nearly simultaneously
+                    // (gammapad's swap of event12 races with EventHub removing
+                    // event10, etc). The result was that nano permanently lost
+                    // the Xbox controller because event12's fd got closed by
+                    // event10's IN_DELETE event, leaving stale state in
+                    // mOpenedDevices that suppressed IN_CREATE re-opening.
+                    if (mOpenedDevices.count(ev->name)) {
+                        char path[PATH_MAX];
+                        snprintf(path, sizeof(path), "/dev/input/%s", ev->name);
+                        for (auto it = mInputFds.begin(); it != mInputFds.end(); ++it) {
+                            char fdPath[PATH_MAX];
+                            char procLink[64];
+                            snprintf(procLink, sizeof(procLink), "/proc/self/fd/%d", *it);
+                            ssize_t rl = readlink(procLink, fdPath, sizeof(fdPath) - 1);
+                            if (rl > 0) {
+                                fdPath[rl] = '\0';
+                                // Match only by exact device name. The path may
+                                // also have " (deleted)" appended once the kernel
+                                // marks it removed; tolerate that suffix.
+                                char wantPath[PATH_MAX];
+                                snprintf(wantPath, sizeof(wantPath), "/dev/input/%s", ev->name);
+                                size_t wantLen = strlen(wantPath);
+                                if (strncmp(fdPath, wantPath, wantLen) == 0 &&
+                                        (fdPath[wantLen] == '\0' ||
+                                         fdPath[wantLen] == ' ')) {
+                                    ioctl(*it, EVIOCGRAB, 0);
+                                    close(*it);
+                                    mInputFds.erase(it);
+                                    break;
+                                }
+                            }
+                        }
+                        mOpenedDevices.erase(ev->name);
+                        ALOGI("Device removed, dropped stale fd: %s", path);
+                    }
+                } else if ((ev->mask & IN_CREATE) && !mOpenedDevices.count(ev->name)) {
+                    // Small delay for the device node to be fully ready
+                    usleep(100000); // 100ms
+                    char path[PATH_MAX];
+                    snprintf(path, sizeof(path), "/dev/input/%s", ev->name);
+                    int fd = open(path, O_RDONLY | O_NONBLOCK);
+                    if (fd >= 0) {
+                        if (android::base::GetBoolProperty("persist.gammaos.nano.grab_input", false)) {
+                            if (ioctl(fd, EVIOCGRAB, 1) < 0) {
+                                ALOGW("EVIOCGRAB failed for hotplugged %s: %s", path, strerror(errno));
+                            }
+                        }
+                        mInputFds.push_back(fd);
+                        mOpenedDevices.insert(ev->name);
+                        ALOGI("Hotplugged + grabbed input device: %s", path);
+                    }
+                }
+            }
+            ptr += sizeof(struct inotify_event) + ev->len;
+        }
+    }
+
+    // GammaOS: defensive sweep for missed devices. The inotify handler above
+    // can lose track of devices when multiple are torn down/recreated nearly
+    // simultaneously (typical with gammapad swaps). Periodically rescan
+    // /dev/input and reconcile against mOpenedDevices: open anything missing,
+    // and drop any fd that has gone "(deleted)" without a matching IN_DELETE.
+    // Ratelimited to once per second to keep cost negligible.
+    static int64_t sLastSweepNs = 0;
+    int64_t nowNs = systemTime(SYSTEM_TIME_MONOTONIC);
+    if (nowNs - sLastSweepNs < 1000000000LL) return;
+    sLastSweepNs = nowNs;
+
+    // (1) Drop any of our fds that point to a deleted inode. This handles
+    // the case where gammapad recreated a device under the same name without
+    // us seeing the IN_DELETE.
+    for (auto it = mInputFds.begin(); it != mInputFds.end(); ) {
+        char fdPath[PATH_MAX];
+        char procLink[64];
+        snprintf(procLink, sizeof(procLink), "/proc/self/fd/%d", *it);
+        ssize_t rl = readlink(procLink, fdPath, sizeof(fdPath) - 1);
+        if (rl > 0) {
+            fdPath[rl] = '\0';
+            if (strstr(fdPath, "(deleted)")) {
+                // Recover the device name from the path so we can also
+                // erase it from mOpenedDevices and let the rescan re-open it.
+                const char* base = strrchr(fdPath, '/');
+                if (base) {
+                    base++;
+                    char nameOnly[64];
+                    size_t i = 0;
+                    while (base[i] && base[i] != ' ' && i < sizeof(nameOnly) - 1) {
+                        nameOnly[i] = base[i];
+                        i++;
+                    }
+                    nameOnly[i] = '\0';
+                    mOpenedDevices.erase(nameOnly);
+                    ALOGI("Sweep: dropped stale fd %s", fdPath);
+                }
+                ioctl(*it, EVIOCGRAB, 0);
+                close(*it);
+                it = mInputFds.erase(it);
+                continue;
+            }
+        }
+        ++it;
+    }
+
+    // (2) Open any /dev/input/event* that we don't currently have.
+    DIR* dir = opendir("/dev/input");
+    if (!dir) return;
+    struct dirent* entry;
+    while ((entry = readdir(dir)) != nullptr) {
+        if (strncmp(entry->d_name, "event", 5) != 0) continue;
+        if (mOpenedDevices.count(entry->d_name)) continue;
+        char path[PATH_MAX];
+        snprintf(path, sizeof(path), "/dev/input/%s", entry->d_name);
+        int fd = open(path, O_RDONLY | O_NONBLOCK);
+        if (fd >= 0) {
+            if (android::base::GetBoolProperty("persist.gammaos.nano.grab_input", false)) {
+                if (ioctl(fd, EVIOCGRAB, 1) < 0) {
+                    ALOGW("EVIOCGRAB failed for swept %s: %s", path, strerror(errno));
+                }
+            }
+            mInputFds.push_back(fd);
+            mOpenedDevices.insert(entry->d_name);
+            ALOGI("Sweep: opened previously-missed input device %s", path);
+        }
+    }
+    closedir(dir);
+}
+
+// ---------------------------------------------------------------------------
+// Menu navigation: Back / Select / Up / Down
+// (Left/Right live in NanoMenuXmb.cpp because they drive the XMB system axis.)
+// ---------------------------------------------------------------------------
+
+void NanoMenu::handleBack() {
+    if (mOskActive) {
+        closeOsk();
+        return;
+    }
+    if (mXmbMode) {
+        if (mSearchActive) {
+            mSearchActive = false;
+            mOskQuery.clear();
+            mSearchResults.clear();
+        } else {
+            // Exit XMB mode back to text menu
+            mXmbMode = false;
+            property_set("persist.gammaos.nano.xmb_mode", "0");
+            mMenuState = MENU_MAIN;
+            mDisplayDirty = true;
+        }
+        return;
+    }
+    if (mMenuState == MENU_RECENT) {
+        mMenuState = MENU_MAIN;
+        mRecentSelectedIndex = 0;
+        mMenuScrollTop = 0;
+        mDisplayDirty = true;
+    } else if (mMenuState == MENU_APPS) {
+        mMenuState = MENU_MAIN;
+        mAppSelectedIndex = 0;
+        mMenuScrollTop = 0;
+        mDisplayDirty = true;
+    }
+}
+
+void NanoMenu::handleSelect() {
+    if (mOskActive) {
+        char ch = kOskLayout[mOskCursorY][mOskCursorX];
+        oskType(ch);
+        return;
+    }
+    if (mXmbMode) {
+        launchXmbGame();
+        return;
+    }
+    if (mMenuState == MENU_RECENT) {
+        int numEntries = (int)mRecentEntries.size();
+        // Last item is "< Back"
+        if (mRecentSelectedIndex >= numEntries) {
+            handleBack();
+            return;
+        }
+        // Launch the selected game directly into RetroArch
+        const auto& entry = mRecentEntries[mRecentSelectedIndex];
+        ALOGI("NanoMenu: launching game: %s core: %s",
+              entry.romPath.c_str(), entry.corePath.c_str());
+        setLaunchRomPath(entry.romPath);
+        android::base::SetProperty("sys.gammaos.nano.launch_core", entry.corePath);
+        // Track launched package so NanoMenu can force-stop it on next restart
+        {
+            char launchApp[PROPERTY_VALUE_MAX] = {};
+            property_get("sys.gammaos.nano.launch_app", launchApp, "com.retroarch.aarch64");
+            android::base::SetProperty("sys.gammaos.nano.launched_pkg", launchApp);
+        }
+        // Trigger DE cache populate (ROM first, then delta sync everything)
+        property_set("sys.gammaos.nano.cache_ready", "0");
+        property_set("sys.gammaos.nano.cache_op", "populate");
+        // Prime Quick Resume now — the persist write has time to flush to disk
+        // while the game runs. ShutdownThread may update ROM/core from the
+        // playlist if the user loaded a different game, but this ensures the
+        // flag survives even if the reboot races the persist write.
+        if (mQuickResumeEnabled) {
+            setQrRomPath(entry.romPath);
+            android::base::SetProperty("persist.gammaos.nano.qr_core", entry.corePath);
+            property_set("persist.gammaos.nano.qr_prepared", "1");
+        }
+        // Flag so next nano menu restart returns to Recently Played
+        property_set("sys.gammaos.nano.return_recent", "1");
+        property_set("service.bootanim.nano_retroarch", "1");
+        // Tell InputDispatcher to drop events immediately — prevents a fast
+        // double-press A from queuing a second event before the transition.
+        property_set("sys.gammaos.nano.drop_input", "1");
+        // Set a timestamp fence — InputDispatcher drops any events with
+        // eventTime <= this value, covering the race where the A-DOWN was
+        // queued before drop_input was set.
+        struct timespec ts;
+        clock_gettime(CLOCK_MONOTONIC, &ts);
+        int64_t fenceNs = (int64_t)ts.tv_sec * 1000000000LL + ts.tv_nsec;
+        char buf[32];
+        snprintf(buf, sizeof(buf), "%" PRId64, fenceNs);
+        property_set("sys.gammaos.nano.drop_fence_ns", buf);
+        // Don't exit yet — wait for the select key to be released so the
+        // key-up event passes through Android's InputReader before RetroArch
+        // gets focus. Otherwise the A press leaks to RetroArch as a phantom input.
+        mWaitForRelease = true;
+        return;
+    }
+
+    if (mMenuState == MENU_APPS) {
+        int numApps = (int)mAppEntries.size();
+        // Last item is "< Back"
+        if (mAppSelectedIndex >= numApps) {
+            handleBack();
+            return;
+        }
+        // Launch the selected app
+        const auto& app = mAppEntries[mAppSelectedIndex];
+        ALOGI("NanoMenu: launching app: %s", app.packageName.c_str());
+        android::base::SetProperty("sys.gammaos.nano.launch_app", app.packageName);
+        // Track launched package so NanoMenu can force-stop it on next restart
+        android::base::SetProperty("sys.gammaos.nano.launched_pkg", app.packageName);
+        // Clear any ROM/core properties so RootWindowContainer uses generic launch
+        setLaunchRomPath("");
+        android::base::SetProperty("sys.gammaos.nano.launch_core", "");
+        // Flag so next nano menu restart returns to Applications
+        property_set("sys.gammaos.nano.return_apps", "1");
+        property_set("service.bootanim.nano_retroarch", "1");
+        property_set("sys.gammaos.nano.drop_input", "1");
+        mWaitForRelease = true;
+        return;
+    }
+
+    // Main menu
+    ALOGD("Select item %d: %s", mSelectedIndex, mMenuItems[mSelectedIndex].label.c_str());
+    const auto& label = mMenuItems[mSelectedIndex].label;
+    if (label == "RetroArch (Nano)") {
+        property_set("service.bootanim.nano_retroarch", "1");
+        property_set("sys.gammaos.nano.drop_input", "1");
+        mWaitForRelease = true;
+    } else if (label == "Recently Played") {
+        if (!mStorageReady) return; // greyed out, ignore
+        // Load playlist from RetroArch's content_history.lpl (needs CE unlock)
+        loadRecentPlaylist();
+        mMenuState = MENU_RECENT;
+        mRecentSelectedIndex = 0;
+        mMenuScrollTop = 0;
+        mDisplayDirty = true;
+    } else if (label == "Applications") {
+        if (!mStorageReady) return; // greyed out, ignore
+        loadInstalledApps();
+        mMenuState = MENU_APPS;
+        mAppSelectedIndex = 0;
+        mMenuScrollTop = 0;
+        mDisplayDirty = true;
+    } else if (label == "Boot Android") {
+        // Full Android needs a clean boot.  Dispatch via nano_action so
+        // init (which has powerctl_prop access) handles the reboot.
+        property_set("service.bootanim.nano_action", "android");
+    } else if (label == "Recovery Mode") {
+        property_set("service.bootanim.nano_action", "recovery");
+    } else if (label == "Safe Mode") {
+        property_set("service.bootanim.nano_action", "safemode");
+    } else if (label == "Reboot") {
+        prepareShutdown("reboot");
+    } else if (label == "Power Off") {
+        prepareShutdown("shutdown");
+    }
+}
+
+void NanoMenu::handleUp() {
+    if (mOskActive) {
+        if (mOskCursorY > 0) mOskCursorY--;
+        return;
+    }
+    if (mXmbMode) {
+        if (mSearchActive) {
+            if (mSearchSelectedIndex > 0) mSearchSelectedIndex--;
+        } else {
+            if (mXmbGameIndex > 0) mXmbGameIndex--;
+        }
+        return;
+    }
+    if (mMenuState == MENU_RECENT) {
+        if (mRecentSelectedIndex > 0) mRecentSelectedIndex--;
+    } else if (mMenuState == MENU_APPS) {
+        if (mAppSelectedIndex > 0) mAppSelectedIndex--;
+    } else {
+        if (mSelectedIndex > 0) {
+            mSelectedIndex--;
+            // Skip greyed-out items when storage isn't ready
+            if (!mStorageReady && mSelectedIndex < (int)mMenuItems.size()) {
+                const auto& lbl = mMenuItems[mSelectedIndex].label;
+                if ((lbl == "Recently Played" || lbl == "Applications")
+                    && mSelectedIndex > 0) {
+                    mSelectedIndex--;
+                    // Check again for the other greyed item
+                    if (!mStorageReady && mSelectedIndex < (int)mMenuItems.size()) {
+                        const auto& lbl2 = mMenuItems[mSelectedIndex].label;
+                        if ((lbl2 == "Recently Played" || lbl2 == "Applications")
+                            && mSelectedIndex > 0) {
+                            mSelectedIndex--;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+void NanoMenu::handleDown() {
+    if (mOskActive) {
+        if (mOskCursorY < kOskRows - 1) mOskCursorY++;
+        return;
+    }
+    if (mXmbMode) {
+        if (mSearchActive) {
+            int maxIdx = (int)mSearchResults.size() - 1;
+            if (mSearchSelectedIndex < maxIdx) mSearchSelectedIndex++;
+        } else if (mXmbSystemIndex == -1) {
+            // Recently Played
+            int maxIdx = (int)mXmbRecent.size() - 1;
+            if (mXmbGameIndex < maxIdx) mXmbGameIndex++;
+        } else {
+            int selSys = mXmbSystemIndex;
+            if (selSys >= 0 && selSys < (int)mXmbSystems.size()) {
+                int maxIdx = (int)mXmbSystems[selSys].roms.size() - 1;
+                if (mXmbGameIndex < maxIdx) mXmbGameIndex++;
+            }
+        }
+        return;
+    }
+    if (mMenuState == MENU_RECENT) {
+        int maxIdx = (int)mRecentEntries.size(); // "< Back" is at this index
+        if (mRecentSelectedIndex < maxIdx) mRecentSelectedIndex++;
+    } else if (mMenuState == MENU_APPS) {
+        int maxIdx = (int)mAppEntries.size(); // "< Back" is at this index
+        if (mAppSelectedIndex < maxIdx) mAppSelectedIndex++;
+    } else {
+        int last = (int)mMenuItems.size() - 1;
+        if (mSelectedIndex < last) {
+            mSelectedIndex++;
+            // Skip greyed-out items when storage isn't ready
+            if (!mStorageReady && mSelectedIndex < (int)mMenuItems.size()) {
+                const auto& lbl = mMenuItems[mSelectedIndex].label;
+                if ((lbl == "Recently Played" || lbl == "Applications")
+                    && mSelectedIndex < last) {
+                    mSelectedIndex++;
+                    // Check again for the other greyed item
+                    if (!mStorageReady && mSelectedIndex < (int)mMenuItems.size()) {
+                        const auto& lbl2 = mMenuItems[mSelectedIndex].label;
+                        if ((lbl2 == "Recently Played" || lbl2 == "Applications")
+                            && mSelectedIndex < last) {
+                            mSelectedIndex++;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Event loop: drain every input fd, dispatch to navigation / power / OSK.
+// ---------------------------------------------------------------------------
+
+void NanoMenu::pollInput() {
+    struct input_event ev;
+    for (int fd : mInputFds) {
+        while (read(fd, &ev, sizeof(ev)) == sizeof(ev)) {
+            // Wait-for-release: after a launch is triggered, keep running
+            // until the select key is released. This ensures Android's
+            // InputReader sees the full press-release cycle before RetroArch
+            // gets focus, preventing phantom A-button presses.
+            if (mWaitForRelease) {
+                if (ev.type == EV_KEY && ev.value == 0
+                    && (ev.code == KEY_ENTER || ev.code == BTN_SOUTH)) {
+                    ALOGD("NanoMenu: select key released, exiting now");
+                    mExitRequested = true;
+                }
+                continue; // discard all other events while waiting
+            }
+            // Track SELECT button state; in XMB mode, press refreshes game lists
+            if (ev.type == EV_KEY && ev.code == BTN_SELECT) {
+                if (ev.value == 1 && mXmbMode) {
+                    forceRescanAllSystems();
+                }
+                mSelectHeld = (ev.value != 0);
+            }
+            // Power button handling
+            if (ev.type == EV_KEY && ev.code == KEY_POWER) {
+                if (ev.value == 1) {
+                    mPowerPressTime = android::uptimeMillis();
+                    // Immediately start polling for long press in a tight loop
+                    // so we can shutdown before the hardware cuts power
+                    bool shutdown = false;
+                    for (int poll = 0; poll < 40; poll++) { // 40 * 50ms = 2s
+                        usleep(50000);
+                        // Check if key was released
+                        struct input_event pe;
+                        bool released = false;
+                        for (int pfd : mInputFds) {
+                            while (read(pfd, &pe, sizeof(pe)) == sizeof(pe)) {
+                                if (pe.type == EV_KEY && pe.code == KEY_POWER
+                                    && pe.value == 0) {
+                                    released = true;
+                                }
+                            }
+                        }
+                        if (released) break;
+                        if (android::uptimeMillis() - mPowerPressTime > 1500) {
+                            // 1.5s hold: trigger shutdown before hardware kills us
+                            ALOGI("NanoMenu: power hold 1.5s, shutting down");
+                            shutdown = true;
+                            break;
+                        }
+                    }
+                    if (shutdown) {
+                        mPowerPressTime = 0;
+                        prepareShutdown("shutdown");
+                        continue;
+                    }
+                    // Key was released before 1.5s — short press = sleep
+                    mPowerPressTime = 0;
+                    ALOGI("NanoMenu: power short press, sleeping");
+                    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+                    glClear(GL_COLOR_BUFFER_BIT);
+                    eglSwapBuffers(mDisplay, mSurface);
+                    setBrightnessViaHal(0);
+                    // Sleep loop: power press to wake, auto-shutdown after 60s
+                    bool asleep = true;
+                    int64_t sleepStart = android::uptimeMillis();
+                    while (asleep) {
+                        usleep(100000);
+                        if (android::uptimeMillis() - sleepStart > 60000) {
+                            ALOGI("NanoMenu: sleep timeout, shutting down");
+                            prepareShutdown("shutdown");
+                            return;
+                        }
+                        struct input_event wake;
+                        for (int wfd : mInputFds) {
+                            while (read(wfd, &wake, sizeof(wake)) == sizeof(wake)) {
+                                if (wake.type == EV_KEY && wake.code == KEY_POWER
+                                    && wake.value == 1) {
+                                    asleep = false;
+                                }
+                            }
+                        }
+                    }
+                    usleep(200000);
+                    { struct input_event d; for (int dfd : mInputFds) {
+                        while (read(dfd, &d, sizeof(d)) == sizeof(d)) {} } }
+                    setBrightnessViaHal(mBrightness);
+                    ALOGI("NanoMenu: woke up");
+                }
+                continue;
+            }
+            if (ev.type == EV_KEY && (ev.value == 1 || ev.value == 2)) {
+                // Volume keys: SELECT+VOL = brightness, VOL alone = volume
+                if (ev.code == KEY_VOLUMEUP || ev.code == KEY_VOLUMEDOWN) {
+                    if (mSelectHeld) {
+                        adjustBrightness(ev.code == KEY_VOLUMEUP ? 1 : -1);
+                    } else if (ev.value == 1) {
+                        adjustVolume(ev.code == KEY_VOLUMEUP ? 1 : -1);
+                    }
+                    continue;
+                }
+                if (ev.value == 1) {
+                    // Only handle menu nav on initial press, not repeat
+                    switch (ev.code) {
+                    case KEY_UP:
+                        handleUp(); break;
+                    case KEY_DOWN:
+                        handleDown(); break;
+                    case BTN_SOUTH:
+                        handleSelect(); break;
+                    case KEY_ENTER:
+                        if (mOskActive) oskConfirm();
+                        else handleSelect();
+                        break;
+                    case BTN_EAST: case KEY_BACK:
+                        handleBack(); break;
+                    case KEY_LEFT:
+                        handleLeft(); break;
+                    case KEY_RIGHT:
+                        handleRight(); break;
+                    case BTN_WEST: // Y button (Nintendo layout: BTN_WEST = Y)
+                        if (mXmbMode) {
+                            // Y: search in XMB mode
+                            if (mOskActive) {
+                                closeOsk();
+                            } else if (mSearchActive) {
+                                mOskActive = true;
+                            } else {
+                                openOsk();
+                            }
+                        } else {
+                            // Y: cycle wallpaper in list mode
+                            sActiveEffectIdx = (sActiveEffectIdx + 1) % kNumActiveEffects;
+                            mCurrentEffect = kActiveEffects[sActiveEffectIdx];
+                            if (mCurrentEffect >= 1 && mCurrentEffect <= 10) initEffects();
+                            mDisplayDirty = true;
+                            ALOGD("Effect: %d (%s)", mCurrentEffect, kEffectNames[mCurrentEffect]);
+                            { char buf[16]; snprintf(buf, sizeof(buf), "%d", mCurrentEffect);
+                              property_set("persist.gammaos.nano.wallpaper", buf); }
+                        }
+                        break;
+                    case BTN_NORTH: // X button (Nintendo layout: BTN_NORTH = X)
+                        // X: cycle wallpaper/FX
+                        sActiveEffectIdx = (sActiveEffectIdx + 1) % kNumActiveEffects;
+                        mCurrentEffect = kActiveEffects[sActiveEffectIdx];
+                        if (mCurrentEffect >= 1 && mCurrentEffect <= 10) initEffects();
+                        mDisplayDirty = true;
+                        ALOGD("Effect: %d (%s)", mCurrentEffect, kEffectNames[mCurrentEffect]);
+                        { char buf[16]; snprintf(buf, sizeof(buf), "%d", mCurrentEffect);
+                          property_set("persist.gammaos.nano.wallpaper", buf); }
+                        break;
+                    case BTN_TL: case KEY_L:
+                        if (mOskActive) break;
+                        mXmbMode = !mXmbMode;
+                        property_set("persist.gammaos.nano.xmb_mode",
+                                     mXmbMode ? "1" : "0");
+                        if (!mXmbMode) {
+                            mMenuState = MENU_MAIN;
+                            mSearchActive = false;
+                            mOskActive = false;
+                        }
+                        mDisplayDirty = true;
+                        ALOGD("XMB Mode: %s", mXmbMode ? "ON" : "OFF");
+                        break;
+                    case BTN_TR: case KEY_R:
+                        mQuickResumeEnabled = !mQuickResumeEnabled;
+                        property_set("persist.gammaos.nano.quick_resume",
+                                     mQuickResumeEnabled ? "1" : "0");
+                        mDisplayDirty = true;
+                        ALOGD("Quick Resume: %s", mQuickResumeEnabled ? "ON" : "OFF");
+                        break;
+                    default: break;
+                    }
+                }
+            }
+            if (ev.type == EV_ABS) {
+                if (ev.code == ABS_HAT0X) {
+                    if (ev.value < 0) handleLeft();
+                    else if (ev.value > 0) handleRight();
+                } else if (ev.code == ABS_HAT0Y) {
+                    if (ev.value < 0) handleUp();
+                    else if (ev.value > 0) handleDown();
+                } else if (ev.code == ABS_X) {
+                    // Left stick X: horizontal navigation
+                    int threshold = 29490; // 90% of 32767
+                    if (ev.value < -threshold && !mStickXTriggered) {
+                        handleLeft();
+                        mStickXTriggered = true;
+                    } else if (ev.value > threshold && !mStickXTriggered) {
+                        handleRight();
+                        mStickXTriggered = true;
+                    } else if (ev.value > -threshold && ev.value < threshold) {
+                        mStickXTriggered = false;
+                    }
+                } else if (ev.code == ABS_Y) {
+                    // Left stick Y: signed range -32768..32767, 90% deadzone
+                    // Threshold naturally filters touchscreen ABS_Y (max ~960)
+                    int threshold = 29490; // 90% of 32767
+                    if (ev.value < -threshold && !mStickYTriggered) {
+                        handleUp();
+                        mStickYTriggered = true;
+                    } else if (ev.value > threshold && !mStickYTriggered) {
+                        handleDown();
+                        mStickYTriggered = true;
+                    } else if (ev.value > -threshold && ev.value < threshold) {
+                        mStickYTriggered = false;
+                    }
+                }
+            }
+        }
+    }
+}
+
+} // namespace android

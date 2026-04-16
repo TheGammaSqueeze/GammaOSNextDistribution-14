@@ -41,6 +41,7 @@
 #include "NanoMenuDrm.h"
 #include "NanoMenuUtils.h"
 #include "NanoMenu.h"
+#include "NanoMenuShaders.h"
 
 namespace android {
 
@@ -102,9 +103,7 @@ static const SystemDef kXmbSystemDefs[] = {
 };
 static const int kNumXmbSystemDefs = sizeof(kXmbSystemDefs) / sizeof(kXmbSystemDefs[0]);
 
-// Font layout constants (needed for text sizing in renderXmb/renderOsk)
-static const int FONT_CHAR_W = 8;
-static const int FONT_CHAR_H = 16;
+// Font layout constants come from NanoMenuShaders.h (shared with NanoMenu.cpp).
 
 // ---------------------------------------------------------------------------
 // XMB System Initialization
