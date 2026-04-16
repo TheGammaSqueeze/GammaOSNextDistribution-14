@@ -5105,21 +5105,53 @@ if (sRingPrimedCount >= 2) {
 
                     // Find cached ROM and core (match core from QR property)
                     {
+                        // Extract expected ROM basename from qrRom so we
+                        // don't accidentally load a stale ROM left by a
+                        // previous session (e.g. drastic nano caching an
+                        // NDS ROM into the sibling drastic/rom/ dir while
+                        // the retroarch rom/ dir still holds an old file).
+                        std::string expectedBase;
+                        {
+                            size_t sl = qrRom.rfind('/');
+                            expectedBase = (sl != std::string::npos)
+                                    ? qrRom.substr(sl + 1) : qrRom;
+                        }
+
                         DIR* d = opendir((cacheDir + "/rom").c_str());
                         if (d) {
                             struct dirent* e;
                             while ((e = readdir(d)) != nullptr) {
                                 std::string name(e->d_name);
                                 if (name == "." || name == "..") continue;
-                                // ROM file (not .srm, .state, .sav, .png)
+                                // ROM file (not .srm, .state, .sav, .png, .brm)
                                 if (name.find(".srm") == std::string::npos &&
                                     name.find(".state") == std::string::npos &&
                                     name.find(".sav") == std::string::npos &&
+                                    name.find(".brm") == std::string::npos &&
                                     name.find(".png") == std::string::npos) {
                                     romFile = cacheDir + "/rom/" + name;
                                 }
                             }
                             closedir(d);
+                        }
+
+                        // Verify cached ROM matches QR prop. If the cache
+                        // holds a different ROM (stale from a prior session
+                        // or a different emulator), skip the native launch
+                        // and let populate refresh the cache first.
+                        if (!romFile.empty() && !expectedBase.empty()) {
+                            std::string cachedBase = romFile;
+                            size_t sl = cachedBase.rfind('/');
+                            if (sl != std::string::npos)
+                                cachedBase = cachedBase.substr(sl + 1);
+                            if (cachedBase != expectedBase) {
+                                ALOGW("Quick Resume: cached ROM mismatch "
+                                      "(have=%s want=%s), skipping native "
+                                      "launch until cache refreshes",
+                                      cachedBase.c_str(),
+                                      expectedBase.c_str());
+                                romFile.clear();
+                            }
                         }
                         // Match core from QR property (basename), not blindly first .so
                         std::string qrCoreBase = qrCore;
@@ -5306,8 +5338,24 @@ if (sRingPrimedCount >= 2) {
                                     saturation = 0.35f + t * 0.65f;
                                     gradient = 0.7f * (1.0f - t);
 
-                                    if (t >= 1.0f) {
-                                        // Fully saturated — hand off to RetroArch.
+                                    if (t >= 1.0f && !isQrRomStorageReady()) {
+                                        // Color ramp done but FUSE/storage not
+                                        // ready yet. Throttle to ~10 fps so we
+                                        // don't starve vold/system_server from
+                                        // CPU time needed to mount emulated
+                                        // storage. Without this, the uncapped
+                                        // render loop saturates all cores and
+                                        // delays the FUSE mount it's waiting for.
+                                        usleep(100000); // 100ms
+                                    }
+
+                                    if (t >= 1.0f && isQrRomStorageReady()) {
+                                        // Fully saturated AND the ROM's backing
+                                        // storage is mounted. On cold boot, vold
+                                        // defers external SD mounting until after
+                                        // keyguard, so /storage/<UUID>/ may not
+                                        // exist yet. Without this gate, RetroArch
+                                        // gets a ROM path it cannot open and hangs.
                                         // Fire do_launch FIRST so NanoRelaunchMonitor can start
                                         // the home activity in parallel while we save state.
                                         // This also bypasses the slow init property trigger
@@ -5437,48 +5485,16 @@ if (sRingPrimedCount >= 2) {
         // DrasticRunner dlopen is one-shot per process lifetime, so
         // we must restart rather than re-init in the same process.
         if (mDrasticNanoPending) {
-            ALOGW("drastic nano: waiting for cache_ready...");
-            float sf = fminf((float)mWidth / 1080.0f,
-                             (float)mHeight / 720.0f);
-            if (sf < 0.5f) sf = 0.5f;
-            float prepScale = 3.0f * sf;
-            for (int wait = 0; wait < 900; wait++) { // max ~15s
-                drmFrameBegin();
-                if (sDrmGlRotation) {
-                    glViewport(0, 0, sAhbTarget.w, sAhbTarget.h);
-                } else {
-                    glViewport(0, 0, mWidth, mHeight);
-                }
-                glClearColor(0.05f, 0.05f, 0.10f, 1.0f);
-                glClear(GL_COLOR_BUFFER_BIT);
-                glEnable(GL_BLEND);
-                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-                const char* prepMsg = "Preparing...";
-                float prepW = measureText(prepMsg, prepScale);
-                float prepX = (mWidth - prepW) / 2.0f;
-                float prepY = (mHeight - FONT_CHAR_H * prepScale)
-                              / 2.0f;
-                drawText(prepMsg, prepX, prepY, prepScale,
-                         0.6f, 0.6f, 0.7f, 1.0f);
-                glDisable(GL_BLEND);
-                drmFrameEnd(mDisplay, mSurface);
-                char cr[PROPERTY_VALUE_MAX] = {};
-                property_get("sys.gammaos.nano.cache_ready",
-                             cr, "0");
-                if (cr[0] == '1') {
-                    ALOGW("drastic nano: cache ready, restarting "
-                          "into QR fast path");
-                    property_set("sys.gammaos.nano.force_drm", "1");
-                    property_set(
-                            "sys.gammaos.nano.restart_after_cancel",
-                            "1");
-                    _exit(0);
-                }
-                usleep(16666);
-            }
-            ALOGW("drastic nano: cache_ready timed out, "
-                  "falling back to normal launch");
-            mDrasticNanoPending = false;
+            // Restart immediately into QR fast path. populate_drastic
+            // runs asynchronously via init; the restarted NanoMenu's
+            // runDrasticInitIfNeeded() will wait for the cache (ROM
+            // file access check) on its own. No need to block here.
+            ALOGW("drastic nano: restarting into QR fast path "
+                  "(cache populates in background)");
+            property_set("sys.gammaos.nano.force_drm", "1");
+            property_set(
+                    "sys.gammaos.nano.restart_after_cancel", "1");
+            _exit(0);
         }
 
         // Apply stock clocks once boot is fully complete, with a 1 s
@@ -5864,6 +5880,7 @@ if (sRingPrimedCount >= 2) {
             usleep(16666);
         }
     }
+
     // GammaOS: tear down secondary wallpaper EGL surfaces / SurfaceControls
     // BEFORE eglTerminate. The destructor (~NanoMenu) was previously doing
     // this cleanup, but by then eglTerminate had already invalidated the
@@ -5872,8 +5889,8 @@ if (sRingPrimedCount >= 2) {
     // freeBuffer through the gralloc mapper after its RegisteredHandlePool
     // mutex was effectively destroyed, aborting with FORTIFY:
     //   pthread_mutex_lock called on a destroyed mutex
-    // (backtrace: ~SurfaceControl → ~BBQSurface → ~BLASTBufferQueue →
-    //  ~GraphicBuffer → freeBuffer → RegisteredHandlePool::remove).
+    // (backtrace: ~SurfaceControl -> ~BBQSurface -> ~BLASTBufferQueue ->
+    //  ~GraphicBuffer -> freeBuffer -> RegisteredHandlePool::remove).
     // Cleaning up here, while the EGL display is still alive, avoids the
     // crash. The destructor's identical cleanup becomes a no-op because the
     // vectors are already empty.

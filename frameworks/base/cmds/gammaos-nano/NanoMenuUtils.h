@@ -64,10 +64,17 @@ inline void writePathFile(const char* path, const std::string& value) {
         return;
     }
     int fd = open(path, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+    if (fd < 0) {
+        // File may be owned by a different user (e.g. root/system from
+        // nano_cache.sh). Remove and re-create so the calling process
+        // owns the new file.
+        unlink(path);
+        fd = open(path, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+    }
     if (fd >= 0) {
         write(fd, value.c_str(), value.size());
         close(fd);
-        chmod(path, 0644);
+        chmod(path, 0666);
     }
 }
 
@@ -119,19 +126,30 @@ inline void setDrasticNanoRomPath(const std::string& romPath) {
     writePathFile("/data/system/nano_drastic_nano_rom.txt", romPath);
 }
 
-// GammaOS: returns true when the QR ROM's backing storage is mounted.
+// GammaOS: returns true when ALL storage RetroArch needs is mounted.
 //
-// On cold boot vold defers external SD scanning until after the secure
-// keyguard step, so /mnt/media_rw/<UUID>/ doesn't exist for ~3-5
-// seconds after gammaos-nano comes up. The drastic QR handoff fires a
-// content:// URI pointing at that volume, and if the ContentProvider
-// can't resolve the file (because vold hasn't mounted it yet), drastic
-// silently falls back to its main menu instead of routing to
-// DraSticEmuActivity. By blocking the handoff until the raw vold mount
-// point exists we guarantee the URI is resolvable when drastic looks
-// it up. ROMs on /sdcard or /data/media/0 don't need this gate -- they
-// live on /data which is up before NanoMenu starts.
+// Two independent gates:
+//
+// 1. Emulated FUSE (/storage/emulated/0/): RetroArch always needs this
+//    for config, saves, and its data dir, regardless of where the ROM
+//    lives. On cold boot, vold's FUSE mount is deferred until after
+//    user-0 CE storage is unlocked. If RetroArch launches before FUSE
+//    is up, it gets ENOENT on its data dir and corrupts its config
+//    paths (e.g. save_directory becomes garbage like "hg{/saves").
+//
+// 2. External SD raw mount (/mnt/media_rw/<UUID>/): only needed when
+//    the ROM path is on external storage (/storage/<UUID>/...). vold
+//    defers external SD scanning until after the secure keyguard step,
+//    so this can take 3-5s after NanoMenu starts.
 inline bool isQrRomStorageReady() {
+    // Gate 1: emulated FUSE must be mounted. stat() the mount point
+    // directly -- this is the most reliable check since NanoMenu runs
+    // as root and has access regardless of FUSE permissions.
+    struct stat st;
+    if (stat("/storage/emulated/0", &st) != 0 || !S_ISDIR(st.st_mode))
+        return false;
+
+    // Gate 2: if ROM is on external SD, its raw vold mount must exist.
     std::string qrRom = getQrRomPath();
     if (qrRom.empty()) return true;
     if (qrRom.find("/storage/") != 0) return true;
@@ -141,7 +159,6 @@ inline bool isQrRomStorageReady() {
     std::string uuid = rest.substr(0, slash);
     if (uuid == "emulated" || uuid == "self") return true;
     std::string rawDir = "/mnt/media_rw/" + uuid;
-    struct stat st;
     if (stat(rawDir.c_str(), &st) != 0) return false;
     return S_ISDIR(st.st_mode);
 }

@@ -738,16 +738,20 @@ class UserController implements Handler.Callback {
         mInjector.getUserManagerInternal().setUserState(userId, uss.state);
         uss.mUnlockProgress.finish();
 
-        // GammaOS Nano: now that user is RUNNING_UNLOCKED and CE storage is available,
-        // launch the home activity (RetroArch). This is deferred from systemReady()
-        // because RetroArch needs SharedPreferences which requires CE unlock + user state.
+        // GammaOS Nano: signal NanoMenu that user unlock is done so it can
+        // proceed through its boot readiness check. The actual home launch
+        // is deferred until NanoMenu sets do_launch=1 (which gates on
+        // emulated FUSE being mounted at /storage/emulated/0/).
+        // Without this, RetroArch starts before FUSE is up and gets
+        // corrupted config paths.
         if (userId == UserHandle.USER_SYSTEM
                 && android.os.SystemProperties.getBoolean("sys.gammaos.minimal_boot", false)) {
-            Slogf.i(TAG, "GammaOS Nano: user 0 fully unlocked, launching home activity");
-            // Signal NanoMenu (Quick Resume) that home launch is happening so it
-            // can exit its desaturation loop and hand off to RetroArch immediately.
+            Slogf.i(TAG, "GammaOS Nano: user 0 fully unlocked, signalling home_launching");
             android.os.SystemProperties.set("sys.gammaos.nano.home_launching", "1");
-            mInjector.startHomeActivity(userId, "nanoUnlocked");
+            // Don't call startHomeActivity here -- wait for do_launch
+            // from NanoMenu (which confirms FUSE is ready). The
+            // NanoCacheEarlyLaunch thread or the relaunch monitor will
+            // handle the actual launch.
         }
 
         // Get unaware persistent apps running and start any unaware providers

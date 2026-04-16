@@ -2025,53 +2025,13 @@ public final class SystemServer implements Dumpable {
                         // if boot_completed is set (finishBooting has run). If
                         // not, re-posts with 20ms delay. Once boot phases are
                         // done, launches immediately — ~20ms after finishBooting.
-                        Slog.i(TAG, "GammaOS Nano: queueing launch on main handler");
+                        // DE cache verified. Set bootanim.exit so the boot
+                        // animation stops. The actual RetroArch launch is
+                        // handled by NanoRelaunchMonitor when NanoMenu sets
+                        // do_launch=1 (after FUSE is confirmed ready).
+                        Slog.i(TAG, "GammaOS Nano: DE cache verified, "
+                                + "awaiting do_launch from NanoMenu");
                         SystemProperties.set("service.bootanim.exit", "1");
-                        final android.os.Handler mh = new android.os.Handler(
-                                android.os.Looper.getMainLooper());
-                        final Runnable[] launcher = new Runnable[1];
-                        launcher[0] = () -> {
-                            if (!"1".equals(SystemProperties.get(
-                                    "sys.boot_completed", "0"))) {
-                                mh.postDelayed(launcher[0], 20);
-                                return;
-                            }
-                            // Only launch if not already running (the normal
-                            // finishUserUnlocked path may have launched it first)
-                            boolean alreadyRunning = false;
-                            try {
-                                android.app.ActivityManager am = context.getSystemService(
-                                        android.app.ActivityManager.class);
-                                for (android.app.ActivityManager.RunningAppProcessInfo p :
-                                        am.getRunningAppProcesses()) {
-                                    if ("com.retroarch.aarch64".equals(p.processName)) {
-                                        alreadyRunning = true;
-                                        break;
-                                    }
-                                }
-                            } catch (Exception re) { /* ignore */ }
-                            if (alreadyRunning) {
-                                Slog.i(TAG, "GammaOS Nano: RetroArch already running "
-                                        + "(launched by finishUserUnlocked)");
-                                return;
-                            }
-                            Slog.i(TAG, "GammaOS Nano: boot complete, "
-                                    + "launching RetroArch from cache");
-                            try {
-                                com.android.server.LocalServices.getService(
-                                    com.android.server.wm.ActivityTaskManagerInternal
-                                            .class)
-                                    .startHomeOnAllDisplays(
-                                        android.os.UserHandle.USER_SYSTEM,
-                                        "nanoCacheLaunch");
-                            } catch (Exception e) {
-                                Slog.w(TAG, "GammaOS Nano: cache launch failed, "
-                                        + "falling back: " + e);
-                                SystemProperties.set(
-                                        "sys.gammaos.nano.do_launch", "1");
-                            }
-                        };
-                        mh.post(launcher[0]);
                     } catch (Exception e) {
                         Slog.w(TAG, "GammaOS Nano: early cache mount failed: " + e);
                     }
