@@ -102,6 +102,13 @@ int sListenFd = -1;
 
 struct SlotRec {
     AHardwareBuffer* ahb = nullptr;
+    // DRM PRIME: when nano has DRM master, each AHB is imported as
+    // scanout framebuffers (top half + bottom half of the dual-DS
+    // canvas) at handshake time so OP_QUEUE can drmModePageFlip
+    // straight to them. topFbId=0 means the import failed (HWC/SF
+    // still holds master, or the driver rejected the dma-buf); the
+    // flip path silently no-ops in that case.
+    ShimFb drmFb;
     // "flipping" bit lives on the session mutex path in v1; the
     // atomic will return in v2 when the compositor callback path
     // needs lock-free signalling.
@@ -145,9 +152,18 @@ bool setupRing(BridgeSession& sess) {
     d.height = kDefaultHeight;
     d.layers = 1;
     d.format = AHARDWAREBUFFER_FORMAT_R8G8B8A8_UNORM;
-    d.usage = AHARDWAREBUFFER_USAGE_GPU_COLOR_OUTPUT
+    // Usage mask matches NanoMenu's own ring (NanoMenu.cpp ~2505) so
+    // Mali gralloc allocates the AHB in LINEAR layout. Without
+    // CPU_READ_OFTEN the 640x960 RGBA allocation hits the Mali AFBC
+    // threshold and comes out compressed, and the RK3566 VOP2 rejects
+    // that layout via plain ADDFB2 with EINVAL. COMPOSER_OVERLAY alone
+    // is not sufficient at this surface size. GPU_FRAMEBUFFER (vs
+    // GPU_COLOR_OUTPUT) is what nano's working ring uses; keep them
+    // identical so both share the same gralloc path.
+    d.usage = AHARDWAREBUFFER_USAGE_GPU_FRAMEBUFFER
             | AHARDWAREBUFFER_USAGE_GPU_SAMPLED_IMAGE
-            | AHARDWAREBUFFER_USAGE_COMPOSER_OVERLAY;
+            | AHARDWAREBUFFER_USAGE_COMPOSER_OVERLAY
+            | AHARDWAREBUFFER_USAGE_CPU_READ_OFTEN;
     for (uint32_t i = 0; i < kDefaultRingDepth; i++) {
         int rc = AHardwareBuffer_allocate(&d, &sess.slots[i].ahb);
         if (rc != 0) {
@@ -155,9 +171,31 @@ bool setupRing(BridgeSession& sess) {
                   i, rc);
             return false;
         }
+        AHardwareBuffer_Desc got = {};
+        AHardwareBuffer_describe(sess.slots[i].ahb, &got);
+        ALOGI("NanoBridgeServer: slot %u allocated %ux%u stride=%u "
+              "format=0x%x usage=0x%llx",
+              i, got.width, got.height, got.stride, got.format,
+              (unsigned long long)got.usage);
+        // Best-effort DRM scanout import. If it fails we keep the
+        // slot usable for the shim handshake (so bringup logs still
+        // work), but OP_QUEUE flips become no-ops for that slot.
+        if (!importAhbAsFb(sess.slots[i].ahb, &sess.slots[i].drmFb)) {
+            ALOGW("NanoBridgeServer: slot %u AHB -> DRM fb import "
+                  "failed; scanout disabled for this slot", i);
+        }
     }
-    ALOGI("NanoBridgeServer: allocated %u AHBs (%ux%u RGBA8888)",
-          kDefaultRingDepth, kDefaultWidth, kDefaultHeight);
+    ALOGI("NanoBridgeServer: allocated %u AHBs (%ux%u RGBA8888), "
+          "topFb[0..3]=%u/%u/%u/%u bottomFb[0..3]=%u/%u/%u/%u",
+          kDefaultRingDepth, kDefaultWidth, kDefaultHeight,
+          sess.slots.size() > 0 ? sess.slots[0].drmFb.topFbId : 0,
+          sess.slots.size() > 1 ? sess.slots[1].drmFb.topFbId : 0,
+          sess.slots.size() > 2 ? sess.slots[2].drmFb.topFbId : 0,
+          sess.slots.size() > 3 ? sess.slots[3].drmFb.topFbId : 0,
+          sess.slots.size() > 0 ? sess.slots[0].drmFb.bottomFbId : 0,
+          sess.slots.size() > 1 ? sess.slots[1].drmFb.bottomFbId : 0,
+          sess.slots.size() > 2 ? sess.slots[2].drmFb.bottomFbId : 0,
+          sess.slots.size() > 3 ? sess.slots[3].drmFb.bottomFbId : 0);
     return true;
 }
 
@@ -253,12 +291,46 @@ void serverLoop() {
                         fatal = true; break;
                     }
                     int fence = (qp.fenceFd >= 0) ? readFenceIfAny(client) : -1;
-                    ALOGI("NanoBridgeServer: OP_QUEUE slot=%d fence=%d",
-                          qp.slotIdx, fence);
+                    // Fire-and-forget DRM page flip to the slot's
+                    // pre-imported scanout framebuffer. Fence
+                    // handling stays TODO (v1 accepts potential
+                    // tearing; shim's Mali driver usually finishes
+                    // the draw well before the server reads the
+                    // opcode because the socket round-trip is ~50 us
+                    // and a typical Mali frame is ~4 ms).
                     if (fence >= 0) ::close(fence);
-                    // TODO(v1 next): hand qp.slotIdx to nano's DRM
-                    // flip path via a shared queue. For now we just
-                    // acknowledge.
+                    if (qp.slotIdx >= 0 &&
+                        qp.slotIdx < (int32_t)sess.slots.size()) {
+                        const ShimFb& sfb = sess.slots[qp.slotIdx].drmFb;
+                        if (sfb.topFbId != 0) {
+                            flipShimFb(sfb);
+                        } else {
+                            ALOGW("NanoBridgeServer: OP_QUEUE slot=%d "
+                                  "has no drmFb (scanout disabled)",
+                                  qp.slotIdx);
+                        }
+                    } else {
+                        ALOGW("NanoBridgeServer: OP_QUEUE bogus slot=%d "
+                              "(ring depth=%zu)", qp.slotIdx,
+                              sess.slots.size());
+                    }
+                    // Periodic heartbeat so we can confirm the
+                    // server is still consuming without flooding
+                    // logcat at 60 Hz.
+                    static std::atomic<uint32_t> sQueueCount{0};
+                    uint32_t n = sQueueCount.fetch_add(1,
+                            std::memory_order_relaxed) + 1;
+                    if (n <= 5 || (n % 120) == 0) {
+                        uint32_t topFb = 0;
+                        if (qp.slotIdx >= 0 &&
+                            qp.slotIdx < (int32_t)sess.slots.size()) {
+                            topFb = sess.slots[qp.slotIdx]
+                                    .drmFb.topFbId;
+                        }
+                        ALOGI("NanoBridgeServer: OP_QUEUE slot=%d "
+                              "topFb=%u count=%u", qp.slotIdx,
+                              topFb, n);
+                    }
                     break;
                 }
                 case OP_CANCEL: {
@@ -292,7 +364,10 @@ void serverLoop() {
 
         // Release session AHBs. v2 retains them across reconnects.
         for (auto& s : sess.slots) {
+            releaseAhbFb(s.drmFb);
+            s.drmFb = {};
             if (s.ahb) AHardwareBuffer_release(s.ahb);
+            s.ahb = nullptr;
         }
         ::close(client);
         ALOGI("NanoBridgeServer: session ended");

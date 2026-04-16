@@ -43,7 +43,14 @@
 #include <utils/Log.h>
 
 static std::string readRomPathFile() {
-    int fd = open("/data/system/nano_qr_rom.txt", O_RDONLY);
+    // nano_drastic_rom.txt is written by NanoMenu at handoff time and
+    // is the shim-specific source of truth. Keep a fallback to the
+    // legacy QR path file for forwards compatibility with images where
+    // the drastic file hasn't been written yet.
+    int fd = open("/data/system/nano_drastic_rom.txt", O_RDONLY);
+    if (fd < 0) {
+        fd = open("/data/system/nano_qr_rom.txt", O_RDONLY);
+    }
     if (fd < 0) return {};
     char buf[4096];
     ssize_t n = read(fd, buf, sizeof(buf) - 1);
@@ -103,6 +110,46 @@ int main() {
     ALOGI("ShimLauncher: stock drastic uid=%u gid=%u",
           st.st_uid, st.st_gid);
 
+    // Write the libdir prop BEFORE setuid. After we drop to the
+    // stock drastic UID, we lose write access to /data/property/
+    // and property_set against a persist.gammaos.* key silently
+    // fails, leaving the shim to load the patched (audio-disabled)
+    // variant from /system/etc/drastic_nano. The destination path
+    // is a fixed constant so we can commit the prop up front.
+    {
+        const char* stagedLibDir =
+            "/data/data/com.dsemu.drastic/drastic_nano_libs_audio";
+        property_set("persist.gammaos.nano.drastic_libdir", stagedLibDir);
+        ALOGI("ShimLauncher: prepared libdir prop -> %s", stagedLibDir);
+    }
+
+    // Open the ROM fd BEFORE setuid while we still have root perms.
+    // /storage/<UUID>/nds/*.nds is mode 0770:root:media_rw; stock
+    // drastic's UID does NOT inherit the media_rw supplementary group
+    // after a bare setuid (only zygote-forked processes get that
+    // group), so a direct open from the post-setuid shim fails with
+    // EACCES. Solution: open here as root, clear FD_CLOEXEC so the
+    // fd survives exec, pass the fd number via a prop the shim reads,
+    // shim uses /proc/self/fd/<N> as the ROM path for
+    // DraSticJNI.startGame.
+    int romFd = open(rom, O_RDONLY);
+    if (romFd < 0) {
+        ALOGE("ShimLauncher: open(rom=%s) failed: %s",
+              rom, strerror(errno));
+        return 6;
+    }
+    int fdFlags = fcntl(romFd, F_GETFD);
+    if (fdFlags >= 0) {
+        fcntl(romFd, F_SETFD, fdFlags & ~FD_CLOEXEC);
+    }
+    {
+        char fdBuf[16];
+        snprintf(fdBuf, sizeof(fdBuf), "%d", romFd);
+        property_set("persist.gammaos.nano.drastic_rom_fd", fdBuf);
+        ALOGI("ShimLauncher: opened rom as fd=%d (as root, pre-setuid)",
+              romFd);
+    }
+
     if (setgid(st.st_gid) != 0) {
         ALOGE("ShimLauncher: setgid(%u) failed: %s",
               st.st_gid, strerror(errno));
@@ -123,25 +170,51 @@ int main() {
         (void)capset(&hdr, data);
     }
 
-    // Stage the patched .so files from /system/etc/drastic_nano/
-    // (prebuilt_etc install location) to a writable path inside
-    // drastic's data dir. The classloader namespace refuses to
-    // load from /system/etc; /data/data/com.dsemu.drastic/ is
-    // writable by us (stock drastic UID) and IS inside the
-    // namespace permitted.paths via the /data parent rule.
+    // Stage the .so files into a writable path inside drastic's data
+    // dir. The classloader namespace refuses to load from /system/etc;
+    // /data/data/com.dsemu.drastic/ is writable by us (stock drastic
+    // UID) and IS inside the namespace permitted.paths via the /data
+    // parent rule.
+    //
+    // libdrastic_cpu.so and libdrastic_nano_shim.so come from
+    // /system/etc/drastic_nano/ (prebuilt_etc install location).
+    //
+    // libdrastic_arm64.so is sourced from the STOCK drastic APK's
+    // native lib dir (unpatched), NOT from /system/etc/drastic_nano/
+    // where the boot-speed QR patch at 0x1d760 disables slCreateEngine
+    // and therefore kills audio. The QR/DrasticRunner path inside
+    // gammaos-nano still uses the patched variant for its silent
+    // preview; the shim path runs full gameplay and needs audio, so
+    // it picks up the unpatched variant. Staged to a separate dir
+    // (drastic_nano_libs_audio) so the two can coexist without one
+    // overwriting the other.
     {
-        const char* src = "/system/etc/drastic_nano";
-        const char* dst = "/data/data/com.dsemu.drastic/drastic_nano_libs";
+        const char* dst = "/data/data/com.dsemu.drastic/drastic_nano_libs_audio";
         mkdir(dst, 0755);
-        const char* names[] = {
-            "libdrastic_cpu.so",
-            "libdrastic_arm64.so",
-            "libdrastic_nano_shim.so",
+
+        // Derive the stock drastic APK's native lib dir by stripping
+        // the trailing base.apk from drasticApk and appending
+        // /lib/arm64. e.g.
+        //   /data/app/~~XYZ==/com.dsemu.drastic-ABC==/base.apk
+        //   -> /data/app/~~XYZ==/com.dsemu.drastic-ABC==/lib/arm64
+        std::string apkLibDir(drasticApk);
+        size_t slash = apkLibDir.find_last_of('/');
+        if (slash != std::string::npos) {
+            apkLibDir.resize(slash);
+        }
+        apkLibDir += "/lib/arm64";
+
+        struct StageEntry { const char* name; const char* srcDir; };
+        std::string systemSrc = "/system/etc/drastic_nano";
+        StageEntry entries[] = {
+            { "libdrastic_cpu.so",       systemSrc.c_str() },
+            { "libdrastic_arm64.so",     apkLibDir.c_str() },
+            { "libdrastic_nano_shim.so", systemSrc.c_str() },
         };
-        for (const char* n : names) {
-            char sp[256], dp[256];
-            snprintf(sp, sizeof(sp), "%s/%s", src, n);
-            snprintf(dp, sizeof(dp), "%s/%s", dst, n);
+        for (const auto& e : entries) {
+            char sp[512], dp[512];
+            snprintf(sp, sizeof(sp), "%s/%s", e.srcDir, e.name);
+            snprintf(dp, sizeof(dp), "%s/%s", dst, e.name);
             int sfd = open(sp, O_RDONLY);
             if (sfd < 0) {
                 ALOGW("ShimLauncher: stage open(%s) failed: %s", sp, strerror(errno));
@@ -161,11 +234,13 @@ int main() {
             close(sfd);
             close(dfd);
             chmod(dp, 0755);
+            ALOGI("ShimLauncher: staged %s <- %s", e.name, e.srcDir);
         }
-        // Override the libdir prop so the shim reads from the new
-        // path we just staged.
-        property_set("persist.gammaos.nano.drastic_libdir", dst);
-        ALOGI("ShimLauncher: staged patched libs to %s", dst);
+        // libdir prop was already set above while we had system
+        // privileges; we cannot re-set it here after setuid without
+        // hitting silent selinux denials.
+        ALOGI("ShimLauncher: staged libs to %s (arm64 from apk lib dir)",
+              dst);
     }
 
     // Ensure ANDROID_DATA / ANDROID_ROOT are set (they are in init's
@@ -175,29 +250,6 @@ int main() {
     setenv("ANDROID_ART_ROOT", "/apex/com.android.art", 1);
     setenv("ANDROID_I18N_ROOT", "/apex/com.android.i18n", 1);
     setenv("ANDROID_TZDATA_ROOT", "/apex/com.android.tzdata", 1);
-
-    // Open the ROM fd BEFORE setuid while we still have root perms.
-    // /storage/<UUID>/nds/*.nds is mode 0770:root:media_rw; stock
-    // drastic's UID has media_rw via zygote, but our shim spawned
-    // via setuid doesn't inherit groups, so direct open from the
-    // shim would fail. Solution: open here as root, clear
-    // FD_CLOEXEC so the fd survives exec, pass the fd number via a
-    // prop the shim reads, shim uses /proc/self/fd/<N> as the ROM
-    // path for DraSticJNI.startGame.
-    int romFd = open(rom, O_RDONLY);
-    if (romFd < 0) {
-        ALOGE("ShimLauncher: open(rom=%s) failed: %s",
-              rom, strerror(errno));
-        return 6;
-    }
-    int fdFlags = fcntl(romFd, F_GETFD);
-    if (fdFlags >= 0) {
-        fcntl(romFd, F_SETFD, fdFlags & ~FD_CLOEXEC);
-    }
-    char fdBuf[16];
-    snprintf(fdBuf, sizeof(fdBuf), "%d", romFd);
-    property_set("persist.gammaos.nano.drastic_rom_fd", fdBuf);
-    ALOGI("ShimLauncher: opened rom as fd=%d, cleared FD_CLOEXEC", romFd);
 
     std::string classpath = "-Djava.class.path=";
     classpath += shimApk;

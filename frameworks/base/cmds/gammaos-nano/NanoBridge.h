@@ -51,6 +51,8 @@
 #include <jni.h>
 #include <stdint.h>
 
+struct AHardwareBuffer;
+
 namespace android {
 
 // ----- Shim-side JNI surface -----
@@ -140,6 +142,39 @@ void stopServer();
 // commits.
 void setMenuChordLatch();
 void setCurrentRomPath(const char* absPath);
+
+// Per-slot scanout resources. The shim renders a dual-DS portrait
+// canvas (e.g. 640x960) containing the top DS screen stacked above
+// the bottom DS screen. On dual-display hardware (RG DS) we want
+// panel 0 to show the top half and panel 1 to show the bottom half.
+// We therefore import each AHB as two DRM framebuffers over the same
+// dma-buf, differing only by byte offset. On single-display hardware
+// bottomFbId is zero and flipShimFb just uses topFbId everywhere.
+struct ShimFb {
+    uint32_t topFbId = 0;
+    uint32_t bottomFbId = 0;
+    uint32_t gemHandle = 0;
+};
+
+// DRM helpers implemented in NanoMenu.cpp (access to the file-static
+// DRM globals sDrmFd / sDrmDisplays lives there). The bridge server
+// calls these to import each shim-visible AHB as DRM scanout
+// framebuffers at handshake time, then page-flip to the shim's
+// chosen slot on each OP_QUEUE.
+//
+// All are best-effort: if DRM isn't up (HWC/SF still hold master)
+// importAhbAsFb returns false with outFb fully zeroed, and
+// flipShimFb/releaseAhbFb silently no-op. That keeps the bridge
+// pipeline intact for diagnostics even when the display consumer
+// can't fire.
+bool importAhbAsFb(AHardwareBuffer* ahb, ShimFb* outFb);
+void releaseAhbFb(const ShimFb& fb);
+void flipShimFb(const ShimFb& fb);
+
+// Ownership gate: returns true once the bridge has driven at least
+// one successful shim flip. Nano's XMB / QR render loops use this to
+// stop issuing their own page flips so the shim owns the panel.
+bool shimOwnsDisplay();
 
 } // namespace nano_bridge
 

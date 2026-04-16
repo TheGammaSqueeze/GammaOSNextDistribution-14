@@ -28,7 +28,11 @@ service gammaos-nano /system/bin/gammaos-nano
 service gammaos_drastic_shim /system/bin/gammaos_drastic_shim_launcher
     class nano
     user root
-    capabilities SETUID SETGID
+    # SETUID/SETGID to drop to drastic's UID; DAC_READ_SEARCH so the
+    # pre-setuid open() of the ROM on /storage/<UUID>/nds/ (FUSE with
+    # default_permissions, mode 0770:root:media_rw) doesn't fail with
+    # EACCES because our bounding cap set would otherwise exclude it.
+    capabilities SETUID SETGID DAC_READ_SEARCH
     disabled
     oneshot
     seclabel u:r:gammaos_drastic_nano:s0

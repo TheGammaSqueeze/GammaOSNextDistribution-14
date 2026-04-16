@@ -541,6 +541,58 @@ static bool isQrRomStorageReady() {
     return S_ISDIR(st.st_mode);
 }
 
+// Drastic-nano shim ROM path is stored separately from the QR preview
+// ROM so the shim target can diverge from the QR tile the user picked
+// (e.g. a developer overriding the shim ROM via adb for validation
+// without disturbing the QR flow). On the handoff path NanoMenu writes
+// both files with the same path by default; external tooling can
+// overwrite /data/system/nano_drastic_rom.txt between boots to pin a
+// different game for shim testing. The file is authoritative over the
+// prop because external SD paths routinely exceed PROP_VALUE_MAX.
+static void setDrasticShimRomPath(const std::string& romPath) {
+    android::base::SetProperty(
+            "persist.gammaos.nano.drastic_rom", romPath);
+    writePathFile("/data/system/nano_drastic_rom.txt", romPath);
+}
+static std::string getDrasticShimRomPath() {
+    std::string p = readPathFile("/data/system/nano_drastic_rom.txt");
+    if (!p.empty()) return p;
+    return android::base::GetProperty(
+            "persist.gammaos.nano.drastic_rom", "");
+}
+
+// Mirror of isQrRomStorageReady but scoped to the drastic-nano shim's
+// ROM path. The shim opens the ROM as root inside ShimLauncher before
+// dropping to drastic's UID; if the external SD mount isn't yet up
+// when that open fires, it returns ENOENT or EACCES and the shim
+// exits with status 6, leaving the panel frozen on the QR preview's
+// last frame. Gate the ctl.start on this check plus an actual
+// open()-probe so we only fire when the path is reachable.
+static bool isDrasticShimRomStorageReady() {
+    std::string rom = getDrasticShimRomPath();
+    if (rom.empty()) return true;
+    if (rom.find("/storage/") != 0) {
+        struct stat st;
+        return stat(rom.c_str(), &st) == 0;
+    }
+    std::string rest = rom.substr(9); // skip "/storage/"
+    size_t slash = rest.find('/');
+    if (slash == std::string::npos) return true;
+    std::string uuid = rest.substr(0, slash);
+    if (uuid != "emulated" && uuid != "self") {
+        std::string rawDir = "/mnt/media_rw/" + uuid;
+        struct stat rs;
+        if (stat(rawDir.c_str(), &rs) != 0 || !S_ISDIR(rs.st_mode)) {
+            return false;
+        }
+    }
+    // Probe the actual ROM path. FUSE default_permissions can report a
+    // mounted directory whose entries are not yet populated; a
+    // successful stat on the file itself is the strongest signal.
+    struct stat fs;
+    return stat(rom.c_str(), &fs) == 0;
+}
+
 // ---------------------------------------------------------------------------
 // Font layout constants (kept for layout compatibility)
 // ---------------------------------------------------------------------------
@@ -2913,6 +2965,14 @@ static void blitAhbToDrmBuffer(const void* ahbPtr, uint32_t ahbStride,
 // the CPU blit cost goes away on those iters.
 static void drmFlipRingSlot(int idx, bool skipNonPrimary = false) {
     if (idx < 0 || idx >= AHB_RING_DEPTH) return;
+    // Once the NanoBridge consumer has driven at least one shim flip,
+    // yield the panel: further nano-side flips would overwrite the
+    // shim's frames with XMB/Loading content. The shim keeps queueing
+    // into its own AHB ring; this path just stops interfering. If
+    // the shim disconnects, it releases its fbs and future submits
+    // land back on nano's AHBs naturally (the flag stays set, but at
+    // that point the shim is gone so no one is competing).
+    if (nano_bridge::shimOwnsDisplay()) return;
     AhbRenderTarget& prim = sAhbRingPrimary[idx];
     AhbRenderTarget& sec  = sAhbRingSecondary[idx];
     if (!sDrmZeroCopy || !prim.ahb) return;
@@ -4786,6 +4846,7 @@ void NanoMenu::render() {
     if (sFirstFrame) {
         int64_t nowMs = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL;
         ALOGW("NanoMenu BOOT TIMING: first render() call at T+%lldms", nowMs);
+        sFirstFrame = false;
     }
 
     // Once-per-frame state update for background effects (particle motion,
@@ -8336,27 +8397,77 @@ if (sRingPrimedCount >= 2) {
                                 ALOGI("drastic QR nano-shim: shim apk=%s",
                                       shimApk.c_str());
 
-                                // Step 5: resolve ROM path. Use the
-                                // REAL /storage path the user picked,
-                                // not the nano_cache staging copy.
-                                // Stock drastic expects ROMs under
-                                // /storage/<UUID>/nds/ via its
-                                // normal ACTION_VIEW content:// flow;
-                                // the shim mirrors that. Source of
-                                // truth: /data/system/nano_qr_rom.txt
-                                // (getQrRomPath). Skip nano_cache --
-                                // that file is mode 0770:root:media_rw
-                                // with a longer path and isn't what
-                                // drastic's DraSticPathCache expects.
-                                std::string romPath = getQrRomPath();
+                                // Step 5: resolve ROM path. The shim
+                                // reads its own file
+                                // (/data/system/nano_drastic_rom.txt)
+                                // which is independent of the QR
+                                // preview's nano_qr_rom.txt. By
+                                // default the two track each other,
+                                // with nano writing the current QR
+                                // path into the shim file at handoff
+                                // time; a developer can overwrite the
+                                // shim file between boots to pin a
+                                // different game for validation
+                                // without disturbing the QR flow.
+                                //
+                                // Precedence:
+                                //  1. Existing nano_drastic_rom.txt
+                                //     if present and the path is
+                                //     readable (e.g. dev override).
+                                //  2. Current QR path; we mirror it
+                                //     into nano_drastic_rom.txt so
+                                //     the shim sees the same game
+                                //     the QR preview was showing.
+                                std::string romPath = getDrasticShimRomPath();
+                                if (romPath.empty()) {
+                                    romPath = getQrRomPath();
+                                    if (!romPath.empty()) {
+                                        setDrasticShimRomPath(romPath);
+                                    }
+                                }
                                 if (romPath.empty()) {
                                     ALOGW("drastic QR nano-shim: "
-                                          "getQrRomPath returned empty; "
+                                          "no rom path resolved "
+                                          "(shim+QR both empty); "
                                           "shim launch aborted");
                                     goto legacy_handoff;
                                 }
                                 ALOGI("drastic QR nano-shim: rom=%s",
                                       romPath.c_str());
+
+                                // Gate the ctl.start on the shim ROM's
+                                // backing storage being fully mounted.
+                                // External SD paths can take 3-5 s after
+                                // boot to appear; without the wait the
+                                // ShimLauncher's open() fires before
+                                // /storage/<UUID>/ is populated and
+                                // returns EACCES/ENOENT, aborting the
+                                // shim.
+                                {
+                                    const int64_t readyDeadline =
+                                            elapsedRealtime() + 10000;
+                                    bool logged = false;
+                                    while (!isDrasticShimRomStorageReady()) {
+                                        if (!logged) {
+                                            ALOGI("drastic QR nano-shim: "
+                                                  "rom storage not ready, "
+                                                  "polling");
+                                            logged = true;
+                                        }
+                                        if (elapsedRealtime() >= readyDeadline) {
+                                            ALOGW("drastic QR nano-shim: "
+                                                  "rom storage did not "
+                                                  "become ready in 10s; "
+                                                  "launching shim anyway");
+                                            break;
+                                        }
+                                        usleep(100000);
+                                    }
+                                    if (logged && isDrasticShimRomStorageReady()) {
+                                        ALOGI("drastic QR nano-shim: "
+                                              "rom storage is now ready");
+                                    }
+                                }
 
                                 // Step 6: fork + setuid + setexeccon +
                                 // exec. The classpath lists shim first
@@ -9696,5 +9807,285 @@ void NanoMenu::prepareShutdown(const char* action) {
     // Proceed with the requested action
     property_set("service.bootanim.nano_action", action);
 }
+
+// ============================================================
+// NanoBridge DRM consumer helpers
+// ------------------------------------------------------------
+// Declared in NanoBridge.h. Implemented here because they need
+// direct access to the file-static DRM state (sDrmFd,
+// sDrmDisplays, sDrmPrimaryIdx) that NanoMenu owns.
+// ============================================================
+
+namespace nano_bridge {
+
+static std::atomic<bool> sShimOwnsDisplayFlag{false};
+static std::atomic<uint32_t> sLastShimFbId{0};
+
+// Create a DRM ABGR8888 framebuffer covering a sub-rectangle of the
+// AHB's dma-buf. Used by importAhbAsFb to split the 640x960 dual-DS
+// canvas into a 640x480 top half and a 640x480 bottom half so each
+// physical panel gets its own fb.
+static bool addShimFb(uint32_t gemHandle, uint32_t w, uint32_t h,
+                      uint32_t pitch, uint32_t offsetBytes,
+                      uint32_t* outFbId) {
+    // First try plain ADDFB2 (no modifier). Works for LINEAR-layout
+    // dma-bufs, which is what the shim AHBs should produce when
+    // allocated with CPU_READ_OFTEN. If Mali still decided to hand
+    // back a compressed (AFBC) buffer despite the usage hints, VOP2
+    // rejects this with EINVAL. Fall through to the explicit-LINEAR
+    // modifier retry in that case, which sometimes coaxes the driver
+    // into acknowledging the buffer when the default path won't.
+    struct drm_mode_fb_cmd2 cmd = {};
+    cmd.width = w;
+    cmd.height = h;
+    cmd.pixel_format = DRM_FORMAT_ABGR8888;
+    cmd.flags = 0;
+    cmd.handles[0] = gemHandle;
+    cmd.pitches[0] = pitch;
+    cmd.offsets[0] = offsetBytes;
+    if (ioctl(sDrmFd, DRM_IOCTL_MODE_ADDFB2, &cmd) == 0
+        && cmd.fb_id != 0) {
+        *outFbId = cmd.fb_id;
+        return true;
+    }
+    int e1 = errno;
+
+    struct drm_mode_fb_cmd2 cmd2 = {};
+    cmd2.width = w;
+    cmd2.height = h;
+    cmd2.pixel_format = DRM_FORMAT_ABGR8888;
+    cmd2.flags = DRM_MODE_FB_MODIFIERS;
+    cmd2.handles[0] = gemHandle;
+    cmd2.pitches[0] = pitch;
+    cmd2.offsets[0] = offsetBytes;
+    cmd2.modifier[0] = DRM_FORMAT_MOD_LINEAR;
+    if (ioctl(sDrmFd, DRM_IOCTL_MODE_ADDFB2, &cmd2) == 0
+        && cmd2.fb_id != 0) {
+        ALOGI("NanoBridge DRM: ADDFB2 accepted with LINEAR modifier "
+              "(plain EINVAL=%d)", e1);
+        *outFbId = cmd2.fb_id;
+        return true;
+    }
+    int e2 = errno;
+    ALOGW("NanoBridge DRM: ADDFB2 rejected both plain (errno=%d) and "
+          "LINEAR-modifier (errno=%d) for %ux%u pitch=%u offset=%u "
+          "handle=%u", e1, e2, w, h, pitch, offsetBytes, gemHandle);
+    return false;
+}
+
+bool importAhbAsFb(AHardwareBuffer* ahb, ShimFb* outFb) {
+    if (outFb) *outFb = {};
+    if (sDrmFd < 0 || !ahb) {
+        ALOGW("NanoBridge DRM: importAhbAsFb skipped (drmFd=%d ahb=%p)",
+              sDrmFd, ahb);
+        return false;
+    }
+    const native_handle_t* nh = AHardwareBuffer_getNativeHandle(ahb);
+    if (!nh || nh->numFds <= 0) {
+        ALOGW("NanoBridge DRM: AHB has no dma-buf fd");
+        return false;
+    }
+    int dmabufFd = nh->data[0];
+    AHardwareBuffer_Desc d = {};
+    AHardwareBuffer_describe(ahb, &d);
+    const uint32_t pitch = d.stride * 4;
+
+    struct drm_prime_handle ph = {};
+    ph.fd = dmabufFd;
+    ph.flags = 0;
+    ph.handle = 0;
+    if (ioctl(sDrmFd, DRM_IOCTL_PRIME_FD_TO_HANDLE, &ph) != 0
+        || ph.handle == 0) {
+        ALOGW("NanoBridge DRM: PRIME_FD_TO_HANDLE failed (errno=%d)",
+              errno);
+        return false;
+    }
+
+    // Top half: rows [0, panelH). Bottom half: rows [panelH, 2*panelH).
+    // Use the primary display's mode height as the cut point so the
+    // split always matches the physical panel. Fall back to half-AHB
+    // if the primary height exceeds the AHB (misconfig guard).
+    uint32_t panelH = 0;
+    if (sDrmPrimaryIdx >= 0 &&
+        sDrmPrimaryIdx < (int)sDrmDisplays.size()) {
+        panelH = sDrmDisplays[sDrmPrimaryIdx].h;
+    }
+    if (panelH == 0 || panelH > d.height) panelH = d.height / 2;
+
+    ShimFb fb = {};
+    fb.gemHandle = ph.handle;
+    if (!addShimFb(ph.handle, d.width, panelH, pitch, 0, &fb.topFbId)) {
+        ALOGW("NanoBridge DRM: ADDFB2 top half failed (errno=%d)",
+              errno);
+        struct drm_gem_close gc = { .handle = ph.handle };
+        ioctl(sDrmFd, DRM_IOCTL_GEM_CLOSE, &gc);
+        return false;
+    }
+
+    // Bottom half only if the AHB actually has a stacked second
+    // screen. If d.height is exactly one panel, it's a single-screen
+    // AHB (e.g. single-display hardware or a single-DS game). Leave
+    // bottomFbId=0 and flipShimFb will mirror top onto every CRTC.
+    const uint32_t bottomH = (d.height > panelH) ? (d.height - panelH) : 0;
+    if (bottomH > 0) {
+        const uint32_t bottomH_clipped =
+                (bottomH > panelH) ? panelH : bottomH;
+        if (!addShimFb(ph.handle, d.width, bottomH_clipped, pitch,
+                       panelH * pitch, &fb.bottomFbId)) {
+            ALOGW("NanoBridge DRM: ADDFB2 bottom half failed "
+                  "(errno=%d); dual-panel fallback = mirror top",
+                  errno);
+            fb.bottomFbId = 0;
+        }
+    }
+
+    if (outFb) *outFb = fb;
+    ALOGI("NanoBridge DRM: imported AHB %ux%u -> topFb=%u "
+          "bottomFb=%u (gem=%u pitch=%u panelH=%u)",
+          d.width, d.height, fb.topFbId, fb.bottomFbId,
+          fb.gemHandle, pitch, panelH);
+    return true;
+}
+
+void releaseAhbFb(const ShimFb& fb) {
+    if (sDrmFd < 0) return;
+    if (fb.topFbId != 0) {
+        uint32_t id = fb.topFbId;
+        ioctl(sDrmFd, DRM_IOCTL_MODE_RMFB, &id);
+    }
+    if (fb.bottomFbId != 0) {
+        uint32_t id = fb.bottomFbId;
+        ioctl(sDrmFd, DRM_IOCTL_MODE_RMFB, &id);
+    }
+    if (fb.gemHandle != 0) {
+        struct drm_gem_close gc = {};
+        gc.handle = fb.gemHandle;
+        ioctl(sDrmFd, DRM_IOCTL_GEM_CLOSE, &gc);
+    }
+}
+
+void flipShimFb(const ShimFb& fb) {
+    static std::atomic<uint32_t> sFlipDebugCnt{0};
+    uint32_t dbgSeq = sFlipDebugCnt.fetch_add(1, std::memory_order_relaxed);
+    bool verbose = (dbgSeq < 3);  // log first 3 flips verbosely
+
+    if (sDrmFd < 0 || fb.topFbId == 0 || sDrmDisplays.empty()) {
+        if (verbose) {
+            ALOGW("NanoBridge DRM: flipShimFb early-return seq=%u drmFd=%d "
+                  "topFb=%u displays=%zu",
+                  dbgSeq, sDrmFd, fb.topFbId, sDrmDisplays.size());
+        }
+        return;
+    }
+
+    // First call: try to re-acquire DRM master. When HWC/SF were
+    // running they stole master from nano; after the handoff branch
+    // stopped both services, master is free to be re-claimed. No-op
+    // if we already have it.
+    static std::atomic<bool> sMasterAttempted{false};
+    if (!sMasterAttempted.exchange(true, std::memory_order_acq_rel)) {
+        int rc = ioctl(sDrmFd, DRM_IOCTL_SET_MASTER, 0);
+        ALOGI("NanoBridge DRM: SET_MASTER rc=%d errno=%d (first flip)",
+              rc, rc == 0 ? 0 : errno);
+    }
+
+    // Rockchip VOP2 is atomic-only; the legacy drmModePageFlip returns
+    // EINVAL when no primary plane has been pre-bound (which is our
+    // state after SurfaceFlinger+HWC teardown). Prime each CRTC with
+    // SETCRTC once up front so subsequent page flips have a plane to
+    // swap against. After the first success we use the fast page-flip
+    // path; if that also fails we fall back to SETCRTC.
+    static std::atomic<bool> sCrtcsPrimed{false};
+    if (!sCrtcsPrimed.load(std::memory_order_acquire)) {
+        for (size_t i = 0; i < sDrmDisplays.size(); i++) {
+            auto& d = sDrmDisplays[i];
+            const bool isPrimary = ((int)i == sDrmPrimaryIdx);
+            uint32_t targetFb = isPrimary
+                    ? fb.topFbId
+                    : (fb.bottomFbId != 0 ? fb.bottomFbId : fb.topFbId);
+            struct drm_mode_crtc crtc = {};
+            crtc.crtc_id = d.crtcId;
+            crtc.fb_id = targetFb;
+            crtc.mode_valid = 1;
+            crtc.mode = d.mode;
+            crtc.count_connectors = 1;
+            crtc.set_connectors_ptr = reinterpret_cast<__u64>(&d.connId);
+            int rc = ioctl(sDrmFd, DRM_IOCTL_MODE_SETCRTC, &crtc);
+            ALOGI("NanoBridge DRM: initial SETCRTC crtc=%u fb=%u rc=%d "
+                  "errno=%d", d.crtcId, targetFb, rc,
+                  rc == 0 ? 0 : errno);
+        }
+        sCrtcsPrimed.store(true, std::memory_order_release);
+    }
+
+    bool anyOk = false;
+    for (size_t i = 0; i < sDrmDisplays.size(); i++) {
+        auto& d = sDrmDisplays[i];
+        const bool isPrimary = ((int)i == sDrmPrimaryIdx);
+        // Primary panel gets the top half; every other panel gets
+        // the bottom half (or mirrors top if bottom unavailable).
+        uint32_t targetFb = isPrimary
+                ? fb.topFbId
+                : (fb.bottomFbId != 0 ? fb.bottomFbId : fb.topFbId);
+
+        struct drm_mode_crtc_page_flip flip = {};
+        flip.crtc_id = d.crtcId;
+        flip.fb_id = targetFb;
+        flip.flags = 0;  // fence-less fire-and-forget for v1
+        int rc = ioctl(sDrmFd, DRM_IOCTL_MODE_PAGE_FLIP, &flip);
+        if (verbose) {
+            ALOGI("NanoBridge DRM: PAGE_FLIP seq=%u crtc=%u fb=%u rc=%d "
+                  "errno=%d", dbgSeq, d.crtcId, targetFb, rc,
+                  rc == 0 ? 0 : errno);
+        }
+        if (rc == 0) {
+            anyOk = true;
+            continue;
+        }
+        if (errno == EBUSY) {
+            // Prior flip still pending; drop this frame for this CRTC.
+            continue;
+        }
+        // Non-EBUSY failure: the CRTC likely isn't primed yet (first
+        // flip after SF died). Set the CRTC explicitly.
+        struct drm_mode_crtc crtc = {};
+        crtc.crtc_id = d.crtcId;
+        crtc.fb_id = targetFb;
+        crtc.mode_valid = 1;
+        crtc.mode = d.mode;
+        crtc.count_connectors = 1;
+        crtc.set_connectors_ptr = reinterpret_cast<__u64>(&d.connId);
+        int setrc = ioctl(sDrmFd, DRM_IOCTL_MODE_SETCRTC, &crtc);
+        if (verbose) {
+            ALOGI("NanoBridge DRM: SETCRTC fallback seq=%u crtc=%u fb=%u "
+                  "rc=%d errno=%d", dbgSeq, d.crtcId, targetFb, setrc,
+                  setrc == 0 ? 0 : errno);
+        }
+        if (setrc == 0) {
+            anyOk = true;
+        } else {
+            ALOGW("NanoBridge DRM: SETCRTC fallback failed for crtc=%u "
+                  "fb=%u (errno=%d)", d.crtcId, targetFb, errno);
+        }
+    }
+    if (anyOk) {
+        sLastShimFbId.store(fb.topFbId, std::memory_order_release);
+        if (!sShimOwnsDisplayFlag.exchange(true,
+                                           std::memory_order_acq_rel)) {
+            ALOGI("NanoBridge DRM: first shim flip landed (topFb=%u "
+                  "bottomFb=%u); nano yielding panel ownership",
+                  fb.topFbId, fb.bottomFbId);
+        }
+    } else if (verbose) {
+        ALOGW("NanoBridge DRM: flipShimFb seq=%u NO CRTC accepted fb "
+              "(top=%u bot=%u)", dbgSeq, fb.topFbId, fb.bottomFbId);
+    }
+}
+
+bool shimOwnsDisplay() {
+    return sShimOwnsDisplayFlag.load(std::memory_order_acquire);
+}
+
+} // namespace nano_bridge
 
 } // namespace android
