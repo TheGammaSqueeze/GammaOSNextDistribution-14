@@ -5837,10 +5837,19 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 // startHomeOnTaskDisplayArea is bypassed for instant cleanup.
                 // Safe even if the user doesn't actually exit — the flag is
                 // only consumed when the home activity is actually restarted.
+                //
+                // Skip when NanoMenu is still holding the screen (QR pause):
+                // app_launched is set during preload but bootanim.exit stays 0
+                // until the actual handoff, and BACK during QR is a pause
+                // toggle, not an exit signal. Without this check, QR pause
+                // leaves pending_exit=1 and the handoff that follows takes the
+                // "immediate cleanup" branch instead of the normal launch path.
                 if (android.os.SystemProperties.getBoolean(
                         "sys.gammaos.minimal_boot", false)
                         && "1".equals(android.os.SystemProperties.get(
-                                "sys.gammaos.nano.app_launched", "0"))) {
+                                "sys.gammaos.nano.app_launched", "0"))
+                        && "1".equals(android.os.SystemProperties.get(
+                                "service.bootanim.exit", "0"))) {
                     android.os.SystemProperties.set(
                             "sys.gammaos.nano.pending_exit", "1");
                 }

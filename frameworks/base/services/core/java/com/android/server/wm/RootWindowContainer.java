@@ -1721,11 +1721,21 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                 Slog.i(TAG, "GammaOS Nano: kill in progress, skipping home launch");
                 return true;
             }
-            // If NanoMenu is currently active (bootanim not exited), skip home launch
-            // UNLESS we're in preload mode (preloading RetroArch behind the menu)
+            // If NanoMenu is currently active and has not fired its handoff,
+            // skip the home launch. Previously this had a "preload" bypass that
+            // launched RetroArch behind the menu for perceived speed, but that
+            // caused two problems:
+            //   - While the user had QR paused (BACK-toggled), RetroArch was
+            //     still launching in the background, against user intent.
+            //   - On a fresh boot where QR ran and handed off cleanly, then the
+            //     user rebooted while in RetroArch, the next boot's preload
+            //     would race the QR exit and leave RetroArch with an empty
+            //     layer ("nothing to draw"), yielding a black screen.
+            // Launch the app only after NanoMenu actually fires handoff
+            // (handoff_fired=1) or after bootanim has explicitly exited.
             if (!"1".equals(android.os.SystemProperties.get("service.bootanim.exit", "0"))
                     && !"1".equals(android.os.SystemProperties.get(
-                            "sys.gammaos.nano.preload", "0"))) {
+                            "sys.gammaos.nano.handoff_fired", "0"))) {
                 Slog.i(TAG, "GammaOS Nano: nano menu is active, skipping home launch");
                 return true;
             }
@@ -1733,6 +1743,16 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
             // Bypass ALL grace periods and process checks — go straight to cleanup.
             if ("1".equals(android.os.SystemProperties.get(
                     "sys.gammaos.nano.pending_exit", "0"))) {
+                // Re-entrancy guard. The cleanup branch below calls
+                // forceStopPackage, which synchronously recurses back into
+                // startHomeOnTaskDisplayArea BEFORE we clear pending_exit.
+                // Without this guard the recursion is unbounded and
+                // SystemServer dies with StackOverflowError.
+                if (sNanoLaunchInProgress) {
+                    Slog.i(TAG, "GammaOS Nano: nested startHome during "
+                            + "pending_exit cleanup, skipping");
+                    return true;
+                }
                 // If a new standalone launch is pending (NanoMenu just wrote a
                 // fresh intent file), consume pending_exit but skip cleanup so
                 // the launch path below can read and use launch_intent.

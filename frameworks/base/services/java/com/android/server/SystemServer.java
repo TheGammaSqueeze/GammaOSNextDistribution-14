@@ -2020,18 +2020,19 @@ public final class SystemServer implements Dumpable {
                         // use DE cache paths instead of real FUSE paths).
                         Slog.i(TAG, "GammaOS Nano: DE cache verified, "
                                 + "native libretro will use it directly");
-                        // Post a self-retrying Runnable to the main handler.
-                        // It queues behind AudioService. When it runs, it checks
-                        // if boot_completed is set (finishBooting has run). If
-                        // not, re-posts with 20ms delay. Once boot phases are
-                        // done, launches immediately — ~20ms after finishBooting.
-                        // DE cache verified. Set bootanim.exit so the boot
-                        // animation stops. The actual RetroArch launch is
-                        // handled by NanoRelaunchMonitor when NanoMenu sets
-                        // do_launch=1 (after FUSE is confirmed ready).
+                        // DE cache verified. Do NOT set bootanim.exit here --
+                        // NanoMenu IS the bootanim, and it needs to keep
+                        // rendering QR until the user either unpauses (fires
+                        // handoff) or cancels. Setting bootanim.exit=1 early
+                        // would flip startHomeOnTaskDisplayArea's "nano has
+                        // exited" gate and cause RetroArch to launch behind
+                        // the still-running NanoMenu, which races the QR
+                        // handoff and produces a black screen on the primary.
+                        // The handoff path in NanoMenu will set
+                        // nano_retroarch=1 -> init.rc sets bootanim.exit=1
+                        // at the right moment.
                         Slog.i(TAG, "GammaOS Nano: DE cache verified, "
                                 + "awaiting do_launch from NanoMenu");
-                        SystemProperties.set("service.bootanim.exit", "1");
                     } catch (Exception e) {
                         Slog.w(TAG, "GammaOS Nano: early cache mount failed: " + e);
                     }

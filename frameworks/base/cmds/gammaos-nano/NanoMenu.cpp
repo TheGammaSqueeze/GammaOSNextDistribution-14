@@ -4103,9 +4103,8 @@ bool NanoMenu::threadLoop() {
             // mode -- the real com.dsemu.drastic app is never launched.
             // Behavior: full color immediately (no desaturation fade),
             // no overlay text, no handoff to the real drastic app.
-            // SELECT cancels back to XMB. Long-press BACK (3s) exits
-            // drastic nano and returns to XMB. DRM master is held for
-            // the entire session for lowest latency.
+            // Long-press BACK (3s) exits to XMB. DRM master is held
+            // for the entire session for lowest latency.
             bool drasticNanoActive = false;
             {
                 char dn[PROPERTY_VALUE_MAX] = {};
@@ -4136,6 +4135,7 @@ bool NanoMenu::threadLoop() {
                 glUniformMatrix2fv(mTextLocRotation, 1, GL_FALSE, sDrmRotMat);
             }
 
+            bool handoffPaused = false;
             bool firstFrameLogged = false;
             int64_t bootCompleteTime = 0;
             bool bootComplete = false;
@@ -4151,25 +4151,19 @@ bool NanoMenu::threadLoop() {
 
             // GammaOS: Drastic QR preview input + handoff control.
             //
-            // User requirement: the preview loop is playable — ABXY /
-            // DPAD / START / L / R all reach the running DS core via
-            // DrasticRunner::setInput. SELECT cancels QR and drops to
-            // the NanoMenu XMB. The Android BACK key toggles a
-            // "handoff suspended" state: even when the fade completes
-            // and the core is at full color, the handoff does not
-            // fire while suspended, letting the user keep playing in
-            // nano's own render loop. Pressing BACK a second time
-            // clears the suspension and resumes the handoff on the
-            // next frame.
+            // The preview loop is fully playable -- all buttons
+            // including SELECT reach the running DS core via
+            // DrasticRunner::setInput. Long-press BACK (3s) exits
+            // to the NanoMenu XMB. The handoff fires automatically
+            // when the color transition completes and storage is
+            // ready.
             int dsBtnMask = 0;
             bool qrCancelled = false;
-            bool handoffSuspended = false;
-            bool backWasDown = false;   // edge detect for BACK toggle
+            bool backWasDown = false;
 
-            // Drastic nano: long-press BACK (3s) to exit. Track when
-            // BACK was first pressed and fire qrCancelled when the
-            // hold duration exceeds the threshold. Only active when
-            // drasticNanoActive is true.
+            // Long-press BACK (3s) to exit to XMB. Track when BACK
+            // was first pressed and fire qrCancelled when the hold
+            // duration exceeds the threshold.
             int64_t backPressStartMs = 0;
             const int64_t kNanoBackHoldMs = 3000;
 
@@ -4263,49 +4257,33 @@ bool NanoMenu::threadLoop() {
                 // and the internal RG DS pad both work.
                 //
                 // Special control keys (not forwarded to drastic):
-                //   BTN_SELECT  → cancel QR, drop to XMB
-                //   KEY_BACK    → toggle handoff suspension (edge only)
+                //   KEY_BACK    → long-press (3s) exits to XMB
+                // All other buttons (including SELECT) are forwarded
+                // to drastic as normal DS inputs.
                 for (int fd : mInputFds) {
                     struct input_event ev;
                     while (read(fd, &ev, sizeof(ev)) == sizeof(ev)) {
                         if (ev.type == EV_KEY) {
                             const bool pressed = (ev.value != 0);
-                            // SELECT cancels QR regardless of which
-                            // phase we're in. On release we ignore --
-                            // the initial press is the cancel signal.
-                            // In drastic nano mode SELECT also cancels
-                            // (same as normal QR). In smoke mode
-                            // SELECT is just another DS button.
-                            if (ev.code == BTN_SELECT && pressed
-                                && !smokeActive) {
-                                qrCancelled = true;
-                                ALOGI("drastic QR: SELECT pressed, "
-                                      "cancelling to XMB");
-                                break;
-                            }
-                            // BACK key behavior depends on mode:
-                            // - Drastic nano: long-press (3s) exits
-                            //   back to XMB. Short press is ignored
-                            //   (no handoff to suspend/resume).
-                            // - Normal QR: toggles handoff suspension
-                            //   on press edge.
+                            // BACK: short-press toggles overlay
+                            // + handoff pause. Long-press (3s)
+                            // exits to XMB.
                             if (ev.code == KEY_BACK) {
-                                if (drasticNanoActive) {
-                                    if (pressed && !backWasDown) {
-                                        backPressStartMs =
-                                                elapsedRealtime();
+                                if (pressed && !backWasDown) {
+                                    backPressStartMs =
+                                            elapsedRealtime();
+                                }
+                                if (!pressed && backWasDown) {
+                                    int64_t held = elapsedRealtime()
+                                            - backPressStartMs;
+                                    if (held < kNanoBackHoldMs) {
+                                        handoffPaused = !handoffPaused;
+                                        if (handoffPaused) {
+                                            saturation = 1.0f;
+                                            gradient = 0.0f;
+                                        }
                                     }
-                                    if (!pressed) {
-                                        backPressStartMs = 0;
-                                    }
-                                } else {
-                                    if (pressed && !backWasDown) {
-                                        handoffSuspended =
-                                                !handoffSuspended;
-                                        ALOGI("drastic QR: BACK press, "
-                                              "handoffSuspended=%d",
-                                              handoffSuspended ? 1 : 0);
-                                    }
+                                    backPressStartMs = 0;
                                 }
                                 backWasDown = pressed;
                                 continue;
@@ -4332,14 +4310,6 @@ bool NanoMenu::threadLoop() {
                             case BTN_TR:
                             case KEY_R:       bit(DrasticRunner::kDsBtnR);     break;
                             case BTN_START:   bit(DrasticRunner::kDsBtnStart); break;
-                            // SELECT mapped to DS Select. In real QR
-                            // mode the press also triggers qrCancelled
-                            // above (and we strip kDsBtnSelect from the
-                            // mask before forwarding to drastic). In
-                            // smoke mode the cancel is suppressed and
-                            // we leave Select in the mask -- so it
-                            // reaches the emulator like every other
-                            // button.
                             case BTN_SELECT:  bit(DrasticRunner::kDsBtnSelect); break;
                             case KEY_UP:      bit(DrasticRunner::kDsBtnUp);    break;
                             case KEY_DOWN:    bit(DrasticRunner::kDsBtnDown);  break;
@@ -4369,29 +4339,23 @@ bool NanoMenu::threadLoop() {
                 }
                 if (qrCancelled) break;
 
-                // Drastic nano: check for long-press BACK exit (3s).
-                // This runs every frame so the exit fires promptly
-                // once the hold threshold is crossed.
-                if (drasticNanoActive && backPressStartMs > 0) {
+                // Long-press BACK (3s) exits to XMB. Checked every
+                // frame so the exit fires promptly once the hold
+                // threshold is crossed.
+                if (backPressStartMs > 0) {
                     int64_t held = elapsedRealtime() - backPressStartMs;
                     if (held >= kNanoBackHoldMs) {
                         qrCancelled = true;
-                        ALOGW("drastic nano: BACK held %lldms, "
+                        ALOGW("drastic QR: BACK held %lldms, "
                               "exiting to XMB", (long long)held);
                         break;
                     }
                 }
 
-                // Push the accumulated button state to drastic. In real
-                // QR mode kDsBtnSelect is stripped because Select is
-                // reserved for "drop to XMB" -- if we let it through,
-                // every cancel-to-XMB press would also fire SELECT to
-                // the emulator. In smoke mode the cancel is disabled,
-                // so Select goes through as a normal DS button.
-                // In drastic nano mode, strip Select same as normal QR.
-                int sendMask = dsBtnMask;
-                if (!smokeActive) sendMask &= ~DrasticRunner::kDsBtnSelect;
-                drastic->setInput(sendMask);
+                // Push the accumulated button state to drastic.
+                // All buttons including SELECT go through as normal
+                // DS inputs. Exit is via long-press BACK (3s).
+                drastic->setInput(dsBtnMask);
 
                 // GammaOS: Per-phase timing for the drastic QR render
                 // loop. Only emits a log line when the overall frame
@@ -4419,7 +4383,7 @@ bool NanoMenu::threadLoop() {
                 // pipeline-profiling path) we suppress it -- no overlay
                 // text and no fade gradient -- so the visible output
                 // is exactly what drastic produced.
-                const bool showOverlay = !smokeActive && !drasticNanoActive;
+                const bool showOverlay = !smokeActive && !drasticNanoActive && !handoffPaused;
 
                 // GammaOS: secondary always renders + flips. An earlier
                 // half-rate optimization saved CPU by alternating
@@ -4756,7 +4720,7 @@ if (sRingPrimedCount >= 2) {
                     ALOGI("drastic QR: transitioning to full color");
                 }
 
-                if (bootComplete && !drasticNanoActive) {
+                if (bootComplete && !drasticNanoActive && !handoffPaused) {
                     // Fade from desaturated to full color over 800ms.
                     // Drastic nano skips this entirely (starts at full
                     // color, no transition period).
@@ -4778,14 +4742,7 @@ if (sRingPrimedCount >= 2) {
                     // fires handoff -- the smoke test runs the DS
                     // indefinitely for interactive debugging.
                     //
-                    // GammaOS: handoffSuspended is toggled by the user
-                    // pressing BACK during the loop. When set, we keep
-                    // rendering the DS at full color and do not fire
-                    // the handoff. Pressing BACK again clears the flag
-                    // and the next frame through this branch will fire
-                    // the handoff normally.
-                    if (t >= 1.0f && drasticQrHandoff && !handoffFired
-                            && !handoffSuspended) {
+                    if (t >= 1.0f && drasticQrHandoff && !handoffFired) {
                         // Gate handoff on the QR ROM's storage being
                         // ready. If the ROM lives on external SD, vold
                         // mounts the volume ~3-5s after boot starts,
@@ -4894,6 +4851,14 @@ if (sRingPrimedCount >= 2) {
                         // direct trigger is the primary mechanism;
                         // the legacy prop keeps init-driven
                         // side-effects firing (bootanim exit etc).
+                        // Set handoff_fired first so the home-launch
+                        // gate in startHomeOnTaskDisplayArea opens
+                        // immediately; otherwise we race the init.rc
+                        // action that sets bootanim.exit=1.
+                        property_set(
+                                "sys.gammaos.nano.handoff_fired", "1");
+                        property_set(
+                                "sys.gammaos.nano.pending_exit", "0");
                         property_set(
                                 "sys.gammaos.nano.do_launch", "1");
                         property_set(
@@ -4907,7 +4872,7 @@ if (sRingPrimedCount >= 2) {
                         mExitRequested = true;
                         break;
                     }
-                } else if (!smokeActive && !drasticNanoActive) {
+                } else if (!smokeActive && !drasticNanoActive && !handoffPaused) {
                     // Slow creep toward color while we're still in the
                     // pre-handoff "preview" period. Smoke/drastic-nano
                     // modes skip this -- saturation/gradient stay at
@@ -4917,19 +4882,9 @@ if (sRingPrimedCount >= 2) {
                     gradient = fmaxf(gradient - 0.0002f, 0.7f);
                 }
 
-                // GammaOS: BACK-pause override. When the user suspends
-                // the handoff, pin the visible state at full color and
-                // no gradient regardless of where the natural fade is.
-                // This lets them keep playing the preview indefinitely.
-                // When they press BACK again to resume, handoffSuspended
-                // clears and the next iteration's fade math takes over.
-                if (handoffSuspended) {
-                    saturation = 1.0f;
-                    gradient = 0.0f;
-                }
             }
 
-            // GammaOS: SELECT cancel flow. The user pressed SELECT
+            // GammaOS: BACK long-press cancel flow. The user held BACK
             // during QR preview; we need to drop them to the NanoMenu
             // XMB, but readyToRun() skipped XMB shader/texture/system
             // init because sDrasticQrFastPath was active, so falling
@@ -4986,9 +4941,8 @@ if (sRingPrimedCount >= 2) {
             }
 
             ALOGI("NanoMenu: drastic QR loop exiting "
-                  "(handoff=%d suspended=%d exitRequested=%d)",
+                  "(handoff=%d exitRequested=%d)",
                   handoffFired ? 1 : 0,
-                  handoffSuspended ? 1 : 0,
                   mExitRequested ? 1 : 0);
             // Intentionally fall through to the rest of threadLoop()
             // instead of returning false immediately. The
@@ -5029,6 +4983,27 @@ if (sRingPrimedCount >= 2) {
             std::string qrRom = getQrRomPath();
             std::string qrCore = android::base::GetProperty(
                     "persist.gammaos.nano.qr_core", "");
+
+            // If a prior NanoMenu instance already fired the handoff
+            // (exited after setting do_launch=1), skip QR entirely.
+            // Re-running QR after handoff confuses the relaunch
+            // monitor and leaves RetroArch dead. Guard with a sys
+            // property: auto-cleared on reboot, but survives the
+            // NanoMenu respawn that init triggers mid-boot after
+            // handoff. File-based flags are unreliable because the
+            // graphics-uid NanoMenu can create them but not always
+            // unlink across boots.
+            {
+                char hf[PROPERTY_VALUE_MAX] = {};
+                property_get("sys.gammaos.nano.handoff_fired", hf, "0");
+                if (strcmp(hf, "1") == 0) {
+                    ALOGW("Quick Resume: handoff already fired "
+                          "(handoff_fired=1), skipping QR");
+                    qrRom.clear();
+                    qrCore.clear();
+                }
+            }
+
             // GammaOS: Skip the libretro QR path for the drastic
             // sentinel. The drastic QR render loop above handles
             // qr_core="drastic" entirely (and returns false before
@@ -5181,6 +5156,9 @@ if (sRingPrimedCount >= 2) {
 
                     bool nativeLaunch = false;
                     bool qrCancelled = false;
+                    bool backWasDown = false;
+                    int64_t backPressStartMs = 0;
+                    const int64_t kBackHoldMs = 3000;
                     if (!romFile.empty() && !coreFile.empty()) {
                         // Find save state and SRAM — check states/saves subdirs
                         // first, then fall back to rom/ dir (depends on RA config)
@@ -5245,29 +5223,65 @@ if (sRingPrimedCount >= 2) {
                                                     (float)mHeight / 720.0f);
                             if (textScale < 0.5f) textScale = 0.5f;
                             float loadScale = 2.5f * textScale;
+                            int hotplugCounter = 0;
+                            bool handoffPaused = false;
 
                             while (!exitPending() && !qrCancelled) {
-                                // Poll input — game is live, user can play.
-                                // SELECT cancels QR and returns to NanoMenu.
+                                // Check for new/swapped input devices every
+                                // ~0.5s (30 frames at 60fps). gammapad
+                                // recreates device nodes during boot --
+                                // without this, we lose the fd and all
+                                // button events stop working.
+                                if (++hotplugCounter >= 30) {
+                                    hotplugCounter = 0;
+                                    checkInputHotplug();
+                                }
+
+                                // Poll input -- game is live, user can play.
+                                // Long-press BACK (3s) exits to XMB.
+                                // All buttons including SELECT are forwarded
+                                // to the libretro core.
                                 for (int fd : mInputFds) {
                                     struct input_event ev;
                                     while (read(fd, &ev, sizeof(ev)) == sizeof(ev)) {
                                         if (ev.type == EV_KEY) {
                                             bool pressed = (ev.value != 0);
-                                            if (ev.code == BTN_SELECT && pressed) {
-                                                qrCancelled = true;
-                                                break;
+                                            // BACK: short-press toggles
+                                            // overlay + handoff pause.
+                                            // Long-press (3s) exits to XMB.
+                                            if (ev.code == KEY_BACK) {
+                                                if (pressed && !backWasDown) {
+                                                    backPressStartMs =
+                                                            elapsedRealtime();
+                                                }
+                                                if (!pressed && backWasDown) {
+                                                    int64_t held = elapsedRealtime()
+                                                            - backPressStartMs;
+                                                    if (held < kBackHoldMs) {
+                                                        handoffPaused = !handoffPaused;
+                                                        ALOGI("Quick Resume: handoff %s",
+                                                              handoffPaused ? "paused" : "unpaused");
+                                                        if (handoffPaused) {
+                                                            saturation = 1.0f;
+                                                            gradient = 0.0f;
+                                                        }
+                                                    }
+                                                    backPressStartMs = 0;
+                                                }
+                                                backWasDown = pressed;
+                                                continue;
                                             }
                                             switch (ev.code) {
-                                            case BTN_A:      runner.setButton(0, RETRO_DEVICE_ID_JOYPAD_B, pressed); break;
-                                            case BTN_B:      runner.setButton(0, RETRO_DEVICE_ID_JOYPAD_A, pressed); break;
-                                            case BTN_X:      runner.setButton(0, RETRO_DEVICE_ID_JOYPAD_Y, pressed); break;
-                                            case BTN_Y:      runner.setButton(0, RETRO_DEVICE_ID_JOYPAD_X, pressed); break;
+                                            case BTN_A:      runner.setButton(0, RETRO_DEVICE_ID_JOYPAD_A, pressed); break;
+                                            case BTN_B:      runner.setButton(0, RETRO_DEVICE_ID_JOYPAD_B, pressed); break;
+                                            case BTN_X:      runner.setButton(0, RETRO_DEVICE_ID_JOYPAD_X, pressed); break;
+                                            case BTN_Y:      runner.setButton(0, RETRO_DEVICE_ID_JOYPAD_Y, pressed); break;
                                             case BTN_TL:     runner.setButton(0, RETRO_DEVICE_ID_JOYPAD_L, pressed); break;
                                             case BTN_TR:     runner.setButton(0, RETRO_DEVICE_ID_JOYPAD_R, pressed); break;
                                             case BTN_TL2:    runner.setButton(0, RETRO_DEVICE_ID_JOYPAD_L2, pressed); break;
                                             case BTN_TR2:    runner.setButton(0, RETRO_DEVICE_ID_JOYPAD_R2, pressed); break;
                                             case BTN_START:  runner.setButton(0, RETRO_DEVICE_ID_JOYPAD_START, pressed); break;
+                                            case BTN_SELECT: runner.setButton(0, RETRO_DEVICE_ID_JOYPAD_SELECT, pressed); break;
                                             case BTN_THUMBL: runner.setButton(0, RETRO_DEVICE_ID_JOYPAD_L3, pressed); break;
                                             case BTN_THUMBR: runner.setButton(0, RETRO_DEVICE_ID_JOYPAD_R3, pressed); break;
                                             case KEY_UP:     runner.setButton(0, RETRO_DEVICE_ID_JOYPAD_UP, pressed); break;
@@ -5300,6 +5314,19 @@ if (sRingPrimedCount >= 2) {
                                     if (qrCancelled) break;
                                 }
 
+                                // Long-press BACK (3s) exits to XMB.
+                                if (backPressStartMs > 0) {
+                                    int64_t held = elapsedRealtime()
+                                            - backPressStartMs;
+                                    if (held >= kBackHoldMs) {
+                                        qrCancelled = true;
+                                        ALOGW("Quick Resume: BACK held "
+                                              "%lldms, exiting to XMB",
+                                              (long long)held);
+                                        break;
+                                    }
+                                }
+
                                 // Check boot progress. Trigger the color transition as soon as
                                 // possible using the earliest valid signal:
                                 //   1. sys.gammaos.nano.home_launching=1 — UserController has
@@ -5323,31 +5350,20 @@ if (sRingPrimedCount >= 2) {
                                         bootCompleteTime = elapsedRealtime();
                                         ALOGI("Quick Resume: user ready, "
                                               "transitioning to full color");
-                                    } else {
+                                    } else if (!handoffPaused) {
                                         // Slow creep toward color during boot
                                         saturation = fminf(saturation + 0.0003f, 0.35f);
                                         gradient = fmaxf(gradient - 0.0002f, 0.7f);
                                     }
                                 }
 
-                                if (bootComplete) {
+                                if (bootComplete && !handoffPaused) {
                                     // Ramp to full color over ~0.8s (ease-out)
                                     int64_t elapsed = elapsedRealtime() - bootCompleteTime;
                                     float t = fminf((float)elapsed / 800.0f, 1.0f);
                                     t = 1.0f - (1.0f - t) * (1.0f - t);
                                     saturation = 0.35f + t * 0.65f;
                                     gradient = 0.7f * (1.0f - t);
-
-                                    if (t >= 1.0f && !isQrRomStorageReady()) {
-                                        // Color ramp done but FUSE/storage not
-                                        // ready yet. Throttle to ~10 fps so we
-                                        // don't starve vold/system_server from
-                                        // CPU time needed to mount emulated
-                                        // storage. Without this, the uncapped
-                                        // render loop saturates all cores and
-                                        // delays the FUSE mount it's waiting for.
-                                        usleep(100000); // 100ms
-                                    }
 
                                     if (t >= 1.0f && isQrRomStorageReady()) {
                                         // Fully saturated AND the ROM's backing
@@ -5363,6 +5379,23 @@ if (sRingPrimedCount >= 2) {
                                         // via init.rc action, which can queue behind boot_completed
                                         // actions for several seconds).
                                         ALOGI("Quick Resume: handoff to RetroArch");
+                                        // Mark handoff as done so respawned
+                                        // NanoMenu instances skip QR. Uses
+                                        // a sys property so it auto-clears
+                                        // on reboot while surviving respawn.
+                                        property_set("sys.gammaos.nano.handoff_fired", "1");
+                                        // Clear pending_exit defensively.
+                                        // If the user pressed BACK during QR
+                                        // to pause, some code path still sets
+                                        // pending_exit=1 and the relaunch
+                                        // monitor would then take the
+                                        // "immediate cleanup" branch --
+                                        // force-stopping the preloaded
+                                        // RetroArch and leaving a black
+                                        // screen. Clearing it here makes the
+                                        // handoff robust regardless of prior
+                                        // pause/unpause state.
+                                        property_set("sys.gammaos.nano.pending_exit", "0");
                                         { char buf[32];
                                           snprintf(buf, sizeof(buf), "%d", returnSysIdx);
                                           property_set("sys.gammaos.nano.xmb_return_sys", buf);
@@ -5394,7 +5427,9 @@ if (sRingPrimedCount >= 2) {
                                 // the rotation matrix maps logical NDC → panel NDC.
                                 runner.runFrame(mWidth, mHeight, saturation, gradient);
 
-                                // Text overlay — restore viewport for rotated rendering
+                                // Text overlay -- fades naturally as saturation
+                                // approaches 1.0 (textAlpha -> 0). Game is
+                                // always playable underneath.
                                 if (sDrmGlRotation) {
                                     glViewport(0, 0, sAhbTarget.w, sAhbTarget.h);
                                 } else {
@@ -5413,7 +5448,6 @@ if (sRingPrimedCount >= 2) {
                                     if (textAlpha > 1.0f) textAlpha = 1.0f;
                                     drawText(msg, msgX, msgY, loadScale,
                                              1.0f, 1.0f, 1.0f, textAlpha);
-                                    // ROM name below
                                     float nameScale = 1.5f * textScale;
                                     float nameW = measureText(romName.c_str(), nameScale);
                                     float nameX = (mWidth - nameW) / 2.0f;
@@ -5424,16 +5458,43 @@ if (sRingPrimedCount >= 2) {
                                 glDisable(GL_BLEND);
 
                                 drmFrameEnd(mDisplay, mSurface);
-                                // DRM path: GPU finish + AHB copy already takes
-                                // ~13-20ms, providing natural frame pacing.
-                                // Only sleep on the eglSwapBuffers path.
-                                if (!sDrmActive) {
+                                // Vsync gate: match drastic QR pacing.
+                                // DRM path uses vblank wait or page-flip
+                                // drain; EGL path falls back to 16ms sleep.
+                                if (sDrmActive) {
+                                    if (sVsyncEnabled < 0) {
+                                        char vp[PROPERTY_VALUE_MAX] = {};
+                                        property_get("persist.gammaos.nano.vsync", vp, "1");
+                                        sVsyncEnabled = (vp[0] == '0') ? 0 : 1;
+                                    }
+                                    if (sVsyncEnabled) {
+                                        if (sDrmFd >= 0 && !sDrmDisplays.empty() &&
+                                            !sDrmVblankBroken && sDrmDisplays.size() <= 1) {
+                                            union drm_wait_vblank vbl = {};
+                                            vbl.request.type = (enum drm_vblank_seq_type)(
+                                                    _DRM_VBLANK_RELATIVE
+                                                    | ((sDrmPrimaryIdx & 0x1f)
+                                                       << _DRM_VBLANK_HIGH_CRTC_SHIFT));
+                                            vbl.request.sequence = 1;
+                                            int64_t vblT0 = systemTime(SYSTEM_TIME_MONOTONIC) / 1000LL;
+                                            ioctl(sDrmFd, DRM_IOCTL_WAIT_VBLANK, &vbl);
+                                            int64_t vblElapsed =
+                                                    systemTime(SYSTEM_TIME_MONOTONIC) / 1000LL - vblT0;
+                                            if (vblElapsed > 100000) {
+                                                sDrmVblankBroken = true;
+                                            }
+                                        }
+                                        drmDrainPageFlipEvents();
+                                    } else {
+                                        drmPaceWithoutVsync();
+                                    }
+                                } else {
                                     usleep(16666);
                                 }
                             }
 
                             if (qrCancelled) {
-                                ALOGI("Quick Resume: cancelled by SELECT, "
+                                ALOGI("Quick Resume: cancelled by BACK hold, "
                                       "returning to menu");
                                 runner.shutdown();
                                 property_set("persist.gammaos.nano.qr_prepared", "0");

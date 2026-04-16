@@ -191,7 +191,18 @@ inline void drmFrameBegin() {
 }
 inline void drmFrameEnd(EGLDisplay dpy, EGLSurface surf) {
     if (sDrmActive && sDrmZeroCopy) {
-        glFlush();
+        // glFinish, not glFlush. The single-buffer PRIME path in
+        // drmFlipRingSlot skips its EGL-fence and glFinish-fallback
+        // branches when no EGL fence is set (sAhbRingSyncPrimary[0]
+        // stays EGL_NO_SYNC_KHR on callers that use drmFrameEnd
+        // instead of the triple-buffer ring). Without this barrier
+        // the kernel's implicit dma-fence on the AHB dma-buf is the
+        // only thing keeping scanout from racing the GPU -- and on
+        // RK3568 that sync is flaky enough to produce visible tearing
+        // in libretro QR. glFinish here mirrors what drmFlipRingSlot
+        // already does for the legacy blit path (!fenceUsed &&
+        // !primeActive), just moved to the right place for PRIME.
+        glFinish();
         drmFlipAll();
     } else if (sDrmActive) {
         // Non-zero-copy fallback: would need width/height. Skip.
