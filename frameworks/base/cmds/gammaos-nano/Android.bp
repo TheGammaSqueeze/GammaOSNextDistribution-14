@@ -78,3 +78,17 @@ cc_binary {
 
     init_rc: ["gammaos-nano.rc"],
 }
+
+// Source files shared with the drastic-nano binary. drastic-nano
+// reuses the DRM rendering stack, DrasticRunner lifecycle, and
+// FakeJNI shim from gammaos-nano; wrapping them in a filegroup lets
+// Soong compile them into drastic-nano without moving the files out
+// of their canonical location here.
+filegroup {
+    name: "drastic_nano_shared_srcs",
+    srcs: [
+        "NanoMenuDrm.cpp",
+        "DrasticRunner.cpp",
+        "FakeJNI.cpp",
+    ],
+}

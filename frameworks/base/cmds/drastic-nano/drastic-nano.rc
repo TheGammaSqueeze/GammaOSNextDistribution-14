@@ -1,0 +1,33 @@
+service drastic-nano /system/bin/drastic-nano
+    class main
+    user root
+    group root graphics input system media_rw sdcard_rw everybody external_storage package_info audio
+    capabilities SYS_NICE IPC_LOCK SYS_RESOURCE DAC_READ_SEARCH DAC_OVERRIDE CHOWN
+    disabled
+    oneshot
+    ioprio rt 0
+    rlimit rtprio 99 99
+    rlimit memlock 536870912 536870912
+    task_profiles MaxPerformance
+
+# drastic-nano start trigger. gammaos-nano writes the ROM path to
+# /data/system/nano_drastic_nano_rom.txt, then sets this property to 1.
+# We intentionally do NOT stop SurfaceFlinger: system_server's
+# Watchdog kills the whole system after ~60-80 s without SF
+# reachable on the AIDL binder. Instead, drastic-nano just grabs DRM
+# master via drmEarlySplash -- SF stays alive and answers binder
+# calls, it just cannot present to the panel because master is ours.
+# Mirrors gammaos-nano's QR preview pattern.
+on property:sys.gammaos.drastic_nano.start=1
+    setprop sys.gammaos.drastic_nano.start 0
+    setprop sys.gammaos.drastic_nano.session_done 0
+    start drastic-nano
+
+# drastic-nano exit trigger. drastic-nano sets session_done=1 on
+# clean shutdown or from the signal handler on crash. Nano restart
+# brings the user back to the XMB.
+on property:sys.gammaos.drastic_nano.session_done=1
+    setprop sys.gammaos.drastic_nano.session_done 0
+    setprop service.bootanim.exit 0
+    setprop service.bootanim.nano_retroarch 0
+    start gammaos-nano

@@ -17,6 +17,7 @@
 #include <pthread.h>
 #include <sched.h>
 #include <stdio.h>
+#include <sys/mman.h>
 #include <sys/resource.h>
 #include <sys/syscall.h>
 #include <unistd.h>
@@ -252,14 +253,19 @@ static void maybeStartThreadTracer() {
 }
 
 bool DrasticRunner::init(const std::string& cacheDir,
-                         const std::string& romPath) {
+                         const std::string& romPath,
+                         const std::string& libsDir,
+                         bool soundEnabled) {
     maybeStartThreadTracer();
-    ALOGI("DrasticRunner: init cacheDir=%s rom=%s",
-          cacheDir.c_str(), romPath.c_str());
+    mCacheDir = cacheDir;
+    const std::string& effectiveLibs = libsDir.empty() ? cacheDir : libsDir;
+    ALOGI("DrasticRunner: init cacheDir=%s libsDir=%s rom=%s sound=%d",
+          cacheDir.c_str(), effectiveLibs.c_str(), romPath.c_str(),
+          soundEnabled ? 1 : 0);
 
     // ---- Phase 1: dlopen the libraries ----
-    std::string cpuPath = cacheDir + "/libdrastic_cpu.so";
-    std::string arm64Path = cacheDir + "/libdrastic_arm64.so";
+    std::string cpuPath = effectiveLibs + "/libdrastic_cpu.so";
+    std::string arm64Path = effectiveLibs + "/libdrastic_arm64.so";
 
     mCpuHandle = dlopen(cpuPath.c_str(), RTLD_NOW);
     if (!mCpuHandle) {
@@ -274,6 +280,103 @@ bool DrasticRunner::init(const std::string& cacheDir,
               arm64Path.c_str(), dlerror());
         shutdown();
         return false;
+    }
+
+    // ---- Phase 1b: in-memory longjmp patches (non-zygote safety) ----
+    //
+    // drastic-android-mod disasm (2026-04-17): two `bl longjmp@plt`
+    // sites at libdrastic_arm64.so+0x17304 and +0x1b4d0 race the
+    // `bl setjmp@plt` at +0x1bf44 in non-zygote processes. If the
+    // longjmp fires before setjmp populates the jmp_buf at
+    // master+0x3b2f800, siglongjmp dereferences a zero saved
+    // context and SEGVs with si_addr=0xfffffffffffffff0.
+    //
+    // Zygote-hosted drastic doesn't hit this because the ART
+    // lifecycle happens to give the main thread a head start. Our
+    // DrasticRunner host is init-spawned in every nano / drastic-nano
+    // invocation, so the race resolves the wrong way. Overwriting
+    // both `bl longjmp` (32-bit) with `ret` is the confirmed fix
+    // (verified 2026-04-15 on the nano-shim ART path).
+    //
+    // Both sites live on the same 4K page, so one mprotect pair
+    // covers them. We also patch the audio init at 0x1d760 ONLY if
+    // sound is disabled (matches the nano_cache's on-disk patch).
+    // When sound is enabled (drastic-nano path), we leave 0x1d760
+    // alone so the real OpenSL ES engine comes up.
+    {
+        uint8_t* base = nullptr;
+        // dlopen returns a handle, not necessarily the load base.
+        // Recover the base via dladdr on a known symbol we can
+        // resolve right now. JNI_OnLoad always lives inside the .so
+        // so dladdr gives us DLI_FBASE for the same mapping.
+        void* onLoadPtr = dlsym(mArm64Handle, "JNI_OnLoad");
+        Dl_info info{};
+        if (onLoadPtr && dladdr(onLoadPtr, &info) && info.dli_fbase) {
+            base = reinterpret_cast<uint8_t*>(info.dli_fbase);
+        } else {
+            ALOGW("DrasticRunner: dladdr(JNI_OnLoad) failed, skip "
+                  "longjmp patches");
+        }
+        if (base) {
+            static constexpr uintptr_t kLongjmp1Off = 0x17304;
+            static constexpr uintptr_t kLongjmp2Off = 0x1b4d0;
+            static constexpr uintptr_t kAudioOff    = 0x1d760;
+            static constexpr uint32_t  kRetInsn     = 0xd65f03c0;
+
+            // Round down to page boundary; the two sites + the audio
+            // site all live within ~0x6500 bytes, spanning a couple
+            // of 4K pages. Unprotect a generous range.
+            long pageSize = sysconf(_SC_PAGESIZE);
+            if (pageSize <= 0) pageSize = 4096;
+            uint8_t* start = base + kLongjmp1Off;
+            uint8_t* end   = base + kAudioOff + 4;
+            uint8_t* pageStart = reinterpret_cast<uint8_t*>(
+                    reinterpret_cast<uintptr_t>(start) & ~(pageSize - 1));
+            size_t pageLen =
+                    (size_t)(reinterpret_cast<uintptr_t>(end)
+                             - reinterpret_cast<uintptr_t>(pageStart));
+            pageLen = (pageLen + pageSize - 1) & ~(size_t)(pageSize - 1);
+
+            if (mprotect(pageStart, pageLen,
+                         PROT_READ | PROT_WRITE | PROT_EXEC) == 0) {
+                uint32_t* p1 = reinterpret_cast<uint32_t*>(
+                        base + kLongjmp1Off);
+                uint32_t* p2 = reinterpret_cast<uint32_t*>(
+                        base + kLongjmp2Off);
+                *p1 = kRetInsn;
+                *p2 = kRetInsn;
+                ALOGI("DrasticRunner: longjmp patches applied at "
+                      "+0x17304 +0x1b4d0");
+
+                if (!soundEnabled) {
+                    // Also short-circuit initialize_audio so drastic
+                    // does not stall 15s on slCreateEngine's binder
+                    // wait. Only relevant when the caller does NOT
+                    // want sound -- the on-disk nano_cache patch
+                    // handles this already for gammaos-nano, but
+                    // applying in memory makes the effect idempotent
+                    // across both paths.
+                    uint32_t* pa = reinterpret_cast<uint32_t*>(
+                            base + kAudioOff);
+                    *pa = kRetInsn;
+                    ALOGI("DrasticRunner: audio-init short-circuit "
+                          "applied at +0x1d760 (sound disabled)");
+                }
+
+                if (mprotect(pageStart, pageLen,
+                             PROT_READ | PROT_EXEC) != 0) {
+                    ALOGW("DrasticRunner: mprotect restore "
+                          "failed: %s", strerror(errno));
+                }
+                __builtin___clear_cache(
+                        reinterpret_cast<char*>(pageStart),
+                        reinterpret_cast<char*>(pageStart + pageLen));
+            } else {
+                ALOGW("DrasticRunner: mprotect for longjmp patches "
+                      "failed: %s -- drastic may SEGV on per-frame "
+                      "path", strerror(errno));
+            }
+        }
     }
 
     // ---- Phase 2: resolve JNI entry points ----
@@ -353,8 +456,18 @@ bool DrasticRunner::init(const std::string& cacheDir,
     // after mStartGameThread.detach(), further down this function.
 
     // ---- Phase 5: applyConfig ----
-    ALOGI("DrasticRunner: calling applyConfig(0x%lx)", kDefaultConfigBits);
-    mApplyConfig(env, fakeCls, kDefaultConfigBits);
+    // bit 31 = _SoundEnabled. Clear when using the patched libdrastic
+    // whose initialize_audio was short-circuited to ret (no
+    // slCreateEngine, so the per-frame mixer must also be disabled or
+    // it dereferences NULL engine pointers). Set when running the
+    // unpatched library so the real audio path comes up.
+    long configBits = kDefaultConfigBits;
+    if (soundEnabled) {
+        configBits |= 0x80000000L;
+    }
+    ALOGI("DrasticRunner: calling applyConfig(0x%lx) sound=%d",
+          configBits, soundEnabled ? 1 : 0);
+    mApplyConfig(env, fakeCls, configBits);
     ALOGI("DrasticRunner: applyConfig returned");
 
     // ---- Phase 6: startGame on a dedicated thread ----
@@ -472,6 +585,7 @@ bool DrasticRunner::init(const std::string& cacheDir,
     void* fakeClsCopy = fakeCls;
     JNIEnv* envCopy   = env;
     jstring romCopy   = romJStr;
+    long startGameConfig = configBits;
 
     // Phase 5 v9: startGame arg3 IS the config bits long, not zero.
     // DraSticEmuActivity.smali:2319-2327 shows the real call:
@@ -490,7 +604,7 @@ bool DrasticRunner::init(const std::string& cacheDir,
     // arg5 (insertMode): 0 = fresh boot (first startGame call path).
     // arg6 (customClock): 0 = default DS clock (no overclock).
     mStartGameThread = std::thread([this, envCopy, fakeClsCopy, romCopy,
-                                    startGameFn]() {
+                                    startGameFn, startGameConfig]() {
         // Self-boost BEFORE calling startGameFn, so drastic's own
         // pthread_create calls for rasterizer workers inherit our
         // elevated scheduling class. pthread_create without explicit
@@ -526,7 +640,7 @@ bool DrasticRunner::init(const std::string& cacheDir,
         mStartGameLaunched.store(true);
         unsigned char rc = startGameFn(envCopy, fakeClsCopy, romCopy,
                                         /*arg2 slot*/  0,
-                                        /*arg3 cfg*/   kDefaultConfigBits,
+                                        /*arg3 cfg*/   startGameConfig,
                                         /*arg4*/       0,
                                         /*arg5 insrt*/ 0,
                                         /*arg6 clock*/ -1L);
@@ -958,17 +1072,22 @@ void DrasticRunner::initSurface(int viewportW, int viewportH,
         if (mFxLoad) {
             // fxLoad takes an absolute filesystem path to the .dfx
             // shader file. The real app builds this from SYS_PREFIX
-            // (e.g. "/data/user/0/com.dsemu.drastic/files/DraStic/")
-            // + "shaders/Linear.dfx". Our cache equivalent is at
-            // /data/system/nano_cache/drastic/system/shaders/.
-            const char* sp =
-                    "/data/system/nano_cache/drastic/system/shaders/Linear.dfx";
+            // ("/data/user/0/com.dsemu.drastic/files/DraStic/") +
+            // "shaders/Linear.dfx". The nano_cache layout has an
+            // extra "system/" segment because populate_drastic
+            // copies BIOS-style files under <cacheDir>/system/. Try
+            // the drastic-app layout first; if that shader file is
+            // missing, fall back to the nano_cache layout.
+            std::string sp = mCacheDir + "/shaders/Linear.dfx";
+            if (access(sp.c_str(), R_OK) != 0) {
+                sp = mCacheDir + "/system/shaders/Linear.dfx";
+            }
             jstring shaderJStr =
-                    ((JNIEnv*)mFakeEnv)->NewStringUTF(sp);
+                    ((JNIEnv*)mFakeEnv)->NewStringUTF(sp.c_str());
             int rc = mFxLoad(mFakeEnv, mFakeCls,
                              (void*)shaderJStr, 0, 0x8A0);
             ALOGI("DrasticRunner::initSurface: fxLoad(\"%s\") = %d",
-                  sp, rc);
+                  sp.c_str(), rc);
         }
         // fxSetup args from smali (DraSticGlView$j onSurfaceChanged):
         //   arg1/2 = DS texture resolution (256x192 or 512x384 with hires)

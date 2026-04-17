@@ -32,10 +32,16 @@ JavaVM* init();
 //   "DraStic/<rel>" -> <sys_prefix>/<rel>
 //   "User/<rel>"    -> <user_prefix>/<rel>
 //   "/..."          -> absolute POSIX path
-// Our fake implementation translates DraStic/ -> <root>/system/ and
-// User/ -> <root>/user/, matching the layout nano_cache.sh will
-// populate.
+// In the default (nano_cache) mode we translate DraStic/ -> <root>/
+// and User/ -> <root>/user/, matching the layout nano_cache.sh
+// populates. Callers that point cacheRoot straight at drastic's
+// installed files dir (e.g. /data/user/0/com.dsemu.drastic/files/
+// DraStic) should call setDirectUserMode(true) so User/ resolves to
+// <root>/ as well -- drastic's real layout has config/backup/
+// savestates/ etc directly under the files/DraStic/ root, with no
+// /user subdirectory.
 void setCacheRoot(const std::string& cacheRoot);
+void setDirectUserMode(bool enabled);
 
 // Allocate a pooled FakeIntArray of `length` zero-initialized jint
 // elements and return a jintArray handle suitable for passing into

@@ -1,0 +1,62 @@
+package {
+    default_applicable_licenses: ["frameworks_base_license"],
+}
+
+cc_binary {
+    name: "drastic-nano",
+
+    cflags: [
+        "-DGL_GLEXT_PROTOTYPES",
+        "-DEGL_EGLEXT_PROTOTYPES",
+        "-Wall",
+        "-Werror",
+        "-Wno-unused-parameter",
+        "-Wno-unused-variable",
+        "-Wno-unused-function",
+        "-Wno-unused-private-field",
+        "-Wno-deprecated-declarations",
+        "-O3",
+        "-ffast-math",
+        "-fno-math-errno",
+        "-fno-trapping-math",
+    ],
+
+    arch: {
+        arm64: {
+            cflags: [
+                "-mtune=cortex-a55",
+            ],
+        },
+    },
+
+    local_include_dirs: ["."],
+    include_dirs: [
+        "frameworks/base/cmds/gammaos-nano",
+    ],
+
+    srcs: [
+        "main.cpp",
+        ":drastic_nano_shared_srcs",
+    ],
+
+    header_libs: [
+        "libdrm_headers",
+        "jni_headers",
+    ],
+
+    shared_libs: [
+        "libbase",
+        "libbinder",
+        "libbinder_ndk",
+        "libcutils",
+        "liblog",
+        "libutils",
+        "libui",
+        "libgui",
+        "libEGL",
+        "libGLESv2",
+        "libnativewindow",
+    ],
+
+    init_rc: ["drastic-nano.rc"],
+}

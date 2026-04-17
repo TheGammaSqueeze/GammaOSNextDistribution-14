@@ -51,10 +51,18 @@ namespace tag {
 
 // -------- State --------
 
-// Cache root (e.g. /data/system/nano_cache/drastic). Virtual paths
-// resolve underneath this: "DraStic/foo" -> "<root>/foo", "User/foo"
-// -> "<root>/user/foo". See DraSticPathCache.smali:141 getRealPath.
+// Cache root (e.g. /data/system/nano_cache/drastic, or drastic's
+// installed files dir at /data/user/0/com.dsemu.drastic/files/DraStic).
+// Virtual paths resolve underneath this: "DraStic/foo" -> "<root>/foo",
+// "User/foo" -> "<root>/user/foo" by default. See DraSticPathCache.smali:141
+// getRealPath.
 static std::string sCacheRoot;
+
+// When true, "User/foo" resolves to "<root>/foo" (no /user/ prefix)
+// -- matching drastic's real app layout where config/backup/
+// savestates/ live directly under files/DraStic/. Used by drastic-nano
+// to point FakeJNI straight at the installed app's data dir.
+static bool sDirectUserMode = false;
 
 // FakeString: our stand-in for jstring. Drastic calls NewStringUTF()
 // before CallStaticObjectMethod(DraSticPathCache.open, path, mode),
@@ -183,6 +191,9 @@ static std::string translateVirtualPath(const char* vpath) {
         return sCacheRoot + "/" + (vpath + sysLen);
     }
     if (strncmp(vpath, kUserPrefix, userLen) == 0) {
+        if (sDirectUserMode) {
+            return sCacheRoot + "/" + (vpath + userLen);
+        }
         return sCacheRoot + "/user/" + (vpath + userLen);
     }
 
@@ -716,6 +727,10 @@ JavaVM* init() {
 
 void setCacheRoot(const std::string& cacheRoot) {
     sCacheRoot = cacheRoot;
+}
+
+void setDirectUserMode(bool enabled) {
+    sDirectUserMode = enabled;
 }
 
 } // namespace fakejni

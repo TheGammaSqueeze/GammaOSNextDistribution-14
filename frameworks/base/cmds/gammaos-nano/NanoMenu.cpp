@@ -1553,6 +1553,44 @@ if (sRingPrimedCount >= 2) {
                                   (long long)waited);
                         }
                         handoffFired = true;
+
+                        // GammaOS: drastic-nano gate -- route the
+                        // handoff to the standalone binary instead of
+                        // the com.dsemu.drastic APK activity when the
+                        // user has opted into drastic-nano mode. The
+                        // binary uses the real (unpatched) libdrastic
+                        // so audio works.
+                        bool handoffToDrasticNano = false;
+                        {
+                            char dn[PROPERTY_VALUE_MAX] = {};
+                            property_get(
+                                "persist.gammaos.nano.drastic_nano",
+                                dn, "0");
+                            handoffToDrasticNano = (dn[0] == '1');
+                        }
+                        if (handoffToDrasticNano) {
+                            ALOGI("drastic QR: handoff to "
+                                  "drastic-nano binary");
+                            // Reuse the QR ROM path as the drastic-nano
+                            // ROM path -- the binary reads from the
+                            // nano_drastic_nano_rom.txt file.
+                            std::string qrRom = getQrRomPath();
+                            if (!qrRom.empty()) {
+                                setDrasticNanoRomPath(qrRom);
+                            }
+                            // Clear QR primed state so when
+                            // gammaos-nano restarts after drastic-nano
+                            // exits, it comes up in plain XMB mode
+                            // instead of re-entering the preview.
+                            property_set(
+                                "persist.gammaos.nano.qr_prepared", "0");
+                            property_set(
+                                "sys.gammaos.drastic_nano.start", "1");
+                            property_set(
+                                "sys.gammaos.nano.drop_input", "1");
+                            mExitRequested = true;
+                            break;
+                        }
                         ALOGI("drastic QR: handoff to com.dsemu.drastic");
                         // Recreate /data/system/nano_launch_intent.txt
                         // from the persistent copy written by
@@ -2321,15 +2359,24 @@ if (sRingPrimedCount >= 2) {
         // DrasticRunner dlopen is one-shot per process lifetime, so
         // we must restart rather than re-init in the same process.
         if (mDrasticNanoPending) {
-            // Restart immediately into QR fast path. populate_drastic
-            // runs asynchronously via init; the restarted NanoMenu's
-            // runDrasticInitIfNeeded() will wait for the cache (ROM
-            // file access check) on its own. No need to block here.
-            ALOGW("drastic nano: restarting into QR fast path "
-                  "(cache populates in background)");
-            property_set("sys.gammaos.nano.force_drm", "1");
-            property_set(
-                    "sys.gammaos.nano.restart_after_cancel", "1");
+            // GammaOS: hand off to the drastic-nano binary instead of
+            // re-entering the in-process DrasticRunner preview path.
+            // drastic-nano loads libdrastic from the installed APK's
+            // nativeLibraryDir, so the real initialize_audio runs and
+            // the OpenSL ES engine comes up with actual sound. The
+            // init trigger sys.gammaos.drastic_nano.start=1 stops
+            // SurfaceFlinger, starts the drastic-nano service, and
+            // (when drastic-nano later exits) brings nano back up via
+            // session_done=1.
+            ALOGW("drastic nano: starting drastic-nano binary");
+            // Clear QR primed state so when gammaos-nano restarts
+            // after drastic-nano exits, it comes up in plain XMB mode
+            // rather than re-entering the QR preview for a ROM that
+            // is now a stale reference.
+            property_set("persist.gammaos.nano.qr_prepared", "0");
+            // setDrasticNanoRomPath() already wrote the ROM file; we
+            // just need to pull the trigger.
+            property_set("sys.gammaos.drastic_nano.start", "1");
             _exit(0);
         }
 

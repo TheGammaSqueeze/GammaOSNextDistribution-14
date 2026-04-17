@@ -29,18 +29,28 @@ public:
     DrasticRunner();
     ~DrasticRunner();
 
-    // Initialize: dlopen the libs from cacheDir, set up FakeJNI,
-    // call JNI_OnLoad + onInit(null, versionCode, sdkInt), apply a
+    // Initialize: dlopen the libs from libsDir (falls back to cacheDir
+    // when libsDir is empty), set up FakeJNI rooted at cacheDir, call
+    // JNI_OnLoad + onInit(null, versionCode, sdkInt), apply a
     // default-safe config, and startGame(romPath).
     //
-    // cacheDir is the drastic cache root (e.g.
-    // /data/system/nano_cache/drastic). romPath is the absolute
-    // path to the .nds file inside that cache.
+    // cacheDir is the drastic virtual-FS root for FakeJNI's DraStic/ and
+    // User/ prefix resolution (e.g. /data/system/nano_cache/drastic).
+    // libsDir, if non-empty, points to the directory containing
+    // libdrastic_arm64.so / libdrastic_cpu.so (e.g. the APK's
+    // lib/arm64 install path). When empty, libs are dlopen'd from
+    // cacheDir itself -- the legacy nano_cache layout.
+    // romPath is the absolute path to the ROM (.nds / .zip etc).
+    // When soundEnabled is true, applyConfig sets the _SoundEnabled
+    // bit so drastic's per-frame audio mixer runs (required when the
+    // patched-initialize_audio short-circuit is NOT applied).
     //
     // Returns true if all the above completed without crashing and
     // drastic's main DS CPU thread is live.
     bool init(const std::string& cacheDir,
-              const std::string& romPath);
+              const std::string& romPath,
+              const std::string& libsDir = std::string(),
+              bool soundEnabled = false);
 
     // Tear down. pauseSystem + quitSystem + dlclose.
     void shutdown();
@@ -296,6 +306,12 @@ private:
     // and reused from initSurface / renderOneFrame.
     void* mFakeEnv = nullptr;
     void* mFakeCls = nullptr;
+
+    // Cached cacheDir from init(). Used by initSurface to build the
+    // absolute shader path for fxLoad: drastic-nano (cacheDir = real
+    // drastic files dir) has shaders at <cacheDir>/shaders/, while
+    // nano_cache has them at <cacheDir>/system/shaders/.
+    std::string mCacheDir;
 
     // initSurface state.
     bool mSurfaceReady = false;
