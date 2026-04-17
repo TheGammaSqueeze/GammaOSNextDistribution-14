@@ -10361,11 +10361,47 @@ void SurfaceFlinger::onActiveDisplayChangedLocked(const DisplayDevice* inactiveD
     // TODO(b/255635711): Check for pending mode changes on other displays.
     mScheduler->setModeChangePending(false);
 
-    mScheduler->setPacesetterDisplay(mActiveDisplayId);
+    // GammaOS Nano: in nano mode the XMB and every non-dualstack app render
+    // only on `persist.gammaos.nano.primary_display`, so port 0 (the default
+    // pacesetter) sees no layer work. Its vsync ticks keep firing but drift
+    // away from the frame actually being presented on the other panel, which
+    // manifests as frame-pacing judder on titles like Sonic Mania / rsdkv5.
+    // Route the pacesetter to the nano-primary port so the SF scheduler is
+    // driven by the display that is producing frames. Leave mActiveDisplayId
+    // alone since it is the UI-facing "default" display tracked by the rest
+    // of the system.
+    //
+    // Gate solely on `persist.gammaos.nano.primary_display` -- it is the only
+    // nano signal reliably visible at SF init. Persist props load in
+    // post-fs-data (before SF starts), but the property service's trie is
+    // populated incrementally, so lookups for props that land later (such as
+    // `persist.bootanim.skip_nano` or `sys.gammaos.minimal_boot`, which is
+    // set by an init.rc rule after SF reports running) can miss. The
+    // primary_display prop is only set on nano dual-screen devices, and on
+    // those devices both panels run at the same refresh rate, so swapping
+    // pacesetter/follower roles is harmless even if the user is currently in
+    // normal Android rather than nano.
+    PhysicalDisplayId pacesetterId = mActiveDisplayId.load();
+    const int nanoPort = base::GetIntProperty<int>(
+            "persist.gammaos.nano.primary_display"s, 0);
+    if (nanoPort > 0 &&
+            pacesetterId.getPort() != static_cast<uint8_t>(nanoPort)) {
+        for (const auto& [id, physical] : mPhysicalDisplays) {
+            (void)physical;
+            if (id.getPort() == static_cast<uint8_t>(nanoPort)) {
+                ALOGI("GammaOS Nano: pacesetter override to %s (port %d)",
+                      to_string(id).c_str(), nanoPort);
+                pacesetterId = id;
+                break;
+            }
+        }
+    }
 
-    // GammaOS: ensure HW vsync stays enabled on the active (pacesetter) display
-    mScheduler->enableHardwareVsync(mActiveDisplayId);
-    if (gammaTweaksEnabled()) requestHardwareVsync(mActiveDisplayId, /*enable=*/true);
+    mScheduler->setPacesetterDisplay(pacesetterId);
+
+    // GammaOS: ensure HW vsync stays enabled on the (new) pacesetter display
+    mScheduler->enableHardwareVsync(pacesetterId);
+    if (gammaTweaksEnabled()) requestHardwareVsync(pacesetterId, /*enable=*/true);
 
     onActiveDisplaySizeChanged(activeDisplay);
     mActiveDisplayTransformHint = activeDisplay.getTransformHint();
@@ -10380,7 +10416,7 @@ void SurfaceFlinger::onActiveDisplayChangedLocked(const DisplayDevice* inactiveD
 
     // GammaOS: ensure HW vsync is immediately enabled for the new pacesetter
     if (mScheduler) {
-        mScheduler->enableHardwareVsync(mActiveDisplayId);
+        mScheduler->enableHardwareVsync(pacesetterId);
     }
 }
 
