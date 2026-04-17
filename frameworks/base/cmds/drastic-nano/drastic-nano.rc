@@ -1,7 +1,7 @@
 service drastic-nano /system/bin/drastic-nano
     class main
     user root
-    group root graphics input system media_rw sdcard_rw everybody external_storage package_info audio
+    group root graphics input system media_rw sdcard_rw everybody external_storage package_info audio readproc
     capabilities SYS_NICE IPC_LOCK SYS_RESOURCE DAC_READ_SEARCH DAC_OVERRIDE CHOWN
     disabled
     oneshot
@@ -21,6 +21,15 @@ service drastic-nano /system/bin/drastic-nano
 on property:sys.gammaos.drastic_nano.start=1
     setprop sys.gammaos.drastic_nano.start 0
     setprop sys.gammaos.drastic_nano.session_done 0
+    # Stop gammaos-nano explicitly. In the production XMB flow the
+    # nano process calls _exit(0) before firing start=1, so this is
+    # usually a no-op -- but if drastic_nano.start=1 fires through
+    # any other path (debug setprop, an external trigger) nano would
+    # otherwise keep running and compete with drastic-nano for DRM
+    # master, input fds, and CPU -- visible as frame spikes / slow
+    # drmDrainPageFlipEvents (user-confirmed 2026-04-17). Belt-and-
+    # braces.
+    stop gammaos-nano
     start drastic-nano
 
 # drastic-nano exit trigger. drastic-nano sets session_done=1 on

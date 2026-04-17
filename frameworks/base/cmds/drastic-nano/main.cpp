@@ -47,10 +47,13 @@
 #include <fcntl.h>
 #include <linux/input.h>
 #include <pthread.h>
+#include <sched.h>
 #include <signal.h>
 #include <sys/ioctl.h>
+#include <sys/mman.h>
 #include <sys/resource.h>
 #include <sys/stat.h>
+#include <sys/syscall.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
@@ -440,6 +443,120 @@ void pollInput(InputState* st, bool* exitRequested) {
 }
 
 // ------------------------------------------------------------------
+// Audio thread priority boost
+// ------------------------------------------------------------------
+
+// Walk audioserver's /proc/<pid>/task and boost its playback
+// threads to SCHED_FIFO prio 79 so they drain our BufferQueue
+// without getting time-sliced out by drastic-nano's own FIFO 80
+// threads.
+//
+// Root cause: the actual audio bottleneck is NOT our in-process
+// OpenSL client thread -- that just binder-posts buffers to
+// audioserver. It is audioserver's AudioOut_D / FastMixer / writer
+// threads, which run at SCHED_OTHER nice -19. When drastic-nano is
+// CPU-saturated (3.3 cores used), SCHED_FIFO threads in our
+// process (render, mali helpers) starve audioserver. Drastic's
+// BufferQueue fills because audioserver cannot drain. Drastic
+// gets SL_RESULT_BUFFER_INSUFFICIENT, the mixer stalls for one
+// sample-frame, the user hears a click.
+//
+// Boosting our own AudioTrack thread (experiment 2026-04-17) made
+// this worse: it pulled MORE CPU time toward our process and
+// starved audioserver even harder. 13 underruns in 30 s after that
+// change, vs ~1 in 5 min before.
+//
+// Priority 79: one rung below render at 80 so it never preempts
+// our per-frame critical path, but above everything else in the
+// system. Drastic-nano runs as root with CAP_SYS_NICE so we can
+// sched_setscheduler on another process's tids.
+//
+// Called periodically from the render loop because audioserver may
+// spawn / recycle its output thread when the audio device reroutes.
+// Boost the output threads of an arbitrary peer process to
+// SCHED_FIFO 79. We look up the pid by init's published property
+// and iterate its /proc/<pid>/task/<tid>/comm. Needs readproc gid
+// in our rc caps so the hidepid=invisible /proc mount lets us
+// traverse other UIDs' task trees.
+void boostPeerAudioThreads(const char* svcPropName,
+                            const char* tag) {
+    char pidStr[PROPERTY_VALUE_MAX] = {};
+    property_get(svcPropName, pidStr, "");
+    pid_t srvPid = (pid_t)atoi(pidStr);
+    if (srvPid <= 0) {
+        ALOGI("drastic-nano: %s not running (%s empty)",
+              tag, svcPropName);
+        return;
+    }
+
+    char taskDir[64];
+    snprintf(taskDir, sizeof(taskDir), "/proc/%d/task", srvPid);
+    DIR* d = opendir(taskDir);
+    if (!d) {
+        ALOGW("drastic-nano: cannot open %s: %s", taskDir,
+              strerror(errno));
+        return;
+    }
+    struct dirent* e;
+    int boosted = 0;
+    while ((e = readdir(d)) != nullptr) {
+        if (e->d_name[0] == '.') continue;
+        char commPath[128];
+        snprintf(commPath, sizeof(commPath),
+                 "/proc/%d/task/%s/comm", srvPid, e->d_name);
+        int fd = open(commPath, O_RDONLY);
+        if (fd < 0) continue;
+        char comm[32] = {};
+        ssize_t n = read(fd, comm, sizeof(comm) - 1);
+        close(fd);
+        if (n <= 0) continue;
+        for (int i = 0; i < (int)sizeof(comm) && comm[i]; i++) {
+            if (comm[i] == '\n') { comm[i] = 0; break; }
+        }
+        // Boost every thread that matters on the playback path:
+        //   AudioOut_D / AudioOut_1 -- AudioFlinger PlaybackThread
+        //   FastMixer               -- AudioFlinger fast-path mixer
+        //   writer                  -- vendor HAL's ALSA writer
+        //   out_write               -- some HAL variants
+        if (strcmp(comm, "AudioOut_D") != 0 &&
+            strcmp(comm, "FastMixer") != 0 &&
+            strcmp(comm, "AudioOut_1") != 0 &&
+            strcmp(comm, "writer") != 0 &&
+            strcmp(comm, "out_write") != 0) {
+            continue;
+        }
+        pid_t tid = (pid_t)atoi(e->d_name);
+        sched_param sp = {};
+        sp.sched_priority = 79;
+        if (sched_setscheduler(tid, SCHED_FIFO, &sp) == 0) {
+            ALOGI("drastic-nano: boosted %s %s (tid=%d) to "
+                  "SCHED_FIFO 79", tag, comm, tid);
+            boosted++;
+        } else {
+            ALOGW("drastic-nano: boost %s %s (tid=%d) failed: %s",
+                  tag, comm, tid, strerror(errno));
+        }
+    }
+    closedir(d);
+    if (boosted == 0) {
+        ALOGI("drastic-nano: no %s output threads found (not live "
+              "yet)", tag);
+    }
+}
+
+void boostAudioServer() {
+    // AudioFlinger's own mixer thread + HAL writer need the same
+    // RT guarantee. Boosting only one side leaves the other as the
+    // weak link -- a SCHED_OTHER writer holds up the MIXER, a
+    // SCHED_OTHER mixer holds up the track enqueue, either way we
+    // still get underruns under CPU contention. Pair them.
+    boostPeerAudioThreads("init.svc_debug_pid.audioserver",
+                           "audioserver");
+    boostPeerAudioThreads("init.svc_debug_pid.vendor.audio-hal",
+                           "vendor.audio-hal");
+}
+
+// ------------------------------------------------------------------
 // Render loop
 // ------------------------------------------------------------------
 
@@ -483,7 +600,25 @@ void runLoop(Display* dpy, DrasticRunner* dr) {
     const float saturation = 1.0f;
     const float gradient   = 0.0f;
 
+    // audioserver spawns its output thread after our first buffer
+    // enqueue. Sweep after 1 s, 3 s, 5 s so we catch it regardless
+    // of when drastic's audio engine actually comes up.
+    int64_t audioBoostDeadlineMs = android::elapsedRealtime() + 1000;
+    bool audioBoosted = false;
+    int audioBoostSweeps = 0;
+
     while (!exitRequested) {
+        if (!audioBoosted &&
+            android::elapsedRealtime() >= audioBoostDeadlineMs) {
+            boostAudioServer();
+            audioBoostSweeps++;
+            if (audioBoostSweeps >= 3) {
+                audioBoosted = true;
+            } else {
+                audioBoostDeadlineMs =
+                        android::elapsedRealtime() + 2000;
+            }
+        }
         pollInput(&input, &exitRequested);
         if (exitRequested) break;
         dr->setInput(input.dsBtnMask);
@@ -598,6 +733,45 @@ int main(int argc, char** argv) {
     // own init path still unblocks SurfaceFlinger / gammaos-nano.
     installCrashHandler();
     ALOGI("drastic-nano: starting (argc=%d)", argc);
+
+    // Render-thread scheduling: SCHED_FIFO prio 80 (+ nice -20 as a
+    // fallback when RT is denied). Matches NanoMenu's QR fast-path
+    // configuration and was what made the QR preview pacing smooth
+    // on this hardware. Without it, the main render thread runs at
+    // plain SCHED_OTHER nice -4 -- still elevated, but low enough
+    // that audioserver / system_server / init housekeeping preempts
+    // us mid-flip, stretching the vblank-wait and producing frame
+    // spikes. FIFO-over-RR because drastic's own DS worker threads
+    // already run at SCHED_RR 5; at equal priority RR peers
+    // time-slice, and a slice expiry inside drmDrainPageFlipEvents
+    // blows the 16.67 ms budget. FIFO never gets sliced out but
+    // yields cleanly every time the render loop blocks in poll()
+    // for vblank, so the RR workers still get wall-clock.
+    {
+        sched_param sp = {};
+        sp.sched_priority = 80;
+        int rc = pthread_setschedparam(pthread_self(), SCHED_FIFO, &sp);
+        pid_t selfTid = (pid_t)syscall(SYS_gettid);
+        setpriority(PRIO_PROCESS, selfTid, -20);
+        if (rc == 0) {
+            ALOGI("drastic-nano: render thread SCHED_FIFO prio 80 + "
+                  "nice -20 ok");
+        } else {
+            ALOGW("drastic-nano: SCHED_FIFO denied (%s), nice -20 "
+                  "applied", strerror(rc));
+        }
+    }
+
+    // Lock current + future pages into RAM so no access faults into
+    // demand-paged I/O mid-frame. Pairs with IPC_LOCK +
+    // SYS_RESOURCE + rlimit memlock in drastic-nano.rc. Costs ~50 ms
+    // of up-front fault work at startup for predictable per-frame
+    // timing thereafter.
+    if (mlockall(MCL_CURRENT | MCL_FUTURE) == 0) {
+        ALOGI("drastic-nano: mlockall done");
+    } else {
+        ALOGW("drastic-nano: mlockall failed: %s", strerror(errno));
+    }
 
     std::string romPath;
     if (argc > 1 && argv[1] && argv[1][0]) {
