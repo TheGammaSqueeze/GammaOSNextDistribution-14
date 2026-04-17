@@ -351,9 +351,34 @@ struct InputState {
     int dsBtnMask;
     bool backWasDown;
     int64_t backPressStartMs;
+
+    // Touchscreen state. We track a single DS-bottom-screen touch
+    // since DS hardware has exactly one touchscreen. Events come in
+    // from the MT-protocol-A gt9xx-0 panel; we scale panel coords
+    // into DS space and hold the last known point across frames.
+    int touchFd;          // -1 when no touchscreen found
+    int touchPanelW;      // raw panel resolution for scaling
+    int touchPanelH;
+    int touchDsX;         // latched DS coord, 0..255
+    int touchDsY;         // latched DS coord, 0..191
+    bool touchHeld;       // true while BTN_TOUCH reports down
+    int touchPendingX;    // raw panel-space coords accumulated this
+    int touchPendingY;    // frame; flushed into touchDs* on SYN_REPORT
+    bool touchPendingValid;
 };
 
+// Which touchscreen belongs to drastic-nano's bottom-screen display.
+// On this family of dual-DSI handhelds /vendor/build.prop sets
+// persist.gif.map.gt9xx_0=0 which ties gt9xx-0 to the DSI-1 panel
+// (physical port 0), and that is the panel drastic-nano routes the
+// bottom DS screen to. gt9xx-1 is on the top panel which has no DS
+// touch analogue; we deliberately do not read it.
+constexpr const char* kTouchDeviceName = "gt9xx-0";
+
 void scanInputDevices(InputState* st) {
+    st->touchFd = -1;
+    st->touchPanelW = 0;
+    st->touchPanelH = 0;
     DIR* d = opendir("/dev/input");
     if (!d) return;
     struct dirent* e;
@@ -362,6 +387,21 @@ void scanInputDevices(InputState* st) {
         std::string p = std::string("/dev/input/") + e->d_name;
         int fd = open(p.c_str(), O_RDONLY | O_NONBLOCK | O_CLOEXEC);
         if (fd < 0) continue;
+        char name[64] = {};
+        ioctl(fd, EVIOCGNAME(sizeof(name) - 1), name);
+        if (strcmp(name, kTouchDeviceName) == 0) {
+            struct input_absinfo abs = {};
+            if (ioctl(fd, EVIOCGABS(ABS_MT_POSITION_X), &abs) >= 0) {
+                st->touchPanelW = abs.maximum > 0 ? abs.maximum : 1;
+            }
+            if (ioctl(fd, EVIOCGABS(ABS_MT_POSITION_Y), &abs) >= 0) {
+                st->touchPanelH = abs.maximum > 0 ? abs.maximum : 1;
+            }
+            st->touchFd = fd;
+            ALOGI("drastic-nano: touch device %s at %s (panel %dx%d)",
+                  name, p.c_str(), st->touchPanelW, st->touchPanelH);
+            continue;
+        }
         unsigned long keys[(KEY_MAX + 8 * sizeof(long)) /
                             (8 * sizeof(long))] = {};
         if (ioctl(fd, EVIOCGBIT(EV_KEY, sizeof(keys)), keys) >= 0) {
@@ -378,6 +418,46 @@ void scanInputDevices(InputState* st) {
         close(fd);
     }
     closedir(d);
+}
+
+// Drain touch events and update st->touchDs{X,Y} + st->touchHeld.
+// Type-A multitouch protocol (no ABS_MT_SLOT) -- we take the LAST
+// sample inside each SYN_REPORT batch and treat BTN_TOUCH as the
+// pointer-down indicator. DS only has single touch so we drop any
+// secondary contact.
+void pollTouch(InputState* st) {
+    if (st->touchFd < 0) return;
+    struct input_event ev;
+    while (read(st->touchFd, &ev, sizeof(ev)) == sizeof(ev)) {
+        if (ev.type == EV_KEY && ev.code == BTN_TOUCH) {
+            st->touchHeld = (ev.value != 0);
+        } else if (ev.type == EV_ABS) {
+            if (ev.code == ABS_MT_POSITION_X) {
+                st->touchPendingX = ev.value;
+                st->touchPendingValid = true;
+            } else if (ev.code == ABS_MT_POSITION_Y) {
+                st->touchPendingY = ev.value;
+                st->touchPendingValid = true;
+            } else if (ev.code == ABS_MT_TRACKING_ID && ev.value == -1) {
+                st->touchHeld = false;
+            }
+        } else if (ev.type == EV_SYN && ev.code == SYN_REPORT) {
+            if (st->touchPendingValid && st->touchPanelW > 0 &&
+                st->touchPanelH > 0) {
+                int x = st->touchPendingX;
+                int y = st->touchPendingY;
+                if (x < 0) x = 0;
+                if (y < 0) y = 0;
+                if (x > st->touchPanelW) x = st->touchPanelW;
+                if (y > st->touchPanelH) y = st->touchPanelH;
+                st->touchDsX = x * 256 / st->touchPanelW;
+                st->touchDsY = y * 192 / st->touchPanelH;
+                if (st->touchDsX > 255) st->touchDsX = 255;
+                if (st->touchDsY > 191) st->touchDsY = 191;
+                st->touchPendingValid = false;
+            }
+        }
+    }
 }
 
 void pollInput(InputState* st, bool* exitRequested) {
@@ -621,7 +701,15 @@ void runLoop(Display* dpy, DrasticRunner* dr) {
         }
         pollInput(&input, &exitRequested);
         if (exitRequested) break;
-        dr->setInput(input.dsBtnMask);
+        pollTouch(&input);
+        // Feed buttons + current touch state. On release we keep
+        // the last coords and clear touchHeld + bit 31 -- DS games
+        // that double-sample the stylus read 0 from the pointer-
+        // down byte, so emitting (-1, -1) would register as a
+        // swipe to origin.
+        dr->setInputWithTouch(input.dsBtnMask,
+                               input.touchDsX, input.touchDsY,
+                               input.touchHeld);
 
         dr->renderDsToOffscreen();
 
@@ -723,6 +811,7 @@ void runLoop(Display* dpy, DrasticRunner* dr) {
     }
 
     for (int fd : input.fds) close(fd);
+    if (input.touchFd >= 0) close(input.touchFd);
 }
 
 }  // namespace

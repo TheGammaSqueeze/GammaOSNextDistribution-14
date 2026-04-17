@@ -1310,15 +1310,26 @@ void DrasticRunner::setInputWithTouch(int bitmask, int touchX, int touchY,
     // trap-door index even if the caller passed a stray bit.
     int fullBitmask = bitmask & 0x00000fff;
     if (touchHeld) fullBitmask |= 0x80000000;
-    // Drastic packs touch as (y << 16) | x, high half signed. Clamp to
-    // DS bottom-screen space so the emulated touchscreen MMIO handler
+    // Drastic packs touch as (x << 16) | y, empirically verified by
+    // corner-tap test (2026-04-17). The disasm at 0x1a600 labels the
+    // ASR'd high half "y" and the low half "x", but drastic's TSC2046
+    // emulation reads master+0x494 as the X channel and master+0x498
+    // as the Y channel -- the opposite of the label. Sending the DS
+    // horizontal coord in the HIGH half and the DS vertical coord in
+    // the LOW half makes the in-game cursor land where the finger
+    // actually is.
+    //
+    // Clamp to DS bottom-screen space so the touchscreen MMIO handler
     // sees coordinates in [0..255, 0..191] as the real hardware would.
+    // The low half (Y) is hardware-clamped at 191 inside drastic too,
+    // so sending a value > 191 there just produces Y=191 rather than
+    // bleeding into unrelated fields.
     if (touchX < 0) touchX = 0;
     if (touchX > 255) touchX = 255;
     if (touchY < 0) touchY = 0;
     if (touchY > 191) touchY = 191;
     const int touchPacked =
-            ((touchY & 0xffff) << 16) | (touchX & 0xffff);
+            ((touchX & 0xffff) << 16) | (touchY & 0xffff);
     const int held = touchHeld ? 1 : 0;
     mUpdateInput(mFakeEnv, mFakeCls, fullBitmask, touchPacked, held);
 }
