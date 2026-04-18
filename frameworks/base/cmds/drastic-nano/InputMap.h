@@ -1,0 +1,166 @@
+/*
+ * Copyright (C) 2026 GammaOS
+ *
+ * Input plumbing for drastic-nano. Replaces and extends the earlier
+ * pollInput/scanInputDevices logic inlined in main.cpp. Adds:
+ *
+ *   - analog stick axes (ABS_X/Y + ABS_RX/RY)
+ *   - analog triggers (ABS_Z / ABS_RZ) and digital (BTN_TL2/TR2)
+ *   - thumb buttons (BTN_THUMBL / BTN_THUMBR, aka L3/R3)
+ *   - a keycode -> action-index map derived from the user's drastic
+ *     SharedPreferences (_KeyMapConfigs_0_*)
+ *   - short-press / long-press BACK detection
+ *   - a frame-level InputActions output struct so the render loop
+ *     doesn't have to know about evdev codes
+ *
+ * The struct layout (plain C++ POD) is deliberately header-visible so
+ * main.cpp can hold an InputState on the stack without having to heap-
+ * allocate it. Everything else lives in InputMap.cpp.
+ */
+
+#pragma once
+
+#include <cstdint>
+#include <string>
+#include <unordered_map>
+#include <vector>
+
+#include "DrasticPrefs.h"
+
+namespace android {
+namespace drastic_input {
+
+// DS stylus coordinates derived from the touchscreen / analog stick.
+struct TouchState {
+    int  x;       // 0..255
+    int  y;       // 0..191
+    bool held;    // true while the pointer is "down"
+};
+
+struct InputState {
+    // Gamepad-ish event devices (keys / D-pad / analog axes).
+    std::vector<int> fds;
+    // Latched DS button bitmask (bits 0..11 in DrasticRunner::kDsBtn*).
+    int dsBtnMask = 0;
+
+    // Short/long-press BACK tracking.
+    bool backWasDown = false;
+    int64_t backPressStartMs = 0;
+
+    // Touchscreen state.
+    int touchFd = -1;
+    int touchPanelW = 0;
+    int touchPanelH = 0;
+    int touchDsX = 0;
+    int touchDsY = 0;
+    bool touchHeld = false;
+    int touchPendingX = 0;
+    int touchPendingY = 0;
+    bool touchPendingValid = false;
+
+    // Analog axes -- raw signed values, auto-centered from EVIOCGABS.
+    struct Axis { int raw = 0; int min = 0; int max = 0; bool seen = false; };
+    Axis axLX, axLY, axRX, axRY;
+    // Triggers are typically unsigned 0..max.
+    Axis axLZ, axRZ;
+    // Digital trigger / thumb press state.
+    bool btnL2 = false, btnR2 = false;
+    bool btnL3 = false, btnR3 = false;
+    // Held state for the fast-forward action. Tracked as held (not
+    // edge) because drastic's fast-forward lever is "hold the button
+    // to run at uncapped emu speed" -- pollInputMap copies this into
+    // InputActions::actFastFwd each frame.
+    bool btnFastFwd = false;
+    // Last hat axis value for debounce: emit nav events only on
+    // transitions (pad stays at the same hat value across many
+    // EV_ABS events; firing nav every time scrolls the menu in a
+    // single flick).
+    int  hat0xPrev = 0;
+    int  hat0yPrev = 0;
+
+    // Derived: which Android keycode is currently held? Tracked for
+    // the "capture key" overlay mode (controls remap).
+    int lastKeyDownAndroidKc = 0;
+    bool lastKeyDownConsumed = true;
+
+    // User-supplied keymap snapshot (player 0 only). Index: action
+    // index 0..28. Value: Android keycode, or -1 for unmapped.
+    int keymapPlayer0[drastic_prefs::kNumActions];
+    // Reverse lookup: android keycode -> action index.
+    std::unordered_map<int, int> keycodeToAction;
+
+    // Options derived from prefs.
+    bool  analogTouchEnabled = false;
+    float analogDeadzone = 0.15f;
+};
+
+// Per-frame output of pollInputMap. All flags are "this frame" (edge-
+// triggered); held state is reflected in dsBtnMask and touch fields.
+struct InputActions {
+    int  dsBtnMask = 0;   // DS buttons to forward to drastic
+    int  touchX = 0;
+    int  touchY = 0;
+    bool touchHeld = false;
+
+    // Navigation (only set when overlayOpen is true).
+    bool navUp = false;
+    bool navDown = false;
+    bool navLeft = false;
+    bool navRight = false;
+    bool navAccept = false;  // A
+    bool navCancel = false;  // B
+    bool navNextTab = false; // R / R1
+    bool navPrevTab = false; // L / L1
+
+    // BACK toggle: short-press = open/close overlay.
+    bool menuToggle = false;
+    // Long-press BACK >= kBackHoldMs = exit drastic-nano.
+    bool exitRequested = false;
+
+    // Special drastic actions triggered by the action-index remap.
+    bool actFastFwd    = false;
+    bool actQuickSave  = false;
+    bool actQuickLoad  = false;
+    bool actSwapScreens = false;
+    bool actToggleMic  = false;
+
+    // When true (overlay in capture-key mode), the last keydown
+    // Android keycode is exposed here. The overlay consumes it by
+    // inspecting capturedAndroidKc != 0 and then setting state's
+    // lastKeyDownConsumed = true.
+    int capturedAndroidKc = 0;
+};
+
+// Populate state->fds and state->touchFd by walking /dev/input.
+// Reads EVIOCGABS for each detected axis so deadzone/scaling work.
+void scanInputDevices(InputState* st);
+
+// Install keymap from the prefs: copy keymap[0] into keymapPlayer0
+// and rebuild keycodeToAction. Also copies analogTouch / analogDeadzone.
+void applyPrefs(InputState* st, const drastic_prefs::Prefs& p);
+
+// Drain all pending evdev events, update st, and produce actions for
+// this frame. overlayOpen gates whether DS input is passed through
+// (false = route buttons to drastic; true = route to overlay nav).
+// captureKey gates whether an arbitrary keydown is captured for
+// controls remap (overrides normal routing for one event).
+//
+// shortBackMs is the short-press threshold (release before this = open
+// menu). longBackMs is the long-press threshold (held this long = exit).
+void pollInputMap(InputState* st,
+                  bool overlayOpen,
+                  bool captureKey,
+                  int64_t shortBackMs,
+                  int64_t longBackMs,
+                  InputActions* out);
+
+// Close all fds owned by state and reset the vector.
+void closeInputDevices(InputState* st);
+
+// Exposed for the overlay's "Controls" section: re-scan the stick
+// calibration on the fly if the user's stick drifts. No-op today
+// beyond re-running EVIOCGABS on whatever fds are already open.
+void recalibrateAxes(InputState* st);
+
+} // namespace drastic_input
+} // namespace android

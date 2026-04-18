@@ -41,6 +41,8 @@
 
 #define LOG_TAG "DrasticNano"
 
+#include <android/log.h>
+
 #include <dirent.h>
 #include <dlfcn.h>
 #include <errno.h>
@@ -78,8 +80,12 @@
 #include <utils/SystemClock.h>
 
 #include "DrasticRunner.h"
+#include "DrasticPrefs.h"
 #include "FakeJNI.h"
+#include "InputMap.h"
 #include "NanoMenuDrm.h"
+#include "OverlayGfx.h"
+#include "OverlayMenu.h"
 
 using android::DrasticRunner;
 
@@ -342,185 +348,8 @@ bool setupDisplay(Display* out) {
     return true;
 }
 
-// ------------------------------------------------------------------
-// Input
-// ------------------------------------------------------------------
-
-struct InputState {
-    std::vector<int> fds;
-    int dsBtnMask;
-    bool backWasDown;
-    int64_t backPressStartMs;
-
-    // Touchscreen state. We track a single DS-bottom-screen touch
-    // since DS hardware has exactly one touchscreen. Events come in
-    // from the MT-protocol-A gt9xx-0 panel; we scale panel coords
-    // into DS space and hold the last known point across frames.
-    int touchFd;          // -1 when no touchscreen found
-    int touchPanelW;      // raw panel resolution for scaling
-    int touchPanelH;
-    int touchDsX;         // latched DS coord, 0..255
-    int touchDsY;         // latched DS coord, 0..191
-    bool touchHeld;       // true while BTN_TOUCH reports down
-    int touchPendingX;    // raw panel-space coords accumulated this
-    int touchPendingY;    // frame; flushed into touchDs* on SYN_REPORT
-    bool touchPendingValid;
-};
-
-// Which touchscreen belongs to drastic-nano's bottom-screen display.
-// On this family of dual-DSI handhelds /vendor/build.prop sets
-// persist.gif.map.gt9xx_0=0 which ties gt9xx-0 to the DSI-1 panel
-// (physical port 0), and that is the panel drastic-nano routes the
-// bottom DS screen to. gt9xx-1 is on the top panel which has no DS
-// touch analogue; we deliberately do not read it.
-constexpr const char* kTouchDeviceName = "gt9xx-0";
-
-void scanInputDevices(InputState* st) {
-    st->touchFd = -1;
-    st->touchPanelW = 0;
-    st->touchPanelH = 0;
-    DIR* d = opendir("/dev/input");
-    if (!d) return;
-    struct dirent* e;
-    while ((e = readdir(d)) != nullptr) {
-        if (strncmp(e->d_name, "event", 5) != 0) continue;
-        std::string p = std::string("/dev/input/") + e->d_name;
-        int fd = open(p.c_str(), O_RDONLY | O_NONBLOCK | O_CLOEXEC);
-        if (fd < 0) continue;
-        char name[64] = {};
-        ioctl(fd, EVIOCGNAME(sizeof(name) - 1), name);
-        if (strcmp(name, kTouchDeviceName) == 0) {
-            struct input_absinfo abs = {};
-            if (ioctl(fd, EVIOCGABS(ABS_MT_POSITION_X), &abs) >= 0) {
-                st->touchPanelW = abs.maximum > 0 ? abs.maximum : 1;
-            }
-            if (ioctl(fd, EVIOCGABS(ABS_MT_POSITION_Y), &abs) >= 0) {
-                st->touchPanelH = abs.maximum > 0 ? abs.maximum : 1;
-            }
-            st->touchFd = fd;
-            ALOGI("drastic-nano: touch device %s at %s (panel %dx%d)",
-                  name, p.c_str(), st->touchPanelW, st->touchPanelH);
-            continue;
-        }
-        unsigned long keys[(KEY_MAX + 8 * sizeof(long)) /
-                            (8 * sizeof(long))] = {};
-        if (ioctl(fd, EVIOCGBIT(EV_KEY, sizeof(keys)), keys) >= 0) {
-            auto has = [&](int code) {
-                return (keys[code / (8 * sizeof(long))] >>
-                        (code % (8 * sizeof(long)))) & 1;
-            };
-            if (has(BTN_SOUTH) || has(BTN_A) || has(KEY_BACK) ||
-                has(KEY_UP) || has(KEY_VOLUMEUP)) {
-                st->fds.push_back(fd);
-                continue;
-            }
-        }
-        close(fd);
-    }
-    closedir(d);
-}
-
-// Drain touch events and update st->touchDs{X,Y} + st->touchHeld.
-// Type-A multitouch protocol (no ABS_MT_SLOT) -- we take the LAST
-// sample inside each SYN_REPORT batch and treat BTN_TOUCH as the
-// pointer-down indicator. DS only has single touch so we drop any
-// secondary contact.
-void pollTouch(InputState* st) {
-    if (st->touchFd < 0) return;
-    struct input_event ev;
-    while (read(st->touchFd, &ev, sizeof(ev)) == sizeof(ev)) {
-        if (ev.type == EV_KEY && ev.code == BTN_TOUCH) {
-            st->touchHeld = (ev.value != 0);
-        } else if (ev.type == EV_ABS) {
-            if (ev.code == ABS_MT_POSITION_X) {
-                st->touchPendingX = ev.value;
-                st->touchPendingValid = true;
-            } else if (ev.code == ABS_MT_POSITION_Y) {
-                st->touchPendingY = ev.value;
-                st->touchPendingValid = true;
-            } else if (ev.code == ABS_MT_TRACKING_ID && ev.value == -1) {
-                st->touchHeld = false;
-            }
-        } else if (ev.type == EV_SYN && ev.code == SYN_REPORT) {
-            if (st->touchPendingValid && st->touchPanelW > 0 &&
-                st->touchPanelH > 0) {
-                int x = st->touchPendingX;
-                int y = st->touchPendingY;
-                if (x < 0) x = 0;
-                if (y < 0) y = 0;
-                if (x > st->touchPanelW) x = st->touchPanelW;
-                if (y > st->touchPanelH) y = st->touchPanelH;
-                st->touchDsX = x * 256 / st->touchPanelW;
-                st->touchDsY = y * 192 / st->touchPanelH;
-                if (st->touchDsX > 255) st->touchDsX = 255;
-                if (st->touchDsY > 191) st->touchDsY = 191;
-                st->touchPendingValid = false;
-            }
-        }
-    }
-}
-
-void pollInput(InputState* st, bool* exitRequested) {
-    for (int fd : st->fds) {
-        struct input_event ev;
-        while (read(fd, &ev, sizeof(ev)) == sizeof(ev)) {
-            if (ev.type == EV_KEY) {
-                const bool pressed = (ev.value != 0);
-                if (ev.code == KEY_BACK) {
-                    if (pressed && !st->backWasDown) {
-                        st->backPressStartMs = android::elapsedRealtime();
-                    }
-                    if (!pressed) {
-                        st->backPressStartMs = 0;
-                    }
-                    st->backWasDown = pressed;
-                    continue;
-                }
-                auto bit = [&](int mask) {
-                    if (pressed) st->dsBtnMask |=  mask;
-                    else         st->dsBtnMask &= ~mask;
-                };
-                switch (ev.code) {
-                case BTN_SOUTH:   bit(DrasticRunner::kDsBtnA);     break;
-                case BTN_EAST:    bit(DrasticRunner::kDsBtnB);     break;
-                case BTN_NORTH:   bit(DrasticRunner::kDsBtnX);     break;
-                case BTN_WEST:    bit(DrasticRunner::kDsBtnY);     break;
-                case BTN_TL:
-                case KEY_L:       bit(DrasticRunner::kDsBtnL);     break;
-                case BTN_TR:
-                case KEY_R:       bit(DrasticRunner::kDsBtnR);     break;
-                case BTN_START:   bit(DrasticRunner::kDsBtnStart); break;
-                case BTN_SELECT:  bit(DrasticRunner::kDsBtnSelect); break;
-                case KEY_UP:      bit(DrasticRunner::kDsBtnUp);    break;
-                case KEY_DOWN:    bit(DrasticRunner::kDsBtnDown);  break;
-                case KEY_LEFT:    bit(DrasticRunner::kDsBtnLeft);  break;
-                case KEY_RIGHT:   bit(DrasticRunner::kDsBtnRight); break;
-                default: break;
-                }
-            } else if (ev.type == EV_ABS) {
-                if (ev.code == ABS_HAT0X) {
-                    st->dsBtnMask &= ~(DrasticRunner::kDsBtnLeft |
-                                        DrasticRunner::kDsBtnRight);
-                    if (ev.value < 0) st->dsBtnMask |= DrasticRunner::kDsBtnLeft;
-                    if (ev.value > 0) st->dsBtnMask |= DrasticRunner::kDsBtnRight;
-                } else if (ev.code == ABS_HAT0Y) {
-                    st->dsBtnMask &= ~(DrasticRunner::kDsBtnUp |
-                                        DrasticRunner::kDsBtnDown);
-                    if (ev.value < 0) st->dsBtnMask |= DrasticRunner::kDsBtnUp;
-                    if (ev.value > 0) st->dsBtnMask |= DrasticRunner::kDsBtnDown;
-                }
-            }
-        }
-    }
-    if (st->backPressStartMs > 0) {
-        int64_t held = android::elapsedRealtime() - st->backPressStartMs;
-        if (held >= kBackHoldMs) {
-            ALOGW("drastic-nano: BACK held %lldms, exiting",
-                  (long long)held);
-            *exitRequested = true;
-        }
-    }
-}
+// Input / overlay wiring now lives in InputMap.{h,cpp} and
+// OverlayMenu.{h,cpp}. See runLoop below for the call-site glue.
 
 // ------------------------------------------------------------------
 // Audio thread priority boost
@@ -640,15 +469,57 @@ void boostAudioServer() {
 // Render loop
 // ------------------------------------------------------------------
 
-void runLoop(Display* dpy, DrasticRunner* dr) {
+// kBackShortMs vs kBackHoldMs: release before kBackShortMs = short
+// press = toggle overlay; held past kBackHoldMs = long press = exit.
+constexpr int64_t kBackShortMs = 500;
+
+struct RunLoopResult {
+    bool relaunchRequested;
+};
+
+RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
+                      const android::drastic_prefs::Prefs& initialPrefs,
+                      uid_t appUid, gid_t appGid,
+                      const std::string& xmlPath,
+                      const std::string& savestatesDir,
+                      const std::string& romPath,
+                      const std::string& shadersDir) {
+    RunLoopResult result{false};
     bool hasDualDisplay = (android::sDrmActive && android::sDrmZeroCopy &&
                             android::sAhbRingSecondary[0].glFbo != 0);
     dr->initSurface(dpy->width, dpy->height, hasDualDisplay);
     dr->setRotationMatrix(android::sDrmRotMat);
 
-    InputState input{};
-    scanInputDevices(&input);
+    android::drastic_input::InputState input{};
+    android::drastic_input::applyPrefs(&input, initialPrefs);
+    android::drastic_input::scanInputDevices(&input);
     ALOGI("drastic-nano: found %zu input devices", input.fds.size());
+
+    // Initialize overlay renderer + menu. OverlayGfx binds its own
+    // programs; it must run on the same thread/context as drastic.
+    // Rotation matrix lives next to the runner's, so pick it up once
+    // and update if drastic's rotation ever changes (it doesn't in
+    // practice for this binary).
+    android::drastic_gfx::OverlayGfx gfx;
+    // Overlay viewport size: use primary AHB tex w/h so the logical
+    // overlay pixels align with the rotated scanout panel. Fall back
+    // to display size if no ring slot is ready yet.
+    int overlayW = dpy->width;
+    int overlayH = dpy->height;
+    if (android::sAhbRingPrimary[0].glFbo != 0) {
+        overlayW = android::sAhbRingPrimary[0].w;
+        overlayH = android::sAhbRingPrimary[0].h;
+    }
+    if (!gfx.init(overlayW, overlayH, android::sDrmRotMat)) {
+        ALOGW("drastic-nano: OverlayGfx init failed; overlay disabled");
+    } else {
+        ALOGI("drastic-nano: overlay gfx ready (%dx%d)",
+              overlayW, overlayH);
+    }
+
+    android::drastic_overlay::OverlayMenu overlay;
+    overlay.init(dr, initialPrefs, appUid, appGid,
+                 xmlPath, savestatesDir, romPath, shadersDir);
 
     // Triple-buffered AHB ring: render slot[renderIdx], present
     // slot[renderIdx - 2]. Mirrors the gammaos-nano QR fast-path
@@ -680,6 +551,14 @@ void runLoop(Display* dpy, DrasticRunner* dr) {
     const float saturation = 1.0f;
     const float gradient   = 0.0f;
 
+    // Nano-side screen-swap state. When true, the top DS screen is
+    // rendered to the secondary display (or the bottom half of a
+    // single panel) and vice versa. Toggled by the Screen Swap action
+    // (_KeyMapConfigs_0_17). Drastic has no native equivalent, so we
+    // implement it here by swapping which render call goes to which
+    // viewport each frame.
+    bool screensSwapped = false;
+
     // audioserver spawns its output thread after our first buffer
     // enqueue. Sweep after 1 s, 3 s, 5 s so we catch it regardless
     // of when drastic's audio engine actually comes up.
@@ -699,17 +578,42 @@ void runLoop(Display* dpy, DrasticRunner* dr) {
                         android::elapsedRealtime() + 2000;
             }
         }
-        pollInput(&input, &exitRequested);
+        android::drastic_input::InputActions actions{};
+        android::drastic_input::pollInputMap(
+                &input,
+                overlay.isOpen(),
+                overlay.isCapturingKey(),
+                kBackShortMs, kBackHoldMs, &actions);
+        overlay.update(actions, &input);
+        if (actions.exitRequested) {
+            ALOGW("drastic-nano: long-press BACK, exiting");
+            exitRequested = true;
+        }
+        if (overlay.relaunchRequested()) {
+            ALOGI("drastic-nano: relaunch requested by overlay");
+            result.relaunchRequested = true;
+            exitRequested = true;
+        }
         if (exitRequested) break;
-        pollTouch(&input);
-        // Feed buttons + current touch state. On release we keep
-        // the last coords and clear touchHeld + bit 31 -- DS games
-        // that double-sample the stylus read 0 from the pointer-
-        // down byte, so emitting (-1, -1) would register as a
-        // swipe to origin.
-        dr->setInputWithTouch(input.dsBtnMask,
-                               input.touchDsX, input.touchDsY,
-                               input.touchHeld);
+
+        // Special action handlers. Fast-forward flips drastic's
+        // runtime-only V bit via applyConfig (bit 29). Screen swap
+        // toggles our own renderTop/renderBottom routing. Toggle-mic
+        // is logged only -- drastic-nano has no mic pipeline today.
+        dr->setFastForward(actions.actFastFwd);
+        if (actions.actSwapScreens) {
+            screensSwapped = !screensSwapped;
+            ALOGI("drastic-nano: screen swap = %d", screensSwapped);
+        }
+        if (actions.actToggleMic) {
+            ALOGI("drastic-nano: toggle-mic action (no mic path)");
+        }
+        // Forward the possibly-suppressed DS input to drastic. When
+        // the overlay is open, pollInputMap zeroes dsBtnMask and
+        // touchHeld, leaving the emulator idle until the user closes.
+        dr->setInputWithTouch(actions.dsBtnMask,
+                               actions.touchX, actions.touchY,
+                               actions.touchHeld);
 
         dr->renderDsToOffscreen();
 
@@ -723,7 +627,11 @@ void runLoop(Display* dpy, DrasticRunner* dr) {
         if (hasDualDisplay) {
             glBindFramebuffer(GL_FRAMEBUFFER, secTgt.glFbo);
             glViewport(0, 0, (GLsizei)secTgt.w, (GLsizei)secTgt.h);
-            dr->renderBottomScreen(saturation, gradient);
+            if (screensSwapped) {
+                dr->renderTopScreen(saturation, gradient);
+            } else {
+                dr->renderBottomScreen(saturation, gradient);
+            }
 
             glBindFramebuffer(GL_FRAMEBUFFER, primTgt.glFbo);
             if (android::sDrmGlRotation) {
@@ -732,7 +640,11 @@ void runLoop(Display* dpy, DrasticRunner* dr) {
             } else {
                 glViewport(0, 0, dpy->width, dpy->height);
             }
-            dr->renderTopScreen(saturation, gradient);
+            if (screensSwapped) {
+                dr->renderBottomScreen(saturation, gradient);
+            } else {
+                dr->renderTopScreen(saturation, gradient);
+            }
         } else {
             glBindFramebuffer(GL_FRAMEBUFFER, primTgt.glFbo);
             if (android::sDrmGlRotation) {
@@ -741,8 +653,26 @@ void runLoop(Display* dpy, DrasticRunner* dr) {
             } else {
                 glViewport(0, 0, dpy->width, dpy->height);
             }
+            // Single-panel path: renderBothScreens always stacks top
+            // on the upper half + bottom on the lower half. No nano-
+            // side swap available here without reshuffling the quad
+            // layout inside renderBothScreens (the two DS halves come
+            // from a single offscreen FBO with a fixed split).
             dr->renderBothScreens(saturation, gradient);
         }
+
+        // Composite the overlay onto the primary AHB tex. Drawing
+        // happens even when the menu is closed so toast messages
+        // (e.g. from quick save/load hotkeys) still appear.
+        glBindFramebuffer(GL_FRAMEBUFFER, primTgt.glFbo);
+        if (android::sDrmGlRotation) {
+            glViewport(0, 0, (GLsizei)primTgt.w, (GLsizei)primTgt.h);
+        } else {
+            glViewport(0, 0, dpy->width, dpy->height);
+        }
+        gfx.beginFrame();
+        overlay.draw(gfx);
+        gfx.endFrame();
 
         if (tripleBuffer) {
             // Unbind before fence-create so the kick point is
@@ -810,14 +740,24 @@ void runLoop(Display* dpy, DrasticRunner* dr) {
         android::drmDrainPageFlipEvents();
     }
 
-    for (int fd : input.fds) close(fd);
-    if (input.touchFd >= 0) close(input.touchFd);
+    overlay.close();
+    gfx.shutdown();
+    android::drastic_input::closeInputDevices(&input);
+    return result;
 }
 
 }  // namespace
 
 int main(int argc, char** argv) {
     setpriority(PRIO_PROCESS, 0, ANDROID_PRIORITY_DISPLAY);
+    // Silence process-wide ALOGD. PlayerBase.cpp in libaudioclient
+    // leaves LOG_TAG undefined, so its stop/setVolume/setPan debug
+    // lines land with tag=getprogname()=drastic-nano and spam logcat
+    // many times per second once drastic's OpenSL audio pipeline is
+    // running. Our own binary never emits ALOGD, so raising the
+    // threshold to INFO kills the spam without losing anything we
+    // care about.
+    __android_log_set_minimum_priority(ANDROID_LOG_INFO);
     // Install early so any crash inside Drastic's native code or our
     // own init path still unblocks SurfaceFlinger / gammaos-nano.
     installCrashHandler();
@@ -955,19 +895,42 @@ int main(int argc, char** argv) {
         return 6;
     }
 
+    // Read the user's drastic SharedPreferences so the overlay menu
+    // starts with the right values and applyConfig uses the user's
+    // real video settings (shader, hi-res, threaded 3d, edge marking,
+    // etc.). Failure is non-fatal: we fall back to defaults.
+    const std::string prefsPath = std::string(
+            "/data/user/0/com.dsemu.drastic/shared_prefs/"
+            "_Dra$t1c_Pref$_.xml");
+    android::drastic_prefs::Prefs prefs;
+    android::drastic_prefs::readPrefs(prefsPath, &prefs);
+    long userBits = android::drastic_prefs::applyConfigBitsFrom(prefs);
+    const std::string savestatesDir = std::string(kDrasticDataDir) +
+                                       "/savestates";
+    const std::string shadersDir    = std::string(kDrasticDataDir) +
+                                       "/shaders";
+
     DrasticRunner dr;
     // cacheDir = drastic's installed files dir so every open / write
     // lands on the real files. libsDir points at the APK's
     // nativeLibraryDir so we get the unpatched libdrastic (real
     // audio). soundEnabled sets the _SoundEnabled config bit.
+    // configBitsOverride threads the user's XML settings through.
     if (!dr.init(kDrasticDataDir, romPath, libsDir,
-                 /*soundEnabled=*/true)) {
+                 /*soundEnabled=*/prefs.soundEnabled,
+                 /*configBitsOverride=*/userBits,
+                 /*autosaveIntervalSeconds=*/0,
+                 /*initialShader=*/prefs.currentFx)) {
         ALOGE("drastic-nano: DrasticRunner::init failed");
         property_set(kSessionDoneProp, "1");
         return 7;
     }
+    // Push the user's stored volume (0..10) into the live mixer.
+    dr.setVolumeRuntime(prefs.volume * 10);
 
-    runLoop(&dpy, &dr);
+    RunLoopResult rlr = runLoop(&dpy, &dr, prefs, appUid, appGid,
+                                prefsPath, savestatesDir, romPath,
+                                shadersDir);
 
     // DrasticRunner destructor -> shutdown() -> pauseSystem +
     // quitSystem. That writes drastic's autosave + any dirty config
@@ -1000,6 +963,17 @@ int main(int argc, char** argv) {
         close(android::sDrmFd);
         android::sDrmFd = -1;
         android::sDrmActive = false;
+    }
+
+    // When the overlay asked for a relaunch (a restart-required
+    // setting changed), set the auto_relaunch prop so gammaos-nano
+    // (XMB) re-kicks drastic-nano.start instead of returning to the
+    // menu. If the XMB doesn't honor that prop yet, the worst case is
+    // a normal return-to-XMB -- the user can relaunch manually and
+    // the new XML settings will take effect.
+    if (rlr.relaunchRequested) {
+        property_set("sys.gammaos.drastic_nano.auto_relaunch", "1");
+        ALOGI("drastic-nano: requesting auto-relaunch");
     }
 
     // SF was never stopped, so only the session_done trigger is

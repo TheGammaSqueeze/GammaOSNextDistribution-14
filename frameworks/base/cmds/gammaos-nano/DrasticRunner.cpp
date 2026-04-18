@@ -255,13 +255,20 @@ static void maybeStartThreadTracer() {
 bool DrasticRunner::init(const std::string& cacheDir,
                          const std::string& romPath,
                          const std::string& libsDir,
-                         bool soundEnabled) {
+                         bool soundEnabled,
+                         long configBitsOverride,
+                         int autosaveIntervalSeconds,
+                         const std::string& initialShader) {
     maybeStartThreadTracer();
     mCacheDir = cacheDir;
+    mInitialShader = initialShader.empty() ? std::string("Linear")
+                                           : initialShader;
     const std::string& effectiveLibs = libsDir.empty() ? cacheDir : libsDir;
-    ALOGI("DrasticRunner: init cacheDir=%s libsDir=%s rom=%s sound=%d",
+    ALOGI("DrasticRunner: init cacheDir=%s libsDir=%s rom=%s sound=%d "
+          "cfgOverride=0x%lx autosave=%ds shader=%s",
           cacheDir.c_str(), effectiveLibs.c_str(), romPath.c_str(),
-          soundEnabled ? 1 : 0);
+          soundEnabled ? 1 : 0, configBitsOverride,
+          autosaveIntervalSeconds, mInitialShader.c_str());
 
     // ---- Phase 1: dlopen the libraries ----
     std::string cpuPath = effectiveLibs + "/libdrastic_cpu.so";
@@ -313,6 +320,7 @@ bool DrasticRunner::init(const std::string& cacheDir,
         Dl_info info{};
         if (onLoadPtr && dladdr(onLoadPtr, &info) && info.dli_fbase) {
             base = reinterpret_cast<uint8_t*>(info.dli_fbase);
+            mArm64Base = base;
         } else {
             ALOGW("DrasticRunner: dladdr(JNI_OnLoad) failed, skip "
                   "longjmp patches");
@@ -401,9 +409,19 @@ bool DrasticRunner::init(const std::string& cacheDir,
     loadSym(mSetFirmwareUserdata, "Java_com_dsemu_drastic_DraSticJNI_setFirmwareUserdata");
     loadSym(mSetAutosaveInterval, "Java_com_dsemu_drastic_DraSticJNI_setAutosaveInterval");
     loadSym(mSetAudioVolume,      "Java_com_dsemu_drastic_DraSticJNI_setAudioVolume");
+    // Runtime control hooks used by the overlay menu. All optional --
+    // missing symbols just disable the corresponding UI action.
+    loadSym(mSaveState, "Java_com_dsemu_drastic_DraSticJNI_saveState");
+    loadSym(mLoadState, "Java_com_dsemu_drastic_DraSticJNI_loadState");
+    loadSym(mResetDS,   "Java_com_dsemu_drastic_DraSticJNI_resetDS");
     loadSym(mFxLoad,                "Java_com_dsemu_drastic_DraSticJNI_fxLoad"); // optional
     if (!loadSym(mFxSetup,          "Java_com_dsemu_drastic_DraSticJNI_fxSetup")) return false;
     if (!loadSym(mRenderFrame,      "Java_com_dsemu_drastic_DraSticJNI_renderFrame")) return false;
+    // Optional -- when present, renderDsToOffscreen prefers fxRender
+    // over renderFrame for the per-frame render pass, which is what
+    // actually invokes the loaded .dfx shader (renderFrame never
+    // calls glUseProgram so shaders are invisible on that path).
+    loadSym(mFxRender,              "Java_com_dsemu_drastic_DraSticJNI_fxRender");
     if (!loadSym(mSignalScreen,     "Java_com_dsemu_drastic_DraSticJNI_signalScreen")) return false;
     if (!loadSym(mWaitScreen,       "Java_com_dsemu_drastic_DraSticJNI_waitScreen")) return false;
     if (!loadSym(mUpdateFrame,      "Java_com_dsemu_drastic_DraSticJNI_updateFrame")) return false;
@@ -461,13 +479,21 @@ bool DrasticRunner::init(const std::string& cacheDir,
     // slCreateEngine, so the per-frame mixer must also be disabled or
     // it dereferences NULL engine pointers). Set when running the
     // unpatched library so the real audio path comes up.
-    long configBits = kDefaultConfigBits;
+    //
+    // When the caller supplies configBitsOverride (non-zero), that
+    // replaces the compiled-in kDefaultConfigBits -- drastic-nano
+    // passes user-XML-derived bits this way. soundEnabled still forces
+    // bit 31 regardless of the override.
+    long configBits = (configBitsOverride != 0) ? configBitsOverride
+                                                : kDefaultConfigBits;
     if (soundEnabled) {
         configBits |= 0x80000000L;
     }
-    ALOGI("DrasticRunner: calling applyConfig(0x%lx) sound=%d",
-          configBits, soundEnabled ? 1 : 0);
+    ALOGI("DrasticRunner: calling applyConfig(0x%lx) sound=%d (override=%s)",
+          configBits, soundEnabled ? 1 : 0,
+          configBitsOverride != 0 ? "yes" : "no");
     mApplyConfig(env, fakeCls, configBits);
+    mBaseConfigBits = configBits;
     ALOGI("DrasticRunner: applyConfig returned");
 
     // ---- Phase 6: startGame on a dedicated thread ----
@@ -515,8 +541,9 @@ bool DrasticRunner::init(const std::string& cacheDir,
         }
     }
     if (mSetAutosaveInterval) {
-        ALOGI("DrasticRunner: setAutosaveInterval(0)");
-        mSetAutosaveInterval(env, fakeCls, 0);
+        ALOGI("DrasticRunner: setAutosaveInterval(%d)",
+              autosaveIntervalSeconds);
+        mSetAutosaveInterval(env, fakeCls, autosaveIntervalSeconds);
     }
 
     // Phase 5 v10 fix: call fxSetup BEFORE spawning the startGame
@@ -885,10 +912,11 @@ static const char* kDrasticVs =
     "attribute vec2 aPos;\n"
     "attribute vec2 aUv;\n"
     "uniform mat2 uRotation;\n"
+    "uniform vec4 uUvRect;\n" // xy = uv origin, zw = uv size
     "varying vec2 vUv;\n"
     "void main() {\n"
     "  gl_Position = vec4(uRotation * aPos, 0.0, 1.0);\n"
-    "  vUv = aUv;\n"
+    "  vUv = uUvRect.xy + aUv * uUvRect.zw;\n"
     "}\n";
 
 static const char* kDrasticFs =
@@ -976,6 +1004,7 @@ void DrasticRunner::initSurface(int viewportW, int viewportH,
     mQuadSatLoc      = glGetUniformLocation(mQuadProgram, "uSaturation");
     mQuadGradLoc     = glGetUniformLocation(mQuadProgram, "uGradient");
     mQuadRotLoc      = glGetUniformLocation(mQuadProgram, "uRotation");
+    mQuadUvRectLoc   = glGetUniformLocation(mQuadProgram, "uUvRect");
 
     auto setupTex = [](unsigned int tex, int w, int h) {
         glBindTexture(GL_TEXTURE_2D, tex);
@@ -1059,6 +1088,82 @@ void DrasticRunner::initSurface(int viewportW, int viewportH,
         glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
 
+    // Build the VBO that fxRender's pass runner uses for vertex
+    // attribs. drastic's pass runner at libdrastic+0x20690 issues:
+    //   glVertexAttribPointer(pos_attr, 2, GL_FLOAT, 0, 0, pos_ptr)
+    //   glVertexAttribPointer(uv_attr,  2, GL_FLOAT, 0, 0, uv_ptr)
+    //   glDrawArrays(GL_TRIANGLES, first, 6)
+    // Mode is GL_TRIANGLES (w0=0x4 at libdrastic+0x20874), NOT
+    // GL_TRIANGLE_STRIP. 6 verts = 2 independent triangles per quad.
+    //
+    // pos_ptr and uv_ptr are the 2nd/3rd args we pass to fxLoad; they
+    // land at fx_ctx+1128 and fx_ctx+1136. With a VBO bound, GL treats
+    // them as byte offsets into the VBO rather than host addresses.
+    //
+    // fxRender issues TWO pass runner calls per frame; for multi-pass
+    // shaders (LCD3x, scanline) each call runs the whole pass list.
+    // The runner picks the 'first' arg of glDrawArrays based on
+    // whether the current pass is the final pass or an intermediate:
+    //   final pass    -> first=arg2 of pass runner ("frame arg": 0 or 6)
+    //   intermediate  -> first=arg3 of pass runner (18 in both calls)
+    // So our VBO must populate verts 0..5 (final top), 6..11 (final
+    // bot) and 18..23 (intermediate passes). See libdrastic+0x2087c
+    // (csel w1, w19, w20, eq) for the selection logic.
+    //
+    // Final-pass viewport is glViewport(fx_ctx+1156..1168) which
+    // fxSetup populated as (0, 0, mOffscreenW, mOffscreenH). We render
+    // the top DS screen at NDC y in [-1, 0] so it lands at framebuffer
+    // pixel y in [0, 480] of the 640x960 mOffscreenFbo; bot DS goes at
+    // NDC y in [0, +1] landing at pixel y in [480, 960]. drawDsQuad's
+    // UV-flipped sampling in renderTopScreen (v=[0, 0.5]) then reads
+    // pixel y=[0, 480] and puts it on the physical top display.
+    // Intermediate passes draw a full-NDC quad (their viewport is
+    // pass.viewW/H from the .dfx file).
+    //
+    // For GL_TRIANGLES a quad is 2 separate triangles:
+    //   Triangle 1: BL, BR, TL (verts 0, 1, 2)
+    //   Triangle 2: TL, BR, TR (verts 3, 4, 5)
+    glGenBuffers(1, &mFxVbo);
+    {
+        // 24 vec2 positions (192 bytes) then 24 vec2 UVs (192 bytes).
+        const float fxVerts[96] = {
+            // TOP DS quad (verts 0..5), NDC y in [-1, 0].
+            // T1: BL, BR, TL.  T2: TL, BR, TR.
+            -1.0f, -1.0f,   +1.0f, -1.0f,   -1.0f,  0.0f,
+            -1.0f,  0.0f,   +1.0f, -1.0f,   +1.0f,  0.0f,
+            // BOT DS quad (verts 6..11), NDC y in [0, +1].
+            -1.0f,  0.0f,   +1.0f,  0.0f,   -1.0f, +1.0f,
+            -1.0f, +1.0f,   +1.0f,  0.0f,   +1.0f, +1.0f,
+            // Verts 12..17: unused by the pass runner's draw calls
+            // (no 'first=12' ever selected). Set to degenerate TR so
+            // a stray fetch doesn't cause pathological coords.
+            +1.0f, +1.0f,   +1.0f, +1.0f,   +1.0f, +1.0f,
+            +1.0f, +1.0f,   +1.0f, +1.0f,   +1.0f, +1.0f,
+            // Verts 18..23: intermediate passes (multi-pass shaders).
+            // Full-NDC quad; the pass sets its own viewport.
+            -1.0f, -1.0f,   +1.0f, -1.0f,   -1.0f, +1.0f,
+            -1.0f, +1.0f,   +1.0f, -1.0f,   +1.0f, +1.0f,
+            // UVs for TOP quad (verts 0..5). BL->(0,0) samples pixel
+            // y=0 which has the DS top row (textures are uploaded
+            // top-down so pixel y=0 = DS top row).
+            0.0f, 0.0f,   1.0f, 0.0f,   0.0f, 1.0f,
+            0.0f, 1.0f,   1.0f, 0.0f,   1.0f, 1.0f,
+            // UVs for BOT quad (verts 6..11).
+            0.0f, 0.0f,   1.0f, 0.0f,   0.0f, 1.0f,
+            0.0f, 1.0f,   1.0f, 0.0f,   1.0f, 1.0f,
+            // UVs for unused verts 12..17.
+            1.0f, 1.0f,   1.0f, 1.0f,   1.0f, 1.0f,
+            1.0f, 1.0f,   1.0f, 1.0f,   1.0f, 1.0f,
+            // UVs for intermediate verts 18..23 (full texture).
+            0.0f, 0.0f,   1.0f, 0.0f,   0.0f, 1.0f,
+            0.0f, 1.0f,   1.0f, 0.0f,   1.0f, 1.0f,
+        };
+        glBindBuffer(GL_ARRAY_BUFFER, mFxVbo);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(fxVerts), fxVerts,
+                     GL_STATIC_DRAW);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+    }
+
     // Call fxSetup LAST so drastic's GL state (program, vertex
     // attribs, texture bindings) is the active state when
     // renderFrame runs. renderFrame does NOT call glUseProgram or
@@ -1071,44 +1176,76 @@ void DrasticRunner::initSurface(int viewportW, int viewportH,
         // {cacheRoot}/system/shaders/Linear.dfx.
         if (mFxLoad) {
             // fxLoad takes an absolute filesystem path to the .dfx
-            // shader file. The real app builds this from SYS_PREFIX
-            // ("/data/user/0/com.dsemu.drastic/files/DraStic/") +
-            // "shaders/Linear.dfx". The nano_cache layout has an
-            // extra "system/" segment because populate_drastic
-            // copies BIOS-style files under <cacheDir>/system/. Try
-            // the drastic-app layout first; if that shader file is
-            // missing, fall back to the nano_cache layout.
-            std::string sp = mCacheDir + "/shaders/Linear.dfx";
-            if (access(sp.c_str(), R_OK) != 0) {
-                sp = mCacheDir + "/system/shaders/Linear.dfx";
+            // shader file. Name is taken from mInitialShader which
+            // drastic-nano populates from the user's _CurrentFx pref
+            // (gammaos-nano passes empty -> defaults to "Linear").
+            // Try the drastic-app layout first; if the file is
+            // missing, fall back to the nano_cache layout, and
+            // finally fall back to Linear.dfx if the requested
+            // shader isn't installed at all.
+            auto tryPath = [&](const std::string& name) -> std::string {
+                std::string a = mCacheDir + "/shaders/" + name + ".dfx";
+                if (access(a.c_str(), R_OK) == 0) return a;
+                std::string b = mCacheDir + "/system/shaders/" + name + ".dfx";
+                if (access(b.c_str(), R_OK) == 0) return b;
+                return std::string();
+            };
+            std::string sp = tryPath(mInitialShader);
+            if (sp.empty()) {
+                ALOGW("DrasticRunner::initSurface: shader '%s' not "
+                      "found, falling back to Linear",
+                      mInitialShader.c_str());
+                sp = tryPath("Linear");
             }
-            jstring shaderJStr =
-                    ((JNIEnv*)mFakeEnv)->NewStringUTF(sp.c_str());
-            int rc = mFxLoad(mFakeEnv, mFakeCls,
-                             (void*)shaderJStr, 0, 0x8A0);
-            ALOGI("DrasticRunner::initSurface: fxLoad(\"%s\") = %d",
-                  sp.c_str(), rc);
+            if (sp.empty()) {
+                ALOGE("DrasticRunner::initSurface: no .dfx shader "
+                      "found under %s/shaders or %s/system/shaders",
+                      mCacheDir.c_str(), mCacheDir.c_str());
+            } else {
+                jstring shaderJStr =
+                        ((JNIEnv*)mFakeEnv)->NewStringUTF(sp.c_str());
+                // Pass pos_ptr=0, uv_ptr=192 as byte offsets into
+                // mFxVbo (bound before each fxRender call). Stock
+                // drastic passes (0, 0x8A0) which are offsets into
+                // its own pre-built VBO; since we build our own VBO
+                // we pick our own layout. Positions are 24 vec2 at
+                // offset 0 (= 192 bytes), UVs are 24 vec2 at offset
+                // 192 (= 192 bytes). Total VBO = 384 bytes.
+                int rc = mFxLoad(mFakeEnv, mFakeCls,
+                                 (void*)shaderJStr, 0, 192);
+                ALOGI("DrasticRunner::initSurface: fxLoad(\"%s\") = %d",
+                      sp.c_str(), rc);
+            }
         }
         // fxSetup args from smali (DraSticGlView$j onSurfaceChanged):
         //   arg1/2 = DS texture resolution (256x192 or 512x384 with hires)
         //   arg3/4 = 0, 0
         //   arg5/6 = surface/viewport width, height
-        // With _Hires3D: texW=512, texH=384.
-        int texW = 512, texH = 384; // _Hires3D enabled
+        // With _Hires3D: texW=512, texH=384. Always preallocate at
+        // 512x384 so a runtime hi-res toggle (via setShaderRuntime)
+        // never requires texture realloc.
+        int texW = 512, texH = 384; // _Hires3D-compatible
+        mFxTexW = texW;
+        mFxTexH = texH;
         ALOGI("DrasticRunner::initSurface: fxSetup(%d, %d, 0, 0, %d, %d) "
               "[called LAST, after all our GL setup]",
               texW, texH, mOffscreenW, mOffscreenH);
         mFxSetup(mFakeEnv, mFakeCls,
                  texW, texH, 0, 0,
                  mOffscreenW, mOffscreenH);
-        // Capture drastic's program ID immediately after fxSetup
-        // while it's still the active program. Needed for rebinding
-        // in renderDsToOffscreen on subsequent frames.
-        GLint prog = 0;
-        glGetIntegerv(GL_CURRENT_PROGRAM, &prog);
-        mDrasticGlProgram = (unsigned int)prog;
-        ALOGI("DrasticRunner::initSurface: drastic GL program = %u",
-              mDrasticGlProgram);
+        // fxRender does NOT respect an externally-bound FBO — it
+        // binds each pass's own pass.fbo on entry. For stock .dfx
+        // files the final pass.fbo is 0 (= EGL surface), so shader
+        // output bypasses mOffscreenFbo. Redirect the final pass to
+        // our FBO so renderTop/Bottom/Both can sample halves from
+        // mOffscreenTex. See DrasticRunner::patchFinalPassFbo.
+        patchFinalPassFbo();
+        // mDrasticGlProgram is no longer used on the fxRender path -
+        // fxRender itself binds the right pass program internally
+        // (confirmed by drastic-android-mod disasm 2026-04-17). For
+        // the legacy renderFrame fallback we also leave it at 0; that
+        // path relies on whatever default state fxSetup leaves behind.
+        mDrasticGlProgram = 0;
     } else if (mFxSetup) {
         // Legacy path: fxSetup for getScreenBuffers. Order doesn't
         // matter since getScreenBuffers doesn't use GL state.
@@ -1126,8 +1263,188 @@ void DrasticRunner::initSurface(int viewportW, int viewportH,
           mUseRenderFrame ? 1 : 0, dualDisplay ? 1 : 0);
 }
 
+void DrasticRunner::patchFinalPassFbo() {
+    if (!mArm64Base) {
+        ALOGW("DrasticRunner::patchFinalPassFbo: no base address, skip");
+        return;
+    }
+    if (mOffscreenFbo == 0) {
+        ALOGW("DrasticRunner::patchFinalPassFbo: no offscreen FBO, skip");
+        return;
+    }
+
+    // fx_ctx struct layout (verified via local objdump of
+    // libdrastic_arm64.so at 0x1d1f8..0x1d2f4):
+    //   0x1d208:  adrp x24, 3f2d000        ; page
+    //   0x1d210:  add  x24, x24, #0x1f8    ; x24 = 0x3f2d1f8
+    //   0x1d2e8:  add  x0,  x24, #0x10     ; x0  = 0x3f2d208  <-- fx_ctx
+    //   0x1d2f4:  bl   20690               ; pass processor(x0=fx_ctx)
+    // and at the pass-loop (0x20690):
+    //   0x206e0:  ldp  x26, x28, [x21]     ; x26=head, x28=tail
+    //   0x20888:  ldr  x26, [x26, #368]    ; next pointer at +368
+    //   0x20898:  ldr  w1,  [x26, #344]    ; fbo at +344
+    //
+    // fx_ctx sits inside BSS (VirtAddr 0x14c000, MemSize 65 MB). The
+    // offset 0x3f2d208 is the ELF virtual address; at runtime it maps
+    // to mArm64Base + 0x3f2d208 because the library's first LOAD segment
+    // is at VirtAddr 0 (confirmed via readelf -l).
+    //
+    // pass struct:
+    //   offset +0:   uint32_t program   (GL shader program id)
+    //   offset +344: uint32_t fbo       (target FBO for this pass)
+    //   offset +368: fx_pass* next      (NULL at tail)
+    static constexpr uintptr_t kFxCtxOff     = 0x3f2d208;
+    static constexpr uintptr_t kPassFboOff   = 344;
+    static constexpr uintptr_t kPassNextOff  = 368;
+
+    struct FxCtxHead {
+        void* head;
+        void* tail;
+    };
+    FxCtxHead* ctx = reinterpret_cast<FxCtxHead*>(mArm64Base + kFxCtxOff);
+
+    uint8_t* p = reinterpret_cast<uint8_t*>(ctx->head);
+    uint8_t* last = nullptr;
+    int count = 0;
+    // Cap the walk so a corrupted next pointer cannot loop forever.
+    // Stock .dfx files have 1..2 passes; 64 is many orders of magnitude
+    // above anything real.
+    while (p && count < 64) {
+        last = p;
+        p = *reinterpret_cast<uint8_t**>(p + kPassNextOff);
+        count++;
+    }
+
+    if (!last) {
+        ALOGW("DrasticRunner::patchFinalPassFbo: empty pass list "
+              "(ctx=%p head=%p)", ctx, ctx->head);
+        return;
+    }
+
+    uint32_t oldFbo = *reinterpret_cast<uint32_t*>(last + kPassFboOff);
+    *reinterpret_cast<uint32_t*>(last + kPassFboOff) = mOffscreenFbo;
+
+    uint32_t program    = *reinterpret_cast<uint32_t*>(last + 0);
+    uint32_t posAttrib  = *reinterpret_cast<uint32_t*>(last + 4);
+    uint32_t uvAttrib   = *reinterpret_cast<uint32_t*>(last + 8);
+    uint32_t resUnif    = *reinterpret_cast<uint32_t*>(last + 16);
+    uint32_t sclUnif    = *reinterpret_cast<uint32_t*>(last + 20);
+    uint32_t samp0Unit  = *reinterpret_cast<uint32_t*>(last + 56);
+    uint32_t samp0Idx   = *reinterpret_cast<uint32_t*>(last + 60);
+    uint32_t samp1Unit  = *reinterpret_cast<uint32_t*>(last + 96);
+    uint32_t samp1Idx   = *reinterpret_cast<uint32_t*>(last + 100);
+    uint32_t outW       = *reinterpret_cast<uint32_t*>(last + 348);
+    uint32_t outH       = *reinterpret_cast<uint32_t*>(last + 352);
+    uint32_t samplerCnt = *reinterpret_cast<uint32_t*>(last + 364);
+
+    ALOGI("DrasticRunner::patchFinalPassFbo: walked %d pass(es), "
+          "final pass.fbo %u -> %u (offscreenFbo)",
+          count, oldFbo, mOffscreenFbo);
+    ALOGI("DrasticRunner::patchFinalPassFbo: pass fields "
+          "program=%u posAttrib=%u uvAttrib=%u resUnif=%u sclUnif=%u "
+          "outW=%u outH=%u samplerCount=%u",
+          program, posAttrib, uvAttrib, resUnif, sclUnif,
+          outW, outH, samplerCnt);
+    ALOGI("DrasticRunner::patchFinalPassFbo: sampler[0] unit=0x%x idx=%u  "
+          "sampler[1] unit=0x%x idx=%u",
+          samp0Unit, samp0Idx, samp1Unit, samp1Idx);
+
+    // MITIGATION (2026-04-18): fxRender's per-pass sampler iteration at
+    // 0x20974 calls glActiveTexture(sampler[i].unit_enum). If sampler[i]
+    // was left with unit_enum == 0 by fxLoad's parser, Mali logs
+    // `gles_texturep_active_texture: <texture> is not an accepted value`
+    // (GL_INVALID_ENUM) every frame and the shader draws with whatever
+    // TEXTURE0 was last bound to (usually our red-canary offscreen FBO
+    // color texture, hence the red/black triangle fragments seen in VOP
+    // dumps). Normalize any sampler whose unit_enum is outside
+    // [GL_TEXTURE0, GL_TEXTURE0+7] to GL_TEXTURE0 + samplerIndex so the
+    // shader gets a valid active unit. Leaves valid values untouched.
+    for (uint32_t i = 0; i < samplerCnt && i < 8; ++i) {
+        uint32_t* unitP = reinterpret_cast<uint32_t*>(last + 56 + 40 * i);
+        if (*unitP < 0x84C0 || *unitP > 0x84C7) {
+            ALOGW("DrasticRunner::patchFinalPassFbo: sampler[%u].unit_enum "
+                  "= 0x%x (invalid) -> forcing to GL_TEXTURE%u (0x%x)",
+                  i, *unitP, i, 0x84C0 + i);
+            *unitP = 0x84C0 + i;
+        }
+    }
+}
+
+void DrasticRunner::dumpFxCtxState(const char* when) {
+    if (!mArm64Base) {
+        ALOGI("DrasticRunner::dumpFxCtxState[%s]: no base, skip", when);
+        return;
+    }
+    static constexpr uintptr_t kFxCtxOff    = 0x3f2d208;
+    static constexpr uintptr_t kPassFboOff  = 344;
+    static constexpr uintptr_t kPassNextOff = 368;
+    static constexpr uintptr_t kPassSampCnt = 364;
+
+    uint8_t* base = reinterpret_cast<uint8_t*>(mArm64Base + kFxCtxOff);
+    void* head = *reinterpret_cast<void**>(base + 0);
+    void* tail = *reinterpret_cast<void**>(base + 8);
+    uint32_t count480 = *reinterpret_cast<uint32_t*>(base + 0x480);
+    void* f438 = *reinterpret_cast<void**>(base + 0x438);
+    void* f448 = *reinterpret_cast<void**>(base + 0x448);
+    void* f458 = *reinterpret_cast<void**>(base + 0x458);
+    ALOGI("DrasticRunner::dumpFxCtxState[%s]: ctx=%p head=%p tail=%p "
+          "count480=%u f438=%p f448=%p f458=%p",
+          when, (void*)base, head, tail, count480, f438, f448, f458);
+
+    uint8_t* p = reinterpret_cast<uint8_t*>(head);
+    int i = 0;
+    while (p && i < 32) {
+        uint32_t program    = *reinterpret_cast<uint32_t*>(p + 0);
+        uint32_t fbo        = *reinterpret_cast<uint32_t*>(p + kPassFboOff);
+        uint32_t samplerCnt = *reinterpret_cast<uint32_t*>(p + kPassSampCnt);
+        void*    next       = *reinterpret_cast<void**>(p + kPassNextOff);
+        ALOGI("  pass[%d] @%p program=%u fbo=%u samplerCnt=%u next=%p",
+              i, (void*)p, program, fbo, samplerCnt, next);
+        p = reinterpret_cast<uint8_t*>(next);
+        ++i;
+    }
+    if (p) {
+        ALOGW("  pass list walk capped at 32 -- possible cycle");
+    }
+}
+
+void DrasticRunner::unpatchFinalPassFbo() {
+    if (!mArm64Base) return;
+
+    static constexpr uintptr_t kFxCtxOff     = 0x3f2d208;
+    static constexpr uintptr_t kPassFboOff   = 344;
+    static constexpr uintptr_t kPassNextOff  = 368;
+
+    struct FxCtxHead {
+        void* head;
+        void* tail;
+    };
+    FxCtxHead* ctx = reinterpret_cast<FxCtxHead*>(mArm64Base + kFxCtxOff);
+
+    uint8_t* p = reinterpret_cast<uint8_t*>(ctx->head);
+    uint8_t* last = nullptr;
+    int count = 0;
+    while (p && count < 64) {
+        last = p;
+        p = *reinterpret_cast<uint8_t**>(p + kPassNextOff);
+        count++;
+    }
+    if (!last) return;
+
+    uint32_t* fboP = reinterpret_cast<uint32_t*>(last + kPassFboOff);
+    uint32_t old = *fboP;
+    *fboP = 0;
+    ALOGI("DrasticRunner::unpatchFinalPassFbo: final pass.fbo %u -> 0 "
+          "(walked %d pass(es))",
+          old, count);
+}
+
 void DrasticRunner::renderDsToOffscreen() {
-    if (!mSurfaceReady || !mUseRenderFrame || !mRenderFrame) return;
+    if (!mSurfaceReady || !mUseRenderFrame) return;
+    // Need at least one of the two per-frame render entry points.
+    // fxRender is preferred (actually invokes the loaded shader);
+    // renderFrame is a fallback for builds that don't export fxRender.
+    if (!mFxRender && !mRenderFrame) return;
 
     // Stop the pixel-pull thread on the first renderFrame call.
     // We take over frame consumption via waitScreen + renderFrame.
@@ -1193,11 +1510,60 @@ void DrasticRunner::renderDsToOffscreen() {
     // frames.
     if (mOffscreenFbo != 0) {
         glBindFramebuffer(GL_FRAMEBUFFER, mOffscreenFbo);
+        // DEBUG canary: clear to red on entry. With patchFinalPassFbo
+        // in place, fxRender's final pass should overwrite this with
+        // the shaded DS frame, so the displays show the game. If any
+        // red is visible, the pass.fbo patch did not take (walk found
+        // no pass list, or the struct offsets shifted) and fxRender
+        // wrote to FBO 0 (the EGL surface) instead.
+        glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
     }
-    if (mDrasticGlProgram != 0) {
-        glUseProgram(mDrasticGlProgram);
+    if (mFxRender) {
+        // fxRender is the shader-enabled render path — renderFrame
+        // never issues glUseProgram, so the loaded .dfx shader is
+        // invisible on the renderFrame path. Stock drastic
+        // (DraSticGlView$j cond_11) calls fxRender ONCE per frame
+        // passing BOTH screen textures and a single output rect; the
+        // shader pipeline internally lays them out stacked. Args
+        // 3/4/5 are fixed constants drastic uses for source-rect
+        // metadata (NOT runtime geometry). We reproduce that exact
+        // call shape here so the .dfx pass list composites top + bot
+        // into the offscreen FBO in one pass.
+        glViewport(0, 0, mOffscreenW, mOffscreenH);
+        // Bind our VBO so the pass runner's glVertexAttribPointer
+        // reads from buffer-object memory (byte offsets 0 / 96) rather
+        // than treating our pos_ptr/uv_ptr as host addresses. Without
+        // this, glDrawArrays fetches vertex data from host memory at
+        // virtual address 0 (= segfault protection returns garbage
+        // zeros) and host addr 96 (= wherever that maps today),
+        // producing random geometry that still happens to run through
+        // drastic's shader pipeline. The shader then samples the DS
+        // textures at garbage UVs, producing the "game colors with LCD
+        // grid overlay at random triangle positions" symptom.
+        glBindBuffer(GL_ARRAY_BUFFER, mFxVbo);
+        // Drain any prior errors first so the post-call check is clean.
+        while (glGetError() != GL_NO_ERROR) {}
+        mFxRender(mFakeEnv, mFakeCls,
+                  (int)mDsTopTex, (int)mDsBotTex,
+                  0, 6, 18,
+                  0, 0, mOffscreenW, mOffscreenH,
+                  0);
+        GLenum err = glGetError();
+        static bool sLoggedOnce = false;
+        if (!sLoggedOnce) {
+            sLoggedOnce = true;
+            ALOGW("DrasticRunner: post-fxRender glError=0x%x "
+                  "(offscreenFbo=%u, tex=%u/%u, rect=%dx%d)",
+                  err, mOffscreenFbo, mDsTopTex, mDsBotTex,
+                  mOffscreenW, mOffscreenH);
+        }
+    } else {
+        // Fallback: renderFrame (no shader). Left here in case the
+        // fxRender symbol goes missing in a future libdrastic build.
+        mRenderFrame(mFakeEnv, mFakeCls, (int)mDsTopTex,
+                     (int)mDsBotTex, 0);
     }
-    mRenderFrame(mFakeEnv, mFakeCls, (int)mDsTopTex, (int)mDsBotTex, 0);
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
@@ -1220,12 +1586,10 @@ void DrasticRunner::updatePixels() {
 void DrasticRunner::drawDsQuad(unsigned int tex, float vMin, float vMax,
                                 float saturation, float gradient) {
     if (!mSurfaceReady) return;
-    // The vertex buffer was uploaded once at init with constant
-    // -1..+1 NDC verts and 0..1 UVs. The vMin/vMax args were always
-    // 0/1 across every call site, so they're now ignored -- left
-    // in the signature for API stability with any out-of-tree caller.
-    (void)vMin;
-    (void)vMax;
+    // vMin/vMax are the UV Y range to sample from the source texture.
+    // Full texture = (0, 1). For the fxRender path we pass the
+    // shaded offscreen FBO (top + bot stacked) so renderTopScreen
+    // samples (0, 0.5) and renderBottomScreen samples (0.5, 1).
 
     glUseProgram(mQuadProgram);
     if (mQuadRotLoc >= 0)
@@ -1233,6 +1597,11 @@ void DrasticRunner::drawDsQuad(unsigned int tex, float vMin, float vMax,
     if (mQuadSatLoc >= 0) glUniform1f(mQuadSatLoc, saturation);
     if (mQuadGradLoc >= 0) glUniform1f(mQuadGradLoc, gradient);
     if (mQuadSamplerLoc >= 0) glUniform1i(mQuadSamplerLoc, 0);
+    if (mQuadUvRectLoc >= 0) {
+        glUniform4f(mQuadUvRectLoc,
+                    0.0f, vMin,         // uv origin
+                    1.0f, vMax - vMin); // uv scale
+    }
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, tex);
@@ -1258,11 +1627,18 @@ void DrasticRunner::drawDsQuad(unsigned int tex, float vMin, float vMax,
 
 void DrasticRunner::renderTopScreen(float saturation, float gradient) {
     if (mUseRenderFrame) {
-        // renderFrame uploaded DS data into mDsTopTex. Draw it
-        // directly with our blit shader (drastic's own draw into
-        // the offscreen FBO doesn't produce visible output -- the
-        // vertex data/draw calls fail silently for unknown reasons).
-        drawDsQuad(mDsTopTex, 0.0f, 1.0f, saturation, gradient);
+        if (mFxRender && mOffscreenTex != 0) {
+            // fxRender wrote the shader-composited top-on-top,
+            // bottom-on-bottom layout into mOffscreenTex. Top half
+            // is the DS top screen.
+            drawDsQuad(mOffscreenTex, 0.0f, 0.5f, saturation, gradient);
+        } else {
+            // renderFrame fallback (no shader): drastic's own draw
+            // into the offscreen FBO doesn't produce visible output,
+            // but its glTexSubImage2D uploads do land in mDsTopTex,
+            // so we can blit that directly.
+            drawDsQuad(mDsTopTex, 0.0f, 1.0f, saturation, gradient);
+        }
     } else {
         drawDsQuad(mTopTex, 0.0f, 1.0f, saturation, gradient);
     }
@@ -1270,7 +1646,11 @@ void DrasticRunner::renderTopScreen(float saturation, float gradient) {
 
 void DrasticRunner::renderBottomScreen(float saturation, float gradient) {
     if (mUseRenderFrame) {
-        drawDsQuad(mDsBotTex, 0.0f, 1.0f, saturation, gradient);
+        if (mFxRender && mOffscreenTex != 0) {
+            drawDsQuad(mOffscreenTex, 0.5f, 1.0f, saturation, gradient);
+        } else {
+            drawDsQuad(mDsBotTex, 0.0f, 1.0f, saturation, gradient);
+        }
     } else {
         drawDsQuad(mBotTex, 0.0f, 1.0f, saturation, gradient);
     }
@@ -1278,9 +1658,14 @@ void DrasticRunner::renderBottomScreen(float saturation, float gradient) {
 
 void DrasticRunner::renderBothScreens(float saturation, float gradient) {
     if (mUseRenderFrame) {
-        // Single display: draw top screen (bottom screen not shown).
-        // TODO: implement split-view for single display.
-        drawDsQuad(mDsTopTex, 0.0f, 1.0f, saturation, gradient);
+        if (mFxRender && mOffscreenTex != 0) {
+            // Single display: draw the whole composited FBO (top
+            // on the upper half + bottom on the lower half).
+            drawDsQuad(mOffscreenTex, 0.0f, 1.0f, saturation, gradient);
+        } else {
+            // renderFrame fallback: no composite -- only top is visible.
+            drawDsQuad(mDsTopTex, 0.0f, 1.0f, saturation, gradient);
+        }
     } else {
         drawDsQuad(mTopTex, 0.0f, 1.0f, saturation, gradient);
     }
@@ -1342,6 +1727,258 @@ void DrasticRunner::pauseDrastic() {
     // env, so either would work; prefer the cached pair for symmetry
     // with setInput.
     mPauseSystem(mFakeEnv, mFakeCls, 1);
+    mPaused = true;
+}
+
+void DrasticRunner::pauseToggle(bool pause) {
+    if (!mInitialized || !mPauseSystem) return;
+    if (pause == mPaused) return;
+    mPauseSystem(mFakeEnv, mFakeCls, pause ? 1 : 0);
+    mPaused = pause;
+    ALOGI("DrasticRunner::pauseToggle: paused=%d", pause ? 1 : 0);
+}
+
+bool DrasticRunner::saveStateSlot(int slot) {
+    if (!mInitialized || !mSaveState) {
+        ALOGW("DrasticRunner::saveStateSlot: not available "
+              "(initialized=%d, mSaveState=%p)",
+              mInitialized ? 1 : 0, (void*)mSaveState);
+        return false;
+    }
+    if (slot < 0 || slot > 8) {
+        ALOGW("DrasticRunner::saveStateSlot: refusing slot %d (valid 0..8)",
+              slot);
+        return false;
+    }
+    int rc = mSaveState(mFakeEnv, mFakeCls, slot);
+    ALOGI("DrasticRunner::saveStateSlot(%d) = %d", slot, rc);
+    return true;
+}
+
+bool DrasticRunner::loadStateSlot(int slot) {
+    if (!mInitialized || !mLoadState) {
+        ALOGW("DrasticRunner::loadStateSlot: not available "
+              "(initialized=%d, mLoadState=%p)",
+              mInitialized ? 1 : 0, (void*)mLoadState);
+        return false;
+    }
+    if (slot < 0 || slot > 8) {
+        ALOGW("DrasticRunner::loadStateSlot: refusing slot %d (valid 0..8)",
+              slot);
+        return false;
+    }
+    int rc = mLoadState(mFakeEnv, mFakeCls, slot);
+    ALOGI("DrasticRunner::loadStateSlot(%d) = %d", slot, rc);
+    return true;
+}
+
+void DrasticRunner::resetSystem() {
+    if (!mInitialized || !mResetDS) {
+        ALOGW("DrasticRunner::resetSystem: not available");
+        return;
+    }
+    ALOGI("DrasticRunner::resetSystem");
+    mResetDS(mFakeEnv, mFakeCls);
+}
+
+void DrasticRunner::setVolumeRuntime(int vol0to100) {
+    if (!mInitialized || !mSetAudioVolume) return;
+    if (vol0to100 < 0)   vol0to100 = 0;
+    if (vol0to100 > 100) vol0to100 = 100;
+    mSetAudioVolume(mFakeEnv, mFakeCls, vol0to100);
+}
+
+void DrasticRunner::setFastForward(bool on) {
+    if (!mInitialized || !mApplyConfig) return;
+    if (on == mFastForwardOn) return;
+    mFastForwardOn = on;
+    long bits = mBaseConfigBits;
+    if (on) bits |= 0x20000000L;   // V = fast-forward runtime toggle
+    mApplyConfig(mFakeEnv, mFakeCls, bits);
+    ALOGI("DrasticRunner::setFastForward: %s (applyConfig=0x%lx)",
+          on ? "ON" : "OFF", bits);
+}
+
+bool DrasticRunner::setShaderRuntime(const std::string& absDfxPath) {
+    if (!mSurfaceReady || !mFxLoad || !mFxSetup) {
+        ALOGW("DrasticRunner::setShaderRuntime: surface not ready or "
+              "fxLoad/fxSetup unavailable");
+        return false;
+    }
+    if (access(absDfxPath.c_str(), R_OK) != 0) {
+        ALOGW("DrasticRunner::setShaderRuntime: %s not readable",
+              absDfxPath.c_str());
+        return false;
+    }
+
+    // Re-entrance guard. The overlay menu runs on the same render
+    // thread so in principle two calls can't interleave, but the atomic
+    // is cheap insurance against future callers from any other thread
+    // (e.g. a Settings-driven swap). No time-based throttle anymore --
+    // the old scudo corruption that required it is fixed by the
+    // leak-don't-delete path below, so back-to-back swaps are safe.
+    bool expected = false;
+    if (!mShaderSwapInFlight.compare_exchange_strong(expected, true)) {
+        ALOGW("DrasticRunner::setShaderRuntime: already in flight, skip");
+        return false;
+    }
+    mLastShaderSwap = std::chrono::steady_clock::now();
+    mSwapCounter++;
+    ALOGI("DrasticRunner::setShaderRuntime[#%d]: \"%s\" begin",
+          mSwapCounter, absDfxPath.c_str());
+
+    // Pause drastic so the DS producer thread is not racing our GL
+    // state mutation. Restore the pause state afterwards; the overlay
+    // typically calls us while already paused, so this is normally a
+    // no-op.
+    bool wasPaused = mPaused;
+    if (!wasPaused && mPauseSystem) {
+        mPauseSystem(mFakeEnv, mFakeCls, 1);
+    }
+
+    // Drain the GPU pipeline before fxLoad tears down the current
+    // pass list. Without this, the driver may still be reading from
+    // intermediate pass FBOs / textures that fxLoad is about to
+    // glDeleteFramebuffers / glDeleteTextures and then free(), which
+    // leaves the driver's userspace bookkeeping inconsistent with
+    // scudo's view of those heap chunks. Empirically correlated with
+    // the "invalid chunk state" aborts seen without this finish.
+    glFinish();
+
+    jstring jp = ((JNIEnv*)mFakeEnv)->NewStringUTF(absDfxPath.c_str());
+    // Use the same pos_ptr/uv_ptr layout as init (bytes 0 and 192
+    // inside mFxVbo). Stock drastic passes (0, 0x8A0) referencing its
+    // internal pre-built VBO; we build our own VBO in initSurface so
+    // runtime shader swaps must keep the same layout or the pass
+    // runner's glVertexAttribPointer(uv_attr, ..., 0x8A0) reads past
+    // our 384-byte VBO and fetches garbage UVs each frame -- visible
+    // as a frozen/garbage output after changing shader.
+
+    // CRITICAL: fxLoad's internal teardown (bl 202b8 at +0x1ffc0) walks
+    // the old pass list and calls glDeleteFramebuffers on each pass's
+    // `fbo` field. Our patchFinalPassFbo() overwrote the final pass.fbo
+    // with mOffscreenFbo, so a naive second fxLoad would delete our
+    // offscreen FBO, leaving mOffscreenFbo as a stale GL name.
+    // Subsequent glBindFramebuffer(mOffscreenFbo) fails silently and
+    // the displays stop updating ("screen doesn't update when I change
+    // the shader"). Reset the final pass.fbo back to 0 first so fxLoad's
+    // teardown deletes a harmless zero.
+    unpatchFinalPassFbo();
+    dumpFxCtxState("pre-fxLoad");
+    GLboolean fbOk = glIsFramebuffer(mOffscreenFbo);
+    ALOGI("DrasticRunner::setShaderRuntime[#%d]: pre-fxLoad "
+          "mOffscreenFbo=%u glIsFramebuffer=%d",
+          mSwapCounter, mOffscreenFbo, (int)fbOk);
+
+    // WORKAROUND for scudo "invalid chunk state when deallocating"
+    // crash in fxLoad's internal teardown (bl 202b8 at +0x1ffc0).
+    // The teardown walks fx_ctx->head and frees per-pass sub-
+    // allocations -- empirically one of those pointers is stale or
+    // MTE-mismatched after 2..4 consecutive swaps, even with glFinish
+    // and a 500 ms throttle. The pass struct addresses are all valid
+    // scudo primary-pool chunks (0xb4...), but the scudo-reported
+    // bad-free address is in a different region (0x76...), i.e. a
+    // LARGE secondary allocation held by a pointer field inside a
+    // pass. We cannot identify that field from the public disassembly.
+    //
+    // Null out head/tail/count so fxLoad's internal teardown finds an
+    // empty list and returns immediately. The OLD GL programs and
+    // FBOs get glDeleted by us first (walking the saved head), and
+    // the pass structs themselves are intentionally leaked (~400 B
+    // each) -- we cannot safely free them because we do not know
+    // which internal fields to free first. At 400 B per swap this
+    // is a couple MB of leak even for obsessive users; well under
+    // the budget for a session.
+    static constexpr uintptr_t kFxCtxOff    = 0x3f2d208;
+    static constexpr uintptr_t kPassFboOff  = 344;
+    static constexpr uintptr_t kPassNextOff = 368;
+    uint8_t* fxCtxBase = mArm64Base
+        ? reinterpret_cast<uint8_t*>(mArm64Base + kFxCtxOff)
+        : nullptr;
+    uint8_t* oldHead = nullptr;
+    if (fxCtxBase) {
+        oldHead = *reinterpret_cast<uint8_t**>(fxCtxBase + 0);
+        // Zero head (+0), tail (+8), count (+0x480). Leave everything
+        // else so we don't accidentally break state fxLoad's parser
+        // relies on.
+        *reinterpret_cast<uint8_t**>(fxCtxBase + 0) = nullptr;
+        *reinterpret_cast<uint8_t**>(fxCtxBase + 8) = nullptr;
+        *reinterpret_cast<uint32_t*>(fxCtxBase + 0x480) = 0;
+        ALOGI("DrasticRunner::setShaderRuntime[#%d]: nulled fx_ctx head/"
+              "tail/count before fxLoad (oldHead=%p)",
+              mSwapCounter, oldHead);
+    }
+
+    // Do NOT call glDeleteProgram / glDeleteFramebuffers on the old
+    // pass list. The Mali driver internally tracks shader-source and
+    // framebuffer-attached-texture allocations in the scudo secondary
+    // pool (0x76... range). When we glDeleteProgram a program whose
+    // shader source was set via fxLoad, the driver's free path hits
+    // an "invalid chunk state" in scudo on the second swap. Root
+    // cause is almost certainly a refcount mismatch inside the
+    // driver or libdrastic where two programs (or a program and its
+    // fxLoad-owned cache entry) share a single source-string chunk
+    // and the first delete corrupts the second one.
+    //
+    // Counting and logging what we would have leaked so a long
+    // session can be audited. Each pass leaks: 1 GL program, at
+    // most 1 FBO (not counting our offscreenFbo), and ~400 B of
+    // pass struct. Programs dominate the leak; on Mali those are
+    // typically under a few KB including metadata, so hundreds of
+    // swaps are still well under a MB.
+    {
+        uint8_t* p = oldHead;
+        int i = 0;
+        while (p && i < 32) {
+            uint8_t* next = *reinterpret_cast<uint8_t**>(p + kPassNextOff);
+            p = next;
+            ++i;
+        }
+        ALOGI("DrasticRunner::setShaderRuntime[#%d]: leaked %d old "
+              "pass(es) (GL programs + FBOs + structs)",
+              mSwapCounter, i);
+    }
+
+    // Make sure no program or framebuffer from the old list is
+    // currently bound, so the driver cannot dereference a stale
+    // internal pointer while fxLoad creates new programs.
+    glUseProgram(0);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glFinish();
+
+    int rc = mFxLoad(mFakeEnv, mFakeCls, (void*)jp, 0, 192);
+    ALOGI("DrasticRunner::setShaderRuntime[#%d]: fxLoad(\"%s\") = %d",
+          mSwapCounter, absDfxPath.c_str(), rc);
+
+    dumpFxCtxState("post-fxLoad");
+    fbOk = glIsFramebuffer(mOffscreenFbo);
+    ALOGI("DrasticRunner::setShaderRuntime[#%d]: post-fxLoad "
+          "mOffscreenFbo=%u glIsFramebuffer=%d",
+          mSwapCounter, mOffscreenFbo, (int)fbOk);
+    if (!fbOk) {
+        ALOGE("DrasticRunner::setShaderRuntime: offscreen FBO was "
+              "invalidated by fxLoad -- displays will stop updating "
+              "until a surface rebuild");
+    }
+
+    // Re-invoke fxSetup with the same tex dims so drastic rebuilds
+    // its render-state for the new shader. fxLoad's own cleanup
+    // (called internally at its entry: bl 202b8 at +0x1ffc0) already
+    // tore down the previous shader's program and FBOs. We do not
+    // manually clear any sentinel.
+    mFxSetup(mFakeEnv, mFakeCls,
+             mFxTexW, mFxTexH, 0, 0,
+             mOffscreenW, mOffscreenH);
+
+    // fxLoad rebuilt the pass list; the new final pass has pass.fbo
+    // defaulted back to 0. Re-redirect it into our offscreen FBO.
+    patchFinalPassFbo();
+
+    if (!wasPaused && mPauseSystem) {
+        mPauseSystem(mFakeEnv, mFakeCls, 0);
+    }
+    mShaderSwapInFlight.store(false);
+    return true;
 }
 
 void DrasticRunner::shutdown() {

@@ -17,6 +17,7 @@
 #include <string>
 #include <thread>
 #include <atomic>
+#include <chrono>
 #include <mutex>
 #include <vector>
 #include <dlfcn.h>
@@ -31,26 +32,32 @@ public:
 
     // Initialize: dlopen the libs from libsDir (falls back to cacheDir
     // when libsDir is empty), set up FakeJNI rooted at cacheDir, call
-    // JNI_OnLoad + onInit(null, versionCode, sdkInt), apply a
-    // default-safe config, and startGame(romPath).
+    // JNI_OnLoad + onInit(null, versionCode, sdkInt), apply a config
+    // (either the built-in default or configBitsOverride when non-zero),
+    // and startGame(romPath).
     //
     // cacheDir is the drastic virtual-FS root for FakeJNI's DraStic/ and
     // User/ prefix resolution (e.g. /data/system/nano_cache/drastic).
     // libsDir, if non-empty, points to the directory containing
-    // libdrastic_arm64.so / libdrastic_cpu.so (e.g. the APK's
-    // lib/arm64 install path). When empty, libs are dlopen'd from
-    // cacheDir itself -- the legacy nano_cache layout.
-    // romPath is the absolute path to the ROM (.nds / .zip etc).
-    // When soundEnabled is true, applyConfig sets the _SoundEnabled
-    // bit so drastic's per-frame audio mixer runs (required when the
-    // patched-initialize_audio short-circuit is NOT applied).
+    // libdrastic_arm64.so / libdrastic_cpu.so. romPath is absolute.
+    // When soundEnabled is true, the _SoundEnabled bit (31) is forced on.
+    // configBitsOverride, when non-zero, replaces the compiled-in default
+    // applyConfig bitmask (so drastic-nano can thread user-XML-derived
+    // settings in). The _SoundEnabled bit is still forced by soundEnabled.
+    // autosaveIntervalSeconds, when non-zero, is passed to setAutosaveInterval
+    // (0 = keep drastic's default).
+    // initialShader, when non-empty, is the basename of the .dfx to load
+    // during initSurface (e.g. "Linear", "Scanline"). Empty = "Linear".
     //
     // Returns true if all the above completed without crashing and
     // drastic's main DS CPU thread is live.
     bool init(const std::string& cacheDir,
               const std::string& romPath,
               const std::string& libsDir = std::string(),
-              bool soundEnabled = false);
+              bool soundEnabled = false,
+              long configBitsOverride = 0,
+              int autosaveIntervalSeconds = 0,
+              const std::string& initialShader = std::string());
 
     // Tear down. pauseSystem + quitSystem + dlclose.
     void shutdown();
@@ -125,6 +132,57 @@ public:
     // we fall through to the NanoMenu XMB instead of handing off.
     void pauseDrastic();
 
+    // Toggle drastic's internal pause flag. Idempotent. When paused,
+    // drastic's DS CPU thread stops advancing; renderDsToOffscreen is
+    // still safe to call (it reads the latched last frame).
+    // Used by the overlay menu to freeze gameplay while the user
+    // navigates.
+    void pauseToggle(bool pause);
+
+    // Mid-session save / load. slot is 0..8 (9 is drastic's reserved
+    // autosave slot -- callers must not pass 9). Writes to / reads
+    // from <cacheDir>/savestates/<rom_basename>_<slot>.dss. On the
+    // live drastic-nano data path cacheDir points at the real
+    // /data/user/0/com.dsemu.drastic/files/DraStic so the real app
+    // picks up our saves on its next launch. Returns true if the
+    // underlying JNI call was invoked (not whether drastic actually
+    // produced a valid state -- drastic has no ABI for that).
+    bool saveStateSlot(int slot);
+    bool loadStateSlot(int slot);
+
+    // Reset the emulated DS (power cycle). Equivalent to the "Reset"
+    // menu action in the real drastic app. Safe to call at any time
+    // once init() has succeeded.
+    void resetSystem();
+
+    // Live audio volume. Range is drastic's internal 0..100; the
+    // overlay UI 0..10 must multiply by 10 before calling.
+    void setVolumeRuntime(int vol0to100);
+
+    // Toggle drastic's runtime fast-forward lever (applyConfig bit 29
+    // = 0x20000000 = V, per drastic-android-mod disasm at libdrastic
+    // +0x1b26c). Removes the per-frame wait cap inside drastic's
+    // internal frame pacer so the DS CPU runs as fast as the emulator
+    // can grind. Idempotent: callable every frame with no penalty
+    // (drastic's applyConfig converter short-circuits unchanged state
+    // internally). No-op until drastic is initialized.
+    void setFastForward(bool on);
+
+    // Swap the active video filter (.dfx). absDfxPath must point at
+    // a readable .dfx file. Pauses drastic briefly, calls fxLoad +
+    // fxSetup with the stored tex dimensions, re-captures the drastic
+    // program ID, resumes. Must be called on the render thread
+    // (the thread that owns the EGL context). Returns false on any
+    // failure (file unreadable, symbols missing, render not yet live).
+    bool setShaderRuntime(const std::string& absDfxPath);
+
+    // Query the tex dims used when fxSetup was last invoked. The
+    // overlay uses this to keep shader swaps consistent.
+    void getFxTexDims(int* outW, int* outH) const {
+        if (outW) *outW = mFxTexW;
+        if (outH) *outH = mFxTexH;
+    }
+
     // Drastic button bitmask — NOT the DS hardware KEYINPUT order.
     // Source: n0/i.smali `R:[I` array cross-checked with the updateInput
     // disasm at 0x1a5d8 by the drastic-android-mod session. See
@@ -176,6 +234,11 @@ private:
 
     void* mCpuHandle = nullptr;
     void* mArm64Handle = nullptr;
+    // Load base of libdrastic_arm64.so (from dladdr on JNI_OnLoad). Used to
+    // read the GL program ID out of drastic's BSS at base + 0x3f2dbe0 after
+    // fxSetup (fxSetup's worker always ends with glUseProgram(0), so
+    // glGetIntegerv(GL_CURRENT_PROGRAM) is useless for capturing it).
+    uint8_t* mArm64Base = nullptr;
     bool  mInitialized = false;
 
     // startGame is drastic's emulator main loop -- it does NOT return.
@@ -216,6 +279,9 @@ private:
     typedef void (*setAutosaveInterval_t)(void* env, void* cls,
                                           int intervalSeconds);
     typedef void (*setAudioVolume_t)(void* env, void* cls, int vol);
+    typedef int  (*saveState_t)(void* env, void* cls, int slot);
+    typedef int  (*loadState_t)(void* env, void* cls, int slot);
+    typedef void (*resetDS_t)  (void* env, void* cls);
 
     // Phase 4 GL entry points.
     typedef int  (*fxLoad_t)(void* env, void* cls,
@@ -227,6 +293,25 @@ private:
     // getScreenBuffers approach.)
     typedef void (*renderFrame_t)(void* env, void* cls, int p, int q,
                                   unsigned char flag);
+    // fxRender(I I I I I I I I I Z) — the shader-enabled composite
+    // render call. Drastic's own render code at
+    // DraSticGlView$j.smali:1989-2098 flips to this signature when the
+    // K (no-shader) flag is false. Unlike renderFrame, fxRender walks
+    // the .dfx pass list and binds the per-pass GL programs, producing
+    // the actual shader output.
+    //
+    // Stock signature (per drastic-android-mod disasm at 0x1d1d8):
+    //   topTex   — GL tex id for the DS top screen
+    //   botTex   — GL tex id for the DS bottom screen (or 0 for single-screen)
+    //   k0,k6,k18 — fixed constants drastic uses for source-rect metadata
+    //              (these MUST be 0, 6, 18 respectively -- not runtime geometry)
+    //   outX,outY,outW,outH — destination rect in viewport coords
+    //   isBottom — stock passes 0 (JNI_FALSE) for the both-screens mode
+    typedef void (*fxRender_t)(void* env, void* cls,
+                               int topTex, int botTex,
+                               int k0, int k6, int k18,
+                               int outX, int outY, int outW, int outH,
+                               unsigned char isBottom);
     typedef void (*signalScreen_t)(void* env, void* cls);
     typedef void (*waitScreen_t)(void* env, void* cls);
     typedef int  (*updateFrame_t)(void* env, void* cls, int a, int b, int c);
@@ -246,9 +331,13 @@ private:
     setFirmwareUserdata_t mSetFirmwareUserdata = nullptr;
     setAutosaveInterval_t mSetAutosaveInterval = nullptr;
     setAudioVolume_t     mSetAudioVolume = nullptr;
+    saveState_t          mSaveState = nullptr;
+    loadState_t          mLoadState = nullptr;
+    resetDS_t            mResetDS = nullptr;
     fxLoad_t            mFxLoad = nullptr;
     fxSetup_t           mFxSetup = nullptr;
     renderFrame_t       mRenderFrame = nullptr;
+    fxRender_t          mFxRender = nullptr;
     signalScreen_t      mSignalScreen = nullptr;
     waitScreen_t        mWaitScreen = nullptr;
     updateFrame_t       mUpdateFrame = nullptr;
@@ -291,7 +380,19 @@ private:
     int  mQuadSatLoc = -1;
     int  mQuadGradLoc = -1;
     int  mQuadRotLoc = -1;
+    int  mQuadUvRectLoc = -1;
     unsigned int mQuadVbo = 0;
+
+    // VBO bound before fxRender. Contains two DS-screen quads (top
+    // and bottom) as GL_TRIANGLE_STRIPs of 6 vertices each. Layout:
+    //   [0   .. 95 ] = 12x vec2 NDC positions (verts 0..5 = top quad
+    //                   at NDC y[-1, 0], verts 6..11 = bot quad at
+    //                   NDC y[0, 1]).
+    //   [96  .. 191] = 12x vec2 UV coords, full [0,1] per quad,
+    //                   Y-flipped so BL = (0,1) in GL texture space.
+    // Passed to fxLoad as pos_ptr=0, uv_ptr=96 so the pass runner's
+    // glVertexAttribPointer() reads from this VBO (not host memory).
+    unsigned int mFxVbo = 0;
 
     // 2x2 NDC rotation matrix (column-major, identity by default).
     float mRotationMatrix[4] = {1.0f, 0.0f, 0.0f, 1.0f};
@@ -301,6 +402,29 @@ private:
     // which vertical slice of the source texture is sampled.
     void drawDsQuad(unsigned int tex, float vMin, float vMax,
                     float saturation, float gradient);
+
+    // After fxLoad builds the .dfx pass list in drastic's fx_ctx,
+    // walk to the final pass and overwrite its pass.fbo field
+    // (struct offset +344) with mOffscreenFbo. This redirects
+    // fxRender's visible output from FBO 0 (the EGL surface) into
+    // our offscreen FBO, which the renderTop/Bottom/Both paths then
+    // sample halves from.
+    //
+    // Without this patch, fxRender unbinds whatever FBO we bind
+    // externally and writes to the pass list's hard-coded target
+    // (which is 0 for stock Linear / 2xPrescaleFast shaders). See
+    // drastic-quickresume-dialog.md 2026-04-18 01:35 for the
+    // disasm evidence and the derivation of the +0xd208 offset.
+    void patchFinalPassFbo();
+
+    // Inverse of patchFinalPassFbo: walk the current pass list and
+    // reset the final pass.fbo field back to 0. Called before a
+    // runtime shader swap so fxLoad's internal teardown cannot delete
+    // our mOffscreenFbo via glDeleteFramebuffers on the patched value.
+    // Without this, switching shaders in the overlay menu leaves
+    // mOffscreenFbo as a stale GL name, and subsequent renders bind
+    // an invalid FBO so the displays stop updating.
+    void unpatchFinalPassFbo();
 
     // Cached fake env / cls for render-thread calls. Set during init()
     // and reused from initSurface / renderOneFrame.
@@ -317,6 +441,47 @@ private:
     bool mSurfaceReady = false;
     int  mViewportW = 0;
     int  mViewportH = 0;
+
+    // Tex dims passed to fxSetup. Preserved so a runtime shader swap
+    // (setShaderRuntime) can re-invoke fxSetup with the same geometry.
+    int mFxTexW = 0;
+    int mFxTexH = 0;
+
+    // Initial shader basename (no ext, no path). Cached from init()
+    // so initSurface can build the absolute path. Defaults to "Linear".
+    std::string mInitialShader;
+
+    // Track current drastic pause state for idempotent pauseToggle.
+    bool mPaused = false;
+
+    // Config bitmask we last handed to applyConfig during init. Used
+    // as the base for runtime toggles like fast-forward (OR in bit 29
+    // when held, clear it when released). Starts at 0 so the first
+    // setFastForward call before init becomes a no-op.
+    long mBaseConfigBits = 0;
+    // Cached fast-forward state so we don't hammer applyConfig every
+    // frame when the user just holds the button.
+    bool mFastForwardOn = false;
+
+    // Shader-swap throttle / re-entrance guard. The overlay menu's Shader
+    // row calls setShaderRuntime on every navLeft/Right, and drastic's
+    // fxLoad does a full teardown+reparse+reallocate each call. Rapid
+    // switches (under ~500 ms apart) eventually corrupt scudo heap
+    // metadata inside fxLoad -- the 4th consecutive swap SIGABRTs with
+    // "invalid chunk state when deallocating". A minimum-interval gate
+    // plus a re-entrance atomic prevents the user from driving fxLoad
+    // faster than it can settle.
+    std::chrono::steady_clock::time_point mLastShaderSwap;
+    std::atomic<bool> mShaderSwapInFlight{false};
+    // Monotonic swap counter. Logged on every setShaderRuntime call so
+    // we can correlate the "crashes after N swaps" mode with the exact
+    // fx_ctx state at the moment of failure.
+    int mSwapCounter = 0;
+
+    // Dump fx_ctx + pass list to logcat with the given tag. Safe to
+    // call before or after fxLoad; walks the list defensively with a
+    // cap so a corrupt next pointer cannot loop forever.
+    void dumpFxCtxState(const char* when);
 };
 
 } // namespace android

@@ -36,6 +36,10 @@ cc_binary {
 
     srcs: [
         "main.cpp",
+        "DrasticPrefs.cpp",
+        "InputMap.cpp",
+        "OverlayGfx.cpp",
+        "OverlayMenu.cpp",
         ":drastic_nano_shared_srcs",
     ],
 
@@ -56,6 +60,7 @@ cc_binary {
         "libEGL",
         "libGLESv2",
         "libnativewindow",
+        "libft2",
     ],
 
     init_rc: ["drastic-nano.rc"],
