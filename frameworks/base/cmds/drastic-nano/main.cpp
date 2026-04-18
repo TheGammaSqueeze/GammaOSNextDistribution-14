@@ -246,6 +246,103 @@ bool lookupDrasticUid(uid_t* uid, gid_t* gid) {
 }
 
 // ------------------------------------------------------------------
+// CPU idle state management
+// ------------------------------------------------------------------
+
+// Saved cpu-sleep state so we can restore on exit. One entry per
+// possible CPU -- dimensioned larger than needed on purpose.
+constexpr int kMaxCpus = 16;
+static int sSavedCpuSleepDisable[kMaxCpus];
+static int sSavedCpuCount = 0;
+
+// Retrigger the power profile service configured by the user's
+// persist.gammaos.performance_mode selection. The init.rc trigger in
+// /vendor/etc/init/init.gammaos_power.rc only fires on property
+// changes and can race at boot, leaving the GPU / DMC / VOP / CPU
+// governors in their default state (schedutil, not performance) even
+// though the user has selected max. That surfaces as a non-
+// deterministic "auto frameskip" on drastic-nano launches: lucky
+// launches hit a hot GPU governor, unlucky ones hit the lingering
+// default and fall behind every frame. Firing ctl.start directly
+// bypasses the trigger race and guarantees the governors are in the
+// chosen profile before drastic's first render.
+void retriggerPowerProfile() {
+    char mode[PROPERTY_VALUE_MAX] = {};
+    property_get("persist.gammaos.performance_mode", mode, "max");
+    const char* svc = nullptr;
+    if (strcmp(mode, "max") == 0) {
+        svc = "setclock_max";
+    } else if (strcmp(mode, "stock") == 0) {
+        svc = "setclock_stock";
+    } else if (strcmp(mode, "powersave") == 0) {
+        svc = "setclock_powersave";
+    } else {
+        // Unknown mode: force max for the session since drastic-nano
+        // is a game launcher and the player has signalled intent to
+        // play. Safer than running the emulator with an unknown
+        // governor state.
+        svc = "setclock_max";
+    }
+    property_set("ctl.start", svc);
+    ALOGI("drastic-nano: retriggered power profile %s (mode=%s)",
+          svc, mode);
+}
+
+// Disable the deep cpu-sleep idle state (state1) on every CPU so
+// that thread migrations do not pay the ~220 us wake latency. The
+// shallow WFI state (state0, 1 us) stays enabled. Saves the prior
+// value in sSavedCpuSleepDisable for restore on exit.
+void disableDeepCpuIdle() {
+    sSavedCpuCount = 0;
+    for (int cpu = 0; cpu < kMaxCpus; cpu++) {
+        char path[96];
+        snprintf(path, sizeof(path),
+                 "/sys/devices/system/cpu/cpu%d/cpuidle/state1/disable",
+                 cpu);
+        int fd = open(path, O_RDWR);
+        if (fd < 0) {
+            if (cpu == 0) {
+                ALOGW("drastic-nano: cpuidle state1 not found (%s)",
+                      strerror(errno));
+            }
+            break;
+        }
+        char buf[8] = {};
+        ssize_t n = read(fd, buf, sizeof(buf) - 1);
+        int prior = (n > 0 && buf[0] == '1') ? 1 : 0;
+        sSavedCpuSleepDisable[cpu] = prior;
+        sSavedCpuCount = cpu + 1;
+        if (prior == 0) {
+            lseek(fd, 0, SEEK_SET);
+            if (write(fd, "1\n", 2) < 0) {
+                ALOGW("drastic-nano: cpu%d cpu-sleep disable write "
+                      "failed: %s", cpu, strerror(errno));
+            }
+        }
+        close(fd);
+    }
+    ALOGI("drastic-nano: cpu-sleep disabled on %d core(s)",
+          sSavedCpuCount);
+}
+
+// Restore cpu-sleep to whatever it was before disableDeepCpuIdle()
+// ran. Called from the exit path so leaving the binary doesn't
+// permanently kill deep idle (battery impact in the menu).
+void restoreDeepCpuIdle() {
+    for (int cpu = 0; cpu < sSavedCpuCount; cpu++) {
+        char path[96];
+        snprintf(path, sizeof(path),
+                 "/sys/devices/system/cpu/cpu%d/cpuidle/state1/disable",
+                 cpu);
+        int fd = open(path, O_WRONLY);
+        if (fd < 0) continue;
+        const char* v = sSavedCpuSleepDisable[cpu] ? "1\n" : "0\n";
+        (void)write(fd, v, 2);
+        close(fd);
+    }
+}
+
+// ------------------------------------------------------------------
 // SF stop / start
 // ------------------------------------------------------------------
 
@@ -562,21 +659,33 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
     // audioserver spawns its output thread after our first buffer
     // enqueue. Sweep after 1 s, 3 s, 5 s so we catch it regardless
     // of when drastic's audio engine actually comes up.
+    // Audio thread boosting: sweep aggressively during the first 5 s
+    // (1 s / 3 s / 5 s) to catch audioserver's output thread as soon
+    // as it spawns, then keep sweeping every 30 s for the rest of the
+    // session. Drift cause we observed: audioserver respawns its
+    // AudioOut_D thread whenever the output route changes (headphone
+    // insert, HDMI detect, audio policy reload), and the new thread
+    // comes up at SCHED_OTHER nice -19. Our render loop's SCHED_FIFO
+    // 80 then starves the playback mixer and frames stretch to drain
+    // an undersized audio buffer. A user-visible symptom: drastic-nano
+    // becomes choppy after some minutes but feels fresh again right
+    // after process restart (because our boot-time sweep catches the
+    // current audioserver threads). The periodic resweep is the
+    // self-heal for that drift.
     int64_t audioBoostDeadlineMs = android::elapsedRealtime() + 1000;
-    bool audioBoosted = false;
     int audioBoostSweeps = 0;
+    constexpr int kAudioFastSweeps    = 3;
+    constexpr int64_t kAudioFastGapMs = 2000;
+    constexpr int64_t kAudioSlowGapMs = 30000;
 
     while (!exitRequested) {
-        if (!audioBoosted &&
-            android::elapsedRealtime() >= audioBoostDeadlineMs) {
+        if (android::elapsedRealtime() >= audioBoostDeadlineMs) {
             boostAudioServer();
             audioBoostSweeps++;
-            if (audioBoostSweeps >= 3) {
-                audioBoosted = true;
-            } else {
-                audioBoostDeadlineMs =
-                        android::elapsedRealtime() + 2000;
-            }
+            int64_t gap = (audioBoostSweeps < kAudioFastSweeps)
+                            ? kAudioFastGapMs
+                            : kAudioSlowGapMs;
+            audioBoostDeadlineMs = android::elapsedRealtime() + gap;
         }
         android::drastic_input::InputActions actions{};
         android::drastic_input::pollInputMap(
@@ -791,6 +900,30 @@ int main(int argc, char** argv) {
             ALOGW("drastic-nano: SCHED_FIFO denied (%s), nice -20 "
                   "applied", strerror(rc));
         }
+        // Pin the render thread to the last CPU (typically CPU3 on
+        // the 4xA55 RK3566 targets). Without pinning, the scheduler
+        // may co-locate the render thread on the same core as
+        // drastic's DS emulation thread (SCHED_RR 5). Our SCHED_FIFO
+        // 80 preempts that emu thread every vblank, stretching its
+        // emulation slice and causing drastic's own pacing code to
+        // fall behind -- which the player perceives as an "auto
+        // frameskip" on relaunch (the kernel scheduler's placement
+        // at process start is non-deterministic, so some launches
+        // are smooth and some stutter). Reserving one core for us
+        // removes that variability.
+        long nprocs = sysconf(_SC_NPROCESSORS_ONLN);
+        if (nprocs > 1) {
+            cpu_set_t mask;
+            CPU_ZERO(&mask);
+            CPU_SET(nprocs - 1, &mask);
+            if (sched_setaffinity(selfTid, sizeof(mask), &mask) == 0) {
+                ALOGI("drastic-nano: render thread pinned to CPU %ld",
+                      nprocs - 1);
+            } else {
+                ALOGW("drastic-nano: render CPU affinity failed: %s",
+                      strerror(errno));
+            }
+        }
     }
 
     // Lock current + future pages into RAM so no access faults into
@@ -803,6 +936,27 @@ int main(int argc, char** argv) {
     } else {
         ALOGW("drastic-nano: mlockall failed: %s", strerror(errno));
     }
+
+    // Disable deep cpu-sleep idle state on every CPU. On RK3566 the
+    // shallow WFI state has 1 us wake latency while cpu-sleep carries
+    // ~220 us. Drastic's DS emulator thread (SCHED_RR prio 5)
+    // migrates between CPUs several times a second; every landing on
+    // a deep-idle core pays the 220 us wake penalty and eats into the
+    // 16.67 ms budget, which manifests to the player as an apparent
+    // "auto frameskip" even though drastic's _FrameskipType is 0.
+    //
+    // We leave WFI enabled (state0) so cores can still clock-gate at
+    // 1 us cost; we only disable the deep state (state1). Restored
+    // to its prior value on exit.
+    disableDeepCpuIdle();
+
+    // Re-kick the power profile service so GPU / DMC / VOP / CPU
+    // governors are guaranteed to be at the user's chosen profile
+    // before drastic renders its first frame. The init.rc trigger
+    // that normally fires this races at boot and on screen state
+    // flips; forcing it here eliminates the "restart sometimes
+    // fixes it" variance.
+    retriggerPowerProfile();
 
     std::string romPath;
     if (argc > 1 && argv[1] && argv[1][0]) {
@@ -906,6 +1060,14 @@ int main(int argc, char** argv) {
             "_Dra$t1c_Pref$_.xml");
     android::drastic_prefs::Prefs prefs;
     android::drastic_prefs::readPrefs(prefsPath, &prefs);
+    // Force frameskip off for the drastic-nano session. The real drastic
+    // app's _FrameskipType may be 1 (auto) or a fixed value > 0; neither
+    // is what we want on nano where the render loop is already RT-paced
+    // and frameskipping produces visible judder rather than hiding it.
+    // Change is session-local: we don't persist it back to the XML.
+    prefs.frameskipType  = 0;
+    prefs.frameskipValue = 0;
+    prefs.frameskipSafe  = false;
     // Carry the frame-sync flag into the DRM flip path. Read at session
     // start rather than per-iter so the ring-depth assumption (enabled
     // adds one hold-slot to the working set) holds for the whole run.
@@ -982,6 +1144,8 @@ int main(int argc, char** argv) {
         property_set("sys.gammaos.drastic_nano.auto_relaunch", "1");
         ALOGI("drastic-nano: requesting auto-relaunch");
     }
+
+    restoreDeepCpuIdle();
 
     // SF was never stopped, so only the session_done trigger is
     // needed to bring nano back up on the XMB.

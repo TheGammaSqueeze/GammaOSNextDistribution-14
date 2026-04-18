@@ -14,6 +14,7 @@
 #include <algorithm>
 #include <cstdio>
 
+#include <cutils/properties.h>
 #include <utils/Log.h>
 #include <utils/SystemClock.h>
 
@@ -350,6 +351,42 @@ void OverlayMenu::rebuildVideo() {
         };
         mRows.push_back(std::move(r));
     };
+    // Performance profile (live). Cycles Max -> Stock -> Powersave
+    // and re-fires the corresponding setclock service via
+    // ctl.start, matching the triggers in
+    // /vendor/etc/init/init.gammaos_power.rc. We also write the
+    // persist property so the chosen profile survives a reboot
+    // and so any future trigger evaluations see the right value.
+    // This is a live knob (no [restart] tag): the governors change
+    // immediately.
+    {
+        RowAction r;
+        r.label = "Performance";
+        static const char* const kModes[] = {"max", "stock", "powersave"};
+        static const char* const kLabels[] = {"Max", "Stock", "Powersave"};
+        static const char* const kSvcs[]   = {"setclock_max",
+                                              "setclock_stock",
+                                              "setclock_powersave"};
+        static const int kModeCount = 3;
+        auto currentIdx = []() {
+            char cur[PROPERTY_VALUE_MAX] = {};
+            property_get("persist.gammaos.performance_mode", cur, "max");
+            for (int i = 0; i < kModeCount; i++) {
+                if (strcmp(cur, kModes[i]) == 0) return i;
+            }
+            return 0;
+        };
+        int idx = currentIdx();
+        r.value = kLabels[idx];
+        r.onAdjust = [currentIdx](int dir) {
+            int idx = currentIdx();
+            idx = (idx + dir + kModeCount) % kModeCount;
+            property_set("persist.gammaos.performance_mode", kModes[idx]);
+            property_set("ctl.start", kSvcs[idx]);
+            ALOGI("drastic-nano: overlay switched to %s", kModes[idx]);
+        };
+        mRows.push_back(std::move(r));
+    }
     addBool("Hi-res 3D",           mPrefs.hires3d,      true);
     addBool("Threaded 3D",         mPrefs.threaded3d,   true);
     addBool("Disable Edge Marking",mPrefs.disableEdge,  true);

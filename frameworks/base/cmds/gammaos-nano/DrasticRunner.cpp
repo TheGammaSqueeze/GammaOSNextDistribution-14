@@ -1309,8 +1309,38 @@ void DrasticRunner::patchFinalPassFbo() {
     // Cap the walk so a corrupted next pointer cannot loop forever.
     // Stock .dfx files have 1..2 passes; 64 is many orders of magnitude
     // above anything real.
+    //
+    // Walk 1: normalize sampler unit_enums on every pass. fxRender
+    // iterates ALL passes and calls glActiveTexture(sampler[i].unit_enum)
+    // on each, so a bad unit_enum in ANY pass generates one GL_INVALID_ENUM
+    // per frame. Prior versions only normalized the final pass, which left
+    // multi-pass shaders (e.g. _CurrentFx=2xPrescaleFast_LCD) logging the
+    // mali error every frame and hitting the GLES error slow path.
+    //
+    // Normalize ALL 8 potential sampler slots (not just i < samplerCnt):
+    // on stock shaders we observed samplerCnt=1 with sampler[0] valid but
+    // mali still spams GL_INVALID_ENUM once per frame, implying fxRender
+    // iterates the sampler array with a hardcoded upper bound (likely 2
+    // or 8) and ignores samplerCnt for the unit_enum pre-setup step. By
+    // writing a valid unit_enum to every slot up to 7 we cover that
+    // over-iteration without touching other pass fields.
+    uint32_t totalBadNormalized = 0;
     while (p && count < 64) {
         last = p;
+        for (uint32_t i = 0; i < 8; ++i) {
+            uint32_t* unitP =
+                    reinterpret_cast<uint32_t*>(p + 56 + 40 * i);
+            if (*unitP < 0x84C0 || *unitP > 0x84C7) {
+                if (totalBadNormalized < 16) {
+                    ALOGW("DrasticRunner::patchFinalPassFbo: pass[%d] "
+                          "sampler[%u].unit_enum = 0x%x (invalid) -> "
+                          "forcing to GL_TEXTURE%u (0x%x)",
+                          count, i, *unitP, i, 0x84C0 + i);
+                }
+                *unitP = 0x84C0 + i;
+                totalBadNormalized++;
+            }
+        }
         p = *reinterpret_cast<uint8_t**>(p + kPassNextOff);
         count++;
     }
@@ -1345,29 +1375,10 @@ void DrasticRunner::patchFinalPassFbo() {
           "outW=%u outH=%u samplerCount=%u",
           program, posAttrib, uvAttrib, resUnif, sclUnif,
           outW, outH, samplerCnt);
-    ALOGI("DrasticRunner::patchFinalPassFbo: sampler[0] unit=0x%x idx=%u  "
-          "sampler[1] unit=0x%x idx=%u",
-          samp0Unit, samp0Idx, samp1Unit, samp1Idx);
-
-    // MITIGATION (2026-04-18): fxRender's per-pass sampler iteration at
-    // 0x20974 calls glActiveTexture(sampler[i].unit_enum). If sampler[i]
-    // was left with unit_enum == 0 by fxLoad's parser, Mali logs
-    // `gles_texturep_active_texture: <texture> is not an accepted value`
-    // (GL_INVALID_ENUM) every frame and the shader draws with whatever
-    // TEXTURE0 was last bound to (usually our red-canary offscreen FBO
-    // color texture, hence the red/black triangle fragments seen in VOP
-    // dumps). Normalize any sampler whose unit_enum is outside
-    // [GL_TEXTURE0, GL_TEXTURE0+7] to GL_TEXTURE0 + samplerIndex so the
-    // shader gets a valid active unit. Leaves valid values untouched.
-    for (uint32_t i = 0; i < samplerCnt && i < 8; ++i) {
-        uint32_t* unitP = reinterpret_cast<uint32_t*>(last + 56 + 40 * i);
-        if (*unitP < 0x84C0 || *unitP > 0x84C7) {
-            ALOGW("DrasticRunner::patchFinalPassFbo: sampler[%u].unit_enum "
-                  "= 0x%x (invalid) -> forcing to GL_TEXTURE%u (0x%x)",
-                  i, *unitP, i, 0x84C0 + i);
-            *unitP = 0x84C0 + i;
-        }
-    }
+    ALOGI("DrasticRunner::patchFinalPassFbo: final sampler[0] unit=0x%x "
+          "idx=%u  sampler[1] unit=0x%x idx=%u "
+          "(total bad unit_enums normalized across all passes: %u)",
+          samp0Unit, samp0Idx, samp1Unit, samp1Idx, totalBadNormalized);
 }
 
 void DrasticRunner::dumpFxCtxState(const char* when) {
