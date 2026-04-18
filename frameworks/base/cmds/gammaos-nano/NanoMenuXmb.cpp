@@ -1115,44 +1115,52 @@ void NanoMenu::launchXmbGame() {
             android::base::SetProperty("sys.gammaos.nano.launch_core", "");
 
             // GammaOS: Drastic quick-resume prime (recent-played path).
-            if (re.launchPkg == "com.dsemu.drastic" && mQuickResumeEnabled) {
-                setQrRomPath(re.romPath);
-                android::base::SetProperty(
-                        "persist.gammaos.nano.qr_core", "drastic");
-                property_set("persist.gammaos.nano.qr_prepared", "1");
-                std::string gameName = filename;
-                size_t dotPos = gameName.rfind('.');
-                if (dotPos != std::string::npos) gameName.erase(dotPos);
-                android::base::SetProperty(
-                        "persist.gammaos.nano.qr_game_name", gameName);
-                { const char* qf = "/data/system/nano_drastic_qr_intent.txt";
-                  int qfd = open(qf, O_WRONLY|O_CREAT|O_TRUNC, 0666);
-                  if (qfd >= 0) {
-                      write(qfd, tabIntent.c_str(), tabIntent.size());
-                      close(qfd);
-                      chmod(qf, 0644);
-                  } }
-                property_set("sys.gammaos.nano.cache_ready", "0");
-                property_set("sys.gammaos.nano.cache_op", "populate_drastic");
+            if (re.launchPkg == "com.dsemu.drastic") {
+                if (mQuickResumeEnabled) {
+                    setQrRomPath(re.romPath);
+                    android::base::SetProperty(
+                            "persist.gammaos.nano.qr_core", "drastic");
+                    property_set("persist.gammaos.nano.qr_prepared", "1");
+                    std::string gameName = filename;
+                    size_t dotPos = gameName.rfind('.');
+                    if (dotPos != std::string::npos) gameName.erase(dotPos);
+                    android::base::SetProperty(
+                            "persist.gammaos.nano.qr_game_name", gameName);
+                    { const char* qf = "/data/system/nano_drastic_qr_intent.txt";
+                      int qfd = open(qf, O_WRONLY|O_CREAT|O_TRUNC, 0666);
+                      if (qfd >= 0) {
+                          write(qfd, tabIntent.c_str(), tabIntent.size());
+                          close(qfd);
+                          chmod(qf, 0644);
+                      } }
+                    property_set("sys.gammaos.nano.cache_ready", "0");
+                    property_set("sys.gammaos.nano.cache_op", "populate_drastic");
+                } else {
+                    // QR disabled: clear any stale prime so we don't
+                    // auto-resume a previous game after drastic exits.
+                    property_set("persist.gammaos.nano.qr_prepared", "0");
+                    android::base::SetProperty("persist.gammaos.nano.qr_core", "");
+                }
 
-                // GammaOS: Drastic Nano intercept.
+                // GammaOS: Drastic Nano intercept. Fires regardless of
+                // QR state -- drastic-nano reads the ROM path from
+                // nano_drastic_nano_rom.txt, not from the QR intent.
                 char dn[PROPERTY_VALUE_MAX] = {};
                 property_get("persist.gammaos.nano.drastic_nano",
                              dn, "0");
                 if (dn[0] == '1') {
                     setDrasticNanoRomPath(re.romPath);
                     ALOGW("drastic nano: XMB recent-played launch, "
-                          "will restart into QR fast path");
+                          "qr=%d", mQuickResumeEnabled ? 1 : 0);
                     mDrasticNanoPending = true;
                     mSearchActive = false;
                     mOskActive = false;
                     return;
                 }
-            } else if (re.launchPkg != "com.dsemu.drastic") {
+            } else {
                 // Non-drastic standalone (PPSSPP, etc.): clear any stale
                 // QR prime so the next nano start does not auto-resume an
-                // unrelated drastic/retroarch game. Drastic+QR-disabled
-                // paths fall through without touching prime state.
+                // unrelated drastic/retroarch game.
                 property_set("persist.gammaos.nano.qr_prepared", "0");
                 android::base::SetProperty("persist.gammaos.nano.qr_core", "");
             }
@@ -1298,40 +1306,50 @@ void NanoMenu::launchXmbGame() {
         setLaunchRomPath("");
         android::base::SetProperty("sys.gammaos.nano.launch_core", "");
 
-        if (sys.launchPkg == "com.dsemu.drastic" && mQuickResumeEnabled) {
-            setQrRomPath(romPath);
-            android::base::SetProperty(
-                    "persist.gammaos.nano.qr_core", "drastic");
-            property_set("persist.gammaos.nano.qr_prepared", "1");
-            std::string gameName = filename;
-            size_t dotPos = gameName.rfind('.');
-            if (dotPos != std::string::npos) gameName.erase(dotPos);
-            android::base::SetProperty(
-                    "persist.gammaos.nano.qr_game_name", gameName);
-            { const char* qf = "/data/system/nano_drastic_qr_intent.txt";
-              int qfd = open(qf, O_WRONLY|O_CREAT|O_TRUNC, 0666);
-              if (qfd >= 0) {
-                  write(qfd, tabIntent.c_str(), tabIntent.size());
-                  close(qfd);
-                  chmod(qf, 0644);
-              } }
-            property_set("sys.gammaos.nano.cache_ready", "0");
-            property_set("sys.gammaos.nano.cache_op", "populate_drastic");
+        if (sys.launchPkg == "com.dsemu.drastic") {
+            if (mQuickResumeEnabled) {
+                setQrRomPath(romPath);
+                android::base::SetProperty(
+                        "persist.gammaos.nano.qr_core", "drastic");
+                property_set("persist.gammaos.nano.qr_prepared", "1");
+                std::string gameName = filename;
+                size_t dotPos = gameName.rfind('.');
+                if (dotPos != std::string::npos) gameName.erase(dotPos);
+                android::base::SetProperty(
+                        "persist.gammaos.nano.qr_game_name", gameName);
+                { const char* qf = "/data/system/nano_drastic_qr_intent.txt";
+                  int qfd = open(qf, O_WRONLY|O_CREAT|O_TRUNC, 0666);
+                  if (qfd >= 0) {
+                      write(qfd, tabIntent.c_str(), tabIntent.size());
+                      close(qfd);
+                      chmod(qf, 0644);
+                  } }
+                property_set("sys.gammaos.nano.cache_ready", "0");
+                property_set("sys.gammaos.nano.cache_op", "populate_drastic");
+            } else {
+                // QR disabled: clear any stale prime so we don't
+                // auto-resume a previous game after drastic exits.
+                property_set("persist.gammaos.nano.qr_prepared", "0");
+                android::base::SetProperty("persist.gammaos.nano.qr_core", "");
+            }
 
             // GammaOS: Drastic Nano intercept (system browse path).
+            // Fires regardless of QR state -- drastic-nano reads the
+            // ROM path from nano_drastic_nano_rom.txt, not from the
+            // QR intent file.
             char dn[PROPERTY_VALUE_MAX] = {};
             property_get("persist.gammaos.nano.drastic_nano",
                          dn, "0");
             if (dn[0] == '1') {
                 setDrasticNanoRomPath(romPath);
                 ALOGW("drastic nano: XMB system launch, "
-                      "will restart into QR fast path");
+                      "qr=%d", mQuickResumeEnabled ? 1 : 0);
                 mDrasticNanoPending = true;
                 mSearchActive = false;
                 mOskActive = false;
                 return;
             }
-        } else if (sys.launchPkg != "com.dsemu.drastic") {
+        } else {
             // Non-drastic standalone (PPSSPP, etc.): clear any stale QR
             // prime so the next nano start does not auto-resume an
             // unrelated drastic/retroarch game.
