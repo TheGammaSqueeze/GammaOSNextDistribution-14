@@ -27,9 +27,18 @@ namespace drastic_prefs {
 
 // Number of player slots drastic supports.
 static constexpr int kNumPlayers = 3;
-// Number of action indices per player. 0..11 are DS buttons + dpad,
-// 12 is fast-forward, 13 is touch, 14..28 are extras (menu/quick
-// save/quick load/screen swap/mic/rapid fire/etc.).
+// Number of action indices per player. Drastic's real slot layout
+// (reverse-engineered from the shared_prefs XML produced by the real
+// app binding a known Xbox controller):
+//   0..7:   face + shoulders + start/select (X, Y, B, A, R, L, Start, Select)
+//   8..11:  reserved / unknown (never observed bound by the real app)
+//   12..15: D-Pad (Up, Right, Down, Left)
+//   16:     Screen Swap
+//   17:     Fast Forward
+//   18..19: reserved / unknown
+//   20:     Menu
+//   21..27: reserved / unknown
+//   28:     Stylus Touch (synthesizes a stylus tap while held)
 static constexpr int kNumActions = 29;
 
 struct Prefs {

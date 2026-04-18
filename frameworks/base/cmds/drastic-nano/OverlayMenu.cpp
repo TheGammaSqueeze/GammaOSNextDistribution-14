@@ -466,29 +466,29 @@ void OverlayMenu::rebuildControls() {
         r.label = "Restore Defaults";
         r.value = "";
         r.onAccept = [this]() {
-            // Sane gamepad defaults. R2 = Fast Forward and L2 =
-            // Screen Swap per user directive; everything else maps
-            // 1:1 to the obvious button. Unmapped slots stay -1 so
-            // the user can bind them later (Quick Save/Load, Stylus
-            // Touch, Mic, rapid-fire, stylus-axis overrides).
+            // Sane gamepad defaults, slot numbering per drastic's real
+            // action enum (see DrasticPrefs.h kNumActions comment).
+            // Unmapped slots stay -1 so the user can bind them later.
             int def[drastic_prefs::kNumActions];
             for (int i = 0; i < drastic_prefs::kNumActions; i++) {
                 def[i] = -1;
             }
-            def[0]  = 19;   // D-Pad Up    <- KEYCODE_DPAD_UP
-            def[1]  = 20;   // D-Pad Down  <- KEYCODE_DPAD_DOWN
-            def[2]  = 21;   // D-Pad Left  <- KEYCODE_DPAD_LEFT
-            def[3]  = 22;   // D-Pad Right <- KEYCODE_DPAD_RIGHT
-            def[4]  = 96;   // A  <- BUTTON_A (BTN_SOUTH)
-            def[5]  = 97;   // B  <- BUTTON_B (BTN_EAST)
-            def[6]  = 99;   // X  <- BUTTON_X (BTN_NORTH)
-            def[7]  = 100;  // Y  <- BUTTON_Y (BTN_WEST)
-            def[8]  = 102;  // L  <- BUTTON_L1 (BTN_TL)
-            def[9]  = 103;  // R  <- BUTTON_R1 (BTN_TR)
-            def[10] = 108;  // Start  <- BUTTON_START
-            def[11] = 109;  // Select <- BUTTON_SELECT
-            def[12] = 105;  // Fast Forward <- BUTTON_R2 (BTN_TR2)
-            def[17] = 104;  // Screen Swap  <- BUTTON_L2 (BTN_TL2)
+            def[0]  = 99;   // X      <- BUTTON_X (BTN_NORTH)
+            def[1]  = 100;  // Y      <- BUTTON_Y (BTN_WEST)
+            def[2]  = 97;   // B      <- BUTTON_B (BTN_EAST)
+            def[3]  = 96;   // A      <- BUTTON_A (BTN_SOUTH)
+            def[4]  = 103;  // R      <- BUTTON_R1 (BTN_TR)
+            def[5]  = 102;  // L      <- BUTTON_L1 (BTN_TL)
+            def[6]  = 108;  // Start  <- BUTTON_START
+            def[7]  = 109;  // Select <- BUTTON_SELECT
+            def[12] = 19;   // D-Pad Up    <- KEYCODE_DPAD_UP
+            def[13] = 22;   // D-Pad Right <- KEYCODE_DPAD_RIGHT
+            def[14] = 20;   // D-Pad Down  <- KEYCODE_DPAD_DOWN
+            def[15] = 21;   // D-Pad Left  <- KEYCODE_DPAD_LEFT
+            def[16] = 104;  // Screen Swap  <- BUTTON_L2 (BTN_TL2)
+            def[17] = 105;  // Fast Forward <- BUTTON_R2 (BTN_TR2)
+            def[20] = 4;    // Menu   <- KEYCODE_BACK
+            def[28] = 107;  // Stylus Touch <- BUTTON_THUMBR (R3)
             for (int a = 0; a < drastic_prefs::kNumActions; a++) {
                 mPrefs.keymap[0][a] = def[a];
             }
@@ -521,7 +521,17 @@ void OverlayMenu::rebuildControls() {
         };
         mRows.push_back(std::move(r));
     }
-    for (int a = 0; a < drastic_prefs::kNumActions; a++) {
+    // Only expose slots drastic-nano actually handles; the rest stay
+    // in the XML untouched (so drastic-app-level bindings the user
+    // set up elsewhere aren't clobbered).
+    static const int kKnownActionSlots[] = {
+        0, 1, 2, 3, 4, 5, 6, 7,        // X Y B A R L Start Select
+        12, 13, 14, 15,                // D-Pad Up Right Down Left
+        16, 17,                        // Screen Swap / Fast Forward
+        20,                            // Menu
+        28,                            // Stylus Touch
+    };
+    for (int a : kKnownActionSlots) {
         RowAction r;
         r.label = drastic_prefs::actionName(a);
         int kc = mPrefs.keymap[0][a];

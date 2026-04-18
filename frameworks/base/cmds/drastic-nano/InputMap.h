@@ -71,6 +71,13 @@ struct InputState {
     // to run at uncapped emu speed" -- pollInputMap copies this into
     // InputActions::actFastFwd each frame.
     bool btnFastFwd = false;
+
+    // Held state for drastic's "Stylus Touch" action (slot 28). Acts
+    // as a momentary stylus tap at the current cursor position: while
+    // held, the stylus is "down" at (touchDsX, touchDsY) even if no
+    // real touchscreen finger is present. Lets the player drive the
+    // stylus via LS (analogTouch mode) + R3 tap.
+    bool stylusBtnHeld = false;
     // Last hat axis value for debounce: emit nav events only on
     // transitions (pad stays at the same hat value across many
     // EV_ABS events; firing nav every time scrolls the menu in a

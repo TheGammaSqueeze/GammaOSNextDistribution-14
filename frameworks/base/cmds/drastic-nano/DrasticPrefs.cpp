@@ -457,33 +457,32 @@ bool requiresRelaunch(const Prefs& a, const Prefs& b) {
 // ------------------------------------------------------------------
 
 const char* actionName(int a) {
+    // Slot numbering matches drastic's internal action enum as observed
+    // in the shared_prefs XML. Unknown slots get a generic label so the
+    // Controls UI still renders them (user can bind if they know what
+    // drastic does with that slot on their build).
     switch (a) {
-    case 0:  return "D-Pad Up";
-    case 1:  return "D-Pad Down";
-    case 2:  return "D-Pad Left";
-    case 3:  return "D-Pad Right";
-    case 4:  return "A";
-    case 5:  return "B";
-    case 6:  return "X";
-    case 7:  return "Y";
-    case 8:  return "L";
-    case 9:  return "R";
-    case 10: return "Start";
-    case 11: return "Select";
-    case 12: return "Fast Forward";
-    case 13: return "Stylus Touch";
-    case 14: return "Menu";
-    case 15: return "Quick Save";
-    case 16: return "Quick Load";
-    case 17: return "Screen Swap";
-    case 18: return "Toggle Mic";
-    case 19: return "Rapid Fire A";
-    case 20: return "Rapid Fire B";
-    case 21: return "Stylus Up";
-    case 22: return "Stylus Down";
-    case 23: return "Stylus Left";
-    case 24: return "Stylus Right";
-    default: return "Extra";
+    case 0:  return "X";
+    case 1:  return "Y";
+    case 2:  return "B";
+    case 3:  return "A";
+    case 4:  return "R";
+    case 5:  return "L";
+    case 6:  return "Start";
+    case 7:  return "Select";
+    case 12: return "D-Pad Up";
+    case 13: return "D-Pad Right";
+    case 14: return "D-Pad Down";
+    case 15: return "D-Pad Left";
+    case 16: return "Screen Swap";
+    case 17: return "Fast Forward";
+    case 20: return "Menu";
+    case 28: return "Stylus Touch";
+    default: {
+        static thread_local char buf[16];
+        snprintf(buf, sizeof(buf), "Action %d", a);
+        return buf;
+    }
     }
 }
 

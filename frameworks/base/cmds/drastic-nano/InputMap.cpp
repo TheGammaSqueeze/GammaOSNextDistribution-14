@@ -46,23 +46,23 @@ void calibrateAxisIfPresent(int fd, int absCode, InputState::Axis* a) {
     }
 }
 
-// DS button mask for action indices 0..11 (the subset of drastic
-// actions that cleanly map to bits in the kDsBtn* mask forwarded to
-// updateInput).
+// DS button mask for the drastic action indices that cleanly map to
+// bits in the kDsBtn* mask forwarded to updateInput. Slot numbers
+// match drastic's internal action enum (see DrasticPrefs.h).
 int actionIndexToDsBit(int action) {
     switch (action) {
-    case 0:  return DrasticRunner::kDsBtnUp;
-    case 1:  return DrasticRunner::kDsBtnDown;
-    case 2:  return DrasticRunner::kDsBtnLeft;
-    case 3:  return DrasticRunner::kDsBtnRight;
-    case 4:  return DrasticRunner::kDsBtnA;
-    case 5:  return DrasticRunner::kDsBtnB;
-    case 6:  return DrasticRunner::kDsBtnX;
-    case 7:  return DrasticRunner::kDsBtnY;
-    case 8:  return DrasticRunner::kDsBtnL;
-    case 9:  return DrasticRunner::kDsBtnR;
-    case 10: return DrasticRunner::kDsBtnStart;
-    case 11: return DrasticRunner::kDsBtnSelect;
+    case 0:  return DrasticRunner::kDsBtnX;
+    case 1:  return DrasticRunner::kDsBtnY;
+    case 2:  return DrasticRunner::kDsBtnB;
+    case 3:  return DrasticRunner::kDsBtnA;
+    case 4:  return DrasticRunner::kDsBtnR;
+    case 5:  return DrasticRunner::kDsBtnL;
+    case 6:  return DrasticRunner::kDsBtnStart;
+    case 7:  return DrasticRunner::kDsBtnSelect;
+    case 12: return DrasticRunner::kDsBtnUp;
+    case 13: return DrasticRunner::kDsBtnRight;
+    case 14: return DrasticRunner::kDsBtnDown;
+    case 15: return DrasticRunner::kDsBtnLeft;
     default: return 0;
     }
 }
@@ -217,6 +217,24 @@ void drainTouch(InputState* st) {
     }
 }
 
+// Derive DS D-Pad bits from the left analog stick position. Allows
+// 8-way input (simultaneous horizontal + vertical when the stick is
+// in a diagonal). Always layered on top of the real DPad / hat bits --
+// if analog-touch mode is also on, the stick additionally drives the
+// stylus; games that don't use the touchscreen just see the extra
+// DPad input, games that only use the touchscreen ignore the DPad.
+int stickDpadBits(const InputState* st) {
+    float nx = normAxis(st->axLX, st->analogDeadzone);
+    float ny = normAxis(st->axLY, st->analogDeadzone);
+    constexpr float kDpadThresh = 0.4f; // 40% past deadzone
+    int bits = 0;
+    if (ny < -kDpadThresh) bits |= DrasticRunner::kDsBtnUp;
+    if (ny >  kDpadThresh) bits |= DrasticRunner::kDsBtnDown;
+    if (nx < -kDpadThresh) bits |= DrasticRunner::kDsBtnLeft;
+    if (nx >  kDpadThresh) bits |= DrasticRunner::kDsBtnRight;
+    return bits;
+}
+
 // Apply the LS -> stylus remap when analog touch is enabled. Called
 // after gamepad axes are drained for the frame. Mutates st->touchDs*
 // / st->touchHeld when the stick is outside the deadzone. The hard-
@@ -363,16 +381,14 @@ void pollInputMap(InputState* st, bool overlayOpen, bool captureKey,
                         else         st->dsBtnMask &= ~dsBit;
                     } else {
                         switch (action) {
-                        // Fast-forward tracks press+release so the
-                        // lever stays on while the button is held.
-                        case 12: st->btnFastFwd = pressed; break;
-                        // The rest are edge-triggered (fire once on
-                        // press, ignore release).
-                        case 14: if (pressed) out->menuToggle    = true; break;
-                        case 15: if (pressed) out->actQuickSave  = true; break;
-                        case 16: if (pressed) out->actQuickLoad  = true; break;
-                        case 17: if (pressed) out->actSwapScreens= true; break;
-                        case 18: if (pressed) out->actToggleMic  = true; break;
+                        // Fast-forward and stylus-touch track press+
+                        // release so the lever / touch stays active
+                        // while the button is held.
+                        case 17: st->btnFastFwd   = pressed; break;
+                        case 28: st->stylusBtnHeld = pressed; break;
+                        // Edge-triggered (fire once on press only).
+                        case 16: if (pressed) out->actSwapScreens = true; break;
+                        case 20: if (pressed) out->menuToggle     = true; break;
                         default: break;
                         }
                     }
@@ -453,10 +469,15 @@ void pollInputMap(InputState* st, bool overlayOpen, bool captureKey,
         // the release).
         out->actFastFwd = false;
     } else {
-        out->dsBtnMask = st->dsBtnMask;
+        // Layer stick-as-DPad bits on top of latched DPad / button state
+        // so the stick acts as a secondary DPad for games that don't use
+        // the touchscreen.
+        out->dsBtnMask = st->dsBtnMask | stickDpadBits(st);
         out->touchX = st->touchDsX;
         out->touchY = st->touchDsY;
-        out->touchHeld = st->touchHeld;
+        // Real finger wins; otherwise the stylus-touch button synthesizes
+        // a press at the last known cursor position.
+        out->touchHeld = st->touchHeld || st->stylusBtnHeld;
         // Reflect the held state of the fast-forward button.
         out->actFastFwd = st->btnFastFwd;
     }
