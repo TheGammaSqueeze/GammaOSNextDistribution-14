@@ -64,6 +64,7 @@ bool sDrmZeroCopy = false;
 bool sDrmGlRotation = false;
 bool sDrmYFlipForPrime = false;
 bool sDrmVblankBroken = false;
+bool sDrmFrameSync = true;
 int sPendingFlipEvents = 0;
 uint32_t sCrtcIds[kMaxCrtcTrack] = {0};
 int sCrtcPending[kMaxCrtcTrack] = {0};
@@ -86,9 +87,11 @@ EGLDisplay sRingEglDpy = EGL_NO_DISPLAY;
 // AHB ring arrays
 AhbRenderTarget sAhbRingPrimary[AHB_RING_DEPTH] = {};
 AhbRenderTarget sAhbRingSecondary[AHB_RING_DEPTH] = {};
-EGLSyncKHR sAhbRingSyncPrimary[AHB_RING_DEPTH] = {
-    EGL_NO_SYNC_KHR, EGL_NO_SYNC_KHR, EGL_NO_SYNC_KHR, EGL_NO_SYNC_KHR
-};
+// Explicit default-init to EGL_NO_SYNC_KHR (typedef'd to void* 0) for
+// every ring slot. Zero-init is fine but the explicit per-slot default
+// is harmless and clarifies intent. Sized off AHB_RING_DEPTH so bumping
+// the ring does not silently leave uninitialized entries.
+EGLSyncKHR sAhbRingSyncPrimary[AHB_RING_DEPTH] = {};
 int sRingRenderIdx = 0;
 int sRingPresentIdx = 0;
 int sRingPrimedCount = 0;
@@ -813,6 +816,57 @@ void drmFlipRingSlot(int idx, bool skipNonPrimary) {
     AhbRenderTarget& sec  = sAhbRingSecondary[idx];
     if (!sDrmZeroCopy || !prim.ahb) return;
 
+    // Frame-sync mode: delay the SECONDARY CRTC's flip by one refresh so
+    // its logical content matches what the PRIMARY CRTC is showing at
+    // the same wall-clock moment.
+    //
+    // Rationale: on RK3568 dual-DSI (RG DS), VP0 and VP1 each scan out
+    // on independent clocks with no phase lock. The existing flip order
+    // (secondaries submitted first, primary last -- see comment at the
+    // per-display loop) biases the primary to take the worst-case
+    // vblank miss, so the primary (bottom) panel consistently lands
+    // about one refresh AFTER the secondary (top) panel. Without frame
+    // sync the user sees the top screen update first and the bottom
+    // screen update ~16 ms later, which reads as a subtle tearing /
+    // rolling between the two screens when content changes quickly.
+    // Holding the secondary back by one userspace iter lines up the
+    // logical frame each panel shows at any given instant.
+    //
+    // Implementation: the secondary CRTC flips to the AHB slot that was
+    // the current-iter slot on the PREVIOUS call. That slot's GPU work
+    // is already complete (its fence was consumed then), and nothing
+    // has touched the slot between then and now because the render
+    // cursor moved forward and the ring is sized to keep the hold slot
+    // free (AHB_RING_DEPTH=5 gives: render N, fence N-1, primary
+    // scanout N-2, secondary scanout N-3, spare).
+    //
+    // First iter: no previous slot exists -- fall back to flipping both
+    // CRTCs from the same slot. This produces one frame of unsynced
+    // output at startup; subsequent frames are phase-aligned.
+    //
+    // Caveats:
+    //   - skipNonPrimary (libretro QR half-rate) disables the delay
+    //     since the secondary isn't being flipped anyway.
+    //   - Single-display boxes disable the delay (no secondary, no
+    //     point deferring anything).
+    static int sFrameSyncHoldSlot = -1;
+    AhbRenderTarget* secSrcForSecondaryCrtc = &sec;
+    bool frameSyncUsingHoldSlot = false;
+    if (sDrmFrameSync && !skipNonPrimary && sDrmDisplays.size() > 1 &&
+        sec.ahb) {
+        if (sFrameSyncHoldSlot >= 0 &&
+            sFrameSyncHoldSlot < AHB_RING_DEPTH &&
+            sAhbRingSecondary[sFrameSyncHoldSlot].ahb) {
+            secSrcForSecondaryCrtc = &sAhbRingSecondary[sFrameSyncHoldSlot];
+            frameSyncUsingHoldSlot = true;
+        }
+        sFrameSyncHoldSlot = idx;
+    } else {
+        // Feature disabled or single-display: reset hold so a later
+        // re-enable starts clean instead of flipping to a stale slot.
+        sFrameSyncHoldSlot = -1;
+    }
+
     static int sFlipCount = 0;
     // Log timing for the first 5 flips (boot window) then once per
     // second thereafter so we can observe steady-state latency
@@ -931,11 +985,35 @@ void drmFlipRingSlot(int idx, bool skipNonPrimary) {
 
     int64_t tLock = verbose ? (systemTime(SYSTEM_TIME_MONOTONIC) / 1000LL) : 0;
 
-    // Blit + flip each display independently. Order is not important -- each
-    // page flip is a non-blocking ioctl and the displays scan out on their own
-    // vblank. A failure on one display does not prevent the others from
-    // presenting.
-    for (size_t i = 0; i < sDrmDisplays.size(); i++) {
+    // Blit + flip each display independently. Order matters on dual-DSI
+    // (RG DS): the two panels run on independent vblank clocks with no
+    // phase lock, so whichever CRTC we ioctl first has the shorter queue
+    // time and tends to latch its flip one vblank earlier. Submitting
+    // secondaries FIRST puts the worst-case phase lag on the primary
+    // instead of the top screen, which is where users actually notice
+    // motion (HUD / gameplay) on drastic-nano.
+    //
+    // A failure on one display does not prevent the others from
+    // presenting; both flips are non-blocking ioctls.
+    for (size_t outer = 0; outer < sDrmDisplays.size(); outer++) {
+        // Iterate secondaries first, primary last: map outer index
+        // to the real display index so primary lands in the final
+        // slot of the loop.
+        size_t i;
+        if (sDrmDisplays.size() == 1) {
+            i = outer;
+        } else if ((int)outer == (int)sDrmDisplays.size() - 1) {
+            i = (size_t)sDrmPrimaryIdx;
+        } else {
+            // Pick the next non-primary index in order.
+            size_t count = 0;
+            i = 0;
+            for (size_t j = 0; j < sDrmDisplays.size(); j++) {
+                if ((int)j == sDrmPrimaryIdx) continue;
+                if (count == outer) { i = j; break; }
+                count++;
+            }
+        }
         auto& d = sDrmDisplays[i];
         const bool isPrimary = ((int)i == sDrmPrimaryIdx);
 
@@ -951,7 +1029,21 @@ void drmFlipRingSlot(int idx, bool skipNonPrimary) {
         // back to primary (mirror mode).
         const bool useSecondaryAhb = !isPrimary && haveSecondary &&
                 (primeActive || secondaryPtr != nullptr);
-        const AhbRenderTarget& srcAhb = useSecondaryAhb ? sec : prim;
+        // Frame-sync secondary routing: when enabled, the secondary
+        // CRTC flips to the secondary-AHB slot that was the current
+        // iter's slot on the PREVIOUS call, delaying its visible
+        // content by one userspace iter so it matches what the
+        // primary panel is showing at the same wall-clock moment.
+        // Restricted to the PRIME path because the legacy blit path
+        // relies on the secondary AHB being CPU-locked for the
+        // current slot, and we don't want to add a second lock on the
+        // hot path when RG DS runs PRIME 100 % of the time.
+        const bool useFrameSyncSecondary = !isPrimary && useSecondaryAhb &&
+                frameSyncUsingHoldSlot &&
+                secSrcForSecondaryCrtc->drmFbId != 0;
+        const AhbRenderTarget& srcAhb = useFrameSyncSecondary
+                ? *secSrcForSecondaryCrtc
+                : (useSecondaryAhb ? sec : prim);
 
         int bufIdx = 1 - d.activeBuffer;
         DrmBuffer& buf = d.buffers[bufIdx];

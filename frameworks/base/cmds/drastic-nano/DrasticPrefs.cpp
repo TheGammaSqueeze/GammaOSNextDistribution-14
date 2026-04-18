@@ -201,6 +201,7 @@ bool readPrefs(const std::string& xmlPath, Prefs* out) {
             else if (e.name == "_FrameskipSafe")    out->frameskipSafe = parseBool(e.value, out->frameskipSafe);
             else if (e.name == "_AnalogTouch")      out->analogTouch   = parseBool(e.value, out->analogTouch);
             else if (e.name == "_AnalogTriggers")   out->analogTriggers = parseBool(e.value, out->analogTriggers);
+            else if (e.name == "_FrameSync")        out->frameSync     = parseBool(e.value, out->frameSync);
         } else if (e.tag == "int") {
             if (e.name == "_Volume")             out->volume         = parseInt(e.value, out->volume);
             else if (e.name == "_AudioLatency")  out->audioLatency   = parseInt(e.value, out->audioLatency);
@@ -295,6 +296,7 @@ std::vector<KV> buildManagedLines(const Prefs& p) {
     addBool("_FrameskipSafe", p.frameskipSafe);
     addBool("_AnalogTouch", p.analogTouch);
     addBool("_AnalogTriggers", p.analogTriggers);
+    addBool("_FrameSync", p.frameSync);
     addInt("_Volume", p.volume);
     addInt("_AudioLatency", p.audioLatency);
     addInt("_MicLevel", p.micLevel);

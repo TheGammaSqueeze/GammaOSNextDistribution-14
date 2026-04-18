@@ -712,9 +712,11 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                     (renderIdx + 1) % android::AHB_RING_DEPTH;
             // Bootstrap: first two iterations render only, don't
             // present. Once primed (>= 2 slots rendered), flip the
-            // slot we rendered ~2 frames ago. Present-lag = 2 with
-            // ring depth = 4 leaves 1 slot of headroom, so GL and
-            // scanout never race.
+            // slot we rendered ~2 frames ago. Present-lag = 2 plus
+            // ring depth = 5 leaves enough headroom for both baseline
+            // pacing (1 slot free) and Frame Sync's delayed-secondary
+            // mode (secondary scanning out an older slot adds one
+            // more "live" entry to the working set).
             if (android::sRingPrimedCount >= 2) {
                 const int presentIdx = android::sRingPresentIdx;
                 android::drmFlipRingSlot(presentIdx, false);
@@ -904,6 +906,11 @@ int main(int argc, char** argv) {
             "_Dra$t1c_Pref$_.xml");
     android::drastic_prefs::Prefs prefs;
     android::drastic_prefs::readPrefs(prefsPath, &prefs);
+    // Carry the frame-sync flag into the DRM flip path. Read at session
+    // start rather than per-iter so the ring-depth assumption (enabled
+    // adds one hold-slot to the working set) holds for the whole run.
+    // Runtime toggle from the overlay writes this variable too.
+    android::sDrmFrameSync = prefs.frameSync;
     long userBits = android::drastic_prefs::applyConfigBitsFrom(prefs);
     const std::string savestatesDir = std::string(kDrasticDataDir) +
                                        "/savestates";

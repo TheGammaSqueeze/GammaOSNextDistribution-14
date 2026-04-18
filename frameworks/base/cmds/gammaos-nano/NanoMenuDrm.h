@@ -104,7 +104,19 @@ typedef EGLint (EGLAPIENTRYP PFNEGLDUPNATIVEFENCEFDANDROIDPROC_LOCAL)(EGLDisplay
 // Constants
 // ---------------------------------------------------------------------------
 
-static constexpr int AHB_RING_DEPTH = 4;
+// Ring depth. Normally three slots are sufficient: render into N, fence in
+// N-1, scanout in N-2. Frame-sync mode (sDrmFrameSync) delays the
+// SECONDARY flip by one extra vblank so its logical content matches
+// what the primary is showing at the same wall-clock moment. The
+// existing flip order (secondary first, primary last) biases primary
+// to land one vblank after secondary on RK3568 dual-DSI; delaying
+// secondary by one userspace iter brings them back into logical
+// alignment. That puts a fourth slot into the "in use" set (render N,
+// fence N-1, primary scanout N-2, secondary scanout N-3), so we size
+// the ring at five: four slots live at any time plus one spare to
+// avoid re-using a slot while scanout still references it. Two extra
+// AHBs of 512x192 ABGR is ~200 KiB -- negligible.
+static constexpr int AHB_RING_DEPTH = 5;
 static constexpr int kMaxCrtcTrack = 8;
 
 // ---------------------------------------------------------------------------
@@ -119,6 +131,14 @@ extern bool sDrmZeroCopy;
 extern bool sDrmGlRotation;
 extern bool sDrmYFlipForPrime;
 extern bool sDrmVblankBroken;
+// When true, delay the primary display's page flip by one refresh so it
+// matches the secondary display's inherent 1-frame lag on dual-DSI
+// setups that cannot be phase-locked (RK3568 VOP2: VP0/VP1 each run
+// their own free-running clock; no kernel-level sync is exposed to
+// userspace for independent content). Both panels end up 1 frame
+// behind render time but stay visually synchronized with each other.
+// Off by default -- adds 1 frame of input lag to the primary panel.
+extern bool sDrmFrameSync;
 extern int sPendingFlipEvents;
 extern uint32_t sCrtcIds[kMaxCrtcTrack];
 extern int sCrtcPending[kMaxCrtcTrack];

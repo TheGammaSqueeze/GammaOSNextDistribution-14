@@ -18,6 +18,7 @@
 #include <utils/SystemClock.h>
 
 #include "DrasticRunner.h"
+#include "NanoMenuDrm.h"
 
 namespace android {
 namespace drastic_overlay {
@@ -352,6 +353,23 @@ void OverlayMenu::rebuildVideo() {
     addBool("Hi-res 3D",           mPrefs.hires3d,      true);
     addBool("Threaded 3D",         mPrefs.threaded3d,   true);
     addBool("Disable Edge Marking",mPrefs.disableEdge,  true);
+    // Frame Sync: live toggle. Updates the DRM flip-path global
+    // immediately so the next submitted frame picks up the new
+    // behavior. No restart needed -- the ring already has the spare
+    // slot for the delayed primary flip whether the flag is on or off.
+    {
+        RowAction r;
+        r.label = "Frame Sync";
+        r.value = mPrefs.frameSync ? "On" : "Off";
+        auto toggle = [this]() {
+            mPrefs.frameSync = !mPrefs.frameSync;
+            android::sDrmFrameSync = mPrefs.frameSync;
+            mDirty = true;
+        };
+        r.onAccept = toggle;
+        r.onAdjust = [toggle](int) { toggle(); };
+        mRows.push_back(std::move(r));
+    }
     // Frameskip type.
     {
         RowAction r;
