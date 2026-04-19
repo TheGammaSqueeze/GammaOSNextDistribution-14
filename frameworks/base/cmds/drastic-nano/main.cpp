@@ -900,30 +900,14 @@ int main(int argc, char** argv) {
             ALOGW("drastic-nano: SCHED_FIFO denied (%s), nice -20 "
                   "applied", strerror(rc));
         }
-        // Pin the render thread to the last CPU (typically CPU3 on
-        // the 4xA55 RK3566 targets). Without pinning, the scheduler
-        // may co-locate the render thread on the same core as
-        // drastic's DS emulation thread (SCHED_RR 5). Our SCHED_FIFO
-        // 80 preempts that emu thread every vblank, stretching its
-        // emulation slice and causing drastic's own pacing code to
-        // fall behind -- which the player perceives as an "auto
-        // frameskip" on relaunch (the kernel scheduler's placement
-        // at process start is non-deterministic, so some launches
-        // are smooth and some stutter). Reserving one core for us
-        // removes that variability.
-        long nprocs = sysconf(_SC_NPROCESSORS_ONLN);
-        if (nprocs > 1) {
-            cpu_set_t mask;
-            CPU_ZERO(&mask);
-            CPU_SET(nprocs - 1, &mask);
-            if (sched_setaffinity(selfTid, sizeof(mask), &mask) == 0) {
-                ALOGI("drastic-nano: render thread pinned to CPU %ld",
-                      nprocs - 1);
-            } else {
-                ALOGW("drastic-nano: render CPU affinity failed: %s",
-                      strerror(errno));
-            }
-        }
+        // Intentionally no sched_setaffinity here. Pinning the render
+        // thread before dr.init() causes every subsequent drastic
+        // child thread (emu, audio, mali worker, binder) to inherit
+        // the same affinity mask and end up serialised on a single
+        // core. SCHED_FIFO 80 already guarantees preemption over
+        // drastic's SCHED_RR 5 workers, so explicit core reservation
+        // is not required and costs ~2x frame throughput when it
+        // leaks into children.
     }
 
     // Lock current + future pages into RAM so no access faults into

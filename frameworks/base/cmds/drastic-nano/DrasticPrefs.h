@@ -76,12 +76,11 @@ struct Prefs {
     // so its logical content matches what the primary (bottom)
     // panel is showing at the same wall-clock moment. Needed on
     // dual-DSI setups that cannot be phase-locked in hardware
-    // (RK3568 VOP2). Adds 1 frame of input lag to the top panel,
-    // on by default since the visible tearing without it is more
-    // noticeable than a 16 ms input-lag increase on the top screen
-    // (which is gameplay-view on most DS titles and rarely takes
-    // touch input).
-    bool frameSync = true;
+    // (RK3568 VOP2). Adds 1 frame of input lag to the top panel.
+    // Off by default because the extra buffering interacts badly
+    // with heavier 3D titles; user can enable from the in-game
+    // Video overlay if they prefer the phase-locked look.
+    bool frameSync = false;
 
     // Per-player action keymap. Each entry is an Android keycode, or
     // -1 for "unmapped". We read all 3 players but only use player 0
