@@ -18,6 +18,7 @@
 #define GAMMAOS_NANO_MENU_H
 
 #include <stdint.h>
+#include <functional>
 #include <string>
 #include <vector>
 #include <set>
@@ -120,7 +121,30 @@ public:
     enum MenuState {
         MENU_MAIN = 0,
         MENU_RECENT = 1,
-        MENU_APPS = 2
+        MENU_APPS = 2,
+        MENU_WIFI = 3,
+        MENU_BT = 4,
+    };
+
+    struct SettingsItem {
+        std::string label;
+        int action; // 0 = Wi-Fi screen, 1 = Bluetooth screen
+    };
+
+    struct WifiNetEntry {
+        std::string ssid;
+        std::string bssid;
+        int rssi;            // dBm (e.g. -55)
+        int security;        // 0=none, 1=wep, 2=wpa/wpa2, 3=wpa3, 4=owe
+        int savedNetId;      // -1 if not saved
+        bool connected;
+    };
+
+    struct BtDevEntry {
+        std::string name;
+        std::string address;
+        bool bonded;
+        bool connected;
     };
 
 private:
@@ -161,6 +185,56 @@ private:
     void oskConfirm();
     void updateSearchResults();
     void renderOsk();
+
+    // Settings column (WiFi + Bluetooth). The Settings entry lives as an
+    // extra pseudo-system at index == mXmbSystems.size() in the XMB column
+    // bar. Selecting it shows a vertical list of {"Wi-Fi", "Bluetooth"}.
+    // Selecting an item from that list opens a full-screen sub-menu.
+    void initSettingsItems();
+    void renderSettingsList(float selIconX, float iconBarY, float iconSpacingV,
+                            float iconSize, float sf,
+                            float textScale, float selTextScale);
+    bool isOnSettingsColumn() const;
+
+    // Wi-Fi screen state + helpers
+    void openWifiScreen();
+    void closeWifiScreen();
+    void refreshWifiList();              // blocking: list-networks + scan + list-scan-results
+    void startWifiScanAsync();           // kick a background scan thread
+    void wifiScanThreadFunc();
+    void renderWifiScreen();
+    void handleWifiScreenSelect();
+    void handleWifiScreenUp();
+    void handleWifiScreenDown();
+    void handleWifiScreenX();            // manual rescan
+    void connectToSavedWifi(int savedNetId);
+    void addAndConnectWifi(const std::string& ssid, int security,
+                           const std::string& password);
+    void forgetWifiNetwork(int savedNetId);
+    void toggleWifiRadio(bool on);
+
+    // Bluetooth screen state + helpers
+    void openBtScreen();
+    void closeBtScreen();
+    void refreshBtList();                // blocking: list bonded + list scanned
+    void startBtScanAsync();
+    void btScanThreadFunc();
+    void renderBtScreen();
+    void handleBtScreenSelect();
+    void handleBtScreenUp();
+    void handleBtScreenDown();
+    void handleBtScreenX();              // rescan
+    void pairBtDevice(const std::string& mac);
+    void unpairBtDevice(const std::string& mac);
+    void connectBtDevice(const std::string& mac);
+    void toggleBtRadio(bool on);
+
+    // OSK password extension: same visual OSK, but types into a password
+    // field rendered with masked chars, and on Enter invokes a callback.
+    void openOskForPassword(const std::string& prompt,
+                            std::function<void(const std::string&)> onSubmit);
+    void renderPasswordPromptOverlay();
+    std::string maskPassword(const std::string& s);
 
     // Quick Resume
     void prepareShutdown(const char* action);
@@ -399,6 +473,49 @@ private:
     bool mBgScanResultReady;                  // set by thread, cleared by render loop
     bool mBgScanThreadRunning;                // true while thread is active
     void bgScanThreadFunc();                  // the thread entry point
+
+    // Settings column. Exposed as a pseudo-system at index mXmbSystems.size()
+    // on the XMB column bar. The vertical list shows mSettingsItems instead
+    // of ROMs when mXmbSystemIndex == (int)mXmbSystems.size().
+    std::vector<SettingsItem> mSettingsItems;
+    int mSettingsSelectedIndex;  // cursor inside the settings vertical list
+
+    // Wi-Fi sub-screen state
+    std::vector<WifiNetEntry> mWifiEntries;
+    int mWifiEntrySelected;
+    int mWifiScrollTop;
+    int64_t mWifiLastScanMs;
+    bool mWifiScanInProgress;       // scan thread is running
+    bool mWifiListDirty;            // bg thread produced a fresh list; render should re-read
+    std::mutex mWifiListMutex;
+    std::thread mWifiScanThread;
+    std::string mWifiStatusMsg;
+    int64_t mWifiStatusMsgUntilMs;
+    // Pending new-network add: when the user picks an unsaved SSID we pop
+    // the OSK password prompt, and stash the SSID+security here so the
+    // callback can finish the `cmd wifi connect-network` invocation.
+    std::string mWifiPendingSsid;
+    int mWifiPendingSecurity;
+
+    // Bluetooth sub-screen state
+    std::vector<BtDevEntry> mBtEntries;
+    int mBtEntrySelected;
+    int mBtScrollTop;
+    int64_t mBtLastScanMs;
+    bool mBtScanInProgress;
+    bool mBtListDirty;
+    std::mutex mBtListMutex;
+    std::thread mBtScanThread;
+    std::string mBtStatusMsg;
+    int64_t mBtStatusMsgUntilMs;
+
+    // OSK password mode: when active, keystrokes append to mOskQuery, but
+    // the HUD renders masked chars. On Enter, mOskPasswordCallback fires
+    // with the raw string and the overlay closes. Reusing mOskActive so the
+    // existing render path still handles dismissal + keyboard grid.
+    bool mOskPasswordMode;
+    std::string mOskPasswordPrompt;
+    std::function<void(const std::string&)> mOskPasswordCallback;
 
     // Icon rendering
     void initIconTextures();

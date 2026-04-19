@@ -127,6 +127,14 @@ NanoMenu::NanoMenu()
       mXmbGameScrollTop(0), mXmbRomScanDone(false),
       mXmbBootCompleted(false),
       mBgScanResultReady(false), mBgScanThreadRunning(false),
+      mSettingsSelectedIndex(0),
+      mWifiEntrySelected(0), mWifiScrollTop(0),
+      mWifiLastScanMs(0), mWifiScanInProgress(false), mWifiListDirty(false),
+      mWifiStatusMsgUntilMs(0), mWifiPendingSecurity(2),
+      mBtEntrySelected(0), mBtScrollTop(0),
+      mBtLastScanMs(0), mBtScanInProgress(false), mBtListDirty(false),
+      mBtStatusMsgUntilMs(0),
+      mOskPasswordMode(false),
       mOskActive(false), mOskCursorX(0), mOskCursorY(0),
       mSearchSelectedIndex(0), mSearchActive(false),
       mFtLib(nullptr),
@@ -602,6 +610,9 @@ status_t NanoMenu::readyToRun() {
     // the "Unknown" state, so the HUD simply does not draw until a
     // real reply lands.
     startNetPollThread();
+
+    // Initialise Settings column items (WiFi + Bluetooth entries).
+    initSettingsItems();
 
     return NO_ERROR;
 }
@@ -1492,7 +1503,7 @@ if (sRingPrimedCount >= 2) {
                 if (!firstFrameLogged) {
                     int64_t now = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL;
                     ALOGW("NanoMenu BOOT TIMING: drastic first frame at T+%lldms",
-                          now);
+                          (long long)now);
                     firstFrameLogged = true;
                 }
 
@@ -2489,9 +2500,9 @@ if (sRingPrimedCount >= 2) {
                 if (elapsedNs >= 1000000000LL) {
                     float fps = (float)sFpsFrames * 1e9f / (float)elapsedNs;
                     ALOGW("NanoMenu XMB FPS: %.1f (%d frames / %lld.%03lld s, min=%lldus max=%lldus)",
-                          fps, sFpsFrames, elapsedNs / 1000000000LL,
-                          (elapsedNs / 1000000LL) % 1000,
-                          sFpsMinFrameUs, sFpsMaxFrameUs);
+                          fps, sFpsFrames, (long long)(elapsedNs / 1000000000LL),
+                          (long long)((elapsedNs / 1000000LL) % 1000),
+                          (long long)sFpsMinFrameUs, (long long)sFpsMaxFrameUs);
                     sFpsWindowStartNs = mLastFrameNs;
                     sFpsFrames = 0;
                     sFpsMinFrameUs = 0;

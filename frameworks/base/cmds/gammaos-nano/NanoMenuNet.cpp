@@ -14,6 +14,8 @@
  * XMB scroll judder.
  */
 
+#define LOG_TAG "GammaOSNano"
+
 #include <cctype>
 #include <chrono>
 #include <cmath>

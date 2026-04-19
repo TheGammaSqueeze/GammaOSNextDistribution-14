@@ -28,13 +28,17 @@
 namespace android {
 
 // OSK keyboard layout (shared between NanoMenuXmb.cpp and NanoMenu.cpp input handling)
-static const char kOskLayout[3][9] = {
-    {'A','B','C','D','E','F','G','H','I'},
-    {'J','K','L','M','N','O','P','Q','R'},
-    {'S','T','U','V','W','X','Y','Z',' '},
+// Layout covers letters + digits + common password symbols. Upper/lowercase
+// cycling is deferred; most Wi-Fi passwords accept uppercase.
+static const int kOskRows = 5;
+static const int kOskCols = 10;
+static const char kOskLayout[5][10] = {
+    {'0','1','2','3','4','5','6','7','8','9'},
+    {'A','B','C','D','E','F','G','H','I','J'},
+    {'K','L','M','N','O','P','Q','R','S','T'},
+    {'U','V','W','X','Y','Z','.','-','_','@'},
+    {'!','#','$','%','&','*','+','=','?',' '},
 };
-static const int kOskRows = 3;
-static const int kOskCols = 9;
 
 // Case-insensitive substring search
 inline bool containsInsensitive(const std::string& haystack, const std::string& needle) {

@@ -1005,6 +1005,7 @@ void NanoMenu::handleLeft() {
         if (mOskCursorX > 0) mOskCursorX--;
         return;
     }
+    if (mMenuState == MENU_WIFI || mMenuState == MENU_BT) return;
     if (!mXmbMode) return;
     if (mSearchActive) return;
     // Index -1 = Recently Played, 0..N-1 = systems
@@ -1024,14 +1025,20 @@ void NanoMenu::handleRight() {
         if (mOskCursorX < maxCol) mOskCursorX++;
         return;
     }
+    if (mMenuState == MENU_WIFI || mMenuState == MENU_BT) return;
     if (!mXmbMode) return;
     if (mSearchActive) return;
     int numSys = (int)mXmbSystems.size();
     if (numSys == 0) return;
-    if (mXmbSystemIndex < numSys - 1) {
+    // Allow scrolling one step past the last real system into the Settings
+    // pseudo-column (index == numSys). Settings is the rightmost column.
+    int maxIdx = numSys - 1;
+    if (!mSettingsItems.empty()) maxIdx = numSys;
+    if (mXmbSystemIndex < maxIdx) {
         mXmbSystemIndex++;
         mXmbGameIndex = 0;
         mXmbGameScrollTop = 0;
+        mSettingsSelectedIndex = 0;
         mDisplayDirty = true;
     }
 }
@@ -1429,6 +1436,9 @@ void NanoMenu::launchXmbGame() {
 
 void NanoMenu::openOsk() {
     mOskActive = true;
+    mOskPasswordMode = false;
+    mOskPasswordPrompt.clear();
+    mOskPasswordCallback = nullptr;
     mOskQuery.clear();
     mOskCursorX = 0;
     mOskCursorY = 0;
@@ -1439,27 +1449,45 @@ void NanoMenu::openOsk() {
 
 void NanoMenu::closeOsk() {
     mOskActive = false;
+    if (mOskPasswordMode) {
+        // Cancel: clear password state without invoking callback.
+        mOskPasswordMode = false;
+        mOskPasswordPrompt.clear();
+        mOskPasswordCallback = nullptr;
+        mOskQuery.clear();
+        return;
+    }
     if (mOskQuery.empty()) {
         mSearchActive = false;
     }
 }
 
 void NanoMenu::oskType(char c) {
-    if (mOskQuery.size() < 32) {
+    if (mOskQuery.size() < 64) {
         mOskQuery += c;
-        updateSearchResults();
+        if (!mOskPasswordMode) updateSearchResults();
     }
 }
 
 void NanoMenu::oskBackspace() {
     if (!mOskQuery.empty()) {
         mOskQuery.pop_back();
-        updateSearchResults();
+        if (!mOskPasswordMode) updateSearchResults();
     }
 }
 
 void NanoMenu::oskConfirm() {
     mOskActive = false;
+    if (mOskPasswordMode) {
+        auto cb = std::move(mOskPasswordCallback);
+        std::string pw = mOskQuery;
+        mOskPasswordMode = false;
+        mOskPasswordPrompt.clear();
+        mOskPasswordCallback = nullptr;
+        mOskQuery.clear();
+        if (cb) cb(pw);
+        return;
+    }
     if (!mOskQuery.empty()) {
         mSearchActive = true;
         mSearchSelectedIndex = 0;
@@ -1502,12 +1530,20 @@ void NanoMenu::renderOsk() {
     float bgY = mHeight - gridH - pad;
     drawQuad(bgX, bgY, gridW, gridH, 0.0f, 0.0f, 0.0f, 0.85f);
 
-    // Query line
+    // Query line — Search mode shows raw text; password mode shows masked.
     float queryY = bgY + pad;
-    std::string queryDisplay = "Search: " + mOskQuery + "_";
+    std::string queryDisplay;
+    float qr = 0.0f, qg = 0.85f, qb = 1.0f;
+    if (mOskPasswordMode) {
+        std::string prompt = mOskPasswordPrompt.empty() ? "Password" : mOskPasswordPrompt;
+        queryDisplay = prompt + ": " + maskPassword(mOskQuery) + "_";
+        qr = 1.0f; qg = 0.75f; qb = 0.35f;
+    } else {
+        queryDisplay = "Search: " + mOskQuery + "_";
+    }
     float queryScale = 2.0f * sf;
     drawText(queryDisplay.c_str(), bgX + pad, queryY, queryScale,
-             0.0f, 0.85f, 1.0f, 1.0f);
+             qr, qg, qb, 1.0f);
 
     // Keyboard grid
     float gridStartY = queryY + charH + 12.0f * sf;
@@ -1538,7 +1574,10 @@ void NanoMenu::renderOsk() {
     // Help text
     float helpY = gridStartY + kOskRows * (charH + 8.0f * sf) + 4.0f * sf;
     float helpScale = 1.5f * sf;
-    drawText("A:Type  B:Delete  Start:Search  Y:Cancel",
+    const char* helpText = mOskPasswordMode
+        ? "A:Type  X:Backspace  Start:Submit  B/Y:Cancel"
+        : "A:Type  X:Backspace  Start:Search  B/Y:Cancel";
+    drawText(helpText,
              bgX + pad, helpY, helpScale, 0.4f, 0.4f, 0.5f, 1.0f);
 }
 
@@ -1628,6 +1667,44 @@ void NanoMenu::renderXmb() {
         if (fabsf(hOff) > 8.0f) continue;
         drawCatIcon(i, hOff, !isRecent && i == mXmbSystemIndex, i < 16 ? i : 0);
     }
+    // Settings pseudo-column (index numSys). Draw custom settings glyph.
+    bool isSettings = isOnSettingsColumn();
+    if (!mSettingsItems.empty()) {
+        float hOff = (float)numSys - mXmbAnimX;
+        if (fabsf(hOff) <= 8.0f) {
+            float zoom = isSettings ? 1.0f : 0.55f;
+            float sz = iconSize * zoom;
+            float alpha = isSettings ? 1.0f : fmaxf(0.15f, 1.0f - fabsf(hOff) * 0.15f);
+            float ix = selIconX + hOff * iconSpacingH;
+            float iy = iconBarY - sz / 2.0f;
+            // Body: gear-like shape via quads. 4 spokes + hub ring.
+            float cx = ix + sz / 2.0f, cy = iy + sz / 2.0f;
+            float spokeW = sz * 0.16f, spokeL = sz * 0.48f;
+            float hubR = sz * 0.22f;
+            float r = isSettings ? 0.95f : 0.55f;
+            float g = isSettings ? 0.85f : 0.50f;
+            float b = isSettings ? 0.40f : 0.45f;
+            // Spokes (cross)
+            drawQuad(cx - spokeW / 2, cy - spokeL / 2, spokeW, spokeL, r, g, b, alpha);
+            drawQuad(cx - spokeL / 2, cy - spokeW / 2, spokeL, spokeW, r, g, b, alpha);
+            // Diagonal spokes (approximated with rotated quads = just thinner cross offset)
+            float diagW = spokeW * 0.8f, diagL = spokeL * 0.75f;
+            drawQuad(cx - diagL / 2, cy - diagW / 2, diagL, diagW, r, g, b, alpha * 0.6f);
+            drawQuad(cx - diagW / 2, cy - diagL / 2, diagW, diagL, r, g, b, alpha * 0.6f);
+            // Hub ring: solid small square for the center
+            drawQuad(cx - hubR / 2, cy - hubR / 2, hubR, hubR,
+                     isSettings ? 0.25f : 0.15f,
+                     isSettings ? 0.25f : 0.15f,
+                     isSettings ? 0.30f : 0.18f, alpha);
+            if (isSettings) {
+                const char* name = "Settings";
+                float nameY = iy + sz + 6.0f * sf;
+                float nameW = measureText(name, catNameScale);
+                float nameCX = ix + sz / 2.0f - nameW / 2.0f;
+                drawText(name, nameCX, nameY, catNameScale, 0.8f, 0.8f, 0.8f, 0.9f);
+            }
+        }
+    }
 
     // --- Vertical item list ---
     float selSz = iconSize * catActiveZoom;
@@ -1642,6 +1719,8 @@ void NanoMenu::renderXmb() {
         numItems = (int)mXmbRecent.size();
     } else if (mSearchActive) {
         numItems = (int)mSearchResults.size();
+    } else if (isSettings) {
+        numItems = (int)mSettingsItems.size();
     } else {
         int si = mXmbSystemIndex;
         if (si >= 0 && si < numSys) numItems = (int)mXmbSystems[si].roms.size();
@@ -1649,7 +1728,8 @@ void NanoMenu::renderXmb() {
     if (numItems == 0) hasItems = false;
 
     int curIdx = isRecent ? mXmbGameIndex
-               : mSearchActive ? mSearchSelectedIndex : mXmbGameIndex;
+               : mSearchActive ? mSearchSelectedIndex
+               : isSettings ? mSettingsSelectedIndex : mXmbGameIndex;
     if (curIdx >= numItems) curIdx = numItems - 1;
     if (curIdx < 0) curIdx = 0;
 
@@ -1716,6 +1796,8 @@ void NanoMenu::renderXmb() {
                     displayText = mXmbSystems[res.sysIdx].displayNames[res.gameIdx].c_str();
                     sysLabel = mXmbSystems[res.sysIdx].shortname.c_str();
                 }
+            } else if (isSettings && i < (int)mSettingsItems.size()) {
+                displayText = mSettingsItems[i].label.c_str();
             } else {
                 int si = mXmbSystemIndex;
                 if (si >= 0 && si < numSys && i < (int)mXmbSystems[si].displayNames.size()) {

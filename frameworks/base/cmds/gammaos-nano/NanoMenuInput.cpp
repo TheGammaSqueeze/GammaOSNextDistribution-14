@@ -245,6 +245,8 @@ void NanoMenu::handleBack() {
         closeOsk();
         return;
     }
+    if (mMenuState == MENU_WIFI) { closeWifiScreen(); return; }
+    if (mMenuState == MENU_BT)   { closeBtScreen();   return; }
     if (mXmbMode) {
         if (mSearchActive) {
             mSearchActive = false;
@@ -278,7 +280,18 @@ void NanoMenu::handleSelect() {
         oskType(ch);
         return;
     }
+    if (mMenuState == MENU_WIFI) { handleWifiScreenSelect(); return; }
+    if (mMenuState == MENU_BT)   { handleBtScreenSelect();   return; }
     if (mXmbMode) {
+        if (isOnSettingsColumn()) {
+            if (mSettingsSelectedIndex >= 0
+                && mSettingsSelectedIndex < (int)mSettingsItems.size()) {
+                int act = mSettingsItems[mSettingsSelectedIndex].action;
+                if (act == 0) openWifiScreen();
+                else if (act == 1) openBtScreen();
+            }
+            return;
+        }
         launchXmbGame();
         return;
     }
@@ -415,9 +428,14 @@ void NanoMenu::handleUp() {
         if (mOskCursorY > 0) mOskCursorY--;
         return;
     }
+    if (mMenuState == MENU_WIFI) { handleWifiScreenUp(); return; }
+    if (mMenuState == MENU_BT)   { handleBtScreenUp();   return; }
     if (mXmbMode) {
         if (mSearchActive) {
             if (mSearchSelectedIndex > 0) mSearchSelectedIndex--;
+        } else if (isOnSettingsColumn()) {
+            if (mSettingsSelectedIndex > 0) mSettingsSelectedIndex--;
+            mDisplayDirty = true;
         } else {
             if (mXmbGameIndex > 0) mXmbGameIndex--;
         }
@@ -455,10 +473,16 @@ void NanoMenu::handleDown() {
         if (mOskCursorY < kOskRows - 1) mOskCursorY++;
         return;
     }
+    if (mMenuState == MENU_WIFI) { handleWifiScreenDown(); return; }
+    if (mMenuState == MENU_BT)   { handleBtScreenDown();   return; }
     if (mXmbMode) {
         if (mSearchActive) {
             int maxIdx = (int)mSearchResults.size() - 1;
             if (mSearchSelectedIndex < maxIdx) mSearchSelectedIndex++;
+        } else if (isOnSettingsColumn()) {
+            int maxIdx = (int)mSettingsItems.size() - 1;
+            if (mSettingsSelectedIndex < maxIdx) mSettingsSelectedIndex++;
+            mDisplayDirty = true;
         } else if (mXmbSystemIndex == -1) {
             // Recently Played
             int maxIdx = (int)mXmbRecent.size() - 1;
@@ -648,6 +672,9 @@ void NanoMenu::pollInput() {
                         }
                         break;
                     case BTN_NORTH: // X button (Nintendo layout: BTN_NORTH = X)
+                        if (mOskActive) { oskBackspace(); break; }
+                        if (mMenuState == MENU_WIFI) { handleWifiScreenX(); break; }
+                        if (mMenuState == MENU_BT)   { handleBtScreenX();   break; }
                         // X: cycle wallpaper/FX
                         sActiveEffectIdx = (sActiveEffectIdx + 1) % kNumActiveEffects;
                         mCurrentEffect = kActiveEffects[sActiveEffectIdx];
@@ -659,6 +686,10 @@ void NanoMenu::pollInput() {
                         break;
                     case BTN_TL: case KEY_L:
                         if (mOskActive) break;
+                        // Shut any open Settings sub-screen before leaving XMB
+                        // so its scan thread exits instead of churning in bg.
+                        if (mMenuState == MENU_WIFI) closeWifiScreen();
+                        else if (mMenuState == MENU_BT) closeBtScreen();
                         mXmbMode = !mXmbMode;
                         property_set("persist.gammaos.nano.xmb_mode",
                                      mXmbMode ? "1" : "0");

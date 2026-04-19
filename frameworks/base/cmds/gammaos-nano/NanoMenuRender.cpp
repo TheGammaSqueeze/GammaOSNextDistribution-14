@@ -979,6 +979,8 @@ void NanoMenu::render() {
 
     if (mXmbMode) {
         renderXmb();
+        if (mMenuState == MENU_WIFI) renderWifiScreen();
+        else if (mMenuState == MENU_BT) renderBtScreen();
     } else {
 
     // Responsive scaling: fit to both width and height so the menu
