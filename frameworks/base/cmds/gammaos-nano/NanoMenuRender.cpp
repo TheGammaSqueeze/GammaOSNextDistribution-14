@@ -1204,12 +1204,21 @@ void NanoMenu::render() {
     renderBrightnessBar();
     renderVolumeBar();
 
-    // Battery indicator (XMB only; mirrors the Quick Resume HUD on the
-    // opposite side). Text-menu mode keeps its minimal top-bar free so the
-    // classic boot layout isn't visually disturbed.
+    // Battery + Network indicators (XMB only; mirrors the Quick Resume HUD
+    // on the opposite side). Text-menu mode keeps its minimal top-bar free
+    // so the classic boot layout isn't visually disturbed.
     if (mXmbMode) {
         pollBattery();
-        renderBatteryIndicator();
+        float sf = fminf((float)mWidth / 1080.0f, (float)mHeight / 720.0f);
+        if (sf < 0.5f) sf = 0.5f;
+        float pad = 15.0f * sf;
+        float textScale = 1.5f * sf;
+        float rowY = pad;
+        // Match the height that renderBatteryIndicator uses internally
+        // so network icons sit on the same baseline.
+        float rowH = fmaxf(18.0f * sf, FONT_CHAR_H * textScale);
+        float batteryRightX = renderBatteryIndicator();
+        renderNetworkIndicators(batteryRightX, rowY, rowH, sf, textScale);
     }
 
     // Quick Resume indicator (top-right corner)

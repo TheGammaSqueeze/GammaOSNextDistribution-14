@@ -113,6 +113,10 @@ NanoMenu::NanoMenu()
       mShowVolumeBar(false), mVolumeBarTimer(0),
       mBatteryPercent(-1), mBatteryCharging(false),
       mBatteryPollTicks(0),
+      mWifiLevel(kWifiLevel_Unknown), mWifiBars(0),
+      mBtLevel(kBtLevel_Unknown), mBtConnectedCount(0),
+      mNetPollInitialised(false),
+      mNetPollThreadRunning(false), mNetPollExitRequested(false),
       mLastFrameNs(0),
       mFrameDt(1.0f / 60.0f),
       mCurrentEffect(1),
@@ -160,6 +164,10 @@ NanoMenu::NanoMenu()
 }
 
 NanoMenu::~NanoMenu() {
+    // Stop the network HUD poller first so its worker thread can't
+    // race with teardown of other state.
+    stopNetPollThread();
+
     // GammaOS: Clean up secondary display wallpaper resources.
     for (size_t i = 0; i < mSecondaryEglSurfaces.size(); i++) {
         eglDestroySurface(mDisplay, mSecondaryEglSurfaces[i]);
@@ -588,6 +596,12 @@ status_t NanoMenu::readyToRun() {
     // Zygote + SystemServer preload is triggered by init.rc on nonencrypted,
     // before gammaos-nano even starts.  By the time the user sees the menu,
     // Android is already booting in the background.
+
+    // Kick the network HUD poller. The thread spins even if wifi/bt
+    // services aren't up yet -- shell-outs return empty and we keep
+    // the "Unknown" state, so the HUD simply does not draw until a
+    // real reply lands.
+    startNetPollThread();
 
     return NO_ERROR;
 }

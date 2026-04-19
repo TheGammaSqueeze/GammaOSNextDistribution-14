@@ -22,6 +22,8 @@
 #include <vector>
 #include <set>
 #include <unordered_map>
+#include <mutex>
+#include <thread>
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -177,7 +179,40 @@ private:
 
     // Battery HUD
     void pollBattery();
-    void renderBatteryIndicator();
+    // Returns the right-edge X (in surface pixels) of the whole battery
+    // indicator (icon + text). Network HUD chains its own icons from this
+    // x so the layout scales cleanly with resolution / orientation.
+    float renderBatteryIndicator();
+
+    // Network HUD (WiFi + BT). Real polling happens on a background thread
+    // because the underlying 'cmd wifi status' / dumpsys calls are slow
+    // enough (100-400ms on a cold first call, 10-50ms steady state) that
+    // running them on the render thread would spike the frame budget.
+    // Render thread only reads the cached state behind mNetStateMutex.
+    enum WifiLevel {
+        kWifiLevel_Unknown = 0,
+        kWifiLevel_Off,
+        kWifiLevel_Disconnected,  // radio on, no network
+        kWifiLevel_Connected,     // add mWifiBars for signal strength 0..4
+    };
+    enum BtLevel {
+        kBtLevel_Unknown = 0,
+        kBtLevel_Off,
+        kBtLevel_On,
+        kBtLevel_Connected,       // at least one device connected
+    };
+    void startNetPollThread();
+    void stopNetPollThread();
+    void netPollThreadFunc();
+    // Draws WiFi then BT icons + short label starting at startX. Returns
+    // the x position right after the last-drawn element so callers can
+    // chain more HUDs to the right.
+    float renderNetworkIndicators(float startX, float rowY, float rowH,
+                                  float sf, float textScale);
+    void drawWifiIcon(float x, float y, float sf, int bars,
+                      float r, float g, float b, float a);
+    void drawBtIcon(float x, float y, float sf,
+                    float r, float g, float b, float a);
 
     // Rendering
     void initShaders();
@@ -310,6 +345,21 @@ private:
     int mBatteryPercent;      // -1 if unknown / no battery
     bool mBatteryCharging;    // true when charging or full
     int mBatteryPollTicks;    // frames until next sysfs read
+
+    // Network state (cached, refreshed from netPollThreadFunc at ~0.5 Hz).
+    // All fields are guarded by mNetStateMutex; copy into locals before use.
+    std::mutex mNetStateMutex;
+    WifiLevel mWifiLevel;
+    int mWifiBars;                 // 0..4 signal strength, meaningful only if Connected
+    std::string mWifiSsid;         // connected SSID, empty otherwise
+    BtLevel mBtLevel;
+    int mBtConnectedCount;         // bonded AND currently connected devices
+    bool mNetPollInitialised;      // first poll landed, safe to draw
+    // Worker thread handles for the net poller. Started from the ctor
+    // after mSession is wired up; joined from the dtor.
+    std::thread mNetPollThread;
+    bool mNetPollThreadRunning;
+    bool mNetPollExitRequested;
 
     // Frame timing
     int64_t mLastFrameNs;  // monotonic clock from previous frame

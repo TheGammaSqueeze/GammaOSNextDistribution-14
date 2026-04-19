@@ -45,6 +45,7 @@ cc_binary {
         "NanoMenuInput.cpp",
         "NanoMenuState.cpp",
         "NanoMenuSystem.cpp",
+        "NanoMenuNet.cpp",
         "NanoMenuRender.cpp",
         "LibretroRunner.cpp",
         "FakeJNI.cpp",

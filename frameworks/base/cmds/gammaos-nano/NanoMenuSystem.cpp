@@ -325,8 +325,8 @@ void NanoMenu::pollBattery() {
     }
 }
 
-void NanoMenu::renderBatteryIndicator() {
-    if (mBatteryPercent < 0) return; // no battery node / read failed
+float NanoMenu::renderBatteryIndicator() {
+    if (mBatteryPercent < 0) return 15.0f; // no battery node / read failed: leftmost padding
 
     int pct = mBatteryPercent;
     if (pct < 0) pct = 0;
@@ -396,6 +396,10 @@ void NanoMenu::renderBatteryIndicator() {
     float tx = capX + capW + gap;
     float ty = y + (rowH - FONT_CHAR_H * textScale) / 2.0f;
     drawText(txt, tx, ty, textScale, cr, cg, cb, 1.0f);
+
+    // Right-edge X of the whole HUD (text is the rightmost thing). Used by
+    // renderNetworkIndicators to chain WiFi + BT icons in the same row.
+    return tx + measureText(txt, textScale);
 }
 
 // ---------------------------------------------------------------------------
