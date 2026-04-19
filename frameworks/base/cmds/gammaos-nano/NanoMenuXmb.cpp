@@ -1008,14 +1008,18 @@ void NanoMenu::handleLeft() {
     if (mMenuState == MENU_WIFI || mMenuState == MENU_BT) return;
     if (!mXmbMode) return;
     if (mSearchActive) return;
-    // Index -1 = Recently Played, 0..N-1 = systems
-    if (mXmbSystemIndex > -1) {
-        // Don't go to Recently Played if it's empty
-        if (mXmbSystemIndex == 0 && mXmbRecent.empty()) return;
-        mXmbSystemIndex--;
+    // Columns: -2 Settings | -1 Recently Played | 0..N-1 Systems.
+    // Skip past absent columns (empty recent, no settings) instead of stopping.
+    int next = mXmbSystemIndex - 1;
+    while (next >= -2) {
+        if (next == -1 && mXmbRecent.empty()) { next--; continue; }
+        if (next == -2 && mSettingsItems.empty()) { next--; continue; }
+        mXmbSystemIndex = next;
         mXmbGameIndex = 0;
         mXmbGameScrollTop = 0;
+        mSettingsSelectedIndex = 0;
         mDisplayDirty = true;
+        return;
     }
 }
 
@@ -1029,17 +1033,15 @@ void NanoMenu::handleRight() {
     if (!mXmbMode) return;
     if (mSearchActive) return;
     int numSys = (int)mXmbSystems.size();
-    if (numSys == 0) return;
-    // Allow scrolling one step past the last real system into the Settings
-    // pseudo-column (index == numSys). Settings is the rightmost column.
-    int maxIdx = numSys - 1;
-    if (!mSettingsItems.empty()) maxIdx = numSys;
-    if (mXmbSystemIndex < maxIdx) {
-        mXmbSystemIndex++;
+    int next = mXmbSystemIndex + 1;
+    while (next <= numSys - 1) {
+        if (next == -1 && mXmbRecent.empty()) { next++; continue; }
+        mXmbSystemIndex = next;
         mXmbGameIndex = 0;
         mXmbGameScrollTop = 0;
         mSettingsSelectedIndex = 0;
         mDisplayDirty = true;
+        return;
     }
 }
 
@@ -1632,6 +1634,7 @@ void NanoMenu::renderXmb() {
     (void)underItemOff;
 
     bool isRecent = (mXmbSystemIndex == -1);
+    bool isSettings = isOnSettingsColumn();
 
     // --- Horizontal category bar ---
     auto drawCatIcon = [&](int idx, float hOffset, bool isSel, int iconId) {
@@ -1646,7 +1649,8 @@ void NanoMenu::renderXmb() {
         float cb = isSel ? iconB : dimIconB;
         drawIcon(iconId, ix, iy, sz, cr, cg, cb, alpha);
         if (isSel) {
-            const char* name = (idx == -1) ? "Recently Played"
+            const char* name = (idx == -2) ? "Settings"
+                             : (idx == -1) ? "Recently Played"
                              : (idx >= 0 && idx < numSys) ? mXmbSystems[idx].name.c_str()
                              : "";
             float nameY = iy + sz + 6.0f * sf;
@@ -1656,54 +1660,22 @@ void NanoMenu::renderXmb() {
         }
     };
 
+    // Settings (index -2), leftmost column
+    if (!mSettingsItems.empty()) {
+        float hOff = -2.0f - mXmbAnimX;
+        drawCatIcon(-2, hOff, isSettings, 17);
+    }
     // Recently Played (index -1)
     if (!mXmbRecent.empty()) {
         float hOff = -1.0f - mXmbAnimX;
         drawCatIcon(-1, hOff, isRecent, 15);
     }
-    // System icons
+    // System icons (index 0..N-1)
     for (int i = 0; i < numSys; i++) {
         float hOff = (float)i - mXmbAnimX;
         if (fabsf(hOff) > 8.0f) continue;
-        drawCatIcon(i, hOff, !isRecent && i == mXmbSystemIndex, i < 16 ? i : 0);
-    }
-    // Settings pseudo-column (index numSys). Draw custom settings glyph.
-    bool isSettings = isOnSettingsColumn();
-    if (!mSettingsItems.empty()) {
-        float hOff = (float)numSys - mXmbAnimX;
-        if (fabsf(hOff) <= 8.0f) {
-            float zoom = isSettings ? 1.0f : 0.55f;
-            float sz = iconSize * zoom;
-            float alpha = isSettings ? 1.0f : fmaxf(0.15f, 1.0f - fabsf(hOff) * 0.15f);
-            float ix = selIconX + hOff * iconSpacingH;
-            float iy = iconBarY - sz / 2.0f;
-            // Body: gear-like shape via quads. 4 spokes + hub ring.
-            float cx = ix + sz / 2.0f, cy = iy + sz / 2.0f;
-            float spokeW = sz * 0.16f, spokeL = sz * 0.48f;
-            float hubR = sz * 0.22f;
-            float r = isSettings ? 0.95f : 0.55f;
-            float g = isSettings ? 0.85f : 0.50f;
-            float b = isSettings ? 0.40f : 0.45f;
-            // Spokes (cross)
-            drawQuad(cx - spokeW / 2, cy - spokeL / 2, spokeW, spokeL, r, g, b, alpha);
-            drawQuad(cx - spokeL / 2, cy - spokeW / 2, spokeL, spokeW, r, g, b, alpha);
-            // Diagonal spokes (approximated with rotated quads = just thinner cross offset)
-            float diagW = spokeW * 0.8f, diagL = spokeL * 0.75f;
-            drawQuad(cx - diagL / 2, cy - diagW / 2, diagL, diagW, r, g, b, alpha * 0.6f);
-            drawQuad(cx - diagW / 2, cy - diagL / 2, diagW, diagL, r, g, b, alpha * 0.6f);
-            // Hub ring: solid small square for the center
-            drawQuad(cx - hubR / 2, cy - hubR / 2, hubR, hubR,
-                     isSettings ? 0.25f : 0.15f,
-                     isSettings ? 0.25f : 0.15f,
-                     isSettings ? 0.30f : 0.18f, alpha);
-            if (isSettings) {
-                const char* name = "Settings";
-                float nameY = iy + sz + 6.0f * sf;
-                float nameW = measureText(name, catNameScale);
-                float nameCX = ix + sz / 2.0f - nameW / 2.0f;
-                drawText(name, nameCX, nameY, catNameScale, 0.8f, 0.8f, 0.8f, 0.9f);
-            }
-        }
+        drawCatIcon(i, hOff, !isRecent && !isSettings && i == mXmbSystemIndex,
+                    i < 16 ? i : 0);
     }
 
     // --- Vertical item list ---

@@ -402,9 +402,11 @@ void NanoMenu::initSettingsItems() {
     mSettingsSelectedIndex = 0;
 }
 
+// Settings is the leftmost XMB column, identified by sentinel index -2.
+// Order is: -2 Settings | -1 Recently Played | 0..N-1 Systems.
 bool NanoMenu::isOnSettingsColumn() const {
     return mXmbMode
-        && mXmbSystemIndex == (int)mXmbSystems.size()
+        && mXmbSystemIndex == -2
         && !mSettingsItems.empty();
 }
 

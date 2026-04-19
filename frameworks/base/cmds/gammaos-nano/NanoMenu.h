@@ -474,9 +474,10 @@ private:
     bool mBgScanThreadRunning;                // true while thread is active
     void bgScanThreadFunc();                  // the thread entry point
 
-    // Settings column. Exposed as a pseudo-system at index mXmbSystems.size()
-    // on the XMB column bar. The vertical list shows mSettingsItems instead
-    // of ROMs when mXmbSystemIndex == (int)mXmbSystems.size().
+    // Settings column. Pinned as the leftmost XMB column at sentinel index -2.
+    // Order: -2 Settings | -1 Recently Played | 0..N-1 Systems.
+    // The vertical list shows mSettingsItems instead of ROMs when
+    // mXmbSystemIndex == -2 (see isOnSettingsColumn()).
     std::vector<SettingsItem> mSettingsItems;
     int mSettingsSelectedIndex;  // cursor inside the settings vertical list
 
@@ -521,7 +522,7 @@ private:
     void initIconTextures();
     void drawIcon(int iconIdx, float x, float y, float size,
                   float r, float g, float b, float a);
-    GLuint mIconTextures[17]; // 0-14=systems, 15=history, 16=game item
+    GLuint mIconTextures[18]; // 0-14=systems, 15=history, 16=game item, 17=setting
 
     // On-screen keyboard (search)
     bool mOskActive;           // OSK is visible and receiving input

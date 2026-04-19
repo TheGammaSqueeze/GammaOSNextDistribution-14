@@ -71,8 +71,8 @@ using ui::DisplayMode;
 // ---------------------------------------------------------------------------
 
 // Map system index to RetroArch XMB monochrome icon filename
-// Order MUST match kXmbSystemDefs (in NanoMenuXmb.cpp): NES,SNES,GB,GBC,GBA,N64,NDS,GEN,SMS,GG,PSX,PSP,DC,NGP,P8,history
-static const char* kIconPngNames[16] = {
+// Order MUST match kXmbSystemDefs (in NanoMenuXmb.cpp): NES,SNES,GB,GBC,GBA,N64,NDS,GEN,SMS,GG,PSX,PSP,DC,NGP,P8,history,<game slot has no file>,setting
+static const char* kIconPngNames[18] = {
     "Nintendo - Nintendo Entertainment System.png",       // 0: NES
     "Nintendo - Super Nintendo Entertainment System.png", // 1: SNES
     "Nintendo - Game Boy.png",                            // 2: GB
@@ -89,6 +89,8 @@ static const char* kIconPngNames[16] = {
     "SNK - Neo Geo Pocket Color.png",                     // 13: NGP
     "PICO-8.png",                                         // 14: PICO-8
     "history.png",                                        // 15: Recently Played
+    nullptr,                                              // 16: game item (embedded only)
+    "setting.png",                                        // 17: Settings column
 };
 
 static const char* kIconPngDir = "/data/system/nano_icons";
@@ -241,12 +243,13 @@ static bool loadPngFromMemory(const uint8_t* pngData, int pngSize, GLuint* outTe
 void NanoMenu::initIconTextures() {
     memset(mIconTextures, 0, sizeof(mIconTextures));
     int fileLoaded = 0, embeddedLoaded = 0;
-    for (int i = 0; i < 17; i++) {
+    for (int i = 0; i < 18; i++) {
         // Try loading high-res PNG from on-device RetroArch assets
         bool mono = (i != 14); // PICO-8 (index 14) keeps its original colors
         std::string pngPath;
-        if (i < 16) pngPath = std::string(kIconPngDir) + "/" + kIconPngNames[i];
-        if (loadPngAsAlphaTexture(pngPath.c_str(), &mIconTextures[i], mono)) {
+        const char* fname = kIconPngNames[i];
+        if (fname) pngPath = std::string(kIconPngDir) + "/" + fname;
+        if (!pngPath.empty() && loadPngAsAlphaTexture(pngPath.c_str(), &mIconTextures[i], mono)) {
             fileLoaded++;
             continue;
         }
@@ -263,7 +266,7 @@ void NanoMenu::initIconTextures() {
 
 void NanoMenu::drawIcon(int iconIdx, float x, float y, float size,
                         float r, float g, float b, float a) {
-    if (iconIdx < 0 || iconIdx >= 17 || mIconTextures[iconIdx] == 0) return;
+    if (iconIdx < 0 || iconIdx >= 18 || mIconTextures[iconIdx] == 0) return;
 
     float x0 = (x / mWidth) * 2.0f - 1.0f;
     float y0 = 1.0f - ((y + size) / mHeight) * 2.0f;
