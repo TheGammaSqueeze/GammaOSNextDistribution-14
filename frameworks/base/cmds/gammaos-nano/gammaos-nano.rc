@@ -9,3 +9,63 @@ service gammaos-nano /system/bin/gammaos-nano
     rlimit rtprio 99 99
     rlimit memlock 536870912 536870912
     task_profiles MaxPerformance
+
+# Network helper for the XMB Wi-Fi / Bluetooth screens. Nano runs as uid
+# 1003 (graphics), which the WifiService and BluetoothManagerService
+# treat as an unprivileged caller and return empty lists to. The
+# helper runs as root under the gammaoscustomization seclabel so the
+# cmd wifi / cmd bluetooth_manager / dumpsys invocations return real
+# data, and writes results to /data/system/nano_net_<cmd>.txt with
+# mode 0644 for nano to read back. See gammaos/nano-net-helper.sh.
+service nano-net-helper /system/bin/sh /system/bin/nano-net-helper.sh
+    class late_start
+    user root
+    group root system
+    seclabel u:r:gammaoscustomization:s0
+    disabled
+    oneshot
+
+on property:sys.gammaos.nano.net_cmd=wifi_list
+    start nano-net-helper
+
+on property:sys.gammaos.nano.net_cmd=wifi_scan_start
+    start nano-net-helper
+
+on property:sys.gammaos.nano.net_cmd=wifi_scan_read
+    start nano-net-helper
+
+on property:sys.gammaos.nano.net_cmd=wifi_status
+    start nano-net-helper
+
+on property:sys.gammaos.nano.net_cmd=wifi_enable
+    start nano-net-helper
+
+on property:sys.gammaos.nano.net_cmd=wifi_disable
+    start nano-net-helper
+
+on property:sys.gammaos.nano.net_cmd=wifi_connect
+    start nano-net-helper
+
+on property:sys.gammaos.nano.net_cmd=wifi_forget
+    start nano-net-helper
+
+on property:sys.gammaos.nano.net_cmd=bt_list
+    start nano-net-helper
+
+on property:sys.gammaos.nano.net_cmd=bt_scan_start
+    start nano-net-helper
+
+on property:sys.gammaos.nano.net_cmd=bt_scan_read
+    start nano-net-helper
+
+on property:sys.gammaos.nano.net_cmd=bt_enable
+    start nano-net-helper
+
+on property:sys.gammaos.nano.net_cmd=bt_disable
+    start nano-net-helper
+
+on property:sys.gammaos.nano.net_cmd=bt_pair
+    start nano-net-helper
+
+on property:sys.gammaos.nano.net_cmd=bt_unpair
+    start nano-net-helper

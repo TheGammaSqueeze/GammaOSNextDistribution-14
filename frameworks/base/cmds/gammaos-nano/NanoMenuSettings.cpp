@@ -2,24 +2,15 @@
  * Copyright (C) 2026 GammaOS
  *
  * Settings column: pseudo-system on the XMB column bar that hosts
- * Wi-Fi + Bluetooth configuration screens. Screens shell out to the
- * framework `cmd wifi` / `cmd bluetooth_manager` CLIs because the
- * bootanim SELinux domain can't talk AIDL to those services directly
- * but it can fork-exec a shell-out.
+ * Wi-Fi + Bluetooth configuration screens.
  *
- *   cmd wifi list-networks         -> saved networks (id, ssid, security)
- *   cmd wifi start-scan            -> kicks an async radio scan
- *   cmd wifi list-scan-results     -> last scan results (bssid, rssi, flags, ssid)
- *   cmd wifi connect-network ...   -> connect to either saved-id or new open/wpa2 net
- *   cmd wifi forget-network <id>   -> remove saved net
- *   cmd wifi set-wifi-enabled on|off
- *
- *   cmd bluetooth_manager list-bonded-devices
- *   dumpsys bluetooth_manager      -> name, connected status, bonded devices
- *   cmd bluetooth_manager enable|disable
- *   sm pair <mac>                  -- no standalone pair CLI; we use "bluetoothctl" which
- *                                      isn't on AOSP, so we just flip the "enabled" state and
- *                                      rely on a cached bond being re-connected automatically.
+ * Nano runs as uid 1003 (graphics) which Wifi/BluetoothManager services
+ * treat as unprivileged -- direct `cmd wifi ...` and dumpsys calls from
+ * this process return empty lists. To work around that we dispatch via
+ * runNetHelper() which triggers the root-privileged nano-net-helper
+ * service through init property triggers (sys.gammaos.nano.net_cmd) and
+ * reads back a plain-text result from /data/system/nano_net_<cmd>.txt.
+ * See gammaos/nano-net-helper.sh for the dispatch table.
  */
 
 #define LOG_TAG "GammaOSNano"
@@ -47,27 +38,76 @@
 
 #include "NanoMenu.h"
 #include "NanoMenuShaders.h"
+#include "NanoMenuUtils.h"
 
 namespace android {
 
 namespace {
 
-// runShellout: bounded popen() that caps total output + time so a hung
-// shell-out can't freeze the settings UI thread.
-std::string runShellout(const char* command, int timeoutSec = 4) {
-    (void)timeoutSec;
-    std::string out;
-    out.reserve(1024);
-    FILE* f = popen(command, "r");
-    if (!f) return out;
-    char buf[512];
-    const size_t kMax = 64 * 1024;
-    while (fgets(buf, sizeof(buf), f)) {
-        out.append(buf);
-        if (out.size() > kMax) { out.resize(kMax); break; }
+// runNetHelper: trigger the root-privileged nano-net-helper service
+// via init property triggers and return the plain-text result.
+// Nano runs at uid 1003 so direct `cmd wifi` / `cmd bluetooth_manager`
+// returns empty lists; the helper runs as root under
+// gammaoscustomization seclabel via gammaos-nano.rc triggers on
+// sys.gammaos.nano.net_cmd=<cmd>. See gammaos/nano-net-helper.sh.
+//
+// Args longer than 92 bytes (e.g. SSID + security + password) go via
+// /data/system/nano_net_arg.txt to sidestep PROP_VALUE_MAX. Result
+// lands in /data/system/nano_net_<cmd>.txt with mode 0644 so uid
+// 1003 can read. Helper signals completion by setting
+// sys.gammaos.nano.net_ack=<cmd>.
+std::mutex& netHelperMutex() {
+    static std::mutex m;
+    return m;
+}
+
+std::string runNetHelper(const char* cmd, const std::string& arg = "",
+                         int timeoutMs = 5000) {
+    // Serialize all callers so the HUD poll thread and the XMB Settings
+    // screens don't race on sys.gammaos.nano.net_cmd. The helper is
+    // oneshot so init serializes anyway, but the shared property +
+    // result-file protocol needs strict ordering per-caller.
+    std::lock_guard<std::mutex> lk(netHelperMutex());
+
+    writePathFile("/data/system/nano_net_arg.txt", arg);
+    // Clear ack and cycle cmd via idle so init retriggers even when
+    // the last invocation used the same cmd value.
+    android::base::SetProperty("sys.gammaos.nano.net_ack", "");
+    android::base::SetProperty("sys.gammaos.nano.net_cmd", "idle");
+    android::base::SetProperty("sys.gammaos.nano.net_cmd", cmd);
+
+    const int stepMs = 50;
+    int waitedMs = 0;
+    while (waitedMs < timeoutMs) {
+        char val[PROPERTY_VALUE_MAX] = {};
+        property_get("sys.gammaos.nano.net_ack", val, "");
+        if (strcmp(val, cmd) == 0) break;
+        usleep(stepMs * 1000);
+        waitedMs += stepMs;
     }
-    pclose(f);
-    return out;
+    // Reset cmd and arg so the next call can retrigger cleanly.
+    android::base::SetProperty("sys.gammaos.nano.net_cmd", "idle");
+    unlink("/data/system/nano_net_arg.txt");
+
+    // Read the full result file. readPathFile in NanoMenuUtils caps at
+    // 4 KB, which is too small for dumpsys bluetooth_manager; read in
+    // a bounded loop up to 256 KB.
+    std::string resultPath = std::string("/data/system/nano_net_") + cmd + ".txt";
+    std::string result;
+    FILE* f = fopen(resultPath.c_str(), "rb");
+    if (f) {
+        char readBuf[4096];
+        size_t total = 0;
+        const size_t kMaxResult = 256 * 1024;
+        while (total < kMaxResult) {
+            size_t n = fread(readBuf, 1, sizeof(readBuf), f);
+            if (n == 0) break;
+            result.append(readBuf, n);
+            total += n;
+        }
+        fclose(f);
+    }
+    return result;
 }
 
 int rssiToBars(int rssi) {
@@ -393,9 +433,9 @@ void NanoMenu::closeWifiScreen() {
 }
 
 void NanoMenu::refreshWifiList() {
-    std::string savedText = runShellout("cmd wifi list-networks 2>/dev/null");
-    std::string scanText = runShellout("cmd wifi list-scan-results 2>/dev/null");
-    std::string statusText = runShellout("cmd wifi status 2>/dev/null");
+    std::string savedText = runNetHelper("wifi_list");
+    std::string scanText = runNetHelper("wifi_scan_read");
+    std::string statusText = runNetHelper("wifi_status");
     auto saved = parseSavedNetworks(savedText);
     auto scanned = parseScanResults(scanText);
     std::string connSsid = connectedSsidFromStatus(statusText);
@@ -415,7 +455,7 @@ void NanoMenu::refreshWifiList() {
 void NanoMenu::wifiScanThreadFunc() {
     // Kick a fresh scan on the wifi radio and wait briefly for results
     // to land before re-reading list-scan-results.
-    (void)runShellout("cmd wifi start-scan 2>/dev/null");
+    (void)runNetHelper("wifi_scan_start");
     // 3 second sleep so the radio has time to produce a fresh scan.
     for (int i = 0; i < 30 && mWifiScanInProgress; i++) {
         usleep(100 * 1000);
@@ -437,10 +477,13 @@ void NanoMenu::startWifiScanAsync() {
 }
 
 void NanoMenu::connectToSavedWifi(int savedNetId) {
-    char cmd[128];
-    snprintf(cmd, sizeof(cmd),
-             "cmd wifi connect-network %d saved 2>&1", savedNetId);
-    std::string result = runShellout(cmd);
+    // Helper expects tab-separated "<id>\tsaved" to reuse the same
+    // arg parsing as addAndConnectWifi. `cmd wifi connect-network <id>
+    // saved` is the accepted shape for a reconnect by saved id.
+    char idBuf[32];
+    snprintf(idBuf, sizeof(idBuf), "%d", savedNetId);
+    std::string arg = std::string(idBuf) + "\tsaved\t";
+    std::string result = runNetHelper("wifi_connect", arg);
     ALOGI("connectToSavedWifi id=%d result=%s", savedNetId, result.c_str());
     mWifiStatusMsg = "Connecting...";
     mWifiStatusMsgUntilMs = std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -455,33 +498,16 @@ void NanoMenu::addAndConnectWifi(const std::string& ssid, int security,
     // cmd wifi connect-network SSID <security> <password>
     // Accepts: open, owe, wpa2, wpa3 per WifiShellCommand#connectNetwork.
     const char* secTok = "open";
-    bool needsPass = true;
     switch (security) {
-    case 0: secTok = "open"; needsPass = false; break;
-    case 1: secTok = "wpa2"; break; // WEP not supported by the CLI; approximate with wpa2
+    case 0: secTok = "open"; break;
+    case 1: secTok = "wpa2"; break; // WEP not supported; approximate with wpa2
     case 2: secTok = "wpa2"; break;
     case 3: secTok = "wpa3"; break;
-    case 4: secTok = "owe";  needsPass = false; break;
+    case 4: secTok = "owe";  break;
     }
-    std::string cmd = "cmd wifi connect-network ";
-    // Quote SSID for spaces.
-    cmd += "\"";
-    for (char c : ssid) {
-        if (c == '"' || c == '\\') cmd += '\\';
-        cmd += c;
-    }
-    cmd += "\" ";
-    cmd += secTok;
-    if (needsPass) {
-        cmd += " \"";
-        for (char c : password) {
-            if (c == '"' || c == '\\' || c == '$' || c == '`') cmd += '\\';
-            cmd += c;
-        }
-        cmd += "\"";
-    }
-    cmd += " 2>&1";
-    std::string result = runShellout(cmd.c_str());
+    // Tab-separated arg consumed by the helper: ssid<TAB>security<TAB>password
+    std::string arg = ssid + "\t" + secTok + "\t" + password;
+    std::string result = runNetHelper("wifi_connect", arg, 8000);
     ALOGI("addAndConnectWifi ssid=%s result=%s", ssid.c_str(), result.c_str());
     mWifiStatusMsg = "Connecting...";
     mWifiStatusMsgUntilMs = std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -490,18 +516,14 @@ void NanoMenu::addAndConnectWifi(const std::string& ssid, int security,
 }
 
 void NanoMenu::forgetWifiNetwork(int savedNetId) {
-    char cmd[128];
-    snprintf(cmd, sizeof(cmd),
-             "cmd wifi forget-network %d 2>&1", savedNetId);
-    (void)runShellout(cmd);
+    char idBuf[32];
+    snprintf(idBuf, sizeof(idBuf), "%d", savedNetId);
+    (void)runNetHelper("wifi_forget", idBuf);
     refreshWifiList();
 }
 
 void NanoMenu::toggleWifiRadio(bool on) {
-    std::string cmd = "cmd wifi set-wifi-enabled ";
-    cmd += (on ? "enabled" : "disabled");
-    cmd += " 2>&1";
-    (void)runShellout(cmd.c_str());
+    (void)runNetHelper(on ? "wifi_enable" : "wifi_disable");
     mWifiStatusMsg = on ? "Enabling Wi-Fi..." : "Disabling Wi-Fi...";
     mWifiStatusMsgUntilMs = std::chrono::duration_cast<std::chrono::milliseconds>(
             std::chrono::steady_clock::now().time_since_epoch()).count() + 2000;
@@ -588,10 +610,12 @@ void NanoMenu::closeBtScreen() {
 }
 
 void NanoMenu::refreshBtList() {
-    std::string bonded = runShellout(
-            "cmd bluetooth_manager list-bonded-devices 2>/dev/null");
-    std::string dump = runShellout("dumpsys bluetooth_manager 2>/dev/null");
-    auto devs = parseBondedDevices(bonded);
+    // bt_list runs `dumpsys bluetooth_manager` which contains both the
+    // bonded device list and live connection state. Some AOSP builds
+    // no longer ship `cmd bluetooth_manager list-bonded-devices`, so
+    // we parse bonded devices from the same dump.
+    std::string dump = runNetHelper("bt_list");
+    auto devs = parseBondedDevices(dump);
     markConnectedBt(dump, &devs);
     {
         std::lock_guard<std::mutex> lk(mBtListMutex);
@@ -632,10 +656,7 @@ void NanoMenu::startBtScanAsync() {
 }
 
 void NanoMenu::toggleBtRadio(bool on) {
-    std::string cmd = "cmd bluetooth_manager ";
-    cmd += (on ? "enable" : "disable");
-    cmd += " 2>&1";
-    (void)runShellout(cmd.c_str());
+    (void)runNetHelper(on ? "bt_enable" : "bt_disable");
     mBtStatusMsg = on ? "Enabling Bluetooth..." : "Disabling Bluetooth...";
     mBtStatusMsgUntilMs = std::chrono::duration_cast<std::chrono::milliseconds>(
             std::chrono::steady_clock::now().time_since_epoch()).count() + 2000;
@@ -669,16 +690,13 @@ void NanoMenu::connectBtDevice(const std::string& mac) {
     // fall back to a disable+enable cycle if that subcommand is
     // missing. The radio auto-reconnects cached bonded audio/input
     // devices on re-enable.
-    std::string cmd = "cmd bluetooth_manager connect ";
-    cmd += mac;
-    cmd += " 2>&1";
-    std::string out = runShellout(cmd.c_str());
-    if (out.find("Unknown command") != std::string::npos
-            || out.find("usage") != std::string::npos) {
-        (void)runShellout("cmd bluetooth_manager disable 2>&1");
-        usleep(400 * 1000);
-        (void)runShellout("cmd bluetooth_manager enable 2>&1");
-    }
+    // No AOSP CLI exposes direct connect; fall back to a radio toggle so
+    // bonded audio/input devices re-pair on the next enable. The helper
+    // handles disable + enable via two property triggers.
+    (void)runNetHelper("bt_disable");
+    usleep(400 * 1000);
+    (void)runNetHelper("bt_enable");
+    (void)mac;
     mBtStatusMsg = "Reconnecting...";
     mBtStatusMsgUntilMs = std::chrono::duration_cast<std::chrono::milliseconds>(
             std::chrono::steady_clock::now().time_since_epoch()).count() + 3000;
