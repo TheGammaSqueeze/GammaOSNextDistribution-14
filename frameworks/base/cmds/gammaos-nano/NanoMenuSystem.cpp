@@ -30,6 +30,8 @@
 #include <math.h>
 #include <string>
 
+#include <aidl/android/hardware/health/BatteryStatus.h>
+#include <aidl/android/hardware/health/IHealth.h>
 #include <aidl/android/hardware/light/ILights.h>
 #include <aidl/android/hardware/light/HwLight.h>
 #include <aidl/android/hardware/light/HwLightState.h>
@@ -245,6 +247,155 @@ void NanoMenu::renderVolumeBar() {
     float textX = barX + barW + pad;
     float textY = bgY + (bgH - FONT_CHAR_H * textScale) / 2.0f;
     drawText(pctStr, textX, textY, textScale, 1.0f, 1.0f, 1.0f, 1.0f);
+}
+
+// ---------------------------------------------------------------------------
+// Battery indicator
+// ---------------------------------------------------------------------------
+
+// Try the framework's IHealth AIDL HAL for battery state. This is the same
+// source of truth BatteryService reads, so values stay in sync with the
+// rest of Android (settings, system UI, apps). Returns true on success.
+// The cached std::shared_ptr<IHealth> avoids re-resolving the binder every
+// second; if the service restarts, isOk() will fail and we drop the handle.
+static bool queryHealthHal(int* outPercent, bool* outCharging) {
+    using aidl::android::hardware::health::BatteryStatus;
+    using aidl::android::hardware::health::IHealth;
+
+    static std::shared_ptr<IHealth> sHal;
+    if (!sHal) {
+        ndk::SpAIBinder binder(AServiceManager_checkService(
+                "android.hardware.health.IHealth/default"));
+        if (!binder.get()) return false;
+        sHal = IHealth::fromBinder(binder);
+        if (!sHal) return false;
+    }
+
+    int32_t cap = -1;
+    auto s1 = sHal->getCapacity(&cap);
+    if (!s1.isOk()) {
+        sHal.reset();
+        return false;
+    }
+    if (cap < 0) cap = 0;
+    if (cap > 100) cap = 100;
+    *outPercent = cap;
+
+    BatteryStatus status = BatteryStatus::UNKNOWN;
+    auto s2 = sHal->getChargeStatus(&status);
+    // If status query fails we still return a valid percent; charging stays
+    // whatever it was. Better than dropping the whole reading.
+    if (s2.isOk()) {
+        *outCharging = (status == BatteryStatus::CHARGING
+                        || status == BatteryStatus::FULL);
+    }
+    return true;
+}
+
+// Read battery percentage and charging state. IHealth HAL is the primary
+// source (matches what BatteryService exposes to the rest of the system);
+// sysfs is the fallback if the HAL is not reachable (e.g. during early
+// boot before android.hardware.health/default has registered). Called once
+// per second from the render loop.
+void NanoMenu::pollBattery() {
+    if (--mBatteryPollTicks > 0) return;
+    mBatteryPollTicks = 60; // ~1s at 60fps
+
+    int pct = -1;
+    bool charging = false;
+    if (queryHealthHal(&pct, &charging)) {
+        mBatteryPercent = pct;
+        mBatteryCharging = charging;
+        return;
+    }
+
+    // Fallback: read the standard Android power_supply sysfs nodes.
+    mBatteryPercent = readSysfsInt(
+            "/sys/class/power_supply/battery/capacity", -1);
+    mBatteryCharging = false;
+    int fd = open("/sys/class/power_supply/battery/status", O_RDONLY);
+    if (fd >= 0) {
+        char buf[32] = {};
+        read(fd, buf, sizeof(buf) - 1);
+        close(fd);
+        if (strncmp(buf, "Charging", 8) == 0
+                || strncmp(buf, "Full", 4) == 0) {
+            mBatteryCharging = true;
+        }
+    }
+}
+
+void NanoMenu::renderBatteryIndicator() {
+    if (mBatteryPercent < 0) return; // no battery node / read failed
+
+    int pct = mBatteryPercent;
+    if (pct < 0) pct = 0;
+    if (pct > 100) pct = 100;
+
+    float sf = fminf((float)mWidth / 1080.0f, (float)mHeight / 720.0f);
+    if (sf < 0.5f) sf = 0.5f;
+
+    // Layout: top-left, symmetric with the Quick Resume HUD in the top-right.
+    float pad = 15.0f * sf;
+    float textScale = 1.5f * sf;
+
+    char txt[24];
+    if (mBatteryCharging) {
+        snprintf(txt, sizeof(txt), "+%d%%", pct);
+    } else {
+        snprintf(txt, sizeof(txt), "%d%%", pct);
+    }
+
+    float bodyW = 40.0f * sf;
+    float bodyH = 18.0f * sf;
+    float capW  = 4.0f * sf;
+    float capH  = 10.0f * sf;
+    float gap   = 6.0f * sf;
+    float border = fmaxf(1.5f, 2.0f * sf);
+    float innerPad = fmaxf(1.0f, 2.0f * sf);
+    float rowH = fmaxf(bodyH, FONT_CHAR_H * textScale);
+
+    // Color by state.
+    float cr, cg, cb;
+    if (mBatteryCharging) {
+        cr = 0.25f; cg = 0.90f; cb = 0.35f;   // green
+    } else if (pct <= 15) {
+        cr = 0.95f; cg = 0.25f; cb = 0.25f;   // red
+    } else if (pct <= 30) {
+        cr = 0.95f; cg = 0.75f; cb = 0.15f;   // amber
+    } else {
+        cr = 0.90f; cg = 0.90f; cb = 0.95f;   // white
+    }
+
+    float x = pad;
+    float y = pad;
+    float bodyX = x;
+    float bodyY = y + (rowH - bodyH) / 2.0f;
+    float capX  = bodyX + bodyW;
+    float capY  = bodyY + (bodyH - capH) / 2.0f;
+
+    // Battery body outline (four rails).
+    drawQuad(bodyX, bodyY, bodyW, border, cr, cg, cb, 0.95f);
+    drawQuad(bodyX, bodyY + bodyH - border, bodyW, border,
+             cr, cg, cb, 0.95f);
+    drawQuad(bodyX, bodyY, border, bodyH, cr, cg, cb, 0.95f);
+    drawQuad(bodyX + bodyW - border, bodyY, border, bodyH,
+             cr, cg, cb, 0.95f);
+
+    // Fill proportional to percentage.
+    float fillMaxW = bodyW - 2 * innerPad;
+    float fillW = fillMaxW * ((float)pct / 100.0f);
+    if (fillW < 0.0f) fillW = 0.0f;
+    drawQuad(bodyX + innerPad, bodyY + innerPad,
+             fillW, bodyH - 2 * innerPad, cr, cg, cb, 1.0f);
+
+    // Positive terminal cap.
+    drawQuad(capX, capY, capW, capH, cr, cg, cb, 0.95f);
+
+    // Text to the right of the icon, vertically centered with the body.
+    float tx = capX + capW + gap;
+    float ty = y + (rowH - FONT_CHAR_H * textScale) / 2.0f;
+    drawText(txt, tx, ty, textScale, cr, cg, cb, 1.0f);
 }
 
 // ---------------------------------------------------------------------------

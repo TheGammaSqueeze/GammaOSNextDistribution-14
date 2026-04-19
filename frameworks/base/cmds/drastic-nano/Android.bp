@@ -61,6 +61,7 @@ cc_binary {
         "libGLESv2",
         "libnativewindow",
         "libft2",
+        "android.hardware.health-V2-ndk",
     ],
 
     init_rc: ["drastic-nano.rc"],

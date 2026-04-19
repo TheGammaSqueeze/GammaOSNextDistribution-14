@@ -175,6 +175,10 @@ private:
     int readSysfsInt(const char* path, int fallback);
     void writeSysfsInt(const char* path, int value);
 
+    // Battery HUD
+    void pollBattery();
+    void renderBatteryIndicator();
+
     // Rendering
     void initShaders();
     void initFonts();
@@ -301,6 +305,11 @@ private:
     int mMaxVolume;
     bool mShowVolumeBar;
     int mVolumeBarTimer;
+
+    // Battery state (cached, refreshed ~1/s from pollBattery())
+    int mBatteryPercent;      // -1 if unknown / no battery
+    bool mBatteryCharging;    // true when charging or full
+    int mBatteryPollTicks;    // frames until next sysfs read
 
     // Frame timing
     int64_t mLastFrameNs;  // monotonic clock from previous frame

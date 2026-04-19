@@ -70,6 +70,7 @@ cc_binary {
         "libft2",
         "libpng",
         "libz",
+        "android.hardware.health-V2-ndk",
         "android.hardware.light-V2-ndk",
         "android.hardware.light@2.0",
         "libhidlbase",

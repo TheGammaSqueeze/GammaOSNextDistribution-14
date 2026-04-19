@@ -111,6 +111,8 @@ NanoMenu::NanoMenu()
       mShowBrightnessBar(false), mBrightnessBarTimer(0),
       mVolume(10), mMaxVolume(15),
       mShowVolumeBar(false), mVolumeBarTimer(0),
+      mBatteryPercent(-1), mBatteryCharging(false),
+      mBatteryPollTicks(0),
       mLastFrameNs(0),
       mFrameDt(1.0f / 60.0f),
       mCurrentEffect(1),

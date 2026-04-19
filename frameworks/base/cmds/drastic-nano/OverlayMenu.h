@@ -116,6 +116,11 @@ private:
     // Shader files scanned from shadersDir.
     std::vector<std::string> mShaders;
 
+    // Battery indicator state (refreshed lazily while the menu is open).
+    int     mBatteryPercent = -1;   // -1 until first successful read
+    bool    mBatteryCharging = false;
+    int64_t mBatteryNextPollMs = 0; // elapsedRealtime() of next refresh
+
     // Cached per-section row lists. Rebuilt when state changes.
     std::vector<RowAction> mRows;
 
@@ -132,11 +137,28 @@ private:
     void writePrefsSafe();
     void commitAndMaybeRelaunch();
 
-    // UI helpers.
-    void drawTabs(drastic_gfx::OverlayGfx& gfx, float panelX, float panelY,
-                  float panelW);
-    void drawBody(drastic_gfx::OverlayGfx& gfx, float panelX, float panelY,
-                  float panelW, float panelH);
+    // UI helpers. The overlay paints over the full screen with a light
+    // scrim, styled after gammaos-nano's XMB: no bounded panel, a
+    // horizontal category row at the top with the active section scaled
+    // up and the rest dimmed, a vertical list below, and a footer hint
+    // strip along the bottom.
+    void drawCategoryBar(drastic_gfx::OverlayGfx& gfx, float vw,
+                         float barY, float sf);
+    void drawList(drastic_gfx::OverlayGfx& gfx, float vw, float listY,
+                  float listH, float sf);
+    void drawFooter(drastic_gfx::OverlayGfx& gfx, float vw, float vh,
+                    float sf);
+
+    // Battery HUD. refreshBattery() polls the IHealth HAL (or sysfs) at
+    // most once per second; drawBatteryIndicator() renders into the
+    // top-right of the screen.
+    void refreshBattery();
+    void drawBatteryIndicator(drastic_gfx::OverlayGfx& gfx, float vw,
+                              float sf);
+
+    // Wall-clock HH:MM HUD in the top-right, mirroring the battery HUD.
+    void drawTimeIndicator(drastic_gfx::OverlayGfx& gfx, float vw,
+                           float sf);
 };
 
 } // namespace drastic_overlay
