@@ -99,6 +99,7 @@ import com.android.i18n.timezone.ZoneInfoDb;
 import com.android.internal.R;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.notification.SystemNotificationChannels;
+import com.android.internal.os.BackgroundThread;
 import com.android.internal.os.BinderInternal;
 import com.android.internal.os.RuntimeInit;
 import com.android.internal.policy.AttributeCache;
@@ -2573,6 +2574,114 @@ public final class SystemServer implements Dumpable {
                 t.traceBegin("StartUsbService");
                 mSystemServiceManager.startService(USB_SERVICE_CLASS);
                 t.traceEnd();
+            }
+
+            // GammaOS Nano: opt-in WiFi + Bluetooth startup in minimal_boot.
+            // Enable with persist.gammaos.nano.wifi=1 on a booted device.
+            //
+            // Placement is AFTER UsbService so adb has a chance to come up
+            // before any WiFi dependency can crash.
+            //
+            // Dependency chain that must be satisfied before WifiService can
+            // start safely (all of these are in the `!minimalBoot` block
+            // above, so we re-create them here when the gate is on):
+            //   - StatsCompanion  (WifiService.handleBootCompleted calls
+            //     StatsManager.setPullAtomCallback unconditionally)
+            //   - LocationManagerService  (WifiPermissionsUtil.isLocationModeEnabled
+            //     throws ServiceNotFoundException("location") without it)
+            //   - CountryDetectorService  (WiFi regulatory domain lookup)
+            //
+            // Synchronous on the main thread because WifiService's
+            // PhoneStateListener captures Looper.myLooper() and because
+            // SystemServiceManager.sealStartedServices() runs later.
+            if (minimalBoot && SystemProperties.getBoolean(
+                    "persist.gammaos.nano.wifi", false)) {
+                // Install a tolerant uncaught-exception handler on android.bg
+                // for nano WiFi/BT startup.  The location + wifi + bluetooth
+                // stacks post callbacks onto android.bg that may throw
+                // DeadSystemException when a sibling service (gnss HAL,
+                // FusedLocation bind target, etc.) isn't up in minimal boot.
+                // Default RuntimeInit.KillApplicationHandler would kill
+                // system_server, causing zygote restart and a bootloop.  We
+                // log and swallow instead.
+                try {
+                    Thread androidBg = BackgroundThread.get();
+                    final Thread.UncaughtExceptionHandler chain =
+                            androidBg.getUncaughtExceptionHandler();
+                    androidBg.setUncaughtExceptionHandler((th, ex) -> {
+                        Throwable cursor = ex;
+                        while (cursor != null) {
+                            if (cursor instanceof android.os.DeadSystemException
+                                    || cursor instanceof android.os.DeadObjectException) {
+                                Slog.w(TAG, "GammaOS Nano: swallowed "
+                                        + cursor.getClass().getSimpleName()
+                                        + " on " + th.getName(), ex);
+                                return;
+                            }
+                            cursor = cursor.getCause();
+                        }
+                        if (chain != null) {
+                            chain.uncaughtException(th, ex);
+                        }
+                    });
+                    Slog.i(TAG, "GammaOS Nano: android.bg tolerant handler armed");
+                } catch (Throwable e) {
+                    Slog.e(TAG, "GammaOS Nano: failed to arm android.bg handler", e);
+                }
+                try {
+                    Slog.i(TAG, "GammaOS Nano: starting StatsCompanion");
+                    mSystemServiceManager.startServiceFromJar(
+                            STATS_COMPANION_LIFECYCLE_CLASS,
+                            STATS_COMPANION_APEX_PATH);
+                    mSystemServiceManager.startService(
+                            STATS_PULL_ATOM_SERVICE_CLASS);
+                    Slog.i(TAG, "GammaOS Nano: StatsCompanion ready");
+                } catch (Throwable e) {
+                    Slog.e(TAG, "GammaOS Nano: StatsCompanion failed", e);
+                }
+                try {
+                    Slog.i(TAG, "GammaOS Nano: starting LocationManagerService");
+                    mSystemServiceManager.startService(
+                            LocationManagerService.Lifecycle.class);
+                    Slog.i(TAG, "GammaOS Nano: LocationManagerService ready");
+                } catch (Throwable e) {
+                    Slog.e(TAG, "GammaOS Nano: LocationManagerService failed", e);
+                }
+                try {
+                    Slog.i(TAG, "GammaOS Nano: starting CountryDetectorService");
+                    countryDetector = new CountryDetectorService(context);
+                    ServiceManager.addService(Context.COUNTRY_DETECTOR,
+                            countryDetector);
+                    Slog.i(TAG, "GammaOS Nano: CountryDetectorService ready");
+                } catch (Throwable e) {
+                    Slog.e(TAG, "GammaOS Nano: CountryDetectorService failed", e);
+                }
+                try {
+                    if (context.getPackageManager().hasSystemFeature(
+                            PackageManager.FEATURE_WIFI)) {
+                        Slog.i(TAG, "GammaOS Nano: starting WiFi stack");
+                        mSystemServiceManager.startServiceFromJar(
+                                WIFI_SERVICE_CLASS, WIFI_APEX_SERVICE_JAR_PATH);
+                        mSystemServiceManager.startServiceFromJar(
+                                WIFI_SCANNING_SERVICE_CLASS,
+                                WIFI_APEX_SERVICE_JAR_PATH);
+                        Slog.i(TAG, "GammaOS Nano: WiFi stack ready");
+                    }
+                } catch (Throwable e) {
+                    Slog.e(TAG, "GammaOS Nano: WiFi stack failed", e);
+                }
+                try {
+                    if (context.getPackageManager().hasSystemFeature(
+                            PackageManager.FEATURE_BLUETOOTH)) {
+                        Slog.i(TAG, "GammaOS Nano: starting Bluetooth stack");
+                        mSystemServiceManager.startServiceFromJar(
+                                BLUETOOTH_SERVICE_CLASS,
+                                BLUETOOTH_APEX_SERVICE_JAR_PATH);
+                        Slog.i(TAG, "GammaOS Nano: Bluetooth stack ready");
+                    }
+                } catch (Throwable e) {
+                    Slog.e(TAG, "GammaOS Nano: Bluetooth stack failed", e);
+                }
             }
 
             if (!minimalBoot) { // GammaOS Nano: skip Serial through BackgroundInstall
