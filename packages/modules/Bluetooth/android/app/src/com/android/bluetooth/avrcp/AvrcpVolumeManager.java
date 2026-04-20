@@ -26,7 +26,10 @@ import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceCallback;
 import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
+import android.os.IBinder;
 import android.util.Log;
+
+import java.lang.reflect.Method;
 
 import com.android.bluetooth.BluetoothEventLogger;
 import com.android.internal.annotations.VisibleForTesting;
@@ -179,14 +182,44 @@ class AvrcpVolumeManager extends AudioDeviceCallback {
 
     void setVolume(@NonNull BluetoothDevice device, int avrcpVolume) {
         int deviceVolume = avrcpToSystemVolume(avrcpVolume);
+        int flags = (deviceVolume != getVolume(device, -1) ? AudioManager.FLAG_SHOW_UI : 0)
+                | AudioManager.FLAG_BLUETOOTH_ABS_VOLUME;
         mVolumeEventLogger.logd(TAG, "setVolume:"
                         + " device=" + device
                         + " avrcpVolume=" + avrcpVolume
                         + " deviceVolume=" + deviceVolume
                         + " sDeviceMaxVolume=" + sDeviceMaxVolume);
-        mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, deviceVolume,
-                (deviceVolume != getVolume(device, -1) ? AudioManager.FLAG_SHOW_UI : 0)
-                    | AudioManager.FLAG_BLUETOOTH_ABS_VOLUME);
+        try {
+            mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, deviceVolume, flags);
+        } catch (SecurityException e) {
+            // AudioManager.setStreamVolume routes the caller's Context
+            // opPackageName, which in the BT APEX process sometimes resolves
+            // to the system "android" package instead of "com.android.bluetooth"
+            // (AppOpsManager.checkPackage then rejects uid 1002 against that
+            // name). Fall back to IAudioService with the correct package.
+            // IAudioService is @hide; BT APEX builds against module_current
+            // and can't import it directly, hence reflection.
+            Log.w(TAG, "setStreamVolume failed, retrying via IAudioService", e);
+            try {
+                Class<?> smClass = Class.forName("android.os.ServiceManager");
+                IBinder binder = (IBinder) smClass.getMethod("getService", String.class)
+                        .invoke(null, Context.AUDIO_SERVICE);
+                if (binder == null) {
+                    Log.e(TAG, "setVolume: IAudioService binder unavailable");
+                } else {
+                    Class<?> stub = Class.forName("android.media.IAudioService$Stub");
+                    Object svc = stub.getMethod("asInterface", IBinder.class)
+                            .invoke(null, binder);
+                    Method m = svc.getClass().getMethod(
+                            "setStreamVolumeWithAttribution",
+                            int.class, int.class, int.class, String.class, String.class);
+                    m.invoke(svc, AudioManager.STREAM_MUSIC, deviceVolume, flags,
+                            "com.android.bluetooth", null);
+                }
+            } catch (ReflectiveOperationException re) {
+                Log.e(TAG, "setVolume: IAudioService fallback failed", re);
+            }
+        }
         storeVolumeForDevice(device);
     }
 
