@@ -233,13 +233,18 @@ void NanoMenu::renderEffect() {
         // gl_FragCoord is in window space and is NOT affected by vertex
         // transforms, so effects that depend on screen Y (Fire's rising
         // flames, Aurora's band position) render upside-down without this.
-        float yFlip = sDrmYFlipForPrime ? 1.0f : 0.0f;
+        // User flip_v compounds with PRIME (XOR): two Y negations in vertex
+        // space cancel, so fragment Y should only flip when net-flipped.
+        bool netYFlip = sDrmYFlipForPrime ^ sDrmFlipV;
+        float yFlip = netYFlip ? 1.0f : 0.0f;
+        float xFlip = sDrmFlipH ? 1.0f : 0.0f;
         glUseProgram(mFxProgram);
         glUniform1f(mFxLocTime, mEffectTime);
         glUniform2f(mFxLocResolution, (float)mWidth, (float)mHeight);
         glUniform1i(mFxLocEffect, mCurrentEffect);
         glUniform1f(mFxLocCoordSwap, coordSwap);
         if (mFxLocYFlip >= 0) glUniform1f(mFxLocYFlip, yFlip);
+        if (mFxLocXFlip >= 0) glUniform1f(mFxLocXFlip, xFlip);
         glVertexAttribPointer(mFxLocPosition, 2, GL_FLOAT, GL_FALSE, 0, verts);
         glEnableVertexAttribArray(mFxLocPosition);
         glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -249,12 +254,15 @@ void NanoMenu::renderEffect() {
         GLfloat verts[] = { -1,-1, 1,-1, 1,1, 1,1, -1,1, -1,-1 };
         float coordSwap = (sDrmActive && (sDrmRotationDeg == 90
                            || sDrmRotationDeg == 270)) ? 1.0f : 0.0f;
-        float yFlip = sDrmYFlipForPrime ? 1.0f : 0.0f;
+        bool netYFlip = sDrmYFlipForPrime ^ sDrmFlipV;
+        float yFlip = netYFlip ? 1.0f : 0.0f;
+        float xFlip = sDrmFlipH ? 1.0f : 0.0f;
         glUseProgram(mXmbProgram);
         glUniform1f(mXmbLocTime, mEffectTime);
         glUniform2f(mXmbLocResolution, (float)mWidth, (float)mHeight);
         glUniform1f(mXmbLocCoordSwap, coordSwap);
         if (mXmbLocYFlip >= 0) glUniform1f(mXmbLocYFlip, yFlip);
+        if (mXmbLocXFlip >= 0) glUniform1f(mXmbLocXFlip, xFlip);
         glVertexAttribPointer(mXmbLocPosition, 2, GL_FLOAT, GL_FALSE, 0, verts);
         glEnableVertexAttribArray(mXmbLocPosition);
         glDrawArrays(GL_TRIANGLES, 0, 6);

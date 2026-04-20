@@ -63,6 +63,8 @@ int sDrmRotationDeg = 0;
 bool sDrmZeroCopy = false;
 bool sDrmGlRotation = false;
 bool sDrmYFlipForPrime = false;
+bool sDrmFlipH = false;
+bool sDrmFlipV = false;
 bool sDrmVblankBroken = false;
 bool sDrmFrameSync = true;
 int sPendingFlipEvents = 0;
@@ -367,6 +369,31 @@ void drmEarlySplash() {
         if (sDrmRotationDeg != 0) {
             ALOGI("NanoMenu DRM: installOrientation=%s → rotate %d°",
                   orient, sDrmRotationDeg);
+        }
+    }
+
+    // GammaOS: Read user-requested flip props. Some panels scan out mirrored
+    // relative to the logical image and need a software correction that
+    // SurfaceFlinger's install-orientation string can't express. These props
+    // are applied on top of sDrmRotationDeg in initShaders(), and their state
+    // is surfaced to fragment-space procedural shaders so wallpaper FX stay
+    // consistent with the corrected vertex orientation.
+    //   persist.gammaos.nano.drm_flip_h : 1 → mirror horizontally (left <-> right)
+    //   persist.gammaos.nano.drm_flip_v : 1 → mirror vertically   (top  <-> bottom)
+    {
+        char flipProp[PROPERTY_VALUE_MAX] = {};
+        property_get("persist.gammaos.nano.drm_flip_h", flipProp, "0");
+        sDrmFlipH = (flipProp[0] == '1' || flipProp[0] == 't' ||
+                     flipProp[0] == 'T' || flipProp[0] == 'y' ||
+                     flipProp[0] == 'Y');
+        flipProp[0] = 0;
+        property_get("persist.gammaos.nano.drm_flip_v", flipProp, "0");
+        sDrmFlipV = (flipProp[0] == '1' || flipProp[0] == 't' ||
+                     flipProp[0] == 'T' || flipProp[0] == 'y' ||
+                     flipProp[0] == 'Y');
+        if (sDrmFlipH || sDrmFlipV) {
+            ALOGI("NanoMenu DRM: user flip correction flip_h=%d flip_v=%d",
+                  sDrmFlipH ? 1 : 0, sDrmFlipV ? 1 : 0);
         }
     }
 }

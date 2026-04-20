@@ -130,6 +130,15 @@ extern int sDrmRotationDeg;
 extern bool sDrmZeroCopy;
 extern bool sDrmGlRotation;
 extern bool sDrmYFlipForPrime;
+// User-requested orientation correction for panels that scan out mirrored
+// relative to the logical image. Read from persist.gammaos.nano.drm_flip_h
+// and persist.gammaos.nano.drm_flip_v at boot by drmEarlySplash(). Applied
+// to sDrmRotMat in initShaders() so vertex-space rendering is pre-flipped
+// before PRIME scanout, and surfaced to fragment-space FX/XMB shaders via
+// uXFlip and the composed uYFlip so procedural wallpapers stay consistent
+// with the corrected vertex orientation. Defaults false (no-op).
+extern bool sDrmFlipH;
+extern bool sDrmFlipV;
 extern bool sDrmVblankBroken;
 // When true, delay the primary display's page flip by one refresh so it
 // matches the secondary display's inherent 1-frame lag on dual-DSI

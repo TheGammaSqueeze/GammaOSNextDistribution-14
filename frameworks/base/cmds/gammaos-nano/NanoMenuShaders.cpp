@@ -93,6 +93,12 @@ const char FX_FRAGMENT_SHADER[] = R"(
     // etc.) render upside-down. uYFlip=1.0 in PRIME mode flips the
     // fragment-space Y so the designer's "0=bottom" convention still holds.
     uniform float uYFlip;
+    // Fragment-space X flip: user flip_h correction mirrors vertex geometry
+    // via uRotation, but gl_FragCoord is unaffected by vertex transforms, so
+    // orientation-dependent effects would otherwise read the unflipped screen
+    // X. uXFlip=1.0 mirrors fragment-space X so procedural effects stay
+    // consistent with the vertex-mirrored image.
+    uniform float uXFlip;
 
     float hash(vec2 p) {
         return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
@@ -109,6 +115,7 @@ const char FX_FRAGMENT_SHADER[] = R"(
         vec2 fc = mix(gl_FragCoord.xy,
                       vec2(gl_FragCoord.y, uResolution.y - gl_FragCoord.x),
                       uCoordSwap);
+        fc.x = mix(fc.x, uResolution.x - fc.x, uXFlip);
         fc.y = mix(fc.y, uResolution.y - fc.y, uYFlip);
         vec2 uv = fc / uResolution;
         float t = uTime;
@@ -210,6 +217,7 @@ const char XMB_FRAGMENT_SHADER[] = R"(
     uniform vec2 uResolution;
     uniform float uCoordSwap;
     uniform float uYFlip;
+    uniform float uXFlip;
 
     float xmbHash(vec2 p) {
         return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
@@ -224,6 +232,7 @@ const char XMB_FRAGMENT_SHADER[] = R"(
         vec2 fc = mix(gl_FragCoord.xy,
                       vec2(gl_FragCoord.y, uResolution.y - gl_FragCoord.x),
                       uCoordSwap);
+        fc.x = mix(fc.x, uResolution.x - fc.x, uXFlip);
         fc.y = mix(fc.y, uResolution.y - fc.y, uYFlip);
         vec2 uv = fc / uResolution;
         float t = uTime;
@@ -415,6 +424,7 @@ void NanoMenu::initShaders() {
             mFxLocRotation   = glGetUniformLocation(mFxProgram, "uRotation");
             mFxLocCoordSwap  = glGetUniformLocation(mFxProgram, "uCoordSwap");
             mFxLocYFlip      = glGetUniformLocation(mFxProgram, "uYFlip");
+            mFxLocXFlip      = glGetUniformLocation(mFxProgram, "uXFlip");
             glDeleteShader(vs); glDeleteShader(fs);
         }
         {   GLuint vs = compileShader(GL_VERTEX_SHADER, FX_VERTEX_SHADER);
@@ -426,6 +436,7 @@ void NanoMenu::initShaders() {
             mXmbLocRotation   = glGetUniformLocation(mXmbProgram, "uRotation");
             mXmbLocCoordSwap  = glGetUniformLocation(mXmbProgram, "uCoordSwap");
             mXmbLocYFlip      = glGetUniformLocation(mXmbProgram, "uYFlip");
+            mXmbLocXFlip      = glGetUniformLocation(mXmbProgram, "uXFlip");
             glDeleteShader(vs); glDeleteShader(fs);
         }
     } else {
@@ -433,8 +444,10 @@ void NanoMenu::initShaders() {
         mParticleLocPosition = mParticleLocColor = mParticleLocRotation = -1;
         mFxLocPosition = mFxLocTime = mFxLocResolution = -1;
         mFxLocEffect = mFxLocRotation = mFxLocCoordSwap = mFxLocYFlip = -1;
+        mFxLocXFlip = -1;
         mXmbLocPosition = mXmbLocTime = mXmbLocResolution = -1;
         mXmbLocRotation = mXmbLocCoordSwap = mXmbLocYFlip = -1;
+        mXmbLocXFlip = -1;
     }
 
     // GammaOS: Compute the GL rotation matrix for DRM direct rendering.
@@ -464,6 +477,31 @@ void NanoMenu::initShaders() {
         }
         ALOGI("NanoMenu: GL rotation %d° active for DRM", sDrmRotationDeg);
     }
+
+    // GammaOS: Apply user-requested flip corrections on top of whatever
+    // matrix state we have (identity, rotation, or rotation + PRIME Y-flip
+    // from drmSetupZeroCopy). H flip negates row 0 of the 2x2 column-major
+    // matrix; V flip negates row 1. Composed left-multiply:
+    //   H:  diag(-1,  1) * M  =>  m0=-m0, m2=-m2
+    //   V:  diag( 1, -1) * M  =>  m1=-m1, m3=-m3
+    // Force sDrmGlRotation=true so the shader matrix path is used even when
+    // the installed orientation is 0°. Fragment-space wallpaper FX receive
+    // the flip state via uXFlip / uYFlip (see renderEffect).
+    if (sDrmActive && (sDrmFlipH || sDrmFlipV)) {
+        if (sDrmFlipH) {
+            sDrmRotMat[0] = -sDrmRotMat[0];
+            sDrmRotMat[2] = -sDrmRotMat[2];
+        }
+        if (sDrmFlipV) {
+            sDrmRotMat[1] = -sDrmRotMat[1];
+            sDrmRotMat[3] = -sDrmRotMat[3];
+        }
+        sDrmGlRotation = true;
+        ALOGI("NanoMenu: DRM user flip applied (h=%d v=%d) rotMat=[%g %g %g %g]",
+              sDrmFlipH ? 1 : 0, sDrmFlipV ? 1 : 0,
+              sDrmRotMat[0], sDrmRotMat[1], sDrmRotMat[2], sDrmRotMat[3]);
+    }
+
     initFonts();
     // GammaOS: Drastic QR fast-path skips icon texture init -- icons
     // are only used by the XMB/menu render() path which isn't reached

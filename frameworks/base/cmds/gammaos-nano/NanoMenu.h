@@ -354,6 +354,7 @@ private:
     GLint  mFxLocRotation;
     GLint  mFxLocCoordSwap;
     GLint  mFxLocYFlip;
+    GLint  mFxLocXFlip;
 
     // XMB background shader (PS3-style volumetric ribbons, 60fps)
     GLuint mXmbProgram;
@@ -363,6 +364,7 @@ private:
     GLint  mXmbLocRotation;
     GLint  mXmbLocCoordSwap;
     GLint  mXmbLocYFlip;
+    GLint  mXmbLocXFlip;
 
     // Menu state
     std::vector<MenuItem> mMenuItems;
