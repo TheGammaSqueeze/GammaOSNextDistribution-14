@@ -926,6 +926,23 @@ bool NanoMenu::threadLoop() {
                 }
             }
 
+            // GammaOS: QR preview layout.
+            //   0 (default) = one DS screen per display on dual-display
+            //                 devices, stacked top+bot on single-display.
+            //   1           = both DS screens side-by-side (top on left
+            //                 half, bot on right half) on every display.
+            // Read once at QR entry; changes require a nano restart.
+            bool qrSideBySide = false;
+            {
+                char sb[PROPERTY_VALUE_MAX] = {};
+                property_get("persist.gammaos.nano.drastic_qr_layout",
+                             sb, "0");
+                qrSideBySide = (sb[0] == '1');
+                if (qrSideBySide) {
+                    ALOGI("drastic QR: side-by-side layout enabled");
+                }
+            }
+
             float saturation = (smokeActive || drasticNanoActive)
                     ? 1.0f : 0.15f;
             float gradient = (smokeActive || drasticNanoActive)
@@ -1226,15 +1243,48 @@ bool NanoMenu::threadLoop() {
                 // -- the blit overwrites every pixel. Removing the clear
                 // cuts ~0.5-1 ms of GPU work per pass on RG DS, ~2-3 ms
                 // on 1080p panels.
+                // GammaOS: Viewport dims. With sDrmGlRotation we render
+                // into the raw AHB buffer (panel-native size); otherwise
+                // we use the logical mWidth/mHeight space that the shader
+                // rotates into panel coords. Same axis convention is
+                // needed for the side-by-side split below.
+                auto viewportDims = [&](const AhbRenderTarget& tgt,
+                                        int* outW, int* outH) {
+                    if (sDrmGlRotation) {
+                        *outW = tgt.w; *outH = tgt.h;
+                    } else {
+                        *outW = mWidth; *outH = mHeight;
+                    }
+                };
+
+                // Draw top+bot side-by-side into the currently-bound FBO
+                // by splitting the viewport's W axis. Each half is an
+                // independent glViewport + renderTopScreen / Bottom call;
+                // DrasticRunner::drawDsQuad fills its viewport with a
+                // full NDC quad, so halving W gives us left=top, right=bot.
+                auto drawSideBySide = [&](int vpW, int vpH) {
+                    const int halfW = vpW / 2;
+                    glViewport(0, 0, halfW, vpH);
+                    drastic->renderTopScreen(saturation, gradient);
+                    glViewport(halfW, 0, vpW - halfW, vpH);
+                    drastic->renderBottomScreen(saturation, gradient);
+                };
+
                 if (hasDualDisplay) {
-                    // Pass 1: secondary display -> bottom DS screen.
+                    // Pass 1: secondary display.
                     // Gated on secondaryThisIter so we do half the work
                     // on dual-display setups; secondary then runs at
                     // 30 fps which is fine for the bottom DS screen.
                     if (secondaryThisIter) {
                         glBindFramebuffer(GL_FRAMEBUFFER, secTgt.glFbo);
-                        glViewport(0, 0, secTgt.w, secTgt.h);
-                        drastic->renderBottomScreen(saturation, gradient);
+                        int vpW, vpH;
+                        viewportDims(secTgt, &vpW, &vpH);
+                        if (qrSideBySide) {
+                            drawSideBySide(vpW, vpH);
+                        } else {
+                            glViewport(0, 0, vpW, vpH);
+                            drastic->renderBottomScreen(saturation, gradient);
+                        }
                         if (showOverlay) {
                             // drawText hard-codes mWidth/mHeight for
                             // pixel->NDC (the logical landscape space;
@@ -1249,23 +1299,27 @@ bool NanoMenu::threadLoop() {
                         }
                     }
 
-                    // Pass 2: primary display -> top DS screen.
+                    // Pass 2: primary display.
                     glBindFramebuffer(GL_FRAMEBUFFER, primTgt.glFbo);
-                    if (sDrmGlRotation) {
-                        glViewport(0, 0, primTgt.w, primTgt.h);
+                    int pvpW, pvpH;
+                    viewportDims(primTgt, &pvpW, &pvpH);
+                    if (qrSideBySide) {
+                        drawSideBySide(pvpW, pvpH);
                     } else {
-                        glViewport(0, 0, mWidth, mHeight);
+                        glViewport(0, 0, pvpW, pvpH);
+                        drastic->renderTopScreen(saturation, gradient);
                     }
-                    drastic->renderTopScreen(saturation, gradient);
                 } else {
-                    // Single display: both screens stacked.
+                    // Single display.
                     glBindFramebuffer(GL_FRAMEBUFFER, primTgt.glFbo);
-                    if (sDrmGlRotation) {
-                        glViewport(0, 0, primTgt.w, primTgt.h);
+                    int vpW, vpH;
+                    viewportDims(primTgt, &vpW, &vpH);
+                    if (qrSideBySide) {
+                        drawSideBySide(vpW, vpH);
                     } else {
-                        glViewport(0, 0, mWidth, mHeight);
+                        glViewport(0, 0, vpW, vpH);
+                        drastic->renderBothScreens(saturation, gradient);
                     }
-                    drastic->renderBothScreens(saturation, gradient);
                 }
                 if (showOverlay) {
                     // drawText always uses mWidth/mHeight internally for
