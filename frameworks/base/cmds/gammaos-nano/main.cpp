@@ -754,6 +754,13 @@ int main() {
 
     ALOGI("GammaOS Nano starting...");
 
+    // GammaOS: Defensively clear the SurfaceFlinger composition gate. If
+    // a previous gammaos-nano instance crashed while holding DRM master,
+    // sys.gammaos.nano.drm_active could still read "1" and keep SF from
+    // compositing anything. drmEarlySplash() re-sets this to the correct
+    // value a few hundred ms later.
+    property_set("sys.gammaos.nano.drm_active", "0");
+
     // SYNCHRONOUSLY patch libdrastic_arm64.so in the cache BEFORE
     // any other drastic work. The patch short-circuits drastic's
     // initialize_audio function to a single `ret`, which prevents

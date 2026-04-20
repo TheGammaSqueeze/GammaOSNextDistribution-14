@@ -325,6 +325,11 @@ void drmEarlySplash() {
         if (drmTryAddDisplay(fd, crtcs[c], connId, "splash")) addedCount++;
     }
     sDrmActive = !sDrmDisplays.empty();
+    // GammaOS: publish DRM ownership to SurfaceFlinger. While this is "1",
+    // SurfaceFlinger's commit() short-circuits composition so SystemUI
+    // overlays (volume bar, brightness bar, etc.) cannot blank the panel
+    // by racing a HWC present against NanoMenu's direct DRM flips.
+    property_set("sys.gammaos.nano.drm_active", sDrmActive ? "1" : "0");
     if (sDrmActive) {
         ALOGW("NanoMenu DRM splash: %d/%d CRTCs active for direct rendering",
               addedCount, attempted);
@@ -1495,6 +1500,9 @@ void drmPushFrame(uint32_t glWidth, uint32_t glHeight) {
 void drmStop() {
     if (!sDrmActive) return;
     sDrmActive = false;
+    // GammaOS: release the SurfaceFlinger composition gate now that HWC
+    // owns the display again. Mirrors the set at drmEarlySplash().
+    property_set("sys.gammaos.nano.drm_active", "0");
     sDrmZeroCopy = false;
     // Reset GL rotation to identity for the SF EGL path
     sDrmGlRotation = false;
