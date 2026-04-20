@@ -2989,6 +2989,25 @@ bool SurfaceFlinger::commit(PhysicalDisplayId pacesetterId,
         scheduleCommit(FrameHint::kActive);
     }
 
+    // GammaOS: full composition gate while NanoMenu owns the display via DRM.
+    // NanoMenu renders directly to the DRM framebuffer during minimal boot and
+    // its standalone UI. Any HWC present we drive in parallel races NanoMenu's
+    // atomic flips and blanks the panel (e.g. when SystemUI pops a volume or
+    // brightness HUD). Transactions still flush above so SystemUI state stays
+    // fresh for when NanoMenu hands off; we only suppress the actual present
+    // pass. The property is toggled by NanoMenuDrm::drmEarlySplash / drmStop.
+    const bool gammaNanoDrmOwnsDisplay =
+            base::GetBoolProperty("sys.gammaos.nano.drm_active"s, false);
+    if (CC_UNLIKELY(gammaNanoDrmOwnsDisplay)) {
+        if (mustComposite) {
+            // composite() would normally drive input for us on this path.
+            // Keep input ticking so InputDispatcher doesn't stall while we
+            // are suppressing composition.
+            updateInputFlinger(vsyncId, pacesetterFrameTarget.frameBeginTime());
+        }
+        return false;
+    }
+
     return mustComposite && CC_LIKELY(mBootStage != BootStage::BOOTLOADER);
 }
 
