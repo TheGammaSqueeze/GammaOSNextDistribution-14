@@ -405,8 +405,15 @@ public class BroadcastSkipPolicy {
             }
         }
 
-        if ((filter.receiverList.app == null || filter.receiverList.app.isKilled()
-                || filter.receiverList.app.mErrorState.isCrashing())) {
+        // GammaOS Nano: direct-binder receivers (no ProcessRecord) are
+        // the gammaos-net helper's IIntentReceiver.Stub. We dispatch to
+        // them directly via IIntentReceiver.performReceive() from the
+        // modern broadcast queue, bypassing the IApplicationThread path.
+        // Skip the "process gone" check for them - linkToDeath on the
+        // binder handles cleanup when our helper exits.
+        if (filter.receiverList.app != null
+                && (filter.receiverList.app.isKilled()
+                        || filter.receiverList.app.mErrorState.isCrashing())) {
             return "Skipping deliver [" + r.queue.toString() + "] " + r
                     + " to " + filter.receiverList + ": process gone or crashing";
         }

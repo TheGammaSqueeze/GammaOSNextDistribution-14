@@ -941,7 +941,16 @@ final class BroadcastRecord extends Binder {
 
     static @NonNull String getReceiverProcessName(@NonNull Object receiver) {
         if (receiver instanceof BroadcastFilter) {
-            return ((BroadcastFilter) receiver).receiverList.app.processName;
+            final BroadcastFilter bf = (BroadcastFilter) receiver;
+            // GammaOS Nano: gammaos-net runs via app_process launched
+            // from init and has no ProcessRecord. We still want its
+            // direct-binder IIntentReceiver to receive broadcasts, so
+            // fall back to the BroadcastFilter's packageName for the
+            // process-queue key in the modern broadcast queue.
+            if (bf.receiverList.app == null) {
+                return bf.packageName != null ? bf.packageName : "direct-binder";
+            }
+            return bf.receiverList.app.processName;
         } else /* if (receiver instanceof ResolveInfo) */ {
             return ((ResolveInfo) receiver).activityInfo.processName;
         }
@@ -949,7 +958,11 @@ final class BroadcastRecord extends Binder {
 
     static @NonNull String getReceiverPackageName(@NonNull Object receiver) {
         if (receiver instanceof BroadcastFilter) {
-            return ((BroadcastFilter) receiver).receiverList.app.info.packageName;
+            final BroadcastFilter bf = (BroadcastFilter) receiver;
+            if (bf.receiverList.app == null) {
+                return bf.packageName != null ? bf.packageName : "direct-binder";
+            }
+            return bf.receiverList.app.info.packageName;
         } else /* if (receiver instanceof ResolveInfo) */ {
             return ((ResolveInfo) receiver).activityInfo.packageName;
         }

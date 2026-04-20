@@ -778,6 +778,38 @@ class BroadcastQueueModernImpl extends BroadcastQueue {
 
         for (int i = 0; i < r.receivers.size(); i++) {
             final Object receiver = r.receivers.get(i);
+
+            // GammaOS Nano: direct-binder receivers (IIntentReceiver
+            // registered by a process AMS doesn't track, like the
+            // gammaos-net helper) have a null ReceiverList.app. The
+            // process-queue dispatch path dereferences queue.app in
+            // multiple places, so route these to the receiver binder
+            // directly from here. linkToDeath on the receiver handles
+            // cleanup when the helper exits.
+            if (receiver instanceof BroadcastFilter
+                    && ((BroadcastFilter) receiver).receiverList.app == null) {
+                final BroadcastFilter bf = (BroadcastFilter) receiver;
+                setDeliveryState(null, null, r, i, receiver,
+                        BroadcastRecord.DELIVERY_SCHEDULED, "direct-binder dispatch");
+                try {
+                    final Intent receiverIntent = r.getReceiverIntent(receiver);
+                    if (receiverIntent != null) {
+                        bf.receiverList.receiver.performReceive(
+                                receiverIntent, r.resultCode, r.resultData,
+                                r.resultExtras, r.ordered, r.initialSticky,
+                                r.userId);
+                    }
+                    setDeliveryState(null, null, r, i, receiver,
+                            BroadcastRecord.DELIVERY_DELIVERED, "direct-binder done");
+                } catch (android.os.RemoteException e) {
+                    logw("direct-binder performReceive failed: " + e);
+                    setDeliveryState(null, null, r, i, receiver,
+                            BroadcastRecord.DELIVERY_FAILURE, "direct-binder remote ex");
+                }
+                enqueuedBroadcast = true;
+                continue;
+            }
+
             final BroadcastProcessQueue queue = getOrCreateProcessQueue(
                     getReceiverProcessName(receiver), getReceiverUid(receiver));
 

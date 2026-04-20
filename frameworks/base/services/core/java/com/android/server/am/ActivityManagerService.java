@@ -6999,12 +6999,25 @@ public class ActivityManagerService extends IActivityManager.Stub
                 for (ApplicationInfo app : apps) {
                     if (!"android".equals(app.packageName)) {
                         // GammaOS Nano: skip all persistent apps (SystemUI, etc.) -
-                        // only RetroArch needs to run, launched via home activity redirect
+                        // only RetroArch needs to run, launched via home activity redirect.
+                        // Exception: com.android.networkstack hosts IpClientService,
+                        // which WifiService requires before it can assign a DHCP lease
+                        // to a connected network. Without it every START_CONNECT is
+                        // dropped with "IpClient is not ready". Allow it through
+                        // when the Nano Wi-Fi HUD is enabled.
                         if (android.os.SystemProperties.getBoolean(
                                 "sys.gammaos.minimal_boot", false)) {
-                            Slog.i(TAG, "GammaOS Nano: skipping persistent app "
-                                    + app.packageName);
-                            continue;
+                            boolean nanoWifi = android.os.SystemProperties.getBoolean(
+                                    "persist.gammaos.nano.wifi", false);
+                            boolean isNetworkStack =
+                                    "com.android.networkstack".equals(app.packageName);
+                            if (!(nanoWifi && isNetworkStack)) {
+                                Slog.i(TAG, "GammaOS Nano: skipping persistent app "
+                                        + app.packageName);
+                                continue;
+                            }
+                            Slog.i(TAG, "GammaOS Nano: starting persistent app "
+                                    + app.packageName + " (required for Wi-Fi DHCP)");
                         }
                         final ProcessRecord proc = addAppLocked(
                                 app, null, false, null /* ABI override */,
@@ -7285,12 +7298,24 @@ public class ActivityManagerService extends IActivityManager.Stub
         }
 
         if ((info.flags & PERSISTENT_MASK) == PERSISTENT_MASK) {
-            // GammaOS Nano: block persistent apps (except "android") from starting
+            // GammaOS Nano: block persistent apps (except "android") from starting.
+            // Exception: com.android.networkstack hosts IpClientService, which
+            // WifiService needs for DHCP -- allow it through when the Nano
+            // Wi-Fi feature set is enabled (persist.gammaos.nano.wifi=1).
             if (android.os.SystemProperties.getBoolean(
                     "sys.gammaos.minimal_boot", false)
                     && !"android".equals(info.packageName)) {
-                Slog.i(TAG, "GammaOS Nano: blocking persistent app " + info.packageName);
-                return app;
+                boolean nanoWifi = android.os.SystemProperties.getBoolean(
+                        "persist.gammaos.nano.wifi", false);
+                boolean isNetworkStack =
+                        "com.android.networkstack".equals(info.packageName);
+                if (!(nanoWifi && isNetworkStack)) {
+                    Slog.i(TAG, "GammaOS Nano: blocking persistent app "
+                            + info.packageName);
+                    return app;
+                }
+                Slog.i(TAG, "GammaOS Nano: allowing persistent app "
+                        + info.packageName + " (required for Wi-Fi DHCP)");
             }
             app.setPersistent(true);
             app.mState.setMaxAdj(ProcessList.PERSISTENT_PROC_ADJ);
@@ -13626,10 +13651,16 @@ public class ActivityManagerService extends IActivityManager.Stub
             // This app is persistent, so we need to keep its record around.
             // If it is not already on the pending app list, add it there
             // and start a new process for it.
-            // GammaOS Nano: don't restart persistent apps (SystemUI etc.) in nano mode
-            if (android.os.SystemProperties.getBoolean(
-                    "sys.gammaos.minimal_boot", false)
-                    && !"android".equals(app.processName)) {
+            // GammaOS Nano: don't restart persistent apps (SystemUI etc.) in nano mode.
+            // Exception: com.android.networkstack must stay alive for Wi-Fi DHCP.
+            boolean nanoMinimal = android.os.SystemProperties.getBoolean(
+                    "sys.gammaos.minimal_boot", false);
+            boolean nanoWifiNs = android.os.SystemProperties.getBoolean(
+                            "persist.gammaos.nano.wifi", false)
+                    && "com.android.networkstack".equals(app.processName);
+            if (nanoMinimal
+                    && !"android".equals(app.processName)
+                    && !nanoWifiNs) {
                 Slog.i(TAG, "GammaOS Nano: not restarting persistent app "
                         + app.processName);
                 if (!replacingPid) {
@@ -14412,18 +14443,39 @@ public class ActivityManagerService extends IActivityManager.Stub
         synchronized (mProcLock) {
             callerApp = getRecordForAppLOSP(caller);
             if (callerApp == null) {
-                Slog.w(TAG, "registerReceiverWithFeature: no app for " + caller);
-                return null;
-            }
-            if (!UserHandle.isCore(callerApp.info.uid)
-                    && !callerApp.getPkgList().containsKey(callerPackage)) {
-                throw new SecurityException("Given caller package " + callerPackage
-                        + " is not running in process " + callerApp);
-            }
-            callingUid = callerApp.info.uid;
-            callingPid = callerApp.getPid();
+                // GammaOS Nano: the gammaos-net helper runs via
+                // app_process launched from init (class core animation),
+                // so AMS never sees it go through Process.start() and
+                // there is no ProcessRecord. The downstream code in
+                // this method already handles callerApp == null by
+                // linking the receiver's binder death instead of
+                // tracking it through ProcessRecord.mReceivers, so we
+                // can safely let root-uid callers through. We only
+                // allow this when the IApplicationThread is null --
+                // anyone who did go through Process.start() but has
+                // since been killed should NOT be allowed to keep
+                // registering receivers.
+                if (caller == null && Binder.getCallingUid() == 0) {
+                    callingUid = 0;
+                    callingPid = Binder.getCallingPid();
+                    instantApp = false;
+                } else {
+                    Slog.w(TAG, "registerReceiverWithFeature: no app for "
+                            + caller);
+                    return null;
+                }
+            } else {
+                if (!UserHandle.isCore(callerApp.info.uid)
+                        && !callerApp.getPkgList().containsKey(callerPackage)) {
+                    throw new SecurityException("Given caller package "
+                            + callerPackage
+                            + " is not running in process " + callerApp);
+                }
+                callingUid = callerApp.info.uid;
+                callingPid = callerApp.getPid();
 
-            instantApp = isInstantApp(callerApp, callerPackage, callingUid);
+                instantApp = isInstantApp(callerApp, callerPackage, callingUid);
+            }
         }
         userId = mUserController.handleIncomingUser(callingPid, callingUid, userId, true,
                 ALLOW_FULL_ONLY, "registerReceiver", callerPackage);

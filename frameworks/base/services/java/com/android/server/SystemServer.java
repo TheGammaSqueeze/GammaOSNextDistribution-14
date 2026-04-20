@@ -2656,6 +2656,24 @@ public final class SystemServer implements Dumpable {
                 } catch (Throwable e) {
                     Slog.e(TAG, "GammaOS Nano: CountryDetectorService failed", e);
                 }
+                // WifiService.ClientModeImpl.L2ConnectedState.enter() fetches
+                // VcnManager via getSystemService(), which requireNonNull()'s
+                // the binder and NPE-crashes WifiHandlerThread (uncaught,
+                // kills system_server) if VcnManagementService isn't
+                // published in ServiceManager.  Publish the binder here so
+                // the constructor succeeds; systemReady() needs
+                // ConnectivityManager which the NanoConnectivity bg thread
+                // brings up asynchronously, so we defer it until the binder
+                // is actually queried.
+                try {
+                    Slog.i(TAG, "GammaOS Nano: starting VcnManagementService");
+                    vcnManagement = VcnManagementService.create(context);
+                    ServiceManager.addService(Context.VCN_MANAGEMENT_SERVICE,
+                            vcnManagement);
+                    Slog.i(TAG, "GammaOS Nano: VcnManagementService ready");
+                } catch (Throwable e) {
+                    Slog.e(TAG, "GammaOS Nano: VcnManagementService failed", e);
+                }
                 try {
                     if (context.getPackageManager().hasSystemFeature(
                             PackageManager.FEATURE_WIFI)) {
@@ -2669,6 +2687,46 @@ public final class SystemServer implements Dumpable {
                     }
                 } catch (Throwable e) {
                     Slog.e(TAG, "GammaOS Nano: WiFi stack failed", e);
+                }
+                // com.android.bluetooth.btservice.AdapterService.onCreate()
+                // resolves CompanionDeviceManager and DevicePolicyManager via
+                // getNonNullSystemService() and NPE-crashes (repeatedly) if
+                // either binder isn't published yet, which leaves the BT
+                // stack in a perpetual "enabling" state that never
+                // transitions to ON. Start both here so the adapter
+                // onCreate() can complete.
+                try {
+                    if (context.getPackageManager().hasSystemFeature(
+                            PackageManager.FEATURE_COMPANION_DEVICE_SETUP)) {
+                        Slog.i(TAG, "GammaOS Nano: starting CompanionDeviceManager");
+                        mSystemServiceManager.startService(
+                                COMPANION_DEVICE_MANAGER_SERVICE_CLASS);
+                        Slog.i(TAG, "GammaOS Nano: CompanionDeviceManager ready");
+                    }
+                } catch (Throwable e) {
+                    Slog.e(TAG, "GammaOS Nano: CompanionDeviceManager failed", e);
+                }
+                try {
+                    Slog.i(TAG, "GammaOS Nano: starting DevicePolicyManager");
+                    mSystemServiceManager.startService(
+                            DevicePolicyManagerService.Lifecycle.class);
+                    Slog.i(TAG, "GammaOS Nano: DevicePolicyManager ready");
+                } catch (Throwable e) {
+                    Slog.e(TAG, "GammaOS Nano: DevicePolicyManager failed", e);
+                }
+                // MediaSessionService: BT's AvrcpTargetService calls
+                // MediaSessionManager.addOnActiveSessionsChangedListener
+                // during startProfileServices(), which NPEs when no
+                // ISessionManager is registered. Without this the BT
+                // stack crashes immediately after turning on, so
+                // pairing and scanning never work.
+                try {
+                    Slog.i(TAG, "GammaOS Nano: starting MediaSessionService");
+                    mSystemServiceManager.startService(
+                            MEDIA_SESSION_SERVICE_CLASS);
+                    Slog.i(TAG, "GammaOS Nano: MediaSessionService ready");
+                } catch (Throwable e) {
+                    Slog.e(TAG, "GammaOS Nano: MediaSessionService failed", e);
                 }
                 try {
                     if (context.getPackageManager().hasSystemFeature(
@@ -3580,7 +3638,13 @@ public final class SystemServer implements Dumpable {
                 t.traceEnd();
             }
 
-            if (!minimalBoot) { // GammaOS Nano: bg thread handles network stack
+            // GammaOS Nano: NetworkStack must start when the Nano Wi-Fi feature
+            // set is enabled, otherwise IpClient can't be bound and WifiService
+            // drops every START_CONNECT with "IpClient is not ready". Tethering
+            // stays skipped in minimal_boot -- it's not needed for station mode.
+            boolean nanoWifiEnabled = android.os.SystemProperties.getBoolean(
+                    "persist.gammaos.nano.wifi", false);
+            if (!minimalBoot || nanoWifiEnabled) {
             t.traceBegin("StartNetworkStack");
             try {
                 // Note : the network stack is creating on-demand objects that need to send
@@ -3593,7 +3657,9 @@ public final class SystemServer implements Dumpable {
                 reportWtf("starting Network Stack", e);
             }
             t.traceEnd();
+            }
 
+            if (!minimalBoot) { // GammaOS Nano: skip tethering in station-only mode
             t.traceBegin("StartTethering");
             try {
                 // TODO: hide implementation details, b/146312721.
@@ -3608,7 +3674,7 @@ public final class SystemServer implements Dumpable {
                 reportWtf("starting Tethering", e);
             }
             t.traceEnd();
-            } // !minimalBoot: network stack
+            } // !minimalBoot: tethering
 
             if (!minimalBoot) { // GammaOS Nano: skip non-essential service readiness
             t.traceBegin("MakeCountryDetectionServiceReady");
