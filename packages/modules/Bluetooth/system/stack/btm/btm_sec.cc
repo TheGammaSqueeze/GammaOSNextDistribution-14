@@ -876,14 +876,28 @@ tBTM_STATUS BTM_SecBond(const RawAddress& bd_addr, tBLE_ADDR_TYPE addr_type,
   tBT_DEVICE_TYPE dev_type;
 
   BTM_ReadDevInfo(bd_addr, &dev_type, &addr_type);
-  /* LE device, do SMP pairing */
+  /* LE device, do SMP pairing.
+   *
+   * GammaOS Nano: when the caller explicitly selects a transport (Nano
+   * forces BR/EDR for dual-mode HID peripherals like Xbox Wireless
+   * Controllers so classic SDP runs and HidHostService attaches), trust
+   * the caller even if the cached device_type hasn't been merged with
+   * that transport yet. The cached inq_info often only carries whichever
+   * advert/inquiry response the host happened to process first - a plain
+   * LE scan on AOSP 14 leaves device_type=BLE even for dual-mode devices,
+   * which would otherwise make BTM_SecBond(BR_EDR) fail with
+   * BTM_ILLEGAL_ACTION before the controller is ever asked. If the
+   * device is genuinely single-transport the HCI Create_Connection /
+   * SMP pairing step below will fail on its own with a real error, which
+   * is the failure mode the caller can actually recover from.
+   */
   if ((transport == BT_TRANSPORT_LE && (dev_type & BT_DEVICE_TYPE_BLE) == 0) ||
       (transport == BT_TRANSPORT_BR_EDR &&
        (dev_type & BT_DEVICE_TYPE_BREDR) == 0)) {
     log::warn(
-        "Can't start bonding - requested transport and transport we've seen "
-        "device on don't match");
-    return BTM_ILLEGAL_ACTION;
+        "Requested transport {} not reflected in cached device_type={}, "
+        "trusting caller and attempting bond anyway",
+        bt_transport_text(transport), dev_type);
   }
   return btm_sec_bond_by_transport(bd_addr, addr_type, transport);
 }

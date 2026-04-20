@@ -468,7 +468,8 @@ final class BondStateMachine extends StateMachine {
 
     private boolean isSkipConfirmationAccessory(BluetoothDevice device) {
         for (Pair<String, Integer> entry : accConfirmSkip) {
-            if (device.getName().equals(entry.first)
+            if (entry.first.equals(device.getName())
+                    && device.getBluetoothClass() != null
                     && device.getBluetoothClass().getDeviceClass() == entry.second) {
                 return true;
             }
@@ -483,6 +484,43 @@ final class BondStateMachine extends StateMachine {
                 && isSkipConfirmationAccessory(device)) {
             device.setPairingConfirmation(true);
             return;
+        }
+        // GammaOS Nano: when a pair is driven by the gammaos-net helper
+        // (which sets sys.gammaos.bt_autopair=1 for the duration of a
+        // createBond call), auto-confirm the common just-works/consent
+        // and numeric-confirmation variants and use the default 0000
+        // legacy PIN instead of kicking Settings' BluetoothPairingDialog
+        // up on display 0. The Nano UI is fullscreen DRM scanout with no
+        // input method, so any Settings dialog is both visually wrong
+        // and unreachable. sendDisplayPinIntent only fires for locally
+        // initiated bonds that reach SSP, so a stuck property never
+        // auto-accepts a pairing the user didn't start.
+        if (device != null && device.isBondingInitiatedLocally()
+                && "1".equals(android.os.SystemProperties.get(
+                        "sys.gammaos.bt_autopair", "0"))) {
+            try {
+                switch (variant) {
+                    case 2: // PAIRING_VARIANT_PASSKEY_CONFIRMATION
+                    case 3: // PAIRING_VARIANT_CONSENT
+                    case 6: // PAIRING_VARIANT_OOB_CONSENT
+                    case 4: // PAIRING_VARIANT_DISPLAY_PASSKEY (informational)
+                    case 5: // PAIRING_VARIANT_DISPLAY_PIN       (informational)
+                        device.setPairingConfirmation(true);
+                        return;
+                    case 0: // PAIRING_VARIANT_PIN
+                        device.setPin("0000".getBytes(
+                                java.nio.charset.StandardCharsets.UTF_8));
+                        return;
+                    default:
+                        // PAIRING_VARIANT_PASSKEY etc. require the user
+                        // to type a number from the peer. Fall through
+                        // and let the normal broadcast path handle it.
+                        break;
+                }
+            } catch (Throwable t) {
+                Log.w(TAG, "gammaos autopair: confirm variant=" + variant
+                        + " failed: " + t);
+            }
         }
         Intent intent = new Intent(BluetoothDevice.ACTION_PAIRING_REQUEST);
         intent.putExtra(BluetoothDevice.EXTRA_DEVICE, mRemoteDevices.getDevice(address));

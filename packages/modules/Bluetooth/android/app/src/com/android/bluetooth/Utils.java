@@ -455,6 +455,16 @@ public final class Utils {
      */
     public static boolean isPackageNameAccurate(Context context, String callingPackage,
             int callingUid) {
+        // GammaOS Nano: the gammaos-net helper runs as uid 0 (root) from
+        // init so it can drive BluetoothAdapter/BluetoothDevice without
+        // having to run inside a tracked app process. Root has no
+        // associated package, so the strict package/uid match fails
+        // here. Treat root as a fully trusted caller -- it's already
+        // gated by init's SELinux domain and the ROOT_UID check in
+        // BluetoothManagerService.
+        if (callingUid == android.os.Process.ROOT_UID) {
+            return true;
+        }
         UserHandle callingUser = UserHandle.getUserHandleForUid(callingUid);
 
         // Verifies the integrity of the calling package name
