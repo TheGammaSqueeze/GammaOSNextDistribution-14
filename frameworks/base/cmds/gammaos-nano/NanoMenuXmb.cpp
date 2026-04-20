@@ -1233,8 +1233,6 @@ void NanoMenu::launchXmbGame() {
         mSearchActive = false; mOskActive = false;
         property_set("sys.gammaos.nano.xmb_return_sys", "-1");
         property_set("sys.gammaos.nano.xmb_return_game", "0");
-        { char cb[32]; snprintf(cb, sizeof(cb), "%.2f", mEffectTime);
-          property_set("persist.gammaos.nano.xmb_color_phase", cb); }
         property_set("sys.gammaos.nano.return_recent", "0");
         property_set("sys.gammaos.nano.return_apps", "0");
         property_set("service.bootanim.nano_retroarch", "1");
@@ -1447,8 +1445,6 @@ void NanoMenu::launchXmbGame() {
             property_set("sys.gammaos.nano.xmb_return_sys", "-1");
             property_set("sys.gammaos.nano.xmb_return_game", "0");
         }
-        snprintf(buf, sizeof(buf), "%.2f", mEffectTime);
-        property_set("persist.gammaos.nano.xmb_color_phase", buf);
     }
 
     property_set("sys.gammaos.nano.return_recent", "0");

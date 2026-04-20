@@ -87,6 +87,12 @@ const char FX_FRAGMENT_SHADER[] = R"(
     uniform vec2 uResolution;
     uniform int uEffect;
     uniform float uCoordSwap;
+    // GammaOS DRM PRIME path flips vertex Y via uRotation so AHB scanout
+    // memory ordering matches the panel. gl_FragCoord is NOT affected by
+    // vertex transforms, so orientation-dependent effects (Fire, Aurora,
+    // etc.) render upside-down. uYFlip=1.0 in PRIME mode flips the
+    // fragment-space Y so the designer's "0=bottom" convention still holds.
+    uniform float uYFlip;
 
     float hash(vec2 p) {
         return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
@@ -103,6 +109,7 @@ const char FX_FRAGMENT_SHADER[] = R"(
         vec2 fc = mix(gl_FragCoord.xy,
                       vec2(gl_FragCoord.y, uResolution.y - gl_FragCoord.x),
                       uCoordSwap);
+        fc.y = mix(fc.y, uResolution.y - fc.y, uYFlip);
         vec2 uv = fc / uResolution;
         float t = uTime;
         vec3 col = vec3(0.0);
@@ -202,6 +209,7 @@ const char XMB_FRAGMENT_SHADER[] = R"(
     uniform float uTime;
     uniform vec2 uResolution;
     uniform float uCoordSwap;
+    uniform float uYFlip;
 
     float xmbHash(vec2 p) {
         return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
@@ -216,6 +224,7 @@ const char XMB_FRAGMENT_SHADER[] = R"(
         vec2 fc = mix(gl_FragCoord.xy,
                       vec2(gl_FragCoord.y, uResolution.y - gl_FragCoord.x),
                       uCoordSwap);
+        fc.y = mix(fc.y, uResolution.y - fc.y, uYFlip);
         vec2 uv = fc / uResolution;
         float t = uTime;
 
@@ -405,6 +414,7 @@ void NanoMenu::initShaders() {
             mFxLocEffect     = glGetUniformLocation(mFxProgram, "uEffect");
             mFxLocRotation   = glGetUniformLocation(mFxProgram, "uRotation");
             mFxLocCoordSwap  = glGetUniformLocation(mFxProgram, "uCoordSwap");
+            mFxLocYFlip      = glGetUniformLocation(mFxProgram, "uYFlip");
             glDeleteShader(vs); glDeleteShader(fs);
         }
         {   GLuint vs = compileShader(GL_VERTEX_SHADER, FX_VERTEX_SHADER);
@@ -415,15 +425,16 @@ void NanoMenu::initShaders() {
             mXmbLocResolution = glGetUniformLocation(mXmbProgram, "uResolution");
             mXmbLocRotation   = glGetUniformLocation(mXmbProgram, "uRotation");
             mXmbLocCoordSwap  = glGetUniformLocation(mXmbProgram, "uCoordSwap");
+            mXmbLocYFlip      = glGetUniformLocation(mXmbProgram, "uYFlip");
             glDeleteShader(vs); glDeleteShader(fs);
         }
     } else {
         mParticleProgram = 0; mFxProgram = 0; mXmbProgram = 0;
         mParticleLocPosition = mParticleLocColor = mParticleLocRotation = -1;
         mFxLocPosition = mFxLocTime = mFxLocResolution = -1;
-        mFxLocEffect = mFxLocRotation = mFxLocCoordSwap = -1;
+        mFxLocEffect = mFxLocRotation = mFxLocCoordSwap = mFxLocYFlip = -1;
         mXmbLocPosition = mXmbLocTime = mXmbLocResolution = -1;
-        mXmbLocRotation = mXmbLocCoordSwap = -1;
+        mXmbLocRotation = mXmbLocCoordSwap = mXmbLocYFlip = -1;
     }
 
     // GammaOS: Compute the GL rotation matrix for DRM direct rendering.

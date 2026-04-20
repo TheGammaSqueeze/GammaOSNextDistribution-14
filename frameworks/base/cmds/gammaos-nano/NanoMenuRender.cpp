@@ -731,6 +731,15 @@ void NanoMenu::setupSecondaryEglSurfaces() {
             continue;
         }
 
+        // GammaOS: When nano restarts after exiting an SF/HWC-based app
+        // (e.g. RetroArch), SurfaceFlinger may leave the secondary HWC
+        // display in an inactive power state. dumpsys SurfaceFlinger shows
+        // it as "Display 1 (inactive)" and the bottom screen stays blank
+        // no matter what we render into it. Force the display ON here so
+        // the HWC scans out our wallpaper surface. PowerMode::ON = 2 per
+        // android.hardware.graphics.composer@2.1 IComposerClient.hal.
+        SurfaceComposerClient::setDisplayPowerMode(token, 2);
+
         ui::DisplayState state;
         ui::LayerStack stack = ui::DEFAULT_LAYER_STACK;
         if (SurfaceComposerClient::getDisplayState(token, &state) == NO_ERROR) {
@@ -793,6 +802,7 @@ void NanoMenu::setupSecondaryEglSurfaces() {
         mSecondaryWallpaperControls.push_back(sc);
         mSecondarySurfaces.push_back(s);
         mSecondaryEglSurfaces.push_back(eglSurf);
+        mSecondaryAppliedLayerStacks.push_back(stack.id);
 
         int64_t now = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL;
         ALOGI("NanoMenu: secondary EGL surface ready: port=%d layerStack=%u %dx%d at T+%lldms",
@@ -1441,19 +1451,19 @@ if (sRingPrimedCount >= 2) {
         // DRM->HWC transition cost for XMB browsing.
     } else {
         eglSwapBuffers(mDisplay, mSurface);
-        if (sFirstFrame) {
+        // Restart path (returning from game): readyToRun() saw boot
+        // already complete and skipped DRM splash, so the drmStop()
+        // branch above never runs. Set up secondary EGL surfaces here
+        // on the first EGL swap so the wallpaper renders on the
+        // secondary display in restart sessions too. The sFirstFrame
+        // static at the top of render() is consumed on the first call,
+        // so we track the setup state via the vector's emptiness
+        // instead — gives exactly-once semantics without relying on
+        // a flag that got reset four function-screens above.
+        if (mSecondaryEglSurfaces.empty()) {
             int64_t nowMs = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL;
             ALOGW("NanoMenu BOOT TIMING: first eglSwapBuffers complete at T+%lldms", nowMs);
-            sFirstFrame = false;
-            // Restart path (returning from game): readyToRun() saw boot
-            // already complete and skipped DRM splash, so the drmStop()
-            // branch above never runs. Set up secondary EGL surfaces here
-            // on the first EGL swap so the wallpaper renders on the
-            // secondary display in restart sessions too. Idempotent — the
-            // setup function returns immediately if already populated.
-            if (mSecondaryEglSurfaces.empty()) {
-                setupSecondaryEglSurfaces();
-            }
+            setupSecondaryEglSurfaces();
         }
     }
 

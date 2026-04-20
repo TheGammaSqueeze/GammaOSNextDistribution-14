@@ -86,7 +86,8 @@ NanoMenu::NanoMenu()
       mShaderProgram(0), mLocPosition(-1), mLocColor(-1),
       mParticleProgram(0), mParticleLocPosition(-1), mParticleLocColor(-1),
       mFxProgram(0), mFxLocPosition(-1), mFxLocTime(-1),
-      mFxLocResolution(-1), mFxLocEffect(-1),
+      mFxLocResolution(-1), mFxLocEffect(-1), mFxLocYFlip(-1),
+      mXmbLocYFlip(-1),
       mSelectedIndex(0),
       mDisplayDirty(true),
       mInotifyFd(-1),
@@ -191,6 +192,8 @@ NanoMenu::~NanoMenu() {
         t.apply();
         mSecondaryWallpaperControls.clear();
     }
+    mSecondaryDisplayTokens.clear();
+    mSecondaryAppliedLayerStacks.clear();
     for (int fd : mInputFds) {
         ioctl(fd, EVIOCGRAB, 0); // release grab (always, in case exit-grab was applied)
         close(fd);
@@ -779,17 +782,18 @@ bool NanoMenu::threadLoop() {
             }
             mXmbGameScrollTop = 0;
         }
-        // Restore XMB background color phase (check both persist and sys)
+        // GammaOS: mEffectTime is derived from CLOCK_BOOTTIME per frame in
+        // the main loop, so the wallpaper hue cycle advances continuously
+        // across nano restarts (returning from an SF/HWC app, force_drm
+        // relaunch, etc.) instead of snapping back to a stale persisted
+        // value. Still honour an explicit sys-prop override if something
+        // set one (diagnostic/test knob only).
         std::string colorPhase = android::base::GetProperty(
-                "persist.gammaos.nano.xmb_color_phase", "");
-        if (colorPhase.empty()) {
-            colorPhase = android::base::GetProperty(
-                    "sys.gammaos.nano.xmb_color_phase", "");
-        }
+                "sys.gammaos.nano.xmb_color_phase", "");
         if (!colorPhase.empty()) {
             mEffectTime = atof(colorPhase.c_str());
             property_set("sys.gammaos.nano.xmb_color_phase", "");
-            ALOGD("NanoMenu: restored color phase %.2f", mEffectTime);
+            ALOGD("NanoMenu: color phase override %.2f", mEffectTime);
         }
     }
 
@@ -2475,11 +2479,25 @@ if (sRingPrimedCount >= 2) {
             }
             mLastFrameNs = nowNs;
         }
-        mEffectTime += mFrameDt;
-        // Wrap time to prevent mediump float precision degradation and to
-        // align with XMB hue cycle (rate 0.002 → period 500s). Wrapping at
-        // exactly 500s ensures fract(t*0.002+offset) is seamless.
-        if (mEffectTime > 500.0f) mEffectTime -= 500.0f;
+        // GammaOS: Drive mEffectTime from CLOCK_BOOTTIME so the XMB hue
+        // phase and all wallpaper animations advance continuously across
+        // nano process restarts (exiting an SF/HWC app, force_drm
+        // relaunch, etc.). Previously we incremented per-frame and relied
+        // on persist.gammaos.nano.xmb_color_phase to survive restarts,
+        // but that property is only written on XMB game launch — nano can
+        // restart via several other paths in which case the restored
+        // phase was stale and the hue appeared to snap backward to
+        // wherever the last saved launch happened. CLOCK_BOOTTIME is
+        // monotonic across suspend and across restarts within the same
+        // boot session, so a derived phase is seamless. Wrapping at 500s
+        // keeps mediump float precision in shaders and aligns with the
+        // XMB hue cycle (rate 0.002 → period 500s).
+        {
+            struct timespec bt;
+            clock_gettime(CLOCK_BOOTTIME, &bt);
+            double tb = (double)bt.tv_sec + (double)bt.tv_nsec * 1e-9;
+            mEffectTime = (float)fmod(tb, 500.0);
+        }
         render();
 
         // GammaOS: XMB FPS counter. Logs once per second when in XMB mode so
@@ -2596,6 +2614,37 @@ if (sRingPrimedCount >= 2) {
                 ui::DisplayState state;
                 if (SurfaceComposerClient::getDisplayState(token, &state) != NO_ERROR) {
                     continue;
+                }
+                // GammaOS: Re-assert PowerMode::ON on the secondary display.
+                // Cheap idempotent call; cheap insurance against SF putting
+                // the display to sleep mid-session (observed when returning
+                // from RetroArch, dreamManager, or any policy that touches
+                // non-default display power state). Without this, the
+                // secondary display renders into a black HWC output even
+                // though our EGL surface is swapping correctly.
+                SurfaceComposerClient::setDisplayPowerMode(token, 2);
+                // GammaOS: When returning to nano from an SF/HWC-based app
+                // (e.g. RetroArch), DualStackController's teardown may
+                // re-assign the secondary display's layer stack after our
+                // setupSecondaryEglSurfaces() already read and applied the
+                // stack on our SurfaceControl. The secondary display then
+                // scans out a stack that has no layer, and the bottom
+                // screen goes blank. Detect the drift and re-route our
+                // wallpaper SurfaceControl to whatever stack the secondary
+                // display is currently on. Same shape as the primary's
+                // self-healing layer-stack reapply a few dozen lines up.
+                if (i < mSecondaryAppliedLayerStacks.size()
+                        && i < mSecondaryWallpaperControls.size()
+                        && mSecondaryWallpaperControls[i] != nullptr
+                        && state.layerStack.id != mSecondaryAppliedLayerStacks[i]) {
+                    SurfaceComposerClient::Transaction lt;
+                    lt.setLayerStack(mSecondaryWallpaperControls[i],
+                                     state.layerStack);
+                    lt.apply();
+                    ALOGI("NanoMenu: secondary %zu layerStack %u → %u, reapplied",
+                          i, mSecondaryAppliedLayerStacks[i],
+                          state.layerStack.id);
+                    mSecondaryAppliedLayerStacks[i] = state.layerStack.id;
                 }
                 if (state.orientation == ui::ROTATION_0) continue;
                 DisplayMode mode;

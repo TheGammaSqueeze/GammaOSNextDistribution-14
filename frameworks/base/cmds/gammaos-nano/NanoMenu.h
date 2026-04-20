@@ -329,6 +329,7 @@ private:
     std::vector<sp<SurfaceControl>> mSecondaryWallpaperControls; // GammaOS: wallpaper on secondaries
     std::vector<EGLSurface> mSecondaryEglSurfaces; // GammaOS: EGL surfaces for secondary wallpaper
     std::vector<sp<Surface>> mSecondarySurfaces; // GammaOS: keep refs alive
+    std::vector<uint32_t> mSecondaryAppliedLayerStacks; // GammaOS: last layer stack applied to each secondary wallpaper SC
     sp<SurfaceControl> mFlingerSurfaceControl;
     sp<Surface> mFlingerSurface;
 
@@ -352,6 +353,7 @@ private:
     GLint  mFxLocEffect;
     GLint  mFxLocRotation;
     GLint  mFxLocCoordSwap;
+    GLint  mFxLocYFlip;
 
     // XMB background shader (PS3-style volumetric ribbons, 60fps)
     GLuint mXmbProgram;
@@ -360,6 +362,7 @@ private:
     GLint  mXmbLocResolution;
     GLint  mXmbLocRotation;
     GLint  mXmbLocCoordSwap;
+    GLint  mXmbLocYFlip;
 
     // Menu state
     std::vector<MenuItem> mMenuItems;
