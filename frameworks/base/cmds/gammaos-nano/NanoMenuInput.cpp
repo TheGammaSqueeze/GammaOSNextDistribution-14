@@ -528,6 +528,88 @@ void NanoMenu::handleDown() {
 }
 
 // ---------------------------------------------------------------------------
+// Hold-to-repeat navigation.
+//
+// Users expect that holding a dpad direction (or pushing a stick past the
+// deadzone and keeping it there) will scroll long lists continuously, not
+// just move a single step. We model this as an edge-triggered "press"
+// that records which direction is held, plus a per-frame tick that fires
+// the matching handle* function on an accelerating cadence.
+//
+// Cadence:
+//   - Initial delay before the first repeat fires.
+//   - Interval starts slow and shortens with each repeat, floored at a
+//     minimum so the scroll stays controllable on very long lists.
+//
+// navPress() always fires the first handle* call synchronously so a tap
+// (press then immediate release) still moves exactly one step.
+// ---------------------------------------------------------------------------
+
+static constexpr int64_t kNavInitialDelayMs    = 350;
+static constexpr int64_t kNavInitialIntervalMs = 180;
+static constexpr int64_t kNavMinIntervalMs     = 45;
+static constexpr int64_t kNavAccelStepMs       = 10;
+
+void NanoMenu::navPress(NavDir dir) {
+    if (dir == NavDir::None) return;
+    // Idempotent: if this direction is already the held one, don't re-fire.
+    // Guards against duplicate events (e.g. HAT re-reporting same value)
+    // from double-stepping the selection.
+    if (dir == mNavHeldDir) return;
+    // Fire the step immediately; a brief tap should always move one slot.
+    switch (dir) {
+    case NavDir::Up:    handleUp();    break;
+    case NavDir::Down:  handleDown();  break;
+    case NavDir::Left:  handleLeft();  break;
+    case NavDir::Right: handleRight(); break;
+    case NavDir::None:  break;
+    }
+    mNavHeldDir      = dir;
+    mNavHeldStartMs  = android::uptimeMillis();
+    mNavLastRepeatMs = mNavHeldStartMs;
+    mNavRepeatCount  = 0;
+}
+
+void NanoMenu::navRelease(NavDir dir) {
+    // dir == None means "whichever direction is currently held" — used
+    // by axis handlers that can't tell press-up from press-down on the
+    // same axis without extra state.
+    if (dir == NavDir::None || dir == mNavHeldDir) {
+        mNavHeldDir      = NavDir::None;
+        mNavHeldStartMs  = 0;
+        mNavLastRepeatMs = 0;
+        mNavRepeatCount  = 0;
+    }
+}
+
+void NanoMenu::tickNavRepeat() {
+    if (mNavHeldDir == NavDir::None) return;
+    // Suppress auto-repeat while waiting for the launch key to be released
+    // (the launch path consumes events specially and shouldn't receive
+    // synthetic scroll steps). OSK and WiFi/BT screens all dispatch
+    // through the handle* functions, so they benefit from auto-repeat
+    // just like the XMB list.
+    if (mWaitForRelease) return;
+
+    const int64_t now = android::uptimeMillis();
+    if (now - mNavHeldStartMs < kNavInitialDelayMs) return;
+
+    int64_t interval = kNavInitialIntervalMs - kNavAccelStepMs * mNavRepeatCount;
+    if (interval < kNavMinIntervalMs) interval = kNavMinIntervalMs;
+    if (now - mNavLastRepeatMs < interval) return;
+
+    switch (mNavHeldDir) {
+    case NavDir::Up:    handleUp();    break;
+    case NavDir::Down:  handleDown();  break;
+    case NavDir::Left:  handleLeft();  break;
+    case NavDir::Right: handleRight(); break;
+    case NavDir::None:  break;
+    }
+    mNavLastRepeatMs = now;
+    mNavRepeatCount++;
+}
+
+// ---------------------------------------------------------------------------
 // Event loop: drain every input fd, dispatch to navigation / power / OSK.
 // ---------------------------------------------------------------------------
 
@@ -622,6 +704,18 @@ void NanoMenu::pollInput() {
                 }
                 continue;
             }
+            // Directional key release clears hold-to-repeat state so the
+            // auto-scroll tick stops. Only directional keys matter here;
+            // other keys don't participate in the repeat scheduler.
+            if (ev.type == EV_KEY && ev.value == 0) {
+                switch (ev.code) {
+                case KEY_UP:    navRelease(NavDir::Up);    break;
+                case KEY_DOWN:  navRelease(NavDir::Down);  break;
+                case KEY_LEFT:  navRelease(NavDir::Left);  break;
+                case KEY_RIGHT: navRelease(NavDir::Right); break;
+                default: break;
+                }
+            }
             if (ev.type == EV_KEY && (ev.value == 1 || ev.value == 2)) {
                 // Volume keys: SELECT+VOL = brightness, VOL alone = volume
                 if (ev.code == KEY_VOLUMEUP || ev.code == KEY_VOLUMEDOWN) {
@@ -633,12 +727,16 @@ void NanoMenu::pollInput() {
                     continue;
                 }
                 if (ev.value == 1) {
-                    // Only handle menu nav on initial press, not repeat
+                    // Only handle menu nav on initial press, not repeat.
+                    // For directional keys we route through navPress() so the
+                    // hold-to-repeat tick can drive continuous scrolling while
+                    // the key stays down; the release is handled separately
+                    // (ev.value == 0 branch below).
                     switch (ev.code) {
                     case KEY_UP:
-                        handleUp(); break;
+                        navPress(NavDir::Up); break;
                     case KEY_DOWN:
-                        handleDown(); break;
+                        navPress(NavDir::Down); break;
                     case BTN_SOUTH:
                         handleSelect(); break;
                     case KEY_ENTER:
@@ -656,9 +754,9 @@ void NanoMenu::pollInput() {
                     case BTN_EAST: case KEY_BACK:
                         handleBack(); break;
                     case KEY_LEFT:
-                        handleLeft(); break;
+                        navPress(NavDir::Left); break;
                     case KEY_RIGHT:
-                        handleRight(); break;
+                        navPress(NavDir::Right); break;
                     case BTN_WEST: // Y button (Nintendo layout: BTN_WEST = Y)
                         if (mMenuState == MENU_BT)   { handleBtScreenY();   break; }
                         if (mXmbMode) {
@@ -728,21 +826,28 @@ void NanoMenu::pollInput() {
             }
             if (ev.type == EV_ABS) {
                 if (ev.code == ABS_HAT0X) {
-                    if (ev.value < 0) handleLeft();
-                    else if (ev.value > 0) handleRight();
+                    // HAT axes only emit a release as value==0. We don't
+                    // know from just the axis whether Left or Right was
+                    // held, so pass NavDir::None to release whichever is
+                    // currently active.
+                    if (ev.value < 0)      navPress(NavDir::Left);
+                    else if (ev.value > 0) navPress(NavDir::Right);
+                    else                   navRelease(NavDir::None);
                 } else if (ev.code == ABS_HAT0Y) {
-                    if (ev.value < 0) handleUp();
-                    else if (ev.value > 0) handleDown();
+                    if (ev.value < 0)      navPress(NavDir::Up);
+                    else if (ev.value > 0) navPress(NavDir::Down);
+                    else                   navRelease(NavDir::None);
                 } else if (ev.code == ABS_X) {
                     // Left stick X: horizontal navigation
                     int threshold = 29490; // 90% of 32767
                     if (ev.value < -threshold && !mStickXTriggered) {
-                        handleLeft();
+                        navPress(NavDir::Left);
                         mStickXTriggered = true;
                     } else if (ev.value > threshold && !mStickXTriggered) {
-                        handleRight();
+                        navPress(NavDir::Right);
                         mStickXTriggered = true;
                     } else if (ev.value > -threshold && ev.value < threshold) {
+                        if (mStickXTriggered) navRelease(NavDir::None);
                         mStickXTriggered = false;
                     }
                 } else if (ev.code == ABS_Y) {
@@ -750,18 +855,23 @@ void NanoMenu::pollInput() {
                     // Threshold naturally filters touchscreen ABS_Y (max ~960)
                     int threshold = 29490; // 90% of 32767
                     if (ev.value < -threshold && !mStickYTriggered) {
-                        handleUp();
+                        navPress(NavDir::Up);
                         mStickYTriggered = true;
                     } else if (ev.value > threshold && !mStickYTriggered) {
-                        handleDown();
+                        navPress(NavDir::Down);
                         mStickYTriggered = true;
                     } else if (ev.value > -threshold && ev.value < threshold) {
+                        if (mStickYTriggered) navRelease(NavDir::None);
                         mStickYTriggered = false;
                     }
                 }
             }
         }
     }
+    // Fire accelerating repeats while a direction remains held. Must run
+    // every frame, not only when events arrive, because held axes stop
+    // emitting events once settled.
+    tickNavRepeat();
 }
 
 } // namespace android

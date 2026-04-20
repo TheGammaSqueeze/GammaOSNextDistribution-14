@@ -148,6 +148,10 @@ public:
     };
 
 private:
+    // Hold-to-repeat navigation direction. Declared here (before use in
+    // member function signatures) so navPress/navRelease can reference it.
+    enum class NavDir : int { None = 0, Up, Down, Left, Right };
+
     virtual bool        threadLoop();
     virtual status_t    readyToRun();
     virtual void        onFirstRef();
@@ -161,6 +165,15 @@ private:
     void handleDown();
     void handleLeft();
     void handleRight();
+    // Hold-to-repeat helpers. navPress() fires the matching handle* once
+    // and arms the repeat tick; navRelease() clears it (pass NavDir::None
+    // to clear unconditionally, e.g. on HAT/stick return to center when
+    // we don't know which specific axis direction was held).
+    // tickNavRepeat() is invoked once per frame from pollInput() and
+    // fires handle* at an accelerating cadence while a direction is held.
+    void navPress(NavDir dir);
+    void navRelease(NavDir dir);
+    void tickNavRepeat();
     void handleSelect();
     void handleBack();
     void loadRecentPlaylist();
@@ -411,6 +424,16 @@ private:
     // Analog stick state
     bool mStickYTriggered; // prevents repeat until stick returns to center
     bool mStickXTriggered; // prevents repeat for horizontal axis
+
+    // Hold-to-repeat navigation. Set when a dpad key / HAT axis / stick
+    // axis enters its held state; cleared on release. pollInput() ticks
+    // this each frame and calls handleUp/Down/Left/Right at an
+    // accelerating cadence while a direction is held, so users don't
+    // have to tap repeatedly to scroll long lists.
+    NavDir  mNavHeldDir      = NavDir::None;
+    int64_t mNavHeldStartMs  = 0; // when the current direction was pressed
+    int64_t mNavLastRepeatMs = 0; // when we last fired a repeat (or initial fire)
+    int     mNavRepeatCount  = 0; // repeat fires so far, used for acceleration
 
     // Brightness / power
     bool mSelectHeld;
