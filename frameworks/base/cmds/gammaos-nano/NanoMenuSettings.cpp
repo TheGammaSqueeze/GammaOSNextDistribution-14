@@ -4,19 +4,24 @@
  * Settings column: pseudo-system on the XMB column bar that hosts
  * Wi-Fi + Bluetooth configuration screens.
  *
- * Nano runs as uid 1003 (graphics) which Wifi/BluetoothManager services
- * treat as unprivileged -- direct `cmd wifi ...` and dumpsys calls from
- * this process return empty lists. To work around that we dispatch via
- * runNetHelper() which triggers the root-privileged nano-net-helper
- * service through init property triggers (sys.gammaos.nano.net_cmd) and
- * reads back a plain-text result from /data/system/nano_net_<cmd>.txt.
- * See gammaos/nano-net-helper.sh for the dispatch table.
+ * gammaos-nano runs as root (see gammaos-nano.rc) so `cmd wifi` /
+ * `cmd bluetooth_manager` / `dumpsys bluetooth_manager` accept the
+ * caller uid check directly. All network calls below go through
+ * runCmd() which is a thin popen() wrapper -- no shell proxy, no
+ * init property triggers, no result files.
+ *
+ * Blocking calls (list-scan-results, dumpsys) must NOT run on the
+ * render / input thread -- they can stall for hundreds of ms. The
+ * screen-open paths push the initial refresh onto the existing
+ * wifi/bt scan threads so the UI never freezes when opening
+ * Settings -> Wi-Fi or Settings -> Bluetooth.
  */
 
 #define LOG_TAG "GammaOSNano"
 
 #include <algorithm>
 #include <cctype>
+#include <cerrno>
 #include <chrono>
 #include <cmath>
 #include <cstdio>
@@ -29,85 +34,67 @@
 #include <utility>
 #include <vector>
 
-#include <android-base/properties.h>
-#include <cutils/properties.h>
 #include <log/log.h>
-#include <utils/SystemClock.h>
 
 #include <GLES2/gl2.h>
 
 #include "NanoMenu.h"
 #include "NanoMenuShaders.h"
-#include "NanoMenuUtils.h"
 
 namespace android {
 
 namespace {
 
-// runNetHelper: trigger the root-privileged nano-net-helper service
-// via init property triggers and return the plain-text result.
-// Nano runs at uid 1003 so direct `cmd wifi` / `cmd bluetooth_manager`
-// returns empty lists; the helper runs as root under
-// gammaoscustomization seclabel via gammaos-nano.rc triggers on
-// sys.gammaos.nano.net_cmd=<cmd>. See gammaos/nano-net-helper.sh.
-//
-// Args longer than 92 bytes (e.g. SSID + security + password) go via
-// /data/system/nano_net_arg.txt to sidestep PROP_VALUE_MAX. Result
-// lands in /data/system/nano_net_<cmd>.txt with mode 0644 so uid
-// 1003 can read. Helper signals completion by setting
-// sys.gammaos.nano.net_ack=<cmd>.
+// Serialize framework shell-outs so the HUD poll thread and the
+// XMB Settings threads don't pile up concurrent `cmd wifi` forks
+// (each one briefly holds a WifiService binder reply slot).
 std::mutex& netHelperMutex() {
     static std::mutex m;
     return m;
 }
 
-std::string runNetHelper(const char* cmd, const std::string& arg = "",
-                         int timeoutMs = 5000) {
-    // Serialize all callers so the HUD poll thread and the XMB Settings
-    // screens don't race on sys.gammaos.nano.net_cmd. The helper is
-    // oneshot so init serializes anyway, but the shared property +
-    // result-file protocol needs strict ordering per-caller.
+// Thin popen() wrapper. gammaos-nano runs as root, so `cmd wifi` /
+// `cmd bluetooth_manager` / `dumpsys bluetooth_manager` pass their
+// Binder.getCallingUid() == ROOT_UID check and return real data.
+// Redirects stderr into stdout so the few tools that log warnings
+// on stderr (cmd wifi connect-network when the SSID is already
+// saved) don't bleed onto the render thread's stderr fd.
+std::string runCmd(const std::string& cmdline) {
     std::lock_guard<std::mutex> lk(netHelperMutex());
-
-    writePathFile("/data/system/nano_net_arg.txt", arg);
-    // Clear ack and cycle cmd via idle so init retriggers even when
-    // the last invocation used the same cmd value.
-    android::base::SetProperty("sys.gammaos.nano.net_ack", "");
-    android::base::SetProperty("sys.gammaos.nano.net_cmd", "idle");
-    android::base::SetProperty("sys.gammaos.nano.net_cmd", cmd);
-
-    const int stepMs = 50;
-    int waitedMs = 0;
-    while (waitedMs < timeoutMs) {
-        char val[PROPERTY_VALUE_MAX] = {};
-        property_get("sys.gammaos.nano.net_ack", val, "");
-        if (strcmp(val, cmd) == 0) break;
-        usleep(stepMs * 1000);
-        waitedMs += stepMs;
-    }
-    // Reset cmd and arg so the next call can retrigger cleanly.
-    android::base::SetProperty("sys.gammaos.nano.net_cmd", "idle");
-    unlink("/data/system/nano_net_arg.txt");
-
-    // Read the full result file. readPathFile in NanoMenuUtils caps at
-    // 4 KB, which is too small for dumpsys bluetooth_manager; read in
-    // a bounded loop up to 256 KB.
-    std::string resultPath = std::string("/data/system/nano_net_") + cmd + ".txt";
     std::string result;
-    FILE* f = fopen(resultPath.c_str(), "rb");
-    if (f) {
-        char readBuf[4096];
-        size_t total = 0;
-        const size_t kMaxResult = 256 * 1024;
-        while (total < kMaxResult) {
-            size_t n = fread(readBuf, 1, sizeof(readBuf), f);
-            if (n == 0) break;
-            result.append(readBuf, n);
-            total += n;
-        }
-        fclose(f);
+    result.reserve(4096);
+    std::string full = cmdline;
+    if (full.find("2>") == std::string::npos) full += " 2>&1";
+    FILE* f = popen(full.c_str(), "r");
+    if (!f) {
+        ALOGE("NanoMenu runCmd popen failed for '%s': %s",
+              full.c_str(), strerror(errno));
+        return result;
     }
+    char buf[4096];
+    const size_t kMax = 256 * 1024;
+    while (true) {
+        size_t n = fread(buf, 1, sizeof(buf), f);
+        if (n == 0) break;
+        result.append(buf, n);
+        if (result.size() > kMax) break;
+    }
+    (void)pclose(f);
     return result;
+}
+
+// POSIX single-quote wrap with escape for embedded single quotes.
+// Used for SSID / password values that may contain shell metacharacters.
+std::string shellQuote(const std::string& s) {
+    std::string out;
+    out.reserve(s.size() + 2);
+    out += '\'';
+    for (char c : s) {
+        if (c == '\'') out += "'\\''";
+        else out += c;
+    }
+    out += '\'';
+    return out;
 }
 
 int rssiToBars(int rssi) {
@@ -261,42 +248,84 @@ std::vector<NanoMenu::WifiNetEntry> parseScanResults(const std::string& text) {
     return out;
 }
 
-// Merge saved + scan results, dedup by SSID. A saved network shadows a
-// scan result with the same SSID (we keep the rssi/security from the
-// scan if available for better display).
+// Merge saved + scan results, dedup by SSID.
+//
+// `cmd wifi list-networks` emits one line per auth type a saved profile
+// supports, so a single saved network that advertises WPA2-PSK and
+// WPA3-SAE transition mode appears twice. Scan results are per-BSSID,
+// so a mesh / multi-AP network shows up once per radio. Both need to
+// collapse down to one entry per SSID before rendering, otherwise the
+// list is full of apparent duplicates.
 std::vector<NanoMenu::WifiNetEntry> mergeWifiLists(
         std::vector<NanoMenu::WifiNetEntry> saved,
         std::vector<NanoMenu::WifiNetEntry> scanned,
         const std::string& connectedSsid) {
-    // Index saved by SSID
-    for (auto& s : scanned) {
-        int foundId = -1;
-        int foundSec = s.security;
-        for (auto& v : saved) {
-            if (v.ssid == s.ssid) {
-                foundId = v.savedNetId;
-                if (v.security != 0) foundSec = v.security;
+    // Dedup saved by SSID: keep the lowest network id (that's what
+    // connect-saved will target) and upgrade the security tier if a
+    // later entry advertises a stronger one (WPA3 > WPA2 > WEP).
+    std::vector<NanoMenu::WifiNetEntry> savedDedup;
+    for (auto& v : saved) {
+        bool merged = false;
+        for (auto& keep : savedDedup) {
+            if (keep.ssid == v.ssid) {
+                if (v.savedNetId >= 0
+                        && (keep.savedNetId < 0 || v.savedNetId < keep.savedNetId)) {
+                    keep.savedNetId = v.savedNetId;
+                }
+                if (v.security > keep.security) keep.security = v.security;
+                merged = true;
                 break;
             }
         }
-        s.savedNetId = foundId;
-        s.security = foundSec;
+        if (!merged) savedDedup.push_back(std::move(v));
+    }
+
+    // Dedup scanned by SSID: keep the strongest RSSI and prefer the
+    // strongest security hint across the APs.
+    std::vector<NanoMenu::WifiNetEntry> scannedDedup;
+    for (auto& s : scanned) {
+        if (s.ssid.empty()) continue;
+        bool merged = false;
+        for (auto& keep : scannedDedup) {
+            if (keep.ssid == s.ssid) {
+                if (s.rssi > keep.rssi) {
+                    keep.rssi = s.rssi;
+                    keep.bssid = s.bssid;
+                }
+                if (s.security > keep.security) keep.security = s.security;
+                merged = true;
+                break;
+            }
+        }
+        if (!merged) scannedDedup.push_back(std::move(s));
+    }
+
+    // Cross-annotate: copy saved netId + preferred security onto the
+    // in-range scan entry, and mark connected state.
+    for (auto& s : scannedDedup) {
+        for (auto& v : savedDedup) {
+            if (v.ssid == s.ssid) {
+                s.savedNetId = v.savedNetId;
+                if (v.security > s.security) s.security = v.security;
+                break;
+            }
+        }
         if (!connectedSsid.empty() && s.ssid == connectedSsid) s.connected = true;
     }
     // Append saved networks that weren't in scan results (shown as greyed).
-    for (auto& v : saved) {
+    for (auto& v : savedDedup) {
         bool found = false;
-        for (auto& s : scanned) {
+        for (auto& s : scannedDedup) {
             if (s.ssid == v.ssid) { found = true; break; }
         }
         if (!found) {
             if (!connectedSsid.empty() && v.ssid == connectedSsid)
                 v.connected = true;
-            scanned.push_back(std::move(v));
+            scannedDedup.push_back(std::move(v));
         }
     }
     // Sort: connected first, then saved, then by rssi desc.
-    std::sort(scanned.begin(), scanned.end(),
+    std::sort(scannedDedup.begin(), scannedDedup.end(),
               [](const NanoMenu::WifiNetEntry& a,
                  const NanoMenu::WifiNetEntry& b) {
         if (a.connected != b.connected) return a.connected;
@@ -304,7 +333,7 @@ std::vector<NanoMenu::WifiNetEntry> mergeWifiLists(
         if (aSaved != bSaved) return aSaved;
         return a.rssi > b.rssi;
     });
-    return scanned;
+    return scannedDedup;
 }
 
 // Extract currently-connected SSID from `cmd wifi status`.
@@ -327,9 +356,12 @@ std::string connectedSsidFromStatus(const std::string& text) {
     return "";
 }
 
-// Parse `cmd bluetooth_manager list-bonded-devices` output.
-// Typical line format from AOSP source:
-//    DE:AD:BE:EF:00:01: "Controller", BTClass=1234, Trans=Unknown
+// Parse `gammaos-net bt list-bonded` output. TSV lines:
+//    AA:BB:CC:DD:EE:FF<TAB>Device Name<TAB>ClassOfDevice<TAB>Connected
+// The Connected column is "1" if the ACL link is live (reflected via
+// BluetoothDevice.isConnected()), "0" otherwise. Older output without
+// the 4th column is accepted for forward-compat; connected defaults
+// to false in that case.
 std::vector<NanoMenu::BtDevEntry> parseBondedDevices(const std::string& text) {
     std::vector<NanoMenu::BtDevEntry> out;
     size_t p = 0;
@@ -341,52 +373,77 @@ std::vector<NanoMenu::BtDevEntry> parseBondedDevices(const std::string& text) {
         while (!line.empty() && (line.back() == '\r' || line.back() == ' '))
             line.pop_back();
         if (line.empty()) continue;
-        if (line.find(':') == std::string::npos) continue;
-        // MAC is first 17 chars if the line starts with a hex pair.
         if (line.size() < 17) continue;
         if (!isxdigit((unsigned char)line[0]) || !isxdigit((unsigned char)line[1]))
             continue;
-        std::string mac = line.substr(0, 17);
+        size_t t1 = line.find('\t');
+        if (t1 == std::string::npos) continue;
         NanoMenu::BtDevEntry d{};
-        d.address = mac;
+        d.address = line.substr(0, t1);
+        size_t t2 = line.find('\t', t1 + 1);
+        size_t t3 = (t2 == std::string::npos) ? std::string::npos
+                                              : line.find('\t', t2 + 1);
+        if (t2 == std::string::npos) {
+            d.name = line.substr(t1 + 1);
+        } else {
+            d.name = line.substr(t1 + 1, t2 - t1 - 1);
+        }
+        if (d.name.empty()) d.name = d.address;
         d.bonded = true;
         d.connected = false;
-        // Try to pull name: look for first '"' after MAC.
-        size_t qStart = line.find('"', 17);
-        if (qStart != std::string::npos) {
-            size_t qEnd = line.find('"', qStart + 1);
-            if (qEnd != std::string::npos) {
-                d.name = line.substr(qStart + 1, qEnd - qStart - 1);
-            }
+        if (t3 != std::string::npos) {
+            const char* startp = line.c_str() + t3 + 1;
+            char* endp = nullptr;
+            long v = strtol(startp, &endp, 10);
+            d.connected = (endp != startp) && v == 1;
         }
-        if (d.name.empty()) d.name = mac;
         out.push_back(std::move(d));
     }
     return out;
 }
 
-// Mark connected devices using dumpsys output.
-void markConnectedBt(const std::string& dump,
-                     std::vector<NanoMenu::BtDevEntry>* devs) {
-    for (auto& d : *devs) {
-        size_t p = dump.find(d.address);
-        if (p == std::string::npos) continue;
-        size_t eol = dump.find('\n', p);
-        if (eol == std::string::npos) eol = dump.size();
-        // Look a few lines ahead for "Connected = true"
-        size_t look = eol;
-        for (int i = 0; i < 6 && look < dump.size(); i++) {
-            size_t nl = dump.find('\n', look + 1);
-            if (nl == std::string::npos) nl = dump.size();
-            std::string seg = dump.substr(look, nl - look);
-            if (seg.find("Connected = true") != std::string::npos
-                    || seg.find("Connected: true") != std::string::npos) {
-                d.connected = true;
-                break;
-            }
-            look = nl + 1;
+// Parse `gammaos-net bt scan` output. TSV lines:
+//    AA:BB:CC:DD:EE:FF<TAB>Name<TAB>RSSI<TAB>ClassOfDevice<TAB>BondState
+// BondState is the android.bluetooth BOND_* int: 10=NONE, 11=BONDING, 12=BONDED.
+std::vector<NanoMenu::BtDevEntry> parseBtScanResults(const std::string& text) {
+    std::vector<NanoMenu::BtDevEntry> out;
+    size_t p = 0;
+    while (p < text.size()) {
+        size_t eol = text.find('\n', p);
+        if (eol == std::string::npos) eol = text.size();
+        std::string line = text.substr(p, eol - p);
+        p = eol + 1;
+        while (!line.empty() && (line.back() == '\r' || line.back() == ' '))
+            line.pop_back();
+        if (line.size() < 17) continue;
+        if (!isxdigit((unsigned char)line[0]) || !isxdigit((unsigned char)line[1]))
+            continue;
+        size_t t1 = line.find('\t');
+        if (t1 == std::string::npos) continue;
+        size_t t2 = line.find('\t', t1 + 1);
+        size_t t3 = (t2 == std::string::npos) ? std::string::npos
+                                              : line.find('\t', t2 + 1);
+        size_t t4 = (t3 == std::string::npos) ? std::string::npos
+                                              : line.find('\t', t3 + 1);
+        NanoMenu::BtDevEntry d{};
+        d.address = line.substr(0, t1);
+        d.name = (t2 == std::string::npos) ? line.substr(t1 + 1)
+                                           : line.substr(t1 + 1, t2 - t1 - 1);
+        if (d.name.empty()) d.name = d.address;
+        int bondState = 10; // BOND_NONE
+        if (t4 != std::string::npos) {
+            // -fno-exceptions in AOSP builds rules out std::stoi; strtol
+            // silently returns 0 on a bad field, which we remap to BOND_NONE.
+            const char* startp = line.c_str() + t4 + 1;
+            char* endp = nullptr;
+            long v = strtol(startp, &endp, 10);
+            bondState = (endp != startp) ? static_cast<int>(v) : 10;
         }
+        d.bonded = (bondState == 12); // BOND_BONDED
+        d.connected = false;
+        out.push_back(std::move(d));
     }
+    return out;
 }
 
 } // anonymous namespace
@@ -418,8 +475,14 @@ void NanoMenu::openWifiScreen() {
     mMenuState = MENU_WIFI;
     mWifiEntrySelected = 0;
     mWifiScrollTop = 0;
+    // Don't block here -- list-networks + list-scan-results + status can
+    // take ~300 ms cold and would visibly freeze the XMB. The existing
+    // scan thread does a refresh at the end of its cycle so we get a
+    // populated list with a "Scanning..." status in the meantime.
+    mWifiStatusMsg = "Loading...";
+    mWifiStatusMsgUntilMs = std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::steady_clock::now().time_since_epoch()).count() + 4000;
     mDisplayDirty = true;
-    refreshWifiList();
     startWifiScanAsync();
 }
 
@@ -435,13 +498,36 @@ void NanoMenu::closeWifiScreen() {
 }
 
 void NanoMenu::refreshWifiList() {
-    std::string savedText = runNetHelper("wifi_list");
-    std::string scanText = runNetHelper("wifi_scan_read");
-    std::string statusText = runNetHelper("wifi_status");
-    auto saved = parseSavedNetworks(savedText);
-    auto scanned = parseScanResults(scanText);
-    std::string connSsid = connectedSsidFromStatus(statusText);
-    auto merged = mergeWifiLists(std::move(saved), std::move(scanned), connSsid);
+    std::string statusText = runCmd("cmd wifi status");
+    // Detect whether the Wi-Fi radio is currently on. When it is off,
+    // list-networks / list-scan-results return empty; we still want
+    // the toggle row visible so the user can flip it back on.
+    bool radioOn = !statusText.empty()
+                && statusText.find("Wifi is disabled") == std::string::npos
+                && statusText.find("is disabled") == std::string::npos;
+    std::vector<NanoMenu::WifiNetEntry> merged;
+    // Prepend a synthetic toggle row. Sentinel: savedNetId == kWifiToggleSentinel,
+    // bssid == "__TOGGLE__". renderWifiScreen / handleWifiScreenSelect
+    // detect it via bssid.
+    {
+        NanoMenu::WifiNetEntry toggle{};
+        toggle.ssid = radioOn ? "Wi-Fi: On" : "Wi-Fi: Off";
+        toggle.bssid = "__TOGGLE__";
+        toggle.rssi = -127;
+        toggle.security = 0;
+        toggle.savedNetId = radioOn ? -3 : -4; // both negative so it can't match a real id
+        toggle.connected = false;
+        merged.push_back(std::move(toggle));
+    }
+    if (radioOn) {
+        std::string savedText = runCmd("cmd wifi list-networks");
+        std::string scanText = runCmd("cmd wifi list-scan-results");
+        auto saved = parseSavedNetworks(savedText);
+        auto scanned = parseScanResults(scanText);
+        std::string connSsid = connectedSsidFromStatus(statusText);
+        auto body = mergeWifiLists(std::move(saved), std::move(scanned), connSsid);
+        for (auto& e : body) merged.push_back(std::move(e));
+    }
     {
         std::lock_guard<std::mutex> lk(mWifiListMutex);
         mWifiEntries.swap(merged);
@@ -452,12 +538,20 @@ void NanoMenu::refreshWifiList() {
                            : (int)mWifiEntries.size() - 1;
     }
     if (mWifiEntrySelected < 0) mWifiEntrySelected = 0;
+    // Force the render pipeline to pick up the fresh list. Without this
+    // the Wi-Fi screen keeps drawing stale entries (old "(Connected)"
+    // marker, missing toggle-row state flip, etc.) until the next input
+    // event happens to set mDisplayDirty.
+    mDisplayDirty = true;
 }
 
 void NanoMenu::wifiScanThreadFunc() {
+    // Show the saved/last-known list immediately so the UI doesn't
+    // look empty during the scan window.
+    refreshWifiList();
     // Kick a fresh scan on the wifi radio and wait briefly for results
     // to land before re-reading list-scan-results.
-    (void)runNetHelper("wifi_scan_start");
+    (void)runCmd("cmd wifi start-scan");
     // 3 second sleep so the radio has time to produce a fresh scan.
     for (int i = 0; i < 30 && mWifiScanInProgress; i++) {
         usleep(100 * 1000);
@@ -479,53 +573,92 @@ void NanoMenu::startWifiScanAsync() {
 }
 
 void NanoMenu::connectToSavedWifi(int savedNetId) {
-    // Helper expects tab-separated "<id>\tsaved" to reuse the same
-    // arg parsing as addAndConnectWifi. `cmd wifi connect-network <id>
-    // saved` is the accepted shape for a reconnect by saved id.
-    char idBuf[32];
-    snprintf(idBuf, sizeof(idBuf), "%d", savedNetId);
-    std::string arg = std::string(idBuf) + "\tsaved\t";
-    std::string result = runNetHelper("wifi_connect", arg);
-    ALOGI("connectToSavedWifi id=%d result=%s", savedNetId, result.c_str());
+    // AOSP Android 14's `cmd wifi` has no "connect to saved network by
+    // ID" subcommand. Kicking a scan and hoping auto-join picks the
+    // right network doesn't actually switch between two saved networks
+    // that are both in range -- the supplicant stays glued to whichever
+    // one it's already associated with. We call our own helper which
+    // drives WifiManager.connect(netId, ActionListener) directly, which
+    // is what Settings' NetworkProviderSettings does.
+    //
+    // gammaos-net waits up to 35s for the actual SSID transition, so
+    // dispatch it to a detached thread. Running it on the input thread
+    // froze the UI until the switch completed, making it look like the
+    // action had no effect. The status message sticks around for the
+    // same 35s so it remains visible throughout the full
+    // disconnect-scan-connect-maybe-retry cycle (cross-band switches
+    // on congested 5 GHz need 20-25s end-to-end).
     mWifiStatusMsg = "Connecting...";
     mWifiStatusMsgUntilMs = std::chrono::duration_cast<std::chrono::milliseconds>(
-            std::chrono::steady_clock::now().time_since_epoch()).count() + 6000;
-    // Re-read status shortly via a scan re-run; the poll thread will also
-    // pick up the new connected state for the HUD.
-    startWifiScanAsync();
+            std::chrono::steady_clock::now().time_since_epoch()).count() + 35000;
+    mDisplayDirty = true;
+    std::thread([this, savedNetId]() {
+        char cmd[96];
+        snprintf(cmd, sizeof(cmd),
+                 "gammaos-net wifi connect-saved %d", savedNetId);
+        std::string result = runCmd(cmd);
+        bool ok = result.find("OK") != std::string::npos;
+        if (!ok) {
+            ALOGW("connectToSavedWifi id=%d failed: %s",
+                  savedNetId, result.c_str());
+        }
+        // Stop showing "Connecting..." the moment the helper returns.
+        // Without this the HUD ran out the full 35s budget regardless
+        // of how fast the real switch landed, so the UI looked frozen
+        // long after the switch had already completed.
+        if (ok) {
+            mWifiStatusMsg.clear();
+            mWifiStatusMsgUntilMs = 0;
+        }
+        // Rebuild the list immediately so the connected marker and
+        // selection land before the follow-up scan fires. refreshWifiList
+        // sets mDisplayDirty, so the frame updates on the next tick.
+        refreshWifiList();
+        // Kick a scan for fresh RSSI / new networks in the background.
+        startWifiScanAsync();
+    }).detach();
 }
 
 void NanoMenu::addAndConnectWifi(const std::string& ssid, int security,
                                  const std::string& password) {
     // cmd wifi connect-network SSID <security> <password>
-    // Accepts: open, owe, wpa2, wpa3 per WifiShellCommand#connectNetwork.
+    // Accepts: open, owe, wpa2, wpa3, wep per WifiShellCommand#connectNetwork.
     const char* secTok = "open";
     switch (security) {
     case 0: secTok = "open"; break;
-    case 1: secTok = "wpa2"; break; // WEP not supported; approximate with wpa2
+    case 1: secTok = "wep";  break;
     case 2: secTok = "wpa2"; break;
     case 3: secTok = "wpa3"; break;
     case 4: secTok = "owe";  break;
     }
-    // Tab-separated arg consumed by the helper: ssid<TAB>security<TAB>password
-    std::string arg = ssid + "\t" + secTok + "\t" + password;
-    std::string result = runNetHelper("wifi_connect", arg, 8000);
-    ALOGI("addAndConnectWifi ssid=%s result=%s", ssid.c_str(), result.c_str());
+    std::string cmdline = "cmd wifi connect-network "
+                        + shellQuote(ssid) + " " + secTok;
+    if (security != 0 && security != 4) {
+        cmdline += " " + shellQuote(password);
+    }
     mWifiStatusMsg = "Connecting...";
     mWifiStatusMsgUntilMs = std::chrono::duration_cast<std::chrono::milliseconds>(
-            std::chrono::steady_clock::now().time_since_epoch()).count() + 8000;
-    startWifiScanAsync();
+            std::chrono::steady_clock::now().time_since_epoch()).count() + 12000;
+    mDisplayDirty = true;
+    std::string ssidCapture = ssid;
+    std::thread([this, cmdline, ssidCapture]() {
+        (void)runCmd(cmdline);
+        startWifiScanAsync();
+    }).detach();
 }
 
 void NanoMenu::forgetWifiNetwork(int savedNetId) {
-    char idBuf[32];
-    snprintf(idBuf, sizeof(idBuf), "%d", savedNetId);
-    (void)runNetHelper("wifi_forget", idBuf);
-    refreshWifiList();
+    char cmd[128];
+    snprintf(cmd, sizeof(cmd),
+             "cmd wifi forget-network %d", savedNetId);
+    (void)runCmd(cmd);
+    // Refresh on the scan thread so we don't block the caller.
+    startWifiScanAsync();
 }
 
 void NanoMenu::toggleWifiRadio(bool on) {
-    (void)runNetHelper(on ? "wifi_enable" : "wifi_disable");
+    (void)runCmd(on ? "cmd wifi set-wifi-enabled enabled"
+                    : "cmd wifi set-wifi-enabled disabled");
     mWifiStatusMsg = on ? "Enabling Wi-Fi..." : "Disabling Wi-Fi...";
     mWifiStatusMsgUntilMs = std::chrono::duration_cast<std::chrono::milliseconds>(
             std::chrono::steady_clock::now().time_since_epoch()).count() + 2000;
@@ -556,6 +689,13 @@ void NanoMenu::handleWifiScreenSelect() {
         if (mWifiEntrySelected < 0
                 || mWifiEntrySelected >= (int)mWifiEntries.size()) return;
         e = mWifiEntries[mWifiEntrySelected];
+    }
+    if (e.bssid == "__TOGGLE__") {
+        // savedNetId of -3 means the row currently shows "On" so we turn it off;
+        // -4 means currently off so we turn it on.
+        bool turningOn = (e.savedNetId == -4);
+        toggleWifiRadio(turningOn);
+        return;
     }
     if (e.connected) {
         // Already connected -- no-op (could offer disconnect later).
@@ -597,8 +737,13 @@ void NanoMenu::openBtScreen() {
     mMenuState = MENU_BT;
     mBtEntrySelected = 0;
     mBtScrollTop = 0;
+    // `dumpsys bluetooth_manager` is slow (sometimes > 500 ms) so we
+    // never run it inline. Show a loading state and let the scan
+    // thread populate the list.
+    mBtStatusMsg = "Loading...";
+    mBtStatusMsgUntilMs = std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::steady_clock::now().time_since_epoch()).count() + 3000;
     mDisplayDirty = true;
-    refreshBtList();
     startBtScanAsync();
 }
 
@@ -607,21 +752,74 @@ void NanoMenu::closeBtScreen() {
         mBtScanInProgress = false;
         mBtScanThread.detach();
     }
+    if (mBtDiscoveryThread.joinable()) {
+        // We can't cancel the Java-side startDiscovery() from here,
+        // but detaching lets the screen close cleanly; the inquiry
+        // expires on its own within the scan timeout.
+        mBtDiscoveryThread.detach();
+    }
     mMenuState = MENU_MAIN;
     mDisplayDirty = true;
 }
 
 void NanoMenu::refreshBtList() {
-    // bt_list runs `dumpsys bluetooth_manager` which contains both the
-    // bonded device list and live connection state. Some AOSP builds
-    // no longer ship `cmd bluetooth_manager list-bonded-devices`, so
-    // we parse bonded devices from the same dump.
-    std::string dump = runNetHelper("bt_list");
-    auto devs = parseBondedDevices(dump);
-    markConnectedBt(dump, &devs);
+    // gammaos-net bt list-bonded is the same getBondedDevices() call
+    // Settings uses; it works whether or not `cmd bluetooth_manager`
+    // ever shipped a list-bonded-devices subcommand. We still parse
+    // dumpsys once to flip the connected bit on live links, because
+    // BluetoothManager has no public "is this one connected right now"
+    // query for classic HID/A2DP profiles.
+    //
+    // Detect radio state so the toggle row reflects reality. When BT is
+    // off we still want the list to render with just the toggle row.
+    std::string btState = runCmd("settings get global bluetooth_on");
+    bool btOn = false;
+    for (char c : btState) {
+        if (c == '1') { btOn = true; break; }
+        if (c == '0') { btOn = false; break; }
+        if (c != ' ' && c != '\n' && c != '\r') break;
+    }
+    std::string bondText = btOn ? runCmd("gammaos-net bt list-bonded")
+                                : std::string();
+    auto devs = parseBondedDevices(bondText);
+    // Connection state now rides the 4th TSV column from gammaos-net bt
+    // list-bonded (BluetoothDevice.isConnected() on the framework side).
+    // The old dumpsys scrape was slow (~500 ms) and brittle.
+    // If an active discovery landed non-bonded devices, preserve those
+    // between refreshes so the list doesn't flash back to "bonded only"
+    // while the user is still deciding which result to pair with.
+    std::vector<NanoMenu::BtDevEntry> preservedUnbonded;
     {
         std::lock_guard<std::mutex> lk(mBtListMutex);
-        mBtEntries.swap(devs);
+        for (auto& d : mBtEntries) {
+            if (d.address == "__TOGGLE__") continue;
+            if (!d.bonded) preservedUnbonded.push_back(d);
+        }
+    }
+    if (btOn) {
+        for (auto& u : preservedUnbonded) {
+            bool alreadyBonded = false;
+            for (auto& d : devs) {
+                if (d.address == u.address) { alreadyBonded = true; break; }
+            }
+            if (!alreadyBonded) devs.push_back(std::move(u));
+        }
+    }
+    // Prepend a synthetic toggle row. Sentinel: address == "__TOGGLE__".
+    // renderBtScreen / handleBtScreenSelect detect it via address.
+    std::vector<NanoMenu::BtDevEntry> merged;
+    {
+        NanoMenu::BtDevEntry toggle{};
+        toggle.address = "__TOGGLE__";
+        toggle.name = btOn ? "Bluetooth: On" : "Bluetooth: Off";
+        toggle.bonded = false;
+        toggle.connected = false;
+        merged.push_back(std::move(toggle));
+    }
+    for (auto& d : devs) merged.push_back(std::move(d));
+    {
+        std::lock_guard<std::mutex> lk(mBtListMutex);
+        mBtEntries.swap(merged);
         mBtListDirty = true;
     }
     if (mBtEntrySelected >= (int)mBtEntries.size()) {
@@ -629,14 +827,44 @@ void NanoMenu::refreshBtList() {
                          : (int)mBtEntries.size() - 1;
     }
     if (mBtEntrySelected < 0) mBtEntrySelected = 0;
+    // Force render redraw; see refreshWifiList() for rationale.
+    mDisplayDirty = true;
+}
+
+void NanoMenu::discoverBtDevices() {
+    // `gammaos-net bt scan` blocks until discovery finishes or the
+    // timeout elapses (~8 s by default). Must NOT run on the UI thread;
+    // callers go through startBtDiscoveryAsync() which spawns a thread.
+    std::string scanText = runCmd("gammaos-net bt scan 8");
+    auto scanned = parseBtScanResults(scanText);
+    // Merge into the live list: update existing entries in place so
+    // their connected state isn't clobbered, and append new ones.
+    std::lock_guard<std::mutex> lk(mBtListMutex);
+    for (auto& s : scanned) {
+        bool found = false;
+        for (auto& d : mBtEntries) {
+            if (d.address == s.address) {
+                // Don't downgrade bonded state from a live bond query.
+                if (s.bonded) d.bonded = true;
+                if (!s.name.empty() && d.name == d.address) d.name = s.name;
+                found = true;
+                break;
+            }
+        }
+        if (!found) mBtEntries.push_back(std::move(s));
+    }
+    mBtListDirty = true;
+    mDisplayDirty = true;
 }
 
 void NanoMenu::btScanThreadFunc() {
-    // No AOSP CLI for ACL scan start (cmd bluetooth_manager has no
-    // discovery subcommand). We rely on the on-radio state and just
-    // refresh the bonded / connected views periodically. If we need
-    // true scan-and-pair later we will add a helper app to invoke
-    // BluetoothAdapter.startDiscovery via a system-signed intent.
+    // Populate the list immediately (runs on this background thread,
+    // so the UI stays responsive).
+    refreshBtList();
+    // Idle and re-poll connected state a couple of times so devices
+    // that transition from Paired to Connected after a reconnect appear
+    // quickly. Real inquiry (ACL discovery) is a separate, heavier
+    // path driven by startBtDiscoveryAsync().
     for (int i = 0; i < 8 && mBtScanInProgress; i++) {
         usleep(250 * 1000);
         if (!mBtScanInProgress) break;
@@ -657,28 +885,78 @@ void NanoMenu::startBtScanAsync() {
     mBtScanThread = std::thread([this]() { btScanThreadFunc(); });
 }
 
+void NanoMenu::btDiscoveryThreadFunc() {
+    // Actively inquire for nearby devices via BluetoothAdapter.startDiscovery(),
+    // merged into mBtEntries. This is the slow path (~8 s radio airtime)
+    // triggered by the "Scan" button.
+    discoverBtDevices();
+    mBtDiscoveryInProgress = false;
+    mBtLastScanMs = std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::steady_clock::now().time_since_epoch()).count();
+    mBtStatusMsg = "Scan complete";
+    mBtStatusMsgUntilMs = std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::steady_clock::now().time_since_epoch()).count() + 2500;
+    mDisplayDirty = true;
+}
+
+void NanoMenu::startBtDiscoveryAsync() {
+    if (mBtDiscoveryInProgress) return;
+    if (mBtDiscoveryThread.joinable()) mBtDiscoveryThread.detach();
+    mBtDiscoveryInProgress = true;
+    mBtStatusMsg = "Scanning for devices...";
+    mBtStatusMsgUntilMs = std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::steady_clock::now().time_since_epoch()).count() + 10000;
+    mDisplayDirty = true;
+    mBtDiscoveryThread = std::thread([this]() { btDiscoveryThreadFunc(); });
+}
+
 void NanoMenu::toggleBtRadio(bool on) {
-    (void)runNetHelper(on ? "bt_enable" : "bt_disable");
+    (void)runCmd(on ? "cmd bluetooth_manager enable"
+                    : "cmd bluetooth_manager disable");
     mBtStatusMsg = on ? "Enabling Bluetooth..." : "Disabling Bluetooth...";
     mBtStatusMsgUntilMs = std::chrono::duration_cast<std::chrono::milliseconds>(
             std::chrono::steady_clock::now().time_since_epoch()).count() + 2000;
     if (on) startBtScanAsync();
 }
 
-void NanoMenu::pairBtDevice(const std::string& /*mac*/) {
-    // AOSP doesn't expose a shell command to initiate pairing for an
-    // unbonded device. For the XMB flow, users pair devices outside
-    // nano (from stock Settings) and then come back -- the Settings ->
-    // Bluetooth screen lists bonded devices and can toggle their
-    // connected state.
-    mBtStatusMsg = "Use Android Settings to pair new devices";
+void NanoMenu::pairBtDevice(const std::string& mac) {
+    // `gammaos-net bt pair` drives BluetoothDevice.createBond() and
+    // auto-accepts consent / passkey-confirmation / 0000-pin pairing
+    // variants (the set Settings' BluetoothPairingController handles
+    // without user input). Classic gamepads / headsets typically use
+    // just-works or 0000, so this works without any extra UI from us.
+    mBtStatusMsg = "Pairing...";
     mBtStatusMsgUntilMs = std::chrono::duration_cast<std::chrono::milliseconds>(
-            std::chrono::steady_clock::now().time_since_epoch()).count() + 3500;
+            std::chrono::steady_clock::now().time_since_epoch()).count() + 30000;
+    mDisplayDirty = true;
+    // createBond() blocks for up to ~30 s on the pairing confirmation,
+    // so run it on a thread and refresh the list when it resolves so
+    // the newly-bonded entry snaps into the bonded section.
+    std::string macCopy = mac;
+    std::thread([this, macCopy]() {
+        std::string cmd = "gammaos-net bt pair " + macCopy;
+        std::string result = runCmd(cmd.c_str());
+        bool ok = result.find("OK") != std::string::npos;
+        if (!ok) ALOGW("pairBtDevice %s failed: %s",
+                       macCopy.c_str(), result.c_str());
+        mBtStatusMsg = ok ? "Paired" : "Pair failed";
+        mBtStatusMsgUntilMs = std::chrono::duration_cast<std::chrono::milliseconds>(
+                std::chrono::steady_clock::now().time_since_epoch()).count() + 3000;
+        refreshBtList();
+        mDisplayDirty = true;
+    }).detach();
 }
 
-void NanoMenu::unpairBtDevice(const std::string& /*mac*/) {
-    // No standalone CLI either; fall through to the same guidance.
-    pairBtDevice("");
+void NanoMenu::unpairBtDevice(const std::string& mac) {
+    std::string cmd = "gammaos-net bt unpair " + mac;
+    std::string result = runCmd(cmd.c_str());
+    bool ok = result.find("OK") != std::string::npos;
+    if (!ok) ALOGW("unpairBtDevice %s failed: %s",
+                   mac.c_str(), result.c_str());
+    mBtStatusMsg = ok ? "Removed" : "Unpair failed";
+    mBtStatusMsgUntilMs = std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::steady_clock::now().time_since_epoch()).count() + 2500;
+    startBtScanAsync();
 }
 
 void NanoMenu::connectBtDevice(const std::string& mac) {
@@ -693,11 +971,10 @@ void NanoMenu::connectBtDevice(const std::string& mac) {
     // missing. The radio auto-reconnects cached bonded audio/input
     // devices on re-enable.
     // No AOSP CLI exposes direct connect; fall back to a radio toggle so
-    // bonded audio/input devices re-pair on the next enable. The helper
-    // handles disable + enable via two property triggers.
-    (void)runNetHelper("bt_disable");
+    // bonded audio/input devices re-pair on the next enable.
+    (void)runCmd("cmd bluetooth_manager disable");
     usleep(400 * 1000);
-    (void)runNetHelper("bt_enable");
+    (void)runCmd("cmd bluetooth_manager enable");
     (void)mac;
     mBtStatusMsg = "Reconnecting...";
     mBtStatusMsgUntilMs = std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -718,7 +995,35 @@ void NanoMenu::handleBtScreenDown() {
 }
 
 void NanoMenu::handleBtScreenX() {
+    // X (square) = start/refresh device discovery. The refresh for
+    // bonded state happens implicitly inside the discovery thread so
+    // we don't need to kick the lightweight refresh here.
+    startBtDiscoveryAsync();
+}
+
+void NanoMenu::handleBtScreenY() {
+    // Y (triangle) = unpair the currently-selected bonded device.
+    BtDevEntry d;
+    {
+        std::lock_guard<std::mutex> lk(mBtListMutex);
+        if (mBtEntries.empty()) return;
+        if (mBtEntrySelected < 0
+                || mBtEntrySelected >= (int)mBtEntries.size()) return;
+        d = mBtEntries[mBtEntrySelected];
+    }
+    if (d.address == "__TOGGLE__" || !d.bonded) return;
+    unpairBtDevice(d.address);
+    {
+        std::lock_guard<std::mutex> lk(mBtListMutex);
+        for (auto it = mBtEntries.begin(); it != mBtEntries.end(); ++it) {
+            if (it->address == d.address) { mBtEntries.erase(it); break; }
+        }
+        if (mBtEntrySelected >= (int)mBtEntries.size()) {
+            mBtEntrySelected = std::max(0, (int)mBtEntries.size() - 1);
+        }
+    }
     startBtScanAsync();
+    mDisplayDirty = true;
 }
 
 void NanoMenu::handleBtScreenSelect() {
@@ -730,7 +1035,20 @@ void NanoMenu::handleBtScreenSelect() {
                 || mBtEntrySelected >= (int)mBtEntries.size()) return;
         d = mBtEntries[mBtEntrySelected];
     }
-    connectBtDevice(d.address);
+    if (d.address == "__TOGGLE__") {
+        bool turningOn = (d.name == "Bluetooth: Off");
+        toggleBtRadio(turningOn);
+        return;
+    }
+    if (!d.bonded) {
+        // Discovered-but-not-bonded: initiate pairing. If it succeeds,
+        // the bond is persisted to Android's bonded device list so the
+        // device stays paired across reboots.
+        pairBtDevice(d.address);
+    } else {
+        // Already bonded: nudge the radio so a dropped link reassociates.
+        connectBtDevice(d.address);
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -745,6 +1063,7 @@ void NanoMenu::openOskForPassword(const std::string& prompt,
     mOskQuery.clear();
     mOskCursorX = 0;
     mOskCursorY = 0;
+    mOskShift = true; // start uppercase; L1 toggles to lowercase
     mOskActive = true;
     mDisplayDirty = true;
 }
@@ -857,11 +1176,32 @@ void NanoMenu::renderWifiScreen() {
             const auto& e = entries[i];
             float y = listTop + (i - mWifiScrollTop) * rowH;
             bool sel = (i == mWifiEntrySelected);
+            bool isToggle = (e.bssid == "__TOGGLE__");
 
             if (sel) {
                 drawQuad(pad - 6.0f * sf, y - 4.0f * sf,
                          mWidth - pad * 2.0f + 12.0f * sf,
                          rowH, 0.15f, 0.35f, 0.70f, 0.65f);
+            }
+
+            if (isToggle) {
+                // Render as a simple text row with an on/off pill on the right.
+                bool on = (e.savedNetId == -3);
+                float textX = pad + 4.0f * sf;
+                float textY = y + rowH * 0.15f;
+                drawText(e.ssid.c_str(), textX, textY, rowScale,
+                         sel ? 1.0f : 0.90f,
+                         sel ? 1.0f : 0.90f,
+                         sel ? 1.0f : 0.92f, 1.0f);
+                const char* pill = on ? "[ On ]" : "[ Off ]";
+                float pScale = rowScale * 0.9f;
+                float pw = measureText(pill, pScale);
+                drawText(pill, mWidth - pw - pad, y + rowH * 0.18f,
+                         pScale,
+                         on ? 0.4f : 0.85f,
+                         on ? 0.95f : 0.45f,
+                         on ? 0.4f : 0.45f, 1.0f);
+                continue;
             }
 
             // Signal bars (left side)
@@ -946,6 +1286,9 @@ void NanoMenu::renderBtScreen() {
     if (!mBtStatusMsg.empty() && nowMs < mBtStatusMsgUntilMs) {
         drawText(mBtStatusMsg.c_str(), pad, statusY,
                  footScale, 0.80f, 0.75f, 0.15f, 0.95f);
+    } else if (mBtDiscoveryInProgress) {
+        drawText("Scanning for devices...", pad, statusY,
+                 footScale, 0.80f, 0.75f, 0.15f, 0.95f);
     } else if (mBtScanInProgress) {
         drawText("Refreshing...", pad, statusY,
                  footScale, 0.80f, 0.75f, 0.15f, 0.95f);
@@ -957,7 +1300,7 @@ void NanoMenu::renderBtScreen() {
     if (visibleRows < 4) visibleRows = 4;
 
     if (devs.empty()) {
-        drawText("No paired devices.  Pair via Android Settings first, then return here.",
+        drawText("No devices.  Press X to scan for nearby Bluetooth devices.",
                  pad, listTop, rowScale * 0.85f, 0.6f, 0.6f, 0.65f, 0.85f);
     } else {
         if (mBtEntrySelected < mBtScrollTop) mBtScrollTop = mBtEntrySelected;
@@ -972,10 +1315,29 @@ void NanoMenu::renderBtScreen() {
             const auto& d = devs[i];
             float y = listTop + (i - mBtScrollTop) * rowH;
             bool sel = (i == mBtEntrySelected);
+            bool isToggle = (d.address == "__TOGGLE__");
             if (sel) {
                 drawQuad(pad - 6.0f * sf, y - 4.0f * sf,
                          mWidth - pad * 2.0f + 12.0f * sf,
                          rowH, 0.15f, 0.35f, 0.70f, 0.65f);
+            }
+            if (isToggle) {
+                bool on = (d.name == "Bluetooth: On");
+                float textX = pad + 4.0f * sf;
+                float textY = y + rowH * 0.15f;
+                drawText(d.name.c_str(), textX, textY, rowScale,
+                         sel ? 1.0f : 0.90f,
+                         sel ? 1.0f : 0.90f,
+                         sel ? 1.0f : 0.92f, 1.0f);
+                const char* pill = on ? "[ On ]" : "[ Off ]";
+                float pScale = rowScale * 0.9f;
+                float pw = measureText(pill, pScale);
+                drawText(pill, mWidth - pw - pad, y + rowH * 0.18f,
+                         pScale,
+                         on ? 0.4f : 0.85f,
+                         on ? 0.95f : 0.45f,
+                         on ? 0.4f : 0.45f, 1.0f);
+                continue;
             }
             drawBtIcon(pad + 4.0f * sf, y + rowH * 0.22f, sf * 1.05f,
                        sel ? 0.55f : 0.45f,
@@ -989,20 +1351,28 @@ void NanoMenu::renderBtScreen() {
                      sel ? 1.0f : 0.88f,
                      sel ? 1.0f : 0.90f, 1.0f);
             const char* status = d.connected ? "Connected"
-                               : (d.bonded ? "Paired" : "");
-            if (*status) {
-                float sScale = rowScale * 0.7f;
-                float sw = measureText(status, sScale);
-                drawText(status, mWidth - sw - pad, y + rowH * 0.25f,
-                         sScale,
-                         d.connected ? 0.4f : 0.6f,
-                         d.connected ? 0.95f : 0.6f,
-                         d.connected ? 0.4f : 0.65f, 0.95f);
-            }
+                               : (d.bonded ? "Paired" : "Available");
+            float statusR, statusG, statusB;
+            if (d.connected) { statusR = 0.4f; statusG = 0.95f; statusB = 0.4f; }
+            else if (d.bonded) { statusR = 0.6f; statusG = 0.6f; statusB = 0.65f; }
+            else { statusR = 0.95f; statusG = 0.75f; statusB = 0.25f; }
+            float sScale = rowScale * 0.7f;
+            float sw = measureText(status, sScale);
+            drawText(status, mWidth - sw - pad, y + rowH * 0.25f,
+                     sScale, statusR, statusG, statusB, 0.95f);
         }
     }
 
-    const char* footer = "A: Connect | X: Refresh | B: Back";
+    bool selBonded = false;
+    if (!devs.empty()
+            && mBtEntrySelected >= 0
+            && mBtEntrySelected < (int)devs.size()) {
+        const auto& sel = devs[mBtEntrySelected];
+        selBonded = sel.bonded && sel.address != "__TOGGLE__";
+    }
+    const char* footer = selBonded
+            ? "A: Connect | Y: Unpair | X: Scan | B: Back"
+            : "A: Pair/Connect | X: Scan | B: Back";
     float fw = measureText(footer, footScale);
     drawText(footer, (mWidth - fw) / 2.0f,
              mHeight - FONT_CHAR_H * footScale - 12.0f * sf,

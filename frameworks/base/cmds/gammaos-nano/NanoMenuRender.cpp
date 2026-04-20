@@ -822,6 +822,7 @@ void NanoMenu::render() {
     if (sFirstFrame) {
         int64_t nowMs = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL;
         ALOGW("NanoMenu BOOT TIMING: first render() call at T+%lldms", nowMs);
+        sFirstFrame = false;
     }
 
     // Once-per-frame state update for background effects (particle motion,
@@ -984,6 +985,9 @@ void NanoMenu::render() {
         renderXmb();
         if (mMenuState == MENU_WIFI) renderWifiScreen();
         else if (mMenuState == MENU_BT) renderBtScreen();
+        // OSK is drawn last so the password keyboard sits on top of the
+        // Wi-Fi / BT overlays (otherwise renderWifiScreen overdraws it).
+        renderOsk();
     } else {
 
     // Responsive scaling: fit to both width and height so the menu
@@ -1209,10 +1213,15 @@ void NanoMenu::render() {
     renderBrightnessBar();
     renderVolumeBar();
 
+    // Top-bar HUD (battery / network / quick resume) is suppressed while
+    // the user is inside a Settings sub-screen so the full row is available
+    // for the toggle + device list without overlap or duplication.
+    bool inSettingsModal = (mMenuState == MENU_WIFI || mMenuState == MENU_BT);
+
     // Battery + Network indicators (XMB only; mirrors the Quick Resume HUD
     // on the opposite side). Text-menu mode keeps its minimal top-bar free
     // so the classic boot layout isn't visually disturbed.
-    if (mXmbMode) {
+    if (mXmbMode && !inSettingsModal) {
         pollBattery();
         float sf = fminf((float)mWidth / 1080.0f, (float)mHeight / 720.0f);
         if (sf < 0.5f) sf = 0.5f;
@@ -1227,7 +1236,7 @@ void NanoMenu::render() {
     }
 
     // Quick Resume indicator (top-right corner)
-    {
+    if (!inSettingsModal) {
         float sf = fminf((float)mWidth / 1080.0f, (float)mHeight / 720.0f);
         if (sf < 0.5f) sf = 0.5f;
         float qrScale = 1.5f * sf;

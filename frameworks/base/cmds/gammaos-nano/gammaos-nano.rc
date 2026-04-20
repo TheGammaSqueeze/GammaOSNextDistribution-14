@@ -1,8 +1,47 @@
+# gammaos-nano runs as root so it can talk to WifiService /
+# BluetoothManagerService via `cmd wifi` / `cmd bluetooth_manager`
+# directly (both services enforce Binder.getCallingUid() == ROOT_UID
+# || SHELL_UID). The group list keeps the graphics / input / media
+# access nano already needed for DRM, evdev grab and playlist reads.
+#
+# DAC_OVERRIDE + DAC_READ_SEARCH let us traverse the existing XMB
+# ROM-list cache dir at /data/system/nano_xmb_cache/ (0700
+# graphics:graphics from when nano used to run as uid graphics), and
+# CHOWN/FOWNER let us migrate the dir + files to root:root 0755/0644
+# on first boot after the switch so subsequent sessions work without
+# relying on the override caps.
+#
+# SYS_ADMIN + SYS_CHROOT are needed because nano starts early (class
+# core animation) and runs in init's bootstrap mount namespace, which
+# only has the bootstrap apex set. The gammaos-net helper script uses
+# `nsenter -t 1 -m` to re-enter init's (default) mount namespace
+# before exec'ing app_process so
+# /apex/com.android.art/lib64/libnativeloader.so is visible. The
+# kernel's mntns_install() requires CAP_SYS_ADMIN in the target user
+# namespace AND both CAP_SYS_ADMIN and CAP_SYS_CHROOT in the current
+# user namespace -- missing SYS_CHROOT returns EPERM on setns(2)
+# even though the /proc/1/ns/mnt open() already succeeded.
+#
+# SYS_PTRACE is needed to open /proc/1/ns/mnt. The kernel gates
+# access to other processes' ns/ files through ptrace_may_access
+# (PTRACE_MODE_READ_FSCREDS), which compares the caller's real uid,
+# euid, suid AND full supplementary group set against the target's.
+# Nano runs uid=0 but carries a large supplementary group list
+# (graphics, system, readproc, ...), while init has no supplementary
+# groups at all, so the group-set match fails and the check falls
+# back to requiring CAP_SYS_PTRACE in the target's user namespace.
+# Without it, open(/proc/1/ns/mnt) returns EACCES and nsenter aborts.
+#
+# readproc is in the group list because Android's /proc is mounted
+# with hidepid=invisible,gid=3009: a root-uid caller without the
+# readproc supplementary group can't even see /proc/1, which makes
+# `nsenter -t 1 -m` fail with ENOENT inside gammaos-net.sh. Adding
+# readproc restores traversal of other processes' /proc entries.
 service gammaos-nano /system/bin/gammaos-nano
     class core animation
-    user graphics
-    group graphics input system media_rw sdcard_rw everybody external_storage package_info
-    capabilities SYS_NICE IPC_LOCK SYS_RESOURCE
+    user root
+    group root graphics input system media_rw sdcard_rw everybody external_storage package_info readproc
+    capabilities SYS_NICE IPC_LOCK SYS_RESOURCE DAC_OVERRIDE DAC_READ_SEARCH CHOWN FOWNER SYS_ADMIN SYS_PTRACE SYS_CHROOT
     disabled
     oneshot
     ioprio rt 0
@@ -10,62 +49,14 @@ service gammaos-nano /system/bin/gammaos-nano
     rlimit memlock 536870912 536870912
     task_profiles MaxPerformance
 
-# Network helper for the XMB Wi-Fi / Bluetooth screens. Nano runs as uid
-# 1003 (graphics), which the WifiService and BluetoothManagerService
-# treat as an unprivileged caller and return empty lists to. The
-# helper runs as root under the gammaoscustomization seclabel so the
-# cmd wifi / cmd bluetooth_manager / dumpsys invocations return real
-# data, and writes results to /data/system/nano_net_<cmd>.txt with
-# mode 0644 for nano to read back. See gammaos/nano-net-helper.sh.
-service nano-net-helper /system/bin/sh /system/bin/nano-net-helper.sh
-    class late_start
-    user root
-    group root system
-    seclabel u:r:gammaoscustomization:s0
-    disabled
-    oneshot
-
-on property:sys.gammaos.nano.net_cmd=wifi_list
-    start nano-net-helper
-
-on property:sys.gammaos.nano.net_cmd=wifi_scan_start
-    start nano-net-helper
-
-on property:sys.gammaos.nano.net_cmd=wifi_scan_read
-    start nano-net-helper
-
-on property:sys.gammaos.nano.net_cmd=wifi_status
-    start nano-net-helper
-
-on property:sys.gammaos.nano.net_cmd=wifi_enable
-    start nano-net-helper
-
-on property:sys.gammaos.nano.net_cmd=wifi_disable
-    start nano-net-helper
-
-on property:sys.gammaos.nano.net_cmd=wifi_connect
-    start nano-net-helper
-
-on property:sys.gammaos.nano.net_cmd=wifi_forget
-    start nano-net-helper
-
-on property:sys.gammaos.nano.net_cmd=bt_list
-    start nano-net-helper
-
-on property:sys.gammaos.nano.net_cmd=bt_scan_start
-    start nano-net-helper
-
-on property:sys.gammaos.nano.net_cmd=bt_scan_read
-    start nano-net-helper
-
-on property:sys.gammaos.nano.net_cmd=bt_enable
-    start nano-net-helper
-
-on property:sys.gammaos.nano.net_cmd=bt_disable
-    start nano-net-helper
-
-on property:sys.gammaos.nano.net_cmd=bt_pair
-    start nano-net-helper
-
-on property:sys.gammaos.nano.net_cmd=bt_unpair
-    start nano-net-helper
+# Re-apply Bluetooth rfkill ownership after minimal_boot is set. Vendor
+# init's `on zygote-start` chowns /sys/class/rfkill/rfkill0/state to
+# bluetooth:system, but on this hardware the rfkill sysfs nodes aren't
+# populated yet when zygote-start fires, so the chown silently no-ops
+# and the BT HAL can't flip the power rail (bt_upio logs "Permission
+# denied" on open). By the time minimal_boot=1 is set (after SF is
+# running) the rfkill0 node definitely exists, and a retry here lets
+# the HAL turn the radio on.
+on property:sys.gammaos.minimal_boot=1
+    chown bluetooth system /sys/class/rfkill/rfkill0/state
+    chmod 0664 /sys/class/rfkill/rfkill0/state

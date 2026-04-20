@@ -112,6 +112,40 @@ static const int kNumXmbSystemDefs = sizeof(kXmbSystemDefs) / sizeof(kXmbSystemD
 void NanoMenu::initXmbSystems() {
     mXmbSystems.clear();
     mXmbSystems.reserve(kNumXmbSystemDefs);
+
+    // Migrate any legacy cache dir ownership: older nano builds ran as
+    // uid graphics and left /data/system/nano_xmb_cache/ as 0700
+    // graphics:graphics, which blocks the current root-uid nano from
+    // traversing it when DAC_OVERRIDE is absent. Force to root:root with
+    // 0755 on the directory and 0644 on contents so subsequent boots
+    // work regardless of capability set. No-op if already correct.
+    {
+        const char* cacheDir = "/data/system/nano_xmb_cache";
+        struct stat dst;
+        if (stat(cacheDir, &dst) == 0) {
+            if (dst.st_uid != 0 || dst.st_gid != 0)
+                (void)chown(cacheDir, 0, 0);
+            if ((dst.st_mode & 0777) != 0755)
+                (void)chmod(cacheDir, 0755);
+            DIR* d = opendir(cacheDir);
+            if (d) {
+                struct dirent* e;
+                while ((e = readdir(d)) != nullptr) {
+                    if (e->d_name[0] == '.') continue;
+                    std::string fp = std::string(cacheDir) + "/" + e->d_name;
+                    struct stat fst;
+                    if (stat(fp.c_str(), &fst) == 0) {
+                        if (fst.st_uid != 0 || fst.st_gid != 0)
+                            (void)chown(fp.c_str(), 0, 0);
+                        if ((fst.st_mode & 0777) != 0644)
+                            (void)chmod(fp.c_str(), 0644);
+                    }
+                }
+                closedir(d);
+            }
+        }
+    }
+
     for (int i = 0; i < kNumXmbSystemDefs; i++) {
         XmbSystem sys;
         sys.name = kXmbSystemDefs[i].name;
@@ -1438,6 +1472,7 @@ void NanoMenu::launchXmbGame() {
 
 void NanoMenu::openOsk() {
     mOskActive = true;
+    mOskShift = true; // start uppercase; L1 toggles to lowercase
     mOskPasswordMode = false;
     mOskPasswordPrompt.clear();
     mOskPasswordCallback = nullptr;
@@ -1564,6 +1599,7 @@ void NanoMenu::renderOsk() {
             }
 
             char ch = kOskLayout[row][col];
+            if (!mOskShift && ch >= 'A' && ch <= 'Z') ch += 32;
             char str[2] = {ch, '\0'};
             if (ch == ' ') str[0] = '_'; // display space as underscore
             float cr = selected ? 1.0f : 0.7f;
@@ -1573,12 +1609,22 @@ void NanoMenu::renderOsk() {
         }
     }
 
+    // Shift indicator (right-aligned on query line)
+    float shiftScale = 1.5f * sf;
+    const char* shiftLabel = mOskShift ? "[ABC]" : "[abc]";
+    float shiftW = FONT_CHAR_W * shiftScale * strlen(shiftLabel);
+    float shiftR = mOskShift ? 0.35f : 1.0f;
+    float shiftG = mOskShift ? 1.0f  : 0.75f;
+    float shiftB = mOskShift ? 0.4f  : 0.35f;
+    drawText(shiftLabel, bgX + gridW - pad - shiftW, queryY,
+             shiftScale, shiftR, shiftG, shiftB, 1.0f);
+
     // Help text
     float helpY = gridStartY + kOskRows * (charH + 8.0f * sf) + 4.0f * sf;
     float helpScale = 1.5f * sf;
     const char* helpText = mOskPasswordMode
-        ? "A:Type  X:Backspace  Start:Submit  B/Y:Cancel"
-        : "A:Type  X:Backspace  Start:Search  B/Y:Cancel";
+        ? "A:Type  X:Backspace  L:Shift  Start:Submit  B/Y:Cancel"
+        : "A:Type  X:Backspace  L:Shift  Start:Search  B/Y:Cancel";
     drawText(helpText,
              bgX + pad, helpY, helpScale, 0.4f, 0.4f, 0.5f, 1.0f);
 }
@@ -1596,7 +1642,18 @@ void NanoMenu::renderXmb() {
     float decay = 1.0f - expf(-12.0f * dt);
     mXmbAnimX += ((float)mXmbSystemIndex - mXmbAnimX) * decay;
     if (fabsf(mXmbAnimX - mXmbSystemIndex) < 0.005f) mXmbAnimX = mXmbSystemIndex;
-    float targetY = mSearchActive ? (float)mSearchSelectedIndex : (float)mXmbGameIndex;
+    // Settings column drives its own cursor variable; the rest of XMB
+    // uses mXmbGameIndex / mSearchSelectedIndex. Without this check the
+    // animation target stays pinned at game-index 0 while on Settings,
+    // so Up/Down appear to do nothing visually.
+    float targetY;
+    if (mSearchActive) {
+        targetY = (float)mSearchSelectedIndex;
+    } else if (isOnSettingsColumn()) {
+        targetY = (float)mSettingsSelectedIndex;
+    } else {
+        targetY = (float)mXmbGameIndex;
+    }
     mXmbAnimY += (targetY - mXmbAnimY) * decay;
     if (fabsf(mXmbAnimY - targetY) < 0.005f) mXmbAnimY = targetY;
 
@@ -1825,8 +1882,9 @@ void NanoMenu::renderXmb() {
                  footScale, 0.7f, 0.7f, 0.2f, 0.9f);
     }
 
-    // OSK overlay
-    renderOsk();
+    // OSK overlay is rendered by render() AFTER the Wi-Fi/BT screens, so the
+    // password keyboard sits on top of the network list instead of being
+    // overdrawn by it.
 }
 
 } // namespace android

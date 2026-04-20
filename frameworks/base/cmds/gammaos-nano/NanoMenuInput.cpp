@@ -277,6 +277,7 @@ void NanoMenu::handleBack() {
 void NanoMenu::handleSelect() {
     if (mOskActive) {
         char ch = kOskLayout[mOskCursorY][mOskCursorX];
+        if (!mOskShift && ch >= 'A' && ch <= 'Z') ch += 32;
         oskType(ch);
         return;
     }
@@ -644,6 +645,14 @@ void NanoMenu::pollInput() {
                         if (mOskActive) oskConfirm();
                         else handleSelect();
                         break;
+                    case BTN_START:
+                        // Gamepad Start: confirm the OSK query / password.
+                        // The OSK help text advertises "Start:Submit" and
+                        // "Start:Search" so this must also trigger submit
+                        // on devices that don't map the physical Start
+                        // button to KEY_ENTER.
+                        if (mOskActive) oskConfirm();
+                        break;
                     case BTN_EAST: case KEY_BACK:
                         handleBack(); break;
                     case KEY_LEFT:
@@ -651,6 +660,7 @@ void NanoMenu::pollInput() {
                     case KEY_RIGHT:
                         handleRight(); break;
                     case BTN_WEST: // Y button (Nintendo layout: BTN_WEST = Y)
+                        if (mMenuState == MENU_BT)   { handleBtScreenY();   break; }
                         if (mXmbMode) {
                             // Y: search in XMB mode
                             if (mOskActive) {
@@ -685,7 +695,11 @@ void NanoMenu::pollInput() {
                           property_set("persist.gammaos.nano.wallpaper", buf); }
                         break;
                     case BTN_TL: case KEY_L:
-                        if (mOskActive) break;
+                        if (mOskActive) {
+                            mOskShift = !mOskShift;
+                            mDisplayDirty = true;
+                            break;
+                        }
                         // Shut any open Settings sub-screen before leaving XMB
                         // so its scan thread exits instead of churning in bg.
                         if (mMenuState == MENU_WIFI) closeWifiScreen();

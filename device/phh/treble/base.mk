@@ -21,7 +21,8 @@ PRODUCT_PACKAGES += \
     SecondaryDisplayControl \
     gammapad \
     gammapad_restore \
-    gammaos-ota
+    gammaos-ota \
+    gammaos-net
 
 PRODUCT_COPY_FILES += \
     device/phh/treble/bluetooth/audio/config/sysbta_audio_policy_configuration.xml:$(TARGET_COPY_OUT_SYSTEM)/etc/sysbta_audio_policy_configuration.xml \
@@ -142,7 +143,6 @@ PRODUCT_COPY_FILES += \
     gammaos/retroarch/roms.tar.xz:system/etc/roms.tar.xz \
     gammaos/setup.sh:system/bin/setup.sh \
     gammaos/nano_cache.sh:system/bin/nano_cache.sh \
-    gammaos/nano-net-helper.sh:system/bin/nano-net-helper.sh \
     gammaos/launcher/MiXplorer_v6.64.3-API29_B23090720.apk:system/etc/MiXplorer_v6.64.3-API29_B23090720.apk \
     gammaos/launcher/AuroraStore_4.6.2.apk:system/etc/AuroraStore_4.6.2.apk \
     gammaos/launcher/aurorastore.tar.gz:system/etc/aurorastore.tar.gz \

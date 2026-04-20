@@ -217,13 +217,17 @@ private:
     void openBtScreen();
     void closeBtScreen();
     void refreshBtList();                // blocking: list bonded + list scanned
+    void discoverBtDevices();            // blocking: ~8 s discovery run
     void startBtScanAsync();
+    void startBtDiscoveryAsync();
     void btScanThreadFunc();
+    void btDiscoveryThreadFunc();
     void renderBtScreen();
     void handleBtScreenSelect();
     void handleBtScreenUp();
     void handleBtScreenDown();
     void handleBtScreenX();              // rescan
+    void handleBtScreenY();              // unpair selected bonded device
     void pairBtDevice(const std::string& mac);
     void unpairBtDevice(const std::string& mac);
     void connectBtDevice(const std::string& mac);
@@ -504,9 +508,11 @@ private:
     int mBtScrollTop;
     int64_t mBtLastScanMs;
     bool mBtScanInProgress;
+    bool mBtDiscoveryInProgress;
     bool mBtListDirty;
     std::mutex mBtListMutex;
     std::thread mBtScanThread;
+    std::thread mBtDiscoveryThread;
     std::string mBtStatusMsg;
     int64_t mBtStatusMsgUntilMs;
 
@@ -526,6 +532,7 @@ private:
 
     // On-screen keyboard (search)
     bool mOskActive;           // OSK is visible and receiving input
+    bool mOskShift;            // true = uppercase letters (A-Z); false = lowercase
     std::string mOskQuery;     // Current search query
     int mOskCursorX;           // OSK grid cursor column
     int mOskCursorY;           // OSK grid cursor row

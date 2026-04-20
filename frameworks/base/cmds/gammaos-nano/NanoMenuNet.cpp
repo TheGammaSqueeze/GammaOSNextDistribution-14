@@ -149,6 +149,41 @@ void NanoMenu::stopNetPollThread() {
 
 void NanoMenu::netPollThreadFunc() {
     ALOGI("GammaOS Nano: net poll thread start");
+    // Auto-enable Wi-Fi if it's off and we have saved networks -- mirrors
+    // the "remember last on/off" behaviour of stock Android. We only
+    // try this once at thread start so a user who explicitly disabled
+    // Wi-Fi from the settings screen isn't fought every 2 seconds.
+    {
+        std::string status = runCmdShellout("cmd wifi status 2>/dev/null");
+        bool wifiOff = status.empty()
+                    || strContainsCI(status, "Wifi is disabled")
+                    || strContainsCI(status, "is disabled");
+        if (wifiOff) {
+            std::string saved = runCmdShellout(
+                    "cmd wifi list-networks 2>/dev/null");
+            // The header line itself ends with "Security type"; we want
+            // to know if there's at least one numeric network id row
+            // after the header.
+            bool anySaved = false;
+            size_t p = 0;
+            while (p < saved.size()) {
+                size_t eol = saved.find('\n', p);
+                if (eol == std::string::npos) eol = saved.size();
+                size_t q = p;
+                while (q < eol && isspace((unsigned char)saved[q])) q++;
+                if (q < eol && isdigit((unsigned char)saved[q])) {
+                    anySaved = true;
+                    break;
+                }
+                p = eol + 1;
+            }
+            if (anySaved) {
+                ALOGI("GammaOS Nano: auto-enabling Wi-Fi (saved networks present)");
+                (void)runCmdShellout(
+                        "cmd wifi set-wifi-enabled enabled 2>/dev/null");
+            }
+        }
+    }
     // First tick happens immediately so the HUD has something other
     // than "Unknown" within a few hundred ms of the XMB drawing.
     int64_t nextPollMs = 0;
@@ -232,8 +267,16 @@ void NanoMenu::netPollThreadFunc() {
             }
         }
 
+        bool wifiChanged = false;
+        bool btChanged = false;
         {
             std::lock_guard<std::mutex> lock(mNetStateMutex);
+            if (mWifiSsid != wifiSsid || mWifiLevel != wifiLevel) {
+                wifiChanged = true;
+            }
+            if (mBtLevel != btLevel || mBtConnectedCount != btConnected) {
+                btChanged = true;
+            }
             mWifiLevel = wifiLevel;
             mWifiBars = wifiBars;
             mWifiSsid = wifiSsid;
@@ -241,6 +284,23 @@ void NanoMenu::netPollThreadFunc() {
             mBtConnectedCount = btConnected;
             mNetPollInitialised = true;
         }
+        // If the user is currently looking at the Wi-Fi or BT settings
+        // screen and the underlying state just changed (SSID flipped
+        // after a connect-saved, BT device connected/disconnected),
+        // refresh the list so the "(Connected)" marker moves in real
+        // time instead of waiting for the next user input or the
+        // 3-second post-switch scan tick. We go through the scan thread
+        // for Wi-Fi so its internal mScanInProgress flag is respected
+        // (avoids two concurrent cmd-wifi shell-outs); refreshBtList()
+        // is cheap enough to call directly.
+        if (wifiChanged && mMenuState == MENU_WIFI) {
+            startWifiScanAsync();
+        }
+        if (btChanged && mMenuState == MENU_BT) {
+            refreshBtList();
+        }
+        (void)wifiChanged;
+        (void)btChanged;
     }
     ALOGI("GammaOS Nano: net poll thread exit");
 }
