@@ -428,6 +428,32 @@ bool DrasticRunner::init(const std::string& cacheDir,
     if (!loadSym(mUpdateInput,      "Java_com_dsemu_drastic_DraSticJNI_updateInput")) return false;
     if (!loadSym(mGetScreenBuffers, "Java_com_dsemu_drastic_DraSticJNI_getScreenBuffers")) return false;
 
+    // The fxRender shader pipeline (fxLoad -> fxSetup -> patchFinalPassFbo
+    // -> fxRender) is only meaningful for full drastic-nano standalone,
+    // where we ship .dfx files under the real drastic files dir. In QR
+    // preview mode there is no .dfx shader in /data/system/nano_cache/
+    // drastic, so fxLoad never builds a pass list; calling fxRender then
+    // either no-ops or writes to whatever FBO was last active. With the
+    // SurfaceFlinger composition gate suppressing the EGL surface, that
+    // dead path produced the red canary left in mOffscreenFbo.
+    //
+    // Force the renderFrame path for QR preview by nulling the shader
+    // entry points. renderDsToOffscreen()'s `if (mFxRender)` branch then
+    // falls through to renderFrame, which uploads DS frames directly
+    // into mDsTopTex / mDsBotTex, and renderTopScreen / renderBottomScreen
+    // sample those textures (see the `if (mFxRender && mOffscreenTex)`
+    // checks there).
+    {
+        char dnProp[PROPERTY_VALUE_MAX] = {};
+        property_get("persist.gammaos.nano.drastic_nano", dnProp, "0");
+        if (dnProp[0] != '1') {
+            ALOGI("DrasticRunner: drastic_nano=0 -- disabling fxRender "
+                  "shader path, using renderFrame for QR preview");
+            mFxRender = nullptr;
+            mFxLoad   = nullptr;
+        }
+    }
+
     // ---- Phase 3: fake JNI setup ----
     fakejni::setCacheRoot(cacheDir);
     JavaVM* fakeVm = fakejni::init();
@@ -1239,7 +1265,15 @@ void DrasticRunner::initSurface(int viewportW, int viewportH,
         // output bypasses mOffscreenFbo. Redirect the final pass to
         // our FBO so renderTop/Bottom/Both can sample halves from
         // mOffscreenTex. See DrasticRunner::patchFinalPassFbo.
-        patchFinalPassFbo();
+        //
+        // Only meaningful when the fxRender shader path is active
+        // (fxLoad was called). In QR preview mode we null mFxLoad /
+        // mFxRender in init(), so there's no pass list to walk --
+        // skip the call to avoid a misleading "empty pass list"
+        // warning on every QR launch.
+        if (mFxLoad) {
+            patchFinalPassFbo();
+        }
         // mDrasticGlProgram is no longer used on the fxRender path -
         // fxRender itself binds the right pass program internally
         // (confirmed by drastic-android-mod disasm 2026-04-17). For
