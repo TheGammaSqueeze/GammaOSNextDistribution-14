@@ -1387,13 +1387,13 @@ public final class SystemServer implements Dumpable {
 
         // The sensor service needs access to package manager service, app ops
         // service, and permissions service, therefore we start it after them.
-        final boolean minimalBootEarly = SystemProperties.getBoolean(
-                "sys.gammaos.minimal_boot", false);
-        if (!minimalBootEarly) {
-            t.traceBegin("StartSensorService");
-            mSystemServiceManager.startService(SensorService.class);
-            t.traceEnd();
-        }
+        // GammaOS Nano: SensorService must be available even in minimal_boot.
+        // SDL-based standalone emulators (vita3k, PPSSPP) call
+        // ASensorManager_getInstance() during SDL_InitSubSystem, which blocks
+        // forever in waitForSensorService() if the service is missing.
+        t.traceBegin("StartSensorService");
+        mSystemServiceManager.startService(SensorService.class);
+        t.traceEnd();
         t.traceEnd(); // startBootstrapServices
     }
 
