@@ -40,7 +40,11 @@ public final class Constants {
 
     public static final String PROP_AB_DEVICE = "ro.build.ab_update";
     public static final String PROP_BUILD_DATE = "ro.build.date.utc";
-    public static final String PROP_BUILD_VERSION = "ro.lineage.build.version";
+    // Compared against the manifest's "version" field in isCompatible()/canInstall().
+    // Points at ro.gammaos.build.version (set in vendor/lineage/build/core/main_version.mk)
+    // so the OTA feed uses GammaOS versioning (e.g. 1.3.0) instead of the LineageOS
+    // major version (21.0).
+    public static final String PROP_BUILD_VERSION = "ro.gammaos.build.version";
     public static final String PROP_BUILD_VERSION_INCREMENTAL = "ro.build.version.incremental";
     public static final String PROP_DEVICE = "ro.lineage.device";
     public static final String PROP_NEXT_DEVICE = "ro.updater.next_device";

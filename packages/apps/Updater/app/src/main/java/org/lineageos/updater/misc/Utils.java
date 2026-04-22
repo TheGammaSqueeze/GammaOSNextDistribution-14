@@ -113,10 +113,15 @@ public class Utils {
     }
 
     public static boolean canInstall(UpdateBaseInfo update) {
+        // Upstream LineageOS required an exact version match here because major
+        // Android version jumps were expected to go through a clean install.
+        // GammaOS point releases (1.3.0 -> 1.3.1) must upgrade cleanly over OTA,
+        // so we accept any version that is not older than the current one.
+        // isCompatible() already rejects older/mismatched-type updates.
         return (SystemProperties.getBoolean(Constants.PROP_UPDATER_ALLOW_DOWNGRADING, false) ||
                 update.getTimestamp() > SystemProperties.getLong(Constants.PROP_BUILD_DATE, 0)) &&
-                update.getVersion().equalsIgnoreCase(
-                        SystemProperties.get(Constants.PROP_BUILD_VERSION));
+                update.getVersion().compareTo(
+                        SystemProperties.get(Constants.PROP_BUILD_VERSION)) >= 0;
     }
 
     public static List<UpdateInfo> parseJson(File file, boolean compatibleOnly)
