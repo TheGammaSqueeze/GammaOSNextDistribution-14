@@ -4,9 +4,16 @@ ADDITIONAL_SYSTEM_PROPERTIES += \
     ro.build.fingerprint=$(BUILD_FINGERPRINT)
 endif
 
+# GammaOS variant: bgN (GApps-Go) = Full, anything else (bvN, bvS) = Lite
+ifneq (,$(findstring bgN,$(TARGET_PRODUCT)))
+GAMMAOS_VARIANT_TAG := Full
+else
+GAMMAOS_VARIANT_TAG := Lite
+endif
+
 # LineageOS System Version
 ADDITIONAL_SYSTEM_PROPERTIES += \
-    ro.lineage.version=GammaOS_Next_v1.2.2 \
+    ro.lineage.version=GammaOS_Next_$(GAMMAOS_VARIANT_TAG)_v1.3.0 \
     ro.lineage.releasetype=$(LINEAGE_BUILDTYPE) \
     ro.lineage.build.version=$(PRODUCT_VERSION_MAJOR).$(PRODUCT_VERSION_MINOR) \
     ro.modversion=$(LINEAGE_VERSION) \
@@ -14,7 +21,7 @@ ADDITIONAL_SYSTEM_PROPERTIES += \
 
 # LineageOS Platform Display Version
 ADDITIONAL_SYSTEM_PROPERTIES += \
-    ro.lineage.display.version=GammaOS_Next_v1.2.2
+    ro.lineage.display.version=GammaOS Next $(GAMMAOS_VARIANT_TAG) v1.3.0
 
 # LineageOS Platform SDK Version
 ADDITIONAL_SYSTEM_PROPERTIES += \
