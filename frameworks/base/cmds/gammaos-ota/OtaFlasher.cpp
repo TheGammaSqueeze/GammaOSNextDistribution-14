@@ -224,8 +224,16 @@ bool OtaFlasher::stageToTmpfs(int argc, char** argv) {
     }
     newArgv.push_back(nullptr);
 
-    // Set environment
-    setenv("LD_LIBRARY_PATH", libDir.c_str(), 1);
+    // Set environment. LD_LIBRARY_PATH must include the staged libDir first
+    // (so the re-exec'd binary finds its bionic + system libs even after the
+    // real /system gets bind-mounted over during flash), but ALSO the standard
+    // /system and /vendor paths so that libui.so's gralloc mapper fallback can
+    // still dlopen device-specific HIDL/AIDL impls from /vendor/lib64/hw/ at
+    // preflight time. Without the vendor path, libui aborts with
+    // "gralloc-mapper is missing" on devices that ship HIDL mapper@4.0 impls.
+    std::string ldPath = libDir + ":/system/lib64:/system/lib64/hw:"
+                         "/vendor/lib64:/vendor/lib64/hw";
+    setenv("LD_LIBRARY_PATH", ldPath.c_str(), 1);
     setenv("GAMMAOS_OTA_STAGED", "1", 1);
     setenv("GAMMAOS_OTA_FONT_DIR", fontDir.c_str(), 1);
 
@@ -238,6 +246,14 @@ bool OtaFlasher::stageToTmpfs(int argc, char** argv) {
 }
 
 std::string OtaFlasher::getSlotSuffix() {
+    // Non-A/B devices may have ro.boot.slot_suffix unset entirely — defaulting
+    // to "_a" turns partition names like "system" into "system_a" which don't
+    // exist, so dm lookups return empty and size accounting breaks. Gate on
+    // ro.build.ab_update so non-A/B always returns "".
+    bool isAb = android::base::GetBoolProperty("ro.build.ab_update", false);
+    if (!isAb) {
+        return "";
+    }
     return android::base::GetProperty("ro.boot.slot_suffix", "_a");
 }
 
@@ -272,26 +288,11 @@ std::string OtaFlasher::preflight(const OtaManifest& manifest) {
     }
     logToFile("INFO", "Device compatible: OK");
 
-    // Check battery
-    std::string battStr;
-    android::base::ReadFileToString("/sys/class/power_supply/battery/capacity", &battStr);
-    int battery = atoi(battStr.c_str());
-    std::string acStr;
-    android::base::ReadFileToString("/sys/class/power_supply/ac/online", &acStr);
-    bool acPower = (atoi(acStr.c_str()) == 1);
-    // Also check USB power
-    std::string usbStr;
-    android::base::ReadFileToString("/sys/class/power_supply/usb/online", &usbStr);
-    bool usbPower = (atoi(usbStr.c_str()) == 1);
-    logToFile("INFO", "Battery: %d%%, AC: %s, USB: %s, required: %d%%",
-              battery, acPower ? "yes" : "no", usbPower ? "yes" : "no", manifest.minBattery);
-
-    if (battery < manifest.minBattery && !acPower && !usbPower) {
-        std::string err = "Battery too low (" + std::to_string(battery) + "%, need " +
-               std::to_string(manifest.minBattery) + "% or plug in charger)";
-        logToFile("ERROR", "PREFLIGHT FAIL: %s", err.c_str());
-        return err;
-    }
+    // Battery/charger preflight check removed: sysfs node names
+    // (/sys/class/power_supply/battery, .../ac, .../usb) vary per SoC, and a
+    // false-negative here silently aborts the flash. Rely on the manifest's
+    // min_battery field at package-build time instead of enforcing on-device.
+    logToFile("INFO", "Battery check: skipped (not enforced on-device)");
 
     // Verify compressed file checksums
     logToFile("INFO", "Verifying compressed file checksums...");
@@ -322,7 +323,13 @@ std::string OtaFlasher::preflight(const OtaManifest& manifest) {
         }
     }
 
-    // Check super free space for logical partition size increases
+    // Check super free space for logical partition size increases.
+    // On non-A/B (single slot), partitions are replaced in place: the old
+    // allocation will be freed before the new one is allocated, so the usable
+    // budget is (free + sum(current sizes of partitions being replaced)), not
+    // just (free). Comparing growth delta against raw free space falsely
+    // rejects updates where the new image fits after reclaiming the old
+    // partition's extents.
     auto logicals = manifest.logicalPartitions();
     if (!logicals.empty()) {
         std::string freeOutput;
@@ -336,7 +343,8 @@ std::string OtaFlasher::preflight(const OtaManifest& manifest) {
         }
 
         std::string slot = getSlotSuffix();
-        uint64_t sizeIncrease = 0;
+        uint64_t totalCurrent = 0;
+        uint64_t totalTarget = 0;
         for (const auto* part : logicals) {
             std::string dmName = part->name + slot;
             std::string dmPath = getDmDevPath(dmName);
@@ -345,16 +353,20 @@ std::string OtaFlasher::preflight(const OtaManifest& manifest) {
                       dmName.c_str(), (unsigned long long)currentSize,
                       (unsigned long long)part->size,
                       (long long)(part->size - currentSize));
-            if (part->size > currentSize) {
-                sizeIncrease += (part->size - currentSize);
-            }
+            totalCurrent += currentSize;
+            totalTarget += part->size;
         }
-        logToFile("INFO", "Super free space: %llu bytes, total size increase needed: %llu bytes",
-                  (unsigned long long)freeSpace, (unsigned long long)sizeIncrease);
-        if (sizeIncrease > freeSpace) {
+        uint64_t budget = freeSpace + totalCurrent;
+        logToFile("INFO",
+                  "Super budget: free=%llu + current=%llu = %llu bytes, "
+                  "target total=%llu bytes",
+                  (unsigned long long)freeSpace, (unsigned long long)totalCurrent,
+                  (unsigned long long)budget, (unsigned long long)totalTarget);
+        if (totalTarget > budget) {
             std::string err = "Not enough space in super partition (need " +
-                   std::to_string(sizeIncrease / 1024 / 1024) + "MB, have " +
-                   std::to_string(freeSpace / 1024 / 1024) + "MB free)";
+                   std::to_string(totalTarget / 1024 / 1024) + "MB, have " +
+                   std::to_string(budget / 1024 / 1024) +
+                   "MB usable after reclaiming current partitions)";
             logToFile("ERROR", "PREFLIGHT FAIL: %s", err.c_str());
             return err;
         }
@@ -848,7 +860,65 @@ bool OtaFlasher::flashLogical(const OtaPartition& part, int partIdx, int partCou
                   (unsigned long long)currentSize, (unsigned long long)part.size,
                   (unsigned long long)(currentSize - part.size));
     } else {
-        logToFile("INFO", "  No resize needed");
+        // Android dynamic partitions are created by first-stage init with
+        // DM_READONLY_FLAG set (Attributes: readonly in super metadata).
+        // Even after BLKROSET clears the block-device ro bit, the underlying
+        // dm target still rejects writes with EPERM. Reload the current table
+        // via dmctl replace, which creates the dm device without the readonly
+        // flag while keeping the exact same extents. This makes the partition
+        // writable without disturbing the mounted filesystem above it.
+        logToFile("INFO", "  No resize needed — reloading dm table as rw");
+
+        std::string tableOut;
+        if (!execCommand("dmctl table " + dmName, &tableOut)) {
+            logToFile("ERROR", "dmctl table FAILED for %s", dmName.c_str());
+            return false;
+        }
+        logToFile("INFO", "  Current dm table:\n%s", tableOut.c_str());
+
+        // Parse the table. Each line: "START-END: linear, MAJOR:MINOR OFFSET"
+        std::string replaceCmd = "dmctl replace " + dmName;
+        std::string devStr;
+        int extentCount = 0;
+        size_t pos = 0;
+        while (pos < tableOut.size()) {
+            size_t lineEnd = tableOut.find('\n', pos);
+            if (lineEnd == std::string::npos) lineEnd = tableOut.size();
+            std::string line = tableOut.substr(pos, lineEnd - pos);
+            uint64_t dmStart, dmEnd, physOffset;
+            unsigned int major, minor;
+            if (sscanf(line.c_str(), "%" SCNu64 "-%" SCNu64 ": linear, %u:%u %" SCNu64,
+                       &dmStart, &dmEnd, &major, &minor, &physOffset) == 5) {
+                uint64_t sectors = dmEnd - dmStart;
+                if (devStr.empty()) {
+                    devStr = std::to_string(major) + ":" + std::to_string(minor);
+                }
+                replaceCmd += " linear " + std::to_string(dmStart) + " " +
+                              std::to_string(sectors) + " " + devStr + " " +
+                              std::to_string(physOffset);
+                extentCount++;
+            }
+            pos = lineEnd + 1;
+        }
+
+        if (extentCount == 0) {
+            logToFile("ERROR", "No extents parsed from dm table for %s", dmName.c_str());
+            return false;
+        }
+
+        logToFile("INFO", "  dmctl replace (rw reload, %d extents): %s",
+                  extentCount, replaceCmd.c_str());
+        std::string replaceOut;
+        if (!execCommand(replaceCmd, &replaceOut)) {
+            logToFile("ERROR", "dmctl replace (rw reload) FAILED: %s", replaceOut.c_str());
+            return false;
+        }
+        logToFile("INFO", "  dm table reloaded as rw: %s", replaceOut.c_str());
+
+        // Refresh dm path after reload in case the node changed
+        dmPath = getDmDevPath(dmName);
+        logToFile("INFO", "  After rw reload: dm path=%s, size=%llu",
+                  dmPath.c_str(), (unsigned long long)getBlockDevSize(dmPath));
     }
 
     // Drop caches before writing to ensure no stale reads

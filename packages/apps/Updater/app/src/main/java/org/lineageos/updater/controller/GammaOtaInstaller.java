@@ -96,20 +96,36 @@ public class GammaOtaInstaller {
 
                 Log.i(TAG, "Extraction complete, launching gammaos-ota");
 
-                // Set properties and launch the OTA service
+                // Clear any previous run's result, then launch the OTA service
+                SystemProperties.set(Constants.PROP_GAMMAOS_OTA_RESULT, "");
                 SystemProperties.set(Constants.PROP_GAMMAOS_OTA_PACKAGE, OTA_DIR);
                 SystemProperties.set(Constants.PROP_GAMMAOS_OTA_AUTOINSTALL, "1");
                 SystemProperties.set("ctl.start", "gammaos-ota");
 
-                // The gammaos-ota binary takes over from here — it will stop the
-                // framework, flash partitions, verify, and reboot.
-                // We won't get any more callbacks after this point.
+                // On success gammaos-ota reboots. On failure it sets
+                // sys.gammaos.ota.result so the UI can surface the reason
+                // instead of hanging in INSTALLING forever.
+                watchOtaResult(downloadId);
 
             } catch (IOException e) {
                 Log.e(TAG, "Failed to extract update", e);
                 setFailed(downloadId);
             }
         }, "GammaOtaInstaller").start();
+    }
+
+    private void watchOtaResult(String downloadId) {
+        new Thread(() -> {
+            while (true) {
+                try { Thread.sleep(1500); } catch (InterruptedException ignored) { return; }
+                String res = SystemProperties.get(Constants.PROP_GAMMAOS_OTA_RESULT, "");
+                if (res.startsWith("failed:")) {
+                    Log.w(TAG, "gammaos-ota reported failure: " + res);
+                    setFailed(downloadId);
+                    return;
+                }
+            }
+        }, "GammaOtaResultWatcher").start();
     }
 
     /**

@@ -400,7 +400,8 @@ public class UpdatesActivity extends UpdatesListActivity implements UpdateImport
                     return;
                 }
 
-                // Launch gammaos-ota service
+                // Clear any previous run's result, then launch gammaos-ota service
+                android.os.SystemProperties.set(Constants.PROP_GAMMAOS_OTA_RESULT, "");
                 android.os.SystemProperties.set(Constants.PROP_GAMMAOS_OTA_PACKAGE,
                         Constants.GAMMAOS_OTA_DIR);
                 android.os.SystemProperties.set(Constants.PROP_GAMMAOS_OTA_AUTOINSTALL, "1");
@@ -408,12 +409,35 @@ public class UpdatesActivity extends UpdatesListActivity implements UpdateImport
 
                 Log.i(TAG, "Direct install: extracted and launched gammaos-ota");
 
-                // Keep the progress dialog visible — gammaos-ota will overlay its
-                // own fullscreen UI on top, and the reboot cleans everything up.
-                // Do NOT dismiss here to avoid a brief flash of the Updater UI.
                 runOnUiThread(() -> {
                     progress.setMessage("Installing system update...\nDo not power off your device.");
                 });
+
+                // Watch the result prop. On success gammaos-ota reboots before we
+                // could observe anything, so this thread effectively only fires on
+                // failure. Poll indefinitely; the activity death on reboot cleans
+                // this thread up for us.
+                new Thread(() -> {
+                    while (true) {
+                        try { Thread.sleep(1500); } catch (InterruptedException ignored) { return; }
+                        String res = android.os.SystemProperties.get(
+                                Constants.PROP_GAMMAOS_OTA_RESULT, "");
+                        if (res.startsWith("failed:")) {
+                            final String reason = humanizeOtaResult(res);
+                            Log.w(TAG, "gammaos-ota reported failure: " + res);
+                            runOnUiThread(() -> {
+                                try { progress.dismiss(); } catch (Exception ignored) {}
+                                new AlertDialog.Builder(this)
+                                        .setTitle(R.string.gammaos_manual_update)
+                                        .setMessage("Update failed:\n\n" + reason +
+                                                "\n\nSee /data/gammaos_ota/ota.log for full details.")
+                                        .setPositiveButton(android.R.string.ok, null)
+                                        .show();
+                            });
+                            return;
+                        }
+                    }
+                }, "GammaOtaResultWatcher").start();
 
             } catch (Exception e) {
                 Log.e(TAG, "Direct install failed", e);
@@ -427,6 +451,26 @@ public class UpdatesActivity extends UpdatesListActivity implements UpdateImport
                 });
             }
         }, "DirectInstall").start();
+    }
+
+    // Turns "failed:preflight:Device 'foo' not compatible..." into a one-line
+    // human string. The native side writes "failed:<phase>:<reason>".
+    private static String humanizeOtaResult(String raw) {
+        if (raw == null || !raw.startsWith("failed:")) return raw;
+        String tail = raw.substring("failed:".length());
+        int colon = tail.indexOf(':');
+        if (colon < 0) return tail;
+        String phase = tail.substring(0, colon);
+        String reason = tail.substring(colon + 1);
+        String prettyPhase;
+        switch (phase) {
+            case "preflight": prettyPhase = "Preflight"; break;
+            case "backup":    prettyPhase = "Backup";    break;
+            case "flash":     prettyPhase = "Flash";     break;
+            case "manifest":  prettyPhase = "Manifest";  break;
+            default:          prettyPhase = phase;       break;
+        }
+        return prettyPhase + ": " + reason;
     }
 
     @Override

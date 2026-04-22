@@ -21,7 +21,9 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/stat.h>
+#include <sys/ioctl.h>
 #include <sys/wait.h>
+#include <linux/fs.h>
 #include <errno.h>
 #include <string.h>
 #include <stdio.h>
@@ -85,7 +87,7 @@ bool XzDecompressor::decompressToBlock(const std::string& xzPath,
 
         // Try staged xz first, then system xz
         const char* xzPaths[] = {
-            "/dev/gammaos-ota-stage/bin/xz",
+            "/data/gammaos-ota-stage/bin/xz",
             "/system/bin/xz",
             nullptr
         };
@@ -187,7 +189,7 @@ bool XzDecompressor::decompressToFile(const std::string& xzPath,
         close(outFd);
 
         const char* xzPaths[] = {
-            "/dev/gammaos-ota-stage/bin/xz",
+            "/data/gammaos-ota-stage/bin/xz",
             "/system/bin/xz",
             nullptr
         };
@@ -248,6 +250,24 @@ bool XzDecompressor::writeFileToBlock(const std::string& filePath,
     if (inFd < 0) {
         ALOGE("Failed to open %s: %s", filePath.c_str(), strerror(errno));
         return false;
+    }
+
+    // Dynamic-partition dm devices are created with the readonly attribute set
+    // (Attributes: readonly in lpdump), which causes open(O_WRONLY) or the first
+    // write() to fail with EACCES/EPERM. Clear the device-mapper read-only flag
+    // via BLKROSET on an O_RDONLY fd first, then reopen for writing.
+    int roClearFd = open(blockDevPath.c_str(), O_RDONLY);
+    if (roClearFd >= 0) {
+        int roFlag = 0;
+        if (ioctl(roClearFd, BLKROSET, &roFlag) != 0) {
+            ALOGW("BLKROSET(0) failed on %s: %s", blockDevPath.c_str(), strerror(errno));
+        } else {
+            ALOGI("Cleared readonly flag on %s", blockDevPath.c_str());
+        }
+        close(roClearFd);
+    } else {
+        ALOGW("Could not open %s O_RDONLY to clear readonly flag: %s",
+              blockDevPath.c_str(), strerror(errno));
     }
 
     int outFd = open(blockDevPath.c_str(), O_WRONLY);

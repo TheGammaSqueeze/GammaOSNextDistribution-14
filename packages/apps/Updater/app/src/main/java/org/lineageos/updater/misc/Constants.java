@@ -48,6 +48,7 @@ public final class Constants {
 
     public static final String PROP_GAMMAOS_OTA_PACKAGE = "sys.gammaos.ota.package";
     public static final String PROP_GAMMAOS_OTA_AUTOINSTALL = "sys.gammaos.ota.autoinstall";
+    public static final String PROP_GAMMAOS_OTA_RESULT = "sys.gammaos.ota.result";
 
     public static final String GAMMAOS_OTA_DIR = "/data/gammaos_ota";
     public static final String PROP_RELEASE_TYPE = "ro.lineage.releasetype";

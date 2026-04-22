@@ -263,6 +263,8 @@ status_t OtaMenu::readyToRun() {
             }
         } else {
             mErrorMessage = "Failed to parse manifest from: " + mPackagePath;
+            android::base::SetProperty("sys.gammaos.ota.result",
+                                       "failed:manifest:" + mErrorMessage);
             mState = STATE_FAILED;
         }
     } else {
@@ -308,7 +310,7 @@ void OtaMenu::initFonts() {
 
     // Try staged font first, then system font
     const char* fontPaths[] = {
-        "/dev/gammaos-ota-stage/fonts/Roboto-Regular.ttf",
+        "/data/gammaos-ota-stage/fonts/Roboto-Regular.ttf",
         "/system/fonts/Roboto-Regular.ttf",
         "/system/fonts/DroidSans.ttf",
     };
@@ -672,8 +674,8 @@ void OtaMenu::handleSelect() {
                 ALOGI("Extracting %s to %s", zipPath.c_str(), pkgDir.c_str());
                 std::string pathPrefix;
                 if (OtaFlasher::isRunningFromTmpfs()) {
-                    pathPrefix = "PATH=/dev/gammaos-ota-stage/bin:/system/bin:/vendor/bin "
-                                 "LD_LIBRARY_PATH=/dev/gammaos-ota-stage/lib64:/system/lib64 ";
+                    pathPrefix = "PATH=/data/gammaos-ota-stage/bin:/system/bin:/vendor/bin "
+                                 "LD_LIBRARY_PATH=/data/gammaos-ota-stage/lib64:/system/lib64 ";
                 }
                 std::string unzipCmd = pathPrefix + "unzip -o " + zipPath + " -d " + pkgDir + " 2>/dev/null";
                 int ret = system(unzipCmd.c_str());
@@ -804,6 +806,7 @@ void OtaMenu::runFlashSequence() {
     if (!err.empty()) {
         OtaFlasher::logToFile("ERROR", "Preflight FAILED: %s", err.c_str());
         mErrorMessage = err;
+        android::base::SetProperty("sys.gammaos.ota.result", "failed:preflight:" + err);
         mState = STATE_FAILED;
         return;
     }
@@ -815,6 +818,7 @@ void OtaMenu::runFlashSequence() {
         if (!mFlasher.backup(mManifest)) {
             OtaFlasher::logToFile("ERROR", "Backup FAILED");
             mErrorMessage = "Backup failed";
+            android::base::SetProperty("sys.gammaos.ota.result", "failed:backup:Backup failed");
             mState = STATE_FAILED;
             return;
         }
@@ -828,6 +832,8 @@ void OtaMenu::runFlashSequence() {
         std::lock_guard<std::mutex> lock(mStatusMutex);
         OtaFlasher::logToFile("ERROR", "Flash FAILED: %s", mCurrentStatus.errorMsg.c_str());
         mErrorMessage = mCurrentStatus.errorMsg;
+        android::base::SetProperty("sys.gammaos.ota.result",
+                                   "failed:flash:" + mCurrentStatus.errorMsg);
         mState = STATE_FAILED;
         return;
     }

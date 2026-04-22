@@ -112,7 +112,13 @@ private:
     void dropCaches();
     void dumpSuperMetadata(const char* label);
 
-    static constexpr const char* STAGE_DIR = "/dev/gammaos-ota-stage";
+    // Staged binaries live under /data/* so the dynamic linker matches the
+    // dir.system rule in /linkerconfig/ld.config.txt and the re-exec'd binary
+    // inherits the full [system] namespace (including sphal) — required to
+    // load HIDL gralloc mapper HALs via dlopen. Paths under /dev/* match no
+    // dir rule, fall back to a minimal namespace, and abort with
+    // "gralloc-mapper is missing" as soon as any surface is touched.
+    static constexpr const char* STAGE_DIR = "/data/gammaos-ota-stage";
     static constexpr const char* BACKUP_DIR = "/data/gammaos_ota/backup";
     static constexpr const char* OTA_DIR = "/data/gammaos_ota";
     static constexpr const char* STAGING_DIR = "/data/gammaos_ota/staging";
