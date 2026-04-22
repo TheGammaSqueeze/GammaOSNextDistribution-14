@@ -30,14 +30,20 @@ XZ_THREADS=0  # 0 = auto (all cores)
 # --- Known partition types ---
 declare -A PART_TYPES=(
     [system]=logical
-    [vendor]=logical
-    [product]=logical
     [system_ext]=logical
+    [system_dlkm]=logical
+    [vendor]=logical
+    [vendor_dlkm]=logical
+    [product]=logical
     [odm]=logical
+    [odm_dlkm]=logical
     [boot]=physical
+    [init_boot]=physical
+    [vendor_boot]=physical
     [dtbo]=physical
     [vbmeta]=physical
-    [init_boot]=physical
+    [vbmeta_system]=physical
+    [vbmeta_vendor]=physical
 )
 
 usage() {
@@ -54,9 +60,11 @@ Options:
   -h                Show this help
 
 Each IMAGE should be a raw .img file. The partition name is derived from the
-filename (e.g. "system.img" → partition "system"). Supported partitions:
-  logical:  system, vendor, product, system_ext, odm
-  physical: boot, dtbo, vbmeta, init_boot
+filename (e.g. "system.img" -> partition "system"). Supported partitions:
+  logical:  system, system_ext, system_dlkm, vendor, vendor_dlkm,
+            product, odm, odm_dlkm
+  physical: boot, init_boot, vendor_boot, dtbo,
+            vbmeta, vbmeta_system, vbmeta_vendor
 
 Example:
   ./gen_ota_package.sh -v 1.3.0 -c 13000 -d pocketairmini -o update.zip \

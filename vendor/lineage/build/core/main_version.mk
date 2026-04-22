@@ -20,8 +20,11 @@ ADDITIONAL_SYSTEM_PROPERTIES += \
     ro.lineagelegal.url=https://lineageos.org/legal
 
 # LineageOS Platform Display Version
+# Note: ADDITIONAL_SYSTEM_PROPERTIES is whitespace-split by Make, so the value
+# cannot contain spaces or only the first token reaches build.prop. Use
+# underscores to match ro.lineage.version.
 ADDITIONAL_SYSTEM_PROPERTIES += \
-    ro.lineage.display.version=GammaOS Next $(GAMMAOS_VARIANT_TAG) v1.3.0
+    ro.lineage.display.version=GammaOS_Next_$(GAMMAOS_VARIANT_TAG)_v1.3.0
 
 # LineageOS Platform SDK Version
 ADDITIONAL_SYSTEM_PROPERTIES += \
