@@ -108,7 +108,7 @@ chown -R $launcheruser:$launchergroup /data/data/org.mupen64plusae.v3.fzurita &&
 pm grant org.mupen64plusae.v3.fzurita android.permission.POST_NOTIFICATIONS
 
 echo "Installing PPSSPP PSP emulator." && \
-pm install /system/etc/ppsspp_1.18.1.apk && \
+pm install /system/etc/ppsspp_1.20.3.apk && \
 launcheruser=$( stat -c "%U" /data/data/org.ppsspp.ppsspp) && \
 launchergroup=$( stat -c "%G" /data/data/org.ppsspp.ppsspp) && \
 tar -xJvf /system/etc/ppsspp.tar.xz -P -C / && \
@@ -124,23 +124,21 @@ launcheruser=$( stat -c "%U" /data/data/com.dsemu.drastic)
 launchergroup=$( stat -c "%G" /data/data/com.dsemu.drastic)
 tar -xvf /system/etc/drastic.tar.gz -C /
 chown -R $launcheruser:$launchergroup /data/data/com.dsemu.drastic
+pm grant com.dsemu.drastic android.permission.RECORD_AUDIO
+pm grant com.dsemu.drastic android.permission.BLUETOOTH_CONNECT
+appops set --uid com.dsemu.drastic RECORD_AUDIO allow
 
-echo "Installing Daijisho." && \
-mkdir -p /sdcard/daijisho && \
-cp /system/etc/daijisho412.apk.xz /sdcard/daijisho && \
-cd /sdcard/daijisho && \
-xz -d daijisho412.apk.xz
+echo "Installing Daijisho (v1.8.1 / 426, split APKs)."
+DJ_SESSION=$(pm install-create -r | grep -oE '[0-9]+' | head -n1)
+pm install-write -S "$(stat -c %s /system/etc/daijisho/base.apk)"              "$DJ_SESSION" base              /system/etc/daijisho/base.apk
+pm install-write -S "$(stat -c %s /system/etc/daijisho/split_config.en.apk)"   "$DJ_SESSION" config.en         /system/etc/daijisho/split_config.en.apk
+pm install-write -S "$(stat -c %s /system/etc/daijisho/split_config.xxxhdpi.apk)" "$DJ_SESSION" config.xxxhdpi /system/etc/daijisho/split_config.xxxhdpi.apk
+pm install-commit "$DJ_SESSION"
 
-pm install /sdcard/daijisho/daijisho412.apk
-
-cd /
-rm -rf /sdcard/daijisho
 launcheruser=$( stat -c "%U" /data/data/com.magneticchen.daijishou) && \
 launchergroup=$( stat -c "%G" /data/data/com.magneticchen.daijishou) && \
 tar -xJvf /system/etc/daijisho.tar.xz -P -C / && \
 chown -R $launcheruser:$launchergroup /data/data/com.magneticchen.daijishou
-
-pm install /system/etc/416.apk
 
 echo "Installing Aurora Store." && \
 pm install /system/etc/AuroraStore_4.6.2.apk && \

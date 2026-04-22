@@ -146,15 +146,16 @@ PRODUCT_COPY_FILES += \
     gammaos/launcher/MiXplorer_v6.64.3-API29_B23090720.apk:system/etc/MiXplorer_v6.64.3-API29_B23090720.apk \
     gammaos/launcher/AuroraStore_4.6.2.apk:system/etc/AuroraStore_4.6.2.apk \
     gammaos/launcher/aurorastore.tar.gz:system/etc/aurorastore.tar.gz \
-    gammaos/daijisho/daijisho412.apk.xz:system/etc/daijisho412.apk.xz \
-    gammaos/daijisho/416.apk:system/etc/416.apk \
+    gammaos/daijisho/splits/base.apk:system/etc/daijisho/base.apk \
+    gammaos/daijisho/splits/split_config.en.apk:system/etc/daijisho/split_config.en.apk \
+    gammaos/daijisho/splits/split_config.xxxhdpi.apk:system/etc/daijisho/split_config.xxxhdpi.apk \
     gammaos/daijisho/daijisho.tar.xz:system/etc/daijisho.tar.xz \
     gammaos/emulators/drastic.tar.gz:system/etc/drastic.tar.gz \
     gammaos/emulators/drastic_r2.6.0.4a.apk:system/etc/drastic_r2.6.0.4a.apk \
     gammaos/emulators/mupen64plusae.tar.gz:system/etc/mupen64plusae.tar.gz \
     gammaos/emulators/mupen64plusae_3.0.335.apk:system/etc/mupen64plusae_3.0.335.apk \
     gammaos/emulators/ppsspp.tar.xz:system/etc/ppsspp.tar.xz \
-    gammaos/emulators/ppsspp_1.18.1.apk:system/etc/ppsspp_1.18.1.apk \
+    gammaos/emulators/ppsspp_1.20.3.apk:system/etc/ppsspp_1.20.3.apk \
     gammaos/emulators/flycast-release.apk:system/etc/flycast-release.apk
 
 SELINUX_IGNORE_NEVERALLOWS := true
