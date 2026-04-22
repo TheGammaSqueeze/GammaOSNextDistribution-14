@@ -7,9 +7,16 @@ endif
 # GammaOS variant: bgN (GApps-Go) = Full, anything else (bvN, bvS) = Lite
 ifneq (,$(findstring bgN,$(TARGET_PRODUCT)))
 GAMMAOS_VARIANT_TAG := Full
+GAMMAOS_VARIANT := full
 else
 GAMMAOS_VARIANT_TAG := Lite
+GAMMAOS_VARIANT := lite
 endif
+
+# GammaOS variant prop consumed by the Updater app for OTA URL routing.
+# Lowercase so it slots directly into the {variant} URL placeholder.
+ADDITIONAL_SYSTEM_PROPERTIES += \
+    ro.gammaos.variant=$(GAMMAOS_VARIANT)
 
 # LineageOS System Version
 ADDITIONAL_SYSTEM_PROPERTIES += \

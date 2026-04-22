@@ -45,6 +45,7 @@ public final class Constants {
     public static final String PROP_DEVICE = "ro.lineage.device";
     public static final String PROP_NEXT_DEVICE = "ro.updater.next_device";
     public static final String PROP_GAMMAOS_DEVICE = "ro.gammaos.device";
+    public static final String PROP_GAMMAOS_VARIANT = "ro.gammaos.variant";
 
     public static final String PROP_GAMMAOS_OTA_PACKAGE = "sys.gammaos.ota.package";
     public static final String PROP_GAMMAOS_OTA_AUTOINSTALL = "sys.gammaos.ota.autoinstall";

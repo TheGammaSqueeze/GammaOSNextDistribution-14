@@ -152,13 +152,23 @@ public class Utils {
     }
 
     public static String getServerURL(Context context) {
-        String incrementalVersion = SystemProperties.get(Constants.PROP_BUILD_VERSION_INCREMENTAL);
-        // Prefer ro.gammaos.device, fall back to ro.lineage.device
+        // ro.gammaos.device MUST be set by the per-device vendor image. We no
+        // longer fall back to ro.lineage.device because every phh treble target
+        // sets PRODUCT_DEVICE := tdgsi_arm64_ab, which would leak that generic
+        // name into the OTA URL and serve the wrong manifest.
         String device = SystemProperties.get(Constants.PROP_GAMMAOS_DEVICE, "");
         if (device.isEmpty()) {
-            device = SystemProperties.get(Constants.PROP_NEXT_DEVICE,
-                    SystemProperties.get(Constants.PROP_DEVICE));
+            Log.w(TAG, "ro.gammaos.device is not set, skipping update check");
+            return "";
         }
+
+        String variant = SystemProperties.get(Constants.PROP_GAMMAOS_VARIANT, "");
+        if (variant.isEmpty()) {
+            Log.w(TAG, "ro.gammaos.variant is not set, skipping update check");
+            return "";
+        }
+
+        String incrementalVersion = SystemProperties.get(Constants.PROP_BUILD_VERSION_INCREMENTAL);
         String type = SystemProperties.get(Constants.PROP_RELEASE_TYPE).toLowerCase(Locale.ROOT);
 
         String serverUrl = SystemProperties.get(Constants.PROP_UPDATER_URI);
@@ -167,6 +177,7 @@ public class Utils {
         }
 
         return serverUrl.replace("{device}", device)
+                .replace("{variant}", variant)
                 .replace("{type}", type)
                 .replace("{incr}", incrementalVersion);
     }

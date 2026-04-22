@@ -125,7 +125,9 @@ gammaos_ota_v1.2.3.zip
 **Domain:** `ota.gammaos.sh`
 
 ```
-GET https://ota.gammaos.sh/api/v1/{ro.gammaos.device}
+GET https://ota.gammaos.sh/api/v1/{ro.gammaos.device}/{ro.gammaos.variant}
+
+where {ro.gammaos.variant} is "full" (bgN / GApps-Go builds) or "lite" (bvN / bvS)
 
 Response (LineageOS Updater JSON format):
 {
@@ -565,7 +567,7 @@ Set in vendor build:
 ```makefile
 PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
     ro.gammaos.device=ayaneo_pocket_air \
-    lineage.updater.uri=https://ota.gammaos.sh/api/v1/{device}
+    lineage.updater.uri=https://ota.gammaos.sh/api/v1/{device}/{variant}
 ```
 
 ## Build Pipeline

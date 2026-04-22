@@ -613,6 +613,12 @@ public class UpdatesActivity extends UpdatesListActivity implements UpdateImport
         final File jsonFile = Utils.getCachedUpdateList(this);
         final File jsonFileTmp = new File(jsonFile.getAbsolutePath() + UUID.randomUUID());
         String url = Utils.getServerURL(this);
+        if (url.isEmpty()) {
+            Log.w(TAG, "OTA server URL unavailable (device/variant not set)");
+            showSnackbar(R.string.snack_updates_check_failed, Snackbar.LENGTH_LONG);
+            refreshAnimationStop();
+            return;
+        }
         Log.d(TAG, "Checking " + url);
 
         DownloadClient.DownloadCallback callback = new DownloadClient.DownloadCallback() {

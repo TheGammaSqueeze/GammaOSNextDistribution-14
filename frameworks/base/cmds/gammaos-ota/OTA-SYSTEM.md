@@ -51,7 +51,7 @@ This is necessary because TrebleDroid GSI super partitions typically lack space 
 
 The LineageOS Updater app, rebranded to "GammaOS Update", serves as the entry point:
 
-- **Online mode**: Checks `https://ota.gammaos.sh/api/v1/{ro.gammaos.device}/{type}` for updates, downloads the OTA zip, user taps INSTALL → OK to begin
+- **Online mode**: Checks `https://ota.gammaos.sh/api/v1/{ro.gammaos.device}/{ro.gammaos.variant}` for updates (variant is `full` for bgN / GApps-Go builds and `lite` for bvN / bvS), downloads the OTA zip, user taps INSTALL → OK to begin
 - **Local update** (menu): Opens Android's `ACTION_OPEN_DOCUMENT` file picker. Imports the selected zip as an update in the list. GammaOS OTA packages (detected by `manifest.json` in zip) skip `RecoverySystem.verifyPackage()`.
 - **Install from storage** (menu): Opens Android file picker, copies the selected zip to `/data/gammaos_ota/`, extracts it, validates `manifest.json`, and launches `gammaos-ota` with `autoinstall=1` for immediate installation.
 
@@ -475,7 +475,7 @@ The script computes SHA-256 checksums for both compressed and uncompressed image
 ## OTA Server
 
 - **Domain**: `ota.gammaos.sh`
-- **API**: `GET https://ota.gammaos.sh/api/v1/{ro.gammaos.device}`
+- **API**: `GET https://ota.gammaos.sh/api/v1/{ro.gammaos.device}/{ro.gammaos.variant}`
 - **Format**: LineageOS Updater JSON format
 - **Device property**: `ro.gammaos.device` (set in vendor image per device)
 

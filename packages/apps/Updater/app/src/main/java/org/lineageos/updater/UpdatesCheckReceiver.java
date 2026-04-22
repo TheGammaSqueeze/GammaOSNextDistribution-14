@@ -76,6 +76,10 @@ public class UpdatesCheckReceiver extends BroadcastReceiver {
         final File json = Utils.getCachedUpdateList(context);
         final File jsonNew = new File(json.getAbsolutePath() + UUID.randomUUID());
         String url = Utils.getServerURL(context);
+        if (url.isEmpty()) {
+            Log.w(TAG, "OTA server URL unavailable (device/variant not set), skipping check");
+            return;
+        }
         DownloadClient.DownloadCallback callback = new DownloadClient.DownloadCallback() {
             @Override
             public void onFailure(boolean cancelled) {
