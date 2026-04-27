@@ -1606,6 +1606,15 @@ bool BootAnimation::playAnimation(const Animation& animation) {
     int lastDisplayedProgress = 0;
     int colorTransitionStart = animation.colorTransitionStart;
     int colorTransitionEnd = animation.colorTransitionEnd;
+
+    static constexpr nsecs_t FADE_IN_NS = 400000000LL;
+    static constexpr nsecs_t FADE_OUT_NS = 400000000LL;
+    static constexpr nsecs_t BAR_DELAY_NS = 200000000LL;
+    const nsecs_t animStartTime = systemTime();
+    bool fadeOutStarted = false;
+    nsecs_t fadeOutStartTime = 0;
+    bool fadeOutDone = false;
+
     for (size_t i=0 ; i<pcount ; i++) {
         const Animation::Part& part(animation.parts[i]);
         const size_t fcount = part.frames.size();
@@ -1621,7 +1630,7 @@ bool BootAnimation::playAnimation(const Animation& animation) {
 
         // process the part not only while the count allows but also if already fading
         for (int r=0 ; !part.count || r<part.count || fadedFramesCount > 0 ; r++) {
-            if (shouldStopPlayingPart(part, fadedFramesCount, lastDisplayedProgress)) break;
+            if (fadeOutDone && shouldStopPlayingPart(part, fadedFramesCount, lastDisplayedProgress)) break;
 
             // It's possible that the sysprops were not loaded yet at this boot phase.
             // If that's the case, then we should keep trying until they are available.
@@ -1659,7 +1668,7 @@ bool BootAnimation::playAnimation(const Animation& animation) {
                 (i == (pcount -1)) && currentProgress != 0;
 
             for (size_t j=0 ; j<fcount ; j++) {
-                if (shouldStopPlayingPart(part, fadedFramesCount, lastDisplayedProgress)) break;
+                if (fadeOutDone && shouldStopPlayingPart(part, fadedFramesCount, lastDisplayedProgress)) break;
 
                 // Color progress is
                 // - the animation progress, normalized from
@@ -1695,6 +1704,7 @@ bool BootAnimation::playAnimation(const Animation& animation) {
                     // of transparent pixels are preserved.
                     initTexture(frame.map, &w, &h, false /* don't premultiply alpha */);
                 }
+                GLuint frameTid = (r > 0 || part.count != 1) ? frame.tid : 0;
 
                 const int trimWidth = frame.trimWidth * ratio_w;
                 const int trimHeight = frame.trimHeight * ratio_h;
@@ -1707,6 +1717,82 @@ bool BootAnimation::playAnimation(const Animation& animation) {
                 // which is equivalent to mHeight - (yc + frame.trimHeight)
                 const int frameDrawY = mHeight - (yc + trimHeight);
 
+                if (i == 0 && r == 0 && j == 0) {
+                    static constexpr nsecs_t SF_NS = 16666667LL;
+                    for (;;) {
+                        nsecs_t fiNow = systemTime();
+                        nsecs_t fiEl = fiNow - animStartTime;
+                        if (fiEl >= FADE_IN_NS || exitPending()) break;
+                        float fi = 1.0f - static_cast<float>(fiEl) / FADE_IN_NS;
+
+                        glClear(GL_COLOR_BUFFER_BIT);
+                        glUseProgram(mImageShader);
+                        glUniform1i(mImageTextureLocation, 0);
+                        glUniform1f(mImageFadeLocation, fi);
+                        if (animation.dynamicColoringEnabled) {
+                            glUniform1f(mImageColorProgressLocation, 0.0f);
+                        }
+                        glBindTexture(GL_TEXTURE_2D, frameTid);
+                        glEnable(GL_BLEND);
+                        drawTexturedQuad(xc, frameDrawY, trimWidth, trimHeight);
+                        glDisable(GL_BLEND);
+
+                        {
+                            nsecs_t bd = fiEl - BAR_DELAY_NS;
+                            float bfi = 1.0f;
+                            if (bd > 0) {
+                                bfi = (bd < FADE_IN_NS)
+                                    ? 1.0f - static_cast<float>(bd) / FADE_IN_NS : 0.0f;
+                            }
+                            float bA = 1.0f - bfi;
+                            if (bA > 0.01f) {
+                                int bW = mWidth / 5;
+                                int bH = 4;
+                                int bX = (mWidth - bW) / 2;
+                                int bY = 10;
+                                glEnable(GL_SCISSOR_TEST);
+                                glScissor(bX - 1, bY - 1, bW + 2, bH + 2);
+                                float bg = 0.25f * bA;
+                                glClearColor(bg, bg, bg, 1.0f);
+                                glClear(GL_COLOR_BUFFER_BIT);
+                                glScissor(bX, bY, bW, bH);
+                                glClearColor(0, 0, 0, 1.0f);
+                                glClear(GL_COLOR_BUFFER_BIT);
+                                float st = static_cast<float>(ns2ms(fiEl)) / 1000.0f;
+                                int sW = bW / 8;
+                                int sG = 2;
+                                int gW = sW * 3 + sG * 2;
+                                float cy = static_cast<float>(bW + gW);
+                                float rP = fmod(st * bW * 0.6f, cy) - gW;
+                                for (int s = 0; s < 3; s++) {
+                                    int sx = bX + static_cast<int>(rP) + s * (sW + sG);
+                                    int sw = sW;
+                                    if (sx < bX) { sw -= (bX - sx); sx = bX; }
+                                    if (sx + sw > bX + bW) sw = bX + bW - sx;
+                                    if (sw > 0) {
+                                        glScissor(sx, bY, sw, bH);
+                                        glClearColor(bA, bA, bA, 1.0f);
+                                        glClear(GL_COLOR_BUFFER_BIT);
+                                    }
+                                }
+                                glDisable(GL_SCISSOR_TEST);
+                                glClearColor(part.backgroundColor[0], part.backgroundColor[1],
+                                             part.backgroundColor[2], 1.0f);
+                            }
+                        }
+
+                        eglSwapBuffers(mDisplay, mSurface);
+                        nsecs_t wakeAt = systemTime() + SF_NS;
+                        struct timespec sp;
+                        sp.tv_sec = wakeAt / 1000000000;
+                        sp.tv_nsec = wakeAt % 1000000000;
+                        int err;
+                        do { err = clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &sp, nullptr); } while (err == EINTR);
+                        checkExit();
+                    }
+                    lastFrame = systemTime();
+                }
+
                 float fade = 0;
                 // if the part hasn't been stopped yet then continue fading if necessary
                 if (exitPending() && part.hasFadingPhase()) {
@@ -1715,6 +1801,27 @@ bool BootAnimation::playAnimation(const Animation& animation) {
                         fadedFramesCount = MAX_FADED_FRAMES_COUNT; // no more fading
                     }
                 }
+
+                nsecs_t fadeNow = systemTime();
+                nsecs_t elapsed = fadeNow - animStartTime;
+                float fadeIn = (elapsed < FADE_IN_NS)
+                    ? 1.0f - static_cast<float>(elapsed) / FADE_IN_NS : 0.0f;
+                float fadeOutVal = 0.0f;
+                if (exitPending()) {
+                    if (!fadeOutStarted) {
+                        fadeOutStarted = true;
+                        fadeOutStartTime = fadeNow;
+                    }
+                    nsecs_t foElapsed = fadeNow - fadeOutStartTime;
+                    if (foElapsed >= FADE_OUT_NS) {
+                        fadeOutVal = 1.0f;
+                        fadeOutDone = true;
+                    } else {
+                        fadeOutVal = static_cast<float>(foElapsed) / FADE_OUT_NS;
+                    }
+                }
+                fade = fmax(fade, fmax(fadeIn, fadeOutVal));
+
                 glUseProgram(mImageShader);
                 glUniform1i(mImageTextureLocation, 0);
                 glUniform1f(mImageFadeLocation, fade);
@@ -1746,23 +1853,159 @@ bool BootAnimation::playAnimation(const Animation& animation) {
                     drawProgress(lastDisplayedProgress, animation.progressFont, posX, posY);
                 }
 
+                {
+                    nsecs_t barDelay = elapsed - BAR_DELAY_NS;
+                    float barFadeIn = 1.0f;
+                    if (barDelay > 0) {
+                        barFadeIn = (barDelay < FADE_IN_NS)
+                            ? 1.0f - static_cast<float>(barDelay) / FADE_IN_NS : 0.0f;
+                    }
+                    float barAlpha = 1.0f - fmax(barFadeIn, fadeOutVal);
+                    if (barAlpha > 0.01f) {
+                        int barW = mWidth / 5;
+                        int barH = 4;
+                        int barX = (mWidth - barW) / 2;
+                        int barY = 10;
+                        glEnable(GL_SCISSOR_TEST);
+                        glScissor(barX - 1, barY - 1, barW + 2, barH + 2);
+                        float bg = 0.25f * barAlpha;
+                        glClearColor(bg, bg, bg, 1.0f);
+                        glClear(GL_COLOR_BUFFER_BIT);
+                        glScissor(barX, barY, barW, barH);
+                        glClearColor(0, 0, 0, 1.0f);
+                        glClear(GL_COLOR_BUFFER_BIT);
+                        float t = static_cast<float>(ns2ms(elapsed)) / 1000.0f;
+                        int segW = barW / 8;
+                        int segGap = 2;
+                        int groupW = segW * 3 + segGap * 2;
+                        float cycle = static_cast<float>(barW + groupW);
+                        float rawPos = fmod(t * barW * 0.6f, cycle) - groupW;
+                        for (int s = 0; s < 3; s++) {
+                            int sx = barX + static_cast<int>(rawPos) + s * (segW + segGap);
+                            int sw = segW;
+                            if (sx < barX) { sw -= (barX - sx); sx = barX; }
+                            if (sx + sw > barX + barW) sw = barX + barW - sx;
+                            if (sw > 0) {
+                                glScissor(sx, barY, sw, barH);
+                                glClearColor(barAlpha, barAlpha, barAlpha, 1.0f);
+                                glClear(GL_COLOR_BUFFER_BIT);
+                            }
+                        }
+                        glDisable(GL_SCISSOR_TEST);
+                        glClearColor(part.backgroundColor[0], part.backgroundColor[1],
+                                     part.backgroundColor[2], 1.0f);
+                    }
+                }
+
                 handleViewport(frameDuration);
 
                 eglSwapBuffers(mDisplay, mSurface);
 
-                nsecs_t now = systemTime();
-                nsecs_t delay = frameDuration - (now - lastFrame);
-                //SLOGD("%lld, %lld", ns2ms(now - lastFrame), ns2ms(delay));
-                lastFrame = now;
+                {
+                    static constexpr nsecs_t SUBFRAME_NS = 16666667LL;
+                    nsecs_t nextFrameTime = lastFrame + frameDuration;
 
-                if (delay > 0) {
-                    struct timespec spec;
-                    spec.tv_sec  = (now + delay) / 1000000000;
-                    spec.tv_nsec = (now + delay) % 1000000000;
-                    int err;
-                    do {
-                        err = clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &spec, nullptr);
-                    } while (err == EINTR);
+                    for (;;) {
+                        nsecs_t sfNow = systemTime();
+                        nsecs_t remaining = nextFrameTime - sfNow;
+                        if (remaining <= SUBFRAME_NS) {
+                            if (remaining > 0) {
+                                struct timespec spec;
+                                spec.tv_sec = nextFrameTime / 1000000000;
+                                spec.tv_nsec = nextFrameTime % 1000000000;
+                                int err;
+                                do { err = clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &spec, nullptr); } while (err == EINTR);
+                            }
+                            break;
+                        }
+
+                        nsecs_t wakeAt = sfNow + SUBFRAME_NS;
+                        struct timespec spec;
+                        spec.tv_sec = wakeAt / 1000000000;
+                        spec.tv_nsec = wakeAt % 1000000000;
+                        int err;
+                        do { err = clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &spec, nullptr); } while (err == EINTR);
+
+                        nsecs_t sfFadeNow = systemTime();
+                        nsecs_t sfElapsed = sfFadeNow - animStartTime;
+                        float sfFadeIn = (sfElapsed < FADE_IN_NS)
+                            ? 1.0f - static_cast<float>(sfElapsed) / FADE_IN_NS : 0.0f;
+                        float sfFadeOut = 0.0f;
+                        if (exitPending()) {
+                            if (!fadeOutStarted) {
+                                fadeOutStarted = true;
+                                fadeOutStartTime = sfFadeNow;
+                            }
+                            nsecs_t foEl = sfFadeNow - fadeOutStartTime;
+                            if (foEl >= FADE_OUT_NS) {
+                                sfFadeOut = 1.0f;
+                                fadeOutDone = true;
+                            } else {
+                                sfFadeOut = static_cast<float>(foEl) / FADE_OUT_NS;
+                            }
+                        }
+                        float sfFade = fmax(fade, fmax(sfFadeIn, sfFadeOut));
+
+                        glClear(GL_COLOR_BUFFER_BIT);
+                        glUseProgram(mImageShader);
+                        glUniform1i(mImageTextureLocation, 0);
+                        glUniform1f(mImageFadeLocation, sfFade);
+                        if (animation.dynamicColoringEnabled) {
+                            glUniform1f(mImageColorProgressLocation, colorProgress);
+                        }
+                        glBindTexture(GL_TEXTURE_2D, frameTid);
+                        glEnable(GL_BLEND);
+                        drawTexturedQuad(xc, frameDrawY, trimWidth, trimHeight);
+                        glDisable(GL_BLEND);
+
+                        {
+                            nsecs_t barDelay = sfElapsed - BAR_DELAY_NS;
+                            float barFI = 1.0f;
+                            if (barDelay > 0) {
+                                barFI = (barDelay < FADE_IN_NS)
+                                    ? 1.0f - static_cast<float>(barDelay) / FADE_IN_NS : 0.0f;
+                            }
+                            float bA = 1.0f - fmax(barFI, sfFadeOut);
+                            if (bA > 0.01f) {
+                                int bW = mWidth / 5;
+                                int bH = 4;
+                                int bX = (mWidth - bW) / 2;
+                                int bY = 10;
+                                glEnable(GL_SCISSOR_TEST);
+                                glScissor(bX - 1, bY - 1, bW + 2, bH + 2);
+                                float bg = 0.25f * bA;
+                                glClearColor(bg, bg, bg, 1.0f);
+                                glClear(GL_COLOR_BUFFER_BIT);
+                                glScissor(bX, bY, bW, bH);
+                                glClearColor(0, 0, 0, 1.0f);
+                                glClear(GL_COLOR_BUFFER_BIT);
+                                float st = static_cast<float>(ns2ms(sfElapsed)) / 1000.0f;
+                                int sW = bW / 8;
+                                int sG = 2;
+                                int gW = sW * 3 + sG * 2;
+                                float cy = static_cast<float>(bW + gW);
+                                float rP = fmod(st * bW * 0.6f, cy) - gW;
+                                for (int s = 0; s < 3; s++) {
+                                    int sx = bX + static_cast<int>(rP) + s * (sW + sG);
+                                    int sw = sW;
+                                    if (sx < bX) { sw -= (bX - sx); sx = bX; }
+                                    if (sx + sw > bX + bW) sw = bX + bW - sx;
+                                    if (sw > 0) {
+                                        glScissor(sx, bY, sw, bH);
+                                        glClearColor(bA, bA, bA, 1.0f);
+                                        glClear(GL_COLOR_BUFFER_BIT);
+                                    }
+                                }
+                                glDisable(GL_SCISSOR_TEST);
+                                glClearColor(part.backgroundColor[0], part.backgroundColor[1],
+                                             part.backgroundColor[2], 1.0f);
+                            }
+                        }
+
+                        eglSwapBuffers(mDisplay, mSurface);
+                        checkExit();
+                    }
+                    lastFrame = systemTime();
                 }
 
                 checkExit();
@@ -1780,7 +2023,7 @@ bool BootAnimation::playAnimation(const Animation& animation) {
                 checkExit();
             }
 
-            if (exitPending() && !part.count && mCurrentInset >= mTargetInset &&
+            if (fadeOutDone && exitPending() && !part.count && mCurrentInset >= mTargetInset &&
                 !part.hasFadingPhase()) {
                 if (lastDisplayedProgress != 0 && lastDisplayedProgress != 100) {
                     android::base::SetProperty(PROGRESS_PROP_NAME, "100");
