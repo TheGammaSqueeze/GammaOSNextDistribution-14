@@ -171,6 +171,29 @@ do_populate() {
         /data/*) core_raw="$core_path" ;;
     esac
 
+    # CE storage paths under /data/media/ are encrypted until the user
+    # credential is unlocked. During QR boot, populate can fire before
+    # CE is available. Wait up to 30s so the ROM path resolves.
+    if [ ! -f "$rom_raw" ]; then
+        case "$rom_raw" in
+            /data/media/*)
+                local ce_ready=$(getprop sys.user.0.ce_available)
+                if [ "$ce_ready" != "true" ]; then
+                    log_i "populate: ROM not yet visible, waiting for CE storage..."
+                    local i=0
+                    while [ $i -lt 60 ]; do
+                        ce_ready=$(getprop sys.user.0.ce_available)
+                        [ "$ce_ready" = "true" ] && break
+                        sleep 0.5
+                        i=$((i + 1))
+                    done
+                    if [ "$ce_ready" = "true" ]; then
+                        log_i "populate: CE storage ready"
+                    fi
+                fi
+                ;;
+        esac
+    fi
     if [ ! -f "$rom_raw" ]; then
         log_e "populate: ROM not found at $rom_raw"
         setprop sys.gammaos.nano.cache_ready 1

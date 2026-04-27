@@ -1992,40 +1992,70 @@ if (sRingPrimedCount >= 2) {
                                     ? qrRom.substr(sl + 1) : qrRom;
                         }
 
+                        std::string zipFile;
                         DIR* d = opendir((cacheDir + "/rom").c_str());
                         if (d) {
                             struct dirent* e;
                             while ((e = readdir(d)) != nullptr) {
                                 std::string name(e->d_name);
                                 if (name == "." || name == "..") continue;
-                                // ROM file (not .srm, .state, .sav, .png, .brm)
-                                if (name.find(".srm") == std::string::npos &&
-                                    name.find(".state") == std::string::npos &&
-                                    name.find(".sav") == std::string::npos &&
-                                    name.find(".brm") == std::string::npos &&
-                                    name.find(".png") == std::string::npos) {
+                                if (name.find(".srm") != std::string::npos ||
+                                    name.find(".state") != std::string::npos ||
+                                    name.find(".sav") != std::string::npos ||
+                                    name.find(".brm") != std::string::npos ||
+                                    name.find(".png") != std::string::npos)
+                                    continue;
+                                bool isZip = (name.size() > 4 &&
+                                    (name.compare(name.size()-4, 4, ".zip") == 0 ||
+                                     name.compare(name.size()-4, 4, ".ZIP") == 0));
+                                if (isZip) {
+                                    zipFile = cacheDir + "/rom/" + name;
+                                } else {
                                     romFile = cacheDir + "/rom/" + name;
                                 }
                             }
                             closedir(d);
                         }
+                        if (romFile.empty() && !zipFile.empty())
+                            romFile = zipFile;
 
-                        // Verify cached ROM matches QR prop. If the cache
-                        // holds a different ROM (stale from a prior session
-                        // or a different emulator), skip the native launch
-                        // and let populate refresh the cache first.
                         if (!romFile.empty() && !expectedBase.empty()) {
                             std::string cachedBase = romFile;
                             size_t sl = cachedBase.rfind('/');
                             if (sl != std::string::npos)
                                 cachedBase = cachedBase.substr(sl + 1);
                             if (cachedBase != expectedBase) {
-                                ALOGW("Quick Resume: cached ROM mismatch "
-                                      "(have=%s want=%s), skipping native "
-                                      "launch until cache refreshes",
-                                      cachedBase.c_str(),
-                                      expectedBase.c_str());
-                                romFile.clear();
+                                // nano_cache.sh extracts zips during
+                                // populate, so the extracted filename
+                                // differs from the zip. Verify the zip
+                                // is in the cache to confirm validity.
+                                bool zipOk = false;
+                                bool expectZip = (expectedBase.size() > 4 &&
+                                    (expectedBase.compare(expectedBase.size()-4, 4, ".zip") == 0 ||
+                                     expectedBase.compare(expectedBase.size()-4, 4, ".ZIP") == 0));
+                                if (expectZip && !zipFile.empty()) {
+                                    std::string zipBase = zipFile;
+                                    sl = zipBase.rfind('/');
+                                    if (sl != std::string::npos)
+                                        zipBase = zipBase.substr(sl + 1);
+                                    if (zipBase == expectedBase) {
+                                        zipOk = true;
+                                        ALOGI("Quick Resume: zip ROM "
+                                              "verified (zip=%s "
+                                              "extracted=%s)",
+                                              expectedBase.c_str(),
+                                              cachedBase.c_str());
+                                    }
+                                }
+                                if (!zipOk) {
+                                    ALOGW("Quick Resume: cached ROM "
+                                          "mismatch (have=%s want=%s)"
+                                          ", skipping native launch "
+                                          "until cache refreshes",
+                                          cachedBase.c_str(),
+                                          expectedBase.c_str());
+                                    romFile.clear();
+                                }
                             }
                         }
                         // Match core from QR property (basename), not blindly first .so

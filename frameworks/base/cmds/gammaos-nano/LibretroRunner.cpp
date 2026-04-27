@@ -20,6 +20,7 @@
 #include <vector>
 #include <setjmp.h>
 #include <signal.h>
+#include <zlib.h>
 #include <utils/Log.h>
 #include <GLES2/gl2.h>
 
@@ -86,6 +87,48 @@ static std::vector<uint8_t> readFile(const std::string& path) {
     }
     close(fd);
     return data;
+}
+
+// RetroArch RZIP format: zlib-compressed save states.
+// Header: "#RZIPv" (6 bytes) + version (1 byte) + full_size (8 bytes LE)
+// Then compressed frames: uint32_le compressed_size + uint32_le uncompressed_size + zlib data
+static std::vector<uint8_t> tryDecompressRzip(const std::vector<uint8_t>& data) {
+    if (data.size() < 15 || memcmp(data.data(), "#RZIPv", 6) != 0)
+        return {};
+    uint64_t fullSize = 0;
+    for (int i = 0; i < 8; i++)
+        fullSize |= (uint64_t)data[7 + i] << (i * 8);
+    if (fullSize == 0 || fullSize > 64 * 1024 * 1024)
+        return {};
+    std::vector<uint8_t> out(fullSize);
+    size_t pos = 15;
+    size_t outPos = 0;
+    while (pos + 8 <= data.size() && outPos < fullSize) {
+        uint32_t compSize = 0, uncompSize = 0;
+        for (int i = 0; i < 4; i++) {
+            compSize |= (uint32_t)data[pos + i] << (i * 8);
+            uncompSize |= (uint32_t)data[pos + 4 + i] << (i * 8);
+        }
+        pos += 8;
+        if (compSize == 0 || pos + compSize > data.size())
+            break;
+        if (uncompSize == 0 || outPos + uncompSize > fullSize)
+            break;
+        uLongf destLen = uncompSize;
+        if (uncompress(out.data() + outPos, &destLen,
+                       data.data() + pos, compSize) != Z_OK)
+            return {};
+        pos += compSize;
+        outPos += destLen;
+    }
+    if (outPos != fullSize) {
+        ALOGW("LibretroRunner: RZIP decompress incomplete "
+              "(%zu/%llu)", outPos, (unsigned long long)fullSize);
+        return {};
+    }
+    ALOGI("LibretroRunner: RZIP decompressed %zu -> %llu bytes",
+          data.size(), (unsigned long long)fullSize);
+    return out;
 }
 
 static bool writeFile(const std::string& path, const void* data, size_t size) {
@@ -259,11 +302,39 @@ bool LibretroRunner::init(const std::string& corePath,
     if (!saveStatePath.empty() && retro_unserialize && retro_serialize_size) {
         auto stateData = readFile(saveStatePath);
         if (!stateData.empty()) {
-            if (retro_unserialize(stateData.data(), stateData.size())) {
+            // Decompress RZIP if RetroArch compressed the state
+            auto rzip = tryDecompressRzip(stateData);
+            if (!rzip.empty())
+                stateData = std::move(rzip);
+
+            size_t expectedSize = retro_serialize_size();
+            ALOGI("LibretroRunner: state file=%zu expected=%zu",
+                  stateData.size(), expectedSize);
+
+            bool restored = retro_unserialize(
+                    stateData.data(), stateData.size());
+
+            // Size mismatch: pad with zeros or truncate to match
+            // what the core expects (RetroArch does this too)
+            if (!restored && expectedSize > 0 &&
+                    stateData.size() != expectedSize) {
+                std::vector<uint8_t> adj(expectedSize, 0);
+                memcpy(adj.data(), stateData.data(),
+                       std::min(stateData.size(), expectedSize));
+                restored = retro_unserialize(adj.data(), adj.size());
+                if (restored)
+                    ALOGI("LibretroRunner: restored with size "
+                          "adjustment (%zu -> %zu)",
+                          stateData.size(), expectedSize);
+            }
+
+            if (restored) {
                 ALOGI("LibretroRunner: restored save state (%zu bytes)",
                       stateData.size());
             } else {
-                ALOGW("LibretroRunner: save state restore failed");
+                ALOGW("LibretroRunner: save state restore failed "
+                      "(file=%zu expected=%zu)",
+                      stateData.size(), expectedSize);
             }
         }
     }
