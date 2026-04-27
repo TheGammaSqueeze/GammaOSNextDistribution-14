@@ -2635,6 +2635,10 @@ public class DisplayModeDirector {
             mDisplayManagerInternal = mInjector.getDisplayManagerInternal();
 
             final SensorManagerInternal sensorManager = mInjector.getSensorManagerInternal();
+            if (sensorManager == null) {
+                Slog.w(TAG, "SensorManagerInternal not available; skipping proximity observer");
+                return;
+            }
             sensorManager.addProximityActiveListener(BackgroundThread.getExecutor(), this);
 
             synchronized (mSensorObserverLock) {

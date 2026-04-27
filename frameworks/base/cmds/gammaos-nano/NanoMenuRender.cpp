@@ -701,8 +701,6 @@ void NanoMenu::setupSecondaryEglSurfaces() {
     const std::vector<PhysicalDisplayId> ids =
             SurfaceComposerClient::getPhysicalDisplayIds();
     if (ids.size() <= 1) {
-        ALOGI("NanoMenu: only %zu physical display(s); no secondary wallpaper",
-              ids.size());
         return;
     }
 
@@ -830,8 +828,6 @@ void NanoMenu::setupSecondaryEglSurfaces() {
 void NanoMenu::render() {
     static bool sFirstFrame = true;
     if (sFirstFrame) {
-        int64_t nowMs = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL;
-        ALOGW("NanoMenu BOOT TIMING: first render() call at T+%lldms", nowMs);
         sFirstFrame = false;
     }
 
@@ -1461,8 +1457,6 @@ if (sRingPrimedCount >= 2) {
         // instead — gives exactly-once semantics without relying on
         // a flag that got reset four function-screens above.
         if (mSecondaryEglSurfaces.empty()) {
-            int64_t nowMs = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL;
-            ALOGW("NanoMenu BOOT TIMING: first eglSwapBuffers complete at T+%lldms", nowMs);
             setupSecondaryEglSurfaces();
         }
     }

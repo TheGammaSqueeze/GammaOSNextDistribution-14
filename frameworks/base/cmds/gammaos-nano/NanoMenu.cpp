@@ -216,12 +216,9 @@ void NanoMenu::binderDied(const wp<IBinder>&) {
 }
 status_t NanoMenu::readyToRun() {
     int64_t t0 = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL;
-    auto tlog = [&](const char* label) {
-        int64_t now = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL;
-        ALOGW("NanoMenu BOOT TIMING: %s at T+%lldms (delta %lldms)", label, now, now - t0);
-        t0 = now;
+    auto tlog = [&](const char*) {
+        t0 = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL;
     };
-    tlog("readyToRun enter");
 
     // GammaOS: Before doing ANYTHING that touches the display (DRM master grab,
     // SF transactions), confirm we are actually in nano boot mode. StartPropertySetThread
@@ -624,10 +621,6 @@ status_t NanoMenu::readyToRun() {
 
 bool NanoMenu::threadLoop() {
     ALOGD("NanoMenu: entering main loop");
-    {
-        int64_t nowMs = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL;
-        ALOGW("NanoMenu BOOT TIMING: main loop entry at T+%lldms", nowMs);
-    }
 
     // GammaOS: Real-time boost for the render thread.
     //
@@ -816,11 +809,6 @@ bool NanoMenu::threadLoop() {
     if (sDrasticQrFastPath) {
         DrasticRunner* drastic = DrasticRunner::getInstance();
         if (drastic && drastic->isInitialized()) {
-            ALOGW("NanoMenu: drastic QR fast-path loop entered");
-            int64_t loopStart = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL;
-            ALOGW("NanoMenu BOOT TIMING: drastic QR loop entry at T+%lldms",
-                  loopStart);
-
             // Max clocks for smooth DS emulation during QR preview.
             system("/vendor/bin/setclock_max.sh");
 
@@ -1561,9 +1549,6 @@ if (sRingPrimedCount >= 2) {
                 }
 
                 if (!firstFrameLogged) {
-                    int64_t now = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL;
-                    ALOGW("NanoMenu BOOT TIMING: drastic first frame at T+%lldms",
-                          (long long)now);
                     firstFrameLogged = true;
                 }
 

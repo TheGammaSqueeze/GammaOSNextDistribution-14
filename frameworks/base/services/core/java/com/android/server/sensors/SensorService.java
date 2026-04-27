@@ -90,6 +90,9 @@ public class SensorService extends SystemService {
                     START_NATIVE_SENSOR_SERVICE);
             synchronized (mLock) {
                 mSensorServiceStart = null;
+                if (mPtr != 0 && !mProximityListeners.isEmpty()) {
+                    registerProximityActiveListenerNative(mPtr);
+                }
             }
         }
     }
@@ -139,7 +142,7 @@ public class SensorService extends SystemService {
                     throw new IllegalArgumentException("listener already registered");
                 }
                 mProximityListeners.put(listener, proxy);
-                if (mProximityListeners.size() == 1) {
+                if (mProximityListeners.size() == 1 && mPtr != 0) {
                     registerProximityActiveListenerNative(mPtr);
                 }
             }
