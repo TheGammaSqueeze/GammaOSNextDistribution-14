@@ -209,7 +209,7 @@ class SyntheticPasswordCrypto {
                     .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
                     .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
                     .setCriticalToDeviceEncryption(true);
-            if (sid != 0) {
+            if (sid != 0 && !isSoftwareKeymaster()) {
                 builder.setUserAuthenticationRequired(true)
                         .setBoundToSpecificSecureUserId(sid)
                         .setUserAuthenticationValidityDurationSeconds(USER_AUTHENTICATION_VALIDITY);
@@ -236,6 +236,39 @@ class SyntheticPasswordCrypto {
                 | InvalidParameterSpecException e) {
             Slog.e(TAG, "Failed to create blob", e);
             throw new IllegalStateException("Failed to encrypt blob", e);
+        }
+    }
+
+    private static volatile Boolean sSoftwareKeymasterCached = null;
+
+    private static boolean isSoftwareKeymaster() {
+        if (sSoftwareKeymasterCached != null) return sSoftwareKeymasterCached;
+        try {
+            java.security.KeyStore ks = java.security.KeyStore.getInstance("AndroidKeyStore");
+            ks.load(null);
+            javax.crypto.KeyGenerator kg = javax.crypto.KeyGenerator.getInstance(
+                    KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore");
+            kg.init(new android.security.keystore.KeyGenParameterSpec.Builder(
+                    "syntheticpassword_probe",
+                    KeyProperties.PURPOSE_ENCRYPT)
+                    .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
+                    .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
+                    .build());
+            javax.crypto.SecretKey key = kg.generateKey();
+            android.security.keystore.KeyInfo info = (android.security.keystore.KeyInfo)
+                    javax.crypto.SecretKeyFactory.getInstance(key.getAlgorithm(), "AndroidKeyStore")
+                            .getKeySpec(key, android.security.keystore.KeyInfo.class);
+            boolean isSoftware =
+                    info.getSecurityLevel() == KeyProperties.SECURITY_LEVEL_SOFTWARE;
+            ks.deleteEntry("syntheticpassword_probe");
+            if (isSoftware) {
+                Slog.i(TAG, "Software keymaster detected, skipping auth-bound SP key");
+            }
+            sSoftwareKeymasterCached = isSoftware;
+            return isSoftware;
+        } catch (Exception e) {
+            Slog.w(TAG, "Failed to probe keymaster security level", e);
+            return false;
         }
     }
 
