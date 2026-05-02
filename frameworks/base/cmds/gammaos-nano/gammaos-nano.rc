@@ -60,3 +60,11 @@ service gammaos-nano /system/bin/gammaos-nano
 on property:sys.gammaos.minimal_boot=1
     chown bluetooth system /sys/class/rfkill/rfkill0/state
     chmod 0664 /sys/class/rfkill/rfkill0/state
+    start nano-ce-unlock
+
+service nano-ce-unlock /system/bin/nano-ce-unlock.sh
+    user root
+    group root system
+    disabled
+    oneshot
+    seclabel u:r:su:s0

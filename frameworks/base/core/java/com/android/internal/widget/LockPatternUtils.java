@@ -418,8 +418,14 @@ public class LockPatternUtils {
         if (isSpecialUserId(mContext, userId, /* checkDeviceSupported= */ true)) {
             return;
         }
-        getDevicePolicyManager().reportFailedPasswordAttempt(userId);
-        getTrustManager().reportUnlockAttempt(false /* authenticated */, userId);
+        DevicePolicyManager dpm = getDevicePolicyManager();
+        if (dpm != null) {
+            dpm.reportFailedPasswordAttempt(userId);
+        }
+        TrustManager tm = getTrustManager();
+        if (tm != null) {
+            tm.reportUnlockAttempt(false /* authenticated */, userId);
+        }
     }
 
     @UnsupportedAppUsage
@@ -427,8 +433,14 @@ public class LockPatternUtils {
         if (isSpecialUserId(mContext, userId, /* checkDeviceSupported= */ true)) {
             return;
         }
-        getDevicePolicyManager().reportSuccessfulPasswordAttempt(userId);
-        getTrustManager().reportUnlockAttempt(true /* authenticated */, userId);
+        DevicePolicyManager dpm = getDevicePolicyManager();
+        if (dpm != null) {
+            dpm.reportSuccessfulPasswordAttempt(userId);
+        }
+        TrustManager tm = getTrustManager();
+        if (tm != null) {
+            tm.reportUnlockAttempt(true /* authenticated */, userId);
+        }
     }
 
     public void reportPasswordLockout(int timeoutMs, int userId) {

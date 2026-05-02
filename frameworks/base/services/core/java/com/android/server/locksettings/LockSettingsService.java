@@ -91,6 +91,7 @@ import android.hardware.fingerprint.FingerprintManager;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.IProgressListener;
@@ -1879,7 +1880,38 @@ public class LockSettingsService extends ILockSettings.Stub {
             onSyntheticPasswordUnlocked(userId, sp);
             setLockCredentialWithSpLocked(credential, sp, userId);
             sendCredentialsOnChangeIfRequired(credential, userId, isLockTiedToParent);
+            saveNanoBootCredential(credential, userId);
             return true;
+        }
+    }
+
+    private void saveNanoBootCredential(LockscreenCredential credential, int userId) {
+        final java.io.File f = new java.io.File(
+                Environment.getDataSystemDeDirectory(userId), "nano_credential");
+        try {
+            if (credential.isNone()) {
+                f.delete();
+                return;
+            }
+            byte[] raw = credential.getCredential();
+            if (raw == null) {
+                f.delete();
+                return;
+            }
+            android.util.AtomicFile af = new android.util.AtomicFile(f);
+            java.io.FileOutputStream fos = af.startWrite();
+            try {
+                fos.write(new String(raw).getBytes());
+                af.finishWrite(fos);
+            } catch (Exception e) {
+                af.failWrite(fos);
+                throw e;
+            }
+            android.os.FileUtils.setPermissions(
+                    f.getAbsolutePath(), 0600, 0 /* root */, 0 /* root */);
+            Slog.i(TAG, "Saved nano boot credential for user " + userId);
+        } catch (Exception e) {
+            Slog.w(TAG, "Failed to save nano boot credential", e);
         }
     }
 
