@@ -409,8 +409,7 @@ void GamepadManager::scanDevices() {
 }
 
 bool GamepadManager::shouldGrabDevice(const std::string& name) {
-    // If no device filter configured, grab all gamepads
-    if (mDeviceNames.empty()) return true;
+    if (mDeviceNames.empty()) return false;
 
     for (const auto& pattern : mDeviceNames) {
         if (name.find(pattern) != std::string::npos) {
