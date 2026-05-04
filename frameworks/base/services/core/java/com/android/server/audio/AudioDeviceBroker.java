@@ -147,6 +147,16 @@ public class AudioDeviceBroker {
         return android.os.SystemProperties.getBoolean("persist.gammaos.allwinner.hdmi.enable",
                 false);
     }
+
+    // === Rockchip gate (auto-detect via ro.hardware) ===
+    private static boolean isRockchipEnabled() {
+        if (android.os.SystemProperties.getBoolean("persist.gammaos.rockchip.hdmi.enable",
+                false)) {
+            return true;
+        }
+        final String hw = android.os.SystemProperties.get("ro.hardware", "");
+        return hw.startsWith("rk3") || hw.equals("rk30board");
+    }
     // NOTE: we reuse mUnisocHdmiAttached as a generic "HDMI attached by workaround" flag.
 
     // set true after we (successfully) registered HDMI devices via this workaround
@@ -223,7 +233,7 @@ public class AudioDeviceBroker {
                     // Register unconditionally; handler path is gated by the UniSoc prop.
                     mGammaDisplayManager.registerDisplayListener(
                             mGammaUnisocDisplayListener, mBrokerHandler);
-                    if (isUnisocEnabled()) {
+                    if (isUnisocEnabled() || isRockchipEnabled()) {
                         sendMsgNoDelay(MSG_TOGGLE_HDMI, SENDMSG_QUEUE);
                     }
                 }
@@ -254,7 +264,7 @@ public class AudioDeviceBroker {
                 if (mGammaDisplayManager != null) {
                     mGammaDisplayManager.registerDisplayListener(
                             mGammaUnisocDisplayListener, mBrokerHandler);
-                    if (isUnisocEnabled()) {
+                    if (isUnisocEnabled() || isRockchipEnabled()) {
                         sendMsgNoDelay(MSG_TOGGLE_HDMI, SENDMSG_QUEUE);
                     }
                 }
@@ -2096,6 +2106,30 @@ public class AudioDeviceBroker {
                                 Log.d(TAG, "GammaHDMI(ALLWINNER) no-op (evidence=" + evidence
                                         + " attached=" + mUnisocHdmiAttached + ")");
                             }
+                        } else if (isRockchipEnabled()) {
+                            // Rockchip: DP audio via SPDIF card (rockchipdp0)
+                            Log.d(TAG, "GammaHDMI(ROCKCHIP) gate=ON, evaluate DP evidence...");
+                            final boolean evidence = hasRockchipDpAudioEvidence();
+                            if (evidence && !mUnisocHdmiAttached) {
+                                final AudioDeviceAttributes spdifOut =
+                                        new AudioDeviceAttributes(AudioSystem.DEVICE_OUT_SPDIF, "");
+                                final boolean c1 = handleDeviceConnection(spdifOut, true, /*bt*/null);
+                                Log.i(TAG, "GammaHDMI(ROCKCHIP) register SPDIF-OUT=" + c1);
+                                unisocHdmiApplyPreferredRolesOrRetry(spdifOut, /*retry*/true);
+                                mUnisocHdmiAttached = true;
+                            } else if (!evidence && mUnisocHdmiAttached) {
+                                final AudioDeviceAttributes spdifOut =
+                                        new AudioDeviceAttributes(AudioSystem.DEVICE_OUT_SPDIF, "");
+                                unisocHdmiClearPreferredRoles();
+                                handleDeviceConnection(spdifOut, false, /*bt*/null);
+                                Log.i(TAG, "GammaHDMI(ROCKCHIP) unregistered SPDIF-OUT");
+                                mUnisocHdmiAttached = false;
+                                mDeviceInventory.applyConnectedDevicesRoles();
+                                mDeviceInventory.reapplyExternalDevicesRoles();
+                            } else {
+                                Log.d(TAG, "GammaHDMI(ROCKCHIP) no-op (evidence=" + evidence
+                                        + " attached=" + mUnisocHdmiAttached + ")");
+                            }
                         } else {
                             // Non-UniSoc: keep stock behavior
                             mDeviceInventory.onToggleHdmi();
@@ -2104,10 +2138,17 @@ public class AudioDeviceBroker {
                     break;
                 case MSG_GAMMA_UNISOC_HDMI_APPLY_ROLES_RETRY: {
                     synchronized (mDeviceStateLock) {
-                        if (!isUnisocEnabled() || !mUnisocHdmiAttached) break;
-                        final AudioDeviceAttributes hdmiOut =
-                                new AudioDeviceAttributes(AudioSystem.DEVICE_OUT_HDMI, "");
-                        unisocHdmiApplyPreferredRolesOrRetry(hdmiOut, /*retry*/false);
+                        if (isRockchipEnabled()) {
+                            if (!mUnisocHdmiAttached) break;
+                            final AudioDeviceAttributes spdifOut =
+                                    new AudioDeviceAttributes(AudioSystem.DEVICE_OUT_SPDIF, "");
+                            unisocHdmiApplyPreferredRolesOrRetry(spdifOut, /*retry*/false);
+                        } else {
+                            if (!isUnisocEnabled() || !mUnisocHdmiAttached) break;
+                            final AudioDeviceAttributes hdmiOut =
+                                    new AudioDeviceAttributes(AudioSystem.DEVICE_OUT_HDMI, "");
+                            unisocHdmiApplyPreferredRolesOrRetry(hdmiOut, /*retry*/false);
+                        }
                     }
                 } break;
                 case MSG_I_BT_SERVICE_DISCONNECTED_PROFILE:
@@ -3098,6 +3139,53 @@ public class AudioDeviceBroker {
             if (!k.isDirectory()) continue;
             final String nm = k.getName();
             if (!nm.toUpperCase().contains("HDMI")) continue;
+            final File st = new File(k, "status");
+            if (!st.exists()) continue;
+            final String v = readOneLine(st);
+            if (v != null && "connected".equalsIgnoreCase(v.trim())) return true;
+        }
+        return false;
+    }
+
+    // ===== Rockchip DP audio evidence =====
+    // DP over USB-C: extcon with "dp" in name shows DP=1, DRM card0-DP-1 connected
+    private boolean hasRockchipDpAudioEvidence() {
+        final boolean extcon = rkExtconDpAsserted();
+        final boolean drm = rkDrmDpConnected();
+        final boolean ok = extcon && drm;
+        Log.i(TAG, "GammaHDMI(ROCKCHIP) DP evidence extcon=" + extcon
+                + " drm=" + drm + " -> " + ok);
+        return ok;
+    }
+
+    private boolean rkExtconDpAsserted() {
+        final File extconDir = new File("/sys/class/extcon");
+        final File[] nodes = extconDir.listFiles();
+        if (nodes == null) return false;
+        for (File n : nodes) {
+            try {
+                final File nameF = new File(n, "name");
+                final File stateF = new File(n, "state");
+                if (!nameF.exists() || !stateF.exists()) continue;
+                final String name = readOneLine(nameF);
+                if (name == null) continue;
+                final String nl = name.toLowerCase();
+                if (!nl.contains("dp") || nl.contains("hdmi")) continue;
+                final String state = readOneLine(stateF);
+                if (state != null && state.trim().toUpperCase().contains("DP=1")) return true;
+            } catch (Exception ignored) { }
+        }
+        return false;
+    }
+
+    private boolean rkDrmDpConnected() {
+        final File drmDir = new File("/sys/class/drm");
+        final File[] kids = drmDir.listFiles();
+        if (kids == null) return false;
+        for (File k : kids) {
+            if (!k.isDirectory()) continue;
+            final String nm = k.getName();
+            if (!nm.contains("DP-")) continue;
             final File st = new File(k, "status");
             if (!st.exists()) continue;
             final String v = readOneLine(st);
