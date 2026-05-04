@@ -92,11 +92,9 @@ if [ ! -d /data/setupcompleted ] && [ -z $(getprop persist.sys.device_provisione
         /vendor/bin/customization.sh
     fi
 
-    setprop ctl.stop "tee-supplicant"
 
 else
     setenforce 0
-    setprop ctl.stop "tee-supplicant"
 
     # If the vendor’s own customizationload script exists, run it now
     if [ -f /vendor/bin/customizationload.sh ]; then
