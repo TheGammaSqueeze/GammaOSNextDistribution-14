@@ -161,6 +161,9 @@ public class AudioDeviceBroker {
 
     // set true after we (successfully) registered HDMI devices via this workaround
     private boolean mUnisocHdmiAttached = false;
+    // Rockchip: separate tracking for DP and HDMI since both can be connected
+    private boolean mRockchipDpAttached = false;
+    private boolean mRockchipHdmiAttached = false;
     // Display hotplug hook (when ACTION_HDMI_AUDIO_PLUG is missing on UniSoc)
     private DisplayManager mGammaDisplayManager;
     private final DisplayManager.DisplayListener mGammaUnisocDisplayListener =
@@ -2107,28 +2110,67 @@ public class AudioDeviceBroker {
                                         + " attached=" + mUnisocHdmiAttached + ")");
                             }
                         } else if (isRockchipEnabled()) {
-                            // Rockchip: DP audio via SPDIF card (rockchipdp0)
-                            Log.d(TAG, "GammaHDMI(ROCKCHIP) gate=ON, evaluate DP evidence...");
-                            final boolean evidence = hasRockchipDpAudioEvidence();
-                            if (evidence && !mUnisocHdmiAttached) {
+                            // Rockchip: DP via SPDIF (card1), HDMI via HDMI (card2)
+                            final boolean dpEvidence = hasRockchipDpAudioEvidence();
+                            final boolean hdmiEvidence = hasRockchipHdmiAudioEvidence();
+                            Log.d(TAG, "GammaHDMI(ROCKCHIP) dp=" + dpEvidence
+                                    + "/" + mRockchipDpAttached
+                                    + " hdmi=" + hdmiEvidence
+                                    + "/" + mRockchipHdmiAttached);
+
+                            // Handle DP connect/disconnect
+                            if (dpEvidence && !mRockchipDpAttached) {
                                 final AudioDeviceAttributes spdifOut =
                                         new AudioDeviceAttributes(AudioSystem.DEVICE_OUT_SPDIF, "");
-                                final boolean c1 = handleDeviceConnection(spdifOut, true, /*bt*/null);
-                                Log.i(TAG, "GammaHDMI(ROCKCHIP) register SPDIF-OUT=" + c1);
-                                unisocHdmiApplyPreferredRolesOrRetry(spdifOut, /*retry*/true);
-                                mUnisocHdmiAttached = true;
-                            } else if (!evidence && mUnisocHdmiAttached) {
+                                handleDeviceConnection(spdifOut, true, /*bt*/null);
+                                Log.i(TAG, "GammaHDMI(ROCKCHIP) register DP/SPDIF");
+                                mRockchipDpAttached = true;
+                            } else if (!dpEvidence && mRockchipDpAttached) {
                                 final AudioDeviceAttributes spdifOut =
                                         new AudioDeviceAttributes(AudioSystem.DEVICE_OUT_SPDIF, "");
-                                unisocHdmiClearPreferredRoles();
                                 handleDeviceConnection(spdifOut, false, /*bt*/null);
-                                Log.i(TAG, "GammaHDMI(ROCKCHIP) unregistered SPDIF-OUT");
+                                Log.i(TAG, "GammaHDMI(ROCKCHIP) unregister DP/SPDIF");
+                                mRockchipDpAttached = false;
+                            }
+
+                            // Handle HDMI connect/disconnect
+                            if (hdmiEvidence && !mRockchipHdmiAttached) {
+                                final AudioDeviceAttributes hdmiOut =
+                                        new AudioDeviceAttributes(AudioSystem.DEVICE_OUT_HDMI, "");
+                                handleDeviceConnection(hdmiOut, true, /*bt*/null);
+                                Log.i(TAG, "GammaHDMI(ROCKCHIP) register HDMI");
+                                mRockchipHdmiAttached = true;
+                            } else if (!hdmiEvidence && mRockchipHdmiAttached) {
+                                final AudioDeviceAttributes hdmiOut =
+                                        new AudioDeviceAttributes(AudioSystem.DEVICE_OUT_HDMI, "");
+                                handleDeviceConnection(hdmiOut, false, /*bt*/null);
+                                Log.i(TAG, "GammaHDMI(ROCKCHIP) unregister HDMI");
+                                mRockchipHdmiAttached = false;
+                            }
+
+                            // Set preferred output: HDMI > DP > speaker
+                            final boolean anyAttached = mRockchipDpAttached || mRockchipHdmiAttached;
+                            if (anyAttached && !mUnisocHdmiAttached) {
+                                final int devType = mRockchipHdmiAttached
+                                        ? AudioSystem.DEVICE_OUT_HDMI
+                                        : AudioSystem.DEVICE_OUT_SPDIF;
+                                final AudioDeviceAttributes preferred =
+                                        new AudioDeviceAttributes(devType, "");
+                                unisocHdmiApplyPreferredRolesOrRetry(preferred, /*retry*/true);
+                                mUnisocHdmiAttached = true;
+                            } else if (!anyAttached && mUnisocHdmiAttached) {
+                                unisocHdmiClearPreferredRoles();
                                 mUnisocHdmiAttached = false;
                                 mDeviceInventory.applyConnectedDevicesRoles();
                                 mDeviceInventory.reapplyExternalDevicesRoles();
-                            } else {
-                                Log.d(TAG, "GammaHDMI(ROCKCHIP) no-op (evidence=" + evidence
-                                        + " attached=" + mUnisocHdmiAttached + ")");
+                            } else if (anyAttached && mUnisocHdmiAttached) {
+                                // Re-evaluate preferred if connection type changed
+                                final int devType = mRockchipHdmiAttached
+                                        ? AudioSystem.DEVICE_OUT_HDMI
+                                        : AudioSystem.DEVICE_OUT_SPDIF;
+                                final AudioDeviceAttributes preferred =
+                                        new AudioDeviceAttributes(devType, "");
+                                unisocHdmiApplyPreferredRolesOrRetry(preferred, /*retry*/false);
                             }
                         } else {
                             // Non-UniSoc: keep stock behavior
@@ -2140,9 +2182,12 @@ public class AudioDeviceBroker {
                     synchronized (mDeviceStateLock) {
                         if (isRockchipEnabled()) {
                             if (!mUnisocHdmiAttached) break;
-                            final AudioDeviceAttributes spdifOut =
-                                    new AudioDeviceAttributes(AudioSystem.DEVICE_OUT_SPDIF, "");
-                            unisocHdmiApplyPreferredRolesOrRetry(spdifOut, /*retry*/false);
+                            final int devType = mRockchipHdmiAttached
+                                    ? AudioSystem.DEVICE_OUT_HDMI
+                                    : AudioSystem.DEVICE_OUT_SPDIF;
+                            final AudioDeviceAttributes devOut =
+                                    new AudioDeviceAttributes(devType, "");
+                            unisocHdmiApplyPreferredRolesOrRetry(devOut, /*retry*/false);
                         } else {
                             if (!isUnisocEnabled() || !mUnisocHdmiAttached) break;
                             final AudioDeviceAttributes hdmiOut =
@@ -3145,6 +3190,50 @@ public class AudioDeviceBroker {
             if (v != null && "connected".equalsIgnoreCase(v.trim())) return true;
         }
         return false;
+    }
+
+    // ===== Rockchip HDMI audio evidence =====
+    // HDMI: extcon with "hdmi" in name shows HDMI=1, DRM card0-HDMI-A-1 connected
+    private boolean hasRockchipHdmiAudioEvidence() {
+        final File extconDir = new File("/sys/class/extcon");
+        final File[] nodes = extconDir.listFiles();
+        boolean extcon = false;
+        if (nodes != null) {
+            for (File n : nodes) {
+                try {
+                    final File nameF = new File(n, "name");
+                    final File stateF = new File(n, "state");
+                    if (!nameF.exists() || !stateF.exists()) continue;
+                    final String name = readOneLine(nameF);
+                    if (name == null || !name.toLowerCase().contains("hdmi")) continue;
+                    final String state = readOneLine(stateF);
+                    if (state != null && state.trim().toUpperCase().contains("HDMI=1")) {
+                        extcon = true;
+                        break;
+                    }
+                } catch (Exception ignored) { }
+            }
+        }
+        boolean drm = false;
+        final File drmDir = new File("/sys/class/drm");
+        final File[] kids = drmDir.listFiles();
+        if (kids != null) {
+            for (File k : kids) {
+                if (!k.isDirectory()) continue;
+                if (!k.getName().contains("HDMI-")) continue;
+                final File st = new File(k, "status");
+                if (!st.exists()) continue;
+                final String v = readOneLine(st);
+                if (v != null && "connected".equalsIgnoreCase(v.trim())) {
+                    drm = true;
+                    break;
+                }
+            }
+        }
+        final boolean ok = extcon && drm;
+        Log.i(TAG, "GammaHDMI(ROCKCHIP) HDMI evidence extcon=" + extcon
+                + " drm=" + drm + " -> " + ok);
+        return ok;
     }
 
     // ===== Rockchip DP audio evidence =====
