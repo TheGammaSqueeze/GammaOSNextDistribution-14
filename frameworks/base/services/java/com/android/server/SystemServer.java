@@ -1792,6 +1792,16 @@ public final class SystemServer implements Dumpable {
             t.traceEnd();
             } // !minimalBoot: IpConnectivity through Logcat
 
+            if (minimalBoot) {
+                // logd's reader thread calls waitForService("logcat") when a
+                // privileged app (GMS, etc.) connects to /dev/socket/logdr.
+                // Without LogcatManagerService that call blocks forever while
+                // holding logd_lock, permanently breaking logcat.
+                t.traceBegin("StartLogcatManager");
+                mSystemServiceManager.startService(LogcatManagerService.class);
+                t.traceEnd();
+            }
+
         } catch (Throwable e) {
             Slog.e("System", "******************************************");
             Slog.e("System", "************ Failure starting core service");
