@@ -860,14 +860,18 @@ bool OtaFlasher::flashLogical(const OtaPartition& part, int partIdx, int partCou
                   (unsigned long long)currentSize, (unsigned long long)part.size,
                   (unsigned long long)(currentSize - part.size));
     } else {
-        // Android dynamic partitions are created by first-stage init with
-        // DM_READONLY_FLAG set (Attributes: readonly in super metadata).
-        // Even after BLKROSET clears the block-device ro bit, the underlying
-        // dm target still rejects writes with EPERM. Reload the current table
-        // via dmctl replace, which creates the dm device without the readonly
-        // flag while keeping the exact same extents. This makes the partition
-        // writable without disturbing the mounted filesystem above it.
-        logToFile("INFO", "  No resize needed — reloading dm table as rw");
+        logToFile("INFO", "  No resize needed");
+    }
+
+    // Android dynamic partitions are created by first-stage init with
+    // DM_READONLY_FLAG set (Attributes: readonly in super metadata).
+    // Even after BLKROSET clears the block-device ro bit, the underlying
+    // dm target still rejects writes with EPERM. Reload the current table
+    // via dmctl replace, which creates the dm device without the readonly
+    // flag while keeping the exact same extents. This applies to both
+    // shrink and same-size cases (grow already remaps via resizeLogicalPartition).
+    if (!needsGrow) {
+        logToFile("INFO", "  Reloading dm table as rw (clear DM_READONLY_FLAG)...");
 
         std::string tableOut;
         if (!execCommand("dmctl table " + dmName, &tableOut)) {
