@@ -105,18 +105,47 @@ bool NanoMenu::setBrightnessViaHal(int brightness) {
 }
 
 void NanoMenu::adjustBrightness(int direction) {
-    int step = mMaxBrightness / 10;
-    if (step < 1) step = 1;
+    // mBrightness is in Android 0-255 range
+    int step = 26; // ~10% of 255
     mBrightness += step * direction;
     if (mBrightness < 1) mBrightness = 1;
-    if (mBrightness > mMaxBrightness) mBrightness = mMaxBrightness;
-    setBrightnessViaHal(mBrightness);
-    // Sync brightness to persist property (shared with Android)
-    char buf[32];
-    snprintf(buf, sizeof(buf), "%d", mBrightness);
-    property_set("persist.gammaos.nano.brightness", buf);
+    if (mBrightness > 255) mBrightness = 255;
+    applyBrightness();
     mShowBrightnessBar = true;
     mBrightnessBarTimer = 90; // ~1.5s at 60fps
+}
+
+void NanoMenu::applyBrightness() {
+    // Convert Android 0-255 to sysfs range and write
+    int sysfs_val = mBrightness * mMaxBrightness / 255;
+    if (sysfs_val < 1) sysfs_val = 1;
+    writeSysfsInt("/sys/class/backlight/panel0-backlight/brightness", sysfs_val);
+    setBrightnessViaHal(sysfs_val);
+    syncBrightnessToAndroid();
+}
+
+void NanoMenu::syncBrightnessToAndroid() {
+    char cmd[128];
+    snprintf(cmd, sizeof(cmd), "settings put system screen_brightness %d &", mBrightness);
+    system(cmd);
+    // Also persist for early boot before settings provider is up
+    char buf[16];
+    snprintf(buf, sizeof(buf), "%d", mBrightness);
+    property_set("persist.gammaos.nano.brightness", buf);
+}
+
+int NanoMenu::readAndroidBrightness() {
+    FILE* fp = popen("settings get system screen_brightness 2>/dev/null", "r");
+    if (!fp) return -1;
+    char buf[32] = {};
+    if (fgets(buf, sizeof(buf), fp)) {
+        pclose(fp);
+        int val = atoi(buf);
+        if (val >= 1 && val <= 255) return val;
+    } else {
+        pclose(fp);
+    }
+    return -1;
 }
 
 void NanoMenu::renderBrightnessBar() {
@@ -153,8 +182,8 @@ void NanoMenu::renderBrightnessBar() {
     float barY = bgY + (bgH - barH) / 2.0f;
     drawQuad(barX, barY, barW, barH, 0.3f, 0.3f, 0.3f, 1.0f);
 
-    // Progress bar fill
-    int pct = (mMaxBrightness > 0) ? (mBrightness * 100 / mMaxBrightness) : 0;
+    // Progress bar fill (mBrightness is 0-255, Android range)
+    int pct = mBrightness * 100 / 255;
     float fillW = barW * pct / 100.0f;
     drawQuad(barX, barY, fillW, barH, 1.0f, 0.9f, 0.3f, 1.0f);
 

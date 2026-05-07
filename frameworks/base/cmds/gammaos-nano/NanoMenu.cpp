@@ -29,8 +29,10 @@
 #include <sys/inotify.h>
 #include <signal.h>
 #include <strings.h>
+#include <drm.h>
 
 #include <binder/IPCThreadState.h>
+#include <binder/IServiceManager.h>
 #include <cutils/properties.h>
 #include <android-base/properties.h>
 #include <utils/Log.h>
@@ -72,6 +74,8 @@
 #include "NanoMenu.h"
 #include "NanoMenuShaders.h"
 
+extern int gEarlyDrmFd;
+
 namespace android {
 
 using ui::DisplayMode;
@@ -95,6 +99,7 @@ NanoMenu::NanoMenu()
       mExitRequested(false),
       mWaitForRelease(false),
       mDrasticNanoPending(false),
+      mDrmBootPath(false),
       mMenuState(MENU_MAIN),
       mRecentSelectedIndex(0),
       mRecentLoaded(false),
@@ -148,7 +153,9 @@ NanoMenu::NanoMenu()
       mAtlasCurX(0), mAtlasCurY(0), mAtlasRowH(0),
       mTextProgram(0), mTextLocPosition(-1), mTextLocTexCoord(-1),
       mTextLocColor(-1), mTextLocTexture(-1) {
-    mSession = new SurfaceComposerClient();
+    // mSession creation deferred to readyToRun() -- the SurfaceComposerClient
+    // constructor calls waitForService("SurfaceFlingerAIDL") which blocks
+    // until SF is up.  On the DRM boot path we don't need SF at all.
     srand(elapsedRealtime());
     memset(mParticles, 0, sizeof(mParticles));
     memset(mFtFaces, 0, sizeof(mFtFaces));
@@ -174,6 +181,89 @@ NanoMenu::NanoMenu()
             "persist.gammaos.nano.quick_resume", false);
 }
 
+void NanoMenu::initSurfaceFlingerPath() {
+    if (!mDrmBootPath) return;
+
+    {
+        sp<IServiceManager> sm = defaultServiceManager();
+        const String16 name("SurfaceFlinger");
+        while (sm->checkService(name) == nullptr) {
+            usleep(10000);
+        }
+    }
+
+    mSession = new SurfaceComposerClient();
+    mSession->linkToComposerDeath(this);
+
+    const std::vector<PhysicalDisplayId> ids = SurfaceComposerClient::getPhysicalDisplayIds();
+    if (ids.empty()) {
+        ALOGE("initSurfaceFlingerPath: no displays");
+        return;
+    }
+
+    PhysicalDisplayId chosenId = ids.front();
+    {
+        char primaryProp[PROPERTY_VALUE_MAX] = {};
+        property_get("persist.gammaos.nano.primary_display", primaryProp, "0");
+        const int wantPort = atoi(primaryProp);
+        for (const PhysicalDisplayId& pid : ids) {
+            if (static_cast<int>(pid.getPort()) == wantPort) {
+                chosenId = pid;
+                break;
+            }
+        }
+    }
+
+    mDisplayToken = SurfaceComposerClient::getPhysicalDisplayToken(chosenId);
+    if (mDisplayToken == nullptr) {
+        ALOGE("initSurfaceFlingerPath: no display token");
+        return;
+    }
+
+    ui::DisplayState chosenDisplayState;
+    ui::LayerStack chosenLayerStack = ui::DEFAULT_LAYER_STACK;
+    if (SurfaceComposerClient::getDisplayState(mDisplayToken, &chosenDisplayState) == NO_ERROR) {
+        chosenLayerStack = chosenDisplayState.layerStack;
+    }
+    mAppliedLayerStack = chosenLayerStack.id;
+
+    DisplayMode displayMode;
+    if (SurfaceComposerClient::getActiveDisplayMode(mDisplayToken, &displayMode) != NO_ERROR) {
+        ALOGE("initSurfaceFlingerPath: getActiveDisplayMode failed");
+        return;
+    }
+
+    ui::Size resolution = displayMode.resolution;
+    sp<SurfaceControl> control = session()->createSurface(
+        String8("GammaOSNano"), resolution.getWidth(), resolution.getHeight(),
+        PIXEL_FORMAT_RGBX_8888, ISurfaceComposerClient::eOpaque);
+
+    SurfaceComposerClient::Transaction t;
+    Rect forcedRes(0, 0, resolution.width, resolution.height);
+    Rect physRes(0, 0, displayMode.resolution.width, displayMode.resolution.height);
+    t.setDisplayProjection(mDisplayToken, ui::ROTATION_0, forcedRes, physRes);
+    t.setLayer(control, 0x40000001);
+    t.setLayerStack(control, chosenLayerStack);
+    t.apply();
+
+    sp<Surface> s = control->getSurface();
+    EGLConfig config = getEglConfig(mDisplay);
+    EGLSurface sfSurface = eglCreateWindowSurface(mDisplay, config, s.get(), nullptr);
+    eglMakeCurrent(mDisplay, sfSurface, sfSurface, mContext);
+    eglDestroySurface(mDisplay, mSurface);
+    mSurface = sfSurface;
+    mFlingerSurfaceControl = control;
+    mFlingerSurface = s;
+
+    EGLint w, h;
+    eglQuerySurface(mDisplay, mSurface, EGL_WIDTH, &w);
+    eglQuerySurface(mDisplay, mSurface, EGL_HEIGHT, &h);
+    mWidth = w; mHeight = h;
+
+    mDrmBootPath = false;
+    ALOGD("NanoMenu: deferred SF init done, display %dx%d", mWidth, mHeight);
+}
+
 NanoMenu::~NanoMenu() {
     // Stop the network HUD poller first so its worker thread can't
     // race with teardown of other state.
@@ -185,7 +275,7 @@ NanoMenu::~NanoMenu() {
     }
     mSecondaryEglSurfaces.clear();
     mSecondarySurfaces.clear();
-    if (!mSecondaryWallpaperControls.empty()) {
+    if (!mSecondaryWallpaperControls.empty() && mSession != nullptr) {
         SurfaceComposerClient::Transaction t;
         for (size_t i = 0; i < mSecondaryWallpaperControls.size(); i++) {
             t.reparent(mSecondaryWallpaperControls[i], nullptr);
@@ -203,8 +293,10 @@ NanoMenu::~NanoMenu() {
 }
 
 void NanoMenu::onFirstRef() {
-    status_t err = mSession->linkToComposerDeath(this);
-    SLOGE_IF(err, "linkToComposerDeath failed (%s)", strerror(-err));
+    if (mSession != nullptr) {
+        status_t err = mSession->linkToComposerDeath(this);
+        SLOGE_IF(err, "linkToComposerDeath failed (%s)", strerror(-err));
+    }
 }
 
 sp<SurfaceComposerClient> NanoMenu::session() const { return mSession; }
@@ -220,17 +312,15 @@ status_t NanoMenu::readyToRun() {
         t0 = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL;
     };
 
-    // GammaOS: Before doing ANYTHING that touches the display (DRM master grab,
-    // SF transactions), confirm we are actually in nano boot mode. StartPropertySetThread
-    // already gates this, but gammaos-nano can also be (re)started by other init triggers
-    // (ctl restarts, userspace reboot, app exit relaunch), so a defensive check here
-    // prevents DRM takeover in normal boot if any of those paths fire unexpectedly.
-    //
-    // persist.* properties may not be available yet (loaded after /data mount), so
-    // ALWAYS wait for init to signal they are ready before reading persist.bootanim.skip_nano.
-    // Reading it too early would return an empty string and we would proceed into the
-    // nano path in normal boot — blanking the display via drmEarlySplash() and causing
-    // a multi-second black gap between bootloader and bootanim.
+    // DRM master was grabbed at the top of main() (gEarlyDrmFd) before
+    // any other init work, racing against HWC's class_start early_hal.
+    int earlyDrmFd = gEarlyDrmFd;
+    gEarlyDrmFd = -1; // take ownership
+    if (earlyDrmFd >= 0) {
+        ALOGI("GammaOS Nano: using early DRM master fd=%d from main()", earlyDrmFd);
+    }
+    tlog("early DRM master");
+
     {
         char ready[PROPERTY_VALUE_MAX] = {};
         property_get("ro.persistent_properties.ready", ready, "");
@@ -247,9 +337,13 @@ status_t NanoMenu::readyToRun() {
     char skip[PROPERTY_VALUE_MAX] = {};
     property_get("persist.bootanim.skip_nano", skip, "");
     if (strcmp(skip, "0") != 0) {
-        ALOGI("GammaOS Nano: skip_nano='%s' (not '0'), starting bootanim (no DRM touch)", skip);
+        ALOGI("GammaOS Nano: skip_nano='%s' (not '0'), starting bootanim", skip);
+        if (earlyDrmFd >= 0) {
+            ioctl(earlyDrmFd, DRM_IOCTL_DROP_MASTER, 0);
+            close(earlyDrmFd);
+        }
         property_set("ctl.start", "bootanim");
-        _exit(0); // terminate — bootanim takes over, stock boot flow continues
+        _exit(0);
     }
 
     tlog("persist props resolved");
@@ -309,157 +403,134 @@ status_t NanoMenu::readyToRun() {
                 ALOGW("NanoMenu: force_drm=1, grabbing DRM master "
                       "post-boot for drastic nano");
             }
-            drmEarlySplash();
+            if (!sDrmActive) {
+                // DRM splash not yet done (main() grab failed or fd not passed)
+                drmEarlySplash(earlyDrmFd);
+                earlyDrmFd = -1;
+            } else {
+                ALOGI("NanoMenu: DRM already active from main() early grab");
+            }
         } else {
             ALOGI("NanoMenu: skipping DRM splash (already booted)");
         }
     }
+    if (earlyDrmFd >= 0 && !sDrmActive) {
+        // DRM splash failed - release the fd so HWC can use it
+        ioctl(earlyDrmFd, DRM_IOCTL_DROP_MASTER, 0);
+        close(earlyDrmFd);
+        earlyDrmFd = -1;
+    }
     tlog("drmEarlySplash done");
+
+    // Diagnostic: write DRM splash result to file (logcat overflows)
+    {
+        int logfd = open("/data/local/tmp/drm_grab.log", O_WRONLY|O_APPEND|O_CREAT, 0644);
+        if (logfd >= 0) {
+            char buf[256];
+            int n = snprintf(buf, sizeof(buf),
+                "readyToRun: sDrmActive=%d earlyDrmFd=%d displays=%zu\n",
+                sDrmActive ? 1 : 0, earlyDrmFd, sDrmDisplays.size());
+            write(logfd, buf, n);
+            close(logfd);
+        }
+    }
+
     // Nano mode is active — tell any boot animation instance to exit.
     // Vendor init may start bootanim independently (e.g. in on late-fs),
     // so it can be running alongside us with the same z-layer.
     property_set("service.bootanim.exit", "1");
 
-    const std::vector<PhysicalDisplayId> ids = SurfaceComposerClient::getPhysicalDisplayIds();
-    tlog("getPhysicalDisplayIds returned");
-    if (ids.empty()) { ALOGE("No displays found"); return NAME_NOT_FOUND; }
+    if (sDrmActive) {
+        // DRM boot path: headless EGL, no SurfaceFlinger dependency.
+        // The DRM infrastructure is already set up by drmEarlySplash().
+        // Create a pbuffer EGL context so GL calls work, but all actual
+        // rendering goes through AHB-backed FBOs flipped to DRM scanout.
+        mDrmBootPath = true;
 
-    // GammaOS: persist.gammaos.nano.primary_display selects which physical display
-    // port NanoMenu renders on (and which display nano-launched apps target).
-    // Value is a port number (0 = first physical port, 1 = second, ...). Falls back
-    // to ids.front() if the configured port is not found. Dualstack-whitelisted apps
-    // still launch on the real primary — that routing is enforced in RootWindowContainer.
-    PhysicalDisplayId chosenId = ids.front();
-    {
-        char primaryProp[PROPERTY_VALUE_MAX] = {};
-        property_get("persist.gammaos.nano.primary_display", primaryProp, "0");
-        const int wantPort = atoi(primaryProp);
-        for (const PhysicalDisplayId& pid : ids) {
-            if (static_cast<int>(pid.getPort()) == wantPort) {
-                chosenId = pid;
-                break;
+        const DrmDisplay& prim = sDrmDisplays[sDrmPrimaryIdx];
+        if (sDrmRotationDeg == 90 || sDrmRotationDeg == 270) {
+            mWidth = (int)prim.h;
+            mHeight = (int)prim.w;
+        } else {
+            mWidth = (int)prim.w;
+            mHeight = (int)prim.h;
+        }
+
+        EGLDisplay display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+        eglInitialize(display, nullptr, nullptr);
+        EGLConfig config = getEglConfig(display);
+        EGLint pbufAttrs[] = { EGL_WIDTH, 16, EGL_HEIGHT, 16, EGL_NONE };
+        EGLSurface surface = eglCreatePbufferSurface(display, config, pbufAttrs);
+        EGLint contextAttributes[] = {EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE};
+        EGLContext context = eglCreateContext(display, config, nullptr, contextAttributes);
+        if (eglMakeCurrent(display, surface, surface, context) == EGL_FALSE)
+            return NO_INIT;
+
+        mDisplay = display; mContext = context; mSurface = surface;
+        mFlingerSurfaceControl = nullptr; mFlingerSurface = nullptr;
+
+        ALOGD("NanoMenu: DRM boot path %dx%d (headless EGL, no SF)", mWidth, mHeight);
+        tlog("headless EGL init");
+
+        property_set("sys.gammaos.nano.menu_active", "1");
+        {
+            char lastApp[PROPERTY_VALUE_MAX] = {};
+            property_get("sys.gammaos.nano.launched_pkg", lastApp, "");
+            if (lastApp[0] != '\0') {
+                property_set("sys.gammaos.nano.kill_pkg", lastApp);
+                ALOGD("NanoMenu: signaled framework to kill: %s", lastApp);
+                property_set("sys.gammaos.nano.launched_pkg", "");
             }
         }
-        ALOGI("NanoMenu: primary_display prop='%s' chosen port=%d",
-              primaryProp, static_cast<int>(chosenId.getPort()));
-    }
 
-    mDisplayToken = SurfaceComposerClient::getPhysicalDisplayToken(chosenId);
-    if (mDisplayToken == nullptr) return NAME_NOT_FOUND;
-    tlog("getPhysicalDisplayToken");
+        drmSetupZeroCopy(display);
+        {
+            char buf[PROPERTY_VALUE_MAX];
+            snprintf(buf, sizeof(buf), "zc%d_ahbW%u_ahbH%u_fbo%u",
+                     sDrmZeroCopy ? 1 : 0,
+                     sDrmZeroCopy ? sAhbRingPrimary[0].w : 0,
+                     sDrmZeroCopy ? sAhbRingPrimary[0].h : 0,
+                     sDrmZeroCopy ? sAhbRingPrimary[0].glFbo : 0);
+            property_set("sys.gammaos.nano.drm_zc", buf);
+        }
 
-    // GammaOS: Look up the chosen display's layer stack so the NanoMenu surface
-    // can be attached to it. Layers only show up on a display whose layerStack
-    // matches the layer's layerStack, so without this the surface stays on the
-    // default (port 0) display regardless of which token we targeted above.
-    // NOTE: SurfaceFlinger's layerStack for a given display can change after
-    // DisplayManagerService finishes assigning logical display IDs (seen on
-    // dual-DSI RK3568: port 1 starts at layerStack=1, becomes 2 after DMS).
-    // The render loop re-queries and re-applies setLayerStack to handle that.
-    ui::DisplayState chosenDisplayState;
-    ui::LayerStack chosenLayerStack = ui::DEFAULT_LAYER_STACK;
-    if (SurfaceComposerClient::getDisplayState(mDisplayToken, &chosenDisplayState) == NO_ERROR) {
-        chosenLayerStack = chosenDisplayState.layerStack;
-        ALOGI("NanoMenu: chosen display layerStack=%u", chosenLayerStack.id);
+        // DRM zero-copy rendering active - no SF needed.
+        tlog("DRM zero-copy setup");
     } else {
-        ALOGW("NanoMenu: getDisplayState failed, using default layerStack");
-    }
-    mAppliedLayerStack = chosenLayerStack.id;
+        // SF path with headless pre-init: create a pbuffer EGL context
+        // immediately so shaders/fonts/icons can compile while SF is
+        // still starting up. Then switch to the SF window surface once
+        // SF is ready. This overlaps ~1s of GL init with SF startup.
+        EGLDisplay display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+        eglInitialize(display, nullptr, nullptr);
+        EGLConfig config = getEglConfig(display);
+        EGLint pbufAttrs[] = { EGL_WIDTH, 16, EGL_HEIGHT, 16, EGL_NONE };
+        EGLSurface pbufSurface = eglCreatePbufferSurface(display, config, pbufAttrs);
+        EGLint contextAttributes[] = {EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE};
+        EGLContext context = eglCreateContext(display, config, nullptr, contextAttributes);
+        if (eglMakeCurrent(display, pbufSurface, pbufSurface, context) == EGL_FALSE)
+            return NO_INIT;
+        mDisplay = display; mContext = context; mSurface = pbufSurface;
+        // Temporary dimensions from DRM connector mode (if available) or
+        // fallback. These get updated once SF tells us the real resolution.
+        mWidth = 1920; mHeight = 1080;
+        ALOGD("NanoMenu: headless EGL pre-init (SF path, %dx%d assumed)", mWidth, mHeight);
+        tlog("headless EGL pre-init");
 
-    DisplayMode displayMode;
-    const status_t error = SurfaceComposerClient::getActiveDisplayMode(mDisplayToken, &displayMode);
-    if (error != NO_ERROR) return error;
-    tlog("getActiveDisplayMode");
-
-    ui::Size resolution = displayMode.resolution;
-    // GammaOS: Use RGBX_8888 (opaque 32bpp) to match the EGL config (8:8:8
-    // with alpha=0) and the AHB/DRM pixel format (R8G8B8A8 / XRGB8888).
-    // The previous RGB_565 surface forced the driver to do a 16→32 bpp
-    // conversion on every present, visible as extra GPU/CPU cost on Mali-G52.
-    sp<SurfaceControl> control = session()->createSurface(
-        String8("GammaOSNano"), resolution.getWidth(), resolution.getHeight(),
-        PIXEL_FORMAT_RGBX_8888, ISurfaceComposerClient::eOpaque);
-    tlog("createSurface (primary)");
-
-    SurfaceComposerClient::Transaction t;
-    Rect forcedRes(0, 0, resolution.width, resolution.height);
-    Rect physRes(0, 0, displayMode.resolution.width, displayMode.resolution.height);
-    // GammaOS: Always set the primary display projection to physical resolution.
-    // NanoMenu renders at 640x480 and needs the display projection to match.
-    // If DualStack left it at 640x960, NanoMenu would appear compressed.
-    // DualStack invalidates the Java-side cache when it later re-applies 640x960.
-    t.setDisplayProjection(mDisplayToken, ui::ROTATION_0, forcedRes, physRes);
-    t.setLayer(control, 0x40000001);
-    // GammaOS: Route the NanoMenu surface to the chosen display's layer stack.
-    t.setLayerStack(control, chosenLayerStack);
-
-    // GammaOS: Signal that NanoMenu is active. DualStackController checks this
-    // to suppress DualStack while NanoMenu is rendering.
-    property_set("sys.gammaos.nano.menu_active", "1");
-    // Only clear forced display size if DualStack was actually active. Sending the
-    // clear signal unconditionally triggers DualStack teardown + display reconfig
-    // events that interfere with subsequent app launches.
-    {
-        char dsActive[PROPERTY_VALUE_MAX] = {};
-        property_get("sys.gammaos.dualstack.active", dsActive, "0");
-        if (!strcmp(dsActive, "1")) {
-            property_set("sys.gammaos.dualstack.active", "0");
-            property_set("sys.gammaos.nano.clear_forced_size", "1");
-            ALOGD("NanoMenu: signaled DualStack clear (was active)");
+        property_set("sys.gammaos.nano.menu_active", "1");
+        {
+            char lastApp[PROPERTY_VALUE_MAX] = {};
+            property_get("sys.gammaos.nano.launched_pkg", lastApp, "");
+            if (lastApp[0] != '\0') {
+                property_set("sys.gammaos.nano.kill_pkg", lastApp);
+                ALOGD("NanoMenu: signaled framework to kill: %s", lastApp);
+                property_set("sys.gammaos.nano.launched_pkg", "");
+            }
         }
     }
 
-    // GammaOS: Signal the framework to kill the previous foreground app.
-    // NanoMenu runs as graphics user and can't call am force-stop directly.
-    // The framework (RootWindowContainer) picks up this property and kills the app.
-    {
-        char lastApp[PROPERTY_VALUE_MAX] = {};
-        property_get("sys.gammaos.nano.launched_pkg", lastApp, "");
-        if (lastApp[0] != '\0') {
-            property_set("sys.gammaos.nano.kill_pkg", lastApp);
-            ALOGD("NanoMenu: signaled framework to kill: %s", lastApp);
-            property_set("sys.gammaos.nano.launched_pkg", "");
-        }
-    }
-    tlog("primary transaction applied");
-    ALOGD("NanoMenu: signaled framework to clear forced display size");
-
-    // GammaOS: Defer secondary display surface creation until after the first frame
-    // is rendered on the primary. On dual-DSI devices the secondary surface/transaction
-    // can trigger SF display reconfiguration that delays the primary scanout.
-    t.apply();
-    tlog("primary transaction applied (secondary deferred)");
-
-    sp<Surface> s = control->getSurface();
-    EGLDisplay display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
-    eglInitialize(display, nullptr, nullptr);
-    EGLConfig config = getEglConfig(display);
-    EGLSurface surface = eglCreateWindowSurface(display, config, s.get(), nullptr);
-    EGLint contextAttributes[] = {EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE};
-    EGLContext context = eglCreateContext(display, config, nullptr, contextAttributes);
-    EGLint w, h;
-    eglQuerySurface(display, surface, EGL_WIDTH, &w);
-    eglQuerySurface(display, surface, EGL_HEIGHT, &h);
-    if (eglMakeCurrent(display, surface, surface, context) == EGL_FALSE) return NO_INIT;
-
-    mDisplay = display; mContext = context; mSurface = surface;
-    mWidth = w; mHeight = h;
-    // NOTE: eglQuerySurface returns logical (rotation-applied) dimensions
-    // because SurfaceFlinger reports the active display mode with install
-    // orientation already factored in. Do NOT swap mWidth/mHeight here —
-    // the AHB swap in drmSetupZeroCopy ensures the render target matches.
-    mFlingerSurfaceControl = control; mFlingerSurface = s;
-
-    ALOGD("NanoMenu: display %dx%d", mWidth, mHeight);
-    tlog("EGL init + primary surface ready");
-
-    // GammaOS: Set up zero-copy DRM rendering via DMA-BUF/EGLImage/FBO.
-    // GPU writes straight to the DRM scanout buffer — no glReadPixels, no CPU copy.
-    drmSetupZeroCopy(display);
-    tlog("DRM zero-copy setup");
-
-    // Secondary EGL surfaces deferred — created later in threadLoop after first frame.
-    tlog("EGL ready (secondary deferred)");
+    // Shader/font/icon init works on any EGL context (pbuffer or SF window).
+    // On the SF pre-init path, this runs in parallel with SF startup.
     initShaders();
     tlog("shaders compiled");
     buildMenu();
@@ -475,25 +546,34 @@ status_t NanoMenu::readyToRun() {
         tlog("drastic fast-path skipped XMB+effects");
     }
 
-    // Initialize brightness — restore from persist property (synced with Android),
-    // falling back to current sysfs value
-    mMaxBrightness = readSysfsInt("/sys/class/leds/lcd-backlight/max_brightness", 255);
-    char savedBrightness[PROPERTY_VALUE_MAX] = {};
-    property_get("persist.gammaos.nano.brightness", savedBrightness, "");
-    if (savedBrightness[0] != '\0') {
-        mBrightness = atoi(savedBrightness);
-        if (mBrightness < 1) mBrightness = 1;
-        if (mBrightness > mMaxBrightness) mBrightness = mMaxBrightness;
+    // Initialize brightness. Priority:
+    // 1. Android settings (authoritative, but not available during early boot)
+    // 2. Persist property (available at /data mount, before settings provider)
+    // 3. Sysfs current value (last resort - may be bootloader default)
+    mMaxBrightness = readSysfsInt("/sys/class/backlight/panel0-backlight/max_brightness",
+                     readSysfsInt("/sys/class/leds/lcd-backlight/max_brightness", 255));
+    int androidBrt = readAndroidBrightness();
+    if (androidBrt > 0) {
+        mBrightness = androidBrt;
     } else {
-        mBrightness = readSysfsInt("/sys/class/leds/lcd-backlight/brightness", mMaxBrightness / 2);
+        char saved[PROPERTY_VALUE_MAX] = {};
+        property_get("persist.gammaos.nano.brightness", saved, "");
+        if (saved[0] != '\0') {
+            mBrightness = atoi(saved);
+        } else {
+            mBrightness = 128; // safe default (~50%)
+        }
     }
-    // GammaOS: Immediately write brightness to sysfs for instant backlight during early boot.
-    // The Lights HAL (vendor.light-rockchip) may not be up for seconds, so write directly
-    // to ensure the screen is visible as soon as NanoMenu starts rendering.
+    if (mBrightness < 1) mBrightness = 1;
+    if (mBrightness > 255) mBrightness = 255;
+    // Write to sysfs for instant backlight during early boot
     {
+        int sysfs_val = mBrightness * mMaxBrightness / 255;
+        if (sysfs_val < 1) sysfs_val = 1;
         char brightnessStr[16];
-        snprintf(brightnessStr, sizeof(brightnessStr), "%d", mBrightness);
+        snprintf(brightnessStr, sizeof(brightnessStr), "%d", sysfs_val);
         const char* backlightPaths[] = {
+            "/sys/class/backlight/panel0-backlight/brightness",
             "/sys/class/backlight/backlight/brightness",
             "/sys/class/backlight/backlight1/brightness",
             "/sys/class/leds/lcd-backlight/brightness",
@@ -503,15 +583,15 @@ status_t NanoMenu::readyToRun() {
             if (fd >= 0) {
                 write(fd, brightnessStr, strlen(brightnessStr));
                 close(fd);
-                ALOGI("NanoMenu: early sysfs brightness %d → %s", mBrightness, path);
+                ALOGI("NanoMenu: early sysfs brightness %d (android %d) -> %s",
+                      sysfs_val, mBrightness, path);
             }
         }
     }
 
-    // Apply brightness async via HAL — also sets it through the proper Android path
-    // so DMS/PowerManager stay in sync.
+    // Apply brightness async via HAL (expects sysfs-range value)
     {
-        int brightness = mBrightness;
+        int brightness = mBrightness * mMaxBrightness / 255;
         std::thread([brightness]() {
             // Try AIDL first
             {
@@ -615,6 +695,86 @@ status_t NanoMenu::readyToRun() {
 
     // Initialise Settings column items (WiFi + Bluetooth entries).
     initSettingsItems();
+
+    // Deferred SF surface creation: on the non-DRM path, all GL init
+    // was done on a headless pbuffer while SF was starting up. Now
+    // create the real SF surface and switch EGL to it.
+    if (!sDrmActive && !mDrmBootPath && mFlingerSurface == nullptr) {
+        tlog("waiting for SF");
+        mSession = new SurfaceComposerClient();
+        mSession->linkToComposerDeath(this);
+        tlog("SurfaceComposerClient ready");
+
+        const std::vector<PhysicalDisplayId> ids = SurfaceComposerClient::getPhysicalDisplayIds();
+        if (ids.empty()) { ALOGE("No displays found"); return NAME_NOT_FOUND; }
+
+        PhysicalDisplayId chosenId = ids.front();
+        {
+            char primaryProp[PROPERTY_VALUE_MAX] = {};
+            property_get("persist.gammaos.nano.primary_display", primaryProp, "0");
+            const int wantPort = atoi(primaryProp);
+            for (const PhysicalDisplayId& pid : ids) {
+                if (static_cast<int>(pid.getPort()) == wantPort) {
+                    chosenId = pid;
+                    break;
+                }
+            }
+        }
+
+        mDisplayToken = SurfaceComposerClient::getPhysicalDisplayToken(chosenId);
+        if (mDisplayToken == nullptr) return NAME_NOT_FOUND;
+
+        ui::DisplayState chosenDisplayState;
+        ui::LayerStack chosenLayerStack = ui::DEFAULT_LAYER_STACK;
+        if (SurfaceComposerClient::getDisplayState(mDisplayToken, &chosenDisplayState) == NO_ERROR) {
+            chosenLayerStack = chosenDisplayState.layerStack;
+        }
+        mAppliedLayerStack = chosenLayerStack.id;
+
+        DisplayMode displayMode;
+        if (SurfaceComposerClient::getActiveDisplayMode(mDisplayToken, &displayMode) != NO_ERROR)
+            return NO_INIT;
+
+        ui::Size resolution = displayMode.resolution;
+        sp<SurfaceControl> control = session()->createSurface(
+            String8("GammaOSNano"), resolution.getWidth(), resolution.getHeight(),
+            PIXEL_FORMAT_RGBX_8888, ISurfaceComposerClient::eOpaque);
+
+        SurfaceComposerClient::Transaction t;
+        Rect forcedRes(0, 0, resolution.width, resolution.height);
+        Rect physRes(0, 0, displayMode.resolution.width, displayMode.resolution.height);
+        t.setDisplayProjection(mDisplayToken, ui::ROTATION_0, forcedRes, physRes);
+        t.setLayer(control, 0x40000001);
+        t.setLayerStack(control, chosenLayerStack);
+        {
+            char dsActive[PROPERTY_VALUE_MAX] = {};
+            property_get("sys.gammaos.dualstack.active", dsActive, "0");
+            if (!strcmp(dsActive, "1")) {
+                property_set("sys.gammaos.dualstack.active", "0");
+                property_set("sys.gammaos.nano.clear_forced_size", "1");
+            }
+        }
+        t.apply();
+
+        sp<Surface> s = control->getSurface();
+        EGLConfig config = getEglConfig(mDisplay);
+        EGLSurface sfSurface = eglCreateWindowSurface(mDisplay, config, s.get(), nullptr);
+        eglMakeCurrent(mDisplay, sfSurface, sfSurface, mContext);
+        eglDestroySurface(mDisplay, mSurface);
+        mSurface = sfSurface;
+        mFlingerSurfaceControl = control;
+        mFlingerSurface = s;
+
+        EGLint w, h;
+        eglQuerySurface(mDisplay, mSurface, EGL_WIDTH, &w);
+        eglQuerySurface(mDisplay, mSurface, EGL_HEIGHT, &h);
+        mWidth = w; mHeight = h;
+
+        drmSetupZeroCopy(mDisplay);
+
+        ALOGD("NanoMenu: SF surface ready %dx%d (pre-init complete)", mWidth, mHeight);
+        tlog("SF surface switch done");
+    }
 
     return NO_ERROR;
 }
@@ -2508,6 +2668,11 @@ if (sRingPrimedCount >= 2) {
                 stockClocksApplied = true;
                 ALOGD("NanoMenu: spawned setclock_stock.sh "
                       "(background) after boot_completed + 1 s");
+                // Push NanoMenu's brightness TO Android settings now
+                // that the settings provider is available. NanoMenu's
+                // persist property is the source of truth during boot.
+                syncBrightnessToAndroid();
+                ALOGD("NanoMenu: brightness pushed to Android: %d", mBrightness);
             }
         }
         pollInput();
@@ -2838,7 +3003,9 @@ if (sRingPrimedCount >= 2) {
     // exits cleanly without disturbing DRM state.
     if (mExitRequested && sDrmActive) {
         drmStop();
-        setupSecondaryEglSurfaces();
+        if (!mDrmBootPath) {
+            setupSecondaryEglSurfaces();
+        }
     }
 
     // Only re-apply performance clocks when launching an app (not on bootanim.exit)
@@ -2861,60 +3028,63 @@ if (sRingPrimedCount >= 2) {
     // InputDispatcher's queue waiting for a focused window. InputDispatcher
     // will clear drop_input itself when it processes a FOCUS entry (which
     // arrives after all stale events have been dropped).
-    ALOGD("NanoMenu: showing loading screen, waiting for RetroArch");
-    // GammaOS: Upload the rotation matrix unconditionally. After drmStop()
-    // above, sDrmGlRotation is false and sDrmRotMat is the identity matrix,
-    // but the text program's uRotation uniform still holds the previous
-    // DRM rotation from the QR/XMB session. Without this upload the
-    // loading text renders with the stale rotation while the viewport is
-    // logical (mWidth/mHeight) — the net effect is the "Loading..." string
-    // appears upside-down or sideways on panels installed at 90/180/270.
-    // Gating on sDrmGlRotation (the previous behavior) skipped the reset.
-    {
-        const GLuint progs[] = {mShaderProgram, mTextProgram};
-        const GLint  locs[]  = {mLocRotation, mTextLocRotation};
-        for (int i = 0; i < 2; i++) {
-            glUseProgram(progs[i]);
-            glUniformMatrix2fv(locs[i], 1, GL_FALSE, sDrmRotMat);
-        }
-    }
-    {
-        float sf = fminf((float)mWidth / 1080.0f, (float)mHeight / 720.0f);
-        if (sf < 0.5f) sf = 0.5f;
-        float loadScale = 3.0f * sf;
-        struct input_event drain_ev;
+    if (mDrmBootPath) {
+        // DRM boot path: no SF surface to render loading screen on.
+        // Just wait for the app to launch, then exit immediately.
+        // HWC will re-acquire DRM master when our process exits.
+        ALOGD("NanoMenu: DRM boot path exit, waiting for app launch");
         char launched[PROPERTY_VALUE_MAX] = {};
-        for (int wait = 0; wait < 600; wait++) { // max ~10s
-            // Drain all queued input events
-            for (int fd : mInputFds) {
-                while (read(fd, &drain_ev, sizeof(drain_ev)) == sizeof(drain_ev)) {}
-            }
-            // Render loading screen — route through DRM if active
-            drmFrameBegin();
-            if (sDrmGlRotation) {
-                glViewport(0, 0, sAhbTarget.w, sAhbTarget.h);
-            } else {
-                glViewport(0, 0, mWidth, mHeight);
-            }
-            glClearColor(0.05f, 0.05f, 0.10f, 1.0f);
-            glClear(GL_COLOR_BUFFER_BIT);
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            const char* loadMsg = "Loading...";
-            float loadW = measureText(loadMsg, loadScale);
-            float loadX = (mWidth - loadW) / 2.0f;
-            float loadY = (mHeight - FONT_CHAR_H * loadScale) / 2.0f;
-            drawText(loadMsg, loadX, loadY, loadScale,
-                     0.6f, 0.6f, 0.7f, 1.0f);
-            glDisable(GL_BLEND);
-            drmFrameEnd(mDisplay, mSurface);
-
+        for (int wait = 0; wait < 600; wait++) {
             property_get("sys.gammaos.nano.app_launched", launched, "0");
-            if (!strcmp(launched, "1")) {
-                ALOGD("NanoMenu: RetroArch launched, exiting");
-                break;
-            }
+            if (!strcmp(launched, "1")) break;
             usleep(16666);
+        }
+    } else {
+        ALOGD("NanoMenu: showing loading screen, waiting for RetroArch");
+        {
+            const GLuint progs[] = {mShaderProgram, mTextProgram};
+            const GLint  locs[]  = {mLocRotation, mTextLocRotation};
+            for (int i = 0; i < 2; i++) {
+                glUseProgram(progs[i]);
+                glUniformMatrix2fv(locs[i], 1, GL_FALSE, sDrmRotMat);
+            }
+        }
+        {
+            float sf = fminf((float)mWidth / 1080.0f, (float)mHeight / 720.0f);
+            if (sf < 0.5f) sf = 0.5f;
+            float loadScale = 3.0f * sf;
+            struct input_event drain_ev;
+            char launched[PROPERTY_VALUE_MAX] = {};
+            for (int wait = 0; wait < 600; wait++) {
+                for (int fd : mInputFds) {
+                    while (read(fd, &drain_ev, sizeof(drain_ev)) == sizeof(drain_ev)) {}
+                }
+                drmFrameBegin();
+                if (sDrmGlRotation) {
+                    glViewport(0, 0, sAhbTarget.w, sAhbTarget.h);
+                } else {
+                    glViewport(0, 0, mWidth, mHeight);
+                }
+                glClearColor(0.05f, 0.05f, 0.10f, 1.0f);
+                glClear(GL_COLOR_BUFFER_BIT);
+                glEnable(GL_BLEND);
+                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                const char* loadMsg = "Loading...";
+                float loadW = measureText(loadMsg, loadScale);
+                float loadX = (mWidth - loadW) / 2.0f;
+                float loadY = (mHeight - FONT_CHAR_H * loadScale) / 2.0f;
+                drawText(loadMsg, loadX, loadY, loadScale,
+                         0.6f, 0.6f, 0.7f, 1.0f);
+                glDisable(GL_BLEND);
+                drmFrameEnd(mDisplay, mSurface);
+
+                property_get("sys.gammaos.nano.app_launched", launched, "0");
+                if (!strcmp(launched, "1")) {
+                    ALOGD("NanoMenu: RetroArch launched, exiting");
+                    break;
+                }
+                usleep(16666);
+            }
         }
     }
 

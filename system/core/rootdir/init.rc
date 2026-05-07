@@ -674,6 +674,9 @@ on late-fs
     chmod 0755 /sys/kernel/tracing
     chmod 0755 /sys/kernel/debug/tracing
 
+    # GammaOS Nano: start before early_hal for earliest possible frames.
+    start gammaos-nano
+
     # HALs required before storage encryption can get unlocked (FBE)
     class_start early_hal
 

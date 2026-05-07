@@ -422,6 +422,10 @@ public class BrightnessSynchronizer {
                             UserHandle.USER_CURRENT);
                     mLatestIntBrightness = brightnessInt;
                     mUpdatedTypes |= TYPE_INT;
+                    // GammaOS: sync to persist property for NanoMenu early boot
+                    android.os.SystemProperties.set(
+                            "persist.gammaos.nano.brightness",
+                            String.valueOf(brightnessInt));
                 }
 
                 // check if we need to update float

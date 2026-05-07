@@ -45,6 +45,7 @@
 #include <utils/SystemClock.h>
 
 #include "NanoMenu.h"
+#include "NanoMenuDrm.h"
 #include "NanoMenuShaders.h"
 #include "NanoMenuUtils.h"
 
@@ -674,7 +675,9 @@ void NanoMenu::pollInput() {
                     ALOGI("NanoMenu: power short press, sleeping");
                     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
                     glClear(GL_COLOR_BUFFER_BIT);
-                    eglSwapBuffers(mDisplay, mSurface);
+                    drmFrameEnd(mDisplay, mSurface);
+                    // Turn backlight off via sysfs (works in DRM mode) + HAL
+                    writeSysfsInt("/sys/class/backlight/panel0-backlight/brightness", 0);
                     setBrightnessViaHal(0);
                     // Sleep loop: power press to wake, auto-shutdown after 60s
                     bool asleep = true;
@@ -699,7 +702,12 @@ void NanoMenu::pollInput() {
                     usleep(200000);
                     { struct input_event d; for (int dfd : mInputFds) {
                         while (read(dfd, &d, sizeof(d)) == sizeof(d)) {} } }
-                    setBrightnessViaHal(mBrightness);
+                    {
+                        int sysfs_val = mBrightness * mMaxBrightness / 255;
+                        if (sysfs_val < 1) sysfs_val = 1;
+                        writeSysfsInt("/sys/class/backlight/panel0-backlight/brightness", sysfs_val);
+                        setBrightnessViaHal(sysfs_val);
+                    }
                     ALOGI("NanoMenu: woke up");
                 }
                 continue;

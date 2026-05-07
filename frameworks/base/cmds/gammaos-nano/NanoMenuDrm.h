@@ -199,7 +199,7 @@ void drmPaceWithoutVsync();
 bool drmCreateDumbBuffer(int fd, uint32_t w, uint32_t h, DrmBuffer* out);
 bool drmTryAddDisplay(int fd, uint32_t crtcId, uint32_t connId, const char* stage);
 void drmRescanDisplays();
-void drmEarlySplash();
+void drmEarlySplash(int existingFd = -1);
 bool drmAllocAhbTarget(EGLDisplay eglDpy, uint32_t w, uint32_t h,
                         AhbRenderTarget* target, const char* label);
 void drmSetupZeroCopy(EGLDisplay eglDpy);

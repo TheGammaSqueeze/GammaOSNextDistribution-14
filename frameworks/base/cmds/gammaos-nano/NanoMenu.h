@@ -260,6 +260,9 @@ private:
     // Brightness control
     void adjustBrightness(int direction);
     bool setBrightnessViaHal(int brightness);
+    void applyBrightness();
+    void syncBrightnessToAndroid();
+    int readAndroidBrightness();
     void renderBrightnessBar();
 
     // Volume control
@@ -319,6 +322,9 @@ private:
     // post-HWC render loop can drive wallpaper-only rendering on those panels.
     // Idempotent — first call wires the surfaces, subsequent calls are no-ops.
     void setupSecondaryEglSurfaces();
+    // Deferred SF init: create SurfaceComposerClient + SF surface when
+    // transitioning from DRM boot path to app launch.
+    void initSurfaceFlingerPath();
 
     // Menu
     void buildMenu();
@@ -399,6 +405,7 @@ private:
     bool mExitRequested;
     bool mWaitForRelease; // wait for select key release before exiting
     bool mDrasticNanoPending; // drastic nano: waiting for cache, then restart
+    bool mDrmBootPath; // headless EGL + DRM direct (SF deferred until app launch)
 
     // Submenu state
     MenuState mMenuState;

@@ -24,8 +24,11 @@
 #include <fcntl.h>
 #include <jni.h>
 #include <pthread.h>
+#include <sys/ioctl.h>
 #include <sys/syscall.h>
 #include <unistd.h>
+#include <drm.h>
+#include <drm_mode.h>
 
 #include <atomic>
 #include <string>
@@ -42,30 +45,18 @@
 #include "DrasticRunner.h"
 #include "FakeJNI.h"
 #include "NanoMenu.h"
+#include "NanoMenuDrm.h"
 
 using namespace android;
 
-// Wait for SurfaceFlinger to be available (same pattern as bootanimation)
-static void waitForSurfaceFlinger() {
-    int64_t waitStartTime = elapsedRealtime();
-    sp<IServiceManager> sm = defaultServiceManager();
-    const String16 name("SurfaceFlinger");
-    const int SERVICE_WAIT_SLEEP_MS = 10;
-    const int LOG_PER_RETRIES = 100;
-    int retry = 0;
-    while (sm->checkService(name) == nullptr) {
-        retry++;
-        if ((retry % LOG_PER_RETRIES) == 0) {
-            ALOGW("Waiting for SurfaceFlinger, waited for %" PRId64 " ms",
-                  elapsedRealtime() - waitStartTime);
-        }
-        usleep(SERVICE_WAIT_SLEEP_MS * 1000);
-    }
-    int64_t totalWaited = elapsedRealtime() - waitStartTime;
-    if (totalWaited > SERVICE_WAIT_SLEEP_MS) {
-        ALOGI("Waiting for SurfaceFlinger took %" PRId64 " ms", totalWaited);
-    }
-}
+// Early DRM master fd, grabbed at the very top of main() before any other
+// init work. This races against HWC's service start (class early_hal).
+// Passed to NanoMenu::readyToRun() via a global.
+int gEarlyDrmFd = -1;
+
+// waitForSurfaceFlinger removed: readyToRun() handles SF wait internally
+// when the SF path is needed (restart case). On the DRM boot path, SF is
+// not required at all.
 
 // Drastic in-process quick-resume init.
 //
@@ -750,16 +741,37 @@ static void startDrasticLibPreloadThread() {
 }
 
 int main() {
+    // Poll for card0 and grab DRM master before HWC starts.
+    // HWC's drmOpen will fail but the patched libsdedrm.so retries
+    // SET_MASTER when atomicCommit fails with EACCES.
+    {
+        int fd = -1;
+        for (int i = 0; i < 200; i++) {
+            fd = open("/dev/dri/card0", O_RDWR | O_CLOEXEC);
+            if (fd >= 0) break;
+            usleep(10000);
+        }
+        if (fd >= 0) {
+            if (ioctl(fd, DRM_IOCTL_SET_MASTER, 0) == 0) {
+                gEarlyDrmFd = fd;
+                drmEarlySplash(fd);
+            } else {
+                close(fd);
+            }
+        }
+    }
+
     setpriority(PRIO_PROCESS, 0, ANDROID_PRIORITY_DISPLAY);
 
-    ALOGI("GammaOS Nano starting...");
+    ALOGI("GammaOS Nano starting... (earlyDrmFd=%d)", gEarlyDrmFd);
 
-    // GammaOS: Defensively clear the SurfaceFlinger composition gate. If
-    // a previous gammaos-nano instance crashed while holding DRM master,
-    // sys.gammaos.nano.drm_active could still read "1" and keep SF from
-    // compositing anything. drmEarlySplash() re-sets this to the correct
-    // value a few hundred ms later.
-    property_set("sys.gammaos.nano.drm_active", "0");
+    // GammaOS: Defensively clear the SurfaceFlinger composition gate, but
+    // only if we didn't just grab DRM master. If we did, drmEarlySplash
+    // already set it to "1" and clearing it would signal SF to try
+    // compositing while we hold DRM master.
+    if (!sDrmActive) {
+        property_set("sys.gammaos.nano.drm_active", "0");
+    }
 
     // SYNCHRONOUSLY patch libdrastic_arm64.so in the cache BEFORE
     // any other drastic work. The patch short-circuits drastic's
@@ -789,7 +801,9 @@ int main() {
 
     sp<NanoMenu> nano = new NanoMenu();
 
-    waitForSurfaceFlinger();
+    // waitForSurfaceFlinger() removed: on the DRM boot path, SF is not
+    // needed at all (headless EGL + DRM direct).  On restart (boot_completed=1),
+    // readyToRun() creates SurfaceComposerClient which waits internally.
 
     nano->run("GammaOSNano", PRIORITY_DISPLAY);
 

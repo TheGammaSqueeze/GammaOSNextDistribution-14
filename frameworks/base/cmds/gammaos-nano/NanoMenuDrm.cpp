@@ -207,9 +207,32 @@ bool drmCreateDumbBuffer(int fd, uint32_t w, uint32_t h, DrmBuffer* out) {
 bool drmTryAddDisplay(int fd, uint32_t crtcId, uint32_t connId, const char* stage) {
     struct drm_mode_crtc crtc = {};
     crtc.crtc_id = crtcId;
-    if (ioctl(fd, DRM_IOCTL_MODE_GETCRTC, &crtc) != 0 || !crtc.mode_valid) {
-        return false;
+    ioctl(fd, DRM_IOCTL_MODE_GETCRTC, &crtc);
+
+    // If CRTC has no active mode (e.g. early boot before cont_splash is
+    // read by the driver), try getting the preferred mode from the connector.
+    if (!crtc.mode_valid && connId != 0) {
+        struct drm_mode_get_connector conn = {};
+        conn.connector_id = connId;
+        if (ioctl(fd, DRM_IOCTL_MODE_GETCONNECTOR, &conn) == 0 &&
+            conn.count_modes > 0 && conn.connection == 1 /* connected */) {
+            std::vector<struct drm_mode_modeinfo> modes(conn.count_modes);
+            struct drm_mode_get_connector conn2 = {};
+            conn2.connector_id = connId;
+            conn2.count_modes = conn.count_modes;
+            conn2.modes_ptr = (uint64_t)(uintptr_t)modes.data();
+            if (ioctl(fd, DRM_IOCTL_MODE_GETCONNECTOR, &conn2) == 0 &&
+                conn2.count_modes > 0) {
+                crtc.mode = modes[0]; // first mode is preferred
+                crtc.mode_valid = 1;
+                ALOGW("NanoMenu DRM %s: CRTC %u had no mode, using connector %u "
+                      "preferred mode %ux%u", stage, crtcId, connId,
+                      modes[0].hdisplay, modes[0].vdisplay);
+            }
+        }
     }
+
+    if (!crtc.mode_valid) return false;
 
     uint32_t w = crtc.mode.hdisplay, h = crtc.mode.vdisplay;
     DrmBuffer buf0, buf1;
@@ -223,10 +246,105 @@ bool drmTryAddDisplay(int fd, uint32_t crtcId, uint32_t connId, const char* stag
     crtc.set_connectors_ptr = (uint64_t)(uintptr_t)&connId;
     crtc.count_connectors = 1;
     int ret = ioctl(fd, DRM_IOCTL_MODE_SETCRTC, &crtc);
+    int setcrtc_errno = errno;
+
+    // If SETCRTC fails with EINVAL (Qualcomm SDE cont_splash), use
+    // atomic modeset. Do NOT disable the CRTC first - that tears down
+    // the DSI backlight controller permanently.
+    if (ret != 0 && setcrtc_errno == EINVAL) {
+        struct drm_set_client_cap cap = {};
+        cap.capability = DRM_CLIENT_CAP_UNIVERSAL_PLANES; cap.value = 1;
+        ioctl(fd, DRM_IOCTL_SET_CLIENT_CAP, &cap);
+        cap.capability = DRM_CLIENT_CAP_ATOMIC; cap.value = 1;
+        ioctl(fd, DRM_IOCTL_SET_CLIENT_CAP, &cap);
+
+        struct drm_mode_get_plane_res pr = {};
+        ioctl(fd, DRM_IOCTL_MODE_GETPLANERESOURCES, &pr);
+        uint32_t planeIds[8] = {};
+        struct drm_mode_get_plane_res pr2 = {};
+        pr2.count_planes = pr.count_planes < 8 ? pr.count_planes : 8;
+        pr2.plane_id_ptr = (uint64_t)(uintptr_t)planeIds;
+        ioctl(fd, DRM_IOCTL_MODE_GETPLANERESOURCES, &pr2);
+        uint32_t planeId = pr2.count_planes > 0 ? planeIds[0] : 0;
+
+        auto findProp = [&](uint32_t objId, uint32_t objType, const char* name) -> uint32_t {
+            struct drm_mode_obj_get_properties p = {};
+            p.obj_id = objId; p.obj_type = objType;
+            ioctl(fd, DRM_IOCTL_MODE_OBJ_GETPROPERTIES, &p);
+            uint32_t pids[64]; uint64_t pvals[64];
+            struct drm_mode_obj_get_properties p2x = {};
+            p2x.obj_id = objId; p2x.obj_type = objType;
+            p2x.count_props = p.count_props < 64 ? p.count_props : 64;
+            p2x.props_ptr = (uint64_t)(uintptr_t)pids;
+            p2x.prop_values_ptr = (uint64_t)(uintptr_t)pvals;
+            ioctl(fd, DRM_IOCTL_MODE_OBJ_GETPROPERTIES, &p2x);
+            for (uint32_t i = 0; i < p2x.count_props; i++) {
+                struct drm_mode_get_property gp = {};
+                gp.prop_id = pids[i];
+                ioctl(fd, DRM_IOCTL_MODE_GETPROPERTY, &gp);
+                if (strcmp(gp.name, name) == 0) return pids[i];
+            }
+            return 0;
+        };
+
+        struct drm_mode_create_blob blob = {};
+        blob.data = (uint64_t)(uintptr_t)&crtc.mode;
+        blob.length = sizeof(crtc.mode);
+        ioctl(fd, DRM_IOCTL_MODE_CREATEPROPBLOB, &blob);
+
+        uint32_t objs[] = { crtcId, connId, planeId };
+        uint32_t counts[] = { 2, 1, 10 };
+        uint32_t aprops[] = {
+            findProp(crtcId, DRM_MODE_OBJECT_CRTC, "ACTIVE"),
+            findProp(crtcId, DRM_MODE_OBJECT_CRTC, "MODE_ID"),
+            findProp(connId, DRM_MODE_OBJECT_CONNECTOR, "CRTC_ID"),
+            findProp(planeId, DRM_MODE_OBJECT_PLANE, "FB_ID"),
+            findProp(planeId, DRM_MODE_OBJECT_PLANE, "CRTC_ID"),
+            findProp(planeId, DRM_MODE_OBJECT_PLANE, "SRC_X"),
+            findProp(planeId, DRM_MODE_OBJECT_PLANE, "SRC_Y"),
+            findProp(planeId, DRM_MODE_OBJECT_PLANE, "SRC_W"),
+            findProp(planeId, DRM_MODE_OBJECT_PLANE, "SRC_H"),
+            findProp(planeId, DRM_MODE_OBJECT_PLANE, "CRTC_X"),
+            findProp(planeId, DRM_MODE_OBJECT_PLANE, "CRTC_Y"),
+            findProp(planeId, DRM_MODE_OBJECT_PLANE, "CRTC_W"),
+            findProp(planeId, DRM_MODE_OBJECT_PLANE, "CRTC_H"),
+        };
+        uint64_t values[] = {
+            1, blob.blob_id,
+            crtcId,
+            buf0.fbId, crtcId,
+            0, 0, (uint64_t)w << 16, (uint64_t)h << 16,
+            0, 0, w, h,
+        };
+
+        struct drm_mode_atomic atomic = {};
+        atomic.flags = DRM_MODE_ATOMIC_ALLOW_MODESET;
+        atomic.count_objs = 3;
+        atomic.objs_ptr = (uint64_t)(uintptr_t)objs;
+        atomic.count_props_ptr = (uint64_t)(uintptr_t)counts;
+        atomic.props_ptr = (uint64_t)(uintptr_t)aprops;
+        atomic.prop_values_ptr = (uint64_t)(uintptr_t)values;
+
+        ret = ioctl(fd, DRM_IOCTL_MODE_ATOMIC, &atomic);
+        setcrtc_errno = errno;
+        if (ret == 0) {
+            ALOGW("NanoMenu DRM %s: atomic modeset OK (legacy SETCRTC was EINVAL)",
+                  stage);
+        }
+    }
 
     int64_t now = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL;
-    ALOGW("NanoMenu DRM %s: crtc %u (%ux%u) conn %u → %s at T+%lldms",
-          stage, crtcId, w, h, connId, ret == 0 ? "OK" : strerror(errno), now);
+    ALOGW("NanoMenu DRM %s: crtc %u (%ux%u) conn %u fb %u → %s at T+%lldms",
+          stage, crtcId, w, h, connId, buf0.fbId,
+          ret == 0 ? "OK" : strerror(setcrtc_errno), now);
+
+    {
+        char buf[PROPERTY_VALUE_MAX];
+        snprintf(buf, sizeof(buf), "crtc%u_%ux%u_fb%u_%s_e%d_T%lld",
+                 crtcId, w, h, buf0.fbId,
+                 ret == 0 ? "OK" : "FAIL", setcrtc_errno, now);
+        property_set("sys.gammaos.nano.drm_setcrtc", buf);
+    }
 
     if (ret != 0) {
         munmap(buf0.mapped, buf0.size);
@@ -293,12 +411,16 @@ void drmRescanDisplays() {
     }
 }
 
-void drmEarlySplash() {
+void drmEarlySplash(int existingFd) {
     int64_t t0 = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL;
-    int fd = open("/dev/dri/card0", O_RDWR | O_CLOEXEC);
-    if (fd < 0) return;
-
-    ioctl(fd, DRM_IOCTL_SET_MASTER, 0); // try, OK if fails
+    int fd;
+    if (existingFd >= 0) {
+        fd = existingFd;
+    } else {
+        fd = open("/dev/dri/card0", O_RDWR | O_CLOEXEC);
+        if (fd < 0) return;
+        ioctl(fd, DRM_IOCTL_SET_MASTER, 0); // try, OK if fails
+    }
 
     // Get DRM resources
     struct drm_mode_card_res res = {};
@@ -325,10 +447,13 @@ void drmEarlySplash() {
         if (drmTryAddDisplay(fd, crtcs[c], connId, "splash")) addedCount++;
     }
     sDrmActive = !sDrmDisplays.empty();
-    // GammaOS: publish DRM ownership to SurfaceFlinger. While this is "1",
-    // SurfaceFlinger's commit() short-circuits composition so SystemUI
-    // overlays (volume bar, brightness bar, etc.) cannot blank the panel
-    // by racing a HWC present against NanoMenu's direct DRM flips.
+    if (!sDrmActive && sDrmFd >= 0) {
+        // No displays added - release DRM master so HWC can use it.
+        ioctl(sDrmFd, DRM_IOCTL_DROP_MASTER, 0);
+        close(sDrmFd);
+        sDrmFd = -1;
+        ALOGW("NanoMenu DRM splash: no displays, released DRM master");
+    }
     property_set("sys.gammaos.nano.drm_active", sDrmActive ? "1" : "0");
     if (sDrmActive) {
         ALOGW("NanoMenu DRM splash: %d/%d CRTCs active for direct rendering",
@@ -1573,7 +1698,11 @@ void drmStop() {
         }
     }
     sDrmDisplays.clear();
-    if (sDrmFd >= 0) { close(sDrmFd); sDrmFd = -1; }
+    if (sDrmFd >= 0) {
+        ioctl(sDrmFd, DRM_IOCTL_DROP_MASTER, 0);
+        close(sDrmFd);
+        sDrmFd = -1;
+    }
 }
 
 } // namespace android
