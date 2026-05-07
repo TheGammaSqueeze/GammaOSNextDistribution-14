@@ -74,8 +74,6 @@
 #include "NanoMenu.h"
 #include "NanoMenuShaders.h"
 
-extern int gEarlyDrmFd;
-
 namespace android {
 
 using ui::DisplayMode;
@@ -312,15 +310,9 @@ status_t NanoMenu::readyToRun() {
         t0 = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL;
     };
 
-    // DRM master was grabbed at the top of main() (gEarlyDrmFd) before
-    // any other init work, racing against HWC's class_start early_hal.
-    int earlyDrmFd = gEarlyDrmFd;
-    gEarlyDrmFd = -1; // take ownership
-    if (earlyDrmFd >= 0) {
-        ALOGI("GammaOS Nano: using early DRM master fd=%d from main()", earlyDrmFd);
-    }
-    tlog("early DRM master");
-
+    // Wait for persist props so we can check skip_nano BEFORE touching
+    // DRM. On Qualcomm SDE, even SET_MASTER disrupts the backlight
+    // controller, so normal Android boot must never grab DRM at all.
     {
         char ready[PROPERTY_VALUE_MAX] = {};
         property_get("ro.persistent_properties.ready", ready, "");
@@ -338,13 +330,32 @@ status_t NanoMenu::readyToRun() {
     property_get("persist.bootanim.skip_nano", skip, "");
     if (strcmp(skip, "0") != 0) {
         ALOGI("GammaOS Nano: skip_nano='%s' (not '0'), starting bootanim", skip);
-        if (earlyDrmFd >= 0) {
-            ioctl(earlyDrmFd, DRM_IOCTL_DROP_MASTER, 0);
-            close(earlyDrmFd);
-        }
         property_set("ctl.start", "bootanim");
         _exit(0);
     }
+
+    // Nano mode confirmed. Grab DRM master before HWC gets it.
+    // The patched vendor libsdedrm.so retries SET_MASTER when
+    // atomicCommit fails with EACCES, so HWC recovers once we release.
+    int earlyDrmFd = -1;
+    {
+        int fd = -1;
+        for (int i = 0; i < 200; i++) {
+            fd = open("/dev/dri/card0", O_RDWR | O_CLOEXEC);
+            if (fd >= 0) break;
+            usleep(10000);
+        }
+        if (fd >= 0) {
+            if (ioctl(fd, DRM_IOCTL_SET_MASTER, 0) == 0) {
+                earlyDrmFd = fd;
+                ALOGI("GammaOS Nano: grabbed DRM master fd=%d", fd);
+            } else {
+                ALOGW("GammaOS Nano: SET_MASTER failed (%s), HWC may have it", strerror(errno));
+                close(fd);
+            }
+        }
+    }
+    tlog("DRM master grab");
 
     tlog("persist props resolved");
 
@@ -384,18 +395,15 @@ status_t NanoMenu::readyToRun() {
         }
     }
 
-    // GammaOS: Nano mode is confirmed active. Show DRM splash now — before any
-    // SF/HWC setup. This replaces the U-Boot logo with a dark screen within
-    // milliseconds on devices where HWC composition isn't ready yet (e.g.
-    // dual-DSI RG DS RK3568). Skip DRM on restarts (returning from app) —
-    // HWC is already active by then.
+    // GammaOS: Nano mode is confirmed active (skip_nano check passed).
+    // Run DRM splash now - before any SF/HWC setup. This replaces the
+    // bootloader logo with NanoMenu's DRM direct rendering. Skip on
+    // restarts (returning from app) since HWC is already active.
     {
         char bootDone[PROPERTY_VALUE_MAX] = {};
         property_get("sys.boot_completed", bootDone, "0");
-        // GammaOS: force_drm=1 re-grabs DRM master post-boot for
-        // drastic nano mode (XMB -> drastic nano restart path). The
-        // XMB launch path sets this before restarting NanoMenu so the
-        // new instance takes DRM even though boot is already complete.
+        // force_drm=1 re-grabs DRM master post-boot for drastic nano
+        // mode (XMB -> drastic nano restart path).
         char forceDrm[PROPERTY_VALUE_MAX] = {};
         property_get("sys.gammaos.nano.force_drm", forceDrm, "0");
         if (strcmp(bootDone, "1") != 0 || strcmp(forceDrm, "1") == 0) {
@@ -403,13 +411,8 @@ status_t NanoMenu::readyToRun() {
                 ALOGW("NanoMenu: force_drm=1, grabbing DRM master "
                       "post-boot for drastic nano");
             }
-            if (!sDrmActive) {
-                // DRM splash not yet done (main() grab failed or fd not passed)
-                drmEarlySplash(earlyDrmFd);
-                earlyDrmFd = -1;
-            } else {
-                ALOGI("NanoMenu: DRM already active from main() early grab");
-            }
+            drmEarlySplash(earlyDrmFd);
+            earlyDrmFd = -1;
         } else {
             ALOGI("NanoMenu: skipping DRM splash (already booted)");
         }

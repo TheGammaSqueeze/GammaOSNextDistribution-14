@@ -49,9 +49,8 @@
 
 using namespace android;
 
-// Early DRM master fd, grabbed at the very top of main() before any other
-// init work. This races against HWC's service start (class early_hal).
-// Passed to NanoMenu::readyToRun() via a global.
+// No longer used: DRM master grab moved to readyToRun() after skip_nano
+// check. Kept as extern reference target for NanoMenu.cpp (always -1).
 int gEarlyDrmFd = -1;
 
 // waitForSurfaceFlinger removed: readyToRun() handles SF wait internally
@@ -741,37 +740,17 @@ static void startDrasticLibPreloadThread() {
 }
 
 int main() {
-    // Poll for card0 and grab DRM master before HWC starts.
-    // HWC's drmOpen will fail but the patched libsdedrm.so retries
-    // SET_MASTER when atomicCommit fails with EACCES.
-    {
-        int fd = -1;
-        for (int i = 0; i < 200; i++) {
-            fd = open("/dev/dri/card0", O_RDWR | O_CLOEXEC);
-            if (fd >= 0) break;
-            usleep(10000);
-        }
-        if (fd >= 0) {
-            if (ioctl(fd, DRM_IOCTL_SET_MASTER, 0) == 0) {
-                gEarlyDrmFd = fd;
-                drmEarlySplash(fd);
-            } else {
-                close(fd);
-            }
-        }
-    }
+    // DRM master grab is deferred to readyToRun() AFTER the skip_nano
+    // check. On Qualcomm SDE, even just SET_MASTER (without modeset)
+    // disrupts the backlight controller, breaking brightness in normal
+    // Android mode. The patched vendor libsdedrm.so handles the HWC
+    // SET_MASTER retry, so the race window is acceptable.
 
     setpriority(PRIO_PROCESS, 0, ANDROID_PRIORITY_DISPLAY);
 
-    ALOGI("GammaOS Nano starting... (earlyDrmFd=%d)", gEarlyDrmFd);
+    ALOGI("GammaOS Nano starting...");
 
-    // GammaOS: Defensively clear the SurfaceFlinger composition gate, but
-    // only if we didn't just grab DRM master. If we did, drmEarlySplash
-    // already set it to "1" and clearing it would signal SF to try
-    // compositing while we hold DRM master.
-    if (!sDrmActive) {
-        property_set("sys.gammaos.nano.drm_active", "0");
-    }
+    property_set("sys.gammaos.nano.drm_active", "0");
 
     // SYNCHRONOUSLY patch libdrastic_arm64.so in the cache BEFORE
     // any other drastic work. The patch short-circuits drastic's
