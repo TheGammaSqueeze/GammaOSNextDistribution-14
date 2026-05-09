@@ -49,8 +49,8 @@
 
 using namespace android;
 
-// No longer used: DRM master grab moved to readyToRun() after skip_nano
-// check. Kept as extern reference target for NanoMenu.cpp (always -1).
+// Early DRM master fd, grabbed in main() on non-Qualcomm SoCs before
+// HWC starts. On Qualcomm, this stays -1 (grab deferred to readyToRun).
 int gEarlyDrmFd = -1;
 
 // waitForSurfaceFlinger removed: readyToRun() handles SF wait internally
@@ -740,15 +740,52 @@ static void startDrasticLibPreloadThread() {
 }
 
 int main() {
-    // DRM master grab is deferred to readyToRun() AFTER the skip_nano
-    // check. On Qualcomm SDE, even just SET_MASTER (without modeset)
-    // disrupts the backlight controller, breaking brightness in normal
-    // Android mode. The patched vendor libsdedrm.so handles the HWC
-    // SET_MASTER retry, so the race window is acceptable.
+    // Grab DRM master early on non-Qualcomm SoCs to beat HWC.
+    // On Qualcomm SDE (ro.board.platform=bengal etc), SET_MASTER
+    // disrupts the backlight controller even without modeset, so we
+    // defer the grab to readyToRun() (after skip_nano check). On
+    // other SoCs (Rockchip, MediaTek), SET_MASTER is safe and we
+    // need it early because HWC grabs master before readyToRun().
+    {
+        char platform[PROPERTY_VALUE_MAX] = {};
+        property_get("ro.board.platform", platform, "");
+        bool isQualcomm = (strstr(platform, "bengal") != nullptr ||
+                           strstr(platform, "msm") != nullptr ||
+                           strstr(platform, "sdm") != nullptr ||
+                           strstr(platform, "sm") == platform ||
+                           strstr(platform, "lahaina") != nullptr ||
+                           strstr(platform, "taro") != nullptr ||
+                           strstr(platform, "kalama") != nullptr);
+        if (!isQualcomm) {
+            int fd = -1;
+            int polls = 0;
+            for (int i = 0; i < 500; i++) {
+                fd = open("/dev/dri/card0", O_RDWR | O_CLOEXEC);
+                if (fd >= 0) break;
+                usleep(10000);
+                polls++;
+            }
+            if (fd >= 0) {
+                if (ioctl(fd, DRM_IOCTL_SET_MASTER, 0) == 0) {
+                    gEarlyDrmFd = fd;
+                    ALOGI("GammaOS Nano: early DRM master fd=%d after %d polls (%dms)",
+                          fd, polls, polls * 10);
+                } else {
+                    ALOGW("GammaOS Nano: SET_MASTER failed after %d polls: %s",
+                          polls, strerror(errno));
+                    close(fd);
+                }
+            } else {
+                ALOGW("GammaOS Nano: card0 not found after %d polls (5s)", polls);
+            }
+        } else {
+            ALOGI("GammaOS Nano: Qualcomm SoC (%s), deferring DRM grab", platform);
+        }
+    }
 
     setpriority(PRIO_PROCESS, 0, ANDROID_PRIORITY_DISPLAY);
 
-    ALOGI("GammaOS Nano starting...");
+    ALOGI("GammaOS Nano starting... (earlyDrmFd=%d)", gEarlyDrmFd);
 
     property_set("sys.gammaos.nano.drm_active", "0");
 

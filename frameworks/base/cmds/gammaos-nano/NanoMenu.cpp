@@ -74,6 +74,8 @@
 #include "NanoMenu.h"
 #include "NanoMenuShaders.h"
 
+extern int gEarlyDrmFd;
+
 namespace android {
 
 using ui::DisplayMode;
@@ -310,9 +312,14 @@ status_t NanoMenu::readyToRun() {
         t0 = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL;
     };
 
-    // Wait for persist props so we can check skip_nano BEFORE touching
-    // DRM. On Qualcomm SDE, even SET_MASTER disrupts the backlight
-    // controller, so normal Android boot must never grab DRM at all.
+    // On non-Qualcomm SoCs, main() already grabbed DRM master early.
+    // On Qualcomm, gEarlyDrmFd is -1 (grab deferred to after skip_nano).
+    int earlyDrmFd = gEarlyDrmFd;
+    gEarlyDrmFd = -1;
+    if (earlyDrmFd >= 0) {
+        ALOGI("GammaOS Nano: using early DRM master fd=%d from main()", earlyDrmFd);
+    }
+
     {
         char ready[PROPERTY_VALUE_MAX] = {};
         property_get("ro.persistent_properties.ready", ready, "");
@@ -330,32 +337,14 @@ status_t NanoMenu::readyToRun() {
     property_get("persist.bootanim.skip_nano", skip, "");
     if (strcmp(skip, "0") != 0) {
         ALOGI("GammaOS Nano: skip_nano='%s' (not '0'), starting bootanim", skip);
+        if (earlyDrmFd >= 0) {
+            ioctl(earlyDrmFd, DRM_IOCTL_DROP_MASTER, 0);
+            close(earlyDrmFd);
+        }
         property_set("ctl.start", "bootanim");
         _exit(0);
     }
-
-    // Nano mode confirmed. Grab DRM master before HWC gets it.
-    // The patched vendor libsdedrm.so retries SET_MASTER when
-    // atomicCommit fails with EACCES, so HWC recovers once we release.
-    int earlyDrmFd = -1;
-    {
-        int fd = -1;
-        for (int i = 0; i < 200; i++) {
-            fd = open("/dev/dri/card0", O_RDWR | O_CLOEXEC);
-            if (fd >= 0) break;
-            usleep(10000);
-        }
-        if (fd >= 0) {
-            if (ioctl(fd, DRM_IOCTL_SET_MASTER, 0) == 0) {
-                earlyDrmFd = fd;
-                ALOGI("GammaOS Nano: grabbed DRM master fd=%d", fd);
-            } else {
-                ALOGW("GammaOS Nano: SET_MASTER failed (%s), HWC may have it", strerror(errno));
-                close(fd);
-            }
-        }
-    }
-    tlog("DRM master grab");
+    tlog("skip_nano check passed");
 
     tlog("persist props resolved");
 
