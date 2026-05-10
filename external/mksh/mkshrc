@@ -18,3 +18,8 @@ PS4='[$EPOCHREALTIME] '; PS1='${|
 }$HOSTNAME:${PWD:-?} '"$PS1 "
 
 export TERM=xterm-256color
+
+case ":$PATH:" in
+*:/system_ext/bin:*) ;;
+*) export PATH="/system_ext/bin:$PATH" ;;
+esac

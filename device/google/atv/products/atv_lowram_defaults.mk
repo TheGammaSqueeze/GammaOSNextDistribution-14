@@ -37,7 +37,9 @@ PRODUCT_SYSTEM_PROPERTIES += \
     ro.role.grant.timeout_ms=5000 \
     config.disable_systemtextclassifier=true \
     ro.gammaos.lean_boot=true \
-    ro.gammaos.composition_timeout_ms=5000
+    ro.gammaos.composition_timeout_ms=5000 \
+    ro.sys.fw.bg_apps_limit=4 \
+    persist.sys.fw.bg_apps_limit=4
 
 # 64-bit only zygote saves ~105MB by not forking 32-bit zygote.
 # Vendor overrides ro.zygote; we stop zygote_secondary via init trigger.
@@ -64,9 +66,12 @@ TARGET_SYSTEM_PROP += \
     build/make/target/board/go_defaults_common.prop
 
 PRODUCT_SYSTEM_PROPERTIES += \
-    ro.lmk.downgrade_pressure=80 \
-    ro.lmk.upgrade_pressure=35 \
-    ro.lmk.swap_free_low_percentage=5
+    ro.lmk.downgrade_pressure=95 \
+    ro.lmk.upgrade_pressure=20 \
+    ro.lmk.swap_free_low_percentage=0 \
+    ro.lmk.psi_complete_stall_ms=700 \
+    ro.lmk.thrashing_limit=50 \
+    ro.lmk.swap_util_max=90
 
 # Dedupe VNDK libraries with identical core variants.
 TARGET_VNDK_USE_CORE_VARIANT := true
