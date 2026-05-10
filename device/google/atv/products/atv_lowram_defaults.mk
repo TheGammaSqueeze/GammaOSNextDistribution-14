@@ -38,6 +38,7 @@ PRODUCT_SYSTEM_PROPERTIES += \
     config.disable_systemtextclassifier=true \
     ro.gammaos.lean_boot=true \
     ro.gammaos.composition_timeout_ms=2000 \
+    sys.read_ahead_kb=2048 \
     ro.sys.fw.bg_apps_limit=4 \
     persist.sys.fw.bg_apps_limit=4
 
