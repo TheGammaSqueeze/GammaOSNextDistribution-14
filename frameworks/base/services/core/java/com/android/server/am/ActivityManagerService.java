@@ -9089,7 +9089,7 @@ public class ActivityManagerService extends IActivityManager.Stub
             mHandler.post(mAtmInternal::showSystemReadyErrorDialogsIfNeeded);
 
             if (android.os.SystemProperties.getBoolean("ro.gammaos.lean_boot", false)) {
-                final long bootTimeout = 5000;
+                final long bootTimeout = 2000;
                 mHandler.postDelayed(() -> {
                     Slog.i(TAG, "Lean boot: forcing finishBooting after " + bootTimeout + "ms");
                     synchronized (ActivityManagerService.this) {

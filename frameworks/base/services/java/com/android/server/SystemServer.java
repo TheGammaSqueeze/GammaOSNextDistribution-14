@@ -3327,6 +3327,10 @@ public final class SystemServer implements Dumpable {
         mSystemServiceManager.startBootPhase(t, SystemService.PHASE_SYSTEM_SERVICES_READY);
         t.traceEnd();
 
+        if (leanBoot) {
+            SystemProperties.set("sys.gammaos.start_audio", "1");
+        }
+
         t.traceBegin("MakeWindowManagerServiceReady");
         try {
             wm.systemReady();

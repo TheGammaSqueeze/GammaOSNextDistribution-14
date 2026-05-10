@@ -33,11 +33,11 @@ PRODUCT_SYSTEM_PROPERTIES += \
     pm.dexopt.first-boot=verify \
     pm.dexopt.install=quicken \
     ro.odsign.skip_verification=1 \
-    ro.permission.grant.timeout_ms=10000 \
-    ro.role.grant.timeout_ms=5000 \
+    ro.permission.grant.timeout_ms=3000 \
+    ro.role.grant.timeout_ms=3000 \
     config.disable_systemtextclassifier=true \
     ro.gammaos.lean_boot=true \
-    ro.gammaos.composition_timeout_ms=5000 \
+    ro.gammaos.composition_timeout_ms=2000 \
     ro.sys.fw.bg_apps_limit=4 \
     persist.sys.fw.bg_apps_limit=4
 
@@ -66,12 +66,15 @@ TARGET_SYSTEM_PROP += \
     build/make/target/board/go_defaults_common.prop
 
 PRODUCT_SYSTEM_PROPERTIES += \
-    ro.lmk.downgrade_pressure=95 \
-    ro.lmk.upgrade_pressure=20 \
+    ro.lmk.downgrade_pressure=99 \
+    ro.lmk.upgrade_pressure=10 \
     ro.lmk.swap_free_low_percentage=0 \
-    ro.lmk.psi_complete_stall_ms=700 \
-    ro.lmk.thrashing_limit=50 \
-    ro.lmk.swap_util_max=90
+    ro.lmk.psi_complete_stall_ms=1000 \
+    ro.lmk.psi_partial_stall_ms=200 \
+    ro.lmk.thrashing_limit=80 \
+    ro.lmk.thrashing_limit_decay=50 \
+    ro.lmk.swap_util_max=95 \
+    ro.lmk.kill_timeout_ms=100
 
 # Dedupe VNDK libraries with identical core variants.
 TARGET_VNDK_USE_CORE_VARIANT := true
