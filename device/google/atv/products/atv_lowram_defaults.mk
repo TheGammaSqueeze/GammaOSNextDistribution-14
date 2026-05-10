@@ -30,7 +30,7 @@ PRODUCT_SYSTEM_PROPERTIES += \
     dalvik.vm.image-dex2oat-threads=2 \
     pm.dexopt.boot=verify \
     pm.dexopt.boot-after-mainline-update=verify \
-    pm.dexopt.first-boot=verify \
+    pm.dexopt.first-boot=quicken \
     pm.dexopt.install=quicken \
     ro.odsign.skip_verification=1 \
     ro.permission.grant.timeout_ms=3000 \
@@ -75,6 +75,9 @@ PRODUCT_SYSTEM_PROPERTIES += \
     ro.lmk.thrashing_limit_decay=50 \
     ro.lmk.swap_util_max=95 \
     ro.lmk.kill_timeout_ms=100
+
+# Ensure boot image matches runtime GC (CC with read barriers).
+PRODUCT_ART_USE_READ_BARRIER := true
 
 # Dedupe VNDK libraries with identical core variants.
 TARGET_VNDK_USE_CORE_VARIANT := true
