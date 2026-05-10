@@ -3914,7 +3914,9 @@ public class WindowManagerService extends IWindowManager.Stub
             }
 
             // Don't enable the screen until all existing windows have been drawn.
-            if (!mForceDisplayEnabled) {
+            if (!mForceDisplayEnabled
+                    && !android.os.SystemProperties.getBoolean(
+                            "ro.gammaos.lean_boot", false)) {
                 if (mBootWaitForWindowsStartTime < 0) {
                     // First time we will start waiting for all windows to be drawn.
                     mBootWaitForWindowsStartTime = SystemClock.elapsedRealtime();

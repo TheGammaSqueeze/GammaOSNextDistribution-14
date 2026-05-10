@@ -2909,13 +2909,13 @@ public final class SystemServer implements Dumpable {
                 t.traceEnd();
             }
 
-            if (!leanBoot && mPackageManager.hasSystemFeature(PackageManager.FEATURE_COMPANION_DEVICE_SETUP)) {
+            if (mPackageManager.hasSystemFeature(PackageManager.FEATURE_COMPANION_DEVICE_SETUP)) {
                 t.traceBegin("StartCompanionDeviceManager");
                 mSystemServiceManager.startService(COMPANION_DEVICE_MANAGER_SERVICE_CLASS);
                 t.traceEnd();
             }
 
-            if (!leanBoot && context.getResources().getBoolean(R.bool.config_enableVirtualDeviceManager)) {
+            if (context.getResources().getBoolean(R.bool.config_enableVirtualDeviceManager)) {
                 t.traceBegin("StartVirtualDeviceManager");
                 mSystemServiceManager.startService(VIRTUAL_DEVICE_MANAGER_SERVICE_CLASS);
                 t.traceEnd();

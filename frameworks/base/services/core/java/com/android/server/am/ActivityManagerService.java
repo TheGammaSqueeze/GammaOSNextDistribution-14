@@ -9088,6 +9088,18 @@ public class ActivityManagerService extends IActivityManager.Stub
 
             mHandler.post(mAtmInternal::showSystemReadyErrorDialogsIfNeeded);
 
+            if (android.os.SystemProperties.getBoolean("ro.gammaos.lean_boot", false)) {
+                final long bootTimeout = 5000;
+                mHandler.postDelayed(() -> {
+                    Slog.i(TAG, "Lean boot: forcing finishBooting after " + bootTimeout + "ms");
+                    synchronized (ActivityManagerService.this) {
+                        mBootAnimationComplete = true;
+                    }
+                    mAtmInternal.enableScreenAfterBoot(mBooted);
+                    finishBooting();
+                }, bootTimeout);
+            }
+
             if (isBootingSystemUser) {
                 // Need to send the broadcasts for the system user here because
                 // UserController#startUserInternal will not send them for the system user starting,

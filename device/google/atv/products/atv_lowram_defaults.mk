@@ -37,7 +37,7 @@ PRODUCT_SYSTEM_PROPERTIES += \
     ro.role.grant.timeout_ms=5000 \
     config.disable_systemtextclassifier=true \
     ro.gammaos.lean_boot=true \
-    ro.gammaos.composition_timeout_ms=60000
+    ro.gammaos.composition_timeout_ms=5000
 
 # 64-bit only zygote saves ~105MB by not forking 32-bit zygote.
 # Vendor overrides ro.zygote; we stop zygote_secondary via init trigger.
