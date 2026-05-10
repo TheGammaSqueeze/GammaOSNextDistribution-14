@@ -295,11 +295,14 @@ public class RoleService extends SystemService implements RoleUserState.Callback
 
     @MainThread
     private void maybeGrantDefaultRolesSync(@UserIdInt int userId) {
+        long timeoutMs = android.os.SystemProperties.getLong(
+                "ro.role.grant.timeout_ms", 30000);
         AndroidFuture<Void> future = maybeGrantDefaultRolesInternal(userId);
         try {
-            future.get(30, TimeUnit.SECONDS);
+            future.get(timeoutMs, TimeUnit.MILLISECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            Log.e(LOG_TAG, "Failed to grant default roles for user " + userId, e);
+            Log.e(LOG_TAG, "Failed to grant default roles for user " + userId
+                    + " within " + timeoutMs + "ms, continuing boot", e);
         }
     }
 

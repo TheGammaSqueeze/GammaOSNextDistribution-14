@@ -30,16 +30,14 @@ $(call inherit-product-if-exists, frameworks/webview/chromium/chromium.mk)
 
 PRODUCT_IS_ATV := true
 
-PRODUCT_PACKAGES += \
-    TvProvider
+#PRODUCT_PACKAGES += \
+#    TvProvider
 
 # PRODUCT_SUPPORTS_TUNER: Whether the product hardware tuner. When 'false',
 # we drop mediatuner, which saves ~4 MiB of RAM. When 'true', the tuner HAL
 # should be implemented in vendor partition and android.hardware.tv.tuner
 # permission should be installed.
-#
-# Defaults to true to mimic legacy behaviour.
-PRODUCT_SUPPORTS_TUNER ?= true
+PRODUCT_SUPPORTS_TUNER ?= false
 ifeq ($(PRODUCT_SUPPORTS_TUNER),true)
     PRODUCT_PACKAGES += libmedia_tv_tuner
 endif
@@ -47,7 +45,6 @@ endif
 # From build/target/product/core.mk
 PRODUCT_PACKAGES += \
     BasicDreams \
-    CalendarProvider \
     CaptivePortalLogin \
     CertInstaller \
     ExternalStorageProvider \
@@ -56,22 +53,12 @@ PRODUCT_PACKAGES += \
     KeyChain \
     librs_jni \
     PacProcessor \
-    PrintSpooler \
     ProxyHandler \
     SharedStorageBackup \
     screenrecord \
     UserDictionaryProvider \
     VpnDialogs \
     com.android.media.tv.remoteprovider
-
-# Use TV PackageInstaller
-PRODUCT_PACKAGES += \
-    PackageInstaller_tv
-
-# Device owner provisioning for devices defining device_admin
-PRODUCT_PACKAGES += \
-    ManagedProvisioning
-
 
 # PRODUCT_SUPPORTS_CAMERA: Whether the product supports cameras at all
 # (built-in or external USB camera). When 'false', we drop cameraserver, which
@@ -82,7 +69,6 @@ PRODUCT_PACKAGES += \
 PRODUCT_SUPPORTS_CAMERA ?= true
 ifeq ($(PRODUCT_SUPPORTS_CAMERA),true)
     PRODUCT_PACKAGES += cameraserver
-    PRODUCT_PACKAGES += CameraExtensionsProxy
 else
     # When cameraserver is not included, we need to configure Camera API to not
     # connect to it.

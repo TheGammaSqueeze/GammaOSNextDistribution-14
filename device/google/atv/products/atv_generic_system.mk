@@ -23,10 +23,13 @@ $(call inherit-product-if-exists, vendor/google/security/adb/vendor_key.mk)
 # Enable updating of APEXes
 $(call inherit-product, $(SRC_TARGET_DIR)/product/updatable_apex.mk)
 
-ifeq ($(PRODUCT_REQUIRES_PAI_STUB),true)
 PRODUCT_PACKAGES += \
-	AtomPlayAutoInstallStub
-endif
+    DocumentsUI \
+    com.android.mtp \
+    MtpService \
+    android.server.tvproviderstub \
+
+PRODUCT_STATIC_LIBRARIES += androidx.appcompat_appcompat
 
 # Wrapped net utils for /vendor access.
 PRODUCT_PACKAGES += netutils-wrapper-1.0

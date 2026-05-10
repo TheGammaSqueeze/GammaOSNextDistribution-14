@@ -13,15 +13,6 @@ $(call inherit-product, device/phh/treble/base.mk)
 $(call inherit-product, device/phh/treble/base-sas.mk)
 $(call inherit-product, device/phh/treble/gapps-go.mk)
 
-# We intentionally do NOT want ATV behavior. We only use the TV base for lower overhead.
-# Keep the product behaving like a normal AOSP/Lineage "device" build.
-PRODUCT_IS_ATV := false
-
-# Best-effort runtime marker (some trees use this; harmless if unused).
-PRODUCT_SYSTEM_PROPERTIES += ro.product.is_atv=false
-
-$(call inherit-product, device/phh/treble/lineage.mk)
-$(call inherit-product-if-exists, device/phh/treble/lineage_tv_overrides.mk)
 $(call inherit-product, device/phh/treble/lineage.mk)
 
 PRODUCT_NAME := lineage_tv_arm_aoN
@@ -30,7 +21,6 @@ PRODUCT_BRAND := google
 PRODUCT_SYSTEM_BRAND := google
 PRODUCT_MODEL := TrebleDroid TV Go
 
-# Overwrite the inherited "emulator" characteristics
-PRODUCT_CHARACTERISTICS := device
+PRODUCT_CHARACTERISTICS := tv
 
 PRODUCT_PACKAGES += 

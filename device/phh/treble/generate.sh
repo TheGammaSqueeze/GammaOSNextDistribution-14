@@ -166,15 +166,6 @@ PRODUCT_INSTALL_DEBUG_POLICY_TO_SYSTEM_EXT := false
 ${optional_base}
 ${apps_script}
 
-# We intentionally do NOT want ATV behavior. We only use the TV base for lower overhead.
-# Keep the product behaving like a normal AOSP/Lineage "device" build.
-PRODUCT_IS_ATV := false
-
-# Best-effort runtime marker (some trees use this; harmless if unused).
-PRODUCT_SYSTEM_PROPERTIES += ro.product.is_atv=false
-
-\$(call inherit-product, device/phh/treble/lineage.mk)
-\$(call inherit-product-if-exists, device/phh/treble/lineage_tv_overrides.mk)
 ${rom_script}
 
 PRODUCT_NAME := ${tv_target}
@@ -183,8 +174,7 @@ PRODUCT_BRAND := google
 PRODUCT_SYSTEM_BRAND := google
 PRODUCT_MODEL := TrebleDroid TV ${apps_name}
 
-# Overwrite the inherited "emulator" characteristics
-PRODUCT_CHARACTERISTICS := device
+PRODUCT_CHARACTERISTICS := tv
 
 PRODUCT_PACKAGES += ${extra_packages}
 EOF

@@ -19,8 +19,34 @@
 # Set lowram options and enable traced by default
 PRODUCT_VENDOR_PROPERTIES += ro.config.low_ram=true
 
-# Speed profile services and wifi-service to reduce RAM and storage.
-PRODUCT_SYSTEM_SERVER_COMPILER_FILTER := speed-profile
+# Minimize boot-time dex compilation to avoid OOM on 1GB devices.
+# verify is the fastest filter - just checks DEX integrity, no compilation.
+PRODUCT_SYSTEM_SERVER_COMPILER_FILTER := verify
+
+# Limit dex2oat concurrency to prevent OOM during boot.
+PRODUCT_SYSTEM_PROPERTIES += \
+    dalvik.vm.dex2oat-threads=2 \
+    dalvik.vm.boot-dex2oat-threads=2 \
+    dalvik.vm.image-dex2oat-threads=2 \
+    pm.dexopt.boot=verify \
+    pm.dexopt.boot-after-mainline-update=verify \
+    pm.dexopt.first-boot=verify \
+    pm.dexopt.install=quicken \
+    ro.odsign.skip_verification=1 \
+    ro.permission.grant.timeout_ms=10000 \
+    ro.role.grant.timeout_ms=5000 \
+    config.disable_systemtextclassifier=true \
+    ro.gammaos.lean_boot=true \
+    ro.gammaos.composition_timeout_ms=60000
+
+# 64-bit only zygote saves ~105MB by not forking 32-bit zygote.
+# Vendor overrides ro.zygote; we stop zygote_secondary via init trigger.
+ZYGOTE_FORCE_64 := true
+PRODUCT_SYSTEM_PROPERTIES += ro.zygote.disable_secondary=1
+
+# Remove packages not needed on low-RAM ATV devices.
+PRODUCT_REMOVE_PACKAGES += \
+    SecureElement
 
 # Always preopt extracted APKs to prevent extracting out of the APK for gms
 # modules.
@@ -31,9 +57,16 @@ PRODUCT_ALWAYS_PREOPT_EXTRACTED_APK := true
 PRODUCT_USE_PROFILE_FOR_BOOT_IMAGE := true
 PRODUCT_DEX_PREOPT_BOOT_IMAGE_PROFILE_LOCATION := frameworks/base/config/boot-image-profile.txt
 
-# Add the system properties.
+# Add Go defaults but override LMK to be less aggressive than go_defaults.
+# Vendor sets downgrade_pressure=80 (conservative); go_defaults forces 60 (aggressive).
+# On 1GB with zram+swap, vendor's settings are better.
 TARGET_SYSTEM_PROP += \
     build/make/target/board/go_defaults_common.prop
+
+PRODUCT_SYSTEM_PROPERTIES += \
+    ro.lmk.downgrade_pressure=80 \
+    ro.lmk.upgrade_pressure=35 \
+    ro.lmk.swap_free_low_percentage=5
 
 # Dedupe VNDK libraries with identical core variants.
 TARGET_VNDK_USE_CORE_VARIANT := true

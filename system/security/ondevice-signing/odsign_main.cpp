@@ -471,6 +471,15 @@ art::odrefresh::ExitCode CheckCompOsPendingArtifacts(const SigningKey& signing_k
 int main(int /* argc */, char** argv) {
     android::base::InitLogging(argv, android::base::LogdLogger(android::base::SYSTEM));
 
+    if (android::base::GetBoolProperty("ro.odsign.skip_verification", false)) {
+        LOG(INFO) << "ro.odsign.skip_verification=1, skipping odsign entirely.";
+        SetProperty(kOdsignKeyDoneProp, "1");
+        SetProperty(kOdsignVerificationStatusProp, kOdsignVerificationStatusValid);
+        SetProperty(kOdsignVerificationDoneProp, "1");
+        SetProperty(kStopServiceProp, "odsign");
+        return 0;
+    }
+
     auto scope_guard = android::base::make_scope_guard([]() {
         // In case we hit any error, remove the artifacts and tell Zygote not to use
         // anything

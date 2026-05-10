@@ -1,7 +1,7 @@
 import /system/etc/init/hw/init.zygote64.rc
 
 service zygote_secondary /system/bin/app_process32 -Xzygote /system/bin --zygote --socket-name=zygote_secondary --enable-lazy-preload
-    class main
+    disabled
     priority -20
     user root
     group root readproc reserved_disk
@@ -9,3 +9,9 @@ service zygote_secondary /system/bin/app_process32 -Xzygote /system/bin --zygote
     socket usap_pool_secondary stream 660 root system
     onrestart restart zygote
     task_profiles ProcessCapacityHigh MaxPerformance
+
+on property:ro.zygote.disable_secondary=
+    enable zygote_secondary
+
+on property:ro.zygote.disable_secondary=0
+    enable zygote_secondary

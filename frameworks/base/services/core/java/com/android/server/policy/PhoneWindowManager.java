@@ -7740,8 +7740,9 @@ public class PhoneWindowManager implements WindowManagerPolicy {
 
     @Override
     public boolean canDismissBootAnimation() {
-        // Allow to dismiss the boot animation if the keyguard has finished drawing,
-        // or mBootAnimationDismissable has been set
+        if (android.os.SystemProperties.getBoolean("ro.gammaos.lean_boot", false)) {
+            return true;
+        }
         return mDefaultDisplayPolicy.isKeyguardDrawComplete() || mBootAnimationDismissable;
     }
 

@@ -260,7 +260,7 @@ PRODUCT_PACKAGES += \
     screencap \
     sdcard \
     secdiscard \
-    SecureElement \
+    $(if $(filter true,$(PRODUCT_IS_ATV)),,SecureElement) \
     selinux_policy_system \
     sensorservice \
     service \

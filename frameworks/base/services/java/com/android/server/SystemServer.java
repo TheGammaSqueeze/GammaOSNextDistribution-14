@@ -1537,6 +1537,12 @@ public final class SystemServer implements Dumpable {
             Slog.i(TAG, "GammaOS Nano: MINIMAL BOOT MODE - skipping non-essential services");
         }
 
+        final boolean leanBoot = SystemProperties.getBoolean(
+                "ro.gammaos.lean_boot", false);
+        if (leanBoot) {
+            Slog.i(TAG, "GammaOS Core: LEAN BOOT MODE - skipping non-essential services");
+        }
+
         // For debugging RescueParty
         if (Build.IS_DEBUGGABLE && SystemProperties.getBoolean("debug.crash_system", false)) {
             throw new RuntimeException();
@@ -2491,8 +2497,6 @@ public final class SystemServer implements Dumpable {
                 t.traceBegin("StartWallpaperManagerService");
                 mSystemServiceManager.startService(WALLPAPER_SERVICE_CLASS);
                 t.traceEnd();
-            } else {
-                Slog.i(TAG, "Wallpaper service disabled by config");
             }
 
             // WallpaperEffectsGeneration manager service
@@ -2811,10 +2815,11 @@ public final class SystemServer implements Dumpable {
             // We need to always start this service, regardless of whether the
             // FEATURE_VOICE_RECOGNIZERS feature is set, because it needs to take care
             // of initializing various settings.  It will internally modify its behavior
-            // based on that feature.
-            t.traceBegin("StartVoiceRecognitionManager");
-            mSystemServiceManager.startService(VOICE_RECOGNITION_MANAGER_SERVICE_CLASS);
-            t.traceEnd();
+            if (!leanBoot) {
+                t.traceBegin("StartVoiceRecognitionManager");
+                mSystemServiceManager.startService(VOICE_RECOGNITION_MANAGER_SERVICE_CLASS);
+                t.traceEnd();
+            }
 
             if (GestureLauncherService.isGestureLauncherEnabled(context.getResources())) {
                 t.traceBegin("StartGestureLauncher");
@@ -2877,7 +2882,6 @@ public final class SystemServer implements Dumpable {
             mSystemServiceManager.startService(BLOB_STORE_MANAGER_SERVICE_CLASS);
             t.traceEnd();
 
-            // Dreams (interactive idle-time views, a/k/a screen savers, and doze mode)
             t.traceBegin("StartDreamManager");
             mSystemServiceManager.startService(DreamManagerService.class);
             t.traceEnd();
@@ -2893,23 +2897,25 @@ public final class SystemServer implements Dumpable {
                 t.traceEnd();
             }
 
-            if (mPackageManager.hasSystemFeature(PackageManager.FEATURE_PRINTING)) {
+            if (!leanBoot && mPackageManager.hasSystemFeature(PackageManager.FEATURE_PRINTING)) {
                 t.traceBegin("StartPrintManager");
                 mSystemServiceManager.startService(PRINT_MANAGER_SERVICE_CLASS);
                 t.traceEnd();
             }
 
-            t.traceBegin("StartAttestationVerificationService");
-            mSystemServiceManager.startService(AttestationVerificationManagerService.class);
-            t.traceEnd();
+            if (!leanBoot) {
+                t.traceBegin("StartAttestationVerificationService");
+                mSystemServiceManager.startService(AttestationVerificationManagerService.class);
+                t.traceEnd();
+            }
 
-            if (mPackageManager.hasSystemFeature(PackageManager.FEATURE_COMPANION_DEVICE_SETUP)) {
+            if (!leanBoot && mPackageManager.hasSystemFeature(PackageManager.FEATURE_COMPANION_DEVICE_SETUP)) {
                 t.traceBegin("StartCompanionDeviceManager");
                 mSystemServiceManager.startService(COMPANION_DEVICE_MANAGER_SERVICE_CLASS);
                 t.traceEnd();
             }
 
-            if (context.getResources().getBoolean(R.bool.config_enableVirtualDeviceManager)) {
+            if (!leanBoot && context.getResources().getBoolean(R.bool.config_enableVirtualDeviceManager)) {
                 t.traceBegin("StartVirtualDeviceManager");
                 mSystemServiceManager.startService(VIRTUAL_DEVICE_MANAGER_SERVICE_CLASS);
                 t.traceEnd();
@@ -3164,10 +3170,11 @@ public final class SystemServer implements Dumpable {
         mSystemServiceManager.startService(STATS_BOOTSTRAP_ATOM_SERVICE_LIFECYCLE_CLASS);
         t.traceEnd();
 
-        // Incidentd and dumpstated helper
-        t.traceBegin("StartIncidentCompanionService");
-        mSystemServiceManager.startService(IncidentCompanionService.class);
-        t.traceEnd();
+        if (!leanBoot) {
+            t.traceBegin("StartIncidentCompanionService");
+            mSystemServiceManager.startService(IncidentCompanionService.class);
+            t.traceEnd();
+        }
 
         // SdkSandboxManagerService
         t.traceBegin("StarSdkSandboxManagerService");
@@ -3416,9 +3423,11 @@ public final class SystemServer implements Dumpable {
         mSystemServiceManager.startService(SAFETY_CENTER_SERVICE_CLASS);
         t.traceEnd();
 
-        t.traceBegin("AppSearchModule");
-        mSystemServiceManager.startService(APPSEARCH_MODULE_LIFECYCLE_CLASS);
-        t.traceEnd();
+        if (!leanBoot) {
+            t.traceBegin("AppSearchModule");
+            mSystemServiceManager.startService(APPSEARCH_MODULE_LIFECYCLE_CLASS);
+            t.traceEnd();
+        }
 
         if (SystemProperties.getBoolean("ro.config.isolated_compilation_enabled", false)) {
             t.traceBegin("IsolatedCompilationService");
@@ -3434,11 +3443,13 @@ public final class SystemServer implements Dumpable {
         mSystemServiceManager.startService(APP_COMPAT_OVERRIDES_SERVICE_CLASS);
         t.traceEnd();
 
-        t.traceBegin("HealthConnectManagerService");
-        mSystemServiceManager.startService(HEALTHCONNECT_MANAGER_SERVICE_CLASS);
-        t.traceEnd();
+        if (!leanBoot) {
+            t.traceBegin("HealthConnectManagerService");
+            mSystemServiceManager.startService(HEALTHCONNECT_MANAGER_SERVICE_CLASS);
+            t.traceEnd();
+        }
 
-        if (mPackageManager.hasSystemFeature(PackageManager.FEATURE_DEVICE_LOCK)) {
+        if (!leanBoot && mPackageManager.hasSystemFeature(PackageManager.FEATURE_DEVICE_LOCK)) {
             t.traceBegin("DeviceLockService");
             mSystemServiceManager.startServiceFromJar(DEVICE_LOCK_SERVICE_CLASS,
                     DEVICE_LOCK_APEX_PATH);
