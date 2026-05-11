@@ -80,9 +80,6 @@
     <!-- Extra padding between picture-in-picture windows and any registered keep clear areas. -->
     <dimen name="pip_keep_clear_areas_padding">16dp</dimen>
 
-    <!-- TV PIP keep clear area padding (TvPipBoundsAlgorithm, values-television fallback) -->
-    <dimen name="pip_keep_clear_area_padding">16dp</dimen>
-
     <dimen name="dismiss_target_x_size">24dp</dimen>
     <dimen name="floating_dismiss_bottom_margin">50dp</dimen>
 
@@ -538,5 +535,8 @@
     <!-- The vertical margin that needs to be preserved between the scaled window bounds and the
     original window bounds (once the surface is scaled enough to do so) -->
     <dimen name="cross_task_back_vertical_margin">8dp</dimen>
+
+    <!-- TV PIP fallback (values-television resource that must exist in base) -->
+    <dimen name="pip_keep_clear_area_padding">16dp</dimen>
 
 </resources>

@@ -4264,9 +4264,11 @@
          must be no less than 3 for back compatibility. -->
     <integer name="config_pictureInPictureMaxNumberOfActions">3</integer>
 
-    <!-- TV PIP expanded dimensions (prevents TvSystemUI crash on non-television UI mode) -->
-    <item name="config_pictureInPictureExpandedHorizontalHeight" format="dimension" type="dimen">110dp</item>
-    <item name="config_pictureInPictureExpandedVerticalWidth" format="dimension" type="dimen">110dp</item>
+    <!-- TV PIP expanded dimensions (base fallback for values-television) -->
+    <item name="config_pictureInPictureExpandedHorizontalHeight"
+          format="dimension" type="dimen">110dp</item>
+    <item name="config_pictureInPictureExpandedVerticalWidth"
+          format="dimension" type="dimen">110dp</item>
 
     <!-- The behavior when an activity has not specified a preference to dock big overlays or not.
          Docking puts the activity side-by-side next to the big overlay windows. -->
