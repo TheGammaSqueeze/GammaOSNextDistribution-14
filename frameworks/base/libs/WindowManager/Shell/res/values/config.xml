@@ -111,6 +111,11 @@
          Needs to be less that or equal to 1. -->
     <item name="config_pipLargeScreenOptimizedAspectRatio" format="float" type="dimen">0.5625</item>
 
+    <!-- TV PIP fallback values (values-television resources that must exist in base
+         because UI mode is NORMAL not TELEVISION on some TV devices) -->
+    <fraction name="config_pipMaxRestrictedMoveDistance">15%</fraction>
+    <integer name="config_pipStashDuration">5000</integer>
+
     <!-- The default gravity for the picture-in-picture window.
          Currently, this maps to Gravity.BOTTOM | Gravity.RIGHT -->
     <integer name="config_defaultPictureInPictureGravity">0x55</integer>

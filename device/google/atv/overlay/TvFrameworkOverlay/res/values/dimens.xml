@@ -35,4 +35,8 @@
     <!-- This overlay makes sure that notification icons are large enough to be used as Recommendation images -->
     <!-- <dimen name="notification_right_icon_size">320dp</dimen> -->
 
+    <!-- TV PIP dimensions (required by TvSystemUI TvPipBoundsAlgorithm) -->
+    <item name="config_pictureInPictureExpandedHorizontalHeight" format="dimension" type="dimen">110dp</item>
+    <item name="config_pictureInPictureExpandedVerticalWidth" format="dimension" type="dimen">110dp</item>
+
 </resources>

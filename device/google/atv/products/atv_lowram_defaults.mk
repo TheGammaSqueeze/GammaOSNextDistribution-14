@@ -39,8 +39,9 @@ PRODUCT_SYSTEM_PROPERTIES += \
     ro.gammaos.lean_boot=true \
     ro.gammaos.composition_timeout_ms=2000 \
     sys.read_ahead_kb=2048 \
-    ro.sys.fw.bg_apps_limit=4 \
-    persist.sys.fw.bg_apps_limit=4
+    vm.swappiness=100 \
+    ro.sys.fw.bg_apps_limit=1 \
+    persist.sys.fw.bg_apps_limit=1
 
 # 64-bit only zygote saves ~105MB by not forking 32-bit zygote.
 # Vendor overrides ro.zygote; we stop zygote_secondary via init trigger.
