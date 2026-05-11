@@ -311,25 +311,43 @@ public class KeyguardSliceProvider extends SliceProvider implements
 
     @Override
     public boolean onCreateSliceProvider() {
-        mContextAvailableCallback.onContextAvailable(getContext());
-        mMediaWakeLock = new SettableWakeLock(
-                WakeLock.createPartial(getContext(), mWakeLockLogger, "media"), "media");
-        synchronized (KeyguardSliceProvider.sInstanceLock) {
-            KeyguardSliceProvider oldInstance = KeyguardSliceProvider.sInstance;
-            if (oldInstance != null) {
-                oldInstance.onDestroy();
+        try {
+            mContextAvailableCallback.onContextAvailable(getContext());
+        } catch (Exception e) {
+            android.util.Log.w("KeyguardSliceProvider", "Dagger injection incomplete", e);
+            return true;
+        }
+        try {
+            mMediaWakeLock = new SettableWakeLock(
+                    WakeLock.createPartial(getContext(), mWakeLockLogger, "media"), "media");
+            synchronized (KeyguardSliceProvider.sInstanceLock) {
+                KeyguardSliceProvider oldInstance = KeyguardSliceProvider.sInstance;
+                if (oldInstance != null) {
+                    oldInstance.onDestroy();
+                }
+                mDatePattern = getContext().getString(R.string.system_ui_aod_date_pattern);
+                mPendingIntent = PendingIntent.getActivity(getContext(), 0,
+                        new Intent(getContext(), KeyguardSliceProvider.class),
+                        PendingIntent.FLAG_IMMUTABLE);
+                if (mMediaManager != null) {
+                    mMediaManager.addCallback(this);
+                }
+                if (mStatusBarStateController != null) {
+                    mStatusBarStateController.addCallback(this);
+                }
+                if (mNextAlarmController != null) {
+                    mNextAlarmController.addCallback(this);
+                }
+                if (mZenModeController != null) {
+                    mZenModeController.addCallback(this);
+                }
+                KeyguardSliceProvider.sInstance = this;
+                registerClockUpdate();
+                updateClockLocked();
             }
-            mDatePattern = getContext().getString(R.string.system_ui_aod_date_pattern);
-            mPendingIntent = PendingIntent.getActivity(getContext(), 0,
-                    new Intent(getContext(), KeyguardSliceProvider.class),
-                    PendingIntent.FLAG_IMMUTABLE);
-            mMediaManager.addCallback(this);
-            mStatusBarStateController.addCallback(this);
-            mNextAlarmController.addCallback(this);
-            mZenModeController.addCallback(this);
-            KeyguardSliceProvider.sInstance = this;
-            registerClockUpdate();
-            updateClockLocked();
+        } catch (NullPointerException e) {
+            android.util.Log.w("KeyguardSliceProvider",
+                    "Skipping keyguard slice init - injection incomplete", e);
         }
         return true;
     }

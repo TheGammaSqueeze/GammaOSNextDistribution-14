@@ -536,4 +536,7 @@
     original window bounds (once the surface is scaled enough to do so) -->
     <dimen name="cross_task_back_vertical_margin">8dp</dimen>
 
+    <!-- TV PIP fallback (values-television resource that must exist in base) -->
+    <dimen name="pip_keep_clear_area_padding">16dp</dimen>
+
 </resources>

@@ -1210,12 +1210,20 @@ on zygote-start
     start statsd
     start netd
     start zygote
+
+on zygote-start && property:ro.zygote.disable_secondary=
+    start zygote_secondary
+
+on zygote-start && property:ro.zygote.disable_secondary=0
     start zygote_secondary
 
 on boot && property:ro.config.low_ram=true
     # Tweak background writeout
     write /proc/sys/vm/dirty_expire_centisecs 200
     write /proc/sys/vm/dirty_background_ratio  5
+
+on property:ro.zygote.disable_secondary=1
+    stop zygote_secondary
 
 on boot && property:suspend.disable_sync_on_suspend=true
     write /sys/power/sync_on_suspend 0

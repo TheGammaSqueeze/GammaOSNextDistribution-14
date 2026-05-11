@@ -112,6 +112,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * This is a permission policy that governs over all permission mechanism
@@ -633,16 +635,23 @@ public final class PermissionPolicyService extends SystemService {
                             future.completeExceptionally(new IllegalStateException(message));
                         }
                     });
+            long timeoutMs = android.os.SystemProperties.getLong(
+                    "ro.permission.grant.timeout_ms", 60000);
             try {
                 t.traceBegin("Permission_callback_waiting-" + userId);
-                future.get();
+                future.get(timeoutMs, TimeUnit.MILLISECONDS);
+            } catch (TimeoutException e) {
+                Slog.w(LOG_TAG, "Timed out waiting for permission grant after "
+                        + timeoutMs + "ms for user " + userId + ", continuing boot");
             } catch (InterruptedException | ExecutionException e) {
-                throw new IllegalStateException(e);
+                Slog.w(LOG_TAG, "Permission grant failed for user " + userId
+                        + ", continuing boot", e);
             } finally {
                 t.traceEnd();
             }
 
-            permissionControllerManager.updateUserSensitive();
+            PermissionThread.getHandler().post(
+                    permissionControllerManager::updateUserSensitive);
 
             packageManagerInternal.updateRuntimePermissionsFingerprint(userId);
         }

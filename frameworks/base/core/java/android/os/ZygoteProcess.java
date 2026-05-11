@@ -886,8 +886,8 @@ public class ZygoteProcess {
      * Notify the Zygote processes that boot completed.
      */
     public void bootCompleted() {
-        // Notify both the 32-bit and 64-bit zygote.
-        if (Build.SUPPORTED_32_BIT_ABIS.length > 0) {
+        if (Build.SUPPORTED_32_BIT_ABIS.length > 0
+                && !SystemProperties.getBoolean("ro.zygote.disable_secondary", false)) {
             bootCompleted(Build.SUPPORTED_32_BIT_ABIS[0]);
         }
         if (Build.SUPPORTED_64_BIT_ABIS.length > 0) {
@@ -1197,6 +1197,11 @@ public class ZygoteProcess {
      * @param zygoteSocketAddress The name of the socket to connect to.
      */
     public static void waitForConnectionToZygote(LocalSocketAddress zygoteSocketAddress) {
+        if (zygoteSocketAddress.getName().contains("secondary")
+                && SystemProperties.getBoolean("ro.zygote.disable_secondary", false)) {
+            Log.i(LOG_TAG, "Skipping connection to disabled secondary zygote");
+            return;
+        }
         int numRetries = ZYGOTE_CONNECT_TIMEOUT_MS / ZYGOTE_CONNECT_RETRY_DELAY_MS;
         for (int n = numRetries; n >= 0; n--) {
             try {

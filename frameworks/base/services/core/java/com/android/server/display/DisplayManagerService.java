@@ -982,9 +982,32 @@ public final class DisplayManagerService extends SystemService {
         mMinimumBrightnessSpline = Spline.createSpline(lux, nits);
 
         mCurrentUserId = UserHandle.USER_SYSTEM;
-        ColorSpace[] colorSpaces = SurfaceControl.getCompositionColorSpaces();
-        mWideColorSpace = colorSpaces[1];
-        mOverlayProperties = SurfaceControl.getOverlaySupport();
+        final long compositionTimeoutMs = android.os.SystemProperties.getLong(
+                "ro.gammaos.composition_timeout_ms", 0);
+        if (compositionTimeoutMs > 0) {
+            final java.util.concurrent.atomic.AtomicReference<ColorSpace[]> csRef =
+                    new java.util.concurrent.atomic.AtomicReference<>();
+            final java.util.concurrent.atomic.AtomicReference<OverlayProperties> opRef =
+                    new java.util.concurrent.atomic.AtomicReference<>();
+            Thread t2 = new Thread(() -> {
+                csRef.set(SurfaceControl.getCompositionColorSpaces());
+                opRef.set(SurfaceControl.getOverlaySupport());
+            }, "composition-query");
+            t2.start();
+            try {
+                t2.join(compositionTimeoutMs);
+            } catch (InterruptedException ignored) {}
+            ColorSpace[] colorSpaces = csRef.get();
+            mWideColorSpace = (colorSpaces != null && colorSpaces.length > 1)
+                    ? colorSpaces[1] : ColorSpace.get(ColorSpace.Named.DISPLAY_P3);
+            OverlayProperties op = opRef.get();
+            mOverlayProperties = (op != null) ? op
+                    : android.hardware.OverlayProperties.getDefault();
+        } else {
+            ColorSpace[] colorSpaces = SurfaceControl.getCompositionColorSpaces();
+            mWideColorSpace = colorSpaces[1];
+            mOverlayProperties = SurfaceControl.getOverlaySupport();
+        }
         mSystemReady = false;
         mConfigParameterProvider = new DeviceConfigParameterProvider(DeviceConfigInterface.REAL);
         mExtraDisplayLoggingPackageName = DisplayProperties.debug_vri_package().orElse(null);

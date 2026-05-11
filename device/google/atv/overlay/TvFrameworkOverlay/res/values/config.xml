@@ -140,7 +140,7 @@
 
     <!-- Determines whether recent tasks are provided to the user. Default device has recents
          property. If this is false, then the following recents config flags are ignored. -->
-    <bool name="config_hasRecents">true</bool>
+    <bool name="config_hasRecents">false</bool>
 
     <!-- Whether to start in touch mode -->
     <bool name="config_defaultInTouchMode">false</bool>
@@ -154,10 +154,10 @@
     <integer name="config_jobSchedulerInactivityIdleThreshold">300000</integer>
 
     <!-- True if the device supports split screen as a form of multi-window. -->
-    <bool name="config_supportsSplitScreenMultiWindow">true</bool>
+    <bool name="config_supportsSplitScreenMultiWindow">false</bool>
 
     <!-- True if the device supports system decorations on secondary displays. -->
-    <bool name="config_supportsSystemDecorsOnSecondaryDisplays">true</bool>
+    <bool name="config_supportsSystemDecorsOnSecondaryDisplays">false</bool>
 
     <!-- True if the device requires AppWidgetService even if it does not have
          the PackageManager.FEATURE_APP_WIDGETS feature.
@@ -173,7 +173,7 @@
     <integer name="config_maxUiWidth">1920</integer>
 
     <!-- Whether the device supports quick settings and its associated APIs -->
-    <bool name="config_quickSettingsSupported">true</bool>
+    <bool name="config_quickSettingsSupported">false</bool>
 
     <!-- Whether to keep background restricted profiles running after exiting. If set to false,
          restricted profiles may be put into stopped state as soon as the switch back to primary

@@ -53,7 +53,23 @@ PRODUCT_PACKAGES += \
 # Specify product type
 PRODUCT_CHARACTERISTICS := tv
 
+# Low-RAM defaults for 1GB devices
+$(call inherit-product, device/google/atv/products/atv_lowram_defaults.mk)
+
+PRODUCT_PACKAGES += TvLowRamOverlay
+
+# Kill lockscreen completely for ATV builds.
+PRODUCT_PACKAGES += NoKeyguardFrameworkOverlay
+PRODUCT_SYSTEM_PROPERTIES += \
+    ro.lockscreen.disable.default=true \
+    persist.sys.disable_lockscreen=1
+
 #
 # Special settings for GSI releasing
 #
 $(call inherit-product, $(SRC_TARGET_DIR)/product/gsi_release.mk)
+
+# Remove after gsi_release.mk to ensure it sticks.
+PRODUCT_REMOVE_PACKAGES += \
+    SecureElement \
+    Settings
