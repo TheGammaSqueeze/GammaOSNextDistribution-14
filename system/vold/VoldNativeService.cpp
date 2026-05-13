@@ -769,23 +769,32 @@ binder::Status VoldNativeService::abortChanges(const std::string& message, bool 
     return Ok();
 }
 
+// GammaOS Nano: cp_supportsCheckpoint / cp_supportsBlockCheckpoint /
+// cp_supportsFileCheckpoint only read fstab_default, which is populated
+// once at vold startup and never mutated afterwards. Acquiring the
+// shared VolumeManager lock here serialised these read-only queries
+// behind earlyBootEnded(), which blocks the lock for the full duration
+// of Keystore::earlyBootEnded() (~12 s on cold boot while keystore2
+// returns -68 OPERATION_PENDING). apexd's VoldCheckpointInterface
+// constructor calls supportsCheckpoint() during its own Initialize(),
+// which is why we saw apexd stall for ~12 s after the binary starts
+// before logging "Scanning /system/apex". The fstab read does not need
+// a lock and we can let supportsCheckpoint run concurrently with the
+// keystore-bound earlyBootEnded path.
 binder::Status VoldNativeService::supportsCheckpoint(bool* _aidl_return) {
     ENFORCE_SYSTEM_OR_ROOT;
-    ACQUIRE_LOCK;
 
     return cp_supportsCheckpoint(*_aidl_return);
 }
 
 binder::Status VoldNativeService::supportsBlockCheckpoint(bool* _aidl_return) {
     ENFORCE_SYSTEM_OR_ROOT;
-    ACQUIRE_LOCK;
 
     return cp_supportsBlockCheckpoint(*_aidl_return);
 }
 
 binder::Status VoldNativeService::supportsFileCheckpoint(bool* _aidl_return) {
     ENFORCE_SYSTEM_OR_ROOT;
-    ACQUIRE_LOCK;
 
     return cp_supportsFileCheckpoint(*_aidl_return);
 }
