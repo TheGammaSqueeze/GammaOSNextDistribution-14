@@ -24,3 +24,31 @@ PRODUCT_MODEL := TrebleDroid TV with FOSS apps
 PRODUCT_CHARACTERISTICS := tv
 
 PRODUCT_PACKAGES += 
+
+# GammaOS Nano: ATV builds (used by handheld emulator devices like TrimUI
+# Brick) do not need the full Android apex set. Drop apex modules that
+# are never exercised on a retro gaming handheld so apexd activation is
+# faster at boot. com.android.runtime / art / i18n / tzdata / conscrypt /
+# resolv / media / media.swcodec / adbd / permission / wifi / statsd /
+# tethering / configinfrastructure / mediaprovider / scheduling /
+# sdkext / extservices stay - they back framework functionality that
+# RetroArch + the Nano menu actually use. The list below is the set
+# that:
+#   - has no hardware behind it (uwb, virt)
+#   - is for use cases the device does not target (adservices,
+#     appsearch, healthfitness, ondevicepersonalization, devicelock,
+#     ipsec, rkpd, neuralnetworks)
+#   - is a CTS test shim only (apex.cts.shim)
+# btservices stays because we DO ship Bluetooth on these devices.
+PRODUCT_PACKAGES_REMOVE += \
+    com.android.adservices \
+    com.android.apex.cts.shim \
+    com.android.appsearch \
+    com.android.devicelock \
+    com.android.healthfitness \
+    com.android.ipsec \
+    com.android.neuralnetworks \
+    com.android.ondevicepersonalization \
+    com.android.rkpd \
+    com.android.uwb \
+    com.android.virt

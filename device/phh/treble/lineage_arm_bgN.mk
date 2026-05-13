@@ -9,7 +9,7 @@ PRODUCT_NAME := lineage_arm_bgN
 PRODUCT_DEVICE := tdgsi_arm_ab
 PRODUCT_BRAND := google
 PRODUCT_SYSTEM_BRAND := google
-PRODUCT_MODEL := GammaOS Next Full
+PRODUCT_MODEL := TrebleDroid with GApps
 
 # Overwrite the inherited "emulator" characteristics
 PRODUCT_CHARACTERISTICS := device
