@@ -419,6 +419,36 @@ status_t NanoMenu::readyToRun() {
     //      opens a Nintendo DS game. The "drastic" sentinel in
     //      qr_core distinguishes drastic QR from libretro QR (which
     //      stores a full core .so path).
+    //
+    // Persist props can race with our early start. gammaos-nano begins
+    // around T+7 s on the Brick while persistent_properties loads at
+    // ~T+9 to 10 s. Without a brief wait here, the qr_prepared read
+    // below comes back "0" on every cold boot and the drastic fast
+    // path is silently skipped (NanoMenu falls into the XMB render
+    // loop instead). Wait up to 2 s, breaking out as soon as the
+    // property service publishes ro.persistent_properties.ready=true.
+    {
+        char ready[PROPERTY_VALUE_MAX] = {};
+        property_get("ro.persistent_properties.ready", ready, "");
+        if (strcmp(ready, "true") != 0) {
+            int waited = 0;
+            for (int i = 0; i < 200; i++) {
+                usleep(10000);
+                waited += 10;
+                property_get("ro.persistent_properties.ready",
+                             ready, "");
+                if (!strcmp(ready, "true")) break;
+            }
+            if (strcmp(ready, "true") == 0) {
+                ALOGI("NanoMenu: persist props ready after %d ms "
+                      "(drastic QR pre-check)", waited);
+            } else {
+                ALOGW("NanoMenu: persist props still not ready after "
+                      "%d ms (drastic QR pre-check), continuing",
+                      waited);
+            }
+        }
+    }
     {
         char smoke[PROPERTY_VALUE_MAX] = {};
         property_get("persist.gammaos.nano.drastic_smoke", smoke, "0");
@@ -872,6 +902,18 @@ status_t NanoMenu::readyToRun() {
         t.setDisplayProjection(mDisplayToken, ui::ROTATION_0, forcedRes, physRes);
         t.setLayer(control, 0x40000001);
         t.setLayerStack(control, chosenLayerStack);
+        // Explicitly show the layer. createSurface usually creates a
+        // visible SurfaceControl on Android 14, but the 2026-05-13 boot
+        // path change (StartPropertySetThread no longer fires bootanim
+        // on the nano route) leaves the primary display with no boot-time
+        // layer chain. On the Brick (Allwinner A133 + sunxi HWC) the
+        // SurfaceFlinger composition output then shows pure black for the
+        // QR libretro loop even though NanoMenu is calling
+        // eglSwapBuffers, because the layer's visibility flag never got
+        // flipped on by anything else. Mirrors what
+        // setupSecondaryEglSurfaces() already does for the wallpaper
+        // SurfaceControl.
+        t.show(control);
         {
             char dsActive[PROPERTY_VALUE_MAX] = {};
             property_get("sys.gammaos.dualstack.active", dsActive, "0");
@@ -1010,12 +1052,44 @@ bool NanoMenu::threadLoop() {
     // terminate the menu on restarts.
     property_set("service.bootanim.exit", "0");
 
+    // Wait for persistent properties to load before reading any persist.*
+    // values. readyToRun() used to wait for ro.persistent_properties.ready
+    // up top, but the 2026-05-13 boot-speed work moved that wait out of
+    // the EGL hot path so first paint is not delayed. We still need the
+    // wait here, otherwise the re-reads below (and the Quick Resume gate
+    // further down at "if (mQuickResumeEnabled)") fall back to defaults
+    // when persist props have not loaded yet, silently disabling QR auto
+    // resume on every cold boot. Cap at 3 s, which is plenty given persist
+    // props normally settle within ~200 ms of /data being mounted.
+    {
+        char ready[PROPERTY_VALUE_MAX] = {};
+        property_get("ro.persistent_properties.ready", ready, "");
+        if (strcmp(ready, "true") != 0) {
+            int waited = 0;
+            for (int i = 0; i < 300; i++) {
+                usleep(10000);
+                waited += 10;
+                property_get("ro.persistent_properties.ready", ready, "");
+                if (!strcmp(ready, "true")) break;
+            }
+            if (strcmp(ready, "true") == 0) {
+                ALOGI("NanoMenu: persist props ready after %d ms", waited);
+            } else {
+                ALOGW("NanoMenu: persist props still not ready after "
+                      "%d ms, continuing with possibly stale defaults",
+                      waited);
+            }
+        }
+    }
+
     // Re-read quick resume flag — the constructor runs before persist props
     // are loaded, so the value read there may be stale (always false).
     mQuickResumeEnabled = android::base::GetBoolProperty(
             "persist.gammaos.nano.quick_resume", false);
     mXmbMode = android::base::GetBoolProperty(
             "persist.gammaos.nano.xmb_mode", false);
+    ALOGI("NanoMenu: persist read quick_resume=%d xmb_mode=%d",
+          mQuickResumeEnabled ? 1 : 0, mXmbMode ? 1 : 0);
     // Re-read wallpaper effect (constructor ran before persist props loaded)
     {
         char wallpaper[PROPERTY_VALUE_MAX] = {};
