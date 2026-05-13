@@ -173,3 +173,11 @@ dontaudit surfaceflinger unlabeled:dir search;
 
 get_prop(surfaceflinger, persist_sysui_builder_extras_prop)
 get_prop(surfaceflinger, persist_gammaos_prop)
+
+# GammaOS Nano: read /data/misc/bootanim/nano_skip in
+# StartPropertySetThread to decide bootanim vs gammaos-nano before
+# persistent_properties have loaded. The file is written by the
+# init.rc nano_action dispatchers (Boot Android, Reboot, etc.).
+allow surfaceflinger bootanim_data_file:dir r_dir_perms;
+allow surfaceflinger bootanim_data_file:file r_file_perms;
+get_prop(surfaceflinger, persistent_properties_ready_prop)

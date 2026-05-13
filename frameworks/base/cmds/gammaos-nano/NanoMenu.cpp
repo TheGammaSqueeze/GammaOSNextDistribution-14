@@ -320,21 +320,80 @@ status_t NanoMenu::readyToRun() {
         ALOGI("GammaOS Nano: using early DRM master fd=%d from main()", earlyDrmFd);
     }
 
-    // GammaOS Nano: only opt OUT to bootanim when persist.bootanim.skip_nano
-    // is explicitly "1". Empty or any other value defaults to the nano
-    // path. init.rc only ever starts gammaos-nano via the surfaceflinger
-    // trigger when skip_nano=0, so by the time we run we already know
-    // nano was the intended path; the previous "wait up to 5 s for
-    // ro.persistent_properties.ready=true" guard was a race-prone safety
-    // net that gave up and handed off to bootanim whenever the persist
-    // load happened after this readyToRun() call (seen on A133 / TrimUI
-    // Brick where the 5 s wait expired and the device showed the normal
-    // BootAnimation before NanoMenu finally took over on the second
-    // gammaos-nano start).
-    char skip[PROPERTY_VALUE_MAX] = {};
-    property_get("persist.bootanim.skip_nano", skip, "");
-    if (strcmp(skip, "1") == 0) {
-        ALOGI("GammaOS Nano: skip_nano='1', starting bootanim");
+    // GammaOS Nano: decide whether to run NanoMenu or bail to stock
+    // bootanim. The durable source of truth is
+    // persist.bootanim.skip_nano (loaded from /data/property/
+    // persistent_properties by init's load_persist_props), but that
+    // load completes after /data is decrypted and after this readyToRun
+    // call. To avoid a long wait on ro.persistent_properties.ready
+    // every boot, we cache the same value in /data/misc/bootanim/
+    // nano_skip whenever it changes through the on-device action
+    // dispatchers in init.rc. /data/misc/bootanim is in DE storage so
+    // it is readable as soon as /data is mounted, no FBE unlock
+    // required.
+    //
+    // Fast path: read the file. "0" = nano, "1" = bootanim. Anything
+    // else (file missing on first boot, malformed content) drops to
+    // the property fallback with a wait, mirroring the original
+    // behavior.
+    bool decided = false;
+    bool fileBootanim = false;
+    {
+        int fd = open("/data/misc/bootanim/nano_skip",
+                      O_RDONLY | O_CLOEXEC);
+        if (fd >= 0) {
+            char buf[8] = {};
+            ssize_t n = read(fd, buf, sizeof(buf) - 1);
+            close(fd);
+            if (n > 0) {
+                // Strip trailing newline/whitespace from init's
+                // `write` directive output.
+                for (ssize_t i = 0; i < n; i++) {
+                    if (buf[i] == '\n' || buf[i] == '\r' ||
+                        buf[i] == ' ') { buf[i] = 0; break; }
+                }
+                if (strcmp(buf, "0") == 0) {
+                    ALOGI("GammaOS Nano: DE state file = '0', "
+                          "running nano");
+                    decided = true;
+                } else if (strcmp(buf, "1") == 0) {
+                    ALOGI("GammaOS Nano: DE state file = '1', "
+                          "starting bootanim");
+                    decided = true;
+                    fileBootanim = true;
+                } else {
+                    ALOGW("GammaOS Nano: DE state file has "
+                          "unexpected content '%s', falling back to "
+                          "persist property", buf);
+                }
+            }
+        }
+    }
+
+    if (!decided) {
+        // Slow path: wait up to 10 s for persist props, then read.
+        char ready[PROPERTY_VALUE_MAX] = {};
+        property_get("ro.persistent_properties.ready", ready, "");
+        if (strcmp(ready, "true") != 0) {
+            ALOGI("GammaOS Nano: persist props not ready, waiting...");
+            for (int i = 0; i < 1000; i++) {
+                usleep(10000);
+                property_get("ro.persistent_properties.ready", ready, "");
+                if (strcmp(ready, "true") == 0) break;
+            }
+        }
+        char skip[PROPERTY_VALUE_MAX] = {};
+        property_get("persist.bootanim.skip_nano", skip, "");
+        if (strcmp(skip, "0") == 0) {
+            ALOGI("GammaOS Nano: skip_nano='0', running nano");
+        } else {
+            ALOGI("GammaOS Nano: skip_nano='%s' (not '0'), "
+                  "starting bootanim", skip);
+            fileBootanim = true;
+        }
+    }
+
+    if (fileBootanim) {
         if (earlyDrmFd >= 0) {
             ioctl(earlyDrmFd, DRM_IOCTL_DROP_MASTER, 0);
             close(earlyDrmFd);
@@ -342,7 +401,6 @@ status_t NanoMenu::readyToRun() {
         property_set("ctl.start", "bootanim");
         _exit(0);
     }
-    ALOGI("GammaOS Nano: skip_nano='%s' (not '1'), running nano", skip);
     tlog("skip_nano check passed");
 
     // GammaOS: Detect drastic QR fast-path early so subsequent init

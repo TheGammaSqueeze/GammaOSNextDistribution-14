@@ -1385,7 +1385,16 @@ on property:service.bootanim.nano_retroarch=1
 # GammaOS Nano: action dispatcher — the nano menu runs in the bootanim
 # SELinux domain which cannot set sys.powerctl directly.  Instead it sets
 # service.bootanim.nano_action and init (which CAN set powerctl) acts on it.
+#
+# Each action that affects next-boot mode also writes a file in DE
+# storage (/data/misc/bootanim/nano_skip) so NanoMenu and SF can read
+# the boot mode at late-fs, before /data persistent_properties have
+# loaded. File "0" = boot to nano, "1" = boot to stock Android. The
+# property persist.bootanim.skip_nano remains the durable source of
+# truth (it survives metadata reset on the file), but the file is the
+# fast path used during the early-boot race window.
 on property:service.bootanim.nano_action=reboot
+    write /data/misc/bootanim/nano_skip 0
     setprop sys.powerctl reboot
 
 on property:service.bootanim.nano_action=shutdown
@@ -1396,12 +1405,24 @@ on property:service.bootanim.nano_action=recovery
 
 on property:service.bootanim.nano_action=android
     setprop persist.bootanim.skip_nano 1
+    write /data/misc/bootanim/nano_skip 1
     setprop sys.powerctl reboot
 
 on property:service.bootanim.nano_action=safemode
     setprop persist.sys.safemode 1
     setprop persist.bootanim.skip_nano 1
+    write /data/misc/bootanim/nano_skip 1
     setprop sys.powerctl reboot
+
+# Keep the DE-storage cache in sync if persist.bootanim.skip_nano is
+# changed through any other path (Android settings, OTA, factory reset
+# script). These fire after load_persist_props in post-fs-data, so the
+# file gets the latest value before the next boot.
+on property:persist.bootanim.skip_nano=0
+    write /data/misc/bootanim/nano_skip 0
+
+on property:persist.bootanim.skip_nano=1
+    write /data/misc/bootanim/nano_skip 1
 
 # GammaOS Nano: Quick Resume — send ESC key to RetroArch to close it
 # gracefully before shutdown/reboot so it saves state.

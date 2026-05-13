@@ -35,6 +35,14 @@ allow bootanim input_device:chr_file { read write open ioctl getattr };
 # GammaOS Nano: read persist.gammaos.* properties (skip_nano check)
 get_prop(bootanim, persist_gammaos_prop)
 
+# GammaOS Nano: read ro.persistent_properties.ready so NanoMenu can wait
+# for /data persist props to be loaded before reading skip_nano. Without
+# this rule property_get returns "" in this domain even in permissive
+# mode on some kernels, which makes the wait-until-ready loop spin out
+# its full timeout and the subsequent skip_nano read also returns "" -
+# leading to a misclassification of the boot mode.
+get_prop(bootanim, persistent_properties_ready_prop)
+
 # GammaOS Nano: allow handing off to bootanim when nano mode is disabled
 set_prop(bootanim, ctl_bootanim_prop)
 
