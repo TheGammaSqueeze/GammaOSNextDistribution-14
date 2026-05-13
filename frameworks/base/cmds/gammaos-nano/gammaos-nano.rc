@@ -68,3 +68,67 @@ service nano-ce-unlock /system/bin/nano-ce-unlock.sh
     disabled
     oneshot
     seclabel u:r:su:s0
+
+# GammaOS Nano: re-emit input subsystem uevents after apexd has finished
+# its activation flood. On the Brick (and similar devices since the
+# boot-speed work in 2026-05-13), trimui_inputd creates the TRIMUI
+# Player1 uinput device on late-fs at T+~8 s, and apexd-bootstrap +
+# main apexd activation pump dozens of loop / dm-verity uevents through
+# ueventd at T+5 to T+11 s. The TRIMUI Player1 add uevent gets dropped
+# in that flood, so /dev/input/event3 is never created, NanoMenu cannot
+# read joypad input, and the BTN_A -> RetroArch handoff chain stalls
+# (user-visible symptom: home app shows up with unresponsive controls).
+# Re-emitting "add" to each input event's sysfs uevent file forces the
+# kernel to send a fresh netlink message that ueventd handles cleanly
+# now that the flood is over. Writing to a non-existent path is a
+# no-op (init logs and continues), so listing event0 through event9
+# covers the typical input device set on our supported hardware.
+on property:apexd.status=activated
+    write /sys/class/input/event0/uevent add
+    write /sys/class/input/event1/uevent add
+    write /sys/class/input/event2/uevent add
+    write /sys/class/input/event3/uevent add
+    write /sys/class/input/event4/uevent add
+    write /sys/class/input/event5/uevent add
+    write /sys/class/input/event6/uevent add
+    write /sys/class/input/event7/uevent add
+    write /sys/class/input/event8/uevent add
+    write /sys/class/input/event9/uevent add
+
+# Belt-and-suspenders: apexd transitions starting -> activated -> ready
+# very quickly in our boot sequence (vold lock fix removed the ~12 s
+# stall during Initialize), so init's property-change watcher may
+# observe only the "ready" transition. Trigger the same re-emit on
+# both states so we are guaranteed to fire at least once.
+on property:apexd.status=ready
+    write /sys/class/input/event0/uevent add
+    write /sys/class/input/event1/uevent add
+    write /sys/class/input/event2/uevent add
+    write /sys/class/input/event3/uevent add
+    write /sys/class/input/event4/uevent add
+    write /sys/class/input/event5/uevent add
+    write /sys/class/input/event6/uevent add
+    write /sys/class/input/event7/uevent add
+    write /sys/class/input/event8/uevent add
+    write /sys/class/input/event9/uevent add
+
+# Final fallback: when NanoMenu's gammaos-nano service is running we
+# definitely want /dev/input/event3 to exist so NanoMenu can grab it.
+# This fires shortly after T+7 s of boot, which is before trimui_inputd
+# typically registers its uinput device at T+~8 s. The service-based
+# retry loop below handles the race more robustly than a single write.
+service joypad_uevent_fixup /system/bin/joypad_uevent_fixup.sh
+    user root
+    group root
+    seclabel u:r:su:s0
+    disabled
+    oneshot
+
+on property:init.svc.gammaos-nano=running
+    start joypad_uevent_fixup
+
+on property:apexd.status=ready
+    start joypad_uevent_fixup
+
+on property:sys.boot_completed=1
+    start joypad_uevent_fixup

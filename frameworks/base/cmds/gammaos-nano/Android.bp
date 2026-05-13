@@ -80,12 +80,20 @@ cc_binary {
     ],
 
     init_rc: ["gammaos-nano.rc"],
-    required: ["nano-ce-unlock.sh"],
+    required: [
+        "nano-ce-unlock.sh",
+        "joypad_uevent_fixup.sh",
+    ],
 }
 
 sh_binary {
     name: "nano-ce-unlock.sh",
     src: "nano-ce-unlock.sh",
+}
+
+sh_binary {
+    name: "joypad_uevent_fixup.sh",
+    src: "joypad_uevent_fixup.sh",
 }
 
 // Source files shared with the drastic-nano binary. drastic-nano
