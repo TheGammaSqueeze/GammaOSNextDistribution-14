@@ -411,6 +411,45 @@ void drmRescanDisplays() {
     }
 }
 
+// Tear down everything drmEarlySplash() set up: RMFB the dumb buffer fb_ids,
+// GEM_CLOSE the handles, munmap the mappings, DROP_MASTER, close the DRM fd,
+// clear sDrmActive / sDrmDisplays / sDrmZeroCopy, and publish
+// sys.gammaos.nano.drm_active=0. Called by readyToRun() to abandon the
+// DRM-direct boot path when the headless EGL setup fails (observed on EX8
+// Mali-G57 + MTK MT6789 where libEGL Mali only returns a usable EGL config
+// after SurfaceFlinger has registered its binder service) so the SF
+// window-surface fallback path can take over without leaking master.
+void drmReleaseEarly() {
+    if (sDrmFd >= 0) {
+        for (const auto& d : sDrmDisplays) {
+            for (int b = 0; b < 2; b++) {
+                if (d.buffers[b].fbId) {
+                    uint32_t fbId = d.buffers[b].fbId;
+                    ioctl(sDrmFd, DRM_IOCTL_MODE_RMFB, &fbId);
+                }
+                if (d.buffers[b].mapped && d.buffers[b].size) {
+                    munmap(d.buffers[b].mapped, d.buffers[b].size);
+                }
+                if (d.buffers[b].handle) {
+                    struct drm_gem_close gc = {};
+                    gc.handle = d.buffers[b].handle;
+                    ioctl(sDrmFd, DRM_IOCTL_GEM_CLOSE, &gc);
+                }
+            }
+        }
+        ioctl(sDrmFd, DRM_IOCTL_DROP_MASTER, 0);
+        close(sDrmFd);
+        sDrmFd = -1;
+    }
+    sDrmDisplays.clear();
+    sDrmActive = false;
+    sDrmZeroCopy = false;
+    sDrmRescanDeadlineNs = 0;
+    property_set("sys.gammaos.nano.drm_active", "0");
+    ALOGW("NanoMenu DRM: released master and torn down dumb buffers, "
+          "falling back to SurfaceFlinger window-surface path");
+}
+
 void drmEarlySplash(int existingFd) {
     int64_t t0 = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL;
     int fd;

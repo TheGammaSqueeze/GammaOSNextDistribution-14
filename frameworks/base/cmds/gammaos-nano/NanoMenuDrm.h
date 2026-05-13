@@ -200,6 +200,13 @@ bool drmCreateDumbBuffer(int fd, uint32_t w, uint32_t h, DrmBuffer* out);
 bool drmTryAddDisplay(int fd, uint32_t crtcId, uint32_t connId, const char* stage);
 void drmRescanDisplays();
 void drmEarlySplash(int existingFd = -1);
+// Tear down everything drmEarlySplash() set up: RMFB the dumb buffer fb_ids,
+// DROP_MASTER, close the DRM fd, clear sDrmActive/sDrmDisplays/sDrmZeroCopy,
+// and publish sys.gammaos.nano.drm_active=0. Used by readyToRun() to abandon
+// the DRM-direct boot path when the headless EGL setup fails (e.g. EX8 Mali-G57
+// where libEGL needs SurfaceFlinger binder to return a usable EGL config) so
+// that the SF window-surface fallback path can take over without leaking master.
+void drmReleaseEarly();
 bool drmAllocAhbTarget(EGLDisplay eglDpy, uint32_t w, uint32_t h,
                         AhbRenderTarget* target, const char* label);
 void drmSetupZeroCopy(EGLDisplay eglDpy);

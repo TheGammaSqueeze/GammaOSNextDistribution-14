@@ -452,43 +452,80 @@ status_t NanoMenu::readyToRun() {
         eglInitialize(display, nullptr, nullptr);
         EGLConfig config = getEglConfig(display);
         EGLint pbufAttrs[] = { EGL_WIDTH, 16, EGL_HEIGHT, 16, EGL_NONE };
-        EGLSurface surface = eglCreatePbufferSurface(display, config, pbufAttrs);
+        EGLSurface surface = (config != nullptr)
+                ? eglCreatePbufferSurface(display, config, pbufAttrs)
+                : EGL_NO_SURFACE;
         EGLint contextAttributes[] = {EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE};
-        EGLContext context = eglCreateContext(display, config, nullptr, contextAttributes);
-        if (eglMakeCurrent(display, surface, surface, context) == EGL_FALSE)
-            return NO_INIT;
+        EGLContext context = (config != nullptr)
+                ? eglCreateContext(display, config, nullptr, contextAttributes)
+                : EGL_NO_CONTEXT;
 
-        mDisplay = display; mContext = context; mSurface = surface;
-        mFlingerSurfaceControl = nullptr; mFlingerSurface = nullptr;
+        // Validate the pbuffer EGL setup before committing to the DRM-direct
+        // path. On EX8 (Mali-G57 MC2 + MTK MT6789) the libEGL Mali wrapper
+        // returns no usable config when called from a process that has not
+        // established a SurfaceFlinger binder connection yet, so config /
+        // surface / context all come back NULL even though eglInitialize
+        // returned EGL_TRUE. Without this guard the DRM-direct path commits
+        // to a broken GL context (GL_VERSION='(null)'), drmSetupZeroCopy
+        // bails because EGL_ANDROID_image_native_buffer is missing, and the
+        // panel is left showing the dark dumb-buffer fill from drmEarlySplash
+        // until something else (RetroArch launching) forces HWC to take
+        // master back. Detect the failure here and fall through to the SF
+        // window-surface path (which waits for SF binder via the retry in
+        // the SF block below and then gets a real EGL config) by destroying
+        // the partial EGL state, releasing DRM master + closing the fd via
+        // drmReleaseEarly, and clearing mDrmBootPath / sDrmActive. Devices
+        // where the initial getEglConfig already succeeds (AIR X Adreno,
+        // Rockchip Mali) keep taking the DRM-direct branch unchanged.
+        if (config == nullptr || surface == EGL_NO_SURFACE ||
+            context == EGL_NO_CONTEXT) {
+            ALOGW("NanoMenu: DRM-direct pbuffer EGL setup failed on this "
+                  "device (config=%p surface=%p context=%p) - releasing DRM "
+                  "master and falling back to SurfaceFlinger window-surface path",
+                  (void*)config, (void*)surface, (void*)context);
+            if (surface != EGL_NO_SURFACE) eglDestroySurface(display, surface);
+            if (context != EGL_NO_CONTEXT) eglDestroyContext(display, context);
+            if (display != EGL_NO_DISPLAY) eglTerminate(display);
+            drmReleaseEarly();
+            mDrmBootPath = false;
+            // Falls through to the if (!sDrmActive) SF block below.
+        } else {
+            if (eglMakeCurrent(display, surface, surface, context) == EGL_FALSE)
+                return NO_INIT;
 
-        ALOGD("NanoMenu: DRM boot path %dx%d (headless EGL, no SF)", mWidth, mHeight);
-        tlog("headless EGL init");
+            mDisplay = display; mContext = context; mSurface = surface;
+            mFlingerSurfaceControl = nullptr; mFlingerSurface = nullptr;
 
-        property_set("sys.gammaos.nano.menu_active", "1");
-        {
-            char lastApp[PROPERTY_VALUE_MAX] = {};
-            property_get("sys.gammaos.nano.launched_pkg", lastApp, "");
-            if (lastApp[0] != '\0') {
-                property_set("sys.gammaos.nano.kill_pkg", lastApp);
-                ALOGD("NanoMenu: signaled framework to kill: %s", lastApp);
-                property_set("sys.gammaos.nano.launched_pkg", "");
+            ALOGD("NanoMenu: DRM boot path %dx%d (headless EGL, no SF)", mWidth, mHeight);
+            tlog("headless EGL init");
+
+            property_set("sys.gammaos.nano.menu_active", "1");
+            {
+                char lastApp[PROPERTY_VALUE_MAX] = {};
+                property_get("sys.gammaos.nano.launched_pkg", lastApp, "");
+                if (lastApp[0] != '\0') {
+                    property_set("sys.gammaos.nano.kill_pkg", lastApp);
+                    ALOGD("NanoMenu: signaled framework to kill: %s", lastApp);
+                    property_set("sys.gammaos.nano.launched_pkg", "");
+                }
             }
-        }
 
-        drmSetupZeroCopy(display);
-        {
-            char buf[PROPERTY_VALUE_MAX];
-            snprintf(buf, sizeof(buf), "zc%d_ahbW%u_ahbH%u_fbo%u",
-                     sDrmZeroCopy ? 1 : 0,
-                     sDrmZeroCopy ? sAhbRingPrimary[0].w : 0,
-                     sDrmZeroCopy ? sAhbRingPrimary[0].h : 0,
-                     sDrmZeroCopy ? sAhbRingPrimary[0].glFbo : 0);
-            property_set("sys.gammaos.nano.drm_zc", buf);
-        }
+            drmSetupZeroCopy(display);
+            {
+                char buf[PROPERTY_VALUE_MAX];
+                snprintf(buf, sizeof(buf), "zc%d_ahbW%u_ahbH%u_fbo%u",
+                         sDrmZeroCopy ? 1 : 0,
+                         sDrmZeroCopy ? sAhbRingPrimary[0].w : 0,
+                         sDrmZeroCopy ? sAhbRingPrimary[0].h : 0,
+                         sDrmZeroCopy ? sAhbRingPrimary[0].glFbo : 0);
+                property_set("sys.gammaos.nano.drm_zc", buf);
+            }
 
-        // DRM zero-copy rendering active - no SF needed.
-        tlog("DRM zero-copy setup");
-    } else {
+            // DRM zero-copy rendering active - no SF needed.
+            tlog("DRM zero-copy setup");
+        }
+    }
+    if (!sDrmActive) {
         // SF path with headless pre-init: create a pbuffer EGL context
         // immediately so shaders/fonts/icons can compile while SF is
         // still starting up. Then switch to the SF window surface once
@@ -496,6 +533,39 @@ status_t NanoMenu::readyToRun() {
         EGLDisplay display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
         eglInitialize(display, nullptr, nullptr);
         EGLConfig config = getEglConfig(display);
+
+        // EX8 (Mali-G57 MC2 + MTK MT6789): the libEGL Mali wrapper does not
+        // return a usable EGL config until the SurfaceFlinger binder is
+        // registered, even when eglInitialize already returned EGL_TRUE.
+        // This bites at first boot when the SF path is entered before SF
+        // has started, e.g. when the DRM-direct path bailed out via the
+        // drmReleaseEarly() fallback above. Other devices (AIR X Adreno,
+        // Rockchip Mali) return a real config immediately so the wait is
+        // effectively a no-op for them. Cap at 5 s to fail loudly rather
+        // than spin forever if SF actually died.
+        if (config == nullptr) {
+            sp<IServiceManager> sm = defaultServiceManager();
+            const String16 name("SurfaceFlinger");
+            int waitMs = 0;
+            while (sm->checkService(name) == nullptr && waitMs < 5000) {
+                usleep(10 * 1000);
+                waitMs += 10;
+            }
+            // Re-init EGL so libEGL reads the now-present SF service.
+            eglMakeCurrent(display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+            eglTerminate(display);
+            display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+            eglInitialize(display, nullptr, nullptr);
+            config = getEglConfig(display);
+            if (config == nullptr) {
+                ALOGE("NanoMenu: EGL config still null after waiting %dms for SF, "
+                      "cannot continue", waitMs);
+                return NO_INIT;
+            }
+            ALOGW("NanoMenu: waited %dms for SurfaceFlinger binder before EGL "
+                  "config became valid", waitMs);
+        }
+
         EGLint pbufAttrs[] = { EGL_WIDTH, 16, EGL_HEIGHT, 16, EGL_NONE };
         EGLSurface pbufSurface = eglCreatePbufferSurface(display, config, pbufAttrs);
         EGLint contextAttributes[] = {EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE};
