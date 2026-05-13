@@ -605,17 +605,40 @@ static void startDrasticLibPreloadThread() {
             }
         };
 
+        // Gate the heavy preloads on the drastic cache being populated.
+        // The libOpenSLES.so warm-up pulls in ~200 transitive libs from
+        // the media stack and takes ~5 s on a cold f2fs page cache
+        // (TrimUI Brick / Allwinner A133 + slow eMMC). Because dlopen
+        // takes bionic's linker lock, that 5 s blocks NanoMenu's
+        // eglChooseConfig in readyToRun() (libEGL needs the linker to
+        // load libEGL_POWERVR_ROGUE.so), which delays first paint by the
+        // same 5 s. There is no point paying that cost when the cache
+        // isn't populated, because the user can't launch drastic via QR
+        // anyway - the cache is what feeds DrasticRunner. Once they
+        // launch drastic the first time and populate the cache, the
+        // next boot will preload everything.
+        //
+        // Note: drastic itself never calls slCreateEngine (patched out
+        // by patchDrasticAudioInit), so the libOpenSLES preload is pure
+        // page cache warmup with zero semantic effect on drastic.
+        const char* cpuPath =
+                "/data/system/nano_cache/drastic/libdrastic_cpu.so";
+        const char* arm64Path =
+                "/data/system/nano_cache/drastic/libdrastic_arm64.so";
+        bool cacheReady = (access(arm64Path, R_OK) == 0);
+        if (!cacheReady) {
+            ALOGI("drastic preload: cache not populated, skipping "
+                  "libOpenSLES + runner warmup to keep linker lock off "
+                  "the NanoMenu EGL init path");
+            int64_t t_end = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL;
+            ALOGI("drastic preload: total %lldms", t_end - t0);
+            return;
+        }
+
         // (A) libdrastic's static DT_NEEDED heavy dep. libOpenSLES
         // pulls in libwilhelm → libmedia → ~200 lib media stack
         // transitively. Warming it in background hides the cold
         // page cache cost from the user-visible QR window.
-        //
-        // Note: the slCreateEngine binder wait that would normally
-        // stall here for ~15s is avoided by the separate
-        // patchDrasticAudioInit() in main() which short-circuits
-        // drastic's initialize_audio function to `ret`. Drastic
-        // never calls slCreateEngine, so this warm load is pure
-        // page cache warmup with zero semantic effect on drastic.
         warmLib("libOpenSLES.so");
 
         // (B) libdrastic's runtime-dlopen'd deps, observed via strace
@@ -629,22 +652,12 @@ static void startDrasticLibPreloadThread() {
         warmLib("android.hardware.power@1.1.so");
         warmLib("android.hardware.power-V5-ndk.so");
 
-        // libdrastic_{cpu,arm64}.so: if the cache is populated, warm
-        // those too so the user-visible dlopen in DrasticRunner::init
-        // is a pure cache hit. If the cache isn't there, silently
-        // skip — populate_drastic hasn't run yet.
-        const char* cpuPath =
-                "/data/system/nano_cache/drastic/libdrastic_cpu.so";
-        const char* arm64Path =
-                "/data/system/nano_cache/drastic/libdrastic_arm64.so";
-        bool cacheReady = (access(arm64Path, R_OK) == 0);
-        if (cacheReady) {
-            warmLib(cpuPath);
-            warmLib(arm64Path);
-        } else {
-            ALOGI("drastic preload: drastic libs not cached yet, "
-                  "skipping runner .so warmup");
-        }
+        // libdrastic_{cpu,arm64}.so: cache is populated (we early-
+        // returned above when it wasn't), so warm them too so the
+        // user-visible dlopen in DrasticRunner::init is a pure cache
+        // hit.
+        warmLib(cpuPath);
+        warmLib(arm64Path);
 
         // Prefetch drastic's cold-read data files into the page cache.
         // At boot time these are on f2fs that hasn't been touched yet,
