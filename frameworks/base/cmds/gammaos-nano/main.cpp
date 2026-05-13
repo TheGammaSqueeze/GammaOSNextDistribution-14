@@ -757,16 +757,40 @@ int main() {
                            strstr(platform, "taro") != nullptr ||
                            strstr(platform, "kalama") != nullptr);
         if (!isQualcomm) {
+            // Bounded wait for /dev/dri/card0. On render-only DRM nodes
+            // (e.g. Allwinner A133 + PowerVR Rogue, where /dev/dri/card0
+            // is the GPU device with NO KMS / no CRTCs and the display
+            // is driven through the sunxi /dev/disp character device by
+            // hwcomposer.ceres.so) the early SET_MASTER grab buys us
+            // nothing — drmEarlySplash will fail in readyToRun anyway
+            // because MODE_GETRESOURCES returns count_crtcs==0. Cap the
+            // poll at 600 ms so devices that never expose KMS don't
+            // burn boot time waiting for a card that, even if it shows
+            // up, won't be useful for direct rendering. Devices with
+            // proper KMS (Rockchip, MediaTek non-A133) typically have
+            // card0 ready before gammaos-nano even starts, so this cap
+            // does not regress them. After the poll, peek
+            // MODE_GETRESOURCES; if count_crtcs is 0 we skip SET_MASTER
+            // entirely and close the fd, leaving the SF path alone.
             int fd = -1;
             int polls = 0;
-            for (int i = 0; i < 500; i++) {
+            for (int i = 0; i < 60; i++) {
                 fd = open("/dev/dri/card0", O_RDWR | O_CLOEXEC);
                 if (fd >= 0) break;
                 usleep(10000);
                 polls++;
             }
             if (fd >= 0) {
-                if (ioctl(fd, DRM_IOCTL_SET_MASTER, 0) == 0) {
+                struct drm_mode_card_res res = {};
+                int hasCrtcs =
+                    (ioctl(fd, DRM_IOCTL_MODE_GETRESOURCES, &res) == 0 &&
+                     res.count_crtcs > 0);
+                if (!hasCrtcs) {
+                    ALOGI("GammaOS Nano: /dev/dri/card0 has no CRTCs "
+                          "(render-only DRM node, e.g. PVR on A133); "
+                          "skipping early DRM master grab");
+                    close(fd);
+                } else if (ioctl(fd, DRM_IOCTL_SET_MASTER, 0) == 0) {
                     gEarlyDrmFd = fd;
                     ALOGI("GammaOS Nano: early DRM master fd=%d after %d polls (%dms)",
                           fd, polls, polls * 10);
@@ -776,7 +800,7 @@ int main() {
                     close(fd);
                 }
             } else {
-                ALOGW("GammaOS Nano: card0 not found after %d polls (5s)", polls);
+                ALOGW("GammaOS Nano: card0 not found after %d polls (600ms)", polls);
             }
         } else {
             ALOGI("GammaOS Nano: Qualcomm SoC (%s), deferring DRM grab", platform);

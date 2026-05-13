@@ -320,23 +320,21 @@ status_t NanoMenu::readyToRun() {
         ALOGI("GammaOS Nano: using early DRM master fd=%d from main()", earlyDrmFd);
     }
 
-    {
-        char ready[PROPERTY_VALUE_MAX] = {};
-        property_get("ro.persistent_properties.ready", ready, "");
-        if (strcmp(ready, "true") != 0) {
-            ALOGI("GammaOS Nano: persist props not ready, waiting...");
-            for (int i = 0; i < 500; i++) { // max 5s
-                usleep(10000); // 10ms
-                property_get("ro.persistent_properties.ready", ready, "");
-                if (!strcmp(ready, "true")) break;
-            }
-        }
-    }
-
+    // GammaOS Nano: only opt OUT to bootanim when persist.bootanim.skip_nano
+    // is explicitly "1". Empty or any other value defaults to the nano
+    // path. init.rc only ever starts gammaos-nano via the surfaceflinger
+    // trigger when skip_nano=0, so by the time we run we already know
+    // nano was the intended path; the previous "wait up to 5 s for
+    // ro.persistent_properties.ready=true" guard was a race-prone safety
+    // net that gave up and handed off to bootanim whenever the persist
+    // load happened after this readyToRun() call (seen on A133 / TrimUI
+    // Brick where the 5 s wait expired and the device showed the normal
+    // BootAnimation before NanoMenu finally took over on the second
+    // gammaos-nano start).
     char skip[PROPERTY_VALUE_MAX] = {};
     property_get("persist.bootanim.skip_nano", skip, "");
-    if (strcmp(skip, "0") != 0) {
-        ALOGI("GammaOS Nano: skip_nano='%s' (not '0'), starting bootanim", skip);
+    if (strcmp(skip, "1") == 0) {
+        ALOGI("GammaOS Nano: skip_nano='1', starting bootanim");
         if (earlyDrmFd >= 0) {
             ioctl(earlyDrmFd, DRM_IOCTL_DROP_MASTER, 0);
             close(earlyDrmFd);
@@ -344,9 +342,8 @@ status_t NanoMenu::readyToRun() {
         property_set("ctl.start", "bootanim");
         _exit(0);
     }
+    ALOGI("GammaOS Nano: skip_nano='%s' (not '1'), running nano", skip);
     tlog("skip_nano check passed");
-
-    tlog("persist props resolved");
 
     // GammaOS: Detect drastic QR fast-path early so subsequent init
     // stages can skip heavy work (particle/fx/XMB shader compiles,
@@ -534,36 +531,45 @@ status_t NanoMenu::readyToRun() {
         eglInitialize(display, nullptr, nullptr);
         EGLConfig config = getEglConfig(display);
 
-        // EX8 (Mali-G57 MC2 + MTK MT6789): the libEGL Mali wrapper does not
-        // return a usable EGL config until the SurfaceFlinger binder is
-        // registered, even when eglInitialize already returned EGL_TRUE.
-        // This bites at first boot when the SF path is entered before SF
-        // has started, e.g. when the DRM-direct path bailed out via the
-        // drmReleaseEarly() fallback above. Other devices (AIR X Adreno,
-        // Rockchip Mali) return a real config immediately so the wait is
-        // effectively a no-op for them. Cap at 5 s to fail loudly rather
-        // than spin forever if SF actually died.
+        // First eglChooseConfig may return null because:
+        //   1) the GPU userspace driver (e.g. pvrsrvinit on Allwinner A133
+        //      PowerVR Rogue) is still initializing in parallel and the
+        //      libEGL wrapper has not yet been able to load the per-vendor
+        //      libEGL_*.so successfully, or
+        //   2) the libEGL Mali wrapper (MT6789 / Mali-G57 MC2 EX8) refuses
+        //      to return a usable config until the SurfaceFlinger binder
+        //      service is registered, regardless of GPU readiness.
+        //
+        // Both cases recover within ~1-3 s of driver/SF coming up. Poll
+        // eglTerminate + eglGetDisplay + eglInitialize + getEglConfig
+        // directly, every 50 ms, capped at 5 s. This avoids the previous
+        // "wait for SF binder, retry once" strategy, which on the A133
+        // (case 1 above) burned ~5 s of wall time because the SF binder
+        // wait satisfied first but PVR EGL was still warming, leaving a
+        // useless re-init that then had to be done again on the next
+        // pass through this function. Devices that already had a valid
+        // config on the first call (Adreno, Rockchip Mali) take the loop
+        // body never.
         if (config == nullptr) {
-            sp<IServiceManager> sm = defaultServiceManager();
-            const String16 name("SurfaceFlinger");
             int waitMs = 0;
-            while (sm->checkService(name) == nullptr && waitMs < 5000) {
-                usleep(10 * 1000);
-                waitMs += 10;
+            const int stepMs = 50;
+            const int capMs = 5000;
+            while (config == nullptr && waitMs < capMs) {
+                usleep(stepMs * 1000);
+                waitMs += stepMs;
+                eglMakeCurrent(display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+                eglTerminate(display);
+                display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+                eglInitialize(display, nullptr, nullptr);
+                config = getEglConfig(display);
             }
-            // Re-init EGL so libEGL reads the now-present SF service.
-            eglMakeCurrent(display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
-            eglTerminate(display);
-            display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
-            eglInitialize(display, nullptr, nullptr);
-            config = getEglConfig(display);
             if (config == nullptr) {
-                ALOGE("NanoMenu: EGL config still null after waiting %dms for SF, "
+                ALOGE("NanoMenu: EGL config still null after polling %dms, "
                       "cannot continue", waitMs);
                 return NO_INIT;
             }
-            ALOGW("NanoMenu: waited %dms for SurfaceFlinger binder before EGL "
-                  "config became valid", waitMs);
+            ALOGW("NanoMenu: polled %dms before libEGL returned a usable "
+                  "config (GPU driver and/or SurfaceFlinger warm-up)", waitMs);
         }
 
         EGLint pbufAttrs[] = { EGL_WIDTH, 16, EGL_HEIGHT, 16, EGL_NONE };
