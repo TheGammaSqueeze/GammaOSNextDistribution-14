@@ -42,21 +42,25 @@ for part in a ab; do
                     apps_suffix="g"
                     apps_script='$(call inherit-product, vendor/gapps/'$baseArch'/'$baseArch'-vendor.mk)'
                     apps_name="with GApps"
+                    nontv_model_suffix="Full"
                 fi
                 if [ "$apps" == "gapps-go" ]; then
                     apps_suffix="o"
                     apps_script='$(call inherit-product, device/phh/treble/gapps-go.mk)'
                     apps_name="Go"
+                    nontv_model_suffix="Go"
                 fi
                 if [ "$apps" == "foss" ]; then
                     apps_suffix="f"
                     apps_script='$(call inherit-product, vendor/foss/foss.mk)'
                     apps_name="with FOSS apps"
+                    nontv_model_suffix="with FOSS apps"
                 fi
                 if [ "$apps" == "vanilla" ]; then
                     apps_suffix="v"
                     apps_script=''
                     apps_name="vanilla"
+                    nontv_model_suffix="Lite"
                 fi
                 if [ "$arch" == "arm" ]; then
                     vndk="vndk-binder32.mk"
@@ -100,7 +104,7 @@ PRODUCT_NAME := ${target}
 PRODUCT_DEVICE := tdgsi_${arch}_${part}
 PRODUCT_BRAND := google
 PRODUCT_SYSTEM_BRAND := google
-PRODUCT_MODEL := TrebleDroid ${apps_name}
+PRODUCT_MODEL := GammaOS Next ${nontv_model_suffix}
 
 # Overwrite the inherited "emulator" characteristics
 PRODUCT_CHARACTERISTICS := device
@@ -172,7 +176,7 @@ PRODUCT_NAME := ${tv_target}
 PRODUCT_DEVICE := tdgsi_${arch}_${part}
 PRODUCT_BRAND := google
 PRODUCT_SYSTEM_BRAND := google
-PRODUCT_MODEL := TrebleDroid TV ${apps_name}
+PRODUCT_MODEL := GammaOS Core
 
 PRODUCT_CHARACTERISTICS := tv
 

@@ -9,7 +9,7 @@ PRODUCT_NAME := lineage_arm_bvN
 PRODUCT_DEVICE := tdgsi_arm_ab
 PRODUCT_BRAND := google
 PRODUCT_SYSTEM_BRAND := google
-PRODUCT_MODEL := TrebleDroid vanilla
+PRODUCT_MODEL := GammaOS Next Lite
 
 # Overwrite the inherited "emulator" characteristics
 PRODUCT_CHARACTERISTICS := device

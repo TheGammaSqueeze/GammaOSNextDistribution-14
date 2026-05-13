@@ -19,7 +19,7 @@ PRODUCT_NAME := lineage_tv_arm64_afS
 PRODUCT_DEVICE := tdgsi_arm64_a
 PRODUCT_BRAND := google
 PRODUCT_SYSTEM_BRAND := google
-PRODUCT_MODEL := TrebleDroid TV with FOSS apps
+PRODUCT_MODEL := GammaOS Core
 
 PRODUCT_CHARACTERISTICS := tv
 

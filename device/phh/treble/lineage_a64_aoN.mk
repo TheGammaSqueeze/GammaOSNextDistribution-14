@@ -9,7 +9,7 @@ PRODUCT_NAME := lineage_a64_aoN
 PRODUCT_DEVICE := tdgsi_a64_a
 PRODUCT_BRAND := google
 PRODUCT_SYSTEM_BRAND := google
-PRODUCT_MODEL := TrebleDroid Go
+PRODUCT_MODEL := GammaOS Next Go
 
 # Overwrite the inherited "emulator" characteristics
 PRODUCT_CHARACTERISTICS := device

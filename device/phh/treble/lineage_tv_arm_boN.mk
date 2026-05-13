@@ -19,7 +19,7 @@ PRODUCT_NAME := lineage_tv_arm_boN
 PRODUCT_DEVICE := tdgsi_arm_ab
 PRODUCT_BRAND := google
 PRODUCT_SYSTEM_BRAND := google
-PRODUCT_MODEL := TrebleDroid TV Go
+PRODUCT_MODEL := GammaOS Core
 
 PRODUCT_CHARACTERISTICS := tv
 

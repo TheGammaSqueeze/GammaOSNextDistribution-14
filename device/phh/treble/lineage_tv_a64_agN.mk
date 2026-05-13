@@ -19,7 +19,7 @@ PRODUCT_NAME := lineage_tv_a64_agN
 PRODUCT_DEVICE := tdgsi_a64_a
 PRODUCT_BRAND := google
 PRODUCT_SYSTEM_BRAND := google
-PRODUCT_MODEL := TrebleDroid TV with GApps
+PRODUCT_MODEL := GammaOS Core
 
 PRODUCT_CHARACTERISTICS := tv
 

@@ -19,7 +19,7 @@ PRODUCT_NAME := lineage_tv_arm_avN
 PRODUCT_DEVICE := tdgsi_arm_a
 PRODUCT_BRAND := google
 PRODUCT_SYSTEM_BRAND := google
-PRODUCT_MODEL := TrebleDroid TV vanilla
+PRODUCT_MODEL := GammaOS Core
 
 PRODUCT_CHARACTERISTICS := tv
 

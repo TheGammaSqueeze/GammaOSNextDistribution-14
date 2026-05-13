@@ -9,7 +9,7 @@ PRODUCT_NAME := lineage_arm64_afN
 PRODUCT_DEVICE := tdgsi_arm64_a
 PRODUCT_BRAND := google
 PRODUCT_SYSTEM_BRAND := google
-PRODUCT_MODEL := TrebleDroid with FOSS apps
+PRODUCT_MODEL := GammaOS Next with FOSS apps
 
 # Overwrite the inherited "emulator" characteristics
 PRODUCT_CHARACTERISTICS := device
