@@ -324,3 +324,20 @@ PRODUCT_REMOVE_PACKAGES += \
     OnDevicePersonalization \
     DeviceLockController \
     HealthConnectController
+
+# Disable UFFD GC at build time. Our GSI does not bundle a kernel, so the
+# AOSP build-time probe sees "<unknown-kernel>" and defaults to enabling
+# UFFD CMC. That makes the host dex2oat write the framework boot image with
+# concurrent-copying=false (uffd CMC).
+#
+# At runtime on target devices whose kernel lacks UFFD SIGBUS feature
+# (everything below 5.7, which includes TrimUI Brick 4.9, PAIRMini 4.x, and
+# many other handheld vendor kernels we ship to), ART falls back to CC with
+# read barriers, where gUseReadBarrier=true. That disagrees with the shipped
+# boot image (concurrent-copying=false), so OatHeader validation fails and
+# zygote regenerates the boot image via dex2oat on every cold boot - which
+# costs 16 to 20 seconds on the Brick. By forcing uffd_gc_flag.txt to be
+# empty the host dex2oat emits boot.art with concurrent-copying=true, which
+# matches the read-barrier runtime that all of our currently supported
+# devices end up using.
+PRODUCT_ENABLE_UFFD_GC := false

@@ -52,3 +52,14 @@ PRODUCT_PACKAGES_REMOVE += \
     com.android.rkpd \
     com.android.uwb \
     com.android.virt
+
+# Force CC with read barriers (concurrent-copying=true). Our GSI does not
+# bundle a kernel, so without this the AOSP build probe falls back to
+# "<unknown-kernel>" -> uffd CMC, which makes the host dex2oat emit boot.art
+# with concurrent-copying=false. On kernels without UFFD SIGBUS the runtime
+# falls back to read-barrier CC (gUseReadBarrier=true), the OatHeader
+# mismatch trips zygote-side regeneration via dex2oat on every cold boot
+# (16 to 20 seconds wasted). On the TV chain gsi_release.mk forces this to
+# true via inherit-product so we MUST reassert it here at the top level for
+# the value to win.
+PRODUCT_ENABLE_UFFD_GC := false
