@@ -1116,6 +1116,51 @@ class StorageManagerService extends IStorageManager.Stub
                     mVold.onUserStarted(userId);
                     mStoraged.onUserStarted(userId);
                 }
+                // GammaOS Nano: cold-boot QR FUSE acceleration.
+                //
+                // Normally FUSE mount is serialised after a 12s reconcileAppsData
+                // pass in UM.onBeforeUnlockUser:
+                //   SMS.reset -> reconcileAppsData (12s) -> onUserUnlocking ->
+                //   vold.onUserStarted -> FUSE mount -> bind ExternalStorageService
+                //   -> MediaProvider start (~10s) -> FUSE handler ready
+                //
+                // For drastic QR (content:// URI needs FUSE+MediaProvider), this
+                // means the handoff has to wait ~22s after SMS reset just for
+                // storage to be ready.
+                //
+                // Fix: on a background thread (so we don't block the main
+                // SMS.reset path), bind MediaProvider's ExternalStorageService
+                // first, then call vold.onUserStarted. Both run in parallel
+                // with reconcileAppsData. By the time reconcileAppsData
+                // completes, FUSE is already mounted and MediaProvider is
+                // already serving content:// requests.
+                if ("1".equals(SystemProperties.get(
+                        "persist.gammaos.nano.qr_prepared", "0"))) {
+                    new Thread(() -> {
+                        try {
+                            long t0 = SystemClock.elapsedRealtime();
+                            mStorageSessionController.onUnlockUser(
+                                    UserHandle.USER_SYSTEM);
+                            long bindMs = SystemClock.elapsedRealtime() - t0;
+                            Slog.i(TAG, "GammaOS Nano: pre-bound "
+                                    + "ExternalStorageService in " + bindMs + "ms");
+                            // Now that the service is bound, kick vold to
+                            // mount FUSE. This call would normally happen
+                            // from SMS.onUserUnlocking, which waits ~12s for
+                            // UM.onBeforeUnlockUser (reconcileAppsData).
+                            long t1 = SystemClock.elapsedRealtime();
+                            mVold.onUserStarted(UserHandle.USER_SYSTEM);
+                            long voldMs = SystemClock.elapsedRealtime() - t1;
+                            Slog.i(TAG, "GammaOS Nano: pre-fired "
+                                    + "vold.onUserStarted(0) in " + voldMs
+                                    + "ms (total " + (bindMs + voldMs) + "ms "
+                                    + "to FUSE ready trigger)");
+                        } catch (Exception e) {
+                            Slog.w(TAG, "GammaOS Nano: pre-bind/vold-start "
+                                    + "failed: " + e);
+                        }
+                    }, "nano-prebind-storage").start();
+                }
                 restoreSystemUnlockedUsers(userManager, users, systemUnlockedUsers);
                 mVold.onSecureKeyguardStateChanged(mSecureKeyguardShowing);
                 mStorageManagerInternal.onReset(mVold);

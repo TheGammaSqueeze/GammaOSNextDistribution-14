@@ -146,11 +146,20 @@ inline void setDrasticNanoRomPath(const std::string& romPath) {
 //    defers external SD scanning until after the secure keyguard step,
 //    so this can take 3-5s after NanoMenu starts.
 inline bool isQrRomStorageReady() {
-    // Gate 1: emulated FUSE must be mounted. stat() the mount point
-    // directly -- this is the most reliable check since NanoMenu runs
-    // as root and has access regardless of FUSE permissions.
+    // Gate 1: emulated FUSE must be ACTUALLY MOUNTED, not just the
+    // tmpfs placeholder directory. /storage/emulated/0 exists as an
+    // empty tmpfs from very early boot (created by vold), so a plain
+    // stat() check passes prematurely and the handoff fires while
+    // FUSE is still mounting -- drastic then can't resolve content://
+    // URIs and falls back to its home menu instead of loading the
+    // game.
+    //
+    // Probe for /storage/emulated/0/Android: this directory is
+    // populated only after FUSE mounts on top of the placeholder
+    // and the user's /data/media/0 is visible through it.
     struct stat st;
-    if (stat("/storage/emulated/0", &st) != 0 || !S_ISDIR(st.st_mode))
+    if (stat("/storage/emulated/0/Android", &st) != 0
+            || !S_ISDIR(st.st_mode))
         return false;
 
     // Gate 2: if ROM is on external SD, its raw vold mount must exist.

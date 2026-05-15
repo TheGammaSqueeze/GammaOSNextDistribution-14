@@ -198,6 +198,28 @@ static bool waitForService(const char* serviceName, int timeoutMs) {
 }
 
 static void runDrasticInitIfNeeded() {
+    // Persist props can race with our early start. gammaos-nano begins
+    // around T+7s on the Brick while persistent_properties loads at
+    // ~T+9-10s. Without waiting here, qr_prepared reads as "0" and
+    // DrasticRunner never gets created, even though NanoMenu's
+    // readyToRun later correctly detects the fast-path.
+    {
+        char ready[PROPERTY_VALUE_MAX] = {};
+        property_get("ro.persistent_properties.ready", ready, "");
+        if (strcmp(ready, "true") != 0) {
+            int waited = 0;
+            for (int i = 0; i < 200; i++) {
+                usleep(10000);
+                waited += 10;
+                property_get("ro.persistent_properties.ready",
+                             ready, "");
+                if (!strcmp(ready, "true")) break;
+            }
+            ALOGI("runDrasticInitIfNeeded: persist props ready "
+                  "after %d ms", waited);
+        }
+    }
+
     // Read both triggers up front so we know which mode we're in.
     char smoke[PROPERTY_VALUE_MAX] = {};
     property_get("persist.gammaos.nano.drastic_smoke", smoke, "0");
@@ -744,6 +766,52 @@ static void startDrasticLibPreloadThread() {
                     }
                 }
                 closedir(d);
+            }
+
+            // GammaOS Nano: warm the drastic APK + dex + native libs.
+            // DraSticActivity.onCreate took 8.2s on the cold-boot QR path,
+            // largely due to f2fs I/O for /data/app/.../base.apk and
+            // base.vdex. Reading these into the page cache here (while
+            // the QR preview is rendering) cuts ~3-5s off the Java
+            // launch when drastic actually starts after handoff.
+            //
+            // The APK directory has a random hash so we glob via opendir.
+            const char* appsRoot = "/data/app";
+            DIR* appsDir = opendir(appsRoot);
+            if (appsDir) {
+                struct dirent* outerEnt;
+                while ((outerEnt = readdir(appsDir)) != nullptr) {
+                    std::string outer(outerEnt->d_name);
+                    if (outer == "." || outer == "..") continue;
+                    // Top-level hashed dir, e.g. "~~e64G4SqpZ10aXMSOy6RMyQ=="
+                    std::string outerPath =
+                            std::string(appsRoot) + "/" + outer;
+                    DIR* inner = opendir(outerPath.c_str());
+                    if (!inner) continue;
+                    struct dirent* innerEnt;
+                    while ((innerEnt = readdir(inner)) != nullptr) {
+                        std::string innerName(innerEnt->d_name);
+                        // Inner dir, e.g. "com.dsemu.drastic-o1Z3oDew..."
+                        if (innerName.compare(
+                                0, strlen("com.dsemu.drastic"),
+                                "com.dsemu.drastic") != 0) {
+                            continue;
+                        }
+                        std::string pkgPath = outerPath + "/" + innerName;
+                        warmFile((pkgPath + "/base.apk").c_str(), 0);
+                        warmFile((pkgPath + "/oat/arm64/base.vdex").c_str(),
+                                 0);
+                        warmFile((pkgPath + "/oat/arm64/base.odex").c_str(),
+                                 0);
+                        warmFile((pkgPath + "/lib/arm64/libdrastic_arm64.so")
+                                         .c_str(), 0);
+                        warmFile((pkgPath + "/lib/arm64/libdrastic_cpu.so")
+                                         .c_str(), 0);
+                        break;
+                    }
+                    closedir(inner);
+                }
+                closedir(appsDir);
             }
         }
 

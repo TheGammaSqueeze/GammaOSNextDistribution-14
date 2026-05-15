@@ -466,6 +466,13 @@ status_t NanoMenu::readyToRun() {
             ALOGW("NanoMenu: drastic QR fast-path ACTIVE "
                   "(smoke=%d qr_primed=%d), skipping heavy init",
                   smokeActive ? 1 : 0, drasticQrPrimed ? 1 : 0);
+            // Set launch_app early so SystemServer's relaunch monitor
+            // sees drastic (not retroarch) when it reads the prop.
+            // Previously this was set at handoff time (~30s later),
+            // racing with the monitor's first read.
+            property_set("sys.gammaos.nano.launch_app",
+                         "com.dsemu.drastic");
+            property_set("sys.gammaos.nano.launch_intent", "file");
         }
     }
 
@@ -1313,6 +1320,27 @@ bool NanoMenu::threadLoop() {
             int64_t bootCompleteTime = 0;
             bool bootComplete = false;
             bool handoffFired = false;
+            int64_t handoffFiredAtMs = 0;
+            // Max time to keep rendering preview after handoff fires
+            // while waiting for drastic's DraSticEmuActivity to draw
+            // its first frame (sys.gammaos.nano.app_drawn=1). On a 1GB
+            // device with cold ART/zygote, drastic can take 30-50s to
+            // get from intent receipt to first game frame on QR cold
+            // boot (FUSE mount race adds ~20s of system_server defers).
+            const int64_t kPostHandoffTimeoutMs = 90000;
+            // Timestamp when the visual fade-out (desaturated -> full
+            // color, overlay removal, text fade) begins. 0 = not yet
+            // triggered. Set when DraSticEmuActivity reports drawn so
+            // the visual handoff happens right as drastic is ready to
+            // appear on screen.
+            int64_t fadeOutStartMs = 0;
+            const int64_t kFadeOutDurationMs = 500;
+            // Saturation/gradient values captured at the moment the
+            // fade-out starts; used as the lerp origin so the fade
+            // doesn't visually jump if the preview was at e.g. 0.35
+            // saturation when the fade begins.
+            float fadeStartSat = -1.0f;
+            float fadeStartGrad = -1.0f;
             // Storage-readiness gate for the QR handoff. We hold the
             // handoff until the QR ROM's underlying volume is mounted
             // (vold defers external SD scan ~3-5s after boot start),
@@ -1320,7 +1348,7 @@ bool NanoMenu::threadLoop() {
             // and falls back to its main menu.
             bool handoffStorageWaitLogged = false;
             int64_t handoffWaitStartMs = 0;
-            const int64_t handoffWaitTimeoutMs = 10000; // 10s ceiling
+            const int64_t handoffWaitTimeoutMs = 30000; // 30s ceiling
 
             // GammaOS: Drastic QR preview input + handoff control.
             //
@@ -1419,6 +1447,69 @@ bool NanoMenu::threadLoop() {
                 if (++hotplugCounter >= 30) {
                     hotplugCounter = 0;
                     checkInputHotplug();
+                }
+
+                // Post-handoff exit gate. Once handoff has fired,
+                // continue rendering the desaturated/text-visible
+                // preview until drastic's DraSticEmuActivity reports
+                // its first drawn frame (ActivityMetricsLogger sets
+                // app_drawn=1). At THAT point, start a fast 500ms
+                // fade-out (desaturated -> full color, text/overlay
+                // disappearing) and exit at the end of the fade.
+                // This aligns the visual transition with drastic
+                // actually being ready to appear.
+                if (handoffFired) {
+                    if (fadeOutStartMs == 0) {
+                        char drawn[PROPERTY_VALUE_MAX] = {};
+                        property_get("sys.gammaos.nano.app_drawn",
+                                     drawn, "0");
+                        int64_t postHandoff = elapsedRealtime()
+                                              - handoffFiredAtMs;
+                        if (!strcmp(drawn, "1")) {
+                            fadeOutStartMs = elapsedRealtime();
+                            ALOGI("drastic QR: app_drawn=1 after "
+                                  "%lldms post-handoff, starting "
+                                  "%lldms fade-out",
+                                  (long long)postHandoff,
+                                  (long long)kFadeOutDurationMs);
+                        } else if (postHandoff > kPostHandoffTimeoutMs) {
+                            // Safety: drastic took too long to draw.
+                            // Start the fade anyway so the user
+                            // doesn't get stuck on the preview.
+                            fadeOutStartMs = elapsedRealtime();
+                            ALOGW("drastic QR: %lldms post-handoff "
+                                  "without app_drawn -- starting "
+                                  "fade-out anyway",
+                                  (long long)postHandoff);
+                        }
+                    }
+                    if (fadeOutStartMs > 0 && !drasticNanoActive) {
+                        if (fadeStartSat < 0.0f) {
+                            fadeStartSat = saturation;
+                            fadeStartGrad = gradient;
+                        }
+                        int64_t elapsed = elapsedRealtime()
+                                          - fadeOutStartMs;
+                        float t = fminf(
+                                (float)elapsed
+                                        / (float)kFadeOutDurationMs,
+                                1.0f);
+                        t = 1.0f - (1.0f - t) * (1.0f - t);
+                        // Lerp from where the preview was when fade
+                        // started, to full color (sat=1.0, grad=0.0).
+                        saturation = fadeStartSat
+                                + t * (1.0f - fadeStartSat);
+                        gradient = fadeStartGrad * (1.0f - t);
+                        if (t >= 1.0f) {
+                            ALOGI("drastic QR: fade-out complete, "
+                                  "exiting preview");
+                            property_set(
+                                "service.bootanim.nano_retroarch",
+                                "1");
+                            mExitRequested = true;
+                            break;
+                        }
+                    }
                 }
 
                 // GammaOS: Poll input → DS button mask. Matches the
@@ -1928,28 +2019,24 @@ if (sRingPrimedCount >= 2) {
                 }
 
                 if (bootComplete && !drasticNanoActive && !handoffPaused) {
-                    // Fade from desaturated to full color over 800ms.
-                    // Drastic nano skips this entirely (starts at full
-                    // color, no transition period).
-                    int64_t elapsed = elapsedRealtime() - bootCompleteTime;
-                    float t = fminf((float)elapsed / 800.0f, 1.0f);
-                    t = 1.0f - (1.0f - t) * (1.0f - t);
-                    saturation = 0.35f + t * 0.65f;
-                    gradient = 0.7f * (1.0f - t);
-                    // When fade completes, hand off to the real
-                    // drastic activity — identical pattern to
-                    // LibretroRunner's handoff to RetroArch at line
-                    // ~6645. The intent file was already written by
-                    // launchXmbGame() when the user selected the NDS
-                    // game; we just need to kick
-                    // NanoRelaunchMonitor via do_launch so it reads
-                    // the file and starts DraSticActivity.
+                    // GammaOS Nano: the fade-out (desaturated preview
+                    // -> full color, overlay/text removal) is deferred
+                    // until drastic's DraSticEmuActivity reports drawn
+                    // (sys.gammaos.nano.app_drawn=1). At THAT point we
+                    // do a fast 500ms fade and exit, so the visual
+                    // handoff happens right as drastic appears on
+                    // screen. Pre-handoff and during drastic load, we
+                    // hold at the desaturated/text-visible state so
+                    // the "Quick Resuming" overlay remains visible.
+                    //
+                    // The fade timing logic is below (after handoff
+                    // fires) so we can reference fadeOutStartMs.
                     //
                     // Smoke-test mode (qr_core != "drastic") never
                     // fires handoff -- the smoke test runs the DS
                     // indefinitely for interactive debugging.
                     //
-                    if (t >= 1.0f && drasticQrHandoff && !handoffFired) {
+                    if (drasticQrHandoff && !handoffFired) {
                         // Gate handoff on the QR ROM's storage being
                         // ready. If the ROM lives on external SD, vold
                         // mounts the volume ~3-5s after boot starts,
@@ -2100,22 +2187,41 @@ if (sRingPrimedCount >= 2) {
                         // gate in startHomeOnTaskDisplayArea opens
                         // immediately; otherwise we race the init.rc
                         // action that sets bootanim.exit=1.
+                        // Clear app_drawn before kicking the launch so
+                        // stale state from a previous boot doesn't make
+                        // us exit immediately. ActivityMetricsLogger sets
+                        // it=1 when DraSticEmuActivity reports drawn.
+                        property_set(
+                                "sys.gammaos.nano.app_drawn", "0");
                         property_set(
                                 "sys.gammaos.nano.handoff_fired", "1");
                         property_set(
                                 "sys.gammaos.nano.pending_exit", "0");
                         property_set(
                                 "sys.gammaos.nano.do_launch", "1");
-                        property_set(
-                                "service.bootanim.nano_retroarch", "1");
-                        // DrasticRunner keeps running in the
-                        // background until the process exits -- the
-                        // real drastic activity will launch from a
-                        // cold DS BIOS but resume via drastic's own
-                        // autosave, which is identical UX to
-                        // launching drastic through the framework.
-                        mExitRequested = true;
-                        break;
+                        // Hold off setting service.bootanim.nano_retroarch
+                        // until drastic's game window is actually drawn.
+                        // This prop is the legacy bootanim-exit trigger;
+                        // setting it kicks init's bootanim teardown which
+                        // forces NanoMenu out of its render loop before
+                        // drastic is ready to display.
+                        //
+                        // GammaOS Nano: KEEP RENDERING the QR preview
+                        // instead of exiting at handoff time. The user
+                        // sees a continuous DS emulation feed all the
+                        // way through drastic's startup. We watch for
+                        // sys.gammaos.nano.app_drawn (set by
+                        // ActivityMetricsLogger when DraSticEmuActivity
+                        // reports drawn) and exit only then, so the
+                        // transition from preview to game is seamless
+                        // (no Loading screen, no blank screen).
+                        handoffFiredAtMs = elapsedRealtime();
+                        ALOGI("drastic QR: handoff fired, continuing "
+                              "preview until app_drawn=1 or %lldms",
+                              (long long)kPostHandoffTimeoutMs);
+                        // DO NOT set mExitRequested=true or break here.
+                        // Fall through to the next loop iteration and
+                        // keep rendering preview frames.
                     }
                 } else if (!smokeActive && !drasticNanoActive && !handoffPaused) {
                     // Slow creep toward color while we're still in the
@@ -2211,12 +2317,16 @@ if (sRingPrimedCount >= 2) {
             //      between NanoMenu exit and drastic's first frame.
         } else {
             ALOGW("NanoMenu: drastic QR fast-path active but DrasticRunner "
-                  "not initialized -- exiting to avoid shader crash");
-            // The fast path skipped compiling particle/fx/XMB shaders,
-            // so the normal render() would crash on glUseProgram(0).
-            // Safer to exit and let init restart us.
-            mExitRequested = true;
-            return false;
+                  "not initialized -- clearing qr_prepared and falling "
+                  "through to loading screen");
+            // DrasticRunner failed to init (likely persist prop race).
+            // Clear qr_prepared so we don't loop, disable the fast-path
+            // flag, and fall through to the normal boot path which will
+            // show a loading screen until the system is ready. The
+            // basic shaders (mShaderProgram, mTextProgram) were compiled
+            // in readyToRun regardless of sDrasticQrFastPath.
+            property_set("persist.gammaos.nano.qr_prepared", "0");
+            sDrasticQrFastPath = false;
         }
     }
 

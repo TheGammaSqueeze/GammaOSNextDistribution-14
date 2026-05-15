@@ -1214,6 +1214,26 @@ class ActivityMetricsLogger {
         sb.append(": ");
         TimeUtils.formatDuration(info.windowsDrawnDelayMs, sb);
         Log.i(TAG, sb.toString());
+
+        // GammaOS Nano: signal that the user-facing game activity has
+        // drawn its first frame. NanoMenu's drastic QR loop watches for
+        // this so it can keep rendering the preview until drastic is
+        // actually drawing, eliminating the visible gap between preview
+        // exit and game first frame. We only fire for the inner game
+        // activity (DraSticEmuActivity), NOT the file-picker launcher
+        // (DraSticActivity) -- the launcher shows up before drastic
+        // loads the ROM, and exiting NanoMenu at that point would
+        // expose drastic's home menu through the gap.
+        String comp = info.launchedActivityShortComponentName;
+        if (comp != null) {
+            if (comp.endsWith("/.DraSticEmuActivity")
+                    || comp.endsWith(".DraSticEmuActivity")) {
+                android.os.SystemProperties.set(
+                        "sys.gammaos.nano.app_drawn", "1");
+                Log.i(TAG, "GammaOS Nano: drastic game window drawn ("
+                        + comp + ")");
+            }
+        }
     }
 
     private void logRecentsAnimationLatency(TransitionInfo info) {

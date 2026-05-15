@@ -2008,7 +2008,7 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                                             "sys.gammaos.nano.restart", "1");
                                 }
                             }
-                        }, 1200);
+                        }, 5000);
                     }
                     return true;
                 }
@@ -2200,6 +2200,13 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                             + " dataDir=" + dataDir);
                 } else {
                     // Non-RetroArch app: check for launch_intent (standalone emulators)
+                    // FUSE readiness wait is handled by NanoMenu's
+                    // isQrRomStorageReady() before handoff fires. Don't probe
+                    // FUSE paths from system_server here -- new File().exists()
+                    // on /storage/emulated/0/* can BLOCK on the FUSE syscall
+                    // when FUSE is mid-mount, and we're inside the WM global
+                    // lock. That triggers a 65s watchdog and kills the
+                    // system_server.
                     // Intent is stored in a file because it exceeds PROP_VALUE_MAX (92 bytes)
                     String launchIntentStr = android.os.SystemProperties.get(
                             "sys.gammaos.nano.launch_intent", "");
@@ -2242,7 +2249,23 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                             homeIntent = parseAmIntent(launchIntentStr, nanoApp);
                             if (homeIntent != null) {
                                 homeIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
-                                        | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                        | Intent.FLAG_ACTIVITY_CLEAR_TASK
+                                        | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                                // Grant URI read permission to the target app so it can
+                                // access content:// URIs on QR cold boot. The grant persists
+                                // for the activity's lifetime regardless of FUSE state.
+                                android.net.Uri dataUri = homeIntent.getData();
+                                if (dataUri != null && "content".equals(dataUri.getScheme())) {
+                                    try {
+                                        mService.mContext.grantUriPermission(
+                                                nanoApp, dataUri,
+                                                Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                                        Slog.i(TAG, "GammaOS Nano: granted URI read permission "
+                                                + "for " + dataUri.getAuthority() + " to " + nanoApp);
+                                    } catch (Exception ex) {
+                                        Slog.w(TAG, "GammaOS Nano: URI grant failed: " + ex);
+                                    }
+                                }
                                 ComponentName comp = homeIntent.getComponent();
                                 if (comp != null) {
                                     aInfo = mService.mContext.getPackageManager().getActivityInfo(comp,
