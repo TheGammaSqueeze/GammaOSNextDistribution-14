@@ -279,6 +279,87 @@ void NanoMenu::renderVolumeBar() {
 }
 
 // ---------------------------------------------------------------------------
+// Launch-readiness gate
+//
+// On cold boot, NanoMenu paints at T+~7 s but the system cannot accept a
+// home-launch through service.bootanim.nano_retroarch -> startHome until
+// user 0 starts unlocking (sys.user.0.ce_available=true), the DE cache
+// is ready for QR (sys.gammaos.nano.cache_mounted=1), or full boot
+// completes. RootWindowContainer.startHomeOnTaskDisplayArea() returns
+// false if none of those are true and never retries from the same path,
+// so a too-early A press leaves NanoMenu and bootanim exited with no
+// home running and the panel painted black. The gate prevents that by
+// holding the press as a queued launch and re-firing handleSelect()
+// from the main loop when readiness flips. The user sees a brief
+// centred toast for ~3 s; navigation or Back cancels the queue.
+// ---------------------------------------------------------------------------
+
+bool NanoMenu::isLaunchReady() const {
+    char val[PROPERTY_VALUE_MAX] = {};
+    property_get("sys.boot_completed", val, "0");
+    if (val[0] == '1') return true;
+    property_get("sys.user.0.ce_available", val, "");
+    if (strcmp(val, "true") == 0) return true;
+    property_get("sys.gammaos.nano.cache_mounted", val, "0");
+    if (val[0] == '1') return true;
+    return false;
+}
+
+void NanoMenu::showLaunchBusyToast() {
+    mShowLaunchBusy = true;
+    mLaunchBusyTimer = 180; // ~3s at 60fps
+    mLaunchPending = true;
+}
+
+void NanoMenu::cancelPendingLaunch() {
+    mLaunchPending = false;
+    mShowLaunchBusy = false;
+    mLaunchBusyTimer = 0;
+}
+
+void NanoMenu::renderLaunchBusyToast() {
+    if (!mShowLaunchBusy) return;
+    // Stay visible the entire time the launch is queued. Only run
+    // the fade-out timer down once mLaunchPending has been cleared
+    // (cancel via navigation/back, or auto-fired). Without this the
+    // toast would vanish after 3 s while the user is still waiting
+    // for boot to finish, leaving them staring at a blank UI with
+    // no idea their press is still queued.
+    if (!mLaunchPending) {
+        if (--mLaunchBusyTimer <= 0) {
+            mShowLaunchBusy = false;
+            return;
+        }
+    }
+
+    float sf = fminf((float)mWidth / 1080.0f, (float)mHeight / 720.0f);
+    if (sf < 0.5f) sf = 0.5f;
+
+    const char* line1 = "Booting up...";
+    const char* line2 = "Your game will launch shortly";
+    float scale1 = 2.5f * sf;
+    float scale2 = 1.5f * sf;
+
+    float w1 = measureText(line1, scale1);
+    float w2 = measureText(line2, scale2);
+    float wMax = fmaxf(w1, w2);
+
+    float pad = 24.0f * sf;
+    float gap = 16.0f * sf;
+    float bgW = wMax + pad * 2;
+    float bgH = FONT_CHAR_H * scale1 + gap + FONT_CHAR_H * scale2 + pad * 2;
+    float bgX = (mWidth - bgW) / 2.0f;
+    float bgY = (mHeight - bgH) / 2.0f;
+
+    drawQuad(bgX, bgY, bgW, bgH, 0.0f, 0.0f, 0.0f, 0.85f);
+
+    float y = bgY + pad;
+    drawText(line1, (mWidth - w1) / 2.0f, y, scale1, 1.0f, 0.85f, 0.3f, 1.0f);
+    y += FONT_CHAR_H * scale1 + gap;
+    drawText(line2, (mWidth - w2) / 2.0f, y, scale2, 0.9f, 0.9f, 0.9f, 1.0f);
+}
+
+// ---------------------------------------------------------------------------
 // Battery indicator
 // ---------------------------------------------------------------------------
 

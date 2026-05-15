@@ -1218,6 +1218,10 @@ void NanoMenu::render() {
     // Brightness bar overlay
     renderBrightnessBar();
     renderVolumeBar();
+    // GammaOS Nano: launch-busy toast (centred). Drawn before the top
+    // HUD so the dim black backplate doesn't fight with battery/QR
+    // icons, but after volume/brightness so those still appear on top.
+    renderLaunchBusyToast();
 
     // Top-bar HUD (battery / network / quick resume) is suppressed while
     // the user is inside a Settings sub-screen so the full row is available

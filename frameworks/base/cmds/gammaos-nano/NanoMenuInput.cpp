@@ -242,6 +242,10 @@ void NanoMenu::checkInputHotplug() {
 // ---------------------------------------------------------------------------
 
 void NanoMenu::handleBack() {
+    // GammaOS Nano: back cancels any queued launch the user armed
+    // before the system was ready. Without this, mLaunchPending
+    // would still re-fire handleSelect() once isLaunchReady() flips.
+    cancelPendingLaunch();
     if (mOskActive) {
         closeOsk();
         return;
@@ -304,6 +308,13 @@ void NanoMenu::handleSelect() {
             handleBack();
             return;
         }
+        // GammaOS Nano: gate launches until the system can actually
+        // accept them. See NanoMenuSystem.cpp / isLaunchReady().
+        if (!isLaunchReady()) {
+            ALOGI("NanoMenu: recent launch deferred -- boot not ready");
+            showLaunchBusyToast();
+            return;
+        }
         // Launch the selected game directly into RetroArch
         const auto& entry = mRecentEntries[mRecentSelectedIndex];
         ALOGI("NanoMenu: launching game: %s core: %s",
@@ -357,6 +368,12 @@ void NanoMenu::handleSelect() {
             handleBack();
             return;
         }
+        // GammaOS Nano: gate -- see MENU_RECENT branch above.
+        if (!isLaunchReady()) {
+            ALOGI("NanoMenu: app launch deferred -- boot not ready");
+            showLaunchBusyToast();
+            return;
+        }
         // Launch the selected app
         const auto& app = mAppEntries[mAppSelectedIndex];
         ALOGI("NanoMenu: launching app: %s", app.packageName.c_str());
@@ -384,6 +401,12 @@ void NanoMenu::handleSelect() {
     ALOGD("Select item %d: %s", mSelectedIndex, mMenuItems[mSelectedIndex].label.c_str());
     const auto& label = mMenuItems[mSelectedIndex].label;
     if (label == "RetroArch (Nano)") {
+        // GammaOS Nano: gate -- see MENU_RECENT branch above.
+        if (!isLaunchReady()) {
+            ALOGI("NanoMenu: RetroArch launch deferred -- boot not ready");
+            showLaunchBusyToast();
+            return;
+        }
         property_set("service.bootanim.nano_retroarch", "1");
         property_set("sys.gammaos.nano.drop_input", "1");
         mWaitForRelease = true;
@@ -426,6 +449,8 @@ void NanoMenu::handleSelect() {
 }
 
 void NanoMenu::handleUp() {
+    // GammaOS Nano: navigating cancels any queued launch.
+    cancelPendingLaunch();
     if (mOskActive) {
         if (mOskCursorY > 0) mOskCursorY--;
         return;
@@ -471,6 +496,8 @@ void NanoMenu::handleUp() {
 }
 
 void NanoMenu::handleDown() {
+    // GammaOS Nano: navigating cancels any queued launch.
+    cancelPendingLaunch();
     if (mOskActive) {
         if (mOskCursorY < kOskRows - 1) mOskCursorY++;
         return;

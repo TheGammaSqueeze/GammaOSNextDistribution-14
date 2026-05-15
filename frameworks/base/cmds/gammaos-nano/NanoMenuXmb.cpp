@@ -1035,6 +1035,8 @@ void NanoMenu::addXmbRecent(int sysIdx, int gameIdx) {
 // ---------------------------------------------------------------------------
 
 void NanoMenu::handleLeft() {
+    // GammaOS Nano: navigating cancels any queued launch.
+    cancelPendingLaunch();
     if (mOskActive) {
         if (mOskCursorX > 0) mOskCursorX--;
         return;
@@ -1058,6 +1060,8 @@ void NanoMenu::handleLeft() {
 }
 
 void NanoMenu::handleRight() {
+    // GammaOS Nano: navigating cancels any queued launch.
+    cancelPendingLaunch();
     if (mOskActive) {
         int maxCol = kOskCols - 1;
         if (mOskCursorX < maxCol) mOskCursorX++;
@@ -1081,6 +1085,20 @@ void NanoMenu::handleRight() {
 
 void NanoMenu::launchXmbGame() {
     int sysIdx, gameIdx;
+
+    // GammaOS Nano: gate the entire XMB launch path until the system
+    // is ready to accept a handoff to a home app. Without this, an
+    // early A press on a freshly-painted XMB exits NanoMenu /
+    // bootanim while user 0 is still locked, leaving the panel black.
+    // See NanoMenuSystem.cpp / isLaunchReady() for the readiness
+    // criteria. The press is queued -- the main loop fires
+    // handleSelect() again as soon as readiness flips, so the user
+    // does not need to press A a second time after boot.
+    if (!isLaunchReady()) {
+        ALOGI("NanoMenu: XMB launch deferred -- boot not ready");
+        showLaunchBusyToast();
+        return;
+    }
 
     // Recently Played mode (index -1): launch directly from recent entry
     if (mXmbSystemIndex == -1 && !mSearchActive) {

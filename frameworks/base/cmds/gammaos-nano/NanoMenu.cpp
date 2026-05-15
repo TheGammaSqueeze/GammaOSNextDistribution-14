@@ -118,6 +118,7 @@ NanoMenu::NanoMenu()
       mShowBrightnessBar(false), mBrightnessBarTimer(0),
       mVolume(10), mMaxVolume(15),
       mShowVolumeBar(false), mVolumeBarTimer(0),
+      mShowLaunchBusy(false), mLaunchBusyTimer(0), mLaunchPending(false),
       mBatteryPercent(-1), mBatteryCharging(false),
       mBatteryPollTicks(0),
       mWifiLevel(kWifiLevel_Unknown), mWifiBars(0),
@@ -2988,6 +2989,22 @@ if (sRingPrimedCount >= 2) {
         pollInput();
         checkInputHotplug();
 
+        // GammaOS Nano: re-fire a deferred game/app launch as soon as
+        // the system is far enough through boot to accept it. The
+        // toast set mLaunchPending=true when the user pressed A
+        // before isLaunchReady() was true; handleSelect() re-enters
+        // the same launch path the original press hit. Navigation
+        // handlers (handleUp/Down/Left/Right/Back) clear the pending
+        // flag, so this only fires if the user is still parked on
+        // the same item they originally selected.
+        if (mLaunchPending && isLaunchReady()) {
+            ALOGI("NanoMenu: deferred launch firing -- system ready");
+            mLaunchPending = false;
+            mShowLaunchBusy = false;
+            mLaunchBusyTimer = 0;
+            handleSelect();
+        }
+
         // Adaptive framerate:
         //   60fps for DRM, XMB, or procedural effects (vsync-locked, no usleep)
         //   20fps for particle effects
@@ -3000,6 +3017,7 @@ if (sRingPrimedCount >= 2) {
                                              : (float)mXmbGameIndex)) > 0.01f);
         bool animating = (mCurrentEffect != 0) || mShowBrightnessBar
                          || mWaitForRelease
+                         || mShowLaunchBusy
                          || ((mMenuState == MENU_RECENT || mMenuState == MENU_APPS)
                              && mScrollOffset > 0.0f);
         int frameTimeUs;

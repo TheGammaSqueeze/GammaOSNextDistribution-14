@@ -271,6 +271,25 @@ private:
     int readSysfsInt(const char* path, int fallback);
     void writeSysfsInt(const char* path, int value);
 
+    // GammaOS Nano: launch-readiness gate. Returns true once the system
+    // is far enough through boot for the home-launch path in
+    // RootWindowContainer.startHomeOnTaskDisplayArea() to actually
+    // accept a launch. Without this gate, pressing A on a game in the
+    // few seconds between NanoMenu paint and user 0 unlock leaves the
+    // screen blank: NanoMenu exits, bootanim exits, but RWC's nano
+    // launch branch returns false (user not unlocking yet) so no app
+    // ever takes over the display.
+    bool isLaunchReady() const;
+    // Arm the centred "Booting up" overlay AND mark the press as a
+    // queued launch -- the main loop re-fires handleSelect() as soon
+    // as isLaunchReady() flips to true, so the user does not have to
+    // press A a second time after boot finishes.
+    void showLaunchBusyToast();
+    // Drop the queued launch (called from navigation handlers and
+    // handleBack so navigating away cancels the pending launch).
+    void cancelPendingLaunch();
+    void renderLaunchBusyToast();
+
     // Battery HUD
     void pollBattery();
     // Returns the right-edge X (in surface pixels) of the whole battery
@@ -453,6 +472,14 @@ private:
     int mMaxVolume;
     bool mShowVolumeBar;
     int mVolumeBarTimer;
+
+    // GammaOS Nano: launch-busy state. mShowLaunchBusy drives the
+    // centred toast for a few seconds after a too-early press, while
+    // mLaunchPending persists until either isLaunchReady() flips true
+    // (auto re-fire of handleSelect) or the user navigates / backs out.
+    bool mShowLaunchBusy;
+    int mLaunchBusyTimer;
+    bool mLaunchPending;
 
     // Battery state (cached, refreshed ~1/s from pollBattery())
     int mBatteryPercent;      // -1 if unknown / no battery
