@@ -455,7 +455,23 @@ final class PackageAbiHelperImpl implements PackageAbiHelper {
                 if (abi32 >= 0) {
                     final String abi = supported32BitAbis[abi32];
                     if (abi64 >= 0) {
-                        if (pkg.is32BitAbiPreferred()) {
+                        // GammaOS Nano: on ATV builds with ZYGOTE_FORCE_64=true,
+                        // there is no zygote_secondary running, so we cannot
+                        // service apps that request a 32-bit ABI. WebView ships
+                        // both armv7 and arm64 libs and declares
+                        // android:use32bitAbi=true ("is32BitAbiPreferred"), which
+                        // would normally swap to primaryCpuAbi=armeabi-v7a.
+                        // That breaks every Chromium-renderer subprocess used
+                        // by WebView consumers (SmartTube playback etc) because
+                        // startWebView -> openZygoteSocketIfNeeded tries the
+                        // (nonexistent) secondary zygote and fails with
+                        // "No such file or directory". If we have a 64-bit ABI
+                        // available and zygote_secondary is not configured,
+                        // ignore the package's 32-bit preference and keep
+                        // primaryCpuAbi as the 64-bit one.
+                        boolean isZygote64Only =
+                                "zygote64".equals(android.os.SystemProperties.get("ro.zygote"));
+                        if (pkg.is32BitAbiPreferred() && !isZygote64Only) {
                             secondaryCpuAbi = primaryCpuAbi;
                             primaryCpuAbi = abi;
                         } else {

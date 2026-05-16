@@ -138,6 +138,25 @@ public class WebViewZygote {
 
         try {
             String abi = sPackage.applicationInfo.primaryCpuAbi;
+            // GammaOS Nano: on ATV builds with ZYGOTE_FORCE_64=true, only
+            // zygote64 runs - there is no zygote_secondary to service 32-bit
+            // ABI requests. The WebView APK is detected by PackageManager
+            // with primaryCpuAbi=armeabi-v7a (PM prefers the first matching
+            // ABI which is armv7) and secondaryCpuAbi=arm64-v8a. If we ask
+            // the child-zygote for armeabi-v7a, openZygoteSocketIfNeeded
+            // tries primary zygote64 (doesn't match), falls back to
+            // mZygoteSecondarySocketAddress, which has no socket file, and
+            // every Chromium sandbox subprocess (the WebView renderer used
+            // by SmartTube playback, etc) crashes with "Starting child-zygote
+            // through Zygote failed: No such file or directory". Force the
+            // ABI to the 64-bit secondary when the device is 64-bit-only.
+            if (abi != null && Build.SUPPORTED_32_BIT_ABIS.length == 0
+                    && sPackage.applicationInfo.secondaryCpuAbi != null) {
+                Log.i(LOGTAG, "GammaOS Nano: ZYGOTE_FORCE_64 device, switching "
+                        + "WebView child-zygote ABI from " + abi + " to "
+                        + sPackage.applicationInfo.secondaryCpuAbi);
+                abi = sPackage.applicationInfo.secondaryCpuAbi;
+            }
             int runtimeFlags = Zygote.getMemorySafetyRuntimeFlagsForSecondaryZygote(
                     sPackage.applicationInfo, null);
             sZygote = Process.ZYGOTE_PROCESS.startChildZygote(

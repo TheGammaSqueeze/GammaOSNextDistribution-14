@@ -3514,9 +3514,16 @@ public final class SystemServer implements Dumpable {
 
             // No dependency on Webview preparation in system server. But this should
             // be completed before allowing 3rd party
+            // GammaOS Nano: prepareWebViewInSystemServer must run even in
+            // minimal_boot, otherwise the WebView relro file is never created
+            // and any later app that uses WebView (SmartTube, etc) hangs in
+            // WebViewUpdateService waiting for relro, then dies with
+            // "Timed out waiting for relro creation, relros started 2 relros
+            // finished 0". The preparation is async on SystemServerInitThreadPool
+            // so it does not block the rest of systemReady().
             final String WEBVIEW_PREPARATION = "WebViewFactoryPreparation";
             Future<?> webviewPrep = null;
-            if (!minimalBoot && mWebViewUpdateService != null) {
+            if (mWebViewUpdateService != null) {
                 webviewPrep = SystemServerInitThreadPool.submit(() -> {
                     Slog.i(TAG, WEBVIEW_PREPARATION);
                     TimingsTraceAndSlog traceLog = TimingsTraceAndSlog.newAsyncLog();
