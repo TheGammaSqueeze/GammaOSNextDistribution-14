@@ -1,0 +1,44 @@
+on post-fs
+    start gammaos_on_boot
+    mount none /system/etc/usb_audio_policy_configuration.xml /vendor/etc/usb_audio_policy_configuration.xml bind
+    setprop ro.vndk.version ${persist.sys.vndk}
+    setprop sys.gammaos.start_audio 1
+
+service gammaos_on_boot /system/bin/gammaos-on-boot.sh
+    oneshot
+    disabled
+
+on property:apexd.status=activated
+    start adbd
+
+on property:sys.boot_completed=1
+    chown wifi system /data/misc/wifi
+    chown system wifi /data/misc/wifi/hostapd.conf
+
+on property:persist.sys.phh.mainkeys=*
+    setprop qemu.hw.mainkeys ${persist.sys.phh.mainkeys}
+
+on property:vendor.debug.sf.latch_unsignaled=1
+    setprop debug.sf.latch_unsignaled 1
+
+on property:ro.hardware=mt6761
+    setprop debug.sf.disable_hwc_overlays 1
+on property:ro.hardware=mt6763
+    setprop debug.sf.disable_hwc_overlays 1
+on property:ro.hardware=mt6765
+    setprop debug.sf.disable_hwc_overlays 1
+on property:ro.hardware=mt6771
+    setprop debug.sf.disable_hwc_overlays 1
+on property:ro.hardware=mt6779
+    setprop debug.sf.disable_hwc_overlays 1
+on property:ro.hardware=mt6785
+    setprop debug.sf.disable_hwc_overlays 1
+on property:ro.hardware=mt8766
+    setprop debug.sf.disable_hwc_overlays 1
+on property:ro.hardware=mt8768
+    setprop debug.sf.disable_hwc_overlays 1
+
+service watchdogd-gsi /system/bin/watchdogd 10 20
+    class core
+    oneshot
+    seclabel u:r:watchdogd:s0

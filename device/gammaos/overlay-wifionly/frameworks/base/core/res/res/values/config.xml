@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Treat device as Wi-Fi only -->
+    <bool name="config_voice_capable">false</bool>
+    <bool name="config_sms_capable">false</bool>
+
+    <!-- Hide carrier/operator cruft -->
+    <bool name="config_showOperatorNameInStatusBar">false</bool>
+
+    <!-- Disable IMS feature discovery noise -->
+    <bool name="config_carrier_volte_available">false</bool>
+    <bool name="config_carrier_vt_available">false</bool>
+    <bool name="config_carrier_wfc_available">false</bool>
+
+    <!-- Optional: emergency button on keyguard not shown for non-voice devices -->
+    <bool name="config_enableEmergencyCallWhileSimLocked">false</bool>
+</resources>

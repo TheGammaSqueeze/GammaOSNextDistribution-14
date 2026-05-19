@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Don’t show mobile signal when there’s no telephony -->
+    <bool name="config_showMobileDataIcon">false</bool>
+</resources>

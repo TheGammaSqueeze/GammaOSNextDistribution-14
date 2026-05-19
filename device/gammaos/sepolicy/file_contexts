@@ -1,0 +1,10 @@
+/system/etc/usb_audio_policy_configuration.xml	u:object_r:vendor_configs_file:s0
+/system/bin/gammaos-on-boot.sh u:object_r:phhsu_exec:s0
+
+/bt_firmware(/.*)?      u:object_r:vendor_file:s0
+
+/sec_storage(/.*)?      u:object_r:mnt_vendor_file:s0
+
+/efs u:object_r:mnt_vendor_file:s0
+
+/system/bin/hw/android\.hardware\.bluetooth\.audio-service-system u:object_r:hal_audio_sysbta_exec:s0

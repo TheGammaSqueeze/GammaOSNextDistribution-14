@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<config>
+    <!-- Disable all telephony hardware features -->
+    <unavailable-feature name="android.hardware.telephony"/>
+    <unavailable-feature name="android.hardware.telephony.gsm"/>
+    <unavailable-feature name="android.hardware.telephony.cdma"/>
+    <unavailable-feature name="android.hardware.telephony.ims"/>
+
+    <!-- Disable eSIM / EUICC -->
+    <unavailable-feature name="android.hardware.telephony.euicc"/>
+    <unavailable-feature name="android.software.euicc"/>
+
+    <!-- Disable SIP/VoIP (Framework telephony path) -->
+    <unavailable-feature name="android.software.sip.voip"/>
+
+    <!-- Optional: if any radio config extensions creep in -->
+    <unavailable-feature name="android.software.ipsec_tunnels"/>
+</config>

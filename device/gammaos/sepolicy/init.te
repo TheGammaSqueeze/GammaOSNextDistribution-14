@@ -1,0 +1,7 @@
+domain_trans(init, rootfs, adbd)
+
+allow vendor_init vendor_init:capability { sys_module };
+
+allow init system_file:lnk_file create_file_perms;
+
+allow init adbd_exec:lnk_file read;
