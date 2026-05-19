@@ -138,6 +138,13 @@ public class PackageCacher implements IPackageCacher {
      */
     private static boolean isCacheUpToDate(File packageFile, File cacheFile) {
         try {
+            if (android.os.SystemProperties.getBoolean("sys.gammaos.minimal_boot", false)) {
+                // Nano mode: trust package cache without stat validation.
+                // System packages never change in nano mode (no app installs).
+                // Skip the expensive per-APK stat() calls on slow SD storage.
+                final StructStat cache = Os.stat(cacheFile.getAbsolutePath());
+                return true;
+            }
             // In case packageFile is located on one of /apex mount points it's mtime will always be
             // 0. Instead, we can use mtime of the APEX file backing the corresponding mount point.
             if (packageFile.toPath().startsWith(Environment.getApexDirectory().toPath())) {
