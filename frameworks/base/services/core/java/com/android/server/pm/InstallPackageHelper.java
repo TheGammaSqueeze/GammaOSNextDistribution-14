@@ -3593,12 +3593,19 @@ final class InstallPackageHelper {
                 new ParallelPackageParser(packageParser, executorService);
 
         // Submit files for parsing in parallel
+        final boolean nanoSkipEnabled = android.os.SystemProperties.getBoolean(
+                "sys.gammaos.minimal_boot", false);
         int fileCount = 0;
+        int nanoSkipped = 0;
         for (File file : files) {
             final boolean isPackage = (isApkFile(file) || file.isDirectory())
                     && !PackageInstallerService.isStageName(file.getName());
             if (!isPackage) {
                 // Ignore entries which are not packages
+                continue;
+            }
+            if (nanoSkipEnabled && isNanoSkippable(file.getName())) {
+                nanoSkipped++;
                 continue;
             }
             if ((scanFlags & SCAN_DROP_CACHE) != 0) {
@@ -3609,6 +3616,9 @@ final class InstallPackageHelper {
             }
             parallelPackageParser.submit(file, parseFlags);
             fileCount++;
+        }
+        if (nanoSkipped > 0) {
+            Log.i(TAG, "Nano mode: skipped " + nanoSkipped + " packages in " + scanDir);
         }
 
         // Process results one by one
@@ -3652,6 +3662,59 @@ final class InstallPackageHelper {
                 mRemovePackageHelper.removeCodePath(parseResult.scanFile);
             }
         }
+    }
+
+    private static final HashSet<String> NANO_SKIP_PACKAGES = new HashSet<>();
+    static {
+        NANO_SKIP_PACKAGES.add("NfcNci");
+        NANO_SKIP_PACKAGES.add("BasicDreams");
+        NANO_SKIP_PACKAGES.add("CaptivePortalLogin");
+        NANO_SKIP_PACKAGES.add("CertInstaller");
+        NANO_SKIP_PACKAGES.add("CompanionDeviceManager");
+        NANO_SKIP_PACKAGES.add("HTMLViewer");
+        NANO_SKIP_PACKAGES.add("WallpaperBackup");
+        NANO_SKIP_PACKAGES.add("E2eeContactKeysProvider");
+        NANO_SKIP_PACKAGES.add("FusedLocation");
+        NANO_SKIP_PACKAGES.add("LocalTransport");
+        NANO_SKIP_PACKAGES.add("PacProcessor");
+        NANO_SKIP_PACKAGES.add("ProxyHandler");
+        NANO_SKIP_PACKAGES.add("SharedStorageBackup");
+        NANO_SKIP_PACKAGES.add("UserDictionaryProvider");
+        NANO_SKIP_PACKAGES.add("VpnDialogs");
+        NANO_SKIP_PACKAGES.add("KeyChain");
+        NANO_SKIP_PACKAGES.add("TvFrameworkPackageStubs");
+        NANO_SKIP_PACKAGES.add("LineageSetupWizard");
+        NANO_SKIP_PACKAGES.add("Updater");
+        NANO_SKIP_PACKAGES.add("TvProvision");
+        NANO_SKIP_PACKAGES.add("SettingsIntelligence");
+        NANO_SKIP_PACKAGES.add("TvSampleLeanbackLauncher");
+        NANO_SKIP_PACKAGES.add("TVLauncherNoGMS");
+        NANO_SKIP_PACKAGES.add("TVRecommendationsNoGMS");
+        NANO_SKIP_PACKAGES.add("LineageCustomizer");
+        NANO_SKIP_PACKAGES.add("AdServicesApk");
+        NANO_SKIP_PACKAGES.add("CtsShim");
+        NANO_SKIP_PACKAGES.add("CtsShimPriv");
+        NANO_SKIP_PACKAGES.add("DeviceLockController");
+        NANO_SKIP_PACKAGES.add("HealthConnectBackupRestore");
+        NANO_SKIP_PACKAGES.add("HealthConnectController");
+        NANO_SKIP_PACKAGES.add("FederatedCompute");
+        NANO_SKIP_PACKAGES.add("OnDevicePersonalization");
+        NANO_SKIP_PACKAGES.add("rkpdapp");
+        NANO_SKIP_PACKAGES.add("ServiceUwbResources");
+        NANO_SKIP_PACKAGES.add("android.system.virtualmachine.res");
+        NANO_SKIP_PACKAGES.add("OsuLogin");
+        NANO_SKIP_PACKAGES.add("WifiDialog");
+    }
+
+    private static boolean isNanoSkippable(String name) {
+        if (name.endsWith(".apk")) {
+            name = name.substring(0, name.length() - 4);
+        }
+        int atIdx = name.indexOf('@');
+        if (atIdx > 0) {
+            name = name.substring(0, atIdx);
+        }
+        return NANO_SKIP_PACKAGES.contains(name);
     }
 
     /**
