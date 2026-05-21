@@ -1,0 +1,1237 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2024 GammaOS
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:settings="http://schemas.android.com/apk/res-auto"
+    android:key="gammaos_toolbox_screen"
+    android:title="@string/gammaos_toolbox_title">
+
+    <!-- Warning banner -->
+    <Preference
+        android:key="gammaos_toolbox_warning"
+        android:selectable="false"
+        android:summary="@string/gammaos_toolbox_warning"
+        android:icon="@android:drawable/ic_dialog_alert" />
+
+    <!-- ==================== Display ==================== -->
+    <PreferenceCategory
+        android:key="category_display"
+        android:title="@string/gammaos_toolbox_category_display">
+
+        <Preference
+            android:key="category_display_description"
+            android:selectable="false"
+            android:summary="@string/gammaos_toolbox_category_display_description" />
+
+        <SwitchPreference
+            android:key="persist.gammaos.immersive"
+            android:title="@string/gammaos_toolbox_immersive_title"
+            android:summary="@string/gammaos_toolbox_immersive_summary"
+            android:defaultValue="false" />
+
+        <SwitchPreference
+            android:key="persist.gammaos.refresh.lock"
+            android:title="@string/gammaos_toolbox_refresh_lock_title"
+            android:summary="@string/gammaos_toolbox_refresh_lock_summary"
+            android:defaultValue="false" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.refresh.rate"
+            android:title="@string/gammaos_toolbox_refresh_rate_title"
+            android:summary="@string/gammaos_toolbox_refresh_rate_summary"
+            android:inputType="number"
+            android:defaultValue="0" />
+
+        <SwitchPreference
+            android:key="persist.gammaos.display.tweaks"
+            android:title="@string/gammaos_toolbox_display_tweaks_title"
+            android:summary="@string/gammaos_toolbox_display_tweaks_summary"
+            android:defaultValue="false" />
+
+        <SwitchPreference
+            android:key="persist.gammaos.force_client_comp"
+            android:title="@string/gammaos_toolbox_force_client_comp_title"
+            android:summary="@string/gammaos_toolbox_force_client_comp_summary"
+            android:defaultValue="false" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.rotation_cooldown"
+            android:title="@string/gammaos_toolbox_rotation_cooldown_title"
+            android:summary="@string/gammaos_toolbox_rotation_cooldown_summary"
+            android:inputType="number"
+            android:defaultValue="0" />
+
+        <SwitchPreference
+            android:key="persist.gammaos.desktop.fullscreen"
+            android:title="@string/gammaos_toolbox_desktop_fullscreen_title"
+            android:summary="@string/gammaos_toolbox_desktop_fullscreen_summary"
+            android:defaultValue="false" />
+
+        <SwitchPreference
+            android:key="persist.gammaos.display.unique_names"
+            android:title="@string/gammaos_toolbox_display_unique_names_title"
+            android:summary="@string/gammaos_toolbox_display_unique_names_summary"
+            android:defaultValue="true" />
+
+        <SwitchPreference
+            android:key="persist.gammaos.sf.keep_underlay_on_shade"
+            android:title="@string/gammaos_toolbox_keep_underlay_title"
+            android:summary="@string/gammaos_toolbox_keep_underlay_summary"
+            android:defaultValue="true" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.renderengine.backend"
+            android:title="@string/gammaos_toolbox_renderengine_backend_title"
+            android:summary="@string/gammaos_toolbox_renderengine_backend_summary"
+            android:defaultValue="" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.vsync_period_ns"
+            android:title="@string/gammaos_toolbox_vsync_period_title"
+            android:summary="@string/gammaos_toolbox_vsync_period_summary"
+            android:inputType="number"
+            android:defaultValue="0" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.square.sticky_ms"
+            android:title="@string/gammaos_toolbox_square_sticky_title"
+            android:summary="@string/gammaos_toolbox_square_sticky_summary"
+            android:inputType="number"
+            android:defaultValue="1200" />
+
+    </PreferenceCategory>
+
+    <!-- ==================== BFI ==================== -->
+    <PreferenceCategory
+        android:key="category_bfi"
+        android:title="@string/gammaos_toolbox_category_bfi">
+
+        <Preference
+            android:key="category_bfi_description"
+            android:selectable="false"
+            android:summary="@string/gammaos_toolbox_category_bfi_description" />
+
+        <SwitchPreference
+            android:key="persist.gammaos.bfi.enable"
+            android:title="@string/gammaos_toolbox_bfi_enable_title"
+            android:summary="@string/gammaos_toolbox_bfi_enable_summary"
+            android:defaultValue="false" />
+
+        <ListPreference
+            android:key="persist.gammaos.bfi.mode"
+            android:title="@string/gammaos_toolbox_bfi_mode_title"
+            android:summary="@string/gammaos_toolbox_bfi_mode_summary"
+            android:entries="@array/gammaos_bfi_mode_entries"
+            android:entryValues="@array/gammaos_bfi_mode_values"
+            android:defaultValue="ctm" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.bfi.preset"
+            android:title="@string/gammaos_toolbox_bfi_preset_title"
+            android:summary="@string/gammaos_toolbox_bfi_preset_summary"
+            android:defaultValue="" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.bfi.pattern"
+            android:title="@string/gammaos_toolbox_bfi_pattern_title"
+            android:summary="@string/gammaos_toolbox_bfi_pattern_summary"
+            android:defaultValue="" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.bfi.black_floor"
+            android:title="@string/gammaos_toolbox_bfi_black_floor_title"
+            android:summary="@string/gammaos_toolbox_bfi_black_floor_summary"
+            android:inputType="numberDecimal"
+            android:defaultValue="0.0" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.bfi.polarity_period_ms"
+            android:title="@string/gammaos_toolbox_bfi_polarity_title"
+            android:summary="@string/gammaos_toolbox_bfi_polarity_summary"
+            android:inputType="number"
+            android:defaultValue="1000" />
+
+        <SwitchPreference
+            android:key="persist.gammaos.bfi.subframe.enable"
+            android:title="@string/gammaos_toolbox_bfi_subframe_enable_title"
+            android:summary="@string/gammaos_toolbox_bfi_subframe_enable_summary"
+            android:defaultValue="false" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.bfi.subframe.phase_step"
+            android:title="@string/gammaos_toolbox_bfi_subframe_phase_title"
+            android:summary="@string/gammaos_toolbox_bfi_subframe_phase_summary"
+            android:inputType="numberDecimal"
+            android:defaultValue="0.5" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.bfi.subframe.cadence_min"
+            android:title="@string/gammaos_toolbox_bfi_subframe_cadence_title"
+            android:summary="@string/gammaos_toolbox_bfi_subframe_cadence_summary"
+            android:inputType="numberDecimal"
+            android:defaultValue="1.0" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.bfi.seam_brightness"
+            android:title="@string/gammaos_toolbox_bfi_seam_brightness_title"
+            android:summary="@string/gammaos_toolbox_bfi_seam_brightness_summary"
+            android:inputType="numberDecimal"
+            android:defaultValue="" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.bfi.seam_follow_brightness"
+            android:title="@string/gammaos_toolbox_bfi_seam_follow_title"
+            android:summary="@string/gammaos_toolbox_bfi_seam_follow_summary"
+            android:inputType="numberDecimal"
+            android:defaultValue="" />
+
+    </PreferenceCategory>
+
+    <!-- ==================== BFI Flip Transition ==================== -->
+    <PreferenceCategory
+        android:key="category_bfi_flip"
+        android:title="@string/gammaos_toolbox_category_bfi_flip">
+
+        <Preference
+            android:key="category_bfi_flip_description"
+            android:selectable="false"
+            android:summary="@string/gammaos_toolbox_category_bfi_flip_description" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.bfi.flip.out_frames"
+            android:title="@string/gammaos_toolbox_bfi_flip_out_frames_title"
+            android:summary="@string/gammaos_toolbox_bfi_flip_out_frames_summary"
+            android:inputType="number"
+            android:defaultValue="10" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.bfi.flip.in_frames"
+            android:title="@string/gammaos_toolbox_bfi_flip_in_frames_title"
+            android:summary="@string/gammaos_toolbox_bfi_flip_in_frames_summary"
+            android:inputType="number"
+            android:defaultValue="10" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.bfi.flip.sat"
+            android:title="@string/gammaos_toolbox_bfi_flip_sat_title"
+            android:summary="@string/gammaos_toolbox_bfi_flip_sat_summary"
+            android:inputType="numberDecimal"
+            android:defaultValue="1.0" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.bfi.flip.gamma"
+            android:title="@string/gammaos_toolbox_bfi_flip_gamma_title"
+            android:summary="@string/gammaos_toolbox_bfi_flip_gamma_summary"
+            android:inputType="numberDecimal"
+            android:defaultValue="1.0" />
+
+        <SwitchPreference
+            android:key="persist.gammaos.bfi.flip.use_auto"
+            android:title="@string/gammaos_toolbox_bfi_flip_use_auto_title"
+            android:summary="@string/gammaos_toolbox_bfi_flip_use_auto_summary"
+            android:defaultValue="true" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.bfi.flip.auto_dip"
+            android:title="@string/gammaos_toolbox_bfi_flip_auto_dip_title"
+            android:summary="@string/gammaos_toolbox_bfi_flip_auto_dip_summary"
+            android:inputType="numberDecimal"
+            android:defaultValue="0.92" />
+
+        <SwitchPreference
+            android:key="persist.gammaos.bfi.flip.contrast.enable"
+            android:title="@string/gammaos_toolbox_bfi_flip_contrast_enable_title"
+            android:summary="@string/gammaos_toolbox_bfi_flip_contrast_enable_summary"
+            android:defaultValue="false" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.bfi.flip.contrast"
+            android:title="@string/gammaos_toolbox_bfi_flip_contrast_title"
+            android:summary="@string/gammaos_toolbox_bfi_flip_contrast_summary"
+            android:inputType="numberDecimal"
+            android:defaultValue="1.0" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.bfi.flip.contrast_pivot"
+            android:title="@string/gammaos_toolbox_bfi_flip_contrast_pivot_title"
+            android:summary="@string/gammaos_toolbox_bfi_flip_contrast_pivot_summary"
+            android:inputType="numberDecimal"
+            android:defaultValue="0.5" />
+
+        <SwitchPreference
+            android:key="persist.gammaos.bfi.flip.contrast.hw"
+            android:title="@string/gammaos_toolbox_bfi_flip_contrast_hw_title"
+            android:summary="@string/gammaos_toolbox_bfi_flip_contrast_hw_summary"
+            android:defaultValue="false" />
+
+        <SwitchPreference
+            android:key="persist.gammaos.bfi.flip.zero_eps"
+            android:title="@string/gammaos_toolbox_bfi_flip_zero_eps_title"
+            android:summary="@string/gammaos_toolbox_bfi_flip_zero_eps_summary"
+            android:defaultValue="true" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.bfi.flip.rgb.r"
+            android:title="@string/gammaos_toolbox_bfi_flip_rgb_r_title"
+            android:summary="@string/gammaos_toolbox_bfi_flip_rgb_r_summary"
+            android:inputType="numberDecimal"
+            android:defaultValue="1.0" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.bfi.flip.rgb.g"
+            android:title="@string/gammaos_toolbox_bfi_flip_rgb_g_title"
+            android:summary="@string/gammaos_toolbox_bfi_flip_rgb_g_summary"
+            android:inputType="numberDecimal"
+            android:defaultValue="1.0" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.bfi.flip.rgb.b"
+            android:title="@string/gammaos_toolbox_bfi_flip_rgb_b_title"
+            android:summary="@string/gammaos_toolbox_bfi_flip_rgb_b_summary"
+            android:inputType="numberDecimal"
+            android:defaultValue="1.0" />
+
+    </PreferenceCategory>
+
+    <!-- ==================== CRT Shader ==================== -->
+    <PreferenceCategory
+        android:key="category_shader"
+        android:title="@string/gammaos_toolbox_category_shader">
+
+        <Preference
+            android:key="category_shader_description"
+            android:selectable="false"
+            android:summary="@string/gammaos_toolbox_category_shader_description" />
+
+        <SwitchPreference
+            android:key="persist.gammaos.shader.enable"
+            android:title="@string/gammaos_toolbox_shader_enable_title"
+            android:summary="@string/gammaos_toolbox_shader_enable_summary"
+            android:defaultValue="false" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.shader.type"
+            android:title="@string/gammaos_toolbox_shader_type_title"
+            android:summary="@string/gammaos_toolbox_shader_type_summary"
+            android:defaultValue="" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.shader.bp_grace_frames"
+            android:title="@string/gammaos_toolbox_shader_bp_grace_title"
+            android:summary="@string/gammaos_toolbox_shader_bp_grace_summary"
+            android:inputType="number"
+            android:defaultValue="6" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.shader.custom.preset"
+            android:title="@string/gammaos_toolbox_shader_custom_preset_title"
+            android:summary="@string/gammaos_toolbox_shader_custom_preset_summary"
+            android:defaultValue="" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.shader.custom.res_scale"
+            android:title="@string/gammaos_toolbox_shader_custom_res_scale_title"
+            android:summary="@string/gammaos_toolbox_shader_custom_res_scale_summary"
+            android:defaultValue="" />
+
+    </PreferenceCategory>
+
+    <!-- ==================== CRT Simple Shader ==================== -->
+    <PreferenceCategory
+        android:key="category_shader_crt"
+        android:title="@string/gammaos_toolbox_category_shader_crt">
+
+        <Preference
+            android:key="category_shader_crt_description"
+            android:selectable="false"
+            android:summary="@string/gammaos_toolbox_category_shader_crt_description" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.shader.crt-simple.scan_px"
+            android:title="@string/gammaos_toolbox_shader_crt_scan_px_title"
+            android:summary="@string/gammaos_toolbox_shader_crt_scan_px_summary"
+            android:inputType="numberDecimal"
+            android:defaultValue="4" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.shader.crt-simple.scan_strength"
+            android:title="@string/gammaos_toolbox_shader_crt_scan_strength_title"
+            android:summary="@string/gammaos_toolbox_shader_crt_scan_strength_summary"
+            android:inputType="numberDecimal"
+            android:defaultValue="0.4" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.shader.crt-simple.curv"
+            android:title="@string/gammaos_toolbox_shader_crt_curv_title"
+            android:summary="@string/gammaos_toolbox_shader_crt_curv_summary"
+            android:inputType="numberDecimal"
+            android:defaultValue="0.03" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.shader.crt-simple.vignette"
+            android:title="@string/gammaos_toolbox_shader_crt_vignette_title"
+            android:summary="@string/gammaos_toolbox_shader_crt_vignette_summary"
+            android:inputType="numberDecimal"
+            android:defaultValue="0.01" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.shader.crt-simple.edge_soft_px"
+            android:title="@string/gammaos_toolbox_shader_crt_edge_soft_title"
+            android:summary="@string/gammaos_toolbox_shader_crt_edge_soft_summary"
+            android:inputType="numberDecimal"
+            android:defaultValue="4" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.shader.crt-simple.blur_intensity"
+            android:title="@string/gammaos_toolbox_shader_crt_blur_title"
+            android:summary="@string/gammaos_toolbox_shader_crt_blur_summary"
+            android:inputType="numberDecimal"
+            android:defaultValue="0" />
+
+        <SwitchPreference
+            android:key="persist.gammaos.shader.crt-simple.half_res"
+            android:title="@string/gammaos_toolbox_shader_crt_half_res_title"
+            android:summary="@string/gammaos_toolbox_shader_crt_half_res_summary"
+            android:defaultValue="false" />
+
+    </PreferenceCategory>
+
+    <!-- ==================== LCD3x Shader ==================== -->
+    <PreferenceCategory
+        android:key="category_shader_lcd3x"
+        android:title="@string/gammaos_toolbox_category_shader_lcd3x">
+
+        <Preference
+            android:key="category_shader_lcd3x_description"
+            android:selectable="false"
+            android:summary="@string/gammaos_toolbox_category_shader_lcd3x_description" />
+
+        <SwitchPreference
+            android:key="persist.gammaos.shader.lcd3x.half_res"
+            android:title="@string/gammaos_toolbox_shader_lcd3x_half_res_title"
+            android:summary="@string/gammaos_toolbox_shader_lcd3x_half_res_summary"
+            android:defaultValue="false" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.shader.lcd3x.brighten_scanlines"
+            android:title="@string/gammaos_toolbox_shader_lcd3x_brighten_scan_title"
+            android:summary="@string/gammaos_toolbox_shader_lcd3x_brighten_scan_summary"
+            android:inputType="numberDecimal"
+            android:defaultValue="4.0" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.shader.lcd3x.brighten_lcd"
+            android:title="@string/gammaos_toolbox_shader_lcd3x_brighten_lcd_title"
+            android:summary="@string/gammaos_toolbox_shader_lcd3x_brighten_lcd_summary"
+            android:inputType="numberDecimal"
+            android:defaultValue="4.0" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.shader.lcd3x.grid_px_x"
+            android:title="@string/gammaos_toolbox_shader_lcd3x_grid_x_title"
+            android:summary="@string/gammaos_toolbox_shader_lcd3x_grid_x_summary"
+            android:inputType="numberDecimal"
+            android:defaultValue="4.0" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.shader.lcd3x.grid_px_y"
+            android:title="@string/gammaos_toolbox_shader_lcd3x_grid_y_title"
+            android:summary="@string/gammaos_toolbox_shader_lcd3x_grid_y_summary"
+            android:inputType="numberDecimal"
+            android:defaultValue="4.0" />
+
+    </PreferenceCategory>
+
+    <!-- ==================== LCD Shader ==================== -->
+    <PreferenceCategory
+        android:key="category_shader_lcd"
+        android:title="@string/gammaos_toolbox_category_shader_lcd">
+
+        <Preference
+            android:key="category_shader_lcd_description"
+            android:selectable="false"
+            android:summary="@string/gammaos_toolbox_category_shader_lcd_description" />
+
+        <SwitchPreference
+            android:key="persist.gammaos.shader.lcd.half_res"
+            android:title="@string/gammaos_toolbox_shader_lcd_half_res_title"
+            android:summary="@string/gammaos_toolbox_shader_lcd_half_res_summary"
+            android:defaultValue="false" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.shader.lcd.response_time"
+            android:title="@string/gammaos_toolbox_shader_lcd_response_title"
+            android:summary="@string/gammaos_toolbox_shader_lcd_response_summary"
+            android:inputType="numberDecimal"
+            android:defaultValue="0" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.shader.lcd.scan_strength"
+            android:title="@string/gammaos_toolbox_shader_lcd_scan_strength_title"
+            android:summary="@string/gammaos_toolbox_shader_lcd_scan_strength_summary"
+            android:inputType="numberDecimal"
+            android:defaultValue="0.20" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.shader.lcd.subpixel_strength"
+            android:title="@string/gammaos_toolbox_shader_lcd_subpixel_title"
+            android:summary="@string/gammaos_toolbox_shader_lcd_subpixel_summary"
+            android:inputType="numberDecimal"
+            android:defaultValue="0.40" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.shader.lcd.gap_strength"
+            android:title="@string/gammaos_toolbox_shader_lcd_gap_strength_title"
+            android:summary="@string/gammaos_toolbox_shader_lcd_gap_strength_summary"
+            android:inputType="numberDecimal"
+            android:defaultValue="0.10" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.shader.lcd.gap_px"
+            android:title="@string/gammaos_toolbox_shader_lcd_gap_px_title"
+            android:summary="@string/gammaos_toolbox_shader_lcd_gap_px_summary"
+            android:inputType="numberDecimal"
+            android:defaultValue="0.05" />
+
+    </PreferenceCategory>
+
+    <!-- ==================== Blur Fill Shader ==================== -->
+    <PreferenceCategory
+        android:key="category_shader_blurfill"
+        android:title="@string/gammaos_toolbox_category_shader_blurfill">
+
+        <Preference
+            android:key="category_shader_blurfill_description"
+            android:selectable="false"
+            android:summary="@string/gammaos_toolbox_category_shader_blurfill_description" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.shader.blurfill.sigma"
+            android:title="@string/gammaos_toolbox_shader_blurfill_sigma_title"
+            android:summary="@string/gammaos_toolbox_shader_blurfill_sigma_summary"
+            android:inputType="numberDecimal"
+            android:defaultValue="12.0" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.shader.blurfill.strength"
+            android:title="@string/gammaos_toolbox_shader_blurfill_strength_title"
+            android:summary="@string/gammaos_toolbox_shader_blurfill_strength_summary"
+            android:inputType="numberDecimal"
+            android:defaultValue="1.0" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.shader.blurfill.edge_px"
+            android:title="@string/gammaos_toolbox_shader_blurfill_edge_px_title"
+            android:summary="@string/gammaos_toolbox_shader_blurfill_edge_px_summary"
+            android:inputType="numberDecimal"
+            android:defaultValue="160.0" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.shader.blurfill.feather_px"
+            android:title="@string/gammaos_toolbox_shader_blurfill_feather_title"
+            android:summary="@string/gammaos_toolbox_shader_blurfill_feather_summary"
+            android:inputType="numberDecimal"
+            android:defaultValue="40.0" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.shader.blurfill.res_scale"
+            android:title="@string/gammaos_toolbox_shader_blurfill_res_scale_title"
+            android:summary="@string/gammaos_toolbox_shader_blurfill_res_scale_summary"
+            android:inputType="numberDecimal"
+            android:defaultValue="0.5" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.shader.blurfill.orientation"
+            android:title="@string/gammaos_toolbox_shader_blurfill_orientation_title"
+            android:summary="@string/gammaos_toolbox_shader_blurfill_orientation_summary"
+            android:defaultValue="auto" />
+
+    </PreferenceCategory>
+
+    <!-- ==================== Dual-Stack Display ==================== -->
+    <PreferenceCategory
+        android:key="category_dualstack"
+        android:title="@string/gammaos_toolbox_category_dualstack">
+
+        <Preference
+            android:key="category_dualstack_description"
+            android:selectable="false"
+            android:summary="@string/gammaos_toolbox_category_dualstack_description" />
+
+        <SwitchPreference
+            android:key="persist.gammaos.dualstack.enabled"
+            android:title="@string/gammaos_toolbox_dualstack_enable_title"
+            android:summary="@string/gammaos_toolbox_dualstack_enable_summary"
+            android:defaultValue="false" />
+
+        <SwitchPreference
+            android:key="persist.gammaos.dualstack.swap"
+            android:title="@string/gammaos_toolbox_dualstack_swap_title"
+            android:summary="@string/gammaos_toolbox_dualstack_swap_summary"
+            android:defaultValue="false" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.dualstack.pkgs"
+            android:title="@string/gammaos_toolbox_dualstack_pkgs_title"
+            android:summary="@string/gammaos_toolbox_dualstack_pkgs_summary"
+            android:defaultValue="" />
+
+        <SwitchPreference
+            android:key="persist.gammaos.dualstack.killpackages.enabled"
+            android:title="@string/gammaos_toolbox_dualstack_kill_title"
+            android:summary="@string/gammaos_toolbox_dualstack_kill_summary"
+            android:defaultValue="false" />
+
+        <SwitchPreference
+            android:key="persist.gammaos.dualstack.sf.nearest_neighbor"
+            android:title="@string/gammaos_toolbox_dualstack_nn_title"
+            android:summary="@string/gammaos_toolbox_dualstack_nn_summary"
+            android:defaultValue="true" />
+
+        <SwitchPreference
+            android:key="persist.gammaos.dualstack.sf.surfaceview_only"
+            android:title="@string/gammaos_toolbox_dualstack_sv_only_title"
+            android:summary="@string/gammaos_toolbox_dualstack_sv_only_summary"
+            android:defaultValue="true" />
+
+        <SwitchPreference
+            android:key="persist.gammaos.dualstack.sf.surfaceview_only.keep_systemui"
+            android:title="@string/gammaos_toolbox_dualstack_keep_sysui_title"
+            android:summary="@string/gammaos_toolbox_dualstack_keep_sysui_summary"
+            android:defaultValue="true" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.dualstack.sf.max_fb_acquired_buffers"
+            android:title="@string/gammaos_toolbox_dualstack_max_fb_title"
+            android:summary="@string/gammaos_toolbox_dualstack_max_fb_summary"
+            android:inputType="number"
+            android:defaultValue="3" />
+
+        <SwitchPreference
+            android:key="persist.gammaos.dualstack.sf.disable_gl_backpressure"
+            android:title="@string/gammaos_toolbox_dualstack_no_backpressure_title"
+            android:summary="@string/gammaos_toolbox_dualstack_no_backpressure_summary"
+            android:defaultValue="true" />
+
+        <SwitchPreference
+            android:key="persist.gammaos.dualstack.blast.tune"
+            android:title="@string/gammaos_toolbox_dualstack_blast_tune_title"
+            android:summary="@string/gammaos_toolbox_dualstack_blast_tune_summary"
+            android:defaultValue="true" />
+
+        <SwitchPreference
+            android:key="persist.gammaos.dualstack.blast.async"
+            android:title="@string/gammaos_toolbox_dualstack_blast_async_title"
+            android:summary="@string/gammaos_toolbox_dualstack_blast_async_summary"
+            android:defaultValue="true" />
+
+    </PreferenceCategory>
+
+    <!-- ==================== External Display ==================== -->
+    <PreferenceCategory
+        android:key="category_external"
+        android:title="@string/gammaos_toolbox_category_external">
+
+        <Preference
+            android:key="category_external_description"
+            android:selectable="false"
+            android:summary="@string/gammaos_toolbox_category_external_description" />
+
+        <SwitchPreference
+            android:key="persist.gammaos.ext.primary"
+            android:title="@string/gammaos_toolbox_ext_primary_title"
+            android:summary="@string/gammaos_toolbox_ext_primary_summary"
+            android:defaultValue="false" />
+
+        <SwitchPreference
+            android:key="persist.gammaos.ext.force_mirror"
+            android:title="@string/gammaos_toolbox_ext_force_mirror_title"
+            android:summary="@string/gammaos_toolbox_ext_force_mirror_summary"
+            android:defaultValue="false" />
+
+        <SwitchPreference
+            android:key="persist.gammaos.ext.mirror_resize"
+            android:title="@string/gammaos_toolbox_ext_mirror_resize_title"
+            android:summary="@string/gammaos_toolbox_ext_mirror_resize_summary"
+            android:defaultValue="false" />
+
+        <SwitchPreference
+            android:key="persist.gammaos.ext.half_4k"
+            android:title="@string/gammaos_toolbox_ext_half_4k_title"
+            android:summary="@string/gammaos_toolbox_ext_half_4k_summary"
+            android:defaultValue="false" />
+
+        <SwitchPreference
+            android:key="persist.gammaos.sec_force_on"
+            android:title="@string/gammaos_toolbox_ext_sec_force_on_title"
+            android:summary="@string/gammaos_toolbox_ext_sec_force_on_summary"
+            android:defaultValue="false" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.secondary_home"
+            android:title="@string/gammaos_toolbox_secondary_home_title"
+            android:summary="@string/gammaos_toolbox_secondary_home_summary"
+            android:defaultValue="" />
+
+        <SwitchPreference
+            android:key="persist.gammaos.secondary_display.enabled"
+            android:title="@string/gammaos_toolbox_sec_display_enable_title"
+            android:summary="@string/gammaos_toolbox_sec_display_enable_summary"
+            android:defaultValue="false" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.secondary_display.packages"
+            android:title="@string/gammaos_toolbox_sec_display_pkgs_title"
+            android:summary="@string/gammaos_toolbox_sec_display_pkgs_summary"
+            android:defaultValue="" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.display.delay.primary_frames"
+            android:title="@string/gammaos_toolbox_display_delay_primary_title"
+            android:summary="@string/gammaos_toolbox_display_delay_primary_summary"
+            android:inputType="number"
+            android:defaultValue="0" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.display.delay.external_frames"
+            android:title="@string/gammaos_toolbox_display_delay_external_title"
+            android:summary="@string/gammaos_toolbox_display_delay_external_summary"
+            android:inputType="number"
+            android:defaultValue="0" />
+
+    </PreferenceCategory>
+
+    <!-- ==================== Multi-Display ==================== -->
+    <PreferenceCategory
+        android:key="category_multidisplay"
+        android:title="@string/gammaos_toolbox_category_multidisplay">
+
+        <Preference
+            android:key="category_multidisplay_description"
+            android:selectable="false"
+            android:summary="@string/gammaos_toolbox_category_multidisplay_description" />
+
+        <SwitchPreference
+            android:key="persist.gammaos.multidisplay.dual_focus"
+            android:title="@string/gammaos_toolbox_dual_focus_title"
+            android:summary="@string/gammaos_toolbox_dual_focus_summary"
+            android:defaultValue="false" />
+
+        <SwitchPreference
+            android:key="persist.gammaos.multidisplay.split_brightness"
+            android:title="@string/gammaos_toolbox_split_brightness_title"
+            android:summary="@string/gammaos_toolbox_split_brightness_summary"
+            android:defaultValue="false" />
+
+    </PreferenceCategory>
+
+    <!-- ==================== IME ==================== -->
+    <PreferenceCategory
+        android:key="category_ime"
+        android:title="@string/gammaos_toolbox_category_ime">
+
+        <Preference
+            android:key="category_ime_description"
+            android:selectable="false"
+            android:summary="@string/gammaos_toolbox_category_ime_description" />
+
+        <SwitchPreference
+            android:key="persist.gammaos.ime.pin.enabled"
+            android:title="@string/gammaos_toolbox_ime_pin_title"
+            android:summary="@string/gammaos_toolbox_ime_pin_summary"
+            android:defaultValue="false" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.ime.pin.display_id"
+            android:title="@string/gammaos_toolbox_ime_display_id_title"
+            android:summary="@string/gammaos_toolbox_ime_display_id_summary"
+            android:inputType="number"
+            android:defaultValue="0" />
+
+        <SwitchPreference
+            android:key="persist.gammaos.ime.pin.swap"
+            android:title="@string/gammaos_toolbox_ime_swap_title"
+            android:summary="@string/gammaos_toolbox_ime_swap_summary"
+            android:defaultValue="false" />
+
+    </PreferenceCategory>
+
+    <!-- ==================== Audio ==================== -->
+    <PreferenceCategory
+        android:key="category_audio"
+        android:title="@string/gammaos_toolbox_category_audio">
+
+        <Preference
+            android:key="category_audio_description"
+            android:selectable="false"
+            android:summary="@string/gammaos_toolbox_category_audio_description" />
+
+        <SwitchPreference
+            android:key="persist.gammaos.audio.multivolume"
+            android:title="@string/gammaos_toolbox_audio_multivolume_title"
+            android:summary="@string/gammaos_toolbox_audio_multivolume_summary"
+            android:defaultValue="false" />
+
+        <SwitchPreference
+            android:key="persist.gammaos.unisoc.hdmi.enable"
+            android:title="@string/gammaos_toolbox_unisoc_hdmi_title"
+            android:summary="@string/gammaos_toolbox_unisoc_hdmi_summary"
+            android:defaultValue="false" />
+
+        <SwitchPreference
+            android:key="persist.gammaos.allwinner.hdmi.enable"
+            android:title="@string/gammaos_toolbox_allwinner_hdmi_title"
+            android:summary="@string/gammaos_toolbox_allwinner_hdmi_summary"
+            android:defaultValue="false" />
+
+    </PreferenceCategory>
+
+    <!-- ==================== Gamepad ==================== -->
+    <PreferenceCategory
+        android:key="category_gamepad"
+        android:title="@string/gammaos_toolbox_category_gamepad">
+
+        <Preference
+            android:key="category_gamepad_description"
+            android:selectable="false"
+            android:summary="@string/gammaos_toolbox_category_gamepad_description" />
+
+        <SwitchPreference
+            android:key="persist.gammaos.gamepad.enable"
+            android:title="@string/gammaos_toolbox_gamepad_enable_title"
+            android:summary="@string/gammaos_toolbox_gamepad_enable_summary"
+            android:defaultValue="false" />
+
+        <SwitchPreference
+            android:key="persist.gammaos.gamepad.merge"
+            android:title="@string/gammaos_toolbox_gamepad_merge_title"
+            android:summary="@string/gammaos_toolbox_gamepad_merge_summary"
+            android:defaultValue="true" />
+
+        <SwitchPreference
+            android:key="persist.gammaos.gamepad.hide_source"
+            android:title="@string/gammaos_toolbox_gamepad_hide_source_title"
+            android:summary="@string/gammaos_toolbox_gamepad_hide_source_summary"
+            android:defaultValue="true" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.gamepad.devices"
+            android:title="@string/gammaos_toolbox_gamepad_devices_title"
+            android:summary="@string/gammaos_toolbox_gamepad_devices_summary"
+            android:defaultValue="" />
+
+        <SwitchPreference
+            android:key="persist.gammaos.gamepad.abxy_swap"
+            android:title="@string/gammaos_toolbox_gamepad_abxy_swap_title"
+            android:summary="@string/gammaos_toolbox_gamepad_abxy_swap_summary"
+            android:defaultValue="false" />
+
+        <SwitchPreference
+            android:key="persist.gammaos.gamepad.invert_left"
+            android:title="@string/gammaos_toolbox_gamepad_invert_left_title"
+            android:summary="@string/gammaos_toolbox_gamepad_invert_left_summary"
+            android:defaultValue="false" />
+
+        <SwitchPreference
+            android:key="persist.gammaos.gamepad.invert_right"
+            android:title="@string/gammaos_toolbox_gamepad_invert_right_title"
+            android:summary="@string/gammaos_toolbox_gamepad_invert_right_summary"
+            android:defaultValue="false" />
+
+        <SwitchPreference
+            android:key="persist.gammaos.gamepad.analog_to_dpad"
+            android:title="@string/gammaos_toolbox_gamepad_analog_dpad_title"
+            android:summary="@string/gammaos_toolbox_gamepad_analog_dpad_summary"
+            android:defaultValue="false" />
+
+        <SwitchPreference
+            android:key="persist.gammaos.gamepad.dpad_to_analog"
+            android:title="@string/gammaos_toolbox_gamepad_dpad_analog_title"
+            android:summary="@string/gammaos_toolbox_gamepad_dpad_analog_summary"
+            android:defaultValue="false" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.gamepad.dpad_threshold"
+            android:title="@string/gammaos_toolbox_gamepad_dpad_threshold_title"
+            android:summary="@string/gammaos_toolbox_gamepad_dpad_threshold_summary"
+            android:inputType="number"
+            android:defaultValue="50" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.gamepad.global_sensitivity"
+            android:title="@string/gammaos_toolbox_gamepad_sensitivity_title"
+            android:summary="@string/gammaos_toolbox_gamepad_sensitivity_summary"
+            android:inputType="numberSigned"
+            android:defaultValue="0" />
+
+        <SwitchPreference
+            android:key="persist.gammaos.gamepad.pwm_enable"
+            android:title="@string/gammaos_toolbox_gamepad_pwm_enable_title"
+            android:summary="@string/gammaos_toolbox_gamepad_pwm_enable_summary"
+            android:defaultValue="true" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.gamepad.pwm_intensity"
+            android:title="@string/gammaos_toolbox_gamepad_pwm_intensity_title"
+            android:summary="@string/gammaos_toolbox_gamepad_pwm_intensity_summary"
+            android:inputType="number"
+            android:defaultValue="255" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.gamepad.device_name"
+            android:title="@string/gammaos_toolbox_gamepad_device_name_title"
+            android:summary="@string/gammaos_toolbox_gamepad_device_name_summary"
+            android:defaultValue="Xbox Wireless Controller" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.gamepad.remap_btn"
+            android:title="@string/gammaos_toolbox_gamepad_remap_btn_title"
+            android:summary="@string/gammaos_toolbox_gamepad_remap_btn_summary"
+            android:defaultValue="" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.gamepad.remap_axis"
+            android:title="@string/gammaos_toolbox_gamepad_remap_axis_title"
+            android:summary="@string/gammaos_toolbox_gamepad_remap_axis_summary"
+            android:defaultValue="" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.gamepad.combo_map"
+            android:title="@string/gammaos_toolbox_gamepad_combo_map_title"
+            android:summary="@string/gammaos_toolbox_gamepad_combo_map_summary"
+            android:defaultValue="" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.gamepad.axis_btn"
+            android:title="@string/gammaos_toolbox_gamepad_axis_btn_title"
+            android:summary="@string/gammaos_toolbox_gamepad_axis_btn_summary"
+            android:defaultValue="" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.gamepad.ff_vibrate_device"
+            android:title="@string/gammaos_toolbox_gamepad_ff_device_title"
+            android:summary="@string/gammaos_toolbox_gamepad_ff_device_summary"
+            android:defaultValue="" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.gamepad.blacklist_pass"
+            android:title="@string/gammaos_toolbox_gamepad_blacklist_pass_title"
+            android:summary="@string/gammaos_toolbox_gamepad_blacklist_pass_summary"
+            android:defaultValue="" />
+
+        <SwitchPreference
+            android:key="persist.gammaos.screenmap.enabled"
+            android:title="@string/gammaos_toolbox_gamepad_screenmap_title"
+            android:summary="@string/gammaos_toolbox_gamepad_screenmap_summary"
+            android:defaultValue="false" />
+
+    </PreferenceCategory>
+
+    <!-- ==================== Mouse Mode ==================== -->
+    <PreferenceCategory
+        android:key="category_mouse"
+        android:title="@string/gammaos_toolbox_category_mouse">
+
+        <Preference
+            android:key="category_mouse_description"
+            android:selectable="false"
+            android:summary="@string/gammaos_toolbox_category_mouse_description" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.gamepad.mouse_stick_speed"
+            android:title="@string/gammaos_toolbox_mouse_stick_speed_title"
+            android:summary="@string/gammaos_toolbox_mouse_stick_speed_summary"
+            android:inputType="number"
+            android:defaultValue="12" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.gamepad.mouse_dpad_speed"
+            android:title="@string/gammaos_toolbox_mouse_dpad_speed_title"
+            android:summary="@string/gammaos_toolbox_mouse_dpad_speed_summary"
+            android:inputType="number"
+            android:defaultValue="6" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.gamepad.mouse_boost"
+            android:title="@string/gammaos_toolbox_mouse_boost_title"
+            android:summary="@string/gammaos_toolbox_mouse_boost_summary"
+            android:inputType="number"
+            android:defaultValue="20" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.gamepad.mouse_scroll_speed"
+            android:title="@string/gammaos_toolbox_mouse_scroll_speed_title"
+            android:summary="@string/gammaos_toolbox_mouse_scroll_speed_summary"
+            android:inputType="number"
+            android:defaultValue="4" />
+
+    </PreferenceCategory>
+
+    <!-- ==================== RGB LED ==================== -->
+    <PreferenceCategory
+        android:key="category_rgb"
+        android:title="@string/gammaos_toolbox_category_rgb">
+
+        <Preference
+            android:key="category_rgb_description"
+            android:selectable="false"
+            android:summary="@string/gammaos_toolbox_category_rgb_description" />
+
+        <SwitchPreference
+            android:key="persist.gammaos.rgb.enable"
+            android:title="@string/gammaos_toolbox_rgb_enable_title"
+            android:summary="@string/gammaos_toolbox_rgb_enable_summary"
+            android:defaultValue="false" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.rgb.fps"
+            android:title="@string/gammaos_toolbox_rgb_fps_title"
+            android:summary="@string/gammaos_toolbox_rgb_fps_summary"
+            android:inputType="number"
+            android:defaultValue="6" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.rgb.led_brightness"
+            android:title="@string/gammaos_toolbox_rgb_led_brightness_title"
+            android:summary="@string/gammaos_toolbox_rgb_led_brightness_summary"
+            android:inputType="number"
+            android:defaultValue="255" />
+
+        <SwitchPreference
+            android:key="persist.gammaos.rgb.scale_with_brightness"
+            android:title="@string/gammaos_toolbox_rgb_scale_brightness_title"
+            android:summary="@string/gammaos_toolbox_rgb_scale_brightness_summary"
+            android:defaultValue="false" />
+
+        <SwitchPreference
+            android:key="persist.gammaos.rgb.fade.enable"
+            android:title="@string/gammaos_toolbox_rgb_fade_enable_title"
+            android:summary="@string/gammaos_toolbox_rgb_fade_enable_summary"
+            android:defaultValue="true" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.rgb.fade.fps"
+            android:title="@string/gammaos_toolbox_rgb_fade_fps_title"
+            android:summary="@string/gammaos_toolbox_rgb_fade_fps_summary"
+            android:inputType="number"
+            android:defaultValue="60" />
+
+        <SwitchPreference
+            android:key="persist.gammaos.rgb.sample.pre_fx"
+            android:title="@string/gammaos_toolbox_rgb_pre_fx_title"
+            android:summary="@string/gammaos_toolbox_rgb_pre_fx_summary"
+            android:defaultValue="true" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.rgb.effect"
+            android:title="@string/gammaos_toolbox_rgb_effect_title"
+            android:summary="@string/gammaos_toolbox_rgb_effect_summary"
+            android:defaultValue="" />
+
+        <SwitchPreference
+            android:key="persist.gammaos.rgb.split"
+            android:title="@string/gammaos_toolbox_rgb_split_title"
+            android:summary="@string/gammaos_toolbox_rgb_split_summary"
+            android:defaultValue="false" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.rgb.saturation_boost"
+            android:title="@string/gammaos_toolbox_rgb_sat_boost_title"
+            android:summary="@string/gammaos_toolbox_rgb_sat_boost_summary"
+            android:inputType="numberDecimal"
+            android:defaultValue="1.4" />
+
+    </PreferenceCategory>
+
+    <!-- ==================== Launch Guard ==================== -->
+    <PreferenceCategory
+        android:key="category_launch_guard"
+        android:title="@string/gammaos_toolbox_category_launch_guard">
+
+        <Preference
+            android:key="category_launch_guard_description"
+            android:selectable="false"
+            android:summary="@string/gammaos_toolbox_category_launch_guard_description" />
+
+        <SwitchPreference
+            android:key="persist.gammaos.launch.guard.enabled"
+            android:title="@string/gammaos_toolbox_launch_guard_enable_title"
+            android:summary="@string/gammaos_toolbox_launch_guard_enable_summary"
+            android:defaultValue="false" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.launch.guard.callers"
+            android:title="@string/gammaos_toolbox_launch_guard_callers_title"
+            android:summary="@string/gammaos_toolbox_launch_guard_callers_summary"
+            android:defaultValue="" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.launch.guard.targets"
+            android:title="@string/gammaos_toolbox_launch_guard_targets_title"
+            android:summary="@string/gammaos_toolbox_launch_guard_targets_summary"
+            android:defaultValue="" />
+
+    </PreferenceCategory>
+
+    <!-- ==================== System ==================== -->
+    <PreferenceCategory
+        android:key="category_system"
+        android:title="@string/gammaos_toolbox_category_system">
+
+        <Preference
+            android:key="category_system_description"
+            android:selectable="false"
+            android:summary="@string/gammaos_toolbox_category_system_description" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.qs.blacklist"
+            android:title="@string/gammaos_toolbox_qs_blacklist_title"
+            android:summary="@string/gammaos_toolbox_qs_blacklist_summary"
+            android:defaultValue="" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.bg_process_limit"
+            android:title="@string/gammaos_toolbox_bg_process_limit_title"
+            android:summary="@string/gammaos_toolbox_bg_process_limit_summary"
+            android:inputType="number"
+            android:defaultValue="" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.gesture_wake_ignore"
+            android:title="@string/gammaos_toolbox_gesture_wake_title"
+            android:summary="@string/gammaos_toolbox_gesture_wake_summary"
+            android:defaultValue="" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.performance_mode"
+            android:title="@string/gammaos_toolbox_performance_mode_title"
+            android:summary="@string/gammaos_toolbox_performance_mode_summary"
+            android:defaultValue="stock" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.qs.override_default_tiles"
+            android:title="@string/gammaos_toolbox_qs_override_title"
+            android:summary="@string/gammaos_toolbox_qs_override_summary"
+            android:defaultValue="" />
+
+    </PreferenceCategory>
+
+    <!-- ==================== Power & Performance ==================== -->
+    <PreferenceCategory
+        android:key="category_power"
+        android:title="@string/gammaos_toolbox_category_power">
+
+        <Preference
+            android:key="category_power_description"
+            android:selectable="false"
+            android:summary="@string/gammaos_toolbox_category_power_description" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.fan_mode"
+            android:title="@string/gammaos_toolbox_fan_mode_title"
+            android:summary="@string/gammaos_toolbox_fan_mode_summary"
+            android:defaultValue="" />
+
+        <SwitchPreference
+            android:key="persist.gammaos.ultra_low_power_saving_mode"
+            android:title="@string/gammaos_toolbox_ultra_low_power_title"
+            android:summary="@string/gammaos_toolbox_ultra_low_power_summary"
+            android:defaultValue="false" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.ultra_low_power_saving_freeze_exclude_packages"
+            android:title="@string/gammaos_toolbox_ultra_low_power_exclude_title"
+            android:summary="@string/gammaos_toolbox_ultra_low_power_exclude_summary"
+            android:defaultValue="" />
+
+    </PreferenceCategory>
+
+    <!-- ==================== RetroArch & Emulation ==================== -->
+    <PreferenceCategory
+        android:key="category_retro"
+        android:title="@string/gammaos_toolbox_category_retro">
+
+        <Preference
+            android:key="category_retro_description"
+            android:selectable="false"
+            android:summary="@string/gammaos_toolbox_category_retro_description" />
+
+        <SwitchPreference
+            android:key="persist.gammaos.retroarchoverride.backbutton"
+            android:title="@string/gammaos_toolbox_retroarch_backbutton_title"
+            android:summary="@string/gammaos_toolbox_retroarch_backbutton_summary"
+            android:defaultValue="false" />
+
+        <SwitchPreference
+            android:key="persist.gammaos.startselectled"
+            android:title="@string/gammaos_toolbox_startselectled_title"
+            android:summary="@string/gammaos_toolbox_startselectled_summary"
+            android:defaultValue="false" />
+
+    </PreferenceCategory>
+
+    <!-- ==================== USB & Docking ==================== -->
+    <PreferenceCategory
+        android:key="category_usb"
+        android:title="@string/gammaos_toolbox_category_usb">
+
+        <Preference
+            android:key="category_usb_description"
+            android:selectable="false"
+            android:summary="@string/gammaos_toolbox_category_usb_description" />
+
+        <SwitchPreference
+            android:key="persist.gammaos.usbcontrollerswitch"
+            android:title="@string/gammaos_toolbox_usb_controller_switch_title"
+            android:summary="@string/gammaos_toolbox_usb_controller_switch_summary"
+            android:defaultValue="false" />
+
+        <SwitchPreference
+            android:key="persist.gammaos.dcdimmingemulation"
+            android:title="@string/gammaos_toolbox_dc_dimming_title"
+            android:summary="@string/gammaos_toolbox_dc_dimming_summary"
+            android:defaultValue="false" />
+
+    </PreferenceCategory>
+
+    <!-- ==================== Desktop & Taskbar ==================== -->
+    <PreferenceCategory
+        android:key="category_desktop_extras"
+        android:title="@string/gammaos_toolbox_category_multidisplay">
+
+        <SwitchPreference
+            android:key="persist.gammaos.taskbar.phone"
+            android:title="@string/gammaos_toolbox_taskbar_phone_title"
+            android:summary="@string/gammaos_toolbox_taskbar_phone_summary"
+            android:defaultValue="true" />
+
+        <SwitchPreference
+            android:key="persist.gammaos.taskbar.dual"
+            android:title="@string/gammaos_toolbox_taskbar_dual_title"
+            android:summary="@string/gammaos_toolbox_taskbar_dual_summary"
+            android:defaultValue="false" />
+
+        <SwitchPreference
+            android:key="persist.gammaos.wallpaper.force_multidisplay"
+            android:title="@string/gammaos_toolbox_wallpaper_multidisplay_title"
+            android:summary="@string/gammaos_toolbox_wallpaper_multidisplay_summary"
+            android:defaultValue="false" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

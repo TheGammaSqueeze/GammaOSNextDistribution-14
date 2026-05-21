@@ -144,6 +144,28 @@ public class DevicePrefFragment extends SettingsPreferenceFragment implements
             mSoundsSwitchPref.setChecked(getSoundEffectsEnabled());
         }
 
+        final TwoStatePreference batteryPct = findPreference("battery_percentage");
+        if (batteryPct != null) {
+            batteryPct.setChecked(Settings.System.getInt(
+                    getContext().getContentResolver(),
+                    "status_bar_show_battery_percent", 0) == 1);
+            batteryPct.setOnPreferenceChangeListener((p, v) -> {
+                Settings.System.putInt(getContext().getContentResolver(),
+                        "status_bar_show_battery_percent", (Boolean) v ? 1 : 0);
+                return true;
+            });
+        }
+        final TwoStatePreference batterySaver = findPreference("battery_saver");
+        if (batterySaver != null) {
+            batterySaver.setChecked(Settings.Global.getInt(
+                    getContext().getContentResolver(), "low_power", 0) == 1);
+            batterySaver.setOnPreferenceChangeListener((p, v) -> {
+                Settings.Global.putInt(getContext().getContentResolver(),
+                        "low_power", (Boolean) v ? 1 : 0);
+                return true;
+            });
+        }
+
         final Preference inputPref = findPreference(KEY_INPUTS);
         if (inputPref != null) {
             inputPref.setVisible(mInputSettingNeeded);

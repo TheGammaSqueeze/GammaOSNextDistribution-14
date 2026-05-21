@@ -16,12 +16,12 @@
 -->
 
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <dimen name="tp_settings_preference_pane_width">504dp</dimen>
-    <dimen name="tp_settings_preview_pane_width">398dp</dimen>
-    <dimen name="tp_settings_panes_width">1200dp</dimen>
-    <dimen name="pane_basic_padding_start">52dp</dimen>
-    <dimen name="preference_pane_extra_padding_start">58dp</dimen>
-    <dimen name="preference_pane_padding_end">112dp</dimen>
+    <dimen name="tp_settings_preference_pane_width">330dp</dimen>
+    <dimen name="tp_settings_preview_pane_width">330dp</dimen>
+    <dimen name="tp_settings_panes_width">680dp</dimen>
+    <dimen name="pane_basic_padding_start">8dp</dimen>
+    <dimen name="preference_pane_extra_padding_start">0dp</dimen>
+    <dimen name="preference_pane_padding_end">12dp</dimen>
     <dimen name="tp_preference_item_icon_size">35dp</dimen>
     <dimen name="tp_preference_category_text_size">9sp</dimen>
     <dimen name="tp_preference_decor_title_text_size">32sp</dimen>
@@ -36,8 +36,8 @@
     <dimen name="decor_icon_height">50dp</dimen>
     <dimen name="decor_icon_margin_top">6dp</dimen>
     <dimen name="decor_icon_margin_start">12dp</dimen>
-    <dimen name="decor_title_width">258dp</dimen>
-    <dimen name="decor_subtitle_width">270dp</dimen>
+    <dimen name="decor_title_width">290dp</dimen>
+    <dimen name="decor_subtitle_width">300dp</dimen>
     <dimen name="decor_subtitle_margin_top">4dp</dimen>
     <dimen name="decor_container_margin_bottom">9dp</dimen>
     <dimen name="decor_container_padding_bottom">5dp</dimen>

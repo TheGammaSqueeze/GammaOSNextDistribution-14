@@ -60,6 +60,12 @@
             android:fragment="com.android.tv.settings.device.displaysound.DisplaySoundFragment"
             custom:isPreferenceVisible="false" />
         <Preference
+            android:icon="@drawable/ic_device_prefs"
+            android:key="gammaos_toolbox"
+            android:title="@string/gammaos_toolbox_title"
+            android:summary="@string/gammaos_toolbox_summary"
+            android:fragment="com.android.tv.settings.gammaos.GammaOSToolboxFragment" />
+        <Preference
             android:icon="@drawable/ic_applications"
             android:key="applications"
             android:title="@string/applications_category_title"
