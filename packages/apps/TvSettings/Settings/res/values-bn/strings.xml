@@ -54,7 +54,7 @@
     <string name="applications_category_title" msgid="7112019490898586223">"অ্যাপ"</string>
     <string name="device_pref_category_title" msgid="8292572846154873762">"ডিভাইস সম্পর্কিত পছন্দ"</string>
     <string name="accessibility_category_title" msgid="1552664829936369592">"অ্যাক্সেসিবিলিটি"</string>
-    <string name="remotes_and_accessories_category_title" msgid="4795119810430255047">"রিমোট ও অ্যাক্সেসরি"</string>
+    <string name="remotes_and_accessories_category_title" msgid="4795119810430255047">Bluetooth &amp; accessories</string>
     <string name="display_and_sound_category_title" msgid="9203309625380755860">"ডিসপ্লে এবং সাউন্ড"</string>
     <string name="help_and_feedback_category_title" msgid="7036505833991003031">"সহায়তা ও মতামত"</string>
     <string name="privacy_category_title" msgid="8552430590908463601">"গোপনীয়তা"</string>

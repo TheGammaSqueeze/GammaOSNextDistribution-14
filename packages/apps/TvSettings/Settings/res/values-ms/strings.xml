@@ -54,7 +54,7 @@
     <string name="applications_category_title" msgid="7112019490898586223">"Apl"</string>
     <string name="device_pref_category_title" msgid="8292572846154873762">"Pilihan Peranti"</string>
     <string name="accessibility_category_title" msgid="1552664829936369592">"Kebolehaksesan"</string>
-    <string name="remotes_and_accessories_category_title" msgid="4795119810430255047">"Alat Kawalan Jauh &amp; aksesori"</string>
+    <string name="remotes_and_accessories_category_title" msgid="4795119810430255047">Bluetooth &amp; accessories</string>
     <string name="display_and_sound_category_title" msgid="9203309625380755860">"Paparan &amp; Bunyi"</string>
     <string name="help_and_feedback_category_title" msgid="7036505833991003031">"Bantuan &amp; Maklum Balas"</string>
     <string name="privacy_category_title" msgid="8552430590908463601">"Privasi"</string>

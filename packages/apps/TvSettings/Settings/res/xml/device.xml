@@ -50,11 +50,6 @@
         android:key="keyboard"
         android:title="@string/system_keyboard"/>
     <Preference
-        android:fragment="com.android.tv.settings.system.InputsFragment"
-        android:icon="@drawable/ic_input"
-        android:key="inputs"
-        android:title="@string/system_inputs" />
-    <Preference
         android:fragment="com.android.tv.settings.device.displaysound.DisplaySoundFragment"
         android:icon="@drawable/ic_display_sound"
         android:key="sound_effects"
@@ -101,16 +96,6 @@
         android:fragment="com.android.tv.twopanelsettings.slices.SliceFragment"
         custom:isPreferenceVisible="false"
         custom:uri="@string/fastpair_slice_uri"/>
-    <Preference
-        android:fragment="com.android.tv.settings.device.display.daydream.DaydreamFragment"
-        android:icon="@drawable/ic_settings_system_daydream"
-        android:key="daydream"
-        android:title="@string/device_daydream"/>
-    <Preference
-        android:fragment="com.android.tv.settings.device.display.daydream.EnergySaverFragment"
-        android:icon="@drawable/ic_settings_energy_saver"
-        android:key="energysaver"
-        android:title="@string/device_energy_saver"/>
     <Preference
         android:fragment="com.android.tv.settings.system.development.DevelopmentFragment"
         android:icon="@drawable/ic_settings_developeroptions"

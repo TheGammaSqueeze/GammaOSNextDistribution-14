@@ -24,6 +24,7 @@ import static com.android.tv.settings.overlay.FlavorUtils.FLAVOR_VENDOR;
 import static com.android.tv.settings.overlay.FlavorUtils.FLAVOR_X;
 import static com.android.tv.settings.util.InstrumentationUtils.logToggleInteracted;
 
+import android.app.AlertDialog;
 import android.app.tvsettings.TvSettingsEnums;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -34,6 +35,9 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.text.TextUtils;
 import android.view.Display;
+import android.widget.FrameLayout;
+import android.widget.SeekBar;
+import android.widget.TextView;
 
 import androidx.annotation.Keep;
 import androidx.annotation.VisibleForTesting;
@@ -64,6 +68,7 @@ public class DisplaySoundFragment extends SettingsPreferenceFragment implements
     private static final String KEY_FRAMERATE = "match_content_frame_rate";
     private static final String KEY_RESOLUTION_TITLE = "resolution_selection";
     private static final String KEY_DYNAMIC_RANGE = "match_content_dynamic_range";
+    private static final String KEY_BRIGHTNESS = "screen_brightness";
 
     private AudioManager mAudioManager;
     private HdmiControlManager mHdmiControlManager;
@@ -106,6 +111,18 @@ public class DisplaySoundFragment extends SettingsPreferenceFragment implements
 
         final TwoStatePreference soundPref = findPreference(KEY_SOUND_EFFECTS);
         soundPref.setChecked(getSoundEffectsEnabled());
+
+        final Preference brightPref = findPreference(KEY_BRIGHTNESS);
+        if (brightPref != null) {
+            int cur = Settings.System.getInt(getContext().getContentResolver(),
+                    Settings.System.SCREEN_BRIGHTNESS, 128);
+            brightPref.setSummary(String.valueOf(cur));
+            brightPref.setOnPreferenceClickListener(pref -> {
+                showBrightnessDialog(pref);
+                return true;
+            });
+        }
+
         updateCecPreference();
         updateDefaultAudioOutputSettings();
 
@@ -254,5 +271,50 @@ public class DisplaySoundFragment extends SettingsPreferenceFragment implements
             dynamicRangePref.setFragment(
                     PreferredDynamicRangeInfo.MatchContentDynamicRangeInfoFragment.class.getName());
         }
+    }
+
+    private void showBrightnessDialog(Preference pref) {
+        int cur = Settings.System.getInt(getContext().getContentResolver(),
+                Settings.System.SCREEN_BRIGHTNESS, 128);
+
+        final TextView label = new TextView(getContext());
+        label.setText(String.valueOf(cur));
+        label.setTextSize(18);
+        label.setGravity(android.view.Gravity.CENTER);
+
+        final SeekBar seekBar = new SeekBar(getContext());
+        seekBar.setMax(255);
+        seekBar.setProgress(cur);
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar sb, int progress, boolean fromUser) {
+                if (fromUser) {
+                    Settings.System.putInt(getContext().getContentResolver(),
+                            Settings.System.SCREEN_BRIGHTNESS, progress);
+                    label.setText(String.valueOf(progress));
+                    pref.setSummary(String.valueOf(progress));
+                }
+            }
+            @Override public void onStartTrackingTouch(SeekBar sb) {}
+            @Override public void onStopTrackingTouch(SeekBar sb) {}
+        });
+
+        int pad = (int) (20 * getResources().getDisplayMetrics().density);
+        android.widget.LinearLayout layout = new android.widget.LinearLayout(getContext());
+        layout.setOrientation(android.widget.LinearLayout.VERTICAL);
+        layout.setPadding(pad, pad, pad, 0);
+        layout.addView(seekBar);
+        layout.addView(label);
+
+        new AlertDialog.Builder(getContext())
+                .setTitle(R.string.screen_brightness)
+                .setView(layout)
+                .setPositiveButton(android.R.string.ok, (d, w) -> {
+                    pref.setSummary(String.valueOf(seekBar.getProgress()));
+                })
+                .setOnDismissListener(d -> {
+                    pref.setSummary(String.valueOf(seekBar.getProgress()));
+                })
+                .show();
     }
 }

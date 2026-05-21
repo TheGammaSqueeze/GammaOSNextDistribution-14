@@ -29,26 +29,33 @@
         android:key="display_category"
         android:title="@string/display_category_title" />
     <Preference
+        android:key="screen_brightness"
+        android:title="@string/screen_brightness" />
+    <Preference
         android:key="font_scale"
         android:title="@string/font_scale_settings_title"
         android:fragment="com.android.tv.settings.device.displaysound.FontScalePreferenceFragment" />
+    <Preference
+        android:fragment="com.android.tv.settings.device.displaysound.ScreenTimeoutFragment"
+        android:key="screen_timeout"
+        android:title="@string/screen_timeout_title"/>
+    <Preference
+        android:key="color_settings"
+        android:title="@string/color_settings_title">
+        <intent
+            android:action="android.intent.action.MAIN"
+            android:targetPackage="org.lineageos.lineageparts"
+            android:targetClass="org.lineageos.lineageparts.livedisplay.LiveDisplaySettings" />
+    </Preference>
     <SwitchPreference
         android:key="match_content_dynamic_range"
         android:persistent="true"
         android:title="@string/match_content_dynamic_range_title" />
     <Preference
-        android:fragment="com.android.tv.settings.device.displaysound.MatchContentFrameRateFragment"
-        android:key="match_content_frame_rate"
-        android:title="@string/match_content_frame_rate_title"/>
-    <Preference
         android:fragment="com.android.tv.settings.device.displaysound.ResolutionSelectionFragment"
         android:key="resolution_selection"
         android:persistent="true"
         android:title="@string/resolution_selection_title"/>
-    <Preference
-        android:key="advanced_display_settings"
-        android:title="@string/advanced_display_settings_title"
-        android:fragment="com.android.tv.settings.device.displaysound.AdvancedDisplayFragment" />
     <PreferenceCategory
         android:key="sound_category"
         android:title="@string/device_sound" />
