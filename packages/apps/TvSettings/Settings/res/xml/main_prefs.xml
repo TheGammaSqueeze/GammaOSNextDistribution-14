@@ -61,6 +61,12 @@
             custom:isPreferenceVisible="false" />
         <Preference
             android:icon="@drawable/ic_device_prefs"
+            android:key="gamepad_settings"
+            android:title="@string/gamepad_settings_title"
+            android:summary="@string/gamepad_settings_summary"
+            android:fragment="com.android.tv.settings.gammaos.GamepadSettingsFragment" />
+        <Preference
+            android:icon="@drawable/ic_device_prefs"
             android:key="gammaos_toolbox"
             android:title="@string/gammaos_toolbox_title"
             android:summary="@string/gammaos_toolbox_summary"

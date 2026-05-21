@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     GammaOS Gamepad Settings for TVSettings
+     SPDX-License-Identifier: Apache-2.0
+-->
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+        android:key="gamepad_settings"
+        android:title="@string/gamepad_settings_title">
+
+    <!-- Master toggle -->
+    <SwitchPreference
+        android:key="gamepad_enable"
+        android:title="@string/gamepad_enable_title"
+        android:summary="@string/gamepad_enable_summary"
+        android:defaultValue="false" />
+
+    <!-- Merge toggle -->
+    <SwitchPreference
+        android:key="gamepad_merge"
+        android:title="@string/gamepad_merge_title"
+        android:summary="@string/gamepad_merge_summary"
+        android:defaultValue="true"
+         />
+
+    <!-- Hide source controllers -->
+    <SwitchPreference
+        android:key="gamepad_hide_source"
+        android:title="@string/gamepad_hide_source_title"
+        android:summary="@string/gamepad_hide_source_summary"
+        android:defaultValue="true"
+         />
+
+    <!-- Controller list -->
+    <PreferenceCategory
+        android:key="gamepad_devices_category"
+        android:title="@string/gamepad_devices_category"
+         />
+
+    <!-- Device Identity -->
+    <PreferenceCategory
+        android:key="gamepad_identity_category"
+        android:title="@string/gamepad_identity_category"
+        >
+
+        <ListPreference
+            android:key="gamepad_device_preset"
+            android:title="@string/gamepad_device_preset_title"
+            android:summary="@string/gamepad_device_preset_summary"
+            android:entries="@array/gamepad_device_preset_entries"
+            android:entryValues="@array/gamepad_device_preset_values"
+            android:defaultValue="xbox_wireless" />
+    </PreferenceCategory>
+
+    <!-- Remapping -->
+    <PreferenceCategory
+        android:key="gamepad_remap_category"
+        android:title="@string/gamepad_remap_category"
+        >
+
+        <SwitchPreference
+            android:key="gamepad_abxy_swap"
+            android:title="@string/gamepad_abxy_swap_title"
+            android:summary="@string/gamepad_abxy_swap_summary"
+            android:defaultValue="false" />
+
+        <Preference
+            android:key="gamepad_axis_roles"
+            android:title="@string/gamepad_axis_roles_title"
+            android:summary="@string/gamepad_axis_roles_summary" />
+
+        <Preference
+            android:key="gamepad_remap_buttons"
+            android:title="@string/gamepad_remap_buttons_title"
+            android:summary="@string/gamepad_remap_buttons_summary" />
+
+        <Preference
+            android:key="gamepad_remap_axes"
+            android:title="@string/gamepad_remap_axes_title"
+            android:summary="@string/gamepad_remap_axes_summary" />
+
+        <Preference
+            android:key="gamepad_axis_to_button"
+            android:title="@string/gamepad_axis_to_button_title"
+            android:summary="@string/gamepad_axis_to_button_summary" />
+
+        <Preference
+            android:key="gamepad_combo_map"
+            android:title="@string/gamepad_combo_map_title"
+            android:summary="@string/gamepad_combo_map_summary" />
+
+        <Preference
+            android:key="gamepad_blacklist_vpad"
+            android:title="@string/gamepad_blacklist_vpad_title"
+            android:summary="@string/gamepad_blacklist_vpad_summary" />
+
+        <Preference
+            android:key="gamepad_blacklist_pass"
+            android:title="@string/gamepad_blacklist_pass_title"
+            android:summary="@string/gamepad_blacklist_pass_summary" />
+    </PreferenceCategory>
+
+    <!-- Calibration -->
+    <PreferenceCategory
+        android:key="gamepad_calibration_category"
+        android:title="@string/gamepad_calibration_category"
+        >
+
+        <SwitchPreference
+            android:key="gamepad_invert_left"
+            android:title="@string/gamepad_invert_left_title"
+            android:summary="@string/gamepad_invert_left_summary"
+            android:defaultValue="false" />
+
+        <SwitchPreference
+            android:key="gamepad_invert_right"
+            android:title="@string/gamepad_invert_right_title"
+            android:summary="@string/gamepad_invert_right_summary"
+            android:defaultValue="false" />
+
+        <ListPreference
+            android:key="gamepad_global_sensitivity"
+            android:title="@string/gamepad_global_sensitivity_title"
+            android:entries="@array/gamepad_sensitivity_entries"
+            android:entryValues="@array/gamepad_sensitivity_values"
+            android:defaultValue="0" />
+
+        <Preference
+            android:key="gamepad_calibration"
+            android:title="@string/gamepad_calibration_title"
+            android:summary="@string/gamepad_calibration_summary" />
+
+        <Preference
+            android:key="gamepad_clear_calibration"
+            android:title="@string/gamepad_clear_calibration_title"
+            android:summary="@string/gamepad_clear_calibration_summary" />
+    </PreferenceCategory>
+
+    <!-- Analog/DPAD conversion -->
+    <PreferenceCategory
+        android:key="gamepad_conversion_category"
+        android:title="@string/gamepad_conversion_category"
+        >
+
+        <SwitchPreference
+            android:key="gamepad_analog_to_dpad"
+            android:title="@string/gamepad_analog_to_dpad_title"
+            android:summary="@string/gamepad_analog_to_dpad_summary"
+            android:defaultValue="false" />
+
+        <SwitchPreference
+            android:key="gamepad_dpad_to_analog"
+            android:title="@string/gamepad_dpad_to_analog_title"
+            android:summary="@string/gamepad_dpad_to_analog_summary"
+            android:defaultValue="false" />
+
+        <Preference
+            android:key="gamepad_dpad_threshold"
+            android:title="@string/gamepad_dpad_threshold_title" />
+    </PreferenceCategory>
+
+    <!-- PWM rumble -->
+    <PreferenceCategory
+        android:key="gamepad_rumble_category"
+        android:title="@string/gamepad_rumble_category"
+        >
+
+        <SwitchPreference
+            android:key="gamepad_pwm_enable"
+            android:title="@string/gamepad_pwm_enable_title"
+            android:summary="@string/gamepad_pwm_enable_summary"
+            android:defaultValue="true" />
+
+        <Preference
+            android:key="gamepad_pwm_intensity"
+            android:title="@string/gamepad_pwm_intensity_title"
+             />
+
+        <Preference
+            android:key="gamepad_ff_device"
+            android:title="@string/gamepad_ff_device_title"
+            android:summary="@string/gamepad_ff_device_summary_none"
+             />
+
+        <Preference
+            android:key="gamepad_test_vibration"
+            android:title="@string/gamepad_test_vibration_title"
+            android:summary="@string/gamepad_test_vibration_summary" />
+    </PreferenceCategory>
+
+    <!-- Mouse mode -->
+    <PreferenceCategory
+        android:key="gamepad_mouse_category"
+        android:title="@string/gamepad_mouse_category"
+        >
+
+        <SwitchPreference
+            android:key="gamepad_mouse_enable"
+            android:title="@string/gamepad_mouse_enable_title"
+            android:summary="@string/gamepad_mouse_enable_summary"
+            android:defaultValue="false" />
+
+        <Preference
+            android:key="gamepad_mouse_combo"
+            android:title="@string/gamepad_mouse_combo_title"
+            android:summary="@string/gamepad_mouse_combo_summary"
+             />
+
+        <Preference
+            android:key="gamepad_mouse_hold_time"
+            android:title="@string/gamepad_mouse_hold_time_title"
+             />
+
+        <Preference
+            android:key="gamepad_mouse_buttons"
+            android:title="@string/gamepad_mouse_buttons_title"
+            android:summary="@string/gamepad_mouse_buttons_summary"
+             />
+
+        <Preference
+            android:key="gamepad_mouse_stick_speed"
+            android:title="@string/gamepad_mouse_stick_speed_title"
+             />
+
+        <Preference
+            android:key="gamepad_mouse_dpad_speed"
+            android:title="@string/gamepad_mouse_dpad_speed_title"
+             />
+
+        <ListPreference
+            android:key="gamepad_mouse_boost"
+            android:title="@string/gamepad_mouse_boost_title"
+            android:summary="%s"
+            android:entries="@array/gamepad_mouse_boost_entries"
+            android:entryValues="@array/gamepad_mouse_boost_values"
+            android:defaultValue="20"
+             />
+
+        <Preference
+            android:key="gamepad_mouse_scroll_speed"
+            android:title="@string/gamepad_mouse_scroll_speed_title"
+             />
+    </PreferenceCategory>
+
+    <!-- Per-app profiles -->
+    <PreferenceCategory
+        android:key="gamepad_perapp_category"
+        android:title="@string/gamepad_perapp_category"
+        >
+
+        <Preference
+            android:key="gamepad_perapp_add"
+            android:title="@string/gamepad_perapp_add" />
+    </PreferenceCategory>
+
+    <!-- Testing -->
+    <PreferenceCategory
+        android:key="gamepad_testing_category"
+        android:title="@string/gamepad_testing_category"
+        >
+
+        <Preference
+            android:key="gamepad_test"
+            android:title="@string/gamepad_test_title"
+            android:summary="@string/gamepad_test_summary" />
+    </PreferenceCategory>
+
+</PreferenceScreen>

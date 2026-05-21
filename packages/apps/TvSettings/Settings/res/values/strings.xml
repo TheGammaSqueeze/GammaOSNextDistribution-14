@@ -2878,6 +2878,178 @@
     <string name="find_my_remote_integration_hint">When Find my remote is enabled, you can play a sound to locate your Google TV remote if it\'s misplaced.</string>
     <string name="find_my_remote_play_sound">Play sound</string>
 
+    <!-- Gamepad -->
+    <string name="gamepad_settings_title">Gamepad</string>
+    <string name="gamepad_settings_summary">Configure gamepad remapping, calibration, and mouse mode</string>
+    <string name="gamepad_enable_title">Enable gamepad service</string>
+    <string name="gamepad_enable_summary">Grab physical controllers and expose a single virtual gamepad</string>
+    <string name="gamepad_merge_title">Merge controllers</string>
+    <string name="gamepad_merge_summary">Combine all controllers into one virtual gamepad</string>
+    <string name="gamepad_hide_source_title">Hide source controllers</string>
+    <string name="gamepad_hide_source_summary">Remove physical controller device nodes so games only see the virtual gamepad</string>
+    <string name="gamepad_identity_category">Device Identity</string>
+    <string name="gamepad_device_preset_title">Controller type</string>
+    <string name="gamepad_device_preset_summary">Choose which controller the virtual gamepad identifies as</string>
+    <string name="gamepad_remap_category">Remapping</string>
+    <string name="gamepad_abxy_swap_title">Swap ABXY</string>
+    <string name="gamepad_abxy_swap_summary">Swap A/B and X/Y buttons (Nintendo layout)</string>
+    <string name="gamepad_calibration_category">Calibration</string>
+    <string name="gamepad_invert_left_title">Invert left stick</string>
+    <string name="gamepad_invert_left_summary">Invert the Y axis of the left analog stick</string>
+    <string name="gamepad_invert_right_title">Invert right stick</string>
+    <string name="gamepad_invert_right_summary">Invert the Y axis of the right analog stick</string>
+    <string name="gamepad_global_sensitivity_title">Stick sensitivity</string>
+    <string name="gamepad_conversion_category">Analog / D-Pad Conversion</string>
+    <string name="gamepad_analog_to_dpad_title">Analog to D-Pad</string>
+    <string name="gamepad_analog_to_dpad_summary">Convert left stick movement to D-Pad presses</string>
+    <string name="gamepad_dpad_to_analog_title">D-Pad to analog</string>
+    <string name="gamepad_dpad_to_analog_summary">Convert D-Pad presses to left stick movement</string>
+    <string name="gamepad_dpad_threshold_title">D-Pad threshold</string>
+    <string name="gamepad_rumble_category">Rumble</string>
+    <string name="gamepad_pwm_enable_title">Enable rumble</string>
+    <string name="gamepad_pwm_enable_summary">Enable PWM vibration motor output</string>
+    <string name="gamepad_pwm_intensity_title">Rumble intensity</string>
+    <string name="gamepad_mouse_category">Mouse Mode</string>
+    <string name="gamepad_mouse_stick_speed_title">Stick cursor speed</string>
+    <string name="gamepad_mouse_dpad_speed_title">D-Pad cursor speed</string>
+    <string name="gamepad_remap_buttons_title">Button remap</string>
+    <string name="gamepad_remap_buttons_summary">Custom button-to-button mapping (e.g. BTN_NORTH=BTN_SOUTH)</string>
+    <string name="gamepad_remap_axes_title">Axis remap</string>
+    <string name="gamepad_remap_axes_summary">Custom axis-to-axis mapping (e.g. ABS_Z=ABS_RZ)</string>
+    <string name="gamepad_axis_roles_title">Axis assignment</string>
+    <string name="gamepad_axis_roles_summary">Assign physical axes to virtual stick/trigger roles</string>
+    <string name="gamepad_axis_to_button_title">Axis to button</string>
+    <string name="gamepad_axis_to_button_summary">Map axis thresholds to button presses</string>
+    <string name="gamepad_combo_map_title">Combo map</string>
+    <string name="gamepad_combo_map_summary">Map button combinations to single outputs</string>
+    <string name="gamepad_blacklist_vpad_title">Blacklist virtual pad</string>
+    <string name="gamepad_blacklist_vpad_summary">Device paths to exclude from virtual gamepad</string>
+    <string name="gamepad_blacklist_pass_title">Blacklist passthrough</string>
+    <string name="gamepad_blacklist_pass_summary">Device paths to pass through without capture</string>
+    <string name="gamepad_clear_calibration_title">Clear calibration</string>
+    <string name="gamepad_clear_calibration_summary">Reset all stick calibration data to defaults</string>
+    <string name="gamepad_ff_device_title">Vibration device</string>
+    <string name="gamepad_ff_device_summary">Path to force-feedback device for rumble output</string>
+    <string name="gamepad_test_vibration_title">Test vibration</string>
+    <string name="gamepad_test_vibration_summary">Send a short test rumble to the vibration device</string>
+    <string name="gamepad_mouse_enable_title">Enable mouse mode</string>
+    <string name="gamepad_mouse_enable_summary">Use a button combo to toggle mouse cursor control via gamepad</string>
+    <string name="gamepad_axis_roles_save">Save</string>
+    <string name="gamepad_combo_map_btn">Button %d</string>
+    <string name="gamepad_mouse_combo_btn">Button %d</string>
+    <string name="gamepad_mouse_hold_time_title">Hold time (ms)</string>
+    <string name="gamepad_mouse_boost_title">Cursor acceleration</string>
+    <string name="gamepad_mouse_scroll_speed_title">Scroll speed</string>
+
+    <!-- Gamepad: Controller list -->
+    <string name="gamepad_devices_category">Controllers</string>
+    <string name="gamepad_no_devices">No controllers detected</string>
+    <string name="gamepad_device_disconnected">%s (Disconnected)</string>
+
+    <!-- Gamepad: Device Identity -->
+    <string name="gamepad_device_preset_custom">Custom</string>
+    <string name="gamepad_device_custom_name_title">Device name</string>
+    <string name="gamepad_device_custom_vid_title">Vendor ID (hex)</string>
+    <string name="gamepad_device_custom_pid_title">Product ID (hex)</string>
+
+    <!-- Gamepad: Remap -->
+    <string name="gamepad_remap_none">No remaps configured</string>
+    <string name="gamepad_remap_add_new">Add new remap...</string>
+    <string name="gamepad_remap_custom">Custom...</string>
+    <string name="gamepad_remap_dialog_title">Remap button</string>
+    <string name="gamepad_remap_choose_target">Choose the target action for %s</string>
+    <string name="gamepad_remap_saved">Remap saved</string>
+    <string name="gamepad_remap_cleared">Remaps cleared</string>
+    <string name="gamepad_remap_clear_all">Clear all remaps</string>
+
+    <!-- Gamepad: Axis roles -->
+    <string name="gamepad_axis_roles_none">No custom axis assignments</string>
+    <string name="gamepad_axis_roles_auto">Auto</string>
+    <string name="gamepad_axis_roles_clear">Clear all</string>
+    <string name="gamepad_axis_roles_detecting">Move the input for %s...</string>
+    <string name="gamepad_axis_roles_cleared">All assignments cleared</string>
+    <string name="gamepad_axis_roles_saved">Axis assignments saved</string>
+
+    <!-- Gamepad: Axis-to-Button -->
+    <string name="gamepad_axis_to_button_none">No axis-to-button rules configured</string>
+    <string name="gamepad_axis_to_button_add">Add rule...</string>
+    <string name="gamepad_axis_to_button_axis">Source axis</string>
+    <string name="gamepad_axis_to_button_button">Target button</string>
+    <string name="gamepad_axis_to_button_on">Press threshold (%)</string>
+    <string name="gamepad_axis_to_button_off">Release threshold (%)</string>
+    <string name="gamepad_axis_to_button_saved">Axis-to-button rule saved</string>
+    <string name="gamepad_axis_to_button_cleared">All axis-to-button rules cleared</string>
+    <string name="gamepad_axis_to_button_clear_all">Clear all rules</string>
+    <string name="gamepad_axis_to_button_test">Test axis-to-button...</string>
+
+    <!-- Gamepad: Blacklists -->
+    <string name="gamepad_blacklist_none">None</string>
+    <string name="gamepad_blacklist_count">%d button(s) selected</string>
+
+    <!-- Gamepad: Combo map -->
+    <string name="gamepad_combo_map_none">No combos configured</string>
+    <string name="gamepad_combo_map_add">Add combo...</string>
+    <string name="gamepad_combo_map_clear_all">Clear all combos</string>
+    <string name="gamepad_combo_map_saved">Combo saved</string>
+    <string name="gamepad_combo_map_cleared">All combos cleared</string>
+    <string name="gamepad_combo_map_btn1">First button</string>
+    <string name="gamepad_combo_map_btn2">Second button</string>
+    <string name="gamepad_combo_map_target">Target button to emit</string>
+
+    <!-- Gamepad: FF device -->
+    <string name="gamepad_ff_device_summary_none">Not configured (using vibration bridge)</string>
+    <string name="gamepad_ff_device_summary_set">Low-latency output via %s</string>
+    <string name="gamepad_ff_device_dialog_title">FF vibrator device path</string>
+
+    <!-- Gamepad: Calibration -->
+    <string name="gamepad_calibration_title">Stick calibration</string>
+    <string name="gamepad_calibration_summary">Calibrate analog stick center, range, and deadzone</string>
+    <string name="gamepad_calibration_step_center">Release all sticks and press Continue</string>
+    <string name="gamepad_calibration_complete">Calibration saved</string>
+    <string name="gamepad_calibration_continue">Continue</string>
+    <string name="gamepad_calibration_cleared">Calibration cleared</string>
+
+    <!-- Gamepad: Mouse mode -->
+    <string name="gamepad_mouse_combo_title">Toggle combo</string>
+    <string name="gamepad_mouse_combo_summary">Button combination to enter/exit mouse mode</string>
+    <string name="gamepad_mouse_combo_current">%1$s + %2$s</string>
+    <string name="gamepad_mouse_combo_btn1">First combo button</string>
+    <string name="gamepad_mouse_combo_btn2">Second combo button</string>
+    <string name="gamepad_mouse_buttons_title">Button mapping</string>
+    <string name="gamepad_mouse_buttons_summary">Configure which buttons perform click, back, and right-click</string>
+    <string name="gamepad_mouse_btn_click">Left click</string>
+    <string name="gamepad_mouse_btn_back">Back</string>
+    <string name="gamepad_mouse_btn_rclick">Right click</string>
+    <string name="gamepad_mouse_btn_boost">Speed boost</string>
+
+    <!-- Gamepad: Per-app profiles -->
+    <string name="gamepad_perapp_category">Per-App Profiles</string>
+    <string name="gamepad_perapp_add">Add per-app profile...</string>
+    <string name="gamepad_perapp_pick_app">Choose app</string>
+    <string name="gamepad_perapp_exists">A profile for this app already exists</string>
+    <string name="gamepad_perapp_no_remaps">None</string>
+    <string name="gamepad_perapp_saved">Profile saved</string>
+    <string name="gamepad_perapp_removed">Profile removed</string>
+    <string name="gamepad_perapp_add_btn_remap">Add button remap...</string>
+    <string name="gamepad_perapp_add_combo">Add combo...</string>
+    <string name="gamepad_perapp_clear_btn">Clear button remaps</string>
+    <string name="gamepad_perapp_clear_combo">Clear combos</string>
+    <string name="gamepad_perapp_remove">Remove profile</string>
+
+    <!-- Gamepad: Testing -->
+    <string name="gamepad_testing_category">Testing</string>
+    <string name="gamepad_test_title">Input test</string>
+    <string name="gamepad_test_summary">Test buttons, sticks, and triggers with live feedback</string>
+    <string name="gamepad_test_buttons_header">Buttons</string>
+    <string name="gamepad_test_sticks_header">Analog Sticks</string>
+    <string name="gamepad_test_triggers_header">Triggers</string>
+    <string name="gamepad_test_left_stick">Left Stick</string>
+    <string name="gamepad_test_right_stick">Right Stick</string>
+    <string name="gamepad_test_left_trigger">LT</string>
+    <string name="gamepad_test_right_trigger">RT</string>
+    <string name="gamepad_test_pressed">Pressed</string>
+    <string name="gamepad_test_released">Released</string>
+
     <!-- Screen Timeout -->
     <string name="screen_timeout_title">Screen Timeout</string>
     <string name="timeout_30_seconds">30 seconds</string>

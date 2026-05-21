@@ -396,4 +396,58 @@
         <item>ctm</item>
         <item>re</item>
     </string-array>
+
+    <!-- Gamepad device presets -->
+    <string-array name="gamepad_device_preset_entries">
+        <item>Xbox Wireless Controller</item>
+        <item>Xbox 360 Controller</item>
+        <item>Xbox One Controller</item>
+        <item>PS4 DualShock 4</item>
+        <item>PS5 DualSense</item>
+        <item>Nintendo Switch Pro</item>
+        <item>Custom</item>
+    </string-array>
+    <string-array name="gamepad_device_preset_values">
+        <item>xbox_wireless</item>
+        <item>xbox_360</item>
+        <item>xbox_one</item>
+        <item>ps4</item>
+        <item>ps5</item>
+        <item>switch_pro</item>
+        <item>custom</item>
+    </string-array>
+
+    <!-- Gamepad sensitivity -->
+    <string-array name="gamepad_sensitivity_entries">
+        <item>-50%</item>
+        <item>-25%</item>
+        <item>-10%</item>
+        <item>Off</item>
+        <item>+10%</item>
+        <item>+25%</item>
+        <item>+50%</item>
+    </string-array>
+    <string-array name="gamepad_sensitivity_values">
+        <item>-3</item>
+        <item>-2</item>
+        <item>-1</item>
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+    </string-array>
+
+    <!-- Gamepad mouse boost -->
+    <string-array name="gamepad_mouse_boost_entries">
+        <item>1.5x</item>
+        <item>2x</item>
+        <item>3x</item>
+        <item>4x</item>
+    </string-array>
+    <string-array name="gamepad_mouse_boost_values">
+        <item>15</item>
+        <item>20</item>
+        <item>30</item>
+        <item>40</item>
+    </string-array>
 </resources>
