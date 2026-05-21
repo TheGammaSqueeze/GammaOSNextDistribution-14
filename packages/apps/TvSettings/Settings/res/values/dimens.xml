@@ -57,15 +57,15 @@
     <dimen name="lb_dialog_list_item_title_font_size">18sp</dimen>
     <dimen name="lb_content_fragment_breadcrumb_text_size">18sp</dimen>
     <dimen name="lb_content_fragment_description_text_size">14sp</dimen>
-    <dimen name="lb_action_section_width">384dp</dimen>
+    <dimen name="lb_action_section_width">280dp</dimen>
     <integer name="lb_dialog_fade_out_duration">200</integer>
     <dimen name="lb_dialog_list_item_icon_width">32dp</dimen>
     <dimen name="lb_dialog_list_item_icon_height">32dp</dimen>
     <integer name="lb_dialog_action_description_min_lines">2</integer>
     <dimen name="lb_dialog_list_item_description_font_size">12sp</dimen>
     <dimen name="lb_content_fragment_title_text_bottom_padding">4dp</dimen>
-    <dimen name="lb_content_section_width">576dp</dimen>
-    <dimen name="lb_content_fragment_start_padding">48dp</dimen>
+    <dimen name="lb_content_section_width">380dp</dimen>
+    <dimen name="lb_content_fragment_start_padding">16dp</dimen>
     <dimen name="lb_content_fragment_delimiter_padding">16dp</dimen>
     <dimen name="lb_content_fragment_max_icon_height">280dp</dimen>
     <dimen name="lb_content_fragment_title_text_top_padding">2dp</dimen>
@@ -110,12 +110,12 @@
     <dimen name="action_fragment_selector_min_height">8dp</dimen>
 
     <dimen name="content_fragment_breadcrumb_text_size">18sp</dimen>
-    <dimen name="content_fragment_default_icon_height">400dp</dimen>
-    <dimen name="content_fragment_default_icon_width">400dp</dimen>
+    <dimen name="content_fragment_default_icon_height">240dp</dimen>
+    <dimen name="content_fragment_default_icon_width">240dp</dimen>
     <dimen name="content_fragment_delimiter_padding">16dp</dimen>
     <dimen name="content_fragment_description_text_size">14sp</dimen>
     <dimen name="content_fragment_icon_width">140dp</dimen>
-    <dimen name="content_fragment_start_padding">48dp</dimen>
+    <dimen name="content_fragment_start_padding">16dp</dimen>
     <dimen name="content_fragment_max_icon_height">280dp</dimen>
     <dimen name="content_fragment_title_text_bottom_padding">4dp</dimen>
     <dimen name="content_fragment_title_text_size">36sp</dimen>
@@ -147,7 +147,7 @@
     <dimen name="picker_separator_horizontal_padding">4dp</dimen>
 
     <dimen name="width_action">256dp</dimen>
-    <dimen name="width_description">536dp</dimen>
+    <dimen name="width_description">380dp</dimen>
 
     <integer name="action_description_min_lines">2</integer>
     <integer name="action_title_min_lines">1</integer>
@@ -165,11 +165,11 @@
     <integer name="alpha_activity_out_bkg_delay">0</integer>
     <integer name="alpha_activity_out_bkg_duration">@integer/base_animation_duration</integer>
 
-    <dimen name="progress_fragment_content_width">656dp</dimen>
+    <dimen name="progress_fragment_content_width">480dp</dimen>
 
     <dimen name="content_icon_inset">16dp</dimen>
 
-    <dimen name="bt_progress_width_narrow">448dp</dimen>
+    <dimen name="bt_progress_width_narrow">340dp</dimen>
 
     <dimen name="setup_action_margin_start">56dp</dimen>
 
@@ -180,11 +180,11 @@
 
     <item name="setup_title_line_spacing_multiplier" format="float" type="dimen">1.04296</item>
     <dimen name="setup_title_height">235dp</dimen>
-    <dimen name="setup_title_width">448dp</dimen>
+    <dimen name="setup_title_width">340dp</dimen>
 
     <dimen name="setup_description_padding_start">112dp</dimen>
     <dimen name="setup_description_padding_end">56dp</dimen>
-    <dimen name="setup_description_width">616dp</dimen>
+    <dimen name="setup_description_width">460dp</dimen>
     <item name="setup_description_line_spacing_multiplier" format="float" type="dimen">1.5</item>
     <dimen name="setup_description_margin_top">18dp</dimen>
     <dimen name="setup_description_text_size">14sp</dimen>
@@ -235,7 +235,7 @@
     <dimen name="color_correction_preview_margin_start_two_panel">-25dp</dimen>
     <dimen name="color_correction_preview_margin_end_two_panel">-15dp</dimen>
     <dimen name="color_correction_preview_margin_vertical_two_panel">50dp</dimen>
-    <dimen name="color_correction_preview_layout_width_classic">600dp</dimen>
+    <dimen name="color_correction_preview_layout_width_classic">450dp</dimen>
     <dimen name="color_correction_preview_padding_start_classic">50dp</dimen>
 
     <!-- Common-->
