@@ -454,9 +454,13 @@ std::vector<NanoMenu::BtDevEntry> parseBtScanResults(const std::string& text) {
 
 void NanoMenu::initSettingsItems() {
     mSettingsItems.clear();
-    mSettingsItems.push_back({"Wi-Fi", 0});
-    mSettingsItems.push_back({"Bluetooth", 1});
+    mSettingsItems.push_back({"Settings", 2});
     mSettingsSelectedIndex = 0;
+    mSettingsTreeSelected = 0;
+    mSettingsTreeScrollTop = 0;
+    mSettingsEditNodeIdx = -1;
+    mSettingsValuesDirty = false;
+    buildSettingsTree();
 }
 
 // Settings is the leftmost XMB column, identified by sentinel index -2.
@@ -487,13 +491,15 @@ void NanoMenu::openWifiScreen() {
 }
 
 void NanoMenu::closeWifiScreen() {
-    // Stop background scan thread if still running.
     if (mWifiScanThread.joinable()) {
         mWifiScanInProgress = false;
-        // Don't join here — thread is short-lived. Detach.
         mWifiScanThread.detach();
     }
-    mMenuState = MENU_MAIN;
+    if (!mSettingsNavStack.empty()) {
+        mMenuState = MENU_SETTINGS;
+    } else {
+        mMenuState = MENU_MAIN;
+    }
     mDisplayDirty = true;
 }
 
@@ -753,12 +759,13 @@ void NanoMenu::closeBtScreen() {
         mBtScanThread.detach();
     }
     if (mBtDiscoveryThread.joinable()) {
-        // We can't cancel the Java-side startDiscovery() from here,
-        // but detaching lets the screen close cleanly; the inquiry
-        // expires on its own within the scan timeout.
         mBtDiscoveryThread.detach();
     }
-    mMenuState = MENU_MAIN;
+    if (!mSettingsNavStack.empty()) {
+        mMenuState = MENU_SETTINGS;
+    } else {
+        mMenuState = MENU_MAIN;
+    }
     mDisplayDirty = true;
 }
 
@@ -1058,6 +1065,7 @@ void NanoMenu::handleBtScreenSelect() {
 void NanoMenu::openOskForPassword(const std::string& prompt,
                                   std::function<void(const std::string&)> onSubmit) {
     mOskPasswordMode = true;
+    mOskPlaintext = false;
     mOskPasswordPrompt = prompt;
     mOskPasswordCallback = std::move(onSubmit);
     mOskQuery.clear();
@@ -1384,11 +1392,10 @@ void NanoMenu::renderBtScreen() {
 // ---------------------------------------------------------------------------
 
 void NanoMenu::renderPasswordPromptOverlay() {
-    if (!mOskActive || !mOskPasswordMode) return;
+    if (!mOskActive) return;
     float sf = fminf((float)mWidth / 1080.0f, (float)mHeight / 720.0f);
     if (sf < 0.5f) sf = 0.5f;
 
-    // Translucent band across top for the prompt + masked chars.
     float bandH = 80.0f * sf;
     drawQuad(0, 0, mWidth, bandH, 0.05f, 0.05f, 0.1f, 0.90f);
 
@@ -1399,7 +1406,7 @@ void NanoMenu::renderPasswordPromptOverlay() {
     drawText(mOskPasswordPrompt.c_str(), pad, pad * 0.5f,
              titleScale, 0.90f, 0.90f, 1.0f, 1.0f);
 
-    std::string masked = maskPassword(mOskQuery);
+    std::string masked = (mOskPasswordMode && !mOskPlaintext) ? maskPassword(mOskQuery) : mOskQuery;
     if (masked.empty()) masked = "_";
     drawText(masked.c_str(), pad, pad * 0.5f + FONT_CHAR_H * titleScale + 4.0f * sf,
              valueScale, 1.0f, 1.0f, 0.5f, 1.0f);

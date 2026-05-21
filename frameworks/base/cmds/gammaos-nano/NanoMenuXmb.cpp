@@ -1042,10 +1042,9 @@ void NanoMenu::handleLeft() {
         return;
     }
     if (mMenuState == MENU_WIFI || mMenuState == MENU_BT) return;
+    if (mMenuState == MENU_SETTINGS) { handleSettingsTreeLeft(); return; }
     if (!mXmbMode) return;
     if (mSearchActive) return;
-    // Columns: -2 Settings | -1 Recently Played | 0..N-1 Systems.
-    // Skip past absent columns (empty recent, no settings) instead of stopping.
     int next = mXmbSystemIndex - 1;
     while (next >= -2) {
         if (next == -1 && mXmbRecent.empty()) { next--; continue; }
@@ -1068,6 +1067,7 @@ void NanoMenu::handleRight() {
         return;
     }
     if (mMenuState == MENU_WIFI || mMenuState == MENU_BT) return;
+    if (mMenuState == MENU_SETTINGS) { handleSettingsTreeRight(); return; }
     if (!mXmbMode) return;
     if (mSearchActive) return;
     int numSys = (int)mXmbSystems.size();
@@ -1501,8 +1501,8 @@ void NanoMenu::openOsk() {
 void NanoMenu::closeOsk() {
     mOskActive = false;
     if (mOskPasswordMode) {
-        // Cancel: clear password state without invoking callback.
         mOskPasswordMode = false;
+        mOskPlaintext = false;
         mOskPasswordPrompt.clear();
         mOskPasswordCallback = nullptr;
         mOskQuery.clear();
@@ -1533,6 +1533,7 @@ void NanoMenu::oskConfirm() {
         auto cb = std::move(mOskPasswordCallback);
         std::string pw = mOskQuery;
         mOskPasswordMode = false;
+        mOskPlaintext = false;
         mOskPasswordPrompt.clear();
         mOskPasswordCallback = nullptr;
         mOskQuery.clear();

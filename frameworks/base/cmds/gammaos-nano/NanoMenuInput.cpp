@@ -252,6 +252,7 @@ void NanoMenu::handleBack() {
     }
     if (mMenuState == MENU_WIFI) { closeWifiScreen(); return; }
     if (mMenuState == MENU_BT)   { closeBtScreen();   return; }
+    if (mMenuState == MENU_SETTINGS) { handleSettingsTreeBack(); return; }
     if (mXmbMode) {
         if (mSearchActive) {
             mSearchActive = false;
@@ -286,16 +287,12 @@ void NanoMenu::handleSelect() {
         oskType(ch);
         return;
     }
-    if (mMenuState == MENU_WIFI) { handleWifiScreenSelect(); return; }
-    if (mMenuState == MENU_BT)   { handleBtScreenSelect();   return; }
+    if (mMenuState == MENU_WIFI)     { handleWifiScreenSelect();   return; }
+    if (mMenuState == MENU_BT)       { handleBtScreenSelect();     return; }
+    if (mMenuState == MENU_SETTINGS) { handleSettingsTreeSelect();  return; }
     if (mXmbMode) {
         if (isOnSettingsColumn()) {
-            if (mSettingsSelectedIndex >= 0
-                && mSettingsSelectedIndex < (int)mSettingsItems.size()) {
-                int act = mSettingsItems[mSettingsSelectedIndex].action;
-                if (act == 0) openWifiScreen();
-                else if (act == 1) openBtScreen();
-            }
+            openSettingsTree();
             return;
         }
         launchXmbGame();
@@ -455,8 +452,9 @@ void NanoMenu::handleUp() {
         if (mOskCursorY > 0) mOskCursorY--;
         return;
     }
-    if (mMenuState == MENU_WIFI) { handleWifiScreenUp(); return; }
-    if (mMenuState == MENU_BT)   { handleBtScreenUp();   return; }
+    if (mMenuState == MENU_WIFI)     { handleWifiScreenUp();     return; }
+    if (mMenuState == MENU_BT)       { handleBtScreenUp();       return; }
+    if (mMenuState == MENU_SETTINGS) { handleSettingsTreeUp();    return; }
     if (mXmbMode) {
         if (mSearchActive) {
             if (mSearchSelectedIndex > 0) mSearchSelectedIndex--;
@@ -502,8 +500,9 @@ void NanoMenu::handleDown() {
         if (mOskCursorY < kOskRows - 1) mOskCursorY++;
         return;
     }
-    if (mMenuState == MENU_WIFI) { handleWifiScreenDown(); return; }
-    if (mMenuState == MENU_BT)   { handleBtScreenDown();   return; }
+    if (mMenuState == MENU_WIFI)     { handleWifiScreenDown();     return; }
+    if (mMenuState == MENU_BT)       { handleBtScreenDown();       return; }
+    if (mMenuState == MENU_SETTINGS) { handleSettingsTreeDown();    return; }
     if (mXmbMode) {
         if (mSearchActive) {
             int maxIdx = (int)mSearchResults.size() - 1;

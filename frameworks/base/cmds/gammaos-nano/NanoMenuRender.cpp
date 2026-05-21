@@ -991,6 +991,7 @@ void NanoMenu::render() {
         renderXmb();
         if (mMenuState == MENU_WIFI) renderWifiScreen();
         else if (mMenuState == MENU_BT) renderBtScreen();
+        else if (mMenuState == MENU_SETTINGS) renderSettingsTree();
         // OSK is drawn last so the password keyboard sits on top of the
         // Wi-Fi / BT overlays (otherwise renderWifiScreen overdraws it).
         renderOsk();
@@ -1226,7 +1227,8 @@ void NanoMenu::render() {
     // Top-bar HUD (battery / network / quick resume) is suppressed while
     // the user is inside a Settings sub-screen so the full row is available
     // for the toggle + device list without overlap or duplication.
-    bool inSettingsModal = (mMenuState == MENU_WIFI || mMenuState == MENU_BT);
+    bool inSettingsModal = (mMenuState == MENU_WIFI || mMenuState == MENU_BT
+                            || mMenuState == MENU_SETTINGS);
 
     // Battery + Network indicators (XMB only; mirrors the Quick Resume HUD
     // on the opposite side). Text-menu mode keeps its minimal top-bar free

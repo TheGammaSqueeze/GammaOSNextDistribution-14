@@ -26,6 +26,8 @@
 #include <mutex>
 #include <thread>
 
+#include "NanoMenuSettingsTree.h"
+
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
@@ -124,6 +126,7 @@ public:
         MENU_APPS = 2,
         MENU_WIFI = 3,
         MENU_BT = 4,
+        MENU_SETTINGS = 5,
     };
 
     struct SettingsItem {
@@ -252,6 +255,26 @@ private:
                             std::function<void(const std::string&)> onSubmit);
     void renderPasswordPromptOverlay();
     std::string maskPassword(const std::string& s);
+
+    // Hierarchical settings tree browser (MENU_SETTINGS)
+    void buildSettingsTree();
+    void openSettingsTree();
+    void settingsTreePushCategory(int nodeIdx);
+    bool settingsTreePop();
+    void settingsTreeGetChildren(int parentIdx, std::vector<int>& out) const;
+    std::string settingsTreeBreadcrumb() const;
+    void renderSettingsTree();
+    void handleSettingsTreeSelect();
+    void handleSettingsTreeBack();
+    void handleSettingsTreeUp();
+    void handleSettingsTreeDown();
+    void handleSettingsTreeLeft();
+    void handleSettingsTreeRight();
+    void startSettingsValueRefresh();
+    std::string getSettingsCachedValue(int nodeIdx) const;
+    void settingsToggleValue(int nodeIdx);
+    void settingsCycleListValue(int nodeIdx, int direction);
+    void settingsSetTextValue(int nodeIdx, const std::string& val);
 
     // Quick Resume
     void prepareShutdown(const char* action);
@@ -583,8 +606,20 @@ private:
     // with the raw string and the overlay closes. Reusing mOskActive so the
     // existing render path still handles dismissal + keyboard grid.
     bool mOskPasswordMode;
+    bool mOskPlaintext;
     std::string mOskPasswordPrompt;
     std::function<void(const std::string&)> mOskPasswordCallback;
+
+    // Hierarchical settings tree
+    std::vector<SettingNode> mSettingsNodes;
+    std::vector<int> mSettingsNavStack;
+    std::vector<int> mSettingsTreeVisible;
+    int mSettingsTreeSelected;
+    int mSettingsTreeScrollTop;
+    int mSettingsEditNodeIdx;
+    bool mSettingsValuesDirty;
+    mutable std::mutex mSettingsValueMutex;
+    std::unordered_map<int, std::string> mSettingsValueCache;
 
     // Icon rendering
     void initIconTextures();
