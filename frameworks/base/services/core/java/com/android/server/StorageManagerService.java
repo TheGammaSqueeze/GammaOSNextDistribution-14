@@ -4142,11 +4142,16 @@ class StorageManagerService extends IStorageManager.Stub
         final StorageStatsManager stats = mContext.getSystemService(StorageStatsManager.class);
         final long token = Binder.clearCallingIdentity();
         try {
-            // In general, apps can allocate as much space as they want, except
-            // we never let them eat into either the minimum cache space or into
-            // the low disk warning space. To avoid user confusion, this logic
-            // should be kept in sync with getFreeBytes().
             final File path = storage.findPathForUuid(volumeUuid);
+
+            // GammaOS Nano: in minimal boot the low-disk reserve (500 MB)
+            // consumes nearly all of /data's free space, making
+            // getAllocatableBytes return 0 and blocking APK installs.
+            // Return raw usable space so installs succeed.
+            if ("1".equals(SystemProperties.get(
+                    "sys.gammaos.minimal_boot", "0"))) {
+                return path.getUsableSpace();
+            }
 
             long usable = 0;
             long lowReserved = 0;
@@ -4198,13 +4203,16 @@ class StorageManagerService extends IStorageManager.Stub
         final StorageManager storage = mContext.getSystemService(StorageManager.class);
         final long token = Binder.clearCallingIdentity();
         try {
-            // Free up enough disk space to satisfy both the requested allocation
-            // and our low disk warning space.
             final File path = storage.findPathForUuid(volumeUuid);
-            if ((flags & StorageManager.FLAG_ALLOCATE_AGGRESSIVE) != 0) {
-                bytes += storage.getStorageFullBytes(path);
-            } else {
-                bytes += storage.getStorageLowBytes(path);
+            // GammaOS Nano: skip low-disk reserve inflation in minimal boot
+            // so installd's freeCache target stays realistic.
+            if (!"1".equals(SystemProperties.get(
+                    "sys.gammaos.minimal_boot", "0"))) {
+                if ((flags & StorageManager.FLAG_ALLOCATE_AGGRESSIVE) != 0) {
+                    bytes += storage.getStorageFullBytes(path);
+                } else {
+                    bytes += storage.getStorageLowBytes(path);
+                }
             }
 
             mPmInternal.freeStorage(volumeUuid, bytes, flags);

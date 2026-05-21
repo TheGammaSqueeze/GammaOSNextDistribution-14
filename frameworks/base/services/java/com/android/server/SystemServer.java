@@ -1891,7 +1891,6 @@ public final class SystemServer implements Dumpable {
                 }
                 t.traceEnd();
 
-                if (!minimalBoot) {
                 t.traceBegin("StartStorageStatsService");
                 try {
                     mSystemServiceManager.startService(STORAGE_STATS_SERVICE_CLASS);
@@ -1899,7 +1898,6 @@ public final class SystemServer implements Dumpable {
                     reportWtf("starting StorageStatsService", e);
                 }
                 t.traceEnd();
-                } // !minimalBoot: StorageStats
             }
         }
 
@@ -1952,7 +1950,7 @@ public final class SystemServer implements Dumpable {
             reportWtf("performing fstrim", e);
         }
         t.traceEnd();
-        } // !minimalBoot: StorageStats through Fstrim
+        } // !minimalBoot: Locale through Fstrim
 
         if (mFactoryTestMode == FactoryTest.FACTORY_TEST_LOW_LEVEL) {
             // dpms already null

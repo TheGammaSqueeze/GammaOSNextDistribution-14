@@ -174,6 +174,15 @@ public class InstallLocationUtils {
         if (volumePath == null) {
             return false;
         }
+        // GammaOS Nano: in minimal boot the low-disk reserve (500 MB) consumes
+        // nearly all of /data's free space, causing getAllocatableBytes to return
+        // 0 even when there is enough room for the APK. Fall back to a raw
+        // usable-space check so adb install works on space-constrained devices.
+        if ("1".equals(android.os.SystemProperties.get(
+                "sys.gammaos.minimal_boot", "0"))) {
+            final long usable = new File(volumePath).getUsableSpace();
+            return params.sizeBytes <= usable;
+        }
         final int installFlags = translateAllocateFlags(params.installFlags);
         final UUID target = storageManager.getUuidForPath(new File(volumePath));
         final long availBytes = storageManager.getAllocatableBytes(target,

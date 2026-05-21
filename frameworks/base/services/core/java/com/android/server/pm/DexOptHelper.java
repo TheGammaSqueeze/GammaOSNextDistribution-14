@@ -1154,6 +1154,14 @@ public final class DexOptHelper {
      */
     static boolean shouldPerformDexopt(InstallRequest installRequest, DexoptOptions dexoptOptions,
             Context context) {
+        // GammaOS Nano: ArtManagerLocal is not initialized in minimal boot
+        // (DexOptHelper.initializeArtManagerLocal is gated by !minimalBoot).
+        // Skip dexopt so APK installs don't crash system_server. The APK
+        // will be dexopted on the next full boot.
+        if ("1".equals(android.os.SystemProperties.get(
+                "sys.gammaos.minimal_boot", "0"))) {
+            return false;
+        }
         final boolean isApex = ((installRequest.getScanFlags() & SCAN_AS_APEX) != 0);
         final boolean instantApp = ((installRequest.getScanFlags() & SCAN_AS_INSTANT_APP) != 0);
         final PackageSetting ps = installRequest.getScannedPackageSetting();
