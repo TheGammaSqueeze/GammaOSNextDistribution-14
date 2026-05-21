@@ -207,6 +207,19 @@ public class GammaOSToolboxFragment extends SettingsPreferenceFragment {
         return TvSettingsEnums.PAGE_CLASSIC_DEFAULT;
     }
 
+    @Override
+    public void onDisplayPreferenceDialog(Preference preference) {
+        if (preference instanceof EditTextPreference) {
+            String key = preference.getKey();
+            if (key != null && key.startsWith("persist.gammaos.")) {
+                String def = DEFAULTS.getOrDefault(key, "");
+                showEditDialog((EditTextPreference) preference, key, def);
+                return;
+            }
+        }
+        super.onDisplayPreferenceDialog(preference);
+    }
+
     private void bindAllPreferences(PreferenceGroup group) {
         for (int i = 0; i < group.getPreferenceCount(); i++) {
             Preference pref = group.getPreference(i);
@@ -276,11 +289,6 @@ public class GammaOSToolboxFragment extends SettingsPreferenceFragment {
         String current = SystemProperties.get(key, def);
         etp.setText(current);
         updateEditTextSummary(etp, current);
-
-        etp.setOnPreferenceClickListener(pref -> {
-            showEditDialog(etp, key, def);
-            return true;
-        });
     }
 
     private void showEditDialog(EditTextPreference etp, String key, String def) {
