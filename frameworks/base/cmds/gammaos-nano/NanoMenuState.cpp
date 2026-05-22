@@ -36,6 +36,7 @@
 
 #include "NanoMenu.h"
 #include "NanoMenuShaders.h"
+#include "NanoMenuStrings.h"
 
 namespace android {
 
@@ -71,14 +72,14 @@ void NanoMenu::buildMenu() {
     property_set("sys.gammaos.nano.launch_app", "com.retroarch.aarch64");
 
     mMenuItems.clear();
-    mMenuItems.push_back({"RetroArch (Nano)"});
-    mMenuItems.push_back({"Recently Played"});
-    mMenuItems.push_back({"Applications"});
-    mMenuItems.push_back({"Boot Android"});
-    mMenuItems.push_back({"Recovery Mode"});
-    mMenuItems.push_back({"Safe Mode"});
-    mMenuItems.push_back({"Reboot"});
-    mMenuItems.push_back({"Power Off"});
+    mMenuItems.push_back({tr(STR_MENU_RETROARCH)});
+    mMenuItems.push_back({tr(STR_MENU_RECENTLY_PLAYED)});
+    mMenuItems.push_back({tr(STR_MENU_APPLICATIONS)});
+    mMenuItems.push_back({tr(STR_MENU_BOOT_ANDROID)});
+    mMenuItems.push_back({tr(STR_MENU_RECOVERY)});
+    mMenuItems.push_back({tr(STR_MENU_SAFE_MODE)});
+    mMenuItems.push_back({tr(STR_MENU_REBOOT)});
+    mMenuItems.push_back({tr(STR_MENU_POWER_OFF)});
     mSelectedIndex = 0;
     mMenuState = MENU_MAIN;
     mRecentSelectedIndex = 0;
@@ -156,41 +157,41 @@ void NanoMenu::rebuildDisplayItems() {
             }
             mDisplayItems.push_back(item);
         }
-        mDisplayItems.push_back("< Back");
+        mDisplayItems.push_back(tr(STR_BACK));
         if (!mStorageReady) {
-            mSubtitle = "Please wait, unlocking storage...";
+            mSubtitle = tr(STR_PLEASE_WAIT_STORAGE);
         } else if (mRecentEntries.empty()) {
-            mSubtitle = "No recent games found";
+            mSubtitle = tr(STR_NO_RECENT_GAMES);
         } else {
             char buf[64];
             snprintf(buf, sizeof(buf), "%zu game%s", mRecentEntries.size(),
                      mRecentEntries.size() == 1 ? "" : "s");
             mSubtitle = buf;
         }
-        mFooter = "DPAD/VOL: Nav | A/PWR: Select | B: Back | R: Quick Resume";
+        mFooter = tr(STR_FOOTER_RECENT);
     } else if (mMenuState == MENU_APPS) {
-        mTitle = "Applications";
+        mTitle = tr(STR_MENU_APPLICATIONS);
         for (const auto& app : mAppEntries) {
             mDisplayItems.push_back(app.label);
         }
-        mDisplayItems.push_back("< Back");
+        mDisplayItems.push_back(tr(STR_BACK));
         if (!mStorageReady) {
-            mSubtitle = "Please wait, unlocking storage...";
+            mSubtitle = tr(STR_PLEASE_WAIT_STORAGE);
         } else if (mAppEntries.empty()) {
-            mSubtitle = "No installed apps found";
+            mSubtitle = tr(STR_NO_INSTALLED_APPS);
         } else {
             char buf[64];
             snprintf(buf, sizeof(buf), "%zu app%s", mAppEntries.size(),
                      mAppEntries.size() == 1 ? "" : "s");
             mSubtitle = buf;
         }
-        mFooter = "DPAD/VOL: Nav | A/PWR: Select | B: Back | HOME: Return";
+        mFooter = tr(STR_FOOTER_APPS);
     } else {
-        mTitle = "GammaOS Nano";
+        mTitle = tr(STR_APP_TITLE);
         for (const auto& item : mMenuItems) {
             mDisplayItems.push_back(item.label);
         }
-        mSubtitle = "v0.1 - Proof of Concept";
+        mSubtitle = tr(STR_APP_VERSION);
         char buf[200];
         snprintf(buf, sizeof(buf),
                  "DPAD: Nav | A: Select | X: FX [%s] | Y: FX | L1: XMB | R1: QR",

@@ -73,6 +73,7 @@
 
 #include "NanoMenu.h"
 #include "NanoMenuShaders.h"
+#include "NanoMenuStrings.h"
 
 extern int gEarlyDrmFd;
 
@@ -158,6 +159,7 @@ NanoMenu::NanoMenu()
       mSetupTransitionAlpha(1.0f), mSetupSlideOffset(0.0f),
       mSetupTransitioning(false), mSetupTransitionTarget(SETUP_WELCOME),
       mSetupBootWaited(false),
+      mLangSelected(0), mLangScrollTop(0),
       mTzSelected(0), mTzScrollTop(0),
       mSetupLogScrollTop(0), mSetupScriptRunning(false),
       mSetupScriptDone(false), mSetupLogExitRequested(false) {
@@ -1098,6 +1100,9 @@ bool NanoMenu::threadLoop() {
             }
         }
     }
+
+    // Initialize locale from system property
+    nanoInitLocaleFromSystem();
 
     // Check if setup wizard is needed (fast path via persist prop).
     // The full settings DB check happens after boot_completed when the

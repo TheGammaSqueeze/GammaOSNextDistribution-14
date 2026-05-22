@@ -51,6 +51,7 @@ cc_binary {
         "NanoMenuSettingsRender.cpp",
         "NanoMenuRender.cpp",
         "NanoMenuSetupWizard.cpp",
+        "NanoMenuStrings.cpp",
         "LibretroRunner.cpp",
         "FakeJNI.cpp",
         "DrasticRunner.cpp",

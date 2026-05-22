@@ -402,10 +402,11 @@ void NanoMenu::handleSelect() {
         return;
     }
 
-    // Main menu
+    // Main menu - dispatch by index (order matches buildMenu)
+    // 0=RetroArch 1=RecentlyPlayed 2=Applications 3=BootAndroid
+    // 4=Recovery 5=SafeMode 6=Reboot 7=PowerOff
     ALOGD("Select item %d: %s", mSelectedIndex, mMenuItems[mSelectedIndex].label.c_str());
-    const auto& label = mMenuItems[mSelectedIndex].label;
-    if (label == "RetroArch (Nano)") {
+    if (mSelectedIndex == 0) { // RetroArch
         // GammaOS Nano: gate -- see MENU_RECENT branch above.
         if (!isLaunchReady()) {
             ALOGI("NanoMenu: RetroArch launch deferred -- boot not ready");
@@ -415,7 +416,7 @@ void NanoMenu::handleSelect() {
         property_set("service.bootanim.nano_retroarch", "1");
         property_set("sys.gammaos.nano.drop_input", "1");
         mWaitForRelease = true;
-    } else if (label == "Recently Played") {
+    } else if (mSelectedIndex == 1) { // Recently Played
         if (!mStorageReady) return; // greyed out, ignore
         // Load playlist from RetroArch's content_history.lpl (needs CE unlock)
         loadRecentPlaylist();
@@ -423,14 +424,14 @@ void NanoMenu::handleSelect() {
         mRecentSelectedIndex = 0;
         mMenuScrollTop = 0;
         mDisplayDirty = true;
-    } else if (label == "Applications") {
+    } else if (mSelectedIndex == 2) { // Applications
         if (!mStorageReady) return; // greyed out, ignore
         loadInstalledApps();
         mMenuState = MENU_APPS;
         mAppSelectedIndex = 0;
         mMenuScrollTop = 0;
         mDisplayDirty = true;
-    } else if (label == "Boot Android") {
+    } else if (mSelectedIndex == 3) { // Boot Android
         // Full Android needs a clean boot.  Dispatch via nano_action so
         // init (which has powerctl_prop access) handles the reboot.
         // Clear QR priming: the user is leaving nano for full Android,
@@ -438,17 +439,17 @@ void NanoMenu::handleSelect() {
         property_set("persist.gammaos.nano.qr_prepared", "0");
         android::base::SetProperty("persist.gammaos.nano.qr_core", "");
         property_set("service.bootanim.nano_action", "android");
-    } else if (label == "Recovery Mode") {
+    } else if (mSelectedIndex == 4) { // Recovery Mode
         property_set("persist.gammaos.nano.qr_prepared", "0");
         android::base::SetProperty("persist.gammaos.nano.qr_core", "");
         property_set("service.bootanim.nano_action", "recovery");
-    } else if (label == "Safe Mode") {
+    } else if (mSelectedIndex == 5) { // Safe Mode
         property_set("persist.gammaos.nano.qr_prepared", "0");
         android::base::SetProperty("persist.gammaos.nano.qr_core", "");
         property_set("service.bootanim.nano_action", "safemode");
-    } else if (label == "Reboot") {
+    } else if (mSelectedIndex == 6) { // Reboot
         prepareShutdown("reboot");
-    } else if (label == "Power Off") {
+    } else if (mSelectedIndex == 7) { // Power Off
         prepareShutdown("shutdown");
     }
 }
@@ -487,13 +488,13 @@ void NanoMenu::handleUp() {
             // Skip greyed-out items when storage isn't ready
             if (!mStorageReady && mSelectedIndex < (int)mMenuItems.size()) {
                 const auto& lbl = mMenuItems[mSelectedIndex].label;
-                if ((lbl == "Recently Played" || lbl == "Applications")
+                if ((mSelectedIndex == 1 || mSelectedIndex == 2)
                     && mSelectedIndex > 0) {
                     mSelectedIndex--;
                     // Check again for the other greyed item
                     if (!mStorageReady && mSelectedIndex < (int)mMenuItems.size()) {
                         const auto& lbl2 = mMenuItems[mSelectedIndex].label;
-                        if ((lbl2 == "Recently Played" || lbl2 == "Applications")
+                        if ((mSelectedIndex == 1 || mSelectedIndex == 2)
                             && mSelectedIndex > 0) {
                             mSelectedIndex--;
                         }
@@ -551,13 +552,13 @@ void NanoMenu::handleDown() {
             // Skip greyed-out items when storage isn't ready
             if (!mStorageReady && mSelectedIndex < (int)mMenuItems.size()) {
                 const auto& lbl = mMenuItems[mSelectedIndex].label;
-                if ((lbl == "Recently Played" || lbl == "Applications")
+                if ((mSelectedIndex == 1 || mSelectedIndex == 2)
                     && mSelectedIndex < last) {
                     mSelectedIndex++;
                     // Check again for the other greyed item
                     if (!mStorageReady && mSelectedIndex < (int)mMenuItems.size()) {
                         const auto& lbl2 = mMenuItems[mSelectedIndex].label;
-                        if ((lbl2 == "Recently Played" || lbl2 == "Applications")
+                        if ((mSelectedIndex == 1 || mSelectedIndex == 2)
                             && mSelectedIndex < last) {
                             mSelectedIndex++;
                         }

@@ -35,6 +35,7 @@
 
 #include "NanoMenu.h"
 #include "NanoMenuShaders.h"
+#include "NanoMenuStrings.h"
 
 namespace android {
 
@@ -122,12 +123,16 @@ bool NanoMenu::checkDeviceProvisioned() {
 
 void NanoMenu::startSetupWizard() {
     mSetupWizardActive = true;
-    mSetupStep = SETUP_WELCOME;
+    mSetupStep = SETUP_LANGUAGE;
     mSetupTransitionAlpha = 1.0f;
     mSetupSlideOffset = 0.0f;
     mSetupTransitioning = false;
     mSetupBootWaited = false;
     mMenuState = MENU_SETUP_WIZARD;
+    mLangSelected = 0;
+    mLangScrollTop = 0;
+    nanoInitLocaleFromSystem();
+    mLangSelected = (int)nanoGetLocale();
     buildTimezoneList();
     ALOGI("NanoMenu: setup wizard started");
 }
@@ -203,9 +208,9 @@ void NanoMenu::startSetupScript() {
         std::lock_guard<std::mutex> lk(mSetupLogMutex);
         mSetupLogLines.clear();
         if (booted) {
-            mSetupLogLines.push_back("Starting system configuration...");
+            mSetupLogLines.push_back(tr(STR_SETUP_INSTALL_STARTING));
         } else {
-            mSetupLogLines.push_back("Waiting for system boot to complete...");
+            mSetupLogLines.push_back(tr(STR_SETUP_INSTALL_BOOT_WAIT));
         }
     }
     mSetupLogScrollTop = 0;
@@ -362,6 +367,10 @@ void NanoMenu::handleSetupSelect() {
     if (mSetupTransitioning) return;
 
     switch (mSetupStep) {
+    case SETUP_LANGUAGE:
+        handleSetupLanguageSelect();
+        advanceSetupStep();
+        break;
     case SETUP_WELCOME:
         advanceSetupStep();
         break;
@@ -398,8 +407,10 @@ void NanoMenu::handleSetupBack() {
     if (mSetupTransitioning) return;
 
     switch (mSetupStep) {
+    case SETUP_LANGUAGE:
+        break;
     case SETUP_WELCOME:
-        // Can't go back from welcome
+        goBackSetupStep();
         break;
     case SETUP_WIFI:
         if (mMenuState == MENU_WIFI) {
@@ -431,6 +442,9 @@ void NanoMenu::handleSetupBack() {
 
 void NanoMenu::handleSetupUp() {
     switch (mSetupStep) {
+    case SETUP_LANGUAGE:
+        if (mLangSelected > 0) mLangSelected--;
+        break;
     case SETUP_WIFI:
         handleWifiScreenUp();
         break;
@@ -452,6 +466,9 @@ void NanoMenu::handleSetupUp() {
 
 void NanoMenu::handleSetupDown() {
     switch (mSetupStep) {
+    case SETUP_LANGUAGE:
+        if (mLangSelected < LOCALE_COUNT - 1) mLangSelected++;
+        break;
     case SETUP_WIFI:
         handleWifiScreenDown();
         break;
@@ -478,6 +495,10 @@ void NanoMenu::handleSetupStart() {
 
     // Start button advances to next step (skip current)
     switch (mSetupStep) {
+    case SETUP_LANGUAGE:
+        handleSetupLanguageSelect();
+        advanceSetupStep();
+        break;
     case SETUP_WELCOME:
         advanceSetupStep();
         break;
@@ -565,6 +586,7 @@ void NanoMenu::renderSetupWizard() {
     float savedSlide = mSetupSlideOffset;
 
     switch (mSetupStep) {
+    case SETUP_LANGUAGE:   renderSetupLanguage();      break;
     case SETUP_WELCOME:    renderSetupWelcome();       break;
     case SETUP_WIFI:       renderSetupWifiStep();      break;
     case SETUP_BLUETOOTH:  renderSetupBluetoothStep(); break;
@@ -584,42 +606,35 @@ void NanoMenu::renderSetupWelcome() {
     float alpha = mSetupTransitionAlpha;
     float slideX = mSetupSlideOffset;
 
-    // Title
     float titleScale = 4.0f * sf;
-    const char* title = "Welcome to GammaOS";
+    const char* title = tr(STR_SETUP_WELCOME_TITLE);
     float titleW = measureText(title, titleScale);
     float titleX = ((float)mWidth - titleW) / 2.0f + slideX;
     float titleY = (float)mHeight * 0.28f;
-    drawText(title, titleX, titleY, titleScale,
-             0.3f, 0.85f, 1.0f, alpha);
+    drawText(title, titleX, titleY, titleScale, 0.3f, 0.85f, 1.0f, alpha);
 
-    // Subtitle
     float subScale = 2.0f * sf;
-    const char* sub = "Let's get your device set up";
+    const char* sub = tr(STR_SETUP_WELCOME_SUB);
     float subW = measureText(sub, subScale);
     float subX = ((float)mWidth - subW) / 2.0f + slideX;
     float subY = titleY + FONT_CHAR_H * titleScale + 20.0f * sf;
-    drawText(sub, subX, subY, subScale,
-             0.6f, 0.6f, 0.7f, alpha * 0.9f);
+    drawText(sub, subX, subY, subScale, 0.6f, 0.6f, 0.7f, alpha * 0.9f);
 
-    // Pulsing "Press A to begin" prompt
     float promptScale = 2.2f * sf;
     float pulse = 0.6f + 0.4f * sinf((float)elapsedRealtime() * 0.004f);
-    const char* prompt = "Press A to begin";
+    const char* prompt = tr(STR_SETUP_PRESS_A);
     float promptW = measureText(prompt, promptScale);
     float promptX = ((float)mWidth - promptW) / 2.0f + slideX;
     float promptY = (float)mHeight * 0.62f;
     drawText(prompt, promptX, promptY, promptScale,
              0.95f, 0.95f, 1.0f, alpha * pulse);
 
-    // Footer
     float footScale = 1.3f * sf;
-    const char* footer = "Start: Skip setup";
+    const char* footer = tr(STR_SETUP_SKIP);
     float footW = measureText(footer, footScale);
     float footX = ((float)mWidth - footW) / 2.0f + slideX;
     float footY = (float)mHeight - 70.0f * sf;
-    drawText(footer, footX, footY, footScale,
-             0.5f, 0.5f, 0.55f, alpha * 0.7f);
+    drawText(footer, footX, footY, footScale, 0.5f, 0.5f, 0.55f, alpha * 0.7f);
 }
 
 void NanoMenu::renderSetupWifiStep() {
@@ -630,7 +645,7 @@ void NanoMenu::renderSetupWifiStep() {
     // Step header
     float headerScale = 2.8f * sf;
     float slideX = mSetupSlideOffset;
-    const char* header = "Wi-Fi Setup";
+    const char* header = tr(STR_SETUP_WIFI_TITLE);
     float headerW = measureText(header, headerScale);
     float headerX = ((float)mWidth - headerW) / 2.0f + slideX;
     float headerY = 15.0f * sf;
@@ -643,7 +658,7 @@ void NanoMenu::renderSetupWifiStep() {
     } else {
         // WiFi screen not yet open - show hint
         float hintScale = 2.0f * sf;
-        const char* hint = "Connecting to Wi-Fi...";
+        const char* hint = tr(STR_SETUP_WIFI_HINT);
         float hintW = measureText(hint, hintScale);
         drawText(hint, ((float)mWidth - hintW) / 2.0f + slideX,
                  (float)mHeight * 0.45f, hintScale,
@@ -652,7 +667,7 @@ void NanoMenu::renderSetupWifiStep() {
 
     // Setup footer
     float footScale = 1.3f * sf;
-    const char* footer = "Start: Next step | B: Skip Wi-Fi";
+    const char* footer = tr(STR_SETUP_WIFI_FOOTER);
     float footW = measureText(footer, footScale);
     drawText(footer, ((float)mWidth - footW) / 2.0f,
              (float)mHeight - 70.0f * sf, footScale,
@@ -666,7 +681,7 @@ void NanoMenu::renderSetupBluetoothStep() {
     float slideX = mSetupSlideOffset;
 
     float headerScale = 2.8f * sf;
-    const char* header = "Bluetooth Setup";
+    const char* header = tr(STR_SETUP_BT_TITLE);
     float headerW = measureText(header, headerScale);
     float headerX = ((float)mWidth - headerW) / 2.0f + slideX;
     float headerY = 15.0f * sf;
@@ -677,7 +692,7 @@ void NanoMenu::renderSetupBluetoothStep() {
         renderBtScreen();
     } else {
         float hintScale = 2.0f * sf;
-        const char* hint = "Scanning for Bluetooth devices...";
+        const char* hint = tr(STR_SETUP_BT_HINT);
         float hintW = measureText(hint, hintScale);
         drawText(hint, ((float)mWidth - hintW) / 2.0f + slideX,
                  (float)mHeight * 0.45f, hintScale,
@@ -685,7 +700,7 @@ void NanoMenu::renderSetupBluetoothStep() {
     }
 
     float footScale = 1.3f * sf;
-    const char* footer = "Start: Next step | B: Skip Bluetooth";
+    const char* footer = tr(STR_SETUP_BT_FOOTER);
     float footW = measureText(footer, footScale);
     drawText(footer, ((float)mWidth - footW) / 2.0f,
              (float)mHeight - 70.0f * sf, footScale,
@@ -701,7 +716,7 @@ void NanoMenu::renderSetupTimezone() {
 
     // Title
     float titleScale = 2.8f * sf;
-    const char* title = "Select Timezone";
+    const char* title = tr(STR_SETUP_TZ_TITLE);
     float titleW = measureText(title, titleScale);
     float titleX = ((float)mWidth - titleW) / 2.0f + slideX;
     drawText(title, titleX, pad, titleScale,
@@ -757,7 +772,7 @@ void NanoMenu::renderSetupTimezone() {
 
     // Footer
     float footScale = 1.3f * sf;
-    const char* footer = "A: Select timezone | Start: Next | B: Back";
+    const char* footer = tr(STR_SETUP_TZ_FOOTER);
     float footW = measureText(footer, footScale);
     drawText(footer, ((float)mWidth - footW) / 2.0f,
              (float)mHeight - 70.0f * sf, footScale,
@@ -773,8 +788,8 @@ void NanoMenu::renderSetupInstalling() {
 
     // Title
     float titleScale = 2.8f * sf;
-    const char* title = mSetupScriptDone ? "Configuration Complete"
-                                         : "Configuring GammaOS...";
+    const char* title = mSetupScriptDone ? tr(STR_SETUP_INSTALL_DONE)
+                                         : tr(STR_SETUP_INSTALL_TITLE);
     float titleW = measureText(title, titleScale);
     float titleX = ((float)mWidth - titleW) / 2.0f + slideX;
     drawText(title, titleX, pad, titleScale,
@@ -841,8 +856,8 @@ void NanoMenu::renderSetupInstalling() {
     // Footer
     float footScale = 1.3f * sf;
     const char* footer = mSetupScriptDone
-            ? "Start: Continue"
-            : "Please wait...";
+            ? tr(STR_SETUP_INSTALL_CONTINUE)
+            : tr(STR_SETUP_INSTALL_WAIT);
     float footW = measureText(footer, footScale);
     drawText(footer, ((float)mWidth - footW) / 2.0f,
              (float)mHeight - 70.0f * sf, footScale,
@@ -857,7 +872,7 @@ void NanoMenu::renderSetupFinish() {
 
     // Title with a green tint
     float titleScale = 4.0f * sf;
-    const char* title = "You're all set!";
+    const char* title = tr(STR_SETUP_FINISH_TITLE);
     float titleW = measureText(title, titleScale);
     float titleX = ((float)mWidth - titleW) / 2.0f + slideX;
     float titleY = (float)mHeight * 0.30f;
@@ -866,7 +881,7 @@ void NanoMenu::renderSetupFinish() {
 
     // Subtitle
     float subScale = 2.0f * sf;
-    const char* sub = "Your device is ready to use";
+    const char* sub = tr(STR_SETUP_FINISH_SUB);
     float subW = measureText(sub, subScale);
     float subX = ((float)mWidth - subW) / 2.0f + slideX;
     float subY = titleY + FONT_CHAR_H * titleScale + 20.0f * sf;
@@ -876,12 +891,104 @@ void NanoMenu::renderSetupFinish() {
     // Pulsing prompt
     float promptScale = 2.2f * sf;
     float pulse = 0.6f + 0.4f * sinf((float)elapsedRealtime() * 0.004f);
-    const char* prompt = "Press A to start";
+    const char* prompt = tr(STR_SETUP_FINISH_PRESS_A);
     float promptW = measureText(prompt, promptScale);
     float promptX = ((float)mWidth - promptW) / 2.0f + slideX;
     float promptY = (float)mHeight * 0.62f;
     drawText(prompt, promptX, promptY, promptScale,
              0.95f, 0.95f, 1.0f, alpha * pulse);
+}
+
+// ---------------------------------------------------------------------------
+// Language selection step
+// ---------------------------------------------------------------------------
+
+void NanoMenu::handleSetupLanguageSelect() {
+    nanoSetLocale((NanoLocale)mLangSelected);
+    nanoApplyLocaleToSystem();
+}
+
+void NanoMenu::renderSetupLanguage() {
+    float sf = fminf((float)mWidth / 1080.0f, (float)mHeight / 720.0f);
+    if (sf < 0.5f) sf = 0.5f;
+    float alpha = mSetupTransitionAlpha;
+    float slideX = mSetupSlideOffset;
+    float pad = 20.0f * sf;
+
+    // Title - always show in the currently-highlighted language so the
+    // user gets immediate visual feedback as they scroll
+    nanoSetLocale((NanoLocale)mLangSelected);
+    float titleScale = 2.8f * sf;
+    const char* title = tr(STR_SETUP_LANG_TITLE);
+    float titleW = measureText(title, titleScale);
+    float titleX = ((float)mWidth - titleW) / 2.0f + slideX;
+    drawText(title, titleX, pad, titleScale, 0.3f, 0.85f, 1.0f, alpha);
+
+    // Language list
+    float rowScale = 2.0f * sf;
+    float rowH = FONT_CHAR_H * rowScale + 8.0f * sf;
+    float listTop = pad + FONT_CHAR_H * titleScale + 20.0f * sf;
+    float listBottom = (float)mHeight - 80.0f * sf;
+    int visibleRows = (int)((listBottom - listTop) / rowH);
+    if (visibleRows < 4) visibleRows = 4;
+
+    // Scrolling
+    if (mLangSelected < mLangScrollTop) mLangScrollTop = mLangSelected;
+    if (mLangSelected >= mLangScrollTop + visibleRows)
+        mLangScrollTop = mLangSelected - visibleRows + 1;
+    if (mLangScrollTop < 0) mLangScrollTop = 0;
+
+    int end = mLangScrollTop + visibleRows;
+    if (end > LOCALE_COUNT) end = LOCALE_COUNT;
+
+    for (int i = mLangScrollTop; i < end; i++) {
+        const LocaleInfo& info = nanoGetLocaleInfo((NanoLocale)i);
+        float y = listTop + (i - mLangScrollTop) * rowH;
+        bool sel = (i == mLangSelected);
+
+        if (sel) {
+            drawQuad(pad - 4.0f * sf + slideX, y - 3.0f * sf,
+                     (float)mWidth - pad * 2.0f + 8.0f * sf, rowH,
+                     0.15f, 0.35f, 0.70f, alpha * 0.65f);
+        }
+
+        // Native name (left)
+        drawText(info.nativeName,
+                 pad + 12.0f * sf + slideX, y + rowH * 0.12f,
+                 rowScale,
+                 sel ? 1.0f : 0.85f,
+                 sel ? 1.0f : 0.85f,
+                 sel ? 1.0f : 0.90f,
+                 alpha * (sel ? 1.0f : 0.85f));
+
+        // English name (right, dimmer)
+        float engScale = rowScale * 0.7f;
+        float engW = measureText(info.englishName, engScale);
+        drawText(info.englishName,
+                 (float)mWidth - engW - pad + slideX,
+                 y + rowH * 0.20f,
+                 engScale, 0.5f, 0.5f, 0.6f, alpha * 0.7f);
+    }
+
+    // Scroll indicators
+    if (mLangScrollTop > 0) {
+        float arrowScale = 1.5f * sf;
+        drawText("^", (float)mWidth / 2.0f + slideX, listTop - 14.0f * sf,
+                 arrowScale, 0.6f, 0.6f, 0.8f, alpha * 0.6f);
+    }
+    if (end < LOCALE_COUNT) {
+        float arrowScale = 1.5f * sf;
+        drawText("v", (float)mWidth / 2.0f + slideX, listBottom - 4.0f * sf,
+                 arrowScale, 0.6f, 0.6f, 0.8f, alpha * 0.6f);
+    }
+
+    // Footer
+    float footScale = 1.3f * sf;
+    const char* footer = tr(STR_SETUP_LANG_FOOTER);
+    float footW = measureText(footer, footScale);
+    drawText(footer, ((float)mWidth - footW) / 2.0f,
+             (float)mHeight - 70.0f * sf, footScale,
+             0.5f, 0.5f, 0.55f, alpha * 0.8f);
 }
 
 } // namespace android

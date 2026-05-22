@@ -131,7 +131,8 @@ public:
     };
 
     enum SetupWizardStep {
-        SETUP_WELCOME = 0,
+        SETUP_LANGUAGE = 0,
+        SETUP_WELCOME,
         SETUP_WIFI,
         SETUP_BLUETOOTH,
         SETUP_TIMEZONE,
@@ -317,6 +318,8 @@ private:
     void startSetupScript();
     void stopSetupLogThread();
     void setupLogTailThreadFunc();
+    void renderSetupLanguage();
+    void handleSetupLanguageSelect();
 
     // Quick Resume
     void prepareShutdown(const char* action);
@@ -706,6 +709,9 @@ private:
     bool mSetupTransitioning;
     SetupWizardStep mSetupTransitionTarget;
     bool mSetupBootWaited;
+    // Language selection
+    int mLangSelected;
+    int mLangScrollTop;
     // Timezone
     std::vector<TimezoneEntry> mTzEntries;
     int mTzSelected;
