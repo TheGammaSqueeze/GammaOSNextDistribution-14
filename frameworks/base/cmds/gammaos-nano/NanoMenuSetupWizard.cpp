@@ -1,0 +1,887 @@
+/*
+ * Copyright (C) 2026 GammaOS
+ *
+ * NanoMenuSetupWizard: First-boot setup wizard for Nano mode devices.
+ * Runs before the XMB menu on unprovisioned devices. Steps:
+ *   1. Welcome
+ *   2. Wi-Fi (reuses existing WiFi screen)
+ *   3. Bluetooth (reuses existing BT screen)
+ *   4. Timezone selection
+ *   5. System configuration (runs setup.sh, shows progress)
+ *   6. Finish (marks device provisioned)
+ *
+ * The XMB wallpaper renders in the background throughout. Each step
+ * transition uses a slide+fade animation.
+ */
+
+#define LOG_TAG "GammaOSNano"
+
+#include <algorithm>
+#include <chrono>
+#include <cmath>
+#include <cstdio>
+#include <cstring>
+#include <mutex>
+#include <string>
+#include <thread>
+#include <unistd.h>
+#include <vector>
+
+#include <cutils/properties.h>
+#include <log/log.h>
+#include <utils/SystemClock.h>
+
+#include <GLES2/gl2.h>
+
+#include "NanoMenu.h"
+#include "NanoMenuShaders.h"
+
+namespace android {
+
+// ---------------------------------------------------------------------------
+// Timezone table
+// ---------------------------------------------------------------------------
+
+struct TzDef {
+    const char* id;
+    const char* label;
+    int offsetMin;
+};
+
+static const TzDef kTimezones[] = {
+    {"Pacific/Midway",       "UTC-11:00  Midway",              -660},
+    {"Pacific/Honolulu",     "UTC-10:00  Hawaii",              -600},
+    {"America/Anchorage",    "UTC-09:00  Alaska",              -540},
+    {"America/Los_Angeles",  "UTC-08:00  Pacific Time (US)",   -480},
+    {"America/Denver",       "UTC-07:00  Mountain Time (US)",  -420},
+    {"America/Chicago",      "UTC-06:00  Central Time (US)",   -360},
+    {"America/New_York",     "UTC-05:00  Eastern Time (US)",   -300},
+    {"America/Caracas",      "UTC-04:00  Venezuela",           -240},
+    {"America/Halifax",      "UTC-04:00  Atlantic Time",       -240},
+    {"America/St_Johns",     "UTC-03:30  Newfoundland",        -210},
+    {"America/Sao_Paulo",    "UTC-03:00  Brasilia",            -180},
+    {"America/Argentina/Buenos_Aires", "UTC-03:00  Buenos Aires", -180},
+    {"Atlantic/South_Georgia","UTC-02:00  Mid-Atlantic",       -120},
+    {"Atlantic/Azores",      "UTC-01:00  Azores",               -60},
+    {"UTC",                  "UTC+00:00  UTC / GMT",              0},
+    {"Europe/London",        "UTC+00:00  London",                 0},
+    {"Europe/Paris",         "UTC+01:00  Paris / Berlin",        60},
+    {"Europe/Madrid",        "UTC+01:00  Madrid",                60},
+    {"Europe/Rome",          "UTC+01:00  Rome",                  60},
+    {"Africa/Lagos",         "UTC+01:00  Lagos",                 60},
+    {"Europe/Athens",        "UTC+02:00  Athens",               120},
+    {"Europe/Istanbul",      "UTC+03:00  Istanbul",             180},
+    {"Europe/Moscow",        "UTC+03:00  Moscow",               180},
+    {"Asia/Dubai",           "UTC+04:00  Dubai",                240},
+    {"Asia/Kolkata",         "UTC+05:30  India",                330},
+    {"Asia/Kathmandu",       "UTC+05:45  Nepal",                345},
+    {"Asia/Dhaka",           "UTC+06:00  Dhaka",                360},
+    {"Asia/Bangkok",         "UTC+07:00  Bangkok",              420},
+    {"Asia/Ho_Chi_Minh",     "UTC+07:00  Ho Chi Minh",         420},
+    {"Asia/Shanghai",        "UTC+08:00  China",                480},
+    {"Asia/Hong_Kong",       "UTC+08:00  Hong Kong",            480},
+    {"Asia/Taipei",          "UTC+08:00  Taipei",               480},
+    {"Asia/Singapore",       "UTC+08:00  Singapore",            480},
+    {"Asia/Seoul",           "UTC+09:00  Seoul",                540},
+    {"Asia/Tokyo",           "UTC+09:00  Tokyo",                540},
+    {"Australia/Sydney",     "UTC+10:00  Sydney",               600},
+    {"Pacific/Guam",         "UTC+10:00  Guam",                 600},
+    {"Pacific/Noumea",       "UTC+11:00  New Caledonia",        660},
+    {"Pacific/Auckland",     "UTC+12:00  Auckland",             720},
+    {"Pacific/Fiji",         "UTC+12:00  Fiji",                 720},
+};
+static const int kNumTimezones = sizeof(kTimezones) / sizeof(kTimezones[0]);
+
+// ---------------------------------------------------------------------------
+// Setup script log file path
+// ---------------------------------------------------------------------------
+
+static const char* kSetupLogPath =
+        "/data/data/org.lineageos.setupwizard/files/gammaos_setup.log";
+
+// ---------------------------------------------------------------------------
+// Provisioning check
+// ---------------------------------------------------------------------------
+
+bool NanoMenu::checkDeviceProvisioned() {
+    FILE* f = popen("settings get global device_provisioned 2>/dev/null", "r");
+    if (!f) return false;
+    char buf[64] = {};
+    if (fgets(buf, sizeof(buf), f)) {
+        pclose(f);
+        // "1" means provisioned, anything else means not
+        return (buf[0] == '1');
+    }
+    pclose(f);
+    return false;
+}
+
+// ---------------------------------------------------------------------------
+// Lifecycle
+// ---------------------------------------------------------------------------
+
+void NanoMenu::startSetupWizard() {
+    mSetupWizardActive = true;
+    mSetupStep = SETUP_WELCOME;
+    mSetupTransitionAlpha = 1.0f;
+    mSetupSlideOffset = 0.0f;
+    mSetupTransitioning = false;
+    mSetupBootWaited = false;
+    mMenuState = MENU_SETUP_WIZARD;
+    buildTimezoneList();
+    ALOGI("NanoMenu: setup wizard started");
+}
+
+void NanoMenu::finishSetupWizard() {
+    // Mark provisioned via settings DB. Order matters: DEVICE_PROVISIONED
+    // first (triggers AMS ContentObserver that sets ro.sys.device_provisioned),
+    // then USER_SETUP_COMPLETE (unblocks permission grants and storage).
+    // Run synchronously so the framework processes each change before the
+    // next one lands.
+    system("settings put global device_provisioned 1 2>/dev/null");
+    system("settings put secure user_setup_complete 1 2>/dev/null");
+    system("settings put secure tv_user_setup_complete 1 2>/dev/null");
+
+    // Disable lockscreen (no swipe to unlock)
+    system("locksettings clear --old \"\" 2>/dev/null");
+
+    // Fast-path property for next boot
+    property_set("persist.gammaos.nano.setup_done", "1");
+
+    // Stop log thread if still running
+    stopSetupLogThread();
+
+    mSetupWizardActive = false;
+    mMenuState = MENU_MAIN;
+    mXmbMode = true;
+    property_set("persist.gammaos.nano.xmb_mode", "1");
+    mDisplayDirty = true;
+
+    ALOGI("NanoMenu: setup wizard finished, device provisioned");
+}
+
+// ---------------------------------------------------------------------------
+// Timezone list
+// ---------------------------------------------------------------------------
+
+void NanoMenu::buildTimezoneList() {
+    mTzEntries.clear();
+    mTzEntries.reserve(kNumTimezones);
+
+    // Read current timezone to pre-select it
+    char curTz[PROPERTY_VALUE_MAX] = {};
+    property_get("persist.sys.timezone", curTz, "UTC");
+
+    for (int i = 0; i < kNumTimezones; i++) {
+        TimezoneEntry e;
+        e.id = kTimezones[i].id;
+        e.display = kTimezones[i].label;
+        e.offsetMinutes = kTimezones[i].offsetMin;
+        mTzEntries.push_back(e);
+        if (e.id == curTz) {
+            mTzSelected = i;
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Setup script
+// ---------------------------------------------------------------------------
+
+void NanoMenu::startSetupScript() {
+    if (mSetupScriptRunning) return;
+
+    // The init trigger requires sys.boot_completed=1. Wait for it in the
+    // log tail thread if it hasn't fired yet. The UI shows "Waiting for
+    // system boot..." until the script actually starts.
+    char bootDone[PROPERTY_VALUE_MAX] = {};
+    property_get("sys.boot_completed", bootDone, "0");
+    bool booted = (strcmp(bootDone, "1") == 0);
+
+    // Reset state
+    {
+        std::lock_guard<std::mutex> lk(mSetupLogMutex);
+        mSetupLogLines.clear();
+        if (booted) {
+            mSetupLogLines.push_back("Starting system configuration...");
+        } else {
+            mSetupLogLines.push_back("Waiting for system boot to complete...");
+        }
+    }
+    mSetupLogScrollTop = 0;
+    mSetupScriptDone = false;
+    mSetupScriptRunning = true;
+    mSetupLogExitRequested = false;
+
+    // Clear previous run state and trigger. If boot hasn't completed,
+    // init will queue the service start until both properties match.
+    property_set("persist.gammaos.setupwizard_done", "0");
+    property_set("persist.gammaos.setupwizard_exit_code", "0");
+    property_set("persist.gammaos.setupwizard_run", "0");
+    property_set("persist.gammaos.setupwizard_run", "1");
+
+    ALOGI("NanoMenu: setup script triggered (boot_completed=%s)", bootDone);
+
+    // Start log tail thread
+    mSetupLogThread = std::thread(&NanoMenu::setupLogTailThreadFunc, this);
+}
+
+void NanoMenu::stopSetupLogThread() {
+    mSetupLogExitRequested = true;
+    if (mSetupLogThread.joinable()) {
+        mSetupLogThread.join();
+    }
+    mSetupScriptRunning = false;
+}
+
+void NanoMenu::setupLogTailThreadFunc() {
+    long pos = 0;
+
+    while (!mSetupLogExitRequested) {
+        // Check if script is done
+        char done[PROPERTY_VALUE_MAX] = {};
+        property_get("persist.gammaos.setupwizard_done", done, "0");
+        if (strcmp(done, "1") == 0) {
+            // Read any remaining log lines
+            FILE* f = fopen(kSetupLogPath, "r");
+            if (f) {
+                fseek(f, pos, SEEK_SET);
+                char line[1024];
+                while (fgets(line, sizeof(line), f)) {
+                    size_t len = strlen(line);
+                    if (len > 0 && line[len - 1] == '\n') line[len - 1] = '\0';
+                    if (strlen(line) > 0) {
+                        std::lock_guard<std::mutex> lk(mSetupLogMutex);
+                        mSetupLogLines.push_back(line);
+                    }
+                }
+                fclose(f);
+            }
+            mSetupScriptDone = true;
+            mSetupScriptRunning = false;
+            ALOGI("NanoMenu: setup script finished");
+            return;
+        }
+
+        // Read new lines from log file
+        FILE* f = fopen(kSetupLogPath, "r");
+        if (f) {
+            fseek(f, 0, SEEK_END);
+            long len = ftell(f);
+            if (len < pos) pos = 0;
+
+            if (len > pos) {
+                fseek(f, pos, SEEK_SET);
+                char line[1024];
+                while (fgets(line, sizeof(line), f)) {
+                    size_t slen = strlen(line);
+                    if (slen > 0 && line[slen - 1] == '\n') line[slen - 1] = '\0';
+                    if (strlen(line) > 0) {
+                        std::lock_guard<std::mutex> lk(mSetupLogMutex);
+                        mSetupLogLines.push_back(line);
+                    }
+                }
+                pos = ftell(f);
+            }
+            fclose(f);
+        }
+
+        usleep(250 * 1000); // 250ms
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Transitions
+// ---------------------------------------------------------------------------
+
+void NanoMenu::advanceSetupStep() {
+    if (mSetupTransitioning) return;
+    int next = (int)mSetupStep + 1;
+    if (next >= SETUP_STEP_COUNT) return;
+
+    mSetupTransitioning = true;
+    mSetupTransitionTarget = (SetupWizardStep)next;
+    mSetupTransitionAlpha = 1.0f;
+    mSetupSlideOffset = 0.0f;
+}
+
+void NanoMenu::goBackSetupStep() {
+    if (mSetupTransitioning) return;
+    if (mSetupStep == SETUP_WELCOME) return;
+    if (mSetupStep == SETUP_INSTALLING) return; // can't go back during install
+    if (mSetupStep == SETUP_FINISH) return;
+
+    int prev = (int)mSetupStep - 1;
+    mSetupTransitioning = true;
+    mSetupTransitionTarget = (SetupWizardStep)prev;
+    mSetupTransitionAlpha = 1.0f;
+    mSetupSlideOffset = 0.0f;
+}
+
+void NanoMenu::updateSetupTransition() {
+    if (!mSetupTransitioning) return;
+
+    bool forward = (int)mSetupTransitionTarget > (int)mSetupStep;
+    float speed = 0.08f;
+
+    mSetupTransitionAlpha -= speed;
+    float slideDir = forward ? -1.0f : 1.0f;
+    mSetupSlideOffset += slideDir * speed * (float)mWidth * 0.5f;
+
+    if (mSetupTransitionAlpha <= 0.0f) {
+        // Switch step at midpoint, then fade in
+        mSetupStep = mSetupTransitionTarget;
+
+        // Trigger step-specific actions
+        if (mSetupStep == SETUP_WIFI) {
+            openWifiScreen();
+            mMenuState = MENU_WIFI;
+        } else if (mSetupStep == SETUP_BLUETOOTH) {
+            openBtScreen();
+            mMenuState = MENU_BT;
+        } else if (mSetupStep == SETUP_INSTALLING) {
+            mMenuState = MENU_SETUP_WIZARD;
+            startSetupScript();
+        } else {
+            mMenuState = MENU_SETUP_WIZARD;
+        }
+
+        // Start the fade-in phase
+        mSetupTransitionAlpha = 0.0f;
+        mSetupSlideOffset = -slideDir * (float)mWidth * 0.3f;
+        mSetupTransitioning = false;
+        // The fade-in is handled by lerping alpha toward 1.0
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Input handling
+// ---------------------------------------------------------------------------
+
+void NanoMenu::handleSetupSelect() {
+    if (mSetupTransitioning) return;
+
+    switch (mSetupStep) {
+    case SETUP_WELCOME:
+        advanceSetupStep();
+        break;
+    case SETUP_WIFI:
+        // A in WiFi mode is handled by the WiFi screen
+        handleWifiScreenSelect();
+        break;
+    case SETUP_BLUETOOTH:
+        handleBtScreenSelect();
+        break;
+    case SETUP_TIMEZONE:
+        // A selects the highlighted timezone and advances
+        if (!mTzEntries.empty()) {
+            char cmd[256];
+            snprintf(cmd, sizeof(cmd), "setprop persist.sys.timezone %s",
+                     mTzEntries[mTzSelected].id.c_str());
+            system(cmd);
+            ALOGI("NanoMenu: timezone set to %s", mTzEntries[mTzSelected].id.c_str());
+        }
+        advanceSetupStep();
+        break;
+    case SETUP_INSTALLING:
+        // Can't skip, wait for completion
+        break;
+    case SETUP_FINISH:
+        finishSetupWizard();
+        break;
+    default:
+        break;
+    }
+}
+
+void NanoMenu::handleSetupBack() {
+    if (mSetupTransitioning) return;
+
+    switch (mSetupStep) {
+    case SETUP_WELCOME:
+        // Can't go back from welcome
+        break;
+    case SETUP_WIFI:
+        if (mMenuState == MENU_WIFI) {
+            closeWifiScreen();
+            mMenuState = MENU_SETUP_WIZARD;
+        }
+        goBackSetupStep();
+        break;
+    case SETUP_BLUETOOTH:
+        if (mMenuState == MENU_BT) {
+            closeBtScreen();
+            mMenuState = MENU_SETUP_WIZARD;
+        }
+        goBackSetupStep();
+        break;
+    case SETUP_TIMEZONE:
+        goBackSetupStep();
+        break;
+    case SETUP_INSTALLING:
+        // Can't go back during install
+        break;
+    case SETUP_FINISH:
+        // No going back from finish
+        break;
+    default:
+        break;
+    }
+}
+
+void NanoMenu::handleSetupUp() {
+    switch (mSetupStep) {
+    case SETUP_WIFI:
+        handleWifiScreenUp();
+        break;
+    case SETUP_BLUETOOTH:
+        handleBtScreenUp();
+        break;
+    case SETUP_TIMEZONE:
+        if (mTzSelected > 0) mTzSelected--;
+        break;
+    case SETUP_INSTALLING: {
+        std::lock_guard<std::mutex> lk(mSetupLogMutex);
+        if (mSetupLogScrollTop > 0) mSetupLogScrollTop--;
+        break;
+    }
+    default:
+        break;
+    }
+}
+
+void NanoMenu::handleSetupDown() {
+    switch (mSetupStep) {
+    case SETUP_WIFI:
+        handleWifiScreenDown();
+        break;
+    case SETUP_BLUETOOTH:
+        handleBtScreenDown();
+        break;
+    case SETUP_TIMEZONE:
+        if (mTzSelected < (int)mTzEntries.size() - 1) mTzSelected++;
+        break;
+    case SETUP_INSTALLING: {
+        std::lock_guard<std::mutex> lk(mSetupLogMutex);
+        int maxScroll = (int)mSetupLogLines.size() - 1;
+        if (maxScroll < 0) maxScroll = 0;
+        if (mSetupLogScrollTop < maxScroll) mSetupLogScrollTop++;
+        break;
+    }
+    default:
+        break;
+    }
+}
+
+void NanoMenu::handleSetupStart() {
+    if (mSetupTransitioning) return;
+
+    // Start button advances to next step (skip current)
+    switch (mSetupStep) {
+    case SETUP_WELCOME:
+        advanceSetupStep();
+        break;
+    case SETUP_WIFI:
+        if (mMenuState == MENU_WIFI) {
+            closeWifiScreen();
+            mMenuState = MENU_SETUP_WIZARD;
+        }
+        advanceSetupStep();
+        break;
+    case SETUP_BLUETOOTH:
+        if (mMenuState == MENU_BT) {
+            closeBtScreen();
+            mMenuState = MENU_SETUP_WIZARD;
+        }
+        advanceSetupStep();
+        break;
+    case SETUP_TIMEZONE:
+        // Apply selected timezone before advancing
+        if (!mTzEntries.empty()) {
+            char cmd[256];
+            snprintf(cmd, sizeof(cmd), "setprop persist.sys.timezone %s",
+                     mTzEntries[mTzSelected].id.c_str());
+            system(cmd);
+        }
+        advanceSetupStep();
+        break;
+    case SETUP_INSTALLING:
+        if (mSetupScriptDone) advanceSetupStep();
+        break;
+    case SETUP_FINISH:
+        finishSetupWizard();
+        break;
+    default:
+        break;
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Rendering
+// ---------------------------------------------------------------------------
+
+void NanoMenu::renderSetupProgressDots() {
+    float sf = fminf((float)mWidth / 1080.0f, (float)mHeight / 720.0f);
+    if (sf < 0.5f) sf = 0.5f;
+
+    float dotSize = 8.0f * sf;
+    float dotSpacing = 24.0f * sf;
+    float totalW = SETUP_STEP_COUNT * dotSpacing;
+    float startX = ((float)mWidth - totalW) / 2.0f;
+    float y = (float)mHeight - 40.0f * sf;
+
+    for (int i = 0; i < SETUP_STEP_COUNT; i++) {
+        float x = startX + i * dotSpacing;
+        bool active = (i == (int)mSetupStep);
+        float r = active ? 0.3f : 0.4f;
+        float g = active ? 0.8f : 0.4f;
+        float b = active ? 1.0f : 0.5f;
+        float a = active ? 1.0f : 0.5f;
+        float sz = active ? dotSize * 1.4f : dotSize;
+        float offset = (sz - dotSize) / 2.0f;
+        drawQuad(x - offset, y - offset, sz, sz, r, g, b, a);
+    }
+}
+
+void NanoMenu::renderSetupWizard() {
+    updateSetupTransition();
+
+    // Fade-in when not transitioning (lerp alpha toward 1.0)
+    if (!mSetupTransitioning && mSetupTransitionAlpha < 1.0f) {
+        mSetupTransitionAlpha += 0.06f;
+        if (mSetupTransitionAlpha > 1.0f) mSetupTransitionAlpha = 1.0f;
+        mSetupSlideOffset *= 0.85f; // ease slide to zero
+    }
+
+    // Light dim over wallpaper
+    drawQuad(0, 0, mWidth, mHeight, 0.0f, 0.0f, 0.0f, 0.4f);
+
+    // Apply slide offset via a viewport-like translate. Since we don't
+    // have a proper transform matrix pipeline, we pass the offset to
+    // each render function and they add it to their x coordinates.
+    // For simplicity, each step renderer accepts the current alpha and
+    // slide offset implicitly through member vars.
+    float savedAlpha = mSetupTransitionAlpha;
+    float savedSlide = mSetupSlideOffset;
+
+    switch (mSetupStep) {
+    case SETUP_WELCOME:    renderSetupWelcome();       break;
+    case SETUP_WIFI:       renderSetupWifiStep();      break;
+    case SETUP_BLUETOOTH:  renderSetupBluetoothStep(); break;
+    case SETUP_TIMEZONE:   renderSetupTimezone();      break;
+    case SETUP_INSTALLING: renderSetupInstalling();    break;
+    case SETUP_FINISH:     renderSetupFinish();        break;
+    default: break;
+    }
+
+    renderSetupProgressDots();
+}
+
+void NanoMenu::renderSetupWelcome() {
+    float sf = fminf((float)mWidth / 1080.0f, (float)mHeight / 720.0f);
+    if (sf < 0.5f) sf = 0.5f;
+
+    float alpha = mSetupTransitionAlpha;
+    float slideX = mSetupSlideOffset;
+
+    // Title
+    float titleScale = 4.0f * sf;
+    const char* title = "Welcome to GammaOS";
+    float titleW = measureText(title, titleScale);
+    float titleX = ((float)mWidth - titleW) / 2.0f + slideX;
+    float titleY = (float)mHeight * 0.28f;
+    drawText(title, titleX, titleY, titleScale,
+             0.3f, 0.85f, 1.0f, alpha);
+
+    // Subtitle
+    float subScale = 2.0f * sf;
+    const char* sub = "Let's get your device set up";
+    float subW = measureText(sub, subScale);
+    float subX = ((float)mWidth - subW) / 2.0f + slideX;
+    float subY = titleY + FONT_CHAR_H * titleScale + 20.0f * sf;
+    drawText(sub, subX, subY, subScale,
+             0.6f, 0.6f, 0.7f, alpha * 0.9f);
+
+    // Pulsing "Press A to begin" prompt
+    float promptScale = 2.2f * sf;
+    float pulse = 0.6f + 0.4f * sinf((float)elapsedRealtime() * 0.004f);
+    const char* prompt = "Press A to begin";
+    float promptW = measureText(prompt, promptScale);
+    float promptX = ((float)mWidth - promptW) / 2.0f + slideX;
+    float promptY = (float)mHeight * 0.62f;
+    drawText(prompt, promptX, promptY, promptScale,
+             0.95f, 0.95f, 1.0f, alpha * pulse);
+
+    // Footer
+    float footScale = 1.3f * sf;
+    const char* footer = "Start: Skip setup";
+    float footW = measureText(footer, footScale);
+    float footX = ((float)mWidth - footW) / 2.0f + slideX;
+    float footY = (float)mHeight - 70.0f * sf;
+    drawText(footer, footX, footY, footScale,
+             0.5f, 0.5f, 0.55f, alpha * 0.7f);
+}
+
+void NanoMenu::renderSetupWifiStep() {
+    float sf = fminf((float)mWidth / 1080.0f, (float)mHeight / 720.0f);
+    if (sf < 0.5f) sf = 0.5f;
+    float alpha = mSetupTransitionAlpha;
+
+    // Step header
+    float headerScale = 2.8f * sf;
+    float slideX = mSetupSlideOffset;
+    const char* header = "Wi-Fi Setup";
+    float headerW = measureText(header, headerScale);
+    float headerX = ((float)mWidth - headerW) / 2.0f + slideX;
+    float headerY = 15.0f * sf;
+    drawText(header, headerX, headerY, headerScale,
+             0.3f, 0.85f, 1.0f, alpha);
+
+    // The actual WiFi screen renders via the normal path
+    if (mMenuState == MENU_WIFI) {
+        renderWifiScreen();
+    } else {
+        // WiFi screen not yet open - show hint
+        float hintScale = 2.0f * sf;
+        const char* hint = "Connecting to Wi-Fi...";
+        float hintW = measureText(hint, hintScale);
+        drawText(hint, ((float)mWidth - hintW) / 2.0f + slideX,
+                 (float)mHeight * 0.45f, hintScale,
+                 0.7f, 0.7f, 0.8f, alpha);
+    }
+
+    // Setup footer
+    float footScale = 1.3f * sf;
+    const char* footer = "Start: Next step | B: Skip Wi-Fi";
+    float footW = measureText(footer, footScale);
+    drawText(footer, ((float)mWidth - footW) / 2.0f,
+             (float)mHeight - 70.0f * sf, footScale,
+             0.5f, 0.5f, 0.55f, alpha * 0.8f);
+}
+
+void NanoMenu::renderSetupBluetoothStep() {
+    float sf = fminf((float)mWidth / 1080.0f, (float)mHeight / 720.0f);
+    if (sf < 0.5f) sf = 0.5f;
+    float alpha = mSetupTransitionAlpha;
+    float slideX = mSetupSlideOffset;
+
+    float headerScale = 2.8f * sf;
+    const char* header = "Bluetooth Setup";
+    float headerW = measureText(header, headerScale);
+    float headerX = ((float)mWidth - headerW) / 2.0f + slideX;
+    float headerY = 15.0f * sf;
+    drawText(header, headerX, headerY, headerScale,
+             0.3f, 0.85f, 1.0f, alpha);
+
+    if (mMenuState == MENU_BT) {
+        renderBtScreen();
+    } else {
+        float hintScale = 2.0f * sf;
+        const char* hint = "Scanning for Bluetooth devices...";
+        float hintW = measureText(hint, hintScale);
+        drawText(hint, ((float)mWidth - hintW) / 2.0f + slideX,
+                 (float)mHeight * 0.45f, hintScale,
+                 0.7f, 0.7f, 0.8f, alpha);
+    }
+
+    float footScale = 1.3f * sf;
+    const char* footer = "Start: Next step | B: Skip Bluetooth";
+    float footW = measureText(footer, footScale);
+    drawText(footer, ((float)mWidth - footW) / 2.0f,
+             (float)mHeight - 70.0f * sf, footScale,
+             0.5f, 0.5f, 0.55f, alpha * 0.8f);
+}
+
+void NanoMenu::renderSetupTimezone() {
+    float sf = fminf((float)mWidth / 1080.0f, (float)mHeight / 720.0f);
+    if (sf < 0.5f) sf = 0.5f;
+    float alpha = mSetupTransitionAlpha;
+    float slideX = mSetupSlideOffset;
+    float pad = 20.0f * sf;
+
+    // Title
+    float titleScale = 2.8f * sf;
+    const char* title = "Select Timezone";
+    float titleW = measureText(title, titleScale);
+    float titleX = ((float)mWidth - titleW) / 2.0f + slideX;
+    drawText(title, titleX, pad, titleScale,
+             0.3f, 0.85f, 1.0f, alpha);
+
+    // List
+    float rowScale = 1.8f * sf;
+    float rowH = FONT_CHAR_H * rowScale + 6.0f * sf;
+    float listTop = pad + FONT_CHAR_H * titleScale + 16.0f * sf;
+    float listBottom = (float)mHeight - 80.0f * sf;
+    int visibleRows = (int)((listBottom - listTop) / rowH);
+    if (visibleRows < 4) visibleRows = 4;
+
+    // Scrolling
+    if (mTzSelected < mTzScrollTop) mTzScrollTop = mTzSelected;
+    if (mTzSelected >= mTzScrollTop + visibleRows)
+        mTzScrollTop = mTzSelected - visibleRows + 1;
+    if (mTzScrollTop < 0) mTzScrollTop = 0;
+
+    int end = mTzScrollTop + visibleRows;
+    if (end > (int)mTzEntries.size()) end = (int)mTzEntries.size();
+
+    for (int i = mTzScrollTop; i < end; i++) {
+        float y = listTop + (i - mTzScrollTop) * rowH;
+        bool sel = (i == mTzSelected);
+
+        if (sel) {
+            drawQuad(pad - 4.0f * sf + slideX, y - 3.0f * sf,
+                     (float)mWidth - pad * 2.0f + 8.0f * sf, rowH,
+                     0.15f, 0.35f, 0.70f, alpha * 0.65f);
+        }
+
+        drawText(mTzEntries[i].display.c_str(),
+                 pad + 8.0f * sf + slideX, y + rowH * 0.12f,
+                 rowScale,
+                 sel ? 1.0f : 0.85f,
+                 sel ? 1.0f : 0.85f,
+                 sel ? 1.0f : 0.90f,
+                 alpha * (sel ? 1.0f : 0.85f));
+    }
+
+    // Scroll indicators
+    if (mTzScrollTop > 0) {
+        float arrowScale = 1.5f * sf;
+        drawText("^", (float)mWidth / 2.0f + slideX, listTop - 14.0f * sf,
+                 arrowScale, 0.6f, 0.6f, 0.8f, alpha * 0.6f);
+    }
+    if (end < (int)mTzEntries.size()) {
+        float arrowScale = 1.5f * sf;
+        drawText("v", (float)mWidth / 2.0f + slideX, listBottom - 4.0f * sf,
+                 arrowScale, 0.6f, 0.6f, 0.8f, alpha * 0.6f);
+    }
+
+    // Footer
+    float footScale = 1.3f * sf;
+    const char* footer = "A: Select timezone | Start: Next | B: Back";
+    float footW = measureText(footer, footScale);
+    drawText(footer, ((float)mWidth - footW) / 2.0f,
+             (float)mHeight - 70.0f * sf, footScale,
+             0.5f, 0.5f, 0.55f, alpha * 0.8f);
+}
+
+void NanoMenu::renderSetupInstalling() {
+    float sf = fminf((float)mWidth / 1080.0f, (float)mHeight / 720.0f);
+    if (sf < 0.5f) sf = 0.5f;
+    float alpha = mSetupTransitionAlpha;
+    float slideX = mSetupSlideOffset;
+    float pad = 20.0f * sf;
+
+    // Title
+    float titleScale = 2.8f * sf;
+    const char* title = mSetupScriptDone ? "Configuration Complete"
+                                         : "Configuring GammaOS...";
+    float titleW = measureText(title, titleScale);
+    float titleX = ((float)mWidth - titleW) / 2.0f + slideX;
+    drawText(title, titleX, pad, titleScale,
+             0.3f, 0.85f, 1.0f, alpha);
+
+    // Spinning indicator when not done
+    if (!mSetupScriptDone) {
+        float spinScale = 1.6f * sf;
+        const char* spinner[] = {"|", "/", "-", "\\"};
+        int spinIdx = ((int)(elapsedRealtime() / 200)) % 4;
+        float spinW = measureText(spinner[spinIdx], spinScale);
+        drawText(spinner[spinIdx],
+                 (float)mWidth - pad - spinW + slideX,
+                 pad + 4.0f * sf, spinScale,
+                 0.8f, 0.8f, 0.2f, alpha);
+    }
+
+    // Log output
+    float logScale = 1.3f * sf;
+    float logTop = pad + FONT_CHAR_H * titleScale + 16.0f * sf;
+    float logRowH = FONT_CHAR_H * logScale + 3.0f * sf;
+    float logBottom = (float)mHeight - 80.0f * sf;
+    int visibleLines = (int)((logBottom - logTop) / logRowH);
+    if (visibleLines < 4) visibleLines = 4;
+
+    std::vector<std::string> lines;
+    {
+        std::lock_guard<std::mutex> lk(mSetupLogMutex);
+        lines = mSetupLogLines;
+    }
+
+    // Auto-scroll to bottom when new lines arrive
+    int totalLines = (int)lines.size();
+    if (totalLines > visibleLines) {
+        mSetupLogScrollTop = totalLines - visibleLines;
+    }
+
+    int start = mSetupLogScrollTop;
+    if (start < 0) start = 0;
+    int end = start + visibleLines;
+    if (end > totalLines) end = totalLines;
+
+    for (int i = start; i < end; i++) {
+        float y = logTop + (i - start) * logRowH;
+
+        // Color the line based on content
+        float r = 0.75f, g = 0.75f, b = 0.80f;
+        if (lines[i].find("Installing") != std::string::npos ||
+            lines[i].find("Extracting") != std::string::npos) {
+            r = 0.4f; g = 0.9f; b = 0.5f;
+        } else if (lines[i].find("Error") != std::string::npos ||
+                   lines[i].find("error") != std::string::npos) {
+            r = 1.0f; g = 0.4f; b = 0.4f;
+        } else if (lines[i].find("completed") != std::string::npos ||
+                   lines[i].find("successfully") != std::string::npos) {
+            r = 0.3f; g = 0.95f; b = 0.6f;
+        }
+
+        drawText(lines[i].c_str(),
+                 pad + slideX, y, logScale,
+                 r, g, b, alpha * 0.9f);
+    }
+
+    // Footer
+    float footScale = 1.3f * sf;
+    const char* footer = mSetupScriptDone
+            ? "Start: Continue"
+            : "Please wait...";
+    float footW = measureText(footer, footScale);
+    drawText(footer, ((float)mWidth - footW) / 2.0f,
+             (float)mHeight - 70.0f * sf, footScale,
+             0.5f, 0.5f, 0.55f, alpha * 0.8f);
+}
+
+void NanoMenu::renderSetupFinish() {
+    float sf = fminf((float)mWidth / 1080.0f, (float)mHeight / 720.0f);
+    if (sf < 0.5f) sf = 0.5f;
+    float alpha = mSetupTransitionAlpha;
+    float slideX = mSetupSlideOffset;
+
+    // Title with a green tint
+    float titleScale = 4.0f * sf;
+    const char* title = "You're all set!";
+    float titleW = measureText(title, titleScale);
+    float titleX = ((float)mWidth - titleW) / 2.0f + slideX;
+    float titleY = (float)mHeight * 0.30f;
+    drawText(title, titleX, titleY, titleScale,
+             0.3f, 1.0f, 0.5f, alpha);
+
+    // Subtitle
+    float subScale = 2.0f * sf;
+    const char* sub = "Your device is ready to use";
+    float subW = measureText(sub, subScale);
+    float subX = ((float)mWidth - subW) / 2.0f + slideX;
+    float subY = titleY + FONT_CHAR_H * titleScale + 20.0f * sf;
+    drawText(sub, subX, subY, subScale,
+             0.6f, 0.7f, 0.65f, alpha * 0.9f);
+
+    // Pulsing prompt
+    float promptScale = 2.2f * sf;
+    float pulse = 0.6f + 0.4f * sinf((float)elapsedRealtime() * 0.004f);
+    const char* prompt = "Press A to start";
+    float promptW = measureText(prompt, promptScale);
+    float promptX = ((float)mWidth - promptW) / 2.0f + slideX;
+    float promptY = (float)mHeight * 0.62f;
+    drawText(prompt, promptX, promptY, promptScale,
+             0.95f, 0.95f, 1.0f, alpha * pulse);
+}
+
+} // namespace android

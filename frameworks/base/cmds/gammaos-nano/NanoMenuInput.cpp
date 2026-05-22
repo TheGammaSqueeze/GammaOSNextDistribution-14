@@ -250,8 +250,16 @@ void NanoMenu::handleBack() {
         closeOsk();
         return;
     }
-    if (mMenuState == MENU_WIFI) { closeWifiScreen(); return; }
-    if (mMenuState == MENU_BT)   { closeBtScreen();   return; }
+    if (mMenuState == MENU_WIFI) {
+        closeWifiScreen();
+        if (mSetupWizardActive) mMenuState = MENU_SETUP_WIZARD;
+        return;
+    }
+    if (mMenuState == MENU_BT) {
+        closeBtScreen();
+        if (mSetupWizardActive) mMenuState = MENU_SETUP_WIZARD;
+        return;
+    }
     if (mMenuState == MENU_SETTINGS) { handleSettingsTreeBack(); return; }
     if (mXmbMode) {
         if (mSearchActive) {
@@ -448,6 +456,9 @@ void NanoMenu::handleSelect() {
 void NanoMenu::handleUp() {
     // GammaOS Nano: navigating cancels any queued launch.
     cancelPendingLaunch();
+    if (mSetupWizardActive && mMenuState == MENU_SETUP_WIZARD) {
+        handleSetupUp(); return;
+    }
     if (mOskActive) {
         if (mOskCursorY > 0) mOskCursorY--;
         return;
@@ -496,6 +507,9 @@ void NanoMenu::handleUp() {
 void NanoMenu::handleDown() {
     // GammaOS Nano: navigating cancels any queued launch.
     cancelPendingLaunch();
+    if (mSetupWizardActive && mMenuState == MENU_SETUP_WIZARD) {
+        handleSetupDown(); return;
+    }
     if (mOskActive) {
         if (mOskCursorY < kOskRows - 1) mOskCursorY++;
         return;
@@ -761,6 +775,28 @@ void NanoMenu::pollInput() {
                     continue;
                 }
                 if (ev.value == 1) {
+                    // Setup wizard intercepts all input when active.
+                    // WiFi/BT sub-screens during setup still use the
+                    // normal OSK + WiFi/BT handlers since the setup
+                    // wizard routes A/B through them. Only the top-level
+                    // Start button and step navigation is different.
+                    if (mSetupWizardActive && !mOskActive
+                        && mMenuState != MENU_WIFI && mMenuState != MENU_BT) {
+                        switch (ev.code) {
+                        case KEY_UP:    navPress(NavDir::Up);   break;
+                        case KEY_DOWN:  navPress(NavDir::Down); break;
+                        case BTN_SOUTH: case KEY_ENTER:
+                            handleSetupSelect(); break;
+                        case BTN_EAST: case KEY_BACK:
+                            handleSetupBack(); break;
+                        case KEY_LEFT:  navPress(NavDir::Left);  break;
+                        case KEY_RIGHT: navPress(NavDir::Right); break;
+                        case BTN_START:
+                            handleSetupStart(); break;
+                        default: break;
+                        }
+                        continue;
+                    }
                     // Only handle menu nav on initial press, not repeat.
                     // For directional keys we route through navPress() so the
                     // hold-to-repeat tick can drive continuous scrolling while
@@ -784,9 +820,12 @@ void NanoMenu::pollInput() {
                         // on devices that don't map the physical Start
                         // button to KEY_ENTER.
                         if (mOskActive) oskConfirm();
+                        else if (mSetupWizardActive) handleSetupStart();
                         break;
                     case BTN_EAST: case KEY_BACK:
-                        handleBack(); break;
+                        if (mSetupWizardActive) handleSetupBack();
+                        else handleBack();
+                        break;
                     case KEY_LEFT:
                         navPress(NavDir::Left); break;
                     case KEY_RIGHT:

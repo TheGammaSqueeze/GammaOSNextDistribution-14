@@ -153,7 +153,14 @@ NanoMenu::NanoMenu()
       mAtlasW(0), mAtlasH(0),
       mAtlasCurX(0), mAtlasCurY(0), mAtlasRowH(0),
       mTextProgram(0), mTextLocPosition(-1), mTextLocTexCoord(-1),
-      mTextLocColor(-1), mTextLocTexture(-1) {
+      mTextLocColor(-1), mTextLocTexture(-1),
+      mSetupWizardActive(false), mSetupStep(SETUP_WELCOME),
+      mSetupTransitionAlpha(1.0f), mSetupSlideOffset(0.0f),
+      mSetupTransitioning(false), mSetupTransitionTarget(SETUP_WELCOME),
+      mSetupBootWaited(false),
+      mTzSelected(0), mTzScrollTop(0),
+      mSetupLogScrollTop(0), mSetupScriptRunning(false),
+      mSetupScriptDone(false), mSetupLogExitRequested(false) {
     // mSession creation deferred to readyToRun() -- the SurfaceComposerClient
     // constructor calls waitForService("SurfaceFlingerAIDL") which blocks
     // until SF is up.  On the DRM boot path we don't need SF at all.
@@ -266,6 +273,8 @@ void NanoMenu::initSurfaceFlingerPath() {
 }
 
 NanoMenu::~NanoMenu() {
+    // Stop the setup log tailer if running.
+    stopSetupLogThread();
     // Stop the network HUD poller first so its worker thread can't
     // race with teardown of other state.
     stopNetPollThread();
@@ -1087,6 +1096,18 @@ bool NanoMenu::threadLoop() {
                       "%d ms, continuing with possibly stale defaults",
                       waited);
             }
+        }
+    }
+
+    // Check if setup wizard is needed (fast path via persist prop).
+    // The full settings DB check happens after boot_completed when the
+    // settings service is available.
+    {
+        char setupDone[PROPERTY_VALUE_MAX] = {};
+        property_get("persist.gammaos.nano.setup_done", setupDone, "");
+        if (strcmp(setupDone, "1") != 0) {
+            startSetupWizard();
+            ALOGI("NanoMenu: setup wizard active (persist.gammaos.nano.setup_done != 1)");
         }
     }
 
@@ -2972,6 +2993,17 @@ if (sRingPrimedCount >= 2) {
                 property_get("sys.boot_completed", bootDone, "0");
                 if (!strcmp(bootDone, "1")) {
                     bootCompletedDetectedMs = elapsedRealtime();
+                    // Set DEVICE_PROVISIONED early during setup wizard so
+                    // framework services (DownloadProvider, AppStateTracker)
+                    // initialize properly. USER_SETUP_COMPLETE stays 0 until
+                    // finishSetupWizard().
+                    if (mSetupWizardActive && !mSetupBootWaited) {
+                        mSetupBootWaited = true;
+                        system("settings put global device_provisioned 1 "
+                               "2>/dev/null &");
+                        ALOGI("NanoMenu: setup wizard - set "
+                              "device_provisioned=1 at boot_completed");
+                    }
                 }
             } else if (elapsedRealtime() - bootCompletedDetectedMs
                        >= 1000) {

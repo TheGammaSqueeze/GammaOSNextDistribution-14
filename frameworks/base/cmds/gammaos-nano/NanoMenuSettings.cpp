@@ -1133,16 +1133,19 @@ void NanoMenu::renderWifiScreen() {
     float sf = fminf((float)mWidth / 1080.0f, (float)mHeight / 720.0f);
     if (sf < 0.5f) sf = 0.5f;
 
-    // Dim background
-    drawQuad(0, 0, mWidth, mHeight, 0.0f, 0.0f, 0.0f, 0.65f);
+    // Dim background (setup wizard draws its own dim)
+    if (!mSetupWizardActive)
+        drawQuad(0, 0, mWidth, mHeight, 0.0f, 0.0f, 0.0f, 0.65f);
 
     float pad = 20.0f * sf;
     float titleScale = 2.6f * sf;
     float rowScale = 1.9f * sf;
     float footScale = 1.3f * sf;
 
-    const char* title = "Wi-Fi";
-    drawText(title, pad, pad, titleScale, 0.95f, 0.95f, 1.0f, 1.0f);
+    if (!mSetupWizardActive) {
+        const char* title = "Wi-Fi";
+        drawText(title, pad, pad, titleScale, 0.95f, 0.95f, 1.0f, 1.0f);
+    }
 
     std::vector<WifiNetEntry> entries;
     {
@@ -1252,12 +1255,14 @@ void NanoMenu::renderWifiScreen() {
         }
     }
 
-    // Footer
-    const char* footer = "A: Connect | X: Rescan | B: Back";
-    float fw = measureText(footer, footScale);
-    drawText(footer, (mWidth - fw) / 2.0f,
-             mHeight - FONT_CHAR_H * footScale - 12.0f * sf,
-             footScale, 0.60f, 0.60f, 0.65f, 0.90f);
+    // Footer (suppressed during setup wizard - it draws its own)
+    if (!mSetupWizardActive) {
+        const char* footer = "A: Connect | X: Rescan | B: Back";
+        float fw = measureText(footer, footScale);
+        drawText(footer, (mWidth - fw) / 2.0f,
+                 mHeight - FONT_CHAR_H * footScale - 12.0f * sf,
+                 footScale, 0.60f, 0.60f, 0.65f, 0.90f);
+    }
 
     // Password OSK overlay
     if (mOskActive && mOskPasswordMode) {
@@ -1273,14 +1278,16 @@ void NanoMenu::renderBtScreen() {
     float sf = fminf((float)mWidth / 1080.0f, (float)mHeight / 720.0f);
     if (sf < 0.5f) sf = 0.5f;
 
-    drawQuad(0, 0, mWidth, mHeight, 0.0f, 0.0f, 0.0f, 0.65f);
+    if (!mSetupWizardActive)
+        drawQuad(0, 0, mWidth, mHeight, 0.0f, 0.0f, 0.0f, 0.65f);
 
     float pad = 20.0f * sf;
     float titleScale = 2.6f * sf;
     float rowScale = 1.9f * sf;
     float footScale = 1.3f * sf;
 
-    drawText("Bluetooth", pad, pad, titleScale, 0.95f, 0.95f, 1.0f, 1.0f);
+    if (!mSetupWizardActive)
+        drawText("Bluetooth", pad, pad, titleScale, 0.95f, 0.95f, 1.0f, 1.0f);
 
     std::vector<BtDevEntry> devs;
     {
@@ -1378,13 +1385,15 @@ void NanoMenu::renderBtScreen() {
         const auto& sel = devs[mBtEntrySelected];
         selBonded = sel.bonded && sel.address != "__TOGGLE__";
     }
-    const char* footer = selBonded
-            ? "A: Connect | Y: Unpair | X: Scan | B: Back"
-            : "A: Pair/Connect | X: Scan | B: Back";
-    float fw = measureText(footer, footScale);
-    drawText(footer, (mWidth - fw) / 2.0f,
-             mHeight - FONT_CHAR_H * footScale - 12.0f * sf,
-             footScale, 0.60f, 0.60f, 0.65f, 0.90f);
+    if (!mSetupWizardActive) {
+        const char* footer = selBonded
+                ? "A: Connect | Y: Unpair | X: Scan | B: Back"
+                : "A: Pair/Connect | X: Scan | B: Back";
+        float fw = measureText(footer, footScale);
+        drawText(footer, (mWidth - fw) / 2.0f,
+                 mHeight - FONT_CHAR_H * footScale - 12.0f * sf,
+                 footScale, 0.60f, 0.60f, 0.65f, 0.90f);
+    }
 }
 
 // ---------------------------------------------------------------------------

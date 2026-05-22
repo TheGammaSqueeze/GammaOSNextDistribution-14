@@ -127,6 +127,23 @@ public:
         MENU_WIFI = 3,
         MENU_BT = 4,
         MENU_SETTINGS = 5,
+        MENU_SETUP_WIZARD = 6,
+    };
+
+    enum SetupWizardStep {
+        SETUP_WELCOME = 0,
+        SETUP_WIFI,
+        SETUP_BLUETOOTH,
+        SETUP_TIMEZONE,
+        SETUP_INSTALLING,
+        SETUP_FINISH,
+        SETUP_STEP_COUNT,
+    };
+
+    struct TimezoneEntry {
+        std::string id;
+        std::string display;
+        int offsetMinutes;
     };
 
     struct SettingsItem {
@@ -275,6 +292,31 @@ private:
     void settingsToggleValue(int nodeIdx);
     void settingsCycleListValue(int nodeIdx, int direction);
     void settingsSetTextValue(int nodeIdx, const std::string& val);
+
+    // Setup wizard (NanoMenuSetupWizard.cpp)
+    bool checkDeviceProvisioned();
+    void startSetupWizard();
+    void finishSetupWizard();
+    void renderSetupWizard();
+    void renderSetupWelcome();
+    void renderSetupWifiStep();
+    void renderSetupBluetoothStep();
+    void renderSetupTimezone();
+    void renderSetupInstalling();
+    void renderSetupFinish();
+    void renderSetupProgressDots();
+    void handleSetupSelect();
+    void handleSetupBack();
+    void handleSetupUp();
+    void handleSetupDown();
+    void handleSetupStart();
+    void advanceSetupStep();
+    void goBackSetupStep();
+    void updateSetupTransition();
+    void buildTimezoneList();
+    void startSetupScript();
+    void stopSetupLogThread();
+    void setupLogTailThreadFunc();
 
     // Quick Resume
     void prepareShutdown(const char* action);
@@ -655,6 +697,27 @@ private:
     GLint  mTextLocColor;
     GLint  mTextLocTexture;
     GLint  mTextLocRotation;
+
+    // Setup wizard state
+    bool mSetupWizardActive;
+    SetupWizardStep mSetupStep;
+    float mSetupTransitionAlpha;
+    float mSetupSlideOffset;
+    bool mSetupTransitioning;
+    SetupWizardStep mSetupTransitionTarget;
+    bool mSetupBootWaited;
+    // Timezone
+    std::vector<TimezoneEntry> mTzEntries;
+    int mTzSelected;
+    int mTzScrollTop;
+    // Setup script log tailing
+    std::vector<std::string> mSetupLogLines;
+    int mSetupLogScrollTop;
+    bool mSetupScriptRunning;
+    bool mSetupScriptDone;
+    std::thread mSetupLogThread;
+    std::mutex mSetupLogMutex;
+    bool mSetupLogExitRequested;
 };
 
 } // namespace android

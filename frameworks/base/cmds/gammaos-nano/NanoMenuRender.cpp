@@ -987,7 +987,10 @@ void NanoMenu::render() {
     // Background effect on primary AHB.
     renderEffect();
 
-    if (mXmbMode) {
+    if (mSetupWizardActive) {
+        renderSetupWizard();
+        renderOsk();
+    } else if (mXmbMode) {
         renderXmb();
         if (mMenuState == MENU_WIFI) renderWifiScreen();
         else if (mMenuState == MENU_BT) renderBtScreen();
@@ -1228,7 +1231,8 @@ void NanoMenu::render() {
     // the user is inside a Settings sub-screen so the full row is available
     // for the toggle + device list without overlap or duplication.
     bool inSettingsModal = (mMenuState == MENU_WIFI || mMenuState == MENU_BT
-                            || mMenuState == MENU_SETTINGS);
+                            || mMenuState == MENU_SETTINGS
+                            || mSetupWizardActive);
 
     // Battery + Network indicators (XMB only; mirrors the Quick Resume HUD
     // on the opposite side). Text-menu mode keeps its minimal top-bar free
