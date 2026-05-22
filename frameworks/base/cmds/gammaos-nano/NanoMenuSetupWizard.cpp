@@ -795,7 +795,7 @@ void NanoMenu::renderSetupWifiStep() {
     float footW = measureText(footer, footScale);
     drawText(footer, ((float)mWidth - footW) / 2.0f,
              (float)mHeight - 70.0f * sf, footScale,
-             0.5f, 0.5f, 0.55f, alpha * 0.8f);
+             0.9f, 0.9f, 0.95f, alpha * 0.85f);
 }
 
 void NanoMenu::renderSetupBluetoothStep() {
@@ -837,7 +837,7 @@ void NanoMenu::renderSetupBluetoothStep() {
     float footW = measureText(footer, footScale);
     drawText(footer, ((float)mWidth - footW) / 2.0f,
              (float)mHeight - 70.0f * sf, footScale,
-             0.5f, 0.5f, 0.55f, alpha * 0.8f);
+             0.9f, 0.9f, 0.95f, alpha * 0.85f);
 }
 
 void NanoMenu::renderSetupTimezone() {
@@ -909,7 +909,7 @@ void NanoMenu::renderSetupTimezone() {
     float footW = measureText(footer, footScale);
     drawText(footer, ((float)mWidth - footW) / 2.0f,
              (float)mHeight - 70.0f * sf, footScale,
-             0.5f, 0.5f, 0.55f, alpha * 0.8f);
+             0.9f, 0.9f, 0.95f, alpha * 0.85f);
 }
 
 void NanoMenu::renderSetupInstalling() {
@@ -994,7 +994,7 @@ void NanoMenu::renderSetupInstalling() {
     float footW = measureText(footer, footScale);
     drawText(footer, ((float)mWidth - footW) / 2.0f,
              (float)mHeight - 70.0f * sf, footScale,
-             0.5f, 0.5f, 0.55f, alpha * 0.8f);
+             0.9f, 0.9f, 0.95f, alpha * 0.85f);
 }
 
 void NanoMenu::renderSetupFinish() {
@@ -1115,7 +1115,7 @@ void NanoMenu::renderSetupLanguage() {
     float footW = measureText(footer, footScale);
     drawText(footer, ((float)mWidth - footW) / 2.0f,
              (float)mHeight - 70.0f * sf, footScale,
-             0.5f, 0.5f, 0.55f, alpha * 0.8f);
+             0.9f, 0.9f, 0.95f, alpha * 0.85f);
 }
 
 } // namespace android
