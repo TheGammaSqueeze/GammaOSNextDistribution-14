@@ -337,6 +337,8 @@ void NanoMenu::initFonts() {
     const char* fontPaths[] = {
         "/system/fonts/Roboto-Regular.ttf",
         "/system/fonts/DroidSans.ttf",
+        "/system/fonts/NotoSansCJK-Regular.ttc",
+        "/system/fonts/NotoNaskhArabic-Regular.ttf",
         "/system/fonts/NotoColorEmoji.ttf",
     };
     for (const char* path : fontPaths) {

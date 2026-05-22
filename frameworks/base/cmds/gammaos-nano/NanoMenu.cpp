@@ -160,6 +160,8 @@ NanoMenu::NanoMenu()
       mSetupTransitioning(false), mSetupTransitionTarget(SETUP_WELCOME),
       mSetupBootWaited(false),
       mLangSelected(0), mLangScrollTop(0),
+      mGreetingIndex(0), mGreetingTimer(0.0f),
+      mGreetingFade(0.0f), mGreetingFadingOut(false),
       mTzSelected(0), mTzScrollTop(0),
       mSetupLogScrollTop(0), mSetupScriptRunning(false),
       mSetupScriptDone(false), mSetupLogExitRequested(false) {

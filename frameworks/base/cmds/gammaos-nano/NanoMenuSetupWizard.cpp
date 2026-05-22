@@ -574,8 +574,10 @@ void NanoMenu::renderSetupWizard() {
         mSetupSlideOffset *= 0.85f; // ease slide to zero
     }
 
-    // Light dim over wallpaper
-    drawQuad(0, 0, mWidth, mHeight, 0.0f, 0.0f, 0.0f, 0.4f);
+    // Light dim over wallpaper (skip on welcome for clean iOS-style look)
+    if (mSetupStep != SETUP_WELCOME) {
+        drawQuad(0, 0, mWidth, mHeight, 0.0f, 0.0f, 0.0f, 0.4f);
+    }
 
     // Apply slide offset via a viewport-like translate. Since we don't
     // have a proper transform matrix pipeline, we pass the offset to
@@ -596,45 +598,119 @@ void NanoMenu::renderSetupWizard() {
     default: break;
     }
 
-    renderSetupProgressDots();
+    if (mSetupStep != SETUP_WELCOME) {
+        renderSetupProgressDots();
+    }
 }
 
 void NanoMenu::renderSetupWelcome() {
+    // iOS-style greeting animation: large centered greeting word that
+    // cycles through languages with a smooth cross-fade + vertical slide.
+    // Hold ~3s, fade out ~0.5s, fade in next ~0.5s.
+    static const struct { const char* greeting; const char* lang; } kGreetings[] = {
+        {"Hello",
+         "English"},
+        {"Hola",
+         "Espa\xC3\xB1ol"},
+        {"Bonjour",
+         "Fran\xC3\xA7""ais"},
+        {"Hallo",
+         "Deutsch"},
+        {"Ciao",
+         "Italiano"},
+        {"Ol\xC3\xA1",
+         "Portugu\xC3\xAAs"},
+        {"Hallo",
+         "Nederlands"},
+        {"\xD0\x9F\xD1\x80\xD0\xB8\xD0\xB2\xD0\xB5\xD1\x82",
+         "\xD0\xA0\xD1\x83\xD1\x81\xD1\x81\xD0\xBA\xD0\xB8\xD0\xB9"},
+        {"\xE3\x81\x93\xE3\x82\x93\xE3\x81\xAB\xE3\x81\xA1\xE3\x81\xAF",
+         "\xE6\x97\xA5\xE6\x9C\xAC\xE8\xAA\x9E"},
+        {"\xEC\x95\x88\xEB\x85\x95\xED\x95\x98\xEC\x84\xB8\xEC\x9A\x94",
+         "\xED\x95\x9C\xEA\xB5\xAD\xEC\x96\xB4"},
+        {"\xE4\xBD\xA0\xE5\xA5\xBD",
+         "\xE4\xB8\xAD\xE6\x96\x87"},
+        {"\xD9\x85\xD8\xB1\xD8\xAD\xD8\xA8\xD8\xA7",
+         "\xD8\xA7\xD9\x84\xD8\xB9\xD8\xB1\xD8\xA8\xD9\x8A\xD8\xA9"},
+        {"Merhaba",
+         "T\xC3\xBCrk\xC3\xA7""e"},
+        {"Cze\xC5\x9B\xC4\x87",
+         "Polski"},
+    };
+    static const int kNumGreetings = sizeof(kGreetings) / sizeof(kGreetings[0]);
+
     float sf = fminf((float)mWidth / 1080.0f, (float)mHeight / 720.0f);
     if (sf < 0.5f) sf = 0.5f;
-
     float alpha = mSetupTransitionAlpha;
-    float slideX = mSetupSlideOffset;
 
-    float titleScale = 4.0f * sf;
-    const char* title = tr(STR_SETUP_WELCOME_TITLE);
-    float titleW = measureText(title, titleScale);
-    float titleX = ((float)mWidth - titleW) / 2.0f + slideX;
-    float titleY = (float)mHeight * 0.28f;
-    drawText(title, titleX, titleY, titleScale, 0.3f, 0.85f, 1.0f, alpha);
+    // Advance the greeting animation timer
+    static const float kHoldTime = 3.0f;
+    static const float kFadeTime = 0.5f;
 
-    float subScale = 2.0f * sf;
-    const char* sub = tr(STR_SETUP_WELCOME_SUB);
-    float subW = measureText(sub, subScale);
-    float subX = ((float)mWidth - subW) / 2.0f + slideX;
-    float subY = titleY + FONT_CHAR_H * titleScale + 20.0f * sf;
-    drawText(sub, subX, subY, subScale, 0.6f, 0.6f, 0.7f, alpha * 0.9f);
+    mGreetingTimer += mFrameDt;
 
-    float promptScale = 2.2f * sf;
-    float pulse = 0.6f + 0.4f * sinf((float)elapsedRealtime() * 0.004f);
+    if (!mGreetingFadingOut) {
+        // Fading in or holding
+        if (mGreetingFade < 1.0f) {
+            mGreetingFade += mFrameDt / kFadeTime;
+            if (mGreetingFade > 1.0f) mGreetingFade = 1.0f;
+        }
+        if (mGreetingTimer >= kHoldTime + kFadeTime) {
+            mGreetingFadingOut = true;
+        }
+    } else {
+        // Fading out
+        mGreetingFade -= mFrameDt / kFadeTime;
+        if (mGreetingFade <= 0.0f) {
+            mGreetingFade = 0.0f;
+            mGreetingIndex = (mGreetingIndex + 1) % kNumGreetings;
+            mGreetingTimer = 0.0f;
+            mGreetingFadingOut = false;
+        }
+    }
+
+    // Vertical slide: subtle upward drift during fade-out, downward during fade-in
+    float slideY = 0.0f;
+    if (mGreetingFadingOut) {
+        slideY = -(1.0f - mGreetingFade) * 30.0f * sf;
+    } else if (mGreetingFade < 1.0f) {
+        slideY = (1.0f - mGreetingFade) * 30.0f * sf;
+    }
+
+    // Large centered greeting
+    float greetScale = 6.0f * sf;
+    const char* greeting = kGreetings[mGreetingIndex].greeting;
+    float greetW = measureText(greeting, greetScale);
+    float greetX = ((float)mWidth - greetW) / 2.0f;
+    float greetY = (float)mHeight * 0.38f + slideY;
+    float gAlpha = mGreetingFade * alpha;
+
+    // Draw with a soft glow: render twice - once larger and dimmer (glow),
+    // once at normal size (sharp)
+    float glowAlpha = gAlpha * 0.3f;
+    drawText(greeting, greetX - 1.5f * sf, greetY - 1.0f * sf,
+             greetScale, 0.5f, 0.8f, 1.0f, glowAlpha);
+    drawText(greeting, greetX, greetY,
+             greetScale, 0.85f, 0.92f, 1.0f, gAlpha);
+
+    // Small language label below the greeting
+    float langScale = 1.6f * sf;
+    const char* langName = kGreetings[mGreetingIndex].lang;
+    float langW = measureText(langName, langScale);
+    float langX = ((float)mWidth - langW) / 2.0f;
+    float langY = greetY + FONT_CHAR_H * greetScale + 12.0f * sf + slideY * 0.5f;
+    drawText(langName, langX, langY, langScale,
+             0.6f, 0.65f, 0.75f, gAlpha * 0.7f);
+
+    // Pulsing "Press A to begin" at the bottom
+    float promptScale = 1.8f * sf;
+    float pulse = 0.5f + 0.5f * sinf((float)elapsedRealtime() * 0.003f);
     const char* prompt = tr(STR_SETUP_PRESS_A);
     float promptW = measureText(prompt, promptScale);
-    float promptX = ((float)mWidth - promptW) / 2.0f + slideX;
-    float promptY = (float)mHeight * 0.62f;
+    float promptX = ((float)mWidth - promptW) / 2.0f;
+    float promptY = (float)mHeight - 80.0f * sf;
     drawText(prompt, promptX, promptY, promptScale,
-             0.95f, 0.95f, 1.0f, alpha * pulse);
-
-    float footScale = 1.3f * sf;
-    const char* footer = tr(STR_SETUP_SKIP);
-    float footW = measureText(footer, footScale);
-    float footX = ((float)mWidth - footW) / 2.0f + slideX;
-    float footY = (float)mHeight - 70.0f * sf;
-    drawText(footer, footX, footY, footScale, 0.5f, 0.5f, 0.55f, alpha * 0.7f);
+             0.8f, 0.85f, 0.95f, alpha * pulse * 0.8f);
 }
 
 void NanoMenu::renderSetupWifiStep() {

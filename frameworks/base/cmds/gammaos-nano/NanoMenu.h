@@ -683,7 +683,7 @@ private:
     bool mSearchActive;        // Search results being displayed
 
     // FreeType font rendering
-    static const int MAX_FT_FACES = 4;
+    static const int MAX_FT_FACES = 6;
     FT_Library mFtLib;
     FT_Face mFtFaces[MAX_FT_FACES];
     int mFtNumFaces;
@@ -712,6 +712,11 @@ private:
     // Language selection
     int mLangSelected;
     int mLangScrollTop;
+    // Welcome greeting animation (iOS-style cycling)
+    int mGreetingIndex;
+    float mGreetingTimer;
+    float mGreetingFade;     // 0..1 current greeting opacity
+    bool mGreetingFadingOut; // true = fading out, false = fading in / holding
     // Timezone
     std::vector<TimezoneEntry> mTzEntries;
     int mTzSelected;

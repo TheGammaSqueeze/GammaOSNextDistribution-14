@@ -32,6 +32,7 @@
 
 #include "NanoMenu.h"
 #include "NanoMenuSettingsTree.h"
+#include "NanoMenuStrings.h"
 
 namespace android {
 
@@ -197,6 +198,27 @@ void NanoMenu::buildSettingsTree() {
       b.screen("wifi", "Wi-Fi", 0);
       b.toggle("airplane", "Airplane Mode",
                SettingSource::kGlobal, "airplane_mode_on", "0");
+    b.endCategory();
+
+    // ===== Language =====
+    b.beginCategory("lang", "Language");
+      b.list("language", "Language / Region",
+             SettingSource::kProp, "persist.sys.locale", "en-US",
+             "en-US:English,"
+             "es-ES:Espa\xC3\xB1ol,"
+             "fr-FR:Fran\xC3\xA7""ais,"
+             "de-DE:Deutsch,"
+             "it-IT:Italiano,"
+             "pt-BR:Portugu\xC3\xAAs,"
+             "nl-NL:Nederlands,"
+             "ru-RU:\xD0\xA0\xD1\x83\xD1\x81\xD1\x81\xD0\xBA\xD0\xB8\xD0\xB9,"
+             "ja-JP:\xE6\x97\xA5\xE6\x9C\xAC\xE8\xAA\x9E,"
+             "ko-KR:\xED\x95\x9C\xEA\xB5\xAD\xEC\x96\xB4,"
+             "zh-CN:\xE7\xAE\x80\xE4\xBD\x93\xE4\xB8\xAD\xE6\x96\x87,"
+             "zh-TW:\xE7\xB9\x81\xE9\xAB\x94\xE4\xB8\xAD\xE6\x96\x87,"
+             "ar-SA:\xD8\xA7\xD9\x84\xD8\xB9\xD8\xB1\xD8\xA8\xD9\x8A\xD8\xA9,"
+             "tr-TR:T\xC3\xBCrk\xC3\xA7""e,"
+             "pl-PL:Polski");
     b.endCategory();
 
     // ===== Connected Devices =====
@@ -883,6 +905,10 @@ void NanoMenu::settingsCycleListValue(int nodeIdx, int direction) {
     {
         std::lock_guard<std::mutex> lk(mSettingsValueMutex);
         mSettingsValueCache[nodeIdx] = opts[newIdx].value;
+    }
+    if (n.key == "persist.sys.locale") {
+        nanoInitLocaleFromSystem();
+        buildMenu();
     }
     mDisplayDirty = true;
 }
