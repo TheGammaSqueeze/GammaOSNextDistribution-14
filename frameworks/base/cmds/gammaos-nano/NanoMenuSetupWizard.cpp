@@ -644,14 +644,17 @@ void NanoMenu::renderSetupWelcome() {
     if (sf < 0.5f) sf = 0.5f;
     float alpha = mSetupTransitionAlpha;
 
-    // Advance the greeting animation timer
+    // Transition types:
+    //   0 = slide up        1 = slide down
+    //   2 = zoom in         3 = zoom out
+    //   4 = slide left      5 = slide right
+    static const int kNumTransTypes = 6;
     static const float kHoldTime = 3.0f;
-    static const float kFadeTime = 0.5f;
+    static const float kFadeTime = 0.6f;
 
     mGreetingTimer += mFrameDt;
 
     if (!mGreetingFadingOut) {
-        // Fading in or holding
         if (mGreetingFade < 1.0f) {
             mGreetingFade += mFrameDt / kFadeTime;
             if (mGreetingFade > 1.0f) mGreetingFade = 1.0f;
@@ -660,7 +663,6 @@ void NanoMenu::renderSetupWelcome() {
             mGreetingFadingOut = true;
         }
     } else {
-        // Fading out
         mGreetingFade -= mFrameDt / kFadeTime;
         if (mGreetingFade <= 0.0f) {
             mGreetingFade = 0.0f;
@@ -668,43 +670,76 @@ void NanoMenu::renderSetupWelcome() {
             while (next == mGreetingIndex)
                 next = rand() % kNumGreetings;
             mGreetingIndex = next;
+            mGreetingTransType = rand() % kNumTransTypes;
             mGreetingTimer = 0.0f;
             mGreetingFadingOut = false;
         }
     }
 
-    // Vertical slide: subtle upward drift during fade-out, downward during fade-in
-    float slideY = 0.0f;
-    if (mGreetingFadingOut) {
-        slideY = -(1.0f - mGreetingFade) * 30.0f * sf;
-    } else if (mGreetingFade < 1.0f) {
-        slideY = (1.0f - mGreetingFade) * 30.0f * sf;
+    // Compute transition progress (0 = just appeared/about to vanish, 1 = fully visible)
+    // t goes 0->1 during fade-in, stays 1 during hold, 1->0 during fade-out
+    float t = mGreetingFade;
+    // Ease curve: smooth step for more organic motion
+    float easeT = t * t * (3.0f - 2.0f * t);
+
+    // Apply transition-specific offsets
+    float offsetX = 0.0f, offsetY = 0.0f;
+    float scaleMul = 1.0f;
+    float maxSlide = 60.0f * sf;
+    float maxSlideX = 120.0f * sf;
+
+    switch (mGreetingTransType) {
+    case 0: // slide up
+        offsetY = -(1.0f - easeT) * maxSlide;
+        if (mGreetingFadingOut) offsetY = (1.0f - easeT) * maxSlide * -1.0f;
+        else offsetY = (1.0f - easeT) * maxSlide;
+        break;
+    case 1: // slide down
+        if (mGreetingFadingOut) offsetY = (1.0f - easeT) * maxSlide;
+        else offsetY = -(1.0f - easeT) * maxSlide;
+        break;
+    case 2: // zoom in (start small, grow to full)
+        scaleMul = 0.6f + 0.4f * easeT;
+        break;
+    case 3: // zoom out (start large, shrink to normal)
+        if (mGreetingFadingOut) scaleMul = 1.0f + (1.0f - easeT) * 0.5f;
+        else scaleMul = 1.5f - 0.5f * easeT;
+        break;
+    case 4: // slide from left
+        if (mGreetingFadingOut) offsetX = -(1.0f - easeT) * maxSlideX;
+        else offsetX = -(1.0f - easeT) * maxSlideX;
+        break;
+    case 5: // slide from right
+        if (mGreetingFadingOut) offsetX = (1.0f - easeT) * maxSlideX;
+        else offsetX = (1.0f - easeT) * maxSlideX;
+        break;
     }
 
-    // Large centered greeting
-    float greetScale = 6.0f * sf;
+    float greetScale = 6.0f * sf * scaleMul;
     const char* greeting = kGreetings[mGreetingIndex].greeting;
     float greetW = measureText(greeting, greetScale);
-    float greetX = ((float)mWidth - greetW) / 2.0f;
-    float greetY = (float)mHeight * 0.38f + slideY;
-    float gAlpha = mGreetingFade * alpha;
+    float greetX = ((float)mWidth - greetW) / 2.0f + offsetX;
+    float greetY = (float)mHeight * 0.38f + offsetY;
+    float gAlpha = easeT * alpha;
 
-    // Draw with a soft glow: render twice - once larger and dimmer (glow),
-    // once at normal size (sharp)
-    float glowAlpha = gAlpha * 0.3f;
-    drawText(greeting, greetX - 1.5f * sf, greetY - 1.0f * sf,
-             greetScale, 0.5f, 0.8f, 1.0f, glowAlpha);
+    // Soft glow layer
+    float glowAlpha = gAlpha * 0.25f;
+    drawText(greeting, greetX - 2.0f * sf, greetY - 1.5f * sf,
+             greetScale, 0.4f, 0.7f, 1.0f, glowAlpha);
+    drawText(greeting, greetX + 1.0f * sf, greetY + 0.5f * sf,
+             greetScale, 0.3f, 0.6f, 0.9f, glowAlpha * 0.6f);
+    // Sharp text
     drawText(greeting, greetX, greetY,
              greetScale, 0.85f, 0.92f, 1.0f, gAlpha);
 
-    // Small language label below the greeting
-    float langScale = 1.6f * sf;
+    // Language label with matched transition
+    float langScale = 1.6f * sf * fminf(scaleMul, 1.1f);
     const char* langName = kGreetings[mGreetingIndex].lang;
     float langW = measureText(langName, langScale);
-    float langX = ((float)mWidth - langW) / 2.0f;
-    float langY = greetY + FONT_CHAR_H * greetScale + 12.0f * sf + slideY * 0.5f;
+    float langX = ((float)mWidth - langW) / 2.0f + offsetX * 0.6f;
+    float langY = greetY + FONT_CHAR_H * greetScale + 14.0f * sf + offsetY * 0.3f;
     drawText(langName, langX, langY, langScale,
-             0.6f, 0.65f, 0.75f, gAlpha * 0.7f);
+             0.55f, 0.62f, 0.75f, gAlpha * 0.65f);
 
     // Pulsing "Press A to begin" at the bottom
     float promptScale = 1.8f * sf;

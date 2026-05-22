@@ -717,6 +717,7 @@ private:
     float mGreetingTimer;
     float mGreetingFade;     // 0..1 current greeting opacity
     bool mGreetingFadingOut; // true = fading out, false = fading in / holding
+    int mGreetingTransType;  // randomized transition style (0-5)
     // Timezone
     std::vector<TimezoneEntry> mTzEntries;
     int mTzSelected;

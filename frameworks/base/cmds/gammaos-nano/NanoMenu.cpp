@@ -162,6 +162,7 @@ NanoMenu::NanoMenu()
       mLangSelected(0), mLangScrollTop(0),
       mGreetingIndex(0), mGreetingTimer(0.0f),
       mGreetingFade(0.0f), mGreetingFadingOut(false),
+      mGreetingTransType(0),
       mTzSelected(0), mTzScrollTop(0),
       mSetupLogScrollTop(0), mSetupScriptRunning(false),
       mSetupScriptDone(false), mSetupLogExitRequested(false) {
