@@ -131,8 +131,8 @@ public:
     };
 
     enum SetupWizardStep {
-        SETUP_LANGUAGE = 0,
-        SETUP_WELCOME,
+        SETUP_WELCOME = 0,
+        SETUP_LANGUAGE,
         SETUP_WIFI,
         SETUP_BLUETOOTH,
         SETUP_TIMEZONE,

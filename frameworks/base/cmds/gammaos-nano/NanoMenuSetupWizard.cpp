@@ -123,7 +123,7 @@ bool NanoMenu::checkDeviceProvisioned() {
 
 void NanoMenu::startSetupWizard() {
     mSetupWizardActive = true;
-    mSetupStep = SETUP_LANGUAGE;
+    mSetupStep = SETUP_WELCOME;
     mSetupTransitionAlpha = 1.0f;
     mSetupSlideOffset = 0.0f;
     mSetupTransitioning = false;
@@ -131,6 +131,7 @@ void NanoMenu::startSetupWizard() {
     mMenuState = MENU_SETUP_WIZARD;
     mLangSelected = 0;
     mLangScrollTop = 0;
+    mGreetingIndex = rand() % 14;
     nanoInitLocaleFromSystem();
     mLangSelected = (int)nanoGetLocale();
     buildTimezoneList();
@@ -407,9 +408,9 @@ void NanoMenu::handleSetupBack() {
     if (mSetupTransitioning) return;
 
     switch (mSetupStep) {
-    case SETUP_LANGUAGE:
-        break;
     case SETUP_WELCOME:
+        break;
+    case SETUP_LANGUAGE:
         goBackSetupStep();
         break;
     case SETUP_WIFI:
@@ -663,7 +664,10 @@ void NanoMenu::renderSetupWelcome() {
         mGreetingFade -= mFrameDt / kFadeTime;
         if (mGreetingFade <= 0.0f) {
             mGreetingFade = 0.0f;
-            mGreetingIndex = (mGreetingIndex + 1) % kNumGreetings;
+            int next = mGreetingIndex;
+            while (next == mGreetingIndex)
+                next = rand() % kNumGreetings;
+            mGreetingIndex = next;
             mGreetingTimer = 0.0f;
             mGreetingFadingOut = false;
         }
