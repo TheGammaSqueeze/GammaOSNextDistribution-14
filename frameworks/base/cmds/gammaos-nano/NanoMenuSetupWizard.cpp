@@ -767,17 +767,26 @@ void NanoMenu::renderSetupWifiStep() {
     drawText(header, headerX, headerY, headerScale,
              0.3f, 0.85f, 1.0f, alpha);
 
-    // The actual WiFi screen renders via the normal path
+    // Check if boot is complete (WiFi driver needs system_server)
+    char bootDone[PROPERTY_VALUE_MAX] = {};
+    property_get("sys.boot_completed", bootDone, "0");
+    bool booted = (strcmp(bootDone, "1") == 0);
+
     if (mMenuState == MENU_WIFI) {
         renderWifiScreen();
-    } else {
-        // WiFi screen not yet open - show hint
-        float hintScale = 2.0f * sf;
-        const char* hint = tr(STR_SETUP_WIFI_HINT);
-        float hintW = measureText(hint, hintScale);
-        drawText(hint, ((float)mWidth - hintW) / 2.0f + slideX,
-                 (float)mHeight * 0.45f, hintScale,
-                 0.7f, 0.7f, 0.8f, alpha);
+    }
+
+    if (!booted) {
+        // Driver loading overlay with spinning indicator
+        float loadScale = 1.6f * sf;
+        const char* spinner[] = {"|", "/", "-", "\\"};
+        int spinIdx = ((int)(elapsedRealtime() / 150)) % 4;
+        char loadMsg[64];
+        snprintf(loadMsg, sizeof(loadMsg), "%s  Loading driver...", spinner[spinIdx]);
+        float loadW = measureText(loadMsg, loadScale);
+        drawText(loadMsg, (float)mWidth - loadW - 12.0f * sf,
+                 15.0f * sf + FONT_CHAR_H * 2.8f * sf + 6.0f * sf,
+                 loadScale, 0.9f, 0.8f, 0.2f, alpha * 0.9f);
     }
 
     // Setup footer
@@ -803,15 +812,24 @@ void NanoMenu::renderSetupBluetoothStep() {
     drawText(header, headerX, headerY, headerScale,
              0.3f, 0.85f, 1.0f, alpha);
 
+    char btBootDone[PROPERTY_VALUE_MAX] = {};
+    property_get("sys.boot_completed", btBootDone, "0");
+    bool btBooted = (strcmp(btBootDone, "1") == 0);
+
     if (mMenuState == MENU_BT) {
         renderBtScreen();
-    } else {
-        float hintScale = 2.0f * sf;
-        const char* hint = tr(STR_SETUP_BT_HINT);
-        float hintW = measureText(hint, hintScale);
-        drawText(hint, ((float)mWidth - hintW) / 2.0f + slideX,
-                 (float)mHeight * 0.45f, hintScale,
-                 0.7f, 0.7f, 0.8f, alpha);
+    }
+
+    if (!btBooted) {
+        float loadScale = 1.6f * sf;
+        const char* spinner[] = {"|", "/", "-", "\\"};
+        int spinIdx = ((int)(elapsedRealtime() / 150)) % 4;
+        char loadMsg[64];
+        snprintf(loadMsg, sizeof(loadMsg), "%s  Loading driver...", spinner[spinIdx]);
+        float loadW = measureText(loadMsg, loadScale);
+        drawText(loadMsg, (float)mWidth - loadW - 12.0f * sf,
+                 15.0f * sf + FONT_CHAR_H * 2.8f * sf + 6.0f * sf,
+                 loadScale, 0.9f, 0.8f, 0.2f, alpha * 0.9f);
     }
 
     float footScale = 1.3f * sf;
@@ -1027,16 +1045,14 @@ void NanoMenu::renderSetupLanguage() {
     float sf = fminf((float)mWidth / 1080.0f, (float)mHeight / 720.0f);
     if (sf < 0.5f) sf = 0.5f;
     float alpha = mSetupTransitionAlpha;
-    float slideX = mSetupSlideOffset;
     float pad = 20.0f * sf;
 
-    // Title - always show in the currently-highlighted language so the
-    // user gets immediate visual feedback as they scroll
+    // Update locale preview as user scrolls
     nanoSetLocale((NanoLocale)mLangSelected);
     float titleScale = 2.8f * sf;
     const char* title = tr(STR_SETUP_LANG_TITLE);
     float titleW = measureText(title, titleScale);
-    float titleX = ((float)mWidth - titleW) / 2.0f + slideX;
+    float titleX = ((float)mWidth - titleW) / 2.0f;
     drawText(title, titleX, pad, titleScale, 0.3f, 0.85f, 1.0f, alpha);
 
     // Language list
@@ -1047,7 +1063,6 @@ void NanoMenu::renderSetupLanguage() {
     int visibleRows = (int)((listBottom - listTop) / rowH);
     if (visibleRows < 4) visibleRows = 4;
 
-    // Scrolling
     if (mLangSelected < mLangScrollTop) mLangScrollTop = mLangSelected;
     if (mLangSelected >= mLangScrollTop + visibleRows)
         mLangScrollTop = mLangSelected - visibleRows + 1;
@@ -1062,38 +1077,35 @@ void NanoMenu::renderSetupLanguage() {
         bool sel = (i == mLangSelected);
 
         if (sel) {
-            drawQuad(pad - 4.0f * sf + slideX, y - 3.0f * sf,
-                     (float)mWidth - pad * 2.0f + 8.0f * sf, rowH,
+            drawQuad(0, y - 3.0f * sf,
+                     (float)mWidth, rowH,
                      0.15f, 0.35f, 0.70f, alpha * 0.65f);
         }
 
-        // Native name (left)
         drawText(info.nativeName,
-                 pad + 12.0f * sf + slideX, y + rowH * 0.12f,
+                 pad, y + rowH * 0.12f,
                  rowScale,
                  sel ? 1.0f : 0.85f,
                  sel ? 1.0f : 0.85f,
                  sel ? 1.0f : 0.90f,
                  alpha * (sel ? 1.0f : 0.85f));
 
-        // English name (right, dimmer)
         float engScale = rowScale * 0.7f;
         float engW = measureText(info.englishName, engScale);
         drawText(info.englishName,
-                 (float)mWidth - engW - pad + slideX,
+                 (float)mWidth - engW - pad,
                  y + rowH * 0.20f,
                  engScale, 0.5f, 0.5f, 0.6f, alpha * 0.7f);
     }
 
-    // Scroll indicators
     if (mLangScrollTop > 0) {
         float arrowScale = 1.5f * sf;
-        drawText("^", (float)mWidth / 2.0f + slideX, listTop - 14.0f * sf,
+        drawText("^", (float)mWidth / 2.0f, listTop - 14.0f * sf,
                  arrowScale, 0.6f, 0.6f, 0.8f, alpha * 0.6f);
     }
     if (end < LOCALE_COUNT) {
         float arrowScale = 1.5f * sf;
-        drawText("v", (float)mWidth / 2.0f + slideX, listBottom - 4.0f * sf,
+        drawText("v", (float)mWidth / 2.0f, listBottom - 4.0f * sf,
                  arrowScale, 0.6f, 0.6f, 0.8f, alpha * 0.6f);
     }
 
