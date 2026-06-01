@@ -27,6 +27,7 @@
 #include <thread>
 
 #include "NanoMenuSettingsTree.h"
+#include "NanoOsk.h"
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -211,14 +212,37 @@ private:
     void saveXmbRecent();
     void addXmbRecent(int sysIdx, int gameIdx);
 
-    // On-screen keyboard (search)
-    void openOsk();
-    void closeOsk();
-    void oskType(char c);
-    void oskBackspace();
-    void oskConfirm();
+    // On-screen keyboard. Native reimplementation of the Leanback IME keyboard
+    // extended into a multi-script input method. Runtime state is mOsk
+    // (NanoOskState); layout data is the generated kOskKb[] / kOskPopups[].
+    // Implementation lives in NanoOsk.cpp.
+    void openOsk();                 // search-mode OSK
+    void closeOsk();                // dismiss (popup-aware)
+    void oskType(char c);           // legacy thin ASCII insert, kept for callers
+    void oskBackspace();            // delete one codepoint before the caret
+    void oskConfirm();              // submit (search -> results; password -> callback)
     void updateSearchResults();
     void renderOsk();
+    // New OSK runtime (NanoOsk.cpp):
+    void oskApplyLocale();          // choose layout from the active UI language
+    void oskSetLanguage(const char* code, const char* region); // layout + IME
+    void oskMoveCursor(NavDir dir); // geometric nearest-in-direction focus move
+    void oskActivateKey(const OskKey& key); // dispatch a grid key (A on key)
+    void oskAPress();               // A pressed while OSK active
+    void oskARelease();             // A released while OSK active
+    void oskTick();                 // per-frame: long-press popup + animation clock
+    void oskToggleShift();          // off <-> on (from locked -> off)
+    void oskToggleCaps();           // caps lock toggle
+    void oskToggleSym();            // ABC <-> SYM page
+    void oskOpenPopup(const OskKey& key);  // open accent/shift mini popup
+    void oskClosePopup();
+    void oskCommitPopupCell();      // commit the focused popup cell
+    void oskCycleLanguage(int dir); // in-keyboard language switch
+    void oskInsertCp(uint32_t cp);  // insert a codepoint at the caret (UTF-8)
+    void oskCaretLeft();
+    void oskCaretRight();
+    OskBox oskLayoutBox();          // compute the aspect-aware keyboard box
+    const OskKeyboard* oskCurrentKb() const; // current page's keyboard table
 
     // Settings column (WiFi + Bluetooth). The Settings entry lives as an
     // extra pseudo-system at index == mXmbSystems.size() in the XMB column
@@ -271,7 +295,6 @@ private:
     // field rendered with masked chars, and on Enter invokes a callback.
     void openOskForPassword(const std::string& prompt,
                             std::function<void(const std::string&)> onSubmit);
-    void renderPasswordPromptOverlay();
     std::string maskPassword(const std::string& s);
 
     // Hierarchical settings tree browser (MENU_SETTINGS)
@@ -672,18 +695,17 @@ private:
                   float r, float g, float b, float a);
     GLuint mIconTextures[18]; // 0-14=systems, 15=history, 16=game item, 17=setting
 
-    // On-screen keyboard (search)
+    // On-screen keyboard. mOskActive + mOskQuery are the keep-stable members
+    // external code reads/writes directly; all new runtime state is in mOsk.
     bool mOskActive;           // OSK is visible and receiving input
-    bool mOskShift;            // true = uppercase letters (A-Z); false = lowercase
-    std::string mOskQuery;     // Current search query
-    int mOskCursorX;           // OSK grid cursor column
-    int mOskCursorY;           // OSK grid cursor row
+    std::string mOskQuery;     // current typed buffer (committed text)
+    NanoOskState mOsk;         // page/shift/focus/caret/popup/candidates/IME state
     std::vector<SearchResult> mSearchResults;
     int mSearchSelectedIndex;
     bool mSearchActive;        // Search results being displayed
 
     // FreeType font rendering
-    static const int MAX_FT_FACES = 6;
+    static const int MAX_FT_FACES = 8;
     FT_Library mFtLib;
     FT_Face mFtFaces[MAX_FT_FACES];
     int mFtNumFaces;
@@ -700,6 +722,72 @@ private:
     GLint  mTextLocColor;
     GLint  mTextLocTexture;
     GLint  mTextLocRotation;
+
+    // Rounded-rect shader (OSK keys)
+    GLuint mRoundProgram;
+    GLint  mRoundLocPosition;
+    GLint  mRoundLocLocal;
+    GLint  mRoundLocRotation;
+    GLint  mRoundLocHalf;
+    GLint  mRoundLocRadius;
+    GLint  mRoundLocColor;
+    // Frosted-glass shader (OSK panel) + framebuffer snapshot texture
+    GLuint mGlassProgram;
+    GLint  mGlassLocPosition;
+    GLint  mGlassLocLocal;
+    GLint  mGlassLocTexCoord;
+    GLint  mGlassLocRotation;
+    GLint  mGlassLocHalf;
+    GLint  mGlassLocRadius;
+    GLint  mGlassLocTexture;
+    GLint  mGlassLocTexel;
+    GLint  mGlassLocTint;
+    GLint  mGlassLocAlpha;
+    GLuint mGlassTex;
+    int    mGlassTexW, mGlassTexH;
+    // Dual-Kawase downsample blur for the frosted panel: render the full-res
+    // capture down through box-filter passes into progressively smaller FBO
+    // textures, then upsample with a tent filter in the panel pass. Every source
+    // pixel contributes (unlike sparse single-pass taps), so the result is a
+    // smooth aero-glass blur instead of a pixelated/ghosted one.
+    GLuint mGlassDownProgram      = 0;
+    GLint  mGlassDownLocPosition  = -1;
+    GLint  mGlassDownLocTexCoord  = -1;
+    GLint  mGlassDownLocTexture   = -1;
+    GLint  mGlassDownLocHalfpixel = -1;
+    GLint  mGlassDownLocOffset    = -1;
+    GLuint mGlassFbo[4]      = {0, 0, 0, 0};   // 4 down levels: 1/2..1/16
+    GLuint mGlassDownTex[4]  = {0, 0, 0, 0};
+    int    mGlassDownW[4]    = {0, 0, 0, 0};
+    int    mGlassDownH[4]    = {0, 0, 0, 0};
+    // Separable Gaussian (H then V) run on the 1/8 downsample, ping-ponging
+    // between two scratch buffers so we never sample and render the same texture
+    // in one pass. mGlassGaussTex[1] is the final blur source.
+    GLuint mGlassGaussProgram     = 0;
+    GLint  mGlassGaussLocPosition = -1;
+    GLint  mGlassGaussLocTexCoord = -1;
+    GLint  mGlassGaussLocTexture  = -1;
+    GLint  mGlassGaussLocDir      = -1;
+    GLuint mGlassGaussFbo[2]      = {0, 0};
+    GLuint mGlassGaussTex[2]      = {0, 0};
+    int    mGlassGaussW[2]        = {0, 0};
+    int    mGlassGaussH[2]        = {0, 0};
+    GLuint mGlassBlurTex     = 0;   // final blurred texture sampled by the panel
+    int    mGlassBlurW       = 0;
+    int    mGlassBlurH       = 0;
+    void   blurGlassChain();        // run the downsample passes after captureGlass
+    // OSK rounded-rect + frosted-glass primitives (NanoMenuRender.cpp)
+    void drawRoundedRect(float x, float y, float w, float h, float radius,
+                         float r, float g, float b, float a);
+    void drawTriangle(float x0, float y0, float x1, float y1, float x2, float y2,
+                      float r, float g, float b, float a);
+    // Snapshot the framebuffer region [x,y,w,h] (logical px) into mGlassTex.
+    // Returns false if capture is unavailable (e.g. active DRM GL rotation).
+    bool captureGlass(float x, float y, float w, float h);
+    // Draw a frosted-glass panel over the captured region (call captureGlass
+    // first with the same rect). tint rgb darkens; tintA = panel opacity.
+    void drawFrostedGlass(float x, float y, float w, float h, float radius,
+                          float tr, float tg, float tb, float tintA, float fade);
 
     // Setup wizard state
     bool mSetupWizardActive;

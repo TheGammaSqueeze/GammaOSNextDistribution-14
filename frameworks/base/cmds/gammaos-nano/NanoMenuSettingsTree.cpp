@@ -959,6 +959,7 @@ void NanoMenu::handleSettingsTreeSelect() {
         });
         mOskQuery = cur;
         mOskPlaintext = true;
+        mOsk.caret = (int)mOskQuery.size();  // caret at end of the pre-seeded text
         break;
     }
     case SettingNodeType::kScreen:

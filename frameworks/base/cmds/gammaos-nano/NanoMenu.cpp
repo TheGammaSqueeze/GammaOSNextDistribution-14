@@ -145,7 +145,7 @@ NanoMenu::NanoMenu()
       mBtDiscoveryInProgress(false), mBtListDirty(false),
       mBtStatusMsgUntilMs(0),
       mOskPasswordMode(false),
-      mOskActive(false), mOskShift(true), mOskCursorX(0), mOskCursorY(0),
+      mOskActive(false),
       mSearchSelectedIndex(0), mSearchActive(false),
       mFtLib(nullptr),
       mFtNumFaces(0),

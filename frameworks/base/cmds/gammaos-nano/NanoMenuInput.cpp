@@ -290,9 +290,7 @@ void NanoMenu::handleBack() {
 
 void NanoMenu::handleSelect() {
     if (mOskActive) {
-        char ch = kOskLayout[mOskCursorY][mOskCursorX];
-        if (!mOskShift && ch >= 'A' && ch <= 'Z') ch += 32;
-        oskType(ch);
+        oskAPress();
         return;
     }
     if (mMenuState == MENU_WIFI)     { handleWifiScreenSelect();   return; }
@@ -461,7 +459,7 @@ void NanoMenu::handleUp() {
         handleSetupUp(); return;
     }
     if (mOskActive) {
-        if (mOskCursorY > 0) mOskCursorY--;
+        oskMoveCursor(NavDir::Up);
         return;
     }
     if (mMenuState == MENU_WIFI)     { handleWifiScreenUp();     return; }
@@ -512,7 +510,7 @@ void NanoMenu::handleDown() {
         handleSetupDown(); return;
     }
     if (mOskActive) {
-        if (mOskCursorY < kOskRows - 1) mOskCursorY++;
+        oskMoveCursor(NavDir::Down);
         return;
     }
     if (mMenuState == MENU_WIFI)     { handleWifiScreenDown();     return; }
@@ -673,8 +671,9 @@ void NanoMenu::pollInput() {
             }
             // Track SELECT button state; in XMB mode, press refreshes game lists
             if (ev.type == EV_KEY && ev.code == BTN_SELECT) {
-                if (ev.value == 1 && mXmbMode) {
-                    forceRescanAllSystems();
+                if (ev.value == 1) {
+                    if (mOskActive) oskCycleLanguage(1);   // Select cycles language
+                    else if (mXmbMode) forceRescanAllSystems();
                 }
                 mSelectHeld = (ev.value != 0);
             }
@@ -762,6 +761,7 @@ void NanoMenu::pollInput() {
                 case KEY_DOWN:  navRelease(NavDir::Down);  break;
                 case KEY_LEFT:  navRelease(NavDir::Left);  break;
                 case KEY_RIGHT: navRelease(NavDir::Right); break;
+                case BTN_SOUTH: if (mOskActive) oskARelease(); break;
                 default: break;
                 }
             }
@@ -868,8 +868,7 @@ void NanoMenu::pollInput() {
                         break;
                     case BTN_TL: case KEY_L:
                         if (mOskActive) {
-                            mOskShift = !mOskShift;
-                            mDisplayDirty = true;
+                            oskToggleShift();
                             break;
                         }
                         // Shut any open Settings sub-screen before leaving XMB
@@ -888,6 +887,10 @@ void NanoMenu::pollInput() {
                         ALOGD("XMB Mode: %s", mXmbMode ? "ON" : "OFF");
                         break;
                     case BTN_TR: case KEY_R:
+                        if (mOskActive) {
+                            oskToggleSym();   // R1 toggles ABC <-> SYM inside the OSK
+                            break;
+                        }
                         mQuickResumeEnabled = !mQuickResumeEnabled;
                         property_set("persist.gammaos.nano.quick_resume",
                                      mQuickResumeEnabled ? "1" : "0");

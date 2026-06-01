@@ -183,9 +183,7 @@ void NanoMenu::renderSettingsTree() {
              mHeight - FONT_CHAR_H * footScale - 10.0f * sf,
              footScale, 0.50f, 0.50f, 0.55f, 0.85f);
 
-    if (mOskActive && !mOskPasswordMode) {
-        renderPasswordPromptOverlay();
-    }
+    // OSK (with its inline preview line) is drawn last in render() by renderOsk().
 }
 
 } // namespace android

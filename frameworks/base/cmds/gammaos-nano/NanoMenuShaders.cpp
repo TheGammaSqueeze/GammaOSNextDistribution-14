@@ -377,6 +377,151 @@ const int kNumActiveEffects = sizeof(kActiveEffects) / sizeof(kActiveEffects[0])
 int sActiveEffectIdx = 0;
 
 // ---------------------------------------------------------------------------
+// Rounded-rect solid shader (OSK keys). aLocal carries the centered pixel
+// coordinate so the fragment evaluates a rounded-box SDF for crisp,
+// resolution-independent corners with 1px anti-aliasing.
+const char ROUND_VERTEX_SHADER[] = R"(
+    attribute vec2 aPosition;
+    attribute vec2 aLocal;
+    uniform mat2 uRotation;
+    varying vec2 vLocal;
+    void main() {
+        gl_Position = vec4(uRotation * aPosition, 0.0, 1.0);
+        vLocal = aLocal;
+    }
+)";
+const char ROUND_FRAGMENT_SHADER[] = R"(
+    precision mediump float;
+    varying vec2 vLocal;
+    uniform vec2 uHalf;
+    uniform float uRadius;
+    uniform vec4 uColor;
+    void main() {
+        vec2 d = abs(vLocal) - (uHalf - vec2(uRadius));
+        float dist = length(max(d, 0.0)) + min(max(d.x, d.y), 0.0) - uRadius;
+        float a = clamp(0.5 - dist, 0.0, 1.0);
+        if (a <= 0.0) discard;
+        gl_FragColor = vec4(uColor.rgb, uColor.a * a);
+    }
+)";
+
+// Frosted-glass panel shader (final pass of the dual-Kawase blur). Samples the
+// already-downsampled blur texture (uTex, produced by blurGlassChain) with an
+// 8-tap Kawase tent upsample, darkens it (uTint), and clips to a rounded rect.
+// The heavy smoothing happens in the downsample passes; this pass just spreads
+// and bilinearly upscales the low-res result, which is what gives the smooth
+// aero-glass look instead of the sparse-tap pixelation of a single full-res pass.
+const char GLASS_VERTEX_SHADER[] = R"(
+    attribute vec2 aPosition;
+    attribute vec2 aLocal;
+    attribute vec2 aTexCoord;
+    uniform mat2 uRotation;
+    varying vec2 vLocal;
+    varying vec2 vTex;
+    void main() {
+        gl_Position = vec4(uRotation * aPosition, 0.0, 1.0);
+        vLocal = aLocal;
+        vTex = aTexCoord;
+    }
+)";
+const char GLASS_FRAGMENT_SHADER[] = R"(
+    precision mediump float;
+    varying vec2 vLocal;
+    varying vec2 vTex;
+    uniform vec2 uHalf;
+    uniform float uRadius;
+    uniform sampler2D uTex;
+    uniform vec2 uTexel;   // blur step (texcoords)
+    uniform vec4 uTint;    // rgb = darken multiply, a = panel opacity
+    uniform float uAlpha;  // fade in/out
+    void main() {
+        vec2 d = abs(vLocal) - (uHalf - vec2(uRadius));
+        float dist = length(max(d, 0.0)) + min(max(d.x, d.y), 0.0) - uRadius;
+        float ra = clamp(0.5 - dist, 0.0, 1.0);
+        if (ra <= 0.0) discard;
+        // 8-tap Kawase tent upsample of the pre-blurred low-res texture. uTexel
+        // is one halfpixel*spread in that texture's texcoords; corner taps are
+        // weighted x2 so the kernel is a smooth tent, not a flat box.
+        vec2 o = uTexel;
+        vec3 c  = texture2D(uTex, vTex + vec2(-o.x * 2.0, 0.0)).rgb;
+        c += texture2D(uTex, vTex + vec2(-o.x,  o.y)).rgb * 2.0;
+        c += texture2D(uTex, vTex + vec2( 0.0,  o.y * 2.0)).rgb;
+        c += texture2D(uTex, vTex + vec2( o.x,  o.y)).rgb * 2.0;
+        c += texture2D(uTex, vTex + vec2( o.x * 2.0, 0.0)).rgb;
+        c += texture2D(uTex, vTex + vec2( o.x, -o.y)).rgb * 2.0;
+        c += texture2D(uTex, vTex + vec2( 0.0, -o.y * 2.0)).rgb;
+        c += texture2D(uTex, vTex + vec2(-o.x, -o.y)).rgb * 2.0;
+        c /= 12.0;
+        c *= uTint.rgb;
+        gl_FragColor = vec4(c, uTint.a * uAlpha * ra);
+    }
+)";
+
+// Dual-Kawase DOWNSAMPLE pass. Renders a full-viewport quad into a half-size
+// FBO texture, box-averaging a center tap (x4) plus four diagonal taps. Chaining
+// these halves the resolution each time while every source pixel contributes,
+// which is what produces a genuinely smooth (non-pixelated) blur.
+const char DOWNSAMPLE_VERTEX_SHADER[] = R"(
+    attribute vec2 aPosition;
+    attribute vec2 aTexCoord;
+    varying vec2 vTex;
+    void main() {
+        gl_Position = vec4(aPosition, 0.0, 1.0);
+        vTex = aTexCoord;
+    }
+)";
+const char DOWNSAMPLE_FRAGMENT_SHADER[] = R"(
+    precision mediump float;
+    varying vec2 vTex;
+    uniform sampler2D uTex;
+    uniform vec2 uHalfpixel;   // 1/srcW, 1/srcH
+    uniform float uOffset;
+    void main() {
+        vec2 o = uHalfpixel * uOffset;
+        vec3 sum = texture2D(uTex, vTex).rgb * 4.0;
+        sum += texture2D(uTex, vTex - o).rgb;
+        sum += texture2D(uTex, vTex + o).rgb;
+        sum += texture2D(uTex, vTex + vec2(o.x, -o.y)).rgb;
+        sum += texture2D(uTex, vTex - vec2(o.x, -o.y)).rgb;
+        gl_FragColor = vec4(sum / 8.0, 1.0);
+    }
+)";
+
+// Separable Gaussian program. Run TWICE per frame on the 1/8-res downsample:
+// once horizontal (uDir = 1/w,0), once vertical (uDir = 0,1/h). A 9-tap Gaussian
+// (sigma = 3 texels, taps -4..+4) folded into 5 bilinear fetches via the
+// linear-sampling weight/offset trick, so it costs 5 texture2D calls per pass
+// but covers a 9-texel kernel. A true H+V Gaussian has no triangular side lobes
+// (the failure mode that ghosts sparse Kawase taps), so on the already
+// band-limited 1/8 image it gives a heavy, perfectly smooth frost. mediump-safe,
+// ES2-legal (no textureLod). Weights are renormalized to sum to EXACTLY 1.0
+// (energy-preserving, no darkening): 0.153170 + 2*0.267542 + 2*0.155873 = 1.0.
+const char GAUSS_VERTEX_SHADER[] = R"(
+    attribute vec2 aPosition;
+    attribute vec2 aTexCoord;
+    varying vec2 vTex;
+    void main() {
+        gl_Position = vec4(aPosition, 0.0, 1.0);
+        vTex = aTexCoord;
+    }
+)";
+const char GAUSS_FRAGMENT_SHADER[] = R"(
+    precision mediump float;
+    varying vec2 vTex;
+    uniform sampler2D uTex;
+    uniform vec2 uDir;     // (1/srcW, 0) for H pass, (0, 1/srcH) for V pass
+    void main() {
+        vec2 o1 = uDir * 1.458430;
+        vec2 o2 = uDir * 3.403985;
+        vec3 c = texture2D(uTex, vTex).rgb * 0.153170;
+        c += texture2D(uTex, vTex + o1).rgb * 0.267542;
+        c += texture2D(uTex, vTex - o1).rgb * 0.267542;
+        c += texture2D(uTex, vTex + o2).rgb * 0.155873;
+        c += texture2D(uTex, vTex - o2).rgb * 0.155873;
+        gl_FragColor = vec4(c, 1.0);
+    }
+)";
+
 // Shader program initialization
 // ---------------------------------------------------------------------------
 
@@ -397,6 +542,67 @@ void NanoMenu::initShaders() {
         mTextLocColor    = glGetAttribLocation(mTextProgram, "aColor");
         mTextLocTexture  = glGetUniformLocation(mTextProgram, "uTexture");
         mTextLocRotation = glGetUniformLocation(mTextProgram, "uRotation");
+        glDeleteShader(vs); glDeleteShader(fs);
+    }
+    // Rounded-rect shader (OSK keys).
+    {   GLuint vs = compileShader(GL_VERTEX_SHADER, ROUND_VERTEX_SHADER);
+        GLuint fs = compileShader(GL_FRAGMENT_SHADER, ROUND_FRAGMENT_SHADER);
+        mRoundProgram = linkProgram(vs, fs);
+        mRoundLocPosition = glGetAttribLocation(mRoundProgram, "aPosition");
+        mRoundLocLocal    = glGetAttribLocation(mRoundProgram, "aLocal");
+        mRoundLocRotation = glGetUniformLocation(mRoundProgram, "uRotation");
+        mRoundLocHalf     = glGetUniformLocation(mRoundProgram, "uHalf");
+        mRoundLocRadius   = glGetUniformLocation(mRoundProgram, "uRadius");
+        mRoundLocColor    = glGetUniformLocation(mRoundProgram, "uColor");
+        glDeleteShader(vs); glDeleteShader(fs);
+    }
+    // Frosted-glass shader (OSK panel) + its framebuffer-snapshot texture.
+    {   GLuint vs = compileShader(GL_VERTEX_SHADER, GLASS_VERTEX_SHADER);
+        GLuint fs = compileShader(GL_FRAGMENT_SHADER, GLASS_FRAGMENT_SHADER);
+        mGlassProgram = linkProgram(vs, fs);
+        mGlassLocPosition   = glGetAttribLocation(mGlassProgram, "aPosition");
+        mGlassLocLocal      = glGetAttribLocation(mGlassProgram, "aLocal");
+        mGlassLocTexCoord   = glGetAttribLocation(mGlassProgram, "aTexCoord");
+        mGlassLocRotation   = glGetUniformLocation(mGlassProgram, "uRotation");
+        mGlassLocHalf       = glGetUniformLocation(mGlassProgram, "uHalf");
+        mGlassLocRadius     = glGetUniformLocation(mGlassProgram, "uRadius");
+        mGlassLocTexture    = glGetUniformLocation(mGlassProgram, "uTex");
+        mGlassLocTexel      = glGetUniformLocation(mGlassProgram, "uTexel");
+        mGlassLocTint       = glGetUniformLocation(mGlassProgram, "uTint");
+        mGlassLocAlpha      = glGetUniformLocation(mGlassProgram, "uAlpha");
+        glDeleteShader(vs); glDeleteShader(fs);
+        glGenTextures(1, &mGlassTex);
+        glBindTexture(GL_TEXTURE_2D, mGlassTex);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        mGlassTexW = mGlassTexH = 0;
+    }
+    // Dual-Kawase downsample program (feeds the frosted-glass panel pass). The
+    // FBO textures themselves are allocated lazily in blurGlassChain() once the
+    // capture size is known.
+    {   GLuint vs = compileShader(GL_VERTEX_SHADER, DOWNSAMPLE_VERTEX_SHADER);
+        GLuint fs = compileShader(GL_FRAGMENT_SHADER, DOWNSAMPLE_FRAGMENT_SHADER);
+        mGlassDownProgram = linkProgram(vs, fs);
+        mGlassDownLocPosition  = glGetAttribLocation(mGlassDownProgram, "aPosition");
+        mGlassDownLocTexCoord  = glGetAttribLocation(mGlassDownProgram, "aTexCoord");
+        mGlassDownLocTexture   = glGetUniformLocation(mGlassDownProgram, "uTex");
+        mGlassDownLocHalfpixel = glGetUniformLocation(mGlassDownProgram, "uHalfpixel");
+        mGlassDownLocOffset    = glGetUniformLocation(mGlassDownProgram, "uOffset");
+        glDeleteShader(vs); glDeleteShader(fs);
+    }
+    // Separable Gaussian program (H + V passes on the 1/8 downsample). Sits
+    // ABOVE the sDrasticQrFastPath guard, like mGlassDownProgram, because the
+    // OSK panel can appear over the drastic QR path too. If this ever fails to
+    // compile (program == 0), blurGlassChain falls back to the box pyramid.
+    {   GLuint vs = compileShader(GL_VERTEX_SHADER, GAUSS_VERTEX_SHADER);
+        GLuint fs = compileShader(GL_FRAGMENT_SHADER, GAUSS_FRAGMENT_SHADER);
+        mGlassGaussProgram = linkProgram(vs, fs);
+        mGlassGaussLocPosition = glGetAttribLocation(mGlassGaussProgram, "aPosition");
+        mGlassGaussLocTexCoord = glGetAttribLocation(mGlassGaussProgram, "aTexCoord");
+        mGlassGaussLocTexture  = glGetUniformLocation(mGlassGaussProgram, "uTex");
+        mGlassGaussLocDir      = glGetUniformLocation(mGlassGaussProgram, "uDir");
         glDeleteShader(vs); glDeleteShader(fs);
     }
     // GammaOS: Drastic QR fast-path skips the particle/fx/XMB shaders

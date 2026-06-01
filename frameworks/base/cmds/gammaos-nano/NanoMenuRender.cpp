@@ -324,6 +324,277 @@ void NanoMenu::drawQuad(float x, float y, float w, float h,
     glDisableVertexAttribArray(mLocPosition);
 }
 
+// Rounded-rect with a fragment-shader SDF (crisp corners at any scale). Vertex
+// order matches drawQuad: BL, BR, TR, TR, TL, BL; aLocal is the centered pixel
+// coordinate so the SDF abs() handles all four corners symmetrically.
+void NanoMenu::drawRoundedRect(float x, float y, float w, float h, float radius,
+                               float r, float g, float b, float a) {
+    float x0 = (x / mWidth) * 2.0f - 1.0f;
+    float y0 = 1.0f - ((y + h) / mHeight) * 2.0f;
+    float x1 = ((x + w) / mWidth) * 2.0f - 1.0f;
+    float y1 = 1.0f - (y / mHeight) * 2.0f;
+    GLfloat verts[] = { x0,y0, x1,y0, x1,y1, x1,y1, x0,y1, x0,y0 };
+    float hw = w * 0.5f, hh = h * 0.5f;
+    GLfloat local[] = { -hw,hh, hw,hh, hw,-hh, hw,-hh, -hw,-hh, -hw,hh };
+    float mh = (hw < hh ? hw : hh);
+    if (radius > mh) radius = mh;
+    if (radius < 0.0f) radius = 0.0f;
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glUseProgram(mRoundProgram);
+    glUniformMatrix2fv(mRoundLocRotation, 1, GL_FALSE, sDrmRotMat);
+    glUniform2f(mRoundLocHalf, hw, hh);
+    glUniform1f(mRoundLocRadius, radius);
+    glUniform4f(mRoundLocColor, r, g, b, a);
+    glVertexAttribPointer(mRoundLocPosition, 2, GL_FLOAT, GL_FALSE, 0, verts);
+    glEnableVertexAttribArray(mRoundLocPosition);
+    glVertexAttribPointer(mRoundLocLocal, 2, GL_FLOAT, GL_FALSE, 0, local);
+    glEnableVertexAttribArray(mRoundLocLocal);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    glDisableVertexAttribArray(mRoundLocPosition);
+    glDisableVertexAttribArray(mRoundLocLocal);
+}
+
+// Solid-color triangle (3 verts) using the flat-color program. Relies on the
+// frame's uploadRotationMatrices having set uRotation on mShaderProgram, same
+// as drawQuad. Used to compose the backspace icon.
+void NanoMenu::drawTriangle(float x0, float y0, float x1, float y1,
+                            float x2, float y2,
+                            float r, float g, float b, float a) {
+    GLfloat verts[] = {
+        (x0 / mWidth) * 2.0f - 1.0f, 1.0f - (y0 / mHeight) * 2.0f,
+        (x1 / mWidth) * 2.0f - 1.0f, 1.0f - (y1 / mHeight) * 2.0f,
+        (x2 / mWidth) * 2.0f - 1.0f, 1.0f - (y2 / mHeight) * 2.0f,
+    };
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glUseProgram(mShaderProgram);
+    glUniform4f(mLocColor, r, g, b, a);
+    glVertexAttribPointer(mLocPosition, 2, GL_FLOAT, GL_FALSE, 0, verts);
+    glEnableVertexAttribArray(mLocPosition);
+    glDrawArrays(GL_TRIANGLES, 0, 3);
+    glDisableVertexAttribArray(mLocPosition);
+}
+
+// Snapshot the WHOLE framebuffer into mGlassTex, then blur it. We capture the
+// full viewport (not just the panel rect) so this is rotation/flip agnostic:
+// under DRM rotation the panel-rect-to-FB mapping is rotated and a per-region
+// copy grabbed the wrong pixels (the old code just bailed via sDrmGlRotation,
+// which is why the frosted glass never appeared on rotated panels like the
+// 180-degree Brick). drawFrostedGlass maps each panel vertex into FB-NDC via
+// sDrmRotMat so it samples the correct screen region behind the panel.
+bool NanoMenu::captureGlass(float /*x*/, float /*y*/, float /*w*/, float /*h*/) {
+    GLint vp[4] = {0, 0, 0, 0};
+    glGetIntegerv(GL_VIEWPORT, vp);
+    int fbX = vp[0], fbY = vp[1], fbW = vp[2], fbH = vp[3];
+    if (fbW <= 0 || fbH <= 0) return false;
+    glBindTexture(GL_TEXTURE_2D, mGlassTex);
+    if (mGlassTexW != fbW || mGlassTexH != fbH) {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, fbW, fbH, 0,
+                     GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+        mGlassTexW = fbW; mGlassTexH = fbH;
+    }
+    glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, fbX, fbY, fbW, fbH);
+    // Downsample + separable-Gaussian blur the captured screen.
+    blurGlassChain();
+    return true;
+}
+
+// Render the full-screen capture (mGlassTex) down through THREE box-filter
+// passes (1/2 -> 1/4 -> 1/8) into mGlassDownTex[0..2], then run a TRUE separable
+// Gaussian (horizontal then vertical) twice on the 1/8 texture using the two
+// scratch buffers mGlassGaussTex[0]/[1]. Leaves the final smooth result in
+// mGlassBlurTex / mGlassBlurW/H for drawFrostedGlass to tent-upsample. The 1/8
+// downsample plus the side-lobe-free Gaussian collapse the background into
+// smooth blurred color with no readable text.
+// On any failure (no program, FBO
+// incomplete) it falls back to the smallest level it reached (or the full-res
+// capture) so the panel still draws. Saves/restores FBO binding, viewport, and
+// blend; no pass ever samples the texture it renders to; guards tiny captures.
+void NanoMenu::blurGlassChain() {
+    mGlassBlurTex = mGlassTex;
+    mGlassBlurW = mGlassTexW;
+    mGlassBlurH = mGlassTexH;
+    if (mGlassDownProgram == 0 || mGlassTexW < 8 || mGlassTexH < 8) return;
+
+    GLint prevFbo = 0;
+    glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prevFbo);
+    GLint vp[4];
+    glGetIntegerv(GL_VIEWPORT, vp);
+    GLboolean wasBlend = glIsEnabled(GL_BLEND);
+    glDisable(GL_BLEND);
+
+    static const GLfloat quad[]  = { -1,-1, 1,-1, 1,1, 1,1, -1,1, -1,-1 };
+    static const GLfloat quadT[] = {  0, 0, 1, 0, 1,1, 1,1,  0,1,  0, 0 };
+
+    // (Re)allocate an RGBA FBO texture of size (dw,dh). NPOT + GL_LINEAR +
+    // GL_CLAMP_TO_EDGE + no mipmaps (valid in ES2). Returns false if the FBO is
+    // incomplete after attaching.
+    auto ensureFbo = [&](GLuint* tex, GLuint* fbo, int* tw, int* th,
+                         int dw, int dh) -> bool {
+        if (*tex == 0 || *tw != dw || *th != dh) {
+            if (*tex == 0) glGenTextures(1, tex);
+            glBindTexture(GL_TEXTURE_2D, *tex);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, dw, dh, 0,
+                         GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+            *tw = dw; *th = dh;
+        }
+        if (*fbo == 0) glGenFramebuffers(1, fbo);
+        glBindFramebuffer(GL_FRAMEBUFFER, *fbo);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+                               GL_TEXTURE_2D, *tex, 0);
+        return glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE;
+    };
+
+    // ---- Stage 1: 3-level box downsample pyramid (1/2, 1/4, 1/8) ----
+    glUseProgram(mGlassDownProgram);
+    glActiveTexture(GL_TEXTURE0);
+    glUniform1i(mGlassDownLocTexture, 0);
+    glUniform1f(mGlassDownLocOffset, 1.0f);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    const int DOWN_LEVELS = 3;             // -> ~1/8 resolution
+    int   srcW = mGlassTexW, srcH = mGlassTexH;
+    GLuint srcTex = mGlassTex;
+    bool   pyramidOk = true;
+    for (int i = 0; i < DOWN_LEVELS; i++) {
+        int dw = srcW / 2; if (dw < 1) dw = 1;
+        int dh = srcH / 2; if (dh < 1) dh = 1;
+        if (!ensureFbo(&mGlassDownTex[i], &mGlassFbo[i],
+                       &mGlassDownW[i], &mGlassDownH[i], dw, dh)) {
+            pyramidOk = false;
+            break;                         // keep whatever level we reached
+        }
+        glViewport(0, 0, dw, dh);
+        glBindTexture(GL_TEXTURE_2D, srcTex);
+        glUniform2f(mGlassDownLocHalfpixel, 1.0f / (float)srcW, 1.0f / (float)srcH);
+        glVertexAttribPointer(mGlassDownLocPosition, 2, GL_FLOAT, GL_FALSE, 0, quad);
+        glEnableVertexAttribArray(mGlassDownLocPosition);
+        glVertexAttribPointer(mGlassDownLocTexCoord, 2, GL_FLOAT, GL_FALSE, 0, quadT);
+        glEnableVertexAttribArray(mGlassDownLocTexCoord);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+        glDisableVertexAttribArray(mGlassDownLocPosition);
+        glDisableVertexAttribArray(mGlassDownLocTexCoord);
+        srcTex = mGlassDownTex[i]; srcW = dw; srcH = dh;
+        mGlassBlurTex = srcTex; mGlassBlurW = srcW; mGlassBlurH = srcH;
+    }
+
+    // ---- Stage 2: separable Gaussian (H then V), run GAUSS_ITERS times ----
+    // Each H+V iteration multiplies the effective sigma by ~sqrt(2); two passes
+    // give a wide, smooth frost that erases even bright large title text. The
+    // >=2 size check prevents 1/srcH div issues / degenerate 1px gauss textures
+    // on odd captures (falls back cleanly to the box-pyramid result). Both
+    // ping-pong buffers are allocated up front so the loop just swaps targets.
+    bool gaussOk = (mGlassGaussProgram != 0 && pyramidOk && srcW >= 2 && srcH >= 2);
+    if (gaussOk)
+        gaussOk = ensureFbo(&mGlassGaussTex[0], &mGlassGaussFbo[0],
+                            &mGlassGaussW[0], &mGlassGaussH[0], srcW, srcH);
+    if (gaussOk)
+        gaussOk = ensureFbo(&mGlassGaussTex[1], &mGlassGaussFbo[1],
+                            &mGlassGaussW[1], &mGlassGaussH[1], srcW, srcH);
+    if (gaussOk) {
+        glUseProgram(mGlassGaussProgram);
+        glActiveTexture(GL_TEXTURE0);
+        glUniform1i(mGlassGaussLocTexture, 0);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glVertexAttribPointer(mGlassGaussLocPosition, 2, GL_FLOAT, GL_FALSE, 0, quad);
+        glEnableVertexAttribArray(mGlassGaussLocPosition);
+        glVertexAttribPointer(mGlassGaussLocTexCoord, 2, GL_FLOAT, GL_FALSE, 0, quadT);
+        glEnableVertexAttribArray(mGlassGaussLocTexCoord);
+
+        const int GAUSS_ITERS = 2;
+        GLuint gsrc = srcTex;                 // first read = pyramid result
+        for (int it = 0; it < GAUSS_ITERS; it++) {
+            // Horizontal: gsrc -> gauss[0].
+            glBindFramebuffer(GL_FRAMEBUFFER, mGlassGaussFbo[0]);
+            glViewport(0, 0, srcW, srcH);
+            glBindTexture(GL_TEXTURE_2D, gsrc);
+            glUniform2f(mGlassGaussLocDir, 1.0f / (float)srcW, 0.0f);
+            glDrawArrays(GL_TRIANGLES, 0, 6);
+            // Vertical: gauss[0] -> gauss[1] (ping-pong, never read==write).
+            glBindFramebuffer(GL_FRAMEBUFFER, mGlassGaussFbo[1]);
+            glViewport(0, 0, srcW, srcH);
+            glBindTexture(GL_TEXTURE_2D, mGlassGaussTex[0]);
+            glUniform2f(mGlassGaussLocDir, 0.0f, 1.0f / (float)srcH);
+            glDrawArrays(GL_TRIANGLES, 0, 6);
+            gsrc = mGlassGaussTex[1];         // next iteration blurs the result
+        }
+        glDisableVertexAttribArray(mGlassGaussLocPosition);
+        glDisableVertexAttribArray(mGlassGaussLocTexCoord);
+        mGlassBlurTex = mGlassGaussTex[1];
+        mGlassBlurW = srcW; mGlassBlurH = srcH;
+    }
+
+    glBindFramebuffer(GL_FRAMEBUFFER, prevFbo);
+    glViewport(vp[0], vp[1], vp[2], vp[3]);
+    if (wasBlend) glEnable(GL_BLEND);
+}
+
+// Draw the frosted panel sampling mGlassTex (captured by captureGlass with the
+// same rect). texcoords are v-flipped because the FB snapshot is y-up.
+void NanoMenu::drawFrostedGlass(float x, float y, float w, float h, float radius,
+                                float tr, float tg, float tb, float tintA, float fade) {
+    float x0 = (x / mWidth) * 2.0f - 1.0f;
+    float y0 = 1.0f - ((y + h) / mHeight) * 2.0f;
+    float x1 = ((x + w) / mWidth) * 2.0f - 1.0f;
+    float y1 = 1.0f - (y / mHeight) * 2.0f;
+    GLfloat verts[] = { x0,y0, x1,y0, x1,y1, x1,y1, x0,y1, x0,y0 };
+    float hw = w * 0.5f, hh = h * 0.5f;
+    GLfloat local[] = { -hw,hh, hw,hh, hw,-hh, hw,-hh, -hw,-hh, -hw,hh };
+    // Texcoords: map each panel vertex through the SAME transform the vertex
+    // shader applies (uRotation = sDrmRotMat), into FB-NDC, then to [0,1]. This
+    // samples the full-screen blur texture at exactly the screen pixels behind
+    // the panel for any rotation/flip (identity matrix => the usual 0..1 map).
+    // sDrmRotMat is column-major: (rx,ry) = (m0*lx+m2*ly, m1*lx+m3*ly).
+    auto fbTex = [](float lx, float ly, float& tu, float& tv) {
+        float rx = sDrmRotMat[0] * lx + sDrmRotMat[2] * ly;
+        float ry = sDrmRotMat[1] * lx + sDrmRotMat[3] * ly;
+        tu = rx * 0.5f + 0.5f;
+        tv = ry * 0.5f + 0.5f;
+    };
+    GLfloat tex[12];
+    fbTex(x0, y0, tex[0],  tex[1]);
+    fbTex(x1, y0, tex[2],  tex[3]);
+    fbTex(x1, y1, tex[4],  tex[5]);
+    fbTex(x1, y1, tex[6],  tex[7]);
+    fbTex(x0, y1, tex[8],  tex[9]);
+    fbTex(x0, y0, tex[10], tex[11]);
+    float mh = (hw < hh ? hw : hh);
+    if (radius > mh) radius = mh;
+    if (radius < 0.0f) radius = 0.0f;
+    // Tent-upsample spread, in texels of the 1/8-res Gaussian-blurred texture.
+    // The heavy frost already comes from the 1/8 downsample + separable Gaussian;
+    // this is just a ~1-texel tent for smooth bilinear magnification without
+    // over-spreading past the rounded panel edge.
+    int   bw = (mGlassBlurW > 0) ? mGlassBlurW : mGlassTexW;
+    int   bh = (mGlassBlurH > 0) ? mGlassBlurH : mGlassTexH;
+    float texelX = (bw > 0) ? 1.0f / (float)bw : 0.02f;
+    float texelY = (bh > 0) ? 1.0f / (float)bh : 0.02f;
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glUseProgram(mGlassProgram);
+    glUniformMatrix2fv(mGlassLocRotation, 1, GL_FALSE, sDrmRotMat);
+    glUniform2f(mGlassLocHalf, hw, hh);
+    glUniform1f(mGlassLocRadius, radius);
+    glUniform2f(mGlassLocTexel, texelX, texelY);
+    glUniform4f(mGlassLocTint, tr, tg, tb, tintA);
+    glUniform1f(mGlassLocAlpha, fade);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, (mGlassBlurTex != 0) ? mGlassBlurTex : mGlassTex);
+    glUniform1i(mGlassLocTexture, 0);
+    glVertexAttribPointer(mGlassLocPosition, 2, GL_FLOAT, GL_FALSE, 0, verts);
+    glEnableVertexAttribArray(mGlassLocPosition);
+    glVertexAttribPointer(mGlassLocLocal, 2, GL_FLOAT, GL_FALSE, 0, local);
+    glEnableVertexAttribArray(mGlassLocLocal);
+    glVertexAttribPointer(mGlassLocTexCoord, 2, GL_FLOAT, GL_FALSE, 0, tex);
+    glEnableVertexAttribArray(mGlassLocTexCoord);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    glDisableVertexAttribArray(mGlassLocPosition);
+    glDisableVertexAttribArray(mGlassLocLocal);
+    glDisableVertexAttribArray(mGlassLocTexCoord);
+}
+
 // ---------------------------------------------------------------------------
 // FreeType font initialization
 // ---------------------------------------------------------------------------
@@ -339,6 +610,8 @@ void NanoMenu::initFonts() {
         "/system/fonts/DroidSans.ttf",
         "/system/fonts/NotoSansCJK-Regular.ttc",
         "/system/fonts/NotoNaskhArabic-Regular.ttf",
+        "/system/fonts/NotoSansThai-Regular.ttf",
+        "/system/fonts/NotoSansHebrew-Regular.ttf",
         "/system/fonts/NotoColorEmoji.ttf",
     };
     for (const char* path : fontPaths) {

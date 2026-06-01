@@ -1062,25 +1062,9 @@ void NanoMenu::handleBtScreenSelect() {
 // OSK password prompt
 // ---------------------------------------------------------------------------
 
-void NanoMenu::openOskForPassword(const std::string& prompt,
-                                  std::function<void(const std::string&)> onSubmit) {
-    mOskPasswordMode = true;
-    mOskPlaintext = false;
-    mOskPasswordPrompt = prompt;
-    mOskPasswordCallback = std::move(onSubmit);
-    mOskQuery.clear();
-    mOskCursorX = 0;
-    mOskCursorY = 0;
-    mOskShift = true; // start uppercase; L1 toggles to lowercase
-    mOskActive = true;
-    mDisplayDirty = true;
-}
-
-std::string NanoMenu::maskPassword(const std::string& s) {
-    std::string out;
-    out.resize(s.size(), '*');
-    return out;
-}
+// openOskForPassword + maskPassword now live in NanoOsk.cpp (the Leanback-
+// derived multi-script keyboard). Callers that pre-seed mOskQuery (the settings
+// text editor) must also set mOsk.caret = mOskQuery.size() after the call.
 
 // ---------------------------------------------------------------------------
 // Rendering: Settings vertical list (called from renderXmb when Settings
@@ -1264,10 +1248,8 @@ void NanoMenu::renderWifiScreen() {
                  footScale, 0.60f, 0.60f, 0.65f, 0.90f);
     }
 
-    // Password OSK overlay
-    if (mOskActive && mOskPasswordMode) {
-        renderPasswordPromptOverlay();
-    }
+    // The OSK (including its password preview line) is drawn last in render(),
+    // on top of this screen, by NanoMenu::renderOsk().
 }
 
 // ---------------------------------------------------------------------------
@@ -1400,25 +1382,7 @@ void NanoMenu::renderBtScreen() {
 // Password prompt overlay (renders above the OSK)
 // ---------------------------------------------------------------------------
 
-void NanoMenu::renderPasswordPromptOverlay() {
-    if (!mOskActive) return;
-    float sf = fminf((float)mWidth / 1080.0f, (float)mHeight / 720.0f);
-    if (sf < 0.5f) sf = 0.5f;
-
-    float bandH = 80.0f * sf;
-    drawQuad(0, 0, mWidth, bandH, 0.05f, 0.05f, 0.1f, 0.90f);
-
-    float pad = 20.0f * sf;
-    float titleScale = 1.8f * sf;
-    float valueScale = 2.4f * sf;
-
-    drawText(mOskPasswordPrompt.c_str(), pad, pad * 0.5f,
-             titleScale, 0.90f, 0.90f, 1.0f, 1.0f);
-
-    std::string masked = (mOskPasswordMode && !mOskPlaintext) ? maskPassword(mOskQuery) : mOskQuery;
-    if (masked.empty()) masked = "_";
-    drawText(masked.c_str(), pad, pad * 0.5f + FONT_CHAR_H * titleScale + 4.0f * sf,
-             valueScale, 1.0f, 1.0f, 0.5f, 1.0f);
-}
+// renderPasswordPromptOverlay was removed: the password prompt + masked value
+// are now rendered inline in the keyboard panel's preview line by renderOsk().
 
 } // namespace android

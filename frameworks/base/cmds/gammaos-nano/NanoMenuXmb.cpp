@@ -1038,7 +1038,7 @@ void NanoMenu::handleLeft() {
     // GammaOS Nano: navigating cancels any queued launch.
     cancelPendingLaunch();
     if (mOskActive) {
-        if (mOskCursorX > 0) mOskCursorX--;
+        oskMoveCursor(NavDir::Left);
         return;
     }
     if (mMenuState == MENU_WIFI || mMenuState == MENU_BT) return;
@@ -1062,8 +1062,7 @@ void NanoMenu::handleRight() {
     // GammaOS Nano: navigating cancels any queued launch.
     cancelPendingLaunch();
     if (mOskActive) {
-        int maxCol = kOskCols - 1;
-        if (mOskCursorX < maxCol) mOskCursorX++;
+        oskMoveCursor(NavDir::Right);
         return;
     }
     if (mMenuState == MENU_WIFI || mMenuState == MENU_BT) return;
@@ -1484,70 +1483,9 @@ void NanoMenu::launchXmbGame() {
 // On-Screen Keyboard (Search)
 // ---------------------------------------------------------------------------
 
-void NanoMenu::openOsk() {
-    mOskActive = true;
-    mOskShift = true; // start uppercase; L1 toggles to lowercase
-    mOskPasswordMode = false;
-    mOskPasswordPrompt.clear();
-    mOskPasswordCallback = nullptr;
-    mOskQuery.clear();
-    mOskCursorX = 0;
-    mOskCursorY = 0;
-    mSearchResults.clear();
-    mSearchSelectedIndex = 0;
-    mSearchActive = false;
-}
-
-void NanoMenu::closeOsk() {
-    mOskActive = false;
-    if (mOskPasswordMode) {
-        mOskPasswordMode = false;
-        mOskPlaintext = false;
-        mOskPasswordPrompt.clear();
-        mOskPasswordCallback = nullptr;
-        mOskQuery.clear();
-        return;
-    }
-    if (mOskQuery.empty()) {
-        mSearchActive = false;
-    }
-}
-
-void NanoMenu::oskType(char c) {
-    if (mOskQuery.size() < 64) {
-        mOskQuery += c;
-        if (!mOskPasswordMode) updateSearchResults();
-    }
-}
-
-void NanoMenu::oskBackspace() {
-    if (!mOskQuery.empty()) {
-        mOskQuery.pop_back();
-        if (!mOskPasswordMode) updateSearchResults();
-    }
-}
-
-void NanoMenu::oskConfirm() {
-    mOskActive = false;
-    if (mOskPasswordMode) {
-        auto cb = std::move(mOskPasswordCallback);
-        std::string pw = mOskQuery;
-        mOskPasswordMode = false;
-        mOskPlaintext = false;
-        mOskPasswordPrompt.clear();
-        mOskPasswordCallback = nullptr;
-        mOskQuery.clear();
-        if (cb) cb(pw);
-        return;
-    }
-    if (!mOskQuery.empty()) {
-        mSearchActive = true;
-        mSearchSelectedIndex = 0;
-        updateSearchResults();
-    } else {
-        mSearchActive = false;
-    }
-}
+// openOsk / closeOsk / oskType / oskBackspace / oskConfirm and renderOsk now
+// live in NanoOsk.cpp (the Leanback-derived multi-script keyboard). Only the
+// XMB-coupled search-result query stays here.
 
 void NanoMenu::updateSearchResults() {
     mSearchResults.clear();
@@ -1562,86 +1500,6 @@ void NanoMenu::updateSearchResults() {
         }
     }
     mSearchActive = !mSearchResults.empty() || !mOskQuery.empty();
-}
-
-void NanoMenu::renderOsk() {
-    if (!mOskActive) return;
-
-    float sf = fminf((float)mWidth / 1080.0f, (float)mHeight / 720.0f);
-    if (sf < 0.5f) sf = 0.5f;
-
-    float oskScale = 2.5f * sf;
-    float charW = FONT_CHAR_W * oskScale * 3.0f; // wider spacing for grid
-    float charH = FONT_CHAR_H * oskScale;
-    float pad = 15.0f * sf;
-
-    // OSK background
-    float gridW = kOskCols * charW + pad * 2;
-    float gridH = (kOskRows + 1) * (charH + 8.0f * sf) + pad * 2; // +1 for query line
-    float bgX = (mWidth - gridW) / 2.0f;
-    float bgY = mHeight - gridH - pad;
-    drawQuad(bgX, bgY, gridW, gridH, 0.0f, 0.0f, 0.0f, 0.85f);
-
-    // Query line — Search mode shows raw text; password mode shows masked.
-    float queryY = bgY + pad;
-    std::string queryDisplay;
-    float qr = 0.0f, qg = 0.85f, qb = 1.0f;
-    if (mOskPasswordMode) {
-        std::string prompt = mOskPasswordPrompt.empty() ? "Password" : mOskPasswordPrompt;
-        queryDisplay = prompt + ": " + maskPassword(mOskQuery) + "_";
-        qr = 1.0f; qg = 0.75f; qb = 0.35f;
-    } else {
-        queryDisplay = "Search: " + mOskQuery + "_";
-    }
-    float queryScale = 2.0f * sf;
-    drawText(queryDisplay.c_str(), bgX + pad, queryY, queryScale,
-             qr, qg, qb, 1.0f);
-
-    // Keyboard grid
-    float gridStartY = queryY + charH + 12.0f * sf;
-    float gridStartX = bgX + pad;
-
-    for (int row = 0; row < kOskRows; row++) {
-        for (int col = 0; col < kOskCols; col++) {
-            float cx = gridStartX + col * charW;
-            float cy = gridStartY + row * (charH + 8.0f * sf);
-            bool selected = (row == mOskCursorY && col == mOskCursorX);
-
-            if (selected) {
-                drawQuad(cx - 2.0f * sf, cy - 2.0f * sf,
-                         charW - 4.0f * sf, charH + 4.0f * sf,
-                         0.0f, 0.35f, 0.6f, 0.9f);
-            }
-
-            char ch = kOskLayout[row][col];
-            if (!mOskShift && ch >= 'A' && ch <= 'Z') ch += 32;
-            char str[2] = {ch, '\0'};
-            if (ch == ' ') str[0] = '_'; // display space as underscore
-            float cr = selected ? 1.0f : 0.7f;
-            float cg = selected ? 1.0f : 0.7f;
-            float cb = selected ? 1.0f : 0.7f;
-            drawText(str, cx + charW * 0.25f, cy, oskScale, cr, cg, cb, 1.0f);
-        }
-    }
-
-    // Shift indicator (right-aligned on query line)
-    float shiftScale = 1.5f * sf;
-    const char* shiftLabel = mOskShift ? "[ABC]" : "[abc]";
-    float shiftW = FONT_CHAR_W * shiftScale * strlen(shiftLabel);
-    float shiftR = mOskShift ? 0.35f : 1.0f;
-    float shiftG = mOskShift ? 1.0f  : 0.75f;
-    float shiftB = mOskShift ? 0.4f  : 0.35f;
-    drawText(shiftLabel, bgX + gridW - pad - shiftW, queryY,
-             shiftScale, shiftR, shiftG, shiftB, 1.0f);
-
-    // Help text
-    float helpY = gridStartY + kOskRows * (charH + 8.0f * sf) + 4.0f * sf;
-    float helpScale = 1.5f * sf;
-    const char* helpText = mOskPasswordMode
-        ? "A:Type  X:Backspace  L:Shift  Start:Submit  B/Y:Cancel"
-        : "A:Type  X:Backspace  L:Shift  Start:Search  B/Y:Cancel";
-    drawText(helpText,
-             bgX + pad, helpY, helpScale, 0.4f, 0.4f, 0.5f, 1.0f);
 }
 
 // ---------------------------------------------------------------------------
@@ -1887,7 +1745,8 @@ void NanoMenu::renderXmb() {
         ? "Up/Dn: Browse | A: Launch | B: Clear | Y: Refine"
         : "L/R: System | Up/Dn: Game | A: Play | Y: Search | X: FX | L1: List | R1: QR";
     float fW = measureText(footer, footScale);
-    drawText(footer, (mWidth - fW) / 2.0f, footY, footScale, 0.35f, 0.35f, 0.4f, 0.8f);
+    if (!mOskActive)   // the OSK draws its own footer on top
+        drawText(footer, (mWidth - fW) / 2.0f, footY, footScale, 0.35f, 0.35f, 0.4f, 0.8f);
 
     // Search indicator
     if (mSearchActive && !mOskActive) {
