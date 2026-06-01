@@ -1,0 +1,64 @@
+/*
+ * Copyright (C) 2026 GammaOS
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+// GammaOS Nano PS3 XMB background: the per-month gradient + captured cloth wave.
+// 1:1 port of the source web app's drawBGWebGL steady path:
+//   1. FS_BG gradient (per-month hue + dark-top/bright-bottom value+saturation
+//      ramp + corner vignette + day/night) rendered into a cached texture,
+//   2. the captured 128x128 clip-space cloth mesh drawn ADDITIVELY (silk shader),
+//   3. an exp2 tonemap composite to the panel.
+// The gradient is cached and only re-rendered when the day/night blend, month,
+// or layout changes, so the per-frame cost is one cheap blit + the wave + the
+// tonemap. This is the default wallpaper ("XMB wave", wallpaper effect id 21).
+//
+// All state is file-local; ps3bg reads ps3:: layout globals (NanoMenuPS3.h) and
+// the DRM rotation matrix, so it does not touch the NanoMenu class. init() is
+// lazy and safe to call repeatedly; render() no-ops until assets are ready.
+
+#ifndef GAMMAOS_NANO_PS3_BG_H
+#define GAMMAOS_NANO_PS3_BG_H
+
+namespace android {
+namespace ps3bg {
+
+// Compile shaders, load wave geometry/sequence + month textures, create FBOs.
+// Returns true once everything is ready to render. Cheap to call every frame
+// until ready (it retries asset loads that have not yet succeeded).
+bool init();
+
+// Free all GL objects and CPU keyframe buffers.
+void shutdown();
+
+// True once init() has fully succeeded and render() will draw the real wave.
+bool ready();
+
+// Render the background to the currently-bound framebuffer. The caller sets the
+// panel viewport and clears it (letterbox bars stay the clear colour). The
+// gradient/wave are confined to ps3::gFrame* and the composite applies rotMat2
+// (DRM GL rotation; pass identity {1,0,0,1} when inactive). dt is seconds since
+// the last frame (for the wave's frame-rate-independent animation).
+void render(int panelW, int panelH, float dt,
+            const float rotMat2[4], bool rotActive);
+
+// Force the cached gradient to be re-rendered next frame (call on layout change
+// or a forced day/night refresh; month + time-of-day changes are detected
+// automatically).
+void invalidateGradient();
+
+} // namespace ps3bg
+} // namespace android
+
+#endif // GAMMAOS_NANO_PS3_BG_H

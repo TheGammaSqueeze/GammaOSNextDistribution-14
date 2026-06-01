@@ -27,6 +27,8 @@
 
 #include "NanoMenu.h"
 #include "NanoMenuDrm.h"
+#include "NanoMenuPS3.h"
+#include "NanoMenuPS3Bg.h"
 
 namespace android {
 
@@ -250,23 +252,33 @@ void NanoMenu::renderEffect() {
         glDrawArrays(GL_TRIANGLES, 0, 6);
         glDisableVertexAttribArray(mFxLocPosition);
     } else if (mCurrentEffect == 21) {
-        // XMB: PS3-style volumetric ribbon background (dedicated shader, 60fps)
-        GLfloat verts[] = { -1,-1, 1,-1, 1,1, 1,1, -1,1, -1,-1 };
-        float coordSwap = (sDrmActive && (sDrmRotationDeg == 90
-                           || sDrmRotationDeg == 270)) ? 1.0f : 0.0f;
-        bool netYFlip = sDrmYFlipForPrime ^ sDrmFlipV;
-        float yFlip = netYFlip ? 1.0f : 0.0f;
-        float xFlip = sDrmFlipH ? 1.0f : 0.0f;
-        glUseProgram(mXmbProgram);
-        glUniform1f(mXmbLocTime, mEffectTime);
-        glUniform2f(mXmbLocResolution, (float)mWidth, (float)mHeight);
-        glUniform1f(mXmbLocCoordSwap, coordSwap);
-        if (mXmbLocYFlip >= 0) glUniform1f(mXmbLocYFlip, yFlip);
-        if (mXmbLocXFlip >= 0) glUniform1f(mXmbLocXFlip, xFlip);
-        glVertexAttribPointer(mXmbLocPosition, 2, GL_FLOAT, GL_FALSE, 0, verts);
-        glEnableVertexAttribArray(mXmbLocPosition);
-        glDrawArrays(GL_TRIANGLES, 0, 6);
-        glDisableVertexAttribArray(mXmbLocPosition);
+        // XMB wave wallpaper: the real ported PS3 per-month gradient + captured
+        // cloth wave (NanoMenuPS3Bg). This is the default wallpaper. If the
+        // assets or GL context are not ready yet it falls back to the procedural
+        // ribbon below so the screen is never blank.
+        if (ps3bg::init()) {
+            ps3::layoutComputeNative(mWidth, mHeight);
+            ps3bg::render(mWidth, mHeight, mFrameDt, sDrmRotMat,
+                          sDrmActive && sDrmGlRotation);
+        } else {
+            // Procedural fallback: PS3-style volumetric ribbon (dedicated shader).
+            GLfloat verts[] = { -1,-1, 1,-1, 1,1, 1,1, -1,1, -1,-1 };
+            float coordSwap = (sDrmActive && (sDrmRotationDeg == 90
+                               || sDrmRotationDeg == 270)) ? 1.0f : 0.0f;
+            bool netYFlip = sDrmYFlipForPrime ^ sDrmFlipV;
+            float yFlip = netYFlip ? 1.0f : 0.0f;
+            float xFlip = sDrmFlipH ? 1.0f : 0.0f;
+            glUseProgram(mXmbProgram);
+            glUniform1f(mXmbLocTime, mEffectTime);
+            glUniform2f(mXmbLocResolution, (float)mWidth, (float)mHeight);
+            glUniform1f(mXmbLocCoordSwap, coordSwap);
+            if (mXmbLocYFlip >= 0) glUniform1f(mXmbLocYFlip, yFlip);
+            if (mXmbLocXFlip >= 0) glUniform1f(mXmbLocXFlip, xFlip);
+            glVertexAttribPointer(mXmbLocPosition, 2, GL_FLOAT, GL_FALSE, 0, verts);
+            glEnableVertexAttribArray(mXmbLocPosition);
+            glDrawArrays(GL_TRIANGLES, 0, 6);
+            glDisableVertexAttribArray(mXmbLocPosition);
+        }
     }
 }
 

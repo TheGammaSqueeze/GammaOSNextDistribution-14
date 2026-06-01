@@ -1,0 +1,406 @@
+{
+ "magic": "WBT1",
+ "frameCount": 42,
+ "gridN": 128,
+ "vertStride": 4,
+ "vertStrideDesc": "4 float16 per vertex = clip-space gl_Position xyzw (ATTR0 passthrough, same as wave_seq.bin)",
+ "format": "float16_LE",
+ "headerBytes": 20,
+ "headerLayout": "magic[4]=WBT1, u32 frameCount, u32 gridN=128, u32 vertStride=4, u32 format(1=f16)",
+ "frameBytes": 131072,
+ "vertOrder": "row-major by grid index (identical ordering to wave_geo.bin / wave_seq.bin); positions only",
+ "normalsUVsource": "reuse static normals+uv from wave_geo.bin (cols 4:7 normal, 7:9 uv)",
+ "sourceFps": 60,
+ "sourceFirstFrame": 23,
+ "sourceLastFrame": 222,
+ "capturedFrameCount": 186,
+ "decimation": "capped at rel_frame<=100; rel<50 (streak+swell) every 2nd source frame, rel 50..100 (warning->settle) every 3rd. After rel~100 the wave is settled (~= wave_seq.bin frame0) so the web hands off to the wave_seq loop.",
+ "bootTimeBasis": "boot_t = frame/60 (PS3 native 60fps). Wave first DRAWN at frame 23 (= 0.383s); XMB render pipeline start. Cold-boot is black before this.",
+ "brightnessEnvelopeDesc": "per-keyframe rendered-framebuffer luminance of the wave band (rows 0.42-0.66 of height). bandLum raw 0-255, brightness01 normalized. Drive the web boot wave fade/bloom with brightness01: ~0 = invisible (black coldboot), rises through streak, ~1 at settled.",
+ "phaseNotes": {
+  "coldboot_streak": "rel_frame 0..~40: LOW FLAT bright streak on black (bandLum < ~50, rising). Wave geometry sits LOW (ndcY max ~0.24).",
+  "swell": "rel_frame ~40..63: streak SWELLS up; wave Y lifts, bandLum climbs toward full.",
+  "warning_settle": "rel_frame ~63..90: epilepsy warning full-bright overlays; wave dims behind it then settles.",
+  "settled": "rel_frame >90: steady ribbon (ndcY span ~0.8, full settled geometry = matches wave_seq.bin frame0 region)."
+ },
+ "keyframes": [
+  {
+   "frame": 23,
+   "boot_t": 0.3833,
+   "rel_frame": 0,
+   "meanLum": 0.37,
+   "bandLum": 0.37,
+   "maxLum": 1.0,
+   "brightness01": 0.0032
+  },
+  {
+   "frame": 25,
+   "boot_t": 0.4167,
+   "rel_frame": 2,
+   "meanLum": 0.37,
+   "bandLum": 0.37,
+   "maxLum": 1.0,
+   "brightness01": 0.0032
+  },
+  {
+   "frame": 27,
+   "boot_t": 0.45,
+   "rel_frame": 4,
+   "meanLum": 0.38,
+   "bandLum": 0.38,
+   "maxLum": 2.0,
+   "brightness01": 0.0033
+  },
+  {
+   "frame": 29,
+   "boot_t": 0.4833,
+   "rel_frame": 6,
+   "meanLum": 0.38,
+   "bandLum": 0.38,
+   "maxLum": 2.0,
+   "brightness01": 0.0033
+  },
+  {
+   "frame": 31,
+   "boot_t": 0.5167,
+   "rel_frame": 8,
+   "meanLum": 0.48,
+   "bandLum": 0.75,
+   "maxLum": 8.3,
+   "brightness01": 0.0065
+  },
+  {
+   "frame": 33,
+   "boot_t": 0.55,
+   "rel_frame": 10,
+   "meanLum": 0.72,
+   "bandLum": 1.65,
+   "maxLum": 16.7,
+   "brightness01": 0.0142
+  },
+  {
+   "frame": 35,
+   "boot_t": 0.5833,
+   "rel_frame": 12,
+   "meanLum": 0.94,
+   "bandLum": 2.64,
+   "maxLum": 44.0,
+   "brightness01": 0.0227
+  },
+  {
+   "frame": 37,
+   "boot_t": 0.6167,
+   "rel_frame": 14,
+   "meanLum": 1.61,
+   "bandLum": 5.32,
+   "maxLum": 133.0,
+   "brightness01": 0.0458
+  },
+  {
+   "frame": 39,
+   "boot_t": 0.65,
+   "rel_frame": 16,
+   "meanLum": 3.25,
+   "bandLum": 12.07,
+   "maxLum": 255.0,
+   "brightness01": 0.1039
+  },
+  {
+   "frame": 41,
+   "boot_t": 0.6833,
+   "rel_frame": 18,
+   "meanLum": 3.81,
+   "bandLum": 14.55,
+   "maxLum": 255.0,
+   "brightness01": 0.1252
+  },
+  {
+   "frame": 43,
+   "boot_t": 0.7167,
+   "rel_frame": 20,
+   "meanLum": 4.97,
+   "bandLum": 16.99,
+   "maxLum": 255.0,
+   "brightness01": 0.1463
+  },
+  {
+   "frame": 45,
+   "boot_t": 0.75,
+   "rel_frame": 22,
+   "meanLum": 8.0,
+   "bandLum": 20.15,
+   "maxLum": 255.0,
+   "brightness01": 0.1735
+  },
+  {
+   "frame": 47,
+   "boot_t": 0.7833,
+   "rel_frame": 24,
+   "meanLum": 13.46,
+   "bandLum": 24.91,
+   "maxLum": 255.0,
+   "brightness01": 0.2144
+  },
+  {
+   "frame": 49,
+   "boot_t": 0.8167,
+   "rel_frame": 26,
+   "meanLum": 18.05,
+   "bandLum": 29.14,
+   "maxLum": 255.0,
+   "brightness01": 0.2508
+  },
+  {
+   "frame": 51,
+   "boot_t": 0.85,
+   "rel_frame": 28,
+   "meanLum": 22.79,
+   "bandLum": 32.75,
+   "maxLum": 252.0,
+   "brightness01": 0.2819
+  },
+  {
+   "frame": 53,
+   "boot_t": 0.8833,
+   "rel_frame": 30,
+   "meanLum": 25.08,
+   "bandLum": 32.55,
+   "maxLum": 211.0,
+   "brightness01": 0.2802
+  },
+  {
+   "frame": 55,
+   "boot_t": 0.9167,
+   "rel_frame": 32,
+   "meanLum": 27.24,
+   "bandLum": 33.25,
+   "maxLum": 124.3,
+   "brightness01": 0.2862
+  },
+  {
+   "frame": 57,
+   "boot_t": 0.95,
+   "rel_frame": 34,
+   "meanLum": 30.03,
+   "bandLum": 35.0,
+   "maxLum": 104.3,
+   "brightness01": 0.3013
+  },
+  {
+   "frame": 59,
+   "boot_t": 0.9833,
+   "rel_frame": 36,
+   "meanLum": 33.27,
+   "bandLum": 37.6,
+   "maxLum": 113.7,
+   "brightness01": 0.3237
+  },
+  {
+   "frame": 61,
+   "boot_t": 1.0167,
+   "rel_frame": 38,
+   "meanLum": 39.29,
+   "bandLum": 43.06,
+   "maxLum": 123.0,
+   "brightness01": 0.3707
+  },
+  {
+   "frame": 63,
+   "boot_t": 1.05,
+   "rel_frame": 40,
+   "meanLum": 43.31,
+   "bandLum": 46.76,
+   "maxLum": 136.7,
+   "brightness01": 0.4025
+  },
+  {
+   "frame": 65,
+   "boot_t": 1.0833,
+   "rel_frame": 42,
+   "meanLum": 47.71,
+   "bandLum": 50.88,
+   "maxLum": 158.0,
+   "brightness01": 0.438
+  },
+  {
+   "frame": 67,
+   "boot_t": 1.1167,
+   "rel_frame": 44,
+   "meanLum": 51.56,
+   "bandLum": 54.52,
+   "maxLum": 150.3,
+   "brightness01": 0.4693
+  },
+  {
+   "frame": 69,
+   "boot_t": 1.15,
+   "rel_frame": 46,
+   "meanLum": 62.83,
+   "bandLum": 65.63,
+   "maxLum": 214.7,
+   "brightness01": 0.5649
+  },
+  {
+   "frame": 71,
+   "boot_t": 1.1833,
+   "rel_frame": 48,
+   "meanLum": 79.82,
+   "bandLum": 81.93,
+   "maxLum": 240.7,
+   "brightness01": 0.7053
+  },
+  {
+   "frame": 74,
+   "boot_t": 1.2333,
+   "rel_frame": 51,
+   "meanLum": 103.87,
+   "bandLum": 103.82,
+   "maxLum": 255.0,
+   "brightness01": 0.8937
+  },
+  {
+   "frame": 77,
+   "boot_t": 1.2833,
+   "rel_frame": 54,
+   "meanLum": 113.42,
+   "bandLum": 114.53,
+   "maxLum": 255.0,
+   "brightness01": 0.9859
+  },
+  {
+   "frame": 80,
+   "boot_t": 1.3333,
+   "rel_frame": 57,
+   "meanLum": 113.57,
+   "bandLum": 114.38,
+   "maxLum": 255.0,
+   "brightness01": 0.9846
+  },
+  {
+   "frame": 83,
+   "boot_t": 1.3833,
+   "rel_frame": 60,
+   "meanLum": 114.0,
+   "bandLum": 114.63,
+   "maxLum": 255.0,
+   "brightness01": 0.9867
+  },
+  {
+   "frame": 86,
+   "boot_t": 1.4333,
+   "rel_frame": 63,
+   "meanLum": 114.14,
+   "bandLum": 114.82,
+   "maxLum": 255.0,
+   "brightness01": 0.9884
+  },
+  {
+   "frame": 89,
+   "boot_t": 1.4833,
+   "rel_frame": 66,
+   "meanLum": 114.15,
+   "bandLum": 114.8,
+   "maxLum": 255.0,
+   "brightness01": 0.9882
+  },
+  {
+   "frame": 92,
+   "boot_t": 1.5333,
+   "rel_frame": 69,
+   "meanLum": 114.13,
+   "bandLum": 114.63,
+   "maxLum": 255.0,
+   "brightness01": 0.9867
+  },
+  {
+   "frame": 95,
+   "boot_t": 1.5833,
+   "rel_frame": 72,
+   "meanLum": 114.16,
+   "bandLum": 114.53,
+   "maxLum": 255.0,
+   "brightness01": 0.9859
+  },
+  {
+   "frame": 98,
+   "boot_t": 1.6333,
+   "rel_frame": 75,
+   "meanLum": 114.1,
+   "bandLum": 114.36,
+   "maxLum": 255.0,
+   "brightness01": 0.9844
+  },
+  {
+   "frame": 101,
+   "boot_t": 1.6833,
+   "rel_frame": 78,
+   "meanLum": 114.2,
+   "bandLum": 114.83,
+   "maxLum": 255.0,
+   "brightness01": 0.9885
+  },
+  {
+   "frame": 104,
+   "boot_t": 1.7333,
+   "rel_frame": 81,
+   "meanLum": 114.27,
+   "bandLum": 115.04,
+   "maxLum": 255.0,
+   "brightness01": 0.9903
+  },
+  {
+   "frame": 107,
+   "boot_t": 1.7833,
+   "rel_frame": 84,
+   "meanLum": 114.27,
+   "bandLum": 115.13,
+   "maxLum": 255.0,
+   "brightness01": 0.991
+  },
+  {
+   "frame": 110,
+   "boot_t": 1.8333,
+   "rel_frame": 87,
+   "meanLum": 114.3,
+   "bandLum": 115.31,
+   "maxLum": 255.0,
+   "brightness01": 0.9926
+  },
+  {
+   "frame": 116,
+   "boot_t": 1.9333,
+   "rel_frame": 93,
+   "meanLum": 114.37,
+   "bandLum": 115.84,
+   "maxLum": 255.0,
+   "brightness01": 0.9972
+  },
+  {
+   "frame": 119,
+   "boot_t": 1.9833,
+   "rel_frame": 96,
+   "meanLum": 114.43,
+   "bandLum": 116.17,
+   "maxLum": 255.0,
+   "brightness01": 1.0
+  },
+  {
+   "frame": 122,
+   "boot_t": 2.0333,
+   "rel_frame": 99,
+   "meanLum": 114.09,
+   "bandLum": 114.84,
+   "maxLum": 198.0,
+   "brightness01": 0.9886
+  },
+  {
+   "frame": 123,
+   "boot_t": 2.05,
+   "rel_frame": 100,
+   "meanLum": 113.6,
+   "bandLum": 112.74,
+   "maxLum": 167.3,
+   "brightness01": 0.9705
+  }
+ ]
+}

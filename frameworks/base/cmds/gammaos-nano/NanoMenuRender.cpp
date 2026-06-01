@@ -1100,6 +1100,44 @@ void NanoMenu::setupSecondaryEglSurfaces() {
 // Render
 // ---------------------------------------------------------------------------
 
+// GammaOS Nano debug capture: when sys.gammaos.nano.shot is set, read the
+// just-composited frame straight out of the bound framebuffer and write it as a
+// binary PPM. This is the only capture that works on the DRM-direct path, where
+// SurfaceFlinger (screencap) and fbdev (/dev/graphics/fb0) see only black.
+// Set the prop to "1" for the default path, or to an absolute file path; it is
+// cleared after one capture.
+static void maybeNanoScreenshot() {
+    char val[PROPERTY_VALUE_MAX] = {};
+    property_get("sys.gammaos.nano.shot", val, "");
+    if (!val[0]) return;
+    GLint vp[4] = {0, 0, 0, 0};
+    glGetIntegerv(GL_VIEWPORT, vp);
+    int w = vp[2], h = vp[3];
+    if (w <= 0 || h <= 0) { property_set("sys.gammaos.nano.shot", ""); return; }
+    std::vector<unsigned char> px((size_t)w * h * 4);
+    glReadPixels(0, 0, w, h, GL_RGBA, GL_UNSIGNED_BYTE, px.data());
+    const char* path = (val[0] == '1' && !val[1]) ? "/data/local/tmp/nano_shot.ppm" : val;
+    FILE* f = fopen(path, "wb");
+    if (f) {
+        fprintf(f, "P6\n%d %d\n255\n", w, h);
+        std::vector<unsigned char> row((size_t)w * 3);
+        for (int y = h - 1; y >= 0; y--) {     // glReadPixels is bottom-up
+            const unsigned char* src = px.data() + (size_t)y * w * 4;
+            for (int x = 0; x < w; x++) {
+                row[x * 3 + 0] = src[x * 4 + 0];
+                row[x * 3 + 1] = src[x * 4 + 1];
+                row[x * 3 + 2] = src[x * 4 + 2];
+            }
+            fwrite(row.data(), 1, row.size(), f);
+        }
+        fclose(f);
+        ALOGI("nano: screenshot %dx%d -> %s", w, h, path);
+    } else {
+        ALOGE("nano: screenshot open failed: %s", path);
+    }
+    property_set("sys.gammaos.nano.shot", "");
+}
+
 void NanoMenu::render() {
     static bool sFirstFrame = true;
     if (sFirstFrame) {
@@ -1552,6 +1590,9 @@ void NanoMenu::render() {
     } // close drasticActive-else wrapper
 
     glDisable(GL_BLEND);
+
+    // Debug frame capture (no-op unless sys.gammaos.nano.shot is set).
+    maybeNanoScreenshot();
 
     // GammaOS: DRM direct rendering path.
     // - Zero-copy: GPU rendered straight into the scanout FBO; just page flip.

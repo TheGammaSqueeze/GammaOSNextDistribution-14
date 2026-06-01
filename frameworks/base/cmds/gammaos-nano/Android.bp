@@ -50,6 +50,8 @@ cc_binary {
         "NanoMenuSettingsTree.cpp",
         "NanoMenuSettingsRender.cpp",
         "NanoMenuRender.cpp",
+        "NanoMenuPS3Layout.cpp",
+        "NanoMenuPS3Bg.cpp",
         "NanoMenuSetupWizard.cpp",
         "NanoMenuStrings.cpp",
         "NanoOsk.cpp",
@@ -88,6 +90,14 @@ cc_binary {
     required: [
         "nano-ce-unlock.sh",
         "joypad_uevent_fixup.sh",
+        "nano_xmb_fonts",
+        "nano_xmb_wave",
+        "nano_xmb_gradients",
+        "nano_xmb_boot",
+        "nano_xmb_icons",
+        "nano_xmb_normalmaps",
+        "nano_xmb_glass",
+        "nano_xmb_textures",
     ],
 }
 
@@ -99,6 +109,60 @@ sh_binary {
 sh_binary {
     name: "joypad_uevent_fixup.sh",
     src: "joypad_uevent_fixup.sh",
+}
+
+// GammaOS Nano XMB assets. Ported from the PS3 XMB recreation: the captured
+// cloth-wave geometry, per-month gradient textures, normal-map / glass icon
+// material, Rodin fonts and the cold-boot logo plates. Installed read-only to
+// /system/etc/nano_xmb/<sub_dir>/; the renderer also checks
+// /data/system/nano_xmb/ first so assets can be pushed during development
+// without rebuilding the system image.
+prebuilt_etc {
+    name: "nano_xmb_fonts",
+    srcs: ["ps3xmb/fonts/*.ttf"],
+    sub_dir: "nano_xmb/fonts",
+}
+
+prebuilt_etc {
+    name: "nano_xmb_wave",
+    srcs: ["ps3xmb/wave/*.bin"],
+    sub_dir: "nano_xmb/wave",
+}
+
+prebuilt_etc {
+    name: "nano_xmb_gradients",
+    srcs: ["ps3xmb/gradients/*.png"],
+    sub_dir: "nano_xmb/gradients",
+}
+
+prebuilt_etc {
+    name: "nano_xmb_boot",
+    srcs: ["ps3xmb/boot/*.png"],
+    sub_dir: "nano_xmb/boot",
+}
+
+prebuilt_etc {
+    name: "nano_xmb_icons",
+    srcs: ["ps3xmb/icons/*.png"],
+    sub_dir: "nano_xmb/icons",
+}
+
+prebuilt_etc {
+    name: "nano_xmb_normalmaps",
+    srcs: ["ps3xmb/normalmaps/*.png"],
+    sub_dir: "nano_xmb/normalmaps",
+}
+
+prebuilt_etc {
+    name: "nano_xmb_glass",
+    srcs: ["ps3xmb/assets/*.png"],
+    sub_dir: "nano_xmb/assets",
+}
+
+prebuilt_etc {
+    name: "nano_xmb_textures",
+    srcs: ["ps3xmb/textures/*.png"],
+    sub_dir: "nano_xmb/textures",
 }
 
 // Source files shared with the drastic-nano binary. drastic-nano

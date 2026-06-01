@@ -1,0 +1,41 @@
+{
+  "magic": "WSQ2",
+  "frameCount": 85,
+  "keyframeCount": 85,
+  "gridN": 128,
+  "vertStride": 3,
+  "vertStrideDesc": "3 float16 per vertex = clip-space X, Y, W (row-major by grid index). Z is omitted: Z = W * zwRatio (clip Z and W are identical to 1e-4).",
+  "format": "float16_LE",
+  "headerBytes": 24,
+  "headerLayout": "magic[4]=WSQ2, u32 frameCount, u32 gridN=128, u32 vertStride=3, u32 format(1=f16), f32 zwRatio",
+  "zwRatio": 0.975589,
+  "zReconstruction": "Z = W * zwRatio (then gl_Position = (X, Y, W*zwRatio, W)); NDC = (X/W, Y/W).",
+  "frameBytes": 98304,
+  "vertOrder": "row-major by grid index (same as wave_geo.bin / wave_seq.bin); positions only",
+  "normalsUVsource": "static from wave_geo.bin (cols 4:7 normal, 7:9 uv); lighting unchanged across frames",
+  "sourceFps": 60,
+  "keyframeStride": 5,
+  "sourceFrameCount": 419,
+  "playbackFps": 60,
+  "playback": "Forward loop. Advance keyframes at sourceFps/keyframeStride = 12.00 keyframes/sec (i.e. real-time 60fps source). LERP linearly between consecutive keyframes.",
+  "loopSourceRange": [
+    0,
+    418
+  ],
+  "loopSourceEmuFrames": [
+    8515,
+    8933
+  ],
+  "totalLoopSeconds": 6.967,
+  "loopResidualNDC_RMS": 0.17975,
+  "loopIsClean": false,
+  "recommendedCrossfadeSourceFrames": 23,
+  "recommendedCrossfadeKeyframes": 5,
+  "crossfadeNote": "The SPU cloth is noise-driven and never exactly recurs: the minimum NDC RMS loop residual is ~0.12-0.18 for ANY segment length in the 12s capture, so a crossfade is required. Crossfade the last 5 keyframes back into keyframe 0 (LERP fade) to hide the residual shape snap.",
+  "perFrameMeanMotionNDC": 0.00793,
+  "realtimeSpeedNote": "perFrameMeanMotionNDC is the measured NDC displacement per 1/60s source frame. Play at sourceFps=60 (one source frame per 1/60s) so the cloth moves at the firmware's true speed.",
+  "assetLerpMaxNDCError": 0.03132,
+  "f16QuantNote": "X,Y,W quantized to float16; quantization error is well below per-frame motion.",
+  "coordExtentXY": 14.774,
+  "fileSizeMB": 8.356
+}
