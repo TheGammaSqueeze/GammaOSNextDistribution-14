@@ -1317,6 +1317,11 @@ void NanoMenu::render() {
     if (mSetupWizardActive) {
         renderSetupWizard();
         renderOsk();
+    } else if (mPs3Xmb) {
+        // PS3 XMB layout (NanoMenuPS3Menu.cpp). renderPs3Xmb() draws the Wi-Fi /
+        // Bluetooth sub-screens itself when mMenuState is MENU_WIFI / MENU_BT.
+        renderPs3Xmb();
+        renderOsk();
     } else if (mXmbMode) {
         renderXmb();
         if (mMenuState == MENU_WIFI) renderWifiScreen();

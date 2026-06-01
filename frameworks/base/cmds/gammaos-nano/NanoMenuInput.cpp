@@ -261,6 +261,7 @@ void NanoMenu::handleBack() {
         return;
     }
     if (mMenuState == MENU_SETTINGS) { handleSettingsTreeBack(); return; }
+    if (mPs3Xmb) { ps3XmbBack(); return; }
     if (mXmbMode) {
         if (mSearchActive) {
             mSearchActive = false;
@@ -296,6 +297,7 @@ void NanoMenu::handleSelect() {
     if (mMenuState == MENU_WIFI)     { handleWifiScreenSelect();   return; }
     if (mMenuState == MENU_BT)       { handleBtScreenSelect();     return; }
     if (mMenuState == MENU_SETTINGS) { handleSettingsTreeSelect();  return; }
+    if (mPs3Xmb) { ps3XmbSelect(); return; }
     if (mXmbMode) {
         if (isOnSettingsColumn()) {
             openSettingsTree();
@@ -465,6 +467,7 @@ void NanoMenu::handleUp() {
     if (mMenuState == MENU_WIFI)     { handleWifiScreenUp();     return; }
     if (mMenuState == MENU_BT)       { handleBtScreenUp();       return; }
     if (mMenuState == MENU_SETTINGS) { handleSettingsTreeUp();    return; }
+    if (mPs3Xmb) { ps3XmbUp(); return; }
     if (mXmbMode) {
         if (mSearchActive) {
             if (mSearchSelectedIndex > 0) mSearchSelectedIndex--;
@@ -516,6 +519,7 @@ void NanoMenu::handleDown() {
     if (mMenuState == MENU_WIFI)     { handleWifiScreenDown();     return; }
     if (mMenuState == MENU_BT)       { handleBtScreenDown();       return; }
     if (mMenuState == MENU_SETTINGS) { handleSettingsTreeDown();    return; }
+    if (mPs3Xmb) { ps3XmbDown(); return; }
     if (mXmbMode) {
         if (mSearchActive) {
             int maxIdx = (int)mSearchResults.size() - 1;

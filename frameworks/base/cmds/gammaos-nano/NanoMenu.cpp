@@ -1125,8 +1125,12 @@ bool NanoMenu::threadLoop() {
             "persist.gammaos.nano.quick_resume", false);
     mXmbMode = android::base::GetBoolProperty(
             "persist.gammaos.nano.xmb_mode", false);
-    ALOGI("NanoMenu: persist read quick_resume=%d xmb_mode=%d",
-          mQuickResumeEnabled ? 1 : 0, mXmbMode ? 1 : 0);
+    // PS3 XMB layout (NanoMenuPS3Menu.cpp). Dev-gated during build-up; takes
+    // priority over the carousel (mXmbMode) when set.
+    mPs3Xmb = android::base::GetBoolProperty(
+            "persist.gammaos.nano.ps3xmb", false);
+    ALOGI("NanoMenu: persist read quick_resume=%d xmb_mode=%d ps3xmb=%d",
+          mQuickResumeEnabled ? 1 : 0, mXmbMode ? 1 : 0, mPs3Xmb ? 1 : 0);
     // Re-read wallpaper effect (constructor ran before persist props loaded)
     {
         char wallpaper[PROPERTY_VALUE_MAX] = {};

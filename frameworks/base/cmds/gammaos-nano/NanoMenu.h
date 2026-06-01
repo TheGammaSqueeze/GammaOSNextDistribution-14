@@ -617,6 +617,73 @@ private:
     bool mXmbRomScanDone;      // ROM paths have been scanned
     bool mXmbBootCompleted;    // true after sys.boot_completed=1
 
+    // ===================================================================
+    // PS3 XMB layout (NanoMenuPS3Menu.cpp). A faithful PS3 XrossMediaBar:
+    // a horizontal category bar (Settings/Game/...) with a vertical item
+    // list dropping out of the active category, submenu push/pop, the
+    // authentic firmware geometry and the captured wave behind it. Gated
+    // by persist.gammaos.nano.ps3xmb during build-up; the categories are
+    // populated from the SAME nano content the carousel uses (emulator
+    // systems + ROMs, recently played, applications, settings).
+    // ===================================================================
+    enum Ps3ItemKind {
+        PS3_SYSTEM = 0,   // an emulator system -> ROM submenu (a = sysIdx)
+        PS3_ROM,          // a ROM -> launch (a = sysIdx, b = romIdx)
+        PS3_RECENT_LIST,  // "Recently Played" -> recent submenu
+        PS3_RECENT,       // a recent entry -> launch (a = recent idx)
+        PS3_APP_LIST,     // "Applications" -> app submenu
+        PS3_APP,          // an installed app -> launch (a = app idx)
+        PS3_SETTING,      // a settings entry (a = action: 0 Wi-Fi, 1 Bluetooth, 2 settings tree)
+        PS3_LAUNCH_PKG,   // launch a package (payloadStr = package name)
+    };
+    struct Ps3Item {
+        std::string label;
+        std::string desc;
+        std::string value;
+        std::string payloadStr;
+        GLuint iconTex;     // 0 = none
+        float iconR, iconG, iconB;  // tint (1,1,1 default)
+        int kind;
+        int a, b;
+    };
+    struct Ps3Cat {
+        std::string name;
+        GLuint iconTex;
+        std::vector<Ps3Item> items;
+    };
+    struct Ps3Level {       // a submenu level on the navigation stack
+        std::string title;
+        std::vector<Ps3Item> items;
+        int sel;
+    };
+    bool mPs3Xmb = false;         // persist.gammaos.nano.ps3xmb
+    bool mPs3MenuBuilt = false;
+    std::vector<Ps3Cat> mPs3Cats;
+    std::vector<Ps3Level> mPs3Stack;   // empty = at category top level
+    int mPs3CatIdx = -1;
+    int mPs3ItemIdx = 0;          // selection in the top-level item list (per-category)
+    std::vector<int> mPs3CatItemSel;   // remembered item selection per category
+    float mPs3AnimCat = 0.0f;    // animated horizontal position (lerps to mPs3CatIdx)
+    float mPs3AnimItem = 0.0f;   // animated vertical position
+    float mPs3SubAnim = 0.0f;    // 0 = top level, 1 = in submenu (collapse factor)
+    int   mPs3SubDir = 0;        // +1 entering, -1 exiting
+    GLuint mPs3CatTex[8] = {0, 0, 0, 0, 0, 0, 0, 0};  // PS3 category icons
+
+    void initPs3Menu();
+    void buildPs3Cats();
+    void buildRomSubmenu(int sysIdx, Ps3Level& out);
+    void buildRecentSubmenu(Ps3Level& out);
+    void buildAppSubmenu(Ps3Level& out);
+    std::vector<Ps3Item>& ps3CurItems();   // current visible item list (top or submenu)
+    int& ps3CurSel();
+    void renderPs3Xmb();
+    void ps3XmbLeft();
+    void ps3XmbRight();
+    void ps3XmbUp();
+    void ps3XmbDown();
+    void ps3XmbSelect();
+    void ps3XmbBack();
+
     // Background scan thread — scans ROM paths off the render thread
     struct BgScanResult {
         std::vector<std::string> roms;
@@ -693,6 +760,10 @@ private:
     void initIconTextures();
     void drawIcon(int iconIdx, float x, float y, float size,
                   float r, float g, float b, float a);
+    // Draw an arbitrary GL texture handle (PS3 category icons live outside
+    // mIconTextures[]). Supports a non-square w/h. (NanoMenuPS3Menu.cpp)
+    void drawIconTex(GLuint tex, float x, float y, float w, float h,
+                     float r, float g, float b, float a);
     GLuint mIconTextures[18]; // 0-14=systems, 15=history, 16=game item, 17=setting
 
     // On-screen keyboard. mOskActive + mOskQuery are the keep-stable members
