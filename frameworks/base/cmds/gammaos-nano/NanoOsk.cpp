@@ -354,7 +354,7 @@ uint32_t koreanShiftJamo(uint32_t cp) {
 // Per-script input-method singletons (own their composing state for the run).
 HangulInput* oskHangulInput() { static HangulInput inst; return &inst; }
 PinyinInput* oskPinyinInput() { static PinyinInput inst; return &inst; }
-KanaInput*   oskKanaInput()   { static KanaInput inst;   return &inst; }
+JapaneseInput* oskJapaneseInput() { static JapaneseInput inst; return &inst; }
 
 } // anonymous namespace
 
@@ -452,11 +452,12 @@ void NanoMenu::oskSetLanguage(const char* code, const char* region) {
         return;
     }
     if (strcmp(code, "ja") == 0) {
-        // Japanese romaji typed on a Latin QWERTY -> hiragana (no candidates).
+        // Japanese romaji typed on a Latin QWERTY -> hiragana reading, with a
+        // kanji/hiragana/katakana candidate bar.
         OskLayoutChoice c = oskPickLayout("en", "US");
         mOsk.abcKb = &kOskKb[c.abcId];
         mOsk.symKb = &kOskKb[c.symId];
-        mOsk.im = oskKanaInput();
+        mOsk.im = oskJapaneseInput();
         mOsk.im->reset();
         mOsk.dir = OSK_LTR;
         setLabel("\xe3\x81\x82");            // あ

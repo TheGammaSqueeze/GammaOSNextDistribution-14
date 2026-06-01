@@ -29,6 +29,7 @@
 #include "NanoOskHangul.h"  // hangul::Composer
 #include "NanoOskPinyin.h"  // kPySyl / kPyHanzi pinyin -> Hanzi table
 #include "NanoOskKana.h"    // kOskKana romaji -> hiragana table
+#include "NanoOskKanji.h"   // kKjEntry hiragana-reading -> kanji candidates
 
 namespace android {
 
@@ -187,47 +188,57 @@ private:
     std::vector<std::string> candidates_;
 };
 
-// Japanese romaji -> hiragana (wapuro). Deterministic, no candidate list (like
-// HangulInput): completed kana commit straight into the buffer and the pending
-// un-converted romaji tail is the composing text. Layers sokuon (small tsu from
-// a doubled consonant) and syllabic-n on top of the kOskKana table. Kanji
-// conversion is out of scope (no Japanese dictionary in the tree), so output is
-// hiragana, which is valid Japanese text.
-class KanaInput : public OskInputMethod {
+// Japanese romaji -> hiragana -> kanji. The romaji is converted to a hiragana
+// READING (wapuro rules: sokuon from a doubled consonant, syllabic n); that
+// reading stays in the composing region and the candidate bar offers its kanji
+// conversions (from the SKK-derived kKjEntry table) plus the plain hiragana and
+// its katakana. Choosing a candidate commits it; committing without choosing
+// (space/enter) commits the plain hiragana. No morphological analysis: lookup
+// is whole-reading, like the Pinyin engine.
+class JapaneseInput : public OskInputMethod {
 public:
     OskScriptDir direction() const override { return OSK_LTR; }
-    bool wantsCandidates() const override { return false; }
+    bool wantsCandidates() const override { return true; }
 
     bool onCodepoint(uint32_t cp, OskBuffer& buf) override {
         if (cp >= 'A' && cp <= 'Z') cp += 32;
-        bool romaji = (cp >= 'a' && cp <= 'z') || cp == '-' || cp == '.' || cp == ',';
-        if (romaji) {
+        if (cp >= 'a' && cp <= 'z') {
             if (pending_.size() < 16) pending_ += (char)cp;
-            process(buf);
+            processKana();
+            recompute();
             return true;
         }
-        if (!pending_.empty()) commitComposing(buf);   // flush, then keyboard inserts cp
+        // Non-letter: commit the plain reading first, then keyboard inserts cp.
+        if (!reading_.empty() || !pending_.empty()) commitComposing(buf);
         return false;
     }
     bool onBackspace(OskBuffer& /*buf*/) override {
-        if (pending_.empty()) return false;
-        pending_.pop_back();
-        return true;
+        if (!pending_.empty()) { pending_.pop_back(); recompute(); return true; }
+        if (!reading_.empty()) { popLastUtf8(reading_); recompute(); return true; }
+        return false;
     }
-    const std::vector<std::string>& candidates() const override { return empty_; }
-    void chooseCandidate(int, OskBuffer&) override {}
-    std::string composingText() const override { return pending_; }
+    const std::vector<std::string>& candidates() const override { return candidates_; }
+    void chooseCandidate(int index, OskBuffer& buf) override {
+        if (index < 0 || index >= (int)candidates_.size()) return;
+        insertAtCaret(buf, candidates_[index]);
+        reading_.clear(); pending_.clear(); candidates_.clear();
+    }
+    std::string composingText() const override {
+        // A trailing lone 'n' shows as a provisional ん (resolves if a vowel
+        // follows); other un-converted romaji shows as-is.
+        if (pending_ == "n") return reading_ + "\xe3\x82\x93";
+        return reading_ + pending_;
+    }
     void commitComposing(OskBuffer& buf) override {
-        process(buf);
-        if (pending_ == "n") { insertAtCaret(buf, "\xe3\x82\x93"); pending_.clear(); }  // lone n -> ん
-        else if (!pending_.empty()) { insertAtCaret(buf, pending_); pending_.clear(); }
+        flushPending();
+        if (!reading_.empty()) insertAtCaret(buf, reading_);   // plain hiragana
+        reading_.clear(); candidates_.clear();
     }
-    void reset() override { pending_.clear(); }
+    void reset() override { reading_.clear(); pending_.clear(); candidates_.clear(); }
 
 private:
     static bool isVowel(char c) { return c=='a'||c=='i'||c=='u'||c=='e'||c=='o'; }
     static bool isCons(char c)  { return c>='a' && c<='z' && !isVowel(c); }
-    // Exact-match binary search for the first `len` chars of `s` in kOskKana.
     static const char* exactKana(const char* s, size_t len) {
         int lo = 0, hi = kOskKanaCount - 1;
         while (lo <= hi) {
@@ -242,7 +253,6 @@ private:
         }
         return nullptr;
     }
-    // Any table romaji strictly longer than r that begins with r? (=> wait.)
     static bool isPrefixOfLonger(const std::string& r) {
         for (int i = 0; i < kOskKanaCount; i++) {
             const char* k = kOskKana[i].romaji;
@@ -251,40 +261,90 @@ private:
         }
         return false;
     }
-    void process(OskBuffer& buf) {
+    // Convert as much of pending_ as is unambiguous into hiragana appended to
+    // reading_. (Same wapuro state machine as before, output redirected.)
+    void processKana() {
         for (;;) {
             if (pending_.empty()) return;
-            // Sokuon: a doubled consonant (not n) -> っ, then drop the first.
             if (pending_.size() >= 2 && pending_[0] == pending_[1] &&
                 isCons(pending_[0]) && pending_[0] != 'n') {
-                insertAtCaret(buf, "\xe3\x81\xa3");        // っ
+                reading_ += "\xe3\x81\xa3";              // っ
                 pending_.erase(0, 1); continue;
             }
-            // Syllabic n: 'n' + (consonant != y) or 'nn' -> ん, drop one n.
             if (pending_[0] == 'n' && pending_.size() >= 2) {
                 char b = pending_[1];
                 if (b == 'n' || (isCons(b) && b != 'y')) {
-                    insertAtCaret(buf, "\xe3\x82\x93");    // ん
+                    reading_ += "\xe3\x82\x93";          // ん
                     pending_.erase(0, 1); continue;
                 }
             }
-            // If the pending romaji could still grow into a longer kana, wait.
             if (isPrefixOfLonger(pending_)) return;
-            // Convert the longest table-prefix (max kana romaji length is 4).
             int maxL = (int)pending_.size(); if (maxL > 4) maxL = 4;
             bool conv = false;
             for (int L = maxL; L >= 1; L--) {
                 const char* k = exactKana(pending_.c_str(), (size_t)L);
-                if (k) { insertAtCaret(buf, k); pending_.erase(0, (size_t)L); conv = true; break; }
+                if (k) { reading_ += k; pending_.erase(0, (size_t)L); conv = true; break; }
             }
             if (conv) continue;
-            // First char can't start any kana -> emit it raw to avoid a stall.
             if (!isPrefixOfLonger(pending_.substr(0, 1)) && !exactKana(pending_.c_str(), 1)) {
-                insertAtCaret(buf, pending_.substr(0, 1));
+                reading_ += pending_.substr(0, 1);
                 pending_.erase(0, 1); continue;
             }
-            return;   // it is a prefix of a kana; wait for more input
+            return;
         }
+    }
+    void flushPending() {
+        processKana();
+        if (pending_ == "n") { reading_ += "\xe3\x82\x93"; pending_.clear(); }  // ん
+        else if (!pending_.empty()) { reading_ += pending_; pending_.clear(); }
+    }
+    // hiragana reading -> katakana (U+3041..3096 shift +0x60; pass others through).
+    static std::string toKatakana(const std::string& s) {
+        std::string out; out.reserve(s.size());
+        for (size_t i = 0; i < s.size(); ) {
+            unsigned char c0 = (unsigned char)s[i];
+            if ((c0 & 0xF0) == 0xE0 && i + 2 < s.size()) {
+                uint32_t cp = ((c0 & 0x0F) << 12) |
+                              (((unsigned char)s[i+1] & 0x3F) << 6) |
+                              ((unsigned char)s[i+2] & 0x3F);
+                if (cp >= 0x3041 && cp <= 0x3096) cp += 0x60;
+                out += (char)(0xE0 | (cp >> 12));
+                out += (char)(0x80 | ((cp >> 6) & 0x3F));
+                out += (char)(0x80 | (cp & 0x3F));
+                i += 3;
+            } else { out += s[i]; i++; }
+        }
+        return out;
+    }
+    static const OskKjEntry* findReading(const std::string& r) {
+        int lo = 0, hi = kKjEntryCount - 1;
+        while (lo <= hi) {
+            int m = (lo + hi) / 2;
+            int c = std::strcmp(kKjEntry[m].reading, r.c_str());
+            if (c == 0) return &kKjEntry[m];
+            if (c < 0) lo = m + 1; else hi = m - 1;
+        }
+        return nullptr;
+    }
+    void recompute() {
+        candidates_.clear();
+        // Effective reading includes a trailing lone 'n' as a provisional ん so
+        // words like "nihon" (にほん) convert before the n is fully resolved.
+        std::string eff = reading_;
+        if (pending_ == "n") eff += "\xe3\x82\x93";
+        if (eff.empty()) return;
+        const OskKjEntry* e = findReading(eff);         // kanji conversions first
+        if (e)
+            for (uint16_t k = 0; k < e->candCount; k++)
+                candidates_.push_back(kKjCand[e->candOff + k]);
+        candidates_.push_back(eff);                     // plain hiragana
+        std::string kata = toKatakana(eff);             // katakana
+        if (kata != eff) candidates_.push_back(kata);
+    }
+    static void popLastUtf8(std::string& s) {
+        int i = (int)s.size() - 1;
+        while (i > 0 && ((unsigned char)s[i] & 0xC0) == 0x80) i--;
+        if (i >= 0) s.erase((size_t)i);
     }
     static void insertAtCaret(OskBuffer& buf, const std::string& s) {
         int c = *buf.caret;
@@ -293,8 +353,9 @@ private:
         buf.text->insert((size_t)c, s);
         *buf.caret = c + (int)s.size();
     }
-    std::string pending_;
-    std::vector<std::string> empty_;
+    std::string reading_;     // confirmed hiragana (the reading being converted)
+    std::string pending_;     // un-converted romaji tail
+    std::vector<std::string> candidates_;
 };
 
 } // namespace android
