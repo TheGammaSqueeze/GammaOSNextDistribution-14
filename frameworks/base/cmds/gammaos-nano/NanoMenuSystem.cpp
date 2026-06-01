@@ -411,28 +411,17 @@ void NanoMenu::pollBattery() {
     if (--mBatteryPollTicks > 0) return;
     mBatteryPollTicks = 60; // ~1s at 60fps
 
+    // Battery comes ONLY from the framework health HAL (BatteryService's source).
+    // We deliberately do NOT read power_supply sysfs directly: in minimal boot the
+    // HAL may not be registered yet, in which case the percentage stays unknown
+    // (-1, indicator hidden) until the framework comes online and reports it.
     int pct = -1;
     bool charging = false;
     if (queryHealthHal(&pct, &charging)) {
         mBatteryPercent = pct;
         mBatteryCharging = charging;
-        return;
     }
-
-    // Fallback: read the standard Android power_supply sysfs nodes.
-    mBatteryPercent = readSysfsInt(
-            "/sys/class/power_supply/battery/capacity", -1);
-    mBatteryCharging = false;
-    int fd = open("/sys/class/power_supply/battery/status", O_RDONLY);
-    if (fd >= 0) {
-        char buf[32] = {};
-        read(fd, buf, sizeof(buf) - 1);
-        close(fd);
-        if (strncmp(buf, "Charging", 8) == 0
-                || strncmp(buf, "Full", 4) == 0) {
-            mBatteryCharging = true;
-        }
-    }
+    // else: leave the last known value (or -1) until the HAL is reachable.
 }
 
 float NanoMenu::renderBatteryIndicator() {

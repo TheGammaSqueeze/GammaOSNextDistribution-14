@@ -45,9 +45,25 @@
 #include <GLES2/gl2.h>
 #include <png.h>
 
+#include <cutils/properties.h>
 #include <utils/Log.h>
 
 namespace android {
+
+// DRM GL rotation matrix (NanoMenuShaders.cpp). The menu draws in logical device
+// space and the shader rotates to the physical panel; a drop-shadow offset must
+// therefore be expressed so it lands "down" on the FINAL panel, not in logical
+// space (otherwise a 180-degree panel flips the shadow). See ps3ShadowOffset().
+extern float sDrmRotMat[4];
+
+// Device-space offset (out[0],out[1]) that, after the DRM rotation, appears as a
+// straight-down shadow of `s` panel pixels (matching the web's offsetX 0,
+// offsetY +1). Derivation: panel-down NDC delta back-rotated into device px.
+// Reduces to (0,+s) with no rotation and (0,-s) at 180 degrees.
+static inline void ps3ShadowOffset(float s, int w, int h, float out[2]) {
+    out[0] = -sDrmRotMat[1] * s * ((float)w / (float)h);
+    out[1] =  sDrmRotMat[3] * s;
+}
 
 // ---------------------------------------------------------------------------
 // libpng loader -> mono-white (silvery) RGBA texture for the PS3 icons.
@@ -150,6 +166,12 @@ NanoMenu::Ps3Item NanoMenu::makeDataItem(const Ps3DataItem* d) {
 
 void NanoMenu::initPs3Menu() {
     if (mPs3MenuBuilt) return;
+    // UI-size preference. Default 1.12 (a slight enlargement that reads better on
+    // small physical panels like the 3.2" Brick); user-tunable via the prop.
+    char usbuf[PROPERTY_VALUE_MAX];
+    property_get("persist.gammaos.nano.ps3xmb.uiscale", usbuf, "1.12");
+    mPs3UiScale = (float)atof(usbuf);
+    if (mPs3UiScale < 0.5f || mPs3UiScale > 2.0f) mPs3UiScale = 1.12f;
     initGlassIcons();
     static const char* kCatIconFiles[6] = {
         "xmb_icon_001.png", "xmb_icon_002.png", "xmb_icon_003.png",
@@ -378,7 +400,12 @@ void NanoMenu::renderPs3Xmb() {
     if (mMenuState == MENU_WIFI) { renderWifiScreen(); return; }
     if (mMenuState == MENU_BT)   { renderBtScreen();   return; }
 
-    ps3::layoutComputeNative(mWidth, mHeight);
+    { ps3::LayoutParams lp; lp.panelW = mWidth; lp.panelH = mHeight; lp.uiScale = mPs3UiScale;
+      ps3::layoutCompute(lp); }
+
+    // Panel-down drop-shadow offset for the menu icons + text (rotation-aware, so
+    // the 180-degree Brick panel does not flip it). Web: icon shadow offsetY ~1-2.
+    float so[2]; ps3ShadowOffset(ps3::devS(1.5f), mWidth, mHeight, so);
 
     float dt = mFrameDt; if (dt < 0.0f) dt = 0.0f; if (dt > 0.1f) dt = 0.1f;
 
@@ -387,10 +414,13 @@ void NanoMenu::renderPs3Xmb() {
         mPs3CatT += dt / (ps3::CAT_ANIM_MS / 1000.0f);
         if (mPs3CatT >= 1.0f) { mPs3CatT = 1.0f; mPs3CatAnimActive = false; }
     }
-    float itemDecay = 1.0f - expf(-15.0f * dt);
+    // Item scroll: the original pre-port nano feel (frame-rate-independent
+    // exp-decay at rate 12, matching the old XMB's mXmbAnimY) plus the shared
+    // accelerating d-pad auto-repeat (tickNavRepeat). The user preferred this.
+    float itemDecay = 1.0f - expf(-12.0f * dt);
     float itemTarget = (float)ps3CurSel();
     mPs3AnimItem += (itemTarget - mPs3AnimItem) * itemDecay;
-    if (fabsf(mPs3AnimItem - itemTarget) < 0.004f) mPs3AnimItem = itemTarget;
+    if (fabsf(mPs3AnimItem - itemTarget) < 0.005f) mPs3AnimItem = itemTarget;
     float subDecay = 1.0f - expf(-12.0f * dt);
     if (mPs3SubDir > 0) { mPs3SubAnim += subDecay * (1.0f - mPs3SubAnim); if (mPs3SubAnim > 0.999f) mPs3SubAnim = 1.0f; }
     else if (mPs3SubDir < 0) { mPs3SubAnim += subDecay * (0.0f - mPs3SubAnim); if (mPs3SubAnim < 0.001f) { mPs3SubAnim = 0.0f; mPs3SubDir = 0; } }
@@ -412,11 +442,15 @@ void NanoMenu::renderPs3Xmb() {
         float activeYOff = isActive ? ps3::CAT_Y_ACTIVE_OFFSET * (1.0f - subT) : 0.0f;
         float y = ps3::CAT_Y + activeYOff;
         if (x < -160.0f || x > ps3::VW + 160.0f) continue;
-        int catDist = abs(i - mPs3CatIdx);
-        float alpha = isActive ? 1.0f : (catDist <= 2 ? ps3::CAT_INACTIVE_ALPHA : ps3::CAT_FAR_ALPHA);
+        // Inactive category icons keep a single consistent opacity regardless of
+        // distance (no extra fade as they approach the screen edge, per request).
+        float alpha = isActive ? 1.0f : ps3::CAT_INACTIVE_ALPHA;
         alpha *= nonActiveSubFade;
         float dsz = ps3::devS(sz);
         float ix = ps3::devX(ps3::XCL(x, sz * 0.5f)), iy = ps3::devY(y - sz * 0.5f);
+        // Category icon drop shadow (panel-down), then the glass/flat icon.
+        if (mPs3Cats[i].iconTex)
+            drawIconTex(mPs3Cats[i].iconTex, ix + so[0], iy + so[1], dsz, dsz, 0.0f, 0.0f, 0.0f, 0.42f * alpha);
         if (mIconGlassReady && mPs3Cats[i].nmapTex && ps3bg::workTex())
             drawGlassIcon(mPs3Cats[i].nmapTex, ix, iy, dsz, dsz, 1.0f, 1.0f, 1.0f, alpha);
         else
@@ -428,6 +462,7 @@ void NanoMenu::renderPs3Xmb() {
             float lw = measureText(nm, ls);
             float lx = ps3::devX(ps3::XCP(x)) - lw * 0.5f;
             float ly = ps3::baselineToTopY(ps3::devY(ps3::CAT_LABEL_Y), ls);
+            drawText(nm, lx + so[0], ly + so[1], ls, 0.0f, 0.0f, 0.0f, 0.5f * la);   // shadow
             drawText(nm, lx, ly, ls, 0.88f, 0.82f, 0.92f, la);
         }
     }
@@ -451,6 +486,10 @@ void NanoMenu::renderPs3Xmb() {
             float dsz = ps3::devS(isz);
             float ix = ps3::devX(ps3::XCL(ps3::ITEM_ICON_X + xShiftV, isz * 0.5f));
             float iy = ps3::devY(y - isz * 0.5f);
+            // Icon drop shadow (panel-down): a dark silhouette offset behind the
+            // icon so it reads over the bright wave (web icon shadow offsetY 1).
+            if (it.iconTex)
+                drawIconTex(it.iconTex, ix + so[0], iy + so[1], dsz, dsz, 0.0f, 0.0f, 0.0f, 0.42f * alpha);
             if (mIconGlassReady && it.nmapTex && ps3bg::workTex())
                 drawGlassIcon(it.nmapTex, ix, iy, dsz, dsz, it.iconR, it.iconG, it.iconB, alpha);
             else if (it.iconTex)
@@ -459,25 +498,28 @@ void NanoMenu::renderPs3Xmb() {
             float ts = ps3::fontScale(tSize);
             float tx = ps3::devX(ps3::XCP(ps3::ITEM_TEXT_X + xShiftV));
             float ty = ps3::baselineToTopY(ps3::devY(y), ts);
+            const char* L = it.label.c_str();
+            // Text drop shadow (panel-down) under every label for legibility.
+            drawText(L, tx + so[0], ty + so[1], ts, 0.0f, 0.0f, 0.0f, 0.5f * alpha);
             if (isActive) {
                 float phase = fmodf(mEffectTime, ps3::PULSE_PERIOD_MS / 1000.0f) / (ps3::PULSE_PERIOD_MS / 1000.0f);
                 float s = 0.5f * (1.0f - cosf(phase * 2.0f * (float)M_PI));
                 float outerA = ps3::PULSE_ALPHA_MIN + (ps3::PULSE_ALPHA_MAX - ps3::PULSE_ALPHA_MIN) * s;
                 float innerA = ps3::PULSE_INNER_MIN + (ps3::PULSE_INNER_MAX - ps3::PULSE_INNER_MIN) * s;
                 float oR = ps3::devS(5.0f), iR = ps3::devS(2.2f);
-                const char* L = it.label.c_str();
                 for (int k = 0; k < 8; k++) { float a = (float)k / 8.0f * 2.0f * (float)M_PI;
                     drawText(L, tx + cosf(a) * oR, ty + sinf(a) * oR, ts, 1.0f, 1.0f, 1.0f, outerA * alphaMul * 0.16f); }
                 for (int k = 0; k < 6; k++) { float a = ((float)k + 0.5f) / 6.0f * 2.0f * (float)M_PI;
                     drawText(L, tx + cosf(a) * iR, ty + sinf(a) * iR, ts, 1.0f, 1.0f, 1.0f, innerA * alphaMul * 0.28f); }
                 drawText(L, tx, ty, ts, 1.0f, 1.0f, 1.0f, alpha);
             } else {
-                drawText(it.label.c_str(), tx, ty, ts, 0.92f, 0.92f, 0.92f, alpha);
+                drawText(L, tx, ty, ts, 0.92f, 0.92f, 0.92f, alpha);
             }
             if (!it.value.empty()) {
                 float vs = ps3::fontScale(ps3::ITEM_TEXT_SIZE);
                 float vw = measureText(it.value.c_str(), vs);
                 float vx = ps3::devX(ps3::XCF(ps3::VW - ps3::ITEM_VALUE_RIGHT_PAD)) - vw;
+                drawText(it.value.c_str(), vx + so[0], ty + so[1], vs, 0.0f, 0.0f, 0.0f, 0.45f * alpha);
                 drawText(it.value.c_str(), vx, ty, vs, 0.7f, 0.7f, 0.75f, alpha * 0.85f);
             }
         }
@@ -520,19 +562,21 @@ void NanoMenu::drawPs3Clock(float fadeMul) {
     float dyB = cy(ps3::CLOCK_FRAME_Y + ps3::CLOCK_FRAME_H);
     float fr  = ps3::devS(ps3::CLOCK_FRAME_CORNER);
     float lw  = fmaxf(1.0f, ps3::devS(1.0f));
+    float so[2]; ps3ShadowOffset(ps3::devS(1.0f), mWidth, mHeight, so);   // panel-down drop shadow
 
     // filled dim panel (open-right, rounded left corners)
     auto fillURect = [&](float x0, float y0, float x1, float y1, float rad, float r, float g, float b, float a) {
         if (rad < 1.0f) { drawQuad(x0, y0, x1 - x0, y1 - y0, r, g, b, a); return; }
         drawQuad(x0 + rad, y0, (x1 - x0) - rad, y1 - y0, r, g, b, a);     // main body
         drawQuad(x0, y0 + rad, rad, (y1 - y0) - 2.0f * rad, r, g, b, a);  // left strip
-        // top-left + bottom-left corner fans
+        // top-left (arc 90deg..180deg) + bottom-left (180deg..270deg) corner fans.
+        const int CSEG = 10;
         for (int corner = 0; corner < 2; corner++) {
             float ccx = x0 + rad, ccy = (corner == 0) ? (y0 + rad) : (y1 - rad);
-            float a0 = (corner == 0) ? (float)M_PI : (0.5f * (float)M_PI);
-            for (int s = 0; s < 6; s++) {
-                float t0 = a0 + (float)s / 6.0f * 0.5f * (float)M_PI;
-                float t1 = a0 + (float)(s + 1) / 6.0f * 0.5f * (float)M_PI;
+            float a0 = (corner == 0) ? (0.5f * (float)M_PI) : (float)M_PI;
+            for (int s = 0; s < CSEG; s++) {
+                float t0 = a0 + (float)s / (float)CSEG * 0.5f * (float)M_PI;
+                float t1 = a0 + (float)(s + 1) / (float)CSEG * 0.5f * (float)M_PI;
                 drawTriangle(ccx, ccy,
                              ccx + cosf(t0) * rad, ccy - sinf(t0) * rad,
                              ccx + cosf(t1) * rad, ccy - sinf(t1) * rad, r, g, b, a);
@@ -546,12 +590,13 @@ void NanoMenu::drawPs3Clock(float fadeMul) {
         drawQuad(dxL + fr + ox, dyT + oy, (dxR - dxL) - fr, lw, r, g, b, a);             // top
         drawQuad(dxL + fr + ox, dyB - lw + oy, (dxR - dxL) - fr, lw, r, g, b, a);        // bottom
         drawQuad(dxL + ox, dyT + fr + oy, lw, (dyB - dyT) - 2.0f * fr, r, g, b, a);      // left
+        const int CSEG = 10;
         for (int corner = 0; corner < 2; corner++) {
             float ccx = dxL + fr + ox, ccy = ((corner == 0) ? (dyT + fr) : (dyB - fr)) + oy;
-            float a0 = (corner == 0) ? (float)M_PI : (0.5f * (float)M_PI);
-            for (int s = 0; s < 6; s++) {
-                float t0 = a0 + (float)s / 6.0f * 0.5f * (float)M_PI;
-                float t1 = a0 + (float)(s + 1) / 6.0f * 0.5f * (float)M_PI;
+            float a0 = (corner == 0) ? (0.5f * (float)M_PI) : (float)M_PI;
+            for (int s = 0; s < CSEG; s++) {
+                float t0 = a0 + (float)s / (float)CSEG * 0.5f * (float)M_PI;
+                float t1 = a0 + (float)(s + 1) / (float)CSEG * 0.5f * (float)M_PI;
                 float r0 = fr, r1 = fr - lw;
                 float x0o = ccx + cosf(t0) * r0, y0o = ccy - sinf(t0) * r0;
                 float x1o = ccx + cosf(t1) * r0, y1o = ccy - sinf(t1) * r0;
@@ -562,16 +607,27 @@ void NanoMenu::drawPs3Clock(float fadeMul) {
             }
         }
     };
-    // inner glow: a few inset border passes at decreasing alpha
-    for (int gi = 1; gi <= 4; gi++) {
-        float ga = 0.26f / (float)gi;
-        drawQuad(dxL + fr, dyT + (float)gi * lw, (dxR - dxL) - fr, lw, 1.0f, 1.0f, 1.0f, ga * fadeMul);
-        drawQuad(dxL + fr, dyB - (float)(gi + 1) * lw, (dxR - dxL) - fr, lw, 1.0f, 1.0f, 1.0f, ga * fadeMul);
-        drawQuad(dxL + (float)gi * lw, dyT + fr, lw, (dyB - dyT) - 2.0f * fr, 1.0f, 1.0f, 1.0f, ga * fadeMul);
+    // Soft drop shadow of the WHOLE frame group first (panel-down direction so a
+    // rotated panel does not flip it), then the crisp frame on top. Two faint
+    // offset passes approximate the web's blur-3 soft shadow.
+    strokeU(so[0] * 1.6f, so[1] * 1.6f, 0.0f, 0.0f, 0.0f, 0.22f * fadeMul);
+    strokeU(so[0],        so[1],        0.0f, 0.0f, 0.0f, 0.40f * fadeMul);
+
+    // Inner soft glow following the U interior (web glowSteps inset 1..5, alpha
+    // 0.26/0.19/0.13/0.07/0.04). Thin 1px insets - a faint highlight, not a bevel.
+    {
+        static const float kGlow[5] = {0.26f, 0.19f, 0.13f, 0.07f, 0.04f};
+        for (int gi = 0; gi < 5; gi++) {
+            float ins = (float)(gi + 1) * lw;
+            if (ins > (dyB - dyT) * 0.5f) break;
+            drawQuad(dxL + fr, dyT + ins, (dxR - dxL) - fr, lw, 1.0f, 1.0f, 1.0f, kGlow[gi] * fadeMul);
+            drawQuad(dxL + fr, dyB - ins - lw, (dxR - dxL) - fr, lw, 1.0f, 1.0f, 1.0f, kGlow[gi] * fadeMul);
+            drawQuad(dxL + ins, dyT + fr, lw, (dyB - dyT) - 2.0f * fr, 1.0f, 1.0f, 1.0f, kGlow[gi] * fadeMul);
+        }
     }
-    float sh = ps3::devS(1.0f);
-    strokeU(0.0f, sh, 0.0f, 0.0f, 0.0f, 0.5f * fadeMul);    // drop shadow
-    strokeU(0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 0.35f * fadeMul); // border
+
+    // Single thin border line (web ~90/255). No second offset copy, so no bevel.
+    strokeU(0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 0.35f * fadeMul);
 
     // ---- analog face (drawn dark-shadow then crisp) ----
     float iconCX = cx(ps3::CLOCK_ICON_CX);
@@ -603,45 +659,21 @@ void NanoMenu::drawPs3Clock(float fadeMul) {
         hand(hourAng, R * 0.47f);
         hand(minAng, R * 0.69f);
     };
-    face(0.0f, sh, 0.0f, 0.0f, 0.0f, 0.55f * fadeMul);          // drop shadow
+    face(so[0], so[1], 0.0f, 0.0f, 0.0f, 0.55f * fadeMul);      // drop shadow (panel-down)
     face(0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 0.96f * fadeMul);        // crisp
 
-    // ---- time text (right-aligned, left of the icon) ----
-    float ts = ps3::fontScale(ps3::CLOCK_SIZE);
-    float tw = measureText(timeStr, ts);
-    float textRight = iconCX - R - ps3::devS(6.0f);
-    float ty = ps3::baselineToTopY(iconCY + ps3::devS(7.0f), ts);
-    drawText(timeStr, textRight - tw + sh, ty + sh, ts, 0.0f, 0.0f, 0.0f, 0.5f * fadeMul);  // shadow
-    drawText(timeStr, textRight - tw, ty, ts, 1.0f, 1.0f, 1.0f, 0.92f * fadeMul);           // crisp
-
-    // ---- battery % + Wi-Fi + Bluetooth, vertically centred in the bar, to the
-    // left of the time. Lay them out right-to-left from the time so the trio is
-    // a single aligned row: [battery glyph][%]  [wifi]  [bt]  [time]  (face).
+    // ---- status row (battery / Wi-Fi / Bluetooth), left-anchored, each at the
+    // CLOCK-ICON height (2R) and vertically centred like the face, with uniform
+    // margins; drawn shadow-then-crisp (panel-down) for legibility. ----
+    const float iconH = 2.0f * R;                  // == the analog-face height
+    const float margin = ps3::devS(8.0f);          // uniform gap (matches the face)
+    float cyc = (dyT + dyB) * 0.5f;                // bar vertical centre
+    float lx = dxL + ps3::devS(14.0f);             // inside the rounded left edge
     {
         WifiLevel wl; int wb; BtLevel bl;
         { std::lock_guard<std::mutex> lk(mNetStateMutex); wl = mWifiLevel; wb = mWifiBars; bl = mBtLevel; }
-        float isf = ps3::devS(1.05f);
-        float cyc = (dyT + dyB) * 0.5f;             // bar vertical centre
-        float gap = ps3::devS(10.0f);
-        float wifiW = 22.0f * isf, wifiH = 18.0f * isf;
-        float btW   = 14.0f * isf, btH   = 20.0f * isf;
-        float cursor = textRight - tw - gap;        // just left of the time text
 
-        // Bluetooth (closest to the time).
-        float bta = (bl == kBtLevel_Off || bl == kBtLevel_Unknown) ? 0.30f
-                  : (bl == kBtLevel_Connected ? 0.95f : 0.70f);
-        cursor -= btW;
-        drawBtIcon(cursor, cyc - btH * 0.5f, isf, 1.0f, 1.0f, 1.0f, bta * fadeMul);
-        cursor -= gap;
-
-        // Wi-Fi.
-        int bars = (wl == kWifiLevel_Connected) ? wb : 0;
-        float wa = (wl == kWifiLevel_Off || wl == kWifiLevel_Unknown) ? 0.30f : 0.92f;
-        cursor -= wifiW;
-        drawWifiIcon(cursor, cyc - wifiH * 0.5f, isf, bars, 1.0f, 1.0f, 1.0f, wa * fadeMul);
-        cursor -= gap;
-
-        // Battery glyph + % (leftmost), only when a battery is present.
+        // Battery glyph + % (framework value only; hidden until the HAL reports).
         if (mBatteryPercent >= 0) {
             int pct = mBatteryPercent; if (pct < 0) pct = 0; if (pct > 100) pct = 100;
             float br, bg, bb;
@@ -649,29 +681,64 @@ void NanoMenu::drawPs3Clock(float fadeMul) {
             else if (pct <= 15)   { br = 0.95f; bg = 0.30f; bb = 0.30f; }
             else if (pct <= 30)   { br = 0.97f; bg = 0.78f; bb = 0.20f; }
             else                  { br = 1.00f; bg = 1.00f; bb = 1.00f; }
+            float bodyH = iconH * 0.60f, bodyW = bodyH * 1.9f;
+            float capW = bodyH * 0.20f, capH = bodyH * 0.5f;
+            float border = fmaxf(1.0f, ps3::devS(1.4f));
+            float byy = cyc - bodyH * 0.5f;
+            auto rail = [&](float qx, float qy, float qw, float qh) {
+                drawQuad(qx + so[0], qy + so[1], qw, qh, 0.0f, 0.0f, 0.0f, 0.5f * fadeMul);
+                drawQuad(qx, qy, qw, qh, br, bg, bb, 0.96f * fadeMul);
+            };
+            rail(lx, byy, bodyW, border);
+            rail(lx, byy + bodyH - border, bodyW, border);
+            rail(lx, byy, border, bodyH);
+            rail(lx + bodyW - border, byy, border, bodyH);
+            float ip = fmaxf(1.0f, ps3::devS(1.4f));
+            drawQuad(lx + ip, byy + ip, (bodyW - 2.0f * ip) * ((float)pct / 100.0f),
+                     bodyH - 2.0f * ip, br, bg, bb, fadeMul);
+            rail(lx + bodyW, cyc - capH * 0.5f, capW, capH);
+            lx += bodyW + capW + ps3::devS(4.0f);
             char pctTxt[12]; snprintf(pctTxt, sizeof(pctTxt), "%d%%", pct);
             float ps = ps3::fontScale(ps3::CLOCK_SIZE * 0.82f);
-            float pw = measureText(pctTxt, ps);
-            cursor -= pw;
             float pty = ps3::baselineToTopY(cyc + ps3::devS(6.0f), ps);
-            drawText(pctTxt, cursor + sh, pty + sh, ps, 0.0f, 0.0f, 0.0f, 0.5f * fadeMul);
-            drawText(pctTxt, cursor, pty, ps, br, bg, bb, 0.95f * fadeMul);
-            cursor -= ps3::devS(5.0f);
-            float bodyW = 26.0f * isf, bodyH = 13.0f * isf;
-            float capW = 3.0f * isf, capH = 7.0f * isf;
-            float border = fmaxf(1.0f, 1.6f * isf);
-            cursor -= (bodyW + capW);
-            float bx = cursor, byy = cyc - bodyH * 0.5f;
-            drawQuad(bx, byy, bodyW, border, br, bg, bb, 0.95f * fadeMul);
-            drawQuad(bx, byy + bodyH - border, bodyW, border, br, bg, bb, 0.95f * fadeMul);
-            drawQuad(bx, byy, border, bodyH, br, bg, bb, 0.95f * fadeMul);
-            drawQuad(bx + bodyW - border, byy, border, bodyH, br, bg, bb, 0.95f * fadeMul);
-            float ip = fmaxf(1.0f, 1.5f * isf);
-            float fillW = (bodyW - 2.0f * ip) * ((float)pct / 100.0f);
-            drawQuad(bx + ip, byy + ip, fillW, bodyH - 2.0f * ip, br, bg, bb, 1.0f * fadeMul);
-            drawQuad(bx + bodyW, cyc - capH * 0.5f, capW, capH, br, bg, bb, 0.95f * fadeMul);
+            drawText(pctTxt, lx + so[0], pty + so[1], ps, 0.0f, 0.0f, 0.0f, 0.55f * fadeMul);
+            drawText(pctTxt, lx, pty, ps, br, bg, bb, 0.96f * fadeMul);
+            lx += measureText(pctTxt, ps) + margin;
+        }
+
+        // Wi-Fi at the clock-icon height.
+        {
+            float wifiSf = iconH / 18.0f, wifiW = 22.0f * wifiSf;
+            int bars = (wl == kWifiLevel_Connected) ? wb : 0;
+            float wa = (wl == kWifiLevel_Off || wl == kWifiLevel_Unknown) ? 0.32f : 0.96f;
+            drawWifiIcon(lx + so[0], cyc - iconH * 0.5f + so[1], wifiSf, bars, 0.0f, 0.0f, 0.0f, wa * 0.6f * fadeMul);
+            drawWifiIcon(lx, cyc - iconH * 0.5f, wifiSf, bars, 1.0f, 1.0f, 1.0f, wa * fadeMul);
+            lx += wifiW + margin;
+        }
+
+        // Bluetooth at the clock-icon height (large = crisp glyph).
+        {
+            float btSf = iconH / 20.0f, btW = 14.0f * btSf;
+            float bta = (bl == kBtLevel_Off || bl == kBtLevel_Unknown) ? 0.32f
+                      : (bl == kBtLevel_Connected ? 0.96f : 0.72f);
+            drawBtIcon(lx + so[0], cyc - iconH * 0.5f + so[1], btSf, 0.0f, 0.0f, 0.0f, bta * 0.6f * fadeMul);
+            drawBtIcon(lx, cyc - iconH * 0.5f, btSf, 1.0f, 1.0f, 1.0f, bta * fadeMul);
+            lx += btW;
         }
     }
+    float statusRight = lx;
+
+    // ---- date/time text, horizontally centred between the status row and the
+    // analog face (so it sits centred in the visible clock bar). ----
+    float ts = ps3::fontScale(ps3::CLOCK_SIZE);
+    float tw = measureText(timeStr, ts);
+    float faceLeft = iconCX - R - margin;
+    float tcx = (statusRight + faceLeft) * 0.5f;
+    float txx = tcx - tw * 0.5f;
+    if (txx < statusRight + margin) txx = statusRight + margin;     // never overlap the status row
+    float ty = ps3::baselineToTopY(iconCY + ps3::devS(7.0f), ts);
+    drawText(timeStr, txx + so[0], ty + so[1], ts, 0.0f, 0.0f, 0.0f, 0.5f * fadeMul);   // shadow
+    drawText(timeStr, txx, ty, ts, 1.0f, 1.0f, 1.0f, 0.92f * fadeMul);                  // crisp
 }
 
 } // namespace android

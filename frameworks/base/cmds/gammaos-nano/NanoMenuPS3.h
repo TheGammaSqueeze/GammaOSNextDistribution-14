@@ -44,7 +44,7 @@ constexpr float CAT_X = 566.0f;
 constexpr float CAT_SPACING = 203.0f;
 constexpr float CAT_ICON_ACTIVE = 168.0f;
 constexpr float CAT_ICON_INACTIVE = 117.0f;
-constexpr float CAT_LABEL_Y = 342.0f;
+constexpr float CAT_LABEL_Y = 366.0f;   // below the active icon (was web 342; lowered for clearance)
 constexpr float CAT_LABEL_SIZE = 20.0f;
 constexpr float CAT_INACTIVE_ALPHA = 0.9f;
 constexpr float CAT_FAR_ALPHA = 0.25f;
@@ -155,6 +155,11 @@ struct LayoutParams {
     int   orientation = ORIENT_AUTO;      // OrientationMode
     int   simW = 0;                       // 0 = native panel resolution
     int   simH = 0;
+    // User UI-size preference: zooms the MENU (icons/text/spacing) about the
+    // visible centre without touching the background frame, so the wave still
+    // fills the panel under a larger menu. 1.0 = web-exact; >1 enlarges. Useful
+    // on small physical panels (e.g. the 3.2" TrimUI Brick).
+    float uiScale = 1.0f;
 };
 
 // Parse helpers, matching ASPECTS / RES_PRESETS / orientation in index.html.

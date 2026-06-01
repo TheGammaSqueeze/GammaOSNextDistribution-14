@@ -686,6 +686,7 @@ private:
     };
     bool mPs3Xmb = false;         // persist.gammaos.nano.ps3xmb
     bool mPs3MenuBuilt = false;
+    float mPs3UiScale = 1.0f;     // persist.gammaos.nano.ps3xmb.uiscale (menu zoom)
     std::vector<Ps3Cat> mPs3Cats;
     std::vector<Ps3Level> mPs3Stack;   // empty = at category top level
     int mPs3CatIdx = -1;

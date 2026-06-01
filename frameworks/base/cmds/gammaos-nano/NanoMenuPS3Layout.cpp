@@ -194,6 +194,21 @@ void layoutCompute(const LayoutParams& P) {
     gFrameY = (panelH - gFrameH) * 0.5f;
     gOffX = gFrameX;
     gOffY = gFrameY + k * vOffWithin;
+
+    // User UI-size zoom: enlarge the menu about the visible-frame centre, keeping
+    // that centre fixed in device space, so the category bar / item list / clock
+    // grow together. The background frame (gFrame*) is untouched, so the wave
+    // still fills the whole panel under the larger menu. Clamp to a sane range.
+    float ui = P.uiScale;
+    if (ui < 0.5f) ui = 0.5f;
+    if (ui > 2.0f) ui = 2.0f;
+    if (fabsf(ui - 1.0f) > 0.001f) {
+        const float cxv = (VW * LAYOUT_FIT) * 0.5f;            // visible centre x (virtual)
+        const float cyv = LAYOUT_VOFF + (VH * LAYOUT_VFIT) * 0.5f; // visible centre y (virtual)
+        gOffX += gScale * cxv * (1.0f - ui);
+        gOffY += gScale * cyv * (1.0f - ui);
+        gScale *= ui;
+    }
 }
 
 } // namespace ps3
