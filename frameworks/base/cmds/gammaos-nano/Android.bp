@@ -52,6 +52,7 @@ cc_binary {
         "NanoMenuRender.cpp",
         "NanoMenuPS3Layout.cpp",
         "NanoMenuPS3Bg.cpp",
+        "NanoMenuPS3Particles.cpp",
         "NanoMenuPS3Icons.cpp",
         "NanoMenuPS3Menu.cpp",
         "NanoMenuSetupWizard.cpp",

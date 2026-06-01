@@ -22,6 +22,7 @@
 
 #include "NanoMenuPS3Bg.h"
 #include "NanoMenuPS3.h"
+#include "NanoMenuPS3Particles.h"
 
 #include <math.h>
 #include <stdio.h>
@@ -684,6 +685,7 @@ void render(int panelW, int panelH, float dt, const float rotMat2[4], bool /*rot
 
     // Build the work buffer: gradient blit, then additive wave on top.
     animateWave(dt);
+    ps3part::update(dt);
     glBindFramebuffer(GL_FRAMEBUFFER, sWorkFbo);
     glViewport(0, 0, fw, fh);
     glDisable(GL_BLEND);
@@ -760,6 +762,20 @@ void render(int panelW, int panelH, float dt, const float rotMat2[4], bool /*rot
     if (sWNormal >= 0) glDisableVertexAttribArray(sWNormal);
     if (sWUV >= 0)     glDisableVertexAttribArray(sWUV);
     glActiveTexture(GL_TEXTURE0);
+
+    // Firmware glitter field: additive point-sprite glints drawn to the PANEL
+    // AFTER the composite (so the faint HDR glints survive the tonemap, matching
+    // the web). The work-space position uses the SAME scaleX/scaleY/yFlip as the
+    // wave (so they ride it + adapt to aspect), is mapped into the frame rect
+    // (nx0,ny1,nx1,ny0) and rotated by rm (DRM rotation) - correct on every
+    // orientation. ps3part restores the standard blend when done.
+    {
+        float layoutFit = ps3::LAYOUT_FIT > 0.0f ? ps3::LAYOUT_FIT : 1.0f;
+        const float frameNdc[4] = { nx0, ny1, nx1, ny0 };
+        ps3part::render(1.0f / layoutFit, 0.8f, 1.0f, (float)fh, nightDayBlend,
+                        (float)(sSeqElapsed * 0.4), frameNdc, rm);
+    }
+
     // Restore the standard alpha blend the menu/UI pass relies on (we used
     // additive for the wave and disabled blend for the composite).
     glEnable(GL_BLEND);
