@@ -15,23 +15,26 @@
  */
 
 // GammaOS Nano PS3 XMB menu. Faithful port of the PlayStation 3 XrossMediaBar
-// layout (index.html drawXMB / drawItemList): a horizontal category bar with a
-// vertical item list dropping out of the active category, the firmware geometry,
-// the firmware animation language (a category slide rail with a fade-crossfade,
-// easeOutBack item navigation), the clock, and the captured wave behind it. The
-// categories are populated from nano's real content so the launcher keeps
-// working. Gated by persist.gammaos.nano.ps3xmb.
+// (index.html drawXMB / drawItemList / drawClock): the horizontal category bar,
+// the vertical item list dropping out of the active category at the firmware
+// geometry, the firmware animation language (category slide rail + fade
+// crossfade, smooth accelerating item scroll), the clock, all over the captured
+// wave. Categories are populated from nano's real content. Gated by
+// persist.gammaos.nano.ps3xmb.
 
-// LOG_TAG must be defined before NanoMenu.h (it transitively sets a default).
 #define LOG_TAG "GammaOSNano"
 
 #include "NanoMenu.h"
 #include "NanoMenuPS3.h"
+#include "NanoMenuPS3Bg.h"
+#include "NanoMenuPS3Data.h"
 
+#include <ctype.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <strings.h>
 #include <time.h>
 #include <vector>
 
@@ -47,8 +50,7 @@
 namespace android {
 
 // ---------------------------------------------------------------------------
-// libpng loader -> mono-white (silvery) RGBA texture for the PS3 category
-// icons. Tries the dev push dir then the shipped asset.
+// libpng loader -> mono-white (silvery) RGBA texture for the PS3 icons.
 // ---------------------------------------------------------------------------
 static GLuint loadPs3IconTex(const char* file) {
     char path[256];
@@ -86,9 +88,7 @@ static GLuint loadPs3IconTex(const char* file) {
     png_read_image(png, rows.data());
     png_destroy_read_struct(&png, &info, nullptr);
     fclose(fp);
-    for (size_t i = 0; i + 3 < pixels.size(); i += 4) {   // force white, keep alpha
-        pixels[i] = 255; pixels[i + 1] = 255; pixels[i + 2] = 255;
-    }
+    for (size_t i = 0; i + 3 < pixels.size(); i += 4) { pixels[i] = 255; pixels[i+1] = 255; pixels[i+2] = 255; }
     GLuint tex = 0;
     glGenTextures(1, &tex);
     glBindTexture(GL_TEXTURE_2D, tex);
@@ -129,65 +129,89 @@ void NanoMenu::drawIconTex(GLuint tex, float x, float y, float w, float h,
 }
 
 // ---------------------------------------------------------------------------
-// model build
+// model build (1:1 from the web DATA tree + the nano Game consoles)
 // ---------------------------------------------------------------------------
+// Build one runtime Ps3Item from a static DATA node (glass via nmap_NNN).
+NanoMenu::Ps3Item NanoMenu::makeDataItem(const Ps3DataItem* d) {
+    Ps3Item it;
+    it.label = d->name;
+    if (d->desc)  it.desc  = d->desc;
+    if (d->value) it.value = d->value;
+    it.action = d->action;
+    it.data = d;
+    it.kind = (d->children && d->childCount > 0) ? PS3_DATA_SUBMENU : PS3_DATA_LEAF;
+    // PS Store has no nano normal-map asset; stand in with the Game icon so it
+    // still reads as glass. All other DATA icon indices have an nmap_NNN.
+    int icon = (d->icon >= 0) ? d->icon : 5;
+    it.nmapTex = nmapForIcon(icon);
+    it.iconR = it.iconG = it.iconB = 1.0f;
+    return it;
+}
+
 void NanoMenu::initPs3Menu() {
     if (mPs3MenuBuilt) return;
+    initGlassIcons();
     static const char* kCatIconFiles[6] = {
         "xmb_icon_001.png", "xmb_icon_002.png", "xmb_icon_003.png",
         "xmb_icon_004.png", "xmb_icon_005.png", "xmb_icon_006.png",
     };
-    for (int i = 0; i < 6; i++) mPs3CatTex[i] = loadPs3IconTex(kCatIconFiles[i]);
+    for (int i = 0; i < 6; i++) {
+        mPs3CatTex[i] = loadPs3IconTex(kCatIconFiles[i]);
+        mPs3CatNmap[i] = nmapForIcon(i + 1);   // category icons are xmb_icon 1..6
+    }
     buildPs3Cats();
     mPs3MenuBuilt = true;
     ALOGI("ps3menu: built %zu categories", mPs3Cats.size());
 }
 
+// Build a submenu level from a static DATA node's children.
+void NanoMenu::buildDataSubmenu(const Ps3DataItem* node, Ps3Level& out) {
+    out.items.clear(); out.sel = 0;
+    out.title = node ? node->name : "";
+    if (!node || !node->children) return;
+    for (int i = 0; i < node->childCount; i++)
+        out.items.push_back(makeDataItem(&node->children[i]));
+}
+
 void NanoMenu::buildRomSubmenu(int sysIdx, Ps3Level& out) {
-    out.items.clear();
-    out.sel = 0;
+    out.items.clear(); out.sel = 0;
     if (sysIdx < 0 || sysIdx >= (int)mXmbSystems.size()) return;
     const XmbSystem& sys = mXmbSystems[sysIdx];
     out.title = sys.name;
+    GLuint bevel = bevelForIconIdx(16);   // generic game cartridge bevel
     for (size_t i = 0; i < sys.displayNames.size(); i++) {
         Ps3Item it;
         it.label = sys.displayNames[i];
-        it.kind = PS3_ROM;
-        it.a = sysIdx; it.b = (int)i;
-        it.iconTex = mIconTextures[16];
-        it.iconR = sys.iconR; it.iconG = sys.iconG; it.iconB = sys.iconB;
+        it.kind = PS3_ROM; it.a = sysIdx; it.b = (int)i;
+        it.iconTex = mIconTextures[16]; it.nmapTex = bevel;
+        it.iconR = it.iconG = it.iconB = 1.0f;
         out.items.push_back(it);
     }
 }
 
 void NanoMenu::buildRecentSubmenu(Ps3Level& out) {
-    out.items.clear();
-    out.sel = 0;
-    out.title = "Recently Played";
+    out.items.clear(); out.sel = 0; out.title = "Recently Played";
+    GLuint bevel = bevelForIconIdx(15);
     for (size_t i = 0; i < mXmbRecent.size(); i++) {
         Ps3Item it;
         it.label = mXmbRecent[i].displayName;
         it.value = mXmbRecent[i].systemName;
-        it.kind = PS3_RECENT;
-        it.a = (int)i;
-        it.iconTex = mIconTextures[16];
+        it.kind = PS3_RECENT; it.a = (int)i;
+        it.iconTex = mIconTextures[15]; it.nmapTex = bevel;
         it.iconR = it.iconG = it.iconB = 1.0f;
         out.items.push_back(it);
     }
 }
 
 void NanoMenu::buildAppSubmenu(Ps3Level& out) {
-    out.items.clear();
-    out.sel = 0;
-    out.title = "Applications";
+    out.items.clear(); out.sel = 0; out.title = "Applications";
     if (!mAppsLoaded) loadInstalledApps();
+    GLuint bevel = bevelForIconIdx(16);
     for (size_t i = 0; i < mAppEntries.size(); i++) {
         Ps3Item it;
         it.label = mAppEntries[i].label;
-        it.kind = PS3_APP;
-        it.a = (int)i;
-        it.payloadStr = mAppEntries[i].packageName;
-        it.iconTex = mIconTextures[17];
+        it.kind = PS3_APP; it.a = (int)i; it.payloadStr = mAppEntries[i].packageName;
+        it.iconTex = mIconTextures[16]; it.nmapTex = bevel;
         it.iconR = it.iconG = it.iconB = 1.0f;
         out.items.push_back(it);
     }
@@ -195,63 +219,57 @@ void NanoMenu::buildAppSubmenu(Ps3Level& out) {
 
 void NanoMenu::buildPs3Cats() {
     mPs3Cats.clear();
+    int gameCatRuntimeIdx = -1;
 
-    // --- Settings (icon 001) ---
-    {
-        Ps3Cat c; c.name = "Settings"; c.iconTex = mPs3CatTex[0];
-        if (mSettingsItems.empty()) initSettingsItems();
-        for (size_t i = 0; i < mSettingsItems.size(); i++) {
-            Ps3Item it;
-            it.label = mSettingsItems[i].label;
-            it.kind = PS3_SETTING;
-            it.a = mSettingsItems[i].action;
-            it.iconTex = mIconTextures[17];
-            it.iconR = it.iconG = it.iconB = 1.0f;
-            c.items.push_back(it);
-        }
+    // Categories straight from the web DATA tree (Users/PSN/Friends excluded by
+    // the table). Each item is glass-rendered from its xmb_icon normal map.
+    for (int ci = 0; ci < kPs3DataCatCount; ci++) {
+        const Ps3DataCat& dc = kPs3DataCats[ci];
+        Ps3Cat c;
+        c.name = dc.name;
+        int catIdx = (dc.icon >= 1 && dc.icon <= 6) ? dc.icon - 1 : 0;
+        c.iconTex = mPs3CatTex[catIdx];
+        c.nmapTex = mPs3CatNmap[catIdx];
+        for (int ii = 0; ii < dc.itemCount; ii++)
+            c.items.push_back(makeDataItem(&dc.items[ii]));
+        if (strcmp(dc.id, "game") == 0) gameCatRuntimeIdx = (int)mPs3Cats.size();
         mPs3Cats.push_back(c);
     }
 
-    // --- Game (icon 005): Recently Played + each emulator system + Applications ---
-    {
-        Ps3Cat c; c.name = "Game"; c.iconTex = mPs3CatTex[4];
+    // The ONLY nano addition: the emulator consoles / Recently Played / Apps go
+    // under Game so games actually launch. Prepend them (functional content
+    // first) ahead of the firmware demo items.
+    if (gameCatRuntimeIdx >= 0) {
+        Ps3Cat& game = mPs3Cats[gameCatRuntimeIdx];
+        std::vector<Ps3Item> nano;
         if (!mXmbRecent.empty()) {
-            Ps3Item it;
-            it.label = "Recently Played";
-            it.kind = PS3_RECENT_LIST;
-            it.iconTex = mIconTextures[15];
-            it.iconR = it.iconG = it.iconB = 1.0f;
-            c.items.push_back(it);
+            Ps3Item it; it.label = "Recently Played"; it.kind = PS3_RECENT_LIST;
+            it.iconTex = mIconTextures[15]; it.nmapTex = bevelForIconIdx(15);
+            it.iconR = it.iconG = it.iconB = 1.0f; nano.push_back(it);
         }
         for (size_t s = 0; s < mXmbSystems.size(); s++) {
             const XmbSystem& sys = mXmbSystems[s];
             if (sys.roms.empty()) continue;
-            Ps3Item it;
-            it.label = sys.name;
-            it.kind = PS3_SYSTEM;
-            it.a = (int)s;
-            it.iconTex = (s < 15) ? mIconTextures[s] : mIconTextures[16];
-            it.iconR = sys.iconR; it.iconG = sys.iconG; it.iconB = sys.iconB;
-            char buf[32];
-            snprintf(buf, sizeof(buf), "%zu", sys.roms.size());
-            it.value = buf;
-            c.items.push_back(it);
-        }
-        if (!mAppEntries.empty() || mAppsLoaded) {
-            Ps3Item it;
-            it.label = "Applications";
-            it.kind = PS3_APP_LIST;
-            it.iconTex = mIconTextures[17];
+            Ps3Item it; it.label = sys.name; it.kind = PS3_SYSTEM; it.a = (int)s;
+            int iconIdx = (s < 15) ? (int)s : 16;
+            it.iconTex = mIconTextures[iconIdx]; it.nmapTex = bevelForIconIdx(iconIdx);
             it.iconR = it.iconG = it.iconB = 1.0f;
-            c.items.push_back(it);
+            char buf[32]; snprintf(buf, sizeof(buf), "%zu", sys.roms.size()); it.value = buf;
+            nano.push_back(it);
         }
-        mPs3Cats.push_back(c);
+        { Ps3Item it; it.label = "Applications"; it.kind = PS3_APP_LIST;
+          it.iconTex = mIconTextures[16]; it.nmapTex = bevelForIconIdx(16);
+          it.iconR = it.iconG = it.iconB = 1.0f; nano.push_back(it); }
+        game.items.insert(game.items.begin(), nano.begin(), nano.end());
     }
 
     mPs3CatItemSel.assign(mPs3Cats.size(), 0);
-    if (mPs3CatIdx < 0 || mPs3CatIdx >= (int)mPs3Cats.size())
-        mPs3CatIdx = (mPs3Cats.size() >= 2) ? 1 : 0;   // land on Game
+    // Land on Game by default.
+    if (mPs3CatIdx < 0 || mPs3CatIdx >= (int)mPs3Cats.size()) {
+        mPs3CatIdx = (gameCatRuntimeIdx >= 0) ? gameCatRuntimeIdx : 0;
+    }
     mPs3ItemIdx = 0;
+    mPs3AnimItem = 0.0f;
 }
 
 std::vector<NanoMenu::Ps3Item>& NanoMenu::ps3CurItems() {
@@ -269,12 +287,7 @@ int& NanoMenu::ps3CurSel() {
 // ---------------------------------------------------------------------------
 // easing + the firmware item-carousel slot model
 // ---------------------------------------------------------------------------
-static inline float easeSmooth(float t) { return t * t * (3.0f - 2.0f * t); }   // smoothstep
-static inline float easeOutBack(float t) {                                      // 10% overshoot
-    const float c1 = 1.70158f, c3 = c1 + 1.0f;
-    float u = t - 1.0f;
-    return 1.0f + c3 * u * u * u + c1 * u * u;
-}
+static inline float easeSmooth(float t) { return t * t * (3.0f - 2.0f * t); }
 static float itemSlotY(int idx, int sel) {
     const float ITEM_ABOVE_BASE_Y = 120.0f;
     if (idx == sel) return ps3::ITEM_FOCUS_Y;
@@ -284,63 +297,47 @@ static float itemSlotY(int idx, int sel) {
     }
     return ps3::ITEM_FOCUS_Y + ps3::ITEM_ACTIVE_PAD + (float)(idx - sel) * ps3::ITEM_SPACING;
 }
-
-// Current live category-bar offset (virtual px), eased.
+// Item Y for a CONTINUOUS selection position (interpolates the slot model).
+static float itemSlotYf(int idx, float selPos) {
+    int s0 = (int)floorf(selPos);
+    float frac = selPos - (float)s0;
+    return itemSlotY(idx, s0) + (itemSlotY(idx, s0 + 1) - itemSlotY(idx, s0)) * frac;
+}
 static float ps3CatOffset(bool active, float t, float fromOff) {
     return active ? fromOff * (1.0f - easeSmooth(t)) : 0.0f;
 }
 
 // ---------------------------------------------------------------------------
-// navigation - the handlers START animations; render() interpolates them.
+// navigation - smooth continuous item position; timed category slide rail.
 // ---------------------------------------------------------------------------
 void NanoMenu::ps3XmbLeft() {
     if (!mPs3Stack.empty()) { ps3XmbBack(); return; }
     if (mPs3Cats.empty() || mPs3CatIdx <= 0) return;
     float live = ps3CatOffset(mPs3CatAnimActive, mPs3CatT, mPs3CatFromOffset);
-    mPs3CatOldIdx = mPs3CatIdx;
-    mPs3CatOldSel = mPs3ItemIdx;
+    mPs3CatOldIdx = mPs3CatIdx; mPs3CatOldSel = mPs3ItemIdx;
     mPs3CatItemSel[mPs3CatIdx] = mPs3ItemIdx;
     mPs3CatIdx--;
     mPs3ItemIdx = mPs3CatItemSel[mPs3CatIdx];
-    mPs3CatFromOffset = live - ps3::CAT_SPACING;       // dir = -1
-    mPs3CatT = 0.0f;
-    mPs3CatAnimActive = true;
-    mPs3ItemAnimActive = false;
+    mPs3AnimItem = (float)mPs3ItemIdx;       // snap; do not animate across lists
+    mPs3CatFromOffset = live - ps3::CAT_SPACING;
+    mPs3CatT = 0.0f; mPs3CatAnimActive = true;
 }
 
 void NanoMenu::ps3XmbRight() {
     if (!mPs3Stack.empty()) { ps3XmbSelect(); return; }
     if (mPs3Cats.empty() || mPs3CatIdx >= (int)mPs3Cats.size() - 1) return;
     float live = ps3CatOffset(mPs3CatAnimActive, mPs3CatT, mPs3CatFromOffset);
-    mPs3CatOldIdx = mPs3CatIdx;
-    mPs3CatOldSel = mPs3ItemIdx;
+    mPs3CatOldIdx = mPs3CatIdx; mPs3CatOldSel = mPs3ItemIdx;
     mPs3CatItemSel[mPs3CatIdx] = mPs3ItemIdx;
     mPs3CatIdx++;
     mPs3ItemIdx = mPs3CatItemSel[mPs3CatIdx];
-    mPs3CatFromOffset = live + ps3::CAT_SPACING;       // dir = +1
-    mPs3CatT = 0.0f;
-    mPs3CatAnimActive = true;
-    mPs3ItemAnimActive = false;
+    mPs3AnimItem = (float)mPs3ItemIdx;
+    mPs3CatFromOffset = live + ps3::CAT_SPACING;
+    mPs3CatT = 0.0f; mPs3CatAnimActive = true;
 }
 
-void NanoMenu::ps3XmbUp() {
-    int& sel = ps3CurSel();
-    if (sel <= 0) return;
-    mPs3ItemFromIdx = sel;
-    sel--;
-    mPs3ItemT = 0.0f;
-    mPs3ItemAnimActive = true;
-}
-
-void NanoMenu::ps3XmbDown() {
-    int& sel = ps3CurSel();
-    int n = (int)ps3CurItems().size();
-    if (sel >= n - 1) return;
-    mPs3ItemFromIdx = sel;
-    sel++;
-    mPs3ItemT = 0.0f;
-    mPs3ItemAnimActive = true;
-}
+void NanoMenu::ps3XmbUp()   { int& s = ps3CurSel(); if (s > 0) s--; }
+void NanoMenu::ps3XmbDown() { int& s = ps3CurSel(); int n = (int)ps3CurItems().size(); if (s < n - 1) s++; }
 
 void NanoMenu::ps3XmbSelect() {
     std::vector<Ps3Item>& items = ps3CurItems();
@@ -349,15 +346,18 @@ void NanoMenu::ps3XmbSelect() {
     Ps3Item it = items[sel];
     switch (it.kind) {
         case PS3_SYSTEM: { Ps3Level lvl; buildRomSubmenu(it.a, lvl); mPs3Stack.push_back(lvl);
-                           mPs3SubDir = 1; mPs3SubAnim = 0.0f; mPs3ItemAnimActive = false; break; }
+                           mPs3SubDir = 1; mPs3SubAnim = 0.0f; mPs3AnimItem = 0.0f; break; }
         case PS3_RECENT_LIST: { Ps3Level lvl; buildRecentSubmenu(lvl); mPs3Stack.push_back(lvl);
-                                mPs3SubDir = 1; mPs3SubAnim = 0.0f; mPs3ItemAnimActive = false; break; }
+                                mPs3SubDir = 1; mPs3SubAnim = 0.0f; mPs3AnimItem = 0.0f; break; }
         case PS3_APP_LIST: { Ps3Level lvl; buildAppSubmenu(lvl); mPs3Stack.push_back(lvl);
-                             mPs3SubDir = 1; mPs3SubAnim = 0.0f; mPs3ItemAnimActive = false; break; }
+                             mPs3SubDir = 1; mPs3SubAnim = 0.0f; mPs3AnimItem = 0.0f; break; }
         case PS3_ROM: { mXmbSystemIndex = it.a; mXmbGameIndex = it.b; mSearchActive = false; launchXmbGame(); break; }
         case PS3_RECENT: { mXmbSystemIndex = -1; mXmbGameIndex = it.a; mSearchActive = false; launchXmbGame(); break; }
         case PS3_SETTING: { if (it.a == 0) openWifiScreen(); else if (it.a == 1) openBtScreen(); break; }
-        default: break;
+        case PS3_DATA_SUBMENU: { Ps3Level lvl; buildDataSubmenu(it.data, lvl); mPs3Stack.push_back(lvl);
+                                 mPs3SubDir = 1; mPs3SubAnim = 0.0f; mPs3AnimItem = 0.0f; break; }
+        case PS3_DATA_LEAF: break;   // dialog / value items: side-panel choosers wired in a later pass
+        default: break;   // PS3_APP / PS3_LAUNCH_PKG launch wired in a later pass
     }
 }
 
@@ -365,7 +365,7 @@ void NanoMenu::ps3XmbBack() {
     if (!mPs3Stack.empty()) {
         mPs3Stack.pop_back();
         mPs3SubDir = -1; mPs3SubAnim = 1.0f;
-        mPs3ItemAnimActive = false;
+        mPs3AnimItem = (float)ps3CurSel();
     }
 }
 
@@ -382,22 +382,20 @@ void NanoMenu::renderPs3Xmb() {
 
     float dt = mFrameDt; if (dt < 0.0f) dt = 0.0f; if (dt > 0.1f) dt = 0.1f;
 
-    // advance timed animations
+    // category slide (timed) + continuous item tracker (smooth, accelerates on hold)
     if (mPs3CatAnimActive) {
         mPs3CatT += dt / (ps3::CAT_ANIM_MS / 1000.0f);
         if (mPs3CatT >= 1.0f) { mPs3CatT = 1.0f; mPs3CatAnimActive = false; }
     }
-    if (mPs3ItemAnimActive) {
-        mPs3ItemT += dt / (ps3::ITEM_ANIM_MS / 1000.0f);
-        if (mPs3ItemT >= 1.0f) { mPs3ItemT = 1.0f; mPs3ItemAnimActive = false; }
-    }
-    // submenu collapse factor (smoothed toward the target)
+    float itemDecay = 1.0f - expf(-15.0f * dt);
+    float itemTarget = (float)ps3CurSel();
+    mPs3AnimItem += (itemTarget - mPs3AnimItem) * itemDecay;
+    if (fabsf(mPs3AnimItem - itemTarget) < 0.004f) mPs3AnimItem = itemTarget;
     float subDecay = 1.0f - expf(-12.0f * dt);
     if (mPs3SubDir > 0) { mPs3SubAnim += subDecay * (1.0f - mPs3SubAnim); if (mPs3SubAnim > 0.999f) mPs3SubAnim = 1.0f; }
     else if (mPs3SubDir < 0) { mPs3SubAnim += subDecay * (0.0f - mPs3SubAnim); if (mPs3SubAnim < 0.001f) { mPs3SubAnim = 0.0f; mPs3SubDir = 0; } }
     bool inSub = !mPs3Stack.empty();
     float subT = inSub ? mPs3SubAnim : (mPs3SubDir < 0 ? mPs3SubAnim : 0.0f);
-
     float catOffset = ps3CatOffset(mPs3CatAnimActive, mPs3CatT, mPs3CatFromOffset);
 
     // ---- category bar ----
@@ -418,8 +416,11 @@ void NanoMenu::renderPs3Xmb() {
         float alpha = isActive ? 1.0f : (catDist <= 2 ? ps3::CAT_INACTIVE_ALPHA : ps3::CAT_FAR_ALPHA);
         alpha *= nonActiveSubFade;
         float dsz = ps3::devS(sz);
-        drawIconTex(mPs3Cats[i].iconTex, ps3::devX(ps3::XCL(x, sz * 0.5f)),
-                    ps3::devY(y - sz * 0.5f), dsz, dsz, 1.0f, 1.0f, 1.0f, alpha);
+        float ix = ps3::devX(ps3::XCL(x, sz * 0.5f)), iy = ps3::devY(y - sz * 0.5f);
+        if (mIconGlassReady && mPs3Cats[i].nmapTex && ps3bg::workTex())
+            drawGlassIcon(mPs3Cats[i].nmapTex, ix, iy, dsz, dsz, 1.0f, 1.0f, 1.0f, alpha);
+        else
+            drawIconTex(mPs3Cats[i].iconTex, ix, iy, dsz, dsz, 1.0f, 1.0f, 1.0f, alpha);
         if (isActive) {
             float la = 0.9f * (1.0f - 0.55f * subT);
             float ls = ps3::fontScale(ps3::CAT_LABEL_SIZE);
@@ -431,70 +432,45 @@ void NanoMenu::renderPs3Xmb() {
         }
     }
 
-    // ---- item list helper ----
-    // Renders an item list. xShiftV: virtual-px horizontal shift (rail slide).
-    // animFromIdx >= 0: easeOutBack per-item Y interpolation from that selection.
+    // ---- item-list renderer (continuous selection position selPos) ----
     float fTop = ps3::frameTopV();
     float fBot = fTop + ps3::frameHV();
-    auto drawList = [&](std::vector<Ps3Item>& items, int sel, float xShiftV,
-                        float alphaMul, int animFromIdx) {
+    auto drawList = [&](std::vector<Ps3Item>& items, float selPos, float xShiftV, float alphaMul) {
         if (items.empty() || alphaMul <= 0.01f) return;
-        bool anim = (animFromIdx >= 0 && animFromIdx != sel);
-        float e = anim ? easeOutBack(mPs3ItemT) : 1.0f;
+        int activeIdx = (int)lroundf(selPos);
         for (int i = 0; i < (int)items.size(); i++) {
-            bool isActive = (i == sel);
-            float y;
-            if (anim) {
-                float yNew = itemSlotY(i, sel), yOld = itemSlotY(i, animFromIdx);
-                y = yNew + (yOld - yNew) * (1.0f - e);
-            } else {
-                y = itemSlotY(i, sel);
-            }
+            bool isActive = (i == activeIdx);
+            float y = itemSlotYf(i, selPos);
             if (y < fTop - 90.0f || y > fBot + 90.0f) continue;
             float alpha = (isActive ? ps3::ALPHA_FOCUS : ps3::ALPHA_INACTIVE) * alphaMul;
             if (y < fTop + 40.0f) alpha *= fmaxf(0.0f, (y - fTop) / 40.0f);
             if (y > fBot - 20.0f) alpha *= fmaxf(0.0f, (fBot - y) / 20.0f);
             if (alpha <= 0.01f) continue;
             const Ps3Item& it = items[i];
-            // Icon: modest active enlargement (firmware 180 is for game thumbnails
-            // and looks oversized on the monochrome system icons).
             float isz = isActive ? (ps3::ITEM_ICON_SIZE * 1.18f) : ps3::ITEM_ICON_SIZE;
             float dsz = ps3::devS(isz);
-            if (it.iconTex) {
-                drawIconTex(it.iconTex,
-                            ps3::devX(ps3::XCL(ps3::ITEM_ICON_X + xShiftV, isz * 0.5f)),
-                            ps3::devY(y - isz * 0.5f), dsz, dsz,
-                            it.iconR, it.iconG, it.iconB, alpha);
-            }
+            float ix = ps3::devX(ps3::XCL(ps3::ITEM_ICON_X + xShiftV, isz * 0.5f));
+            float iy = ps3::devY(y - isz * 0.5f);
+            if (mIconGlassReady && it.nmapTex && ps3bg::workTex())
+                drawGlassIcon(it.nmapTex, ix, iy, dsz, dsz, it.iconR, it.iconG, it.iconB, alpha);
+            else if (it.iconTex)
+                drawIconTex(it.iconTex, ix, iy, dsz, dsz, it.iconR, it.iconG, it.iconB, alpha);
             float tSize = isActive ? ps3::ITEM_TEXT_ACTIVE_SIZE : ps3::ITEM_TEXT_SIZE;
             float ts = ps3::fontScale(tSize);
             float tx = ps3::devX(ps3::XCP(ps3::ITEM_TEXT_X + xShiftV));
             float ty = ps3::baselineToTopY(ps3::devY(y), ts);
             if (isActive) {
-                // Dual-halo breathing glow: an outer + inner ring of low-alpha
-                // white passes around the crisp text (approximates the firmware
-                // gaussian halo while staying cheap at 60fps).
-                float phase = fmodf(mEffectTime, ps3::PULSE_PERIOD_MS / 1000.0f) /
-                              (ps3::PULSE_PERIOD_MS / 1000.0f);
+                float phase = fmodf(mEffectTime, ps3::PULSE_PERIOD_MS / 1000.0f) / (ps3::PULSE_PERIOD_MS / 1000.0f);
                 float s = 0.5f * (1.0f - cosf(phase * 2.0f * (float)M_PI));
                 float outerA = ps3::PULSE_ALPHA_MIN + (ps3::PULSE_ALPHA_MAX - ps3::PULSE_ALPHA_MIN) * s;
                 float innerA = ps3::PULSE_INNER_MIN + (ps3::PULSE_INNER_MAX - ps3::PULSE_INNER_MIN) * s;
                 float oR = ps3::devS(5.0f), iR = ps3::devS(2.2f);
                 const char* L = it.label.c_str();
-                for (int k = 0; k < 8; k++) {
-                    float a = (float)k / 8.0f * 2.0f * (float)M_PI;
-                    drawText(L, tx + cosf(a) * oR, ty + sinf(a) * oR, ts, 1.0f, 1.0f, 1.0f, outerA * alphaMul * 0.16f);
-                }
-                for (int k = 0; k < 6; k++) {
-                    float a = ((float)k + 0.5f) / 6.0f * 2.0f * (float)M_PI;
-                    drawText(L, tx + cosf(a) * iR, ty + sinf(a) * iR, ts, 1.0f, 1.0f, 1.0f, innerA * alphaMul * 0.28f);
-                }
+                for (int k = 0; k < 8; k++) { float a = (float)k / 8.0f * 2.0f * (float)M_PI;
+                    drawText(L, tx + cosf(a) * oR, ty + sinf(a) * oR, ts, 1.0f, 1.0f, 1.0f, outerA * alphaMul * 0.16f); }
+                for (int k = 0; k < 6; k++) { float a = ((float)k + 0.5f) / 6.0f * 2.0f * (float)M_PI;
+                    drawText(L, tx + cosf(a) * iR, ty + sinf(a) * iR, ts, 1.0f, 1.0f, 1.0f, innerA * alphaMul * 0.28f); }
                 drawText(L, tx, ty, ts, 1.0f, 1.0f, 1.0f, alpha);
-                if (!it.desc.empty()) {
-                    float ds = ps3::fontScale(ps3::ITEM_DESC_SIZE * ps3::DESC_BOOST);
-                    float dy = ps3::baselineToTopY(ps3::devY(y + ps3::ITEM_DESC_OFFSET), ds);
-                    drawText(it.desc.c_str(), tx, dy, ds, 0.85f, 0.85f, 0.88f, 0.7f * alphaMul);
-                }
             } else {
                 drawText(it.label.c_str(), tx, ty, ts, 0.92f, 0.92f, 0.92f, alpha);
             }
@@ -507,31 +483,25 @@ void NanoMenu::renderPs3Xmb() {
         }
     };
 
-    // ---- item list (with the category slide rail + fade-crossfade) ----
+    // ---- item list (category slide rail + fade-crossfade) ----
     float childShiftV = inSub ? ps3::SUBMENU_TEXT_X_SHIFT * (1.0f - subT) : 0.0f;
     if (mPs3CatAnimActive && !inSub) {
-        // The whole rail translates; old category fades out, new fades in.
         float p = easeSmooth(mPs3CatT);
         float barTravel = mPs3CatFromOffset;
-        float oldShift = -barTravel * p;
-        float newShift = barTravel * (1.0f - p);
         float oldAlpha = fmaxf(0.0f, 1.0f - p / 0.4f);
         float newAlpha = fmaxf(0.0f, (p - 0.5f) / 0.5f);
         if (mPs3CatOldIdx >= 0 && mPs3CatOldIdx < (int)mPs3Cats.size())
-            drawList(mPs3Cats[mPs3CatOldIdx].items, mPs3CatOldSel, oldShift, oldAlpha, -1);
-        drawList(mPs3Cats[mPs3CatIdx].items, mPs3ItemIdx, newShift, newAlpha, -1);
+            drawList(mPs3Cats[mPs3CatOldIdx].items, (float)mPs3CatOldSel, -barTravel * p, oldAlpha);
+        drawList(mPs3Cats[mPs3CatIdx].items, mPs3AnimItem, barTravel * (1.0f - p), newAlpha);
     } else {
-        std::vector<Ps3Item>& items = ps3CurItems();
-        int sel = ps3CurSel();
-        drawList(items, sel, childShiftV, inSub ? subT : 1.0f,
-                 mPs3ItemAnimActive ? mPs3ItemFromIdx : -1);
+        drawList(ps3CurItems(), mPs3AnimItem, childShiftV, inSub ? subT : 1.0f);
     }
 
     drawPs3Clock(1.0f);
 }
 
 // ---------------------------------------------------------------------------
-// clock: U-frame + analog face + DD/M H:MM (index.html drawClock)
+// clock: open-right rounded U-frame + analog face + DD/M H:MM (drawClock 1:1)
 // ---------------------------------------------------------------------------
 void NanoMenu::drawPs3Clock(float fadeMul) {
     time_t tt = time(nullptr);
@@ -539,61 +509,169 @@ void NanoMenu::drawPs3Clock(float fadeMul) {
     char timeStr[40];
     snprintf(timeStr, sizeof(timeStr), "%d/%d %d:%02d", lt.tm_mday, lt.tm_mon + 1, lt.tm_hour, lt.tm_min);
 
-    // The clock is right-anchored: the web translates the group by
-    // V.W*(LAYOUT_FIT-1) so its right edge lands on the frame's right edge.
-    const float shiftV = ps3::VW * (ps3::LAYOUT_FIT - 1.0f);
+    const float shiftV = ps3::VW * (ps3::LAYOUT_FIT - 1.0f);   // right-anchor
     auto cx = [&](float vx) { return ps3::devX(vx + shiftV); };
-    // Portrait: raise the clock toward the frame top (frameTopV < 0).
     float clockDY = (ps3::frameTopV() < 0.0f) ? (ps3::frameTopV() + 40.0f - ps3::CLOCK_FRAME_Y) : 0.0f;
     auto cy = [&](float vy) { return ps3::devY(vy + clockDY); };
 
     float dxL = cx(ps3::CLOCK_FRAME_X);
-    float dxR = cx(ps3::VW + 4.0f);                 // open past the right edge
+    float dxR = cx(ps3::VW + 4.0f);
     float dyT = cy(ps3::CLOCK_FRAME_Y);
     float dyB = cy(ps3::CLOCK_FRAME_Y + ps3::CLOCK_FRAME_H);
-    float lw = fmaxf(1.0f, ps3::devS(1.5f));
+    float fr  = ps3::devS(ps3::CLOCK_FRAME_CORNER);
+    float lw  = fmaxf(1.0f, ps3::devS(1.0f));
 
-    drawQuad(dxL, dyT, dxR - dxL, dyB - dyT, 0.0f, 0.0f, 0.0f, 0.18f * fadeMul);   // dim panel
-    float ba = 0.35f * fadeMul;
-    drawQuad(dxL, dyT, dxR - dxL, lw, 1.0f, 1.0f, 1.0f, ba);          // top line
-    drawQuad(dxL, dyB - lw, dxR - dxL, lw, 1.0f, 1.0f, 1.0f, ba);     // bottom line
-    drawQuad(dxL, dyT, lw, dyB - dyT, 1.0f, 1.0f, 1.0f, ba);          // left line
+    // filled dim panel (open-right, rounded left corners)
+    auto fillURect = [&](float x0, float y0, float x1, float y1, float rad, float r, float g, float b, float a) {
+        if (rad < 1.0f) { drawQuad(x0, y0, x1 - x0, y1 - y0, r, g, b, a); return; }
+        drawQuad(x0 + rad, y0, (x1 - x0) - rad, y1 - y0, r, g, b, a);     // main body
+        drawQuad(x0, y0 + rad, rad, (y1 - y0) - 2.0f * rad, r, g, b, a);  // left strip
+        // top-left + bottom-left corner fans
+        for (int corner = 0; corner < 2; corner++) {
+            float ccx = x0 + rad, ccy = (corner == 0) ? (y0 + rad) : (y1 - rad);
+            float a0 = (corner == 0) ? (float)M_PI : (0.5f * (float)M_PI);
+            for (int s = 0; s < 6; s++) {
+                float t0 = a0 + (float)s / 6.0f * 0.5f * (float)M_PI;
+                float t1 = a0 + (float)(s + 1) / 6.0f * 0.5f * (float)M_PI;
+                drawTriangle(ccx, ccy,
+                             ccx + cosf(t0) * rad, ccy - sinf(t0) * rad,
+                             ccx + cosf(t1) * rad, ccy - sinf(t1) * rad, r, g, b, a);
+            }
+        }
+    };
+    fillURect(dxL, dyT, dxR, dyB, fr, 0.0f, 0.0f, 0.0f, 0.18f * fadeMul);
 
-    // ---- analog face: ring + two hands ----
+    // border outline (open-right): top + bottom + left lines + the two rounded corners.
+    auto strokeU = [&](float ox, float oy, float r, float g, float b, float a) {
+        drawQuad(dxL + fr + ox, dyT + oy, (dxR - dxL) - fr, lw, r, g, b, a);             // top
+        drawQuad(dxL + fr + ox, dyB - lw + oy, (dxR - dxL) - fr, lw, r, g, b, a);        // bottom
+        drawQuad(dxL + ox, dyT + fr + oy, lw, (dyB - dyT) - 2.0f * fr, r, g, b, a);      // left
+        for (int corner = 0; corner < 2; corner++) {
+            float ccx = dxL + fr + ox, ccy = ((corner == 0) ? (dyT + fr) : (dyB - fr)) + oy;
+            float a0 = (corner == 0) ? (float)M_PI : (0.5f * (float)M_PI);
+            for (int s = 0; s < 6; s++) {
+                float t0 = a0 + (float)s / 6.0f * 0.5f * (float)M_PI;
+                float t1 = a0 + (float)(s + 1) / 6.0f * 0.5f * (float)M_PI;
+                float r0 = fr, r1 = fr - lw;
+                float x0o = ccx + cosf(t0) * r0, y0o = ccy - sinf(t0) * r0;
+                float x1o = ccx + cosf(t1) * r0, y1o = ccy - sinf(t1) * r0;
+                float x0i = ccx + cosf(t0) * r1, y0i = ccy - sinf(t0) * r1;
+                float x1i = ccx + cosf(t1) * r1, y1i = ccy - sinf(t1) * r1;
+                drawTriangle(x0o, y0o, x1o, y1o, x0i, y0i, r, g, b, a);
+                drawTriangle(x1o, y1o, x1i, y1i, x0i, y0i, r, g, b, a);
+            }
+        }
+    };
+    // inner glow: a few inset border passes at decreasing alpha
+    for (int gi = 1; gi <= 4; gi++) {
+        float ga = 0.26f / (float)gi;
+        drawQuad(dxL + fr, dyT + (float)gi * lw, (dxR - dxL) - fr, lw, 1.0f, 1.0f, 1.0f, ga * fadeMul);
+        drawQuad(dxL + fr, dyB - (float)(gi + 1) * lw, (dxR - dxL) - fr, lw, 1.0f, 1.0f, 1.0f, ga * fadeMul);
+        drawQuad(dxL + (float)gi * lw, dyT + fr, lw, (dyB - dyT) - 2.0f * fr, 1.0f, 1.0f, 1.0f, ga * fadeMul);
+    }
+    float sh = ps3::devS(1.0f);
+    strokeU(0.0f, sh, 0.0f, 0.0f, 0.0f, 0.5f * fadeMul);    // drop shadow
+    strokeU(0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 0.35f * fadeMul); // border
+
+    // ---- analog face (drawn dark-shadow then crisp) ----
     float iconCX = cx(ps3::CLOCK_ICON_CX);
     float iconCY = (dyT + dyB) * 0.5f;
     float R = ps3::devS(ps3::CLOCK_ICON_R);
     float ringW = fmaxf(1.5f, R * 0.16f);
-    const int SEG = 28;
-    for (int i = 0; i < SEG; i++) {
-        float a0 = (float)i / SEG * 2.0f * (float)M_PI;
-        float a1 = (float)(i + 1) / SEG * 2.0f * (float)M_PI;
-        float ro = R, ri = R - ringW;
-        float x0o = iconCX + cosf(a0) * ro, y0o = iconCY + sinf(a0) * ro;
-        float x1o = iconCX + cosf(a1) * ro, y1o = iconCY + sinf(a1) * ro;
-        float x0i = iconCX + cosf(a0) * ri, y0i = iconCY + sinf(a0) * ri;
-        float x1i = iconCX + cosf(a1) * ri, y1i = iconCY + sinf(a1) * ri;
-        drawTriangle(x0o, y0o, x1o, y1o, x0i, y0i, 1.0f, 1.0f, 1.0f, 0.96f * fadeMul);
-        drawTriangle(x1o, y1o, x1i, y1i, x0i, y0i, 1.0f, 1.0f, 1.0f, 0.96f * fadeMul);
-    }
     float handW = fmaxf(2.0f, R * 0.25f);
     float hourAng = -(float)M_PI / 2.0f + (((lt.tm_hour % 12) + lt.tm_min / 60.0f) / 12.0f) * 2.0f * (float)M_PI;
     float minAng  = -(float)M_PI / 2.0f + (lt.tm_min / 60.0f) * 2.0f * (float)M_PI;
-    auto hand = [&](float ang, float len) {
-        float ex = iconCX + cosf(ang) * len, ey = iconCY + sinf(ang) * len;
-        float px = -sinf(ang) * handW * 0.5f, py = cosf(ang) * handW * 0.5f;
-        drawTriangle(iconCX + px, iconCY + py, iconCX - px, iconCY - py, ex + px, ey + py, 1.0f, 1.0f, 1.0f, 0.96f * fadeMul);
-        drawTriangle(ex + px, ey + py, ex - px, ey - py, iconCX - px, iconCY - py, 1.0f, 1.0f, 1.0f, 0.96f * fadeMul);
+    auto face = [&](float ox, float oy, float r, float g, float b, float a) {
+        const int SEG = 28;
+        for (int i = 0; i < SEG; i++) {
+            float a0 = (float)i / SEG * 2.0f * (float)M_PI, a1 = (float)(i + 1) / SEG * 2.0f * (float)M_PI;
+            float ro = R, ri = R - ringW;
+            float x0o = iconCX + cosf(a0) * ro + ox, y0o = iconCY + sinf(a0) * ro + oy;
+            float x1o = iconCX + cosf(a1) * ro + ox, y1o = iconCY + sinf(a1) * ro + oy;
+            float x0i = iconCX + cosf(a0) * ri + ox, y0i = iconCY + sinf(a0) * ri + oy;
+            float x1i = iconCX + cosf(a1) * ri + ox, y1i = iconCY + sinf(a1) * ri + oy;
+            drawTriangle(x0o, y0o, x1o, y1o, x0i, y0i, r, g, b, a);
+            drawTriangle(x1o, y1o, x1i, y1i, x0i, y0i, r, g, b, a);
+        }
+        auto hand = [&](float ang, float len) {
+            float ex = iconCX + cosf(ang) * len + ox, ey = iconCY + sinf(ang) * len + oy;
+            float bx = iconCX + ox, by = iconCY + oy;
+            float px = -sinf(ang) * handW * 0.5f, py = cosf(ang) * handW * 0.5f;
+            drawTriangle(bx + px, by + py, bx - px, by - py, ex + px, ey + py, r, g, b, a);
+            drawTriangle(ex + px, ey + py, ex - px, ey - py, bx - px, by - py, r, g, b, a);
+        };
+        hand(hourAng, R * 0.47f);
+        hand(minAng, R * 0.69f);
     };
-    hand(hourAng, R * 0.47f);
-    hand(minAng, R * 0.69f);
+    face(0.0f, sh, 0.0f, 0.0f, 0.0f, 0.55f * fadeMul);          // drop shadow
+    face(0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 0.96f * fadeMul);        // crisp
 
     // ---- time text (right-aligned, left of the icon) ----
     float ts = ps3::fontScale(ps3::CLOCK_SIZE);
     float tw = measureText(timeStr, ts);
     float textRight = iconCX - R - ps3::devS(6.0f);
-    float ty = ps3::baselineToTopY(iconCY + ps3::devS(3.0f), ts);
-    drawText(timeStr, textRight - tw, ty, ts, 1.0f, 1.0f, 1.0f, 0.92f * fadeMul);
+    float ty = ps3::baselineToTopY(iconCY + ps3::devS(7.0f), ts);
+    drawText(timeStr, textRight - tw + sh, ty + sh, ts, 0.0f, 0.0f, 0.0f, 0.5f * fadeMul);  // shadow
+    drawText(timeStr, textRight - tw, ty, ts, 1.0f, 1.0f, 1.0f, 0.92f * fadeMul);           // crisp
+
+    // ---- battery % + Wi-Fi + Bluetooth, vertically centred in the bar, to the
+    // left of the time. Lay them out right-to-left from the time so the trio is
+    // a single aligned row: [battery glyph][%]  [wifi]  [bt]  [time]  (face).
+    {
+        WifiLevel wl; int wb; BtLevel bl;
+        { std::lock_guard<std::mutex> lk(mNetStateMutex); wl = mWifiLevel; wb = mWifiBars; bl = mBtLevel; }
+        float isf = ps3::devS(1.05f);
+        float cyc = (dyT + dyB) * 0.5f;             // bar vertical centre
+        float gap = ps3::devS(10.0f);
+        float wifiW = 22.0f * isf, wifiH = 18.0f * isf;
+        float btW   = 14.0f * isf, btH   = 20.0f * isf;
+        float cursor = textRight - tw - gap;        // just left of the time text
+
+        // Bluetooth (closest to the time).
+        float bta = (bl == kBtLevel_Off || bl == kBtLevel_Unknown) ? 0.30f
+                  : (bl == kBtLevel_Connected ? 0.95f : 0.70f);
+        cursor -= btW;
+        drawBtIcon(cursor, cyc - btH * 0.5f, isf, 1.0f, 1.0f, 1.0f, bta * fadeMul);
+        cursor -= gap;
+
+        // Wi-Fi.
+        int bars = (wl == kWifiLevel_Connected) ? wb : 0;
+        float wa = (wl == kWifiLevel_Off || wl == kWifiLevel_Unknown) ? 0.30f : 0.92f;
+        cursor -= wifiW;
+        drawWifiIcon(cursor, cyc - wifiH * 0.5f, isf, bars, 1.0f, 1.0f, 1.0f, wa * fadeMul);
+        cursor -= gap;
+
+        // Battery glyph + % (leftmost), only when a battery is present.
+        if (mBatteryPercent >= 0) {
+            int pct = mBatteryPercent; if (pct < 0) pct = 0; if (pct > 100) pct = 100;
+            float br, bg, bb;
+            if (mBatteryCharging) { br = 0.35f; bg = 0.92f; bb = 0.45f; }
+            else if (pct <= 15)   { br = 0.95f; bg = 0.30f; bb = 0.30f; }
+            else if (pct <= 30)   { br = 0.97f; bg = 0.78f; bb = 0.20f; }
+            else                  { br = 1.00f; bg = 1.00f; bb = 1.00f; }
+            char pctTxt[12]; snprintf(pctTxt, sizeof(pctTxt), "%d%%", pct);
+            float ps = ps3::fontScale(ps3::CLOCK_SIZE * 0.82f);
+            float pw = measureText(pctTxt, ps);
+            cursor -= pw;
+            float pty = ps3::baselineToTopY(cyc + ps3::devS(6.0f), ps);
+            drawText(pctTxt, cursor + sh, pty + sh, ps, 0.0f, 0.0f, 0.0f, 0.5f * fadeMul);
+            drawText(pctTxt, cursor, pty, ps, br, bg, bb, 0.95f * fadeMul);
+            cursor -= ps3::devS(5.0f);
+            float bodyW = 26.0f * isf, bodyH = 13.0f * isf;
+            float capW = 3.0f * isf, capH = 7.0f * isf;
+            float border = fmaxf(1.0f, 1.6f * isf);
+            cursor -= (bodyW + capW);
+            float bx = cursor, byy = cyc - bodyH * 0.5f;
+            drawQuad(bx, byy, bodyW, border, br, bg, bb, 0.95f * fadeMul);
+            drawQuad(bx, byy + bodyH - border, bodyW, border, br, bg, bb, 0.95f * fadeMul);
+            drawQuad(bx, byy, border, bodyH, br, bg, bb, 0.95f * fadeMul);
+            drawQuad(bx + bodyW - border, byy, border, bodyH, br, bg, bb, 0.95f * fadeMul);
+            float ip = fmaxf(1.0f, 1.5f * isf);
+            float fillW = (bodyW - 2.0f * ip) * ((float)pct / 100.0f);
+            drawQuad(bx + ip, byy + ip, fillW, bodyH - 2.0f * ip, br, bg, bb, 1.0f * fadeMul);
+            drawQuad(bx + bodyW, cyc - capH * 0.5f, capW, capH, br, bg, bb, 0.95f * fadeMul);
+        }
+    }
 }
 
 } // namespace android

@@ -1580,11 +1580,15 @@ void NanoMenu::render() {
         // so network icons sit on the same baseline.
         float rowH = fmaxf(18.0f * sf, FONT_CHAR_H * textScale);
         float batteryRightX = renderBatteryIndicator();
-        renderNetworkIndicators(batteryRightX, rowY, rowH, sf, textScale);
+        // In the PS3 XMB layout the Wi-Fi / Bluetooth icons live inside the
+        // clock bar (drawPs3Clock), so skip the top-left network HUD there.
+        if (!mPs3Xmb)
+            renderNetworkIndicators(batteryRightX, rowY, rowH, sf, textScale);
     }
 
-    // Quick Resume indicator (top-right corner)
-    if (!inSettingsModal) {
+    // Quick Resume indicator (top-right corner). Hidden in the PS3 XMB layout
+    // where the clock occupies that corner.
+    if (!inSettingsModal && !mPs3Xmb) {
         float sf = fminf((float)mWidth / 1080.0f, (float)mHeight / 720.0f);
         if (sf < 0.5f) sf = 0.5f;
         float qrScale = 1.5f * sf;

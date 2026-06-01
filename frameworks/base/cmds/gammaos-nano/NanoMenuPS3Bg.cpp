@@ -51,9 +51,8 @@ static bool   sReady     = false;
 
 // programs + locations
 static GLuint sBgProg = 0, sWaveProg = 0, sBlitProg = 0, sCompProg = 0;
-// FS_BG (gradient) locations
-static GLint  sBgPos, sBgUV, sBgTexCurDay, sBgTexNxtDay, sBgTexCurNight, sBgTexNxtNight,
-              sBgMonthTime, sBgNightDayBlend, sBgNightBrightness;
+// FS_BG (gradient, month-base path) locations
+static GLint  sBgPos, sBgUV, sBgMonthBase, sBgMonthBaseBot, sBgNightBlend;
 // wave locations
 static GLint  sWClip, sWNormal, sWUV, sWYFlip, sWScaleY, sWScaleX, sWOffset,
               sWFade, sWTint, sWAlpha, sWSilk, sWSpecW, sWSpecExp, sWYFade;
@@ -62,9 +61,42 @@ static GLint  sBlitPos, sBlitUV, sBlitTex;
 // composite locations
 static GLint  sCompPos, sCompUV, sCompTex, sCompRot, sCompExposure, sCompWhite;
 
-// month textures
-static GLuint sTexCurDay = 0, sTexNxtDay = 0, sTexCurNight = 0, sTexNxtNight = 0;
-static int    sLoadedMonth = -1;            // calendar month (0-11) the textures hold
+// ---- per-month base colour (index.html MONTH_GRADIENT + monthBaseColor) ----
+// h(deg) s v nv per calendar month (0=Jan). Jul has a distinct darker-blue
+// bottom anchor. The shader (FS_BG month-base path) imposes the structure.
+static const float kMonthH[12]  = {58.6f,88.9f,339.8f,118.1f,270.7f,166.5f,196.0f,288.0f,47.6f,33.2f,0.9f,0.0f};
+static const float kMonthS[12]  = {0.630f,0.650f,0.562f,0.713f,0.475f,0.723f,0.620f,0.600f,0.705f,0.590f,0.668f,0.000f};
+static const float kMonthV[12]  = {0.785f,0.593f,0.708f,0.277f,0.440f,0.632f,0.585f,0.672f,0.816f,0.314f,0.621f,0.808f};
+static const float kMonthNV[12] = {0.176f,0.154f,0.167f,0.031f,0.188f,0.031f,0.122f,0.104f,0.176f,0.074f,0.009f,0.158f};
+static const float kMonthValuePrecomp = 1.30f;
+static void hsvToRgb(float h, float s, float v, float* out) {
+    h = fmodf(fmodf(h, 360.0f) + 360.0f, 360.0f);
+    float c = v * s;
+    float x = c * (1.0f - fabsf(fmodf(h / 60.0f, 2.0f) - 1.0f));
+    float m = v - c;
+    float r, g, b;
+    if (h < 60)       { r = c; g = x; b = 0; }
+    else if (h < 120) { r = x; g = c; b = 0; }
+    else if (h < 180) { r = 0; g = c; b = x; }
+    else if (h < 240) { r = 0; g = x; b = c; }
+    else if (h < 300) { r = x; g = 0; b = c; }
+    else              { r = c; g = 0; b = x; }
+    out[0] = r + m; out[1] = g + m; out[2] = b + m;
+}
+static void monthBaseColor(int month, float nightBlend, float* out) {
+    int m = ((month % 12) + 12) % 12;
+    float v = kMonthV[m] * (1.0f - nightBlend) + kMonthNV[m] * nightBlend;
+    hsvToRgb(kMonthH[m], kMonthS[m], v * kMonthValuePrecomp, out);
+}
+static void monthBaseColorBot(int month, float nightBlend, float* out) {
+    int m = ((month % 12) + 12) % 12;
+    if (m == 6) {   // July: deep blue bottom edge
+        float v = 0.230f * (1.0f - nightBlend) + 0.180f * nightBlend;
+        hsvToRgb(242.0f, 0.900f, v * kMonthValuePrecomp, out);
+        return;
+    }
+    monthBaseColor(month, nightBlend, out);
+}
 
 // wave geometry
 static GLuint sWaveClipVBO = 0, sWaveAttrVBO = 0, sWaveIBO = 0;
@@ -127,64 +159,44 @@ static const char* FS_COMP =
     "  gl_FragColor = vec4(clamp(toned, 0.0, 1.0), 1.0);\n"
     "}\n";
 
-// Steady FS_BG: per-month hue from the texture column at x=0.5, with the
-// measured dark-top/bright-bottom value+saturation ramp, corner vignette and
-// day/night dimming. Active-path port of index.html main() 2879-3337 (boot /
-// HSV-tint / month-base / silk branches dropped: inactive in steady state).
+// Steady FS_BG: the firmware "month-base" path (index.html main() useMonthBase
+// branch, 3013-3091 + the global tonemap 3260-3265). The per-month base colour
+// (uMonthBase / uMonthBaseBot, computed CPU-side from MONTH_GRADIENT) carries
+// the hue/sat/value; the shader imposes the vertical envelope (bright top +
+// bottom, a darker band at the menu row), a chroma boost in that band, the
+// horizontal + corner vignettes and the night ramp, then the *1.05 luma
+// shoulder. This is what produces the bright, near-uniform per-month gradient.
 static const char* FS_BG =
     "precision mediump float;\n"
     "varying vec2 vUV;\n"
-    "uniform sampler2D uTexCurDay;\n"
-    "uniform sampler2D uTexNxtDay;\n"
-    "uniform sampler2D uTexCurNight;\n"
-    "uniform sampler2D uTexNxtNight;\n"
-    "uniform float uMonthTime;\n"
+    "uniform vec3 uMonthBase;\n"
+    "uniform vec3 uMonthBaseBot;\n"
     "uniform float uNightDayBlend;\n"
-    "uniform float uNightBrightness;\n"
-    "vec3 rgb2hsv(vec3 c){\n"
-    "  float cmin=min(c.r,min(c.g,c.b)), cmax=max(c.r,max(c.g,c.b)), d=cmax-cmin;\n"
-    "  float h=0.0;\n"
-    "  if(d>0.0){\n"
-    "    float dr=(cmax-c.r)/d, dg=(cmax-c.g)/d, db=(cmax-c.b)/d;\n"
-    "    if(c.r>=cmax) h=db-dg; else if(c.g>=cmax) h=2.0+dr-db; else h=4.0+dg-dr;\n"
-    "    h/=6.0; if(h<0.0) h+=1.0;\n"
-    "  }\n"
-    "  float s=(cmax>0.0)?d/cmax:0.0;\n"
-    "  return vec3(h,s,cmax);\n"
-    "}\n"
-    "vec3 hsv2rgb(vec3 hsv){\n"
-    "  float h=hsv.x,s=hsv.y,v=hsv.z, hh=h*6.0, ff=hh-floor(hh);\n"
-    "  float p=v*(1.0-s), q=v*(1.0-s*ff), t=v*(1.0-s*(1.0-ff));\n"
-    "  if(hh<1.0) return vec3(v,t,p); else if(hh<2.0) return vec3(q,v,p);\n"
-    "  else if(hh<3.0) return vec3(p,v,t); else if(hh<4.0) return vec3(p,q,v);\n"
-    "  else if(hh<5.0) return vec3(t,p,v); else return vec3(v,p,q);\n"
-    "}\n"
     "void main(){\n"
-    "  vec2 gradUV = vec2(0.5, 1.0 - vUV.y);\n"
-    "  vec3 t1d = texture2D(uTexCurDay, gradUV).rgb.grb;\n"
-    "  vec3 t2d = texture2D(uTexNxtDay, gradUV).rgb.grb;\n"
-    "  vec3 t1n = texture2D(uTexCurNight, gradUV).rgb.grb;\n"
-    "  vec3 t2n = texture2D(uTexNxtNight, gradUV).rgb.grb;\n"
-    "  float mt = clamp(uMonthTime, 0.0, 1.0);\n"
-    "  vec3 dayColor = mix(t1d, t2d, mt);\n"
-    "  vec3 nightColor = mix(t1n, t2n, mt);\n"
-    "  vec3 gradColor = mix(dayColor, nightColor, uNightDayBlend);\n"
-    "  gradColor = mix(gradColor, gradColor * uNightBrightness, uNightDayBlend);\n"
     "  float screenY = 1.0 - vUV.y;\n"
-    "  vec3 gHSV = rgb2hsv(gradColor);\n"
-    "  float vRamp = mix(0.078, 0.49, pow(screenY, 0.92));\n"
-    "  float sRamp = mix(0.66, 0.55, screenY);\n"
-    "  float texSat = clamp(gHSV.y / 0.6, 0.0, 1.0);\n"
-    "  float outS = sRamp * texSat;\n"
-    "  float xn = clamp(vUV.x, 0.0, 1.0);\n"
-    "  float vCorner = mix(mix(0.847, 0.925, xn), 1.0, 1.0 - screenY);\n"
-    "  float outV = vRamp * mix(1.0, vCorner, 0.4);\n"
-    "  gradColor = hsv2rgb(vec3(gHSV.x, outS, outV));\n"
-    "  gradColor *= mix(1.0, 0.42, uNightDayBlend);\n"
+    "  vec3 gradColor = mix(uMonthBase, uMonthBaseBot, smoothstep(0.70, 1.0, screenY));\n"
+    "  { float l = dot(gradColor, vec3(0.299,0.587,0.114));\n"
+    "    gradColor = l + (gradColor - l) * 1.25; gradColor = max(gradColor, 0.0); }\n"
+    "  float dip = exp(-pow((screenY - 0.68) / 0.14, 2.0));\n"
+    "  float vEnvM = 1.05 - 0.26 * dip;\n"
+    "  vEnvM *= 1.0 + 0.05 * smoothstep(0.30, 0.0, screenY);\n"
+    "  vEnvM *= 1.0 + 0.06 * smoothstep(0.85, 1.0, screenY);\n"
+    "  gradColor *= vEnvM;\n"
+    "  { float l = dot(gradColor, vec3(0.299,0.587,0.114));\n"
+    "    gradColor = l + (gradColor - l) * (1.0 + 0.22 * dip); }\n"
+    "  { float dxm = vUV.x - 0.52;\n"
+    "    float hV = 1.0 - 0.30 * dxm * dxm * (dxm < 0.0 ? 1.6 : 1.0); gradColor *= hV; }\n"
+    "  { float dxm = vUV.x - 0.5;\n"
+    "    float botEdge = clamp(screenY * (abs(dxm) * 2.0), 0.0, 1.0);\n"
+    "    float sideM = mix(0.847, 0.925, smoothstep(-0.5, 0.5, dxm));\n"
+    "    gradColor *= mix(1.0, sideM, botEdge); }\n"
+    "  { float dxm = vUV.x - 0.5; float dyTopM = 1.0 - screenY;\n"
+    "    float cornerM = clamp(pow(dyTopM, 1.5) * (abs(dxm) * 2.0), 0.0, 1.0);\n"
+    "    float sideC = mix(0.88, 1.0, smoothstep(0.0, 0.5, dxm));\n"
+    "    gradColor *= 1.0 - 0.40 * cornerM * sideC; }\n"
     "  float nightRamp = smoothstep(-0.05, 0.80, screenY);\n"
     "  gradColor *= mix(1.0, nightRamp, uNightDayBlend);\n"
-    "  vec3 finalColor = gradColor;\n"
-    "  finalColor *= 1.05;\n"
+    "  vec3 finalColor = gradColor * 1.05;\n"
     "  float lumT = dot(finalColor, vec3(0.299, 0.587, 0.114));\n"
     "  float lumO = lumT / (1.0 + lumT * 0.30);\n"
     "  finalColor = finalColor * (lumT > 1e-4 ? lumO / lumT : 1.0);\n"
@@ -325,55 +337,6 @@ static uint8_t* readAsset(const char* sub, const char* file, long* sizeOut) {
     return buf;
 }
 
-// Load a PNG asset into a freshly-created RGBA GL texture. Returns 0 on failure.
-static GLuint loadPngTexture(const char* sub, const char* file) {
-    char path[256];
-    if (!resolveAsset(sub, file, path, sizeof(path))) return 0;
-    FILE* fp = fopen(path, "rb");
-    if (!fp) return 0;
-    png_structp png = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
-    if (!png) { fclose(fp); return 0; }
-    png_infop info = png_create_info_struct(png);
-    if (!info) { png_destroy_read_struct(&png, nullptr, nullptr); fclose(fp); return 0; }
-    if (setjmp(png_jmpbuf(png))) {
-        png_destroy_read_struct(&png, &info, nullptr);
-        fclose(fp);
-        return 0;
-    }
-    png_init_io(png, fp);
-    png_read_info(png, info);
-    int w = png_get_image_width(png, info);
-    int h = png_get_image_height(png, info);
-    int color = png_get_color_type(png, info);
-    int depth = png_get_bit_depth(png, info);
-    if (depth == 16) png_set_strip_16(png);
-    if (color == PNG_COLOR_TYPE_PALETTE) png_set_palette_to_rgb(png);
-    if (color == PNG_COLOR_TYPE_GRAY && depth < 8) png_set_expand_gray_1_2_4_to_8(png);
-    if (png_get_valid(png, info, PNG_INFO_tRNS)) png_set_tRNS_to_alpha(png);
-    if (color == PNG_COLOR_TYPE_GRAY || color == PNG_COLOR_TYPE_GRAY_ALPHA) png_set_gray_to_rgb(png);
-    if (color == PNG_COLOR_TYPE_RGB || color == PNG_COLOR_TYPE_GRAY || color == PNG_COLOR_TYPE_PALETTE)
-        png_set_filler(png, 0xFF, PNG_FILLER_AFTER);
-    png_read_update_info(png, info);
-    size_t rowbytes = png_get_rowbytes(png, info);
-    uint8_t* pixels = (uint8_t*)malloc(rowbytes * (size_t)h);
-    std::vector<png_bytep> rows((size_t)h);
-    for (int y = 0; y < h; y++) rows[(size_t)y] = pixels + (size_t)y * rowbytes;
-    png_read_image(png, rows.data());
-    png_destroy_read_struct(&png, &info, nullptr);
-    fclose(fp);
-
-    GLuint tex = 0;
-    glGenTextures(1, &tex);
-    glBindTexture(GL_TEXTURE_2D, tex);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    free(pixels);
-    return tex;
-}
-
 // 3x3 separable box blur over a 128x128 field (clamped), matching the JS
 // blur1D used to smooth the captured normals.
 static void blur1D(const float* src, float* dst, bool horiz) {
@@ -502,32 +465,6 @@ static void loadWaveSeq() {
     ALOGI("ps3bg: wave_seq2 loaded (%d keyframes)", sSeqCount);
 }
 
-// ---------------------------------------------------------------------------
-// month textures
-// ---------------------------------------------------------------------------
-static GLuint loadMonthTex(int idx /*1..24*/) {
-    if (idx > 23) idx -= 12;          // Jan-night (24) has no asset; use the day texture
-    if (idx < 0) idx = 0;
-    char file[32];
-    snprintf(file, sizeof(file), "month_bg_%02d.png", idx);
-    return loadPngTexture("gradients", file);
-}
-
-static void loadMonthTextures(int month /*0..11*/) {
-    if (sTexCurDay)   { glDeleteTextures(1, &sTexCurDay);   sTexCurDay = 0; }
-    if (sTexNxtDay)   { glDeleteTextures(1, &sTexNxtDay);   sTexNxtDay = 0; }
-    if (sTexCurNight) { glDeleteTextures(1, &sTexCurNight); sTexCurNight = 0; }
-    if (sTexNxtNight) { glDeleteTextures(1, &sTexNxtNight); sTexNxtNight = 0; }
-    int calMonth = month + 1;                       // 1..12
-    int curDay = ((calMonth + 10) % 12) + 1;        // day texture index 1..12
-    int nxtDay = ((calMonth + 11) % 12) + 1;
-    sTexCurDay   = loadMonthTex(curDay);
-    sTexNxtDay   = loadMonthTex(nxtDay);
-    sTexCurNight = loadMonthTex(curDay + 12);
-    sTexNxtNight = loadMonthTex(nxtDay + 12);
-    sLoadedMonth = month;
-}
-
 // 0 = day, 1 = night, smooth dusk/dawn ramps. Matches computeNightDayBlend.
 static float computeNightDayBlend(float hour) {
     const float D2N_BEGIN = 16.5f, D2N_END = 20.5f, N2D_BEGIN = 4.5f, N2D_END = 7.0f;
@@ -582,13 +519,9 @@ bool init() {
         if (sBgProg) {
             sBgPos = glGetAttribLocation(sBgProg, "aPos");
             sBgUV = glGetAttribLocation(sBgProg, "aUV");
-            sBgTexCurDay = glGetUniformLocation(sBgProg, "uTexCurDay");
-            sBgTexNxtDay = glGetUniformLocation(sBgProg, "uTexNxtDay");
-            sBgTexCurNight = glGetUniformLocation(sBgProg, "uTexCurNight");
-            sBgTexNxtNight = glGetUniformLocation(sBgProg, "uTexNxtNight");
-            sBgMonthTime = glGetUniformLocation(sBgProg, "uMonthTime");
-            sBgNightDayBlend = glGetUniformLocation(sBgProg, "uNightDayBlend");
-            sBgNightBrightness = glGetUniformLocation(sBgProg, "uNightBrightness");
+            sBgMonthBase = glGetUniformLocation(sBgProg, "uMonthBase");
+            sBgMonthBaseBot = glGetUniformLocation(sBgProg, "uMonthBaseBot");
+            sBgNightBlend = glGetUniformLocation(sBgProg, "uNightDayBlend");
         }
         if (sWaveProg) {
             sWClip = glGetAttribLocation(sWaveProg, "aClip");
@@ -622,19 +555,15 @@ bool init() {
     }
     if (!sWaveGeoReady) loadWaveGeo();
     if (!sSeqReady) loadWaveSeq();
-    if (sLoadedMonth < 0) {
-        time_t tt = time(nullptr);
-        struct tm lt;
-        localtime_r(&tt, &lt);
-        loadMonthTextures(lt.tm_mon);
-    }
     sReady = sBgProg && sWaveProg && sBlitProg && sCompProg &&
-             sWaveGeoReady && sSeqReady && sTexCurDay && sTexCurNight;
+             sWaveGeoReady && sSeqReady;
     if (sReady) ALOGI("ps3bg: ready");
     return sReady;
 }
 
 bool ready() { return sReady; }
+
+GLuint workTex() { return sWorkTex; }
 
 void invalidateGradient() { sGradDirty = true; }
 
@@ -643,38 +572,38 @@ void shutdown() {
     if (sWaveProg) glDeleteProgram(sWaveProg);
     if (sBlitProg) glDeleteProgram(sBlitProg);
     if (sCompProg) glDeleteProgram(sCompProg);
-    GLuint texs[] = {sTexCurDay, sTexNxtDay, sTexCurNight, sTexNxtNight, sGradTex, sWorkTex};
-    glDeleteTextures(6, texs);
+    GLuint texs[] = {sGradTex, sWorkTex};
+    glDeleteTextures(2, texs);
     GLuint fbos[] = {sGradFbo, sWorkFbo};
     glDeleteFramebuffers(2, fbos);
     GLuint bufs[] = {sWaveClipVBO, sWaveAttrVBO, sWaveIBO, sQuadVBO};
     glDeleteBuffers(4, bufs);
     sBgProg = sWaveProg = sBlitProg = sCompProg = 0;
-    sTexCurDay = sTexNxtDay = sTexCurNight = sTexNxtNight = 0;
     sGradFbo = sWorkFbo = sGradTex = sWorkTex = 0;
     sWaveClipVBO = sWaveAttrVBO = sWaveIBO = sQuadVBO = 0;
     sSeqFrames.clear(); sWaveScratch.clear();
     sReady = false; sTriedInit = false; sWaveGeoReady = false; sSeqReady = false;
-    sLoadedMonth = -1; sGradDirty = true;
+    sGradDirty = true;
 }
 
 // ---------------------------------------------------------------------------
 // per-frame render
 // ---------------------------------------------------------------------------
-static void renderGradientCache(int fw, int fh, float monthTime, float nightDayBlend) {
+static void renderGradientCache(int fw, int fh, int month, float nightDayBlend) {
+    // CPU side of the firmware month-base path (index.html drawBGWebGL 6308-6326):
+    // the per-month base colour carries the hue/sat/value; the FS_BG shader
+    // imposes the vertical envelope, vignettes, night ramp + the *1.05 shoulder.
+    float mb[3], mbb[3];
+    monthBaseColor(month, nightDayBlend, mb);
+    monthBaseColorBot(month, nightDayBlend, mbb);
     glBindFramebuffer(GL_FRAMEBUFFER, sGradFbo);
     glViewport(0, 0, fw, fh);
     glDisable(GL_BLEND);
     glUseProgram(sBgProg);
-    glActiveTexture(GL_TEXTURE0); glBindTexture(GL_TEXTURE_2D, sTexCurDay);   glUniform1i(sBgTexCurDay, 0);
-    glActiveTexture(GL_TEXTURE1); glBindTexture(GL_TEXTURE_2D, sTexNxtDay);   glUniform1i(sBgTexNxtDay, 1);
-    glActiveTexture(GL_TEXTURE2); glBindTexture(GL_TEXTURE_2D, sTexCurNight); glUniform1i(sBgTexCurNight, 2);
-    glActiveTexture(GL_TEXTURE3); glBindTexture(GL_TEXTURE_2D, sTexNxtNight); glUniform1i(sBgTexNxtNight, 3);
-    glUniform1f(sBgMonthTime, monthTime);
-    glUniform1f(sBgNightDayBlend, nightDayBlend);
-    glUniform1f(sBgNightBrightness, 0.514f);
+    glUniform3f(sBgMonthBase, mb[0], mb[1], mb[2]);
+    glUniform3f(sBgMonthBaseBot, mbb[0], mbb[1], mbb[2]);
+    glUniform1f(sBgNightBlend, nightDayBlend);
     drawFullQuad(sBgPos, sBgUV);
-    glActiveTexture(GL_TEXTURE0);
 }
 
 // Animate the wave clip positions from the captured keyframes (Catmull-Rom,
@@ -741,21 +670,13 @@ void render(int panelW, int panelH, float dt, const float rotMat2[4], bool /*rot
     localtime_r(&tt, &lt);
     float hour = lt.tm_hour + lt.tm_min / 60.0f + lt.tm_sec / 3600.0f;
     float nightDayBlend = computeNightDayBlend(hour);
-    if (lt.tm_mon != sLoadedMonth) loadMonthTextures(lt.tm_mon);
-    int daysInMonth = 31;
-    {
-        static const int dim[12] = {31,28,31,30,31,30,31,31,30,31,30,31};
-        daysInMonth = dim[lt.tm_mon];
-        if (lt.tm_mon == 1 && ((lt.tm_year % 4 == 0 && lt.tm_year % 100 != 0) || lt.tm_year % 400 == 0))
-            daysInMonth = 29;
-    }
-    float monthTime = (float)(lt.tm_mday - 1) / (float)(daysInMonth > 1 ? daysInMonth - 1 : 1);
 
-    // Re-render the cached gradient only when month / day-night / month-progress
-    // meaningfully changed (otherwise it is static frame-to-frame).
+    // Re-render the cached gradient only when month / day-night meaningfully
+    // changed (otherwise it is static frame-to-frame). The per-month base colour
+    // is constant within a month (no within-month crossfade in the firmware).
     float blendQ = floorf(nightDayBlend * 50.0f) / 50.0f;
     if (sGradDirty || lt.tm_mon != sGradMonth || fabsf(blendQ - sGradBlendQ) > 1e-4f) {
-        renderGradientCache(fw, fh, monthTime, nightDayBlend);
+        renderGradientCache(fw, fh, lt.tm_mon, nightDayBlend);
         sGradDirty = false;
         sGradMonth = lt.tm_mon;
         sGradBlendQ = blendQ;

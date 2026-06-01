@@ -22,6 +22,7 @@
 #include <string>
 #include <vector>
 #include <set>
+#include <map>
 #include <unordered_map>
 #include <mutex>
 #include <thread>
@@ -60,6 +61,27 @@ struct GlyphInfo {
     int advance;            // horizontal advance in pixels
     bool color;             // true for color emoji (BGRA)
     float scaleW, scaleH;  // display scale (for emoji normalization)
+};
+
+// Static, table-driven 1:1 copy of the web index.html DATA[] tree. One entry
+// per menu item; children point into the same static array space. The tree is
+// generated straight from the web source in NanoMenuPS3Data.h. Namespace scope
+// so the static const tables in NanoMenuPS3Menu.cpp can reference them.
+struct Ps3DataItem {
+    const char* name;
+    int icon;               // xmb_icon index (NNN); -1 = special (PS Store)
+    const char* desc;       // may be null
+    const char* value;      // may be null
+    int action;             // 0 none, 1 dialog, 2 landing
+    const Ps3DataItem* children;
+    int childCount;
+};
+struct Ps3DataCat {
+    const char* id;
+    const char* name;
+    int icon;               // category xmb_icon index
+    const Ps3DataItem* items;
+    int itemCount;
 };
 
 class NanoMenu : public Thread, public IBinder::DeathRecipient {
@@ -635,20 +657,26 @@ private:
         PS3_APP,          // an installed app -> launch (a = app idx)
         PS3_SETTING,      // a settings entry (a = action: 0 Wi-Fi, 1 Bluetooth, 2 settings tree)
         PS3_LAUNCH_PKG,   // launch a package (payloadStr = package name)
+        PS3_DATA_SUBMENU, // a static DATA item with children -> submenu (data*)
+        PS3_DATA_LEAF,    // a static DATA leaf (dialog / value / info, no action)
     };
     struct Ps3Item {
         std::string label;
         std::string desc;
         std::string value;
         std::string payloadStr;
-        GLuint iconTex;     // 0 = none
-        float iconR, iconG, iconB;  // tint (1,1,1 default)
-        int kind;
-        int a, b;
+        GLuint iconTex = 0;     // flat fallback texture (mono-white), 0 = none
+        GLuint nmapTex = 0;     // normal map for the glass shader, 0 = flat fallback
+        float iconR = 1.0f, iconG = 1.0f, iconB = 1.0f;  // _ChangingColor tint
+        int kind = 0;
+        int a = 0, b = 0;
+        const Ps3DataItem* data = nullptr;  // static DATA node (children + meta)
+        int action = 0;                     // 0 none, 1 dialog, 2 landing
     };
     struct Ps3Cat {
         std::string name;
         GLuint iconTex;
+        GLuint nmapTex;     // category icon normal map (glass)
         std::vector<Ps3Item> items;
     };
     struct Ps3Level {       // a submenu level on the navigation stack
@@ -673,15 +701,38 @@ private:
     float mPs3CatFromOffset = 0.0f;  // virtual-px bar offset at t=0 (eases to 0)
     int   mPs3CatOldIdx = 0;         // category slid away from (for the fade-out rail)
     int   mPs3CatOldSel = 0;
-    bool  mPs3ItemAnimActive = false;
-    float mPs3ItemT = 1.0f;          // item nav progress (easeOutBack)
-    int   mPs3ItemFromIdx = 0;       // selection moved from
+    // Item selection is a CONTINUOUS animated position (eases toward the
+    // selected index every frame). This gives smooth scrolling that naturally
+    // accelerates while the d-pad is held (the repeat fires faster, the tracker
+    // follows) with no per-press overshoot/bounce. Snapped on category / submenu
+    // changes so it does not animate across lists.
+    float mPs3AnimItem = 0.0f;
     float mPs3SubAnim = 0.0f;        // 0 = top level, 1 = in submenu (collapse factor)
     int   mPs3SubDir = 0;            // +1 entering, -1 exiting
-    GLuint mPs3CatTex[8] = {0, 0, 0, 0, 0, 0, 0, 0};  // PS3 category icons
+    GLuint mPs3CatTex[8] = {0, 0, 0, 0, 0, 0, 0, 0};  // PS3 category icons (flat)
+    GLuint mPs3CatNmap[8] = {0, 0, 0, 0, 0, 0, 0, 0}; // PS3 category icons (glass nmap)
+    // Glass-icon resources (FS_ICON_GLASS). Normal maps are cached by xmb_icon
+    // index (PS3 icons -> nmap_NNN.png) and by flat-icon texture id (console /
+    // RetroArch icons -> a bevel normal generated from the alpha silhouette).
+    std::map<int, GLuint>    mPs3NmapByIcon;     // xmb_icon index -> nmap tex
+    std::map<int, GLuint>    mPs3BevelByIconIdx; // console icon idx (0..17) -> bevel nmap
+    // Icon-glass shader (distinct from the frosted-glass blur chain's mGlass*).
+    GLuint mIconGlassProgram = 0;
+    GLint  mIconGlassLocPos = -1, mIconGlassLocIconUV = -1, mIconGlassLocBgUV = -1, mIconGlassLocRot = -1;
+    GLint  mIconGlassLocNormal = -1, mIconGlassLocAmb = -1, mIconGlassLocEnv = -1, mIconGlassLocBg = -1;
+    GLint  mIconGlassLocLight1 = -1, mIconGlassLocLight2 = -1, mIconGlassLocAmbient = -1;
+    GLint  mIconGlassLocSpec = -1, mIconGlassLocRefr = -1, mIconGlassLocRefrScl = -1;
+    GLint  mIconGlassLocAttn = -1, mIconGlassLocChanging = -1, mIconGlassLocBgExp = -1;
+    GLint  mIconGlassLocBgRad = -1;
+    GLuint mIconGlassAmbTex = 0;     // icon_amb.png 16x12 ambient ramp
+    GLuint mIconGlassEnvTex = 0;     // texenv.png 64x64 silver matcap
+    bool   mIconGlassReady = false;
+    bool   mIconGlassTried = false;
 
     void initPs3Menu();
     void buildPs3Cats();
+    Ps3Item makeDataItem(const Ps3DataItem* d);   // runtime item from a DATA node
+    void buildDataSubmenu(const Ps3DataItem* node, Ps3Level& out);
     void buildRomSubmenu(int sysIdx, Ps3Level& out);
     void buildRecentSubmenu(Ps3Level& out);
     void buildAppSubmenu(Ps3Level& out);
@@ -695,6 +746,15 @@ private:
     void ps3XmbDown();
     void ps3XmbSelect();
     void ps3XmbBack();
+    // Glass icon pipeline (NanoMenuPS3Icons.cpp).
+    void initGlassIcons();                 // compile program, load amb/env textures
+    GLuint nmapForIcon(int iconIndex);     // load+cache nmap_NNN.png
+    GLuint bevelForIconIdx(int iconIdx);   // bevel normal from a console icon's alpha
+    GLuint loadPs3NmapTex(const char* file);             // RGBA normal-map loader
+    // Draw an icon with the glass shader (device px coords, like drawIconTex).
+    // Refraction samples the live wave (ps3bg work texture) behind the icon.
+    void drawGlassIcon(GLuint nmapTex, float x, float y, float w, float h,
+                       float cr, float cg, float cb, float alpha);
 
     // Background scan thread — scans ROM paths off the render thread
     struct BgScanResult {

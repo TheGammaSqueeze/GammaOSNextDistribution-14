@@ -31,6 +31,8 @@
 #ifndef GAMMAOS_NANO_PS3_BG_H
 #define GAMMAOS_NANO_PS3_BG_H
 
+#include <GLES2/gl2.h>
+
 namespace android {
 namespace ps3bg {
 
@@ -57,6 +59,12 @@ void render(int panelW, int panelH, float dt,
 // or a forced day/night refresh; month + time-of-day changes are detected
 // automatically).
 void invalidateGradient();
+
+// The work texture holding the composited (gradient + additive wave) scene in
+// LINEAR space, sampled by the glass-icon shader for live-wave refraction. 0
+// until render() has run at least once. The texture spans ps3::gFrame* exactly:
+// texcoord (0,0) = frame bottom-left, (1,1) = frame top-right (GL y-up).
+GLuint workTex();
 
 } // namespace ps3bg
 } // namespace android

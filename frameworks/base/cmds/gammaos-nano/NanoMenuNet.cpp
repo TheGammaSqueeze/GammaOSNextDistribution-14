@@ -344,41 +344,34 @@ void NanoMenu::drawWifiIcon(float x, float y, float sf, int bars,
     }
 }
 
-// Basic stylised BT rune inside a rounded square, drawn with filled
-// quads. Not a true bezier BT logo -- the glyph here is a
-// double-triangle that reads as "BT" at icon sizes without needing a
-// texture asset shipped alongside the binary.
+// The real Bluetooth bind-rune logo, drawn as thick line segments (two
+// triangles each). Construction: a vertical spine; the top and bottom apexes
+// each connect right-down/right-up to a knee; and the two knees cross the spine
+// diagonally to the opposite-side left tips. This is the recognisable
+// Bluetooth glyph rather than a stylised approximation.
 void NanoMenu::drawBtIcon(float x, float y, float sf,
                           float r, float g, float b, float a) {
-    // Bounding box 16 x 20 at sf=1.
-    float w = 16.0f * sf;
+    float w = 14.0f * sf;
     float h = 20.0f * sf;
-    float stroke = fmaxf(1.5f, 2.0f * sf);
+    float t = fmaxf(1.6f, 2.2f * sf);   // stroke thickness
 
-    // Spine (vertical bar down the middle).
-    float spineX = x + (w - stroke) * 0.5f;
-    drawQuad(spineX, y, stroke, h, r, g, b, a);
-
-    // Upper diagonals forming the top triangle: from spine bottom of
-    // the upper half (y + h/2) up-and-right to top-right corner, and
-    // back down to spine-top. We render as a 2-quad staircase which
-    // looks clean at HUD sizes.
-    float segH = h * 0.25f;
-    float segW = w * 0.45f;
-    float thick = stroke;
-    // Upper right leg: spine midpoint -> top-right corner
-    drawQuad(spineX + stroke, y + segH * 0.5f, segW, thick, r, g, b, a);
-    drawQuad(spineX + stroke + segW - thick, y,
-             thick, segH * 0.5f + thick, r, g, b, a);
-    // Lower right leg: spine midpoint -> bottom-right corner
-    drawQuad(spineX + stroke, y + h - segH * 0.5f - thick,
-             segW, thick, r, g, b, a);
-    drawQuad(spineX + stroke + segW - thick, y + h - segH * 0.5f,
-             thick, segH * 0.5f, r, g, b, a);
-
-    // Cross-bar through the spine making the X in the middle.
-    drawQuad(spineX - segW * 0.35f, y + h * 0.5f - thick * 0.5f,
-             segW * 0.75f + stroke, thick, r, g, b, a);
+    auto P = [&](float u, float v, float* ox, float* oy) { *ox = x + u * w; *oy = y + v * h; };
+    auto line = [&](float u0, float v0, float u1, float v1) {
+        float ax, ay, bx, by; P(u0, v0, &ax, &ay); P(u1, v1, &bx, &by);
+        float dx = bx - ax, dy = by - ay, L = sqrtf(dx*dx + dy*dy);
+        if (L < 1e-3f) return;
+        float px = -dy / L * t * 0.5f, py = dx / L * t * 0.5f;
+        drawTriangle(ax + px, ay + py, ax - px, ay - py, bx + px, by + py, r, g, b, a);
+        drawTriangle(bx + px, by + py, bx - px, by - py, ax - px, ay - py, r, g, b, a);
+    };
+    // spine
+    line(0.5f, 0.04f, 0.5f, 0.96f);
+    // top apex -> upper-right knee, bottom apex -> lower-right knee
+    line(0.5f, 0.04f, 0.82f, 0.27f);
+    line(0.5f, 0.96f, 0.82f, 0.73f);
+    // knees cross the spine to the opposite-side left tips (the X)
+    line(0.82f, 0.27f, 0.18f, 0.70f);
+    line(0.82f, 0.73f, 0.18f, 0.30f);
 }
 
 // ---------------------------------------------------------------------------
