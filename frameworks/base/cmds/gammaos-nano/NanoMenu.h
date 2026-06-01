@@ -663,10 +663,21 @@ private:
     int mPs3CatIdx = -1;
     int mPs3ItemIdx = 0;          // selection in the top-level item list (per-category)
     std::vector<int> mPs3CatItemSel;   // remembered item selection per category
-    float mPs3AnimCat = 0.0f;    // animated horizontal position (lerps to mPs3CatIdx)
-    float mPs3AnimItem = 0.0f;   // animated vertical position
-    float mPs3SubAnim = 0.0f;    // 0 = top level, 1 = in submenu (collapse factor)
-    int   mPs3SubDir = 0;        // +1 entering, -1 exiting
+    // Timed animation state mirroring the web's catAnim / itemAnim model so the
+    // motion language matches: a category slide rail with a fade-crossfade, and
+    // easeOutBack item navigation. Progress (0 = just started, 1 = settled) is
+    // driven by mFrameDt; the input handlers START an animation, render()
+    // interpolates it.
+    bool  mPs3CatAnimActive = false;
+    float mPs3CatT = 1.0f;           // category slide progress
+    float mPs3CatFromOffset = 0.0f;  // virtual-px bar offset at t=0 (eases to 0)
+    int   mPs3CatOldIdx = 0;         // category slid away from (for the fade-out rail)
+    int   mPs3CatOldSel = 0;
+    bool  mPs3ItemAnimActive = false;
+    float mPs3ItemT = 1.0f;          // item nav progress (easeOutBack)
+    int   mPs3ItemFromIdx = 0;       // selection moved from
+    float mPs3SubAnim = 0.0f;        // 0 = top level, 1 = in submenu (collapse factor)
+    int   mPs3SubDir = 0;            // +1 entering, -1 exiting
     GLuint mPs3CatTex[8] = {0, 0, 0, 0, 0, 0, 0, 0};  // PS3 category icons
 
     void initPs3Menu();
@@ -677,6 +688,7 @@ private:
     std::vector<Ps3Item>& ps3CurItems();   // current visible item list (top or submenu)
     int& ps3CurSel();
     void renderPs3Xmb();
+    void drawPs3Clock(float fadeMul);   // U-frame + analog face + DD/M H:MM
     void ps3XmbLeft();
     void ps3XmbRight();
     void ps3XmbUp();
