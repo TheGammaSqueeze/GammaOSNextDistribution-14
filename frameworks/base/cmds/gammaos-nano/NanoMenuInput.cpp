@@ -27,6 +27,7 @@
 #include <unistd.h>
 #include <inttypes.h>
 #include <cinttypes>
+#include <math.h>
 #include <string.h>
 #include <errno.h>
 
@@ -589,10 +590,14 @@ void NanoMenu::handleDown() {
 // (press then immediate release) still moves exactly one step.
 // ---------------------------------------------------------------------------
 
-static constexpr int64_t kNavInitialDelayMs    = 350;
-static constexpr int64_t kNavInitialIntervalMs = 180;
-static constexpr int64_t kNavMinIntervalMs     = 45;
-static constexpr int64_t kNavAccelStepMs       = 10;
+// Match the PS3 firmware/web key-repeat (index.html INPUT_* constants): an
+// initial delay, then a base interval that accelerates GEOMETRICALLY (divide by
+// the accel multiplier each repeat) down to a floor. The geometric ramp gives a
+// smooth increase in speed while holding (the linear decrement juddered).
+static constexpr int64_t kNavInitialDelayMs    = 300;   // INPUT_INITIAL_DELAY_MS
+static constexpr int64_t kNavSlowIntervalMs    = 200;   // INPUT_REPEAT_MS (base)
+static constexpr int64_t kNavMinIntervalMs     = 50;    // INPUT_MIN_REPEAT_MS
+static constexpr float   kNavAccelMult         = 1.4f;  // INPUT_ACCEL_MULT
 
 void NanoMenu::navPress(NavDir dir) {
     if (dir == NavDir::None) return;
@@ -638,7 +643,7 @@ void NanoMenu::tickNavRepeat() {
     const int64_t now = android::uptimeMillis();
     if (now - mNavHeldStartMs < kNavInitialDelayMs) return;
 
-    int64_t interval = kNavInitialIntervalMs - kNavAccelStepMs * mNavRepeatCount;
+    int64_t interval = (int64_t)((float)kNavSlowIntervalMs / powf(kNavAccelMult, (float)mNavRepeatCount));
     if (interval < kNavMinIntervalMs) interval = kNavMinIntervalMs;
     if (now - mNavLastRepeatMs < interval) return;
 

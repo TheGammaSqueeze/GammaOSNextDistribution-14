@@ -45,7 +45,7 @@ constexpr float CAT_SPACING = 203.0f;
 constexpr float CAT_ICON_ACTIVE = 168.0f;
 constexpr float CAT_ICON_INACTIVE = 117.0f;
 constexpr float CAT_LABEL_Y = 366.0f;   // below the active icon (was web 342; lowered for clearance)
-constexpr float CAT_LABEL_SIZE = 20.0f;
+constexpr float CAT_LABEL_SIZE = 26.0f;   // bigger than web 20 (clearer on small panels)
 constexpr float CAT_INACTIVE_ALPHA = 0.9f;
 constexpr float CAT_FAR_ALPHA = 0.25f;
 

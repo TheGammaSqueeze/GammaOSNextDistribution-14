@@ -702,12 +702,14 @@ private:
     float mPs3CatFromOffset = 0.0f;  // virtual-px bar offset at t=0 (eases to 0)
     int   mPs3CatOldIdx = 0;         // category slid away from (for the fade-out rail)
     int   mPs3CatOldSel = 0;
-    // Item selection is a CONTINUOUS animated position (eases toward the
-    // selected index every frame). This gives smooth scrolling that naturally
-    // accelerates while the d-pad is held (the repeat fires faster, the tracker
-    // follows) with no per-press overshoot/bounce. Snapped on category / submenu
-    // changes so it does not animate across lists.
+    // Item scroll matches the web: each d-pad step restarts a 200ms easeOutCubic
+    // from the CURRENT animated position to the new index (mPs3ItemAnimFrom +
+    // start time), so holding (with the accelerating auto-repeat) reads as a
+    // smooth, snappy, continuously-accelerating scroll. Snapped on category /
+    // submenu changes (mPs3ItemAnimStart < 0) so it does not animate across lists.
     float mPs3AnimItem = 0.0f;
+    float mPs3ItemAnimFrom = 0.0f;     // animated position when the step started
+    float mPs3ItemAnimStart = -1.0f;   // mEffectTime at the step start (<0 = snap)
     float mPs3SubAnim = 0.0f;        // 0 = top level, 1 = in submenu (collapse factor)
     int   mPs3SubDir = 0;            // +1 entering, -1 exiting
     GLuint mPs3CatTex[8] = {0, 0, 0, 0, 0, 0, 0, 0};  // PS3 category icons (flat)
