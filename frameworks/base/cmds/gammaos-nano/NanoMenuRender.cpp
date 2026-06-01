@@ -605,6 +605,20 @@ void NanoMenu::initFonts() {
         return;
     }
     mFtNumFaces = 0;
+    // PS3 Rodin first so Latin text uses the authentic XMB font; CJK / Arabic /
+    // Thai / Hebrew / emoji fall through to the Noto faces below. Prefer the
+    // dev push dir, then the shipped asset.
+    const char* rodinPaths[] = {
+        "/data/system/nano_xmb/fonts/ps3-rodin-regular.ttf",
+        "/system/etc/nano_xmb/fonts/ps3-rodin-regular.ttf",
+    };
+    for (const char* rp : rodinPaths) {
+        if (FT_New_Face(mFtLib, rp, 0, &mFtFaces[mFtNumFaces]) == 0) {
+            ALOGD("NanoMenu: loaded PS3 Rodin: %s", rp);
+            mFtNumFaces++;
+            break;
+        }
+    }
     const char* fontPaths[] = {
         "/system/fonts/Roboto-Regular.ttf",
         "/system/fonts/DroidSans.ttf",

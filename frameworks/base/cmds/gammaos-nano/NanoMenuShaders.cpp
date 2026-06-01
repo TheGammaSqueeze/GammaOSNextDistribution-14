@@ -347,7 +347,7 @@ const char* kEffectNames[NUM_EFFECTS + 1] = {
     "Bubbles", "Starfield", "Embers", "Leaves", "Dust",
     "Plasma", "Static", "Scanlines", "Mosaic", "Matrix",
     "Fire", "Aurora", "Ripple", "Checkerboard", "Spiral",
-    "XMB"
+    "XMB", "XMB Wave"
 };
 
 // Active effects — removed: Dust(10), Static(12), Scanlines(13), Mosaic(14), Matrix(15)
@@ -368,7 +368,8 @@ const int kActiveEffects[] = {
     18, // Ripple
     19, // Checkerboard
     20, // Spiral
-    21, // XMB
+    21, // XMB (procedural ribbon)
+    22, // XMB Wave (real ported PS3 captured-geometry wave + per-month gradient)
 };
 const int kNumActiveEffects = sizeof(kActiveEffects) / sizeof(kActiveEffects[0]);
 

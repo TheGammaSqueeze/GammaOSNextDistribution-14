@@ -45,7 +45,7 @@ class SurfaceComposerClient;
 class SurfaceControl;
 
 static const int MAX_PARTICLES = 150;
-static const int NUM_EFFECTS = 21; // total effect IDs (some disabled)
+static const int NUM_EFFECTS = 22; // total effect IDs (some disabled)
 
 struct Particle {
     float x, y, vx, vy, size;

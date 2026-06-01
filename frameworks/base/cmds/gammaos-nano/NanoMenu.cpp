@@ -174,7 +174,7 @@ NanoMenu::NanoMenu()
     memset(mFtFaces, 0, sizeof(mFtFaces));
     // Restore persisted wallpaper effect, default to XMB (21)
     char wallpaper[PROPERTY_VALUE_MAX] = {};
-    property_get("persist.gammaos.nano.wallpaper", wallpaper, "21");
+    property_get("persist.gammaos.nano.wallpaper", wallpaper, "22");
     int savedEffect = atoi(wallpaper);
     bool found = false;
     for (int i = 0; i < kNumActiveEffects; i++) {
@@ -1130,7 +1130,7 @@ bool NanoMenu::threadLoop() {
     // Re-read wallpaper effect (constructor ran before persist props loaded)
     {
         char wallpaper[PROPERTY_VALUE_MAX] = {};
-        property_get("persist.gammaos.nano.wallpaper", wallpaper, "21");
+        property_get("persist.gammaos.nano.wallpaper", wallpaper, "22");
         int savedEffect = atoi(wallpaper);
         for (int i = 0; i < kNumActiveEffects; i++) {
             if (kActiveEffects[i] == savedEffect) {
