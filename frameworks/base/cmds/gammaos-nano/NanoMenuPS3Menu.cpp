@@ -540,8 +540,8 @@ void NanoMenu::renderPs3Xmb() {
         float ss = (bgL - 0.32f) / (0.85f - 0.32f);
         mPs3ShadowStrength = ss < 0.0f ? 0.0f : (ss > 1.0f ? 1.0f : ss);
     }
-    mPs3ShadowAlpha = 0.12f + 0.62f * mPs3ShadowStrength;   // 0.12 dark .. 0.74 light
-    mTextOutlineRatio = mPs3ShadowAlpha;                    // even outline alpha = ratio * text alpha
+    mPs3ShadowAlpha = 0.12f + 0.62f * mPs3ShadowStrength;   // 0.12 dark .. 0.74 light (icon silhouette)
+    mTextOutlineRatio = 0.5f;                               // text outline = 50% transparent black (alpha = 0.5 * text alpha)
     // The clock keeps a single device-y drop shadow; its sign is derived from the
     // panel orientation (sDrmRotMat[3]) and is left untouched (-1 on the 180 panel)
     // per the request to not change the clock.
@@ -1706,9 +1706,8 @@ void NanoMenu::renderPs3Dialog() {
         // Uniform translucent dim over the (already-drawn) blurred live wave so
         // the white chrome reads while the per-month gradient still shows through.
         drawQuad(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f, 0.0f, 0.0f, 0.40f * ap);
-        // Dialog text uses a slightly stronger even outline than the menu (the dim
-        // backdrop wants a touch more contrast). drawText mode is already 1.
-        mTextOutlineRatio = 0.45f;
+        // Dialog text outline: 50% transparent black, same as the menu. mode is 1.
+        mTextOutlineRatio = 0.5f;
 
         // Base (ui-independent) virtual->device scale, with the 1080 design
         // CENTRED in the visible frame (web frameCenterTY). gFrame* are untouched
