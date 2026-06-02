@@ -60,6 +60,8 @@
 #include "NanoMenu.h"
 #include "NanoMenuDrm.h"
 #include "NanoMenuShaders.h"
+#include "NanoMenuPS3.h"
+#include "NanoMenuPS3Bg.h"
 #include "xmb_icons.h"
 
 namespace android {
@@ -394,7 +396,28 @@ bool NanoMenu::captureGlass(float /*x*/, float /*y*/, float /*w*/, float /*h*/) 
     }
     glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, fbX, fbY, fbW, fbH);
     // Downsample + separable-Gaussian blur the captured screen.
-    blurGlassChain();
+    blurGlassChain(mGlassTex, mGlassTexW, mGlassTexH);
+    return true;
+}
+
+// Blur the PS3 XMB live wave/gradient scene (ps3bg::workTex) WITHOUT a full
+// framebuffer capture. workTex is already rendered into its own FBO each frame
+// (the gradient + additive wave), so reading it costs no mid-frame tile flush -
+// unlike captureGlass's glCopyTexSubImage2D, which forces a resolve on this
+// tiler GPU (~20ms) and dropped submenus to ~40fps. The blur result lands in
+// mGlassBlurTex in LOGICAL (un-rotated) orientation spanning the frame, so the
+// frosted panel must sample it with drawFrostedGlass(..., waveSpace=true).
+// Returns false if the wave is not ready yet (caller keeps the prior blur).
+bool NanoMenu::captureGlassFromWave() {
+    GLuint wt = ps3bg::workTex();
+    if (wt == 0) return false;
+    int fw = (int)(ps3::gFrameW + 0.5f);
+    int fh = (int)(ps3::gFrameH + 0.5f);
+    if (fw < 8 || fh < 8) return false;
+    // Half-strength blur (2 downsample levels -> ~1/4 res, 1 Gaussian iteration)
+    // instead of the full 3/2 chain: visibly lighter frost AND fewer FBO passes
+    // (each pass forces a tile flush on this GPU), to keep submenus near 60fps.
+    blurGlassChain(wt, fw, fh, 2, 1);
     return true;
 }
 
@@ -409,11 +432,14 @@ bool NanoMenu::captureGlass(float /*x*/, float /*y*/, float /*w*/, float /*h*/) 
 // incomplete) it falls back to the smallest level it reached (or the full-res
 // capture) so the panel still draws. Saves/restores FBO binding, viewport, and
 // blend; no pass ever samples the texture it renders to; guards tiny captures.
-void NanoMenu::blurGlassChain() {
-    mGlassBlurTex = mGlassTex;
-    mGlassBlurW = mGlassTexW;
-    mGlassBlurH = mGlassTexH;
-    if (mGlassDownProgram == 0 || mGlassTexW < 8 || mGlassTexH < 8) return;
+void NanoMenu::blurGlassChain(GLuint srcTexIn, int srcWIn, int srcHIn,
+                              int downLevels, int gaussIters) {
+    mGlassBlurTex = srcTexIn;
+    mGlassBlurW = srcWIn;
+    mGlassBlurH = srcHIn;
+    if (mGlassDownProgram == 0 || srcWIn < 8 || srcHIn < 8) return;
+    if (downLevels < 1) downLevels = 1;
+    if (gaussIters < 0) gaussIters = 0;
 
     GLint prevFbo = 0;
     glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prevFbo);
@@ -455,9 +481,9 @@ void NanoMenu::blurGlassChain() {
     glUniform1f(mGlassDownLocOffset, 1.0f);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-    const int DOWN_LEVELS = 3;             // -> ~1/8 resolution
-    int   srcW = mGlassTexW, srcH = mGlassTexH;
-    GLuint srcTex = mGlassTex;
+    const int DOWN_LEVELS = downLevels;    // 3 -> ~1/8 res (strong); 2 -> ~1/4 (half)
+    int   srcW = srcWIn, srcH = srcHIn;
+    GLuint srcTex = srcTexIn;
     bool   pyramidOk = true;
     for (int i = 0; i < DOWN_LEVELS; i++) {
         int dw = srcW / 2; if (dw < 1) dw = 1;
@@ -504,7 +530,7 @@ void NanoMenu::blurGlassChain() {
         glVertexAttribPointer(mGlassGaussLocTexCoord, 2, GL_FLOAT, GL_FALSE, 0, quadT);
         glEnableVertexAttribArray(mGlassGaussLocTexCoord);
 
-        const int GAUSS_ITERS = 2;
+        const int GAUSS_ITERS = gaussIters;
         GLuint gsrc = srcTex;                 // first read = pyramid result
         for (int it = 0; it < GAUSS_ITERS; it++) {
             // Horizontal: gsrc -> gauss[0].
@@ -535,7 +561,8 @@ void NanoMenu::blurGlassChain() {
 // Draw the frosted panel sampling mGlassTex (captured by captureGlass with the
 // same rect). texcoords are v-flipped because the FB snapshot is y-up.
 void NanoMenu::drawFrostedGlass(float x, float y, float w, float h, float radius,
-                                float tr, float tg, float tb, float tintA, float fade) {
+                                float tr, float tg, float tb, float tintA, float fade,
+                                bool waveSpace) {
     float x0 = (x / mWidth) * 2.0f - 1.0f;
     float y0 = 1.0f - ((y + h) / mHeight) * 2.0f;
     float x1 = ((x + w) / mWidth) * 2.0f - 1.0f;
@@ -548,7 +575,13 @@ void NanoMenu::drawFrostedGlass(float x, float y, float w, float h, float radius
     // samples the full-screen blur texture at exactly the screen pixels behind
     // the panel for any rotation/flip (identity matrix => the usual 0..1 map).
     // sDrmRotMat is column-major: (rx,ry) = (m0*lx+m2*ly, m1*lx+m3*ly).
-    auto fbTex = [](float lx, float ly, float& tu, float& tv) {
+    //
+    // waveSpace: the blur source is ps3bg::workTex (captureGlassFromWave), which
+    // is already in LOGICAL (un-rotated) orientation, GL y-up, spanning the frame.
+    // So map logical NDC straight to [0,1] with NO rotation - the vertex position
+    // still goes through uRotation for display, but the texcoord stays logical.
+    auto fbTex = [waveSpace](float lx, float ly, float& tu, float& tv) {
+        if (waveSpace) { tu = lx * 0.5f + 0.5f; tv = ly * 0.5f + 0.5f; return; }
         float rx = sDrmRotMat[0] * lx + sDrmRotMat[2] * ly;
         float ry = sDrmRotMat[1] * lx + sDrmRotMat[3] * ly;
         tu = rx * 0.5f + 0.5f;

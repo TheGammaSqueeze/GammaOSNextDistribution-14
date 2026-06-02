@@ -29,6 +29,7 @@
 #include "NanoMenuPS3Bg.h"
 #include "NanoMenuPS3Data.h"
 #include "NanoMenuDrm.h"   // sDrmGlRotation / sDrmRotationDeg for ticker scissor
+#include "NanoMenuUtils.h" // setLaunchRomPath for the Applications launch
 
 #include <ctype.h>
 #include <math.h>
@@ -51,15 +52,14 @@
 
 namespace android {
 
-// Drop-shadow offset: the shadow must fall toward the VISUAL bottom of the
-// panel. The menu is drawn in device space and the vertex shader then rotates
-// every vertex by sDrmRotMat, so a plain device +y lands wherever that rotation
-// points (on the 180-degree Brick that ends up at the TOP). Rotate the
-// device-down vector {0,+s} by sDrmRotMat so the shadow is visual-down on every
-// panel orientation: identity -> {0,+s}, 180 -> {0,-s}, 90/270 -> {-+s,0}.
+// Drop-shadow offset: the shadow must fall toward the VISUAL bottom of the text.
+// Verified on device by zoomed capture: an offset of -s puts the shadow clearly
+// ABOVE the glyphs, +s puts it BELOW. So device +y maps straight to visual-down
+// here (the panel rotation does not invert the menu text), and visual-down =
+// out[1] = +s. The magnitude (devS at the call sites) sets how far it drops.
 static inline void ps3ShadowOffset(float s, int /*w*/, int /*h*/, float out[2]) {
-    out[0] = sDrmRotMat[2] * s;   // m0*0 + m2*s
-    out[1] = sDrmRotMat[3] * s;   // m1*0 + m3*s
+    out[0] = 0.0f;
+    out[1] = s;
 }
 
 // ---------------------------------------------------------------------------
@@ -179,6 +179,7 @@ void NanoMenu::initPs3Menu() {
         mPs3CatNmap[i] = nmapForIcon(i + 1);   // category icons are xmb_icon 1..6
     }
     buildPs3Cats();
+    loadPs3ThemeSettings();   // apply any saved Theme Settings (colour / day-night)
     mPs3MenuBuilt = true;
     ALOGI("ps3menu: built %zu categories", mPs3Cats.size());
 }
@@ -347,6 +348,7 @@ static float ps3CatOffset(bool active, float t, float fromOff) {
 // navigation - smooth continuous item position; timed category slide rail.
 // ---------------------------------------------------------------------------
 void NanoMenu::ps3XmbLeft() {
+    if (mPs3DlgActive) { closePs3Dialog(false); return; }   // cancel/back
     if (!mPs3Stack.empty()) { ps3XmbBack(); return; }
     if (mPs3Cats.empty() || mPs3CatIdx <= 0) return;
     float live = ps3CatOffset(mPs3CatAnimActive, mPs3CatT, mPs3CatFromOffset);
@@ -360,6 +362,7 @@ void NanoMenu::ps3XmbLeft() {
 }
 
 void NanoMenu::ps3XmbRight() {
+    if (mPs3DlgActive) return;   // consume; the chooser uses up/down + X/O
     if (!mPs3Stack.empty()) { ps3XmbSelect(); return; }
     if (mPs3Cats.empty() || mPs3CatIdx >= (int)mPs3Cats.size() - 1) return;
     float live = ps3CatOffset(mPs3CatAnimActive, mPs3CatT, mPs3CatFromOffset);
@@ -373,15 +376,24 @@ void NanoMenu::ps3XmbRight() {
 }
 
 void NanoMenu::ps3XmbUp() {
+    if (mPs3DlgActive) {
+        if (mPs3DlgSel > 0) { mPs3DlgSel--; previewThemeSetting(mPs3DlgThemeKey, mPs3DlgSel); }
+        return;
+    }
     int& s = ps3CurSel();
     if (s > 0) { mPs3ItemAnimFrom = mPs3AnimItem; mPs3ItemAnimStart = mEffectTime; s--; }
 }
 void NanoMenu::ps3XmbDown() {
+    if (mPs3DlgActive) {
+        if (mPs3DlgSel < (int)mPs3DlgOptions.size() - 1) { mPs3DlgSel++; previewThemeSetting(mPs3DlgThemeKey, mPs3DlgSel); }
+        return;
+    }
     int& s = ps3CurSel(); int n = (int)ps3CurItems().size();
     if (s < n - 1) { mPs3ItemAnimFrom = mPs3AnimItem; mPs3ItemAnimStart = mEffectTime; s++; }
 }
 
 void NanoMenu::ps3XmbSelect() {
+    if (mPs3DlgActive) { closePs3Dialog(mPs3DlgThemeKey > 0); return; }   // X: apply chooser / dismiss message
     std::vector<Ps3Item>& items = ps3CurItems();
     int sel = ps3CurSel();
     if (sel < 0 || sel >= (int)items.size()) return;
@@ -400,8 +412,30 @@ void NanoMenu::ps3XmbSelect() {
         case PS3_ROM:    { mXmbSystemIndex = it.a; mXmbGameIndex = it.b; mSearchActive = false; launchXmbGame(); return; }
         case PS3_RECENT: { mXmbSystemIndex = -1;  mXmbGameIndex = it.a; mSearchActive = false; launchXmbGame(); return; }
         case PS3_SETTING:{ if (it.a == 0) openWifiScreen(); else if (it.a == 1) openBtScreen(); return; }
-        case PS3_DATA_LEAF: return;   // dialog / value items: side-panel choosers wired in a later pass
-        default: return;              // PS3_APP / PS3_LAUNCH_PKG launch wired in a later pass
+        case PS3_APP:
+        case PS3_LAUNCH_PKG: {
+            // Launch an installed app / package (Applications submenu). Mirrors the
+            // carousel's app-launch handshake (NanoMenuInput.cpp): set launch_app to
+            // the package, clear ROM/core + stale QR priming, flag return-to-apps,
+            // then wait for the select-key release before the nano exits so the
+            // launched app does not see a phantom press.
+            if (it.payloadStr.empty()) return;
+            if (!isLaunchReady()) { showLaunchBusyToast(); return; }
+            ALOGI("ps3menu: launching app %s", it.payloadStr.c_str());
+            property_set("sys.gammaos.nano.launch_app", it.payloadStr.c_str());
+            property_set("sys.gammaos.nano.launched_pkg", it.payloadStr.c_str());
+            setLaunchRomPath("");
+            property_set("sys.gammaos.nano.launch_core", "");
+            property_set("persist.gammaos.nano.qr_prepared", "0");
+            property_set("persist.gammaos.nano.qr_core", "");
+            property_set("sys.gammaos.nano.return_apps", "1");
+            property_set("service.bootanim.nano_retroarch", "1");
+            property_set("sys.gammaos.nano.drop_input", "1");
+            mWaitForRelease = true;
+            return;
+        }
+        case PS3_DATA_LEAF: { if (it.action == 1) openPs3Dialog(it); return; }   // action='dialog' -> dialog/chooser
+        default: return;
     }
     if (mPs3Stack.size() > depthBefore) {
         // A submenu was pushed: collapse the parent into the breadcrumb column
@@ -418,6 +452,7 @@ void NanoMenu::ps3XmbSelect() {
 }
 
 void NanoMenu::ps3XmbBack() {
+    if (mPs3DlgActive) { closePs3Dialog(false); return; }   // O: cancel the dialog/chooser
     if (!mPs3Stack.empty()) {
         // Snapshot the child list (being left) for the slide-out, then pop and
         // expand the parent back out of the breadcrumb column (timed, dir -1).
@@ -463,7 +498,7 @@ void NanoMenu::renderPs3Xmb() {
 
     // Panel-down drop-shadow offset for the menu icons + text (rotation-aware, so
     // the 180-degree Brick panel does not flip it). Web: icon shadow offsetY ~1-2.
-    float so[2]; ps3ShadowOffset(ps3::devS(1.5f), mWidth, mHeight, so);
+    float so[2]; ps3ShadowOffset(ps3::devS(4.5f), mWidth, mHeight, so);   // stronger panel-down drop shadow (light-bg readability)
 
     float dt = mFrameDt; if (dt < 0.0f) dt = 0.0f; if (dt > 0.1f) dt = 0.1f;
 
@@ -516,22 +551,20 @@ void NanoMenu::renderPs3Xmb() {
     // on the first settled frame, or on a ~10Hz cadence; otherwise reuse the
     // cached blur. tintA MUST be > 0 or the panel composites to nothing.
     if (subT > 0.004f) {
-        // Capture+blur (full-FB copy + downsample pyramid + separable gaussian +
-        // tile flush) costs ~26ms on this GPU, so do it EXACTLY ONCE per submenu
-        // visit: on the first frame after entering. We never recapture while
-        // settled or animating - the heavily-blurred backdrop tolerates a frozen
-        // wave (the blur hides that it is static). A periodic refresh, even at
-        // ~10Hz, injected a 26ms hitch every ~6 frames that read as ~30fps judder
-        // right after entering; freezing the capture keeps the whole submenu at
-        // 60fps. The cache invalidates on returning to the top level (else below).
-        bool refresh = !mPs3GlassValid;
-        if (refresh && captureGlass(0.0f, 0.0f, (float)mWidth, (float)mHeight))
-            mPs3GlassValid = true;
+        // Keep the wave/gradient ANIMATING behind the frosted backdrop, but
+        // sample it at only ~30Hz so the menu itself stays locked at 60fps. The
+        // blur reads ps3bg::workTex (the already-rendered scene) instead of a
+        // full framebuffer capture, so each sample costs no mid-frame tile flush
+        // and fits the 60fps budget; between samples the cached blur is reused
+        // and drawn every frame. The blur is in LOGICAL orientation, so draw it
+        // waveSpace=true. tintA MUST be > 0 or the panel composites to nothing.
+        bool due = !mPs3GlassValid || (mEffectTime - mPs3GlassBlurT) >= 0.0667f;   // ~15Hz backdrop sample
+        if (due && captureGlassFromWave()) { mPs3GlassValid = true; mPs3GlassBlurT = mEffectTime; }
         if (mPs3GlassValid)
             drawFrostedGlass(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f,
-                             0.62f, 0.62f, 0.70f, 1.0f, subT);
+                             0.62f, 0.62f, 0.70f, 1.0f, subT, /*waveSpace=*/true);
     } else {
-        mPs3GlassValid = false;   // back at the top level: recapture on next entry
+        mPs3GlassValid = false;
     }
 
     float catOffset = ps3CatOffset(mPs3CatAnimActive, mPs3CatT, mPs3CatFromOffset);
@@ -582,7 +615,7 @@ void NanoMenu::renderPs3Xmb() {
             float lw = measureText(nm, ls);
             float lx = ps3::devX(ps3::XCP(x)) - lw * 0.5f;
             float ly = ps3::baselineToTopY(ps3::devY(ps3::CAT_LABEL_Y), ls);
-            drawText(nm, lx + so[0], ly + so[1], ls, 0.0f, 0.0f, 0.0f, 0.5f * la);   // shadow
+            drawText(nm, lx + so[0], ly + so[1], ls, 0.0f, 0.0f, 0.0f, 0.78f * la);   // shadow
             drawText(nm, lx, ly, ls, 0.88f, 0.82f, 0.92f, la);
         }
     }
@@ -631,7 +664,7 @@ void NanoMenu::renderPs3Xmb() {
         float y0 = labelBaselineYDev + ps3::devS(ps3::ITEM_DESC_OFFSET);
         for (int li = 0; li < nLines; li++) {
             float ly = ps3::baselineToTopY(y0 + (float)li * lineH, ds);
-            drawText(lines[li].c_str(), txDev + so[0], ly + so[1], ds, 0.0f, 0.0f, 0.0f, 0.45f * alpha);
+            drawText(lines[li].c_str(), txDev + so[0], ly + so[1], ds, 0.0f, 0.0f, 0.0f, 0.7f * alpha);
             drawText(lines[li].c_str(), txDev, ly, ds, 0.78f, 0.78f, 0.82f, alpha);
         }
     };
@@ -670,11 +703,12 @@ void NanoMenu::renderPs3Xmb() {
             const char* L = it.label.c_str();
             // Value position first (right-anchored, panel-clamped) so the label
             // knows how far right it may extend before it must ticker-scroll.
-            bool hasVal = !it.value.empty();
+            std::string itVal = resolvePs3ItemValue(it);
+            bool hasVal = !itVal.empty();
             float vs = 0.0f, vw = 0.0f, vx = 0.0f;
             if (hasVal) {
                 vs = ps3::fontScale(ps3::ITEM_TEXT_SIZE);
-                vw = measureText(it.value.c_str(), vs);
+                vw = measureText(itVal.c_str(), vs);
                 float vRight = ps3::devX(ps3::XCF(ps3::VW - ps3::ITEM_VALUE_RIGHT_PAD));
                 float vPanelMax = (float)mWidth - ps3::devS(ps3::ITEM_VALUE_RIGHT_PAD);
                 if (vRight > vPanelMax) vRight = vPanelMax;
@@ -714,7 +748,7 @@ void NanoMenu::renderPs3Xmb() {
                 scissorOn = true;
             }
             // Text drop shadow (panel-down) under every label for legibility.
-            drawText(L, lx + so[0], ty + so[1], ts, 0.0f, 0.0f, 0.0f, 0.5f * alpha);
+            drawText(L, lx + so[0], ty + so[1], ts, 0.0f, 0.0f, 0.0f, 0.78f * alpha);
             if (isActive) {
                 float phase = fmodf(mEffectTime, ps3::PULSE_PERIOD_MS / 1000.0f) / (ps3::PULSE_PERIOD_MS / 1000.0f);
                 float s = 0.5f * (1.0f - cosf(phase * 2.0f * (float)M_PI));
@@ -737,8 +771,8 @@ void NanoMenu::renderPs3Xmb() {
                 drawDesc(it.desc, tx, ps3::devY(y), descA);
             }
             if (hasVal) {
-                drawText(it.value.c_str(), vx + so[0], ty + so[1], vs, 0.0f, 0.0f, 0.0f, 0.45f * alpha);
-                drawText(it.value.c_str(), vx, ty, vs, 0.7f, 0.7f, 0.75f, alpha * 0.85f);
+                drawText(itVal.c_str(), vx + so[0], ty + so[1], vs, 0.0f, 0.0f, 0.0f, 0.7f * alpha);
+                drawText(itVal.c_str(), vx, ty, vs, 0.7f, 0.7f, 0.75f, alpha * 0.85f);
             }
         }
     };
@@ -789,7 +823,7 @@ void NanoMenu::renderPs3Xmb() {
                 float tx = ps3::devX(ps3::XCP(ps3::ITEM_TEXT_X + (cx - srcX)));
                 float ty = ps3::baselineToTopY(ps3::devY(y), ts);
                 const char* L = it.label.c_str();
-                drawText(L, tx + so[0], ty + so[1], ts, 0.0f, 0.0f, 0.0f, 0.5f * textA);
+                drawText(L, tx + so[0], ty + so[1], ts, 0.0f, 0.0f, 0.0f, 0.78f * textA);
                 float c = sel ? 1.0f : 0.92f;
                 drawText(L, tx, ty, ts, c, c, c, textA);
             }
@@ -859,6 +893,9 @@ void NanoMenu::renderPs3Xmb() {
     }
 
     drawPs3Clock(mPs3BootIconReveal);   // fades in with the cold-boot hand-off (1.0 otherwise)
+
+    // Settings dialog / Theme chooser overlay on top of the menu.
+    if (mPs3DlgActive) renderPs3Dialog();
 }
 
 // ---------------------------------------------------------------------------
@@ -881,7 +918,7 @@ void NanoMenu::drawPs3Clock(float fadeMul) {
     float dyB = cy(ps3::CLOCK_FRAME_Y + ps3::CLOCK_FRAME_H);
     float fr  = ps3::devS(ps3::CLOCK_FRAME_CORNER);
     float lw  = fmaxf(1.0f, ps3::devS(1.0f));
-    float so[2]; ps3ShadowOffset(ps3::devS(1.0f), mWidth, mHeight, so);   // panel-down drop shadow
+    float so[2]; ps3ShadowOffset(ps3::devS(3.0f), mWidth, mHeight, so);   // panel-down drop shadow (stronger)
 
     // filled dim panel (open-right, rounded left corners)
     auto fillURect = [&](float x0, float y0, float x1, float y1, float rad, float r, float g, float b, float a) {
@@ -1066,6 +1103,265 @@ void NanoMenu::drawPs3Clock(float fadeMul) {
                       : (bl == kBtLevel_Connected ? 0.96f : 0.72f);
             drawBtIcon(lx + so[0], cyc - iconH * 0.5f + so[1], btSf, 0.0f, 0.0f, 0.0f, bta * 0.6f * fadeMul);
             drawBtIcon(lx, cyc - iconH * 0.5f, btSf, 1.0f, 1.0f, 1.0f, bta * fadeMul);
+        }
+    }
+}
+
+// ===========================================================================
+// Settings dialogs + Theme Settings choosers (web DIALOG_TEMPLATES + theme tables)
+// ===========================================================================
+struct Ps3ColorOpt { const char* name; float r, g, b; };
+static const Ps3ColorOpt kPs3ColorOpts[] = {
+    {"Original",0.82f,0.62f,0.90f},{"Yellow",1.00f,0.88f,0.20f},{"Green",0.65f,0.87f,0.30f},
+    {"Pink",1.00f,0.64f,0.72f},{"Dark Green",0.25f,0.70f,0.25f},{"Light Purple",0.82f,0.62f,0.90f},
+    {"Teal",0.30f,0.88f,0.85f},{"Dark Blue",0.10f,0.30f,0.80f},{"Magenta",0.70f,0.30f,0.80f},
+    {"Orange",1.00f,0.70f,0.15f},{"Brown",0.62f,0.43f,0.18f},{"Red",0.90f,0.22f,0.22f},
+    {"Black",0.06f,0.06f,0.075f},{"White",0.95f,0.95f,0.98f},{"Gray",0.55f,0.57f,0.62f},
+    {"Blue",0.20f,0.45f,0.95f},{"Cyan",0.20f,0.85f,0.95f},{"Lime",0.55f,0.95f,0.20f},
+    {"Gold",1.00f,0.78f,0.25f},{"Violet",0.55f,0.35f,0.95f},{"Crimson",0.80f,0.10f,0.30f},
+};
+static const int kPs3ColorCount = 21;
+struct Ps3DayNightOpt { const char* name; float blend; };
+static const Ps3DayNightOpt kPs3DayNightOpts[] = {
+    {"Auto (Time of Day)",-1.0f},{"Day",0.0f},{"Morning",0.25f},{"Dusk",0.5f},{"Evening",0.75f},{"Night",1.0f},
+};
+static const int kPs3DayNightCount = 6;
+static const char* const kPs3ThemeOpts[] = {"Original","Classic"};
+static const char* const kPs3BgOpts[]    = {"Original","Classic","Wallpaper"};
+static const char* const kPs3FontOpts[]  = {"Original","Rounded","Pop"};
+
+void NanoMenu::loadPs3ThemeSettings() {
+    char buf[PROPERTY_VALUE_MAX];
+    auto rd = [&](const char* prop, int cap) -> int {
+        property_get(prop, buf, "0"); int v = atoi(buf);
+        if (v < 0 || v >= cap) v = 0; return v;
+    };
+    mPs3ThemeIdx    = rd("persist.gammaos.nano.ps3xmb.theme", 2);
+    mPs3ColorIdx    = rd("persist.gammaos.nano.ps3xmb.color", kPs3ColorCount);
+    mPs3BgIdx       = rd("persist.gammaos.nano.ps3xmb.bg", 3);
+    mPs3FontIdx     = rd("persist.gammaos.nano.ps3xmb.font", 3);
+    mPs3DayNightIdx = rd("persist.gammaos.nano.ps3xmb.daynight", kPs3DayNightCount);
+    // Apply the visual state (colour + day/night). Cross-fades from the boot
+    // colour are handled in ps3bg; setThemeColor/setDayNightBlend just set the
+    // target. mPs3ColorIdx 0 = Original (per-month hue).
+    if (mPs3ColorIdx == 0) ps3bg::clearThemeColor();
+    else ps3bg::setThemeColor(kPs3ColorOpts[mPs3ColorIdx].r,
+                              kPs3ColorOpts[mPs3ColorIdx].g,
+                              kPs3ColorOpts[mPs3ColorIdx].b);
+    ps3bg::setDayNightBlend(kPs3DayNightOpts[mPs3DayNightIdx].blend);
+    // Background == Classic (index 1) removes the glitter particle field.
+    ps3bg::setParticlesEnabled(mPs3BgIdx != 1);
+}
+
+// Live right-side value for a Theme Settings row (mirrors the web
+// resolveItemValue): the value reflects the CURRENT selection so the menu shows
+// it without opening the chooser. Non-theme rows fall back to the static value.
+std::string NanoMenu::resolvePs3ItemValue(const Ps3Item& it) {
+    const std::string& n = it.label;
+    if (n == "Theme") {
+        int c = (int)(sizeof(kPs3ThemeOpts) / sizeof(kPs3ThemeOpts[0]));
+        if (mPs3ThemeIdx >= 0 && mPs3ThemeIdx < c) return kPs3ThemeOpts[mPs3ThemeIdx];
+    } else if (n == "Colour" || n == "Color") {
+        if (mPs3ColorIdx >= 0 && mPs3ColorIdx < kPs3ColorCount) return kPs3ColorOpts[mPs3ColorIdx].name;
+    } else if (n == "Background") {
+        int c = (int)(sizeof(kPs3BgOpts) / sizeof(kPs3BgOpts[0]));
+        if (mPs3BgIdx >= 0 && mPs3BgIdx < c) return kPs3BgOpts[mPs3BgIdx];
+    } else if (n == "Font") {
+        int c = (int)(sizeof(kPs3FontOpts) / sizeof(kPs3FontOpts[0]));
+        if (mPs3FontIdx >= 0 && mPs3FontIdx < c) return kPs3FontOpts[mPs3FontIdx];
+    } else if (n == "Day/Night") {
+        if (mPs3DayNightIdx >= 0 && mPs3DayNightIdx < kPs3DayNightCount) return kPs3DayNightOpts[mPs3DayNightIdx].name;
+    }
+    return it.value;
+}
+
+void NanoMenu::openPs3Dialog(const Ps3Item& it) {
+    const std::string& n = it.label;
+    mPs3DlgOptions.clear(); mPs3DlgSwatch.clear();
+    mPs3DlgThemeKey = 0; mPs3DlgKind = 0; mPs3DlgTitle = n; mPs3DlgBody.clear();
+    if (n == "Theme") {
+        mPs3DlgKind = 1; mPs3DlgThemeKey = 1;
+        for (const char* s : kPs3ThemeOpts) { mPs3DlgOptions.push_back(s); mPs3DlgSwatch.push_back(-1); }
+        mPs3DlgSel = mPs3ThemeIdx;
+    } else if (n == "Colour" || n == "Color") {
+        mPs3DlgKind = 1; mPs3DlgThemeKey = 2;
+        for (int i = 0; i < kPs3ColorCount; i++) { mPs3DlgOptions.push_back(kPs3ColorOpts[i].name); mPs3DlgSwatch.push_back(i); }
+        mPs3DlgSel = mPs3ColorIdx;
+    } else if (n == "Background") {
+        mPs3DlgKind = 1; mPs3DlgThemeKey = 3;
+        for (const char* s : kPs3BgOpts) { mPs3DlgOptions.push_back(s); mPs3DlgSwatch.push_back(-1); }
+        mPs3DlgSel = mPs3BgIdx;
+    } else if (n == "Font") {
+        mPs3DlgKind = 1; mPs3DlgThemeKey = 4;
+        for (const char* s : kPs3FontOpts) { mPs3DlgOptions.push_back(s); mPs3DlgSwatch.push_back(-1); }
+        mPs3DlgSel = mPs3FontIdx;
+    } else if (n == "Day/Night") {
+        mPs3DlgKind = 1; mPs3DlgThemeKey = 5;
+        for (int i = 0; i < kPs3DayNightCount; i++) { mPs3DlgOptions.push_back(kPs3DayNightOpts[i].name); mPs3DlgSwatch.push_back(-1); }
+        mPs3DlgSel = mPs3DayNightIdx;
+    } else if (n == "System Update") {
+        mPs3DlgBody = "Select an update method.";
+        mPs3DlgOptions.push_back("Update via Internet"); mPs3DlgOptions.push_back("Update via Storage Media");
+        mPs3DlgSwatch.assign(2, -1); mPs3DlgSel = 0;
+    } else if (n == "System Information") {
+        mPs3DlgBody = "System Software\nVersion 4.91\n\nIP Address\n192.168.1.10\n\nSystem Storage\n466 GB free of 500 GB";
+        mPs3DlgOptions.push_back("OK"); mPs3DlgSwatch.assign(1, -1); mPs3DlgSel = 0;
+    } else {
+        // generic info dialog for any other action='dialog' leaf
+        mPs3DlgBody = "This feature is not available yet.";
+        mPs3DlgOptions.push_back("OK"); mPs3DlgSwatch.assign(1, -1); mPs3DlgSel = 0;
+    }
+    mPs3DlgOrigSel = mPs3DlgSel;
+    mPs3DlgActive = true; mPs3DlgAnim = 0.0f; mPs3DlgBlurValid = false;
+}
+
+void NanoMenu::previewThemeSetting(int themeKey, int sel) {
+    // Apply a chooser value to the live state WITHOUT persisting (live preview
+    // while scrolling + revert on cancel). The index members track the live
+    // selection so the menu row's inline value updates as the cursor moves, and
+    // ps3bg cross-fades the colour/day-night toward the new target.
+    switch (themeKey) {
+        case 1: mPs3ThemeIdx = sel; break;
+        case 2:
+            mPs3ColorIdx = sel;
+            if (sel <= 0) ps3bg::clearThemeColor();
+            else if (sel < kPs3ColorCount) ps3bg::setThemeColor(kPs3ColorOpts[sel].r, kPs3ColorOpts[sel].g, kPs3ColorOpts[sel].b);
+            break;
+        case 3: mPs3BgIdx = sel; ps3bg::setParticlesEnabled(sel != 1); break;  // Classic hides particles
+        case 4: mPs3FontIdx = sel; break;
+        case 5:
+            mPs3DayNightIdx = sel;
+            if (sel >= 0 && sel < kPs3DayNightCount) ps3bg::setDayNightBlend(kPs3DayNightOpts[sel].blend);
+            break;
+        default: break;
+    }
+}
+
+void NanoMenu::applyThemeSetting(int themeKey, int sel) {
+    char v[16]; snprintf(v, sizeof(v), "%d", sel);
+    switch (themeKey) {
+        case 1: property_set("persist.gammaos.nano.ps3xmb.theme", v); break;
+        case 2: property_set("persist.gammaos.nano.ps3xmb.color", v); previewThemeSetting(2, sel); break;
+        case 3: property_set("persist.gammaos.nano.ps3xmb.bg", v); break;
+        case 4: property_set("persist.gammaos.nano.ps3xmb.font", v); break;
+        case 5: property_set("persist.gammaos.nano.ps3xmb.daynight", v); previewThemeSetting(5, sel); break;
+        default: break;
+    }
+}
+
+void NanoMenu::closePs3Dialog(bool apply) {
+    if (mPs3DlgThemeKey > 0) {
+        if (apply) applyThemeSetting(mPs3DlgThemeKey, mPs3DlgSel);
+        else       previewThemeSetting(mPs3DlgThemeKey, mPs3DlgOrigSel);   // revert the live preview
+    }
+    mPs3DlgActive = false;
+    mPs3DlgBlurValid = false;
+}
+
+void NanoMenu::renderPs3Dialog() {
+    if (!mPs3DlgActive) return;
+    float dt = mFrameDt; if (dt < 0.0f) dt = 0.0f; if (dt > 0.1f) dt = 0.1f;
+    mPs3DlgAnim += (1.0f - mPs3DlgAnim) * (1.0f - expf(-13.0f * dt));
+    if (mPs3DlgAnim > 0.999f) mPs3DlgAnim = 1.0f;
+    float ap = mPs3DlgAnim;
+    { ps3::LayoutParams lp; lp.panelW = mWidth; lp.panelH = mHeight; lp.uiScale = mPs3UiScale; ps3::layoutCompute(lp); }
+
+    // Fullscreen message dialogs (System Update, ...) sit on a blurred backdrop
+    // that keeps ANIMATING (re-captured every frame, like the web). Side-panel
+    // choosers do NOT blur - the XMB stays visible and the LIVE background colour
+    // shows through so the Colour/Day-Night preview is seen behind the panel.
+    if (mPs3DlgKind != 1) {
+        // ~30Hz live wave/gradient backdrop (workTex, no FB capture) so the
+        // dialog open animation stays smooth at 60fps. waveSpace = logical blur.
+        bool due = !mPs3DlgBlurValid || (mEffectTime - mPs3DlgBlurT) >= 0.0667f;   // ~15Hz backdrop sample
+        if (due && captureGlassFromWave()) { mPs3DlgBlurValid = true; mPs3DlgBlurT = mEffectTime; }
+        if (mPs3DlgBlurValid)
+            drawFrostedGlass(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f, 0.40f, 0.40f, 0.48f, 1.0f, ap, /*waveSpace=*/true);
+    }
+
+    float ss = ps3::devS(1.5f);
+    float so[2] = { sDrmRotMat[2] * ss, sDrmRotMat[3] * ss };
+
+    if (mPs3DlgKind == 1) {
+        // ---- side-panel chooser (Theme Settings) ----
+        float panelW = (float)mWidth * 0.42f;
+        float ease = ap * ap * (3.0f - 2.0f * ap);
+        float px = (float)mWidth - panelW * ease;
+        drawQuad(px, 0.0f, panelW + ps3::devS(40.0f), (float)mHeight, 0.13f, 0.12f, 0.18f, 0.84f * ap);
+        float titleX = px + ps3::devS(30.0f);
+        float tts = ps3::fontScale(26.0f);
+        drawText(mPs3DlgTitle.c_str(), titleX + so[0], ps3::devS(38.0f) + so[1], tts, 0.0f, 0.0f, 0.0f, 0.5f * ap);
+        drawText(mPs3DlgTitle.c_str(), titleX, ps3::devS(38.0f), tts, 0.90f, 0.86f, 0.96f, ap);
+        int n = (int)mPs3DlgOptions.size();
+        float rowH = ps3::devS(46.0f);
+        float listCy = (float)mHeight * 0.52f;
+        for (int i = 0; i < n; i++) {
+            float y = listCy + (float)(i - mPs3DlgSel) * rowH;
+            if (y < -rowH || y > (float)mHeight + rowH) continue;
+            bool sel = (i == mPs3DlgSel);
+            float a = (sel ? 1.0f : 0.55f) * ap;
+            float fs = ps3::fontScale(sel ? 30.0f : 24.0f);
+            float tx = titleX;
+            if (i < (int)mPs3DlgSwatch.size() && mPs3DlgSwatch[i] >= 0) {
+                int ci = mPs3DlgSwatch[i]; float sw = ps3::devS(26.0f);
+                drawQuad(titleX, y - sw * 0.5f, sw, sw, kPs3ColorOpts[ci].r, kPs3ColorOpts[ci].g, kPs3ColorOpts[ci].b, a);
+                tx = titleX + sw + ps3::devS(14.0f);
+            }
+            float ty = ps3::baselineToTopY(y, fs);
+            drawText(mPs3DlgOptions[i].c_str(), tx + so[0], ty + so[1], fs, 0.0f, 0.0f, 0.0f, 0.5f * a);
+            float c = sel ? 1.0f : 0.85f;
+            drawText(mPs3DlgOptions[i].c_str(), tx, ty, fs, c, c, c, a);
+        }
+    } else {
+        // ---- fullscreen message / chooser dialog (System Update, ...) ----
+        float bw = (float)mWidth * 0.72f, bh = (float)mHeight * 0.56f;
+        float bx = ((float)mWidth - bw) * 0.5f, by = ((float)mHeight - bh) * 0.5f;
+        drawQuad(bx, by, bw, bh, 0.08f, 0.08f, 0.11f, 0.86f * ap);
+        float padX = bx + ps3::devS(34.0f);
+        float tts = ps3::fontScale(32.0f);
+        float titleY = by + ps3::devS(28.0f);
+        drawText(mPs3DlgTitle.c_str(), padX + so[0], titleY + so[1], tts, 0.0f, 0.0f, 0.0f, 0.5f * ap);
+        drawText(mPs3DlgTitle.c_str(), padX, titleY, tts, 1.0f, 1.0f, 1.0f, ap);
+        drawQuad(padX, by + ps3::devS(74.0f), bw - ps3::devS(68.0f), fmaxf(1.0f, ps3::devS(1.0f)), 0.5f, 0.5f, 0.55f, 0.6f * ap);
+        // body: split on '\n', word-wrap each segment to the box width
+        float bs = ps3::fontScale(22.0f);
+        float lineH = ps3::devS(30.0f);
+        float maxW = bw - ps3::devS(68.0f);
+        float ty = by + ps3::devS(96.0f);
+        std::string seg;
+        auto emitWrapped = [&](const std::string& s) {
+            std::string cur, word;
+            auto flush = [&](bool last) {
+                std::string trial = cur.empty() ? word : cur + " " + word;
+                if (!cur.empty() && measureText(trial.c_str(), bs) > maxW) {
+                    drawText(cur.c_str(), padX, ty, bs, 0.82f, 0.82f, 0.86f, ap); ty += lineH; cur = word;
+                } else cur = trial;
+                word.clear();
+                if (last) { if (!cur.empty()) { drawText(cur.c_str(), padX, ty, bs, 0.82f, 0.82f, 0.86f, ap); ty += lineH; } }
+            };
+            if (s.empty()) { ty += lineH * 0.5f; return; }
+            for (const char* p = s.c_str(); ; ++p) {
+                if (*p == ' ' || *p == '\0') { flush(*p == '\0'); if (*p == '\0') break; }
+                else word.push_back(*p);
+            }
+        };
+        for (size_t i = 0; i <= mPs3DlgBody.size(); i++) {
+            if (i == mPs3DlgBody.size() || mPs3DlgBody[i] == '\n') { emitWrapped(seg); seg.clear(); }
+            else seg.push_back(mPs3DlgBody[i]);
+        }
+        // options as a vertical list near the bottom of the box, selected highlit
+        int n = (int)mPs3DlgOptions.size();
+        float os = ps3::fontScale(26.0f);
+        float optRow = ps3::devS(40.0f);
+        float optY = by + bh - ps3::devS(30.0f) - (float)n * optRow;
+        for (int i = 0; i < n; i++) {
+            float y = optY + (float)i * optRow;
+            bool sel = (i == mPs3DlgSel);
+            if (sel) drawQuad(padX - ps3::devS(8.0f), y - ps3::devS(4.0f), maxW + ps3::devS(16.0f), optRow - ps3::devS(6.0f), 0.20f, 0.42f, 0.62f, 0.55f * ap);
+            float c = sel ? 1.0f : 0.7f;
+            float ty2 = ps3::baselineToTopY(y + optRow * 0.5f, os);
+            drawText(mPs3DlgOptions[i].c_str(), padX + so[0], ty2 + so[1], os, 0.0f, 0.0f, 0.0f, 0.5f * ap);
+            drawText(mPs3DlgOptions[i].c_str(), padX, ty2, os, c, c, c, ap);
         }
     }
 }

@@ -701,6 +701,37 @@ private:
     GLuint mPs3BootLogoTex = 0;
     GLuint mPs3BootFooterTex = 0;
     bool   mPs3BootPlatesLoaded = false;
+    // ---- PS3 Settings dialogs + Theme Settings (NanoMenuPS3Menu.cpp) ----
+    // action='dialog' DATA leaves open either a side-panel chooser (Theme
+    // Settings: Theme/Colour/Background/Font/Day-Night) or a fullscreen message
+    // dialog (System Update, System Information, Format Utility, ...).
+    bool   mPs3DlgActive = false;
+    int    mPs3DlgKind = 0;        // 0 = fullscreen message/chooser, 1 = side-panel theme chooser
+    int    mPs3DlgThemeKey = 0;    // 0 none, 1 theme, 2 colour, 3 background, 4 font, 5 day/night
+    std::string mPs3DlgTitle;
+    std::string mPs3DlgBody;
+    std::vector<std::string> mPs3DlgOptions;
+    std::vector<int> mPs3DlgSwatch;   // COLOR_OPTIONS index per option for the Colour chooser, else -1
+    int    mPs3DlgSel = 0;
+    int    mPs3DlgOrigSel = 0;     // value at open, for revert on cancel
+    float  mPs3DlgAnim = 0.0f;     // open slide/fade 0->1
+    bool   mPs3DlgBlurValid = false;
+    // Live Theme Settings selection indices (mirror the web themeIdx/colorIdx/
+    // bgIdx/fontIdx/daynightIdx). They reflect the CURRENT applied-or-previewing
+    // value so the menu rows show the selection inline (resolvePs3ItemValue),
+    // exactly like the web resolveItemValue. Loaded from props at init.
+    int    mPs3ThemeIdx = 0;
+    int    mPs3ColorIdx = 0;
+    int    mPs3BgIdx = 0;
+    int    mPs3FontIdx = 0;
+    int    mPs3DayNightIdx = 0;
+    void   openPs3Dialog(const Ps3Item& it);
+    void   closePs3Dialog(bool apply);
+    void   renderPs3Dialog();
+    void   previewThemeSetting(int themeKey, int sel);   // apply live (no persist)
+    void   applyThemeSetting(int themeKey, int sel);     // persist + apply
+    void   loadPs3ThemeSettings();
+    std::string resolvePs3ItemValue(const Ps3Item& it);  // live theme value for a row, else it.value
     void  ps3BootReset(bool freshSetup);
     bool  ps3BootActive() const { return mPs3BootActive; }
     void  ps3BootSkip();
@@ -954,7 +985,17 @@ private:
     // blur for every frame (the panel draw itself is cheap). Invalidated on
     // returning to the top level.
     bool   mPs3GlassValid      = false;
-    void   blurGlassChain();        // run the downsample passes after captureGlass
+    float  mPs3GlassBlurT      = 0.0f;   // mEffectTime of last submenu wave-blur (30Hz cadence)
+    float  mPs3DlgBlurT        = 0.0f;   // mEffectTime of last dialog backdrop wave-blur
+    // Run the downsample + Gaussian passes on srcTex (srcW x srcH); leaves the
+    // result in mGlassBlurTex. Called by captureGlass (FB snapshot) and
+    // captureGlassFromWave (ps3bg::workTex, no FB capture).
+    void   blurGlassChain(GLuint srcTex, int srcW, int srcH,
+                          int downLevels = 3, int gaussIters = 2);
+    // Blur the live PS3 wave/gradient (ps3bg::workTex) with no framebuffer
+    // capture - cheap enough to sustain 60fps. Result is in LOGICAL orientation;
+    // draw with drawFrostedGlass(..., waveSpace=true). False if wave not ready.
+    bool   captureGlassFromWave();
     // OSK rounded-rect + frosted-glass primitives (NanoMenuRender.cpp)
     void drawRoundedRect(float x, float y, float w, float h, float radius,
                          float r, float g, float b, float a);
@@ -966,7 +1007,8 @@ private:
     // Draw a frosted-glass panel over the captured region (call captureGlass
     // first with the same rect). tint rgb darkens; tintA = panel opacity.
     void drawFrostedGlass(float x, float y, float w, float h, float radius,
-                          float tr, float tg, float tb, float tintA, float fade);
+                          float tr, float tg, float tb, float tintA, float fade,
+                          bool waveSpace = false);
 
     // Setup wizard state
     bool mSetupWizardActive;

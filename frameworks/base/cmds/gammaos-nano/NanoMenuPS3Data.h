@@ -77,6 +77,7 @@ static const Ps3DataItem kThemeSettingsCh[] = {
   {"Colour",22,"Sets the colour of the background and options menu.",nullptr,1,nullptr,0},
   {"Background",22,"Sets the background of the XMB™ screen.",nullptr,1,nullptr,0},
   {"Font",22,"Sets the font displayed on the XMB™ screen.",nullptr,1,nullptr,0},
+  {"Day/Night",22,"Sets the time-of-day lighting (day, dusk, night or automatic).",nullptr,1,nullptr,0},
 };
 static const Ps3DataItem kDateTimeCh[] = {
   {"Date and Time",22,"Sets the date and time for this system.",nullptr,1,nullptr,0},

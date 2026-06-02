@@ -72,6 +72,18 @@ GLuint workTex();
 // byte-identical (no effect unless the boot intro is driving it).
 void setBootWaveBrightness(float b);
 
+// Theme Settings (set from the menu's Theme Settings choosers). setThemeColor
+// overrides the per-month background base colour with a user-chosen RGB; clear
+// reverts; setDayNightBlend forces the time-of-day lighting (<0 = auto). Each
+// triggers a one-frame gradient recache.
+void setThemeColor(float r, float g, float b);
+void clearThemeColor();
+void setDayNightBlend(float b);
+
+// Background == Classic removes the glitter particle field. true (default) shows
+// the particles; false hides them (Theme Settings -> Background -> Classic).
+void setParticlesEnabled(bool enabled);
+
 } // namespace ps3bg
 } // namespace android
 

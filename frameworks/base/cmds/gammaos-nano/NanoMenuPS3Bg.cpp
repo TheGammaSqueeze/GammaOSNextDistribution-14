@@ -84,6 +84,52 @@ static void hsvToRgb(float h, float s, float v, float* out) {
     else              { r = c; g = 0; b = x; }
     out[0] = r + m; out[1] = g + m; out[2] = b + m;
 }
+// Theme Settings cross-fade state (mirrors the web dispTint / dispHSV / dispBlend
+// + stepThemeFade, index.html line 586). A chosen Colour blends the per-month
+// base toward the chosen tint by an animated strength (0 = Original per-month
+// hue, 1 = full manual colour); the FS_BG vertical envelope re-imposes the
+// dark-top / colour-bottom + day/night value structure on top. The day/night
+// blend is likewise cross-faded. All glide toward their targets each frame with
+// k = 1 - exp(-dt_ms / 220) (~0.4s) so colour + time-of-day changes ease in
+// instead of snapping. Defaults leave the steady per-month / clock path intact.
+static float sThemeTgtR = 0.0f, sThemeTgtG = 0.0f, sThemeTgtB = 0.0f;  // target tint
+static float sThemeCurR = 0.0f, sThemeCurG = 0.0f, sThemeCurB = 0.0f;  // animated tint
+static float sThemeStrTgt = 0.0f, sThemeStrCur = 0.0f;                 // manual-colour strength 0..1
+static float sDayNightTgt = -1.0f;   // <0 = auto (follow the clock); 0..1 = forced
+static float sDayNightCur = 0.0f;    // animated effective blend used downstream
+static bool  sThemeFadeInit = false; // first frame snaps (no fade-from-zero)
+// Background == Classic removes the glitter particle field (Theme Settings).
+static bool  sParticlesEnabled = true;
+static void rgbToHsv(const float* c, float* h, float* s, float* v) {
+    float r = c[0], g = c[1], b = c[2];
+    float mx = fmaxf(r, fmaxf(g, b)), mn = fminf(r, fminf(g, b));
+    float d = mx - mn;
+    *v = mx;
+    *s = (mx > 1e-6f) ? (d / mx) : 0.0f;
+    if (d < 1e-6f) { *h = 0.0f; return; }
+    float hh;
+    if (mx == r)      hh = fmodf((g - b) / d, 6.0f);
+    else if (mx == g) hh = (b - r) / d + 2.0f;
+    else              hh = (r - g) / d + 4.0f;
+    hh *= 60.0f; if (hh < 0.0f) hh += 360.0f;
+    *h = hh;
+}
+// HSV hue-rotation of a per-month base colour toward the chosen tint (web
+// applyHSVRotation, index.html 2967-2991): hue taken from the tint, saturation
+// 65% toward the tint's, value 35% toward the tint's luma (clamped 0..1.5). So
+// Black darkens, White lightens, Red turns red, while the per-month value
+// structure mostly survives. luma coeffs 0.299/0.587/0.114.
+static void applyThemeHSV(float* c, float tr, float tg, float tb) {
+    float hG, sG, vG; rgbToHsv(c, &hG, &sG, &vG); (void)hG; (void)vG;
+    float gradLuma = 0.299f * c[0] + 0.587f * c[1] + 0.114f * c[2];
+    float tt[3] = {tr, tg, tb};
+    float hT, sT, vT; rgbToHsv(tt, &hT, &sT, &vT); (void)vT;
+    float tintLuma = 0.299f * tr + 0.587f * tg + 0.114f * tb;
+    float newS = sG + (sT - sG) * 0.65f;
+    float newV = gradLuma + (tintLuma - gradLuma) * 0.35f;
+    if (newV < 0.0f) newV = 0.0f; else if (newV > 1.5f) newV = 1.5f;
+    hsvToRgb(hT, newS, newV, c);
+}
 static void monthBaseColor(int month, float nightBlend, float* out) {
     int m = ((month % 12) + 12) % 12;
     // Keep more colour at night: the old night value (kMonthNV) drove the base
@@ -93,14 +139,20 @@ static void monthBaseColor(int month, float nightBlend, float* out) {
     float nightV = kMonthNV[m] + 0.45f * (kMonthV[m] - kMonthNV[m]);
     float v = kMonthV[m] * (1.0f - nightBlend) + nightV * nightBlend;
     hsvToRgb(kMonthH[m], kMonthS[m], v * kMonthValuePrecomp, out);
+    // Manual Colour: blend the per-month base toward its HSV-rotated-to-tint
+    // version by the animated strength (0 = Original per-month, 1 = full colour),
+    // exactly the web's mix(gradColor, applyHSVRotation(gradColor,tint), strength).
+    if (sThemeStrCur > 0.001f) {
+        float rot[3] = { out[0], out[1], out[2] };
+        applyThemeHSV(rot, sThemeCurR, sThemeCurG, sThemeCurB);
+        out[0] += (rot[0] - out[0]) * sThemeStrCur;
+        out[1] += (rot[1] - out[1]) * sThemeStrCur;
+        out[2] += (rot[2] - out[2]) * sThemeStrCur;
+    }
 }
 static void monthBaseColorBot(int month, float nightBlend, float* out) {
-    int m = ((month % 12) + 12) % 12;
-    if (m == 6) {   // July: deep blue bottom edge
-        float v = 0.230f * (1.0f - nightBlend) + 0.180f * nightBlend;
-        hsvToRgb(242.0f, 0.900f, v * kMonthValuePrecomp, out);
-        return;
-    }
+    // (July's deep-blue bottom edge removed per request - it washed the bottom of
+    // the screen strong blue. The bottom now uses the same per-month colour.)
     monthBaseColor(month, nightBlend, out);
 }
 
@@ -123,6 +175,10 @@ static int    sFbW = 0, sFbH = 0;
 static bool   sGradDirty = true;
 static int    sGradMonth = -1;
 static float  sGradBlendQ = -1.0f;
+// Theme cross-fade values at the last gradient recache (so the cache refreshes
+// every frame while a colour/day-night fade is in flight, then goes static).
+static float  sGradLastStr = -1.0f;
+static float  sGradLastR = -1.0f, sGradLastG = -1.0f, sGradLastB = -1.0f;
 
 // quad VBO (fullscreen, pos.xy + uv)
 static GLuint sQuadVBO = 0;
@@ -204,8 +260,8 @@ static const char* FS_BG =
     "  // much darker), easing to FULL colour at the bottom. The dark band reaches\n"
     "  // further down as the day darkens, but the bottom always keeps colour\n"
     "  // (screenY: 0 = top, 1 = bottom). Replaces the old uniform night ramp.\n"
-    "  float topDark = mix(0.28, 0.12, uNightDayBlend);\n"   // day top MUCH darker (was 0.60), strong gradient
-    "  float fullAt  = mix(0.62, 0.92, uNightDayBlend);\n"   // day dark band reaches a bit further down
+    "  float topDark = mix(0.12, 0.0, uNightDayBlend);\n"    // day top as dark as the old night top; night top fully BLACK; dusk/dawn in between (darker than day)
+    "  float fullAt  = mix(0.62, 0.92, uNightDayBlend);\n"   // day dark band reaches mid-screen; night reaches near the bottom (colour kept at the very bottom)
     "  float vGrad   = mix(topDark, 1.0, smoothstep(0.0, fullAt, screenY));\n"
     "  gradColor *= vGrad;\n"
     "  vec3 finalColor = gradColor * 1.05;\n"
@@ -581,6 +637,17 @@ GLuint workTex() { return sWorkTex; }
 static float sBootWaveBrightness = 1.0f;
 void setBootWaveBrightness(float b) { sBootWaveBrightness = b; }
 
+// Theme Settings hooks. These set TARGETS only; render() cross-fades the live
+// state toward them each frame (web stepThemeFade). setThemeColor selects a
+// manual colour (strength target -> 1); clearThemeColor reverts to the per-month
+// hue (strength target -> 0); setDayNightBlend forces the lighting (<0 = auto).
+void setThemeColor(float r, float g, float b) {
+    sThemeTgtR = r; sThemeTgtG = g; sThemeTgtB = b; sThemeStrTgt = 1.0f;
+}
+void clearThemeColor() { sThemeStrTgt = 0.0f; }
+void setDayNightBlend(float b) { sDayNightTgt = b; }
+void setParticlesEnabled(bool e) { sParticlesEnabled = e; }
+
 void invalidateGradient() { sGradDirty = true; }
 
 void shutdown() {
@@ -685,17 +752,47 @@ void render(int panelW, int panelH, float dt, const float rotMat2[4], bool /*rot
     struct tm lt;
     localtime_r(&tt, &lt);
     float hour = lt.tm_hour + lt.tm_min / 60.0f + lt.tm_sec / 3600.0f;
-    float nightDayBlend = computeNightDayBlend(hour);
 
-    // Re-render the cached gradient only when month / day-night meaningfully
-    // changed (otherwise it is static frame-to-frame). The per-month base colour
-    // is constant within a month (no within-month crossfade in the firmware).
+    // Theme cross-fade (web stepThemeFade, index.html 586): glide the manual
+    // Colour tint + strength and the day/night blend toward their targets each
+    // frame. Day/night target = the forced override (>=0) or the clock. k =
+    // 1 - exp(-dt_ms/220) (~0.4s), dt capped to 50ms; first frame snaps so there
+    // is no fade up from zero on boot.
+    float blendTarget = (sDayNightTgt >= 0.0f) ? sDayNightTgt : computeNightDayBlend(hour);
+    {
+        float dtms = dt * 1000.0f;
+        if (dtms <= 0.0f) dtms = 16.7f; else if (dtms > 50.0f) dtms = 50.0f;
+        float k = 1.0f - expf(-dtms / 220.0f);
+        if (!sThemeFadeInit) {
+            sThemeCurR = sThemeTgtR; sThemeCurG = sThemeTgtG; sThemeCurB = sThemeTgtB;
+            sThemeStrCur = sThemeStrTgt; sDayNightCur = blendTarget; sThemeFadeInit = true;
+        } else {
+            sThemeCurR   += (sThemeTgtR   - sThemeCurR)   * k;
+            sThemeCurG   += (sThemeTgtG   - sThemeCurG)   * k;
+            sThemeCurB   += (sThemeTgtB   - sThemeCurB)   * k;
+            sThemeStrCur += (sThemeStrTgt - sThemeStrCur) * k;
+            sDayNightCur += (blendTarget  - sDayNightCur) * k;
+        }
+    }
+    float nightDayBlend = sDayNightCur;
+
+    // Re-render the cached gradient when the month, the (animated) day/night blend
+    // or the (animated) theme colour/strength moved meaningfully. While a colour
+    // or day/night cross-fade is in flight these change every frame so the cache
+    // refreshes every frame; once settled the deltas fall below epsilon and the
+    // gradient is static again (one cheap quad into a small FBO, not the blur).
     float blendQ = floorf(nightDayBlend * 50.0f) / 50.0f;
-    if (sGradDirty || lt.tm_mon != sGradMonth || fabsf(blendQ - sGradBlendQ) > 1e-4f) {
+    bool themeMoved = fabsf(sThemeStrCur - sGradLastStr) > 1e-3f
+                   || fabsf(sThemeCurR - sGradLastR) > 1.5e-3f
+                   || fabsf(sThemeCurG - sGradLastG) > 1.5e-3f
+                   || fabsf(sThemeCurB - sGradLastB) > 1.5e-3f;
+    if (sGradDirty || lt.tm_mon != sGradMonth || fabsf(blendQ - sGradBlendQ) > 1e-4f || themeMoved) {
         renderGradientCache(fw, fh, lt.tm_mon, nightDayBlend);
         sGradDirty = false;
         sGradMonth = lt.tm_mon;
         sGradBlendQ = blendQ;
+        sGradLastStr = sThemeStrCur;
+        sGradLastR = sThemeCurR; sGradLastG = sThemeCurG; sGradLastB = sThemeCurB;
     }
 
     // Build the work buffer: gradient blit, then additive wave on top.
@@ -727,7 +824,17 @@ void render(int panelW, int panelH, float dt, const float rotMat2[4], bool /*rot
         glUniform1f(sWScaleX, 1.0f / layoutFit);
         glUniform2f(sWOffset, 0.0f, 0.0f);
         glUniform1f(sWFade, sBootWaveBrightness);   // 1.0 steady; boot ramps 0->1
-        glUniform3f(sWTint, 0.96f, 0.97f, 1.00f);
+        // Wave base tint: silvery by default, blended toward the user-chosen
+        // Colour by the animated strength (web updateWaveTintConstants writes
+        // dispTint into the ribbon base-tint constants so the wave + glints pick
+        // up the theme colour). Original (strength 0) keeps the tuned silver.
+        float wtR = 0.96f, wtG = 0.97f, wtB = 1.00f;
+        if (sThemeStrCur > 0.001f) {
+            wtR += (sThemeCurR - wtR) * sThemeStrCur;
+            wtG += (sThemeCurG - wtG) * sThemeStrCur;
+            wtB += (sThemeCurB - wtB) * sThemeStrCur;
+        }
+        glUniform3f(sWTint, wtR, wtG, wtB);
         glUniform1f(sWAlpha, 0.15f);
         glUniform1f(sWSilk, 1.0f);
         glUniform1f(sWSpecW, 0.30f);
@@ -787,7 +894,7 @@ void render(int panelW, int panelH, float dt, const float rotMat2[4], bool /*rot
     // authored to land on the crest directly), so re-applying the wave's 0.8
     // double-compresses the band toward centre and lifts it off the wave.
     // ps3part restores the standard blend when done.
-    {
+    if (sParticlesEnabled) {
         float layoutFit = ps3::LAYOUT_FIT > 0.0f ? ps3::LAYOUT_FIT : 1.0f;
         const float frameNdc[4] = { nx0, ny1, nx1, ny0 };
         ps3part::render(1.0f / layoutFit, 1.0f, 1.0f, (float)fh, nightDayBlend,
