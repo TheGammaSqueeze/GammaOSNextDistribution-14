@@ -319,6 +319,20 @@ GLuint NanoMenu::loadPs3NmapTex(const char* file) {
     return uploadRGBA(px.data(), w, h);
 }
 
+// Boot-intro plate (logo_white.png / footer_white.png). Forced mono-white from
+// the alpha mask so drawIconTex tints it any colour; 2-tier resolve (dev then
+// shipped) under the nano_xmb/boot sub-dir.
+GLuint NanoMenu::loadPs3BootPlate(const char* name) {
+    char path[256];
+    std::vector<uint8_t> px; int w = 0, h = 0;
+    snprintf(path, sizeof(path), "/data/system/nano_xmb/boot/%s", name);
+    if (!decodeRGBA(path, nullptr, 0, &w, &h, &px, true)) {
+        snprintf(path, sizeof(path), "/system/etc/nano_xmb/boot/%s", name);
+        if (!decodeRGBA(path, nullptr, 0, &w, &h, &px, true)) return 0;
+    }
+    return uploadRGBA(px.data(), w, h);
+}
+
 GLuint NanoMenu::nmapForIcon(int iconIndex) {
     if (iconIndex < 0) return 0;
     auto it = mPs3NmapByIcon.find(iconIndex);

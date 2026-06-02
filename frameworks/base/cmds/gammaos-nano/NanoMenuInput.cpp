@@ -641,10 +641,21 @@ void NanoMenu::tickNavRepeat() {
     if (mWaitForRelease) return;
 
     const int64_t now = android::uptimeMillis();
-    if (now - mNavHeldStartMs < kNavInitialDelayMs) return;
 
-    int64_t interval = (int64_t)((float)kNavSlowIntervalMs / powf(kNavAccelMult, (float)mNavRepeatCount));
-    if (interval < kNavMinIntervalMs) interval = kNavMinIntervalMs;
+    // Firmware/web schedule (index.html processKeyRepeat): the first repeat waits
+    // the full initial delay, the SECOND is a full slow step, and only THEN does
+    // the geometric acceleration begin -> intervals 300, 200, 143, 102, 73, 52,
+    // 50... This deliberate slow start is the "debounce" feel; using count (not
+    // count-1) in the exponent skipped the 200ms step and burst to top speed a
+    // step early.
+    int64_t interval;
+    if (mNavRepeatCount == 0) {
+        interval = kNavInitialDelayMs;                 // 300ms before the first repeat
+    } else {
+        interval = (int64_t)((float)kNavSlowIntervalMs /
+                             powf(kNavAccelMult, (float)(mNavRepeatCount - 1)));
+        if (interval < kNavMinIntervalMs) interval = kNavMinIntervalMs;
+    }
     if (now - mNavLastRepeatMs < interval) return;
 
     switch (mNavHeldDir) {
@@ -663,9 +674,32 @@ void NanoMenu::tickNavRepeat() {
 // ---------------------------------------------------------------------------
 
 void NanoMenu::pollInput() {
+    // Test navigation hook: `setprop sys.gammaos.nano.nav <action>` injects one
+    // nav action (left/right/up/down/enter/back) then clears the prop. The
+    // device analog of the web app's simulateInput, used for scripted on-device
+    // 1:1 verification. No effect when the prop is empty (one cheap read/frame).
+    {
+        char navbuf[PROPERTY_VALUE_MAX];
+        if (property_get("sys.gammaos.nano.nav", navbuf, "") > 0 && navbuf[0]) {
+            if      (!strcmp(navbuf, "left"))  handleLeft();
+            else if (!strcmp(navbuf, "right")) handleRight();
+            else if (!strcmp(navbuf, "up"))    handleUp();
+            else if (!strcmp(navbuf, "down"))  handleDown();
+            else if (!strcmp(navbuf, "enter")) handleSelect();
+            else if (!strcmp(navbuf, "back"))  handleBack();
+            property_set("sys.gammaos.nano.nav", "");
+        }
+    }
     struct input_event ev;
     for (int fd : mInputFds) {
         while (read(fd, &ev, sizeof(ev)) == sizeof(ev)) {
+            // Cold-boot intro: any button press skips to the end of the sequence
+            // and is CONSUMED here (so the same press does not also navigate or
+            // launch once the XMB appears). All events are swallowed during boot.
+            if (mPs3BootActive) {
+                if (ev.type == EV_KEY && ev.value == 1) ps3BootSkip();
+                continue;
+            }
             // Wait-for-release: after a launch is triggered, keep running
             // until the select key is released. This ensures Android's
             // InputReader sees the full press-release cycle before RetroArch
@@ -685,6 +719,18 @@ void NanoMenu::pollInput() {
                     else if (mXmbMode) forceRescanAllSystems();
                 }
                 mSelectHeld = (ev.value != 0);
+            }
+            if (ev.type == EV_KEY && ev.code == BTN_START) {
+                mStartHeld = (ev.value != 0);
+            }
+            // START + SELECT held together re-triggers the PS3 cold-boot intro
+            // (a demo/test shortcut). The boot-skip handler above already swallows
+            // input while an intro is playing, so this only fires when settled.
+            if (mPs3Xmb && !mPs3BootActive && mStartHeld && mSelectHeld
+                && ev.type == EV_KEY && ev.value == 1
+                && (ev.code == BTN_START || ev.code == BTN_SELECT)) {
+                ps3BootReset(false);
+                ALOGI("NanoMenu: START+SELECT -> replay PS3 boot intro");
             }
             // Power button handling
             if (ev.type == EV_KEY && ev.code == KEY_POWER) {

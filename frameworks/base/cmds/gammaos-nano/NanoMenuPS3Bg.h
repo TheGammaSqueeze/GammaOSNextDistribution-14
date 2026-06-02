@@ -66,6 +66,12 @@ void invalidateGradient();
 // texcoord (0,0) = frame bottom-left, (1,1) = frame top-right (GL y-up).
 GLuint workTex();
 
+// Cold-boot wave brightness multiplier on the silk-wave fade (uFade). 1.0 = the
+// normal steady wave; the boot intro ramps this 0->1 so the wave emerges from
+// black, then resets it to 1.0 when the intro ends. Default 1.0 = steady path
+// byte-identical (no effect unless the boot intro is driving it).
+void setBootWaveBrightness(float b);
+
 } // namespace ps3bg
 } // namespace android
 

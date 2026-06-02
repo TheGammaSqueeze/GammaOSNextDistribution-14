@@ -52,15 +52,19 @@ constexpr float CAT_FAR_ALPHA = 0.25f;
 // ---- Item list ----
 constexpr float ITEM_FOCUS_Y = 515.0f;
 constexpr float ITEM_SPACING = 80.0f;
-constexpr float ITEM_ACTIVE_PAD = 87.0f;
+constexpr float ITEM_ACTIVE_PAD = 108.0f;   // bigger than web 87: makes room for the 3-line enlarged description below the active item
 constexpr float ITEM_ICON_X = 566.0f;
-constexpr float ITEM_ICON_SIZE = 78.0f;
+constexpr float ITEM_ICON_SIZE = 108.0f;   // bigger than web 78 to match the RetroArch console-icon size
+// Content icons sourced from RetroArch/the launcher (console systems, ROM/game
+// art, app icons) read larger than the PS3-style data icons at the same box, so
+// scale just those down. PS3 data/setting icons keep the full ITEM_ICON_SIZE.
+constexpr float RETRO_ICON_SCALE = 0.78f;
 constexpr float ITEM_ICON_ACTIVE = 180.0f;
 constexpr float ITEM_TEXT_X = 683.0f;
 constexpr float ITEM_TEXT_SIZE = 30.0f;
 constexpr float ITEM_TEXT_ACTIVE_SIZE = 34.0f;
-constexpr float ITEM_DESC_OFFSET = 28.0f;
-constexpr float ITEM_DESC_SIZE = 18.0f;
+constexpr float ITEM_DESC_OFFSET = 26.0f;
+constexpr float ITEM_DESC_SIZE = 22.0f;   // bigger than web 18 (too small on small panels), sized to fit 3 wrapped lines
 constexpr float ITEM_VALUE_RIGHT_PAD = 80.0f;
 
 // ---- Scale + alpha tiers (firmware-verified) ----
@@ -79,15 +83,23 @@ constexpr float CAT_SUBMENU_SCALE = 0.833f;
 constexpr float CAT_SUBMENU_ALPHA = 0.6f;
 
 // ---- Submenu parent column ----
+// On entering a submenu the parent item list COLLAPSES: the selected parent
+// slides to the breadcrumb column (PARENT_COL_X) as a normal-size cube, the
+// siblings gather into a faded uniform column at SIB_X, and the children slide
+// in from the right by SLIDE_DIST. Mirrors index.html drawParentLayer 7531-7571.
 constexpr float PARENT_COL_X = 316.0f;
 constexpr float PARENT_ICON_SIZE = 78.0f;
 constexpr float PARENT_SPACING = 80.0f;
-constexpr float SUBMENU_ICON_X_SHIFT = 290.0f;
-constexpr float SUBMENU_TEXT_X_SHIFT = 290.0f;
+constexpr float SIB_X = 455.0f;                          // faded sibling column (566 - 111)
+constexpr float SLIDE_DIST = ITEM_ICON_X - PARENT_COL_X; // 250px child slide-in distance
+// Left-anchored (XCP/XCL) virtual-px nudge applied to submenu CHILDREN only, on
+// top of SLIDE_DIST, so they clear the faded sibling column instead of crowding
+// it under the 4:3 + uiScale compression. NOT applied to right-anchored values.
+constexpr float SUBMENU_CHILD_X_SHIFT = 60.0f;
 
 // ---- Clock ----
 constexpr float CLOCK_X = 1716.0f, CLOCK_Y = 103.0f, CLOCK_SIZE = 26.0f;
-constexpr float CLOCK_FRAME_X = 1329.0f, CLOCK_FRAME_Y = 75.0f;
+constexpr float CLOCK_FRAME_X = 1329.0f, CLOCK_FRAME_Y = 130.0f;   // lower than web 75: sits between the top edge and the category icons
 constexpr float CLOCK_FRAME_W = 590.0f, CLOCK_FRAME_H = 57.0f;
 constexpr float CLOCK_FRAME_CORNER = 6.0f, CLOCK_FRAME_GLOW = 6.0f;
 constexpr float CLOCK_ICON_R = 16.0f, CLOCK_ICON_CX = 1789.5f;

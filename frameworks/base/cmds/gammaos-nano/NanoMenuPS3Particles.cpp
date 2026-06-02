@@ -147,6 +147,11 @@ static void spawn(Particle& p) {
         if (k >= kPartCloudCount) k = kPartCloudCount - 1;
         int b = k * 3;
         p.hx = kPartCloud[b]     + (frand() - 0.5f) * 1.6f;
+        // Web-exact cloud Y band (index.html spawnParticle): the *0.45 centre +
+        // 0.16 jitter place the projected band ON the baked wave crest. Lowering
+        // the multiplier (the old 0.30) raised the band off the wave; combined
+        // with the removed extra scaleY=0.8 in the render call, the band now sits
+        // on the crest exactly as in the source app.
         p.hy = kPartCloud[b + 1] * 0.45f + (frand() - 0.5f) * 0.16f;
         p.hz = kPartCloud[b + 2] + (frand() - 0.5f) * 1.4f;
         p.tintR = p.tintG = p.tintB = 1.0f;
@@ -181,6 +186,9 @@ static void step() {
 static inline float waveMotionDeltaY(float x, float t) {
     float moving = 0.09f * cosf(x * 2.0f - t * 0.5f)
                  + 0.25f * sinf(x * 0.306f + t * 0.075f);
+    // Web-exact coupling amplitude (index.html 2634): over-boosting this (the old
+    // *0.95) desyncs the band's vertical swing from the wave's own swing, which
+    // is what made the glitter drift off the crest. *0.6 keeps them in lockstep.
     return -(moving * 0.5f) * 0.6f;
 }
 
@@ -248,11 +256,26 @@ void render(float scaleX, float scaleY, float yFlip, float frameH,
     // Build the per-particle GPU data (project + spinning-normal glint + DoF).
     float* d = sBuf.data();
     int o = 0;
+    static const float kRotIdent[4] = {1.f, 0.f, 0.f, 1.f};
+    const float* R = rotMat ? rotMat : kRotIdent;   // wave-coupling rotation (same as the shader's)
     for (const Particle& p : sParts) {
         float w = -p.ez + 2.0f;
         if (w <= 0.001f) { d[o+3] = 0.0f; o += 8; continue; }
         float ndcX = kProjFx * p.ex / w;
-        float ndcY = kProjFy * p.ey / w + waveMotionDeltaY(ndcX, waveT);
+        float ndcY = kProjFy * p.ey / w;
+        // Wave-undulation coupling, orientation-correct on 0/90/180/270. The
+        // (ndcX,ndcY) point is frame-remapped then rotated by rotMat in the
+        // shader, so the wave's VISUAL vertical motion D must be injected through
+        // that rotation, not added straight to ndcY. visualX is the x AFTER the
+        // rotation (so D samples the wave at the right column); D is then mapped
+        // back to a pre-rotation offset (m1*D, m3*D) - rotMat is orthonormal so
+        // its inverse is its transpose. On a 180-degree panel this flips both the
+        // sign and the x-phase, which is what stops the glitter mirroring the
+        // wave; on 0 degrees it reduces to the old ndcY += D.
+        float visualX = R[0] * ndcX + R[2] * ndcY;
+        float D = waveMotionDeltaY(visualX, waveT);
+        ndcX += R[1] * D;
+        ndcY += R[3] * D;
         if (fabsf(ndcX) > 1.15f || fabsf(ndcY) > 1.15f) { d[o+3] = 0.0f; o += 8; continue; }
         float pl = sqrtf(p.ex*p.ex + p.ey*p.ey + p.ez*p.ez); if (pl < 1e-4f) pl = 1.0f;
         float vx = -p.ex/pl, vy = -p.ey/pl, vz = -p.ez/pl;

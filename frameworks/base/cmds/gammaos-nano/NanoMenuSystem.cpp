@@ -37,6 +37,7 @@
 #include <aidl/android/hardware/light/HwLightState.h>
 #include <aidl/android/hardware/light/LightType.h>
 #include <android/binder_manager.h>
+#include <android/hardware/health/2.0/IHealth.h>   // HIDL fallback (Brick ships @2.0)
 
 #include <cutils/properties.h>
 #include <utils/Log.h>
@@ -402,6 +403,33 @@ static bool queryHealthHal(int* outPercent, bool* outCharging) {
     return true;
 }
 
+// HIDL @2.0 fallback: the TrimUI Brick (and other A14 vendor stacks) register
+// android.hardware.health@2.0::IHealth/default, not the newer AIDL HAL. This is
+// still the framework health HAL (BatteryService's source), not raw sysfs.
+static bool queryHealthHidl(int* outPercent, bool* outCharging) {
+    namespace H2 = android::hardware::health::V2_0;
+    namespace H1 = android::hardware::health::V1_0;   // BatteryStatus lives here
+    static android::sp<H2::IHealth> sHidl;
+    if (sHidl == nullptr) {
+        sHidl = H2::IHealth::getService("default");
+        if (sHidl == nullptr) return false;
+    }
+    int cap = -1;
+    auto r1 = sHidl->getCapacity([&](H2::Result res, int32_t v) {
+        if (res == H2::Result::SUCCESS) cap = v;
+    });
+    if (!r1.isOk()) { sHidl = nullptr; return false; }
+    if (cap < 0) return false;
+    if (cap > 100) cap = 100;
+    *outPercent = cap;
+    sHidl->getChargeStatus([&](H2::Result res, H1::BatteryStatus st) {
+        if (res == H2::Result::SUCCESS)
+            *outCharging = (st == H1::BatteryStatus::CHARGING
+                            || st == H1::BatteryStatus::FULL);
+    });
+    return true;
+}
+
 // Read battery percentage and charging state. IHealth HAL is the primary
 // source (matches what BatteryService exposes to the rest of the system);
 // sysfs is the fallback if the HAL is not reachable (e.g. during early
@@ -417,7 +445,7 @@ void NanoMenu::pollBattery() {
     // (-1, indicator hidden) until the framework comes online and reports it.
     int pct = -1;
     bool charging = false;
-    if (queryHealthHal(&pct, &charging)) {
+    if (queryHealthHal(&pct, &charging) || queryHealthHidl(&pct, &charging)) {
         mBatteryPercent = pct;
         mBatteryCharging = charging;
     }

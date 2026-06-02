@@ -86,7 +86,12 @@ static void hsvToRgb(float h, float s, float v, float* out) {
 }
 static void monthBaseColor(int month, float nightBlend, float* out) {
     int m = ((month % 12) + 12) % 12;
-    float v = kMonthV[m] * (1.0f - nightBlend) + kMonthNV[m] * nightBlend;
+    // Keep more colour at night: the old night value (kMonthNV) drove the base
+    // near-black, so the bottom of the screen had no colour. Raise the night
+    // value partway back toward the day value (the shader's vertical gradient
+    // does the top-darkening), so the bottom stays colourful.
+    float nightV = kMonthNV[m] + 0.45f * (kMonthV[m] - kMonthNV[m]);
+    float v = kMonthV[m] * (1.0f - nightBlend) + nightV * nightBlend;
     hsvToRgb(kMonthH[m], kMonthS[m], v * kMonthValuePrecomp, out);
 }
 static void monthBaseColorBot(int month, float nightBlend, float* out) {
@@ -195,8 +200,14 @@ static const char* FS_BG =
     "    float cornerM = clamp(pow(dyTopM, 1.5) * (abs(dxm) * 2.0), 0.0, 1.0);\n"
     "    float sideC = mix(0.88, 1.0, smoothstep(0.0, 0.5, dxm));\n"
     "    gradColor *= 1.0 - 0.40 * cornerM * sideC; }\n"
-    "  float nightRamp = smoothstep(-0.05, 0.80, screenY);\n"
-    "  gradColor *= mix(1.0, nightRamp, uNightDayBlend);\n"
+    "  // Unified vertical darkening: the TOP is darker (day ~40% darker, night\n"
+    "  // much darker), easing to FULL colour at the bottom. The dark band reaches\n"
+    "  // further down as the day darkens, but the bottom always keeps colour\n"
+    "  // (screenY: 0 = top, 1 = bottom). Replaces the old uniform night ramp.\n"
+    "  float topDark = mix(0.28, 0.12, uNightDayBlend);\n"   // day top MUCH darker (was 0.60), strong gradient
+    "  float fullAt  = mix(0.62, 0.92, uNightDayBlend);\n"   // day dark band reaches a bit further down
+    "  float vGrad   = mix(topDark, 1.0, smoothstep(0.0, fullAt, screenY));\n"
+    "  gradColor *= vGrad;\n"
     "  vec3 finalColor = gradColor * 1.05;\n"
     "  float lumT = dot(finalColor, vec3(0.299, 0.587, 0.114));\n"
     "  float lumO = lumT / (1.0 + lumT * 0.30);\n"
@@ -566,6 +577,10 @@ bool ready() { return sReady; }
 
 GLuint workTex() { return sWorkTex; }
 
+// Cold-boot wave brightness on uFade (1.0 = steady; the intro ramps 0->1).
+static float sBootWaveBrightness = 1.0f;
+void setBootWaveBrightness(float b) { sBootWaveBrightness = b; }
+
 void invalidateGradient() { sGradDirty = true; }
 
 void shutdown() {
@@ -711,7 +726,7 @@ void render(int panelW, int panelH, float dt, const float rotMat2[4], bool /*rot
         glUniform1f(sWScaleY, 0.8f);
         glUniform1f(sWScaleX, 1.0f / layoutFit);
         glUniform2f(sWOffset, 0.0f, 0.0f);
-        glUniform1f(sWFade, 1.0f);
+        glUniform1f(sWFade, sBootWaveBrightness);   // 1.0 steady; boot ramps 0->1
         glUniform3f(sWTint, 0.96f, 0.97f, 1.00f);
         glUniform1f(sWAlpha, 0.15f);
         glUniform1f(sWSilk, 1.0f);
@@ -765,14 +780,17 @@ void render(int panelW, int panelH, float dt, const float rotMat2[4], bool /*rot
 
     // Firmware glitter field: additive point-sprite glints drawn to the PANEL
     // AFTER the composite (so the faint HDR glints survive the tonemap, matching
-    // the web). The work-space position uses the SAME scaleX/scaleY/yFlip as the
-    // wave (so they ride it + adapt to aspect), is mapped into the frame rect
-    // (nx0,ny1,nx1,ny0) and rotated by rm (DRM rotation) - correct on every
-    // orientation. ps3part restores the standard blend when done.
+    // the web). The work-space position uses the same scaleX/yFlip as the wave
+    // and is mapped into the frame rect (nx0,ny1,nx1,ny0) and rotated by rm (DRM
+    // rotation) - correct on every orientation. NOTE: scaleY is 1.0 here, NOT the
+    // wave's 0.8: the web applies no Y-scale to particles (their cloud Y is
+    // authored to land on the crest directly), so re-applying the wave's 0.8
+    // double-compresses the band toward centre and lifts it off the wave.
+    // ps3part restores the standard blend when done.
     {
         float layoutFit = ps3::LAYOUT_FIT > 0.0f ? ps3::LAYOUT_FIT : 1.0f;
         const float frameNdc[4] = { nx0, ny1, nx1, ny0 };
-        ps3part::render(1.0f / layoutFit, 0.8f, 1.0f, (float)fh, nightDayBlend,
+        ps3part::render(1.0f / layoutFit, 1.0f, 1.0f, (float)fh, nightDayBlend,
                         (float)(sSeqElapsed * 0.4), frameNdc, rm);
     }
 

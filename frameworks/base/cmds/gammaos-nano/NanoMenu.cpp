@@ -1131,6 +1131,26 @@ bool NanoMenu::threadLoop() {
             "persist.gammaos.nano.ps3xmb", false);
     ALOGI("NanoMenu: persist read quick_resume=%d xmb_mode=%d ps3xmb=%d",
           mQuickResumeEnabled ? 1 : 0, mXmbMode ? 1 : 0, mPs3Xmb ? 1 : 0);
+    // PS3 cold-boot intro: play the full intro (wave/gradient reveal from black,
+    // the white logo plate, the photosensitivity warning, then the XMB icon
+    // pop-in) on a NORMAL cold boot only. App-return restarts (boot_completed /
+    // force_drm) and QR / minimal-boot fast paths skip it. A dev knob
+    // (persist.gammaos.nano.ps3boot_skip) skips it for fast iteration.
+    if (mPs3Xmb && !sDrasticQrFastPath) {
+        char bc[PROPERTY_VALUE_MAX] = {}, fd[PROPERTY_VALUE_MAX] = {};
+        char sd[PROPERTY_VALUE_MAX] = {}, mb[PROPERTY_VALUE_MAX] = {}, sk[PROPERTY_VALUE_MAX] = {};
+        property_get("sys.boot_completed", bc, "0");
+        property_get("sys.gammaos.nano.force_drm", fd, "0");
+        property_get("sys.gammaos.minimal_boot", mb, "0");
+        property_get("persist.gammaos.nano.setup_done", sd, "");
+        property_get("persist.gammaos.nano.ps3boot_skip", sk, "0");
+        bool coldBoot = (strcmp(bc, "1") != 0 && strcmp(fd, "1") != 0 && strcmp(mb, "1") != 0);
+        if (coldBoot && strcmp(sk, "1") != 0) {
+            bool fresh = (strcmp(sd, "1") != 0);
+            ps3BootReset(fresh);
+            ALOGI("NanoMenu: PS3 cold-boot intro armed (fresh=%d)", fresh ? 1 : 0);
+        }
+    }
     // Re-read wallpaper effect (constructor ran before persist props loaded)
     {
         char wallpaper[PROPERTY_VALUE_MAX] = {};

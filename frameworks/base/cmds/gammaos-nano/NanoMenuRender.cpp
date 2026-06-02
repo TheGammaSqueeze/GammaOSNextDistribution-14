@@ -1314,12 +1314,15 @@ void NanoMenu::render() {
     // Background effect on primary AHB.
     renderEffect();
 
-    if (mSetupWizardActive) {
+    if (mSetupWizardActive && !mPs3BootActive) {
+        // During a PS3 cold boot the wizard is held back so the full intro
+        // (anim -> epilepsy warning) plays first; it cuts in once the intro ends.
         renderSetupWizard();
         renderOsk();
     } else if (mPs3Xmb) {
         // PS3 XMB layout (NanoMenuPS3Menu.cpp). renderPs3Xmb() draws the Wi-Fi /
-        // Bluetooth sub-screens itself when mMenuState is MENU_WIFI / MENU_BT.
+        // Bluetooth sub-screens itself when mMenuState is MENU_WIFI / MENU_BT, and
+        // drives + renders the cold-boot intro when mPs3BootActive.
         renderPs3Xmb();
         renderOsk();
     } else if (mXmbMode) {
@@ -1571,19 +1574,21 @@ void NanoMenu::render() {
     // so the classic boot layout isn't visually disturbed.
     if (mXmbMode && !inSettingsModal) {
         pollBattery();
-        float sf = fminf((float)mWidth / 1080.0f, (float)mHeight / 720.0f);
-        if (sf < 0.5f) sf = 0.5f;
-        float pad = 15.0f * sf;
-        float textScale = 1.5f * sf;
-        float rowY = pad;
-        // Match the height that renderBatteryIndicator uses internally
-        // so network icons sit on the same baseline.
-        float rowH = fmaxf(18.0f * sf, FONT_CHAR_H * textScale);
-        float batteryRightX = renderBatteryIndicator();
-        // In the PS3 XMB layout the Wi-Fi / Bluetooth icons live inside the
-        // clock bar (drawPs3Clock), so skip the top-left network HUD there.
-        if (!mPs3Xmb)
+        // In the PS3 XMB layout the battery percentage and Wi-Fi/Bluetooth icons
+        // live inside the clock bar (drawPs3Clock), so skip the legacy top-left
+        // battery + network HUD entirely there (it would double up the battery).
+        if (!mPs3Xmb) {
+            float sf = fminf((float)mWidth / 1080.0f, (float)mHeight / 720.0f);
+            if (sf < 0.5f) sf = 0.5f;
+            float pad = 15.0f * sf;
+            float textScale = 1.5f * sf;
+            float rowY = pad;
+            // Match the height that renderBatteryIndicator uses internally
+            // so network icons sit on the same baseline.
+            float rowH = fmaxf(18.0f * sf, FONT_CHAR_H * textScale);
+            float batteryRightX = renderBatteryIndicator();
             renderNetworkIndicators(batteryRightX, rowY, rowH, sf, textScale);
+        }
     }
 
     // Quick Resume indicator (top-right corner). Hidden in the PS3 XMB layout

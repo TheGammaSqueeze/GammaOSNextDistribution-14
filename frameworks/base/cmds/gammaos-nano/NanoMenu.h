@@ -576,6 +576,7 @@ private:
 
     // Brightness / power
     bool mSelectHeld;
+    bool mStartHeld = false;   // for the START+SELECT PS3 boot-intro re-trigger
     int64_t mPowerPressTime;
     int mBrightness;
     int mMaxBrightness;
@@ -687,6 +688,25 @@ private:
     bool mPs3Xmb = false;         // persist.gammaos.nano.ps3xmb
     bool mPs3MenuBuilt = false;
     float mPs3UiScale = 1.0f;     // persist.gammaos.nano.ps3xmb.uiscale (menu zoom)
+    // ---- PS3 cold-boot intro (NanoMenuPS3Boot.cpp) ----
+    // The intro plays the wave/gradient revealing from black, the white logo +
+    // footer plate, the photosensitivity warning, then hands off to the XMB with
+    // the category/icon/clock fading + popping in. Driven each frame from the
+    // boot clock (accumulated clamped mFrameDt, NOT mEffectTime which wraps).
+    bool   mPs3BootActive = false;
+    bool   mPs3BootWizardAfter = false;  // fresh setup -> show the wizard after the intro
+    double mPs3BootElapsedMs = 0.0;      // monotonic boot clock
+    float  mPs3BootLabelReveal = 1.0f;   // category-label fade-in (1 = fully shown)
+    float  mPs3BootIconReveal = 1.0f;    // category-icon / item / clock pop-in (1 = shown)
+    GLuint mPs3BootLogoTex = 0;
+    GLuint mPs3BootFooterTex = 0;
+    bool   mPs3BootPlatesLoaded = false;
+    void  ps3BootReset(bool freshSetup);
+    bool  ps3BootActive() const { return mPs3BootActive; }
+    void  ps3BootSkip();
+    bool  ps3BootUpdate(float dtSeconds);   // advances clock; returns true while the XMB UI must stay suppressed
+    void  renderPs3BootOverlay();           // logo/footer plate, warning, scene-reveal black wash
+    GLuint loadPs3BootPlate(const char* name);
     std::vector<Ps3Cat> mPs3Cats;
     std::vector<Ps3Level> mPs3Stack;   // empty = at category top level
     int mPs3CatIdx = -1;
@@ -712,6 +732,14 @@ private:
     float mPs3ItemAnimStart = -1.0f;   // mEffectTime at the step start (<0 = snap)
     float mPs3SubAnim = 0.0f;        // 0 = top level, 1 = in submenu (collapse factor)
     int   mPs3SubDir = 0;            // +1 entering, -1 exiting
+    // Timed submenu collapse animation (mirrors the web submenuAnim: 250ms
+    // easeOutCubic). On enter/exit we snapshot the parent list + the entered
+    // index + the child list so drawParentLayer / the child slide can run
+    // continuously through the animation even while the live stack is changing.
+    float mPs3SubAnimStart = -1.0f;            // mEffectTime at anim start (<0 = settled)
+    std::vector<Ps3Item> mPs3SubParentItems;   // parent (breadcrumb) list snapshot
+    int   mPs3SubParentIdx = 0;                // entered index in the parent list
+    std::vector<Ps3Item> mPs3SubChildItems;    // child list snapshot (for the exit slide-out)
     GLuint mPs3CatTex[8] = {0, 0, 0, 0, 0, 0, 0, 0};  // PS3 category icons (flat)
     GLuint mPs3CatNmap[8] = {0, 0, 0, 0, 0, 0, 0, 0}; // PS3 category icons (glass nmap)
     // Glass-icon resources (FS_ICON_GLASS). Normal maps are cached by xmb_icon
@@ -921,6 +949,11 @@ private:
     GLuint mGlassBlurTex     = 0;   // final blurred texture sampled by the panel
     int    mGlassBlurW       = 0;
     int    mGlassBlurH       = 0;
+    // PS3 XMB submenu depth-of-field cache: the capture+blur chain is expensive
+    // (~26ms), so capture exactly once per submenu visit and reuse the cached
+    // blur for every frame (the panel draw itself is cheap). Invalidated on
+    // returning to the top level.
+    bool   mPs3GlassValid      = false;
     void   blurGlassChain();        // run the downsample passes after captureGlass
     // OSK rounded-rect + frosted-glass primitives (NanoMenuRender.cpp)
     void drawRoundedRect(float x, float y, float w, float h, float radius,
