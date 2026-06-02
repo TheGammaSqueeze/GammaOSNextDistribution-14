@@ -825,6 +825,11 @@ private:
     // RetroArch icons -> a bevel normal generated from the alpha silhouette).
     std::map<int, GLuint>    mPs3NmapByIcon;     // xmb_icon index -> nmap tex
     std::map<int, GLuint>    mPs3BevelByIconIdx; // console icon idx (0..17) -> bevel nmap
+    // Real per-app icons: package name -> full-colour GL texture, decoded from the
+    // DE cache /data/system/nano_app_icons/<pkg>.png written by SystemServer. Loaded
+    // lazily when the Applications submenu is built; only successes are cached so a
+    // not-yet-populated cache is retried on the next open.
+    std::map<std::string, GLuint> mPs3AppIcons;
     // Icon-glass shader (distinct from the frosted-glass blur chain's mGlass*).
     GLuint mIconGlassProgram = 0;
     GLint  mIconGlassLocPos = -1, mIconGlassLocIconUV = -1, mIconGlassLocBgUV = -1, mIconGlassLocRot = -1;

@@ -3907,9 +3907,12 @@ public final class SystemServer implements Dumpable {
                 }
             }, "NanoRelaunchMonitor").start();
 
-            // Write app label cache for the nano menu (C++ side can't resolve
-            // resource-based labels). Runs once after user unlock so
-            // PackageManager can resolve all labels.
+            // Write app label + icon cache for the nano menu (the C++ side can't
+            // resolve resource-based labels or render drawables). Runs once after
+            // user unlock so PackageManager can resolve all labels/icons. Labels go
+            // to /data/system/nano_app_labels.txt; real app icons are rendered to
+            // /data/system/nano_app_icons/<pkg>.png so the Applications list shows
+            // the actual APK icon (cached on DE so it is available on early boot).
             new Thread(() -> {
                 // Wait for user unlock so PM can resolve resource labels
                 while (!"1".equals(SystemProperties.get("sys.boot_completed"))) {
@@ -3921,12 +3924,56 @@ public final class SystemServer implements Dumpable {
                     java.util.List<android.content.pm.ApplicationInfo> apps =
                             pm.getInstalledApplications(
                                     android.content.pm.PackageManager.MATCH_ALL);
+                    java.io.File iconDir = new java.io.File("/data/system/nano_app_icons");
+                    iconDir.mkdirs();
+                    iconDir.setReadable(true, false);
+                    iconDir.setExecutable(true, false);
+                    final int ICON_PX = 144;
                     StringBuilder sb = new StringBuilder();
+                    int iconCount = 0;
                     for (android.content.pm.ApplicationInfo info : apps) {
                         CharSequence label = pm.getApplicationLabel(info);
                         if (label != null && label.length() > 0) {
                             sb.append(info.packageName).append('|')
                               .append(label).append('\n');
+                        }
+                        // Render the real icon only for the user-installed apps the
+                        // nano Applications list shows (non-system, minus the same
+                        // package prefixes nano excludes).
+                        String pkg = info.packageName;
+                        boolean isSystem =
+                                (info.flags & android.content.pm.ApplicationInfo.FLAG_SYSTEM) != 0
+                             || (info.flags & android.content.pm.ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) != 0;
+                        if (isSystem
+                                || pkg.startsWith("com.android.")
+                                || pkg.startsWith("org.lineageos.")
+                                || pkg.startsWith("com.gammaos.")
+                                || pkg.startsWith("com.topjohnwu.")
+                                || pkg.startsWith("com.retroarch.aarch64")) {
+                            continue;
+                        }
+                        try {
+                            android.graphics.drawable.Drawable d = pm.getApplicationIcon(info);
+                            if (d != null) {
+                                android.graphics.Bitmap bmp = android.graphics.Bitmap.createBitmap(
+                                        ICON_PX, ICON_PX, android.graphics.Bitmap.Config.ARGB_8888);
+                                try {
+                                    android.graphics.Canvas c = new android.graphics.Canvas(bmp);
+                                    d.setBounds(0, 0, ICON_PX, ICON_PX);
+                                    d.draw(c);
+                                    java.io.File iconFile = new java.io.File(iconDir, pkg + ".png");
+                                    java.io.FileOutputStream fos =
+                                            new java.io.FileOutputStream(iconFile);
+                                    bmp.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, fos);
+                                    fos.close();
+                                    iconFile.setReadable(true, false);
+                                    iconCount++;
+                                } finally {
+                                    bmp.recycle();
+                                }
+                            }
+                        } catch (Exception e) {
+                            // Skip a single bad/corrupt icon; keep going.
                         }
                     }
                     java.io.File cacheFile = new java.io.File(
@@ -3937,9 +3984,9 @@ public final class SystemServer implements Dumpable {
                     // Make it readable by graphics group
                     cacheFile.setReadable(true, false);
                     Slog.i(TAG, "GammaOS Nano: wrote app label cache ("
-                            + apps.size() + " apps)");
+                            + apps.size() + " apps) and " + iconCount + " app icons");
                 } catch (Exception e) {
-                    Slog.w(TAG, "GammaOS Nano: failed to write app label cache", e);
+                    Slog.w(TAG, "GammaOS Nano: failed to write app label/icon cache", e);
                 }
             }, "NanoLabelCache").start();
 

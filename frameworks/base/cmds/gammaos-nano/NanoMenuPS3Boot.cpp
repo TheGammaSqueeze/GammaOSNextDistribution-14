@@ -99,7 +99,11 @@ bool NanoMenu::ps3BootUpdate(float dtSeconds) {
     mPs3BootElapsedMs += (double)dtSeconds * 1000.0;
     double e = mPs3BootElapsedMs;
 
-    if (e >= BOOT_SEQ_END_MS) {
+    // Fresh-setup boots end the intro right after the epilepsy warning fades out
+    // and hand straight to the setup wizard - the XMB category/item icon reveal is
+    // skipped so the wizard is never preceded by a flash of the live menu.
+    double endMs = mPs3BootWizardAfter ? BOOT_WARN_BLUROUT_B : BOOT_SEQ_END_MS;
+    if (e >= endMs) {
         // Hand-off complete: snap everything to the steady state.
         mPs3BootLabelReveal = 1.0f;
         mPs3BootIconReveal = 1.0f;

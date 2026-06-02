@@ -129,6 +129,50 @@ static GLuint loadPs3IconTex(const char* file) {
     return tex;
 }
 
+// libpng loader -> full-COLOUR RGBA texture from an ABSOLUTE path. Used for the
+// real APK icons cached at /data/system/nano_app_icons/<pkg>.png. Same as
+// loadPs3IconTex but keeps the original RGB (no silvery-white force) and takes an
+// absolute path. Returns 0 on any failure (missing file / decode error).
+static GLuint loadColorIconTexAbs(const char* absPath) {
+    FILE* fp = fopen(absPath, "rb");
+    if (!fp) return 0;
+    png_structp png = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
+    if (!png) { fclose(fp); return 0; }
+    png_infop info = png_create_info_struct(png);
+    if (!info) { png_destroy_read_struct(&png, nullptr, nullptr); fclose(fp); return 0; }
+    if (setjmp(png_jmpbuf(png))) { png_destroy_read_struct(&png, &info, nullptr); fclose(fp); return 0; }
+    png_init_io(png, fp);
+    png_read_info(png, info);
+    int w = png_get_image_width(png, info);
+    int h = png_get_image_height(png, info);
+    int color = png_get_color_type(png, info);
+    int depth = png_get_bit_depth(png, info);
+    if (depth == 16) png_set_strip_16(png);
+    if (color == PNG_COLOR_TYPE_PALETTE) png_set_palette_to_rgb(png);
+    if (color == PNG_COLOR_TYPE_GRAY && depth < 8) png_set_expand_gray_1_2_4_to_8(png);
+    if (png_get_valid(png, info, PNG_INFO_tRNS)) png_set_tRNS_to_alpha(png);
+    if (color == PNG_COLOR_TYPE_GRAY || color == PNG_COLOR_TYPE_GRAY_ALPHA) png_set_gray_to_rgb(png);
+    if (color == PNG_COLOR_TYPE_RGB || color == PNG_COLOR_TYPE_GRAY || color == PNG_COLOR_TYPE_PALETTE)
+        png_set_filler(png, 0xFF, PNG_FILLER_AFTER);
+    png_read_update_info(png, info);
+    size_t rowbytes = png_get_rowbytes(png, info);
+    std::vector<unsigned char> pixels(rowbytes * (size_t)h);
+    std::vector<png_bytep> rows((size_t)h);
+    for (int y = 0; y < h; y++) rows[(size_t)y] = pixels.data() + (size_t)y * rowbytes;
+    png_read_image(png, rows.data());
+    png_destroy_read_struct(&png, &info, nullptr);
+    fclose(fp);
+    GLuint tex = 0;
+    glGenTextures(1, &tex);
+    glBindTexture(GL_TEXTURE_2D, tex);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    return tex;
+}
+
 void NanoMenu::drawIconTex(GLuint tex, float x, float y, float w, float h,
                            float r, float g, float b, float a) {
     if (tex == 0) return;
@@ -257,8 +301,26 @@ void NanoMenu::buildAppSubmenu(Ps3Level& out) {
         Ps3Item it;
         it.label = mAppEntries[i].label;
         it.kind = PS3_APP; it.a = (int)i; it.payloadStr = mAppEntries[i].packageName;
-        it.iconTex = mIconTextures[16]; it.nmapTex = bevel;
         it.iconR = it.iconG = it.iconB = 1.0f;
+        // Real APK icon from the DE cache (written by SystemServer). Loaded once
+        // per package as a full-COLOUR texture (monoWhite=false) and drawn flat
+        // (nmapTex=0 -> drawIconTex colour path, no glass). Only successes are
+        // cached, so a cache that is not populated yet retries on the next open.
+        const std::string& pkg = mAppEntries[i].packageName;
+        GLuint appTex = 0;
+        auto cached = mPs3AppIcons.find(pkg);
+        if (cached != mPs3AppIcons.end()) {
+            appTex = cached->second;
+        } else {
+            std::string path = "/data/system/nano_app_icons/" + pkg + ".png";
+            appTex = loadColorIconTexAbs(path.c_str());
+            if (appTex != 0) mPs3AppIcons[pkg] = appTex;   // cache successes only
+        }
+        if (appTex != 0) {
+            it.iconTex = appTex; it.nmapTex = 0;          // flat, full-colour app icon
+        } else {
+            it.iconTex = mIconTextures[16]; it.nmapTex = bevel;  // bevelled-glass placeholder
+        }
         out.items.push_back(it);
     }
 }
@@ -516,6 +578,11 @@ void NanoMenu::renderPs3Xmb() {
     if (mPs3BootActive) {
         if (ps3BootUpdate(mFrameDt)) { renderPs3BootOverlay(); return; }
     }
+    // Fresh setup: the intro just ended on the warning (no icon reveal). Hand
+    // straight to the wizard on this very frame so the live XMB menu never flashes
+    // between the warning and the wizard. (Subsequent frames the render() dispatch
+    // routes to renderSetupWizard once mPs3BootActive is false.)
+    if (mSetupWizardActive) { renderSetupWizard(); return; }
     if (mPs3Cats.empty()) return;
     if (mMenuState == MENU_WIFI) { renderWifiScreen(); return; }
     if (mMenuState == MENU_BT)   { renderBtScreen();   return; }
