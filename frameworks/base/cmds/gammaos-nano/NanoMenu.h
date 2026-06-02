@@ -629,6 +629,13 @@ private:
 
     // XMB mode
     bool mXmbMode;
+    // drawText() outline/shadow control:
+    //   0 = default (single drop shadow in XMB mode, else 4-offset outline) at 0.8a
+    //   1 = even 4-offset outline at mTextOutlineRatio*a (PS3 XMB: symmetric, subtle,
+    //       brightness-scaled, and ONE draw call so it stays cheap on every label)
+    //   2 = none (used around glow/halo white copies so they get no dark outline)
+    int   mTextOutlineMode = 0;
+    float mTextOutlineRatio = 0.8f;
     std::vector<XmbRecentEntry> mXmbRecent; // Recently played from XMB
     int mXmbRecentMax;                       // Max entries to keep
     std::vector<XmbSystem> mXmbSystems;
@@ -716,6 +723,15 @@ private:
     int    mPs3DlgOrigSel = 0;     // value at open, for revert on cancel
     float  mPs3DlgAnim = 0.0f;     // open slide/fade 0->1
     bool   mPs3DlgBlurValid = false;
+    // Fullscreen dialog page (mPs3DlgKind==0). Mirrors web DIALOG_TEMPLATES +
+    // drawDialog: a body type, an optional vector illustration, a notice line and
+    // the source item's header icon.
+    int    mPs3DlgType = 0;        // 0 info, 1 chooser, 2 chooser_illust, 3 confirm
+    int    mPs3DlgIllust = 0;      // 0 none,1 hdmi_cable,2 av_multi,3 hdd_warning,4 globe,5 controller,6 bd_remote
+    std::string mPs3DlgNotice;     // chooser_illust bottom notice line
+    unsigned int mPs3DlgIconTex = 0;   // header item icon (flat fallback)
+    unsigned int mPs3DlgIconNmap = 0;  // header item icon (glass normal map)
+    float  mPs3DlgIconR = 1.0f, mPs3DlgIconG = 1.0f, mPs3DlgIconB = 1.0f;
     // Live Theme Settings selection indices (mirror the web themeIdx/colorIdx/
     // bgIdx/fontIdx/daynightIdx). They reflect the CURRENT applied-or-previewing
     // value so the menu rows show the selection inline (resolvePs3ItemValue),
@@ -729,20 +745,30 @@ private:
     // strength 0 (dark wallpaper, minimal shadow) .. 1 (light wallpaper, strong).
     float  mPs3ShadowStrength = 0.5f;
     float  mPs3ShadowAlpha = 0.4f;
-    // Stroke/shadow offset directions, in device-pixel space, derived each frame
-    // from the panel orientation (sDrmRotMat, which encodes
-    // ro.surface_flinger.primary_display_orientation + the DRM-PRIME Y-flip). The
-    // matrix is an involution for every supported rotation, so the device offset
-    // that renders as panel-visual-DOWN is (sDrmRotMat[2], -sDrmRotMat[3]) and
-    // panel-visual-RIGHT is (sDrmRotMat[0], -sDrmRotMat[1]). No tunable prop.
-    float  mPs3ShadowDir = -1.0f;     // device-y sign for panel-down (clock shadow)
-    float  mPs3StrokeDownX = 0.0f;    // panel-down  unit vector, device-pixel space
-    float  mPs3StrokeDownY = -1.0f;
-    float  mPs3StrokeRightX = 1.0f;   // panel-right unit vector, device-pixel space
-    float  mPs3StrokeRightY = 0.0f;
+    // Clock drop-shadow device-y sign, derived from the panel orientation
+    // (sDrmRotMat[3]); -1 on the 180 panel. The menu text/icons instead use an
+    // even 8-direction outline (drawTextStroke), which needs no direction.
+    float  mPs3ShadowDir = -1.0f;
     void   openPs3Dialog(const Ps3Item& it);
     void   closePs3Dialog(bool apply);
     void   renderPs3Dialog();
+    // Fullscreen dialog page helpers (1:1 with web drawDialog/drawDialogOption/
+    // drawIllustration). Coordinates are device px; ap = open-anim alpha.
+    void   ps3DlgNav(int dir, bool horizontal);   // chooser scroll / confirm Yes-No toggle
+    void   ps3DlgText(const char* s, float cxDev, float baselineDev, float fs,
+                      float r, float g, float b, float a, int align);  // align 0 left,1 centre,2 right
+    void   ps3DlgOption(const char* label, float cxDev, float baselineDev,
+                        bool sel, bool leftAlign, float ap, float baseScale);
+    void   ps3DlgHint(float slotCxDev, bool cross, const char* label,
+                      float yDev, float baseScale, float ap);
+    void   ps3DlgIllustration(int kind, float cx, float cy, float sz, float ap);
+    void   ps3FillCircle(float cx, float cy, float rad, float r, float g, float b, float a);
+    void   ps3StrokeRing(float cx, float cy, float radX, float radY, float lw,
+                         float r, float g, float b, float a);
+    void   ps3ThickLine(float x0, float y0, float x1, float y1, float w,
+                        float r, float g, float b, float a);
+    void   ps3VGradRect(float x, float y, float w, float h,
+                        float r0, float g0, float b0, float r1, float g1, float b1, float a);
     void   previewThemeSetting(int themeKey, int sel);   // apply live (no persist)
     void   applyThemeSetting(int themeKey, int sel);     // persist + apply
     void   loadPs3ThemeSettings();

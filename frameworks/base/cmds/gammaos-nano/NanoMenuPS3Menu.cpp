@@ -61,28 +61,21 @@ static inline void ps3ShadowOffset(float s, int /*w*/, int /*h*/, float out[2]) 
     out[1] = s;
 }
 
-// Dark stroke (outline) behind text: a panel-left/right pair plus one panel-DOWN
-// copy. The offsets are the orientation-derived panel-space unit vectors (see the
-// setup of mPs3Stroke* in render()), so the outline reads identically on any panel
-// rotation - never as an upward shadow. Skipped when alpha is tiny, so dark
-// wallpapers (low mPs3ShadowAlpha) pay nothing; light ones get the readable edge.
-void NanoMenu::drawTextStroke(const char* s, float x, float y, float scale, float a) {
-    if (a <= 0.004f || !s || !*s) return;
-    float r = ps3::devS(2.4f);
-    float hx = r * mPs3StrokeRightX, hy = r * mPs3StrokeRightY;   // panel-horizontal
-    float dx = r * mPs3StrokeDownX,  dy = r * mPs3StrokeDownY;    // panel-down
-    drawText(s, x - hx, y - hy, scale, 0.0f, 0.0f, 0.0f, a);
-    drawText(s, x + hx, y + hy, scale, 0.0f, 0.0f, 0.0f, a);
-    drawText(s, x + dx, y + dy, scale, 0.0f, 0.0f, 0.0f, a);
-}
+// Text outline is now produced by drawText itself (mTextOutlineMode==1, an even
+// 4-offset outline batched into the glyph draw - symmetric and one draw call). So
+// drawTextStroke is a no-op kept only so the existing call sites stay readable
+// (each "drawTextStroke(...) then drawText(...)" reads as "outline then fill").
+void NanoMenu::drawTextStroke(const char*, float, float, float, float) {}
+// Icons have no built-in outline, so draw an even 4-direction dark silhouette
+// (left/right/up/down) behind the icon. 4 (not 8) copies keeps the per-frame draw
+// count low - the menu has ~16 visible icons. Symmetric, so no clipped side.
+static const float kStroke4X[4] = { -1.0f, 1.0f, 0.0f, 0.0f };
+static const float kStroke4Y[4] = {  0.0f, 0.0f,-1.0f, 1.0f };
 void NanoMenu::drawIconStroke(unsigned int tex, float x, float y, float w, float h, float a) {
     if (a <= 0.004f || tex == 0) return;
-    float r = ps3::devS(2.4f);
-    float hx = r * mPs3StrokeRightX, hy = r * mPs3StrokeRightY;   // panel-horizontal
-    float dx = r * mPs3StrokeDownX,  dy = r * mPs3StrokeDownY;    // panel-down
-    drawIconTex(tex, x - hx, y - hy, w, h, 0.0f, 0.0f, 0.0f, a);
-    drawIconTex(tex, x + hx, y + hy, w, h, 0.0f, 0.0f, 0.0f, a);
-    drawIconTex(tex, x + dx, y + dy, w, h, 0.0f, 0.0f, 0.0f, a);
+    float r = ps3::devS(2.0f);
+    for (int i = 0; i < 4; i++)
+        drawIconTex(tex, x + kStroke4X[i] * r, y + kStroke4Y[i] * r, w, h, 0.0f, 0.0f, 0.0f, a);
 }
 
 // ---------------------------------------------------------------------------
@@ -370,8 +363,27 @@ static float ps3CatOffset(bool active, float t, float fromOff) {
 // ---------------------------------------------------------------------------
 // navigation - smooth continuous item position; timed category slide rail.
 // ---------------------------------------------------------------------------
+
+// Move the selection inside an open dialog (mirrors web navDialog/navItem/navCat).
+// Up/Down (horizontal=false) scroll chooser lists only; Left/Right (horizontal=
+// true) scroll choosers AND toggle a confirm dialog's Yes/No. Info pages ignore.
+void NanoMenu::ps3DlgNav(int dir, bool horizontal) {
+    int n = (int)mPs3DlgOptions.size();
+    if (mPs3DlgKind == 1) {
+        // Theme side-panel chooser: clamp + live hover preview.
+        int ns = mPs3DlgSel + dir;
+        if (ns < 0) ns = 0;
+        if (ns > n - 1) ns = n - 1;
+        if (ns != mPs3DlgSel) { mPs3DlgSel = ns; previewThemeSetting(mPs3DlgThemeKey, mPs3DlgSel); }
+        return;
+    }
+    if (mPs3DlgType == 3) { if (horizontal && n >= 2) mPs3DlgSel ^= 1; return; }   // confirm
+    if (mPs3DlgType == 0) return;                                                  // info
+    if (n > 0) mPs3DlgSel = (mPs3DlgSel + dir + n) % n;                            // chooser (wrap)
+}
+
 void NanoMenu::ps3XmbLeft() {
-    if (mPs3DlgActive) { closePs3Dialog(false); return; }   // cancel/back
+    if (mPs3DlgActive) { ps3DlgNav(-1, true); return; }   // chooser scroll / confirm toggle
     if (!mPs3Stack.empty()) { ps3XmbBack(); return; }
     if (mPs3Cats.empty() || mPs3CatIdx <= 0) return;
     float live = ps3CatOffset(mPs3CatAnimActive, mPs3CatT, mPs3CatFromOffset);
@@ -385,7 +397,7 @@ void NanoMenu::ps3XmbLeft() {
 }
 
 void NanoMenu::ps3XmbRight() {
-    if (mPs3DlgActive) return;   // consume; the chooser uses up/down + X/O
+    if (mPs3DlgActive) { ps3DlgNav(+1, true); return; }   // chooser scroll / confirm toggle
     if (!mPs3Stack.empty()) { ps3XmbSelect(); return; }
     if (mPs3Cats.empty() || mPs3CatIdx >= (int)mPs3Cats.size() - 1) return;
     float live = ps3CatOffset(mPs3CatAnimActive, mPs3CatT, mPs3CatFromOffset);
@@ -399,18 +411,12 @@ void NanoMenu::ps3XmbRight() {
 }
 
 void NanoMenu::ps3XmbUp() {
-    if (mPs3DlgActive) {
-        if (mPs3DlgSel > 0) { mPs3DlgSel--; previewThemeSetting(mPs3DlgThemeKey, mPs3DlgSel); }
-        return;
-    }
+    if (mPs3DlgActive) { ps3DlgNav(-1, false); return; }
     int& s = ps3CurSel();
     if (s > 0) { mPs3ItemAnimFrom = mPs3AnimItem; mPs3ItemAnimStart = mEffectTime; s--; }
 }
 void NanoMenu::ps3XmbDown() {
-    if (mPs3DlgActive) {
-        if (mPs3DlgSel < (int)mPs3DlgOptions.size() - 1) { mPs3DlgSel++; previewThemeSetting(mPs3DlgThemeKey, mPs3DlgSel); }
-        return;
-    }
+    if (mPs3DlgActive) { ps3DlgNav(+1, false); return; }
     int& s = ps3CurSel(); int n = (int)ps3CurItems().size();
     if (s < n - 1) { mPs3ItemAnimFrom = mPs3AnimItem; mPs3ItemAnimStart = mEffectTime; s++; }
 }
@@ -496,6 +502,12 @@ void NanoMenu::ps3XmbBack() {
 // ---------------------------------------------------------------------------
 void NanoMenu::renderPs3Xmb() {
     if (!mPs3MenuBuilt) initPs3Menu();
+    // Route all PS3 text through drawText's EVEN 4-offset outline (mode 1) instead
+    // of the default single directional drop shadow. It is symmetric on all four
+    // sides (fixing the uneven/clipped look), subtle, brightness-scaled (ratio set
+    // below from the wallpaper luma), and batched into the glyph draw so it adds no
+    // extra draw calls. Glow/halo passes flip to mode 2 (none) around their copies.
+    mTextOutlineMode = 1;
     // Cold-boot intro: advance the boot clock once per frame. While it suppresses
     // the UI, draw only the boot overlay (wave/gradient reveal from black, logo,
     // epilepsy warning) over the composited background and skip the menu. Once the
@@ -519,31 +531,21 @@ void NanoMenu::renderPs3Xmb() {
     { ps3::LayoutParams lp; lp.panelW = mWidth; lp.panelH = mHeight; lp.uiScale = mPs3UiScale;
       ps3::layoutCompute(lp); }
 
-    // Dynamic text STROKE: alpha scales with wallpaper brightness so the outline
-    // is minimal on a dark wallpaper (the bright text already reads) and stronger
-    // on a light one (needs the contrast). The stroke offset directions come from
-    // the panel orientation (below), so it never reads as an upward shadow.
+    // Dynamic text outline: alpha scales with wallpaper brightness so it is minimal
+    // on a dark wallpaper (the bright text already reads) and stronger on a light
+    // one (needs the contrast). It is the even 4-offset outline (drawText mode 1),
+    // so there is no direction to get wrong.
     {
         float bgL = ps3bg::backgroundLuma();
         float ss = (bgL - 0.32f) / (0.85f - 0.32f);
         mPs3ShadowStrength = ss < 0.0f ? 0.0f : (ss > 1.0f ? 1.0f : ss);
     }
     mPs3ShadowAlpha = 0.12f + 0.62f * mPs3ShadowStrength;   // 0.12 dark .. 0.74 light
-    // Which device direction is visually DOWN/RIGHT on the panel is fully decided
-    // by the orientation, so derive the stroke offsets from sDrmRotMat (set from
-    // ro.surface_flinger.primary_display_orientation, then the DRM-PRIME Y-flip).
-    // The final matrix is an involution for every rotation, so the device-pixel
-    // offset that lands panel-DOWN is (m2, -m3) and panel-RIGHT is (m0, -m1).
-    // (180 panel -> down = (0,-1) = device -y, matching the on-device ground truth.)
-    {
-        mPs3StrokeDownX  =  sDrmRotMat[2];
-        mPs3StrokeDownY  = -sDrmRotMat[3];
-        mPs3StrokeRightX =  sDrmRotMat[0];
-        mPs3StrokeRightY = -sDrmRotMat[1];
-        // Clock drop shadow keeps its single device-y offset; its sign is the
-        // device-y component of panel-down (-1 on the 180 panel, unchanged).
-        mPs3ShadowDir = (mPs3StrokeDownY >= 0.0f) ? 1.0f : -1.0f;
-    }
+    mTextOutlineRatio = mPs3ShadowAlpha;                    // even outline alpha = ratio * text alpha
+    // The clock keeps a single device-y drop shadow; its sign is derived from the
+    // panel orientation (sDrmRotMat[3]) and is left untouched (-1 on the 180 panel)
+    // per the request to not change the clock.
+    mPs3ShadowDir = (sDrmRotMat[3] <= 0.0f) ? 1.0f : -1.0f;
 
     float dt = mFrameDt; if (dt < 0.0f) dt = 0.0f; if (dt > 0.1f) dt = 0.1f;
 
@@ -738,9 +740,12 @@ void NanoMenu::renderPs3Xmb() {
             float dsz = ps3::devS(isz);
             float ix = ps3::devX(ps3::XCL(ps3::ITEM_ICON_X + xShiftV, isz * 0.5f));
             float iy = ps3::devY(y - isz * 0.5f);
-            // Icon drop shadow (panel-down): a dark silhouette offset behind the
-            // icon so it reads over the bright wave (web icon shadow offsetY 1).
-            if (it.iconTex)
+            // Icon outline silhouette behind the flat menu icons so they read over
+            // the bright wave. RetroArch/console icons (isRetroIcon) are skipped:
+            // they render as bevelled glass and the dark silhouette would peek out
+            // around the translucent glass as an ugly halo (the normal XMB icons do
+            // not show this), so they get no stroke.
+            if (it.iconTex && !isRetroIcon(it.kind))
                 drawIconStroke(it.iconTex, ix, iy, dsz, dsz, mPs3ShadowAlpha * 0.7f * alpha);
             if (mIconGlassReady && it.nmapTex && ps3bg::workTex())
                 drawGlassIcon(it.nmapTex, ix, iy, dsz, dsz, it.iconR, it.iconG, it.iconB, alpha);
@@ -797,9 +802,11 @@ void NanoMenu::renderPs3Xmb() {
                 glEnable(GL_SCISSOR_TEST); glScissor(sx, sy, sw, sh);
                 scissorOn = true;
             }
-            // Text drop shadow (panel-down) under every label for legibility.
-            drawTextStroke(L, lx, ty, ts, mPs3ShadowAlpha * alpha);
+            // Label fill. Non-active labels get the even outline (drawText mode 1,
+            // set for the frame); the active label instead gets the dual-halo white
+            // glow, drawn with mode 2 (no dark outline on the bright halo copies).
             if (isActive) {
+                int savedMode = mTextOutlineMode; mTextOutlineMode = 2;
                 float phase = fmodf(mEffectTime, ps3::PULSE_PERIOD_MS / 1000.0f) / (ps3::PULSE_PERIOD_MS / 1000.0f);
                 float s = 0.5f * (1.0f - cosf(phase * 2.0f * (float)M_PI));
                 float outerA = ps3::PULSE_ALPHA_MIN + (ps3::PULSE_ALPHA_MAX - ps3::PULSE_ALPHA_MIN) * s;
@@ -810,6 +817,7 @@ void NanoMenu::renderPs3Xmb() {
                 for (int k = 0; k < 6; k++) { float a = ((float)k + 0.5f) / 6.0f * 2.0f * (float)M_PI;
                     drawText(L, lx + cosf(a) * iR, ty + sinf(a) * iR, ts, 1.0f, 1.0f, 1.0f, innerA * alphaMul * 0.28f); }
                 drawText(L, lx, ty, ts, 1.0f, 1.0f, 1.0f, alpha);
+                mTextOutlineMode = savedMode;
             } else {
                 drawText(L, lx, ty, ts, 0.92f, 0.92f, 0.92f, alpha);
             }
@@ -858,7 +866,7 @@ void NanoMenu::renderPs3Xmb() {
             float dsz = ps3::devS(psz);
             float ix = ps3::devX(ps3::XCL(cx, psz * 0.5f));
             float iy = ps3::devY(y - psz * 0.5f);
-            if (it.iconTex)
+            if (it.iconTex && !isRetroIcon(it.kind))   // no stroke on glass/console icons
                 drawIconStroke(it.iconTex, ix, iy, dsz, dsz, mPs3ShadowAlpha * 0.7f * a);
             // Glass (live wave refraction) for the PROMINENT breadcrumb cubes only
             // - the selected parent plus the near, still-legible siblings - so the
@@ -1229,6 +1237,319 @@ std::string NanoMenu::resolvePs3ItemValue(const Ps3Item& it) {
     return it.value;
 }
 
+// ---------------------------------------------------------------------------
+// Fullscreen dialog page templates. 1:1 port of the web DIALOG_TEMPLATES (the
+// non-panel entries; the Theme Settings choosers stay as side panels, kind 1).
+// type: 0 info, 1 chooser, 2 chooser_illust, 3 confirm.
+// illust: 0 none,1 hdmi_cable,2 av_multi,3 hdd_warning,4 globe,5 controller,6 bd_remote.
+// ---------------------------------------------------------------------------
+struct Ps3DlgTemplate {
+    const char* name;
+    int         type;
+    const char* title;
+    const char* body;
+    const char* options[4];   // nullptr-terminated; max 4
+    int         illust;
+    const char* notice;
+    int         defaultSel;
+};
+static const Ps3DlgTemplate kPs3DlgTemplates[] = {
+  {"Audio Output Settings",2,"Audio Output Settings",
+   "Select the connector on the TV or AV amplifier (receiver).",
+   {"HDMI","Optical Digital","Audio Input Connector / SCART / AV MULTI",nullptr},1,
+   "Turn on the power of the connected device.",0},
+  {"Video Output Settings",2,"Video Output Settings",
+   "Select the connector on the TV.",
+   {"HDMI","Component / D-Terminal","AV MULTI / SCART","AV MULTI / S Video"},1,
+   "Turn on the power of the connected device.",0},
+  {"System Update",1,"System Update","Select an update method.",
+   {"Update via Internet","Update via Storage Media",nullptr,nullptr},0,nullptr,0},
+  {"System Information",0,"System Information",
+   "System Software\nVersion 4.91\n\nMAC Address (Wired)\n00:1F:A7:00:00:00\n\nMAC Address (Wi-Fi)\n00:1F:A7:00:00:01\n\nIP Address\n192.168.1.10\n\nSystem Storage\n466 GB free of 500 GB",
+   {nullptr,nullptr,nullptr,nullptr},0,nullptr,0},
+  {"Format Utility",1,"Format Utility",
+   "Formats the system storage. All data on the system storage will be deleted during formatting.\nSelect an option.",
+   {"Format System Storage","Cancel",nullptr,nullptr},0,nullptr,0},
+  {"Format Hard Disk",3,"Format Hard Disk",
+   "If you format, all data on the system storage will be deleted.\nThis data cannot be restored.\nAre you sure you want to continue?",
+   {nullptr,nullptr,nullptr,nullptr},3,nullptr,1},
+  {"Restore PS3™ System",3,"Restore PS3™ System",
+   "Formats the system storage and restores the system software to its default settings.\n\nAll data on the hard disk will be deleted, and the system software will be reinstalled.\nDo you want to continue?",
+   {nullptr,nullptr,nullptr,nullptr},3,nullptr,1},
+  {"Restore Default Settings",3,"Restore Default Settings",
+   "Restores the system software to its default settings.\n\nAll system settings will be restored to their default values.\nDo you want to continue?",
+   {nullptr,nullptr,nullptr,nullptr},0,nullptr,1},
+  {"Backup Utility",1,"Backup Utility",
+   "Backs up data saved on the system storage to storage media, or restores data that has been backed up.\nSelect an option.",
+   {"Back Up","Restore","Delete Backup Data",nullptr},0,nullptr,0},
+  {"Data Transfer Utility",1,"Data Transfer Utility",
+   "Transfers data that is saved on one PS3™ system to another PS3™ system. You can use this feature when replacing the PS3™ system that you usually use with another PS3™ system.",
+   {"1. Transfer data from this system to the other PS3™ system.",
+    "2. Transfer data from the other PS3™ system to this system.","Cancel",nullptr},0,nullptr,0},
+  {"Date and Time",1,"Date and Time",
+   "Sets the date and time for this system.\nSelect how to set the date and time.",
+   {"Set via Internet","Set Manually",nullptr,nullptr},0,nullptr,0},
+  {"Set via Internet",0,"Set via Internet",
+   "Obtains the correct date and time automatically via the Internet when you sign in to PSN, and sets them on your system.\n\nA network connection is required for this feature.",
+   {nullptr,nullptr,nullptr,nullptr},4,nullptr,0},
+  {"Set Manually",0,"Set Manually",
+   "Set the time and date.\n\nUse the arrow keys to adjust each field, then press the X button to apply.",
+   {nullptr,nullptr,nullptr,nullptr},0,nullptr,0},
+  {"Calibrate Motion Controller",0,"Calibrate Motion Controller",
+   "Calibrates the magnetic sensor of a motion controller. Use this setting when the motion controller does not control on-screen movement as expected.\n\nPlace the controller on a flat surface, then press the X button.",
+   {nullptr,nullptr,nullptr,nullptr},5,nullptr,0},
+  {"Reassign Controllers",0,"Reassign Controllers",
+   "Change the number assigned to the controller that is currently in use.\n\nPress the PS button on the controller you want to reassign.",
+   {nullptr,nullptr,nullptr,nullptr},5,nullptr,0},
+  {"BD Remote Control Registration",0,"BD Remote Control Registration",
+   "Register a BD remote control for use with the PS3™ system.\n\nPress the START button and ENTER button of the BD remote control you want to register at the same time, and hold down until the screen changes.",
+   {nullptr,nullptr,nullptr,nullptr},6,nullptr,0},
+  {"Manage Bluetooth® Devices",1,"Manage Bluetooth® Devices",
+   "Register or manage Bluetooth® devices such as headsets, keyboards and mouse devices.\nSelect an option.",
+   {"Register New Device","Device List","Disconnect All","Unregister All"},0,nullptr,0},
+  {"Camera Device Settings",0,"Camera Device Settings",
+   "Tests the image from a camera that is connected to the system using a USB cable. You can adjust settings to reduce flickering for some cameras.\n\nNo camera is currently connected.",
+   {nullptr,nullptr,nullptr,nullptr},0,nullptr,0},
+  {"Audio Device Settings",1,"Audio Device Settings",
+   "Sets the audio input and output devices for voice/video chat and other communication features.\nSelect an audio device.",
+   {"System Default","USB Headset","Bluetooth® Headset",nullptr},0,nullptr,0},
+  {"Wireless Stereo Headset Settings",0,"Wireless Stereo Headset Settings",
+   "No wireless stereo headset is connected.",{nullptr,nullptr,nullptr,nullptr},0,nullptr,0},
+  {"Change Password",0,"Change Password",
+   "Change the password required to play games or videos, or to use the Internet browser.\n\nEnter your current password.",
+   {nullptr,nullptr,nullptr,nullptr},0,nullptr,0},
+  {"Register Device",0,"Register Device",
+   "Register a device (such as a PS Vita or a PSP™ system) to be used for remote play with this system. Select this option to register a device for remote play if using it for the first time.\n\nEnter the following number on the remote device:\n\n12345678",
+   {nullptr,nullptr,nullptr,nullptr},4,nullptr,0},
+  {"Status of Registered Devices",0,"Status of Registered Devices",
+   "Displays a list of devices registered with this system.\n\nNo devices are currently registered for remote play.",
+   {nullptr,nullptr,nullptr,nullptr},0,nullptr,0},
+  {"Delete Registered Device",1,"Delete Registered Device",
+   "Deletes registered remote play devices from this system.\nSelect a device to delete.",
+   {"(No registered devices)",nullptr,nullptr,nullptr},0,nullptr,0},
+  {"Register PlayStation®Vita",0,"Register PlayStation®Vita",
+   "Follow the on-screen instructions on your PlayStation®Vita system.",
+   {nullptr,nullptr,nullptr,nullptr},0,nullptr,0},
+  {"Settings and Connection Status List",0,"Settings and Connection Status List",
+   "Displays current network settings and the Internet connection status.\n\nConnection Name    Default\nConnection Type    Wired\nIP Address         192.168.1.10\nSubnet Mask        255.255.255.0\nDefault Gateway    192.168.1.1\nPrimary DNS        8.8.8.8\nSecondary DNS      8.8.4.4",
+   {nullptr,nullptr,nullptr,nullptr},0,nullptr,0},
+  {"Internet Connection Settings",1,"Internet Connection Settings",
+   "Sets the method for connecting the system to the Internet.\nSelect a connection method.",
+   {"Easy","Custom",nullptr,nullptr},4,nullptr,0},
+  {"Internet Connection Test",0,"Internet Connection Test",
+   "Tests the Internet connection and displays the results.\n\nObtain IP Address    Succeeded\nInternet Connection  Succeeded\nPlayStation™Network  Succeeded\nNAT Type             Type 2\nUPnP                 Available\nConnection Speed (Download)  85.4 Mbps\nConnection Speed (Upload)    24.7 Mbps",
+   {nullptr,nullptr,nullptr,nullptr},0,nullptr,0},
+  {"Add/Edit Term",1,"Add/Edit Term",
+   "Add words to be displayed as options for predictive text entry when using the on-screen keyboard.\nSelect an option.",
+   {"Add Term","Edit Term","Delete Term",nullptr},0,nullptr,0},
+  {"Delete Predictive Text Dictionary",3,"Delete Predictive Text Dictionary",
+   "Deletes words that were added automatically to the dictionary when using the on-screen keyboard.\n\nThe predictive text dictionary will be deleted.\nAre you sure you want to continue?",
+   {nullptr,nullptr,nullptr,nullptr},0,nullptr,1},
+  {"DivX® VOD Registration Code",0,"DivX® VOD Registration Code",
+   "Displays the registration code that is required to play DivX® VOD content.\n\nRegistration Code:\n\n8C9D7E1F\n\nVisit http://www.divx.com/vod/ for instructions on how to register the code.",
+   {nullptr,nullptr,nullptr,nullptr},0,nullptr,0},
+  {"List of Registered PS Vita Systems",0,"List of Registered PS Vita Systems",
+   "Displays a list of PS Vita systems registered with this system.\n\nNo PS Vita systems are currently registered.",
+   {nullptr,nullptr,nullptr,nullptr},0,nullptr,0},
+  {"Delete PS Vita System's Backup Files",3,"Delete PS Vita System's Backup Files",
+   "Deletes backup files for the PS Vita system saved on this system.\n\nThe backup files for the PS Vita system will be deleted.\nYou can only delete the backup files for your account.\n\nDo you want to delete the backup files?",
+   {nullptr,nullptr,nullptr,nullptr},0,nullptr,1},
+};
+
+// --- low-level dialog draw primitives (device-px space) -------------------
+void NanoMenu::ps3ThickLine(float x0, float y0, float x1, float y1, float w,
+                            float r, float g, float b, float a) {
+    float dx = x1 - x0, dy = y1 - y0;
+    float len = sqrtf(dx * dx + dy * dy);
+    if (len < 1e-3f) return;
+    float nx = -dy / len * (w * 0.5f), ny = dx / len * (w * 0.5f);
+    drawTriangle(x0 + nx, y0 + ny, x0 - nx, y0 - ny, x1 - nx, y1 - ny, r, g, b, a);
+    drawTriangle(x0 + nx, y0 + ny, x1 - nx, y1 - ny, x1 + nx, y1 + ny, r, g, b, a);
+}
+void NanoMenu::ps3FillCircle(float cx, float cy, float rad, float r, float g, float b, float a) {
+    const int N = 28;
+    float px = cx + rad, py = cy;
+    for (int i = 1; i <= N; i++) {
+        float t = (float)i / (float)N * 2.0f * (float)M_PI;
+        float x = cx + cosf(t) * rad, y = cy + sinf(t) * rad;
+        drawTriangle(cx, cy, px, py, x, y, r, g, b, a);
+        px = x; py = y;
+    }
+}
+void NanoMenu::ps3StrokeRing(float cx, float cy, float radX, float radY, float lw,
+                             float r, float g, float b, float a) {
+    const int N = 44;
+    float px = cx + radX, py = cy;
+    for (int i = 1; i <= N; i++) {
+        float t = (float)i / (float)N * 2.0f * (float)M_PI;
+        float x = cx + cosf(t) * radX, y = cy + sinf(t) * radY;
+        ps3ThickLine(px, py, x, y, lw, r, g, b, a);
+        px = x; py = y;
+    }
+}
+void NanoMenu::ps3VGradRect(float x, float y, float w, float h,
+                            float r0, float g0, float b0, float r1, float g1, float b1, float a) {
+    const int N = 6;
+    for (int i = 0; i < N; i++) {
+        float t = ((float)i + 0.5f) / (float)N;
+        drawQuad(x, y + (float)i / (float)N * h, w, h / (float)N + 1.0f,
+                 r0 + (r1 - r0) * t, g0 + (g1 - g0) * t, b0 + (b1 - b0) * t, a);
+    }
+}
+
+// Centred/left/right dialog text with a subtle panel-down drop shadow (web:
+// shadowOffsetY 1, blur 3, alpha 0.5). align: 0 left, 1 centre, 2 right.
+void NanoMenu::ps3DlgText(const char* s, float cxDev, float baselineDev, float fs,
+                          float r, float g, float b, float a, int align) {
+    if (!s || !*s) return;
+    float w = measureText(s, fs);
+    float x = (align == 1) ? (cxDev - w * 0.5f) : (align == 2) ? (cxDev - w) : cxDev;
+    float topY = ps3::baselineToTopY(baselineDev, fs);
+    drawText(s, x, topY, fs, r, g, b, a);   // even outline via drawText mode 1
+}
+
+// One selectable dialog option. Selected = larger with a soft white halo bloom
+// (web shadowBlur halo); unselected = smaller, dim, with a legibility shadow.
+// midDev is the vertical CENTRE of the text (web uses textBaseline='middle').
+void NanoMenu::ps3DlgOption(const char* label, float cxDev, float midDev,
+                            bool sel, bool leftAlign, float ap, float baseScale) {
+    if (!label || !*label) return;
+    float fs = baseScale * (sel ? 28.0f : 24.0f) / 16.0f;
+    float w = measureText(label, fs);
+    float x = leftAlign ? cxDev : (cxDev - w * 0.5f);
+    float topY = midDev - 0.45f * 16.0f * fs;
+    if (sel) {
+        // Soft white halo bloom (no dark outline on the bright copies -> mode 2).
+        int savedMode = mTextOutlineMode; mTextOutlineMode = 2;
+        float em = 16.0f * fs;
+        const float gr[2] = { em * 0.30f, em * 0.16f };
+        for (int pass = 0; pass < 2; pass++) {
+            float gg = gr[pass];
+            for (int k = 0; k < 8; k++) {
+                float ang = (float)k / 8.0f * 2.0f * (float)M_PI;
+                drawText(label, x + cosf(ang) * gg, topY + sinf(ang) * gg, fs, 1.0f, 1.0f, 1.0f, 0.12f * ap);
+            }
+        }
+        drawText(label, x, topY, fs, 1.0f, 1.0f, 1.0f, ap);
+        mTextOutlineMode = savedMode;
+    } else {
+        // Even outline comes from drawText (mode 1) - one batched draw call.
+        drawText(label, x, topY, fs, 1.0f, 1.0f, 1.0f, 0.85f * ap);
+    }
+}
+
+// Footer button hint: glyph (X cross or O circle) + label, centred on slotCxDev.
+void NanoMenu::ps3DlgHint(float slotCxDev, bool cross, const char* label,
+                          float yDev, float baseScale, float ap) {
+    float fs = baseScale * 22.0f / 16.0f;
+    float glyphR = baseScale * 12.0f;
+    float gap = baseScale * 12.0f;
+    float lw = fmaxf(baseScale * 2.0f, 1.5f);
+    float tw = measureText(label, fs);
+    float groupW = glyphR * 2.0f + gap + tw;
+    float left = slotCxDev - groupW * 0.5f;
+    float gcx = left + glyphR;
+    if (cross) {
+        float d = glyphR * 0.78f;
+        ps3ThickLine(gcx - d, yDev - d, gcx + d, yDev + d, lw, 1.0f, 1.0f, 1.0f, 0.95f * ap);
+        ps3ThickLine(gcx + d, yDev - d, gcx - d, yDev + d, lw, 1.0f, 1.0f, 1.0f, 0.95f * ap);
+    } else {
+        ps3StrokeRing(gcx, yDev, glyphR, glyphR, lw, 1.0f, 1.0f, 1.0f, 0.95f * ap);
+    }
+    float topY = yDev - 0.45f * 16.0f * fs;
+    drawText(label, left + glyphR * 2.0f + gap, topY, fs, 1.0f, 1.0f, 1.0f, 0.95f * ap);
+}
+
+// PS3 "diagram-style" vector illustrations (1:1 with web drawIllustration),
+// drawn centred at (cx,cy) at approximate size sz, all in device px.
+void NanoMenu::ps3DlgIllustration(int kind, float cx, float cy, float sz, float ap) {
+    if (kind == 1) {                                  // hdmi_cable
+        float h = sz, w = h * 0.30f, top = cy - h * 0.5f;
+        float rectW = w * 0.95f, rectH = h * 0.060f, rx = cx - rectW * 0.5f, ry = top;
+        drawQuad(rx - 2.0f, ry, rectW + 4.0f, rectH, 0.73f, 0.73f, 0.73f, ap);
+        drawQuad(rx + rectW * 0.06f, ry + rectH * 0.18f, rectW * 0.88f, rectH * 0.55f, 0.04f, 0.04f, 0.04f, ap);
+        for (int i = 0; i < 5; i++)
+            drawQuad(rx + rectW * 0.12f + i * (rectW * 0.76f / 5.0f), ry + rectH * 0.25f, 1.5f, rectH * 0.4f, 0.60f, 0.60f, 0.60f, ap);
+        float tongueW = w * 0.78f, tongueH = h * 0.10f, tx = cx - tongueW * 0.5f, ty = top + h * 0.19f;
+        drawTriangle(tx, ty, tx + tongueW, ty, tx + tongueW - 3.0f, ty + tongueH, 0.79f, 0.64f, 0.25f, ap);
+        drawTriangle(tx, ty, tx + tongueW - 3.0f, ty + tongueH, tx + 3.0f, ty + tongueH, 0.79f, 0.64f, 0.25f, ap);
+        float bodyW = w, bodyH = h * 0.39f, bx = cx - bodyW * 0.5f, by = ty + tongueH;
+        ps3VGradRect(bx, by, bodyW, bodyH, 0.10f, 0.10f, 0.10f, 0.23f, 0.23f, 0.23f, ap);
+        drawQuad(bx + bodyW * 0.45f, by + 4.0f, bodyW * 0.10f, bodyH - 8.0f, 1.0f, 1.0f, 1.0f, 0.06f * ap);
+        float sw = bodyW * 0.55f, sh = h * 0.12f, sx = cx - sw * 0.5f, syy = by + bodyH;
+        drawTriangle(sx, syy, sx + sw, syy, sx + sw - 6.0f, syy + sh, 0.10f, 0.10f, 0.10f, ap);
+        drawTriangle(sx, syy, sx + sw - 6.0f, syy + sh, sx + 6.0f, syy + sh, 0.10f, 0.10f, 0.10f, ap);
+        float cw = sw * 0.55f, cy2 = syy + sh;
+        drawQuad(cx - cw * 0.5f, cy2, cw, h * 0.18f, 0.03f, 0.03f, 0.03f, ap);
+    } else if (kind == 2) {                           // av_multi
+        float w = sz * 0.45f, top = cy - sz * 0.5f;
+        drawQuad(cx - w * 0.5f, top, w, 4.0f, 1.0f, 1.0f, 1.0f, ap);
+        drawQuad(cx - w * 0.45f, top + 1.0f, w * 0.9f, 2.0f, 0.0f, 0.0f, 0.0f, ap);
+        float pinY = top + 30.0f;
+        drawQuad(cx - w * 0.4f, pinY, w * 0.8f, 8.0f, 0.83f, 0.66f, 0.22f, ap);
+        float bodyY = pinY + 10.0f;
+        drawTriangle(cx - w * 0.55f, bodyY, cx + w * 0.55f, bodyY, cx + w * 0.5f, bodyY + sz * 0.45f, 0.04f, 0.04f, 0.04f, ap);
+        drawTriangle(cx - w * 0.55f, bodyY, cx + w * 0.5f, bodyY + sz * 0.45f, cx - w * 0.5f, bodyY + sz * 0.45f, 0.04f, 0.04f, 0.04f, ap);
+        drawQuad(cx - w * 0.15f, bodyY + sz * 0.45f, w * 0.3f, sz * 0.25f, 0.04f, 0.04f, 0.04f, ap);
+    } else if (kind == 3) {                           // hdd_warning
+        float sw = sz * 0.72f, sh = sz * 0.46f, dx = cx - sw * 0.5f, dy = cy - sh * 0.55f, skew = sw * 0.08f;
+        drawTriangle(dx + skew, dy, dx + sw + skew, dy, dx + sw, dy + sh * 0.16f, 0.72f, 0.72f, 0.79f, ap);
+        drawTriangle(dx + skew, dy, dx + sw, dy + sh * 0.16f, dx, dy + sh * 0.16f, 0.72f, 0.72f, 0.79f, ap);
+        ps3VGradRect(dx, dy + sh * 0.16f, sw, sh * 0.84f, 0.36f, 0.38f, 0.41f, 0.17f, 0.18f, 0.20f, ap);
+        drawTriangle(dx + sw, dy + sh * 0.16f, dx + sw + skew, dy, dx + sw + skew, dy + sh * 0.84f, 0.23f, 0.24f, 0.26f, ap);
+        drawTriangle(dx + sw, dy + sh * 0.16f, dx + sw + skew, dy + sh * 0.84f, dx + sw, dy + sh, 0.23f, 0.24f, 0.26f, ap);
+        for (int s = 0; s < 4; s++)
+            ps3FillCircle(dx + sw * 0.08f + s * sw * 0.27f, dy + sh * 0.85f, 3.0f, 0.10f, 0.11f, 0.12f, ap);
+        drawQuad(dx + sw * 0.1f, dy + sh * 0.28f, sw * 0.65f, sh * 0.32f, 0.53f, 0.54f, 0.56f, ap);
+        drawQuad(dx + sw * 0.15f, dy + sh * 0.36f, sw * 0.45f, 2.0f, 0.23f, 0.24f, 0.26f, ap);
+        drawQuad(dx + sw * 0.15f, dy + sh * 0.45f, sw * 0.35f, 2.0f, 0.23f, 0.24f, 0.26f, ap);
+        float tr = sz * 0.20f, tcx = cx + sz * 0.30f, tcy = cy + sz * 0.20f;
+        drawTriangle(tcx, tcy - tr, tcx + tr * 0.92f, tcy + tr * 0.55f, tcx - tr * 0.92f, tcy + tr * 0.55f, 0.95f, 0.74f, 0.18f, ap);
+        ps3ThickLine(tcx, tcy - tr, tcx + tr * 0.92f, tcy + tr * 0.55f, 3.0f, 0.10f, 0.10f, 0.10f, ap);
+        ps3ThickLine(tcx + tr * 0.92f, tcy + tr * 0.55f, tcx - tr * 0.92f, tcy + tr * 0.55f, 3.0f, 0.10f, 0.10f, 0.10f, ap);
+        ps3ThickLine(tcx - tr * 0.92f, tcy + tr * 0.55f, tcx, tcy - tr, 3.0f, 0.10f, 0.10f, 0.10f, ap);
+        drawQuad(tcx - 3.0f, tcy - tr * 0.45f, 6.0f, tr * 0.65f, 0.10f, 0.10f, 0.10f, ap);
+        ps3FillCircle(tcx, tcy + tr * 0.35f, 4.0f, 0.10f, 0.10f, 0.10f, ap);
+    } else if (kind == 4) {                           // globe
+        float r = sz * 0.32f;
+        ps3StrokeRing(cx, cy, r, r, 2.0f, 0.61f, 0.77f, 1.0f, ap);
+        ps3StrokeRing(cx, cy, r, r * 0.25f, 2.0f, 0.61f, 0.77f, 1.0f, ap);
+        for (int i = 0; i < 3; i++)
+            ps3StrokeRing(cx, cy, r * (0.35f + i * 0.32f), r, 2.0f, 0.61f, 0.77f, 1.0f, ap);
+    } else if (kind == 5) {                           // controller (DualShock silhouette)
+        float w = sz * 0.85f, h = w * 0.55f, x0 = cx - w * 0.5f, y0 = cy - h * 0.5f;
+        // body: centre block + two rounded grip lobes
+        drawRoundedRect(x0 + w * 0.18f, y0 + h * 0.05f, w * 0.64f, h * 0.70f, h * 0.18f, 0.78f, 0.79f, 0.83f, ap);
+        ps3FillCircle(x0 + w * 0.16f, y0 + h * 0.62f, h * 0.30f, 0.74f, 0.75f, 0.80f, ap);
+        ps3FillCircle(x0 + w * 0.84f, y0 + h * 0.62f, h * 0.30f, 0.74f, 0.75f, 0.80f, ap);
+        // d-pad
+        float dpx = x0 + w * 0.22f, dpy = y0 + h * 0.42f, dps = h * 0.13f;
+        drawQuad(dpx - dps * 0.18f, dpy - dps * 0.55f, dps * 0.36f, dps * 1.1f, 0.23f, 0.23f, 0.25f, ap);
+        drawQuad(dpx - dps * 0.55f, dpy - dps * 0.18f, dps * 1.1f, dps * 0.36f, 0.23f, 0.23f, 0.25f, ap);
+        // face buttons
+        float rcx = x0 + w * 0.78f, rcy = y0 + h * 0.42f, rs = h * 0.11f;
+        ps3StrokeRing(rcx, rcy - rs * 0.9f, rs * 0.32f, rs * 0.32f, 2.0f, 0.23f, 0.23f, 0.25f, ap);
+        ps3StrokeRing(rcx + rs * 0.9f, rcy, rs * 0.32f, rs * 0.32f, 2.0f, 0.23f, 0.23f, 0.25f, ap);
+        ps3StrokeRing(rcx - rs * 0.9f, rcy, rs * 0.32f, rs * 0.32f, 2.0f, 0.23f, 0.23f, 0.25f, ap);
+        ps3StrokeRing(rcx, rcy + rs * 0.9f, rs * 0.32f, rs * 0.32f, 2.0f, 0.23f, 0.23f, 0.25f, ap);
+        // sticks + PS button
+        ps3FillCircle(x0 + w * 0.36f, y0 + h * 0.70f, h * 0.10f, 0.11f, 0.11f, 0.13f, ap);
+        ps3FillCircle(x0 + w * 0.64f, y0 + h * 0.70f, h * 0.10f, 0.11f, 0.11f, 0.13f, ap);
+        ps3FillCircle(cx, y0 + h * 0.60f, h * 0.06f, 0.23f, 0.23f, 0.25f, ap);
+    } else if (kind == 6) {                           // bd_remote
+        float w = sz * 0.32f, h = sz * 0.95f, x0 = cx - w * 0.5f, y0 = cy - h * 0.5f;
+        ps3VGradRect(x0, y0, w, h, 0.83f, 0.83f, 0.85f, 0.48f, 0.48f, 0.51f, ap);
+        drawQuad(x0 + w * 0.30f, y0 + h * 0.03f, w * 0.40f, h * 0.04f, 0.10f, 0.10f, 0.12f, ap);
+        ps3FillCircle(cx, y0 + h * 0.18f, w * 0.34f, 0.62f, 0.62f, 0.64f, ap);
+        ps3FillCircle(cx, y0 + h * 0.18f, w * 0.18f, 0.23f, 0.23f, 0.25f, ap);
+        for (int row = 0; row < 4; row++)
+            for (int col = 0; col < 3; col++)
+                ps3FillCircle(x0 + w * (0.22f + col * 0.28f), y0 + h * (0.36f + row * 0.10f), w * 0.07f, 0.23f, 0.23f, 0.25f, ap);
+        drawQuad(x0 + w * 0.10f, y0 + h * 0.82f, w * 0.35f, h * 0.07f, 0.99f, 0.88f, 0.29f, ap);
+        drawQuad(x0 + w * 0.55f, y0 + h * 0.82f, w * 0.35f, h * 0.07f, 0.99f, 0.88f, 0.29f, ap);
+    }
+}
+
 void NanoMenu::openPs3Dialog(const Ps3Item& it) {
     const std::string& n = it.label;
     mPs3DlgOptions.clear(); mPs3DlgSwatch.clear();
@@ -1253,17 +1574,30 @@ void NanoMenu::openPs3Dialog(const Ps3Item& it) {
         mPs3DlgKind = 1; mPs3DlgThemeKey = 5;
         for (int i = 0; i < kPs3DayNightCount; i++) { mPs3DlgOptions.push_back(kPs3DayNightOpts[i].name); mPs3DlgSwatch.push_back(-1); }
         mPs3DlgSel = mPs3DayNightIdx;
-    } else if (n == "System Update") {
-        mPs3DlgBody = "Select an update method.";
-        mPs3DlgOptions.push_back("Update via Internet"); mPs3DlgOptions.push_back("Update via Storage Media");
-        mPs3DlgSwatch.assign(2, -1); mPs3DlgSel = 0;
-    } else if (n == "System Information") {
-        mPs3DlgBody = "System Software\nVersion 4.91\n\nIP Address\n192.168.1.10\n\nSystem Storage\n466 GB free of 500 GB";
-        mPs3DlgOptions.push_back("OK"); mPs3DlgSwatch.assign(1, -1); mPs3DlgSel = 0;
     } else {
-        // generic info dialog for any other action='dialog' leaf
-        mPs3DlgBody = "This feature is not available yet.";
-        mPs3DlgOptions.push_back("OK"); mPs3DlgSwatch.assign(1, -1); mPs3DlgSel = 0;
+        // Fullscreen dialog page (kind 0): look up the 1:1 web template.
+        mPs3DlgType = 0; mPs3DlgIllust = 0; mPs3DlgNotice.clear();
+        const Ps3DlgTemplate* tpl = nullptr;
+        for (const Ps3DlgTemplate& t : kPs3DlgTemplates) {
+            if (n == t.name) { tpl = &t; break; }
+        }
+        if (tpl) {
+            mPs3DlgType = tpl->type;
+            mPs3DlgTitle = tpl->title;
+            mPs3DlgBody = tpl->body ? tpl->body : "";
+            mPs3DlgIllust = tpl->illust;
+            if (tpl->notice) mPs3DlgNotice = tpl->notice;
+            for (const char* o : tpl->options) { if (!o) break; mPs3DlgOptions.push_back(o); }
+            mPs3DlgSel = tpl->defaultSel;
+        } else {
+            // Unknown action='dialog' leaf -> generic info page (matches web fallback).
+            mPs3DlgType = 0;
+            mPs3DlgBody = "This feature is not yet implemented.";
+            mPs3DlgSel = 0;
+        }
+        // Header icon = the source item's icon (glass when available).
+        mPs3DlgIconTex = it.iconTex; mPs3DlgIconNmap = it.nmapTex;
+        mPs3DlgIconR = it.iconR; mPs3DlgIconG = it.iconG; mPs3DlgIconB = it.iconB;
     }
     mPs3DlgOrigSel = mPs3DlgSel;
     mPs3DlgActive = true; mPs3DlgAnim = 0.0f; mPs3DlgBlurValid = false;
@@ -1368,55 +1702,142 @@ void NanoMenu::renderPs3Dialog() {
             drawText(mPs3DlgOptions[i].c_str(), tx, ty, fs, c, c, c, a);
         }
     } else {
-        // ---- fullscreen message / chooser dialog (System Update, ...) ----
-        float bw = (float)mWidth * 0.72f, bh = (float)mHeight * 0.56f;
-        float bx = ((float)mWidth - bw) * 0.5f, by = ((float)mHeight - bh) * 0.5f;
-        drawQuad(bx, by, bw, bh, 0.08f, 0.08f, 0.11f, 0.86f * ap);
-        float padX = bx + ps3::devS(34.0f);
-        float tts = ps3::fontScale(32.0f);
-        float titleY = by + ps3::devS(28.0f);
-        drawText(mPs3DlgTitle.c_str(), padX + so[0], titleY + so[1], tts, 0.0f, 0.0f, 0.0f, 0.5f * ap);
-        drawText(mPs3DlgTitle.c_str(), padX, titleY, tts, 1.0f, 1.0f, 1.0f, ap);
-        drawQuad(padX, by + ps3::devS(74.0f), bw - ps3::devS(68.0f), fmaxf(1.0f, ps3::devS(1.0f)), 0.5f, 0.5f, 0.55f, 0.6f * ap);
-        // body: split on '\n', word-wrap each segment to the box width
-        float bs = ps3::fontScale(22.0f);
-        float lineH = ps3::devS(30.0f);
-        float maxW = bw - ps3::devS(68.0f);
-        float ty = by + ps3::devS(96.0f);
-        std::string seg;
-        auto emitWrapped = [&](const std::string& s) {
-            std::string cur, word;
-            auto flush = [&](bool last) {
-                std::string trial = cur.empty() ? word : cur + " " + word;
-                if (!cur.empty() && measureText(trial.c_str(), bs) > maxW) {
-                    drawText(cur.c_str(), padX, ty, bs, 0.82f, 0.82f, 0.86f, ap); ty += lineH; cur = word;
-                } else cur = trial;
-                word.clear();
-                if (last) { if (!cur.empty()) { drawText(cur.c_str(), padX, ty, bs, 0.82f, 0.82f, 0.86f, ap); ty += lineH; } }
+        // ---- fullscreen dialog page (1:1 with web drawDialog) ----
+        // Uniform translucent dim over the (already-drawn) blurred live wave so
+        // the white chrome reads while the per-month gradient still shows through.
+        drawQuad(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f, 0.0f, 0.0f, 0.40f * ap);
+        // Dialog text uses a slightly stronger even outline than the menu (the dim
+        // backdrop wants a touch more contrast). drawText mode is already 1.
+        mTextOutlineRatio = 0.45f;
+
+        // Base (ui-independent) virtual->device scale, with the 1080 design
+        // CENTRED in the visible frame (web frameCenterTY). gFrame* are untouched
+        // by the menu's uiScale zoom, so the dialog always fills/centres the frame
+        // exactly like the web, adapting to any resolution/aspect/orientation.
+        float ui = mPs3UiScale; if (ui < 0.5f) ui = 0.5f; if (ui > 2.0f) ui = 2.0f;
+        const float S = ps3::gScale / ui;
+        const float offX = ps3::gFrameX;
+        const float offY = ps3::gFrameY + ps3::gFrameH * 0.5f - S * (ps3::VH * 0.5f);
+        auto X  = [&](float vx) { return S * vx + offX; };              // raw virtual x (left-anchored)
+        auto XC = [&](float vx) { return S * ps3::XCF(vx) + offX; };    // XCF centred / frame-spanning
+        auto Y  = [&](float vy) { return S * vy + offY; };
+        auto DS = [&](float v)  { return S * v; };
+        auto FS = [&](float px) { return S * px / 16.0f; };
+        const float VW = ps3::VW;
+        const float innerTop = 199.0f, innerBot = 880.0f;
+        const float maxW = DS((VW - 400.0f) * ps3::LAYOUT_FIT);   // body wrap width (device px)
+
+        // Word-wrap helper (mirrors web wrapLines: split '\n', keep blank lines,
+        // greedy word-wrap each paragraph to maxW).
+        auto wrap = [&](const std::string& body, float fs) {
+            std::vector<std::string> out;
+            std::string para;
+            auto wrapPara = [&](const std::string& p) {
+                if (p.empty()) { out.push_back(""); return; }
+                std::string line, word;
+                auto commit = [&]() {
+                    if (word.empty()) return;
+                    std::string trial = line.empty() ? word : line + " " + word;
+                    if (!line.empty() && measureText(trial.c_str(), fs) > maxW) { out.push_back(line); line = word; }
+                    else line = trial;
+                    word.clear();
+                };
+                for (const char* q = p.c_str(); ; ++q) {
+                    if (*q == ' ' || *q == '\0') { commit(); if (*q == '\0') break; }
+                    else word.push_back(*q);
+                }
+                if (!line.empty()) out.push_back(line);
             };
-            if (s.empty()) { ty += lineH * 0.5f; return; }
-            for (const char* p = s.c_str(); ; ++p) {
-                if (*p == ' ' || *p == '\0') { flush(*p == '\0'); if (*p == '\0') break; }
-                else word.push_back(*p);
+            for (size_t i = 0; i <= body.size(); i++) {
+                if (i == body.size() || body[i] == '\n') { wrapPara(para); para.clear(); }
+                else para.push_back(body[i]);
             }
+            return out;
         };
-        for (size_t i = 0; i <= mPs3DlgBody.size(); i++) {
-            if (i == mPs3DlgBody.size() || mPs3DlgBody[i] == '\n') { emitWrapped(seg); seg.clear(); }
-            else seg.push_back(mPs3DlgBody[i]);
-        }
-        // options as a vertical list near the bottom of the box, selected highlit
+
+        // ---- header: item icon + title + top/bottom dividers ----
+        float iconSz = DS(36.0f);
+        if (mPs3DlgIconNmap && mIconGlassReady && ps3bg::workTex())
+            drawGlassIcon(mPs3DlgIconNmap, X(130.0f) - iconSz * 0.5f, Y(175.0f) - iconSz * 0.5f, iconSz, iconSz,
+                          mPs3DlgIconR, mPs3DlgIconG, mPs3DlgIconB, ap);
+        else if (mPs3DlgIconTex)
+            drawIconTex(mPs3DlgIconTex, X(130.0f) - iconSz * 0.5f, Y(175.0f) - iconSz * 0.5f, iconSz, iconSz,
+                        mPs3DlgIconR, mPs3DlgIconG, mPs3DlgIconB, ap);
+        ps3DlgText(mPs3DlgTitle.c_str(), X(160.0f), Y(187.0f), FS(28.0f), 1.0f, 1.0f, 1.0f, ap, 0);
+        float divLw = fmaxf(1.0f, DS(1.0f));
+        drawQuad(X(0.0f), Y(innerTop), XC(VW) - X(0.0f), divLw, 1.0f, 1.0f, 1.0f, 0.55f * ap);
+        drawQuad(X(0.0f), Y(innerBot), XC(VW) - X(0.0f), divLw, 1.0f, 1.0f, 1.0f, 0.55f * ap);
+
+        // ---- body by type ----
         int n = (int)mPs3DlgOptions.size();
-        float os = ps3::fontScale(26.0f);
-        float optRow = ps3::devS(40.0f);
-        float optY = by + bh - ps3::devS(30.0f) - (float)n * optRow;
-        for (int i = 0; i < n; i++) {
-            float y = optY + (float)i * optRow;
-            bool sel = (i == mPs3DlgSel);
-            if (sel) drawQuad(padX - ps3::devS(8.0f), y - ps3::devS(4.0f), maxW + ps3::devS(16.0f), optRow - ps3::devS(6.0f), 0.20f, 0.42f, 0.62f, 0.55f * ap);
-            float c = sel ? 1.0f : 0.7f;
-            float ty2 = ps3::baselineToTopY(y + optRow * 0.5f, os);
-            drawText(mPs3DlgOptions[i].c_str(), padX + so[0], ty2 + so[1], os, 0.0f, 0.0f, 0.0f, 0.5f * ap);
-            drawText(mPs3DlgOptions[i].c_str(), padX, ty2, os, c, c, c, ap);
+        if (mPs3DlgType == 0) {                 // info
+            float centerCY = (innerTop + innerBot) * 0.5f;
+            if (mPs3DlgIllust) { ps3DlgIllustration(mPs3DlgIllust, XC(VW * 0.5f), Y(innerTop + 230.0f), DS(280.0f), ap); centerCY = innerTop + 460.0f; }
+            float fs = FS(26.0f), lh = DS(36.0f);
+            std::vector<std::string> lines = wrap(mPs3DlgBody, fs);
+            float ty = Y(centerCY) - (float)((int)lines.size() - 1) * lh * 0.5f;
+            for (auto& ln : lines) { if (!ln.empty()) ps3DlgText(ln.c_str(), XC(VW * 0.5f), ty, fs, 0.95f, 0.95f, 0.95f, ap, 1); ty += lh; }
+        } else if (mPs3DlgType == 1) {          // chooser
+            float fs = FS(24.0f);
+            std::vector<std::string> bodyLines = wrap(mPs3DlgBody, fs);
+            float by = Y(innerTop + 105.0f);
+            for (auto& ln : bodyLines) { if (!ln.empty()) ps3DlgText(ln.c_str(), XC(VW * 0.5f), by, fs, 0.95f, 0.95f, 0.95f, ap, 1); by += DS(32.0f); }
+            const float optTopV = innerTop + 305.0f, optSpacingV = 46.0f;
+            float availH = innerBot - optTopV - 40.0f;
+            int visibleCount = (int)(availH / optSpacingV); if (visibleCount < 3) visibleCount = 3;
+            int firstVis = 0, lastVis = n - 1;
+            if (n > visibleCount) {
+                firstVis = mPs3DlgSel - visibleCount / 2;
+                if (firstVis < 0) firstVis = 0;
+                if (firstVis > n - visibleCount) firstVis = n - visibleCount;
+                lastVis = firstVis + visibleCount - 1;
+            }
+            for (int i = firstVis; i <= lastVis; i++)
+                ps3DlgOption(mPs3DlgOptions[i].c_str(), XC(VW * 0.5f), Y(optTopV + (i - firstVis) * optSpacingV),
+                             i == mPs3DlgSel, false, ap, S);
+            if (firstVis > 0)    ps3DlgText("▲", XC(VW * 0.5f), Y(optTopV - 18.0f), FS(20.0f), 1.0f, 1.0f, 1.0f, 0.5f * ap, 1);
+            if (lastVis < n - 1) ps3DlgText("▼", XC(VW * 0.5f), Y(optTopV + visibleCount * optSpacingV + 6.0f), FS(20.0f), 1.0f, 1.0f, 1.0f, 0.5f * ap, 1);
+        } else if (mPs3DlgType == 2) {          // chooser_illust
+            float fs = FS(24.0f);
+            std::vector<std::string> bodyLines = wrap(mPs3DlgBody, fs);
+            float by = Y(innerTop + 115.0f);
+            for (auto& ln : bodyLines) { if (!ln.empty()) ps3DlgText(ln.c_str(), XC(VW * 0.5f), by, fs, 0.95f, 0.95f, 0.95f, ap, 1); by += DS(32.0f); }
+            float optX = XC(VW * 0.37f);
+            const float optTopV = innerTop + 220.0f, optSpacingV = 42.0f;
+            for (int i = 0; i < n; i++)
+                ps3DlgOption(mPs3DlgOptions[i].c_str(), optX, Y(optTopV + i * optSpacingV), i == mPs3DlgSel, true, ap, S);
+            float illYV = innerTop + 220.0f + (float)(n > 3 ? n : 3) * optSpacingV + 100.0f;
+            if (mPs3DlgIllust) ps3DlgIllustration(mPs3DlgIllust, XC(VW * 0.5f), Y(illYV), DS(240.0f), ap);
+            if (!mPs3DlgNotice.empty()) ps3DlgText(mPs3DlgNotice.c_str(), XC(VW * 0.5f), Y(innerBot - 22.0f), FS(22.0f), 1.0f, 1.0f, 1.0f, 0.85f * ap, 1);
+        } else if (mPs3DlgType == 3) {          // confirm
+            float fs = FS(26.0f), lh = DS(36.0f);
+            float centerYV = (innerTop + innerBot) * 0.5f;
+            if (mPs3DlgIllust) { ps3DlgIllustration(mPs3DlgIllust, XC(VW * 0.5f), Y(innerTop + 230.0f), DS(260.0f), ap); centerYV = innerTop + 460.0f; }
+            std::vector<std::string> bodyLines = wrap(mPs3DlgBody, fs);
+            float ty = Y(centerYV) - (float)((int)bodyLines.size() - 1) * lh * 0.5f - DS(50.0f);
+            for (auto& ln : bodyLines) { if (!ln.empty()) ps3DlgText(ln.c_str(), XC(VW * 0.5f), ty, fs, 0.95f, 0.95f, 0.95f, ap, 1); ty += lh; }
+            const char* labels[2] = { "Yes", "No" };
+            float bxc = XC(VW * 0.5f) - DS(110.0f);
+            float byv = ty + DS(30.0f);
+            for (int i = 0; i < 2; i++)
+                ps3DlgOption(labels[i], bxc + (float)i * DS(220.0f), byv, i == mPs3DlgSel, false, ap, S);
+        }
+
+        // ---- footer button hints ----
+        float hintY = Y(909.0f);
+        float enterCX = XC(VW * 0.401f), cancelCX = XC(VW * 0.629f);
+        if (mPs3DlgType == 0) {
+            ps3DlgHint(cancelCX, false, "OK", hintY, S, ap);
+        } else if (mPs3DlgType == 1 || mPs3DlgType == 2) {
+            if (!mPs3DlgNotice.empty() && mPs3DlgType == 2) {
+                ps3DlgHint(cancelCX, false, "Cancel", hintY, S, ap);
+            } else {
+                ps3DlgHint(enterCX, true, "Enter", hintY, S, ap);
+                ps3DlgHint(cancelCX, false, "Cancel", hintY, S, ap);
+            }
+        } else if (mPs3DlgType == 3) {
+            ps3DlgHint(enterCX, true, "Enter", hintY, S, ap);
+            ps3DlgHint(cancelCX, false, "Cancel", hintY, S, ap);
         }
     }
 }

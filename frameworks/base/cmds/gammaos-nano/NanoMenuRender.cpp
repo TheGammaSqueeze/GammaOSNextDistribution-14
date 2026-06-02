@@ -941,31 +941,39 @@ void NanoMenu::drawText(const char* str, float px, float py, float scale,
     // - Normal menu mode keeps the 4-offset outline shadow since the flat
     //   menu background benefits from an omnidirectional outline for
     //   legibility against the blue selection bar.
+    // Outline / shadow pass. mTextOutlineMode (see NanoMenu.h): 0 = default
+    // (single down-right drop in XMB mode, else 4-offset outline) at 0.8*alpha;
+    // 1 = even 4-offset outline at mTextOutlineRatio*alpha (PS3 XMB - symmetric on
+    // all four sides, subtle, brightness-scaled, all in this one draw call);
+    // 2 = none (glow/halo white copies). The whole pass is one batched glDrawArrays
+    // with the main glyphs, so the even outline costs no extra draw calls.
     int n = 0;
-    const float shadowA = a * 0.8f;
-    const bool xmbShadow = mXmbMode;
-    if (xmbShadow) {
-        // Single drop shadow (down-right) — emits nGlyphs quads, vs 4*nGlyphs
-        // in the default branch.
-        const float sdx = offX;
-        const float sdy = offY;
-        for (int i = 0; i < nGlyphs && n < TEXT_BUF_QUADS; i++, n++) {
-            const GlyphPos& gp = glyphs[i];
-            emitGlyph(n, gp.x0 + sdx, gp.y0 + sdy, gp.x1 + sdx, gp.y1 + sdy,
-                      gp.u0, gp.v0, gp.u1, gp.v1,
-                      0.0f, 0.0f, 0.0f, shadowA);
-        }
-    } else {
-        // 4-offset outline (left/right/up/down)
-        static const float dirs[4][2] = {{-1,0},{1,0},{0,-1},{0,1}};
-        for (int d = 0; d < 4; d++) {
-            float dx = dirs[d][0] * offX;
-            float dy = dirs[d][1] * offY;
+    if (mTextOutlineMode != 2) {
+        const float ratio = (mTextOutlineMode == 1) ? mTextOutlineRatio : 0.8f;
+        const float shadowA = a * ratio;
+        const bool single = mXmbMode && (mTextOutlineMode == 0);
+        if (single) {
+            // Single drop shadow (down-right) — emits nGlyphs quads.
+            const float sdx = offX;
+            const float sdy = offY;
             for (int i = 0; i < nGlyphs && n < TEXT_BUF_QUADS; i++, n++) {
                 const GlyphPos& gp = glyphs[i];
-                emitGlyph(n, gp.x0 + dx, gp.y0 + dy, gp.x1 + dx, gp.y1 + dy,
+                emitGlyph(n, gp.x0 + sdx, gp.y0 + sdy, gp.x1 + sdx, gp.y1 + sdy,
                           gp.u0, gp.v0, gp.u1, gp.v1,
                           0.0f, 0.0f, 0.0f, shadowA);
+            }
+        } else {
+            // Even 4-offset outline (left/right/up/down).
+            static const float dirs[4][2] = {{-1,0},{1,0},{0,-1},{0,1}};
+            for (int d = 0; d < 4; d++) {
+                float dx = dirs[d][0] * offX;
+                float dy = dirs[d][1] * offY;
+                for (int i = 0; i < nGlyphs && n < TEXT_BUF_QUADS; i++, n++) {
+                    const GlyphPos& gp = glyphs[i];
+                    emitGlyph(n, gp.x0 + dx, gp.y0 + dy, gp.x1 + dx, gp.y1 + dy,
+                              gp.u0, gp.v0, gp.u1, gp.v1,
+                              0.0f, 0.0f, 0.0f, shadowA);
+                }
             }
         }
     }
