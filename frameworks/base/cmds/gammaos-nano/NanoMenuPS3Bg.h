@@ -84,6 +84,14 @@ void setDayNightBlend(float b);
 // the particles; false hides them (Theme Settings -> Background -> Classic).
 void setParticlesEnabled(bool enabled);
 
+// Luminance of the current background base colour (0 dark .. ~1.2 light). Used
+// by the menu to scale the text stroke shadow with the wallpaper brightness.
+float backgroundLuma();
+
+// True while a Colour / Day-Night cross-fade is still settling. The menu samples
+// the frosted backdrop at 60Hz during a live theme preview (vs 15Hz settled).
+bool themeFading();
+
 } // namespace ps3bg
 } // namespace android
 

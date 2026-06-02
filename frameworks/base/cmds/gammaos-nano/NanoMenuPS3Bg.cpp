@@ -98,6 +98,7 @@ static float sThemeStrTgt = 0.0f, sThemeStrCur = 0.0f;                 // manual
 static float sDayNightTgt = -1.0f;   // <0 = auto (follow the clock); 0..1 = forced
 static float sDayNightCur = 0.0f;    // animated effective blend used downstream
 static bool  sThemeFadeInit = false; // first frame snaps (no fade-from-zero)
+static bool  sThemeFadingNow = false; // a colour/day-night cross-fade is in flight
 // Background == Classic removes the glitter particle field (Theme Settings).
 static bool  sParticlesEnabled = true;
 static void rgbToHsv(const float* c, float* h, float* s, float* v) {
@@ -179,6 +180,10 @@ static float  sGradBlendQ = -1.0f;
 // every frame while a colour/day-night fade is in flight, then goes static).
 static float  sGradLastStr = -1.0f;
 static float  sGradLastR = -1.0f, sGradLastG = -1.0f, sGradLastB = -1.0f;
+// Luminance of the current background base colour (0 dark .. ~1.2 light). The
+// menu uses it to scale the text drop shadow: minimal on a dark wallpaper,
+// pronounced on a light one. Updated on each gradient recache.
+static float  sBgLumaEst = 0.5f;
 
 // quad VBO (fullscreen, pos.xy + uv)
 static GLuint sQuadVBO = 0;
@@ -647,6 +652,8 @@ void setThemeColor(float r, float g, float b) {
 void clearThemeColor() { sThemeStrTgt = 0.0f; }
 void setDayNightBlend(float b) { sDayNightTgt = b; }
 void setParticlesEnabled(bool e) { sParticlesEnabled = e; }
+float backgroundLuma() { return sBgLumaEst; }
+bool themeFading() { return sThemeFadingNow; }
 
 void invalidateGradient() { sGradDirty = true; }
 
@@ -679,6 +686,12 @@ static void renderGradientCache(int fw, int fh, int month, float nightDayBlend) 
     float mb[3], mbb[3];
     monthBaseColor(month, nightDayBlend, mb);
     monthBaseColorBot(month, nightDayBlend, mbb);
+    // Background brightness for the menu's dynamic drop shadow. Weight the bottom
+    // (full-colour) anchor more than the dark-ramped top, since the menu text
+    // sits over the mid-lower band.
+    sBgLumaEst = 0.299f * (mb[0]*0.35f + mbb[0]*0.65f)
+               + 0.587f * (mb[1]*0.35f + mbb[1]*0.65f)
+               + 0.114f * (mb[2]*0.35f + mbb[2]*0.65f);
     glBindFramebuffer(GL_FRAMEBUFFER, sGradFbo);
     glViewport(0, 0, fw, fh);
     glDisable(GL_BLEND);
@@ -773,6 +786,15 @@ void render(int panelW, int panelH, float dt, const float rotMat2[4], bool /*rot
             sThemeStrCur += (sThemeStrTgt - sThemeStrCur) * k;
             sDayNightCur += (blendTarget  - sDayNightCur) * k;
         }
+        // True while a colour / strength / day-night cross-fade is still settling,
+        // so the menu can sample the frosted backdrop at 60Hz during a live
+        // theme preview (smooth) and drop back to 15Hz once settled.
+        sThemeFadingNow =
+              fabsf(sThemeStrCur - sThemeStrTgt) > 1.5e-3f
+           || fabsf(sThemeCurR   - sThemeTgtR)   > 2.0e-3f
+           || fabsf(sThemeCurG   - sThemeTgtG)   > 2.0e-3f
+           || fabsf(sThemeCurB   - sThemeTgtB)   > 2.0e-3f
+           || fabsf(sDayNightCur - blendTarget)  > 2.0e-3f;
     }
     float nightDayBlend = sDayNightCur;
 

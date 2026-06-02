@@ -414,10 +414,11 @@ bool NanoMenu::captureGlassFromWave() {
     int fw = (int)(ps3::gFrameW + 0.5f);
     int fh = (int)(ps3::gFrameH + 0.5f);
     if (fw < 8 || fh < 8) return false;
-    // Half-strength blur (2 downsample levels -> ~1/4 res, 1 Gaussian iteration)
-    // instead of the full 3/2 chain: visibly lighter frost AND fewer FBO passes
-    // (each pass forces a tile flush on this GPU), to keep submenus near 60fps.
-    blurGlassChain(wt, fw, fh, 2, 1);
+    // 2 downsample levels (~1/4 res) box pyramid + NO Gaussian. A bit more frost
+    // than 1/2-res but a SMALLER blur source, so the per-frame tent upsample is
+    // cheaper (fewer texture-cache misses) and there is no Gaussian pass: more
+    // blur AND faster, which is the perf-positive direction.
+    blurGlassChain(wt, fw, fh, 2, 0);
     return true;
 }
 
@@ -513,7 +514,10 @@ void NanoMenu::blurGlassChain(GLuint srcTexIn, int srcWIn, int srcHIn,
     // >=2 size check prevents 1/srcH div issues / degenerate 1px gauss textures
     // on odd captures (falls back cleanly to the box-pyramid result). Both
     // ping-pong buffers are allocated up front so the loop just swaps targets.
-    bool gaussOk = (mGlassGaussProgram != 0 && pyramidOk && srcW >= 2 && srcH >= 2);
+    // gaussIters == 0 skips the Gaussian entirely: mGlassBlurTex keeps the box
+    // downsample-pyramid result (cheaper, lighter frost). The downsample loop
+    // already left mGlassBlurTex pointing at the last (smallest) level.
+    bool gaussOk = (gaussIters > 0 && mGlassGaussProgram != 0 && pyramidOk && srcW >= 2 && srcH >= 2);
     if (gaussOk)
         gaussOk = ensureFbo(&mGlassGaussTex[0], &mGlassGaussFbo[0],
                             &mGlassGaussW[0], &mGlassGaussH[0], srcW, srcH);
@@ -613,6 +617,10 @@ void NanoMenu::drawFrostedGlass(float x, float y, float w, float h, float radius
     glUniform2f(mGlassLocTexel, texelX, texelY);
     glUniform4f(mGlassLocTint, tr, tg, tb, tintA);
     glUniform1f(mGlassLocAlpha, fade);
+    // waveSpace blur samples the LINEAR scene (ps3bg::workTex); tonemap it to
+    // display space so the frosted backdrop matches the on-screen background.
+    // 1.6846 = uExposure(1.05)/uWhiteLevel(0.899181) * LOG2E(1.442695).
+    if (mGlassLocTonemap >= 0) glUniform1f(mGlassLocTonemap, waveSpace ? 1.6846f : 0.0f);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, (mGlassBlurTex != 0) ? mGlassBlurTex : mGlassTex);
     glUniform1i(mGlassLocTexture, 0);

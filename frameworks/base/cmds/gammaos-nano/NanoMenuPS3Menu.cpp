@@ -52,14 +52,37 @@
 
 namespace android {
 
-// Drop-shadow offset: the shadow must fall toward the VISUAL bottom of the text.
-// Verified on device by zoomed capture: an offset of -s puts the shadow clearly
-// ABOVE the glyphs, +s puts it BELOW. So device +y maps straight to visual-down
-// here (the panel rotation does not invert the menu text), and visual-down =
-// out[1] = +s. The magnitude (devS at the call sites) sets how far it drops.
+// Clock drop-shadow offset: a single device-y offset. The caller passes a signed
+// magnitude (devS(..) * mPs3ShadowDir) where mPs3ShadowDir is the device-y sign of
+// panel-down derived from the orientation (sDrmRotMat), so the shadow always falls
+// toward the VISUAL bottom of the clock on any panel. out[1] = the signed offset.
 static inline void ps3ShadowOffset(float s, int /*w*/, int /*h*/, float out[2]) {
     out[0] = 0.0f;
     out[1] = s;
+}
+
+// Dark stroke (outline) behind text: a panel-left/right pair plus one panel-DOWN
+// copy. The offsets are the orientation-derived panel-space unit vectors (see the
+// setup of mPs3Stroke* in render()), so the outline reads identically on any panel
+// rotation - never as an upward shadow. Skipped when alpha is tiny, so dark
+// wallpapers (low mPs3ShadowAlpha) pay nothing; light ones get the readable edge.
+void NanoMenu::drawTextStroke(const char* s, float x, float y, float scale, float a) {
+    if (a <= 0.004f || !s || !*s) return;
+    float r = ps3::devS(2.4f);
+    float hx = r * mPs3StrokeRightX, hy = r * mPs3StrokeRightY;   // panel-horizontal
+    float dx = r * mPs3StrokeDownX,  dy = r * mPs3StrokeDownY;    // panel-down
+    drawText(s, x - hx, y - hy, scale, 0.0f, 0.0f, 0.0f, a);
+    drawText(s, x + hx, y + hy, scale, 0.0f, 0.0f, 0.0f, a);
+    drawText(s, x + dx, y + dy, scale, 0.0f, 0.0f, 0.0f, a);
+}
+void NanoMenu::drawIconStroke(unsigned int tex, float x, float y, float w, float h, float a) {
+    if (a <= 0.004f || tex == 0) return;
+    float r = ps3::devS(2.4f);
+    float hx = r * mPs3StrokeRightX, hy = r * mPs3StrokeRightY;   // panel-horizontal
+    float dx = r * mPs3StrokeDownX,  dy = r * mPs3StrokeDownY;    // panel-down
+    drawIconTex(tex, x - hx, y - hy, w, h, 0.0f, 0.0f, 0.0f, a);
+    drawIconTex(tex, x + hx, y + hy, w, h, 0.0f, 0.0f, 0.0f, a);
+    drawIconTex(tex, x + dx, y + dy, w, h, 0.0f, 0.0f, 0.0f, a);
 }
 
 // ---------------------------------------------------------------------------
@@ -496,9 +519,31 @@ void NanoMenu::renderPs3Xmb() {
     { ps3::LayoutParams lp; lp.panelW = mWidth; lp.panelH = mHeight; lp.uiScale = mPs3UiScale;
       ps3::layoutCompute(lp); }
 
-    // Panel-down drop-shadow offset for the menu icons + text (rotation-aware, so
-    // the 180-degree Brick panel does not flip it). Web: icon shadow offsetY ~1-2.
-    float so[2]; ps3ShadowOffset(ps3::devS(4.5f), mWidth, mHeight, so);   // stronger panel-down drop shadow (light-bg readability)
+    // Dynamic text STROKE: alpha scales with wallpaper brightness so the outline
+    // is minimal on a dark wallpaper (the bright text already reads) and stronger
+    // on a light one (needs the contrast). The stroke offset directions come from
+    // the panel orientation (below), so it never reads as an upward shadow.
+    {
+        float bgL = ps3bg::backgroundLuma();
+        float ss = (bgL - 0.32f) / (0.85f - 0.32f);
+        mPs3ShadowStrength = ss < 0.0f ? 0.0f : (ss > 1.0f ? 1.0f : ss);
+    }
+    mPs3ShadowAlpha = 0.12f + 0.62f * mPs3ShadowStrength;   // 0.12 dark .. 0.74 light
+    // Which device direction is visually DOWN/RIGHT on the panel is fully decided
+    // by the orientation, so derive the stroke offsets from sDrmRotMat (set from
+    // ro.surface_flinger.primary_display_orientation, then the DRM-PRIME Y-flip).
+    // The final matrix is an involution for every rotation, so the device-pixel
+    // offset that lands panel-DOWN is (m2, -m3) and panel-RIGHT is (m0, -m1).
+    // (180 panel -> down = (0,-1) = device -y, matching the on-device ground truth.)
+    {
+        mPs3StrokeDownX  =  sDrmRotMat[2];
+        mPs3StrokeDownY  = -sDrmRotMat[3];
+        mPs3StrokeRightX =  sDrmRotMat[0];
+        mPs3StrokeRightY = -sDrmRotMat[1];
+        // Clock drop shadow keeps its single device-y offset; its sign is the
+        // device-y component of panel-down (-1 on the 180 panel, unchanged).
+        mPs3ShadowDir = (mPs3StrokeDownY >= 0.0f) ? 1.0f : -1.0f;
+    }
 
     float dt = mFrameDt; if (dt < 0.0f) dt = 0.0f; if (dt > 0.1f) dt = 0.1f;
 
@@ -558,11 +603,16 @@ void NanoMenu::renderPs3Xmb() {
         // and fits the 60fps budget; between samples the cached blur is reused
         // and drawn every frame. The blur is in LOGICAL orientation, so draw it
         // waveSpace=true. tintA MUST be > 0 or the panel composites to nothing.
-        bool due = !mPs3GlassValid || (mEffectTime - mPs3GlassBlurT) >= 0.0667f;   // ~15Hz backdrop sample
+        // 60Hz during a live theme preview (chooser open or cross-fade settling)
+        // so the colour change tracks smoothly; ~15Hz otherwise.
+        float blurCad = (ps3bg::themeFading() || mPs3DlgActive) ? 0.0f : 0.0667f;
+        bool due = !mPs3GlassValid || (mEffectTime - mPs3GlassBlurT) >= blurCad;
         if (due && captureGlassFromWave()) { mPs3GlassValid = true; mPs3GlassBlurT = mEffectTime; }
         if (mPs3GlassValid)
+            // Neutral tint (1,1,1): pure blur, NO darkening or hue/shade change -
+            // the backdrop is the blurred wave at its own brightness.
             drawFrostedGlass(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f,
-                             0.62f, 0.62f, 0.70f, 1.0f, subT, /*waveSpace=*/true);
+                             1.0f, 1.0f, 1.0f, 1.0f, subT, /*waveSpace=*/true);
     } else {
         mPs3GlassValid = false;
     }
@@ -603,7 +653,7 @@ void NanoMenu::renderPs3Xmb() {
         float ix = ps3::devX(ps3::XCL(x, sz * 0.5f)), iy = ps3::devY(y - sz * 0.5f) + catRise;
         // Category icon drop shadow (panel-down), then the glass/flat icon.
         if (mPs3Cats[i].iconTex)
-            drawIconTex(mPs3Cats[i].iconTex, ix + so[0], iy + so[1], dsz, dsz, 0.0f, 0.0f, 0.0f, 0.42f * alpha);
+            drawIconStroke(mPs3Cats[i].iconTex, ix, iy, dsz, dsz, mPs3ShadowAlpha * 0.7f * alpha);
         if (mIconGlassReady && mPs3Cats[i].nmapTex && ps3bg::workTex())
             drawGlassIcon(mPs3Cats[i].nmapTex, ix, iy, dsz, dsz, 1.0f, 1.0f, 1.0f, alpha);
         else
@@ -615,7 +665,7 @@ void NanoMenu::renderPs3Xmb() {
             float lw = measureText(nm, ls);
             float lx = ps3::devX(ps3::XCP(x)) - lw * 0.5f;
             float ly = ps3::baselineToTopY(ps3::devY(ps3::CAT_LABEL_Y), ls);
-            drawText(nm, lx + so[0], ly + so[1], ls, 0.0f, 0.0f, 0.0f, 0.78f * la);   // shadow
+            drawTextStroke(nm, lx, ly, ls, mPs3ShadowAlpha * la);   // stroke
             drawText(nm, lx, ly, ls, 0.88f, 0.82f, 0.92f, la);
         }
     }
@@ -664,7 +714,7 @@ void NanoMenu::renderPs3Xmb() {
         float y0 = labelBaselineYDev + ps3::devS(ps3::ITEM_DESC_OFFSET);
         for (int li = 0; li < nLines; li++) {
             float ly = ps3::baselineToTopY(y0 + (float)li * lineH, ds);
-            drawText(lines[li].c_str(), txDev + so[0], ly + so[1], ds, 0.0f, 0.0f, 0.0f, 0.7f * alpha);
+            drawTextStroke(lines[li].c_str(), txDev, ly, ds, mPs3ShadowAlpha * alpha);
             drawText(lines[li].c_str(), txDev, ly, ds, 0.78f, 0.78f, 0.82f, alpha);
         }
     };
@@ -691,7 +741,7 @@ void NanoMenu::renderPs3Xmb() {
             // Icon drop shadow (panel-down): a dark silhouette offset behind the
             // icon so it reads over the bright wave (web icon shadow offsetY 1).
             if (it.iconTex)
-                drawIconTex(it.iconTex, ix + so[0], iy + so[1], dsz, dsz, 0.0f, 0.0f, 0.0f, 0.42f * alpha);
+                drawIconStroke(it.iconTex, ix, iy, dsz, dsz, mPs3ShadowAlpha * 0.7f * alpha);
             if (mIconGlassReady && it.nmapTex && ps3bg::workTex())
                 drawGlassIcon(it.nmapTex, ix, iy, dsz, dsz, it.iconR, it.iconG, it.iconB, alpha);
             else if (it.iconTex)
@@ -748,7 +798,7 @@ void NanoMenu::renderPs3Xmb() {
                 scissorOn = true;
             }
             // Text drop shadow (panel-down) under every label for legibility.
-            drawText(L, lx + so[0], ty + so[1], ts, 0.0f, 0.0f, 0.0f, 0.78f * alpha);
+            drawTextStroke(L, lx, ty, ts, mPs3ShadowAlpha * alpha);
             if (isActive) {
                 float phase = fmodf(mEffectTime, ps3::PULSE_PERIOD_MS / 1000.0f) / (ps3::PULSE_PERIOD_MS / 1000.0f);
                 float s = 0.5f * (1.0f - cosf(phase * 2.0f * (float)M_PI));
@@ -771,7 +821,7 @@ void NanoMenu::renderPs3Xmb() {
                 drawDesc(it.desc, tx, ps3::devY(y), descA);
             }
             if (hasVal) {
-                drawText(itVal.c_str(), vx + so[0], ty + so[1], vs, 0.0f, 0.0f, 0.0f, 0.7f * alpha);
+                drawTextStroke(itVal.c_str(), vx, ty, vs, mPs3ShadowAlpha * alpha);
                 drawText(itVal.c_str(), vx, ty, vs, 0.7f, 0.7f, 0.75f, alpha * 0.85f);
             }
         }
@@ -809,11 +859,15 @@ void NanoMenu::renderPs3Xmb() {
             float ix = ps3::devX(ps3::XCL(cx, psz * 0.5f));
             float iy = ps3::devY(y - psz * 0.5f);
             if (it.iconTex)
-                drawIconTex(it.iconTex, ix + so[0], iy + so[1], dsz, dsz, 0.0f, 0.0f, 0.0f, 0.42f * a);
-            // Glass (live wave refraction) only for the selected breadcrumb cube;
-            // the faded sibling column uses the cheap flat icon (the per-icon
-            // glass shader is costly and invisible on dim, small siblings).
-            if (sel && mIconGlassReady && it.nmapTex && ps3bg::workTex())
+                drawIconStroke(it.iconTex, ix, iy, dsz, dsz, mPs3ShadowAlpha * 0.7f * a);
+            // Glass (live wave refraction) for the PROMINENT breadcrumb cubes only
+            // - the selected parent plus the near, still-legible siblings - so the
+            // RetroArch / console icons stay embossed and bevelled in submenus
+            // (consistent with the top level). The far, deeply-faded siblings fall
+            // back to the cheap flat icon: at a <= 0.35 the glass vs flat difference
+            // is imperceptible, and this keeps the per-frame live-wave glass-icon
+            // count in submenus near the top-level count (no FPS regression).
+            if (mIconGlassReady && it.nmapTex && ps3bg::workTex() && (sel || a > 0.35f))
                 drawGlassIcon(it.nmapTex, ix, iy, dsz, dsz, it.iconR, it.iconG, it.iconB, a);
             else if (it.iconTex)
                 drawIconTex(it.iconTex, ix, iy, dsz, dsz, it.iconR, it.iconG, it.iconB, a);
@@ -823,7 +877,7 @@ void NanoMenu::renderPs3Xmb() {
                 float tx = ps3::devX(ps3::XCP(ps3::ITEM_TEXT_X + (cx - srcX)));
                 float ty = ps3::baselineToTopY(ps3::devY(y), ts);
                 const char* L = it.label.c_str();
-                drawText(L, tx + so[0], ty + so[1], ts, 0.0f, 0.0f, 0.0f, 0.78f * textA);
+                drawTextStroke(L, tx, ty, ts, mPs3ShadowAlpha * textA);
                 float c = sel ? 1.0f : 0.92f;
                 drawText(L, tx, ty, ts, c, c, c, textA);
             }
@@ -918,7 +972,7 @@ void NanoMenu::drawPs3Clock(float fadeMul) {
     float dyB = cy(ps3::CLOCK_FRAME_Y + ps3::CLOCK_FRAME_H);
     float fr  = ps3::devS(ps3::CLOCK_FRAME_CORNER);
     float lw  = fmaxf(1.0f, ps3::devS(1.0f));
-    float so[2]; ps3ShadowOffset(ps3::devS(3.0f), mWidth, mHeight, so);   // panel-down drop shadow (stronger)
+    float so[2]; ps3ShadowOffset(ps3::devS(3.0f) * mPs3ShadowDir, mWidth, mHeight, so);   // panel-down drop shadow (dir from orientation)
 
     // filled dim panel (open-right, rounded left corners)
     auto fillURect = [&](float x0, float y0, float x1, float y1, float rad, float r, float g, float b, float a) {
@@ -1273,10 +1327,11 @@ void NanoMenu::renderPs3Dialog() {
     if (mPs3DlgKind != 1) {
         // ~30Hz live wave/gradient backdrop (workTex, no FB capture) so the
         // dialog open animation stays smooth at 60fps. waveSpace = logical blur.
-        bool due = !mPs3DlgBlurValid || (mEffectTime - mPs3DlgBlurT) >= 0.0667f;   // ~15Hz backdrop sample
+        float blurCad = (ps3bg::themeFading() || mPs3DlgActive) ? 0.0f : 0.0667f;   // 60Hz during live preview
+        bool due = !mPs3DlgBlurValid || (mEffectTime - mPs3DlgBlurT) >= blurCad;
         if (due && captureGlassFromWave()) { mPs3DlgBlurValid = true; mPs3DlgBlurT = mEffectTime; }
         if (mPs3DlgBlurValid)
-            drawFrostedGlass(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f, 0.40f, 0.40f, 0.48f, 1.0f, ap, /*waveSpace=*/true);
+            drawFrostedGlass(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, ap, /*waveSpace=*/true);  // pure blur, no darkening
     }
 
     float ss = ps3::devS(1.5f);

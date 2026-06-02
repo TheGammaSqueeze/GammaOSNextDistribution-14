@@ -435,24 +435,33 @@ const char GLASS_FRAGMENT_SHADER[] = R"(
     uniform vec2 uTexel;   // blur step (texcoords)
     uniform vec4 uTint;    // rgb = darken multiply, a = panel opacity
     uniform float uAlpha;  // fade in/out
+    uniform float uTonemap; // >0: exp2 tonemap the source (linear scene) to display space
     void main() {
-        vec2 d = abs(vLocal) - (uHalf - vec2(uRadius));
-        float dist = length(max(d, 0.0)) + min(max(d.x, d.y), 0.0) - uRadius;
-        float ra = clamp(0.5 - dist, 0.0, 1.0);
-        if (ra <= 0.0) discard;
-        // 8-tap Kawase tent upsample of the pre-blurred low-res texture. uTexel
-        // is one halfpixel*spread in that texture's texcoords; corner taps are
-        // weighted x2 so the kernel is a smooth tent, not a flat box.
+        // Rounded-rect SDF only when actually rounded; the full-screen submenu /
+        // dialog backdrop passes radius 0, so skip the length()/SDF math there.
+        // No discard: ra is folded into the output alpha (ra=0 -> transparent),
+        // so the tile GPU keeps hidden-surface removal / early-Z for the pass.
+        float ra = 1.0;
+        if (uRadius > 0.0) {
+            vec2 d = abs(vLocal) - (uHalf - vec2(uRadius));
+            float dist = length(max(d, 0.0)) + min(max(d.x, d.y), 0.0) - uRadius;
+            ra = clamp(0.5 - dist, 0.0, 1.0);
+        }
+        // 4-tap bilinear box upsample of the pre-blurred low-res source. The
+        // source is already heavily band-limited (box downsample), so 4 corner
+        // taps match the old 8-tap tent at half the texture fetches - the main
+        // per-frame full-screen cost of the frosted backdrop.
         vec2 o = uTexel;
-        vec3 c  = texture2D(uTex, vTex + vec2(-o.x * 2.0, 0.0)).rgb;
-        c += texture2D(uTex, vTex + vec2(-o.x,  o.y)).rgb * 2.0;
-        c += texture2D(uTex, vTex + vec2( 0.0,  o.y * 2.0)).rgb;
-        c += texture2D(uTex, vTex + vec2( o.x,  o.y)).rgb * 2.0;
-        c += texture2D(uTex, vTex + vec2( o.x * 2.0, 0.0)).rgb;
-        c += texture2D(uTex, vTex + vec2( o.x, -o.y)).rgb * 2.0;
-        c += texture2D(uTex, vTex + vec2( 0.0, -o.y * 2.0)).rgb;
-        c += texture2D(uTex, vTex + vec2(-o.x, -o.y)).rgb * 2.0;
-        c /= 12.0;
+        vec3 c  = texture2D(uTex, vTex + vec2(-o.x,  o.y)).rgb;
+        c += texture2D(uTex, vTex + vec2( o.x,  o.y)).rgb;
+        c += texture2D(uTex, vTex + vec2( o.x, -o.y)).rgb;
+        c += texture2D(uTex, vTex + vec2(-o.x, -o.y)).rgb;
+        c *= 0.25;
+        // The wave blur samples ps3bg::workTex, which is the scene in LINEAR
+        // (pre-tonemap) space. Apply the same exp2 tonemap the composite uses so
+        // the blurred backdrop matches the displayed background (no brighter /
+        // more-saturated shift). uTonemap = exposure/white * LOG2E (~1.6846).
+        if (uTonemap > 0.0) c = vec3(1.0) - exp2(-c * uTonemap);
         c *= uTint.rgb;
         gl_FragColor = vec4(c, uTint.a * uAlpha * ra);
     }
@@ -571,6 +580,7 @@ void NanoMenu::initShaders() {
         mGlassLocTexel      = glGetUniformLocation(mGlassProgram, "uTexel");
         mGlassLocTint       = glGetUniformLocation(mGlassProgram, "uTint");
         mGlassLocAlpha      = glGetUniformLocation(mGlassProgram, "uAlpha");
+        mGlassLocTonemap    = glGetUniformLocation(mGlassProgram, "uTonemap");
         glDeleteShader(vs); glDeleteShader(fs);
         glGenTextures(1, &mGlassTex);
         glBindTexture(GL_TEXTURE_2D, mGlassTex);

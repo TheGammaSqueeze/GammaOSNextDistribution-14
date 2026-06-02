@@ -725,6 +725,21 @@ private:
     int    mPs3BgIdx = 0;
     int    mPs3FontIdx = 0;
     int    mPs3DayNightIdx = 0;
+    // Dynamic text drop shadow, scaled by the wallpaper brightness each frame:
+    // strength 0 (dark wallpaper, minimal shadow) .. 1 (light wallpaper, strong).
+    float  mPs3ShadowStrength = 0.5f;
+    float  mPs3ShadowAlpha = 0.4f;
+    // Stroke/shadow offset directions, in device-pixel space, derived each frame
+    // from the panel orientation (sDrmRotMat, which encodes
+    // ro.surface_flinger.primary_display_orientation + the DRM-PRIME Y-flip). The
+    // matrix is an involution for every supported rotation, so the device offset
+    // that renders as panel-visual-DOWN is (sDrmRotMat[2], -sDrmRotMat[3]) and
+    // panel-visual-RIGHT is (sDrmRotMat[0], -sDrmRotMat[1]). No tunable prop.
+    float  mPs3ShadowDir = -1.0f;     // device-y sign for panel-down (clock shadow)
+    float  mPs3StrokeDownX = 0.0f;    // panel-down  unit vector, device-pixel space
+    float  mPs3StrokeDownY = -1.0f;
+    float  mPs3StrokeRightX = 1.0f;   // panel-right unit vector, device-pixel space
+    float  mPs3StrokeRightY = 0.0f;
     void   openPs3Dialog(const Ps3Item& it);
     void   closePs3Dialog(bool apply);
     void   renderPs3Dialog();
@@ -732,6 +747,12 @@ private:
     void   applyThemeSetting(int themeKey, int sel);     // persist + apply
     void   loadPs3ThemeSettings();
     std::string resolvePs3ItemValue(const Ps3Item& it);  // live theme value for a row, else it.value
+    // Dark STROKE behind text/icons instead of a single drop shadow: a left/right
+    // pair plus one panel-DOWN copy, all in panel space (offsets rotated through
+    // the orientation), so it reads the same on any panel rotation and is subtle.
+    // Early-returns when a is tiny, so dark wallpapers (low mPs3ShadowAlpha) skip it.
+    void   drawTextStroke(const char* s, float x, float y, float scale, float a);
+    void   drawIconStroke(unsigned int tex, float x, float y, float w, float h, float a);
     void  ps3BootReset(bool freshSetup);
     bool  ps3BootActive() const { return mPs3BootActive; }
     void  ps3BootSkip();
@@ -948,6 +969,7 @@ private:
     GLint  mGlassLocTexel;
     GLint  mGlassLocTint;
     GLint  mGlassLocAlpha;
+    GLint  mGlassLocTonemap;
     GLuint mGlassTex;
     int    mGlassTexW, mGlassTexH;
     // Dual-Kawase downsample blur for the frosted panel: render the full-res
