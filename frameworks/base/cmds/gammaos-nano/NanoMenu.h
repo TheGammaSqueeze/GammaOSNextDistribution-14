@@ -292,6 +292,7 @@ private:
     void connectToSavedWifi(int savedNetId);
     void addAndConnectWifi(const std::string& ssid, int security,
                            const std::string& password);
+    void connectWithWizardSettings();   // applies the wizard's static IP/DNS/MTU/proxy
     void forgetWifiNetwork(int savedNetId);
     void toggleWifiRadio(bool on);
     // Network Settings dialogs backed by the live system state:

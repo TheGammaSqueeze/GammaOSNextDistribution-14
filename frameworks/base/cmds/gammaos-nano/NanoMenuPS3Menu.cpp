@@ -2123,8 +2123,15 @@ void NanoMenu::wizEnter(int id, int dir) {
     // Side effects on entering certain screens.
     if (id == WS_SCANNING) startWifiScanAsync();               // real scan
     if (id == WS_SAVE) {                                       // real connect (Wi-Fi only)
-        if (mPs3WizConn == "Wireless" && !mPs3WizSsid.empty())
-            addAndConnectWifi(mPs3WizSsid, mPs3WizSecTok, mPs3WizKey);
+        if (mPs3WizConn == "Wireless" && !mPs3WizSsid.empty()) {
+            // Apply the advanced settings (static IP/DNS/MTU/proxy) via the
+            // gammaos-net WifiManager helper when the user chose any manual
+            // option; otherwise the quick cmd-wifi association (DHCP) is enough.
+            bool custom = (mPs3WizIpMode == "Manual") || (mPs3WizDnsMode == "Manual")
+                       || (mPs3WizMtuMode == "Manual") || (mPs3WizProxyMode == "Use");
+            if (custom) connectWithWizardSettings();
+            else addAndConnectWifi(mPs3WizSsid, mPs3WizSecTok, mPs3WizKey);
+        }
     }
     if (id == WS_TEST_RUN) startNetTest();                     // real connectivity test
     if (d.kind == WK_TEXT) wizOpenTextField(d.field);          // pop the OSK

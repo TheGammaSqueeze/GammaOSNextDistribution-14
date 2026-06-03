@@ -662,6 +662,51 @@ void NanoMenu::addAndConnectWifi(const std::string& ssid, int security,
     }).detach();
 }
 
+// Build a `gammaos-net wifi configure` command from the wizard's collected
+// advanced settings and run it. gammaos-net (system-signed) applies a static
+// WifiManager IpConfiguration (IP/gateway/DNS), an HTTP ProxyInfo and the MTU -
+// the things `cmd wifi connect-network` cannot express. Used by the Internet
+// Connection wizard's Save step when the user chose any manual setting.
+void NanoMenu::connectWithWizardSettings() {
+    const char* secTok = "open";
+    switch (mPs3WizSecTok) {
+        case 1: secTok = "wep";  break;
+        case 2: secTok = "wpa2"; break;
+        case 3: secTok = "wpa3"; break;
+        case 4: secTok = "owe";  break;
+        default: secTok = "open"; break;
+    }
+    std::string cmd = "gammaos-net wifi configure "
+                    + shellQuote(mPs3WizSsid) + " " + secTok;
+    if (mPs3WizSecTok != 0 && mPs3WizSecTok != 4)
+        cmd += " " + shellQuote(mPs3WizKey);
+    if (mPs3WizIpMode == "Manual") {
+        cmd += " --ip " + shellQuote(mPs3WizIpAddr);
+        if (!mPs3WizSubnet.empty()) cmd += " --subnet " + shellQuote(mPs3WizSubnet);
+        if (!mPs3WizRouter.empty()) cmd += " --gw " + shellQuote(mPs3WizRouter);
+        if (!mPs3WizPdns.empty()) cmd += " --dns1 " + shellQuote(mPs3WizPdns);
+        if (!mPs3WizSdns.empty()) cmd += " --dns2 " + shellQuote(mPs3WizSdns);
+    } else if (mPs3WizDnsMode == "Manual" && !mPs3WizPdns.empty()) {
+        cmd += " --dns1 " + shellQuote(mPs3WizPdns);
+        if (!mPs3WizSdns.empty()) cmd += " --dns2 " + shellQuote(mPs3WizSdns);
+        cmd += " --dns-only 1";   // DHCP address, manual DNS (re-pinned from lease)
+    }
+    if (mPs3WizProxyMode == "Use" && !mPs3WizProxyAddr.empty()) {
+        cmd += " --proxy-host " + shellQuote(mPs3WizProxyAddr);
+        if (!mPs3WizProxyPort.empty()) cmd += " --proxy-port " + shellQuote(mPs3WizProxyPort);
+    }
+    if (mPs3WizMtuMode == "Manual" && !mPs3WizMtu.empty())
+        cmd += " --mtu " + shellQuote(mPs3WizMtu);
+    mWifiStatusMsg = "Applying settings...";
+    mWifiStatusMsgUntilMs = std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::steady_clock::now().time_since_epoch()).count() + 20000;
+    mDisplayDirty = true;
+    std::thread([this, cmd]() {
+        (void)runCmd(cmd);
+        startWifiScanAsync();
+    }).detach();
+}
+
 void NanoMenu::forgetWifiNetwork(int savedNetId) {
     char cmd[128];
     snprintf(cmd, sizeof(cmd),
