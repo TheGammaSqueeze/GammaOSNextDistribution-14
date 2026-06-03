@@ -340,8 +340,11 @@ void NanoMenu::updateSetupTransition() {
 
         // Trigger step-specific actions
         if (mSetupStep == SETUP_WIFI) {
-            openWifiScreen();
-            mMenuState = MENU_WIFI;
+            // The network step runs the full PS3 Internet Connection wizard (1:1
+            // with the XMB one). Keep MENU_SETUP_WIZARD so the setup input
+            // intercept stays active and routes to the wiz* handlers.
+            mMenuState = MENU_SETUP_WIZARD;
+            startNetWizard();
         } else if (mSetupStep == SETUP_BLUETOOTH) {
             openBtScreen();
             mMenuState = MENU_BT;
@@ -567,6 +570,21 @@ void NanoMenu::renderSetupProgressDots() {
 
 void NanoMenu::renderSetupWizard() {
     updateSetupTransition();
+
+    // The Wi-Fi step IS the full PS3 Internet Connection wizard. It renders its
+    // own fullscreen chrome (blurred wave + dim + header/footer), so dispatch it
+    // here and skip the setup chrome. When it closes, advance to the next step
+    // (completed/forward) or step back (cancelled out of the intro).
+    if (mSetupStep == SETUP_WIFI) {
+        if (mPs3WizActive) {
+            mSetupNetWizSeen = true;
+            renderNetWizard();          // OSK (password fields) is drawn by the caller
+            return;
+        } else if (mSetupNetWizSeen) {
+            mSetupNetWizSeen = false;
+            if (mPs3WizExit >= 0) advanceSetupStep(); else goBackSetupStep();
+        }
+    }
 
     // Fade-in when not transitioning (lerp alpha toward 1.0)
     if (!mSetupTransitioning && mSetupTransitionAlpha < 1.0f) {

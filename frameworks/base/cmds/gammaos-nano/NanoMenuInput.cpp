@@ -458,7 +458,7 @@ void NanoMenu::handleSelect() {
 void NanoMenu::handleUp() {
     // GammaOS Nano: navigating cancels any queued launch.
     cancelPendingLaunch();
-    if (mSetupWizardActive && mMenuState == MENU_SETUP_WIZARD) {
+    if (mSetupWizardActive && mMenuState == MENU_SETUP_WIZARD && !mPs3WizActive) {
         handleSetupUp(); return;
     }
     if (mOskActive) {
@@ -510,7 +510,7 @@ void NanoMenu::handleUp() {
 void NanoMenu::handleDown() {
     // GammaOS Nano: navigating cancels any queued launch.
     cancelPendingLaunch();
-    if (mSetupWizardActive && mMenuState == MENU_SETUP_WIZARD) {
+    if (mSetupWizardActive && mMenuState == MENU_SETUP_WIZARD && !mPs3WizActive) {
         handleSetupDown(); return;
     }
     if (mOskActive) {
@@ -687,6 +687,12 @@ void NanoMenu::pollInput() {
             else if (!strcmp(navbuf, "down"))  handleDown();
             else if (!strcmp(navbuf, "enter")) handleSelect();
             else if (!strcmp(navbuf, "back"))  handleBack();
+            // OSK scripting for 1:1 verification: `type:<text>` inserts each ASCII
+            // character at the caret, `submit` commits the on-screen keyboard.
+            else if (!strncmp(navbuf, "type:", 5)) {
+                if (mOskActive) for (const char* p = navbuf + 5; *p; ++p) oskType(*p);
+            }
+            else if (!strcmp(navbuf, "submit")) { if (mOskActive) oskConfirm(); }
             property_set("sys.gammaos.nano.nav", "");
         }
     }
@@ -838,6 +844,23 @@ void NanoMenu::pollInput() {
                     // Start button and step navigation is different.
                     if (mSetupWizardActive && !mOskActive
                         && mMenuState != MENU_WIFI && mMenuState != MENU_BT) {
+                        // The network step runs the PS3 net wizard; route its
+                        // buttons to the wiz* handlers (Select/Back already chain
+                        // through ps3XmbSelect/Back -> wizConfirm/wizBack; Up/Down/
+                        // Left/Right via navPress; X = re-scan the AP list).
+                        if (mPs3WizActive) {
+                            switch (ev.code) {
+                            case BTN_SOUTH: case KEY_ENTER: handleSelect(); break;
+                            case BTN_EAST:  case KEY_BACK:  handleBack();   break;
+                            case KEY_UP:    navPress(NavDir::Up);    break;
+                            case KEY_DOWN:  navPress(NavDir::Down);  break;
+                            case KEY_LEFT:  navPress(NavDir::Left);  break;
+                            case KEY_RIGHT: navPress(NavDir::Right); break;
+                            case BTN_NORTH: wizRescan(); break;
+                            default: break;
+                            }
+                            continue;
+                        }
                         switch (ev.code) {
                         case KEY_UP:    navPress(NavDir::Up);   break;
                         case KEY_DOWN:  navPress(NavDir::Down); break;
@@ -911,6 +934,7 @@ void NanoMenu::pollInput() {
                         break;
                     case BTN_NORTH: // X button (Nintendo layout: BTN_NORTH = X)
                         if (mOskActive) { oskBackspace(); break; }
+                        if (mPs3WizActive) { wizRescan(); break; }   // X: re-scan on the AP list
                         if (mMenuState == MENU_WIFI) { handleWifiScreenX(); break; }
                         if (mMenuState == MENU_BT)   { handleBtScreenX();   break; }
                         // X: cycle wallpaper/FX

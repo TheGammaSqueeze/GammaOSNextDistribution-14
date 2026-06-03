@@ -922,6 +922,48 @@ private:
     std::mutex mPs3NetTestMutex;
     std::thread mPs3NetTestThread;
 
+    // ---- Internet Connection Settings wizard (NanoMenuPS3Menu.cpp) -------------
+    // 1:1 port of the web NETCONF wireless flow with a real cmd-wifi backend:
+    // intro -> method -> connection -> WLAN scan/AP list -> security/key (OSK) ->
+    // IP/DNS/MTU/proxy/UPnP (Custom) -> review -> save (connect) -> test. Rendered
+    // with the same chrome as the fullscreen dialogs + a horizontal slide.
+    bool   mPs3WizActive = false;
+    int    mPs3WizExit = 0;               // on close: +1 completed/forward, -1 cancelled/back (for the setup step)
+    bool   mSetupNetWizSeen = false;      // setup-wizard tracking of the network step's wizard
+    int    mPs3WizId = 0;                 // current screen (WizScreen enum, file-local)
+    std::vector<int> mPs3WizStack;        // back stack of screen ids
+    int    mPs3WizSel = 0;                // chooser/list selection
+    int    mPs3WizScroll = 0;             // scan-list scroll top
+    float  mPs3WizAnim = 0.0f;            // open fade 0..1
+    float  mPs3WizSlide = 0.0f;           // body slide offset (virtual px), eases to 0
+    int    mPs3WizSlideDir = 1;           // +1 forward (enter from right), -1 back
+    float  mPs3WizSlideStart = 0.0f;      // mEffectTime at the start of the slide
+    float  mPs3WizScreenStart = 0.0f;     // mEffectTime when the current screen opened
+    int    mPs3WizTextField = 0;          // which value the open OSK is editing (WizField)
+    // Collected values (mirror web wizState.values):
+    std::string mPs3WizSsid;              // chosen SSID
+    int    mPs3WizSecTok = 0;             // cmd-wifi security token: 0 open,1 wep,2 wpa2,3 wpa3,4 owe
+    std::string mPs3WizSecLabel;          // display security label
+    std::string mPs3WizKey;               // WEP/WPA passphrase
+    std::string mPs3WizMethod, mPs3WizConn, mPs3WizWlanMode;
+    std::string mPs3WizIpMode, mPs3WizDnsMode, mPs3WizMtuMode, mPs3WizProxyMode, mPs3WizUpnp;
+    std::string mPs3WizIpAddr, mPs3WizSubnet, mPs3WizRouter, mPs3WizPdns, mPs3WizSdns;
+    std::string mPs3WizMtu, mPs3WizProxyAddr, mPs3WizProxyPort;
+    std::string mPs3WizOpmode, mPs3WizSpeedDuplex;          // wired op-mode + speed/duplex
+    std::string mPs3WizPppoeUser, mPs3WizPppoePass;         // PPPoE
+    std::string mPs3WizDhcpHost;                            // DHCP host name
+    std::string mPs3WizEapUser, mPs3WizEapPass;             // EAP authentication
+    // Wizard lifecycle + render (NanoMenuPS3Menu.cpp).
+    void startNetWizard();
+    void wizEnter(int id, int dir);       // push/go to a screen
+    void wizConfirm();                    // X / Enter
+    void wizBack();                       // O / Back
+    void wizNav(int dir, bool horizontal);// Up/Down/Left/Right
+    void wizOpenTextField(int field);     // open the OSK for a value field
+    void wizRescan();                     // X: re-scan APs on the scan-list screen
+    int  wizNextScreen(int id, int sel);  // forward-nav table (commits the choice)
+    void renderNetWizard();
+
     // Bluetooth sub-screen state
     std::vector<BtDevEntry> mBtEntries;
     int mBtEntrySelected;
@@ -969,6 +1011,8 @@ private:
     // On-screen keyboard. mOskActive + mOskQuery are the keep-stable members
     // external code reads/writes directly; all new runtime state is in mOsk.
     bool mOskActive;           // OSK is visible and receiving input
+    bool  mOskGlassValid = false;  // OSK frosted-panel blur cached (avoid per-frame full-FB resolve)
+    float mOskGlassT = 0.0f;       // mEffectTime of the last OSK panel capture
     std::string mOskQuery;     // current typed buffer (committed text)
     NanoOskState mOsk;         // page/shift/focus/caret/popup/candidates/IME state
     std::vector<SearchResult> mSearchResults;

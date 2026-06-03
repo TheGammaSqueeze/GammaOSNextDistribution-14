@@ -3075,6 +3075,10 @@ if (sRingPrimedCount >= 2) {
         //   ~10fps idle
         bool xmbActive = (mCurrentEffect == 21);
         bool proceduralFx = (mCurrentEffect >= 11 && mCurrentEffect <= 20);
+        // The PS3 XMB (mPs3Xmb) animates the wave/clock/transitions continuously
+        // and must run at 60fps. It does not key off mCurrentEffect==21, so without
+        // this it fell through to the 20fps "animating" tier and was usleep-capped
+        // to 50ms/frame (~20fps) regardless of how cheap the actual frame was.
         bool xmbAnimating = mXmbMode && (fabsf(mXmbAnimX - mXmbSystemIndex) > 0.01f
                                          || fabsf(mXmbAnimY - (mSearchActive
                                              ? (float)mSearchSelectedIndex
@@ -3085,7 +3089,7 @@ if (sRingPrimedCount >= 2) {
                          || ((mMenuState == MENU_RECENT || mMenuState == MENU_APPS)
                              && mScrollOffset > 0.0f);
         int frameTimeUs;
-        if (sDrmActive || xmbActive || mXmbMode || proceduralFx) {
+        if (sDrmActive || xmbActive || mXmbMode || mPs3Xmb || proceduralFx) {
             frameTimeUs = 16666; // 60fps — vsync-locked, no usleep
         } else if (animating) {
             frameTimeUs = 50000; // 20fps for particles
@@ -3136,7 +3140,7 @@ if (sRingPrimedCount >= 2) {
             static int sFpsFrames = 0;
             static int64_t sFpsMinFrameUs = 0;
             static int64_t sFpsMaxFrameUs = 0;
-            if (mXmbMode) {
+            if (mXmbMode || mPs3Xmb) {
                 sFpsFrames++;
                 int64_t frameUs = (int64_t)(mFrameDt * 1e6f);
                 if (sFpsFrames == 1 || frameUs < sFpsMinFrameUs) sFpsMinFrameUs = frameUs;

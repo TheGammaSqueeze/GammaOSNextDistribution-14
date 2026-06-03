@@ -445,6 +445,7 @@ void NanoMenu::ps3DlgNav(int dir, bool horizontal) {
 }
 
 void NanoMenu::ps3XmbLeft() {
+    if (mPs3WizActive) { wizNav(-1, true); return; }
     if (mPs3DlgActive) { ps3DlgNav(-1, true); return; }   // chooser scroll / confirm toggle
     if (!mPs3Stack.empty()) { ps3XmbBack(); return; }
     if (mPs3Cats.empty() || mPs3CatIdx <= 0) return;
@@ -459,6 +460,7 @@ void NanoMenu::ps3XmbLeft() {
 }
 
 void NanoMenu::ps3XmbRight() {
+    if (mPs3WizActive) { wizNav(+1, true); return; }
     if (mPs3DlgActive) { ps3DlgNav(+1, true); return; }   // chooser scroll / confirm toggle
     if (!mPs3Stack.empty()) { ps3XmbSelect(); return; }
     if (mPs3Cats.empty() || mPs3CatIdx >= (int)mPs3Cats.size() - 1) return;
@@ -473,17 +475,20 @@ void NanoMenu::ps3XmbRight() {
 }
 
 void NanoMenu::ps3XmbUp() {
+    if (mPs3WizActive) { wizNav(-1, false); return; }
     if (mPs3DlgActive) { ps3DlgNav(-1, false); return; }
     int& s = ps3CurSel();
     if (s > 0) { mPs3ItemAnimFrom = mPs3AnimItem; mPs3ItemAnimStart = mEffectTime; s--; }
 }
 void NanoMenu::ps3XmbDown() {
+    if (mPs3WizActive) { wizNav(+1, false); return; }
     if (mPs3DlgActive) { ps3DlgNav(+1, false); return; }
     int& s = ps3CurSel(); int n = (int)ps3CurItems().size();
     if (s < n - 1) { mPs3ItemAnimFrom = mPs3AnimItem; mPs3ItemAnimStart = mEffectTime; s++; }
 }
 
 void NanoMenu::ps3XmbSelect() {
+    if (mPs3WizActive) { wizConfirm(); return; }   // X: advance the network setup wizard
     if (mPs3DlgActive) { closePs3Dialog(mPs3DlgThemeKey > 0); return; }   // X: apply chooser / dismiss message
     std::vector<Ps3Item>& items = ps3CurItems();
     int sel = ps3CurSel();
@@ -526,11 +531,11 @@ void NanoMenu::ps3XmbSelect() {
             return;
         }
         case PS3_DATA_LEAF: {
-            // Network items route to the live Wi-Fi config screen (real scan /
-            // connect with the OSK for the password) rather than a static dialog,
-            // so "Internet Connection Settings" is a real, working network setup.
-            if (it.label == "Internet Connection Settings"
-                    || it.label == "Internet Connection") { openWifiScreen(); return; }
+            // "Internet Connection Settings" runs the full PS3 setup wizard (1:1
+            // web NETCONF flow, real scan/connect). "Internet Connection" is the
+            // quick live Wi-Fi list (scan/toggle/connect with the OSK password).
+            if (it.label == "Internet Connection Settings") { startNetWizard(); return; }
+            if (it.label == "Internet Connection") { openWifiScreen(); return; }
             if (it.action == 1) openPs3Dialog(it);   // action='dialog' -> dialog/chooser
             return;
         }
@@ -551,6 +556,7 @@ void NanoMenu::ps3XmbSelect() {
 }
 
 void NanoMenu::ps3XmbBack() {
+    if (mPs3WizActive) { wizBack(); return; }   // O: step back through the network setup wizard
     if (mPs3DlgActive) { closePs3Dialog(false); return; }   // O: cancel the dialog/chooser
     if (!mPs3Stack.empty()) {
         // Snapshot the child list (being left) for the slide-out, then pop and
@@ -682,7 +688,7 @@ void NanoMenu::renderPs3Xmb() {
         // waveSpace=true. tintA MUST be > 0 or the panel composites to nothing.
         // 60Hz during a live theme preview (chooser open or cross-fade settling)
         // so the colour change tracks smoothly; ~15Hz otherwise.
-        float blurCad = (ps3bg::themeFading() || mPs3DlgActive) ? 0.0f : 0.0667f;
+        float blurCad = (ps3bg::themeFading() || mPs3DlgKind == 1) ? 0.0f : 0.0667f;
         bool due = !mPs3GlassValid || (mEffectTime - mPs3GlassBlurT) >= blurCad;
         if (due && captureGlassFromWave()) { mPs3GlassValid = true; mPs3GlassBlurT = mEffectTime; }
         if (mPs3GlassValid)
@@ -1032,7 +1038,8 @@ void NanoMenu::renderPs3Xmb() {
     drawPs3Clock(mPs3BootIconReveal);   // fades in with the cold-boot hand-off (1.0 otherwise)
 
     // Settings dialog / Theme chooser overlay on top of the menu.
-    if (mPs3DlgActive) renderPs3Dialog();
+    if (mPs3WizActive) renderNetWizard();
+    else if (mPs3DlgActive) renderPs3Dialog();
 }
 
 // ---------------------------------------------------------------------------
@@ -1752,7 +1759,7 @@ void NanoMenu::renderPs3Dialog() {
     if (mPs3DlgKind != 1) {
         // ~30Hz live wave/gradient backdrop (workTex, no FB capture) so the
         // dialog open animation stays smooth at 60fps. waveSpace = logical blur.
-        float blurCad = (ps3bg::themeFading() || mPs3DlgActive) ? 0.0f : 0.0667f;   // 60Hz during live preview
+        float blurCad = (ps3bg::themeFading() || mPs3DlgKind == 1) ? 0.0f : 0.0667f;   // 60Hz during live preview
         bool due = !mPs3DlgBlurValid || (mEffectTime - mPs3DlgBlurT) >= blurCad;
         if (due && captureGlassFromWave()) { mPs3DlgBlurValid = true; mPs3DlgBlurT = mEffectTime; }
         if (mPs3DlgBlurValid)
@@ -1806,7 +1813,10 @@ void NanoMenu::renderPs3Dialog() {
         // exactly like the web, adapting to any resolution/aspect/orientation.
         float ui = mPs3UiScale; if (ui < 0.5f) ui = 0.5f; if (ui > 2.0f) ui = 2.0f;
         const float S = ps3::gScale / ui;
-        const float offX = ps3::gFrameX;
+        // Centre the (gFrameW/ui)-wide content band horizontally in the frame for any
+    // UI zoom (mPs3UiScale defaults to 1.12). offY already recentres vertically;
+    // without this, dialogs sit left-of-centre with an unbalanced right gap.
+    const float offX = ps3::gFrameX + (ps3::gFrameW - S * ps3::XCF(ps3::VW)) * 0.5f;
         const float offY = ps3::gFrameY + ps3::gFrameH * 0.5f - S * (ps3::VH * 0.5f);
         auto X  = [&](float vx) { return S * vx + offX; };              // raw virtual x (left-anchored)
         auto XC = [&](float vx) { return S * ps3::XCF(vx) + offX; };    // XCF centred / frame-spanning
@@ -1855,8 +1865,8 @@ void NanoMenu::renderPs3Dialog() {
                         mPs3DlgIconR, mPs3DlgIconG, mPs3DlgIconB, ap);
         ps3DlgText(mPs3DlgTitle.c_str(), X(160.0f), Y(187.0f), FS(28.0f), 1.0f, 1.0f, 1.0f, ap, 0);
         float divLw = fmaxf(1.0f, DS(1.0f));
-        drawQuad(X(0.0f), Y(innerTop), XC(VW) - X(0.0f), divLw, 1.0f, 1.0f, 1.0f, 0.55f * ap);
-        drawQuad(X(0.0f), Y(innerBot), XC(VW) - X(0.0f), divLw, 1.0f, 1.0f, 1.0f, 0.55f * ap);
+        drawQuad(ps3::gFrameX, Y(innerTop), ps3::gFrameW, divLw, 1.0f, 1.0f, 1.0f, 0.55f * ap);
+        drawQuad(ps3::gFrameX, Y(innerBot), ps3::gFrameW, divLw, 1.0f, 1.0f, 1.0f, 0.55f * ap);
 
         // ---- body by type ----
         int n = (int)mPs3DlgOptions.size();
@@ -1929,6 +1939,649 @@ void NanoMenu::renderPs3Dialog() {
             ps3DlgHint(enterCX, true, "Enter", hintY, S, ap);
             ps3DlgHint(cancelCX, false, "Cancel", hintY, S, ap);
         }
+    }
+}
+
+// ===========================================================================
+// Internet Connection Settings wizard - a 1:1 port of the web NETCONF wireless
+// flow, rendered with the same dialog chrome (blurred wave + dim, header, top/
+// bottom dividers, footer hints) plus a horizontal slide, and backed by the real
+// cmd-wifi scan/connect + the live connectivity test.
+// ===========================================================================
+namespace {
+enum WizScr {
+    WS_NONE = 0,
+    WS_INTRO, WS_METHOD, WS_CONN,
+    WS_EASY_WIRED_CHECK,                                  // Easy + Wired
+    WS_WIRED_OPMODE, WS_WIRED_SPEED,                      // Custom + Wired
+    WS_IP, WS_IP_ADDR, WS_IP_SUBNET, WS_IP_ROUTER, WS_IP_PDNS, WS_IP_SDNS,
+    WS_PPPOE_USER, WS_PPPOE_PASS,
+    WS_DHCP_HOST, WS_DHCP_HOST_ENTRY,
+    WS_DNS, WS_DNS_PDNS, WS_DNS_SDNS,
+    WS_MTU_Q, WS_MTU,
+    WS_PROXY_Q, WS_PROXY_ADDR, WS_PROXY_PORT,
+    WS_UPNP,
+    WS_WLAN, WS_WLAN_AUTO, WS_AOSS_PROMPT, WS_AOSS_WAIT,
+    WS_RAKU1, WS_RAKU2, WS_RAKU3, WS_AOSS_DONE,
+    WS_SCANNING, WS_APLIST, WS_SSID, WS_SECURITY,
+    WS_WEP_KEY, WS_WPA_KEY,
+    WS_EAP_AUTH, WS_EAP_USER, WS_EAP_PASS,
+    WS_EASY_ADV, WS_REVIEW, WS_SAVE,
+    WS_TEST_CONFIRM, WS_TEST_RUN
+};
+enum WizKind { WK_INFO, WK_CHOOSER, WK_CONFIRM, WK_SCANLIST, WK_PROGRESS,
+               WK_TEXT, WK_REVIEW, WK_RESULT, WK_TEST };
+enum WizField { WF_SSID = 0, WF_WEP_KEY, WF_WPA_KEY, WF_IP_ADDR, WF_IP_SUBNET,
+                WF_IP_ROUTER, WF_IP_PDNS, WF_IP_SDNS, WF_DNS_PDNS, WF_DNS_SDNS,
+                WF_MTU, WF_PROXY_ADDR, WF_PROXY_PORT, WF_PPPOE_USER, WF_PPPOE_PASS,
+                WF_DHCP_HOST, WF_EAP_USER, WF_EAP_PASS };
+struct WizDesc {
+    int kind = WK_INFO;
+    const char* title = "Internet Connection Settings";
+    const char* body = "";
+    const char* opts[8] = {nullptr};
+    const char* label = "";   // text_entry field label
+    int field = 0;            // WizField for text_entry
+    bool mask = false;        // password mask
+    int autoMs = 0;           // progress dwell
+    int autoNext = WS_NONE;   // progress -> screen
+};
+// 1:1 with the web WIZ_SECURITY_OPTS (firmware str 228,112,113-117,121).
+static const char* const WIZ_SEC_OPTS[] = {
+    "None", "WEP", "WPA-PSK (TKIP)", "WPA-PSK (AES)",
+    "WPA2-PSK (TKIP)", "WPA2-PSK (AES)", "WPA-PSK / WPA2-PSK",
+    "EAP Authentication", nullptr };
+static void wizDesc(int id, WizDesc& d) {
+    d = WizDesc{};
+    switch (id) {
+    case WS_INTRO: d.kind = WK_INFO;
+        d.body = "Adjust settings for connection to the Internet.\nIf making a wired connection, you must have an Ethernet cable connected."; break;
+    case WS_METHOD: d.kind = WK_CHOOSER; d.body = "Select a setting method.";
+        d.opts[0] = "Easy"; d.opts[1] = "Custom"; break;
+    case WS_CONN: d.kind = WK_CHOOSER; d.body = "Select a connection method.";
+        d.opts[0] = "Wired Connection"; d.opts[1] = "Wireless"; break;
+
+    // ---- Wired connection (Easy: auto-detect; Custom: pick op-mode) ----
+    case WS_EASY_WIRED_CHECK: d.kind = WK_PROGRESS;
+        d.body = "Checking network configuration...\nPlease wait."; d.autoMs = 2600; d.autoNext = WS_EASY_ADV; break;
+    case WS_WIRED_OPMODE: d.kind = WK_CHOOSER;
+        d.body = "Select the operation mode of the network device.\nIn most cases, select Auto-Detect.";
+        d.opts[0] = "Auto-Detect"; d.opts[1] = "Speed and Duplex"; break;
+    case WS_WIRED_SPEED: d.kind = WK_CHOOSER;
+        d.body = "Select the operation mode of the network device.";
+        d.opts[0] = "10BASE-T Half-Duplex";   d.opts[1] = "10BASE-T Full-Duplex";
+        d.opts[2] = "100BASE-TX Half-Duplex"; d.opts[3] = "100BASE-TX Full-Duplex";
+        d.opts[4] = "1000BASE-T Half-Duplex"; d.opts[5] = "1000BASE-T Full-Duplex"; break;
+
+    // ---- IP Address Setting ----
+    case WS_IP: d.kind = WK_CHOOSER; d.body = "IP Address Setting";
+        d.opts[0] = "Automatic"; d.opts[1] = "Manual"; d.opts[2] = "PPPoE"; break;
+    case WS_IP_ADDR:   d.kind = WK_TEXT; d.title = "IP Address Setting"; d.label = "IP Address";     d.field = WF_IP_ADDR;   break;
+    case WS_IP_SUBNET: d.kind = WK_TEXT; d.title = "IP Address Setting"; d.label = "Subnet Mask";    d.field = WF_IP_SUBNET; break;
+    case WS_IP_ROUTER: d.kind = WK_TEXT; d.title = "IP Address Setting"; d.label = "Default Router"; d.field = WF_IP_ROUTER; break;
+    case WS_IP_PDNS:   d.kind = WK_TEXT; d.title = "IP Address Setting"; d.label = "Primary DNS";    d.field = WF_IP_PDNS;   break;
+    case WS_IP_SDNS:   d.kind = WK_TEXT; d.title = "IP Address Setting"; d.label = "Secondary DNS";  d.field = WF_IP_SDNS;   break;
+
+    // ---- PPPoE ----
+    case WS_PPPOE_USER: d.kind = WK_TEXT; d.title = "PPPoE"; d.label = "PPPoE User Name"; d.field = WF_PPPOE_USER; break;
+    case WS_PPPOE_PASS: d.kind = WK_TEXT; d.title = "PPPoE"; d.label = "PPPoE Password";  d.field = WF_PPPOE_PASS; d.mask = true; break;
+
+    // ---- DHCP host name (Automatic IP) ----
+    case WS_DHCP_HOST: d.kind = WK_CHOOSER;
+        d.body = "Set the DHCP host name.\nIn most cases this setting does not need to be changed.";
+        d.opts[0] = "Do Not Set"; d.opts[1] = "Set"; break;
+    case WS_DHCP_HOST_ENTRY: d.kind = WK_TEXT; d.title = "DHCP Host Name"; d.label = "DHCP Host Name"; d.field = WF_DHCP_HOST; break;
+
+    // ---- DNS ----
+    case WS_DNS: d.kind = WK_CHOOSER; d.body = "DNS Setting\nIn most cases, select [Automatic].";
+        d.opts[0] = "Automatic"; d.opts[1] = "Manual"; break;
+    case WS_DNS_PDNS: d.kind = WK_TEXT; d.title = "DNS Setting"; d.label = "Primary DNS";   d.field = WF_DNS_PDNS; break;
+    case WS_DNS_SDNS: d.kind = WK_TEXT; d.title = "DNS Setting"; d.label = "Secondary DNS"; d.field = WF_DNS_SDNS; break;
+
+    // ---- MTU / Proxy / UPnP ----
+    case WS_MTU_Q: d.kind = WK_CHOOSER; d.body = "MTU"; d.opts[0] = "Automatic"; d.opts[1] = "Manual"; break;
+    case WS_MTU: d.kind = WK_TEXT; d.title = "MTU"; d.label = "MTU"; d.field = WF_MTU; break;
+    case WS_PROXY_Q: d.kind = WK_CHOOSER; d.body = "Proxy Server"; d.opts[0] = "Do Not Use"; d.opts[1] = "Use"; break;
+    case WS_PROXY_ADDR: d.kind = WK_TEXT; d.title = "Proxy Server"; d.label = "Address";     d.field = WF_PROXY_ADDR; break;
+    case WS_PROXY_PORT: d.kind = WK_TEXT; d.title = "Proxy Server"; d.label = "Port Number"; d.field = WF_PROXY_PORT; break;
+    case WS_UPNP: d.kind = WK_CHOOSER; d.body = "UPnP"; d.opts[0] = "Enable"; d.opts[1] = "Disable"; break;
+
+    // ---- WLAN ----
+    case WS_WLAN: d.kind = WK_CHOOSER; d.title = "WLAN Settings"; d.body = "WLAN Settings";
+        d.opts[0] = "Scan"; d.opts[1] = "Enter Manually"; d.opts[2] = "Automatic"; break;
+    case WS_WLAN_AUTO: d.kind = WK_CHOOSER; d.title = "WLAN Settings";
+        d.body = "Automatic setup by access point type.";
+        d.opts[0] = "AOSS"; d.opts[1] = "Rakuraku WLAN Start"; break;
+    case WS_AOSS_PROMPT: d.kind = WK_INFO; d.title = "AOSS";
+        d.body = "Press and hold the \"AOSS Button\" of the access point until the AOSS indicator starts blinking.\nIf you don't press the button within 2 minutes, the operation will be canceled."; break;
+    case WS_AOSS_WAIT: d.kind = WK_PROGRESS; d.title = "AOSS";
+        d.body = "It will take about 10 seconds for the access point to be ready.\nPlease wait..."; d.autoMs = 4200; d.autoNext = WS_AOSS_DONE; break;
+    case WS_RAKU1: d.kind = WK_PROGRESS; d.title = "Rakuraku WLAN Start";
+        d.body = "Preparing...\nPlease wait."; d.autoMs = 1800; d.autoNext = WS_RAKU2; break;
+    case WS_RAKU2: d.kind = WK_INFO; d.title = "Rakuraku WLAN Start";
+        d.body = "Press and hold the \"Rakuraku Start Button\" of the access point until the \"POWER\" LED blinks in [Green].\nIf you don't press the button within 1 minute, the operation will be canceled."; break;
+    case WS_RAKU3: d.kind = WK_INFO; d.title = "Rakuraku WLAN Start";
+        d.body = "Press the \"Rakuraku Start Button\" again. Press and hold until the \"POWER\" LED turns [Orange].\nIf you don't press the button within 30 seconds, the operation will be canceled."; break;
+    case WS_AOSS_DONE: d.kind = WK_RESULT; d.title = "WLAN Settings";
+        d.body = "Save completed.\nIt may take 1 minute or longer to restart the access point."; break;
+
+    case WS_SCANNING: d.kind = WK_PROGRESS; d.title = "WLAN Settings";
+        d.body = "Scanning...\nPlease wait."; d.autoMs = 2500; d.autoNext = WS_APLIST; break;
+    case WS_APLIST: d.kind = WK_SCANLIST; d.title = "WLAN Settings";
+        d.body = "Select the access point to be used."; break;
+    case WS_SSID: d.kind = WK_TEXT; d.title = "SSID"; d.label = "SSID"; d.field = WF_SSID; break;
+    case WS_SECURITY: d.kind = WK_CHOOSER; d.title = "WLAN Security Setting"; d.body = "Security";
+        for (int i = 0; WIZ_SEC_OPTS[i]; i++) d.opts[i] = WIZ_SEC_OPTS[i]; break;
+    case WS_WEP_KEY: d.kind = WK_TEXT; d.title = "WLAN Security Setting"; d.label = "WEP Key"; d.field = WF_WEP_KEY; break;
+    case WS_WPA_KEY: d.kind = WK_TEXT; d.title = "WLAN Security Setting"; d.label = "WPA Key"; d.field = WF_WPA_KEY; d.mask = true; break;
+    case WS_EAP_AUTH: d.kind = WK_CHOOSER; d.title = "Authentication Setting"; d.body = "Authentication";
+        d.opts[0] = "EAP-MD5"; break;
+    case WS_EAP_USER: d.kind = WK_TEXT; d.title = "EAP Authentication"; d.label = "User Name"; d.field = WF_EAP_USER; break;
+    case WS_EAP_PASS: d.kind = WK_TEXT; d.title = "EAP Authentication"; d.label = "Password";  d.field = WF_EAP_PASS; d.mask = true; break;
+
+    // ---- review / save / test ----
+    case WS_EASY_ADV: d.kind = WK_CONFIRM; d.body = "Do you want to perform advanced settings?"; break;
+    case WS_REVIEW: d.kind = WK_REVIEW; d.title = "Settings List"; break;
+    case WS_SAVE: d.kind = WK_RESULT;
+        d.body = "Internet connection settings have been completed.\n\nSave completed."; break;
+    case WS_TEST_CONFIRM: d.kind = WK_CONFIRM; d.title = "Internet Connection Test";
+        d.body = "If you perform a connection test, the current connection will be terminated and the system will be disconnected.\nDo you want to continue?"; break;
+    case WS_TEST_RUN: d.kind = WK_TEST; d.title = "Internet Connection Test"; break;
+    default: break;
+    }
+}
+} // namespace
+
+void NanoMenu::startNetWizard() {
+    mPs3WizActive = true;
+    mPs3WizExit = 0;
+    mPs3WizStack.clear();
+    mPs3WizSsid.clear(); mPs3WizKey.clear(); mPs3WizSecLabel.clear(); mPs3WizSecTok = 0;
+    mPs3WizMethod = mPs3WizConn = mPs3WizWlanMode = "";
+    mPs3WizIpMode = "Automatic"; mPs3WizDnsMode = "Automatic"; mPs3WizMtuMode = "Automatic";
+    mPs3WizProxyMode = "Do Not Use"; mPs3WizUpnp = "Enable";
+    mPs3WizIpAddr = mPs3WizSubnet = mPs3WizRouter = mPs3WizPdns = mPs3WizSdns = "";
+    mPs3WizMtu = mPs3WizProxyAddr = mPs3WizProxyPort = "";
+    mPs3WizOpmode = mPs3WizSpeedDuplex = "";
+    mPs3WizPppoeUser = mPs3WizPppoePass = mPs3WizDhcpHost = "";
+    mPs3WizEapUser = mPs3WizEapPass = "";
+    mPs3WizAnim = 0.0f;
+    wizEnter(WS_INTRO, 1);
+}
+
+void NanoMenu::wizEnter(int id, int dir) {
+    mPs3WizId = id;
+    mPs3WizSel = 0;
+    mPs3WizScroll = 0;
+    mPs3WizSlideDir = dir;
+    mPs3WizSlide = (float)dir * ps3::VW;       // slide in from the side
+    mPs3WizSlideStart = mEffectTime;
+    mPs3WizScreenStart = mEffectTime;
+    WizDesc d; wizDesc(id, d);
+    // confirm defaults: WS_EASY_ADV defaults to No (safe), test_confirm to Yes.
+    if (d.kind == WK_CONFIRM) mPs3WizSel = (id == WS_EASY_ADV) ? 1 : 0;
+    // Side effects on entering certain screens.
+    if (id == WS_SCANNING) startWifiScanAsync();               // real scan
+    if (id == WS_SAVE) {                                       // real connect (Wi-Fi only)
+        if (mPs3WizConn == "Wireless" && !mPs3WizSsid.empty())
+            addAndConnectWifi(mPs3WizSsid, mPs3WizSecTok, mPs3WizKey);
+    }
+    if (id == WS_TEST_RUN) startNetTest();                     // real connectivity test
+    if (d.kind == WK_TEXT) wizOpenTextField(d.field);          // pop the OSK
+}
+
+void NanoMenu::wizOpenTextField(int field) {
+    mPs3WizTextField = field;
+    WizDesc d; wizDesc(mPs3WizId, d);
+    std::string prompt = d.label && *d.label ? d.label : "Enter";
+    // Seed the current value so the field is editable in place.
+    const std::string* cur = nullptr;
+    switch (field) {
+    case WF_SSID: cur = &mPs3WizSsid; break;
+    case WF_WEP_KEY: case WF_WPA_KEY: cur = &mPs3WizKey; break;
+    case WF_IP_ADDR: cur = &mPs3WizIpAddr; break;     case WF_IP_SUBNET: cur = &mPs3WizSubnet; break;
+    case WF_IP_ROUTER: cur = &mPs3WizRouter; break;   case WF_IP_PDNS: cur = &mPs3WizPdns; break;
+    case WF_IP_SDNS: cur = &mPs3WizSdns; break;       case WF_DNS_PDNS: cur = &mPs3WizPdns; break;
+    case WF_DNS_SDNS: cur = &mPs3WizSdns; break;      case WF_MTU: cur = &mPs3WizMtu; break;
+    case WF_PROXY_ADDR: cur = &mPs3WizProxyAddr; break; case WF_PROXY_PORT: cur = &mPs3WizProxyPort; break;
+    case WF_PPPOE_USER: cur = &mPs3WizPppoeUser; break; case WF_PPPOE_PASS: cur = &mPs3WizPppoePass; break;
+    case WF_DHCP_HOST: cur = &mPs3WizDhcpHost; break;
+    case WF_EAP_USER: cur = &mPs3WizEapUser; break;   case WF_EAP_PASS: cur = &mPs3WizEapPass; break;
+    }
+    mOskQuery = cur ? *cur : "";
+    openOskForPassword(prompt, [this, field](const std::string& val) {
+        // Store the typed value, then advance the wizard.
+        switch (field) {
+        case WF_SSID: mPs3WizSsid = val; break;
+        case WF_WEP_KEY: case WF_WPA_KEY: mPs3WizKey = val; break;
+        case WF_IP_ADDR: mPs3WizIpAddr = val; break;     case WF_IP_SUBNET: mPs3WizSubnet = val; break;
+        case WF_IP_ROUTER: mPs3WizRouter = val; break;   case WF_IP_PDNS: mPs3WizPdns = val; break;
+        case WF_IP_SDNS: mPs3WizSdns = val; break;       case WF_DNS_PDNS: mPs3WizPdns = val; break;
+        case WF_DNS_SDNS: mPs3WizSdns = val; break;      case WF_MTU: mPs3WizMtu = val; break;
+        case WF_PROXY_ADDR: mPs3WizProxyAddr = val; break; case WF_PROXY_PORT: mPs3WizProxyPort = val; break;
+        case WF_PPPOE_USER: mPs3WizPppoeUser = val; break; case WF_PPPOE_PASS: mPs3WizPppoePass = val; break;
+        case WF_DHCP_HOST: mPs3WizDhcpHost = val; break;
+        case WF_EAP_USER: mPs3WizEapUser = val; break;   case WF_EAP_PASS: mPs3WizEapPass = val; break;
+        }
+        // Optional fields (secondary DNS) may be left blank; everything else
+        // treats an empty submit as a cancel (handled as a back via closeOsk).
+        if (val.empty() && field != WF_IP_SDNS && field != WF_DNS_SDNS) return;
+        int nxt = wizNextScreen(mPs3WizId, 0);
+        if (nxt == WS_NONE) { mPs3WizExit = 1; mPs3WizActive = false; }
+        else { mPs3WizStack.push_back(mPs3WizId); wizEnter(nxt, 1); }
+    });
+    // Password fields mask; plaintext for SSID/IP/etc.
+    WizDesc d2; wizDesc(mPs3WizId, d2);
+    mOskPlaintext = !d2.mask;
+    mOskPasswordMode = d2.mask;
+    mOsk.caret = (int)mOskQuery.size();
+}
+
+void NanoMenu::wizConfirm() {
+    WizDesc d; wizDesc(mPs3WizId, d);
+    if (d.kind == WK_TEXT || d.kind == WK_PROGRESS) return;   // OSK owns text; progress auto-advances
+    if (mPs3WizId == WS_APLIST) {             // pick the selected real access point
+        std::vector<WifiNetEntry> aps;
+        { std::lock_guard<std::mutex> lk(mWifiListMutex);
+          for (auto& e : mWifiEntries) if (e.bssid != "__TOGGLE__") aps.push_back(e); }
+        if (mPs3WizSel < 0 || mPs3WizSel >= (int)aps.size()) return;
+        const WifiNetEntry& ap = aps[mPs3WizSel];
+        mPs3WizSsid = ap.ssid; mPs3WizSecTok = ap.security;
+        static const char* secNames[] = {"None","WEP","WPA2-PSK","WPA3-PSK","OWE"};
+        mPs3WizSecLabel = secNames[(ap.security >= 0 && ap.security <= 4) ? ap.security : 0];
+        // Mirror web wlan_ap_list.onSelect: open/OWE need no key; WEP -> WEP key;
+        // everything else -> WPA key (then Easy: advanced? / Custom: IP setting).
+        int nxt;
+        if (ap.security == 0 || ap.security == 4) nxt = (mPs3WizMethod == "Easy") ? WS_EASY_ADV : WS_IP;
+        else if (ap.security == 1)                nxt = WS_WEP_KEY;
+        else                                      nxt = WS_WPA_KEY;
+        mPs3WizStack.push_back(mPs3WizId);
+        wizEnter(nxt, 1);
+        return;
+    }
+    int nxt = wizNextScreen(mPs3WizId, mPs3WizSel);
+    if (nxt == WS_NONE) { mPs3WizExit = 1; mPs3WizActive = false; return; }
+    mPs3WizStack.push_back(mPs3WizId);
+    wizEnter(nxt, 1);
+}
+
+void NanoMenu::wizBack() {
+    if (mPs3WizId == WS_TEST_RUN) stopNetTest();
+    if (mPs3WizStack.empty()) { mPs3WizExit = -1; mPs3WizActive = false; return; }
+    int prev = mPs3WizStack.back(); mPs3WizStack.pop_back();
+    // Don't land back on a transient progress/test screen (mirrors web wizBack).
+    while (!mPs3WizStack.empty()) {
+        WizDesc pd; wizDesc(prev, pd);
+        if (pd.kind == WK_PROGRESS || pd.kind == WK_TEST) { prev = mPs3WizStack.back(); mPs3WizStack.pop_back(); }
+        else break;
+    }
+    wizEnter(prev, -1);
+}
+
+void NanoMenu::wizRescan() {
+    if (mPs3WizId != WS_APLIST) return;     // X re-scans only on the access-point list
+    // Drop the transient scan screen we arrived through so repeats don't bloat the stack.
+    while (!mPs3WizStack.empty() && mPs3WizStack.back() == WS_SCANNING)
+        mPs3WizStack.pop_back();
+    wizEnter(WS_SCANNING, 1);               // fires startWifiScanAsync; auto-advances back to the list
+}
+
+void NanoMenu::wizNav(int dir, bool /*horizontal*/) {
+    WizDesc d; wizDesc(mPs3WizId, d);
+    if (d.kind == WK_CHOOSER) {
+        int n = 0; while (n < 8 && d.opts[n]) n++;
+        if (n > 0) mPs3WizSel = (mPs3WizSel + dir + n) % n;
+    } else if (d.kind == WK_CONFIRM) {
+        mPs3WizSel ^= 1;
+    } else if (d.kind == WK_SCANLIST) {
+        int n; { std::lock_guard<std::mutex> lk(mWifiListMutex);
+                 n = 0; for (auto& e : mWifiEntries) if (e.bssid != "__TOGGLE__") n++; }
+        if (n > 0) { mPs3WizSel += dir; if (mPs3WizSel < 0) mPs3WizSel = 0; if (mPs3WizSel > n - 1) mPs3WizSel = n - 1; }
+    }
+    mDisplayDirty = true;
+}
+
+// Forward navigation table (1:1 with web wizNext). Commits the choice into state.
+int NanoMenu::wizNextScreen(int id, int sel) {
+    auto afterAuth = [&]() { return (mPs3WizMethod == "Easy") ? WS_EASY_ADV : WS_IP; };
+    switch (id) {
+    case WS_INTRO: return WS_METHOD;
+    case WS_METHOD: mPs3WizMethod = sel ? "Custom" : "Easy"; return WS_CONN;
+    case WS_CONN:
+        mPs3WizConn = sel ? "Wireless" : "Wired Connection";
+        if (sel == 0)   // Wired Connection
+            return (mPs3WizMethod == "Easy") ? WS_EASY_WIRED_CHECK : WS_WIRED_OPMODE;
+        return WS_WLAN; // Wireless (both Easy & Custom)
+
+    // ---- Wired ----
+    case WS_WIRED_OPMODE:
+        mPs3WizOpmode = sel ? "Speed and Duplex" : "Auto-Detect";
+        return sel ? WS_WIRED_SPEED : WS_IP;
+    case WS_WIRED_SPEED: {
+        static const char* sp[] = {"10BASE-T Half-Duplex","10BASE-T Full-Duplex",
+            "100BASE-TX Half-Duplex","100BASE-TX Full-Duplex",
+            "1000BASE-T Half-Duplex","1000BASE-T Full-Duplex"};
+        if (sel >= 0 && sel < 6) mPs3WizSpeedDuplex = sp[sel];
+        return WS_IP; }
+
+    // ---- IP ----
+    case WS_IP:
+        mPs3WizIpMode = (sel == 1) ? "Manual" : (sel == 2) ? "PPPoE" : "Automatic";
+        if (sel == 1) return WS_IP_ADDR;        // Manual
+        if (sel == 2) return WS_PPPOE_USER;     // PPPoE
+        return WS_DHCP_HOST;                    // Automatic -> DHCP host name
+    case WS_IP_ADDR: return WS_IP_SUBNET;   case WS_IP_SUBNET: return WS_IP_ROUTER;
+    case WS_IP_ROUTER: return WS_IP_PDNS;   case WS_IP_PDNS: return WS_IP_SDNS;
+    case WS_IP_SDNS: return WS_MTU_Q;
+    case WS_PPPOE_USER: return WS_PPPOE_PASS;
+    case WS_PPPOE_PASS: return WS_DNS;
+    case WS_DHCP_HOST: return sel ? WS_DHCP_HOST_ENTRY : WS_DNS;   // Set -> entry
+    case WS_DHCP_HOST_ENTRY: return WS_DNS;
+
+    // ---- DNS / MTU / Proxy / UPnP ----
+    case WS_DNS: mPs3WizDnsMode = sel ? "Manual" : "Automatic";
+        return sel ? WS_DNS_PDNS : WS_MTU_Q;
+    case WS_DNS_PDNS: return WS_DNS_SDNS;   case WS_DNS_SDNS: return WS_MTU_Q;
+    case WS_MTU_Q: mPs3WizMtuMode = sel ? "Manual" : "Automatic";
+        return sel ? WS_MTU : WS_PROXY_Q;
+    case WS_MTU: return WS_PROXY_Q;
+    case WS_PROXY_Q: mPs3WizProxyMode = sel ? "Use" : "Do Not Use";
+        return sel ? WS_PROXY_ADDR : WS_UPNP;
+    case WS_PROXY_ADDR: return WS_PROXY_PORT;   case WS_PROXY_PORT: return WS_UPNP;
+    case WS_UPNP: mPs3WizUpnp = sel ? "Disable" : "Enable"; return WS_REVIEW;
+
+    // ---- WLAN ----
+    case WS_WLAN: mPs3WizWlanMode = (sel == 1) ? "Manual" : (sel == 2) ? "Automatic" : "Scan";
+        if (sel == 1) return WS_SSID;           // Enter Manually
+        if (sel == 2) return WS_WLAN_AUTO;      // Automatic (AOSS / Rakuraku)
+        return WS_SCANNING;                     // Scan
+    case WS_WLAN_AUTO: return sel ? WS_RAKU1 : WS_AOSS_PROMPT;
+    case WS_AOSS_PROMPT: return WS_AOSS_WAIT;
+    case WS_RAKU2: return WS_RAKU3;
+    case WS_RAKU3: return WS_AOSS_DONE;
+    case WS_AOSS_DONE: return WS_TEST_CONFIRM;
+    case WS_SSID: return WS_SECURITY;
+    case WS_SECURITY: {
+        const char* lab = (sel >= 0 && sel < 8 && WIZ_SEC_OPTS[sel]) ? WIZ_SEC_OPTS[sel] : "None";
+        mPs3WizSecLabel = lab;
+        if (sel == 0) { mPs3WizSecTok = 0; return afterAuth(); }   // None
+        if (sel == 1) { mPs3WizSecTok = 1; return WS_WEP_KEY; }    // WEP
+        if (sel == 7) { mPs3WizSecTok = 2; return WS_EAP_AUTH; }   // EAP Authentication
+        mPs3WizSecTok = 2; return WS_WPA_KEY; }                    // WPA*
+    case WS_WEP_KEY: return afterAuth();
+    case WS_WPA_KEY: return afterAuth();
+    case WS_EAP_AUTH: return WS_EAP_USER;
+    case WS_EAP_USER: return WS_EAP_PASS;
+    case WS_EAP_PASS: return afterAuth();
+
+    // ---- review / save / test ----
+    case WS_EASY_ADV: return (sel == 0) ? WS_IP : WS_REVIEW;   // Yes -> advanced
+    case WS_REVIEW: return WS_SAVE;
+    case WS_SAVE: return WS_TEST_CONFIRM;
+    case WS_TEST_CONFIRM: return (sel == 0) ? WS_TEST_RUN : WS_NONE;
+    case WS_TEST_RUN: return WS_NONE;
+    default: return WS_NONE;
+    }
+}
+
+void NanoMenu::renderNetWizard() {
+    if (!mPs3WizActive) return;
+    float dt = mFrameDt; if (dt < 0.0f) dt = 0.0f; if (dt > 0.1f) dt = 0.1f;
+    mPs3WizAnim += (1.0f - mPs3WizAnim) * (1.0f - expf(-13.0f * dt));
+    if (mPs3WizAnim > 0.999f) mPs3WizAnim = 1.0f;
+    float ap = mPs3WizAnim;
+    { ps3::LayoutParams lp; lp.panelW = mWidth; lp.panelH = mHeight; lp.uiScale = mPs3UiScale; ps3::layoutCompute(lp); }
+
+    WizDesc d; wizDesc(mPs3WizId, d);
+
+    // Auto-advance for the timed progress screens (scan / wired check).
+    if (d.kind == WK_PROGRESS && d.autoMs > 0 &&
+        (mEffectTime - mPs3WizScreenStart) * 1000.0f >= (float)d.autoMs) {
+        mPs3WizStack.push_back(mPs3WizId);
+        wizEnter(d.autoNext, 1);
+        wizDesc(mPs3WizId, d);
+    }
+
+    // Horizontal slide: ease the body offset back to 0 over ~260 ms (easeOutCubic).
+    float sp = (mEffectTime - mPs3WizSlideStart) / 0.26f;
+    if (sp > 1.0f) sp = 1.0f;
+    float ease = 1.0f - (1.0f - sp) * (1.0f - sp) * (1.0f - sp);
+    mPs3WizSlide = (float)mPs3WizSlideDir * ps3::VW * (1.0f - ease);
+
+    bool oskUp = mOskActive;   // text screens render the OSK on top
+
+    // ---- backdrop: blurred live wave + dim (same as the fullscreen dialogs) ----
+    {
+        // While the OSK is up we re-capture the wave EVERY frame. The OSK draws its
+        // own frosted panel via captureGlass(), which overwrites the SAME shared
+        // blur texture (mGlassBlurTex) in FB orientation; at the normal 15fps
+        // cadence the wizard would then sample that FB-space blur on the 3-of-4
+        // skipped frames (wrong orientation + a feedback of the dimmed wizard) and
+        // alternate with the wave blur -> visible background flicker. Refreshing
+        // from the wave each frame keeps the backdrop correct and smooth.
+        float blurCad = 0.0667f;
+        bool due = !mPs3DlgBlurValid || oskUp || (mEffectTime - mPs3DlgBlurT) >= blurCad;
+        if (due && captureGlassFromWave()) { mPs3DlgBlurValid = true; mPs3DlgBlurT = mEffectTime; }
+        if (mPs3DlgBlurValid)
+            drawFrostedGlass(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, ap, true);
+    }
+    drawQuad(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f, 0.0f, 0.0f, (oskUp ? 0.62f : 0.5f) * ap);
+
+    // Layout (ui-independent base scale, 1080 design centred in the frame).
+    float ui = mPs3UiScale; if (ui < 0.5f) ui = 0.5f; if (ui > 2.0f) ui = 2.0f;
+    const float S = ps3::gScale / ui;
+    // Centre the (gFrameW/ui)-wide content band horizontally in the frame for any
+    // UI zoom (mPs3UiScale defaults to 1.12). offY already recentres vertically;
+    // without this, dialogs sit left-of-centre with an unbalanced right gap.
+    const float offX = ps3::gFrameX + (ps3::gFrameW - S * ps3::XCF(ps3::VW)) * 0.5f;
+    const float offY = ps3::gFrameY + ps3::gFrameH * 0.5f - S * (ps3::VH * 0.5f);
+    const float VW = ps3::VW;
+    const float innerTop = 199.0f, innerBot = 880.0f;
+    auto X  = [&](float vx) { return S * vx + offX; };
+    auto XC = [&](float vx) { return S * ps3::XCF(vx) + offX; };
+    auto Y  = [&](float vy) { return S * vy + offY; };
+    auto DS = [&](float v)  { return S * v; };
+    auto FS = [&](float px) { return S * px / 16.0f; };
+    const float slidePx = S * mPs3WizSlide;            // body content slide offset
+    const float maxW = DS((VW - 400.0f) * ps3::LAYOUT_FIT);
+
+    auto wrap = [&](const std::string& body, float fs) {
+        std::vector<std::string> out; std::string para;
+        auto wrapPara = [&](const std::string& p) {
+            if (p.empty()) { out.push_back(""); return; }
+            std::string line, word;
+            auto commit = [&]() {
+                if (word.empty()) return;
+                std::string trial = line.empty() ? word : line + " " + word;
+                if (!line.empty() && measureText(trial.c_str(), fs) > maxW) { out.push_back(line); line = word; }
+                else line = trial;
+                word.clear();
+            };
+            for (const char* q = p.c_str(); ; ++q) {
+                if (*q == ' ' || *q == '\0') { commit(); if (*q == '\0') break; } else word.push_back(*q);
+            }
+            if (!line.empty()) out.push_back(line);
+        };
+        for (size_t i = 0; i <= body.size(); i++) {
+            if (i == body.size() || body[i] == '\n') { wrapPara(para); para.clear(); } else para.push_back(body[i]);
+        }
+        return out;
+    };
+
+    // ---- header: settings icon + title + dividers ----
+    float iconSz = DS(36.0f);
+    if (mIconTextures[17])
+        drawIconTex(mIconTextures[17], X(130.0f) - iconSz * 0.5f, Y(175.0f) - iconSz * 0.5f, iconSz, iconSz, 1, 1, 1, ap);
+    ps3DlgText(d.title, X(160.0f), Y(187.0f), FS(28.0f), 1, 1, 1, ap, 0);
+    float divLw = fmaxf(1.0f, DS(1.0f));
+    drawQuad(ps3::gFrameX, Y(innerTop), ps3::gFrameW, divLw, 1, 1, 1, 0.55f * ap);
+    drawQuad(ps3::gFrameX, Y(innerBot), ps3::gFrameW, divLw, 1, 1, 1, 0.55f * ap);
+
+    const float bodyCx = XC(VW * 0.5f) + slidePx;
+
+    if (d.kind == WK_INFO || d.kind == WK_RESULT) {
+        float fs = FS(26.0f), lh = DS(36.0f);
+        std::string body = d.body;
+        if (mPs3WizId == WS_SAVE) body = "Internet connection settings have been completed.\n\nSave completed.";
+        std::vector<std::string> lines = wrap(body, fs);
+        float cy = (innerTop + innerBot) * 0.5f;
+        if (d.kind == WK_RESULT) {   // green check mark above the text
+            float r = DS(26.0f), ccx = bodyCx, ccy = Y(cy - 70.0f);
+            ps3StrokeRing(ccx, ccy, r, r, DS(3.0f), 0.45f, 0.9f, 0.45f, ap);
+            ps3ThickLine(ccx - r * 0.45f, ccy + r * 0.05f, ccx - r * 0.1f, ccy + r * 0.45f, DS(3.0f), 0.5f, 0.95f, 0.5f, ap);
+            ps3ThickLine(ccx - r * 0.1f, ccy + r * 0.45f, ccx + r * 0.5f, ccy - r * 0.4f, DS(3.0f), 0.5f, 0.95f, 0.5f, ap);
+        }
+        float ty = Y(cy) - (float)((int)lines.size() - 1) * lh * 0.5f;
+        for (auto& ln : lines) { if (!ln.empty()) ps3DlgText(ln.c_str(), bodyCx, ty, fs, 0.95f, 0.95f, 0.95f, ap, 1); ty += lh; }
+    } else if (d.kind == WK_CHOOSER) {
+        float fs = FS(24.0f);
+        std::vector<std::string> bl = wrap(d.body, fs);
+        float by = Y(innerTop + 95.0f);
+        for (auto& ln : bl) { if (!ln.empty()) ps3DlgText(ln.c_str(), bodyCx, by, fs, 0.95f, 0.95f, 0.95f, ap, 1); by += DS(32.0f); }
+        int n = 0; while (n < 8 && d.opts[n]) n++;
+        const float optTopV = innerTop + 230.0f, sp2 = 46.0f;
+        float availH = innerBot - optTopV - 90.0f;
+        int vis = (int)(availH / sp2); if (vis < 3) vis = 3;
+        int first = 0; if (n > vis) { first = mPs3WizSel - vis / 2; if (first < 0) first = 0; if (first > n - vis) first = n - vis; }
+        for (int i = first; i < n && i < first + vis; i++)
+            ps3DlgOption(d.opts[i], bodyCx, Y(optTopV + (i - first) * sp2), i == mPs3WizSel, false, ap, S);
+        if (first > 0) ps3DlgText("▲", bodyCx, Y(optTopV - 18.0f), FS(20.0f), 1, 1, 1, 0.5f * ap, 1);
+        if (first + vis < n) ps3DlgText("▼", bodyCx, Y(optTopV + vis * sp2 + 6.0f), FS(20.0f), 1, 1, 1, 0.5f * ap, 1);
+    } else if (d.kind == WK_CONFIRM) {
+        float fs = FS(26.0f), lh = DS(36.0f);
+        std::vector<std::string> bl = wrap(d.body, fs);
+        float ty = Y((innerTop + innerBot) * 0.5f) - (float)((int)bl.size() - 1) * lh * 0.5f - DS(50.0f);
+        for (auto& ln : bl) { if (!ln.empty()) ps3DlgText(ln.c_str(), bodyCx, ty, fs, 0.95f, 0.95f, 0.95f, ap, 1); ty += lh; }
+        float bxc = bodyCx - DS(110.0f), byv = ty + DS(30.0f);
+        ps3DlgOption("Yes", bxc, byv, mPs3WizSel == 0, false, ap, S);
+        ps3DlgOption("No", bxc + DS(220.0f), byv, mPs3WizSel == 1, false, ap, S);
+    } else if (d.kind == WK_PROGRESS) {
+        float fs = FS(26.0f), lh = DS(36.0f);
+        std::vector<std::string> lines = wrap(d.body, fs);
+        float ty = Y((innerTop + innerBot) * 0.5f + 40.0f) - (float)((int)lines.size() - 1) * lh * 0.5f;
+        for (auto& ln : lines) { if (!ln.empty()) ps3DlgText(ln.c_str(), bodyCx, ty, fs, 0.95f, 0.95f, 0.95f, ap, 1); ty += lh; }
+        // spinner: 8 dots around a circle, brightness sweeping.
+        float ccx = bodyCx, ccy = Y((innerTop + innerBot) * 0.5f - 50.0f), rad = DS(26.0f);
+        int lead = (int)(mEffectTime * 8.0f) % 8;
+        for (int i = 0; i < 8; i++) {
+            float a = (float)i / 8.0f * 2.0f * (float)M_PI - (float)M_PI * 0.5f;
+            int dist = (lead - i + 8) % 8;
+            float br = 0.25f + 0.75f * fmaxf(0.0f, 1.0f - dist * 0.18f);
+            ps3FillCircle(ccx + cosf(a) * rad, ccy + sinf(a) * rad, DS(4.0f), 1, 1, 1, br * ap);
+        }
+    } else if (d.kind == WK_SCANLIST) {
+        ps3DlgText(d.body, bodyCx, Y(innerTop + 70.0f), FS(24.0f), 0.95f, 0.95f, 0.95f, ap, 1);
+        std::vector<WifiNetEntry> aps;
+        { std::lock_guard<std::mutex> lk(mWifiListMutex);
+          for (auto& e : mWifiEntries) if (e.bssid != "__TOGGLE__") aps.push_back(e); }
+        float rowX = XC(VW * 0.18f) + slidePx, valX = XC(VW * 0.78f) + slidePx;
+        ps3DlgText("SSID", rowX, Y(innerTop + 118.0f), FS(18.0f), 1, 1, 1, 0.6f * ap, 0);
+        ps3DlgText("Signal", valX, Y(innerTop + 118.0f), FS(18.0f), 1, 1, 1, 0.6f * ap, 0);
+        int n = (int)aps.size();
+        const float top = innerTop + 150.0f, pitch = 56.0f;
+        int vis = (int)((innerBot - top - 20.0f) / pitch); if (vis < 3) vis = 3;
+        int first = mPs3WizSel - vis / 2; if (first < 0) first = 0; if (n <= vis) first = 0; else if (first > n - vis) first = n - vis;
+        if (n == 0)
+            ps3DlgText("No networks found. Press X to rescan.", bodyCx, Y(top + 30.0f), FS(22.0f), 0.9f, 0.9f, 0.9f, ap, 1);
+        for (int i = first; i < n && i < first + vis; i++) {
+            float ry = Y(top + (i - first) * pitch);
+            bool sel = (i == mPs3WizSel);
+            if (sel) drawRoundedRect(rowX - DS(20.0f), ry - DS(24.0f), DS(ps3::XCF(VW * 0.66f)), DS(46.0f), DS(8.0f), 1, 1, 1, 0.14f * ap);
+            float nx = rowX;
+            bool locked = (aps[i].security != 0 && aps[i].security != 4);
+            if (locked) {   // small padlock
+                float lx = rowX + DS(7.0f), ly = ry;
+                drawQuad(lx - DS(6.0f), ly - DS(2.0f), DS(12.0f), DS(9.0f), 1, 1, 1, 0.85f * ap);
+                ps3StrokeRing(lx, ly - DS(2.0f), DS(4.0f), DS(4.0f), DS(2.0f), 1, 1, 1, 0.85f * ap);
+                nx = rowX + DS(28.0f);
+            }
+            ps3DlgText(aps[i].ssid.c_str(), nx, ry + DS(7.0f), FS(sel ? 24.0f : 23.0f), 1, 1, 1, (sel ? 1.0f : 0.85f) * ap, 0);
+            int bars = 0; int r = aps[i].rssi;
+            if (r >= -55) bars = 4; else if (r >= -66) bars = 3; else if (r >= -77) bars = 2; else if (r >= -88) bars = 1;
+            for (int b = 0; b < 4; b++) {
+                float bh = DS(6.0f + b * 5.0f);
+                drawQuad(valX + b * DS(11.0f), ry + DS(8.0f) - bh, DS(8.0f), bh, 1, 1, 1, (b < bars ? 0.95f : 0.25f) * ap);
+            }
+        }
+    } else if (d.kind == WK_TEXT) {
+        // The OSK overlays; show the field label + current value box.
+        ps3DlgText(d.label, XC(VW * 0.18f) + slidePx, Y(innerTop + 64.0f), FS(24.0f), 0.95f, 0.95f, 0.95f, ap, 0);
+        float boxX = XC(VW * 0.18f) + slidePx, boxY = Y(innerTop + 84.0f), boxW = DS(ps3::XCF(VW * 0.64f)), boxH = DS(44.0f);
+        drawRoundedRect(boxX, boxY, boxW, boxH, DS(6.0f), 0, 0, 0, 0.45f * ap);
+    } else if (d.kind == WK_REVIEW) {
+        // Settings List - 1:1 with the web review rows.
+        struct KV { std::string k; std::string v; };
+        std::vector<KV> rows;
+        rows.push_back({"Connection Method", mPs3WizConn.empty() ? "Wired Connection" : mPs3WizConn});
+        if (mPs3WizConn == "Wireless") {
+            rows.push_back({"SSID", mPs3WizSsid.empty() ? "-" : mPs3WizSsid});
+            rows.push_back({"Security", mPs3WizSecLabel.empty() ? "None" : mPs3WizSecLabel});
+        } else if (!mPs3WizOpmode.empty()) {
+            rows.push_back({"Speed and Duplex",
+                mPs3WizOpmode == "Auto-Detect" ? "Auto-Detect"
+                    : (mPs3WizSpeedDuplex.empty() ? "Auto-Detect" : mPs3WizSpeedDuplex)});
+        }
+        rows.push_back({"IP Address Setting", mPs3WizIpMode.empty() ? "Automatic" : mPs3WizIpMode});
+        if (mPs3WizIpMode == "Manual") {
+            rows.push_back({"IP Address", mPs3WizIpAddr.empty() ? "-" : mPs3WizIpAddr});
+            rows.push_back({"Subnet Mask", mPs3WizSubnet.empty() ? "-" : mPs3WizSubnet});
+            rows.push_back({"Default Router", mPs3WizRouter.empty() ? "-" : mPs3WizRouter});
+        }
+        rows.push_back({"Primary DNS", mPs3WizPdns.empty() ? "Automatic" : mPs3WizPdns});
+        rows.push_back({"Secondary DNS", mPs3WizSdns.empty() ? "Automatic" : mPs3WizSdns});
+        rows.push_back({"MTU", mPs3WizMtuMode == "Manual" ? (mPs3WizMtu.empty() ? "-" : mPs3WizMtu) : "Automatic"});
+        rows.push_back({"Proxy Server", mPs3WizProxyMode.empty() ? "Do Not Use" : mPs3WizProxyMode});
+        rows.push_back({"UPnP", mPs3WizUpnp.empty() ? "Enable" : mPs3WizUpnp});
+        float fs = FS(23.0f);
+        float availV = innerBot - (innerTop + 90.0f) - 30.0f;
+        float lhV = fminf(44.0f, availV / (float)rows.size());
+        float ty = Y(innerTop + 90.0f);
+        float lx = XC(VW * 0.32f) + slidePx, rx = XC(VW * 0.68f) + slidePx;
+        for (auto& kv : rows) {
+            ps3DlgText(kv.k.c_str(), lx, ty, fs, 0.78f, 0.78f, 0.82f, ap, 0);
+            ps3DlgText(kv.v.c_str(), rx, ty, fs, 1, 1, 1, ap, 2);   // right-aligned value column (web)
+            ty += DS(lhV);
+        }
+    } else if (d.kind == WK_TEST) {
+        std::string body;
+        { std::lock_guard<std::mutex> lk(mPs3NetTestMutex); body = mPs3NetTestBody; }
+        float fs = FS(24.0f), lh = DS(34.0f);
+        std::vector<std::string> lines = wrap(body, fs);
+        float ty = Y((innerTop + innerBot) * 0.5f) - (float)((int)lines.size() - 1) * lh * 0.5f;
+        for (auto& ln : lines) { if (!ln.empty()) ps3DlgText(ln.c_str(), bodyCx, ty, fs, 0.95f, 0.95f, 0.95f, ap, 1); ty += lh; }
+    }
+
+    // ---- footer hints ----
+    float hintY = Y(909.0f);
+    float enterCX = XC(VW * 0.401f), cancelCX = XC(VW * 0.629f);
+    if (d.kind == WK_TEXT) {
+        // OSK draws its own hints.
+    } else if (d.kind == WK_PROGRESS) {
+        // no input
+    } else if (d.kind == WK_RESULT || (d.kind == WK_TEST && !mPs3NetTestActive)) {
+        ps3DlgHint(cancelCX, false, "OK", hintY, S, ap);
+    } else if (d.kind == WK_TEST) {
+        // running: no hints
+    } else if (mPs3WizId == WS_APLIST) {
+        // Three slots: Enter (cross) / Cancel (circle) / Search (square = X button).
+        float e3 = XC(VW * 0.34f), c3 = XC(VW * 0.5f), s3 = XC(VW * 0.66f);
+        ps3DlgHint(e3, true, "Enter", hintY, S, ap);
+        ps3DlgHint(c3, false, "Cancel", hintY, S, ap);
+        // square glyph + "Search"
+        {
+            float fs = S * 22.0f / 16.0f, glyphR = S * 12.0f, gap = S * 12.0f;
+            float lw = fmaxf(S * 2.0f, 1.5f), tw = measureText("Search", fs);
+            float groupW = glyphR * 2.0f + gap + tw, left = s3 - groupW * 0.5f, gcx = left + glyphR;
+            float h = glyphR * 0.78f;
+            drawQuad(gcx - h, hintY - h, 2.0f * h, lw, 1, 1, 1, 0.95f * ap);          // top
+            drawQuad(gcx - h, hintY + h - lw, 2.0f * h, lw, 1, 1, 1, 0.95f * ap);     // bottom
+            drawQuad(gcx - h, hintY - h, lw, 2.0f * h, 1, 1, 1, 0.95f * ap);          // left
+            drawQuad(gcx + h - lw, hintY - h, lw, 2.0f * h, 1, 1, 1, 0.95f * ap);     // right
+            drawText("Search", left + glyphR * 2.0f + gap, hintY - 0.45f * 16.0f * fs, fs, 1, 1, 1, 0.95f * ap);
+        }
+    } else {
+        ps3DlgHint(enterCX, true, "Enter", hintY, S, ap);
+        ps3DlgHint(cancelCX, false, "Cancel", hintY, S, ap);
     }
 }
 

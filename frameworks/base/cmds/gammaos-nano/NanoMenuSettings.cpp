@@ -300,13 +300,15 @@ std::vector<NanoMenu::WifiNetEntry> mergeWifiLists(
         if (!merged) scannedDedup.push_back(std::move(s));
     }
 
-    // Cross-annotate: copy saved netId + preferred security onto the
-    // in-range scan entry, and mark connected state.
+    // Cross-annotate: copy saved netId onto the in-range scan entry and mark
+    // connected state. Keep the SCAN security (the AP's actually-advertised
+    // capability) - do NOT upgrade it from the saved profile. A saved WPA2/WPA3
+    // transition profile reports wpa3-sae even for a WPA2-only AP, and connecting
+    // such an AP with the SAE token then fails to associate (the AP has no SAE).
     for (auto& s : scannedDedup) {
         for (auto& v : savedDedup) {
             if (v.ssid == s.ssid) {
                 s.savedNetId = v.savedNetId;
-                if (v.security > s.security) s.security = v.security;
                 break;
             }
         }
@@ -648,7 +650,14 @@ void NanoMenu::addAndConnectWifi(const std::string& ssid, int security,
     mDisplayDirty = true;
     std::string ssidCapture = ssid;
     std::thread([this, cmdline, ssidCapture]() {
-        (void)runCmd(cmdline);
+        // Don't tear down a working link: if we are already associated with this
+        // SSID, skip the (disruptive) reconnect. connect-network re-creates the
+        // profile and re-associates, which briefly drops an otherwise-good
+        // connection - and the wizard runs the connectivity test right after.
+        std::string st = runCmd("cmd wifi status 2>/dev/null");
+        if (connectedSsidFromStatus(st) != ssidCapture) {
+            (void)runCmd(cmdline);
+        }
         startWifiScanAsync();
     }).detach();
 }
@@ -771,24 +780,6 @@ static std::string netTrim(std::string s) {
     while (b < s.size() && (s[b] == ' ' || s[b] == '\t')) b++;
     return s.substr(b);
 }
-// Return the whitespace-delimited token that follows `key` in `text` (e.g. the
-// address after "inet " or "via "). Empty if not present.
-static std::string netFieldAfter(const std::string& text, const std::string& key) {
-    size_t p = text.find(key);
-    if (p == std::string::npos) return "";
-    p += key.size();
-    while (p < text.size() && text[p] == ' ') p++;
-    size_t e = p;
-    while (e < text.size() && text[e] != ' ' && text[e] != '\n'
-                           && text[e] != '\r' && text[e] != '/') e++;
-    return text.substr(p, e - p);
-}
-// Did a single-shot `ping` succeed? Cover toybox + classic ping wordings.
-static bool netPingOk(const std::string& out) {
-    return out.find(" 0% packet loss") != std::string::npos
-        || out.find("1 received") != std::string::npos
-        || out.find("1 packets received") != std::string::npos;
-}
 
 std::string NanoMenu::buildNetStatusBody() {
     // SSID + connection state come from the cached HUD poll (no slow re-query);
@@ -799,8 +790,16 @@ std::string NanoMenu::buildNetStatusBody() {
         ssid = mWifiSsid;
         connected = (mWifiLevel == kWifiLevel_Connected);
     }
-    std::string ip  = netFieldAfter(runCmd("ip -o -4 addr show wlan0 2>/dev/null"), "inet ");
-    std::string gw  = netFieldAfter(runCmd("ip route show default 2>/dev/null"), "via ");
+    // IP comes from the framework status (binder); direct `ip`/`ip route` do not
+    // work in nano's bootanim domain (see startNetTest). Gateway/DNS fall back to
+    // the dhcp.* system properties the framework publishes.
+    std::string st = runCmd("cmd wifi status 2>/dev/null");
+    std::string ip;
+    { size_t p = st.find("IP: /");
+      if (p != std::string::npos) { p += 5; size_t e = p;
+        while (e < st.size() && (isdigit((unsigned char)st[e]) || st[e] == '.')) e++;
+        ip = st.substr(p, e - p); if (ip == "0.0.0.0") ip.clear(); } }
+    std::string gw  = netTrim(runCmd("getprop dhcp.wlan0.gateway 2>/dev/null"));
     std::string dns = netTrim(runCmd("getprop net.dns1 2>/dev/null"));
     std::string mac = netTrim(runCmd("cat /sys/class/net/wlan0/address 2>/dev/null"));
     auto orDash = [](const std::string& s) { return s.empty() ? std::string("-") : s; };
@@ -836,24 +835,60 @@ void NanoMenu::startNetTest() {
         const std::string L1 = "Obtain IP Address            ";
         const std::string L2 = "Internet Connection          ";
         const std::string L3 = "Name Resolution              ";
-        // 1. IP address from DHCP
+        // Sleep in 100ms chunks so stopNetTest() stays responsive.
+        auto nap = [&](int ms) { for (int k = 0; k < ms / 100 && alive(); k++)
+            std::this_thread::sleep_for(std::chrono::milliseconds(100)); };
+        // Single source of truth that works in nano's restricted runtime: the
+        // framework "cmd wifi status" (binder). Direct ip/ping do NOT work here -
+        // ping needs CAP_NET_RAW (nano's init capabilities allowlist omits it) and
+        // the RTNETLINK read for `ip` is unavailable to the bootanim domain, so
+        // both return empty and every test row read "Failed" even when online.
+        // `cmd wifi status` reports the DHCP IP and Android's own INTERNET /
+        // VALIDATED capability (VALIDATED = the OS confirmed reachability + DNS).
+        auto ipFromStatus = [](const std::string& st) -> std::string {
+            size_t p = st.find("IP: /");
+            if (p == std::string::npos) return "";
+            p += 5; size_t e = p;
+            while (e < st.size() && (isdigit((unsigned char)st[e]) || st[e] == '.')) e++;
+            std::string v = st.substr(p, e - p);
+            return (v == "0.0.0.0") ? std::string() : v;
+        };
+        // 1. Address from DHCP - poll up to ~12s (a fresh connect may settle).
+        // WifiInfo carries the IPv4 address; on a dual-stack or IPv6-only network
+        // the OS also assigns IPv6, which WifiInfo does not surface, so a VALIDATED
+        // link (it has a working v4 OR v6 address) also counts as "address obtained".
         pub(L1 + "Testing...\n");
-        std::string ip = netFieldAfter(runCmd("ip -o -4 addr show wlan0 2>/dev/null"), "inet ");
-        bool haveIp = !ip.empty();
+        std::string ip, st; bool validated = false;
+        for (int t = 0; t < 24 && alive(); t++) {
+            st = runCmd("cmd wifi status 2>/dev/null");
+            ip = ipFromStatus(st);
+            validated = st.find("VALIDATED") != std::string::npos;
+            if (!ip.empty() || validated) break;
+            nap(500);
+        }
+        bool haveIp = !ip.empty() || validated;
         if (!alive()) return;
-        // 2. Internet reachability (ping a public IP - no DNS needed)
+        // 2. Internet reachability - poll for the framework's VALIDATED capability
+        // (Android runs its own connectivity validation a few seconds after assoc).
         pub(L1 + (haveIp ? "Succeeded" : "Failed") + "\n" + L2 + "Testing...\n");
-        bool inet = haveIp && netPingOk(runCmd("ping -c 1 -W 3 8.8.8.8 2>/dev/null"));
+        bool inet = validated;
+        for (int t = 0; t < 16 && haveIp && alive() && !inet; t++) {
+            nap(700);
+            st = runCmd("cmd wifi status 2>/dev/null");
+            if (st.find("VALIDATED") != std::string::npos) inet = true;
+        }
         if (!alive()) return;
-        // 3. Name resolution (ping a hostname - needs working DNS)
+        // 3. Name resolution - Android's validation probe resolves a hostname over
+        // DNS, so a VALIDATED network has working name resolution.
         pub(L1 + (haveIp ? "Succeeded" : "Failed") + "\n"
           + L2 + (inet ? "Succeeded" : "Failed") + "\n" + L3 + "Testing...\n");
-        bool dnsOk = inet && netPingOk(runCmd("ping -c 1 -W 3 www.google.com 2>/dev/null"));
+        bool dnsOk = inet;
         if (!alive()) return;
         std::string out = L1 + (haveIp ? "Succeeded" : "Failed") + "\n"
                         + L2 + (inet ? "Succeeded" : "Failed") + "\n"
                         + L3 + (dnsOk ? "Succeeded" : "Failed") + "\n"
-                        + "\nIP Address                   " + (haveIp ? ip : std::string("-")) + "\n";
+                        + "\nIP Address                   "
+                        + (!ip.empty() ? ip : (haveIp ? std::string("(IPv6)") : std::string("-"))) + "\n";
         pub(out);
         mPs3NetTestActive = false;
     });

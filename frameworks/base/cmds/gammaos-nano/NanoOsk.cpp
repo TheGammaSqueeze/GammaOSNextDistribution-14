@@ -866,6 +866,7 @@ void NanoMenu::oskMoveCursor(NavDir dir) {
 
 void NanoMenu::openOsk() {
     mOskActive = true;
+    mOskGlassValid = false;   // re-capture the frosted panel on open
     mOskPasswordMode = false;
     mOskPlaintext = false;
     mOskPasswordPrompt.clear();
@@ -892,6 +893,11 @@ void NanoMenu::closeOsk() {
         mOskQuery.clear();
         mOsk.caret = 0;
         mDisplayDirty = true;
+        // Cancelling a wizard text field returns to the previous wizard screen
+        // (e.g. the WPA key cancels back to the access-point list), rather than
+        // stranding the user on a blank field. wizBack reopens the OSK if the
+        // previous screen is itself a text field.
+        if (mPs3WizActive) wizBack();
         return;
     }
     if (mOskQuery.empty()) mSearchActive = false;
@@ -941,6 +947,7 @@ void NanoMenu::openOskForPassword(const std::string& prompt,
     oskApplyLocale();
     mOsk.caret = 0;
     mOskActive = true;
+    mOskGlassValid = false;   // re-capture the frosted panel on open
     mDisplayDirty = true;
 }
 
@@ -992,10 +999,28 @@ void NanoMenu::renderOsk() {
     const float accR = 0.27f, accG = 0.52f, accB = 0.96f;
 
     // --- Frosted-glass panel (captures the XMB behind, blurs + darkens it) ---
-    if (captureGlass(b.panelX, b.panelY, b.panelW, b.panelH)) {
+    // captureGlass() is a full-framebuffer glCopyTexSubImage2D resolve (~20ms tiler
+    // flush); doing it EVERY frame pinned the OSK to ~30fps. So: when the network
+    // wizard is up it already holds a fresh wave-space blur (mGlassBlurTex) -> reuse
+    // it directly (waveSpace=true), no resolve at all. Otherwise cache the resolve
+    // at ~15Hz and redraw the cached frosted panel every frame.
+    bool drewGlass = false;
+    if (mPs3WizActive && mPs3DlgBlurValid) {
         drawFrostedGlass(b.panelX, b.panelY, b.panelW, b.panelH, panelRad,
-                         0.50f, 0.54f, 0.64f, 1.0f, fade);
+                         0.50f, 0.54f, 0.64f, 1.0f, fade, true);
+        drewGlass = true;
     } else {
+        bool due = !mOskGlassValid || (mEffectTime - mOskGlassT) >= 0.0667f;
+        if (due && captureGlass(b.panelX, b.panelY, b.panelW, b.panelH)) {
+            mOskGlassValid = true; mOskGlassT = mEffectTime;
+        }
+        if (mOskGlassValid) {
+            drawFrostedGlass(b.panelX, b.panelY, b.panelW, b.panelH, panelRad,
+                             0.50f, 0.54f, 0.64f, 1.0f, fade);
+            drewGlass = true;
+        }
+    }
+    if (!drewGlass) {
         drawRoundedRect(b.panelX, b.panelY, b.panelW, b.panelH, panelRad,
                         0.12f, 0.14f, 0.18f, 0.92f * fade);
     }
