@@ -887,6 +887,7 @@ void NanoMenu::pollInput() {
                     case KEY_RIGHT:
                         navPress(NavDir::Right); break;
                     case BTN_WEST: // Y button (Nintendo layout: BTN_WEST = Y)
+                        if (mMenuState == MENU_WIFI) { handleWifiScreenY(); break; }
                         if (mMenuState == MENU_BT)   { handleBtScreenY();   break; }
                         if (mXmbMode) {
                             // Y: search in XMB mode

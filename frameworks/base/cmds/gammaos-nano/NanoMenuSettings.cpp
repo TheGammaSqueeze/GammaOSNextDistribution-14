@@ -735,6 +735,130 @@ void NanoMenu::handleWifiScreenSelect() {
         });
 }
 
+void NanoMenu::handleWifiScreenY() {
+    WifiNetEntry e;
+    {
+        std::lock_guard<std::mutex> lk(mWifiListMutex);
+        if (mWifiEntries.empty()
+                || mWifiEntrySelected < 0
+                || mWifiEntrySelected >= (int)mWifiEntries.size()) return;
+        e = mWifiEntries[mWifiEntrySelected];
+    }
+    int64_t nowMs = std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::steady_clock::now().time_since_epoch()).count();
+    if (e.bssid == "__TOGGLE__") return;
+    if (e.savedNetId >= 0) {
+        // forget-network removes the saved config (and disconnects if it is the
+        // currently associated network), then a rescan repopulates the list.
+        forgetWifiNetwork(e.savedNetId);
+        mWifiStatusMsg = e.connected ? "Disconnected and removed" : "Removed saved network";
+    } else {
+        mWifiStatusMsg = "Network is not saved";
+    }
+    mWifiStatusMsgUntilMs = nowMs + 2500;
+    mDisplayDirty = true;
+}
+
+// ---------------------------------------------------------------------------
+// Network Settings dialogs backed by the live system state
+// ---------------------------------------------------------------------------
+
+// Trim leading/trailing whitespace + newlines from shell output.
+static std::string netTrim(std::string s) {
+    while (!s.empty() && (s.back() == '\n' || s.back() == '\r'
+                       || s.back() == ' ' || s.back() == '\t')) s.pop_back();
+    size_t b = 0;
+    while (b < s.size() && (s[b] == ' ' || s[b] == '\t')) b++;
+    return s.substr(b);
+}
+// Return the whitespace-delimited token that follows `key` in `text` (e.g. the
+// address after "inet " or "via "). Empty if not present.
+static std::string netFieldAfter(const std::string& text, const std::string& key) {
+    size_t p = text.find(key);
+    if (p == std::string::npos) return "";
+    p += key.size();
+    while (p < text.size() && text[p] == ' ') p++;
+    size_t e = p;
+    while (e < text.size() && text[e] != ' ' && text[e] != '\n'
+                           && text[e] != '\r' && text[e] != '/') e++;
+    return text.substr(p, e - p);
+}
+// Did a single-shot `ping` succeed? Cover toybox + classic ping wordings.
+static bool netPingOk(const std::string& out) {
+    return out.find(" 0% packet loss") != std::string::npos
+        || out.find("1 received") != std::string::npos
+        || out.find("1 packets received") != std::string::npos;
+}
+
+std::string NanoMenu::buildNetStatusBody() {
+    // SSID + connection state come from the cached HUD poll (no slow re-query);
+    // IP/gateway/DNS/MAC are quick `ip`/getprop reads.
+    std::string ssid; bool connected = false;
+    {
+        std::lock_guard<std::mutex> lk(mNetStateMutex);
+        ssid = mWifiSsid;
+        connected = (mWifiLevel == kWifiLevel_Connected);
+    }
+    std::string ip  = netFieldAfter(runCmd("ip -o -4 addr show wlan0 2>/dev/null"), "inet ");
+    std::string gw  = netFieldAfter(runCmd("ip route show default 2>/dev/null"), "via ");
+    std::string dns = netTrim(runCmd("getprop net.dns1 2>/dev/null"));
+    std::string mac = netTrim(runCmd("cat /sys/class/net/wlan0/address 2>/dev/null"));
+    auto orDash = [](const std::string& s) { return s.empty() ? std::string("-") : s; };
+    std::string body;
+    body += "Connection Method  Wireless (Wi-Fi)\n";
+    body += std::string("Connection Status  ") + (connected ? "Connected" : "Not connected") + "\n";
+    body += std::string("SSID               ") + orDash(connected ? ssid : std::string("")) + "\n";
+    body += std::string("IP Address         ") + orDash(ip) + "\n";
+    body += std::string("Default Gateway    ") + orDash(gw) + "\n";
+    body += std::string("Primary DNS        ") + orDash(dns) + "\n";
+    body += std::string("MAC Address        ") + orDash(mac) + "\n";
+    return body;
+}
+
+void NanoMenu::stopNetTest() {
+    mPs3NetTestActive = false;
+    if (mPs3NetTestThread.joinable()) mPs3NetTestThread.join();
+}
+
+void NanoMenu::startNetTest() {
+    stopNetTest();
+    {
+        std::lock_guard<std::mutex> lk(mPs3NetTestMutex);
+        mPs3NetTestBody = "Testing the Internet connection.\nPlease wait...\n";
+    }
+    mPs3NetTestActive = true;
+    mPs3NetTestThread = std::thread([this]() {
+        auto pub = [this](const std::string& s) {
+            std::lock_guard<std::mutex> lk(mPs3NetTestMutex);
+            mPs3NetTestBody = s;
+        };
+        auto alive = [this]() { return mPs3NetTestActive.load(); };
+        const std::string L1 = "Obtain IP Address            ";
+        const std::string L2 = "Internet Connection          ";
+        const std::string L3 = "Name Resolution              ";
+        // 1. IP address from DHCP
+        pub(L1 + "Testing...\n");
+        std::string ip = netFieldAfter(runCmd("ip -o -4 addr show wlan0 2>/dev/null"), "inet ");
+        bool haveIp = !ip.empty();
+        if (!alive()) return;
+        // 2. Internet reachability (ping a public IP - no DNS needed)
+        pub(L1 + (haveIp ? "Succeeded" : "Failed") + "\n" + L2 + "Testing...\n");
+        bool inet = haveIp && netPingOk(runCmd("ping -c 1 -W 3 8.8.8.8 2>/dev/null"));
+        if (!alive()) return;
+        // 3. Name resolution (ping a hostname - needs working DNS)
+        pub(L1 + (haveIp ? "Succeeded" : "Failed") + "\n"
+          + L2 + (inet ? "Succeeded" : "Failed") + "\n" + L3 + "Testing...\n");
+        bool dnsOk = inet && netPingOk(runCmd("ping -c 1 -W 3 www.google.com 2>/dev/null"));
+        if (!alive()) return;
+        std::string out = L1 + (haveIp ? "Succeeded" : "Failed") + "\n"
+                        + L2 + (inet ? "Succeeded" : "Failed") + "\n"
+                        + L3 + (dnsOk ? "Succeeded" : "Failed") + "\n"
+                        + "\nIP Address                   " + (haveIp ? ip : std::string("-")) + "\n";
+        pub(out);
+        mPs3NetTestActive = false;
+    });
+}
+
 // ---------------------------------------------------------------------------
 // Bluetooth screen
 // ---------------------------------------------------------------------------
@@ -1241,7 +1365,14 @@ void NanoMenu::renderWifiScreen() {
 
     // Footer (suppressed during setup wizard - it draws its own)
     if (!mSetupWizardActive) {
-        const char* footer = "A: Connect | X: Rescan | B: Back";
+        // Offer "Y: Forget" only when a saved network is selected.
+        bool selSaved = false;
+        if (mWifiEntrySelected >= 0 && mWifiEntrySelected < (int)mWifiEntries.size()) {
+            const WifiNetEntry& se = mWifiEntries[mWifiEntrySelected];
+            selSaved = (se.bssid != "__TOGGLE__" && se.savedNetId >= 0);
+        }
+        const char* footer = selSaved ? "A: Connect | Y: Forget | X: Rescan | B: Back"
+                                       : "A: Connect | X: Rescan | B: Back";
         float fw = measureText(footer, footScale);
         drawText(footer, (mWidth - fw) / 2.0f,
                  mHeight - FONT_CHAR_H * footScale - 12.0f * sf,

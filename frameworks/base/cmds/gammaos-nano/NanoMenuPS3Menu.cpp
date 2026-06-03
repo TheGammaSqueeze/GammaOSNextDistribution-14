@@ -525,7 +525,15 @@ void NanoMenu::ps3XmbSelect() {
             mWaitForRelease = true;
             return;
         }
-        case PS3_DATA_LEAF: { if (it.action == 1) openPs3Dialog(it); return; }   // action='dialog' -> dialog/chooser
+        case PS3_DATA_LEAF: {
+            // Network items route to the live Wi-Fi config screen (real scan /
+            // connect with the OSK for the password) rather than a static dialog,
+            // so "Internet Connection Settings" is a real, working network setup.
+            if (it.label == "Internet Connection Settings"
+                    || it.label == "Internet Connection") { openWifiScreen(); return; }
+            if (it.action == 1) openPs3Dialog(it);   // action='dialog' -> dialog/chooser
+            return;
+        }
         default: return;
     }
     if (mPs3Stack.size() > depthBefore) {
@@ -1665,6 +1673,15 @@ void NanoMenu::openPs3Dialog(const Ps3Item& it) {
         // Header icon = the source item's icon (glass when available).
         mPs3DlgIconTex = it.iconTex; mPs3DlgIconNmap = it.nmapTex;
         mPs3DlgIconR = it.iconR; mPs3DlgIconG = it.iconG; mPs3DlgIconB = it.iconB;
+        // Live-backed Network dialogs: replace the static placeholder body with the
+        // real system state.
+        mPs3NetTestLive = false;
+        if (n == "Settings and Connection Status List") {
+            mPs3DlgBody = buildNetStatusBody();          // real SSID/IP/gateway/DNS/MAC
+        } else if (n == "Internet Connection Test") {
+            startNetTest();                              // async; renderPs3Dialog shows live results
+            mPs3NetTestLive = true;
+        }
     }
     mPs3DlgOrigSel = mPs3DlgSel;
     mPs3DlgActive = true; mPs3DlgAnim = 0.0f; mPs3DlgBlurValid = false;
@@ -1709,12 +1726,19 @@ void NanoMenu::closePs3Dialog(bool apply) {
         if (apply) applyThemeSetting(mPs3DlgThemeKey, mPs3DlgSel);
         else       previewThemeSetting(mPs3DlgThemeKey, mPs3DlgOrigSel);   // revert the live preview
     }
+    if (mPs3NetTestLive) { stopNetTest(); mPs3NetTestLive = false; }
     mPs3DlgActive = false;
     mPs3DlgBlurValid = false;
 }
 
 void NanoMenu::renderPs3Dialog() {
     if (!mPs3DlgActive) return;
+    // Internet Connection Test: pull the latest progressive results published by
+    // the background test thread into the dialog body (main thread owns mPs3DlgBody).
+    if (mPs3NetTestLive) {
+        std::lock_guard<std::mutex> lk(mPs3NetTestMutex);
+        mPs3DlgBody = mPs3NetTestBody;
+    }
     float dt = mFrameDt; if (dt < 0.0f) dt = 0.0f; if (dt > 0.1f) dt = 0.1f;
     mPs3DlgAnim += (1.0f - mPs3DlgAnim) * (1.0f - expf(-13.0f * dt));
     if (mPs3DlgAnim > 0.999f) mPs3DlgAnim = 1.0f;

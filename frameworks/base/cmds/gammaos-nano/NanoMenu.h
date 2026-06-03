@@ -24,6 +24,7 @@
 #include <set>
 #include <map>
 #include <unordered_map>
+#include <atomic>
 #include <mutex>
 #include <thread>
 
@@ -287,11 +288,16 @@ private:
     void handleWifiScreenUp();
     void handleWifiScreenDown();
     void handleWifiScreenX();            // manual rescan
+    void handleWifiScreenY();            // forget / remove the selected saved network
     void connectToSavedWifi(int savedNetId);
     void addAndConnectWifi(const std::string& ssid, int security,
                            const std::string& password);
     void forgetWifiNetwork(int savedNetId);
     void toggleWifiRadio(bool on);
+    // Network Settings dialogs backed by the live system state:
+    std::string buildNetStatusBody();    // real SSID/IP/gateway/DNS/MAC for the status list
+    void startNetTest();                 // async connectivity test (IP / internet / DNS)
+    void stopNetTest();                  // stop + join the test thread
 
     // Bluetooth screen state + helpers
     void openBtScreen();
@@ -907,6 +913,14 @@ private:
     // callback can finish the `cmd wifi connect-network` invocation.
     std::string mWifiPendingSsid;
     int mWifiPendingSecurity;
+    // Internet Connection Test (Network Settings dialog): an async thread runs the
+    // connectivity checks and publishes progressive result text here; renderPs3Dialog
+    // copies it into the dialog body each frame while mPs3NetTestLive is set.
+    bool mPs3NetTestLive = false;        // the open dialog is the live connection test
+    std::atomic<bool> mPs3NetTestActive{false};
+    std::string mPs3NetTestBody;
+    std::mutex mPs3NetTestMutex;
+    std::thread mPs3NetTestThread;
 
     // Bluetooth sub-screen state
     std::vector<BtDevEntry> mBtEntries;
