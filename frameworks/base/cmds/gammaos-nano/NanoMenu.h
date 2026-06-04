@@ -192,6 +192,7 @@ public:
         std::string address;
         bool bonded;
         bool connected;
+        int  cod = 0;   // Bluetooth class-of-device (for the "Type" column)
     };
 
 private:
@@ -1007,6 +1008,28 @@ private:
     std::thread mBtScanThread;
     std::thread mBtDiscoveryThread;
     std::string mBtStatusMsg;
+
+    // Accessory Settings Bluetooth wizard (PS3 UI). Reuses the net-wizard
+    // screen machinery (WS_BT_* screens, renderNetWizard, wizConfirm/Nav/Back)
+    // but drives the real gammaos-net bt backend on background threads.
+    int  mBtWizMode = 0;                      // 0 Manage, 1 BD Remote, 2 Audio Device
+    std::vector<BtDevEntry> mBtWizBonded;     // bonded devices for the Manage chooser
+    std::vector<BtDevEntry> mBtWizScan;       // discovered devices for the Register list
+    std::mutex mBtWizMutex;                   // guards mBtWizBonded / mBtWizScan
+    std::atomic<bool> mBtWizBusy{false};      // a bg scan/pair/connect/disconnect/unpair is running
+    std::atomic<bool> mBtWizOpOk{false};      // result of the last bg op (for the done screen)
+    std::string mBtWizSelAddr, mBtWizSelName; // selected bonded device (opts / info)
+    int  mBtWizSelCod = 0;                    // its class-of-device
+    bool mBtWizSelConnected = false;          // its live connection state
+    int  mBtWizAdInput = 0, mBtWizAdOutput = 0, mBtWizAdMic = 2;  // audio device choices
+
+    void startBtWizard(int mode);             // mode 0 Manage, 1 BD Remote, 2 Audio Device
+    void btWizRefreshBondedAsync();           // gammaos-net bt list-bonded -> mBtWizBonded
+    void btWizScanAsync();                    // gammaos-net bt scan -> mBtWizScan
+    void btWizPairAsync(const std::string& addr);
+    void btWizConnectAsync(const std::string& addr);
+    void btWizDisconnectAsync(const std::string& addr);
+    void btWizUnpairAsync(const std::string& addr);
     int64_t mBtStatusMsgUntilMs;
 
     // OSK password mode: when active, keystrokes append to mOskQuery, but

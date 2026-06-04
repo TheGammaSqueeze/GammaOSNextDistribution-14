@@ -393,6 +393,12 @@ std::vector<NanoMenu::BtDevEntry> parseBondedDevices(const std::string& text) {
         if (d.name.empty()) d.name = d.address;
         d.bonded = true;
         d.connected = false;
+        // 3rd column = class-of-device, 4th = connected.
+        if (t2 != std::string::npos) {
+            const char* cp = line.c_str() + t2 + 1;
+            char* ce = nullptr; long c = strtol(cp, &ce, 10);
+            if (ce != cp) d.cod = (int)c;
+        }
         if (t3 != std::string::npos) {
             const char* startp = line.c_str() + t3 + 1;
             char* endp = nullptr;
@@ -432,6 +438,12 @@ std::vector<NanoMenu::BtDevEntry> parseBtScanResults(const std::string& text) {
         d.name = (t2 == std::string::npos) ? line.substr(t1 + 1)
                                            : line.substr(t1 + 1, t2 - t1 - 1);
         if (d.name.empty()) d.name = d.address;
+        // 4th column = class-of-device (between t3 and t4).
+        if (t3 != std::string::npos) {
+            const char* cp = line.c_str() + t3 + 1;
+            char* ce = nullptr; long c = strtol(cp, &ce, 10);
+            if (ce != cp) d.cod = (int)c;
+        }
         int bondState = 10; // BOND_NONE
         if (t4 != std::string::npos) {
             // -fno-exceptions in AOSP builds rules out std::stoi; strtol
@@ -1255,6 +1267,94 @@ void NanoMenu::connectBtDevice(const std::string& mac) {
     mBtStatusMsgUntilMs = std::chrono::duration_cast<std::chrono::milliseconds>(
             std::chrono::steady_clock::now().time_since_epoch()).count() + 3000;
     startBtScanAsync();
+}
+
+// ---------------------------------------------------------------------------
+// Accessory Settings Bluetooth wizard backend (PS3 UI). These mirror the
+// legacy BT-screen helpers above but write to wizard-private lists/flags
+// (mBtWiz*) so the PS3 wizard and the old settings-tree screen don't fight
+// over mBtEntries. gammaos-net auto-enables the adapter, so no on/off check.
+// All run on detached background threads (the gammaos-net app_process spawn +
+// the radio work take seconds and must never block the render thread).
+// ---------------------------------------------------------------------------
+void NanoMenu::btWizRefreshBondedAsync() {
+    std::thread([this]() {
+        std::string txt = runCmd("gammaos-net bt list-bonded");
+        auto devs = parseBondedDevices(txt);
+        { std::lock_guard<std::mutex> lk(mBtWizMutex); mBtWizBonded.swap(devs); }
+        mDisplayDirty = true;
+    }).detach();
+}
+
+void NanoMenu::btWizScanAsync() {
+    mBtWizBusy = true;
+    std::thread([this]() {
+        std::string txt = runCmd("gammaos-net bt scan 8");
+        auto devs = parseBtScanResults(txt);
+        { std::lock_guard<std::mutex> lk(mBtWizMutex); mBtWizScan.swap(devs); }
+        mBtWizBusy = false;
+        mDisplayDirty = true;
+    }).detach();
+}
+
+void NanoMenu::btWizPairAsync(const std::string& addr) {
+    mBtWizBusy = true; mBtWizOpOk = false;
+    std::string a = addr;
+    std::thread([this, a]() {
+        std::string r = runCmd(("gammaos-net bt pair " + a).c_str());
+        mBtWizOpOk = r.find("OK") != std::string::npos;
+        if (!mBtWizOpOk) ALOGW("btWizPair %s failed: %s", a.c_str(), r.c_str());
+        // Refresh bonded so the freshly paired device appears in Manage.
+        std::string txt = runCmd("gammaos-net bt list-bonded");
+        auto devs = parseBondedDevices(txt);
+        { std::lock_guard<std::mutex> lk(mBtWizMutex); mBtWizBonded.swap(devs); }
+        mBtWizBusy = false;
+        mDisplayDirty = true;
+    }).detach();
+}
+
+void NanoMenu::btWizConnectAsync(const std::string& addr) {
+    mBtWizBusy = true; mBtWizOpOk = false;
+    std::string a = addr;
+    std::thread([this, a]() {
+        std::string r = runCmd(("gammaos-net bt connect " + a).c_str());
+        mBtWizOpOk = r.find("OK") != std::string::npos;
+        usleep(1200 * 1000);   // let the profiles attach before re-reading state
+        std::string txt = runCmd("gammaos-net bt list-bonded");
+        auto devs = parseBondedDevices(txt);
+        { std::lock_guard<std::mutex> lk(mBtWizMutex); mBtWizBonded.swap(devs); }
+        mBtWizBusy = false;
+        mDisplayDirty = true;
+    }).detach();
+}
+
+void NanoMenu::btWizDisconnectAsync(const std::string& addr) {
+    mBtWizBusy = true; mBtWizOpOk = false;
+    std::string a = addr;
+    std::thread([this, a]() {
+        std::string r = runCmd(("gammaos-net bt disconnect " + a).c_str());
+        mBtWizOpOk = r.find("OK") != std::string::npos;
+        usleep(800 * 1000);
+        std::string txt = runCmd("gammaos-net bt list-bonded");
+        auto devs = parseBondedDevices(txt);
+        { std::lock_guard<std::mutex> lk(mBtWizMutex); mBtWizBonded.swap(devs); }
+        mBtWizBusy = false;
+        mDisplayDirty = true;
+    }).detach();
+}
+
+void NanoMenu::btWizUnpairAsync(const std::string& addr) {
+    mBtWizBusy = true; mBtWizOpOk = false;
+    std::string a = addr;
+    std::thread([this, a]() {
+        std::string r = runCmd(("gammaos-net bt unpair " + a).c_str());
+        mBtWizOpOk = r.find("OK") != std::string::npos;
+        std::string txt = runCmd("gammaos-net bt list-bonded");
+        auto devs = parseBondedDevices(txt);
+        { std::lock_guard<std::mutex> lk(mBtWizMutex); mBtWizBonded.swap(devs); }
+        mBtWizBusy = false;
+        mDisplayDirty = true;
+    }).detach();
 }
 
 void NanoMenu::handleBtScreenUp() {

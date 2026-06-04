@@ -558,6 +558,10 @@ void NanoMenu::ps3XmbSelect() {
             if (it.label == "Time Zone") { openTimezoneGlobe(); return; }   // 3D Earth selector
             if (it.label == "Set via Internet") { startDateTimeWizard(0); return; }  // NTP progress->result
             if (it.label == "Set Manually")     { startDateTimeWizard(1); return; }  // OSK date+time entry
+            // Accessory Settings -> real Bluetooth device management (1:1 web bt_* flow).
+            if (it.label == "Manage Bluetooth® Devices")      { startBtWizard(0); return; }
+            if (it.label == "BD Remote Control Registration") { startBtWizard(1); return; }
+            if (it.label == "Audio Device Settings")          { startBtWizard(2); return; }
             if (it.action == 1) openPs3Dialog(it);   // action='dialog' -> dialog/chooser
             return;
         }
@@ -2125,8 +2129,41 @@ enum WizScr {
     // Date and Time flows (reuse the wizard UI): Set via Internet (NTP) and
     // Set Manually (OSK date + time entry).
     WS_DT_SVI_PROGRESS, WS_DT_SVI_DONE,
-    WS_DT_SM_DATE, WS_DT_SM_TIME, WS_DT_SM_DONE
+    WS_DT_SM_DATE, WS_DT_SM_TIME, WS_DT_SM_DONE,
+    // Accessory Settings: Manage Bluetooth Devices (1:1 web bt_* flow, backed by
+    // the real gammaos-net bt scan/pair/connect/disconnect/unpair), BD Remote
+    // Control Registration, and Audio Device Settings.
+    WS_BT_MANAGE, WS_BT_REGISTER_INFO, WS_BT_SCANNING, WS_BT_DEVICE_LIST,
+    WS_BT_PASSKEY, WS_BT_REGISTERING, WS_BT_REGISTER_DONE,
+    WS_BT_DEVICE_OPTS, WS_BT_CONNECTING, WS_BT_DISCONNECTING,
+    WS_BT_DELETE_CONFIRM, WS_BT_DELETING, WS_BT_INFO,
+    WS_BT_BD_REMOTE,
+    WS_BT_AD_MENU, WS_BT_AD_INPUT, WS_BT_AD_OUTPUT, WS_BT_AD_MIC
 };
+// Bluetooth class-of-device -> human label for the "Type" column (1:1 with the
+// web device list's Audio Device / Human Interface Device split, extended for the
+// other major classes we may actually see).
+static const char* btTypeLabel(int cod) {
+    switch (cod & 0x1F00) {
+        case 0x0400: return "Audio Device";
+        case 0x0500: return "Human Interface Device";
+        case 0x0100: return "Computer";
+        case 0x0200: return "Phone";
+        case 0x0600: return "Imaging Device";
+        case 0x0700: return "Wearable";
+        default:     return "Bluetooth Device";
+    }
+}
+// HID devices (keyboards/mice, major class 0x0500) get the pass-key screen, like
+// the web flow; audio devices pair directly.
+static bool btNeedsPasskey(int cod) { return (cod & 0x1F00) == 0x0500; }
+// The five WS_BT_* progress screens whose advance is gated on a background op
+// completing (mBtWizBusy) rather than a fixed dwell.
+static bool btIsBusyProgress(int id) {
+    return id == WS_BT_SCANNING || id == WS_BT_REGISTERING ||
+           id == WS_BT_CONNECTING || id == WS_BT_DISCONNECTING ||
+           id == WS_BT_DELETING;
+}
 enum WizKind { WK_INFO, WK_CHOOSER, WK_CONFIRM, WK_SCANLIST, WK_PROGRESS,
                WK_TEXT, WK_REVIEW, WK_RESULT, WK_TEST };
 enum WizField { WF_SSID = 0, WF_WEP_KEY, WF_WPA_KEY, WF_IP_ADDR, WF_IP_SUBNET,
@@ -2259,6 +2296,46 @@ static void wizDesc(int id, WizDesc& d) {
         d.label = "Time (HH:MM)"; d.field = WF_DT_TIME; break;
     case WS_DT_SM_DONE: d.kind = WK_RESULT; d.title = "Set Manually";
         d.body = "The date and time have been set."; break;
+
+    // ---- Accessory: Manage Bluetooth Devices (1:1 web bt_* flow, real backend) ----
+    case WS_BT_MANAGE: d.kind = WK_CHOOSER; d.title = "Manage Bluetooth® Devices";
+        d.body = "Register or manage Bluetooth® devices such as headsets, keyboards and mouse devices.\nSelect an option.";
+        break;   // options are dynamic (Register New Device + bonded), built in render/nav/confirm
+    case WS_BT_REGISTER_INFO: d.kind = WK_INFO; d.title = "Register Bluetooth® Device";
+        d.body = "To register (pair), you will need to prepare the Bluetooth® device.\nFor information on preparing the device, refer to the instructions supplied with the Bluetooth® device."; break;
+    case WS_BT_SCANNING: d.kind = WK_PROGRESS; d.title = "Register Bluetooth® Device";
+        d.body = "Scanning...\nPlease wait."; d.autoNext = WS_BT_DEVICE_LIST; break;   // advance on scan completion
+    case WS_BT_DEVICE_LIST: d.kind = WK_SCANLIST; d.title = "Register Bluetooth® Device";
+        d.body = "Select the Bluetooth® device to register."; break;
+    case WS_BT_PASSKEY: d.kind = WK_INFO; d.title = "Register Bluetooth® Device";
+        d.body = "Use the selected Bluetooth® device to enter the pass key shown below and press the Enter key within 30 seconds.\n\nPass Key:  0000"; break;
+    case WS_BT_REGISTERING: d.kind = WK_PROGRESS; d.title = "Register Bluetooth® Device";
+        d.body = "Registering...\nPlease wait."; d.autoNext = WS_BT_REGISTER_DONE; break;
+    case WS_BT_REGISTER_DONE: d.kind = WK_RESULT; d.title = "Register Bluetooth® Device";
+        d.body = "Register completed."; break;   // body overridden to a failure message in render
+    case WS_BT_DEVICE_OPTS: d.kind = WK_CHOOSER; d.title = "Manage Bluetooth® Devices";
+        d.opts[0] = "Connect"; d.opts[1] = "Disconnect"; d.opts[2] = "Delete"; d.opts[3] = "Information"; break;
+    case WS_BT_CONNECTING: d.kind = WK_PROGRESS; d.title = "Manage Bluetooth® Devices";
+        d.body = "Connecting...\nPlease wait."; d.autoNext = WS_BT_MANAGE; break;
+    case WS_BT_DISCONNECTING: d.kind = WK_PROGRESS; d.title = "Manage Bluetooth® Devices";
+        d.body = "Disconnecting...\nPlease wait."; d.autoNext = WS_BT_MANAGE; break;
+    case WS_BT_DELETE_CONFIRM: d.kind = WK_CONFIRM; d.title = "Manage Bluetooth® Devices";
+        d.body = "Registration with the selected device will be deleted.\nAre you sure you want to continue?"; break;
+    case WS_BT_DELETING: d.kind = WK_PROGRESS; d.title = "Manage Bluetooth® Devices";
+        d.body = "Removing...\nPlease wait."; d.autoNext = WS_BT_MANAGE; break;
+    case WS_BT_INFO: d.kind = WK_INFO; d.title = "Manage Bluetooth® Devices"; break;   // dynamic details in render
+    case WS_BT_BD_REMOTE: d.kind = WK_INFO; d.title = "Register BD Remote Control";
+        d.body = "Press the START button and ENTER button of the BD remote control you want to register at the same time, and hold down until the screen changes."; break;
+    // ---- Accessory: Audio Device Settings ----
+    case WS_BT_AD_MENU: d.kind = WK_CHOOSER; d.title = "Audio Device Settings";
+        d.body = "Sets the audio input and output devices.\nSelect an option.";
+        d.opts[0] = "Input Device"; d.opts[1] = "Output Device"; d.opts[2] = "Microphone Level"; break;
+    case WS_BT_AD_INPUT: d.kind = WK_CHOOSER; d.title = "Audio Device Settings"; d.body = "Input Device";
+        d.opts[0] = "System Default Device"; d.opts[1] = "None"; break;
+    case WS_BT_AD_OUTPUT: d.kind = WK_CHOOSER; d.title = "Audio Device Settings"; d.body = "Output Device";
+        d.opts[0] = "System Default Device"; d.opts[1] = "None"; break;
+    case WS_BT_AD_MIC: d.kind = WK_CHOOSER; d.title = "Audio Device Settings"; d.body = "Microphone Level";
+        d.opts[0] = "1"; d.opts[1] = "2"; d.opts[2] = "3"; d.opts[3] = "4"; d.opts[4] = "5"; break;
     default: break;
     }
 }
@@ -2302,6 +2379,30 @@ void NanoMenu::startDateTimeWizard(int mode) {
     wizEnter(mode == 0 ? WS_DT_SVI_PROGRESS : WS_DT_SM_DATE, 1);
 }
 
+// Launch the Accessory Settings Bluetooth wizard, reusing the net-wizard UI.
+// mode 0 = Manage Bluetooth Devices, 1 = BD Remote Control Registration,
+// 2 = Audio Device Settings.
+void NanoMenu::startBtWizard(int mode) {
+    mPs3WizActive = true;
+    mPs3WizExit = 0;
+    mPs3WizStack.clear();
+    mPs3WizAnim = 0.0f;
+    mPs3WizPendingTextField = -1;
+    mBtWizMode = mode;
+    mBtWizBusy = false;
+    mBtWizOpOk = false;
+    mBtWizSelAddr.clear(); mBtWizSelName.clear(); mBtWizSelCod = 0; mBtWizSelConnected = false;
+    { std::lock_guard<std::mutex> lk(mBtWizMutex); mBtWizScan.clear(); }
+    // Audio device choices are persisted across sessions.
+    { char b[PROPERTY_VALUE_MAX];
+      property_get("persist.gammaos.nano.bt.ad_in",  b, "0"); mBtWizAdInput  = atoi(b);
+      property_get("persist.gammaos.nano.bt.ad_out", b, "0"); mBtWizAdOutput = atoi(b);
+      property_get("persist.gammaos.nano.bt.ad_mic", b, "2"); mBtWizAdMic    = atoi(b); }
+    int first = (mode == 1) ? WS_BT_BD_REMOTE : (mode == 2) ? WS_BT_AD_MENU : WS_BT_MANAGE;
+    wizEnter(first, 1);   // wizEnter(WS_BT_MANAGE) kicks btWizRefreshBondedAsync
+
+}
+
 void NanoMenu::wizEnter(int id, int dir) {
     mPs3WizId = id;
     mPs3WizSel = 0;
@@ -2319,6 +2420,14 @@ void NanoMenu::wizEnter(int id, int dir) {
     if (d.kind == WK_CONFIRM) mPs3WizSel = (id == WS_EASY_ADV) ? 1 : 0;
     // Side effects on entering certain screens.
     if (id == WS_SCANNING) startWifiScanAsync();               // real scan
+    // Accessory: Bluetooth wizard side effects (the real gammaos-net bt backend on
+    // background threads; the busy-progress screens advance when the op completes).
+    if (id == WS_BT_MANAGE)        btWizRefreshBondedAsync();           // bonded list for the chooser
+    if (id == WS_BT_SCANNING)      btWizScanAsync();                    // real inquiry -> device list
+    if (id == WS_BT_REGISTERING)   btWizPairAsync(mBtWizSelAddr);       // real createBond + profile connect
+    if (id == WS_BT_CONNECTING)    btWizConnectAsync(mBtWizSelAddr);    // real profile connect
+    if (id == WS_BT_DISCONNECTING) btWizDisconnectAsync(mBtWizSelAddr); // real profile disconnect
+    if (id == WS_BT_DELETING)      btWizUnpairAsync(mBtWizSelAddr);     // real removeBond
     if (id == WS_SAVE) {                                       // real connect (Wi-Fi only)
         if (mPs3WizConn == "Wireless" && !mPs3WizSsid.empty()) {
             // Apply the advanced settings (static IP/DNS/MTU/proxy) via the
@@ -2511,6 +2620,46 @@ std::string NanoMenu::validateWizField(int field, const std::string& val) {
 void NanoMenu::wizConfirm() {
     WizDesc d; wizDesc(mPs3WizId, d);
     if (d.kind == WK_TEXT || d.kind == WK_PROGRESS) return;   // OSK owns text; progress auto-advances
+    // ---- Accessory: Bluetooth wizard selects ----
+    if (mPs3WizId == WS_BT_MANAGE) {          // dynamic: Register New Device + bonded devices
+        std::vector<BtDevEntry> bonded;
+        { std::lock_guard<std::mutex> lk(mBtWizMutex); bonded = mBtWizBonded; }
+        if (mPs3WizSel == 0) { mPs3WizStack.push_back(mPs3WizId); wizEnter(WS_BT_REGISTER_INFO, 1); return; }
+        int di = mPs3WizSel - 1;
+        if (di >= 0 && di < (int)bonded.size()) {
+            mBtWizSelAddr = bonded[di].address; mBtWizSelName = bonded[di].name;
+            mBtWizSelCod = bonded[di].cod;      mBtWizSelConnected = bonded[di].connected;
+            mPs3WizStack.push_back(mPs3WizId); wizEnter(WS_BT_DEVICE_OPTS, 1);
+        }
+        return;
+    }
+    if (mPs3WizId == WS_BT_DEVICE_LIST) {     // pick the discovered device to pair
+        std::vector<BtDevEntry> scan;
+        { std::lock_guard<std::mutex> lk(mBtWizMutex); scan = mBtWizScan; }
+        if (mPs3WizSel < 0 || mPs3WizSel >= (int)scan.size()) return;
+        mBtWizSelAddr = scan[mPs3WizSel].address; mBtWizSelName = scan[mPs3WizSel].name;
+        mBtWizSelCod = scan[mPs3WizSel].cod;      mBtWizSelConnected = scan[mPs3WizSel].connected;
+        mPs3WizStack.push_back(mPs3WizId);
+        wizEnter(btNeedsPasskey(mBtWizSelCod) ? WS_BT_PASSKEY : WS_BT_REGISTERING, 1);
+        return;
+    }
+    if (mPs3WizId == WS_BT_REGISTER_DONE) {   // loop back to the Manage root (BD remote closes)
+        if (mBtWizMode == 1) { mPs3WizExit = 1; mPs3WizActive = false; }
+        else { mPs3WizStack.clear(); wizEnter(WS_BT_MANAGE, -1); }
+        return;
+    }
+    if (mPs3WizId == WS_BT_DELETE_CONFIRM) {
+        if (mPs3WizSel == 0) { mPs3WizStack.push_back(mPs3WizId); wizEnter(WS_BT_DELETING, 1); }
+        else wizBack();
+        return;
+    }
+    if (mPs3WizId == WS_BT_INFO) { wizBack(); return; }   // "OK" dismisses
+    if (mPs3WizId == WS_BT_AD_INPUT)  { mBtWizAdInput = mPs3WizSel;
+        property_set("persist.gammaos.nano.bt.ad_in", std::to_string(mPs3WizSel).c_str()); wizBack(); return; }
+    if (mPs3WizId == WS_BT_AD_OUTPUT) { mBtWizAdOutput = mPs3WizSel;
+        property_set("persist.gammaos.nano.bt.ad_out", std::to_string(mPs3WizSel).c_str()); wizBack(); return; }
+    if (mPs3WizId == WS_BT_AD_MIC)    { mBtWizAdMic = mPs3WizSel;
+        property_set("persist.gammaos.nano.bt.ad_mic", std::to_string(mPs3WizSel).c_str()); wizBack(); return; }
     if (mPs3WizId == WS_APLIST) {             // pick the selected real access point
         std::vector<WifiNetEntry> aps;
         { std::lock_guard<std::mutex> lk(mWifiListMutex);
@@ -2557,23 +2706,39 @@ void NanoMenu::wizBack() {
 }
 
 void NanoMenu::wizRescan() {
-    if (mPs3WizId != WS_APLIST) return;     // X re-scans only on the access-point list
-    // Drop the transient scan screen we arrived through so repeats don't bloat the stack.
-    while (!mPs3WizStack.empty() && mPs3WizStack.back() == WS_SCANNING)
-        mPs3WizStack.pop_back();
-    wizEnter(WS_SCANNING, 1);               // fires startWifiScanAsync; auto-advances back to the list
+    // The square button re-scans on the Wi-Fi access-point list and the Bluetooth
+    // device list. Drop the transient scan screen we arrived through so repeats
+    // don't bloat the stack.
+    if (mPs3WizId == WS_APLIST) {
+        while (!mPs3WizStack.empty() && mPs3WizStack.back() == WS_SCANNING)
+            mPs3WizStack.pop_back();
+        wizEnter(WS_SCANNING, 1);           // fires startWifiScanAsync; auto-advances back to the list
+    } else if (mPs3WizId == WS_BT_DEVICE_LIST) {
+        while (!mPs3WizStack.empty() && mPs3WizStack.back() == WS_BT_SCANNING)
+            mPs3WizStack.pop_back();
+        wizEnter(WS_BT_SCANNING, 1);        // fires btWizScanAsync; auto-advances back to the list
+    }
 }
 
 void NanoMenu::wizNav(int dir, bool /*horizontal*/) {
     WizDesc d; wizDesc(mPs3WizId, d);
     if (d.kind == WK_CHOOSER) {
-        int n = 0; while (n < 8 && d.opts[n]) n++;
+        int n;
+        if (mPs3WizId == WS_BT_MANAGE) {
+            std::lock_guard<std::mutex> lk(mBtWizMutex);
+            n = 1 + (int)mBtWizBonded.size();   // Register New Device + bonded
+        } else { n = 0; while (n < 8 && d.opts[n]) n++; }
         if (n > 0) mPs3WizSel = (mPs3WizSel + dir + n) % n;
     } else if (d.kind == WK_CONFIRM) {
         mPs3WizSel ^= 1;
     } else if (d.kind == WK_SCANLIST) {
-        int n; { std::lock_guard<std::mutex> lk(mWifiListMutex);
-                 n = 0; for (auto& e : mWifiEntries) if (e.bssid != "__TOGGLE__") n++; }
+        int n;
+        if (mPs3WizId == WS_BT_DEVICE_LIST) {
+            std::lock_guard<std::mutex> lk(mBtWizMutex); n = (int)mBtWizScan.size();
+        } else {
+            std::lock_guard<std::mutex> lk(mWifiListMutex);
+            n = 0; for (auto& e : mWifiEntries) if (e.bssid != "__TOGGLE__") n++;
+        }
         if (n > 0) { mPs3WizSel += dir; if (mPs3WizSel < 0) mPs3WizSel = 0; if (mPs3WizSel > n - 1) mPs3WizSel = n - 1; }
     }
     mDisplayDirty = true;
@@ -2664,6 +2829,17 @@ int NanoMenu::wizNextScreen(int id, int sel) {
     case WS_DT_SM_DATE: return WS_DT_SM_TIME;
     case WS_DT_SM_TIME: return WS_DT_SM_DONE;
     case WS_DT_SM_DONE: return WS_NONE;
+    // ---- Accessory: Bluetooth ----
+    case WS_BT_REGISTER_INFO: return WS_BT_SCANNING;
+    case WS_BT_PASSKEY:       return WS_BT_REGISTERING;
+    case WS_BT_BD_REMOTE:     return WS_BT_SCANNING;
+    case WS_BT_DEVICE_OPTS:
+        return (sel == 0) ? WS_BT_CONNECTING
+             : (sel == 1) ? WS_BT_DISCONNECTING
+             : (sel == 2) ? WS_BT_DELETE_CONFIRM
+                          : WS_BT_INFO;
+    case WS_BT_AD_MENU:
+        return (sel == 0) ? WS_BT_AD_INPUT : (sel == 1) ? WS_BT_AD_OUTPUT : WS_BT_AD_MIC;
     default: return WS_NONE;
     }
 }
@@ -2691,6 +2867,18 @@ void NanoMenu::renderNetWizard() {
         mPs3WizStack.push_back(mPs3WizId);
         wizEnter(d.autoNext, 1);
         wizDesc(mPs3WizId, d);
+    }
+    // Advance the Bluetooth busy-progress screens when their background op finishes
+    // (with a short minimum dwell so the spinner is always seen). Returning to the
+    // Manage screen resets the stack so it stays the root of the BT wizard.
+    if (btIsBusyProgress(mPs3WizId) && !mBtWizBusy) {
+        float dwell = mEffectTime - mPs3WizScreenStart; if (dwell < 0.0f) dwell += 500.0f;
+        if (dwell >= 0.5f) {
+            int nx = d.autoNext;
+            if (nx == WS_BT_MANAGE) { mPs3WizStack.clear(); wizEnter(WS_BT_MANAGE, -1); }
+            else { mPs3WizStack.push_back(mPs3WizId); wizEnter(nx, 1); }
+            wizDesc(mPs3WizId, d);
+        }
     }
 
     // Horizontal slide: ease the body offset back to 0 over ~260 ms (easeOutCubic).
@@ -2770,32 +2958,106 @@ void NanoMenu::renderNetWizard() {
 
     const float bodyCx = XC(VW * 0.5f) + slidePx;
 
-    if (d.kind == WK_INFO || d.kind == WK_RESULT) {
+    if (mPs3WizId == WS_BT_INFO) {
+        // Information panel for a registered device (key/value rows).
+        struct KV { const char* k; std::string v; };
+        std::vector<KV> rows = {
+            {"Device Name",       mBtWizSelName.empty() ? mBtWizSelAddr : mBtWizSelName},
+            {"Bluetooth Address", mBtWizSelAddr},
+            {"Type",              btTypeLabel(mBtWizSelCod)},
+            {"Connection",        mBtWizSelConnected ? "Connected" : "Not Connected"},
+        };
+        float fs = FS(24.0f), ty = Y(innerTop + 150.0f);
+        float lx = XC(VW * 0.28f) + slidePx, rx = XC(VW * 0.72f) + slidePx;
+        for (auto& kv : rows) {
+            ps3DlgText(kv.k, lx, ty, fs, 0.78f, 0.78f, 0.82f, ap, 0);
+            ps3DlgText(kv.v.c_str(), rx, ty, fs, 1, 1, 1, ap, 2);
+            ty += DS(54.0f);
+        }
+    } else if (mPs3WizId == WS_BT_BD_REMOTE) {
+        // Instruction text + a stylised vertical BD remote (1:1 with the web
+        // bd_remote illustration: body, IR window, D-pad, button grid, and the
+        // START + ENTER buttons highlighted in yellow).
+        float fs = FS(24.0f), lh = DS(34.0f);
+        std::vector<std::string> lines = wrap(d.body, fs);
+        float ty = Y(innerTop + 70.0f);
+        for (auto& ln : lines) { if (!ln.empty()) ps3DlgText(ln.c_str(), bodyCx, ty, fs, 0.95f, 0.95f, 0.95f, ap, 1); ty += lh; }
+        float rw = DS(132.0f), rh = DS(360.0f);
+        float rx = bodyCx - rw * 0.5f, rry = Y(innerTop + 230.0f);
+        drawRoundedRect(rx, rry, rw, rh, DS(18.0f), 0.80f, 0.80f, 0.84f, ap);                 // body
+        drawRoundedRect(rx, rry + rh * 0.5f, rw, rh * 0.5f, DS(18.0f), 0.50f, 0.50f, 0.55f, 0.55f * ap); // lower shade
+        drawQuad(bodyCx - DS(22.0f), rry + DS(14.0f), DS(44.0f), DS(9.0f), 0.08f, 0.08f, 0.10f, ap);     // IR window
+        ps3FillCircle(bodyCx, rry + DS(82.0f), DS(30.0f), 0.42f, 0.42f, 0.47f, ap);           // D-pad
+        ps3FillCircle(bodyCx, rry + DS(82.0f), DS(11.0f), 0.20f, 0.20f, 0.23f, ap);
+        for (int r = 0; r < 3; r++) for (int c = 0; c < 3; c++)                                // 3x3 button grid
+            ps3FillCircle(bodyCx + (c - 1) * DS(34.0f), rry + DS(160.0f) + r * DS(40.0f), DS(11.0f), 0.24f, 0.24f, 0.27f, ap);
+        // START + ENTER pills (yellow) with dark labels.
+        float pw = DS(52.0f), ph = DS(24.0f), py = rry + rh - DS(54.0f);
+        drawRoundedRect(bodyCx - DS(58.0f), py, pw, ph, DS(6.0f), 0.99f, 0.88f, 0.29f, ap);
+        drawRoundedRect(bodyCx + DS(6.0f),  py, pw, ph, DS(6.0f), 0.99f, 0.88f, 0.29f, ap);
+        ps3DlgText("START", bodyCx - DS(32.0f), py + DS(16.0f), FS(13.0f), 0.1f, 0.1f, 0.1f, ap, 1);
+        ps3DlgText("ENTER", bodyCx + DS(32.0f), py + DS(16.0f), FS(13.0f), 0.1f, 0.1f, 0.1f, ap, 1);
+    } else if (d.kind == WK_INFO || d.kind == WK_RESULT) {
         float fs = FS(26.0f), lh = DS(36.0f);
         std::string body = d.body;
         if (mPs3WizId == WS_SAVE) body = "Internet connection settings have been completed.\n\nSave completed.";
+        // Bluetooth register result reflects the real pairing outcome.
+        bool ok = true;
+        if (mPs3WizId == WS_BT_REGISTER_DONE && !mBtWizOpOk) {
+            body = "The device could not be registered.\nMake sure the device is in pairing mode and try again.";
+            ok = false;
+        }
         std::vector<std::string> lines = wrap(body, fs);
         float cy = (innerTop + innerBot) * 0.5f;
         float ty = Y(cy) - (float)((int)lines.size() - 1) * lh * 0.5f;
-        if (d.kind == WK_RESULT) {   // green check mark clear ABOVE the text block
+        if (d.kind == WK_RESULT) {   // status mark clear ABOVE the text block
             float r = DS(26.0f), ccx = bodyCx, ccy = ty - DS(58.0f);
-            ps3StrokeRing(ccx, ccy, r, r, DS(3.0f), 0.45f, 0.9f, 0.45f, ap);
-            ps3ThickLine(ccx - r * 0.45f, ccy + r * 0.05f, ccx - r * 0.1f, ccy + r * 0.45f, DS(3.0f), 0.5f, 0.95f, 0.5f, ap);
-            ps3ThickLine(ccx - r * 0.1f, ccy + r * 0.45f, ccx + r * 0.5f, ccy - r * 0.4f, DS(3.0f), 0.5f, 0.95f, 0.5f, ap);
+            if (ok) {
+                ps3StrokeRing(ccx, ccy, r, r, DS(3.0f), 0.45f, 0.9f, 0.45f, ap);
+                ps3ThickLine(ccx - r * 0.45f, ccy + r * 0.05f, ccx - r * 0.1f, ccy + r * 0.45f, DS(3.0f), 0.5f, 0.95f, 0.5f, ap);
+                ps3ThickLine(ccx - r * 0.1f, ccy + r * 0.45f, ccx + r * 0.5f, ccy - r * 0.4f, DS(3.0f), 0.5f, 0.95f, 0.5f, ap);
+            } else {   // red X for a failed registration
+                ps3StrokeRing(ccx, ccy, r, r, DS(3.0f), 0.95f, 0.45f, 0.45f, ap);
+                ps3ThickLine(ccx - r * 0.4f, ccy - r * 0.4f, ccx + r * 0.4f, ccy + r * 0.4f, DS(3.0f), 0.95f, 0.5f, 0.5f, ap);
+                ps3ThickLine(ccx - r * 0.4f, ccy + r * 0.4f, ccx + r * 0.4f, ccy - r * 0.4f, DS(3.0f), 0.95f, 0.5f, 0.5f, ap);
+            }
         }
         for (auto& ln : lines) { if (!ln.empty()) ps3DlgText(ln.c_str(), bodyCx, ty, fs, 0.95f, 0.95f, 0.95f, ap, 1); ty += lh; }
     } else if (d.kind == WK_CHOOSER) {
+        // Build the option list. Most choosers use the static d.opts; the Bluetooth
+        // Manage screen is dynamic ("Register New Device" + the bonded devices), and
+        // the per-device options screen prepends the selected device's name.
+        std::vector<std::string> opts;
+        std::string body = d.body;
+        if (mPs3WizId == WS_BT_MANAGE) {
+            opts.push_back("Register New Device");
+            std::lock_guard<std::mutex> lk(mBtWizMutex);
+            for (auto& b : mBtWizBonded) {
+                std::string lbl = b.name.empty() ? b.address : b.name;
+                if (b.connected) lbl += "   (Connected)";
+                opts.push_back(lbl);
+            }
+        } else if (mPs3WizId == WS_BT_DEVICE_OPTS) {
+            body = std::string("Registered Device:  ") + mBtWizSelName;
+            for (int i = 0; i < 8 && d.opts[i]; i++) opts.push_back(d.opts[i]);
+        } else {
+            for (int i = 0; i < 8 && d.opts[i]; i++) opts.push_back(d.opts[i]);
+        }
         float fs = FS(24.0f);
-        std::vector<std::string> bl = wrap(d.body, fs);
+        std::vector<std::string> bl = wrap(body, fs);
         float by = Y(innerTop + 95.0f);
         for (auto& ln : bl) { if (!ln.empty()) ps3DlgText(ln.c_str(), bodyCx, by, fs, 0.95f, 0.95f, 0.95f, ap, 1); by += DS(32.0f); }
-        int n = 0; while (n < 8 && d.opts[n]) n++;
+        int n = (int)opts.size();
+        // The Manage list is dynamic (a background refresh can shrink it); keep the
+        // cursor in range so the highlight never vanishes and selection stays valid.
+        if (mPs3WizSel >= n) mPs3WizSel = n > 0 ? n - 1 : 0;
+        if (mPs3WizSel < 0) mPs3WizSel = 0;
         const float optTopV = innerTop + 230.0f, sp2 = 46.0f;
         float availH = innerBot - optTopV - 90.0f;
         int vis = (int)(availH / sp2); if (vis < 3) vis = 3;
         int first = 0; if (n > vis) { first = mPs3WizSel - vis / 2; if (first < 0) first = 0; if (first > n - vis) first = n - vis; }
         for (int i = first; i < n && i < first + vis; i++)
-            ps3DlgOption(d.opts[i], bodyCx, Y(optTopV + (i - first) * sp2), i == mPs3WizSel, false, ap, S);
+            ps3DlgOption(opts[i].c_str(), bodyCx, Y(optTopV + (i - first) * sp2), i == mPs3WizSel, false, ap, S);
         if (first > 0) ps3DlgText("▲", bodyCx, Y(optTopV - 18.0f), FS(20.0f), 1, 1, 1, 0.5f * ap, 1);
         if (first + vis < n) ps3DlgText("▼", bodyCx, Y(optTopV + vis * sp2 + 6.0f), FS(20.0f), 1, 1, 1, 0.5f * ap, 1);
     } else if (d.kind == WK_CONFIRM) {
@@ -2819,6 +3081,32 @@ void NanoMenu::renderNetWizard() {
             int dist = (lead - i + 8) % 8;
             float br = 0.25f + 0.75f * fmaxf(0.0f, 1.0f - dist * 0.18f);
             ps3FillCircle(ccx + cosf(a) * rad, ccy + sinf(a) * rad, DS(4.0f), 1, 1, 1, br * ap);
+        }
+    } else if (d.kind == WK_SCANLIST && mPs3WizId == WS_BT_DEVICE_LIST) {
+        // Bluetooth device list: Device Name | Type, from the real inquiry results.
+        ps3DlgText(d.body, bodyCx, Y(innerTop + 70.0f), FS(24.0f), 0.95f, 0.95f, 0.95f, ap, 1);
+        std::vector<BtDevEntry> devs;
+        { std::lock_guard<std::mutex> lk(mBtWizMutex); devs = mBtWizScan; }
+        float rowX = XC(VW * 0.18f) + slidePx, typeX = XC(VW * 0.60f) + slidePx;
+        ps3DlgText("Device Name", rowX, Y(innerTop + 118.0f), FS(18.0f), 1, 1, 1, 0.6f * ap, 0);
+        ps3DlgText("Type", typeX, Y(innerTop + 118.0f), FS(18.0f), 1, 1, 1, 0.6f * ap, 0);
+        int n = (int)devs.size();
+        if (mPs3WizSel >= n) mPs3WizSel = n > 0 ? n - 1 : 0;   // keep cursor in range (list is dynamic)
+        if (mPs3WizSel < 0) mPs3WizSel = 0;
+        const float top = innerTop + 150.0f, pitch = 56.0f;
+        int vis = (int)((innerBot - top - 20.0f) / pitch); if (vis < 3) vis = 3;
+        int first = mPs3WizSel - vis / 2; if (first < 0) first = 0; if (n <= vis) first = 0; else if (first > n - vis) first = n - vis;
+        if (n == 0)
+            ps3DlgText("No devices found. Press the square button to scan again.", bodyCx, Y(top + 30.0f), FS(22.0f), 0.9f, 0.9f, 0.9f, ap, 1);
+        for (int i = first; i < n && i < first + vis; i++) {
+            float ry = Y(top + (i - first) * pitch);
+            bool sel = (i == mPs3WizSel);
+            if (sel) drawRoundedRect(rowX - DS(20.0f), ry - DS(24.0f), DS(ps3::XCF(VW * 0.66f)), DS(46.0f), DS(8.0f), 1, 1, 1, 0.14f * ap);
+            std::string nm = devs[i].name.empty() ? devs[i].address : devs[i].name;
+            ps3DlgText(nm.c_str(), rowX, ry + DS(7.0f), FS(sel ? 24.0f : 23.0f), 1, 1, 1, (sel ? 1.0f : 0.85f) * ap, 0);
+            ps3DlgText(btTypeLabel(devs[i].cod), typeX, ry + DS(7.0f), FS(20.0f), 1, 1, 1, (sel ? 0.9f : 0.7f) * ap, 0);
+            if (devs[i].bonded)
+                ps3DlgText("(Paired)", typeX + DS(190.0f), ry + DS(7.0f), FS(18.0f), 0.6f, 0.85f, 0.6f, ap, 0);
         }
     } else if (d.kind == WK_SCANLIST) {
         ps3DlgText(d.body, bodyCx, Y(innerTop + 70.0f), FS(24.0f), 0.95f, 0.95f, 0.95f, ap, 1);
@@ -2926,11 +3214,11 @@ void NanoMenu::renderNetWizard() {
         // OSK draws its own hints.
     } else if (d.kind == WK_PROGRESS) {
         // no input
-    } else if (d.kind == WK_RESULT || (d.kind == WK_TEST && !mPs3NetTestActive)) {
-        ps3DlgHint(cancelCX, false, "OK", hintY, S, ap);
+    } else if (d.kind == WK_RESULT || mPs3WizId == WS_BT_INFO || (d.kind == WK_TEST && !mPs3NetTestActive)) {
+        ps3DlgHint(cancelCX, false, "OK", hintY, S, ap);   // info/result screens dismiss with OK
     } else if (d.kind == WK_TEST) {
         // running: no hints
-    } else if (mPs3WizId == WS_APLIST) {
+    } else if (mPs3WizId == WS_APLIST || mPs3WizId == WS_BT_DEVICE_LIST) {
         // Three slots: Enter (cross) / Cancel (circle) / Search (square = X button).
         float e3 = XC(VW * 0.34f), c3 = XC(VW * 0.5f), s3 = XC(VW * 0.66f);
         ps3DlgHint(e3, true, "Enter", hintY, S, ap);

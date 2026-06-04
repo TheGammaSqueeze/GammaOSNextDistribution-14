@@ -69,6 +69,10 @@ public final class BtSubcommand {
                 return pair(ctx, adapter, args);
             case "unpair":
                 return unpair(adapter, args);
+            case "connect":
+                return connect(adapter, args);
+            case "disconnect":
+                return disconnect(adapter, args);
             case "list-bonded":
                 return listBonded(adapter);
             default:
@@ -743,6 +747,63 @@ public final class BtSubcommand {
         }
         System.out.println("OK");
         return 0;
+    }
+
+    // ---------------------------------------------------------------------
+    // connect / disconnect
+    // ---------------------------------------------------------------------
+
+    // BluetoothDevice.connect() / .disconnect() are @SystemApi hidden on
+    // AOSP 14 (the same connect() the pair flow reflects into post-bond).
+    // They bring up / tear down every enabled profile on the device (A2DP,
+    // HID, HEADSET, ...). The actual link transition is asynchronous, so
+    // we just kick it and return; the caller refreshes the bonded list to
+    // observe the new connected state.
+    private static int connect(BluetoothAdapter adapter, String[] args) {
+        if (args.length < 3) {
+            System.err.println("usage: gammaos-net bt connect <address>");
+            return 2;
+        }
+        String addr = args[2].toUpperCase();
+        if (!BluetoothAdapter.checkBluetoothAddress(addr)) {
+            System.err.println("gammaos-net bt: invalid address " + addr);
+            return 2;
+        }
+        if (adapter.isDiscovering()) adapter.cancelDiscovery();
+        BluetoothDevice dev = adapter.getRemoteDevice(addr);
+        if (dev.getBondState() != BluetoothDevice.BOND_BONDED) {
+            System.err.println("gammaos-net bt: connect requires a bonded device");
+            return 5;
+        }
+        try {
+            BluetoothDevice.class.getMethod("connect").invoke(dev);
+            System.out.println("OK");
+            return 0;
+        } catch (Throwable t) {
+            System.err.println("gammaos-net bt: connect() failed: " + t);
+            return 5;
+        }
+    }
+
+    private static int disconnect(BluetoothAdapter adapter, String[] args) {
+        if (args.length < 3) {
+            System.err.println("usage: gammaos-net bt disconnect <address>");
+            return 2;
+        }
+        String addr = args[2].toUpperCase();
+        if (!BluetoothAdapter.checkBluetoothAddress(addr)) {
+            System.err.println("gammaos-net bt: invalid address " + addr);
+            return 2;
+        }
+        BluetoothDevice dev = adapter.getRemoteDevice(addr);
+        try {
+            BluetoothDevice.class.getMethod("disconnect").invoke(dev);
+            System.out.println("OK");
+            return 0;
+        } catch (Throwable t) {
+            System.err.println("gammaos-net bt: disconnect() failed: " + t);
+            return 5;
+        }
     }
 
     // ---------------------------------------------------------------------
