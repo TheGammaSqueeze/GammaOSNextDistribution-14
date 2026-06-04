@@ -254,10 +254,12 @@ public final class BtSubcommand {
             // stack runs Remote Name Requests for devices that didn't
             // include their name in the EIR, and each resolved name
             // comes in as a separate ACTION_NAME_CHANGED broadcast.
-            // Give it a few seconds to land before we print the list,
+            // Give it several seconds to land before we print the list,
             // and for any entry still nameless kick an asynchronous
-            // refresh that will update the cache for a future scan.
-            resolveNames(adapter, found, 4000);
+            // refresh that will update the cache for a future scan. A
+            // longer window resolves more classic-device friendly names
+            // (Remote Name Request + SDP can be slow on a busy radio).
+            resolveNames(adapter, found, 6000);
         } finally {
             try { adapter.cancelDiscovery(); } catch (Throwable ignored) { }
             if (leScanner != null && leCb != null) {

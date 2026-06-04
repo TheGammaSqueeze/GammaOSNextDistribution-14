@@ -1297,13 +1297,15 @@ void NanoMenu::drawPs3Clock(float fadeMul) {
             drawWifiIcon(lx, cyc - iconH * 0.5f, wifiSf, bars, 1.0f, 1.0f, 1.0f, wa * fadeMul);
             lx += wifiW + margin;
         }
-        // Bluetooth.
+        // Bluetooth. Turns blue when a device is actively connected.
         {
             float btSf = iconH / 20.0f;
+            bool conn = (bl == kBtLevel_Connected);
             float bta = (bl == kBtLevel_Off || bl == kBtLevel_Unknown) ? 0.32f
-                      : (bl == kBtLevel_Connected ? 0.96f : 0.72f);
+                      : (conn ? 0.96f : 0.72f);
+            float br = conn ? 0.34f : 1.0f, bg = conn ? 0.66f : 1.0f, bb = 1.0f;
             drawBtIcon(lx + so[0], cyc - iconH * 0.5f + so[1], btSf, 0.0f, 0.0f, 0.0f, bta * 0.6f * fadeMul);
-            drawBtIcon(lx, cyc - iconH * 0.5f, btSf, 1.0f, 1.0f, 1.0f, bta * fadeMul);
+            drawBtIcon(lx, cyc - iconH * 0.5f, btSf, br, bg, bb, bta * fadeMul);
         }
     }
 }
@@ -2423,7 +2425,9 @@ void NanoMenu::wizEnter(int id, int dir) {
     // Accessory: Bluetooth wizard side effects (the real gammaos-net bt backend on
     // background threads; the busy-progress screens advance when the op completes).
     if (id == WS_BT_MANAGE)        btWizRefreshBondedAsync();           // bonded list for the chooser
-    if (id == WS_BT_SCANNING)      btWizScanAsync();                    // real inquiry -> device list
+    if (id == WS_BT_REGISTER_INFO || id == WS_BT_BD_REMOTE)             // start a fresh discovery session
+        { std::lock_guard<std::mutex> lk(mBtWizMutex); mBtWizScan.clear(); }
+    if (id == WS_BT_SCANNING)      btWizScanAsync();                    // real inquiry -> device list (accumulates)
     if (id == WS_BT_REGISTERING)   btWizPairAsync(mBtWizSelAddr);       // real createBond + profile connect
     if (id == WS_BT_CONNECTING)    btWizConnectAsync(mBtWizSelAddr);    // real profile connect
     if (id == WS_BT_DISCONNECTING) btWizDisconnectAsync(mBtWizSelAddr); // real profile disconnect

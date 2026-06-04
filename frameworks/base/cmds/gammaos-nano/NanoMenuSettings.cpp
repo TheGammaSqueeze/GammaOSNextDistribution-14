@@ -1289,9 +1289,28 @@ void NanoMenu::btWizRefreshBondedAsync() {
 void NanoMenu::btWizScanAsync() {
     mBtWizBusy = true;
     std::thread([this]() {
-        std::string txt = runCmd("gammaos-net bt scan 8");
+        // A longer inquiry (15s) catches BLE peripherals that advertise only
+        // intermittently, and the results are MERGED into the list rather than
+        // replacing it so a device seen in one scan does not vanish if the next
+        // scan misses it (the "devices only appear after several scans" problem).
+        std::string txt = runCmd("gammaos-net bt scan 15");
         auto devs = parseBtScanResults(txt);
-        { std::lock_guard<std::mutex> lk(mBtWizMutex); mBtWizScan.swap(devs); }
+        std::lock_guard<std::mutex> lk(mBtWizMutex);
+        for (auto& s : devs) {
+            bool found = false;
+            for (auto& d : mBtWizScan) {
+                if (d.address == s.address) {
+                    // Upgrade a placeholder (MAC-as-name) once a real name resolves;
+                    // refresh class-of-device + bond state from the freshest sighting.
+                    if (!s.name.empty() && s.name != s.address &&
+                        (d.name.empty() || d.name == d.address)) d.name = s.name;
+                    if (s.cod != 0) d.cod = s.cod;
+                    d.bonded = s.bonded;
+                    found = true; break;
+                }
+            }
+            if (!found) mBtWizScan.push_back(std::move(s));
+        }
         mBtWizBusy = false;
         mDisplayDirty = true;
     }).detach();
