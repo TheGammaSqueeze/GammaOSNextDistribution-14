@@ -81,10 +81,10 @@ static const Ps3DataItem kThemeSettingsCh[] = {
 };
 static const Ps3DataItem kDateTimeCh[] = {
   {"Date and Time",22,"Sets the date and time for this system.",nullptr,1,nullptr,0},
-  {"Date Format",22,"Sets the order of display for year, month and day.","DD/MM/YYYY",0,nullptr,0},
-  {"Time Format",22,"Sets the time display to either a 12-hour or 24-hour clock.","24-Hour Clock",0,nullptr,0},
+  {"Date Format",22,"Sets the order of display for year, month and day.","DD/MM/YYYY",1,nullptr,0},
+  {"Time Format",22,"Sets the time display to either a 12-hour or 24-hour clock.","24-Hour Clock",1,nullptr,0},
   {"Time Zone",22,nullptr,"GMT",0,nullptr,0},
-  {"Daylight Saving",22,"Sets for daylight saving time.","Off",0,nullptr,0},
+  {"Daylight Saving",22,"Sets for daylight saving time.","Off",1,nullptr,0},
   {"Set via Internet",22,"Obtains the correct date and time automatically via the Internet when you sign in to PSN, and sets them on your system.",nullptr,1,nullptr,0},
   {"Set Manually",22,nullptr,nullptr,1,nullptr,0},
 };

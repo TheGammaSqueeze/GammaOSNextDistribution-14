@@ -913,7 +913,12 @@ void NanoMenu::oskConfirm() {
         mOsk.inCandidateBar = false;
     }
     mOsk.closing = true;   // fade out (renderOsk finalizes mOskActive=false)
-    if (mOskPasswordMode) {
+    // Run the registered submit callback for ANY OSK opened via openOskForPassword
+    // (wizard text fields), masked or not. Keying off mOskPasswordMode meant
+    // non-masked fields (SSID, IP, the Set Manually date/time) fell through to the
+    // search path and never advanced the wizard; mOskPasswordMode only controls
+    // visual masking, not whether a callback is owed.
+    if (mOskPasswordCallback) {
         auto cb = std::move(mOskPasswordCallback);
         std::string pw = mOskQuery;
         mOskPasswordMode = false;

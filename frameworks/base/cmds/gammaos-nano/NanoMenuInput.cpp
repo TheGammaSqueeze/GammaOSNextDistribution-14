@@ -729,15 +729,6 @@ void NanoMenu::pollInput() {
             if (ev.type == EV_KEY && ev.code == BTN_START) {
                 mStartHeld = (ev.value != 0);
             }
-            // START + SELECT held together re-triggers the PS3 cold-boot intro
-            // (a demo/test shortcut). The boot-skip handler above already swallows
-            // input while an intro is playing, so this only fires when settled.
-            if (mPs3Xmb && !mPs3BootActive && mStartHeld && mSelectHeld
-                && ev.type == EV_KEY && ev.value == 1
-                && (ev.code == BTN_START || ev.code == BTN_SELECT)) {
-                ps3BootReset(false);
-                ALOGI("NanoMenu: START+SELECT -> replay PS3 boot intro");
-            }
             // Power button handling
             if (ev.type == EV_KEY && ev.code == KEY_POWER) {
                 if (ev.value == 1) {

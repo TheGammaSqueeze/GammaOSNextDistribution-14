@@ -55,6 +55,7 @@ cc_binary {
         "NanoMenuPS3Particles.cpp",
         "NanoMenuPS3Icons.cpp",
         "NanoMenuPS3Menu.cpp",
+        "NanoMenuPS3Globe.cpp",
         "NanoMenuPS3Boot.cpp",
         "NanoMenuSetupWizard.cpp",
         "NanoMenuStrings.cpp",
@@ -103,6 +104,7 @@ cc_binary {
         "nano_xmb_normalmaps",
         "nano_xmb_glass",
         "nano_xmb_textures",
+        "nano_xmb_globe",
     ],
 }
 
@@ -168,6 +170,16 @@ prebuilt_etc {
     name: "nano_xmb_textures",
     srcs: ["ps3xmb/textures/*.png"],
     sub_dir: "nano_xmb/textures",
+}
+
+// 3D Earth maps for the Time Zone globe selector (web tzglobe screen). Day /
+// night / clouds equirectangular maps, resized to 1024x512 power-of-two PNG so
+// GLES2 can use GL_REPEAT longitude wrap + mipmaps (the source JPGs cannot ship:
+// the nano decoder is libpng-only).
+prebuilt_etc {
+    name: "nano_xmb_globe",
+    srcs: ["ps3xmb/globe/*.png"],
+    sub_dir: "nano_xmb/globe",
 }
 
 // Source files shared with the drastic-nano binary. drastic-nano

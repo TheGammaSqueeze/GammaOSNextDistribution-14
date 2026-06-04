@@ -27,6 +27,7 @@
 #include "NanoMenu.h"
 #include "NanoMenuPS3.h"
 #include "NanoMenuPS3Bg.h"
+#include "NanoMenuPS3Globe.h"
 #include "NanoMenuPS3Data.h"
 #include "NanoMenuDrm.h"   // sDrmGlRotation / sDrmRotationDeg for ticker scissor
 #include "NanoMenuUtils.h" // setLaunchRomPath for the Applications launch
@@ -38,6 +39,7 @@
 #include <string.h>
 #include <strings.h>
 #include <time.h>
+#include <thread>
 #include <vector>
 
 #ifndef M_PI
@@ -240,6 +242,8 @@ void NanoMenu::initPs3Menu() {
     }
     buildPs3Cats();
     loadPs3ThemeSettings();   // apply any saved Theme Settings (colour / day-night)
+    buildTimezoneList();      // populate mTzEntries + pre-select the current zone so
+                              // Settings -> Date and Time shows the live "Time Zone" value
     mPs3MenuBuilt = true;
     ALOGI("ps3menu: built %zu categories", mPs3Cats.size());
 }
@@ -445,6 +449,7 @@ void NanoMenu::ps3DlgNav(int dir, bool horizontal) {
 }
 
 void NanoMenu::ps3XmbLeft() {
+    if (mPs3TzActive) return;   // tzglobe list is vertical only
     if (mPs3WizActive) { wizNav(-1, true); return; }
     if (mPs3DlgActive) { ps3DlgNav(-1, true); return; }   // chooser scroll / confirm toggle
     if (!mPs3Stack.empty()) { ps3XmbBack(); return; }
@@ -460,6 +465,7 @@ void NanoMenu::ps3XmbLeft() {
 }
 
 void NanoMenu::ps3XmbRight() {
+    if (mPs3TzActive) return;   // tzglobe list is vertical only
     if (mPs3WizActive) { wizNav(+1, true); return; }
     if (mPs3DlgActive) { ps3DlgNav(+1, true); return; }   // chooser scroll / confirm toggle
     if (!mPs3Stack.empty()) { ps3XmbSelect(); return; }
@@ -475,12 +481,14 @@ void NanoMenu::ps3XmbRight() {
 }
 
 void NanoMenu::ps3XmbUp() {
+    if (mPs3TzActive) { tzGlobeNav(-1); return; }
     if (mPs3WizActive) { wizNav(-1, false); return; }
     if (mPs3DlgActive) { ps3DlgNav(-1, false); return; }
     int& s = ps3CurSel();
     if (s > 0) { mPs3ItemAnimFrom = mPs3AnimItem; mPs3ItemAnimStart = mEffectTime; s--; }
 }
 void NanoMenu::ps3XmbDown() {
+    if (mPs3TzActive) { tzGlobeNav(+1); return; }
     if (mPs3WizActive) { wizNav(+1, false); return; }
     if (mPs3DlgActive) { ps3DlgNav(+1, false); return; }
     int& s = ps3CurSel(); int n = (int)ps3CurItems().size();
@@ -488,8 +496,19 @@ void NanoMenu::ps3XmbDown() {
 }
 
 void NanoMenu::ps3XmbSelect() {
+    if (mPs3TzActive) { closeTimezoneGlobe(true); return; }   // X: apply the highlighted zone + close
     if (mPs3WizActive) { wizConfirm(); return; }   // X: advance the network setup wizard
-    if (mPs3DlgActive) { closePs3Dialog(mPs3DlgThemeKey > 0); return; }   // X: apply chooser / dismiss message
+    if (mPs3DlgActive) {
+        // The "Date and Time" fullscreen chooser launches the matching wizard on
+        // confirm (option 0 = Set via Internet, 1 = Set Manually).
+        if (mPs3DlgKind == 0 && mPs3DlgType == 1 && mPs3DlgTitle == "Date and Time") {
+            int sel = mPs3DlgSel;
+            mPs3DlgActive = false; mPs3DlgBlurValid = false;
+            startDateTimeWizard(sel == 0 ? 0 : 1);
+            return;
+        }
+        closePs3Dialog(mPs3DlgThemeKey > 0); return;   // X: apply chooser / dismiss message
+    }
     std::vector<Ps3Item>& items = ps3CurItems();
     int sel = ps3CurSel();
     if (sel < 0 || sel >= (int)items.size()) return;
@@ -536,6 +555,9 @@ void NanoMenu::ps3XmbSelect() {
             // side-panel Enabled/Disabled toggle for the Wi-Fi radio.
             if (it.label == "Internet Connection Settings") { startNetWizard(); return; }
             if (it.label == "Internet Connection") { openPs3Dialog(it); return; }
+            if (it.label == "Time Zone") { openTimezoneGlobe(); return; }   // 3D Earth selector
+            if (it.label == "Set via Internet") { startDateTimeWizard(0); return; }  // NTP progress->result
+            if (it.label == "Set Manually")     { startDateTimeWizard(1); return; }  // OSK date+time entry
             if (it.action == 1) openPs3Dialog(it);   // action='dialog' -> dialog/chooser
             return;
         }
@@ -556,6 +578,7 @@ void NanoMenu::ps3XmbSelect() {
 }
 
 void NanoMenu::ps3XmbBack() {
+    if (mPs3TzActive) { closeTimezoneGlobe(false); return; }   // O: cancel (keep current zone)
     if (mPs3WizActive) { wizBack(); return; }   // O: step back through the network setup wizard
     if (mPs3DlgActive) { closePs3Dialog(false); return; }   // O: cancel the dialog/chooser
     if (!mPs3Stack.empty()) {
@@ -601,6 +624,11 @@ void NanoMenu::renderPs3Xmb() {
     if (mMenuState == MENU_WIFI) { renderWifiScreen(); return; }
     if (mMenuState == MENU_BT)   { renderBtScreen();   return; }
 
+    // Date and Time -> Time Zone: the 1:1 web 3D-globe selector. Rendered fully
+    // standalone (it fills black then fades the Earth in over it), skipping the
+    // expensive menu/glass-icon pass entirely.
+    if (mPs3TzActive) { renderTimezoneGlobe(); return; }
+
     // Opt-in slow-frame diagnostic: `setprop persist.gammaos.nano.ps3xmb.fpslog 1`
     // logs any frame slower than ~22ms (<45fps) with context, so transition dips
     // can be measured from logcat. Off by default (read once).
@@ -643,7 +671,10 @@ void NanoMenu::renderPs3Xmb() {
         float target = (float)ps3CurSel();
         float dur = ps3::ITEM_ANIM_MS / 1000.0f;   // 200ms easeOutCubic, exactly the web's itemAnim
         float el = mEffectTime - mPs3ItemAnimStart;
-        if (mPs3ItemAnimStart < 0.0f || el >= dur || dur <= 0.0f) {
+        // el < 0 means mEffectTime wrapped (it is fmod'd to 500s) below the stored
+        // start, which would make the easeOutCubic extrapolate wildly and fling the
+        // item list off-screen until the next input. Treat a wrap as settled.
+        if (mPs3ItemAnimStart < 0.0f || el < 0.0f || el >= dur || dur <= 0.0f) {
             mPs3AnimItem = target;
         } else {
             float t = el / dur;
@@ -659,7 +690,9 @@ void NanoMenu::renderPs3Xmb() {
     float subT;
     if (subAnimating) {
         float p = (mEffectTime - mPs3SubAnimStart) / (ps3::SUBMENU_ANIM_MS / 1000.0f);
-        if (p >= 1.0f) { p = 1.0f; mPs3SubAnimStart = -1.0f; subAnimating = false; }
+        // p < 0 means mEffectTime wrapped (fmod 500s) below the stored start; snap
+        // the collapse to its end state instead of extrapolating.
+        if (p >= 1.0f || p < 0.0f) { p = 1.0f; mPs3SubAnimStart = -1.0f; subAnimating = false; }
         float sp = easeOutCubic(p);
         subT = (mPs3SubDir == 1) ? sp : (1.0f - sp);
         if (!subAnimating) mPs3SubDir = 0;
@@ -1037,7 +1070,8 @@ void NanoMenu::renderPs3Xmb() {
 
     drawPs3Clock(mPs3BootIconReveal);   // fades in with the cold-boot hand-off (1.0 otherwise)
 
-    // Settings dialog / Theme chooser overlay on top of the menu.
+    // Settings dialog / Theme chooser overlay on top of the menu. (The Time Zone
+    // globe renders standalone via the early return above, fading in from black.)
     if (mPs3WizActive) renderNetWizard();
     else if (mPs3DlgActive) renderPs3Dialog();
 }
@@ -1048,8 +1082,23 @@ void NanoMenu::renderPs3Xmb() {
 void NanoMenu::drawPs3Clock(float fadeMul) {
     time_t tt = time(nullptr);
     struct tm lt; localtime_r(&tt, &lt);
-    char timeStr[40];
-    snprintf(timeStr, sizeof(timeStr), "%d/%d %d:%02d", lt.tm_mday, lt.tm_mon + 1, lt.tm_hour, lt.tm_min);
+    // Format-aware clock (reads the cached members, no per-frame syscall). Date
+    // Format reorders day vs month in the compact corner bar (no year, like the
+    // PS3 clock); Time Format switches 12-hour (+AM/PM) vs 24-hour. The analog
+    // face below already uses tm_hour % 12 so it needs no change.
+    char timeStr[48];
+    {
+        char dp[16], tp[20];
+        if (mPs3DateFormatIdx == 2) snprintf(dp, sizeof(dp), "%d/%d", lt.tm_mday, lt.tm_mon + 1);   // DD/MM/YYYY -> D/M
+        else                        snprintf(dp, sizeof(dp), "%d/%d", lt.tm_mon + 1, lt.tm_mday);   // (YYYY/)MM/DD -> M/D
+        if (mPs3TimeFormatIdx == 0) {   // 12-Hour Clock
+            int h12 = lt.tm_hour % 12; if (h12 == 0) h12 = 12;
+            snprintf(tp, sizeof(tp), "%d:%02d %s", h12, lt.tm_min, lt.tm_hour >= 12 ? "PM" : "AM");
+        } else {                        // 24-Hour Clock
+            snprintf(tp, sizeof(tp), "%d:%02d", lt.tm_hour, lt.tm_min);
+        }
+        snprintf(timeStr, sizeof(timeStr), "%s %s", dp, tp);
+    }
 
     const float shiftV = ps3::VW * (ps3::LAYOUT_FIT - 1.0f);   // right-anchor
     auto cx = [&](float vx) { return ps3::devX(vx + shiftV); };
@@ -1273,6 +1322,10 @@ static const int kPs3DayNightCount = 6;
 static const char* const kPs3ThemeOpts[] = {"Original","Classic"};
 static const char* const kPs3BgOpts[]    = {"Original","Classic","Wallpaper"};
 static const char* const kPs3FontOpts[]  = {"Original","Rounded","Pop"};
+// Date and Time chooser options (1:1 with the web SETTING_OPTIONS order).
+static const char* const kDateFormatOpts[] = {"YYYY/MM/DD","MM/DD/YYYY","DD/MM/YYYY"};
+static const char* const kTimeFormatOpts[] = {"12-Hour Clock","24-Hour Clock"};
+static const char* const kOffOnOpts[]      = {"Off","On"};
 
 void NanoMenu::loadPs3ThemeSettings() {
     char buf[PROPERTY_VALUE_MAX];
@@ -1295,6 +1348,18 @@ void NanoMenu::loadPs3ThemeSettings() {
     ps3bg::setDayNightBlend(kPs3DayNightOpts[mPs3DayNightIdx].blend);
     // Background == Classic (index 1) removes the glitter particle field.
     ps3bg::setParticlesEnabled(mPs3BgIdx != 1);
+
+    // Date and Time display formats (nano-local; the clock honours them). These
+    // have non-zero defaults (DD/MM/YYYY, 24-Hour) so they can't use rd().
+    property_get("persist.gammaos.nano.datetime.date_format", buf, "2");
+    mPs3DateFormatIdx = atoi(buf); if (mPs3DateFormatIdx < 0 || mPs3DateFormatIdx > 2) mPs3DateFormatIdx = 2;
+    property_get("persist.gammaos.nano.datetime.time_format", buf, "1");
+    mPs3TimeFormatIdx = atoi(buf); if (mPs3TimeFormatIdx < 0 || mPs3TimeFormatIdx > 1) mPs3TimeFormatIdx = 1;
+    // Daylight Saving == Android auto-time-zone (the Olson tz already gives
+    // automatic DST). Default On; the live value is seeded on demand when the
+    // chooser opens (initPs3Menu can run before the settings service is up, so we
+    // must not block on `settings get` here).
+    mPs3DstAuto = true;
 }
 
 // Live right-side value for a Theme Settings row (mirrors the web
@@ -1319,6 +1384,18 @@ std::string NanoMenu::resolvePs3ItemValue(const Ps3Item& it) {
         // Cached radio state (refreshed by the HUD net poll + on toggle); never a
         // live `cmd wifi` shell-out here - this runs every frame in drawList.
         return mWifiRadioOn ? "Enabled" : "Disabled";
+    } else if (n == "Time Zone") {
+        // The currently selected zone's "GMT+hh:mm City" label (set on open + on
+        // apply). mTzEntries is built at initPs3Menu so this reads even before the
+        // globe is opened. No per-frame property_get.
+        if (!mTzEntries.empty() && mTzSelected >= 0 && mTzSelected < (int)mTzEntries.size())
+            return mTzEntries[mTzSelected].display;
+    } else if (n == "Date Format") {
+        if (mPs3DateFormatIdx >= 0 && mPs3DateFormatIdx < 3) return kDateFormatOpts[mPs3DateFormatIdx];
+    } else if (n == "Time Format") {
+        if (mPs3TimeFormatIdx >= 0 && mPs3TimeFormatIdx < 2) return kTimeFormatOpts[mPs3TimeFormatIdx];
+    } else if (n == "Daylight Saving") {
+        return mPs3DstAuto ? "On" : "Off";
     }
     return it.value;
 }
@@ -1667,6 +1744,24 @@ void NanoMenu::openPs3Dialog(const Ps3Item& it) {
         mPs3DlgOptions.push_back("Enabled");  mPs3DlgSwatch.push_back(-1);
         mPs3DlgOptions.push_back("Disabled"); mPs3DlgSwatch.push_back(-1);
         mPs3DlgSel = wifiRadioEnabled() ? 0 : 1;
+    } else if (n == "Date Format") {
+        mPs3DlgKind = 1; mPs3DlgThemeKey = 7;
+        for (const char* s : kDateFormatOpts) { mPs3DlgOptions.push_back(s); mPs3DlgSwatch.push_back(-1); }
+        mPs3DlgSel = mPs3DateFormatIdx;
+    } else if (n == "Time Format") {
+        mPs3DlgKind = 1; mPs3DlgThemeKey = 8;
+        for (const char* s : kTimeFormatOpts) { mPs3DlgOptions.push_back(s); mPs3DlgSwatch.push_back(-1); }
+        mPs3DlgSel = mPs3TimeFormatIdx;
+    } else if (n == "Daylight Saving") {
+        // Seed from the live auto_time_zone now (boot + settings service are up by
+        // the time the user reaches this chooser; quick binder shell-out).
+        if (FILE* f = popen("settings get global auto_time_zone 2>/dev/null", "r")) {
+            char v[16] = {}; if (fgets(v, sizeof(v), f)) mPs3DstAuto = (atoi(v) != 0);
+            pclose(f);
+        }
+        mPs3DlgKind = 1; mPs3DlgThemeKey = 9;
+        for (const char* s : kOffOnOpts) { mPs3DlgOptions.push_back(s); mPs3DlgSwatch.push_back(-1); }
+        mPs3DlgSel = mPs3DstAuto ? 1 : 0;
     } else {
         // Fullscreen dialog page (kind 0): look up the 1:1 web template.
         mPs3DlgType = 0; mPs3DlgIllust = 0; mPs3DlgNotice.clear();
@@ -1723,6 +1818,11 @@ void NanoMenu::previewThemeSetting(int themeKey, int sel) {
             mPs3DayNightIdx = sel;
             if (sel >= 0 && sel < kPs3DayNightCount) ps3bg::setDayNightBlend(kPs3DayNightOpts[sel].blend);
             break;
+        // Date and Time choosers: pure live preview (the clock reads the members),
+        // no syscalls until apply.
+        case 7: mPs3DateFormatIdx = sel; break;
+        case 8: mPs3TimeFormatIdx = sel; break;
+        case 9: mPs3DstAuto = (sel == 1); break;
         default: break;
     }
 }
@@ -1736,6 +1836,23 @@ void NanoMenu::applyThemeSetting(int themeKey, int sel) {
         case 4: property_set("persist.gammaos.nano.ps3xmb.font", v); break;
         case 5: property_set("persist.gammaos.nano.ps3xmb.daynight", v); previewThemeSetting(5, sel); break;
         case 6: toggleWifiRadio(sel == 0); break;   // Internet Connection: Enabled=0
+        case 7:   // Date Format (nano-local display only)
+            property_set("persist.gammaos.nano.datetime.date_format", v);
+            previewThemeSetting(7, sel);
+            break;
+        case 8:   // Time Format -> also push to the framework so apps agree
+            property_set("persist.gammaos.nano.datetime.time_format", v);
+            { bool h12 = (sel == 0);
+              std::thread([h12]{ system(h12 ? "settings put system time_12_24 12 2>/dev/null"
+                                            : "settings put system time_12_24 24 2>/dev/null"); }).detach(); }
+            previewThemeSetting(8, sel);
+            break;
+        case 9:   // Daylight Saving == auto time zone (Olson tz already gives auto DST)
+            { bool on = (sel == 1);
+              std::thread([on]{ system(on ? "settings put global auto_time_zone 1 2>/dev/null"
+                                          : "settings put global auto_time_zone 0 2>/dev/null"); }).detach(); }
+            previewThemeSetting(9, sel);
+            break;
         default: break;
     }
 }
@@ -1979,14 +2096,19 @@ enum WizScr {
     WS_WEP_KEY, WS_WPA_KEY,
     WS_EAP_AUTH, WS_EAP_USER, WS_EAP_PASS,
     WS_EASY_ADV, WS_REVIEW, WS_SAVE,
-    WS_TEST_CONFIRM, WS_TEST_RUN
+    WS_TEST_CONFIRM, WS_TEST_RUN,
+    // Date and Time flows (reuse the wizard UI): Set via Internet (NTP) and
+    // Set Manually (OSK date + time entry).
+    WS_DT_SVI_PROGRESS, WS_DT_SVI_DONE,
+    WS_DT_SM_DATE, WS_DT_SM_TIME, WS_DT_SM_DONE
 };
 enum WizKind { WK_INFO, WK_CHOOSER, WK_CONFIRM, WK_SCANLIST, WK_PROGRESS,
                WK_TEXT, WK_REVIEW, WK_RESULT, WK_TEST };
 enum WizField { WF_SSID = 0, WF_WEP_KEY, WF_WPA_KEY, WF_IP_ADDR, WF_IP_SUBNET,
                 WF_IP_ROUTER, WF_IP_PDNS, WF_IP_SDNS, WF_DNS_PDNS, WF_DNS_SDNS,
                 WF_MTU, WF_PROXY_ADDR, WF_PROXY_PORT, WF_PPPOE_USER, WF_PPPOE_PASS,
-                WF_DHCP_HOST, WF_EAP_USER, WF_EAP_PASS };
+                WF_DHCP_HOST, WF_EAP_USER, WF_EAP_PASS,
+                WF_DT_DATE, WF_DT_TIME };
 struct WizDesc {
     int kind = WK_INFO;
     const char* title = "Internet Connection Settings";
@@ -2099,6 +2221,19 @@ static void wizDesc(int id, WizDesc& d) {
     case WS_TEST_CONFIRM: d.kind = WK_CONFIRM; d.title = "Internet Connection Test";
         d.body = "If you perform a connection test, the current connection will be terminated and the system will be disconnected.\nDo you want to continue?"; break;
     case WS_TEST_RUN: d.kind = WK_TEST; d.title = "Internet Connection Test"; break;
+    // Date and Time: Set via Internet (progress -> result). 1:1 web svi_progress/svi_done.
+    case WS_DT_SVI_PROGRESS: d.kind = WK_PROGRESS; d.title = "Set via Internet";
+        d.body = "Obtaining the date and time via the Internet...";
+        d.autoMs = 2600; d.autoNext = WS_DT_SVI_DONE; break;
+    case WS_DT_SVI_DONE: d.kind = WK_RESULT; d.title = "Set via Internet";
+        d.body = "The date and time have been set."; break;
+    // Date and Time: Set Manually (date entry -> time entry -> result). Web sm_date/sm_time/sm_done.
+    case WS_DT_SM_DATE: d.kind = WK_TEXT; d.title = "Set Manually";
+        d.label = "Date (YYYY/MM/DD)"; d.field = WF_DT_DATE; break;
+    case WS_DT_SM_TIME: d.kind = WK_TEXT; d.title = "Set Manually";
+        d.label = "Time (HH:MM)"; d.field = WF_DT_TIME; break;
+    case WS_DT_SM_DONE: d.kind = WK_RESULT; d.title = "Set Manually";
+        d.body = "The date and time have been set."; break;
     default: break;
     }
 }
@@ -2118,7 +2253,28 @@ void NanoMenu::startNetWizard() {
     mPs3WizPppoeUser = mPs3WizPppoePass = mPs3WizDhcpHost = "";
     mPs3WizEapUser = mPs3WizEapPass = "";
     mPs3WizAnim = 0.0f;
+    mPs3WizPendingTextField = -1;
     wizEnter(WS_INTRO, 1);
+}
+
+// Launch the Date and Time wizard reusing the net-wizard UI machinery. mode 0 =
+// Set via Internet, mode 1 = Set Manually (a small int rather than the WizScr
+// enum because callers like ps3XmbSelect precede the enum definition). Seeds the
+// manual date/time fields from the current clock so the OSK opens pre-filled.
+void NanoMenu::startDateTimeWizard(int mode) {
+    mPs3WizActive = true;
+    mPs3WizExit = 0;
+    mPs3WizStack.clear();
+    mPs3WizAnim = 0.0f;
+    mPs3WizPendingTextField = -1;
+    {
+        time_t tt = time(nullptr); struct tm lt; localtime_r(&tt, &lt);
+        char db[16], tb[8];
+        snprintf(db, sizeof(db), "%04d/%02d/%02d", lt.tm_year + 1900, lt.tm_mon + 1, lt.tm_mday);
+        snprintf(tb, sizeof(tb), "%02d:%02d", lt.tm_hour, lt.tm_min);
+        mPs3DtDate = db; mPs3DtTime = tb;
+    }
+    wizEnter(mode == 0 ? WS_DT_SVI_PROGRESS : WS_DT_SM_DATE, 1);
 }
 
 void NanoMenu::wizEnter(int id, int dir) {
@@ -2148,7 +2304,44 @@ void NanoMenu::wizEnter(int id, int dir) {
         }
     }
     if (id == WS_TEST_RUN) startNetTest();                     // real connectivity test
-    if (d.kind == WK_TEXT) wizOpenTextField(d.field);          // pop the OSK
+    // Date and Time: Set via Internet -> enable Android automatic time + time zone
+    // (NTP) and nudge a refresh on a background thread (the 2.6s dwell is real work).
+    if (id == WS_DT_SVI_PROGRESS) {
+        std::thread([]{
+            system("settings put global auto_time 1 2>/dev/null");
+            system("settings put global auto_time_zone 1 2>/dev/null");
+            system("cmd time_detector set_auto_detection_enabled true 2>/dev/null");
+            system("cmd network_time_update_service force_refresh 2>/dev/null");
+        }).detach();
+        mPs3DstAuto = true;   // auto_time_zone is now on
+    }
+    // Date and Time: Set Manually -> disable network time so the manual instant
+    // sticks, parse the staged YYYY/MM/DD + HH:MM into epoch millis, set the clock.
+    if (id == WS_DT_SM_DONE) {
+        std::string dStr = mPs3DtDate, tStr = mPs3DtTime;
+        std::thread([dStr, tStr]{
+            int Y = 0, Mo = 0, D = 0, h = 0, mi = 0;
+            if (sscanf(dStr.c_str(), "%d/%d/%d", &Y, &Mo, &D) == 3 &&
+                sscanf(tStr.c_str(), "%d:%d", &h, &mi) == 2) {
+                struct tm tmv; memset(&tmv, 0, sizeof(tmv));
+                tmv.tm_year = Y - 1900; tmv.tm_mon = Mo - 1; tmv.tm_mday = D;
+                tmv.tm_hour = h; tmv.tm_min = mi; tmv.tm_sec = 0; tmv.tm_isdst = -1;
+                time_t epoch = mktime(&tmv);   // honours the current TZ -> correct instant
+                if (epoch > 0) {
+                    system("settings put global auto_time 0 2>/dev/null");
+                    char cmd[96];
+                    snprintf(cmd, sizeof(cmd), "cmd alarm set-time %lld 2>/dev/null",
+                             (long long)epoch * 1000LL);   // set-time wants MILLISECONDS
+                    system(cmd);
+                }
+            }
+        }).detach();
+    }
+    // Defer the OSK open to the render loop (renderNetWizard) so a chained text
+    // field doesn't try to open a new OSK from inside the previous OSK's confirm
+    // callback (which leaves it closed). It opens once the old OSK has finished
+    // closing.
+    if (d.kind == WK_TEXT) mPs3WizPendingTextField = d.field;
 }
 
 void NanoMenu::wizOpenTextField(int field) {
@@ -2168,6 +2361,7 @@ void NanoMenu::wizOpenTextField(int field) {
     case WF_PPPOE_USER: cur = &mPs3WizPppoeUser; break; case WF_PPPOE_PASS: cur = &mPs3WizPppoePass; break;
     case WF_DHCP_HOST: cur = &mPs3WizDhcpHost; break;
     case WF_EAP_USER: cur = &mPs3WizEapUser; break;   case WF_EAP_PASS: cur = &mPs3WizEapPass; break;
+    case WF_DT_DATE: cur = &mPs3DtDate; break;        case WF_DT_TIME: cur = &mPs3DtTime; break;
     }
     mOskQuery = cur ? *cur : "";
     openOskForPassword(prompt, [this, field](const std::string& val) {
@@ -2183,14 +2377,33 @@ void NanoMenu::wizOpenTextField(int field) {
         case WF_PPPOE_USER: mPs3WizPppoeUser = val; break; case WF_PPPOE_PASS: mPs3WizPppoePass = val; break;
         case WF_DHCP_HOST: mPs3WizDhcpHost = val; break;
         case WF_EAP_USER: mPs3WizEapUser = val; break;   case WF_EAP_PASS: mPs3WizEapPass = val; break;
+        case WF_DT_DATE: mPs3DtDate = val; break;        case WF_DT_TIME: mPs3DtTime = val; break;
         }
         // Optional fields (secondary DNS) may be left blank; everything else
         // treats an empty submit as a cancel (handled as a back via closeOsk).
         if (val.empty() && field != WF_IP_SDNS && field != WF_DNS_SDNS) return;
+        // Set Manually: validate format + range; on bad input re-open the same
+        // field instead of advancing (mirrors the web wizValidate date/time regex).
+        if (field == WF_DT_DATE) {
+            int Y = 0, Mo = 0, D = 0;
+            bool ok = val.size() == 10 && val[4] == '/' && val[7] == '/'
+                   && sscanf(val.c_str(), "%d/%d/%d", &Y, &Mo, &D) == 3
+                   && Y >= 1970 && Y <= 2099 && Mo >= 1 && Mo <= 12 && D >= 1 && D <= 31;
+            if (!ok) { mPs3WizPendingTextField = WF_DT_DATE; return; }   // re-open (deferred)
+        } else if (field == WF_DT_TIME) {
+            int h = 0, mi = 0;
+            bool ok = val.size() == 5 && val[2] == ':'
+                   && sscanf(val.c_str(), "%d:%d", &h, &mi) == 2
+                   && h >= 0 && h <= 23 && mi >= 0 && mi <= 59;
+            if (!ok) { mPs3WizPendingTextField = WF_DT_TIME; return; }   // re-open (deferred)
+        }
         int nxt = wizNextScreen(mPs3WizId, 0);
         if (nxt == WS_NONE) { mPs3WizExit = 1; mPs3WizActive = false; }
         else { mPs3WizStack.push_back(mPs3WizId); wizEnter(nxt, 1); }
     });
+    // NOTE: openOskForPassword clears mOskQuery, so the field opens empty (a direct
+    // pre-fill does not survive the IME commit on submit; the web Set Manually also
+    // opens empty on first entry). The user types the value, which commits cleanly.
     // Password fields mask; plaintext for SSID/IP/etc.
     WizDesc d2; wizDesc(mPs3WizId, d2);
     mOskPlaintext = !d2.mask;
@@ -2228,13 +2441,20 @@ void NanoMenu::wizConfirm() {
 
 void NanoMenu::wizBack() {
     if (mPs3WizId == WS_TEST_RUN) stopNetTest();
+    // Date and Time result screens close (the web result is terminal, next=__close__);
+    // the date/time is already applied, so O dismisses like the footer "OK".
+    if (mPs3WizId == WS_DT_SVI_DONE || mPs3WizId == WS_DT_SM_DONE) {
+        mPs3WizExit = 1; mPs3WizActive = false; return;
+    }
     if (mPs3WizStack.empty()) { mPs3WizExit = -1; mPs3WizActive = false; return; }
     int prev = mPs3WizStack.back(); mPs3WizStack.pop_back();
-    // Don't land back on a transient progress/test screen (mirrors web wizBack).
-    while (!mPs3WizStack.empty()) {
+    // Don't land back on a transient progress/test screen (mirrors web wizBack). If
+    // skipping them empties the stack, close rather than re-entering a progress.
+    for (;;) {
         WizDesc pd; wizDesc(prev, pd);
-        if (pd.kind == WK_PROGRESS || pd.kind == WK_TEST) { prev = mPs3WizStack.back(); mPs3WizStack.pop_back(); }
-        else break;
+        if (pd.kind != WK_PROGRESS && pd.kind != WK_TEST) break;
+        if (mPs3WizStack.empty()) { mPs3WizExit = -1; mPs3WizActive = false; return; }
+        prev = mPs3WizStack.back(); mPs3WizStack.pop_back();
     }
     wizEnter(prev, -1);
 }
@@ -2341,12 +2561,25 @@ int NanoMenu::wizNextScreen(int id, int sel) {
     case WS_SAVE: return WS_TEST_CONFIRM;
     case WS_TEST_CONFIRM: return (sel == 0) ? WS_TEST_RUN : WS_NONE;
     case WS_TEST_RUN: return WS_NONE;
+    // ---- Date and Time ----
+    case WS_DT_SVI_PROGRESS: return WS_DT_SVI_DONE;
+    case WS_DT_SVI_DONE: return WS_NONE;
+    case WS_DT_SM_DATE: return WS_DT_SM_TIME;
+    case WS_DT_SM_TIME: return WS_DT_SM_DONE;
+    case WS_DT_SM_DONE: return WS_NONE;
     default: return WS_NONE;
     }
 }
 
 void NanoMenu::renderNetWizard() {
     if (!mPs3WizActive) return;
+    // Open a deferred text-field OSK once any previous OSK has fully closed. This
+    // keeps chained text screens (e.g. Set Manually date -> time, or manual IP ->
+    // subnet) from opening a new OSK inside the old OSK's confirm callback.
+    if (mPs3WizPendingTextField >= 0 && !mOskActive) {
+        int f = mPs3WizPendingTextField; mPs3WizPendingTextField = -1;
+        wizOpenTextField(f);
+    }
     float dt = mFrameDt; if (dt < 0.0f) dt = 0.0f; if (dt > 0.1f) dt = 0.1f;
     mPs3WizAnim += (1.0f - mPs3WizAnim) * (1.0f - expf(-13.0f * dt));
     if (mPs3WizAnim > 0.999f) mPs3WizAnim = 1.0f;
@@ -2604,6 +2837,198 @@ void NanoMenu::renderNetWizard() {
         ps3DlgHint(enterCX, true, "Enter", hintY, S, ap);
         ps3DlgHint(cancelCX, false, "Cancel", hintY, S, ap);
     }
+}
+
+// ===========================================================================
+// Time Zone 3D-globe selector (1:1 web tzglobe screen, index.html 9344-9355,
+// 9728-9735, 9794-9820, 10394-10421). Shared by the XMB Date and Time -> Time
+// Zone view (mPs3TzActive) and the first-run setup wizard timezone step.
+// ===========================================================================
+
+// 0..1 XMB->globe cross-fade alpha (the web fp = min(1,(now-tzFadeStart)/360),
+// fa = smoothstep). <0 fade start = fully shown.
+float NanoMenu::ps3TzFadeAlpha() {
+    if (mTzGlobeFadeStart < 0.0f) return 1.0f;
+    float dt = mEffectTime - mTzGlobeFadeStart;
+    if (dt < 0.0f) return 1.0f;   // mEffectTime wrapped (fmod 500s): the 360ms fade is long done
+    float fp = dt / 0.360f;
+    if (fp >= 1.0f) return 1.0f;
+    return fp * fp * (3.0f - 2.0f * fp);   // smoothstep
+}
+
+// (Re)start the cross-fade and snap the globe to the currently selected zone so
+// it opens already showing that location (web initGlobe sets tzGlobe lon/lat =
+// target = the selected zone, then renderGlobe; the fade only cross-fades the
+// composite, not the rotation).
+void NanoMenu::beginTzGlobeFade() {
+    // Warm up first: the globe textures load on the render thread on the first
+    // render (GL has no context here on the input thread), which spikes one frame.
+    // Hold on black through the warm-up so that spike isn't counted against the
+    // fade; renderTimezoneGlobe starts the 360ms fade once the globe is ready.
+    mTzGlobeWarmFrames = 0;
+    mTzGlobeFadeStart = -1.0f;
+    mTzSelOnOpen = mTzSelected;   // remember the applied zone so cancel can revert
+    if (mTzSelected >= 0 && mTzSelected < (int)mTzEntries.size()) {
+        const TimezoneEntry& z = mTzEntries[mTzSelected];
+        ps3globe::snapTo(z.lon * (float)M_PI / 180.0f, z.lat * (float)M_PI / 180.0f);
+    } else {
+        ps3globe::snapTo(0.0f, 0.0f);
+    }
+}
+
+void NanoMenu::openTimezoneGlobe() {
+    buildTimezoneList();          // (re)reads persist.sys.timezone + pre-selects it
+    mPs3TzActive = true;
+    beginTzGlobeFade();
+}
+
+void NanoMenu::closeTimezoneGlobe(bool apply) {
+    if (apply && mTzSelected >= 0 && mTzSelected < (int)mTzEntries.size()) {
+        char cmd[256];
+        snprintf(cmd, sizeof(cmd), "setprop persist.sys.timezone %s",
+                 mTzEntries[mTzSelected].id.c_str());
+        system(cmd);
+        ALOGI("ps3menu: timezone set to %s", mTzEntries[mTzSelected].id.c_str());
+    } else if (!apply) {
+        // Cancel: revert the highlighted zone to the one that was applied when the
+        // globe opened, so the Date and Time menu's "Time Zone" value (which reads
+        // mTzSelected) keeps showing the real zone, not the last-hovered one.
+        if (mTzSelOnOpen >= 0 && mTzSelOnOpen < (int)mTzEntries.size())
+            mTzSelected = mTzSelOnOpen;
+    }
+    mPs3TzActive = false;
+    mTzGlobeFadeStart = -1.0f;
+    // Snap the menu animation to settled so the item list draws immediately when
+    // the globe was open across an mEffectTime wrap (defensive; the wrap guards in
+    // renderPs3Xmb already handle the math).
+    mPs3ItemAnimStart = -1.0f;
+    mPs3SubAnimStart = -1.0f;
+    mPs3CatAnimActive = false;
+    mPs3AnimItem = (float)ps3CurSel();
+}
+
+// Move the zone selection (wrapping) and re-aim the globe at the new city. The
+// globe eases there over several frames (web wizNav tzglobe branch + tzGlobeTick).
+void NanoMenu::tzGlobeNav(int dir) {
+    int n = (int)mTzEntries.size();
+    if (n <= 0) return;
+    mTzSelected = (mTzSelected + dir + n) % n;
+    const TimezoneEntry& z = mTzEntries[mTzSelected];
+    ps3globe::setTarget(z.lon * (float)M_PI / 180.0f, z.lat * (float)M_PI / 180.0f);
+}
+
+void NanoMenu::renderTimezoneGlobe() {
+    // Even 4-offset text outline (mode 1) for legibility over the globe, in both
+    // the XMB and setup-wizard entry points (the setup path does not preset it).
+    mTextOutlineMode = 1;
+    // Layout solve for this panel (matches renderNetWizard).
+    { ps3::LayoutParams lp; lp.panelW = mWidth; lp.panelH = mHeight; lp.uiScale = mPs3UiScale;
+      ps3::layoutCompute(lp); }
+
+    float dt = mFrameDt; if (dt < 0.0f) dt = 0.0f; if (dt > 0.1f) dt = 0.1f;
+    ps3globe::tick(dt);
+
+    // Warm-up: on the first open the three earth textures load on this thread on
+    // the first render, which spikes one frame. Hold the screen on black (ap=0)
+    // until the globe is loaded AND one further clean frame has passed, then start
+    // the 360ms fade from there so the load spike isn't charged against it (without
+    // this the fade alpha leaps ~0->1 in the spike frame, i.e. it "just appears").
+    float ap;
+    if (mTzGlobeWarmFrames >= 0) {
+        ap = 0.0f;
+        ps3globe::init();                 // load textures here on the render thread
+        if (ps3globe::ready() && ++mTzGlobeWarmFrames >= 2) {
+            mTzGlobeFadeStart = mEffectTime;   // begin the smooth fade now (post-spike)
+            mTzGlobeWarmFrames = -1;
+        }
+    } else {
+        ap = ps3TzFadeAlpha();
+    }
+
+    // Fade the globe in from a BLACK background: cover the wave/menu behind with an
+    // opaque black fill, then composite the globe over it at the fade alpha so the
+    // Earth + chrome rise out of black (not a cross-fade over the XMB).
+    drawQuad(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f, 0.0f, 0.0f, 1.0f);
+    ps3globe::render(mWidth, mHeight, sDrmRotMat, ap);
+
+    // ---- chrome (1:1 web tzglobe header + drawWizTzGlobe), drawn on top ----
+    float ui = mPs3UiScale; if (ui < 0.5f) ui = 0.5f; if (ui > 2.0f) ui = 2.0f;
+    const float S = ps3::gScale / ui;
+    const float offX = ps3::gFrameX + (ps3::gFrameW - S * ps3::XCF(ps3::VW)) * 0.5f;
+    const float offY = ps3::gFrameY + ps3::gFrameH * 0.5f - S * (ps3::VH * 0.5f);
+    const float VW = ps3::VW;
+    const float innerTop = 199.0f, innerBot = 880.0f;
+    auto X  = [&](float vx) { return S * vx + offX; };
+    auto XC = [&](float vx) { return S * ps3::XCF(vx) + offX; };
+    auto Y  = [&](float vy) { return S * vy + offY; };
+    auto DS = [&](float v)  { return S * v; };
+    auto FS = [&](float px) { return S * px / 16.0f; };
+
+    // Header: Date/Time icon (xmb_icon_022) + "Time Zone" + the two dividers.
+    if (mPs3TzHeaderTex == 0) mPs3TzHeaderTex = loadPs3IconTex("xmb_icon_022.png");
+    float iconSz = DS(36.0f);
+    if (mPs3TzHeaderTex)
+        drawIconTex(mPs3TzHeaderTex, X(130.0f) - iconSz * 0.5f, Y(175.0f) - iconSz * 0.5f,
+                    iconSz, iconSz, 1, 1, 1, ap);
+    ps3DlgText("Time Zone", X(160.0f), Y(187.0f), FS(28.0f), 1, 1, 1, ap, 0);
+    float divLw = fmaxf(1.0f, DS(1.0f));
+    drawQuad(ps3::gFrameX, Y(innerTop), ps3::gFrameW, divLw, 1, 1, 1, 0.45f * ap);
+    drawQuad(ps3::gFrameX, Y(innerBot), ps3::gFrameW, divLw, 1, 1, 1, 0.45f * ap);
+
+    // Caption "Select a time zone." (web XCF(V.W*0.04), yT+56, 24px, left).
+    ps3DlgText("Select a time zone.", XC(VW * 0.04f), Y(innerTop + 56.0f), FS(24.0f),
+               1, 1, 1, 0.95f * ap, 0);
+
+    // Right-aligned scrolling zone list "GMT+hh:mm  City" (web drawWizTzGlobe).
+    const float rxDev = XC(VW * 0.965f);
+    const float topV = innerTop + 36.0f, pitchV = 33.0f;
+    const float availV = innerBot - topV - 24.0f;
+    int vis = (int)(availV / pitchV); if (vis < 6) vis = 6;
+    int n = (int)mTzEntries.size();
+    int first = mTzSelected - vis / 2;
+    if (first < 0) first = 0;
+    if (n <= vis) first = 0; else if (first > n - vis) first = n - vis;
+
+    // One right-aligned, vertically-centred row (canvas textBaseline 'middle').
+    auto drawRowR = [&](const char* s, float midDev, float fs, float r, float g, float b,
+                        float a, bool glow) {
+        float w = measureText(s, fs);
+        float x = rxDev - w;
+        float topY = midDev - 0.45f * 16.0f * fs;
+        if (glow) {
+            int saved = mTextOutlineMode; mTextOutlineMode = 2;   // halo, no dark outline
+            float em = 16.0f * fs;
+            const float gr[2] = { em * 0.28f, em * 0.14f };
+            for (int p = 0; p < 2; p++)
+                for (int k = 0; k < 8; k++) {
+                    float ang = (float)k / 8.0f * 2.0f * (float)M_PI;
+                    drawText(s, x + cosf(ang) * gr[p], topY + sinf(ang) * gr[p], fs, 1, 1, 1, 0.13f * a);
+                }
+            drawText(s, x, topY, fs, r, g, b, a);
+            mTextOutlineMode = saved;
+        } else {
+            drawText(s, x, topY, fs, r, g, b, a);
+        }
+    };
+
+    int last = first + vis; if (last > n) last = n;
+    for (int i = first; i < last; i++) {
+        float midDev = Y(topV + (float)(i - first) * pitchV);
+        bool sel = (i == mTzSelected);
+        if (sel)
+            drawRowR(mTzEntries[i].display.c_str(), midDev, FS(24.0f), 1, 1, 1, ap, true);
+        else
+            drawRowR(mTzEntries[i].display.c_str(), midDev, FS(21.0f), 1, 1, 1, 0.72f * ap, false);
+    }
+    if (first > 0)
+        drawRowR("\xE2\x96\xB2", Y(topV - 18.0f), FS(18.0f), 1, 1, 1, 0.5f * ap, false);   // up arrow
+    if (first + vis < n)
+        drawRowR("\xE2\x96\xBC", Y(topV + (float)vis * pitchV), FS(18.0f), 1, 1, 1, 0.5f * ap, false);  // down arrow
+
+    // Footer hints: Enter (select) / Cancel (back), same slots as the wizard.
+    float hintY = Y(909.0f);
+    ps3DlgHint(XC(VW * 0.401f), true, "Enter", hintY, S, ap);
+    ps3DlgHint(XC(VW * 0.629f), false, "Cancel", hintY, S, ap);
 }
 
 } // namespace android

@@ -47,49 +47,73 @@ struct TzDef {
     const char* id;
     const char* label;
     int offsetMin;
+    float lat;
+    float lon;
 };
 
+// 1:1 with the web app TZ_LIST (index.html 8841-8866): the firmware Time Zone
+// list (GMT offset + city) with each city's real latitude/longitude so the 3D
+// globe rotates to that location. Each entry is paired here with the matching
+// Android tz id used for `setprop persist.sys.timezone`. Offset-ordered, several
+// cities per offset (the globe lat/lon is what distinguishes them).
 static const TzDef kTimezones[] = {
-    {"Pacific/Midway",       "UTC-11:00  Midway",              -660},
-    {"Pacific/Honolulu",     "UTC-10:00  Hawaii",              -600},
-    {"America/Anchorage",    "UTC-09:00  Alaska",              -540},
-    {"America/Los_Angeles",  "UTC-08:00  Pacific Time (US)",   -480},
-    {"America/Denver",       "UTC-07:00  Mountain Time (US)",  -420},
-    {"America/Chicago",      "UTC-06:00  Central Time (US)",   -360},
-    {"America/New_York",     "UTC-05:00  Eastern Time (US)",   -300},
-    {"America/Caracas",      "UTC-04:00  Venezuela",           -240},
-    {"America/Halifax",      "UTC-04:00  Atlantic Time",       -240},
-    {"America/St_Johns",     "UTC-03:30  Newfoundland",        -210},
-    {"America/Sao_Paulo",    "UTC-03:00  Brasilia",            -180},
-    {"America/Argentina/Buenos_Aires", "UTC-03:00  Buenos Aires", -180},
-    {"Atlantic/South_Georgia","UTC-02:00  Mid-Atlantic",       -120},
-    {"Atlantic/Azores",      "UTC-01:00  Azores",               -60},
-    {"UTC",                  "UTC+00:00  UTC / GMT",              0},
-    {"Europe/London",        "UTC+00:00  London",                 0},
-    {"Europe/Paris",         "UTC+01:00  Paris / Berlin",        60},
-    {"Europe/Madrid",        "UTC+01:00  Madrid",                60},
-    {"Europe/Rome",          "UTC+01:00  Rome",                  60},
-    {"Africa/Lagos",         "UTC+01:00  Lagos",                 60},
-    {"Europe/Athens",        "UTC+02:00  Athens",               120},
-    {"Europe/Istanbul",      "UTC+03:00  Istanbul",             180},
-    {"Europe/Moscow",        "UTC+03:00  Moscow",               180},
-    {"Asia/Dubai",           "UTC+04:00  Dubai",                240},
-    {"Asia/Kolkata",         "UTC+05:30  India",                330},
-    {"Asia/Kathmandu",       "UTC+05:45  Nepal",                345},
-    {"Asia/Dhaka",           "UTC+06:00  Dhaka",                360},
-    {"Asia/Bangkok",         "UTC+07:00  Bangkok",              420},
-    {"Asia/Ho_Chi_Minh",     "UTC+07:00  Ho Chi Minh",         420},
-    {"Asia/Shanghai",        "UTC+08:00  China",                480},
-    {"Asia/Hong_Kong",       "UTC+08:00  Hong Kong",            480},
-    {"Asia/Taipei",          "UTC+08:00  Taipei",               480},
-    {"Asia/Singapore",       "UTC+08:00  Singapore",            480},
-    {"Asia/Seoul",           "UTC+09:00  Seoul",                540},
-    {"Asia/Tokyo",           "UTC+09:00  Tokyo",                540},
-    {"Australia/Sydney",     "UTC+10:00  Sydney",               600},
-    {"Pacific/Guam",         "UTC+10:00  Guam",                 600},
-    {"Pacific/Noumea",       "UTC+11:00  New Caledonia",        660},
-    {"Pacific/Auckland",     "UTC+12:00  Auckland",             720},
-    {"Pacific/Fiji",         "UTC+12:00  Fiji",                 720},
+    {"Pacific/Pago_Pago",  "GMT-11:00 Samoa",                      -660, -13.8f, -171.8f},
+    {"Pacific/Honolulu",   "GMT-10:00 Hawaii",                     -600,  21.3f, -157.9f},
+    {"America/Anchorage",  "GMT-09:00 Alaska",                     -540,  61.2f, -149.9f},
+    {"America/Los_Angeles","GMT-08:00 Pacific Time (US & Canada)", -480,  34.1f, -118.2f},
+    {"America/Tijuana",    "GMT-08:00 Tijuana",                    -480,  32.5f, -117.0f},
+    {"America/Denver",     "GMT-07:00 Mountain Time (US & Canada)",-420,  39.7f, -104.99f},
+    {"America/Chihuahua",  "GMT-07:00 Chihuahua",                  -420,  28.6f, -106.1f},
+    {"America/Chicago",    "GMT-06:00 Central Time (US & Canada)", -360,  41.9f,  -87.6f},
+    {"America/Mexico_City","GMT-06:00 Mexico City",                -360,  19.4f,  -99.1f},
+    {"America/New_York",   "GMT-05:00 Eastern Time (US & Canada)", -300,  40.7f,  -74.0f},
+    {"America/Bogota",     "GMT-05:00 Bogota",                     -300,   4.7f,  -74.1f},
+    {"America/Lima",       "GMT-05:00 Lima",                       -300, -12.0f,  -77.0f},
+    {"America/Halifax",    "GMT-04:00 Atlantic (Canada)",          -240,  44.6f,  -63.6f},
+    {"America/Caracas",    "GMT-04:00 Caracas",                    -240,  10.5f,  -66.9f},
+    {"America/Santiago",   "GMT-04:00 Santiago",                   -240, -33.4f,  -70.6f},
+    {"America/St_Johns",   "GMT-03:30 Newfoundland",               -210,  47.6f,  -52.7f},
+    {"America/Sao_Paulo",  "GMT-03:00 Sao Paulo",                  -180, -23.5f,  -46.6f},
+    {"America/Argentina/Buenos_Aires", "GMT-03:00 Buenos Aires",   -180, -34.6f,  -58.4f},
+    {"Atlantic/Azores",    "GMT-01:00 Azores",                      -60,  37.7f,  -25.7f},
+    {"Europe/London",      "GMT+00:00 London",                        0,  51.5f,   -0.1f},
+    {"Europe/Dublin",      "GMT+00:00 Dublin",                        0,  53.3f,   -6.3f},
+    {"Europe/Lisbon",      "GMT+00:00 Lisbon",                        0,  38.7f,   -9.1f},
+    {"Atlantic/Reykjavik", "GMT+00:00 Reykjavik",                     0,  64.1f,  -21.9f},
+    {"Africa/Casablanca",  "GMT+00:00 Casablanca",                    0,  33.6f,   -7.6f},
+    {"Europe/Paris",       "GMT+01:00 Paris",                        60,  48.9f,    2.4f},
+    {"Europe/Amsterdam",   "GMT+01:00 Amsterdam",                    60,  52.4f,    4.9f},
+    {"Europe/Berlin",      "GMT+01:00 Berlin",                       60,  52.5f,   13.4f},
+    {"Europe/Rome",        "GMT+01:00 Rome",                         60,  41.9f,   12.5f},
+    {"Europe/Madrid",      "GMT+01:00 Madrid",                       60,  40.4f,   -3.7f},
+    {"Europe/Stockholm",   "GMT+01:00 Stockholm",                    60,  59.3f,   18.1f},
+    {"Africa/Cairo",       "GMT+02:00 Cairo",                       120,  30.0f,   31.2f},
+    {"Europe/Athens",      "GMT+02:00 Athens",                      120,  38.0f,   23.7f},
+    {"Africa/Johannesburg","GMT+02:00 Johannesburg",                120, -26.2f,   28.0f},
+    {"Europe/Helsinki",    "GMT+02:00 Helsinki",                    120,  60.2f,   24.9f},
+    {"Europe/Moscow",      "GMT+03:00 Moscow",                      180,  55.8f,   37.6f},
+    {"Europe/Istanbul",    "GMT+03:00 Istanbul",                    180,  41.0f,   28.9f},
+    {"Africa/Nairobi",     "GMT+03:00 Nairobi",                     180,  -1.3f,   36.8f},
+    {"Asia/Tehran",        "GMT+03:30 Tehran",                      210,  35.7f,   51.4f},
+    {"Asia/Dubai",         "GMT+04:00 Dubai",                       240,  25.2f,   55.3f},
+    {"Asia/Kabul",         "GMT+04:30 Kabul",                       270,  34.5f,   69.2f},
+    {"Asia/Karachi",       "GMT+05:00 Karachi",                     300,  24.9f,   67.0f},
+    {"Asia/Kolkata",       "GMT+05:30 New Delhi",                   330,  28.6f,   77.2f},
+    {"Asia/Kathmandu",     "GMT+05:45 Kathmandu",                   345,  27.7f,   85.3f},
+    {"Asia/Dhaka",         "GMT+06:00 Dhaka",                       360,  23.8f,   90.4f},
+    {"Asia/Bangkok",       "GMT+07:00 Bangkok",                     420,  13.8f,  100.5f},
+    {"Asia/Jakarta",       "GMT+07:00 Jakarta",                     420,  -6.2f,  106.8f},
+    {"Asia/Shanghai",      "GMT+08:00 Beijing",                     480,  39.9f,  116.4f},
+    {"Asia/Singapore",     "GMT+08:00 Singapore",                   480,   1.35f, 103.8f},
+    {"Asia/Hong_Kong",     "GMT+08:00 Hong Kong",                   480,  22.3f,  114.2f},
+    {"Asia/Tokyo",         "GMT+09:00 Tokyo",                       540,  35.7f,  139.7f},
+    {"Asia/Seoul",         "GMT+09:00 Seoul",                       540,  37.6f,  127.0f},
+    {"Australia/Adelaide", "GMT+09:30 Adelaide",                    570, -34.9f,  138.6f},
+    {"Australia/Sydney",   "GMT+10:00 Sydney",                      600, -33.9f,  151.2f},
+    {"Pacific/Guam",       "GMT+10:00 Guam",                        600,  13.4f,  144.8f},
+    {"Pacific/Guadalcanal","GMT+11:00 Solomon Islands",             660,  -9.4f,  159.9f},
+    {"Pacific/Auckland",   "GMT+12:00 Auckland",                    720, -36.8f,  174.8f},
+    {"Pacific/Apia",       "GMT+13:00 Samoa",                       780, -13.8f, -171.8f},
 };
 static const int kNumTimezones = sizeof(kTimezones) / sizeof(kTimezones[0]);
 
@@ -178,15 +202,25 @@ void NanoMenu::buildTimezoneList() {
     char curTz[PROPERTY_VALUE_MAX] = {};
     property_get("persist.sys.timezone", curTz, "UTC");
 
+    mTzSelected = -1;
     for (int i = 0; i < kNumTimezones; i++) {
         TimezoneEntry e;
         e.id = kTimezones[i].id;
         e.display = kTimezones[i].label;
         e.offsetMinutes = kTimezones[i].offsetMin;
+        e.lon = kTimezones[i].lon;
+        e.lat = kTimezones[i].lat;
         mTzEntries.push_back(e);
         if (e.id == curTz) {
             mTzSelected = i;
         }
+    }
+    // Fallback when the saved tz id is not in the list: prefer London (the web
+    // default), then index 0, so the globe always opens on a sensible location.
+    if (mTzSelected < 0 || mTzSelected >= (int)mTzEntries.size()) {
+        mTzSelected = 0;
+        for (int i = 0; i < (int)mTzEntries.size(); i++)
+            if (mTzEntries[i].display.find("London") != std::string::npos) { mTzSelected = i; break; }
     }
 }
 
@@ -351,6 +385,13 @@ void NanoMenu::updateSetupTransition() {
         } else if (mSetupStep == SETUP_INSTALLING) {
             mMenuState = MENU_SETUP_WIZARD;
             startSetupScript();
+        } else if (mSetupStep == SETUP_TIMEZONE) {
+            // The timezone step is the 1:1 web 3D-globe selector. Rebuild the zone
+            // list (pre-selects the current tz), then start the globe cross-fade
+            // aimed at that zone.
+            mMenuState = MENU_SETUP_WIZARD;
+            buildTimezoneList();
+            beginTzGlobeFade();
         } else {
             mMenuState = MENU_SETUP_WIZARD;
         }
@@ -456,7 +497,7 @@ void NanoMenu::handleSetupUp() {
         handleBtScreenUp();
         break;
     case SETUP_TIMEZONE:
-        if (mTzSelected > 0) mTzSelected--;
+        tzGlobeNav(-1);   // move selection (wraps) + ease the globe to the new city
         break;
     case SETUP_INSTALLING: {
         std::lock_guard<std::mutex> lk(mSetupLogMutex);
@@ -480,7 +521,7 @@ void NanoMenu::handleSetupDown() {
         handleBtScreenDown();
         break;
     case SETUP_TIMEZONE:
-        if (mTzSelected < (int)mTzEntries.size() - 1) mTzSelected++;
+        tzGlobeNav(+1);   // move selection (wraps) + ease the globe to the new city
         break;
     case SETUP_INSTALLING: {
         std::lock_guard<std::mutex> lk(mSetupLogMutex);
@@ -586,6 +627,7 @@ void NanoMenu::renderSetupWizard() {
         }
     }
 
+
     // Fade-in when not transitioning (lerp alpha toward 1.0)
     if (!mSetupTransitioning && mSetupTransitionAlpha < 1.0f) {
         mSetupTransitionAlpha += 0.06f;
@@ -593,8 +635,10 @@ void NanoMenu::renderSetupWizard() {
         mSetupSlideOffset *= 0.85f; // ease slide to zero
     }
 
-    // Light dim over wallpaper (skip on welcome for clean iOS-style look)
-    if (mSetupStep != SETUP_WELCOME) {
+    // Light dim over wallpaper (skip on welcome for clean iOS-style look; skip on
+    // the timezone step too - the 3D globe is its own opaque backdrop, matching
+    // the web tzglobe screen which draws no dim panel).
+    if (mSetupStep != SETUP_WELCOME && mSetupStep != SETUP_TIMEZONE) {
         drawQuad(0, 0, mWidth, mHeight, 0.0f, 0.0f, 0.0f, 0.4f);
     }
 
@@ -617,7 +661,9 @@ void NanoMenu::renderSetupWizard() {
     default: break;
     }
 
-    if (mSetupStep != SETUP_WELCOME) {
+    // The timezone globe screen draws its own footer + has no progress dots in
+    // the web tzglobe layout, so skip the setup dots there.
+    if (mSetupStep != SETUP_WELCOME && mSetupStep != SETUP_TIMEZONE) {
         renderSetupProgressDots();
     }
 }
@@ -859,75 +905,11 @@ void NanoMenu::renderSetupBluetoothStep() {
 }
 
 void NanoMenu::renderSetupTimezone() {
-    float sf = fminf((float)mWidth / 1080.0f, (float)mHeight / 720.0f);
-    if (sf < 0.5f) sf = 0.5f;
-    float alpha = mSetupTransitionAlpha;
-    float slideX = mSetupSlideOffset;
-    float pad = 20.0f * sf;
-
-    // Title
-    float titleScale = 2.8f * sf;
-    const char* title = tr(STR_SETUP_TZ_TITLE);
-    float titleW = measureText(title, titleScale);
-    float titleX = ((float)mWidth - titleW) / 2.0f + slideX;
-    drawText(title, titleX, pad, titleScale,
-             0.3f, 0.85f, 1.0f, alpha);
-
-    // List
-    float rowScale = 1.8f * sf;
-    float rowH = FONT_CHAR_H * rowScale + 6.0f * sf;
-    float listTop = pad + FONT_CHAR_H * titleScale + 16.0f * sf;
-    float listBottom = (float)mHeight - 80.0f * sf;
-    int visibleRows = (int)((listBottom - listTop) / rowH);
-    if (visibleRows < 4) visibleRows = 4;
-
-    // Scrolling
-    if (mTzSelected < mTzScrollTop) mTzScrollTop = mTzSelected;
-    if (mTzSelected >= mTzScrollTop + visibleRows)
-        mTzScrollTop = mTzSelected - visibleRows + 1;
-    if (mTzScrollTop < 0) mTzScrollTop = 0;
-
-    int end = mTzScrollTop + visibleRows;
-    if (end > (int)mTzEntries.size()) end = (int)mTzEntries.size();
-
-    for (int i = mTzScrollTop; i < end; i++) {
-        float y = listTop + (i - mTzScrollTop) * rowH;
-        bool sel = (i == mTzSelected);
-
-        if (sel) {
-            drawQuad(pad - 4.0f * sf + slideX, y - 3.0f * sf,
-                     (float)mWidth - pad * 2.0f + 8.0f * sf, rowH,
-                     0.15f, 0.35f, 0.70f, alpha * 0.65f);
-        }
-
-        drawText(mTzEntries[i].display.c_str(),
-                 pad + 8.0f * sf + slideX, y + rowH * 0.12f,
-                 rowScale,
-                 sel ? 1.0f : 0.85f,
-                 sel ? 1.0f : 0.85f,
-                 sel ? 1.0f : 0.90f,
-                 alpha * (sel ? 1.0f : 0.85f));
-    }
-
-    // Scroll indicators
-    if (mTzScrollTop > 0) {
-        float arrowScale = 1.5f * sf;
-        drawText("^", (float)mWidth / 2.0f + slideX, listTop - 14.0f * sf,
-                 arrowScale, 0.6f, 0.6f, 0.8f, alpha * 0.6f);
-    }
-    if (end < (int)mTzEntries.size()) {
-        float arrowScale = 1.5f * sf;
-        drawText("v", (float)mWidth / 2.0f + slideX, listBottom - 4.0f * sf,
-                 arrowScale, 0.6f, 0.6f, 0.8f, alpha * 0.6f);
-    }
-
-    // Footer
-    float footScale = 1.3f * sf;
-    const char* footer = tr(STR_SETUP_TZ_FOOTER);
-    float footW = measureText(footer, footScale);
-    drawText(footer, ((float)mWidth - footW) / 2.0f,
-             (float)mHeight - 70.0f * sf, footScale,
-             0.9f, 0.9f, 0.95f, alpha * 0.85f);
+    // The setup wizard timezone step is the 1:1 web 3D-globe selector, shared
+    // with the XMB Date and Time -> Time Zone view (NanoMenuPS3Menu.cpp). It
+    // draws the raymarched Earth backdrop + the "Time Zone" header + the
+    // right-aligned GMT zone list + footer, with its own cross-fade.
+    renderTimezoneGlobe();
 }
 
 void NanoMenu::renderSetupInstalling() {

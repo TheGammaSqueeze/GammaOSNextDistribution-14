@@ -169,6 +169,8 @@ public:
         std::string id;
         std::string display;
         int offsetMinutes;
+        float lon = 0.0f;   // city longitude (deg) for the 3D globe selector
+        float lat = 0.0f;   // city latitude (deg)
     };
 
     struct SettingsItem {
@@ -750,6 +752,15 @@ private:
     int    mPs3BgIdx = 0;
     int    mPs3FontIdx = 0;
     int    mPs3DayNightIdx = 0;
+    // Date and Time settings (functional). Date Format / Time Format are nano-
+    // local display choices the clock honours; Daylight Saving maps to Android's
+    // auto-time-zone (Olson ids already give automatic DST). Set Manually's two
+    // OSK fields are staged in mPs3DtDate / mPs3DtTime.
+    int    mPs3DateFormatIdx = 2;   // 0=YYYY/MM/DD 1=MM/DD/YYYY 2=DD/MM/YYYY (web order)
+    int    mPs3TimeFormatIdx = 1;   // 0=12-Hour 1=24-Hour (web order)
+    bool   mPs3DstAuto = true;      // Daylight Saving On == auto_time_zone (DST auto-adjust)
+    std::string mPs3DtDate;         // "YYYY/MM/DD" staged in the Set Manually wizard
+    std::string mPs3DtTime;         // "HH:MM"
     // Dynamic text drop shadow, scaled by the wallpaper brightness each frame:
     // strength 0 (dark wallpaper, minimal shadow) .. 1 (light wallpaper, strong).
     float  mPs3ShadowStrength = 0.5f;
@@ -869,6 +880,15 @@ private:
     void ps3XmbDown();
     void ps3XmbSelect();
     void ps3XmbBack();
+    // Time Zone 3D-globe selector (NanoMenuPS3Globe.cpp). Shared 1:1 web tzglobe
+    // screen used by BOTH the XMB Date and Time -> Time Zone view (mPs3TzActive)
+    // and the first-run setup wizard timezone step.
+    void openTimezoneGlobe();              // open the XMB Time Zone view
+    void closeTimezoneGlobe(bool apply);   // close it (apply = set persist.sys.timezone)
+    void tzGlobeNav(int dir);              // move the zone selection + re-aim the globe
+    void renderTimezoneGlobe();            // full-screen globe + zone-list chrome (both flows)
+    float ps3TzFadeAlpha();                // 0..1 XMB->globe cross-fade (360ms smoothstep)
+    void beginTzGlobeFade();               // (re)start the cross-fade + aim the globe at mTzSelected
     // Glass icon pipeline (NanoMenuPS3Icons.cpp).
     void initGlassIcons();                 // compile program, load amb/env textures
     GLuint nmapForIcon(int iconIndex);     // load+cache nmap_NNN.png
@@ -956,8 +976,12 @@ private:
     std::string mPs3WizPppoeUser, mPs3WizPppoePass;         // PPPoE
     std::string mPs3WizDhcpHost;                            // DHCP host name
     std::string mPs3WizEapUser, mPs3WizEapPass;             // EAP authentication
+    int mPs3WizPendingTextField = -1;   // text-field OSK to open from the render loop
+                                        // (deferred so chained text fields don't open
+                                        // a new OSK from inside the old OSK's callback)
     // Wizard lifecycle + render (NanoMenuPS3Menu.cpp).
     void startNetWizard();
+    void startDateTimeWizard(int mode);   // 0 = Set via Internet, 1 = Set Manually (reuses net-wizard UI)
     void wizEnter(int id, int dir);       // push/go to a screen
     void wizConfirm();                    // X / Enter
     void wizBack();                       // O / Back
@@ -1145,6 +1169,17 @@ private:
     std::vector<TimezoneEntry> mTzEntries;
     int mTzSelected;
     int mTzScrollTop;
+    // Time Zone 3D-globe selector state (shared by the setup wizard step + the
+    // XMB Date and Time -> Time Zone view). mPs3TzActive gates the XMB view;
+    // mTzGlobeFadeStart drives the 360ms XMB->globe cross-fade (mEffectTime when
+    // the screen opened, <0 = no fade / fully shown).
+    bool mPs3TzActive = false;
+    float mTzGlobeFadeStart = -1.0f;
+    int mTzGlobeWarmFrames = -1;  // >=0 while warming up (loading textures): hold the
+                                  // globe on black until ready so the one-time texture
+                                  // load spike isn't charged against the 360ms fade
+    int mTzSelOnOpen = 0;         // mTzSelected when the globe opened (restore on cancel)
+    GLuint mPs3TzHeaderTex = 0;   // cached xmb_icon_022 colour texture (header glyph)
     // Setup script log tailing
     std::vector<std::string> mSetupLogLines;
     int mSetupLogScrollTop;

@@ -1145,10 +1145,15 @@ bool NanoMenu::threadLoop() {
         property_get("persist.gammaos.nano.setup_done", sd, "");
         property_get("persist.gammaos.nano.ps3boot_skip", sk, "0");
         bool coldBoot = (strcmp(bc, "1") != 0 && strcmp(fd, "1") != 0 && strcmp(mb, "1") != 0);
-        if (coldBoot && strcmp(sk, "1") != 0) {
-            bool fresh = (strcmp(sd, "1") != 0);
+        bool fresh = (strcmp(sd, "1") != 0);
+        // Play the intro on a normal cold boot, AND always before the setup wizard
+        // on a fresh device (fresh=true) even when this is a restart rather than a
+        // cold boot, so the boot animation always precedes the setup wizard. The
+        // QR / minimal-boot / force_drm fast paths and the dev skip still bypass it.
+        if ((coldBoot || fresh) && strcmp(sk, "1") != 0) {
             ps3BootReset(fresh);
-            ALOGI("NanoMenu: PS3 cold-boot intro armed (fresh=%d)", fresh ? 1 : 0);
+            ALOGI("NanoMenu: PS3 boot intro armed (coldBoot=%d fresh=%d)",
+                  coldBoot ? 1 : 0, fresh ? 1 : 0);
         }
     }
     // Re-read wallpaper effect (constructor ran before persist props loaded)
