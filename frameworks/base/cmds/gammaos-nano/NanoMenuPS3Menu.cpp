@@ -2308,10 +2308,34 @@ void NanoMenu::wizEnter(int id, int dir) {
     // (NTP) and nudge a refresh on a background thread (the 2.6s dwell is real work).
     if (id == WS_DT_SVI_PROGRESS) {
         std::thread([]{
+            // Turn on Android automatic time/zone for ongoing syncs, then ACTIVELY
+            // fetch the current UTC and set the clock: the network_time_update
+            // service is not reachable on this build, so just enabling auto_time
+            // does not re-sync (it stays on whatever Set Manually left). curl the
+            // Date response header (UTC, second precision) and set-time from it.
             system("settings put global auto_time 1 2>/dev/null");
             system("settings put global auto_time_zone 1 2>/dev/null");
-            system("cmd time_detector set_auto_detection_enabled true 2>/dev/null");
-            system("cmd network_time_update_service force_refresh 2>/dev/null");
+            FILE* f = popen("curl -sI --max-time 8 http://example.com 2>/dev/null | grep -i '^date:'", "r");
+            if (f) {
+                char line[160] = {};
+                bool got = fgets(line, sizeof(line), f) != nullptr;
+                pclose(f);
+                const char* colon = got ? strchr(line, ':') : nullptr;   // after "Date"
+                if (colon) {
+                    const char* ds = colon + 1;
+                    while (*ds == ' ') ds++;                               // -> "Wed, 04 Jun 2026 13:57:10 GMT"
+                    struct tm tmv; memset(&tmv, 0, sizeof(tmv));
+                    if (strptime(ds, "%a, %d %b %Y %H:%M:%S", &tmv)) {
+                        time_t epoch = timegm(&tmv);                       // header is GMT/UTC
+                        if (epoch > 0) {
+                            char cmd[96];
+                            snprintf(cmd, sizeof(cmd), "cmd alarm set-time %lld 2>/dev/null",
+                                     (long long)epoch * 1000LL);
+                            system(cmd);
+                        }
+                    }
+                }
+            }
         }).detach();
         mPs3DstAuto = true;   // auto_time_zone is now on
     }
@@ -2758,10 +2782,23 @@ void NanoMenu::renderNetWizard() {
             }
         }
     } else if (d.kind == WK_TEXT) {
-        // The OSK overlays; show the field label + current value box.
+        // The OSK overlays; show the field label + the value being typed IN the
+        // field (real-IME style: the keyboard suppresses its own preview line for
+        // wizard fields, so the value + caret live here), masked for password fields.
         ps3DlgText(d.label, XC(VW * 0.18f) + slidePx, Y(innerTop + 64.0f), FS(24.0f), 0.95f, 0.95f, 0.95f, ap, 0);
         float boxX = XC(VW * 0.18f) + slidePx, boxY = Y(innerTop + 84.0f), boxW = DS(ps3::XCF(VW * 0.64f)), boxH = DS(44.0f);
         drawRoundedRect(boxX, boxY, boxW, boxH, DS(6.0f), 0, 0, 0, 0.45f * ap);
+        std::string val = d.mask ? maskPassword(mOskQuery) : mOskQuery;
+        std::string composing = mOsk.im ? mOsk.im->composingText() : std::string();
+        if (!d.mask && !composing.empty()) val += composing;
+        float vfs = FS(24.0f);
+        float vx = boxX + DS(12.0f);
+        if (!val.empty()) {
+            ps3DlgText(val.c_str(), vx, boxY + DS(30.0f), vfs, 1, 1, 1, ap, 0);
+            vx += measureText(val.c_str(), vfs);
+        }
+        float blink = 0.5f + 0.5f * sinf(mEffectTime * 6.0f);
+        drawQuad(vx + DS(1.0f), boxY + DS(8.0f), fmaxf(1.0f, DS(2.0f)), DS(28.0f), 1, 1, 1, blink * ap);
     } else if (d.kind == WK_REVIEW) {
         // Settings List - 1:1 with the web review rows.
         struct KV { std::string k; std::string v; };

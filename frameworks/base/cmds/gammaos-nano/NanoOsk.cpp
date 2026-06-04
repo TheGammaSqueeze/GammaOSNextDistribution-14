@@ -1051,7 +1051,11 @@ void NanoMenu::renderOsk() {
     }
 
     // --- Text preview / query line with caret ---
-    {
+    // Wizard text fields (opened via openOskForPassword, mOskPasswordCallback set)
+    // are edited like a real IME: the value + caret are drawn into the actual
+    // dialog field, not here, so skip the keyboard's own preview line for them.
+    // The free search OSK (no callback) keeps its inline "Search:" preview.
+    if (!mOskPasswordCallback) {
         std::string label, value;
         float pr, pg, pb;
         if (mOskPasswordMode) {

@@ -40,7 +40,7 @@
 service gammaos-nano /system/bin/gammaos-nano
     class core animation
     user root
-    group root graphics input system media_rw sdcard_rw everybody external_storage package_info readproc
+    group root graphics input system media_rw sdcard_rw everybody external_storage package_info readproc inet
     capabilities SYS_NICE IPC_LOCK SYS_RESOURCE DAC_OVERRIDE DAC_READ_SEARCH CHOWN FOWNER SYS_ADMIN SYS_PTRACE SYS_CHROOT
     disabled
     oneshot
