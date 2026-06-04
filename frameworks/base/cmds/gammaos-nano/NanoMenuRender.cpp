@@ -1621,7 +1621,7 @@ void NanoMenu::render() {
     // Battery + Network indicators (XMB only; mirrors the Quick Resume HUD
     // on the opposite side). Text-menu mode keeps its minimal top-bar free
     // so the classic boot layout isn't visually disturbed.
-    if (mXmbMode && !inSettingsModal) {
+    if ((mXmbMode || mPs3Xmb) && !inSettingsModal) {
         pollBattery();
         // In the PS3 XMB layout the battery percentage and Wi-Fi/Bluetooth icons
         // live inside the clock bar (drawPs3Clock), so skip the legacy top-left

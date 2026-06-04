@@ -716,9 +716,18 @@ void NanoMenu::forgetWifiNetwork(int savedNetId) {
     startWifiScanAsync();
 }
 
+bool NanoMenu::wifiRadioEnabled() {
+    std::string st = runCmd("cmd wifi status 2>/dev/null");
+    // "Wifi is enabled" / "Wifi is connected to ..." vs "Wifi is disabled".
+    if (st.find("Wifi is disabled") != std::string::npos) return false;
+    return st.find("Wifi is enabled") != std::string::npos
+        || st.find("is connected to") != std::string::npos;
+}
+
 void NanoMenu::toggleWifiRadio(bool on) {
     (void)runCmd(on ? "cmd wifi set-wifi-enabled enabled"
                     : "cmd wifi set-wifi-enabled disabled");
+    { std::lock_guard<std::mutex> lk(mNetStateMutex); mWifiRadioOn = on; }
     mWifiStatusMsg = on ? "Enabling Wi-Fi..." : "Disabling Wi-Fi...";
     mWifiStatusMsgUntilMs = std::chrono::duration_cast<std::chrono::milliseconds>(
             std::chrono::steady_clock::now().time_since_epoch()).count() + 2000;
@@ -826,26 +835,80 @@ static std::string netTrim(std::string s) {
     return s.substr(b);
 }
 
+// Parse the WIFI network's LinkProperties out of `dumpsys connectivity` for the
+// default-route gateway and DNS servers. The legacy dhcp.wlan0.gateway / net.dns1
+// system properties are unset on modern Android (DHCP results live in
+// ConnectivityService's LinkProperties), and direct ip/ip route do not work in
+// nano's domain - but dumpsys (binder) does.
+static void netGwDnsFromDumpsys(std::string& gw, std::string& dns1, std::string& dns2) {
+    std::string d = runCmd("dumpsys connectivity 2>/dev/null");
+    size_t at = d.find("InterfaceName: wlan0");
+    if (at == std::string::npos) return;
+    size_t end = d.find("}  nc{", at);
+    if (end == std::string::npos) end = d.find("NetworkAgentInfo{", at + 1);
+    if (end == std::string::npos) end = d.size();
+    std::string b = d.substr(at, end - at);
+    auto splitCsv = [](const std::string& s) {
+        std::vector<std::string> out; std::string cur;
+        for (char c : s) { if (c == ',') { out.push_back(cur); cur.clear(); } else cur += c; }
+        if (!cur.empty()) out.push_back(cur);
+        return out;
+    };
+    // DnsAddresses: [ 8.8.8.8,8.8.4.4 ]   (comma-joined, each may have a leading '/')
+    { size_t p = b.find("DnsAddresses: [");
+      if (p != std::string::npos) { p += 15; size_t e = b.find(']', p);
+        std::string inside = b.substr(p, (e == std::string::npos ? b.size() : e) - p);
+        int idx = 0;
+        for (auto& s : splitCsv(inside)) {
+            std::string t = netTrim(s);
+            if (!t.empty() && t[0] == '/') t = t.substr(1);
+            if (t.empty()) continue;
+            if (idx == 0) dns1 = t; else { dns2 = t; break; }
+            idx++;
+        }
+      }
+    }
+    // Routes: [ 0.0.0.0/0 -> 192.168.0.1 wlan0 mtu 0, ... ]
+    { size_t p = b.find("Routes: [");
+      if (p != std::string::npos) { p += 9; size_t e = b.find(']', p);
+        std::string inside = b.substr(p, (e == std::string::npos ? b.size() : e) - p);
+        const std::string v4p = "0.0.0.0/0 -> ", v6p = "::/0 -> ";
+        std::string v4gw, v6gw;
+        for (auto& r : splitCsv(inside)) {
+            std::string t = netTrim(r);
+            if (t.rfind(v4p, 0) == 0) {
+                std::string g = t.substr(v4p.size());
+                g = g.substr(0, g.find(' '));
+                if (g != "0.0.0.0" && !g.empty()) v4gw = g;
+            } else if (t.rfind(v6p, 0) == 0) {
+                std::string g = t.substr(v6p.size());
+                g = g.substr(0, g.find(' '));
+                if (g != "::" && !g.empty()) v6gw = g;
+            }
+        }
+        gw = !v4gw.empty() ? v4gw : v6gw;
+      }
+    }
+}
+
 std::string NanoMenu::buildNetStatusBody() {
-    // SSID + connection state come from the cached HUD poll (no slow re-query);
-    // IP/gateway/DNS/MAC are quick `ip`/getprop reads.
     std::string ssid; bool connected = false;
     {
         std::lock_guard<std::mutex> lk(mNetStateMutex);
         ssid = mWifiSsid;
         connected = (mWifiLevel == kWifiLevel_Connected);
     }
-    // IP comes from the framework status (binder); direct `ip`/`ip route` do not
-    // work in nano's bootanim domain (see startNetTest). Gateway/DNS fall back to
-    // the dhcp.* system properties the framework publishes.
+    // IP from the framework status (binder); gateway + DNS from the connectivity
+    // dump's LinkProperties (the legacy dhcp.*/net.dns* props are unset). MAC via
+    // sysfs. Direct ip/ip route do not work in nano (see startNetTest).
     std::string st = runCmd("cmd wifi status 2>/dev/null");
     std::string ip;
     { size_t p = st.find("IP: /");
       if (p != std::string::npos) { p += 5; size_t e = p;
         while (e < st.size() && (isdigit((unsigned char)st[e]) || st[e] == '.')) e++;
         ip = st.substr(p, e - p); if (ip == "0.0.0.0") ip.clear(); } }
-    std::string gw  = netTrim(runCmd("getprop dhcp.wlan0.gateway 2>/dev/null"));
-    std::string dns = netTrim(runCmd("getprop net.dns1 2>/dev/null"));
+    std::string gw, dns, dns2;
+    if (connected) netGwDnsFromDumpsys(gw, dns, dns2);
     std::string mac = netTrim(runCmd("cat /sys/class/net/wlan0/address 2>/dev/null"));
     auto orDash = [](const std::string& s) { return s.empty() ? std::string("-") : s; };
     std::string body;
@@ -855,6 +918,7 @@ std::string NanoMenu::buildNetStatusBody() {
     body += std::string("IP Address         ") + orDash(ip) + "\n";
     body += std::string("Default Gateway    ") + orDash(gw) + "\n";
     body += std::string("Primary DNS        ") + orDash(dns) + "\n";
+    body += std::string("Secondary DNS      ") + orDash(dns2) + "\n";
     body += std::string("MAC Address        ") + orDash(mac) + "\n";
     return body;
 }

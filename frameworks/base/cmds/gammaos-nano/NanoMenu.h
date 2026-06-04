@@ -295,6 +295,7 @@ private:
     void connectWithWizardSettings();   // applies the wizard's static IP/DNS/MTU/proxy
     void forgetWifiNetwork(int savedNetId);
     void toggleWifiRadio(bool on);
+    bool wifiRadioEnabled();   // live Wi-Fi radio state (for the Internet Connection toggle)
     // Network Settings dialogs backed by the live system state:
     std::string buildNetStatusBody();    // real SSID/IP/gateway/DNS/MAC for the status list
     void startNetTest();                 // async connectivity test (IP / internet / DNS)
@@ -611,6 +612,7 @@ private:
     // All fields are guarded by mNetStateMutex; copy into locals before use.
     std::mutex mNetStateMutex;
     WifiLevel mWifiLevel;
+    bool mWifiRadioOn = true;      // cached radio on/off for the Internet Connection row (no per-frame query)
     int mWifiBars;                 // 0..4 signal strength, meaningful only if Connected
     std::string mWifiSsid;         // connected SSID, empty otherwise
     BtLevel mBtLevel;

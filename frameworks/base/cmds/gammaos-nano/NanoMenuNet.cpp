@@ -278,6 +278,7 @@ void NanoMenu::netPollThreadFunc() {
                 btChanged = true;
             }
             mWifiLevel = wifiLevel;
+            if (wifiLevel != kWifiLevel_Unknown) mWifiRadioOn = (wifiLevel != kWifiLevel_Off);
             mWifiBars = wifiBars;
             mWifiSsid = wifiSsid;
             mBtLevel = btLevel;

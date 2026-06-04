@@ -532,10 +532,10 @@ void NanoMenu::ps3XmbSelect() {
         }
         case PS3_DATA_LEAF: {
             // "Internet Connection Settings" runs the full PS3 setup wizard (1:1
-            // web NETCONF flow, real scan/connect). "Internet Connection" is the
-            // quick live Wi-Fi list (scan/toggle/connect with the OSK password).
+            // web NETCONF flow, real scan/connect). "Internet Connection" opens the
+            // side-panel Enabled/Disabled toggle for the Wi-Fi radio.
             if (it.label == "Internet Connection Settings") { startNetWizard(); return; }
-            if (it.label == "Internet Connection") { openWifiScreen(); return; }
+            if (it.label == "Internet Connection") { openPs3Dialog(it); return; }
             if (it.action == 1) openPs3Dialog(it);   // action='dialog' -> dialog/chooser
             return;
         }
@@ -1315,6 +1315,10 @@ std::string NanoMenu::resolvePs3ItemValue(const Ps3Item& it) {
         if (mPs3FontIdx >= 0 && mPs3FontIdx < c) return kPs3FontOpts[mPs3FontIdx];
     } else if (n == "Day/Night") {
         if (mPs3DayNightIdx >= 0 && mPs3DayNightIdx < kPs3DayNightCount) return kPs3DayNightOpts[mPs3DayNightIdx].name;
+    } else if (n == "Internet Connection") {
+        // Cached radio state (refreshed by the HUD net poll + on toggle); never a
+        // live `cmd wifi` shell-out here - this runs every frame in drawList.
+        return mWifiRadioOn ? "Enabled" : "Disabled";
     }
     return it.value;
 }
@@ -1656,6 +1660,13 @@ void NanoMenu::openPs3Dialog(const Ps3Item& it) {
         mPs3DlgKind = 1; mPs3DlgThemeKey = 5;
         for (int i = 0; i < kPs3DayNightCount; i++) { mPs3DlgOptions.push_back(kPs3DayNightOpts[i].name); mPs3DlgSwatch.push_back(-1); }
         mPs3DlgSel = mPs3DayNightIdx;
+    } else if (n == "Internet Connection") {
+        // Side-panel Enabled/Disabled toggle for the Wi-Fi radio (route key 6).
+        // Applied on commit only (no live toggle while scrolling).
+        mPs3DlgKind = 1; mPs3DlgThemeKey = 6;
+        mPs3DlgOptions.push_back("Enabled");  mPs3DlgSwatch.push_back(-1);
+        mPs3DlgOptions.push_back("Disabled"); mPs3DlgSwatch.push_back(-1);
+        mPs3DlgSel = wifiRadioEnabled() ? 0 : 1;
     } else {
         // Fullscreen dialog page (kind 0): look up the 1:1 web template.
         mPs3DlgType = 0; mPs3DlgIllust = 0; mPs3DlgNotice.clear();
@@ -1724,6 +1735,7 @@ void NanoMenu::applyThemeSetting(int themeKey, int sel) {
         case 3: property_set("persist.gammaos.nano.ps3xmb.bg", v); break;
         case 4: property_set("persist.gammaos.nano.ps3xmb.font", v); break;
         case 5: property_set("persist.gammaos.nano.ps3xmb.daynight", v); previewThemeSetting(5, sel); break;
+        case 6: toggleWifiRadio(sel == 0); break;   // Internet Connection: Enabled=0
         default: break;
     }
 }
@@ -2113,8 +2125,10 @@ void NanoMenu::wizEnter(int id, int dir) {
     mPs3WizId = id;
     mPs3WizSel = 0;
     mPs3WizScroll = 0;
-    mPs3WizSlideDir = dir;
-    mPs3WizSlide = (float)dir * ps3::VW;       // slide in from the side
+    // The intro page fades in (mPs3WizAnim) but does NOT slide horizontally;
+    // every later page keeps the slide-in transition.
+    mPs3WizSlideDir = (id == WS_INTRO) ? 0 : dir;
+    mPs3WizSlide = (float)mPs3WizSlideDir * ps3::VW;   // slide in from the side
     mPs3WizSlideStart = mEffectTime;
     mPs3WizScreenStart = mEffectTime;
     WizDesc d; wizDesc(id, d);
@@ -2432,13 +2446,13 @@ void NanoMenu::renderNetWizard() {
         if (mPs3WizId == WS_SAVE) body = "Internet connection settings have been completed.\n\nSave completed.";
         std::vector<std::string> lines = wrap(body, fs);
         float cy = (innerTop + innerBot) * 0.5f;
-        if (d.kind == WK_RESULT) {   // green check mark above the text
-            float r = DS(26.0f), ccx = bodyCx, ccy = Y(cy - 70.0f);
+        float ty = Y(cy) - (float)((int)lines.size() - 1) * lh * 0.5f;
+        if (d.kind == WK_RESULT) {   // green check mark clear ABOVE the text block
+            float r = DS(26.0f), ccx = bodyCx, ccy = ty - DS(58.0f);
             ps3StrokeRing(ccx, ccy, r, r, DS(3.0f), 0.45f, 0.9f, 0.45f, ap);
             ps3ThickLine(ccx - r * 0.45f, ccy + r * 0.05f, ccx - r * 0.1f, ccy + r * 0.45f, DS(3.0f), 0.5f, 0.95f, 0.5f, ap);
             ps3ThickLine(ccx - r * 0.1f, ccy + r * 0.45f, ccx + r * 0.5f, ccy - r * 0.4f, DS(3.0f), 0.5f, 0.95f, 0.5f, ap);
         }
-        float ty = Y(cy) - (float)((int)lines.size() - 1) * lh * 0.5f;
         for (auto& ln : lines) { if (!ln.empty()) ps3DlgText(ln.c_str(), bodyCx, ty, fs, 0.95f, 0.95f, 0.95f, ap, 1); ty += lh; }
     } else if (d.kind == WK_CHOOSER) {
         float fs = FS(24.0f);
