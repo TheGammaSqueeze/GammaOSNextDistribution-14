@@ -225,6 +225,10 @@ NanoMenu::Ps3Item NanoMenu::makeDataItem(const Ps3DataItem* d) {
 
 void NanoMenu::initPs3Menu() {
     if (mPs3MenuBuilt) return;
+    // Clear any stale BT receive-mode flag left by a prior session that exited
+    // mid-receive, so the BondStateMachine inbound branch can't suppress Settings
+    // for a UI that is no longer watching.
+    property_set("sys.gammaos.bt.inbound_open", "0");
     // UI-size preference. Default 1.12 (a slight enlargement that reads better on
     // small physical panels like the 3.2" Brick); user-tunable via the prop.
     char usbuf[PROPERTY_VALUE_MAX];
@@ -2140,6 +2144,7 @@ enum WizScr {
     WS_BT_DEVICE_OPTS, WS_BT_CONNECTING, WS_BT_DISCONNECTING,
     WS_BT_DELETE_CONFIRM, WS_BT_DELETING, WS_BT_INFO,
     WS_BT_BD_REMOTE,
+    WS_BT_INBOUND_WAIT, WS_BT_INBOUND_CONFIRM, WS_BT_INBOUND_PAIRING,
     WS_BT_AD_MENU, WS_BT_AD_INPUT, WS_BT_AD_OUTPUT, WS_BT_AD_MIC
 };
 // Bluetooth class-of-device -> human label for the "Type" column (1:1 with the
@@ -2164,7 +2169,7 @@ static bool btNeedsPasskey(int cod) { return (cod & 0x1F00) == 0x0500; }
 static bool btIsBusyProgress(int id) {
     return id == WS_BT_SCANNING || id == WS_BT_REGISTERING ||
            id == WS_BT_CONNECTING || id == WS_BT_DISCONNECTING ||
-           id == WS_BT_DELETING;
+           id == WS_BT_DELETING || id == WS_BT_INBOUND_PAIRING;
 }
 enum WizKind { WK_INFO, WK_CHOOSER, WK_CONFIRM, WK_SCANLIST, WK_PROGRESS,
                WK_TEXT, WK_REVIEW, WK_RESULT, WK_TEST };
@@ -2172,7 +2177,7 @@ enum WizField { WF_SSID = 0, WF_WEP_KEY, WF_WPA_KEY, WF_IP_ADDR, WF_IP_SUBNET,
                 WF_IP_ROUTER, WF_IP_PDNS, WF_IP_SDNS, WF_DNS_PDNS, WF_DNS_SDNS,
                 WF_MTU, WF_PROXY_ADDR, WF_PROXY_PORT, WF_PPPOE_USER, WF_PPPOE_PASS,
                 WF_DHCP_HOST, WF_EAP_USER, WF_EAP_PASS,
-                WF_DT_DATE, WF_DT_TIME };
+                WF_DT_DATE, WF_DT_TIME, WF_BT_PIN };
 struct WizDesc {
     int kind = WK_INFO;
     const char* title = "Internet Connection Settings";
@@ -2309,8 +2314,8 @@ static void wizDesc(int id, WizDesc& d) {
         d.body = "Scanning...\nPlease wait."; d.autoNext = WS_BT_DEVICE_LIST; break;   // advance on scan completion
     case WS_BT_DEVICE_LIST: d.kind = WK_SCANLIST; d.title = "Register Bluetooth® Device";
         d.body = "Select the Bluetooth® device to register."; break;
-    case WS_BT_PASSKEY: d.kind = WK_INFO; d.title = "Register Bluetooth® Device";
-        d.body = "Use the selected Bluetooth® device to enter the pass key shown below and press the Enter key within 30 seconds.\n\nPass Key:  0000"; break;
+    case WS_BT_PASSKEY: d.kind = WK_TEXT; d.title = "Register Bluetooth® Device";
+        d.label = "Pass Key (enter the same on the device, default 0000)"; d.field = WF_BT_PIN; break;
     case WS_BT_REGISTERING: d.kind = WK_PROGRESS; d.title = "Register Bluetooth® Device";
         d.body = "Registering...\nPlease wait."; d.autoNext = WS_BT_REGISTER_DONE; break;
     case WS_BT_REGISTER_DONE: d.kind = WK_RESULT; d.title = "Register Bluetooth® Device";
@@ -2328,6 +2333,12 @@ static void wizDesc(int id, WizDesc& d) {
     case WS_BT_INFO: d.kind = WK_INFO; d.title = "Manage Bluetooth® Devices"; break;   // dynamic details in render
     case WS_BT_BD_REMOTE: d.kind = WK_INFO; d.title = "Register BD Remote Control";
         d.body = "Press the START button and ENTER button of the BD remote control you want to register at the same time, and hold down until the screen changes."; break;
+    // ---- Accessory: receive an inbound registration request ----
+    case WS_BT_INBOUND_WAIT: d.kind = WK_PROGRESS; d.title = "Receive Registration Request";
+        d.body = "Your system is now discoverable.\nRegister this system from the other Bluetooth® device.\n\nWaiting..."; break;  // advances when a request arrives
+    case WS_BT_INBOUND_CONFIRM: d.kind = WK_CONFIRM; d.title = "Receive Registration Request"; break;  // dynamic body in render
+    case WS_BT_INBOUND_PAIRING: d.kind = WK_PROGRESS; d.title = "Receive Registration Request";
+        d.body = "Registering...\nPlease wait."; d.autoNext = WS_BT_REGISTER_DONE; break;
     // ---- Accessory: Audio Device Settings ----
     case WS_BT_AD_MENU: d.kind = WK_CHOOSER; d.title = "Audio Device Settings";
         d.body = "Sets the audio input and output devices.\nSelect an option.";
@@ -2400,9 +2411,25 @@ void NanoMenu::startBtWizard(int mode) {
       property_get("persist.gammaos.nano.bt.ad_in",  b, "0"); mBtWizAdInput  = atoi(b);
       property_get("persist.gammaos.nano.bt.ad_out", b, "0"); mBtWizAdOutput = atoi(b);
       property_get("persist.gammaos.nano.bt.ad_mic", b, "2"); mBtWizAdMic    = atoi(b); }
+    property_set("sys.gammaos.bt.inbound_open", "0");   // not receiving yet
     int first = (mode == 1) ? WS_BT_BD_REMOTE : (mode == 2) ? WS_BT_AD_MENU : WS_BT_MANAGE;
     wizEnter(first, 1);   // wizEnter(WS_BT_MANAGE) kicks btWizRefreshBondedAsync
+}
 
+// Receive an inbound registration request: make the system discoverable and open
+// the property bridge so the BondStateMachine patch routes a remote-initiated
+// pairing to the Nano UI (sys.gammaos.bt.inbound) instead of Settings' dialog.
+void NanoMenu::btWizStartReceive() {
+    property_set("sys.gammaos.bt.inbound", "");
+    property_set("sys.gammaos.bt.passkey", "");   // no stale passkey from a prior request
+    property_set("sys.gammaos.bt.inbound_open", "1");
+    std::thread([]() { system("gammaos-net bt discoverable 120 2>/dev/null"); }).detach();
+}
+
+void NanoMenu::btWizStopReceive() {
+    property_set("sys.gammaos.bt.inbound_open", "0");
+    property_set("sys.gammaos.bt.inbound", "");
+    std::thread([]() { system("gammaos-net bt discoverable 0 2>/dev/null"); }).detach();
 }
 
 void NanoMenu::wizEnter(int id, int dir) {
@@ -2424,14 +2451,20 @@ void NanoMenu::wizEnter(int id, int dir) {
     if (id == WS_SCANNING) startWifiScanAsync();               // real scan
     // Accessory: Bluetooth wizard side effects (the real gammaos-net bt backend on
     // background threads; the busy-progress screens advance when the op completes).
-    if (id == WS_BT_MANAGE)        btWizRefreshBondedAsync();           // bonded list for the chooser
-    if (id == WS_BT_REGISTER_INFO || id == WS_BT_BD_REMOTE)             // start a fresh discovery session
-        { std::lock_guard<std::mutex> lk(mBtWizMutex); mBtWizScan.clear(); }
+    if (id == WS_BT_MANAGE)      { btWizRefreshBondedAsync(); btWizStopReceive(); }  // chooser + leave receive mode
+    if (id == WS_BT_REGISTER_INFO || id == WS_BT_BD_REMOTE) {           // start a fresh discovery session
+        std::lock_guard<std::mutex> lk(mBtWizMutex); mBtWizScan.clear(); mBtWizPin.clear();
+    }
     if (id == WS_BT_SCANNING)      btWizScanAsync();                    // real inquiry -> device list (accumulates)
-    if (id == WS_BT_REGISTERING)   btWizPairAsync(mBtWizSelAddr);       // real createBond + profile connect
+    if (id == WS_BT_REGISTERING)   btWizPairAsync(mBtWizSelAddr, mBtWizPin);  // real createBond (+ PIN) + connect
     if (id == WS_BT_CONNECTING)    btWizConnectAsync(mBtWizSelAddr);    // real profile connect
     if (id == WS_BT_DISCONNECTING) btWizDisconnectAsync(mBtWizSelAddr); // real profile disconnect
     if (id == WS_BT_DELETING)      btWizUnpairAsync(mBtWizSelAddr);     // real removeBond
+    if (id == WS_BT_INBOUND_WAIT)  btWizStartReceive();                 // discoverable + open inbound bridge
+    if (id == WS_BT_INBOUND_PAIRING) {                                  // accepted: stop accepting others, bond
+        btWizStopReceive();
+        btWizInboundAcceptAsync(mBtWizSelAddr, mBtWizInVariant);
+    }
     if (id == WS_SAVE) {                                       // real connect (Wi-Fi only)
         if (mPs3WizConn == "Wireless" && !mPs3WizSsid.empty()) {
             // Apply the advanced settings (static IP/DNS/MTU/proxy) via the
@@ -2527,6 +2560,7 @@ void NanoMenu::wizOpenTextField(int field) {
     case WF_DHCP_HOST: cur = &mPs3WizDhcpHost; break;
     case WF_EAP_USER: cur = &mPs3WizEapUser; break;   case WF_EAP_PASS: cur = &mPs3WizEapPass; break;
     case WF_DT_DATE: cur = &mPs3DtDate; break;        case WF_DT_TIME: cur = &mPs3DtTime; break;
+    case WF_BT_PIN: cur = &mBtWizPin; break;
     }
     mOskQuery = cur ? *cur : "";
     openOskForPassword(prompt, [this, field](const std::string& val) {
@@ -2543,10 +2577,11 @@ void NanoMenu::wizOpenTextField(int field) {
         case WF_DHCP_HOST: mPs3WizDhcpHost = val; break;
         case WF_EAP_USER: mPs3WizEapUser = val; break;   case WF_EAP_PASS: mPs3WizEapPass = val; break;
         case WF_DT_DATE: mPs3DtDate = val; break;        case WF_DT_TIME: mPs3DtTime = val; break;
+        case WF_BT_PIN: mBtWizPin = val.empty() ? "0000" : val; break;   // default PIN 0000
         }
-        // Optional fields (secondary DNS) may be left blank; everything else
-        // treats an empty submit as a cancel (handled as a back via closeOsk).
-        if (val.empty() && field != WF_IP_SDNS && field != WF_DNS_SDNS) return;
+        // Optional fields (secondary DNS, the BT PIN which defaults to 0000) may be
+        // left blank; everything else treats an empty submit as a cancel.
+        if (val.empty() && field != WF_IP_SDNS && field != WF_DNS_SDNS && field != WF_BT_PIN) return;
         // Validate format + range. On bad input set the inline error and re-open
         // the same field (deferred) instead of advancing.
         std::string err = validateWizField(field, val);
@@ -2617,6 +2652,11 @@ std::string NanoMenu::validateWizField(int field, const std::string& val) {
             return "MTU must be 576-9000";
         return "";
     }
+    case WF_BT_PIN: {   // empty -> 0000; otherwise 1-16 numeric digits (BT PIN spec)
+        if (val.size() > 16) return "PIN must be 1-16 digits";
+        for (char c : val) if (c < '0' || c > '9') return "PIN must be digits only";
+        return "";
+    }
     default: return "";   // SSID, keys, proxy host, EAP, PPPoE, DHCP host: free text
     }
 }
@@ -2625,15 +2665,26 @@ void NanoMenu::wizConfirm() {
     WizDesc d; wizDesc(mPs3WizId, d);
     if (d.kind == WK_TEXT || d.kind == WK_PROGRESS) return;   // OSK owns text; progress auto-advances
     // ---- Accessory: Bluetooth wizard selects ----
-    if (mPs3WizId == WS_BT_MANAGE) {          // dynamic: Register New Device + bonded devices
+    if (mPs3WizId == WS_BT_MANAGE) {          // dynamic: Register / Receive + bonded devices
         std::vector<BtDevEntry> bonded;
         { std::lock_guard<std::mutex> lk(mBtWizMutex); bonded = mBtWizBonded; }
         if (mPs3WizSel == 0) { mPs3WizStack.push_back(mPs3WizId); wizEnter(WS_BT_REGISTER_INFO, 1); return; }
-        int di = mPs3WizSel - 1;
+        if (mPs3WizSel == 1) { mPs3WizStack.push_back(mPs3WizId); wizEnter(WS_BT_INBOUND_WAIT, 1); return; }
+        int di = mPs3WizSel - 2;
         if (di >= 0 && di < (int)bonded.size()) {
             mBtWizSelAddr = bonded[di].address; mBtWizSelName = bonded[di].name;
             mBtWizSelCod = bonded[di].cod;      mBtWizSelConnected = bonded[di].connected;
             mPs3WizStack.push_back(mPs3WizId); wizEnter(WS_BT_DEVICE_OPTS, 1);
+        }
+        return;
+    }
+    if (mPs3WizId == WS_BT_INBOUND_CONFIRM) {
+        if (mPs3WizSel == 0) {   // Yes -> accept + wait for the bond
+            mPs3WizStack.push_back(mPs3WizId); wizEnter(WS_BT_INBOUND_PAIRING, 1);
+        } else {                 // No -> reject, keep listening for the next request
+            std::string a = mBtWizSelAddr;
+            std::thread([a]() { system(("gammaos-net bt confirm " + a + " reject 2>/dev/null").c_str()); }).detach();
+            wizEnter(WS_BT_INBOUND_WAIT, -1);   // re-arm receive (btWizStartReceive clears the prop)
         }
         return;
     }
@@ -2730,7 +2781,7 @@ void NanoMenu::wizNav(int dir, bool /*horizontal*/) {
         int n;
         if (mPs3WizId == WS_BT_MANAGE) {
             std::lock_guard<std::mutex> lk(mBtWizMutex);
-            n = 1 + (int)mBtWizBonded.size();   // Register New Device + bonded
+            n = 2 + (int)mBtWizBonded.size();   // Register New Device + Receive + bonded
         } else { n = 0; while (n < 8 && d.opts[n]) n++; }
         if (n > 0) mPs3WizSel = (mPs3WizSel + dir + n) % n;
     } else if (d.kind == WK_CONFIRM) {
@@ -2881,6 +2932,27 @@ void NanoMenu::renderNetWizard() {
             int nx = d.autoNext;
             if (nx == WS_BT_MANAGE) { mPs3WizStack.clear(); wizEnter(WS_BT_MANAGE, -1); }
             else { mPs3WizStack.push_back(mPs3WizId); wizEnter(nx, 1); }
+            wizDesc(mPs3WizId, d);
+        }
+    }
+    // The receive screen advances when the BondStateMachine patch publishes a
+    // remote-initiated pairing request to sys.gammaos.bt.inbound.
+    if (mPs3WizId == WS_BT_INBOUND_WAIT) {
+        char ib[PROPERTY_VALUE_MAX] = {0};
+        property_get("sys.gammaos.bt.inbound", ib, "");
+        if (ib[0]) {
+            std::string s(ib);                       // "<mac>\t<name>\t<variant>\t<passkey>"
+            size_t p0 = s.find('\t');
+            size_t p1 = (p0 == std::string::npos) ? std::string::npos : s.find('\t', p0 + 1);
+            size_t p2 = (p1 == std::string::npos) ? std::string::npos : s.find('\t', p1 + 1);
+            mBtWizSelAddr   = (p0 == std::string::npos) ? s : s.substr(0, p0);
+            mBtWizSelName   = (p0 == std::string::npos) ? "" : s.substr(p0 + 1, (p1 == std::string::npos ? s.size() : p1) - (p0 + 1));
+            mBtWizInVariant = (p1 == std::string::npos) ? -1 : atoi(s.substr(p1 + 1, (p2 == std::string::npos ? s.size() : p2) - (p1 + 1)).c_str());
+            mBtWizInPasskey = (p2 == std::string::npos) ? "" : s.substr(p2 + 1);
+            if (mBtWizSelName.empty()) mBtWizSelName = mBtWizSelAddr;
+            property_set("sys.gammaos.bt.inbound", "");   // consume it so the next request can land
+            mPs3WizStack.push_back(mPs3WizId);
+            wizEnter(WS_BT_INBOUND_CONFIRM, 1);
             wizDesc(mPs3WizId, d);
         }
     }
@@ -3035,6 +3107,7 @@ void NanoMenu::renderNetWizard() {
         std::string body = d.body;
         if (mPs3WizId == WS_BT_MANAGE) {
             opts.push_back("Register New Device");
+            opts.push_back("Receive Registration Request");
             std::lock_guard<std::mutex> lk(mBtWizMutex);
             for (auto& b : mBtWizBonded) {
                 std::string lbl = b.name.empty() ? b.address : b.name;
@@ -3066,7 +3139,13 @@ void NanoMenu::renderNetWizard() {
         if (first + vis < n) ps3DlgText("▼", bodyCx, Y(optTopV + vis * sp2 + 6.0f), FS(20.0f), 1, 1, 1, 0.5f * ap, 1);
     } else if (d.kind == WK_CONFIRM) {
         float fs = FS(26.0f), lh = DS(36.0f);
-        std::vector<std::string> bl = wrap(d.body, fs);
+        std::string cbody = d.body;
+        if (mPs3WizId == WS_BT_INBOUND_CONFIRM) {   // dynamic: the requesting device
+            cbody = mBtWizSelName + "  (" + mBtWizSelAddr + ")\nis requesting to register with this system.";
+            if (!mBtWizInPasskey.empty()) cbody += "\n\nPass Key:  " + mBtWizInPasskey;
+            cbody += "\n\nAccept this device?";
+        }
+        std::vector<std::string> bl = wrap(cbody, fs);
         float ty = Y((innerTop + innerBot) * 0.5f) - (float)((int)bl.size() - 1) * lh * 0.5f - DS(50.0f);
         for (auto& ln : bl) { if (!ln.empty()) ps3DlgText(ln.c_str(), bodyCx, ty, fs, 0.95f, 0.95f, 0.95f, ap, 1); ty += lh; }
         float bxc = bodyCx - DS(110.0f), byv = ty + DS(30.0f);
@@ -3077,6 +3156,16 @@ void NanoMenu::renderNetWizard() {
         std::vector<std::string> lines = wrap(d.body, fs);
         float ty = Y((innerTop + innerBot) * 0.5f + 40.0f) - (float)((int)lines.size() - 1) * lh * 0.5f;
         for (auto& ln : lines) { if (!ln.empty()) ps3DlgText(ln.c_str(), bodyCx, ty, fs, 0.95f, 0.95f, 0.95f, ap, 1); ty += lh; }
+        // While pairing, surface the system-generated pass key so the user can
+        // verify it (numeric confirmation) or type it on the remote device.
+        if (mPs3WizId == WS_BT_REGISTERING || mPs3WizId == WS_BT_INBOUND_PAIRING) {
+            char pk[PROPERTY_VALUE_MAX] = {0};
+            property_get("sys.gammaos.bt.passkey", pk, "");
+            if (pk[0]) {
+                std::string pkLine = std::string("Pass Key:  ") + pk;
+                ps3DlgText(pkLine.c_str(), bodyCx, ty + DS(10.0f), FS(28.0f), 1.0f, 0.92f, 0.66f, ap, 1);
+            }
+        }
         // spinner: 8 dots around a circle, brightness sweeping.
         float ccx = bodyCx, ccy = Y((innerTop + innerBot) * 0.5f - 50.0f), rad = DS(26.0f);
         int lead = (int)(mEffectTime * 8.0f) % 8;
@@ -3216,6 +3305,8 @@ void NanoMenu::renderNetWizard() {
     float enterCX = XC(VW * 0.401f), cancelCX = XC(VW * 0.629f);
     if (d.kind == WK_TEXT) {
         // OSK draws its own hints.
+    } else if (mPs3WizId == WS_BT_INBOUND_WAIT) {
+        ps3DlgHint(cancelCX, false, "Cancel", hintY, S, ap);   // back out of receive mode
     } else if (d.kind == WK_PROGRESS) {
         // no input
     } else if (d.kind == WK_RESULT || mPs3WizId == WS_BT_INFO || (d.kind == WK_TEST && !mPs3NetTestActive)) {

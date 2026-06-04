@@ -522,6 +522,36 @@ final class BondStateMachine extends StateMachine {
                         + " failed: " + t);
             }
         }
+        // GammaOS Nano inbound: when the user has opened "Receive Registration
+        // Request" (sys.gammaos.bt.inbound_open=1), a remotely-initiated pairing
+        // (not locally initiated) is surfaced to the Nano UI through a property
+        // and the request is left pending - the Nano UI accepts or rejects it via
+        // `gammaos-net bt confirm`. This suppresses Settings' BluetoothPairingDialog
+        // (display 0, unreachable on Nano's DRM scanout). Outside receive mode the
+        // property is 0 and inbound pairing behaves normally.
+        if (device != null && !device.isBondingInitiatedLocally()
+                && "1".equals(android.os.SystemProperties.get(
+                        "sys.gammaos.bt.inbound_open", "0"))) {
+            String rn = "";
+            try { rn = device.getName(); } catch (Throwable ignored) { }
+            if (rn == null) rn = "";
+            rn = rn.replace('\t', ' ').replace('\n', ' ');
+            String passkey = (maybePin.isPresent()
+                    && (variant == 2 || variant == 4 || variant == 5))
+                    ? String.format("%06d", maybePin.get()) : "";
+            // SystemProperties.set is hidden from the Bluetooth module SDK stubs,
+            // so reach it reflectively (the bluetooth SELinux domain is granted
+            // set_prop persist_gammaos_prop for this).
+            try {
+                Class.forName("android.os.SystemProperties")
+                        .getMethod("set", String.class, String.class)
+                        .invoke(null, "sys.gammaos.bt.inbound",
+                                device.getAddress() + "\t" + rn + "\t" + variant + "\t" + passkey);
+            } catch (Throwable t) {
+                Log.w(TAG, "gammaos inbound: publish failed: " + t);
+            }
+            return;   // leave the request pending for the Nano UI to confirm
+        }
         Intent intent = new Intent(BluetoothDevice.ACTION_PAIRING_REQUEST);
         intent.putExtra(BluetoothDevice.EXTRA_DEVICE, mRemoteDevices.getDevice(address));
         maybePin.ifPresent(pin -> intent.putExtra(BluetoothDevice.EXTRA_PAIRING_KEY, pin));

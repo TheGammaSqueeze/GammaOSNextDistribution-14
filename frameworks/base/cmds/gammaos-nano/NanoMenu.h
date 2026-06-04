@@ -1022,14 +1022,20 @@ private:
     int  mBtWizSelCod = 0;                    // its class-of-device
     bool mBtWizSelConnected = false;          // its live connection state
     int  mBtWizAdInput = 0, mBtWizAdOutput = 0, mBtWizAdMic = 2;  // audio device choices
+    std::string mBtWizPin;                    // user PIN entered for outbound classic pairing
+    int  mBtWizInVariant = -1;                // inbound pairing variant (0 = classic PIN)
+    std::string mBtWizInPasskey;              // inbound passkey to display for confirmation
 
     void startBtWizard(int mode);             // mode 0 Manage, 1 BD Remote, 2 Audio Device
     void btWizRefreshBondedAsync();           // gammaos-net bt list-bonded -> mBtWizBonded
     void btWizScanAsync();                    // gammaos-net bt scan -> mBtWizScan
-    void btWizPairAsync(const std::string& addr);
+    void btWizPairAsync(const std::string& addr, const std::string& pin);
     void btWizConnectAsync(const std::string& addr);
     void btWizDisconnectAsync(const std::string& addr);
     void btWizUnpairAsync(const std::string& addr);
+    void btWizStartReceive();                 // discoverable + open inbound bridge
+    void btWizStopReceive();                  // stop discoverable + close inbound bridge
+    void btWizInboundAcceptAsync(const std::string& addr, int variant);  // confirm + await bond
     int64_t mBtStatusMsgUntilMs;
 
     // OSK password mode: when active, keystrokes append to mOskQuery, but

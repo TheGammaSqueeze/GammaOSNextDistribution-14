@@ -1316,17 +1316,45 @@ void NanoMenu::btWizScanAsync() {
     }).detach();
 }
 
-void NanoMenu::btWizPairAsync(const std::string& addr) {
+void NanoMenu::btWizPairAsync(const std::string& addr, const std::string& pin) {
     mBtWizBusy = true; mBtWizOpOk = false;
-    std::string a = addr;
-    std::thread([this, a]() {
-        std::string r = runCmd(("gammaos-net bt pair " + a).c_str());
+    std::string a = addr, p = pin;
+    std::thread([this, a, p]() {
+        std::string cmd = "gammaos-net bt pair " + a;
+        if (!p.empty()) cmd += " " + p;           // user PIN for classic pairing
+        std::string r = runCmd(cmd.c_str());
         mBtWizOpOk = r.find("OK") != std::string::npos;
         if (!mBtWizOpOk) ALOGW("btWizPair %s failed: %s", a.c_str(), r.c_str());
         // Refresh bonded so the freshly paired device appears in Manage.
         std::string txt = runCmd("gammaos-net bt list-bonded");
         auto devs = parseBondedDevices(txt);
         { std::lock_guard<std::mutex> lk(mBtWizMutex); mBtWizBonded.swap(devs); }
+        mBtWizBusy = false;
+        mDisplayDirty = true;
+    }).detach();
+}
+
+void NanoMenu::btWizInboundAcceptAsync(const std::string& addr, int variant) {
+    mBtWizBusy = true; mBtWizOpOk = false;
+    std::string a = addr; int v = variant;
+    std::thread([this, a, v]() {
+        // Apply the user's accept to the pending inbound request, then wait for
+        // the bond to land (the BondStateMachine patch left it pending).
+        std::string cmd = "gammaos-net bt confirm " + a + " accept";
+        if (v == 0) cmd += " 0000";   // classic PIN inbound: default 0000
+        runCmd(cmd.c_str());
+        // Poll for the bond to land. A real bond completes in the first couple of
+        // iterations; the cap bounds the failure path (each list-bonded already
+        // costs ~1.5s to spawn, so 8 iterations is ~15s worst case).
+        for (int i = 0; i < 8 && !mBtWizOpOk; i++) {
+            usleep(700 * 1000);
+            std::string txt = runCmd("gammaos-net bt list-bonded");
+            auto devs = parseBondedDevices(txt);
+            bool bonded = false;
+            for (auto& d : devs) if (d.address == a) { bonded = true; break; }
+            { std::lock_guard<std::mutex> lk(mBtWizMutex); mBtWizBonded.swap(devs); }
+            if (bonded) mBtWizOpOk = true;
+        }
         mBtWizBusy = false;
         mDisplayDirty = true;
     }).detach();

@@ -51,8 +51,11 @@ get_prop(bluetooth, device_logging_prop)
 
 # GammaOS Nano: BondStateMachine reads sys.gammaos.bt_autopair to
 # suppress Settings' BluetoothPairingDialog and auto-confirm SSP
-# variants when a bond is initiated from the Nano UI helper.
+# variants when a bond is initiated from the Nano UI helper. set_prop
+# lets BondStateMachine publish an inbound (remote-initiated) pairing
+# request to sys.gammaos.bt.inbound for the Nano UI to confirm.
 get_prop(bluetooth, persist_gammaos_prop)
+set_prop(bluetooth, persist_gammaos_prop)
 
 # Allow write access to bluetooth specific properties
 set_prop(bluetooth, binder_cache_bluetooth_server_prop);

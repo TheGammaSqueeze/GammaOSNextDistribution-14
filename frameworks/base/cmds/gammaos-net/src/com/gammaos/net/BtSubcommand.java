@@ -73,6 +73,10 @@ public final class BtSubcommand {
                 return connect(adapter, args);
             case "disconnect":
                 return disconnect(adapter, args);
+            case "discoverable":
+                return discoverable(adapter, args);
+            case "confirm":
+                return confirm(adapter, args);
             case "list-bonded":
                 return listBonded(adapter);
             default:
@@ -494,6 +498,11 @@ public final class BtSubcommand {
             System.out.println("OK");
             return 0;
         }
+        // Optional user-supplied PIN for classic PIN pairing (keyboards etc.);
+        // null falls back to 0000. Clear any stale passkey we may have published
+        // so the UI doesn't show an old one before this bond's request lands.
+        final String pin = (args.length >= 4 && !args[3].isEmpty()) ? args[3] : null;
+        android.os.SystemProperties.set("sys.gammaos.bt.passkey", "");
         // The latch holder is shared between the broadcast receiver and
         // the main pair flow so we can re-arm it for a second (LE)
         // attempt without having to tear down and re-register the
@@ -519,7 +528,7 @@ public final class BtSubcommand {
                                        int sendingUser) {
                 callbackHandler.post(() -> handlePairIntent(
                         intent, addr, finalBond, doneHolder[0],
-                        callbackHandler));
+                        callbackHandler, pin));
             }
         };
         IntentFilter f = new IntentFilter();
@@ -626,6 +635,7 @@ public final class BtSubcommand {
         } finally {
             try {
                 android.os.SystemProperties.set("sys.gammaos.bt_autopair", "0");
+                android.os.SystemProperties.set("sys.gammaos.bt.passkey", "");
             } catch (Throwable ignored) { }
             if (receiverRegistered) {
                 try {
@@ -676,7 +686,8 @@ public final class BtSubcommand {
     private static void handlePairIntent(Intent intent, String addr,
                                          int[] finalBond,
                                          CountDownLatch done,
-                                         Handler callbackHandler) {
+                                         Handler callbackHandler,
+                                         String pin) {
         BluetoothDevice d = intent.getParcelableExtra(
                 BluetoothDevice.EXTRA_DEVICE);
         if (d == null || !addr.equals(d.getAddress())) return;
@@ -684,27 +695,39 @@ public final class BtSubcommand {
         if (BluetoothDevice.ACTION_PAIRING_REQUEST.equals(action)) {
             int variant = intent.getIntExtra(
                     BluetoothDevice.EXTRA_PAIRING_VARIANT, -1);
-            // Auto-accept the same kinds of pairing that Settings'
-            // BluetoothPairingController handles without user input:
-            // consent, numeric confirmation, and the common 0000 / 1234
-            // pin for classic kbd / gamepad style devices. Xbox wireless
-            // controllers do just-works consent (variant 3).
+            int key = intent.getIntExtra(
+                    BluetoothDevice.EXTRA_PAIRING_KEY, -1);
+            // Surface the system-generated passkey to the UI so the user can
+            // verify it (confirmation) or type it on the remote (display).
+            publishPasskey(variant, key);
+            // Auto-accept the kinds of pairing that Settings'
+            // BluetoothPairingController handles without user input, and use
+            // the user-supplied PIN (falling back to 0000) for classic PIN
+            // pairing. Xbox wireless controllers do just-works consent (3).
             try {
                 switch (variant) {
-                    case 2: // PAIRING_VARIANT_PASSKEY_CONFIRMATION
-                    case 3: // PAIRING_VARIANT_CONSENT
-                    case 6: // PAIRING_VARIANT_OOB_CONSENT
+                    case 2: // PASSKEY_CONFIRMATION (both ends show the same code)
+                    case 3: // CONSENT (just works)
+                    case 6: // OOB_CONSENT
+                    case 4: // DISPLAY_PASSKEY (user types it on the remote)
+                    case 5: // DISPLAY_PIN
                         d.setPairingConfirmation(true);
                         break;
-                    case 0: // PAIRING_VARIANT_PIN
-                        d.setPin("0000".getBytes(
-                                StandardCharsets.UTF_8));
+                    case 0: // PIN (we provide a PIN; the remote must match it)
+                        d.setPin((pin != null ? pin : "0000")
+                                .getBytes(StandardCharsets.UTF_8));
+                        break;
+                    case 1: // PASSKEY entry (the remote shows a code we type)
+                        if (pin != null) {
+                            try {
+                                BluetoothDevice.class.getMethod("setPasskey", int.class)
+                                        .invoke(d, Integer.parseInt(pin.trim()));
+                            } catch (Throwable t) {
+                                System.err.println("pair: setPasskey failed: " + t);
+                            }
+                        }
                         break;
                     default:
-                        // Passkey entry / display variants need user
-                        // interaction on the peer or on us; leave them
-                        // alone so the bond fails cleanly instead of
-                        // us typing random.
                         break;
                 }
             } catch (Throwable t) {
@@ -804,6 +827,98 @@ public final class BtSubcommand {
             return 0;
         } catch (Throwable t) {
             System.err.println("gammaos-net bt: disconnect() failed: " + t);
+            return 5;
+        }
+    }
+
+    // ---------------------------------------------------------------------
+    // discoverable / confirm (inbound pairing) + passkey publish
+    // ---------------------------------------------------------------------
+
+    // Publish a pairing passkey/PIN for the UI to display. Variants 2/4/5 carry a
+    // 6-digit numeric key (confirmation / display); the others have none.
+    private static void publishPasskey(int variant, int key) {
+        String s = "";
+        if (key >= 0 && (variant == 2 || variant == 4 || variant == 5)) {
+            s = String.format("%06d", key);
+        }
+        try { android.os.SystemProperties.set("sys.gammaos.bt.passkey", s); }
+        catch (Throwable ignored) { }
+    }
+
+    // Make the adapter connectable + discoverable for <secs> (0 = back to
+    // connectable-only). setScanMode / setDiscoverableTimeout are @SystemApi
+    // hidden on AOSP 14, reached reflectively.
+    private static void setDiscoverable(BluetoothAdapter adapter, int secs) {
+        final int SCAN_MODE_CONNECTABLE = 21;
+        final int SCAN_MODE_CONNECTABLE_DISCOVERABLE = 23;
+        try {
+            if (secs > 0) {
+                try {
+                    BluetoothAdapter.class.getMethod("setDiscoverableTimeout",
+                            java.time.Duration.class)
+                            .invoke(adapter, java.time.Duration.ofSeconds(secs));
+                } catch (Throwable t) {
+                    try { BluetoothAdapter.class.getMethod("setDiscoverableTimeout", int.class)
+                            .invoke(adapter, secs); } catch (Throwable ignored) { }
+                }
+            }
+            BluetoothAdapter.class.getMethod("setScanMode", int.class)
+                    .invoke(adapter, secs > 0 ? SCAN_MODE_CONNECTABLE_DISCOVERABLE
+                                              : SCAN_MODE_CONNECTABLE);
+        } catch (Throwable t) {
+            System.err.println("gammaos-net bt: setScanMode/discoverable failed: " + t);
+        }
+    }
+
+    private static int discoverable(BluetoothAdapter adapter, String[] args) {
+        int secs = 120;
+        if (args.length >= 3) {
+            try { secs = Math.max(0, Math.min(3600, Integer.parseInt(args[2]))); }
+            catch (NumberFormatException ignored) { }
+        }
+        setDiscoverable(adapter, secs);
+        System.out.println("OK");
+        return 0;
+    }
+
+    // Apply the Nano UI's decision to an inbound pairing request that the
+    // BondStateMachine patch surfaced via sys.gammaos.bt.inbound (and left
+    // pending, suppressing Settings' dialog). accept[:pin] / reject.
+    private static int confirm(BluetoothAdapter adapter, String[] args) {
+        if (args.length < 4) {
+            System.err.println("usage: gammaos-net bt confirm <address> accept|reject [pin]");
+            return 2;
+        }
+        String addr = args[2].toUpperCase();
+        if (!BluetoothAdapter.checkBluetoothAddress(addr)) {
+            System.err.println("gammaos-net bt: invalid address " + addr);
+            return 2;
+        }
+        BluetoothDevice dev = adapter.getRemoteDevice(addr);
+        boolean accept = "accept".equalsIgnoreCase(args[3]);
+        String pin = (args.length >= 5) ? args[4] : null;
+        try {
+            if (accept) {
+                int variant = -1;
+                // Use the PIN path only when the request was a classic PIN; we
+                // do not know the variant here, so try setPin if a PIN was given
+                // and otherwise confirm.
+                if (pin != null && !pin.isEmpty()) {
+                    dev.setPin(pin.getBytes(StandardCharsets.UTF_8));
+                } else {
+                    dev.setPairingConfirmation(true);
+                }
+            } else {
+                try { BluetoothDevice.class.getMethod("cancelPairing").invoke(dev); }
+                catch (Throwable t) {
+                    try { dev.setPairingConfirmation(false); } catch (Throwable ignored) { }
+                }
+            }
+            System.out.println("OK");
+            return 0;
+        } catch (Throwable t) {
+            System.err.println("gammaos-net bt: confirm failed: " + t);
             return 5;
         }
     }
