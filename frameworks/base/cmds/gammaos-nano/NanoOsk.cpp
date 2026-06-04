@@ -508,7 +508,9 @@ void NanoMenu::oskSetLanguage(const char* code, const char* region) {
 OskBox NanoMenu::oskLayoutBox() {
     float sf = fminf((float)mWidth / 1080.0f, (float)mHeight / 720.0f);
     if (sf < 0.5f) sf = 0.5f;
-    const char* actLabel = mOskPasswordMode ? "Done" : "Search";
+    // A wizard text field (callback armed) commits a value, so the action key
+    // reads "Enter", not "Search" - "Search" is only for the free search OSK.
+    const char* actLabel = mOskPasswordCallback ? "Enter" : "Search";
     float actLabelPx = measureText(actLabel, 1.7f * sf);
     return oskComputeBox(mWidth, mHeight, actLabelPx);
 }
@@ -525,7 +527,34 @@ static void clampFocus(const OskKeyboard* kb, int& row, int& col) {
 // Buffer operations (UTF-8, caret aware)
 // ---------------------------------------------------------------------------
 
+// Re-format a numeric field's raw text into its separated display form, keeping
+// only digits, capping the count, and inserting the date "/" or time ":" at the
+// fixed positions. fmt: 1 = date YYYY/MM/DD (8 digits), 2 = time HH:MM (4 digits).
+static std::string oskFormatNumeric(const std::string& s, int fmt) {
+    std::string d;
+    for (char c : s) if (c >= '0' && c <= '9') d += c;
+    size_t cap = (fmt == 1) ? 8 : 4;
+    if (d.size() > cap) d.resize(cap);
+    std::string out;
+    if (fmt == 1) {
+        for (size_t i = 0; i < d.size(); i++) { if (i == 4 || i == 6) out += '/'; out += d[i]; }
+    } else {
+        for (size_t i = 0; i < d.size(); i++) { if (i == 2) out += ':'; out += d[i]; }
+    }
+    return out;
+}
+
 void NanoMenu::oskInsertCp(uint32_t cp) {
+    // Numeric field (date / time): digits only, auto-insert the separators, and
+    // bypass the IME entirely so no kana/pinyin composition runs on a value field.
+    if (mOskFieldFmt != 0) {
+        if (cp >= '0' && cp <= '9') {
+            mOskQuery = oskFormatNumeric(mOskQuery + (char)cp, mOskFieldFmt);
+            mOsk.caret = (int)mOskQuery.size();
+        }
+        mDisplayDirty = true;
+        return;
+    }
     if (mOsk.im) {
         OskBuffer buf{ &mOskQuery, &mOsk.caret };
         if (mOsk.im->onCodepoint(cp, buf)) {
@@ -550,6 +579,17 @@ void NanoMenu::oskType(char c) {
 }
 
 void NanoMenu::oskBackspace() {
+    // Numeric field: drop one digit then re-format (a backspace removes a digit,
+    // not a separator, so "2026/06" -> "2026/0").
+    if (mOskFieldFmt != 0) {
+        std::string d;
+        for (char c : mOskQuery) if (c >= '0' && c <= '9') d += c;
+        if (!d.empty()) d.pop_back();
+        mOskQuery = oskFormatNumeric(d, mOskFieldFmt);
+        mOsk.caret = (int)mOskQuery.size();
+        mDisplayDirty = true;
+        return;
+    }
     if (mOsk.im) {
         OskBuffer buf{ &mOskQuery, &mOsk.caret };
         if (mOsk.im->onBackspace(buf)) {
@@ -871,6 +911,7 @@ void NanoMenu::openOsk() {
     mOskPlaintext = false;
     mOskPasswordPrompt.clear();
     mOskPasswordCallback = nullptr;
+    mOskFieldFmt = 0;
     mOskQuery.clear();
     mOsk.resetForOpen();
     oskApplyLocale();
@@ -947,6 +988,7 @@ void NanoMenu::openOskForPassword(const std::string& prompt,
     mOskPlaintext = false;
     mOskPasswordPrompt = prompt;
     mOskPasswordCallback = std::move(onSubmit);
+    mOskFieldFmt = 0;          // wizOpenTextField sets this for date/time fields
     mOskQuery.clear();
     mOsk.resetForOpen();
     oskApplyLocale();
@@ -1224,9 +1266,9 @@ void NanoMenu::renderOsk() {
         }
     }
 
-    // --- Action button (Done / Search): accent rounded key ---
+    // --- Action button (Enter / Search): accent rounded key ---
     {
-        const char* actLabel = mOskPasswordMode ? "Done" : "Search";
+        const char* actLabel = mOskPasswordCallback ? "Enter" : "Search";
         float scale = 1.6f * b.sf;
         bool foc = mOsk.inAction;
         if (foc) drawRoundedRect(b.actX, b.actY, b.actW, b.actH, keyRad,
@@ -1244,8 +1286,8 @@ void NanoMenu::renderOsk() {
     // --- Footer / help line ---
     {
         float fScale = 1.35f * b.sf;
-        const char* footer = mOskPasswordMode
-            ? "A:Key  X:Back  L:Shift  R:Sym  Sel:Lang  Start:Submit  B:Cancel"
+        const char* footer = mOskPasswordCallback
+            ? "A:Key  X:Back  L:Shift  R:Sym  Sel:Lang  Start:Enter  B:Cancel"
             : "A:Key  X:Back  L:Shift  R:Sym  Sel:Lang  Start:Search  B:Cancel";
         float fw = measureText(footer, fScale);
         drawText(footer, b.panelX + b.panelW / 2.0f - fw / 2.0f, b.footerY, fScale,

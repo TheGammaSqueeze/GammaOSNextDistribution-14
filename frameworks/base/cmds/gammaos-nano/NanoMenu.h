@@ -753,12 +753,14 @@ private:
     int    mPs3FontIdx = 0;
     int    mPs3DayNightIdx = 0;
     // Date and Time settings (functional). Date Format / Time Format are nano-
-    // local display choices the clock honours; Daylight Saving maps to Android's
-    // auto-time-zone (Olson ids already give automatic DST). Set Manually's two
-    // OSK fields are staged in mPs3DtDate / mPs3DtTime.
+    // local display choices the clock honours; Daylight Saving reflects the real
+    // current DST state (tm_isdst, refreshed each frame in drawPs3Clock) and the
+    // toggle switches the timezone between the Olson zone (auto DST) and a fixed
+    // standard-offset Etc/GMT zone (no DST). Set Manually's two OSK fields are
+    // staged in mPs3DtDate / mPs3DtTime.
     int    mPs3DateFormatIdx = 2;   // 0=YYYY/MM/DD 1=MM/DD/YYYY 2=DD/MM/YYYY (web order)
     int    mPs3TimeFormatIdx = 1;   // 0=12-Hour 1=24-Hour (web order)
-    bool   mPs3DstAuto = true;      // Daylight Saving On == auto_time_zone (DST auto-adjust)
+    bool   mPs3DstNow = false;      // Daylight Saving currently active (live from tm_isdst)
     std::string mPs3DtDate;         // "YYYY/MM/DD" staged in the Set Manually wizard
     std::string mPs3DtTime;         // "HH:MM"
     // Dynamic text drop shadow, scaled by the wallpaper brightness each frame:
@@ -963,6 +965,7 @@ private:
     float  mPs3WizSlideStart = 0.0f;      // mEffectTime at the start of the slide
     float  mPs3WizScreenStart = 0.0f;     // mEffectTime when the current screen opened
     int    mPs3WizTextField = 0;          // which value the open OSK is editing (WizField)
+    std::string mPs3WizFieldError;        // inline validation message under the current text field (red)
     // Collected values (mirror web wizState.values):
     std::string mPs3WizSsid;              // chosen SSID
     int    mPs3WizSecTok = 0;             // cmd-wifi security token: 0 open,1 wep,2 wpa2,3 wpa3,4 owe
@@ -987,6 +990,7 @@ private:
     void wizBack();                       // O / Back
     void wizNav(int dir, bool horizontal);// Up/Down/Left/Right
     void wizOpenTextField(int field);     // open the OSK for a value field
+    std::string validateWizField(int field, const std::string& val);  // "" = ok, else error message
     void wizRescan();                     // X: re-scan APs on the scan-list screen
     int  wizNextScreen(int id, int sel);  // forward-nav table (commits the choice)
     void renderNetWizard();
@@ -1013,6 +1017,10 @@ private:
     bool mOskPlaintext;
     std::string mOskPasswordPrompt;
     std::function<void(const std::string&)> mOskPasswordCallback;
+    // Numeric field auto-formatting: 0 = free text, 1 = date (YYYY/MM/DD),
+    // 2 = time (HH:MM). For 1/2 the OSK accepts digits only and inserts the
+    // separators automatically as the user types (real-IME field behaviour).
+    int mOskFieldFmt = 0;
 
     // Hierarchical settings tree
     std::vector<SettingNode> mSettingsNodes;

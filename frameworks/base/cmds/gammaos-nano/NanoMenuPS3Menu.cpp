@@ -1082,6 +1082,10 @@ void NanoMenu::renderPs3Xmb() {
 void NanoMenu::drawPs3Clock(float fadeMul) {
     time_t tt = time(nullptr);
     struct tm lt; localtime_r(&tt, &lt);
+    // Live Daylight Saving state straight from the resolved local time (the Olson
+    // tz applies DST automatically, so this is correct with auto time too). The
+    // "Daylight Saving" menu row + chooser read this, so it auto-captures DST.
+    mPs3DstNow = (lt.tm_isdst > 0);
     // Format-aware clock (reads the cached members, no per-frame syscall). Date
     // Format reorders day vs month in the compact corner bar (no year, like the
     // PS3 clock); Time Format switches 12-hour (+AM/PM) vs 24-hour. The analog
@@ -1355,11 +1359,10 @@ void NanoMenu::loadPs3ThemeSettings() {
     mPs3DateFormatIdx = atoi(buf); if (mPs3DateFormatIdx < 0 || mPs3DateFormatIdx > 2) mPs3DateFormatIdx = 2;
     property_get("persist.gammaos.nano.datetime.time_format", buf, "1");
     mPs3TimeFormatIdx = atoi(buf); if (mPs3TimeFormatIdx < 0 || mPs3TimeFormatIdx > 1) mPs3TimeFormatIdx = 1;
-    // Daylight Saving == Android auto-time-zone (the Olson tz already gives
-    // automatic DST). Default On; the live value is seeded on demand when the
-    // chooser opens (initPs3Menu can run before the settings service is up, so we
-    // must not block on `settings get` here).
-    mPs3DstAuto = true;
+    // Daylight Saving reflects the real current DST state. Seed it from the local
+    // time now so the menu row reads correctly before the first clock frame;
+    // drawPs3Clock refreshes it every frame thereafter.
+    { time_t tt = time(nullptr); struct tm lt; localtime_r(&tt, &lt); mPs3DstNow = (lt.tm_isdst > 0); }
 }
 
 // Live right-side value for a Theme Settings row (mirrors the web
@@ -1395,7 +1398,7 @@ std::string NanoMenu::resolvePs3ItemValue(const Ps3Item& it) {
     } else if (n == "Time Format") {
         if (mPs3TimeFormatIdx >= 0 && mPs3TimeFormatIdx < 2) return kTimeFormatOpts[mPs3TimeFormatIdx];
     } else if (n == "Daylight Saving") {
-        return mPs3DstAuto ? "On" : "Off";
+        return mPs3DstNow ? "On" : "Off";
     }
     return it.value;
 }
@@ -1753,15 +1756,10 @@ void NanoMenu::openPs3Dialog(const Ps3Item& it) {
         for (const char* s : kTimeFormatOpts) { mPs3DlgOptions.push_back(s); mPs3DlgSwatch.push_back(-1); }
         mPs3DlgSel = mPs3TimeFormatIdx;
     } else if (n == "Daylight Saving") {
-        // Seed from the live auto_time_zone now (boot + settings service are up by
-        // the time the user reaches this chooser; quick binder shell-out).
-        if (FILE* f = popen("settings get global auto_time_zone 2>/dev/null", "r")) {
-            char v[16] = {}; if (fgets(v, sizeof(v), f)) mPs3DstAuto = (atoi(v) != 0);
-            pclose(f);
-        }
+        // Pre-select the current real DST state (live from the clock).
         mPs3DlgKind = 1; mPs3DlgThemeKey = 9;
         for (const char* s : kOffOnOpts) { mPs3DlgOptions.push_back(s); mPs3DlgSwatch.push_back(-1); }
-        mPs3DlgSel = mPs3DstAuto ? 1 : 0;
+        mPs3DlgSel = mPs3DstNow ? 1 : 0;
     } else {
         // Fullscreen dialog page (kind 0): look up the 1:1 web template.
         mPs3DlgType = 0; mPs3DlgIllust = 0; mPs3DlgNotice.clear();
@@ -1822,7 +1820,7 @@ void NanoMenu::previewThemeSetting(int themeKey, int sel) {
         // no syscalls until apply.
         case 7: mPs3DateFormatIdx = sel; break;
         case 8: mPs3TimeFormatIdx = sel; break;
-        case 9: mPs3DstAuto = (sel == 1); break;
+        case 9: break;   // DST: no live preview; the row reflects the real clock, applied on commit
         default: break;
     }
 }
@@ -1847,12 +1845,39 @@ void NanoMenu::applyThemeSetting(int themeKey, int sel) {
                                             : "settings put system time_12_24 24 2>/dev/null"); }).detach(); }
             previewThemeSetting(8, sel);
             break;
-        case 9:   // Daylight Saving == auto time zone (Olson tz already gives auto DST)
-            { bool on = (sel == 1);
-              std::thread([on]{ system(on ? "settings put global auto_time_zone 1 2>/dev/null"
-                                          : "settings put global auto_time_zone 0 2>/dev/null"); }).detach(); }
-            previewThemeSetting(9, sel);
+        case 9: {  // Daylight Saving: switch the timezone to apply or remove DST.
+            // On  = the selected Olson zone (Europe/London etc.) -> the tz database
+            //       applies DST automatically (BST in summer, +1h).
+            // Off = a fixed standard-offset Etc/GMT zone -> no DST, so in DST season
+            //       the displayed clock drops the extra hour. tm_isdst then reads 0
+            //       and the menu row follows (next drawPs3Clock frame).
+            // This is a manual tz override, so auto_time_zone is turned off; Set via
+            // Internet re-enables it and the Olson tz re-captures DST automatically.
+            bool on = (sel == 1);
+            std::string olson, etc;
+            if (!mTzEntries.empty() && mTzSelected >= 0 && mTzSelected < (int)mTzEntries.size()) {
+                olson = mTzEntries[mTzSelected].id;
+                int off = mTzEntries[mTzSelected].offsetMinutes;   // standard offset, minutes
+                if (off % 60 == 0) {                               // Etc/GMT is whole-hours only
+                    int h = off / 60;
+                    char b[24];
+                    if (h == 0) snprintf(b, sizeof(b), "Etc/GMT");
+                    else        snprintf(b, sizeof(b), "Etc/GMT%+d", -h);   // sign is inverted in Etc/GMT
+                    etc = b;
+                }
+            }
+            if (!olson.empty()) {
+                // For a half-hour zone with no clean Etc/GMT, Off falls back to the
+                // Olson zone (those few zones keep automatic DST).
+                std::string target = on ? olson : (etc.empty() ? olson : etc);
+                std::thread([target]{
+                    system("settings put global auto_time_zone 0 2>/dev/null");
+                    std::string c = "cmd alarm set-timezone " + target + " 2>/dev/null";
+                    system(c.c_str());
+                }).detach();
+            }
             break;
+        }
         default: break;
     }
 }
@@ -2281,6 +2306,8 @@ void NanoMenu::wizEnter(int id, int dir) {
     mPs3WizId = id;
     mPs3WizSel = 0;
     mPs3WizScroll = 0;
+    mPs3WizFieldError.clear();   // a fresh screen starts without a validation error
+                                 // (the same-field re-open path does not call wizEnter)
     // The intro page fades in (mPs3WizAnim) but does NOT slide horizontally;
     // every later page keeps the slide-in transition.
     mPs3WizSlideDir = (id == WS_INTRO) ? 0 : dir;
@@ -2337,7 +2364,8 @@ void NanoMenu::wizEnter(int id, int dir) {
                 }
             }
         }).detach();
-        mPs3DstAuto = true;   // auto_time_zone is now on
+        // auto_time_zone is now on; the Olson tz captures DST automatically and the
+        // "Daylight Saving" row reflects it live (drawPs3Clock -> mPs3DstNow).
     }
     // Date and Time: Set Manually -> disable network time so the manual instant
     // sticks, parse the staged YYYY/MM/DD + HH:MM into epoch millis, set the clock.
@@ -2406,21 +2434,11 @@ void NanoMenu::wizOpenTextField(int field) {
         // Optional fields (secondary DNS) may be left blank; everything else
         // treats an empty submit as a cancel (handled as a back via closeOsk).
         if (val.empty() && field != WF_IP_SDNS && field != WF_DNS_SDNS) return;
-        // Set Manually: validate format + range; on bad input re-open the same
-        // field instead of advancing (mirrors the web wizValidate date/time regex).
-        if (field == WF_DT_DATE) {
-            int Y = 0, Mo = 0, D = 0;
-            bool ok = val.size() == 10 && val[4] == '/' && val[7] == '/'
-                   && sscanf(val.c_str(), "%d/%d/%d", &Y, &Mo, &D) == 3
-                   && Y >= 1970 && Y <= 2099 && Mo >= 1 && Mo <= 12 && D >= 1 && D <= 31;
-            if (!ok) { mPs3WizPendingTextField = WF_DT_DATE; return; }   // re-open (deferred)
-        } else if (field == WF_DT_TIME) {
-            int h = 0, mi = 0;
-            bool ok = val.size() == 5 && val[2] == ':'
-                   && sscanf(val.c_str(), "%d:%d", &h, &mi) == 2
-                   && h >= 0 && h <= 23 && mi >= 0 && mi <= 59;
-            if (!ok) { mPs3WizPendingTextField = WF_DT_TIME; return; }   // re-open (deferred)
-        }
+        // Validate format + range. On bad input set the inline error and re-open
+        // the same field (deferred) instead of advancing.
+        std::string err = validateWizField(field, val);
+        if (!err.empty()) { mPs3WizFieldError = err; mPs3WizPendingTextField = field; return; }
+        mPs3WizFieldError.clear();
         int nxt = wizNextScreen(mPs3WizId, 0);
         if (nxt == WS_NONE) { mPs3WizExit = 1; mPs3WizActive = false; }
         else { mPs3WizStack.push_back(mPs3WizId); wizEnter(nxt, 1); }
@@ -2432,7 +2450,62 @@ void NanoMenu::wizOpenTextField(int field) {
     WizDesc d2; wizDesc(mPs3WizId, d2);
     mOskPlaintext = !d2.mask;
     mOskPasswordMode = d2.mask;
+    // Date/time fields are numeric: the OSK accepts digits only and inserts the
+    // "/" or ":" separators automatically as the user types.
+    mOskFieldFmt = (field == WF_DT_DATE) ? 1 : (field == WF_DT_TIME) ? 2 : 0;
     mOsk.caret = (int)mOskQuery.size();
+}
+
+// Per-field input validation. Returns "" when valid, otherwise a short message
+// shown in red under the field. Empty values are pre-filtered by the caller
+// (optional fields), so a value reaching here is non-empty.
+std::string NanoMenu::validateWizField(int field, const std::string& val) {
+    auto isIpv4 = [](const std::string& s) -> bool {
+        int a, b, c, d; char extra;
+        if (sscanf(s.c_str(), "%d.%d.%d.%d%c", &a, &b, &c, &d, &extra) != 4) return false;
+        return a >= 0 && a <= 255 && b >= 0 && b <= 255 &&
+               c >= 0 && c <= 255 && d >= 0 && d <= 255;
+    };
+    switch (field) {
+    case WF_DT_DATE: {
+        int Y = 0, Mo = 0, D = 0;
+        if (!(val.size() == 10 && val[4] == '/' && val[7] == '/' &&
+              sscanf(val.c_str(), "%d/%d/%d", &Y, &Mo, &D) == 3 &&
+              Y >= 1970 && Y <= 2099 && Mo >= 1 && Mo <= 12))
+            return "Enter a valid date (YYYY/MM/DD)";
+        static const int dim[12] = {31,28,31,30,31,30,31,31,30,31,30,31};
+        int maxd = dim[Mo - 1];
+        if (Mo == 2 && ((Y % 4 == 0 && Y % 100 != 0) || Y % 400 == 0)) maxd = 29;
+        if (D < 1 || D > maxd) return "Enter a valid day for that month";
+        return "";
+    }
+    case WF_DT_TIME: {
+        int h = 0, mi = 0;
+        if (!(val.size() == 5 && val[2] == ':' &&
+              sscanf(val.c_str(), "%d:%d", &h, &mi) == 2 &&
+              h >= 0 && h <= 23 && mi >= 0 && mi <= 59))
+            return "Enter a valid time (HH:MM, 24-hour)";
+        return "";
+    }
+    case WF_IP_ADDR: case WF_IP_SUBNET: case WF_IP_ROUTER:
+    case WF_IP_PDNS:  case WF_IP_SDNS:
+    case WF_DNS_PDNS: case WF_DNS_SDNS:
+        if (!isIpv4(val)) return "Enter a valid IPv4 address (n.n.n.n)";
+        return "";
+    case WF_PROXY_PORT: {
+        int p = 0; char extra;
+        if (sscanf(val.c_str(), "%d%c", &p, &extra) != 1 || p < 1 || p > 65535)
+            return "Port must be 1-65535";
+        return "";
+    }
+    case WF_MTU: {
+        int m = 0; char extra;
+        if (sscanf(val.c_str(), "%d%c", &m, &extra) != 1 || m < 576 || m > 9000)
+            return "MTU must be 576-9000";
+        return "";
+    }
+    default: return "";   // SSID, keys, proxy host, EAP, PPPoE, DHCP host: free text
+    }
 }
 
 void NanoMenu::wizConfirm() {
@@ -2799,6 +2872,10 @@ void NanoMenu::renderNetWizard() {
         }
         float blink = 0.5f + 0.5f * sinf(mEffectTime * 6.0f);
         drawQuad(vx + DS(1.0f), boxY + DS(8.0f), fmaxf(1.0f, DS(2.0f)), DS(28.0f), 1, 1, 1, blink * ap);
+        // Inline validation message (re-opened field after a bad entry).
+        if (!mPs3WizFieldError.empty())
+            ps3DlgText(mPs3WizFieldError.c_str(), boxX, boxY + boxH + DS(24.0f), FS(19.0f),
+                       1.0f, 0.46f, 0.42f, ap, 0);
     } else if (d.kind == WK_REVIEW) {
         // Settings List - 1:1 with the web review rows.
         struct KV { std::string k; std::string v; };
