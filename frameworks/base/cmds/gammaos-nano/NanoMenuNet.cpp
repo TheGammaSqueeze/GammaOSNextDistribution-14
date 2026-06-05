@@ -229,41 +229,26 @@ void NanoMenu::netPollThreadFunc() {
         BtLevel btLevel = kBtLevel_Unknown;
         int btConnected = 0;
         {
-            // `settings get global bluetooth_on` returns "1" or "0" and
-            // is much lighter than dumpsys. The source of truth for
-            // connected count is dumpsys though -- only call it if the
-            // radio is on.
-            std::string onoff = runCmdShellout(
-                    "settings get global bluetooth_on 2>/dev/null");
-            bool on = false;
-            for (char c : onoff) {
-                if (c == '1') { on = true; break; }
-                if (c == '0') { on = false; break; }
-                if (c != ' ' && c != '\n' && c != '\r') break;
-            }
+            // Read the REAL adapter state from dumpsys. `settings get global
+            // bluetooth_on` is NOT reliable: `cmd bluetooth_manager enable/disable`
+            // (which the radio toggle uses) does not update that setting, so it
+            // stays stale. dumpsys reports the live "enabled: true/false" and is
+            // also the source for the connected count, so one query covers both.
+            std::string d = runCmdShellout("dumpsys bluetooth_manager 2>/dev/null");
+            bool on = (d.find("enabled: true") != std::string::npos);
             if (!on) {
                 btLevel = kBtLevel_Off;
             } else {
                 btLevel = kBtLevel_On;
-                // Count connected devices via dumpsys. The relevant
-                // lines look like:
-                //   Bonded devices:
-                //     <MAC> [ name=<x>, ...bondState=BOND_BONDED...]
+                // Count connected devices. The relevant lines look like:
                 //       Connected = true
-                // We count "Connected = true" occurrences; that maps
-                // onto audio + input + wearable profiles the user
-                // cares about.
-                std::string d = runCmdShellout(
-                        "dumpsys bluetooth_manager 2>/dev/null");
-                if (!d.empty()) {
-                    size_t p = 0;
-                    while ((p = d.find("Connected = true", p))
-                           != std::string::npos) {
-                        btConnected++;
-                        p += 16;
-                    }
-                    if (btConnected > 0) btLevel = kBtLevel_Connected;
+                // mapping onto audio + input + wearable profiles.
+                size_t p = 0;
+                while ((p = d.find("Connected = true", p)) != std::string::npos) {
+                    btConnected++;
+                    p += 16;
                 }
+                if (btConnected > 0) btLevel = kBtLevel_Connected;
             }
         }
 

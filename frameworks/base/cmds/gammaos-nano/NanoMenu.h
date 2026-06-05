@@ -956,6 +956,7 @@ private:
     bool   mPs3WizActive = false;
     int    mPs3WizExit = 0;               // on close: +1 completed/forward, -1 cancelled/back (for the setup step)
     bool   mSetupNetWizSeen = false;      // setup-wizard tracking of the network step's wizard
+    bool   mSetupBtWizSeen = false;       // setup-wizard tracking of the Bluetooth step's wizard
     int    mPs3WizId = 0;                 // current screen (WizScreen enum, file-local)
     std::vector<int> mPs3WizStack;        // back stack of screen ids
     int    mPs3WizSel = 0;                // chooser/list selection
@@ -1025,6 +1026,10 @@ private:
     std::string mBtWizPin;                    // user PIN entered for outbound classic pairing
     int  mBtWizInVariant = -1;                // inbound pairing variant (0 = classic PIN)
     std::string mBtWizInPasskey;              // inbound passkey to display for confirmation
+    std::atomic<bool> mBtWizRadioOn{true};    // cached real radio state (dumpsys enabled:)
+    std::atomic<bool> mBtWizToggling{false};  // a radio enable/disable is settling
+    float mBtWizManageRefreshT = -999.0f;     // last live-refresh time while sitting on Manage
+    void btWizToggleRadioAsync(bool on);      // enable/disable the radio + settle + refresh
 
     void startBtWizard(int mode);             // mode 0 Manage, 1 BD Remote, 2 Audio Device
     void btWizRefreshBondedAsync();           // gammaos-net bt list-bonded -> mBtWizBonded

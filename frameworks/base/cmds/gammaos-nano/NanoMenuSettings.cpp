@@ -1278,10 +1278,44 @@ void NanoMenu::connectBtDevice(const std::string& mac) {
 // the radio work take seconds and must never block the render thread).
 // ---------------------------------------------------------------------------
 void NanoMenu::btWizRefreshBondedAsync() {
+    if (mBtWizToggling) return;   // a radio toggle owns the state until it settles
     std::thread([this]() {
-        std::string txt = runCmd("gammaos-net bt list-bonded");
+        // Cache the REAL radio state so the Manage chooser can show a Turn On/Off
+        // toggle and hide the rest when off. Read dumpsys (not `settings global
+        // bluetooth_on`, which is stale, and NOT gammaos-net, which auto-enables
+        // the radio - that would re-enable BT every refresh while it is off).
+        std::string d = runCmd("dumpsys bluetooth_manager 2>/dev/null");
+        bool on = (d.find("enabled: true") != std::string::npos);
+        mBtWizRadioOn = on;
+        std::string txt = on ? runCmd("gammaos-net bt list-bonded") : std::string();
         auto devs = parseBondedDevices(txt);
         { std::lock_guard<std::mutex> lk(mBtWizMutex); mBtWizBonded.swap(devs); }
+        mDisplayDirty = true;
+    }).detach();
+}
+
+// Toggle the radio cleanly: optimistic UI immediately, then enable/disable and
+// wait for the adapter to settle before re-reading the true state + bonded list.
+// mBtWizToggling suspends the periodic Manage refresh so it can't fight the
+// transition (or re-enable BT via list-bonded's auto-enable).
+void NanoMenu::btWizToggleRadioAsync(bool on) {
+    mBtWizToggling = true;
+    mBtWizRadioOn = on;            // optimistic
+    if (!on) { std::lock_guard<std::mutex> lk(mBtWizMutex); mBtWizBonded.clear(); }
+    mDisplayDirty = true;
+    std::thread([this, on]() {
+        // BluetoothAdapter.enable()/disable() via the helper PERSISTS bluetooth_on,
+        // so the radio stays in the requested state - unlike `cmd bluetooth_manager`
+        // from nano's context, which left bluetooth_on=1 and let the service
+        // reconcile the radio back on.
+        runCmd(on ? "gammaos-net bt radio on" : "gammaos-net bt radio off");
+        std::string d = runCmd("dumpsys bluetooth_manager 2>/dev/null");
+        bool realOn = (d.find("enabled: true") != std::string::npos);
+        mBtWizRadioOn = realOn;
+        std::string txt = realOn ? runCmd("gammaos-net bt list-bonded") : std::string();
+        auto devs = parseBondedDevices(txt);
+        { std::lock_guard<std::mutex> lk(mBtWizMutex); mBtWizBonded.swap(devs); }
+        mBtWizToggling = false;
         mDisplayDirty = true;
     }).detach();
 }

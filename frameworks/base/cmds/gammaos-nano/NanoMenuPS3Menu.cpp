@@ -1301,12 +1301,12 @@ void NanoMenu::drawPs3Clock(float fadeMul) {
             drawWifiIcon(lx, cyc - iconH * 0.5f, wifiSf, bars, 1.0f, 1.0f, 1.0f, wa * fadeMul);
             lx += wifiW + margin;
         }
-        // Bluetooth. Turns blue when a device is actively connected.
-        {
+        // Bluetooth. Not drawn at all when the radio is off (clear), white when on
+        // but no device is connected, blue when a device is actively connected.
+        if (bl != kBtLevel_Off && bl != kBtLevel_Unknown) {
             float btSf = iconH / 20.0f;
             bool conn = (bl == kBtLevel_Connected);
-            float bta = (bl == kBtLevel_Off || bl == kBtLevel_Unknown) ? 0.32f
-                      : (conn ? 0.96f : 0.72f);
+            float bta = conn ? 0.96f : 0.72f;
             float br = conn ? 0.34f : 1.0f, bg = conn ? 0.66f : 1.0f, bb = 1.0f;
             drawBtIcon(lx + so[0], cyc - iconH * 0.5f + so[1], btSf, 0.0f, 0.0f, 0.0f, bta * 0.6f * fadeMul);
             drawBtIcon(lx, cyc - iconH * 0.5f, btSf, br, bg, bb, bta * fadeMul);
@@ -2429,7 +2429,11 @@ void NanoMenu::btWizStartReceive() {
 void NanoMenu::btWizStopReceive() {
     property_set("sys.gammaos.bt.inbound_open", "0");
     property_set("sys.gammaos.bt.inbound", "");
-    std::thread([]() { system("gammaos-net bt discoverable 0 2>/dev/null"); }).detach();
+    // Only stop discoverable when the radio is actually on. Spawning gammaos-net
+    // while BT is off (or mid radio-off toggle) makes the BluetoothManagerService
+    // reconcile the radio back on - never run it during a turn-off.
+    if (mBtWizRadioOn)
+        std::thread([]() { system("gammaos-net bt discoverable 0 2>/dev/null"); }).detach();
 }
 
 void NanoMenu::wizEnter(int id, int dir) {
@@ -2665,11 +2669,17 @@ void NanoMenu::wizConfirm() {
     WizDesc d; wizDesc(mPs3WizId, d);
     if (d.kind == WK_TEXT || d.kind == WK_PROGRESS) return;   // OSK owns text; progress auto-advances
     // ---- Accessory: Bluetooth wizard selects ----
-    if (mPs3WizId == WS_BT_MANAGE) {          // dynamic: Register / Receive + bonded devices
+    if (mPs3WizId == WS_BT_MANAGE) {          // dynamic: [Turn On] | Register / Receive + bonded + Turn Off
+        if (!mBtWizRadioOn) {                 // radio off: only "Turn Bluetooth On"
+            if (mPs3WizSel == 0) { mPs3WizSel = 0; btWizToggleRadioAsync(true); }
+            return;
+        }
         std::vector<BtDevEntry> bonded;
         { std::lock_guard<std::mutex> lk(mBtWizMutex); bonded = mBtWizBonded; }
+        int toggleIdx = 2 + (int)bonded.size();   // "Turn Bluetooth Off" is the last row
         if (mPs3WizSel == 0) { mPs3WizStack.push_back(mPs3WizId); wizEnter(WS_BT_REGISTER_INFO, 1); return; }
         if (mPs3WizSel == 1) { mPs3WizStack.push_back(mPs3WizId); wizEnter(WS_BT_INBOUND_WAIT, 1); return; }
+        if (mPs3WizSel == toggleIdx) { mPs3WizSel = 0; btWizToggleRadioAsync(false); btWizStopReceive(); return; }
         int di = mPs3WizSel - 2;
         if (di >= 0 && di < (int)bonded.size()) {
             mBtWizSelAddr = bonded[di].address; mBtWizSelName = bonded[di].name;
@@ -2780,8 +2790,9 @@ void NanoMenu::wizNav(int dir, bool /*horizontal*/) {
     if (d.kind == WK_CHOOSER) {
         int n;
         if (mPs3WizId == WS_BT_MANAGE) {
-            std::lock_guard<std::mutex> lk(mBtWizMutex);
-            n = 2 + (int)mBtWizBonded.size();   // Register New Device + Receive + bonded
+            if (!mBtWizRadioOn) { n = 1; }      // just "Turn Bluetooth On"
+            else { std::lock_guard<std::mutex> lk(mBtWizMutex);
+                   n = 3 + (int)mBtWizBonded.size(); }   // Register + Receive + bonded + Turn Off
         } else { n = 0; while (n < 8 && d.opts[n]) n++; }
         if (n > 0) mPs3WizSel = (mPs3WizSel + dir + n) % n;
     } else if (d.kind == WK_CONFIRM) {
@@ -3106,14 +3117,24 @@ void NanoMenu::renderNetWizard() {
         std::vector<std::string> opts;
         std::string body = d.body;
         if (mPs3WizId == WS_BT_MANAGE) {
-            opts.push_back("Register New Device");
-            opts.push_back("Receive Registration Request");
-            std::lock_guard<std::mutex> lk(mBtWizMutex);
-            for (auto& b : mBtWizBonded) {
-                std::string lbl = b.name.empty() ? b.address : b.name;
-                if (b.connected) lbl += "   (Connected)";
-                opts.push_back(lbl);
+            if (!mBtWizRadioOn) {
+                opts.push_back("Turn Bluetooth On");   // radio off: only the toggle
+            } else {
+                opts.push_back("Register New Device");
+                opts.push_back("Receive Registration Request");
+                { std::lock_guard<std::mutex> lk(mBtWizMutex);
+                  for (auto& b : mBtWizBonded) {
+                      std::string lbl = b.name.empty() ? b.address : b.name;
+                      if (b.connected) lbl += "   (Connected)";
+                      opts.push_back(lbl);
+                  } }
+                opts.push_back("Turn Bluetooth Off");
             }
+            // Live-refresh the bonded list + radio state every ~2s while sitting on
+            // this screen, so an external connect/disconnect (headphones reconnecting
+            // outside the menu) updates the (Connected) marker without re-entering.
+            float dt = mEffectTime - mBtWizManageRefreshT; if (dt < 0.0f) dt += 500.0f;
+            if (dt > 2.0f) { btWizRefreshBondedAsync(); mBtWizManageRefreshT = mEffectTime; }
         } else if (mPs3WizId == WS_BT_DEVICE_OPTS) {
             body = std::string("Registered Device:  ") + mBtWizSelName;
             for (int i = 0; i < 8 && d.opts[i]; i++) opts.push_back(d.opts[i]);

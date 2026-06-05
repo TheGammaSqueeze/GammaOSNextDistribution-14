@@ -53,7 +53,13 @@ public final class BtSubcommand {
             System.err.println("gammaos-net bt: no BluetoothAdapter");
             return 3;
         }
-        if (!adapter.isEnabled()) {
+        // Auto-enable the adapter for actions that need an on radio. NOT for
+        // "discoverable" (it manages its own enable for secs>0; discoverable 0 is a
+        // stop and must NOT force BT back on - that would fight a UI radio-off
+        // toggle) and NOT for "confirm" (apply-pairing on an already-on radio).
+        boolean needsOn = !"discoverable".equals(args[1]) && !"confirm".equals(args[1])
+                && !"radio".equals(args[1]);
+        if (needsOn && !adapter.isEnabled()) {
             adapter.enable();
             // Give the stack a moment to come up - discovery / pairing
             // fail silently if we call them while the adapter is still
@@ -73,6 +79,8 @@ public final class BtSubcommand {
                 return connect(adapter, args);
             case "disconnect":
                 return disconnect(adapter, args);
+            case "radio":
+                return radio(adapter, args);
             case "discoverable":
                 return discoverable(adapter, args);
             case "confirm":
@@ -871,13 +879,43 @@ public final class BtSubcommand {
         }
     }
 
-    private static int discoverable(BluetoothAdapter adapter, String[] args) {
+    // Turn the radio on/off via BluetoothAdapter.enable()/disable(). Unlike `cmd
+    // bluetooth_manager` from a non-system shell context, these framework calls
+    // PERSIST the bluetooth_on preference, so BluetoothManagerService does not
+    // reconcile the radio back to its previous state.
+    private static int radio(BluetoothAdapter adapter, String[] args)
+            throws InterruptedException {
+        if (args.length < 3) {
+            System.err.println("usage: gammaos-net bt radio on|off");
+            return 2;
+        }
+        boolean on = "on".equalsIgnoreCase(args[2]);
+        if (on) {
+            if (!adapter.isEnabled()) adapter.enable();
+            for (int i = 0; i < 40 && !adapter.isEnabled(); i++) Thread.sleep(250);
+        } else {
+            if (adapter.isEnabled()) adapter.disable();
+            for (int i = 0; i < 40 && adapter.isEnabled(); i++) Thread.sleep(250);
+        }
+        System.out.println("OK");
+        return 0;
+    }
+
+    private static int discoverable(BluetoothAdapter adapter, String[] args)
+            throws InterruptedException {
         int secs = 120;
         if (args.length >= 3) {
             try { secs = Math.max(0, Math.min(3600, Integer.parseInt(args[2]))); }
             catch (NumberFormatException ignored) { }
         }
-        setDiscoverable(adapter, secs);
+        // Starting discoverable needs the radio on; bring it up here (run() does
+        // not auto-enable for this action). Stopping (secs==0) on an off radio is a
+        // no-op and must not turn BT back on.
+        if (secs > 0 && !adapter.isEnabled()) {
+            adapter.enable();
+            for (int i = 0; i < 40 && !adapter.isEnabled(); i++) Thread.sleep(250);
+        }
+        if (adapter.isEnabled()) setDiscoverable(adapter, secs);
         System.out.println("OK");
         return 0;
     }

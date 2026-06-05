@@ -380,8 +380,12 @@ void NanoMenu::updateSetupTransition() {
             mMenuState = MENU_SETUP_WIZARD;
             startNetWizard();
         } else if (mSetupStep == SETUP_BLUETOOTH) {
-            openBtScreen();
-            mMenuState = MENU_BT;
+            // The Bluetooth step IS the Manage Bluetooth Devices wizard (1:1 with the
+            // XMB one). Keep MENU_SETUP_WIZARD so the setup input intercept routes to
+            // the wiz* handlers, exactly like the Wi-Fi step.
+            mMenuState = MENU_SETUP_WIZARD;
+            mSetupBtWizSeen = false;
+            startBtWizard(0);
         } else if (mSetupStep == SETUP_INSTALLING) {
             mMenuState = MENU_SETUP_WIZARD;
             startSetupScript();
@@ -424,7 +428,8 @@ void NanoMenu::handleSetupSelect() {
         handleWifiScreenSelect();
         break;
     case SETUP_BLUETOOTH:
-        handleBtScreenSelect();
+        // The Manage Bluetooth wizard owns input while active (routed via the
+        // mPs3WizActive branch in pollInput); nothing to do in the fallback.
         break;
     case SETUP_TIMEZONE:
         // A selects the highlighted timezone and advances
@@ -465,10 +470,8 @@ void NanoMenu::handleSetupBack() {
         goBackSetupStep();
         break;
     case SETUP_BLUETOOTH:
-        if (mMenuState == MENU_BT) {
-            closeBtScreen();
-            mMenuState = MENU_SETUP_WIZARD;
-        }
+        // O is handled by the Bluetooth wizard while active; in the fallback just
+        // step back.
         goBackSetupStep();
         break;
     case SETUP_TIMEZONE:
@@ -494,8 +497,7 @@ void NanoMenu::handleSetupUp() {
         handleWifiScreenUp();
         break;
     case SETUP_BLUETOOTH:
-        handleBtScreenUp();
-        break;
+        break;   // the Bluetooth wizard owns navigation while active
     case SETUP_TIMEZONE:
         tzGlobeNav(-1);   // move selection (wraps) + ease the globe to the new city
         break;
@@ -518,8 +520,7 @@ void NanoMenu::handleSetupDown() {
         handleWifiScreenDown();
         break;
     case SETUP_BLUETOOTH:
-        handleBtScreenDown();
-        break;
+        break;   // the Bluetooth wizard owns navigation while active
     case SETUP_TIMEZONE:
         tzGlobeNav(+1);   // move selection (wraps) + ease the globe to the new city
         break;
@@ -555,11 +556,7 @@ void NanoMenu::handleSetupStart() {
         advanceSetupStep();
         break;
     case SETUP_BLUETOOTH:
-        if (mMenuState == MENU_BT) {
-            closeBtScreen();
-            mMenuState = MENU_SETUP_WIZARD;
-        }
-        advanceSetupStep();
+        advanceSetupStep();   // fallback skip (Start is inert inside the BT wizard)
         break;
     case SETUP_TIMEZONE:
         // Apply selected timezone before advancing
@@ -624,6 +621,19 @@ void NanoMenu::renderSetupWizard() {
         } else if (mSetupNetWizSeen) {
             mSetupNetWizSeen = false;
             if (mPs3WizExit >= 0) advanceSetupStep(); else goBackSetupStep();
+        }
+    }
+    // The Bluetooth step IS the Manage Bluetooth Devices wizard. It renders its own
+    // fullscreen chrome, so dispatch it here. Manage is a hub with no terminal
+    // screen, so exiting it (backing out) means "done with Bluetooth" -> advance.
+    if (mSetupStep == SETUP_BLUETOOTH) {
+        if (mPs3WizActive) {
+            mSetupBtWizSeen = true;
+            renderNetWizard();
+            return;
+        } else if (mSetupBtWizSeen) {
+            mSetupBtWizSeen = false;
+            advanceSetupStep();
         }
     }
 
