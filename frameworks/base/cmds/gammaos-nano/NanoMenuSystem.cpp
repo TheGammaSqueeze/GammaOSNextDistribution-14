@@ -41,6 +41,7 @@
 
 #include <cutils/properties.h>
 #include <utils/Log.h>
+#include <sys/stat.h>   // isLaunchReady FUSE-mount probe
 
 #include "NanoMenu.h"
 #include "NanoMenuShaders.h"
@@ -296,14 +297,30 @@ void NanoMenu::renderVolumeBar() {
 // ---------------------------------------------------------------------------
 
 bool NanoMenu::isLaunchReady() const {
+    // Poll the REAL conditions a clean app launch needs - no fixed delay. On cold
+    // boot, measured timeline: package manager ready ~33s, sys.boot_completed ~43s,
+    // but the emulated FUSE storage does NOT actually mount until ~59s (~16s after
+    // boot_completed). A game launched in that window cannot reach its ROM or its
+    // app-private storage (the FuseDaemon rejects the access) and crashes, and the
+    // overlay-home death hook then catches it back to the launcher.
+    //
+    // Condition 1: the system is booted.
     char val[PROPERTY_VALUE_MAX] = {};
     property_get("sys.boot_completed", val, "0");
-    if (val[0] == '1') return true;
-    property_get("sys.user.0.ce_available", val, "");
-    if (strcmp(val, "true") == 0) return true;
-    property_get("sys.gammaos.nano.cache_mounted", val, "0");
-    if (val[0] == '1') return true;
-    return false;
+    if (val[0] != '1') return false;
+    // Condition 2: the emulated FUSE is ACTUALLY MOUNTED, not just the early tmpfs
+    // placeholder. This is the exact live poll Quick Resume's handoff uses
+    // (isQrRomStorageReady gate 1): /storage/emulated/0/Android exists as a
+    // directory ONLY after FUSE mounts over the placeholder - a plain stat of
+    // /storage/emulated/0 passes prematurely because vold makes an empty tmpfs
+    // there from very early boot. Inlined (not isQrRomStorageReady itself) to avoid
+    // its gate-2 external-SD check, which keys off a possibly-stale QR rom path and
+    // could otherwise block launches indefinitely. Returns true the instant FUSE is
+    // up, so the launch fires as soon as it is genuinely safe.
+    struct stat st;
+    if (stat("/storage/emulated/0/Android", &st) != 0 || !S_ISDIR(st.st_mode))
+        return false;
+    return true;
 }
 
 void NanoMenu::showLaunchBusyToast() {

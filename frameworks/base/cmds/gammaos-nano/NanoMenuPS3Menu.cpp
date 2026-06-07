@@ -529,8 +529,10 @@ void NanoMenu::ps3XmbSelect() {
         case PS3_APP_LIST:     { Ps3Level lvl; buildAppSubmenu(lvl);           mPs3Stack.push_back(lvl); break; }
         case PS3_DATA_SUBMENU: { Ps3Level lvl; buildDataSubmenu(it.data, lvl); mPs3Stack.push_back(lvl); break; }
         case PS3_ROM:    { mXmbSystemIndex = it.a; mXmbGameIndex = it.b; mSearchActive = false;
+                           if (!isLaunchReady()) { showLaunchBusyToast(); return; }
                            if (mOverlayMode) { overlayLaunchGame(); return; } launchXmbGame(); return; }
         case PS3_RECENT: { mXmbSystemIndex = -1;  mXmbGameIndex = it.a; mSearchActive = false;
+                           if (!isLaunchReady()) { showLaunchBusyToast(); return; }
                            if (mOverlayMode) { overlayLaunchGame(); return; } launchXmbGame(); return; }
         case PS3_SETTING:{ if (it.a == 0) openWifiScreen(); else if (it.a == 1) openBtScreen(); return; }
         case PS3_APP:
