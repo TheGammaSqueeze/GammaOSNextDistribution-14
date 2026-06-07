@@ -37,6 +37,8 @@
 #define LOG_TAG "GammaOSNano"
 
 #include "NanoMenu.h"
+#include "NanoMenuPS3.h"      // ps3::layoutComputeNative for the boot warm-up
+#include "NanoMenuPS3Bg.h"    // ps3bg::init for the boot warm-up
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -119,6 +121,25 @@ void NanoMenu::overlayInitLayer() {
 
     ALOGI("overlay: layer initialised (translucent live-app + scrim), waiting on "
           "sys.gammaos.nano.show_overlay");
+
+    // Warm up the PS3 XMB NOW, at boot, so the FIRST show is instant. The overlay
+    // renders nothing while hidden, so otherwise the expensive one-time init runs on
+    // the first show and costs seconds: initPs3Menu() compiles the glass-icon shader,
+    // bakes the console-icon normal maps, builds the categories and scans ROMs/apps,
+    // and loads the theme; ps3bg::init() compiles the wave shader and loads its
+    // geometry + sequence assets. Call them directly here (idempotent: initPs3Menu
+    // gates on mPs3MenuBuilt, ps3bg::init on its own ready flag) while the layer is
+    // still hidden - no render, no eglSwapBuffers, no input grab - so it is invisible
+    // and safe. The GL context is current on this render thread. The first real show
+    // then finds mPs3MenuBuilt=true and skips the rebuild, so it pops up immediately.
+    if (mOverlayMode && !mPs3MenuBuilt) {
+        ALOGI("overlay: warming PS3 XMB (menu + wave) at boot for instant first show");
+        mPs3Xmb = true;
+        initPs3Menu();
+        ps3::layoutComputeNative(mWidth, mHeight);
+        ps3bg::init();
+        ALOGI("overlay: warm-up complete (menu built, glass + wave shaders ready)");
+    }
 }
 
 // Send sig to every process of this package. The PIDs come from ActivityManager
