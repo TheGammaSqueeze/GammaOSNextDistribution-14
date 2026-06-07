@@ -52,8 +52,13 @@ bool ready();
 // gradient/wave are confined to ps3::gFrame* and the composite applies rotMat2
 // (DRM GL rotation; pass identity {1,0,0,1} when inactive). dt is seconds since
 // the last frame (for the wave's frame-rate-independent animation).
+// compositeToScreen=false updates the offscreen work texture (gradient + wave,
+// see workTex()) WITHOUT drawing it to the panel, so callers that want a
+// different visible background (e.g. the in-game overlay, which keeps the
+// SurfaceFlinger-blurred app visible) can still get the glass-icon refraction
+// source. The glitter field is also skipped in that mode (it draws to the panel).
 void render(int panelW, int panelH, float dt,
-            const float rotMat2[4], bool rotActive);
+            const float rotMat2[4], bool rotActive, bool compositeToScreen = true);
 
 // Force the cached gradient to be re-rendered next frame (call on layout change
 // or a forced day/night refresh; month + time-of-day changes are detected

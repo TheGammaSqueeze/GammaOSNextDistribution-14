@@ -1176,8 +1176,16 @@ void InputDispatcher::dispatchOnceInnerLocked(nsecs_t& nextWakeupTime) {
                 }
             }
             if (dropReason == DropReason::NOT_DROPPED &&
-                keyEntry->keyCode != 4 /* AKEYCODE_BACK */ &&
                 android::base::GetBoolProperty("sys.gammaos.nano.drop_input", false)) {
+                // GammaOS Nano: while drop_input is set (the overlay is shown and
+                // handles input itself via evdev), drop ALL keys to the app at
+                // dispatch time - including BACK. BACK and POWER are still exempt at
+                // notifyKey() so they reach the policy (PhoneWindowManager's
+                // back-long-press / 10s emergency arm in interceptKeyBeforeQueueing,
+                // which runs before this), but they must NOT be DISPATCHED to the
+                // foreground app: otherwise the BACK that dismisses the overlay also
+                // reached the app underneath. (POWER was already dropped here; BACK
+                // used to be exempted and leaked - this drops it too.)
                 dropReason = DropReason::POLICY;
                 resetKeyRepeatLocked();
             }
@@ -4454,12 +4462,17 @@ void InputDispatcher::notifyConfigurationChanged(const NotifyConfigurationChange
 }
 
 void InputDispatcher::notifyKey(const NotifyKeyArgs& args) {
-    // GammaOS Nano: drop all key events during nano→RetroArch transition
-    // to prevent queued inputs from being delivered when RetroArch gets focus.
-    // Always allow BACK (keyCode 4) through so the 10s emergency exit works
-    // even when an app crashes during launch and drop_input is never cleared.
+    // GammaOS Nano: drop all key events during nano→RetroArch transition and while
+    // the nano overlay XMB is up, to prevent the app underneath from acting on XMB
+    // navigation. Exemptions reach interceptKeyBeforeQueueing on the queueing side:
+    //  - BACK (keyCode 4): the 10s emergency exit must work even if drop_input is
+    //    stuck from a crash.
+    //  - POWER (keyCode 26): PhoneWindowManager must see the FULL power gesture
+    //    (down+up) to toggle the overlay reliably; dropping it here would strand
+    //    the power single-key detector (the "every other press" bug).
     if (android::base::GetBoolProperty("sys.gammaos.nano.drop_input", false)
-            && args.keyCode != 4 /* AKEYCODE_BACK */) {
+            && args.keyCode != 4 /* AKEYCODE_BACK */
+            && args.keyCode != 26 /* AKEYCODE_POWER */) {
         return;
     }
     ALOGD_IF(debugInboundEventDetails(),

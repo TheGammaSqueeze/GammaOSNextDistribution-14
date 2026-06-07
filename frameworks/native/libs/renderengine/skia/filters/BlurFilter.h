@@ -29,8 +29,11 @@ namespace skia {
 
 class BlurFilter {
 public:
-    // Downsample FBO to improve performance
-    static constexpr float kInputScale = 0.25f;
+    // Downsample FBO to improve performance. GammaOS: raised from 0.25 (quarter
+    // res) to 0.5 (half res) so background blur over the in-game XMB overlay is
+    // not visibly pixellated on low-DPI panels (e.g. the 1024x768 Brick); at
+    // quarter res a strong blur radius shows the Kawase sample grid on upscale.
+    static constexpr float kInputScale = 0.5f;
     // Downsample scale factor used to improve performance
     static constexpr float kInverseInputScale = 1.0f / kInputScale;
 

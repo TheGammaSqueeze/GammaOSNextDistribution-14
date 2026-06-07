@@ -792,8 +792,8 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             android.os.SystemProperties.set("sys.gammaos.nano.drop_input", "0");
             if (appLaunched) {
                 nanoKillAppAndRestart();
-            } else {
-                // Just restart nano menu
+            } else if (!nanoRaiseOverlayHome()) {
+                // Just restart nano menu (overlay-home raises the overlay instead)
                 android.os.SystemProperties.set("sys.gammaos.nano.restart", "1");
             }
         }
@@ -1700,6 +1700,33 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         Slog.d(TAG, "powerLongPress: eventTime=" + eventTime
                 + " mResolvedLongPressOnPowerBehavior=" + mResolvedLongPressOnPowerBehavior);
 
+        // GammaOS Nano: in-game XMB overlay. When the opt-in feature is enabled,
+        // a power-hold TOGGLES the resident overlay XMB (gammaos-nano-overlay)
+        // instead of the global actions dialog. This only fires while an app is
+        // foreground -- with the home nano foreground (minimal_boot,
+        // app_launched=0) the power key is swallowed earlier in
+        // interceptKeyBeforeQueueing and never reaches a long-press -- so it is
+        // always summoned over a running app, never over the home XMB.
+        if (android.os.SystemProperties.getBoolean(
+                "persist.gammaos.nano.overlay", false)
+                && !"1".equals(android.os.SystemProperties.get(
+                        "sys.gammaos.nano.menu_active", "0"))) {
+            mPowerKeyHandled = true;
+            performHapticFeedback(HapticFeedbackConstants.LONG_PRESS_POWER_BUTTON, false,
+                    "Power - Long Press - Nano Overlay XMB");
+            // TOGGLE: the overlay no longer grabs the power device (it isolates the
+            // app's input with the framework drop_input prop, and POWER is exempt
+            // from that drop), so PhoneWindowManager reliably sees every power
+            // gesture and owns show AND hide. Read the current state and flip it.
+            boolean shown = "1".equals(android.os.SystemProperties.get(
+                    "sys.gammaos.nano.show_overlay", "0"));
+            android.os.SystemProperties.set(
+                    "sys.gammaos.nano.show_overlay", shown ? "0" : "1");
+            Slog.d(TAG, "GammaOS Nano: power long press -> overlay XMB "
+                    + (shown ? "hide" : "show"));
+            return;
+        }
+
         // GammaOS Nano: in minimal boot mode, long press power always shows
         // the global actions dialog (no SystemUI power menu available).
         if (android.os.SystemProperties.getBoolean(
@@ -1786,6 +1813,12 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             String fgApp = getForegroundAppPackageName();
             if (fgApp != null && (fgApp.toLowerCase().contains("retroarch")
                     || fgApp.toLowerCase().contains("drastic"))) {
+                // Send ESC and let RetroArch/DraStic SAVE STATE then close itself
+                // (a clean exit takes a couple of seconds). Do NOT force-stop or set
+                // pending_exit here - that would interrupt the save and is not a
+                // clean exit. When the app's process actually dies, AMS's
+                // handleAppDiedLocked hook raises the overlay launcher (overlay-home)
+                // or the existing RootWindowContainer cleanup restarts the DRM home.
                 triggerVirtualKeypress(KeyEvent.KEYCODE_ESCAPE);
                 return;
             }
@@ -1802,7 +1835,11 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 // the next game launch via do_launch.
                 android.os.SystemProperties.set("sys.gammaos.nano.pending_exit", "0");
                 android.os.SystemProperties.set("sys.gammaos.nano.app_launched", "0");
-                android.os.SystemProperties.set("sys.gammaos.nano.restart", "1");
+                // Overlay-home: raise the resident overlay launcher instead of
+                // restarting the DRM home nano.
+                if (!nanoRaiseOverlayHome()) {
+                    android.os.SystemProperties.set("sys.gammaos.nano.restart", "1");
+                }
                 // GammaOS Nano: Clear ALL launch state BEFORE force-stopping the
                 // app. forceStopPackage below synchronously triggers
                 // resumeTopActivities → startHomeOnTaskDisplayArea, which in the
@@ -2319,6 +2356,24 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         launchHomeFromHotKey(event.getDisplayId());
     }
 
+    /**
+     * GammaOS Nano: overlay-home mode. When persist.gammaos.nano.overlay_home is
+     * set, the resident SurfaceFlinger overlay (gammaos-nano --overlay) is the
+     * persistent launcher. Raise it as the full-wallpaper XMB instead of setting
+     * sys.gammaos.nano.restart (which would start the DRM home nano and fight SF
+     * for the display). Returns true if it handled the raise.
+     */
+    private boolean nanoRaiseOverlayHome() {
+        if (!"1".equals(android.os.SystemProperties.get(
+                "persist.gammaos.nano.overlay_home", "0"))) {
+            return false;
+        }
+        Slog.i(TAG, "GammaOS Nano: overlay-home, raising overlay launcher (PWM)");
+        android.os.SystemProperties.set("sys.gammaos.nano.overlay_wallpaper", "1");
+        android.os.SystemProperties.set("sys.gammaos.nano.show_overlay", "1");
+        return true;
+    }
+
     private void nanoKillAppAndRestart() {
         // Cancel any pending emergency exit timer
         mHandler.removeCallbacks(mNanoBackEmergencyRunnable);
@@ -2343,8 +2398,11 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         } catch (Exception e) {
             Slog.w(TAG, "GammaOS Nano: force-stop failed", e);
         }
-        // Directly trigger nano menu restart via init property
-        android.os.SystemProperties.set("sys.gammaos.nano.restart", "1");
+        // Overlay-home: raise the resident overlay launcher; otherwise trigger
+        // the DRM home nano restart via init property.
+        if (!nanoRaiseOverlayHome()) {
+            android.os.SystemProperties.set("sys.gammaos.nano.restart", "1");
+        }
         // Clear guard after restart is triggered
         android.os.SystemProperties.set("sys.gammaos.nano.killing", "0");
     }

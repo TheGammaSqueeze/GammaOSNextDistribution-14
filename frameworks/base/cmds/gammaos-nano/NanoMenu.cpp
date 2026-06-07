@@ -476,7 +476,11 @@ status_t NanoMenu::readyToRun() {
         bool drasticQrPrimed = (strcmp(qp, "1") == 0) &&
                                (strcmp(qc, "drastic") == 0);
 
-        sDrasticQrFastPath = smokeActive || drasticQrPrimed;
+        // The resident OVERLAY process must NEVER take the QR fast-path or touch
+        // the launch_app/launch_intent props: it runs at every boot and setting
+        // launch_intent would make RootWindowContainer auto-launch an app on boot
+        // (the user only wants quick-resume to launch, and only when they set it).
+        sDrasticQrFastPath = (smokeActive || drasticQrPrimed) && !mOverlayMode;
         if (sDrasticQrFastPath) {
             ALOGW("NanoMenu: drastic QR fast-path ACTIVE "
                   "(smoke=%d qr_primed=%d), skipping heavy init",
@@ -502,7 +506,11 @@ status_t NanoMenu::readyToRun() {
         // mode (XMB -> drastic nano restart path).
         char forceDrm[PROPERTY_VALUE_MAX] = {};
         property_get("sys.gammaos.nano.force_drm", forceDrm, "0");
-        if (strcmp(bootDone, "1") != 0 || strcmp(forceDrm, "1") == 0) {
+        // Overlay mode never grabs DRM master: it coexists with SurfaceFlinger
+        // and the running app as a translucent layer. Force the SF path.
+        if (mOverlayMode) {
+            ALOGI("NanoMenu: overlay mode, skipping DRM splash (SF path)");
+        } else if (strcmp(bootDone, "1") != 0 || strcmp(forceDrm, "1") == 0) {
             if (strcmp(forceDrm, "1") == 0) {
                 ALOGW("NanoMenu: force_drm=1, grabbing DRM master "
                       "post-boot for drastic nano");
@@ -537,7 +545,16 @@ status_t NanoMenu::readyToRun() {
     // Nano mode is active — tell any boot animation instance to exit.
     // Vendor init may start bootanim independently (e.g. in on late-fs),
     // so it can be running alongside us with the same z-layer.
-    property_set("service.bootanim.exit", "1");
+    //
+    // CRITICAL: only the HOME nano may do this. The resident OVERLAY process also
+    // runs readyToRun() (it starts at boot_completed), and the HOME nano watches
+    // service.bootanim.exit and EXITS when it flips to 1 (it reads that as the
+    // app-handoff signal). If the overlay set it, the home nano would exit into a
+    // blank screen the moment the overlay service starts. The overlay is not the
+    // boot-animation owner, so it must leave this flag alone.
+    if (!mOverlayMode) {
+        property_set("service.bootanim.exit", "1");
+    }
 
     if (sDrmActive) {
         // DRM boot path: headless EGL, no SurfaceFlinger dependency.
@@ -639,7 +656,9 @@ status_t NanoMenu::readyToRun() {
         // SF is ready. This overlaps ~1s of GL init with SF startup.
         EGLDisplay display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
         eglInitialize(display, nullptr, nullptr);
-        EGLConfig config = getEglConfig(display);
+        // Overlay needs an alpha-capable config so its window surface is truly
+        // translucent (the context + window surface configs must match).
+        EGLConfig config = getEglConfig(display, mOverlayMode);
 
         // First eglChooseConfig may return null because:
         //   1) the GPU userspace driver (e.g. pvrsrvinit on Allwinner A133
@@ -684,7 +703,20 @@ status_t NanoMenu::readyToRun() {
 
         EGLint pbufAttrs[] = { EGL_WIDTH, 16, EGL_HEIGHT, 16, EGL_NONE };
         EGLSurface pbufSurface = eglCreatePbufferSurface(display, config, pbufAttrs);
-        EGLint contextAttributes[] = {EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE};
+        // Overlay: request a HIGH-priority GPU context so nano's compositing is
+        // scheduled ahead of the live app's rendering (smoother XMB over the app).
+        // Guarded on EGL_IMG_context_priority so it can never EGL_BAD_ATTRIBUTE on
+        // drivers that lack it (Mali supports it). 0x3100/0x3101 = the IMG enums.
+        EGLint contextAttributes[] = {EGL_CONTEXT_CLIENT_VERSION, 2,
+                                      EGL_NONE, EGL_NONE, EGL_NONE};
+        if (mOverlayMode) {
+            const char* eglExts = eglQueryString(display, EGL_EXTENSIONS);
+            if (eglExts && strstr(eglExts, "EGL_IMG_context_priority")) {
+                contextAttributes[2] = 0x3100;   // EGL_CONTEXT_PRIORITY_LEVEL_IMG
+                contextAttributes[3] = 0x3101;   // EGL_CONTEXT_PRIORITY_HIGH_IMG
+                ALOGI("NanoMenu: overlay requesting HIGH-priority GPU context");
+            }
+        }
         EGLContext context = eglCreateContext(display, config, nullptr, contextAttributes);
         if (eglMakeCurrent(display, pbufSurface, pbufSurface, context) == EGL_FALSE)
             return NO_INIT;
@@ -695,8 +727,11 @@ status_t NanoMenu::readyToRun() {
         ALOGD("NanoMenu: headless EGL pre-init (SF path, %dx%d assumed)", mWidth, mHeight);
         tlog("headless EGL pre-init");
 
-        property_set("sys.gammaos.nano.menu_active", "1");
-        {
+        // Overlay mode coexists with the running app: do NOT claim menu_active
+        // or signal a kill of the foreground package (that would tear down the
+        // very app we are overlaying).
+        if (!mOverlayMode) {
+            property_set("sys.gammaos.nano.menu_active", "1");
             char lastApp[PROPERTY_VALUE_MAX] = {};
             property_get("sys.gammaos.nano.launched_pkg", lastApp, "");
             if (lastApp[0] != '\0') {
@@ -879,11 +914,36 @@ status_t NanoMenu::readyToRun() {
     // create the real SF surface and switch EGL to it.
     if (!sDrmActive && !mDrmBootPath && mFlingerSurface == nullptr) {
         tlog("waiting for SF");
+        // Overlay mode can start before SurfaceFlinger is up (e.g. the resident
+        // service launches at boot_completed while the home nano still owns the
+        // DRM-direct display and SF has not been needed yet). Wait for SF rather
+        // than failing, so the overlay is ready by the time an app launches and
+        // SF takes over the display.
+        if (mOverlayMode) {
+            sp<IServiceManager> sm = defaultServiceManager();
+            const String16 sfName("SurfaceFlinger");
+            int waited = 0;
+            while (sm->checkService(sfName) == nullptr) {
+                usleep(100000);
+                waited += 100;
+                if ((waited % 5000) == 0)
+                    ALOGI("overlay: waiting for SurfaceFlinger (%dms)", waited);
+            }
+        }
         mSession = new SurfaceComposerClient();
         mSession->linkToComposerDeath(this);
         tlog("SurfaceComposerClient ready");
 
-        const std::vector<PhysicalDisplayId> ids = SurfaceComposerClient::getPhysicalDisplayIds();
+        std::vector<PhysicalDisplayId> ids = SurfaceComposerClient::getPhysicalDisplayIds();
+        if (ids.empty() && mOverlayMode) {
+            // Displays not enumerated yet; poll until SF reports them.
+            int waited = 0;
+            while (ids.empty() && waited < 30000) {
+                usleep(100000);
+                waited += 100;
+                ids = SurfaceComposerClient::getPhysicalDisplayIds();
+            }
+        }
         if (ids.empty()) { ALOGE("No displays found"); return NAME_NOT_FOUND; }
 
         PhysicalDisplayId chosenId = ids.front();
@@ -914,15 +974,25 @@ status_t NanoMenu::readyToRun() {
             return NO_INIT;
 
         ui::Size resolution = displayMode.resolution;
+        // Overlay mode: a TRANSLUCENT layer (RGBA, no eOpaque) so the
+        // SurfaceFlinger-blurred running app shows through the transparent
+        // regions of the XMB. Home mode keeps the opaque RGBX fast path.
         sp<SurfaceControl> control = session()->createSurface(
-            String8("GammaOSNano"), resolution.getWidth(), resolution.getHeight(),
-            PIXEL_FORMAT_RGBX_8888, ISurfaceComposerClient::eOpaque);
+            String8(mOverlayMode ? "GammaOSNanoOverlay" : "GammaOSNano"),
+            resolution.getWidth(), resolution.getHeight(),
+            mOverlayMode ? PIXEL_FORMAT_RGBA_8888 : PIXEL_FORMAT_RGBX_8888,
+            mOverlayMode ? 0u : ISurfaceComposerClient::eOpaque);
 
         SurfaceComposerClient::Transaction t;
         Rect forcedRes(0, 0, resolution.width, resolution.height);
         Rect physRes(0, 0, displayMode.resolution.width, displayMode.resolution.height);
-        t.setDisplayProjection(mDisplayToken, ui::ROTATION_0, forcedRes, physRes);
-        t.setLayer(control, 0x40000001);
+        // Overlay must not retarget the display projection (the running app
+        // owns it); only the home instance forces the projection/size.
+        if (!mOverlayMode) {
+            t.setDisplayProjection(mDisplayToken, ui::ROTATION_0, forcedRes, physRes);
+        }
+        // A very high Z so the overlay sits above app + system windows.
+        t.setLayer(control, mOverlayMode ? 0x7FFFFFF0 : 0x40000001);
         t.setLayerStack(control, chosenLayerStack);
         // Explicitly show the layer. createSurface usually creates a
         // visible SurfaceControl on Android 14, but the 2026-05-13 boot
@@ -935,8 +1005,12 @@ status_t NanoMenu::readyToRun() {
         // flipped on by anything else. Mirrors what
         // setupSecondaryEglSurfaces() already does for the wallpaper
         // SurfaceControl.
-        t.show(control);
-        {
+        // Overlay starts HIDDEN (resident, shown on power-hold). The home
+        // instance shows immediately.
+        if (mOverlayMode) {
+            t.hide(control);
+        } else {
+            t.show(control);
             char dsActive[PROPERTY_VALUE_MAX] = {};
             property_get("sys.gammaos.dualstack.active", dsActive, "0");
             if (!strcmp(dsActive, "1")) {
@@ -947,7 +1021,7 @@ status_t NanoMenu::readyToRun() {
         t.apply();
 
         sp<Surface> s = control->getSurface();
-        EGLConfig config = getEglConfig(mDisplay);
+        EGLConfig config = getEglConfig(mDisplay, mOverlayMode);
         EGLSurface sfSurface = eglCreateWindowSurface(mDisplay, config, s.get(), nullptr);
         eglMakeCurrent(mDisplay, sfSurface, sfSurface, mContext);
         eglDestroySurface(mDisplay, mSurface);
@@ -2982,6 +3056,20 @@ if (sRingPrimedCount >= 2) {
     bool stockClocksApplied = false;
     int64_t bootCompletedDetectedMs = 0;
     while (!exitPending() && !mExitRequested) {
+        // Overlay XMB: resident-hidden power-hold overlay. One-time blur/hide
+        // setup, then each tick poll sys.gammaos.nano.show_overlay to raise or
+        // dismiss. While hidden, the layer is invisible and input is NOT
+        // grabbed (the running app owns it), so we render nothing and just
+        // watch the trigger cheaply.
+        if (mOverlayMode) {
+            if (!mOverlayInited) overlayInitLayer();
+            overlayPoll();
+            if (!mOverlayShown) {
+                usleep(33000);   // ~30Hz trigger poll while idle
+                continue;
+            }
+        }
+
         // GammaOS: Drastic Nano cache-wait + restart. When
         // launchXmbGame() sets mDrasticNanoPending, show
         // "Preparing..." while polling cache_ready. Once the
@@ -3189,7 +3277,10 @@ if (sRingPrimedCount >= 2) {
             exitCheckCounter = 0;
             char val[PROPERTY_VALUE_MAX] = {};
             property_get("service.bootanim.exit", val, "0");
-            if (!strcmp(val, "1") && !mWaitForRelease) {
+            // The resident overlay process is the persistent launcher: it must
+            // never self-exit on bootanim.exit (home nano sets that to hand off
+            // the boot screen). Only the home/boot nano honours it.
+            if (!strcmp(val, "1") && !mWaitForRelease && !mOverlayMode) {
                 ALOGI("GammaOS Nano: service.bootanim.exit=1, exiting");
                 break;
             }

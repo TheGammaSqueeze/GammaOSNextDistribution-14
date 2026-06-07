@@ -69,7 +69,15 @@ static std::string extractJsonString(const std::string& json, const std::string&
 void NanoMenu::buildMenu() {
     // Reset launch_app to default so RetroArch launches work after returning
     // from a non-RetroArch app launched via the Applications submenu.
-    property_set("sys.gammaos.nano.launch_app", "com.retroarch.aarch64");
+    //
+    // CRITICAL: only the HOME nano (the launcher) may touch launch_app. The
+    // resident OVERLAY process also calls buildMenu() at boot_completed, and if
+    // it set launch_app here it would land right as RootWindowContainer makes its
+    // minimal-boot home-launch decision -> RetroArch auto-launches on every boot.
+    // The overlay is never the launcher, so it must leave launch_app alone.
+    if (!mOverlayMode) {
+        property_set("sys.gammaos.nano.launch_app", "com.retroarch.aarch64");
+    }
 
     mMenuItems.clear();
     mMenuItems.push_back({tr(STR_MENU_RETROARCH)});

@@ -1,0 +1,775 @@
+/*
+ * Copyright (C) 2026 GammaOS
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+// Overlay XMB: the power-hold in-game overlay.
+//
+// This file implements the show/hide lifecycle for the overlay instance of
+// gammaos-nano (launched as `gammaos-nano --overlay`, see main.cpp). The
+// overlay reuses the exact same PS3 XMB renderer as the home menu, but is
+// presented on a TRANSLUCENT, SurfaceFlinger-background-blurred layer that
+// sits above the running app. The app keeps running; SurfaceFlinger composites
+// the blur of whatever is beneath the overlay layer, so we never capture the
+// app's framebuffer (which is why this only works while SF + the app are up,
+// i.e. Nano mode).
+//
+// Surface creation (translucent RGBA, hidden, very high Z) happens in
+// NanoMenu::readyToRun()'s SF path, branched on mOverlayMode. Here we:
+//   - overlayInitLayer(): apply the background blur radius once and confirm the
+//     layer starts hidden;
+//   - overlayPoll(): every tick, read sys.gammaos.nano.show_overlay (set by
+//     PhoneWindowManager on a power-hold) and raise/dismiss accordingly;
+//   - overlayShow()/overlayHide(): flip layer visibility + grab/release the
+//     evdev input devices so navigation drives the XMB (not the app) while up.
+
+#define LOG_TAG "GammaOSNano"
+
+#include "NanoMenu.h"
+
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <errno.h>
+#include <signal.h>
+#include <dirent.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <thread>
+#include <sched.h>
+#include <sys/ioctl.h>
+#include <linux/input.h>
+
+#include <cutils/properties.h>
+#include <utils/Log.h>
+#include <utils/SystemClock.h>
+
+#include <gui/Surface.h>
+#include <gui/SurfaceComposerClient.h>
+#include <gui/SurfaceControl.h>
+#include <gui/LayerState.h>
+
+namespace android {
+
+// Records the PIDs frozen by the overlay so they can always be thawed if the
+// overlay dies (graceful stop, crash, or kill) - prevents a wedged device.
+static const char* kOverlayFrozenMarker = "/data/local/tmp/.nano_overlay_frozen";
+
+static void overlayThawFromMarker();
+static void overlayTermHandler(int);
+// Defined further down (next to the launch builders) but used earlier by
+// overlayQuitToHome.
+static std::string overlayShq(const std::string& s);
+static int overlaySignalPackage(const char* pkg, int sig);
+
+void NanoMenu::overlayInitLayer() {
+    // Crash/kill recovery: if a previous overlay instance died while an app was
+    // frozen, thaw it now. Then install a SIGTERM/SIGINT handler so a graceful
+    // `stop gammaos-nano-overlay` also thaws (init does not restart a stopped
+    // service, so the handler is the only safety net there).
+    overlayThawFromMarker();
+    {
+        struct sigaction sa = {};
+        sa.sa_handler = overlayTermHandler;
+        sigaction(SIGTERM, &sa, nullptr);
+        sigaction(SIGINT, &sa, nullptr);
+    }
+
+    // The overlay is always the PS3 XMB layout. Force it on regardless of the
+    // persist.gammaos.nano.ps3xmb home-mode flag so the overlay is always the
+    // real XMB and never the legacy carousel / text menu.
+    mPs3Xmb = true;
+    mXmbMode = false;
+
+    if (mFlingerSurfaceControl == nullptr || mSession == nullptr) {
+        // SurfaceFlinger may not have produced a usable surface control yet (the
+        // service can start at boot_completed before SF is fully ready). Do NOT
+        // mark the layer initialised so the threadLoop gate retries on the next
+        // tick; cap the retries so a permanently-null control cannot hot-loop.
+        if (++mOverlayInitTries <= 150) {     // ~5s at the 33ms idle tick
+            return;
+        }
+        ALOGW("overlay: giving up SF surface control init after %d tries "
+              "(mFlingerSurfaceControl=%p)", mOverlayInitTries,
+              mFlingerSurfaceControl.get());
+        mOverlayInited = true;   // stop retrying; overlay stays inert this run
+        return;
+    }
+
+    // TRANSLUCENT layer (no opaque flag, no background blur): the running app
+    // shows through live and we paint an 80% dark scrim + the XMB chrome over it
+    // (render()). No capture/blur/freeze, so the overlay appears instantly. Just
+    // make sure we start hidden.
+    SurfaceComposerClient::Transaction t;
+    t.hide(mFlingerSurfaceControl);
+    t.apply();
+    mOverlayShown = false;
+    mOverlayInited = true;   // only NOW, after the surface control is confirmed
+
+    ALOGI("overlay: layer initialised (translucent live-app + scrim), waiting on "
+          "sys.gammaos.nano.show_overlay");
+}
+
+// Send sig to every process of this package. The PIDs come from ActivityManager
+// via dumpsys (binder) rather than a /proc walk: gammaos-nano runs in init's
+// bootstrap mount namespace where readdir("/proc") does not enumerate other
+// processes even with the readproc group, so /proc-based discovery found
+// nothing. kill() on a known PID still works (we run as root). ProcessRecord
+// lines read "<pid>:<pkg>[:tag]/uXXX", so grep that exact shape to get every
+// process (main + helpers) of the package. Returns the count signalled.
+static int overlaySignalPackage(const char* pkg, int sig) {
+    // Pull the full ActivityManager process dump (binder, works from nano) and
+    // parse it in C++ so we depend on no shell tools (grep/cut/sort behaved
+    // inconsistently from gammaos-nano's restricted shell). ProcessRecord lines
+    // contain "<pid>:<pkg>[:tag]/uXXX"; for each ":<pkg>" we read the digits that
+    // immediately precede it.
+    char cmd[256];
+    snprintf(cmd, sizeof(cmd),
+             "dumpsys activity processes '%s' 2>/dev/null", pkg);
+    FILE* f = popen(cmd, "r");
+    if (!f) { ALOGW("overlay: popen dumpsys failed"); return 0; }
+    std::string out;
+    char buf[4096];
+    size_t r;
+    while ((r = fread(buf, 1, sizeof(buf), f)) > 0) out.append(buf, r);
+    pclose(f);
+
+    // Extract pids ONLY from "ProcessRecord{<hash> <pid>:<pkg>" entries. The LRU
+    // dump also has "<uid>:<pkg>" lines, so a naive ":<pkg>" scan grabbed the app
+    // UID as a pid (and would SIGSTOP whatever process has that number). Anchor on
+    // ProcessRecord{ to be safe.
+    std::set<int> pids;
+    size_t rp = 0;
+    const std::string rec = "ProcessRecord{";
+    while ((rp = out.find(rec, rp)) != std::string::npos) {
+        size_t i = rp + rec.size();
+        // skip the hex hash, then the single space
+        while (i < out.size() && out[i] != ' ' && out[i] != '}') i++;
+        if (i < out.size() && out[i] == ' ') i++;
+        // read the pid digits
+        size_t ds = i;
+        while (i < out.size() && out[i] >= '0' && out[i] <= '9') i++;
+        if (i > ds && i < out.size() && out[i] == ':' &&
+            out.compare(i + 1, strlen(pkg), pkg) == 0) {
+            pids.insert(atoi(out.substr(ds, i - ds).c_str()));
+        }
+        rp += rec.size();
+    }
+    // Persist the frozen PIDs to a marker file BEFORE sending SIGSTOP so a SIGTERM
+    // handler (graceful `stop`) or a startup-recovery pass after a crash/kill can
+    // always thaw the app - otherwise a crash in the tiny window between freezing
+    // and recording would leave the foreground app SIGSTOP'd with no record and
+    // the device looks frozen. Writing the marker for a pid we then fail to stop
+    // is harmless (a redundant SIGCONT later).
+    if (sig == SIGSTOP) {
+        int fd = open(kOverlayFrozenMarker, O_WRONLY | O_CREAT | O_TRUNC, 0600);
+        if (fd >= 0) {
+            for (int pid : pids) {
+                char line[16];
+                int len = snprintf(line, sizeof(line), "%d\n", pid);
+                if (len > 0) (void)!write(fd, line, len);
+            }
+            close(fd);
+        }
+    }
+    int n = 0;
+    for (int pid : pids) {
+        if (pid > 1 && kill(pid, sig) == 0) n++;
+    }
+    if (sig == SIGCONT) {
+        unlink(kOverlayFrozenMarker);
+    }
+    ALOGI("overlay: dumpsys %zu bytes, %zu pid(s) for %s, signalled %d",
+          out.size(), pids.size(), pkg, n);
+    return n;
+}
+
+// SIGCONT every PID listed in the frozen marker file, then remove it. Used both
+// as crash recovery on overlay startup and from the SIGTERM handler. kill() and
+// the file syscalls here are async-signal-safe.
+static void overlayThawFromMarker() {
+    int fd = open(kOverlayFrozenMarker, O_RDONLY);
+    if (fd < 0) return;
+    char buf[256];
+    ssize_t got = read(fd, buf, sizeof(buf) - 1);
+    close(fd);
+    if (got > 0) {
+        buf[got] = '\0';
+        const char* p = buf;
+        while (*p) {
+            int pid = 0;
+            while (*p >= '0' && *p <= '9') { pid = pid * 10 + (*p - '0'); p++; }
+            if (pid > 1) kill(pid, SIGCONT);
+            while (*p && (*p < '0' || *p > '9')) p++;
+        }
+    }
+    unlink(kOverlayFrozenMarker);
+}
+
+static void overlayTermHandler(int) {
+    overlayThawFromMarker();
+    _exit(0);
+}
+
+std::string NanoMenu::overlayResolveForegroundPkg() {
+    // Resolve the top resumed package via ActivityManager (binder, works from
+    // nano's restricted namespace). Returns a validated real 3rd-party-looking
+    // package, or empty if there is nothing we should act on.
+    char pkg[256] = {};
+    FILE* f = popen("dumpsys activity activities 2>/dev/null | "
+                    "grep -m1 ResumedActivity | "
+                    "sed -nE 's#.* ([a-zA-Z0-9_.]+)/[^ }]+.*#\\1#p'", "r");
+    if (f) {
+        if (fgets(pkg, sizeof(pkg), f)) {
+            size_t n = strlen(pkg);
+            while (n > 0 && (pkg[n-1] == '\n' || pkg[n-1] == '\r' || pkg[n-1] == ' '))
+                pkg[--n] = '\0';
+        }
+        pclose(f);
+    }
+    // Never target ourselves or the system; require a real package name with a dot.
+    if (pkg[0] == '\0' || strchr(pkg, '.') == nullptr ||
+        strstr(pkg, "gammaos") != nullptr ||
+        strcmp(pkg, "android") == 0 ||
+        strncmp(pkg, "com.android.systemui", 20) == 0) {
+        return std::string();
+    }
+    return std::string(pkg);
+}
+
+void NanoMenu::overlayPauseApp(bool pause) {
+    // DEFAULT OFF: do NOT freeze the background app. The opaque overlay layer
+    // occludes the app so the compositor scans out only the overlay (60fps) while
+    // the app keeps running underneath - freezing (SIGSTOP) was causing apps to
+    // fail to resume cleanly. Re-enable with persist.gammaos.nano.overlay.pause=1.
+    //
+    // NOTE: mOverlayPausedPkg is populated by overlayShow() regardless of this
+    // flag (so quit/launch always know the target). This routine only sends the
+    // freeze/thaw signals, gated by the flag.
+    if (!property_get_bool("persist.gammaos.nano.overlay.pause", false)) {
+        return;
+    }
+
+    if (pause) {
+        if (mOverlayPausedPkg.empty()) {
+            ALOGI("overlay: no pausable foreground app");
+            return;
+        }
+        std::string p = mOverlayPausedPkg;
+        std::thread([p]() {
+            int n = overlaySignalPackage(p.c_str(), SIGSTOP);
+            ALOGI("overlay: paused (SIGSTOP) %s -> %d process(es)", p.c_str(), n);
+        }).detach();
+    } else {
+        if (mOverlayPausedPkg.empty()) return;
+        std::string p = mOverlayPausedPkg;
+        std::thread([p]() {
+            int n = overlaySignalPackage(p.c_str(), SIGCONT);
+            ALOGI("overlay: resumed (SIGCONT) %s -> %d process(es)", p.c_str(), n);
+        }).detach();
+    }
+}
+
+void NanoMenu::overlayShow() {
+    if (mOverlayShown) return;
+    if (mFlingerSurfaceControl == nullptr) {
+        ALOGW("overlay: show requested but no SF surface control; clearing request");
+        property_set("sys.gammaos.nano.show_overlay", "0");
+        return;
+    }
+
+    // Resolve the foreground package so quit/launch know what to act on. The
+    // dumpsys resolve intermittently returns empty for a live game from the
+    // overlay's process context; fall back to the tracked launch_app so
+    // quit/launch/ESC still target the right package.
+    mOverlayPausedPkg = overlayResolveForegroundPkg();
+    if (mOverlayPausedPkg.empty() &&
+        property_get_bool("sys.gammaos.nano.app_launched", false)) {
+        char la[PROPERTY_VALUE_MAX] = {};
+        property_get("sys.gammaos.nano.launch_app", la, "");
+        if (la[0] && strchr(la, '.') != nullptr) mOverlayPausedPkg = la;
+    }
+
+    // Decide scrim-over-app vs full-wallpaper. A RWC hint (set when the overlay is
+    // raised as the launcher after an app exits) forces wallpaper even if dumpsys
+    // transiently still reports the dying app; otherwise infer from "no fg app".
+    {
+        char wp[PROPERTY_VALUE_MAX] = {};
+        property_get("sys.gammaos.nano.overlay_wallpaper", wp, "0");
+        // Wallpaper (launcher) vs scrim-over-app: decide from app_launched (a
+        // reliable prop set when a nano app is running), NOT the dumpsys pkg resolve
+        // above - that intermittently returns empty for a live game (RetroArch) and
+        // wrongly flipped the in-game overlay to the full wave wallpaper. An app is
+        // behind us iff app_launched==1 -> scrim; otherwise (launcher) -> wallpaper.
+        // The RWC hint still forces wallpaper for the post-exit launcher raise even
+        // in the moment before app_launched clears.
+        // app_launched is the SOLE signal: scrim over the live app whenever a nano
+        // app is launched, full wallpaper only in the launcher (no app). A stale
+        // overlay_wallpaper hint must NOT force the wave over a running game (that
+        // was the "submenus show the wave" bug). The launcher raise sets
+        // app_launched=0 before show, so it correctly gets the wallpaper.
+        bool appBehind = property_get_bool("sys.gammaos.nano.app_launched", false);
+        mOverlayWallpaper = !appBehind;
+        property_set("sys.gammaos.nano.overlay_wallpaper", "0");   // consume any hint
+        ALOGI("overlay: show wallpaper=%d (app_launched=%d wp=%s paused=%s)",
+              mOverlayWallpaper ? 1 : 0, appBehind ? 1 : 0, wp, mOverlayPausedPkg.c_str());
+    }
+
+    // Re-apply the user's saved Theme Settings (wave colour, day/night, particles)
+    // every time the overlay is raised, so the overlay wallpaper matches whatever
+    // the user picked in the home XMB's Theme Settings - including changes made
+    // AFTER this resident process started (persist props are only read once at
+    // startup otherwise, leaving the overlay on the default wave).
+    loadPs3ThemeSettings();
+
+    // Isolate the running app's input via the FRAMEWORK drop_input path: while it
+    // is set, InputDispatcher drops keys + motion to the app (POWER and BACK are
+    // exempt) so the app cannot act on XMB navigation - the same principle as
+    // Global Actions taking input for its own menu. nano reads evdev directly for
+    // the XMB. No EVIOCGRAB (which fought PhoneWindowManager's power gesture).
+    property_set("sys.gammaos.nano.drop_input", "1");
+
+    // Prioritise this render thread (SCHED_FIFO) so the XMB stays smooth while it
+    // GPU-composites over the LIVE app. The service has CAP_SYS_NICE + rtprio 99.
+    // A modest priority keeps us above normal threads without starving SF/the app.
+    {
+        struct sched_param sp = {};
+        sp.sched_priority = 4;
+        if (sched_setscheduler(0, SCHED_FIFO, &sp) != 0)
+            ALOGW("overlay: SCHED_FIFO boost failed: %s", strerror(errno));
+    }
+
+    // DEFER the SF show: do NOT t.show() here. render() shows the layer only AFTER
+    // it has composited the first faded-out (reveal~0) frame, so the entrance
+    // animates IN instead of flashing the full XMB (the stale layer buffer). See
+    // mOverlayPendingShow handling after the overlay eglSwapBuffers in render().
+    mOverlayPendingShow = true;
+
+    // Drain stale evdev events buffered while the overlay was HIDDEN (nano does
+    // not read its input fds while idle, so they accumulate - including the power
+    // gesture's own queued events, or a Back the user pressed in the app just
+    // before summoning). Without this the very first pollInput flushes an old
+    // Back/button press into the XMB and instantly dismisses the overlay ("shows
+    // then disappears"). The fds are O_NONBLOCK so this returns at once.
+    {
+        struct input_event ev;
+        for (int fd : mInputFds) {
+            if (fd < 0) continue;
+            while (read(fd, &ev, sizeof(ev)) == (ssize_t)sizeof(ev)) { /* discard */ }
+        }
+    }
+
+    mOverlayShown = true;
+    // Cold-boot-style fade + float-in of the XMB chrome (renderPs3Xmb stamps the
+    // real start on the first rendered frame).
+    mOverlayEnterStart = -2.0f;
+    mPs3BootIconReveal = 0.0f;
+    mPs3BootLabelReveal = 0.0f;
+    mLastFrameNs = 0;
+    ALOGI("overlay: shown (translucent live-app + scrim, drop_input=1)");
+}
+
+void NanoMenu::overlayHide() {
+    if (!mOverlayShown) return;
+
+    // Restore the app's input (the framework re-dispatches keys+motion to it).
+    property_set("sys.gammaos.nano.drop_input", "0");
+    mOverlayPausedPkg.clear();
+
+    // Drop back to normal scheduling so the resident-hidden overlay does not hold
+    // a real-time priority while the app runs unobstructed.
+    {
+        struct sched_param sp = {};
+        sp.sched_priority = 0;
+        sched_setscheduler(0, SCHED_OTHER, &sp);
+    }
+
+    if (mFlingerSurfaceControl != nullptr) {
+        SurfaceComposerClient::Transaction t;
+        t.hide(mFlingerSurfaceControl);
+        t.apply();
+    }
+    mOverlayShown = false;
+    mOverlayPendingShow = false;   // cancel any deferred show (hidden before 1st frame)
+    mOverlayWallpaper = false;     // next in-game summon starts in scrim mode
+    ALOGI("overlay: hidden (drop_input=0)");
+}
+
+bool NanoMenu::overlayAtTopLevel() const {
+    return mOverlayMode && mPs3Stack.empty() && !mPs3DlgActive &&
+           !mPs3WizActive && !mPs3TzActive && mMenuState == MENU_MAIN;
+}
+
+void NanoMenu::overlayResume() {
+    // In overlay-home LAUNCHER mode (full wallpaper, no app behind us) there is
+    // nothing to return to - the overlay IS the home surface - so Back/Resume at
+    // the top level must be a no-op. Dismissing would orphan the screen and the
+    // framework would immediately re-raise it, a hide/show flicker loop. Only the
+    // in-game overlay (scrim over a running app) dismisses on Back.
+    if (mOverlayWallpaper &&
+        property_get_bool("persist.gammaos.nano.overlay_home", false)) {
+        ALOGI("overlay: resume ignored (launcher mode, nothing to return to)");
+        return;
+    }
+    // Back / power at the XMB top level: dismiss the overlay and let the running
+    // app take input again.
+    property_set("sys.gammaos.nano.show_overlay", "0");
+    overlayHide();
+    ALOGI("overlay: resume -> dismissed, app resumed");
+}
+
+void NanoMenu::overlayQuitToHome() {
+    // Quit the running app. The app is being killed so we must NOT thaw-then-resume
+    // it: clear the paused state + marker first so overlayHide's thaw is a no-op.
+    std::string pkg = mOverlayPausedPkg;
+    mOverlayPausedPkg.clear();
+    unlink(kOverlayFrozenMarker);
+    bool isGame = !pkg.empty() &&
+        (pkg.find("retroarch") != std::string::npos ||
+         pkg.find("drastic") != std::string::npos);
+
+    if (property_get_bool("persist.gammaos.nano.overlay_home", false)) {
+        // Overlay-home: quit == return to the overlay launcher. Keep the overlay
+        // shown and switch it to the opaque full-wallpaper XMB; clean-exit the app
+        // behind it (ESC save-state for RetroArch/DraStic, force-stop otherwise).
+        // app_launched=0 + show_overlay=1 keeps the RWC overlay-launcher
+        // short-circuit active so the real launcher never appears.
+        mOverlayWallpaper = true;
+        property_set("sys.gammaos.nano.app_launched", "0");
+        if (!pkg.empty()) {
+            std::string p = pkg;
+            std::thread([p, isGame]() {
+                if (isGame) {
+                    property_set("sys.gammaos.nano.qr_send_esc", "1");
+                    for (int i = 0; i < 30 && overlaySignalPackage(p.c_str(), 0) > 0; i++)
+                        usleep(100000);
+                } else {
+                    char c[320];
+                    snprintf(c, sizeof(c), "am force-stop %s 2>/dev/null",
+                             overlayShq(p).c_str());
+                    system(c);
+                }
+                ALOGI("overlay: quit %s -> overlay launcher", p.c_str());
+            }).detach();
+        }
+        return;   // stay shown as the launcher (drop_input stays 1)
+    }
+
+    // Non-overlay-home: force-stop and let the DRM home XMB take the display back.
+    if (!pkg.empty()) {
+        char cmd[320];
+        snprintf(cmd, sizeof(cmd), "am force-stop %s 2>/dev/null",
+                 overlayShq(pkg).c_str());
+        system(cmd);
+        ALOGI("overlay: quit -> force-stopped %s, returning to home XMB", pkg.c_str());
+    }
+    property_set("sys.gammaos.nano.show_overlay", "0");
+    overlayHide();
+}
+
+// Single-quote a string for safe interpolation into a /bin/sh command line.
+// Handles embedded apostrophes (ROM names like "Marvel's ...") via '\'' splicing.
+static std::string overlayShq(const std::string& s) {
+    std::string r = "'";
+    for (char c : s) {
+        if (c == '\'') r += "'\\''";
+        else r += c;
+    }
+    r += "'";
+    return r;
+}
+
+// Run a shell command and return its trimmed stdout (first use: pm path / settings).
+static std::string overlayShellCapture(const char* cmd) {
+    std::string out;
+    FILE* f = popen(cmd, "r");
+    if (!f) return out;
+    char b[512];
+    size_t n;
+    while ((n = fread(b, 1, sizeof(b), f)) > 0) out.append(b, n);
+    pclose(f);
+    while (!out.empty() &&
+           (out.back() == '\n' || out.back() == '\r' || out.back() == ' '))
+        out.pop_back();
+    return out;
+}
+
+// Build the Storage Access Framework content:// URI for a ROM, mirroring the
+// home-mode launchXmbGame() encoding exactly so standalone emulators (DraStic,
+// PPSSPP, Flycast) resolve the same document. romDir is the ROMs/ subdir used as
+// the primary-volume fallback tree.
+static std::string overlayBuildContentUri(const std::string& romPath,
+                                          const std::string& romDir) {
+    std::string filename = romPath;
+    size_t ls = filename.rfind('/');
+    if (ls != std::string::npos) filename = filename.substr(ls + 1);
+    std::string encFile;
+    for (char c : filename) {
+        switch (c) {
+            case ' ':  encFile += "%20"; break;
+            case '(':  encFile += "%28"; break;
+            case ')':  encFile += "%29"; break;
+            case '&':  encFile += "%26"; break;
+            case '+':  encFile += "%2B"; break;
+            case '!':  encFile += "%21"; break;
+            case '\'': encFile += "%27"; break;
+            default:   encFile += c;
+        }
+    }
+    std::string volumeId = "primary";
+    std::string relDir = "ROMs%2F" + romDir;
+    std::string work;
+    if (romPath.find("/mnt/media_rw/") == 0) work = romPath.substr(14);
+    else if (romPath.find("/storage/") == 0) work = romPath.substr(9);
+    if (!work.empty()) {
+        size_t sl1 = work.find('/');
+        if (sl1 != std::string::npos) {
+            std::string uuid = work.substr(0, sl1);
+            if (uuid != "emulated") {
+                size_t lastSl = work.rfind('/');
+                std::string subdir = work.substr(sl1 + 1, lastSl - sl1 - 1);
+                std::string encDir;
+                for (char c : subdir) {
+                    if (c == '/') encDir += "%2F";
+                    else if (c == ' ') encDir += "%20";
+                    else encDir += c;
+                }
+                volumeId = uuid;
+                relDir = encDir;
+            }
+        }
+    }
+    std::string treeRoot = volumeId + "%3A" + relDir;
+    return "content://com.android.externalstorage.documents/tree/" + treeRoot
+         + "/document/" + treeRoot + "%2F" + encFile;
+}
+
+void NanoMenu::overlayLaunchCommand(const std::string& pkg, const std::string& amCmd) {
+    // NOTE: no "pkg == mOverlayPausedPkg -> resume" shortcut here. A single
+    // emulator package (com.retroarch.aarch64) hosts MANY games, so selecting a
+    // different ROM of the running emulator MUST relaunch with the new ROM, not
+    // resume the old game. The same-app resume shortcut lives in
+    // overlayLaunchPackage (plain apps only); selecting a game always (re)launches.
+
+    std::string old = mOverlayPausedPkg;
+    mOverlayPausedPkg.clear();
+    unlink(kOverlayFrozenMarker);
+
+    // Hold the overlay up through the transition; overlayPoll() dismisses onto the
+    // new app once it resumes (so the user never sees the dying app or a black
+    // frame). Armed synchronously before the worker thread starts.
+    mOverlayLaunchPending = true;
+    mOverlayLaunchTarget = pkg;
+    mOverlayLaunchStartMs = uptimeMillis();
+    mOverlayLaunchLastCheckMs = 0;
+
+    // Do the (possibly slow) clean exit + launch off the render thread so the XMB
+    // keeps animating during the handoff.
+    std::thread([this, old, pkg, amCmd]() {
+        // Guard the whole exit+launch transition: RootWindowContainer skips ALL of
+        // its startHome handling while killing=1, so force-stopping the old app
+        // cannot make it falsely detect the (not-yet-registered) new app as
+        // "exited" and tear it down. Same guard the home-mode nanoKillAppAndRestart
+        // uses. Cleared only once the new app is actually the resumed activity.
+        property_set("sys.gammaos.nano.killing", "1");
+
+        bool oldIsGame = !old.empty() &&
+            (old.find("retroarch") != std::string::npos ||
+             old.find("drastic") != std::string::npos);
+        if (oldIsGame) {
+            // Clean exit (point 5): RetroArch / DraStic save state on ESC. Restore
+            // the app's input first so the injected ESC lands in a live app, send
+            // ESC via the init hook (input keyevent 111), and wait for the process
+            // to actually exit before launching the next title.
+            property_set("sys.gammaos.nano.drop_input", "0");
+            property_set("sys.gammaos.nano.qr_send_esc", "1");
+            for (int i = 0; i < 30 && overlaySignalPackage(old.c_str(), 0) > 0; i++)
+                usleep(100000);   // poll until the activity finishes (ESC save done)
+            usleep(1200000);      // let the save + teardown settle
+            // CRITICAL for same-package ROM switches: dumpsys removes the
+            // ProcessRecord (so overlaySignalPackage reads "gone") BEFORE the
+            // RetroArch process actually dies - it lingers a few seconds. A second
+            // RetroArch instance started in that window races the dying one and
+            // aborts in rarch_main. The ESC save has already completed (the activity
+            // finished), so force-stop GUARANTEES the old process is gone before the
+            // new ROM launches. The death lands under killing=1 so the AMS overlay
+            // hook ignores it.
+            {
+                char c[320];
+                snprintf(c, sizeof(c), "am force-stop %s 2>/dev/null",
+                         overlayShq(old).c_str());
+                system(c);
+            }
+            usleep(500000);       // let force-stop reap the process
+            ALOGI("overlay: clean-exited %s before launch", old.c_str());
+        } else if (!old.empty()) {
+            char c[320];
+            snprintf(c, sizeof(c), "am force-stop %s 2>/dev/null",
+                     overlayShq(old).c_str());
+            system(c);
+        }
+        // Track for the framework: RootWindowContainer raises the overlay launcher
+        // when this app exits, and PhoneWindowManager's back-long-press exit fires
+        // (both gated on app_launched=1).
+        if (!pkg.empty())
+            property_set("sys.gammaos.nano.launch_app", pkg.c_str());
+        property_set("sys.gammaos.nano.app_launched", "1");
+        system(amCmd.c_str());
+        ALOGI("overlay: launched %s", pkg.c_str());
+
+        // Release the guard only once the new app is the resumed activity (or a
+        // timeout), so RootWindowContainer never sees the gap between the old app
+        // dying and the new one registering.
+        for (int i = 0; i < 40; i++) {
+            usleep(100000);
+            if (pkg.empty() || overlayResolveForegroundPkg() == pkg) break;
+        }
+        property_set("sys.gammaos.nano.killing", "0");
+    }).detach();
+}
+
+bool NanoMenu::overlayLaunchPackage(const std::string& pkg) {
+    if (pkg.empty()) return false;
+    // Selecting the app that is ALREADY running = just resume it (one app per
+    // package, unlike emulators). Games never take this path (see overlayLaunchGame).
+    if (pkg == mOverlayPausedPkg) { overlayResume(); return true; }
+    // Plain app (Applications submenu): start its LAUNCHER activity.
+    std::string cmd = "monkey -p " + overlayShq(pkg)
+                    + " -c android.intent.category.LAUNCHER 1 2>/dev/null";
+    overlayLaunchCommand(pkg, cmd);
+    return true;
+}
+
+void NanoMenu::overlayPoll() {
+    // Deferred dismiss after launching another app from the overlay: hold the
+    // overlay layer up (it occludes the dying old app / black) until the new app
+    // is the resumed activity, or a safety timeout. Throttle the ActivityManager
+    // query so it does not run every frame.
+    if (mOverlayLaunchPending) {
+        int64_t now = uptimeMillis();
+        int64_t el = now - mOverlayLaunchStartMs;
+        // The launch worker holds sys.gammaos.nano.killing=1 for the WHOLE
+        // exit+launch transition and clears it ONLY after the new app is the resumed
+        // activity. Do NOT test foreground while killing=1: when switching to a
+        // different ROM of the SAME emulator package (RetroArch A -> RetroArch B),
+        // the OLD game is still that package and foreground, so foreground==target
+        // would fire instantly and dismiss onto the dying old game before the new
+        // one loads (the "switching games does nothing" bug). Wait for killing=0.
+        bool switchInProgress = property_get_bool("sys.gammaos.nano.killing", false);
+        bool ready = false;
+        if (!switchInProgress && el > 250 && (now - mOverlayLaunchLastCheckMs) > 300) {
+            mOverlayLaunchLastCheckMs = now;
+            ready = (overlayResolveForegroundPkg() == mOverlayLaunchTarget);
+        }
+        // Ceiling is generous (12s): a RetroArch/DraStic clean-exit can take ~3s to
+        // save state and die, plus a settle, plus the new app's own resume, plus the
+        // worker's post-launch confirm poll. The `ready` check (after killing clears)
+        // dismisses the instant the new app is up; the ceiling is only a backstop.
+        if (ready || el > 12000) {
+            mOverlayLaunchPending = false;
+            mOverlayLaunchTarget.clear();
+            property_set("sys.gammaos.nano.show_overlay", "0");
+            overlayHide();
+            ALOGI("overlay: launch dismiss (resumed=%d, %lldms)",
+                  ready ? 1 : 0, (long long)el);
+        }
+        return;   // keep the overlay shown during the launch transition
+    }
+
+    char v[PROPERTY_VALUE_MAX] = {};
+    property_get("sys.gammaos.nano.show_overlay", v, "0");
+    bool want = (v[0] == '1' && v[1] == '\0');
+    if (want && !mOverlayShown) {
+        overlayShow();
+    } else if (!want && mOverlayShown) {
+        overlayHide();
+    }
+    // No grab to reconcile: input isolation is the framework drop_input prop,
+    // which overlayShow/overlayHide set/clear, and InputDispatcher self-clears a
+    // stuck drop_input (plus the 10s BACK emergency) if this process ever dies
+    // mid-show. The overlay never owns an evdev grab now.
+}
+
+void NanoMenu::overlayLaunchGame() {
+    // Launch the currently selected XMB game/ROM from the overlay by building the
+    // SAME activity intent the home-mode launchXmbGame() hands the framework, but
+    // starting it directly with `am start` (no DRM-exit handshake, which must never
+    // run in the resident overlay). Standalone emulators get the SAF content:// URI;
+    // RetroArch gets the libretro extras (direct FUSE ROM path, no DE-cache shuffle
+    // since the system is fully up). overlayLaunchCommand() handles the clean exit
+    // of any running game first.
+    std::string romPath, romDir, coreSo, launchPkg, launchIntent;
+    bool standalone;
+    if (mXmbSystemIndex == -1) {                  // Recently Played
+        if (mXmbGameIndex < 0 || mXmbGameIndex >= (int)mXmbRecent.size()) return;
+        const XmbRecentEntry& re = mXmbRecent[mXmbGameIndex];
+        romPath = re.romPath; romDir = re.romDir; coreSo = re.coreSo;
+        launchPkg = re.launchPkg; launchIntent = re.launchIntent; standalone = re.standalone;
+    } else {                                      // per-system ROM list
+        if (mXmbSystemIndex < 0 || mXmbSystemIndex >= (int)mXmbSystems.size()) return;
+        const XmbSystem& sys = mXmbSystems[mXmbSystemIndex];
+        if (mXmbGameIndex < 0 || mXmbGameIndex >= (int)sys.roms.size()) return;
+        romPath = sys.roms[mXmbGameIndex]; romDir = sys.romDir; coreSo = sys.coreSo;
+        launchPkg = sys.launchPkg; launchIntent = sys.launchIntent; standalone = sys.isStandalone();
+    }
+    if (romPath.empty()) return;
+
+    std::string pkg, cmd;
+    if (standalone) {
+        pkg = launchPkg;
+        std::string uri = overlayBuildContentUri(romPath, romDir);
+        std::string intent = launchIntent;          // am-start arg template
+        size_t pos = intent.find("{file.uri}");
+        if (pos != std::string::npos) intent.replace(pos, 10, overlayShq(uri));
+        cmd = "am start " + intent + " --grant-read-uri-permission 2>/dev/null";
+    } else {
+        pkg = "com.retroarch.aarch64";
+        std::string rom = romPath;                   // direct FUSE path for RetroArch
+        if (rom.find("/data/media/0/") == 0) rom = "/sdcard/" + rom.substr(14);
+        else if (rom.find("/mnt/media_rw/") == 0) rom = "/storage/" + rom.substr(14);
+        std::string apk = overlayShellCapture("pm path com.retroarch.aarch64 2>/dev/null");
+        {   size_t pp = apk.find("package:");
+            if (pp != std::string::npos) {
+                apk = apk.substr(pp + 8);
+                size_t nl = apk.find_first_of("\r\n");
+                if (nl != std::string::npos) apk = apk.substr(0, nl);
+            } else {
+                apk.clear();
+            }
+        }
+        std::string ime = overlayShellCapture(
+                "settings get secure default_input_method 2>/dev/null");
+        if (ime == "null") ime.clear();
+        const std::string dataDir = "/data/user/0/com.retroarch.aarch64";
+        const std::string ext = "/storage/emulated/0/Android/data/com.retroarch.aarch64/files";
+        cmd = "am start -n com.retroarch.aarch64/com.retroarch.browser.retroactivity.RetroActivityFuture"
+              " -a android.intent.action.MAIN -c android.intent.category.LAUNCHER"
+              " --activity-clear-task --activity-clear-top"
+              " --es ROM " + overlayShq(rom) +
+              " --es CONFIGFILE " + overlayShq(ext + "/retroarch.cfg") +
+              " --es DATADIR " + overlayShq(dataDir) +
+              " --es SDCARD " + overlayShq(std::string("/storage/emulated/0")) +
+              " --es EXTERNAL " + overlayShq(ext);
+        if (!coreSo.empty())
+            cmd += " --es LIBRETRO " + overlayShq("/data/data/com.retroarch.aarch64/cores/" + coreSo);
+        if (!apk.empty()) cmd += " --es APK " + overlayShq(apk);
+        if (!ime.empty()) cmd += " --es IME " + overlayShq(ime);
+        cmd += " 2>/dev/null";
+    }
+    ALOGI("overlay: launch game pkg=%s standalone=%d rom=%s",
+          pkg.c_str(), standalone ? 1 : 0, romPath.c_str());
+    overlayLaunchCommand(pkg, cmd);
+}
+
+} // namespace android

@@ -193,7 +193,10 @@ extern int64_t sDrmRescanDeadlineNs;
 // DRM function declarations
 // ---------------------------------------------------------------------------
 
-EGLConfig getEglConfig(const EGLDisplay& display);
+// wantAlpha selects an EGL config with an 8-bit alpha channel (needed for the
+// translucent overlay window so the SurfaceFlinger-blurred app shows through);
+// the default (no alpha) is the opaque fast path used everywhere else.
+EGLConfig getEglConfig(const EGLDisplay& display, bool wantAlpha = false);
 int drmCrtcSlot(uint32_t crtcId);
 void drmPaceWithoutVsync();
 bool drmCreateDumbBuffer(int fd, uint32_t w, uint32_t h, DrmBuffer* out);

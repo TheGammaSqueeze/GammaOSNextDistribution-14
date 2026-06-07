@@ -3449,6 +3449,55 @@ public class ActivityManagerService extends IActivityManager.Stub
     @GuardedBy("this")
     final void handleAppDiedLocked(ProcessRecord app, int pid,
             boolean restarting, boolean allowRestart, boolean fromBinderDied) {
+        // GammaOS Nano (overlay-home): when the foreground nano-launched app's
+        // process actually dies - slow RetroArch/DraStic ESC save-and-close, a
+        // crash, or a kill - raise the resident overlay as the launcher DIRECTLY.
+        // Event-driven (fires on the real death), so it catches the delayed/slow
+        // deaths the one-shot startHomeOnTaskDisplayArea exit check misses (the
+        // "stuck on the game's frozen last frame" bug). We do the lightweight raise
+        // with property writes only and explicitly do NOT force-stop or route
+        // through the pending_exit cleanup: the app is already dead (we are inside
+        // its death handler), so a force-stop here is both pointless and unsafe -
+        // it re-enters the death/cleanup machinery and stalls before raising (the
+        // observed bug). Clearing app_launched + show_overlay=1 makes the
+        // RootWindowContainer launcher short-circuit skip the real home launch.
+        // Tightly gated (overlay_home on, a nano app launched, this dying process
+        // IS that app's MAIN process, not a managed kill-and-relaunch, not
+        // restarting) so it never fires during a launch handoff or for a helper.
+        try {
+            if (!restarting && app != null && app.info != null
+                    && "1".equals(android.os.SystemProperties.get(
+                            "persist.gammaos.nano.overlay_home", "0"))
+                    && "1".equals(android.os.SystemProperties.get(
+                            "sys.gammaos.nano.app_launched", "0"))
+                    && !"1".equals(android.os.SystemProperties.get(
+                            "sys.gammaos.nano.killing", "0"))) {
+                final String nanoApp = android.os.SystemProperties.get(
+                        "sys.gammaos.nano.launch_app", "");
+                if (!nanoApp.isEmpty() && nanoApp.equals(app.info.packageName)
+                        && nanoApp.equals(app.processName)) {
+                    Slog.i(TAG, "GammaOS Nano: overlay-home launched app " + nanoApp
+                            + " process died, raising the overlay launcher directly");
+                    // Clear launch state so the death-cascade startHome cannot
+                    // re-launch the app, then raise the resident overlay (its
+                    // overlayPoll picks up show_overlay). No force-stop.
+                    android.os.SystemProperties.set("sys.gammaos.nano.app_launched", "0");
+                    android.os.SystemProperties.set("sys.gammaos.nano.launch_app", "");
+                    android.os.SystemProperties.set("sys.gammaos.nano.launch_intent", "");
+                    android.os.SystemProperties.set("sys.gammaos.nano.launch_core", "");
+                    android.os.SystemProperties.set("sys.gammaos.nano.launch_rom", "");
+                    android.os.SystemProperties.set("sys.gammaos.nano.drop_input", "0");
+                    android.os.SystemProperties.set("persist.gammaos.nano.qr_prepared", "0");
+                    try {
+                        new java.io.File("/data/system/nano_launch_rom.txt").delete();
+                    } catch (Exception ignore) { }
+                    android.os.SystemProperties.set("sys.gammaos.nano.overlay_wallpaper", "1");
+                    android.os.SystemProperties.set("sys.gammaos.nano.show_overlay", "1");
+                }
+            }
+        } catch (Exception e) {
+            Slog.w(TAG, "GammaOS Nano: handleAppDied overlay-home hook failed", e);
+        }
         boolean kept = cleanUpApplicationRecordLocked(app, pid, restarting, allowRestart, -1,
                 false /*replacingPid*/, fromBinderDied);
         if (!kept && !restarting) {

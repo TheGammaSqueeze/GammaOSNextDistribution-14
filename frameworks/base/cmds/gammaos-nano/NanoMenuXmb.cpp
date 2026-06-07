@@ -1085,6 +1085,13 @@ void NanoMenu::handleRight() {
 }
 
 void NanoMenu::launchXmbGame() {
+    // Overlay XMB: the home exit-to-launch handshake (set launch_* props + exit so
+    // the framework starts the app) does not apply to the resident overlay - and
+    // running it would make the overlay exit/restart without launching. Game
+    // relaunch from the overlay needs the am-start intent path (follow-up); for
+    // now select-on-a-game is a no-op in overlay mode (apps launch via
+    // overlayLaunchPackage; Back resumes, and the running game can be quit).
+    if (mOverlayMode) { ALOGI("overlay: game relaunch from overlay not yet wired"); return; }
     int sysIdx, gameIdx;
 
     // GammaOS Nano: gate the entire XMB launch path until the system

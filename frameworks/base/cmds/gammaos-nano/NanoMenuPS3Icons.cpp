@@ -484,7 +484,7 @@ void NanoMenu::drawGlassIcon(GLuint nmapTex, float x, float y, float w, float h,
     // premultiplied-alpha blend (matches iconGLCanvas ONE / ONE_MINUS_SRC_ALPHA)
     glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
     glDrawArrays(GL_TRIANGLES, 0, 6);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);   // restore for text/quads
+    setUiBlend();   // restore for text/quads (separate-alpha in overlay)
 
     glDisableVertexAttribArray(mIconGlassLocPos);
     glDisableVertexAttribArray(mIconGlassLocIconUV);

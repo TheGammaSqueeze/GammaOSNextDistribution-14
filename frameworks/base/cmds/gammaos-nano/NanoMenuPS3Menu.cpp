@@ -528,8 +528,10 @@ void NanoMenu::ps3XmbSelect() {
         case PS3_RECENT_LIST:  { Ps3Level lvl; buildRecentSubmenu(lvl);        mPs3Stack.push_back(lvl); break; }
         case PS3_APP_LIST:     { Ps3Level lvl; buildAppSubmenu(lvl);           mPs3Stack.push_back(lvl); break; }
         case PS3_DATA_SUBMENU: { Ps3Level lvl; buildDataSubmenu(it.data, lvl); mPs3Stack.push_back(lvl); break; }
-        case PS3_ROM:    { mXmbSystemIndex = it.a; mXmbGameIndex = it.b; mSearchActive = false; launchXmbGame(); return; }
-        case PS3_RECENT: { mXmbSystemIndex = -1;  mXmbGameIndex = it.a; mSearchActive = false; launchXmbGame(); return; }
+        case PS3_ROM:    { mXmbSystemIndex = it.a; mXmbGameIndex = it.b; mSearchActive = false;
+                           if (mOverlayMode) { overlayLaunchGame(); return; } launchXmbGame(); return; }
+        case PS3_RECENT: { mXmbSystemIndex = -1;  mXmbGameIndex = it.a; mSearchActive = false;
+                           if (mOverlayMode) { overlayLaunchGame(); return; } launchXmbGame(); return; }
         case PS3_SETTING:{ if (it.a == 0) openWifiScreen(); else if (it.a == 1) openBtScreen(); return; }
         case PS3_APP:
         case PS3_LAUNCH_PKG: {
@@ -539,6 +541,9 @@ void NanoMenu::ps3XmbSelect() {
             // then wait for the select-key release before the nano exits so the
             // launched app does not see a phantom press.
             if (it.payloadStr.empty()) return;
+            // Overlay XMB: replace the running app with the selected one (force-stop
+            // current + start new + dismiss) instead of the home exit-to-launch path.
+            if (mOverlayMode) { overlayLaunchPackage(it.payloadStr); return; }
             if (!isLaunchReady()) { showLaunchBusyToast(); return; }
             ALOGI("ps3menu: launching app %s", it.payloadStr.c_str());
             property_set("sys.gammaos.nano.launch_app", it.payloadStr.c_str());
@@ -589,6 +594,8 @@ void NanoMenu::ps3XmbBack() {
     if (mPs3TzActive) { closeTimezoneGlobe(false); return; }   // O: cancel (keep current zone)
     if (mPs3WizActive) { wizBack(); return; }   // O: step back through the network setup wizard
     if (mPs3DlgActive) { closePs3Dialog(false); return; }   // O: cancel the dialog/chooser
+    // Overlay XMB: Back at the top level RESUMES the running game (dismiss + thaw).
+    if (overlayAtTopLevel()) { overlayResume(); return; }
     if (!mPs3Stack.empty()) {
         // Snapshot the child list (being left) for the slide-out, then pop and
         // expand the parent back out of the breadcrumb column (timed, dir -1).
@@ -631,6 +638,30 @@ void NanoMenu::renderPs3Xmb() {
     if (mPs3Cats.empty()) return;
     if (mMenuState == MENU_WIFI) { renderWifiScreen(); return; }
     if (mMenuState == MENU_BT)   { renderBtScreen();   return; }
+
+    // Overlay entrance: when the in-game overlay is raised, the blurred backdrop
+    // is already there; the XMB chrome (category labels/icons, item list, clock)
+    // fades + pops in like the cold-boot hand-off. Reuse the boot reveal
+    // multipliers, eased over ~520ms. Wrap-safe against mEffectTime's fmod-500.
+    // Pending sentinel (-2): stamp the real start on this first rendered frame
+    // (after the blocking capture in overlayShow) so the entrance plays.
+    if (mOverlayMode && mOverlayEnterStart <= -1.5f) {
+        mOverlayEnterStart = mEffectTime;
+    }
+    if (mOverlayMode && mOverlayEnterStart >= 0.0f) {
+        float el = mEffectTime - mOverlayEnterStart;
+        const float dur = 0.52f;
+        if (el < 0.0f || el >= dur) {
+            mPs3BootIconReveal = 1.0f;
+            mPs3BootLabelReveal = 1.0f;
+            mOverlayEnterStart = -1.0f;
+        } else {
+            float t = el / dur;
+            float e = t * t * (3.0f - 2.0f * t);   // smoothstep
+            mPs3BootIconReveal = e;
+            mPs3BootLabelReveal = e;
+        }
+    }
 
     // Date and Time -> Time Zone: the 1:1 web 3D-globe selector. Rendered fully
     // standalone (it fills black then fades the Earth in over it), skipping the

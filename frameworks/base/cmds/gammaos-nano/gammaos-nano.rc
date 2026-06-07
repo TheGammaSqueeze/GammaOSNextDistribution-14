@@ -57,6 +57,34 @@ service gammaos-nano /system/bin/gammaos-nano
 # denied" on open). By the time minimal_boot=1 is set (after SF is
 # running) the rfkill0 node definitely exists, and a retry here lets
 # the HAL turn the radio on.
+# GammaOS Nano: the in-game XMB overlay (power-hold). A SEPARATE, resident
+# instance of gammaos-nano launched with --overlay. It runs in the full-Android
+# context (SurfaceFlinger + WindowManager up) as a translucent, background-
+# blurred layer over the running app, created hidden and toggled by
+# sys.gammaos.nano.show_overlay (set by PhoneWindowManager on a power-hold).
+# Opt-in via persist.gammaos.nano.overlay=1, and only meaningful once the system
+# is fully up (SF must exist before readyToRun creates the layer), so it is
+# gated on sys.boot_completed. It is NOT oneshot: it stays alive, hidden, ready
+# to be summoned instantly. Same caps/groups/domain as the home service.
+service gammaos-nano-overlay /system/bin/gammaos-nano --overlay
+    class core animation
+    user root
+    group root graphics input system media_rw sdcard_rw everybody external_storage package_info readproc inet
+    capabilities SYS_NICE IPC_LOCK SYS_RESOURCE DAC_OVERRIDE DAC_READ_SEARCH CHOWN FOWNER SYS_ADMIN SYS_PTRACE SYS_CHROOT KILL
+    disabled
+    ioprio rt 0
+    rlimit rtprio 99 99
+    rlimit memlock 536870912 536870912
+    task_profiles MaxPerformance
+
+# Start the resident overlay once the system is fully booted AND the feature is
+# opted in. The combined trigger fires whichever property changes last, so it
+# works regardless of ordering (persist prop loads at ~T+9s, boot_completed
+# later). The minimal-boot home path never sets persist.gammaos.nano.overlay, and
+# the binary also self-guards against minimal_boot in overlay mode.
+on property:sys.boot_completed=1 && property:persist.gammaos.nano.overlay=1
+    start gammaos-nano-overlay
+
 on property:sys.gammaos.minimal_boot=1
     chown bluetooth system /sys/class/rfkill/rfkill0/state
     chmod 0664 /sys/class/rfkill/rfkill0/state

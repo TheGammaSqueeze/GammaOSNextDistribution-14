@@ -152,6 +152,9 @@ void NanoMenu::checkInputHotplug() {
                     snprintf(path, sizeof(path), "/dev/input/%s", ev->name);
                     int fd = open(path, O_RDONLY | O_NONBLOCK);
                     if (fd >= 0) {
+                        // Home-mode grab only (persist.gammaos.nano.grab_input).
+                        // The overlay does NOT grab: it isolates the app's input
+                        // via the framework drop_input prop, not EVIOCGRAB.
                         if (android::base::GetBoolProperty("persist.gammaos.nano.grab_input", false)) {
                             if (ioctl(fd, EVIOCGRAB, 1) < 0) {
                                 ALOGW("EVIOCGRAB failed for hotplugged %s: %s", path, strerror(errno));
@@ -224,6 +227,7 @@ void NanoMenu::checkInputHotplug() {
         snprintf(path, sizeof(path), "/dev/input/%s", entry->d_name);
         int fd = open(path, O_RDONLY | O_NONBLOCK);
         if (fd >= 0) {
+            // Home-mode grab only; the overlay isolates via drop_input, not grab.
             if (android::base::GetBoolProperty("persist.gammaos.nano.grab_input", false)) {
                 if (ioctl(fd, EVIOCGRAB, 1) < 0) {
                     ALOGW("EVIOCGRAB failed for swept %s: %s", path, strerror(errno));
@@ -674,6 +678,27 @@ void NanoMenu::tickNavRepeat() {
 // ---------------------------------------------------------------------------
 
 void NanoMenu::pollInput() {
+    // Overlay launch transition: while a launch is pending (the overlay is held up
+    // until the new app resumes), FREEZE the XMB - drain and ignore all input so the
+    // user cannot keep navigating the menu while the app is starting (which looked
+    // like the launch had not registered). The overlay dismisses onto the app once
+    // it is ready (overlayPoll). Draining keeps stale presses from flushing later.
+    if (mOverlayMode && mOverlayLaunchPending) {
+        struct input_event dev;
+        for (int fd : mInputFds) {
+            if (fd < 0) continue;
+            while (read(fd, &dev, sizeof(dev)) == (ssize_t)sizeof(dev)) { /* discard */ }
+        }
+        property_set("sys.gammaos.nano.nav", "");   // swallow scripted nav too
+        return;
+    }
+    // Home (non-overlay) launch fade-out: once the launching select has been
+    // released (mLaunchFadeStart stamped in the wait-for-release handler below),
+    // hold the hand-off to the app until the XMB has faded to black (render() draws
+    // the ramp), then exit. Makes launching a game/app a smooth fade, not a cut.
+    if (mLaunchFadeStart > 0 && (int64_t)uptimeMillis() - mLaunchFadeStart >= 260) {
+        mExitRequested = true;
+    }
     // Test navigation hook: `setprop sys.gammaos.nano.nav <action>` injects one
     // nav action (left/right/up/down/enter/back) then clears the prop. The
     // device analog of the web app's simulateInput, used for scripted on-device
@@ -713,8 +738,14 @@ void NanoMenu::pollInput() {
             if (mWaitForRelease) {
                 if (ev.type == EV_KEY && ev.value == 0
                     && (ev.code == KEY_ENTER || ev.code == BTN_SOUTH)) {
-                    ALOGD("NanoMenu: select key released, exiting now");
-                    mExitRequested = true;
+                    // Don't hand off immediately: start the launch fade-out
+                    // (render() fades the XMB to black). The exit fires once the
+                    // fade completes (the mLaunchFadeStart check at the top of
+                    // pollInput), so the game/app launch fades out instead of a cut.
+                    if (mLaunchFadeStart == 0) {
+                        ALOGD("NanoMenu: select released, fading out then launching");
+                        mLaunchFadeStart = uptimeMillis();
+                    }
                 }
                 continue; // discard all other events while waiting
             }
@@ -731,6 +762,14 @@ void NanoMenu::pollInput() {
             }
             // Power button handling
             if (ev.type == EV_KEY && ev.code == KEY_POWER) {
+                // Overlay XMB: PhoneWindowManager OWNS the power button entirely -
+                // it detects nano mode and TOGGLES the overlay (show/hide) on a
+                // power-hold. nano must not act on power here (acting on the open,
+                // ungrabbed power fd would race PWM's gesture). Ignore it; dismiss
+                // is via PWM's toggle or the gamepad Back (overlayResume).
+                if (mOverlayMode) {
+                    continue;
+                }
                 if (ev.value == 1) {
                     mPowerPressTime = android::uptimeMillis();
                     // Immediately start polling for long press in a tight loop
@@ -928,6 +967,9 @@ void NanoMenu::pollInput() {
                         if (mPs3WizActive) { wizRescan(); break; }   // X: re-scan on the AP list
                         if (mMenuState == MENU_WIFI) { handleWifiScreenX(); break; }
                         if (mMenuState == MENU_BT)   { handleBtScreenX();   break; }
+                        // Overlay XMB: Square at the top level QUITS the running game
+                        // and returns to the home XMB (force-stop + dismiss).
+                        if (overlayAtTopLevel()) { overlayQuitToHome(); break; }
                         // X: cycle wallpaper/FX
                         sActiveEffectIdx = (sActiveEffectIdx + 1) % kNumActiveEffects;
                         mCurrentEffect = kActiveEffects[sActiveEffectIdx];

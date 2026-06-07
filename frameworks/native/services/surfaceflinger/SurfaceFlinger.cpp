@@ -9035,7 +9035,12 @@ static status_t validateScreenshotPermissions(const CaptureArgs& captureArgs) {
     IPCThreadState* ipc = IPCThreadState::self();
     const int pid = ipc->getCallingPid();
     const int uid = ipc->getCallingUid();
-    if (uid == AID_GRAPHICS || PermissionCache::checkPermission(sReadFramebuffer, pid, uid)) {
+    // GammaOS: allow AID_ROOT to screenshot the display. The Nano in-game XMB
+    // overlay (gammaos-nano, root) captures the frozen foreground app for its
+    // blurred background; without this, SurfaceFlinger returns a black image to
+    // root callers that lack READ_FRAME_BUFFER (which native daemons do not get).
+    if (uid == AID_ROOT || uid == AID_GRAPHICS ||
+            PermissionCache::checkPermission(sReadFramebuffer, pid, uid)) {
         return OK;
     }
 

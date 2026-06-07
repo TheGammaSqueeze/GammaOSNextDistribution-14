@@ -105,11 +105,11 @@ int64_t sDrmRescanDeadlineNs = 0;
 // EGL setup
 // ---------------------------------------------------------------------------
 
-EGLConfig getEglConfig(const EGLDisplay& display) {
+EGLConfig getEglConfig(const EGLDisplay& display, bool wantAlpha) {
     EGLint attribs[] = {
         EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
         EGL_RED_SIZE, 8, EGL_GREEN_SIZE, 8, EGL_BLUE_SIZE, 8,
-        EGL_ALPHA_SIZE, 0, EGL_DEPTH_SIZE, 0, EGL_NONE
+        EGL_ALPHA_SIZE, wantAlpha ? 8 : 0, EGL_DEPTH_SIZE, 0, EGL_NONE
     };
     EGLint numConfigs = 0;
     EGLConfig config = nullptr;

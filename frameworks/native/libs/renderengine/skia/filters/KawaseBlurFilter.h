@@ -35,8 +35,10 @@ namespace skia {
  */
 class KawaseBlurFilter: public BlurFilter {
 public:
-    // Maximum number of render passes
-    static constexpr uint32_t kMaxPasses = 4;
+    // Maximum number of render passes. GammaOS: raised from 4 to 7 so a strong
+    // blur radius is split into more, finer Kawase steps instead of a few wide
+    // ones (which alias into a visible diamond grid on low-res panels).
+    static constexpr uint32_t kMaxPasses = 7;
 
     explicit KawaseBlurFilter();
     virtual ~KawaseBlurFilter(){}

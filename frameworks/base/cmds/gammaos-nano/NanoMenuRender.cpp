@@ -33,6 +33,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <setjmp.h>
+#include <unistd.h>
 #include <vector>
 #include <string>
 
@@ -41,6 +42,9 @@
 #include <utils/Log.h>
 #include <utils/SystemClock.h>
 
+#include <gui/DisplayCaptureArgs.h>
+#include <gui/SyncScreenCaptureListener.h>
+#include <ui/GraphicBuffer.h>
 #include <ui/DisplayMode.h>
 #include <ui/DisplayState.h>
 #include <ui/LayerStack.h>
@@ -242,6 +246,167 @@ static bool loadPngFromMemory(const uint8_t* pngData, int pngSize, GLuint* outTe
     return true;
 }
 
+GLuint NanoMenu::overlayCaptureInProcess(int* outW, int* outH) {
+    const std::vector<PhysicalDisplayId> ids =
+            SurfaceComposerClient::getPhysicalDisplayIds();
+    if (ids.empty()) return 0;
+    DisplayId did = ids.front();
+    // Prefer the configured primary display port (matches the overlay layer).
+    {
+        char prim[PROPERTY_VALUE_MAX] = {};
+        property_get("persist.gammaos.nano.primary_display", prim, "0");
+        int wantPort = atoi(prim);
+        for (const PhysicalDisplayId& pid : ids)
+            if ((int)pid.getPort() == wantPort) { did = pid; break; }
+    }
+
+    gui::CaptureArgs args;
+    sp<SyncScreenCaptureListener> listener = new SyncScreenCaptureListener();
+    if (ScreenshotClient::captureDisplay(did, args, listener) != NO_ERROR)
+        return 0;
+    ScreenCaptureResults res = listener->waitForResults();
+    if (!res.fenceResult.ok() || res.buffer == nullptr) return 0;
+
+    sp<GraphicBuffer> buf = res.buffer;
+    void* base = nullptr;
+    if (buf->lock(GraphicBuffer::USAGE_SW_READ_OFTEN, &base) != NO_ERROR || !base)
+        return 0;
+    const int w = (int)buf->getWidth();
+    const int h = (int)buf->getHeight();
+    const int stride = (int)buf->getStride();
+
+    GLuint tex = 0;
+    glGenTextures(1, &tex);
+    glBindTexture(GL_TEXTURE_2D, tex);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+    if (stride == w) {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
+                     GL_RGBA, GL_UNSIGNED_BYTE, base);
+    } else {
+        // GLES2 has no GL_UNPACK_ROW_LENGTH; repack rows tightly.
+        std::vector<uint8_t> tight((size_t)w * h * 4);
+        const uint8_t* src = (const uint8_t*)base;
+        for (int y = 0; y < h; y++)
+            memcpy(&tight[(size_t)y * w * 4], src + (size_t)y * stride * 4, (size_t)w * 4);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
+                     GL_RGBA, GL_UNSIGNED_BYTE, tight.data());
+    }
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    buf->unlock();
+    if (outW) *outW = w;
+    if (outH) *outH = h;
+    return tex;
+}
+
+void NanoMenu::overlayCaptureBackground() {
+    // Snapshot the current screen (the just-frozen foreground app) so the opaque
+    // overlay can show a static, blurred+tinted backdrop of it (task-switcher
+    // model) at 60fps - rather than per-frame compositing the live app. We use
+    // the screencap binary via SurfaceFlinger (binder works from nano); the
+    // overlay layer is still hidden at this point, so the capture is the app.
+    // Fast path: in-process SurfaceFlinger capture (~50ms, no process spawn).
+    int capW = mWidth, capH = mHeight;
+    GLuint rawTex = overlayCaptureInProcess(&capW, &capH);
+    if (rawTex == 0) {
+        // Fallback: spawn the screencap binary (~1s) + PNG load.
+        const char* path = "/data/local/tmp/nano_overlay_bg.png";
+        unlink(path);
+        int rc = system("screencap -p /data/local/tmp/nano_overlay_bg.png 2>/dev/null");
+        if (!loadPngAsAlphaTexture(path, &rawTex, /*monoWhite=*/false)) {
+            ALOGW("overlay: capture failed (in-process + screencap rc=%d) - bg black", rc);
+            if (mOverlayBgTex) { glDeleteTextures(1, &mOverlayBgTex); mOverlayBgTex = 0; }
+            return;
+        }
+        capW = mWidth; capH = mHeight;
+        ALOGI("overlay: used screencap fallback");
+    } else {
+        ALOGI("overlay: in-process capture %dx%d", capW, capH);
+    }
+
+    // Blur the sharp snapshot ONCE through the dual-Kawase chain, then bake the
+    // upscaled result into an owned full-res texture (mOverlayBgTex). render()
+    // then just draws that texture every frame (no per-frame blur -> 60fps).
+    glBindTexture(GL_TEXTURE_2D, rawTex);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    // Heavy blur - baked once so cost is irrelevant: 4 downsample levels (1/16
+    // res) + 4 separable Gaussian iterations for a strong frosted backdrop.
+    blurGlassChain(rawTex, capW, capH, 4, 4);
+
+    GLint prevFbo = 0;
+    glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prevFbo);
+    GLint prevVp[4] = {0, 0, 0, 0};
+    glGetIntegerv(GL_VIEWPORT, prevVp);
+    if (mOverlayBgTex == 0) glGenTextures(1, &mOverlayBgTex);
+    glBindTexture(GL_TEXTURE_2D, mOverlayBgTex);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, mWidth, mHeight, 0,
+                 GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    GLuint fbo = 0;
+    glGenFramebuffers(1, &fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+                           GL_TEXTURE_2D, mOverlayBgTex, 0);
+    GLenum fbStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+    if (fbStatus != GL_FRAMEBUFFER_COMPLETE) {
+        // GL_RGBA is not guaranteed colour-renderable on every GLES2 GPU. If the
+        // attachment is incomplete, baking would silently no-op (leaving a black
+        // backdrop and a fake-success diagnostic), so bail cleanly: drop the bg
+        // texture (render() then falls back to a flat dark scrim) and restore
+        // state. Better a clean dark backdrop than a black one with a false log.
+        ALOGW("overlay: bake FBO incomplete (0x%x) - dropping bg texture", fbStatus);
+        glBindFramebuffer(GL_FRAMEBUFFER, (GLuint)prevFbo);
+        glViewport(prevVp[0], prevVp[1], prevVp[2], prevVp[3]);
+        glDeleteFramebuffers(1, &fbo);
+        glDeleteTextures(1, &rawTex);
+        if (mOverlayBgTex) { glDeleteTextures(1, &mOverlayBgTex); mOverlayBgTex = 0; }
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        return;
+    }
+    glViewport(0, 0, mWidth, mHeight);
+    glDisable(GL_BLEND);
+    // The bake runs from overlayShow, which fires BEFORE any render() frame of
+    // the (previously hidden) overlay - so uploadRotationMatrices() has not run
+    // yet and mTextProgram's uRotation is still the zero matrix, which collapses
+    // drawIconTex to nothing (the baked texture came out black). Set identity
+    // rotation explicitly here (overlay SF mode has no panel rotation anyway).
+    {
+        static const GLfloat kIdentity2[4] = {1.0f, 0.0f, 0.0f, 1.0f};
+        glUseProgram(mTextProgram);
+        if (mTextLocRotation >= 0)
+            glUniformMatrix2fv(mTextLocRotation, 1, GL_FALSE, kIdentity2);
+    }
+    if (mGlassBlurTex)
+        drawIconTex(mGlassBlurTex, 0.0f, 0.0f, (float)mWidth, (float)mHeight,
+                    1.0f, 1.0f, 1.0f, 1.0f);
+    // Diagnostic: read back the centre of the baked texture so we can tell from
+    // logcat whether the bake produced real (blurred) content or black, since
+    // the opaque overlay layer cannot be seen via screencap.
+    {
+        uint8_t c[4] = {0, 0, 0, 0};
+        glReadPixels(mWidth / 2, mHeight / 2, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, c);
+        ALOGI("overlay: baked centre pixel RGBA=%d,%d,%d,%d (mGlassBlurTex=%u)",
+              c[0], c[1], c[2], c[3], mGlassBlurTex);
+    }
+    glBindFramebuffer(GL_FRAMEBUFFER, (GLuint)prevFbo);
+    glViewport(prevVp[0], prevVp[1], prevVp[2], prevVp[3]);
+    glDeleteFramebuffers(1, &fbo);
+    glDeleteTextures(1, &rawTex);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    ALOGI("overlay: captured + baked blurred background -> tex %u (%dx%d)",
+          mOverlayBgTex, mWidth, mHeight);
+}
+
 void NanoMenu::initIconTextures() {
     memset(mIconTextures, 0, sizeof(mIconTextures));
     int fileLoaded = 0, embeddedLoaded = 0;
@@ -305,6 +470,21 @@ void NanoMenu::drawIcon(int iconIdx, float x, float y, float size,
 // ---------------------------------------------------------------------------
 // Drawing helpers
 // ---------------------------------------------------------------------------
+
+// Enable alpha blending for UI chrome. In the translucent overlay (SF) mode use
+// a SEPARATE alpha term so the framebuffer alpha accumulates straight toward 1
+// for opaque chrome - plain GL_SRC_ALPHA under-accumulates the alpha channel
+// (dst_a = a*a + ...), so SurfaceFlinger composites the live app through "white"
+// text/icons. The home DRM path is unaffected (no SF compositing of alpha).
+void NanoMenu::setUiBlend() {
+    glEnable(GL_BLEND);
+    if (mOverlayMode) {
+        glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA,
+                            GL_ONE,       GL_ONE_MINUS_SRC_ALPHA);
+    } else {
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    }
+}
 
 void NanoMenu::drawQuad(float x, float y, float w, float h,
                          float r, float g, float b, float a) {
@@ -1341,9 +1521,34 @@ void NanoMenu::render() {
         glViewport(0, 0, mWidth, mHeight);
     }
     uploadRotationMatrices();
-    glClearColor(drasticActive ? 0.0f : 0.05f,
-                 drasticActive ? 0.0f : 0.05f,
-                 drasticActive ? 0.0f : 0.10f, 1.0f);
+    // Overlay: show the FULL PS3 WALLPAPER (opaque) ONLY in launcher/no-app state
+    // (mOverlayWallpaper). When there is a LIVE APP behind us (the in-game overlay),
+    // keep the translucent scrim at EVERY level - top AND submenus - so the user
+    // always sees the dimmed running app, never the wallpaper (user request). The
+    // scrim is very dark (persist.gammaos.nano.overlay.dim default 0.99 = 99%).
+    const bool ovWallpaper = mOverlayMode && mOverlayWallpaper;
+    if (mOverlayMode && !ovWallpaper) {
+        // In-game XMB top level: clear to a BLACK scrim baked into the alpha
+        // channel (0,0,0, dim). SurfaceFlinger shows the LIVE app at (1-dim)
+        // through the translucent layer; opaque XMB chrome on top reaches alpha 1.
+        // Baking the scrim into the clear avoids GL_SRC_ALPHA under-accumulating
+        // the framebuffer alpha. Tunable via persist.gammaos.nano.overlay.dim (0.9).
+        static float sOvDim = -1.0f;
+        if (sOvDim < 0.0f) {
+            char d[PROPERTY_VALUE_MAX] = {};
+            property_get("persist.gammaos.nano.overlay.dim", d, "0.99");
+            sOvDim = atof(d);
+            if (sOvDim < 0.0f) sOvDim = 0.0f;
+            if (sOvDim > 1.0f) sOvDim = 1.0f;
+        }
+        glClearColor(0.0f, 0.0f, 0.0f, sOvDim);
+    } else {
+        // Home XMB, overlay wallpaper/submenu mode, or drastic: OPAQUE clear
+        // (alpha 1) so the layer fully covers whatever is behind it.
+        glClearColor(drasticActive ? 0.0f : 0.05f,
+                     drasticActive ? 0.0f : 0.05f,
+                     drasticActive ? 0.0f : 0.10f, 1.0f);
+    }
     glClear(GL_COLOR_BUFFER_BIT);
 
     glEnable(GL_BLEND);
@@ -1360,8 +1565,41 @@ void NanoMenu::render() {
                              sDrasticSaturation, sDrasticGradient);
     } else {
 
-    // Background effect on primary AHB.
-    renderEffect();
+    if (mOverlayMode) {
+        // Render the PS3 wave. In WALLPAPER mode (no app / submenu) composite it
+        // to the SCREEN as the full background (like the home XMB). In scrim mode
+        // (top level over a live app) render it OFFSCREEN only (compositeToScreen
+        // =false) so the glass icons can refract it without painting over the app.
+        // persist.gammaos.nano.overlay.wave=0 skips it (glass goes flat) as a perf
+        // lever; in that case the opaque clear colour is the wallpaper fallback.
+        static int sOvWave = -1;
+        if (sOvWave < 0) sOvWave = property_get_bool("persist.gammaos.nano.overlay.wave", true) ? 1 : 0;
+        if (sOvWave) {
+            ps3::layoutComputeNative(mWidth, mHeight);
+            ps3bg::render(mWidth, mHeight, mFrameDt, sDrmRotMat,
+                          sDrmActive && sDrmGlRotation, /*compositeToScreen=*/ovWallpaper);
+        }
+        // Standard chrome blend (separate-alpha in overlay so opaque white chrome
+        // reaches framebuffer alpha 1 and the live app cannot bleed through it).
+        setUiBlend();
+    } else {
+        // Background effect on primary AHB.
+        renderEffect();
+        // Decouple the glass icons from the wave WALLPAPER. The glass-icon shader
+        // refracts the PS3 wave's offscreen work-texture (ps3bg::workTex), but
+        // renderEffect only produces that texture for the wave effect (22). With
+        // ANY other wallpaper (the default is even effect 21) the work-texture is
+        // never created, and the glass icons - gated on workTex()!=0 - silently
+        // vanish. Keep the wave work-texture updated OFFSCREEN every frame (no draw
+        // to screen) whenever the PS3 chrome is active but the wave is not the
+        // visible wallpaper, so the glass icons always render regardless of the
+        // wallpaper the user picked.
+        if (mPs3Xmb && mCurrentEffect != 22) {
+            ps3::layoutComputeNative(mWidth, mHeight);
+            ps3bg::render(mWidth, mHeight, mFrameDt, sDrmRotMat,
+                          sDrmActive && sDrmGlRotation, /*compositeToScreen=*/false);
+        }
+    }
 
     if (mSetupWizardActive && !mPs3BootActive) {
         // During a PS3 cold boot the wizard is held back so the full intro
@@ -1374,6 +1612,29 @@ void NanoMenu::render() {
         // drives + renders the cold-boot intro when mPs3BootActive.
         renderPs3Xmb();
         renderOsk();
+        // Overlay launch transition: fade the whole XMB to black over ~300ms so the
+        // app's own cold start is covered by a clean fade-out instead of a frozen,
+        // still-navigable menu. The black holds (the input-freeze in pollInput keeps
+        // it inert) until the overlay dismisses onto the resumed app (overlayPoll).
+        if (mOverlayMode && mOverlayLaunchPending) {
+            int64_t el = uptimeMillis() - mOverlayLaunchStartMs;
+            float fa = (el <= 0) ? 0.0f : (float)el / 300.0f;
+            if (fa < 0.0f) fa = 0.0f;
+            if (fa > 1.0f) fa = 1.0f;
+            setUiBlend();
+            drawQuad(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f, 0.0f, 0.0f, fa);
+        }
+        // Home (non-overlay) launch fade-out: fade the XMB to black over ~260ms
+        // after the launching select is released (mLaunchFadeStart), then the nano
+        // hands off to the app (gated in pollInput). The default launch transition.
+        if (!mOverlayMode && mLaunchFadeStart > 0) {
+            int64_t el = (int64_t)uptimeMillis() - mLaunchFadeStart;
+            float fa = (el <= 0) ? 0.0f : (float)el / 260.0f;
+            if (fa < 0.0f) fa = 0.0f;
+            if (fa > 1.0f) fa = 1.0f;
+            setUiBlend();
+            drawQuad(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f, 0.0f, 0.0f, fa);
+        }
     } else if (mXmbMode) {
         renderXmb();
         if (mMenuState == MENU_WIFI) renderWifiScreen();
@@ -1849,7 +2110,24 @@ if (sRingPrimedCount >= 2) {
         // app, which matches the original intent without paying the
         // DRM->HWC transition cost for XMB browsing.
     } else {
+        // Overlay opaque mode: force the framebuffer fully OPAQUE (alpha = 1
+        // everywhere) before presenting. The PS3 text / glow / anti-aliased
+        // edges draw with alpha < 1, which on this HWC lets SurfaceFlinger blend
+        // the live (frozen) app through them ("white text shows the screenshot").
+        // Writing alpha-only via the colour mask guarantees the layer occludes
+        // the app so only our blurred snapshot + solid chrome show.
         eglSwapBuffers(mDisplay, mSurface);
+        // A2: deferred overlay show. overlayShow() does NOT t.show() the layer;
+        // it sets mOverlayPendingShow so the FIRST composited frame is already the
+        // faded-out (reveal~0) entrance frame. Now that that frame is on screen,
+        // reveal the layer - so the XMB animates IN instead of flashing the full
+        // (stale-buffer) chrome for one frame.
+        if (mOverlayMode && mOverlayPendingShow) {
+            SurfaceComposerClient::Transaction t;
+            t.show(mFlingerSurfaceControl);
+            t.apply();
+            mOverlayPendingShow = false;
+        }
         // Restart path (returning from game): readyToRun() saw boot
         // already complete and skipped DRM splash, so the drmStop()
         // branch above never runs. Set up secondary EGL surfaces here
@@ -1859,7 +2137,9 @@ if (sRingPrimedCount >= 2) {
         // so we track the setup state via the vector's emptiness
         // instead — gives exactly-once semantics without relying on
         // a flag that got reset four function-screens above.
-        if (mSecondaryEglSurfaces.empty()) {
+        // Overlay mode never drives secondary-display wallpaper: it is a
+        // single translucent layer over the running app on the primary.
+        if (mSecondaryEglSurfaces.empty() && !mOverlayMode) {
             setupSecondaryEglSurfaces();
         }
     }

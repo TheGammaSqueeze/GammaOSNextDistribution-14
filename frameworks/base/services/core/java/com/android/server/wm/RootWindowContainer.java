@@ -1721,6 +1721,19 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                 Slog.i(TAG, "GammaOS Nano: kill in progress, skipping home launch");
                 return true;
             }
+            // GammaOS Nano: overlay-home. While the resident SF overlay is raised
+            // as the launcher (show_overlay=1 with no app launched), it IS the home
+            // surface. Skip the real home launch so the system launcher never starts
+            // behind the opaque overlay layer and steals focus/resources.
+            if ("1".equals(android.os.SystemProperties.get(
+                    "persist.gammaos.nano.overlay_home", "0"))
+                    && "1".equals(android.os.SystemProperties.get(
+                            "sys.gammaos.nano.show_overlay", "0"))
+                    && !"1".equals(android.os.SystemProperties.get(
+                            "sys.gammaos.nano.app_launched", "0"))) {
+                Slog.i(TAG, "GammaOS Nano: overlay launcher active, skipping home launch");
+                return true;
+            }
             // If NanoMenu is currently active and has not fired its handoff,
             // skip the home launch. Previously this had a "preload" bypass that
             // launched RetroArch behind the menu for perceived speed, but that
@@ -1809,7 +1822,9 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                     android.os.SystemProperties.set("sys.gammaos.nano.launch_app", "");
                     android.os.SystemProperties.set("sys.gammaos.nano.app_launched", "0");
                     android.os.SystemProperties.set("sys.gammaos.nano.drop_input", "0");
-                    android.os.SystemProperties.set("sys.gammaos.nano.restart", "1");
+                    if (!nanoRaiseOverlay()) {
+                        android.os.SystemProperties.set("sys.gammaos.nano.restart", "1");
+                    }
                     return true;
                 }
             }
@@ -2004,8 +2019,10 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                                             "sys.gammaos.nano.app_launched", "0");
                                     android.os.SystemProperties.set(
                                             "sys.gammaos.nano.drop_input", "0");
-                                    android.os.SystemProperties.set(
-                                            "sys.gammaos.nano.restart", "1");
+                                    if (!nanoRaiseOverlay()) {
+                                        android.os.SystemProperties.set(
+                                                "sys.gammaos.nano.restart", "1");
+                                    }
                                 }
                             }
                         }, 5000);
@@ -2084,13 +2101,17 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                 } catch (Exception e) {
                     Slog.e(TAG, "GammaOS Nano: cleanup failed", e);
                 }
-                // Show a full-screen black overlay so when bootanim exits later,
-                // the display shows black instead of stale app surfaces.
-                showNanoBlankOverlay();
                 android.os.SystemProperties.set("sys.gammaos.nano.app_launched", "0");
                 // Clear drop_input so the nano menu can receive input on restart
                 android.os.SystemProperties.set("sys.gammaos.nano.drop_input", "0");
-                android.os.SystemProperties.set("sys.gammaos.nano.restart", "1");
+                // Overlay-home: raise the resident SF overlay as the launcher
+                // (seamless). Otherwise show a full-screen black overlay so when
+                // bootanim exits later the display shows black instead of stale
+                // app surfaces, and restart the DRM home nano.
+                if (!nanoRaiseOverlay()) {
+                    showNanoBlankOverlay();
+                    android.os.SystemProperties.set("sys.gammaos.nano.restart", "1");
+                }
                 return true;
             }
             // GammaOS: read launch_app WITHOUT a default. SystemProperties.get
@@ -2105,6 +2126,29 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
             if (nanoAppRaw.isEmpty()) {
                 Slog.i(TAG, "GammaOS Nano: launch_app empty after exit, "
                         + "falling through to standard home selection");
+                return false;
+            }
+            // GammaOS Nano: auto-launch ONLY for an EXPLICIT launch request.
+            // service.bootanim.nano_retroarch=1 is set by every real launch the
+            // user triggers (game/app/recent pick, and the Quick Resume boot
+            // path) but NEVER by NanoMenu.buildMenu, which sets launch_app to a
+            // default RetroArch every time the menu builds. Without this gate, a
+            // cold boot - or a stray startHome re-eval triggered by the resident
+            // overlay creating its SurfaceFlinger layer at boot_completed - would
+            // auto-launch RetroArch off that bare default even though the user
+            // never picked anything. qr_prepared / a fresh rom / a fresh intent
+            // are kept as additional positive signals so no real launch is missed.
+            final boolean nanoLaunchRequested = "1".equals(android.os.SystemProperties.get(
+                    "service.bootanim.nano_retroarch", "0"));
+            final boolean nanoQrPrepared = "1".equals(android.os.SystemProperties.get(
+                    "persist.gammaos.nano.qr_prepared", "0"));
+            final boolean nanoHaveRom = !getNanoLaunchRom().isEmpty();
+            final boolean nanoHaveIntent = !android.os.SystemProperties.get(
+                    "sys.gammaos.nano.launch_intent", "").isEmpty();
+            if (!nanoLaunchRequested && !nanoQrPrepared && !nanoHaveRom && !nanoHaveIntent) {
+                Slog.i(TAG, "GammaOS Nano: launch_app=" + nanoAppRaw + " but no "
+                        + "explicit launch (nano_retroarch=0, qr_prepared=0, no "
+                        + "rom/intent) -> nano menu, not auto-launching");
                 return false;
             }
             final String nanoApp = nanoAppRaw;
@@ -2343,7 +2387,6 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                         } catch (Exception e) {
                             Slog.w(TAG, "GammaOS Nano: crash cleanup failed", e);
                         }
-                        showNanoBlankOverlay();
                         android.os.SystemProperties.set(
                                 "sys.gammaos.nano.app_launched", "0");
                         android.os.SystemProperties.set(
@@ -2351,8 +2394,13 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                         clearNanoLaunchRom();
                         android.os.SystemProperties.set(
                                 "sys.gammaos.nano.launch_core", "");
-                        android.os.SystemProperties.set(
-                                "sys.gammaos.nano.restart", "1");
+                        // Overlay-home: raise the resident overlay launcher rather
+                        // than restarting the DRM home nano on a crash loop.
+                        if (!nanoRaiseOverlay()) {
+                            showNanoBlankOverlay();
+                            android.os.SystemProperties.set(
+                                    "sys.gammaos.nano.restart", "1");
+                        }
                         return true;
                     }
 
@@ -2465,6 +2513,31 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                 aInfo.applicationInfo.uid) + ":" + taskDisplayArea.getDisplayId();
         mService.getActivityStartController().startHomeActivity(homeIntent, aInfo, myReason,
                 taskDisplayArea);
+        return true;
+    }
+
+    /**
+     * GammaOS Nano: overlay-home mode. When persist.gammaos.nano.overlay_home is
+     * set, the resident SurfaceFlinger overlay (gammaos-nano --overlay) is the
+     * persistent launcher: instead of restarting the DRM home nano when an app
+     * exits (which would fight SF for the display and flash black through a mode
+     * switch), raise the already-alive overlay as the full-wallpaper XMB. Seamless
+     * - no DRM handoff, no reload.
+     *
+     * Returns true if it handled the raise; the caller must then SKIP
+     * showNanoBlankOverlay() (its MAX-Z black layer would occlude the overlay) and
+     * SKIP setting sys.gammaos.nano.restart (we do not want the DRM home back).
+     */
+    private boolean nanoRaiseOverlay() {
+        if (!"1".equals(android.os.SystemProperties.get(
+                "persist.gammaos.nano.overlay_home", "0"))) {
+            return false;
+        }
+        Slog.i(TAG, "GammaOS Nano: overlay-home, raising resident overlay as launcher");
+        // Hint the overlay to render the opaque full-wallpaper XMB (not the
+        // scrim-over-app in-game view); the overlay consumes this hint on show.
+        android.os.SystemProperties.set("sys.gammaos.nano.overlay_wallpaper", "1");
+        android.os.SystemProperties.set("sys.gammaos.nano.show_overlay", "1");
         return true;
     }
 

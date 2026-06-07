@@ -820,7 +820,40 @@ static void startDrasticLibPreloadThread() {
     }).detach();
 }
 
-int main() {
+int main(int argc, char** argv) {
+    // Overlay XMB mode: invoked as `gammaos-nano --overlay` by the
+    // gammaos-nano-overlay init service. This instance runs in the
+    // full-Android context (SurfaceFlinger + WindowManager up) as a
+    // translucent, background-blurred layer over the running app and is
+    // toggled by the power-button hold. It must NOT grab DRM master, must
+    // NOT run any drastic boot init, and must NOT touch menu_active /
+    // kill_pkg (that would tear down the running app). See NanoMenuOverlay.cpp.
+    bool overlayMode = false;
+    for (int i = 1; i < argc; i++) {
+        if (argv[i] && strcmp(argv[i], "--overlay") == 0) overlayMode = true;
+    }
+    if (overlayMode) {
+        // The overlay is the in-game power-hold XMB. It is summoned only while
+        // an app is running (i.e. the home nano has already exited and
+        // SurfaceFlinger + the app own the display), so it never fights the
+        // home DRM-direct path. It runs in Nano mode and coexists with SF; the
+        // SF surface setup in readyToRun waits for SurfaceFlinger to be up.
+        ALOGI("GammaOS Nano: starting in OVERLAY mode (SF window, no DRM master)");
+        setpriority(PRIO_PROCESS, 0, ANDROID_PRIORITY_DISPLAY);
+        property_set("sys.gammaos.nano.drm_active", "0");
+
+        sp<ProcessState> proc(ProcessState::self());
+        ProcessState::self()->startThreadPool();
+
+        sp<NanoMenu> nano = new NanoMenu();
+        nano->setOverlayMode(true);
+        nano->run("GammaOSNanoOverlay", PRIORITY_DISPLAY);
+
+        ALOGI("GammaOS Nano overlay running. Joining thread pool.");
+        IPCThreadState::self()->joinThreadPool();
+        return 0;
+    }
+
     // Grab DRM master early on non-Qualcomm SoCs to beat HWC.
     // On Qualcomm SDE (ro.board.platform=bengal etc), SET_MASTER
     // disrupts the backlight controller even without modeset, so we

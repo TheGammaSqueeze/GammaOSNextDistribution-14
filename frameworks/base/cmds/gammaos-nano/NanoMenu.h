@@ -92,6 +92,12 @@ public:
 
     sp<SurfaceComposerClient> session() const;
 
+    // Overlay XMB: run as the power-hold in-game overlay (a translucent,
+    // background-blurred SurfaceFlinger layer over the running app) instead of
+    // the normal full-screen home. Set from main() before run() when invoked
+    // with --overlay. See NanoMenuOverlay.cpp.
+    void setOverlayMode(bool on) { mOverlayMode = on; }
+
     struct MenuItem {
         std::string label;
     };
@@ -469,6 +475,93 @@ private:
     // transitioning from DRM boot path to app launch.
     void initSurfaceFlingerPath();
 
+    // ---- Overlay XMB (NanoMenuOverlay.cpp) ----------------------------------
+    // The power-hold in-game overlay: the same PS3 XMB renderer presented on a
+    // translucent, SF-background-blurred layer over the running app (the app
+    // keeps running, SurfaceFlinger composites the blur). Gated by
+    // persist.gammaos.nano.overlay; the layer is created hidden and toggled by
+    // sys.gammaos.nano.show_overlay (set by PhoneWindowManager on power-hold).
+    bool mOverlayMode = false;        // this process is the overlay instance
+    bool mOverlayShown = false;       // overlay layer is currently visible + grabbing input
+    bool mOverlayInited = false;      // one-time blur/hide transaction applied
+    int  mOverlayInitTries = 0;       // init retries while SF surface control is still null
+    int  mOverlayBlurPx = 0;          // background blur radius (px), 0 if unsupported
+    bool mOverlayOpaque = false;      // persist.gammaos.nano.overlay.opaque: opaque layer
+                                      // (HWC direct scanout -> 60fps) vs translucent+SF blur
+    bool mOverlayWallpaper = false;   // overlay is showing the FULL PS3 wallpaper (no app behind,
+                                      // or a submenu is open) vs the scrim-over-live-app top level
+    bool mOverlayPendingShow = false; // defer the SF t.show() to after the first faded-out frame is
+                                      // composited, so the entrance animates in (no stale-buffer flash)
+    // Enable blend for UI chrome. In overlay (translucent SF) mode use a SEPARATE
+    // alpha term (GL_ONE, GL_ONE_MINUS_SRC_ALPHA) so the framebuffer alpha
+    // accumulates toward 1 for opaque chrome - otherwise GL_SRC_ALPHA
+    // UNDER-accumulates alpha and SurfaceFlinger bleeds the live app through
+    // "white" text/icons. The home DRM path keeps the plain straight blend.
+    void setUiBlend();
+    void overlayInitLayer();          // create the translucent layer + initial hide (once)
+    void overlayPoll();               // watch show_overlay; drive show/hide each frame
+    void overlayShow();               // raise layer + drop_input=1 + reset to XMB top
+    void overlayHide();               // hide layer + drop_input=0
+    // Resolve the current foreground (resumed) package via ActivityManager, with
+    // the same "real 3rd-party app" validation overlayPauseApp applies. Empty if
+    // none. Populated on every overlayShow() so quit/launch always have a target
+    // regardless of whether the pause feature is enabled.
+    std::string overlayResolveForegroundPkg();
+    // Freeze/thaw the foreground app while the overlay is up (SIGSTOP/SIGCONT of
+    // its process group), so gameplay + audio pause and its GPU/CPU is freed -
+    // the real PS3 in-game XMB pauses the title. Gated by
+    // persist.gammaos.nano.overlay.pause (default on); the frozen window keeps
+    // its last frame for SurfaceFlinger to blur.
+    void overlayPauseApp(bool pause);
+    std::string mOverlayPausedPkg;    // package frozen on show, thawed on hide
+    // Overlay XMB actions (NanoMenuOverlay.cpp), invoked from the PS3 input
+    // handlers when mOverlayMode. Resume = dismiss + thaw the running app; quit =
+    // force-stop it and fall back to the home XMB; launch = force-stop the
+    // current app and start a new package (the running one is replaced).
+    void overlayResume();
+    void overlayQuitToHome();
+    bool overlayLaunchPackage(const std::string& pkg);
+    // Shared overlay launch primitive: cleanly exit whatever is running (ESC +
+    // save-state wait for RetroArch/DraStic, force-stop for other apps), then run
+    // the prebuilt `am start ...` command for the new target. Tracks launch_app +
+    // app_launched=1 so the framework (RootWindowContainer / PhoneWindowManager)
+    // detects the new app's exit and raises the overlay launcher again. Runs the
+    // exit+launch on a detached thread so the overlay keeps animating; overlayPoll
+    // dismisses onto the new app once it resumes.
+    void overlayLaunchCommand(const std::string& pkg, const std::string& amCmd);
+    // Launch the currently selected XMB game/ROM from the overlay (resolves the
+    // emulator package for the selected system/recent entry, then reuses
+    // overlayLaunchPackage). Routed from ps3XmbSelect's PS3_ROM/PS3_RECENT cases
+    // when mOverlayMode (the home-mode launchXmbGame() must not run in the overlay).
+    void overlayLaunchGame();
+    // True while mOverlayMode and at the XMB top level with no dialog/submenu, so
+    // Back resumes the game rather than doing nothing.
+    bool overlayAtTopLevel() const;
+    // Capture the current screen (the just-frozen app) with screencap and load
+    // it into mOverlayBgTex, used as the static, blurred+tinted opaque overlay
+    // background (the task-switcher snapshot model). Implemented in
+    // NanoMenuRender.cpp (next to the PNG loader).
+    void overlayCaptureBackground();
+    // Fast in-process display capture via SurfaceComposerClient (no screencap
+    // spawn). Returns a new GL texture of the current screen (or 0 on failure,
+    // caller falls back to the screencap binary). Outputs the captured size.
+    GLuint overlayCaptureInProcess(int* outW, int* outH);
+    GLuint mOverlayBgTex = 0;         // captured app snapshot (colour), 0 = none
+    int64_t mOverlayShowMs = 0;       // uptimeMillis() when the overlay was raised;
+                                      // power events within a grace window after
+                                      // this are ignored so the summoning hold's
+                                      // own release does not instantly dismiss it
+    // Deferred dismiss after launching another app from the overlay: keep the
+    // overlay layer up (occluding the dying old app / blank) until the new app is
+    // resumed, so the user never sees the old frame or black between the two.
+    bool mOverlayLaunchPending = false;
+    std::string mOverlayLaunchTarget;
+    int64_t mOverlayLaunchStartMs = 0;
+    int64_t mOverlayLaunchLastCheckMs = 0;
+    float mOverlayEnterStart = -1.0f; // mEffectTime when the overlay was raised;
+                                      // drives the cold-boot-style fade/float-in
+                                      // of the XMB chrome (<0 = settled)
+
     // Menu
     void buildMenu();
     void rebuildDisplayItems();
@@ -542,11 +635,22 @@ private:
     // Input device fds
     std::vector<int> mInputFds;
     std::set<std::string> mOpenedDevices;
+    // fds in mInputFds that are the POWER key node (axp2202-pek / KEY_POWER). The
+    // overlay must NEVER EVIOCGRAB these: grabbing the power node blocks Android
+    // EventHub from seeing the summon's power UP, which strands PhoneWindowManager's
+    // single-key power gesture (mDownKeyCode stuck) so power only toggles every
+    // OTHER press. Power is left ungrabbed so PWM owns the show/hide toggle.
+    std::set<int> mPowerFds;
     int mInotifyFd;
 
     // Exit flag
     bool mExitRequested;
     bool mWaitForRelease; // wait for select key release before exiting
+    // Home (non-overlay) launch transition: stamped (uptimeMillis) when the select
+    // that triggered a launch is RELEASED; render() fades the XMB to black over
+    // kLaunchFadeMs and the exit (hand-off to the app) is held until the fade
+    // completes, so launching a game/app fades out instead of hard-cutting. 0 = idle.
+    int64_t mLaunchFadeStart = 0;
     bool mDrasticNanoPending; // drastic nano: waiting for cache, then restart
     bool mDrmBootPath; // headless EGL + DRM direct (SF deferred until app launch)
 

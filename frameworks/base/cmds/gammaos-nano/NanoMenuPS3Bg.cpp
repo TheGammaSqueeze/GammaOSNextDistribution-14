@@ -739,7 +739,8 @@ static void animateWave(float dt) {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void render(int panelW, int panelH, float dt, const float rotMat2[4], bool /*rotActive*/) {
+void render(int panelW, int panelH, float dt, const float rotMat2[4], bool /*rotActive*/,
+            bool compositeToScreen) {
     if (!sReady && !init()) return;
 
     const int fw = (int)(ps3::gFrameW + 0.5f);
@@ -868,11 +869,28 @@ void render(int panelW, int panelH, float dt, const float rotMat2[4], bool /*rot
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     }
 
+    // Restore the caller's draw target + viewport (always, so subsequent menu
+    // draws land on the panel even when we skip the composite below).
+    glBindFramebuffer(GL_FRAMEBUFFER, (GLuint)prevFbo);
+    glViewport(prevVp[0], prevVp[1], prevVp[2], prevVp[3]);
+
+    // Overlay path: the work texture is now up to date for glass-icon refraction,
+    // but we must NOT paint the wave over the panel (the visible background is the
+    // SurfaceFlinger-blurred app). Skip the composite + the panel glitter field.
+    if (!compositeToScreen) {
+        glDisableVertexAttribArray(sCompPos);
+        if (sWClip >= 0)   glDisableVertexAttribArray(sWClip);
+        if (sWNormal >= 0) glDisableVertexAttribArray(sWNormal);
+        if (sWUV >= 0)     glDisableVertexAttribArray(sWUV);
+        glActiveTexture(GL_TEXTURE0);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        return;
+    }
+
     // Composite the work buffer to the panel with the exp2 tonemap. The quad
     // covers ps3::gFrame* (letterbox bars stay whatever the caller cleared) and
     // uRotation maps to the physical panel under DRM GL rotation.
-    glBindFramebuffer(GL_FRAMEBUFFER, (GLuint)prevFbo);
-    glViewport(prevVp[0], prevVp[1], prevVp[2], prevVp[3]);
     glDisable(GL_BLEND);
     glUseProgram(sCompProg);
     float fx0 = ps3::gFrameX, fy0 = ps3::gFrameY;
