@@ -138,6 +138,13 @@ void NanoMenu::overlayInitLayer() {
         initPs3Menu();
         ps3::layoutComputeNative(mWidth, mHeight);
         ps3bg::init();
+        // In-game overlay perf: FREEZE the offscreen-only wave (the glass-icon
+        // refraction source; the dark scrim hides the wave itself). It is rendered
+        // ONCE and reused every frame - the animation is imperceptible in the small
+        // glass icons on the 90% scrim, so it is visually identical while removing
+        // the entire per-frame wave cost. Overlay process only; the home XMB and any
+        // visible (composited) wave always render live.
+        ps3bg::setScrimWaveFreeze(true);
         ALOGI("overlay: warm-up complete (menu built, glass + wave shaders ready)");
     }
 }
@@ -313,6 +320,11 @@ void NanoMenu::overlayShow() {
         return;
     }
 
+    // The offscreen wave is frozen (rendered once, reused for glass-icon
+    // refraction). Force one fresh re-render on each show so the glass picks up the
+    // current day/night + theme even though the wave never runs per-frame.
+    ps3bg::invalidateScrimWave();
+
     // Resolve the foreground package so quit/launch know what to act on. The
     // dumpsys resolve intermittently returns empty for a live game from the
     // overlay's process context; fall back to the tracked launch_app so
@@ -348,6 +360,26 @@ void NanoMenu::overlayShow() {
         property_set("sys.gammaos.nano.overlay_wallpaper", "0");   // consume any hint
         ALOGI("overlay: show wallpaper=%d (app_launched=%d wp=%s paused=%s)",
               mOverlayWallpaper ? 1 : 0, appBehind ? 1 : 0, wp, mOverlayPausedPkg.c_str());
+    }
+
+    // Layer opacity. In WALLPAPER mode (no app behind us) the overlay fully covers
+    // the screen with an opaque wave, so mark the SF layer OPAQUE (eLayerOpaque):
+    // SurfaceFlinger can then scan it out on a hardware plane like the DRM home
+    // (~60fps) instead of GPU-compositing a translucent full-screen layer every
+    // frame (the ~30-44fps floor). In SCRIM mode the layer MUST stay translucent so
+    // the live app shows through the 90% scrim. Re-evaluated on every show; prop-
+    // gated (default on) so it can be A/B'd live via hide+show. The home XMB is a
+    // separate DRM-direct process and is unaffected.
+    {
+        bool opaque = mOverlayWallpaper &&
+            property_get_bool("persist.gammaos.nano.overlay.opaque_wallpaper", true);
+        SurfaceComposerClient::Transaction()
+            .setFlags(mFlingerSurfaceControl,
+                      opaque ? layer_state_t::eLayerOpaque : 0u,
+                      layer_state_t::eLayerOpaque)
+            .apply();
+        ALOGI("overlay: layer opaque=%d (wallpaper=%d)",
+              opaque ? 1 : 0, mOverlayWallpaper ? 1 : 0);
     }
 
     // Re-apply the user's saved Theme Settings (wave colour, day/night, particles)

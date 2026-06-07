@@ -172,6 +172,19 @@ static double sSeqElapsed = 0.0;             // seconds of wave playback accumul
 // scene/gradient FBOs
 static GLuint sGradFbo = 0, sGradTex = 0;
 static GLuint sWorkFbo = 0, sWorkTex = 0;
+// In-game overlay: FREEZE the offscreen wave (the glass-icon refraction source,
+// never composited to the panel). It is rendered ONCE into the work-texture and
+// reused every frame - the wave's animation is imperceptible in the small glass
+// icons on the 90% scrim, so this is visually identical while removing the entire
+// per-frame wave cost (CPU animate + vertex + gradient blit + fragment). Only the
+// overlay process enables it (setScrimWaveFreeze); the home XMB and any composited
+// (visible) wave always render live. sScrimEpoch bumps on every change to the
+// wave's STATIC inputs (theme, day/night, gradient, resize, a fresh overlay show);
+// render() re-renders the frozen wave once whenever the epoch advances or a
+// theme/day-night cross-fade is still settling.
+static bool sScrimFreeze = false;
+static int  sScrimEpoch = 1;       // bumped on any static-input change
+static int  sScrimLastEpoch = 0;   // epoch of the last rendered offscreen wave
 static int    sFbW = 0, sFbH = 0;
 static bool   sGradDirty = true;
 static int    sGradMonth = -1;
@@ -637,6 +650,8 @@ bool init() {
 bool ready() { return sReady; }
 
 GLuint workTex() { return sWorkTex; }
+void setScrimWaveFreeze(bool on) { sScrimFreeze = on; sScrimEpoch++; }
+void invalidateScrimWave() { sScrimEpoch++; }
 
 // Cold-boot wave brightness on uFade (1.0 = steady; the intro ramps 0->1).
 static float sBootWaveBrightness = 1.0f;
@@ -648,14 +663,15 @@ void setBootWaveBrightness(float b) { sBootWaveBrightness = b; }
 // hue (strength target -> 0); setDayNightBlend forces the lighting (<0 = auto).
 void setThemeColor(float r, float g, float b) {
     sThemeTgtR = r; sThemeTgtG = g; sThemeTgtB = b; sThemeStrTgt = 1.0f;
+    sScrimEpoch++;
 }
-void clearThemeColor() { sThemeStrTgt = 0.0f; }
-void setDayNightBlend(float b) { sDayNightTgt = b; }
+void clearThemeColor() { sThemeStrTgt = 0.0f; sScrimEpoch++; }
+void setDayNightBlend(float b) { sDayNightTgt = b; sScrimEpoch++; }
 void setParticlesEnabled(bool e) { sParticlesEnabled = e; }
 float backgroundLuma() { return sBgLumaEst; }
 bool themeFading() { return sThemeFadingNow; }
 
-void invalidateGradient() { sGradDirty = true; }
+void invalidateGradient() { sGradDirty = true; sScrimEpoch++; }
 
 void shutdown() {
     if (sBgProg) glDeleteProgram(sBgProg);
@@ -670,6 +686,7 @@ void shutdown() {
     glDeleteBuffers(4, bufs);
     sBgProg = sWaveProg = sBlitProg = sCompProg = 0;
     sGradFbo = sWorkFbo = sGradTex = sWorkTex = 0;
+    sScrimFreeze = false; sScrimEpoch = 1; sScrimLastEpoch = 0;
     sWaveClipVBO = sWaveAttrVBO = sWaveIBO = sQuadVBO = 0;
     sSeqFrames.clear(); sWaveScratch.clear();
     sReady = false; sTriedInit = false; sWaveGeoReady = false; sSeqReady = false;
@@ -759,6 +776,7 @@ void render(int panelW, int panelH, float dt, const float rotMat2[4], bool /*rot
         ensureFbo(&sWorkFbo, &sWorkTex, fw, fh);
         sFbW = fw; sFbH = fh;
         sGradDirty = true;
+        sScrimEpoch++;   // a resize invalidates the frozen offscreen wave
     }
 
     // Time-of-day + month.
@@ -799,6 +817,25 @@ void render(int panelW, int panelH, float dt, const float rotMat2[4], bool /*rot
     }
     float nightDayBlend = sDayNightCur;
 
+    // In-game overlay: the offscreen wave is FROZEN. Reuse the cached work-texture
+    // and skip the entire per-frame wave build (gradient cache + animate + the
+    // work-buffer render), unless a static input changed (sScrimEpoch advanced:
+    // theme / day-night / gradient / resize / a fresh show) or a theme/day-night
+    // cross-fade is still settling. On a steady frame prevFbo is still bound here
+    // (the resize + gradient passes only rebind when they actually run); restore it
+    // defensively so the caller's draw target is correct after the early return.
+    // A calendar month rollover changes the per-month base colour, but the freeze
+    // path returns before the gradient-cache month check below; detect it here so a
+    // frozen overlay held open across local midnight still picks up the new hue.
+    if (sScrimFreeze && lt.tm_mon != sGradMonth) sScrimEpoch++;
+    if (!compositeToScreen && sScrimFreeze && sScrimEpoch == sScrimLastEpoch
+        && !sThemeFadingNow && sWorkTex != 0) {
+        glBindFramebuffer(GL_FRAMEBUFFER, (GLuint)prevFbo);
+        glViewport(prevVp[0], prevVp[1], prevVp[2], prevVp[3]);
+        return;
+    }
+    sScrimLastEpoch = sScrimEpoch;   // we are (re)building the wave this frame
+
     // Re-render the cached gradient when the month, the (animated) day/night blend
     // or the (animated) theme colour/strength moved meaningfully. While a colour
     // or day/night cross-fade is in flight these change every frame so the cache
@@ -818,7 +855,7 @@ void render(int panelW, int panelH, float dt, const float rotMat2[4], bool /*rot
         sGradLastR = sThemeCurR; sGradLastG = sThemeCurG; sGradLastB = sThemeCurB;
     }
 
-    // Build the work buffer: gradient blit, then additive wave on top.
+    // Build the work buffer at full resolution: gradient blit, then additive wave.
     animateWave(dt);
     ps3part::update(dt);
     glBindFramebuffer(GL_FRAMEBUFFER, sWorkFbo);

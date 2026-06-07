@@ -71,6 +71,17 @@ void invalidateGradient();
 // texcoord (0,0) = frame bottom-left, (1,1) = frame top-right (GL y-up).
 GLuint workTex();
 
+// In-game overlay only: FREEZE the offscreen-only wave (the glass-icon refraction
+// source, never composited). setScrimWaveFreeze(true) makes render() build the
+// work-texture ONCE and reuse it every frame - the wave's animation is imperceptible
+// in the small glass icons on the dark scrim, so it is visually identical while
+// removing the entire per-frame wave cost. invalidateScrimWave() forces a single
+// fresh re-render (call on a fresh overlay show; theme / day-night / resize all
+// self-invalidate). The home XMB never enables this; any composited (visible) wave
+// always renders live.
+void setScrimWaveFreeze(bool on);
+void invalidateScrimWave();
+
 // Cold-boot wave brightness multiplier on the silk-wave fade (uFade). 1.0 = the
 // normal steady wave; the boot intro ramps this 0->1 so the wave emerges from
 // black, then resets it to 1.0 when the intro ends. Default 1.0 = steady path

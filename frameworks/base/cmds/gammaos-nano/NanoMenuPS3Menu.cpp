@@ -680,7 +680,11 @@ void NanoMenu::renderPs3Xmb() {
     // The side-panel chooser (mPs3DlgKind==1, Theme Settings) is partial and
     // deliberately keeps the XMB visible for its live colour preview, so it is NOT
     // caught here (it falls through to draw the chrome plus the side panel).
-    if (mOverlayMode && !mOverlayWallpaper) {
+    if (mOverlayMode) {
+        // Overlay (scrim AND wallpaper): a fullscreen dialog / the net wizard takes
+        // over the whole screen with NO XMB chrome - shown over the dimmed live app
+        // (scrim) or the user's selected wallpaper (launcher). Side-panel choosers
+        // (kind 1) are NOT fullscreen, so they keep the XMB behind them.
         if (mPs3WizActive)                     { renderNetWizard(); return; }
         if (mPs3DlgActive && mPs3DlgKind != 1) { renderPs3Dialog(); return; }
     }
@@ -779,12 +783,17 @@ void NanoMenu::renderPs3Xmb() {
         // so the colour change tracks smoothly; ~15Hz otherwise.
         float blurCad = (ps3bg::themeFading() || mPs3DlgKind == 1) ? 0.0f : 0.0667f;
         bool due = !mPs3GlassValid || (mEffectTime - mPs3GlassBlurT) >= blurCad;
-        if (due && captureGlassFromWave()) { mPs3GlassValid = true; mPs3GlassBlurT = mEffectTime; }
-        // In the in-game overlay (scrim mode: mOverlayMode && !mOverlayWallpaper)
-        // the submenu must keep the dark scrim so the LIVE app shows through, NOT a
-        // blurred wave backdrop. Skip the frosted glass there (keep the capture above
-        // so the glass stays valid for the launcher/home where the wave IS shown).
-        if (mPs3GlassValid && (!mOverlayMode || mOverlayWallpaper))
+        // The frosted backdrop is the blurred WAVE (captureGlassFromWave reads
+        // ps3bg::workTex), so it only matches when the wave is the visible background.
+        // Draw it when: home XMB (!mOverlayMode, always); overlay WALLPAPER/launcher
+        // ONLY if the user's wallpaper IS the wave (mCurrentEffect==22). NEVER in
+        // overlay scrim mode (the dark scrim + live app must show through), and NEVER
+        // over a non-wave wallpaper (the blurred wave would not match it - let
+        // renderEffect's wallpaper show instead). The submenu glass ICONS refract
+        // ps3bg::workTex() separately (unaffected); no OSK reuses the submenu blur.
+        const bool frostBg = !mOverlayMode || (mOverlayWallpaper && mCurrentEffect == 22);
+        if (due && frostBg && captureGlassFromWave()) { mPs3GlassValid = true; mPs3GlassBlurT = mEffectTime; }
+        if (mPs3GlassValid && frostBg)
             // Neutral tint (1,1,1): pure blur, NO darkening or hue/shade change -
             // the backdrop is the blurred wave at its own brightness.
             drawFrostedGlass(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f,
@@ -1977,10 +1986,15 @@ void NanoMenu::renderPs3Dialog() {
         // dialog open animation stays smooth at 60fps. waveSpace = logical blur.
         float blurCad = (ps3bg::themeFading() || mPs3DlgKind == 1) ? 0.0f : 0.0667f;   // 60Hz during live preview
         bool due = !mPs3DlgBlurValid || (mEffectTime - mPs3DlgBlurT) >= blurCad;
-        if (due && captureGlassFromWave()) { mPs3DlgBlurValid = true; mPs3DlgBlurT = mEffectTime; }
-        // In the in-game overlay (scrim mode) keep the dark scrim + live app behind
-        // the dialog instead of the blurred wave - skip the frosted backdrop.
-        if (mPs3DlgBlurValid && (!mOverlayMode || mOverlayWallpaper))
+        // The dialog frosted-WAVE backdrop only matches when the wave is the visible
+        // background: home XMB always; overlay WALLPAPER/launcher only if the wallpaper
+        // IS the wave (mCurrentEffect==22). Never in overlay scrim (the dimmed live app
+        // must show) and never over a non-wave wallpaper (renderEffect's wallpaper, drawn
+        // behind us, must show instead). (System Update has no OSK; the wizard
+        // re-captures mPs3DlgBlurValid itself, so the wizard's OSK is unaffected.)
+        const bool frostBg = !mOverlayMode || (mOverlayWallpaper && mCurrentEffect == 22);
+        if (due && frostBg && captureGlassFromWave()) { mPs3DlgBlurValid = true; mPs3DlgBlurT = mEffectTime; }
+        if (mPs3DlgBlurValid && frostBg)
             drawFrostedGlass(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, ap, /*waveSpace=*/true);  // pure blur, no darkening
     }
 
@@ -3050,9 +3064,13 @@ void NanoMenu::renderNetWizard() {
         float blurCad = 0.0667f;
         bool due = !mPs3DlgBlurValid || oskUp || (mEffectTime - mPs3DlgBlurT) >= blurCad;
         if (due && captureGlassFromWave()) { mPs3DlgBlurValid = true; mPs3DlgBlurT = mEffectTime; }
-        // In the in-game overlay (scrim mode) keep the dark scrim + live app behind
-        // the wizard instead of the blurred wave - skip the frosted backdrop.
-        if (mPs3DlgBlurValid && (!mOverlayMode || mOverlayWallpaper))
+        // The frosted-WAVE backdrop only matches the wave: home XMB always; overlay
+        // WALLPAPER/launcher only when the wallpaper IS the wave (mCurrentEffect==22).
+        // Never in overlay scrim (the dimmed live app shows) or over a non-wave wallpaper
+        // (renderEffect's wallpaper shows). KEEP the per-frame capture above (the OSK
+        // reuses mPs3DlgBlurValid + it must stay valid) and the dim below for readability.
+        const bool frostBg = !mOverlayMode || (mOverlayWallpaper && mCurrentEffect == 22);
+        if (mPs3DlgBlurValid && frostBg)
             drawFrostedGlass(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, ap, true);
     }
     // In the in-game overlay (scrim mode) skip the extra wizard dim - the 90% scrim
