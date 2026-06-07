@@ -967,9 +967,11 @@ void NanoMenu::pollInput() {
                         if (mPs3WizActive) { wizRescan(); break; }   // X: re-scan on the AP list
                         if (mMenuState == MENU_WIFI) { handleWifiScreenX(); break; }
                         if (mMenuState == MENU_BT)   { handleBtScreenX();   break; }
-                        // Overlay XMB: Square at the top level QUITS the running game
-                        // and returns to the home XMB (force-stop + dismiss).
-                        if (overlayAtTopLevel()) { overlayQuitToHome(); break; }
+                        // X (Square) cycles the wallpaper in EVERY state, exactly like
+                        // the home XMB - including the in-game overlay. It never quits
+                        // the running game (quitting is the back-long-press clean exit);
+                        // quitting on X stranded the user with the app gone and no way
+                        // back. Falls through to the wallpaper cycle below.
                         // X: cycle wallpaper/FX
                         sActiveEffectIdx = (sActiveEffectIdx + 1) % kNumActiveEffects;
                         mCurrentEffect = kActiveEffects[sActiveEffectIdx];

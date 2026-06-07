@@ -3075,6 +3075,38 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         mWakeGestureListener = new MyWakeGestureListener(mContext, mHandler);
         mSettingsObserver = new SettingsObserver(mHandler);
 
+        // GammaOS Nano: let the resident overlay trigger the SAME clean RetroArch /
+        // DraStic exit the back-long-press uses (line ~1904: triggerVirtualKeypress
+        // ESCAPE). A shell-injected key carries FLAG_VIRTUAL_HARD_KEY and is routed
+        // as an Android hard key, not the keyboard ESC RetroArch's exit hotkey wants,
+        // so the overlay cannot inject it itself. PWM's triggerVirtualKeypress from
+        // system_server delivers a clean keyboard ESC that the foreground game saves
+        // state and quits on. A dedicated poll is used rather than
+        // SystemProperties.addChangeCallback (which did not fire reliably from
+        // init()); the read is a cheap shared-memory lookup so the cadence is free.
+        Thread nanoEscThread = new Thread(() -> {
+            while (true) {
+                try {
+                    if ("1".equals(android.os.SystemProperties.get(
+                            "sys.gammaos.nano.overlay_esc", "0"))) {
+                        android.os.SystemProperties.set(
+                                "sys.gammaos.nano.overlay_esc", "0");
+                        Slog.i(TAG, "GammaOS Nano: overlay requested clean exit, "
+                                + "sending ESCAPE to the foreground game");
+                        mHandler.post(() ->
+                                triggerVirtualKeypress(KeyEvent.KEYCODE_ESCAPE));
+                    }
+                    Thread.sleep(100);
+                } catch (InterruptedException ie) {
+                    // keep polling
+                } catch (Throwable t) {
+                    Slog.w(TAG, "GammaOS Nano: overlay_esc poll error", t);
+                }
+            }
+        }, "NanoOverlayEsc");
+        nanoEscThread.setDaemon(true);
+        nanoEscThread.start();
+
         // Lineage additions
         mAlarmManager = mContext.getSystemService(AlarmManager.class);
         mCameraManager = (CameraManager) mContext.getSystemService(Context.CAMERA_SERVICE);

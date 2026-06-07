@@ -128,36 +128,27 @@ void NanoMenu::overlayInitLayer() {
 // nothing. kill() on a known PID still works (we run as root). ProcessRecord
 // lines read "<pid>:<pkg>[:tag]/uXXX", so grep that exact shape to get every
 // process (main + helpers) of the package. Returns the count signalled.
-static int overlaySignalPackage(const char* pkg, int sig) {
-    // Pull the full ActivityManager process dump (binder, works from nano) and
-    // parse it in C++ so we depend on no shell tools (grep/cut/sort behaved
-    // inconsistently from gammaos-nano's restricted shell). ProcessRecord lines
-    // contain "<pid>:<pkg>[:tag]/uXXX"; for each ":<pkg>" we read the digits that
-    // immediately precede it.
+// Return the PIDs of every process of a package (main + helpers), parsed from the
+// ActivityManager binder dump - a /proc walk does not enumerate other processes
+// from nano's bootstrap mount namespace, dumpsys does. Anchored on "ProcessRecord{"
+// so the LRU "<uid>:<pkg>" lines cannot be mistaken for pids.
+static std::set<int> overlayGetPids(const char* pkg) {
+    std::set<int> pids;
     char cmd[256];
-    snprintf(cmd, sizeof(cmd),
-             "dumpsys activity processes '%s' 2>/dev/null", pkg);
+    snprintf(cmd, sizeof(cmd), "dumpsys activity processes '%s' 2>/dev/null", pkg);
     FILE* f = popen(cmd, "r");
-    if (!f) { ALOGW("overlay: popen dumpsys failed"); return 0; }
+    if (!f) { ALOGW("overlay: popen dumpsys failed"); return pids; }
     std::string out;
     char buf[4096];
     size_t r;
     while ((r = fread(buf, 1, sizeof(buf), f)) > 0) out.append(buf, r);
     pclose(f);
-
-    // Extract pids ONLY from "ProcessRecord{<hash> <pid>:<pkg>" entries. The LRU
-    // dump also has "<uid>:<pkg>" lines, so a naive ":<pkg>" scan grabbed the app
-    // UID as a pid (and would SIGSTOP whatever process has that number). Anchor on
-    // ProcessRecord{ to be safe.
-    std::set<int> pids;
     size_t rp = 0;
     const std::string rec = "ProcessRecord{";
     while ((rp = out.find(rec, rp)) != std::string::npos) {
         size_t i = rp + rec.size();
-        // skip the hex hash, then the single space
         while (i < out.size() && out[i] != ' ' && out[i] != '}') i++;
         if (i < out.size() && out[i] == ' ') i++;
-        // read the pid digits
         size_t ds = i;
         while (i < out.size() && out[i] >= '0' && out[i] <= '9') i++;
         if (i > ds && i < out.size() && out[i] == ':' &&
@@ -166,6 +157,19 @@ static int overlaySignalPackage(const char* pkg, int sig) {
         }
         rp += rec.size();
     }
+    return pids;
+}
+
+// True while any process of the package is still alive. Uses kill(pid,0) on a
+// previously captured pid set - reliable even after dumpsys drops the
+// ProcessRecord (which happens seconds before the process actually dies).
+static bool overlayAnyAlive(const std::set<int>& pids) {
+    for (int pid : pids) if (pid > 1 && kill(pid, 0) == 0) return true;
+    return false;
+}
+
+static int overlaySignalPackage(const char* pkg, int sig) {
+    std::set<int> pids = overlayGetPids(pkg);
     // Persist the frozen PIDs to a marker file BEFORE sending SIGSTOP so a SIGTERM
     // handler (graceful `stop`) or a startup-recovery pass after a crash/kill can
     // always thaw the app - otherwise a crash in the tiny window between freezing
@@ -190,8 +194,7 @@ static int overlaySignalPackage(const char* pkg, int sig) {
     if (sig == SIGCONT) {
         unlink(kOverlayFrozenMarker);
     }
-    ALOGI("overlay: dumpsys %zu bytes, %zu pid(s) for %s, signalled %d",
-          out.size(), pids.size(), pkg, n);
+    ALOGI("overlay: %zu pid(s) for %s, signalled %d", pids.size(), pkg, n);
     return n;
 }
 
@@ -333,6 +336,13 @@ void NanoMenu::overlayShow() {
     // startup otherwise, leaving the overlay on the default wave).
     loadPs3ThemeSettings();
 
+    // Reload Recently Played from disk on every raise. This resident overlay loaded
+    // mXmbRecent once at startup; each game launch (this process AND the home DRM
+    // nano's first launch) rewrites /data/system/nano_xmb_recent.list, so the
+    // in-memory list drifts and the submenu showed a stale top entry / wrong index.
+    // Re-reading here makes the list always reflect the most recently launched game.
+    loadXmbRecent();
+
     // Isolate the running app's input via the FRAMEWORK drop_input path: while it
     // is set, InputDispatcher drops keys + motion to the app (POWER and BACK are
     // exempt) so the app cannot act on XMB navigation - the same principle as
@@ -383,6 +393,19 @@ void NanoMenu::overlayShow() {
 void NanoMenu::overlayHide() {
     if (!mOverlayShown) return;
 
+    // Drop any input up to NOW before restoring the app's input - notably the BACK
+    // press that dismissed the overlay. The overlay reads BACK via evdev and clears
+    // drop_input here, so without this the just-pressed BACK could still be sitting
+    // in InputDispatcher's queue and get delivered to the app once drop_input=0
+    // (the "BACK bleeds into the app after dismiss" bug). The timestamp fence drops
+    // any event with eventTime <= now (checked independently of drop_input); newer
+    // events still reach the app. Same mechanism the home launch handoff uses.
+    {
+        int64_t fenceNs = uptimeMillis() * 1000000LL;
+        char fb[32];
+        snprintf(fb, sizeof(fb), "%lld", (long long)fenceNs);
+        property_set("sys.gammaos.nano.drop_fence_ns", fb);
+    }
     // Restore the app's input (the framework re-dispatches keys+motion to it).
     property_set("sys.gammaos.nano.drop_input", "0");
     mOverlayPausedPkg.clear();
@@ -588,31 +611,51 @@ void NanoMenu::overlayLaunchCommand(const std::string& pkg, const std::string& a
             (old.find("retroarch") != std::string::npos ||
              old.find("drastic") != std::string::npos);
         if (oldIsGame) {
-            // Clean exit (point 5): RetroArch / DraStic save state on ESC. Restore
-            // the app's input first so the injected ESC lands in a live app, send
-            // ESC via the init hook (input keyevent 111), and wait for the process
-            // to actually exit before launching the next title.
+            // CLEAN SELF-CLOSE (no force-stop): capture the game's pids, send ESC
+            // (RetroArch / DraStic save state then quit themselves), and WAIT for
+            // those pids to ACTUALLY die via kill(pid,0). dumpsys drops the
+            // ProcessRecord seconds before the process exits, so polling dumpsys was
+            // premature and needed a force-stop to stop the relaunch racing the husk
+            // - but a force-stop is a hard kill the user does not want. kill(pid,0)
+            // on the captured pids is reliable, so the old game closes itself
+            // cleanly (saving state) and the new ROM launches only once it is truly
+            // gone. The death lands under killing=1 so the AMS overlay hook ignores it.
+            std::set<int> oldPids = overlayGetPids(old.c_str());
+            // Restore the game's input, then ask PhoneWindowManager to send ESCAPE
+            // (overlay_esc -> triggerVirtualKeypress, the SAME path the back-long-
+            // press uses; a shell-injected ESC is ignored by RetroArch). The game
+            // must be the focused foreground window for this to land, which it is
+            // (the overlay is an SF layer, not a focusable window).
             property_set("sys.gammaos.nano.drop_input", "0");
-            property_set("sys.gammaos.nano.qr_send_esc", "1");
-            for (int i = 0; i < 30 && overlaySignalPackage(old.c_str(), 0) > 0; i++)
-                usleep(100000);   // poll until the activity finishes (ESC save done)
-            usleep(1200000);      // let the save + teardown settle
-            // CRITICAL for same-package ROM switches: dumpsys removes the
-            // ProcessRecord (so overlaySignalPackage reads "gone") BEFORE the
-            // RetroArch process actually dies - it lingers a few seconds. A second
-            // RetroArch instance started in that window races the dying one and
-            // aborts in rarch_main. The ESC save has already completed (the activity
-            // finished), so force-stop GUARANTEES the old process is gone before the
-            // new ROM launches. The death lands under killing=1 so the AMS overlay
-            // hook ignores it.
-            {
-                char c[320];
-                snprintf(c, sizeof(c), "am force-stop %s 2>/dev/null",
-                         overlayShq(old).c_str());
-                system(c);
+            property_set("sys.gammaos.nano.overlay_esc", "1");
+            if (!oldPids.empty()) {
+                bool alive = true;
+                for (int i = 0; i < 100 && alive; i++) {   // up to ~10s for save+quit
+                    usleep(100000);
+                    // Re-send ESC a couple more times early, in case the first was
+                    // dropped while focus settled after drop_input cleared.
+                    if (i == 15 || i == 35)
+                        property_set("sys.gammaos.nano.overlay_esc", "1");
+                    alive = overlayAnyAlive(oldPids);
+                }
+                if (alive) {
+                    // Last resort ONLY (it never exited - a hung save): force-stop so
+                    // the relaunch does not race a stuck instance.
+                    char c[320];
+                    snprintf(c, sizeof(c), "am force-stop %s 2>/dev/null",
+                             overlayShq(old).c_str());
+                    system(c);
+                    usleep(400000);
+                    ALOGW("overlay: %s did not self-exit ~10s after ESC, force-stopped",
+                          old.c_str());
+                } else {
+                    ALOGI("overlay: %s self-exited cleanly (saved state) before launch",
+                          old.c_str());
+                }
+            } else {
+                usleep(2500000);   // pids unknown: give the ESC time to save and quit
+                ALOGI("overlay: ESC-exited %s (pids unknown, fixed wait)", old.c_str());
             }
-            usleep(500000);       // let force-stop reap the process
-            ALOGI("overlay: clean-exited %s before launch", old.c_str());
         } else if (!old.empty()) {
             char c[320];
             snprintf(c, sizeof(c), "am force-stop %s 2>/dev/null",
@@ -766,6 +809,20 @@ void NanoMenu::overlayLaunchGame() {
         if (!apk.empty()) cmd += " --es APK " + overlayShq(apk);
         if (!ime.empty()) cmd += " --es IME " + overlayShq(ime);
         cmd += " 2>/dev/null";
+    }
+    // Record the launch in Recently Played (mirror the home-mode launchXmbGame),
+    // so games launched from the overlay show up in the overlay's Recently Played
+    // list the next time it is opened. mXmbSystemIndex/mXmbGameIndex still hold the
+    // selected entry. For a re-launch from Recently Played itself, move it to front.
+    if (mXmbSystemIndex == -1) {
+        if (mXmbGameIndex > 0 && mXmbGameIndex < (int)mXmbRecent.size()) {
+            XmbRecentEntry moved = mXmbRecent[mXmbGameIndex];
+            mXmbRecent.erase(mXmbRecent.begin() + mXmbGameIndex);
+            mXmbRecent.insert(mXmbRecent.begin(), moved);
+            saveXmbRecent();
+        }
+    } else {
+        addXmbRecent(mXmbSystemIndex, mXmbGameIndex);
     }
     ALOGI("overlay: launch game pkg=%s standalone=%d rom=%s",
           pkg.c_str(), standalone ? 1 : 0, romPath.c_str());

@@ -668,6 +668,21 @@ void NanoMenu::renderPs3Xmb() {
     // expensive menu/glass-icon pass entirely.
     if (mPs3TzActive) { renderTimezoneGlobe(); return; }
 
+    // In the in-game overlay (scrim mode: a live app is behind us) a FULLSCREEN
+    // dialog or the network wizard must HIDE the XMB chrome and show ONLY the
+    // dialog/wizard over the scrim - exactly like the home XMB, where the dialog's
+    // own opaque backdrop covers the menu. That backdrop is intentionally gated off
+    // in scrim mode (so the dimmed app shows through), so without this the category
+    // rail + item list + clock would bleed through behind the dialog and clash.
+    // renderPs3Dialog()/renderNetWizard() are self-contained (own layout + anim).
+    // The side-panel chooser (mPs3DlgKind==1, Theme Settings) is partial and
+    // deliberately keeps the XMB visible for its live colour preview, so it is NOT
+    // caught here (it falls through to draw the chrome plus the side panel).
+    if (mOverlayMode && !mOverlayWallpaper) {
+        if (mPs3WizActive)                     { renderNetWizard(); return; }
+        if (mPs3DlgActive && mPs3DlgKind != 1) { renderPs3Dialog(); return; }
+    }
+
     // Opt-in slow-frame diagnostic: `setprop persist.gammaos.nano.ps3xmb.fpslog 1`
     // logs any frame slower than ~22ms (<45fps) with context, so transition dips
     // can be measured from logcat. Off by default (read once).
@@ -763,7 +778,11 @@ void NanoMenu::renderPs3Xmb() {
         float blurCad = (ps3bg::themeFading() || mPs3DlgKind == 1) ? 0.0f : 0.0667f;
         bool due = !mPs3GlassValid || (mEffectTime - mPs3GlassBlurT) >= blurCad;
         if (due && captureGlassFromWave()) { mPs3GlassValid = true; mPs3GlassBlurT = mEffectTime; }
-        if (mPs3GlassValid)
+        // In the in-game overlay (scrim mode: mOverlayMode && !mOverlayWallpaper)
+        // the submenu must keep the dark scrim so the LIVE app shows through, NOT a
+        // blurred wave backdrop. Skip the frosted glass there (keep the capture above
+        // so the glass stays valid for the launcher/home where the wave IS shown).
+        if (mPs3GlassValid && (!mOverlayMode || mOverlayWallpaper))
             // Neutral tint (1,1,1): pure blur, NO darkening or hue/shade change -
             // the backdrop is the blurred wave at its own brightness.
             drawFrostedGlass(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f,
@@ -1957,7 +1976,9 @@ void NanoMenu::renderPs3Dialog() {
         float blurCad = (ps3bg::themeFading() || mPs3DlgKind == 1) ? 0.0f : 0.0667f;   // 60Hz during live preview
         bool due = !mPs3DlgBlurValid || (mEffectTime - mPs3DlgBlurT) >= blurCad;
         if (due && captureGlassFromWave()) { mPs3DlgBlurValid = true; mPs3DlgBlurT = mEffectTime; }
-        if (mPs3DlgBlurValid)
+        // In the in-game overlay (scrim mode) keep the dark scrim + live app behind
+        // the dialog instead of the blurred wave - skip the frosted backdrop.
+        if (mPs3DlgBlurValid && (!mOverlayMode || mOverlayWallpaper))
             drawFrostedGlass(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, ap, /*waveSpace=*/true);  // pure blur, no darkening
     }
 
@@ -1998,7 +2019,11 @@ void NanoMenu::renderPs3Dialog() {
         // ---- fullscreen dialog page (1:1 with web drawDialog) ----
         // Uniform translucent dim over the (already-drawn) blurred live wave so
         // the white chrome reads while the per-month gradient still shows through.
-        drawQuad(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f, 0.0f, 0.0f, 0.40f * ap);
+        // In the in-game overlay (scrim mode) the 90% scrim already darkens the
+        // backdrop, so skip this extra dim to keep the dialog matching the top-level
+        // scrim - the live app stays visible at the same level, not darker.
+        if (!mOverlayMode || mOverlayWallpaper)
+            drawQuad(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f, 0.0f, 0.0f, 0.40f * ap);
         // Dialog text outline: 50% transparent black, same as the menu. mode is 1.
         mTextOutlineRatio = 0.5f;
 
@@ -2955,6 +2980,10 @@ void NanoMenu::renderNetWizard() {
     if (mPs3WizAnim > 0.999f) mPs3WizAnim = 1.0f;
     float ap = mPs3WizAnim;
     { ps3::LayoutParams lp; lp.panelW = mWidth; lp.panelH = mHeight; lp.uiScale = mPs3UiScale; ps3::layoutCompute(lp); }
+    // Dialog/wizard text outline ratio (matches renderPs3Dialog): set it here so the
+    // wizard is self-contained when reached via the overlay scrim early-return, which
+    // skips the chrome code that would otherwise set it.
+    mTextOutlineRatio = 0.5f;
 
     WizDesc d; wizDesc(mPs3WizId, d);
 
@@ -3019,10 +3048,16 @@ void NanoMenu::renderNetWizard() {
         float blurCad = 0.0667f;
         bool due = !mPs3DlgBlurValid || oskUp || (mEffectTime - mPs3DlgBlurT) >= blurCad;
         if (due && captureGlassFromWave()) { mPs3DlgBlurValid = true; mPs3DlgBlurT = mEffectTime; }
-        if (mPs3DlgBlurValid)
+        // In the in-game overlay (scrim mode) keep the dark scrim + live app behind
+        // the wizard instead of the blurred wave - skip the frosted backdrop.
+        if (mPs3DlgBlurValid && (!mOverlayMode || mOverlayWallpaper))
             drawFrostedGlass(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, ap, true);
     }
-    drawQuad(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f, 0.0f, 0.0f, (oskUp ? 0.62f : 0.5f) * ap);
+    // In the in-game overlay (scrim mode) skip the extra wizard dim - the 90% scrim
+    // already darkens the backdrop, so keep the live app at the same level as the
+    // top-level scrim instead of double-dimming it.
+    if (!mOverlayMode || mOverlayWallpaper)
+        drawQuad(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f, 0.0f, 0.0f, (oskUp ? 0.62f : 0.5f) * ap);
 
     // Layout (ui-independent base scale, 1080 design centred in the frame).
     float ui = mPs3UiScale; if (ui < 0.5f) ui = 0.5f; if (ui > 2.0f) ui = 2.0f;

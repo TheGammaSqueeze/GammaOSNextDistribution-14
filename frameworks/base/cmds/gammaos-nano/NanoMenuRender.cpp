@@ -1525,7 +1525,8 @@ void NanoMenu::render() {
     // (mOverlayWallpaper). When there is a LIVE APP behind us (the in-game overlay),
     // keep the translucent scrim at EVERY level - top AND submenus - so the user
     // always sees the dimmed running app, never the wallpaper (user request). The
-    // scrim is very dark (persist.gammaos.nano.overlay.dim default 0.99 = 99%).
+    // scrim is dark but the live app stays visible (persist.gammaos.nano.overlay.dim
+    // default 0.90 = 90% black, 10% app showing through - user request).
     const bool ovWallpaper = mOverlayMode && mOverlayWallpaper;
     if (mOverlayMode && !ovWallpaper) {
         // In-game XMB top level: clear to a BLACK scrim baked into the alpha
@@ -1536,7 +1537,7 @@ void NanoMenu::render() {
         static float sOvDim = -1.0f;
         if (sOvDim < 0.0f) {
             char d[PROPERTY_VALUE_MAX] = {};
-            property_get("persist.gammaos.nano.overlay.dim", d, "0.99");
+            property_get("persist.gammaos.nano.overlay.dim", d, "0.90");
             sOvDim = atof(d);
             if (sOvDim < 0.0f) sOvDim = 0.0f;
             if (sOvDim > 1.0f) sOvDim = 1.0f;
@@ -1566,18 +1567,33 @@ void NanoMenu::render() {
     } else {
 
     if (mOverlayMode) {
-        // Render the PS3 wave. In WALLPAPER mode (no app / submenu) composite it
-        // to the SCREEN as the full background (like the home XMB). In scrim mode
-        // (top level over a live app) render it OFFSCREEN only (compositeToScreen
-        // =false) so the glass icons can refract it without painting over the app.
-        // persist.gammaos.nano.overlay.wave=0 skips it (glass goes flat) as a perf
-        // lever; in that case the opaque clear colour is the wallpaper fallback.
-        static int sOvWave = -1;
-        if (sOvWave < 0) sOvWave = property_get_bool("persist.gammaos.nano.overlay.wave", true) ? 1 : 0;
-        if (sOvWave) {
-            ps3::layoutComputeNative(mWidth, mHeight);
-            ps3bg::render(mWidth, mHeight, mFrameDt, sDrmRotMat,
-                          sDrmActive && sDrmGlRotation, /*compositeToScreen=*/ovWallpaper);
+        if (ovWallpaper) {
+            // Launcher / no-app state: render the user's CHOSEN wallpaper exactly
+            // like the home XMB instead of a hardcoded wave. renderEffect() honours
+            // mCurrentEffect (wave 22, procedural ribbon 21, particles/FX 1-20); in
+            // the overlay sDrmActive is false so it composites in logical
+            // orientation, which is what the SF layer wants. For any non-wave
+            // wallpaper also keep the wave work-texture updated OFFSCREEN so the
+            // glass icons (gated on ps3bg::workTex()) still refract - same decouple
+            // as the home path below.
+            renderEffect();
+            if (mPs3Xmb && mCurrentEffect != 22) {
+                ps3::layoutComputeNative(mWidth, mHeight);
+                ps3bg::render(mWidth, mHeight, mFrameDt, sDrmRotMat,
+                              sDrmActive && sDrmGlRotation, /*compositeToScreen=*/false);
+            }
+        } else {
+            // Scrim over a live app: render the wave OFFSCREEN only (never
+            // composited) so the glass icons refract it without painting over the
+            // dark-scrim view of the running app. persist.gammaos.nano.overlay.wave
+            // =0 skips it (glass goes flat) as a perf lever.
+            static int sOvWave = -1;
+            if (sOvWave < 0) sOvWave = property_get_bool("persist.gammaos.nano.overlay.wave", true) ? 1 : 0;
+            if (sOvWave) {
+                ps3::layoutComputeNative(mWidth, mHeight);
+                ps3bg::render(mWidth, mHeight, mFrameDt, sDrmRotMat,
+                              sDrmActive && sDrmGlRotation, /*compositeToScreen=*/false);
+            }
         }
         // Standard chrome blend (separate-alpha in overlay so opaque white chrome
         // reaches framebuffer alpha 1 and the live app cannot bleed through it).
