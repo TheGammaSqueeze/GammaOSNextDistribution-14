@@ -2126,12 +2126,24 @@ if (sRingPrimedCount >= 2) {
         // app, which matches the original intent without paying the
         // DRM->HWC transition cost for XMB browsing.
     } else {
-        // Overlay opaque mode: force the framebuffer fully OPAQUE (alpha = 1
-        // everywhere) before presenting. The PS3 text / glow / anti-aliased
-        // edges draw with alpha < 1, which on this HWC lets SurfaceFlinger blend
-        // the live (frozen) app through them ("white text shows the screenshot").
-        // Writing alpha-only via the colour mask guarantees the layer occludes
-        // the app so only our blurred snapshot + solid chrome show.
+        // Overlay WALLPAPER/launcher mode (no app behind us): present exactly like
+        // the non-overlay home. PS3 text / glow / anti-aliased edges and bright
+        // wallpaper pixels draw with framebuffer alpha < 1 (the wallpaper effect uses
+        // GL_SRC_ALPHA blending), and on this HWC SurfaceFlinger blends whatever is
+        // behind through those holes - so a just-exited app bleeds through bright
+        // wallpaper areas for a moment. Force the framebuffer fully OPAQUE (alpha = 1)
+        // with an alpha-only masked clear (RGB untouched, so it is visually identical)
+        // before presenting: the layer then occludes everything and SF composites it
+        // like the opaque home layer and can drop the now-occluded app (perf + memory).
+        // Scrim mode (a live app behind us) is deliberately left translucent so the
+        // dimmed app keeps showing through. The surface never changes between the two,
+        // so the switch is seamless and the overlay stays warm/instant.
+        if (mOverlayMode && mOverlayWallpaper) {
+            glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_TRUE);
+            glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT);
+            glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+        }
         eglSwapBuffers(mDisplay, mSurface);
         // A2: deferred overlay show. overlayShow() does NOT t.show() the layer;
         // it sets mOverlayPendingShow so the FIRST composited frame is already the
