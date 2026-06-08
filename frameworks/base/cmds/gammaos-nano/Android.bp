@@ -91,6 +91,7 @@ cc_binary {
         "android.hardware.light@2.0",
         "libhidlbase",
         "libnativewindow",
+        "libandroid",   // APerformanceHint (ADPF render-thread hint session)
     ],
 
     init_rc: ["gammaos-nano.rc"],

@@ -160,3 +160,29 @@ on property:apexd.status=ready
 
 on property:sys.boot_completed=1
     start joypad_uevent_fixup
+
+# GammaOS Nano: universal FIXED_PERFORMANCE power-mode hint while the overlay UI
+# is up, released when an app takes the foreground. nano flips
+# sys.gammaos.nano.fixedperf (gated by persist.gammaos.nano.perf.fixedperf) and
+# `cmd power` applies it through PowerManagerService -> the IPower HAL. Run as
+# root in the permissive su domain so the binder shell-command + DEVICE_POWER
+# checks pass. This keeps the frequency policy in the platform, not in nano.
+service nano-fixedperf-on /system/bin/cmd power set-fixed-performance-mode-enabled true
+    user root
+    group root
+    seclabel u:r:su:s0
+    disabled
+    oneshot
+
+service nano-fixedperf-off /system/bin/cmd power set-fixed-performance-mode-enabled false
+    user root
+    group root
+    seclabel u:r:su:s0
+    disabled
+    oneshot
+
+on property:sys.gammaos.nano.fixedperf=1
+    start nano-fixedperf-on
+
+on property:sys.gammaos.nano.fixedperf=0
+    start nano-fixedperf-off

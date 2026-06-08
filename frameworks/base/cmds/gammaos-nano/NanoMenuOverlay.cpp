@@ -325,6 +325,13 @@ void NanoMenu::overlayShow() {
     // current day/night + theme even though the wave never runs per-frame.
     ps3bg::invalidateScrimWave();
 
+    // Universal perf hint: request IPower FIXED_PERFORMANCE while the overlay is
+    // up so the device holds a sustained performance level for the UI (init turns
+    // the prop into `cmd power set-fixed-performance-mode-enabled`). Released in
+    // overlayHide so a launched app gets normal DVFS back.
+    if (property_get_bool("persist.gammaos.nano.perf.fixedperf", true))
+        property_set("sys.gammaos.nano.fixedperf", "1");
+
     // Resolve the foreground package so quit/launch know what to act on. The
     // dumpsys resolve intermittently returns empty for a live game from the
     // overlay's process context; fall back to the tracked launch_app so
@@ -465,6 +472,8 @@ void NanoMenu::overlayHide() {
     }
     // Restore the app's input (the framework re-dispatches keys+motion to it).
     property_set("sys.gammaos.nano.drop_input", "0");
+    // Release FIXED_PERFORMANCE so a launched app gets normal vendor DVFS.
+    property_set("sys.gammaos.nano.fixedperf", "0");
     mOverlayPausedPkg.clear();
 
     // Drop back to normal scheduling so the resident-hidden overlay does not hold

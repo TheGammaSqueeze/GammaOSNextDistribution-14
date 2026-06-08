@@ -70,6 +70,8 @@
 #include <aidl/android/hardware/light/HwLightState.h>
 #include <aidl/android/hardware/light/LightType.h>
 #include <android/binder_manager.h>
+#include <android/performance_hint.h>   // ADPF render-thread hint session
+#include <android/native_window.h>      // ANATIVEWINDOW_FRAME_RATE_* for setFrameRate
 #include <android/hardware/light/2.0/ILight.h>
 
 #include "NanoMenu.h"
@@ -1020,6 +1022,15 @@ status_t NanoMenu::readyToRun() {
                 property_set("sys.gammaos.nano.clear_forced_size", "1");
             }
         }
+        // Universal perf hint: vote 60fps on the overlay layer so the vendor's
+        // frame-deadline DVFS (e.g. MTK FPSGo) can boost for it like a foreground
+        // app. Overlay only (the home is DRM-direct). No-op where unhonored.
+        if (mOverlayMode && property_get_bool("persist.gammaos.nano.perf.framerate", true)) {
+            t.setFrameRate(control, 60.0f,
+                           ANATIVEWINDOW_FRAME_RATE_COMPATIBILITY_DEFAULT,
+                           ANATIVEWINDOW_CHANGE_FRAME_RATE_ONLY_IF_SEAMLESS);
+            ALOGI("perf: setFrameRate(60) voted on overlay layer");
+        }
         t.apply();
 
         sp<Surface> s = control->getSurface();
@@ -1043,6 +1054,35 @@ status_t NanoMenu::readyToRun() {
     }
 
     return NO_ERROR;
+}
+
+// ADPF (Android Dynamic Performance Framework) hint session for the render
+// thread. This is the universal, vendor-agnostic way to ask the power HAL to run
+// a thread at a performance level that meets a target frame time; the vendor
+// implementation (CPU on A14, and GPU where supported) boosts accordingly. We
+// create one session for the render thread with a 60fps target and report the
+// per-frame work duration. Prop-gated for A/B testing; a no-op if the platform
+// has no PerformanceHintManager.
+void NanoMenu::perfHintInit(int tid) {
+    if (mHintTried) return;
+    mHintTried = true;
+    if (!property_get_bool("persist.gammaos.nano.perf.adpf", true)) return;
+    APerformanceHintManager* mgr = APerformanceHint_getManager();
+    if (mgr == nullptr) { ALOGW("perf: ADPF PerformanceHintManager unavailable"); return; }
+    int32_t tids[1] = { (int32_t)tid };
+    mHintSession = (void*)APerformanceHint_createSession(mgr, tids, 1, 16666666LL);  // 60fps target
+    ALOGI("perf: ADPF hint session %s (render tid=%d, target=16.67ms)",
+          mHintSession ? "created" : "FAILED", tid);
+}
+
+void NanoMenu::perfHintReport() {
+    if (mHintSession == nullptr || mLastFrameNs <= 0) return;
+    struct timespec ts; clock_gettime(CLOCK_MONOTONIC, &ts);
+    int64_t nowNs = (int64_t)ts.tv_sec * 1000000000LL + ts.tv_nsec;
+    int64_t workNs = nowNs - mLastFrameNs;   // frame start -> after render + present
+    if (workNs > 0 && workNs < 200000000LL)
+        APerformanceHint_reportActualWorkDuration(
+            (APerformanceHintSession*)mHintSession, workNs);
 }
 
 bool NanoMenu::threadLoop() {
@@ -1099,6 +1139,9 @@ bool NanoMenu::threadLoop() {
         int rc = pthread_setschedparam(pthread_self(), SCHED_FIFO, &sp);
         pid_t selfTid = (pid_t)syscall(SYS_gettid);
         setpriority(PRIO_PROCESS, selfTid, -20);
+        // Register this render thread with ADPF so the power HAL can meet the
+        // 60fps target (universal; no-op where unsupported).
+        perfHintInit((int)selfTid);
         if (rc == 0) {
             ALOGW("NanoMenu: render thread SCHED_FIFO prio 80 + nice -20 ok");
         } else {
@@ -3306,6 +3349,10 @@ if (sRingPrimedCount >= 2) {
         }
 
         render();
+
+        // ADPF: tell the power HAL how long this frame's work took, so it can
+        // scale to hold the 60fps target.
+        perfHintReport();
 
         // GammaOS: XMB FPS counter. Logs once per second when in XMB mode so
         // we can verify the menu is actually hitting the 60fps target post-

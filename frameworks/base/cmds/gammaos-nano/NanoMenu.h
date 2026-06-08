@@ -504,6 +504,18 @@ private:
     int  mOverlayBlurPx = 0;          // background blur radius (px), 0 if unsupported
     bool mOverlayOpaque = false;      // persist.gammaos.nano.overlay.opaque: opaque layer
                                       // (HWC direct scanout -> 60fps) vs translucent+SF blur
+    // Universal performance hints (so the vendor power/DVFS stack can run nano's
+    // UI in a higher mode without device-specific frequency writes). mHintSession
+    // is an APerformanceHintSession* (void to keep the NDK header out of this
+    // header). See perfHintInit/perfHintReport in NanoMenu.cpp. Each hint is
+    // independently prop-gated for A/B testing:
+    //   persist.gammaos.nano.perf.framerate  - setFrameRate(60) on the overlay layer
+    //   persist.gammaos.nano.perf.adpf        - ADPF render-thread hint session
+    //   persist.gammaos.nano.perf.fixedperf   - IPower FIXED_PERFORMANCE while shown
+    void*  mHintSession = nullptr;
+    bool   mHintTried = false;
+    void   perfHintInit(int tid);     // create the ADPF session for the render thread
+    void   perfHintReport();          // report this frame's work duration to ADPF
     bool mOverlayWallpaper = false;   // overlay is showing the FULL PS3 wallpaper (no app behind,
                                       // or a submenu is open) vs the scrim-over-live-app top level
     bool mOverlayPendingShow = false; // defer the SF t.show() to after the first faded-out frame is
