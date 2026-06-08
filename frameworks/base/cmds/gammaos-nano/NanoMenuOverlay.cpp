@@ -763,24 +763,45 @@ void NanoMenu::overlayPoll() {
         // would fire instantly and dismiss onto the dying old game before the new
         // one loads (the "switching games does nothing" bug). Wait for killing=0.
         bool switchInProgress = property_get_bool("sys.gammaos.nano.killing", false);
-        bool ready = false;
-        if (!switchInProgress && el > 250 && (now - mOverlayLaunchLastCheckMs) > 300) {
-            mOverlayLaunchLastCheckMs = now;
-            ready = (overlayResolveForegroundPkg() == mOverlayLaunchTarget);
-        }
-        // Ceiling is generous (12s): a RetroArch/DraStic clean-exit can take ~3s to
-        // save state and die, plus a settle, plus the new app's own resume, plus the
-        // worker's post-launch confirm poll. The `ready` check (after killing clears)
-        // dismisses the instant the new app is up; the ceiling is only a backstop.
-        if (ready || el > 12000) {
+        // Launch abandoned backstop: the worker has finished (killing cleared)
+        // but the launched app is not running (app_launched=0). The worker sets
+        // app_launched=1 unconditionally before the am-start and only the AMS
+        // death hook clears it, so app_launched=0 here means the app crashed/
+        // exited during or right after the handoff and the foreground will never
+        // become the target. Without this, mOverlayLaunchPending - and the
+        // input-drain it triggers in pollInput() - would ride all the way to the
+        // 12s ceiling, freezing the overlay home. Release the hold and fall
+        // through to normal show/hide reconciliation (show_overlay is still 1, so
+        // the overlay stays up as the home). A running app keeps app_launched=1,
+        // so this can never dismiss a slow-but-valid launch; the el>1500 guard
+        // skips the brief startup window before the worker sets killing/app_launched.
+        if (!switchInProgress && el > 1500 &&
+            !property_get_bool("sys.gammaos.nano.app_launched", false)) {
             mOverlayLaunchPending = false;
             mOverlayLaunchTarget.clear();
-            property_set("sys.gammaos.nano.show_overlay", "0");
-            overlayHide();
-            ALOGI("overlay: launch dismiss (resumed=%d, %lldms)",
-                  ready ? 1 : 0, (long long)el);
+            ALOGI("overlay: launch abandoned (app not running, %lldms) - "
+                  "releasing input hold", (long long)el);
+            // fall through to show/hide reconciliation below (do NOT return)
+        } else {
+            bool ready = false;
+            if (!switchInProgress && el > 250 && (now - mOverlayLaunchLastCheckMs) > 300) {
+                mOverlayLaunchLastCheckMs = now;
+                ready = (overlayResolveForegroundPkg() == mOverlayLaunchTarget);
+            }
+            // Ceiling is generous (12s): a RetroArch/DraStic clean-exit can take ~3s to
+            // save state and die, plus a settle, plus the new app's own resume, plus the
+            // worker's post-launch confirm poll. The `ready` check (after killing clears)
+            // dismisses the instant the new app is up; the ceiling is only a backstop.
+            if (ready || el > 12000) {
+                mOverlayLaunchPending = false;
+                mOverlayLaunchTarget.clear();
+                property_set("sys.gammaos.nano.show_overlay", "0");
+                overlayHide();
+                ALOGI("overlay: launch dismiss (resumed=%d, %lldms)",
+                      ready ? 1 : 0, (long long)el);
+            }
+            return;   // keep the overlay shown during the launch transition
         }
-        return;   // keep the overlay shown during the launch transition
     }
 
     char v[PROPERTY_VALUE_MAX] = {};

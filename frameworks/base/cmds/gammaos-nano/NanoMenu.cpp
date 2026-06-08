@@ -35,6 +35,7 @@
 #include <binder/IServiceManager.h>
 #include <cutils/properties.h>
 #include <android-base/properties.h>
+#include <sys/system_properties.h>
 #include <utils/Log.h>
 #include <utils/SystemClock.h>
 #include <sched.h>
@@ -3065,7 +3066,32 @@ if (sRingPrimedCount >= 2) {
             if (!mOverlayInited) overlayInitLayer();
             overlayPoll();
             if (!mOverlayShown) {
-                usleep(33000);   // ~30Hz trigger poll while idle
+                // Hidden overlay: block on the show_overlay trigger instead of
+                // spin-polling at 30Hz. A spin-poll wakes this thread 30x/sec
+                // even with nothing to do, and while a 3D game is foreground
+                // those wakeups steal scheduler time on a weak SoC. Waiting on
+                // the property's serial parks the thread at ~0% CPU and still
+                // raises the overlay instantly when PhoneWindowManager flips
+                // show_overlay on a power-hold (the wait returns the moment the
+                // serial changes). A short timeout re-polls as a safety net so
+                // we never miss a state change the wait did not observe.
+                static const prop_info* sShowPi = nullptr;
+                static uint32_t sShowSerial = 0;
+                if (!sShowPi)
+                    sShowPi = __system_property_find("sys.gammaos.nano.show_overlay");
+                if (sShowPi) {
+                    // Block until the property's serial advances past the last one
+                    // we observed (or 250ms). sShowSerial starts at 0, so the first
+                    // wait returns at once and hands back the live serial via the
+                    // out-param; thereafter the thread parks at ~0% CPU and wakes the
+                    // instant show_overlay changes. We rely on the wait's out-param for
+                    // the serial because this bionic does not export
+                    // __system_property_serial.
+                    struct timespec to = { 0, 250000000 };  // 250ms safety re-poll
+                    __system_property_wait(sShowPi, sShowSerial, &sShowSerial, &to);
+                } else {
+                    usleep(100000);  // prop not created yet; poll at 10Hz until it appears
+                }
                 continue;
             }
         }
@@ -3142,6 +3168,31 @@ if (sRingPrimedCount >= 2) {
                 syncBrightnessToAndroid();
                 ALOGD("NanoMenu: brightness pushed to Android: %d", mBrightness);
             }
+        }
+        // GammaOS: DRM-home occlusion guard (defense-in-depth). The single-
+        // instance handover in main() exits a stray DRM-home before it ever runs
+        // this loop, but if one slips through a race (a respawn in the brief
+        // app-exit window before show_overlay flips), idle it here BEFORE
+        // pollInput() so it never reads the shared ungrabbed evdev nodes. A
+        // second input reader would navigate/select on its hidden menu and grab
+        // the gamepad via the post-loop EVIOCGRAB, freezing the overlay. Draw
+        // nothing and poll the trigger cheaply; resume the instant we are the
+        // visible surface again. (Only the DRM home; the overlay has its own
+        // !mOverlayShown idle above and is the visible surface in these states.)
+        //
+        // CRITICAL: do NOT fire while THIS instance is mid-launch
+        // (mWaitForRelease / mLaunchFadeStart). The cold-boot home sets
+        // app_launched=1 as it launches the first game, but the code that
+        // completes its hand-off and exit (mLaunchFadeStart -> mExitRequested)
+        // lives inside pollInput(). Gating before pollInput then would strand the
+        // launcher alive-but-idle instead of letting it exit, leaving two
+        // instances. Excluding the launch window lets it finish exiting; a true
+        // race-stray is never mid-launch, so it is still caught.
+        if (!mOverlayMode && mLaunchFadeStart == 0 && !mWaitForRelease &&
+            (property_get_bool("sys.gammaos.nano.app_launched", false) ||
+             property_get_bool("sys.gammaos.nano.show_overlay", false))) {
+            usleep(33000);   // ~30Hz; no input, no render while occluded
+            continue;
         }
         pollInput();
         checkInputHotplug();
@@ -3222,6 +3273,7 @@ if (sRingPrimedCount >= 2) {
             double tb = (double)bt.tv_sec + (double)bt.tv_nsec * 1e-9;
             mEffectTime = (float)fmod(tb, 500.0);
         }
+
         render();
 
         // GammaOS: XMB FPS counter. Logs once per second when in XMB mode so

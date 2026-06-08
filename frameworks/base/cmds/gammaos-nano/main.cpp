@@ -854,6 +854,30 @@ int main(int argc, char** argv) {
         return 0;
     }
 
+    // GammaOS: single-instance handover. In overlay_home mode the SF overlay
+    // becomes the home the moment anything is launched after cold boot, and the
+    // DRM-home service is oneshot+disabled - so if this non-overlay instance
+    // comes up while a game is running (app_launched) or the overlay already
+    // owns the home (show_overlay), it is a STRAY second instance. It must not
+    // run: two processes reading the same ungrabbed evdev nodes fight over input
+    // (the stray navigates/launches on its hidden menu and grabs the gamepad via
+    // the post-loop EVIOCGRAB, freezing the overlay), and its readyToRun clears
+    // sys.gammaos.nano.drop_input, breaking the overlay's app isolation. Exit
+    // before any setup; oneshot keeps us down so only the overlay remains. The
+    // cold-boot home (app_launched=0, show_overlay=0) and the in-process
+    // QR/force_drm fast path (where this instance legitimately renders the game)
+    // are excluded, so the real cold-boot launcher still runs.
+    if (property_get_bool("persist.gammaos.nano.overlay_home", false) &&
+        !property_get_bool("sys.gammaos.nano.force_drm", false) &&
+        !property_get_bool("persist.gammaos.nano.qr_prepared", false) &&
+        (property_get_bool("sys.gammaos.nano.app_launched", false) ||
+         property_get_bool("sys.gammaos.nano.show_overlay", false))) {
+        ALOGI("GammaOS Nano: overlay already owns the home in overlay_home mode "
+              "(app_launched/show_overlay set) - this DRM-home respawn is a stray, "
+              "exiting so only the overlay runs (oneshot keeps us down)");
+        return 0;
+    }
+
     // Grab DRM master early on non-Qualcomm SoCs to beat HWC.
     // On Qualcomm SDE (ro.board.platform=bengal etc), SET_MASTER
     // disrupts the backlight controller even without modeset, so we
