@@ -76,8 +76,41 @@ static const float kStroke4Y[4] = {  0.0f, 0.0f,-1.0f, 1.0f };
 void NanoMenu::drawIconStroke(unsigned int tex, float x, float y, float w, float h, float a) {
     if (a <= 0.004f || tex == 0) return;
     float r = ps3::devS(2.0f);
-    for (int i = 0; i < 4; i++)
-        drawIconTex(tex, x + kStroke4X[i] * r, y + kStroke4Y[i] * r, w, h, 0.0f, 0.0f, 0.0f, a);
+    // Batch the 4 offset shadow copies into ONE draw (same texture + colour)
+    // instead of 4 drawIconTex calls (each a program bind + draw + 3 attrib
+    // setups). drawText already batches its outline this way. Pixel-identical:
+    // the same 4 offset quads, same UVs, same alpha.
+    GLfloat verts[4 * 12], uvs[4 * 12], colors[4 * 24];
+    for (int s = 0; s < 4; s++) {
+        float xs = x + kStroke4X[s] * r, ys = y + kStroke4Y[s] * r;
+        float x0 = (xs / mWidth) * 2.0f - 1.0f;
+        float y0 = 1.0f - ((ys + h) / mHeight) * 2.0f;
+        float x1 = ((xs + w) / mWidth) * 2.0f - 1.0f;
+        float y1 = 1.0f - (ys / mHeight) * 2.0f;
+        GLfloat* v = verts + s * 12;
+        v[0]=x0; v[1]=y0; v[2]=x1; v[3]=y0; v[4]=x1; v[5]=y1;
+        v[6]=x1; v[7]=y1; v[8]=x0; v[9]=y1; v[10]=x0; v[11]=y0;
+        GLfloat* u = uvs + s * 12;
+        u[0]=0; u[1]=1; u[2]=1; u[3]=1; u[4]=1; u[5]=0;
+        u[6]=1; u[7]=0; u[8]=0; u[9]=0; u[10]=0; u[11]=1;
+        GLfloat* c = colors + s * 24;
+        for (int i = 0; i < 6; i++) { c[i*4]=0.0f; c[i*4+1]=0.0f; c[i*4+2]=0.0f; c[i*4+3]=a; }
+    }
+    glUseProgram(mTextProgram);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, tex);
+    glUniform1i(mTextLocTexture, 0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glVertexAttribPointer(mTextLocPosition, 2, GL_FLOAT, GL_FALSE, 0, verts);
+    glEnableVertexAttribArray(mTextLocPosition);
+    glVertexAttribPointer(mTextLocTexCoord, 2, GL_FLOAT, GL_FALSE, 0, uvs);
+    glEnableVertexAttribArray(mTextLocTexCoord);
+    glVertexAttribPointer(mTextLocColor, 4, GL_FLOAT, GL_FALSE, 0, colors);
+    glEnableVertexAttribArray(mTextLocColor);
+    glDrawArrays(GL_TRIANGLES, 0, 24);
+    glDisableVertexAttribArray(mTextLocPosition);
+    glDisableVertexAttribArray(mTextLocTexCoord);
+    glDisableVertexAttribArray(mTextLocColor);
 }
 
 // ---------------------------------------------------------------------------

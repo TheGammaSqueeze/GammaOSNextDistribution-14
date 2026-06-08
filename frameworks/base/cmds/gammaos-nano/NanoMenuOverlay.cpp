@@ -405,10 +405,14 @@ void NanoMenu::overlayShow() {
 
     // Prioritise this render thread (SCHED_FIFO) so the XMB stays smooth while it
     // GPU-composites over the LIVE app. The service has CAP_SYS_NICE + rtprio 99.
-    // A modest priority keeps us above normal threads without starving SF/the app.
+    // Match SurfaceFlinger's RT priority (its main + RenderEngine run at FIFO 2)
+    // rather than sit ABOVE it: at FIFO 4 we preempted SF mid-CTM-composite on the
+    // A53, pushing its present past the vsync deadline and causing the wave
+    // wallpaper's ~50fps vsync-beat. Equal priority round-robins on contention so
+    // SF keeps its composite slice, while we stay above all SCHED_OTHER threads.
     {
         struct sched_param sp = {};
-        sp.sched_priority = 4;
+        sp.sched_priority = 2;
         if (sched_setscheduler(0, SCHED_FIFO, &sp) != 0)
             ALOGW("overlay: SCHED_FIFO boost failed: %s", strerror(errno));
     }

@@ -33,7 +33,11 @@
 
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
+#include <EGL/egl.h>
 #include <png.h>
+#if defined(__aarch64__)
+#include <arm_neon.h>
+#endif
 
 #define LOG_TAG "GammaOSNano"
 #include <utils/Log.h>
@@ -577,18 +581,51 @@ static bool ensureFbo(GLuint* fbo, GLuint* tex, int w, int h) {
     return glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE;
 }
 
+// PowerVR Rogue is a TBDR: at the start of a render pass it LOADs the bound
+// render target's existing contents into on-chip tile memory unless told they
+// are undefined. The wave build pass binds sWorkFbo and immediately overwrites
+// every pixel with the opaque full-screen gradient blit, so the prior contents
+// are never read - but with no clear/discard the driver still loads the whole
+// 1024x768x4 (~3MB) tile each frame. Marking the colour attachment undefined
+// skips that load (pure bandwidth saved, pixel-identical). EXT entry point
+// (ES2 context); no-op if the extension is absent.
+static void discardColorTile() {
+    static PFNGLDISCARDFRAMEBUFFEREXTPROC sDiscard = nullptr;
+    static bool sChecked = false;
+    if (!sChecked) {
+        sChecked = true;
+        const char* ext = (const char*)glGetString(GL_EXTENSIONS);
+        if (ext && strstr(ext, "GL_EXT_discard_framebuffer"))
+            sDiscard = (PFNGLDISCARDFRAMEBUFFEREXTPROC)eglGetProcAddress("glDiscardFramebufferEXT");
+    }
+    if (sDiscard) {
+        const GLenum att[] = { GL_COLOR_ATTACHMENT0 };
+        sDiscard(GL_FRAMEBUFFER, 1, att);
+    }
+}
+
 // Fullscreen quad: pos.xy in [-1,1], uv in [0,1]. Reused for gradient/blit.
+// Static geometry, so it lives in a one-time VBO (sQuadVBO) instead of a
+// per-frame client-side array - the gradient blit runs this every steady frame,
+// and a client array makes the driver copy + sync it on each draw.
 static void drawFullQuad(GLint posLoc, GLint uvLoc) {
-    static const GLfloat verts[] = {
-        -1.f, -1.f, 0.f, 0.f,   1.f, -1.f, 1.f, 0.f,   1.f, 1.f, 1.f, 1.f,
-        -1.f, -1.f, 0.f, 0.f,   1.f,  1.f, 1.f, 1.f,  -1.f, 1.f, 0.f, 1.f,
-    };
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glVertexAttribPointer(posLoc, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), verts);
+    if (!sQuadVBO) {
+        static const GLfloat verts[] = {
+            -1.f, -1.f, 0.f, 0.f,   1.f, -1.f, 1.f, 0.f,   1.f, 1.f, 1.f, 1.f,
+            -1.f, -1.f, 0.f, 0.f,   1.f,  1.f, 1.f, 1.f,  -1.f, 1.f, 0.f, 1.f,
+        };
+        glGenBuffers(1, &sQuadVBO);
+        glBindBuffer(GL_ARRAY_BUFFER, sQuadVBO);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(verts), verts, GL_STATIC_DRAW);
+    }
+    glBindBuffer(GL_ARRAY_BUFFER, sQuadVBO);
+    glVertexAttribPointer(posLoc, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (const void*)0);
     glEnableVertexAttribArray(posLoc);
-    glVertexAttribPointer(uvLoc, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), verts + 2);
+    glVertexAttribPointer(uvLoc, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat),
+                          (const void*)(2 * sizeof(GLfloat)));
     glEnableVertexAttribArray(uvLoc);
     glDrawArrays(GL_TRIANGLES, 0, 6);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 // ---------------------------------------------------------------------------
@@ -736,22 +773,70 @@ static void animateWave(float dt) {
     float fr = (float)(pp - floor(pp));
     int im1 = (i0 - 1 + count) % count;
     int i2 = (i1 + 1) % count;
-    const std::vector<float>& P0 = sSeqFrames[im1];
-    const std::vector<float>& A = sSeqFrames[i0];
-    const std::vector<float>& B = sSeqFrames[i1];
-    const std::vector<float>& P3 = sSeqFrames[i2];
-    const std::vector<float>& C = sSeqFrames[0];
+    const float* P0 = sSeqFrames[im1].data();
+    const float* A  = sSeqFrames[i0].data();
+    const float* B  = sSeqFrames[i1].data();
+    const float* P3 = sSeqFrames[i2].data();
+    const float* C  = sSeqFrames[0].data();
     float t = fr, t2 = t * t, t3 = t2 * t;
     float w = (pp > count - XF) ? (float)((pp - (count - XF)) / XF) : 0.0f;
+    bool cross = (w > 0.0001f);
     float* S = sWaveScratch.data();
+#if defined(__aarch64__)
+    // NEON: the Catmull-Rom interp is fully data-parallel (n=WAVE_NV*4=65536, a
+    // clean multiple of 4). Four floats per iteration, coefficients as scalar
+    // multiply-adds, the crossfade as a frame-level branch. Same math and order
+    // as the scalar reference (validated once below), far fewer A53 issue slots.
+    const float w1 = 1.0f - w;
+    for (int i = 0; i < n; i += 4) {
+        float32x4_t p0 = vld1q_f32(P0 + i), a = vld1q_f32(A + i),
+                    b = vld1q_f32(B + i), p3 = vld1q_f32(P3 + i);
+        float32x4_t c1 = vsubq_f32(b, p0);
+        float32x4_t c2 = vsubq_f32(
+            vmlaq_n_f32(vmlsq_n_f32(vaddq_f32(p0, p0), a, 5.0f), b, 4.0f), p3);
+        float32x4_t c3 = vmlsq_n_f32(
+            vmlaq_n_f32(vsubq_f32(p3, p0), a, 3.0f), b, 3.0f);
+        float32x4_t acc = vaddq_f32(a, a);
+        acc = vmlaq_n_f32(acc, c1, t);
+        acc = vmlaq_n_f32(acc, c2, t2);
+        acc = vmlaq_n_f32(acc, c3, t3);
+        acc = vmulq_n_f32(acc, 0.5f);
+        if (cross) acc = vmlaq_n_f32(vmulq_n_f32(acc, w1), vld1q_f32(C + i), w);
+        vst1q_f32(S + i, acc);
+    }
+    // One-shot validation: confirm the NEON kernel matches the scalar reference
+    // (logs the max abs deviation; expect sub-1e-3, i.e. sub-pixel/imperceptible).
+    {
+        static bool sNeonChecked = false;
+        if (!sNeonChecked) {
+            sNeonChecked = true;
+            float maxd = 0.0f;
+            for (int i = 0; i < n; i++) {
+                float p0 = P0[i], a = A[i], b = B[i], p3 = P3[i];
+                float main = 0.5f * ((2.0f * a) + (-p0 + b) * t +
+                             (2.0f * p0 - 5.0f * a + 4.0f * b - p3) * t2 +
+                             (-p0 + 3.0f * a - 3.0f * b + p3) * t3);
+                float ref = cross ? (main * (1.0f - w) + C[i] * w) : main;
+                float d = fabsf(ref - S[i]); if (d > maxd) maxd = d;
+            }
+            ALOGI("ps3bg: NEON animateWave validation maxDiff=%.6g (cross=%d)",
+                  maxd, cross ? 1 : 0);
+        }
+    }
+#else
     for (int i = 0; i < n; i++) {
         float p0 = P0[i], a = A[i], b = B[i], p3 = P3[i];
         float main = 0.5f * ((2.0f * a) + (-p0 + b) * t +
                      (2.0f * p0 - 5.0f * a + 4.0f * b - p3) * t2 +
                      (-p0 + 3.0f * a - 3.0f * b + p3) * t3);
-        S[i] = (w > 0.0001f) ? (main * (1.0f - w) + C[i] * w) : main;
+        S[i] = cross ? (main * (1.0f - w) + C[i] * w) : main;
     }
+#endif
+    // Orphan the dynamic VBO before re-uploading so the driver hands back fresh
+    // storage instead of stalling the render thread on the GPU still reading
+    // last frame's wave from the same buffer (the per-frame ghost stall).
     glBindBuffer(GL_ARRAY_BUFFER, sWaveClipVBO);
+    glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)(n * sizeof(float)), nullptr, GL_DYNAMIC_DRAW);
     glBufferSubData(GL_ARRAY_BUFFER, 0, (GLsizeiptr)(n * sizeof(float)), S);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
@@ -859,6 +944,7 @@ void render(int panelW, int panelH, float dt, const float rotMat2[4], bool /*rot
     animateWave(dt);
     ps3part::update(dt);
     glBindFramebuffer(GL_FRAMEBUFFER, sWorkFbo);
+    discardColorTile();   // TBDR: skip the LOAD of last frame's tile (overwritten next)
     glViewport(0, 0, fw, fh);
     glDisable(GL_BLEND);
     glUseProgram(sBlitProg);
@@ -935,10 +1021,21 @@ void render(int panelW, int panelH, float dt, const float rotMat2[4], bool /*rot
     // device px -> panel NDC (y-down device to y-up NDC)
     float nx0 = fx0 / panelW * 2.0f - 1.0f, nx1 = fx1 / panelW * 2.0f - 1.0f;
     float ny0 = 1.0f - fy0 / panelH * 2.0f, ny1 = 1.0f - fy1 / panelH * 2.0f;
-    const GLfloat cv[] = {
-        nx0, ny1, 0.f, 0.f,   nx1, ny1, 1.f, 0.f,   nx1, ny0, 1.f, 1.f,
-        nx0, ny1, 0.f, 0.f,   nx1, ny0, 1.f, 1.f,   nx0, ny0, 0.f, 1.f,
-    };
+    // Composite quad lives in a VBO, recomputed only when the frame rect / panel
+    // changes (on resize) rather than marshalled as a client-side array every
+    // frame. The rotation is a uniform (sCompRot), not baked into the verts.
+    static GLuint sCompQuadVBO = 0;
+    static float sCq0 = 2.f, sCq1 = 2.f, sCq2 = 2.f, sCq3 = 2.f;
+    if (sCompQuadVBO == 0 || nx0 != sCq0 || nx1 != sCq1 || ny0 != sCq2 || ny1 != sCq3) {
+        sCq0 = nx0; sCq1 = nx1; sCq2 = ny0; sCq3 = ny1;
+        const GLfloat cv[] = {
+            nx0, ny1, 0.f, 0.f,   nx1, ny1, 1.f, 0.f,   nx1, ny0, 1.f, 1.f,
+            nx0, ny1, 0.f, 0.f,   nx1, ny0, 1.f, 1.f,   nx0, ny0, 0.f, 1.f,
+        };
+        if (!sCompQuadVBO) glGenBuffers(1, &sCompQuadVBO);
+        glBindBuffer(GL_ARRAY_BUFFER, sCompQuadVBO);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(cv), cv, GL_STATIC_DRAW);
+    }
     static const GLfloat kIdentity[4] = {1.f, 0.f, 0.f, 1.f};
     const GLfloat* rm = rotMat2 ? rotMat2 : kIdentity;
     glUniformMatrix2fv(sCompRot, 1, GL_FALSE, rm);
@@ -947,12 +1044,14 @@ void render(int panelW, int panelH, float dt, const float rotMat2[4], bool /*rot
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, sWorkTex);
     glUniform1i(sCompTex, 0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glVertexAttribPointer(sCompPos, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), cv);
+    glBindBuffer(GL_ARRAY_BUFFER, sCompQuadVBO);
+    glVertexAttribPointer(sCompPos, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (const void*)0);
     glEnableVertexAttribArray(sCompPos);
-    glVertexAttribPointer(sCompUV, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), cv + 2);
+    glVertexAttribPointer(sCompUV, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat),
+                          (const void*)(2 * sizeof(GLfloat)));
     glEnableVertexAttribArray(sCompUV);
     glDrawArrays(GL_TRIANGLES, 0, 6);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     // Leave no enabled client/VBO attrib arrays behind for the menu pass.
     glDisableVertexAttribArray(sCompPos);

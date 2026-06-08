@@ -1396,6 +1396,18 @@ void NanoMenu::render() {
     // shader programs. Called at the start of each render pass since the
     // rotation is global state that every program reads.
     auto uploadRotationMatrices = [this]() {
+        // Upload-on-change: the rotation matrix is identity in overlay mode and
+        // constant per orientation on the DRM home, so skip the 5 program re-binds
+        // + uniform uploads when it has not moved since the last upload. The
+        // programs retain their last-uploaded value, so this stays correct - a
+        // naive unconditional skip would leave the default-zero uRotation and
+        // collapse all text/icons (which rely on this global upload) to the origin.
+        static float sLastRot[4] = {2.f, 2.f, 2.f, 2.f};   // impossible -> first upload runs
+        if (sLastRot[0] == sDrmRotMat[0] && sLastRot[1] == sDrmRotMat[1] &&
+            sLastRot[2] == sDrmRotMat[2] && sLastRot[3] == sDrmRotMat[3])
+            return;
+        sLastRot[0] = sDrmRotMat[0]; sLastRot[1] = sDrmRotMat[1];
+        sLastRot[2] = sDrmRotMat[2]; sLastRot[3] = sDrmRotMat[3];
         const GLuint progs[] = {mShaderProgram, mTextProgram, mParticleProgram,
                                 mFxProgram, mXmbProgram};
         const GLint  locs[]  = {mLocRotation, mTextLocRotation, mParticleLocRotation,

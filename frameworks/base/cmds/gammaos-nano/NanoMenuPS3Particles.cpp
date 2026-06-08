@@ -253,12 +253,18 @@ void render(float scaleX, float scaleY, float yFlip, float frameH,
     float Hs = frameH / 720.0f;
     const float FOCUS_Z = 5.8f;
 
+    // Re-project the particle cloud at ~30Hz (every other frame): the loop below
+    // runs several transcendentals per particle plus a 45KB upload, and a 30Hz
+    // glint refresh over the animating wave is imperceptible. update() still
+    // advances the motion every frame; the off-frames redraw the cached VBO.
+    static unsigned sPartFrame = 0;
+    bool rebuild = ((sPartFrame++ & 1u) == 0u);
     // Build the per-particle GPU data (project + spinning-normal glint + DoF).
     float* d = sBuf.data();
     int o = 0;
     static const float kRotIdent[4] = {1.f, 0.f, 0.f, 1.f};
     const float* R = rotMat ? rotMat : kRotIdent;   // wave-coupling rotation (same as the shader's)
-    for (const Particle& p : sParts) {
+    if (rebuild) for (const Particle& p : sParts) {
         float w = -p.ez + 2.0f;
         if (w <= 0.001f) { d[o+3] = 0.0f; o += 8; continue; }
         float ndcX = kProjFx * p.ex / w;
@@ -335,7 +341,8 @@ void render(float scaleX, float scaleY, float yFlip, float frameH,
     static const float kIdentity[4] = {1.f, 0.f, 0.f, 1.f};
     glUniformMatrix2fv(sLocRot, 1, GL_FALSE, rotMat ? rotMat : kIdentity);
     glBindBuffer(GL_ARRAY_BUFFER, sVBO);
-    glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)(sBuf.size() * sizeof(float)), sBuf.data(), GL_DYNAMIC_DRAW);
+    if (rebuild)
+        glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)(sBuf.size() * sizeof(float)), sBuf.data(), GL_DYNAMIC_DRAW);
     const GLsizei ST = 8 * sizeof(float);
     glEnableVertexAttribArray(sLocPos);    glVertexAttribPointer(sLocPos,    2, GL_FLOAT, GL_FALSE, ST, (const void*)0);
     glEnableVertexAttribArray(sLocSize);   glVertexAttribPointer(sLocSize,   1, GL_FLOAT, GL_FALSE, ST, (const void*)(2*sizeof(float)));
