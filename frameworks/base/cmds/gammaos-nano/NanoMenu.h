@@ -467,6 +467,22 @@ private:
     void render();
     void drawQuad(float x, float y, float w, float h,
                   float r, float g, float b, float a);
+    // Selected-label glow: lay the glyphs out ONCE and emit all 15 offset copies
+    // (8 outer ring + 6 inner ring + 1 centre) in a single draw, instead of 15
+    // separate drawText calls that each re-decode and re-lay-out the same string.
+    // Bit-identical: each copy re-runs drawText's exact advance accumulation from
+    // its own (px+dx, py+dy), only the glyph cache lookups are shared.
+    void drawTextGlow(const char* str, float px, float py, float scale,
+                      float oR, float iR, float outerA, float innerA, float mainA);
+    // Flat-colour batch: while active, drawQuad/drawTriangle accumulate their NDC
+    // vertices + per-vertex colour into one buffer instead of issuing a draw each;
+    // flushSolidBatch() submits them in one glDrawArrays through mParticleProgram
+    // (same uRotation as mShaderProgram, set per frame). Same vertices, submission
+    // order and blend as the immediate path, so the composite is identical. Used
+    // to collapse the clock chrome's ~230 tiny draws into one.
+    void beginSolidBatch();
+    void flushSolidBatch();
+    void endSolidBatch();
     // GammaOS: Create EGL surfaces on every non-primary physical display so the
     // post-HWC render loop can drive wallpaper-only rendering on those panels.
     // Idempotent — first call wires the surfaces, subsequent calls are no-ops.
@@ -866,6 +882,21 @@ private:
     int    mPs3DateFormatIdx = 2;   // 0=YYYY/MM/DD 1=MM/DD/YYYY 2=DD/MM/YYYY (web order)
     int    mPs3TimeFormatIdx = 1;   // 0=12-Hour 1=24-Hour (web order)
     bool   mPs3DstNow = false;      // Daylight Saving currently active (live from tm_isdst)
+    // Clock digital-string cache: the formatted "D/M H:MM" string only changes on
+    // a minute (or format) boundary, so rebuild the snprintf set only when the key
+    // changes. measureText stays live (cheap, keeps the right-anchor correct under
+    // resize/orientation with no extra invalidation).
+    char   mPs3ClockStr[48] = {0};
+    int    mPs3ClockKMin = -1, mPs3ClockKHour = -1, mPs3ClockKMday = -1,
+           mPs3ClockKMon = -1, mPs3ClockKDateFmt = -1, mPs3ClockKTimeFmt = -1;
+    // Flat-colour batch state (see beginSolidBatch). When true, drawQuad/
+    // drawTriangle accumulate instead of drawing.
+    bool   mSolidBatchActive = false;
+    // Glass-icon frame-invariant uniforms (lights, ambient/spec/refraction, the
+    // rotation matrix, sampler unit indices) are constants; upload them once per
+    // frame on the first glass icon instead of ~14 glUniform calls per icon.
+    // Reset to false at the top of renderPs3Xmb each frame.
+    bool   mGlassUniformsSet = false;
     std::string mPs3DtDate;         // "YYYY/MM/DD" staged in the Set Manually wizard
     std::string mPs3DtTime;         // "HH:MM"
     // Dynamic text drop shadow, scaled by the wallpaper brightness each frame:

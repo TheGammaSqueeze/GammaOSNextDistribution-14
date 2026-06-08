@@ -75,6 +75,7 @@
 #include "NanoMenu.h"
 #include "NanoMenuShaders.h"
 #include "NanoMenuStrings.h"
+#include "NanoMenuPS3Bg.h"   // ps3bg::themeFading() for the adaptive idle frame-rate
 
 extern int gEarlyDrmFd;
 
@@ -3232,9 +3233,39 @@ if (sRingPrimedCount >= 2) {
                          || mShowLaunchBusy
                          || ((mMenuState == MENU_RECENT || mMenuState == MENU_APPS)
                              && mScrollOffset > 0.0f);
+        // GammaOS: adaptive idle frame-rate for the PS3 XMB. When the menu is
+        // fully settled (nothing navigating or transitioning - only the slow
+        // selected-label glow pulse and the clock tick still animate) the whole
+        // menu is byte-identical frame to frame, yet it otherwise re-renders the
+        // ~16-20 glass icons, the 15-copy label glow, the ~250-call clock and all
+        // glyphs at a hard 60fps. That is the dominant baseline cost UNDER EVERY
+        // wallpaper mode. Drop to ~30fps while settled: it halves both the CPU and
+        // the GPU of that floor and is imperceptible (the glow is a multi-second
+        // cosine, the clock ticks per second). pollInput() clears the animation
+        // flags before this runs, so the first frame of a new navigation is
+        // already back at 60fps with no snap-back jank. Tunable via
+        // persist.gammaos.nano.ps3xmb.idlefps (default 30; set 60 to disable).
+        bool ps3Settled = mPs3Xmb && !mPs3CatAnimActive
+                       && mPs3ItemAnimStart < 0.0f && mPs3SubAnimStart < 0.0f
+                       && mOverlayEnterStart < 0.0f
+                       && !mPs3BootActive && !mPs3WizActive && !mPs3DlgActive
+                       && !mPs3TzActive && !mShowBrightnessBar && !mShowVolumeBar
+                       && mLaunchFadeStart == 0 && !mOverlayLaunchPending
+                       && !ps3bg::themeFading();
         int frameTimeUs;
         if (sDrmActive || xmbActive || mXmbMode || mPs3Xmb || proceduralFx) {
             frameTimeUs = 16666; // 60fps — vsync-locked, no usleep
+            if (ps3Settled) {
+                static int sIdleFps = -1;
+                if (sIdleFps < 0) {
+                    char b[PROPERTY_VALUE_MAX] = {};
+                    property_get("persist.gammaos.nano.ps3xmb.idlefps", b, "30");
+                    sIdleFps = atoi(b);
+                    if (sIdleFps < 1) sIdleFps = 30;
+                    if (sIdleFps > 60) sIdleFps = 60;
+                }
+                if (sIdleFps < 60) frameTimeUs = 1000000 / sIdleFps;   // e.g. 30fps -> 33333us
+            }
         } else if (animating) {
             frameTimeUs = 50000; // 20fps for particles
         } else {

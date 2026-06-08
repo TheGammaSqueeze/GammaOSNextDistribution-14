@@ -452,25 +452,46 @@ void NanoMenu::drawGlassIcon(GLuint nmapTex, float x, float y, float w, float h,
     const GLfloat iuv[] = { 0,1,    1,1,    1,0,     1,0,    0,0,    0,1 };
     const GLfloat buv[] = { bL,bBot, bR,bBot, bR,bTop,  bR,bTop, bL,bTop, bL,bBot };
 
-    float light1[3], light2[3];
-    angleLight(-32.4f, 22.8f, light1);
-    angleLight(135.0f, 60.0f, light2);
+    // The two light vectors are pure functions of compile-time literals; compute
+    // them once into file statics (identical sinf/cosf/sqrtf path -> bit-identical
+    // to the per-call result) instead of redoing the trig for every icon.
+    static float sGlassLight1[3], sGlassLight2[3];
+    static bool  sGlassLightReady = false;
+    if (!sGlassLightReady) {
+        angleLight(-32.4f, 22.8f, sGlassLight1);
+        angleLight(135.0f, 60.0f, sGlassLight2);
+        sGlassLightReady = true;
+    }
 
     glUseProgram(mIconGlassProgram);
-    glUniformMatrix2fv(mIconGlassLocRot, 1, GL_FALSE, sDrmRotMat);
-    glActiveTexture(GL_TEXTURE0); glBindTexture(GL_TEXTURE_2D, nmapTex);      glUniform1i(mIconGlassLocNormal, 0);
-    glActiveTexture(GL_TEXTURE1); glBindTexture(GL_TEXTURE_2D, mIconGlassAmbTex); glUniform1i(mIconGlassLocAmb, 1);
-    glActiveTexture(GL_TEXTURE2); glBindTexture(GL_TEXTURE_2D, mIconGlassEnvTex); glUniform1i(mIconGlassLocEnv, 2);
-    glActiveTexture(GL_TEXTURE3); glBindTexture(GL_TEXTURE_2D, bgTex);        glUniform1i(mIconGlassLocBg, 3);
-    glUniform3fv(mIconGlassLocLight1, 1, light1);
-    glUniform3fv(mIconGlassLocLight2, 1, light2);
-    glUniform3fv(mIconGlassLocAmbient, 1, kIconAmbient);
-    glUniform4fv(mIconGlassLocSpec, 1, kIconSpec);
-    glUniform3fv(mIconGlassLocRefr, 1, kIconRefr);
-    glUniform1f(mIconGlassLocRefrScl, kIconRefrScl);
-    glUniform2fv(mIconGlassLocAttn, 1, kIconAttnDiffEnv);
+    glActiveTexture(GL_TEXTURE0); glBindTexture(GL_TEXTURE_2D, nmapTex);
+    glActiveTexture(GL_TEXTURE1); glBindTexture(GL_TEXTURE_2D, mIconGlassAmbTex);
+    glActiveTexture(GL_TEXTURE2); glBindTexture(GL_TEXTURE_2D, mIconGlassEnvTex);
+    glActiveTexture(GL_TEXTURE3); glBindTexture(GL_TEXTURE_2D, bgTex);
+    // Frame-invariant uniforms (rotation matrix, sampler-unit indices, the light
+    // vectors and the material/refraction constants) are uploaded once per frame
+    // on the first glass icon - mGlassUniformsSet is armed at the top of
+    // renderPs3Xmb. mIconGlassProgram is glass-only, so its uniform state survives
+    // the program switches (text/strokes) between icons. The textures are still
+    // bound per icon (the normal map changes; the others are cheap to rebind).
+    if (!mGlassUniformsSet) {
+        glUniformMatrix2fv(mIconGlassLocRot, 1, GL_FALSE, sDrmRotMat);
+        glUniform1i(mIconGlassLocNormal, 0);
+        glUniform1i(mIconGlassLocAmb, 1);
+        glUniform1i(mIconGlassLocEnv, 2);
+        glUniform1i(mIconGlassLocBg, 3);
+        glUniform3fv(mIconGlassLocLight1, 1, sGlassLight1);
+        glUniform3fv(mIconGlassLocLight2, 1, sGlassLight2);
+        glUniform3fv(mIconGlassLocAmbient, 1, kIconAmbient);
+        glUniform4fv(mIconGlassLocSpec, 1, kIconSpec);
+        glUniform3fv(mIconGlassLocRefr, 1, kIconRefr);
+        glUniform1f(mIconGlassLocRefrScl, kIconRefrScl);
+        glUniform2fv(mIconGlassLocAttn, 1, kIconAttnDiffEnv);
+        glUniform1f(mIconGlassLocBgExp, kBgExposure);
+        mGlassUniformsSet = true;
+    }
+    // Per-icon uniforms: the tint/alpha and the work-texture radius (icon size).
     glUniform4f(mIconGlassLocChanging, cr, cg, cb, alpha);
-    glUniform1f(mIconGlassLocBgExp, kBgExposure);
     glUniform2f(mIconGlassLocBgRad, (w * 0.5f) / fw, (h * 0.5f) / fh);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);

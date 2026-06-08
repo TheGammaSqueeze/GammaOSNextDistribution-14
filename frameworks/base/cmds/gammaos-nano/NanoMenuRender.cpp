@@ -486,12 +486,63 @@ void NanoMenu::setUiBlend() {
     }
 }
 
+// ---------------------------------------------------------------------------
+// Flat-colour batch (see beginSolidBatch in the header). While mSolidBatchActive
+// is set, drawQuad/drawTriangle append their NDC vertices + a per-vertex colour
+// here instead of issuing one glDrawArrays each. flushSolidBatch submits the lot
+// through mParticleProgram (per-vertex colour, same uRotation as mShaderProgram,
+// uploaded once per frame). Same vertices, same submission order, same blend, so
+// the composited result is byte-identical to the immediate path.
+static const int SOLID_BATCH_MAX_VERTS = 4096;
+static GLfloat sSolidPos[SOLID_BATCH_MAX_VERTS * 2];
+static GLfloat sSolidCol[SOLID_BATCH_MAX_VERTS * 4];
+static int     sSolidN = 0;
+
+static inline void solidPush(float nx, float ny, float r, float g, float b, float a) {
+    int p = sSolidN * 2, c = sSolidN * 4;
+    sSolidPos[p] = nx; sSolidPos[p + 1] = ny;
+    sSolidCol[c] = r; sSolidCol[c + 1] = g; sSolidCol[c + 2] = b; sSolidCol[c + 3] = a;
+    sSolidN++;
+}
+
+void NanoMenu::flushSolidBatch() {
+    if (sSolidN <= 0) return;
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glUseProgram(mParticleProgram);   // gl_FragColor = vColor, uRotation set per frame
+    glVertexAttribPointer(mParticleLocPosition, 2, GL_FLOAT, GL_FALSE, 0, sSolidPos);
+    glEnableVertexAttribArray(mParticleLocPosition);
+    glVertexAttribPointer(mParticleLocColor, 4, GL_FLOAT, GL_FALSE, 0, sSolidCol);
+    glEnableVertexAttribArray(mParticleLocColor);
+    glDrawArrays(GL_TRIANGLES, 0, sSolidN);
+    glDisableVertexAttribArray(mParticleLocPosition);
+    glDisableVertexAttribArray(mParticleLocColor);
+    sSolidN = 0;
+}
+
+void NanoMenu::beginSolidBatch() {
+    flushSolidBatch();
+    sSolidN = 0;
+    // Only batch if the per-vertex-colour program exists. It is stripped on the
+    // drastic QR fast-path (mParticleProgram == 0), which never reaches the clock,
+    // but this guarantees drawQuad/drawTriangle fall back to their immediate path
+    // rather than the clock silently vanishing if that ever changes.
+    mSolidBatchActive = (mParticleProgram != 0 && mParticleLocPosition >= 0 && mParticleLocColor >= 0);
+}
+void NanoMenu::endSolidBatch()   { flushSolidBatch(); mSolidBatchActive = false; }
+
 void NanoMenu::drawQuad(float x, float y, float w, float h,
                          float r, float g, float b, float a) {
     float x0 = (x / mWidth) * 2.0f - 1.0f;
     float y0 = 1.0f - ((y + h) / mHeight) * 2.0f;
     float x1 = ((x + w) / mWidth) * 2.0f - 1.0f;
     float y1 = 1.0f - (y / mHeight) * 2.0f;
+    if (mSolidBatchActive) {
+        // Same 6-vertex order as the immediate verts[] below (BL,BR,TR,TR,TL,BL).
+        if (sSolidN + 6 > SOLID_BATCH_MAX_VERTS) flushSolidBatch();
+        solidPush(x0, y0, r, g, b, a); solidPush(x1, y0, r, g, b, a); solidPush(x1, y1, r, g, b, a);
+        solidPush(x1, y1, r, g, b, a); solidPush(x0, y1, r, g, b, a); solidPush(x0, y0, r, g, b, a);
+        return;
+    }
     GLfloat verts[] = { x0,y0, x1,y0, x1,y1, x1,y1, x0,y1, x0,y0 };
     // Unbind any VBO so the glVertexAttribPointer below is treated as a
     // client memory pointer. DrasticRunner::drawDsQuad leaves mQuadVbo
@@ -542,11 +593,15 @@ void NanoMenu::drawRoundedRect(float x, float y, float w, float h, float radius,
 void NanoMenu::drawTriangle(float x0, float y0, float x1, float y1,
                             float x2, float y2,
                             float r, float g, float b, float a) {
-    GLfloat verts[] = {
-        (x0 / mWidth) * 2.0f - 1.0f, 1.0f - (y0 / mHeight) * 2.0f,
-        (x1 / mWidth) * 2.0f - 1.0f, 1.0f - (y1 / mHeight) * 2.0f,
-        (x2 / mWidth) * 2.0f - 1.0f, 1.0f - (y2 / mHeight) * 2.0f,
-    };
+    float n0x = (x0 / mWidth) * 2.0f - 1.0f, n0y = 1.0f - (y0 / mHeight) * 2.0f;
+    float n1x = (x1 / mWidth) * 2.0f - 1.0f, n1y = 1.0f - (y1 / mHeight) * 2.0f;
+    float n2x = (x2 / mWidth) * 2.0f - 1.0f, n2y = 1.0f - (y2 / mHeight) * 2.0f;
+    if (mSolidBatchActive) {
+        if (sSolidN + 3 > SOLID_BATCH_MAX_VERTS) flushSolidBatch();
+        solidPush(n0x, n0y, r, g, b, a); solidPush(n1x, n1y, r, g, b, a); solidPush(n2x, n2y, r, g, b, a);
+        return;
+    }
+    GLfloat verts[] = { n0x, n0y, n1x, n1y, n2x, n2y };
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glUseProgram(mShaderProgram);
     glUniform4f(mLocColor, r, g, b, a);
@@ -1187,6 +1242,94 @@ void NanoMenu::drawText(const char* str, float px, float py, float scale,
     glVertexAttribPointer(mTextLocColor, 4, GL_FLOAT, GL_FALSE, 0, sTextColors);
     glEnableVertexAttribArray(mTextLocColor);
     glDrawArrays(GL_TRIANGLES, 0, n * 6);
+    glDisableVertexAttribArray(mTextLocPosition);
+    glDisableVertexAttribArray(mTextLocTexCoord);
+    glDisableVertexAttribArray(mTextLocColor);
+}
+
+// Selected-label glow. The pulsing halo behind the active item/category label was
+// 15 separate drawText calls (8 outer ring + 6 inner ring + 1 centre), each of
+// which re-decoded the UTF-8 string and re-looked-up every glyph in the cache
+// before laying it out. Here the glyph cache lookups happen ONCE; each of the 15
+// copies then re-runs drawText's exact advance accumulation from its own offset
+// origin (px+dx, py+dy) and emits into the shared batch, flushed in as few draws
+// as the buffer allows (one draw for any normal-length label). Bit-identical to
+// the original loop: the per-copy arithmetic (curX accumulation, baseline, the
+// gx/gy/gw/gh and NDC formulas) is byte-for-byte what drawText does, and the copies
+// are emitted in the same order so the additive translucent blend is unchanged.
+// All copies are white with mTextOutlineMode == 2 (no outline), matching the loop.
+void NanoMenu::drawTextGlow(const char* str, float px, float py, float scale,
+                            float oR, float iR, float outerA, float innerA, float mainA) {
+    if (!str || !*str || mFtNumFaces == 0) return;
+    float pixelScale = (FONT_CHAR_H * scale) / (float)mFontSize;
+    float invW = 2.0f / mWidth, invH = 2.0f / mHeight;
+    // Pass 1: resolve glyphs ONCE (the expensive UTF-8 decode + cache lookup).
+    const GlyphInfo* gl[TEXT_MAX_CHARS];
+    int nG = 0;
+    for (const char* p = str; *p && nG < TEXT_MAX_CHARS; ) {
+        uint32_t cp;
+        uint8_t b0 = (uint8_t)*p;
+        if (b0 < 0x80) { cp = b0; p++; }
+        else if ((b0 & 0xE0) == 0xC0) { cp = ((b0 & 0x1F) << 6) | (p[1] & 0x3F); p += 2; }
+        else if ((b0 & 0xF0) == 0xE0) { cp = ((b0 & 0x0F) << 12) | ((p[1] & 0x3F) << 6) | (p[2] & 0x3F); p += 3; }
+        else if ((b0 & 0xF8) == 0xF0) { cp = ((b0 & 0x07) << 18) | ((p[1] & 0x3F) << 12) | ((p[2] & 0x3F) << 6) | (p[3] & 0x3F); p += 4; }
+        else { p++; continue; }
+        ensureGlyph(cp);
+        auto it = mGlyphCache.find(cp);
+        if (it == mGlyphCache.end()) continue;
+        gl[nG++] = &it->second;
+    }
+    if (nG == 0) return;
+    // The 15 copies, in submission order (8 outer ring, 6 inner ring, centre).
+    struct Tap { float dx, dy, a; };
+    Tap taps[15];
+    int nT = 0;
+    for (int k = 0; k < 8; k++) { float a = (float)k / 8.0f * 2.0f * (float)M_PI;
+        taps[nT].dx = cosf(a) * oR; taps[nT].dy = sinf(a) * oR; taps[nT].a = outerA; nT++; }
+    for (int k = 0; k < 6; k++) { float a = ((float)k + 0.5f) / 6.0f * 2.0f * (float)M_PI;
+        taps[nT].dx = cosf(a) * iR; taps[nT].dy = sinf(a) * iR; taps[nT].a = innerA; nT++; }
+    taps[nT].dx = 0.0f; taps[nT].dy = 0.0f; taps[nT].a = mainA; nT++;
+
+    glUseProgram(mTextProgram);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, mGlyphAtlasTex);
+    glUniform1i(mTextLocTexture, 0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    int n = 0;
+    auto flush = [&]() {
+        if (n == 0) return;
+        glVertexAttribPointer(mTextLocPosition, 2, GL_FLOAT, GL_FALSE, 0, sTextVerts);
+        glEnableVertexAttribArray(mTextLocPosition);
+        glVertexAttribPointer(mTextLocTexCoord, 2, GL_FLOAT, GL_FALSE, 0, sTextUVs);
+        glEnableVertexAttribArray(mTextLocTexCoord);
+        glVertexAttribPointer(mTextLocColor, 4, GL_FLOAT, GL_FALSE, 0, sTextColors);
+        glEnableVertexAttribArray(mTextLocColor);
+        glDrawArrays(GL_TRIANGLES, 0, n * 6);
+        n = 0;
+    };
+    for (int t = 0; t < nT; t++) {
+        float curX = px + taps[t].dx;
+        float baseline = (py + taps[t].dy) + mFontSize * pixelScale * 0.8f;
+        float a = taps[t].a;
+        for (int i = 0; i < nG; i++) {
+            const GlyphInfo& gi = *gl[i];
+            if (gi.bmpW == 0 || gi.bmpH == 0) { curX += gi.advance * gi.scaleW * pixelScale; continue; }
+            float gw = gi.bmpW * gi.scaleW * pixelScale;
+            float gh = gi.bmpH * gi.scaleH * pixelScale;
+            float gx = curX + gi.bearingX * gi.scaleW * pixelScale;
+            float gy = baseline - gi.bearingY * gi.scaleH * pixelScale;
+            if (n >= TEXT_BUF_QUADS) flush();
+            float qx0 = gx * invW - 1.0f;
+            float qy0 = 1.0f - (gy + gh) * invH;
+            float qx1 = (gx + gw) * invW - 1.0f;
+            float qy1 = 1.0f - gy * invH;
+            // Glow copies are white (the original passed r=g=b=1); colour glyphs
+            // still render their own atlas colour, matching drawText's main pass.
+            emitGlyph(n++, qx0, qy0, qx1, qy1, gi.u0, gi.v0, gi.u1, gi.v1, 1.0f, 1.0f, 1.0f, a);
+            curX += gi.advance * gi.scaleW * pixelScale;
+        }
+    }
+    flush();
     glDisableVertexAttribArray(mTextLocPosition);
     glDisableVertexAttribArray(mTextLocTexCoord);
     glDisableVertexAttribArray(mTextLocColor);

@@ -651,6 +651,9 @@ void NanoMenu::ps3XmbBack() {
 // ---------------------------------------------------------------------------
 void NanoMenu::renderPs3Xmb() {
     if (!mPs3MenuBuilt) initPs3Menu();
+    // Arm the once-per-frame glass-icon uniform upload (drawGlassIcon sends the
+    // frame-invariant uniforms on the first icon, skips them on the rest).
+    mGlassUniformsSet = false;
     // Route all PS3 text through drawText's EVEN 4-offset outline (mode 1) instead
     // of the default single directional drop shadow. It is symmetric on all four
     // sides (fixing the uneven/clipped look), subtle, brightness-scaled (ratio set
@@ -1022,18 +1025,17 @@ void NanoMenu::renderPs3Xmb() {
             // set for the frame); the active label instead gets the dual-halo white
             // glow, drawn with mode 2 (no dark outline on the bright halo copies).
             if (isActive) {
-                int savedMode = mTextOutlineMode; mTextOutlineMode = 2;
                 float phase = fmodf(mEffectTime, ps3::PULSE_PERIOD_MS / 1000.0f) / (ps3::PULSE_PERIOD_MS / 1000.0f);
                 float s = 0.5f * (1.0f - cosf(phase * 2.0f * (float)M_PI));
                 float outerA = ps3::PULSE_ALPHA_MIN + (ps3::PULSE_ALPHA_MAX - ps3::PULSE_ALPHA_MIN) * s;
                 float innerA = ps3::PULSE_INNER_MIN + (ps3::PULSE_INNER_MAX - ps3::PULSE_INNER_MIN) * s;
                 float oR = ps3::devS(5.0f), iR = ps3::devS(2.2f);
-                for (int k = 0; k < 8; k++) { float a = (float)k / 8.0f * 2.0f * (float)M_PI;
-                    drawText(L, lx + cosf(a) * oR, ty + sinf(a) * oR, ts, 1.0f, 1.0f, 1.0f, outerA * alphaMul * 0.16f); }
-                for (int k = 0; k < 6; k++) { float a = ((float)k + 0.5f) / 6.0f * 2.0f * (float)M_PI;
-                    drawText(L, lx + cosf(a) * iR, ty + sinf(a) * iR, ts, 1.0f, 1.0f, 1.0f, innerA * alphaMul * 0.28f); }
-                drawText(L, lx, ty, ts, 1.0f, 1.0f, 1.0f, alpha);
-                mTextOutlineMode = savedMode;
+                // The 8 outer + 6 inner glow copies + the white centre, laid out
+                // once and drawn in a single batch (no outline, == the old mode-2
+                // drawText loop). The dark even-outline non-active labels below keep
+                // mTextOutlineMode (==1) which drawTextGlow never touches.
+                drawTextGlow(L, lx, ty, ts, oR, iR,
+                             outerA * alphaMul * 0.16f, innerA * alphaMul * 0.28f, alpha);
             } else {
                 drawText(L, lx, ty, ts, 0.92f, 0.92f, 0.92f, alpha);
             }
@@ -1192,8 +1194,14 @@ void NanoMenu::drawPs3Clock(float fadeMul) {
     // Format reorders day vs month in the compact corner bar (no year, like the
     // PS3 clock); Time Format switches 12-hour (+AM/PM) vs 24-hour. The analog
     // face below already uses tm_hour % 12 so it needs no change.
-    char timeStr[48];
-    {
+    // Rebuild the digital string only on a minute/hour/date/format boundary (it
+    // has no seconds), otherwise reuse the cached mPs3ClockStr. lt itself stays
+    // live every frame (the analog hands and mPs3DstNow need it); only the 3
+    // snprintf are gated. measureText below stays live so the right-anchor stays
+    // correct across resize/orientation with no extra key.
+    if (lt.tm_min != mPs3ClockKMin || lt.tm_hour != mPs3ClockKHour ||
+        lt.tm_mday != mPs3ClockKMday || lt.tm_mon != mPs3ClockKMon ||
+        mPs3DateFormatIdx != mPs3ClockKDateFmt || mPs3TimeFormatIdx != mPs3ClockKTimeFmt) {
         char dp[16], tp[20];
         if (mPs3DateFormatIdx == 2) snprintf(dp, sizeof(dp), "%d/%d", lt.tm_mday, lt.tm_mon + 1);   // DD/MM/YYYY -> D/M
         else                        snprintf(dp, sizeof(dp), "%d/%d", lt.tm_mon + 1, lt.tm_mday);   // (YYYY/)MM/DD -> M/D
@@ -1203,8 +1211,12 @@ void NanoMenu::drawPs3Clock(float fadeMul) {
         } else {                        // 24-Hour Clock
             snprintf(tp, sizeof(tp), "%d:%02d", lt.tm_hour, lt.tm_min);
         }
-        snprintf(timeStr, sizeof(timeStr), "%s %s", dp, tp);
+        snprintf(mPs3ClockStr, sizeof(mPs3ClockStr), "%s %s", dp, tp);
+        mPs3ClockKMin = lt.tm_min; mPs3ClockKHour = lt.tm_hour;
+        mPs3ClockKMday = lt.tm_mday; mPs3ClockKMon = lt.tm_mon;
+        mPs3ClockKDateFmt = mPs3DateFormatIdx; mPs3ClockKTimeFmt = mPs3TimeFormatIdx;
     }
+    const char* timeStr = mPs3ClockStr;
 
     const float shiftV = ps3::VW * (ps3::LAYOUT_FIT - 1.0f);   // right-anchor
     auto cx = [&](float vx) { return ps3::devX(vx + shiftV); };
@@ -1243,6 +1255,12 @@ void NanoMenu::drawPs3Clock(float fadeMul) {
     // and stacked with this fill (making the bar ~2x too dark) and poked dark
     // pixels at the rounded corners. The drop-shadow feel comes from the per-
     // element (text / face / status) panel-down shadows below.
+    // The dim panel, inner glow, border stroke and analog face below are all
+    // flat-colour drawQuad/drawTriangle with no text between them - ~230 tiny draws
+    // that are identical every frame. Batch them into one glDrawArrays (same
+    // vertices/order/blend); the digital time + battery/Wi-Fi/BT that follow use
+    // text/icons, so the batch ends before them.
+    beginSolidBatch();
     fillURect(dxL, dyT, dxR, dyB, fr, 0.0f, 0.0f, 0.0f, 0.18f * fadeMul);
 
     // border outline (open-right): top + bottom + left lines + the two rounded corners.
@@ -1319,6 +1337,7 @@ void NanoMenu::drawPs3Clock(float fadeMul) {
     };
     face(so[0], so[1], 0.0f, 0.0f, 0.0f, 0.55f * fadeMul);      // drop shadow (panel-down)
     face(0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 0.96f * fadeMul);        // crisp
+    endSolidBatch();   // flush the batched panel/glow/border/face as one draw
 
     // ---- bar layout: status icons [battery][Wi-Fi][BT] anchored to the LEFT of
     // the bar; the date/time + analog face on the RIGHT. All at the clock-icon
