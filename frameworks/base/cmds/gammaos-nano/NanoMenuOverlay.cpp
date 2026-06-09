@@ -444,6 +444,24 @@ void NanoMenu::overlayShow() {
         }
     }
 
+    // Power-button raise over a running app: land on the Quick Menu (the GammaOS
+    // legacy global actions) as the default category, mirroring the PS3 in-game XMB
+    // opening on its system row. Only in scrim-over-app mode; when re-raised as the
+    // post-exit launcher (wallpaper mode) keep the normal home category. Snap with no
+    // rail animation and clear any leftover submenu / modal from a prior raise. The
+    // Quick Menu is always the first category buildPs3Cats pushes (index 0).
+    if (!mPs3MenuBuilt) initPs3Menu();   // ensure the categories exist before the snap
+    int quickIdx = (mPs3QuickCatIdx >= 0) ? mPs3QuickCatIdx : 0;
+    if (!mOverlayWallpaper && quickIdx < (int)mPs3Cats.size()) {
+        mPs3Stack.clear();
+        mPs3DlgActive = false; mPs3BrightSlider = false;
+        mPs3CatIdx  = quickIdx;
+        mPs3ItemIdx = 0;
+        mPs3CatItemSel[mPs3CatIdx] = 0;
+        mPs3AnimItem = 0.0f; mPs3ItemAnimStart = -1.0f; mPs3SubAnimStart = -1.0f;
+        mPs3CatAnimActive = false; mPs3CatT = 1.0f; mPs3CatFromOffset = 0.0f;
+    }
+
     mOverlayShown = true;
     // Cold-boot-style fade + float-in of the XMB chrome (renderPs3Xmb stamps the
     // real start on the first rendered frame).
@@ -592,6 +610,62 @@ static std::string overlayShellCapture(const char* cmd) {
            (out.back() == '\n' || out.back() == '\r' || out.back() == ' '))
         out.pop_back();
     return out;
+}
+
+// Quick Menu: replicate the GammaOS legacy "Kill Background Apps" / "Kill All
+// Apps" global actions. `pm list packages -3` enumerates only third-party
+// (non-system) packages, mirroring the legacy action's FLAG_SYSTEM skip;
+// force-stopping a package that is not running is a harmless no-op, so the
+// observable result (every third-party app stopped) matches the legacy
+// ActivityManager.forceStopPackage sweep over running processes. The Kill
+// Background variant skips the current foreground package so the running game
+// keeps going. Runs on a detached thread because the sweep shells out per
+// package and must not stall the render loop.
+void NanoMenu::quickKillApps(bool includeForeground) {
+    std::string fg = includeForeground ? std::string() : overlayResolveForegroundPkg();
+    std::thread([includeForeground, fg]() {
+        std::string list = overlayShellCapture("pm list packages -3 2>/dev/null");
+        size_t pos = 0;
+        int killed = 0;
+        while (pos < list.size()) {
+            size_t nl = list.find('\n', pos);
+            std::string line = list.substr(pos, nl == std::string::npos ? std::string::npos : nl - pos);
+            pos = (nl == std::string::npos) ? list.size() : nl + 1;
+            const char* pfx = "package:";
+            size_t p = line.find(pfx);
+            std::string pkg = (p == std::string::npos) ? line : line.substr(p + strlen(pfx));
+            while (!pkg.empty() && (pkg.back() == '\r' || pkg.back() == '\n' || pkg.back() == ' '))
+                pkg.pop_back();
+            if (pkg.empty() || pkg.find('.') == std::string::npos) continue;
+            if (pkg.find("gammaos") != std::string::npos) continue;          // never ourselves
+            if (!includeForeground && !fg.empty() && pkg == fg) continue;    // keep the running game
+            char c[320];
+            snprintf(c, sizeof(c), "am force-stop %s 2>/dev/null", overlayShq(pkg).c_str());
+            system(c);
+            killed++;
+        }
+        ALOGI("nano: quickKillApps(includeForeground=%d) force-stopped %d third-party packages",
+              includeForeground, killed);
+    }).detach();
+}
+
+// Quick Menu -> Kill All Apps (in-game overlay). Hard-stop EVERY third-party app, the
+// foreground game included, and drop back to the home launcher. Simply force-stopping
+// the running game makes RootWindowContainer relaunch it (its launch state is still
+// live -- the user "can still hear the game after Kill All"), so clear the relaunch
+// triggers and become the wallpaper launcher FIRST -- exactly as overlayQuitToHome
+// does for a clean quit -- then force-stop everything. NOTE: no pending_exit here; in
+// overlay-home mode that can spawn a DRM-home nano that fights the SF overlay launcher.
+void NanoMenu::overlayKillAll() {
+    mOverlayWallpaper = true;
+    property_set("sys.gammaos.nano.app_launched", "0");
+    property_set("sys.gammaos.nano.launch_app", "");
+    property_set("sys.gammaos.nano.return_apps", "0");
+    property_set("persist.gammaos.nano.qr_prepared", "0");
+    property_set("persist.gammaos.nano.qr_core", "");
+    mOverlayPausedPkg.clear();
+    unlink(kOverlayFrozenMarker);
+    quickKillApps(true);   // force-stop ALL incl the game; app_launched=0 blocks the relaunch
 }
 
 // Build the Storage Access Framework content:// URI for a ROM, mirroring the
@@ -821,7 +895,7 @@ void NanoMenu::overlayPoll() {
     property_get("sys.gammaos.nano.show_overlay", v, "0");
     bool want = (v[0] == '1' && v[1] == '\0');
     if (want && !mOverlayShown) {
-        overlayShow();
+        overlayShow();   // snaps to the Quick Menu by default in scrim-over-app mode
     } else if (!want && mOverlayShown) {
         overlayHide();
     }

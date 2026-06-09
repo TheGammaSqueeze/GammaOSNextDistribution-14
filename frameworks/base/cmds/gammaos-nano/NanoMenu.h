@@ -725,6 +725,7 @@ private:
     int mMaxBrightness;
     bool mShowBrightnessBar;
     int mBrightnessBarTimer;
+    bool mPs3BrightSlider = false;   // Quick Menu brightness slider modal: Left/Right adjust, any other key exits
     int mVolume;
     int mMaxVolume;
     bool mShowVolumeBar;
@@ -811,6 +812,7 @@ private:
         PS3_LAUNCH_PKG,   // launch a package (payloadStr = package name)
         PS3_DATA_SUBMENU, // a static DATA item with children -> submenu (data*)
         PS3_DATA_LEAF,    // a static DATA leaf (dialog / value / info, no action)
+        PS3_QUICK,        // Quick Menu action; a = action code (QA_* in NanoMenuPS3Menu.cpp)
     };
     struct Ps3Item {
         std::string label;
@@ -958,6 +960,8 @@ private:
     std::vector<Ps3Cat> mPs3Cats;
     std::vector<Ps3Level> mPs3Stack;   // empty = at category top level
     int mPs3CatIdx = -1;
+    int mPs3QuickCatIdx = -1;     // runtime index of the Quick Menu category (-1 if absent)
+    std::string mPs3PerfModeLabel = "Normal";  // cached persist.gammaos.performance_mode label (Quick Menu row value)
     int mPs3ItemIdx = 0;          // selection in the top-level item list (per-category)
     std::vector<int> mPs3CatItemSel;   // remembered item selection per category
     // Timed animation state mirroring the web's catAnim / itemAnim model so the
@@ -1018,6 +1022,12 @@ private:
     Ps3Item makeDataItem(const Ps3DataItem* d);   // runtime item from a DATA node
     void buildDataSubmenu(const Ps3DataItem* node, Ps3Level& out);
     void buildRomSubmenu(int sysIdx, Ps3Level& out);
+    // Quick Menu (nano legacy global actions): the Power submenu builder, the
+    // performance-mode side-panel chooser, and the kill-apps backend.
+    void buildQuickPowerSubmenu(Ps3Level& out);
+    void openPerformanceChooser();
+    void quickKillApps(bool includeForeground);
+    void overlayKillAll();   // Quick Menu Kill All Apps (overlay): hard-stop every app incl the game, no relaunch
     void buildRecentSubmenu(Ps3Level& out);
     void buildAppSubmenu(Ps3Level& out);
     std::vector<Ps3Item>& ps3CurItems();   // current visible item list (top or submenu)

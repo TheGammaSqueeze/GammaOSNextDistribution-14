@@ -152,6 +152,9 @@ int NanoMenu::readAndroidBrightness() {
 
 void NanoMenu::renderBrightnessBar() {
     if (!mShowBrightnessBar) return;
+    // While the Quick Menu brightness slider modal is open the HUD stays pinned up
+    // (it is dismissed explicitly by any non-Left/Right key, not by timeout).
+    if (mPs3BrightSlider) mBrightnessBarTimer = 90;
     if (--mBrightnessBarTimer <= 0) {
         mShowBrightnessBar = false;
         return;

@@ -277,6 +277,10 @@ void NanoMenu::initPs3Menu() {
         mPs3CatTex[i] = loadPs3IconTex(kCatIconFiles[i]);
         mPs3CatNmap[i] = nmapForIcon(i + 1);   // category icons are xmb_icon 1..6
     }
+    // Quick Menu category icon (free slot 6): the xmb_icon_054 power glyph + its
+    // glass normal map, so the new category renders the live-wave glass effect.
+    mPs3CatTex[6]  = loadPs3IconTex("xmb_icon_054.png");
+    mPs3CatNmap[6] = nmapForIcon(54);
     buildPs3Cats();
     loadPs3ThemeSettings();   // apply any saved Theme Settings (colour / day-night)
     buildTimezoneList();      // populate mTzEntries + pre-select the current zone so
@@ -366,9 +370,55 @@ void NanoMenu::buildAppSubmenu(Ps3Level& out) {
     }
 }
 
+// Quick Menu action codes (Ps3Item.a when kind == PS3_QUICK). Dispatched in
+// ps3XmbSelect(). These mirror the GammaOS Nano legacy global actions.
+enum {
+    QA_BRIGHTNESS = 0,   // brightness HUD (Left/Right adjusts the row in place)
+    QA_PERFORMANCE,      // performance-mode side-panel chooser (theme key 10)
+    QA_CLOSE_APP,        // close the current foreground app (overlay only)
+    QA_KILL_BG,          // force-stop background apps (spare the foreground)
+    QA_KILL_ALL,         // force-stop all third-party apps
+    QA_POWER_SUBMENU,    // open the Power submenu
+    QA_RESTART,          // reboot
+    QA_POWEROFF,         // shutdown
+    QA_RECOVERY,         // reboot to recovery
+    QA_SAFEMODE,         // reboot to safe mode
+    QA_BOOT_ANDROID,     // exit nano -> full Android
+};
+
 void NanoMenu::buildPs3Cats() {
     mPs3Cats.clear();
     int gameCatRuntimeIdx = -1;
+    mPs3QuickCatIdx = -1;
+
+    // ---- Quick Menu (GammaOS Nano legacy global actions) ----
+    // Inserted BEFORE the web DATA categories so it is the FIRST (leftmost)
+    // category, ahead of Settings. Items are glass-rendered from their xmb_icon
+    // normal maps, identical to every other XMB icon. The Power group is a
+    // runtime submenu built on select (buildQuickPowerSubmenu).
+    {
+        Ps3Cat q;
+        q.name    = "Quick Menu";
+        q.iconTex = mPs3CatTex[6];     // xmb_icon_054 power glyph (loaded in initPs3Menu)
+        q.nmapTex = mPs3CatNmap[6];
+        auto qItem = [&](const char* label, int action, int icon) {
+            Ps3Item it; it.label = label; it.kind = PS3_QUICK; it.a = action;
+            it.nmapTex = nmapForIcon(icon); it.iconR = it.iconG = it.iconB = 1.0f;
+            q.items.push_back(it);
+        };
+        qItem("Screen Brightness",   QA_BRIGHTNESS,    16);
+        qItem("Performance Mode",    QA_PERFORMANCE,   21);
+        qItem("Close Current App",   QA_CLOSE_APP,     24);
+        qItem("Kill Background Apps", QA_KILL_BG,       49);
+        qItem("Kill All Apps",       QA_KILL_ALL,      25);
+        qItem("Power",               QA_POWER_SUBMENU, 54);
+        // Seed the cached Performance Mode row value from the persisted governor prop.
+        { char pm[PROPERTY_VALUE_MAX]; property_get("persist.gammaos.performance_mode", pm, "stock");
+          mPs3PerfModeLabel = !strcmp(pm, "max") ? "Max Performance"
+                            : (!strcmp(pm, "powersave") ? "Power Saver" : "Normal"); }
+        mPs3QuickCatIdx = (int)mPs3Cats.size();   // 0
+        mPs3Cats.push_back(q);
+    }
 
     // Categories straight from the web DATA tree (Users/PSN/Friends excluded by
     // the table). Each item is glass-rendered from its xmb_icon normal map.
@@ -419,6 +469,22 @@ void NanoMenu::buildPs3Cats() {
     }
     mPs3ItemIdx = 0;
     mPs3AnimItem = 0.0f; mPs3ItemAnimStart = -1.0f;
+}
+
+// Quick Menu -> Power submenu: the reboot/shutdown/recovery/safe-mode/android
+// actions, built on select like buildRomSubmenu. Glass icons via nmap_NNN.
+void NanoMenu::buildQuickPowerSubmenu(Ps3Level& out) {
+    out.items.clear(); out.sel = 0; out.title = "Power";
+    auto q = [&](const char* label, int action, int icon) {
+        Ps3Item it; it.label = label; it.kind = PS3_QUICK; it.a = action;
+        it.nmapTex = nmapForIcon(icon); it.iconR = it.iconG = it.iconB = 1.0f;
+        out.items.push_back(it);
+    };
+    q("Restart",      QA_RESTART,       8);   // refresh arrows
+    q("Power Off",    QA_POWEROFF,     54);   // power glyph
+    q("Recovery",     QA_RECOVERY,     22);   // wrench
+    q("Safe Mode",    QA_SAFEMODE,     18);   // wrench + lock
+    q("Boot Android", QA_BOOT_ANDROID, 44);   // android robot
 }
 
 std::vector<NanoMenu::Ps3Item>& NanoMenu::ps3CurItems() {
@@ -486,6 +552,7 @@ void NanoMenu::ps3DlgNav(int dir, bool horizontal) {
 }
 
 void NanoMenu::ps3XmbLeft() {
+    if (mPs3BrightSlider) { adjustBrightness(-1); return; }   // Quick Menu brightness slider modal
     if (mPs3TzActive) return;   // tzglobe list is vertical only
     if (mPs3WizActive) { wizNav(-1, true); return; }
     if (mPs3DlgActive) { ps3DlgNav(-1, true); return; }   // chooser scroll / confirm toggle
@@ -502,6 +569,7 @@ void NanoMenu::ps3XmbLeft() {
 }
 
 void NanoMenu::ps3XmbRight() {
+    if (mPs3BrightSlider) { adjustBrightness(+1); return; }   // Quick Menu brightness slider modal
     if (mPs3TzActive) return;   // tzglobe list is vertical only
     if (mPs3WizActive) { wizNav(+1, true); return; }
     if (mPs3DlgActive) { ps3DlgNav(+1, true); return; }   // chooser scroll / confirm toggle
@@ -518,6 +586,7 @@ void NanoMenu::ps3XmbRight() {
 }
 
 void NanoMenu::ps3XmbUp() {
+    if (mPs3BrightSlider) { mPs3BrightSlider = false; mShowBrightnessBar = false; mBrightnessBarTimer = 0; return; }
     if (mPs3TzActive) { tzGlobeNav(-1); return; }
     if (mPs3WizActive) { wizNav(-1, false); return; }
     if (mPs3DlgActive) { ps3DlgNav(-1, false); return; }
@@ -525,6 +594,7 @@ void NanoMenu::ps3XmbUp() {
     if (s > 0) { mPs3ItemAnimFrom = mPs3AnimItem; mPs3ItemAnimStart = mEffectTime; s--; }
 }
 void NanoMenu::ps3XmbDown() {
+    if (mPs3BrightSlider) { mPs3BrightSlider = false; mShowBrightnessBar = false; mBrightnessBarTimer = 0; return; }
     if (mPs3TzActive) { tzGlobeNav(+1); return; }
     if (mPs3WizActive) { wizNav(+1, false); return; }
     if (mPs3DlgActive) { ps3DlgNav(+1, false); return; }
@@ -533,6 +603,7 @@ void NanoMenu::ps3XmbDown() {
 }
 
 void NanoMenu::ps3XmbSelect() {
+    if (mPs3BrightSlider) { mPs3BrightSlider = false; mShowBrightnessBar = false; mBrightnessBarTimer = 0; return; }  // X confirms the brightness slider
     if (mPs3TzActive) { closeTimezoneGlobe(true); return; }   // X: apply the highlighted zone + close
     if (mPs3WizActive) { wizConfirm(); return; }   // X: advance the network setup wizard
     if (mPs3DlgActive) {
@@ -609,6 +680,38 @@ void NanoMenu::ps3XmbSelect() {
             if (it.action == 1) openPs3Dialog(it);   // action='dialog' -> dialog/chooser
             return;
         }
+        case PS3_QUICK: {
+            // GammaOS Nano legacy global actions. Leaf actions return; only the
+            // Power submenu pushes a level and falls through to the collapse anim.
+            switch (it.a) {
+                case QA_POWER_SUBMENU: { Ps3Level lvl; buildQuickPowerSubmenu(lvl); mPs3Stack.push_back(lvl); break; }
+                case QA_BRIGHTNESS:   mPs3BrightSlider = true; mShowBrightnessBar = true; mBrightnessBarTimer = 90; return;
+                case QA_PERFORMANCE:  openPerformanceChooser(); return;
+                case QA_CLOSE_APP:    if (mOverlayMode) overlayQuitToHome(); return;  // home: no fg app
+                case QA_KILL_BG:      quickKillApps(false); return;   // keep the foreground game running
+                case QA_KILL_ALL:
+                    // Overlay (in-game): hard-stop EVERY app including the foreground
+                    // game (clearing its relaunch state so it does not respawn) and
+                    // drop to the home launcher. DRM home: no foreground game, so just
+                    // sweep all third-party apps.
+                    if (mOverlayMode) overlayKillAll();
+                    else              quickKillApps(true);
+                    return;
+                case QA_RESTART:      prepareShutdown("reboot");   return;
+                case QA_POWEROFF:     prepareShutdown("shutdown"); return;
+                case QA_RECOVERY:     property_set("persist.gammaos.nano.qr_prepared", "0");
+                                      property_set("persist.gammaos.nano.qr_core", "");
+                                      prepareShutdown("recovery"); return;
+                case QA_SAFEMODE:     property_set("persist.gammaos.nano.qr_prepared", "0");
+                                      property_set("persist.gammaos.nano.qr_core", "");
+                                      prepareShutdown("safemode"); return;
+                case QA_BOOT_ANDROID: property_set("persist.gammaos.nano.qr_prepared", "0");
+                                      property_set("persist.gammaos.nano.qr_core", "");
+                                      prepareShutdown("android"); return;
+                default: return;
+            }
+            break;   // only QA_POWER_SUBMENU reaches here -> collapse animation
+        }
         default: return;
     }
     if (mPs3Stack.size() > depthBefore) {
@@ -626,6 +729,7 @@ void NanoMenu::ps3XmbSelect() {
 }
 
 void NanoMenu::ps3XmbBack() {
+    if (mPs3BrightSlider) { mPs3BrightSlider = false; mShowBrightnessBar = false; mBrightnessBarTimer = 0; return; }  // O dismisses the brightness slider
     if (mPs3TzActive) { closeTimezoneGlobe(false); return; }   // O: cancel (keep current zone)
     if (mPs3WizActive) { wizBack(); return; }   // O: step back through the network setup wizard
     if (mPs3DlgActive) { closePs3Dialog(false); return; }   // O: cancel the dialog/chooser
@@ -1522,6 +1626,8 @@ std::string NanoMenu::resolvePs3ItemValue(const Ps3Item& it) {
         if (mPs3TimeFormatIdx >= 0 && mPs3TimeFormatIdx < 2) return kTimeFormatOpts[mPs3TimeFormatIdx];
     } else if (n == "Daylight Saving") {
         return mPs3DstNow ? "On" : "Off";
+    } else if (n == "Performance Mode") {
+        return mPs3PerfModeLabel;   // cached; refreshed at build + on apply (no per-frame property_get)
     }
     return it.value;
 }
@@ -1921,6 +2027,22 @@ void NanoMenu::openPs3Dialog(const Ps3Item& it) {
     mPs3DlgActive = true; mPs3DlgAnim = 0.0f; mPs3DlgBlurValid = false;
 }
 
+// Quick Menu -> Performance Mode: a side-panel chooser (kind 1, theme key 10)
+// reusing the Theme Settings chooser infra. X commits via closePs3Dialog(true) ->
+// applyThemeSetting(10), which writes persist.gammaos.performance_mode.
+void NanoMenu::openPerformanceChooser() {
+    mPs3DlgOptions.clear(); mPs3DlgSwatch.clear();
+    mPs3DlgKind = 1; mPs3DlgThemeKey = 10; mPs3DlgTitle = "Performance Mode"; mPs3DlgBody.clear();
+    static const char* kPerfOpts[] = {"Normal", "Max Performance", "Power Saver"};
+    for (const char* s : kPerfOpts) { mPs3DlgOptions.push_back(s); mPs3DlgSwatch.push_back(-1); }
+    char cur[PROPERTY_VALUE_MAX]; property_get("persist.gammaos.performance_mode", cur, "stock");
+    mPs3DlgSel = !strcmp(cur, "max") ? 1 : (!strcmp(cur, "powersave") ? 2 : 0);
+    mPs3DlgIconTex = 0; mPs3DlgIconNmap = nmapForIcon(21);   // performance glyph header (glass)
+    mPs3DlgIconR = mPs3DlgIconG = mPs3DlgIconB = 1.0f;
+    mPs3DlgOrigSel = mPs3DlgSel;
+    mPs3DlgActive = true; mPs3DlgAnim = 0.0f; mPs3DlgBlurValid = false;
+}
+
 void NanoMenu::previewThemeSetting(int themeKey, int sel) {
     // Apply a chooser value to the live state WITHOUT persisting (live preview
     // while scrolling + revert on cancel). The index members track the live
@@ -1944,6 +2066,7 @@ void NanoMenu::previewThemeSetting(int themeKey, int sel) {
         case 7: mPs3DateFormatIdx = sel; break;
         case 8: mPs3TimeFormatIdx = sel; break;
         case 9: break;   // DST: no live preview; the row reflects the real clock, applied on commit
+        case 10: break;  // Performance Mode: governor change applied on commit only
         default: break;
     }
 }
@@ -1998,6 +2121,17 @@ void NanoMenu::applyThemeSetting(int themeKey, int sel) {
                     std::string c = "cmd alarm set-timezone " + target + " 2>/dev/null";
                     system(c.c_str());
                 }).detach();
+            }
+            break;
+        }
+        case 10: {  // Quick Menu -> Performance Mode. Replicates the legacy
+            // global action / PerformanceTile: set persist.gammaos.performance_mode
+            // to stock/max/powersave; the vendor governor trigger applies it.
+            static const char* kPerfModes[]  = {"stock", "max", "powersave"};
+            static const char* kPerfLabels[] = {"Normal", "Max Performance", "Power Saver"};
+            if (sel >= 0 && sel < 3) {
+                property_set("persist.gammaos.performance_mode", kPerfModes[sel]);
+                mPs3PerfModeLabel = kPerfLabels[sel];
             }
             break;
         }

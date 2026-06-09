@@ -1439,6 +1439,18 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         } else if (count > 3 && count <= getMaxMultiPressPowerCount()) {
             Slog.d(TAG, "No behavior defined for power press count " + count);
         } else if (count == 1 && shouldHandleShortPressPowerAction(interactive, eventTime)) {
+            // GammaOS Nano: a quick power press always puts the device to sleep. The
+            // power-hold is reserved for raising the overlay XMB (powerLongPress), so
+            // the short press must sleep regardless of the device's configured
+            // short-press behavior. This only runs in the overlay/app-foreground case
+            // (in the DRM home the power key is swallowed in interceptKeyBeforeQueueing
+            // and nano handles sleep over evdev), giving consistent quick-press-to-sleep
+            // in both modes.
+            if (android.os.SystemProperties.getBoolean("sys.gammaos.minimal_boot", false)) {
+                Slog.d(TAG, "GammaOS Nano: power short press -> sleep");
+                sleepDefaultDisplayFromPowerButton(eventTime, 0);
+                return;
+            }
             switch (mShortPressOnPowerBehavior) {
                 case SHORT_PRESS_POWER_NOTHING:
                     break;
@@ -1701,12 +1713,14 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 + " mResolvedLongPressOnPowerBehavior=" + mResolvedLongPressOnPowerBehavior);
 
         // GammaOS Nano: in-game XMB overlay. When the opt-in feature is enabled,
-        // a power-hold TOGGLES the resident overlay XMB (gammaos-nano-overlay)
-        // instead of the global actions dialog. This only fires while an app is
-        // foreground -- with the home nano foreground (minimal_boot,
-        // app_launched=0) the power key is swallowed earlier in
-        // interceptKeyBeforeQueueing and never reaches a long-press -- so it is
-        // always summoned over a running app, never over the home XMB.
+        // a power-hold raises / dismisses the resident overlay XMB
+        // (gammaos-nano-overlay) instead of the global actions dialog. Over a running
+        // app it toggles (raise to summon, hold again to resume). When the overlay is
+        // the post-game home launcher (no foreground app) the hold must NOT hide it --
+        // there is no DRM home behind it to fall back to -- so it is a no-op there. The
+        // DRM cold-boot home (minimal_boot, no app, no overlay) never reaches here: its
+        // power key is swallowed in interceptKeyBeforeQueueing for the home nano's evdev
+        // handler.
         if (android.os.SystemProperties.getBoolean(
                 "persist.gammaos.nano.overlay", false)
                 && !"1".equals(android.os.SystemProperties.get(
@@ -1714,16 +1728,22 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             mPowerKeyHandled = true;
             performHapticFeedback(HapticFeedbackConstants.LONG_PRESS_POWER_BUTTON, false,
                     "Power - Long Press - Nano Overlay XMB");
-            // TOGGLE: the overlay no longer grabs the power device (it isolates the
-            // app's input with the framework drop_input prop, and POWER is exempt
-            // from that drop), so PhoneWindowManager reliably sees every power
-            // gesture and owns show AND hide. Read the current state and flip it.
+            // The overlay no longer grabs the power device (it isolates the app's input
+            // with the framework drop_input prop, and POWER is exempt from that drop),
+            // so PhoneWindowManager reliably sees every power gesture and owns show/hide.
             boolean shown = "1".equals(android.os.SystemProperties.get(
                     "sys.gammaos.nano.show_overlay", "0"));
-            android.os.SystemProperties.set(
-                    "sys.gammaos.nano.show_overlay", shown ? "0" : "1");
-            Slog.d(TAG, "GammaOS Nano: power long press -> overlay XMB "
-                    + (shown ? "hide" : "show"));
+            boolean appForeground = "1".equals(android.os.SystemProperties.get(
+                    "sys.gammaos.nano.app_launched", "0"));
+            if (!shown) {
+                android.os.SystemProperties.set("sys.gammaos.nano.show_overlay", "1");
+                Slog.d(TAG, "GammaOS Nano: power long press -> overlay XMB show");
+            } else if (appForeground) {
+                android.os.SystemProperties.set("sys.gammaos.nano.show_overlay", "0");
+                Slog.d(TAG, "GammaOS Nano: power long press -> overlay XMB hide (resume app)");
+            } else {
+                Slog.d(TAG, "GammaOS Nano: power long press -> overlay launcher (no-op)");
+            }
             return;
         }
 
@@ -6387,12 +6407,18 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             }
 
             case KeyEvent.KEYCODE_POWER: {
-                // GammaOS Nano: in nano mode, power button is used for menu
-                // navigation — skip sleep/wake handling entirely.
+                // GammaOS Nano: in the DRM-home XMB (minimal_boot, no app, no overlay)
+                // the home nano owns the power button over evdev (short press = sleep,
+                // hold = shutdown), so swallow it here. But when an app is foreground
+                // OR the SurfaceFlinger overlay is up (in-game overlay or the post-game
+                // overlay launcher), let it through to the normal power path so PWM
+                // handles quick-press-to-sleep and the power-hold overlay toggle.
                 if (android.os.SystemProperties.getBoolean(
                         "sys.gammaos.minimal_boot", false)
                         && !"1".equals(android.os.SystemProperties.get(
-                                "sys.gammaos.nano.app_launched", "0"))) {
+                                "sys.gammaos.nano.app_launched", "0"))
+                        && !"1".equals(android.os.SystemProperties.get(
+                                "sys.gammaos.nano.show_overlay", "0"))) {
                     result &= ~ACTION_PASS_TO_USER;
                     break;
                 }
