@@ -24,6 +24,7 @@
 
 #include <dirent.h>
 #include <fcntl.h>
+#include <poll.h>
 #include <unistd.h>
 #include <inttypes.h>
 #include <cinttypes>
@@ -801,25 +802,57 @@ void NanoMenu::pollInput() {
                         prepareShutdown("shutdown");
                         continue;
                     }
-                    // Key was released before 1.5s — short press = sleep
+                    // Key was released before 1.5s — short press = sleep.
                     mPowerPressTime = 0;
                     ALOGI("NanoMenu: power short press, sleeping");
+                    // Blank our DRM-owned panel: clear the framebuffer and turn the
+                    // backlight off (sysfs where present + the light HAL). PowerManager
+                    // only ever controls the SurfaceFlinger display, never this direct-
+                    // DRM panel, so we always do this ourselves.
                     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
                     glClear(GL_COLOR_BUFFER_BIT);
                     drmFrameEnd(mDisplay, mSurface);
-                    // Turn backlight off via sysfs (works in DRM mode) + HAL
                     writeSysfsInt("/sys/class/backlight/panel0-backlight/brightness", 0);
                     setBrightnessViaHal(0);
-                    // Sleep loop: power press to wake, auto-shutdown after 60s
+
+                    // Once the system is fully up (PowerManager available) put the WHOLE
+                    // device into a real low-power sleep, not just a blanked busy-poll:
+                    // an init service injects KEYCODE_SLEEP (nano's bootstrap mount
+                    // namespace cannot run app_process directly) so PowerManager runs its
+                    // normal goToSleep -> doze -> suspend. We grabbed the power evdev node,
+                    // so the framework never sees the press; that is why we drive sleep
+                    // (and the wake below) explicitly. Before boot_completed PowerManager
+                    // is not ready, so fall back to the legacy blank + 60s-then-shutdown.
+                    bool pmSleep = property_get_bool("sys.boot_completed", false);
+                    if (pmSleep) {
+                        ALOGI("NanoMenu: services up -> PowerManager system sleep");
+                        property_set("sys.gammaos.nano.dosleep", "1");
+                    }
+
                     bool asleep = true;
                     int64_t sleepStart = android::uptimeMillis();
                     while (asleep) {
-                        usleep(100000);
-                        if (android::uptimeMillis() - sleepStart > 60000) {
-                            ALOGI("NanoMenu: sleep timeout, shutting down");
-                            prepareShutdown("shutdown");
-                            return;
+                        // Block on the input fds so the CPU can idle / suspend (a busy
+                        // poll would keep it awake and defeat the suspend). With
+                        // PowerManager engaged, block indefinitely: the system suspends
+                        // and this thread freezes here until the power button wakes the
+                        // kernel. Otherwise cap the wait at the remaining 60s budget.
+                        struct pollfd pfds[16];
+                        int nf = 0;
+                        for (int fd : mInputFds) {
+                            if (fd >= 0 && nf < 16) { pfds[nf].fd = fd; pfds[nf].events = POLLIN; nf++; }
                         }
+                        int timeoutMs = -1;
+                        if (!pmSleep) {
+                            int64_t left = 60000 - (android::uptimeMillis() - sleepStart);
+                            if (left <= 0) {
+                                ALOGI("NanoMenu: sleep timeout, shutting down");
+                                prepareShutdown("shutdown");
+                                return;
+                            }
+                            timeoutMs = (int)left;
+                        }
+                        poll(pfds, nf, timeoutMs);
                         struct input_event wake;
                         for (int wfd : mInputFds) {
                             while (read(wfd, &wake, sizeof(wake)) == sizeof(wake)) {
@@ -829,6 +862,14 @@ void NanoMenu::pollInput() {
                                 }
                             }
                         }
+                    }
+                    // Woke on a power press. If we put PowerManager to sleep, wake it too
+                    // (it never saw the press, so it will not auto-wake) via an injected
+                    // KEYCODE_WAKEUP, then restore our panel.
+                    if (pmSleep) {
+                        property_set("sys.gammaos.nano.dosleep", "0");
+                        property_set("sys.gammaos.nano.dowake", "1");
+                        ALOGI("NanoMenu: waking PowerManager (KEYCODE_WAKEUP)");
                     }
                     usleep(200000);
                     { struct input_event d; for (int dfd : mInputFds) {
