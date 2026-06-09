@@ -3466,6 +3466,8 @@ public class ActivityManagerService extends IActivityManager.Stub
         // restarting) so it never fires during a launch handoff or for a helper.
         try {
             if (!restarting && app != null && app.info != null
+                    && android.os.SystemProperties.getBoolean(
+                            "sys.gammaos.minimal_boot", false)
                     && "1".equals(android.os.SystemProperties.get(
                             "persist.gammaos.nano.overlay_home", "0"))
                     && "1".equals(android.os.SystemProperties.get(

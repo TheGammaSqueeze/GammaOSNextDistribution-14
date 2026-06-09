@@ -77,12 +77,15 @@ service gammaos-nano-overlay /system/bin/gammaos-nano --overlay
     rlimit memlock 536870912 536870912
     task_profiles MaxPerformance
 
-# Start the resident overlay once the system is fully booted AND the feature is
-# opted in. The combined trigger fires whichever property changes last, so it
-# works regardless of ordering (persist prop loads at ~T+9s, boot_completed
-# later). The minimal-boot home path never sets persist.gammaos.nano.overlay, and
-# the binary also self-guards against minimal_boot in overlay mode.
-on property:sys.boot_completed=1 && property:persist.gammaos.nano.overlay=1
+# Start the resident overlay once the system is fully booted, the feature is opted
+# in, AND we are in nano mode (sys.gammaos.minimal_boot=1). persist.gammaos.nano.overlay
+# is a persist prop that stays 1 even after the user boots NORMAL Android, so gating on
+# it alone started the overlay there too - and the overlay then relaunched the boot
+# animation (readyToRun's skip_nano bail) and ate the stock power menu. minimal_boot is
+# the precise "nano home is running" signal and is set before boot_completed in nano
+# mode (init re-evaluates the trigger whenever a prop changes, so ordering is fine). The
+# binary also self-guards on persist.bootanim.skip_nano as a backstop.
+on property:sys.boot_completed=1 && property:persist.gammaos.nano.overlay=1 && property:sys.gammaos.minimal_boot=1
     start gammaos-nano-overlay
 
 on property:sys.gammaos.minimal_boot=1

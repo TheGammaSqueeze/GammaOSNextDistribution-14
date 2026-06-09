@@ -417,7 +417,15 @@ status_t NanoMenu::readyToRun() {
             ioctl(earlyDrmFd, DRM_IOCTL_DROP_MASTER, 0);
             close(earlyDrmFd);
         }
-        property_set("ctl.start", "bootanim");
+        // The overlay process is NEVER the boot-animation owner. In normal Android
+        // (skip_nano != '0') persist.gammaos.nano.overlay stays 1 so the rc trigger
+        // can still start the overlay service; if it reaches here, starting bootanim
+        // is exactly what made the boot animation reappear at random. Just exit.
+        if (!mOverlayMode) {
+            property_set("ctl.start", "bootanim");
+        } else {
+            ALOGI("GammaOS Nano overlay: not nano mode (skip_nano!='0'), exiting without bootanim");
+        }
         _exit(0);
     }
     tlog("skip_nano check passed");

@@ -1712,19 +1712,27 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         Slog.d(TAG, "powerLongPress: eventTime=" + eventTime
                 + " mResolvedLongPressOnPowerBehavior=" + mResolvedLongPressOnPowerBehavior);
 
-        // GammaOS Nano: in-game XMB overlay. When the opt-in feature is enabled,
-        // a power-hold raises / dismisses the resident overlay XMB
-        // (gammaos-nano-overlay) instead of the global actions dialog. Over a running
-        // app it toggles (raise to summon, hold again to resume). When the overlay is
-        // the post-game home launcher (no foreground app) the hold must NOT hide it --
-        // there is no DRM home behind it to fall back to -- so it is a no-op there. The
-        // DRM cold-boot home (minimal_boot, no app, no overlay) never reaches here: its
-        // power key is swallowed in interceptKeyBeforeQueueing for the home nano's evdev
-        // handler.
+        // GammaOS Nano: in-game XMB overlay. When the opt-in feature is enabled, a
+        // power-hold raises / dismisses the resident overlay XMB (gammaos-nano-overlay)
+        // instead of the global actions dialog. Over a running app it toggles (raise to
+        // summon, hold again to resume). When the overlay is the post-game home launcher
+        // (no foreground app) the hold must NOT hide it - there is no DRM home behind it
+        // to fall back to - so it is a no-op there. The DRM cold-boot home (no app, no
+        // overlay) never reaches here: its power key is swallowed in
+        // interceptKeyBeforeQueueing for the home nano's evdev handler.
+        //
+        // NANO MODE ONLY: gate on sys.gammaos.minimal_boot. persist.gammaos.nano.overlay
+        // is a persist prop that stays 1 even in normal Android, so without this gate the
+        // overlay branch would swallow the power-hold there and the stock global actions
+        // / power menu would never show. We deliberately do NOT depend on menu_active any
+        // more: in nano mode power only reaches powerLongPress when an app or the overlay
+        // is up (the cold-boot home swallows it), so menu_active is always 0 here unless
+        // it was left stale by an abnormally-terminated home - which used to wrongly fall
+        // through to the legacy global actions.
         if (android.os.SystemProperties.getBoolean(
-                "persist.gammaos.nano.overlay", false)
-                && !"1".equals(android.os.SystemProperties.get(
-                        "sys.gammaos.nano.menu_active", "0"))) {
+                "sys.gammaos.minimal_boot", false)
+                && android.os.SystemProperties.getBoolean(
+                        "persist.gammaos.nano.overlay", false)) {
             mPowerKeyHandled = true;
             performHapticFeedback(HapticFeedbackConstants.LONG_PRESS_POWER_BUTTON, false,
                     "Power - Long Press - Nano Overlay XMB");

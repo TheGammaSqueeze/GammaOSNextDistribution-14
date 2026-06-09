@@ -833,6 +833,21 @@ int main(int argc, char** argv) {
         if (argv[i] && strcmp(argv[i], "--overlay") == 0) overlayMode = true;
     }
     if (overlayMode) {
+        // NANO MODE ONLY. persist.gammaos.nano.overlay is a persist prop that stays 1
+        // even after the user boots NORMAL Android (persist.bootanim.skip_nano != "0",
+        // sys.gammaos.minimal_boot never raised), so the rc trigger can still start
+        // this service there. Bail immediately - before readyToRun (which would
+        // ctl.start bootanim, the random boot animation) and before any SF/nano setup.
+        // The overlay service starts after boot_completed, so the persist prop is live.
+        {
+            char skipNano[PROPERTY_VALUE_MAX] = {};
+            property_get("persist.bootanim.skip_nano", skipNano, "");
+            if (strcmp(skipNano, "0") != 0) {
+                ALOGI("GammaOS Nano: overlay mode but skip_nano='%s' (not nano mode), exiting",
+                      skipNano);
+                return 0;
+            }
+        }
         // The overlay is the in-game power-hold XMB. It is summoned only while
         // an app is running (i.e. the home nano has already exited and
         // SurfaceFlinger + the app own the display), so it never fights the
