@@ -3547,6 +3547,7 @@ if (sRingPrimedCount >= 2) {
                                  && i < (int)mBgScanResults.size(); i++) {
                             auto& sys = mXmbSystems[i];
                             auto& res = mBgScanResults[i];
+                            if (!sys.enabled) continue;   // disabled systems are never scanned
                             // Guard: don't replace with fewer ROMs when storage
                             // is partially mounted. Two checks:
                             // 1. Path count: if fewer source dirs, storage not ready
@@ -3571,17 +3572,22 @@ if (sRingPrimedCount >= 2) {
                                 }
                                 if (res.activePaths.size() < curPaths) continue;
                             }
-                            if (res.roms != sys.roms || !sys.scanned) {
+                            bool romsChanged = (res.roms != sys.roms);
+                            if (romsChanged || !sys.scanned) {
                                 sys.roms = std::move(res.roms);
                                 sys.displayNames = std::move(res.displayNames);
                                 sys.activePaths = std::move(res.activePaths);
                                 sys.activePath = std::move(res.activePath);
                                 sys.pathExists = !sys.roms.empty();
                                 mDisplayDirty = true;
+                                // Game tiles show per-system ROM counts (and
+                                // appear/disappear with them): refresh the PS3
+                                // cats once the user is at the settled root.
+                                if (romsChanged) mPs3CatsStale = true;
                                 // Update cache file
                                 std::string cacheDir = "/data/system/nano_xmb_cache";
                                 mkdir(cacheDir.c_str(), 0755);
-                                std::string cp = cacheDir + "/" + sys.romDir + ".list";
+                                std::string cp = cacheDir + "/" + sys.id + ".list";
                                 int cfd = open(cp.c_str(), O_WRONLY|O_CREAT|O_TRUNC, 0644);
                                 if (cfd >= 0) {
                                     for (const auto& r : sys.roms) {
@@ -3607,6 +3613,41 @@ if (sRingPrimedCount >= 2) {
                     if (mXmbSystems[0].lastScanTime > 0 &&
                         (now - mXmbSystems[0].lastScanTime) > 30000) {
                         forceRescanAllSystems();
+                    }
+                }
+
+                // Deferred Game-column refreshes, applied only at the settled
+                // XMB root (never mid-navigation, mid-animation or with UI on
+                // top, so the user's position is preserved):
+                //  - mPs3CatsStale: a background rescan changed ROM lists
+                //    (tile presence / counts).
+                //  - config stamp moved: the OTHER nano process (resident
+                //    overlay vs DRM home share nano_systems.json) edited the
+                //    systems config; reload it and rescan so both converge
+                //    without a restart.
+                if (mPs3Xmb && mPs3Stack.empty()
+                    && !mPs3DlgActive && !mOskActive && !mPs3WizActive
+                    && !mPs3BootActive && !mPs3TzActive && !mPs3CatAnimActive
+                    && mPs3ItemAnimStart < 0.0f && mPs3SubAnimStart < 0.0f) {
+                    // The reload waits out a running scan thread (it reads
+                    // mXmbSystems unlocked); the stamp stays unequal so the
+                    // next tick retries. Pending scan results are dropped: they
+                    // are indexed against the pre-reload systems vector.
+                    if (!mBgScanThreadRunning
+                        && systemsConfigStamp() != mSystemsCfgStamp) {
+                        ALOGI("NanoMenu: nano_systems.json changed externally, reloading");
+                        {
+                            std::lock_guard<std::mutex> lock(mBgScanMutex);
+                            mBgScanResults.clear();
+                            mBgScanResultReady = false;
+                        }
+                        initXmbSystems();
+                        mPs3CatsStale = true;
+                        forceRescanAllSystems();
+                    }
+                    if (mPs3CatsStale) {
+                        rebuildPs3CatsPreserveSel();
+                        mPs3CatsStale = false;
                     }
                 }
             }

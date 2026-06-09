@@ -719,6 +719,19 @@ void NanoMenu::pollInput() {
                 if (mOskActive) for (const char* p = navbuf + 5; *p; ++p) oskType(*p);
             }
             else if (!strcmp(navbuf, "submit")) { if (mOskActive) oskConfirm(); }
+            // Game Systems list scripting: l1/r1 reorder the selected system,
+            // x toggles its enabled state (the physical L1/R1/X buttons do the
+            // same; the nav hook only injects dpad/A/B so these widen it).
+            else if (!strcmp(navbuf, "l1") || !strcmp(navbuf, "r1") || !strcmp(navbuf, "x")) {
+                if (mPs3Xmb && ps3TopScreenKind() == GS_LIST && !mPs3Stack.empty()) {
+                    auto& its = mPs3Stack.back().items; int sel = mPs3Stack.back().sel;
+                    if (sel >= 0 && sel < (int)its.size() && its[sel].kind == PS3_GS_SYSTEM_ROW) {
+                        if (!strcmp(navbuf, "l1"))      gsReorderSystem(its[sel].a, -1);
+                        else if (!strcmp(navbuf, "r1")) gsReorderSystem(its[sel].a, +1);
+                        else                            gsToggleSystem(its[sel].a);
+                    }
+                }
+            }
             property_set("sys.gammaos.nano.nav", "");
         }
     }
@@ -983,6 +996,46 @@ void NanoMenu::pollInput() {
                     case BTN_WEST: // Y button (Nintendo layout: BTN_WEST = Y)
                         if (mMenuState == MENU_WIFI) { handleWifiScreenY(); break; }
                         if (mMenuState == MENU_BT)   { handleBtScreenY();   break; }
+                        // Icon grid picker: Y opens the name-filter OSK.
+                        if (mPs3Xmb && ps3TopScreenKind() == GS_ICONGRID) {
+                            openOskForPassword("Filter Icons", [this](const std::string& v) {
+                                mIconGridFilter = v;   // strcasestr makes the match case-insensitive
+                                applyIconGridFilter();
+                            });
+                            mOskPasswordMode = false; mOskPlaintext = true;
+                            mOskQuery = mIconGridFilter; mOsk.caret = (int)mOskQuery.size();
+                            break;
+                        }
+                        // Emulator picker: Y opens the platform/emulator filter OSK.
+                        if (mPs3Xmb && ps3TopScreenKind() == GS_EMUPICK) {
+                            openOskForPassword("Filter Emulators", [this](const std::string& v) {
+                                mEmuPickFilter = v;   // strcasestr makes it case-insensitive
+                                if (!mPs3Stack.empty() && mPs3Stack.back().screenKind == GS_EMUPICK) {
+                                    buildEmulatorPicker(mPs3Stack.back());
+                                    mPs3Stack.back().sel = 0;
+                                }
+                            });
+                            mOskPasswordMode = false; mOskPlaintext = true;
+                            mOskQuery = mEmuPickFilter; mOsk.caret = (int)mOskQuery.size();
+                            break;
+                        }
+                        // Game Systems list: Y removes a custom system (built-ins only disable).
+                        if (mPs3Xmb && ps3TopScreenKind() == GS_LIST) {
+                            auto& its = mPs3Stack.back().items; int sel = mPs3Stack.back().sel;
+                            if (sel >= 0 && sel < (int)its.size() && its[sel].kind == PS3_GS_SYSTEM_ROW) {
+                                int si = its[sel].a;
+                                if (si >= 0 && si < (int)mXmbSystems.size() && !mXmbSystems[si].builtin)
+                                    gsOpenRemoveConfirm(si);
+                            }
+                            break;
+                        }
+                        // Scan-folders screen: Y removes the selected scan source.
+                        if (mPs3Xmb && ps3TopScreenKind() == GS_FOLDER) {
+                            auto& its = mPs3Stack.back().items; int sel = mPs3Stack.back().sel;
+                            if (sel >= 0 && sel < (int)its.size() && its[sel].kind == PS3_GS_SCANSRC)
+                                gsRemoveScanSource(its[sel].a);
+                            break;
+                        }
                         if (mXmbMode) {
                             // Y: search in XMB mode
                             if (mOskActive) {
@@ -1008,6 +1061,13 @@ void NanoMenu::pollInput() {
                         if (mPs3WizActive) { wizRescan(); break; }   // X: re-scan on the AP list
                         if (mMenuState == MENU_WIFI) { handleWifiScreenX(); break; }
                         if (mMenuState == MENU_BT)   { handleBtScreenX();   break; }
+                        // Game Systems list: X toggles the selected system's enabled state.
+                        if (mPs3Xmb && ps3TopScreenKind() == GS_LIST) {
+                            auto& its = mPs3Stack.back().items; int sel = mPs3Stack.back().sel;
+                            if (sel >= 0 && sel < (int)its.size() && its[sel].kind == PS3_GS_SYSTEM_ROW)
+                                gsToggleSystem(its[sel].a);
+                            break;
+                        }
                         // X (Square) cycles the wallpaper in EVERY state, exactly like
                         // the home XMB - including the in-game overlay. It never quits
                         // the running game (quitting is the back-long-press clean exit);
@@ -1025,6 +1085,13 @@ void NanoMenu::pollInput() {
                     case BTN_TL: case KEY_L:
                         if (mOskActive) {
                             oskToggleShift();
+                            break;
+                        }
+                        // Game Systems list: L1 moves the selected system up.
+                        if (mPs3Xmb && ps3TopScreenKind() == GS_LIST) {
+                            auto& its = mPs3Stack.back().items; int sel = mPs3Stack.back().sel;
+                            if (sel >= 0 && sel < (int)its.size() && its[sel].kind == PS3_GS_SYSTEM_ROW)
+                                gsReorderSystem(its[sel].a, -1);
                             break;
                         }
                         // Shut any open Settings sub-screen before leaving XMB
@@ -1045,6 +1112,13 @@ void NanoMenu::pollInput() {
                     case BTN_TR: case KEY_R:
                         if (mOskActive) {
                             oskToggleSym();   // R1 toggles ABC <-> SYM inside the OSK
+                            break;
+                        }
+                        // Game Systems list: R1 moves the selected system down.
+                        if (mPs3Xmb && ps3TopScreenKind() == GS_LIST) {
+                            auto& its = mPs3Stack.back().items; int sel = mPs3Stack.back().sel;
+                            if (sel >= 0 && sel < (int)its.size() && its[sel].kind == PS3_GS_SYSTEM_ROW)
+                                gsReorderSystem(its[sel].a, +1);
                             break;
                         }
                         mQuickResumeEnabled = !mQuickResumeEnabled;

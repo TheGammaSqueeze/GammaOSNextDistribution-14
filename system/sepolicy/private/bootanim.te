@@ -59,3 +59,26 @@ allow bootanim media_rw_data_file:file { read getattr open };
 # GammaOS OTA: allow NanoMenu to trigger OTA mode
 set_prop(bootanim, ctl_gammaosota_prop)
 set_prop(bootanim, gammaosota_prop)
+
+# GammaOS Nano dynamic game systems: scan user-chosen raw ROM roots. The
+# bootanim domain is permissive on current devices, but these explicit allow
+# rules keep the raw-path readdir/read correct in enforcing mode too.
+# /storage/... mountpoint traversal (primary emulated + removable SD)
+allow bootanim storage_file:dir { search getattr open read };
+allow bootanim storage_file:lnk_file { read getattr };
+# Underlying removable/emulated filesystems (vfat/exfat/fuse/fuseblk/sdcardfs)
+allow bootanim sdcard_type:dir { search getattr open read };
+allow bootanim sdcard_type:file { read getattr open };
+allow bootanim sdcard_type:lnk_file { read getattr };
+# Raw vold mounts under /mnt/media_rw/<UUID>
+allow bootanim mnt_media_rw_file:dir { search getattr open read };
+allow bootanim mnt_media_rw_file:file { read getattr open };
+allow bootanim mnt_media_rw_file:lnk_file { read getattr };
+
+# GammaOS Nano dynamic game systems: persist the user systems config + icon
+# overrides at /data/system/nano_systems.json + /data/system/nano_user_icons/
+# (system_data_file, inherits /data/(.*)?). Atomic write (temp + fsync + rename)
+# plus the CHOWN/FOWNER re-own, so the wide create/rename/unlink/setattr perms
+# are all exercised.
+allow bootanim system_data_file:dir { search getattr open read write add_name remove_name };
+allow bootanim system_data_file:file { create open read write getattr setattr unlink rename lock };

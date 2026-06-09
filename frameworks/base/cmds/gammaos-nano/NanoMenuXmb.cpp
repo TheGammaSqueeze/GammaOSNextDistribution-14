@@ -30,6 +30,8 @@
 #include <math.h>
 #include <strings.h>
 #include <inttypes.h>
+#include <errno.h>
+#include <stdio.h>
 
 #include <cutils/properties.h>
 #include <android-base/properties.h>
@@ -42,6 +44,7 @@
 #include "NanoMenuUtils.h"
 #include "NanoMenu.h"
 #include "NanoMenuShaders.h"
+#include "NanoJson.h"
 
 namespace android {
 
@@ -103,6 +106,10 @@ static const SystemDef kXmbSystemDefs[] = {
 };
 static const int kNumXmbSystemDefs = sizeof(kXmbSystemDefs) / sizeof(kXmbSystemDefs[0]);
 
+// Defined further down (next to the scan code); forward-declared here so
+// buildScanCandidates (which precedes it) can use it.
+static std::string findCaseInsensitive(const std::string& parent, const std::string& target);
+
 // Font layout constants come from NanoMenuShaders.h (shared with NanoMenu.cpp).
 
 // ---------------------------------------------------------------------------
@@ -111,7 +118,6 @@ static const int kNumXmbSystemDefs = sizeof(kXmbSystemDefs) / sizeof(kXmbSystemD
 
 void NanoMenu::initXmbSystems() {
     mXmbSystems.clear();
-    mXmbSystems.reserve(kNumXmbSystemDefs);
 
     // Migrate any legacy cache dir ownership: older nano builds ran as
     // uid graphics and left /data/system/nano_xmb_cache/ as 0700
@@ -146,128 +152,569 @@ void NanoMenu::initXmbSystems() {
         }
     }
 
+    // Load the persisted dynamic-systems config from DE storage
+    // (/data/system/nano_systems.json), readable at early boot before user
+    // unlock. On first run / missing file / parse error, seed it from the
+    // built-in defaults so behavior is byte-for-byte unchanged.
+    if (!loadSystemsConfig()) {
+        seedSystemsConfig();
+    }
+
+    for (auto& sys : mXmbSystems) {
+        // Legacy per-system prop overrides keyed on the original built-in
+        // romDir (== id). Props win, preserving today's precedence even after
+        // the JSON config exists. Custom systems have no such props.
+        if (sys.builtin) {
+            char propBuf[PROPERTY_VALUE_MAX] = {};
+            char propKey[160];
+            snprintf(propKey, sizeof(propKey),
+                     "persist.gammaos.nano.xmb.%s.dir", sys.id.c_str());
+            property_get(propKey, propBuf, "");
+            if (propBuf[0]) sys.romDir = propBuf;
+
+            snprintf(propKey, sizeof(propKey),
+                     "persist.gammaos.nano.xmb.%s.core", sys.id.c_str());
+            property_get(propKey, propBuf, "");
+            if (propBuf[0]) sys.coreSo = propBuf;
+        }
+
+        // Disabled systems are never scanned and never appear in Game; they
+        // hold no ROM cache in memory.
+        if (!sys.enabled) continue;
+
+        // Load this system's cached ROM list (DE storage, keyed on stable id).
+        loadRomCacheForSystem(sys);
+    }
+
+    int enabledCount = 0;
+    for (const auto& s : mXmbSystems) if (s.enabled) enabledCount++;
+    ALOGD("NanoMenu: initialized %d XMB systems (%d enabled)",
+          (int)mXmbSystems.size(), enabledCount);
+
+    // If all enabled systems loaded from cache, mark scan as done. Disabled
+    // systems are excluded from the gate (they are never scanned).
+    bool allCached = true;
+    for (const auto& s : mXmbSystems) {
+        if (s.enabled && !s.scanned) { allCached = false; break; }
+    }
+    if (allCached) mXmbRomScanDone = true;
+}
+
+// Load a system's cached ROM list from DE storage, keyed on the stable id
+// (built-in id == romDir so existing {romDir}.list files are reused). Cache
+// format: each line is a full ROM path. Legacy compat: if line 1 is a directory
+// and remaining lines are bare filenames, prepend the directory to each. Clears
+// then repopulates roms/displayNames/activePath and marks the system scanned if
+// any ROMs were loaded (so early boot does not clear them before the bg rescan).
+void NanoMenu::loadRomCacheForSystem(XmbSystem& sys) {
+    sys.roms.clear();
+    sys.displayNames.clear();
+    std::string cachePath = xmbCachePath(sys);
+    int cfd = open(cachePath.c_str(), O_RDONLY);
+    if (cfd >= 0) {
+        struct stat cst;
+        if (fstat(cfd, &cst) == 0 && cst.st_size > 0 && cst.st_size < 512 * 1024) {
+            std::string content(cst.st_size, '\0');
+            ssize_t rd = read(cfd, &content[0], cst.st_size);
+            if (rd > 0) {
+                content.resize(rd);
+                std::vector<std::string> lines;
+                size_t pos = 0;
+                while (pos < content.size()) {
+                    size_t eol = content.find('\n', pos);
+                    if (eol == std::string::npos) eol = content.size();
+                    std::string line = content.substr(pos, eol - pos);
+                    pos = eol + 1;
+                    if (!line.empty()) lines.push_back(std::move(line));
+                }
+                // Detect legacy format: first line is a directory, rest bare.
+                std::string dirPrefix;
+                if (lines.size() >= 2 && lines[0].find('/') != std::string::npos) {
+                    bool allBare = true;
+                    for (size_t i = 1; i < lines.size(); i++) {
+                        if (lines[i].find('/') != std::string::npos) { allBare = false; break; }
+                    }
+                    if (allBare) {
+                        dirPrefix = lines[0];
+                        if (!dirPrefix.empty() && dirPrefix.back() == '/') dirPrefix.pop_back();
+                        lines.erase(lines.begin());
+                        ALOGD("NanoMenu: %s: legacy cache format, dir=%s",
+                              sys.name.c_str(), dirPrefix.c_str());
+                    }
+                }
+                for (auto& l : lines) {
+                    if (!dirPrefix.empty()) sys.roms.push_back(dirPrefix + "/" + l);
+                    else                    sys.roms.push_back(std::move(l));
+                }
+                if (!sys.roms.empty()) {
+                    size_t ls = sys.roms[0].rfind('/');
+                    if (ls != std::string::npos) sys.activePath = sys.roms[0].substr(0, ls);
+                    sys.pathExists = true;
+                }
+                for (const auto& rom : sys.roms) {
+                    std::string dn = rom;
+                    size_t sl = dn.rfind('/');
+                    if (sl != std::string::npos) dn = dn.substr(sl + 1);
+                    size_t d = dn.rfind('.');
+                    if (d != std::string::npos) dn = dn.substr(0, d);
+                    sys.displayNames.push_back(std::move(dn));
+                }
+                if (!sys.roms.empty())
+                    ALOGD("NanoMenu: %s: loaded %zu ROMs from cache",
+                          sys.name.c_str(), sys.roms.size());
+            }
+        }
+        close(cfd);
+    }
+    // If cache had ROMs, mark as scanned so early boot does not clear them.
+    if (!sys.roms.empty()) sys.scanned = true;
+}
+
+// ---------------------------------------------------------------------------
+// Dynamic systems config (/data/system/nano_systems.json) - see the
+// dynamic-game-systems plan. DE storage, JSON schema mirrors Daijishou.
+// ---------------------------------------------------------------------------
+
+// Split a comma-separated extension list ("\.nes,.fds") into a JSON array.
+static njson::Value extsToJsonArray(const std::string& extStr) {
+    njson::Value a = njson::Value::makeArray();
+    size_t pos = 0;
+    while (pos < extStr.size()) {
+        size_t comma = extStr.find(',', pos);
+        if (comma == std::string::npos) comma = extStr.size();
+        std::string ext = extStr.substr(pos, comma - pos);
+        while (!ext.empty() && ext[0] == ' ') ext.erase(0, 1);
+        while (!ext.empty() && ext.back() == ' ') ext.pop_back();
+        if (!ext.empty()) a.arr.push_back(njson::Value::makeString(ext));
+        pos = comma + 1;
+    }
+    return a;
+}
+
+// Join a JSON extensions array back into the comma-separated runtime form.
+static std::string jsonArrayToExts(const njson::Value& a) {
+    std::string out;
+    if (!a.isArray()) return out;
+    for (const auto& e : a.arr) {
+        if (!e.isString() || e.str.empty()) continue;
+        if (!out.empty()) out += ",";
+        out += e.str;
+    }
+    return out;
+}
+
+static const char* launchTypeToStr(int lt) {
+    switch (lt) {
+        case NanoMenu::XLT_RETROARCH_INTENT: return "retroarch-intent";
+        case NanoMenu::XLT_CUSTOM_PACKAGE:   return "custom-package";
+        case NanoMenu::XLT_LIBRETRO_CORE:
+        default:                             return "libretro-core";
+    }
+}
+
+static int launchTypeFromStr(const std::string& s) {
+    if (s == "custom-package")   return NanoMenu::XLT_CUSTOM_PACKAGE;
+    if (s == "retroarch-intent") return NanoMenu::XLT_RETROARCH_INTENT;
+    return NanoMenu::XLT_LIBRETRO_CORE;
+}
+
+// Serialize one runtime system to its JSON object form.
+static njson::Value systemToJson(const NanoMenu::XmbSystem& sys) {
+    njson::Value o = njson::Value::makeObject();
+    o.set("id") = njson::Value::makeString(sys.id);
+    o.set("builtin") = njson::Value::makeBool(sys.builtin);
+    o.set("enabled") = njson::Value::makeBool(sys.enabled);
+    o.set("order") = njson::Value::makeNumber(sys.order);
+    o.set("displayName") = njson::Value::makeString(sys.name);
+    o.set("shortname") = njson::Value::makeString(sys.shortname);
+    o.set("romDir") = njson::Value::makeString(sys.romDir);
+    o.set("launchType") = njson::Value::makeString(launchTypeToStr(sys.launchType));
+    o.set("coreSo") = njson::Value::makeString(sys.coreSo);
+    o.set("package") = njson::Value::makeString(sys.packageName);
+    o.set("launchArgs") = njson::Value::makeString(sys.launchArgs);
+    o.set("intentTemplate") = njson::Value::makeString(sys.launchIntent);
+    njson::Value srcs = njson::Value::makeArray();
+    for (const auto& s : sys.scanSources) {
+        njson::Value sv = njson::Value::makeObject();
+        sv.set("type") = njson::Value::makeString(s.type == 1 ? "safuri" : "rawpath");
+        sv.set("value") = njson::Value::makeString(s.value);
+        if (!s.rawHint.empty()) sv.set("rawHint") = njson::Value::makeString(s.rawHint);
+        srcs.arr.push_back(std::move(sv));
+    }
+    o.set("scanSources") = std::move(srcs);
+    o.set("extensions") = extsToJsonArray(sys.acceptExts);
+    njson::Value icon = njson::Value::makeObject();
+    icon.set("ref") = njson::Value::makeString(sys.iconRef);
+    icon.set("tintR") = njson::Value::makeNumber(sys.iconR);
+    icon.set("tintG") = njson::Value::makeNumber(sys.iconG);
+    icon.set("tintB") = njson::Value::makeNumber(sys.iconB);
+    o.set("icon") = std::move(icon);
+    return o;
+}
+
+// Construct a runtime system from its JSON object form, deriving the legacy
+// backward-compat fields (launchPkg from package for custom-package, etc.).
+static NanoMenu::XmbSystem jsonToSystem(const njson::Value& o) {
+    NanoMenu::XmbSystem sys;
+    sys.id = o.getString("id");
+    sys.builtin = o.getBool("builtin", false);
+    sys.enabled = o.getBool("enabled", true);
+    sys.order = o.getInt("order", 0);
+    sys.name = o.getString("displayName");
+    sys.shortname = o.getString("shortname");
+    sys.romDir = o.getString("romDir", sys.id);
+    sys.launchType = launchTypeFromStr(o.getString("launchType", "libretro-core"));
+    sys.coreSo = o.getString("coreSo");
+    sys.packageName = o.getString("package");
+    sys.launchArgs = o.getString("launchArgs");
+    sys.launchIntent = o.getString("intentTemplate");
+    if (const njson::Value* srcs = o.find("scanSources")) {
+        if (srcs->isArray()) {
+            for (const auto& sv : srcs->arr) {
+                if (!sv.isObject()) continue;
+                NanoMenu::ScanSource s;
+                s.type = (sv.getString("type") == "safuri") ? 1 : 0;
+                s.value = sv.getString("value");
+                s.rawHint = sv.getString("rawHint");
+                if (!s.value.empty()) sys.scanSources.push_back(std::move(s));
+            }
+        }
+    }
+    if (const njson::Value* exts = o.find("extensions"))
+        sys.acceptExts = jsonArrayToExts(*exts);
+    if (const njson::Value* icon = o.find("icon")) {
+        sys.iconRef = icon->getString("ref");
+        // Tints are fractional, so read them as doubles (getInt would truncate).
+        const njson::Value* tr = icon->find("tintR");
+        const njson::Value* tg = icon->find("tintG");
+        const njson::Value* tb = icon->find("tintB");
+        if (tr) sys.iconR = (float)tr->asNumber(sys.iconR);
+        if (tg) sys.iconG = (float)tg->asNumber(sys.iconG);
+        if (tb) sys.iconB = (float)tb->asNumber(sys.iconB);
+    }
+    // Derive legacy backward-compat fields the renderer/launch path read.
+    if (sys.launchType == NanoMenu::XLT_CUSTOM_PACKAGE) {
+        sys.launchPkg = sys.packageName;
+    } else {
+        sys.launchPkg.clear();  // libretro / retroarch-intent are not standalone
+    }
+    return sys;
+}
+
+// Nanosecond mtime stamp of nano_systems.json, or -1 when absent. The resident
+// overlay and the DRM home are separate processes sharing the file; each tracks
+// the stamp of its own last load/save (mSystemsCfgStamp) and reloads when an
+// external writer moves it.
+int64_t NanoMenu::systemsConfigStamp() const {
+    struct stat st;
+    if (stat("/data/system/nano_systems.json", &st) != 0) return -1;
+    return (int64_t)st.st_mtim.tv_sec * 1000000000LL + st.st_mtim.tv_nsec;
+}
+
+bool NanoMenu::loadSystemsConfig() {
+    const char* path = "/data/system/nano_systems.json";
+    int fd = open(path, O_RDONLY);
+    if (fd < 0) return false;
+    std::string content;
+    struct stat st;
+    if (fstat(fd, &st) == 0 && st.st_size > 0 && st.st_size < 4 * 1024 * 1024) {
+        content.resize(st.st_size);
+        ssize_t rd = read(fd, &content[0], st.st_size);
+        if (rd > 0) content.resize(rd); else content.clear();
+    }
+    close(fd);
+    if (content.empty()) return false;
+
+    njson::Value root;
+    if (!njson::parse(content, &root) || !root.isObject()) {
+        ALOGW("NanoMenu: nano_systems.json parse failed; reseeding from defaults");
+        return false;
+    }
+    const njson::Value* systems = root.find("systems");
+    if (!systems || !systems->isArray() || systems->arr.empty()) return false;
+
+    mXmbSystems.clear();
+    mXmbSystems.reserve(systems->arr.size());
+    for (const auto& sv : systems->arr) {
+        if (!sv.isObject()) continue;
+        XmbSystem sys = jsonToSystem(sv);
+        if (sys.id.empty()) continue;
+        mXmbSystems.push_back(std::move(sys));
+    }
+    if (mXmbSystems.empty()) return false;
+
+    // Honor the explicit per-system order within the Game category.
+    std::stable_sort(mXmbSystems.begin(), mXmbSystems.end(),
+                     [](const XmbSystem& a, const XmbSystem& b) {
+                         return a.order < b.order;
+                     });
+    ALOGD("NanoMenu: loaded %zu systems from nano_systems.json", mXmbSystems.size());
+    mSystemsCfgStamp = systemsConfigStamp();
+    return true;
+}
+
+void NanoMenu::seedSystemsConfig() {
+    // Build the default config from the built-in table so first-boot behavior
+    // is byte-for-byte unchanged, then persist it. Legacy prop overrides are
+    // applied later in initXmbSystems (props win), so the on-disk seed holds
+    // factory defaults.
+    mXmbSystems.clear();
+    mXmbSystems.reserve(kNumXmbSystemDefs);
     for (int i = 0; i < kNumXmbSystemDefs; i++) {
         XmbSystem sys;
+        sys.id = kXmbSystemDefs[i].romDir;
+        sys.builtin = true;
+        sys.enabled = true;
+        sys.order = i;
         sys.name = kXmbSystemDefs[i].name;
         sys.shortname = kXmbSystemDefs[i].shortname;
         sys.romDir = kXmbSystemDefs[i].romDir;
         sys.coreSo = kXmbSystemDefs[i].coreSo;
         sys.launchPkg = kXmbSystemDefs[i].launchPkg;
         sys.launchIntent = kXmbSystemDefs[i].launchIntent;
-        sys.iconR = kXmbSystemDefs[i].r;
-        sys.iconG = kXmbSystemDefs[i].g;
-        sys.iconB = kXmbSystemDefs[i].b;
+        sys.launchType = (kXmbSystemDefs[i].launchPkg[0] != '\0')
+                             ? XLT_CUSTOM_PACKAGE : XLT_LIBRETRO_CORE;
+        sys.packageName = kXmbSystemDefs[i].launchPkg;
+        // Default tint is white so the console glyphs keep the clean PS3 glass
+        // look; the Icon Tint editor lets users colour individual systems.
+        sys.iconR = sys.iconG = sys.iconB = 1.0f;
         sys.acceptExts = kXmbSystemDefs[i].acceptExts;
-        sys.scanned = false;
-        sys.pathExists = false;
-        sys.lastScanTime = 0;
-
-        // Allow prop overrides per system
-        char propBuf[PROPERTY_VALUE_MAX] = {};
-        char propKey[128];
-        snprintf(propKey, sizeof(propKey), "persist.gammaos.nano.xmb.%s.dir",
-                 kXmbSystemDefs[i].romDir);
-        property_get(propKey, propBuf, "");
-        if (propBuf[0]) sys.romDir = propBuf;
-
-        snprintf(propKey, sizeof(propKey), "persist.gammaos.nano.xmb.%s.core",
-                 kXmbSystemDefs[i].romDir);
-        property_get(propKey, propBuf, "");
-        if (propBuf[0]) sys.coreSo = propBuf;
-
-        // Try loading cached file list from DE storage
-        // Cache format: each line is a full ROM path.
-        // Legacy compat: if line 1 is a directory and remaining lines
-        // are bare filenames, prepend the directory to each filename.
-        {
-            std::string cachePath = "/data/system/nano_xmb_cache/" + sys.romDir + ".list";
-            int cfd = open(cachePath.c_str(), O_RDONLY);
-            if (cfd >= 0) {
-                struct stat cst;
-                if (fstat(cfd, &cst) == 0 && cst.st_size > 0 && cst.st_size < 512 * 1024) {
-                    std::string content(cst.st_size, '\0');
-                    ssize_t rd = read(cfd, &content[0], cst.st_size);
-                    if (rd > 0) {
-                        content.resize(rd);
-                        std::vector<std::string> lines;
-                        size_t pos = 0;
-                        while (pos < content.size()) {
-                            size_t eol = content.find('\n', pos);
-                            if (eol == std::string::npos) eol = content.size();
-                            std::string line = content.substr(pos, eol - pos);
-                            pos = eol + 1;
-                            if (!line.empty()) lines.push_back(std::move(line));
-                        }
-                        // Detect legacy format: first line is a directory,
-                        // rest are bare filenames (no '/' in them)
-                        std::string dirPrefix;
-                        if (lines.size() >= 2 && lines[0].find('/') != std::string::npos) {
-                            bool allBare = true;
-                            for (size_t i = 1; i < lines.size(); i++) {
-                                if (lines[i].find('/') != std::string::npos) {
-                                    allBare = false;
-                                    break;
-                                }
-                            }
-                            if (allBare) {
-                                dirPrefix = lines[0];
-                                // Remove trailing slash if present
-                                if (!dirPrefix.empty() && dirPrefix.back() == '/')
-                                    dirPrefix.pop_back();
-                                lines.erase(lines.begin());
-                                ALOGD("NanoMenu: %s: legacy cache format, dir=%s",
-                                      sys.name.c_str(), dirPrefix.c_str());
-                            }
-                        }
-                        for (auto& l : lines) {
-                            if (!dirPrefix.empty())
-                                sys.roms.push_back(dirPrefix + "/" + l);
-                            else
-                                sys.roms.push_back(std::move(l));
-                        }
-                        // Derive activePath from the directory of the first ROM
-                        if (!sys.roms.empty()) {
-                            size_t ls = sys.roms[0].rfind('/');
-                            if (ls != std::string::npos) {
-                                sys.activePath = sys.roms[0].substr(0, ls);
-                            }
-                            sys.pathExists = true;
-                        }
-                        // Pre-compute display names from cache (strip path + extension)
-                        for (const auto& rom : sys.roms) {
-                            std::string dn = rom;
-                            size_t sl = dn.rfind('/');
-                            if (sl != std::string::npos) dn = dn.substr(sl + 1);
-                            size_t d = dn.rfind('.');
-                            if (d != std::string::npos) dn = dn.substr(0, d);
-                            sys.displayNames.push_back(std::move(dn));
-                        }
-                        if (!sys.roms.empty()) {
-                            ALOGD("NanoMenu: %s: loaded %zu ROMs from cache",
-                                  sys.name.c_str(), sys.roms.size());
-                        }
-                    }
-                }
-                close(cfd);
-            }
-        }
-
-        // If cache had ROMs, mark as scanned so we don't clear them
-        // during early boot. Background rescan will update after boot_completed.
-        if (!sys.roms.empty()) {
-            sys.scanned = true;
-        }
-
+        char ref[24];
+        snprintf(ref, sizeof(ref), "builtin:%d", i);
+        sys.iconRef = ref;
         mXmbSystems.push_back(std::move(sys));
     }
-    ALOGD("NanoMenu: initialized %d XMB systems", (int)mXmbSystems.size());
+    ALOGI("NanoMenu: seeding nano_systems.json from %d built-in defaults",
+          kNumXmbSystemDefs);
+    saveSystemsConfig();
+}
 
-    // If all systems loaded from cache, mark scan as done
-    bool allCached = true;
-    for (const auto& s : mXmbSystems) {
-        if (!s.scanned) { allCached = false; break; }
+void NanoMenu::saveSystemsConfig() {
+    njson::Value root = njson::Value::makeObject();
+    root.set("version") = njson::Value::makeNumber(1);
+    njson::Value systems = njson::Value::makeArray();
+    for (const auto& sys : mXmbSystems)
+        systems.arr.push_back(systemToJson(sys));
+    root.set("systems") = std::move(systems);
+    std::string text = njson::serialize(root, true);
+
+    // Atomic write: temp file, fsync, rename over the target; re-own root:root
+    // 0644 (nano holds CHOWN/FOWNER), matching the existing cache hygiene.
+    const char* path = "/data/system/nano_systems.json";
+    const char* tmp = "/data/system/nano_systems.json.tmp";
+    int fd = open(tmp, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+    if (fd < 0) {
+        ALOGW("NanoMenu: cannot write %s (errno %d)", tmp, errno);
+        return;
     }
-    if (allCached) mXmbRomScanDone = true;
+    size_t off = 0;
+    bool ok = true;
+    while (off < text.size()) {
+        ssize_t w = write(fd, text.c_str() + off, text.size() - off);
+        if (w <= 0) { ok = false; break; }
+        off += (size_t)w;
+    }
+    fsync(fd);
+    close(fd);
+    if (!ok) { unlink(tmp); ALOGW("NanoMenu: write of nano_systems.json failed"); return; }
+    if (rename(tmp, path) != 0) {
+        ALOGW("NanoMenu: rename of nano_systems.json failed (errno %d)", errno);
+        unlink(tmp);
+        return;
+    }
+    (void)chown(path, 0, 0);
+    (void)chmod(path, 0644);
+    // Track our own write so the cross-process change poll does not see this
+    // process's saves as an external edit.
+    mSystemsCfgStamp = systemsConfigStamp();
+    ALOGD("NanoMenu: wrote %s (%zu systems, %zu bytes)", path,
+          mXmbSystems.size(), text.size());
+}
+
+// Restore a built-in system's config to its factory defaults (from
+// kXmbSystemDefs, matched by id), keeping its enabled/order/id. Reloads the ROM
+// cache so the system reflects the restored extensions/core. Returns false for
+// custom systems or unknown ids. Caller persists + rebuilds.
+bool NanoMenu::resetSystemToBuiltinDefaults(int sysIdx) {
+    if (sysIdx < 0 || sysIdx >= (int)mXmbSystems.size()) return false;
+    XmbSystem& sys = mXmbSystems[sysIdx];
+    if (!sys.builtin) return false;
+    int idx = -1;
+    for (int i = 0; i < kNumXmbSystemDefs; i++) {
+        if (sys.id == kXmbSystemDefs[i].romDir) { idx = i; break; }
+    }
+    if (idx < 0) return false;
+    const SystemDef& def = kXmbSystemDefs[idx];
+    sys.name = def.name;
+    sys.shortname = def.shortname;
+    sys.romDir = def.romDir;
+    sys.coreSo = def.coreSo;
+    sys.launchPkg = def.launchPkg;
+    sys.launchIntent = def.launchIntent;
+    sys.launchType = (def.launchPkg[0] != '\0') ? XLT_CUSTOM_PACKAGE : XLT_LIBRETRO_CORE;
+    sys.packageName = def.launchPkg;
+    sys.launchArgs.clear();
+    sys.iconR = sys.iconG = sys.iconB = 1.0f;   // white default tint
+    sys.acceptExts = def.acceptExts;
+    sys.scanSources.clear();
+    char ref[24]; snprintf(ref, sizeof(ref), "builtin:%d", idx); sys.iconRef = ref;
+    sys.scanned = false;
+    loadRomCacheForSystem(sys);
+    ALOGI("ps3menu: reset system %s to built-in defaults", sys.id.c_str());
+    return true;
+}
+
+// Equivalent ROM folder names across nano / Daijishou / ES-DE / RetroArch, so a
+// system's ROMs are found regardless of which folder-naming convention the user
+// organized by. ES-DE for example uses "megadrive" for Genesis and "n3ds" for
+// 3DS. Returns the system's romDir plus any aliases in its equivalence group.
+// (Folder list from retrogamecorps/ES-DE-Directories + the libretro/Daijishou
+// conventions.)
+static std::vector<std::string> getRomFolderAliases(const std::string& romDir) {
+    static const char* const kGroups[] = {
+        "nes,famicom",
+        "snes,sfc,snesna,superfamicom,sufami,satellaview,sgb",
+        "gb,gameboy",
+        "gbc,gameboycolor",
+        "gba,gameboyadvance",
+        "n64,nintendo64,n64dd",
+        "nds,ds,nintendods",
+        "genesis,megadrive,md,megadrivejp",
+        "mastersystem,sms",
+        "gamegear,gg",
+        "psx,ps1,playstation,psone",
+        "psp,playstationportable",
+        "dreamcast,dc",
+        "ngp",
+        "ngpc",
+        "pico8,pico-8",
+        "ps2,playstation2",
+        "gc,gamecube,ngc",
+        "wii", "wiiu",
+        "3ds,n3ds,nintendo3ds",
+        "switch", "ps3,playstation3", "psvita,vita",
+        "saturn,segasaturn,saturnjp",
+        "segacd,megacd,megacdjp",
+        "sega32x,sega32xjp,sega32xna,32x",
+        "sg-1000,sg1000",
+        "pcengine,tg16,pce,turbografx16,supergrafx",
+        "pcenginecd,tg-cd,pcecd",
+        "neogeo,neogeocd",
+        "wonderswan,ws", "wonderswancolor,wsc",
+        "atari2600,a2600", "atari5200", "atari7800",
+        "atarilynx,lynx", "atarijaguar,jaguar", "atarist,ast",
+        "msx,msx1", "msx2", "colecovision,coleco", "intellivision,intv",
+        "vectrex", "virtualboy,vb",
+        "arcade,mame,fbneo,fba,mame2003,mame2010,cps1,cps2,cps3",
+        "c64,commodore64", "amiga", "amstradcpc,cpc", "zxspectrum,spectrum,zx81",
+        "scummvm", "ports", "dos,pc", "fds", "naomi", "atomiswave", "pokemini",
+        "channelf", "odyssey2,videopac", "x68000,x68k",
+        "supervision,watara", "gameandwatch,gw", "3do",
+    };
+    auto low = [](const std::string& in) {
+        std::string o; for (char c : in) o += (char)((c >= 'A' && c <= 'Z') ? c + 32 : c); return o;
+    };
+    std::string lower = low(romDir);
+    std::vector<std::string> out; out.push_back(romDir);
+    for (const char* g : kGroups) {
+        std::vector<std::string> toks; std::string t;
+        for (const char* p = g; ; p++) {
+            if (*p == ',' || *p == '\0') { if (!t.empty()) toks.push_back(t); t.clear(); if (!*p) break; }
+            else t += (char)((*p >= 'A' && *p <= 'Z') ? *p + 32 : *p);
+        }
+        bool match = false; for (auto& tk : toks) if (tk == lower) { match = true; break; }
+        if (!match) continue;
+        for (auto& tk : toks) {
+            if (tk == lower) continue;
+            bool dup = false; for (auto& o : out) if (low(o) == tk) { dup = true; break; }
+            if (!dup) out.push_back(tk);
+        }
+    }
+    return out;
+}
+
+// Build the ordered, de-duplicated list of directories to scan for a system's
+// ROMs. Honors user scanSources first; always appends the legacy default
+// candidates (so built-ins with empty scanSources behave exactly as before),
+// expanded across the system's ES-DE / libretro folder-name aliases, then
+// prepends any persist.gammaos.nano.xmb.<id>.path override at the front.
+std::vector<std::string> NanoMenu::buildScanCandidates(const XmbSystem& sys) {
+    std::vector<std::string> scanPaths;
+
+    // 0. User-chosen scan sources (highest priority). safuri sources scan via
+    //    their resolved raw mount; sources lacking a usable path are skipped.
+    for (const auto& src : sys.scanSources) {
+        if (src.type == 0 && !src.value.empty())
+            scanPaths.push_back(src.value);
+        else if (src.type == 1 && !src.rawHint.empty())
+            scanPaths.push_back(src.rawHint);
+    }
+
+    const std::string romDir = sys.romDir;
+    const std::vector<std::string> aliases = getRomFolderAliases(romDir);
+
+    // 1. Internal storage (raw + FUSE) - for every folder-name alias
+    for (const auto& a : aliases) {
+        scanPaths.push_back("/data/media/0/ROMs/" + a);
+        scanPaths.push_back("/sdcard/ROMs/" + a);
+        scanPaths.push_back("/storage/emulated/0/ROMs/" + a);
+    }
+
+    // 2. External volumes -- case-insensitive matching for ROMs dir and system dir
+    auto addExternalVolume = [&](const std::string& base) {
+        std::string romsDir = findCaseInsensitive(base, "ROMs");
+        for (const auto& a : aliases) {
+            scanPaths.push_back(base + "/ROMs/" + a);
+            scanPaths.push_back(base + "/roms/" + a);
+            scanPaths.push_back(base + "/" + a);
+            if (!romsDir.empty()) {
+                std::string sysDir = findCaseInsensitive(romsDir, a);
+                if (!sysDir.empty()) scanPaths.push_back(sysDir);
+            }
+            std::string directDir = findCaseInsensitive(base, a);
+            if (!directDir.empty()) scanPaths.push_back(directDir);
+        }
+    };
+    {
+        DIR* storageDir = opendir("/storage");
+        if (storageDir) {
+            struct dirent* sEntry;
+            while ((sEntry = readdir(storageDir)) != nullptr) {
+                if (sEntry->d_name[0] == '.') continue;
+                if (!strcmp(sEntry->d_name, "emulated")) continue;
+                if (!strcmp(sEntry->d_name, "self")) continue;
+                addExternalVolume(std::string("/storage/") + sEntry->d_name);
+            }
+            closedir(storageDir);
+        }
+        DIR* mntDir = opendir("/mnt/media_rw");
+        if (mntDir) {
+            struct dirent* mEntry;
+            while ((mEntry = readdir(mntDir)) != nullptr) {
+                if (mEntry->d_name[0] == '.') continue;
+                addExternalVolume(std::string("/mnt/media_rw/") + mEntry->d_name);
+            }
+            closedir(mntDir);
+        }
+    }
+
+    // 3. Prop-overridden custom path (highest priority): prepend at front.
+    char customPath[PROPERTY_VALUE_MAX] = {};
+    char propKey[160];
+    snprintf(propKey, sizeof(propKey), "persist.gammaos.nano.xmb.%s.path", sys.id.c_str());
+    property_get(propKey, customPath, "");
+    if (customPath[0]) scanPaths.insert(scanPaths.begin(), std::string(customPath));
+
+    // Deduplicate candidate paths (preserve order; exact string match).
+    {
+        std::set<std::string> seen;
+        std::vector<std::string> unique;
+        for (auto& p : scanPaths) {
+            if (seen.insert(p).second) unique.push_back(std::move(p));
+        }
+        scanPaths = std::move(unique);
+    }
+    return scanPaths;
 }
 
 // ---------------------------------------------------------------------------
@@ -293,81 +740,10 @@ static std::string findCaseInsensitive(const std::string& parent, const std::str
 void NanoMenu::scanRomPaths() {
     ALOGD("NanoMenu: scanning ROM paths");
     for (auto& sys : mXmbSystems) {
+        if (!sys.enabled) continue;   // disabled systems are never scanned
         if (sys.scanned) continue;
 
-        const std::string romDir = sys.romDir;
-
-        // Build candidate paths -- these are directories to scan for ROMs.
-        // We scan ALL accessible paths (not just the best one) and merge results.
-        std::vector<std::string> scanPaths;
-
-        // 1. Internal storage (raw + FUSE)
-        scanPaths.push_back("/data/media/0/ROMs/" + romDir);
-        scanPaths.push_back("/sdcard/ROMs/" + romDir);
-        scanPaths.push_back("/storage/emulated/0/ROMs/" + romDir);
-
-        // 2. External volumes -- case-insensitive matching for ROMs dir and system dir
-        auto addExternalVolume = [&](const std::string& base) {
-            // Try exact paths first (fast)
-            scanPaths.push_back(base + "/ROMs/" + romDir);
-            scanPaths.push_back(base + "/roms/" + romDir);
-            scanPaths.push_back(base + "/" + romDir);
-            // Case-insensitive: find ROMs-like folder, then system folder within
-            std::string romsDir = findCaseInsensitive(base, "ROMs");
-            if (!romsDir.empty()) {
-                std::string sysDir = findCaseInsensitive(romsDir, romDir);
-                if (!sysDir.empty()) scanPaths.push_back(sysDir);
-            }
-            // Also try system dir directly at volume root (case-insensitive)
-            std::string directDir = findCaseInsensitive(base, romDir);
-            if (!directDir.empty()) scanPaths.push_back(directDir);
-        };
-
-        {
-            DIR* storageDir = opendir("/storage");
-            if (storageDir) {
-                struct dirent* sEntry;
-                while ((sEntry = readdir(storageDir)) != nullptr) {
-                    if (sEntry->d_name[0] == '.') continue;
-                    if (!strcmp(sEntry->d_name, "emulated")) continue;
-                    if (!strcmp(sEntry->d_name, "self")) continue;
-                    std::string base = std::string("/storage/") + sEntry->d_name;
-                    addExternalVolume(base);
-                }
-                closedir(storageDir);
-            }
-            DIR* mntDir = opendir("/mnt/media_rw");
-            if (mntDir) {
-                struct dirent* mEntry;
-                while ((mEntry = readdir(mntDir)) != nullptr) {
-                    if (mEntry->d_name[0] == '.') continue;
-                    std::string base = std::string("/mnt/media_rw/") + mEntry->d_name;
-                    addExternalVolume(base);
-                }
-                closedir(mntDir);
-            }
-        }
-
-        // 3. Prop-overridden custom path
-        char customPath[PROPERTY_VALUE_MAX] = {};
-        char propKey[128];
-        snprintf(propKey, sizeof(propKey), "persist.gammaos.nano.xmb.%s.path", romDir.c_str());
-        property_get(propKey, customPath, "");
-        if (customPath[0]) {
-            // Custom path gets highest priority -- insert at front
-            scanPaths.insert(scanPaths.begin(), std::string(customPath));
-        }
-
-        // Deduplicate candidate paths (realpath-based would be ideal but too slow;
-        // just skip exact string duplicates)
-        {
-            std::set<std::string> seen;
-            std::vector<std::string> unique;
-            for (auto& p : scanPaths) {
-                if (seen.insert(p).second) unique.push_back(std::move(p));
-            }
-            scanPaths = std::move(unique);
-        }
+        std::vector<std::string> scanPaths = buildScanCandidates(sys);
 
         // Build extension set from comma-separated list
         std::set<std::string> exts;
@@ -505,7 +881,7 @@ void NanoMenu::scanRomPaths() {
         {
             std::string cacheDir = "/data/system/nano_xmb_cache";
             mkdir(cacheDir.c_str(), 0755);
-            std::string cachePath = cacheDir + "/" + sys.romDir + ".list";
+            std::string cachePath = cacheDir + "/" + sys.id + ".list";
             int cfd = open(cachePath.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
             if (cfd >= 0) {
                 for (const auto& rom : sys.roms) {
@@ -530,65 +906,9 @@ void NanoMenu::scanRomPaths() {
 bool NanoMenu::scanOneSystemAsync(int sysIdx) {
     if (sysIdx < 0 || sysIdx >= (int)mXmbSystems.size()) return false;
     auto& sys = mXmbSystems[sysIdx];
-    const std::string romDir = sys.romDir;
+    if (!sys.enabled) return false;   // disabled systems are never scanned
 
-    // Build candidate paths (same logic as scanRomPaths)
-    std::vector<std::string> scanPaths;
-    scanPaths.push_back("/data/media/0/ROMs/" + romDir);
-    scanPaths.push_back("/sdcard/ROMs/" + romDir);
-    scanPaths.push_back("/storage/emulated/0/ROMs/" + romDir);
-
-    auto addExternalVolume = [&](const std::string& base) {
-        scanPaths.push_back(base + "/ROMs/" + romDir);
-        scanPaths.push_back(base + "/roms/" + romDir);
-        scanPaths.push_back(base + "/" + romDir);
-        std::string romsDir = findCaseInsensitive(base, "ROMs");
-        if (!romsDir.empty()) {
-            std::string sysDir = findCaseInsensitive(romsDir, romDir);
-            if (!sysDir.empty()) scanPaths.push_back(sysDir);
-        }
-        std::string directDir = findCaseInsensitive(base, romDir);
-        if (!directDir.empty()) scanPaths.push_back(directDir);
-    };
-
-    {
-        DIR* storageDir = opendir("/storage");
-        if (storageDir) {
-            struct dirent* sEntry;
-            while ((sEntry = readdir(storageDir)) != nullptr) {
-                if (sEntry->d_name[0] == '.') continue;
-                if (!strcmp(sEntry->d_name, "emulated")) continue;
-                if (!strcmp(sEntry->d_name, "self")) continue;
-                addExternalVolume(std::string("/storage/") + sEntry->d_name);
-            }
-            closedir(storageDir);
-        }
-        DIR* mntDir = opendir("/mnt/media_rw");
-        if (mntDir) {
-            struct dirent* mEntry;
-            while ((mEntry = readdir(mntDir)) != nullptr) {
-                if (mEntry->d_name[0] == '.') continue;
-                addExternalVolume(std::string("/mnt/media_rw/") + mEntry->d_name);
-            }
-            closedir(mntDir);
-        }
-    }
-
-    char customPath[PROPERTY_VALUE_MAX] = {};
-    char propKey[128];
-    snprintf(propKey, sizeof(propKey), "persist.gammaos.nano.xmb.%s.path", romDir.c_str());
-    property_get(propKey, customPath, "");
-    if (customPath[0]) scanPaths.insert(scanPaths.begin(), std::string(customPath));
-
-    // Deduplicate paths
-    {
-        std::set<std::string> seen;
-        std::vector<std::string> unique;
-        for (auto& p : scanPaths) {
-            if (seen.insert(p).second) unique.push_back(std::move(p));
-        }
-        scanPaths = std::move(unique);
-    }
+    std::vector<std::string> scanPaths = buildScanCandidates(sys);
 
     // Build extension set
     std::set<std::string> exts;
@@ -727,10 +1047,10 @@ bool NanoMenu::scanOneSystemAsync(int sysIdx) {
             sys.displayNames.push_back(std::move(dn));
         }
 
-        // Update cache file
-        std::string cacheDir = "/data/system/nano_xmb_cache";
-        mkdir(cacheDir.c_str(), 0755);
-        std::string cachePath = cacheDir + "/" + sys.romDir + ".list";
+        // Update cache file (xmbCachePath keys on the stable id, matching the
+        // loader and the bg-scan writer; romDir is NOT the cache key)
+        mkdir("/data/system/nano_xmb_cache", 0755);
+        std::string cachePath = xmbCachePath(sys);
         int cfd = open(cachePath.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
         if (cfd >= 0) {
             for (const auto& rom : sys.roms) {
@@ -771,67 +1091,11 @@ void NanoMenu::bgScanThreadFunc() {
 
     for (int si = 0; si < numSys; si++) {
         const auto& sys = mXmbSystems[si];
-        const std::string romDir = sys.romDir;
         auto& res = results[si];
         res.valid = false;
+        if (!sys.enabled) continue;   // disabled systems are never scanned
 
-        // Build candidate paths (same logic as scanOneSystemAsync)
-        std::vector<std::string> scanPaths;
-        scanPaths.push_back("/data/media/0/ROMs/" + romDir);
-        scanPaths.push_back("/sdcard/ROMs/" + romDir);
-        scanPaths.push_back("/storage/emulated/0/ROMs/" + romDir);
-
-        auto addVol = [&](const std::string& base) {
-            scanPaths.push_back(base + "/ROMs/" + romDir);
-            scanPaths.push_back(base + "/roms/" + romDir);
-            scanPaths.push_back(base + "/" + romDir);
-            std::string romsDir = findCaseInsensitive(base, "ROMs");
-            if (!romsDir.empty()) {
-                std::string sd = findCaseInsensitive(romsDir, romDir);
-                if (!sd.empty()) scanPaths.push_back(sd);
-            }
-            std::string dd = findCaseInsensitive(base, romDir);
-            if (!dd.empty()) scanPaths.push_back(dd);
-        };
-
-        {
-            DIR* d = opendir("/storage");
-            if (d) {
-                struct dirent* e;
-                while ((e = readdir(d)) != nullptr) {
-                    if (e->d_name[0] == '.') continue;
-                    if (!strcmp(e->d_name, "emulated")) continue;
-                    if (!strcmp(e->d_name, "self")) continue;
-                    addVol(std::string("/storage/") + e->d_name);
-                }
-                closedir(d);
-            }
-            d = opendir("/mnt/media_rw");
-            if (d) {
-                struct dirent* e;
-                while ((e = readdir(d)) != nullptr) {
-                    if (e->d_name[0] == '.') continue;
-                    addVol(std::string("/mnt/media_rw/") + e->d_name);
-                }
-                closedir(d);
-            }
-        }
-
-        char customPath[PROPERTY_VALUE_MAX] = {};
-        char propKey[128];
-        snprintf(propKey, sizeof(propKey), "persist.gammaos.nano.xmb.%s.path",
-                 romDir.c_str());
-        property_get(propKey, customPath, "");
-        if (customPath[0])
-            scanPaths.insert(scanPaths.begin(), std::string(customPath));
-
-        // Deduplicate
-        { std::set<std::string> seen;
-          std::vector<std::string> uniq;
-          for (auto& p : scanPaths)
-              if (seen.insert(p).second) uniq.push_back(std::move(p));
-          scanPaths = std::move(uniq);
-        }
+        std::vector<std::string> scanPaths = buildScanCandidates(sys);
 
         // Build extension set
         std::set<std::string> exts;
@@ -1337,10 +1601,19 @@ void NanoMenu::launchXmbGame() {
         std::string contentUri = "content://com.android.externalstorage.documents/tree/"
             + treeRoot + "/document/" + treeRoot + "%2F" + encodedFilename;
 
+        // custom-package launch: intent template + any user launch args, with the
+        // Daijisho token vocabulary substituted ({file.uri} content URI, {file.path}
+        // raw path, {file.mime} generic mime). Every occurrence is replaced.
         std::string intent = sys.launchIntent;
-        size_t pos = intent.find("{file.uri}");
-        if (pos != std::string::npos) {
-            intent.replace(pos, 10, contentUri);
+        if (!sys.launchArgs.empty()) intent += " " + sys.launchArgs;
+        {
+            auto subst = [&](const char* token, const std::string& val) {
+                size_t p, tl = strlen(token);
+                while ((p = intent.find(token)) != std::string::npos) intent.replace(p, tl, val);
+            };
+            subst("{file.uri}", contentUri);
+            subst("{file.path}", romPath);
+            subst("{file.mime}", "application/octet-stream");
         }
         std::string tabIntent;
         {

@@ -55,11 +55,15 @@ cc_binary {
         "NanoMenuPS3Bg.cpp",
         "NanoMenuPS3Particles.cpp",
         "NanoMenuPS3Icons.cpp",
+        "NanoMenuPS3IconGrid.cpp",
+        "NanoMenuPS3EmuCatalog.cpp",
+        "NanoMenuPS3Folder.cpp",
         "NanoMenuPS3Menu.cpp",
         "NanoMenuPS3Globe.cpp",
         "NanoMenuPS3Boot.cpp",
         "NanoMenuSetupWizard.cpp",
         "NanoMenuStrings.cpp",
+        "NanoJson.cpp",
         "NanoOsk.cpp",
         "LibretroRunner.cpp",
         "FakeJNI.cpp",
@@ -107,6 +111,8 @@ cc_binary {
         "nano_xmb_glass",
         "nano_xmb_textures",
         "nano_xmb_globe",
+        "nano_xmb_icons_retroarch",
+        "nano_xmb_daijishou",
     ],
 }
 
@@ -182,6 +188,28 @@ prebuilt_etc {
     name: "nano_xmb_globe",
     srcs: ["ps3xmb/globe/*.png"],
     sub_dir: "nano_xmb/globe",
+}
+
+// The full RetroArch monochrome XMB icon set (849 white-on-transparent system
+// silhouettes, LibretroDB names). Asset-only: never textured en masse; read on
+// demand by the icon grid picker (thumbnails) and per-system icon resolution
+// (one full icon per assigned system, glass-relit via bevelFromRGBA). The dev
+// override /data/system/nano_xmb/icons_retroarch/ is checked first.
+prebuilt_etc {
+    name: "nano_xmb_icons_retroarch",
+    srcs: ["ps3xmb/icons_retroarch/*.png"],
+    sub_dir: "nano_xmb/icons_retroarch",
+}
+
+// Daijishou community platform configs (119 platforms, ~917 players covering
+// RetroArch cores AND standalone emulators - AetherSX2, Dolphin, azahar, etc.).
+// Parsed at runtime by the Game Systems editor's Emulator chooser to auto-fill
+// launch type / package / intent / extensions. The dev override
+// /data/system/nano_xmb/daijishou/ is checked first.
+prebuilt_etc {
+    name: "nano_xmb_daijishou",
+    srcs: ["ps3xmb/daijishou/*.json"],
+    sub_dir: "nano_xmb/daijishou",
 }
 
 // Source files shared with the drastic-nano binary. drastic-nano

@@ -38,6 +38,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <strings.h>
+#include <unistd.h>
 #include <time.h>
 #include <thread>
 #include <vector>
@@ -312,6 +313,16 @@ void NanoMenu::buildRomSubmenu(int sysIdx, Ps3Level& out) {
         it.iconR = it.iconG = it.iconB = 1.0f;
         out.items.push_back(it);
     }
+    if (out.items.empty()) {
+        // PS3 parity: an empty list shows the dim "There are no titles" row
+        // (inert DATA leaf, no icon) instead of a blank column.
+        Ps3Item it;
+        it.label = "There are no titles";
+        it.kind = PS3_DATA_LEAF; it.action = 0;
+        it.iconTex = 0; it.nmapTex = 0;
+        it.iconR = it.iconG = it.iconB = 1.0f;
+        out.items.push_back(it);
+    }
 }
 
 void NanoMenu::buildRecentSubmenu(Ps3Level& out) {
@@ -323,17 +334,22 @@ void NanoMenu::buildRecentSubmenu(Ps3Level& out) {
         // Show the game's CONSOLE icon (matched by system shortname / ROM dir to
         // the same icon the Game category uses) instead of a generic clock, and
         // drop the right-aligned system-name label entirely.
-        int iconIdx = 15;   // fallback: generic recent icon
+        int matchSys = -1;
         for (size_t s = 0; s < mXmbSystems.size(); s++) {
             if (mXmbSystems[s].shortname == mXmbRecent[i].systemName
                 || (!mXmbRecent[i].romDir.empty() && mXmbSystems[s].romDir == mXmbRecent[i].romDir)) {
-                iconIdx = (s < 15) ? (int)s : 16;
-                break;
+                matchSys = (int)s; break;
             }
         }
-        it.iconTex = mIconTextures[iconIdx];
-        it.nmapTex = bevelForIconIdx(iconIdx);
-        it.iconR = it.iconG = it.iconB = 1.0f;
+        if (matchSys >= 0) {
+            resolveSystemIcon(mXmbSystems[matchSys].iconRef, &it.iconTex, &it.nmapTex);
+            it.iconR = mXmbSystems[matchSys].iconR;
+            it.iconG = mXmbSystems[matchSys].iconG;
+            it.iconB = mXmbSystems[matchSys].iconB;
+        } else {
+            it.iconTex = mIconTextures[15]; it.nmapTex = bevelForIconIdx(15);   // generic recent icon
+            it.iconR = it.iconG = it.iconB = 1.0f;
+        }
         out.items.push_back(it);
     }
 }
@@ -389,6 +405,7 @@ enum {
 void NanoMenu::buildPs3Cats() {
     mPs3Cats.clear();
     int gameCatRuntimeIdx = -1;
+    int settingsCatRuntimeIdx = -1;
     mPs3QuickCatIdx = -1;
 
     // ---- Quick Menu (GammaOS Nano legacy global actions) ----
@@ -431,7 +448,8 @@ void NanoMenu::buildPs3Cats() {
         c.nmapTex = mPs3CatNmap[catIdx];
         for (int ii = 0; ii < dc.itemCount; ii++)
             c.items.push_back(makeDataItem(&dc.items[ii]));
-        if (strcmp(dc.id, "game") == 0) gameCatRuntimeIdx = (int)mPs3Cats.size();
+        if (strcmp(dc.id, "game") == 0)     gameCatRuntimeIdx     = (int)mPs3Cats.size();
+        if (strcmp(dc.id, "settings") == 0) settingsCatRuntimeIdx = (int)mPs3Cats.size();
         mPs3Cats.push_back(c);
     }
 
@@ -448,11 +466,15 @@ void NanoMenu::buildPs3Cats() {
         }
         for (size_t s = 0; s < mXmbSystems.size(); s++) {
             const XmbSystem& sys = mXmbSystems[s];
-            if (sys.roms.empty()) continue;
+            if (!sys.enabled) continue;
+            // Builtin systems stay hidden until ROMs are found (keeps the
+            // column to what the user actually has). User-added systems always
+            // show: the user explicitly created them and needs to see the tile
+            // (and its 0 count) before any ROMs land in the scan folders.
+            if (sys.roms.empty() && sys.builtin) continue;
             Ps3Item it; it.label = sys.name; it.kind = PS3_SYSTEM; it.a = (int)s;
-            int iconIdx = (s < 15) ? (int)s : 16;
-            it.iconTex = mIconTextures[iconIdx]; it.nmapTex = bevelForIconIdx(iconIdx);
-            it.iconR = it.iconG = it.iconB = 1.0f;
+            resolveSystemIcon(sys.iconRef, &it.iconTex, &it.nmapTex);
+            it.iconR = sys.iconR; it.iconG = sys.iconG; it.iconB = sys.iconB;   // per-system tint
             char buf[32]; snprintf(buf, sizeof(buf), "%zu", sys.roms.size()); it.value = buf;
             nano.push_back(it);
         }
@@ -462,6 +484,16 @@ void NanoMenu::buildPs3Cats() {
         game.items.insert(game.items.begin(), nano.begin(), nano.end());
     }
 
+    // The "Game Systems" editor lives under Settings (it configures systems, so
+    // it belongs with the other settings). Appended as the last Settings item,
+    // glass wrench glyph (xmb_icon_022).
+    if (settingsCatRuntimeIdx >= 0) {
+        Ps3Item it; it.label = "Game Systems"; it.kind = PS3_GS_ROOT;
+        it.iconTex = 0; it.nmapTex = nmapForIcon(22);
+        it.iconR = it.iconG = it.iconB = 1.0f;
+        mPs3Cats[settingsCatRuntimeIdx].items.push_back(it);
+    }
+
     mPs3CatItemSel.assign(mPs3Cats.size(), 0);
     // Land on Game by default.
     if (mPs3CatIdx < 0 || mPs3CatIdx >= (int)mPs3Cats.size()) {
@@ -469,6 +501,33 @@ void NanoMenu::buildPs3Cats() {
     }
     mPs3ItemIdx = 0;
     mPs3AnimItem = 0.0f; mPs3ItemAnimStart = -1.0f;
+}
+
+// Rebuild the category tree in place (a background rescan changed some
+// system's ROM list, so Game tiles may appear/disappear or change count)
+// WITHOUT yanking the user's position: re-find each category's selected item
+// by label after the rebuild. Only called at the settled XMB root.
+void NanoMenu::rebuildPs3CatsPreserveSel() {
+    int catIdx = mPs3CatIdx;
+    std::vector<std::string> selLabels(mPs3Cats.size());
+    for (size_t c = 0; c < mPs3Cats.size(); c++) {
+        int s = ((int)c == catIdx) ? mPs3ItemIdx
+              : (c < mPs3CatItemSel.size() ? mPs3CatItemSel[c] : 0);
+        if (s >= 0 && s < (int)mPs3Cats[c].items.size())
+            selLabels[c] = mPs3Cats[c].items[s].label;
+    }
+    buildPs3Cats();
+    if (catIdx >= 0 && catIdx < (int)mPs3Cats.size()) mPs3CatIdx = catIdx;
+    for (size_t c = 0; c < mPs3Cats.size() && c < selLabels.size(); c++) {
+        if (selLabels[c].empty()) continue;
+        for (size_t i = 0; i < mPs3Cats[c].items.size(); i++) {
+            if (mPs3Cats[c].items[i].label == selLabels[c]) {
+                mPs3CatItemSel[c] = (int)i;
+                if ((int)c == mPs3CatIdx) mPs3ItemIdx = (int)i;
+                break;
+            }
+        }
+    }
 }
 
 // Quick Menu -> Power submenu: the reboot/shutdown/recovery/safe-mode/android
@@ -486,6 +545,274 @@ void NanoMenu::buildQuickPowerSubmenu(Ps3Level& out) {
     q("Safe Mode",    QA_SAFEMODE,     18);   // wrench + lock
     q("Boot Android", QA_BOOT_ANDROID, 44);   // android robot
 }
+
+// ---------------------------------------------------------------------------
+// Game Systems editor (dynamic systems config)
+// ---------------------------------------------------------------------------
+
+// The systems-list screen: every configured system (enabled AND disabled) with
+// an On/Off value and the system's glass icon (dimmed when disabled). A = open
+// the per-system editor (Phase 3); X = toggle enabled; L1/R1 = reorder.
+void NanoMenu::buildGameSystemsList(Ps3Level& out) {
+    out.items.clear(); out.sel = 0; out.title = "Game Systems";
+    out.screenKind = GS_LIST;
+    for (size_t s = 0; s < mXmbSystems.size(); s++) {
+        const XmbSystem& sys = mXmbSystems[s];
+        Ps3Item it;
+        it.label = sys.name;
+        it.kind = PS3_GS_SYSTEM_ROW; it.a = (int)s;
+        it.value = sys.enabled ? "On" : "Off";
+        resolveSystemIcon(sys.iconRef, &it.iconTex, &it.nmapTex);
+        // Per-system tint, dimmed when disabled so the On/Off state reads at a glance.
+        float m = sys.enabled ? 1.0f : 0.45f;
+        it.iconR = sys.iconR * m; it.iconG = sys.iconG * m; it.iconB = sys.iconB * m;
+        out.items.push_back(it);
+    }
+    // Add New System (from the Daijishou catalog or blank). Y removes a custom row.
+    { Ps3Item it; it.label = "Add New System..."; it.kind = PS3_GS_ADD;
+      it.iconTex = 0; it.nmapTex = nmapForIcon(51);   // add glyph
+      it.iconR = it.iconG = it.iconB = 1.0f; out.items.push_back(it); }
+}
+
+// Flip a system's enabled flag, persist the config, and refresh both the visible
+// list and the Game category. Disabling clears the in-memory ROM list (so it
+// drops out of Game) but keeps the on-disk cache for an instant re-enable.
+void NanoMenu::gsToggleSystem(int sysIdx) {
+    if (sysIdx < 0 || sysIdx >= (int)mXmbSystems.size()) return;
+    XmbSystem& sys = mXmbSystems[sysIdx];
+    sys.enabled = !sys.enabled;
+    if (!sys.enabled) {
+        sys.roms.clear(); sys.displayNames.clear(); sys.activePaths.clear();
+        sys.pathExists = false; sys.scanned = true;   // hidden; not scanned
+        ALOGI("ps3menu: disabled system %s", sys.id.c_str());
+    } else {
+        sys.scanned = false;
+        loadRomCacheForSystem(sys);   // instant repopulate from the DE cache
+        ALOGI("ps3menu: enabled system %s (%zu cached roms)", sys.id.c_str(), sys.roms.size());
+    }
+    saveSystemsConfig();
+    gsRefreshStackLevels();
+    buildPs3Cats();
+}
+
+// Move a system up (dir -1) or down (dir +1) within the config order. Renumbers
+// every system's `order`, persists, and refreshes the list + Game category.
+void NanoMenu::gsReorderSystem(int sysIdx, int dir) {
+    if (sysIdx < 0 || sysIdx >= (int)mXmbSystems.size()) return;
+    int j = sysIdx + dir;
+    if (j < 0 || j >= (int)mXmbSystems.size()) return;
+    std::swap(mXmbSystems[sysIdx], mXmbSystems[j]);
+    for (size_t k = 0; k < mXmbSystems.size(); k++) mXmbSystems[k].order = (int)k;
+    saveSystemsConfig();
+    gsRefreshStackLevels();
+    if (!mPs3Stack.empty() && mPs3Stack.back().screenKind == GS_LIST)
+        mPs3Stack.back().sel = j;   // follow the moved row
+    buildPs3Cats();
+}
+
+// Rebuild any Game Systems list / editor levels currently on the nav stack in
+// place (preserving each level's selection) after a config change, so the
+// visible screen and any parent GS screen stay in sync.
+void NanoMenu::gsRefreshStackLevels() {
+    for (auto& lvl : mPs3Stack) {
+        int keep = lvl.sel;
+        if (lvl.screenKind == GS_LIST) {
+            buildGameSystemsList(lvl);
+        } else if (lvl.screenKind == GS_EDITOR && mGsEditIdx >= 0) {
+            buildGameSystemEditor(mGsEditIdx, lvl);
+        } else {
+            continue;
+        }
+        int n = (int)lvl.items.size();
+        if (keep >= n) keep = n - 1;
+        lvl.sel = keep < 0 ? 0 : keep;
+    }
+}
+
+// ---- Per-system editor (Phase 3) ----
+
+// Editor field ids (Ps3Item.a for PS3_GS_FIELD rows).
+enum {
+    GSF_ENABLED = 0, GSF_NAME, GSF_SHORT, GSF_LTYPE, GSF_EMULATOR, GSF_CORE, GSF_PACKAGE,
+    GSF_ARGS, GSF_INTENT, GSF_EXTS, GSF_SCAN, GSF_ICON, GSF_TINT, GSF_RESET, GSF_DELETE
+};
+
+static const char* launchTypeLabel(int lt) {
+    switch (lt) {
+        case NanoMenu::XLT_CUSTOM_PACKAGE:   return "Custom Package";
+        case NanoMenu::XLT_RETROARCH_INTENT: return "RetroArch Intent";
+        default:                             return "Libretro Core";
+    }
+}
+
+void NanoMenu::buildGameSystemEditor(int sysIdx, Ps3Level& out) {
+    out.items.clear(); out.sel = 0; out.screenKind = GS_EDITOR;
+    if (sysIdx < 0 || sysIdx >= (int)mXmbSystems.size()) { out.title = "System"; return; }
+    const XmbSystem& sys = mXmbSystems[sysIdx];
+    out.title = sys.name.empty() ? "System" : sys.name;
+    auto add = [&](const char* label, int field, const std::string& value) {
+        Ps3Item it; it.label = label; it.kind = PS3_GS_FIELD; it.a = field;
+        it.value = value; it.iconTex = 0; it.nmapTex = 0;   // clean icon-free form rows
+        it.iconR = it.iconG = it.iconB = 1.0f;
+        out.items.push_back(it);
+    };
+    add("Enabled", GSF_ENABLED, sys.enabled ? "On" : "Off");
+    add("Display Name", GSF_NAME, sys.name);
+    add("Short Name", GSF_SHORT, sys.shortname);
+    add("Launch Type", GSF_LTYPE, launchTypeLabel(sys.launchType));
+    // Emulator chooser (bundled Daijishou catalog: cores + standalone emulators).
+    // Shows the current target; opens the searchable picker.
+    add("Emulator", GSF_EMULATOR,
+        sys.launchType == XLT_CUSTOM_PACKAGE
+            ? (sys.packageName.empty() ? "Select..." : sys.packageName)
+            : (sys.coreSo.empty() ? "Select..." : sys.coreSo));
+    if (sys.launchType != XLT_CUSTOM_PACKAGE)
+        add("Core (.so)", GSF_CORE, sys.coreSo.empty() ? "(none)" : sys.coreSo);
+    if (sys.launchType == XLT_CUSTOM_PACKAGE)
+        add("Package", GSF_PACKAGE, sys.packageName.empty() ? "(none)" : sys.packageName);
+    if (sys.launchType == XLT_CUSTOM_PACKAGE || sys.launchType == XLT_RETROARCH_INTENT)
+        add("Intent Template", GSF_INTENT, sys.launchIntent.empty() ? "(default)" : "(custom)");
+    add("Launch Args", GSF_ARGS, sys.launchArgs.empty() ? "(none)" : sys.launchArgs);
+    add("Extensions", GSF_EXTS, sys.acceptExts.empty() ? "(none)" : sys.acceptExts);
+    // Scan Folders: opens the native folder picker (raw-path browser).
+    { char v[40]; int nsrc = (int)sys.scanSources.size();
+      if (nsrc == 0) snprintf(v, sizeof(v), "Default");
+      else           snprintf(v, sizeof(v), "%d folder%s", nsrc, nsrc == 1 ? "" : "s");
+      add("Scan Folders", GSF_SCAN, v); }
+    // Icon picker row: opens the 849-icon grid. Shows the system's current icon.
+    { Ps3Item it; it.label = "Icon"; it.kind = PS3_GS_FIELD; it.a = GSF_ICON;
+      if (sys.iconRef.compare(0, 10, "retroarch:") == 0) {
+          it.value = sys.iconRef.substr(10);
+          for (char& c : it.value) if (c == '_') c = ' ';   // prettify sanitized name
+      } else if (sys.iconRef.compare(0, 5, "file:") == 0)  it.value = "Custom";
+      else                                                 it.value = "Default";
+      resolveSystemIcon(sys.iconRef, &it.iconTex, &it.nmapTex);
+      it.iconR = sys.iconR; it.iconG = sys.iconG; it.iconB = sys.iconB;
+      out.items.push_back(it); }
+    // Icon Tint: preview the tinted console glyph on the row so the colour reads.
+    { Ps3Item it; it.label = "Icon Tint"; it.kind = PS3_GS_FIELD; it.a = GSF_TINT;
+      it.value = "Colour";
+      resolveSystemIcon(sys.iconRef, &it.iconTex, &it.nmapTex);
+      it.iconR = sys.iconR; it.iconG = sys.iconG; it.iconB = sys.iconB;
+      out.items.push_back(it); }
+    if (sys.builtin) add("Reset to Default", GSF_RESET, "");
+    else             add("Delete System", GSF_DELETE, "");
+}
+
+// Normalize a comma-separated extension list to lowercase, leading-dot tokens.
+static std::string normalizeExts(const std::string& in) {
+    std::string out, tok;
+    auto flush = [&]() {
+        while (!tok.empty() && tok.front() == ' ') tok.erase(tok.begin());
+        while (!tok.empty() && tok.back() == ' ') tok.pop_back();
+        if (!tok.empty()) {
+            std::string t; if (tok[0] != '.') t += '.';
+            for (char c : tok) t += (char)tolower((unsigned char)c);
+            if (!out.empty()) out += ",";
+            out += t;
+        }
+        tok.clear();
+    };
+    for (char c : in) { if (c == ',') flush(); else tok += c; }
+    flush();
+    return out;
+}
+
+// A on an editor field: open the OSK (text fields, prefilled) or a side-panel
+// chooser (launch type / icon tint / reset), or toggle enabled in place.
+void NanoMenu::gsEditField(int field) {
+    int idx = mGsEditIdx;
+    if (idx < 0 || idx >= (int)mXmbSystems.size()) return;
+    switch (field) {
+        case GSF_ENABLED:  gsToggleSystem(idx); return;   // refreshes editor + list + cats
+        case GSF_LTYPE:    gsOpenLaunchTypeChooser(); return;
+        case GSF_EMULATOR: gsOpenEmulatorPicker(); return;
+        case GSF_SCAN:     gsOpenScanFolders(); return;
+        case GSF_ICON:     openIconGridPicker(); return;
+        case GSF_TINT:    gsOpenTintChooser(); return;
+        case GSF_RESET:   gsOpenResetConfirm(); return;
+        case GSF_DELETE:  gsOpenRemoveConfirm(idx); return;
+        default: break;
+    }
+    // Text fields (prefilled OSK).
+    const XmbSystem& sys = mXmbSystems[idx];
+    std::string cur, prompt;
+    switch (field) {
+        case GSF_NAME:    cur = sys.name;         prompt = "Display Name"; break;
+        case GSF_SHORT:   cur = sys.shortname;    prompt = "Short Name"; break;
+        case GSF_CORE:    cur = sys.coreSo;       prompt = "Core .so filename"; break;
+        case GSF_PACKAGE: cur = sys.packageName;  prompt = "Target package (e.g. com.dsemu.drastic)"; break;
+        case GSF_ARGS:    cur = sys.launchArgs;   prompt = "Launch args (am tokens)"; break;
+        case GSF_INTENT:  cur = sys.launchIntent; prompt = "Intent template ({file.uri})"; break;
+        case GSF_EXTS:    cur = sys.acceptExts;   prompt = "Extensions (comma-separated)"; break;
+        default: return;
+    }
+    openOskForPassword(prompt, [this, idx, field](const std::string& val) {
+        if (idx < 0 || idx >= (int)mXmbSystems.size()) return;
+        XmbSystem& s = mXmbSystems[idx];
+        switch (field) {
+            case GSF_NAME:    if (!val.empty()) s.name = val; break;
+            case GSF_SHORT:   if (!val.empty()) s.shortname = val; break;
+            case GSF_CORE:    s.coreSo = val; break;
+            case GSF_PACKAGE: s.packageName = val; break;
+            case GSF_ARGS:    s.launchArgs = val; break;
+            case GSF_INTENT:  s.launchIntent = val; break;
+            case GSF_EXTS: {
+                s.acceptExts = normalizeExts(val);
+                // Extensions changed: invalidate + rescan this system. Skip the
+                // synchronous scan if a background scan is in flight (it would
+                // race the ROM vectors); the next periodic scan picks up the
+                // new extensions safely.
+                unlink(xmbCachePath(s).c_str());
+                s.scanned = false;
+                if (!mBgScanThreadRunning) scanOneSystemAsync(idx);
+                break;
+            }
+            default: break;
+        }
+        if (s.launchType == XLT_CUSTOM_PACKAGE) s.launchPkg = s.packageName;
+        saveSystemsConfig();
+        gsRefreshStackLevels();
+        buildPs3Cats();
+    });
+    mOskPasswordMode = false;
+    mOskPlaintext = true;
+    mOskQuery = cur;                       // prefill AFTER openOskForPassword (which clears it)
+    mOsk.caret = (int)mOskQuery.size();
+}
+
+void NanoMenu::gsOpenLaunchTypeChooser() {
+    if (mGsEditIdx < 0 || mGsEditIdx >= (int)mXmbSystems.size()) return;
+    mPs3DlgOptions.clear(); mPs3DlgSwatch.clear();
+    mPs3DlgKind = 1; mPs3DlgThemeKey = 20; mPs3DlgTitle = "Launch Type"; mPs3DlgBody.clear();
+    // Two options: a RetroArch libretro core (fast native route), or an arbitrary
+    // package launched via an am intent (Daijisho-style). sel 0 -> libretro-core,
+    // sel 1 -> custom-package.
+    mPs3DlgOptions.push_back("Libretro Core");  mPs3DlgSwatch.push_back(-1);
+    mPs3DlgOptions.push_back("Custom Package");  mPs3DlgSwatch.push_back(-1);
+    mPs3DlgSel = (mXmbSystems[mGsEditIdx].launchType == XLT_CUSTOM_PACKAGE) ? 1 : 0;
+    mPs3DlgIconTex = 0; mPs3DlgIconNmap = nmapForIcon(22);
+    mPs3DlgIconR = mPs3DlgIconG = mPs3DlgIconB = 1.0f;
+    mPs3DlgOrigSel = mPs3DlgSel;
+    mPs3DlgActive = true; mPs3DlgAnim = 0.0f; mPs3DlgBlurValid = false;
+}
+
+// gsOpenTintChooser() is defined further down, next to the kPs3ColorOpts table.
+
+void NanoMenu::gsOpenResetConfirm() {
+    if (mGsEditIdx < 0 || mGsEditIdx >= (int)mXmbSystems.size()) return;
+    mPs3DlgOptions.clear(); mPs3DlgSwatch.clear();
+    mPs3DlgKind = 1; mPs3DlgThemeKey = 22; mPs3DlgTitle = "Reset to Default"; mPs3DlgBody.clear();
+    mPs3DlgOptions.push_back("Cancel");           mPs3DlgSwatch.push_back(-1);
+    mPs3DlgOptions.push_back("Reset to Default");  mPs3DlgSwatch.push_back(-1);
+    mPs3DlgSel = 0;
+    mPs3DlgIconTex = 0; mPs3DlgIconNmap = nmapForIcon(22);
+    mPs3DlgIconR = mPs3DlgIconG = mPs3DlgIconB = 1.0f;
+    mPs3DlgOrigSel = 0;
+    mPs3DlgActive = true; mPs3DlgAnim = 0.0f; mPs3DlgBlurValid = false;
+}
+
+
 
 std::vector<NanoMenu::Ps3Item>& NanoMenu::ps3CurItems() {
     if (!mPs3Stack.empty()) return mPs3Stack.back().items;
@@ -552,6 +879,7 @@ void NanoMenu::ps3DlgNav(int dir, bool horizontal) {
 }
 
 void NanoMenu::ps3XmbLeft() {
+    if (ps3TopScreenKind() == GS_ICONGRID) { iconGridNav(-1, 0); return; }
     if (mPs3BrightSlider) { adjustBrightness(-1); return; }   // Quick Menu brightness slider modal
     if (mPs3TzActive) return;   // tzglobe list is vertical only
     if (mPs3WizActive) { wizNav(-1, true); return; }
@@ -569,6 +897,7 @@ void NanoMenu::ps3XmbLeft() {
 }
 
 void NanoMenu::ps3XmbRight() {
+    if (ps3TopScreenKind() == GS_ICONGRID) { iconGridNav(+1, 0); return; }
     if (mPs3BrightSlider) { adjustBrightness(+1); return; }   // Quick Menu brightness slider modal
     if (mPs3TzActive) return;   // tzglobe list is vertical only
     if (mPs3WizActive) { wizNav(+1, true); return; }
@@ -586,6 +915,7 @@ void NanoMenu::ps3XmbRight() {
 }
 
 void NanoMenu::ps3XmbUp() {
+    if (ps3TopScreenKind() == GS_ICONGRID) { iconGridNav(0, -1); return; }
     if (mPs3BrightSlider) { mPs3BrightSlider = false; mShowBrightnessBar = false; mBrightnessBarTimer = 0; return; }
     if (mPs3TzActive) { tzGlobeNav(-1); return; }
     if (mPs3WizActive) { wizNav(-1, false); return; }
@@ -594,6 +924,7 @@ void NanoMenu::ps3XmbUp() {
     if (s > 0) { mPs3ItemAnimFrom = mPs3AnimItem; mPs3ItemAnimStart = mEffectTime; s--; }
 }
 void NanoMenu::ps3XmbDown() {
+    if (ps3TopScreenKind() == GS_ICONGRID) { iconGridNav(0, +1); return; }
     if (mPs3BrightSlider) { mPs3BrightSlider = false; mShowBrightnessBar = false; mBrightnessBarTimer = 0; return; }
     if (mPs3TzActive) { tzGlobeNav(+1); return; }
     if (mPs3WizActive) { wizNav(+1, false); return; }
@@ -603,6 +934,7 @@ void NanoMenu::ps3XmbDown() {
 }
 
 void NanoMenu::ps3XmbSelect() {
+    if (ps3TopScreenKind() == GS_ICONGRID) { iconGridSelect(); return; }
     if (mPs3BrightSlider) { mPs3BrightSlider = false; mShowBrightnessBar = false; mBrightnessBarTimer = 0; return; }  // X confirms the brightness slider
     if (mPs3TzActive) { closeTimezoneGlobe(true); return; }   // X: apply the highlighted zone + close
     if (mPs3WizActive) { wizConfirm(); return; }   // X: advance the network setup wizard
@@ -632,6 +964,38 @@ void NanoMenu::ps3XmbSelect() {
         case PS3_RECENT_LIST:  { Ps3Level lvl; buildRecentSubmenu(lvl);        mPs3Stack.push_back(lvl); break; }
         case PS3_APP_LIST:     { Ps3Level lvl; buildAppSubmenu(lvl);           mPs3Stack.push_back(lvl); break; }
         case PS3_DATA_SUBMENU: { Ps3Level lvl; buildDataSubmenu(it.data, lvl); mPs3Stack.push_back(lvl); break; }
+        case PS3_GS_ROOT:      { Ps3Level lvl; buildGameSystemsList(lvl);      mPs3Stack.push_back(lvl); break; }
+        case PS3_GS_SYSTEM_ROW: { mGsEditIdx = it.a; Ps3Level lvl; buildGameSystemEditor(it.a, lvl); mPs3Stack.push_back(lvl); break; }
+        case PS3_GS_FIELD:     { gsEditField(it.a); return; }   // open OSK / chooser / toggle
+        case PS3_GS_EMUROW: {   // pick a catalog emulator/core -> apply to the system
+            int ci = it.a;
+            if (!mPs3Stack.empty() && mPs3Stack.back().screenKind == GS_EMUPICK) mPs3Stack.pop_back();
+            applyEmulatorChoice(ci);
+            return;
+        }
+        case PS3_GS_EMU_CUSTOM: {   // "Custom..." -> blank add (add mode) or manual OSK (edit)
+            if (!mPs3Stack.empty() && mPs3Stack.back().screenKind == GS_EMUPICK) mPs3Stack.pop_back();
+            if (mGsAddMode) { gsAddBlankSystem(); return; }
+            if (mGsEditIdx >= 0 && mGsEditIdx < (int)mXmbSystems.size())
+                gsEditField(mXmbSystems[mGsEditIdx].launchType == XLT_CUSTOM_PACKAGE
+                                ? GSF_PACKAGE : GSF_CORE);
+            return;
+        }
+        case PS3_GS_ADD:       { gsAddSystem(); return; }   // emulator picker in add mode (self-animates)
+        case PS3_GS_ADDFOLDER: {   // open the raw-path folder browser (storage roots)
+            std::vector<Ps3Item> ps = ps3CurItems(); int pSel = ps3CurSel();
+            Ps3Level lvl; buildFolderBrowser("", lvl); mPs3Stack.push_back(lvl);
+            mPs3SubParentItems = ps; mPs3SubParentIdx = pSel; mPs3SubChildItems = mPs3Stack.back().items;
+            mPs3SubDir = 1; mPs3SubAnimStart = mEffectTime; mPs3SubAnim = 0.0f;
+            mPs3AnimItem = 0.0f; mPs3ItemAnimStart = -1.0f;
+            return;
+        }
+        case PS3_GS_DIR: {   // descend/ascend the folder browser in place
+            if (!mPs3Stack.empty() && mPs3Stack.back().screenKind == GS_FOLDERBROWSE)
+                buildFolderBrowser(it.payloadStr, mPs3Stack.back());
+            return;
+        }
+        case PS3_GS_SELFOLDER: { gsFolderSelect(it.payloadStr); return; }
         case PS3_ROM:    { mXmbSystemIndex = it.a; mXmbGameIndex = it.b; mSearchActive = false;
                            if (!isLaunchReady()) { showLaunchBusyToast(); return; }
                            if (mOverlayMode) { overlayLaunchGame(); return; } launchXmbGame(); return; }
@@ -729,6 +1093,7 @@ void NanoMenu::ps3XmbSelect() {
 }
 
 void NanoMenu::ps3XmbBack() {
+    if (ps3TopScreenKind() == GS_ICONGRID) { closeIconGridPicker(); mPs3Stack.pop_back(); return; }
     if (mPs3BrightSlider) { mPs3BrightSlider = false; mShowBrightnessBar = false; mBrightnessBarTimer = 0; return; }  // O dismisses the brightness slider
     if (mPs3TzActive) { closeTimezoneGlobe(false); return; }   // O: cancel (keep current zone)
     if (mPs3WizActive) { wizBack(); return; }   // O: step back through the network setup wizard
@@ -780,6 +1145,7 @@ void NanoMenu::renderPs3Xmb() {
     if (mPs3Cats.empty()) return;
     if (mMenuState == MENU_WIFI) { renderWifiScreen(); return; }
     if (mMenuState == MENU_BT)   { renderBtScreen();   return; }
+    if (ps3TopScreenKind() == GS_ICONGRID) { renderIconGridPicker(); return; }
 
     // Overlay entrance: when the in-game overlay is raised, the blurred backdrop
     // is already there; the XMB chrome (category labels/icons, item list, clock)
@@ -1545,6 +1911,38 @@ static const Ps3ColorOpt kPs3ColorOpts[] = {
     {"Gold",1.00f,0.78f,0.25f},{"Violet",0.55f,0.35f,0.95f},{"Crimson",0.80f,0.10f,0.30f},
 };
 static const int kPs3ColorCount = 21;
+
+// Game Systems editor: icon-tint chooser (theme key 21). Defined here so it can
+// see the kPs3ColorOpts swatch table above. Applied on commit (applyThemeSetting
+// case 21); no live preview to keep cancel lossless for non-swatch built-in tints.
+void NanoMenu::gsOpenTintChooser() {
+    if (mGsEditIdx < 0 || mGsEditIdx >= (int)mXmbSystems.size()) return;
+    mPs3DlgOptions.clear(); mPs3DlgSwatch.clear();
+    mPs3DlgKind = 1; mPs3DlgThemeKey = 21; mPs3DlgTitle = "Icon Tint"; mPs3DlgBody.clear();
+    for (int i = 0; i < kPs3ColorCount; i++) {
+        mPs3DlgOptions.push_back(kPs3ColorOpts[i].name); mPs3DlgSwatch.push_back(i);
+    }
+    // Remember the exact current tint so cancel restores it losslessly (the
+    // nearest swatch is only an approximation of arbitrary RGB).
+    mGsTintOrigR = mXmbSystems[mGsEditIdx].iconR;
+    mGsTintOrigG = mXmbSystems[mGsEditIdx].iconG;
+    mGsTintOrigB = mXmbSystems[mGsEditIdx].iconB;
+    // Pre-select the swatch nearest the current tint.
+    const XmbSystem& s = mXmbSystems[mGsEditIdx];
+    int best = 0; float bestd = 1e9f;
+    for (int i = 0; i < kPs3ColorCount; i++) {
+        float dr = kPs3ColorOpts[i].r - s.iconR, dg = kPs3ColorOpts[i].g - s.iconG,
+              db = kPs3ColorOpts[i].b - s.iconB;
+        float d = dr*dr + dg*dg + db*db;
+        if (d < bestd) { bestd = d; best = i; }
+    }
+    mPs3DlgSel = best;
+    mPs3DlgIconTex = 0; mPs3DlgIconNmap = nmapForIcon(22);
+    mPs3DlgIconR = mPs3DlgIconG = mPs3DlgIconB = 1.0f;
+    mPs3DlgOrigSel = mPs3DlgSel;
+    mPs3DlgActive = true; mPs3DlgAnim = 0.0f; mPs3DlgBlurValid = false;
+}
+
 struct Ps3DayNightOpt { const char* name; float blend; };
 static const Ps3DayNightOpt kPs3DayNightOpts[] = {
     {"Auto (Time of Day)",-1.0f},{"Day",0.0f},{"Morning",0.25f},{"Dusk",0.5f},{"Evening",0.75f},{"Night",1.0f},
@@ -2067,6 +2465,20 @@ void NanoMenu::previewThemeSetting(int themeKey, int sel) {
         case 8: mPs3TimeFormatIdx = sel; break;
         case 9: break;   // DST: no live preview; the row reflects the real clock, applied on commit
         case 10: break;  // Performance Mode: governor change applied on commit only
+        case 20: break;  // GS launch type: applied on commit
+        case 23: break;  // GS remove-system confirm: applied on commit
+        case 21:         // GS icon tint: live-preview the chosen swatch (Game tile + editor row recolour)
+            if (mGsEditIdx >= 0 && mGsEditIdx < (int)mXmbSystems.size()
+                && sel >= 0 && sel < kPs3ColorCount) {
+                XmbSystem& s = mXmbSystems[mGsEditIdx];
+                s.iconR = kPs3ColorOpts[sel].r;
+                s.iconG = kPs3ColorOpts[sel].g;
+                s.iconB = kPs3ColorOpts[sel].b;
+                gsRefreshStackLevels();
+                buildPs3Cats();
+            }
+            break;
+        case 22: break;  // GS reset confirm: applied on commit
         default: break;
     }
 }
@@ -2135,12 +2547,57 @@ void NanoMenu::applyThemeSetting(int themeKey, int sel) {
             }
             break;
         }
+        case 20: {  // Game Systems editor: launch type (sel 0 = libretro, 1 = custom-package)
+            if (mGsEditIdx >= 0 && mGsEditIdx < (int)mXmbSystems.size() && sel >= 0 && sel <= 1) {
+                XmbSystem& s = mXmbSystems[mGsEditIdx];
+                s.launchType = (sel == 1) ? XLT_CUSTOM_PACKAGE : XLT_LIBRETRO_CORE;
+                s.launchPkg = (s.launchType == XLT_CUSTOM_PACKAGE) ? s.packageName : std::string();
+                saveSystemsConfig();
+                gsRefreshStackLevels();
+                buildPs3Cats();
+            }
+            break;
+        }
+        case 21: {  // Game Systems editor: icon tint (from the colour swatches)
+            if (mGsEditIdx >= 0 && mGsEditIdx < (int)mXmbSystems.size()
+                && sel >= 0 && sel < kPs3ColorCount) {
+                XmbSystem& s = mXmbSystems[mGsEditIdx];
+                s.iconR = kPs3ColorOpts[sel].r;
+                s.iconG = kPs3ColorOpts[sel].g;
+                s.iconB = kPs3ColorOpts[sel].b;
+                saveSystemsConfig();
+                gsRefreshStackLevels();
+                buildPs3Cats();
+            }
+            break;
+        }
+        case 22: {  // Game Systems editor: reset-to-default confirm (sel 1 = reset)
+            if (sel == 1 && mGsEditIdx >= 0 && resetSystemToBuiltinDefaults(mGsEditIdx)) {
+                saveSystemsConfig();
+                gsRefreshStackLevels();
+                buildPs3Cats();
+            }
+            break;
+        }
+        case 23: {  // Game Systems: remove custom system confirm (sel 1 = remove)
+            if (sel == 1 && mGsEditIdx >= 0) gsRemoveSystem(mGsEditIdx);
+            break;
+        }
         default: break;
     }
 }
 
 void NanoMenu::closePs3Dialog(bool apply) {
-    if (mPs3DlgThemeKey > 0) {
+    if (mPs3DlgThemeKey == 21 && !apply) {
+        // Icon-tint cancel: restore the exact original tint (not the nearest
+        // swatch) and refresh the live preview.
+        if (mGsEditIdx >= 0 && mGsEditIdx < (int)mXmbSystems.size()) {
+            XmbSystem& s = mXmbSystems[mGsEditIdx];
+            s.iconR = mGsTintOrigR; s.iconG = mGsTintOrigG; s.iconB = mGsTintOrigB;
+            gsRefreshStackLevels();
+            buildPs3Cats();
+        }
+    } else if (mPs3DlgThemeKey > 0) {
         if (apply) applyThemeSetting(mPs3DlgThemeKey, mPs3DlgSel);
         else       previewThemeSetting(mPs3DlgThemeKey, mPs3DlgOrigSel);   // revert the live preview
     }

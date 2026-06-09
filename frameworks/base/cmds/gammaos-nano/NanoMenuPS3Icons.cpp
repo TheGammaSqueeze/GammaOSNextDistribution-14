@@ -348,16 +348,12 @@ GLuint NanoMenu::nmapForIcon(int iconIndex) {
 // silhouette is blurred to a smooth height field; the normal comes from the
 // height gradient (R=nx, G=ny, A=mask) so the glass shader relights it in the
 // identical silvery style as the PS3 normal-mapped icons.
-GLuint NanoMenu::bevelForIconIdx(int iconIdx) {
-    if (iconIdx < 0 || iconIdx >= 18) return 0;
-    auto it = mPs3BevelByIconIdx.find(iconIdx);
-    if (it != mPs3BevelByIconIdx.end()) return it->second;
-
-    std::vector<uint8_t> px; int w = 0, h = 0;
-    bool ok = decodeRGBA(nullptr, kEmbeddedIcons[iconIdx].data,
-                         kEmbeddedIcons[iconIdx].size, &w, &h, &px, true);
-    if (!ok || w < 4 || h < 4) { mPs3BevelByIconIdx[iconIdx] = 0; return 0; }
-
+// Generate a bevel normal map from an arbitrary white-on-alpha silhouette
+// buffer (RGBA, alpha = mask). Refactored out of bevelForIconIdx so the
+// RetroArch icon set and user PNGs get the identical glass relight. Returns a
+// GL texture (R=nx, G=ny, B=255, A=original silhouette), 0 on failure.
+GLuint NanoMenu::bevelFromRGBA(const uint8_t* px, int w, int h) {
+    if (!px || w < 4 || h < 4) return 0;
     int N = w * h;
     std::vector<float> bufA((size_t)N), bufB((size_t)N), tmp((size_t)N);
     for (int i = 0; i < N; i++) bufA[(size_t)i] = px[(size_t)i * 4 + 3] / 255.0f;
@@ -417,9 +413,102 @@ GLuint NanoMenu::bevelForIconIdx(int iconIdx) {
             nmap[o + 3] = px[(size_t)(y * w + x) * 4 + 3];   // original silhouette
         }
     }
-    GLuint tex = uploadRGBA(nmap.data(), w, h);
+    return uploadRGBA(nmap.data(), w, h);
+}
+
+// Embedded console-icon bevel (0..17), cached per index.
+GLuint NanoMenu::bevelForIconIdx(int iconIdx) {
+    if (iconIdx < 0 || iconIdx >= 18) return 0;
+    auto it = mPs3BevelByIconIdx.find(iconIdx);
+    if (it != mPs3BevelByIconIdx.end()) return it->second;
+    std::vector<uint8_t> px; int w = 0, h = 0;
+    bool ok = decodeRGBA(nullptr, kEmbeddedIcons[iconIdx].data,
+                         kEmbeddedIcons[iconIdx].size, &w, &h, &px, true);
+    if (!ok || w < 4 || h < 4) { mPs3BevelByIconIdx[iconIdx] = 0; return 0; }
+    GLuint tex = bevelFromRGBA(px.data(), w, h);
     mPs3BevelByIconIdx[iconIdx] = tex;
     return tex;
+}
+
+// Resolve a system iconRef to a (colour silhouette tex, glass bevel nmap) pair,
+// caching by the full ref string. Grammar:
+//   builtin:<n>            -> embedded 18-icon table + bevelForIconIdx
+//   retroarch:<name>       -> /system/etc/nano_xmb/icons_retroarch/<name>.png (dev override
+//                             /data/system/nano_xmb/icons_retroarch/) mono-white + bevelFromRGBA
+//   core:<name>            -> /data/system/nano_icons/<name>.png
+//   file:/abs/path.png     -> arbitrary user PNG
+//   empty / unresolved     -> generic cartridge (icon 16)
+void NanoMenu::resolveSystemIcon(const std::string& ref, GLuint* outTex, GLuint* outNmap) {
+    if (outTex) *outTex = 0;
+    if (outNmap) *outNmap = 0;
+    auto fallback = [&]() {
+        if (outTex)  *outTex  = mIconTextures[16];
+        if (outNmap) *outNmap = bevelForIconIdx(16);
+    };
+    if (ref.empty()) { fallback(); return; }
+
+    if (ref.compare(0, 8, "builtin:") == 0) {
+        int n = atoi(ref.c_str() + 8);
+        if (n < 0 || n > 17) { fallback(); return; }
+        if (outTex)  *outTex  = mIconTextures[n];
+        if (outNmap) *outNmap = bevelForIconIdx(n);
+        return;
+    }
+
+    // cached (retroarch:/core:/file:) -> stored (tex, nmap)
+    auto cached = mPs3IconRefCache.find(ref);
+    if (cached != mPs3IconRefCache.end()) {
+        if (outTex)  *outTex  = cached->second.first;
+        if (outNmap) *outNmap = cached->second.second;
+        return;
+    }
+
+    // Build the candidate file path(s) for this ref.
+    std::vector<uint8_t> px; int w = 0, h = 0; bool ok = false;
+    char path[512];
+    if (ref.compare(0, 10, "retroarch:") == 0) {
+        std::string name = ref.substr(10);
+        snprintf(path, sizeof(path), "/data/system/nano_xmb/icons_retroarch/%s.png", name.c_str());
+        ok = decodeRGBA(path, nullptr, 0, &w, &h, &px, true);
+        if (!ok) {
+            snprintf(path, sizeof(path), "/system/etc/nano_xmb/icons_retroarch/%s.png", name.c_str());
+            ok = decodeRGBA(path, nullptr, 0, &w, &h, &px, true);
+        }
+    } else if (ref.compare(0, 5, "core:") == 0) {
+        std::string name = ref.substr(5);
+        snprintf(path, sizeof(path), "/data/system/nano_icons/%s.png", name.c_str());
+        ok = decodeRGBA(path, nullptr, 0, &w, &h, &px, true);
+    } else if (ref.compare(0, 5, "file:") == 0) {
+        std::string p = ref.substr(5);
+        ok = decodeRGBA(p.c_str(), nullptr, 0, &w, &h, &px, true);
+    }
+
+    if (!ok || w < 4 || h < 4) {
+        // Cache the failure as the fallback so we do not retry decoding each build.
+        GLuint ft = mIconTextures[16], fn = bevelForIconIdx(16);
+        mPs3IconRefCache[ref] = std::make_pair(ft, fn);
+        if (outTex)  *outTex  = ft;
+        if (outNmap) *outNmap = fn;
+        return;
+    }
+    GLuint tex  = uploadRGBA(px.data(), w, h);
+    GLuint nmap = bevelFromRGBA(px.data(), w, h);
+    mPs3IconRefCache[ref] = std::make_pair(tex, nmap);
+    if (outTex)  *outTex  = tex;
+    if (outNmap) *outNmap = nmap;
+}
+
+// Decode a RetroArch icon by name (no .png) to a mono-white RGBA buffer. Dev
+// override (/data/system/nano_xmb/icons_retroarch/) first, then the bundled set
+// (/system/etc/nano_xmb/icons_retroarch/). Returns false if neither decodes.
+bool NanoMenu::decodeRetroIconRGBA(const std::string& name, std::vector<uint8_t>* outPx,
+                                   int* w, int* h) {
+    if (!outPx || !w || !h) return false;
+    char path[512];
+    snprintf(path, sizeof(path), "/data/system/nano_xmb/icons_retroarch/%s.png", name.c_str());
+    if (decodeRGBA(path, nullptr, 0, w, h, outPx, true)) return true;
+    snprintf(path, sizeof(path), "/system/etc/nano_xmb/icons_retroarch/%s.png", name.c_str());
+    return decodeRGBA(path, nullptr, 0, w, h, outPx, true);
 }
 
 // ---------------------------------------------------------------------------

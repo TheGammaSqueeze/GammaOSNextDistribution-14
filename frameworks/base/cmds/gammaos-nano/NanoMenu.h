@@ -115,22 +115,48 @@ public:
         std::string label;
     };
 
+    // A user-chosen ROM scan location for a system. type 0 = raw filesystem
+    // path, type 1 = SAF document-tree URI (resolved to rawHint for native
+    // readdir, see the folder picker). Built-in systems with an empty
+    // scanSources list fall back to the legacy default candidate paths.
+    struct ScanSource {
+        int type = 0;            // 0 = rawpath, 1 = safuri
+        std::string value;       // raw absolute path, or content:// tree URI
+        std::string rawHint;     // resolved raw mount for a safuri (optional)
+    };
+
+    // Launch routing discriminator (persisted as launchType in the config).
+    enum XmbLaunchType {
+        XLT_LIBRETRO_CORE = 0,   // RetroArch native-core / QR cache route (today's RA path)
+        XLT_RETROARCH_INTENT = 1,// RetroArch via an am intent (content URI / extras)
+        XLT_CUSTOM_PACKAGE = 2,  // arbitrary package via am intent (Daijisho-style)
+    };
+
     struct XmbSystem {
+        std::string id;            // stable unique key; for built-ins == original romDir
+        bool builtin = true;       // seeded from kXmbSystemDefs (enables "reset to default")
+        bool enabled = true;       // disabled systems are hidden from Game and never scanned
+        int order = 0;             // explicit sort key within the Game category
         std::string name;
         std::string shortname;
-        std::string romDir;        // Directory name under ROMs/
+        std::string romDir;        // Directory name under ROMs/ (also default scan-path key)
         std::string coreSo;        // RetroArch core .so filename (empty for standalone)
         std::string launchPkg;     // Package name for standalone emulators
         std::string launchIntent;  // Intent template ({file.uri} placeholder)
-        float iconR, iconG, iconB; // Icon color
+        int launchType = XLT_LIBRETRO_CORE;
+        std::string packageName;   // custom-package target (mirrors launchPkg)
+        std::string launchArgs;    // extra am tokens appended to the intent (custom-package)
+        std::string iconRef;       // builtin:N | retroarch:name | core:name | file:/abs | ""
+        std::vector<ScanSource> scanSources; // user-chosen scan locations (empty = legacy default)
+        float iconR = 1.0f, iconG = 1.0f, iconB = 1.0f; // Icon color (tint)
         std::string acceptExts;    // Comma-separated accepted extensions
         std::string activePath;    // Primary path (largest collection) — for backward compat
         std::vector<std::string> activePaths; // ALL directories with ROMs for this system
         std::vector<std::string> roms;         // Sorted FULL PATHS (e.g., /storage/UUID/nes/game.nes)
         std::vector<std::string> displayNames; // Pre-stripped display names (parallel to roms)
-        bool scanned;
-        bool pathExists;
-        int64_t lastScanTime;     // elapsedRealtime() of last scan — for periodic rescan
+        bool scanned = false;
+        bool pathExists = false;
+        int64_t lastScanTime = 0; // elapsedRealtime() of last scan - for periodic rescan
         bool isStandalone() const { return !launchPkg.empty(); }
     };
 
@@ -235,6 +261,27 @@ private:
 
     // XMB mode
     void initXmbSystems();
+    // Dynamic systems config (/data/system/nano_systems.json, DE storage).
+    // loadSystemsConfig parses the JSON into mXmbSystems; seedSystemsConfig
+    // builds the default config from kXmbSystemDefs (+ legacy props) and
+    // writes it; saveSystemsConfig serializes mXmbSystems back atomically.
+    bool loadSystemsConfig();
+    void seedSystemsConfig();
+    void saveSystemsConfig();
+    // Cross-process config coherence: nanosecond mtime stamp of
+    // nano_systems.json (-1 when absent) and the stamp of this process's last
+    // load/save. The threadLoop polls the file and reloads when an external
+    // nano (overlay vs DRM home) rewrote it.
+    int64_t systemsConfigStamp() const;
+    int64_t mSystemsCfgStamp = -1;
+    // Consolidated ROM scan candidate-path builder (replaces the duplicated
+    // logic in scanRomPaths / scanOneSystemAsync / bgScanThreadFunc). Honors
+    // scanSources when present, else reproduces the legacy default candidates.
+    std::vector<std::string> buildScanCandidates(const XmbSystem& sys);
+    // DE cache path for a system's ROM list, keyed on the stable id.
+    std::string xmbCachePath(const XmbSystem& sys) const {
+        return "/data/system/nano_xmb_cache/" + sys.id + ".list";
+    }
     void scanRomPaths();
     void forceRescanAllSystems();
     bool scanOneSystemAsync(int sysIdx);
@@ -813,7 +860,21 @@ private:
         PS3_DATA_SUBMENU, // a static DATA item with children -> submenu (data*)
         PS3_DATA_LEAF,    // a static DATA leaf (dialog / value / info, no action)
         PS3_QUICK,        // Quick Menu action; a = action code (QA_* in NanoMenuPS3Menu.cpp)
+        PS3_GS_ROOT,      // "Game Systems" entry -> open the systems-list editor screen
+        PS3_GS_SYSTEM_ROW,// a system row in the Game Systems list (a = mXmbSystems index)
+        PS3_GS_FIELD,     // a field row in the per-system editor (a = field id)
+        PS3_GS_ADD,       // "Add New System" row in the Game Systems list
+        PS3_GS_EMUROW,    // an emulator/core row in the emulator picker (a = catalog index)
+        PS3_GS_EMU_CUSTOM,// "Custom..." row in the emulator picker (type a core/package by hand)
+        PS3_GS_SCANSRC,   // a configured scan-folder row (a = scanSources index; Y removes it)
+        PS3_GS_ADDFOLDER, // "Add Folder..." row in the scan-folders screen
+        PS3_GS_DIR,       // a directory row in the folder browser (payloadStr = path)
+        PS3_GS_SELFOLDER, // "Select This Folder" row in the folder browser (payloadStr = path)
     };
+    // Game Systems editor screen kinds (Ps3Level.screenKind). Used to route the
+    // X / L1 / R1 / Y buttons contextually while a GS screen is on the nav stack.
+    enum GsScreenKind { GS_NONE = 0, GS_LIST = 1, GS_EDITOR = 2, GS_FOLDER = 3,
+                        GS_ICONGRID = 4, GS_EMUPICK = 5, GS_FOLDERBROWSE = 6 };
     struct Ps3Item {
         std::string label;
         std::string desc;
@@ -837,6 +898,7 @@ private:
         std::string title;
         std::vector<Ps3Item> items;
         int sel;
+        int screenKind = 0;   // 0 = normal submenu; GS_* for the Game Systems editor screens
     };
     bool mPs3Xmb = false;         // persist.gammaos.nano.ps3xmb
     bool mPs3MenuBuilt = false;
@@ -999,6 +1061,8 @@ private:
     // RetroArch icons -> a bevel normal generated from the alpha silhouette).
     std::map<int, GLuint>    mPs3NmapByIcon;     // xmb_icon index -> nmap tex
     std::map<int, GLuint>    mPs3BevelByIconIdx; // console icon idx (0..17) -> bevel nmap
+    // iconRef string -> (colour silhouette tex, glass bevel nmap) for retroarch:/core:/file: refs.
+    std::map<std::string, std::pair<GLuint, GLuint>> mPs3IconRefCache;
     // Real per-app icons: package name -> full-colour GL texture, decoded from the
     // DE cache /data/system/nano_app_icons/<pkg>.png written by SystemServer. Loaded
     // lazily when the Applications submenu is built; only successes are cached so a
@@ -1019,6 +1083,11 @@ private:
 
     void initPs3Menu();
     void buildPs3Cats();
+    // Rebuild the cats after a background rescan changed ROM lists, re-finding
+    // each category's selected item by label (no selection yank). Driven by
+    // mPs3CatsStale from the threadLoop scan pickup, applied at the XMB root.
+    void rebuildPs3CatsPreserveSel();
+    bool mPs3CatsStale = false;
     Ps3Item makeDataItem(const Ps3DataItem* d);   // runtime item from a DATA node
     void buildDataSubmenu(const Ps3DataItem* node, Ps3Level& out);
     void buildRomSubmenu(int sysIdx, Ps3Level& out);
@@ -1030,6 +1099,75 @@ private:
     void overlayKillAll();   // Quick Menu Kill All Apps (overlay): hard-stop every app incl the game, no relaunch
     void buildRecentSubmenu(Ps3Level& out);
     void buildAppSubmenu(Ps3Level& out);
+    // Game Systems editor (dynamic systems config). The list screen shows every
+    // configured system (enabled + disabled) with enable/disable + reorder; later
+    // phases add the per-system editor, folder picker, and icon grid.
+    void buildGameSystemsList(Ps3Level& out);
+    void gsToggleSystem(int sysIdx);            // flip enabled, persist, rebuild
+    void gsReorderSystem(int sysIdx, int dir);  // move a system up (-1) / down (+1)
+    void loadRomCacheForSystem(XmbSystem& sys); // reload a system's cached ROM list (DE)
+    // Per-system editor (Phase 3): name/exts/tint/launch type+core+package+args.
+    void buildGameSystemEditor(int sysIdx, Ps3Level& out);
+    void gsEditField(int field);                // A on an editor field row -> open OSK / chooser
+    void gsRefreshStackLevels();                // rebuild any GS list/editor levels on the stack after an edit
+    void gsOpenLaunchTypeChooser();             // side-panel chooser (theme key 20)
+    void gsOpenTintChooser();                   // colour-swatch chooser (theme key 21)
+    void gsOpenResetConfirm();                  // Cancel / Reset-to-default chooser (theme key 22)
+    bool resetSystemToBuiltinDefaults(int sysIdx);  // restore a built-in's config from kXmbSystemDefs
+    int mGsEditIdx = -1;   // mXmbSystems index currently open in the editor (for chooser/OSK writeback)
+    float mGsTintOrigR = 1.0f, mGsTintOrigG = 1.0f, mGsTintOrigB = 1.0f;  // exact tint at chooser open (cancel restore)
+    int  ps3TopScreenKind() const { return mPs3Stack.empty() ? 0 : mPs3Stack.back().screenKind; }
+
+    // ---- Icon grid picker (Phase 4): the RetroArch 849-icon chooser ----
+    std::vector<std::string> mIconGridNames;   // all icon names (no .png), loaded once
+    std::vector<int>         mIconGridFiltered;// indices into mIconGridNames matching the filter
+    std::string              mIconGridFilter;  // current OSK substring filter (lowercased)
+    int    mIconGridCursor = 0;                // index into mIconGridFiltered
+    int    mIconGridTop = 0;                   // first visible row (scroll)
+    float  mIconGridAnim = 0.0f;               // open fade-in 0->1
+    std::map<int, GLuint> mIconGridThumb;      // nameIdx -> glass bevel nmap (downscaled 64x64)
+    std::vector<int>      mIconGridLru;        // LRU order of cached nameIdx (evict past the cap)
+    void   loadIconGridNames();                // enumerate the bundled 849-icon set once
+    void   applyIconGridFilter();              // rebuild mIconGridFiltered from mIconGridFilter
+    void   openIconGridPicker();               // push the grid screen for mGsEditIdx
+    void   closeIconGridPicker();              // free thumbnails + grid nav state
+    GLuint iconGridThumb(int nameIdx);         // get/generate the cached glass bevel for a name
+    void   renderIconGridPicker();             // draw the grid (called from renderPs3Xmb)
+    void   iconGridNav(int dx, int dy);        // 2D cursor movement
+    void   iconGridSelect();                   // assign the highlighted icon to the system
+    void   iconGridResetCache();               // drop all thumbnail textures
+
+    // ---- Emulator catalog (Daijishou platform configs, NanoMenuPS3EmuCatalog.cpp) ----
+    struct EmuCatEntry {
+        std::string platform;       // platform display name ("Sony - PlayStation 2")
+        std::string platformId;     // platform uniqueId ("ps2") -> conventional rom folder
+        std::string player;         // player display name ("Aethersx2")
+        std::string amArgs;         // amStartArguments (whitespace-normalized)
+        std::string playerRegex;    // player acceptedFilenameRegex
+        std::string platformRegex;  // platform acceptedFilenameRegex
+    };
+    std::vector<EmuCatEntry> mEmuCatalog;      // all players across all bundled platforms (loaded once)
+    std::string mEmuPickFilter;                // current emulator-picker substring filter
+    void loadEmuCatalog();                     // parse the bundled Daijishou JSONs once
+    void buildEmulatorPicker(Ps3Level& out);   // build the filtered emulator list screen
+    void gsOpenEmulatorPicker();               // open the emulator chooser for mGsEditIdx
+    void applyEmulatorChoice(int catIdx);      // apply a catalog entry (edit, or add a new system)
+    void applyEmuEntryToSystem(XmbSystem& s, const EmuCatEntry& e);  // set launch fields from a catalog entry
+    bool mGsAddMode = false;                    // emulator picker opened to create a NEW system
+
+    // ---- Add / remove custom systems (Phase 7) ----
+    void gsAddSystem();                        // "Add New System" -> emulator picker in add mode
+    void gsAddBlankSystem();                   // create a blank custom system + open its editor
+    void gsRemoveSystem(int sysIdx);           // remove a custom system + its caches
+    void gsOpenRemoveConfirm(int sysIdx);      // Cancel / Remove confirm chooser
+
+    // ---- Native raw-path folder picker for scan sources (Phase 6) ----
+    std::string mGsFolderPath;                 // current folder-browser path ("" = storage roots)
+    void buildScanFoldersScreen(Ps3Level& out);// the system's scan-source list (+ Add Folder)
+    void gsOpenScanFolders();                  // open the scan-folders screen for mGsEditIdx
+    void buildFolderBrowser(const std::string& path, Ps3Level& out);  // raw-path browser
+    void gsFolderSelect(const std::string& path); // add a folder as a rawpath scan source
+    void gsRemoveScanSource(int srcIdx);       // drop a scan source from the edited system
     std::vector<Ps3Item>& ps3CurItems();   // current visible item list (top or submenu)
     int& ps3CurSel();
     void renderPs3Xmb();
@@ -1053,6 +1191,13 @@ private:
     void initGlassIcons();                 // compile program, load amb/env textures
     GLuint nmapForIcon(int iconIndex);     // load+cache nmap_NNN.png
     GLuint bevelForIconIdx(int iconIdx);   // bevel normal from a console icon's alpha
+    GLuint bevelFromRGBA(const uint8_t* px, int w, int h);   // bevel normal from any silhouette buffer
+    // Resolve a system iconRef (builtin:/retroarch:/core:/file:) to a (colour
+    // tex, glass bevel nmap) pair, cached by ref string. See NanoMenuPS3Icons.cpp.
+    void resolveSystemIcon(const std::string& ref, GLuint* outTex, GLuint* outNmap);
+    // Decode a RetroArch icon (by name, no .png) to a mono-white RGBA buffer.
+    // Resolves the dev override then the bundled set. Used by the grid picker.
+    bool decodeRetroIconRGBA(const std::string& name, std::vector<uint8_t>* outPx, int* w, int* h);
     GLuint loadPs3NmapTex(const char* file);             // RGBA normal-map loader
     // Draw an icon with the glass shader (device px coords, like drawIconTex).
     // Refraction samples the live wave (ps3bg work texture) behind the icon.
