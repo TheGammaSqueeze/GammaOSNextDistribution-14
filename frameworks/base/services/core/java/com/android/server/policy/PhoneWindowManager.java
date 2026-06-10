@@ -5955,13 +5955,22 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         final int keyCode = event.getKeyCode();
         final boolean down = event.getAction() == KeyEvent.ACTION_DOWN;
 
-        // GammaOS Nano: swallow power key entirely while nano menu is active.
-        // The power button is used for menu navigation — prevent sleep/wake.
+        // GammaOS Nano: swallow the power key while the DRM cold-boot home owns
+        // it (the home nano grabs the power evdev node and drives sleep/wake
+        // itself). The swallow must NOT apply when the resident overlay is the
+        // visible menu (show_overlay=1, e.g. the post-game overlay-home): the
+        // overlay deliberately ignores KEY_POWER and PhoneWindowManager owns the
+        // whole gesture there (short press sleeps in powerPress, hold toggles in
+        // powerLongPress, and the wake path below must see the wake press).
+        // Without this exclusion the power button went fully dead in
+        // overlay-home: PWM consumed the key here and nothing else acted on it.
         if (keyCode == KeyEvent.KEYCODE_POWER
                 && android.os.SystemProperties.getBoolean(
                         "sys.gammaos.minimal_boot", false)
                 && !"1".equals(android.os.SystemProperties.get(
-                        "sys.gammaos.nano.app_launched", "0"))) {
+                        "sys.gammaos.nano.app_launched", "0"))
+                && !"1".equals(android.os.SystemProperties.get(
+                        "sys.gammaos.nano.show_overlay", "0"))) {
             return 0; // consume — don't queue, don't wake, don't sleep
         }
         // Keep an accurate "physical BACK" signal for combo logic
