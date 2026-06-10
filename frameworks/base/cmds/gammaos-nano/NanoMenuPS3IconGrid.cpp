@@ -30,7 +30,18 @@ namespace android {
 static const int kGridThumbMax = 28;   // LRU cap on decoded thumbnails
 
 static int gridCols(int w) { int c = w / 190; if (c < 3) c = 3; if (c > 6) c = 6; return c; }
-static int gridRows(int h) { int r = (h - 170) / 150; if (r < 2) r = 2; if (r > 5) r = 5; return r; }
+// Rows derive from the actual CELL height (cells are square, sized from the
+// width / column count), not a fixed pitch: the header (~110px scaled) and the
+// name+hints footer (~96px scaled) are reserved, and whatever cell rows truly
+// fit go in between. Keeps the grid from overflowing tall cells on wide panels.
+static int gridRows(int w, int h) {
+    int cols = gridCols(w);
+    float cell = (w - w * 0.12f) / cols;
+    float ts = fmaxf(1.0f, (float)h / 768.0f);
+    int r = (int)(((float)h - 110.0f * ts - 96.0f * ts) / cell);
+    if (r < 2) r = 2; if (r > 5) r = 5;
+    return r;
+}
 
 // Enumerate the bundled icon set once (dev override dir first, then the shipped
 // dir). Names are stored without the .png suffix and sorted case-insensitively.
@@ -184,7 +195,7 @@ void NanoMenu::iconGridNav(int dx, int dy) {
     if (cur >= n) cur = n - 1;
     mIconGridCursor = cur;
     // Keep the cursor row visible.
-    int rows = gridRows(mHeight);
+    int rows = gridRows(mWidth, mHeight);
     int curRow = mIconGridCursor / cols;
     if (curRow < mIconGridTop) mIconGridTop = curRow;
     if (curRow >= mIconGridTop + rows) mIconGridTop = curRow - rows + 1;
@@ -219,23 +230,27 @@ void NanoMenu::renderIconGridPicker() {
     // Dark scrim over the menu (fades in).
     drawQuad(0, 0, (float)W, (float)H, 0.04f, 0.05f, 0.06f, 0.92f * a);
 
-    int cols = gridCols(W), rows = gridRows(H);
+    int cols = gridCols(W), rows = gridRows(W, H);
+    // Text scale: the grid previously used raw font scales (8px names at the
+    // 16px FONT_CHAR_H), far too small to read on device. Scale with the panel
+    // height so larger screens grow proportionally.
+    float ts = fmaxf(1.0f, (float)H / 768.0f);
     float margin = W * 0.06f;
-    float top = 96.0f + slide;
-    float footerH = 56.0f;
+    float top = 110.0f * ts + slide;
+    float footerH = 60.0f * ts;
     float gridW = W - margin * 2.0f;
     float cell = gridW / cols;
     float iconSz = cell * 0.66f;
 
     // Title + filter line.
-    drawText("Choose Icon", margin, 40.0f + slide, 0.85f, 1.0f, 1.0f, 1.0f, a);
+    drawText("Choose Icon", margin, 28.0f * ts + slide, 1.6f * ts, 1.0f, 1.0f, 1.0f, a);
     char info[160];
     if (mIconGridFilter.empty())
         snprintf(info, sizeof(info), "%zu icons", mIconGridFiltered.size());
     else
         snprintf(info, sizeof(info), "filter: \"%s\"  (%zu)",
                  mIconGridFilter.c_str(), mIconGridFiltered.size());
-    drawText(info, margin, 74.0f + slide, 0.5f, 0.75f, 0.85f, 0.95f, a);
+    drawText(info, margin, 76.0f * ts + slide, 1.0f * ts, 0.75f, 0.85f, 0.95f, a);
 
     // Visible cells.
     int first = mIconGridTop * cols;
@@ -263,13 +278,15 @@ void NanoMenu::renderIconGridPicker() {
     if (mIconGridCursor >= 0 && mIconGridCursor < n) {
         std::string nm = mIconGridNames[mIconGridFiltered[mIconGridCursor]];
         for (char& c : nm) if (c == '_') c = ' ';
-        float tw = measureText(nm.c_str(), 0.5f);
-        drawText(nm.c_str(), (W - tw) * 0.5f, (float)H - footerH - 30.0f, 0.5f,
+        float ns = 1.2f * ts;
+        float tw = measureText(nm.c_str(), ns);
+        drawText(nm.c_str(), (W - tw) * 0.5f, (float)H - footerH - 26.0f * ts, ns,
                  1.0f, 1.0f, 1.0f, a);
     }
     const char* hints = "Enter: Select    Y: Filter    Back: Cancel";
-    float hw = measureText(hints, 0.45f);
-    drawText(hints, (W - hw) * 0.5f, (float)H - 28.0f, 0.45f, 0.7f, 0.78f, 0.88f, a);
+    float hs = 0.9f * ts;
+    float hw = measureText(hints, hs);
+    drawText(hints, (W - hw) * 0.5f, (float)H - 30.0f * ts, hs, 0.7f, 0.78f, 0.88f, a);
 }
 
 } // namespace android

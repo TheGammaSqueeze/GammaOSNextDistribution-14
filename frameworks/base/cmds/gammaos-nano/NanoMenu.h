@@ -1106,7 +1106,7 @@ private:
     void gsToggleSystem(int sysIdx);            // flip enabled, persist, rebuild
     void gsReorderSystem(int sysIdx, int dir);  // move a system up (-1) / down (+1)
     void loadRomCacheForSystem(XmbSystem& sys); // reload a system's cached ROM list (DE)
-    // Per-system editor (Phase 3): name/exts/tint/launch type+core+package+args.
+    // Per-system editor: name/exts/tint/launch type+core+package+args.
     void buildGameSystemEditor(int sysIdx, Ps3Level& out);
     void gsEditField(int field);                // A on an editor field row -> open OSK / chooser
     void gsRefreshStackLevels();                // rebuild any GS list/editor levels on the stack after an edit
@@ -1118,7 +1118,7 @@ private:
     float mGsTintOrigR = 1.0f, mGsTintOrigG = 1.0f, mGsTintOrigB = 1.0f;  // exact tint at chooser open (cancel restore)
     int  ps3TopScreenKind() const { return mPs3Stack.empty() ? 0 : mPs3Stack.back().screenKind; }
 
-    // ---- Icon grid picker (Phase 4): the RetroArch 849-icon chooser ----
+    // ---- Icon grid picker: the RetroArch 849-icon chooser ----
     std::vector<std::string> mIconGridNames;   // all icon names (no .png), loaded once
     std::vector<int>         mIconGridFiltered;// indices into mIconGridNames matching the filter
     std::string              mIconGridFilter;  // current OSK substring filter (lowercased)
@@ -1155,13 +1155,13 @@ private:
     void applyEmuEntryToSystem(XmbSystem& s, const EmuCatEntry& e);  // set launch fields from a catalog entry
     bool mGsAddMode = false;                    // emulator picker opened to create a NEW system
 
-    // ---- Add / remove custom systems (Phase 7) ----
+    // ---- Add / remove custom systems ----
     void gsAddSystem();                        // "Add New System" -> emulator picker in add mode
     void gsAddBlankSystem();                   // create a blank custom system + open its editor
     void gsRemoveSystem(int sysIdx);           // remove a custom system + its caches
     void gsOpenRemoveConfirm(int sysIdx);      // Cancel / Remove confirm chooser
 
-    // ---- Native raw-path folder picker for scan sources (Phase 6) ----
+    // ---- Native raw-path folder picker for scan sources ----
     std::string mGsFolderPath;                 // current folder-browser path ("" = storage roots)
     void buildScanFoldersScreen(Ps3Level& out);// the system's scan-source list (+ Add Folder)
     void gsOpenScanFolders();                  // open the scan-folders screen for mGsEditIdx

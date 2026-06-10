@@ -494,13 +494,31 @@ void NanoMenu::buildPs3Cats() {
         mPs3Cats[settingsCatRuntimeIdx].items.push_back(it);
     }
 
+    // Preserve the user's position across rebuilds: Game Systems edits rebuild
+    // the cats constantly (toggle/icon/emulator/name changes), and resetting to
+    // the top made backing out of Game Systems land on the FIRST Settings item
+    // instead of the Game Systems row the user came from. Clamp the remembered
+    // per-category selections into the new lists; only the very first build
+    // (no category yet) takes the Game-default landing.
+    std::vector<int> oldSel = std::move(mPs3CatItemSel);
     mPs3CatItemSel.assign(mPs3Cats.size(), 0);
-    // Land on Game by default.
-    if (mPs3CatIdx < 0 || mPs3CatIdx >= (int)mPs3Cats.size()) {
-        mPs3CatIdx = (gameCatRuntimeIdx >= 0) ? gameCatRuntimeIdx : 0;
+    for (size_t c = 0; c < mPs3Cats.size() && c < oldSel.size(); c++) {
+        int n = (int)mPs3Cats[c].items.size();
+        int s = oldSel[c];
+        if (s >= n) s = n - 1;
+        mPs3CatItemSel[c] = s < 0 ? 0 : s;
     }
-    mPs3ItemIdx = 0;
-    mPs3AnimItem = 0.0f; mPs3ItemAnimStart = -1.0f;
+    if (mPs3CatIdx < 0 || mPs3CatIdx >= (int)mPs3Cats.size()) {
+        // First build: land on Game by default.
+        mPs3CatIdx = (gameCatRuntimeIdx >= 0) ? gameCatRuntimeIdx : 0;
+        mPs3ItemIdx = 0;
+    } else {
+        int n = (int)mPs3Cats[mPs3CatIdx].items.size();
+        if (mPs3ItemIdx >= n) mPs3ItemIdx = n > 0 ? n - 1 : 0;
+        if (mPs3ItemIdx < 0) mPs3ItemIdx = 0;
+        mPs3CatItemSel[mPs3CatIdx] = mPs3ItemIdx;
+    }
+    mPs3AnimItem = (float)mPs3ItemIdx; mPs3ItemAnimStart = -1.0f;
 }
 
 // Rebuild the category tree in place (a background rescan changed some
@@ -552,7 +570,7 @@ void NanoMenu::buildQuickPowerSubmenu(Ps3Level& out) {
 
 // The systems-list screen: every configured system (enabled AND disabled) with
 // an On/Off value and the system's glass icon (dimmed when disabled). A = open
-// the per-system editor (Phase 3); X = toggle enabled; L1/R1 = reorder.
+// the per-system editor; X = toggle enabled; L1/R1 = reorder.
 void NanoMenu::buildGameSystemsList(Ps3Level& out) {
     out.items.clear(); out.sel = 0; out.title = "Game Systems";
     out.screenKind = GS_LIST;
@@ -629,7 +647,7 @@ void NanoMenu::gsRefreshStackLevels() {
     }
 }
 
-// ---- Per-system editor (Phase 3) ----
+// ---- Per-system editor ----
 
 // Editor field ids (Ps3Item.a for PS3_GS_FIELD rows).
 enum {
@@ -1266,6 +1284,23 @@ void NanoMenu::renderPs3Xmb() {
         subT = inSub ? 1.0f : 0.0f;
     }
     mPs3SubAnim = subT;   // keep the legacy field synced (category bar reads subT)
+    // Deep transitions (sub -> sub-sub and back) never cross the root, so the
+    // CATEGORY bar and the frost backdrop must stay fully collapsed instead of
+    // flashing back in for 250ms on every hop (the web has the same quirk; the
+    // collapsed state is pinned here on request). The stack is already pushed /
+    // popped when the animation starts: entering crosses the root iff the stack
+    // is exactly 1 deep, exiting iff it is now empty. catT drives the category
+    // bar / frost / chevron; subT keeps driving the per-level rail + slide.
+    bool subDeep = subAnimating
+        && ((mPs3SubDir == 1) ? mPs3Stack.size() >= 2 : !mPs3Stack.empty());
+    // When the animation has just ENDED this frame, subT holds the animation
+    // endpoint (0 for a pop), which for a DEEP pop is not the settled value (1
+    // while a submenu remains) - deriving catT from it flashed the category bar
+    // for exactly one frame at the end of editor -> list pops. Settled frames
+    // take the state-based value instead.
+    float catT;
+    if (subAnimating) catT = subDeep ? 1.0f : subT;
+    else              catT = inSub ? 1.0f : 0.0f;
 
     // Submenu depth-of-field: the real XMB blurs the background + wave as you
     // descend into a submenu and sharpens it on exit (web submenuBlur, ramped
@@ -1277,7 +1312,7 @@ void NanoMenu::renderPs3Xmb() {
     // backdrop is actually moving (transition / category slide / item scroll),
     // on the first settled frame, or on a ~10Hz cadence; otherwise reuse the
     // cached blur. tintA MUST be > 0 or the panel composites to nothing.
-    if (subT > 0.004f) {
+    if (catT > 0.004f) {
         // Keep the wave/gradient ANIMATING behind the frosted backdrop, but
         // sample it at only ~30Hz so the menu itself stays locked at 60fps. The
         // blur reads ps3bg::workTex (the already-rendered scene) instead of a
@@ -1303,7 +1338,7 @@ void NanoMenu::renderPs3Xmb() {
             // Neutral tint (1,1,1): pure blur, NO darkening or hue/shade change -
             // the backdrop is the blurred wave at its own brightness.
             drawFrostedGlass(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f,
-                             1.0f, 1.0f, 1.0f, 1.0f, subT, /*waveSpace=*/true);
+                             1.0f, 1.0f, 1.0f, 1.0f, catT, /*waveSpace=*/true);
     } else {
         mPs3GlassValid = false;
     }
@@ -1311,17 +1346,17 @@ void NanoMenu::renderPs3Xmb() {
     float catOffset = ps3CatOffset(mPs3CatAnimActive, mPs3CatT, mPs3CatFromOffset);
 
     // ---- category bar ----
-    const float catSubShift = -ps3::CAT_SUBMENU_SHIFT_X * subT;
-    const float catSubScale = 1.0f + (ps3::CAT_SUBMENU_SCALE - 1.0f) * subT;
+    const float catSubShift = -ps3::CAT_SUBMENU_SHIFT_X * catT;
+    const float catSubScale = 1.0f + (ps3::CAT_SUBMENU_SCALE - 1.0f) * catT;
     for (int i = 0; i < (int)mPs3Cats.size(); i++) {
         bool isActive = (i == mPs3CatIdx);
-        float nonActiveSubFade = isActive ? 1.0f : (1.0f - subT);
+        float nonActiveSubFade = isActive ? 1.0f : (1.0f - catT);
         if (nonActiveSubFade <= 0.002f) continue;
         float dx = ((float)i - (float)mPs3CatIdx) * ps3::CAT_SPACING + catOffset;
         float baseSz = isActive ? ps3::CAT_ICON_ACTIVE : ps3::CAT_ICON_INACTIVE;
         float sz = baseSz * catSubScale;
         float x = ps3::CAT_X + dx + catSubShift;
-        float activeYOff = isActive ? ps3::CAT_Y_ACTIVE_OFFSET * (1.0f - subT) : 0.0f;
+        float activeYOff = isActive ? ps3::CAT_Y_ACTIVE_OFFSET * (1.0f - catT) : 0.0f;
         float y = ps3::CAT_Y + activeYOff;
         if (x < -160.0f || x > ps3::VW + 160.0f) continue;
         // Inactive category icons keep a single consistent opacity regardless of
@@ -1350,7 +1385,7 @@ void NanoMenu::renderPs3Xmb() {
         else
             drawIconTex(mPs3Cats[i].iconTex, ix, iy, dsz, dsz, 1.0f, 1.0f, 1.0f, alpha);
         if (isActive) {
-            float la = 0.9f * (1.0f - 0.55f * subT) * mPs3BootLabelReveal;
+            float la = 0.9f * (1.0f - 0.55f * catT) * mPs3BootLabelReveal;
             float ls = ps3::fontScale(ps3::CAT_LABEL_SIZE);
             const char* nm = mPs3Cats[i].name.c_str();
             float lw = measureText(nm, ls);
@@ -1445,42 +1480,10 @@ void NanoMenu::renderPs3Xmb() {
             float tx = ps3::devX(ps3::XCP(ps3::ITEM_TEXT_X + xShiftV));
             float ty = ps3::baselineToTopY(ps3::devY(y), ts);
             const char* L = it.label.c_str();
-            // Value position first (right-anchored, panel-clamped) so the label
-            // knows how far right it may extend before it must ticker-scroll.
-            std::string itVal = resolvePs3ItemValue(it);
-            bool hasVal = !itVal.empty();
-            float vs = 0.0f, vw = 0.0f, vx = 0.0f;
-            if (hasVal) {
-                vs = ps3::fontScale(ps3::ITEM_TEXT_SIZE);
-                vw = measureText(itVal.c_str(), vs);
-                float vRight = ps3::devX(ps3::XCF(ps3::VW - ps3::ITEM_VALUE_RIGHT_PAD));
-                float vPanelMax = (float)mWidth - ps3::devS(ps3::ITEM_VALUE_RIGHT_PAD);
-                if (vRight > vPanelMax) vRight = vPanelMax;
-                vx = vRight - vw;
-            }
-            float labelRight = hasVal ? (vx - ps3::devS(14.0f))
-                                      : ((float)mWidth - ps3::devS(ps3::ITEM_VALUE_RIGHT_PAD));
-            float availW = labelRight - tx;
-            if (availW < ps3::devS(20.0f)) availW = ps3::devS(20.0f);
-            float labelW = measureText(L, ts);
-            // Long ACTIVE labels ticker-scroll (ping-pong with end pauses) within
-            // [tx, tx+availW] rather than overflowing into the value / off-screen.
-            // A scissor (mapped to the panel's DRM rotation, full-height band so
-            // only X clips) keeps the text inside its bounds.
-            float lx = tx;
-            bool scissorOn = false;
-            if (isActive && labelW > availW + 1.0f) {
-                float overflow = labelW - availW;
-                float scrollT = overflow / fmaxf(1.0f, ps3::devS(70.0f));   // ~70 vpx/s
-                float hold = 1.4f, period = 2.0f * (scrollT + hold);
-                float ph = fmodf(mEffectTime, period);
-                float off;
-                if (ph < hold)                       off = 0.0f;
-                else if (ph < hold + scrollT)        off = (ph - hold) / scrollT * overflow;
-                else if (ph < 2.0f * hold + scrollT) off = overflow;
-                else                                 off = overflow - (ph - 2.0f * hold - scrollT) / scrollT * overflow;
-                lx = tx - off;
-                int rlx = (int)tx, rly = 0, rlw = (int)availW, rlh = (int)mHeight;
+            // Scissor a full-height X band [bx, bx+bw], mapped to the panel's
+            // DRM rotation. Used by both the label and the value tickers.
+            auto scissorBand = [&](float bx, float bw) {
+                int rlx = (int)bx, rly = 0, rlw = (int)bw, rlh = (int)mHeight;
                 int sx, sy, sw, sh;
                 switch (sDrmGlRotation ? sDrmRotationDeg : 0) {
                     case 90:  sx = rly; sy = mWidth - rlx - rlw; sw = rlh; sh = rlw; break;
@@ -1489,6 +1492,57 @@ void NanoMenu::renderPs3Xmb() {
                     default:  sx = rlx; sy = rly; sw = rlw; sh = rlh; break;
                 }
                 glEnable(GL_SCISSOR_TEST); glScissor(sx, sy, sw, sh);
+            };
+            // Ping-pong ticker offset (hold, scroll, hold, scroll back) for text
+            // wider than its window - shared by the label and the value.
+            auto tickerOff = [&](float overflow) {
+                float scrollT = overflow / fmaxf(1.0f, ps3::devS(70.0f));   // ~70 vpx/s
+                float hold = 1.4f, period = 2.0f * (scrollT + hold);
+                float ph = fmodf(mEffectTime, period);
+                if (ph < hold)                       return 0.0f;
+                if (ph < hold + scrollT)             return (ph - hold) / scrollT * overflow;
+                if (ph < 2.0f * hold + scrollT)      return overflow;
+                return overflow - (ph - 2.0f * hold - scrollT) / scrollT * overflow;
+            };
+            std::string itVal = resolvePs3ItemValue(it);
+            bool hasVal = !itVal.empty();
+            float vRight = ps3::devX(ps3::XCF(ps3::VW - ps3::ITEM_VALUE_RIGHT_PAD));
+            { float vPanelMax = (float)mWidth - ps3::devS(ps3::ITEM_VALUE_RIGHT_PAD);
+              if (vRight > vPanelMax) vRight = vPanelMax; }
+            float gapW = ps3::devS(14.0f);
+            float totalAvail = vRight - tx;
+            float labelW = measureText(L, ts);
+            float vs = 0.0f, vw = 0.0f, vx = 0.0f;
+            bool valScroll = false; float valAvailW = 0.0f;
+            if (hasVal) {
+                vs = ps3::fontScale(ps3::ITEM_TEXT_SIZE);
+                vw = measureText(itVal.c_str(), vs);
+                vx = vRight - vw;
+                if (labelW + gapW + vw > totalAvail && labelW <= totalAvail * 0.5f) {
+                    // Short field label + long VALUE (editor rows like Emulator /
+                    // Core (.so)): the label keeps its natural width and the
+                    // value ticker-scrolls in the space to its right. Without
+                    // this split the full-width value squeezed the label window
+                    // and the wrong text (the short label) bounced.
+                    valAvailW = totalAvail - labelW - gapW;
+                    if (valAvailW < ps3::devS(20.0f)) valAvailW = ps3::devS(20.0f);
+                    valScroll = true;
+                    vx = vRight - valAvailW;   // the value clip window's left edge
+                }
+            }
+            float labelRight = hasVal ? (vx - gapW)
+                                      : ((float)mWidth - ps3::devS(ps3::ITEM_VALUE_RIGHT_PAD));
+            float availW = labelRight - tx;
+            if (availW < ps3::devS(20.0f)) availW = ps3::devS(20.0f);
+            // Long ACTIVE labels ticker-scroll (ping-pong with end pauses) within
+            // [tx, tx+availW] rather than overflowing into the value / off-screen.
+            // A scissor (mapped to the panel's DRM rotation, full-height band so
+            // only X clips) keeps the text inside its bounds.
+            float lx = tx;
+            bool scissorOn = false;
+            if (isActive && labelW > availW + 1.0f) {
+                lx = tx - tickerOff(labelW - availW);
+                scissorBand(tx, availW);
                 scissorOn = true;
             }
             // Label fill. Non-active labels get the even outline (drawText mode 1,
@@ -1517,8 +1571,19 @@ void NanoMenu::renderPs3Xmb() {
                 drawDesc(it.desc, tx, ps3::devY(y), descA);
             }
             if (hasVal) {
-                drawTextStroke(itVal.c_str(), vx, ty, vs, mPs3ShadowAlpha * alpha);
-                drawText(itVal.c_str(), vx, ty, vs, 0.7f, 0.7f, 0.75f, alpha * 0.85f);
+                float dvx = vx;
+                bool vScissor = false;
+                if (valScroll) {
+                    // The window's left edge is vx; the ACTIVE row's overflowing
+                    // value ticker-scrolls inside it, inactive rows clip to the
+                    // head of the value (no motion off-focus).
+                    dvx = vx - (isActive ? tickerOff(vw - valAvailW) : 0.0f);
+                    scissorBand(vx, valAvailW);
+                    vScissor = true;
+                }
+                drawTextStroke(itVal.c_str(), dvx, ty, vs, mPs3ShadowAlpha * alpha);
+                drawText(itVal.c_str(), dvx, ty, vs, 0.7f, 0.7f, 0.75f, alpha * 0.85f);
+                if (vScissor) glDisable(GL_SCISSOR_TEST);
             }
         }
     };
@@ -1530,9 +1595,15 @@ void NanoMenu::renderPs3Xmb() {
     // (more faded with distance); their text fades out and travels left with the
     // icon. t: 0 = full bright list at the item column, 1 = settled breadcrumb.
     // Mirrors index.html drawParentLayer (7531-7571) exactly.
-    auto drawParentLayer = [&](std::vector<Ps3Item>& pItems, int pIdx, float t) {
-        if (pItems.empty()) return;
-        const float srcX = ps3::ITEM_ICON_X;
+    // aMul scales the whole layer (the deep-transition rail cross-fade);
+    // fromChildCol starts the morph at the CHILD column (where a sub level
+    // actually sits) instead of the root item column, so deep hops collapse /
+    // expand the moving level from its real on-screen position.
+    auto drawParentLayer = [&](std::vector<Ps3Item>& pItems, int pIdx, float t,
+                               float aMul = 1.0f, bool fromChildCol = false) {
+        if (pItems.empty() || aMul <= 0.01f) return;
+        const float srcX = fromChildCol
+            ? ps3::ITEM_ICON_X + ps3::SUBMENU_CHILD_X_SHIFT : ps3::ITEM_ICON_X;
         for (int i = 0; i < (int)pItems.size(); i++) {
             bool sel = (i == pIdx);
             float ySrc = itemSlotYf(i, (float)pIdx);
@@ -1544,7 +1615,7 @@ void NanoMenu::renderPs3Xmb() {
             int dist = abs(i - pIdx);
             float fullA = sel ? ps3::ALPHA_FOCUS : ps3::ALPHA_INACTIVE;
             float setA = sel ? 0.92f : fmaxf(0.12f, 0.42f - (float)(dist - 1) * 0.05f);
-            float a = fullA + (setA - fullA) * t;
+            float a = (fullA + (setA - fullA) * t) * aMul;
             if (y < 40.0f)            a *= fmaxf(0.0f, y / 40.0f);
             if (y > ps3::VH - 20.0f)  a *= fmaxf(0.0f, (ps3::VH - y) / 20.0f);
             if (a <= 0.01f) continue;
@@ -1563,14 +1634,22 @@ void NanoMenu::renderPs3Xmb() {
             // back to the cheap flat icon: at a <= 0.35 the glass vs flat difference
             // is imperceptible, and this keeps the per-frame live-wave glass-icon
             // count in submenus near the top-level count (no FPS regression).
-            if (mIconGlassReady && it.nmapTex && ps3bg::workTex() && (sel || a > 0.35f))
+            // nmap-ONLY items (the glass DATA/settings glyphs have no flat
+            // texture) must keep the glass path at ANY alpha or far siblings
+            // vanish from the rail entirely - that is why a Settings rail used
+            // to show only the 2 nearest neighbours while Game (icons have a
+            // flat fallback) showed the full faded column.
+            if (mIconGlassReady && it.nmapTex && ps3bg::workTex()
+                && (sel || a > 0.35f || !it.iconTex))
                 drawGlassIcon(it.nmapTex, ix, iy, dsz, dsz, it.iconR, it.iconG, it.iconB, a);
             else if (it.iconTex)
                 drawIconTex(it.iconTex, ix, iy, dsz, dsz, it.iconR, it.iconG, it.iconB, a);
-            float textA = (1.0f - t) * (sel ? ps3::ALPHA_FOCUS : ps3::ALPHA_INACTIVE);
+            float textA = (1.0f - t) * (sel ? ps3::ALPHA_FOCUS : ps3::ALPHA_INACTIVE) * aMul;
             if (textA > 0.02f) {
                 float ts = ps3::fontScale(sel ? ps3::ITEM_TEXT_ACTIVE_SIZE : ps3::ITEM_TEXT_SIZE);
-                float tx = ps3::devX(ps3::XCP(ps3::ITEM_TEXT_X + (cx - srcX)));
+                float textBase = fromChildCol
+                    ? ps3::ITEM_TEXT_X + ps3::SUBMENU_CHILD_X_SHIFT : ps3::ITEM_TEXT_X;
+                float tx = ps3::devX(ps3::XCP(textBase + (cx - srcX)));
                 float ty = ps3::baselineToTopY(ps3::devY(y), ts);
                 const char* L = it.label.c_str();
                 drawTextStroke(L, tx, ty, ts, mPs3ShadowAlpha * textA);
@@ -1613,9 +1692,32 @@ void NanoMenu::renderPs3Xmb() {
         std::vector<Ps3Item>* childItems =
             (mPs3SubDir == -1) ? &mPs3SubChildItems
           : (!mPs3Stack.empty() ? &mPs3Stack.back().items : &mPs3SubChildItems);
-        drawParentLayer(mPs3SubParentItems, mPs3SubParentIdx, subT);
+        if (!subDeep) {
+            // Crossing the root: the parent morphs between the ITEM column and
+            // the rail while the categories collapse/expand (catT == subT here).
+            drawParentLayer(mPs3SubParentItems, mPs3SubParentIdx, subT);
+        } else {
+            // Deep hop (sub <-> sub-sub): the moving level morphs between the
+            // CHILD column (where it actually sat on screen) and the rail, and
+            // the OUTER rail (the level above it) cross-fades: out on push, in
+            // on pop. The categories/frost/chevron stay pinned (catT == 1).
+            int depth = (int)mPs3Stack.size();
+            int railFrame = (mPs3SubDir == 1) ? depth - 3 : depth - 2;
+            std::vector<Ps3Item>* railItems = nullptr; int railIdx = 0;
+            if (railFrame >= 0) {
+                railItems = &mPs3Stack[railFrame].items;
+                railIdx = mPs3Stack[railFrame].sel;
+            } else if (mPs3CatIdx >= 0 && mPs3CatIdx < (int)mPs3Cats.size()) {
+                railItems = &mPs3Cats[mPs3CatIdx].items;
+                railIdx = mPs3ItemIdx;
+            }
+            if (railItems)
+                drawParentLayer(*railItems, railIdx, 1.0f, 1.0f - subT);
+            drawParentLayer(mPs3SubParentItems, mPs3SubParentIdx, subT, 1.0f,
+                            /*fromChildCol=*/true);
+        }
         drawList(*childItems, mPs3AnimItem, ps3::SUBMENU_CHILD_X_SHIFT + ps3::SLIDE_DIST * (1.0f - subT), subT);
-        drawBackChevron(subT);
+        drawBackChevron(catT);
     } else if (inSub) {
         // Settled in a submenu: derive the parent (one level up) from the LIVE
         // stack so a multi-level breadcrumb stays correct, draw it collapsed,
