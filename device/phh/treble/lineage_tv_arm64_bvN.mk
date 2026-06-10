@@ -135,8 +135,7 @@ endif
 PRODUCT_COPY_FILES += \
     device/gammaos/interfaces.xml:system/etc/permissions/interfaces.xml
 
-PRODUCT_PACKAGES += \
-    treble-environ-rc
+    # treble-environ-rc replaced by static init.classpath.rc
 
 PRODUCT_PACKAGES += \
     evgrab
