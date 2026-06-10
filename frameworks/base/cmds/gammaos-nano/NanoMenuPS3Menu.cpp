@@ -42,6 +42,7 @@
 #include <time.h>
 #include <thread>
 #include <vector>
+#include <functional>
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -75,7 +76,9 @@ void NanoMenu::drawTextStroke(const char*, float, float, float, float) {}
 static const float kStroke4X[4] = { -1.0f, 1.0f, 0.0f, 0.0f };
 static const float kStroke4Y[4] = {  0.0f, 0.0f,-1.0f, 1.0f };
 void NanoMenu::drawIconStroke(unsigned int tex, float x, float y, float w, float h, float a) {
-    if (a <= 0.004f || tex == 0) return;
+    // A 5% dark silhouette under a fading icon is invisible against the wave;
+    // skipping it culls four textured quads per icon during reveals/edge fades.
+    if (a <= 0.05f || tex == 0) return;
     float r = ps3::devS(2.0f);
     // Batch the 4 offset shadow copies into ONE draw (same texture + colour)
     // instead of 4 drawIconTex calls (each a program bind + draw + 3 attrib
@@ -283,6 +286,27 @@ void NanoMenu::initPs3Menu() {
     mPs3CatTex[6]  = loadPs3IconTex("xmb_icon_054.png");
     mPs3CatNmap[6] = nmapForIcon(54);
     buildPs3Cats();
+    // Pre-warm everything the first draw of any submenu would otherwise build
+    // lazily inside a single frame: the glass normal maps for every icon in
+    // the static DATA tree, and the glyph-atlas entries (+ width cache) for
+    // every label/description/value string. The lazy path used to cost a
+    // one-shot ~100ms frame on the FIRST entry into a submenu (a visible
+    // hitch); here the cost lands in startup, hidden behind the boot intro.
+    {
+        std::function<void(const Ps3DataItem*, int)> warm =
+            [&](const Ps3DataItem* items, int n) {
+                for (int i = 0; i < n; i++) {
+                    if (items[i].icon >= 0) (void)nmapForIcon(items[i].icon);
+                    if (items[i].name)  (void)measureText(items[i].name, 2.0f);
+                    if (items[i].desc)  (void)measureText(items[i].desc, 2.0f);
+                    if (items[i].value) (void)measureText(items[i].value, 2.0f);
+                    if (items[i].children && items[i].childCount > 0)
+                        warm(items[i].children, items[i].childCount);
+                }
+            };
+        for (int ci = 0; ci < kPs3DataCatCount; ci++)
+            warm(kPs3DataCats[ci].items, kPs3DataCats[ci].itemCount);
+    }
     loadPs3ThemeSettings();   // apply any saved Theme Settings (colour / day-night)
     buildTimezoneList();      // populate mTzEntries + pre-select the current zone so
                               // Settings -> Date and Time shows the live "Time Zone" value
@@ -1260,6 +1284,12 @@ void NanoMenu::renderPs3Xmb() {
         // item list off-screen until the next input. Treat a wrap as settled.
         if (mPs3ItemAnimStart < 0.0f || el < 0.0f || el >= dur || dur <= 0.0f) {
             mPs3AnimItem = target;
+            // Mark the step finished. Without this the start stamp lingered
+            // forever after the last up/down, so ps3Settled (and everything
+            // gated on it: the idle frame-rate drop, the settled-root Game
+            // column refresh) never saw the list as settled again until some
+            // other navigation happened to snap the flag.
+            mPs3ItemAnimStart = -1.0f;
         } else {
             float t = el / dur;
             float e = 1.0f - (1.0f - t) * (1.0f - t) * (1.0f - t);   // easeOutCubic
@@ -1312,7 +1342,10 @@ void NanoMenu::renderPs3Xmb() {
     // backdrop is actually moving (transition / category slide / item scroll),
     // on the first settled frame, or on a ~10Hz cadence; otherwise reuse the
     // cached blur. tintA MUST be > 0 or the panel composites to nothing.
-    if (catT > 0.004f) {
+    // Below 2% backdrop alpha the frost is invisible; the higher floor also
+    // skips the blur-chain refresh for those frames (the costly part), at
+    // worst delaying the first capture on submenu entry by a single frame.
+    if (catT > 0.02f) {
         // Keep the wave/gradient ANIMATING behind the frosted backdrop, but
         // sample it at only ~30Hz so the menu itself stays locked at 60fps. The
         // blur reads ps3bg::workTex (the already-rendered scene) instead of a
@@ -1321,9 +1354,14 @@ void NanoMenu::renderPs3Xmb() {
         // and drawn every frame. The blur is in LOGICAL orientation, so draw it
         // waveSpace=true. tintA MUST be > 0 or the panel composites to nothing.
         // 60Hz during a live theme preview (chooser open or cross-fade settling)
-        // so the colour change tracks smoothly; ~15Hz otherwise.
+        // so the colour change tracks smoothly; ~15Hz otherwise. During the
+        // 250ms submenu collapse/expand the cached blur is HELD (no refresh):
+        // those frames already pay two extra list layers plus the ramping
+        // frost draw, and a re-blur of a crossfading backdrop is invisible -
+        // the transition was the last spot still missing 60fps on the overlay.
         float blurCad = (ps3bg::themeFading() || mPs3DlgKind == 1) ? 0.0f : 0.0667f;
-        bool due = !mPs3GlassValid || (mEffectTime - mPs3GlassBlurT) >= blurCad;
+        bool due = !mPs3GlassValid
+                || (!subAnimating && (mEffectTime - mPs3GlassBlurT) >= blurCad);
         // The frosted backdrop is the blurred WAVE (captureGlassFromWave reads
         // ps3bg::workTex), so it only matches when the wave is the visible background.
         // Draw it when: home XMB (!mOverlayMode, always); overlay WALLPAPER/launcher
@@ -1471,7 +1509,15 @@ void NanoMenu::renderPs3Xmb() {
             // not show this), so they get no stroke.
             if (it.iconTex && !isRetroIcon(it.kind))
                 drawIconStroke(it.iconTex, ix, iy, dsz, dsz, mPs3ShadowAlpha * 0.7f * alpha);
-            if (mIconGlassReady && it.nmapTex && ps3bg::workTex())
+            // Below ~3% alpha the live-wave refraction is indistinguishable
+            // from the flat icon, so spend the glass shader only above it.
+            // nmap-ONLY items (no flat texture) keep glass at any alpha or
+            // they would vanish entirely (the Settings-rail lesson). The
+            // threshold stays this low (NOT drawParentLayer's 0.35) because
+            // drawList's alpha carries full-column category-crossfade fades:
+            // a higher floor would pop the whole column flat mid-crossfade.
+            if (mIconGlassReady && it.nmapTex && ps3bg::workTex()
+                && (alpha > 0.03f || !it.iconTex))
                 drawGlassIcon(it.nmapTex, ix, iy, dsz, dsz, it.iconR, it.iconG, it.iconB, alpha);
             else if (it.iconTex)
                 drawIconTex(it.iconTex, ix, iy, dsz, dsz, it.iconR, it.iconG, it.iconB, alpha);
@@ -1601,7 +1647,7 @@ void NanoMenu::renderPs3Xmb() {
     // expand the moving level from its real on-screen position.
     auto drawParentLayer = [&](std::vector<Ps3Item>& pItems, int pIdx, float t,
                                float aMul = 1.0f, bool fromChildCol = false) {
-        if (pItems.empty() || aMul <= 0.01f) return;
+        if (pItems.empty() || aMul <= 0.05f) return;
         const float srcX = fromChildCol
             ? ps3::ITEM_ICON_X + ps3::SUBMENU_CHILD_X_SHIFT : ps3::ITEM_ICON_X;
         for (int i = 0; i < (int)pItems.size(); i++) {

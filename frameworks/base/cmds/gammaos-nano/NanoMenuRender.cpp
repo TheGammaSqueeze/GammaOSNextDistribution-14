@@ -1063,7 +1063,14 @@ void NanoMenu::ensureGlyph(uint32_t cp) {
 float NanoMenu::measureText(const char* str, float scale) {
     if (!str || !*str) return 0.0f;
     float pixelScale = (FONT_CHAR_H * scale) / (float)mFontSize;
-    float width = 0.0f;
+    // Width cache. Glyph advances never change once rendered (mFontSize is
+    // fixed at init and mGlyphCache only grows), so the scale-independent unit
+    // width is cached per string and scaled per call. drawList measures every
+    // visible label AND value every frame (plus ticker substrings), which made
+    // this UTF-8 decode + per-glyph hash walk a steady per-frame CPU tax.
+    auto cached = mTextWidthCache.find(str);
+    if (cached != mTextWidthCache.end()) return cached->second * pixelScale;
+    float unit = 0.0f;
     for (const char* p = str; *p; ) {
         uint32_t cp;
         uint8_t b0 = (uint8_t)*p;
@@ -1075,10 +1082,11 @@ float NanoMenu::measureText(const char* str, float scale) {
         ensureGlyph(cp);
         auto it = mGlyphCache.find(cp);
         if (it != mGlyphCache.end()) {
-            width += it->second.advance * it->second.scaleW * pixelScale;
+            unit += it->second.advance * it->second.scaleW;
         }
     }
-    return width;
+    mTextWidthCache.emplace(str, unit);
+    return unit * pixelScale;
 }
 
 // 5x capacity: 4 shadow passes + 1 main pass batched into one draw

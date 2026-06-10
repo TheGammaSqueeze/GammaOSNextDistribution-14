@@ -764,6 +764,11 @@ private:
     int64_t mNavLastRepeatMs = 0; // when we last fired a repeat (or initial fire)
     int     mNavRepeatCount  = 0; // repeat fires so far, used for acceleration
 
+    // uptimeMillis() of the last user input (any button event, a dpad/stick
+    // direction press, or a scripted nav injection). The PS3 XMB idle frame-
+    // rate drop in threadLoop only engages a full minute after this stamp.
+    int64_t mLastInputMs = 0;
+
     // Brightness / power
     bool mSelectHeld;
     bool mStartHeld = false;   // for the START+SELECT PS3 boot-intro re-trigger
@@ -1400,6 +1405,9 @@ private:
     int mAtlasW, mAtlasH;
     int mAtlasCurX, mAtlasCurY, mAtlasRowH;
     std::unordered_map<uint32_t, GlyphInfo> mGlyphCache;
+    // Scale-independent text widths keyed by string (see measureText). Never
+    // invalidated: the font size is fixed at init and glyphs only get added.
+    std::unordered_map<std::string, float> mTextWidthCache;
 
     // Text shader (per-vertex color for emoji support)
     GLuint mTextProgram;

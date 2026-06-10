@@ -384,6 +384,10 @@ void NanoMenu::overlayShow() {
             .setFlags(mFlingerSurfaceControl,
                       opaque ? layer_state_t::eLayerOpaque : 0u,
                       layer_state_t::eLayerOpaque)
+            // Belt-and-braces: make sure no background blur is requested on
+            // this layer (nano never sets one, but blur with nothing behind
+            // the launcher wallpaper would be pure SF GPU waste).
+            .setBackgroundBlurRadius(mFlingerSurfaceControl, 0)
             .apply();
         ALOGI("overlay: layer opaque=%d (wallpaper=%d)",
               opaque ? 1 : 0, mOverlayWallpaper ? 1 : 0);

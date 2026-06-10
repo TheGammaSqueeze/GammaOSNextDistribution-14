@@ -176,6 +176,11 @@ NanoMenu::NanoMenu()
     srand(elapsedRealtime());
     memset(mParticles, 0, sizeof(mParticles));
     memset(mFtFaces, 0, sizeof(mFtFaces));
+    // Seed the idle-fps input stamp with "now": uptimeMillis() is system-wide,
+    // and nano respawns constantly (the DRM home exits on every game launch),
+    // so a fresh process must not inherit the whole boot uptime as "idle" and
+    // settle straight into the 30fps idle rate right after a game exit.
+    mLastInputMs = uptimeMillis();
     // Restore persisted wallpaper effect, default to XMB (21)
     char wallpaper[PROPERTY_VALUE_MAX] = {};
     property_get("persist.gammaos.nano.wallpaper", wallpaper, "22");
@@ -267,6 +272,11 @@ void NanoMenu::initSurfaceFlingerPath() {
     EGLConfig config = getEglConfig(mDisplay);
     EGLSurface sfSurface = eglCreateWindowSurface(mDisplay, config, s.get(), nullptr);
     eglMakeCurrent(mDisplay, sfSurface, sfSurface, mContext);
+    // Overlay: don't vsync-block in eglSwapBuffers. SurfaceFlinger latches on
+    // its own vsync regardless (no tearing); the clock-based top-up sleep in
+    // threadLoop paces submission. With interval 1 a frame that took a hair
+    // over 16.7ms stalled to the NEXT vsync (33ms) - the scroll judder.
+    if (mOverlayMode) eglSwapInterval(mDisplay, 0);
     eglDestroySurface(mDisplay, mSurface);
     mSurface = sfSurface;
     mFlingerSurfaceControl = control;
@@ -1045,6 +1055,10 @@ status_t NanoMenu::readyToRun() {
         EGLConfig config = getEglConfig(mDisplay, mOverlayMode);
         EGLSurface sfSurface = eglCreateWindowSurface(mDisplay, config, s.get(), nullptr);
         eglMakeCurrent(mDisplay, sfSurface, sfSurface, mContext);
+        // Overlay: swap interval 0 + the threadLoop top-up sleep paces frames;
+        // a vsync-blocking swap turned any frame a hair over 16.7ms into a
+        // 33ms one (see the pacing comment in threadLoop).
+        if (mOverlayMode) eglSwapInterval(mDisplay, 0);
         eglDestroySurface(mDisplay, mSurface);
         mSurface = sfSurface;
         mFlingerSurfaceControl = control;
@@ -3286,16 +3300,17 @@ if (sRingPrimedCount >= 2) {
                              && mScrollOffset > 0.0f);
         // GammaOS: adaptive idle frame-rate for the PS3 XMB. When the menu is
         // fully settled (nothing navigating or transitioning - only the slow
-        // selected-label glow pulse and the clock tick still animate) the whole
-        // menu is byte-identical frame to frame, yet it otherwise re-renders the
-        // ~16-20 glass icons, the 15-copy label glow, the ~250-call clock and all
-        // glyphs at a hard 60fps. That is the dominant baseline cost UNDER EVERY
-        // wallpaper mode. Drop to ~30fps while settled: it halves both the CPU and
-        // the GPU of that floor and is imperceptible (the glow is a multi-second
-        // cosine, the clock ticks per second). pollInput() clears the animation
-        // flags before this runs, so the first frame of a new navigation is
-        // already back at 60fps with no snap-back jank. Tunable via
-        // persist.gammaos.nano.ps3xmb.idlefps (default 30; set 60 to disable).
+        // selected-label glow pulse and the clock tick still animate) it still
+        // re-renders the ~16-20 glass icons, the 15-copy label glow, the
+        // ~250-call clock and all glyphs at a hard 60fps. Dropping to ~30fps
+        // halves both the CPU and the GPU of that floor, but a 30fps WAVE is
+        // visibly choppier than 60 and reads as "the menu got laggy" if it
+        // happens anywhere near an interaction - so the drop only kicks in
+        // after a full MINUTE with no input. Any input snaps the next frame
+        // back to 60 (pollInput stamps mLastInputMs before this runs, and it
+        // clears the animation flags, so there is no snap-back jank). Tunable
+        // via persist.gammaos.nano.ps3xmb.idlefps (the rate used once the
+        // minute elapses, default 30; set 60 to disable the drop entirely).
         bool ps3Settled = mPs3Xmb && !mPs3CatAnimActive
                        && mPs3ItemAnimStart < 0.0f && mPs3SubAnimStart < 0.0f
                        && mOverlayEnterStart < 0.0f
@@ -3307,15 +3322,19 @@ if (sRingPrimedCount >= 2) {
         if (sDrmActive || xmbActive || mXmbMode || mPs3Xmb || proceduralFx) {
             frameTimeUs = 16666; // 60fps — vsync-locked, no usleep
             if (ps3Settled) {
-                static int sIdleFps = -1;
-                if (sIdleFps < 0) {
+                static int sIdleFpsProp = -2;
+                if (sIdleFpsProp == -2) {
                     char b[PROPERTY_VALUE_MAX] = {};
-                    property_get("persist.gammaos.nano.ps3xmb.idlefps", b, "30");
-                    sIdleFps = atoi(b);
-                    if (sIdleFps < 1) sIdleFps = 30;
-                    if (sIdleFps > 60) sIdleFps = 60;
+                    property_get("persist.gammaos.nano.ps3xmb.idlefps", b, "");
+                    sIdleFpsProp = b[0] ? atoi(b) : -1;
+                    if (sIdleFpsProp > 60) sIdleFpsProp = 60;
+                    if (sIdleFpsProp == 0) sIdleFpsProp = 30;
                 }
-                if (sIdleFps < 60) frameTimeUs = 1000000 / sIdleFps;   // e.g. 30fps -> 33333us
+                bool longIdle =
+                    (int64_t)android::uptimeMillis() - mLastInputMs >= 60000;
+                int idleFps = longIdle ? (sIdleFpsProp > 0 ? sIdleFpsProp : 30)
+                                       : 60;
+                if (idleFps < 60) frameTimeUs = 1000000 / idleFps;   // e.g. 30fps -> 33333us
             }
         } else if (animating) {
             frameTimeUs = 50000; // 20fps for particles
@@ -3364,14 +3383,16 @@ if (sRingPrimedCount >= 2) {
 
         // GammaOS: XMB FPS counter. Logs once per second when in XMB mode so
         // we can verify the menu is actually hitting the 60fps target post-
-        // optimization. Zero overhead when disabled. Uses monotonic clock
-        // already measured for mFrameDt.
+        // optimization. Gated on the fpslog opt-in prop so production boots
+        // do not chat to logd at all.
         {
             static int64_t sFpsWindowStartNs = 0;
             static int sFpsFrames = 0;
             static int64_t sFpsMinFrameUs = 0;
             static int64_t sFpsMaxFrameUs = 0;
-            if (mXmbMode || mPs3Xmb) {
+            static bool sFpsLog =
+                property_get_bool("persist.gammaos.nano.ps3xmb.fpslog", false);
+            if (sFpsLog && (mXmbMode || mPs3Xmb)) {
                 sFpsFrames++;
                 int64_t frameUs = (int64_t)(mFrameDt * 1e6f);
                 if (sFpsFrames == 1 || frameUs < sFpsMinFrameUs) sFpsMinFrameUs = frameUs;
@@ -3395,11 +3416,16 @@ if (sRingPrimedCount >= 2) {
             }
         }
 
-        // Frame pacing: at 60fps, eglSwapBuffers vsync-blocks — no sleep needed.
-        // For lower rates, sleep the remaining time to hit the target frame period.
-        // Clock-based: measure actual elapsed time so variable swap durations
-        // don't cause frame-to-frame jitter.
-        if (frameTimeUs > 16666) {
+        // Frame pacing, clock-based: measure actual elapsed time so variable
+        // swap durations don't cause frame-to-frame jitter. This now ALSO runs
+        // at the 60fps target (>=, not >): on the SurfaceFlinger overlay path
+        // the swap interval is 0 (see the eglSwapInterval calls), so this sleep
+        // is what paces submission - a frame that finishes early gets topped up
+        // to the frame period instead of blocking inside eglSwapBuffers until
+        // the NEXT vsync, which used to turn every 17-18ms frame into a 33ms
+        // one. On the DRM path the swap blocks on the page flip as before and
+        // elapsed >= the period, so the sleep stays a no-op there.
+        if (frameTimeUs >= 16666) {
             struct timespec tsNow;
             clock_gettime(CLOCK_MONOTONIC, &tsNow);
             int64_t nowUs = (int64_t)tsNow.tv_sec * 1000000LL + tsNow.tv_nsec / 1000LL;
@@ -3540,6 +3566,8 @@ if (sRingPrimedCount >= 2) {
                 }
 
                 // Pick up results from background scan thread (lock-free check)
+                std::vector<std::pair<std::string, std::vector<std::string>>>
+                    pendingCacheWrites;
                 if (mBgScanResultReady) {
                     std::lock_guard<std::mutex> lock(mBgScanMutex);
                     if (mBgScanResultReady) {
@@ -3584,18 +3612,15 @@ if (sRingPrimedCount >= 2) {
                                 // appear/disappear with them): refresh the PS3
                                 // cats once the user is at the settled root.
                                 if (romsChanged) mPs3CatsStale = true;
-                                // Update cache file
-                                std::string cacheDir = "/data/system/nano_xmb_cache";
-                                mkdir(cacheDir.c_str(), 0755);
-                                std::string cp = cacheDir + "/" + sys.id + ".list";
-                                int cfd = open(cp.c_str(), O_WRONLY|O_CREAT|O_TRUNC, 0644);
-                                if (cfd >= 0) {
-                                    for (const auto& r : sys.roms) {
-                                        std::string l = r + "\n";
-                                        write(cfd, l.c_str(), l.size());
-                                    }
-                                    close(cfd);
-                                }
+                                // Queue the cache write for the writer thread
+                                // below: the file I/O (mkdir/open/write/fsync
+                                // latency on f2fs) used to run right here ON
+                                // the render thread and showed up as sporadic
+                                // mid-scroll frame spikes when a 30s rescan
+                                // published changes during navigation. The
+                                // roms snapshot is copied only for ACCEPTED
+                                // changes (rare), never per frame.
+                                pendingCacheWrites.emplace_back(sys.id, sys.roms);
                             }
                             sys.scanned = true;
                             sys.lastScanTime = elapsedRealtime();
@@ -3603,6 +3628,26 @@ if (sRingPrimedCount >= 2) {
                         mBgScanResultReady = false;
                         mXmbRomScanDone = true;
                     }
+                }
+
+                // Flush queued ROM-cache writes on a detached low-priority
+                // thread, fully off the render thread. Writes only reflect
+                // results that passed the accept guards above.
+                if (!pendingCacheWrites.empty()) {
+                    std::thread([writes = std::move(pendingCacheWrites)]() {
+                        for (const auto& wr : writes) {
+                            mkdir("/data/system/nano_xmb_cache", 0755);
+                            std::string cp = "/data/system/nano_xmb_cache/" + wr.first + ".list";
+                            int cfd = open(cp.c_str(), O_WRONLY|O_CREAT|O_TRUNC, 0644);
+                            if (cfd < 0) continue;
+                            for (const auto& r : wr.second) {
+                                std::string l = r + "\n";
+                                write(cfd, l.c_str(), l.size());
+                            }
+                            close(cfd);
+                        }
+                    }).detach();
+                    pendingCacheWrites.clear();
                 }
 
                 // Periodic rescan every 30s (runs on background thread,

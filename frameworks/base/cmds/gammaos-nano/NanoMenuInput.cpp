@@ -606,6 +606,7 @@ static constexpr float   kNavAccelMult         = 1.4f;  // INPUT_ACCEL_MULT
 
 void NanoMenu::navPress(NavDir dir) {
     if (dir == NavDir::None) return;
+    mLastInputMs = android::uptimeMillis();   // dpad/HAT/stick = user activity
     // Idempotent: if this direction is already the held one, don't re-fire.
     // Guards against duplicate events (e.g. HAT re-reporting same value)
     // from double-stepping the selection.
@@ -670,6 +671,7 @@ void NanoMenu::tickNavRepeat() {
     case NavDir::Right: handleRight(); break;
     case NavDir::None:  break;
     }
+    mLastInputMs     = now;   // a held direction is ongoing user activity
     mNavLastRepeatMs = now;
     mNavRepeatCount++;
 }
@@ -707,6 +709,7 @@ void NanoMenu::pollInput() {
     {
         char navbuf[PROPERTY_VALUE_MAX];
         if (property_get("sys.gammaos.nano.nav", navbuf, "") > 0 && navbuf[0]) {
+            mLastInputMs = android::uptimeMillis();   // scripted nav = activity
             if      (!strcmp(navbuf, "left"))  handleLeft();
             else if (!strcmp(navbuf, "right")) handleRight();
             else if (!strcmp(navbuf, "up"))    handleUp();
@@ -738,6 +741,11 @@ void NanoMenu::pollInput() {
     struct input_event ev;
     for (int fd : mInputFds) {
         while (read(fd, &ev, sizeof(ev)) == sizeof(ev)) {
+            // Any button edge counts as user activity for the idle frame-rate
+            // timer. EV_KEY only fires on real state changes, so this cannot
+            // be kept alive by analog-stick noise (sticks go through navPress
+            // which is edge-triggered past the deadzone).
+            if (ev.type == EV_KEY) mLastInputMs = android::uptimeMillis();
             // Cold-boot intro: any button press skips to the end of the sequence
             // and is CONSUMED here (so the same press does not also navigate or
             // launch once the XMB appears). All events are swallowed during boot.
@@ -872,6 +880,11 @@ void NanoMenu::pollInput() {
                                 if (wake.type == EV_KEY && wake.code == KEY_POWER
                                     && wake.value == 1) {
                                     asleep = false;
+                                    // The waking press bypasses the pollInput
+                                    // EV_KEY stamp (this loop consumes it), so
+                                    // stamp here or the menu could wake straight
+                                    // into the idle frame rate.
+                                    mLastInputMs = android::uptimeMillis();
                                 }
                             }
                         }
