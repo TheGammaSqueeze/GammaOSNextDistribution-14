@@ -1045,20 +1045,26 @@ void NanoMenu::renderOsk() {
     // accent (action / active shift)
     const float accR = 0.27f, accG = 0.52f, accB = 0.96f;
 
-    // --- Frosted-glass panel (captures the XMB behind, blurs + darkens it) ---
-    // captureGlass() is a full-framebuffer glCopyTexSubImage2D resolve (~20ms tiler
-    // flush); doing it EVERY frame pinned the OSK to ~30fps. So: when the network
-    // wizard is up it already holds a fresh wave-space blur (mGlassBlurTex) -> reuse
-    // it directly (waveSpace=true), no resolve at all. Otherwise cache the resolve
-    // at ~15Hz and redraw the cached frosted panel every frame.
+    // --- Frosted-glass panel ---
+    // The panel NEVER re-captures the framebuffer while open any more: the old
+    // ~15Hz captureGlass() refresh lagged the 60fps wave behind it (and cost a
+    // ~20ms mid-frame tile resolve per capture), which read as flicker inside
+    // the panel. Instead, reuse whichever live wave-space blur the scene
+    // already maintains (wizard or submenu frost, both land in mGlassBlurTex),
+    // and only fall back to a single frozen capture on the legacy menu path.
     bool drewGlass = false;
-    if (mPs3WizActive && mPs3DlgBlurValid) {
+    if ((mPs3WizActive && mPs3DlgBlurValid) || (mPs3Xmb && mPs3GlassValid)) {
+        // Wizard fields hold a fresh dialog blur; every other PS3-path OSK
+        // (the Game Systems editor) opens over a submenu, whose full-screen
+        // frost refreshes the same wave-space blur each frame. Reusing it is
+        // free and keeps the panel content in lockstep with the backdrop.
         drawFrostedGlass(b.panelX, b.panelY, b.panelW, b.panelH, panelRad,
                          0.50f, 0.54f, 0.64f, 1.0f, fade, true);
         drewGlass = true;
-    } else {
-        bool due = !mOskGlassValid || (mEffectTime - mOskGlassT) >= 0.0667f;
-        if (due && captureGlass(b.panelX, b.panelY, b.panelW, b.panelH)) {
+    } else if (!mOverlayMode) {
+        // Legacy menu path: capture ONCE per open and keep the frozen frost
+        // (a static panel cannot flicker; the periodic re-capture could).
+        if (!mOskGlassValid && captureGlass(b.panelX, b.panelY, b.panelW, b.panelH)) {
             mOskGlassValid = true; mOskGlassT = mEffectTime;
         }
         if (mOskGlassValid) {
@@ -1068,8 +1074,13 @@ void NanoMenu::renderOsk() {
         }
     }
     if (!drewGlass) {
+        // Overlay scrim mode lands here: nano renders on a TRANSLUCENT SF
+        // layer, so a capture would just blur the scrim's alpha and let the
+        // running app shimmer through the panel. Draw the solid dark panel
+        // fully opaque on the layer instead (there is nothing to frost - the
+        // app's pixels are composited by SF, not present in our framebuffer).
         drawRoundedRect(b.panelX, b.panelY, b.panelW, b.panelH, panelRad,
-                        0.12f, 0.14f, 0.18f, 0.92f * fade);
+                        0.12f, 0.14f, 0.18f, (mOverlayMode ? 1.0f : 0.92f) * fade);
     }
 
     // --- Candidate bar (Phase B+): only when an engine produced candidates. ---
@@ -1093,16 +1104,20 @@ void NanoMenu::renderOsk() {
     }
 
     // --- Text preview / query line with caret ---
-    // Wizard text fields (opened via openOskForPassword, mOskPasswordCallback set)
-    // are edited like a real IME: the value + caret are drawn into the actual
-    // dialog field, not here, so skip the keyboard's own preview line for them.
-    // The free search OSK (no callback) keeps its inline "Search:" preview.
-    if (!mOskPasswordCallback) {
+    // WIZARD text fields are edited like a real IME: the value + caret are
+    // drawn into the actual dialog field, so the keyboard's own preview line is
+    // skipped for them. Every other entry shows the line: the free search OSK
+    // keeps its "Search:" preview, and field editors outside the wizard (the
+    // Game Systems editor) show the field name plus the CURRENT value the
+    // opener prefilled, so editing starts from the existing text and the user
+    // sees what they are modifying.
+    if (!(mOskPasswordCallback && mPs3WizActive)) {
         std::string label, value;
         float pr, pg, pb;
-        if (mOskPasswordMode) {
-            label = (mOskPasswordPrompt.empty() ? "Password" : mOskPasswordPrompt) + ": ";
-            value = mOskPlaintext ? mOskQuery : maskPassword(mOskQuery);
+        if (mOskPasswordCallback || mOskPasswordMode) {
+            label = (mOskPasswordPrompt.empty() ? "Text" : mOskPasswordPrompt) + ": ";
+            value = (mOskPasswordMode && !mOskPlaintext) ? maskPassword(mOskQuery)
+                                                         : mOskQuery;
             pr = 1.0f; pg = 0.78f; pb = 0.40f;
         } else {
             label = "Search: ";
@@ -1133,8 +1148,29 @@ void NanoMenu::renderOsk() {
             int caret = mOsk.caret;
             if (caret < 0) caret = 0;
             if (caret > (int)value.size()) caret = (int)value.size();
-            std::string before = value.substr(0, (size_t)caret);
-            std::string after = value.substr((size_t)caret);
+            // Slide a window over values wider than the panel (long intent
+            // templates, package names): drop whole codepoints from the far
+            // ends until it fits, always keeping the caret in view.
+            float availW = (b.panelX + b.panelW - 70.0f * b.sf)
+                         - (b.previewX + lw);
+            int winStart = 0, winEnd = (int)value.size();
+            if (availW > 40.0f * b.sf
+                && measureText(value.c_str(), ps) > availW) {
+                auto width = [&](int s, int e) {
+                    return measureText(
+                        value.substr((size_t)s, (size_t)(e - s)).c_str(), ps);
+                };
+                while (winStart < caret && width(winStart, caret) > availW * 0.8f)
+                    winStart = utf8NextStart(value, winStart);
+                while (winEnd > caret && width(winStart, winEnd) > availW)
+                    winEnd = utf8PrevStart(value, winEnd);
+                while (winStart < caret && width(winStart, winEnd) > availW)
+                    winStart = utf8NextStart(value, winStart);
+            }
+            std::string before = value.substr((size_t)winStart,
+                                              (size_t)(caret - winStart));
+            std::string after = value.substr((size_t)caret,
+                                             (size_t)(winEnd - caret));
             float x = b.previewX + lw;
             if (!before.empty()) {
                 drawText(before.c_str(), x, y, ps, 1.0f, 1.0f, 1.0f, fade);
