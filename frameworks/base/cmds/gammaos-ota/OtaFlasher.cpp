@@ -513,14 +513,12 @@ void OtaFlasher::stopFramework() {
 
     logToFile("INFO", "Syncing filesystems...");
     sync();
-    // Aggressively drop ALL caches — this forces the kernel to release all
-    // cached pages from the system and vendor block devices
-    logToFile("INFO", "Dropping caches (aggressive)...");
-    dropCaches();
-    usleep(500000);
-    dropCaches(); // Second pass to catch any stragglers
-    usleep(500000);
-    dropCaches(); // Third pass — critical for large multi-partition writes
+    // Note: we deliberately do NOT drop_caches=3 here. It evicts every
+    // running daemon's clean mmap'd text pages backed by /system, and any
+    // subsequent page-fault during the flash would re-read the (by then
+    // overwritten) dm device — vold crashing on garbage code triggers
+    // init's reboot_on_failure and force-reboots mid-write. The write loop
+    // uses O_DIRECT, so dirty page accumulation is not a concern.
 
     // Display progress is handled by OtaMenu's EGL render loop via notifyStatus.
     // SurfaceFlinger is kept alive so EGL rendering works throughout the flash.
@@ -682,15 +680,12 @@ bool OtaFlasher::flash(const OtaManifest& manifest) {
         }
         logToFile("INFO", "Logical partition %s: DONE", part->name.c_str());
         notifyStatus(FlashPhase::FLASHING_LOGICAL, part->name, idx, totalParts, 100);
-        // Drop caches between partitions to relieve memory pressure
-        // Critical for multi-partition writes where total data exceeds RAM
+        // No drop_caches here — see writeFileToBlock and stopFramework.
         sync();
-        dropCaches();
         idx++;
     }
 
     sync();
-    dropCaches();
     logToFile("INFO", "=== FLASH COMPLETE — ALL PARTITIONS WRITTEN ===");
 
     // Dump super metadata after flash for diagnostics
@@ -729,8 +724,9 @@ bool OtaFlasher::flashPhysical(const OtaPartition& part, int partIdx, int partCo
     // The post-write block device read-back is the definitive integrity check.
     logToFile("INFO", "  Skipping pre-write SHA-256 (compressed SHA verified in preflight, post-write verify will confirm)");
 
-    // Drop caches to free memory used by the decompression
-    dropCaches();
+    // No drop_caches: the staging file's page cache will be evicted naturally
+    // as we stream through it; dropping here only widens the race window for
+    // other daemons' text pages backed by /system.
 
     // Detect A/B vs non-A/B
     std::string slotA = "/dev/block/by-name/" + part.name + "_a";
@@ -925,9 +921,9 @@ bool OtaFlasher::flashLogical(const OtaPartition& part, int partIdx, int partCou
                   dmPath.c_str(), (unsigned long long)getBlockDevSize(dmPath));
     }
 
-    // Drop caches before writing to ensure no stale reads
-    logToFile("INFO", "  Dropping caches before write...");
-    dropCaches();
+    // No drop_caches before write: O_DIRECT writes don't read through page
+    // cache and we don't want to evict other processes' text pages — see
+    // the comment in stopFramework() and XzDecompressor::writeFileToBlock.
 
     // Decompress and write
     std::string xzPath = mPackageDir + "/" + part.file;
@@ -965,8 +961,9 @@ bool OtaFlasher::flashLogical(const OtaPartition& part, int partIdx, int partCou
     // Skip pre-write SHA-256 — see flashPhysical for rationale (OOM on large images)
     logToFile("INFO", "  Skipping pre-write SHA-256 (compressed SHA verified in preflight, post-write verify will confirm)");
 
-    // Drop caches to free memory used by the decompression
-    dropCaches();
+    // No drop_caches: the staging file's page cache evicts naturally as we
+    // stream through it, and dropping evicts other daemons' /system text
+    // pages which would then refault into the partially-overwritten dm device.
 
     // Show warning before write — this is the last frame SF will render before
     // the system partition content changes and SF's state becomes invalid.
@@ -1199,7 +1196,7 @@ std::vector<std::string> OtaFlasher::verify(const OtaManifest& manifest) {
     logToFile("INFO", "=== VERIFICATION STARTED ===");
 
     sync();
-    dropCaches();
+    // verify() uses O_DIRECT reads, so no page-cache priming is required.
 
     std::string slot = getSlotSuffix();
     int idx = 0;

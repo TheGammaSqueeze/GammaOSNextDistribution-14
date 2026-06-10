@@ -270,17 +270,42 @@ bool XzDecompressor::writeFileToBlock(const std::string& filePath,
               blockDevPath.c_str(), strerror(errno));
     }
 
-    int outFd = open(blockDevPath.c_str(), O_WRONLY);
+    // Open the block device with O_DIRECT so writes bypass the page cache.
+    // The buffered path used to require a periodic `echo 3 > drop_caches` to
+    // keep memory bounded on low-RAM devices, but drop_caches=3 also evicts
+    // the mmap'd text pages of every running daemon backed by /system (vold,
+    // surfaceflinger, etc.). The next page-fault would then re-read from the
+    // dm device we are actively overwriting, the daemon would die on garbage
+    // instructions, and on vold dying init's reboot_on_failure forces an
+    // immediate reboot -> partial system_b -> brick. O_DIRECT side-steps the
+    // whole problem: writes go straight to the device, no page cache pressure,
+    // no need to drop_caches.
+    bool useDirect = true;
+    int outFd = open(blockDevPath.c_str(), O_WRONLY | O_DIRECT);
+    if (outFd < 0) {
+        ALOGW("O_DIRECT open of %s failed (%s), falling back to buffered",
+              blockDevPath.c_str(), strerror(errno));
+        outFd = open(blockDevPath.c_str(), O_WRONLY);
+        useDirect = false;
+    }
     if (outFd < 0) {
         ALOGE("Failed to open %s for writing: %s", blockDevPath.c_str(), strerror(errno));
         close(inFd);
         return false;
     }
 
-    uint8_t* buf = new uint8_t[BUF_SIZE];
+    // O_DIRECT requires the IO buffer to be aligned to the underlying device's
+    // logical block size. 4096-byte alignment satisfies both legacy 512-byte
+    // and modern 4K-LBA devices.
+    void* aligned_buf = nullptr;
+    if (posix_memalign(&aligned_buf, 4096, BUF_SIZE) != 0 || aligned_buf == nullptr) {
+        ALOGE("posix_memalign failed for %zu bytes", BUF_SIZE);
+        close(inFd);
+        close(outFd);
+        return false;
+    }
+    uint8_t* buf = static_cast<uint8_t*>(aligned_buf);
     uint64_t totalWritten = 0;
-    uint64_t lastFlushOffset = 0;
-    static const uint64_t FLUSH_INTERVAL = 256 * 1024 * 1024; // 256MB
     bool success = true;
 
     while (totalWritten < size) {
@@ -293,9 +318,32 @@ bool XzDecompressor::writeFileToBlock(const std::string& filePath,
             break;
         }
 
+        // O_DIRECT also requires each write length to be a multiple of the
+        // device logical block size. BUF_SIZE (1 MiB) is always aligned; the
+        // trailing partial chunk on a non-4K-aligned partition is not. In
+        // that case reopen the fd buffered just for the tail.
+        size_t writeLen = (size_t)nread;
+        if (useDirect && (writeLen & 4095)) {
+            close(outFd);
+            outFd = open(blockDevPath.c_str(), O_WRONLY);
+            if (outFd < 0) {
+                ALOGE("Buffered reopen for tail write failed on %s: %s",
+                      blockDevPath.c_str(), strerror(errno));
+                success = false;
+                break;
+            }
+            if (lseek(outFd, (off_t)totalWritten, SEEK_SET) != (off_t)totalWritten) {
+                ALOGE("lseek to %llu for tail write failed: %s",
+                      (unsigned long long)totalWritten, strerror(errno));
+                success = false;
+                break;
+            }
+            useDirect = false;
+        }
+
         size_t written = 0;
-        while (written < (size_t)nread) {
-            ssize_t w = write(outFd, buf + written, (size_t)nread - written);
+        while (written < writeLen) {
+            ssize_t w = write(outFd, buf + written, writeLen - written);
             if (w < 0) {
                 if (errno == EINTR) continue;
                 ALOGE("Write error at offset %llu: %s",
@@ -308,20 +356,6 @@ bool XzDecompressor::writeFileToBlock(const std::string& filePath,
         if (!success) break;
         totalWritten += (uint64_t)nread;
 
-        // Periodic flush: sync + drop caches every 256MB to prevent
-        // page cache accumulation on low-RAM devices
-        if (totalWritten - lastFlushOffset >= FLUSH_INTERVAL) {
-            fsync(outFd);
-            sync();
-            // Drop page caches to free memory
-            int cacheFd = open("/proc/sys/vm/drop_caches", O_WRONLY);
-            if (cacheFd >= 0) {
-                write(cacheFd, "3", 1);
-                close(cacheFd);
-            }
-            lastFlushOffset = totalWritten;
-        }
-
         // Report progress
         if (progress) {
             progress(totalWritten, size);
@@ -331,7 +365,7 @@ bool XzDecompressor::writeFileToBlock(const std::string& filePath,
     close(inFd);
     fsync(outFd);
     close(outFd);
-    delete[] buf;
+    free(aligned_buf);
 
     if (success) {
         ALOGI("Wrote %s -> %s: %llu bytes", filePath.c_str(), blockDevPath.c_str(),
@@ -384,8 +418,6 @@ std::string XzDecompressor::sha256BlockDev(const std::string& blockDevPath, uint
 
     uint64_t remaining = size;
     uint64_t totalRead = 0;
-    uint64_t lastFlushOffset = 0;
-    static const uint64_t VERIFY_FLUSH_INTERVAL = 256 * 1024 * 1024; // 256MB
     while (remaining > 0) {
         // O_DIRECT requires reads aligned to block size
         size_t toRead = BUF_SIZE;
@@ -400,16 +432,9 @@ std::string XzDecompressor::sha256BlockDev(const std::string& blockDevPath, uint
         SHA256_Update(&ctx, buf, hashBytes);
         remaining -= hashBytes;
         totalRead += hashBytes;
-
-        // Periodic cache drop every 256MB to prevent OOM on low-RAM devices
-        if (totalRead - lastFlushOffset >= VERIFY_FLUSH_INTERVAL) {
-            int cacheFd = open("/proc/sys/vm/drop_caches", O_WRONLY);
-            if (cacheFd >= 0) {
-                write(cacheFd, "3", 1);
-                close(cacheFd);
-            }
-            lastFlushOffset = totalRead;
-        }
+        // No drop_caches: O_DIRECT reads bypass the page cache entirely, and
+        // drop_caches=3 here would evict still-running daemons' /system text
+        // pages — see XzDecompressor::writeFileToBlock.
     }
     close(fd);
     free(aligned_buf);
