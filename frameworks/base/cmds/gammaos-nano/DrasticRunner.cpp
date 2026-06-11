@@ -753,51 +753,27 @@ bool DrasticRunner::init(const std::string& cacheDir,
     //   init() does not block.
     //
     // Guarded by persist.gammaos.nano.drastic_master_patch
-    // (default "1", set "0" to disable for A/B comparison).
+    // (default "1", set "0" to disable for A/B comparison). The actual
+    // rewrite lives in applyMasterStatePatch() so the same patch can be
+    // re-applied after a runtime applyConfig() (see setFastForward).
     {
         char patchEnable[PROPERTY_VALUE_MAX] = {};
         property_get("persist.gammaos.nano.drastic_master_patch",
                      patchEnable, "1");
         bool applyPatch = (patchEnable[0] != '0');
 
-        Dl_info patchInfo;
-        if (applyPatch && mUpdateInput &&
-                dladdr((void*)mUpdateInput, &patchInfo) &&
-                patchInfo.dli_fbase) {
-            uint8_t* master = (uint8_t*)(
-                    (uintptr_t)patchInfo.dli_fbase + 0x14c000);
-            std::thread([master]() {
+        if (applyPatch) {
+            std::thread([this]() {
                 pthread_setname_np(pthread_self(), "drastic-patch");
-                struct Target { size_t off; uint32_t value; };
-                static const Target targets[] = {
-                    { 0x00010, 6 }, { 0x00014, 6 }, { 0x09140, 0 },
-                    { 0x8b68c, 6 }, { 0x8b690, 6 }, { 0x8ba98, 0 },
-                    { 0x8bab8, 1 }, { 0x8bad0, 1 }, { 0x8badc, 1 },
-                    { 0x8bae8, 3 }, { 0x8bb00, 1 }, { 0x8bb10, 1 },
-                    { 0x8bb28, 1 },
-                };
-                const int kNumTargets =
-                        sizeof(targets)/sizeof(targets[0]);
-
-                // Wait past drastic's one-shot reset window.
+                // Wait past drastic's one-shot reset window: the monitor
+                // audit showed all drift happens by the 100ms mark and
+                // none from 200ms onward, so 250ms is a safe margin.
                 usleep(250 * 1000);
-
-                int rewrote = 0;
-                for (int i = 0; i < kNumTargets; i++) {
-                    uint32_t cur;
-                    memcpy(&cur, master + targets[i].off, 4);
-                    if (cur != targets[i].value) {
-                        memcpy(master + targets[i].off,
-                               &targets[i].value, 4);
-                        rewrote++;
-                    }
-                }
-                ALOGW("DrasticRunner: master-state patch: "
-                      "rewrote %d / %d targets", rewrote, kNumTargets);
+                applyMasterStatePatch("startGame init");
             }).detach();
             ALOGW("DrasticRunner: master-state patch scheduled "
                   "(runs 250ms after startGame)");
-        } else if (!applyPatch) {
+        } else {
             ALOGW("DrasticRunner: master-state patch disabled via prop");
         }
     }
@@ -1852,15 +1828,90 @@ void DrasticRunner::setVolumeRuntime(int vol0to100) {
     mSetAudioVolume(mFakeEnv, mFakeCls, vol0to100);
 }
 
+int DrasticRunner::applyMasterStatePatch(const char* reason) {
+    char patchEnable[PROPERTY_VALUE_MAX] = {};
+    property_get("persist.gammaos.nano.drastic_master_patch",
+                 patchEnable, "1");
+    if (patchEnable[0] == '0') return 0;
+
+    Dl_info patchInfo;
+    if (!mUpdateInput || !dladdr((void*)mUpdateInput, &patchInfo) ||
+            !patchInfo.dli_fbase) {
+        ALOGW("DrasticRunner::applyMasterStatePatch(%s): no base "
+              "address, skip", reason ? reason : "?");
+        return 0;
+    }
+    uint8_t* master =
+            (uint8_t*)((uintptr_t)patchInfo.dli_fbase + 0x14c000);
+
+    // The 13 GPU fast-path feature-flag scalars that fix the BG-layer
+    // priority rendering bug. See the post-startGame block in init() for
+    // the full A/B-derived offset table and rationale.
+    struct Target { size_t off; uint32_t value; };
+    static const Target targets[] = {
+        { 0x00010, 6 }, { 0x00014, 6 }, { 0x09140, 0 },
+        { 0x8b68c, 6 }, { 0x8b690, 6 }, { 0x8ba98, 0 },
+        { 0x8bab8, 1 }, { 0x8bad0, 1 }, { 0x8badc, 1 },
+        { 0x8bae8, 3 }, { 0x8bb00, 1 }, { 0x8bb10, 1 },
+        { 0x8bb28, 1 },
+    };
+    const int kNumTargets = sizeof(targets)/sizeof(targets[0]);
+    int rewrote = 0;
+    for (int i = 0; i < kNumTargets; i++) {
+        uint32_t cur;
+        memcpy(&cur, master + targets[i].off, 4);
+        if (cur != targets[i].value) {
+            memcpy(master + targets[i].off, &targets[i].value, 4);
+            rewrote++;
+        }
+    }
+    ALOGW("DrasticRunner: master-state patch (%s): rewrote %d / %d "
+          "targets", reason ? reason : "?", rewrote, kNumTargets);
+    return rewrote;
+}
+
 void DrasticRunner::setFastForward(bool on) {
     if (!mInitialized || !mApplyConfig) return;
     if (on == mFastForwardOn) return;
     mFastForwardOn = on;
     long bits = mBaseConfigBits;
-    if (on) bits |= 0x20000000L;   // V = fast-forward runtime toggle
+    if (on) {
+        // _V (bit 29) is drastic's runtime fast-forward lever: it removes
+        // the 60fps frame pacer. Left fully uncapped (_FfwdSpeed = 0) the
+        // DS CPU plus the hires/threaded-3D rasterizer free-run and
+        // oversubscribe the GPU and the 3D worker against our SCHED_FIFO 80
+        // render thread. On this SoC that collapses producer throughput
+        // below realtime (the game runs in slow motion) and re-corrupts the
+        // 3D output (the same hires rendering glitch we fixed earlier).
+        // Capping the multiplier in _FfwdSpeed (bits 12-15) keeps the pacer
+        // yielding the GPU between frames, so fast-forward actually speeds
+        // the game up cleanly. Tunable so the right cap can be dialled in
+        // per device without a rebuild (0 = uncapped, 1..15 = multiplier).
+        int cap = property_get_int32(
+                "persist.gammaos.drastic_nano.ffspeed", 2);
+        if (cap < 0)  cap = 0;
+        if (cap > 15) cap = 15;
+        bits |= 0x20000000L;                           // _V fast-forward lever
+        bits = (bits & ~0xF000L) | ((long)cap << 12);  // _FfwdSpeed cap
+        // Threaded 3D is the most glitch-prone path under sustained load
+        // (drastic's own readme warns it "can cause graphical glitches and
+        // instability"). Optionally fall back to single-threaded 3D while FF
+        // is held so the 3D worker is never starved by the faster producer.
+        if (property_get_int32(
+                "persist.gammaos.drastic_nano.ff_no_threaded3d", 0)) {
+            bits &= ~0x10000000L;                      // clear _Threaded3D
+        }
+    }
     mApplyConfig(mFakeEnv, mFakeCls, bits);
     ALOGI("DrasticRunner::setFastForward: %s (applyConfig=0x%lx)",
           on ? "ON" : "OFF", bits);
+    // applyConfig re-runs drastic's config converter, which resets the
+    // GPU fast-path feature flags back to fallback-mode defaults and
+    // brings back the BG-layer priority rendering glitch (on every game,
+    // 2D and 3D). The one-shot init patch already exited, so re-assert
+    // those 13 scalars right now. The logged rewrite count tells us how
+    // many applyConfig actually clobbered.
+    applyMasterStatePatch(on ? "fast-forward on" : "fast-forward off");
 }
 
 bool DrasticRunner::setShaderRuntime(const std::string& absDfxPath) {

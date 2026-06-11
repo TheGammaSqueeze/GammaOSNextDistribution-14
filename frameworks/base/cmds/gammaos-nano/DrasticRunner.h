@@ -446,6 +446,19 @@ private:
     // an invalid FBO so the displays stop updating.
     void unpatchFinalPassFbo();
 
+    // Rewrite the 13 GPU fast-path feature-flag scalars in drastic's
+    // master struct to the real-app values that fix the BG-layer
+    // priority rendering bug (affects every DS game, 2D and 3D alike).
+    // Applied once ~250ms after startGame from init(), and re-applied
+    // immediately after any runtime applyConfig() call (e.g. the
+    // fast-forward toggle), because applyConfig's config converter
+    // resets these fields back to the fallback-mode defaults. Reads the
+    // master base from the loaded .so and is a no-op when the
+    // persist.gammaos.nano.drastic_master_patch gate is "0". reason is
+    // logged alongside the rewrite count. Returns the number of fields
+    // that actually drifted and were rewritten.
+    int applyMasterStatePatch(const char* reason);
+
     // Cached fake env / cls for render-thread calls. Set during init()
     // and reused from initSurface / renderOneFrame.
     void* mFakeEnv = nullptr;
