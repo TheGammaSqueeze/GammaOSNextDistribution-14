@@ -78,6 +78,14 @@ public:
     // (autosave -> session_done -> XMB) as a back-button hold.
     bool exitAppRequested() const { return mExitApp; }
 
+    // True when the user picked the "Restart Game" row. drastic's
+    // in-process soft reset (resetDS) cannot run because the boot-race
+    // longjmp patch neuters the reset's loop-restart, so a real restart
+    // is a fresh relaunch: main.cpp skips the slot-9 autosave, sets the
+    // boot_fresh prop, and triggers the relaunch handshake so the ROM
+    // reboots from the title.
+    bool restartFreshRequested() const { return mRestartFresh; }
+
     // Access staged prefs (for final write-on-close).
     const drastic_prefs::Prefs& prefs() const { return mPrefs; }
 
@@ -110,6 +118,7 @@ private:
     bool mOpen = false;
     bool mRelaunch = false;
     bool mExitApp = false;            // "Exit Game" row selected
+    bool mRestartFresh = false;       // "Restart Game" row selected
     Section mSection = kSec_Save;
     int mCursor[kSec_COUNT] = {0, 0, 0, 0};
     int mScroll[kSec_COUNT] = {0, 0, 0, 0};

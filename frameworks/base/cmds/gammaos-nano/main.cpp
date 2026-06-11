@@ -900,6 +900,26 @@ int main(int argc, char** argv) {
         return 0;
     }
 
+    // Honor a drastic-nano relaunch request. When the user picks
+    // "Restart Game" (or changes a restart-required setting), drastic-nano
+    // exits with sys.gammaos.drastic_nano.auto_relaunch=1 alongside
+    // session_done. init's session_done trigger brings us up here; instead
+    // of rendering the XMB we immediately re-fire the drastic launch so the
+    // ROM reloads in place (boot_fresh, set by drastic-nano, makes that a
+    // fresh-from-title boot; a settings relaunch resumes slot 9). We return
+    // before grabbing DRM master / readyToRun, so there is no XMB flash.
+    if (property_get_bool("persist.gammaos.nano.drastic_nano", false) &&
+        property_get_bool("sys.gammaos.drastic_nano.auto_relaunch", false)) {
+        ALOGI("GammaOS Nano: drastic-nano relaunch requested, "
+              "re-firing drastic-nano.start (no XMB)");
+        property_set("sys.gammaos.drastic_nano.auto_relaunch", "0");
+        // The init start trigger does `stop gammaos-nano; start
+        // drastic-nano`; this instance is exiting, so it just brings the
+        // standalone binary back up with the persisted ROM path.
+        property_set("sys.gammaos.drastic_nano.start", "1");
+        return 0;
+    }
+
     // Grab DRM master early on non-Qualcomm SoCs to beat HWC.
     // On Qualcomm SDE (ro.board.platform=bengal etc), SET_MASTER
     // disrupts the backlight controller even without modeset, so we

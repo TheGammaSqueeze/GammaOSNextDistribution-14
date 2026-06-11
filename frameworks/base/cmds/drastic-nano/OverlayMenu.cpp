@@ -465,20 +465,22 @@ void OverlayMenu::rebuildSave() {
         mRows.push_back(std::move(r));
     }
 
-    // Restart Game: soft power-on reset of the DS, in-process (no
-    // relaunch). The ROM stays loaded; it reboots from the BIOS/title.
-    // closeMenu() FIRST: the overlay paused the emulator on open, and
-    // drastic's resetDS hangs (freezes the game) if issued while paused,
-    // so the menu must unpause before the reset.
+    // Restart Game: reboot the ROM from the title. We do NOT use
+    // drastic's in-process soft reset (resetDS): the boot-race longjmp
+    // patch at libdrastic+0x17304 (applied at init so a reset-style
+    // longjmp cannot fire before setjmp populates the jmp_buf) also
+    // neuters resetDS's own loop-restart longjmp, so the soft reset
+    // half-completes and freezes the game. Instead request a fresh
+    // relaunch: main.cpp skips the slot-9 autosave, sets boot_fresh, and
+    // fires the relaunch handshake (gammaos-nano re-launches the ROM,
+    // which boots fresh because boot_fresh forces auto-load off).
     {
         RowAction r;
         r.label = "Restart Game";
         r.onAccept = [this]() {
+            mRestartFresh = true;
             closeMenu();
-            if (mRunner) {
-                mRunner->resetSystem();
-                toast("Game restarted");
-            }
+            toast("Restarting...");
         };
         mRows.push_back(std::move(r));
     }

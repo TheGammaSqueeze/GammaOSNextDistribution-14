@@ -774,6 +774,7 @@ constexpr int64_t kPowerHoldMs = 1500;
 
 struct RunLoopResult {
     bool relaunchRequested;
+    bool restartFresh;   // "Restart Game": relaunch + boot fresh, no save
 };
 
 RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
@@ -783,7 +784,7 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                       const std::string& savestatesDir,
                       const std::string& romPath,
                       const std::string& shadersDir) {
-    RunLoopResult result{false};
+    RunLoopResult result{false, false};
     bool hasDualDisplay = (android::sDrmActive && android::sDrmZeroCopy &&
                             android::sAhbRingSecondary[0].glFbo != 0);
     dr->initSurface(dpy->width, dpy->height, hasDualDisplay);
@@ -924,6 +925,12 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
         if (overlay.relaunchRequested()) {
             ALOGI("drastic-nano: relaunch requested by overlay");
             result.relaunchRequested = true;
+            exitRequested = true;
+        }
+        if (overlay.restartFreshRequested()) {
+            ALOGI("drastic-nano: restart-game (fresh relaunch) requested");
+            result.restartFresh = true;
+            result.relaunchRequested = true;  // reuse the relaunch handshake
             exitRequested = true;
         }
         if (exitRequested) break;
@@ -1297,8 +1304,18 @@ int main(int argc, char** argv) {
     // toggle persists persist.gammaos.drastic_nano.autoload. When on we
     // pass slot 9 so startGame boot-loads it; when off we pass -1 for a
     // fresh boot.
-    int autoLoadSlot = property_get_bool(
-            "persist.gammaos.drastic_nano.autoload", true) ? 9 : -1;
+    // boot_fresh is a one-shot signal set by a "Restart Game" relaunch:
+    // ignore the auto-load slot this launch so the ROM boots from the
+    // title rather than resuming. Cleared immediately so the next normal
+    // launch resumes as usual.
+    bool bootFresh = property_get_bool(
+            "sys.gammaos.drastic_nano.boot_fresh", false);
+    if (bootFresh) {
+        property_set("sys.gammaos.drastic_nano.boot_fresh", "0");
+        ALOGI("drastic-nano: boot_fresh set, forcing fresh boot");
+    }
+    int autoLoadSlot = (!bootFresh && property_get_bool(
+            "persist.gammaos.drastic_nano.autoload", true)) ? 9 : -1;
     ALOGI("drastic-nano: auto-load slot = %d", autoLoadSlot);
     if (!dr.init(kDrasticDataDir, romPath, libsDir,
                  /*soundEnabled=*/prefs.soundEnabled,
@@ -1325,7 +1342,11 @@ int main(int argc, char** argv) {
     // feature is off we leave slot 9 untouched and boot fresh next
     // time. The save is queued to drastic's worker thread, so wait for
     // the .dss to flush before the destructor pauses/quits the core.
-    if (property_get_bool("persist.gammaos.drastic_nano.autoload", true)) {
+    // "Restart Game" (rlr.restartFresh) must NOT autosave: the whole
+    // point is to boot fresh from the title, so we leave slot 9 alone and
+    // the relaunch passes auto-load = off (boot_fresh below).
+    if (!rlr.restartFresh &&
+        property_get_bool("persist.gammaos.drastic_nano.autoload", true)) {
         std::string base = romPath;
         size_t sp = base.find_last_of('/');
         if (sp != std::string::npos) base = base.substr(sp + 1);
@@ -1389,8 +1410,16 @@ int main(int argc, char** argv) {
     // a normal return-to-XMB -- the user can relaunch manually and
     // the new XML settings will take effect.
     if (rlr.relaunchRequested) {
+        // "Restart Game" boots fresh: the next instance must ignore the
+        // auto-load slot and reboot the ROM from the title. A settings
+        // relaunch (restartFresh == false) instead resumes slot 9 so the
+        // new settings apply mid-game.
+        if (rlr.restartFresh) {
+            property_set("sys.gammaos.drastic_nano.boot_fresh", "1");
+        }
         property_set("sys.gammaos.drastic_nano.auto_relaunch", "1");
-        ALOGI("drastic-nano: requesting auto-relaunch");
+        ALOGI("drastic-nano: requesting auto-relaunch (fresh=%d)",
+              rlr.restartFresh ? 1 : 0);
     }
 
     restoreDeepCpuIdle();
