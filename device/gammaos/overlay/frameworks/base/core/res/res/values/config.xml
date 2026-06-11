@@ -56,4 +56,16 @@
     <string name="config_wlan_network_service_package">com.google.android.iwlan</string>
   <string name="config_qualified_networks_service_package">com.android.telephony.qns</string>
   <bool name="config_lidControlsSleep">true</bool>
+
+  <!-- GammaOS Nano: disable the ColorFade screen-off/on animation. It runs a
+       GL glClear/draw on the framework display surface, but in Nano mode a
+       DRM-direct renderer (gammaos-nano / drastic-nano) holds DRM master, so
+       ColorFade's EGL/GL work blocks indefinitely. That hangs the
+       PowerManagerService handler in ColorFade.draw() until the system_server
+       Watchdog kills the whole system process (a full UI restart - the
+       "crashing out" on sleep), and it also stalls the display-off transition
+       so sys.screen.state never reaches "off" and the device's
+       force_sleep/sleep.sh suspend never triggers. The fade is purely
+       cosmetic and never visible in Nano mode anyway. -->
+  <bool name="config_displayColorFadeDisabled">true</bool>
 </resources>
