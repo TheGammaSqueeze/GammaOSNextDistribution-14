@@ -25,6 +25,7 @@
 #include <sys/stat.h>
 #include <math.h>
 #include <stdlib.h>
+#include <malloc.h>
 #include <linux/input.h>
 #include <sys/inotify.h>
 #include <signal.h>
@@ -1215,8 +1216,29 @@ bool NanoMenu::threadLoop() {
     // the 64 KB default cap doesn't cause EPERM/ENOMEM. The trade is
     // ~50 ms of up-front fault cost at startup for predictable frame
     // timing thereafter.
+    // Disable scudo's secondary (>64 KB) allocation cache BEFORE locking
+    // memory, and drain anything already cached. mlockall makes every
+    // anonymous mapping VM_LOCKED, and madvise(MADV_DONTNEED) fails with
+    // EINVAL on locked pages. scudo's cache release path ignores that
+    // error and still marks the cached entry as zeroed, so any later
+    // calloc served from the cache SKIPS its memset and returns the
+    // previous owner's dirty bytes. The Mali Bifrost blob (RK356x) trusts
+    // calloc zero-fill for a lazy-init pointer slot in the framebuffer
+    // object it allocates on the first glBindFramebuffer of a new name,
+    // dereferences the stale garbage and crashes the render thread
+    // (reproduced 100% on the RG DS the moment the PS3 wave background
+    // created its first FBO after the wave shader links had churned the
+    // heap; same root cause for ps3xmb=1 and the wave wallpaper).
+    // With the cache off, every large allocation is a fresh kernel-zeroed
+    // mmap, restoring calloc's contract. Nano's steady-state frame loop
+    // does no large allocations, so the only cost is a few one-time mmaps
+    // during asset loads. Order matters: cache off, purge, THEN mlockall,
+    // so no dirty entry can be cached in between (loader threads free
+    // large buffers concurrently during startup).
+    mallopt(M_CACHE_COUNT_MAX, 0);
+    mallopt(M_PURGE_ALL, 0);
     if (mlockall(MCL_CURRENT | MCL_FUTURE) == 0) {
-        ALOGW("NanoMenu: mlockall done");
+        ALOGW("NanoMenu: mlockall done (scudo secondary cache disabled)");
     } else {
         ALOGW("NanoMenu: mlockall failed (%s) -- check caps/rlimit in "
               "gammaos-nano.rc", strerror(errno));

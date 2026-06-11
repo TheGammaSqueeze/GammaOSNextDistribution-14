@@ -1542,6 +1542,12 @@ void NanoMenu::render() {
     // XMB ribbon time advance). Must run before either pass below so both
     // AHBs render the same effect state.
     updateEffect();
+    // Same per-frame gate for the PS3 wave background: the first ps3bg::render
+    // call this frame advances the wave/glitter/theme time and rebuilds the
+    // work texture; the wallpaper passes for any additional displays then
+    // composite that same texture (identical state on every panel, single
+    // wave build per frame).
+    ps3bg::newFrame();
 
     // GammaOS: Helper lambda that uploads the DRM rotation matrix to all
     // shader programs. Called at the start of each render pass since the

@@ -841,6 +841,18 @@ static void animateWave(float dt) {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
+// Frame gate for multi-display rendering. render() is called once per draw
+// TARGET (on a dual-screen device: the wallpaper-only secondary pass, then the
+// primary pass), but the wave must advance once per FRAME: time stepping per
+// call runs the animation at Nx speed and skews the panels by one dt, and
+// rebuilding the work texture per call doubles the whole wave cost. NanoMenu's
+// render() bumps the serial once per frame via newFrame(); the first ps3bg
+// call of the frame advances time and rebuilds the work texture, later calls
+// in the same frame only composite the finished texture to their target.
+static uint32_t sFrameSerial = 0;
+static uint32_t sBuiltSerial = ~0u;
+void newFrame() { sFrameSerial++; }
+
 void render(int panelW, int panelH, float dt, const float rotMat2[4], bool /*rotActive*/,
             bool compositeToScreen) {
     if (!sReady && !init()) return;
@@ -870,13 +882,18 @@ void render(int panelW, int panelH, float dt, const float rotMat2[4], bool /*rot
     localtime_r(&tt, &lt);
     float hour = lt.tm_hour + lt.tm_min / 60.0f + lt.tm_sec / 3600.0f;
 
+    // First ps3bg call of this app frame? Only that call advances animation
+    // time and rebuilds the work texture; same-frame calls for other display
+    // targets reuse it (see newFrame above).
+    const bool buildFrame = (sBuiltSerial != sFrameSerial);
+
     // Theme cross-fade (web stepThemeFade, index.html 586): glide the manual
     // Colour tint + strength and the day/night blend toward their targets each
     // frame. Day/night target = the forced override (>=0) or the clock. k =
     // 1 - exp(-dt_ms/220) (~0.4s), dt capped to 50ms; first frame snaps so there
     // is no fade up from zero on boot.
     float blendTarget = (sDayNightTgt >= 0.0f) ? sDayNightTgt : computeNightDayBlend(hour);
-    {
+    if (buildFrame) {
         float dtms = dt * 1000.0f;
         if (dtms <= 0.0f) dtms = 16.7f; else if (dtms > 50.0f) dtms = 50.0f;
         float k = 1.0f - expf(-dtms / 220.0f);
@@ -920,6 +937,9 @@ void render(int panelW, int panelH, float dt, const float rotMat2[4], bool /*rot
         return;
     }
     sScrimLastEpoch = sScrimEpoch;   // we are (re)building the wave this frame
+
+    if (buildFrame) {
+    sBuiltSerial = sFrameSerial;
 
     // Re-render the cached gradient when the month, the (animated) day/night blend
     // or the (animated) theme colour/strength moved meaningfully. While a colour
@@ -991,6 +1011,7 @@ void render(int panelW, int panelH, float dt, const float rotMat2[4], bool /*rot
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     }
+    }   // buildFrame: same-frame calls for other displays reuse the work texture
 
     // Restore the caller's draw target + viewport (always, so subsequent menu
     // draws land on the panel even when we skip the composite below).

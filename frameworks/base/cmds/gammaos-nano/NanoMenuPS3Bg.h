@@ -47,6 +47,15 @@ void shutdown();
 // True once init() has fully succeeded and render() will draw the real wave.
 bool ready();
 
+// Mark the start of a new app frame. NanoMenu::render() calls this exactly once
+// per frame; the FIRST ps3bg::render call of the frame advances the wave/glitter
+// /theme-fade time and rebuilds the work texture, and any further calls in the
+// same frame (the wallpaper passes for additional displays on multi-screen
+// devices) only composite the finished texture to their own target. Without it
+// a dual-screen device would step the animation once per display (2x speed, one
+// frame of skew between panels) and pay the whole wave build per display.
+void newFrame();
+
 // Render the background to the currently-bound framebuffer. The caller sets the
 // panel viewport and clears it (letterbox bars stay the clear colour). The
 // gradient/wave are confined to ps3::gFrame* and the composite applies rotMat2
