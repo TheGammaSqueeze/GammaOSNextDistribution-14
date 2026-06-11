@@ -855,7 +855,14 @@ int main(int argc, char** argv) {
         // SF surface setup in readyToRun waits for SurfaceFlinger to be up.
         ALOGI("GammaOS Nano: starting in OVERLAY mode (SF window, no DRM master)");
         setpriority(PRIO_PROCESS, 0, ANDROID_PRIORITY_DISPLAY);
-        property_set("sys.gammaos.nano.drm_active", "0");
+        // Do NOT write sys.gammaos.nano.drm_active here. It is a global,
+        // single-writer signal for "a nano DRM-direct renderer owns the
+        // panel", set by the home (1 at splash, 0 on drmStop) and by
+        // drastic-nano. The overlay is a resident SF process that starts
+        // AFTER the DRM home and would clobber the home's 1 back to 0,
+        // which (among other things) defeats the volume/brightness
+        // indicator suppression that keys on this prop. The overlay never
+        // touches DRM, so it has no business owning this signal.
 
         sp<ProcessState> proc(ProcessState::self());
         ProcessState::self()->startThreadPool();
