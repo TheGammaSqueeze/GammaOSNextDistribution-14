@@ -258,9 +258,11 @@ bool DrasticRunner::init(const std::string& cacheDir,
                          bool soundEnabled,
                          long configBitsOverride,
                          int autosaveIntervalSeconds,
-                         const std::string& initialShader) {
+                         const std::string& initialShader,
+                         int autoLoadSlot) {
     maybeStartThreadTracer();
     mCacheDir = cacheDir;
+    mAutoLoadSlot = autoLoadSlot;
     mInitialShader = initialShader.empty() ? std::string("Linear")
                                            : initialShader;
     const std::string& effectiveLibs = libsDir.empty() ? cacheDir : libsDir;
@@ -691,8 +693,12 @@ bool DrasticRunner::init(const std::string& cacheDir,
             }
         }
         mStartGameLaunched.store(true);
+        // arg2 (slot): drastic's startGame loads this save slot on boot
+        // when it is >= 0 (with arg4 == 0). mAutoLoadSlot is 9 to
+        // auto-resume the mod's autosave, or -1 for a fresh boot; the
+        // legacy QR-preview callers leave it at 0.
         unsigned char rc = startGameFn(envCopy, fakeClsCopy, romCopy,
-                                        /*arg2 slot*/  0,
+                                        /*arg2 slot*/  mAutoLoadSlot,
                                         /*arg3 cfg*/   startGameConfig,
                                         /*arg4*/       0,
                                         /*arg5 insrt*/ 0,
@@ -1797,6 +1803,19 @@ bool DrasticRunner::saveStateSlot(int slot) {
     }
     int rc = mSaveState(mFakeEnv, mFakeCls, slot);
     ALOGI("DrasticRunner::saveStateSlot(%d) = %d", slot, rc);
+    return true;
+}
+bool DrasticRunner::saveAutosave() {
+    if (!mInitialized || !mSaveState) {
+        ALOGW("DrasticRunner::saveAutosave: not available");
+        return false;
+    }
+    // Slot 9 is drastic's reserved autosave slot (what the
+    // drastic-android-mod auto-resumes from). saveStateSlot refuses 9
+    // on purpose; this path is the sanctioned exception used on a
+    // graceful exit.
+    int rc = mSaveState(mFakeEnv, mFakeCls, 9);
+    ALOGI("DrasticRunner::saveAutosave (slot 9) = %d", rc);
     return true;
 }
 

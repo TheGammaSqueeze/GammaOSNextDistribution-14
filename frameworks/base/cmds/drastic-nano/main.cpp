@@ -112,7 +112,7 @@ constexpr const char* kSessionDoneProp   = "sys.gammaos.drastic_nano.session_don
 constexpr const char* kDrasticDataDir =
         "/data/user/0/com.dsemu.drastic/files/DraStic";
 
-constexpr int64_t     kBackHoldMs        = 3000;
+constexpr int64_t     kBackHoldMs        = 2000;
 
 // ------------------------------------------------------------------
 // Small utilities
@@ -917,6 +917,10 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
             ALOGW("drastic-nano: long-press BACK, exiting");
             exitRequested = true;
         }
+        if (overlay.exitAppRequested()) {
+            ALOGI("drastic-nano: exit requested from overlay menu");
+            exitRequested = true;
+        }
         if (overlay.relaunchRequested()) {
             ALOGI("drastic-nano: relaunch requested by overlay");
             result.relaunchRequested = true;
@@ -1288,11 +1292,20 @@ int main(int argc, char** argv) {
     // nativeLibraryDir so we get the unpatched libdrastic (real
     // audio). soundEnabled sets the _SoundEnabled config bit.
     // configBitsOverride threads the user's XML settings through.
+    // Auto-resume: the drastic-android-mod loads its autosave (slot 9)
+    // on launch. Default on; the overlay's "Auto Load State on Launch"
+    // toggle persists persist.gammaos.drastic_nano.autoload. When on we
+    // pass slot 9 so startGame boot-loads it; when off we pass -1 for a
+    // fresh boot.
+    int autoLoadSlot = property_get_bool(
+            "persist.gammaos.drastic_nano.autoload", true) ? 9 : -1;
+    ALOGI("drastic-nano: auto-load slot = %d", autoLoadSlot);
     if (!dr.init(kDrasticDataDir, romPath, libsDir,
                  /*soundEnabled=*/prefs.soundEnabled,
                  /*configBitsOverride=*/userBits,
                  /*autosaveIntervalSeconds=*/0,
-                 /*initialShader=*/prefs.currentFx)) {
+                 /*initialShader=*/prefs.currentFx,
+                 /*autoLoadSlot=*/autoLoadSlot)) {
         ALOGE("drastic-nano: DrasticRunner::init failed");
         property_set(kSessionDoneProp, "1");
         return 7;
@@ -1304,10 +1317,42 @@ int main(int argc, char** argv) {
                                 prefsPath, savestatesDir, romPath,
                                 shadersDir);
 
+    // Persist the autosave (slot 9) that the next launch auto-loads.
+    // The DrasticRunner destructor's quitSystem does NOT reliably
+    // refresh slot 9, so without this explicit save every launch
+    // reloads a stale state and in-game progress is lost. Gated on the
+    // same "Auto Load State on Launch" toggle (default on): when the
+    // feature is off we leave slot 9 untouched and boot fresh next
+    // time. The save is queued to drastic's worker thread, so wait for
+    // the .dss to flush before the destructor pauses/quits the core.
+    if (property_get_bool("persist.gammaos.drastic_nano.autoload", true)) {
+        std::string base = romPath;
+        size_t sp = base.find_last_of('/');
+        if (sp != std::string::npos) base = base.substr(sp + 1);
+        size_t dt = base.find_last_of('.');
+        if (dt != std::string::npos) base = base.substr(0, dt);
+        std::string slot9 = savestatesDir + "/" + base + "_9.dss";
+        struct stat before {};
+        bool had = (stat(slot9.c_str(), &before) == 0);
+        time_t beforeM = had ? before.st_mtime : 0;
+        off_t  beforeS = had ? before.st_size  : 0;
+        if (dr.saveAutosave()) {
+            for (int i = 0; i < 40; i++) {   // up to ~2s
+                usleep(50 * 1000);
+                struct stat now {};
+                if (stat(slot9.c_str(), &now) == 0 &&
+                    (!had || now.st_mtime != beforeM ||
+                     now.st_size != beforeS)) {
+                    ALOGI("drastic-nano: autosave slot 9 flushed (%lld bytes)",
+                          (long long)now.st_size);
+                    break;
+                }
+            }
+        }
+    }
+
     // DrasticRunner destructor -> shutdown() -> pauseSystem +
-    // quitSystem. That writes drastic's autosave + any dirty config
-    // straight back to /data/user/0/com.dsemu.drastic/files/DraStic/
-    // -- no sync-out step required.
+    // quitSystem, then ownership/teardown below.
 
     // Root wrote files with UID=root during the session. Restore
     // ownership to drastic's app UID so the real drastic app can

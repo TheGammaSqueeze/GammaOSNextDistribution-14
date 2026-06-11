@@ -425,7 +425,31 @@ void pollInputMap(InputState* st, bool overlayOpen, bool captureKey,
                         case 28: st->stylusBtnHeld = pressed; break;
                         // Edge-triggered (fire once on press only).
                         case 16: if (pressed) out->actSwapScreens = true; break;
-                        case 20: if (pressed) out->menuToggle     = true; break;
+                        // Menu action: SAME short-press-overlay /
+                        // hold-exit semantics as the literal KEY_BACK
+                        // button. The physical Back button on this
+                        // hardware reaches us as the remapped "Menu"
+                        // action (gammapad re-emits it through its
+                        // virtual pad, which carries no KEY_BACK), so
+                        // without this it could only TAP to open the
+                        // overlay and never HOLD to exit. Reuse the
+                        // backPressStartMs/backWasDown state so the
+                        // shared hold check below fires exitRequested.
+                        case 20:
+                            if (pressed && !st->backWasDown) {
+                                st->backPressStartMs =
+                                        android::elapsedRealtime();
+                            }
+                            if (!pressed && st->backWasDown) {
+                                int64_t held = android::elapsedRealtime() -
+                                               st->backPressStartMs;
+                                if (held < shortBackMs) {
+                                    out->menuToggle = true;
+                                }
+                                st->backPressStartMs = 0;
+                            }
+                            st->backWasDown = pressed;
+                            break;
                         default: break;
                         }
                     }

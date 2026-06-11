@@ -51,18 +51,29 @@ public:
     //
     // Returns true if all the above completed without crashing and
     // drastic's main DS CPU thread is live.
+    // autoLoadSlot is the save-state slot drastic's startGame loads on
+    // boot: >= 0 loads that slot (the drastic-android-mod auto-resume
+    // uses slot 9, its autosave slot), < 0 boots fresh. Default 0
+    // preserves the legacy callers.
     bool init(const std::string& cacheDir,
               const std::string& romPath,
               const std::string& libsDir = std::string(),
               bool soundEnabled = false,
               long configBitsOverride = 0,
               int autosaveIntervalSeconds = 0,
-              const std::string& initialShader = std::string());
+              const std::string& initialShader = std::string(),
+              int autoLoadSlot = 0);
 
     // Tear down. pauseSystem + quitSystem + dlclose.
     void shutdown();
 
     bool isInitialized() const { return mInitialized; }
+
+    // True once drastic's emulation core has produced at least one
+    // frame (the shadow framebuffer is live). Used by drastic-nano to
+    // defer a launch-time auto-load of a save state until the core is
+    // actually running.
+    bool isFrameReady() const { return mShadowReady.load(); }
 
     // Phase 4: GL surface bring-up. Must be called on the thread that
     // owns the EGL context (NanoMenu render thread). Sets up drastic's
@@ -149,6 +160,14 @@ public:
     // produced a valid state -- drastic has no ABI for that).
     bool saveStateSlot(int slot);
     bool loadStateSlot(int slot);
+
+    // Write drastic's autosave (the reserved slot 9 the
+    // drastic-android-mod auto-resumes from). Unlike saveStateSlot this
+    // is allowed to use slot 9, so a graceful exit can persist progress
+    // that the next launch then auto-loads. Returns true if the JNI
+    // save was invoked. The write is processed by drastic's worker
+    // thread; the caller should leave a brief window before quitSystem.
+    bool saveAutosave();
 
     // Reset the emulated DS (power cycle). Equivalent to the "Reset"
     // menu action in the real drastic app. Safe to call at any time
@@ -334,6 +353,7 @@ private:
     saveState_t          mSaveState = nullptr;
     loadState_t          mLoadState = nullptr;
     resetDS_t            mResetDS = nullptr;
+    int                  mAutoLoadSlot = 0;   // startGame boot-load slot
     fxLoad_t            mFxLoad = nullptr;
     fxSetup_t           mFxSetup = nullptr;
     renderFrame_t       mRenderFrame = nullptr;

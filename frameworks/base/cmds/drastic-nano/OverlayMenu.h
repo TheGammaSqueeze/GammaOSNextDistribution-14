@@ -73,6 +73,11 @@ public:
     // Clear relaunch flag.
     void clearRelaunchRequest() { mRelaunch = false; }
 
+    // True when the user picked the "Exit Game" row. main.cpp polls
+    // this and breaks the run loop, running the same graceful teardown
+    // (autosave -> session_done -> XMB) as a back-button hold.
+    bool exitAppRequested() const { return mExitApp; }
+
     // Access staged prefs (for final write-on-close).
     const drastic_prefs::Prefs& prefs() const { return mPrefs; }
 
@@ -104,6 +109,7 @@ private:
 
     bool mOpen = false;
     bool mRelaunch = false;
+    bool mExitApp = false;            // "Exit Game" row selected
     Section mSection = kSec_Save;
     int mCursor[kSec_COUNT] = {0, 0, 0, 0};
     int mScroll[kSec_COUNT] = {0, 0, 0, 0};

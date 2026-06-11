@@ -437,6 +437,65 @@ void OverlayMenu::rebuildRows() {
 }
 
 void OverlayMenu::rebuildSave() {
+    // Game lifecycle rows at the top of the (default) Save States
+    // section, so they are the first thing the user sees on opening
+    // the overlay.
+
+    // Auto-load save state on launch. A nano-launcher behaviour (not a
+    // real drastic setting), persisted in a system property so it
+    // survives reboots without polluting drastic's own prefs XML. When
+    // on, the next launch of a game restores its most recent save slot
+    // (see the auto-load hook in main.cpp's run loop).
+    {
+        bool autoLoad = property_get_bool(
+                "persist.gammaos.drastic_nano.autoload", true);
+        RowAction r;
+        r.label = "Auto Load State on Launch";
+        r.value = autoLoad ? "On" : "Off";
+        auto toggle = [this]() {
+            bool cur = property_get_bool(
+                    "persist.gammaos.drastic_nano.autoload", true);
+            property_set("persist.gammaos.drastic_nano.autoload",
+                         cur ? "0" : "1");
+            toast(cur ? "Auto load: Off" : "Auto load: On");
+            rebuildRows();   // refresh the On/Off value
+        };
+        r.onAccept = toggle;
+        r.onAdjust = [toggle](int) { toggle(); };
+        mRows.push_back(std::move(r));
+    }
+
+    // Restart Game: soft power-on reset of the DS, in-process (no
+    // relaunch). The ROM stays loaded; it reboots from the BIOS/title.
+    // closeMenu() FIRST: the overlay paused the emulator on open, and
+    // drastic's resetDS hangs (freezes the game) if issued while paused,
+    // so the menu must unpause before the reset.
+    {
+        RowAction r;
+        r.label = "Restart Game";
+        r.onAccept = [this]() {
+            closeMenu();
+            if (mRunner) {
+                mRunner->resetSystem();
+                toast("Game restarted");
+            }
+        };
+        mRows.push_back(std::move(r));
+    }
+
+    // Exit Game: graceful exit back to the XMB, identical teardown to a
+    // back-button hold (DrasticRunner autosave -> session_done -> the
+    // XMB restarts). main.cpp polls exitAppRequested().
+    {
+        RowAction r;
+        r.label = "Exit Game";
+        r.onAccept = [this]() {
+            mExitApp = true;
+            closeMenu();
+        };
+        mRows.push_back(std::move(r));
+    }
+
     for (int slot = 0; slot < 9; slot++) {
         char label[64];
         snprintf(label, sizeof(label), "Save to Slot %d%s",
