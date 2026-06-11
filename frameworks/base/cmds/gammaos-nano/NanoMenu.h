@@ -577,6 +577,12 @@ private:
     void overlayPoll();               // watch show_overlay; drive show/hide each frame
     void overlayShow();               // raise layer + drop_input=1 + reset to XMB top
     void overlayHide();               // hide layer + drop_input=0
+    // Apply the mode-dependent presentation state (layer opaque flag + EGL swap
+    // interval) for the CURRENT mOverlayWallpaper. Must run on the render thread
+    // (eglSwapInterval needs the context current). Called from overlayShow and
+    // from every path that flips wallpaper/scrim without a hide+show cycle
+    // (overlayQuitToHome's quit-to-launcher switch).
+    void overlayApplyPresentMode();
     // Resolve the current foreground (resumed) package via ActivityManager, with
     // the same "real 3rd-party app" validation overlayPauseApp applies. Empty if
     // none. Populated on every overlayShow() so quit/launch always have a target

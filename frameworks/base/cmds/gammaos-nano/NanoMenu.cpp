@@ -269,6 +269,10 @@ void NanoMenu::initSurfaceFlingerPath() {
     t.apply();
 
     sp<Surface> s = control->getSurface();
+    // Overlay: extra buffer depth - see the twin call in readyToRun's SF block
+    // for the full rationale (phase-bistable dequeue pacing under the SF client
+    // composite).
+    if (mOverlayMode) s->setMaxDequeuedBufferCount(3);
     EGLConfig config = getEglConfig(mDisplay);
     EGLSurface sfSurface = eglCreateWindowSurface(mDisplay, config, s.get(), nullptr);
     eglMakeCurrent(mDisplay, sfSurface, sfSurface, mContext);
@@ -276,6 +280,7 @@ void NanoMenu::initSurfaceFlingerPath() {
     // its own vsync regardless (no tearing); the clock-based top-up sleep in
     // threadLoop paces submission. With interval 1 a frame that took a hair
     // over 16.7ms stalled to the NEXT vsync (33ms) - the scroll judder.
+    // overlayShow switches to interval 1 in wallpaper mode.
     if (mOverlayMode) eglSwapInterval(mDisplay, 0);
     eglDestroySurface(mDisplay, mSurface);
     mSurface = sfSurface;
@@ -1052,12 +1057,23 @@ status_t NanoMenu::readyToRun() {
         t.apply();
 
         sp<Surface> s = control->getSurface();
+        // Overlay: one extra dequeueable buffer (quadruple buffering). With the
+        // GammaOS color transform active, SF client-composites every frame and
+        // releases the producer's buffer only when its GPU pass finishes, so
+        // nano's dequeue is paced by that release. Traced on the Brick: the
+        // pipeline has two stable phases - queue-ahead (presents 60fps) and
+        // release-paced (~50fps, dequeueBuffer blocking 7-18ms mid-frame) - and
+        // which one the post-game raise lands in was a per-run coin toss. The
+        // extra buffer absorbs the phase offset so the queue-ahead state is the
+        // only equilibrium. Costs one frame of input latency on the menu only.
+        if (mOverlayMode) s->setMaxDequeuedBufferCount(3);
         EGLConfig config = getEglConfig(mDisplay, mOverlayMode);
         EGLSurface sfSurface = eglCreateWindowSurface(mDisplay, config, s.get(), nullptr);
         eglMakeCurrent(mDisplay, sfSurface, sfSurface, mContext);
         // Overlay: swap interval 0 + the threadLoop top-up sleep paces frames;
         // a vsync-blocking swap turned any frame a hair over 16.7ms into a
-        // 33ms one (see the pacing comment in threadLoop).
+        // 33ms one (see the pacing comment in threadLoop). overlayShow switches
+        // to interval 1 in wallpaper mode (overlayApplyPresentMode).
         if (mOverlayMode) eglSwapInterval(mDisplay, 0);
         eglDestroySurface(mDisplay, mSurface);
         mSurface = sfSurface;

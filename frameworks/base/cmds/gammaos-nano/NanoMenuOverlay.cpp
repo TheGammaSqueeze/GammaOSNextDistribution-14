@@ -325,12 +325,8 @@ void NanoMenu::overlayShow() {
     // current day/night + theme even though the wave never runs per-frame.
     ps3bg::invalidateScrimWave();
 
-    // Universal perf hint: request IPower FIXED_PERFORMANCE while the overlay is
-    // up so the device holds a sustained performance level for the UI (init turns
-    // the prop into `cmd power set-fixed-performance-mode-enabled`). Released in
-    // overlayHide so a launched app gets normal DVFS back.
-    if (property_get_bool("persist.gammaos.nano.perf.fixedperf", true))
-        property_set("sys.gammaos.nano.fixedperf", "1");
+    // The FIXED_PERFORMANCE perf hint is owned by overlayApplyPresentMode (it is
+    // mode-dependent: scrim only). See the comment there.
 
     // Resolve the foreground package so quit/launch know what to act on. The
     // dumpsys resolve intermittently returns empty for a live game from the
@@ -369,29 +365,10 @@ void NanoMenu::overlayShow() {
               mOverlayWallpaper ? 1 : 0, appBehind ? 1 : 0, wp, mOverlayPausedPkg.c_str());
     }
 
-    // Layer opacity. In WALLPAPER mode (no app behind us) the overlay fully covers
-    // the screen with an opaque wave, so mark the SF layer OPAQUE (eLayerOpaque):
-    // SurfaceFlinger can then scan it out on a hardware plane like the DRM home
-    // (~60fps) instead of GPU-compositing a translucent full-screen layer every
-    // frame (the ~30-44fps floor). In SCRIM mode the layer MUST stay translucent so
-    // the live app shows through the 90% scrim. Re-evaluated on every show; prop-
-    // gated (default on) so it can be A/B'd live via hide+show. The home XMB is a
-    // separate DRM-direct process and is unaffected.
-    {
-        bool opaque = mOverlayWallpaper &&
-            property_get_bool("persist.gammaos.nano.overlay.opaque_wallpaper", true);
-        SurfaceComposerClient::Transaction()
-            .setFlags(mFlingerSurfaceControl,
-                      opaque ? layer_state_t::eLayerOpaque : 0u,
-                      layer_state_t::eLayerOpaque)
-            // Belt-and-braces: make sure no background blur is requested on
-            // this layer (nano never sets one, but blur with nothing behind
-            // the launcher wallpaper would be pure SF GPU waste).
-            .setBackgroundBlurRadius(mFlingerSurfaceControl, 0)
-            .apply();
-        ALOGI("overlay: layer opaque=%d (wallpaper=%d)",
-              opaque ? 1 : 0, mOverlayWallpaper ? 1 : 0);
-    }
+    // Layer opacity + swap pacing for the chosen mode (shared helper: the
+    // quit-to-launcher path flips wallpaper mode WITHOUT a hide+show cycle and
+    // must apply the exact same state).
+    overlayApplyPresentMode();
 
     // Re-apply the user's saved Theme Settings (wave colour, day/night, particles)
     // every time the overlay is raised, so the overlay wallpaper matches whatever
@@ -540,6 +517,55 @@ void NanoMenu::overlayResume() {
     ALOGI("overlay: resume -> dismissed, app resumed");
 }
 
+// Layer opacity + swap pacing for the current wallpaper/scrim mode.
+// In WALLPAPER mode (no app behind us) the overlay fully covers the screen with
+// an opaque wave, so mark the SF layer OPAQUE (eLayerOpaque): SurfaceFlinger can
+// then occlusion-cull everything beneath and scan out on a hardware plane where
+// possible, instead of GPU-compositing a translucent full-screen layer every
+// frame. In SCRIM mode the layer MUST stay translucent so the live app shows
+// through the 90% scrim. Prop-gated (default on) so it can be A/B'd live.
+//
+// Swap pacing: WALLPAPER mode uses vsync-blocked swaps (interval 1), exactly
+// like the cold-boot home. Measured on the Brick: the home presents 59.8fps
+// (SF timestats, 0 dropped) while a free-running interval-0 + wall-clock-sleep
+// overlay presented only 51.8fps at the same ~59fps render-loop rate - the
+// submission phase drifts across SurfaceFlinger's latch point and ~8 frames/sec
+// get replaced in the queue, which the eye reads as constant judder even though
+// the loop counter says 60. SCRIM mode keeps interval 0 + the threadLoop top-up
+// sleep; blocking on vsync there would contend with the game's own pipeline and
+// that mode is verified smooth as-is.
+// Must run on the render thread: eglSwapInterval applies to the surface current
+// on the calling thread.
+void NanoMenu::overlayApplyPresentMode() {
+    if (mFlingerSurfaceControl != nullptr) {
+        bool opaque = mOverlayWallpaper &&
+            property_get_bool("persist.gammaos.nano.overlay.opaque_wallpaper", true);
+        SurfaceComposerClient::Transaction()
+            .setFlags(mFlingerSurfaceControl,
+                      opaque ? layer_state_t::eLayerOpaque : 0u,
+                      layer_state_t::eLayerOpaque)
+            // Belt-and-braces: make sure no background blur is requested on
+            // this layer (nano never sets one, but blur with nothing behind
+            // the launcher wallpaper would be pure SF GPU waste).
+            .setBackgroundBlurRadius(mFlingerSurfaceControl, 0)
+            .apply();
+        ALOGI("overlay: layer opaque=%d (wallpaper=%d)",
+              opaque ? 1 : 0, mOverlayWallpaper ? 1 : 0);
+    }
+    if (mDisplay != EGL_NO_DISPLAY)
+        eglSwapInterval(mDisplay, mOverlayWallpaper ? 1 : 0);
+
+    // Universal perf hint: request IPower FIXED_PERFORMANCE while the overlay
+    // is up, in BOTH modes (init turns the prop into `cmd power
+    // set-fixed-performance-mode-enabled`). A wallpaper-only-unpinned variant
+    // was A/B'd on the Brick and the apparent win did not reproduce across
+    // runs (the governor can sag under the steady wave load); the pinned
+    // sustained level matches the build that measured 60.1fps presented in the
+    // post-game launcher. Released in overlayHide.
+    if (property_get_bool("persist.gammaos.nano.perf.fixedperf", true))
+        property_set("sys.gammaos.nano.fixedperf", "1");
+}
+
 void NanoMenu::overlayQuitToHome() {
     // Quit the running app. The app is being killed so we must NOT thaw-then-resume
     // it: clear the paused state + marker first so overlayHide's thaw is a no-op.
@@ -557,6 +583,12 @@ void NanoMenu::overlayQuitToHome() {
         // app_launched=0 + show_overlay=1 keeps the RWC overlay-launcher
         // short-circuit active so the real launcher never appears.
         mOverlayWallpaper = true;
+        // The mode flips WITHOUT a hide+show cycle, so re-apply the wallpaper
+        // presentation state here (opaque layer + vsync-locked swaps). Without
+        // this the launcher kept the scrim's translucent layer + free-running
+        // swap interval: SF could not occlusion-cull the dead app's layer and
+        // the wave juddered (~34fps presented at a 59fps render loop).
+        overlayApplyPresentMode();
         property_set("sys.gammaos.nano.app_launched", "0");
         if (!pkg.empty()) {
             std::string p = pkg;
@@ -565,11 +597,19 @@ void NanoMenu::overlayQuitToHome() {
                     property_set("sys.gammaos.nano.qr_send_esc", "1");
                     for (int i = 0; i < 30 && overlaySignalPackage(p.c_str(), 0) > 0; i++)
                         usleep(100000);
-                } else {
+                }
+                // Force-stop if still alive: either a non-game app, or a game
+                // that ignored the injected ESC (observed: RetroArch keeps
+                // rendering at ~33fps behind the opaque launcher forever,
+                // burning GPU/CPU the cold-boot menu never pays). The 3s ESC
+                // grace above still gives RetroArch/DraStic their clean
+                // save-state exit when they do honor it.
+                if (overlaySignalPackage(p.c_str(), 0) > 0) {
                     char c[320];
                     snprintf(c, sizeof(c), "am force-stop %s 2>/dev/null",
                              overlayShq(p).c_str());
                     system(c);
+                    ALOGI("overlay: quit %s ignored ESC, force-stopped", p.c_str());
                 }
                 ALOGI("overlay: quit %s -> overlay launcher", p.c_str());
             }).detach();
@@ -662,6 +702,7 @@ void NanoMenu::quickKillApps(bool includeForeground) {
 // overlay-home mode that can spawn a DRM-home nano that fights the SF overlay launcher.
 void NanoMenu::overlayKillAll() {
     mOverlayWallpaper = true;
+    overlayApplyPresentMode();   // mode flip without hide+show: opaque + vsync lock
     property_set("sys.gammaos.nano.app_launched", "0");
     property_set("sys.gammaos.nano.launch_app", "");
     property_set("sys.gammaos.nano.return_apps", "0");
