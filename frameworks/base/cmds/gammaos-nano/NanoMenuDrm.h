@@ -251,6 +251,11 @@ inline void drmFrameEnd(EGLDisplay dpy, EGLSurface surf) {
 }
 void drmPushFrame(uint32_t glWidth, uint32_t glHeight);
 void drmStop();
+// Re-commit the modeset + reset flip bookkeeping after a kernel
+// suspend/resume cycle (resume re-enables the CRTCs with no planes; every
+// legacy page flip then EBUSYs forever). Call once at the wake point, on
+// the render thread, before relighting the backlight.
+void drmResumeRecommit();
 
 } // namespace android
 

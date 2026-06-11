@@ -6216,12 +6216,27 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 // crash in MediaSessionManager (MediaSessionService not running).
                 if (android.os.SystemProperties.getBoolean(
                         "sys.gammaos.minimal_boot", false)) {
+                    // While a DRM-direct renderer owns the panels (the nano home
+                    // or drastic-nano holds DRM master; sys.gammaos.nano.drm_active),
+                    // the indicator window must NOT be shown: SurfaceFlinger still
+                    // composites it and the hardware composer commits it onto a
+                    // VOP plane, stomping the DRM renderer's plane on that CRTC.
+                    // When the window times out the plane is disabled and the
+                    // screen stays black (the renderer's page flips EBUSY against
+                    // the now plane-less CRTC). The DRM home draws its own volume
+                    // and brightness HUDs from its evdev handler; volume itself
+                    // still adjusts here for DRM sessions without an own handler
+                    // (drastic-nano).
+                    final boolean drmOwnsPanel = android.os.SystemProperties
+                            .getBoolean("sys.gammaos.nano.drm_active", false);
                     if (down && keyCode != KeyEvent.KEYCODE_VOLUME_MUTE) {
                         if (mSelectPressed) {
                             // SELECT + volume = brightness adjustment
                             int direction = (keyCode == KeyEvent.KEYCODE_VOLUME_UP) ? 1 : -1;
                             adjustScreenBrightness(direction);
-                            mHandler.post(() -> showNanoBrightnessIndicator());
+                            if (!drmOwnsPanel) {
+                                mHandler.post(() -> showNanoBrightnessIndicator());
+                            }
                         } else {
                             // Plain volume adjustment
                             int direction = (keyCode == KeyEvent.KEYCODE_VOLUME_UP)
@@ -6233,7 +6248,9 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                             } catch (Exception e) {
                                 Log.e(TAG, "Nano: volume adjust failed", e);
                             }
-                            mHandler.post(() -> showNanoVolumeIndicator());
+                            if (!drmOwnsPanel) {
+                                mHandler.post(() -> showNanoVolumeIndicator());
+                            }
                         }
                     }
                     result &= ~ACTION_PASS_TO_USER;

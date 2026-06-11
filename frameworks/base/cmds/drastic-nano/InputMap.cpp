@@ -116,8 +116,12 @@ void scanInputDevices(InputState* st) {
                 return (keys[code / (8 * sizeof(long))] >>
                         (code % (8 * sizeof(long)))) & 1;
             };
+            // KEY_POWER admits the gpio-keys power button device: the
+            // framework consumes KEYCODE_POWER inertly while a drastic
+            // session runs (minimal_boot with no app/overlay foreground),
+            // so the power gestures must be read from evdev here.
             if (has(BTN_SOUTH) || has(BTN_A) || has(KEY_BACK) ||
-                has(KEY_UP) || has(KEY_VOLUMEUP)) {
+                has(KEY_UP) || has(KEY_VOLUMEUP) || has(KEY_POWER)) {
                 st->fds.push_back(fd);
                 // Read axis calibration for any sticks / triggers on
                 // this device. Missing axes leave the struct at
@@ -282,7 +286,7 @@ bool dispatchNav(int androidKc, bool pressed, InputActions* out) {
 
 void pollInputMap(InputState* st, bool overlayOpen, bool captureKey,
                   int64_t shortBackMs, int64_t longBackMs,
-                  InputActions* out) {
+                  int64_t powerHoldMs, InputActions* out) {
     *out = {};
 
     // ---- Drain gamepad event devices ----
@@ -291,6 +295,28 @@ void pollInputMap(InputState* st, bool overlayOpen, bool captureKey,
         while (read(fd, &ev, sizeof(ev)) == sizeof(ev)) {
             if (ev.type == EV_KEY) {
                 const bool pressed = (ev.value != 0);
+
+                if (ev.code == KEY_POWER) {
+                    // POWER is handled before capture/keymap routing and
+                    // regardless of overlayOpen: it can never be rebound
+                    // and must work while the menu is up. Release before
+                    // powerHoldMs = sleep; the hold action fires from the
+                    // hold check below (one-shot via powerHoldFired).
+                    if (pressed && !st->powerWasDown) {
+                        st->powerPressStartMs = android::elapsedRealtime();
+                        st->powerHoldFired = false;
+                    }
+                    if (!pressed && st->powerWasDown) {
+                        int64_t held = android::elapsedRealtime() -
+                                       st->powerPressStartMs;
+                        if (!st->powerHoldFired && held < powerHoldMs) {
+                            out->sleepRequested = true;
+                        }
+                        st->powerPressStartMs = 0;
+                    }
+                    st->powerWasDown = pressed;
+                    continue;
+                }
 
                 if (ev.code == KEY_BACK) {
                     // Short / long press state tracked via backPressStartMs.
@@ -446,6 +472,19 @@ void pollInputMap(InputState* st, bool overlayOpen, bool captureKey,
         int64_t held = android::elapsedRealtime() - st->backPressStartMs;
         if (held >= longBackMs) {
             out->exitRequested = true;
+        }
+    }
+
+    // POWER hold = raise the XMB overlay. One-shot latch (an edge
+    // action; re-firing every frame would re-raise the instant the
+    // user dismissed it while still holding the button).
+    if (st->powerPressStartMs > 0 && !st->powerHoldFired) {
+        int64_t held = android::elapsedRealtime() - st->powerPressStartMs;
+        if (held >= powerHoldMs) {
+            ALOGI("DrasticNano::input: KEY_POWER held %lldms -> XMB overlay",
+                  (long long)held);
+            out->xmbOverlayRequested = true;
+            st->powerHoldFired = true;
         }
     }
 

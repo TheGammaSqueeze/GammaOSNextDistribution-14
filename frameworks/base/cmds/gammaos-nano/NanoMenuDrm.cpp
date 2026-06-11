@@ -200,6 +200,90 @@ bool drmCreateDumbBuffer(int fd, uint32_t w, uint32_t h, DrmBuffer* out) {
     return true;
 }
 
+// Atomic ALLOW_MODESET fallback for drivers whose legacy SETCRTC returns
+// EINVAL (Qualcomm SDE with cont_splash). Shared by the boot splash
+// (drmTryAddDisplay) and the wake-time recommit (drmResumeRecommit) so the
+// two paths cannot drift. Do NOT disable the CRTC first - that tears down
+// the DSI backlight controller permanently on SDE.
+static int drmAtomicModesetFallback(int fd, uint32_t crtcId, uint32_t connId,
+                                    const struct drm_mode_modeinfo& mode,
+                                    uint32_t fbId, uint32_t w, uint32_t h) {
+    struct drm_set_client_cap cap = {};
+    cap.capability = DRM_CLIENT_CAP_UNIVERSAL_PLANES; cap.value = 1;
+    ioctl(fd, DRM_IOCTL_SET_CLIENT_CAP, &cap);
+    cap.capability = DRM_CLIENT_CAP_ATOMIC; cap.value = 1;
+    ioctl(fd, DRM_IOCTL_SET_CLIENT_CAP, &cap);
+
+    struct drm_mode_get_plane_res pr = {};
+    ioctl(fd, DRM_IOCTL_MODE_GETPLANERESOURCES, &pr);
+    uint32_t planeIds[8] = {};
+    struct drm_mode_get_plane_res pr2 = {};
+    pr2.count_planes = pr.count_planes < 8 ? pr.count_planes : 8;
+    pr2.plane_id_ptr = (uint64_t)(uintptr_t)planeIds;
+    ioctl(fd, DRM_IOCTL_MODE_GETPLANERESOURCES, &pr2);
+    uint32_t planeId = pr2.count_planes > 0 ? planeIds[0] : 0;
+
+    auto findProp = [&](uint32_t objId, uint32_t objType, const char* name) -> uint32_t {
+        struct drm_mode_obj_get_properties p = {};
+        p.obj_id = objId; p.obj_type = objType;
+        ioctl(fd, DRM_IOCTL_MODE_OBJ_GETPROPERTIES, &p);
+        uint32_t pids[64]; uint64_t pvals[64];
+        struct drm_mode_obj_get_properties p2x = {};
+        p2x.obj_id = objId; p2x.obj_type = objType;
+        p2x.count_props = p.count_props < 64 ? p.count_props : 64;
+        p2x.props_ptr = (uint64_t)(uintptr_t)pids;
+        p2x.prop_values_ptr = (uint64_t)(uintptr_t)pvals;
+        ioctl(fd, DRM_IOCTL_MODE_OBJ_GETPROPERTIES, &p2x);
+        for (uint32_t i = 0; i < p2x.count_props; i++) {
+            struct drm_mode_get_property gp = {};
+            gp.prop_id = pids[i];
+            ioctl(fd, DRM_IOCTL_MODE_GETPROPERTY, &gp);
+            if (strcmp(gp.name, name) == 0) return pids[i];
+        }
+        return 0;
+    };
+
+    struct drm_mode_create_blob blob = {};
+    blob.data = (uint64_t)(uintptr_t)&mode;
+    blob.length = sizeof(mode);
+    ioctl(fd, DRM_IOCTL_MODE_CREATEPROPBLOB, &blob);
+
+    uint32_t objs[] = { crtcId, connId, planeId };
+    uint32_t counts[] = { 2, 1, 10 };
+    uint32_t aprops[] = {
+        findProp(crtcId, DRM_MODE_OBJECT_CRTC, "ACTIVE"),
+        findProp(crtcId, DRM_MODE_OBJECT_CRTC, "MODE_ID"),
+        findProp(connId, DRM_MODE_OBJECT_CONNECTOR, "CRTC_ID"),
+        findProp(planeId, DRM_MODE_OBJECT_PLANE, "FB_ID"),
+        findProp(planeId, DRM_MODE_OBJECT_PLANE, "CRTC_ID"),
+        findProp(planeId, DRM_MODE_OBJECT_PLANE, "SRC_X"),
+        findProp(planeId, DRM_MODE_OBJECT_PLANE, "SRC_Y"),
+        findProp(planeId, DRM_MODE_OBJECT_PLANE, "SRC_W"),
+        findProp(planeId, DRM_MODE_OBJECT_PLANE, "SRC_H"),
+        findProp(planeId, DRM_MODE_OBJECT_PLANE, "CRTC_X"),
+        findProp(planeId, DRM_MODE_OBJECT_PLANE, "CRTC_Y"),
+        findProp(planeId, DRM_MODE_OBJECT_PLANE, "CRTC_W"),
+        findProp(planeId, DRM_MODE_OBJECT_PLANE, "CRTC_H"),
+    };
+    uint64_t values[] = {
+        1, blob.blob_id,
+        crtcId,
+        fbId, crtcId,
+        0, 0, (uint64_t)w << 16, (uint64_t)h << 16,
+        0, 0, w, h,
+    };
+
+    struct drm_mode_atomic atomic = {};
+    atomic.flags = DRM_MODE_ATOMIC_ALLOW_MODESET;
+    atomic.count_objs = 3;
+    atomic.objs_ptr = (uint64_t)(uintptr_t)objs;
+    atomic.count_props_ptr = (uint64_t)(uintptr_t)counts;
+    atomic.props_ptr = (uint64_t)(uintptr_t)aprops;
+    atomic.prop_values_ptr = (uint64_t)(uintptr_t)values;
+
+    return ioctl(fd, DRM_IOCTL_MODE_ATOMIC, &atomic);
+}
+
 // Try to bring up a single DRM CRTC with the given connector. Returns true
 // if the CRTC was added to sDrmDisplays. Non-blocking: if the mode is not
 // valid (display not ready), returns false immediately -- caller can retry
@@ -249,83 +333,10 @@ bool drmTryAddDisplay(int fd, uint32_t crtcId, uint32_t connId, const char* stag
     int setcrtc_errno = errno;
 
     // If SETCRTC fails with EINVAL (Qualcomm SDE cont_splash), use
-    // atomic modeset. Do NOT disable the CRTC first - that tears down
-    // the DSI backlight controller permanently.
+    // atomic modeset (shared helper, also used by the wake recommit).
     if (ret != 0 && setcrtc_errno == EINVAL) {
-        struct drm_set_client_cap cap = {};
-        cap.capability = DRM_CLIENT_CAP_UNIVERSAL_PLANES; cap.value = 1;
-        ioctl(fd, DRM_IOCTL_SET_CLIENT_CAP, &cap);
-        cap.capability = DRM_CLIENT_CAP_ATOMIC; cap.value = 1;
-        ioctl(fd, DRM_IOCTL_SET_CLIENT_CAP, &cap);
-
-        struct drm_mode_get_plane_res pr = {};
-        ioctl(fd, DRM_IOCTL_MODE_GETPLANERESOURCES, &pr);
-        uint32_t planeIds[8] = {};
-        struct drm_mode_get_plane_res pr2 = {};
-        pr2.count_planes = pr.count_planes < 8 ? pr.count_planes : 8;
-        pr2.plane_id_ptr = (uint64_t)(uintptr_t)planeIds;
-        ioctl(fd, DRM_IOCTL_MODE_GETPLANERESOURCES, &pr2);
-        uint32_t planeId = pr2.count_planes > 0 ? planeIds[0] : 0;
-
-        auto findProp = [&](uint32_t objId, uint32_t objType, const char* name) -> uint32_t {
-            struct drm_mode_obj_get_properties p = {};
-            p.obj_id = objId; p.obj_type = objType;
-            ioctl(fd, DRM_IOCTL_MODE_OBJ_GETPROPERTIES, &p);
-            uint32_t pids[64]; uint64_t pvals[64];
-            struct drm_mode_obj_get_properties p2x = {};
-            p2x.obj_id = objId; p2x.obj_type = objType;
-            p2x.count_props = p.count_props < 64 ? p.count_props : 64;
-            p2x.props_ptr = (uint64_t)(uintptr_t)pids;
-            p2x.prop_values_ptr = (uint64_t)(uintptr_t)pvals;
-            ioctl(fd, DRM_IOCTL_MODE_OBJ_GETPROPERTIES, &p2x);
-            for (uint32_t i = 0; i < p2x.count_props; i++) {
-                struct drm_mode_get_property gp = {};
-                gp.prop_id = pids[i];
-                ioctl(fd, DRM_IOCTL_MODE_GETPROPERTY, &gp);
-                if (strcmp(gp.name, name) == 0) return pids[i];
-            }
-            return 0;
-        };
-
-        struct drm_mode_create_blob blob = {};
-        blob.data = (uint64_t)(uintptr_t)&crtc.mode;
-        blob.length = sizeof(crtc.mode);
-        ioctl(fd, DRM_IOCTL_MODE_CREATEPROPBLOB, &blob);
-
-        uint32_t objs[] = { crtcId, connId, planeId };
-        uint32_t counts[] = { 2, 1, 10 };
-        uint32_t aprops[] = {
-            findProp(crtcId, DRM_MODE_OBJECT_CRTC, "ACTIVE"),
-            findProp(crtcId, DRM_MODE_OBJECT_CRTC, "MODE_ID"),
-            findProp(connId, DRM_MODE_OBJECT_CONNECTOR, "CRTC_ID"),
-            findProp(planeId, DRM_MODE_OBJECT_PLANE, "FB_ID"),
-            findProp(planeId, DRM_MODE_OBJECT_PLANE, "CRTC_ID"),
-            findProp(planeId, DRM_MODE_OBJECT_PLANE, "SRC_X"),
-            findProp(planeId, DRM_MODE_OBJECT_PLANE, "SRC_Y"),
-            findProp(planeId, DRM_MODE_OBJECT_PLANE, "SRC_W"),
-            findProp(planeId, DRM_MODE_OBJECT_PLANE, "SRC_H"),
-            findProp(planeId, DRM_MODE_OBJECT_PLANE, "CRTC_X"),
-            findProp(planeId, DRM_MODE_OBJECT_PLANE, "CRTC_Y"),
-            findProp(planeId, DRM_MODE_OBJECT_PLANE, "CRTC_W"),
-            findProp(planeId, DRM_MODE_OBJECT_PLANE, "CRTC_H"),
-        };
-        uint64_t values[] = {
-            1, blob.blob_id,
-            crtcId,
-            buf0.fbId, crtcId,
-            0, 0, (uint64_t)w << 16, (uint64_t)h << 16,
-            0, 0, w, h,
-        };
-
-        struct drm_mode_atomic atomic = {};
-        atomic.flags = DRM_MODE_ATOMIC_ALLOW_MODESET;
-        atomic.count_objs = 3;
-        atomic.objs_ptr = (uint64_t)(uintptr_t)objs;
-        atomic.count_props_ptr = (uint64_t)(uintptr_t)counts;
-        atomic.props_ptr = (uint64_t)(uintptr_t)aprops;
-        atomic.prop_values_ptr = (uint64_t)(uintptr_t)values;
-
-        ret = ioctl(fd, DRM_IOCTL_MODE_ATOMIC, &atomic);
+        ret = drmAtomicModesetFallback(fd, crtcId, connId, crtc.mode,
+                                       buf0.fbId, w, h);
         setcrtc_errno = errno;
         if (ret == 0) {
             ALOGW("NanoMenu DRM %s: atomic modeset OK (legacy SETCRTC was EINVAL)",
@@ -1006,6 +1017,13 @@ void blitAhbToDrmBuffer(const void* ahbPtr, uint32_t ahbStride,
 // drift, and the secondary's bottom-DS-screen content rarely changes
 // fast enough that 30 fps is visible. AHB locks are skipped too so
 // the CPU blit cost goes away on those iters.
+// Per-display consecutive-EBUSY streak for the dead-display self-heal in
+// drmFlipRingSlot. Reset on every successful flip; a long unbroken streak
+// means the CRTC lost its primary plane (an external commit stomped it)
+// and needs a SETCRTC to come back.
+static uint32_t sEbusyStreak[8] = {0};
+static int64_t sEbusyRecoverMs[8] = {0};
+
 void drmFlipRingSlot(int idx, bool skipNonPrimary) {
     if (idx < 0 || idx >= AHB_RING_DEPTH) return;
     AhbRenderTarget& prim = sAhbRingPrimary[idx];
@@ -1330,9 +1348,12 @@ void drmFlipRingSlot(int idx, bool skipNonPrimary) {
             continue;
         }
         int flipRc = ioctl(sDrmFd, DRM_IOCTL_MODE_PAGE_FLIP, &flip);
-        if (flipRc == 0 && wantEvent) {
-            sPendingFlipEvents++;
-            if (crtcSlot >= 0) sCrtcPending[crtcSlot]++;
+        if (flipRc == 0) {
+            if (i < 8) sEbusyStreak[i] = 0;
+            if (wantEvent) {
+                sPendingFlipEvents++;
+                if (crtcSlot >= 0) sCrtcPending[crtcSlot]++;
+            }
         }
         if (flipRc != 0) {
             if (errno == EBUSY) {
@@ -1355,6 +1376,37 @@ void drmFlipRingSlot(int idx, bool skipNonPrimary) {
                           i, (int)(isPrimary ? 1 : 0), sFlipCount,
                           sEbusyCount[0], sEbusyCount[1],
                           sEbusyCount[2], sEbusyCount[3]);
+                }
+                // Self-heal a DEAD display. A transient EBUSY (cross-CRTC
+                // vblank drift) clears within a frame or two; ~90
+                // consecutive EBUSYs (about 1.5 s) means the CRTC's
+                // primary plane is gone - something committed over us
+                // (a framework overlay window through the hardware
+                // composer, e.g. the old volume indicator) and disabled
+                // the plane on dismiss, and a plane-less CRTC EBUSYs
+                // every legacy page flip forever. One synchronous
+                // SETCRTC re-attaches the plane; the 13-32 ms it costs
+                // is irrelevant on a display that has shown nothing for
+                // 1.5 s. Rate-limited per display so a genuinely wedged
+                // driver cannot turn this into a modeset storm.
+                if (i < 8) {
+                    sEbusyStreak[i]++;
+                    if (sEbusyStreak[i] >= 90 &&
+                        nowMs - sEbusyRecoverMs[i] >= 2000) {
+                        sEbusyRecoverMs[i] = nowMs;
+                        sEbusyStreak[i] = 0;
+                        struct drm_mode_crtc rec = {};
+                        rec.crtc_id = d.crtcId;
+                        rec.fb_id = targetFbId;
+                        rec.set_connectors_ptr = (uint64_t)(uintptr_t)&d.connId;
+                        rec.count_connectors = 1;
+                        rec.mode = d.mode;
+                        rec.mode_valid = 1;
+                        int rrc = ioctl(sDrmFd, DRM_IOCTL_MODE_SETCRTC, &rec);
+                        ALOGW("NanoMenu DRM: display=%zu EBUSY-dead, "
+                              "SETCRTC recover fb %u -> %s",
+                              i, targetFbId, rrc == 0 ? "OK" : strerror(errno));
+                    }
                 }
                 continue;
             }
@@ -1741,6 +1793,84 @@ void drmStop() {
         ioctl(sDrmFd, DRM_IOCTL_DROP_MASTER, 0);
         close(sDrmFd);
         sDrmFd = -1;
+    }
+}
+
+// Re-commit the DRM output state after a kernel suspend/resume cycle.
+//
+// Suspend runs vop2_crtc_atomic_disable on every CRTC; resume re-enables the
+// CRTCs with their mode but with NO planes attached (verified on RG DS via
+// /sys/kernel/debug/dri/0/summary: both VPs ACTIVE, zero window sections).
+// A CRTC without a primary-plane framebuffer makes every subsequent legacy
+// DRM_IOCTL_MODE_PAGE_FLIP return EBUSY, and the flip path deliberately
+// DROPS EBUSY flips (re-routing them into a synchronous SETCRTC caused
+// 13-32 ms stalls on normal microhitch frames, see the 2026-04-13 note in
+// drmFlipRingSlot), so nothing ever re-attaches a plane: backlight on,
+// panels black, endless "DRM flip EBUSY" log storm.
+//
+// Called once at the wake point (the render thread, which owns all flip
+// state), with the backlight still off so the modeset is invisible:
+//  1. Defensive SET_MASTER (no-op when we already are).
+//  2. Discard stale page-flip events non-blocking. The pre-sleep flip's
+//     event may have been lost across suspend, so the blocking drain
+//     (100 ms/event) is wrong here.
+//  3. Zero the flip bookkeeping. A lost event otherwise leaves
+//     sCrtcPending > 0 and the pre-submit gate skips that CRTC forever.
+//  4. Reset the AHB ring cursors; both ring consumers re-prime cleanly.
+//  5. Full SETCRTC per display with the same fb the flip path would use
+//     (PRIME ring slot 0, or the dumb buffer on the legacy blit path),
+//     with the atomic ALLOW_MODESET fallback for SDE-class drivers.
+//
+// Compiled into both gammaos-nano and drastic-nano (shared filegroup); each
+// process recommits its own master after its own sleep block.
+void drmResumeRecommit() {
+    if (sDrmFd < 0 || !sDrmActive || sDrmDisplays.empty()) return;
+
+    ioctl(sDrmFd, DRM_IOCTL_SET_MASTER, 0);
+
+    // Discard whatever flip events accumulated across the suspend without
+    // blocking the wake path.
+    for (;;) {
+        struct pollfd pfd = { sDrmFd, POLLIN, 0 };
+        if (poll(&pfd, 1, 0) <= 0 || !(pfd.revents & POLLIN)) break;
+        char buf[4096];
+        if (read(sDrmFd, buf, sizeof(buf)) <= 0) break;
+    }
+    sPendingFlipEvents = 0;
+    for (int i = 0; i < sCrtcTrackCount; i++) sCrtcPending[i] = 0;
+    sRingRenderIdx = 0;
+    sRingPresentIdx = 0;
+    sRingPrimedCount = 0;
+
+    for (size_t i = 0; i < sDrmDisplays.size(); i++) {
+        auto& d = sDrmDisplays[i];
+        const bool isPrimary = ((int)i == sDrmPrimaryIdx);
+        // Same source routing as drmFlipRingSlot: primary CRTC scans the
+        // primary AHB, every other CRTC the secondary AHB (primary as the
+        // mirror fallback), dumb buffer when PRIME import is unavailable.
+        uint32_t fbId = 0;
+        if (sDrmZeroCopy) {
+            if (!isPrimary && sAhbRingSecondary[0].drmFbId != 0)
+                fbId = sAhbRingSecondary[0].drmFbId;
+            else
+                fbId = sAhbRingPrimary[0].drmFbId;
+        }
+        if (fbId == 0) fbId = d.buffers[d.activeBuffer].fbId;
+
+        struct drm_mode_crtc crtc = {};
+        crtc.crtc_id = d.crtcId;
+        crtc.fb_id = fbId;
+        crtc.set_connectors_ptr = (uint64_t)(uintptr_t)&d.connId;
+        crtc.count_connectors = 1;
+        crtc.mode = d.mode;
+        crtc.mode_valid = 1;
+        int rc = ioctl(sDrmFd, DRM_IOCTL_MODE_SETCRTC, &crtc);
+        if (rc != 0 && errno == EINVAL) {
+            rc = drmAtomicModesetFallback(sDrmFd, d.crtcId, d.connId, d.mode,
+                                          fbId, d.w, d.h);
+        }
+        ALOGW("NanoMenu DRM resume recommit: crtc %u conn %u fb %u -> %s",
+              d.crtcId, d.connId, fbId, rc == 0 ? "OK" : strerror(errno));
     }
 }
 

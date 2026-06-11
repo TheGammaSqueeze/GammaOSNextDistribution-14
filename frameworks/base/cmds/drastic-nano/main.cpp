@@ -48,6 +48,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <linux/input.h>
+#include <poll.h>
 #include <pthread.h>
 #include <sched.h>
 #include <signal.h>
@@ -74,6 +75,11 @@
 #include <thread>
 #include <vector>
 
+#include <aidl/android/hardware/light/HwLight.h>
+#include <aidl/android/hardware/light/HwLightState.h>
+#include <aidl/android/hardware/light/ILights.h>
+#include <aidl/android/hardware/light/LightType.h>
+#include <android/binder_manager.h>
 #include <cutils/properties.h>
 #include <system/thread_defs.h>
 #include <utils/Log.h>
@@ -83,6 +89,7 @@
 #include "DrasticPrefs.h"
 #include "FakeJNI.h"
 #include "InputMap.h"
+#include "NanoBacklight.h"
 #include "NanoMenuDrm.h"
 #include "OverlayGfx.h"
 #include "OverlayMenu.h"
@@ -563,12 +570,170 @@ void boostAudioServer() {
 }
 
 // ------------------------------------------------------------------
+// Sleep / wake
+// ------------------------------------------------------------------
+
+// Set every BACKLIGHT light through the ILights AIDL HAL (same
+// convention as the nano home's setBrightnessViaHal: 0-255 packed into
+// the RGB channels). The sysfs nodes are driven separately through the
+// shared NanoBacklight helper; the HAL covers devices that route the
+// panel backlight exclusively through it.
+void setBacklightHal(int brightness) {
+    using aidl::android::hardware::light::ILights;
+    using aidl::android::hardware::light::HwLight;
+    using aidl::android::hardware::light::HwLightState;
+    using aidl::android::hardware::light::LightType;
+
+    ndk::SpAIBinder binder(
+            AServiceManager_checkService("android.hardware.light.ILights/default"));
+    if (!binder.get()) return;
+    std::shared_ptr<ILights> hal = ILights::fromBinder(binder);
+    if (!hal) return;
+
+    std::vector<HwLight> lights;
+    hal->getLights(&lights);
+    for (const auto& light : lights) {
+        if (light.type == LightType::BACKLIGHT) {
+            HwLightState state{};
+            state.color = 0xFF000000 | (brightness << 16) |
+                          (brightness << 8) | brightness;
+            hal->setLightState(light.id, state);
+        }
+    }
+}
+
+// Short power press = real system sleep, mirroring the nano home's
+// recipe (NanoMenuInput.cpp): pause the emulator, blank both panels,
+// kill the backlights, let PowerManager suspend the device via the
+// process-agnostic nano-dosleep init trigger, block on the input fds
+// until the power button wakes the kernel, then wake PowerManager via
+// nano-dowake, re-commit the DRM modeset (resume brings the CRTCs back
+// with no planes - without the recommit both panels stay black behind
+// a lit backlight and every page flip EBUSYs forever) and restore the
+// backlights before resuming emulation.
+//
+// Runs on the render loop thread, which owns all DRM/GL state.
+void doSleep(android::drastic_input::InputState* input,
+             DrasticRunner* dr, bool overlayWasOpen) {
+    ALOGI("drastic-nano: power short press, sleeping");
+    // The in-game menu already paused the emulator when it opened;
+    // pauseToggle is absolute so pausing twice would be harmless, but
+    // resuming on wake must not undo a menu-held pause.
+    if (!overlayWasOpen) dr->pauseToggle(true);
+
+    // Blank both panels: clear AHB ring slot 0 (what drmFlipAll scans
+    // out) and present it, so the wake-time recommit relights onto
+    // black rather than the last gameplay frame.
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    if (android::sDrmZeroCopy && android::sAhbRingPrimary[0].glFbo) {
+        glBindFramebuffer(GL_FRAMEBUFFER, android::sAhbRingPrimary[0].glFbo);
+        glClear(GL_COLOR_BUFFER_BIT);
+        if (android::sAhbRingSecondary[0].glFbo) {
+            glBindFramebuffer(GL_FRAMEBUFFER,
+                              android::sAhbRingSecondary[0].glFbo);
+            glClear(GL_COLOR_BUFFER_BIT);
+        }
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glFinish();
+        android::drmFlipAll();
+    }
+    android::nanobl::nanoBacklightSet(0);
+    setBacklightHal(0);
+
+    // sys.boot_completed is always 1 during a drastic-nano session
+    // (the XMB launched us post-boot); the guard is robustness only.
+    bool pmSleep = property_get_bool("sys.boot_completed", false);
+    if (pmSleep) {
+        property_set("sys.gammaos.nano.dosleep", "1");
+    }
+
+    bool asleep = true;
+    while (asleep) {
+        struct pollfd pfds[16];
+        int nf = 0;
+        for (int fd : input->fds) {
+            if (fd >= 0 && nf < 16) {
+                pfds[nf].fd = fd;
+                pfds[nf].events = POLLIN;
+                nf++;
+            }
+        }
+        poll(pfds, nf, -1);
+        struct input_event ev;
+        for (int fd : input->fds) {
+            while (read(fd, &ev, sizeof(ev)) == sizeof(ev)) {
+                if (ev.type == EV_KEY && ev.code == KEY_POWER &&
+                    ev.value == 1) {
+                    asleep = false;
+                }
+            }
+        }
+    }
+
+    // PowerManager never saw the waking press (we read it off evdev),
+    // so wake it explicitly, mirroring the home.
+    if (pmSleep) {
+        property_set("sys.gammaos.nano.dosleep", "0");
+        property_set("sys.gammaos.nano.dowake", "1");
+    }
+    usleep(200000);
+    // Drain everything (including the wake press's release and any
+    // touch events) and reset the gesture trackers so the consumed
+    // wake press cannot fire sleep/menu/exit on the next poll.
+    {
+        struct input_event d;
+        for (int fd : input->fds) {
+            while (read(fd, &d, sizeof(d)) == sizeof(d)) {}
+        }
+        if (input->touchFd >= 0) {
+            while (read(input->touchFd, &d, sizeof(d)) == sizeof(d)) {}
+        }
+    }
+    input->powerWasDown = false;
+    input->powerPressStartMs = 0;
+    input->powerHoldFired = false;
+    input->backWasDown = false;
+    input->backPressStartMs = 0;
+
+    // Resume re-enables the CRTCs with no planes; re-commit the
+    // modeset and reset the flip/ring bookkeeping before relighting.
+    // The ring cursors restart at 0, so the render loop's bootstrap
+    // re-primes (renders 2 frames before the first flip) automatically.
+    android::drmResumeRecommit();
+
+    int level = property_get_int32("persist.gammaos.nano.brightness", 128);
+    if (level < 1) level = 1;
+    if (level > 255) level = 255;
+    android::nanobl::nanoBacklightSet(level);
+    setBacklightHal(level);
+
+    if (!overlayWasOpen) dr->pauseToggle(false);
+    // audioserver may have respawned its output thread across the
+    // suspend at SCHED_OTHER; re-boost so audio does not underrun.
+    boostAudioServer();
+    ALOGI("drastic-nano: woke up");
+}
+
+// ------------------------------------------------------------------
 // Render loop
 // ------------------------------------------------------------------
 
 // kBackShortMs vs kBackHoldMs: release before kBackShortMs = short
 // press = toggle overlay; held past kBackHoldMs = long press = exit.
 constexpr int64_t kBackShortMs = 500;
+
+// Power gestures (read straight from evdev: PhoneWindowManager
+// consumes KEYCODE_POWER inertly while minimal_boot=1 with no app or
+// SF overlay foreground, which is exactly a drastic-nano session).
+// Release before kPowerHoldMs = system sleep; held past it = raise the
+// in-game overlay menu (drastic owns the DRM panel, so the menu is
+// drastic's own DRM-direct OverlayMenu, the same one short-BACK opens;
+// the SurfaceFlinger gammaos-nano XMB overlay cannot composite over a
+// DRM-master game). 1.5 s matches the home XMB's power convention.
+// Deliberate difference: in the home a 1.5 s power hold means SHUTDOWN;
+// in-game it raises the menu and there is no in-game power-shutdown
+// (exit is the BACK hold, shutdown lives in the XMB).
+constexpr int64_t kPowerHoldMs = 1500;
 
 struct RunLoopResult {
     bool relaunchRequested;
@@ -692,7 +857,24 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                 &input,
                 overlay.isOpen(),
                 overlay.isCapturingKey(),
-                kBackShortMs, kBackHoldMs, &actions);
+                kBackShortMs, kBackHoldMs, kPowerHoldMs, &actions);
+        // Short power press = system sleep. Handled before the overlay
+        // update so a sleep press while the menu is open does not also
+        // feed the menu; the menu's pause state is preserved across the
+        // sleep (doSleep only resumes what it paused itself).
+        if (actions.sleepRequested) {
+            doSleep(&input, dr, overlay.isOpen());
+            continue;
+        }
+        // Power hold = raise drastic's own in-game overlay menu (the
+        // SF gammaos-nano XMB overlay cannot present over a DRM-master
+        // game). Feed it through the same toggle short-BACK uses.
+        if (actions.xmbOverlayRequested) {
+            android::drastic_input::InputActions ov{};
+            ov.menuToggle = true;
+            overlay.update(ov, &input);
+            continue;
+        }
         overlay.update(actions, &input);
         if (actions.exitRequested) {
             ALOGW("drastic-nano: long-press BACK, exiting");

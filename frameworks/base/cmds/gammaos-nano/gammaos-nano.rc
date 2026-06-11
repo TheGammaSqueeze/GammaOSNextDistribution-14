@@ -196,8 +196,9 @@ on property:sys.gammaos.nano.fixedperf=0
 # default namespace) to inject KEYCODE_SLEEP / KEYCODE_WAKEUP. That drives
 # PowerManager's normal goToSleep -> doze -> suspend and wakeUp, giving a true
 # low-power sleep instead of a blanked busy-poll. dosleep/dowake are set ONLY by the
-# home nano (NanoMenuInput.cpp), so these never fire in normal Android. Each trigger
-# resets its prop so the next sleep/wake is a fresh edge.
+# home nano (NanoMenuInput.cpp) and by drastic-nano's in-game power handler
+# (drastic-nano/main.cpp doSleep), so these never fire in normal Android. Each
+# trigger resets its prop so the next sleep/wake is a fresh edge.
 service nano-dosleep /system/bin/sh -c "/system/bin/input keyevent 223"
     user root
     group root

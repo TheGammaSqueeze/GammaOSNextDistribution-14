@@ -59,6 +59,7 @@
 #include <EGL/eglext.h>
 
 // DRM direct rendering subsystem (structs, variables, functions)
+#include "NanoBacklight.h"
 #include "NanoMenuDrm.h"
 // Shared utility functions (path helpers, containsInsensitive)
 #include "NanoMenuUtils.h"
@@ -807,28 +808,12 @@ status_t NanoMenu::readyToRun() {
     }
     if (mBrightness < 1) mBrightness = 1;
     if (mBrightness > 255) mBrightness = 255;
-    // Write to sysfs for instant backlight during early boot
-    {
-        int sysfs_val = mBrightness * mMaxBrightness / 255;
-        if (sysfs_val < 1) sysfs_val = 1;
-        char brightnessStr[16];
-        snprintf(brightnessStr, sizeof(brightnessStr), "%d", sysfs_val);
-        const char* backlightPaths[] = {
-            "/sys/class/backlight/panel0-backlight/brightness",
-            "/sys/class/backlight/backlight/brightness",
-            "/sys/class/backlight/backlight1/brightness",
-            "/sys/class/leds/lcd-backlight/brightness",
-        };
-        for (const char* path : backlightPaths) {
-            int fd = open(path, O_WRONLY);
-            if (fd >= 0) {
-                write(fd, brightnessStr, strlen(brightnessStr));
-                close(fd);
-                ALOGI("NanoMenu: early sysfs brightness %d (android %d) -> %s",
-                      sysfs_val, mBrightness, path);
-            }
-        }
-    }
+    // Write to sysfs for instant backlight during early boot. The shared
+    // enumerator scales per node max (the old fixed-path loop wrote one
+    // device-wide sysfs value to every node).
+    nanobl::nanoBacklightSet(mBrightness);
+    ALOGI("NanoMenu: early sysfs brightness (android %d) applied to %zu backlight nodes",
+          mBrightness, nanobl::nanoBacklightNodes().size());
 
     // Apply brightness async via HAL (expects sysfs-range value)
     {

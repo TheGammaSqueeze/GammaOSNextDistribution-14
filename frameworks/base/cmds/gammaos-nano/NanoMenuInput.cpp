@@ -46,6 +46,7 @@
 #include <utils/Log.h>
 #include <utils/SystemClock.h>
 
+#include "NanoBacklight.h"
 #include "NanoMenu.h"
 #include "NanoMenuDrm.h"
 #include "NanoMenuShaders.h"
@@ -826,14 +827,28 @@ void NanoMenu::pollInput() {
                     // Key was released before 1.5s — short press = sleep.
                     mPowerPressTime = 0;
                     ALOGI("NanoMenu: power short press, sleeping");
-                    // Blank our DRM-owned panel: clear the framebuffer and turn the
-                    // backlight off (sysfs where present + the light HAL). PowerManager
-                    // only ever controls the SurfaceFlinger display, never this direct-
-                    // DRM panel, so we always do this ourselves.
+                    // Blank our DRM-owned panels: clear the framebuffers and turn
+                    // every backlight off (all sysfs nodes + the light HAL).
+                    // PowerManager only ever controls the SurfaceFlinger display,
+                    // never these direct-DRM panels, so we always do this ourselves.
+                    // On the zero-copy path the scanout source is AHB ring slot 0
+                    // (drmFrameEnd flips slot 0), and both flip paths leave FBO 0
+                    // bound, so clear the actual slot-0 AHB FBOs - the wake-time
+                    // recommit then relights onto black, not a stale frame.
                     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-                    glClear(GL_COLOR_BUFFER_BIT);
+                    if (sDrmZeroCopy && sAhbRingPrimary[0].glFbo) {
+                        glBindFramebuffer(GL_FRAMEBUFFER, sAhbRingPrimary[0].glFbo);
+                        glClear(GL_COLOR_BUFFER_BIT);
+                        if (sAhbRingSecondary[0].glFbo) {
+                            glBindFramebuffer(GL_FRAMEBUFFER, sAhbRingSecondary[0].glFbo);
+                            glClear(GL_COLOR_BUFFER_BIT);
+                        }
+                        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+                    } else {
+                        glClear(GL_COLOR_BUFFER_BIT);
+                    }
                     drmFrameEnd(mDisplay, mSurface);
-                    writeSysfsInt("/sys/class/backlight/panel0-backlight/brightness", 0);
+                    nanobl::nanoBacklightSet(0);
                     setBrightnessViaHal(0);
 
                     // Once the system is fully up (PowerManager available) put the WHOLE
@@ -900,10 +915,19 @@ void NanoMenu::pollInput() {
                     usleep(200000);
                     { struct input_event d; for (int dfd : mInputFds) {
                         while (read(dfd, &d, sizeof(d)) == sizeof(d)) {} } }
+                    // Kernel resume re-enables the CRTCs with NO planes attached
+                    // (rockchip vop2 confirmed; every legacy page flip then EBUSYs
+                    // forever and both panels stay black behind a lit backlight).
+                    // Re-commit the full modeset + reset the flip bookkeeping
+                    // BEFORE relighting so the panels come back showing content.
+                    // pollInput runs on the render thread, which owns all DRM/GL
+                    // state, so this is race-free. Idempotent and harmless on the
+                    // legacy pre-boot_completed path that never suspended.
+                    drmResumeRecommit();
                     {
                         int sysfs_val = mBrightness * mMaxBrightness / 255;
                         if (sysfs_val < 1) sysfs_val = 1;
-                        writeSysfsInt("/sys/class/backlight/panel0-backlight/brightness", sysfs_val);
+                        nanobl::nanoBacklightSet(mBrightness);
                         setBrightnessViaHal(sysfs_val);
                     }
                     ALOGI("NanoMenu: woke up");

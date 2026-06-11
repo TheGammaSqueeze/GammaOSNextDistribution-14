@@ -62,6 +62,7 @@ cc_binary {
         "libnativewindow",
         "libft2",
         "android.hardware.health-V2-ndk",
+        "android.hardware.light-V2-ndk",
     ],
 
     init_rc: ["drastic-nano.rc"],

@@ -47,6 +47,14 @@ struct InputState {
     bool backWasDown = false;
     int64_t backPressStartMs = 0;
 
+    // Short/long-press POWER tracking (short release = sleep, hold =
+    // toggle the in-game menu). powerHoldFired latches the hold action
+    // one-shot so it does not re-fire every frame while held, and the
+    // release after a fired hold is ignored.
+    bool powerWasDown = false;
+    int64_t powerPressStartMs = 0;
+    bool powerHoldFired = false;
+
     // Touchscreen state.
     int touchFd = -1;
     int touchPanelW = 0;
@@ -119,10 +127,15 @@ struct InputActions {
     bool navNextTab = false; // R / R1
     bool navPrevTab = false; // L / L1
 
-    // BACK toggle: short-press = open/close overlay.
+    // BACK toggle: short-press = open/close drastic's own in-game menu.
     bool menuToggle = false;
     // Long-press BACK >= kBackHoldMs = exit drastic-nano.
     bool exitRequested = false;
+    // Short POWER press (released before powerHoldMs) = system sleep.
+    bool sleepRequested = false;
+    // POWER held >= powerHoldMs = raise the in-game overlay menu
+    // (one-shot edge).
+    bool xmbOverlayRequested = false;
 
     // Special drastic actions triggered by the action-index remap.
     bool actFastFwd    = false;
@@ -154,11 +167,14 @@ void applyPrefs(InputState* st, const drastic_prefs::Prefs& p);
 //
 // shortBackMs is the short-press threshold (release before this = open
 // menu). longBackMs is the long-press threshold (held this long = exit).
+// powerHoldMs splits the POWER gestures: release before it requests
+// sleep, holding past it toggles the in-game menu.
 void pollInputMap(InputState* st,
                   bool overlayOpen,
                   bool captureKey,
                   int64_t shortBackMs,
                   int64_t longBackMs,
+                  int64_t powerHoldMs,
                   InputActions* out);
 
 // Close all fds owned by state and reset the vector.

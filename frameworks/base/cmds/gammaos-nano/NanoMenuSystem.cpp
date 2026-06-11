@@ -43,6 +43,7 @@
 #include <utils/Log.h>
 #include <sys/stat.h>   // isLaunchReady FUSE-mount probe
 
+#include "NanoBacklight.h"
 #include "NanoMenu.h"
 #include "NanoMenuShaders.h"
 
@@ -94,16 +95,21 @@ bool NanoMenu::setBrightnessViaHal(int brightness) {
 
     std::vector<HwLight> lights;
     hal->getLights(&lights);
+    // Drive EVERY backlight light, not just the first: dual-panel devices
+    // (RG DS) can expose one HwLight per panel, and stopping at the first
+    // left the second panel unblanked across sleep and untouched by the
+    // brightness HUD.
+    bool any = false;
     for (const auto& light : lights) {
         if (light.type == LightType::BACKLIGHT) {
             HwLightState state{};
             // Standard Android convention: brightness in alpha channel of ARGB
             state.color = 0xFF000000 | (brightness << 16) | (brightness << 8) | brightness;
             hal->setLightState(light.id, state);
-            return true;
+            any = true;
         }
     }
-    return false;
+    return any;
 }
 
 void NanoMenu::adjustBrightness(int direction) {
@@ -118,10 +124,11 @@ void NanoMenu::adjustBrightness(int direction) {
 }
 
 void NanoMenu::applyBrightness() {
-    // Convert Android 0-255 to sysfs range and write
+    // Drive every backlight node (dual-panel devices track together), each
+    // scaled against its own max, plus the lights HAL.
+    nanobl::nanoBacklightSet(mBrightness);
     int sysfs_val = mBrightness * mMaxBrightness / 255;
     if (sysfs_val < 1) sysfs_val = 1;
-    writeSysfsInt("/sys/class/backlight/panel0-backlight/brightness", sysfs_val);
     setBrightnessViaHal(sysfs_val);
     syncBrightnessToAndroid();
 }
