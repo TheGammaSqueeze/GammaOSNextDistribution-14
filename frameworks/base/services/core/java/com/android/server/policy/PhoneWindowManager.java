@@ -5857,18 +5857,15 @@ public class PhoneWindowManager implements WindowManagerPolicy {
 
         mDefaultDisplayPolicy.setLidState(newLidState);
 
-        // GammaOS Nano: while a DRM-direct renderer owns the panels
-        // (sys.gammaos.nano.drm_active=1), nano reads the lid switch off evdev
-        // and drives its OWN panel blank + suspend + modeset-recommit. Letting
-        // the framework also sleep/wake on the lid here would double-drive the
-        // suspend and, worse, PowerManager does not own the direct-DRM panel,
-        // so its lid-sleep would leave nano's panel black on resume (the same
-        // plane-less-CRTC bug nano recovers from itself). Track the state for
-        // when SurfaceFlinger takes over, but do not act on it here.
-        if (android.os.SystemProperties.getBoolean(
-                "sys.gammaos.nano.drm_active", false)) {
-            return;
-        }
+        // GammaOS Nano: the framework MUST keep driving the lid sleep/wake even
+        // while a DRM-direct renderer owns the panels - its goToSleep is what
+        // sets sys.screen.state=off, and the device's real suspend
+        // (init: sys.screen.state=off -> force_sleep -> sleep.sh -> echo mem)
+        // hangs off that. nano reads the lid switch off evdev in parallel to
+        // pause its emulator + drop its render thread off SCHED_FIFO (so the
+        // kernel task-freeze succeeds) and to blank + recommit its own DRM
+        // panel around the suspend. The two cooperate; we deliberately do NOT
+        // suppress the framework here.
 
         applyLidSwitchState();
         updateRotation(true);

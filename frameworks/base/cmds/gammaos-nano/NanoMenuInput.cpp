@@ -934,14 +934,15 @@ void NanoMenu::pollInput() {
                 }
                 continue;
             }
-            // Lid (hall-effect) switch: closing the lid sleeps, exactly like a
-            // short power press; opening wakes (handled inside enterDrmSleep's
-            // wait loop). Overlay mode leaves the lid to the framework, same as
-            // the power button. The framework's own config_lidControlsSleep is
-            // gated off in PhoneWindowManager while a DRM renderer owns the panel
-            // (sys.gammaos.nano.drm_active=1), so nano is the sole lid handler
-            // here and there is no double-sleep race.
-            if (ev.type == EV_SW && ev.code == SW_LID && !mOverlayMode) {
+            // Lid (hall-effect) switch, DRM-direct home only. Closing the lid
+            // blanks + recommits our own DRM panel around the suspend (opening
+            // wakes, handled inside enterDrmSleep's wait loop). The FRAMEWORK
+            // still drives the actual system sleep on the lid (its goToSleep ->
+            // sys.screen.state=off -> force_sleep -> sleep.sh -> echo mem); the
+            // two cooperate. In SF mode (no DRM master) the framework owns the
+            // whole lid flow, so we do nothing. Overlay mode also defers to it.
+            if (ev.type == EV_SW && ev.code == SW_LID
+                && sDrmActive && !mOverlayMode) {
                 if (ev.value != 0) {   // lid closed
                     ALOGI("NanoMenu: lid closed, sleeping");
                     if (!enterDrmSleep()) return;
