@@ -293,6 +293,17 @@ void pollInputMap(InputState* st, bool overlayOpen, bool captureKey,
     for (int fd : st->fds) {
         struct input_event ev;
         while (read(fd, &ev, sizeof(ev)) == sizeof(ev)) {
+            if (ev.type == EV_SW && ev.code == SW_LID) {
+                // Hall-effect lid switch. value 1 = lid closed. A close
+                // edge requests sleep (same as a short power press); the
+                // open edge is consumed by the sleep loop as the wake.
+                const bool closed = (ev.value != 0);
+                if (closed && !st->lidClosed) {
+                    out->sleepRequested = true;
+                }
+                st->lidClosed = closed;
+                continue;
+            }
             if (ev.type == EV_KEY) {
                 const bool pressed = (ev.value != 0);
 

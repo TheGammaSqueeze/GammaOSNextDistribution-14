@@ -241,6 +241,12 @@ private:
     void openInputDevices();
     void checkInputHotplug();
     void pollInput();
+    // DRM-direct sleep: blank panels + backlights, drive PowerManager
+    // suspend, block until a wake (power press or lid open), then
+    // re-commit the modeset and restore. Shared by the power short-press
+    // and the lid-close handlers. Returns false if the legacy
+    // pre-boot_completed timeout initiated a shutdown (caller returns).
+    bool enterDrmSleep();
     void handleUp();
     void handleDown();
     void handleLeft();

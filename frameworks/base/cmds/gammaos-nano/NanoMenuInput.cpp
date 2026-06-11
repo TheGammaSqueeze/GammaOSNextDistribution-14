@@ -681,6 +681,109 @@ void NanoMenu::tickNavRepeat() {
 // Event loop: drain every input fd, dispatch to navigation / power / OSK.
 // ---------------------------------------------------------------------------
 
+bool NanoMenu::enterDrmSleep() {
+    // Blank our DRM-owned panels: clear the slot-0 AHB FBOs (what drmFrameEnd
+    // scans out) and turn every backlight off, so the wake-time recommit
+    // relights onto black rather than a stale frame.
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    if (sDrmZeroCopy && sAhbRingPrimary[0].glFbo) {
+        glBindFramebuffer(GL_FRAMEBUFFER, sAhbRingPrimary[0].glFbo);
+        glClear(GL_COLOR_BUFFER_BIT);
+        if (sAhbRingSecondary[0].glFbo) {
+            glBindFramebuffer(GL_FRAMEBUFFER, sAhbRingSecondary[0].glFbo);
+            glClear(GL_COLOR_BUFFER_BIT);
+        }
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    } else {
+        glClear(GL_COLOR_BUFFER_BIT);
+    }
+    drmFrameEnd(mDisplay, mSurface);
+    nanobl::nanoBacklightSet(0);
+    setBrightnessViaHal(0);
+
+    // Drive the WHOLE device into a real PowerManager suspend (not just a
+    // blanked busy-poll): the nano-dosleep init service injects KEYCODE_SLEEP
+    // (nano's bootstrap mount namespace cannot run app_process directly) so
+    // PowerManager runs its normal goToSleep -> doze -> suspend. Before
+    // boot_completed PowerManager is not ready, so fall back to the legacy
+    // blank + 60s-then-shutdown.
+    bool pmSleep = property_get_bool("sys.boot_completed", false);
+    if (pmSleep) {
+        ALOGI("NanoMenu: services up -> PowerManager system sleep");
+        property_set("sys.gammaos.nano.dosleep", "1");
+    }
+
+    bool asleep = true;
+    int64_t sleepStart = android::uptimeMillis();
+    while (asleep) {
+        // Block on the input fds so the CPU can idle / suspend (a busy poll
+        // would keep it awake and defeat the suspend). With PowerManager
+        // engaged, block indefinitely: the system suspends and this thread
+        // freezes here until a wake source fires. Otherwise cap the wait at
+        // the remaining 60s budget.
+        struct pollfd pfds[16];
+        int nf = 0;
+        for (int fd : mInputFds) {
+            if (fd >= 0 && nf < 16) { pfds[nf].fd = fd; pfds[nf].events = POLLIN; nf++; }
+        }
+        int timeoutMs = -1;
+        if (!pmSleep) {
+            int64_t left = 60000 - (android::uptimeMillis() - sleepStart);
+            if (left <= 0) {
+                ALOGI("NanoMenu: sleep timeout, shutting down");
+                prepareShutdown("shutdown");
+                return false;
+            }
+            timeoutMs = (int)left;
+        }
+        poll(pfds, nf, timeoutMs);
+        struct input_event wake;
+        for (int wfd : mInputFds) {
+            while (read(wfd, &wake, sizeof(wake)) == sizeof(wake)) {
+                // Wake on a power-button press OR the lid opening (SW_LID -> 0).
+                if (wake.type == EV_KEY && wake.code == KEY_POWER
+                    && wake.value == 1) {
+                    asleep = false;
+                    // The waking press bypasses the pollInput EV_KEY stamp
+                    // (this loop consumes it), so stamp here or the menu could
+                    // wake straight into the idle frame rate.
+                    mLastInputMs = android::uptimeMillis();
+                } else if (wake.type == EV_SW && wake.code == SW_LID
+                           && wake.value == 0) {
+                    asleep = false;
+                    mLastInputMs = android::uptimeMillis();
+                }
+            }
+        }
+    }
+    // Woke. If we put PowerManager to sleep, wake it too (it never saw the
+    // wake source, so it will not auto-wake) via an injected KEYCODE_WAKEUP.
+    if (pmSleep) {
+        property_set("sys.gammaos.nano.dosleep", "0");
+        property_set("sys.gammaos.nano.dowake", "1");
+        ALOGI("NanoMenu: waking PowerManager (KEYCODE_WAKEUP)");
+    }
+    usleep(200000);
+    { struct input_event d; for (int dfd : mInputFds) {
+        while (read(dfd, &d, sizeof(d)) == sizeof(d)) {} } }
+    // Kernel resume re-enables the CRTCs with NO planes attached (rockchip
+    // vop2 confirmed; every legacy page flip then EBUSYs forever and both
+    // panels stay black behind a lit backlight). Re-commit the full modeset
+    // + reset the flip bookkeeping BEFORE relighting so the panels come back
+    // showing content. pollInput runs on the render thread, which owns all
+    // DRM/GL state, so this is race-free. Idempotent and harmless on the
+    // legacy pre-boot_completed path that never suspended.
+    drmResumeRecommit();
+    {
+        int sysfs_val = mBrightness * mMaxBrightness / 255;
+        if (sysfs_val < 1) sysfs_val = 1;
+        nanobl::nanoBacklightSet(mBrightness);
+        setBrightnessViaHal(sysfs_val);
+    }
+    ALOGI("NanoMenu: woke up");
+    return true;
+}
+
 void NanoMenu::pollInput() {
     // Overlay launch transition: while a launch is pending (the overlay is held up
     // until the new app resumes), FREEZE the XMB - drain and ignore all input so the
@@ -827,110 +930,21 @@ void NanoMenu::pollInput() {
                     // Key was released before 1.5s — short press = sleep.
                     mPowerPressTime = 0;
                     ALOGI("NanoMenu: power short press, sleeping");
-                    // Blank our DRM-owned panels: clear the framebuffers and turn
-                    // every backlight off (all sysfs nodes + the light HAL).
-                    // PowerManager only ever controls the SurfaceFlinger display,
-                    // never these direct-DRM panels, so we always do this ourselves.
-                    // On the zero-copy path the scanout source is AHB ring slot 0
-                    // (drmFrameEnd flips slot 0), and both flip paths leave FBO 0
-                    // bound, so clear the actual slot-0 AHB FBOs - the wake-time
-                    // recommit then relights onto black, not a stale frame.
-                    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-                    if (sDrmZeroCopy && sAhbRingPrimary[0].glFbo) {
-                        glBindFramebuffer(GL_FRAMEBUFFER, sAhbRingPrimary[0].glFbo);
-                        glClear(GL_COLOR_BUFFER_BIT);
-                        if (sAhbRingSecondary[0].glFbo) {
-                            glBindFramebuffer(GL_FRAMEBUFFER, sAhbRingSecondary[0].glFbo);
-                            glClear(GL_COLOR_BUFFER_BIT);
-                        }
-                        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-                    } else {
-                        glClear(GL_COLOR_BUFFER_BIT);
-                    }
-                    drmFrameEnd(mDisplay, mSurface);
-                    nanobl::nanoBacklightSet(0);
-                    setBrightnessViaHal(0);
-
-                    // Once the system is fully up (PowerManager available) put the WHOLE
-                    // device into a real low-power sleep, not just a blanked busy-poll:
-                    // an init service injects KEYCODE_SLEEP (nano's bootstrap mount
-                    // namespace cannot run app_process directly) so PowerManager runs its
-                    // normal goToSleep -> doze -> suspend. We grabbed the power evdev node,
-                    // so the framework never sees the press; that is why we drive sleep
-                    // (and the wake below) explicitly. Before boot_completed PowerManager
-                    // is not ready, so fall back to the legacy blank + 60s-then-shutdown.
-                    bool pmSleep = property_get_bool("sys.boot_completed", false);
-                    if (pmSleep) {
-                        ALOGI("NanoMenu: services up -> PowerManager system sleep");
-                        property_set("sys.gammaos.nano.dosleep", "1");
-                    }
-
-                    bool asleep = true;
-                    int64_t sleepStart = android::uptimeMillis();
-                    while (asleep) {
-                        // Block on the input fds so the CPU can idle / suspend (a busy
-                        // poll would keep it awake and defeat the suspend). With
-                        // PowerManager engaged, block indefinitely: the system suspends
-                        // and this thread freezes here until the power button wakes the
-                        // kernel. Otherwise cap the wait at the remaining 60s budget.
-                        struct pollfd pfds[16];
-                        int nf = 0;
-                        for (int fd : mInputFds) {
-                            if (fd >= 0 && nf < 16) { pfds[nf].fd = fd; pfds[nf].events = POLLIN; nf++; }
-                        }
-                        int timeoutMs = -1;
-                        if (!pmSleep) {
-                            int64_t left = 60000 - (android::uptimeMillis() - sleepStart);
-                            if (left <= 0) {
-                                ALOGI("NanoMenu: sleep timeout, shutting down");
-                                prepareShutdown("shutdown");
-                                return;
-                            }
-                            timeoutMs = (int)left;
-                        }
-                        poll(pfds, nf, timeoutMs);
-                        struct input_event wake;
-                        for (int wfd : mInputFds) {
-                            while (read(wfd, &wake, sizeof(wake)) == sizeof(wake)) {
-                                if (wake.type == EV_KEY && wake.code == KEY_POWER
-                                    && wake.value == 1) {
-                                    asleep = false;
-                                    // The waking press bypasses the pollInput
-                                    // EV_KEY stamp (this loop consumes it), so
-                                    // stamp here or the menu could wake straight
-                                    // into the idle frame rate.
-                                    mLastInputMs = android::uptimeMillis();
-                                }
-                            }
-                        }
-                    }
-                    // Woke on a power press. If we put PowerManager to sleep, wake it too
-                    // (it never saw the press, so it will not auto-wake) via an injected
-                    // KEYCODE_WAKEUP, then restore our panel.
-                    if (pmSleep) {
-                        property_set("sys.gammaos.nano.dosleep", "0");
-                        property_set("sys.gammaos.nano.dowake", "1");
-                        ALOGI("NanoMenu: waking PowerManager (KEYCODE_WAKEUP)");
-                    }
-                    usleep(200000);
-                    { struct input_event d; for (int dfd : mInputFds) {
-                        while (read(dfd, &d, sizeof(d)) == sizeof(d)) {} } }
-                    // Kernel resume re-enables the CRTCs with NO planes attached
-                    // (rockchip vop2 confirmed; every legacy page flip then EBUSYs
-                    // forever and both panels stay black behind a lit backlight).
-                    // Re-commit the full modeset + reset the flip bookkeeping
-                    // BEFORE relighting so the panels come back showing content.
-                    // pollInput runs on the render thread, which owns all DRM/GL
-                    // state, so this is race-free. Idempotent and harmless on the
-                    // legacy pre-boot_completed path that never suspended.
-                    drmResumeRecommit();
-                    {
-                        int sysfs_val = mBrightness * mMaxBrightness / 255;
-                        if (sysfs_val < 1) sysfs_val = 1;
-                        nanobl::nanoBacklightSet(mBrightness);
-                        setBrightnessViaHal(sysfs_val);
-                    }
-                    ALOGI("NanoMenu: woke up");
+                    if (!enterDrmSleep()) return;
+                }
+                continue;
+            }
+            // Lid (hall-effect) switch: closing the lid sleeps, exactly like a
+            // short power press; opening wakes (handled inside enterDrmSleep's
+            // wait loop). Overlay mode leaves the lid to the framework, same as
+            // the power button. The framework's own config_lidControlsSleep is
+            // gated off in PhoneWindowManager while a DRM renderer owns the panel
+            // (sys.gammaos.nano.drm_active=1), so nano is the sole lid handler
+            // here and there is no double-sleep race.
+            if (ev.type == EV_SW && ev.code == SW_LID && !mOverlayMode) {
+                if (ev.value != 0) {   // lid closed
+                    ALOGI("NanoMenu: lid closed, sleeping");
+                    if (!enterDrmSleep()) return;
                 }
                 continue;
             }

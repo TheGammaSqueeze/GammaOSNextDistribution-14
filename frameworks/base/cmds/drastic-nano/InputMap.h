@@ -55,6 +55,10 @@ struct InputState {
     int64_t powerPressStartMs = 0;
     bool powerHoldFired = false;
 
+    // Lid (hall-effect) switch state, EV_SW/SW_LID. value 1 = closed.
+    // Tracked as a level so a close edge sleeps and an open edge wakes.
+    bool lidClosed = false;
+
     // Touchscreen state.
     int touchFd = -1;
     int touchPanelW = 0;
@@ -132,6 +136,8 @@ struct InputActions {
     // Long-press BACK >= kBackHoldMs = exit drastic-nano.
     bool exitRequested = false;
     // Short POWER press (released before powerHoldMs) = system sleep.
+    // Also set on a lid-close edge (hall sensor) so closing the lid
+    // sleeps exactly like a short power press.
     bool sleepRequested = false;
     // POWER held >= powerHoldMs = raise the in-game overlay menu
     // (one-shot edge).

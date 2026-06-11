@@ -640,6 +640,24 @@ void doSleep(android::drastic_input::InputState* input,
     android::nanobl::nanoBacklightSet(0);
     setBacklightHal(0);
 
+    // Match the home XMB's clean pre-suspend state. The home suspends and
+    // resumes reliably; drastic runs the session with deep CPU idle
+    // DISABLED, performance governors, and a SCHED_FIFO render thread -
+    // and a real suspend-to-RAM (no USB tether) in that state is what
+    // destabilises the resume and crashes the session. Before blocking:
+    //  - re-enable deep CPU idle so the cores can actually power down,
+    //  - relax the governors to powersave (the perf profile keeps clocks
+    //    pinned, fighting suspend),
+    //  - drop THIS thread (the render loop) off SCHED_FIFO so the kernel's
+    //    task-freeze does not have to freeze a running RT task.
+    // All restored on wake.
+    restoreDeepCpuIdle();
+    property_set("ctl.start", "setclock_powersave");
+    {
+        struct sched_param sp = {};
+        sched_setscheduler(0, SCHED_OTHER, &sp);
+    }
+
     // sys.boot_completed is always 1 during a drastic-nano session
     // (the XMB launched us post-boot); the guard is robustness only.
     bool pmSleep = property_get_bool("sys.boot_completed", false);
@@ -662,9 +680,15 @@ void doSleep(android::drastic_input::InputState* input,
         struct input_event ev;
         for (int fd : input->fds) {
             while (read(fd, &ev, sizeof(ev)) == sizeof(ev)) {
+                // Wake on a power-button press OR the lid opening
+                // (SW_LID -> 0). Track the lid level so the close that
+                // put us to sleep is not mistaken for a wake.
                 if (ev.type == EV_KEY && ev.code == KEY_POWER &&
                     ev.value == 1) {
                     asleep = false;
+                } else if (ev.type == EV_SW && ev.code == SW_LID) {
+                    input->lidClosed = (ev.value != 0);
+                    if (ev.value == 0) asleep = false;
                 }
             }
         }
@@ -694,6 +718,19 @@ void doSleep(android::drastic_input::InputState* input,
     input->powerHoldFired = false;
     input->backWasDown = false;
     input->backPressStartMs = 0;
+
+    // Restore the session's performance state (mirror of the pre-sleep
+    // relax above): RT render thread, deep-idle disabled, perf governors.
+    {
+        struct sched_param sp = {};
+        sp.sched_priority = 80;
+        if (sched_setscheduler(0, SCHED_FIFO, &sp) != 0) {
+            // FIFO denied (rare): fall back to nice -20 like boot.
+            setpriority(PRIO_PROCESS, 0, -20);
+        }
+    }
+    disableDeepCpuIdle();
+    retriggerPowerProfile();
 
     // Resume re-enables the CRTCs with no planes; re-commit the
     // modeset and reset the flip/ring bookkeeping before relighting.
