@@ -851,6 +851,19 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
     const float saturation = 1.0f;
     const float gradient   = 0.0f;
 
+    // Consumer-side frameskip. drastic-native frameskip is inert on nano
+    // (this libdrastic build never reads the frameskip config fields, and
+    // our consumer samples the latest slot every vblank regardless), so we
+    // honor the user's Frameskip setting here: skip the expensive fxRender
+    // upload+shade (renderDsToOffscreen) on N of every (N+1) vblanks while
+    // still blitting and page-flipping every vblank to keep the DRM vblank
+    // cadence. The DS frame content then updates at the reduced rate (the
+    // classic frameskip trade: choppier motion for less GPU work). Read
+    // live from the overlay so changes take effect immediately. Auto
+    // frameskip is treated as no-skip (nano always runs at full speed, so
+    // there is nothing to "catch up").
+    int fsCounter = 0;
+
     // Nano-side screen-swap state. When true, the top DS screen is
     // rendered to the secondary display (or the bottom half of a
     // single panel) and vice versa. Toggled by the Screen Swap action
@@ -954,7 +967,18 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                                actions.touchX, actions.touchY,
                                actions.touchHeld);
 
-        dr->renderDsToOffscreen();
+        // Consumer-side frameskip (see fsCounter declaration above). Skip
+        // the DS upload/shade on N of every (N+1) vblanks; the blit and
+        // page-flip below still run every vblank so the panel keeps its
+        // cadence and shows the last DS frame until the next render.
+        {
+            const auto& lp = overlay.prefs();
+            int fsSkip = (lp.frameskipType == 0) ? lp.frameskipValue : 0;
+            if (fsSkip < 0) fsSkip = 0;
+            bool renderDs = (fsSkip == 0) || (fsCounter % (fsSkip + 1) == 0);
+            fsCounter++;
+            if (renderDs) dr->renderDsToOffscreen();
+        }
 
         const int renderIdx =
                 tripleBuffer ? android::sRingRenderIdx : 0;

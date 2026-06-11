@@ -428,28 +428,39 @@ bool writePrefs(const std::string& xmlPath, const Prefs& p,
 }
 
 long applyConfigBitsFrom(const Prefs& p) {
-    // Bit positions sourced from DrasticRunner.cpp:90-134 (smali-
-    // decoded applyConfig dispatcher). Only the four bits we have
-    // high confidence in are toggled from prefs. Bit 50 (_m0) is
-    // always set to match drastic's real-app default.
-    long bits = 0x4000000000000L; // bit 50 (_m0)
-    if (p.threaded3d)   bits |= 0x10000000L;       // bit 28
-    if (p.soundEnabled) bits |= 0x80000000L;       // bit 31
-    if (p.disableEdge)  bits |= 0x10000000000L;    // bit 40
-    if (p.hires3d)      bits |= 0x20000000000L;    // bit 41
+    // Packed applyConfig config word. Bit positions verified against the
+    // smali Lf0/h;->n()J snapshot and the native converter at 0x17c58 /
+    // applyConfig JNI 0x1a4a0. Every bit here is re-extracted by the
+    // converter on each applyConfig call and re-read by the running
+    // emulation each frame, so the whole word can be applied LIVE in-game
+    // (see DrasticRunner::applyVideoConfigLive) the way the real drastic
+    // app does. Bit 50 (_m0) is always set to match drastic's real-app
+    // default. NOTE: bit 40 = _DisableEdgeMarking and bit 41 = _Hires3D
+    // (NEON-extracted together); bit 39 is a different field, do not use
+    // it. Audio latency (bits 8-9) is deliberately NOT packed here: the
+    // converter ignores it and drastic reads it once at startGame when it
+    // sizes the OpenSL buffer queue, so it cannot change live.
+    long bits = 0x4000000000000L;                  // bit 50 _m0
+    bits |= (long)(p.frameskipValue & 0xf);        // bits 0-3 _FrameskipValue
+    bits |= ((long)(p.frameskipType & 0x3)) << 5;  // bits 5-6 _FrameskipType
+    if (p.micEnabled)   bits |= 0x4000000L;        // bit 26 _MicEnabled
+    if (p.threaded3d)   bits |= 0x10000000L;       // bit 28 _Threaded3D
+    if (p.soundEnabled) bits |= 0x80000000L;       // bit 31 _SoundEnabled
+    bits |= ((long)(p.micLevel & 0x3)) << 37;      // bits 37-38 _MicLevel
+    if (p.disableEdge)  bits |= 0x10000000000L;    // bit 40 _DisableEdgeMarking
+    if (p.hires3d)      bits |= 0x20000000000L;    // bit 41 _Hires3D
+    if (p.frameskipSafe) bits |= 0x800000000000L;  // bit 47 _FrameskipSafe
     return bits;
 }
 
 bool requiresRelaunch(const Prefs& a, const Prefs& b) {
-    return a.hires3d       != b.hires3d
-        || a.threaded3d    != b.threaded3d
-        || a.disableEdge   != b.disableEdge
-        || a.soundEnabled  != b.soundEnabled
-        || a.audioLatency  != b.audioLatency
-        || a.micEnabled    != b.micEnabled
-        || a.frameskipType != b.frameskipType
-        || a.frameskipValue != b.frameskipValue
-        || a.frameskipSafe != b.frameskipSafe;
+    // Only audioLatency genuinely cannot apply live: it sizes the OpenSL
+    // buffer queue, which drastic reads once at startGame; the applyConfig
+    // converter never re-extracts it. Everything else applies immediately
+    // via applyVideoConfigLive -- including Hi-res 3D, which additionally
+    // re-dims the DS textures on the render thread (DrasticRunner::
+    // redimDsTextures), so it no longer needs a relaunch.
+    return a.audioLatency != b.audioLatency;
 }
 
 // ------------------------------------------------------------------

@@ -146,6 +146,9 @@ private:
     void rebuildVideo();
     void rebuildAudio();
     void rebuildControls();
+    // Push the current prefs to the running emulator with no relaunch
+    // (rebuilds the config word and calls DrasticRunner::applyVideoConfigLive).
+    void applyConfigLive();
     void scanShaders();
     bool slotFileExists(int slot) const;
     void toast(const std::string& msg, int64_t ms = 1500);

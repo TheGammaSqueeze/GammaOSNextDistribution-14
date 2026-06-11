@@ -187,6 +187,21 @@ public:
     // internally). No-op until drastic is initialized.
     void setFastForward(bool on);
 
+    // Apply a freshly-built config word (from DrasticPrefs::
+    // applyConfigBitsFrom) to the running emulator with no relaunch, the
+    // way the real drastic app applies in-game video/audio changes.
+    // callerBits must be the FULL config word so invariant bits (_m0,
+    // sound, etc) are never cleared. Re-asserts the current fast-forward
+    // state on top, then runs the same converter-clobber repair
+    // (applyMasterStatePatch) as setFastForward. Touches no GL state, so
+    // it is safe to call from the overlay/input path.
+    void applyVideoConfigLive(long callerBits);
+
+    // Request a live DS-texture re-dim after _Hires3D changed. Safe to
+    // call from any thread (sets a flag); the actual GL work runs on the
+    // render thread. Idempotent: a no-op when the size already matches.
+    void requestDsReDim() { mPendingDsReDim.store(true); }
+
     // Swap the active video filter (.dfx). absDfxPath must point at
     // a readable .dfx file. Pauses drastic briefly, calls fxLoad +
     // fxSetup with the stored tex dimensions, re-captures the drastic
@@ -511,6 +526,32 @@ private:
     // (setShaderRuntime) can re-invoke fxSetup with the same geometry.
     int mFxTexW = 0;
     int mFxTexH = 0;
+
+    // DS texture geometry. drastic uploads each DS screen via
+    // glTexSubImage2D at (0,0) with 256x192 (native) or 512x384 (_Hires3D);
+    // the DS textures and fxSetup texW/texH must match the live upload size
+    // or a smaller native frame fills only the top-left corner. Sized from
+    // the _Hires3D bit and re-dimmed live by redimDsTextures().
+    int mDsTexW = 0;
+    int mDsTexH = 0;
+    // Set from any thread (overlay/input) when _Hires3D toggled; consumed
+    // on the render thread at the top of renderDsToOffscreen() so the GL
+    // re-dim runs on the render thread.
+    std::atomic<bool> mPendingDsReDim{false};
+
+    // _Hires3D is config bit 41. mBaseConfigBits is the live base set by
+    // init() and applyVideoConfigLive(), so it reflects the current toggle.
+    bool dsHiresEnabled() const {
+        return (mBaseConfigBits & 0x20000000000L) != 0;
+    }
+    static void dsTexDims(bool hires, int* w, int* h) {
+        *w = hires ? 512 : 256;
+        *h = hires ? 384 : 192;
+    }
+    // Render-thread only: re-create the DS textures + re-run fxSetup +
+    // re-patch the final pass FBO for the current _Hires3D size. Mirrors
+    // setShaderRuntime's GL resequence. No-op when the size is unchanged.
+    void redimDsTextures();
 
     // Initial shader basename (no ext, no path). Cached from init()
     // so initSurface can build the absolute path. Defaults to "Linear".

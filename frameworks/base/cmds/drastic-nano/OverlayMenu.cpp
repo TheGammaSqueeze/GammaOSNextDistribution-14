@@ -141,7 +141,14 @@ void OverlayMenu::closeMenu() {
     mOpen = false;
     mCaptureKey = false;
     mCaptureActionIdx = -1;
-    if (mRunner) mRunner->pauseToggle(false);
+    if (mRunner) {
+        mRunner->pauseToggle(false);
+        // Re-assert the live config on the now-running emulator. Live
+        // changes made while the overlay had the game paused (e.g.
+        // Threaded 3D) are applied through the converter again here, after
+        // unpause, so the running emulation reliably picks them up.
+        if (mDirty) applyConfigLive();
+    }
     ALOGI("OverlayMenu: closed");
 }
 
@@ -550,6 +557,22 @@ void OverlayMenu::rebuildSave() {
     }
 }
 
+void OverlayMenu::applyConfigLive() {
+    // Rebuild the full drastic config word from the current prefs and push
+    // it to the running emulator. applyVideoConfigLive re-asserts the
+    // fast-forward state and the GPU fast-path master-state patch, so the
+    // change takes effect on the next emulated frame with no relaunch.
+    if (mRunner) {
+        mRunner->applyVideoConfigLive(
+                drastic_prefs::applyConfigBitsFrom(mPrefs));
+        // If _Hires3D changed, the DS textures + fxSetup must be re-dimmed
+        // on the render thread. Cheap and idempotent (redimDsTextures
+        // early-returns when the size is unchanged), so request it on every
+        // live config change rather than tracking the hires bit here.
+        mRunner->requestDsReDim();
+    }
+}
+
 void OverlayMenu::rebuildVideo() {
     // Shader picker.
     {
@@ -581,15 +604,16 @@ void OverlayMenu::rebuildVideo() {
         RowAction r;
         r.label = label;
         r.value = field ? "On" : "Off";
-        if (requiresRestart) r.value += "  [restart]";
-        r.onAccept = [this, &field]() {
+        // Live settings apply immediately; the few that genuinely need a
+        // relaunch are tagged so the user knows it lands on next launch.
+        if (requiresRestart) r.value += "  (next launch)";
+        auto flip = [this, &field, requiresRestart]() {
             field = !field;
             mDirty = true;
+            if (!requiresRestart) applyConfigLive();
         };
-        r.onAdjust = [this, &field](int) {
-            field = !field;
-            mDirty = true;
-        };
+        r.onAccept = flip;
+        r.onAdjust = [flip](int) { flip(); };
         mRows.push_back(std::move(r));
     };
     // Performance profile (live). Cycles Max -> Stock -> Powersave
@@ -628,9 +652,15 @@ void OverlayMenu::rebuildVideo() {
         };
         mRows.push_back(std::move(r));
     }
-    addBool("Hi-res 3D",           mPrefs.hires3d,      true);
-    addBool("Threaded 3D",         mPrefs.threaded3d,   true);
-    addBool("Disable Edge Marking",mPrefs.disableEdge,  true);
+    // All three apply live. Hi-res 3D changes the internal 3D render
+    // resolution; applyConfigLive() pushes the bit and then requests a
+    // render-thread DS-texture re-dim (redimDsTextures) so the textures and
+    // fxSetup match the new 256x192 / 512x384 upload size. Threaded 3D and
+    // Disable Edge Marking are pure config bits the rasterizer re-reads
+    // each frame.
+    addBool("Hi-res 3D",           mPrefs.hires3d,      false);
+    addBool("Threaded 3D",         mPrefs.threaded3d,   false);
+    addBool("Disable Edge Marking",mPrefs.disableEdge,  false);
     // Frame Sync: live toggle. Updates the DRM flip-path global
     // immediately so the next submitted frame picks up the new
     // behavior. No restart needed -- the ring already has the spare
@@ -654,7 +684,6 @@ void OverlayMenu::rebuildVideo() {
         r.label = "Frameskip";
         r.value = (mPrefs.frameskipType == 1) ? "Auto"
                   : ("Fixed " + std::to_string(mPrefs.frameskipValue));
-        r.value += "  [restart]";
         r.onAdjust = [this](int dir) {
             if (mPrefs.frameskipType == 1) {
                 // from Auto, Left -> fixed N, Right -> fixed 0
@@ -667,6 +696,7 @@ void OverlayMenu::rebuildVideo() {
                 mPrefs.frameskipValue = v;
             }
             mDirty = true;
+            applyConfigLive();
         };
         mRows.push_back(std::move(r));
     }
@@ -697,9 +727,12 @@ void OverlayMenu::rebuildAudio() {
         mRows.push_back(std::move(r));
     }
     {
+        // Audio Latency sizes the OpenSL buffer queue, which drastic
+        // reads only once when it creates the audio engine at startGame,
+        // so it cannot change live and lands on the next launch.
         RowAction r;
         r.label = "Audio Latency";
-        r.value = std::to_string(mPrefs.audioLatency) + "  [restart]";
+        r.value = std::to_string(mPrefs.audioLatency) + "  (next launch)";
         r.onAdjust = [this](int dir) {
             int v = mPrefs.audioLatency + dir;
             if (v < 0) v = 0; if (v > 4) v = 4;
@@ -711,10 +744,11 @@ void OverlayMenu::rebuildAudio() {
     {
         RowAction r;
         r.label = "Microphone";
-        r.value = mPrefs.micEnabled ? "On  [restart]" : "Off  [restart]";
+        r.value = mPrefs.micEnabled ? "On" : "Off";
         r.onAccept = [this]() {
             mPrefs.micEnabled = !mPrefs.micEnabled;
             mDirty = true;
+            applyConfigLive();
         };
         mRows.push_back(std::move(r));
     }
@@ -727,6 +761,7 @@ void OverlayMenu::rebuildAudio() {
             if (v < 0) v = 0; if (v > 2) v = 2;
             mPrefs.micLevel = v;
             mDirty = true;
+            applyConfigLive();
         };
         mRows.push_back(std::move(r));
     }

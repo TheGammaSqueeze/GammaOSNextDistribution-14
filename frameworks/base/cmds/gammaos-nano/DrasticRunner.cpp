@@ -1074,11 +1074,16 @@ void DrasticRunner::initSurface(int viewportW, int viewportH,
 
         // Create textures for drastic's renderFrame to upload into.
         // renderFrame calls glTexSubImage2D with dimensions from
-        // fxSetup's BSS state. With _Hires3D the upload is 512x384
-        // per screen. Size the textures to EXACTLY match the upload
-        // so the content fills the entire texture (no black borders
-        // from oversized textures).
-        int dsTexW = 512, dsTexH = 384; // matches fxSetup's texW/texH
+        // fxSetup's BSS state. drastic uploads each DS screen at (0,0)
+        // sized 256x192 (native) or 512x384 (_Hires3D). Size the textures
+        // to EXACTLY match the upload from the live _Hires3D bit, else a
+        // native frame fills only the top-left quarter of a 512x384
+        // texture (the "corner" bug). redimDsTextures() re-sizes these
+        // when the user toggles Hi-res 3D in-game.
+        int dsTexW, dsTexH;
+        dsTexDims(dsHiresEnabled(), &dsTexW, &dsTexH);
+        mDsTexW = dsTexW;
+        mDsTexH = dsTexH;
         glGenTextures(1, &mDsTopTex);
         setupTex(mDsTopTex, dsTexW, dsTexH);
         glGenTextures(1, &mDsBotTex);
@@ -1266,10 +1271,11 @@ void DrasticRunner::initSurface(int viewportW, int viewportH,
         //   arg1/2 = DS texture resolution (256x192 or 512x384 with hires)
         //   arg3/4 = 0, 0
         //   arg5/6 = surface/viewport width, height
-        // With _Hires3D: texW=512, texH=384. Always preallocate at
-        // 512x384 so a runtime hi-res toggle (via setShaderRuntime)
-        // never requires texture realloc.
-        int texW = 512, texH = 384; // _Hires3D-compatible
+        // texW/texH must match the DS textures (mDsTexW/mDsTexH, sized
+        // from the live _Hires3D bit) so drastic's pass-resolution uniforms
+        // agree with the upload. redimDsTextures() re-runs fxSetup with the
+        // new dims when Hi-res 3D is toggled in-game.
+        int texW = mDsTexW, texH = mDsTexH;
         mFxTexW = texW;
         mFxTexH = texH;
         ALOGI("DrasticRunner::initSurface: fxSetup(%d, %d, 0, 0, %d, %d) "
@@ -1505,6 +1511,14 @@ void DrasticRunner::unpatchFinalPassFbo() {
 
 void DrasticRunner::renderDsToOffscreen() {
     if (!mSurfaceReady || !mUseRenderFrame) return;
+
+    // Consume a pending Hi-res 3D re-dim on the render thread, before
+    // drastic's next upload, so the just-resized textures and the upload
+    // size agree. No-op when the size already matches.
+    if (mPendingDsReDim.exchange(false)) {
+        redimDsTextures();
+    }
+
     // Need at least one of the two per-frame render entry points.
     // fxRender is preferred (actually invokes the loaded shader);
     // renderFrame is a fallback for builds that don't export fxRender.
@@ -1982,40 +1996,38 @@ int DrasticRunner::applyMasterStatePatch(const char* reason) {
     return rewrote;
 }
 
+// Overlay drastic's fast-forward bits onto an already-built config word.
+// Shared by setFastForward and applyVideoConfigLive so a live video/audio
+// change never stomps an active fast-forward and a fast-forward toggle
+// never reverts a live change. _V (bit 29) is the runtime FF lever; when
+// it is set, drastic's converter (libdrastic 0x17db0) reads _FfwdSpeed
+// (bits 12-15) as an INDEX into a fixed interval table at rodata 0x1070c0
+// = { 100000, 33333, 25000, 16666, 12500, 5000 } microseconds (smaller
+// interval = faster; index 6..15 store 0 = "no FF interval" = back to the
+// normal 60fps pace, i.e. FF disabled, so index 5 is the practical max).
+// ff_no_threaded3d optionally drops to single-threaded 3D while FF is held
+// so the 3D worker is never starved by the faster producer.
+static void applyFfBits(long& bits, bool ffOn) {
+    if (!ffOn) return;
+    int cap = property_get_int32("persist.gammaos.drastic_nano.ffspeed", 5);
+    if (cap < 0)  cap = 0;
+    if (cap > 15) cap = 15;
+    bits |= 0x20000000L;                          // _V fast-forward lever
+    bits = (bits & ~0xF000L) | ((long)cap << 12); // _FfwdSpeed index
+    if (property_get_int32(
+            "persist.gammaos.drastic_nano.ff_no_threaded3d", 0)) {
+        bits &= ~0x10000000L;                     // clear _Threaded3D
+    }
+}
+
 void DrasticRunner::setFastForward(bool on) {
     if (!mInitialized || !mApplyConfig) return;
     if (on == mFastForwardOn) return;
     mFastForwardOn = on;
+    // mBaseConfigBits holds the user's current (non-FF) settings, kept up
+    // to date by applyVideoConfigLive, so FF composes with live changes.
     long bits = mBaseConfigBits;
-    if (on) {
-        // _V (bit 29) is drastic's runtime fast-forward lever. When set,
-        // drastic's converter (libdrastic 0x17db0) reads _FfwdSpeed
-        // (bits 12-15) as an INDEX into a fixed interval table at
-        // rodata 0x1070c0 = { 100000, 33333, 25000, 16666, 12500, 5000 }
-        // microseconds and stores the chosen interval at the FF pacing
-        // field. _FfwdSpeed is an interval index, NOT a linear multiplier:
-        // a SMALLER interval = faster fast-forward. Index 5 = 5000us is
-        // the fastest entry in the table and is our default. Index 6..15
-        // store 0, which drastic treats as "no FF interval" and falls
-        // back to the normal 60fps pace -- i.e. 0 disables fast-forward
-        // (verified on the RG DS: ffspeed=6 stopped speeding the game up),
-        // it is NOT "unlimited". So 5 is the practical maximum. Tunable
-        // per device via persist.gammaos.drastic_nano.ffspeed.
-        int cap = property_get_int32(
-                "persist.gammaos.drastic_nano.ffspeed", 5);
-        if (cap < 0)  cap = 0;
-        if (cap > 15) cap = 15;
-        bits |= 0x20000000L;                           // _V fast-forward lever
-        bits = (bits & ~0xF000L) | ((long)cap << 12);  // _FfwdSpeed index
-        // Threaded 3D is the most glitch-prone path under sustained load
-        // (drastic's own readme warns it "can cause graphical glitches and
-        // instability"). Optionally fall back to single-threaded 3D while FF
-        // is held so the 3D worker is never starved by the faster producer.
-        if (property_get_int32(
-                "persist.gammaos.drastic_nano.ff_no_threaded3d", 0)) {
-            bits &= ~0x10000000L;                      // clear _Threaded3D
-        }
-    }
+    applyFfBits(bits, on);
     mApplyConfig(mFakeEnv, mFakeCls, bits);
     ALOGI("DrasticRunner::setFastForward: %s (applyConfig=0x%lx)",
           on ? "ON" : "OFF", bits);
@@ -2052,6 +2064,74 @@ void DrasticRunner::setFastForward(bool on) {
             mPreFfVolume = -1;
         }
     }
+}
+
+void DrasticRunner::applyVideoConfigLive(long callerBits) {
+    if (!mInitialized || !mApplyConfig) return;
+    // callerBits is a full config word from DrasticPrefs::applyConfigBitsFrom
+    // (all invariant bits present: _m0, sound, etc) and carries no FF-only
+    // bits, so keep it as the live base: a later setFastForward composes
+    // its lever onto the user's current settings, and a change made while
+    // FF is held keeps FF active.
+    mBaseConfigBits = callerBits;
+    long bits = callerBits;
+    applyFfBits(bits, mFastForwardOn);
+    mApplyConfig(mFakeEnv, mFakeCls, bits);
+    ALOGI("DrasticRunner::applyVideoConfigLive: applyConfig=0x%lx (ff=%d)",
+          bits, mFastForwardOn ? 1 : 0);
+    // Same converter-clobber repair as setFastForward: applyConfig resets
+    // the 13 GPU fast-path scalars, so re-assert the master-state patch or
+    // the BG-layer priority glitch returns on every game.
+    applyMasterStatePatch("video/audio config change");
+}
+
+void DrasticRunner::redimDsTextures() {
+    if (!mSurfaceReady || !mUseRenderFrame || !mFxSetup) return;
+    int newW, newH;
+    dsTexDims(dsHiresEnabled(), &newW, &newH);
+    if (newW == mDsTexW && newH == mDsTexH) return;  // already correct
+
+    // Share the shader-swap guard: redim and setShaderRuntime both mutate
+    // the fx pass list (fxSetup + patchFinalPassFbo) and must not
+    // interleave. If a swap is in flight, retry next frame.
+    bool expected = false;
+    if (!mShaderSwapInFlight.compare_exchange_strong(expected, true)) {
+        mPendingDsReDim.store(true);
+        return;
+    }
+    ALOGI("DrasticRunner::redimDsTextures: %dx%d -> %dx%d (hires=%d)",
+          mDsTexW, mDsTexH, newW, newH, dsHiresEnabled() ? 1 : 0);
+
+    // Drain in-flight GL reads of the DS textures before respecifying.
+    glFinish();
+
+    // Respecify the backing store on the same texture names. The
+    // NEAREST/CLAMP params set in initSurface survive a glTexImage2D
+    // respecify, so they do not need resetting.
+    glBindTexture(GL_TEXTURE_2D, mDsTopTex);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, newW, newH, 0,
+                 GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+    glBindTexture(GL_TEXTURE_2D, mDsBotTex);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, newW, newH, 0,
+                 GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    mDsTexW = newW;
+    mDsTexH = newH;
+    mFxTexW = newW;
+    mFxTexH = newH;
+
+    // Re-run fxSetup so drastic's pass-resolution uniforms match the new
+    // texture size, then re-assert the final-pass FBO redirect (fxSetup's
+    // teardown can reset the final pass.fbo, which would otherwise leave
+    // it pointing at FBO 0 and stop the displays from updating). Same
+    // unpatch/fxSetup/patch resequence as setShaderRuntime.
+    unpatchFinalPassFbo();
+    mFxSetup(mFakeEnv, mFakeCls, mFxTexW, mFxTexH, 0, 0,
+             mOffscreenW, mOffscreenH);
+    patchFinalPassFbo();
+
+    mShaderSwapInFlight.store(false);
 }
 
 bool DrasticRunner::setShaderRuntime(const std::string& absDfxPath) {
