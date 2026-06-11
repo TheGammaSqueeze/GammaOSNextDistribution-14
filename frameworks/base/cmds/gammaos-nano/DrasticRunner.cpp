@@ -943,6 +943,30 @@ static const char* kDrasticFs =
     "  gl_FragColor = vec4(rgb, 1.0);\n"
     "}\n";
 
+// Fast-forward blit shader: identical to kDrasticFs but cross-fades the
+// current frame (uTex) with the previous one (uPrevTex) before the
+// saturation/gradient math. uBlend is the weight of the CURRENT frame
+// (0.5 = equal average = maximum motion-blur smoothing, 1.0 = no trail).
+// Used ONLY while fast-forward is held; the 1x path keeps mQuadProgram.
+static const char* kDrasticFsBlend =
+    "precision mediump float;\n"
+    "varying vec2 vUv;\n"
+    "uniform sampler2D uTex;\n"
+    "uniform sampler2D uPrevTex;\n"
+    "uniform float uBlend;\n"
+    "uniform float uSaturation;\n"
+    "uniform float uGradient;\n"
+    "void main() {\n"
+    "  vec3 cur  = texture2D(uTex, vUv).rgb;\n"
+    "  vec3 prev = texture2D(uPrevTex, vUv).rgb;\n"
+    "  vec3 rgb = mix(prev, cur, uBlend);\n"
+    "  float gray = dot(rgb, vec3(0.299, 0.587, 0.114));\n"
+    "  rgb = mix(vec3(gray), rgb, uSaturation);\n"
+    "  float fade = smoothstep(0.35, 0.85, vUv.y) * uGradient;\n"
+    "  rgb *= (1.0 - fade);\n"
+    "  gl_FragColor = vec4(rgb, 1.0);\n"
+    "}\n";
+
 static GLuint drCompileShader(GLenum type, const char* src) {
     GLuint s = glCreateShader(type);
     glShaderSource(s, 1, &src, nullptr);
@@ -1013,6 +1037,19 @@ void DrasticRunner::initSurface(int viewportW, int viewportH,
     mQuadGradLoc     = glGetUniformLocation(mQuadProgram, "uGradient");
     mQuadRotLoc      = glGetUniformLocation(mQuadProgram, "uRotation");
     mQuadUvRectLoc   = glGetUniformLocation(mQuadProgram, "uUvRect");
+
+    // Fast-forward blend program (cross-fade current + previous frame).
+    // Separate program so the 1x quad shader stays byte-identical.
+    mFfBlendProgram        = drLinkProgram(kDrasticVs, kDrasticFsBlend);
+    mFfBlendPosLoc         = glGetAttribLocation(mFfBlendProgram, "aPos");
+    mFfBlendTexLoc         = glGetAttribLocation(mFfBlendProgram, "aUv");
+    mFfBlendSamplerLoc     = glGetUniformLocation(mFfBlendProgram, "uTex");
+    mFfBlendPrevSamplerLoc = glGetUniformLocation(mFfBlendProgram, "uPrevTex");
+    mFfBlendAmountLoc      = glGetUniformLocation(mFfBlendProgram, "uBlend");
+    mFfBlendSatLoc         = glGetUniformLocation(mFfBlendProgram, "uSaturation");
+    mFfBlendGradLoc        = glGetUniformLocation(mFfBlendProgram, "uGradient");
+    mFfBlendRotLoc         = glGetUniformLocation(mFfBlendProgram, "uRotation");
+    mFfBlendUvRectLoc      = glGetUniformLocation(mFfBlendProgram, "uUvRect");
 
     auto setupTex = [](unsigned int tex, int w, int h) {
         glBindTexture(GL_TEXTURE_2D, tex);
@@ -1525,6 +1562,43 @@ void DrasticRunner::renderDsToOffscreen() {
     // 60 Hz) but the render thread still hits the next vblank, so
     // the display stays at 60 fps.
 
+    // Fast-forward frame blending: BEFORE fxRender overwrites
+    // mOffscreenTex with this frame, snapshot the frame it still holds
+    // (the previous displayed frame) into mFfPrevTex. drawDsQuad then
+    // cross-fades the two, turning the FF frameskip strobe into fluid
+    // motion-blur. FF-only and lazily allocated, so 1x is untouched.
+    mFfBlendThisFrame = false;
+    if (mFastForwardOn && mOffscreenTex != 0 && mOffscreenFbo != 0 &&
+            mFfBlendProgram != 0 &&
+            property_get_int32("persist.gammaos.drastic_nano.ff_blend", 1)) {
+        if (mFfPrevTex == 0) {
+            glGenTextures(1, &mFfPrevTex);
+            glBindTexture(GL_TEXTURE_2D, mFfPrevTex);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, mOffscreenW,
+                         mOffscreenH, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+        }
+        // Copy the current (= previous displayed) offscreen contents
+        // into mFfPrevTex via glCopyTexSubImage2D (read source is the
+        // mOffscreenFbo color attachment, which is mOffscreenTex).
+        glBindFramebuffer(GL_FRAMEBUFFER, mOffscreenFbo);
+        glBindTexture(GL_TEXTURE_2D, mFfPrevTex);
+        glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0,
+                            mOffscreenW, mOffscreenH);
+        // Only blend once a genuine prior frame has been captured (skips
+        // the very first FF frame so no stale content flashes).
+        mFfBlendThisFrame = mFfPrevValid;
+        mFfPrevValid = true;
+        int a = property_get_int32(
+                "persist.gammaos.drastic_nano.ff_blend_alpha", 50);
+        if (a < 0)   a = 0;
+        if (a > 100) a = 100;
+        mFfBlendAlpha = (float)a / 100.0f;
+    }
+
     // renderFrame uploads the complete framebuffer into our textures.
     // Bind the offscreen FBO first so drastic's internal glDrawArrays
     // (which it issues alongside the texSubImage uploads -- see
@@ -1617,6 +1691,43 @@ void DrasticRunner::drawDsQuad(unsigned int tex, float vMin, float vMax,
     // Full texture = (0, 1). For the fxRender path we pass the
     // shaded offscreen FBO (top + bot stacked) so renderTopScreen
     // samples (0, 0.5) and renderBottomScreen samples (0.5, 1).
+
+    // Fast-forward path: cross-fade the current frame with the snapshot
+    // of the previous one (mFfPrevTex, a full copy of mOffscreenTex so
+    // the same vMin/vMax sub-rect applies to both). Only when FF is held
+    // and the source is the composited offscreen texture; everything
+    // else falls through to the byte-identical 1x path below.
+    if (mFfBlendThisFrame && tex == mOffscreenTex && mFfBlendProgram != 0) {
+        glUseProgram(mFfBlendProgram);
+        if (mFfBlendRotLoc >= 0)
+            glUniformMatrix2fv(mFfBlendRotLoc, 1, GL_FALSE, mRotationMatrix);
+        if (mFfBlendSatLoc >= 0)  glUniform1f(mFfBlendSatLoc, saturation);
+        if (mFfBlendGradLoc >= 0) glUniform1f(mFfBlendGradLoc, gradient);
+        if (mFfBlendAmountLoc >= 0) glUniform1f(mFfBlendAmountLoc, mFfBlendAlpha);
+        if (mFfBlendSamplerLoc >= 0)     glUniform1i(mFfBlendSamplerLoc, 0);
+        if (mFfBlendPrevSamplerLoc >= 0) glUniform1i(mFfBlendPrevSamplerLoc, 1);
+        if (mFfBlendUvRectLoc >= 0)
+            glUniform4f(mFfBlendUvRectLoc, 0.0f, vMin, 1.0f, vMax - vMin);
+
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, mFfPrevTex);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, tex);
+
+        glDisable(GL_BLEND);
+        glDisable(GL_DEPTH_TEST);
+
+        glBindBuffer(GL_ARRAY_BUFFER, mQuadVbo);
+        glVertexAttribPointer(mFfBlendPosLoc, 2, GL_FLOAT, GL_FALSE,
+                              4 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(mFfBlendPosLoc);
+        glVertexAttribPointer(mFfBlendTexLoc, 2, GL_FLOAT, GL_FALSE,
+                              4 * sizeof(float), (void*)(2 * sizeof(float)));
+        glEnableVertexAttribArray(mFfBlendTexLoc);
+
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+        return;
+    }
 
     glUseProgram(mQuadProgram);
     if (mQuadRotLoc >= 0)
@@ -1825,6 +1936,7 @@ void DrasticRunner::setVolumeRuntime(int vol0to100) {
     if (!mInitialized || !mSetAudioVolume) return;
     if (vol0to100 < 0)   vol0to100 = 0;
     if (vol0to100 > 100) vol0to100 = 100;
+    mCurVolume = vol0to100;
     mSetAudioVolume(mFakeEnv, mFakeCls, vol0to100);
 }
 
@@ -1876,23 +1988,25 @@ void DrasticRunner::setFastForward(bool on) {
     mFastForwardOn = on;
     long bits = mBaseConfigBits;
     if (on) {
-        // _V (bit 29) is drastic's runtime fast-forward lever: it removes
-        // the 60fps frame pacer. Left fully uncapped (_FfwdSpeed = 0) the
-        // DS CPU plus the hires/threaded-3D rasterizer free-run and
-        // oversubscribe the GPU and the 3D worker against our SCHED_FIFO 80
-        // render thread. On this SoC that collapses producer throughput
-        // below realtime (the game runs in slow motion) and re-corrupts the
-        // 3D output (the same hires rendering glitch we fixed earlier).
-        // Capping the multiplier in _FfwdSpeed (bits 12-15) keeps the pacer
-        // yielding the GPU between frames, so fast-forward actually speeds
-        // the game up cleanly. Tunable so the right cap can be dialled in
-        // per device without a rebuild (0 = uncapped, 1..15 = multiplier).
+        // _V (bit 29) is drastic's runtime fast-forward lever. When set,
+        // drastic's converter (libdrastic 0x17db0) reads _FfwdSpeed
+        // (bits 12-15) as an INDEX into a fixed interval table at
+        // rodata 0x1070c0 = { 100000, 33333, 25000, 16666, 12500, 5000 }
+        // microseconds and stores the chosen interval at the FF pacing
+        // field. _FfwdSpeed is an interval index, NOT a linear multiplier:
+        // a SMALLER interval = faster fast-forward. Index 5 = 5000us is
+        // the fastest entry in the table and is our default. Index 6..15
+        // store 0, which drastic treats as "no FF interval" and falls
+        // back to the normal 60fps pace -- i.e. 0 disables fast-forward
+        // (verified on the RG DS: ffspeed=6 stopped speeding the game up),
+        // it is NOT "unlimited". So 5 is the practical maximum. Tunable
+        // per device via persist.gammaos.drastic_nano.ffspeed.
         int cap = property_get_int32(
-                "persist.gammaos.drastic_nano.ffspeed", 2);
+                "persist.gammaos.drastic_nano.ffspeed", 5);
         if (cap < 0)  cap = 0;
         if (cap > 15) cap = 15;
         bits |= 0x20000000L;                           // _V fast-forward lever
-        bits = (bits & ~0xF000L) | ((long)cap << 12);  // _FfwdSpeed cap
+        bits = (bits & ~0xF000L) | ((long)cap << 12);  // _FfwdSpeed index
         // Threaded 3D is the most glitch-prone path under sustained load
         // (drastic's own readme warns it "can cause graphical glitches and
         // instability"). Optionally fall back to single-threaded 3D while FF
@@ -1912,6 +2026,32 @@ void DrasticRunner::setFastForward(bool on) {
     // those 13 scalars right now. The logged rewrite count tells us how
     // many applyConfig actually clobbered.
     applyMasterStatePatch(on ? "fast-forward on" : "fast-forward off");
+
+    // Reset the frame-blend prev state on both edges: on FF-on the first
+    // blended frame must wait for a genuine capture (no stale flash); on
+    // FF-off the next 1x frame must use the plain path immediately.
+    mFfPrevValid = false;
+    mFfBlendThisFrame = false;
+
+    // Audio during fast-forward. With the pacer removed the engine emits
+    // samples faster than realtime into the fixed-rate output queue, so
+    // FF audio plays pitched-up and crackly, which aliases with the video
+    // skip and amplifies the perceived choppiness. Mute it on FF and
+    // restore the user's exact volume on release (what mGBA/Dolphin/RA
+    // all do). Keep the engine running -- only zero the volume. Gated by
+    // persist.gammaos.drastic_nano.ff_mute (default 1).
+    if (mSetAudioVolume) {
+        if (on) {
+            if (property_get_int32(
+                    "persist.gammaos.drastic_nano.ff_mute", 1)) {
+                mPreFfVolume = mCurVolume;
+                setVolumeRuntime(0);
+            }
+        } else if (mPreFfVolume >= 0) {
+            setVolumeRuntime(mPreFfVolume);
+            mPreFfVolume = -1;
+        }
+    }
 }
 
 bool DrasticRunner::setShaderRuntime(const std::string& absDfxPath) {

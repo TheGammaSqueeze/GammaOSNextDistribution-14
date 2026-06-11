@@ -403,6 +403,38 @@ private:
     int  mQuadUvRectLoc = -1;
     unsigned int mQuadVbo = 0;
 
+    // Fast-forward frame blending (motion blur). During FF the producer
+    // free-runs and we sample only the latest slot each 60Hz vblank, so
+    // fast motion strobes (capped frameskip). mFfBlendProgram is a copy
+    // of the blit shader that cross-fades the current offscreen frame
+    // with the previous one (mFfPrevTex) so the motion reads as fluid
+    // instead of a hard frame swap. All of this is reached ONLY when
+    // mFastForwardOn is true, so 1x rendering is byte-identical. The
+    // prev texture and program are allocated lazily on the first FF
+    // frame. Gated by persist.gammaos.drastic_nano.ff_blend (default 1),
+    // weighted by persist.gammaos.drastic_nano.ff_blend_alpha (0..100,
+    // default 50 = equal average; higher = sharper/less trail).
+    unsigned int mFfBlendProgram = 0;
+    int  mFfBlendPosLoc = -1;
+    int  mFfBlendTexLoc = -1;
+    int  mFfBlendSamplerLoc = -1;
+    int  mFfBlendPrevSamplerLoc = -1;
+    int  mFfBlendAmountLoc = -1;
+    int  mFfBlendSatLoc = -1;
+    int  mFfBlendGradLoc = -1;
+    int  mFfBlendRotLoc = -1;
+    int  mFfBlendUvRectLoc = -1;
+    unsigned int mFfPrevTex = 0;    // holds the previous FF frame
+    bool mFfPrevValid = false;      // a genuine prior frame was captured
+    bool mFfBlendThisFrame = false; // drawDsQuad should blend this frame
+    float mFfBlendAlpha = 0.5f;     // weight of the CURRENT frame
+
+    // Live volume tracking so fast-forward can mute and restore exactly
+    // the user's volume. mCurVolume mirrors the last setVolumeRuntime;
+    // mPreFfVolume caches it across an FF-mute (-1 = not muted).
+    int  mCurVolume = 40;
+    int  mPreFfVolume = -1;
+
     // VBO bound before fxRender. Contains two DS-screen quads (top
     // and bottom) as GL_TRIANGLE_STRIPs of 6 vertices each. Layout:
     //   [0   .. 95 ] = 12x vec2 NDC positions (verts 0..5 = top quad
