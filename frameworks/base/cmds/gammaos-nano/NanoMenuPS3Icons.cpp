@@ -229,15 +229,25 @@ static bool decodeRGBA(const char* path, const uint8_t* data, int dataSize,
     return true;
 }
 
-static GLuint uploadRGBA(const uint8_t* px, int w, int h) {
+static GLuint uploadRGBA(const uint8_t* px, int w, int h, bool wantMipmap = false) {
     GLuint tex = 0;
     glGenTextures(1, &tex);
     glBindTexture(GL_TEXTURE_2D, tex);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, px);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    // Anti-alias the downscaled content icons (RetroArch system art and the
+    // Recently Played thumbnails come in around 256px and show at ~108px) with
+    // trilinear mipmaps. GLES2 only allows mipmaps on power-of-two textures, so
+    // fall back to plain GL_LINEAR for odd-sized art (and for the non-content
+    // callers - normal maps, glass support textures, boot plates - which pass
+    // wantMipmap=false and must not be mip-filtered).
+    bool pot = wantMipmap && w > 0 && h > 0 &&
+               (w & (w - 1)) == 0 && (h & (h - 1)) == 0;
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+                    pot ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    if (pot) glGenerateMipmap(GL_TEXTURE_2D);
     return tex;
 }
 
@@ -491,7 +501,7 @@ void NanoMenu::resolveSystemIcon(const std::string& ref, GLuint* outTex, GLuint*
         if (outNmap) *outNmap = fn;
         return;
     }
-    GLuint tex  = uploadRGBA(px.data(), w, h);
+    GLuint tex  = uploadRGBA(px.data(), w, h, /*wantMipmap=*/true);
     GLuint nmap = bevelFromRGBA(px.data(), w, h);
     mPs3IconRefCache[ref] = std::make_pair(tex, nmap);
     if (outTex)  *outTex  = tex;
