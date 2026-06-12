@@ -37,6 +37,7 @@
 #include "NanoMenuShaders.h"
 #include "NanoMenuStrings.h"
 #include "NanoMenuPS3.h"   // ps3:: dialog layout for the PS3-styled language step
+#include "NanoI18n.h"      // trDyn() resource-file translations
 
 namespace android {
 
@@ -910,7 +911,7 @@ void NanoMenu::renderSetupWifiStep() {
         const char* spinner[] = {"|", "/", "-", "\\"};
         int spinIdx = ((int)(elapsedRealtime() / 150)) % 4;
         char loadMsg[64];
-        snprintf(loadMsg, sizeof(loadMsg), "%s  Loading driver...", spinner[spinIdx]);
+        snprintf(loadMsg, sizeof(loadMsg), "%s  %s", spinner[spinIdx], trDyn("Loading driver..."));
         float loadW = measureText(loadMsg, loadScale);
         drawText(loadMsg, (float)mWidth - loadW - 12.0f * sf,
                  15.0f * sf + FONT_CHAR_H * 2.8f * sf + 6.0f * sf,
@@ -953,7 +954,7 @@ void NanoMenu::renderSetupBluetoothStep() {
         const char* spinner[] = {"|", "/", "-", "\\"};
         int spinIdx = ((int)(elapsedRealtime() / 150)) % 4;
         char loadMsg[64];
-        snprintf(loadMsg, sizeof(loadMsg), "%s  Loading driver...", spinner[spinIdx]);
+        snprintf(loadMsg, sizeof(loadMsg), "%s  %s", spinner[spinIdx], trDyn("Loading driver..."));
         float loadW = measureText(loadMsg, loadScale);
         drawText(loadMsg, (float)mWidth - loadW - 12.0f * sf,
                  15.0f * sf + FONT_CHAR_H * 2.8f * sf + 6.0f * sf,
@@ -1135,73 +1136,11 @@ void NanoMenu::handleSetupLanguageSelect() {
 }
 
 void NanoMenu::renderSetupLanguage() {
-    // Live locale preview as the user scrolls.
+    // Live locale preview as the user scrolls, then the shared fullscreen language
+    // list (1:1 with the Settings -> System Language picker). renderLanguageList
+    // keeps the native names verbatim, so the English row stays "English".
     nanoSetLocale((NanoLocale)mLangSelected);
-    float alpha = mSetupTransitionAlpha;
-
-    // PS3 fullscreen-dialog layout (1:1 with the Internet Connection / Wireless
-    // Connection wizard) so the language picker matches that style: a left
-    // title with top/bottom dividers, a centred scrollable list whose selected
-    // row gets the dual-halo glow, and the X-Enter / O-Cancel footer hints.
-    { ps3::LayoutParams lp; lp.panelW = mWidth; lp.panelH = mHeight;
-      lp.uiScale = mPs3UiScale; ps3::layoutCompute(lp); }
-    float ui = mPs3UiScale; if (ui < 0.5f) ui = 0.5f; if (ui > 2.0f) ui = 2.0f;
-    const float S = ps3::gScale / ui;
-    const float offX = ps3::gFrameX + (ps3::gFrameW - S * ps3::XCF(ps3::VW)) * 0.5f;
-    const float offY = ps3::gFrameY + ps3::gFrameH * 0.5f - S * (ps3::VH * 0.5f);
-    auto X  = [&](float vx) { return S * vx + offX; };
-    auto XC = [&](float vx) { return S * ps3::XCF(vx) + offX; };
-    auto Y  = [&](float vy) { return S * vy + offY; };
-    auto DS = [&](float v)  { return S * v; };
-    const float fb = ps3DlgFontBoost();
-    auto FS = [&](float px) { return S * px * fb / 16.0f; };
-    const float VW = ps3::VW;
-    const float innerTop = 199.0f, innerBot = 880.0f;
-
-    int   savedMode  = mTextOutlineMode;
-    float savedRatio = mTextOutlineRatio;
-    mTextOutlineMode = 1; mTextOutlineRatio = 0.5f;
-
-    // Header: title + dividers.
-    ps3DlgText(tr(STR_SETUP_LANG_TITLE), X(160.0f), Y(187.0f), FS(28.0f),
-               1.0f, 1.0f, 1.0f, alpha, 0);
-    float divLw = fmaxf(1.0f, DS(1.0f));
-    drawQuad(ps3::gFrameX, Y(innerTop), ps3::gFrameW, divLw, 1, 1, 1, 0.55f * alpha);
-    drawQuad(ps3::gFrameX, Y(innerBot), ps3::gFrameW, divLw, 1, 1, 1, 0.55f * alpha);
-
-    // Centred scrollable language list (selected row glows like a dialog option).
-    const int n = LOCALE_COUNT;
-    const float optTopV = innerTop + 80.0f, optSpacingV = 50.0f;
-    float availH = innerBot - optTopV - 40.0f;
-    int visibleCount = (int)(availH / optSpacingV); if (visibleCount < 3) visibleCount = 3;
-    int firstVis = 0, lastVis = n - 1;
-    if (n > visibleCount) {
-        firstVis = mLangSelected - visibleCount / 2;
-        if (firstVis < 0) firstVis = 0;
-        if (firstVis > n - visibleCount) firstVis = n - visibleCount;
-        lastVis = firstVis + visibleCount - 1;
-    }
-    for (int i = firstVis; i <= lastVis; i++) {
-        const LocaleInfo& info = nanoGetLocaleInfo((NanoLocale)i);
-        ps3DlgOption(info.nativeName, XC(VW * 0.5f),
-                     Y(optTopV + (i - firstVis) * optSpacingV),
-                     i == mLangSelected, false, alpha, S);
-    }
-    if (firstVis > 0)
-        ps3DlgText("\xE2\x96\xB2", XC(VW * 0.5f), Y(optTopV - 18.0f),
-                   FS(20.0f), 1, 1, 1, 0.5f * alpha, 1);
-    if (lastVis < n - 1)
-        ps3DlgText("\xE2\x96\xBC", XC(VW * 0.5f),
-                   Y(optTopV + visibleCount * optSpacingV + 6.0f),
-                   FS(20.0f), 1, 1, 1, 0.5f * alpha, 1);
-
-    // Footer hints (X Enter / O Cancel).
-    float hintY = Y(909.0f);
-    ps3DlgHint(XC(VW * 0.401f), true,  "Enter",  hintY, S, alpha);
-    ps3DlgHint(XC(VW * 0.629f), false, "Cancel", hintY, S, alpha);
-
-    mTextOutlineMode = savedMode;
-    mTextOutlineRatio = savedRatio;
+    renderLanguageList(tr(STR_SETUP_LANG_TITLE), mSetupTransitionAlpha);
 }
 
 } // namespace android

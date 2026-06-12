@@ -64,6 +64,7 @@ cc_binary {
         "NanoMenuSetupWizard.cpp",
         "NanoMenuStrings.cpp",
         "NanoJson.cpp",
+        "NanoI18n.cpp",
         "NanoOsk.cpp",
         "LibretroRunner.cpp",
         "FakeJNI.cpp",
@@ -113,6 +114,7 @@ cc_binary {
         "nano_xmb_globe",
         "nano_xmb_icons_retroarch",
         "nano_xmb_daijishou",
+        "nano_xmb_i18n",
     ],
 }
 
@@ -190,6 +192,31 @@ prebuilt_etc {
     sub_dir: "nano_xmb/globe",
 }
 
+// Per-language UI translation resources (English-keyed JSON objects). Loaded at
+// runtime by NanoI18n (trDyn) from /system/etc/gammaos-nano/i18n/<code>.json
+// when the user picks a non-English locale. "en" is passthrough, so no en.json.
+// Editable/over-ridable via /data/system/nano_i18n/<code>.json without a rebuild.
+prebuilt_etc {
+    name: "nano_xmb_i18n",
+    srcs: [
+        "ps3xmb/i18n/es.json",
+        "ps3xmb/i18n/fr.json",
+        "ps3xmb/i18n/de.json",
+        "ps3xmb/i18n/it.json",
+        "ps3xmb/i18n/pt.json",
+        "ps3xmb/i18n/nl.json",
+        "ps3xmb/i18n/ru.json",
+        "ps3xmb/i18n/ja.json",
+        "ps3xmb/i18n/ko.json",
+        "ps3xmb/i18n/zh-cn.json",
+        "ps3xmb/i18n/zh-tw.json",
+        "ps3xmb/i18n/ar.json",
+        "ps3xmb/i18n/tr.json",
+        "ps3xmb/i18n/pl.json",
+    ],
+    sub_dir: "gammaos-nano/i18n",
+}
+
 // The full RetroArch monochrome XMB icon set (849 white-on-transparent system
 // silhouettes, LibretroDB names). Asset-only: never textured en masse; read on
 // demand by the icon grid picker (thumbnails) and per-system icon resolution
@@ -223,5 +250,7 @@ filegroup {
         "NanoMenuDrm.cpp",
         "DrasticRunner.cpp",
         "FakeJNI.cpp",
+        "NanoJson.cpp",
+        "NanoI18n.cpp",
     ],
 }

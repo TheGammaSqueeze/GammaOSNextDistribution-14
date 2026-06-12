@@ -5,6 +5,7 @@
 #define LOG_TAG "DrasticNano.Overlay"
 
 #include "OverlayMenu.h"
+#include "NanoI18n.h"   // trDyn() shared nano UI translations
 
 #include <dirent.h>
 #include <errno.h>
@@ -1377,8 +1378,9 @@ static float clampf(float v, float lo, float hi) {
 static void drawToast(drastic_gfx::OverlayGfx& gfx,
                       const std::string& msg, float sf) {
     if (msg.empty()) return;
+    const char* m = trDyn(msg.c_str());
     float scale = 1.0f * sf;
-    float w = gfx.measure(msg.c_str(), scale) + 28.0f * sf;
+    float w = gfx.measure(m, scale) + 28.0f * sf;
     float h = gfx.fontLineH() * scale + 14.0f * sf;
     float vw = (float)gfx.viewportW();
     float vh = (float)gfx.viewportH();
@@ -1387,7 +1389,7 @@ static void drawToast(drastic_gfx::OverlayGfx& gfx,
     gfx.fillRect(x, y, w, h, rgba(0.02f, 0.03f, 0.05f, 0.82f));
     gfx.fillRect(x, y + h - 2.0f * sf, w, 2.0f * sf,
                  rgba(0.40f, 0.75f, 1.0f, 0.9f));
-    gfx.text(msg.c_str(), x + 14.0f * sf,
+    gfx.text(m, x + 14.0f * sf,
              y + (h - gfx.fontLineH() * scale) / 2.0f, scale,
              rgba(1, 1, 1, 1));
 }
@@ -1460,7 +1462,7 @@ void OverlayMenu::drawCategoryBar(drastic_gfx::OverlayGfx& gfx,
     // a big centered title, with a short accent underline and a row of
     // pagination dots below for positional context. L/R still cycles
     // through them; the dots tell the user where they are.
-    const char* name = kSectionNames[mSection];
+    const char* name = trDyn(kSectionNames[mSection]);
     float scale = kCatActiveSc * sf;
     float tw = gfx.measure(name, scale);
     float tx = (vw - tw) / 2.0f;
@@ -1535,11 +1537,11 @@ void OverlayMenu::drawList(drastic_gfx::OverlayGfx& gfx, float vw,
                          rgba(0.35f, 0.75f, 1.0f, 0.95f));
         }
 
-        gfx.text(r.label.c_str(), contentLeft, txtY, sc, fg);
+        gfx.text(trDyn(r.label.c_str()), contentLeft, txtY, sc, fg);
         if (!r.value.empty()) {
-            float vWidth = gfx.measure(r.value.c_str(), sc);
-            gfx.text(r.value.c_str(),
-                     contentRight - vWidth, txtY, sc, fg);
+            const char* rv = trDyn(r.value.c_str());
+            float vWidth = gfx.measure(rv, sc);
+            gfx.text(rv, contentRight - vWidth, txtY, sc, fg);
         }
 
         rowY += rowH;
@@ -1576,6 +1578,7 @@ void OverlayMenu::drawFooter(drastic_gfx::OverlayGfx& gfx, float vw,
         hint = "L/R: tabs     Up/Down: move     A: select     "
                "Left/Right: adjust     B: close";
     }
+    hint = trDyn(hint);
     float fw = gfx.measure(hint, footScale);
     float fy = vh - gfx.fontLineH() * footScale - 10.0f * sf;
     gfx.text(hint, (vw - fw) / 2.0f, fy, footScale,

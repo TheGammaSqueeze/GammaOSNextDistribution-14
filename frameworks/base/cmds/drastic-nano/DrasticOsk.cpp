@@ -16,6 +16,7 @@
 // The exact Leanback-derived key tables. static const, so this is the single
 // TU in drastic-nano that pulls them in (no ODR conflict).
 #include "NanoOskLayouts.h"
+#include "NanoI18n.h"   // trDyn() shared nano UI translations
 
 namespace android {
 namespace drastic_overlay {
@@ -108,7 +109,7 @@ const void* DrasticOsk::currentKb() const {
 }
 
 const char* DrasticOsk::actionLabel() const {
-    return "Search";
+    return trDyn("Search");
 }
 
 void DrasticOsk::open(const std::string& title, const std::string& initial,
@@ -453,7 +454,7 @@ void DrasticOsk::render(drastic_gfx::OverlayGfx& gfx) {
         float x = b.previewX;
         float y = b.previewY + (b.actH - ps) * 0.5f;   // centre in the field strip
         if (!mTitle.empty()) {
-            std::string lbl = mTitle + ": ";
+            std::string lbl = std::string(trDyn(mTitle.c_str())) + ": ";
             x += TP(lbl.c_str(), x, y, ps, accent);
         }
         int caret = mCaret;
@@ -600,8 +601,8 @@ void DrasticOsk::render(drastic_gfx::OverlayGfx& gfx) {
     // Footer hint.
     {
         float fpx = 19.0f * sf;
-        const char* footer =
-            "A: Key   B: Back   L: Shift   R: Sym   Up/Right: Search";
+        const char* footer = trDyn(
+            "A: Key   B: Back   L: Shift   R: Sym   Up/Right: Search");
         float fw = MP(footer, fpx);
         TP(footer, b.panelX + b.panelW / 2.0f - fw / 2.0f, b.footerY, fpx,
            rgba(0.58f, 0.60f, 0.68f, 0.95f));

@@ -23,6 +23,7 @@
 #include "NanoMenuPS3.h"
 #include "NanoMenuPS3Bg.h"
 #include "NanoMenuDrm.h"   // sDrmGlRotation / sDrmRotationDeg for the logo wipe scissor
+#include "NanoI18n.h"      // trDyn() resource-file translations
 
 #include <math.h>
 #include <string.h>
@@ -222,6 +223,10 @@ void NanoMenu::renderPs3BootOverlay() {
         float pitch  = 34.0f * sy;
         float wrapW  = fw * (1280.0f / 1920.0f);
 
+        // Localised title/body (static English literals are translation keys).
+        const char* warnTitle = trDyn(kWarnTitle);
+        const char* warnBody  = trDyn(kWarnBody);
+
         // word-wrap the body to wrapW
         std::vector<std::string> lines;
         std::string cur, word;
@@ -233,12 +238,12 @@ void NanoMenu::renderPs3BootOverlay() {
             word.clear();
             if (last && !cur.empty()) lines.push_back(cur);
         };
-        for (const char* p = kWarnBody; ; ++p) {
+        for (const char* p = warnBody; ; ++p) {
             if (*p == ' ' || *p == '\0') { commit(*p == '\0'); if (*p == '\0') break; }
             else word.push_back(*p);
         }
 
-        float titleW = measureText(kWarnTitle, titleS);
+        float titleW = measureText(warnTitle, titleS);
         float maxW = titleW;
         for (auto& l : lines) { float w = measureText(l.c_str(), bodyS); if (w > maxW) maxW = w; }
         float blockX = fx + (fw - maxW) * 0.5f;
@@ -251,7 +256,7 @@ void NanoMenu::renderPs3BootOverlay() {
             drawText(t, blockX, yTop, scale, 1.0f, 1.0f, 1.0f, 1.0f);
         };
         float y = baseY;
-        line(kWarnTitle, titleS, y); y += pitch * 2.0f;   // title + blank line
+        line(warnTitle, titleS, y); y += pitch * 2.0f;   // title + blank line
         for (auto& l : lines) { line(l.c_str(), bodyS, y); y += pitch; }
     }
 }

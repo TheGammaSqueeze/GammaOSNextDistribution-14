@@ -17,6 +17,7 @@
 #include <log/log.h>
 
 #include "NanoMenuStrings.h"
+#include "NanoI18n.h"
 
 namespace android {
 
@@ -576,10 +577,19 @@ const char* tr(StringId id) {
 
 NanoLocale nanoGetLocale() { return sCurrentLocale; }
 
+// Resource-file code for the dynamic (trDyn) translation tables. zh shares one
+// LocaleInfo code, so the two Chinese variants get distinct resource names.
+static const char* i18nResCode(NanoLocale l) {
+    if (l == LOCALE_ZH_CN) return "zh-cn";
+    if (l == LOCALE_ZH_TW) return "zh-tw";
+    return kLocaleInfo[l].code;
+}
+
 void nanoSetLocale(NanoLocale locale) {
     if (locale >= 0 && locale < LOCALE_COUNT) {
         sCurrentLocale = locale;
     }
+    i18nLoad(i18nResCode(sCurrentLocale));
 }
 
 const LocaleInfo& nanoGetLocaleInfo(NanoLocale locale) {
@@ -623,10 +633,12 @@ void nanoInitLocaleFromSystem() {
             ALOGI("NanoMenu: locale set to %s (%s)",
                   kLocaleInfo[sCurrentLocale].code,
                   kLocaleInfo[sCurrentLocale].englishName);
+            i18nLoad(i18nResCode(sCurrentLocale));
             return;
         }
     }
     sCurrentLocale = LOCALE_EN;
+    i18nLoad("en");
     ALOGI("NanoMenu: locale defaulting to English (system=%s)", locale);
 }
 

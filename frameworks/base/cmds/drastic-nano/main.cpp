@@ -91,12 +91,46 @@
 #include "InputMap.h"
 #include "NanoBacklight.h"
 #include "NanoMenuDrm.h"
+#include "NanoI18n.h"
 #include "OverlayGfx.h"
 #include "OverlayMenu.h"
 
 using android::DrasticRunner;
 
 namespace {
+
+// Load the shared nano UI translations for the current system locale so the
+// drastic-nano overlay menu / OSK match the language picked in the XMB. Reads
+// the same persist.sys.locale + /system/etc/gammaos-nano/i18n resources as
+// gammaos-nano; "en" (and any unshipped language) stays English passthrough.
+void initDrasticLocale() {
+    char locale[PROPERTY_VALUE_MAX] = {};
+    property_get("persist.sys.locale", locale, "en-US");
+    char lang[8] = {}, region[8] = {};
+    const char* dash = strchr(locale, '-');
+    if (dash) {
+        size_t len = (size_t)(dash - locale);
+        if (len >= sizeof(lang)) len = sizeof(lang) - 1;
+        memcpy(lang, locale, len);
+        if (dash[1]) strncpy(region, dash + 1, sizeof(region) - 1);
+    } else {
+        strncpy(lang, locale, sizeof(lang) - 1);
+    }
+    // Shipped resource languages (see frameworks/base/cmds/gammaos-nano/ps3xmb/i18n).
+    static const char* kShipped[] = {
+        "es", "fr", "de", "it", "pt", "nl", "ru", "ja", "ko", "ar", "tr", "pl",
+    };
+    const char* code = "en";
+    if (strcmp(lang, "zh") == 0) {
+        code = (strcmp(region, "TW") == 0 || strcmp(region, "HK") == 0) ? "zh-tw" : "zh-cn";
+    } else {
+        for (const char* c : kShipped) {
+            if (strcmp(lang, c) == 0) { code = c; break; }
+        }
+    }
+    android::i18nLoad(code);
+    ALOGI("drastic-nano: locale=%s -> i18n '%s'", locale, code);
+}
 
 // Reuse the file nano's setDrasticNanoRomPath already writes so the
 // XMB -> drastic-nano handoff and the post-QR-preview handoff both
@@ -1159,6 +1193,7 @@ int main(int argc, char** argv) {
     // own init path still unblocks SurfaceFlinger / gammaos-nano.
     installCrashHandler();
     ALOGI("drastic-nano: starting (argc=%d)", argc);
+    initDrasticLocale();
 
     // Render-thread scheduling: SCHED_FIFO prio 80 (+ nice -20 as a
     // fallback when RT is denied). Matches NanoMenu's QR fast-path

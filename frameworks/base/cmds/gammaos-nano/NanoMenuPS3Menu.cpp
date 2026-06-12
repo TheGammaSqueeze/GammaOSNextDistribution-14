@@ -31,6 +31,8 @@
 #include "NanoMenuPS3Data.h"
 #include "NanoMenuDrm.h"   // sDrmGlRotation / sDrmRotationDeg for ticker scissor
 #include "NanoMenuUtils.h" // setLaunchRomPath for the Applications launch
+#include "NanoI18n.h"      // trDyn() runtime translation of hardcoded UI strings
+#include "NanoMenuStrings.h" // NanoLocale/LocaleInfo + nanoGetLocale/SetLocale/ApplyLocaleToSystem (System Language picker)
 
 #include <ctype.h>
 #include <math.h>
@@ -937,6 +939,7 @@ void NanoMenu::ps3XmbLeft() {
     if (ps3TopScreenKind() == GS_ICONGRID) { iconGridNav(-1, 0); return; }
     if (mPs3BrightSlider) { adjustBrightness(-1); return; }   // Quick Menu brightness slider modal
     if (mPs3TzActive) return;   // tzglobe list is vertical only
+    if (mPs3LangActive) return; // language list is vertical only
     if (mPs3WizActive) { wizNav(-1, true); return; }
     if (mPs3DlgActive) { ps3DlgNav(-1, true); return; }   // chooser scroll / confirm toggle
     if (!mPs3Stack.empty()) { ps3XmbBack(); return; }
@@ -955,6 +958,7 @@ void NanoMenu::ps3XmbRight() {
     if (ps3TopScreenKind() == GS_ICONGRID) { iconGridNav(+1, 0); return; }
     if (mPs3BrightSlider) { adjustBrightness(+1); return; }   // Quick Menu brightness slider modal
     if (mPs3TzActive) return;   // tzglobe list is vertical only
+    if (mPs3LangActive) return; // language list is vertical only
     if (mPs3WizActive) { wizNav(+1, true); return; }
     if (mPs3DlgActive) { ps3DlgNav(+1, true); return; }   // chooser scroll / confirm toggle
     if (!mPs3Stack.empty()) { ps3XmbSelect(); return; }
@@ -973,6 +977,7 @@ void NanoMenu::ps3XmbUp() {
     if (ps3TopScreenKind() == GS_ICONGRID) { iconGridNav(0, -1); return; }
     if (mPs3BrightSlider) { mPs3BrightSlider = false; mShowBrightnessBar = false; mBrightnessBarTimer = 0; return; }
     if (mPs3TzActive) { tzGlobeNav(-1); return; }
+    if (mPs3LangActive) { langPickerNav(-1); return; }
     if (mPs3WizActive) { wizNav(-1, false); return; }
     if (mPs3DlgActive) { ps3DlgNav(-1, false); return; }
     int& s = ps3CurSel();
@@ -982,6 +987,7 @@ void NanoMenu::ps3XmbDown() {
     if (ps3TopScreenKind() == GS_ICONGRID) { iconGridNav(0, +1); return; }
     if (mPs3BrightSlider) { mPs3BrightSlider = false; mShowBrightnessBar = false; mBrightnessBarTimer = 0; return; }
     if (mPs3TzActive) { tzGlobeNav(+1); return; }
+    if (mPs3LangActive) { langPickerNav(+1); return; }
     if (mPs3WizActive) { wizNav(+1, false); return; }
     if (mPs3DlgActive) { ps3DlgNav(+1, false); return; }
     int& s = ps3CurSel(); int n = (int)ps3CurItems().size();
@@ -992,6 +998,7 @@ void NanoMenu::ps3XmbSelect() {
     if (ps3TopScreenKind() == GS_ICONGRID) { iconGridSelect(); return; }
     if (mPs3BrightSlider) { mPs3BrightSlider = false; mShowBrightnessBar = false; mBrightnessBarTimer = 0; return; }  // X confirms the brightness slider
     if (mPs3TzActive) { closeTimezoneGlobe(true); return; }   // X: apply the highlighted zone + close
+    if (mPs3LangActive) { closeLanguagePicker(true); return; }  // X: apply the highlighted language + close
     if (mPs3WizActive) { wizConfirm(); return; }   // X: advance the network setup wizard
     if (mPs3DlgActive) {
         // The "Date and Time" fullscreen chooser launches the matching wizard on
@@ -1090,6 +1097,7 @@ void NanoMenu::ps3XmbSelect() {
             if (it.label == "Internet Connection Settings") { startNetWizard(); return; }
             if (it.label == "Internet Connection") { openPs3Dialog(it); return; }
             if (it.label == "Time Zone") { openTimezoneGlobe(); return; }   // 3D Earth selector
+            if (it.label == "System Language") { openLanguagePicker(); return; }  // setup-wizard-style language list
             if (it.label == "Set via Internet") { startDateTimeWizard(0); return; }  // NTP progress->result
             if (it.label == "Set Manually")     { startDateTimeWizard(1); return; }  // OSK date+time entry
             // Accessory Settings -> real Bluetooth device management (1:1 web bt_* flow).
@@ -1151,6 +1159,7 @@ void NanoMenu::ps3XmbBack() {
     if (ps3TopScreenKind() == GS_ICONGRID) { closeIconGridPicker(); mPs3Stack.pop_back(); return; }
     if (mPs3BrightSlider) { mPs3BrightSlider = false; mShowBrightnessBar = false; mBrightnessBarTimer = 0; return; }  // O dismisses the brightness slider
     if (mPs3TzActive) { closeTimezoneGlobe(false); return; }   // O: cancel (keep current zone)
+    if (mPs3LangActive) { closeLanguagePicker(false); return; }  // O: cancel (revert the live preview)
     if (mPs3WizActive) { wizBack(); return; }   // O: step back through the network setup wizard
     if (mPs3DlgActive) { closePs3Dialog(false); return; }   // O: cancel the dialog/chooser
     // Overlay XMB: Back at the top level RESUMES the running game (dismiss + thaw).
@@ -1248,6 +1257,7 @@ void NanoMenu::renderPs3Xmb() {
         // (kind 1) are NOT fullscreen, so they keep the XMB behind them.
         if (mPs3WizActive)                     { renderNetWizard(); return; }
         if (mPs3DlgActive && mPs3DlgKind != 1) { renderPs3Dialog(); return; }
+        if (mPs3LangActive)                    { renderLanguagePicker(); return; }
     }
 
     // From here down is the actual XMB menu chrome (category bar, item list,
@@ -1459,7 +1469,7 @@ void NanoMenu::renderPs3Xmb() {
         if (isActive) {
             float la = 0.9f * (1.0f - 0.55f * catT) * mPs3BootLabelReveal;
             float ls = ps3::fontScale(ps3::CAT_LABEL_SIZE);
-            const char* nm = mPs3Cats[i].name.c_str();
+            const char* nm = trDyn(mPs3Cats[i].name.c_str());
             float lw = measureText(nm, ls);
             float lx = ps3::devX(ps3::XCP(x)) - lw * 0.5f;
             float ly = ps3::baselineToTopY(ps3::devY(ps3::CAT_LABEL_Y), ls);
@@ -1482,7 +1492,8 @@ void NanoMenu::renderPs3Xmb() {
     // left-aligned at the label column, using the full width to the panel edge.
     // Mirrors the web (drawWrappedText maxLines 3); 3 lines because the enlarged
     // subtitle needs them to show the full blurb.
-    auto drawDesc = [&](const std::string& text, float txDev, float labelBaselineYDev, float alpha) {
+    auto drawDesc = [&](const std::string& textIn, float txDev, float labelBaselineYDev, float alpha) {
+        std::string text = trDyn(textIn.c_str());
         if (text.empty()) { mPs3DescLinesTarget = 0; return; }
         // Resolution-gated subtitle size: one step bigger on small panels
         // (gDescSize = ITEM_DESC_SIZE * DESC_BOOST), unchanged at >=720p. The
@@ -1593,7 +1604,7 @@ void NanoMenu::renderPs3Xmb() {
             float ts = ps3::fontScale(tSize);
             float tx = ps3::devX(ps3::XCP(ps3::ITEM_TEXT_X + xShiftV));
             float ty = ps3::baselineToTopY(ps3::devY(y), ts);
-            const char* L = it.label.c_str();
+            const char* L = trDyn(it.label.c_str());
             // Scissor a full-height X band [bx, bx+bw], mapped to the panel's
             // DRM rotation. Used by both the label and the value tickers.
             auto scissorBand = [&](float bx, float bw) {
@@ -1618,7 +1629,13 @@ void NanoMenu::renderPs3Xmb() {
                 if (ph < 2.0f * hold + scrollT)      return overflow;
                 return overflow - (ph - 2.0f * hold - scrollT) / scrollT * overflow;
             };
-            std::string itVal = resolvePs3ItemValue(it);
+            // The System Language value is a native language name (e.g. "English",
+            // "Espanol") and must render verbatim - never through trDyn, where
+            // "English" is itself a translation key (-> "Ingles" under es). Every
+            // other value (On/Off, Enabled/Disabled, ...) localises normally.
+            std::string itVal = (it.label == "System Language")
+                                    ? resolvePs3ItemValue(it)
+                                    : trDyn(resolvePs3ItemValue(it).c_str());
             bool hasVal = !itVal.empty();
             float vRight = ps3::devX(ps3::XCF(ps3::VW - ps3::ITEM_VALUE_RIGHT_PAD));
             { float vPanelMax = (float)mWidth - ps3::devS(ps3::ITEM_VALUE_RIGHT_PAD);
@@ -1765,7 +1782,7 @@ void NanoMenu::renderPs3Xmb() {
                     ? ps3::ITEM_TEXT_X + ps3::SUBMENU_CHILD_X_SHIFT : ps3::ITEM_TEXT_X;
                 float tx = ps3::devX(ps3::XCP(textBase + (cx - srcX)));
                 float ty = ps3::baselineToTopY(ps3::devY(y), ts);
-                const char* L = it.label.c_str();
+                const char* L = trDyn(it.label.c_str());
                 drawTextStroke(L, tx, ty, ts, mPs3ShadowAlpha * textA);
                 float c = sel ? 1.0f : 0.92f;
                 drawText(L, tx, ty, ts, c, c, c, textA);
@@ -1867,6 +1884,7 @@ void NanoMenu::renderPs3Xmb() {
     // globe renders standalone via the early return above, fading in from black.)
     if (mPs3WizActive) renderNetWizard();
     else if (mPs3DlgActive) renderPs3Dialog();
+    else if (mPs3LangActive) renderLanguagePicker();   // System Language: frosted backdrop + fade, over the menu
 }
 
 // ---------------------------------------------------------------------------
@@ -2245,6 +2263,10 @@ std::string NanoMenu::resolvePs3ItemValue(const Ps3Item& it) {
         return mPs3DstNow ? "On" : "Off";
     } else if (n == "Performance Mode") {
         return mPs3PerfModeLabel;   // cached; refreshed at build + on apply (no per-frame property_get)
+    } else if (n == "System Language") {
+        // Show the active UI language in its own native name (e.g. "Espanol",
+        // "日本語"), updating live as the picker preview changes the locale.
+        return nanoGetLocaleInfo(nanoGetLocale()).nativeName;
     }
     return it.value;
 }
@@ -2414,6 +2436,7 @@ void NanoMenu::ps3VGradRect(float x, float y, float w, float h,
 void NanoMenu::ps3DlgText(const char* s, float cxDev, float baselineDev, float fs,
                           float r, float g, float b, float a, int align) {
     if (!s || !*s) return;
+    s = trDyn(s);
     float w = measureText(s, fs);
     float x = (align == 1) ? (cxDev - w * 0.5f) : (align == 2) ? (cxDev - w) : cxDev;
     float topY = ps3::baselineToTopY(baselineDev, fs);
@@ -2424,8 +2447,10 @@ void NanoMenu::ps3DlgText(const char* s, float cxDev, float baselineDev, float f
 // (web shadowBlur halo); unselected = smaller, dim, with a legibility shadow.
 // midDev is the vertical CENTRE of the text (web uses textBaseline='middle').
 void NanoMenu::ps3DlgOption(const char* label, float cxDev, float midDev,
-                            bool sel, bool leftAlign, float ap, float baseScale) {
+                            bool sel, bool leftAlign, float ap, float baseScale,
+                            bool translate) {
     if (!label || !*label) return;
+    if (translate) label = trDyn(label);
     // Same small-panel readability boost the dialog body uses, so chooser
     // options (e.g. System Update) are not left tiny next to the boosted body.
     baseScale *= ps3DlgFontBoost();
@@ -2460,6 +2485,7 @@ void NanoMenu::ps3DlgHint(float slotCxDev, bool cross, const char* label,
 
 void NanoMenu::ps3DlgHintG(float slotCxDev, int glyph, const char* label,
                            float yDev, float baseScale, float ap) {
+    label = trDyn(label);
     // Boost the whole hint (glyph + label) on small panels so the interactive
     // footer (Enter / Cancel / OK / Search / Skip) is not tiny on the wizard pages.
     baseScale *= ps3DlgFontBoost();
@@ -2893,8 +2919,9 @@ void NanoMenu::renderPs3Dialog() {
         float titleX = px + ps3::devS(30.0f);
         const float fb = ps3DlgFontBoost();
         float tts = ps3::fontScale(26.0f * fb);
-        drawText(mPs3DlgTitle.c_str(), titleX + so[0], ps3::devS(38.0f) + so[1], tts, 0.0f, 0.0f, 0.0f, 0.5f * ap);
-        drawText(mPs3DlgTitle.c_str(), titleX, ps3::devS(38.0f), tts, 0.90f, 0.86f, 0.96f, ap);
+        const char* dlgTitle = trDyn(mPs3DlgTitle.c_str());
+        drawText(dlgTitle, titleX + so[0], ps3::devS(38.0f) + so[1], tts, 0.0f, 0.0f, 0.0f, 0.5f * ap);
+        drawText(dlgTitle, titleX, ps3::devS(38.0f), tts, 0.90f, 0.86f, 0.96f, ap);
         int n = (int)mPs3DlgOptions.size();
         float rowH = ps3::devS(46.0f);
         float listCy = (float)mHeight * 0.52f;
@@ -2911,9 +2938,10 @@ void NanoMenu::renderPs3Dialog() {
                 tx = titleX + sw + ps3::devS(14.0f);
             }
             float ty = ps3::baselineToTopY(y, fs);
-            drawText(mPs3DlgOptions[i].c_str(), tx + so[0], ty + so[1], fs, 0.0f, 0.0f, 0.0f, 0.5f * a);
+            const char* optTxt = trDyn(mPs3DlgOptions[i].c_str());
+            drawText(optTxt, tx + so[0], ty + so[1], fs, 0.0f, 0.0f, 0.0f, 0.5f * a);
             float c = sel ? 1.0f : 0.85f;
-            drawText(mPs3DlgOptions[i].c_str(), tx, ty, fs, c, c, c, a);
+            drawText(optTxt, tx, ty, fs, c, c, c, a);
         }
     } else {
         // ---- fullscreen dialog page (1:1 with web drawDialog) ----
@@ -2990,17 +3018,21 @@ void NanoMenu::renderPs3Dialog() {
         drawQuad(ps3::gFrameX, Y(innerBot), ps3::gFrameW, divLw, 1.0f, 1.0f, 1.0f, 0.55f * ap);
 
         // ---- body by type ----
+        // Translate the whole body BEFORE wrapping (the static dialog-template
+        // bodies are translation keys; dynamic bodies - net status SSID/IP, NTP
+        // results - have no key and pass through unchanged).
+        std::string dlgBody = trDyn(mPs3DlgBody.c_str());
         int n = (int)mPs3DlgOptions.size();
         if (mPs3DlgType == 0) {                 // info
             float centerCY = (innerTop + innerBot) * 0.5f;
             if (mPs3DlgIllust) { ps3DlgIllustration(mPs3DlgIllust, XC(VW * 0.5f), Y(innerTop + 230.0f), DS(280.0f), ap); centerCY = innerTop + 460.0f; }
             float fs = FS(26.0f), lh = DS(36.0f);
-            std::vector<std::string> lines = wrap(mPs3DlgBody, fs);
+            std::vector<std::string> lines = wrap(dlgBody, fs);
             float ty = Y(centerCY) - (float)((int)lines.size() - 1) * lh * 0.5f;
             for (auto& ln : lines) { if (!ln.empty()) ps3DlgText(ln.c_str(), XC(VW * 0.5f), ty, fs, 0.95f, 0.95f, 0.95f, ap, 1); ty += lh; }
         } else if (mPs3DlgType == 1) {          // chooser
             float fs = FS(24.0f);
-            std::vector<std::string> bodyLines = wrap(mPs3DlgBody, fs);
+            std::vector<std::string> bodyLines = wrap(dlgBody, fs);
             float by = Y(innerTop + 105.0f);
             for (auto& ln : bodyLines) { if (!ln.empty()) ps3DlgText(ln.c_str(), XC(VW * 0.5f), by, fs, 0.95f, 0.95f, 0.95f, ap, 1); by += DS(32.0f); }
             const float optTopV = innerTop + 305.0f, optSpacingV = 46.0f;
@@ -3020,7 +3052,7 @@ void NanoMenu::renderPs3Dialog() {
             if (lastVis < n - 1) ps3DlgText("▼", XC(VW * 0.5f), Y(optTopV + visibleCount * optSpacingV + 6.0f), FS(20.0f), 1.0f, 1.0f, 1.0f, 0.5f * ap, 1);
         } else if (mPs3DlgType == 2) {          // chooser_illust
             float fs = FS(24.0f);
-            std::vector<std::string> bodyLines = wrap(mPs3DlgBody, fs);
+            std::vector<std::string> bodyLines = wrap(dlgBody, fs);
             float by = Y(innerTop + 115.0f);
             for (auto& ln : bodyLines) { if (!ln.empty()) ps3DlgText(ln.c_str(), XC(VW * 0.5f), by, fs, 0.95f, 0.95f, 0.95f, ap, 1); by += DS(32.0f); }
             float optX = XC(VW * 0.37f);
@@ -3034,7 +3066,7 @@ void NanoMenu::renderPs3Dialog() {
             float fs = FS(26.0f), lh = DS(36.0f);
             float centerYV = (innerTop + innerBot) * 0.5f;
             if (mPs3DlgIllust) { ps3DlgIllustration(mPs3DlgIllust, XC(VW * 0.5f), Y(innerTop + 230.0f), DS(260.0f), ap); centerYV = innerTop + 460.0f; }
-            std::vector<std::string> bodyLines = wrap(mPs3DlgBody, fs);
+            std::vector<std::string> bodyLines = wrap(dlgBody, fs);
             float ty = Y(centerYV) - (float)((int)bodyLines.size() - 1) * lh * 0.5f - DS(50.0f);
             for (auto& ln : bodyLines) { if (!ln.empty()) ps3DlgText(ln.c_str(), XC(VW * 0.5f), ty, fs, 0.95f, 0.95f, 0.95f, ap, 1); ty += lh; }
             const char* labels[2] = { "Yes", "No" };
@@ -3987,7 +4019,10 @@ void NanoMenu::renderNetWizard() {
     const float slidePx = S * mPs3WizSlide;            // body content slide offset
     const float maxW = DS((VW - 400.0f) * ps3::LAYOUT_FIT);
 
-    auto wrap = [&](const std::string& body, float fs) {
+    auto wrap = [&](const std::string& bodyIn, float fs) {
+        // Translate the whole body (a static WizScreen body is a translation key;
+        // dynamic bodies - device names, status text - pass straight through).
+        std::string body = trDyn(bodyIn.c_str());
         std::vector<std::string> out; std::string para;
         auto wrapPara = [&](const std::string& p) {
             if (p.empty()) { out.push_back(""); return; }
@@ -4317,16 +4352,17 @@ void NanoMenu::renderNetWizard() {
         ps3DlgHint(c3, false, "Cancel", hintY, S, ap);
         // square glyph + "Search"
         {
+            const char* searchTxt = trDyn("Search");
             float sb = S * fb;   // small-panel boost, matching ps3DlgHint
             float fs = sb * 22.0f / 16.0f, glyphR = sb * 12.0f, gap = sb * 12.0f;
-            float lw = fmaxf(S * 2.0f, 1.5f), tw = measureText("Search", fs);
+            float lw = fmaxf(S * 2.0f, 1.5f), tw = measureText(searchTxt, fs);
             float groupW = glyphR * 2.0f + gap + tw, left = s3 - groupW * 0.5f, gcx = left + glyphR;
             float h = glyphR * 0.78f;
             drawQuad(gcx - h, hintY - h, 2.0f * h, lw, 1, 1, 1, 0.95f * ap);          // top
             drawQuad(gcx - h, hintY + h - lw, 2.0f * h, lw, 1, 1, 1, 0.95f * ap);     // bottom
             drawQuad(gcx - h, hintY - h, lw, 2.0f * h, 1, 1, 1, 0.95f * ap);          // left
             drawQuad(gcx + h - lw, hintY - h, lw, 2.0f * h, 1, 1, 1, 0.95f * ap);     // right
-            drawText("Search", left + glyphR * 2.0f + gap, hintY - 0.45f * 16.0f * fs, fs, 1, 1, 1, 0.95f * ap);
+            drawText(searchTxt, left + glyphR * 2.0f + gap, hintY - 0.45f * 16.0f * fs, fs, 1, 1, 1, 0.95f * ap);
         }
     } else {
         ps3DlgHint(enterCX, true, "Enter", hintY, S, ap);
@@ -4410,6 +4446,138 @@ void NanoMenu::tzGlobeNav(int dir) {
     mTzSelected = (mTzSelected + dir + n) % n;
     const TimezoneEntry& z = mTzEntries[mTzSelected];
     ps3globe::setTarget(z.lon * (float)M_PI / 180.0f, z.lat * (float)M_PI / 180.0f);
+}
+
+// ---------------------------------------------------------------------------
+// System Language picker. The XMB Settings -> System Settings -> System Language
+// entry reuses the first-run setup wizard's fullscreen language list (same
+// renderLanguageList chrome) with live locale preview as the cursor moves.
+// ---------------------------------------------------------------------------
+void NanoMenu::openLanguagePicker() {
+    mLangSelected   = (int)nanoGetLocale();  // start on the active UI language
+    mLangSelOnOpen  = mLangSelected;         // remember it so cancel can revert
+    mPs3LangActive  = true;
+    mPs3LangAnim    = 0.0f;                   // play the open transition (fade + frost)
+    mPs3DlgBlurValid = false;                 // force a fresh frosted-wave capture
+}
+
+void NanoMenu::closeLanguagePicker(bool apply) {
+    if (apply) {
+        nanoSetLocale((NanoLocale)mLangSelected);   // commit the previewed locale
+        nanoApplyLocaleToSystem();                  // persist.sys.locale = <code>-<region>
+        ALOGI("ps3menu: system language set to %s",
+              nanoGetLocaleInfo(nanoGetLocale()).englishName);
+    } else {
+        // Cancel: undo the live preview (restore the locale that was active on open)
+        // so the XMB returns to its previous language and nothing is persisted.
+        nanoSetLocale((NanoLocale)mLangSelOnOpen);
+        mLangSelected = mLangSelOnOpen;
+    }
+    mPs3LangActive = false;
+    mPs3DlgBlurValid = false;   // drop the frosted capture (shared blur scratch)
+    // Snap the menu animation to settled so the item list draws immediately when
+    // the picker closes (mirrors closeTimezoneGlobe; defensive against mEffectTime
+    // wraps while the picker was open).
+    mPs3ItemAnimStart = -1.0f;
+    mPs3SubAnimStart  = -1.0f;
+    mPs3CatAnimActive = false;
+    mPs3AnimItem = (float)ps3CurSel();
+}
+
+void NanoMenu::langPickerNav(int dir) {
+    int next = mLangSelected + dir;
+    if (next < 0) next = 0;
+    if (next > LOCALE_COUNT - 1) next = LOCALE_COUNT - 1;
+    mLangSelected = next;   // renderLanguagePicker applies the live preview next frame
+}
+
+void NanoMenu::renderLanguagePicker() {
+    nanoSetLocale((NanoLocale)mLangSelected);   // live locale preview as you scroll
+    setGlyphAtlasAA(true);                       // crisp list text (renderPs3Xmb turned it off)
+    // Open transition: ease the panel + frosted backdrop in exactly like the
+    // fullscreen System Update dialog (renderPs3Dialog: exp ease + per-frame
+    // captureGlassFromWave + drawFrostedGlass, all fading with the anim).
+    float dt = mFrameDt; if (dt < 0.0f) dt = 0.0f; if (dt > 0.1f) dt = 0.1f;
+    mPs3LangAnim += (1.0f - mPs3LangAnim) * (1.0f - expf(-13.0f * dt));
+    if (mPs3LangAnim > 0.999f) mPs3LangAnim = 1.0f;
+    float ap = mPs3LangAnim;
+    { ps3::LayoutParams lp; lp.panelW = mWidth; lp.panelH = mHeight;
+      lp.uiScale = mPs3UiScale; ps3::layoutCompute(lp); }
+    // Frosted-wave backdrop, re-captured each frame, fading in with the panel.
+    float blurCad = ps3bg::themeFading() ? 0.0f : 0.0667f;
+    bool due = !mPs3DlgBlurValid || (mEffectTime - mPs3DlgBlurT) >= blurCad;
+    const bool frostBg = !mOverlayMode || (mOverlayWallpaper && mCurrentEffect == 22);
+    if (due && frostBg && captureGlassFromWave()) { mPs3DlgBlurValid = true; mPs3DlgBlurT = mEffectTime; }
+    if (mPs3DlgBlurValid && frostBg)
+        drawFrostedGlass(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f,
+                         1.0f, 1.0f, 1.0f, 1.0f, ap, /*waveSpace=*/true);
+    renderLanguageList("System Language", ap);
+}
+
+// Shared fullscreen language-list chrome used by BOTH the setup wizard step and
+// the XMB System Language picker: PS3 dialog layout (left title + dividers, a
+// centred scrollable list of native language names, up/down chevrons, X-Enter /
+// O-Cancel footer). The native names render verbatim (translate=false) so the
+// English row stays "English", not the locale's word for it.
+void NanoMenu::renderLanguageList(const char* title, float alpha) {
+    { ps3::LayoutParams lp; lp.panelW = mWidth; lp.panelH = mHeight;
+      lp.uiScale = mPs3UiScale; ps3::layoutCompute(lp); }
+    float ui = mPs3UiScale; if (ui < 0.5f) ui = 0.5f; if (ui > 2.0f) ui = 2.0f;
+    const float S = ps3::gScale / ui;
+    const float offX = ps3::gFrameX + (ps3::gFrameW - S * ps3::XCF(ps3::VW)) * 0.5f;
+    const float offY = ps3::gFrameY + ps3::gFrameH * 0.5f - S * (ps3::VH * 0.5f);
+    auto X  = [&](float vx) { return S * vx + offX; };
+    auto XC = [&](float vx) { return S * ps3::XCF(vx) + offX; };
+    auto Y  = [&](float vy) { return S * vy + offY; };
+    auto DS = [&](float v)  { return S * v; };
+    const float fb = ps3DlgFontBoost();
+    auto FS = [&](float px) { return S * px * fb / 16.0f; };
+    const float VW = ps3::VW;
+    const float innerTop = 199.0f, innerBot = 880.0f;
+
+    int   savedMode  = mTextOutlineMode;
+    float savedRatio = mTextOutlineRatio;
+    mTextOutlineMode = 1; mTextOutlineRatio = 0.5f;
+
+    // Header: title + dividers.
+    ps3DlgText(title, X(160.0f), Y(187.0f), FS(28.0f), 1.0f, 1.0f, 1.0f, alpha, 0);
+    float divLw = fmaxf(1.0f, DS(1.0f));
+    drawQuad(ps3::gFrameX, Y(innerTop), ps3::gFrameW, divLw, 1, 1, 1, 0.55f * alpha);
+    drawQuad(ps3::gFrameX, Y(innerBot), ps3::gFrameW, divLw, 1, 1, 1, 0.55f * alpha);
+
+    // Centred scrollable language list (selected row glows like a dialog option).
+    const int n = LOCALE_COUNT;
+    const float optTopV = innerTop + 80.0f, optSpacingV = 50.0f;
+    float availH = innerBot - optTopV - 40.0f;
+    int visibleCount = (int)(availH / optSpacingV); if (visibleCount < 3) visibleCount = 3;
+    int firstVis = 0, lastVis = n - 1;
+    if (n > visibleCount) {
+        firstVis = mLangSelected - visibleCount / 2;
+        if (firstVis < 0) firstVis = 0;
+        if (firstVis > n - visibleCount) firstVis = n - visibleCount;
+        lastVis = firstVis + visibleCount - 1;
+    }
+    for (int i = firstVis; i <= lastVis; i++) {
+        const LocaleInfo& info = nanoGetLocaleInfo((NanoLocale)i);
+        ps3DlgOption(info.nativeName, XC(VW * 0.5f),
+                     Y(optTopV + (i - firstVis) * optSpacingV),
+                     i == mLangSelected, false, alpha, S, /*translate=*/false);
+    }
+    if (firstVis > 0)
+        ps3DlgText("\xE2\x96\xB2", XC(VW * 0.5f), Y(optTopV - 18.0f),
+                   FS(20.0f), 1, 1, 1, 0.5f * alpha, 1);
+    if (lastVis < n - 1)
+        ps3DlgText("\xE2\x96\xBC", XC(VW * 0.5f),
+                   Y(optTopV + visibleCount * optSpacingV + 6.0f),
+                   FS(20.0f), 1, 1, 1, 0.5f * alpha, 1);
+
+    // Footer hints (X Enter / O Cancel).
+    float hintY = Y(909.0f);
+    ps3DlgHint(XC(VW * 0.401f), true,  "Enter",  hintY, S, alpha);
+    ps3DlgHint(XC(VW * 0.629f), false, "Cancel", hintY, S, alpha);
+
+    mTextOutlineMode = savedMode;
+    mTextOutlineRatio = savedRatio;
 }
 
 void NanoMenu::renderTimezoneGlobe() {

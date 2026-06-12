@@ -1038,7 +1038,9 @@ private:
     void   ps3DlgText(const char* s, float cxDev, float baselineDev, float fs,
                       float r, float g, float b, float a, int align);  // align 0 left,1 centre,2 right
     void   ps3DlgOption(const char* label, float cxDev, float baselineDev,
-                        bool sel, bool leftAlign, float ap, float baseScale);
+                        bool sel, bool leftAlign, float ap, float baseScale,
+                        bool translate = true);   // translate=false keeps native
+                                                  // names verbatim (language list)
     void   ps3DlgHint(float slotCxDev, bool cross, const char* label,
                       float yDev, float baseScale, float ap);
     // Like ps3DlgHint but selects the button glyph: 0 = cross (X), 1 = ring (O),
@@ -1239,6 +1241,15 @@ private:
     void renderTimezoneGlobe();            // full-screen globe + zone-list chrome (both flows)
     float ps3TzFadeAlpha();                // 0..1 XMB->globe cross-fade (360ms smoothstep)
     void beginTzGlobeFade();               // (re)start the cross-fade + aim the globe at mTzSelected
+    // System Language picker (NanoMenuPS3Menu.cpp). Settings -> System Settings ->
+    // System Language opens the SAME fullscreen language list as the first-run
+    // setup wizard, with live locale preview as the cursor moves and
+    // persist.sys.locale applied on confirm. mPs3LangActive gates the XMB view.
+    void openLanguagePicker();             // open from the System Language item
+    void closeLanguagePicker(bool apply);  // close (apply = persist + keep the locale)
+    void langPickerNav(int dir);           // move the highlighted language (clamped)
+    void renderLanguagePicker();           // XMB entry: live preview + the shared list
+    void renderLanguageList(const char* title, float alpha);  // shared chrome (wizard + XMB)
     // Glass icon pipeline (NanoMenuPS3Icons.cpp).
     void initGlassIcons();                 // compile program, load amb/env textures
     GLuint nmapForIcon(int iconIndex);     // load+cache nmap_NNN.png
@@ -1591,6 +1602,10 @@ private:
                                   // load spike isn't charged against the 360ms fade
     int mTzSelOnOpen = 0;         // mTzSelected when the globe opened (restore on cancel)
     GLuint mPs3TzHeaderTex = 0;   // cached xmb_icon_022 colour texture (header glyph)
+    // System Language picker (Settings -> System Settings -> System Language).
+    bool mPs3LangActive = false;  // gates the XMB fullscreen language picker
+    int mLangSelOnOpen = 0;       // mLangSelected when the picker opened (revert on cancel)
+    float mPs3LangAnim = 0.0f;    // 0->1 open transition (frosted backdrop + fade-in)
     // Setup script log tailing
     std::vector<std::string> mSetupLogLines;
     // Cached word-wrapped tail of the install log (text + colour kind). Re-wrapped
