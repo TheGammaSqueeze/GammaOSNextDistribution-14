@@ -36,6 +36,7 @@
 #include "NanoMenu.h"
 #include "NanoMenuShaders.h"
 #include "NanoMenuStrings.h"
+#include "NanoMenuPS3.h"   // ps3:: dialog layout for the PS3-styled language step
 
 namespace android {
 
@@ -549,14 +550,29 @@ void NanoMenu::handleSetupStart() {
         advanceSetupStep();
         break;
     case SETUP_WIFI:
-        if (mMenuState == MENU_WIFI) {
-            closeWifiScreen();
-            mMenuState = MENU_SETUP_WIZARD;
+        if (mPs3WizActive) {
+            // Skip the Internet Connection wizard: close it the same way a
+            // normal finish does (renderSetupWizard sees mPs3WizExit>=0 and
+            // advances to the next step).
+            mPs3WizActive = false;
+            mPs3WizExit = 1;
+        } else {
+            if (mMenuState == MENU_WIFI) {
+                closeWifiScreen();
+                mMenuState = MENU_SETUP_WIZARD;
+            }
+            advanceSetupStep();
         }
-        advanceSetupStep();
         break;
     case SETUP_BLUETOOTH:
-        advanceSetupStep();   // fallback skip (Start is inert inside the BT wizard)
+        if (mPs3WizActive) {
+            // Skip the Manage Bluetooth wizard (mSetupBtWizSeen is already set,
+            // so renderSetupWizard advances once it sees the wizard closed).
+            mPs3WizActive = false;
+            mPs3WizExit = 1;
+        } else {
+            advanceSetupStep();
+        }
         break;
     case SETUP_TIMEZONE:
         // Apply selected timezone before advancing
@@ -608,6 +624,13 @@ void NanoMenu::renderSetupProgressDots() {
 
 void NanoMenu::renderSetupWizard() {
     updateSetupTransition();
+
+    // Anti-alias the wizard text on every step AFTER the Hello/Welcome screen
+    // (language, timezone, the Wi-Fi/Bluetooth net wizard, installing, finish).
+    // The Welcome greeting is large animated text that should stay crisp, and
+    // the OSK is forced back to GL_LINEAR in renderOsk(). Set before the
+    // Wi-Fi/Bluetooth early dispatch below so renderNetWizard() inherits it.
+    setGlyphAtlasAA(mSetupStep != SETUP_WELCOME);
 
     // The Wi-Fi step IS the full PS3 Internet Connection wizard. It renders its
     // own fullscreen chrome (blurred wave + dim + header/footer), so dispatch it
@@ -1052,80 +1075,73 @@ void NanoMenu::handleSetupLanguageSelect() {
 }
 
 void NanoMenu::renderSetupLanguage() {
-    float sf = fminf((float)mWidth / 1080.0f, (float)mHeight / 720.0f);
-    if (sf < 0.5f) sf = 0.5f;
-    float alpha = mSetupTransitionAlpha;
-    float pad = 20.0f * sf;
-
-    // Update locale preview as user scrolls
+    // Live locale preview as the user scrolls.
     nanoSetLocale((NanoLocale)mLangSelected);
-    float titleScale = 2.8f * sf;
-    const char* title = tr(STR_SETUP_LANG_TITLE);
-    float titleW = measureText(title, titleScale);
-    float titleX = ((float)mWidth - titleW) / 2.0f;
-    drawText(title, titleX, pad, titleScale, 0.3f, 0.85f, 1.0f, alpha);
+    float alpha = mSetupTransitionAlpha;
 
-    // Language list
-    float rowScale = 2.0f * sf;
-    float rowH = FONT_CHAR_H * rowScale + 8.0f * sf;
-    float listTop = pad + FONT_CHAR_H * titleScale + 20.0f * sf;
-    float listBottom = (float)mHeight - 80.0f * sf;
-    int visibleRows = (int)((listBottom - listTop) / rowH);
-    if (visibleRows < 4) visibleRows = 4;
+    // PS3 fullscreen-dialog layout (1:1 with the Internet Connection / Wireless
+    // Connection wizard) so the language picker matches that style: a left
+    // title with top/bottom dividers, a centred scrollable list whose selected
+    // row gets the dual-halo glow, and the X-Enter / O-Cancel footer hints.
+    { ps3::LayoutParams lp; lp.panelW = mWidth; lp.panelH = mHeight;
+      lp.uiScale = mPs3UiScale; ps3::layoutCompute(lp); }
+    float ui = mPs3UiScale; if (ui < 0.5f) ui = 0.5f; if (ui > 2.0f) ui = 2.0f;
+    const float S = ps3::gScale / ui;
+    const float offX = ps3::gFrameX + (ps3::gFrameW - S * ps3::XCF(ps3::VW)) * 0.5f;
+    const float offY = ps3::gFrameY + ps3::gFrameH * 0.5f - S * (ps3::VH * 0.5f);
+    auto X  = [&](float vx) { return S * vx + offX; };
+    auto XC = [&](float vx) { return S * ps3::XCF(vx) + offX; };
+    auto Y  = [&](float vy) { return S * vy + offY; };
+    auto DS = [&](float v)  { return S * v; };
+    const float fb = ps3DlgFontBoost();
+    auto FS = [&](float px) { return S * px * fb / 16.0f; };
+    const float VW = ps3::VW;
+    const float innerTop = 199.0f, innerBot = 880.0f;
 
-    if (mLangSelected < mLangScrollTop) mLangScrollTop = mLangSelected;
-    if (mLangSelected >= mLangScrollTop + visibleRows)
-        mLangScrollTop = mLangSelected - visibleRows + 1;
-    if (mLangScrollTop < 0) mLangScrollTop = 0;
+    int   savedMode  = mTextOutlineMode;
+    float savedRatio = mTextOutlineRatio;
+    mTextOutlineMode = 1; mTextOutlineRatio = 0.5f;
 
-    int end = mLangScrollTop + visibleRows;
-    if (end > LOCALE_COUNT) end = LOCALE_COUNT;
+    // Header: title + dividers.
+    ps3DlgText(tr(STR_SETUP_LANG_TITLE), X(160.0f), Y(187.0f), FS(28.0f),
+               1.0f, 1.0f, 1.0f, alpha, 0);
+    float divLw = fmaxf(1.0f, DS(1.0f));
+    drawQuad(ps3::gFrameX, Y(innerTop), ps3::gFrameW, divLw, 1, 1, 1, 0.55f * alpha);
+    drawQuad(ps3::gFrameX, Y(innerBot), ps3::gFrameW, divLw, 1, 1, 1, 0.55f * alpha);
 
-    for (int i = mLangScrollTop; i < end; i++) {
+    // Centred scrollable language list (selected row glows like a dialog option).
+    const int n = LOCALE_COUNT;
+    const float optTopV = innerTop + 80.0f, optSpacingV = 50.0f;
+    float availH = innerBot - optTopV - 40.0f;
+    int visibleCount = (int)(availH / optSpacingV); if (visibleCount < 3) visibleCount = 3;
+    int firstVis = 0, lastVis = n - 1;
+    if (n > visibleCount) {
+        firstVis = mLangSelected - visibleCount / 2;
+        if (firstVis < 0) firstVis = 0;
+        if (firstVis > n - visibleCount) firstVis = n - visibleCount;
+        lastVis = firstVis + visibleCount - 1;
+    }
+    for (int i = firstVis; i <= lastVis; i++) {
         const LocaleInfo& info = nanoGetLocaleInfo((NanoLocale)i);
-        float y = listTop + (i - mLangScrollTop) * rowH;
-        bool sel = (i == mLangSelected);
-
-        if (sel) {
-            drawQuad(0, y - 3.0f * sf,
-                     (float)mWidth, rowH,
-                     0.15f, 0.35f, 0.70f, alpha * 0.65f);
-        }
-
-        drawText(info.nativeName,
-                 pad, y + rowH * 0.12f,
-                 rowScale,
-                 sel ? 1.0f : 0.85f,
-                 sel ? 1.0f : 0.85f,
-                 sel ? 1.0f : 0.90f,
-                 alpha * (sel ? 1.0f : 0.85f));
-
-        float engScale = rowScale * 0.7f;
-        float engW = measureText(info.englishName, engScale);
-        drawText(info.englishName,
-                 (float)mWidth - engW - pad,
-                 y + rowH * 0.20f,
-                 engScale, 0.5f, 0.5f, 0.6f, alpha * 0.7f);
+        ps3DlgOption(info.nativeName, XC(VW * 0.5f),
+                     Y(optTopV + (i - firstVis) * optSpacingV),
+                     i == mLangSelected, false, alpha, S);
     }
+    if (firstVis > 0)
+        ps3DlgText("\xE2\x96\xB2", XC(VW * 0.5f), Y(optTopV - 18.0f),
+                   FS(20.0f), 1, 1, 1, 0.5f * alpha, 1);
+    if (lastVis < n - 1)
+        ps3DlgText("\xE2\x96\xBC", XC(VW * 0.5f),
+                   Y(optTopV + visibleCount * optSpacingV + 6.0f),
+                   FS(20.0f), 1, 1, 1, 0.5f * alpha, 1);
 
-    if (mLangScrollTop > 0) {
-        float arrowScale = 1.5f * sf;
-        drawText("^", (float)mWidth / 2.0f, listTop - 14.0f * sf,
-                 arrowScale, 0.6f, 0.6f, 0.8f, alpha * 0.6f);
-    }
-    if (end < LOCALE_COUNT) {
-        float arrowScale = 1.5f * sf;
-        drawText("v", (float)mWidth / 2.0f, listBottom - 4.0f * sf,
-                 arrowScale, 0.6f, 0.6f, 0.8f, alpha * 0.6f);
-    }
+    // Footer hints (X Enter / O Cancel).
+    float hintY = Y(909.0f);
+    ps3DlgHint(XC(VW * 0.401f), true,  "Enter",  hintY, S, alpha);
+    ps3DlgHint(XC(VW * 0.629f), false, "Cancel", hintY, S, alpha);
 
-    // Footer
-    float footScale = 1.3f * sf;
-    const char* footer = tr(STR_SETUP_LANG_FOOTER);
-    float footW = measureText(footer, footScale);
-    drawText(footer, ((float)mWidth - footW) / 2.0f,
-             (float)mHeight - 70.0f * sf, footScale,
-             0.9f, 0.9f, 0.95f, alpha * 0.85f);
+    mTextOutlineMode = savedMode;
+    mTextOutlineRatio = savedRatio;
 }
 
 } // namespace android

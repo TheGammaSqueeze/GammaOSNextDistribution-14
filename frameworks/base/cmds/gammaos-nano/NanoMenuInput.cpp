@@ -993,6 +993,8 @@ void NanoMenu::pollInput() {
                             case KEY_LEFT:  navPress(NavDir::Left);  break;
                             case KEY_RIGHT: navPress(NavDir::Right); break;
                             case BTN_NORTH: wizRescan(); break;
+                            // Start skips the wifi / bluetooth step entirely.
+                            case BTN_START: handleSetupStart(); break;
                             default: break;
                             }
                             continue;
