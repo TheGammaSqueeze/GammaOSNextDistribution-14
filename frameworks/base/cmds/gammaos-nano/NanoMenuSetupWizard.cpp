@@ -456,6 +456,11 @@ void NanoMenu::handleSetupSelect() {
 
 void NanoMenu::handleSetupBack() {
     if (mSetupTransitioning) return;
+    // Back closes the OSK first when it is open (wifi password / text fields),
+    // exactly like handleBack(). Otherwise Back fell through to goBackSetupStep()
+    // while the keyboard stayed up, so the previous step showed under a stuck OSK
+    // and the next Enter ran oskConfirm() in the wrong step (broken input).
+    if (mOskActive) { closeOsk(); return; }
 
     switch (mSetupStep) {
     case SETUP_WELCOME:
@@ -720,7 +725,9 @@ void NanoMenu::drawSetupSkipHint() {
     int   savedMode  = mTextOutlineMode;
     float savedRatio = mTextOutlineRatio;
     mTextOutlineMode = 1; mTextOutlineRatio = 0.5f;
-    ps3DlgHintG(XC(ps3::VW * 0.84f), 2, "Skip", Y(187.0f), S, alpha);
+    // Centred, just under the Enter / Cancel footer row (the net wizard draws
+    // those at Y(909)).
+    ps3DlgHintG(XC(ps3::VW * 0.5f), 2, "Skip", Y(955.0f), S, alpha);
     mTextOutlineMode = savedMode;
     mTextOutlineRatio = savedRatio;
 }
@@ -978,7 +985,10 @@ void NanoMenu::renderSetupInstalling() {
       lp.uiScale = mPs3UiScale; ps3::layoutCompute(lp); }
     float ui = mPs3UiScale; if (ui < 0.5f) ui = 0.5f; if (ui > 2.0f) ui = 2.0f;
     const float S = ps3::gScale / ui;
-    const float offX = ps3::gFrameX + (ps3::gFrameW - S * ps3::XCF(ps3::VW)) * 0.5f;
+    // Honor the wizard slide so this screen slides + cross-fades in like the
+    // other steps (it used absolute coords before, so it only faded -> abrupt).
+    const float offX = ps3::gFrameX + (ps3::gFrameW - S * ps3::XCF(ps3::VW)) * 0.5f
+                     + mSetupSlideOffset;
     const float offY = ps3::gFrameY + ps3::gFrameH * 0.5f - S * (ps3::VH * 0.5f);
     auto X  = [&](float vx) { return S * vx + offX; };
     auto XC = [&](float vx) { return S * ps3::XCF(vx) + offX; };
@@ -1001,28 +1011,70 @@ void NanoMenu::renderSetupInstalling() {
     drawQuad(ps3::gFrameX, Y(innerTop), ps3::gFrameW, divLw, 1, 1, 1, 0.55f * alpha);
     drawQuad(ps3::gFrameX, Y(innerBot), ps3::gFrameW, divLw, 1, 1, 1, 0.55f * alpha);
 
-    // Body: the configuration log, auto-scrolled to the newest line.
-    std::vector<std::string> lines;
-    {
-        std::lock_guard<std::mutex> lk(mSetupLogMutex);
-        lines = mSetupLogLines;
+    // Body: the configuration log. Word-wrapping every frame over the full (and
+    // growing) log was O(total chars) of measureText per frame and tanked the FPS,
+    // which persisted after the script finished because the log stayed large. Wrap
+    // only the visible tail, cached, re-wrapping only when the log grows or the
+    // frame width changes - so steady state (and the finished screen) is free.
+    const float lfs = FS(17.0f);
+    const float logLeft = X(160.0f);
+    float maxLogW = X(ps3::VW - 160.0f) - logLeft;   // slide-invariant (offX cancels)
+    if (maxLogW < 40.0f) maxLogW = 40.0f;
+    const float logTopV = innerTop + 46.0f, logRowV = 28.0f;
+    float availV = (innerBot - 26.0f) - logTopV;
+    int visibleRows = (int)(availV / logRowV); if (visibleRows < 4) visibleRows = 4;
+    size_t curLines;
+    { std::lock_guard<std::mutex> lk(mSetupLogMutex); curLines = mSetupLogLines.size(); }
+    if ((int)curLines != mSetupLogRowsForLines || maxLogW != mSetupLogRowsForW) {
+        std::vector<std::string> tail;
+        {
+            std::lock_guard<std::mutex> lk(mSetupLogMutex);
+            int from = (int)mSetupLogLines.size() - (visibleRows + 6);
+            if (from < 0) from = 0;
+            for (int i = from; i < (int)mSetupLogLines.size(); i++) tail.push_back(mSetupLogLines[i]);
+        }
+        mSetupLogRows.clear();
+        for (const std::string& ln : tail) {
+            int kind = 0;
+            if (ln.find("Error") != std::string::npos ||
+                ln.find("error") != std::string::npos) kind = 2;
+            else if (ln.find("completed") != std::string::npos ||
+                     ln.find("successfully") != std::string::npos) kind = 3;
+            else if (ln.find("Installing") != std::string::npos ||
+                     ln.find("Extracting") != std::string::npos) kind = 1;
+            if (ln.empty()) { mSetupLogRows.push_back({"", kind}); continue; }
+            // Greedy wrap: break at the last space that fits; hard-break a single
+            // long token (a path) mid-token.
+            std::string cur;
+            for (size_t c = 0; c < ln.size(); c++) {
+                std::string trial = cur + ln[c];
+                if (!cur.empty() && measureText(trial.c_str(), lfs) > maxLogW) {
+                    size_t sp = cur.find_last_of(' ');
+                    if (sp != std::string::npos && sp > 0) {
+                        mSetupLogRows.push_back({cur.substr(0, sp), kind});
+                        cur = cur.substr(sp + 1) + ln[c];
+                    } else {
+                        mSetupLogRows.push_back({cur, kind});
+                        cur = std::string(1, ln[c]);
+                    }
+                } else cur = trial;
+            }
+            if (!cur.empty()) mSetupLogRows.push_back({cur, kind});
+        }
+        mSetupLogRowsForLines = (int)curLines;
+        mSetupLogRowsForW = maxLogW;
     }
-    const float logTopV = innerTop + 46.0f, logRowV = 30.0f;
-    float availV = (innerBot - 30.0f) - logTopV;
-    int visibleLines = (int)(availV / logRowV); if (visibleLines < 4) visibleLines = 4;
-    int totalLines = (int)lines.size();
-    int startL = (totalLines > visibleLines) ? totalLines - visibleLines : 0;
-    for (int i = startL; i < totalLines; i++) {
-        const std::string& ln = lines[i];
+    int totalRows = (int)mSetupLogRows.size();
+    int startR = (totalRows > visibleRows) ? totalRows - visibleRows : 0;
+    for (int i = startR; i < totalRows; i++) {
+        int kind = mSetupLogRows[i].second;
         float r = 0.75f, g = 0.78f, b = 0.82f;
-        if (ln.find("Installing") != std::string::npos ||
-            ln.find("Extracting") != std::string::npos) { r = 0.45f; g = 0.9f; b = 0.55f; }
-        else if (ln.find("Error") != std::string::npos ||
-                 ln.find("error") != std::string::npos) { r = 1.0f; g = 0.45f; b = 0.45f; }
-        else if (ln.find("completed") != std::string::npos ||
-                 ln.find("successfully") != std::string::npos) { r = 0.4f; g = 0.95f; b = 0.6f; }
-        ps3DlgText(ln.c_str(), X(160.0f), Y(logTopV + (i - startL) * logRowV),
-                   FS(17.0f), r, g, b, alpha * 0.92f, 0);
+        if (kind == 1)      { r = 0.45f; g = 0.9f;  b = 0.55f; }
+        else if (kind == 2) { r = 1.0f;  g = 0.45f; b = 0.45f; }
+        else if (kind == 3) { r = 0.4f;  g = 0.95f; b = 0.6f;  }
+        ps3DlgText(mSetupLogRows[i].first.c_str(), logLeft,
+                   Y(logTopV + (float)(i - startR) * logRowV),
+                   lfs, r, g, b, alpha * 0.92f, 0);
     }
 
     // Footer: Start-Continue once done, otherwise a centred "Please wait...".
@@ -1030,7 +1082,7 @@ void NanoMenu::renderSetupInstalling() {
     if (mSetupScriptDone) {
         ps3DlgHintG(XC(VW * 0.5f), 2, "Continue", hintY, S, alpha);
     } else {
-        ps3DlgText(tr(STR_SETUP_INSTALL_WAIT), XC(VW * 0.5f), Y(902.0f), FS(20.0f),
+        ps3DlgText(tr(STR_SETUP_INSTALL_WAIT), XC(VW * 0.5f), Y(916.0f), FS(20.0f),
                    0.9f, 0.9f, 0.95f, 0.9f * alpha, 1);
     }
 

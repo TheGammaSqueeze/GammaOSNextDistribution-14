@@ -1541,8 +1541,8 @@ void NanoMenu::renderPs3Xmb() {
         // Heavier, darker dark stroke just for the subtitle so the small grey
         // blurb stays legible over the wave wallpaper.
         float savedRatio = mTextOutlineRatio, savedMul = mTextOutlineWidthMul;
-        mTextOutlineRatio = 0.40f;          // 60% transparent black stroke
-        mTextOutlineWidthMul = 2.3f;        // wider stroke for a softer halo around the small subtitle
+        mTextOutlineRatio = 0.20f;          // 80% transparent black stroke
+        mTextOutlineWidthMul = 1.0f;        // tight 1px stroke (crisp edge, not a spread halo)
         for (int li = 0; li < nLines; li++) {
             float ly = ps3::baselineToTopY(y0 + (float)li * lineH, ds);
             drawText(wrapped[li].c_str(), txDev, ly, ds, 0.82f, 0.82f, 0.86f, alpha);
@@ -2477,11 +2477,12 @@ void NanoMenu::ps3DlgHintG(float slotCxDev, int glyph, const char* label,
         ps3ThickLine(gcx + d, yDev - d, gcx - d, yDev + d, lw, 1.0f, 1.0f, 1.0f, 0.95f * ap);
     } else if (glyph == 1) {     // ring (O)
         ps3StrokeRing(gcx, yDev, glyphR, glyphR, lw, 1.0f, 1.0f, 1.0f, 0.95f * ap);
-    } else {                     // Start: a flat oval (the DualShock Start button)
-        ps3StrokeRing(gcx, yDev, glyphR, glyphR * 0.60f, lw, 1.0f, 1.0f, 1.0f, 0.95f * ap);
-        float t = glyphR * 0.34f;       // small right-pointing play arrow inside
-        drawTriangle(gcx - t * 0.65f, yDev - t, gcx - t * 0.65f, yDev + t,
-                     gcx + t * 0.95f, yDev, 1.0f, 1.0f, 1.0f, 0.95f * ap);
+    } else {                     // Start: the real PlayStation Start glyph - a
+                                 // right-pointing filled "play" triangle.
+        drawTriangle(gcx - glyphR * 0.62f, yDev - glyphR * 0.82f,
+                     gcx - glyphR * 0.62f, yDev + glyphR * 0.82f,
+                     gcx + glyphR * 0.98f, yDev,
+                     1.0f, 1.0f, 1.0f, 0.95f * ap);
     }
     float topY = yDev - 0.45f * 16.0f * fs;
     drawText(label, left + glyphR * 2.0f + gap, topY, fs, 1.0f, 1.0f, 1.0f, 0.95f * ap);

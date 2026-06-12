@@ -1593,6 +1593,12 @@ private:
     GLuint mPs3TzHeaderTex = 0;   // cached xmb_icon_022 colour texture (header glyph)
     // Setup script log tailing
     std::vector<std::string> mSetupLogLines;
+    // Cached word-wrapped tail of the install log (text + colour kind). Re-wrapped
+    // only when the log grows or the frame width changes so the running setup
+    // script never makes the Configuring screen re-wrap every frame.
+    std::vector<std::pair<std::string, int>> mSetupLogRows;
+    int   mSetupLogRowsForLines = -1;
+    float mSetupLogRowsForW = -1.0f;
     int mSetupLogScrollTop;
     bool mSetupScriptRunning;
     bool mSetupScriptDone;
