@@ -3247,10 +3247,10 @@ if (sRingPrimedCount >= 2) {
                 }
             } else if (elapsedRealtime() - bootCompletedDetectedMs
                        >= 1000) {
-                system("/vendor/bin/setclock_stock.sh &");
+                // setclock_stock.sh is intentionally NOT run on boot (user
+                // request): the nano menu no longer forces stock CPU/GPU clocks.
+                // Performance modes selected from the Quick Menu still apply.
                 stockClocksApplied = true;
-                ALOGD("NanoMenu: spawned setclock_stock.sh "
-                      "(background) after boot_completed + 1 s");
                 // Push NanoMenu's brightness TO Android settings now
                 // that the settings provider is available. NanoMenu's
                 // persist property is the source of truth during boot.
