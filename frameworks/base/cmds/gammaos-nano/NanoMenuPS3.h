@@ -52,7 +52,7 @@ constexpr float CAT_FAR_ALPHA = 0.25f;
 // ---- Item list ----
 constexpr float ITEM_FOCUS_Y = 515.0f;
 constexpr float ITEM_SPACING = 80.0f;
-constexpr float ITEM_ACTIVE_PAD = 108.0f;   // bigger than web 87: makes room for the 3-line enlarged description below the active item
+constexpr float ITEM_ACTIVE_PAD = 118.0f;   // bigger than web 87: makes room for the 3-line enlarged description below the active item (raised with ITEM_DESC_OFFSET for the extra subtitle gap)
 constexpr float ITEM_ICON_X = 566.0f;
 constexpr float ITEM_ICON_SIZE = 108.0f;   // bigger than web 78 to match the RetroArch console-icon size
 // Content icons sourced from RetroArch/the launcher (console systems, ROM/game
@@ -63,8 +63,10 @@ constexpr float ITEM_ICON_ACTIVE = 180.0f;
 constexpr float ITEM_TEXT_X = 683.0f;
 constexpr float ITEM_TEXT_SIZE = 30.0f;
 constexpr float ITEM_TEXT_ACTIVE_SIZE = 34.0f;
-constexpr float ITEM_DESC_OFFSET = 26.0f;
-constexpr float ITEM_DESC_SIZE = 22.0f;   // bigger than web 18 (too small on small panels), sized to fit 3 wrapped lines
+constexpr float ITEM_DESC_OFFSET = 38.0f;   // gap below the glowing selected label to the subtitle top (raised ~2 device px for breathing room)
+constexpr float ITEM_DESC_SIZE = 22.0f;   // base subtitle size (web is 18). The small-panel boost is applied via the resolution-gated DESC_BOOST (gDescSize), not a flat bump, so >=720p stays at this base.
+constexpr float ITEM_DESC_LINEH = 1.12f;   // subtitle line-height multiplier (tighter than the label so 3 wrapped lines fit the active pad)
+constexpr float ITEM_DESC_MARGIN = 4.0f;   // virtual px of breathing room below the 3rd subtitle line before the next item
 constexpr float ITEM_VALUE_RIGHT_PAD = 80.0f;
 
 // ---- Scale + alpha tiers (firmware-verified) ----
@@ -137,6 +139,8 @@ enum RodinWeight { RODIN_LIGHT = 0, RODIN_REGULAR = 1, RODIN_BOLD = 2 };
 // ============================================================================
 
 extern float gScale;        // virtual -> device px (uniform; never anamorphic)
+extern float gDescSize;     // resolution-gated subtitle size in virtual px (ITEM_DESC_SIZE..ITEM_DESC_SIZE_SMALL), set per frame in layoutCompute
+extern float gActivePad;    // active-item pad in virtual px, sized to fit 3 lines of gDescSize, set per frame in layoutCompute
 extern float gOffX;         // device-px horizontal offset (frame centring / pillarbox)
 extern float gOffY;         // device-px vertical offset (letterbox + portrait focus parking)
 extern float LAYOUT_FIT;    // visible virtual width / VW (right edge factor)

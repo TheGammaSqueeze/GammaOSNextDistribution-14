@@ -198,9 +198,9 @@ public:
     enum SetupWizardStep {
         SETUP_WELCOME = 0,
         SETUP_LANGUAGE,
+        SETUP_TIMEZONE,
         SETUP_WIFI,
         SETUP_BLUETOOTH,
-        SETUP_TIMEZONE,
         SETUP_INSTALLING,
         SETUP_FINISH,
         SETUP_STEP_COUNT,
@@ -522,7 +522,16 @@ private:
     // Rendering
     void initShaders();
     void initFonts();
-    void ensureGlyph(uint32_t codepoint);
+    // Rasterize (if needed) and return the glyph cached at rasterPx device px.
+    // Mono glyphs are rendered at that exact size (crisp, evenly hinted, no
+    // fractional bitmap scaling); color emoji use their fixed strike normalized
+    // to mFontSize regardless of rasterPx. Returns nullptr if unavailable.
+    const GlyphInfo* ensureGlyph(uint32_t codepoint, int rasterPx);
+    // Toggle anti-aliased (mipmapped) minification on the glyph atlas. Scoped to
+    // the home-XMB menu content only (see renderPs3Xmb); off for dialogs, OSK,
+    // setup wizard and legacy menus. Filter is texture-object state, so one call
+    // per region covers every drawText within it.
+    void setGlyphAtlasAA(bool on);
     void drawText(const char* str, float px, float py, float scale,
                   float r, float g, float b, float a);
     float measureText(const char* str, float scale);
@@ -854,6 +863,14 @@ private:
     //   2 = none (used around glow/halo white copies so they get no dark outline)
     int   mTextOutlineMode = 0;
     float mTextOutlineRatio = 0.8f;
+    // Multiplies drawText's outline offset (stroke thickness). 1.0 normally;
+    // raised briefly around the item subtitle so its dark stroke is heavier and
+    // the small grey description reads clearly on small panels.
+    float mTextOutlineWidthMul = 1.0f;
+    // Small-panel readability boost for the fullscreen dialog/wizard body text
+    // (System Update, Network Connection Settings). 1.0 on >=720p panels,
+    // ramping up on small handheld screens where the 1:1 web sizes are too small.
+    float ps3DlgFontBoost() const;
     std::vector<XmbRecentEntry> mXmbRecent; // Recently played from XMB
     int mXmbRecentMax;                       // Max entries to keep
     std::vector<XmbSystem> mXmbSystems;
@@ -1070,6 +1087,8 @@ private:
     float mPs3AnimItem = 0.0f;
     float mPs3ItemAnimFrom = 0.0f;     // animated position when the step started
     float mPs3ItemAnimStart = -1.0f;   // mEffectTime at the step start (<0 = snap)
+    int   mPs3DescLinesTarget = 3;     // active item's wrapped subtitle line count (1..4), set by drawDesc; drives the dynamic active pad
+    float mPs3ActivePad = 118.0f;      // eased active-item pad (virtual px) -> ps3::gActivePad, grows to fit the subtitle's actual line count
     float mPs3SubAnim = 0.0f;        // 0 = top level, 1 = in submenu (collapse factor)
     int   mPs3SubDir = 0;            // +1 entering, -1 exiting
     // Timed submenu collapse animation (mirrors the web submenuAnim: 250ms
@@ -1425,7 +1444,17 @@ private:
     GLuint mGlyphAtlasTex;
     int mAtlasW, mAtlasH;
     int mAtlasCurX, mAtlasCurY, mAtlasRowH;
-    std::unordered_map<uint32_t, GlyphInfo> mGlyphCache;
+    // True after a glyph packs; render() regenerates the atlas mip chain once
+    // (then idles, glyphs are prewarmed). The mip chain only feeds the home-XMB
+    // anti-aliased minification path below; all other text stays GL_LINEAR.
+    bool mGlyphAtlasMipDirty = false;
+    // Currently-set atlas MIN_FILTER (texture-object state). setGlyphAtlasAA()
+    // flips this to GL_LINEAR_MIPMAP_NEAREST only around the home-XMB menu
+    // content and back to GL_LINEAR everywhere else, skipping redundant GL sets.
+    GLint mGlyphAtlasMinFilter = GL_LINEAR;
+    // Keyed by (rasterPx << 32 | codepoint): one entry per glyph per display
+    // size, so each is rendered crisp at its native pixel size.
+    std::unordered_map<uint64_t, GlyphInfo> mGlyphCache;
     // Scale-independent text widths keyed by string (see measureText). Never
     // invalidated: the font size is fixed at init and glyphs only get added.
     std::unordered_map<std::string, float> mTextWidthCache;
@@ -1437,6 +1466,8 @@ private:
     GLint  mTextLocColor;
     GLint  mTextLocTexture;
     GLint  mTextLocRotation;
+    GLint  mTextLocSharp = -1;   // uSharp uniform: crisp analytic edge AA amount
+    float  mTextSharp = 0.0f;    // current uSharp value (set by setGlyphAtlasAA), uploaded by drawText
 
     // Rounded-rect shader (OSK keys)
     GLuint mRoundProgram;

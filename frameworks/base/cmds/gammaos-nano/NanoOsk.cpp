@@ -1013,6 +1013,11 @@ std::string NanoMenu::maskPassword(const std::string& s) {
 
 void NanoMenu::renderOsk() {
     if (!mOskActive) return;
+    // The keyboard always uses crisp GL_LINEAR text, even when it sits over an
+    // anti-aliased home-XMB menu or setup-wizard step (whichever drew just
+    // before this in render()). Mip-AA softens the small key glyphs, so keep it
+    // off here regardless of the caller's state.
+    setGlyphAtlasAA(false);
     oskTick();   // long-press popup + animation clock (render runs every frame)
 
     // --- Show/hide fade ---

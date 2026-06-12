@@ -41,6 +41,8 @@ namespace android {
 namespace ps3 {
 
 float gScale       = 1.0f;
+float gDescSize    = ITEM_DESC_SIZE;
+float gActivePad   = ITEM_ACTIVE_PAD;
 float gOffX        = 0.0f;
 float gOffY        = 0.0f;
 float LAYOUT_FIT   = 1.0f;
@@ -172,6 +174,11 @@ void layoutCompute(const LayoutParams& P) {
     // Subtitle font boost on genuinely tiny frames. (index.html 1999-2001)
     const float md = fminf(fw, fh);
     DESC_BOOST = fminf(1.5f, 1.0f + fmaxf(0.0f, READ_CUT - md) / 300.0f);
+    // Effective subtitle size: resolution-gated (base at >=720p, one size bigger
+    // on small panels via DESC_BOOST). Read per frame by drawDesc. The active pad
+    // that fits its wrapped lines is computed and eased in renderPs3Xmb (it needs
+    // the per-item line count), so gActivePad is not set here.
+    gDescSize  = ITEM_DESC_SIZE * DESC_BOOST;
 
     // Extra leftward shift on frames narrower than 4:3. (index.html 2006-2011)
     const float FIT_43 = 0.75f;

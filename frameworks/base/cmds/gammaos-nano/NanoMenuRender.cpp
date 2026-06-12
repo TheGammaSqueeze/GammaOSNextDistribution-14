@@ -449,6 +449,7 @@ void NanoMenu::drawIcon(int iconIdx, float x, float y, float size,
     }
 
     glUseProgram(mTextProgram); // reuse text shader (texture * vertex color)
+    if (mTextLocSharp >= 0) glUniform1f(mTextLocSharp, 0.0f);   // icons: no glyph edge-sharpen
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, mIconTextures[iconIdx]);
     glUniform1i(mTextLocTexture, 0);
@@ -913,7 +914,12 @@ void NanoMenu::initFonts() {
             ALOGW("NanoMenu: failed to load font: %s", path);
         }
     }
-    mFontSize = 48; // base render size
+    // Base atlas render size. Higher = sharper LARGE text (the setup-wizard
+    // welcome greeting is drawn at ~57-85px and was upscaling/blurring from a
+    // 48px atlas). Displayed text size is FONT_CHAR_H*scale (independent of
+    // mFontSize), so this only raises the source resolution: crisper big text
+    // and crisper minified text, with no layout change and no outline change.
+    mFontSize = 64;
     for (int i = 0; i < mFtNumFaces; i++) {
         if (!FT_HAS_COLOR(mFtFaces[i])) {
             FT_Set_Pixel_Sizes(mFtFaces[i], 0, mFontSize);
@@ -927,23 +933,70 @@ void NanoMenu::initFonts() {
     mAtlasRowH = 0;
     glGenTextures(1, &mGlyphAtlasTex);
     glBindTexture(GL_TEXTURE_2D, mGlyphAtlasTex);
+    // Default to plain GL_LINEAR (no anti-aliasing). The home-XMB menu content
+    // opts into GL_LINEAR_MIPMAP_NEAREST per frame via setGlyphAtlasAA(); the
+    // mip chain below makes that switch valid from the very first draw.
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    std::vector<uint8_t> blank(mAtlasW * mAtlasH * 4, 0);
+    // White-transparent (not black-transparent) gutters: mono glyphs store
+    // RGB=255/A=coverage, so when a mip level averages a glyph edge against the
+    // gutter the RGB stays 255 and only the coverage falls off -> no dark fringe
+    // on minified text (the text shader multiplies texel.rgb * colour).
+    std::vector<uint8_t> blank(mAtlasW * mAtlasH * 4, 255);
+    for (size_t i = 3; i < blank.size(); i += 4) blank[i] = 0;
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, mAtlasW, mAtlasH, 0,
                  GL_RGBA, GL_UNSIGNED_BYTE, blank.data());
+    // Allocate the full mip chain up front so the texture is mipmap-complete
+    // from the first frame; real levels get filled as glyphs pack
+    // (mGlyphAtlasMipDirty -> glGenerateMipmap in render()).
+    glGenerateMipmap(GL_TEXTURE_2D);
     ALOGD("NanoMenu: font atlas %dx%d, %d faces loaded", mAtlasW, mAtlasH, mFtNumFaces);
+}
+
+// Toggle crisp anti-aliased text on the glyph atlas. On: trilinear minification
+// (GL_LINEAR_MIPMAP_LINEAR) gives a clean, shimmer-free coverage sample, and the
+// text shader's uSharp pass re-sharpens the glyph edge to ~1px so the result is
+// crisp, not the soft trilinear blur. Off: plain GL_LINEAR + uSharp 0 (byte
+// identical to the original text path). Scoped per region: the home-XMB menu
+// content, the dialogs and the setup wizard (after the Hello screen) turn it on;
+// the OSK, the welcome greeting and legacy menus stay off. MIN_FILTER is
+// texture-object state (one call covers the region); mTextSharp is uploaded by
+// drawText. mGlyphAtlasMinFilter skips redundant GL calls.
+void NanoMenu::setGlyphAtlasAA(bool /*on*/) {
+    // Superseded by per-size glyph rasterization: glyphs are now rendered at their
+    // exact display pixel size and blitted 1:1, which is inherently crisp, so the
+    // mipmap-minification + shader edge-sharpen workarounds are disabled (they
+    // would re-threshold already-crisp native glyphs). Kept as a no-op so the
+    // per-region call sites need no churn. Plain GL_LINEAR + uSharp 0 everywhere.
+    mTextSharp = 0.0f;
+    if (mGlyphAtlasMinFilter == GL_LINEAR) return;
+    glBindTexture(GL_TEXTURE_2D, mGlyphAtlasTex);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    mGlyphAtlasMinFilter = GL_LINEAR;
 }
 
 // ---------------------------------------------------------------------------
 // Glyph caching
 // ---------------------------------------------------------------------------
 
-void NanoMenu::ensureGlyph(uint32_t cp) {
-    if (mGlyphCache.count(cp)) return;
-    if (mFtNumFaces == 0) return;
+const GlyphInfo* NanoMenu::ensureGlyph(uint32_t cp, int rasterPx) {
+    if (rasterPx < 6) rasterPx = 6;
+    if (rasterPx > mFontSize) rasterPx = mFontSize;   // upscale beyond the master in drawText
+    // Fast path: already cached at this raster size (mono), or as a color strike
+    // (cached once under mFontSize regardless of the requested size).
+    const uint64_t monoKey = ((uint64_t)(uint32_t)rasterPx << 32) | cp;
+    {
+        auto it = mGlyphCache.find(monoKey);
+        if (it != mGlyphCache.end()) return &it->second;
+    }
+    const uint64_t colorKey = ((uint64_t)(uint32_t)mFontSize << 32) | cp;
+    if (rasterPx != mFontSize) {
+        auto it = mGlyphCache.find(colorKey);
+        if (it != mGlyphCache.end() && it->second.color) return &it->second;
+    }
+    if (mFtNumFaces == 0) return nullptr;
 
     FT_Face face = nullptr;
     FT_UInt gi = 0;
@@ -962,9 +1015,13 @@ void NanoMenu::ensureGlyph(uint32_t cp) {
         gi = FT_Get_Char_Index(face, '?');
         isColorFace = false;
     }
-    if (!face || gi == 0) return;
+    if (!face || gi == 0) return nullptr;
 
-    // For emoji, select a strike size close to our font size
+    // Mono glyphs rasterize at the exact display size (crisp); color emoji use a
+    // fixed strike normalized to mFontSize. The cache key picks the matching slot.
+    const int px = isColorFace ? mFontSize : rasterPx;
+    const uint64_t key = isColorFace ? colorKey : monoKey;
+
     if (isColorFace && FT_HAS_FIXED_SIZES(face)) {
         int bestIdx = 0;
         int bestDiff = 99999;
@@ -974,12 +1031,12 @@ void NanoMenu::ensureGlyph(uint32_t cp) {
         }
         FT_Select_Size(face, bestIdx);
     } else if (!isColorFace) {
-        FT_Set_Pixel_Sizes(face, 0, mFontSize);
+        FT_Set_Pixel_Sizes(face, 0, px);
     }
 
     FT_Int32 loadFlags = FT_LOAD_RENDER;
     if (isColorFace) loadFlags |= FT_LOAD_COLOR;
-    if (FT_Load_Glyph(face, gi, loadFlags) != 0) return;
+    if (FT_Load_Glyph(face, gi, loadFlags) != 0) return nullptr;
 
     FT_Bitmap* bmp = &face->glyph->bitmap;
     int bw = (int)bmp->width;
@@ -988,14 +1045,16 @@ void NanoMenu::ensureGlyph(uint32_t cp) {
 
     // Pack into atlas (row-based, simple packer)
     if (bw > 0 && bh > 0) {
-        if (mAtlasCurX + bw + 1 > mAtlasW) {
+        // 2px gutters (was 1) so the first couple of mip levels do not bleed
+        // neighbouring glyphs into the home-XMB anti-aliased minification path.
+        if (mAtlasCurX + bw + 2 > mAtlasW) {
             mAtlasCurX = 1;
-            mAtlasCurY += mAtlasRowH + 1;
+            mAtlasCurY += mAtlasRowH + 2;
             mAtlasRowH = 0;
         }
-        if (mAtlasCurY + bh + 1 > mAtlasH) {
-            ALOGW("NanoMenu: glyph atlas full at cp=%u", cp);
-            return;
+        if (mAtlasCurY + bh + 2 > mAtlasH) {
+            ALOGW("NanoMenu: glyph atlas full at cp=%u px=%d", cp, px);
+            return nullptr;
         }
 
         // Convert to RGBA
@@ -1021,6 +1080,8 @@ void NanoMenu::ensureGlyph(uint32_t cp) {
         glBindTexture(GL_TEXTURE_2D, mGlyphAtlasTex);
         glTexSubImage2D(GL_TEXTURE_2D, 0, mAtlasCurX, mAtlasCurY,
                         bw, bh, GL_RGBA, GL_UNSIGNED_BYTE, rgba.data());
+        // No mip regen: per-size glyphs are sampled 1:1 with GL_LINEAR (mipmaps
+        // unused now), so rebuilding the chain per glyph pack would be wasted work.
     }
 
     GlyphInfo info = {};
@@ -1048,12 +1109,14 @@ void NanoMenu::ensureGlyph(uint32_t cp) {
         info.scaleH = 1.0f;
     }
 
-    mGlyphCache[cp] = info;
+    auto res = mGlyphCache.emplace(key, info);
+    GlyphInfo* stored = &res.first->second;
 
     if (bw > 0 && bh > 0) {
         mAtlasCurX += bw + 1;
         if (bh + 1 > mAtlasRowH) mAtlasRowH = bh + 1;
     }
+    return stored;
 }
 
 // ---------------------------------------------------------------------------
@@ -1062,14 +1125,22 @@ void NanoMenu::ensureGlyph(uint32_t cp) {
 
 float NanoMenu::measureText(const char* str, float scale) {
     if (!str || !*str) return 0.0f;
-    float pixelScale = (FONT_CHAR_H * scale) / (float)mFontSize;
-    // Width cache. Glyph advances never change once rendered (mFontSize is
-    // fixed at init and mGlyphCache only grows), so the scale-independent unit
-    // width is cached per string and scaled per call. drawList measures every
-    // visible label AND value every frame (plus ticker substrings), which made
-    // this UTF-8 decode + per-glyph hash walk a steady per-frame CPU tax.
-    auto cached = mTextWidthCache.find(str);
-    if (cached != mTextWidthCache.end()) return cached->second * pixelScale;
+    // Match drawText's per-size layout: glyphs are rasterized at the integer
+    // display pixel size and (for mono <= the master) drawn 1:1, so the summed
+    // advances are already the device-px width. strResidual covers the upscaled
+    // case (text bigger than the master atlas size).
+    float displayEm = (float)FONT_CHAR_H * scale;
+    int rasterPx = (int)lroundf(displayEm);
+    if (rasterPx < 6) rasterPx = 6;
+    if (rasterPx > mFontSize) rasterPx = mFontSize;
+    float strResidual = (displayEm > (float)mFontSize) ? (displayEm / (float)mFontSize) : 1.0f;
+    // Width cache keyed by raster size + string (advances now differ per size).
+    // drawList measures every visible label AND value every frame, so this keeps
+    // the UTF-8 decode + per-glyph walk off the steady-state path.
+    std::string key(1, (char)rasterPx);
+    key += str;
+    auto cached = mTextWidthCache.find(key);
+    if (cached != mTextWidthCache.end()) return cached->second * strResidual;
     float unit = 0.0f;
     for (const char* p = str; *p; ) {
         uint32_t cp;
@@ -1079,14 +1150,11 @@ float NanoMenu::measureText(const char* str, float scale) {
         else if ((b0 & 0xF0) == 0xE0) { cp = ((b0 & 0x0F) << 12) | ((p[1] & 0x3F) << 6) | (p[2] & 0x3F); p += 3; }
         else if ((b0 & 0xF8) == 0xF0) { cp = ((b0 & 0x07) << 18) | ((p[1] & 0x3F) << 12) | ((p[2] & 0x3F) << 6) | (p[3] & 0x3F); p += 4; }
         else { p++; continue; }
-        ensureGlyph(cp);
-        auto it = mGlyphCache.find(cp);
-        if (it != mGlyphCache.end()) {
-            unit += it->second.advance * it->second.scaleW;
-        }
+        const GlyphInfo* gi = ensureGlyph(cp, rasterPx);
+        if (gi) unit += gi->advance * gi->scaleW;
     }
-    mTextWidthCache.emplace(str, unit);
-    return unit * pixelScale;
+    mTextWidthCache.emplace(std::move(key), unit);
+    return unit * strResidual;
 }
 
 // 5x capacity: 4 shadow passes + 1 main pass batched into one draw
@@ -1126,10 +1194,16 @@ static inline void emitGlyph(int n, float x0, float y0, float x1, float y1,
 void NanoMenu::drawText(const char* str, float px, float py, float scale,
                         float r, float g, float b, float a) {
     if (!str || !*str || mFtNumFaces == 0) return;
-    float pixelScale = (FONT_CHAR_H * scale) / (float)mFontSize;
+    // Per-size: rasterize glyphs at the integer display pixel size and blit them
+    // 1:1 (for mono text at/below the master) so strokes are crisp and evenly
+    // scaled instead of a fractional downscale of the 64px master atlas.
+    float displayEm = (float)FONT_CHAR_H * scale;   // device-px em height
+    int rasterPx = (int)lroundf(displayEm);
+    if (rasterPx < 6) rasterPx = 6;
+    if (rasterPx > mFontSize) rasterPx = mFontSize;
     float invW = 2.0f / mWidth, invH = 2.0f / mHeight;
-    float baseline = py + mFontSize * pixelScale * 0.8f;
-    float off = fmaxf(1.0f, scale * 0.4f);
+    float baseline = py + displayEm * 0.8f;
+    float off = fmaxf(1.0f, scale * 0.4f) * mTextOutlineWidthMul;
     // Pixel offset in NDC
     float offX = off * invW;
     float offY = off * invH;
@@ -1148,19 +1222,27 @@ void NanoMenu::drawText(const char* str, float px, float py, float scale,
         else if ((b0 & 0xF8) == 0xF0) { cp = ((b0 & 0x07) << 18) | ((p[1] & 0x3F) << 12) | ((p[2] & 0x3F) << 6) | (p[3] & 0x3F); p += 4; }
         else { p++; continue; }
 
-        ensureGlyph(cp);
-        auto it = mGlyphCache.find(cp);
-        if (it == mGlyphCache.end()) continue;
-        const GlyphInfo& gi = it->second;
+        const GlyphInfo* git = ensureGlyph(cp, rasterPx);
+        if (!git) continue;
+        const GlyphInfo& gi = *git;
+        // residual = 1.0 for crisp 1:1 mono at its rasterized size; > 1 only when
+        // the text is bigger than the master (upscaled) or a color emoji strike.
+        float residual = (gi.color || displayEm > (float)mFontSize)
+                       ? (displayEm / (float)mFontSize) : 1.0f;
         if (gi.bmpW == 0 || gi.bmpH == 0) {
-            curX += gi.advance * gi.scaleW * pixelScale;
+            curX += gi.advance * gi.scaleW * residual;
             continue;
         }
 
-        float gw = gi.bmpW * gi.scaleW * pixelScale;
-        float gh = gi.bmpH * gi.scaleH * pixelScale;
-        float gx = curX + gi.bearingX * gi.scaleW * pixelScale;
-        float gy = baseline - gi.bearingY * gi.scaleH * pixelScale;
+        float gw = gi.bmpW * gi.scaleW * residual;
+        float gh = gi.bmpH * gi.scaleH * residual;
+        float gx = curX + gi.bearingX * gi.scaleW * residual;
+        float gy = baseline - gi.bearingY * gi.scaleH * residual;
+        // Snap crisp 1:1 glyphs to the device pixel grid so the rasterized-at-size
+        // bitmap maps pixel-for-pixel (no sub-pixel blur). The pen advance stays
+        // fractional (even spacing); only the blit origin snaps. Upscaled/color
+        // glyphs keep sub-pixel positions (smooth).
+        if (residual == 1.0f) { gx = floorf(gx + 0.5f); gy = floorf(gy + 0.5f); }
 
         GlyphPos& gp = glyphs[nGlyphs];
         gp.x0 = gx * invW - 1.0f;
@@ -1170,7 +1252,7 @@ void NanoMenu::drawText(const char* str, float px, float py, float scale,
         gp.u0 = gi.u0; gp.v0 = gi.v0;
         gp.u1 = gi.u1; gp.v1 = gi.v1;
         gp.color = gi.color;
-        curX += gi.advance * gi.scaleW * pixelScale;
+        curX += gi.advance * gi.scaleW * residual;
         nGlyphs++;
     }
     if (nGlyphs == 0) return;
@@ -1231,6 +1313,7 @@ void NanoMenu::drawText(const char* str, float px, float py, float scale,
     }
 
     glUseProgram(mTextProgram);
+    if (mTextLocSharp >= 0) glUniform1f(mTextLocSharp, mTextSharp);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, mGlyphAtlasTex);
     glUniform1i(mTextLocTexture, 0);
@@ -1269,7 +1352,10 @@ void NanoMenu::drawText(const char* str, float px, float py, float scale,
 void NanoMenu::drawTextGlow(const char* str, float px, float py, float scale,
                             float oR, float iR, float outerA, float innerA, float mainA) {
     if (!str || !*str || mFtNumFaces == 0) return;
-    float pixelScale = (FONT_CHAR_H * scale) / (float)mFontSize;
+    float displayEm = (float)FONT_CHAR_H * scale;
+    int rasterPx = (int)lroundf(displayEm);
+    if (rasterPx < 6) rasterPx = 6;
+    if (rasterPx > mFontSize) rasterPx = mFontSize;
     float invW = 2.0f / mWidth, invH = 2.0f / mHeight;
     // Pass 1: resolve glyphs ONCE (the expensive UTF-8 decode + cache lookup).
     const GlyphInfo* gl[TEXT_MAX_CHARS];
@@ -1282,10 +1368,9 @@ void NanoMenu::drawTextGlow(const char* str, float px, float py, float scale,
         else if ((b0 & 0xF0) == 0xE0) { cp = ((b0 & 0x0F) << 12) | ((p[1] & 0x3F) << 6) | (p[2] & 0x3F); p += 3; }
         else if ((b0 & 0xF8) == 0xF0) { cp = ((b0 & 0x07) << 18) | ((p[1] & 0x3F) << 12) | ((p[2] & 0x3F) << 6) | (p[3] & 0x3F); p += 4; }
         else { p++; continue; }
-        ensureGlyph(cp);
-        auto it = mGlyphCache.find(cp);
-        if (it == mGlyphCache.end()) continue;
-        gl[nG++] = &it->second;
+        const GlyphInfo* gptr = ensureGlyph(cp, rasterPx);
+        if (!gptr) continue;
+        gl[nG++] = gptr;
     }
     if (nG == 0) return;
     // The 15 copies, in submission order (8 outer ring, 6 inner ring, centre).
@@ -1299,6 +1384,7 @@ void NanoMenu::drawTextGlow(const char* str, float px, float py, float scale,
     taps[nT].dx = 0.0f; taps[nT].dy = 0.0f; taps[nT].a = mainA; nT++;
 
     glUseProgram(mTextProgram);
+    if (mTextLocSharp >= 0) glUniform1f(mTextLocSharp, mTextSharp);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, mGlyphAtlasTex);
     glUniform1i(mTextLocTexture, 0);
@@ -1317,15 +1403,21 @@ void NanoMenu::drawTextGlow(const char* str, float px, float py, float scale,
     };
     for (int t = 0; t < nT; t++) {
         float curX = px + taps[t].dx;
-        float baseline = (py + taps[t].dy) + mFontSize * pixelScale * 0.8f;
+        float baseline = (py + taps[t].dy) + displayEm * 0.8f;
         float a = taps[t].a;
+        bool isCenter = (taps[t].dx == 0.0f && taps[t].dy == 0.0f);
         for (int i = 0; i < nG; i++) {
             const GlyphInfo& gi = *gl[i];
-            if (gi.bmpW == 0 || gi.bmpH == 0) { curX += gi.advance * gi.scaleW * pixelScale; continue; }
-            float gw = gi.bmpW * gi.scaleW * pixelScale;
-            float gh = gi.bmpH * gi.scaleH * pixelScale;
-            float gx = curX + gi.bearingX * gi.scaleW * pixelScale;
-            float gy = baseline - gi.bearingY * gi.scaleH * pixelScale;
+            float residual = (gi.color || displayEm > (float)mFontSize)
+                           ? (displayEm / (float)mFontSize) : 1.0f;
+            if (gi.bmpW == 0 || gi.bmpH == 0) { curX += gi.advance * gi.scaleW * residual; continue; }
+            float gw = gi.bmpW * gi.scaleW * residual;
+            float gh = gi.bmpH * gi.scaleH * residual;
+            float gx = curX + gi.bearingX * gi.scaleW * residual;
+            float gy = baseline - gi.bearingY * gi.scaleH * residual;
+            // Snap the crisp centre copy (the actual active label) to the grid;
+            // halo copies stay sub-pixel so the glow stays smooth.
+            if (isCenter && residual == 1.0f) { gx = floorf(gx + 0.5f); gy = floorf(gy + 0.5f); }
             if (n >= TEXT_BUF_QUADS) flush();
             float qx0 = gx * invW - 1.0f;
             float qy0 = 1.0f - (gy + gh) * invH;
@@ -1334,7 +1426,7 @@ void NanoMenu::drawTextGlow(const char* str, float px, float py, float scale,
             // Glow copies are white (the original passed r=g=b=1); colour glyphs
             // still render their own atlas colour, matching drawText's main pass.
             emitGlyph(n++, qx0, qy0, qx1, qy1, gi.u0, gi.v0, gi.u1, gi.v1, 1.0f, 1.0f, 1.0f, a);
-            curX += gi.advance * gi.scaleW * pixelScale;
+            curX += gi.advance * gi.scaleW * residual;
         }
     }
     flush();
@@ -1537,6 +1629,21 @@ void NanoMenu::render() {
     if (sFirstFrame) {
         sFirstFrame = false;
     }
+
+    // Refresh the glyph-atlas mip chain if any glyph packed since the last frame.
+    // Glyphs are prewarmed at startup, so this fires once after warm-up then
+    // idles. The chain only feeds the home-XMB anti-aliased minification path
+    // (setGlyphAtlasAA); other text samples level 0 via GL_LINEAR.
+    if (mGlyphAtlasMipDirty) {
+        glBindTexture(GL_TEXTURE_2D, mGlyphAtlasTex);
+        glGenerateMipmap(GL_TEXTURE_2D);
+        mGlyphAtlasMipDirty = false;
+    }
+    // Default text AA off each frame; the home-XMB content and the post-Hello
+    // setup-wizard steps opt in, and renderOsk() forces it back off so the
+    // keyboard never gets it. This also covers legacy/text-menu modes that do
+    // not manage the flag.
+    setGlyphAtlasAA(false);
 
     // Once-per-frame state update for background effects (particle motion,
     // XMB ribbon time advance). Must run before either pass below so both

@@ -294,13 +294,25 @@ const char TEXT_VERTEX_SHADER[] = R"(
     }
 )";
 const char TEXT_FRAGMENT_SHADER[] = R"(
+    #extension GL_OES_standard_derivatives : enable
     precision mediump float;
     varying vec2 vTexCoord;
     varying vec4 vColor;
     uniform sampler2D uTexture;
+    uniform float uSharp;   // 0 = plain bilinear; >0 = crisp analytic edge AA
     void main() {
         vec4 texel = texture2D(uTexture, vTexCoord);
-        gl_FragColor = texel * vColor;
+        float a = texel.a;
+        if (uSharp > 0.001) {
+            // The atlas stores antialiased coverage in alpha; trilinear sampling
+            // keeps it clean but soft. Re-sharpen the 0.5 coverage contour to a
+            // ~1px-wide edge using the screen-space gradient, so glyphs read crisp
+            // at any scale instead of blurry. uSharp scales the edge width
+            // (smaller = sharper). Non-AA text skips this and is unchanged.
+            float w = max(fwidth(a) * uSharp, 1.0 / 256.0);
+            a = smoothstep(0.5 - w, 0.5 + w, a);
+        }
+        gl_FragColor = vec4(texel.rgb, a) * vColor;
     }
 )";
 
@@ -552,6 +564,7 @@ void NanoMenu::initShaders() {
         mTextLocColor    = glGetAttribLocation(mTextProgram, "aColor");
         mTextLocTexture  = glGetUniformLocation(mTextProgram, "uTexture");
         mTextLocRotation = glGetUniformLocation(mTextProgram, "uRotation");
+        mTextLocSharp    = glGetUniformLocation(mTextProgram, "uSharp");
         glDeleteShader(vs); glDeleteShader(fs);
     }
     // Rounded-rect shader (OSK keys).

@@ -70,6 +70,17 @@ static inline void ps3ShadowOffset(float s, int /*w*/, int /*h*/, float out[2]) 
 // drawTextStroke is a no-op kept only so the existing call sites stay readable
 // (each "drawTextStroke(...) then drawText(...)" reads as "outline then fill").
 void NanoMenu::drawTextStroke(const char*, float, float, float, float) {}
+
+// Small-panel readability boost for the fullscreen dialog/wizard body text. The
+// 1:1 web font sizes are fine on a 720p+ panel but too small to read on a
+// handheld like the 480-tall RG DS, so ramp the dialog text up on small screens
+// only (big panels stay exactly 1:1 with the web app).
+float NanoMenu::ps3DlgFontBoost() const {
+    float d = fminf((float)mWidth, (float)mHeight);
+    if (d >= 700.0f) return 1.0f;
+    if (d <= 480.0f) return 1.30f;
+    return 1.0f + (700.0f - d) / (700.0f - 480.0f) * 0.30f;
+}
 // Icons have no built-in outline, so draw an even 4-direction dark silhouette
 // (left/right/up/down) behind the icon. 4 (not 8) copies keeps the per-frame draw
 // count low - the menu has ~16 visible icons. Symmetric, so no clipped side.
@@ -101,6 +112,7 @@ void NanoMenu::drawIconStroke(unsigned int tex, float x, float y, float w, float
         for (int i = 0; i < 6; i++) { c[i*4]=0.0f; c[i*4+1]=0.0f; c[i*4+2]=0.0f; c[i*4+3]=a; }
     }
     glUseProgram(mTextProgram);
+    if (mTextLocSharp >= 0) glUniform1f(mTextLocSharp, 0.0f);   // icon shadow: no glyph edge-sharpen
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, tex);
     glUniform1i(mTextLocTexture, 0);
@@ -224,6 +236,7 @@ void NanoMenu::drawIconTex(GLuint tex, float x, float y, float w, float h,
     GLfloat colors[6 * 4];
     for (int i = 0; i < 6; i++) { colors[i*4]=r; colors[i*4+1]=g; colors[i*4+2]=b; colors[i*4+3]=a; }
     glUseProgram(mTextProgram);
+    if (mTextLocSharp >= 0) glUniform1f(mTextLocSharp, 0.0f);   // icons: no glyph edge-sharpen
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, tex);
     glUniform1i(mTextLocTexture, 0);
@@ -886,7 +899,7 @@ static float itemSlotY(int idx, int sel) {
         float k = (float)(sel - idx);
         return ITEM_ABOVE_BASE_Y - (k - 1.0f) * ps3::ITEM_SPACING;
     }
-    return ps3::ITEM_FOCUS_Y + ps3::ITEM_ACTIVE_PAD + (float)(idx - sel) * ps3::ITEM_SPACING;
+    return ps3::ITEM_FOCUS_Y + ps3::gActivePad + (float)(idx - sel) * ps3::ITEM_SPACING;
 }
 // Item Y for a CONTINUOUS selection position (interpolates the slot model).
 static float itemSlotYf(int idx, float selPos) {
@@ -1237,6 +1250,11 @@ void NanoMenu::renderPs3Xmb() {
         if (mPs3DlgActive && mPs3DlgKind != 1) { renderPs3Dialog(); return; }
     }
 
+    // From here down is the actual XMB menu chrome (category bar, item list,
+    // clock): anti-alias its minified labels/subtitles. Turned back off before
+    // the dialog overlay below so dialogs and the OSK keep crisp GL_LINEAR text.
+    setGlyphAtlasAA(true);
+
     // Opt-in slow-frame diagnostic: `setprop persist.gammaos.nano.ps3xmb.fpslog 1`
     // logs any frame slower than ~22ms (<45fps) with context, so transition dips
     // can be measured from logcat. Off by default (read once).
@@ -1265,6 +1283,22 @@ void NanoMenu::renderPs3Xmb() {
     mPs3ShadowDir = (sDrmRotMat[3] <= 0.0f) ? 1.0f : -1.0f;
 
     float dt = mFrameDt; if (dt < 0.0f) dt = 0.0f; if (dt > 0.1f) dt = 0.1f;
+
+    // Dynamic subtitle reserve: grow the active-item pad to fit the active
+    // description's actual wrapped line count (1..4), eased so the items below
+    // reflow smoothly instead of snapping when scrolling between a short and a
+    // long blurb. mPs3DescLinesTarget is set by drawDesc (one frame of lag, hidden
+    // by the ease). Floored at the tuned baseline so the enlarged active icon is
+    // never crowded. ps3::gActivePad feeds itemSlotY below.
+    {
+        int dl = mPs3DescLinesTarget; if (dl < 1) dl = 1; if (dl > 4) dl = 4;
+        float targetPad = ps3::ITEM_DESC_OFFSET
+                        + (float)dl * (ps3::gDescSize * ps3::ITEM_DESC_LINEH)
+                        + ps3::ITEM_DESC_MARGIN;
+        if (targetPad < ps3::ITEM_ACTIVE_PAD) targetPad = ps3::ITEM_ACTIVE_PAD;
+        mPs3ActivePad += (targetPad - mPs3ActivePad) * (1.0f - expf(-14.0f * dt));
+        ps3::gActivePad = mPs3ActivePad;
+    }
 
     // category slide (timed) + continuous item tracker (smooth, accelerates on hold)
     if (mPs3CatAnimActive) {
@@ -1449,8 +1483,12 @@ void NanoMenu::renderPs3Xmb() {
     // Mirrors the web (drawWrappedText maxLines 3); 3 lines because the enlarged
     // subtitle needs them to show the full blurb.
     auto drawDesc = [&](const std::string& text, float txDev, float labelBaselineYDev, float alpha) {
-        if (text.empty() || alpha <= 0.02f) return;
-        float ds = ps3::fontScale(ps3::ITEM_DESC_SIZE);
+        if (text.empty()) { mPs3DescLinesTarget = 0; return; }
+        // Resolution-gated subtitle size: one step bigger on small panels
+        // (gDescSize = ITEM_DESC_SIZE * DESC_BOOST), unchanged at >=720p. The
+        // active pad (itemSlotY) grows to fit the wrapped line count (up to 4).
+        float descV = ps3::gDescSize;
+        float ds = ps3::fontScale(descV);
         // Wrap width = visible frame edge minus the label x, clamped to the panel
         // (the uiScale zoom can push XCF(VW) off-screen on narrow panels).
         float rightEdge = ps3::devX(ps3::XCF(ps3::VW - ps3::ITEM_VALUE_RIGHT_PAD));
@@ -1458,13 +1496,18 @@ void NanoMenu::renderPs3Xmb() {
         if (rightEdge > panelEdge) rightEdge = panelEdge;
         float maxW = rightEdge - txDev;
         if (maxW < 40.0f) maxW = 40.0f;
-        const int kMaxLines = 3;
-        std::string lines[3]; int nLines = 0; std::string cur, word;
+        // Greedy word-wrap into as many lines as the text needs, then clamp to 4
+        // (dynamic: short blurbs stay short, long ones use up to 4 lines). Rather
+        // than silently dropping the tail past the limit, clip the last line with
+        // an ellipsis (trimming whole words so it still fits the width).
+        const int kMaxLines = 4;
+        std::vector<std::string> wrapped;
+        std::string cur, word;
         auto commit = [&]() {
             if (word.empty()) return;
             std::string trial = cur.empty() ? word : cur + " " + word;
             if (!cur.empty() && measureText(trial.c_str(), ds) > maxW) {
-                if (nLines < kMaxLines) lines[nLines++] = cur;
+                wrapped.push_back(cur);
                 cur = word;
             } else cur = trial;
             word.clear();
@@ -1473,14 +1516,39 @@ void NanoMenu::renderPs3Xmb() {
             if (*p == ' ' || *p == '\0') { commit(); if (*p == '\0') break; }
             else word.push_back(*p);
         }
-        if (!cur.empty() && nLines < kMaxLines) lines[nLines++] = cur;
-        float lineH = ps3::devS(ps3::ITEM_DESC_SIZE * 1.18f);
+        if (!cur.empty()) wrapped.push_back(cur);
+        int nLines = (int)wrapped.size();
+        if (nLines > kMaxLines) {
+            nLines = kMaxLines;
+            std::string last = wrapped[kMaxLines - 1];
+            std::string withE = last + "...";
+            while (!last.empty() && measureText(withE.c_str(), ds) > maxW) {
+                size_t sp = last.find_last_of(' ');
+                if (sp == std::string::npos) { last.clear(); withE = "..."; break; }
+                last.erase(sp);
+                withE = last + "...";
+            }
+            wrapped[kMaxLines - 1] = withE;
+        }
+        // Publish the line count so renderPs3Xmb can ease the active pad to fit it
+        // (computed even when faded mid-scroll so the reflow leads the selection).
+        mPs3DescLinesTarget = nLines;
+        if (alpha <= 0.02f) return;   // count captured; don't draw the faded blurb
+        // Tighter line height than the label so the enlarged description still
+        // fits its wrapped lines in the (now adaptive) active pad.
+        float lineH = ps3::devS(descV * ps3::ITEM_DESC_LINEH);
         float y0 = labelBaselineYDev + ps3::devS(ps3::ITEM_DESC_OFFSET);
+        // Heavier, darker dark stroke just for the subtitle so the small grey
+        // blurb stays legible over the wave wallpaper.
+        float savedRatio = mTextOutlineRatio, savedMul = mTextOutlineWidthMul;
+        mTextOutlineRatio = 0.40f;          // 60% transparent black stroke
+        mTextOutlineWidthMul = 2.3f;        // wider stroke for a softer halo around the small subtitle
         for (int li = 0; li < nLines; li++) {
             float ly = ps3::baselineToTopY(y0 + (float)li * lineH, ds);
-            drawTextStroke(lines[li].c_str(), txDev, ly, ds, mPs3ShadowAlpha * alpha);
-            drawText(lines[li].c_str(), txDev, ly, ds, 0.78f, 0.78f, 0.82f, alpha);
+            drawText(wrapped[li].c_str(), txDev, ly, ds, 0.82f, 0.82f, 0.86f, alpha);
         }
+        mTextOutlineRatio = savedRatio;
+        mTextOutlineWidthMul = savedMul;
     };
     auto drawList = [&](std::vector<Ps3Item>& items, float selPos, float xShiftV, float alphaMul) {
         if (items.empty() || alphaMul <= 0.01f) return;
@@ -1791,6 +1859,9 @@ void NanoMenu::renderPs3Xmb() {
     }
 
     drawPs3Clock(mPs3BootIconReveal);   // fades in with the cold-boot hand-off (1.0 otherwise)
+
+    // Dialogs/choosers (and any OSK over them) keep crisp GL_LINEAR text.
+    setGlyphAtlasAA(false);
 
     // Settings dialog / Theme chooser overlay on top of the menu. (The Time Zone
     // globe renders standalone via the early return above, fading in from black.)
@@ -2355,24 +2426,26 @@ void NanoMenu::ps3DlgText(const char* s, float cxDev, float baselineDev, float f
 void NanoMenu::ps3DlgOption(const char* label, float cxDev, float midDev,
                             bool sel, bool leftAlign, float ap, float baseScale) {
     if (!label || !*label) return;
+    // Same small-panel readability boost the dialog body uses, so chooser
+    // options (e.g. System Update) are not left tiny next to the boosted body.
+    baseScale *= ps3DlgFontBoost();
     float fs = baseScale * (sel ? 28.0f : 24.0f) / 16.0f;
     float w = measureText(label, fs);
     float x = leftAlign ? cxDev : (cxDev - w * 0.5f);
     float topY = midDev - 0.45f * 16.0f * fs;
     if (sel) {
-        // Soft white halo bloom (no dark outline on the bright copies -> mode 2).
-        int savedMode = mTextOutlineMode; mTextOutlineMode = 2;
-        float em = 16.0f * fs;
-        const float gr[2] = { em * 0.30f, em * 0.16f };
-        for (int pass = 0; pass < 2; pass++) {
-            float gg = gr[pass];
-            for (int k = 0; k < 8; k++) {
-                float ang = (float)k / 8.0f * 2.0f * (float)M_PI;
-                drawText(label, x + cosf(ang) * gg, topY + sinf(ang) * gg, fs, 1.0f, 1.0f, 1.0f, 0.12f * ap);
-            }
-        }
-        drawText(label, x, topY, fs, 1.0f, 1.0f, 1.0f, ap);
-        mTextOutlineMode = savedMode;
+        // Match the XMB active-label glow exactly: the optimised dual-halo
+        // drawTextGlow (8 outer + 6 inner copies + the white centre, laid out
+        // once and drawn in a single batch) with the same radii and the same
+        // breathing pulse. The old hand-rolled 2-ring loop read coarser/blobbier.
+        // drawTextGlow adds no dark outline, so no mTextOutlineMode juggling.
+        float phase = fmodf(mEffectTime, ps3::PULSE_PERIOD_MS / 1000.0f)
+                      / (ps3::PULSE_PERIOD_MS / 1000.0f);
+        float s = 0.5f * (1.0f - cosf(phase * 2.0f * (float)M_PI));
+        float outerA = ps3::PULSE_ALPHA_MIN + (ps3::PULSE_ALPHA_MAX - ps3::PULSE_ALPHA_MIN) * s;
+        float innerA = ps3::PULSE_INNER_MIN + (ps3::PULSE_INNER_MAX - ps3::PULSE_INNER_MIN) * s;
+        drawTextGlow(label, x, topY, fs, ps3::devS(5.0f), ps3::devS(2.2f),
+                     outerA * ap * 0.16f, innerA * ap * 0.28f, ap);
     } else {
         // Even outline comes from drawText (mode 1) - one batched draw call.
         drawText(label, x, topY, fs, 1.0f, 1.0f, 1.0f, 0.85f * ap);
@@ -2382,6 +2455,9 @@ void NanoMenu::ps3DlgOption(const char* label, float cxDev, float midDev,
 // Footer button hint: glyph (X cross or O circle) + label, centred on slotCxDev.
 void NanoMenu::ps3DlgHint(float slotCxDev, bool cross, const char* label,
                           float yDev, float baseScale, float ap) {
+    // Boost the whole hint (glyph + label) on small panels so the interactive
+    // footer (Enter / Cancel / OK / Search) is not tiny on the wizard pages.
+    baseScale *= ps3DlgFontBoost();
     float fs = baseScale * 22.0f / 16.0f;
     float glyphR = baseScale * 12.0f;
     float gap = baseScale * 12.0f;
@@ -2756,6 +2832,11 @@ void NanoMenu::closePs3Dialog(bool apply) {
 
 void NanoMenu::renderPs3Dialog() {
     if (!mPs3DlgActive) return;
+    // Dialog pages (System Update, System Information, the network test, etc.) are
+    // dense readable text, so anti-alias them too. renderPs3Xmb turned AA off
+    // before dispatching here; turn it back on for the dialog body. The OSK, if it
+    // opens over a dialog, forces it back off in renderOsk so the keys stay crisp.
+    setGlyphAtlasAA(true);
     // Internet Connection Test: pull the latest progressive results published by
     // the background test thread into the dialog body (main thread owns mPs3DlgBody).
     if (mPs3NetTestLive) {
@@ -2799,7 +2880,8 @@ void NanoMenu::renderPs3Dialog() {
         float px = (float)mWidth - panelW * ease;
         drawQuad(px, 0.0f, panelW + ps3::devS(40.0f), (float)mHeight, 0.13f, 0.12f, 0.18f, 0.84f * ap);
         float titleX = px + ps3::devS(30.0f);
-        float tts = ps3::fontScale(26.0f);
+        const float fb = ps3DlgFontBoost();
+        float tts = ps3::fontScale(26.0f * fb);
         drawText(mPs3DlgTitle.c_str(), titleX + so[0], ps3::devS(38.0f) + so[1], tts, 0.0f, 0.0f, 0.0f, 0.5f * ap);
         drawText(mPs3DlgTitle.c_str(), titleX, ps3::devS(38.0f), tts, 0.90f, 0.86f, 0.96f, ap);
         int n = (int)mPs3DlgOptions.size();
@@ -2810,7 +2892,7 @@ void NanoMenu::renderPs3Dialog() {
             if (y < -rowH || y > (float)mHeight + rowH) continue;
             bool sel = (i == mPs3DlgSel);
             float a = (sel ? 1.0f : 0.55f) * ap;
-            float fs = ps3::fontScale(sel ? 30.0f : 24.0f);
+            float fs = ps3::fontScale((sel ? 30.0f : 24.0f) * fb);
             float tx = titleX;
             if (i < (int)mPs3DlgSwatch.size() && mPs3DlgSwatch[i] >= 0) {
                 int ci = mPs3DlgSwatch[i]; float sw = ps3::devS(26.0f);
@@ -2849,7 +2931,8 @@ void NanoMenu::renderPs3Dialog() {
         auto XC = [&](float vx) { return S * ps3::XCF(vx) + offX; };    // XCF centred / frame-spanning
         auto Y  = [&](float vy) { return S * vy + offY; };
         auto DS = [&](float v)  { return S * v; };
-        auto FS = [&](float px) { return S * px / 16.0f; };
+        const float fb = ps3DlgFontBoost();
+        auto FS = [&](float px) { return S * px * fb / 16.0f; };
         const float VW = ps3::VW;
         const float innerTop = 199.0f, innerBot = 880.0f;
         const float maxW = DS((VW - 400.0f) * ps3::LAYOUT_FIT);   // body wrap width (device px)
@@ -3775,6 +3858,10 @@ int NanoMenu::wizNextScreen(int id, int sel) {
 
 void NanoMenu::renderNetWizard() {
     if (!mPs3WizActive) return;
+    // The Internet Connection / Manage Bluetooth wizard pages are readable text
+    // chrome like the dialogs, so anti-alias them too. The OSK (password / text
+    // fields) forces AA back off in renderOsk so the keys stay crisp.
+    setGlyphAtlasAA(true);
     // Open a deferred text-field OSK once any previous OSK has fully closed. This
     // keeps chained text screens (e.g. Set Manually date -> time, or manual IP ->
     // subnet) from opening a new OSK inside the old OSK's confirm callback.
@@ -3884,7 +3971,8 @@ void NanoMenu::renderNetWizard() {
     auto XC = [&](float vx) { return S * ps3::XCF(vx) + offX; };
     auto Y  = [&](float vy) { return S * vy + offY; };
     auto DS = [&](float v)  { return S * v; };
-    auto FS = [&](float px) { return S * px / 16.0f; };
+    const float fb = ps3DlgFontBoost();
+    auto FS = [&](float px) { return S * px * fb / 16.0f; };
     const float slidePx = S * mPs3WizSlide;            // body content slide offset
     const float maxW = DS((VW - 400.0f) * ps3::LAYOUT_FIT);
 
@@ -4218,7 +4306,8 @@ void NanoMenu::renderNetWizard() {
         ps3DlgHint(c3, false, "Cancel", hintY, S, ap);
         // square glyph + "Search"
         {
-            float fs = S * 22.0f / 16.0f, glyphR = S * 12.0f, gap = S * 12.0f;
+            float sb = S * fb;   // small-panel boost, matching ps3DlgHint
+            float fs = sb * 22.0f / 16.0f, glyphR = sb * 12.0f, gap = sb * 12.0f;
             float lw = fmaxf(S * 2.0f, 1.5f), tw = measureText("Search", fs);
             float groupW = glyphR * 2.0f + gap + tw, left = s3 - groupW * 0.5f, gcx = left + glyphR;
             float h = glyphR * 0.78f;
@@ -4357,7 +4446,8 @@ void NanoMenu::renderTimezoneGlobe() {
     auto XC = [&](float vx) { return S * ps3::XCF(vx) + offX; };
     auto Y  = [&](float vy) { return S * vy + offY; };
     auto DS = [&](float v)  { return S * v; };
-    auto FS = [&](float px) { return S * px / 16.0f; };
+    const float fb = ps3DlgFontBoost();
+    auto FS = [&](float px) { return S * px * fb / 16.0f; };
 
     // Header: Date/Time icon (xmb_icon_022) + "Time Zone" + the two dividers.
     if (mPs3TzHeaderTex == 0) mPs3TzHeaderTex = loadPs3IconTex("xmb_icon_022.png");
