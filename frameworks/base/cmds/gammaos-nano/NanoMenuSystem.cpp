@@ -46,8 +46,27 @@
 #include "NanoBacklight.h"
 #include "NanoMenu.h"
 #include "NanoMenuShaders.h"
+#include "NanoSliderHud.h"
 
 namespace android {
+
+// Adapter that routes the shared NanoSliderHud spec through NanoMenu's private
+// GL primitives, so the home menu's volume/brightness HUD is pixel-identical to
+// the drastic-nano in-game overlay. Friended in NanoMenu.h.
+struct NanoMenuSliderBackend {
+    NanoMenu* m;
+    void rect(float x, float y, float w, float h,
+              float r, float g, float b, float a) {
+        m->drawQuad(x, y, w, h, r, g, b, a);
+    }
+    void text(const char* s, float x, float y, float pxH,
+              float r, float g, float b, float a) {
+        m->drawText(s, x, y, pxH / (float)FONT_CHAR_H, r, g, b, a);
+    }
+    float measure(const char* s, float pxH) {
+        return m->measureText(s, pxH / (float)FONT_CHAR_H);
+    }
+};
 
 // ---------------------------------------------------------------------------
 // Sysfs int helpers
@@ -167,44 +186,10 @@ void NanoMenu::renderBrightnessBar() {
         return;
     }
 
-    float sf = fminf((float)mWidth / 1080.0f, (float)mHeight / 720.0f);
-    if (sf < 0.5f) sf = 0.5f;
-
-    float barW = 250.0f * sf;
-    float barH = 20.0f * sf;
-    float pad = 12.0f * sf;
-    float iconScale = 1.5f * sf;
-    float textScale = 1.5f * sf;
-    float iconW = measureText("*", iconScale);
-    float bgW = iconW + pad + barW + pad + 50.0f * sf;
-    float bgH = barH + pad * 2;
-    float bgX = (mWidth - bgW) / 2.0f;
-    float bgY = pad;
-
-    // Background
-    drawQuad(bgX, bgY, bgW, bgH, 0.0f, 0.0f, 0.0f, 0.8f);
-
-    // Sun icon "*"
-    float iconX = bgX + pad;
-    float iconY = bgY + (bgH - FONT_CHAR_H * iconScale) / 2.0f;
-    drawText("*", iconX, iconY, iconScale, 1.0f, 0.9f, 0.3f, 1.0f);
-
-    // Progress bar background
-    float barX = iconX + iconW;
-    float barY = bgY + (bgH - barH) / 2.0f;
-    drawQuad(barX, barY, barW, barH, 0.3f, 0.3f, 0.3f, 1.0f);
-
-    // Progress bar fill (mBrightness is 0-255, Android range)
-    int pct = mBrightness * 100 / 255;
-    float fillW = barW * pct / 100.0f;
-    drawQuad(barX, barY, fillW, barH, 1.0f, 0.9f, 0.3f, 1.0f);
-
-    // Percentage text
-    char pctStr[8];
-    snprintf(pctStr, sizeof(pctStr), "%d%%", pct);
-    float textX = barX + barW + pad;
-    float textY = bgY + (bgH - FONT_CHAR_H * textScale) / 2.0f;
-    drawText(pctStr, textX, textY, textScale, 1.0f, 1.0f, 1.0f, 1.0f);
+    // Shared spec (see NanoSliderHud.h): brightness shows in the top slot.
+    NanoMenuSliderBackend be{this};
+    nano_slider::draw(be, (float)mWidth, (float)mHeight,
+                      nano_slider::kBrightness, mBrightness * 100 / 255, 0);
 }
 
 // ---------------------------------------------------------------------------
@@ -247,47 +232,12 @@ void NanoMenu::renderVolumeBar() {
         return;
     }
 
-    float sf = fminf((float)mWidth / 1080.0f, (float)mHeight / 720.0f);
-    if (sf < 0.5f) sf = 0.5f;
-
-    // Same layout as brightness bar
-    float barW = 250.0f * sf;
-    float barH = 20.0f * sf;
-    float pad = 12.0f * sf;
-    float iconScale = 1.5f * sf;
-    float textScale = 1.5f * sf;
-    float iconW = measureText("*", iconScale); // same width reference
-    float bgW = iconW + pad + barW + pad + 50.0f * sf;
-    float bgH = barH + pad * 2;
-    float bgX = (mWidth - bgW) / 2.0f;
-    // Stack below brightness bar if both showing
-    float bgY = mShowBrightnessBar ? (pad + bgH + pad) : pad;
-
-    // Background
-    drawQuad(bgX, bgY, bgW, bgH, 0.0f, 0.0f, 0.0f, 0.8f);
-
-    // Volume icon
-    float iconX = bgX + pad;
-    float iconY = bgY + (bgH - FONT_CHAR_H * iconScale) / 2.0f;
-    drawText(mVolume == 0 ? "x" : "+", iconX, iconY, iconScale,
-             0.4f, 0.7f, 1.0f, 1.0f);
-
-    // Progress bar background
-    float barX = iconX + iconW;
-    float barY = bgY + (bgH - barH) / 2.0f;
-    drawQuad(barX, barY, barW, barH, 0.3f, 0.3f, 0.3f, 1.0f);
-
-    // Progress bar fill
+    // Shared spec (see NanoSliderHud.h): stack below brightness if both show.
     int pct = (mMaxVolume > 0) ? (mVolume * 100 / mMaxVolume) : 0;
-    float fillW = barW * pct / 100.0f;
-    drawQuad(barX, barY, fillW, barH, 0.4f, 0.7f, 1.0f, 1.0f);
-
-    // Percentage text
-    char pctStr[8];
-    snprintf(pctStr, sizeof(pctStr), "%d%%", pct);
-    float textX = barX + barW + pad;
-    float textY = bgY + (bgH - FONT_CHAR_H * textScale) / 2.0f;
-    drawText(pctStr, textX, textY, textScale, 1.0f, 1.0f, 1.0f, 1.0f);
+    int slot = mShowBrightnessBar ? 1 : 0;
+    NanoMenuSliderBackend be{this};
+    nano_slider::draw(be, (float)mWidth, (float)mHeight,
+                      nano_slider::kVolume, pct, slot);
 }
 
 // ---------------------------------------------------------------------------

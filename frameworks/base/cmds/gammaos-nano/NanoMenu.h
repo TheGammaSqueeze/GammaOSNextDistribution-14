@@ -46,6 +46,12 @@ class Surface;
 class SurfaceComposerClient;
 class SurfaceControl;
 
+// Adapter that lets the shared NanoSliderHud spec draw through NanoMenu's
+// private GL primitives (drawQuad/drawText/measureText). Defined in
+// NanoMenuSystem.cpp; friended so the volume/brightness HUD matches the
+// drastic-nano overlay 1:1.
+struct NanoMenuSliderBackend;
+
 static const int MAX_PARTICLES = 150;
 static const int NUM_EFFECTS = 22; // total effect IDs (some disabled)
 
@@ -89,6 +95,9 @@ class NanoMenu : public Thread, public IBinder::DeathRecipient {
 public:
     NanoMenu();
     virtual ~NanoMenu();
+
+    // Shared volume/brightness HUD adapter (see NanoSliderHud.h).
+    friend struct NanoMenuSliderBackend;
 
     sp<SurfaceComposerClient> session() const;
 
