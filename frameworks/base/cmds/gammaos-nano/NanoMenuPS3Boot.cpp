@@ -199,16 +199,20 @@ void NanoMenu::renderPs3BootOverlay() {
 
     // ---- 3. epilepsy warning backdrop blur + text ----
     if (e >= BOOT_WARN_BLUR_A && e < BOOT_WARN_BLUROUT_B) {
-        // Re-capture EVERY frame so the wave keeps MOVING behind the blur (the
-        // warning is a one-time ~5s boot screen, so the per-frame capture cost is
-        // fine here). The tint is near-neutral - just a slight touch of darkness
-        // to keep the white text readable, NOT a dark wash.
-        bool haveBlur = captureGlass(0.0f, 0.0f, (float)mWidth, (float)mHeight);
+        // Blur the WAVE work-texture directly (captureGlassFromWave reads
+        // ps3bg::workTex), the same path the home-XMB frosted backdrop uses. The
+        // full-framebuffer captureGlass path renders BLACK here: on the tiled GPU
+        // the freshly drawn wave is not yet resolved to the FBO when
+        // glCopyTexSubImage2D runs during the DRM-direct boot, so the capture comes
+        // back empty. workTex is already in its own resolved FBO, so it is solid.
+        // Tint near-neutral (slight touch of darkness) to keep the white text
+        // readable, NOT a dark wash; waveSpace=true matches the wave-space blur.
+        bool haveBlur = captureGlassFromWave();
         float warnBlur = smooth01(bootRamp(e, BOOT_WARN_BLUR_A, BOOT_WARN_BLUR_B))
                        * (1.0f - smooth01(bootRamp(e, BOOT_WARN_BLUROUT_A, BOOT_WARN_BLUROUT_B)));
         if (haveBlur && warnBlur > 0.001f)
             drawFrostedGlass(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f,
-                             0.90f, 0.90f, 0.92f, 1.0f, warnBlur);
+                             0.90f, 0.90f, 0.92f, 1.0f, warnBlur, /*waveSpace=*/true);
     }
 
     if (e >= BOOT_WARN_IN && e < BOOT_WARN_OUT) {
