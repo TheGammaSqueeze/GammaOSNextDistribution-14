@@ -77,6 +77,20 @@ public:
     // Convenience: translucent panel with 1px outline.
     void panel(float x, float y, float w, float h, Color bg, Color edge);
 
+    // Rounded rectangle via the same signed-distance-field shader the
+    // gammaos-nano XMB uses (1px anti-aliased edge). radius is clamped to
+    // min(w,h)/2. Used by the PS3-XMB-styled on-screen keyboard.
+    void roundedRect(float x, float y, float w, float h, float radius, Color c);
+    // Flat-colour triangle (3 points, pixel space). For glyph shapes such
+    // as the backspace arrowhead.
+    void triangle(float x0, float y0, float x1, float y1,
+                  float x2, float y2, Color c);
+
+    // Override the logical viewport (pixel->NDC denominator). Lets the same
+    // OverlayGfx draw into a differently-sized FBO (e.g. the bottom DS panel
+    // for the OSK) for one pass; restore the primary size afterwards.
+    void setViewport(int w, int h) { mViewportW = w; mViewportH = h; }
+
     // Bitmap text rendering. scale=1.0 renders at the FreeType base
     // pixel size (set at init). Larger scale oversamples the atlas.
     // (x, y) is the top-left of the glyph row. Returns the advance
@@ -89,6 +103,9 @@ public:
     // Font metrics.
     int fontAscent() const  { return mAscent; }
     int fontLineH() const   { return mLineH; }
+    // Base FreeType pixel size: text(scale=1) renders glyphs this tall, so a
+    // desired pixel height maps to scale = pxH / fontBasePx().
+    int fontBasePx() const  { return mFontPx; }
     int viewportW() const   { return mViewportW; }
     int viewportH() const   { return mViewportH; }
 
@@ -99,8 +116,11 @@ private:
 
     GLuint mSolidProgram = 0;
     GLuint mTextProgram  = 0;
+    GLuint mRoundProgram = 0;
     GLint  mSolidLocPos = -1, mSolidLocColor = -1, mSolidLocViewport = -1, mSolidLocRot = -1;
     GLint  mTextLocPos = -1, mTextLocUv = -1, mTextLocColor = -1, mTextLocViewport = -1, mTextLocRot = -1, mTextLocSampler = -1;
+    GLint  mRoundLocPos = -1, mRoundLocLocal = -1, mRoundLocColor = -1,
+           mRoundLocViewport = -1, mRoundLocRot = -1, mRoundLocHalf = -1, mRoundLocRadius = -1;
 
     GLuint mQuadVbo = 0;   // scratch VBO, refilled per-draw
     GLuint mTextVbo = 0;
@@ -117,12 +137,15 @@ private:
         GLuint tex = 0;
         int  w = 0, h = 0;
         int  bearingX = 0, bearingY = 0;
-        int  advance = 0;
+        int  advance = 0;     // metrics are in pixels at the rasterized size
     };
-    mutable std::unordered_map<uint32_t, Glyph> mGlyphs;
+    // Size-aware cache keyed by (codepoint, pixelSize): each glyph is
+    // rasterized at its actual display size and drawn 1:1, so scaled-up text
+    // (e.g. big OSK keys) stays crisp instead of magnifying a small atlas.
+    mutable std::unordered_map<uint64_t, Glyph> mGlyphs;
 
     void drawSolidQuad(float x, float y, float w, float h, Color c);
-    bool loadGlyph(uint32_t codepoint, Glyph* out) const;
+    bool loadGlyph(uint32_t codepoint, int pxSize, Glyph* out) const;
 };
 
 } // namespace drastic_gfx

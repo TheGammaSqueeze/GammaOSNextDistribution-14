@@ -15,7 +15,9 @@
 #include <unistd.h>
 
 #include <algorithm>
+#include <cctype>
 #include <cmath>
+#include <cstdint>
 #include <cstdio>
 #include <ctime>
 
@@ -23,6 +25,9 @@
 #include <aidl/android/hardware/health/IHealth.h>
 #include <android/binder_manager.h>
 #include <cutils/properties.h>
+
+#include "NanoBacklight.h"
+#include "NanoSliderHud.h"   // shared volume/brightness slider spec (gammaos-nano)
 #include <utils/Log.h>
 #include <utils/SystemClock.h>
 
@@ -37,7 +42,7 @@ using drastic_gfx::rgba;
 
 namespace {
 constexpr const char* kSectionNames[] = {
-    "Save States", "Video", "Audio", "Controls",
+    "Save States", "Video", "Audio", "Controls", "Cheats",
 };
 // XMB-style layout constants. Coordinates scale with sf =
 // min(vw/1080, vh/720), matching the nano XMB scaling so the overlay
@@ -130,6 +135,10 @@ void OverlayMenu::openMenu() {
     if (mOpen) return;
     mOpen = true;
     mSavedPrefs = mPrefs;
+    // Re-enumerate cheats fresh each open (cheap; the model caches names so
+    // per-input rebuilds don't re-allocate).
+    mCheatModelValid = false;
+    navRelease();   // clear any stale held-direction from a prior session
     if (mRunner) mRunner->pauseToggle(true);
     rebuildRows();
     ALOGI("OverlayMenu: opened");
@@ -148,6 +157,14 @@ void OverlayMenu::closeMenu() {
         // Threaded 3D) are applied through the converter again here, after
         // unpause, so the running emulation reliably picks them up.
         if (mDirty) applyConfigLive();
+        // Flush cheat enables: updateCheats(1) writes the per-game .cht and
+        // schedules a live re-apply. Batched here (once) rather than per
+        // toggle. Persists across ROM loads (drastic reloads the .cht at
+        // startGame).
+        if (mCheatsDirty) {
+            mRunner->applyCheats();
+            mCheatsDirty = false;
+        }
     }
     ALOGI("OverlayMenu: closed");
 }
@@ -341,6 +358,79 @@ void OverlayMenu::commitAndMaybeRelaunch() {
     }
 }
 
+// Hold-to-repeat navigation, matching the PS3 XMB (NanoMenuInput.cpp):
+// 300ms initial delay, then a 200ms base interval that accelerates
+// geometrically (divide by 1.4 each repeat) down to a 50ms floor.
+static constexpr int64_t kNavInitialDelayMs = 300;
+static constexpr int64_t kNavSlowIntervalMs = 200;
+static constexpr int64_t kNavMinIntervalMs  = 50;
+static constexpr float   kNavAccelMult       = 1.4f;
+
+void OverlayMenu::handleNavUp() {
+    if (mRows.empty()) return;
+    mCursor[mSection]--;
+    if (mCursor[mSection] < 0) mCursor[mSection] = (int)mRows.size() - 1;
+}
+void OverlayMenu::handleNavDown() {
+    if (mRows.empty()) return;
+    mCursor[mSection]++;
+    if (mCursor[mSection] >= (int)mRows.size()) mCursor[mSection] = 0;
+}
+void OverlayMenu::adjustCurrent(int dir) {
+    int cur = mCursor[mSection];
+    if (cur >= 0 && cur < (int)mRows.size() && mRows[cur].onAdjust) {
+        mRows[cur].onAdjust(dir);
+        rebuildRows();
+    }
+}
+void OverlayMenu::fireNav(NavDir dir) {
+    if (mOsk.active()) {
+        switch (dir) {
+        case NavDir::Up:    mOsk.moveCursor(0, -1); break;
+        case NavDir::Down:  mOsk.moveCursor(0, +1); break;
+        case NavDir::Left:  mOsk.moveCursor(-1, 0); break;
+        case NavDir::Right: mOsk.moveCursor(+1, 0); break;
+        case NavDir::None:  break;
+        }
+        return;
+    }
+    switch (dir) {
+    case NavDir::Up:    handleNavUp();     break;
+    case NavDir::Down:  handleNavDown();   break;
+    case NavDir::Left:  adjustCurrent(-1); break;
+    case NavDir::Right: adjustCurrent(+1); break;
+    case NavDir::None:  break;
+    }
+}
+void OverlayMenu::navPress(NavDir dir) {
+    if (dir == NavDir::None || dir == mNavHeldDir) return;
+    fireNav(dir);   // a tap always moves exactly one step
+    mNavHeldDir = dir;
+    mNavLastRepeatMs = android::elapsedRealtime();
+    mNavRepeatCount = 0;
+}
+void OverlayMenu::navRelease() {
+    mNavHeldDir = NavDir::None;
+    mNavLastRepeatMs = 0;
+    mNavRepeatCount = 0;
+}
+void OverlayMenu::tickNavRepeat() {
+    if (mNavHeldDir == NavDir::None) return;
+    int64_t now = android::elapsedRealtime();
+    int64_t interval;
+    if (mNavRepeatCount == 0) {
+        interval = kNavInitialDelayMs;
+    } else {
+        interval = (int64_t)((float)kNavSlowIntervalMs /
+                             powf(kNavAccelMult, (float)(mNavRepeatCount - 1)));
+        if (interval < kNavMinIntervalMs) interval = kNavMinIntervalMs;
+    }
+    if (now - mNavLastRepeatMs < interval) return;
+    fireNav(mNavHeldDir);
+    mNavLastRepeatMs = now;
+    mNavRepeatCount++;
+}
+
 void OverlayMenu::update(const drastic_input::InputActions& a,
                         drastic_input::InputState* input) {
     // Short-press BACK toggles menu open/close regardless of state.
@@ -383,6 +473,52 @@ void OverlayMenu::update(const drastic_input::InputActions& a,
         return;
     }
 
+    // On-screen keyboard active: route all navigation to it. The
+    // hold-to-repeat scheduler drives the key cursor (fireNav forwards to
+    // mOsk.moveCursor); A presses the focused key, B backspaces / cancels.
+    if (mOsk.active()) {
+        NavDir held = NavDir::None;
+        if (a.navUpHeld)         held = NavDir::Up;
+        else if (a.navDownHeld)  held = NavDir::Down;
+        else if (a.navLeftHeld)  held = NavDir::Left;
+        else if (a.navRightHeld) held = NavDir::Right;
+        if (held != mNavHeldDir) {
+            if (held == NavDir::None) navRelease();
+            else                      navPress(held);
+        } else {
+            tickNavRepeat();
+        }
+        if (a.navAccept) mOsk.activate();
+        if (a.navCancel) mOsk.onBackspace();
+        if (a.navPrevTab) mOsk.toggleShift();   // L = Shift
+        if (a.navNextTab) mOsk.toggleSym();     // R = Sym page
+
+        // Touchscreen: the keyboard is on the bottom DS panel, which is the
+        // touch panel. Real finger taps (input->touchReal, never the analog-
+        // stick stylus) press the key under the finger on the press edge;
+        // sliding while held just moves the focus. touchDs is 0..255 / 0..191.
+        if (input) {
+            if (!mOskTouchInit) {
+                mOskTouchFlipX = property_get_bool(
+                        "persist.gammaos.drastic_nano.osk_touch_flipx", false);
+                mOskTouchFlipY = property_get_bool(
+                        "persist.gammaos.drastic_nano.osk_touch_flipy", false);
+                mOskTouchInit = true;
+            }
+            bool down = input->touchReal && !mPrevOskTouch;
+            if (input->touchReal) {
+                float nx = (float)input->touchDsX / 256.0f;
+                float ny = (float)input->touchDsY / 192.0f;
+                if (mOskTouchFlipX) nx = 1.0f - nx;
+                if (mOskTouchFlipY) ny = 1.0f - ny;
+                if (down) mOsk.touchTap(nx, ny);
+                else      mOsk.touchMove(nx, ny);
+            }
+            mPrevOskTouch = input->touchReal;
+        }
+        return;
+    }
+
     // Normal navigation.
     if (a.navPrevTab) {
         mSection = (Section)((mSection + kSec_COUNT - 1) % kSec_COUNT);
@@ -392,22 +528,19 @@ void OverlayMenu::update(const drastic_input::InputActions& a,
         mSection = (Section)((mSection + 1) % kSec_COUNT);
         rebuildRows();
     }
-    if (a.navUp) {
-        mCursor[mSection]--;
-        if (mCursor[mSection] < 0)
-            mCursor[mSection] = (int)mRows.size() - 1;
-    }
-    if (a.navDown) {
-        mCursor[mSection]++;
-        if (mCursor[mSection] >= (int)mRows.size())
-            mCursor[mSection] = 0;
-    }
-    if (a.navLeft || a.navRight) {
-        int cur = mCursor[mSection];
-        if (cur >= 0 && cur < (int)mRows.size() && mRows[cur].onAdjust) {
-            mRows[cur].onAdjust(a.navRight ? +1 : -1);
-            rebuildRows();
-        }
+    // Hold-to-repeat scroll/adjust (PS3 XMB method): edge-detect the held
+    // dpad level, fire one step on press, then auto-repeat with geometric
+    // acceleration so long cheat lists are easy to traverse.
+    NavDir held = NavDir::None;
+    if (a.navUpHeld)         held = NavDir::Up;
+    else if (a.navDownHeld)  held = NavDir::Down;
+    else if (a.navLeftHeld)  held = NavDir::Left;
+    else if (a.navRightHeld) held = NavDir::Right;
+    if (held != mNavHeldDir) {
+        if (held == NavDir::None) navRelease();
+        else                      navPress(held);   // fires one step now
+    } else {
+        tickNavRepeat();
     }
     if (a.navAccept) {
         int cur = mCursor[mSection];
@@ -435,6 +568,7 @@ void OverlayMenu::rebuildRows() {
     case kSec_Video:    rebuildVideo();    break;
     case kSec_Audio:    rebuildAudio();    break;
     case kSec_Controls: rebuildControls(); break;
+    case kSec_Cheats:   rebuildCheats();   break;
     default: break;
     }
     if (mCursor[mSection] >= (int)mRows.size()) {
@@ -555,6 +689,370 @@ void OverlayMenu::rebuildSave() {
         };
         mRows.push_back(std::move(r));
     }
+}
+
+void OverlayMenu::buildCheatModel() {
+    mCheatFolders.clear();
+    mCheatModelValid = true;
+    if (!mRunner || !mRunner->hasCheatApi()) return;
+
+    int folderCount = mRunner->cheatFolderCount();
+    int cheatTotal  = mRunner->cheatCount();
+    for (int f = 0; f < folderCount; f++) {
+        CheatFolder cf;
+        cf.name = mRunner->cheatFolderName(f);
+        cf.multiSelect = mRunner->cheatFolderMultiSelect(f);
+        mCheatFolders.push_back(std::move(cf));
+    }
+    // Group cheats under their folderId; out-of-range -> synthetic Assorted.
+    std::vector<int> leftover;
+    for (int i = 0; i < cheatTotal; i++) {
+        int fid = mRunner->cheatFolderId(i);
+        if (fid >= 0 && fid < folderCount) {
+            mCheatFolders[fid].children.push_back(i);
+            mCheatFolders[fid].childNames.push_back(mRunner->cheatName(i));
+        } else {
+            leftover.push_back(i);
+        }
+    }
+    if (!leftover.empty()) {
+        CheatFolder cf;
+        cf.name = "Assorted";
+        cf.multiSelect = true;
+        for (int g : leftover) {
+            cf.children.push_back(g);
+            cf.childNames.push_back(mRunner->cheatName(g));
+        }
+        mCheatFolders.push_back(std::move(cf));
+    }
+
+    // Cache custom cheat names (parallel to index) so per-input rebuilds
+    // don't re-allocate byte[]s.
+    mCustomCheatNames.clear();
+    if (mRunner->hasCustomCheatApi()) {
+        int cc = mRunner->customCheatCount();
+        for (int i = 0; i < cc; i++) {
+            mCustomCheatNames.push_back(mRunner->customCheatName(i));
+        }
+    }
+}
+
+bool OverlayMenu::cheatMatchesFilter(const std::string& name) const {
+    if (mCheatFilter.empty()) return true;
+    std::string lo;
+    lo.reserve(name.size());
+    for (char c : name) lo.push_back((char)std::tolower((unsigned char)c));
+    return lo.find(mCheatFilter) != std::string::npos;
+}
+
+void OverlayMenu::openCheatSearch() {
+    mOsk.open("Search cheats", mCheatFilter, DrasticOsk::Mode::Text,
+              [this](const std::string& q) {
+                  std::string lo;
+                  lo.reserve(q.size());
+                  for (char c : q)
+                      lo.push_back((char)std::tolower((unsigned char)c));
+                  mCheatFilter = lo;
+                  rebuildRows();
+              });
+}
+
+namespace {
+// Parse an Action Replay code string into a flat int[] of 32-bit words
+// (consecutive address,value pairs). Mirrors CheatEditor: split on
+// whitespace, strip each token to hex digits, parse base-16. Returns empty
+// on an odd token count (invalid).
+std::vector<int> parseArCode(const std::string& s) {
+    std::vector<uint32_t> words;
+    std::string tok;
+    auto flush = [&]() {
+        if (tok.empty()) return;
+        std::string hex;
+        for (char c : tok) if (std::isxdigit((unsigned char)c)) hex.push_back(c);
+        if (!hex.empty()) {
+            uint32_t v = (uint32_t)strtoull(hex.c_str(), nullptr, 16);
+            words.push_back(v);
+        }
+        tok.clear();
+    };
+    for (char c : s) {
+        if (c == ' ' || c == '\n' || c == '\r' || c == '\t') flush();
+        else tok.push_back(c);
+    }
+    flush();
+    std::vector<int> out;
+    if (words.size() % 2 != 0) return out;   // odd = invalid
+    for (uint32_t w : words) out.push_back((int)w);
+    return out;
+}
+} // namespace
+
+void OverlayMenu::addCustomCheatFlow() {
+    if (!mRunner || !mRunner->hasCustomCheatApi()) return;
+    mOsk.open("New cheat name", "", DrasticOsk::Mode::Text,
+              [this](const std::string& name) {
+        if (name.empty()) { toast("Cancelled"); return; }
+        std::string cheatName = name;
+        mOsk.open("AR code (hex, e.g. 94000130 FCFF0000)", "",
+                  DrasticOsk::Mode::Hex,
+                  [this, cheatName](const std::string& code) {
+            std::vector<int> words = parseArCode(code);
+            if (words.empty()) { toast("Invalid cheat code"); return; }
+            int rc = mRunner->addCustomCheat(cheatName, words, true);
+            if (rc == 0) {
+                mRunner->applyCheats();
+                mCheatsDirty = false;   // applyCheats already flushed
+                toast("Cheat added");
+            } else {
+                toast("Add failed (already exists?)");
+            }
+            mCheatModelValid = false;   // re-enumerate to show the new cheat
+            rebuildRows();
+        });
+    });
+}
+
+void OverlayMenu::adjustVolume(int dir) {
+    int v = mPrefs.volume + dir;
+    if (v < 0)  v = 0;
+    if (v > 10) v = 10;
+    if (v != mPrefs.volume) {
+        mPrefs.volume = v;
+        mDirty = true;   // persisted with the prefs on close
+        if (mRunner) mRunner->setVolumeRuntime(v * 10);
+    }
+    mVolHudTimer = 90;   // ~1.5s at 60fps
+}
+
+void OverlayMenu::adjustBrightness(int dir) {
+    if (!mBrightInit) {
+        mBrightLevel = property_get_int32(
+                "persist.gammaos.nano.brightness", 128);
+        mBrightInit = true;
+    }
+    int b = mBrightLevel + 16 * dir;
+    if (b < 8)   b = 8;       // never fully dark via the keys
+    if (b > 255) b = 255;
+    mBrightLevel = b;
+    android::nanobl::nanoBacklightSet(mBrightLevel);
+    char buf[16];
+    snprintf(buf, sizeof(buf), "%d", mBrightLevel);
+    property_set("persist.gammaos.nano.brightness", buf);
+    mBrightHudTimer = 90;
+}
+
+void OverlayMenu::drawHud(drastic_gfx::OverlayGfx& gfx) {
+    if (mVolHudTimer <= 0 && mBrightHudTimer <= 0) return;
+    const float vw = (float)gfx.viewportW();
+    const float vh = (float)gfx.viewportH();
+
+    // Adapter onto the shared NanoSliderHud spec (same one gammaos-nano uses),
+    // translating its pixel-height text API to OverlayGfx's scale-of-base-px.
+    struct GfxBackend {
+        drastic_gfx::OverlayGfx& g;
+        float basePx;
+        void rect(float x, float y, float w, float h,
+                  float r, float gr, float b, float a) {
+            g.fillRect(x, y, w, h, drastic_gfx::rgba(r, gr, b, a));
+        }
+        void text(const char* s, float x, float y, float pxH,
+                  float r, float gr, float b, float a) {
+            g.text(s, x, y, pxH / basePx, drastic_gfx::rgba(r, gr, b, a));
+        }
+        float measure(const char* s, float pxH) {
+            return g.measure(s, pxH / basePx);
+        }
+    } be{gfx, (float)gfx.fontBasePx()};
+
+    int slot = 0;
+    if (mBrightHudTimer > 0) {
+        mBrightHudTimer--;
+        nano_slider::draw(be, vw, vh, nano_slider::kBrightness,
+                          mBrightLevel * 100 / 255, slot++);
+    }
+    if (mVolHudTimer > 0) {
+        mVolHudTimer--;
+        nano_slider::draw(be, vw, vh, nano_slider::kVolume,
+                          mPrefs.volume * 10, slot);
+    }
+}
+
+void OverlayMenu::rebuildCheats() {
+    if (!mRunner || !mRunner->hasCheatApi()) {
+        RowAction r;
+        r.label = "Cheats not available";
+        mRows.push_back(std::move(r));
+        return;
+    }
+    if (!mCheatModelValid) buildCheatModel();
+
+    // Search row (opens the keyboard to filter by name).
+    {
+        RowAction r;
+        r.label = "Search";
+        r.value = mCheatFilter.empty() ? "(all)" : mCheatFilter;
+        r.onAccept = [this]() { openCheatSearch(); };
+        mRows.push_back(std::move(r));
+    }
+
+    // Show filter: All / Enabled / Disabled. Cycle with A or Left/Right.
+    {
+        static const char* const kShow[] = {"All", "Enabled", "Disabled"};
+        RowAction r;
+        r.label = "Show";
+        r.value = kShow[mCheatShow % 3];
+        r.onAccept = [this]() { mCheatShow = (mCheatShow + 1) % 3; };
+        r.onAdjust = [this](int dir) {
+            mCheatShow = (mCheatShow + (dir > 0 ? 1 : 2)) % 3;
+        };
+        mRows.push_back(std::move(r));
+    }
+
+    // Compute whether any cheat is currently enabled (cheap byte reads) so
+    // the All-Cheats row can offer the right action.
+    int total = 0;
+    bool anyOn = false;
+    for (const auto& cf : mCheatFolders) {
+        total += (int)cf.children.size();
+        for (int g : cf.children)
+            if (mRunner->cheatEnabled(g)) { anyOn = true; break; }
+    }
+    if (mRunner->hasCustomCheatApi()) {
+        int cc = (int)mCustomCheatNames.size();
+        for (int i = 0; i < cc && !anyOn; i++)
+            if (mRunner->customCheatEnabled(i)) anyOn = true;
+    }
+
+    // Enable / disable all toggle.
+    if (total > 0 || !mCustomCheatNames.empty()) {
+        RowAction r;
+        r.label = "All Cheats";
+        r.value = anyOn ? "Disable All" : "Enable All";
+        bool turnOn = !anyOn;
+        r.onAccept = [this, turnOn]() {
+            int n = mRunner->cheatCount();
+            for (int i = 0; i < n; i++) mRunner->setCheatEnabled(i, turnOn);
+            int cc = mRunner->hasCustomCheatApi()
+                    ? mRunner->customCheatCount() : 0;
+            for (int i = 0; i < cc; i++)
+                mRunner->setCustomCheatEnabled(i, turnOn);
+            mCheatsDirty = true;
+            toast(turnOn ? "All cheats enabled" : "All cheats disabled");
+        };
+        mRows.push_back(std::move(r));
+    }
+
+    // Preloaded cheats, folder-grouped, filtered by the search query.
+    bool anyShown = false;
+    for (size_t fi = 0; fi < mCheatFolders.size(); fi++) {
+        const CheatFolder& cf = mCheatFolders[fi];
+        if (cf.children.empty()) continue;
+        // Collect matching children first so we can skip empty folders.
+        // Honor both the name filter and the Show (all/enabled/disabled)
+        // filter.
+        std::vector<size_t> match;
+        for (size_t ci = 0; ci < cf.children.size(); ci++) {
+            const std::string& nm = ci < cf.childNames.size()
+                    ? cf.childNames[ci] : std::string();
+            if (!cheatMatchesFilter(nm)) continue;
+            if (mCheatShow != 0) {
+                bool on = mRunner->cheatEnabled(cf.children[ci]);
+                if (mCheatShow == 1 && !on) continue;   // Enabled only
+                if (mCheatShow == 2 && on)  continue;   // Disabled only
+            }
+            match.push_back(ci);
+        }
+        if (match.empty()) continue;
+        anyShown = true;
+        {
+            RowAction h;
+            h.label = cf.name.empty() ? "Cheats" : cf.name;
+            h.value = cf.multiSelect ? "" : "(one)";
+            mRows.push_back(std::move(h));
+        }
+        for (size_t ci : match) {
+            int g = cf.children[ci];
+            RowAction r;
+            r.label = "  " + (ci < cf.childNames.size() ? cf.childNames[ci]
+                                                        : std::string("?"));
+            r.value = mRunner->cheatEnabled(g) ? "On" : "Off";
+            int folderModelIdx = (int)fi;
+            r.onAccept = [this, g, folderModelIdx]() {
+                toggleCheat(g, folderModelIdx);
+            };
+            mRows.push_back(std::move(r));
+        }
+    }
+    if (total == 0) {
+        RowAction r;
+        r.label = "No cheats for this game";
+        mRows.push_back(std::move(r));
+    } else if (!anyShown && !mCheatFilter.empty()) {
+        RowAction r;
+        r.label = "No matches for \"" + mCheatFilter + "\"";
+        mRows.push_back(std::move(r));
+    }
+
+    // Custom (user) cheats: an Add row + a toggle row per cached custom
+    // cheat (filtered). Toggling persists with the preloaded set on close.
+    if (mRunner->hasCustomCheatApi()) {
+        {
+            RowAction h;
+            h.label = "Custom Cheats";
+            mRows.push_back(std::move(h));
+        }
+        {
+            RowAction r;
+            r.label = "  Add custom cheat...";
+            r.onAccept = [this]() { addCustomCheatFlow(); };
+            mRows.push_back(std::move(r));
+        }
+        for (size_t i = 0; i < mCustomCheatNames.size(); i++) {
+            if (!cheatMatchesFilter(mCustomCheatNames[i])) continue;
+            if (mCheatShow != 0) {
+                bool on = mRunner->customCheatEnabled((int)i);
+                if (mCheatShow == 1 && !on) continue;
+                if (mCheatShow == 2 && on)  continue;
+            }
+            int idx = (int)i;
+            RowAction r;
+            r.label = "  " + mCustomCheatNames[i];
+            r.value = mRunner->customCheatEnabled(idx) ? "On" : "Off";
+            // A toggles enable. (Removal is intentionally not wired to the
+            // auto-repeating Left/Right here: it would delete the whole
+            // custom list while held. A confirm-gated remove is a follow-up;
+            // for now custom cheats can be managed in the real drastic app,
+            // which shares the same per-game .cht file.)
+            r.onAccept = [this, idx]() {
+                mRunner->setCustomCheatEnabled(
+                        idx, !mRunner->customCheatEnabled(idx));
+                mCheatsDirty = true;
+            };
+            mRows.push_back(std::move(r));
+        }
+    }
+}
+
+void OverlayMenu::toggleCheat(int g, int folderModelIdx) {
+    if (!mRunner) return;
+    bool now = mRunner->cheatEnabled(g);
+    // Enabling inside a radio-group ("select one") folder: disable siblings
+    // first, since native setCheatEnabled does not enforce it.
+    if (!now && folderModelIdx >= 0 &&
+        folderModelIdx < (int)mCheatFolders.size() &&
+        !mCheatFolders[folderModelIdx].multiSelect) {
+        int cleared = 0;
+        for (int sib : mCheatFolders[folderModelIdx].children) {
+            if (sib != g && mRunner->cheatEnabled(sib)) {
+                mRunner->setCheatEnabled(sib, false);
+                cleared++;
+            }
+        }
+        if (cleared > 0) toast("Other cheats in this folder were disabled");
+    }
+    mRunner->setCheatEnabled(g, !now);
+    mCheatsDirty = true;
+    // Values refresh on the rebuildRows() the caller runs after onAccept.
 }
 
 void OverlayMenu::applyConfigLive() {
@@ -900,16 +1398,19 @@ void OverlayMenu::draw(drastic_gfx::OverlayGfx& gfx) {
     float sf = clampf(fminf(vw / 1080.0f, vh / 720.0f), kSfMin, kSfMax);
 
     if (!mOpen) {
-        // Brief toasts still render even when closed (quick save, etc.).
+        // The volume/brightness HUD and brief toasts still render (and the
+        // HUD timers still tick) while the menu is closed -- the user
+        // adjusts volume/brightness during gameplay.
+        drawHud(gfx);
         if (mToast.empty() ||
             android::elapsedRealtime() > mToastUntilMs) return;
         drawToast(gfx, mToast, sf);
         return;
     }
 
-    // Full-screen scrim at 75% opacity: the game stays faintly visible
-    // through the dark but the overlay dominates.
-    gfx.fillRect(0, 0, vw, vh, rgba(0, 0, 0, 0.75f));
+    // Full-screen scrim: darker so the overlay dominates and the game
+    // recedes (still faintly visible behind the dark).
+    gfx.fillRect(0, 0, vw, vh, rgba(0, 0, 0, 0.88f));
 
     float catBarY = vh * kCatBarTopFrac;
     drawCategoryBar(gfx, vw, catBarY, sf);
@@ -930,9 +1431,26 @@ void OverlayMenu::draw(drastic_gfx::OverlayGfx& gfx) {
 
     drawFooter(gfx, vw, vh, sf);
 
+    // The on-screen keyboard is NOT drawn here: it renders on the bottom DS
+    // screen (drawOsk, called by main.cpp against the secondary FBO) so it
+    // does not cover the cheats menu on the top screen.
+
+    // Volume/brightness HUD sits above the menu too.
+    drawHud(gfx);
+
     if (!mToast.empty() && android::elapsedRealtime() <= mToastUntilMs) {
         drawToast(gfx, mToast, sf);
     }
+}
+
+void OverlayMenu::drawOsk(drastic_gfx::OverlayGfx& gfx) {
+    if (!mOsk.active()) return;
+    // Scrim behind the keyboard on this (bottom) screen, darkening the
+    // paused DS frame so the keyboard reads clearly.
+    float vw = (float)gfx.viewportW();
+    float vh = (float)gfx.viewportH();
+    gfx.fillRect(0, 0, vw, vh, rgba(0, 0, 0, 0.72f));
+    mOsk.render(gfx);
 }
 
 void OverlayMenu::drawCategoryBar(drastic_gfx::OverlayGfx& gfx,

@@ -67,6 +67,35 @@ const char kTextFS[] =
     "  gl_FragColor = vec4(uColor.rgb, uColor.a * a);\n"
     "}\n";
 
+// Rounded-rect SDF, transcribed 1:1 from gammaos-nano's ROUND_FRAGMENT_SHADER
+// so the OSK caps/panel match the PS3-XMB keyboard. aLocal is the centred
+// pixel offset within the rect (corners at +/- half).
+const char kRoundVS[] =
+    "precision highp float;\n"
+    "attribute vec2 aPos;\n"
+    "attribute vec2 aLocal;\n"
+    "varying vec2 vLocal;\n"
+    "uniform vec2 uViewport;\n"
+    "uniform mat2 uRot;\n"
+    "void main() {\n"
+    "  vLocal = aLocal;\n"
+    "  vec2 ndc = aPos / uViewport * 2.0 - 1.0;\n"
+    "  ndc.y = -ndc.y;\n"
+    "  gl_Position = vec4(uRot * ndc, 0.0, 1.0);\n"
+    "}\n";
+const char kRoundFS[] =
+    "precision mediump float;\n"
+    "varying vec2 vLocal;\n"
+    "uniform vec2 uHalf;\n"
+    "uniform float uRadius;\n"
+    "uniform vec4 uColor;\n"
+    "void main() {\n"
+    "  vec2 d = abs(vLocal) - (uHalf - vec2(uRadius));\n"
+    "  float dist = length(max(d, 0.0)) + min(max(d.x, d.y), 0.0) - uRadius;\n"
+    "  float a = clamp(0.5 - dist, 0.0, 1.0);\n"
+    "  gl_FragColor = vec4(uColor.rgb, uColor.a * a);\n"
+    "}\n";
+
 GLuint compile(GLenum type, const char* src) {
     GLuint s = glCreateShader(type);
     glShaderSource(s, 1, &src, nullptr);
@@ -89,6 +118,7 @@ GLuint link(GLuint vs, GLuint fs) {
     glAttachShader(p, fs);
     glBindAttribLocation(p, 0, "aPos");
     glBindAttribLocation(p, 1, "aUv");
+    glBindAttribLocation(p, 1, "aLocal");   // round program reuses slot 1
     glLinkProgram(p);
     GLint ok = 0;
     glGetProgramiv(p, GL_LINK_STATUS, &ok);
@@ -140,6 +170,21 @@ bool OverlayGfx::init(int viewportW, int viewportH, const float rotMat[4]) {
     mTextLocRot      = glGetUniformLocation(mTextProgram, "uRot");
     mTextLocSampler  = glGetUniformLocation(mTextProgram, "uTex");
 
+    GLuint rvs = compile(GL_VERTEX_SHADER,   kRoundVS);
+    GLuint rfs = compile(GL_FRAGMENT_SHADER, kRoundFS);
+    if (!rvs || !rfs) return false;
+    mRoundProgram = link(rvs, rfs);
+    glDeleteShader(rvs);
+    glDeleteShader(rfs);
+    if (!mRoundProgram) return false;
+    mRoundLocPos      = glGetAttribLocation(mRoundProgram, "aPos");
+    mRoundLocLocal    = glGetAttribLocation(mRoundProgram, "aLocal");
+    mRoundLocColor    = glGetUniformLocation(mRoundProgram, "uColor");
+    mRoundLocViewport = glGetUniformLocation(mRoundProgram, "uViewport");
+    mRoundLocRot      = glGetUniformLocation(mRoundProgram, "uRot");
+    mRoundLocHalf     = glGetUniformLocation(mRoundProgram, "uHalf");
+    mRoundLocRadius   = glGetUniformLocation(mRoundProgram, "uRadius");
+
     glGenBuffers(1, &mQuadVbo);
     glGenBuffers(1, &mTextVbo);
 
@@ -190,6 +235,7 @@ void OverlayGfx::shutdown() {
     if (mTextVbo) { glDeleteBuffers(1, &mTextVbo); mTextVbo = 0; }
     if (mSolidProgram) { glDeleteProgram(mSolidProgram); mSolidProgram = 0; }
     if (mTextProgram)  { glDeleteProgram(mTextProgram);  mTextProgram = 0; }
+    if (mRoundProgram) { glDeleteProgram(mRoundProgram); mRoundProgram = 0; }
     if (mFtFace) {
         FT_Done_Face((FT_Face)mFtFace);
         mFtFace = nullptr;
@@ -258,9 +304,67 @@ void OverlayGfx::panel(float x, float y, float w, float h, Color bg, Color edge)
     outline(x, y, w, h, 2.0f, edge);
 }
 
-bool OverlayGfx::loadGlyph(uint32_t cp, Glyph* out) const {
+void OverlayGfx::roundedRect(float x, float y, float w, float h,
+                             float radius, Color c) {
+    if (w <= 0.0f || h <= 0.0f) return;
+    const float hw = w * 0.5f;
+    const float hh = h * 0.5f;
+    float r = radius;
+    const float rmax = (hw < hh) ? hw : hh;
+    if (r > rmax) r = rmax;
+    if (r < 0.0f) r = 0.0f;
+
+    glUseProgram(mRoundProgram);
+    glUniform2f(mRoundLocViewport, (float)mViewportW, (float)mViewportH);
+    glUniformMatrix2fv(mRoundLocRot, 1, GL_FALSE, mRot);
+    glUniform4f(mRoundLocColor, c.r, c.g, c.b, c.a);
+    glUniform2f(mRoundLocHalf, hw, hh);
+    glUniform1f(mRoundLocRadius, r);
+
+    // Interleaved: pos.xy (pixel), local.xy (centred). Corners +/- half.
+    const float verts[] = {
+        x,     y,     -hw, -hh,
+        x + w, y,      hw, -hh,
+        x,     y + h, -hw,  hh,
+        x + w, y + h,  hw,  hh,
+    };
+    glBindBuffer(GL_ARRAY_BUFFER, mQuadVbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(verts), verts, GL_STREAM_DRAW);
+    glEnableVertexAttribArray(mRoundLocPos);
+    glVertexAttribPointer(mRoundLocPos, 2, GL_FLOAT, GL_FALSE,
+                          4 * sizeof(float), nullptr);
+    glEnableVertexAttribArray(mRoundLocLocal);
+    glVertexAttribPointer(mRoundLocLocal, 2, GL_FLOAT, GL_FALSE,
+                          4 * sizeof(float), (void*)(2 * sizeof(float)));
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    glDisableVertexAttribArray(mRoundLocPos);
+    glDisableVertexAttribArray(mRoundLocLocal);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
+void OverlayGfx::triangle(float x0, float y0, float x1, float y1,
+                          float x2, float y2, Color c) {
+    glUseProgram(mSolidProgram);
+    glUniform2f(mSolidLocViewport, (float)mViewportW, (float)mViewportH);
+    glUniformMatrix2fv(mSolidLocRot, 1, GL_FALSE, mRot);
+    glUniform4f(mSolidLocColor, c.r, c.g, c.b, c.a);
+
+    const float verts[] = { x0, y0, x1, y1, x2, y2 };
+    glBindBuffer(GL_ARRAY_BUFFER, mQuadVbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(verts), verts, GL_STREAM_DRAW);
+    glEnableVertexAttribArray(mSolidLocPos);
+    glVertexAttribPointer(mSolidLocPos, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+    glDrawArrays(GL_TRIANGLES, 0, 3);
+    glDisableVertexAttribArray(mSolidLocPos);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
+bool OverlayGfx::loadGlyph(uint32_t cp, int pxSize, Glyph* out) const {
     if (!mFtFace) return false;
     FT_Face face = (FT_Face)mFtFace;
+    if (pxSize < 4) pxSize = 4;
+    if (pxSize > 256) pxSize = 256;
+    FT_Set_Pixel_Sizes(face, 0, pxSize);   // rasterize at the display size
     if (FT_Load_Char(face, cp, FT_LOAD_RENDER) != 0) return false;
     FT_GlyphSlot g = face->glyph;
     out->w = g->bitmap.width;
@@ -324,6 +428,10 @@ float OverlayGfx::text(const char* s, float x, float y, float scale, Color c) {
     glActiveTexture(GL_TEXTURE0);
     glUniform1i(mTextLocSampler, 0);
 
+    int pxSize = (int)(mFontPx * scale + 0.5f);
+    if (pxSize < 4) pxSize = 4;
+    if (pxSize > 256) pxSize = 256;
+
     float penX = x;
     const float baseline = y + mAscent * scale;
     const char* p = s;
@@ -331,18 +439,20 @@ float OverlayGfx::text(const char* s, float x, float y, float scale, Color c) {
     while (p < end) {
         uint32_t cp = decodeUtf8(&p, end);
         if (!cp) break;
-        auto it = mGlyphs.find(cp);
+        uint64_t key = ((uint64_t)cp << 20) | (uint32_t)pxSize;
+        auto it = mGlyphs.find(key);
         if (it == mGlyphs.end()) {
             Glyph g{};
-            if (!loadGlyph(cp, &g)) continue;
-            it = mGlyphs.emplace(cp, g).first;
+            if (!loadGlyph(cp, pxSize, &g)) continue;
+            it = mGlyphs.emplace(key, g).first;
         }
         const Glyph& g = it->second;
         if (g.tex) {
-            float gx = penX + g.bearingX * scale;
-            float gy = baseline - g.bearingY * scale;
-            float gw = g.w * scale;
-            float gh = g.h * scale;
+            // Metrics are already at the display pixel size -> draw 1:1.
+            float gx = penX + g.bearingX;
+            float gy = baseline - g.bearingY;
+            float gw = g.w;
+            float gh = g.h;
             const float verts[] = {
                 gx,      gy,      0.0f, 0.0f,
                 gx + gw, gy,      1.0f, 0.0f,
@@ -363,7 +473,7 @@ float OverlayGfx::text(const char* s, float x, float y, float scale, Color c) {
             glDisableVertexAttribArray(mTextLocPos);
             glDisableVertexAttribArray(mTextLocUv);
         }
-        penX += g.advance * scale;
+        penX += g.advance;
     }
     glBindTexture(GL_TEXTURE_2D, 0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -372,22 +482,24 @@ float OverlayGfx::text(const char* s, float x, float y, float scale, Color c) {
 
 float OverlayGfx::measure(const char* s, float scale) const {
     if (!s || !*s) return 0.0f;
+    int pxSize = (int)(mFontPx * scale + 0.5f);
+    if (pxSize < 4) pxSize = 4;
+    if (pxSize > 256) pxSize = 256;
     float penX = 0.0f;
     const char* p = s;
     const char* end = s + strlen(s);
     while (p < end) {
         uint32_t cp = decodeUtf8(&p, end);
         if (!cp) break;
-        auto it = mGlyphs.find(cp);
-        if (it == mGlyphs.end()) {
-            // Glyph not cached; ask FT for metrics without rendering.
-            FT_Face face = (FT_Face)mFtFace;
-            if (!face) continue;
-            if (FT_Load_Char(face, cp, FT_LOAD_DEFAULT) != 0) continue;
-            penX += (face->glyph->advance.x >> 6) * scale;
-            continue;
-        }
-        penX += it->second.advance * scale;
+        uint64_t key = ((uint64_t)cp << 20) | (uint32_t)pxSize;
+        auto it = mGlyphs.find(key);
+        if (it != mGlyphs.end()) { penX += it->second.advance; continue; }
+        // Not cached: ask FT for the advance at this size without rendering.
+        FT_Face face = (FT_Face)mFtFace;
+        if (!face) continue;
+        FT_Set_Pixel_Sizes(face, 0, pxSize);
+        if (FT_Load_Char(face, cp, FT_LOAD_DEFAULT) != 0) continue;
+        penX += (face->glyph->advance.x >> 6);
     }
     return penX;
 }

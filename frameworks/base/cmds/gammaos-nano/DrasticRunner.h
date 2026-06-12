@@ -202,6 +202,44 @@ public:
     // render thread. Idempotent: a no-op when the size already matches.
     void requestDsReDim() { mPendingDsReDim.store(true); }
 
+    // ---- Cheat API (thin wrappers over drastic's cheat JNI exports) ----
+    // True when the cheat symbols resolved so the overlay can hide the
+    // tab if libdrastic lacks them. Cheats are auto-loaded by startGame;
+    // these getters only return data after the game is booted
+    // (isFrameReady). All cheat indices are GLOBAL (0..cheatCount-1).
+    bool hasCheatApi() const {
+        return mGetCheatCount && mGetCheatName && mSetCheatEnabled
+            && mUpdateCheats;
+    }
+    int  cheatCount();
+    int  cheatFolderCount();
+    std::string cheatName(int idx);
+    std::string cheatNote(int idx);
+    std::string cheatFolderName(int folder);
+    bool cheatEnabled(int idx);
+    bool cheatFolderMultiSelect(int folder);
+    int  cheatFolderId(int idx);
+    void setCheatEnabled(int idx, bool on);
+    // updateCheats(1): write cheats/<gamecode>.cht + schedule live
+    // re-apply. Call ONCE after a batch of setCheatEnabled, on page close.
+    void applyCheats();
+
+    // Custom cheats.
+    bool hasCustomCheatApi() const {
+        return mGetCustomCheatCount && mAddCustomCheat && mGetCustomCheatData;
+    }
+    int  customCheatCount();
+    std::string customCheatName(int idx);
+    bool customCheatEnabled(int idx);
+    void setCustomCheatEnabled(int idx, bool on);
+    std::vector<int> customCheatData(int idx);
+    void removeCustomCheat(int idx);
+    // Returns drastic's status (0 = ok, non-zero = error/duplicate).
+    int  addCustomCheat(const std::string& name,
+                        const std::vector<int>& words, bool enabled);
+    // >= 0 if an identical custom cheat already exists.
+    int  findCustomCheat(const std::vector<int>& words);
+
     // Swap the active video filter (.dfx). absDfxPath must point at
     // a readable .dfx file. Pauses drastic briefly, calls fxLoad +
     // fxSetup with the stored tex dimensions, re-captures the drastic
@@ -317,6 +355,38 @@ private:
     typedef int  (*loadState_t)(void* env, void* cls, int slot);
     typedef void (*resetDS_t)  (void* env, void* cls);
 
+    // Cheat JNI API. Preloaded cheats are auto-loaded inside startGame
+    // from usrcheat.dat keyed by the ROM game code (no explicit load
+    // call). The [B getters return a jbyteArray handle decoded via
+    // fakejni::getByteArrayData. setCheatEnabled only flips an in-memory
+    // byte; updateCheats(1) writes cheats/<gamecode>.cht and schedules a
+    // live re-apply (so enabled cheats persist across ROM loads).
+    typedef int           (*getCheatCount_t)(void* env, void* cls);
+    typedef int           (*getCheatFolderCount_t)(void* env, void* cls);
+    typedef void*         (*getCheatName_t)(void* env, void* cls, int idx);
+    typedef void*         (*getCheatNote_t)(void* env, void* cls, int idx);
+    typedef void*         (*getCheatFolderName_t)(void* env, void* cls, int f);
+    typedef unsigned char (*getCheatEnabled_t)(void* env, void* cls, int idx);
+    typedef unsigned char (*getCheatFolderMultiSelect_t)(void* env, void* cls, int f);
+    typedef int           (*getCheatFolderId_t)(void* env, void* cls, int idx);
+    typedef void          (*setCheatEnabled_t)(void* env, void* cls, int idx,
+                                               unsigned char on);
+    typedef void          (*updateCheats_t)(void* env, void* cls,
+                                            unsigned char save);
+    // Custom (user) cheats.
+    typedef int           (*getCustomCheatCount_t)(void* env, void* cls);
+    typedef void*         (*getCustomCheatName_t)(void* env, void* cls, int idx);
+    typedef unsigned char (*getCustomCheatEnabled_t)(void* env, void* cls, int idx);
+    typedef void          (*setCustomCheatEnabled_t)(void* env, void* cls,
+                                                     int idx, unsigned char on);
+    typedef void*         (*getCustomCheatData_t)(void* env, void* cls, int idx);
+    typedef void          (*removeCustomCheat_t)(void* env, void* cls, int idx);
+    typedef int           (*addCustomCheat_t)(void* env, void* cls,
+                                              void* nameJStr, void* dataIntArr,
+                                              int count, unsigned char enabled);
+    typedef int           (*findCustomCheat_t)(void* env, void* cls,
+                                               void* dataIntArr, int count);
+
     // Phase 4 GL entry points.
     typedef int  (*fxLoad_t)(void* env, void* cls,
                              void* shaderPathJStr, int arg2, int arg3);
@@ -368,6 +438,24 @@ private:
     saveState_t          mSaveState = nullptr;
     loadState_t          mLoadState = nullptr;
     resetDS_t            mResetDS = nullptr;
+    getCheatCount_t              mGetCheatCount = nullptr;
+    getCheatFolderCount_t        mGetCheatFolderCount = nullptr;
+    getCheatName_t               mGetCheatName = nullptr;
+    getCheatNote_t               mGetCheatNote = nullptr;
+    getCheatFolderName_t         mGetCheatFolderName = nullptr;
+    getCheatEnabled_t            mGetCheatEnabled = nullptr;
+    getCheatFolderMultiSelect_t  mGetCheatFolderMultiSelect = nullptr;
+    getCheatFolderId_t           mGetCheatFolderId = nullptr;
+    setCheatEnabled_t            mSetCheatEnabled = nullptr;
+    updateCheats_t               mUpdateCheats = nullptr;
+    getCustomCheatCount_t        mGetCustomCheatCount = nullptr;
+    getCustomCheatName_t         mGetCustomCheatName = nullptr;
+    getCustomCheatEnabled_t      mGetCustomCheatEnabled = nullptr;
+    setCustomCheatEnabled_t      mSetCustomCheatEnabled = nullptr;
+    getCustomCheatData_t         mGetCustomCheatData = nullptr;
+    removeCustomCheat_t          mRemoveCustomCheat = nullptr;
+    addCustomCheat_t             mAddCustomCheat = nullptr;
+    findCustomCheat_t            mFindCustomCheat = nullptr;
     int                  mAutoLoadSlot = 0;   // startGame boot-load slot
     fxLoad_t            mFxLoad = nullptr;
     fxSetup_t           mFxSetup = nullptr;

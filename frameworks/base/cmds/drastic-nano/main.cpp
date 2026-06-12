@@ -927,6 +927,10 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
             continue;
         }
         overlay.update(actions, &input);
+        // In-app volume / brightness HUDs (VOL = volume, SELECT+VOL =
+        // brightness). The SF system sliders never show on the DRM path.
+        if (actions.volAdjust != 0)    overlay.onVolumeAdjust(actions.volAdjust);
+        if (actions.brightAdjust != 0) overlay.onBrightnessAdjust(actions.brightAdjust);
         if (actions.exitRequested) {
             ALOGW("drastic-nano: long-press BACK, exiting");
             exitRequested = true;
@@ -1036,6 +1040,34 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
         gfx.beginFrame();
         overlay.draw(gfx);
         gfx.endFrame();
+
+        // On-screen keyboard: render on the BOTTOM DS panel (secondary FBO)
+        // with its own scrim, so it does not cover the cheats menu on the top
+        // screen. On a single-panel device there is no separate bottom FBO, so
+        // fall back to drawing it over the primary. The keyboard is drawn after
+        // the DS frames and the top overlay, before the slot fence.
+        if (overlay.oskActive()) {
+            if (hasDualDisplay) {
+                glBindFramebuffer(GL_FRAMEBUFFER, secTgt.glFbo);
+                glViewport(0, 0, (GLsizei)secTgt.w, (GLsizei)secTgt.h);
+                gfx.setViewport((int)secTgt.w, (int)secTgt.h);
+                gfx.beginFrame();
+                overlay.drawOsk(gfx);
+                gfx.endFrame();
+                // Restore the primary logical viewport for the next iteration.
+                gfx.setViewport((int)primTgt.w, (int)primTgt.h);
+            } else {
+                glBindFramebuffer(GL_FRAMEBUFFER, primTgt.glFbo);
+                if (android::sDrmGlRotation) {
+                    glViewport(0, 0, (GLsizei)primTgt.w, (GLsizei)primTgt.h);
+                } else {
+                    glViewport(0, 0, dpy->width, dpy->height);
+                }
+                gfx.beginFrame();
+                overlay.drawOsk(gfx);
+                gfx.endFrame();
+            }
+        }
 
         if (tripleBuffer) {
             // Unbind before fence-create so the kick point is

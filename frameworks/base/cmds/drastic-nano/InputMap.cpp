@@ -193,6 +193,7 @@ void drainTouch(InputState* st) {
     while (read(st->touchFd, &ev, sizeof(ev)) == sizeof(ev)) {
         if (ev.type == EV_KEY && ev.code == BTN_TOUCH) {
             st->touchHeld = (ev.value != 0);
+            st->touchReal = (ev.value != 0);
         } else if (ev.type == EV_ABS) {
             if (ev.code == ABS_MT_POSITION_X) {
                 st->touchPendingX = ev.value;
@@ -202,6 +203,7 @@ void drainTouch(InputState* st) {
                 st->touchPendingValid = true;
             } else if (ev.code == ABS_MT_TRACKING_ID && ev.value == -1) {
                 st->touchHeld = false;
+                st->touchReal = false;
             }
         } else if (ev.type == EV_SYN && ev.code == SYN_REPORT) {
             if (st->touchPendingValid && st->touchPanelW > 0 &&
@@ -306,6 +308,21 @@ void pollInputMap(InputState* st, bool overlayOpen, bool captureKey,
             }
             if (ev.type == EV_KEY) {
                 const bool pressed = (ev.value != 0);
+
+                // Volume keys drive the in-app volume / brightness HUDs.
+                // VOL alone = volume (press only); SELECT+VOL = brightness
+                // (press or repeat, so holding SELECT + tapping VOL ramps).
+                // Never routed to a DS button.
+                if (ev.code == KEY_VOLUMEUP || ev.code == KEY_VOLUMEDOWN) {
+                    int dir = (ev.code == KEY_VOLUMEUP) ? 1 : -1;
+                    bool selectHeld =
+                            (st->dsBtnMask & DrasticRunner::kDsBtnSelect) != 0;
+                    if (ev.value == 1 || ev.value == 2) {
+                        if (selectHeld)        out->brightAdjust = dir;
+                        else if (ev.value == 1) out->volAdjust   = dir;
+                    }
+                    continue;
+                }
 
                 if (ev.code == KEY_POWER) {
                     // POWER is handled before capture/keymap routing and
@@ -528,6 +545,18 @@ void pollInputMap(InputState* st, bool overlayOpen, bool captureKey,
     // Stick-as-stylus gets the final word, after we know the real
     // touchscreen state for this frame.
     applyAnalogStylus(st);
+
+    // Held dpad level (keys + HAT + stick) for the overlay's hold-to-repeat
+    // scroll. Independent of overlayOpen: out->dsBtnMask is zeroed for the
+    // game while the menu is up, but the menu still needs the held level to
+    // edge-detect press/release and auto-repeat.
+    {
+        int navLevel = st->dsBtnMask | stickDpadBits(st);
+        out->navUpHeld    = (navLevel & DrasticRunner::kDsBtnUp)    != 0;
+        out->navDownHeld  = (navLevel & DrasticRunner::kDsBtnDown)  != 0;
+        out->navLeftHeld  = (navLevel & DrasticRunner::kDsBtnLeft)  != 0;
+        out->navRightHeld = (navLevel & DrasticRunner::kDsBtnRight) != 0;
+    }
 
     if (overlayOpen) {
         // Suppress DS gameplay inputs while menu is up. Zero out the

@@ -58,5 +58,12 @@ jintArray allocIntArray(jsize length);
 const jint* getIntArrayData(jintArray arr);
 jsize getIntArrayLength(jintArray arr);
 
+// Read back a byte[] that drastic returned (e.g. getCheatName fills it
+// via NewByteArray + SetByteArrayRegion). drastic allocates strlen+1 and
+// copies strlen bytes, so the trailing slot stays NUL; callers can trim a
+// single trailing NUL. Pointer/length stay valid until process teardown.
+const jbyte* getByteArrayData(jbyteArray arr);
+jsize getByteArrayLength(jbyteArray arr);
+
 } // namespace fakejni
 } // namespace android

@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <sys/mman.h>
 #include <sys/resource.h>
+#include <sys/stat.h>
 #include <sys/syscall.h>
 #include <unistd.h>
 #include <cstring>
@@ -416,6 +417,29 @@ bool DrasticRunner::init(const std::string& cacheDir,
     loadSym(mSaveState, "Java_com_dsemu_drastic_DraSticJNI_saveState");
     loadSym(mLoadState, "Java_com_dsemu_drastic_DraSticJNI_loadState");
     loadSym(mResetDS,   "Java_com_dsemu_drastic_DraSticJNI_resetDS");
+    // Cheat API (all optional -- the overlay hides the Cheats tab if the
+    // core lacks them).
+    loadSym(mGetCheatCount,       "Java_com_dsemu_drastic_DraSticJNI_getCheatCount");
+    loadSym(mGetCheatFolderCount, "Java_com_dsemu_drastic_DraSticJNI_getCheatFolderCount");
+    loadSym(mGetCheatName,        "Java_com_dsemu_drastic_DraSticJNI_getCheatName");
+    loadSym(mGetCheatNote,        "Java_com_dsemu_drastic_DraSticJNI_getCheatNote");
+    loadSym(mGetCheatFolderName,  "Java_com_dsemu_drastic_DraSticJNI_getCheatFolderName");
+    loadSym(mGetCheatEnabled,     "Java_com_dsemu_drastic_DraSticJNI_getCheatEnabled");
+    loadSym(mGetCheatFolderMultiSelect,
+            "Java_com_dsemu_drastic_DraSticJNI_getCheatFolderMultiSelect");
+    loadSym(mGetCheatFolderId,    "Java_com_dsemu_drastic_DraSticJNI_getCheatFolderId");
+    loadSym(mSetCheatEnabled,     "Java_com_dsemu_drastic_DraSticJNI_setCheatEnabled");
+    loadSym(mUpdateCheats,        "Java_com_dsemu_drastic_DraSticJNI_updateCheats");
+    loadSym(mGetCustomCheatCount, "Java_com_dsemu_drastic_DraSticJNI_getCustomCheatCount");
+    loadSym(mGetCustomCheatName,  "Java_com_dsemu_drastic_DraSticJNI_getCustomCheatName");
+    loadSym(mGetCustomCheatEnabled,
+            "Java_com_dsemu_drastic_DraSticJNI_getCustomCheatEnabled");
+    loadSym(mSetCustomCheatEnabled,
+            "Java_com_dsemu_drastic_DraSticJNI_setCustomCheatEnabled");
+    loadSym(mGetCustomCheatData,  "Java_com_dsemu_drastic_DraSticJNI_getCustomCheatData");
+    loadSym(mRemoveCustomCheat,   "Java_com_dsemu_drastic_DraSticJNI_removeCustomCheat");
+    loadSym(mAddCustomCheat,      "Java_com_dsemu_drastic_DraSticJNI_addCustomCheat");
+    loadSym(mFindCustomCheat,     "Java_com_dsemu_drastic_DraSticJNI_findCustomCheat");
     loadSym(mFxLoad,                "Java_com_dsemu_drastic_DraSticJNI_fxLoad"); // optional
     if (!loadSym(mFxSetup,          "Java_com_dsemu_drastic_DraSticJNI_fxSetup")) return false;
     if (!loadSym(mRenderFrame,      "Java_com_dsemu_drastic_DraSticJNI_renderFrame")) return false;
@@ -1935,6 +1959,129 @@ bool DrasticRunner::loadStateSlot(int slot) {
     int rc = mLoadState(mFakeEnv, mFakeCls, slot);
     ALOGI("DrasticRunner::loadStateSlot(%d) = %d", slot, rc);
     return true;
+}
+
+// ---- Cheat API wrappers ----
+// All gated on the game being booted (isFrameReady): the drastic cheat
+// getters check the same emu-init/game-loaded guards and return 0/null
+// before that. The overlay pauses the core while open, so these run in a
+// quiet window.
+
+// Decode a drastic byte[] return (NUL-terminated UTF-8 name/note) to a
+// std::string, stopping at the first NUL within the allocated length.
+static std::string readByteArrayString(void* ba) {
+    if (!ba) return std::string();
+    const jbyte* d = fakejni::getByteArrayData((jbyteArray)ba);
+    jsize n = fakejni::getByteArrayLength((jbyteArray)ba);
+    if (!d || n <= 0) return std::string();
+    size_t len = strnlen((const char*)d, (size_t)n);
+    return std::string((const char*)d, len);
+}
+
+int DrasticRunner::cheatCount() {
+    if (!mGetCheatCount || !mInitialized || !isFrameReady()) return 0;
+    return mGetCheatCount(mFakeEnv, mFakeCls);
+}
+int DrasticRunner::cheatFolderCount() {
+    if (!mGetCheatFolderCount || !mInitialized || !isFrameReady()) return 0;
+    return mGetCheatFolderCount(mFakeEnv, mFakeCls);
+}
+std::string DrasticRunner::cheatName(int idx) {
+    if (!mGetCheatName || !mInitialized || !isFrameReady()) return std::string();
+    return readByteArrayString(mGetCheatName(mFakeEnv, mFakeCls, idx));
+}
+std::string DrasticRunner::cheatNote(int idx) {
+    if (!mGetCheatNote || !mInitialized || !isFrameReady()) return std::string();
+    return readByteArrayString(mGetCheatNote(mFakeEnv, mFakeCls, idx));
+}
+std::string DrasticRunner::cheatFolderName(int folder) {
+    if (!mGetCheatFolderName || !mInitialized || !isFrameReady()) return std::string();
+    return readByteArrayString(mGetCheatFolderName(mFakeEnv, mFakeCls, folder));
+}
+bool DrasticRunner::cheatEnabled(int idx) {
+    if (!mGetCheatEnabled || !mInitialized || !isFrameReady()) return false;
+    return mGetCheatEnabled(mFakeEnv, mFakeCls, idx) != 0;
+}
+bool DrasticRunner::cheatFolderMultiSelect(int folder) {
+    // Default true (no radio enforcement) when unavailable.
+    if (!mGetCheatFolderMultiSelect || !mInitialized || !isFrameReady()) return true;
+    return mGetCheatFolderMultiSelect(mFakeEnv, mFakeCls, folder) != 0;
+}
+int DrasticRunner::cheatFolderId(int idx) {
+    if (!mGetCheatFolderId || !mInitialized || !isFrameReady()) return -1;
+    return mGetCheatFolderId(mFakeEnv, mFakeCls, idx);
+}
+void DrasticRunner::setCheatEnabled(int idx, bool on) {
+    if (!mSetCheatEnabled || !mInitialized || !isFrameReady()) return;
+    mSetCheatEnabled(mFakeEnv, mFakeCls, idx, on ? 1 : 0);
+}
+void DrasticRunner::applyCheats() {
+    if (!mUpdateCheats || !mInitialized || !isFrameReady()) return;
+    // Ensure the cheats/ dir exists or drastic's .cht writer fails silently
+    // (mCacheDir = the DraStic data dir). Harmless if it already exists.
+    if (!mCacheDir.empty()) {
+        std::string dir = mCacheDir + "/cheats";
+        mkdir(dir.c_str(), 0770);
+    }
+    // 1 = write cheats/<gamecode>.cht + set the dirty byte the run loop
+    // consumes next tick to re-apply enabled cheats to live RAM.
+    mUpdateCheats(mFakeEnv, mFakeCls, 1);
+    ALOGI("DrasticRunner::applyCheats: updateCheats(1)");
+}
+
+int DrasticRunner::customCheatCount() {
+    if (!mGetCustomCheatCount || !mInitialized || !isFrameReady()) return 0;
+    return mGetCustomCheatCount(mFakeEnv, mFakeCls);
+}
+std::string DrasticRunner::customCheatName(int idx) {
+    if (!mGetCustomCheatName || !mInitialized || !isFrameReady()) return std::string();
+    return readByteArrayString(mGetCustomCheatName(mFakeEnv, mFakeCls, idx));
+}
+bool DrasticRunner::customCheatEnabled(int idx) {
+    if (!mGetCustomCheatEnabled || !mInitialized || !isFrameReady()) return false;
+    return mGetCustomCheatEnabled(mFakeEnv, mFakeCls, idx) != 0;
+}
+void DrasticRunner::setCustomCheatEnabled(int idx, bool on) {
+    if (!mSetCustomCheatEnabled || !mInitialized || !isFrameReady()) return;
+    mSetCustomCheatEnabled(mFakeEnv, mFakeCls, idx, on ? 1 : 0);
+}
+std::vector<int> DrasticRunner::customCheatData(int idx) {
+    std::vector<int> out;
+    if (!mGetCustomCheatData || !mInitialized || !isFrameReady()) return out;
+    void* arr = mGetCustomCheatData(mFakeEnv, mFakeCls, idx);
+    if (!arr) return out;
+    const jint* d = fakejni::getIntArrayData((jintArray)arr);
+    jsize n = fakejni::getIntArrayLength((jintArray)arr);
+    if (d && n > 0) out.assign(d, d + n);
+    return out;
+}
+void DrasticRunner::removeCustomCheat(int idx) {
+    if (!mRemoveCustomCheat || !mInitialized || !isFrameReady()) return;
+    mRemoveCustomCheat(mFakeEnv, mFakeCls, idx);
+}
+int DrasticRunner::addCustomCheat(const std::string& name,
+                                  const std::vector<int>& words, bool enabled) {
+    if (!mAddCustomCheat || !mInitialized || !isFrameReady()) return -1;
+    jintArray arr = fakejni::allocIntArray((jsize)words.size());
+    if (!words.empty()) {
+        ((JNIEnv*)mFakeEnv)->SetIntArrayRegion(arr, 0, (jsize)words.size(),
+                                               (const jint*)words.data());
+    }
+    void* nameStr = ((JNIEnv*)mFakeEnv)->NewStringUTF(name.c_str());
+    int rc = mAddCustomCheat(mFakeEnv, mFakeCls, nameStr, arr,
+                             (int)words.size(), enabled ? 1 : 0);
+    ALOGI("DrasticRunner::addCustomCheat(\"%s\", %zu words) = %d",
+          name.c_str(), words.size(), rc);
+    return rc;
+}
+int DrasticRunner::findCustomCheat(const std::vector<int>& words) {
+    if (!mFindCustomCheat || !mInitialized || !isFrameReady()) return -1;
+    jintArray arr = fakejni::allocIntArray((jsize)words.size());
+    if (!words.empty()) {
+        ((JNIEnv*)mFakeEnv)->SetIntArrayRegion(arr, 0, (jsize)words.size(),
+                                               (const jint*)words.data());
+    }
+    return mFindCustomCheat(mFakeEnv, mFakeCls, arr, (int)words.size());
 }
 
 void DrasticRunner::resetSystem() {

@@ -97,9 +97,28 @@ struct NativePathHandleShim {
 // these from DrasticRunner::initSurface and pass them into every
 // renderOneFrame() call so drastic fills them with the current DS
 // framebuffer contents.
+// Both array pools start with an ArrayKind tag so the type-erased
+// handlers (GetArrayLength, GetPrimitiveArrayCritical) can tell an int[]
+// handle from a byte[] handle. Drastic mixes both: the cheat name/note
+// getters return byte[] while getScreenBuffers / custom-cheat data use
+// int[], and GetPrimitiveArrayCritical is shared between them.
+enum ArrayKind : int { kArrInt = 0, kArrByte = 1 };
+
 struct FakeIntArray {
+    ArrayKind kind = kArrInt;   // MUST be first member
     std::vector<jint> data;
 };
+
+struct FakeByteArray {
+    ArrayKind kind = kArrByte;  // MUST be first member
+    std::vector<jbyte> data;
+};
+
+static inline ArrayKind arrayKindOf(jarray arr) {
+    // Both structs keep `kind` as their first member, so this read is
+    // valid for either array type.
+    return arr ? *reinterpret_cast<const ArrayKind*>((void*)arr) : kArrInt;
+}
 
 // Trivial bump allocator for the above shims. Drastic opens files
 // during init and then keeps the fds around for the lifetime of the
@@ -113,6 +132,7 @@ struct FakeIntArray {
 static std::vector<std::unique_ptr<FakeString>> sStringPool;
 static std::vector<std::unique_ptr<NativePathHandleShim>> sHandlePool;
 static std::vector<std::unique_ptr<FakeIntArray>> sIntArrayPool;
+static std::vector<std::unique_ptr<FakeByteArray>> sByteArrayPool;
 
 static FakeString* allocString(const char* src) {
     auto s = std::make_unique<FakeString>();
@@ -140,6 +160,27 @@ const jint* getIntArrayData(jintArray arr) {
 
 jsize getIntArrayLength(jintArray arr) {
     FakeIntArray* a = (FakeIntArray*)(void*)arr;
+    return a ? (jsize)a->data.size() : 0;
+}
+
+// byte[] pool, mirroring the int[] pool above. drastic allocates these
+// via NewByteArray (e.g. getCheatName) and fills them with
+// SetByteArrayRegion; DrasticRunner reads them back via the helpers.
+static jbyteArray allocByteArray(jsize length) {
+    auto a = std::make_unique<FakeByteArray>();
+    a->data.resize(length > 0 ? length : 0, 0);  // zero-init
+    FakeByteArray* raw = a.get();
+    sByteArrayPool.push_back(std::move(a));
+    return (jbyteArray)(void*)raw;
+}
+
+const jbyte* getByteArrayData(jbyteArray arr) {
+    FakeByteArray* a = (FakeByteArray*)(void*)arr;
+    return (a && !a->data.empty()) ? a->data.data() : nullptr;
+}
+
+jsize getByteArrayLength(jbyteArray arr) {
+    FakeByteArray* a = (FakeByteArray*)(void*)arr;
     return a ? (jsize)a->data.size() : 0;
 }
 
@@ -575,8 +616,50 @@ static jboolean JNICALL FakeCallStaticBooleanMethod(JNIEnv* env, jclass cls,
 
 static jsize JNICALL FakeGetArrayLength(JNIEnv* env, jarray arr) {
     (void)env;
-    FakeIntArray* a = (FakeIntArray*)(void*)arr;
-    return a ? (jsize)a->data.size() : 0;
+    if (!arr) return 0;
+    if (arrayKindOf(arr) == kArrByte) {
+        return (jsize)((FakeByteArray*)(void*)arr)->data.size();
+    }
+    return (jsize)((FakeIntArray*)(void*)arr)->data.size();
+}
+
+static jbyteArray JNICALL FakeNewByteArray(JNIEnv* env, jsize length) {
+    (void)env;
+    return allocByteArray(length);
+}
+
+static jbyte* JNICALL FakeGetByteArrayElements(JNIEnv* env, jbyteArray arr,
+                                               jboolean* isCopy) {
+    (void)env;
+    if (isCopy) *isCopy = JNI_FALSE;
+    FakeByteArray* a = (FakeByteArray*)(void*)arr;
+    return (a && !a->data.empty()) ? a->data.data() : nullptr;
+}
+
+static void JNICALL FakeReleaseByteArrayElements(JNIEnv* env, jbyteArray arr,
+                                                 jbyte* elems, jint mode) {
+    (void)env; (void)arr; (void)elems; (void)mode;  // direct pointer, no-op
+}
+
+static void JNICALL FakeGetByteArrayRegion(JNIEnv* env, jbyteArray arr,
+                                           jsize start, jsize len, jbyte* buf) {
+    (void)env;
+    FakeByteArray* a = (FakeByteArray*)(void*)arr;
+    if (!a || !buf) return;
+    if (start < 0 || len <= 0) return;
+    if ((size_t)(start + len) > a->data.size()) return;
+    memcpy(buf, a->data.data() + start, (size_t)len);
+}
+
+static void JNICALL FakeSetByteArrayRegion(JNIEnv* env, jbyteArray arr,
+                                           jsize start, jsize len,
+                                           const jbyte* buf) {
+    (void)env;
+    FakeByteArray* a = (FakeByteArray*)(void*)arr;
+    if (!a || !buf) return;
+    if (start < 0 || len <= 0) return;
+    if ((size_t)(start + len) > a->data.size()) return;
+    memcpy(a->data.data() + start, buf, (size_t)len);
 }
 
 static jintArray JNICALL FakeNewIntArray(JNIEnv* env, jsize length) {
@@ -628,8 +711,13 @@ static void* JNICALL FakeGetPrimitiveArrayCritical(JNIEnv* env, jarray arr,
                                                     jboolean* isCopy) {
     (void)env;
     if (isCopy) *isCopy = JNI_FALSE;
-    FakeIntArray* a = (FakeIntArray*)(void*)arr;
-    return a ? (void*)a->data.data() : nullptr;
+    if (!arr) return nullptr;
+    if (arrayKindOf(arr) == kArrByte) {
+        auto* b = (FakeByteArray*)(void*)arr;
+        return b->data.empty() ? nullptr : (void*)b->data.data();
+    }
+    auto* a = (FakeIntArray*)(void*)arr;
+    return a->data.empty() ? nullptr : (void*)a->data.data();
 }
 
 static void JNICALL FakeReleasePrimitiveArrayCritical(JNIEnv* env, jarray arr,
@@ -703,6 +791,11 @@ static void setupVtables() {
     sJniFunctions.ReleaseIntArrayElements   = FakeReleaseIntArrayElements;
     sJniFunctions.GetIntArrayRegion         = FakeGetIntArrayRegion;
     sJniFunctions.SetIntArrayRegion         = FakeSetIntArrayRegion;
+    sJniFunctions.NewByteArray              = FakeNewByteArray;
+    sJniFunctions.GetByteArrayElements      = FakeGetByteArrayElements;
+    sJniFunctions.ReleaseByteArrayElements  = FakeReleaseByteArrayElements;
+    sJniFunctions.GetByteArrayRegion        = FakeGetByteArrayRegion;
+    sJniFunctions.SetByteArrayRegion        = FakeSetByteArrayRegion;
     sJniFunctions.GetPrimitiveArrayCritical = FakeGetPrimitiveArrayCritical;
     sJniFunctions.ReleasePrimitiveArrayCritical = FakeReleasePrimitiveArrayCritical;
     sJniFunctions.CallStaticObjectMethod    = FakeCallStaticObjectMethod;

@@ -66,6 +66,10 @@ struct InputState {
     int touchDsX = 0;
     int touchDsY = 0;
     bool touchHeld = false;
+    // True only for a REAL finger on the panel (set by drainTouch). Unlike
+    // touchHeld it is never set by the analog-stick-as-stylus path, so the
+    // overlay keyboard can take real taps without the stick double-triggering.
+    bool touchReal = false;
     int touchPendingX = 0;
     int touchPendingY = 0;
     bool touchPendingValid = false;
@@ -130,6 +134,22 @@ struct InputActions {
     bool navCancel = false;  // B
     bool navNextTab = false; // R / R1
     bool navPrevTab = false; // L / L1
+
+    // Held LEVEL of the dpad/stick directions (true the whole time the
+    // direction is down, not just on the press edge). The overlay
+    // edge-detects these to drive PS3-XMB-style hold-to-repeat scrolling
+    // (navPress/navRelease/tickNavRepeat). Always populated, even while a
+    // game is running.
+    bool navUpHeld = false;
+    bool navDownHeld = false;
+    bool navLeftHeld = false;
+    bool navRightHeld = false;
+
+    // In-app volume / brightness adjust (from the volume keys: VOL alone =
+    // volume, SELECT+VOL = brightness). -1 / 0 / +1. Drives the slider HUDs
+    // since the SurfaceFlinger system HUDs never appear on the DRM path.
+    int volAdjust = 0;
+    int brightAdjust = 0;
 
     // BACK toggle: short-press = open/close drastic's own in-game menu.
     bool menuToggle = false;
