@@ -423,6 +423,9 @@ private:
     void startSetupWizard();
     void finishSetupWizard();
     void renderSetupWizard();
+    // Overlay a "Start: Skip" hint (top-right) on the Wireless / Bluetooth steps
+    // so the user knows Start skips them. Drawn on top of the net/BT wizard.
+    void drawSetupSkipHint();
     void renderSetupWelcome();
     void renderSetupWifiStep();
     void renderSetupBluetoothStep();
@@ -1038,6 +1041,10 @@ private:
                         bool sel, bool leftAlign, float ap, float baseScale);
     void   ps3DlgHint(float slotCxDev, bool cross, const char* label,
                       float yDev, float baseScale, float ap);
+    // Like ps3DlgHint but selects the button glyph: 0 = cross (X), 1 = ring (O),
+    // 2 = Start (pill + play arrow). ps3DlgHint forwards to this.
+    void   ps3DlgHintG(float slotCxDev, int glyph, const char* label,
+                       float yDev, float baseScale, float ap);
     void   ps3DlgIllustration(int kind, float cx, float cy, float sz, float ap);
     void   ps3FillCircle(float cx, float cy, float rad, float r, float g, float b, float a);
     void   ps3StrokeRing(float cx, float cy, float radX, float radY, float lw,

@@ -640,6 +640,7 @@ void NanoMenu::renderSetupWizard() {
         if (mPs3WizActive) {
             mSetupNetWizSeen = true;
             renderNetWizard();          // OSK (password fields) is drawn by the caller
+            drawSetupSkipHint();        // Start skips the whole wireless step
             return;
         } else if (mSetupNetWizSeen) {
             mSetupNetWizSeen = false;
@@ -653,6 +654,7 @@ void NanoMenu::renderSetupWizard() {
         if (mPs3WizActive) {
             mSetupBtWizSeen = true;
             renderNetWizard();
+            drawSetupSkipHint();        // Start skips the whole Bluetooth step
             return;
         } else if (mSetupBtWizSeen) {
             mSetupBtWizSeen = false;
@@ -699,6 +701,28 @@ void NanoMenu::renderSetupWizard() {
     if (mSetupStep != SETUP_WELCOME && mSetupStep != SETUP_TIMEZONE) {
         renderSetupProgressDots();
     }
+}
+
+void NanoMenu::drawSetupSkipHint() {
+    // Top-right "Start: Skip" hint over the Wireless / Bluetooth net wizard, in the
+    // same PS3 dialog metrics as the footer hints so it matches the chrome. Use a
+    // fixed alpha: the Wi-Fi/Bluetooth branches return before renderSetupWizard's
+    // fade-in runs, so mSetupTransitionAlpha is stuck at 0 on these steps.
+    float alpha = 1.0f;
+    { ps3::LayoutParams lp; lp.panelW = mWidth; lp.panelH = mHeight;
+      lp.uiScale = mPs3UiScale; ps3::layoutCompute(lp); }
+    float ui = mPs3UiScale; if (ui < 0.5f) ui = 0.5f; if (ui > 2.0f) ui = 2.0f;
+    const float S = ps3::gScale / ui;
+    const float offX = ps3::gFrameX + (ps3::gFrameW - S * ps3::XCF(ps3::VW)) * 0.5f;
+    const float offY = ps3::gFrameY + ps3::gFrameH * 0.5f - S * (ps3::VH * 0.5f);
+    auto XC = [&](float vx) { return S * ps3::XCF(vx) + offX; };
+    auto Y  = [&](float vy) { return S * vy + offY; };
+    int   savedMode  = mTextOutlineMode;
+    float savedRatio = mTextOutlineRatio;
+    mTextOutlineMode = 1; mTextOutlineRatio = 0.5f;
+    ps3DlgHintG(XC(ps3::VW * 0.84f), 2, "Skip", Y(187.0f), S, alpha);
+    mTextOutlineMode = savedMode;
+    mTextOutlineRatio = savedRatio;
 }
 
 void NanoMenu::renderSetupWelcome() {
@@ -946,88 +970,72 @@ void NanoMenu::renderSetupTimezone() {
 }
 
 void NanoMenu::renderSetupInstalling() {
-    float sf = fminf((float)mWidth / 1080.0f, (float)mHeight / 720.0f);
-    if (sf < 0.5f) sf = 0.5f;
     float alpha = mSetupTransitionAlpha;
-    float slideX = mSetupSlideOffset;
-    float pad = 20.0f * sf;
+    // PS3 fullscreen-dialog layout (1:1 with the Wireless / Bluetooth wizard):
+    // a left title with top/bottom dividers, the configuration log in the body,
+    // and a Start-Continue footer hint once the script finishes.
+    { ps3::LayoutParams lp; lp.panelW = mWidth; lp.panelH = mHeight;
+      lp.uiScale = mPs3UiScale; ps3::layoutCompute(lp); }
+    float ui = mPs3UiScale; if (ui < 0.5f) ui = 0.5f; if (ui > 2.0f) ui = 2.0f;
+    const float S = ps3::gScale / ui;
+    const float offX = ps3::gFrameX + (ps3::gFrameW - S * ps3::XCF(ps3::VW)) * 0.5f;
+    const float offY = ps3::gFrameY + ps3::gFrameH * 0.5f - S * (ps3::VH * 0.5f);
+    auto X  = [&](float vx) { return S * vx + offX; };
+    auto XC = [&](float vx) { return S * ps3::XCF(vx) + offX; };
+    auto Y  = [&](float vy) { return S * vy + offY; };
+    auto DS = [&](float v)  { return S * v; };
+    const float fb = ps3DlgFontBoost();
+    auto FS = [&](float px) { return S * px * fb / 16.0f; };
+    const float VW = ps3::VW;
+    const float innerTop = 199.0f, innerBot = 880.0f;
 
-    // Title
-    float titleScale = 2.8f * sf;
+    int   savedMode  = mTextOutlineMode;
+    float savedRatio = mTextOutlineRatio;
+    mTextOutlineMode = 1; mTextOutlineRatio = 0.5f;
+
+    // Header: title + dividers.
     const char* title = mSetupScriptDone ? tr(STR_SETUP_INSTALL_DONE)
                                          : tr(STR_SETUP_INSTALL_TITLE);
-    float titleW = measureText(title, titleScale);
-    float titleX = ((float)mWidth - titleW) / 2.0f + slideX;
-    drawText(title, titleX, pad, titleScale,
-             0.3f, 0.85f, 1.0f, alpha);
+    ps3DlgText(title, X(160.0f), Y(187.0f), FS(28.0f), 1, 1, 1, alpha, 0);
+    float divLw = fmaxf(1.0f, DS(1.0f));
+    drawQuad(ps3::gFrameX, Y(innerTop), ps3::gFrameW, divLw, 1, 1, 1, 0.55f * alpha);
+    drawQuad(ps3::gFrameX, Y(innerBot), ps3::gFrameW, divLw, 1, 1, 1, 0.55f * alpha);
 
-    // Spinning indicator when not done
-    if (!mSetupScriptDone) {
-        float spinScale = 1.6f * sf;
-        const char* spinner[] = {"|", "/", "-", "\\"};
-        int spinIdx = ((int)(elapsedRealtime() / 200)) % 4;
-        float spinW = measureText(spinner[spinIdx], spinScale);
-        drawText(spinner[spinIdx],
-                 (float)mWidth - pad - spinW + slideX,
-                 pad + 4.0f * sf, spinScale,
-                 0.8f, 0.8f, 0.2f, alpha);
-    }
-
-    // Log output
-    float logScale = 1.3f * sf;
-    float logTop = pad + FONT_CHAR_H * titleScale + 16.0f * sf;
-    float logRowH = FONT_CHAR_H * logScale + 3.0f * sf;
-    float logBottom = (float)mHeight - 80.0f * sf;
-    int visibleLines = (int)((logBottom - logTop) / logRowH);
-    if (visibleLines < 4) visibleLines = 4;
-
+    // Body: the configuration log, auto-scrolled to the newest line.
     std::vector<std::string> lines;
     {
         std::lock_guard<std::mutex> lk(mSetupLogMutex);
         lines = mSetupLogLines;
     }
-
-    // Auto-scroll to bottom when new lines arrive
+    const float logTopV = innerTop + 46.0f, logRowV = 30.0f;
+    float availV = (innerBot - 30.0f) - logTopV;
+    int visibleLines = (int)(availV / logRowV); if (visibleLines < 4) visibleLines = 4;
     int totalLines = (int)lines.size();
-    if (totalLines > visibleLines) {
-        mSetupLogScrollTop = totalLines - visibleLines;
+    int startL = (totalLines > visibleLines) ? totalLines - visibleLines : 0;
+    for (int i = startL; i < totalLines; i++) {
+        const std::string& ln = lines[i];
+        float r = 0.75f, g = 0.78f, b = 0.82f;
+        if (ln.find("Installing") != std::string::npos ||
+            ln.find("Extracting") != std::string::npos) { r = 0.45f; g = 0.9f; b = 0.55f; }
+        else if (ln.find("Error") != std::string::npos ||
+                 ln.find("error") != std::string::npos) { r = 1.0f; g = 0.45f; b = 0.45f; }
+        else if (ln.find("completed") != std::string::npos ||
+                 ln.find("successfully") != std::string::npos) { r = 0.4f; g = 0.95f; b = 0.6f; }
+        ps3DlgText(ln.c_str(), X(160.0f), Y(logTopV + (i - startL) * logRowV),
+                   FS(17.0f), r, g, b, alpha * 0.92f, 0);
     }
 
-    int start = mSetupLogScrollTop;
-    if (start < 0) start = 0;
-    int end = start + visibleLines;
-    if (end > totalLines) end = totalLines;
-
-    for (int i = start; i < end; i++) {
-        float y = logTop + (i - start) * logRowH;
-
-        // Color the line based on content
-        float r = 0.75f, g = 0.75f, b = 0.80f;
-        if (lines[i].find("Installing") != std::string::npos ||
-            lines[i].find("Extracting") != std::string::npos) {
-            r = 0.4f; g = 0.9f; b = 0.5f;
-        } else if (lines[i].find("Error") != std::string::npos ||
-                   lines[i].find("error") != std::string::npos) {
-            r = 1.0f; g = 0.4f; b = 0.4f;
-        } else if (lines[i].find("completed") != std::string::npos ||
-                   lines[i].find("successfully") != std::string::npos) {
-            r = 0.3f; g = 0.95f; b = 0.6f;
-        }
-
-        drawText(lines[i].c_str(),
-                 pad + slideX, y, logScale,
-                 r, g, b, alpha * 0.9f);
+    // Footer: Start-Continue once done, otherwise a centred "Please wait...".
+    float hintY = Y(909.0f);
+    if (mSetupScriptDone) {
+        ps3DlgHintG(XC(VW * 0.5f), 2, "Continue", hintY, S, alpha);
+    } else {
+        ps3DlgText(tr(STR_SETUP_INSTALL_WAIT), XC(VW * 0.5f), Y(902.0f), FS(20.0f),
+                   0.9f, 0.9f, 0.95f, 0.9f * alpha, 1);
     }
 
-    // Footer
-    float footScale = 1.3f * sf;
-    const char* footer = mSetupScriptDone
-            ? tr(STR_SETUP_INSTALL_CONTINUE)
-            : tr(STR_SETUP_INSTALL_WAIT);
-    float footW = measureText(footer, footScale);
-    drawText(footer, ((float)mWidth - footW) / 2.0f,
-             (float)mHeight - 70.0f * sf, footScale,
-             0.9f, 0.9f, 0.95f, alpha * 0.85f);
+    mTextOutlineMode = savedMode;
+    mTextOutlineRatio = savedRatio;
 }
 
 void NanoMenu::renderSetupFinish() {

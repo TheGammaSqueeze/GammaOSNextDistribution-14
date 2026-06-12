@@ -2455,8 +2455,13 @@ void NanoMenu::ps3DlgOption(const char* label, float cxDev, float midDev,
 // Footer button hint: glyph (X cross or O circle) + label, centred on slotCxDev.
 void NanoMenu::ps3DlgHint(float slotCxDev, bool cross, const char* label,
                           float yDev, float baseScale, float ap) {
+    ps3DlgHintG(slotCxDev, cross ? 0 : 1, label, yDev, baseScale, ap);
+}
+
+void NanoMenu::ps3DlgHintG(float slotCxDev, int glyph, const char* label,
+                           float yDev, float baseScale, float ap) {
     // Boost the whole hint (glyph + label) on small panels so the interactive
-    // footer (Enter / Cancel / OK / Search) is not tiny on the wizard pages.
+    // footer (Enter / Cancel / OK / Search / Skip) is not tiny on the wizard pages.
     baseScale *= ps3DlgFontBoost();
     float fs = baseScale * 22.0f / 16.0f;
     float glyphR = baseScale * 12.0f;
@@ -2466,12 +2471,17 @@ void NanoMenu::ps3DlgHint(float slotCxDev, bool cross, const char* label,
     float groupW = glyphR * 2.0f + gap + tw;
     float left = slotCxDev - groupW * 0.5f;
     float gcx = left + glyphR;
-    if (cross) {
+    if (glyph == 0) {            // cross (X)
         float d = glyphR * 0.78f;
         ps3ThickLine(gcx - d, yDev - d, gcx + d, yDev + d, lw, 1.0f, 1.0f, 1.0f, 0.95f * ap);
         ps3ThickLine(gcx + d, yDev - d, gcx - d, yDev + d, lw, 1.0f, 1.0f, 1.0f, 0.95f * ap);
-    } else {
+    } else if (glyph == 1) {     // ring (O)
         ps3StrokeRing(gcx, yDev, glyphR, glyphR, lw, 1.0f, 1.0f, 1.0f, 0.95f * ap);
+    } else {                     // Start: a flat oval (the DualShock Start button)
+        ps3StrokeRing(gcx, yDev, glyphR, glyphR * 0.60f, lw, 1.0f, 1.0f, 1.0f, 0.95f * ap);
+        float t = glyphR * 0.34f;       // small right-pointing play arrow inside
+        drawTriangle(gcx - t * 0.65f, yDev - t, gcx - t * 0.65f, yDev + t,
+                     gcx + t * 0.95f, yDev, 1.0f, 1.0f, 1.0f, 0.95f * ap);
     }
     float topY = yDev - 0.45f * 16.0f * fs;
     drawText(label, left + glyphR * 2.0f + gap, topY, fs, 1.0f, 1.0f, 1.0f, 0.95f * ap);
