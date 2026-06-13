@@ -206,6 +206,11 @@ static const Ps3DataItem kToolboxCh[] = {
   {"DC Dimming Emulation",22,"Emulate DC dimming to reduce screen flicker at low brightness.","Off",1,nullptr,0},
   {"Phone Taskbar",22,"Show the phone-style taskbar.","On",1,nullptr,0},
   {"Dual Taskbar",22,"Show the taskbar on both displays.","Off",1,nullptr,0},
+  {"Black Frame Insertion",22,"Insert black frames to reduce motion blur (BFI).","Off",1,nullptr,0},
+  {"CRT Shader",22,"Apply a CRT-style display shader.","Off",1,nullptr,0},
+  {"Dual-Stack Display",22,"Enable the dual-stack display compositor.","Off",1,nullptr,0},
+  {"RGB LED",22,"Enable RGB LED lighting effects.","Off",1,nullptr,0},
+  {"Launch Guard",22,"Guard against unintended application launches.","Off",1,nullptr,0},
 };
 
 // ---- Settings top-level items -------------------------------------------

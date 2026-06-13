@@ -2382,6 +2382,11 @@ static const Ps3SettingBinding kPs3Bindings[] = {
     {"DC Dimming Emulation", SettingSource::kProp, "persist.gammaos.dcdimmingemulation", "false", "false:Off,true:On"},
     {"Phone Taskbar", SettingSource::kProp, "persist.gammaos.taskbar.phone", "true", "false:Off,true:On"},
     {"Dual Taskbar", SettingSource::kProp, "persist.gammaos.taskbar.dual", "false", "false:Off,true:On"},
+    {"Black Frame Insertion", SettingSource::kProp, "persist.gammaos.bfi.enable", "false", "false:Off,true:On"},
+    {"CRT Shader", SettingSource::kProp, "persist.gammaos.shader.enable", "false", "false:Off,true:On"},
+    {"Dual-Stack Display", SettingSource::kProp, "persist.gammaos.dualstack.enabled", "false", "false:Off,true:On"},
+    {"RGB LED", SettingSource::kProp, "persist.gammaos.rgb.enable", "false", "false:Off,true:On"},
+    {"Launch Guard", SettingSource::kProp, "persist.gammaos.launch.guard.enabled", "false", "false:Off,true:On"},
 };
 
 const Ps3SettingBinding* ps3BindingFor(const std::string& label) {
