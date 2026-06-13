@@ -3188,17 +3188,15 @@ void NanoMenu::renderPs3Dialog() {
         float ease = ap * ap * (3.0f - 2.0f * ap);
         float xShiftV = (1.0f - ease) * ps3::XCP(37.0f);
 
-        // (1) Panel background: a mostly-opaque black scrim. drawQuad has no
-        //     gradient mode, so tile it with adjacent vertical strips; each stop's
-        //     alpha is scaled by the panel fade (ap). The body (behind the options)
-        //     is ~90% opaque so the labels read on a solid dark panel; only the
-        //     right ~30% fades out, all the way to the screen's right edge.
+        // (1) Panel background: a smooth black fade gradient, 50% at its darkest.
+        //     drawQuad has no gradient mode, so tile it with adjacent vertical strips
+        //     (each stop's alpha scaled by the panel fade ap). One linear ramp:
+        //     darkest at the LEFT (behind the labels) getting gradually lighter to
+        //     fully transparent at the screen's right edge, so the fade is even.
         struct GStop { float p, r, g, b, a; };
         static const GStop kStops[] = {
-            {0.000f, 0.0f,0.0f,0.0f, 0.00f},   // panel left: brief soft boundary with the menu
-            {0.020f, 0.0f,0.0f,0.0f, 0.90f},   // opaque body starts
-            {0.700f, 0.0f,0.0f,0.0f, 0.90f},   // opaque across the options ("the rest")
-            {1.000f, 0.0f,0.0f,0.0f, 0.00f},   // ~30% transparent fade to the screen's right edge
+            {0.000f, 0.0f,0.0f,0.0f, 0.50f},   // darkest: 50% at the panel's left edge
+            {1.000f, 0.0f,0.0f,0.0f, 0.00f},   // lightest: fully transparent at the screen's right edge
         };
         const int kStopN = (int)(sizeof(kStops) / sizeof(kStops[0]));
         const float pLeftDev = ps3::devX(SP_PANEL_LEFT + xShiftV);
