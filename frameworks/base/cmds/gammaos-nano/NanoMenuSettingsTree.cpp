@@ -778,8 +778,7 @@ std::string NanoMenu::settingsTreeBreadcrumb() const {
 // Property read / write
 // ---------------------------------------------------------------------------
 
-namespace {
-
+// Shared with the PS3 binding path (declared in NanoMenuSettingsTree.h).
 std::string readSettingValue(SettingSource src, const std::string& key,
                              const std::string& def) {
     if (key.empty()) return def;
@@ -836,8 +835,6 @@ void writeSettingValue(SettingSource src, const std::string& key,
         break;
     }
 }
-
-} // anonymous namespace
 
 void NanoMenu::startSettingsValueRefresh() {
     std::vector<int> visible = mSettingsTreeVisible;

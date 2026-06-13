@@ -60,6 +60,26 @@ struct SettingListOption {
 
 std::vector<SettingListOption> parseListOptions(const std::string& opts);
 
+// Direct setting read/write primitives (kProp -> property_get/set; kGlobal/
+// kSecure/kSystem -> settings get/put). Shared by the legacy tree and the PS3
+// settings-binding path.
+std::string readSettingValue(SettingSource src, const std::string& key,
+                             const std::string& def);
+void writeSettingValue(SettingSource src, const std::string& key,
+                       const std::string& val);
+
+// A declarative binding from a PS3-XMB settings leaf (matched by label) to a real
+// backing setting. options uses the parseListOptions "value:Label,..." format; a
+// toggle is just a two-entry list. Defined in NanoMenuPS3Menu.cpp.
+struct Ps3SettingBinding {
+    const char* label;       // matches Ps3DataItem.name / Ps3Item.label
+    SettingSource source;    // kProp | kGlobal | kSecure | kSystem
+    const char* key;
+    const char* def;
+    const char* options;     // "value:Label,value:Label,..." (toggle = two entries)
+};
+const Ps3SettingBinding* ps3BindingFor(const std::string& label);
+
 class SettingsTreeBuilder {
 public:
     explicit SettingsTreeBuilder(std::vector<SettingNode>& nodes);

@@ -980,6 +980,8 @@ private:
     bool   mPs3DlgClosing = false; // side-panel dismiss fade-out in flight (kind 1)
     float  mPs3DlgCloseAnim = 0.0f;// close fade alpha 1->0 (reverse of mPs3DlgAnim)
     bool   mPs3DlgBlurValid = false;
+    const Ps3SettingBinding* mPs3DlgBinding = nullptr;  // active settings-bound chooser (else null)
+    std::unordered_map<std::string, std::string> mPs3BindCache;  // cached bound values by leaf label
     // Fullscreen dialog page (mPs3DlgKind==0). Mirrors web DIALOG_TEMPLATES +
     // drawDialog: a body type, an optional vector illustration, a notice line and
     // the source item's header icon.
@@ -1062,6 +1064,8 @@ private:
     void   applyThemeSetting(int themeKey, int sel);     // persist + apply
     void   loadPs3ThemeSettings();
     std::string resolvePs3ItemValue(const Ps3Item& it);  // live theme value for a row, else it.value
+    void openBoundChooser(const Ps3SettingBinding* b);   // side chooser for a settings-bound leaf
+    std::string ps3BoundValue(const Ps3SettingBinding* b);  // cached current value for a binding
     // Dark STROKE behind text/icons instead of a single drop shadow: a left/right
     // pair plus one panel-DOWN copy, all in panel space (offsets rotated through
     // the orientation), so it reads the same on any panel rotation and is subtle.

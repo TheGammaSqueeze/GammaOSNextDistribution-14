@@ -93,6 +93,7 @@ static const Ps3DataItem kPowerSaveCh[] = {
   {"Controller Auto-Off",22,"Sets whether or not to automatically turn off controllers. If you do not use a controller for a set amount of time, it will turn off automatically.","After 10 min.",0,nullptr,0},
   {"Power Indicator",22,nullptr,"Bright",0,nullptr,0},
   {"Turn Off System Automatically After Background Download",22,nullptr,"Off",0,nullptr,0},
+  {"Battery Percentage",22,"Show the battery charge percentage in the status bar.","Off",1,nullptr,0},
 };
 static const Ps3DataItem kAccessoryCh[] = {
   {"Calibrate Motion Controller",22,"Calibrates the magnetic sensor of a motion controller. Use this setting when the motion controller does not control on-screen movement as expected.",nullptr,1,nullptr,0},
@@ -122,6 +123,8 @@ static const Ps3DataItem kDisplayCh[] = {
   {"1080p 24 Hz Output (HDMI)",22,"Sets the playback method for content items recorded at 24 Hz (frames/second).","Auto",0,nullptr,0},
   {"BD/DVD - Video Output Format (HDMI)",22,"Sets the output method for color signals when playing BDs or DVDs.","Auto",0,nullptr,0},
   {"Control for HDMI",22,"The system and devices connected via HDMI can operate each other.","Off",0,nullptr,0},
+  {"Screen Timeout",22,"Sets how long the screen stays on while idle.","1 minute",1,nullptr,0},
+  {"Font Size",22,"Sets the size of text shown on the screen.","Default",1,nullptr,0},
 };
 static const Ps3DataItem kSoundCh[] = {
   {"Audio Output Settings",22,"Configure audio output settings.",nullptr,1,nullptr,0},
@@ -132,6 +135,8 @@ static const Ps3DataItem kSoundCh[] = {
   {"DVD Audio Language",22,"Set the default DVD audio language.","English",0,nullptr,0},
   {"HDD Audio Language",22,"Set the default audio language for content on the HDD.","English",0,nullptr,0},
   {"BD Audio Output Format (HDMI)",22,"Set the BD audio output format.","Linear PCM",0,nullptr,0},
+  {"Touch Sounds",22,"Play a sound when you make a selection on the screen.","On",1,nullptr,0},
+  {"Charging Sounds",22,"Play a sound when the charger is connected.","On",1,nullptr,0},
 };
 static const Ps3DataItem kSecurityCh[] = {
   {"Change Password",22,nullptr,nullptr,1,nullptr,0},

@@ -1047,7 +1047,9 @@ void NanoMenu::ps3XmbSelect() {
             startDateTimeWizard(sel == 0 ? 0 : 1);
             return;
         }
-        closePs3Dialog(mPs3DlgThemeKey > 0); return;   // X: apply chooser / dismiss message
+        // X commits a chooser (theme leaf or settings-bound leaf); on a plain
+        // message dialog it just dismisses.
+        closePs3Dialog(mPs3DlgThemeKey > 0 || mPs3DlgBinding != nullptr); return;
     }
     std::vector<Ps3Item>& items = ps3CurItems();
     int sel = ps3CurSel();
@@ -1152,6 +1154,8 @@ void NanoMenu::ps3XmbSelect() {
             if (it.label == "Manage Bluetooth® Devices")      { startBtWizard(0); return; }
             if (it.label == "BD Remote Control Registration") { startBtWizard(1); return; }
             if (it.label == "Audio Device Settings")          { startBtWizard(2); return; }
+            // Data-driven settings leaf -> bound side chooser (real backing setting).
+            if (const Ps3SettingBinding* b = ps3BindingFor(it.label)) { openBoundChooser(b); return; }
             if (it.action == 1) openPs3Dialog(it);   // action='dialog' -> dialog/chooser
             return;
         }
@@ -2299,11 +2303,65 @@ void NanoMenu::loadPs3ThemeSettings() {
     { time_t tt = time(nullptr); struct tm lt; localtime_r(&tt, &lt); mPs3DstNow = (lt.tm_isdst > 0); }
 }
 
+// ---- Settings binding: data-driven leaf -> real backing setting -------------
+// Each entry maps a PS3-XMB settings leaf (by label) to a real Android setting.
+// options uses the parseListOptions "value:Label,..." format; a toggle is just a
+// two-entry list. Keys/defaults mirror the legacy data-driven tree so both
+// front-ends drive the same settings.
+static const Ps3SettingBinding kPs3Bindings[] = {
+    {"Screen Timeout", SettingSource::kSystem, "screen_off_timeout", "60000",
+     "15000:15 seconds,30000:30 seconds,60000:1 minute,120000:2 minutes,"
+     "300000:5 minutes,600000:10 minutes,1800000:30 minutes,-1:Never"},
+    {"Font Size", SettingSource::kSystem, "font_scale", "1.0",
+     "0.85:Small,1.0:Default,1.15:Large,1.30:Largest"},
+    {"Touch Sounds", SettingSource::kSystem, "sound_effects_enabled", "1", "0:Off,1:On"},
+    {"Charging Sounds", SettingSource::kGlobal, "charging_sounds_enabled", "1", "0:Off,1:On"},
+    {"Battery Percentage", SettingSource::kSystem, "status_bar_show_battery_percent", "0", "0:Off,1:On"},
+};
+
+const Ps3SettingBinding* ps3BindingFor(const std::string& label) {
+    for (const auto& b : kPs3Bindings) if (label == b.label) return &b;
+    return nullptr;
+}
+
+// Cached current value for a binding. Read once per leaf (a settings get / prop
+// read) then served from mPs3BindCache so the per-frame drawList stays cheap;
+// updated on commit.
+std::string NanoMenu::ps3BoundValue(const Ps3SettingBinding* b) {
+    auto it = mPs3BindCache.find(b->label);
+    if (it != mPs3BindCache.end()) return it->second;
+    std::string v = readSettingValue(b->source, b->key, b->def);
+    mPs3BindCache[b->label] = v;
+    return v;
+}
+
+// Open the side-panel chooser for a settings-bound leaf, preselecting the option
+// that matches the current value. Commit/cancel run through closePs3Dialog.
+void NanoMenu::openBoundChooser(const Ps3SettingBinding* b) {
+    mPs3DlgOptions.clear(); mPs3DlgSwatch.clear();
+    mPs3DlgKind = 1; mPs3DlgThemeKey = 0; mPs3DlgBinding = b;
+    mPs3DlgTitle = b->label; mPs3DlgBody.clear();
+    std::vector<SettingListOption> opts = parseListOptions(b->options);
+    std::string cur = ps3BoundValue(b);
+    int sel = 0;
+    for (int i = 0; i < (int)opts.size(); i++) {
+        mPs3DlgOptions.push_back(opts[i].label); mPs3DlgSwatch.push_back(-1);
+        if (opts[i].value == cur) sel = i;
+    }
+    mPs3DlgSel = sel; mPs3DlgOrigSel = sel;
+    mPs3DlgActive = true; mPs3DlgAnim = 0.0f; mPs3DlgClosing = false; mPs3DlgBlurValid = false;
+}
+
 // Live right-side value for a Theme Settings row (mirrors the web
 // resolveItemValue): the value reflects the CURRENT selection so the menu shows
 // it without opening the chooser. Non-theme rows fall back to the static value.
 std::string NanoMenu::resolvePs3ItemValue(const Ps3Item& it) {
     const std::string& n = it.label;
+    if (const Ps3SettingBinding* b = ps3BindingFor(n)) {
+        std::string cur = ps3BoundValue(b);
+        for (const auto& o : parseListOptions(b->options)) if (o.value == cur) return o.label;
+        return cur.empty() ? std::string("-") : cur;
+    }
     if (n == "Theme") {
         int c = (int)(sizeof(kPs3ThemeOpts) / sizeof(kPs3ThemeOpts[0]));
         if (mPs3ThemeIdx >= 0 && mPs3ThemeIdx < c) return kPs3ThemeOpts[mPs3ThemeIdx];
@@ -2690,6 +2748,7 @@ void NanoMenu::openPs3Dialog(const Ps3Item& it) {
     const std::string& n = it.label;
     mPs3DlgOptions.clear(); mPs3DlgSwatch.clear();
     mPs3DlgThemeKey = 0; mPs3DlgKind = 0; mPs3DlgTitle = n; mPs3DlgBody.clear();
+    mPs3DlgBinding = nullptr;   // not a settings-bound chooser
     if (n == "Theme") {
         mPs3DlgKind = 1; mPs3DlgThemeKey = 1;
         for (const char* s : kPs3ThemeOpts) { mPs3DlgOptions.push_back(s); mPs3DlgSwatch.push_back(-1); }
@@ -2933,7 +2992,21 @@ void NanoMenu::applyThemeSetting(int themeKey, int sel) {
 }
 
 void NanoMenu::closePs3Dialog(bool apply) {
-    if (mPs3DlgThemeKey == 21 && !apply) {
+    if (mPs3DlgBinding) {
+        // Settings-bound chooser: write the selected option's value back to the
+        // real setting on confirm (cancel just discards). Then refresh the cache
+        // so the row value updates immediately.
+        const Ps3SettingBinding* b = mPs3DlgBinding;
+        mPs3DlgBinding = nullptr;
+        if (apply) {
+            std::vector<SettingListOption> opts = parseListOptions(b->options);
+            if (mPs3DlgSel >= 0 && mPs3DlgSel < (int)opts.size()) {
+                writeSettingValue(b->source, b->key, opts[mPs3DlgSel].value);
+                mPs3BindCache[b->label] = opts[mPs3DlgSel].value;
+                mDisplayDirty = true;
+            }
+        }
+    } else if (mPs3DlgThemeKey == 21 && !apply) {
         // Icon-tint cancel: restore the exact original tint (not the nearest
         // swatch) and refresh the live preview.
         if (mGsEditIdx >= 0 && mGsEditIdx < (int)mXmbSystems.size()) {
