@@ -304,23 +304,61 @@ void NanoMenu::initPs3Menu() {
     // Pre-warm everything the first draw of any submenu would otherwise build
     // lazily inside a single frame: the glass normal maps for every icon in
     // the static DATA tree, and the glyph-atlas entries (+ width cache) for
-    // every label/description/value string. The lazy path used to cost a
-    // one-shot ~100ms frame on the FIRST entry into a submenu (a visible
-    // hitch); here the cost lands in startup, hidden behind the boot intro.
+    // every label/description/value string. The lazy path costs a one-shot
+    // ~100ms frame on the FIRST entry into a submenu (a visible hitch, and in
+    // the in-game overlay it competes with the still-running app); here the
+    // cost lands in startup, hidden behind the boot intro.
+    //
+    // CRITICAL: warm at the EXACT scales the menu renders, not a single 2.0f.
+    // Glyphs are rasterized per display-pixel-size (the per-size cache key), so
+    // warming at the wrong scale caches the wrong bitmaps and the real render
+    // still rasterizes on demand on first visit. The XMB draws item labels at
+    // ITEM_TEXT_SIZE (inactive) and ITEM_TEXT_ACTIVE_SIZE (focused), values at
+    // ITEM_TEXT_SIZE, descriptions at gDescSize, category labels at
+    // CAT_LABEL_SIZE - warm each string at the scale(s) it actually uses.
     {
+        // Compute the layout the SAME way the menu render does - it folds the UI
+        // zoom (mPs3UiScale) into gScale via layoutCompute. layoutComputeNative
+        // (uiScale 1.0) would warm the wrong pixel size, so every label would
+        // still rasterize on demand on first scroll (the microstutter).
+        { ps3::LayoutParams lp; lp.panelW = mWidth; lp.panelH = mHeight;
+          lp.uiScale = mPs3UiScale; ps3::layoutCompute(lp); }
+        const float sLabel  = ps3::fontScale(ps3::ITEM_TEXT_SIZE);         // inactive item
+        const float sActive = ps3::fontScale(ps3::ITEM_TEXT_ACTIVE_SIZE);  // focused item
+        const float sDesc   = ps3::fontScale(ps3::gDescSize);              // subtitle
+        const float sCat    = ps3::fontScale(ps3::CAT_LABEL_SIZE);         // category label
+        auto warmStr = [&](const char* s, float a, float b) {
+            if (!s || !*s) return;
+            (void)measureText(s, a);
+            if (b > 0.0f) (void)measureText(s, b);
+        };
+        // (a) Static DATA tree: glass normal maps + every label/desc/value glyph.
         std::function<void(const Ps3DataItem*, int)> warm =
             [&](const Ps3DataItem* items, int n) {
                 for (int i = 0; i < n; i++) {
                     if (items[i].icon >= 0) (void)nmapForIcon(items[i].icon);
-                    if (items[i].name)  (void)measureText(items[i].name, 2.0f);
-                    if (items[i].desc)  (void)measureText(items[i].desc, 2.0f);
-                    if (items[i].value) (void)measureText(items[i].value, 2.0f);
+                    warmStr(items[i].name,  sLabel, sActive);
+                    warmStr(items[i].desc,  sDesc, 0.0f);
+                    warmStr(items[i].value, sLabel, 0.0f);
                     if (items[i].children && items[i].childCount > 0)
                         warm(items[i].children, items[i].childCount);
                 }
             };
-        for (int ci = 0; ci < kPs3DataCatCount; ci++)
+        for (int ci = 0; ci < kPs3DataCatCount; ci++) {
+            warmStr(kPs3DataCats[ci].name, sCat, 0.0f);
             warm(kPs3DataCats[ci].items, kPs3DataCats[ci].itemCount);
+        }
+        // (b) Dynamically-built rows (console/system tiles, Recently Played,
+        // Applications, Game Systems): their labels/values are NOT in the static
+        // DATA tree, so without this they rasterize on demand on first scroll.
+        for (const auto& cat : mPs3Cats) {
+            warmStr(cat.name.c_str(), sCat, 0.0f);
+            for (const auto& it : cat.items) {
+                warmStr(it.label.c_str(), sLabel, sActive);
+                warmStr(it.desc.c_str(),  sDesc, 0.0f);
+                warmStr(it.value.c_str(), sLabel, 0.0f);
+            }
+        }
     }
     loadPs3ThemeSettings();   // apply any saved Theme Settings (colour / day-night)
     buildTimezoneList();      // populate mTzEntries + pre-select the current zone so
@@ -1097,7 +1135,17 @@ void NanoMenu::ps3XmbSelect() {
             if (it.label == "Internet Connection Settings") { startNetWizard(); return; }
             if (it.label == "Internet Connection") { openPs3Dialog(it); return; }
             if (it.label == "Time Zone") { openTimezoneGlobe(); return; }   // 3D Earth selector
-            if (it.label == "System Language") { openLanguagePicker(); return; }  // setup-wizard-style language list
+            // Block ONLY when a live app is behind the in-game overlay (scrim):
+            // changing the locale + rendering the heavy CJK/Arabic native-name
+            // glyphs there competed with the still-running app and took it down.
+            // The home XMB (rendered by the overlay process in overlay_home mode)
+            // and the launcher/wallpaper overlay have no app behind, so allow it
+            // there - that is where you would normally change the language.
+            if (it.label == "System Language") {
+                bool liveAppBehind = mOverlayMode && !mOverlayWallpaper;
+                if (!liveAppBehind) openLanguagePicker();
+                return;
+            }
             if (it.label == "Set via Internet") { startDateTimeWizard(0); return; }  // NTP progress->result
             if (it.label == "Set Manually")     { startDateTimeWizard(1); return; }  // OSK date+time entry
             // Accessory Settings -> real Bluetooth device management (1:1 web bt_* flow).
