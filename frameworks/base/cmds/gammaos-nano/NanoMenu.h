@@ -369,6 +369,7 @@ private:
     bool wifiRadioEnabled();   // live Wi-Fi radio state (for the Internet Connection toggle)
     // Network Settings dialogs backed by the live system state:
     std::string buildNetStatusBody();    // real SSID/IP/gateway/DNS/MAC for the status list
+    std::string buildSysInfoBody();      // real build/model/serial/MAC/IP/storage for System Information
     void startNetTest();                 // async connectivity test (IP / internet / DNS)
     void stopNetTest();                  // stop + join the test thread
 
@@ -1078,6 +1079,7 @@ private:
     int mPs3CatIdx = -1;
     int mPs3QuickCatIdx = -1;     // runtime index of the Quick Menu category (-1 if absent)
     std::string mPs3PerfModeLabel = "Normal";  // cached persist.gammaos.performance_mode label (Quick Menu row value)
+    std::string mPs3SystemName;                // cached System Name (persist.gammaos.nano.system_name, else ro.product.model)
     int mPs3ItemIdx = 0;          // selection in the top-level item list (per-category)
     std::vector<int> mPs3CatItemSel;   // remembered item selection per category
     // Timed animation state mirroring the web's catAnim / itemAnim model so the

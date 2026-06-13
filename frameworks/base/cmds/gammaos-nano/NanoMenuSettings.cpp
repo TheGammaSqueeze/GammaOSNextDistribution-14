@@ -33,8 +33,10 @@
 #include <unistd.h>
 #include <utility>
 #include <vector>
+#include <sys/statvfs.h>
 
 #include <log/log.h>
+#include <cutils/properties.h>
 
 #include <GLES2/gl2.h>
 
@@ -932,6 +934,59 @@ std::string NanoMenu::buildNetStatusBody() {
     body += std::string("Primary DNS        ") + orDash(dns) + "\n";
     body += std::string("Secondary DNS      ") + orDash(dns2) + "\n";
     body += std::string("MAC Address        ") + orDash(mac) + "\n";
+    return body;
+}
+
+// System Settings -> System Information: the real device facts (build/version,
+// model, serial, Wi-Fi MAC, IP, storage), replacing the old hard-coded template.
+std::string NanoMenu::buildSysInfoBody() {
+    char buf[PROPERTY_VALUE_MAX];
+    auto prop = [&](const char* key, const char* def) -> std::string {
+        property_get(key, buf, def);
+        return std::string(buf);
+    };
+    auto orDash = [](const std::string& s) { return s.empty() ? std::string("-") : s; };
+
+    std::string model = prop("ro.product.model", "");
+    if (model.empty()) model = prop("ro.product.vendor.model", "");
+    std::string rel    = prop("ro.build.version.release", "");
+    std::string inc    = prop("ro.build.version.incremental", "");
+    std::string sec    = prop("ro.build.version.security_patch", "");
+    std::string serial = prop("ro.serialno", "");
+    if (serial.empty()) serial = prop("ro.boot.serialno", "");
+
+    // Wi-Fi MAC via sysfs; IPv4 from the framework status (binder), exactly like
+    // buildNetStatusBody (direct ip/route do not work in nano's restricted runtime).
+    std::string mac = netTrim(runCmd("cat /sys/class/net/wlan0/address 2>/dev/null"));
+    std::string st  = runCmd("cmd wifi status 2>/dev/null");
+    std::string ip;
+    { size_t p = st.find("IP: /");
+      if (p != std::string::npos) { p += 5; size_t e = p;
+        while (e < st.size() && (isdigit((unsigned char)st[e]) || st[e] == '.')) e++;
+        ip = st.substr(p, e - p); if (ip == "0.0.0.0") ip.clear(); } }
+
+    // System storage: the userdata (/data) partition is the meaningful free space.
+    std::string storage;
+    { struct statvfs vfs;
+      if (statvfs("/data", &vfs) == 0) {
+        double total = (double)vfs.f_blocks * (double)vfs.f_frsize;
+        double freeb = (double)vfs.f_bavail * (double)vfs.f_frsize;
+        char s[96];
+        snprintf(s, sizeof(s), "%.1f GB free of %.1f GB", freeb / 1e9, total / 1e9);
+        storage = s;
+      } }
+
+    std::string sw = "Android " + orDash(rel);
+    if (!inc.empty()) sw += "  (" + inc + ")";
+
+    std::string body;
+    body += "System Software\n" + sw + "\n\n";
+    body += "Model\n" + orDash(model) + "\n\n";
+    if (!sec.empty()) body += "Security Patch Level\n" + sec + "\n\n";
+    body += "Serial Number\n" + orDash(serial) + "\n\n";
+    body += "MAC Address (Wi-Fi)\n" + orDash(mac) + "\n\n";
+    body += "IP Address\n" + orDash(ip) + "\n\n";
+    body += "System Storage\n" + orDash(storage);
     return body;
 }
 

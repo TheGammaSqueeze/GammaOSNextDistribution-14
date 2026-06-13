@@ -2335,6 +2335,16 @@ std::string NanoMenu::resolvePs3ItemValue(const Ps3Item& it) {
         return mPs3DstNow ? "On" : "Off";
     } else if (n == "Performance Mode") {
         return mPs3PerfModeLabel;   // cached; refreshed at build + on apply (no per-frame property_get)
+    } else if (n == "System Name") {
+        // PS3 "System Name" = the device network name. Lazily cached so this stays
+        // cheap in the per-frame drawList (read once: the user-set prop, else model).
+        if (mPs3SystemName.empty()) {
+            char b[PROPERTY_VALUE_MAX];
+            property_get("persist.gammaos.nano.system_name", b, "");
+            if (!b[0]) property_get("ro.product.model", b, "GammaOS");
+            mPs3SystemName = b;
+        }
+        return mPs3SystemName;
     } else if (n == "System Language") {
         // Show the active UI language in its own native name (e.g. "Espanol",
         // "日本語"), updating live as the picker preview changes the locale.
@@ -2752,6 +2762,8 @@ void NanoMenu::openPs3Dialog(const Ps3Item& it) {
         } else if (n == "Internet Connection Test") {
             startNetTest();                              // async; renderPs3Dialog shows live results
             mPs3NetTestLive = true;
+        } else if (n == "System Information") {
+            mPs3DlgBody = buildSysInfoBody();            // real build/model/serial/MAC/IP/storage
         }
     }
     mPs3DlgOrigSel = mPs3DlgSel;
