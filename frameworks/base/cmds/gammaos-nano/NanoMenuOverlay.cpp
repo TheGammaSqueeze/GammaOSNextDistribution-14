@@ -444,9 +444,11 @@ void NanoMenu::overlayShow() {
     }
 
     mOverlayShown = true;
-    // Cold-boot-style fade + float-in of the XMB chrome (renderPs3Xmb stamps the
-    // real start on the first rendered frame).
+    // Cold-boot-style fade + float-in of the XMB chrome. -2 = pending; the first
+    // rendered frame begins it and it then advances by clamped per-frame dt, so the
+    // one-time lazy work on the first-ever raise cannot skip the animation.
     mOverlayEnterStart = -2.0f;
+    mOverlayEnterElapsed = 0.0f;
     mPs3BootIconReveal = 0.0f;
     mPs3BootLabelReveal = 0.0f;
     mLastFrameNs = 0;

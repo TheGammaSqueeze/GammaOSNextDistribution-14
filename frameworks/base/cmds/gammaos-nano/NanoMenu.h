@@ -667,9 +667,13 @@ private:
     std::string mOverlayLaunchTarget;
     int64_t mOverlayLaunchStartMs = 0;
     int64_t mOverlayLaunchLastCheckMs = 0;
-    float mOverlayEnterStart = -1.0f; // mEffectTime when the overlay was raised;
-                                      // drives the cold-boot-style fade/float-in
-                                      // of the XMB chrome (<0 = settled)
+    float mOverlayEnterStart = -1.0f; // entrance state: -2 = pending (raised, awaiting
+                                      // first render), >=0 = actively animating,
+                                      // -1 = done/settled. Drives the cold-boot-style
+                                      // fade/float-in of the XMB chrome (<0 = settled)
+    float mOverlayEnterElapsed = 0.0f;// accumulated CLAMPED seconds into the entrance,
+                                      // so a slow first frame (lazy load) cannot skip
+                                      // the animation (it advances per rendered frame)
 
     // Menu
     void buildMenu();

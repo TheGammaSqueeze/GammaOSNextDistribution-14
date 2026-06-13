@@ -1269,18 +1269,28 @@ void NanoMenu::renderPs3Xmb() {
     // multipliers, eased over ~520ms. Wrap-safe against mEffectTime's fmod-500.
     // Pending sentinel (-2): stamp the real start on this first rendered frame
     // (after the blocking capture in overlayShow) so the entrance plays.
+    // Advance the entrance by accumulated CLAMPED per-frame dt rather than wall-clock
+    // elapsed. On the first-ever raise the first rendered frame does one-time lazy
+    // work (glyph rasterization, FBOs, glass refraction), so a wall-clock timer would
+    // see a huge frame-1-to-frame-2 gap and jump the eased reveal straight to 1.0,
+    // skipping the animation. Clamping dt makes every rendered frame show a smooth
+    // step regardless of a slow frame, so the transition plays even on first load.
     if (mOverlayMode && mOverlayEnterStart <= -1.5f) {
-        mOverlayEnterStart = mEffectTime;
-    }
-    if (mOverlayMode && mOverlayEnterStart >= 0.0f) {
-        float el = mEffectTime - mOverlayEnterStart;
+        // First rendered frame after the raise: begin the entrance, fully faded out.
+        mOverlayEnterStart = 0.0f;       // active (>=0); see ps3Settled / 60fps gate
+        mOverlayEnterElapsed = 0.0f;
+        mPs3BootIconReveal = 0.0f;
+        mPs3BootLabelReveal = 0.0f;
+    } else if (mOverlayMode && mOverlayEnterStart >= 0.0f) {
+        float dt = mFrameDt; if (dt < 0.0f) dt = 0.0f; if (dt > 0.033f) dt = 0.033f;
+        mOverlayEnterElapsed += dt;
         const float dur = 0.52f;
-        if (el < 0.0f || el >= dur) {
+        if (mOverlayEnterElapsed >= dur) {
             mPs3BootIconReveal = 1.0f;
             mPs3BootLabelReveal = 1.0f;
             mOverlayEnterStart = -1.0f;
         } else {
-            float t = el / dur;
+            float t = mOverlayEnterElapsed / dur;
             float e = t * t * (3.0f - 2.0f * t);   // smoothstep
             mPs3BootIconReveal = e;
             mPs3BootLabelReveal = e;
@@ -3159,21 +3169,17 @@ void NanoMenu::renderPs3Dialog() {
         float ease = ap * ap * (3.0f - 2.0f * ap);
         float xShiftV = (1.0f - ease) * ps3::XCP(37.0f);
 
-        // (1) Panel background: a light black fade scrim. drawQuad has no gradient
-        //     mode, so tile it with adjacent vertical strips; each stop's alpha is
-        //     scaled by the panel fade (ap). Darkest behind the labels on the left,
-        //     then a long gentle fade ALL THE WAY to the screen's right edge. Kept
-        //     fairly transparent so the live background still reads through.
+        // (1) Panel background: a mostly-opaque black scrim. drawQuad has no
+        //     gradient mode, so tile it with adjacent vertical strips; each stop's
+        //     alpha is scaled by the panel fade (ap). The body (behind the options)
+        //     is ~90% opaque so the labels read on a solid dark panel; only the
+        //     right ~30% fades out, all the way to the screen's right edge.
         struct GStop { float p, r, g, b, a; };
         static const GStop kStops[] = {
-            {0.000f, 0.0f,0.0f,0.0f, 0.00f},   // panel left: soft transparent boundary
-            {0.030f, 0.0f,0.0f,0.0f, 0.40f},   // ramp in
-            {0.080f, 0.0f,0.0f,0.0f, 0.48f},   // darkest, behind the labels / swatches
-            {0.220f, 0.0f,0.0f,0.0f, 0.36f},
-            {0.420f, 0.0f,0.0f,0.0f, 0.24f},
-            {0.650f, 0.0f,0.0f,0.0f, 0.14f},
-            {0.850f, 0.0f,0.0f,0.0f, 0.05f},
-            {1.000f, 0.0f,0.0f,0.0f, 0.00f},   // screen right edge: fully transparent
+            {0.000f, 0.0f,0.0f,0.0f, 0.00f},   // panel left: brief soft boundary with the menu
+            {0.020f, 0.0f,0.0f,0.0f, 0.90f},   // opaque body starts
+            {0.700f, 0.0f,0.0f,0.0f, 0.90f},   // opaque across the options ("the rest")
+            {1.000f, 0.0f,0.0f,0.0f, 0.00f},   // ~30% transparent fade to the screen's right edge
         };
         const int kStopN = (int)(sizeof(kStops) / sizeof(kStops[0]));
         const float pLeftDev = ps3::devX(SP_PANEL_LEFT + xShiftV);
