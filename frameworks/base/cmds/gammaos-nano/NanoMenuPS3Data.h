@@ -213,6 +213,37 @@ static const Ps3DataItem kToolboxCh[] = {
   {"Launch Guard",22,"Guard against unintended application launches.","Off",1,nullptr,0},
 };
 
+// ---- GammaRGB (persist.gammaos.rgb.*) -----------------------------------
+static const Ps3DataItem kGammaRgbCh[] = {
+  {"Enable",22,"Enable the GammaRGB LED lighting system.","Off",1,nullptr,0},
+  {"Effect",22,"Drive the LEDs to follow the screen colours or show a solid colour.","Follow Screen",1,nullptr,0},
+  {"LED Brightness",22,"Overall brightness of the RGB LEDs.","255",1,nullptr,0},
+  {"Scale with Brightness",22,"Scale the LED brightness together with the display brightness.","Off",1,nullptr,0},
+  {"Saturation Boost",22,"Boost the colour saturation of the LEDs.","1.4",1,nullptr,0},
+  {"Fade Enable",22,"Smoothly fade between colours instead of switching instantly.","On",1,nullptr,0},
+  {"Fade FPS",22,"Frame rate used for the colour fade animation.","60",1,nullptr,0},
+  {"Sampling FPS",22,"How often the screen is sampled for the follow-screen effect.","6",1,nullptr,0},
+  {"Pre-FX Sampling",22,"Sample the screen before post-processing effects are applied.","On",1,nullptr,0},
+  {"Split LEDs",22,"Drive the left and right LEDs with separate colours.","Off",1,nullptr,0},
+};
+
+// ---- GammaEQ (persist.sys.gammaeq.* + persist.sys.spk.*) ----------------
+static const Ps3DataItem kGammaEqCh[] = {
+  {"Enable EQ",22,"Enable the GammaEQ equalizer and speaker enhancements.","Off",1,nullptr,0},
+  {"Speaker Only",22,"Apply the equalizer only to the built-in speakers, not headphones.","On",1,nullptr,0},
+  {"Preamp (dB)",22,"Input gain applied before the equalizer.","0",1,nullptr,0},
+  {"Postgain (dB)",22,"Output gain applied after the equalizer.","0",1,nullptr,0},
+  {"Crystalizer",22,"Enhance audio clarity and dynamics.","Off",1,nullptr,0},
+  {"Crystalizer Amount",22,"Strength of the crystalizer enhancement.","0.5",1,nullptr,0},
+  {"Crystalizer Mix",22,"Blend between the original and the crystalized audio.","1.0",1,nullptr,0},
+  {"Bass Limiter",22,"Limit excessive bass to protect the speakers.","Off",1,nullptr,0},
+  {"Mid Protector",22,"Protect the midrange from distortion.","Off",1,nullptr,0},
+  {"Stereo Widener",22,"Widen the stereo image.","Off",1,nullptr,0},
+  {"Widener Mix",22,"Strength of the stereo widening effect.","0.35",1,nullptr,0},
+  {"Parametric EQ 1",22,"Enable the first parametric EQ band.","Off",1,nullptr,0},
+  {"Parametric EQ 2",22,"Enable the second parametric EQ band.","Off",1,nullptr,0},
+};
+
 // ---- Settings top-level items -------------------------------------------
 static const Ps3DataItem kSettingsItems[] = {
   {"System Update",8,"Update the PS3™ system software.",nullptr,1,nullptr,0},
@@ -229,6 +260,8 @@ static const Ps3DataItem kSettingsItems[] = {
   {"Gamepad Settings",15,"Adjusts settings for game controllers.",nullptr,0,PS3CH(kGamepadCh)},
   {"Mouse Mode",15,"Adjusts mouse-mode pointer settings for controllers.",nullptr,0,PS3CH(kMouseCh)},
   {"GammaOS Toolbox",12,"Adjusts GammaOS-specific tweaks and enhancements.",nullptr,0,PS3CH(kToolboxCh)},
+  {"GammaRGB",23,"Adjusts the RGB LED lighting effects.",nullptr,0,PS3CH(kGammaRgbCh)},
+  {"GammaEQ",17,"Adjusts the audio equalizer and speaker enhancements.",nullptr,0,PS3CH(kGammaEqCh)},
   {"Printer Settings",10,"Adjusts settings for printers that are connected to this system.",nullptr,0,nullptr,0},
   {"Display Settings",16,"Adjusts settings for video output.",nullptr,0,PS3CH(kDisplayCh)},
   {"Sound Settings",17,"Adjusts settings for audio output.",nullptr,0,PS3CH(kSoundCh)},

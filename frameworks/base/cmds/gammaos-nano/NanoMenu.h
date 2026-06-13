@@ -986,6 +986,16 @@ private:
     bool   mPs3DlgBlurValid = false;
     const Ps3SettingBinding* mPs3DlgBinding = nullptr;  // active settings-bound chooser (else null)
     std::unordered_map<std::string, std::string> mPs3BindCache;  // cached bound values by leaf label
+    // Side-panel numeric slider (mPs3DlgKind==1, mPs3DlgThemeKey==0). For bound
+    // settings whose options string is "slider:min:max:step[:scale]" (too many
+    // values for a list - LED brightness, dB gains, float macro params). Left/Right
+    // adjust by step; X commits the formatted value via writeSettingValue, O cancels.
+    bool   mPs3DlgSlider = false;
+    float  mPs3DlgSldMin  = 0.0f;
+    float  mPs3DlgSldMax  = 1.0f;
+    float  mPs3DlgSldStep = 1.0f;
+    float  mPs3DlgSldVal  = 0.0f;
+    int    mPs3DlgSldScale = 0;    // decimal places (0 = integer)
     // Fullscreen dialog page (mPs3DlgKind==0). Mirrors web DIALOG_TEMPLATES +
     // drawDialog: a body type, an optional vector illustration, a notice line and
     // the source item's header icon.

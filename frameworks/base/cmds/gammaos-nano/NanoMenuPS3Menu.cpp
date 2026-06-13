@@ -961,6 +961,18 @@ static float ps3CatOffset(bool active, float t, float fromOff) {
 void NanoMenu::ps3DlgNav(int dir, bool horizontal) {
     int n = (int)mPs3DlgOptions.size();
     if (mPs3DlgKind == 1) {
+        if (mPs3DlgSlider) {
+            // Numeric slider: Left/Right (horizontal) step the value; Up/Down ignored.
+            if (!horizontal) return;
+            float v = mPs3DlgSldVal + (float)dir * mPs3DlgSldStep;
+            // snap to the step grid relative to min so partial offsets don't accumulate
+            float steps = roundf((v - mPs3DlgSldMin) / mPs3DlgSldStep);
+            v = mPs3DlgSldMin + steps * mPs3DlgSldStep;
+            if (v < mPs3DlgSldMin) v = mPs3DlgSldMin;
+            if (v > mPs3DlgSldMax) v = mPs3DlgSldMax;
+            mPs3DlgSldVal = v;
+            return;
+        }
         // Theme side-panel chooser: clamp + live hover preview.
         int ns = mPs3DlgSel + dir;
         if (ns < 0) ns = 0;
@@ -2387,6 +2399,31 @@ static const Ps3SettingBinding kPs3Bindings[] = {
     {"Dual-Stack Display", SettingSource::kProp, "persist.gammaos.dualstack.enabled", "false", "false:Off,true:On"},
     {"RGB LED", SettingSource::kProp, "persist.gammaos.rgb.enable", "false", "false:Off,true:On"},
     {"Launch Guard", SettingSource::kProp, "persist.gammaos.launch.guard.enabled", "false", "false:Off,true:On"},
+    // GammaRGB (persist.gammaos.rgb.* - the sampler polls these live, no seq)
+    {"Enable", SettingSource::kProp, "persist.gammaos.rgb.enable", "false", "false:Off,true:On"},
+    {"Effect", SettingSource::kProp, "persist.gammaos.rgb.effect", "follow", "follow:Follow Screen,none:Solid Colour"},
+    {"LED Brightness", SettingSource::kProp, "persist.gammaos.rgb.led_brightness", "255", "slider:0:255:5:0"},
+    {"Scale with Brightness", SettingSource::kProp, "persist.gammaos.rgb.scale_with_brightness", "false", "false:Off,true:On"},
+    {"Saturation Boost", SettingSource::kProp, "persist.gammaos.rgb.saturation_boost", "1.4", "slider:0.5:2.0:0.1:1"},
+    {"Fade Enable", SettingSource::kProp, "persist.gammaos.rgb.fade.enable", "true", "false:Off,true:On"},
+    {"Fade FPS", SettingSource::kProp, "persist.gammaos.rgb.fade.fps", "60", "slider:10:240:10:0"},
+    {"Sampling FPS", SettingSource::kProp, "persist.gammaos.rgb.fps", "6", "slider:1:60:1:0"},
+    {"Pre-FX Sampling", SettingSource::kProp, "persist.gammaos.rgb.sample.pre_fx", "true", "false:Off,true:On"},
+    {"Split LEDs", SettingSource::kProp, "persist.gammaos.rgb.split", "false", "false:Off,true:On"},
+    // GammaEQ (persist.sys.gammaeq.* master + persist.sys.spk.* effects; FastMixer re-polls ~1s)
+    {"Enable EQ", SettingSource::kProp, "persist.sys.gammaeq.enable", "0", "0:Off,1:On"},
+    {"Speaker Only", SettingSource::kProp, "persist.sys.gammaeq.spk_only", "1", "0:Off,1:On"},
+    {"Preamp (dB)", SettingSource::kProp, "persist.sys.gammaeq.preamp_db", "0", "slider:-24:6:1:0"},
+    {"Postgain (dB)", SettingSource::kProp, "persist.sys.gammaeq.postgain_db", "0", "slider:-12:12:1:0"},
+    {"Crystalizer", SettingSource::kProp, "persist.sys.spk.cryst", "0", "0:Off,1:On"},
+    {"Crystalizer Amount", SettingSource::kProp, "persist.sys.spk.cryst.amount", "0.5", "slider:0:4:0.1:1"},
+    {"Crystalizer Mix", SettingSource::kProp, "persist.sys.spk.cryst.mix", "1.0", "slider:0:1:0.05:2"},
+    {"Bass Limiter", SettingSource::kProp, "persist.sys.spk.lbp", "0", "0:Off,1:On"},
+    {"Mid Protector", SettingSource::kProp, "persist.sys.spk.mp", "0", "0:Off,1:On"},
+    {"Stereo Widener", SettingSource::kProp, "persist.sys.spk.wide", "0", "0:Off,1:On"},
+    {"Widener Mix", SettingSource::kProp, "persist.sys.spk.wide.mix", "0.35", "slider:0:1:0.05:2"},
+    {"Parametric EQ 1", SettingSource::kProp, "persist.sys.spk.peq", "0", "0:Off,1:On"},
+    {"Parametric EQ 2", SettingSource::kProp, "persist.sys.spk.peq2", "0", "0:Off,1:On"},
 };
 
 const Ps3SettingBinding* ps3BindingFor(const std::string& label) {
@@ -2408,6 +2445,48 @@ static bool ps3OptMatch(const std::string& cur, const std::string& opt) {
     return false;
 }
 
+// A binding whose options string is "slider:min:max:step[:scale]" is a numeric
+// slider rather than a discrete list (ranges with too many values for a list:
+// LED brightness 0..255, dB gains, float macro params). scale = decimal places
+// to store/display (0 = integer); if omitted it is inferred from the step.
+static bool ps3SliderSpec(const char* options, float& mn, float& mx, float& step, int& scale) {
+    if (!options || strncmp(options, "slider:", 7) != 0) return false;
+    const char* p = options + 7;
+    float vals[3] = {0.0f, 1.0f, 1.0f};
+    int sc = -1;
+    int idx = 0;
+    char buf[32]; int bi = 0;
+    auto flush = [&]() {
+        buf[bi] = '\0';
+        if (bi > 0) {
+            if (idx < 3) vals[idx] = strtof(buf, nullptr);
+            else if (idx == 3) sc = atoi(buf);
+        }
+        idx++; bi = 0;
+    };
+    for (const char* q = p; ; ++q) {
+        if (*q == ':' || *q == '\0') { flush(); if (*q == '\0') break; }
+        else if (bi < 31) buf[bi++] = *q;
+    }
+    mn = vals[0]; mx = vals[1]; step = vals[2];
+    if (step <= 0.0f) step = 1.0f;
+    if (sc < 0) {
+        // infer decimals from the step (e.g. 0.05 -> 2, 0.1 -> 1, 1 -> 0)
+        sc = 0; float s = step;
+        while (sc < 4 && fabsf(s - roundf(s)) > 1e-4f) { s *= 10.0f; sc++; }
+    }
+    scale = sc;
+    return true;
+}
+
+// Format a slider value to its scale (decimal places), trimming the float noise.
+static std::string ps3FormatNum(float v, int scale) {
+    if (scale < 0) scale = 0; if (scale > 4) scale = 4;
+    char buf[32];
+    snprintf(buf, sizeof(buf), "%.*f", scale, v);
+    return std::string(buf);
+}
+
 // Cached current value for a binding. Read once per leaf (a settings get / prop
 // read) then served from mPs3BindCache so the per-frame drawList stays cheap;
 // updated on commit.
@@ -2425,14 +2504,26 @@ void NanoMenu::openBoundChooser(const Ps3SettingBinding* b) {
     mPs3DlgOptions.clear(); mPs3DlgSwatch.clear();
     mPs3DlgKind = 1; mPs3DlgThemeKey = 0; mPs3DlgBinding = b;
     mPs3DlgTitle = b->label; mPs3DlgBody.clear();
-    std::vector<SettingListOption> opts = parseListOptions(b->options);
     std::string cur = ps3BoundValue(b);
-    int sel = 0;
-    for (int i = 0; i < (int)opts.size(); i++) {
-        mPs3DlgOptions.push_back(opts[i].label); mPs3DlgSwatch.push_back(-1);
-        if (ps3OptMatch(cur, opts[i].value)) sel = i;
+    float mn, mx, step; int scale;
+    if (ps3SliderSpec(b->options, mn, mx, step, scale)) {
+        // Numeric slider: snap the live value into [min,max], no option list.
+        mPs3DlgSlider = true;
+        mPs3DlgSldMin = mn; mPs3DlgSldMax = mx; mPs3DlgSldStep = step; mPs3DlgSldScale = scale;
+        float v = cur.empty() ? mn : strtof(cur.c_str(), nullptr);
+        if (v < mn) v = mn; if (v > mx) v = mx;
+        mPs3DlgSldVal = v;
+        mPs3DlgSel = 0; mPs3DlgOrigSel = 0;
+    } else {
+        mPs3DlgSlider = false;
+        std::vector<SettingListOption> opts = parseListOptions(b->options);
+        int sel = 0;
+        for (int i = 0; i < (int)opts.size(); i++) {
+            mPs3DlgOptions.push_back(opts[i].label); mPs3DlgSwatch.push_back(-1);
+            if (ps3OptMatch(cur, opts[i].value)) sel = i;
+        }
+        mPs3DlgSel = sel; mPs3DlgOrigSel = sel;
     }
-    mPs3DlgSel = sel; mPs3DlgOrigSel = sel;
     mPs3DlgActive = true; mPs3DlgAnim = 0.0f; mPs3DlgClosing = false; mPs3DlgBlurValid = false;
 }
 
@@ -2443,6 +2534,13 @@ std::string NanoMenu::resolvePs3ItemValue(const Ps3Item& it) {
     const std::string& n = it.label;
     if (const Ps3SettingBinding* b = ps3BindingFor(n)) {
         std::string cur = ps3BoundValue(b);
+        float mn, mx, step; int scale;
+        if (ps3SliderSpec(b->options, mn, mx, step, scale)) {
+            if (cur.empty()) return std::string("-");
+            float v = strtof(cur.c_str(), nullptr);
+            if (v < mn) v = mn; if (v > mx) v = mx;
+            return ps3FormatNum(v, scale);   // normalised numeric (trims stored float noise)
+        }
         for (const auto& o : parseListOptions(b->options)) if (ps3OptMatch(cur, o.value)) return o.label;
         return cur.empty() ? std::string("-") : cur;
     }
@@ -3083,11 +3181,18 @@ void NanoMenu::closePs3Dialog(bool apply) {
         const Ps3SettingBinding* b = mPs3DlgBinding;
         mPs3DlgBinding = nullptr;
         if (apply) {
-            std::vector<SettingListOption> opts = parseListOptions(b->options);
-            if (mPs3DlgSel >= 0 && mPs3DlgSel < (int)opts.size()) {
-                writeSettingValue(b->source, b->key, opts[mPs3DlgSel].value);
-                mPs3BindCache[b->label] = opts[mPs3DlgSel].value;
+            if (mPs3DlgSlider) {
+                std::string v = ps3FormatNum(mPs3DlgSldVal, mPs3DlgSldScale);
+                writeSettingValue(b->source, b->key, v);
+                mPs3BindCache[b->label] = v;
                 mDisplayDirty = true;
+            } else {
+                std::vector<SettingListOption> opts = parseListOptions(b->options);
+                if (mPs3DlgSel >= 0 && mPs3DlgSel < (int)opts.size()) {
+                    writeSettingValue(b->source, b->key, opts[mPs3DlgSel].value);
+                    mPs3BindCache[b->label] = opts[mPs3DlgSel].value;
+                    mDisplayDirty = true;
+                }
             }
         }
     } else if (mPs3DlgThemeKey == 21 && !apply) {
@@ -3236,6 +3341,39 @@ void NanoMenu::renderPs3Dialog() {
             drawQuad(pLeftDev + pWDev * u0, pTopDev, pWDev * (u1 - u0), pHDev, r, g, b, al);
         }
 
+      if (mPs3DlgSlider) {
+        // (2a) Numeric slider: a horizontal track + fill + knob + the live value,
+        //      stepped by Left/Right. Shown instead of the option list for sliders.
+        const float txDev = ps3::devX(SP_TEXT_X + xShiftV);
+        std::string vs = ps3FormatNum(mPs3DlgSldVal, mPs3DlgSldScale);
+        float vfs = ps3::fontScale(30.0f * fb);
+        float vy  = ps3::devY(SP_LIST_TOP_Y) - 0.45f * ps3::emPx(vfs);
+        drawText(vs.c_str(), txDev + so[0], vy + so[1], vfs, 0.0f, 0.0f, 0.0f, 0.35f * ap);
+        drawText(vs.c_str(), txDev, vy, vfs, 1.0f, 1.0f, 1.0f, ap);
+        // Track in device space: from the text x to a margin off the screen's right
+        // edge, centred on the row below the value.
+        float trkY = ps3::devY(SP_LIST_TOP_Y + 56.0f);
+        float trkH = ps3::devS(6.0f);
+        float trkL = txDev;
+        float trkR = (float)mWidth - ps3::devS(40.0f);
+        if (trkR < trkL + ps3::devS(40.0f)) trkR = trkL + ps3::devS(40.0f);
+        float trkW = trkR - trkL;
+        float frac = (mPs3DlgSldMax > mPs3DlgSldMin)
+                     ? (mPs3DlgSldVal - mPs3DlgSldMin) / (mPs3DlgSldMax - mPs3DlgSldMin) : 0.0f;
+        if (frac < 0.0f) frac = 0.0f; if (frac > 1.0f) frac = 1.0f;
+        drawQuad(trkL, trkY - trkH * 0.5f, trkW, trkH, 1.0f, 1.0f, 1.0f, 0.25f * ap);          // track
+        drawQuad(trkL, trkY - trkH * 0.5f, trkW * frac, trkH, 1.0f, 1.0f, 1.0f, 0.95f * ap);    // fill
+        float kb = ps3::devS(16.0f);
+        drawQuad(trkL + trkW * frac - kb * 0.5f, trkY - kb * 0.5f, kb, kb, 1.0f, 1.0f, 1.0f, ap); // knob
+        // min / max end labels under the track
+        float efs = ps3::fontScale(15.0f * fb);
+        float ey  = ps3::devY(SP_LIST_TOP_Y + 84.0f) - 0.45f * ps3::emPx(efs);
+        std::string mns = ps3FormatNum(mPs3DlgSldMin, mPs3DlgSldScale);
+        std::string mxs = ps3FormatNum(mPs3DlgSldMax, mPs3DlgSldScale);
+        drawText(mns.c_str(), trkL, ey, efs, 1.0f, 1.0f, 1.0f, 0.55f * ap);
+        float mxw = measureText(mxs.c_str(), efs);
+        drawText(mxs.c_str(), trkR - mxw, ey, efs, 1.0f, 1.0f, 1.0f, 0.55f * ap);
+      } else {
         // (2) Visible window. The list is ANCHORED at SP_LIST_TOP_Y; the selection
         //     only changes the per-item font size/weight, it does NOT recentre the
         //     list. Scroll the window only when the list is longer than what fits.
@@ -3289,6 +3427,7 @@ void NanoMenu::renderPs3Dialog() {
             float ay = ps3::devY(SP_LIST_TOP_Y + (float)(lastVis - firstVis + 1) * SP_ITEM_PITCH) - 0.45f * ps3::emPx(arrFs);
             drawText("\xE2\x96\xBC", txDev, ay, arrFs, 1.0f, 1.0f, 1.0f, 0.85f * ap);
         }
+      }
     } else {
         // ---- fullscreen dialog page (1:1 with web drawDialog) ----
         // Uniform translucent dim over the (already-drawn) blurred live wave so
