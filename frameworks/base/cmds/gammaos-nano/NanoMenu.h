@@ -976,6 +976,8 @@ private:
     int    mPs3DlgSel = 0;
     int    mPs3DlgOrigSel = 0;     // value at open, for revert on cancel
     float  mPs3DlgAnim = 0.0f;     // open slide/fade 0->1
+    bool   mPs3DlgClosing = false; // side-panel dismiss fade-out in flight (kind 1)
+    float  mPs3DlgCloseAnim = 0.0f;// close fade alpha 1->0 (reverse of mPs3DlgAnim)
     bool   mPs3DlgBlurValid = false;
     // Fullscreen dialog page (mPs3DlgKind==0). Mirrors web DIALOG_TEMPLATES +
     // drawDialog: a body type, an optional vector illustration, a notice line and

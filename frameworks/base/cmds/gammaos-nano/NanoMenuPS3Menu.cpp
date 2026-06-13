@@ -1685,6 +1685,11 @@ void NanoMenu::renderPs3Xmb() {
                                     ? resolvePs3ItemValue(it)
                                     : trDyn(resolvePs3ItemValue(it).c_str());
             bool hasVal = !itVal.empty();
+            // Suppress the row value while a side-panel chooser is open OR fading
+            // out (web sidePanelActive): the scrim panel owns that right gutter, and
+            // the value being edited is shown inside the panel, so the row reverts to
+            // a plain label (which then also gets the full row width).
+            if ((mPs3DlgActive || mPs3DlgClosing) && mPs3DlgKind == 1) hasVal = false;
             float vRight = ps3::devX(ps3::XCF(ps3::VW - ps3::ITEM_VALUE_RIGHT_PAD));
             { float vPanelMax = (float)mWidth - ps3::devS(ps3::ITEM_VALUE_RIGHT_PAD);
               if (vRight > vPanelMax) vRight = vPanelMax; }
@@ -1931,7 +1936,7 @@ void NanoMenu::renderPs3Xmb() {
     // Settings dialog / Theme chooser overlay on top of the menu. (The Time Zone
     // globe renders standalone via the early return above, fading in from black.)
     if (mPs3WizActive) renderNetWizard();
-    else if (mPs3DlgActive) renderPs3Dialog();
+    else if (mPs3DlgActive || mPs3DlgClosing) renderPs3Dialog();   // mPs3DlgClosing: side-panel fade-out
     else if (mPs3LangActive) renderLanguagePicker();   // System Language: frosted backdrop + fade, over the menu
 }
 
@@ -2185,15 +2190,34 @@ void NanoMenu::drawPs3Clock(float fadeMul) {
 // ===========================================================================
 // Settings dialogs + Theme Settings choosers (web DIALOG_TEMPLATES + theme tables)
 // ===========================================================================
-struct Ps3ColorOpt { const char* name; float r, g, b; };
+// r,g,b = the wave/icon TINT applied on commit (ps3bg::setThemeColor / icon tint;
+// the icon-tint nearest-match in gsOpenTintChooser depends on these, do not change).
+// sr,sg,sb = the CHOOSER SWATCH square shown in the side-panel Colour picker - the
+// firmware-measured palette from the web xmb (COLOR_OPTIONS[].swatch), distinct from
+// the tint (e.g. Original's swatch is silver while its tint is plum).
+struct Ps3ColorOpt { const char* name; float r, g, b; float sr, sg, sb; };
 static const Ps3ColorOpt kPs3ColorOpts[] = {
-    {"Original",0.82f,0.62f,0.90f},{"Yellow",1.00f,0.88f,0.20f},{"Green",0.65f,0.87f,0.30f},
-    {"Pink",1.00f,0.64f,0.72f},{"Dark Green",0.25f,0.70f,0.25f},{"Light Purple",0.82f,0.62f,0.90f},
-    {"Teal",0.30f,0.88f,0.85f},{"Dark Blue",0.10f,0.30f,0.80f},{"Magenta",0.70f,0.30f,0.80f},
-    {"Orange",1.00f,0.70f,0.15f},{"Brown",0.62f,0.43f,0.18f},{"Red",0.90f,0.22f,0.22f},
-    {"Black",0.06f,0.06f,0.075f},{"White",0.95f,0.95f,0.98f},{"Gray",0.55f,0.57f,0.62f},
-    {"Blue",0.20f,0.45f,0.95f},{"Cyan",0.20f,0.85f,0.95f},{"Lime",0.55f,0.95f,0.20f},
-    {"Gold",1.00f,0.78f,0.25f},{"Violet",0.55f,0.35f,0.95f},{"Crimson",0.80f,0.10f,0.30f},
+    {"Original",    0.82f,0.62f,0.90f,  0.722f,0.749f,0.792f},
+    {"Yellow",      1.00f,0.88f,0.20f,  0.800f,0.722f,0.110f},
+    {"Green",       0.65f,0.87f,0.30f,  0.451f,0.663f,0.157f},
+    {"Pink",        1.00f,0.64f,0.72f,  0.871f,0.431f,0.506f},
+    {"Dark Green",  0.25f,0.70f,0.25f,  0.114f,0.482f,0.114f},
+    {"Light Purple",0.82f,0.62f,0.90f,  0.573f,0.435f,0.741f},
+    {"Teal",        0.30f,0.88f,0.85f,  0.141f,0.722f,0.671f},
+    {"Dark Blue",   0.10f,0.30f,0.80f,  0.031f,0.216f,0.651f},
+    {"Magenta",     0.70f,0.30f,0.80f,  0.553f,0.208f,0.608f},
+    {"Orange",      1.00f,0.70f,0.15f,  0.765f,0.565f,0.067f},
+    {"Brown",       0.62f,0.43f,0.18f,  0.624f,0.431f,0.180f},
+    {"Red",         0.90f,0.22f,0.22f,  0.902f,0.220f,0.220f},
+    {"Black",       0.06f,0.06f,0.075f, 0.039f,0.039f,0.047f},
+    {"White",       0.95f,0.95f,0.98f,  0.949f,0.949f,0.961f},
+    {"Gray",        0.55f,0.57f,0.62f,  0.549f,0.561f,0.620f},
+    {"Blue",        0.20f,0.45f,0.95f,  0.212f,0.447f,0.949f},
+    {"Cyan",        0.20f,0.85f,0.95f,  0.200f,0.851f,0.949f},
+    {"Lime",        0.55f,0.95f,0.20f,  0.549f,0.949f,0.200f},
+    {"Gold",        1.00f,0.78f,0.25f,  1.000f,0.780f,0.251f},
+    {"Violet",      0.55f,0.35f,0.95f,  0.549f,0.349f,0.949f},
+    {"Crimson",     0.80f,0.10f,0.30f,  0.800f,0.102f,0.302f},
 };
 static const int kPs3ColorCount = 21;
 
@@ -2911,12 +2935,17 @@ void NanoMenu::closePs3Dialog(bool apply) {
         else       previewThemeSetting(mPs3DlgThemeKey, mPs3DlgOrigSel);   // revert the live preview
     }
     if (mPs3NetTestLive) { stopNetTest(); mPs3NetTestLive = false; }
+    // Side-panel choosers (kind 1) play a fade + reverse-settle close animation on
+    // dismiss (whether cancel or confirm). The option/swatch/sel state is left intact
+    // so the fading panel still renders; input returns to the menu immediately.
+    // Fullscreen dialogs (kind 0) close instantly as before.
+    if (mPs3DlgKind == 1) { mPs3DlgClosing = true; mPs3DlgCloseAnim = (mPs3DlgAnim > 0.02f ? mPs3DlgAnim : 1.0f); }
     mPs3DlgActive = false;
     mPs3DlgBlurValid = false;
 }
 
 void NanoMenu::renderPs3Dialog() {
-    if (!mPs3DlgActive) return;
+    if (!mPs3DlgActive && !mPs3DlgClosing) return;
     // Dialog pages (System Update, System Information, the network test, etc.) are
     // dense readable text, so anti-alias them too. renderPs3Xmb turned AA off
     // before dispatching here; turn it back on for the dialog body. The OSK, if it
@@ -2929,9 +2958,19 @@ void NanoMenu::renderPs3Dialog() {
         mPs3DlgBody = mPs3NetTestBody;
     }
     float dt = mFrameDt; if (dt < 0.0f) dt = 0.0f; if (dt > 0.1f) dt = 0.1f;
-    mPs3DlgAnim += (1.0f - mPs3DlgAnim) * (1.0f - expf(-13.0f * dt));
-    if (mPs3DlgAnim > 0.999f) mPs3DlgAnim = 1.0f;
-    float ap = mPs3DlgAnim;
+    float ap;
+    if (mPs3DlgActive) {
+        // Opening / open: a freshly-opened dialog supersedes any in-flight close.
+        mPs3DlgClosing = false;
+        mPs3DlgAnim += (1.0f - mPs3DlgAnim) * (1.0f - expf(-13.0f * dt));
+        if (mPs3DlgAnim > 0.999f) mPs3DlgAnim = 1.0f;
+        ap = mPs3DlgAnim;
+    } else {
+        // Closing (side-panel only): fade + reverse-settle back out, then stop.
+        mPs3DlgCloseAnim -= mPs3DlgCloseAnim * (1.0f - expf(-13.0f * dt));
+        if (mPs3DlgCloseAnim < 0.02f) { mPs3DlgCloseAnim = 0.0f; mPs3DlgClosing = false; mPs3DlgBlurValid = false; return; }
+        ap = mPs3DlgCloseAnim;
+    }
     { ps3::LayoutParams lp; lp.panelW = mWidth; lp.panelH = mHeight; lp.uiScale = mPs3UiScale; ps3::layoutCompute(lp); }
 
     // Fullscreen message dialogs (System Update, ...) sit on a blurred backdrop
@@ -2959,37 +2998,118 @@ void NanoMenu::renderPs3Dialog() {
     float so[2] = { sDrmRotMat[2] * ss, sDrmRotMat[3] * ss };
 
     if (mPs3DlgKind == 1) {
-        // ---- side-panel chooser (Theme Settings) ----
-        float panelW = (float)mWidth * 0.42f;
-        float ease = ap * ap * (3.0f - 2.0f * ap);
-        float px = (float)mWidth - panelW * ease;
-        drawQuad(px, 0.0f, panelW + ps3::devS(40.0f), (float)mHeight, 0.13f, 0.12f, 0.18f, 0.84f * ap);
-        float titleX = px + ps3::devS(30.0f);
+        // ---- side-panel chooser: 1:1 port of the web xmb drawSidePanel() ----
+        // Black fade-gradient scrim panel at a fixed position, fading IN on open and
+        // OUT on dismiss, with a small ~37px settle (NOT a full-width slide). No blur
+        // backdrop (gated above by mPs3DlgKind != 1) so the live XMB / per-month
+        // gradient shows through for the Colour / Day-Night live preview. The XMB
+        // chrome behind it provides the context (the highlighted submenu row), so
+        // there is no panel title - exactly like the firmware chooser.
         const float fb = ps3DlgFontBoost();
-        float tts = ps3::fontScale(26.0f * fb);
-        const char* dlgTitle = trDyn(mPs3DlgTitle.c_str());
-        drawText(dlgTitle, titleX + so[0], ps3::devS(38.0f) + so[1], tts, 0.0f, 0.0f, 0.0f, 0.5f * ap);
-        drawText(dlgTitle, titleX, ps3::devS(38.0f), tts, 0.90f, 0.86f, 0.96f, ap);
+        const bool sp43 = ps3::LAYOUT_XC < 0.999f;
+        // Web design-space constants (1920x1080), measured from RPCS3 firmware
+        // captures (side_panel_color_chooser_REAL.png). 4:3 uses its own wider bases.
+        const float SP_PANEL_LEFT  = ps3::XCP(sp43 ? 1056.0f : 1324.0f);
+        const float SP_PANEL_RIGHT = sp43 ? ps3::XCF(ps3::VW) : 1697.0f;
+        const float SP_PANEL_WIDTH = SP_PANEL_RIGHT - SP_PANEL_LEFT;
+        const float SP_TEXT_X      = ps3::XCP(sp43 ? 1100.0f : 1340.0f);
+        const float SP_ITEM_PITCH  = 40.0f;   // virtual px between items
+        const float SP_SWATCH_SIZE = 27.0f;   // colour swatch square (virtual px)
+        const float SP_LIST_TOP_Y  = 510.0f;  // middle-y of the first item
+        const float SP_VISIBLE_BOT = ps3::VH - 60.0f;
+
+        float ease = ap * ap * (3.0f - 2.0f * ap);
+        float xShiftV = (1.0f - ease) * ps3::XCP(37.0f);
+
+        // (1) Panel background: black fade-gradient scrim. drawQuad has no gradient
+        //     mode, so tile it with adjacent vertical strips; each stop's alpha is
+        //     scaled by the panel fade (ap). Same fade envelope as the firmware
+        //     chooser band, but a BLACK wash (darkest near the core, fading to clear
+        //     at both edges) so the white labels / colour swatches read cleanly.
+        struct GStop { float p, r, g, b, a; };
+        static const GStop kStops[] = {
+            {0.000f, 0.0f,0.0f,0.0f, 0.00f},
+            {0.043f, 0.0f,0.0f,0.0f, 0.55f},
+            {0.142f, 0.0f,0.0f,0.0f, 0.88f},
+            {0.300f, 0.0f,0.0f,0.0f, 0.80f},
+            {0.470f, 0.0f,0.0f,0.0f, 0.65f},
+            {0.651f, 0.0f,0.0f,0.0f, 0.45f},
+            {0.820f, 0.0f,0.0f,0.0f, 0.22f},
+            {1.000f, 0.0f,0.0f,0.0f, 0.00f},
+        };
+        const int kStopN = (int)(sizeof(kStops) / sizeof(kStops[0]));
+        const float pLeftDev = ps3::devX(SP_PANEL_LEFT + xShiftV);
+        const float pWDev    = ps3::devS(SP_PANEL_WIDTH);
+        const float pTopDev  = ps3::gFrameY;
+        const float pHDev    = ps3::gFrameH;
+        const int   kStrips  = 64;
+        for (int s = 0; s < kStrips; s++) {
+            float u0 = (float)s / (float)kStrips;
+            float u1 = (float)(s + 1) / (float)kStrips;
+            float uc = 0.5f * (u0 + u1);
+            int gi = 0; while (gi < kStopN - 2 && kStops[gi + 1].p < uc) gi++;
+            const GStop& s0 = kStops[gi]; const GStop& s1 = kStops[gi + 1];
+            float t = (s1.p > s0.p) ? (uc - s0.p) / (s1.p - s0.p) : 0.0f;
+            if (t < 0.0f) t = 0.0f; else if (t > 1.0f) t = 1.0f;
+            float r  = s0.r + (s1.r - s0.r) * t;
+            float g  = s0.g + (s1.g - s0.g) * t;
+            float b  = s0.b + (s1.b - s0.b) * t;
+            float al = (s0.a + (s1.a - s0.a) * t) * ap;
+            drawQuad(pLeftDev + pWDev * u0, pTopDev, pWDev * (u1 - u0), pHDev, r, g, b, al);
+        }
+
+        // (2) Visible window. The list is ANCHORED at SP_LIST_TOP_Y; the selection
+        //     only changes the per-item font size/weight, it does NOT recentre the
+        //     list. Scroll the window only when the list is longer than what fits.
         int n = (int)mPs3DlgOptions.size();
-        float rowH = ps3::devS(46.0f);
-        float listCy = (float)mHeight * 0.52f;
-        for (int i = 0; i < n; i++) {
-            float y = listCy + (float)(i - mPs3DlgSel) * rowH;
-            if (y < -rowH || y > (float)mHeight + rowH) continue;
+        int maxFit = (int)((SP_VISIBLE_BOT - SP_LIST_TOP_Y) / SP_ITEM_PITCH);
+        if (maxFit < 1) maxFit = 1;
+        int firstVis, lastVis;
+        if (n <= maxFit)                  { firstVis = 0; lastVis = n - 1; }
+        else if (mPs3DlgSel < maxFit - 1) { firstVis = 0; lastVis = maxFit - 1; }
+        else if (mPs3DlgSel >= n - 1)     { lastVis = n - 1; firstVis = lastVis - (maxFit - 1); }
+        else {
+            firstVis = mPs3DlgSel - (int)((float)maxFit * 0.66f);
+            if (firstVis < 0) firstVis = 0;
+            lastVis = firstVis + maxFit - 1;
+            if (lastVis >= n) { lastVis = n - 1; firstVis = lastVis - (maxFit - 1); }
+        }
+
+        // (3) Items. Colour chooser (any swatch present): non-selected items render
+        //     as the swatch square only, the selected item as its text label. Other
+        //     choosers: all text labels. Selected = larger font + pure white; others
+        //     = 90% white. Both get a soft 1px black drop shadow (so[] is the
+        //     rotation-aware 1.5px offset computed above).
+        bool isColorChooser = false;
+        for (size_t i = 0; i < mPs3DlgSwatch.size(); i++) if (mPs3DlgSwatch[i] >= 0) { isColorChooser = true; break; }
+        const float txDev = ps3::devX(SP_TEXT_X + xShiftV);
+        for (int i = firstVis; i <= lastVis; i++) {
             bool sel = (i == mPs3DlgSel);
-            float a = (sel ? 1.0f : 0.55f) * ap;
-            float fs = ps3::fontScale((sel ? 30.0f : 24.0f) * fb);
-            float tx = titleX;
-            if (i < (int)mPs3DlgSwatch.size() && mPs3DlgSwatch[i] >= 0) {
-                int ci = mPs3DlgSwatch[i]; float sw = ps3::devS(26.0f);
-                drawQuad(titleX, y - sw * 0.5f, sw, sw, kPs3ColorOpts[ci].r, kPs3ColorOpts[ci].g, kPs3ColorOpts[ci].b, a);
-                tx = titleX + sw + ps3::devS(14.0f);
+            float cyDev = ps3::devY(SP_LIST_TOP_Y + (float)(i - firstVis) * SP_ITEM_PITCH);
+            if (isColorChooser && !sel && i < (int)mPs3DlgSwatch.size() && mPs3DlgSwatch[i] >= 0) {
+                int ci = mPs3DlgSwatch[i];
+                float swDev = ps3::devS(SP_SWATCH_SIZE);
+                drawQuad(txDev, cyDev - swDev * 0.5f, swDev, swDev,
+                         kPs3ColorOpts[ci].sr, kPs3ColorOpts[ci].sg, kPs3ColorOpts[ci].sb, ap);
+                continue;
             }
-            float ty = ps3::baselineToTopY(y, fs);
+            float fs = ps3::fontScale((sel ? 26.0f : 22.0f) * fb);
+            float ty = cyDev - 0.45f * ps3::emPx(fs);   // web textBaseline='middle'
             const char* optTxt = trDyn(mPs3DlgOptions[i].c_str());
-            drawText(optTxt, tx + so[0], ty + so[1], fs, 0.0f, 0.0f, 0.0f, 0.5f * a);
-            float c = sel ? 1.0f : 0.85f;
-            drawText(optTxt, tx, ty, fs, c, c, c, a);
+            drawText(optTxt, txDev + so[0], ty + so[1], fs, 0.0f, 0.0f, 0.0f, 0.35f * ap);
+            float ta = (sel ? 1.0f : 0.90f) * ap;
+            drawText(optTxt, txDev, ty, fs, 1.0f, 1.0f, 1.0f, ta);
+        }
+
+        // (4) Up/down scroll arrows at the text x when items scroll off-window.
+        float arrFs = ps3::fontScale(20.0f * fb);
+        if (firstVis > 0) {
+            float ay = ps3::devY(SP_LIST_TOP_Y - SP_ITEM_PITCH) - 0.45f * ps3::emPx(arrFs);
+            drawText("\xE2\x96\xB2", txDev, ay, arrFs, 1.0f, 1.0f, 1.0f, 0.85f * ap);
+        }
+        if (lastVis < n - 1) {
+            float ay = ps3::devY(SP_LIST_TOP_Y + (float)(lastVis - firstVis + 1) * SP_ITEM_PITCH) - 0.45f * ps3::emPx(arrFs);
+            drawText("\xE2\x96\xBC", txDev, ay, arrFs, 1.0f, 1.0f, 1.0f, 0.85f * ap);
         }
     } else {
         // ---- fullscreen dialog page (1:1 with web drawDialog) ----
