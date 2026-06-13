@@ -2399,31 +2399,63 @@ static const Ps3SettingBinding kPs3Bindings[] = {
     {"Dual-Stack Display", SettingSource::kProp, "persist.gammaos.dualstack.enabled", "false", "false:Off,true:On"},
     {"RGB LED", SettingSource::kProp, "persist.gammaos.rgb.enable", "false", "false:Off,true:On"},
     {"Launch Guard", SettingSource::kProp, "persist.gammaos.launch.guard.enabled", "false", "false:Off,true:On"},
-    // GammaRGB (persist.gammaos.rgb.* - the sampler polls these live, no seq)
-    {"Enable", SettingSource::kProp, "persist.gammaos.rgb.enable", "false", "false:Off,true:On"},
-    {"Effect", SettingSource::kProp, "persist.gammaos.rgb.effect", "follow", "follow:Follow Screen,none:Solid Colour"},
+    // GammaRGB (persist.gammaos.rgb.* + persist.gammargb.control - sampler polls live, no seq).
+    // "@rgbeffect"/"@rgbcolor" are special choosers handled in openBoundChooser/closePs3Dialog.
+    {"Effect", SettingSource::kProp, "persist.gammargb.control", "on", "@rgbeffect"},
+    {"LED Colour", SettingSource::kProp, "persist.gammaos.primary.rgb_hex_custom", "", "@rgbcolor"},
     {"LED Brightness", SettingSource::kProp, "persist.gammaos.rgb.led_brightness", "255", "slider:0:255:5:0"},
-    {"Scale with Brightness", SettingSource::kProp, "persist.gammaos.rgb.scale_with_brightness", "false", "false:Off,true:On"},
+    {"Scale with Brightness", SettingSource::kProp, "persist.gammaos.rgb.scale_with_brightness", "1", "0:Off,1:On"},
+    {"Effect Speed", SettingSource::kProp, "persist.gammaos.rgb.effect_speed", "10", "slider:0:255:5:0"},
     {"Saturation Boost", SettingSource::kProp, "persist.gammaos.rgb.saturation_boost", "1.4", "slider:0.5:2.0:0.1:1"},
-    {"Fade Enable", SettingSource::kProp, "persist.gammaos.rgb.fade.enable", "true", "false:Off,true:On"},
+    {"Fade Enable", SettingSource::kProp, "persist.gammaos.rgb.fade.enable", "1", "0:Off,1:On"},
     {"Fade FPS", SettingSource::kProp, "persist.gammaos.rgb.fade.fps", "60", "slider:10:240:10:0"},
     {"Sampling FPS", SettingSource::kProp, "persist.gammaos.rgb.fps", "6", "slider:1:60:1:0"},
-    {"Pre-FX Sampling", SettingSource::kProp, "persist.gammaos.rgb.sample.pre_fx", "true", "false:Off,true:On"},
-    {"Split LEDs", SettingSource::kProp, "persist.gammaos.rgb.split", "false", "false:Off,true:On"},
-    // GammaEQ (persist.sys.gammaeq.* master + persist.sys.spk.* effects; FastMixer re-polls ~1s)
+    {"Pre-FX Sampling", SettingSource::kProp, "persist.gammaos.rgb.sample.pre_fx", "1", "0:Off,1:On"},
+    {"Split LEDs", SettingSource::kProp, "persist.gammaos.rgb.split", "0", "0:Off,1:On"},
+    {"Split Colours", SettingSource::kProp, "persist.gammaos.rgb.color_split", "0", "0:Off,1:On"},
+    // GammaEQ master (persist.sys.gammaeq.*; every write bumps the .seq props - see ps3BumpEqSeqs)
     {"Enable EQ", SettingSource::kProp, "persist.sys.gammaeq.enable", "0", "0:Off,1:On"},
     {"Speaker Only", SettingSource::kProp, "persist.sys.gammaeq.spk_only", "1", "0:Off,1:On"},
     {"Preamp (dB)", SettingSource::kProp, "persist.sys.gammaeq.preamp_db", "0", "slider:-24:6:1:0"},
     {"Postgain (dB)", SettingSource::kProp, "persist.sys.gammaeq.postgain_db", "0", "slider:-12:12:1:0"},
+    // GammaEQ Crystalizer (persist.sys.spk.cryst*)
     {"Crystalizer", SettingSource::kProp, "persist.sys.spk.cryst", "0", "0:Off,1:On"},
-    {"Crystalizer Amount", SettingSource::kProp, "persist.sys.spk.cryst.amount", "0.5", "slider:0:4:0.1:1"},
-    {"Crystalizer Mix", SettingSource::kProp, "persist.sys.spk.cryst.mix", "1.0", "slider:0:1:0.05:2"},
+    {"Cryst Amount", SettingSource::kProp, "persist.sys.spk.cryst.amount", "0.5", "slider:0:4:0.1:1"},
+    {"Cryst Mix", SettingSource::kProp, "persist.sys.spk.cryst.mix", "1.0", "slider:0:1:0.05:2"},
+    {"Cryst Frequency", SettingSource::kProp, "persist.sys.spk.cryst.hz", "11500", "slider:2000:20000:500:0"},
+    {"Cryst Limit", SettingSource::kProp, "persist.sys.spk.cryst.limit", "0.30", "slider:0:1:0.05:2"},
+    {"Cryst Pre-gain", SettingSource::kProp, "persist.sys.spk.cryst.pregain_db", "0", "slider:-24:6:1:0"},
+    {"Cryst Post-gain", SettingSource::kProp, "persist.sys.spk.cryst.postgain_db", "0", "slider:-12:12:1:0"},
+    // GammaEQ Bass Limiter (persist.sys.spk.lbp*)
     {"Bass Limiter", SettingSource::kProp, "persist.sys.spk.lbp", "0", "0:Off,1:On"},
+    {"Bass Threshold", SettingSource::kProp, "persist.sys.spk.lbp.thr", "0.69", "slider:0:2.5:0.05:2"},
+    {"Bass Attack", SettingSource::kProp, "persist.sys.spk.lbp.atk", "4", "slider:1:50:1:0"},
+    {"Bass Release", SettingSource::kProp, "persist.sys.spk.lbp.rel", "110", "slider:10:500:10:0"},
+    {"Bass Frequency", SettingSource::kProp, "persist.sys.spk.lbp.fc", "160", "slider:20:400:5:0"},
+    // GammaEQ Mid Protector (persist.sys.spk.mp*)
     {"Mid Protector", SettingSource::kProp, "persist.sys.spk.mp", "0", "0:Off,1:On"},
+    {"Mid High-Pass", SettingSource::kProp, "persist.sys.spk.mp.hpf", "220", "slider:20:1000:10:0"},
+    {"Mid Low-Pass", SettingSource::kProp, "persist.sys.spk.mp.lpf", "5800", "slider:2000:16000:100:0"},
+    {"Mid Threshold", SettingSource::kProp, "persist.sys.spk.mp.thr", "0.92", "slider:0:1:0.01:2"},
+    {"Mid Attack", SettingSource::kProp, "persist.sys.spk.mp.atk", "2", "slider:1:50:1:0"},
+    {"Mid Release", SettingSource::kProp, "persist.sys.spk.mp.rel", "120", "slider:10:500:10:0"},
+    // GammaEQ Stereo Widener (persist.sys.spk.wide*)
     {"Stereo Widener", SettingSource::kProp, "persist.sys.spk.wide", "0", "0:Off,1:On"},
+    {"Widener Amount", SettingSource::kProp, "persist.sys.spk.wide.amount", "1.0", "slider:0:2:0.05:2"},
     {"Widener Mix", SettingSource::kProp, "persist.sys.spk.wide.mix", "0.35", "slider:0:1:0.05:2"},
+    {"Widener Pre-gain", SettingSource::kProp, "persist.sys.spk.wide.pre", "0", "slider:-12:12:1:0"},
+    {"Widener Limit", SettingSource::kProp, "persist.sys.spk.wide.limit", "0.5", "slider:0:1:0.05:2"},
+    {"Widener High-Pass", SettingSource::kProp, "persist.sys.spk.wide.hpf", "500", "slider:500:16000:250:0"},
+    {"Widener Centre", SettingSource::kProp, "persist.sys.spk.wide.fc", "2000", "slider:500:16000:250:0"},
+    // GammaEQ Parametric EQ bands (persist.sys.spk.peq*/peq2* biquad b0/b1/b2)
     {"Parametric EQ 1", SettingSource::kProp, "persist.sys.spk.peq", "0", "0:Off,1:On"},
+    {"PEQ1 Band 0", SettingSource::kProp, "persist.sys.spk.peq.b0", "1.0", "slider:0:3:0.05:2"},
+    {"PEQ1 Band 1", SettingSource::kProp, "persist.sys.spk.peq.b1", "0", "slider:-4:4:0.05:2"},
+    {"PEQ1 Band 2", SettingSource::kProp, "persist.sys.spk.peq.b2", "0", "slider:0:2:0.05:2"},
     {"Parametric EQ 2", SettingSource::kProp, "persist.sys.spk.peq2", "0", "0:Off,1:On"},
+    {"PEQ2 Band 0", SettingSource::kProp, "persist.sys.spk.peq2.b0", "1.0", "slider:0:3:0.05:2"},
+    {"PEQ2 Band 1", SettingSource::kProp, "persist.sys.spk.peq2.b1", "0", "slider:-4:4:0.05:2"},
+    {"PEQ2 Band 2", SettingSource::kProp, "persist.sys.spk.peq2.b2", "0", "slider:0:2:0.05:2"},
 };
 
 const Ps3SettingBinding* ps3BindingFor(const std::string& label) {
@@ -2487,6 +2519,66 @@ static std::string ps3FormatNum(float v, int scale) {
     return std::string(buf);
 }
 
+// GammaRGB Effect chooser options, mirroring the JoystickLedPicker: Off + Follow
+// Screen + Solid Colour are always offered; numbered effects 1-5 only when the
+// device advertises rgb.effectN.supported. Each entry is (display label, code)
+// where the code is "off" (gammargb.control=off) or an rgb.effect value.
+static std::vector<std::pair<std::string,std::string>> ps3RgbEffectList() {
+    std::vector<std::pair<std::string,std::string>> v;
+    v.push_back({"Off", "off"});
+    v.push_back({"Follow Screen", "follow"});
+    v.push_back({"Solid Colour", "none"});
+    for (int i = 1; i <= 5; i++) {
+        char key[64]; snprintf(key, sizeof(key), "persist.gammaos.rgb.effect%d.supported", i);
+        if (property_get_bool(key, false)) {
+            char lbl[16]; snprintf(lbl, sizeof(lbl), "Effect %d", i);
+            char code[4]; snprintf(code, sizeof(code), "%d", i);
+            v.push_back({lbl, code});
+        }
+    }
+    return v;
+}
+
+// The GammaEQ FastMixer re-reads a module's params when its .seq prop changes.
+// The GammaEQ app bumps every .seq on any change, so do the same after a write.
+static void ps3BumpEqSeqs() {
+    static const char* kSeqKeys[] = {
+        "persist.sys.spk.peq.seq", "persist.sys.spk.cryst.seq", "persist.sys.spk.lbp.seq",
+        "persist.sys.spk.mp.seq",  "persist.sys.spk.wide.seq",  "persist.sys.spk.peq2.seq",
+    };
+    for (const char* k : kSeqKeys) {
+        char buf[PROPERTY_VALUE_MAX] = {};
+        property_get(k, buf, "0");
+        long cur = strtol(buf, nullptr, 10);
+        char out[24]; snprintf(out, sizeof(out), "%ld", cur + 1);
+        property_set(k, out);
+    }
+}
+
+// "#RRGGBB" for a kPs3ColorOpts swatch (uses the swatch display RGB).
+static std::string ps3SwatchHex(int idx) {
+    if (idx < 0 || idx >= kPs3ColorCount) return std::string("#FFFFFF");
+    const Ps3ColorOpt& c = kPs3ColorOpts[idx];
+    auto q = [](float v){ int n = (int)(v * 255.0f + 0.5f); return n < 0 ? 0 : (n > 255 ? 255 : n); };
+    char buf[8]; snprintf(buf, sizeof(buf), "#%02X%02X%02X", q(c.sr), q(c.sg), q(c.sb));
+    return std::string(buf);
+}
+
+// Nearest kPs3ColorOpts swatch to a "#RRGGBB" string (squared RGB distance).
+static int ps3NearestSwatch(const std::string& hex) {
+    std::string h = hex; if (!h.empty() && h[0] == '#') h = h.substr(1);
+    if (h.size() < 6) return -1;
+    long v = strtol(h.c_str(), nullptr, 16);
+    float r = ((v >> 16) & 0xFF) / 255.0f, g = ((v >> 8) & 0xFF) / 255.0f, b = (v & 0xFF) / 255.0f;
+    int best = 0; float bestD = 1e9f;
+    for (int i = 0; i < kPs3ColorCount; i++) {
+        float dr = kPs3ColorOpts[i].sr - r, dg = kPs3ColorOpts[i].sg - g, db = kPs3ColorOpts[i].sb - b;
+        float d = dr*dr + dg*dg + db*db;
+        if (d < bestD) { bestD = d; best = i; }
+    }
+    return best;
+}
+
 // Cached current value for a binding. Read once per leaf (a settings get / prop
 // read) then served from mPs3BindCache so the per-frame drawList stays cheap;
 // updated on commit.
@@ -2505,6 +2597,32 @@ void NanoMenu::openBoundChooser(const Ps3SettingBinding* b) {
     mPs3DlgKind = 1; mPs3DlgThemeKey = 0; mPs3DlgBinding = b;
     mPs3DlgTitle = b->label; mPs3DlgBody.clear();
     std::string cur = ps3BoundValue(b);
+    // GammaRGB Effect: build the dynamic list, preselect from control + rgb.effect.
+    if (!strcmp(b->options, "@rgbeffect")) {
+        mPs3DlgSlider = false;
+        auto list = ps3RgbEffectList();
+        std::string control = readSettingValue(SettingSource::kProp, "persist.gammargb.control", "on");
+        std::string effect  = readSettingValue(SettingSource::kProp, "persist.gammaos.rgb.effect", "follow");
+        int sel = 0;
+        for (int i = 0; i < (int)list.size(); i++) {
+            mPs3DlgOptions.push_back(list[i].first); mPs3DlgSwatch.push_back(-1);
+            bool isOff = (list[i].second == "off");
+            if (control == "off") { if (isOff) sel = i; }
+            else if (!isOff && list[i].second == effect) sel = i;
+        }
+        mPs3DlgSel = sel; mPs3DlgOrigSel = sel;
+        mPs3DlgActive = true; mPs3DlgAnim = 0.0f; mPs3DlgClosing = false; mPs3DlgBlurValid = false;
+        return;
+    }
+    // GammaRGB LED Colour: a swatch chooser (kPs3ColorOpts), preselect nearest hex.
+    if (!strcmp(b->options, "@rgbcolor")) {
+        mPs3DlgSlider = false;
+        for (int i = 0; i < kPs3ColorCount; i++) { mPs3DlgOptions.push_back(kPs3ColorOpts[i].name); mPs3DlgSwatch.push_back(i); }
+        int sel = ps3NearestSwatch(cur); if (sel < 0) sel = 0;
+        mPs3DlgSel = sel; mPs3DlgOrigSel = sel;
+        mPs3DlgActive = true; mPs3DlgAnim = 0.0f; mPs3DlgClosing = false; mPs3DlgBlurValid = false;
+        return;
+    }
     float mn, mx, step; int scale;
     if (ps3SliderSpec(b->options, mn, mx, step, scale)) {
         // Numeric slider: snap the live value into [min,max], no option list.
@@ -2534,6 +2652,18 @@ std::string NanoMenu::resolvePs3ItemValue(const Ps3Item& it) {
     const std::string& n = it.label;
     if (const Ps3SettingBinding* b = ps3BindingFor(n)) {
         std::string cur = ps3BoundValue(b);
+        if (!strcmp(b->options, "@rgbeffect")) {
+            // cur is gammargb.control; "off" wins, else map the rgb.effect code.
+            if (cur == "off") return std::string("Off");
+            std::string effect = readSettingValue(SettingSource::kProp, "persist.gammaos.rgb.effect", "follow");
+            for (const auto& e : ps3RgbEffectList()) if (e.second == effect) return e.first;
+            return std::string("Follow Screen");
+        }
+        if (!strcmp(b->options, "@rgbcolor")) {
+            if (cur.empty()) return std::string("-");
+            int s = ps3NearestSwatch(cur);
+            return (s >= 0) ? std::string(kPs3ColorOpts[s].name) : cur;
+        }
         float mn, mx, step; int scale;
         if (ps3SliderSpec(b->options, mn, mx, step, scale)) {
             if (cur.empty()) return std::string("-");
@@ -3181,7 +3311,31 @@ void NanoMenu::closePs3Dialog(bool apply) {
         const Ps3SettingBinding* b = mPs3DlgBinding;
         mPs3DlgBinding = nullptr;
         if (apply) {
-            if (mPs3DlgSlider) {
+            if (!strcmp(b->options, "@rgbeffect")) {
+                // Off -> gammargb.control=off; any effect -> control=on + rgb.effect.
+                auto list = ps3RgbEffectList();
+                if (mPs3DlgSel >= 0 && mPs3DlgSel < (int)list.size()) {
+                    const std::string& code = list[mPs3DlgSel].second;
+                    if (code == "off") {
+                        writeSettingValue(SettingSource::kProp, "persist.gammargb.control", "off");
+                    } else {
+                        writeSettingValue(SettingSource::kProp, "persist.gammargb.control", "on");
+                        writeSettingValue(SettingSource::kProp, "persist.gammaos.rgb.effect", code);
+                    }
+                    mPs3BindCache.erase("Effect");   // cached control value -> re-read next draw
+                    mDisplayDirty = true;
+                }
+            } else if (!strcmp(b->options, "@rgbcolor")) {
+                // Write the chosen swatch hex to the primary (Both-target) colour, like
+                // the JoystickLedPicker; mirror into the live hex so Solid mode shows it.
+                if (mPs3DlgSel >= 0 && mPs3DlgSel < kPs3ColorCount) {
+                    std::string hex = ps3SwatchHex(mPs3DlgSel);
+                    writeSettingValue(SettingSource::kProp, "persist.gammaos.primary.rgb_hex_custom", hex);
+                    writeSettingValue(SettingSource::kProp, "persist.gammaos.primary.rgb_hex", hex);
+                    mPs3BindCache["LED Colour"] = hex;
+                    mDisplayDirty = true;
+                }
+            } else if (mPs3DlgSlider) {
                 std::string v = ps3FormatNum(mPs3DlgSldVal, mPs3DlgSldScale);
                 writeSettingValue(b->source, b->key, v);
                 mPs3BindCache[b->label] = v;
@@ -3194,6 +3348,9 @@ void NanoMenu::closePs3Dialog(bool apply) {
                     mDisplayDirty = true;
                 }
             }
+            // GammaEQ writes only take effect once the matching .seq prop changes.
+            if (strstr(b->key, "persist.sys.gammaeq") || strstr(b->key, "persist.sys.spk"))
+                ps3BumpEqSeqs();
         }
     } else if (mPs3DlgThemeKey == 21 && !apply) {
         // Icon-tint cancel: restore the exact original tint (not the nearest

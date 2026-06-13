@@ -213,35 +213,87 @@ static const Ps3DataItem kToolboxCh[] = {
   {"Launch Guard",22,"Guard against unintended application launches.","Off",1,nullptr,0},
 };
 
-// ---- GammaRGB (persist.gammaos.rgb.*) -----------------------------------
+// ---- GammaRGB (persist.gammaos.rgb.* + persist.gammargb.control) ---------
+// Mirrors the JoystickLedPicker app: the Effect chooser drives gammargb.control
+// (Off) plus rgb.effect (Follow Screen / Solid Colour / numbered effects 1-5 that
+// are gated by rgb.effectN.supported); LED Colour is the solid colour for the
+// Solid effect (primary.rgb_hex_custom). The sampler polls all of these live.
 static const Ps3DataItem kGammaRgbCh[] = {
-  {"Enable",22,"Enable the GammaRGB LED lighting system.","Off",1,nullptr,0},
-  {"Effect",22,"Drive the LEDs to follow the screen colours or show a solid colour.","Follow Screen",1,nullptr,0},
+  {"Effect",22,"Choose the LED lighting mode: off, follow the screen, a solid colour or a numbered effect.","Follow Screen",1,nullptr,0},
+  {"LED Colour",22,"The solid LED colour used by the Solid effect.","-",1,nullptr,0},
   {"LED Brightness",22,"Overall brightness of the RGB LEDs.","255",1,nullptr,0},
-  {"Scale with Brightness",22,"Scale the LED brightness together with the display brightness.","Off",1,nullptr,0},
+  {"Scale with Brightness",22,"Scale the LED brightness together with the display brightness.","On",1,nullptr,0},
+  {"Effect Speed",22,"Animation speed for the numbered lighting effects.","10",1,nullptr,0},
   {"Saturation Boost",22,"Boost the colour saturation of the LEDs.","1.4",1,nullptr,0},
   {"Fade Enable",22,"Smoothly fade between colours instead of switching instantly.","On",1,nullptr,0},
   {"Fade FPS",22,"Frame rate used for the colour fade animation.","60",1,nullptr,0},
   {"Sampling FPS",22,"How often the screen is sampled for the follow-screen effect.","6",1,nullptr,0},
   {"Pre-FX Sampling",22,"Sample the screen before post-processing effects are applied.","On",1,nullptr,0},
-  {"Split LEDs",22,"Drive the left and right LEDs with separate colours.","Off",1,nullptr,0},
+  {"Split LEDs",22,"Use separate left and right LED zones (if supported by the hardware).","Off",1,nullptr,0},
+  {"Split Colours",22,"Give the left and right LED zones independent colours.","Off",1,nullptr,0},
 };
 
-// ---- GammaEQ (persist.sys.gammaeq.* + persist.sys.spk.*) ----------------
+// ---- GammaEQ module submenus (persist.sys.spk.*) ------------------------
+// Ranges mirror the GammaEQ app sliders; every write bumps the .seq props so the
+// FastMixer re-reads immediately (see ps3BumpEqSeqs in NanoMenuPS3Menu.cpp).
+static const Ps3DataItem kEqCrystCh[] = {
+  {"Crystalizer",22,"Enhance audio clarity and dynamics.","Off",1,nullptr,0},
+  {"Cryst Amount",22,"Strength of the crystalizer enhancement.","0.5",1,nullptr,0},
+  {"Cryst Mix",22,"Blend between the original and the crystalized audio.","1.0",1,nullptr,0},
+  {"Cryst Frequency",22,"Centre frequency of the crystalizer band.","11500",1,nullptr,0},
+  {"Cryst Limit",22,"Output limiter ceiling for the crystalizer.","0.30",1,nullptr,0},
+  {"Cryst Pre-gain",22,"Gain applied before the crystalizer.","0",1,nullptr,0},
+  {"Cryst Post-gain",22,"Gain applied after the crystalizer.","0",1,nullptr,0},
+};
+static const Ps3DataItem kEqLbpCh[] = {
+  {"Bass Limiter",22,"Limit excessive bass to protect the speakers.","Off",1,nullptr,0},
+  {"Bass Threshold",22,"Level at which the bass limiter engages.","0.69",1,nullptr,0},
+  {"Bass Attack",22,"How quickly the bass limiter responds (ms).","4",1,nullptr,0},
+  {"Bass Release",22,"How quickly the bass limiter recovers (ms).","110",1,nullptr,0},
+  {"Bass Frequency",22,"Crossover frequency for the bass limiter (Hz).","160",1,nullptr,0},
+};
+static const Ps3DataItem kEqMpCh[] = {
+  {"Mid Protector",22,"Protect the midrange from distortion.","Off",1,nullptr,0},
+  {"Mid High-Pass",22,"High-pass corner for the midrange protector (Hz).","220",1,nullptr,0},
+  {"Mid Low-Pass",22,"Low-pass corner for the midrange protector (Hz).","5800",1,nullptr,0},
+  {"Mid Threshold",22,"Level at which the midrange protector engages.","0.92",1,nullptr,0},
+  {"Mid Attack",22,"How quickly the midrange protector responds (ms).","2",1,nullptr,0},
+  {"Mid Release",22,"How quickly the midrange protector recovers (ms).","120",1,nullptr,0},
+};
+static const Ps3DataItem kEqWideCh[] = {
+  {"Stereo Widener",22,"Widen the stereo image.","Off",1,nullptr,0},
+  {"Widener Amount",22,"Strength of the stereo widening.","1.0",1,nullptr,0},
+  {"Widener Mix",22,"Blend between the original and the widened audio.","0.35",1,nullptr,0},
+  {"Widener Pre-gain",22,"Gain applied before the widener.","0",1,nullptr,0},
+  {"Widener Limit",22,"Output limiter ceiling for the widener.","0.5",1,nullptr,0},
+  {"Widener High-Pass",22,"High-pass corner for the widener (Hz).","500",1,nullptr,0},
+  {"Widener Centre",22,"Centre frequency for the widener (Hz).","2000",1,nullptr,0},
+};
+static const Ps3DataItem kEqPeq1Ch[] = {
+  {"Parametric EQ 1",22,"Enable the first parametric EQ band.","Off",1,nullptr,0},
+  {"PEQ1 Band 0",22,"First parametric EQ b0 coefficient.","1.0",1,nullptr,0},
+  {"PEQ1 Band 1",22,"First parametric EQ b1 coefficient.","0",1,nullptr,0},
+  {"PEQ1 Band 2",22,"First parametric EQ b2 coefficient.","0",1,nullptr,0},
+};
+static const Ps3DataItem kEqPeq2Ch[] = {
+  {"Parametric EQ 2",22,"Enable the second parametric EQ band.","Off",1,nullptr,0},
+  {"PEQ2 Band 0",22,"Second parametric EQ b0 coefficient.","1.0",1,nullptr,0},
+  {"PEQ2 Band 1",22,"Second parametric EQ b1 coefficient.","0",1,nullptr,0},
+  {"PEQ2 Band 2",22,"Second parametric EQ b2 coefficient.","0",1,nullptr,0},
+};
+
+// ---- GammaEQ (persist.sys.gammaeq.* master + module submenus) -----------
 static const Ps3DataItem kGammaEqCh[] = {
   {"Enable EQ",22,"Enable the GammaEQ equalizer and speaker enhancements.","Off",1,nullptr,0},
   {"Speaker Only",22,"Apply the equalizer only to the built-in speakers, not headphones.","On",1,nullptr,0},
   {"Preamp (dB)",22,"Input gain applied before the equalizer.","0",1,nullptr,0},
   {"Postgain (dB)",22,"Output gain applied after the equalizer.","0",1,nullptr,0},
-  {"Crystalizer",22,"Enhance audio clarity and dynamics.","Off",1,nullptr,0},
-  {"Crystalizer Amount",22,"Strength of the crystalizer enhancement.","0.5",1,nullptr,0},
-  {"Crystalizer Mix",22,"Blend between the original and the crystalized audio.","1.0",1,nullptr,0},
-  {"Bass Limiter",22,"Limit excessive bass to protect the speakers.","Off",1,nullptr,0},
-  {"Mid Protector",22,"Protect the midrange from distortion.","Off",1,nullptr,0},
-  {"Stereo Widener",22,"Widen the stereo image.","Off",1,nullptr,0},
-  {"Widener Mix",22,"Strength of the stereo widening effect.","0.35",1,nullptr,0},
-  {"Parametric EQ 1",22,"Enable the first parametric EQ band.","Off",1,nullptr,0},
-  {"Parametric EQ 2",22,"Enable the second parametric EQ band.","Off",1,nullptr,0},
+  {"Crystalizer",22,"Clarity and dynamics enhancement.",nullptr,0,PS3CH(kEqCrystCh)},
+  {"Bass Limiter",22,"Bass protection and limiting.",nullptr,0,PS3CH(kEqLbpCh)},
+  {"Mid Protector",22,"Midrange distortion protection.",nullptr,0,PS3CH(kEqMpCh)},
+  {"Stereo Widener",22,"Stereo image widening.",nullptr,0,PS3CH(kEqWideCh)},
+  {"Parametric EQ 1",22,"First parametric EQ band.",nullptr,0,PS3CH(kEqPeq1Ch)},
+  {"Parametric EQ 2",22,"Second parametric EQ band.",nullptr,0,PS3CH(kEqPeq2Ch)},
 };
 
 // ---- Settings top-level items -------------------------------------------
