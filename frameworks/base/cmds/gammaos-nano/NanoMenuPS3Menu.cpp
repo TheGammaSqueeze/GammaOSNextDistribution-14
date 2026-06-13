@@ -2316,7 +2316,62 @@ static const Ps3SettingBinding kPs3Bindings[] = {
      "0.85:Small,1.0:Default,1.15:Large,1.30:Largest"},
     {"Touch Sounds", SettingSource::kSystem, "sound_effects_enabled", "1", "0:Off,1:On"},
     {"Charging Sounds", SettingSource::kGlobal, "charging_sounds_enabled", "1", "0:Off,1:On"},
+    {"Screen Lock Sounds", SettingSource::kSystem, "lockscreen_sounds_enabled", "1", "0:Off,1:On"},
     {"Battery Percentage", SettingSource::kSystem, "status_bar_show_battery_percent", "0", "0:Off,1:On"},
+    {"Battery Saver", SettingSource::kGlobal, "low_power", "0", "0:Off,1:On"},
+    {"Dark Theme", SettingSource::kSecure, "ui_night_mode", "1", "1:Off,2:On"},
+    {"Auto-Rotate", SettingSource::kSystem, "accelerometer_rotation", "1", "0:Off,1:On"},
+    // Developer Options
+    {"USB Debugging", SettingSource::kGlobal, "adb_enabled", "0", "0:Off,1:On"},
+    {"Stay Awake While Charging", SettingSource::kGlobal, "stay_on_while_plugged_in", "0", "0:Off,7:On"},
+    {"Show Touches", SettingSource::kSystem, "show_touches", "0", "0:Off,1:On"},
+    {"Pointer Location", SettingSource::kSystem, "pointer_location", "0", "0:Off,1:On"},
+    {"Transition Animation Scale", SettingSource::kGlobal, "transition_animation_scale", "1.0",
+     "0:Off,0.5:0.5x,1.0:1x,1.5:1.5x,2.0:2x"},
+    {"Window Animation Scale", SettingSource::kGlobal, "window_animation_scale", "1.0",
+     "0:Off,0.5:0.5x,1.0:1x,1.5:1.5x,2.0:2x"},
+    {"Animator Duration Scale", SettingSource::kGlobal, "animator_duration_scale", "1.0",
+     "0:Off,0.5:0.5x,1.0:1x,1.5:1.5x,2.0:2x"},
+    // Gamepad Settings (persist.gammaos.gamepad.* props)
+    {"Controller Enable", SettingSource::kProp, "persist.gammaos.gamepad.enable", "false", "false:Off,true:On"},
+    {"Merge Controllers", SettingSource::kProp, "persist.gammaos.gamepad.merge", "true", "false:Off,true:On"},
+    {"Hide Source Device", SettingSource::kProp, "persist.gammaos.gamepad.hide_source", "true", "false:Off,true:On"},
+    {"ABXY Swap", SettingSource::kProp, "persist.gammaos.gamepad.abxy_swap", "false", "false:Off,true:On"},
+    {"Invert Left Stick", SettingSource::kProp, "persist.gammaos.gamepad.invert_left", "false", "false:Off,true:On"},
+    {"Invert Right Stick", SettingSource::kProp, "persist.gammaos.gamepad.invert_right", "false", "false:Off,true:On"},
+    {"Analog to D-Pad", SettingSource::kProp, "persist.gammaos.gamepad.analog_to_dpad", "false", "false:Off,true:On"},
+    {"D-Pad to Analog", SettingSource::kProp, "persist.gammaos.gamepad.dpad_to_analog", "false", "false:Off,true:On"},
+    {"Global Sensitivity", SettingSource::kProp, "persist.gammaos.gamepad.global_sensitivity", "0",
+     "-3:-50%,-2:-25%,-1:-10%,0:Off,1:+10%,2:+25%,3:+50%"},
+    {"PWM Enable", SettingSource::kProp, "persist.gammaos.gamepad.pwm_enable", "true", "false:Off,true:On"},
+    {"PWM Intensity", SettingSource::kProp, "persist.gammaos.gamepad.pwm_intensity", "255",
+     "64:64,96:96,128:128,160:160,192:192,224:224,255:255 (Max)"},
+    {"D-Pad Threshold", SettingSource::kProp, "persist.gammaos.gamepad.dpad_threshold", "50",
+     "10:10,20:20,30:30,40:40,50:50,60:60,70:70,80:80,90:90"},
+    {"Screen Map", SettingSource::kProp, "persist.gammaos.screenmap.enabled", "false", "false:Off,true:On"},
+    // Mouse Mode (persist.gammaos.gamepad.mouse_* props)
+    {"Stick Speed", SettingSource::kProp, "persist.gammaos.gamepad.mouse_stick_speed", "12",
+     "4:4,8:8,12:12,16:16,20:20,24:24,30:30"},
+    {"D-Pad Speed", SettingSource::kProp, "persist.gammaos.gamepad.mouse_dpad_speed", "6",
+     "2:2,4:4,6:6,8:8,10:10,12:12,16:16,20:20"},
+    {"Boost", SettingSource::kProp, "persist.gammaos.gamepad.mouse_boost", "20",
+     "15:1.5x,20:2x,30:3x,40:4x"},
+    {"Scroll Speed", SettingSource::kProp, "persist.gammaos.gamepad.mouse_scroll_speed", "4",
+     "1:1,2:2,4:4,8:8,16:16,30:30"},
+    // GammaOS Toolbox (persist.gammaos.* props)
+    {"Immersive Mode", SettingSource::kProp, "persist.gammaos.immersive", "false", "false:Off,true:On"},
+    {"Refresh Rate Lock", SettingSource::kProp, "persist.gammaos.refresh.lock", "false", "false:Off,true:On"},
+    {"Display Tweaks", SettingSource::kProp, "persist.gammaos.display.tweaks", "false", "false:Off,true:On"},
+    {"Force Client Composition", SettingSource::kProp, "persist.gammaos.force_client_comp", "false", "false:Off,true:On"},
+    {"Desktop Fullscreen", SettingSource::kProp, "persist.gammaos.desktop.fullscreen", "false", "false:Off,true:On"},
+    {"Multi-Volume", SettingSource::kProp, "persist.gammaos.audio.multivolume", "false", "false:Off,true:On"},
+    {"Ultra Low Power Saving", SettingSource::kProp, "persist.gammaos.ultra_low_power_saving_mode", "false", "false:Off,true:On"},
+    {"RetroArch Back Button Override", SettingSource::kProp, "persist.gammaos.retroarchoverride.backbutton", "false", "false:Off,true:On"},
+    {"Start+Select LED", SettingSource::kProp, "persist.gammaos.startselectled", "false", "false:Off,true:On"},
+    {"USB Controller Switch", SettingSource::kProp, "persist.gammaos.usbcontrollerswitch", "false", "false:Off,true:On"},
+    {"DC Dimming Emulation", SettingSource::kProp, "persist.gammaos.dcdimmingemulation", "false", "false:Off,true:On"},
+    {"Phone Taskbar", SettingSource::kProp, "persist.gammaos.taskbar.phone", "true", "false:Off,true:On"},
+    {"Dual Taskbar", SettingSource::kProp, "persist.gammaos.taskbar.dual", "false", "false:Off,true:On"},
 };
 
 const Ps3SettingBinding* ps3BindingFor(const std::string& label) {
@@ -3095,8 +3150,6 @@ void NanoMenu::renderPs3Dialog() {
         // Web design-space constants (1920x1080), measured from RPCS3 firmware
         // captures (side_panel_color_chooser_REAL.png). 4:3 uses its own wider bases.
         const float SP_PANEL_LEFT  = ps3::XCP(sp43 ? 1056.0f : 1324.0f);
-        const float SP_PANEL_RIGHT = sp43 ? ps3::XCF(ps3::VW) : 1697.0f;
-        const float SP_PANEL_WIDTH = SP_PANEL_RIGHT - SP_PANEL_LEFT;
         const float SP_TEXT_X      = ps3::XCP(sp43 ? 1100.0f : 1340.0f);
         const float SP_ITEM_PITCH  = 40.0f;   // virtual px between items
         const float SP_SWATCH_SIZE = 27.0f;   // colour swatch square (virtual px)
@@ -3106,25 +3159,25 @@ void NanoMenu::renderPs3Dialog() {
         float ease = ap * ap * (3.0f - 2.0f * ap);
         float xShiftV = (1.0f - ease) * ps3::XCP(37.0f);
 
-        // (1) Panel background: black fade-gradient scrim. drawQuad has no gradient
+        // (1) Panel background: a light black fade scrim. drawQuad has no gradient
         //     mode, so tile it with adjacent vertical strips; each stop's alpha is
-        //     scaled by the panel fade (ap). Same fade envelope as the firmware
-        //     chooser band, but a BLACK wash (darkest near the core, fading to clear
-        //     at both edges) so the white labels / colour swatches read cleanly.
+        //     scaled by the panel fade (ap). Darkest behind the labels on the left,
+        //     then a long gentle fade ALL THE WAY to the screen's right edge. Kept
+        //     fairly transparent so the live background still reads through.
         struct GStop { float p, r, g, b, a; };
         static const GStop kStops[] = {
-            {0.000f, 0.0f,0.0f,0.0f, 0.00f},
-            {0.043f, 0.0f,0.0f,0.0f, 0.55f},
-            {0.142f, 0.0f,0.0f,0.0f, 0.88f},
-            {0.300f, 0.0f,0.0f,0.0f, 0.80f},
-            {0.470f, 0.0f,0.0f,0.0f, 0.65f},
-            {0.651f, 0.0f,0.0f,0.0f, 0.45f},
-            {0.820f, 0.0f,0.0f,0.0f, 0.22f},
-            {1.000f, 0.0f,0.0f,0.0f, 0.00f},
+            {0.000f, 0.0f,0.0f,0.0f, 0.00f},   // panel left: soft transparent boundary
+            {0.030f, 0.0f,0.0f,0.0f, 0.40f},   // ramp in
+            {0.080f, 0.0f,0.0f,0.0f, 0.48f},   // darkest, behind the labels / swatches
+            {0.220f, 0.0f,0.0f,0.0f, 0.36f},
+            {0.420f, 0.0f,0.0f,0.0f, 0.24f},
+            {0.650f, 0.0f,0.0f,0.0f, 0.14f},
+            {0.850f, 0.0f,0.0f,0.0f, 0.05f},
+            {1.000f, 0.0f,0.0f,0.0f, 0.00f},   // screen right edge: fully transparent
         };
         const int kStopN = (int)(sizeof(kStops) / sizeof(kStops[0]));
         const float pLeftDev = ps3::devX(SP_PANEL_LEFT + xShiftV);
-        const float pWDev    = ps3::devS(SP_PANEL_WIDTH);
+        const float pWDev    = (float)mWidth - pLeftDev;   // fade extends to the screen's right edge
         const float pTopDev  = ps3::gFrameY;
         const float pHDev    = ps3::gFrameH;
         const int   kStrips  = 64;

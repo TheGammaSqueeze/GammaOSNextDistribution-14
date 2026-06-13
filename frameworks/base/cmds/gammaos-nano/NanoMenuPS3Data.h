@@ -94,6 +94,7 @@ static const Ps3DataItem kPowerSaveCh[] = {
   {"Power Indicator",22,nullptr,"Bright",0,nullptr,0},
   {"Turn Off System Automatically After Background Download",22,nullptr,"Off",0,nullptr,0},
   {"Battery Percentage",22,"Show the battery charge percentage in the status bar.","Off",1,nullptr,0},
+  {"Battery Saver",22,"Reduce power usage to extend battery life.","Off",1,nullptr,0},
 };
 static const Ps3DataItem kAccessoryCh[] = {
   {"Calibrate Motion Controller",22,"Calibrates the magnetic sensor of a motion controller. Use this setting when the motion controller does not control on-screen movement as expected.",nullptr,1,nullptr,0},
@@ -125,6 +126,8 @@ static const Ps3DataItem kDisplayCh[] = {
   {"Control for HDMI",22,"The system and devices connected via HDMI can operate each other.","Off",0,nullptr,0},
   {"Screen Timeout",22,"Sets how long the screen stays on while idle.","1 minute",1,nullptr,0},
   {"Font Size",22,"Sets the size of text shown on the screen.","Default",1,nullptr,0},
+  {"Dark Theme",22,"Use a dark colour scheme across the system.","On",1,nullptr,0},
+  {"Auto-Rotate",22,"Automatically rotate the screen when the device is turned.","On",1,nullptr,0},
 };
 static const Ps3DataItem kSoundCh[] = {
   {"Audio Output Settings",22,"Configure audio output settings.",nullptr,1,nullptr,0},
@@ -137,6 +140,7 @@ static const Ps3DataItem kSoundCh[] = {
   {"BD Audio Output Format (HDMI)",22,"Set the BD audio output format.","Linear PCM",0,nullptr,0},
   {"Touch Sounds",22,"Play a sound when you make a selection on the screen.","On",1,nullptr,0},
   {"Charging Sounds",22,"Play a sound when the charger is connected.","On",1,nullptr,0},
+  {"Screen Lock Sounds",22,"Play a sound when the screen locks or unlocks.","On",1,nullptr,0},
 };
 static const Ps3DataItem kSecurityCh[] = {
   {"Change Password",22,nullptr,nullptr,1,nullptr,0},
@@ -158,6 +162,51 @@ static const Ps3DataItem kNetworkSettingsCh[] = {
   {"Internet Connection Test",22,"Tests the Internet connection and displays the results.",nullptr,1,nullptr,0},
   {"Media Server Connection",22,"Sets whether or not to connect to media servers.","Disabled",0,nullptr,0},
 };
+static const Ps3DataItem kDevOptionsCh[] = {
+  {"USB Debugging",22,"Enable debug mode when a USB device is connected.","Off",1,nullptr,0},
+  {"Stay Awake While Charging",22,"The screen will never sleep while charging.","Off",1,nullptr,0},
+  {"Show Touches",22,"Show visual feedback for taps on the screen.","Off",1,nullptr,0},
+  {"Pointer Location",22,"Show the pointer position and touch data on screen.","Off",1,nullptr,0},
+  {"Transition Animation Scale",22,"Adjusts the speed of screen transition animations.","1x",1,nullptr,0},
+  {"Window Animation Scale",22,"Adjusts the speed of window animations.","1x",1,nullptr,0},
+  {"Animator Duration Scale",22,"Adjusts the speed of animations.","1x",1,nullptr,0},
+};
+static const Ps3DataItem kGamepadCh[] = {
+  {"Controller Enable",22,"Enable the GammaOS gamepad input layer.","Off",1,nullptr,0},
+  {"Merge Controllers",22,"Combine all connected controllers into one virtual gamepad.","On",1,nullptr,0},
+  {"Hide Source Device",22,"Hide the original controller device from apps.","On",1,nullptr,0},
+  {"ABXY Swap",22,"Swap the A/B and X/Y face buttons.","Off",1,nullptr,0},
+  {"Invert Left Stick",22,"Invert the left analog stick axes.","Off",1,nullptr,0},
+  {"Invert Right Stick",22,"Invert the right analog stick axes.","Off",1,nullptr,0},
+  {"Analog to D-Pad",22,"Map the analog stick to the D-Pad.","Off",1,nullptr,0},
+  {"D-Pad to Analog",22,"Map the D-Pad to the analog stick.","Off",1,nullptr,0},
+  {"Global Sensitivity",22,"Adjust analog stick sensitivity for all controllers.","Off",1,nullptr,0},
+  {"PWM Enable",22,"Enable PWM rumble output for controllers.","On",1,nullptr,0},
+  {"PWM Intensity",22,"Set the strength of the PWM rumble output.","255",1,nullptr,0},
+  {"D-Pad Threshold",22,"Set how far the stick must move to register as a D-Pad press.","50",1,nullptr,0},
+  {"Screen Map",22,"Enable touchscreen mapping for controllers.","Off",1,nullptr,0},
+};
+static const Ps3DataItem kMouseCh[] = {
+  {"Stick Speed",22,"Set the mouse pointer speed when using the analog stick.","12",1,nullptr,0},
+  {"D-Pad Speed",22,"Set the mouse pointer speed when using the D-Pad.","6",1,nullptr,0},
+  {"Boost",22,"Set the pointer speed multiplier when the boost button is held.","2x",1,nullptr,0},
+  {"Scroll Speed",22,"Set the scroll-wheel speed in mouse mode.","4",1,nullptr,0},
+};
+static const Ps3DataItem kToolboxCh[] = {
+  {"Immersive Mode",22,"Hide the status and navigation bars for a fullscreen experience.","Off",1,nullptr,0},
+  {"Refresh Rate Lock",22,"Lock the display to a fixed refresh rate.","Off",1,nullptr,0},
+  {"Display Tweaks",22,"Enable additional display tuning options.","Off",1,nullptr,0},
+  {"Force Client Composition",22,"Force GPU composition of all display layers.","Off",1,nullptr,0},
+  {"Desktop Fullscreen",22,"Run desktop applications in fullscreen.","Off",1,nullptr,0},
+  {"Multi-Volume",22,"Use independent volume control per audio output.","Off",1,nullptr,0},
+  {"Ultra Low Power Saving",22,"Aggressively reduce power usage to extend battery life.","Off",1,nullptr,0},
+  {"RetroArch Back Button Override",22,"Override the back button behaviour inside RetroArch.","Off",1,nullptr,0},
+  {"Start+Select LED",22,"Flash the LED when Start and Select are pressed together.","Off",1,nullptr,0},
+  {"USB Controller Switch",22,"Switch the USB port between host and device mode for controllers.","Off",1,nullptr,0},
+  {"DC Dimming Emulation",22,"Emulate DC dimming to reduce screen flicker at low brightness.","Off",1,nullptr,0},
+  {"Phone Taskbar",22,"Show the phone-style taskbar.","On",1,nullptr,0},
+  {"Dual Taskbar",22,"Show the taskbar on both displays.","Off",1,nullptr,0},
+};
 
 // ---- Settings top-level items -------------------------------------------
 static const Ps3DataItem kSettingsItems[] = {
@@ -167,10 +216,14 @@ static const Ps3DataItem kSettingsItems[] = {
   {"Music Settings",3,"Adjusts settings for music.",nullptr,0,nullptr,0},
   {"Chat Settings",42,"Adjusts settings for chat.",nullptr,0,nullptr,0},
   {"System Settings",12,"Adjusts settings for this PS3™ system.",nullptr,0,PS3CH(kSystemSettingsCh)},
+  {"Developer Options",12,"Adjusts advanced settings for software developers.",nullptr,0,PS3CH(kDevOptionsCh)},
   {"Theme Settings",23,"Adjusts settings related to the appearance of the XMB™ screen.",nullptr,0,PS3CH(kThemeSettingsCh)},
   {"Date and Time Settings",14,"Adjusts date and time settings.",nullptr,0,PS3CH(kDateTimeCh)},
   {"Power Save Settings",56,"Adjusts settings to reduce power usage by this system.",nullptr,0,PS3CH(kPowerSaveCh)},
   {"Accessory Settings",15,"Adjusts settings for accessories that are connected to this system.",nullptr,0,PS3CH(kAccessoryCh)},
+  {"Gamepad Settings",15,"Adjusts settings for game controllers.",nullptr,0,PS3CH(kGamepadCh)},
+  {"Mouse Mode",15,"Adjusts mouse-mode pointer settings for controllers.",nullptr,0,PS3CH(kMouseCh)},
+  {"GammaOS Toolbox",12,"Adjusts GammaOS-specific tweaks and enhancements.",nullptr,0,PS3CH(kToolboxCh)},
   {"Printer Settings",10,"Adjusts settings for printers that are connected to this system.",nullptr,0,nullptr,0},
   {"Display Settings",16,"Adjusts settings for video output.",nullptr,0,PS3CH(kDisplayCh)},
   {"Sound Settings",17,"Adjusts settings for audio output.",nullptr,0,PS3CH(kSoundCh)},
