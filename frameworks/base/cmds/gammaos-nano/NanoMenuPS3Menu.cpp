@@ -3203,6 +3203,23 @@ void NanoMenu::renderPs3Dialog() {
         const float pWDev    = (float)mWidth - pLeftDev;   // fade extends to the screen's right edge
         const float pTopDev  = ps3::gFrameY;
         const float pHDev    = ps3::gFrameH;
+        // (0) Cheap background blur behind the panel: reuse the wave frosted-glass
+        //     (the 1/8-res Gaussian already used by fullscreen dialogs) but draw it
+        //     ONLY over the panel region, so content under the scrim reads as frosted.
+        //     Low cost: no extra render pass, ~30Hz re-capture of the existing wave
+        //     work-tex. Only when the wave is the visible background (home XMB, or the
+        //     wave wallpaper); in the in-game overlay the live app is already blurred
+        //     by SurfaceFlinger behind the scrim, so we skip it there.
+        {
+            const bool spFrost = !mOverlayMode || (mOverlayWallpaper && mCurrentEffect == 22);
+            if (spFrost) {
+                bool due = !mPs3DlgBlurValid || (mEffectTime - mPs3DlgBlurT) >= 0.0667f;
+                if (due && captureGlassFromWave()) { mPs3DlgBlurValid = true; mPs3DlgBlurT = mEffectTime; }
+                if (mPs3DlgBlurValid)
+                    drawFrostedGlass(pLeftDev, pTopDev, pWDev, pHDev, 0.0f,
+                                     1.0f, 1.0f, 1.0f, 1.0f, ap, /*waveSpace=*/true);
+            }
+        }
         const int   kStrips  = 64;
         for (int s = 0; s < kStrips; s++) {
             float u0 = (float)s / (float)kStrips;
