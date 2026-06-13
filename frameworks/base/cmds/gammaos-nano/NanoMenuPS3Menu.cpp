@@ -2394,6 +2394,20 @@ const Ps3SettingBinding* ps3BindingFor(const std::string& label) {
     return nullptr;
 }
 
+// Match a stored setting value to an option value, treating boolean synonyms as
+// equal. GammaOS boolean props are inconsistent on-device (some stored "true"/
+// "false", some "1"/"0"), so a prop saved as "1" must still match a "true:On"
+// option and vice versa. Writes still use the option's own value (canonical
+// "true"/"false", matching the legacy tree, which property_get_bool accepts).
+static bool ps3OptMatch(const std::string& cur, const std::string& opt) {
+    if (cur == opt) return true;
+    auto truthy = [](const std::string& s) { return s == "1" || s == "true" || s == "on"  || s == "yes"; };
+    auto falsy  = [](const std::string& s) { return s == "0" || s == "false" || s == "off" || s == "no"; };
+    if (truthy(cur) && truthy(opt)) return true;
+    if (falsy(cur)  && falsy(opt))  return true;
+    return false;
+}
+
 // Cached current value for a binding. Read once per leaf (a settings get / prop
 // read) then served from mPs3BindCache so the per-frame drawList stays cheap;
 // updated on commit.
@@ -2416,7 +2430,7 @@ void NanoMenu::openBoundChooser(const Ps3SettingBinding* b) {
     int sel = 0;
     for (int i = 0; i < (int)opts.size(); i++) {
         mPs3DlgOptions.push_back(opts[i].label); mPs3DlgSwatch.push_back(-1);
-        if (opts[i].value == cur) sel = i;
+        if (ps3OptMatch(cur, opts[i].value)) sel = i;
     }
     mPs3DlgSel = sel; mPs3DlgOrigSel = sel;
     mPs3DlgActive = true; mPs3DlgAnim = 0.0f; mPs3DlgClosing = false; mPs3DlgBlurValid = false;
@@ -2429,7 +2443,7 @@ std::string NanoMenu::resolvePs3ItemValue(const Ps3Item& it) {
     const std::string& n = it.label;
     if (const Ps3SettingBinding* b = ps3BindingFor(n)) {
         std::string cur = ps3BoundValue(b);
-        for (const auto& o : parseListOptions(b->options)) if (o.value == cur) return o.label;
+        for (const auto& o : parseListOptions(b->options)) if (ps3OptMatch(cur, o.value)) return o.label;
         return cur.empty() ? std::string("-") : cur;
     }
     if (n == "Theme") {
