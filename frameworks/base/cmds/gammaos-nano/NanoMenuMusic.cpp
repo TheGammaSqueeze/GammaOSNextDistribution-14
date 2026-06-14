@@ -882,13 +882,35 @@ void NanoMenu::drawMpOpt(float closeT) {
         }
         if (flash > 0.0f) glyph(gF, b.f, 0, 0, 1, 1, 1, flash);        // activate brightness pop
     }
-    // focused label (suppressed while the Volume submeter is open, since it draws its
-    // own "Volume Control" title at the same spot)
+    // focused-item label + the firmware "SELECT" button-hint pill, centred as a group
+    // at the grid origin (web drawMpOpt draws the label + drawMpPill('SELECT') for EVERY
+    // focused control). Suppressed while the Volume submeter is open (it draws its own
+    // "Volume Control" title at the same spot).
     if (mMpCpSel >= 0 && mMpCpSel < kMpCpCount && !mMpVolSub) {
         const char* lab = kMpCp[mMpCpSel].label;
-        float ls = FSZ(22.0f); float lw = measureText(lab, ls);
-        float cx = DXP(0.273f);
-        drawText(lab, cx - lw * 0.5f, TOPY(0.568f, 22.0f), ls, 1.0f, 1.0f, 1.0f, t);
+        float ls = FSZ(20.0f), lw = measureText(lab, ls);
+        float gap = DXD(0.008f), pillW = DXD(0.050f), pillH = SZ(0.030f);
+        float total = lw + gap + pillW;
+        float cx = DXP(0.273f), sx = cx - total * 0.5f;
+        drawText(lab, sx, TOPY(0.568f, 20.0f), ls, 1.0f, 1.0f, 1.0f, 0.95f * t);
+        // SELECT pill: rounded rect (light border behind a grey fill) + centred glyph,
+        // built from a centre quad + two end caps since GLES2 has no rounded-rect path.
+        float px = sx + lw + gap;
+        float baseY = ps3::devY(ps3::VH * 0.568f);
+        float py = baseY - pillH * 0.78f;
+        auto pill = [&](float qx, float qy, float qw, float qh,
+                        float cr, float cg, float cb, float ca) {
+            float rr = qh * 0.5f;
+            drawQuad(qx + rr, qy, qw - 2.0f * rr, qh, cr, cg, cb, ca);
+            ps3FillCircle(qx + rr, qy + rr, rr, cr, cg, cb, ca);
+            ps3FillCircle(qx + qw - rr, qy + rr, rr, cr, cg, cb, ca);
+        };
+        pill(px - 1.2f, py - 1.2f, pillW + 2.4f, pillH + 2.4f,
+             225/255.0f, 225/255.0f, 225/255.0f, 0.7f * t);                          // border
+        pill(px, py, pillW, pillH, 150/255.0f, 150/255.0f, 150/255.0f, 0.55f * t);   // fill
+        float fs = FSZ(15.0f), fw = measureText("SELECT", fs);
+        drawText("SELECT", px + pillW * 0.5f - fw * 0.5f,
+                 ps3::baselineToTopY(py + pillH * 0.66f, fs), fs, 1.0f, 1.0f, 1.0f, 0.95f * t);
     }
     if (mMpVolSub) drawMpVolMeter(t);
 }
@@ -908,6 +930,10 @@ void NanoMenu::drawMpVolMeter(float t) {
         if (i < filled) drawQuad(x, my, segW, hh, 120/255.0f, 225/255.0f, 255/255.0f, 0.95f * t);
         else drawQuad(x, my, segW, hh, 1, 1, 1, 0.20f * t);
     }
+    // "-" / "+" end glyphs flanking the bar (web drawMpVolMeter, 18px, baseline my+hh*0.9)
+    float es = FSZ(18.0f), ey = ps3::baselineToTopY(my + hh * 0.9f, es), em = ps3::devS(10.0f);
+    drawText("-", x0 - em - measureText("-", es), ey, es, 1, 1, 1, t);
+    drawText("+", x0 + totalW + em, ey, es, 1, 1, 1, t);
 }
 
 // ---- control panel input ----
