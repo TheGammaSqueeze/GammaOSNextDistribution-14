@@ -1969,9 +1969,11 @@ void NanoMenu::render() {
         // visible wallpaper, so the glass icons always render regardless of the
         // wallpaper the user picked.
         // Skip the offscreen wave work-texture (only feeds glass-icon refraction,
-        // which the Now-Playing screen does not use) while the Canyon fully covers.
-        bool canyonCovers = (mMpActive && mMpVis == 1 && mMpCanyonAlpha >= 0.999f);
-        if (mPs3Xmb && mCurrentEffect != 22 && !canyonCovers) {
+        // which the Now-Playing screen does not use) while a full-screen visualizer
+        // (Canyon or Globe) fully covers.
+        bool visCovers = mMpActive && ((mMpVis == 1 && mMpCanyonAlpha >= 0.999f) ||
+                                       (mMpVis == 2 && mMpGlobeAlpha >= 0.999f));
+        if (mPs3Xmb && mCurrentEffect != 22 && !visCovers) {
             ps3::layoutComputeNative(mWidth, mHeight);
             ps3bg::render(mWidth, mHeight, mFrameDt, sDrmRotMat,
                           sDrmActive && sDrmGlRotation, /*compositeToScreen=*/false);

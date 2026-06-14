@@ -1363,13 +1363,18 @@ private:
     bool mMpActive = false;            // the Now-Playing fullscreen is up
     std::vector<int> mMpQueue;         // track indices (into mMusicTracks) being played
     int  mMpIdx = 0;                   // position in mMpQueue
-    int  mMpVis = 0;                   // 0 = XMB Waves, 1 = Canyon
+    int  mMpVis = 0;                   // 0 = XMB Waves, 1 = Canyon, 2 = Globe
     float mMpCanyonAlpha = 0.0f;       // Waves<->Canyon crossfade (eased 0..1 over ~0.5s)
+    float mMpGlobeAlpha = 0.0f;        // Globe crossfade (eased 0..1 over ~0.5s)
+    float mMpGlobeLon = 0.0f;          // auto-rotating longitude for the Globe visualizer
+    bool mMusicResumeShown = false;    // is the Quick Menu "Resume Audio Player" item present
     int  mMpRepeat = 0;                // 0 off / 1 all / 2 one
     bool mMpShuffle = false;
     std::vector<int> mMpOrder;         // playback order (indices into mMpQueue)
     void openMusicPlayer(const std::vector<Ps3Item>& list, int listSel);
-    void closeMusicPlayer();
+    void closeMusicPlayer();           // full stop + release the audio engine
+    void minimizeMusicPlayer();        // hide the Now-Playing UI but keep audio playing
+    void resumeMusicPlayer();          // reopen the Now-Playing screen on the live queue
     void mpPlayCurrent();
     void mpRebuildOrder();
     void mpStep(int dir, bool isAuto);

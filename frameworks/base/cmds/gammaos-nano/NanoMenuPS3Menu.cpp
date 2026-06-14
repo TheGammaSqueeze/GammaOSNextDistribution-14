@@ -493,6 +493,7 @@ void NanoMenu::buildAppSubmenu(Ps3Level& out) {
 // Quick Menu action codes (Ps3Item.a when kind == PS3_QUICK). Dispatched in
 // ps3XmbSelect(). These mirror the GammaOS Nano legacy global actions.
 enum {
+    QA_RESUME_AUDIO = -1, // reopen the Now-Playing screen when audio is playing in the background
     QA_BRIGHTNESS = 0,   // brightness HUD (Left/Right adjusts the row in place)
     QA_PERFORMANCE,      // performance-mode side-panel chooser (theme key 10)
     QA_CLOSE_APP,        // close the current foreground app (overlay only)
@@ -528,6 +529,10 @@ void NanoMenu::buildPs3Cats() {
             it.nmapTex = nmapForIcon(icon); it.iconR = it.iconG = it.iconB = 1.0f;
             q.items.push_back(it);
         };
+        // Resume Audio Player: only present while music is playing in the background
+        // (minimized). musicTick rebuilds the cats when audio starts/stops so it
+        // appears/disappears. Always the first item so it is the default landing.
+        if (mMusicResumeShown) qItem("Resume Audio Player", QA_RESUME_AUDIO, 3);
         qItem("Screen Brightness",   QA_BRIGHTNESS,    16);
         qItem("Performance Mode",    QA_PERFORMANCE,   21);
         qItem("Close Current App",   QA_CLOSE_APP,     24);
@@ -1262,6 +1267,7 @@ void NanoMenu::ps3XmbSelect() {
             // GammaOS Nano legacy global actions. Leaf actions return; only the
             // Power submenu pushes a level and falls through to the collapse anim.
             switch (it.a) {
+                case QA_RESUME_AUDIO: resumeMusicPlayer(); return;   // reopen Now-Playing on the live queue
                 case QA_POWER_SUBMENU: { Ps3Level lvl; buildQuickPowerSubmenu(lvl); mPs3Stack.push_back(lvl); break; }
                 case QA_BRIGHTNESS:   mPs3BrightSlider = true; mShowBrightnessBar = true; mBrightnessBarTimer = 90; return;
                 case QA_PERFORMANCE:  openPerformanceChooser(); return;
@@ -1307,7 +1313,7 @@ void NanoMenu::ps3XmbSelect() {
 }
 
 void NanoMenu::ps3XmbBack() {
-    if (mMpActive) { if (mMpCpOpen) mpOptBack(); else closeMusicPlayer(); return; }   // O: panel back / exit player
+    if (mMpActive) { if (mMpCpOpen) mpOptBack(); else minimizeMusicPlayer(); return; }   // O: panel back / minimize (audio keeps playing)
     if (ps3TopScreenKind() == GS_ICONGRID) { closeIconGridPicker(); mPs3Stack.pop_back(); return; }
     if (mPs3BrightSlider) { mPs3BrightSlider = false; mShowBrightnessBar = false; mBrightnessBarTimer = 0; return; }  // O dismisses the brightness slider
     if (mPs3TzActive) { closeTimezoneGlobe(false); return; }   // O: cancel (keep current zone)
@@ -2264,6 +2270,31 @@ void NanoMenu::drawPs3Clock(float fadeMul) {
         WifiLevel wl; int wb; BtLevel bl;
         { std::lock_guard<std::mutex> lk(mNetStateMutex); wl = mWifiLevel; wb = mWifiBars; bl = mBtLevel; }
         float lx = dxL + ps3::devS(16.0f);          // start from the LEFT of the bar
+
+        // Music-playing indicator (nano): a small eighth-note at the far left whenever
+        // audio is loaded (playing bright, paused dim), so the user sees music is going
+        // even after leaving the Now-Playing screen / resuming their app.
+        if (mMusicPlayer.isPlaying() || mMusicPlayer.isPaused()) {
+            float na = (mMusicPlayer.isPlaying() ? 0.95f : 0.5f) * fadeMul;
+            float nh = iconH * 0.80f;
+            float headW = nh * 0.46f, headH = nh * 0.34f;
+            float stemW = fmaxf(1.0f, ps3::devS(1.7f));
+            float topY = cyc - nh * 0.5f;
+            float headX = lx, headY = cyc + nh * 0.5f - headH;
+            auto nrail = [&](float qx, float qy, float qw, float qh) {
+                drawQuad(qx + so[0], qy + so[1], qw, qh, 0.0f, 0.0f, 0.0f, na * 0.6f);
+                drawQuad(qx, qy, qw, qh, 1.0f, 1.0f, 1.0f, na);
+            };
+            nrail(headX, headY, headW, headH);                          // note head
+            float stemX = headX + headW - stemW;
+            nrail(stemX, topY, stemW, (cyc + nh * 0.5f) - topY - headH * 0.5f);   // stem
+            // flag off the stem top
+            drawTriangle(stemX + so[0], topY + so[1], stemX + headW * 0.75f + so[0], topY + so[1],
+                         stemX + so[0], topY + nh * 0.30f + so[1], 0.0f, 0.0f, 0.0f, na * 0.6f);
+            drawTriangle(stemX, topY, stemX + headW * 0.75f, topY,
+                         stemX, topY + nh * 0.30f, 1.0f, 1.0f, 1.0f, na);
+            lx += headW + ps3::devS(8.0f);
+        }
 
         // Battery glyph + % (leftmost), framework value only; hidden until reported.
         if (mBatteryPercent >= 0) {

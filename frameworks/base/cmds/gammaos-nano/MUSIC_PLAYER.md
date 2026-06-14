@@ -198,3 +198,27 @@ mMpActive branches BEFORE the mPs3TzActive checks in each handler. mpFmtTime HH:
   over ~0.5s while the wave morph ramps the opposite way, so they dissolve. Lazy init
   on first switch (ps3canyon::init/reset in mpCycleVis); freed on leaving Now-Playing
   (ps3canyon::shutdown in closeMusicPlayer). Lattice 160x192 (web is 200x256).
+- Globe visualizer (vis 2): SQUARE now cycles Waves -> Canyon -> Globe. Rather than the
+  web's 240KB verbatim-firmware globe (globe_mp.js), this reuses nano's existing
+  raymarched earth (ps3globe, shared with the timezone picker; already A53-optimised
+  with day/night/clouds/atmosphere). renderMusicPlayer auto-rotates it (mMpGlobeLon += dt
+  * (0.18 + bass*0.35)) and composites at mMpGlobeAlpha with the DRM rotation. Lazy init
+  in mpCycleVis(vis==2); NOT shut down on leave (the timezone picker shares it). The
+  wave-gate covers Globe too (mMpGlobeAlpha >= 0.999).
+- Background playback + minimize + resume: Circle/Back from Now-Playing now MINIMIZES
+  (minimizeMusicPlayer) instead of stopping - the audio + queue persist and keep playing
+  (the web paused on close; this is a deliberate enhancement so you can leave the player,
+  and in the overlay resume your app, with music going). The decoder + AAudio threads run
+  independent of the render loop, and the overlay process stays resident on dismiss, so
+  playback continues. Auto-advance + the resume-item trigger were moved ahead of the
+  !mMpActive early-out in musicTick so they run while minimized (note: while the overlay
+  is fully dismissed the render thread parks, so the current track finishes and
+  auto-advance resumes on the next overlay open). closeMusicPlayer (full release + clear
+  queue) is now only for an explicit teardown.
+- Audio-playing indicator: drawPs3Clock draws a small procedural eighth-note at the far
+  left of the status icons whenever mMusicPlayer is loaded (bright playing / dim paused),
+  in both home and overlay.
+- Quick Menu "Resume Audio Player": QA_RESUME_AUDIO, prepended to the Quick Menu (icon 3)
+  only while mMusicResumeShown (musicTick rebuilds the cats when audio starts/stops);
+  dispatch calls resumeMusicPlayer() which reopens Now-Playing on the live queue + the
+  last-used visualizer.

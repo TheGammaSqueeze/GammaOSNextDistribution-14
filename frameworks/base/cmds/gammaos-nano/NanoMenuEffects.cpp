@@ -185,10 +185,12 @@ void NanoMenu::updateEffect() {
 
 void NanoMenu::renderEffect() {
     if (mCurrentEffect == 0) return;
-    // Canyon visualizer fully covers the screen: skip the wave wallpaper entirely
-    // (it would just be overdrawn) and clear to black so the Canyon composite lands
-    // on a clean base. Only while the home Now-Playing Canyon is opaque (alpha ~1).
-    if (mMpActive && mMpVis == 1 && mMpCanyonAlpha >= 0.999f && !mOverlayMode) {
+    // Canyon/Globe visualizer fully covers the screen: skip the wave wallpaper
+    // entirely (it would just be overdrawn) and clear to black so the visualizer
+    // composite lands on a clean base. Only while the home Now-Playing visualizer is
+    // opaque (alpha ~1).
+    if (mMpActive && ((mMpVis == 1 && mMpCanyonAlpha >= 0.999f) ||
+                      (mMpVis == 2 && mMpGlobeAlpha >= 0.999f)) && !mOverlayMode) {
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         return;

@@ -26,6 +26,7 @@
 #include "NanoMenuPS3.h"
 #include "NanoMenuPS3Bg.h"
 #include "NanoMenuMusicCanyon.h"
+#include "NanoMenuPS3Globe.h"
 #include "NanoJson.h"
 
 #include <dirent.h>
@@ -512,8 +513,33 @@ void NanoMenu::openMusicPlayer(const std::vector<Ps3Item>& list, int listSel) {
 void NanoMenu::closeMusicPlayer() {
     mMpActive = false;
     mMusicPlayer.release();   // stop stream + free decoder ring (keep the library loaded)
+    mMpQueue.clear(); mMpOrder.clear(); mMpIdx = 0;
     ps3canyon::shutdown();    // free the Canyon GL objects (lazy-reloaded next time)
     mMpCanyonAlpha = 0.0f;
+    mMpGlobeAlpha = 0.0f;     // ps3globe is shared with the timezone picker; do not shut it down
+}
+
+// Hide the Now-Playing screen but KEEP the audio playing in the background (the
+// queue + track index persist), so the user can leave the player - and, in the
+// overlay, resume their app - with the music still going. The clock-bar indicator
+// shows it is playing and the Quick Menu "Resume Audio Player" reopens this screen.
+// Only the visualizer GL is released (it re-inits on resume); the audio is untouched.
+void NanoMenu::minimizeMusicPlayer() {
+    mMpActive = false;
+    mMpCpOpen = false; mMpCpClosing = false; mMpVolSub = false;
+    ps3canyon::shutdown();
+    mMpCanyonAlpha = 0.0f;
+    mMpGlobeAlpha = 0.0f;
+}
+
+// Reopen the Now-Playing screen on the live queue (Quick Menu "Resume Audio Player").
+void NanoMenu::resumeMusicPlayer() {
+    if (mMpQueue.empty()) return;
+    musicEnsureLoaded();
+    mMpActive = true;
+    mMpEnterT = 0.0f;                 // replay the presence fade-in
+    if (mMpVis == 1) ps3canyon::init();   // canyon was freed on minimize
+    else if (mMpVis == 2) ps3globe::init();
 }
 
 void NanoMenu::mpPlayCurrent() {
@@ -577,21 +603,32 @@ void NanoMenu::musicTick() {
     // Waves<->Canyon visualizer crossfade: ramp the Canyon alpha toward 1 while the
     // Canyon is the active visualizer, 0 otherwise, over ~0.5s. As it ramps up the
     // wave morph (above) ramps down (vis != 0), so they dissolve into each other.
-    float canyonTarget = (mMpActive && mMpVis == 1) ? 1.0f : 0.0f;
     float cStep = dt / 0.5f;
+    float canyonTarget = (mMpActive && mMpVis == 1) ? 1.0f : 0.0f;
     if (mMpCanyonAlpha < canyonTarget) mMpCanyonAlpha = fminf(canyonTarget, mMpCanyonAlpha + cStep);
     else if (mMpCanyonAlpha > canyonTarget) mMpCanyonAlpha = fmaxf(canyonTarget, mMpCanyonAlpha - cStep);
+    float globeTarget = (mMpActive && mMpVis == 2) ? 1.0f : 0.0f;
+    if (mMpGlobeAlpha < globeTarget) mMpGlobeAlpha = fminf(globeTarget, mMpGlobeAlpha + cStep);
+    else if (mMpGlobeAlpha > globeTarget) mMpGlobeAlpha = fmaxf(globeTarget, mMpGlobeAlpha - cStep);
+
+    // The following run whether or not the Now-Playing screen is shown, so playback
+    // keeps going while the player is minimized into the background.
+    // Quick Menu "Resume Audio Player" visibility: rebuild the categories when audio
+    // starts or stops so the item appears/disappears.
+    bool audioLoaded = !mMpQueue.empty() && (mMusicPlayer.isPlaying() || mMusicPlayer.isPaused());
+    if (audioLoaded != mMusicResumeShown) { mMusicResumeShown = audioLoaded; mPs3CatsStale = true; }
+    // Auto-advance at end of track (repeat-one replays). Runs even when minimized.
+    if (!mMpQueue.empty() && mMusicPlayer.ended()) {
+        if (mMpRepeat == 2) mpPlayCurrent();
+        else mpStep(1, true);
+    }
+
     if (!mMpActive) return;
     // Full-screen message chain (Deleting... -> Delete completed. -> mpNext).
     if (mMpMsgStart >= 0.0f && (mEffectTime - mMpMsgStart) >= mMpMsgDur / 1000.0f) {
         int then = mMpMsgThen; mMpMsgStart = -1.0f; mMpMsg.clear(); mMpMsgThen = 0;
         if (then == 1) mpShowMsg("Delete completed.", 900.0f, 2);
         else if (then == 2) mpNext();
-    }
-    // Auto-advance at end of track (repeat-one replays).
-    if (mMusicPlayer.ended()) {
-        if (mMpRepeat == 2) mpPlayCurrent();
-        else mpStep(1, true);
     }
 }
 
@@ -643,11 +680,14 @@ void NanoMenu::mpShowMsg(const std::string& text, float durMs, int then) {
 }
 
 void NanoMenu::mpCycleVis() {
-    mMpVis = (mMpVis + 1) % 2;   // 0 Waves <-> 1 Canyon (Globe deferred)
-    mMpBanner = (mMpVis == 0) ? "XMB Waves" : "Canyon";
+    mMpVis = (mMpVis + 1) % 3;   // 0 Waves -> 1 Canyon -> 2 Globe
+    mMpBanner = (mMpVis == 0) ? "XMB Waves" : (mMpVis == 1) ? "Canyon" : "Globe";
     mMpBannerStart = mEffectTime;
     // Lazy-init the Canyon on first switch to it, and restart its flythrough.
     if (mMpVis == 1) { ps3canyon::init(); ps3canyon::reset(); }
+    // Lazy-init the Globe (shared with the timezone picker; do NOT shut it down on
+    // leave). Seed the auto-rotation from the current longitude so it keeps spinning.
+    else if (mMpVis == 2) { ps3globe::init(); }
 }
 
 void NanoMenu::renderMusicPlayer() {
@@ -666,6 +706,17 @@ void NanoMenu::renderMusicPlayer() {
         NanoAudioPlayer::Bands ab; mMusicPlayer.getBands(ab);
         nanoaudio::Bands cb; cb.bass = ab.bass; cb.mid = ab.mid; cb.treble = ab.treble;
         ps3canyon::render(mWidth, mHeight, sDrmRotMat, mMpCanyonAlpha, mFrameDt, cb);
+    }
+    // Globe visualizer: the nano raymarched earth (ps3globe, shared with the timezone
+    // picker) auto-rotating, the spin slightly bass-reactive. Drawn over the (faded)
+    // background / Canyon and under the bar, cross-faded by mMpGlobeAlpha.
+    if (mMpGlobeAlpha > 0.001f) {
+        NanoAudioPlayer::Bands gb; mMusicPlayer.getBands(gb);
+        float dt = mFrameDt; if (dt < 0.0f || dt > 0.1f) dt = 0.016f;
+        mMpGlobeLon += dt * (0.18f + gb.bass * 0.35f);   // steady spin + a gentle bass surge
+        if (mMpGlobeLon > 6.2831853f) mMpGlobeLon -= 6.2831853f;
+        ps3globe::snapTo(mMpGlobeLon, 0.22f);            // slight northern tilt
+        ps3globe::render(mWidth, mHeight, sDrmRotMat, mMpGlobeAlpha);
     }
 
     mTextOutlineMode = 1;
@@ -832,8 +883,9 @@ void NanoMenu::drawMpOpt(float closeT) {
         }
         if (flash > 0.0f) glyph(gF, b.f, 0, 0, 1, 1, 1, flash);        // activate brightness pop
     }
-    // focused label + SELECT pill
-    if (mMpCpSel >= 0 && mMpCpSel < kMpCpCount) {
+    // focused label (suppressed while the Volume submeter is open, since it draws its
+    // own "Volume Control" title at the same spot)
+    if (mMpCpSel >= 0 && mMpCpSel < kMpCpCount && !mMpVolSub) {
         const char* lab = kMpCp[mMpCpSel].label;
         float ls = FSZ(22.0f); float lw = measureText(lab, ls);
         float cx = DXP(0.273f);
