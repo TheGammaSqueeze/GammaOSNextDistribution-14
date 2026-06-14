@@ -1968,7 +1968,10 @@ void NanoMenu::render() {
         // to screen) whenever the PS3 chrome is active but the wave is not the
         // visible wallpaper, so the glass icons always render regardless of the
         // wallpaper the user picked.
-        if (mPs3Xmb && mCurrentEffect != 22) {
+        // Skip the offscreen wave work-texture (only feeds glass-icon refraction,
+        // which the Now-Playing screen does not use) while the Canyon fully covers.
+        bool canyonCovers = (mMpActive && mMpVis == 1 && mMpCanyonAlpha >= 0.999f);
+        if (mPs3Xmb && mCurrentEffect != 22 && !canyonCovers) {
             ps3::layoutComputeNative(mWidth, mHeight);
             ps3bg::render(mWidth, mHeight, mFrameDt, sDrmRotMat,
                           sDrmActive && sDrmGlRotation, /*compositeToScreen=*/false);

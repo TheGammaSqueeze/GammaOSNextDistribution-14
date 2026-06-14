@@ -178,4 +178,23 @@ mMpActive branches BEFORE the mPs3TzActive checks in each handler. mpFmtTime HH:
     (index.html activeParticlePool / buildParticleData _mvExtra).
   The morph runs through the normal home ps3bg path (no renderer switch); the Now-Playing
   bar draws over it.
-- Canyon visualizer: pending (Phase 5; Canyon is a built stub).
+- Canyon visualizer: DONE (NanoMenuMusicCanyon.cpp, ps3canyon). A 1:1 port of
+  canyon_port.js: all 57 real presets (41 floats each), the terrain/feedback/tonemap
+  shaders, the look-at + perspective camera, the 7s preset cross-fade cycle and the
+  3-pass pipeline (terrain -> feedback motion-blur -> Reinhard tonemap) into half-res
+  ping-pong FBOs. Audio reactive: bass surges the camera speed, mid lifts the exposure.
+  GLES2 ADAPTATION: the web samples the heightfield with a VERTEX texture fetch, which
+  nano's strict ES2 context does not guarantee, so the per-vertex height is recomputed
+  on the CPU each frame with the EXACT sampleHeight (two-octave bilinear of the decoded
+  normalmap) + valley formula and uploaded as an aHeight attribute; the fragment shader
+  still samples the normalmap per-pixel for the sheen, so the look is unchanged. The
+  height grid is computed once per cell (valley hoisted per column) then mapped into the
+  triangle strip via a precomputed index. PERF: the normalmap is 128x128 (power of two)
+  so the CPU sampler uses a bitmask wrap instead of integer modulo (A53 div is slow);
+  and renderEffect + the offscreen wave work-texture are skipped while the Canyon fully
+  covers (mMpCanyonAlpha >= 0.999), since the wave would just be overdrawn. The final
+  tonemap pass composites to the panel with the DRM rotation + the crossfade alpha.
+  SQUARE (nav hook "sq") cycles Waves <-> Canyon: musicTick ramps mMpCanyonAlpha 0<->1
+  over ~0.5s while the wave morph ramps the opposite way, so they dissolve. Lazy init
+  on first switch (ps3canyon::init/reset in mpCycleVis); freed on leaving Now-Playing
+  (ps3canyon::shutdown in closeMusicPlayer). Lattice 160x192 (web is 200x256).

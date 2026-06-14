@@ -25,6 +25,7 @@
 #include "NanoMenu.h"
 #include "NanoMenuPS3.h"
 #include "NanoMenuPS3Bg.h"
+#include "NanoMenuMusicCanyon.h"
 #include "NanoJson.h"
 
 #include <dirent.h>
@@ -43,6 +44,10 @@
 #include <utils/Log.h>
 
 namespace android {
+
+// DRM GL rotation matrix (NanoMenuDrm.cpp); the Canyon composite maps logical NDC
+// to the physical panel through it, like the globe and wave composites.
+extern float sDrmRotMat[4];
 
 // Audio file extensions the scanner accepts (lowercased compare).
 static bool isAudioExt(const std::string& nameLower) {
@@ -507,6 +512,8 @@ void NanoMenu::openMusicPlayer(const std::vector<Ps3Item>& list, int listSel) {
 void NanoMenu::closeMusicPlayer() {
     mMpActive = false;
     mMusicPlayer.release();   // stop stream + free decoder ring (keep the library loaded)
+    ps3canyon::shutdown();    // free the Canyon GL objects (lazy-reloaded next time)
+    mMpCanyonAlpha = 0.0f;
 }
 
 void NanoMenu::mpPlayCurrent() {
@@ -567,6 +574,13 @@ void NanoMenu::musicTick() {
     mMpEnterT += (ent - mMpEnterT) * fminf(1.0f, dt * 5.0f);
     float fi = mMpFullInfo ? 1.0f : 0.0f;
     mMpFullInfoT += (fi - mMpFullInfoT) * fminf(1.0f, dt * 8.0f);
+    // Waves<->Canyon visualizer crossfade: ramp the Canyon alpha toward 1 while the
+    // Canyon is the active visualizer, 0 otherwise, over ~0.5s. As it ramps up the
+    // wave morph (above) ramps down (vis != 0), so they dissolve into each other.
+    float canyonTarget = (mMpActive && mMpVis == 1) ? 1.0f : 0.0f;
+    float cStep = dt / 0.5f;
+    if (mMpCanyonAlpha < canyonTarget) mMpCanyonAlpha = fminf(canyonTarget, mMpCanyonAlpha + cStep);
+    else if (mMpCanyonAlpha > canyonTarget) mMpCanyonAlpha = fmaxf(canyonTarget, mMpCanyonAlpha - cStep);
     if (!mMpActive) return;
     // Full-screen message chain (Deleting... -> Delete completed. -> mpNext).
     if (mMpMsgStart >= 0.0f && (mEffectTime - mMpMsgStart) >= mMpMsgDur / 1000.0f) {
@@ -632,6 +646,8 @@ void NanoMenu::mpCycleVis() {
     mMpVis = (mMpVis + 1) % 2;   // 0 Waves <-> 1 Canyon (Globe deferred)
     mMpBanner = (mMpVis == 0) ? "XMB Waves" : "Canyon";
     mMpBannerStart = mEffectTime;
+    // Lazy-init the Canyon on first switch to it, and restart its flythrough.
+    if (mMpVis == 1) { ps3canyon::init(); ps3canyon::reset(); }
 }
 
 void NanoMenu::renderMusicPlayer() {
@@ -641,6 +657,17 @@ void NanoMenu::renderMusicPlayer() {
     const MusicTrack& t = mMusicTracks[ti];
     float enter = mMpEnterT;
     bool panelUp = mMpCpOpen || mMpCpClosing;
+
+    // Canyon visualizer: drawn over the (wave) background and under the Now-Playing
+    // bar, cross-faded in by mMpCanyonAlpha. The wave morph fades out as this fades
+    // in (musicTick), so the two visualizers dissolve into each other. Audio-reactive
+    // via the live FFT bands (bass -> camera speed, mid -> tonemap exposure).
+    if (mMpCanyonAlpha > 0.001f) {
+        NanoAudioPlayer::Bands ab; mMusicPlayer.getBands(ab);
+        nanoaudio::Bands cb; cb.bass = ab.bass; cb.mid = ab.mid; cb.treble = ab.treble;
+        ps3canyon::render(mWidth, mHeight, sDrmRotMat, mMpCanyonAlpha, mFrameDt, cb);
+    }
+
     mTextOutlineMode = 1;
 
     // jacket cover (x0.066 y0.827 square 0.085H)

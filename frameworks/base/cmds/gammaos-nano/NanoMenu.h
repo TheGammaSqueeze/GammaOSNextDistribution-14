@@ -1364,6 +1364,7 @@ private:
     std::vector<int> mMpQueue;         // track indices (into mMusicTracks) being played
     int  mMpIdx = 0;                   // position in mMpQueue
     int  mMpVis = 0;                   // 0 = XMB Waves, 1 = Canyon
+    float mMpCanyonAlpha = 0.0f;       // Waves<->Canyon crossfade (eased 0..1 over ~0.5s)
     int  mMpRepeat = 0;                // 0 off / 1 all / 2 one
     bool mMpShuffle = false;
     std::vector<int> mMpOrder;         // playback order (indices into mMpQueue)
