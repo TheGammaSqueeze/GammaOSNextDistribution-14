@@ -687,6 +687,18 @@ void NanoMenu::tickNavRepeat() {
 // ---------------------------------------------------------------------------
 
 bool NanoMenu::enterDrmSleep() {
+    // The render thread is about to block in the wait loop below, so the render
+    // heartbeat stops. Tell the watchdog this is intentional: otherwise it aborts
+    // the oneshot home process after ~8s, the panel never relights, the power
+    // button looks dead, and any background music is torn down (see the watchdog
+    // in NanoMenuRender.cpp).
+    mInDrmSleep.store(true, std::memory_order_relaxed);
+    // If music is actively playing, keep it playing with the screen off: blank the
+    // panel but do NOT drive a full system suspend (which would freeze the decoder
+    // and AAudio threads), and hold a kernel wakelock so the SoC stays up. The
+    // user pressed power expecting the track to keep going, like any music player.
+    bool keepAudio = !mMpQueue.empty() && mMusicPlayer.isPlaying();
+
     // Blank our DRM-owned panels: clear the slot-0 AHB FBOs (what drmFrameEnd
     // scans out) and turn every backlight off, so the wake-time recommit
     // relights onto black rather than a stale frame.
@@ -712,8 +724,15 @@ bool NanoMenu::enterDrmSleep() {
     // PowerManager runs its normal goToSleep -> doze -> suspend. Before
     // boot_completed PowerManager is not ready, so fall back to the legacy
     // blank + 60s-then-shutdown.
-    bool pmSleep = property_get_bool("sys.boot_completed", false);
-    if (pmSleep) {
+    // Skip the PowerManager system suspend while music is playing (it would freeze
+    // the audio threads); hold a kernel wakelock instead so the device stays awake
+    // with the screen off. Otherwise sleep the whole system as usual.
+    bool pmSleep = property_get_bool("sys.boot_completed", false) && !keepAudio;
+    if (keepAudio) {
+        int wl = open("/sys/power/wake_lock", O_WRONLY | O_CLOEXEC);
+        if (wl >= 0) { ssize_t n = write(wl, "nano_music", 10); (void)n; close(wl); }
+        ALOGI("NanoMenu: screen off, music playing -- staying awake, audio continues");
+    } else if (pmSleep) {
         ALOGI("NanoMenu: services up -> PowerManager system sleep");
         property_set("sys.gammaos.nano.dosleep", "1");
     }
@@ -732,11 +751,14 @@ bool NanoMenu::enterDrmSleep() {
             if (fd >= 0 && nf < 16) { pfds[nf].fd = fd; pfds[nf].events = POLLIN; nf++; }
         }
         int timeoutMs = -1;
-        if (!pmSleep) {
+        if (keepAudio) {
+            timeoutMs = 1000;   // wake periodically to auto-advance the track
+        } else if (!pmSleep) {
             int64_t left = 60000 - (android::uptimeMillis() - sleepStart);
             if (left <= 0) {
                 ALOGI("NanoMenu: sleep timeout, shutting down");
                 prepareShutdown("shutdown");
+                mInDrmSleep.store(false, std::memory_order_relaxed);
                 return false;
             }
             timeoutMs = (int)left;
@@ -760,10 +782,19 @@ bool NanoMenu::enterDrmSleep() {
                 }
             }
         }
+        // Keep the album playing through track changes while the screen is off
+        // (audio-only, no GL touched). Mirrors musicTick's auto-advance.
+        if (keepAudio && !mMpQueue.empty() && mMusicPlayer.ended()) {
+            if (mMpRepeat == 2) mpPlayCurrent();
+            else mpStep(1, true);
+        }
     }
     // Woke. If we put PowerManager to sleep, wake it too (it never saw the
     // wake source, so it will not auto-wake) via an injected KEYCODE_WAKEUP.
-    if (pmSleep) {
+    if (keepAudio) {
+        int wl = open("/sys/power/wake_unlock", O_WRONLY | O_CLOEXEC);
+        if (wl >= 0) { ssize_t n = write(wl, "nano_music", 10); (void)n; close(wl); }
+    } else if (pmSleep) {
         property_set("sys.gammaos.nano.dosleep", "0");
         property_set("sys.gammaos.nano.dowake", "1");
         ALOGI("NanoMenu: waking PowerManager (KEYCODE_WAKEUP)");
@@ -786,6 +817,7 @@ bool NanoMenu::enterDrmSleep() {
         setBrightnessViaHal(sysfs_val);
     }
     ALOGI("NanoMenu: woke up");
+    mInDrmSleep.store(false, std::memory_order_relaxed);
     return true;
 }
 

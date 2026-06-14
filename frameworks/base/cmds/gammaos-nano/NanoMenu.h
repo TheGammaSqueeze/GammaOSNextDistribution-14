@@ -1049,6 +1049,11 @@ private:
     // into a diagnosable stack + an auto-recovery instead of a frozen device.
     std::atomic<uint64_t> mRenderHeartbeat{0};
     bool   mWatchdogStarted = false;
+    // True while enterDrmSleep() intentionally parks the render thread (screen off /
+    // system suspend). The render loop stops bumping the heartbeat then, so the
+    // watchdog must skip its stall check or it would abort the whole process (which
+    // also kills background music) on every power-button sleep.
+    std::atomic<bool> mInDrmSleep{false};
     void   startRenderWatchdog();
     // Fullscreen dialog page (mPs3DlgKind==0). Mirrors web DIALOG_TEMPLATES +
     // drawDialog: a body type, an optional vector illustration, a notice line and

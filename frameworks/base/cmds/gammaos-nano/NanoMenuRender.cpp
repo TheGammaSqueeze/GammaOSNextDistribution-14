@@ -1687,6 +1687,16 @@ void NanoMenu::startRenderWatchdog() {
         int stuck = 0;
         for (;;) {
             usleep(2000000);   // 2s
+            // enterDrmSleep() intentionally parks the render thread (screen off /
+            // waiting for the wake press), so the heartbeat legitimately stops.
+            // Aborting then kills the oneshot home process: the panel never
+            // relights, the power button looks dead, and background music dies.
+            // Skip the stall check while parked.
+            if (mInDrmSleep.load(std::memory_order_relaxed)) {
+                stuck = 0;
+                last = mRenderHeartbeat.load(std::memory_order_relaxed);
+                continue;
+            }
             uint64_t cur = mRenderHeartbeat.load(std::memory_order_relaxed);
             if (cur != 0 && cur == last) {
                 if (++stuck >= 4) {   // ~8s with no new frame
