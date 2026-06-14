@@ -187,14 +187,27 @@ void NanoMenu::netPollThreadFunc() {
     // First tick happens immediately so the HUD has something other
     // than "Unknown" within a few hundred ms of the XMB drawing.
     int64_t nextPollMs = 0;
+    int64_t curIntervalMs = 2000;   // adaptive: 2s active, backs off to 8s when idle
     while (!mNetPollExitRequested) {
         int64_t nowMs = std::chrono::duration_cast<std::chrono::milliseconds>(
                 std::chrono::steady_clock::now().time_since_epoch()).count();
         if (nowMs < nextPollMs) {
-            usleep(100 * 1000);
-            continue;
+            // While backed off (interval > 2s), still poll right away if the user
+            // just became active or opened a wifi/bt screen, so those never inherit a
+            // stale multi-second gap. Otherwise keep the ~10Hz wait poll.
+            // nowMs (steady_clock ms) shares CLOCK_MONOTONIC with the uptimeMillis()
+            // that stamps mLastInputMs, so the difference is a valid idle duration.
+            bool wantNow = curIntervalMs > 2000 &&
+                (nowMs - mLastInputMs < 60000
+                 || mMenuState == MENU_WIFI || mMenuState == MENU_BT);
+            if (!wantNow) {
+                usleep(100 * 1000);
+                continue;
+            }
         }
-        nextPollMs = nowMs + 2000; // ~0.5 Hz steady state
+        // nextPollMs is (re)armed at the END of the tick from curIntervalMs, which
+        // the change-detect block adapts (snappy 2s when active/changed, geometric
+        // backoff to 8s when idle and stable).
 
         // --- WiFi -----------------------------------------------------
         WifiLevel wifiLevel = kWifiLevel_Unknown;
@@ -285,6 +298,26 @@ void NanoMenu::netPollThreadFunc() {
         if (btChanged && mMenuState == MENU_BT) {
             refreshBtList();
         }
+        // Adaptive cadence. Each idle tick spawns two popen() children (cmd wifi
+        // status + dumpsys bluetooth_manager); forking this large process and the
+        // children loading the binder stack off the compressed image is the bulk of
+        // the net thread's CPU and the slab-reclaim churn it drives. Poll at the
+        // snappy 2s whenever the user is active (<60s since last input, the same
+        // longIdle threshold the render loop uses), the wifi/bt state just changed,
+        // or a network settings screen is open; otherwise grow the interval
+        // geometrically 2s -> 4s -> 8s. Any change or interaction snaps back to 2s.
+        // This never freezes a pixel (the HUD redraws the icons every frame); it only
+        // delays an EXTERNAL state change reflecting by up to 8s while fully idle and
+        // not on a network screen. mLastInputMs is read once into a local (the only
+        // cross-thread read here; an aligned 64-bit load does not tear on aarch64).
+        bool onNetScreen = (mMenuState == MENU_WIFI || mMenuState == MENU_BT);
+        int64_t idleMs = nowMs - mLastInputMs;   // nowMs is CLOCK_MONOTONIC ms, same as mLastInputMs
+        if (wifiChanged || btChanged || onNetScreen || idleMs < 60000) {
+            curIntervalMs = 2000;
+        } else {
+            curIntervalMs = (curIntervalMs < 4000) ? 4000 : 8000;   // 2s -> 4s -> 8s
+        }
+        nextPollMs = nowMs + curIntervalMs;
         (void)wifiChanged;
         (void)btChanged;
     }
