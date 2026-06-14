@@ -63,6 +63,10 @@ cc_binary {
         "NanoMenuPS3Boot.cpp",
         "NanoMenuSetupWizard.cpp",
         "NanoMenuStrings.cpp",
+        "NanoAudio.cpp",
+        "NanoMenuAudioBands.cpp",
+        "NanoMenuMusic.cpp",
+        "NanoMenuMusicCanyon.cpp",
         "NanoJson.cpp",
         "NanoI18n.cpp",
         "NanoOsk.cpp",
@@ -97,7 +101,8 @@ cc_binary {
         "libhidlbase",
         "libnativewindow",
         "libandroid",   // APerformanceHint (ADPF render-thread hint session)
-        "libaaudio",    // GammaEQ audio preview (looping playback so the EQ is audible)
+        "libaaudio",    // GammaEQ audio preview + music player output (AAudio)
+        "libmediandk",  // music player decode: AMediaExtractor + AMediaCodec -> PCM
     ],
 
     init_rc: ["gammaos-nano.rc"],
@@ -117,6 +122,8 @@ cc_binary {
         "nano_xmb_daijishou",
         "nano_xmb_i18n",
         "nano_xmb_audio",
+        "nano_xmb_audioplayer",
+        "nano_xmb_canyon",
     ],
 }
 
@@ -191,6 +198,24 @@ prebuilt_etc {
     name: "nano_xmb_audio",
     srcs: ["ps3xmb/audio/*.wav"],
     sub_dir: "nano_xmb/audio",
+}
+
+// Music player control-panel + status + codec-badge icons (the web app's
+// images/audioplayer set). Loaded lazily on first Now-Playing entry. Dev override
+// /data/system/nano_xmb/audioplayer/ is checked first.
+prebuilt_etc {
+    name: "nano_xmb_audioplayer",
+    srcs: ["ps3xmb/audioplayer/*.png"],
+    sub_dir: "nano_xmb/audioplayer",
+}
+
+// Canyon music visualizer assets: the 128x128 tangent-space normal/height map the
+// terrain flythrough displaces from (CPU-precomputed height). Dev override
+// /data/system/nano_xmb/canyon/ is checked first.
+prebuilt_etc {
+    name: "nano_xmb_canyon",
+    srcs: ["ps3xmb/canyon/*.png"],
+    sub_dir: "nano_xmb/canyon",
 }
 
 // 3D Earth maps for the Time Zone globe selector (web tzglobe screen). Day /

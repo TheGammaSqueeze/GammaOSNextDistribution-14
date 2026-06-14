@@ -1110,6 +1110,13 @@ void NanoMenu::pollInput() {
                                 gsRemoveScanSource(its[sel].a);
                             break;
                         }
+                        // Music folders screen: Y removes the selected music folder.
+                        if (mPs3Xmb && ps3TopScreenKind() == MUSIC_FOLDER) {
+                            auto& its = mPs3Stack.back().items; int sel = mPs3Stack.back().sel;
+                            if (sel >= 0 && sel < (int)its.size() && its[sel].kind == PS3_MUSIC_FOLDER_ROW)
+                                musicRemoveFolder(its[sel].a);
+                            break;
+                        }
                         if (mXmbMode) {
                             // Y: search in XMB mode
                             if (mOskActive) {

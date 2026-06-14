@@ -3763,9 +3763,19 @@ if (sRingPrimedCount >= 2) {
                         mPs3CatsStale = true;
                         forceRescanAllSystems();
                     }
-                    if (mPs3CatsStale) {
+                    // Music library: swap in finished scan results, and reload
+                    // nano_music.json if the OTHER nano process edited it. Both set
+                    // mMusicCatsStale so the Music column rebuilds below.
+                    musicDrainScanResults();
+                    if (mMusicLoaded && !mMusicScanRunning
+                        && musicConfigStamp() != mMusicCfgStamp) {
+                        loadMusicConfig();
+                        mMusicCatsStale = true;
+                    }
+                    if (mPs3CatsStale || mMusicCatsStale) {
                         rebuildPs3CatsPreserveSel();
                         mPs3CatsStale = false;
+                        mMusicCatsStale = false;
                     }
                 }
             }

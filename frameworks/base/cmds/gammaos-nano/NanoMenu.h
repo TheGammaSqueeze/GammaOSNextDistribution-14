@@ -30,6 +30,7 @@
 
 #include "NanoMenuSettingsTree.h"
 #include "NanoOsk.h"
+#include "NanoAudio.h"
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -921,11 +922,19 @@ private:
         PS3_GS_ADDFOLDER, // "Add Folder..." row in the scan-folders screen
         PS3_GS_DIR,       // a directory row in the folder browser (payloadStr = path)
         PS3_GS_SELFOLDER, // "Select This Folder" row in the folder browser (payloadStr = path)
+        // ---- Music player (PS3 XMB music port) ----
+        PS3_MUSIC_ALBUM,    // an album folder in the Music column -> track submenu (a = album idx)
+        PS3_MUSIC_TRACK,    // a track -> open the Now-Playing player (a = track idx in the view list)
+        PS3_MUSIC_PLAYLIST, // a playlist -> its track submenu (a = playlist idx)
+        PS3_MUSIC_PL_NEW,   // "Create New Playlist" row (OSK name)
+        PS3_MUSIC_FOLDER_ROW,// a configured music scan-folder row (a = mMusicFolders idx; Y removes)
     };
     // Game Systems editor screen kinds (Ps3Level.screenKind). Used to route the
     // X / L1 / R1 / Y buttons contextually while a GS screen is on the nav stack.
+    // MUSIC_FOLDER = the music library's folder-list screen (Search for Media Servers).
     enum GsScreenKind { GS_NONE = 0, GS_LIST = 1, GS_EDITOR = 2, GS_FOLDER = 3,
-                        GS_ICONGRID = 4, GS_EMUPICK = 5, GS_FOLDERBROWSE = 6 };
+                        GS_ICONGRID = 4, GS_EMUPICK = 5, GS_FOLDERBROWSE = 6,
+                        MUSIC_FOLDER = 7 };
     struct Ps3Item {
         std::string label;
         std::string desc;
@@ -1289,6 +1298,83 @@ private:
     void buildFolderBrowser(const std::string& path, Ps3Level& out);  // raw-path browser
     void gsFolderSelect(const std::string& path); // add a folder as a rawpath scan source
     void gsRemoveScanSource(int srcIdx);       // drop a scan source from the edited system
+
+    // ======================= Music player (PS3 XMB port) =======================
+    // Library model (nano_music.json), folder import (reuses the folder picker via
+    // mFolderPickTarget), the scanner, and the Music-column content. The Now-Playing
+    // screen + control panel + playlists are in NanoMenuMusic.cpp.
+    struct MusicTrack {
+        std::string file;        // absolute path
+        std::string title;       // tag title (fallback: filename)
+        std::string artist;
+        std::string album;       // album group key (fallback: parent folder name)
+        std::string codec;       // badge text (MP3/AAC/FLAC/...)
+        double durationSec = 0.0;
+        int trackNo = 0;
+        int64_t mtime = 0;       // for incremental rescan
+    };
+    struct MusicPlaylist {
+        std::string name;
+        std::vector<std::string> files;   // references MusicTrack.file
+    };
+    int mFolderPickTarget = 0;             // 0 = Game Systems scan source, 1 = Music library
+    std::vector<std::string> mMusicFolders;
+    std::vector<MusicTrack>  mMusicTracks;
+    std::vector<MusicPlaylist> mMusicPlaylists;
+    int64_t mMusicCfgStamp = -1;           // mtime of nano_music.json (cross-process reload)
+    bool mMusicLoaded = false;             // library parsed once (lazy, first Music entry)
+    bool mMusicCatsStale = false;          // a scan finished -> rebuild the Music column at root
+    // scan worker
+    std::mutex mMusicScanMutex;
+    std::vector<MusicTrack> mMusicScanResults;
+    bool mMusicScanReady = false;
+    bool mMusicScanRunning = false;
+    // persistence + lazy load
+    int64_t musicConfigStamp() const;
+    bool loadMusicConfig();
+    void saveMusicConfig();
+    void musicEnsureLoaded();              // parse JSON + NanoAudio init + kick a stale scan (guarded)
+    // scan
+    void musicScanAsync();                 // detached worker over mMusicFolders
+    void musicScanThreadFunc();            // the worker body
+    void musicDrainScanResults();          // render-thread: swap in finished results + rebuild
+    // folder import (Search for Media Servers)
+    void musicOpenFolders();               // push the music folders screen
+    void buildMusicFoldersScreen(Ps3Level& out);
+    void musicFolderSelect(const std::string& path);
+    void musicRemoveFolder(int idx);
+    // content
+    void buildMusicColumnItems(std::vector<Ps3Item>& out);   // albums + playlists entry for the Music cat
+    void buildMusicAlbumSubmenu(int albumIdx, Ps3Level& out);
+    void buildMusicPlaylistsScreen(Ps3Level& out);
+    void buildMusicPlaylistSubmenu(int plIdx, Ps3Level& out);
+    // helpers
+    std::vector<int> musicAlbumTrackIndices(const std::string& album) const;  // sorted track idxs
+    std::vector<std::string> musicAlbumNames() const;                          // unique, ordered
+    // playlists
+    void musicCreatePlaylist(const std::string& name);
+    void musicAddTrackToPlaylist(int plIdx, const std::string& file);
+    // The audio engine instance (decode + AAudio + FFT). Lazy: init() on first Music
+    // entry; open()/play() on first track play.
+    NanoAudioPlayer mMusicPlayer;
+
+    // ---- Now-Playing screen state (control panel + visualizers in Phase 3-5) ----
+    bool mMpActive = false;            // the Now-Playing fullscreen is up
+    std::vector<int> mMpQueue;         // track indices (into mMusicTracks) being played
+    int  mMpIdx = 0;                   // position in mMpQueue
+    int  mMpVis = 0;                   // 0 = XMB Waves, 1 = Canyon
+    int  mMpRepeat = 0;                // 0 off / 1 all / 2 one
+    bool mMpShuffle = false;
+    std::vector<int> mMpOrder;         // playback order (indices into mMpQueue)
+    void openMusicPlayer(const std::vector<Ps3Item>& list, int listSel);
+    void closeMusicPlayer();
+    void mpPlayCurrent();
+    void mpRebuildOrder();
+    void mpStep(int dir, bool isAuto);
+    void mpNext();
+    void mpPrev();
+    void musicTick();                  // per-frame: auto-advance on EOS
+
     std::vector<Ps3Item>& ps3CurItems();   // current visible item list (top or submenu)
     int& ps3CurSel();
     void renderPs3Xmb();

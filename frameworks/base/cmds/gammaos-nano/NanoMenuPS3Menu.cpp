@@ -510,6 +510,7 @@ void NanoMenu::buildPs3Cats() {
     mPs3Cats.clear();
     int gameCatRuntimeIdx = -1;
     int settingsCatRuntimeIdx = -1;
+    int musicCatRuntimeIdx = -1;
     mPs3QuickCatIdx = -1;
 
     // ---- Quick Menu (GammaOS Nano legacy global actions) ----
@@ -554,7 +555,18 @@ void NanoMenu::buildPs3Cats() {
             c.items.push_back(makeDataItem(&dc.items[ii]));
         if (strcmp(dc.id, "game") == 0)     gameCatRuntimeIdx     = (int)mPs3Cats.size();
         if (strcmp(dc.id, "settings") == 0) settingsCatRuntimeIdx = (int)mPs3Cats.size();
+        if (strcmp(dc.id, "music") == 0)    musicCatRuntimeIdx    = (int)mPs3Cats.size();
         mPs3Cats.push_back(c);
+    }
+
+    // Music library: prepend the scanned album folders ahead of the firmware
+    // "Search for Media Servers" / "Playlists" items (mirrors the Game prepend).
+    // Only when the library is loaded (lazy); empty until the user imports a folder.
+    if (musicCatRuntimeIdx >= 0 && mMusicLoaded && !mMusicTracks.empty()) {
+        std::vector<Ps3Item> albums;
+        buildMusicColumnItems(albums);
+        Ps3Cat& music = mPs3Cats[musicCatRuntimeIdx];
+        music.items.insert(music.items.begin(), albums.begin(), albums.end());
     }
 
     // The ONLY nano addition: the emulator consoles / Recently Played / Apps go
@@ -1137,7 +1149,27 @@ void NanoMenu::ps3XmbSelect() {
                 buildFolderBrowser(it.payloadStr, mPs3Stack.back());
             return;
         }
-        case PS3_GS_SELFOLDER: { gsFolderSelect(it.payloadStr); return; }
+        case PS3_GS_SELFOLDER: {
+            if (mFolderPickTarget == 1) musicFolderSelect(it.payloadStr);
+            else gsFolderSelect(it.payloadStr);
+            return;
+        }
+        case PS3_MUSIC_ALBUM:    { Ps3Level lvl; buildMusicAlbumSubmenu(it.a, lvl); mPs3Stack.push_back(lvl); break; }
+        case PS3_MUSIC_PLAYLIST: { Ps3Level lvl; buildMusicPlaylistSubmenu(it.a, lvl); mPs3Stack.push_back(lvl); break; }
+        case PS3_MUSIC_TRACK: {
+            // Open the Now-Playing player on the surrounding track list, starting at
+            // the selected row (sel = its position in the current list).
+            openMusicPlayer(items, sel);
+            return;
+        }
+        case PS3_MUSIC_PL_NEW: {
+            openOskForPassword("Enter a name for the playlist",
+                [this](const std::string& nm){ musicCreatePlaylist(nm);
+                    if (!mPs3Stack.empty() && mPs3Stack.back().screenKind == 0
+                        && mPs3Stack.back().title == "Playlists")
+                        buildMusicPlaylistsScreen(mPs3Stack.back()); });
+            return;
+        }
         case PS3_ROM:    { mXmbSystemIndex = it.a; mXmbGameIndex = it.b; mSearchActive = false;
                            if (!isLaunchReady()) { showLaunchBusyToast(); return; }
                            if (mOverlayMode) { overlayLaunchGame(); return; } launchXmbGame(); return; }
@@ -1171,6 +1203,22 @@ void NanoMenu::ps3XmbSelect() {
             return;
         }
         case PS3_DATA_LEAF: {
+            // Music category: "Search for Media Servers" manages the imported music
+            // folders (reusing the Game Systems folder picker); "Playlists" opens the
+            // playlists screen. Gated to the Music column so Photo/Video keep their
+            // inert "Search for Media Servers" items.
+            bool inMusicCat = (mPs3CatIdx >= 0 && mPs3CatIdx < (int)mPs3Cats.size()
+                               && mPs3Cats[mPs3CatIdx].name == "Music");
+            if (inMusicCat && it.label == "Search for Media Servers") { musicOpenFolders(); return; }
+            if (inMusicCat && it.label == "Playlists") {
+                musicEnsureLoaded();
+                std::vector<Ps3Item> ps = ps3CurItems(); int pSel = ps3CurSel();
+                Ps3Level lvl; buildMusicPlaylistsScreen(lvl); mPs3Stack.push_back(lvl);
+                mPs3SubParentItems = ps; mPs3SubParentIdx = pSel; mPs3SubChildItems = mPs3Stack.back().items;
+                mPs3SubDir = 1; mPs3SubAnimStart = mEffectTime; mPs3SubAnim = 0.0f;
+                mPs3AnimItem = 0.0f; mPs3ItemAnimStart = -1.0f;
+                return;
+            }
             // "Internet Connection Settings" runs the full PS3 setup wizard (1:1
             // web NETCONF flow, real scan/connect). "Internet Connection" opens the
             // side-panel Enabled/Disabled toggle for the Wi-Fi radio.
@@ -1287,6 +1335,7 @@ void NanoMenu::ps3XmbBack() {
 void NanoMenu::renderPs3Xmb() {
     if (!mPs3MenuBuilt) initPs3Menu();
     eqPreviewTick();   // retry the GammaEQ preview open if the audio HAL was not ready
+    musicTick();       // music player: auto-advance to the next track at end-of-stream
     // Arm the once-per-frame glass-icon uniform upload (drawGlassIcon sends the
     // frame-invariant uniforms on the first icon, skips them on the rest).
     mGlassUniformsSet = false;

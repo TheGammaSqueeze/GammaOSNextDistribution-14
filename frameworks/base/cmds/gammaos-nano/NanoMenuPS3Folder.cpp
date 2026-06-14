@@ -190,6 +190,8 @@ void NanoMenu::buildScanFoldersScreen(Ps3Level& out) {
 
 void NanoMenu::gsOpenScanFolders() {
     if (mGsEditIdx < 0 || mGsEditIdx >= (int)mXmbSystems.size()) return;
+    mFolderPickTarget = 0;   // route the folder browser's "Select" to the Game system
+
     std::vector<Ps3Item> parentSnap = mPs3Stack.empty() ? std::vector<Ps3Item>() : mPs3Stack.back().items;
     int parentSel = mPs3Stack.empty() ? 0 : mPs3Stack.back().sel;
     Ps3Level lvl; buildScanFoldersScreen(lvl);
