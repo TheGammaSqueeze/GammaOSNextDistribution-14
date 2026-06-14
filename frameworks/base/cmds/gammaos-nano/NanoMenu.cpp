@@ -3409,6 +3409,24 @@ if (sRingPrimedCount >= 2) {
             mEffectTime = (float)fmod(tb, 500.0);
         }
 
+        // Screen-off pause (overlay process). In overlay mode the framework owns
+        // the power button and blanks the panel on sleep (PowerManager goToSleep
+        // sets sys.screen.state=off) WITHOUT nano ever seeing a power-press, so
+        // the run loop would otherwise keep rendering the wave wallpaper at full
+        // rate behind a dark screen - pegging a core with the display off. Skip
+        // the frame and idle-poll while the screen is off; any wake flips
+        // sys.screen.state back to on and rendering resumes next pass. (The DRM
+        // home does not need this: it blanks via enterDrmSleep, which blocks the
+        // render thread itself.)
+        if (mOverlayMode) {
+            char ss[PROPERTY_VALUE_MAX] = {};
+            property_get("sys.screen.state", ss, "on");
+            if (!strcmp(ss, "off")) {
+                usleep(250000);   // 4Hz idle poll while the panel is off
+                continue;
+            }
+        }
+
         render();
 
         // ADPF: tell the power HAL how long this frame's work took, so it can
