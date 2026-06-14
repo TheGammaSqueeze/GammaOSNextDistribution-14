@@ -75,6 +75,54 @@ reload, mirror `nano_systems.json`):
 - On leaving Now-Playing: pause + free the decoder ring; keep the parsed library.
 - Canyon GL resources init on first Canyon use, freed on leaving Now-Playing.
 
+## Phase 3 implementation recipe (Now-Playing screen + control panel)
+Scaffolding already in place: state members + method decls in NanoMenu.h (mMpActive,
+mMpFullInfo, mMpEnterT, mMpFullInfoT, the panel/transient/banner/msg fields,
+renderMusicPlayer/openMpOpt/closeMpOpt/mpOptMove/mpOptActivate/mpOptBack/drawMpOpt/
+drawMpStatusRow/mpShowMsg/mpCycleVis), plus mpIcon(n) (audioplayer texture loader)
+and mpJacket() (jacket texture) defined in NanoMenuPS3Icons.cpp. openMusicPlayer
+already builds the queue + plays; musicTick auto-advances.
+
+COORDINATE MAPPING (web virtual VW=1920/VH=1080 == ps3::VW/VH; web canvas transform
+== nano devX/devY/devS). For a web call at virtual (vx,vy):
+- absolute X (web uses XCF(V.W*f)):  ps3::devX(ps3::XCF(VW*f))
+- X delta/width (web XCF(V.W*f)):    ps3::devS(ps3::XCF(VW*f))
+- absolute Y (web V.H*f):            ps3::devY(VH*f)
+- size/height (web V.H*f):           ps3::devS(VH*f)
+- font 'NNpx':                       scale = ps3::fontScale(NN); top y from a web
+                                     baseline by = ps3::baselineToTopY(devY(VH*fy), scale)
+- textAlign right at X: x = devX(XCF(VW*f)) - measureText(s, scale); center: minus half.
+Primitives: drawText(s,px,py,scale,r,g,b,a), measureText(s,scale), drawQuad(x,y,w,h,
+r,g,b,a), drawIconTex(tex,x,y,w,h,r,g,b,a). Background: render() already drew the wave
+(renderEffect + ps3bg) before renderPs3Xmb, so renderMusicPlayer draws only the
+bar/panel over it. Dispatch: in renderPs3Xmb add `if (mMpActive){ renderMusicPlayer(); return; }`
+right after the mPs3TzActive branch (NanoMenuPS3Menu.cpp ~1403), before the menu chrome.
+
+BAR (drawMusicPlayer, index.html:11893-12016) - all virtual: jacket x0.066 y0.827
+sq0.085H; title baseline 0.866 32px, marquee bounce HOLD 1100ms SPEED 55px/s smoothstep,
+clip to titleRight=fullInfo?0.715:0.955; artist/album baseline 0.900 19px alpha0.70
+"(a)/(st)"; full-info cluster (fade mMpFullInfoT) rx0.738 rEnd0.940: counter (idx+1)/N
+right@0.792 17px, time mpFmtTime(cur)/dur @0.866 22px (HH:MM:SS), codec badge mpIcon
+CODEC_ICON{MP3:24,ATRAC:22,AAC:23,PCM:25,CD:26,WMA:27} @0.887,0.844 h0.024, seek bar
+sx=rx sy0.892 h0.009 (track rgba70, edge rgba150 1px, fill rgba245 width sw*cur/dur).
+Whole bar alpha = mMpEnterT. Status row (panelUp) drawMpStatusRow @y0.782 h0.030 uses
+status icons play=0 pause=3 stop=4 prev=1 next=2 rew=5 ff=6 repeat-all=7 +one=8 shuf=9.
+Banner mMpBanner 1500ms (150 in/300 out) @0.045,0.11 24px. msg chain drawMpMsg 0.45 dim
++ centred 28px (Deleting 800 / Delete completed 900 -> mpNext).
+
+CONTROL PANEL (MP_CP[14], index.html:12089; openMpOpt/mpOptMove/mpOptActivate:12109;
+drawMpOpt:12212; drawMpVolMeter:12191): grid ox=XCF(VW*0.273) oy=VH*0.441 cellX=VW*0.033
+cellY=VH*0.061 ih=VH*0.046; cx=ox+gx*cellX cy=oy-gy*cellY; per btn shadow icon (s)
+behind + normal (n), focused uses focus icon (f) + scale 1.18 + breathing halo + label
+@0.568 + SELECT pill; open/close 200ms slide ox-=(1-t)*20; press flash 240ms; focus ease
+140ms. Acts: vol(submenu -4..+4 -> setVolume((lvl+4)/8)), vis(mpCycleVis), addpl, del,
+disp(toggle fullInfo), prev/next(transient glyph 900ms + mpPrev/mpNext), rew/ff(+-10s
+seek + transient), play/pause/stop, repeat(0..2), shuffle(toggle+mpRebuildOrder).
+INPUT (NanoMenuInput.cpp + ps3Xmb*): TRIANGLE toggles panel (openMpOpt/closeMpOpt);
+when panel open: dpad->mpOptMove (Up=dy+1 Down=dy-1 Left=dx-1 Right=dx+1), X->mpOptActivate,
+Circle->mpOptBack; when closed: Circle->closeMusicPlayer. SQUARE->mpCycleVis. Route the
+mMpActive branches BEFORE the mPs3TzActive checks in each handler. mpFmtTime HH:MM:SS.
+
 ## Verification
 - Build with `buildtv.sh`, EROFS, flash the Brick.
 - Import a folder via Music > Search for Media Servers; confirm scan + `nano_music.json`.
@@ -93,7 +141,23 @@ reload, mirror `nano_systems.json`):
   at the settled XMB root (and on cross-process nano_music.json change).
   Known minor: the folders-screen per-folder track count shows the pre-scan value
   until you re-enter it (the async scan drains after the screen was built).
-- Now-Playing screen + control panel + playlists: in progress (Phase 3). Selecting a
-  track currently opens the player (audio + queue/repeat/shuffle/auto-advance) without
-  the dedicated full-screen UI yet.
+- Now-Playing screen + control panel + playlists: DONE, verified on the Brick.
+  Selecting a track opens the full-screen player: jacket cover (real grey music-note
+  art), marquee-bounce title, artist/album line, and the status row. TRIANGLE opens the
+  control panel (the 14-button sparse MP_CP grid with nearest-neighbour nav, focus
+  grow-in + breathing halo + press flash, focused-button label, Volume Control submeter)
+  and every action works (play/pause/stop/prev/next/ff/rew/repeat/shuffle/visualizer/
+  Display/add-to-playlist/delete). The Display toggle fades in the full-info cluster
+  (track counter N/M, HH:MM:SS elapsed/total, MP3 codec plate, live seek bar). Circle
+  exits to the XMB. Auto-advance, repeat/shuffle order and the enter/leave fade run from
+  musicTick. Verified end to end: bar, panel, status row, Display cluster, Next transport
+  (counter 1/2 -> 2/2, new decode), exit.
+  Icon-rendering note: the audioplayer/codec/jacket PNGs load in FULL COLOUR
+  (monoWhite=false) and the panel SKIPS the firmware "shadow" plate textures (b.s,
+  near-opaque dark squares); it draws clean glyphs with a drop-shadow / halo, exactly
+  like the web drawMpOpt. Glyphs use NATIVE aspect (repeat/shuffle = wide pills, codec
+  badge = wide plate, repeat-one = a small "1"); mpIconAR caches each icon's w/h.
+  Lazy-load fires on Music-category focus (musicOnCatFocus) so the column shows albums
+  without anything touching music at boot.
+  Test hooks: sys.gammaos.nano.nav "tri" = Triangle/panel, "sq" = Square/cycle-vis.
 - XMB Waves morph + Canyon visualizer: pending (Phase 4-5; Canyon is a built stub).

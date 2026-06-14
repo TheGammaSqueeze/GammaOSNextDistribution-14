@@ -23,6 +23,7 @@
 #define LOG_TAG "GammaOSNano"
 
 #include "NanoMenu.h"
+#include "NanoMenuPS3.h"
 #include "NanoJson.h"
 
 #include <dirent.h>
@@ -33,6 +34,7 @@
 #include <string.h>
 #include <strings.h>
 #include <algorithm>
+#include <cmath>
 #include <cstdlib>
 #include <map>
 #include <set>
@@ -188,11 +190,26 @@ void NanoMenu::saveMusicConfig() {
 // Lazy load: parse the config once, init the audio engine (no stream yet), and
 // kick a scan if folders exist. Self-guarded; safe to call from every entry.
 // ---------------------------------------------------------------------------
+// Lazy-load the music library the first time the cursor lands on the Music
+// category, so albums parsed from nano_music.json appear in the column without
+// touching anything at boot (the lazy-load requirement). No-op off Music or once
+// loaded.
+void NanoMenu::musicOnCatFocus() {
+    if (mMusicLoaded) return;
+    if (mPs3CatIdx >= 0 && mPs3CatIdx < (int)mPs3Cats.size()
+        && mPs3Cats[mPs3CatIdx].name == "Music") {
+        musicEnsureLoaded();
+    }
+}
+
 void NanoMenu::musicEnsureLoaded() {
     if (mMusicLoaded) return;
     mMusicLoaded = true;
     loadMusicConfig();
     mMusicPlayer.init();
+    // Rebuild the Music column at the next settled root so the albums parsed from
+    // nano_music.json appear immediately, independent of any rescan that follows.
+    mMusicCatsStale = true;
     if (!mMusicFolders.empty() && !mMusicScanRunning) musicScanAsync();
 }
 
@@ -537,10 +554,337 @@ void NanoMenu::mpPrev() {
 }
 
 void NanoMenu::musicTick() {
+    float dt = mFrameDt;
+    if (dt < 0.0f || dt > 0.2f) dt = 0.016f;
+    // Presence + full-info fades (exp ease toward target; ~0.2s).
+    float ent = mMpActive ? 1.0f : 0.0f;
+    mMpEnterT += (ent - mMpEnterT) * fminf(1.0f, dt * 5.0f);
+    float fi = mMpFullInfo ? 1.0f : 0.0f;
+    mMpFullInfoT += (fi - mMpFullInfoT) * fminf(1.0f, dt * 8.0f);
     if (!mMpActive) return;
+    // Full-screen message chain (Deleting... -> Delete completed. -> mpNext).
+    if (mMpMsgStart >= 0.0f && (mEffectTime - mMpMsgStart) >= mMpMsgDur / 1000.0f) {
+        int then = mMpMsgThen; mMpMsgStart = -1.0f; mMpMsg.clear(); mMpMsgThen = 0;
+        if (then == 1) mpShowMsg("Delete completed.", 900.0f, 2);
+        else if (then == 2) mpNext();
+    }
+    // Auto-advance at end of track (repeat-one replays).
     if (mMusicPlayer.ended()) {
-        if (mMpRepeat == 2) mpPlayCurrent();   // repeat-one: replay
-        else mpStep(1, true);                  // auto-advance
+        if (mMpRepeat == 2) mpPlayCurrent();
+        else mpStep(1, true);
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Now-Playing render (1:1 web drawMusicPlayer) + the TRIANGLE control panel.
+// Virtual VW/VH == the web V.W/V.H; map with ps3::devX/devY/devS + XCF, and
+// ps3::fontScale/baselineToTopY for fonts at a web baseline. The wave background
+// is already drawn by render() before renderPs3Xmb; this draws the bar over it.
+// ---------------------------------------------------------------------------
+static inline float DXP(float f) { return ps3::devX(ps3::XCF(ps3::VW * f)); }   // abs X (web XCF)
+static inline float DXD(float f) { return ps3::devS(ps3::XCF(ps3::VW * f)); }   // X delta (web XCF)
+static inline float DYP(float f) { return ps3::devY(ps3::VH * f); }            // abs Y
+static inline float SZ(float f)  { return ps3::devS(ps3::VH * f); }            // size from VH frac
+static inline float FSZ(float px){ return ps3::fontScale(px); }                // font scale for NNpx
+static inline float TOPY(float baseFrac, float px) {
+    return ps3::baselineToTopY(ps3::devY(ps3::VH * baseFrac), ps3::fontScale(px));
+}
+
+static std::string mpFmtTime(double sec) {
+    if (sec < 0 || !(sec == sec)) sec = 0;
+    int s = (int)sec; int h = s / 3600; int m = (s % 3600) / 60; int ss = s % 60;
+    char b[16]; snprintf(b, sizeof(b), "%02d:%02d:%02d", h, m, ss); return b;
+}
+
+// MP_CP control-panel table (web index.html:12089). act + grid (gx,gy) + the
+// normal/shadow/focus audioplayer icon indices.
+struct MpCp { const char* act; const char* label; float gx; float gy; int n; int s; int f; };
+static const MpCp kMpCp[] = {
+    {"vol",     "Volume Control",  -2,  1, 35, 49, 63},
+    {"vis",     "Visual Player",   -1,  1, 29, 43, 57},
+    {"addpl",   "Add to Playlist",  0,  1, 31, 45, 59},
+    {"del",     "Delete",           1,  1, 30, 44, 58},
+    {"disp",    "Display",          2,  1, 34, 48, 62},
+    {"prev",    "Previous",        -3,  0, 36, 50, 64},
+    {"next",    "Next",            -2,  0, 37, 51, 65},
+    {"rew",     "Fast Reverse",    -1,  0, 41, 55, 69},
+    {"ff",      "Fast Forward",     0,  0, 42, 56, 70},
+    {"play",    "Play",             1,  0, 38, 52, 66},
+    {"pause",   "Pause",            2,  0, 39, 53, 67},
+    {"stop",    "Stop",             3,  0, 40, 54, 68},
+    {"repeat",  "Repeat",        -0.6f, -1, 32, 46, 60},
+    {"shuffle", "Shuffle",         0.8f, -1, 33, 47, 61},
+};
+static const int kMpCpCount = (int)(sizeof(kMpCp) / sizeof(kMpCp[0]));
+static int mpCpDefault() { for (int i = 0; i < kMpCpCount; i++) if (!strcmp(kMpCp[i].act, "play")) return i; return 0; }
+
+void NanoMenu::mpShowMsg(const std::string& text, float durMs, int then) {
+    mMpMsg = text; mMpMsgStart = mEffectTime; mMpMsgDur = durMs; mMpMsgThen = then;
+}
+
+void NanoMenu::mpCycleVis() {
+    mMpVis = (mMpVis + 1) % 2;   // 0 Waves <-> 1 Canyon (Globe deferred)
+    mMpBanner = (mMpVis == 0) ? "XMB Waves" : "Canyon";
+    mMpBannerStart = mEffectTime;
+}
+
+void NanoMenu::renderMusicPlayer() {
+    if (mMpQueue.empty()) { mMpActive = false; return; }
+    int ti = (mMpIdx >= 0 && mMpIdx < (int)mMpQueue.size()) ? mMpQueue[mMpIdx] : -1;
+    if (ti < 0 || ti >= (int)mMusicTracks.size()) return;
+    const MusicTrack& t = mMusicTracks[ti];
+    float enter = mMpEnterT;
+    bool panelUp = mMpCpOpen || mMpCpClosing;
+    mTextOutlineMode = 1;
+
+    // jacket cover (x0.066 y0.827 square 0.085H)
+    float jsz = SZ(0.085f), ax = DXP(0.066f), ay = DYP(0.827f);
+    GLuint jac = mpJacket();
+    if (jac) drawIconTex(jac, ax, ay, jsz, jsz, 1.0f, 1.0f, 1.0f, enter);
+
+    float tx = ax + jsz + DXD(0.013f);
+    // title (baseline 0.866, 32px) with marquee bounce when too wide
+    float titleRight = mMpFullInfo ? DXP(0.715f) : DXP(0.955f);
+    float titleScale = FSZ(32.0f);
+    float titleW = measureText(t.title.c_str(), titleScale);
+    float titleMaxW = titleRight - tx;
+    float toff = 0.0f;
+    if (titleW > titleMaxW && titleMaxW > 0) {
+        float over = titleW - titleMaxW;
+        const float HOLD = 1100.0f, SPEED = 55.0f;   // ms, virtual px/s
+        // over is in device px; convert SPEED (virtual px/s) to device px/s via devS(1)
+        float scrollT = fmaxf(350.0f, over / fmaxf(1.0f, ps3::devS(SPEED)) * 1000.0f);
+        float cyc = HOLD + scrollT + HOLD + scrollT;
+        float tt = fmodf(mEffectTime * 1000.0f, cyc);
+        float p;
+        if (tt < HOLD) p = 0.0f;
+        else if (tt < HOLD + scrollT) { float u = (tt - HOLD) / scrollT; p = u * u * (3 - 2 * u); }
+        else if (tt < HOLD + scrollT + HOLD) p = 1.0f;
+        else { float u = (tt - HOLD - scrollT - HOLD) / scrollT; p = 1.0f - u * u * (3 - 2 * u); }
+        toff = over * p;
+    }
+    // (clip to the title band would need scissor; the marquee keeps it within bounds)
+    drawText(t.title.c_str(), tx - toff, TOPY(0.866f, 32.0f), titleScale, 1.0f, 1.0f, 1.0f, 0.95f * enter);
+    // artist / album (baseline 0.900, 19px, 70%)
+    std::string sub = (t.artist.empty() ? "-" : t.artist) + " / " + (t.album.empty() ? "-" : t.album);
+    drawText(sub.c_str(), tx, TOPY(0.900f, 19.0f), FSZ(19.0f), 1.0f, 1.0f, 1.0f, 0.70f * enter);
+
+    // full-info cluster (counter / time / codec / seek bar), faded by mMpFullInfoT
+    if (mMpFullInfoT > 0.001f) {
+        float fa = enter * mMpFullInfoT;
+        double dur = mMusicPlayer.duration();
+        double cur = mMusicPlayer.position();
+        float rx = DXP(0.738f), rEnd = DXP(0.940f);
+        // counter N/M right-aligned at rEnd, baseline 0.792, 17px
+        char cnt[24]; snprintf(cnt, sizeof(cnt), "%d / %d", mMpIdx + 1, (int)mMpQueue.size());
+        float cs = FSZ(17.0f); float cw = measureText(cnt, cs);
+        drawText(cnt, rEnd - cw, TOPY(0.792f, 17.0f), cs, 1.0f, 1.0f, 1.0f, 0.70f * fa);
+        // elapsed/total at rx, baseline 0.866, 22px
+        std::string tm = mpFmtTime(cur) + " / " + (dur > 0 ? mpFmtTime(dur) : "--:--:--");
+        drawText(tm.c_str(), rx, TOPY(0.866f, 22.0f), FSZ(22.0f), 1.0f, 1.0f, 1.0f, 0.80f * fa);
+        // codec badge icon
+        static const struct { const char* c; int i; } kCodec[] = {
+            {"MP3",24},{"ATRAC",22},{"AAC",23},{"PCM",25},{"CD",26},{"WMA",27},{"FLAC",25},{"OGG",23},{"OPUS",23}};
+        int cIdx = 24; for (auto& e : kCodec) if (t.codec == e.c) { cIdx = e.i; break; }
+        GLuint cIc = mpIcon(cIdx);
+        if (cIc) { float ch = SZ(0.024f); float cw = ch * mpIconAR(cIdx);   // wide metallic codec plate
+                   drawIconTex(cIc, DXP(0.887f), DYP(0.844f), cw, ch, 1, 1, 1, fa); }
+        // seek bar
+        float sx = rx, sw = rEnd - rx, sy = DYP(0.892f), shh = SZ(0.009f);
+        drawQuad(sx, sy, sw, shh, 70/255.0f, 70/255.0f, 70/255.0f, 0.95f * fa);
+        drawQuad(sx, sy, sw, fmaxf(1.0f, SZ(0.001f)), 150/255.0f, 150/255.0f, 150/255.0f, 0.85f * fa);
+        float frac = dur > 0 ? (float)(cur / dur) : 0.0f; if (frac < 0) frac = 0; if (frac > 1) frac = 1;
+        if (frac > 0) drawQuad(sx, sy, fmaxf(2.0f, sw * frac), shh, 245/255.0f, 245/255.0f, 245/255.0f, 0.95f * fa);
+    }
+
+    if (panelUp) drawMpStatusRow(ax, enter);
+
+    // visualizer-name banner (1500ms, fade 150 in / 300 out, top-left)
+    if (mMpBannerStart >= 0.0f) {
+        float el = (mEffectTime - mMpBannerStart) * 1000.0f;
+        if (el > 1500.0f) mMpBannerStart = -1.0f;
+        else {
+            float a = el < 150.0f ? el / 150.0f : (el > 1200.0f ? (1500.0f - el) / 300.0f : 1.0f);
+            if (a < 0) a = 0;
+            drawText(mMpBanner.c_str(), DXP(0.045f), TOPY(0.11f, 24.0f), FSZ(24.0f), 1.0f, 1.0f, 1.0f, a);
+        }
+    }
+
+    // control panel
+    if (mMpCpOpen) drawMpOpt(-1.0f);
+    else if (mMpCpClosing) {
+        float p = (mEffectTime - mMpCpCloseStart) / 0.2f;
+        if (p >= 1.0f) mMpCpClosing = false; else drawMpOpt(1.0f - p);
+    }
+
+    // full-screen message (Deleting... / Delete completed.)
+    if (mMpMsgStart >= 0.0f) {
+        float el = (mEffectTime - mMpMsgStart) * 1000.0f;
+        float fade = fminf(1.0f, el / 150.0f) * fminf(1.0f, fmaxf(0.0f, (mMpMsgDur - el)) / 200.0f);
+        drawQuad(0, 0, (float)mWidth, (float)mHeight, 0, 0, 0, 0.45f * fade);
+        float ms = FSZ(28.0f); float mw = measureText(mMpMsg.c_str(), ms);
+        drawText(mMpMsg.c_str(), (mWidth - mw) * 0.5f, TOPY(0.5f, 28.0f), ms, 1.0f, 1.0f, 1.0f, fade);
+    }
+    mTextOutlineMode = 0;
+}
+
+// play-state / transport / repeat / shuffle row above the jacket (panel open).
+void NanoMenu::drawMpStatusRow(float ax, float fade) {
+    float y = DYP(0.782f), h = SZ(0.030f);
+    float x = ax + SZ(0.085f) * 0.5f - h * 0.5f;
+    float a = 0.95f * fade;
+    // native aspect (the repeat/shuffle/one glyphs are non-square pills) + a subtle
+    // drop-shadow (offset dark copy; no shadowBlur on GLES2), per web drawMpStatusRow.
+    auto ico = [&](int idx, float scale) {
+        GLuint ic = mpIcon(idx); if (!ic) return;
+        float hh = h * scale, ww = hh * mpIconAR(idx);
+        drawIconTex(ic, x + SZ(0.0012f), y - hh * 0.5f + SZ(0.0012f), ww, hh, 0, 0, 0, 0.6f * a);
+        drawIconTex(ic, x, y - hh * 0.5f, ww, hh, 1, 1, 1, a);
+        x += ww + DXD(0.008f);
+    };
+    bool paused = mMusicPlayer.isPaused(), stopped = mMusicPlayer.isStopped();
+    // base play-state glyph; a transient transport action briefly overrides it
+    if (mMpTransientIcon >= 0 && mEffectTime < mMpTransientUntil) ico(mMpTransientIcon, 1.0f);
+    else ico(stopped ? 4 : (paused ? 3 : 0), 1.0f);
+    x += DXD(0.004f);
+    if (mMpRepeat == 1) ico(7, 1.0f);                       // repeat ALL = loop
+    else if (mMpRepeat == 2) { ico(7, 1.0f); ico(8, 0.75f); }   // repeat ONE = loop + "1"
+    if (mMpShuffle) ico(9, 1.0f);                           // shuffle pill
+}
+
+void NanoMenu::drawMpOpt(float closeT) {
+    float t = (closeT >= 0.0f) ? closeT
+            : (mMpCpAnimStart >= 0.0f ? fminf(1.0f, (mEffectTime - mMpCpAnimStart) / 0.2f) : 1.0f);
+    if (t < 0) t = 0;
+    float ox = DXP(0.273f) - (1.0f - t) * SZ(0.018f);   // slide in from the left
+    float oy = DYP(0.441f);
+    float cellX = DXD(0.033f), cellY = SZ(0.061f), ih = SZ(0.046f);
+    float pulse = 0.5f + 0.5f * cosf(mEffectTime * 2.0f * 3.14159f / 1.5f);   // ~1.5s breathe
+    for (int i = 0; i < kMpCpCount; i++) {
+        const MpCp& b = kMpCp[i];
+        bool focus = (i == mMpCpSel);
+        float cx = ox + b.gx * cellX, cy = oy - b.gy * cellY;
+        // focus grow-in / shrink-back (~140ms cubic ease-out), web drawMpOpt
+        float baseScale = focus ? 1.18f : 1.0f;
+        if (mMpCpFocusStart >= 0.0f) {
+            float fe = fminf(1.0f, (mEffectTime - mMpCpFocusStart) / 0.14f);
+            float fk = 1.0f - powf(1.0f - fe, 3.0f);
+            if (focus) baseScale = 1.0f + 0.18f * fk;
+            else if (i == mMpCpSelPrev) baseScale = 1.18f - 0.18f * fk;
+        }
+        // press dip + brightness flash on the activated control (240ms)
+        float ps = baseScale, flash = 0.0f;
+        if (mMpCpPressSel == i && mMpCpPressStart >= 0.0f) {
+            float e = (mEffectTime - mMpCpPressStart) / 0.24f;
+            if (e < 1.0f) { float s = sinf(e * 3.14159265f); ps *= 1.0f - 0.18f * s; flash = s * 0.55f; }
+        }
+        // The web SKIPS the firmware "shadow" plate (b.s, a near-opaque dark square that
+        // muddies the visualizer) and draws clean glyphs with a subtle drop-shadow / halo.
+        GLuint gN = mpIcon(b.n), gF = mpIcon(b.f);   // also populates the aspect cache
+        auto glyph = [&](GLuint tex, int arIdx, float dx, float dy, float r, float g, float bl, float al) {
+            if (!tex) return;
+            float hh = ih * ps, ww = hh * mpIconAR(arIdx);
+            drawIconTex(tex, cx - ww * 0.5f + dx, cy - hh * 0.5f + dy, ww, hh, r, g, bl, t * al);
+        };
+        if (focus) {
+            // breathing halo (faint enlarged focus glyph; no shadowBlur on GLES2) + crisp glyph
+            if (gF) {
+                float hh = ih * ps * 1.18f, ww = hh * mpIconAR(b.f);
+                drawIconTex(gF, cx - ww * 0.5f, cy - hh * 0.5f, ww, hh, 0.86f, 0.92f, 1.0f, t * (0.18f + 0.16f * pulse));
+            }
+            glyph(gF, b.f, 0, 0, 1, 1, 1, 1.0f);
+        } else {
+            glyph(gN, b.n, SZ(0.0015f), SZ(0.0025f), 0, 0, 0, 0.5f);   // drop shadow
+            glyph(gN, b.n, 0, 0, 1, 1, 1, 0.85f);                      // dimmed glyph
+        }
+        if (flash > 0.0f) glyph(gF, b.f, 0, 0, 1, 1, 1, flash);        // activate brightness pop
+    }
+    // focused label + SELECT pill
+    if (mMpCpSel >= 0 && mMpCpSel < kMpCpCount) {
+        const char* lab = kMpCp[mMpCpSel].label;
+        float ls = FSZ(22.0f); float lw = measureText(lab, ls);
+        float cx = DXP(0.273f);
+        drawText(lab, cx - lw * 0.5f, TOPY(0.568f, 22.0f), ls, 1.0f, 1.0f, 1.0f, t);
+    }
+    if (mMpVolSub) drawMpVolMeter(t);
+}
+
+void NanoMenu::drawMpVolMeter(float t) {
+    float cx = DXP(0.22f), topY = DYP(0.56f);
+    drawText("Volume Control", cx - measureText("Volume Control", FSZ(22.0f)) * 0.5f,
+             TOPY(0.56f, 22.0f), FSZ(22.0f), 1, 1, 1, t);
+    int lvl = mMpVolLevel;
+    char nm[8]; if (lvl == 0) snprintf(nm, sizeof(nm), "Normal"); else snprintf(nm, sizeof(nm), "%+d", lvl);
+    drawText(nm, cx - measureText(nm, FSZ(18.0f)) * 0.5f, TOPY(0.585f, 18.0f), FSZ(18.0f), 1, 1, 1, 0.85f * t);
+    int segN = 9; float segW = SZ(0.020f), gap = SZ(0.006f), hh = SZ(0.024f), my = DYP(0.60f);
+    float totalW = segN * segW + (segN - 1) * gap, x0 = cx - totalW * 0.5f;
+    int filled = lvl + 5;
+    for (int i = 0; i < segN; i++) {
+        float x = x0 + i * (segW + gap);
+        if (i < filled) drawQuad(x, my, segW, hh, 120/255.0f, 225/255.0f, 255/255.0f, 0.95f * t);
+        else drawQuad(x, my, segW, hh, 1, 1, 1, 0.20f * t);
+    }
+}
+
+// ---- control panel input ----
+void NanoMenu::openMpOpt() {
+    if (mMpCpOpen) return;
+    mMpCpOpen = true; mMpCpClosing = false; mMpVolSub = false;
+    mMpCpSel = mpCpDefault(); mMpCpAnimStart = mEffectTime; mMpCpFocusStart = mEffectTime;
+}
+void NanoMenu::closeMpOpt() {
+    if (!mMpCpOpen) return;
+    if (mMpVolSub) { mMpVolSub = false; return; }
+    mMpCpOpen = false; mMpCpClosing = true; mMpCpCloseStart = mEffectTime;
+}
+void NanoMenu::mpOptBack() {
+    if (mMpVolSub) { mMpVolSub = false; return; }
+    closeMpOpt();
+}
+void NanoMenu::mpOptMove(int dx, int dy) {
+    if (!mMpCpOpen) return;
+    if (mMpVolSub) {
+        if (dx) { mMpVolLevel += (dx > 0 ? 1 : -1); if (mMpVolLevel < -4) mMpVolLevel = -4; if (mMpVolLevel > 4) mMpVolLevel = 4;
+                  mMusicPlayer.setVolume((mMpVolLevel + 4) / 8.0f); }
+        return;
+    }
+    const MpCp& cur = kMpCp[mMpCpSel]; int best = -1; float bestd = 1e9f;
+    for (int i = 0; i < kMpCpCount; i++) {
+        if (i == mMpCpSel) continue; const MpCp& b = kMpCp[i];
+        float ddx = b.gx - cur.gx, ddy = b.gy - cur.gy;
+        if (dx > 0 && ddx <= 0) continue; if (dx < 0 && ddx >= 0) continue;
+        if (dy > 0 && ddy <= 0) continue; if (dy < 0 && ddy >= 0) continue;
+        float along = dx != 0 ? fabsf(ddx) : fabsf(ddy);
+        float perp = dx != 0 ? fabsf(ddy) : fabsf(ddx);
+        float d = along + perp * 3.0f;
+        if (d < bestd) { bestd = d; best = i; }
+    }
+    if (best >= 0) { mMpCpSelPrev = mMpCpSel; mMpCpFocusStart = mEffectTime; mMpCpSel = best; }
+}
+void NanoMenu::mpOptActivate() {
+    if (!mMpCpOpen) return;
+    if (mMpVolSub) { mMpVolSub = false; return; }   // X confirms + closes volume submenu
+    mMpCpPressStart = mEffectTime; mMpCpPressSel = mMpCpSel;
+    const char* a = kMpCp[mMpCpSel].act;
+    if (!strcmp(a, "vol")) { mMpVolSub = true; }
+    else if (!strcmp(a, "play")) { mMusicPlayer.play(); }
+    else if (!strcmp(a, "pause")) { mMusicPlayer.pause(); }
+    else if (!strcmp(a, "stop")) { mMusicPlayer.stop(); }
+    else if (!strcmp(a, "next")) { mMpTransientIcon = 2; mMpTransientUntil = mEffectTime + 0.9f; mpNext(); }
+    else if (!strcmp(a, "prev")) { mMpTransientIcon = 1; mMpTransientUntil = mEffectTime + 0.9f; mpPrev(); }
+    else if (!strcmp(a, "rew")) { mMpTransientIcon = 5; mMpTransientUntil = mEffectTime + 0.9f; mMusicPlayer.seek(fmax(0.0, mMusicPlayer.position() - 10.0)); }
+    else if (!strcmp(a, "ff")) { mMpTransientIcon = 6; mMpTransientUntil = mEffectTime + 0.9f; mMusicPlayer.seek(mMusicPlayer.position() + 10.0); }
+    else if (!strcmp(a, "repeat")) { mMpRepeat = (mMpRepeat + 1) % 3; }
+    else if (!strcmp(a, "shuffle")) { mMpShuffle = !mMpShuffle; mpRebuildOrder(); }
+    else if (!strcmp(a, "vis")) { mpCycleVis(); }
+    else if (!strcmp(a, "disp")) { mMpFullInfo = !mMpFullInfo; }
+    else if (!strcmp(a, "del")) { mpShowMsg("Deleting...", 800.0f, 1); }
+    else if (!strcmp(a, "addpl")) {
+        int ti = (mMpIdx >= 0 && mMpIdx < (int)mMpQueue.size()) ? mMpQueue[mMpIdx] : -1;
+        std::string file = (ti >= 0 && ti < (int)mMusicTracks.size()) ? mMusicTracks[ti].file : "";
+        openOskForPassword("Enter a name for the playlist",
+            [this, file](const std::string& nm){ musicCreatePlaylist(nm);
+                if (!file.empty()) musicAddTrackToPlaylist((int)mMusicPlaylists.size() - 1, file); });
     }
 }
 

@@ -329,6 +329,53 @@ GLuint NanoMenu::loadPs3NmapTex(const char* file) {
     return uploadRGBA(px.data(), w, h);
 }
 
+// Music player control-panel / status / codec-badge icon (the web audioplayer set,
+// images/audioplayer/icon_NNN.png). Colour PNGs (not silhouettes), cached by index;
+// 0 cached on miss so it never re-reads. Lazy: only loaded on first Now-Playing use.
+GLuint NanoMenu::mpIcon(int n) {
+    auto it = mMpIconCache.find(n);
+    if (it != mMpIconCache.end()) return it->second;
+    char file[40];
+    snprintf(file, sizeof(file), "icon_%03d.png", n);
+    char path[256];
+    std::vector<uint8_t> px; int w = 0, h = 0;
+    // These are full-colour PNGs (silver/grey glyphs, dark drop-shadow plates); keep
+    // their real RGB (monoWhite=false) so the panel does not turn into white blocks.
+    snprintf(path, sizeof(path), "/data/system/nano_xmb/audioplayer/%s", file);
+    if (!decodeRGBA(path, nullptr, 0, &w, &h, &px, false)) {
+        snprintf(path, sizeof(path), "/system/etc/nano_xmb/audioplayer/%s", file);
+        if (!decodeRGBA(path, nullptr, 0, &w, &h, &px, false)) { mMpIconCache[n] = 0; return 0; }
+    }
+    GLuint tex = uploadRGBA(px.data(), w, h, /*wantMipmap=*/true);
+    mMpIconCache[n] = tex;
+    mMpIconAR[n] = (h > 0) ? (float)w / (float)h : 1.0f;
+    return tex;
+}
+
+// Aspect ratio (w/h) of an audioplayer icon, cached alongside its texture. The
+// repeat/shuffle/repeat-one glyphs are non-square pills, so the panel must use the
+// native aspect or they squash. Returns 1.0 before the icon is loaded.
+float NanoMenu::mpIconAR(int n) {
+    auto it = mMpIconAR.find(n);
+    return (it != mMpIconAR.end()) ? it->second : 1.0f;
+}
+
+// Music jacket placeholder (assets/icon_fw_track.png, the web's default cover /
+// plane_default_music_cover). Colour PNG, loaded once and cached in mMpJacketTex.
+GLuint NanoMenu::mpJacket() {
+    if (mMpJacketTex) return mMpJacketTex;
+    char path[256];
+    std::vector<uint8_t> px; int w = 0, h = 0;
+    // Colour cover art (grey music-note plate); keep its real RGB (monoWhite=false).
+    snprintf(path, sizeof(path), "/data/system/nano_xmb/assets/icon_fw_track.png");
+    if (!decodeRGBA(path, nullptr, 0, &w, &h, &px, false)) {
+        snprintf(path, sizeof(path), "/system/etc/nano_xmb/assets/icon_fw_track.png");
+        if (!decodeRGBA(path, nullptr, 0, &w, &h, &px, false)) { mMpJacketTex = 0; return 0; }
+    }
+    mMpJacketTex = uploadRGBA(px.data(), w, h, /*wantMipmap=*/true);
+    return mMpJacketTex;
+}
+
 // Boot-intro plate (logo_white.png / footer_white.png). Forced mono-white from
 // the alpha mask so drawIconTex tints it any colour; 2-tier resolve (dev then
 // shipped) under the nano_xmb/boot sub-dir.

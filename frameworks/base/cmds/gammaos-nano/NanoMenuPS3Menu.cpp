@@ -1025,6 +1025,7 @@ void NanoMenu::ps3DlgNav(int dir, bool horizontal) {
 }
 
 void NanoMenu::ps3XmbLeft() {
+    if (mMpActive) { if (mMpCpOpen) mpOptMove(-1, 0); return; }   // panel grid nav (left)
     if (ps3TopScreenKind() == GS_ICONGRID) { iconGridNav(-1, 0); return; }
     if (mPs3BrightSlider) { adjustBrightness(-1); return; }   // Quick Menu brightness slider modal
     if (mPs3TzActive) return;   // tzglobe list is vertical only
@@ -1041,9 +1042,11 @@ void NanoMenu::ps3XmbLeft() {
     mPs3AnimItem = (float)mPs3ItemIdx; mPs3ItemAnimStart = -1.0f;  // snap; no cross-list anim
     mPs3CatFromOffset = live - ps3::CAT_SPACING;
     mPs3CatT = 0.0f; mPs3CatAnimActive = true;
+    musicOnCatFocus();   // lazy-load the music library when the Music column is focused
 }
 
 void NanoMenu::ps3XmbRight() {
+    if (mMpActive) { if (mMpCpOpen) mpOptMove(+1, 0); return; }   // panel grid nav (right)
     if (ps3TopScreenKind() == GS_ICONGRID) { iconGridNav(+1, 0); return; }
     if (mPs3BrightSlider) { adjustBrightness(+1); return; }   // Quick Menu brightness slider modal
     if (mPs3TzActive) return;   // tzglobe list is vertical only
@@ -1060,9 +1063,11 @@ void NanoMenu::ps3XmbRight() {
     mPs3AnimItem = (float)mPs3ItemIdx; mPs3ItemAnimStart = -1.0f;
     mPs3CatFromOffset = live + ps3::CAT_SPACING;
     mPs3CatT = 0.0f; mPs3CatAnimActive = true;
+    musicOnCatFocus();   // lazy-load the music library when the Music column is focused
 }
 
 void NanoMenu::ps3XmbUp() {
+    if (mMpActive) { if (mMpCpOpen) mpOptMove(0, +1); return; }   // panel grid nav (screen-up = grid-up)
     if (ps3TopScreenKind() == GS_ICONGRID) { iconGridNav(0, -1); return; }
     if (mPs3BrightSlider) { mPs3BrightSlider = false; mShowBrightnessBar = false; mBrightnessBarTimer = 0; return; }
     if (mPs3TzActive) { tzGlobeNav(-1); return; }
@@ -1073,6 +1078,7 @@ void NanoMenu::ps3XmbUp() {
     if (s > 0) { mPs3ItemAnimFrom = mPs3AnimItem; mPs3ItemAnimStart = mEffectTime; s--; }
 }
 void NanoMenu::ps3XmbDown() {
+    if (mMpActive) { if (mMpCpOpen) mpOptMove(0, -1); return; }   // panel grid nav (screen-down = grid-down)
     if (ps3TopScreenKind() == GS_ICONGRID) { iconGridNav(0, +1); return; }
     if (mPs3BrightSlider) { mPs3BrightSlider = false; mShowBrightnessBar = false; mBrightnessBarTimer = 0; return; }
     if (mPs3TzActive) { tzGlobeNav(+1); return; }
@@ -1084,6 +1090,7 @@ void NanoMenu::ps3XmbDown() {
 }
 
 void NanoMenu::ps3XmbSelect() {
+    if (mMpActive) { if (mMpCpOpen) mpOptActivate(); return; }   // X activates the focused control
     if (ps3TopScreenKind() == GS_ICONGRID) { iconGridSelect(); return; }
     if (mPs3BrightSlider) { mPs3BrightSlider = false; mShowBrightnessBar = false; mBrightnessBarTimer = 0; return; }  // X confirms the brightness slider
     if (mPs3TzActive) { closeTimezoneGlobe(true); return; }   // X: apply the highlighted zone + close
@@ -1300,6 +1307,7 @@ void NanoMenu::ps3XmbSelect() {
 }
 
 void NanoMenu::ps3XmbBack() {
+    if (mMpActive) { if (mMpCpOpen) mpOptBack(); else closeMusicPlayer(); return; }   // O: panel back / exit player
     if (ps3TopScreenKind() == GS_ICONGRID) { closeIconGridPicker(); mPs3Stack.pop_back(); return; }
     if (mPs3BrightSlider) { mPs3BrightSlider = false; mShowBrightnessBar = false; mBrightnessBarTimer = 0; return; }  // O dismisses the brightness slider
     if (mPs3TzActive) { closeTimezoneGlobe(false); return; }   // O: cancel (keep current zone)
@@ -1401,6 +1409,11 @@ void NanoMenu::renderPs3Xmb() {
     // standalone (it fills black then fades the Earth in over it), skipping the
     // expensive menu/glass-icon pass entirely.
     if (mPs3TzActive) { renderTimezoneGlobe(); return; }
+
+    // Now-Playing music screen: drawn over the wave background (already rendered by
+    // render() before us), replacing the XMB chrome. The control panel + bar live in
+    // NanoMenuMusic.cpp. The Waves morph (Phase 4) animates the background underneath.
+    if (mMpActive) { renderMusicPlayer(); return; }
 
     // In the in-game overlay (scrim mode: a live app is behind us) a FULLSCREEN
     // dialog or the network wizard must HIDE the XMB chrome and show ONLY the

@@ -1334,6 +1334,7 @@ private:
     bool loadMusicConfig();
     void saveMusicConfig();
     void musicEnsureLoaded();              // parse JSON + NanoAudio init + kick a stale scan (guarded)
+    void musicOnCatFocus();                // lazy-load the library when the Music category is focused
     // scan
     void musicScanAsync();                 // detached worker over mMusicFolders
     void musicScanThreadFunc();            // the worker body
@@ -1373,7 +1374,47 @@ private:
     void mpStep(int dir, bool isAuto);
     void mpNext();
     void mpPrev();
-    void musicTick();                  // per-frame: auto-advance on EOS
+    void musicTick();                  // per-frame: auto-advance on EOS + fades
+
+    // Now-Playing fullscreen render + control panel (1:1 web drawMusicPlayer / MP_CP).
+    bool mMpFullInfo = false;          // Display toggle (counter/time/codec/seek cluster)
+    int  mMpVolLevel = 0;              // -4..+4 (web volLevel); maps to (lvl+4)/8 gain
+    float mMpEnterT = 0.0f;            // player-presence fade 0..1 (bar fades in)
+    float mMpFullInfoT = 0.0f;         // full-info cluster fade 0..1
+    // control panel (TRIANGLE)
+    bool  mMpCpOpen = false;
+    int   mMpCpSel = 0;                // index into MP_CP
+    int   mMpCpSelPrev = -1;
+    float mMpCpAnimStart = -1.0f;      // open slide/fade start (mEffectTime)
+    float mMpCpFocusStart = -1.0f;     // focus-change ease start
+    bool  mMpCpClosing = false;
+    float mMpCpCloseStart = -1.0f;
+    float mMpCpPressStart = -1.0f;     // button invoke flash
+    int   mMpCpPressSel = -1;
+    bool  mMpVolSub = false;           // Volume Control submenu inside the panel
+    // transient transport glyph (skip/back/ff/rew flash ~900ms)
+    int   mMpTransientIcon = -1;
+    float mMpTransientUntil = 0.0f;
+    // visualizer-name banner + full-screen message chain
+    std::string mMpBanner; float mMpBannerStart = -1.0f;
+    std::string mMpMsg; float mMpMsgStart = -1.0f; float mMpMsgDur = 0.0f; int mMpMsgThen = 0;
+    std::map<int, GLuint> mMpIconCache;
+    std::map<int, float> mMpIconAR;   // audioplayer icon aspect ratios (w/h; pills are non-square)
+    GLuint mMpJacketTex = 0;
+    GLuint mpIcon(int n);              // load+cache an audioplayer icon texture (NanoMenuPS3Icons.cpp)
+    float  mpIconAR(int n);           // cached aspect ratio (w/h) of an audioplayer icon, 1.0 if unknown
+    GLuint mpJacket();                 // load+cache the default jacket cover texture
+    void renderMusicPlayer();         // the Now-Playing fullscreen draw
+    void openMpOpt();                 // open the control panel
+    void closeMpOpt();                // close it (or the volume submenu first)
+    void mpOptMove(int dx, int dy);   // grid nav (dx +right, dy +grid-up)
+    void mpOptActivate();             // X on the focused control
+    void mpOptBack();                 // Circle inside the panel (vol-sub -> panel -> close)
+    void drawMpOpt(float closeT);     // render the panel (closeT>=0 drives the close anim)
+    void drawMpVolMeter(float t);     // the Volume Control submenu meter
+    void drawMpStatusRow(float ax, float fade);   // play-state/transport/repeat/shuffle row
+    void mpShowMsg(const std::string& text, float durMs, int then);
+    void mpCycleVis();                // SQUARE: 0<->1 visualizer toggle + banner
 
     std::vector<Ps3Item>& ps3CurItems();   // current visible item list (top or submenu)
     int& ps3CurSel();

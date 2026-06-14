@@ -842,6 +842,15 @@ void NanoMenu::pollInput() {
                 if (mOskActive) for (const char* p = navbuf + 5; *p; ++p) oskType(*p);
             }
             else if (!strcmp(navbuf, "submit")) { if (mOskActive) oskConfirm(); }
+            // Now-Playing scripting for 1:1 verification: `tri` toggles the
+            // control panel (physical Triangle/BTN_NORTH), `sq` cycles the
+            // visualizer (physical Square/BTN_WEST). No effect off Now-Playing.
+            else if (!strcmp(navbuf, "tri")) {
+                if (mMpActive) { if (mMpCpOpen) closeMpOpt(); else openMpOpt(); }
+            }
+            else if (!strcmp(navbuf, "sq")) {
+                if (mMpActive && !mOskActive) mpCycleVis();
+            }
             // Game Systems list scripting: l1/r1 reorder the selected system,
             // x toggles its enabled state (the physical L1/R1/X buttons do the
             // same; the nav hook only injects dpad/A/B so these widen it).
@@ -1067,7 +1076,8 @@ void NanoMenu::pollInput() {
                         navPress(NavDir::Left); break;
                     case KEY_RIGHT:
                         navPress(NavDir::Right); break;
-                    case BTN_WEST: // Y button (Nintendo layout: BTN_WEST = Y)
+                    case BTN_WEST: // Y button (Nintendo layout: BTN_WEST = Y); PS3 Square in music
+                        if (mMpActive && !mOskActive) { mpCycleVis(); break; }   // Square: cycle the visualizer
                         if (mMenuState == MENU_WIFI) { handleWifiScreenY(); break; }
                         if (mMenuState == MENU_BT)   { handleBtScreenY();   break; }
                         // Icon grid picker: Y opens the name-filter OSK.
@@ -1137,8 +1147,9 @@ void NanoMenu::pollInput() {
                               property_set("persist.gammaos.nano.wallpaper", buf); }
                         }
                         break;
-                    case BTN_NORTH: // X button (Nintendo layout: BTN_NORTH = X)
+                    case BTN_NORTH: // X button (Nintendo layout: BTN_NORTH = X); PS3 Triangle in music
                         if (mOskActive) { oskBackspace(); break; }
+                        if (mMpActive) { if (mMpCpOpen) closeMpOpt(); else openMpOpt(); break; }   // Triangle: control panel
                         if (mPs3WizActive) { wizRescan(); break; }   // X: re-scan on the AP list
                         if (mMenuState == MENU_WIFI) { handleWifiScreenX(); break; }
                         if (mMenuState == MENU_BT)   { handleBtScreenX();   break; }
