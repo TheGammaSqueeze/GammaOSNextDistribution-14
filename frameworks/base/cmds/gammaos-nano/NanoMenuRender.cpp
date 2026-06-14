@@ -35,6 +35,7 @@
 #include <setjmp.h>
 #include <unistd.h>
 #include <vector>
+#include <thread>   // render-thread watchdog
 #include <string>
 
 #include <android-base/properties.h>
@@ -933,9 +934,11 @@ void NanoMenu::initFonts() {
     mAtlasRowH = 0;
     glGenTextures(1, &mGlyphAtlasTex);
     glBindTexture(GL_TEXTURE_2D, mGlyphAtlasTex);
-    // Default to plain GL_LINEAR (no anti-aliasing). The home-XMB menu content
-    // opts into GL_LINEAR_MIPMAP_NEAREST per frame via setGlyphAtlasAA(); the
-    // mip chain below makes that switch valid from the very first draw.
+    // Plain GL_LINEAR everywhere. The old mipmap-minification AA path
+    // (setGlyphAtlasAA) is a permanent no-op now that glyphs rasterize at their
+    // exact display pixel size, so the atlas needs no mip chain: keeping only
+    // level 0 saves ~5 MB of GPU memory per process (it is mlocked-resident on
+    // this RAM-tight panel) and avoids a full-atlas glGenerateMipmap on recycle.
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -948,10 +951,8 @@ void NanoMenu::initFonts() {
     for (size_t i = 3; i < blank.size(); i += 4) blank[i] = 0;
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, mAtlasW, mAtlasH, 0,
                  GL_RGBA, GL_UNSIGNED_BYTE, blank.data());
-    // Allocate the full mip chain up front so the texture is mipmap-complete
-    // from the first frame; real levels get filled as glyphs pack
-    // (mGlyphAtlasMipDirty -> glGenerateMipmap in render()).
-    glGenerateMipmap(GL_TEXTURE_2D);
+    // No mip chain: MIN_FILTER is GL_LINEAR (level 0 only), so the texture is
+    // complete without one.
     ALOGD("NanoMenu: font atlas %dx%d, %d faces loaded", mAtlasW, mAtlasH, mFtNumFaces);
 }
 
@@ -980,6 +981,21 @@ void NanoMenu::setGlyphAtlasAA(bool /*on*/) {
 // ---------------------------------------------------------------------------
 // Glyph caching
 // ---------------------------------------------------------------------------
+
+// Recycle the glyph atlas: drop every cached glyph and rewind the packing
+// cursor so the next rasterizations refill from the top. Called when the atlas
+// fills mid-frame. The visible working set (the menu plus an open keyboard) is a
+// few hundred glyphs and packs into a small corner of the 2048x2048 atlas, so a
+// recycle reclaims all the space taken by glyphs from screens no longer shown.
+// The texture itself is not cleared: stale pixels are simply never referenced
+// again once their cache entries are gone, and new packs overwrite them.
+void NanoMenu::resetGlyphAtlas() {
+    mGlyphCache.clear();
+    mTextWidthCache.clear();   // widths reference glyph advances we just dropped
+    mAtlasCurX = 1;
+    mAtlasCurY = 1;
+    mAtlasRowH = 0;
+}
 
 const GlyphInfo* NanoMenu::ensureGlyph(uint32_t cp, int rasterPx) {
     if (rasterPx < 6) rasterPx = 6;
@@ -1015,7 +1031,15 @@ const GlyphInfo* NanoMenu::ensureGlyph(uint32_t cp, int rasterPx) {
         gi = FT_Get_Char_Index(face, '?');
         isColorFace = false;
     }
-    if (!face || gi == 0) return nullptr;
+    if (!face || gi == 0) {
+        // No glyph anywhere (not even '?'): cache a blank so we do not re-probe
+        // every face for this codepoint every frame.
+        GlyphInfo blank = {};
+        blank.scaleW = 1.0f;
+        blank.scaleH = 1.0f;
+        auto r = mGlyphCache.emplace(monoKey, blank);
+        return &r.first->second;
+    }
 
     // Mono glyphs rasterize at the exact display size (crisp); color emoji use a
     // fixed strike normalized to mFontSize. The cache key picks the matching slot.
@@ -1036,7 +1060,15 @@ const GlyphInfo* NanoMenu::ensureGlyph(uint32_t cp, int rasterPx) {
 
     FT_Int32 loadFlags = FT_LOAD_RENDER;
     if (isColorFace) loadFlags |= FT_LOAD_COLOR;
-    if (FT_Load_Glyph(face, gi, loadFlags) != 0) return nullptr;
+    if (FT_Load_Glyph(face, gi, loadFlags) != 0) {
+        // Cache a blank so an unloadable glyph is not re-attempted (and re-read
+        // off EROFS) every frame.
+        GlyphInfo blank = {};
+        blank.scaleW = 1.0f;
+        blank.scaleH = 1.0f;
+        auto r = mGlyphCache.emplace(key, blank);
+        return &r.first->second;
+    }
 
     FT_Bitmap* bmp = &face->glyph->bitmap;
     int bw = (int)bmp->width;
@@ -1053,7 +1085,25 @@ const GlyphInfo* NanoMenu::ensureGlyph(uint32_t cp, int rasterPx) {
             mAtlasRowH = 0;
         }
         if (mAtlasCurY + bh + 2 > mAtlasH) {
-            ALOGW("NanoMenu: glyph atlas full at cp=%u px=%d", cp, px);
+            // Atlas full. Returning nullptr without caching would make the next
+            // frame re-run FT_Load_Glyph for this glyph again (an on-demand read
+            // of the lz4-compressed font off EROFS), and so on every frame for
+            // every glyph that no longer fits: a sustained decompress storm that
+            // pins memory until the kernel OOM-kills. Instead recycle the atlas
+            // once per frame and retry into the freshly-rewound space.
+            if (!mGlyphAtlasReset) {
+                mGlyphAtlasReset = true;
+                resetGlyphAtlas();
+                return ensureGlyph(cp, rasterPx);
+            }
+            // Already recycled this frame. Two ways here: a single frame whose
+            // visible glyphs exceed the whole atlas (pathological, never happens
+            // for the menu/keyboard), or the boot prewarm warming more of the
+            // DATA tree than fits. Return nullptr WITHOUT caching: a real render
+            // frame fits comfortably after one recycle so this is unreachable
+            // there, and the prewarm tail simply rasterizes lazily on first draw
+            // (a one-off hitch, not a permanent blank, not a per-frame storm).
+            ALOGW("NanoMenu: glyph atlas full at cp=%u px=%d after recycle", cp, px);
             return nullptr;
         }
 
@@ -1624,21 +1674,53 @@ static void maybeNanoScreenshot() {
     property_set("sys.gammaos.nano.shot", "");
 }
 
+// Background watchdog: if render() stops bumping mRenderHeartbeat for ~8s the
+// render thread is hung (infinite loop or a stuck GL/IPC call). We abort() from
+// here, which debuggerd turns into a tombstone containing EVERY thread's stack
+// (so the hung render thread's exact location is captured under /data/tombstones),
+// and init then restarts gammaos-nano - turning a silent permanent freeze into a
+// diagnosable, self-recovering event. Generous timeout so legitimate slow asset
+// loads never trip it; only a true stall (no frame for 8s) aborts.
+void NanoMenu::startRenderWatchdog() {
+    std::thread([this]() {
+        uint64_t last = 0;
+        int stuck = 0;
+        for (;;) {
+            usleep(2000000);   // 2s
+            uint64_t cur = mRenderHeartbeat.load(std::memory_order_relaxed);
+            if (cur != 0 && cur == last) {
+                if (++stuck >= 4) {   // ~8s with no new frame
+                    ALOGE("NanoMenu WATCHDOG: render thread stalled ~8s "
+                          "(heartbeat=%llu) - aborting for a stack tombstone",
+                          (unsigned long long)cur);
+                    abort();   // -> debuggerd tombstone (all thread stacks) + restart
+                }
+            } else {
+                stuck = 0;
+            }
+            last = cur;
+        }
+    }).detach();
+}
+
 void NanoMenu::render() {
     static bool sFirstFrame = true;
     if (sFirstFrame) {
         sFirstFrame = false;
     }
+    // Render-thread watchdog heartbeat: bumped every frame so a background thread
+    // can detect a hang (e.g. an infinite loop or a stuck GL call inside a render
+    // path) and abort into a tombstone instead of leaving the device frozen.
+    mRenderHeartbeat.fetch_add(1, std::memory_order_relaxed);
+    if (!mWatchdogStarted) { mWatchdogStarted = true; startRenderWatchdog(); }
 
-    // Refresh the glyph-atlas mip chain if any glyph packed since the last frame.
-    // Glyphs are prewarmed at startup, so this fires once after warm-up then
-    // idles. The chain only feeds the home-XMB anti-aliased minification path
-    // (setGlyphAtlasAA); other text samples level 0 via GL_LINEAR.
-    if (mGlyphAtlasMipDirty) {
-        glBindTexture(GL_TEXTURE_2D, mGlyphAtlasTex);
-        glGenerateMipmap(GL_TEXTURE_2D);
-        mGlyphAtlasMipDirty = false;
-    }
+    // Allow at most one glyph-atlas recycle per frame (see ensureGlyph): the
+    // first overflow rewinds the atlas, later overflows in the same frame fall
+    // back to blank glyphs rather than recycling in a loop.
+    mGlyphAtlasReset = false;
+
+    // (The glyph atlas has no mip chain: setGlyphAtlasAA is a no-op and all text
+    // samples level 0 via GL_LINEAR, so there is nothing to regenerate here.)
     // Default text AA off each frame; the home-XMB content and the post-Hello
     // setup-wizard steps opt in, and renderOsk() forces it back off so the
     // keyboard never gets it. This also covers legacy/text-menu modes that do

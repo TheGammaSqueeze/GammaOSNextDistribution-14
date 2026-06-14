@@ -41,7 +41,6 @@
 #include "NanoOskInput.h"         // HangulInput and other per-script engines
 #include "NanoMenuShaders.h"   // FONT_CHAR_W / FONT_CHAR_H
 #include "NanoMenuStrings.h"   // tr(), nanoGetLocale(), nanoGetLocaleInfo()
-#include "NanoI18n.h"          // trDyn() resource-file translations
 
 namespace android {
 
@@ -1121,13 +1120,12 @@ void NanoMenu::renderOsk() {
         std::string label, value;
         float pr, pg, pb;
         if (mOskPasswordCallback || mOskPasswordMode) {
-            const char* prompt = mOskPasswordPrompt.empty() ? "Text" : mOskPasswordPrompt.c_str();
-            label = std::string(trDyn(prompt)) + ": ";
+            label = (mOskPasswordPrompt.empty() ? "Text" : mOskPasswordPrompt) + ": ";
             value = (mOskPasswordMode && !mOskPlaintext) ? maskPassword(mOskQuery)
                                                          : mOskQuery;
             pr = 1.0f; pg = 0.78f; pb = 0.40f;
         } else {
-            label = std::string(trDyn("Search")) + ": ";
+            label = "Search: ";
             value = mOskQuery;
             pr = 0.45f; pg = 0.78f; pb = 1.0f;
         }
@@ -1311,7 +1309,7 @@ void NanoMenu::renderOsk() {
 
     // --- Action button (Enter / Search): accent rounded key ---
     {
-        const char* actLabel = trDyn(mOskPasswordCallback ? "Enter" : "Search");
+        const char* actLabel = mOskPasswordCallback ? "Enter" : "Search";
         float scale = 1.6f * b.sf;
         bool foc = mOsk.inAction;
         if (foc) drawRoundedRect(b.actX, b.actY, b.actW, b.actH, keyRad,
@@ -1329,9 +1327,9 @@ void NanoMenu::renderOsk() {
     // --- Footer / help line ---
     {
         float fScale = 1.35f * b.sf;
-        const char* footer = trDyn(mOskPasswordCallback
+        const char* footer = mOskPasswordCallback
             ? "A:Key  X:Back  L:Shift  R:Sym  Sel:Lang  Start:Enter  B:Cancel"
-            : "A:Key  X:Back  L:Shift  R:Sym  Sel:Lang  Start:Search  B:Cancel");
+            : "A:Key  X:Back  L:Shift  R:Sym  Sel:Lang  Start:Search  B:Cancel";
         float fw = measureText(footer, fScale);
         drawText(footer, b.panelX + b.panelW / 2.0f - fw / 2.0f, b.footerY, fScale,
                  0.58f, 0.60f, 0.68f, 0.80f * fade);

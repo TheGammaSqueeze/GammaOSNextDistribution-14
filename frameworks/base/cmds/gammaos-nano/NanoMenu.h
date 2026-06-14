@@ -996,6 +996,43 @@ private:
     float  mPs3DlgSldStep = 1.0f;
     float  mPs3DlgSldVal  = 0.0f;
     int    mPs3DlgSldScale = 0;    // decimal places (0 = integer)
+    // GammaEQ audio preview: a looping PCM clip played via AAudio so the equalizer
+    // is audible while adjusting it (the FastMixer EQs the speaker mix). mEqPrevPcm
+    // is interleaved int16 at mEqPrevRate/mEqPrevChans; the callback owns mEqPrevPos.
+    // mEqPreviewWanted is the user's intent; mEqPreviewOn is the actual play state.
+    // The stream is opened on a detached worker so a not-yet-ready audio HAL never
+    // blocks the UI/boot; eqPreviewTick() retries until the HAL is available.
+    std::atomic<bool> mEqPreviewOn{false};
+    std::atomic<bool> mEqPreviewWanted{false};
+    std::atomic<bool> mEqPrevOpening{false};
+    std::atomic<bool> mEqPrevPcmReady{false};    // the clip is loaded into mEqPrevPcm
+    std::atomic<bool> mEqPrevLoadStarted{false}; // a background PCM load is in flight/done
+    std::mutex mEqPrevMutex;           // guards mEqPrevStream commit / teardown
+    float  mEqPrevRetryT = 0.0f;       // mEffectTime of the last open attempt
+    void*  mEqPrevStream = nullptr;    // AAudioStream* (opaque here; AAudio.h is .cpp-only)
+    std::vector<int16_t> mEqPrevPcm;
+    volatile size_t mEqPrevPos = 0;
+    int    mEqPrevRate  = 48000;
+    int    mEqPrevChans = 2;
+    int    mEqGammaEqDepth = -1;   // mPs3Stack depth of the GammaEQ submenu (-1 = not in it)
+    void   startEqPreview();       // user toggled on (non-blocking)
+    void   stopEqPreview();        // user toggled off / left the page / teardown
+    void   tryStartEqPreviewAsync();
+    void   eqPreviewOpenWorker();
+    void   eqPreviewTick();        // per-frame retry while wanted but not playing
+    void   ensureEqPcmAsync();     // background-load the clip (once)
+    void   warmEqPreview();        // preload the clip when entering GammaEQ (no playback)
+    void   freeEqPcm();            // release the 25MB clip when leaving GammaEQ
+public:
+    int32_t eqFillAudio(void* audioData, int32_t numFrames);   // called by the AAudio data callback (free fn)
+private:
+    // Render-thread watchdog: render() bumps mRenderHeartbeat every frame; a
+    // background thread aborts (-> debuggerd tombstone with every thread's stack,
+    // then init restarts us) if it stops advancing for ~8s. Turns a silent hang
+    // into a diagnosable stack + an auto-recovery instead of a frozen device.
+    std::atomic<uint64_t> mRenderHeartbeat{0};
+    bool   mWatchdogStarted = false;
+    void   startRenderWatchdog();
     // Fullscreen dialog page (mPs3DlgKind==0). Mirrors web DIALOG_TEMPLATES +
     // drawDialog: a body type, an optional vector illustration, a notice line and
     // the source item's header icon.
@@ -1484,10 +1521,13 @@ private:
     GLuint mGlyphAtlasTex;
     int mAtlasW, mAtlasH;
     int mAtlasCurX, mAtlasCurY, mAtlasRowH;
-    // True after a glyph packs; render() regenerates the atlas mip chain once
-    // (then idles, glyphs are prewarmed). The mip chain only feeds the home-XMB
-    // anti-aliased minification path below; all other text stays GL_LINEAR.
-    bool mGlyphAtlasMipDirty = false;
+    // Guards against re-resetting the glyph atlas more than once per frame: the
+    // atlas is recycled (cache cleared, cursor rewound) the first time it fills
+    // mid-frame so glyphs keep rasterizing instead of re-reading the compressed
+    // font off EROFS every frame (a sustained decompress storm -> kernel OOM).
+    // render() clears this at the top of each frame.
+    bool mGlyphAtlasReset = false;
+    void resetGlyphAtlas();
     // Currently-set atlas MIN_FILTER (texture-object state). setGlyphAtlasAA()
     // flips this to GL_LINEAR_MIPMAP_NEAREST only around the home-XMB menu
     // content and back to GL_LINEAR everywhere else, skipping redundant GL sets.

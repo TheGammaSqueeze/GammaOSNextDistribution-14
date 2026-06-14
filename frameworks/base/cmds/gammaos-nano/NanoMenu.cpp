@@ -299,6 +299,8 @@ void NanoMenu::initSurfaceFlingerPath() {
 }
 
 NanoMenu::~NanoMenu() {
+    // Stop the GammaEQ audio preview stream if it is still playing.
+    stopEqPreview();
     // Stop the setup log tailer if running.
     stopSetupLogThread();
     // Stop the network HUD poller first so its worker thread can't
@@ -1222,6 +1224,15 @@ bool NanoMenu::threadLoop() {
     // large buffers concurrently during startup).
     mallopt(M_CACHE_COUNT_MAX, 0);
     mallopt(M_PURGE_ALL, 0);
+    // MCL_CURRENT | MCL_FUTURE: keep EVERY mapping (fonts, glyph atlases, textures)
+    // pinned resident. This is REQUIRED on this EROFS/loop panel: dropping
+    // MCL_FUTURE left the fonts reclaimable, so every on-screen-keyboard open then
+    // demand-faulted font glyph pages back off the lz4-compressed system image,
+    // and that decompress thrashed/OOMed (kernel panic in minimal boot, OOM-kill
+    // of system_server under full Android). With the pages locked, glyph rendering
+    // never faults. The cost is the resident working set; the right way to shrink
+    // it is to load fewer/smaller assets (see the memory-footprint audit), NOT to
+    // unlock them. Paired with the mallopt above for the scudo/Mali calloc fix.
     if (mlockall(MCL_CURRENT | MCL_FUTURE) == 0) {
         ALOGW("NanoMenu: mlockall done (scudo secondary cache disabled)");
     } else {

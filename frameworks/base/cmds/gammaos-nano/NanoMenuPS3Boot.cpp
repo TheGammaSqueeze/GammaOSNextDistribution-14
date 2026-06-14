@@ -110,6 +110,13 @@ bool NanoMenu::ps3BootUpdate(float dtSeconds) {
         mPs3BootIconReveal = 1.0f;
         ps3bg::setBootWaveBrightness(1.0f);
         mPs3BootActive = false;
+        // The cold-boot logo/footer plates are only drawn by renderPs3BootOverlay
+        // during this intro and never again this process lifetime. Free them now
+        // (700x350 RGBA x2 ~= 1.9 MB of otherwise-mlocked GPU memory). We are on
+        // the render thread (renderPs3Xmb -> ps3BootUpdate) so the GL context is
+        // current. Leave mPs3BootPlatesLoaded true so they are never reloaded.
+        if (mPs3BootLogoTex)   { glDeleteTextures(1, &mPs3BootLogoTex);   mPs3BootLogoTex = 0; }
+        if (mPs3BootFooterTex) { glDeleteTextures(1, &mPs3BootFooterTex); mPs3BootFooterTex = 0; }
         return false;
     }
 

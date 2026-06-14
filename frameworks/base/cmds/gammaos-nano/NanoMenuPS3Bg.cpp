@@ -961,7 +961,21 @@ void render(int panelW, int panelH, float dt, const float rotMat2[4], bool /*rot
     }
 
     // Build the work buffer at full resolution: gradient blit, then additive wave.
+    // The in-game scrim wave is frozen offscreen (!compositeToScreen): it is built
+    // ONCE here then reused via the early-return above, so its 85 keyframes
+    // (~21MB) are dead after the bake and we free them to give the running game
+    // that RAM. If a later rebuild needs them (theme/resize/month, or a return to
+    // the visible wallpaper below) we reload first. CRITICAL: only free in the
+    // frozen-offscreen case. When the wave is COMPOSITED to screen (the visible
+    // wallpaper, compositeToScreen=true) it animates LIVE every frame, so freeing
+    // there would reload+decode 21MB EVERY FRAME (100% CPU, ~5fps). The home
+    // (sScrimFreeze=false) and the overlay-as-wallpaper (compositeToScreen=true)
+    // therefore both keep the keyframes resident.
+    if (sSeqFrames.empty()) loadWaveSeq();
     animateWave(dt);
+    if (sScrimFreeze && !compositeToScreen && !sSeqFrames.empty()) {
+        std::vector<std::vector<float>>().swap(sSeqFrames);
+    }
     ps3part::update(dt);
     glBindFramebuffer(GL_FRAMEBUFFER, sWorkFbo);
     discardColorTile();   // TBDR: skip the LOAD of last frame's tile (overwritten next)

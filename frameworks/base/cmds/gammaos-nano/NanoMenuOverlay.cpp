@@ -320,10 +320,14 @@ void NanoMenu::overlayShow() {
         return;
     }
 
-    // The offscreen wave is frozen (rendered once, reused for glass-icon
-    // refraction). Force one fresh re-render on each show so the glass picks up the
-    // current day/night + theme even though the wave never runs per-frame.
-    ps3bg::invalidateScrimWave();
+    // The offscreen wave is frozen (rendered once, reused as the glass-icon
+    // refraction source). We deliberately do NOT invalidate it on each show: the
+    // overlay frees its 21MB of wave keyframes after the first bake (to give a
+    // running game that RAM), so forcing a rebuild here would reload them off disk
+    // and stall the power-hold raise. Reusing the baked frame keeps the raise
+    // instant; the refraction is blurred and scrim-hidden so a slightly stale
+    // day/night tint is imperceptible, and a real theme/day-night change still
+    // bumps the wave epoch (setThemeColor/setDayNightBlend) to force one rebuild.
 
     // The FIXED_PERFORMANCE perf hint is owned by overlayApplyPresentMode (it is
     // mode-dependent: scrim only). See the comment there.
@@ -502,6 +506,7 @@ bool NanoMenu::overlayAtTopLevel() const {
 }
 
 void NanoMenu::overlayResume() {
+    stopEqPreview();   // never leave the GammaEQ preview clip playing into a resumed app
     // In overlay-home LAUNCHER mode (full wallpaper, no app behind us) there is
     // nothing to return to - the overlay IS the home surface - so Back/Resume at
     // the top level must be a no-op. Dismissing would orphan the screen and the

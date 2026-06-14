@@ -97,6 +97,7 @@ cc_binary {
         "libhidlbase",
         "libnativewindow",
         "libandroid",   // APerformanceHint (ADPF render-thread hint session)
+        "libaaudio",    // GammaEQ audio preview (looping playback so the EQ is audible)
     ],
 
     init_rc: ["gammaos-nano.rc"],
@@ -115,6 +116,7 @@ cc_binary {
         "nano_xmb_icons_retroarch",
         "nano_xmb_daijishou",
         "nano_xmb_i18n",
+        "nano_xmb_audio",
     ],
 }
 
@@ -180,6 +182,15 @@ prebuilt_etc {
     name: "nano_xmb_textures",
     srcs: ["ps3xmb/textures/*.png"],
     sub_dir: "nano_xmb/textures",
+}
+
+// GammaEQ audio preview clip: a short 48kHz/16-bit/stereo PCM WAV looped by the
+// nano (AAudio) so the equalizer is audible while you adjust it. Loaded from
+// /data/system/nano_xmb/audio/ first (dev override), else this install path.
+prebuilt_etc {
+    name: "nano_xmb_audio",
+    srcs: ["ps3xmb/audio/*.wav"],
+    sub_dir: "nano_xmb/audio",
 }
 
 // 3D Earth maps for the Time Zone globe selector (web tzglobe screen). Day /

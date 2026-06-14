@@ -45,6 +45,7 @@
 #include <thread>
 #include <vector>
 #include <functional>
+#include <aaudio/AAudio.h>   // GammaEQ audio preview (looping playback)
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -357,6 +358,28 @@ void NanoMenu::initPs3Menu() {
                 warmStr(it.label.c_str(), sLabel, sActive);
                 warmStr(it.desc.c_str(),  sDesc, 0.0f);
                 warmStr(it.value.c_str(), sLabel, 0.0f);
+            }
+        }
+        // (c) On-screen keyboard glyphs. The OSK was the one screen NOT warmed
+        // here, so opening it cold-rasterized ~95 printable ASCII at its own
+        // (un-prewarmed) pixel sizes in a single frame - a burst of on-demand
+        // reads off the lz4 system image. On this RAM-tight EROFS/loop panel that
+        // burst spiked memory hard enough to trip the low-memory killer and
+        // thrash the device. Warm every printable ASCII at the exact scales
+        // renderOsk()/oskLayoutBox() draw at (b.sf = min(W/1080,H/720)), so the
+        // keyboard opens entirely from cache and touches the font image not at
+        // all. ASCII covers all keycaps, the footer hint and the action label;
+        // non-Latin keycaps are handled by their own locale path.
+        {
+            const float osf = fminf((float)mWidth / 1080.0f, (float)mHeight / 720.0f);
+            // The distinct multipliers renderOsk applies to b.sf (preview 2.0,
+            // keys 1.85/1.35, candidate 1.7, action 1.6, lang 1.5, superscript
+            // 1.0/0.85).
+            static const float oskMul[] = {2.0f, 1.85f, 1.7f, 1.6f, 1.5f, 1.35f, 1.0f, 0.85f};
+            char ch[2] = {0, 0};
+            for (float m : oskMul) {
+                const float sc = m * osf;
+                for (int c = 0x20; c < 0x7f; c++) { ch[0] = (char)c; (void)measureText(ch, sc); }
             }
         }
     }
@@ -1077,7 +1100,8 @@ void NanoMenu::ps3XmbSelect() {
         case PS3_SYSTEM:       { Ps3Level lvl; buildRomSubmenu(it.a, lvl);     mPs3Stack.push_back(lvl); break; }
         case PS3_RECENT_LIST:  { Ps3Level lvl; buildRecentSubmenu(lvl);        mPs3Stack.push_back(lvl); break; }
         case PS3_APP_LIST:     { Ps3Level lvl; buildAppSubmenu(lvl);           mPs3Stack.push_back(lvl); break; }
-        case PS3_DATA_SUBMENU: { Ps3Level lvl; buildDataSubmenu(it.data, lvl); mPs3Stack.push_back(lvl); break; }
+        case PS3_DATA_SUBMENU: { if (it.label == "GammaEQ") warmEqPreview();   // preload the clip before the user reaches Audio Preview
+                                 Ps3Level lvl; buildDataSubmenu(it.data, lvl); mPs3Stack.push_back(lvl); break; }
         case PS3_GS_ROOT:      { Ps3Level lvl; buildGameSystemsList(lvl);      mPs3Stack.push_back(lvl); break; }
         case PS3_GS_SYSTEM_ROW: { mGsEditIdx = it.a; Ps3Level lvl; buildGameSystemEditor(it.a, lvl); mPs3Stack.push_back(lvl); break; }
         case PS3_GS_FIELD:     { gsEditField(it.a); return; }   // open OSK / chooser / toggle
@@ -1160,6 +1184,10 @@ void NanoMenu::ps3XmbSelect() {
                 if (!liveAppBehind) openLanguagePicker();
                 return;
             }
+            if (it.label == "Audio Preview") {   // GammaEQ: toggle the looping preview clip
+                if (mEqPreviewWanted.load()) stopEqPreview(); else startEqPreview();
+                mDisplayDirty = true; return;
+            }
             if (it.label == "Set via Internet") { startDateTimeWizard(0); return; }  // NTP progress->result
             if (it.label == "Set Manually")     { startDateTimeWizard(1); return; }  // OSK date+time entry
             // Accessory Settings -> real Bluetooth device management (1:1 web bt_* flow).
@@ -1233,6 +1261,12 @@ void NanoMenu::ps3XmbBack() {
         // expand the parent back out of the breadcrumb column (timed, dir -1).
         mPs3SubChildItems  = mPs3Stack.back().items;
         mPs3Stack.pop_back();
+        // Left the GammaEQ submenu: stop the preview and release its 25MB clip.
+        if (mEqGammaEqDepth >= 0 && (int)mPs3Stack.size() <= mEqGammaEqDepth) {
+            stopEqPreview();
+            freeEqPcm();
+            mEqGammaEqDepth = -1;
+        }
         mPs3SubParentItems = ps3CurItems();     // restored parent list
         mPs3SubParentIdx   = ps3CurSel();
         mPs3SubDir         = -1;
@@ -1248,6 +1282,7 @@ void NanoMenu::ps3XmbBack() {
 // ---------------------------------------------------------------------------
 void NanoMenu::renderPs3Xmb() {
     if (!mPs3MenuBuilt) initPs3Menu();
+    eqPreviewTick();   // retry the GammaEQ preview open if the audio HAL was not ready
     // Arm the once-per-frame glass-icon uniform upload (drawGlassIcon sends the
     // frame-invariant uniforms on the first icon, skips them on the rest).
     mGlassUniformsSet = false;
@@ -1719,6 +1754,17 @@ void NanoMenu::renderPs3Xmb() {
             float vRight = ps3::devX(ps3::XCF(ps3::VW - ps3::ITEM_VALUE_RIGHT_PAD));
             { float vPanelMax = (float)mWidth - ps3::devS(ps3::ITEM_VALUE_RIGHT_PAD);
               if (vRight > vPanelMax) vRight = vPanelMax; }
+            // Sub-menu indicator: rows that open a deeper list get a right-edge
+            // chevron. If the row also shows a value (e.g. a module's On/Off) the
+            // value sits to the chevron's left. Suppressed under the side panel.
+            bool opensSub = (it.kind == PS3_DATA_SUBMENU || it.kind == PS3_SYSTEM ||
+                             it.kind == PS3_RECENT_LIST || it.kind == PS3_APP_LIST ||
+                             it.kind == PS3_GS_ROOT || it.kind == PS3_GS_SYSTEM_ROW);
+            if ((mPs3DlgActive || mPs3DlgClosing) && mPs3DlgKind == 1) opensSub = false;
+            const char* kChevron = "\xE2\x80\xBA";   // > single right angle quotation mark
+            float chFs = ps3::fontScale(ps3::ITEM_TEXT_SIZE);
+            float gutterRight = vRight;               // far-right edge before the chevron carve-out
+            if (opensSub) vRight -= measureText(kChevron, chFs) + ps3::devS(12.0f);
             float gapW = ps3::devS(14.0f);
             float totalAvail = vRight - tx;
             float labelW = measureText(L, ts);
@@ -1794,6 +1840,13 @@ void NanoMenu::renderPs3Xmb() {
                 drawTextStroke(itVal.c_str(), dvx, ty, vs, mPs3ShadowAlpha * alpha);
                 drawText(itVal.c_str(), dvx, ty, vs, 0.7f, 0.7f, 0.75f, alpha * 0.85f);
                 if (vScissor) glDisable(GL_SCISSOR_TEST);
+            }
+            if (opensSub) {
+                float chW = measureText(kChevron, chFs);
+                float cx = gutterRight - chW;
+                float chA = isActive ? alpha : alpha * 0.7f;   // brighter on the focused row
+                drawTextStroke(kChevron, cx, ty, chFs, mPs3ShadowAlpha * alpha);
+                drawText(kChevron, cx, ty, chFs, 0.85f, 0.85f, 0.9f, chA);
             }
         }
     };
@@ -2336,6 +2389,8 @@ static const Ps3SettingBinding kPs3Bindings[] = {
      "300000:5 minutes,600000:10 minutes,1800000:30 minutes,-1:Never"},
     {"Font Size", SettingSource::kSystem, "font_scale", "1.0",
      "0.85:Small,1.0:Default,1.15:Large,1.30:Largest"},
+    // Free-text setting edited via the on-screen keyboard ("@text" special).
+    {"System Name", SettingSource::kProp, "persist.gammaos.nano.system_name", "", "@text"},
     {"Touch Sounds", SettingSource::kSystem, "sound_effects_enabled", "1", "0:Off,1:On"},
     {"Charging Sounds", SettingSource::kGlobal, "charging_sounds_enabled", "1", "0:Off,1:On"},
     {"Screen Lock Sounds", SettingSource::kSystem, "lockscreen_sounds_enabled", "1", "0:Off,1:On"},
@@ -2413,6 +2468,8 @@ static const Ps3SettingBinding kPs3Bindings[] = {
     {"Pre-FX Sampling", SettingSource::kProp, "persist.gammaos.rgb.sample.pre_fx", "1", "0:Off,1:On"},
     {"Split LEDs", SettingSource::kProp, "persist.gammaos.rgb.split", "0", "0:Off,1:On"},
     {"Split Colours", SettingSource::kProp, "persist.gammaos.rgb.color_split", "0", "0:Off,1:On"},
+    {"Left Colour", SettingSource::kProp, "persist.gammaos.rgb.left_hex_custom", "", "@rgbcolor"},
+    {"Right Colour", SettingSource::kProp, "persist.gammaos.rgb.right_hex_custom", "", "@rgbcolor"},
     // GammaEQ master (persist.sys.gammaeq.*; every write bumps the .seq props - see ps3BumpEqSeqs)
     {"Enable EQ", SettingSource::kProp, "persist.sys.gammaeq.enable", "0", "0:Off,1:On"},
     {"Speaker Only", SettingSource::kProp, "persist.sys.gammaeq.spk_only", "1", "0:Off,1:On"},
@@ -2579,6 +2636,175 @@ static int ps3NearestSwatch(const std::string& hex) {
     return best;
 }
 
+// ---- GammaEQ audio preview (AAudio looping playback) -----------------------
+// Minimal RIFF/WAVE PCM16 loader: scan chunks for "fmt " (rate/channels, 16-bit
+// PCM only) and "data" (samples) into an interleaved int16 vector.
+static bool loadWavPcm16(const char* path, std::vector<int16_t>& out, int& rate, int& chans) {
+    FILE* f = fopen(path, "rb");
+    if (!f) return false;
+    char hdr[12];
+    if (fread(hdr, 1, 12, f) != 12 || memcmp(hdr, "RIFF", 4) || memcmp(hdr + 8, "WAVE", 4)) { fclose(f); return false; }
+    int sr = 0, ch = 0, bits = 0; bool haveFmt = false;
+    long dataPos = -1; uint32_t dataLen = 0;
+    for (;;) {
+        unsigned char ch8[8];
+        if (fread(ch8, 1, 8, f) != 8) break;
+        uint32_t sz = ch8[4] | (ch8[5] << 8) | (ch8[6] << 16) | ((uint32_t)ch8[7] << 24);
+        if (!memcmp(ch8, "fmt ", 4)) {
+            unsigned char fmt[16] = {};
+            uint32_t n = sz < 16 ? sz : 16;
+            if (fread(fmt, 1, n, f) != n) break;
+            ch   = fmt[2] | (fmt[3] << 8);
+            sr   = fmt[4] | (fmt[5] << 8) | (fmt[6] << 16) | ((uint32_t)fmt[7] << 24);
+            bits = fmt[14] | (fmt[15] << 8);
+            haveFmt = true;
+            if (sz > n) fseek(f, (long)(sz - n), SEEK_CUR);
+        } else if (!memcmp(ch8, "data", 4)) {
+            dataPos = ftell(f); dataLen = sz;
+            fseek(f, (long)sz, SEEK_CUR);
+        } else {
+            fseek(f, (long)sz, SEEK_CUR);
+        }
+        if (sz & 1u) fseek(f, 1, SEEK_CUR);   // chunks are word-aligned
+    }
+    if (!haveFmt || dataPos < 0 || bits != 16 || ch < 1) { fclose(f); return false; }
+    size_t nSamples = dataLen / 2;
+    out.resize(nSamples);
+    fseek(f, dataPos, SEEK_SET);
+    size_t got = fread(out.data(), 2, nSamples, f);
+    fclose(f);
+    out.resize(got);
+    rate = sr; chans = ch;
+    return !out.empty();
+}
+
+// AAudio data callback (runs on the audio thread): fill numFrames, looping the
+// preview PCM. Free function so it uses AAudio's real opaque types; defers to the
+// NanoMenu member, which owns mEqPrevPos while the stream is running.
+int32_t NanoMenu::eqFillAudio(void* audioData, int32_t numFrames) {
+    int16_t* dst = static_cast<int16_t*>(audioData);
+    int ch = mEqPrevChans;
+    int32_t want = numFrames * ch;
+    size_t total = mEqPrevPcm.size();
+    if (total == 0) { memset(dst, 0, (size_t)want * sizeof(int16_t)); return AAUDIO_CALLBACK_RESULT_CONTINUE; }
+    size_t pos = mEqPrevPos;
+    const int16_t* src = mEqPrevPcm.data();
+    for (int32_t i = 0; i < want; i++) { dst[i] = src[pos]; if (++pos >= total) pos = 0; }
+    mEqPrevPos = pos;
+    return AAUDIO_CALLBACK_RESULT_CONTINUE;
+}
+
+static aaudio_data_callback_result_t nanoEqPrevCb(AAudioStream* /*s*/, void* userData,
+                                                  void* audioData, int32_t numFrames) {
+    return (aaudio_data_callback_result_t)
+        static_cast<NanoMenu*>(userData)->eqFillAudio(audioData, numFrames);
+}
+
+// Background-load the preview clip once (the 25MB read is the few-second cost, so
+// warmEqPreview() kicks this on GammaEQ entry, well before the user can toggle).
+void NanoMenu::ensureEqPcmAsync() {
+    bool expected = false;
+    if (!mEqPrevLoadStarted.compare_exchange_strong(expected, true)) return;   // already loading/loaded
+    std::thread([this]{
+        std::vector<int16_t> pcm; int rate = 48000, ch = 2;
+        const char* paths[] = {
+            "/data/system/nano_xmb/audio/preview.wav",   // dev override
+            "/system/etc/nano_xmb/audio/preview.wav",    // shipped asset
+        };
+        for (const char* p : paths)
+            if (loadWavPcm16(p, pcm, rate, ch)) {
+                ALOGI("nano: EQ preview preloaded %zu samples %dHz x%d from %s", pcm.size(), rate, ch, p);
+                break;
+            }
+        if (!pcm.empty()) { mEqPrevPcm.swap(pcm); mEqPrevRate = rate; mEqPrevChans = ch; mEqPrevPcmReady = true; }
+        else { ALOGW("nano: EQ preview clip not found"); mEqPrevLoadStarted = false; }   // allow a later retry
+    }).detach();
+}
+
+void NanoMenu::warmEqPreview() { mEqGammaEqDepth = (int)mPs3Stack.size(); ensureEqPcmAsync(); }
+
+// Release the preview clip (25MB) once we leave the GammaEQ submenu. Safe only
+// when nothing is using or loading it; otherwise it is freed on the next leave.
+void NanoMenu::freeEqPcm() {
+    if (mEqPreviewOn.load() || mEqPrevOpening.load()) return;            // playing / opening
+    if (mEqPrevLoadStarted.load() && !mEqPrevPcmReady.load()) return;    // a load is in flight
+    std::vector<int16_t>().swap(mEqPrevPcm);
+    mEqPrevPcmReady = false;
+    mEqPrevLoadStarted = false;
+}
+
+// Open the AAudio stream + start playback. Runs on a detached worker so a slow or
+// not-yet-ready audio HAL never blocks the UI / boot. The clip must be preloaded
+// (warmEqPreview); if not ready yet it kicks the load and returns, and
+// eqPreviewTick() retries. If the open fails (HAL not up) it also just retries.
+void NanoMenu::eqPreviewOpenWorker() {
+    if (!mEqPrevPcmReady.load()) { ensureEqPcmAsync(); mEqPrevOpening = false; return; }
+    if (!mEqPreviewWanted.load()) { mEqPrevOpening = false; return; }   // toggled off while loading
+    AAudioStreamBuilder* b = nullptr;
+    if (AAudio_createStreamBuilder(&b) != AAUDIO_OK || !b) { mEqPrevOpening = false; return; }
+    AAudioStreamBuilder_setDirection(b, AAUDIO_DIRECTION_OUTPUT);
+    AAudioStreamBuilder_setFormat(b, AAUDIO_FORMAT_PCM_I16);
+    AAudioStreamBuilder_setChannelCount(b, mEqPrevChans);
+    AAudioStreamBuilder_setSampleRate(b, mEqPrevRate);
+    AAudioStreamBuilder_setUsage(b, AAUDIO_USAGE_MEDIA);
+    AAudioStreamBuilder_setPerformanceMode(b, AAUDIO_PERFORMANCE_MODE_NONE);
+    AAudioStreamBuilder_setDataCallback(b, nanoEqPrevCb, this);
+    AAudioStream* s = nullptr;
+    aaudio_result_t r = AAudioStreamBuilder_openStream(b, &s);   // may fail while the HAL is not up
+    AAudioStreamBuilder_delete(b);
+    if (r != AAUDIO_OK || !s) { ALOGW("nano: EQ preview open failed (%d), will retry", (int)r); mEqPrevOpening = false; return; }
+    {
+        std::lock_guard<std::mutex> lk(mEqPrevMutex);
+        if (!mEqPreviewWanted.load()) {   // toggled off during the (possibly slow) open: discard
+            AAudioStream_requestStop(s); AAudioStream_close(s);
+            mEqPrevOpening = false; return;
+        }
+        mEqPrevPos = 0;
+        AAudioStream_requestStart(s);
+        mEqPrevStream = s;
+        mEqPreviewOn = true;
+    }
+    mEqPrevOpening = false;
+    ALOGI("nano: EQ preview started");
+}
+
+void NanoMenu::tryStartEqPreviewAsync() {
+    if (mEqPreviewOn.load() || mEqPrevOpening.load()) return;
+    mEqPrevOpening = true;   // only the UI/render thread spawns, so this guard is race-free
+    std::thread([this]{ eqPreviewOpenWorker(); }).detach();
+}
+
+// User toggled the preview on. Never blocks: the open runs on a worker and, if the
+// audio HAL is not ready yet, eqPreviewTick() retries until it succeeds.
+void NanoMenu::startEqPreview() {
+    if (mEqPreviewWanted.load()) return;
+    mEqPreviewWanted = true;
+    mEqPrevRetryT = mEffectTime;
+    tryStartEqPreviewAsync();
+}
+
+void NanoMenu::stopEqPreview() {
+    mEqPreviewWanted = false;
+    std::lock_guard<std::mutex> lk(mEqPrevMutex);
+    if (mEqPrevStream) {
+        AAudioStream* s = static_cast<AAudioStream*>(mEqPrevStream);
+        AAudioStream_requestStop(s);
+        AAudioStream_close(s);
+        mEqPrevStream = nullptr;
+        ALOGI("nano: EQ preview stopped");
+    }
+    mEqPreviewOn = false;
+}
+
+// Per-frame: if the preview is wanted but not yet playing (e.g. the audio HAL was
+// not ready when first toggled), retry the async open about once a second.
+void NanoMenu::eqPreviewTick() {
+    if (!mEqPreviewWanted.load() || mEqPreviewOn.load() || mEqPrevOpening.load()) return;
+    if (mEffectTime - mEqPrevRetryT < 1.0f) return;
+    mEqPrevRetryT = mEffectTime;
+    tryStartEqPreviewAsync();
+}
+
 // Cached current value for a binding. Read once per leaf (a settings get / prop
 // read) then served from mPs3BindCache so the per-frame drawList stays cheap;
 // updated on commit.
@@ -2597,6 +2823,27 @@ void NanoMenu::openBoundChooser(const Ps3SettingBinding* b) {
     mPs3DlgKind = 1; mPs3DlgThemeKey = 0; mPs3DlgBinding = b;
     mPs3DlgTitle = b->label; mPs3DlgBody.clear();
     std::string cur = ps3BoundValue(b);
+    // Free-text setting: open the on-screen keyboard prefilled with the current
+    // value; commit writes the typed string back. No side-panel dialog is shown.
+    if (!strcmp(b->options, "@text")) {
+        mPs3DlgActive = false; mPs3DlgBinding = nullptr;
+        std::string prefill = cur;
+        if (prefill.empty() && !strcmp(b->key, "persist.gammaos.nano.system_name")) {
+            char mb[PROPERTY_VALUE_MAX]; property_get("ro.product.model", mb, "GammaOS");
+            prefill = mb;
+        }
+        SettingSource src = b->source; std::string key = b->key, label = b->label;
+        openOskForPassword(label, [this, src, key, label](const std::string& val) {
+            if (val.empty()) return;   // keep the previous value rather than blanking it
+            writeSettingValue(src, key, val);
+            mPs3BindCache[label] = val;
+            if (label == "System Name") mPs3SystemName = val;   // keep the legacy cache in sync
+            mDisplayDirty = true;
+        });
+        mOskPasswordMode = false; mOskPlaintext = true;
+        mOskQuery = prefill; mOsk.caret = (int)mOskQuery.size();
+        return;
+    }
     // GammaRGB Effect: build the dynamic list, preselect from control + rgb.effect.
     if (!strcmp(b->options, "@rgbeffect")) {
         mPs3DlgSlider = false;
@@ -2652,6 +2899,14 @@ std::string NanoMenu::resolvePs3ItemValue(const Ps3Item& it) {
     const std::string& n = it.label;
     if (const Ps3SettingBinding* b = ps3BindingFor(n)) {
         std::string cur = ps3BoundValue(b);
+        if (!strcmp(b->options, "@text")) {
+            if (!cur.empty()) return cur;
+            if (!strcmp(b->key, "persist.gammaos.nano.system_name")) {
+                char mb[PROPERTY_VALUE_MAX]; property_get("ro.product.model", mb, "GammaOS");
+                return std::string(mb);
+            }
+            return std::string("-");
+        }
         if (!strcmp(b->options, "@rgbeffect")) {
             // cur is gammargb.control; "off" wins, else map the rgb.effect code.
             if (cur == "off") return std::string("Off");
@@ -2705,6 +2960,8 @@ std::string NanoMenu::resolvePs3ItemValue(const Ps3Item& it) {
         return mPs3DstNow ? "On" : "Off";
     } else if (n == "Performance Mode") {
         return mPs3PerfModeLabel;   // cached; refreshed at build + on apply (no per-frame property_get)
+    } else if (n == "Audio Preview") {
+        return mEqPreviewWanted.load() ? "On" : "Off";   // transient session intent, not a setting
     } else if (n == "System Name") {
         // PS3 "System Name" = the device network name. Lazily cached so this stays
         // cheap in the per-frame drawList (read once: the user-set prop, else model).
@@ -3326,13 +3583,15 @@ void NanoMenu::closePs3Dialog(bool apply) {
                     mDisplayDirty = true;
                 }
             } else if (!strcmp(b->options, "@rgbcolor")) {
-                // Write the chosen swatch hex to the primary (Both-target) colour, like
-                // the JoystickLedPicker; mirror into the live hex so Solid mode shows it.
+                // Write the chosen swatch hex to this colour channel's *_hex_custom
+                // (primary / left / right), like the JoystickLedPicker. The primary
+                // channel also has a live rgb_hex mirror the sampler overwrites.
                 if (mPs3DlgSel >= 0 && mPs3DlgSel < kPs3ColorCount) {
                     std::string hex = ps3SwatchHex(mPs3DlgSel);
-                    writeSettingValue(SettingSource::kProp, "persist.gammaos.primary.rgb_hex_custom", hex);
-                    writeSettingValue(SettingSource::kProp, "persist.gammaos.primary.rgb_hex", hex);
-                    mPs3BindCache["LED Colour"] = hex;
+                    writeSettingValue(b->source, b->key, hex);
+                    if (!strcmp(b->key, "persist.gammaos.primary.rgb_hex_custom"))
+                        writeSettingValue(SettingSource::kProp, "persist.gammaos.primary.rgb_hex", hex);
+                    mPs3BindCache[b->label] = hex;
                     mDisplayDirty = true;
                 }
             } else if (mPs3DlgSlider) {

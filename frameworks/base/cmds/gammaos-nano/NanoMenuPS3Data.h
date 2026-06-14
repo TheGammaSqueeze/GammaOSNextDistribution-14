@@ -48,7 +48,7 @@ static const Ps3DataItem kVideoSettingsCh[] = {
 };
 static const Ps3DataItem kSystemSettingsCh[] = {
   {"Automatic Update",22,"Starts the system automatically and downloads game patches, uploads new saved data to online storage and syncs trophy information with the server.","Off",0,nullptr,0},
-  {"System Name",22,nullptr,"PS3-625",0,nullptr,0},
+  {"System Name",22,"Sets the name used to identify this system on the network.","PS3-625",1,nullptr,0},
   {"System Language",22,nullptr,"English (United Kingdom)",0,nullptr,0},
   {"Character Set",22,nullptr,nullptr,0,nullptr,0},
   {"Dictionary Type",22,nullptr,"English (UK)",0,nullptr,0},
@@ -231,6 +231,8 @@ static const Ps3DataItem kGammaRgbCh[] = {
   {"Pre-FX Sampling",22,"Sample the screen before post-processing effects are applied.","On",1,nullptr,0},
   {"Split LEDs",22,"Use separate left and right LED zones (if supported by the hardware).","Off",1,nullptr,0},
   {"Split Colours",22,"Give the left and right LED zones independent colours.","Off",1,nullptr,0},
+  {"Left Colour",22,"Solid colour for the left LED zone when Split Colours is on.","-",1,nullptr,0},
+  {"Right Colour",22,"Solid colour for the right LED zone when Split Colours is on.","-",1,nullptr,0},
 };
 
 // ---- GammaEQ module submenus (persist.sys.spk.*) ------------------------
@@ -286,6 +288,7 @@ static const Ps3DataItem kEqPeq2Ch[] = {
 static const Ps3DataItem kGammaEqCh[] = {
   {"Enable EQ",22,"Enable the GammaEQ equalizer and speaker enhancements.","Off",1,nullptr,0},
   {"Speaker Only",22,"Apply the equalizer only to the built-in speakers, not headphones.","On",1,nullptr,0},
+  {"Audio Preview",22,"Play a looping sample so you can hear the equalizer while you adjust it.","Off",1,nullptr,0},
   {"Preamp (dB)",22,"Input gain applied before the equalizer.","0",1,nullptr,0},
   {"Postgain (dB)",22,"Output gain applied after the equalizer.","0",1,nullptr,0},
   {"Crystalizer",22,"Clarity and dynamics enhancement.",nullptr,0,PS3CH(kEqCrystCh)},
