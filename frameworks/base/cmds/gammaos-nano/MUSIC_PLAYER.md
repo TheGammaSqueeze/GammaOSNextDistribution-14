@@ -240,6 +240,15 @@ mMpActive branches BEFORE the mPs3TzActive checks in each handler. mpFmtTime HH:
   is fully dismissed the render thread parks, so the current track finishes and
   auto-advance resumes on the next overlay open). closeMusicPlayer (full release + clear
   queue) is now only for an explicit teardown.
+- Screen-off keeps the music playing (power button): pressing power during playback blanks
+  the panel but does NOT drive the full system suspend (which would freeze the decoder /
+  AAudio threads). enterDrmSleep takes a keepAudio path (mMpQueue non-empty && isPlaying)
+  that holds /sys/power/wake_lock, polls at 1s, and runs the auto-advance, so the album
+  keeps playing with the screen off and relights on the next press. The render watchdog is
+  suppressed (mInDrmSleep) while the render thread is parked in the sleep loop, so it does
+  not abort the oneshot home process mid-sleep - that abort previously killed the panel and
+  the music and left the power button looking dead until a restart. With no music it falls
+  back to the normal PowerManager system suspend, now also watchdog-safe.
 - Audio-playing indicator: drawPs3Clock draws a small procedural eighth-note at the far
   left of the status icons whenever mMusicPlayer is loaded (bright playing / dim paused),
   in both home and overlay.
