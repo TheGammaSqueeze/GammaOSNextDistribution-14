@@ -58,8 +58,10 @@ static bool   sReady     = false;
 static GLuint sBgProg = 0, sWaveProg = 0, sBlitProg = 0, sCompProg = 0;
 // FS_BG (gradient, month-base path) locations
 static GLint  sBgPos, sBgUV, sBgMonthBase, sBgMonthBaseBot, sBgNightBlend;
-// wave locations
-static GLint  sWClip, sWNormal, sWUV, sWYFlip, sWScaleY, sWScaleX, sWOffset,
+// wave locations (aSeqP0/A/B/P3/0 = the 4 Catmull-Rom keyframes + the crossfade
+// keyframe-0; uSeqT/uSeqW = the GPU interpolation params)
+static GLint  sWSeqP0, sWSeqA, sWSeqB, sWSeqP3, sWSeq0, sWSeqT, sWSeqW,
+              sWNormal, sWUV, sWYFlip, sWScaleY, sWScaleX, sWOffset,
               sWFade, sWTint, sWAlpha, sWSilk, sWSpecW, sWSpecExp, sWYFade;
 // blit locations
 static GLint  sBlitPos, sBlitUV, sBlitTex;
@@ -162,10 +164,14 @@ static void monthBaseColorBot(int month, float nightBlend, float* out) {
 }
 
 // wave geometry
-static GLuint sWaveClipVBO = 0, sWaveAttrVBO = 0, sWaveIBO = 0;
+static GLuint sWaveAttrVBO = 0, sWaveIBO = 0;
+static GLuint sWaveSeqVBO = 0;   // all 85 keyframes, interpolated in the vertex shader
+// Keyframe indices + params computed each frame by animateWave; the wave draw
+// points the seq attributes at these keyframe offsets and sets the uniforms.
+static int sSeqIm1 = 0, sSeqI0 = 0, sSeqI1 = 0, sSeqI2 = 0;
+static float sSeqT = 0.0f, sSeqW = 0.0f;
 static int    sWaveIndexCount = 0;
 static bool   sWaveGeoReady = false;
-static std::vector<float> sWaveScratch;      // 16384*4, reused per frame
 
 // wave sequence (steady loop)
 static std::vector<std::vector<float>> sSeqFrames;   // each 16384*4 (xyzw)
@@ -297,9 +303,22 @@ static const char* FS_BG =
 // extension dropped (the shader uses the per-vertex normal, not dFdx/dFdy).
 static const char* VS_WAVECAP =
     "precision highp float;\n"
-    "attribute vec4 aClip;\n"
+    // The wave keyframes are interpolated ON THE GPU now: the 85 keyframes live in
+    // one static buffer, and each frame the CPU just points these 4 attributes at
+    // the im1/i0/i1/i2 keyframes (+ aSeed0 at keyframe 0 for the loop-seam
+    // crossfade) and sets uSeqT / uSeqW. This shader runs the IDENTICAL Catmull-Rom
+    // blend the CPU animateWave used to (S = 0.5*(2A + (-P0+B)t + (2P0-5A+4B-P3)t^2
+    // + (-P0+3A-3B+P3)t^3); crossfade S = mix(S, C, w)). Moving it here removes the
+    // ~16k-vertex per-frame CPU interpolation + the dynamic VBO re-upload.
+    "attribute vec4 aSeqP0;\n"   // keyframe im1
+    "attribute vec4 aSeqA;\n"    // keyframe i0
+    "attribute vec4 aSeqB;\n"    // keyframe i1
+    "attribute vec4 aSeqP3;\n"   // keyframe i2
+    "attribute vec4 aSeq0;\n"    // keyframe 0 (loop-seam crossfade target)
     "attribute vec3 aNormal;\n"
     "attribute vec2 aUV;\n"
+    "uniform float uSeqT;\n"     // Catmull-Rom fractional t
+    "uniform float uSeqW;\n"     // loop-seam crossfade weight (0 = none)
     "uniform float uYFlip;\n"
     "uniform float uScaleY;\n"
     "uniform float uScaleX;\n"
@@ -308,7 +327,11 @@ static const char* VS_WAVECAP =
     "varying vec3 vNrm;\n"
     "varying vec2 vUV;\n"
     "void main(){\n"
-    "  vec4 p = aClip;\n"
+    "  float t = uSeqT, t2 = t*t, t3 = t2*t;\n"
+    "  vec4 m = 0.5 * (2.0*aSeqA + (-aSeqP0 + aSeqB)*t\n"
+    "                + (2.0*aSeqP0 - 5.0*aSeqA + 4.0*aSeqB - aSeqP3)*t2\n"
+    "                + (-aSeqP0 + 3.0*aSeqA - 3.0*aSeqB + aSeqP3)*t3);\n"
+    "  vec4 p = mix(m, aSeq0, uSeqW);\n"
     "  p.y *= uYFlip * uScaleY;\n"
     "  p.x *= uScaleX;\n"
     "  p.xy += uOffset * p.w;\n"
@@ -454,13 +477,13 @@ static void loadWaveGeo() {
     if (sz < (long)(WAVE_NV * 9 * sizeof(float))) { free(raw); ALOGE("ps3bg: wave_geo.bin short"); return; }
     const float* data = (const float*)raw;   // 16384 * 9 (clip4, normal3, uv2), no header
 
-    std::vector<float> clip0((size_t)WAVE_NV * 4);
+    // The wave's per-vertex clip position now comes entirely from the keyframe
+    // buffer (sWaveSeqVBO, GPU-interpolated); only the static normal + uv from the
+    // geometry file are kept. The rest-pose clip4 (b[0..3]) is unused.
     std::vector<float> attr((size_t)WAVE_NV * 5);   // normal3 + uv2
     std::vector<float> nx(WAVE_NV), ny(WAVE_NV), nz(WAVE_NV), tmp(WAVE_NV);
     for (int i = 0; i < WAVE_NV; i++) {
         const float* b = data + i * 9;
-        clip0[i * 4 + 0] = b[0]; clip0[i * 4 + 1] = b[1];
-        clip0[i * 4 + 2] = b[2]; clip0[i * 4 + 3] = b[3];
         nx[i] = b[4]; ny[i] = b[5]; nz[i] = b[6];
     }
     for (int p = 0; p < 3; p++) {
@@ -480,9 +503,6 @@ static void loadWaveGeo() {
     glGenBuffers(1, &sWaveAttrVBO);
     glBindBuffer(GL_ARRAY_BUFFER, sWaveAttrVBO);
     glBufferData(GL_ARRAY_BUFFER, attr.size() * sizeof(float), attr.data(), GL_STATIC_DRAW);
-    glGenBuffers(1, &sWaveClipVBO);
-    glBindBuffer(GL_ARRAY_BUFFER, sWaveClipVBO);
-    glBufferData(GL_ARRAY_BUFFER, clip0.size() * sizeof(float), clip0.data(), GL_DYNAMIC_DRAW);
 
     // Two triangles per quad; values < 16384 so 16-bit indices suffice.
     std::vector<uint16_t> idx;
@@ -503,7 +523,6 @@ static void loadWaveGeo() {
     sWaveIndexCount = (int)idx.size();
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-    sWaveScratch.assign((size_t)WAVE_NV * 4, 0.0f);
     sWaveGeoReady = true;
     ALOGI("ps3bg: wave_geo loaded (%d verts, %d indices)", WAVE_NV, sWaveIndexCount);
 }
@@ -550,9 +569,22 @@ static void loadWaveSeq() {
             sSeqFrames[f][i * 4 + 1] = m + (sSeqFrames[f][i * 4 + 1] - m) * flat;
         }
 
+    // Upload ALL keyframes to one static GPU buffer; the vertex shader now does
+    // the Catmull-Rom interpolation, so this replaces the per-frame CPU interp +
+    // dynamic VBO re-upload. Keyframe f occupies [f*NV*4 .. (f+1)*NV*4) floats.
+    // Then drop the CPU copies (the GPU owns them) - saves ~21MB resident.
+    glGenBuffers(1, &sWaveSeqVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, sWaveSeqVBO);
+    const GLsizeiptr frameBytes = (GLsizeiptr)NV * 4 * (GLsizeiptr)sizeof(float);
+    glBufferData(GL_ARRAY_BUFFER, frameBytes * (GLsizeiptr)frameCount, nullptr, GL_STATIC_DRAW);
+    for (uint32_t f = 0; f < frameCount; f++)
+        glBufferSubData(GL_ARRAY_BUFFER, (GLintptr)f * frameBytes, frameBytes, sSeqFrames[f].data());
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    std::vector<std::vector<float>>().swap(sSeqFrames);
+
     sSeqCount = (int)frameCount;
     sSeqReady = true;
-    ALOGI("ps3bg: wave_seq2 loaded (%d keyframes)", sSeqCount);
+    ALOGI("ps3bg: wave_seq2 loaded (%d keyframes, GPU-interpolated)", sSeqCount);
 }
 
 // 0 = day, 1 = night, smooth dusk/dawn ramps. Matches computeNightDayBlend.
@@ -647,7 +679,13 @@ bool init() {
             sBgNightBlend = glGetUniformLocation(sBgProg, "uNightDayBlend");
         }
         if (sWaveProg) {
-            sWClip = glGetAttribLocation(sWaveProg, "aClip");
+            sWSeqP0 = glGetAttribLocation(sWaveProg, "aSeqP0");
+            sWSeqA  = glGetAttribLocation(sWaveProg, "aSeqA");
+            sWSeqB  = glGetAttribLocation(sWaveProg, "aSeqB");
+            sWSeqP3 = glGetAttribLocation(sWaveProg, "aSeqP3");
+            sWSeq0  = glGetAttribLocation(sWaveProg, "aSeq0");
+            sWSeqT  = glGetUniformLocation(sWaveProg, "uSeqT");
+            sWSeqW  = glGetUniformLocation(sWaveProg, "uSeqW");
             sWNormal = glGetAttribLocation(sWaveProg, "aNormal");
             sWUV = glGetAttribLocation(sWaveProg, "aUV");
             sWYFlip = glGetUniformLocation(sWaveProg, "uYFlip");
@@ -719,13 +757,14 @@ void shutdown() {
     glDeleteTextures(2, texs);
     GLuint fbos[] = {sGradFbo, sWorkFbo};
     glDeleteFramebuffers(2, fbos);
-    GLuint bufs[] = {sWaveClipVBO, sWaveAttrVBO, sWaveIBO, sQuadVBO};
+    GLuint bufs[] = {sWaveSeqVBO, sWaveAttrVBO, sWaveIBO, sQuadVBO};
     glDeleteBuffers(4, bufs);
     sBgProg = sWaveProg = sBlitProg = sCompProg = 0;
     sGradFbo = sWorkFbo = sGradTex = sWorkTex = 0;
     sScrimFreeze = false; sScrimEpoch = 1; sScrimLastEpoch = 0;
-    sWaveClipVBO = sWaveAttrVBO = sWaveIBO = sQuadVBO = 0;
-    sSeqFrames.clear(); sWaveScratch.clear();
+    sWaveSeqVBO = sWaveAttrVBO = sWaveIBO = sQuadVBO = 0;
+    sSeqCount = 0;
+    sSeqFrames.clear();
     sReady = false; sTriedInit = false; sWaveGeoReady = false; sSeqReady = false;
     sGradDirty = true;
 }
@@ -762,83 +801,23 @@ static void animateWave(float dt) {
     if (!sSeqReady || sSeqCount < 2) return;
     const float kfps = 0.8f;
     sSeqElapsed += (double)dt;
-    int count = sSeqCount;
-    int n = WAVE_NV * 4;
+    const int count = sSeqCount;
     const int XF = 5;
     double pp = sSeqElapsed * kfps;
     pp = fmod(pp, (double)count);
     if (pp < 0) pp += count;
-    int i0 = ((int)floor(pp)) % count;
-    int i1 = (i0 + 1) % count;
-    float fr = (float)(pp - floor(pp));
-    int im1 = (i0 - 1 + count) % count;
-    int i2 = (i1 + 1) % count;
-    const float* P0 = sSeqFrames[im1].data();
-    const float* A  = sSeqFrames[i0].data();
-    const float* B  = sSeqFrames[i1].data();
-    const float* P3 = sSeqFrames[i2].data();
-    const float* C  = sSeqFrames[0].data();
-    float t = fr, t2 = t * t, t3 = t2 * t;
-    float w = (pp > count - XF) ? (float)((pp - (count - XF)) / XF) : 0.0f;
-    bool cross = (w > 0.0001f);
-    float* S = sWaveScratch.data();
-#if defined(__aarch64__)
-    // NEON: the Catmull-Rom interp is fully data-parallel (n=WAVE_NV*4=65536, a
-    // clean multiple of 4). Four floats per iteration, coefficients as scalar
-    // multiply-adds, the crossfade as a frame-level branch. Same math and order
-    // as the scalar reference (validated once below), far fewer A53 issue slots.
-    const float w1 = 1.0f - w;
-    for (int i = 0; i < n; i += 4) {
-        float32x4_t p0 = vld1q_f32(P0 + i), a = vld1q_f32(A + i),
-                    b = vld1q_f32(B + i), p3 = vld1q_f32(P3 + i);
-        float32x4_t c1 = vsubq_f32(b, p0);
-        float32x4_t c2 = vsubq_f32(
-            vmlaq_n_f32(vmlsq_n_f32(vaddq_f32(p0, p0), a, 5.0f), b, 4.0f), p3);
-        float32x4_t c3 = vmlsq_n_f32(
-            vmlaq_n_f32(vsubq_f32(p3, p0), a, 3.0f), b, 3.0f);
-        float32x4_t acc = vaddq_f32(a, a);
-        acc = vmlaq_n_f32(acc, c1, t);
-        acc = vmlaq_n_f32(acc, c2, t2);
-        acc = vmlaq_n_f32(acc, c3, t3);
-        acc = vmulq_n_f32(acc, 0.5f);
-        if (cross) acc = vmlaq_n_f32(vmulq_n_f32(acc, w1), vld1q_f32(C + i), w);
-        vst1q_f32(S + i, acc);
-    }
-    // One-shot validation: confirm the NEON kernel matches the scalar reference
-    // (logs the max abs deviation; expect sub-1e-3, i.e. sub-pixel/imperceptible).
-    {
-        static bool sNeonChecked = false;
-        if (!sNeonChecked) {
-            sNeonChecked = true;
-            float maxd = 0.0f;
-            for (int i = 0; i < n; i++) {
-                float p0 = P0[i], a = A[i], b = B[i], p3 = P3[i];
-                float main = 0.5f * ((2.0f * a) + (-p0 + b) * t +
-                             (2.0f * p0 - 5.0f * a + 4.0f * b - p3) * t2 +
-                             (-p0 + 3.0f * a - 3.0f * b + p3) * t3);
-                float ref = cross ? (main * (1.0f - w) + C[i] * w) : main;
-                float d = fabsf(ref - S[i]); if (d > maxd) maxd = d;
-            }
-            ALOGI("ps3bg: NEON animateWave validation maxDiff=%.6g (cross=%d)",
-                  maxd, cross ? 1 : 0);
-        }
-    }
-#else
-    for (int i = 0; i < n; i++) {
-        float p0 = P0[i], a = A[i], b = B[i], p3 = P3[i];
-        float main = 0.5f * ((2.0f * a) + (-p0 + b) * t +
-                     (2.0f * p0 - 5.0f * a + 4.0f * b - p3) * t2 +
-                     (-p0 + 3.0f * a - 3.0f * b + p3) * t3);
-        S[i] = cross ? (main * (1.0f - w) + C[i] * w) : main;
-    }
-#endif
-    // Orphan the dynamic VBO before re-uploading so the driver hands back fresh
-    // storage instead of stalling the render thread on the GPU still reading
-    // last frame's wave from the same buffer (the per-frame ghost stall).
-    glBindBuffer(GL_ARRAY_BUFFER, sWaveClipVBO);
-    glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)(n * sizeof(float)), nullptr, GL_DYNAMIC_DRAW);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, (GLsizeiptr)(n * sizeof(float)), S);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    // Pick the 4 Catmull-Rom keyframes + the fractional t and loop-seam crossfade
+    // weight. The interpolation itself runs in the wave vertex shader (VS_WAVECAP)
+    // straight from the static keyframe buffer - the wave draw points its seq
+    // attributes at these keyframes and sets uSeqT/uSeqW. No per-frame CPU
+    // interpolation of the 16384 verts and no dynamic VBO re-upload (that was the
+    // dominant wave CPU cost; the GPU does the identical math now).
+    sSeqI0  = ((int)floor(pp)) % count;
+    sSeqI1  = (sSeqI0 + 1) % count;
+    sSeqIm1 = (sSeqI0 - 1 + count) % count;
+    sSeqI2  = (sSeqI1 + 1) % count;
+    sSeqT   = (float)(pp - floor(pp));
+    sSeqW   = (pp > count - XF) ? (float)((pp - (count - XF)) / XF) : 0.0f;
 }
 
 // Frame gate for multi-display rendering. render() is called once per draw
@@ -852,6 +831,19 @@ static void animateWave(float dt) {
 static uint32_t sFrameSerial = 0;
 static uint32_t sBuiltSerial = ~0u;
 void newFrame() { sFrameSerial++; }
+
+// Disable every vertex attrib the wave draw enables, so the menu/UI pass after us
+// inherits no stray enabled arrays. The 5 seq keyframe attributes replaced the old
+// single clip attribute when the Catmull-Rom interpolation moved to the GPU.
+static void disableWaveAttribs() {
+    if (sWSeqP0 >= 0) glDisableVertexAttribArray(sWSeqP0);
+    if (sWSeqA  >= 0) glDisableVertexAttribArray(sWSeqA);
+    if (sWSeqB  >= 0) glDisableVertexAttribArray(sWSeqB);
+    if (sWSeqP3 >= 0) glDisableVertexAttribArray(sWSeqP3);
+    if (sWSeq0  >= 0) glDisableVertexAttribArray(sWSeq0);
+    if (sWNormal >= 0) glDisableVertexAttribArray(sWNormal);
+    if (sWUV >= 0)     glDisableVertexAttribArray(sWUV);
+}
 
 void render(int panelW, int panelH, float dt, const float rotMat2[4], bool /*rotActive*/,
             bool compositeToScreen) {
@@ -961,21 +953,13 @@ void render(int panelW, int panelH, float dt, const float rotMat2[4], bool /*rot
     }
 
     // Build the work buffer at full resolution: gradient blit, then additive wave.
-    // The in-game scrim wave is frozen offscreen (!compositeToScreen): it is built
-    // ONCE here then reused via the early-return above, so its 85 keyframes
-    // (~21MB) are dead after the bake and we free them to give the running game
-    // that RAM. If a later rebuild needs them (theme/resize/month, or a return to
-    // the visible wallpaper below) we reload first. CRITICAL: only free in the
-    // frozen-offscreen case. When the wave is COMPOSITED to screen (the visible
-    // wallpaper, compositeToScreen=true) it animates LIVE every frame, so freeing
-    // there would reload+decode 21MB EVERY FRAME (100% CPU, ~5fps). The home
-    // (sScrimFreeze=false) and the overlay-as-wallpaper (compositeToScreen=true)
-    // therefore both keep the keyframes resident.
-    if (sSeqFrames.empty()) loadWaveSeq();
+    // animateWave only picks the 4 Catmull-Rom keyframe indices + the fractional t
+    // and crossfade weight (cheap scalar math); the 16384-vertex interpolation runs
+    // in VS_WAVECAP straight from the static keyframe buffer (sWaveSeqVBO). The CPU
+    // keyframe copies were freed right after the GPU upload in loadWaveSeq, so there
+    // is no per-frame CPU interp and no dynamic VBO re-upload regardless of whether
+    // the wave is composited (home / overlay wallpaper) or frozen offscreen (scrim).
     animateWave(dt);
-    if (sScrimFreeze && !compositeToScreen && !sSeqFrames.empty()) {
-        std::vector<std::vector<float>>().swap(sSeqFrames);
-    }
     ps3part::update(dt);
     glBindFramebuffer(GL_FRAMEBUFFER, sWorkFbo);
     discardColorTile();   // TBDR: skip the LOAD of last frame's tile (overwritten next)
@@ -987,14 +971,27 @@ void render(int panelW, int panelH, float dt, const float rotMat2[4], bool /*rot
     glUniform1i(sBlitTex, 0);
     drawFullQuad(sBlitPos, sBlitUV);
 
-    if (sWaveGeoReady) {
+    if (sWaveGeoReady && sSeqReady && sWaveSeqVBO) {
         glUseProgram(sWaveProg);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE);      // additive
         glDisable(GL_DEPTH_TEST);
-        glBindBuffer(GL_ARRAY_BUFFER, sWaveClipVBO);
-        glEnableVertexAttribArray(sWClip);
-        glVertexAttribPointer(sWClip, 4, GL_FLOAT, GL_FALSE, 16, (const void*)0);
+        // GPU Catmull-Rom: point the 4 keyframe attributes (+ keyframe 0 for the
+        // loop-seam crossfade) at their slices of the one static keyframe buffer
+        // and let VS_WAVECAP interpolate per vertex. Each keyframe is WAVE_NV vec4s
+        // laid out contiguously, so vertex i of keyframe k lives at
+        // (k*frameBytes + i*16). A base offset of k*frameBytes with stride 16 makes
+        // attribute index i resolve to that vertex automatically under
+        // glDrawElements - no per-frame CPU work, no dynamic upload.
+        const GLintptr frameBytes = (GLintptr)WAVE_NV * 4 * (GLintptr)sizeof(float);
+        glBindBuffer(GL_ARRAY_BUFFER, sWaveSeqVBO);
+        glEnableVertexAttribArray(sWSeqP0); glVertexAttribPointer(sWSeqP0, 4, GL_FLOAT, GL_FALSE, 16, (const void*)((GLintptr)sSeqIm1 * frameBytes));
+        glEnableVertexAttribArray(sWSeqA);  glVertexAttribPointer(sWSeqA,  4, GL_FLOAT, GL_FALSE, 16, (const void*)((GLintptr)sSeqI0  * frameBytes));
+        glEnableVertexAttribArray(sWSeqB);  glVertexAttribPointer(sWSeqB,  4, GL_FLOAT, GL_FALSE, 16, (const void*)((GLintptr)sSeqI1  * frameBytes));
+        glEnableVertexAttribArray(sWSeqP3); glVertexAttribPointer(sWSeqP3, 4, GL_FLOAT, GL_FALSE, 16, (const void*)((GLintptr)sSeqI2  * frameBytes));
+        glEnableVertexAttribArray(sWSeq0);  glVertexAttribPointer(sWSeq0,  4, GL_FLOAT, GL_FALSE, 16, (const void*)0);
+        glUniform1f(sWSeqT, sSeqT);
+        glUniform1f(sWSeqW, sSeqW);
         glBindBuffer(GL_ARRAY_BUFFER, sWaveAttrVBO);
         if (sWNormal >= 0) { glEnableVertexAttribArray(sWNormal); glVertexAttribPointer(sWNormal, 3, GL_FLOAT, GL_FALSE, 20, (const void*)0); }
         if (sWUV >= 0) { glEnableVertexAttribArray(sWUV); glVertexAttribPointer(sWUV, 2, GL_FLOAT, GL_FALSE, 20, (const void*)12); }
@@ -1037,9 +1034,7 @@ void render(int panelW, int panelH, float dt, const float rotMat2[4], bool /*rot
     // SurfaceFlinger-blurred app). Skip the composite + the panel glitter field.
     if (!compositeToScreen) {
         glDisableVertexAttribArray(sCompPos);
-        if (sWClip >= 0)   glDisableVertexAttribArray(sWClip);
-        if (sWNormal >= 0) glDisableVertexAttribArray(sWNormal);
-        if (sWUV >= 0)     glDisableVertexAttribArray(sWUV);
+        disableWaveAttribs();
         glActiveTexture(GL_TEXTURE0);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -1091,9 +1086,7 @@ void render(int panelW, int panelH, float dt, const float rotMat2[4], bool /*rot
     // Leave no enabled client/VBO attrib arrays behind for the menu pass.
     glDisableVertexAttribArray(sCompPos);
     glDisableVertexAttribArray(sCompUV);
-    if (sWClip >= 0)   glDisableVertexAttribArray(sWClip);
-    if (sWNormal >= 0) glDisableVertexAttribArray(sWNormal);
-    if (sWUV >= 0)     glDisableVertexAttribArray(sWUV);
+    disableWaveAttribs();
     glActiveTexture(GL_TEXTURE0);
 
     // Firmware glitter field: additive point-sprite glints drawn to the PANEL
