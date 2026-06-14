@@ -288,8 +288,14 @@ void render(float scaleX, float scaleY, float yFlip, float frameH,
         float hxv = sLx + vx, hyv = sLy + vy, hzv = sLz + vz;
         float hl = sqrtf(hxv*hxv + hyv*hyv + hzv*hzv); if (hl < 1e-4f) hl = 1.0f;
         hxv /= hl; hyv /= hl; hzv /= hl;
-        float c0 = sinf(p.sx0);
-        float nx = c0 * cosf(p.sx1), ny = c0 * sinf(p.sx1), nz = cosf(p.sx0);
+        // Spinning normal: sin(sx0)*cos(sx1), sin(sx0)*sin(sx1), cos(sx0). Compute
+        // each angle's sin+cos in one sincosf call instead of four separate sinf/
+        // cosf - same values, half the trig calls (this projection runs per
+        // particle every reproject, so the trig is a measured hot path).
+        float s0, c0, s1, c1;
+        sincosf(p.sx0, &s0, &c0);
+        sincosf(p.sx1, &s1, &c1);
+        float nx = s0 * c1, ny = s0 * s1, nz = c0;
         float ndh = nx*hxv + ny*hyv + nz*hzv; if (ndh < 0.0f) ndh = 0.0f;
         float ndv = nx*vx + ny*vy + nz*vz; if (ndv < 0.0f) ndv = 0.0f;
         float spec = powf(ndh, kSpecPower) * kSpecCoeff;

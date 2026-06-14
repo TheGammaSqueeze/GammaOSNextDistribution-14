@@ -37,6 +37,11 @@
 #include <cutils/properties.h>
 #include <android-base/properties.h>
 #include <sys/system_properties.h>
+// __system_property_serial is exported by libc (libc.map.txt) but declared only in
+// the internal <sys/_system_properties.h>; forward-declare it so the render loop can
+// detect a property change via its serial (a cheap pointer-deref) instead of a full
+// name lookup every frame. prop_info comes from <sys/system_properties.h> above.
+extern "C" uint32_t __system_property_serial(const prop_info* __pi);
 #include <utils/Log.h>
 #include <utils/SystemClock.h>
 #include <sched.h>
@@ -3288,11 +3293,27 @@ if (sRingPrimedCount >= 2) {
         // launcher alive-but-idle instead of letting it exit, leaving two
         // instances. Excluding the launch window lets it finish exiting; a true
         // race-stray is never mid-launch, so it is still caught.
-        if (!mOverlayMode && mLaunchFadeStart == 0 && !mWaitForRelease &&
-            (property_get_bool("sys.gammaos.nano.app_launched", false) ||
-             property_get_bool("sys.gammaos.nano.show_overlay", false))) {
-            usleep(33000);   // ~30Hz; no input, no render while occluded
-            continue;
+        // Both props are empty/false for the entire life of a normal home session,
+        // yet a full property_get_bool name-lookup of both ran every frame (it showed
+        // up in the idle profile). Cache each via its serial: read the serial (a cheap
+        // pointer-deref) every frame, re-parse the bool only when it advances. The
+        // guard still reacts the same frame either prop flips. BOTH serials are
+        // refreshed every frame (the || only short-circuits the cached-bool eval, not
+        // the refresh) so show_overlay staleness can never hide behind app_launched.
+        // Render-thread-only statics.
+        {
+            static const prop_info* sAlPi = nullptr; static uint32_t sAlSer = 0; static bool sAlVal = false;
+            static const prop_info* sSoPi = nullptr; static uint32_t sSoSer = 0; static bool sSoVal = false;
+            if (!sAlPi) sAlPi = __system_property_find("sys.gammaos.nano.app_launched");
+            if (sAlPi) { uint32_t s = __system_property_serial(sAlPi); if (s != sAlSer) { sAlSer = s; sAlVal = property_get_bool("sys.gammaos.nano.app_launched", false); } }
+            else sAlVal = false;
+            if (!sSoPi) sSoPi = __system_property_find("sys.gammaos.nano.show_overlay");
+            if (sSoPi) { uint32_t s = __system_property_serial(sSoPi); if (s != sSoSer) { sSoSer = s; sSoVal = property_get_bool("sys.gammaos.nano.show_overlay", false); } }
+            else sSoVal = false;
+            if (!mOverlayMode && mLaunchFadeStart == 0 && !mWaitForRelease && (sAlVal || sSoVal)) {
+                usleep(33000);   // ~30Hz; no input, no render while occluded
+                continue;
+            }
         }
         pollInput();
         checkInputHotplug();

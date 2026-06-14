@@ -938,6 +938,14 @@ private:
         int a = 0, b = 0;
         const Ps3DataItem* data = nullptr;  // static DATA node (children + meta)
         int action = 0;                     // 0 none, 1 dialog, 2 landing
+        // Settings binding resolved ONCE at item build (makeDataItem) from the
+        // item's label against the static kPs3Bindings table, instead of re-scanning
+        // that table by string-compare for every visible item every frame in
+        // resolvePs3ItemValue. The label is fixed for the item's lifetime (items are
+        // never relabeled in place) and kPs3Bindings is static const, so the pointer
+        // stays valid. nullptr for any item whose label is not a bound setting
+        // (ROM / app / recent / Game-Systems-editor rows never match).
+        const Ps3SettingBinding* binding = nullptr;
     };
     struct Ps3Cat {
         std::string name;

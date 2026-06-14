@@ -263,6 +263,10 @@ void NanoMenu::drawIconTex(GLuint tex, float x, float y, float w, float h,
 NanoMenu::Ps3Item NanoMenu::makeDataItem(const Ps3DataItem* d) {
     Ps3Item it;
     it.label = d->name;
+    // Resolve the settings binding once here (the only producer of items whose label
+    // can match kPs3Bindings) so resolvePs3ItemValue does not re-scan the table by
+    // string-compare for every visible item every frame. nullptr for non-bound rows.
+    it.binding = ps3BindingFor(it.label);
     if (d->desc)  it.desc  = d->desc;
     if (d->value) it.value = d->value;
     it.action = d->action;
@@ -2897,7 +2901,10 @@ void NanoMenu::openBoundChooser(const Ps3SettingBinding* b) {
 // it without opening the chooser. Non-theme rows fall back to the static value.
 std::string NanoMenu::resolvePs3ItemValue(const Ps3Item& it) {
     const std::string& n = it.label;
-    if (const Ps3SettingBinding* b = ps3BindingFor(n)) {
+    // Use the binding resolved once at item build (makeDataItem) instead of
+    // re-scanning kPs3Bindings by string-compare on every call (this runs per
+    // visible item every frame in drawList).
+    if (const Ps3SettingBinding* b = it.binding) {
         std::string cur = ps3BoundValue(b);
         if (!strcmp(b->options, "@text")) {
             if (!cur.empty()) return cur;

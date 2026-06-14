@@ -43,6 +43,11 @@
 
 #include <android-base/properties.h>
 #include <cutils/properties.h>
+#include <sys/system_properties.h>   // prop_info, __system_property_find
+// Exported by libc but declared only in the internal <sys/_system_properties.h>;
+// used to detect the test-nav prop changing via its serial (cheap pointer-deref)
+// instead of a full name lookup every pollInput().
+extern "C" uint32_t __system_property_serial(const prop_info* __pi);
 #include <utils/Log.h>
 #include <utils/SystemClock.h>
 
@@ -811,6 +816,17 @@ void NanoMenu::pollInput() {
     // device analog of the web app's simulateInput, used for scripted on-device
     // 1:1 verification. No effect when the prop is empty (one cheap read/frame).
     {
+        // The hook is empty for the entire life of a normal session. Reading the
+        // property's serial (a cheap pointer-deref) and only doing the full read +
+        // dispatch when it advances keeps this at ~one integer compare per frame
+        // instead of a full name lookup. The serial bumps on every set (including
+        // the self-clear below), so a real injection is never missed. We recapture
+        // the serial after any dispatch+clear so the bookkeeping does not chase our
+        // own write. The prop is created lazily on first set, so retry find while null.
+        static const prop_info* sNavPi = nullptr;
+        static uint32_t sNavSerial = 0;
+        if (!sNavPi) sNavPi = __system_property_find("sys.gammaos.nano.nav");
+        if (sNavPi && __system_property_serial(sNavPi) != sNavSerial) {
         char navbuf[PROPERTY_VALUE_MAX];
         if (property_get("sys.gammaos.nano.nav", navbuf, "") > 0 && navbuf[0]) {
             mLastInputMs = android::uptimeMillis();   // scripted nav = activity
@@ -840,6 +856,10 @@ void NanoMenu::pollInput() {
                 }
             }
             property_set("sys.gammaos.nano.nav", "");
+        }
+        // Recapture the serial AFTER the (possible) self-clear so the next frame is
+        // a single integer compare and we do not re-fire on our own write.
+        sNavSerial = __system_property_serial(sNavPi);
         }
     }
     struct input_event ev;
