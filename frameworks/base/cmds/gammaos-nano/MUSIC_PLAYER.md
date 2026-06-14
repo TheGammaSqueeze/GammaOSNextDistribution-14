@@ -132,7 +132,11 @@ mMpActive branches BEFORE the mPs3TzActive checks in each handler. mpFmtTime HH:
 
 ## Status
 - Audio engine (NanoAudio): DONE, verified on the Brick (AAudio stream opens at the
-  track's native rate, decode + FFT active, correct durations extracted).
+  track's native rate, decode + FFT active, correct durations extracted). All formats
+  verified decoding on-device: MP3 (c2.android.mp3.decoder), FLAC (the platform FLAC
+  extractor outputs PCM -> c2.android.raw.decoder), OGG/Vorbis (c2.android.vorbis.decoder),
+  WAV/PCM (c2.android.raw.decoder), M4A/AAC (the AAC decoder). The Now-Playing UI renders
+  for every format.
 - Library + folder import: DONE, verified end to end on the Brick: Music > Search for
   Media Servers > Add Folder > pick a folder -> recursive scan (mtime-cached) ->
   nano_music.json persisted (with metadata) -> the album appears in the Music column
