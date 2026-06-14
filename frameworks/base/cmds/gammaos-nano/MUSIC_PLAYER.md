@@ -222,3 +222,13 @@ mMpActive branches BEFORE the mPs3TzActive checks in each handler. mpFmtTime HH:
   only while mMusicResumeShown (musicTick rebuilds the cats when audio starts/stops);
   dispatch calls resumeMusicPlayer() which reopens Now-Playing on the live queue + the
   last-used visualizer.
+- Overlay (in-app) visualizers: verified on the Brick over RetroArch in scrim mode
+  (force with `setprop sys.gammaos.nano.app_launched 1` before raising, since the
+  monkey-launch path does not set it). The Canyon and Globe composite straight to the
+  panel, so they already showed over the live app. The XMB Waves visualizer normally
+  renders OFFSCREEN in the overlay scrim path (it only feeds glass-icon refraction), so
+  the Now-Playing screen showed the dimmed app instead of the morph. Fixed in
+  NanoMenuRender.cpp: when mMpActive && mMpVis==0 the scrim branch composites the wave to
+  the screen (compositeToScreen=mpWavesVis), bringing Waves in line with Canyon/Globe so
+  the default visualizer is the morph over the app. Normal overlay (no player) is
+  unchanged (wave stays offscreen, app shows scrimmed).

@@ -1944,13 +1944,18 @@ void NanoMenu::render() {
             // Scrim over a live app: render the wave OFFSCREEN only (never
             // composited) so the glass icons refract it without painting over the
             // dark-scrim view of the running app. persist.gammaos.nano.overlay.wave
-            // =0 skips it (glass goes flat) as a perf lever.
+            // =0 skips it (glass goes flat) as a perf lever. EXCEPTION: while the
+            // Now-Playing screen is open on the XMB Waves visualizer, COMPOSITE the
+            // wave morph to the screen so the visualizer shows over the app (the
+            // Canyon/Globe already composite directly; this brings Waves in line so
+            // the music player's default visualizer is the morph, not the dim app).
             static int sOvWave = -1;
             if (sOvWave < 0) sOvWave = property_get_bool("persist.gammaos.nano.overlay.wave", true) ? 1 : 0;
-            if (sOvWave) {
+            bool mpWavesVis = (mMpActive && mMpVis == 0);
+            if (sOvWave || mpWavesVis) {
                 ps3::layoutComputeNative(mWidth, mHeight);
                 ps3bg::render(mWidth, mHeight, mFrameDt, sDrmRotMat,
-                              sDrmActive && sDrmGlRotation, /*compositeToScreen=*/false);
+                              sDrmActive && sDrmGlRotation, /*compositeToScreen=*/mpWavesVis);
             }
         }
         // Standard chrome blend (separate-alpha in overlay so opaque white chrome
