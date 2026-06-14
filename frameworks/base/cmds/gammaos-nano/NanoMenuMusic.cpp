@@ -26,7 +26,7 @@
 #include "NanoMenuPS3.h"
 #include "NanoMenuPS3Bg.h"
 #include "NanoMenuMusicCanyon.h"
-#include "NanoMenuPS3Globe.h"
+#include "NanoMenuMusicGlobe.h"
 #include "NanoJson.h"
 
 #include <dirent.h>
@@ -515,8 +515,9 @@ void NanoMenu::closeMusicPlayer() {
     mMusicPlayer.release();   // stop stream + free decoder ring (keep the library loaded)
     mMpQueue.clear(); mMpOrder.clear(); mMpIdx = 0;
     ps3canyon::shutdown();    // free the Canyon GL objects (lazy-reloaded next time)
+    ps3mpglobe::shutdown();   // free the Globe GL objects
     mMpCanyonAlpha = 0.0f;
-    mMpGlobeAlpha = 0.0f;     // ps3globe is shared with the timezone picker; do not shut it down
+    mMpGlobeAlpha = 0.0f;
 }
 
 // Hide the Now-Playing screen but KEEP the audio playing in the background (the
@@ -528,6 +529,7 @@ void NanoMenu::minimizeMusicPlayer() {
     mMpActive = false;
     mMpCpOpen = false; mMpCpClosing = false; mMpVolSub = false;
     ps3canyon::shutdown();
+    ps3mpglobe::shutdown();
     mMpCanyonAlpha = 0.0f;
     mMpGlobeAlpha = 0.0f;
 }
@@ -539,7 +541,7 @@ void NanoMenu::resumeMusicPlayer() {
     mMpActive = true;
     mMpEnterT = 0.0f;                 // replay the presence fade-in
     if (mMpVis == 1) ps3canyon::init();   // canyon was freed on minimize
-    else if (mMpVis == 2) ps3globe::init();
+    else if (mMpVis == 2) ps3mpglobe::init();
 }
 
 void NanoMenu::mpPlayCurrent() {
@@ -685,9 +687,8 @@ void NanoMenu::mpCycleVis() {
     mMpBannerStart = mEffectTime;
     // Lazy-init the Canyon on first switch to it, and restart its flythrough.
     if (mMpVis == 1) { ps3canyon::init(); ps3canyon::reset(); }
-    // Lazy-init the Globe (shared with the timezone picker; do NOT shut it down on
-    // leave). Seed the auto-rotation from the current longitude so it keeps spinning.
-    else if (mMpVis == 2) { ps3globe::init(); }
+    // Lazy-init the real Globe renderer and restart its scene cycle.
+    else if (mMpVis == 2) { ps3mpglobe::init(); ps3mpglobe::reset(); }
 }
 
 void NanoMenu::renderMusicPlayer() {
@@ -707,16 +708,14 @@ void NanoMenu::renderMusicPlayer() {
         nanoaudio::Bands cb; cb.bass = ab.bass; cb.mid = ab.mid; cb.treble = ab.treble;
         ps3canyon::render(mWidth, mHeight, sDrmRotMat, mMpCanyonAlpha, mFrameDt, cb);
     }
-    // Globe visualizer: the nano raymarched earth (ps3globe, shared with the timezone
-    // picker) auto-rotating, the spin slightly bass-reactive. Drawn over the (faded)
-    // background / Canyon and under the bar, cross-faded by mMpGlobeAlpha.
+    // Globe visualizer: the real XMB web globe (NanoMenuMusicGlobe / ps3mpglobe) - a
+    // ray-marched earth + atmosphere + sun + bloom, replaying the real firmware scene
+    // camera paths. Drawn over the (faded) background / Canyon and under the bar,
+    // cross-faded by mMpGlobeAlpha. Audio-reactive bands feed the renderer.
     if (mMpGlobeAlpha > 0.001f) {
         NanoAudioPlayer::Bands gb; mMusicPlayer.getBands(gb);
-        float dt = mFrameDt; if (dt < 0.0f || dt > 0.1f) dt = 0.016f;
-        mMpGlobeLon += dt * (0.18f + gb.bass * 0.35f);   // steady spin + a gentle bass surge
-        if (mMpGlobeLon > 6.2831853f) mMpGlobeLon -= 6.2831853f;
-        ps3globe::snapTo(mMpGlobeLon, 0.22f);            // slight northern tilt
-        ps3globe::render(mWidth, mHeight, sDrmRotMat, mMpGlobeAlpha);
+        nanoaudio::Bands cb; cb.bass = gb.bass; cb.mid = gb.mid; cb.treble = gb.treble;
+        ps3mpglobe::render(mWidth, mHeight, sDrmRotMat, mMpGlobeAlpha, mFrameDt, cb);
     }
 
     mTextOutlineMode = 1;

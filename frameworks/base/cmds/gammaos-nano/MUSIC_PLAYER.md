@@ -202,13 +202,34 @@ mMpActive branches BEFORE the mPs3TzActive checks in each handler. mpFmtTime HH:
   over ~0.5s while the wave morph ramps the opposite way, so they dissolve. Lazy init
   on first switch (ps3canyon::init/reset in mpCycleVis); freed on leaving Now-Playing
   (ps3canyon::shutdown in closeMusicPlayer). Lattice 160x192 (web is 200x256).
-- Globe visualizer (vis 2): SQUARE now cycles Waves -> Canyon -> Globe. Rather than the
-  web's 240KB verbatim-firmware globe (globe_mp.js), this reuses nano's existing
-  raymarched earth (ps3globe, shared with the timezone picker; already A53-optimised
-  with day/night/clouds/atmosphere). renderMusicPlayer auto-rotates it (mMpGlobeLon += dt
-  * (0.18 + bass*0.35)) and composites at mMpGlobeAlpha with the DRM rotation. Lazy init
-  in mpCycleVis(vis==2); NOT shut down on leave (the timezone picker shares it). The
-  wave-gate covers Globe too (mMpGlobeAlpha >= 0.999).
+- Globe visualizer (vis 2): SQUARE cycles Waves -> Canyon -> Globe. A compact port of
+  the REAL XMB web globe (globe_mp.js / MPGlobe) in NanoMenuMusicGlobe.cpp (ps3mpglobe).
+  The firmware globe ships 2.1GB of captured DXT1 patch tiles + HDR LUTs + per-scene
+  bloom harvests, which cannot fit on the device, so this reproduces the STYLE and
+  EFFECTS compactly:
+  - A free-camera RAY-MARCHED earth (single fullscreen pass): ray-sphere the unit earth,
+    shade with the firmware surface model - day/night smoothstep(0.62,-0.30,N.sun), cloud
+    whitening, earth_night city lights + cool ambient on the night side, the warm
+    terminator twilight band (0.11,0.06,0.035), a rough ocean Blinn-Phong glint, the
+    HDR *8 scale; the already-shipped earth_day/night/clouds equirect maps (nano_xmb_globe).
+  - The analytic ATMOSPHERE: a Fresnel limb rim (cool blue 0.16,0.34,0.58, pow 12,
+    night-biased) on the disc + a soft outer halo past the silhouette.
+  - The SUN: a bright warm anisotropic disc/halo in the sun direction, occluded by the
+    earth (only drawn on sky pixels), rendered hot so it blooms.
+  - The signature GLOW/BLOOM: bright-pass (display luminance over a threshold) -> a
+    2-level separable-Gaussian pyramid (half + quarter res) -> additive composite. This
+    is the golden corona / eclipse-burst. Extended-Reinhard tonemap (exposure 0.0986,
+    white 3.40918) per the firmware.
+  - The CAMERA replays the REAL firmware scene-0..4 paths (NanoMenuMusicGlobeScenes.h,
+    decoded from the captured MVP registers 260/261/263 + eye reg 460): eye/forward/up/
+    fovy keyframes interpolated Catmull-Rom over each scene's duration, cycling 5 scenes
+    with a dip-to-black fade. Real fovs 16.75/43.69/31.64/15.25/22.53 deg. Stars (sparse
+    additive hash dots) on all scenes except the bright low-orbit scene 0.
+  Composite to the panel with the DRM rotation + crossfade alpha. Lazy init in
+  mpCycleVis(vis==2) + reset; freed on minimize/close (NOT shared with the timezone
+  picker). The wave-gate covers Globe too (mMpGlobeAlpha >= 0.999). Tunables (prop
+  overridable for on-device tuning): persist.gammaos.nano.globe.{sunbri,sunhalo,bloomthr,
+  bloomgain,nightbri,rim,halo}.
 - Background playback + minimize + resume: Circle/Back from Now-Playing now MINIMIZES
   (minimizeMusicPlayer) instead of stopping - the audio + queue persist and keep playing
   (the web paused on close; this is a deliberate enhancement so you can leave the player,
