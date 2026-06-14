@@ -24,6 +24,7 @@
 
 #include "NanoMenu.h"
 #include "NanoMenuPS3.h"
+#include "NanoMenuPS3Bg.h"
 #include "NanoJson.h"
 
 #include <dirent.h>
@@ -554,6 +555,11 @@ void NanoMenu::mpPrev() {
 }
 
 void NanoMenu::musicTick() {
+    // Drive the XMB Waves background morph: target the music visualizer only while the
+    // player is open on the Waves visualizer (vis 0). ps3bg ramps the blend internally
+    // (~1s) so the leave transition still plays after the player closes; setting it
+    // every frame (here, before the !mMpActive early-out) covers enter AND leave.
+    ps3bg::setMusicVisTarget((mMpActive && mMpVis == 0) ? 1.0f : 0.0f);
     float dt = mFrameDt;
     if (dt < 0.0f || dt > 0.2f) dt = 0.016f;
     // Presence + full-info fades (exp ease toward target; ~0.2s).

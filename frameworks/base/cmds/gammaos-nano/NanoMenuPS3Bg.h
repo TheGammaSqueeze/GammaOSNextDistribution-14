@@ -109,6 +109,14 @@ void setDayNightBlend(float b);
 // the particles; false hides them (Theme Settings -> Background -> Classic).
 void setParticlesEnabled(bool enabled);
 
+// Music "XMB Waves" visualizer morph: the host calls setMusicVisTarget(1) while the
+// Now-Playing player is open on the Waves visualizer and 0 otherwise; render() ramps
+// the blend internally over ~1s (so the leave transition still plays after the player
+// closes) and drives the wave lift/tint/gain, the gradient flip and the doubled
+// particle pool. musicVisBlend() returns the current eased 0..1 blend.
+void setMusicVisTarget(float target);
+float musicVisBlend();
+
 // Luminance of the current background base colour (0 dark .. ~1.2 light). Used
 // by the menu to scale the text stroke shadow with the wallpaper brightness.
 float backgroundLuma();

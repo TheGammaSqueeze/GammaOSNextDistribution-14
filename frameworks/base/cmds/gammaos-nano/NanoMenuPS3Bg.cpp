@@ -58,6 +58,7 @@ static bool   sReady     = false;
 static GLuint sBgProg = 0, sWaveProg = 0, sBlitProg = 0, sCompProg = 0;
 // FS_BG (gradient, month-base path) locations
 static GLint  sBgPos, sBgUV, sBgMonthBase, sBgMonthBaseBot, sBgNightBlend;
+static GLint  sBgMusicVis = -1, sBgMusicTop = -1;   // music "XMB Waves" gradient flip
 // wave locations (aSeqP0/A/B/P3/0 = the 4 Catmull-Rom keyframes + the crossfade
 // keyframe-0; uSeqT/uSeqW = the GPU interpolation params)
 static GLint  sWSeqP0, sWSeqA, sWSeqB, sWSeqP3, sWSeq0, sWSeqT, sWSeqW,
@@ -203,6 +204,15 @@ static float  sGradBlendQ = -1.0f;
 // every frame while a colour/day-night fade is in flight, then goes static).
 static float  sGradLastStr = -1.0f;
 static float  sGradLastR = -1.0f, sGradLastG = -1.0f, sGradLastB = -1.0f;
+static float  sGradLastMv = -1.0f;   // music-vis blend at the last gradient recache
+
+// Music "XMB Waves" visualizer morph (index.html drawBG mpVisRaw/mpVisBlend). The
+// host calls setMusicVisTarget(1) while the player is open on the Waves visualizer
+// and 0 otherwise; render() ramps sMvRaw toward the target over ~1s (so the leave
+// transition still plays after the player closes) and smoothsteps it into sMvBlend,
+// which drives the wave lift/tint/gain, the FS_BG gradient flip and the doubled
+// particle pool (all 1:1 with the web).
+static float  sMvTarget = 0.0f, sMvRaw = 0.0f, sMvBlend = 0.0f;
 // Luminance of the current background base colour (0 dark .. ~1.2 light). The
 // menu uses it to scale the text drop shadow: minimal on a dark wallpaper,
 // pronounced on a light one. Updated on each gradient recache.
@@ -262,6 +272,12 @@ static const char* FS_BG =
     "uniform vec3 uMonthBase;\n"
     "uniform vec3 uMonthBaseBot;\n"
     "uniform float uNightDayBlend;\n"
+    // Music "XMB Waves" visualizer: when uMusicVis>0 the menu gradient cross-fades to
+    // the flipped music field (theme/purple top -> black bottom, music2.mp4). The
+    // raised tinted wave ribbon is a separate additive pass (FS_WAVECAP), so this only
+    // does the gradient. uMusicTop is the saturated peak colour (index.html FS_BG 3674).
+    "uniform float uMusicVis;\n"
+    "uniform vec3 uMusicTop;\n"
     "void main(){\n"
     "  float screenY = 1.0 - vUV.y;\n"
     "  vec3 gradColor = mix(uMonthBase, uMonthBaseBot, smoothstep(0.70, 1.0, screenY));\n"
@@ -296,6 +312,13 @@ static const char* FS_BG =
     "  float lumT = dot(finalColor, vec3(0.299, 0.587, 0.114));\n"
     "  float lumO = lumT / (1.0 + lumT * 0.30);\n"
     "  finalColor = finalColor * (lumT > 1e-4 ? lumO / lumT : 1.0);\n"
+    "  if (uMusicVis > 0.001) {\n"
+    "    float tt = clamp((vUV.y - 0.49) / 0.51, 0.0, 1.0);\n"   // 1 at top, 0 by mid-screen
+    "    float vert = pow(tt, 1.2);\n"
+    "    float horiz = 0.59 + 0.41 * vUV.x;\n"                    // left 0.59 -> right 1.0
+    "    vec3 musicGrad = uMusicTop * (vert * horiz);\n"
+    "    finalColor = mix(finalColor, musicGrad, uMusicVis);\n"
+    "  }\n"
     "  gl_FragColor = vec4(finalColor, 1.0);\n"
     "}\n";
 
@@ -677,6 +700,8 @@ bool init() {
             sBgMonthBase = glGetUniformLocation(sBgProg, "uMonthBase");
             sBgMonthBaseBot = glGetUniformLocation(sBgProg, "uMonthBaseBot");
             sBgNightBlend = glGetUniformLocation(sBgProg, "uNightDayBlend");
+            sBgMusicVis = glGetUniformLocation(sBgProg, "uMusicVis");
+            sBgMusicTop = glGetUniformLocation(sBgProg, "uMusicTop");
         }
         if (sWaveProg) {
             sWSeqP0 = glGetAttribLocation(sWaveProg, "aSeqP0");
@@ -746,6 +771,11 @@ void setParticlesEnabled(bool e) { sParticlesEnabled = e; }
 float backgroundLuma() { return sBgLumaEst; }
 bool themeFading() { return sThemeFadingNow; }
 
+// Music "XMB Waves" morph target: 1 while the player is open on the Waves visualizer,
+// 0 otherwise. render() ramps toward it over ~1s; the host sets it every frame.
+void setMusicVisTarget(float target) { sMvTarget = (target > 0.5f) ? 1.0f : 0.0f; }
+float musicVisBlend() { return sMvBlend; }
+
 void invalidateGradient() { sGradDirty = true; sScrimEpoch++; }
 
 void shutdown() {
@@ -792,6 +822,10 @@ static void renderGradientCache(int fw, int fh, int month, float nightDayBlend) 
     glUniform3f(sBgMonthBase, mb[0], mb[1], mb[2]);
     glUniform3f(sBgMonthBaseBot, mbb[0], mbb[1], mbb[2]);
     glUniform1f(sBgNightBlend, nightDayBlend);
+    // Music "XMB Waves" gradient flip: the saturated peak colour (index.html 6774,
+    // 0.82/0.30/1.00 * peak 0.58) cross-faded in by the morph blend.
+    if (sBgMusicVis >= 0) glUniform1f(sBgMusicVis, sMvBlend);
+    if (sBgMusicTop >= 0) glUniform3f(sBgMusicTop, 0.82f * 0.58f, 0.30f * 0.58f, 1.00f * 0.58f);
     drawFullQuad(sBgPos, sBgUV);
 }
 
@@ -933,6 +967,16 @@ void render(int panelW, int panelH, float dt, const float rotMat2[4], bool /*rot
     if (buildFrame) {
     sBuiltSerial = sFrameSerial;
 
+    // Music "XMB Waves" morph: advance linear progress toward the target over ~1.0s,
+    // then smoothstep into the blend (index.html drawBG 7228-7231). This drives the
+    // gradient flip, the wave lift/tint/gain and the doubled particle pool below.
+    {
+        float st = (dt > 0.0f && dt < 0.5f) ? dt : 0.016f;   // full 0..1 traversal in 1.0s
+        if (sMvRaw < sMvTarget)      sMvRaw = fminf(sMvTarget, sMvRaw + st);
+        else if (sMvRaw > sMvTarget) sMvRaw = fmaxf(sMvTarget, sMvRaw - st);
+        sMvBlend = sMvRaw * sMvRaw * (3.0f - 2.0f * sMvRaw);
+    }
+
     // Re-render the cached gradient when the month, the (animated) day/night blend
     // or the (animated) theme colour/strength moved meaningfully. While a colour
     // or day/night cross-fade is in flight these change every frame so the cache
@@ -943,13 +987,15 @@ void render(int panelW, int panelH, float dt, const float rotMat2[4], bool /*rot
                    || fabsf(sThemeCurR - sGradLastR) > 1.5e-3f
                    || fabsf(sThemeCurG - sGradLastG) > 1.5e-3f
                    || fabsf(sThemeCurB - sGradLastB) > 1.5e-3f;
-    if (sGradDirty || lt.tm_mon != sGradMonth || fabsf(blendQ - sGradBlendQ) > 1e-4f || themeMoved) {
+    if (sGradDirty || lt.tm_mon != sGradMonth || fabsf(blendQ - sGradBlendQ) > 1e-4f || themeMoved
+        || fabsf(sMvBlend - sGradLastMv) > 1e-3f) {
         renderGradientCache(fw, fh, lt.tm_mon, nightDayBlend);
         sGradDirty = false;
         sGradMonth = lt.tm_mon;
         sGradBlendQ = blendQ;
         sGradLastStr = sThemeStrCur;
         sGradLastR = sThemeCurR; sGradLastG = sThemeCurG; sGradLastB = sThemeCurB;
+        sGradLastMv = sMvBlend;
     }
 
     // Build the work buffer at full resolution: gradient blit, then additive wave.
@@ -999,8 +1045,10 @@ void render(int panelW, int panelH, float dt, const float rotMat2[4], bool /*rot
         glUniform1f(sWYFlip, 1.0f);
         glUniform1f(sWScaleY, 0.8f);
         glUniform1f(sWScaleX, 1.0f / layoutFit);
-        glUniform2f(sWOffset, 0.0f, 0.0f);
-        glUniform1f(sWFade, sBootWaveBrightness);   // 1.0 steady; boot ramps 0->1
+        // Music "XMB Waves" morph: the wave LIFTS into the visualizer position
+        // (uOffset.y += 0.30*blend) and its emission is boosted (index.html 5544/5592).
+        glUniform2f(sWOffset, 0.0f, 0.30f * sMvBlend);
+        glUniform1f(sWFade, sBootWaveBrightness * (1.0f + 0.35f * sMvBlend));   // 1.0 steady; boot ramps 0->1
         // Wave base tint: silvery by default, blended toward the user-chosen
         // Colour by the animated strength (web updateWaveTintConstants writes
         // dispTint into the ribbon base-tint constants so the wave + glints pick
@@ -1010,6 +1058,12 @@ void render(int panelW, int panelH, float dt, const float rotMat2[4], bool /*rot
             wtR += (sThemeCurR - wtR) * sThemeStrCur;
             wtG += (sThemeCurG - wtG) * sThemeStrCur;
             wtB += (sThemeCurB - wtB) * sThemeStrCur;
+        }
+        // Music morph: cross-fade the ribbon tint toward magenta (index.html 5572).
+        if (sMvBlend > 0.0001f) {
+            wtR += (1.00f - wtR) * sMvBlend;
+            wtG += (0.52f - wtG) * sMvBlend;
+            wtB += (1.00f - wtB) * sMvBlend;
         }
         glUniform3f(sWTint, wtR, wtG, wtB);
         glUniform1f(sWAlpha, 0.15f);
@@ -1101,6 +1155,8 @@ void render(int panelW, int panelH, float dt, const float rotMat2[4], bool /*rot
     if (sParticlesEnabled) {
         float layoutFit = ps3::LAYOUT_FIT > 0.0f ? ps3::LAYOUT_FIT : 1.0f;
         const float frameNdc[4] = { nx0, ny1, nx1, ny0 };
+        // Music "XMB Waves" morph: the doubled particle pool fades in with the blend.
+        ps3part::setMusicVisBlend(sMvBlend);
         ps3part::render(1.0f / layoutFit, 1.0f, 1.0f, (float)fh, nightDayBlend,
                         (float)(sSeqElapsed * 0.4), frameNdc, rm);
     }

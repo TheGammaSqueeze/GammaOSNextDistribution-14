@@ -66,8 +66,10 @@ struct Particle {
     bool  edge;
 };
 static std::vector<Particle> sParts;
-static std::vector<float> sBuf;     // GPU buffer scratch: 8 floats/particle
+static std::vector<Particle> sPartsExtra;   // music "XMB Waves" doubled pool (lazy, kept warm)
+static std::vector<float> sBuf;     // GPU buffer scratch: 8 floats/particle (sized 2x once extras exist)
 static double sAccumMs = 0.0;
+static float sMvBlend = 0.0f;       // music-vis morph: extra-pool brightness fade (0 = menu only)
 
 // ---- GL ---------------------------------------------------------------------
 static GLuint sProg = 0, sVBO = 0;
@@ -166,20 +168,23 @@ static void spawn(Particle& p) {
     p.rr1 = (0.5f + frand()) * kSpinTimeScale;
 }
 
+static inline void stepOne(Particle& p) {
+    float w = -p.ez + 2.0f;
+    float imp = 0.013f * (w / 8.0f);
+    p.vx += gJ() * imp; p.vy += gJ() * imp; p.vz += gJ() * imp;
+    p.vx *= 0.969f; p.vy *= 0.969f; p.vz *= 0.969f;
+    p.ex += p.vx + (p.hx - p.ex) * 0.012f;
+    p.ey += p.vy + (p.hy - p.ey) * 0.012f;
+    p.ez += p.vz + (p.hz - p.ez) * 0.012f;
+    p.age += kAgingSpeed * 0.9f * (1.0f + (frand() - 0.5f) * kAgingVar);
+    p.sx0 += p.rr0 * kDeltaTime * 0.7f;
+    p.sx1 += p.rr1 * kDeltaTime * 0.7f;
+    if (p.age > 1.0f) { spawn(p); p.age = 0.0f; }
+}
+
 static void step() {
-    for (Particle& p : sParts) {
-        float w = -p.ez + 2.0f;
-        float imp = 0.013f * (w / 8.0f);
-        p.vx += gJ() * imp; p.vy += gJ() * imp; p.vz += gJ() * imp;
-        p.vx *= 0.969f; p.vy *= 0.969f; p.vz *= 0.969f;
-        p.ex += p.vx + (p.hx - p.ex) * 0.012f;
-        p.ey += p.vy + (p.hy - p.ey) * 0.012f;
-        p.ez += p.vz + (p.hz - p.ez) * 0.012f;
-        p.age += kAgingSpeed * 0.9f * (1.0f + (frand() - 0.5f) * kAgingVar);
-        p.sx0 += p.rr0 * kDeltaTime * 0.7f;
-        p.sx1 += p.rr1 * kDeltaTime * 0.7f;
-        if (p.age > 1.0f) { spawn(p); p.age = 0.0f; }
-    }
+    for (Particle& p : sParts) stepOne(p);
+    for (Particle& p : sPartsExtra) stepOne(p);   // doubled music pool (empty until first morph)
 }
 
 // wave undulation Y offset (NDC) so the band rides the wave (index.html 2625)
@@ -253,20 +258,32 @@ void render(float scaleX, float scaleY, float yFlip, float frameH,
     float Hs = frameH / 720.0f;
     const float FOCUS_Z = 5.8f;
 
+    // Music "XMB Waves" doubled pool: lazily spawn the extra field (same size as the
+    // menu field, kept warm) the first time the morph runs, and double sBuf so both
+    // pools fit (index.html activeParticlePool).
+    bool useExtra = (sMvBlend > 0.0001f);
+    if (useExtra && sPartsExtra.empty()) {
+        sPartsExtra.resize(kNumParticles);
+        for (Particle& p : sPartsExtra) spawn(p);
+        sBuf.resize((size_t)kNumParticles * 2 * 8);
+    }
+
     // Re-project the particle cloud at ~30Hz (every other frame): the loop below
     // runs several transcendentals per particle plus a 45KB upload, and a 30Hz
     // glint refresh over the animating wave is imperceptible. update() still
-    // advances the motion every frame; the off-frames redraw the cached VBO.
+    // advances the motion every frame; the off-frames redraw the cached VBO. Force
+    // a rebuild when the extra pool toggles so the VBO matches the draw count.
     static unsigned sPartFrame = 0;
-    bool rebuild = ((sPartFrame++ & 1u) == 0u);
-    // Build the per-particle GPU data (project + spinning-normal glint + DoF).
-    float* d = sBuf.data();
-    int o = 0;
+    static bool sLastUseExtra = false;
+    static int sDrawCount = kNumParticles;
+    bool rebuild = ((sPartFrame++ & 1u) == 0u) || (useExtra != sLastUseExtra);
     static const float kRotIdent[4] = {1.f, 0.f, 0.f, 1.f};
     const float* R = rotMat ? rotMat : kRotIdent;   // wave-coupling rotation (same as the shader's)
-    if (rebuild) for (const Particle& p : sParts) {
+    // Project one particle into dst[0..7]. brightScale dims the doubled music pool so
+    // it fades in/out with the wallpaper morph (index.html buildParticleData _mvExtra).
+    auto project = [&](const Particle& p, float brightScale, float* dst) {
         float w = -p.ez + 2.0f;
-        if (w <= 0.001f) { d[o+3] = 0.0f; o += 8; continue; }
+        if (w <= 0.001f) { dst[3] = 0.0f; return; }
         float ndcX = kProjFx * p.ex / w;
         float ndcY = kProjFy * p.ey / w;
         // Wave-undulation coupling, orientation-correct on 0/90/180/270. The
@@ -282,7 +299,7 @@ void render(float scaleX, float scaleY, float yFlip, float frameH,
         float D = waveMotionDeltaY(visualX, waveT);
         ndcX += R[1] * D;
         ndcY += R[3] * D;
-        if (fabsf(ndcX) > 1.15f || fabsf(ndcY) > 1.15f) { d[o+3] = 0.0f; o += 8; continue; }
+        if (fabsf(ndcX) > 1.15f || fabsf(ndcY) > 1.15f) { dst[3] = 0.0f; return; }
         float pl = sqrtf(p.ex*p.ex + p.ey*p.ey + p.ez*p.ez); if (pl < 1e-4f) pl = 1.0f;
         float vx = -p.ex/pl, vy = -p.ey/pl, vz = -p.ez/pl;
         float hxv = sLx + vx, hyv = sLy + vy, hzv = sLz + vz;
@@ -312,6 +329,7 @@ void render(float scaleX, float scaleY, float yFlip, float frameH,
         float bright = (bodyLevel * bodyGain + fres * 0.04f + spec * glintExpo * glintGain)
                        * ageF * dofDark;
         if (bright < 0.0f) bright = 0.0f;
+        bright *= brightScale;   // doubled music pool fades with the morph blend
         float sizePx = (kSizeNear * 90.0f / w) * Hs * p.bigScale;
         sizePx *= (1.0f + defocus * 1.5f);
         if (sizePx < 1.0f) sizePx = 1.0f;
@@ -334,9 +352,16 @@ void render(float scaleX, float scaleY, float yFlip, float frameH,
             g = 0.88f + 0.12f * (0.5f + 0.5f * cosf(t + 2.094f));
             b = 0.92f + 0.08f * (0.5f + 0.5f * cosf(t + 4.188f));
         }
-        d[o] = ndcX; d[o+1] = ndcY; d[o+2] = sizePx; d[o+3] = bright;
-        d[o+4] = r; d[o+5] = g; d[o+6] = b; d[o+7] = spark;
-        o += 8;
+        dst[0] = ndcX; dst[1] = ndcY; dst[2] = sizePx; dst[3] = bright;
+        dst[4] = r; dst[5] = g; dst[6] = b; dst[7] = spark;
+    };
+    if (rebuild) {
+        float* d = sBuf.data();
+        int o = 0;
+        for (const Particle& p : sParts) { project(p, 1.0f, d + o); o += 8; }
+        if (useExtra) for (const Particle& p : sPartsExtra) { project(p, sMvBlend, d + o); o += 8; }
+        sDrawCount = o / 8;
+        sLastUseExtra = useExtra;
     }
 
     glUseProgram(sProg);
@@ -348,7 +373,7 @@ void render(float scaleX, float scaleY, float yFlip, float frameH,
     glUniformMatrix2fv(sLocRot, 1, GL_FALSE, rotMat ? rotMat : kIdentity);
     glBindBuffer(GL_ARRAY_BUFFER, sVBO);
     if (rebuild)
-        glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)(sBuf.size() * sizeof(float)), sBuf.data(), GL_DYNAMIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)((size_t)sDrawCount * 8 * sizeof(float)), sBuf.data(), GL_DYNAMIC_DRAW);
     const GLsizei ST = 8 * sizeof(float);
     glEnableVertexAttribArray(sLocPos);    glVertexAttribPointer(sLocPos,    2, GL_FLOAT, GL_FALSE, ST, (const void*)0);
     glEnableVertexAttribArray(sLocSize);   glVertexAttribPointer(sLocSize,   1, GL_FLOAT, GL_FALSE, ST, (const void*)(2*sizeof(float)));
@@ -359,7 +384,7 @@ void render(float scaleX, float scaleY, float yFlip, float frameH,
     glEnable(GL_BLEND);
     glBlendFunc(GL_ONE, GL_ONE);             // premultiplied additive HDR glints
     glDisable(GL_DEPTH_TEST);
-    glDrawArrays(GL_POINTS, 0, kNumParticles);
+    glDrawArrays(GL_POINTS, 0, sDrawCount);   // kNumParticles, or 2x while the music pool fades
 
     glDisableVertexAttribArray(sLocPos);
     glDisableVertexAttribArray(sLocSize);
@@ -370,11 +395,15 @@ void render(float scaleX, float scaleY, float yFlip, float frameH,
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);   // restore standard blend
 }
 
+void setMusicVisBlend(float blend) {
+    sMvBlend = (blend < 0.0f) ? 0.0f : (blend > 1.0f ? 1.0f : blend);
+}
+
 void shutdown() {
     if (sProg) glDeleteProgram(sProg);
     if (sVBO) glDeleteBuffers(1, &sVBO);
     sProg = 0; sVBO = 0; sReady = false; sTried = false;
-    sParts.clear(); sBuf.clear(); sAccumMs = 0.0;
+    sParts.clear(); sPartsExtra.clear(); sBuf.clear(); sAccumMs = 0.0; sMvBlend = 0.0f;
 }
 
 } // namespace ps3part

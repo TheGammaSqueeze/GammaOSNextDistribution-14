@@ -160,4 +160,22 @@ mMpActive branches BEFORE the mPs3TzActive checks in each handler. mpFmtTime HH:
   Lazy-load fires on Music-category focus (musicOnCatFocus) so the column shows albums
   without anything touching music at boot.
   Test hooks: sys.gammaos.nano.nav "tri" = Triangle/panel, "sq" = Square/cycle-vis.
-- XMB Waves morph + Canyon visualizer: pending (Phase 4-5; Canyon is a built stub).
+- XMB Waves morph (the enter/leave background transition): DONE. All of it lives in
+  ps3bg, driven by the host calling ps3bg::setMusicVisTarget(mMpActive && vis==0 ? 1 : 0)
+  every frame from musicTick (before its early-out, so the leave transition still plays
+  after the player closes). ps3bg ramps a linear progress toward the target over ~1.0s
+  and smoothsteps it into sMvBlend (index.html drawBG 7228-7231), which drives, 1:1 with
+  the web:
+  - the WAVE: lift uOffset.y += 0.30*blend, emission uFade *= 1+0.35*blend, and the
+    ribbon tint cross-fades silver -> magenta [1.0,0.52,1.0] (index.html 5544/5572/5592);
+  - the GRADIENT FLIP: FS_BG gains uMusicVis/uMusicTop; it cross-fades the menu gradient
+    to the music field (uMusicTop=(0.82,0.30,1.00)*0.58, vert=pow(t,1.2), horiz=0.59+
+    0.41*x, t=clamp((vUV.y-0.49)/0.51)), set in renderGradientCache and forced to rebuild
+    every frame while the blend moves (sGradLastMv). nano's wave is a separate additive
+    pass, so the music gradient here is wave-free (the raised ribbon is added on top);
+  - the PARTICLES: ps3part gains setMusicVisBlend + a lazily-spawned second pool (same
+    size, kept warm) whose brightness *= blend; the draw count doubles while blend>0
+    (index.html activeParticlePool / buildParticleData _mvExtra).
+  The morph runs through the normal home ps3bg path (no renderer switch); the Now-Playing
+  bar draws over it.
+- Canyon visualizer: pending (Phase 5; Canyon is a built stub).

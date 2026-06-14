@@ -47,6 +47,12 @@ void render(float scaleX, float scaleY, float yFlip, float frameH,
             float nightBlend, float waveT,
             const float frameNdc[4], const float rotMat[4]);
 
+// Music "XMB Waves" visualizer morph: the doubled particle density (a second pool
+// the same size as the menu field, spawned lazily and kept warm). blend 0..1 fades
+// the extra pool's brightness in/out so it appears/vanishes with the wallpaper
+// morph (index.html activeParticlePool + buildParticleData _mvExtra). 0 = menu only.
+void setMusicVisBlend(float blend);
+
 // Free GL objects.
 void shutdown();
 
