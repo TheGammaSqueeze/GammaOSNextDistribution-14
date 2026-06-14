@@ -273,7 +273,9 @@ void NanoMenu::handleBack() {
         return;
     }
     if (mMenuState == MENU_SETTINGS) { handleSettingsTreeBack(); return; }
-    if (mPs3Xmb) { ps3XmbBack(); return; }
+    // Mirror handleSelect: route the setup-wizard WiFi/BT step's Back to
+    // ps3XmbBack -> wizBack (mPs3Xmb is false during the setup wizard).
+    if (mPs3Xmb || mPs3WizActive) { ps3XmbBack(); return; }
     if (mXmbMode) {
         if (mSearchActive) {
             mSearchActive = false;
@@ -309,7 +311,11 @@ void NanoMenu::handleSelect() {
     if (mMenuState == MENU_WIFI)     { handleWifiScreenSelect();   return; }
     if (mMenuState == MENU_BT)       { handleBtScreenSelect();     return; }
     if (mMenuState == MENU_SETTINGS) { handleSettingsTreeSelect();  return; }
-    if (mPs3Xmb) { ps3XmbSelect(); return; }
+    // The PS3 net/BT wizard (mPs3WizActive) runs during the setup wizard's WiFi/
+    // Bluetooth steps with mPs3Xmb=false (home XMB not up yet). Route its confirm
+    // to ps3XmbSelect -> wizConfirm; otherwise it falls through to the legacy text
+    // menu below and "selects" item 0 (RetroArch), wrongly launching it.
+    if (mPs3Xmb || mPs3WizActive) { ps3XmbSelect(); return; }
     if (mXmbMode) {
         if (isOnSettingsColumn()) {
             openSettingsTree();
