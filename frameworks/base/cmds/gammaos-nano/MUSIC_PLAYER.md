@@ -75,6 +75,27 @@ reload, mirror `nano_systems.json`):
 - On leaving Now-Playing: pause + free the decoder ring; keep the parsed library.
 - Canyon GL resources init on first Canyon use, freed on leaving Now-Playing.
 
+## Screen-off playback (power button while music plays)
+`enterDrmSleep()` (NanoMenuInput.cpp) keeps music going with the screen off, like a
+normal phone music player:
+- If a track is playing when the user presses power, `keepAudio` is set: nano blanks
+  the panel + backlights but SKIPS the PowerManager system suspend (which would freeze
+  the decoder/AAudio threads), and instead holds a kernel wakelock by writing
+  `nano_music` to `/sys/power/wake_lock`. It then polls every 1s and auto-advances the
+  queue (audio-only, no GL).
+- Holding that wakelock needs CAP_BLOCK_SUSPEND, which is granted in
+  `gammaos-nano.rc` (both the home and overlay services). Without it the write returns
+  EPERM and, with USB connected, the `usb_connecting` kernel wakeup source masks the
+  failure - so it only manifests on UNPLUG, where the SoC then suspends and the audio
+  dies. The write now checks its result and logs an error if it ever fails again.
+  `device/gammaos/sepolicy/bootanim.te` also allows `block_suspend` + `sysfs_wake_lock`
+  for an enforcing build (nano runs in the bootanim domain, permissive today).
+- When there is no more audio to play (end of the queue with repeat off -> `mpStep`
+  issues a Pause, so the player settles into `isPaused()`), nano releases the
+  `nano_music` wakelock and hands off to a real low-power system sleep, so the device
+  is not left awake with the screen off and nothing playing.
+- On wake (power press / lid), the wakelock is released and the panels recommit.
+
 ## Phase 3 implementation recipe (Now-Playing screen + control panel)
 Scaffolding already in place: state members + method decls in NanoMenu.h (mMpActive,
 mMpFullInfo, mMpEnterT, mMpFullInfoT, the panel/transient/banner/msg fields,

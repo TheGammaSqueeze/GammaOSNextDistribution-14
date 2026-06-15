@@ -41,7 +41,10 @@ service gammaos-nano /system/bin/gammaos-nano
     class core animation
     user root
     group root graphics input system media_rw sdcard_rw everybody external_storage package_info readproc inet
-    capabilities SYS_NICE IPC_LOCK SYS_RESOURCE DAC_OVERRIDE DAC_READ_SEARCH CHOWN FOWNER SYS_ADMIN SYS_PTRACE SYS_CHROOT
+    # BLOCK_SUSPEND lets nano hold a kernel wakelock (/sys/power/wake_lock) so
+    # music keeps playing with the screen off after USB is unplugged. Without it
+    # the write returns EPERM and the SoC suspends on unplug, killing the audio.
+    capabilities SYS_NICE IPC_LOCK SYS_RESOURCE DAC_OVERRIDE DAC_READ_SEARCH CHOWN FOWNER SYS_ADMIN SYS_PTRACE SYS_CHROOT BLOCK_SUSPEND
     disabled
     oneshot
     ioprio rt 0
@@ -70,7 +73,7 @@ service gammaos-nano-overlay /system/bin/gammaos-nano --overlay
     class core animation
     user root
     group root graphics input system media_rw sdcard_rw everybody external_storage package_info readproc inet
-    capabilities SYS_NICE IPC_LOCK SYS_RESOURCE DAC_OVERRIDE DAC_READ_SEARCH CHOWN FOWNER SYS_ADMIN SYS_PTRACE SYS_CHROOT KILL
+    capabilities SYS_NICE IPC_LOCK SYS_RESOURCE DAC_OVERRIDE DAC_READ_SEARCH CHOWN FOWNER SYS_ADMIN SYS_PTRACE SYS_CHROOT KILL BLOCK_SUSPEND
     disabled
     ioprio rt 0
     rlimit rtprio 99 99

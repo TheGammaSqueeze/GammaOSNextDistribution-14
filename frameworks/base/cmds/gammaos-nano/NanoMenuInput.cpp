@@ -736,8 +736,12 @@ bool NanoMenu::enterDrmSleep() {
     bool pmSleep = property_get_bool("sys.boot_completed", false) && !keepAudio;
     if (keepAudio) {
         int wl = open("/sys/power/wake_lock", O_WRONLY | O_CLOEXEC);
-        if (wl >= 0) { ssize_t n = write(wl, "nano_music", 10); (void)n; close(wl); }
-        ALOGI("NanoMenu: screen off, music playing -- staying awake, audio continues");
+        ssize_t n = (wl >= 0) ? write(wl, "nano_music", 10) : -1;
+        if (wl >= 0) close(wl);
+        if (n < 0)
+            ALOGE("NanoMenu: failed to hold music wake_lock (errno %d) - audio may die on USB unplug", errno);
+        else
+            ALOGI("NanoMenu: screen off, music playing -- staying awake, audio continues");
     } else if (pmSleep) {
         ALOGI("NanoMenu: services up -> PowerManager system sleep");
         property_set("sys.gammaos.nano.dosleep", "1");
@@ -745,6 +749,7 @@ bool NanoMenu::enterDrmSleep() {
 
     bool asleep = true;
     int64_t sleepStart = android::uptimeMillis();
+    int mpDoneTicks = 0;   // consecutive polls with the queue finished (debounce)
     while (asleep) {
         // Block on the input fds so the CPU can idle / suspend (a busy poll
         // would keep it awake and defeat the suspend). With PowerManager
@@ -796,6 +801,24 @@ bool NanoMenu::enterDrmSleep() {
             mMpAdvancing = true;
             if (mMpRepeat == 2) mpPlayCurrent();
             else mpStep(1, true);
+        }
+        // No more audio to play: at the end of the queue (repeat off) mpStep issues a
+        // Pause, so the player settles into isPaused() (it is never paused during a
+        // track-to-track advance, which calls mpPlayCurrent). When that holds for a
+        // couple of polls, release the music wakelock and hand off to a real low-power
+        // system sleep, like normal Android when a playlist finishes.
+        if (keepAudio && mMusicPlayer.isPaused() && !mMpQueue.empty()) {
+            if (++mpDoneTicks >= 2) {
+                int wl = open("/sys/power/wake_unlock", O_WRONLY | O_CLOEXEC);
+                if (wl >= 0) { ssize_t n = write(wl, "nano_music", 10); (void)n; close(wl); }
+                ALOGI("NanoMenu: music finished -> releasing wakelock, system sleep");
+                keepAudio = false;
+                pmSleep = property_get_bool("sys.boot_completed", false);
+                if (pmSleep) property_set("sys.gammaos.nano.dosleep", "1");
+                sleepStart = android::uptimeMillis();   // restart the legacy 60s budget if PM is unavailable
+            }
+        } else {
+            mpDoneTicks = 0;
         }
     }
     // Woke. If we put PowerManager to sleep, wake it too (it never saw the
