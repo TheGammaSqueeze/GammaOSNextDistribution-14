@@ -293,6 +293,13 @@ status_t NuMediaExtractor::getFileFormat(sp<AMessage> *format) const {
     *format = new AMessage();
     (*format)->setString("mime", mime);
 
+    // Surface the container-level tags (ID3 / Vorbis comment / MP4 ilst): title,
+    // artist, album, genre, year, track number, and embedded cover art. Without
+    // this the NDK AMediaExtractor_getFileFormat returns only the mime, so callers
+    // (e.g. native music players) could never read the metadata the extractor had
+    // already parsed.
+    convertMetaDataToMessageFromMappings(meta.get(), *format);
+
     uint32_t type;
     const void *pssh;
     size_t psshsize;

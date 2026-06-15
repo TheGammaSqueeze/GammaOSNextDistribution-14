@@ -35,6 +35,11 @@ status_t convertMetaDataToMessage(
         const sp<MetaData> &meta, sp<AMessage> *format);
 status_t convertMessageToMetaData(
         const sp<AMessage> &format, sp<MetaData> &meta);
+// Copy the simple key/value tags (title/artist/album/genre/year/cdtracknum/...,
+// and embedded albumart when present) from container metadata into a message.
+// Used to surface file-level tags through NuMediaExtractor::getFileFormat, which
+// otherwise drops them (only the track formats carried codec data before).
+void convertMetaDataToMessageFromMappings(const MetaDataBase *meta, sp<AMessage> format);
 
 // Returns a pointer to the next NAL start code in buffer of size |length| starting at |data|, or
 // a pointer to the end of the buffer if the start code is not found.
