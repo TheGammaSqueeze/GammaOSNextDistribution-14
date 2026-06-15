@@ -730,18 +730,23 @@ bool NanoMenu::enterDrmSleep() {
     // PowerManager runs its normal goToSleep -> doze -> suspend. Before
     // boot_completed PowerManager is not ready, so fall back to the legacy
     // blank + 60s-then-shutdown.
-    // Skip the PowerManager system suspend while music is playing (it would freeze
-    // the audio threads); hold a kernel wakelock instead so the device stays awake
-    // with the screen off. Otherwise sleep the whole system as usual.
-    bool pmSleep = property_get_bool("sys.boot_completed", false) && !keepAudio;
+    // Drive proper Android standby (display off / low power) in BOTH cases once the
+    // framework is up. The difference is the wakelock: when music is playing we hold
+    // the nano_music kernel wakelock FIRST, which blocks suspend-to-RAM, so
+    // PowerManager.goToSleep dozes (display off via the framework) but the SoC stays
+    // up and the decode/AAudio threads keep running. Without engaging the framework
+    // the lights HAL re-asserts the backlight and the panel never actually turns off.
+    bool pmSleep = property_get_bool("sys.boot_completed", false);
     if (keepAudio) {
         int wl = open("/sys/power/wake_lock", O_WRONLY | O_CLOEXEC);
         ssize_t n = (wl >= 0) ? write(wl, "nano_music", 10) : -1;
         if (wl >= 0) close(wl);
         if (n < 0)
-            ALOGE("NanoMenu: failed to hold music wake_lock (errno %d) - audio may die on USB unplug", errno);
+            ALOGE("NanoMenu: failed to hold music wake_lock (errno %d) - audio may die on sleep", errno);
         else
             ALOGI("NanoMenu: screen off, music playing -- staying awake, audio continues");
+        // Engage framework standby too (wakelock already held -> doze, not suspend).
+        if (pmSleep) property_set("sys.gammaos.nano.dosleep", "1");
     } else if (pmSleep) {
         ALOGI("NanoMenu: services up -> PowerManager system sleep");
         property_set("sys.gammaos.nano.dosleep", "1");
@@ -821,15 +826,18 @@ bool NanoMenu::enterDrmSleep() {
             mpDoneTicks = 0;
         }
     }
-    // Woke. If we put PowerManager to sleep, wake it too (it never saw the
-    // wake source, so it will not auto-wake) via an injected KEYCODE_WAKEUP.
-    if (keepAudio) {
-        int wl = open("/sys/power/wake_unlock", O_WRONLY | O_CLOEXEC);
-        if (wl >= 0) { ssize_t n = write(wl, "nano_music", 10); (void)n; close(wl); }
-    } else if (pmSleep) {
+    // Woke. We always drove framework standby (dosleep) when boot_completed, so wake
+    // PowerManager via an injected KEYCODE_WAKEUP (it never saw the wake source, so it
+    // will not auto-wake). Release the music wakelock LAST - after dowake - so the SoC
+    // cannot suspend in the gap before KEYCODE_WAKEUP is delivered.
+    if (pmSleep) {
         property_set("sys.gammaos.nano.dosleep", "0");
         property_set("sys.gammaos.nano.dowake", "1");
         ALOGI("NanoMenu: waking PowerManager (KEYCODE_WAKEUP)");
+    }
+    if (keepAudio) {
+        int wl = open("/sys/power/wake_unlock", O_WRONLY | O_CLOEXEC);
+        if (wl >= 0) { ssize_t n = write(wl, "nano_music", 10); (void)n; close(wl); }
     }
     usleep(200000);
     { struct input_event d; for (int dfd : mInputFds) {

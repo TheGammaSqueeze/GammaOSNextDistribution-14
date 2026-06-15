@@ -3162,6 +3162,20 @@ if (sRingPrimedCount >= 2) {
     bool stockClocksApplied = false;
     int64_t bootCompletedDetectedMs = 0;
     while (!exitPending() && !mExitRequested) {
+        // Render-thread liveness for the watchdog. Bump the heartbeat once per loop
+        // iteration (not only inside render()). EVERY intentional render-thread park
+        // below - the overlay screen-off idle poll, the hidden-overlay prop-wait, the
+        // DRM occlusion guard, frame pacing, idle-fps - exits via `continue` back to
+        // here, so this single bump proves the thread is parked-but-alive and the
+        // watchdog never aborts it. A TRUE hang (stuck in render()/pollInput()) never
+        // returns to the loop top, so the heartbeat still freezes and the watchdog
+        // still fires. The one indefinite block that does NOT loop back is
+        // enterDrmSleep's nested poll, which stays guarded by mInDrmSleep.
+        // (This is the structural fix for the overlay audio dying ~8s into sleep:
+        // the screen-off park at ~3455 used to skip render() and freeze the heartbeat.)
+        mRenderHeartbeat.fetch_add(1, std::memory_order_relaxed);
+        if (!mWatchdogStarted) { mWatchdogStarted = true; startRenderWatchdog(); }
+
         // Overlay XMB: resident-hidden power-hold overlay. One-time blur/hide
         // setup, then each tick poll sys.gammaos.nano.show_overlay to raise or
         // dismiss. While hidden, the layer is invisible and input is NOT
@@ -3451,8 +3465,42 @@ if (sRingPrimedCount >= 2) {
         if (mOverlayMode) {
             char ss[PROPERTY_VALUE_MAX] = {};
             property_get("sys.screen.state", ss, "on");
-            if (!strcmp(ss, "off")) {
-                usleep(250000);   // 4Hz idle poll while the panel is off
+            bool screenOff = !strcmp(ss, "off");
+            // Keep background music alive across screen-off, including a real
+            // suspend on battery: the framework drives standby for the overlay, but
+            // nothing holds the SoC up for the in-process decode/AAudio threads, so
+            // on battery they freeze when the device suspends. While audio is active
+            // hold the nano_music kernel wakelock (overlay has CAP_BLOCK_SUSPEND) and
+            // run the audio-only auto-advance so the album keeps flowing; release the
+            // lock the moment the screen returns or the queue ends, or the device
+            // would never sleep. "active" excludes the queue-end paused state but
+            // includes the brief async track-change gap (mMpAdvancing, not paused).
+            bool audioActive = mMusicPlayer.isPlaying() ||
+                               (mMpAdvancing && !mMusicPlayer.isPaused());
+            static bool sOvlAudioWake = false;
+            if (screenOff && audioActive) {
+                if (!sOvlAudioWake) {
+                    int wl = open("/sys/power/wake_lock", O_WRONLY | O_CLOEXEC);
+                    if (wl >= 0) { ssize_t n = write(wl, "nano_music", 10); (void)n; close(wl); }
+                    sOvlAudioWake = true;
+                }
+                // audio-only auto-advance (no GL; mirrors musicTick's gate)
+                if (mMpAdvancing && !mMusicPlayer.ended()) mMpAdvancing = false;
+                if (!mMpQueue.empty() && mMusicPlayer.ended() && !mMpAdvancing) {
+                    mMpAdvancing = true;
+                    if (mMpRepeat == 2) mpPlayCurrent();
+                    else mpStep(1, true);
+                }
+                usleep(1000000);   // 1Hz while playing screen-off (catch end-of-track promptly)
+                continue;
+            }
+            if (sOvlAudioWake) {   // screen back on, or audio stopped / queue ended -> release
+                int wl = open("/sys/power/wake_unlock", O_WRONLY | O_CLOEXEC);
+                if (wl >= 0) { ssize_t n = write(wl, "nano_music", 10); (void)n; close(wl); }
+                sOvlAudioWake = false;
+            }
+            if (screenOff) {
+                usleep(250000);   // 4Hz idle poll while the panel is off (no audio)
                 continue;
             }
         }
