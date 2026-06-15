@@ -1331,7 +1331,7 @@ bool NanoMenu::threadLoop() {
     // PS3 XMB layout (NanoMenuPS3Menu.cpp). Dev-gated during build-up; takes
     // priority over the carousel (mXmbMode) when set.
     mPs3Xmb = android::base::GetBoolProperty(
-            "persist.gammaos.nano.ps3xmb", false);
+            "persist.gammaos.nano.ps3xmb", true);   // default on when the prop is unset
     ALOGI("NanoMenu: persist read quick_resume=%d xmb_mode=%d ps3xmb=%d",
           mQuickResumeEnabled ? 1 : 0, mXmbMode ? 1 : 0, mPs3Xmb ? 1 : 0);
     // PS3 cold-boot intro: play the full intro (wave/gradient reveal from black,

@@ -7059,7 +7059,7 @@ public class ActivityManagerService extends IActivityManager.Stub
                         if (android.os.SystemProperties.getBoolean(
                                 "sys.gammaos.minimal_boot", false)) {
                             boolean nanoWifi = android.os.SystemProperties.getBoolean(
-                                    "persist.gammaos.nano.wifi", false);
+                                    "persist.gammaos.nano.wifi", true);
                             boolean isNetworkStack =
                                     "com.android.networkstack".equals(app.packageName);
                             if (!(nanoWifi && isNetworkStack)) {
@@ -7357,7 +7357,7 @@ public class ActivityManagerService extends IActivityManager.Stub
                     "sys.gammaos.minimal_boot", false)
                     && !"android".equals(info.packageName)) {
                 boolean nanoWifi = android.os.SystemProperties.getBoolean(
-                        "persist.gammaos.nano.wifi", false);
+                        "persist.gammaos.nano.wifi", true);
                 boolean isNetworkStack =
                         "com.android.networkstack".equals(info.packageName);
                 if (!(nanoWifi && isNetworkStack)) {
@@ -13724,7 +13724,7 @@ public class ActivityManagerService extends IActivityManager.Stub
             boolean nanoMinimal = android.os.SystemProperties.getBoolean(
                     "sys.gammaos.minimal_boot", false);
             boolean nanoWifiNs = android.os.SystemProperties.getBoolean(
-                            "persist.gammaos.nano.wifi", false)
+                            "persist.gammaos.nano.wifi", true)
                     && "com.android.networkstack".equals(app.processName);
             if (nanoMinimal
                     && !"android".equals(app.processName)

@@ -2610,7 +2610,7 @@ public final class SystemServer implements Dumpable {
             // PhoneStateListener captures Looper.myLooper() and because
             // SystemServiceManager.sealStartedServices() runs later.
             if (minimalBoot && SystemProperties.getBoolean(
-                    "persist.gammaos.nano.wifi", false)) {
+                    "persist.gammaos.nano.wifi", true)) {
                 // Install a tolerant uncaught-exception handler on android.bg
                 // for nano WiFi/BT startup.  The location + wifi + bluetooth
                 // stacks post callbacks onto android.bg that may throw
@@ -3676,7 +3676,7 @@ public final class SystemServer implements Dumpable {
             // drops every START_CONNECT with "IpClient is not ready". Tethering
             // stays skipped in minimal_boot -- it's not needed for station mode.
             boolean nanoWifiEnabled = android.os.SystemProperties.getBoolean(
-                    "persist.gammaos.nano.wifi", false);
+                    "persist.gammaos.nano.wifi", true);
             if (!minimalBoot || nanoWifiEnabled) {
             t.traceBegin("StartNetworkStack");
             try {

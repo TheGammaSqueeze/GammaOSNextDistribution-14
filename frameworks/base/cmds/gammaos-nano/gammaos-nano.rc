@@ -88,6 +88,14 @@ service gammaos-nano-overlay /system/bin/gammaos-nano --overlay
 # the precise "nano home is running" signal and is set before boot_completed in nano
 # mode (init re-evaluates the trigger whenever a prop changes, so ordering is fine). The
 # binary also self-guards on persist.bootanim.skip_nano as a backstop.
+# Default the in-game overlay ON. When nano mode engages, fill in the opt-in if
+# the user has never set it. Persisted props load from /data before minimal_boot is
+# set, so an explicit persist.gammaos.nano.overlay=0 (or 1) is already present and
+# the empty match below fails - this only defaults the unset case and never
+# overrides the user's choice.
+on property:sys.gammaos.minimal_boot=1 && property:persist.gammaos.nano.overlay=
+    setprop persist.gammaos.nano.overlay 1
+
 on property:sys.boot_completed=1 && property:persist.gammaos.nano.overlay=1 && property:sys.gammaos.minimal_boot=1
     start gammaos-nano-overlay
 
