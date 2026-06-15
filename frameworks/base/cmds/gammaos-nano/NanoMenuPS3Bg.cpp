@@ -886,6 +886,14 @@ void render(int panelW, int panelH, float dt, const float rotMat2[4], bool /*rot
     const int fw = (int)(ps3::gFrameW + 0.5f);
     const int fh = (int)(ps3::gFrameH + 0.5f);
     if (fw < 2 || fh < 2) return;
+    // The cached gradient is a smooth vertical envelope + radial vignette with no
+    // high-frequency detail, so bake it at half resolution and let the work-buffer
+    // blit upscale it (GL_LINEAR) - visually identical. This makes every gradient
+    // re-bake ~4x cheaper, which is precisely the per-frame cost during the music
+    // "XMB Waves" enter/leave morph (the bake refreshes every frame while the blend
+    // moves) as well as the theme / day-night cross-fades.
+    const int gw = fw > 3 ? fw / 2 : fw;
+    const int gh = fh > 3 ? fh / 2 : fh;
 
     // The caller's draw target (default surface OR the DRM AHB-backed FBO) and
     // its viewport must be restored for the composite pass; our FBO passes below
@@ -895,7 +903,7 @@ void render(int panelW, int panelH, float dt, const float rotMat2[4], bool /*rot
 
     // (Re)create the frame-sized FBOs on a size change.
     if (fw != sFbW || fh != sFbH) {
-        ensureFbo(&sGradFbo, &sGradTex, fw, fh);
+        ensureFbo(&sGradFbo, &sGradTex, gw, gh);   // half-res smooth gradient (upscaled by the blit)
         ensureFbo(&sWorkFbo, &sWorkTex, fw, fh);
         sFbW = fw; sFbH = fh;
         sGradDirty = true;
@@ -989,7 +997,7 @@ void render(int panelW, int panelH, float dt, const float rotMat2[4], bool /*rot
                    || fabsf(sThemeCurB - sGradLastB) > 1.5e-3f;
     if (sGradDirty || lt.tm_mon != sGradMonth || fabsf(blendQ - sGradBlendQ) > 1e-4f || themeMoved
         || fabsf(sMvBlend - sGradLastMv) > 1e-3f) {
-        renderGradientCache(fw, fh, lt.tm_mon, nightDayBlend);
+        renderGradientCache(gw, gh, lt.tm_mon, nightDayBlend);
         sGradDirty = false;
         sGradMonth = lt.tm_mon;
         sGradBlendQ = blendQ;

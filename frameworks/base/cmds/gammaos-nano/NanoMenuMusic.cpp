@@ -526,6 +526,7 @@ void NanoMenu::closeMusicPlayer() {
         mMusicPlayer.release();   // worker never started; safe to release directly
     }
     mMpQueue.clear(); mMpOrder.clear(); mMpIdx = 0;
+    mpFreeArt();              // free the cached album-art texture
     ps3canyon::shutdown();    // free the Canyon GL objects (lazy-reloaded next time)
     ps3mpglobe::shutdown();   // free the Globe GL objects
     mMpCanyonAlpha = 0.0f;
@@ -796,23 +797,28 @@ void NanoMenu::renderMusicPlayer() {
 
     mTextOutlineMode = 1;
 
-    // Music-player UI doubles on small panels (<=768) for readability (user request).
-    float mpUi = mpUiScale(mWidth, mHeight);
+    // The Now-Playing bar (jacket / title / artist / seek cluster) renders at 1.5x on
+    // small panels (<=768) for readability; the control-panel icon grid keeps the 2x
+    // bump (user request). The info-cluster left edge (clX below) widens at 1.5x so the
+    // bigger elapsed/total time strings do not overlap on the seek line.
+    float mpUi = ((mWidth < mHeight ? mWidth : mHeight) <= 768) ? 1.5f : 1.0f;
 
     // jacket cover: bottom edge fixed at 0.912 (the 1x web position) so the bar grows
     // UPWARD when scaled. Title/artist baselines are taken relative to the jacket so
     // their spacing scales too (exactly 0.866 / 0.900 at 1x).
     float jsz = SZ(0.085f * mpUi), ax = DXP(0.066f), ay = DYP(0.912f) - jsz;
-    GLuint jac = mpJacket();
+    // Album art: per-track image, else per-folder cover, else the note placeholder.
+    GLuint jac = mpTrackArt(ti); if (!jac) jac = mpJacket();
     if (jac) drawIconTex(jac, ax, ay, jsz, jsz, 1.0f, 1.0f, 1.0f, enter);
 
     float tx = ax + jsz + DXD(0.013f * mpUi);
     float titleBaseY = ay + jsz * 0.46f;     // == devY(0.866) at 1x
     float artistBaseY = ay + jsz * 0.86f;    // == devY(0.900) at 1x
 
-    // Right info cluster geometry (used to clip the title): wider at 2x so the
-    // doubled time strings fit. Defined here so the title never runs into it.
-    float clX = DXP(mpUi > 1.5f ? 0.55f : 0.738f), clEnd = DXP(0.940f);
+    // Right info cluster geometry (used to clip the title): wider at the 1.5x bar so
+    // the larger elapsed/total time strings fit without overlapping. Defined here so
+    // the title never runs into it.
+    float clX = DXP(mpUi > 1.2f ? 0.62f : 0.738f), clEnd = DXP(0.940f);
 
     // title (marquee bounce when too wide) clipped to the left of the info cluster
     float titleRight = mMpFullInfo ? (clX - DXD(0.015f)) : DXP(0.955f);
@@ -919,15 +925,15 @@ void NanoMenu::renderMusicPlayer() {
         float el = (mEffectTime - mMpMsgStart) * 1000.0f;
         float fade = fminf(1.0f, el / 150.0f) * fminf(1.0f, fmaxf(0.0f, (mMpMsgDur - el)) / 200.0f);
         drawQuad(0, 0, (float)mWidth, (float)mHeight, 0, 0, 0, 0.45f * fade);
-        float ms = FSZ(28.0f * mpUiScale(mWidth, mHeight)); float mw = measureText(mMpMsg.c_str(), ms);
-        drawText(mMpMsg.c_str(), (mWidth - mw) * 0.5f, TOPY(0.5f, 28.0f * mpUiScale(mWidth, mHeight)), ms, 1.0f, 1.0f, 1.0f, fade);
+        float ms = FSZ(28.0f * mpUi); float mw = measureText(mMpMsg.c_str(), ms);
+        drawText(mMpMsg.c_str(), (mWidth - mw) * 0.5f, TOPY(0.5f, 28.0f * mpUi), ms, 1.0f, 1.0f, 1.0f, fade);
     }
     mTextOutlineMode = 0;
 }
 
 // play-state / transport / repeat / shuffle row above the jacket (panel open).
 void NanoMenu::drawMpStatusRow(float ax, float fade) {
-    float mpUi = mpUiScale(mWidth, mHeight);
+    float mpUi = ((mWidth < mHeight ? mWidth : mHeight) <= 768) ? 1.5f : 1.0f;  // match the 1.5x bar jacket
     float jsz = SZ(0.085f * mpUi), ay = DYP(0.912f) - jsz;   // match the scaled jacket
     float h = SZ(0.030f * mpUi);
     float y = ay - jsz * 0.53f;   // centred just above the jacket (== 0.782 at 1x)

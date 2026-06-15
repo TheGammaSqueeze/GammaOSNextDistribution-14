@@ -1437,9 +1437,16 @@ private:
     std::map<int, GLuint> mMpIconCache;
     std::map<int, float> mMpIconAR;   // audioplayer icon aspect ratios (w/h; pills are non-square)
     GLuint mMpJacketTex = 0;
+    // Per-track album art (one slot, reloaded when the displayed track changes): a
+    // <folder>/<trackname>.<img> overrides a <folder>/<foldername>.<img> album cover;
+    // mMpArtTex==0 means "no art for this track -> use the note placeholder".
+    int    mMpArtTi = -1;
+    GLuint mMpArtTex = 0;
     GLuint mpIcon(int n);              // load+cache an audioplayer icon texture (NanoMenuPS3Icons.cpp)
     float  mpIconAR(int n);           // cached aspect ratio (w/h) of an audioplayer icon, 1.0 if unknown
     GLuint mpJacket();                 // load+cache the default jacket cover texture
+    GLuint mpTrackArt(int ti);        // folder/per-track album art for track ti (0 if none)
+    void   mpFreeArt();               // free the cached art texture (on close / track change)
     void renderMusicPlayer();         // the Now-Playing fullscreen draw
     void openMpOpt();                 // open the control panel
     void closeMpOpt();                // close it (or the volume submenu first)

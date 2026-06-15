@@ -184,7 +184,12 @@ static inline void stepOne(Particle& p) {
 
 static void step() {
     for (Particle& p : sParts) stepOne(p);
-    for (Particle& p : sPartsExtra) stepOne(p);   // doubled music pool (empty until first morph)
+    // Only animate the doubled music pool while the morph is active. Once it settles
+    // back to 0 the extras are invisible (brightScale 0), so stepping them every frame
+    // for the rest of the session (the pool stays warm) is pure waste - this kept ~1400
+    // extra particles updating forever on the home menu after the first track played.
+    // They thaw from their last positions on the next morph (unseen while faded out).
+    if (sMvBlend > 0.0001f) for (Particle& p : sPartsExtra) stepOne(p);
 }
 
 // wave undulation Y offset (NDC) so the band rides the wave (index.html 2625)
@@ -347,10 +352,19 @@ void render(float scaleX, float scaleY, float yFlip, float frameH,
             float reflv = 0.5f + (spec * glintExpo * 0.6f < 1.0f ? spec * glintExpo * 0.6f : 1.0f);
             r = p.tintR * reflv; g = p.tintG * reflv; b = p.tintB * reflv;
         } else {
+            // Iridescent rainbow: cos(t), cos(t+120deg), cos(t+240deg). The two phase-
+            // shifted cosines are derived from a single sincosf via the angle-addition
+            // identity (cos(t+p)=cos t cos p - sin t sin p) - exact same values, one
+            // transcendental instead of three (this runs per non-edge particle, a
+            // measured hot path during the doubled-pool morph).
             float t = ndh * 6.2832f * kIridescentExp;
-            r = 0.86f + 0.14f * (0.5f + 0.5f * cosf(t));
-            g = 0.88f + 0.12f * (0.5f + 0.5f * cosf(t + 2.094f));
-            b = 0.92f + 0.08f * (0.5f + 0.5f * cosf(t + 4.188f));
+            float st, ct; sincosf(t, &st, &ct);
+            float cosA = ct;                                  // cos(t)
+            float cosB = -0.5f * ct - 0.8660254f * st;       // cos(t + 2.0944)
+            float cosC = -0.5f * ct + 0.8660254f * st;       // cos(t + 4.1888)
+            r = 0.86f + 0.14f * (0.5f + 0.5f * cosA);
+            g = 0.88f + 0.12f * (0.5f + 0.5f * cosB);
+            b = 0.92f + 0.08f * (0.5f + 0.5f * cosC);
         }
         dst[0] = ndcX; dst[1] = ndcY; dst[2] = sizePx; dst[3] = bright;
         dst[4] = r; dst[5] = g; dst[6] = b; dst[7] = spark;

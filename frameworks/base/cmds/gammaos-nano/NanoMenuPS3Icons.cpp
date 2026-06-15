@@ -37,6 +37,17 @@
 #include <stdlib.h>
 #include <string.h>
 #include <vector>
+#include <string>
+
+// Self-contained JPEG/PNG/BMP decoder for user album art (no Skia / libjpeg
+// runtime dependency, which keeps the minimal-boot nano process lean). Limited to
+// the formats album art actually uses.
+#define STB_IMAGE_IMPLEMENTATION
+#define STBI_ONLY_JPEG
+#define STBI_ONLY_PNG
+#define STBI_ONLY_BMP
+#define STBI_NO_FAILURE_STRINGS
+#include "stb_image.h"
 
 #include <GLES2/gl2.h>
 #include <png.h>
@@ -374,6 +385,93 @@ GLuint NanoMenu::mpJacket() {
     }
     mMpJacketTex = uploadRGBA(px.data(), w, h, /*wantMipmap=*/true);
     return mMpJacketTex;
+}
+
+// Box-average downscale of an RGBA image into dst (dw x dh).
+static void artDownscaleRGBA(const uint8_t* src, int sw, int sh,
+                             int dw, int dh, std::vector<uint8_t>& dst) {
+    dst.resize((size_t)dw * dh * 4);
+    for (int y = 0; y < dh; y++) {
+        int sy0 = y * sh / dh, sy1 = (y + 1) * sh / dh; if (sy1 <= sy0) sy1 = sy0 + 1;
+        for (int x = 0; x < dw; x++) {
+            int sx0 = x * sw / dw, sx1 = (x + 1) * sw / dw; if (sx1 <= sx0) sx1 = sx0 + 1;
+            uint32_t r = 0, g = 0, b = 0, a = 0, cnt = 0;
+            for (int yy = sy0; yy < sy1 && yy < sh; yy++)
+                for (int xx = sx0; xx < sx1 && xx < sw; xx++) {
+                    const uint8_t* p = src + ((size_t)yy * sw + xx) * 4;
+                    r += p[0]; g += p[1]; b += p[2]; a += p[3]; cnt++;
+                }
+            uint8_t* d = dst.data() + ((size_t)y * dw + x) * 4;
+            if (cnt) { d[0] = r / cnt; d[1] = g / cnt; d[2] = b / cnt; d[3] = a / cnt; }
+            else     { d[0] = d[1] = d[2] = 0; d[3] = 255; }
+        }
+    }
+}
+
+// Decode a JPEG/PNG/BMP album-art file to RGBA, downscaled so the longest side is
+// <= maxDim (the jacket renders tiny, and this bounds GPU + transient memory on the
+// 1GB unit). Returns false if the file is missing/undecodable or absurdly large.
+static bool decodeArtRGBA(const char* path, int maxDim,
+                          int* outW, int* outH, std::vector<uint8_t>* out) {
+    int iw = 0, ih = 0, ic = 0;
+    if (!stbi_info(path, &iw, &ih, &ic)) return false;          // missing / not an image (fast)
+    if (iw <= 0 || ih <= 0 || (long)iw * ih > 4000000L) return false;   // cap ~4MP transient
+    int w = 0, h = 0, n = 0;
+    stbi_uc* data = stbi_load(path, &w, &h, &n, 4);             // force RGBA
+    if (!data) return false;
+    int longSide = w > h ? w : h;
+    if (longSide > maxDim && longSide > 0) {
+        int dw = w * maxDim / longSide, dh = h * maxDim / longSide;
+        if (dw < 1) dw = 1; if (dh < 1) dh = 1;
+        artDownscaleRGBA(data, w, h, dw, dh, *out);
+        *outW = dw; *outH = dh;
+    } else {
+        out->assign(data, data + (size_t)w * h * 4);
+        *outW = w; *outH = h;
+    }
+    stbi_image_free(data);
+    return true;
+}
+
+void NanoMenu::mpFreeArt() {
+    if (mMpArtTex) { glDeleteTextures(1, &mMpArtTex); mMpArtTex = 0; }
+    mMpArtTi = -1;
+}
+
+// Album art for track ti: a per-track image (same name as the track file) overrides a
+// per-folder image (same name as the folder); 0 means "no art -> use the placeholder".
+// Cached in one slot, reloaded when the displayed track changes.
+GLuint NanoMenu::mpTrackArt(int ti) {
+    if (ti < 0 || ti >= (int)mMusicTracks.size()) return 0;
+    if (ti == mMpArtTi) return mMpArtTex;        // already resolved for this track
+    if (mMpArtTex) { glDeleteTextures(1, &mMpArtTex); mMpArtTex = 0; }
+    mMpArtTi = ti;
+
+    const std::string& file = mMusicTracks[ti].file;
+    size_t slash = file.find_last_of('/');
+    if (slash == std::string::npos) return 0;
+    std::string dir = file.substr(0, slash);
+    std::string fname = file.substr(slash + 1);
+    size_t dot = fname.find_last_of('.');
+    std::string trackBase = (dot != std::string::npos) ? fname.substr(0, dot) : fname;
+    size_t pslash = dir.find_last_of('/');
+    std::string folderName = (pslash != std::string::npos) ? dir.substr(pslash + 1) : dir;
+
+    static const char* kExt[] = {".jpg", ".jpeg", ".png", ".JPG", ".JPEG", ".PNG", ".bmp"};
+    // per-track art first (overrides), then per-folder album cover
+    std::string bases[2] = { dir + "/" + trackBase, dir + "/" + folderName };
+    for (int b = 0; b < 2; b++) {
+        for (const char* e : kExt) {
+            std::string p = bases[b] + e;
+            int w = 0, h = 0; std::vector<uint8_t> px;
+            if (decodeArtRGBA(p.c_str(), 256, &w, &h, &px)) {
+                mMpArtTex = uploadRGBA(px.data(), w, h, /*wantMipmap=*/false);
+                ALOGI("NanoMenu: album art %s (%dx%d)", p.c_str(), w, h);
+                return mMpArtTex;
+            }
+        }
+    }
+    return 0;   // none -> caller falls back to the note placeholder
 }
 
 // Boot-intro plate (logo_white.png / footer_white.png). Forced mono-white from
