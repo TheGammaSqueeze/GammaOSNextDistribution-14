@@ -79,22 +79,65 @@ reload, mirror `nano_systems.json`):
 `enterDrmSleep()` (NanoMenuInput.cpp) keeps music going with the screen off, like a
 normal phone music player:
 - If a track is playing when the user presses power, `keepAudio` is set: nano blanks
-  the panel + backlights but SKIPS the PowerManager system suspend (which would freeze
-  the decoder/AAudio threads), and instead holds a kernel wakelock by writing
-  `nano_music` to `/sys/power/wake_lock`. It then polls every 1s and auto-advances the
-  queue (audio-only, no GL).
-- Holding that wakelock needs CAP_BLOCK_SUSPEND, which is granted in
-  `gammaos-nano.rc` (both the home and overlay services). Without it the write returns
-  EPERM and, with USB connected, the `usb_connecting` kernel wakeup source masks the
-  failure - so it only manifests on UNPLUG, where the SoC then suspends and the audio
-  dies. The write now checks its result and logs an error if it ever fails again.
-  `device/gammaos/sepolicy/bootanim.te` also allows `block_suspend` + `sysfs_wake_lock`
-  for an enforcing build (nano runs in the bootanim domain, permissive today).
-- When there is no more audio to play (end of the queue with repeat off -> `mpStep`
-  issues a Pause, so the player settles into `isPaused()`), nano releases the
-  `nano_music` wakelock and hands off to a real low-power system sleep, so the device
-  is not left awake with the screen off and nothing playing.
-- On wake (power press / lid), the wakelock is released and the panels recommit.
+  the panel + backlights, holds a kernel wakelock (`nano_music` -> `/sys/power/wake_lock`)
+  AND drives proper Android standby (`sys.gammaos.nano.dosleep` -> the nano-dosleep init
+  service injects KEYCODE_SLEEP -> PowerManager.goToSleep). The held wakelock blocks
+  suspend-to-RAM, so the framework dozes (display off, low power the proper way - the
+  lights HAL stops re-asserting the backlight) while the SoC stays up and the decode /
+  AAudio threads keep running. It polls every 1s and auto-advances the queue (audio-only,
+  no GL). On wake it injects KEYCODE_WAKEUP, recommits the panels, then releases the
+  wakelock LAST (so the SoC cannot suspend in the gap before the wake lands).
+- Holding the wakelock needs CAP_BLOCK_SUSPEND, granted in `gammaos-nano.rc` (both the
+  home and overlay services). Without it the write returns EPERM and, with USB
+  connected, the `usb_connecting` kernel wakeup source masks the failure - so it only
+  manifested on UNPLUG, where the SoC then suspended and audio died. The write checks
+  its result and logs on failure. `device/gammaos/sepolicy/bootanim.te` allows
+  `block_suspend` + `sysfs_wake_lock` for an enforcing build (nano is the bootanim
+  domain, permissive today).
+- CPU clocks: on screen-off nano switches to the powersave governor
+  (`/vendor/bin/setclock_powersave.sh`, ~408MHz) and re-applies the user's persisted
+  performance mode on wake (`nanoApplyPerfClock`/`nanoRestorePerfClock`, NanoMenu.cpp;
+  mode validated to stock/max/powersave). Audio decode + the 1Hz poll run fine at
+  408MHz, so playback continues in a genuinely low-power state with no processes killed.
+- When the queue ends (repeat off -> `mpStep` Pauses -> `isPaused()`), nano releases the
+  wakelock and lets the device take a real sleep, so it is not left awake screen-off
+  with nothing playing.
+
+## Watchdog liveness (do not let sleep/park abort the process)
+The render watchdog (`startRenderWatchdog`, NanoMenuRender.cpp) aborts the process if
+`mRenderHeartbeat` does not advance for ~8s. EVERY intentional render-thread park (the
+overlay screen-off idle poll, the hidden-overlay prop wait, the DRM occlusion guard,
+frame pacing, idle fps) must keep the heartbeat alive or the watchdog kills the process
+- in the overlay that is where the decode/AAudio threads live, so music + a foreground
+app would die ~8s into sleep. The fix is structural: bump `mRenderHeartbeat` ONCE at
+the top of the main render loop (NanoMenu.cpp threadLoop), since every park exits via
+`continue` back to the top. A real hang inside `render()`/`pollInput()` never returns to
+the top, so it is still caught. The ONE exception is `enterDrmSleep`'s nested poll,
+which does not loop back and stays guarded by `mInDrmSleep`. The overlay also holds the
+`nano_music` wakelock + auto-advances while playing screen-off (symmetric release), so
+background audio survives a real suspend on battery too.
+
+## Album art (jacket + folder cover)
+- Jacket (`mpTrackArt`, NanoMenuPS3Icons.cpp, one cached slot): a per-track image named
+  like the track file (`<dir>/<trackbase>.<img>`) overrides a per-folder cover named like
+  the folder (`<dir>/<foldername>.<img>`); falls back to the note placeholder. JPEG / PNG
+  / BMP via a vendored `stb_image.h` (STBI_ONLY_JPEG/PNG/BMP - no Skia or extra runtime
+  lib, keeps the minimal-boot process lean, no Android.bp change), box-downscaled to 256.
+- XMB Music column folder icons (`mpAlbumArt`, cached by album name, 128px): the album's
+  folder cover is embedded in the icon (like the web photo folders), resolved from a
+  representative track's folder, falling back to the generic glass folder icon.
+
+## XMB Music column now-playing cues
+- A soft pulsing cyan glow (concentric `ps3FillCircle`, drawList + drawParentLayer) marks
+  the currently-playing album (`it.label == mMusicTracks[mMpQueue[mMpIdx]].album`) and
+  track (`it.a == that index`), so you can see what is playing without opening it.
+- Selecting the track that is already playing resumes the Now-Playing screen on the live
+  session (`resumeMusicPlayer`) instead of restarting it from zero.
+
+## Now-Playing bar sizing
+The bar (jacket / title / artist / seek+time cluster) renders at 1.5x on small panels
+(<=768) for readability; the control-panel icon grid stays 2x. The info cluster's left
+edge (`clX`) widens at 1.5x so the larger elapsed/total time strings do not overlap.
 
 ## Phase 3 implementation recipe (Now-Playing screen + control panel)
 Scaffolding already in place: state members + method decls in NanoMenu.h (mMpActive,
@@ -203,6 +246,13 @@ mMpActive branches BEFORE the mPs3TzActive checks in each handler. mpFmtTime HH:
     (index.html activeParticlePool / buildParticleData _mvExtra).
   The morph runs through the normal home ps3bg path (no renderer switch); the Now-Playing
   bar draws over it.
+  Perf (the enter/leave transition): the per-frame gradient re-bake during the morph is
+  the only extra cost over the settled-in-player state, so the gradient cache is baked at
+  HALF resolution (smooth gradient, the work-buffer blit upscales it) - the enter morph
+  holds 60fps. The doubled particle pool got two look-preserving cuts: the iridescent
+  colour uses one sincosf instead of three cosf (exact angle-addition), and the extra
+  pool is only stepped while sMvBlend>0 (it used to keep animating ~1400 extra particles
+  every frame on the home menu forever after the first track played).
 - Canyon visualizer: DONE (NanoMenuMusicCanyon.cpp, ps3canyon). A 1:1 port of
   canyon_port.js: all 57 real presets (41 floats each), the terrain/feedback/tonemap
   shaders, the look-at + perspective camera, the 7s preset cross-fade cycle and the
