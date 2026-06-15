@@ -773,8 +773,10 @@ on property:init.svc.vendor.hwcomposer-2-1=running && property:init.svc.vendor.g
 # start for nano mode — no animation service management needed here.
 on property:init.svc.surfaceflinger=running && property:persist.bootanim.skip_nano=0
     setprop sys.gammaos.minimal_boot 1
-    # Enable USAP pool for faster app fork in nano mode
-    setprop persist.device_config.runtime_native.usap_pool_enabled true
+    # USAP pool disabled in nano mode: the pre-forked processes cost ~25MB RAM
+    # on a memory-constrained panel for only a tens-of-ms first-launch speedup,
+    # and the device stays in a single resident app while gaming.
+    # setprop persist.device_config.runtime_native.usap_pool_enabled true
     start zygote
     start gatekeeperd
     # Start nano menu early — it blocks on SF binder discovery in parallel

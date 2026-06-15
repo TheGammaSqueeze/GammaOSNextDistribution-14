@@ -1647,7 +1647,10 @@ public final class SystemServer implements Dumpable {
             mSystemServiceManager.startService(ROLE_SERVICE_CLASS);
             t.traceEnd();
 
-            if (!isTv && !minimalBoot) {
+            // Start unconditionally: our nano target is a Leanback/TV product
+            // (isTv == true) but the handheld has a real vibrator, so the stock
+            // !isTv gate would wrongly skip haptics.
+            {
                 t.traceBegin("StartVibratorManagerService");
                 mSystemServiceManager.startService(VibratorManagerService.Lifecycle.class);
                 t.traceEnd();
