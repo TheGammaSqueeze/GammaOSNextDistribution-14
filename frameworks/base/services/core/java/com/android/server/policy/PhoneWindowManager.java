@@ -6249,16 +6249,11 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                                 mHandler.post(() -> showNanoBrightnessIndicator());
                             }
                         } else {
-                            // Plain volume adjustment
-                            int direction = (keyCode == KeyEvent.KEYCODE_VOLUME_UP)
-                                    ? AudioManager.ADJUST_RAISE : AudioManager.ADJUST_LOWER;
-                            try {
-                                getAudioService().adjustStreamVolume(
-                                        AudioManager.STREAM_MUSIC, direction, 0,
-                                        mContext.getOpPackageName());
-                            } catch (Exception e) {
-                                Log.e(TAG, "Nano: volume adjust failed", e);
-                            }
+                            // Plain volume adjustment - set ALL audible streams to the
+                            // same level (nano mode has one universal volume) and
+                            // publish the value so the nano launcher's slider matches.
+                            int direction = (keyCode == KeyEvent.KEYCODE_VOLUME_UP) ? 1 : -1;
+                            nanoSyncAllStreamsVolume(direction);
                             if (!drmOwnsPanel) {
                                 mHandler.post(() -> showNanoVolumeIndicator());
                             }
@@ -6970,6 +6965,39 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         } catch (Exception e) {
             Log.e(TAG, "Error dispatching volume key in handleVolumeKey for event:"
                     + event, e);
+        }
+    }
+
+    // GammaOS Nano: one universal volume. A volume press sets EVERY audible stream
+    // to the same proportional level (so music, games like RetroArch, system and
+    // notification sounds never drift apart) and publishes the index + max so the
+    // nano launcher's own slider shows the exact same value across the XMB, cold
+    // boot, the wallpaper-home and in-app.
+    private void nanoSyncAllStreamsVolume(int direction) {
+        try {
+            AudioManager am = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
+            if (am == null) return;
+            final String pkg = mContext.getOpPackageName();
+            int musMax = am.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+            int cur = am.getStreamVolume(AudioManager.STREAM_MUSIC);
+            int next = cur + direction;
+            if (next < 0) next = 0; else if (next > musMax) next = musMax;
+            float frac = musMax > 0 ? (float) next / (float) musMax : 0f;
+            final int[] streams = {
+                AudioManager.STREAM_MUSIC, AudioManager.STREAM_SYSTEM,
+                AudioManager.STREAM_RING, AudioManager.STREAM_NOTIFICATION,
+                AudioManager.STREAM_ALARM,
+            };
+            for (int s : streams) {
+                int sMax = am.getStreamMaxVolume(s);
+                int v = Math.round(frac * sMax);
+                if (v < 0) v = 0; else if (v > sMax) v = sMax;
+                try { am.setStreamVolume(s, v, 0); } catch (Exception ignore) {}
+            }
+            android.os.SystemProperties.set("persist.gammaos.nano.volume", Integer.toString(next));
+            android.os.SystemProperties.set("persist.gammaos.nano.volmax", Integer.toString(musMax));
+        } catch (Exception e) {
+            Log.e(TAG, "Nano: all-stream volume sync failed", e);
         }
     }
 

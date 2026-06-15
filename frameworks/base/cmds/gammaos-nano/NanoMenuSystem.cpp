@@ -197,21 +197,27 @@ void NanoMenu::renderBrightnessBar() {
 // ---------------------------------------------------------------------------
 
 void NanoMenu::adjustVolume(int direction) {
+    // PhoneWindowManager is the single volume authority in nano mode: it sets EVERY
+    // audible stream to one level and publishes persist.gammaos.nano.volume (index)
+    // + persist.gammaos.nano.volmax (range). Sync from those real values first so the
+    // slider never drifts from actual output, then apply the press optimistically for
+    // instant feedback; the injected key below makes PWM do the real all-stream change
+    // and re-publish, so the next press re-syncs. We do NOT persist here (PWM owns it).
+    char vmax[PROPERTY_VALUE_MAX] = {};
+    property_get("persist.gammaos.nano.volmax", vmax, "");
+    if (vmax[0]) { int m = atoi(vmax); if (m > 0) mMaxVolume = m; }
+    char cur[PROPERTY_VALUE_MAX] = {};
+    property_get("persist.gammaos.nano.volume", cur, "");
+    if (cur[0]) mVolume = atoi(cur);
     mVolume += direction;
     if (mVolume < 0) mVolume = 0;
     if (mVolume > mMaxVolume) mVolume = mMaxVolume;
-    // Persist NanoMenu's own 0-mMaxVolume UI value for the bar display.
-    char buf[32];
-    snprintf(buf, sizeof(buf), "%d", mVolume);
-    property_set("persist.gammaos.nano.volume", buf);
 
-    // Actually tell Android's AudioService to change STREAM_MUSIC.
-    // NanoMenu has the input devices grabbed via EVIOCGRAB, so physical volume
-    // keys never reach PhoneWindowManager the usual way. We inject a synthetic
-    // KeyEvent via `input keyevent`, which goes through InputManager →
-    // InputDispatcher → PhoneWindowManager.handleVolumeKey → AudioService.
-    // That path updates volume_music_speaker AND the gammaos per-display
-    // volume map, so it persists across reboots.
+    // NanoMenu has the input devices grabbed via EVIOCGRAB, so physical volume keys
+    // never reach PhoneWindowManager directly. Inject a synthetic KeyEvent via
+    // `input keyevent`, which goes through InputManager -> InputDispatcher ->
+    // PhoneWindowManager.handleVolumeKey -> nanoSyncAllStreamsVolume (all streams +
+    // republish + persist across reboots).
     const char* keyCode = (direction > 0) ? "KEYCODE_VOLUME_UP" : "KEYCODE_VOLUME_DOWN";
     std::string cmd = std::string("/system/bin/input keyevent ") + keyCode + " 2>/dev/null";
     std::thread([cmd]() {

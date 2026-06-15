@@ -907,8 +907,12 @@ status_t NanoMenu::readyToRun() {
         }).detach();
     }
 
-    // Restore volume from persist property
+    // Restore volume from the persist properties PhoneWindowManager publishes (the
+    // actual STREAM index + range), so the slider matches real output from boot.
     {
+        char savedMax[PROPERTY_VALUE_MAX] = {};
+        property_get("persist.gammaos.nano.volmax", savedMax, "");
+        if (savedMax[0]) { int m = atoi(savedMax); if (m > 0) mMaxVolume = m; }
         char savedVolume[PROPERTY_VALUE_MAX] = {};
         property_get("persist.gammaos.nano.volume", savedVolume, "10");
         mVolume = atoi(savedVolume);
