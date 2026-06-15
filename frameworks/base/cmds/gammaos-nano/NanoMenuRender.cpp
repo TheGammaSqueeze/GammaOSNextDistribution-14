@@ -1988,10 +1988,16 @@ void NanoMenu::render() {
         // (Canyon or Globe) fully covers.
         bool visCovers = mMpActive && ((mMpVis == 1 && mMpCanyonAlpha >= 0.999f) ||
                                        (mMpVis == 2 && mMpGlobeAlpha >= 0.999f));
+        // The music player's XMB Waves visualizer (vis 0) IS the wave morph, so it
+        // must show the wave regardless of the home wallpaper. When it is active and
+        // the wallpaper is not already the wave, composite the (morphing) wave to the
+        // screen over the rendered wallpaper; otherwise keep the wave OFFSCREEN only
+        // (it just feeds glass-icon refraction).
+        bool mpWavesVis = (mMpActive && mMpVis == 0);
         if (mPs3Xmb && mCurrentEffect != 22 && !visCovers) {
             ps3::layoutComputeNative(mWidth, mHeight);
             ps3bg::render(mWidth, mHeight, mFrameDt, sDrmRotMat,
-                          sDrmActive && sDrmGlRotation, /*compositeToScreen=*/false);
+                          sDrmActive && sDrmGlRotation, /*compositeToScreen=*/mpWavesVis);
         }
     }
 

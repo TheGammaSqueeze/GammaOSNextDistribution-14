@@ -1411,7 +1411,7 @@ private:
     bool mMpActive = false;            // the Now-Playing fullscreen is up
     std::vector<int> mMpQueue;         // track indices (into mMusicTracks) being played
     int  mMpIdx = 0;                   // position in mMpQueue
-    int  mMpVis = 0;                   // 0 = XMB Waves, 1 = Canyon, 2 = Globe
+    int  mMpVis = 0;                   // 0 = XMB Waves, 1 = Canyon, 2 = Globe, 3.. = wallpaper effects
     float mMpCanyonAlpha = 0.0f;       // Waves<->Canyon crossfade (eased 0..1 over ~0.5s)
     float mMpGlobeAlpha = 0.0f;        // Globe crossfade (eased 0..1 over ~0.5s)
     float mMpGlobeLon = 0.0f;          // auto-rotating longitude for the Globe visualizer
@@ -1502,7 +1502,9 @@ private:
     void drawMpVolMeter(float t);     // the Volume Control submenu meter
     void drawMpStatusRow(float ax, float fade);   // play-state/transport/repeat/shuffle row
     void mpShowMsg(const std::string& text, float durMs, int then);
-    void mpCycleVis();                // SQUARE: 0<->1 visualizer toggle + banner
+    void mpCycleVis();                // SQUARE: cycle Waves/Canyon/Globe + wallpaper effects + banner
+    int  mpVisCount() const;          // total music visualizers (3 + wallpaper-effect extras)
+    int  mpVisEffectId() const;       // wallpaper-effect id for mMpVis>=3, else 0
     // Add-to-Playlist chooser (player): an XMB-style modal list to add the current
     // track to an existing playlist or create a new one (web mpOpenAddChooser).
     bool mMpPlChooserActive = false;

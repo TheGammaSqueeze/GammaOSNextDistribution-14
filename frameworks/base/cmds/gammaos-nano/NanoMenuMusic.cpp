@@ -28,6 +28,7 @@
 #include "NanoMenuDrm.h"   // sDrmGlRotation / sDrmRotationDeg for the title clip scissor
 #include "NanoMenuMusicCanyon.h"
 #include "NanoMenuMusicGlobe.h"
+#include "NanoMenuShaders.h"   // kEffectNames/kActiveEffects for the extra wallpaper-effect visualizers
 #include "NanoJson.h"
 
 #include <dirent.h>
@@ -820,14 +821,36 @@ void NanoMenu::mpShowMsg(const std::string& text, float durMs, int then) {
     mMpMsg = text; mMpMsgStart = mEffectTime; mMpMsgDur = durMs; mMpMsgThen = then;
 }
 
+// The extra music visualizers are the full-screen procedural wallpaper effects:
+// Plasma, Fire, Aurora, Ripple, Checkerboard, Spiral and the XMB ribbon. These are
+// stateless shaders, so they switch cleanly with no particle-pool conflict against
+// the home wallpaper. mMpVis 3.. select these in order, so Square cycles XMB Waves,
+// Canyon, Globe, then each effect. (The particle effects 1..10 stay home wallpapers
+// only - they would fight the shared particle pool with the home wallpaper.)
+static const int kMpExtraVis[] = {11, 16, 17, 18, 19, 20, 21};
+static const int kMpExtraVisCount = (int)(sizeof(kMpExtraVis) / sizeof(kMpExtraVis[0]));
+
+int NanoMenu::mpVisCount() const { return 3 + kMpExtraVisCount; }
+
+int NanoMenu::mpVisEffectId() const {
+    int i = mMpVis - 3;
+    if (i < 0 || i >= kMpExtraVisCount) return 0;
+    return kMpExtraVis[i];
+}
+
 void NanoMenu::mpCycleVis() {
-    mMpVis = (mMpVis + 1) % 3;   // 0 Waves -> 1 Canyon -> 2 Globe
-    mMpBanner = (mMpVis == 0) ? "XMB Waves" : (mMpVis == 1) ? "Canyon" : "Globe";
+    mMpVis = (mMpVis + 1) % mpVisCount();   // 0 Waves, 1 Canyon, 2 Globe, 3.. wallpaper effects
+    if (mMpVis == 0)      mMpBanner = "XMB Waves";
+    else if (mMpVis == 1) mMpBanner = "Canyon";
+    else if (mMpVis == 2) mMpBanner = "Globe";
+    else                  mMpBanner = kEffectNames[mpVisEffectId()];
     mMpBannerStart = mEffectTime;
     // Lazy-init the Canyon on first switch to it, and restart its flythrough.
     if (mMpVis == 1) { ps3canyon::init(); ps3canyon::reset(); }
     // Lazy-init the real Globe renderer and restart its scene cycle.
     else if (mMpVis == 2) { ps3mpglobe::init(); ps3mpglobe::reset(); }
+    // Particle wallpaper effects (1..10) need their pool seeded when selected.
+    else if (mMpVis >= 3) { int e = mpVisEffectId(); if (e >= 1 && e <= 10) initEffects(); }
 }
 
 void NanoMenu::renderMusicPlayer() {

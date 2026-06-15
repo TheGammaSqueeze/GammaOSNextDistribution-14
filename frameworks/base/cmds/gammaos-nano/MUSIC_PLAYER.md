@@ -369,3 +369,16 @@ mMpActive branches BEFORE the mPs3TzActive checks in each handler. mpFmtTime HH:
   configured folder is unreadable, so a fast boot into Music can never wipe the saved
   library. The Music Folders screen gains a "Refresh" row (PS3_MUSIC_REFRESH, icon 8) that
   rescans on demand.
+
+## Visualizers vs the home wallpaper (2026-06-15)
+
+- The XMB Waves visualizer (vis 0) ALWAYS composites the wave morph in the Now-Playing
+  screen, even when the home wallpaper is a non-wave effect. The home render path now
+  composites ps3bg to the screen when mMpActive && mMpVis==0 (NanoMenuRender.cpp), so a
+  Plasma/Fire/etc. home wallpaper no longer replaces the wave morph in the player.
+- Square cycles MORE visualizers: XMB Waves, Canyon, Globe, then the full-screen
+  procedural wallpaper effects (Plasma, Fire, Aurora, Ripple, Checkerboard, Spiral, the
+  XMB ribbon). mMpVis 0..2 are the dedicated visualizers; mMpVis 3.. map to kMpExtraVis[]
+  (mpVisCount/mpVisEffectId). renderEffect renders mpVisEffectId() as the Now-Playing
+  background when mMpVis>=3 (a stateless shader, so no particle-pool conflict with the
+  home wallpaper). The particle effects (Snow/Rain/etc.) stay home wallpapers only.

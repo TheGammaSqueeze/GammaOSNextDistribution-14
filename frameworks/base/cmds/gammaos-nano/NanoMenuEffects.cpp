@@ -184,7 +184,11 @@ void NanoMenu::updateEffect() {
 }
 
 void NanoMenu::renderEffect() {
-    if (mCurrentEffect == 0) return;
+    // Music player extra visualizers (mMpVis >= 3) render the chosen wallpaper
+    // effect as the Now-Playing background instead of the home wallpaper. Vis 0/1/2
+    // (Waves/Canyon/Globe) keep their dedicated paths and use the home wallpaper id.
+    int eff = (mMpActive && mMpVis >= 3) ? mpVisEffectId() : mCurrentEffect;
+    if (eff == 0) return;
     // Canyon/Globe visualizer fully covers the screen: skip the wave wallpaper
     // entirely (it would just be overdrawn) and clear to black so the visualizer
     // composite lands on a clean base. Only while the home Now-Playing visualizer is
@@ -196,7 +200,7 @@ void NanoMenu::renderEffect() {
         return;
     }
 
-    if (mCurrentEffect >= 1 && mCurrentEffect <= 10) {
+    if (eff >= 1 && eff <= 10) {
         // Batched particle rendering: build one vertex+color buffer, single draw call
         static GLfloat pVerts[MAX_PARTICLES * 6 * 2];
         static GLfloat pColors[MAX_PARTICLES * 6 * 4];
@@ -231,7 +235,7 @@ void NanoMenu::renderEffect() {
             glDisableVertexAttribArray(mParticleLocPosition);
             glDisableVertexAttribArray(mParticleLocColor);
         }
-    } else if (mCurrentEffect >= 11 && mCurrentEffect <= 20) {
+    } else if (eff >= 11 && eff <= 20) {
         // Fullscreen procedural shader
         GLfloat verts[] = { -1,-1, 1,-1, 1,1, 1,1, -1,1, -1,-1 };
         // GammaOS: When GL rotation is active, gl_FragCoord is in panel-native
@@ -253,7 +257,7 @@ void NanoMenu::renderEffect() {
         glUseProgram(mFxProgram);
         glUniform1f(mFxLocTime, mEffectTime);
         glUniform2f(mFxLocResolution, (float)mWidth, (float)mHeight);
-        glUniform1i(mFxLocEffect, mCurrentEffect);
+        glUniform1i(mFxLocEffect, eff);
         glUniform1f(mFxLocCoordSwap, coordSwap);
         if (mFxLocYFlip >= 0) glUniform1f(mFxLocYFlip, yFlip);
         if (mFxLocXFlip >= 0) glUniform1f(mFxLocXFlip, xFlip);
@@ -261,7 +265,7 @@ void NanoMenu::renderEffect() {
         glEnableVertexAttribArray(mFxLocPosition);
         glDrawArrays(GL_TRIANGLES, 0, 6);
         glDisableVertexAttribArray(mFxLocPosition);
-    } else if (mCurrentEffect == 21 || (mCurrentEffect == 22 && !ps3bg::init())) {
+    } else if (eff == 21 || (eff == 22 && !ps3bg::init())) {
         // Effect 21: the original procedural PS3-style volumetric ribbon. This
         // is also the not-ready fallback for the real wave (effect 22), so the
         // wallpaper is never blank while the wave assets load.
@@ -281,7 +285,7 @@ void NanoMenu::renderEffect() {
         glEnableVertexAttribArray(mXmbLocPosition);
         glDrawArrays(GL_TRIANGLES, 0, 6);
         glDisableVertexAttribArray(mXmbLocPosition);
-    } else if (mCurrentEffect == 22) {
+    } else if (eff == 22) {
         // Effect 22 ("XMB Wave"): the real ported PS3 captured cloth wave over
         // the per-month gradient (NanoMenuPS3Bg). The default wallpaper. The
         // original procedural ribbon (effect 21) is kept as a separate option.
