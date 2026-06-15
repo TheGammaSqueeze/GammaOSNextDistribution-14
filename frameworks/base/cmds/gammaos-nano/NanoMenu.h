@@ -1447,6 +1447,10 @@ private:
     GLuint mpJacket();                 // load+cache the default jacket cover texture
     GLuint mpTrackArt(int ti);        // folder/per-track album art for track ti (0 if none)
     void   mpFreeArt();               // free the cached art texture (on close / track change)
+    // Per-album folder art for the XMB Music column (embedded in the album icon, like
+    // the web photo folders). Cached by album name; 0 means "no art / tried".
+    std::map<std::string, GLuint> mMpAlbumArt;
+    GLuint mpAlbumArt(const std::string& albumName);
     void renderMusicPlayer();         // the Now-Playing fullscreen draw
     void openMpOpt();                 // open the control panel
     void closeMpOpt();                // close it (or the volume submenu first)

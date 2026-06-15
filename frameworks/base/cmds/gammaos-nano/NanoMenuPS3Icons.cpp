@@ -474,6 +474,37 @@ GLuint NanoMenu::mpTrackArt(int ti) {
     return 0;   // none -> caller falls back to the note placeholder
 }
 
+// Per-folder album cover for the XMB Music column: resolve <folder>/<foldername>.<img>
+// from a representative track of the album and cache it by album name (small, 128px).
+// 0 means no folder art (column shows the generic folder icon). Like the web XMB
+// showing a thumbnail embedded in a photo folder.
+GLuint NanoMenu::mpAlbumArt(const std::string& albumName) {
+    auto cit = mMpAlbumArt.find(albumName);
+    if (cit != mMpAlbumArt.end()) return cit->second;
+    GLuint tex = 0;
+    std::vector<int> tr = musicAlbumTrackIndices(albumName);
+    if (!tr.empty() && tr[0] >= 0 && tr[0] < (int)mMusicTracks.size()) {
+        const std::string& file = mMusicTracks[tr[0]].file;
+        size_t slash = file.find_last_of('/');
+        if (slash != std::string::npos) {
+            std::string dir = file.substr(0, slash);
+            size_t pslash = dir.find_last_of('/');
+            std::string folderName = (pslash != std::string::npos) ? dir.substr(pslash + 1) : dir;
+            static const char* kExt[] = {".jpg", ".jpeg", ".png", ".JPG", ".JPEG", ".PNG", ".bmp"};
+            std::string base = dir + "/" + folderName;
+            for (const char* e : kExt) {
+                int w = 0, h = 0; std::vector<uint8_t> px;
+                if (decodeArtRGBA((base + e).c_str(), 128, &w, &h, &px)) {
+                    tex = uploadRGBA(px.data(), w, h, /*wantMipmap=*/false);
+                    break;
+                }
+            }
+        }
+    }
+    mMpAlbumArt[albumName] = tex;   // cache (0 = none/tried)
+    return tex;
+}
+
 // Boot-intro plate (logo_white.png / footer_white.png). Forced mono-white from
 // the alpha mask so drawIconTex tints it any colour; 2-tier resolve (dev then
 // shipped) under the nano_xmb/boot sub-dir.

@@ -1187,8 +1187,15 @@ void NanoMenu::ps3XmbSelect() {
         case PS3_MUSIC_ALBUM:    { Ps3Level lvl; buildMusicAlbumSubmenu(it.a, lvl); mPs3Stack.push_back(lvl); break; }
         case PS3_MUSIC_PLAYLIST: { Ps3Level lvl; buildMusicPlaylistSubmenu(it.a, lvl); mPs3Stack.push_back(lvl); break; }
         case PS3_MUSIC_TRACK: {
-            // Open the Now-Playing player on the surrounding track list, starting at
-            // the selected row (sel = its position in the current list).
+            // If the selected track is the one already playing in the live session,
+            // resume the Now-Playing screen on it instead of restarting it from 0.
+            bool live = !mMpQueue.empty() &&
+                        (mMusicPlayer.isPlaying() || mMusicPlayer.isPaused());
+            int curTi = (live && mMpIdx >= 0 && mMpIdx < (int)mMpQueue.size())
+                        ? mMpQueue[mMpIdx] : -1;
+            if (live && it.a == curTi) { resumeMusicPlayer(); return; }
+            // Otherwise open the player on the surrounding track list, starting at the
+            // selected row (sel = its position in the current list).
             openMusicPlayer(items, sel);
             return;
         }
@@ -1760,6 +1767,14 @@ void NanoMenu::renderPs3Xmb() {
         mTextOutlineRatio = savedRatio;
         mTextOutlineWidthMul = savedMul;
     };
+    // Now-playing highlight for the Music column: a soft pulsing glow on the album AND
+    // the track currently playing, so you can see what is playing without opening it.
+    bool npLive = !mMpQueue.empty() &&
+                  (mMusicPlayer.isPlaying() || mMusicPlayer.isPaused());
+    int  npTi = (npLive && mMpIdx >= 0 && mMpIdx < (int)mMpQueue.size()) ? mMpQueue[mMpIdx] : -1;
+    std::string npAlbum = (npTi >= 0 && npTi < (int)mMusicTracks.size())
+                          ? mMusicTracks[npTi].album : std::string();
+    float npPulse = 0.5f + 0.5f * sinf(mEffectTime * 2.0f * 3.14159265f / 1.4f);  // ~1.4s breathe
     auto drawList = [&](std::vector<Ps3Item>& items, float selPos, float xShiftV, float alphaMul) {
         if (items.empty() || alphaMul <= 0.01f) return;
         int activeIdx = (int)lroundf(selPos);
@@ -1780,6 +1795,26 @@ void NanoMenu::renderPs3Xmb() {
             float dsz = ps3::devS(isz);
             float ix = ps3::devX(ps3::XCL(ps3::ITEM_ICON_X + xShiftV, isz * 0.5f));
             float iy = ps3::devY(y - isz * 0.5f);
+            // Now-playing glow: a soft pulsing halo behind the album AND the track
+            // currently playing, drawn as concentric cyan discs (no glow shader on ES2).
+            bool nowPlaying = npLive &&
+                ((it.kind == PS3_MUSIC_TRACK && it.a == npTi) ||
+                 (it.kind == PS3_MUSIC_ALBUM && !npAlbum.empty() && it.label == npAlbum));
+            if (nowPlaying) {
+                float cxg = ix + dsz * 0.5f, cyg = iy + dsz * 0.5f;
+                float gb = (0.18f + 0.16f * npPulse) * alpha;
+                float gr = dsz * (0.62f + 0.10f * npPulse);
+                ps3FillCircle(cxg, cyg, gr,          0.45f, 0.85f, 1.0f, gb * 0.5f);
+                ps3FillCircle(cxg, cyg, gr * 0.72f,  0.55f, 0.90f, 1.0f, gb * 0.8f);
+                ps3FillCircle(cxg, cyg, gr * 0.50f,  0.70f, 0.95f, 1.0f, gb);
+            }
+            // Album folder art embedded in the column icon (like the web XMB photo
+            // folders): a per-folder cover replaces the generic glass folder icon.
+            GLuint albumArt = (it.kind == PS3_MUSIC_ALBUM) ? mpAlbumArt(it.label) : 0;
+            if (albumArt) {
+                drawIconStroke(albumArt, ix, iy, dsz, dsz, mPs3ShadowAlpha * 0.7f * alpha);
+                drawIconTex(albumArt, ix, iy, dsz, dsz, 1.0f, 1.0f, 1.0f, alpha);
+            } else {
             // Icon outline silhouette behind the flat menu icons so they read over
             // the bright wave. RetroArch/console icons (isRetroIcon) are skipped:
             // they render as bevelled glass and the dark silhouette would peek out
@@ -1799,6 +1834,7 @@ void NanoMenu::renderPs3Xmb() {
                 drawGlassIcon(it.nmapTex, ix, iy, dsz, dsz, it.iconR, it.iconG, it.iconB, alpha);
             else if (it.iconTex)
                 drawIconTex(it.iconTex, ix, iy, dsz, dsz, it.iconR, it.iconG, it.iconB, alpha);
+            }
             float tSize = isActive ? ps3::ITEM_TEXT_ACTIVE_SIZE : ps3::ITEM_TEXT_SIZE;
             float ts = ps3::fontScale(tSize);
             float tx = ps3::devX(ps3::XCP(ps3::ITEM_TEXT_X + xShiftV));
@@ -1978,6 +2014,23 @@ void NanoMenu::renderPs3Xmb() {
             float dsz = ps3::devS(psz);
             float ix = ps3::devX(ps3::XCL(cx, psz * 0.5f));
             float iy = ps3::devY(y - psz * 0.5f);
+            // Now-playing glow + embedded album folder art (same as the main column).
+            bool nowPlaying = npLive &&
+                ((it.kind == PS3_MUSIC_TRACK && it.a == npTi) ||
+                 (it.kind == PS3_MUSIC_ALBUM && !npAlbum.empty() && it.label == npAlbum));
+            if (nowPlaying) {
+                float cxg = ix + dsz * 0.5f, cyg = iy + dsz * 0.5f;
+                float gb = (0.18f + 0.16f * npPulse) * a;
+                float gr = dsz * (0.62f + 0.10f * npPulse);
+                ps3FillCircle(cxg, cyg, gr,          0.45f, 0.85f, 1.0f, gb * 0.5f);
+                ps3FillCircle(cxg, cyg, gr * 0.72f,  0.55f, 0.90f, 1.0f, gb * 0.8f);
+                ps3FillCircle(cxg, cyg, gr * 0.50f,  0.70f, 0.95f, 1.0f, gb);
+            }
+            GLuint albumArt = (it.kind == PS3_MUSIC_ALBUM) ? mpAlbumArt(it.label) : 0;
+            if (albumArt) {
+                drawIconStroke(albumArt, ix, iy, dsz, dsz, mPs3ShadowAlpha * 0.7f * a);
+                drawIconTex(albumArt, ix, iy, dsz, dsz, 1.0f, 1.0f, 1.0f, a);
+            } else {
             if (it.iconTex && !isRetroIcon(it.kind))   // no stroke on glass/console icons
                 drawIconStroke(it.iconTex, ix, iy, dsz, dsz, mPs3ShadowAlpha * 0.7f * a);
             // Glass (live wave refraction) for the PROMINENT breadcrumb cubes only
@@ -1997,6 +2050,7 @@ void NanoMenu::renderPs3Xmb() {
                 drawGlassIcon(it.nmapTex, ix, iy, dsz, dsz, it.iconR, it.iconG, it.iconB, a);
             else if (it.iconTex)
                 drawIconTex(it.iconTex, ix, iy, dsz, dsz, it.iconR, it.iconG, it.iconB, a);
+            }
             float textA = (1.0f - t) * (sel ? ps3::ALPHA_FOCUS : ps3::ALPHA_INACTIVE) * aMul;
             if (textA > 0.02f) {
                 float ts = ps3::fontScale(sel ? ps3::ITEM_TEXT_ACTIVE_SIZE : ps3::ITEM_TEXT_SIZE);
