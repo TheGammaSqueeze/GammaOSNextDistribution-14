@@ -47,9 +47,11 @@ static float TUNE_SUNBRI   = 60.0f;   // sun HDR core brightness (blooms into th
 static float TUNE_SUNHALO  = 2.2f;    // broad warm sun halo strength
 static float TUNE_BLOOMTHR = 0.42f;   // bright-pass threshold (display luminance)
 static float TUNE_BLOOMGAIN= 1.30f;   // additive bloom gain
-static float TUNE_NIGHTBRI = 2.4f;    // night-lights (earth_night) brightness
+static float TUNE_NIGHTBRI = 1.3f;    // night-lights (earth_night) brightness (web shows them subtly)
 static float TUNE_RIM      = 0.50f;   // atmosphere fresnel rim strength (the always-on blue limb)
 static float TUNE_HALO     = 0.70f;   // outer atmosphere halo strength
+static float TUNE_HALOFALL  = 100.0f; // outer halo falloff rate (higher = tighter glow hugging the limb); tuned vs web
+static float TUNE_DAYK      = 3.40f;  // lit-side (day) albedo gain; tuned so the lit earth matches the web brightness
 
 static float propF(const char* key, float def) {
     char v[PROPERTY_VALUE_MAX] = {};
@@ -73,7 +75,7 @@ static const char* SCENE_FS =
     "uniform float uTanHF, uAspect;\n"
     "uniform vec3 uSun;\n"
     "uniform sampler2D uDay, uNight, uClouds;\n"
-    "uniform float uStars, uNightBri, uRim, uHalo, uSunBri, uSunHalo;\n"
+    "uniform float uStars, uNightBri, uRim, uHalo, uSunBri, uSunHalo, uNightLift, uHaloFall, uDayK;\n"
     "const float PI = 3.14159265;\n"
     "vec2 erUV(vec3 n){\n"
     "  float u = atan(n.z, n.x) * (0.1591549) + 0.5;\n"
@@ -101,12 +103,12 @@ static const char* SCENE_FS =
     "      vec3 ntex = texture2D(uNight, uv).rgb;\n"
     "      float ndl = dot(N, uSun);\n"
     "      float day = 1.0 - smoothstep(0.62, -0.30, ndl);\n"
-    "      vec3 dayC = mix(alb, vec3(1.0), cloud * 0.5) * 1.5;\n"           // BASE_DAY_K
-    "      vec3 nightC = ntex * uNightBri + vec3(0.012,0.022,0.040)\n"      // city lights + cool ambient
-    "                  + cloud * vec3(0.010,0.014,0.020);\n"
+    "      vec3 dayC = mix(alb, vec3(1.0), cloud * 0.5) * uDayK * vec3(1.0,0.98,0.93);\n"  // brighter lit side (web earth reads bright); subtle warm cast
+    "      vec3 nightC = ntex * uNightBri + uNightLift * (vec3(0.045,0.100,0.180)\n"  // city lights + per-scene cool atmospheric ambient (off on the fully-lit low-orbit scenes)
+    "                  + cloud * vec3(0.014,0.020,0.030));\n"
     "      vec3 termGlow = vec3(0.11,0.06,0.035) *\n"
-    "         (smoothstep(0.30,-0.04,ndl) * (1.0 - smoothstep(-0.04,-0.40,ndl)));\n"
-    "      col = mix(nightC, dayC, day) + termGlow * 0.6;\n"
+    "         (smoothstep(0.32,-0.02,ndl) * (1.0 - smoothstep(-0.02,-0.42,ndl)));\n"  // wider twilight band
+    "      col = mix(nightC, dayC, day) + termGlow * 0.7 * uNightLift;\n"
     "      vec3 V = normalize(uEye - p);\n"
     "      vec3 H = normalize(V + uSun);\n"
     "      float lum = dot(alb, vec3(0.299,0.587,0.114));\n"
@@ -116,21 +118,25 @@ static const char* SCENE_FS =
     "      col += clamp(0.6 * glint, 0.0, 0.5) * vec3(1.0,0.95,0.82);\n"
     "      float graze = 1.0 - clamp(dot(N,V), 0.0, 1.0);\n"
     "      float rim = pow(graze, 12.0);\n"
-    "      col += uRim * rim * (1.0 - day*0.45) * vec3(0.16,0.34,0.58);\n"
+    "      col += uRim * rim * (1.0 - day*0.30) * vec3(0.45,0.65,1.0) * 6.0;\n"  // atmosphere limb on the surface; light-blue whitens at the core via tonemap, stays blue in falloff
     "      col *= 8.0;\n"                  // HDR scale
     "    }\n"
     "  }\n"
     "  if (!hit) {\n"
     "    float distC = sqrt(max(dot(ro,ro) - b*b, 0.0));\n"
-    "    if (b > 0.0) {\n"                 // sphere in front of the ray
+    "    if (b < 0.0) {\n"                 // closest approach is IN FRONT of the camera (ray skims the globe)
     "      float limbD = distC - 1.0;\n"
     "      if (limbD > 0.0) {\n"
-    "        float halo = exp(-limbD * 5.0);\n"
-    "        col += uHalo * halo * vec3(0.16,0.34,0.58) * 8.0;\n"
+    "        float halo = exp(-limbD * uHaloFall);\n"  // tight glow hugging the limb so space above reads black (web look)
+    "        col += uHalo * halo * vec3(0.45,0.65,1.0) * 34.0;\n"  // outer limb glow; bright light-blue whitens at the limb core, blue band outward (the web glowing ring)
     "      }\n"
     "    }\n"
     "    float sd = max(dot(rd, uSun), 0.0);\n"
-    "    col += vec3(1.0,0.93,0.82) * (pow(sd, 2200.0) * uSunBri + pow(sd, 120.0) * uSunHalo);\n"
+    "    vec3 perp = rd - uSun * sd;\n"                               // screen-space offset from the sun centre
+    "    float px = dot(perp, uRight), py = dot(perp, uUp);\n"
+    "    float streak = exp(-(abs(px)*16.0 + abs(py)*120.0)) * sd;\n" // thin horizontal anisotropic flare spike
+    "    col += vec3(1.0,0.93,0.82) * (pow(sd, 2200.0) * uSunBri + pow(sd, 120.0) * uSunHalo\n"
+    "                                + streak * uSunHalo * 0.55);\n"
     "    if (uStars > 0.5) {\n"
     "      vec3 g = rd * 140.0; vec3 cell = floor(g);\n"
     "      float h = hash(cell);\n"
@@ -200,7 +206,7 @@ static const char* COMP_FS =
 static bool sReady = false, sTried = false;
 static GLuint sSceneProg = 0, sBrightProg = 0, sBlurProg = 0, sCompProg = 0;
 static GLint scAPos, scEye, scFwd, scRight, scUp, scTanHF, scAspect, scSun,
-             scDay, scNight, scClouds, scStars, scNightBri, scRim, scHalo, scSunBri, scSunHalo;
+             scDay, scNight, scClouds, scStars, scNightBri, scRim, scHalo, scSunBri, scSunHalo, scNightLift, scHaloFall, scDayK;
 static GLint brAPos, brTex, brThresh;
 static GLint blAPos, blTex, blStep;
 static GLint cmAPos, cmAUV, cmScene, cmBloomA, cmBloomB, cmGain, cmAlpha, cmFade, cmRot;
@@ -342,6 +348,8 @@ bool init() {
     TUNE_NIGHTBRI  = propF("persist.gammaos.nano.globe.nightbri", TUNE_NIGHTBRI);
     TUNE_RIM       = propF("persist.gammaos.nano.globe.rim", TUNE_RIM);
     TUNE_HALO      = propF("persist.gammaos.nano.globe.halo", TUNE_HALO);
+    TUNE_HALOFALL  = propF("persist.gammaos.nano.globe.halofall", TUNE_HALOFALL);
+    TUNE_DAYK      = propF("persist.gammaos.nano.globe.dayk", TUNE_DAYK);
     sSceneProg  = linkProgram(FULL_VS, SCENE_FS);
     sBrightProg = linkProgram(FULL_VS, BRIGHT_FS);
     sBlurProg   = linkProgram(FULL_VS, BLUR_FS);
@@ -360,6 +368,9 @@ bool init() {
     scClouds  = glGetUniformLocation(sSceneProg, "uClouds");
     scStars   = glGetUniformLocation(sSceneProg, "uStars");
     scNightBri= glGetUniformLocation(sSceneProg, "uNightBri");
+    scNightLift= glGetUniformLocation(sSceneProg, "uNightLift");
+    scHaloFall= glGetUniformLocation(sSceneProg, "uHaloFall");
+    scDayK    = glGetUniformLocation(sSceneProg, "uDayK");
     scRim     = glGetUniformLocation(sSceneProg, "uRim");
     scHalo    = glGetUniformLocation(sSceneProg, "uHalo");
     scSunBri  = glGetUniformLocation(sSceneProg, "uSunBri");
@@ -455,6 +466,26 @@ void render(int panelW, int panelH, const float rotMat2[4], float alpha,
     if (u < 0.0f) u = 0.0f; if (u > 1.0f) u = 1.0f;
     // dip-to-black fade at the scene boundaries (FADE ~0.7s in/out)
     float fade = smoothstep01(sScnT, 0.0f, 0.7f) * smoothstep01(dur - sScnT, 0.0f, 0.7f);
+    // debug: pin an exact (scene,t) for 1:1 web comparison. prop "S.TTT" e.g. 2.50 = scene 2, t 0.50.
+    // matches the web MPGlobe._frame(sid,t). negative/absent = normal cycling.
+    { char fv[PROPERTY_VALUE_MAX] = {}; if (property_get("sys.gammaos.nano.globe.force", fv, "") > 0 && fv[0]) {
+        float f = (float)atof(fv); if (f >= 0.0f) {
+          int fs = (int)f; float ft = f - (float)fs;
+          sScn = ((fs % kGlobeNumScenes) + kGlobeNumScenes) % kGlobeNumScenes;
+          dur = kGlobeSceneDur[sScn]; sScnT = ft * dur; u = ft;
+          if (u < 0.0f) u = 0.0f; if (u > 1.0f) u = 1.0f; fade = 1.0f; } } }
+    // live tuning: when sys.gammaos.nano.globe.live=1, re-read the TUNE props each frame so the
+    // look can be dialed in without a rebuild (then bake the winners). negligible when off.
+    { char lv[PROPERTY_VALUE_MAX] = {}; if (property_get("sys.gammaos.nano.globe.live", lv, "") > 0 && lv[0] == '1') {
+        TUNE_HALO     = propF("persist.gammaos.nano.globe.halo", TUNE_HALO);
+        TUNE_HALOFALL = propF("persist.gammaos.nano.globe.halofall", TUNE_HALOFALL);
+        TUNE_DAYK     = propF("persist.gammaos.nano.globe.dayk", TUNE_DAYK);
+        TUNE_RIM      = propF("persist.gammaos.nano.globe.rim", TUNE_RIM);
+        TUNE_NIGHTBRI = propF("persist.gammaos.nano.globe.nightbri", TUNE_NIGHTBRI);
+        TUNE_BLOOMTHR = propF("persist.gammaos.nano.globe.bloomthr", TUNE_BLOOMTHR);
+        TUNE_BLOOMGAIN= propF("persist.gammaos.nano.globe.bloomgain", TUNE_BLOOMGAIN);
+        TUNE_SUNBRI   = propF("persist.gammaos.nano.globe.sunbri", TUNE_SUNBRI);
+        TUNE_SUNHALO  = propF("persist.gammaos.nano.globe.sunhalo", TUNE_SUNHALO); } }
 
     // ---- camera from the replayed keyframes ----
     float eye[3] = { crom(sScn,0,u), crom(sScn,1,u), crom(sScn,2,u) };
@@ -492,6 +523,10 @@ void render(int panelW, int panelH, const float rotMat2[4], float alpha,
     glActiveTexture(GL_TEXTURE0);
     glUniform1f(scStars, starsOn);
     glUniform1f(scNightBri, TUNE_NIGHTBRI);
+    // per-scene night fill: OFF on the fully-lit low-orbit scenes (played 0,1), ON for the dark/distant scenes.
+    glUniform1f(scNightLift, (sScn <= 1) ? 0.0f : 1.0f);
+    glUniform1f(scHaloFall, TUNE_HALOFALL);
+    glUniform1f(scDayK, TUNE_DAYK);
     glUniform1f(scRim, TUNE_RIM);
     glUniform1f(scHalo, TUNE_HALO);
     // subtle audio reactivity: the bass pulses the sun brightness / corona.
