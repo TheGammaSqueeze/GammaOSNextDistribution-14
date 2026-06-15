@@ -184,11 +184,11 @@ static const float kGlobeScenes[kGlobeNumScenes][kGlobeKF][10] = {
 };
 static const float kGlobeSceneDur[kGlobeNumScenes] = {150.00f,60.00f,147.00f,222.00f,198.00f};
 static const float kGlobeSceneSun[kGlobeNumScenes][3] = {
-  {-0.03004f,0.18387f,0.98249f},
-  {0.32705f,-0.52505f,0.78572f},
-  {0.16485f,0.27820f,0.94627f},
-  {0.22743f,-0.07916f,0.97057f},
-  {0.06831f,0.04226f,0.99677f},
+  {-0.68448f,0.01396f,0.72890f},
+  {-0.68448f,0.01396f,0.72890f},
+  {0.63487f,0.20108f,-0.74599f},
+  {-0.82340f,0.20108f,-0.53064f},
+  {-0.68448f,0.01396f,0.72890f},
 };
 static const int kGlobeSceneNum[kGlobeNumScenes] = {0,1,2,7,8};
 } } // namespace
