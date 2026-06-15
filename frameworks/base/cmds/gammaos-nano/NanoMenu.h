@@ -253,6 +253,7 @@ private:
     void openInputDevices();
     void checkInputHotplug();
     void pollInput();
+    bool selectKeyHeld() const;   // live SELECT state via EVIOCGKEY (not the sticky flag)
     // DRM-direct sleep: blank panels + backlights, drive PowerManager
     // suspend, block until a wake (power press or lid open), then
     // re-commit the modeset and restore. Shared by the power short-press

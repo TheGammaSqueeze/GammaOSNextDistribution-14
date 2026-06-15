@@ -865,6 +865,24 @@ bool NanoMenu::enterDrmSleep() {
     return true;
 }
 
+// Live physical state of the SELECT button across all grabbed input devices.
+// mSelectHeld (tracked from BTN_SELECT events) can get stuck true if a release
+// event is ever missed, which then makes a plain volume press adjust brightness.
+// Querying the kernel's actual key bitmap makes SELECT+volume=brightness fire only
+// while SELECT is genuinely held down.
+bool NanoMenu::selectKeyHeld() const {
+    const int nlongs = (KEY_MAX + 1 + 8 * (int)sizeof(long) - 1) / (8 * (int)sizeof(long));
+    unsigned long bits[nlongs];
+    for (int fd : mInputFds) {
+        if (fd < 0) continue;
+        memset(bits, 0, sizeof(bits));
+        if (ioctl(fd, EVIOCGKEY(sizeof(bits)), bits) < 0) continue;
+        if (bits[BTN_SELECT / (8 * sizeof(long))] & (1UL << (BTN_SELECT % (8 * sizeof(long)))))
+            return true;
+    }
+    return false;
+}
+
 void NanoMenu::pollInput() {
     // Overlay launch transition: while a launch is pending (the overlay is held up
     // until the new app resumes), FREEZE the XMB - drain and ignore all input so the
@@ -1069,9 +1087,11 @@ void NanoMenu::pollInput() {
                 }
             }
             if (ev.type == EV_KEY && (ev.value == 1 || ev.value == 2)) {
-                // Volume keys: SELECT+VOL = brightness, VOL alone = volume
+                // Volume keys: SELECT+VOL = brightness, VOL alone = volume. Verify
+                // SELECT against the live key state (not the sticky mSelectHeld) so a
+                // missed SELECT release never turns plain volume into brightness.
                 if (ev.code == KEY_VOLUMEUP || ev.code == KEY_VOLUMEDOWN) {
-                    if (mSelectHeld) {
+                    if (mSelectHeld && selectKeyHeld()) {
                         adjustBrightness(ev.code == KEY_VOLUMEUP ? 1 : -1);
                     } else if (ev.value == 1) {
                         adjustVolume(ev.code == KEY_VOLUMEUP ? 1 : -1);
