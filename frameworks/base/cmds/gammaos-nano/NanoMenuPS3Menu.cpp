@@ -1637,7 +1637,7 @@ void NanoMenu::renderPs3Xmb() {
         // over a non-wave wallpaper (the blurred wave would not match it - let
         // renderEffect's wallpaper show instead). The submenu glass ICONS refract
         // ps3bg::workTex() separately (unaffected); no OSK reuses the submenu blur.
-        const bool frostBg = !mOverlayMode || (mOverlayWallpaper && mCurrentEffect == 22);
+        const bool frostBg = mCurrentEffect == 22 && (!mOverlayMode || mOverlayWallpaper);
         if (due && frostBg && captureGlassFromWave()) { mPs3GlassValid = true; mPs3GlassBlurT = mEffectTime; }
         if (mPs3GlassValid && frostBg)
             // Neutral tint (1,1,1): pure blur, NO darkening or hue/shade change -
@@ -4011,7 +4011,7 @@ void NanoMenu::renderXmbOpt() {
 
     // Frosted-glass backdrop behind the panel (only where the wave is the visible
     // background, like the theme chooser).
-    const bool frost = !mOverlayMode || (mOverlayWallpaper && mCurrentEffect == 22);
+    const bool frost = mCurrentEffect == 22 && (!mOverlayMode || mOverlayWallpaper);
     if (frost) {
         bool due = !mPs3OptBlurValid || (mEffectTime - mPs3OptBlurT) >= 0.0667f;
         if (due && captureGlassFromWave()) { mPs3OptBlurValid = true; mPs3OptBlurT = mEffectTime; }
@@ -4105,7 +4105,7 @@ void NanoMenu::renderPs3Dialog() {
         // must show) and never over a non-wave wallpaper (renderEffect's wallpaper, drawn
         // behind us, must show instead). (System Update has no OSK; the wizard
         // re-captures mPs3DlgBlurValid itself, so the wizard's OSK is unaffected.)
-        const bool frostBg = !mOverlayMode || (mOverlayWallpaper && mCurrentEffect == 22);
+        const bool frostBg = mCurrentEffect == 22 && (!mOverlayMode || mOverlayWallpaper);
         if (due && frostBg && captureGlassFromWave()) { mPs3DlgBlurValid = true; mPs3DlgBlurT = mEffectTime; }
         if (mPs3DlgBlurValid && frostBg)
             drawFrostedGlass(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, ap, /*waveSpace=*/true);  // pure blur, no darkening
@@ -4159,7 +4159,7 @@ void NanoMenu::renderPs3Dialog() {
         //     wave wallpaper); in the in-game overlay the live app is already blurred
         //     by SurfaceFlinger behind the scrim, so we skip it there.
         {
-            const bool spFrost = !mOverlayMode || (mOverlayWallpaper && mCurrentEffect == 22);
+            const bool spFrost = mCurrentEffect == 22 && (!mOverlayMode || mOverlayWallpaper);
             if (spFrost) {
                 bool due = !mPs3DlgBlurValid || (mEffectTime - mPs3DlgBlurT) >= 0.0667f;
                 if (due && captureGlassFromWave()) { mPs3DlgBlurValid = true; mPs3DlgBlurT = mEffectTime; }
@@ -5318,7 +5318,7 @@ void NanoMenu::renderNetWizard() {
         // Never in overlay scrim (the dimmed live app shows) or over a non-wave wallpaper
         // (renderEffect's wallpaper shows). KEEP the per-frame capture above (the OSK
         // reuses mPs3DlgBlurValid + it must stay valid) and the dim below for readability.
-        const bool frostBg = !mOverlayMode || (mOverlayWallpaper && mCurrentEffect == 22);
+        const bool frostBg = mCurrentEffect == 22 && (!mOverlayMode || mOverlayWallpaper);
         if (mPs3DlgBlurValid && frostBg)
             drawFrostedGlass(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, ap, true);
     }
@@ -5834,7 +5834,7 @@ void NanoMenu::renderLanguagePicker() {
     // Frosted-wave backdrop, re-captured each frame, fading in with the panel.
     float blurCad = ps3bg::themeFading() ? 0.0f : 0.0667f;
     bool due = !mPs3DlgBlurValid || (mEffectTime - mPs3DlgBlurT) >= blurCad;
-    const bool frostBg = !mOverlayMode || (mOverlayWallpaper && mCurrentEffect == 22);
+    const bool frostBg = mCurrentEffect == 22 && (!mOverlayMode || mOverlayWallpaper);
     if (due && frostBg && captureGlassFromWave()) { mPs3DlgBlurValid = true; mPs3DlgBlurT = mEffectTime; }
     if (mPs3DlgBlurValid && frostBg)
         drawFrostedGlass(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f,
