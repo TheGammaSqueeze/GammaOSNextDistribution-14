@@ -373,7 +373,16 @@ void render(float scaleX, float scaleY, float yFlip, float frameH,
         float* d = sBuf.data();
         int o = 0;
         for (const Particle& p : sParts) { project(p, 1.0f, d + o); o += 8; }
-        if (useExtra) for (const Particle& p : sPartsExtra) { project(p, sMvBlend, d + o); o += 8; }
+        // Doubled music pool: project a COUNT proportional to the morph blend, not the
+        // full pool. The extra particles fade with brightScale=sMvBlend anyway, so
+        // dropping their count as the blend ramps (most visibly during the leave, where
+        // it plays out over the full XMB menu) cuts the trig-heavy projection cost in
+        // step with the fade - the look is the same fade, just cheaper.
+        if (useExtra) {
+            int nExtra = (int)((float)kNumParticles * sMvBlend + 0.5f);
+            if (nExtra > kNumParticles) nExtra = kNumParticles;
+            for (int k = 0; k < nExtra; k++) { project(sPartsExtra[(size_t)k], sMvBlend, d + o); o += 8; }
+        }
         sDrawCount = o / 8;
         sLastUseExtra = useExtra;
     }

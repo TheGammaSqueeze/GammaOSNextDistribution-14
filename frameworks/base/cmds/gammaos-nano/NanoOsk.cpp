@@ -1058,7 +1058,12 @@ void NanoMenu::renderOsk() {
     // already maintains (wizard or submenu frost, both land in mGlassBlurTex),
     // and only fall back to a single frozen capture on the legacy menu path.
     bool drewGlass = false;
-    if ((mPs3WizActive && mPs3DlgBlurValid) || (mPs3Xmb && mPs3GlassValid)) {
+    // The reused wave-space blur (mGlassBlurTex) is the XMB/submenu backdrop. In the
+    // Now-Playing music player the visible background is the purple Waves morph, which
+    // never refreshes that blur, so reusing it shows a green frost over a purple screen.
+    // Exclude mMpActive so the player's OSK captures the current (purple) framebuffer
+    // via the capture path below instead.
+    if (((mPs3WizActive && mPs3DlgBlurValid) || (mPs3Xmb && mPs3GlassValid)) && !mMpActive) {
         // Wizard fields hold a fresh dialog blur; every other PS3-path OSK
         // (the Game Systems editor) opens over a submenu, whose full-screen
         // frost refreshes the same wave-space blur each frame. Reusing it is
