@@ -3197,6 +3197,12 @@ if (sRingPrimedCount >= 2) {
                 } else {
                     usleep(100000);  // prop not created yet; poll at 10Hz until it appears
                 }
+                // The render thread is intentionally parked while the overlay is
+                // hidden (an app owns the screen), so render() is skipped and the
+                // heartbeat would freeze. Bump it: the thread is alive and waiting,
+                // not hung. Without this the watchdog aborts this process after 8s,
+                // killing background music and cascading to the foreground app.
+                mRenderHeartbeat.fetch_add(1, std::memory_order_relaxed);
                 continue;
             }
         }
@@ -3311,6 +3317,9 @@ if (sRingPrimedCount >= 2) {
             if (sSoPi) { uint32_t s = __system_property_serial(sSoPi); if (s != sSoSer) { sSoSer = s; sSoVal = property_get_bool("sys.gammaos.nano.show_overlay", false); } }
             else sSoVal = false;
             if (!mOverlayMode && mLaunchFadeStart == 0 && !mWaitForRelease && (sAlVal || sSoVal)) {
+                // Parked (occluded by the foreground app): render() is skipped, so
+                // keep the watchdog heartbeat alive or it aborts this process after 8s.
+                mRenderHeartbeat.fetch_add(1, std::memory_order_relaxed);
                 usleep(33000);   // ~30Hz; no input, no render while occluded
                 continue;
             }
