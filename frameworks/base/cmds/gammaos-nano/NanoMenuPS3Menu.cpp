@@ -29,6 +29,7 @@
 #include "NanoMenuPS3Bg.h"
 #include "NanoMenuPS3Globe.h"
 #include "NanoMenuPS3Data.h"
+#include "NanoMenuShaders.h" // kEffectNames/kActiveEffects/sActiveEffectIdx for the Wallpaper picker
 #include "NanoMenuDrm.h"   // sDrmGlRotation / sDrmRotationDeg for ticker scissor
 #include "NanoMenuUtils.h" // setLaunchRomPath for the Applications launch
 #include "NanoI18n.h"      // trDyn() runtime translation of hardcoded UI strings
@@ -1031,6 +1032,7 @@ void NanoMenu::ps3DlgNav(int dir, bool horizontal) {
 }
 
 void NanoMenu::ps3XmbLeft() {
+    if (mPs3OptActive) { closeXmbOpt(); return; }   // option menu: Left dismisses (web optBack)
     if (mMpActive) {   // chooser ignores L/R; panel grid nav, or scrub back 5s with no panel
         if (mMpPlChooserActive) return;
         if (mMpCpOpen) mpOptMove(-1, 0);
@@ -1059,6 +1061,7 @@ void NanoMenu::ps3XmbLeft() {
 }
 
 void NanoMenu::ps3XmbRight() {
+    if (mPs3OptActive) return;   // option menu is a vertical list, no horizontal nav
     if (mMpActive) {   // panel grid nav, or scrub fwd 5s with no panel (hold = continuous; debounced commit)
         if (mMpPlChooserActive) return;
         if (mMpCpOpen) mpOptMove(+1, 0);
@@ -1088,6 +1091,7 @@ void NanoMenu::ps3XmbRight() {
 }
 
 void NanoMenu::ps3XmbUp() {
+    if (mPs3OptActive) { xmbOptMove(-1); return; }
     if (mMpActive) { if (mMpPlChooserActive) { mpPlChooserMove(-1); return; }
                      if (mMpCpOpen) mpOptMove(0, +1); return; }   // panel grid nav (screen-up = grid-up)
     if (ps3TopScreenKind() == GS_ICONGRID) { iconGridNav(0, -1); return; }
@@ -1100,6 +1104,7 @@ void NanoMenu::ps3XmbUp() {
     if (s > 0) { mPs3ItemAnimFrom = mPs3AnimItem; mPs3ItemAnimStart = mEffectTime; s--; }
 }
 void NanoMenu::ps3XmbDown() {
+    if (mPs3OptActive) { xmbOptMove(+1); return; }
     if (mMpActive) { if (mMpPlChooserActive) { mpPlChooserMove(+1); return; }
                      if (mMpCpOpen) mpOptMove(0, -1); return; }   // panel grid nav (screen-down = grid-down)
     if (ps3TopScreenKind() == GS_ICONGRID) { iconGridNav(0, +1); return; }
@@ -1113,6 +1118,7 @@ void NanoMenu::ps3XmbDown() {
 }
 
 void NanoMenu::ps3XmbSelect() {
+    if (mPs3OptActive) { xmbOptEnter(); return; }   // option menu: activate the highlighted action
     if (mMpActive) {   // X: chooser select, panel control, or toggle play/pause with no panel up
         if (mMpPlChooserActive) { mpPlChooserSelect(); return; }
         if (mMpCpOpen) mpOptActivate();
@@ -1347,6 +1353,7 @@ void NanoMenu::ps3XmbSelect() {
 }
 
 void NanoMenu::ps3XmbBack() {
+    if (mPs3OptActive) { closeXmbOpt(); return; }   // option menu: O dismisses
     if (mMpActive) { if (mMpPlChooserActive) { mpPlChooserCancel(); return; }
                      if (mMpCpOpen) mpOptBack(); else minimizeMusicPlayer(); return; }   // O: chooser cancel / panel back / minimize (audio keeps playing)
     if (ps3TopScreenKind() == GS_ICONGRID) { closeIconGridPicker(); mPs3Stack.pop_back(); return; }
@@ -2168,6 +2175,9 @@ void NanoMenu::renderPs3Xmb() {
 
     // Settings dialog / Theme chooser overlay on top of the menu. (The Time Zone
     // globe renders standalone via the early return above, fading in from black.)
+    // Home XMB option menu (Triangle / X) renders first so a dialog opened from it
+    // (Information) fades in on top of the option menu's fade-out.
+    if (mPs3OptActive || mPs3OptClosing) renderXmbOpt();
     if (mPs3WizActive) renderNetWizard();
     else if (mPs3DlgActive || mPs3DlgClosing) renderPs3Dialog();   // mPs3DlgClosing: side-panel fade-out
     else if (mPs3LangActive) renderLanguagePicker();   // System Language: frosted backdrop + fade, over the menu
@@ -3119,6 +3129,8 @@ std::string NanoMenu::resolvePs3ItemValue(const Ps3Item& it) {
     } else if (n == "Background") {
         int c = (int)(sizeof(kPs3BgOpts) / sizeof(kPs3BgOpts[0]));
         if (mPs3BgIdx >= 0 && mPs3BgIdx < c) return kPs3BgOpts[mPs3BgIdx];
+    } else if (n == "Wallpaper") {
+        if (mCurrentEffect >= 0 && mCurrentEffect <= NUM_EFFECTS) return kEffectNames[mCurrentEffect];
     } else if (n == "Font") {
         int c = (int)(sizeof(kPs3FontOpts) / sizeof(kPs3FontOpts[0]));
         if (mPs3FontIdx >= 0 && mPs3FontIdx < c) return kPs3FontOpts[mPs3FontIdx];
@@ -3512,6 +3524,15 @@ void NanoMenu::openPs3Dialog(const Ps3Item& it) {
         mPs3DlgKind = 1; mPs3DlgThemeKey = 3;
         for (const char* s : kPs3BgOpts) { mPs3DlgOptions.push_back(s); mPs3DlgSwatch.push_back(-1); }
         mPs3DlgSel = mPs3BgIdx;
+    } else if (n == "Wallpaper") {
+        // The moving background effect picker (the old X/Y cycle, now its own side
+        // menu). Options are the enabled effects; live-previewed while scrolling.
+        mPs3DlgKind = 1; mPs3DlgThemeKey = 11;
+        for (int i = 0; i < kNumActiveEffects; i++) {
+            mPs3DlgOptions.push_back(kEffectNames[kActiveEffects[i]]);
+            mPs3DlgSwatch.push_back(-1);
+        }
+        mPs3DlgSel = (sActiveEffectIdx >= 0 && sActiveEffectIdx < kNumActiveEffects) ? sActiveEffectIdx : 0;
     } else if (n == "Font") {
         mPs3DlgKind = 1; mPs3DlgThemeKey = 4;
         for (const char* s : kPs3FontOpts) { mPs3DlgOptions.push_back(s); mPs3DlgSwatch.push_back(-1); }
@@ -3620,6 +3641,14 @@ void NanoMenu::previewThemeSetting(int themeKey, int sel) {
         case 8: mPs3TimeFormatIdx = sel; break;
         case 9: break;   // DST: no live preview; the row reflects the real clock, applied on commit
         case 10: break;  // Performance Mode: governor change applied on commit only
+        case 11:         // Wallpaper effect: live-preview the highlighted effect
+            if (sel >= 0 && sel < kNumActiveEffects) {
+                sActiveEffectIdx = sel;
+                mCurrentEffect = kActiveEffects[sel];
+                if (mCurrentEffect >= 1 && mCurrentEffect <= 10) initEffects();
+                mDisplayDirty = true;
+            }
+            break;
         case 20: break;  // GS launch type: applied on commit
         case 23: break;  // GS remove-system confirm: applied on commit
         case 21:         // GS icon tint: live-preview the chosen swatch (Game tile + editor row recolour)
@@ -3691,6 +3720,11 @@ void NanoMenu::applyThemeSetting(int themeKey, int sel) {
             }
             break;
         }
+        case 11:    // Wallpaper effect: commit the live selection + persist it
+            previewThemeSetting(11, sel);
+            { char b[16]; snprintf(b, sizeof(b), "%d", mCurrentEffect);
+              property_set("persist.gammaos.nano.wallpaper", b); }
+            break;
         case 10: {  // Quick Menu -> Performance Mode. Replicates the legacy
             // global action / PerformanceTile: set persist.gammaos.performance_mode
             // to stock/max/powersave; the vendor governor trigger applies it.
@@ -3814,6 +3848,217 @@ void NanoMenu::closePs3Dialog(bool apply) {
     if (mPs3DlgKind == 1) { mPs3DlgClosing = true; mPs3DlgCloseAnim = (mPs3DlgAnim > 0.02f ? mPs3DlgAnim : 1.0f); }
     mPs3DlgActive = false;
     mPs3DlgBlurValid = false;
+}
+
+// ---------------------------------------------------------------------------
+// Home XMB option menu (Triangle / X). The web optMenu context "sidebar": a
+// short list of real per-item actions over the focused column item. A separate
+// modal from the theme chooser so Information can open a dialog cleanly.
+// ---------------------------------------------------------------------------
+void NanoMenu::openXmbOpt() {
+    if (mPs3OptActive) return;
+    // Only over the live home column - never while another modal owns input, and
+    // not over a live in-game app in the overlay (where a dialog could fight it).
+    if (mPs3DlgActive || mMpActive || mPs3WizActive || mPs3TzActive || mPs3LangActive
+        || mPs3BrightSlider || mOskActive) return;
+    if (mOverlayMode && !mOverlayWallpaper) return;
+    std::vector<Ps3Item>& items = ps3CurItems();
+    int sel = ps3CurSel();
+    if (items.empty() || sel < 0 || sel >= (int)items.size()) return;
+    const Ps3Item& it = items[sel];
+
+    mPs3OptLabels.clear(); mPs3OptActs.clear(); mPs3OptStart.clear();
+    auto add = [&](const char* label, const char* act, bool start) {
+        mPs3OptLabels.push_back(label); mPs3OptActs.push_back(act);
+        mPs3OptStart.push_back(start ? 1 : 0);
+    };
+    switch (it.kind) {
+        case PS3_ROM: case PS3_RECENT:
+        case PS3_APP: case PS3_LAUNCH_PKG:
+            add("Start", "start", true); add("Information", "info", false); break;
+        case PS3_MUSIC_ALBUM:
+            add("Play", "playalbum", true); add("Information", "info", false); break;
+        case PS3_MUSIC_TRACK:
+            add("Play", "playtrack", true); add("Information", "info", false); break;
+        case PS3_MUSIC_PLAYLIST:
+            add("Play", "playpl", true); add("Information", "info", false); break;
+        default:
+            add("Information", "info", false); break;
+    }
+    if (mPs3OptLabels.empty()) return;
+
+    mPs3OptCtxKind = it.kind; mPs3OptCtxA = it.a; mPs3OptCtxB = it.b;
+    mPs3OptCtxLabel = it.label; mPs3OptCtxPayload = it.payloadStr; mPs3OptCtxDesc = it.desc;
+    mPs3OptCtxList = items; mPs3OptCtxSel = sel;
+    mPs3OptSel = 0;
+    mPs3OptActive = true; mPs3OptClosing = false; mPs3OptAnim = 0.0f; mPs3OptBlurValid = false;
+}
+
+void NanoMenu::closeXmbOpt() {
+    if (!mPs3OptActive) return;
+    mPs3OptClosing = true;
+    mPs3OptCloseAnim = (mPs3OptAnim > 0.02f ? mPs3OptAnim : 1.0f);
+    mPs3OptActive = false;
+}
+
+void NanoMenu::xmbOptMove(int dir) {
+    int n = (int)mPs3OptLabels.size();
+    if (n <= 0) return;
+    mPs3OptSel = (mPs3OptSel + (dir % n) + n) % n;
+}
+
+void NanoMenu::xmbOptEnter() {
+    if (mPs3OptSel < 0 || mPs3OptSel >= (int)mPs3OptActs.size()) return;
+    std::string act = mPs3OptActs[mPs3OptSel];
+    closeXmbOpt();
+    xmbOptAction(act);
+}
+
+void NanoMenu::xmbOptAction(const std::string& act) {
+    if (act == "info") {
+        // Fullscreen info page with the item's name + description (web openContentInfo
+        // fallback). Uses the dialog state, which is now free (the option menu closed).
+        mPs3DlgOptions.clear(); mPs3DlgSwatch.clear();
+        mPs3DlgKind = 0; mPs3DlgType = 0; mPs3DlgThemeKey = 0; mPs3DlgBinding = nullptr;
+        mPs3DlgIllust = 0; mPs3DlgNotice.clear();
+        mPs3DlgTitle = mPs3OptCtxLabel.empty() ? std::string("Information") : mPs3OptCtxLabel;
+        mPs3DlgBody  = mPs3OptCtxDesc.empty() ? std::string("No information is available.") : mPs3OptCtxDesc;
+        mPs3DlgSel = 0; mPs3DlgOrigSel = 0;
+        mPs3DlgIconTex = 0; mPs3DlgIconNmap = 0; mPs3DlgIconR = mPs3DlgIconG = mPs3DlgIconB = 1.0f;
+        mPs3DlgActive = true; mPs3DlgAnim = 0.0f; mPs3DlgBlurValid = false;
+        return;
+    }
+    if (act == "start") {
+        // Same as pressing Cross on the focused game/app.
+        if (mPs3OptCtxKind == PS3_ROM) {
+            mXmbSystemIndex = mPs3OptCtxA; mXmbGameIndex = mPs3OptCtxB; mSearchActive = false;
+            if (!isLaunchReady()) { showLaunchBusyToast(); return; }
+            if (mOverlayMode) { overlayLaunchGame(); return; }
+            launchXmbGame(); return;
+        }
+        if (mPs3OptCtxKind == PS3_RECENT) {
+            mXmbSystemIndex = -1; mXmbGameIndex = mPs3OptCtxA; mSearchActive = false;
+            if (!isLaunchReady()) { showLaunchBusyToast(); return; }
+            if (mOverlayMode) { overlayLaunchGame(); return; }
+            launchXmbGame(); return;
+        }
+        if (mPs3OptCtxKind == PS3_APP || mPs3OptCtxKind == PS3_LAUNCH_PKG) {
+            if (mPs3OptCtxPayload.empty()) return;
+            if (mOverlayMode) { overlayLaunchPackage(mPs3OptCtxPayload); return; }
+            if (!isLaunchReady()) { showLaunchBusyToast(); return; }
+            property_set("sys.gammaos.nano.launch_app", mPs3OptCtxPayload.c_str());
+            property_set("sys.gammaos.nano.launched_pkg", mPs3OptCtxPayload.c_str());
+            setLaunchRomPath("");
+            property_set("sys.gammaos.nano.launch_core", "");
+            property_set("persist.gammaos.nano.qr_prepared", "0");
+            property_set("persist.gammaos.nano.qr_core", "");
+            property_set("sys.gammaos.nano.return_apps", "1");
+            property_set("service.bootanim.nano_retroarch", "1");
+            property_set("sys.gammaos.nano.drop_input", "1");
+            mWaitForRelease = true;
+        }
+        return;
+    }
+    if (act == "playtrack") { openMusicPlayer(mPs3OptCtxList, mPs3OptCtxSel); return; }
+    if (act == "playalbum") {
+        std::vector<std::string> albums = musicAlbumNames();
+        if (mPs3OptCtxA >= 0 && mPs3OptCtxA < (int)albums.size()) {
+            Ps3Level lvl; buildMusicAlbumSubmenu(mPs3OptCtxA, lvl);
+            if (!lvl.items.empty()) openMusicPlayer(lvl.items, 0);
+        }
+        return;
+    }
+    if (act == "playpl") {
+        if (mPs3OptCtxA >= 0 && mPs3OptCtxA < (int)mMusicPlaylists.size()) {
+            Ps3Level lvl; buildMusicPlaylistSubmenu(mPs3OptCtxA, lvl);
+            if (!lvl.items.empty()) openMusicPlayer(lvl.items, 0);
+        }
+        return;
+    }
+}
+
+void NanoMenu::renderXmbOpt() {
+    if (!mPs3OptActive && !mPs3OptClosing) return;
+    setGlyphAtlasAA(true);
+    float dt = mFrameDt; if (dt < 0.0f) dt = 0.0f; if (dt > 0.1f) dt = 0.1f;
+    float ap;
+    if (mPs3OptActive) {
+        mPs3OptClosing = false;
+        mPs3OptAnim += (1.0f - mPs3OptAnim) * (1.0f - expf(-13.0f * dt));
+        if (mPs3OptAnim > 0.999f) mPs3OptAnim = 1.0f;
+        ap = mPs3OptAnim;
+    } else {
+        mPs3OptCloseAnim -= mPs3OptCloseAnim * (1.0f - expf(-13.0f * dt));
+        if (mPs3OptCloseAnim < 0.02f) { mPs3OptCloseAnim = 0.0f; mPs3OptClosing = false; mPs3OptBlurValid = false; return; }
+        ap = mPs3OptCloseAnim;
+    }
+    { ps3::LayoutParams lp; lp.panelW = mWidth; lp.panelH = mHeight; lp.uiScale = mPs3UiScale; ps3::layoutCompute(lp); }
+
+    const float fb = ps3DlgFontBoost();
+    const bool sp43 = ps3::LAYOUT_XC < 0.999f;
+    const float SP_PANEL_LEFT = ps3::XCP(sp43 ? 1056.0f : 1324.0f);
+    const float SP_TEXT_X     = ps3::XCP(sp43 ? 1100.0f : 1340.0f);
+    const float SP_ITEM_PITCH = 44.0f;
+    const float SP_LIST_TOP_Y = 470.0f;
+
+    float ease = ap * ap * (3.0f - 2.0f * ap);
+    float xShiftV = (1.0f - ease) * ps3::XCP(37.0f);
+
+    const float pLeftDev = ps3::devX(SP_PANEL_LEFT + xShiftV);
+    const float pWDev    = (float)mWidth - pLeftDev;
+    const float pTopDev  = ps3::gFrameY;
+    const float pHDev    = ps3::gFrameH;
+
+    // Frosted-glass backdrop behind the panel (only where the wave is the visible
+    // background, like the theme chooser).
+    const bool frost = !mOverlayMode || (mOverlayWallpaper && mCurrentEffect == 22);
+    if (frost) {
+        bool due = !mPs3OptBlurValid || (mEffectTime - mPs3OptBlurT) >= 0.0667f;
+        if (due && captureGlassFromWave()) { mPs3OptBlurValid = true; mPs3OptBlurT = mEffectTime; }
+        if (mPs3OptBlurValid)
+            drawFrostedGlass(pLeftDev, pTopDev, pWDev, pHDev, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, ap, /*waveSpace=*/true);
+    }
+    // Black scrim side panel: a smooth fade gradient, 50% black at its left edge to
+    // fully transparent at the screen's right edge - the SAME style as the theme /
+    // performance choosers (renderPs3Dialog kind 1), so the option menu matches the
+    // rest of nano's side panels (user request 2026-06-15).
+    const int kStrips = 64;
+    for (int s = 0; s < kStrips; s++) {
+        float u0 = (float)s / (float)kStrips, u1 = (float)(s + 1) / (float)kStrips;
+        float uc = 0.5f * (u0 + u1);
+        float al = (0.50f * (1.0f - uc)) * ap;
+        drawQuad(pLeftDev + pWDev * u0, pTopDev, pWDev * (u1 - u0), pHDev,
+                 0.0f, 0.0f, 0.0f, al);
+    }
+
+    float ss = ps3::devS(1.5f);
+    float so[2] = { sDrmRotMat[2] * ss, sDrmRotMat[3] * ss };
+    const float txDev = ps3::devX(SP_TEXT_X + xShiftV);
+    int n = (int)mPs3OptLabels.size();
+    for (int i = 0; i < n; i++) {
+        bool sel = (i == mPs3OptSel);
+        float cyDev = ps3::devY(SP_LIST_TOP_Y + (float)i * SP_ITEM_PITCH);
+        float fs = ps3::fontScale((sel ? 26.0f : 22.0f) * fb);
+        float ty = cyDev - 0.45f * ps3::emPx(fs);
+        const char* txt = trDyn(mPs3OptLabels[i].c_str());
+        float a2 = (sel ? 1.0f : 0.82f) * ap;
+        drawText(txt, txDev + so[0], ty + so[1], fs, 0.0f, 0.0f, 0.0f, 0.35f * ap);
+        drawText(txt, txDev, ty, fs, 1.0f, 1.0f, 1.0f, a2);
+        // START pill on the primary action row.
+        if (i < (int)mPs3OptStart.size() && mPs3OptStart[i]) {
+            float lblW = measureText(txt, fs);
+            float pfs = ps3::fontScale(13.0f * fb);
+            const char* pill = "START";
+            float pw = measureText(pill, pfs);
+            float padx = ps3::devS(8.0f), pady = ps3::devS(4.0f);
+            float px = txDev + lblW + ps3::devS(14.0f);
+            float ph = ps3::emPx(pfs) + pady * 2.0f;
+            float py = cyDev - ph * 0.5f;
+            drawQuad(px, py, pw + padx * 2.0f, ph, 1.0f, 1.0f, 1.0f, 0.22f * ap);
+            float pty = cyDev - 0.42f * ps3::emPx(pfs);
+            drawText(pill, px + padx, pty, pfs, 1.0f, 1.0f, 1.0f, 0.95f * ap);
+        }
+    }
 }
 
 void NanoMenu::renderPs3Dialog() {

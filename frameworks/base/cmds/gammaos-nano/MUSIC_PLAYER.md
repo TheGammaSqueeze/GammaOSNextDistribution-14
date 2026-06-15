@@ -337,3 +337,35 @@ mMpActive branches BEFORE the mPs3TzActive checks in each handler. mpFmtTime HH:
   the screen (compositeToScreen=mpWavesVis), bringing Waves in line with Canyon/Globe so
   the default visualizer is the morph over the app. Normal overlay (no player) is
   unchanged (wave stays offscreen, app shows scrimmed).
+
+## Metadata, file order, scan robustness (2026-06-15)
+
+- Real track tags: the Music library shows the actual ID3 / Vorbis / MP4 title, artist
+  and album instead of the filename / parent-folder fallback. The root cause of the old
+  fallback was a framework gap, not the scanner: the NDK `AMediaExtractor_getFileFormat`
+  (via `NuMediaExtractor::getFileFormat`) only copied the mime type and dropped every
+  container tag the extractor had already parsed. Fixed in libstagefright by calling
+  `convertMetaDataToMessageFromMappings` on the file metadata (the same helper the track
+  path uses), so title/artist/album/genre/year/cdtracknum and embedded album art come
+  through. NanoAudio::probe / readMetaFromExtractor already read those keys.
+- Re-probe on upgrade: nano_music.json carries a metadata-parser version
+  (`kMusicMetaVersion`, currently 2). When the stored version is older the scanner drops
+  its mtime cache for one pass and re-probes every file, so an existing library picks up
+  the real tags after the fix instead of keeping the stale filename data. saveMusicConfig
+  writes the current version.
+- File order: tracks inside an album keep their on-disk file order (sorted by path, e.g.
+  "01 - ...", "02 - ..."), not re-sorted by the parsed title. musicAlbumTrackIndices sorts
+  by `MusicTrack::file`.
+- Subtitle marquee: the Now-Playing artist/album line now marquee-bounces and clips to
+  the same band as the title (shared `marqueeOff` + `clipBand` lambdas in
+  renderMusicPlayer), so a long "artist / album" no longer runs across the seek bar and
+  time readout.
+- Add to Playlist chooser: the control-panel "Add to Playlist" opens an XMB-style chooser
+  (mMpPlChooser*: "New Playlist..." + existing playlists, default on the first existing)
+  instead of jumping straight to the OSK, mirroring the web mpOpenAddChooser.
+- Storage-ready scan gate: musicScanAsync defers (mMusicScanPending) until external
+  storage is mounted (sys.boot_completed + a configured folder is openable), retried each
+  frame from the main loop. The scan worker also refuses to publish an empty result when a
+  configured folder is unreadable, so a fast boot into Music can never wipe the saved
+  library. The Music Folders screen gains a "Refresh" row (PS3_MUSIC_REFRESH, icon 8) that
+  rescans on demand.

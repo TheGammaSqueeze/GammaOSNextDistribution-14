@@ -1020,6 +1020,34 @@ private:
     float  mPs3DlgSldStep = 1.0f;
     float  mPs3DlgSldVal  = 0.0f;
     int    mPs3DlgSldScale = 0;    // decimal places (0 = integer)
+    // ---- Home XMB option menu (Triangle / X) ----------------------------------
+    // The web optMenu context "sidebar": pressing Triangle on a focused item opens
+    // a small list of real per-item actions (Start, Play, Information). A separate
+    // modal from the theme chooser so an action like Information can open a dialog
+    // without colliding with its own state.
+    bool   mPs3OptActive = false;
+    bool   mPs3OptClosing = false;
+    float  mPs3OptAnim = 0.0f;
+    float  mPs3OptCloseAnim = 0.0f;
+    bool   mPs3OptBlurValid = false;
+    float  mPs3OptBlurT = 0.0f;
+    std::vector<std::string> mPs3OptLabels;   // row labels
+    std::vector<std::string> mPs3OptActs;     // parallel action ids
+    std::vector<char>        mPs3OptStart;    // parallel: 1 = draw a START pill
+    int    mPs3OptSel = 0;
+    // Snapshot of the item the menu was opened on (the column may not change while
+    // the modal is up, but snapshotting keeps the action self-contained).
+    int    mPs3OptCtxKind = 0;
+    int    mPs3OptCtxA = 0, mPs3OptCtxB = 0;
+    std::string mPs3OptCtxLabel, mPs3OptCtxPayload, mPs3OptCtxDesc;
+    std::vector<Ps3Item> mPs3OptCtxList;
+    int    mPs3OptCtxSel = 0;
+    void   openXmbOpt();          // build context rows + open (no-op if nothing useful)
+    void   closeXmbOpt();
+    void   xmbOptMove(int dir);
+    void   xmbOptEnter();         // activate the highlighted row
+    void   xmbOptAction(const std::string& act);
+    void   renderXmbOpt();
     // GammaEQ audio preview: a looping PCM clip played via AAudio so the equalizer
     // is audible while adjusting it (the FastMixer EQs the speaker mix). mEqPrevPcm
     // is interleaved int16 at mEqPrevRate/mEqPrevChans; the callback owns mEqPrevPos.

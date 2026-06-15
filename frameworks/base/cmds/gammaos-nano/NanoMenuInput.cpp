@@ -923,6 +923,7 @@ void NanoMenu::pollInput() {
             // visualizer (physical Square/BTN_WEST). No effect off Now-Playing.
             else if (!strcmp(navbuf, "tri")) {
                 if (mMpActive) { if (mMpCpOpen) closeMpOpt(); else openMpOpt(); }
+                else if (mPs3Xmb) { if (mPs3OptActive) closeXmbOpt(); else openXmbOpt(); }
             }
             else if (!strcmp(navbuf, "sq")) {
                 if (mMpActive && !mOskActive) mpCycleVis();
@@ -1212,16 +1213,10 @@ void NanoMenu::pollInput() {
                             } else {
                                 openOsk();
                             }
-                        } else {
-                            // Y: cycle wallpaper in list mode
-                            sActiveEffectIdx = (sActiveEffectIdx + 1) % kNumActiveEffects;
-                            mCurrentEffect = kActiveEffects[sActiveEffectIdx];
-                            if (mCurrentEffect >= 1 && mCurrentEffect <= 10) initEffects();
-                            mDisplayDirty = true;
-                            ALOGD("Effect: %d (%s)", mCurrentEffect, kEffectNames[mCurrentEffect]);
-                            { char buf[16]; snprintf(buf, sizeof(buf), "%d", mCurrentEffect);
-                              property_set("persist.gammaos.nano.wallpaper", buf); }
                         }
+                        // Home PS3 XMB: Y (Square) is otherwise unused now - the
+                        // wallpaper changer moved to Settings > Theme Settings >
+                        // Wallpaper, and per-item options live on Triangle/X.
                         break;
                     case BTN_NORTH: // X button (Nintendo layout: BTN_NORTH = X); PS3 Triangle in music
                         if (mOskActive) { oskBackspace(); break; }
@@ -1236,19 +1231,12 @@ void NanoMenu::pollInput() {
                                 gsToggleSystem(its[sel].a);
                             break;
                         }
-                        // X (Square) cycles the wallpaper in EVERY state, exactly like
-                        // the home XMB - including the in-game overlay. It never quits
-                        // the running game (quitting is the back-long-press clean exit);
-                        // quitting on X stranded the user with the app gone and no way
-                        // back. Falls through to the wallpaper cycle below.
-                        // X: cycle wallpaper/FX
-                        sActiveEffectIdx = (sActiveEffectIdx + 1) % kNumActiveEffects;
-                        mCurrentEffect = kActiveEffects[sActiveEffectIdx];
-                        if (mCurrentEffect >= 1 && mCurrentEffect <= 10) initEffects();
-                        mDisplayDirty = true;
-                        ALOGD("Effect: %d (%s)", mCurrentEffect, kEffectNames[mCurrentEffect]);
-                        { char buf[16]; snprintf(buf, sizeof(buf), "%d", mCurrentEffect);
-                          property_set("persist.gammaos.nano.wallpaper", buf); }
+                        // X acts as PS3 Triangle on the home XMB: open the per-item
+                        // option menu (Start / Play / Information). The wallpaper
+                        // changer it used to cycle moved to Settings > Theme Settings >
+                        // Wallpaper. openXmbOpt() self-guards (no-op over a live overlay
+                        // app or while another modal owns input).
+                        if (mPs3Xmb) { if (mPs3OptActive) closeXmbOpt(); else openXmbOpt(); }
                         break;
                     case BTN_TL: case KEY_L:
                         if (mOskActive) {

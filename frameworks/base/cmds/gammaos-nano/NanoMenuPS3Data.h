@@ -76,6 +76,7 @@ static const Ps3DataItem kThemeSettingsCh[] = {
   {"Theme",22,"Sets for use of a preset combination of elements such as colour, background or icons.",nullptr,1,nullptr,0},
   {"Colour",22,"Sets the colour of the background and options menu.",nullptr,1,nullptr,0},
   {"Background",22,"Sets the background of the XMB™ screen.",nullptr,1,nullptr,0},
+  {"Wallpaper",22,"Sets the moving background effect (wave, particles and others) shown behind the XMB™ screen.",nullptr,1,nullptr,0},
   {"Font",22,"Sets the font displayed on the XMB™ screen.",nullptr,1,nullptr,0},
   {"Day/Night",22,"Sets the time-of-day lighting (day, dusk, night or automatic).",nullptr,1,nullptr,0},
 };
