@@ -34,6 +34,7 @@
 #include <fcntl.h>
 #include <cerrno>
 #include <unistd.h>
+#include <cutils/properties.h>   // property_get for the storage-ready gate
 #include <sys/stat.h>
 #include <string.h>
 #include <strings.h>
@@ -109,6 +110,8 @@ bool NanoMenu::loadMusicConfig() {
     mMusicTracks.clear();
     mMusicPlaylists.clear();
 
+    mMusicCfgVersion = root.find("version") ? (int)root.find("version")->asNumber(0) : 0;
+
     if (const njson::Value* folders = root.find("folders"); folders && folders->isArray())
         for (const auto& f : folders->arr) if (f.isString()) mMusicFolders.push_back(f.str);
 
@@ -145,7 +148,7 @@ bool NanoMenu::loadMusicConfig() {
 
 void NanoMenu::saveMusicConfig() {
     njson::Value root = njson::Value::makeObject();
-    root.set("version") = njson::Value::makeNumber(1);
+    root.set("version") = njson::Value::makeNumber(kMusicMetaVersion);
     njson::Value folders = njson::Value::makeArray();
     for (const auto& f : mMusicFolders) folders.arr.push_back(njson::Value::makeString(f));
     root.set("folders") = std::move(folders);
@@ -190,6 +193,7 @@ void NanoMenu::saveMusicConfig() {
     if (rename(tmp, path) != 0) { unlink(tmp); return; }
     (void)chown(path, 0, 0);
     (void)chmod(path, 0644);
+    mMusicCfgVersion = kMusicMetaVersion;   // on-disk now matches the current parser
     mMusicCfgStamp = musicConfigStamp();
     ALOGD("NanoMenu: wrote nano_music.json (%zu tracks)", mMusicTracks.size());
 }
@@ -249,22 +253,73 @@ static void scanDirRecursive(const std::string& dir,
     for (const auto& s : subdirs) scanDirRecursive(s, outFiles, depth + 1);
 }
 
+// True when the imported music folders are actually reachable. External storage
+// (FUSE /storage/emulated/0) is not mounted at early boot, so a scan kicked before
+// it is ready would see an empty tree and could wipe the saved library. We wait
+// for boot completion AND at least one configured folder to be openable.
+bool NanoMenu::musicStorageReady() const {
+    if (mMusicFolders.empty()) return true;   // nothing to scan; trivially ready
+    char bc[PROPERTY_VALUE_MAX] = {0};
+    property_get("sys.boot_completed", bc, "0");
+    if (bc[0] != '1') return false;
+    for (const auto& f : mMusicFolders) {
+        DIR* d = opendir(f.c_str());
+        if (d) { closedir(d); return true; }
+    }
+    return false;
+}
+
 void NanoMenu::musicScanAsync() {
     if (mMusicScanRunning) return;
+    if (!musicStorageReady()) {   // defer until external storage mounts (retried each frame)
+        mMusicScanPending = true;
+        ALOGI("NanoMenu: music scan deferred (storage not ready yet)");
+        return;
+    }
+    mMusicScanPending = false;
     mMusicScanRunning = true;
     std::thread(&NanoMenu::musicScanThreadFunc, this).detach();
+}
+
+// User-triggered rescan (the Refresh row in the Music Folders screen).
+void NanoMenu::musicRefresh() {
+    musicEnsureLoaded();
+    musicScanAsync();
+    if (!mPs3Stack.empty() && mPs3Stack.back().screenKind == MUSIC_FOLDER)
+        buildMusicFoldersScreen(mPs3Stack.back());
 }
 
 void NanoMenu::musicScanThreadFunc() {
     // Snapshot the inputs so the worker never races the render thread.
     std::vector<std::string> folders = mMusicFolders;
-    // mtime cache: path -> existing track (carry metadata over if unchanged).
+    // mtime cache: path -> existing track (carry metadata over if unchanged). When
+    // the on-disk library predates the current metadata-parser version, drop the
+    // cache so every track re-probes once and picks up the real container tags.
+    bool forceReprobe = (mMusicCfgVersion < kMusicMetaVersion);
     std::vector<MusicTrack> cacheVec = mMusicTracks;
     std::map<std::string, const MusicTrack*> cache;
-    for (const auto& t : cacheVec) cache[t.file] = &t;
+    if (!forceReprobe) for (const auto& t : cacheVec) cache[t.file] = &t;
 
     std::vector<std::string> files;
     for (const auto& f : folders) scanDirRecursive(f, files, 0);
+    // Storage-not-ready guard: if we found nothing but a configured folder is not
+    // even openable (its volume is not mounted yet), do NOT publish - that would
+    // wipe a previously-scanned library. Bail and let the UI retry once storage
+    // mounts. A genuinely empty (but mounted+openable) folder still publishes.
+    if (files.empty() && !folders.empty()) {
+        bool anyUnreadable = false;
+        for (const auto& f : folders) {
+            DIR* d = opendir(f.c_str());
+            if (!d) anyUnreadable = true; else closedir(d);
+        }
+        if (anyUnreadable) {
+            mMusicScanRunning = false;
+            mMusicScanPending = true;
+            ALOGW("NanoMenu: music scan found no files and a folder is unreadable; "
+                  "deferring instead of wiping the library (storage not ready)");
+            return;
+        }
+    }
     // Dedup absolute paths.
     std::sort(files.begin(), files.end());
     files.erase(std::unique(files.begin(), files.end()), files.end());
@@ -334,10 +389,12 @@ std::vector<int> NanoMenu::musicAlbumTrackIndices(const std::string& album) cons
     std::vector<int> idx;
     for (size_t i = 0; i < mMusicTracks.size(); i++)
         if (mMusicTracks[i].album == album) idx.push_back((int)i);
+    // Keep tracks in FILE order (sort by path, the order the files appear on disk -
+    // e.g. "01 - ...", "02 - ...") rather than re-sorting by the parsed tag title.
+    // The displayed text comes from the metadata tags; only the ordering stays
+    // as-is on disk (user 2026-06-15).
     std::sort(idx.begin(), idx.end(), [this](int a, int b){
-        const MusicTrack& ta = mMusicTracks[a]; const MusicTrack& tb = mMusicTracks[b];
-        if (ta.trackNo != tb.trackNo && ta.trackNo && tb.trackNo) return ta.trackNo < tb.trackNo;
-        return strcasecmp(ta.title.c_str(), tb.title.c_str()) < 0;
+        return strcasecmp(mMusicTracks[a].file.c_str(), mMusicTracks[b].file.c_str()) < 0;
     });
     return idx;
 }
@@ -412,6 +469,11 @@ void NanoMenu::buildMusicFoldersScreen(Ps3Level& out) {
     out.items.clear(); out.sel = 0; out.title = "Music Folders"; out.screenKind = MUSIC_FOLDER;
     { Ps3Item it; it.label = "Add Folder..."; it.kind = PS3_GS_ADDFOLDER;
       it.iconTex = 0; it.nmapTex = nmapForIcon(50); it.iconR = it.iconG = it.iconB = 1.0f;
+      out.items.push_back(it); }
+    { Ps3Item it; it.label = mMusicScanRunning ? "Refreshing..." : "Refresh";
+      it.kind = PS3_MUSIC_REFRESH;
+      it.value = mMusicScanRunning ? "" : "Rescan music folders";
+      it.iconTex = 0; it.nmapTex = nmapForIcon(8); it.iconR = it.iconG = it.iconB = 1.0f;
       out.items.push_back(it); }
     for (size_t i = 0; i < mMusicFolders.size(); i++) {
         int cnt = 0;
@@ -820,15 +882,18 @@ void NanoMenu::renderMusicPlayer() {
     // the title never runs into it.
     float clX = DXP(mpUi > 1.2f ? 0.62f : 0.738f), clEnd = DXP(0.940f);
 
-    // title (marquee bounce when too wide) clipped to the left of the info cluster
+    // The title AND the artist/album subtitle both clip to the band LEFT of the
+    // right info-cluster and MARQUEE-BOUNCE (smooth ping-pong) when wider than it,
+    // so neither spills into the time/codec/seek cluster (user: the subtitle was
+    // overlapping the seek bar with real, long metadata). 1:1 with the web title
+    // marquee, now applied to both lines.
     float titleRight = mMpFullInfo ? (clX - DXD(0.015f)) : DXP(0.955f);
-    float titleScale = FSZ(32.0f * mpUi);
-    float titleW = measureText(t.title.c_str(), titleScale);
-    float titleMaxW = titleRight - tx;
-    float toff = 0.0f;
-    if (titleW > titleMaxW && titleMaxW > 0) {
-        float over = titleW - titleMaxW;
-        const float HOLD = 1100.0f, SPEED = 55.0f;   // ms, virtual px/s
+    float bandW = titleRight - tx;
+    // Smooth ping-pong offset for text wider than maxW (web HOLD/SPEED easing).
+    auto marqueeOff = [&](float w, float maxW) -> float {
+        if (w <= maxW || maxW <= 0) return 0.0f;
+        float over = w - maxW;
+        const float HOLD = 1100.0f, SPEED = 55.0f;   // ms hold at each end, virtual px/s
         float scrollT = fmaxf(350.0f, over / fmaxf(1.0f, ps3::devS(SPEED * mpUi)) * 1000.0f);
         float cyc = HOLD + scrollT + HOLD + scrollT;
         float tt = fmodf(mEffectTime * 1000.0f, cyc);
@@ -837,12 +902,12 @@ void NanoMenu::renderMusicPlayer() {
         else if (tt < HOLD + scrollT) { float u = (tt - HOLD) / scrollT; p = u * u * (3 - 2 * u); }
         else if (tt < HOLD + scrollT + HOLD) p = 1.0f;
         else { float u = (tt - HOLD - scrollT - HOLD) / scrollT; p = 1.0f - u * u * (3 - 2 * u); }
-        toff = over * p;
-    }
-    // Clip the title to its band (the web ctx.clip) so the marquee's hold-at-start
-    // never spills into the info cluster / codec badge. Rotation-aware glScissor.
-    {
-        int lx = (int)tx, ly = 0, lw = (int)(titleRight - tx), lh = (int)mHeight;
+        return over * p;
+    };
+    // Rotation-aware horizontal clip band [bx, bx+bw] over the full screen height
+    // (the web ctx.clip), so a marquee's hold-at-start never spills past the band.
+    auto clipBand = [&](float bx, float bw) {
+        int lx = (int)bx, ly = 0, lw = (int)bw, lh = (int)mHeight;
         if (lw < 0) lw = 0;
         int sx, sy, sw, sh;
         switch (sDrmGlRotation ? sDrmRotationDeg : 0) {
@@ -852,15 +917,24 @@ void NanoMenu::renderMusicPlayer() {
         default:  sx = lx; sy = ly; sw = lw; sh = lh; break;
         }
         glEnable(GL_SCISSOR_TEST); glScissor(sx, sy, sw, sh);
-    }
+    };
+
+    // title (marquee bounce when too wide), clipped to the band
+    float titleScale = FSZ(32.0f * mpUi);
+    float toff = marqueeOff(measureText(t.title.c_str(), titleScale), bandW);
+    clipBand(tx, bandW);
     drawText(t.title.c_str(), tx - toff, ps3::baselineToTopY(titleBaseY, titleScale),
              titleScale, 1.0f, 1.0f, 1.0f, 0.95f * enter);
     glDisable(GL_SCISSOR_TEST);
-    // artist / album (70%)
+
+    // artist / album (70%) - same marquee + clip so it never overlaps the seek bar
     std::string sub = (t.artist.empty() ? "-" : t.artist) + " / " + (t.album.empty() ? "-" : t.album);
     float subScale = FSZ(19.0f * mpUi);
-    drawText(sub.c_str(), tx, ps3::baselineToTopY(artistBaseY, subScale),
+    float soff = marqueeOff(measureText(sub.c_str(), subScale), bandW);
+    clipBand(tx, bandW);
+    drawText(sub.c_str(), tx - soff, ps3::baselineToTopY(artistBaseY, subScale),
              subScale, 1.0f, 1.0f, 1.0f, 0.70f * enter);
+    glDisable(GL_SCISSOR_TEST);
 
     // full-info cluster: counter + codec on a top line, elapsed (left) and total
     // (right) flanking a full-width seek bar - the HH:MM:SS strings never collide
@@ -928,6 +1002,8 @@ void NanoMenu::renderMusicPlayer() {
         float ms = FSZ(28.0f * mpUi); float mw = measureText(mMpMsg.c_str(), ms);
         drawText(mMpMsg.c_str(), (mWidth - mw) * 0.5f, TOPY(0.5f, 28.0f * mpUi), ms, 1.0f, 1.0f, 1.0f, fade);
     }
+    // Add-to-Playlist chooser modal (drawn on top of everything in the player).
+    if (mMpPlChooserActive || mMpPlChooserAnim > 0.004f) drawMpPlChooser();
     mTextOutlineMode = 0;
 }
 
@@ -1128,12 +1204,98 @@ void NanoMenu::mpOptActivate() {
     else if (!strcmp(a, "disp")) { mMpFullInfo = !mMpFullInfo; }
     else if (!strcmp(a, "del")) { mpShowMsg("Deleting...", 800.0f, 1); }
     else if (!strcmp(a, "addpl")) {
-        int ti = (mMpIdx >= 0 && mMpIdx < (int)mMpQueue.size()) ? mMpQueue[mMpIdx] : -1;
-        std::string file = (ti >= 0 && ti < (int)mMusicTracks.size()) ? mMusicTracks[ti].file : "";
+        // Web mpOpenAddChooser: present an XMB-style chooser to add to an existing
+        // playlist or create a new one (rather than jumping straight to the OSK).
+        mpOpenAddChooser();
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Add-to-Playlist chooser (player) - mirrors web mpOpenAddChooser (index.html
+// 10865): a modal list of "New Playlist..." + the existing playlists, over the
+// Now-Playing screen. Select 0 opens the name OSK + creates; select i adds to the
+// existing playlist i-1.
+// ---------------------------------------------------------------------------
+void NanoMenu::mpOpenAddChooser() {
+    int ti = (mMpIdx >= 0 && mMpIdx < (int)mMpQueue.size()) ? mMpQueue[mMpIdx] : -1;
+    if (ti < 0 || ti >= (int)mMusicTracks.size()) return;
+    mMpPlChooserTrack = ti;
+    mMpPlChooserOpts.clear();
+    mMpPlChooserOpts.push_back("New Playlist...");
+    for (const auto& pl : mMusicPlaylists) mMpPlChooserOpts.push_back(pl.name);
+    mMpPlChooserSel = mMusicPlaylists.empty() ? 0 : 1;   // default to the first existing (web)
+    mMpPlChooserAnim = 0.0f;
+    mMpPlChooserActive = true;
+    closeMpOpt();   // close the control panel behind the chooser (web pv.panel=false)
+}
+
+void NanoMenu::mpPlChooserMove(int dir) {
+    int n = (int)mMpPlChooserOpts.size();
+    if (n <= 0) return;
+    mMpPlChooserSel = (mMpPlChooserSel + dir % n + n) % n;
+}
+
+void NanoMenu::mpPlChooserCancel() { mMpPlChooserActive = false; }
+
+void NanoMenu::mpPlChooserSelect() {
+    int sel = mMpPlChooserSel, ti = mMpPlChooserTrack;
+    std::string file = (ti >= 0 && ti < (int)mMusicTracks.size()) ? mMusicTracks[ti].file : "";
+    mMpPlChooserActive = false;
+    if (file.empty()) return;
+    if (sel == 0) {
         openOskForPassword("Enter a name for the playlist",
             [this, file](const std::string& nm){ musicCreatePlaylist(nm);
                 if (!file.empty()) musicAddTrackToPlaylist((int)mMusicPlaylists.size() - 1, file); });
+    } else {
+        int pl = sel - 1;
+        if (pl >= 0 && pl < (int)mMusicPlaylists.size()) {
+            musicAddTrackToPlaylist(pl, file);
+            mpShowMsg("Added to playlist", 800.0f, 0);
+        }
     }
+}
+
+// Centered modal list over the Now-Playing screen: title + "New Playlist..." + the
+// existing playlists, the highlighted one with a blue bar.
+void NanoMenu::drawMpPlChooser() {
+    float target = mMpPlChooserActive ? 1.0f : 0.0f;
+    float dt = (mFrameDt > 0.0f && mFrameDt < 0.2f) ? mFrameDt : 0.016f;
+    mMpPlChooserAnim += (target - mMpPlChooserAnim) * fminf(1.0f, dt * 12.0f);
+    float a = mMpPlChooserAnim;
+    if (a <= 0.004f) return;
+    int n = (int)mMpPlChooserOpts.size();
+    if (n <= 0) return;
+    float ui = ((mWidth < mHeight ? mWidth : mHeight) <= 768) ? 1.5f : 1.0f;
+    mTextOutlineMode = 1;
+    // dim backdrop
+    drawQuad(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f, 0.0f, 0.0f, 0.55f * a);
+    float rowH   = SZ(0.052f * ui);
+    float titleH = SZ(0.072f * ui);
+    float padX   = DXD(0.018f);
+    float panelW = DXD(0.44f);
+    float panelH = titleH + (float)n * rowH + SZ(0.026f);
+    float px = DXP(0.5f) - panelW * 0.5f;
+    float py = DYP(0.5f) - panelH * 0.5f;
+    drawQuad(px, py, panelW, panelH, 0.10f, 0.12f, 0.16f, 0.92f * a);
+    float ts = FSZ(24.0f * ui);
+    drawText("Add to Playlist", px + padX, ps3::baselineToTopY(py + titleH * 0.62f, ts),
+             ts, 1.0f, 1.0f, 1.0f, 0.95f * a);
+    drawQuad(px + padX, py + titleH - SZ(0.004f), panelW - 2.0f * padX,
+             fmaxf(1.0f, SZ(0.0015f)), 1.0f, 1.0f, 1.0f, 0.25f * a);
+    float os = FSZ(19.0f * ui);
+    float ry = py + titleH + SZ(0.006f);
+    for (int i = 0; i < n; i++) {
+        bool seld = (i == mMpPlChooserSel);
+        if (seld)
+            drawQuad(px + SZ(0.006f), ry, panelW - SZ(0.012f), rowH,
+                     0.30f, 0.52f, 0.96f, 0.55f * a);
+        float c = seld ? 1.0f : 0.85f;
+        drawText(mMpPlChooserOpts[i].c_str(), px + padX,
+                 ps3::baselineToTopY(ry + rowH * 0.64f, os), os,
+                 c, c, c, (seld ? 1.0f : 0.80f) * a);
+        ry += rowH;
+    }
+    mTextOutlineMode = 0;
 }
 
 } // namespace android

@@ -934,6 +934,7 @@ private:
         PS3_MUSIC_PLAYLIST, // a playlist -> its track submenu (a = playlist idx)
         PS3_MUSIC_PL_NEW,   // "Create New Playlist" row (OSK name)
         PS3_MUSIC_FOLDER_ROW,// a configured music scan-folder row (a = mMusicFolders idx; Y removes)
+        PS3_MUSIC_REFRESH,  // "Refresh" row in the music folders screen -> rescan the library
     };
     // Game Systems editor screen kinds (Ps3Level.screenKind). Used to route the
     // X / L1 / R1 / Y buttons contextually while a GS screen is on the nav stack.
@@ -1333,6 +1334,11 @@ private:
     std::vector<MusicTrack>  mMusicTracks;
     std::vector<MusicPlaylist> mMusicPlaylists;
     int64_t mMusicCfgStamp = -1;           // mtime of nano_music.json (cross-process reload)
+    // Metadata-parser schema version. Bumped whenever the way we read tags changes
+    // so an existing library (mtime-cached) re-probes instead of keeping stale data.
+    // v2: read real container tags (title/artist/album) via the fixed getFileFormat.
+    static const int kMusicMetaVersion = 2;
+    int mMusicCfgVersion = 0;              // version found in nano_music.json (0 = none)
     bool mMusicLoaded = false;             // library parsed once (lazy, first Music entry)
     bool mMusicCatsStale = false;          // a scan finished -> rebuild the Music column at root
     // scan worker
@@ -1340,6 +1346,9 @@ private:
     std::vector<MusicTrack> mMusicScanResults;
     bool mMusicScanReady = false;
     bool mMusicScanRunning = false;
+    bool mMusicScanPending = false;        // scan deferred until external storage is mounted
+    bool musicStorageReady() const;        // true when the imported folders are reachable
+    void musicRefresh();                   // user-triggered rescan of the imported folders
     // persistence + lazy load
     int64_t musicConfigStamp() const;
     bool loadMusicConfig();
@@ -1466,6 +1475,18 @@ private:
     void drawMpStatusRow(float ax, float fade);   // play-state/transport/repeat/shuffle row
     void mpShowMsg(const std::string& text, float durMs, int then);
     void mpCycleVis();                // SQUARE: 0<->1 visualizer toggle + banner
+    // Add-to-Playlist chooser (player): an XMB-style modal list to add the current
+    // track to an existing playlist or create a new one (web mpOpenAddChooser).
+    bool mMpPlChooserActive = false;
+    std::vector<std::string> mMpPlChooserOpts;   // "New Playlist..." + existing names
+    int   mMpPlChooserSel = 0;
+    int   mMpPlChooserTrack = -1;                // track index being added
+    float mMpPlChooserAnim = 0.0f;               // open fade
+    void mpOpenAddChooser();          // build + open the chooser for the current track
+    void mpPlChooserMove(int dir);    // up/down through the options
+    void mpPlChooserSelect();         // commit the highlighted option
+    void mpPlChooserCancel();         // dismiss without adding
+    void drawMpPlChooser();           // render the modal list
 
     std::vector<Ps3Item>& ps3CurItems();   // current visible item list (top or submenu)
     int& ps3CurSel();

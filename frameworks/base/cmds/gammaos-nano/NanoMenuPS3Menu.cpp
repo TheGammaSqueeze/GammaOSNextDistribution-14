@@ -1031,7 +1031,8 @@ void NanoMenu::ps3DlgNav(int dir, bool horizontal) {
 }
 
 void NanoMenu::ps3XmbLeft() {
-    if (mMpActive) {   // panel grid nav, or scrub back 5s with no panel (hold = continuous; debounced commit)
+    if (mMpActive) {   // chooser ignores L/R; panel grid nav, or scrub back 5s with no panel
+        if (mMpPlChooserActive) return;
         if (mMpCpOpen) mpOptMove(-1, 0);
         else { double base = mMpSeekPending ? mMpSeekTarget : mMusicPlayer.position();
                double p = base - 5.0; if (p < 0.0) p = 0.0;
@@ -1059,6 +1060,7 @@ void NanoMenu::ps3XmbLeft() {
 
 void NanoMenu::ps3XmbRight() {
     if (mMpActive) {   // panel grid nav, or scrub fwd 5s with no panel (hold = continuous; debounced commit)
+        if (mMpPlChooserActive) return;
         if (mMpCpOpen) mpOptMove(+1, 0);
         else { double base = mMpSeekPending ? mMpSeekTarget : mMusicPlayer.position();
                double d = mMusicPlayer.duration(); double np = base + 5.0;
@@ -1086,7 +1088,8 @@ void NanoMenu::ps3XmbRight() {
 }
 
 void NanoMenu::ps3XmbUp() {
-    if (mMpActive) { if (mMpCpOpen) mpOptMove(0, +1); return; }   // panel grid nav (screen-up = grid-up)
+    if (mMpActive) { if (mMpPlChooserActive) { mpPlChooserMove(-1); return; }
+                     if (mMpCpOpen) mpOptMove(0, +1); return; }   // panel grid nav (screen-up = grid-up)
     if (ps3TopScreenKind() == GS_ICONGRID) { iconGridNav(0, -1); return; }
     if (mPs3BrightSlider) { mPs3BrightSlider = false; mShowBrightnessBar = false; mBrightnessBarTimer = 0; return; }
     if (mPs3TzActive) { tzGlobeNav(-1); return; }
@@ -1097,7 +1100,8 @@ void NanoMenu::ps3XmbUp() {
     if (s > 0) { mPs3ItemAnimFrom = mPs3AnimItem; mPs3ItemAnimStart = mEffectTime; s--; }
 }
 void NanoMenu::ps3XmbDown() {
-    if (mMpActive) { if (mMpCpOpen) mpOptMove(0, -1); return; }   // panel grid nav (screen-down = grid-down)
+    if (mMpActive) { if (mMpPlChooserActive) { mpPlChooserMove(+1); return; }
+                     if (mMpCpOpen) mpOptMove(0, -1); return; }   // panel grid nav (screen-down = grid-down)
     if (ps3TopScreenKind() == GS_ICONGRID) { iconGridNav(0, +1); return; }
     if (mPs3BrightSlider) { mPs3BrightSlider = false; mShowBrightnessBar = false; mBrightnessBarTimer = 0; return; }
     if (mPs3TzActive) { tzGlobeNav(+1); return; }
@@ -1109,7 +1113,8 @@ void NanoMenu::ps3XmbDown() {
 }
 
 void NanoMenu::ps3XmbSelect() {
-    if (mMpActive) {   // X: activate the focused panel control, or toggle play/pause with no panel up
+    if (mMpActive) {   // X: chooser select, panel control, or toggle play/pause with no panel up
+        if (mMpPlChooserActive) { mpPlChooserSelect(); return; }
         if (mMpCpOpen) mpOptActivate();
         else mpAudioCmd(mMusicPlayer.isPlaying() ? MpAudioCmd::Pause : MpAudioCmd::Play);
         return;
@@ -1166,6 +1171,10 @@ void NanoMenu::ps3XmbSelect() {
             return;
         }
         case PS3_GS_ADD:       { gsAddSystem(); return; }   // emulator picker in add mode (self-animates)
+        case PS3_MUSIC_REFRESH: {   // rescan the imported music folders on demand
+            musicRefresh();
+            return;
+        }
         case PS3_GS_ADDFOLDER: {   // open the raw-path folder browser (storage roots)
             std::vector<Ps3Item> ps = ps3CurItems(); int pSel = ps3CurSel();
             Ps3Level lvl; buildFolderBrowser("", lvl); mPs3Stack.push_back(lvl);
@@ -1338,7 +1347,8 @@ void NanoMenu::ps3XmbSelect() {
 }
 
 void NanoMenu::ps3XmbBack() {
-    if (mMpActive) { if (mMpCpOpen) mpOptBack(); else minimizeMusicPlayer(); return; }   // O: panel back / minimize (audio keeps playing)
+    if (mMpActive) { if (mMpPlChooserActive) { mpPlChooserCancel(); return; }
+                     if (mMpCpOpen) mpOptBack(); else minimizeMusicPlayer(); return; }   // O: chooser cancel / panel back / minimize (audio keeps playing)
     if (ps3TopScreenKind() == GS_ICONGRID) { closeIconGridPicker(); mPs3Stack.pop_back(); return; }
     if (mPs3BrightSlider) { mPs3BrightSlider = false; mShowBrightnessBar = false; mBrightnessBarTimer = 0; return; }  // O dismisses the brightness slider
     if (mPs3TzActive) { closeTimezoneGlobe(false); return; }   // O: cancel (keep current zone)

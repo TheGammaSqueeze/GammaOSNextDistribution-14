@@ -3853,6 +3853,10 @@ if (sRingPrimedCount >= 2) {
                     // nano_music.json if the OTHER nano process edited it. Both set
                     // mMusicCatsStale so the Music column rebuilds below.
                     musicDrainScanResults();
+                    // A scan deferred because external storage was not mounted yet
+                    // retries here once the volume becomes reachable.
+                    if (mMusicScanPending && !mMusicScanRunning && musicStorageReady())
+                        musicScanAsync();
                     if (mMusicLoaded && !mMusicScanRunning
                         && musicConfigStamp() != mMusicCfgStamp) {
                         loadMusicConfig();
