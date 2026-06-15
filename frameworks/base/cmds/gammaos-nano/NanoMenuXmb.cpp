@@ -1307,7 +1307,7 @@ void NanoMenu::handleLeft() {
     }
     if (mMenuState == MENU_WIFI || mMenuState == MENU_BT) return;
     if (mMenuState == MENU_SETTINGS) { handleSettingsTreeLeft(); return; }
-    if (mPs3Xmb) { ps3XmbLeft(); return; }
+    if (mPs3Xmb || mPs3WizActive) { ps3XmbLeft(); return; }   // mPs3WizActive: setup-wizard net/BT step
     if (!mXmbMode) return;
     if (mSearchActive) return;
     int next = mXmbSystemIndex - 1;
@@ -1332,7 +1332,7 @@ void NanoMenu::handleRight() {
     }
     if (mMenuState == MENU_WIFI || mMenuState == MENU_BT) return;
     if (mMenuState == MENU_SETTINGS) { handleSettingsTreeRight(); return; }
-    if (mPs3Xmb) { ps3XmbRight(); return; }
+    if (mPs3Xmb || mPs3WizActive) { ps3XmbRight(); return; }   // mPs3WizActive: setup-wizard net/BT step
     if (!mXmbMode) return;
     if (mSearchActive) return;
     int numSys = (int)mXmbSystems.size();

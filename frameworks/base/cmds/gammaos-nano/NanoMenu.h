@@ -27,6 +27,8 @@
 #include <atomic>
 #include <mutex>
 #include <thread>
+#include <deque>
+#include <condition_variable>
 
 #include "NanoMenuSettingsTree.h"
 #include "NanoOsk.h"
@@ -1388,7 +1390,30 @@ private:
     void musicTick();                  // per-frame: auto-advance on EOS + fades
 
     // Now-Playing fullscreen render + control panel (1:1 web drawMusicPlayer / MP_CP).
-    bool mMpFullInfo = false;          // Display toggle (counter/time/codec/seek cluster)
+    bool mMpFullInfo = true;           // Display toggle (counter/time/codec/seek cluster); shown by default
+    // Coalesced (debounced) seek for Left/Right scrub: pressing only updates a target
+    // + previews it; the heavy NanoAudio::seek() (it joins+restarts the decoder) is
+    // committed once after input settles, so rapid/held scrubbing never blocks the
+    // render thread (which would trip the watchdog).
+    bool   mMpSeekPending = false;
+    double mMpSeekTarget = 0.0;        // desired position (seconds) while scrubbing
+    float  mMpSeekInputT = 0.0f;       // mEffectTime of the last scrub press
+    // Async audio-control worker: NanoAudio control ops (play/pause/stop/seek/open)
+    // can block on the audio server / codec; running them on the render thread risks
+    // a watchdog abort or a hang. The render thread enqueues a command (cheap) and a
+    // dedicated worker executes the blocking op, so the render loop never stalls.
+    enum class MpAudioCmd { Play, Pause, Stop, Seek, OpenPlay, Release };
+    struct MpAudioReq { MpAudioCmd cmd; double arg; std::string path; };
+    std::mutex mMpAudioMutex;
+    std::condition_variable mMpAudioCv;
+    std::deque<MpAudioReq> mMpAudioQueue;
+    bool mMpAudioStarted = false;
+    void mpAudioCmd(MpAudioCmd cmd, double arg = 0.0, const std::string& path = std::string());
+    void mpAudioWorker();
+    // True while an auto-advance OpenPlay is in flight. Since open() is async now,
+    // ended() stays true until the worker loads the next track; without this the
+    // per-frame auto-advance would fire repeatedly and skip tracks.
+    bool mMpAdvancing = false;
     int  mMpVolLevel = 0;              // -4..+4 (web volLevel); maps to (lvl+4)/8 gain
     float mMpEnterT = 0.0f;            // player-presence fade 0..1 (bar fades in)
     float mMpFullInfoT = 0.0f;         // full-info cluster fade 0..1

@@ -564,14 +564,15 @@ void NanoMenu::buildPs3Cats() {
         mPs3Cats.push_back(c);
     }
 
-    // Music library: prepend the scanned album folders ahead of the firmware
-    // "Search for Media Servers" / "Playlists" items (mirrors the Game prepend).
-    // Only when the library is loaded (lazy); empty until the user imports a folder.
+    // Music library: append the scanned album folders BELOW the firmware
+    // "Search for Media Servers" / "Playlists" items (user request: folders at the
+    // bottom, not the top). Only when the library is loaded (lazy); empty until the
+    // user imports a folder.
     if (musicCatRuntimeIdx >= 0 && mMusicLoaded && !mMusicTracks.empty()) {
         std::vector<Ps3Item> albums;
         buildMusicColumnItems(albums);
         Ps3Cat& music = mPs3Cats[musicCatRuntimeIdx];
-        music.items.insert(music.items.begin(), albums.begin(), albums.end());
+        music.items.insert(music.items.end(), albums.begin(), albums.end());
     }
 
     // The ONLY nano addition: the emulator consoles / Recently Played / Apps go
@@ -1030,7 +1031,13 @@ void NanoMenu::ps3DlgNav(int dir, bool horizontal) {
 }
 
 void NanoMenu::ps3XmbLeft() {
-    if (mMpActive) { if (mMpCpOpen) mpOptMove(-1, 0); return; }   // panel grid nav (left)
+    if (mMpActive) {   // panel grid nav, or scrub back 5s with no panel (hold = continuous; debounced commit)
+        if (mMpCpOpen) mpOptMove(-1, 0);
+        else { double base = mMpSeekPending ? mMpSeekTarget : mMusicPlayer.position();
+               double p = base - 5.0; if (p < 0.0) p = 0.0;
+               mMpSeekTarget = p; mMpSeekPending = true; mMpSeekInputT = mEffectTime; }
+        return;
+    }
     if (ps3TopScreenKind() == GS_ICONGRID) { iconGridNav(-1, 0); return; }
     if (mPs3BrightSlider) { adjustBrightness(-1); return; }   // Quick Menu brightness slider modal
     if (mPs3TzActive) return;   // tzglobe list is vertical only
@@ -1051,7 +1058,14 @@ void NanoMenu::ps3XmbLeft() {
 }
 
 void NanoMenu::ps3XmbRight() {
-    if (mMpActive) { if (mMpCpOpen) mpOptMove(+1, 0); return; }   // panel grid nav (right)
+    if (mMpActive) {   // panel grid nav, or scrub fwd 5s with no panel (hold = continuous; debounced commit)
+        if (mMpCpOpen) mpOptMove(+1, 0);
+        else { double base = mMpSeekPending ? mMpSeekTarget : mMusicPlayer.position();
+               double d = mMusicPlayer.duration(); double np = base + 5.0;
+               if (d > 0.0 && np > d) np = d;
+               mMpSeekTarget = np; mMpSeekPending = true; mMpSeekInputT = mEffectTime; }
+        return;
+    }
     if (ps3TopScreenKind() == GS_ICONGRID) { iconGridNav(+1, 0); return; }
     if (mPs3BrightSlider) { adjustBrightness(+1); return; }   // Quick Menu brightness slider modal
     if (mPs3TzActive) return;   // tzglobe list is vertical only
@@ -1095,7 +1109,11 @@ void NanoMenu::ps3XmbDown() {
 }
 
 void NanoMenu::ps3XmbSelect() {
-    if (mMpActive) { if (mMpCpOpen) mpOptActivate(); return; }   // X activates the focused control
+    if (mMpActive) {   // X: activate the focused panel control, or toggle play/pause with no panel up
+        if (mMpCpOpen) mpOptActivate();
+        else mpAudioCmd(mMusicPlayer.isPlaying() ? MpAudioCmd::Pause : MpAudioCmd::Play);
+        return;
+    }
     if (ps3TopScreenKind() == GS_ICONGRID) { iconGridSelect(); return; }
     if (mPs3BrightSlider) { mPs3BrightSlider = false; mShowBrightnessBar = false; mBrightnessBarTimer = 0; return; }  // X confirms the brightness slider
     if (mPs3TzActive) { closeTimezoneGlobe(true); return; }   // X: apply the highlighted zone + close
@@ -2271,11 +2289,11 @@ void NanoMenu::drawPs3Clock(float fadeMul) {
         { std::lock_guard<std::mutex> lk(mNetStateMutex); wl = mWifiLevel; wb = mWifiBars; bl = mBtLevel; }
         float lx = dxL + ps3::devS(16.0f);          // start from the LEFT of the bar
 
-        // Music-playing indicator (nano): a small eighth-note at the far left whenever
-        // audio is loaded (playing bright, paused dim), so the user sees music is going
-        // even after leaving the Now-Playing screen / resuming their app.
-        if (mMusicPlayer.isPlaying() || mMusicPlayer.isPaused()) {
-            float na = (mMusicPlayer.isPlaying() ? 0.95f : 0.5f) * fadeMul;
+        // Music-playing indicator (nano): a small eighth-note at the far left only
+        // while audio is ACTIVELY playing (hidden when paused/stopped/idle), so the
+        // user sees music is going even after leaving Now-Playing / resuming their app.
+        if (mMusicPlayer.isPlaying()) {
+            float na = 0.95f * fadeMul;
             float nh = iconH * 0.80f;
             float headW = nh * 0.46f, headH = nh * 0.34f;
             float stemW = fmaxf(1.0f, ps3::devS(1.7f));

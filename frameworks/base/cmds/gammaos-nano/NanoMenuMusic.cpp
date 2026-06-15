@@ -25,6 +25,7 @@
 #include "NanoMenu.h"
 #include "NanoMenuPS3.h"
 #include "NanoMenuPS3Bg.h"
+#include "NanoMenuDrm.h"   // sDrmGlRotation / sDrmRotationDeg for the title clip scissor
 #include "NanoMenuMusicCanyon.h"
 #include "NanoMenuMusicGlobe.h"
 #include "NanoJson.h"
@@ -512,7 +513,18 @@ void NanoMenu::openMusicPlayer(const std::vector<Ps3Item>& list, int listSel) {
 
 void NanoMenu::closeMusicPlayer() {
     mMpActive = false;
-    mMusicPlayer.release();   // stop stream + free decoder ring (keep the library loaded)
+    mMpSeekPending = false;
+    // Tear the decoder down on the audio worker (serialized with any in-flight op so
+    // they never race on the decode thread). Drop pending commands first so a stale
+    // play/open can't fire after close.
+    if (mMpAudioStarted) {
+        { std::lock_guard<std::mutex> lk(mMpAudioMutex);
+          mMpAudioQueue.clear();
+          mMpAudioQueue.push_back({MpAudioCmd::Release, 0.0, std::string()}); }
+        mMpAudioCv.notify_one();
+    } else {
+        mMusicPlayer.release();   // worker never started; safe to release directly
+    }
     mMpQueue.clear(); mMpOrder.clear(); mMpIdx = 0;
     ps3canyon::shutdown();    // free the Canyon GL objects (lazy-reloaded next time)
     ps3mpglobe::shutdown();   // free the Globe GL objects
@@ -544,11 +556,58 @@ void NanoMenu::resumeMusicPlayer() {
     else if (mMpVis == 2) ps3mpglobe::init();
 }
 
+// Enqueue an audio-control command for the worker thread. Render-thread-safe and
+// non-blocking: the worker runs the (possibly blocking) NanoAudio op so the render
+// loop never stalls on the audio server / codec. Lazy-starts the worker.
+void NanoMenu::mpAudioCmd(MpAudioCmd cmd, double arg, const std::string& path) {
+    if (!mMpAudioStarted) {
+        mMpAudioStarted = true;
+        std::thread(&NanoMenu::mpAudioWorker, this).detach();
+    }
+    {
+        std::lock_guard<std::mutex> lk(mMpAudioMutex);
+        // Coalesce repeated Seek / OpenPlay so rapid scrubbing or track-skipping does
+        // not pile up decoder restarts on the worker (only the latest target matters).
+        if ((cmd == MpAudioCmd::Seek || cmd == MpAudioCmd::OpenPlay) &&
+            !mMpAudioQueue.empty() && mMpAudioQueue.back().cmd == cmd) {
+            mMpAudioQueue.back().arg = arg;
+            mMpAudioQueue.back().path = path;
+        } else {
+            mMpAudioQueue.push_back({cmd, arg, path});
+        }
+    }
+    mMpAudioCv.notify_one();
+}
+
+void NanoMenu::mpAudioWorker() {
+    for (;;) {
+        MpAudioReq req;
+        {
+            std::unique_lock<std::mutex> lk(mMpAudioMutex);
+            mMpAudioCv.wait(lk, [this] { return !mMpAudioQueue.empty(); });
+            req = mMpAudioQueue.front();
+            mMpAudioQueue.pop_front();
+        }
+        switch (req.cmd) {
+            case MpAudioCmd::Play:  mMusicPlayer.play();  break;
+            case MpAudioCmd::Pause: mMusicPlayer.pause(); break;
+            case MpAudioCmd::Stop:  mMusicPlayer.stop();  break;
+            case MpAudioCmd::Seek:  mMusicPlayer.seek(req.arg); break;
+            case MpAudioCmd::OpenPlay:
+                if (!req.path.empty() && mMusicPlayer.open(req.path)) mMusicPlayer.play();
+                break;
+            case MpAudioCmd::Release: mMusicPlayer.release(); break;
+        }
+    }
+}
+
 void NanoMenu::mpPlayCurrent() {
+    mMpSeekPending = false;   // drop any in-flight scrub so it can't apply to the new track
+    mMpAdvancing = true;      // a track is loading (async); suppress auto-advance until ended() clears
     if (mMpIdx < 0 || mMpIdx >= (int)mMpQueue.size()) return;
     int ti = mMpQueue[mMpIdx];
     if (ti < 0 || ti >= (int)mMusicTracks.size()) return;
-    if (mMusicPlayer.open(mMusicTracks[ti].file)) mMusicPlayer.play();
+    mpAudioCmd(MpAudioCmd::OpenPlay, 0.0, mMusicTracks[ti].file);   // open()+play() off the render thread
 }
 
 void NanoMenu::mpRebuildOrder() {
@@ -572,7 +631,7 @@ void NanoMenu::mpStep(int dir, bool isAuto) {
     if (pos < 0) pos = n - 1;                       // manual wrap backward
     else if (pos >= n) {
         if (isAuto) {
-            if (mMpRepeat == 0) { mMusicPlayer.pause(); return; }   // off: stop at end
+            if (mMpRepeat == 0) { mpAudioCmd(MpAudioCmd::Pause); return; }   // off: stop at end
             pos = 0;                                                // all: loop (+ reshuffle)
             if (mMpShuffle) { mMpIdx = mMpOrder[0]; mpRebuildOrder(); pos = 0; }
         } else {
@@ -585,7 +644,7 @@ void NanoMenu::mpStep(int dir, bool isAuto) {
 
 void NanoMenu::mpNext() { mpStep(1, false); }
 void NanoMenu::mpPrev() {
-    if (mMusicPlayer.position() > 3.0) { mMusicPlayer.seek(0.0); return; }   // restart current
+    if (mMusicPlayer.position() > 3.0) { mpAudioCmd(MpAudioCmd::Seek, 0.0); return; }   // restart current
     mpStep(-1, false);
 }
 
@@ -619,8 +678,19 @@ void NanoMenu::musicTick() {
     // starts or stops so the item appears/disappears.
     bool audioLoaded = !mMpQueue.empty() && (mMusicPlayer.isPlaying() || mMusicPlayer.isPaused());
     if (audioLoaded != mMusicResumeShown) { mMusicResumeShown = audioLoaded; mPs3CatsStale = true; }
+    // Commit a debounced scrub seek once input has settled (~0.22s). The heavy seek
+    // (it joins+restarts the decoder) runs on the audio worker, so the render thread
+    // never blocks; debouncing also avoids per-press churn while scrubbing.
+    if (mMpSeekPending && (mEffectTime - mMpSeekInputT) >= 0.22f) {
+        mMpSeekPending = false;
+        mpAudioCmd(MpAudioCmd::Seek, mMpSeekTarget);
+    }
     // Auto-advance at end of track (repeat-one replays). Runs even when minimized.
-    if (!mMpQueue.empty() && mMusicPlayer.ended()) {
+    // mMpAdvancing gates against the async open: ended() stays true until the worker
+    // loads the next track, so only fire once per end (cleared when ended() clears).
+    if (mMpAdvancing && !mMusicPlayer.ended()) mMpAdvancing = false;
+    if (!mMpQueue.empty() && mMusicPlayer.ended() && !mMpAdvancing) {
+        mMpAdvancing = true;
         if (mMpRepeat == 2) mpPlayCurrent();
         else mpStep(1, true);
     }
@@ -648,6 +718,12 @@ static inline float FSZ(float px){ return ps3::fontScale(px); }                /
 static inline float TOPY(float baseFrac, float px) {
     return ps3::baselineToTopY(ps3::devY(ps3::VH * baseFrac), ps3::fontScale(px));
 }
+// Music-player UI scale: double every element on small panels (shorter side
+// <=768px, i.e. the Brick and below) for readability; 1x on larger displays.
+static inline float mpUiScale(int w, int h) { return ((w < h ? w : h) <= 768) ? 2.0f : 1.0f; }
+// Baseline-Y drawText helper: position by device baseline-Y (not a normalized
+// fraction) so the scaled bottom bar can lay text out relative to the jacket.
+
 
 static std::string mpFmtTime(double sec) {
     if (sec < 0 || !(sec == sec)) sec = 0;
@@ -720,23 +796,34 @@ void NanoMenu::renderMusicPlayer() {
 
     mTextOutlineMode = 1;
 
-    // jacket cover (x0.066 y0.827 square 0.085H)
-    float jsz = SZ(0.085f), ax = DXP(0.066f), ay = DYP(0.827f);
+    // Music-player UI doubles on small panels (<=768) for readability (user request).
+    float mpUi = mpUiScale(mWidth, mHeight);
+
+    // jacket cover: bottom edge fixed at 0.912 (the 1x web position) so the bar grows
+    // UPWARD when scaled. Title/artist baselines are taken relative to the jacket so
+    // their spacing scales too (exactly 0.866 / 0.900 at 1x).
+    float jsz = SZ(0.085f * mpUi), ax = DXP(0.066f), ay = DYP(0.912f) - jsz;
     GLuint jac = mpJacket();
     if (jac) drawIconTex(jac, ax, ay, jsz, jsz, 1.0f, 1.0f, 1.0f, enter);
 
-    float tx = ax + jsz + DXD(0.013f);
-    // title (baseline 0.866, 32px) with marquee bounce when too wide
-    float titleRight = mMpFullInfo ? DXP(0.715f) : DXP(0.955f);
-    float titleScale = FSZ(32.0f);
+    float tx = ax + jsz + DXD(0.013f * mpUi);
+    float titleBaseY = ay + jsz * 0.46f;     // == devY(0.866) at 1x
+    float artistBaseY = ay + jsz * 0.86f;    // == devY(0.900) at 1x
+
+    // Right info cluster geometry (used to clip the title): wider at 2x so the
+    // doubled time strings fit. Defined here so the title never runs into it.
+    float clX = DXP(mpUi > 1.5f ? 0.55f : 0.738f), clEnd = DXP(0.940f);
+
+    // title (marquee bounce when too wide) clipped to the left of the info cluster
+    float titleRight = mMpFullInfo ? (clX - DXD(0.015f)) : DXP(0.955f);
+    float titleScale = FSZ(32.0f * mpUi);
     float titleW = measureText(t.title.c_str(), titleScale);
     float titleMaxW = titleRight - tx;
     float toff = 0.0f;
     if (titleW > titleMaxW && titleMaxW > 0) {
         float over = titleW - titleMaxW;
         const float HOLD = 1100.0f, SPEED = 55.0f;   // ms, virtual px/s
-        // over is in device px; convert SPEED (virtual px/s) to device px/s via devS(1)
-        float scrollT = fmaxf(350.0f, over / fmaxf(1.0f, ps3::devS(SPEED)) * 1000.0f);
+        float scrollT = fmaxf(350.0f, over / fmaxf(1.0f, ps3::devS(SPEED * mpUi)) * 1000.0f);
         float cyc = HOLD + scrollT + HOLD + scrollT;
         float tt = fmodf(mEffectTime * 1000.0f, cyc);
         float p;
@@ -746,38 +833,65 @@ void NanoMenu::renderMusicPlayer() {
         else { float u = (tt - HOLD - scrollT - HOLD) / scrollT; p = 1.0f - u * u * (3 - 2 * u); }
         toff = over * p;
     }
-    // (clip to the title band would need scissor; the marquee keeps it within bounds)
-    drawText(t.title.c_str(), tx - toff, TOPY(0.866f, 32.0f), titleScale, 1.0f, 1.0f, 1.0f, 0.95f * enter);
-    // artist / album (baseline 0.900, 19px, 70%)
+    // Clip the title to its band (the web ctx.clip) so the marquee's hold-at-start
+    // never spills into the info cluster / codec badge. Rotation-aware glScissor.
+    {
+        int lx = (int)tx, ly = 0, lw = (int)(titleRight - tx), lh = (int)mHeight;
+        if (lw < 0) lw = 0;
+        int sx, sy, sw, sh;
+        switch (sDrmGlRotation ? sDrmRotationDeg : 0) {
+        case 90:  sx = ly; sy = (int)mWidth - lx - lw; sw = lh; sh = lw; break;
+        case 180: sx = (int)mWidth - lx - lw; sy = (int)mHeight - ly - lh; sw = lw; sh = lh; break;
+        case 270: sx = (int)mHeight - ly - lh; sy = lx; sw = lh; sh = lw; break;
+        default:  sx = lx; sy = ly; sw = lw; sh = lh; break;
+        }
+        glEnable(GL_SCISSOR_TEST); glScissor(sx, sy, sw, sh);
+    }
+    drawText(t.title.c_str(), tx - toff, ps3::baselineToTopY(titleBaseY, titleScale),
+             titleScale, 1.0f, 1.0f, 1.0f, 0.95f * enter);
+    glDisable(GL_SCISSOR_TEST);
+    // artist / album (70%)
     std::string sub = (t.artist.empty() ? "-" : t.artist) + " / " + (t.album.empty() ? "-" : t.album);
-    drawText(sub.c_str(), tx, TOPY(0.900f, 19.0f), FSZ(19.0f), 1.0f, 1.0f, 1.0f, 0.70f * enter);
+    float subScale = FSZ(19.0f * mpUi);
+    drawText(sub.c_str(), tx, ps3::baselineToTopY(artistBaseY, subScale),
+             subScale, 1.0f, 1.0f, 1.0f, 0.70f * enter);
 
-    // full-info cluster (counter / time / codec / seek bar), faded by mMpFullInfoT
+    // full-info cluster: counter + codec on a top line, elapsed (left) and total
+    // (right) flanking a full-width seek bar - the HH:MM:SS strings never collide
+    // with the codec badge and the whole thing fits when doubled.
     if (mMpFullInfoT > 0.001f) {
         float fa = enter * mMpFullInfoT;
         double dur = mMusicPlayer.duration();
-        double cur = mMusicPlayer.position();
-        float rx = DXP(0.738f), rEnd = DXP(0.940f);
-        // counter N/M right-aligned at rEnd, baseline 0.792, 17px
+        // While scrubbing, preview the pending target so the time + bar track the
+        // press instantly (the real seek commits after input settles).
+        double cur = mMpSeekPending ? mMpSeekTarget : mMusicPlayer.position();
+        float lineTop  = ay + jsz * 0.22f;   // counter + codec
+        float lineTime = ay + jsz * 0.60f;   // elapsed / total
+        float seekY    = ay + jsz * 0.88f;   // seek bar
+        // counter N/M right-aligned at clEnd
         char cnt[24]; snprintf(cnt, sizeof(cnt), "%d / %d", mMpIdx + 1, (int)mMpQueue.size());
-        float cs = FSZ(17.0f); float cw = measureText(cnt, cs);
-        drawText(cnt, rEnd - cw, TOPY(0.792f, 17.0f), cs, 1.0f, 1.0f, 1.0f, 0.70f * fa);
-        // elapsed/total at rx, baseline 0.866, 22px
-        std::string tm = mpFmtTime(cur) + " / " + (dur > 0 ? mpFmtTime(dur) : "--:--:--");
-        drawText(tm.c_str(), rx, TOPY(0.866f, 22.0f), FSZ(22.0f), 1.0f, 1.0f, 1.0f, 0.80f * fa);
-        // codec badge icon
+        float cs = FSZ(17.0f * mpUi); float cnw = measureText(cnt, cs);
+        drawText(cnt, clEnd - cnw, ps3::baselineToTopY(lineTop, cs), cs, 1.0f, 1.0f, 1.0f, 0.70f * fa);
+        // codec badge left-aligned at clX (top line, off the time row, never overlaps it)
         static const struct { const char* c; int i; } kCodec[] = {
             {"MP3",24},{"ATRAC",22},{"AAC",23},{"PCM",25},{"CD",26},{"WMA",27},{"FLAC",25},{"OGG",23},{"OPUS",23}};
         int cIdx = 24; for (auto& e : kCodec) if (t.codec == e.c) { cIdx = e.i; break; }
         GLuint cIc = mpIcon(cIdx);
-        if (cIc) { float ch = SZ(0.024f); float cw = ch * mpIconAR(cIdx);   // wide metallic codec plate
-                   drawIconTex(cIc, DXP(0.887f), DYP(0.844f), cw, ch, 1, 1, 1, fa); }
-        // seek bar
-        float sx = rx, sw = rEnd - rx, sy = DYP(0.892f), shh = SZ(0.009f);
-        drawQuad(sx, sy, sw, shh, 70/255.0f, 70/255.0f, 70/255.0f, 0.95f * fa);
-        drawQuad(sx, sy, sw, fmaxf(1.0f, SZ(0.001f)), 150/255.0f, 150/255.0f, 150/255.0f, 0.85f * fa);
+        if (cIc) { float ch = SZ(0.024f * mpUi); float cbw = ch * mpIconAR(cIdx);
+                   drawIconTex(cIc, clX, lineTop - ch, cbw, ch, 1, 1, 1, fa); }
+        // elapsed (left) / total (right) on the time line
+        float ts = FSZ(22.0f * mpUi);
+        std::string el = mpFmtTime(cur);
+        std::string tot = (dur > 0 ? mpFmtTime(dur) : "--:--:--");
+        drawText(el.c_str(), clX, ps3::baselineToTopY(lineTime, ts), ts, 1.0f, 1.0f, 1.0f, 0.80f * fa);
+        float totw = measureText(tot.c_str(), ts);
+        drawText(tot.c_str(), clEnd - totw, ps3::baselineToTopY(lineTime, ts), ts, 1.0f, 1.0f, 1.0f, 0.80f * fa);
+        // full-width seek bar
+        float sx = clX, sw = clEnd - clX, shh = SZ(0.012f * mpUi);
+        drawQuad(sx, seekY, sw, shh, 70/255.0f, 70/255.0f, 70/255.0f, 0.95f * fa);
+        drawQuad(sx, seekY, sw, fmaxf(1.0f, SZ(0.0015f * mpUi)), 150/255.0f, 150/255.0f, 150/255.0f, 0.85f * fa);
         float frac = dur > 0 ? (float)(cur / dur) : 0.0f; if (frac < 0) frac = 0; if (frac > 1) frac = 1;
-        if (frac > 0) drawQuad(sx, sy, fmaxf(2.0f, sw * frac), shh, 245/255.0f, 245/255.0f, 245/255.0f, 0.95f * fa);
+        if (frac > 0) drawQuad(sx, seekY, fmaxf(2.0f, sw * frac), shh, 245/255.0f, 245/255.0f, 245/255.0f, 0.95f * fa);
     }
 
     if (panelUp) drawMpStatusRow(ax, enter);
@@ -789,7 +903,7 @@ void NanoMenu::renderMusicPlayer() {
         else {
             float a = el < 150.0f ? el / 150.0f : (el > 1200.0f ? (1500.0f - el) / 300.0f : 1.0f);
             if (a < 0) a = 0;
-            drawText(mMpBanner.c_str(), DXP(0.045f), TOPY(0.11f, 24.0f), FSZ(24.0f), 1.0f, 1.0f, 1.0f, a);
+            drawText(mMpBanner.c_str(), DXP(0.045f), TOPY(0.11f, 24.0f * mpUi), FSZ(24.0f * mpUi), 1.0f, 1.0f, 1.0f, a);
         }
     }
 
@@ -805,31 +919,34 @@ void NanoMenu::renderMusicPlayer() {
         float el = (mEffectTime - mMpMsgStart) * 1000.0f;
         float fade = fminf(1.0f, el / 150.0f) * fminf(1.0f, fmaxf(0.0f, (mMpMsgDur - el)) / 200.0f);
         drawQuad(0, 0, (float)mWidth, (float)mHeight, 0, 0, 0, 0.45f * fade);
-        float ms = FSZ(28.0f); float mw = measureText(mMpMsg.c_str(), ms);
-        drawText(mMpMsg.c_str(), (mWidth - mw) * 0.5f, TOPY(0.5f, 28.0f), ms, 1.0f, 1.0f, 1.0f, fade);
+        float ms = FSZ(28.0f * mpUiScale(mWidth, mHeight)); float mw = measureText(mMpMsg.c_str(), ms);
+        drawText(mMpMsg.c_str(), (mWidth - mw) * 0.5f, TOPY(0.5f, 28.0f * mpUiScale(mWidth, mHeight)), ms, 1.0f, 1.0f, 1.0f, fade);
     }
     mTextOutlineMode = 0;
 }
 
 // play-state / transport / repeat / shuffle row above the jacket (panel open).
 void NanoMenu::drawMpStatusRow(float ax, float fade) {
-    float y = DYP(0.782f), h = SZ(0.030f);
-    float x = ax + SZ(0.085f) * 0.5f - h * 0.5f;
+    float mpUi = mpUiScale(mWidth, mHeight);
+    float jsz = SZ(0.085f * mpUi), ay = DYP(0.912f) - jsz;   // match the scaled jacket
+    float h = SZ(0.030f * mpUi);
+    float y = ay - jsz * 0.53f;   // centred just above the jacket (== 0.782 at 1x)
+    float x = ax + jsz * 0.5f - h * 0.5f;
     float a = 0.95f * fade;
     // native aspect (the repeat/shuffle/one glyphs are non-square pills) + a subtle
     // drop-shadow (offset dark copy; no shadowBlur on GLES2), per web drawMpStatusRow.
     auto ico = [&](int idx, float scale) {
         GLuint ic = mpIcon(idx); if (!ic) return;
         float hh = h * scale, ww = hh * mpIconAR(idx);
-        drawIconTex(ic, x + SZ(0.0012f), y - hh * 0.5f + SZ(0.0012f), ww, hh, 0, 0, 0, 0.6f * a);
+        drawIconTex(ic, x + SZ(0.0012f * mpUi), y - hh * 0.5f + SZ(0.0012f * mpUi), ww, hh, 0, 0, 0, 0.6f * a);
         drawIconTex(ic, x, y - hh * 0.5f, ww, hh, 1, 1, 1, a);
-        x += ww + DXD(0.008f);
+        x += ww + DXD(0.008f * mpUi);
     };
     bool paused = mMusicPlayer.isPaused(), stopped = mMusicPlayer.isStopped();
     // base play-state glyph; a transient transport action briefly overrides it
     if (mMpTransientIcon >= 0 && mEffectTime < mMpTransientUntil) ico(mMpTransientIcon, 1.0f);
     else ico(stopped ? 4 : (paused ? 3 : 0), 1.0f);
-    x += DXD(0.004f);
+    x += DXD(0.004f * mpUi);
     if (mMpRepeat == 1) ico(7, 1.0f);                       // repeat ALL = loop
     else if (mMpRepeat == 2) { ico(7, 1.0f); ico(8, 0.75f); }   // repeat ONE = loop + "1"
     if (mMpShuffle) ico(9, 1.0f);                           // shuffle pill
@@ -839,9 +956,10 @@ void NanoMenu::drawMpOpt(float closeT) {
     float t = (closeT >= 0.0f) ? closeT
             : (mMpCpAnimStart >= 0.0f ? fminf(1.0f, (mEffectTime - mMpCpAnimStart) / 0.2f) : 1.0f);
     if (t < 0) t = 0;
-    float ox = DXP(0.273f) - (1.0f - t) * SZ(0.018f);   // slide in from the left
+    float mpUi = mpUiScale(mWidth, mHeight);
+    float ox = DXP(0.273f) - (1.0f - t) * SZ(0.018f * mpUi);   // slide in from the left
     float oy = DYP(0.441f);
-    float cellX = DXD(0.033f), cellY = SZ(0.061f), ih = SZ(0.046f);
+    float cellX = DXD(0.033f * mpUi), cellY = SZ(0.061f * mpUi), ih = SZ(0.046f * mpUi);
     float pulse = 0.5f + 0.5f * cosf(mEffectTime * 2.0f * 3.14159f / 1.5f);   // ~1.5s breathe
     for (int i = 0; i < kMpCpCount; i++) {
         const MpCp& b = kMpCp[i];
@@ -877,7 +995,7 @@ void NanoMenu::drawMpOpt(float closeT) {
             }
             glyph(gF, b.f, 0, 0, 1, 1, 1, 1.0f);
         } else {
-            glyph(gN, b.n, SZ(0.0015f), SZ(0.0025f), 0, 0, 0, 0.5f);   // drop shadow
+            glyph(gN, b.n, SZ(0.0015f * mpUi), SZ(0.0025f * mpUi), 0, 0, 0, 0.5f);   // drop shadow
             glyph(gN, b.n, 0, 0, 1, 1, 1, 0.85f);                      // dimmed glyph
         }
         if (flash > 0.0f) glyph(gF, b.f, 0, 0, 1, 1, 1, flash);        // activate brightness pop
@@ -888,16 +1006,18 @@ void NanoMenu::drawMpOpt(float closeT) {
     // "Volume Control" title at the same spot).
     if (mMpCpSel >= 0 && mMpCpSel < kMpCpCount && !mMpVolSub) {
         const char* lab = kMpCp[mMpCpSel].label;
-        float ls = FSZ(20.0f), lw = measureText(lab, ls);
-        float gap = DXD(0.008f), pillW = DXD(0.050f), pillH = SZ(0.030f);
+        float ls = FSZ(20.0f * mpUi), lw = measureText(lab, ls);
+        float gap = DXD(0.008f * mpUi), pillW = DXD(0.050f * mpUi), pillH = SZ(0.030f * mpUi);
         float total = lw + gap + pillW;
         float cx = DXP(0.273f), sx = cx - total * 0.5f;
-        drawText(lab, sx, TOPY(0.568f, 20.0f), ls, 1.0f, 1.0f, 1.0f, 0.95f * t);
+        // baseline below the (scaled) grid's bottom row
+        float labBaseY = oy + cellY + SZ(0.060f * mpUi);
+        drawText(lab, sx, ps3::baselineToTopY(labBaseY, ls), ls, 1.0f, 1.0f, 1.0f, 0.95f * t);
         // SELECT pill: rounded rect (light border behind a grey fill) + centred glyph,
         // built from a centre quad + two end caps since GLES2 has no rounded-rect path.
         float px = sx + lw + gap;
-        float baseY = ps3::devY(ps3::VH * 0.568f);
-        float py = baseY - pillH * 0.78f;
+        float py = labBaseY - pillH * 0.78f;
+        float bw = 1.2f * mpUi;
         auto pill = [&](float qx, float qy, float qw, float qh,
                         float cr, float cg, float cb, float ca) {
             float rr = qh * 0.5f;
@@ -905,10 +1025,10 @@ void NanoMenu::drawMpOpt(float closeT) {
             ps3FillCircle(qx + rr, qy + rr, rr, cr, cg, cb, ca);
             ps3FillCircle(qx + qw - rr, qy + rr, rr, cr, cg, cb, ca);
         };
-        pill(px - 1.2f, py - 1.2f, pillW + 2.4f, pillH + 2.4f,
+        pill(px - bw, py - bw, pillW + 2.0f * bw, pillH + 2.0f * bw,
              225/255.0f, 225/255.0f, 225/255.0f, 0.7f * t);                          // border
         pill(px, py, pillW, pillH, 150/255.0f, 150/255.0f, 150/255.0f, 0.55f * t);   // fill
-        float fs = FSZ(15.0f), fw = measureText("SELECT", fs);
+        float fs = FSZ(15.0f * mpUi), fw = measureText("SELECT", fs);
         drawText("SELECT", px + pillW * 0.5f - fw * 0.5f,
                  ps3::baselineToTopY(py + pillH * 0.66f, fs), fs, 1.0f, 1.0f, 1.0f, 0.95f * t);
     }
@@ -916,13 +1036,19 @@ void NanoMenu::drawMpOpt(float closeT) {
 }
 
 void NanoMenu::drawMpVolMeter(float t) {
-    float cx = DXP(0.22f), topY = DYP(0.56f);
-    drawText("Volume Control", cx - measureText("Volume Control", FSZ(22.0f)) * 0.5f,
-             TOPY(0.56f, 22.0f), FSZ(22.0f), 1, 1, 1, t);
+    float mpUi = mpUiScale(mWidth, mHeight);
+    float cx = DXP(0.22f);
+    // Stack below the (scaled) panel grid so it never overlaps it.
+    float titleBaseY = DYP(0.441f) + SZ(0.061f * mpUi) + SZ(0.055f * mpUi);
+    float vts = FSZ(22.0f * mpUi);
+    drawText("Volume Control", cx - measureText("Volume Control", vts) * 0.5f,
+             ps3::baselineToTopY(titleBaseY, vts), vts, 1, 1, 1, t);
     int lvl = mMpVolLevel;
     char nm[8]; if (lvl == 0) snprintf(nm, sizeof(nm), "Normal"); else snprintf(nm, sizeof(nm), "%+d", lvl);
-    drawText(nm, cx - measureText(nm, FSZ(18.0f)) * 0.5f, TOPY(0.585f, 18.0f), FSZ(18.0f), 1, 1, 1, 0.85f * t);
-    int segN = 9; float segW = SZ(0.020f), gap = SZ(0.006f), hh = SZ(0.024f), my = DYP(0.60f);
+    float nts = FSZ(18.0f * mpUi), nameBaseY = titleBaseY + SZ(0.040f * mpUi);
+    drawText(nm, cx - measureText(nm, nts) * 0.5f, ps3::baselineToTopY(nameBaseY, nts), nts, 1, 1, 1, 0.85f * t);
+    int segN = 9; float segW = SZ(0.020f * mpUi), gap = SZ(0.006f * mpUi), hh = SZ(0.024f * mpUi);
+    float my = nameBaseY + SZ(0.020f * mpUi);
     float totalW = segN * segW + (segN - 1) * gap, x0 = cx - totalW * 0.5f;
     int filled = lvl + 5;
     for (int i = 0; i < segN; i++) {
@@ -930,8 +1056,8 @@ void NanoMenu::drawMpVolMeter(float t) {
         if (i < filled) drawQuad(x, my, segW, hh, 120/255.0f, 225/255.0f, 255/255.0f, 0.95f * t);
         else drawQuad(x, my, segW, hh, 1, 1, 1, 0.20f * t);
     }
-    // "-" / "+" end glyphs flanking the bar (web drawMpVolMeter, 18px, baseline my+hh*0.9)
-    float es = FSZ(18.0f), ey = ps3::baselineToTopY(my + hh * 0.9f, es), em = ps3::devS(10.0f);
+    // "-" / "+" end glyphs flanking the bar
+    float es = FSZ(18.0f * mpUi), ey = ps3::baselineToTopY(my + hh * 0.9f, es), em = ps3::devS(10.0f * mpUi);
     drawText("-", x0 - em - measureText("-", es), ey, es, 1, 1, 1, t);
     drawText("+", x0 + totalW + em, ey, es, 1, 1, 1, t);
 }
@@ -977,13 +1103,19 @@ void NanoMenu::mpOptActivate() {
     mMpCpPressStart = mEffectTime; mMpCpPressSel = mMpCpSel;
     const char* a = kMpCp[mMpCpSel].act;
     if (!strcmp(a, "vol")) { mMpVolSub = true; }
-    else if (!strcmp(a, "play")) { mMusicPlayer.play(); }
-    else if (!strcmp(a, "pause")) { mMusicPlayer.pause(); }
-    else if (!strcmp(a, "stop")) { mMusicPlayer.stop(); }
+    else if (!strcmp(a, "play")) { mpAudioCmd(MpAudioCmd::Play); }
+    else if (!strcmp(a, "pause")) { mpAudioCmd(MpAudioCmd::Pause); }
+    else if (!strcmp(a, "stop")) { mpAudioCmd(MpAudioCmd::Stop); }
     else if (!strcmp(a, "next")) { mMpTransientIcon = 2; mMpTransientUntil = mEffectTime + 0.9f; mpNext(); }
     else if (!strcmp(a, "prev")) { mMpTransientIcon = 1; mMpTransientUntil = mEffectTime + 0.9f; mpPrev(); }
-    else if (!strcmp(a, "rew")) { mMpTransientIcon = 5; mMpTransientUntil = mEffectTime + 0.9f; mMusicPlayer.seek(fmax(0.0, mMusicPlayer.position() - 10.0)); }
-    else if (!strcmp(a, "ff")) { mMpTransientIcon = 6; mMpTransientUntil = mEffectTime + 0.9f; mMusicPlayer.seek(mMusicPlayer.position() + 10.0); }
+    else if (!strcmp(a, "rew")) { mMpTransientIcon = 5; mMpTransientUntil = mEffectTime + 0.9f;
+        double base = mMpSeekPending ? mMpSeekTarget : mMusicPlayer.position();
+        double p = base - 10.0; if (p < 0.0) p = 0.0;
+        mMpSeekTarget = p; mMpSeekPending = true; mMpSeekInputT = mEffectTime; }
+    else if (!strcmp(a, "ff")) { mMpTransientIcon = 6; mMpTransientUntil = mEffectTime + 0.9f;
+        double base = mMpSeekPending ? mMpSeekTarget : mMusicPlayer.position();
+        double d = mMusicPlayer.duration(); double np = base + 10.0; if (d > 0.0 && np > d) np = d;
+        mMpSeekTarget = np; mMpSeekPending = true; mMpSeekInputT = mEffectTime; }
     else if (!strcmp(a, "repeat")) { mMpRepeat = (mMpRepeat + 1) % 3; }
     else if (!strcmp(a, "shuffle")) { mMpShuffle = !mMpShuffle; mpRebuildOrder(); }
     else if (!strcmp(a, "vis")) { mpCycleVis(); }

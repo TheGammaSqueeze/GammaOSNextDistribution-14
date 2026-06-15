@@ -485,7 +485,7 @@ void NanoMenu::handleUp() {
     if (mMenuState == MENU_WIFI)     { handleWifiScreenUp();     return; }
     if (mMenuState == MENU_BT)       { handleBtScreenUp();       return; }
     if (mMenuState == MENU_SETTINGS) { handleSettingsTreeUp();    return; }
-    if (mPs3Xmb) { ps3XmbUp(); return; }
+    if (mPs3Xmb || mPs3WizActive) { ps3XmbUp(); return; }   // mPs3WizActive: setup-wizard net/BT step (mPs3Xmb is false)
     if (mXmbMode) {
         if (mSearchActive) {
             if (mSearchSelectedIndex > 0) mSearchSelectedIndex--;
@@ -537,7 +537,7 @@ void NanoMenu::handleDown() {
     if (mMenuState == MENU_WIFI)     { handleWifiScreenDown();     return; }
     if (mMenuState == MENU_BT)       { handleBtScreenDown();       return; }
     if (mMenuState == MENU_SETTINGS) { handleSettingsTreeDown();    return; }
-    if (mPs3Xmb) { ps3XmbDown(); return; }
+    if (mPs3Xmb || mPs3WizActive) { ps3XmbDown(); return; }   // mPs3WizActive: setup-wizard net/BT step
     if (mXmbMode) {
         if (mSearchActive) {
             int maxIdx = (int)mSearchResults.size() - 1;
@@ -789,8 +789,11 @@ bool NanoMenu::enterDrmSleep() {
             }
         }
         // Keep the album playing through track changes while the screen is off
-        // (audio-only, no GL touched). Mirrors musicTick's auto-advance.
-        if (keepAudio && !mMpQueue.empty() && mMusicPlayer.ended()) {
+        // (audio-only, no GL touched). Mirrors musicTick's auto-advance + the
+        // mMpAdvancing gate (async open keeps ended() true until the next track loads).
+        if (mMpAdvancing && !mMusicPlayer.ended()) mMpAdvancing = false;
+        if (keepAudio && !mMpQueue.empty() && mMusicPlayer.ended() && !mMpAdvancing) {
+            mMpAdvancing = true;
             if (mMpRepeat == 2) mpPlayCurrent();
             else mpStep(1, true);
         }
@@ -1217,6 +1220,7 @@ void NanoMenu::pollInput() {
                             oskToggleShift();
                             break;
                         }
+                        if (mMpActive) { mpPrev(); break; }   // L1: previous track in Now Playing
                         // Game Systems list: L1 moves the selected system up.
                         if (mPs3Xmb && ps3TopScreenKind() == GS_LIST) {
                             auto& its = mPs3Stack.back().items; int sel = mPs3Stack.back().sel;
@@ -1244,6 +1248,7 @@ void NanoMenu::pollInput() {
                             oskToggleSym();   // R1 toggles ABC <-> SYM inside the OSK
                             break;
                         }
+                        if (mMpActive) { mpNext(); break; }   // R1: next track in Now Playing
                         // Game Systems list: R1 moves the selected system down.
                         if (mPs3Xmb && ps3TopScreenKind() == GS_LIST) {
                             auto& its = mPs3Stack.back().items; int sel = mPs3Stack.back().sel;
