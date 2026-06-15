@@ -723,6 +723,9 @@ bool NanoMenu::enterDrmSleep() {
     drmFrameEnd(mDisplay, mSurface);
     nanobl::nanoBacklightSet(0);
     setBrightnessViaHal(0);
+    // Drop to the powersave governor (lowest clocks) while the screen is off - audio
+    // decode + the 1Hz poll run comfortably there. Restored on wake.
+    nanoApplyPerfClock("powersave");
 
     // Drive the WHOLE device into a real PowerManager suspend (not just a
     // blanked busy-poll): the nano-dosleep init service injects KEYCODE_SLEEP
@@ -856,6 +859,7 @@ bool NanoMenu::enterDrmSleep() {
         nanobl::nanoBacklightSet(mBrightness);
         setBrightnessViaHal(sysfs_val);
     }
+    nanoRestorePerfClock();   // restore the user's performance mode (was powersave while off)
     ALOGI("NanoMenu: woke up");
     mInDrmSleep.store(false, std::memory_order_relaxed);
     return true;

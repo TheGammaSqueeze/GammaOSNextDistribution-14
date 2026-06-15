@@ -1116,6 +1116,29 @@ void NanoMenu::perfHintReport() {
             (APerformanceHintSession*)mHintSession, workNs);
 }
 
+// Run /vendor/bin/setclock_<mode>.sh in the background to switch the CPU
+// governor/clocks. `mode` is validated against the known set (the scripts that
+// actually ship) so the value can never inject into the shell command.
+void NanoMenu::nanoApplyPerfClock(const char* mode) {
+    const char* m = "stock";
+    if (mode) {
+        if (!strcmp(mode, "max")) m = "max";
+        else if (!strcmp(mode, "powersave")) m = "powersave";
+        else m = "stock";
+    }
+    char cmd[96];
+    snprintf(cmd, sizeof(cmd), "/vendor/bin/setclock_%s.sh &", m);
+    system(cmd);
+}
+
+// Re-apply the user's persisted performance mode (used on wake to restore whatever
+// was active before the screen turned off).
+void NanoMenu::nanoRestorePerfClock() {
+    char mode[PROPERTY_VALUE_MAX] = {};
+    property_get("persist.gammaos.performance_mode", mode, "stock");
+    nanoApplyPerfClock(mode);
+}
+
 bool NanoMenu::threadLoop() {
     ALOGD("NanoMenu: entering main loop");
 
@@ -3466,6 +3489,12 @@ if (sRingPrimedCount >= 2) {
             char ss[PROPERTY_VALUE_MAX] = {};
             property_get("sys.screen.state", ss, "on");
             bool screenOff = !strcmp(ss, "off");
+            // Drop to the powersave governor while the panel is off and restore the
+            // user's mode when it returns (the framework drives display standby for the
+            // overlay, but not the CPU clocks).
+            static bool sOvlPwrSave = false;
+            if (screenOff && !sOvlPwrSave) { nanoApplyPerfClock("powersave"); sOvlPwrSave = true; }
+            else if (!screenOff && sOvlPwrSave) { nanoRestorePerfClock(); sOvlPwrSave = false; }
             // Keep background music alive across screen-off, including a real
             // suspend on battery: the framework drives standby for the overlay, but
             // nothing holds the SoC up for the in-process decode/AAudio threads, so

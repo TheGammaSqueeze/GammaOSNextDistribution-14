@@ -259,6 +259,10 @@ private:
     // and the lid-close handlers. Returns false if the legacy
     // pre-boot_completed timeout initiated a shutdown (caller returns).
     bool enterDrmSleep();
+    // CPU clock/governor while the screen is off: drop to powersave on screen-off and
+    // re-apply the user's persisted performance mode on wake (NanoMenu.cpp).
+    void nanoApplyPerfClock(const char* mode);   // run /vendor/bin/setclock_<mode>.sh (validated)
+    void nanoRestorePerfClock();                 // re-apply persist.gammaos.performance_mode
     void handleUp();
     void handleDown();
     void handleLeft();
