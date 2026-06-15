@@ -52,9 +52,13 @@ public:
         std::string artist;
         std::string album;
         std::string codec;       // badge text: MP3 / AAC / PCM / FLAC ...
+        std::string genre;       // container tag (may be empty)
+        std::string year;        // container tag "date"/"year" (may be empty)
+        std::string track;       // raw "cdtracknum" tag, e.g. "3" or "3/12" (may be empty)
         double durationSec = 0.0;
         int sampleRate = 0;
         int channels = 0;
+        int bitRate = 0;         // bits/sec, when the track format exposes it
     };
 
     // 256 frequency bins (0..1) + the three band energies (0..1), matching the web

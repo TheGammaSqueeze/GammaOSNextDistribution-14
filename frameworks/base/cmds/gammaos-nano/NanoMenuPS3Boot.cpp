@@ -207,20 +207,23 @@ void NanoMenu::renderPs3BootOverlay() {
 
     // ---- 3. epilepsy warning backdrop blur + text ----
     if (e >= BOOT_WARN_BLUR_A && e < BOOT_WARN_BLUROUT_B) {
-        // Blur the WAVE work-texture directly (captureGlassFromWave reads
-        // ps3bg::workTex), the same path the home-XMB frosted backdrop uses. The
-        // full-framebuffer captureGlass path renders BLACK here: on the tiled GPU
-        // the freshly drawn wave is not yet resolved to the FBO when
-        // glCopyTexSubImage2D runs during the DRM-direct boot, so the capture comes
-        // back empty. workTex is already in its own resolved FBO, so it is solid.
-        // Tint near-neutral (slight touch of darkness) to keep the white text
-        // readable, NOT a dark wash; waveSpace=true matches the wave-space blur.
-        bool haveBlur = captureGlassFromWave();
+        // Backdrop behind the warning text. When the WAVE is the wallpaper, blur its
+        // work-texture (captureGlassFromWave reads ps3bg::workTex; the full-framebuffer
+        // captureGlass path renders BLACK here because the freshly drawn scene is not
+        // yet resolved to the FBO when glCopyTexSubImage2D runs during the DRM-direct
+        // boot, while workTex is its own resolved FBO). For ANY OTHER wallpaper the
+        // selected effect is already drawn behind us but has no resolved offscreen
+        // texture to blur mid-boot, so dim it with a scrim instead - that shows the
+        // user's chosen wallpaper (not the wave) and keeps the white text readable.
         float warnBlur = smooth01(bootRamp(e, BOOT_WARN_BLUR_A, BOOT_WARN_BLUR_B))
                        * (1.0f - smooth01(bootRamp(e, BOOT_WARN_BLUROUT_A, BOOT_WARN_BLUROUT_B)));
-        if (haveBlur && warnBlur > 0.001f)
-            drawFrostedGlass(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f,
-                             0.90f, 0.90f, 0.92f, 1.0f, warnBlur, /*waveSpace=*/true);
+        if (warnBlur > 0.001f) {
+            if (mCurrentEffect == 22 && captureGlassFromWave())
+                drawFrostedGlass(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f,
+                                 0.90f, 0.90f, 0.92f, 1.0f, warnBlur, /*waveSpace=*/true);
+            else
+                drawQuad(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f, 0.0f, 0.0f, 0.55f * warnBlur);
+        }
     }
 
     if (e >= BOOT_WARN_IN && e < BOOT_WARN_OUT) {

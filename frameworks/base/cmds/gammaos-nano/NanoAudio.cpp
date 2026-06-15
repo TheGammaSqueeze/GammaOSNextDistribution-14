@@ -126,23 +126,39 @@ static bool readMetaFromExtractor(AMediaExtractor* ex, int fd,
     }
     if (track < 0) return false;
 
-    int32_t rate = 0, chans = 0;
+    int32_t rate = 0, chans = 0, brate = 0;
     AMediaFormat_getInt32(tf, AMEDIAFORMAT_KEY_SAMPLE_RATE, &rate);
     AMediaFormat_getInt32(tf, AMEDIAFORMAT_KEY_CHANNEL_COUNT, &chans);
+    AMediaFormat_getInt32(tf, AMEDIAFORMAT_KEY_BIT_RATE, &brate);
     int64_t durUs = 0;
     AMediaFormat_getInt64(tf, AMEDIAFORMAT_KEY_DURATION, &durUs);
     meta.sampleRate = rate;
     meta.channels = chans;
+    meta.bitRate = brate;
     meta.durationSec = durUs > 0 ? (double)durUs / 1e6 : 0.0;
     meta.codec = codecBadge(mime);
 
-    // Container-level tags (ID3 / Vorbis comment / MP4 atoms).
+    // Container-level tags (ID3 / Vorbis comment / MP4 atoms). getFileFormat now
+    // surfaces these (the libstagefright fix); read the full set for the Information
+    // page.
     AMediaFormat* file = AMediaExtractor_getFileFormat(ex);
     if (file) {
         const char* s = nullptr;
         if (AMediaFormat_getString(file, AMEDIAFORMAT_KEY_TITLE, &s) && s) meta.title = s;
         if (AMediaFormat_getString(file, AMEDIAFORMAT_KEY_ARTIST, &s) && s) meta.artist = s;
         if (AMediaFormat_getString(file, AMEDIAFORMAT_KEY_ALBUM, &s) && s) meta.album = s;
+        if (AMediaFormat_getString(file, AMEDIAFORMAT_KEY_GENRE, &s) && s) {
+            meta.genre = s;
+            // ID3v1 genres arrive as "(NN)Refinement" or bare "(NN)". Drop the numeric
+            // code prefix when a readable name follows (e.g. "(36)Game" -> "Game").
+            if (meta.genre.size() > 2 && meta.genre[0] == '(') {
+                size_t cp = meta.genre.find(')');
+                if (cp != std::string::npos && cp + 1 < meta.genre.size())
+                    meta.genre = meta.genre.substr(cp + 1);
+            }
+        }
+        if (AMediaFormat_getString(file, AMEDIAFORMAT_KEY_YEAR, &s) && s) meta.year = s;
+        if (AMediaFormat_getString(file, AMEDIAFORMAT_KEY_CDTRACKNUMBER, &s) && s) meta.track = s;
         AMediaFormat_delete(file);
     }
     (void)fd;

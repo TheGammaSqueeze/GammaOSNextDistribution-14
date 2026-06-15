@@ -382,3 +382,23 @@ mMpActive branches BEFORE the mPs3TzActive checks in each handler. mpFmtTime HH:
   (mpVisCount/mpVisEffectId). renderEffect renders mpVisEffectId() as the Now-Playing
   background when mMpVis>=3 (a stateless shader, so no particle-pool conflict with the
   home wallpaper). The particle effects (Snow/Rain/etc.) stay home wallpapers only.
+
+## Track Information + universal volume + brightness gating (2026-06-15)
+
+- Track Information: Triangle on a music track -> Information now shows the full tag
+  set. The dialog probes the file fresh (NanoAudioPlayer::probe, which reads
+  title/artist/album/genre/year/cdtracknum + sample rate/channels/bitrate via the fixed
+  getFileFormat) and lists Title, Artist, Album, Genre, Release Year, Track No., Playing
+  Time, Format, Sample Rate, Channels, Bitrate and File. Built in xmbOptAction's "info"
+  branch for PS3_MUSIC_TRACK; other items keep the name + description page.
+- Universal volume: a volume press sets EVERY audible stream (music/system/ring/
+  notification/alarm) to the same proportional level so output is consistent across the
+  XMB, cold boot, the wallpaper-home and in-app (RetroArch). PhoneWindowManager is the
+  single authority (nanoSyncAllStreamsVolume) and publishes persist.gammaos.nano.volume
+  (index) + persist.gammaos.nano.volmax (range); the nano launcher syncs its slider from
+  those so the nano HUD and PWM HUD always show the same value. nano injects the volume
+  keyevent (devices are EVIOCGRAB'd) so PWM does the real change.
+- Brightness gating: SELECT+volume = brightness only while SELECT is genuinely held.
+  The check now reads the live key state via EVIOCGKEY (selectKeyHeld) instead of the
+  sticky mSelectHeld, so a missed SELECT release can no longer make a plain volume press
+  change brightness.

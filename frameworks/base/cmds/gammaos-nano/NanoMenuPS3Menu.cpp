@@ -3916,13 +3916,51 @@ void NanoMenu::xmbOptEnter() {
 
 void NanoMenu::xmbOptAction(const std::string& act) {
     if (act == "info") {
-        // Fullscreen info page with the item's name + description (web openContentInfo
-        // fallback). Uses the dialog state, which is now free (the option menu closed).
+        // Fullscreen info page. For a music track, show the FULL tag set (probed
+        // fresh so genre/year/track are included even if not stored in the library);
+        // otherwise fall back to the item's name + description (web openContentInfo).
+        std::string title = mPs3OptCtxLabel.empty() ? std::string("Information") : mPs3OptCtxLabel;
+        std::string body;
+        if (mPs3OptCtxKind == PS3_MUSIC_TRACK
+            && mPs3OptCtxA >= 0 && mPs3OptCtxA < (int)mMusicTracks.size()) {
+            const MusicTrack& t = mMusicTracks[mPs3OptCtxA];
+            NanoAudioPlayer::Meta m;
+            NanoAudioPlayer::probe(t.file, m);   // best-effort; uses stored values as fallback
+            auto pick = [](const std::string& a, const std::string& b) {
+                return !a.empty() ? a : b;
+            };
+            std::string fname = t.file;
+            size_t sl = fname.find_last_of('/');
+            if (sl != std::string::npos) fname = fname.substr(sl + 1);
+            title = pick(pick(m.title, t.title), fname);
+            auto row = [&](const char* label, const std::string& v) {
+                if (v.empty()) return;
+                char pad[20]; snprintf(pad, sizeof(pad), "%-14s", label);
+                body += pad; body += v; body += "\n";
+            };
+            row("Title",  pick(m.title, t.title));
+            row("Artist", pick(m.artist, t.artist));
+            row("Album",  pick(m.album, t.album));
+            row("Genre",  m.genre);
+            row("Release Year", m.year);
+            row("Track No.", m.track);
+            double dur = m.durationSec > 0.0 ? m.durationSec : t.durationSec;
+            if (dur > 0.0) { int s = (int)(dur + 0.5); char b[24];
+                snprintf(b, sizeof(b), "%d:%02d", s / 60, s % 60); row("Playing Time", b); }
+            row("Format", pick(m.codec, t.codec));
+            if (m.sampleRate > 0) { char b[24]; snprintf(b, sizeof(b), "%d Hz", m.sampleRate); row("Sample Rate", b); }
+            if (m.channels > 0)   row("Channels", m.channels >= 2 ? "Stereo" : "Mono");
+            if (m.bitRate > 0)    { char b[24]; snprintf(b, sizeof(b), "%d kbps", m.bitRate / 1000); row("Bitrate", b); }
+            row("File", fname);
+            if (body.empty()) body = "No information is available.";
+        } else {
+            body = mPs3OptCtxDesc.empty() ? std::string("No information is available.") : mPs3OptCtxDesc;
+        }
         mPs3DlgOptions.clear(); mPs3DlgSwatch.clear();
         mPs3DlgKind = 0; mPs3DlgType = 0; mPs3DlgThemeKey = 0; mPs3DlgBinding = nullptr;
         mPs3DlgIllust = 0; mPs3DlgNotice.clear();
-        mPs3DlgTitle = mPs3OptCtxLabel.empty() ? std::string("Information") : mPs3OptCtxLabel;
-        mPs3DlgBody  = mPs3OptCtxDesc.empty() ? std::string("No information is available.") : mPs3OptCtxDesc;
+        mPs3DlgTitle = title;
+        mPs3DlgBody  = body;
         mPs3DlgSel = 0; mPs3DlgOrigSel = 0;
         mPs3DlgIconTex = 0; mPs3DlgIconNmap = 0; mPs3DlgIconR = mPs3DlgIconG = mPs3DlgIconB = 1.0f;
         mPs3DlgActive = true; mPs3DlgAnim = 0.0f; mPs3DlgBlurValid = false;
@@ -4095,20 +4133,26 @@ void NanoMenu::renderPs3Dialog() {
     // choosers do NOT blur - the XMB stays visible and the LIVE background colour
     // shows through so the Colour/Day-Night preview is seen behind the panel.
     if (mPs3DlgKind != 1) {
-        // ~30Hz live wave/gradient backdrop (workTex, no FB capture) so the
-        // dialog open animation stays smooth at 60fps. waveSpace = logical blur.
-        float blurCad = (ps3bg::themeFading() || mPs3DlgKind == 1) ? 0.0f : 0.0667f;   // 60Hz during live preview
-        bool due = !mPs3DlgBlurValid || (mEffectTime - mPs3DlgBlurT) >= blurCad;
-        // The dialog frosted-WAVE backdrop only matches when the wave is the visible
-        // background: home XMB always; overlay WALLPAPER/launcher only if the wallpaper
-        // IS the wave (mCurrentEffect==22). Never in overlay scrim (the dimmed live app
-        // must show) and never over a non-wave wallpaper (renderEffect's wallpaper, drawn
-        // behind us, must show instead). (System Update has no OSK; the wizard
-        // re-captures mPs3DlgBlurValid itself, so the wizard's OSK is unaffected.)
-        const bool frostBg = mCurrentEffect == 22 && (!mOverlayMode || mOverlayWallpaper);
-        if (due && frostBg && captureGlassFromWave()) { mPs3DlgBlurValid = true; mPs3DlgBlurT = mEffectTime; }
-        if (mPs3DlgBlurValid && frostBg)
-            drawFrostedGlass(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, ap, /*waveSpace=*/true);  // pure blur, no darkening
+        // A FULLSCREEN dialog replaces the screen, so it needs a focus blur of
+        // whatever is behind it for ANY wallpaper, or the live menu clashes through.
+        // - Wave wallpaper: capture its cheap work-texture (~30Hz, animated, logical
+        //   orientation -> waveSpace=true).
+        // - Any other wallpaper: capture the framebuffer ONCE (the live effect + the
+        //   menu, already drawn this frame) and hold it (screen orientation ->
+        //   waveSpace=false). captureGlass forces a tile resolve, so do it once per
+        //   open, not per frame.
+        // Never blur in the overlay scrim (the dimmed live app must show through).
+        const bool frostHome = !mOverlayMode || mOverlayWallpaper;
+        const bool waveSpace = (mCurrentEffect == 22);
+        float blurCad = ps3bg::themeFading() ? 0.0f : 0.0667f;
+        bool due = !mPs3DlgBlurValid || (waveSpace && (mEffectTime - mPs3DlgBlurT) >= blurCad);
+        if (due && frostHome) {
+            bool got = waveSpace ? captureGlassFromWave()
+                                 : captureGlass(0.0f, 0.0f, (float)mWidth, (float)mHeight);
+            if (got) { mPs3DlgBlurValid = true; mPs3DlgBlurT = mEffectTime; }
+        }
+        if (mPs3DlgBlurValid && frostHome)
+            drawFrostedGlass(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, ap, waveSpace);  // pure blur, no darkening
     }
 
     float ss = ps3::devS(1.5f);
