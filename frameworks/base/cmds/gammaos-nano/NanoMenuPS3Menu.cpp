@@ -1006,7 +1006,9 @@ static float itemSlotYf(int idx, float selPos) {
     return itemSlotY(idx, s0) + (itemSlotY(idx, s0 + 1) - itemSlotY(idx, s0)) * frac;
 }
 static float ps3CatOffset(bool active, float t, float fromOff) {
-    return active ? fromOff * (1.0f - easeSmooth(t)) : 0.0f;
+    // Category slide rail uses easeOutCubic (web catAnim.ease), NOT smoothstep:
+    // "fast start, smooth settle" - smoothstep is too floaty in the first half.
+    return active ? fromOff * (1.0f - easeOutCubic(t)) : 0.0f;
 }
 
 // ---------------------------------------------------------------------------
@@ -2275,8 +2277,11 @@ void NanoMenu::renderPs3Xmb() {
         drawList(mPs3Stack.back().items, mPs3AnimItem, ps3::SUBMENU_CHILD_X_SHIFT, 1.0f);
         drawBackChevron(1.0f);
     } else if (mPs3CatAnimActive) {
-        // Top-level category slide rail + fade-crossfade.
-        float p = easeSmooth(mPs3CatT);
+        // Top-level category slide rail + fade-crossfade. easeOutCubic (web
+        // catAnim.ease) so the rail moves fast then settles and the crossfade
+        // (old out by p=0.4, new in from p=0.5) lands like the reference, not the
+        // floaty symmetric smoothstep.
+        float p = easeOutCubic(mPs3CatT);
         float barTravel = mPs3CatFromOffset;
         float oldAlpha = fmaxf(0.0f, 1.0f - p / 0.4f);
         float newAlpha = fmaxf(0.0f, (p - 0.5f) / 0.5f);
