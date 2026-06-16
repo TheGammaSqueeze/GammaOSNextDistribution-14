@@ -1007,10 +1007,11 @@ void NanoMenu::renderPhotoGrid() {
              mPhotoGridList.size() == 1 ? "image" : "images");
     drawText(info, margin, 84.0f * ts + slide, 1.0f * ts, 0.75f, 0.85f, 0.95f, a);
 
-    // focus grow tween (1.0 -> 1.36, easeOutCubic, mirrors the web drawPhotoGrid)
+    // focus grow tween (1.0 -> 1.36, easeOutCubic, mirrors the web drawPhotoGrid).
+    // Duration matches the web V.ITEM_ANIM_MS (200ms), same as the XMB item scroll.
     float fe = 1.0f;
     if (mPhotoGridFocusStart >= 0.0f) {
-        fe = fminf(1.0f, (mEffectTime - mPhotoGridFocusStart) / 0.18f);
+        fe = fminf(1.0f, (mEffectTime - mPhotoGridFocusStart) / 0.20f);
         fe = 1.0f - powf(1.0f - fe, 3.0f);
         if (fe >= 1.0f) mPhotoGridFocusStart = -1.0f;
     }
