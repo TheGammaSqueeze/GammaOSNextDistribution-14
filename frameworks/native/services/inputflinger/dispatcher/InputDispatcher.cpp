@@ -4470,9 +4470,17 @@ void InputDispatcher::notifyKey(const NotifyKeyArgs& args) {
     //  - POWER (keyCode 26): PhoneWindowManager must see the FULL power gesture
     //    (down+up) to toggle the overlay reliably; dropping it here would strand
     //    the power single-key detector (the "every other press" bug).
+    //  - VOLUME up/down/mute (24/25/164): PhoneWindowManager is the single volume
+    //    authority in nano mode (interceptKeyBeforeQueueing -> nanoSyncAllStreamsVolume).
+    //    Dropping these here left the overlay/wallpaper-home XMB unable to change the
+    //    real output volume (the nano slider moved but the speaker did not). PWM eats
+    //    them (clears ACTION_PASS_TO_USER) so the app behind never sees them.
     if (android::base::GetBoolProperty("sys.gammaos.nano.drop_input", false)
             && args.keyCode != 4 /* AKEYCODE_BACK */
-            && args.keyCode != 26 /* AKEYCODE_POWER */) {
+            && args.keyCode != 26 /* AKEYCODE_POWER */
+            && args.keyCode != 24 /* AKEYCODE_VOLUME_UP */
+            && args.keyCode != 25 /* AKEYCODE_VOLUME_DOWN */
+            && args.keyCode != 164 /* AKEYCODE_VOLUME_MUTE */) {
         return;
     }
     ALOGD_IF(debugInboundEventDetails(),
