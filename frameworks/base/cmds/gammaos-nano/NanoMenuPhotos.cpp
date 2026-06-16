@@ -1916,6 +1916,7 @@ void NanoMenu::pvPlChooserSelect() {
                 photoAddToPlaylist((int)mPhotoPlaylists.size() - 1, file);
                 pvShowMsg("Added to the playlist", 900.0f);
             });
+        mOskPasswordMode = false; mOskPlaintext = true;   // a playlist name is plain text, not masked
     } else {
         photoAddToPlaylist(sel - 1, file);
         pvShowMsg("Added to the playlist", 900.0f);

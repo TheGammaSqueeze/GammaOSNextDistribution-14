@@ -1269,6 +1269,7 @@ void NanoMenu::ps3XmbSelect() {
                     if (!mPs3Stack.empty() && mPs3Stack.back().screenKind == 0
                         && mPs3Stack.back().title == "Playlists")
                         buildPhotoPlaylistsScreen(mPs3Stack.back()); });
+            mOskPasswordMode = false; mOskPlaintext = true;   // a playlist name is plain text, not masked
             return;
         }
         case PS3_PHOTO_PLAYLIST: {   // open the playlist's thumbnail grid
@@ -1298,6 +1299,7 @@ void NanoMenu::ps3XmbSelect() {
                     if (!mPs3Stack.empty() && mPs3Stack.back().screenKind == 0
                         && mPs3Stack.back().title == "Playlists")
                         buildMusicPlaylistsScreen(mPs3Stack.back()); });
+            mOskPasswordMode = false; mOskPlaintext = true;   // a playlist name is plain text, not masked
             return;
         }
         case PS3_ROM:    { mXmbSystemIndex = it.a; mXmbGameIndex = it.b; mSearchActive = false;

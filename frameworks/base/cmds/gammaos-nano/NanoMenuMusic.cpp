@@ -1341,6 +1341,7 @@ void NanoMenu::mpPlChooserSelect() {
         openOskForPassword("Enter a name for the playlist",
             [this, file](const std::string& nm){ musicCreatePlaylist(nm);
                 if (!file.empty()) musicAddTrackToPlaylist((int)mMusicPlaylists.size() - 1, file); });
+        mOskPasswordMode = false; mOskPlaintext = true;   // a playlist name is plain text, not masked
     } else {
         int pl = sel - 1;
         if (pl >= 0 && pl < (int)mMusicPlaylists.size()) {
