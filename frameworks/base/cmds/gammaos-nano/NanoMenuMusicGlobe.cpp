@@ -138,13 +138,13 @@ static const char* SCENE_FS =
     "    col += vec3(1.0,0.93,0.82) * (pow(sd, 2200.0) * uSunBri + pow(sd, 120.0) * uSunHalo\n"
     "                                + streak * uSunHalo * 0.55);\n"
     "    if (uStars > 0.5) {\n"
-    "      vec3 g = rd * 140.0; vec3 cell = floor(g);\n"
+    "      vec3 g = rd * 300.0; vec3 cell = floor(g);\n"   // finer grid: a dense field of small stars (web STARTEX look)
     "      float h = hash(cell);\n"
-    "      if (h > 0.991) {\n"
+    "      if (h > 0.94) {\n"                              // more cells -> many faint stars (was a sparse few large blobs)
     "        vec3 fc = fract(g) - 0.5;\n"
     "        float d2 = dot(fc, fc);\n"
-    "        float star = smoothstep(0.16, 0.0, d2) * (0.4 + 0.6 * hash(cell + 3.1));\n"
-    "        col += star * 1.4 * vec3(0.9,0.95,1.0);\n"
+    "        float star = smoothstep(0.045, 0.0, d2) * (0.25 + 0.75 * hash(cell + 3.1));\n"  // small crisp points
+    "        col += star * 0.65 * vec3(0.85,0.92,1.0);\n"  // faint, slightly cool
     "      }\n"
     "    }\n"
     "  }\n"
