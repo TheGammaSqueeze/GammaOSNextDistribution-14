@@ -331,7 +331,6 @@ static const Ps3DataItem kPhotoItems[] = {
   {"Search for Media Servers",35,"Scans the network and connects to a media server. To use this function, a media server must be set up to allow connections from the PS3™ system.",nullptr,0,nullptr,0},
   {"Photo Gallery",64,"Create a space to enjoy and enhance your photos.\nTurn the photos on your PS3™ system into great albums in minutes.\nYou can sort your photos by themes, add music to enhance a slideshow or add custom frames to your photos. The more photos you add, the more fun you can have - the possibilities are endless!",nullptr,0,nullptr,0},
   {"Playlists",37,nullptr,nullptr,0,nullptr,0},
-  {"May 2026",62,"8 Images",nullptr,0,nullptr,0},
 };
 
 // ---- Music --------------------------------------------------------------

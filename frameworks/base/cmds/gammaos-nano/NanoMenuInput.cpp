@@ -941,10 +941,15 @@ void NanoMenu::pollInput() {
             // visualizer (physical Square/BTN_WEST). No effect off Now-Playing.
             else if (!strcmp(navbuf, "tri")) {
                 if (mMpActive) { if (mMpCpOpen) closeMpOpt(); else openMpOpt(); }
+                else if (mPvActive) { if (mPvPanel) closePvPanel(); else openPvPanel(); }
                 else if (mPs3Xmb) { if (mPs3OptActive) closeXmbOpt(); else openXmbOpt(); }
             }
             else if (!strcmp(navbuf, "sq")) {
                 if (mMpActive && !mOskActive) mpCycleVis();
+                else if (!mPvActive && mPs3Xmb && !mOskActive && mPs3Stack.empty()
+                         && !mPs3OptActive && !mPs3DlgActive && mPhotoLoaded
+                         && mPs3CatIdx >= 0 && mPs3CatIdx < (int)mPs3Cats.size()
+                         && mPs3Cats[mPs3CatIdx].name == "Photo") photoCycleGroup();
             }
             // Game Systems list scripting: l1/r1 reorder the selected system,
             // x toggles its enabled state (the physical L1/R1/X buttons do the
@@ -1175,6 +1180,11 @@ void NanoMenu::pollInput() {
                         navPress(NavDir::Right); break;
                     case BTN_WEST: // Y button (Nintendo layout: BTN_WEST = Y); PS3 Square in music
                         if (mMpActive && !mOskActive) { mpCycleVis(); break; }   // Square: cycle the visualizer
+                        if (mPvActive && !mOskActive) break;   // Square in the photo viewer: reserved (2D/3D)
+                        // Photo column root: Square cycles Group Content (By Month/Year/Album/All).
+                        if (mPs3Xmb && !mOskActive && mPs3Stack.empty() && !mPs3OptActive && !mPs3DlgActive
+                            && mPhotoLoaded && mPs3CatIdx >= 0 && mPs3CatIdx < (int)mPs3Cats.size()
+                            && mPs3Cats[mPs3CatIdx].name == "Photo") { photoCycleGroup(); break; }
                         if (mMenuState == MENU_WIFI) { handleWifiScreenY(); break; }
                         if (mMenuState == MENU_BT)   { handleBtScreenY();   break; }
                         // Icon grid picker: Y opens the name-filter OSK.
@@ -1224,6 +1234,13 @@ void NanoMenu::pollInput() {
                                 musicRemoveFolder(its[sel].a);
                             break;
                         }
+                        // Photo folders screen: Y removes the selected photo folder.
+                        if (mPs3Xmb && ps3TopScreenKind() == PHOTO_FOLDER) {
+                            auto& its = mPs3Stack.back().items; int sel = mPs3Stack.back().sel;
+                            if (sel >= 0 && sel < (int)its.size() && its[sel].kind == PS3_PHOTO_FOLDER_ROW)
+                                photoRemoveFolder(its[sel].a);
+                            break;
+                        }
                         if (mXmbMode) {
                             // Y: search in XMB mode
                             if (mOskActive) {
@@ -1241,6 +1258,7 @@ void NanoMenu::pollInput() {
                     case BTN_NORTH: // X button (Nintendo layout: BTN_NORTH = X); PS3 Triangle in music
                         if (mOskActive) { oskBackspace(); break; }
                         if (mMpActive) { if (mMpCpOpen) closeMpOpt(); else openMpOpt(); break; }   // Triangle: control panel
+                        if (mPvActive) { if (mPvPanel) closePvPanel(); else openPvPanel(); break; }   // Triangle: photo control panel
                         if (mPs3WizActive) { wizRescan(); break; }   // X: re-scan on the AP list
                         if (mMenuState == MENU_WIFI) { handleWifiScreenX(); break; }
                         if (mMenuState == MENU_BT)   { handleBtScreenX();   break; }
@@ -1264,6 +1282,7 @@ void NanoMenu::pollInput() {
                             break;
                         }
                         if (mMpActive) { mpPrev(); break; }   // L1: previous track in Now Playing
+                        if (mPvActive) { pvStep(-1); break; }   // L1: previous photo in the viewer
                         // Game Systems list: L1 moves the selected system up.
                         if (mPs3Xmb && ps3TopScreenKind() == GS_LIST) {
                             auto& its = mPs3Stack.back().items; int sel = mPs3Stack.back().sel;
@@ -1292,6 +1311,7 @@ void NanoMenu::pollInput() {
                             break;
                         }
                         if (mMpActive) { mpNext(); break; }   // R1: next track in Now Playing
+                        if (mPvActive) { pvStep(+1); break; }   // R1: next photo in the viewer
                         // Game Systems list: R1 moves the selected system down.
                         if (mPs3Xmb && ps3TopScreenKind() == GS_LIST) {
                             auto& its = mPs3Stack.back().items; int sel = mPs3Stack.back().sel;

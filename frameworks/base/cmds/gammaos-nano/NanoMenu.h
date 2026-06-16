@@ -936,13 +936,20 @@ private:
         PS3_MUSIC_PL_NEW,   // "Create New Playlist" row (OSK name)
         PS3_MUSIC_FOLDER_ROW,// a configured music scan-folder row (a = mMusicFolders idx; Y removes)
         PS3_MUSIC_REFRESH,  // "Refresh" row in the music folders screen -> rescan the library
+        // ---- Photo viewer (PS3 XMB photo port) ----
+        PS3_PHOTO_ALBUM,    // a photo group-folder in the Photo column -> thumbnail grid (a = group idx)
+        PS3_PHOTO,          // an individual photo row (a = photo idx) -> open the viewer
+        PS3_PHOTO_PLAYLIST, // a photo playlist -> its thumbnail grid (a = playlist idx)
+        PS3_PHOTO_PL_NEW,   // "Create New Playlist" row in the photo playlists screen (OSK name)
+        PS3_PHOTO_FOLDER_ROW,// a configured photo scan-folder row (a = mPhotoFolders idx; Y removes)
+        PS3_PHOTO_REFRESH,  // "Refresh" row in the photo folders screen -> rescan the library
     };
     // Game Systems editor screen kinds (Ps3Level.screenKind). Used to route the
     // X / L1 / R1 / Y buttons contextually while a GS screen is on the nav stack.
     // MUSIC_FOLDER = the music library's folder-list screen (Search for Media Servers).
     enum GsScreenKind { GS_NONE = 0, GS_LIST = 1, GS_EDITOR = 2, GS_FOLDER = 3,
                         GS_ICONGRID = 4, GS_EMUPICK = 5, GS_FOLDERBROWSE = 6,
-                        MUSIC_FOLDER = 7 };
+                        MUSIC_FOLDER = 7, PHOTO_FOLDER = 8, PHOTO_GRID = 9 };
     struct Ps3Item {
         std::string label;
         std::string desc;
@@ -1362,7 +1369,7 @@ private:
         std::string m3uPath;              // non-empty: derived from this .m3u (regenerated on scan);
                                           // empty: user-created (preserved across scans)
     };
-    int mFolderPickTarget = 0;             // 0 = Game Systems scan source, 1 = Music library
+    int mFolderPickTarget = 0;             // 0 = Game Systems scan source, 1 = Music library, 2 = Photo library
     std::vector<std::string> mMusicFolders;
     std::vector<MusicTrack>  mMusicTracks;
     std::vector<MusicPlaylist> mMusicPlaylists;
@@ -1525,6 +1532,166 @@ private:
     void mpPlChooserSelect();         // commit the highlighted option
     void mpPlChooserCancel();         // dismiss without adding
     void drawMpPlChooser();           // render the modal list
+
+    // ======================= Photo viewer (PS3 XMB port) =======================
+    // Library model (nano_photo.json), folder import (reuses the folder picker via
+    // mFolderPickTarget = 2), the scanner, the Photo-column groups + thumbnail grid,
+    // the full-screen viewer and the in-viewer control panel (the same icon style /
+    // spacing / focus treatment as the Music MP_CP control panel). 1:1 source of
+    // truth: /work/ps3/xmb-app/index.html (the Photo DATA category, photoViewer,
+    // drawPhotoGrid, PV_CP / drawPvPanel, drawPvInfo). Implemented in NanoMenuPhotos.cpp.
+    struct PhotoItem {
+        std::string file;     // absolute path
+        std::string name;     // filename without extension (display)
+        std::string date;     // "YYYY-MM-DD HH:MM" capture date (file mtime proxy)
+        int w = 0, h = 0;     // native pixel dimensions
+        int64_t sz = 0;       // file size in bytes
+        int64_t mtime = 0;    // for incremental rescan
+    };
+    struct PhotoPlaylist {
+        std::string name;
+        std::vector<std::string> files;   // references PhotoItem.file
+    };
+    std::vector<std::string>   mPhotoFolders;
+    std::vector<PhotoItem>     mPhotos;
+    std::vector<PhotoPlaylist> mPhotoPlaylists;
+    int64_t mPhotoCfgStamp = -1;          // mtime of nano_photo.json (cross-process reload)
+    static const int kPhotoMetaVersion = 1;
+    int  mPhotoCfgVersion = 0;
+    bool mPhotoLoaded = false;            // library parsed once (lazy, first Photo entry)
+    bool mPhotoCatsStale = false;         // a scan finished -> rebuild the Photo column at root
+    int  mPhotoGroupIdx = 0;              // 0 By Month, 1 By Year, 2 By Album, 3 All
+    // scan worker
+    std::mutex mPhotoScanMutex;
+    std::vector<PhotoItem> mPhotoScanResults;
+    bool mPhotoScanReady = false;
+    bool mPhotoScanRunning = false;
+    bool mPhotoScanPending = false;       // scan deferred until external storage is mounted
+    bool photoStorageReady() const;
+    void photoRefresh();
+    // persistence + lazy load
+    int64_t photoConfigStamp() const;
+    bool loadPhotoConfig();
+    void savePhotoConfig();
+    void photoEnsureLoaded();
+    void photoOnCatFocus();
+    // scan
+    void photoScanAsync();
+    void photoScanThreadFunc();
+    void photoDrainScanResults();
+    // image decode (AImageDecoder scaled-on-decode; NanoMenuPhotos.cpp)
+    static bool photoProbeDims(const std::string& path, int* w, int* h, int64_t* sz);
+    GLuint photoDecodeTex(const std::string& path, int maxDim, int* outW, int* outH);
+    // folder import (Search for Media Servers; mFolderPickTarget = 2)
+    void photoOpenFolders();
+    void buildPhotoFoldersScreen(Ps3Level& out);
+    void photoFolderSelect(const std::string& path);
+    void photoRemoveFolder(int idx);
+    // column content + grouping
+    void buildPhotoColumnItems(std::vector<Ps3Item>& out);
+    void photoCycleGroup();               // SQUARE in the Photo column -> next Group Content mode
+    struct PhotoGroup { std::string name; std::vector<int> idx; };
+    std::vector<PhotoGroup> photoGroups() const;   // groups per the current mode
+    static std::string fmtPhotoDate(const std::string& iso);   // "YYYY-MM-DD HH:MM" -> "D/M/YYYY H:MM"
+    static std::string fmtFileSize(int64_t b);
+    // thumbnail grid (screenKind PHOTO_GRID)
+    std::vector<int> mPhotoGridList;      // photo indices in the open album/grid
+    int  mPhotoGridCursor = 0;
+    int  mPhotoGridTop = 0;               // top visible row (scroll)
+    std::string mPhotoGridTitle;
+    float mPhotoGridAnim = 0.0f;          // open fade-in
+    float mPhotoGridFocusStart = -1.0f;   // focus grow tween start
+    int  mPhotoGridCursorPrev = -1;
+    int  mPhotoGridFromPl = -1;           // playlist index if opened from a playlist, else -1
+    std::map<int, GLuint> mPhotoThumbCache;   // photo idx -> thumbnail texture
+    std::map<int, float>  mPhotoThumbAR;      // photo idx -> thumbnail aspect (w/h)
+    void openPhotoGrid(const std::vector<int>& list, const std::string& title, int fromPl);
+    void closePhotoGrid();
+    void photoGridNav(int dx, int dy);
+    void photoGridSelect();
+    void renderPhotoGrid();
+    GLuint photoThumb(int photoIdx);      // lazy thumbnail (maxDim ~256), cached
+    void photoThumbEvict();               // bound the thumb cache around the cursor
+    void photoFreeThumbs();               // drop the whole thumb cache (on grid close)
+
+    // full-screen viewer
+    bool  mPvActive = false;
+    std::vector<int> mPvList;             // photo indices being viewed
+    int   mPvIdx = 0;
+    int   mPvRot = 0;                     // 0 / 90 / 180 / 270
+    float mPvZoom = 1.0f;
+    float mPvPanX = 0.0f, mPvPanY = 0.0f;
+    float mPvEnterT = 0.0f, mPvEnterRaw = 0.0f;   // enter/exit fade from black (~0.4s)
+    float mPvHintUntil = 0.0f;
+    std::string mPvEffect;               // "Normal" / "Slide" / "Fade" (Change Effect)
+    // photo-to-photo transition (Slide/Fade)
+    bool  mPvTrans = false; int mPvTransFrom = -1; float mPvTransStart = 0.0f;
+    int   mPvTransDir = 1; std::string mPvTransEffect;
+    // decoded viewer textures (current +/- neighbours), keyed by photo idx
+    std::map<int, GLuint> mPvTexCache;
+    std::map<int, int> mPvTexW, mPvTexH;  // decoded texture dims
+    GLuint pvTex(int photoIdx, int* w, int* h);
+    void pvPrefetch();
+    void pvFreeTextures();
+    void openPhotoViewer(const std::vector<int>& list, int idx);
+    void closePhotoViewer();
+    void pvStep(int d);
+    void pvShow3D();
+    // slideshow
+    bool  mPvSlideshow = false, mPvPaused = false, mPvRepeat = false;
+    float mPvSlideNext = 0.0f, mPvSlideMs = 4000.0f;
+    int   mPvSlideStyle = 0;
+    std::string mPvSlideSpeed;            // "Slow" / "Normal" / "Fast"
+    // info / display mode
+    bool  mPvInfo = false;
+    std::string mPvDispModeName;          // "Zoom" / "Normal"
+    float mPvDispModeUntil = 0.0f;
+    // Set as Wallpaper / Trimming range selector
+    bool  mPvWpMode = false, mPvTrimMode = false;
+    float mPvWpZoom = 1.0f;
+    void  pvWallpaperConfirm();
+    void  pvShowDeleteConfirm();
+    // control panel (TRIANGLE) - mirrors the Music MP_CP look
+    bool  mPvPanel = false;
+    int   mPvCpSel = 0, mPvCpSelPrev = -1;
+    float mPvCpAnimStart = -1.0f, mPvCpFocusStart = -1.0f;
+    bool  mPvCpClosing = false; float mPvCpCloseStart = -1.0f;
+    float mPvCpPressStart = -1.0f; int mPvCpPressSel = -1;
+    // control submenu (Change Effect / Slideshow Speed / Slideshow Style)
+    bool  mPvCpSub = false; std::string mPvCpSubKind; std::vector<std::string> mPvCpSubOpts; int mPvCpSubSel = 0;
+    void renderPhotoViewer();
+    void openPvPanel();
+    void closePvPanel();
+    void pvPanelMove(int dx, int dy);
+    void pvPanelActivate();
+    void pvPanelBack();
+    void drawPvPanel(float closeT);
+    void drawPvInfo();
+    void drawPvDispModePill();
+    void drawPvWallpaperSel();
+    // photoviewer icons (lazy, /data override + /system/etc fallback)
+    std::map<int, GLuint> mPvIconCache;
+    std::map<int, float>  mPvIconAR;
+    GLuint pvIcon(int n);
+    float  pvIconAR(int n);
+    // photo playlists
+    void buildPhotoPlaylistsScreen(Ps3Level& out);
+    void buildPhotoPlaylistGridList(int plIdx, std::vector<int>& out, std::string& title);
+    void photoCreatePlaylist(const std::string& name);
+    void photoAddToPlaylist(int plIdx, const std::string& file);
+    // add-to-playlist chooser (viewer + grid)
+    bool  mPvPlChooserActive = false;
+    std::vector<std::string> mPvPlChooserOpts;   // "New Playlist..." + existing names
+    int   mPvPlChooserSel = 0;
+    std::string mPvPlChooserFile;                // photo file being added
+    float mPvPlChooserAnim = 0.0f;
+    void pvOpenAddChooser(const std::string& file);
+    void pvPlChooserMove(int dir);
+    void pvPlChooserSelect();
+    void pvPlChooserCancel();
+    void drawPvPlChooser();
+    void pvSlideshowStart(const std::vector<int>& list, int idx, int style);
+    void photoTick();                     // per-frame: viewer enter fade + slideshow + timers
 
     std::vector<Ps3Item>& ps3CurItems();   // current visible item list (top or submenu)
     int& ps3CurSel();

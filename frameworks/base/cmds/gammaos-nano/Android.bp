@@ -68,6 +68,7 @@ cc_binary {
         "NanoMenuMusic.cpp",
         "NanoMenuMusicCanyon.cpp",
         "NanoMenuMusicGlobe.cpp",
+        "NanoMenuPhotos.cpp",
         "NanoJson.cpp",
         "NanoI18n.cpp",
         "NanoOsk.cpp",
@@ -79,6 +80,7 @@ cc_binary {
     header_libs: [
         "libdrm_headers",
         "jni_headers",
+        "native_headers",   // <android/imagedecoder.h> + <android/bitmap.h> (photo viewer decode)
     ],
 
     shared_libs: [
@@ -104,6 +106,7 @@ cc_binary {
         "libandroid",   // APerformanceHint (ADPF render-thread hint session)
         "libaaudio",    // GammaEQ audio preview + music player output (AAudio)
         "libmediandk",  // music player decode: AMediaExtractor + AMediaCodec -> PCM
+        "libjnigraphics",  // photo viewer: AImageDecoder scaled-on-decode (JPEG/PNG/...)
     ],
 
     init_rc: ["gammaos-nano.rc"],
@@ -125,6 +128,7 @@ cc_binary {
         "nano_xmb_audio",
         "nano_xmb_audioplayer",
         "nano_xmb_canyon",
+        "nano_xmb_photoviewer",
     ],
 }
 
@@ -217,6 +221,14 @@ prebuilt_etc {
     name: "nano_xmb_canyon",
     srcs: ["ps3xmb/canyon/*.png"],
     sub_dir: "nano_xmb/canyon",
+}
+
+// Photo viewer control-panel icons (rotate / zoom / slideshow / display etc),
+// decoded full-colour. Dev override /data/system/nano_xmb/photoviewer/ first.
+prebuilt_etc {
+    name: "nano_xmb_photoviewer",
+    srcs: ["ps3xmb/photoviewer/*.png"],
+    sub_dir: "nano_xmb/photoviewer",
 }
 
 // 3D Earth maps for the Time Zone globe selector (web tzglobe screen). Day /
