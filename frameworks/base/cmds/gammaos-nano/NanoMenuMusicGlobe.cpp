@@ -47,7 +47,7 @@ static float TUNE_SUNBRI   = 60.0f;   // sun HDR core brightness (blooms into th
 static float TUNE_SUNHALO  = 2.2f;    // broad warm sun halo strength
 static float TUNE_BLOOMTHR = 0.42f;   // bright-pass threshold (display luminance)
 static float TUNE_BLOOMGAIN= 1.30f;   // additive bloom gain
-static float TUNE_NIGHTBRI = 1.3f;    // night-lights (earth_night) brightness (web shows them subtly)
+static float TUNE_NIGHTBRI = 0.9f;    // night-lights (earth_night) brightness (web shows them subtly)
 static float TUNE_RIM      = 0.50f;   // atmosphere fresnel rim strength (the always-on blue limb)
 static float TUNE_HALO     = 0.70f;   // outer atmosphere halo strength
 static float TUNE_HALOFALL  = 100.0f; // outer halo falloff rate (higher = tighter glow hugging the limb); tuned vs web
@@ -104,8 +104,8 @@ static const char* SCENE_FS =
     "      float ndl = dot(N, uSun);\n"
     "      float day = 1.0 - smoothstep(0.62, -0.30, ndl);\n"
     "      vec3 dayC = mix(alb, vec3(1.0), cloud * 0.5) * uDayK * vec3(1.0,0.98,0.93);\n"  // brighter lit side (web earth reads bright); subtle warm cast
-    "      vec3 nightC = ntex * uNightBri + uNightLift * (vec3(0.045,0.100,0.180)\n"  // city lights + per-scene cool atmospheric ambient (off on the fully-lit low-orbit scenes)
-    "                  + cloud * vec3(0.014,0.020,0.030));\n"
+    "      vec3 nightC = ntex * uNightBri + uNightLift * (vec3(0.020,0.042,0.072)\n"  // city lights + per-scene cool ambient (darker/less blue so the lit crescents pop, matches web night)
+    "                  + cloud * vec3(0.010,0.014,0.020));\n"
     "      vec3 termGlow = vec3(0.11,0.06,0.035) *\n"
     "         (smoothstep(0.32,-0.02,ndl) * (1.0 - smoothstep(-0.02,-0.42,ndl)));\n"  // wider twilight band
     "      col = mix(nightC, dayC, day) + termGlow * 0.7 * uNightLift;\n"
