@@ -1561,6 +1561,9 @@ private:
     bool mPhotoLoaded = false;            // library parsed once (lazy, first Photo entry)
     bool mPhotoCatsStale = false;         // a scan finished -> rebuild the Photo column at root
     int  mPhotoGroupIdx = 0;              // 0 By Month, 1 By Year, 2 By Album, 3 All
+    int  mPhotoSortMode = 1;             // 0 Date newest, 1 Date oldest, 2 Image Name
+    void photoSortCycle();               // Sort By: cycle the mode + re-sort column / grid
+    static std::string photoSortLabel(int mode);
     // scan worker
     std::mutex mPhotoScanMutex;
     std::vector<PhotoItem> mPhotoScanResults;
@@ -1582,6 +1585,7 @@ private:
     // image decode (AImageDecoder scaled-on-decode; NanoMenuPhotos.cpp)
     static bool photoProbeDims(const std::string& path, int* w, int* h, int64_t* sz);
     GLuint photoDecodeTex(const std::string& path, int maxDim, int* outW, int* outH);
+    GLuint musicEmbeddedArt(const std::string& mp3path, int maxDim);   // ID3v2 APIC cover
     // folder import (Search for Media Servers; mFolderPickTarget = 2)
     void photoOpenFolders();
     void buildPhotoFoldersScreen(Ps3Level& out);

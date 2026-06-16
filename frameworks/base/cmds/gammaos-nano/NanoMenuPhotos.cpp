@@ -159,6 +159,87 @@ GLuint NanoMenu::photoDecodeTex(const std::string& path, int maxDim, int* outW, 
     return tex;
 }
 
+// Decode an in-memory image (any AImageDecoder format) to a GL texture, longest
+// side capped at maxDim. Shared by embedded-art extraction.
+static GLuint decodeBufferTex(const uint8_t* data, size_t len, int maxDim) {
+    AImageDecoder* dec = nullptr;
+    if (AImageDecoder_createFromBuffer(data, len, &dec) != ANDROID_IMAGE_DECODER_SUCCESS || !dec) return 0;
+    const AImageDecoderHeaderInfo* hi = AImageDecoder_getHeaderInfo(dec);
+    int sw = AImageDecoderHeaderInfo_getWidth(hi), sh = AImageDecoderHeaderInfo_getHeight(hi);
+    GLuint tex = 0;
+    if (sw > 0 && sh > 0) {
+        AImageDecoder_setAndroidBitmapFormat(dec, ANDROID_BITMAP_FORMAT_RGBA_8888);
+        AImageDecoder_setUnpremultipliedRequired(dec, true);
+        int tw = sw, th = sh, longSide = sw > sh ? sw : sh;
+        if (maxDim > 0 && longSide > maxDim) {
+            float s = (float)maxDim / (float)longSide;
+            tw = (int)(sw * s + 0.5f); th = (int)(sh * s + 0.5f);
+            if (tw < 1) tw = 1; if (th < 1) th = 1;
+            AImageDecoder_setTargetSize(dec, tw, th);
+        }
+        size_t stride = AImageDecoder_getMinimumStride(dec);
+        std::vector<uint8_t> buf(stride * (size_t)th);
+        if (AImageDecoder_decodeImage(dec, buf.data(), stride, buf.size()) == ANDROID_IMAGE_DECODER_SUCCESS) {
+            const uint8_t* px = buf.data();
+            std::vector<uint8_t> packed;
+            if (stride != (size_t)tw * 4) {
+                packed.resize((size_t)tw * th * 4);
+                for (int y = 0; y < th; y++) memcpy(&packed[(size_t)y * tw * 4], &buf[(size_t)y * stride], (size_t)tw * 4);
+                px = packed.data();
+            }
+            glGenTextures(1, &tex); glBindTexture(GL_TEXTURE_2D, tex);
+            glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tw, th, 0, GL_RGBA, GL_UNSIGNED_BYTE, px);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        }
+    }
+    AImageDecoder_delete(dec);
+    return tex;
+}
+
+// Extract the embedded ID3v2 APIC cover from an MP3 (so music folders show the
+// album art even when there is no cover file beside the tracks).
+GLuint NanoMenu::musicEmbeddedArt(const std::string& path, int maxDim) {
+    int fd = open(path.c_str(), O_RDONLY);
+    if (fd < 0) return 0;
+    unsigned char hdr[10];
+    if (read(fd, hdr, 10) != 10 || hdr[0] != 'I' || hdr[1] != 'D' || hdr[2] != '3') { close(fd); return 0; }
+    int ver = hdr[3];   // 3 = v2.3, 4 = v2.4
+    int tagSize = (hdr[6] << 21) | (hdr[7] << 14) | (hdr[8] << 7) | hdr[9];   // synchsafe
+    if (tagSize <= 10 || tagSize > 30 * 1024 * 1024) { close(fd); return 0; }
+    std::vector<unsigned char> tag(tagSize);
+    ssize_t got = read(fd, tag.data(), tagSize);
+    close(fd);
+    if (got != (ssize_t)tagSize) return 0;
+    GLuint tex = 0;
+    size_t i = 0;
+    while (i + 10 <= (size_t)tagSize) {
+        const unsigned char* f = &tag[i];
+        if (f[0] == 0) break;   // padding
+        char id[5] = {(char)f[0], (char)f[1], (char)f[2], (char)f[3], 0};
+        uint32_t fsize = (ver == 4) ? ((f[4] << 21) | (f[5] << 14) | (f[6] << 7) | f[7])
+                                    : ((f[4] << 24) | (f[5] << 16) | (f[6] << 8) | f[7]);
+        size_t fdata = i + 10;
+        if (fsize == 0 || fdata + fsize > (size_t)tagSize) break;
+        if (!strcmp(id, "APIC")) {
+            const unsigned char* d = &tag[fdata];
+            size_t n = fsize, p = 0;
+            unsigned char enc = (p < n) ? d[p++] : 0;     // text encoding
+            while (p < n && d[p] != 0) p++; if (p < n) p++;   // skip mime (latin1, null-term)
+            if (p < n) p++;                                    // picture type byte
+            if (enc == 1 || enc == 2) { while (p + 1 < n && !(d[p] == 0 && d[p + 1] == 0)) p += 2; p += 2; }
+            else { while (p < n && d[p] != 0) p++; if (p < n) p++; }   // skip description
+            if (p < n) tex = decodeBufferTex(d + p, n - p, maxDim);
+            break;
+        }
+        i = fdata + fsize;
+    }
+    return tex;
+}
+
 // ---------------------------------------------------------------------------
 // Config persistence (nano_photo.json, atomic write + mtime reload).
 // ---------------------------------------------------------------------------
@@ -490,11 +571,18 @@ std::string NanoMenu::fmtFileSize(int64_t b) {
 std::vector<NanoMenu::PhotoGroup> NanoMenu::photoGroups() const {
     std::vector<int> order(mPhotos.size());
     for (size_t i = 0; i < mPhotos.size(); i++) order[i] = (int)i;
-    // Sort by date ascending, then by name (matches the web grp_all default order).
+    // Sort By: 0 = date newest, 1 = date oldest (web default), 2 = image name.
+    int sm = mPhotoSortMode;
+    auto nameLess = [&](int a, int b) {
+        const std::string& x = mPhotos[a].name, &y = mPhotos[b].name;
+        if (x.size() != y.size()) return x.size() < y.size();   // numeric-aware for digit names
+        return strcasecmp(x.c_str(), y.c_str()) < 0;
+    };
     std::sort(order.begin(), order.end(), [&](int a, int b) {
-        const std::string& x = mPhotos[a].date; const std::string& y = mPhotos[b].date;
-        if (x != y) return x < y;
-        return strcasecmp(mPhotos[a].name.c_str(), mPhotos[b].name.c_str()) < 0;
+        if (sm == 2) return nameLess(a, b);
+        const std::string& x = mPhotos[a].date, &y = mPhotos[b].date;
+        if (x != y) return sm == 0 ? (x > y) : (x < y);
+        return nameLess(a, b);
     });
     static const char* MON[12] = {"Jan","Feb","Mar","Apr","May","Jun",
                                   "Jul","Aug","Sep","Oct","Nov","Dec"};
@@ -541,6 +629,34 @@ void NanoMenu::buildPhotoColumnItems(std::vector<Ps3Item>& out) {
     }
 }
 
+std::string NanoMenu::photoSortLabel(int mode) {
+    switch (mode) {
+        case 0:  return "Date (newest)";
+        case 2:  return "Image Name";
+        default: return "Date (oldest)";
+    }
+}
+void NanoMenu::photoSortCycle() {
+    mPhotoSortMode = (mPhotoSortMode + 1) % 3;
+    mPhotoCatsStale = true;   // re-group the Photo column with the new order
+    // If inside an album grid, re-sort the open photo list in place too.
+    if (!mPhotoGridList.empty()) {
+        int sm = mPhotoSortMode;
+        auto nameLess = [&](int a, int b) {
+            const std::string& x = mPhotos[a].name, &y = mPhotos[b].name;
+            if (x.size() != y.size()) return x.size() < y.size();
+            return strcasecmp(x.c_str(), y.c_str()) < 0;
+        };
+        std::sort(mPhotoGridList.begin(), mPhotoGridList.end(), [&](int a, int b) {
+            if (a < 0 || a >= (int)mPhotos.size() || b < 0 || b >= (int)mPhotos.size()) return a < b;
+            if (sm == 2) return nameLess(a, b);
+            const std::string& x = mPhotos[a].date, &y = mPhotos[b].date;
+            if (x != y) return sm == 0 ? (x > y) : (x < y);
+            return nameLess(a, b);
+        });
+        mPhotoGridCursor = 0; mPhotoGridTop = 0;
+    }
+}
 void NanoMenu::photoCycleGroup() {
     static const char* kModeNames[4] = {"By Month", "By Year", "By Album", "All"};
     mPhotoGroupIdx = (mPhotoGroupIdx + 1) % 4;
@@ -654,6 +770,11 @@ void NanoMenu::photoFreeCovers() {
 // inset in the body - the web XMB photo-folder look. coverTex 0 = plain folder.
 void NanoMenu::drawFolderIcon(float ix, float iy, float dsz, float alpha, GLuint coverTex) {
     float a = alpha;
+    // Fit the folder inside a centred sub-box so opaque folders never touch/overlap
+    // the adjacent rows (glass icons get away with the full box via transparent
+    // margins; an opaque folder must be inset to match their visual footprint).
+    const float F = 0.74f;
+    ix += dsz * (1.0f - F) * 0.5f; iy += dsz * (1.0f - F) * 0.5f; dsz *= F;
     // soft drop shadow under the folder so it reads over the bright wave
     drawRoundedRect(ix + dsz * 0.05f, iy + dsz * 0.20f, dsz * 0.92f, dsz * 0.76f,
                     dsz * 0.07f, 0.0f, 0.0f, 0.0f, mPs3ShadowAlpha * 0.6f * a);

@@ -490,15 +490,25 @@ GLuint NanoMenu::mpAlbumArt(const std::string& albumName) {
             std::string dir = file.substr(0, slash);
             size_t pslash = dir.find_last_of('/');
             std::string folderName = (pslash != std::string::npos) ? dir.substr(pslash + 1) : dir;
-            static const char* kExt[] = {".jpg", ".jpeg", ".png", ".JPG", ".JPEG", ".PNG", ".bmp"};
-            std::string base = dir + "/" + folderName;
-            for (const char* e : kExt) {
-                int w = 0, h = 0; std::vector<uint8_t> px;
-                if (decodeArtRGBA((base + e).c_str(), 128, &w, &h, &px)) {
-                    tex = uploadRGBA(px.data(), w, h, /*wantMipmap=*/false);
-                    break;
+            static const char* kExt[] = {".jpg", ".jpeg", ".png", ".JPG", ".JPEG", ".PNG", ".bmp", ".webp"};
+            // Candidate cover basenames: the folder name + the common cover filenames.
+            static const char* kNames[] = {"cover", "folder", "front", "album", "albumart",
+                                           "AlbumArt", "Cover", "Folder", "thumb"};
+            std::vector<std::string> bases;
+            bases.push_back(dir + "/" + folderName);
+            for (const char* nm : kNames) bases.push_back(dir + "/" + nm);
+            for (const auto& base : bases) {
+                for (const char* e : kExt) {
+                    int w = 0, h = 0; std::vector<uint8_t> px;
+                    if (decodeArtRGBA((base + e).c_str(), 256, &w, &h, &px)) {
+                        tex = uploadRGBA(px.data(), w, h, /*wantMipmap=*/false);
+                        break;
+                    }
                 }
+                if (tex) break;
             }
+            // Fallback: the album art embedded in the first track's ID3v2 tag.
+            if (!tex) tex = musicEmbeddedArt(file, 256);
         }
     }
     mMpAlbumArt[albumName] = tex;   // cache (0 = none/tried)

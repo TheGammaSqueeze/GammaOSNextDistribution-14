@@ -3994,8 +3994,10 @@ void NanoMenu::openXmbOpt() {
     if (ps3TopScreenKind() == PHOTO_GRID) {
         if (mPhotoGridCursor < 0 || mPhotoGridCursor >= (int)mPhotoGridList.size()) return;
         int pIdx = mPhotoGridList[mPhotoGridCursor];
+        std::string sortLbl = "Sort By: " + photoSortLabel(mPhotoSortMode);
         add("View", "pgview", true);
         add("Slideshow", "pgslidegrid", false);
+        add(sortLbl.c_str(), "sortby", false);
         add("Add to Playlist", "pgaddgrid", false);
         add("Copy", "pgcopy", false);
         add("Print", "pgprint", false);
@@ -4025,11 +4027,14 @@ void NanoMenu::openXmbOpt() {
             add("Play", "playtrack", true); add("Information", "info", false); break;
         case PS3_MUSIC_PLAYLIST:
             add("Play", "playpl", true); add("Information", "info", false); break;
-        case PS3_PHOTO_ALBUM:
+        case PS3_PHOTO_ALBUM: {
+            std::string sortLbl = "Sort By: " + photoSortLabel(mPhotoSortMode);
             add("Slideshow", "pgslidefolder", true);
+            add(sortLbl.c_str(), "sortby", false);
             add("Copy", "pcopyfolder", false);
             add("Delete", "pdelfolder", false);
             add("Information", "photofolderinfo", false); break;
+        }
         default:
             add("Information", "info", false); break;
     }
@@ -4179,6 +4184,7 @@ void NanoMenu::xmbOptAction(const std::string& act) {
             pvOpenAddChooser(mPhotos[mPs3OptCtxA].file);
         return;
     }
+    if (act == "sortby")    { photoSortCycle(); return; }    // cycle Date newest/oldest/Name
     if (act == "delmulti")  { photoMultiOpen(0); return; }   // Delete Multiple checkbox screen
     if (act == "copymulti") { photoMultiOpen(1); return; }   // Copy Multiple checkbox screen
     if (act == "pgcopy")   { pvShowMsg("Copy completed.", 1100.0f); return; }    // grid photo (simulated)
