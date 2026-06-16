@@ -1056,7 +1056,7 @@ void NanoMenu::ps3XmbLeft() {
     if (mPvActive) { if (mPvPlChooserActive || mPvWpMode || mPvTrimMode) return;
                      if (mPvPanel || mPvCpSub) pvPanelMove(-1, 0); else pvStep(-1); return; }
     if (ps3TopScreenKind() == GS_ICONGRID) { iconGridNav(-1, 0); return; }
-    if (ps3TopScreenKind() == PHOTO_GRID) { photoGridNav(-1, 0); return; }
+    if (!mPs3DlgActive && ps3TopScreenKind() == PHOTO_GRID) { photoGridNav(-1, 0); return; }
     if (mPs3BrightSlider) { adjustBrightness(-1); return; }   // Quick Menu brightness slider modal
     if (mPs3TzActive) return;   // tzglobe list is vertical only
     if (mPs3LangActive) return; // language list is vertical only
@@ -1090,7 +1090,7 @@ void NanoMenu::ps3XmbRight() {
     if (mPvActive) { if (mPvPlChooserActive || mPvWpMode || mPvTrimMode) return;
                      if (mPvPanel || mPvCpSub) pvPanelMove(+1, 0); else pvStep(+1); return; }
     if (ps3TopScreenKind() == GS_ICONGRID) { iconGridNav(+1, 0); return; }
-    if (ps3TopScreenKind() == PHOTO_GRID) { photoGridNav(+1, 0); return; }
+    if (!mPs3DlgActive && ps3TopScreenKind() == PHOTO_GRID) { photoGridNav(+1, 0); return; }
     if (mPs3BrightSlider) { adjustBrightness(+1); return; }   // Quick Menu brightness slider modal
     if (mPs3TzActive) return;   // tzglobe list is vertical only
     if (mPs3LangActive) return; // language list is vertical only
@@ -1118,7 +1118,7 @@ void NanoMenu::ps3XmbUp() {
                      if (mPvWpMode || mPvTrimMode) return;
                      if (mPvPanel || mPvCpSub) pvPanelMove(0, -1); return; }
     if (ps3TopScreenKind() == GS_ICONGRID) { iconGridNav(0, -1); return; }
-    if (ps3TopScreenKind() == PHOTO_GRID) { photoGridNav(0, -1); return; }
+    if (!mPs3DlgActive && ps3TopScreenKind() == PHOTO_GRID) { photoGridNav(0, -1); return; }
     if (mPs3BrightSlider) { mPs3BrightSlider = false; mShowBrightnessBar = false; mBrightnessBarTimer = 0; return; }
     if (mPs3TzActive) { tzGlobeNav(-1); return; }
     if (mPs3LangActive) { langPickerNav(-1); return; }
@@ -1135,7 +1135,7 @@ void NanoMenu::ps3XmbDown() {
                      if (mPvWpMode || mPvTrimMode) return;
                      if (mPvPanel || mPvCpSub) pvPanelMove(0, +1); return; }
     if (ps3TopScreenKind() == GS_ICONGRID) { iconGridNav(0, +1); return; }
-    if (ps3TopScreenKind() == PHOTO_GRID) { photoGridNav(0, +1); return; }
+    if (!mPs3DlgActive && ps3TopScreenKind() == PHOTO_GRID) { photoGridNav(0, +1); return; }
     if (mPs3BrightSlider) { mPs3BrightSlider = false; mShowBrightnessBar = false; mBrightnessBarTimer = 0; return; }
     if (mPs3TzActive) { tzGlobeNav(+1); return; }
     if (mPs3LangActive) { langPickerNav(+1); return; }
@@ -1161,7 +1161,7 @@ void NanoMenu::ps3XmbSelect() {
         return;
     }
     if (ps3TopScreenKind() == GS_ICONGRID) { iconGridSelect(); return; }
-    if (ps3TopScreenKind() == PHOTO_GRID) { photoGridSelect(); return; }
+    if (!mPs3DlgActive && ps3TopScreenKind() == PHOTO_GRID) { photoGridSelect(); return; }
     if (mPs3BrightSlider) { mPs3BrightSlider = false; mShowBrightnessBar = false; mBrightnessBarTimer = 0; return; }  // X confirms the brightness slider
     if (mPs3TzActive) { closeTimezoneGlobe(true); return; }   // X: apply the highlighted zone + close
     if (mPs3LangActive) { closeLanguagePicker(true); return; }  // X: apply the highlighted language + close
@@ -1444,7 +1444,7 @@ void NanoMenu::ps3XmbBack() {
         closePhotoViewer(); return;
     }
     if (ps3TopScreenKind() == GS_ICONGRID) { closeIconGridPicker(); mPs3Stack.pop_back(); return; }
-    if (ps3TopScreenKind() == PHOTO_GRID) { closePhotoGrid(); mPs3Stack.pop_back(); return; }
+    if (!mPs3DlgActive && ps3TopScreenKind() == PHOTO_GRID) { closePhotoGrid(); mPs3Stack.pop_back(); return; }
     if (mPs3BrightSlider) { mPs3BrightSlider = false; mShowBrightnessBar = false; mBrightnessBarTimer = 0; return; }  // O dismisses the brightness slider
     if (mPs3TzActive) { closeTimezoneGlobe(false); return; }   // O: cancel (keep current zone)
     if (mPs3LangActive) { closeLanguagePicker(false); return; }  // O: cancel (revert the live preview)
@@ -1509,7 +1509,12 @@ void NanoMenu::renderPs3Xmb() {
     if (ps3TopScreenKind() == GS_ICONGRID) { renderIconGridPicker(); return; }
     // The viewer opens ON TOP of the grid level (the grid stays on the stack), so the
     // viewer (mPvActive) must take precedence over the grid screen render.
-    if (!mPvActive && mPvEnterRaw <= 0.004f && ps3TopScreenKind() == PHOTO_GRID) { renderPhotoGrid(); return; }
+    if (!mPvActive && mPvEnterRaw <= 0.004f && ps3TopScreenKind() == PHOTO_GRID) {
+        renderPhotoGrid();
+        if (mPs3OptActive || mPs3OptClosing) renderXmbOpt();   // option menu over the grid
+        if (mPs3DlgActive || mPs3DlgClosing) renderPs3Dialog(); // Information dialog over the grid
+        return;
+    }
 
     // Overlay entrance: when the in-game overlay is raised, the blurred backdrop
     // is already there; the XMB chrome (category labels/icons, item list, clock)
@@ -3956,19 +3961,37 @@ void NanoMenu::openXmbOpt() {
     if (mPs3OptActive) return;
     // Only over the live home column - never while another modal owns input, and
     // not over a live in-game app in the overlay (where a dialog could fight it).
-    if (mPs3DlgActive || mMpActive || mPs3WizActive || mPs3TzActive || mPs3LangActive
+    if (mPs3DlgActive || mMpActive || mPvActive || mPs3WizActive || mPs3TzActive || mPs3LangActive
         || mPs3BrightSlider || mOskActive) return;
     if (mOverlayMode && !mOverlayWallpaper) return;
-    std::vector<Ps3Item>& items = ps3CurItems();
-    int sel = ps3CurSel();
-    if (items.empty() || sel < 0 || sel >= (int)items.size()) return;
-    const Ps3Item& it = items[sel];
 
     mPs3OptLabels.clear(); mPs3OptActs.clear(); mPs3OptStart.clear();
     auto add = [&](const char* label, const char* act, bool start) {
         mPs3OptLabels.push_back(label); mPs3OptActs.push_back(act);
         mPs3OptStart.push_back(start ? 1 : 0);
     };
+
+    // Photo thumbnail grid: per-photo options for the focused thumbnail (the grid
+    // is a full-takeover screen with an empty stack level, so it is handled before
+    // the normal item-list path).
+    if (ps3TopScreenKind() == PHOTO_GRID) {
+        if (mPhotoGridCursor < 0 || mPhotoGridCursor >= (int)mPhotoGridList.size()) return;
+        int pIdx = mPhotoGridList[mPhotoGridCursor];
+        add("View", "pgview", true);
+        add("Slideshow", "pgslidegrid", false);
+        add("Information", "photoinfo", false);
+        mPs3OptCtxKind = PS3_PHOTO; mPs3OptCtxA = pIdx; mPs3OptCtxB = 0;
+        mPs3OptCtxLabel = (pIdx >= 0 && pIdx < (int)mPhotos.size()) ? mPhotos[pIdx].name : std::string();
+        mPs3OptCtxPayload.clear(); mPs3OptCtxDesc.clear();
+        mPs3OptCtxList.clear(); mPs3OptCtxSel = 0;
+        mPs3OptSel = 0; mPs3OptActive = true; mPs3OptClosing = false; mPs3OptAnim = 0.0f; mPs3OptBlurValid = false;
+        return;
+    }
+
+    std::vector<Ps3Item>& items = ps3CurItems();
+    int sel = ps3CurSel();
+    if (items.empty() || sel < 0 || sel >= (int)items.size()) return;
+    const Ps3Item& it = items[sel];
     switch (it.kind) {
         case PS3_ROM: case PS3_RECENT:
         case PS3_APP: case PS3_LAUNCH_PKG:
@@ -4117,6 +4140,33 @@ void NanoMenu::xmbOptAction(const std::string& act) {
         std::vector<PhotoGroup> groups = photoGroups();
         if (mPs3OptCtxA >= 0 && mPs3OptCtxA < (int)groups.size() && !groups[mPs3OptCtxA].idx.empty())
             pvSlideshowStart(groups[mPs3OptCtxA].idx, 0, mPvSlideStyle);
+        return;
+    }
+    if (act == "pgview" || act == "pgslidegrid") {   // open / slideshow the focused grid photo
+        int vi = 0; for (size_t i = 0; i < mPhotoGridList.size(); i++)
+            if (mPhotoGridList[i] == mPs3OptCtxA) { vi = (int)i; break; }
+        if (act == "pgview") openPhotoViewer(mPhotoGridList, vi);
+        else pvSlideshowStart(mPhotoGridList, vi, mPvSlideStyle);
+        return;
+    }
+    if (act == "photoinfo") {   // photo Information (File / Date taken / Image size / Size)
+        std::string title = mPs3OptCtxLabel.empty() ? std::string("Information") : mPs3OptCtxLabel;
+        std::string body = "No information is available.";
+        if (mPs3OptCtxA >= 0 && mPs3OptCtxA < (int)mPhotos.size()) {
+            const PhotoItem& p = mPhotos[mPs3OptCtxA];
+            std::string dim = (p.w && p.h) ? (std::to_string(p.w) + " x " + std::to_string(p.h)) : std::string("-");
+            char b[320];
+            snprintf(b, sizeof(b), "File          %s\nDate taken    %s\nImage size    %s\nSize          %s",
+                     p.name.c_str(), fmtPhotoDate(p.date).c_str(), dim.c_str(), fmtFileSize(p.sz).c_str());
+            body = b;
+        }
+        mPs3DlgOptions.clear(); mPs3DlgSwatch.clear();
+        mPs3DlgKind = 0; mPs3DlgType = 0; mPs3DlgThemeKey = 0; mPs3DlgBinding = nullptr;
+        mPs3DlgIllust = 0; mPs3DlgNotice.clear();
+        mPs3DlgTitle = title; mPs3DlgBody = body;
+        mPs3DlgSel = 0; mPs3DlgOrigSel = 0;
+        mPs3DlgIconTex = 0; mPs3DlgIconNmap = 0; mPs3DlgIconR = mPs3DlgIconG = mPs3DlgIconB = 1.0f;
+        mPs3DlgActive = true; mPs3DlgAnim = 0.0f; mPs3DlgBlurValid = false;
         return;
     }
     if (act == "photofolderinfo") {   // folder Information (Folder / Images / Size)
