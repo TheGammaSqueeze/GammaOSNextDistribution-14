@@ -1180,7 +1180,10 @@ void NanoMenu::pollInput() {
                         navPress(NavDir::Right); break;
                     case BTN_WEST: // Y button (Nintendo layout: BTN_WEST = Y); PS3 Square in music
                         if (mMpActive && !mOskActive) { mpCycleVis(); break; }   // Square: cycle the visualizer
-                        if (mPvActive && !mOskActive) break;   // Square in the photo viewer: reserved (2D/3D)
+                        if (mPvActive && !mOskActive) {   // Square in the viewer: 2D/3D switch
+                            if (!mPvWpMode && !mPvTrimMode && !mPvPlChooserActive) pvShow3D();
+                            break;
+                        }
                         // Photo column root: Square cycles Group Content (By Month/Year/Album/All).
                         if (mPs3Xmb && !mOskActive && mPs3Stack.empty() && !mPs3OptActive && !mPs3DlgActive
                             && mPhotoLoaded && mPs3CatIdx >= 0 && mPs3CatIdx < (int)mPs3Cats.size()

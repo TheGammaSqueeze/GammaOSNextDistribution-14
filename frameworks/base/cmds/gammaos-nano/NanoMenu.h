@@ -1651,6 +1651,9 @@ private:
     float mPvWpZoom = 1.0f;
     void  pvWallpaperConfirm();
     void  pvShowDeleteConfirm();
+    // transient full-screen message (Delete / 2D-3D / wallpaper-set), music-style
+    std::string mPvMsg; float mPvMsgStart = -1.0f; float mPvMsgDur = 0.0f;
+    void  pvShowMsg(const std::string& text, float durMs);
     // control panel (TRIANGLE) - mirrors the Music MP_CP look
     bool  mPvPanel = false;
     int   mPvCpSel = 0, mPvCpSelPrev = -1;

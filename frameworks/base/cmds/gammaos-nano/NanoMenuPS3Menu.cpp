@@ -1053,7 +1053,8 @@ void NanoMenu::ps3XmbLeft() {
                mMpSeekTarget = p; mMpSeekPending = true; mMpSeekInputT = mEffectTime; }
         return;
     }
-    if (mPvActive) { if (mPvPanel || mPvCpSub) pvPanelMove(-1, 0); else pvStep(-1); return; }
+    if (mPvActive) { if (mPvPlChooserActive || mPvWpMode || mPvTrimMode) return;
+                     if (mPvPanel || mPvCpSub) pvPanelMove(-1, 0); else pvStep(-1); return; }
     if (ps3TopScreenKind() == GS_ICONGRID) { iconGridNav(-1, 0); return; }
     if (ps3TopScreenKind() == PHOTO_GRID) { photoGridNav(-1, 0); return; }
     if (mPs3BrightSlider) { adjustBrightness(-1); return; }   // Quick Menu brightness slider modal
@@ -1086,7 +1087,8 @@ void NanoMenu::ps3XmbRight() {
                mMpSeekTarget = np; mMpSeekPending = true; mMpSeekInputT = mEffectTime; }
         return;
     }
-    if (mPvActive) { if (mPvPanel || mPvCpSub) pvPanelMove(+1, 0); else pvStep(+1); return; }
+    if (mPvActive) { if (mPvPlChooserActive || mPvWpMode || mPvTrimMode) return;
+                     if (mPvPanel || mPvCpSub) pvPanelMove(+1, 0); else pvStep(+1); return; }
     if (ps3TopScreenKind() == GS_ICONGRID) { iconGridNav(+1, 0); return; }
     if (ps3TopScreenKind() == PHOTO_GRID) { photoGridNav(+1, 0); return; }
     if (mPs3BrightSlider) { adjustBrightness(+1); return; }   // Quick Menu brightness slider modal
@@ -1112,7 +1114,9 @@ void NanoMenu::ps3XmbUp() {
     if (mPs3OptActive) { xmbOptMove(-1); return; }
     if (mMpActive) { if (mMpPlChooserActive) { mpPlChooserMove(-1); return; }
                      if (mMpCpOpen) mpOptMove(0, +1); return; }   // panel grid nav (screen-up = grid-up)
-    if (mPvActive) { if (mPvPanel || mPvCpSub) pvPanelMove(0, -1); return; }
+    if (mPvActive) { if (mPvPlChooserActive) { pvPlChooserMove(-1); return; }
+                     if (mPvWpMode || mPvTrimMode) return;
+                     if (mPvPanel || mPvCpSub) pvPanelMove(0, -1); return; }
     if (ps3TopScreenKind() == GS_ICONGRID) { iconGridNav(0, -1); return; }
     if (ps3TopScreenKind() == PHOTO_GRID) { photoGridNav(0, -1); return; }
     if (mPs3BrightSlider) { mPs3BrightSlider = false; mShowBrightnessBar = false; mBrightnessBarTimer = 0; return; }
@@ -1127,7 +1131,9 @@ void NanoMenu::ps3XmbDown() {
     if (mPs3OptActive) { xmbOptMove(+1); return; }
     if (mMpActive) { if (mMpPlChooserActive) { mpPlChooserMove(+1); return; }
                      if (mMpCpOpen) mpOptMove(0, -1); return; }   // panel grid nav (screen-down = grid-down)
-    if (mPvActive) { if (mPvPanel || mPvCpSub) pvPanelMove(0, +1); return; }
+    if (mPvActive) { if (mPvPlChooserActive) { pvPlChooserMove(+1); return; }
+                     if (mPvWpMode || mPvTrimMode) return;
+                     if (mPvPanel || mPvCpSub) pvPanelMove(0, +1); return; }
     if (ps3TopScreenKind() == GS_ICONGRID) { iconGridNav(0, +1); return; }
     if (ps3TopScreenKind() == PHOTO_GRID) { photoGridNav(0, +1); return; }
     if (mPs3BrightSlider) { mPs3BrightSlider = false; mShowBrightnessBar = false; mBrightnessBarTimer = 0; return; }
@@ -1147,7 +1153,13 @@ void NanoMenu::ps3XmbSelect() {
         else mpAudioCmd(mMusicPlayer.isPlaying() ? MpAudioCmd::Pause : MpAudioCmd::Play);
         return;
     }
-    if (mPvActive) { if (mPvPanel) pvPanelActivate(); return; }   // X: activate the focused panel control
+    if (mPvActive) {   // X: chooser select / range-selector confirm / panel activate
+        if (mPvPlChooserActive) { pvPlChooserSelect(); return; }
+        if (mPvWpMode) { pvWallpaperConfirm(); return; }
+        if (mPvTrimMode) { mPvTrimMode = false; pvShowMsg("The image has been trimmed.", 1100.0f); return; }
+        if (mPvPanel) pvPanelActivate();
+        return;
+    }
     if (ps3TopScreenKind() == GS_ICONGRID) { iconGridSelect(); return; }
     if (ps3TopScreenKind() == PHOTO_GRID) { photoGridSelect(); return; }
     if (mPs3BrightSlider) { mPs3BrightSlider = false; mShowBrightnessBar = false; mBrightnessBarTimer = 0; return; }  // X confirms the brightness slider
@@ -1239,6 +1251,20 @@ void NanoMenu::ps3XmbSelect() {
             openPhotoViewer(list, vi);
             return;
         }
+        case PS3_PHOTO_PL_NEW: {
+            openOskForPassword("Enter a name for the playlist",
+                [this](const std::string& nm){ photoCreatePlaylist(nm);
+                    if (!mPs3Stack.empty() && mPs3Stack.back().screenKind == 0
+                        && mPs3Stack.back().title == "Playlists")
+                        buildPhotoPlaylistsScreen(mPs3Stack.back()); });
+            return;
+        }
+        case PS3_PHOTO_PLAYLIST: {   // open the playlist's thumbnail grid
+            std::vector<int> list; std::string title;
+            buildPhotoPlaylistGridList(it.a, list, title);
+            openPhotoGrid(list, title, it.a);
+            return;
+        }
         case PS3_MUSIC_ALBUM:    { Ps3Level lvl; buildMusicAlbumSubmenu(it.a, lvl); mPs3Stack.push_back(lvl); break; }
         case PS3_MUSIC_PLAYLIST: { Ps3Level lvl; buildMusicPlaylistSubmenu(it.a, lvl); mPs3Stack.push_back(lvl); break; }
         case PS3_MUSIC_TRACK: {
@@ -1305,6 +1331,15 @@ void NanoMenu::ps3XmbSelect() {
                                && mPs3Cats[mPs3CatIdx].name == "Photo");
             if (inPhotoCat && it.label == "Search for Media Servers") { photoOpenFolders(); return; }
             if (inPhotoCat && it.label == "Photo Gallery") { return; }   // info item (no-op)
+            if (inPhotoCat && it.label == "Playlists") {
+                photoEnsureLoaded();
+                std::vector<Ps3Item> ps = ps3CurItems(); int pSel = ps3CurSel();
+                Ps3Level lvl; buildPhotoPlaylistsScreen(lvl); mPs3Stack.push_back(lvl);
+                mPs3SubParentItems = ps; mPs3SubParentIdx = pSel; mPs3SubChildItems = mPs3Stack.back().items;
+                mPs3SubDir = 1; mPs3SubAnimStart = mEffectTime; mPs3SubAnim = 0.0f;
+                mPs3AnimItem = 0.0f; mPs3ItemAnimStart = -1.0f;
+                return;
+            }
             if (inMusicCat && it.label == "Search for Media Servers") { musicOpenFolders(); return; }
             if (inMusicCat && it.label == "Playlists") {
                 musicEnsureLoaded();
@@ -1400,7 +1435,9 @@ void NanoMenu::ps3XmbBack() {
     if (mPs3OptActive) { closeXmbOpt(); return; }   // option menu: O dismisses
     if (mMpActive) { if (mMpPlChooserActive) { mpPlChooserCancel(); return; }
                      if (mMpCpOpen) mpOptBack(); else minimizeMusicPlayer(); return; }   // O: chooser cancel / panel back / minimize (audio keeps playing)
-    if (mPvActive) {   // O: submenu -> panel -> stop slideshow -> close the viewer
+    if (mPvActive) {   // O: chooser/range cancel -> submenu -> panel -> stop slideshow -> close
+        if (mPvPlChooserActive) { pvPlChooserCancel(); return; }
+        if (mPvWpMode || mPvTrimMode) { mPvWpMode = false; mPvTrimMode = false; return; }
         if (mPvCpSub) { mPvCpSub = false; return; }
         if (mPvPanel || mPvCpClosing) { pvPanelBack(); return; }
         if (mPvSlideshow) { mPvSlideshow = false; mPvPaused = false; return; }

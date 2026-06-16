@@ -29,6 +29,7 @@
 
 #include "NanoMenu.h"
 #include "NanoMenuPS3.h"
+#include "NanoMenuDrm.h"   // sDrmGlRotation / sDrmRotationDeg for the wallpaper crop scissor
 #include "NanoJson.h"
 
 #include <android/imagedecoder.h>
@@ -939,6 +940,7 @@ void NanoMenu::renderPhotoViewer() {
         drawText(t2, px + padX, ps3::baselineToTopY(y2 + fs * 0.0f + PSZ(0.018f), fs), fs, 1, 1, 1, 0.95f * hintA);
     }
 
+    if (mPvWpMode || mPvTrimMode) drawPvWallpaperSel();   // Set as Wallpaper / Trimming range selector
     if (mPvInfo) drawPvInfo();
     if (mPvPanel) drawPvPanel(-1.0f);
     else if (mPvCpClosing) {
@@ -946,6 +948,19 @@ void NanoMenu::renderPhotoViewer() {
         if (p >= 1.0f) mPvCpClosing = false; else drawPvPanel(1.0f - p);
     }
     if (mPvDispModeUntil > mEffectTime) drawPvDispModePill();
+    if (mPvPlChooserActive || mPvPlChooserAnim > 0.004f) drawPvPlChooser();
+    // transient full-screen message (Delete / 2D-3D / wallpaper-set), music-style
+    if (mPvMsgStart >= 0.0f) {
+        float el = (mEffectTime - mPvMsgStart) * 1000.0f;
+        if (el >= mPvMsgDur) mPvMsgStart = -1.0f;
+        else {
+            float fade = fminf(1.0f, el / 150.0f) * fminf(1.0f, fmaxf(0.0f, (mPvMsgDur - el)) / 200.0f);
+            drawQuad(0, 0, (float)W, (float)H, 0, 0, 0, 0.45f * fade);
+            float ms = PFS(28.0f); float mw = measureText(mPvMsg.c_str(), ms);
+            drawText(mPvMsg.c_str(), (W - mw) * 0.5f,
+                     ps3::baselineToTopY(PYP(0.5f), ms), ms, 1.0f, 1.0f, 1.0f, fade);
+        }
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -1179,12 +1194,13 @@ void NanoMenu::pvPanelActivate() {
         mPvCpSubOpts = {"Normal", "Slide", "Portrait", "Photo Album", "Photo Album 2"};
         mPvCpSubSel = (mPvSlideStyle >= 0 && mPvSlideStyle < 5) ? mPvSlideStyle : 0;
     }
-    // delete / wallpaper / trim / print / addpl: wired in the next pass.
-    else if (!strcmp(a, "delete"))    { mPvPanel = false; }
-    else if (!strcmp(a, "wallpaper")) { mPvPanel = false; }
-    else if (!strcmp(a, "trim"))      { mPvPanel = false; }
-    else if (!strcmp(a, "print"))     { mPvPanel = false; }
-    else if (!strcmp(a, "addpl"))     { mPvPanel = false; }
+    else if (!strcmp(a, "delete"))    { mPvPanel = false; pvShowDeleteConfirm(); }
+    else if (!strcmp(a, "wallpaper")) { mPvPanel = false; mPvWpMode = true; mPvWpZoom = 1.0f; mPvHintUntil = 0.0f; }
+    else if (!strcmp(a, "trim"))      { mPvPanel = false; mPvTrimMode = true; mPvWpZoom = 1.0f; mPvHintUntil = 0.0f; }
+    else if (!strcmp(a, "print"))     { mPvPanel = false; }   // no printer in this environment (web closes too)
+    else if (!strcmp(a, "addpl"))     { mPvPanel = false;
+        if (mPvIdx >= 0 && mPvIdx < (int)mPvList.size())
+            pvOpenAddChooser(mPhotos[mPvList[mPvIdx]].file); }
 }
 
 void NanoMenu::drawPvPanel(float closeT) {
@@ -1288,14 +1304,189 @@ void NanoMenu::drawPvPanel(float closeT) {
 // timers that must run even when the viewer is not the active render path).
 // ---------------------------------------------------------------------------
 void NanoMenu::photoTick() {
+    // add-to-playlist chooser fade (ease toward target)
+    float dt0 = mFrameDt; if (dt0 < 0.0f || dt0 > 0.2f) dt0 = 0.016f;
+    float ct = mPvPlChooserActive ? 1.0f : 0.0f;
+    mPvPlChooserAnim += (ct - mPvPlChooserAnim) * fminf(1.0f, dt0 * 10.0f);
     if (!mPvActive) {
         // ease the enter fade back to 0 so a re-open starts from black
-        float dt = mFrameDt; if (dt < 0.0f || dt > 0.2f) dt = 0.016f;
         if (mPvEnterRaw > 0.0f) {
-            mPvEnterRaw = fmaxf(0.0f, mPvEnterRaw - (dt * 1000.0f) / 400.0f);
+            mPvEnterRaw = fmaxf(0.0f, mPvEnterRaw - (dt0 * 1000.0f) / 400.0f);
             mPvEnterT = mPvEnterRaw * mPvEnterRaw * (3.0f - 2.0f * mPvEnterRaw);
         }
     }
+}
+
+// ---------------------------------------------------------------------------
+// Transient message, delete and 2D/3D (music-style full-screen message).
+// ---------------------------------------------------------------------------
+void NanoMenu::pvShowMsg(const std::string& text, float durMs) {
+    mPvMsg = text; mPvMsgStart = mEffectTime; mPvMsgDur = durMs;
+}
+void NanoMenu::pvShowDeleteConfirm() {
+    // Simulated delete (the web does not unlink the real file either); show the
+    // same completion message style the music player uses.
+    pvShowMsg("Delete completed.", 1100.0f);
+}
+void NanoMenu::pvShow3D() {
+    // 3D display cannot render here; report it the way the firmware fallback does.
+    pvShowMsg("An error occurred while switching to display in 3D.", 1600.0f);
+}
+
+// ---------------------------------------------------------------------------
+// Set as Wallpaper / Trimming range selector (1:1 web drawPvWallpaper).
+// ---------------------------------------------------------------------------
+void NanoMenu::drawPvWallpaperSel() {
+    if (!mPvWpMode && !mPvTrimMode) return;
+    if (mPvList.empty()) return;
+    int W = mWidth, H = mHeight;
+    drawQuad(0, 0, (float)W, (float)H, 0, 0, 0, 1.0f);   // black backdrop over the photo
+    if (mPvWpMode) {
+        const char* hdr = "Specify the range to use as wallpaper.";
+        float fs = PFS(26.0f); float hw = measureText(hdr, fs);
+        drawText(hdr, (W - hw) * 0.5f, ps3::baselineToTopY(PYP(0.085f), fs), fs, 0.92f, 0.92f, 0.92f, 0.95f);
+    }
+    // 16:9 crop frame, photo cover-filled inside it
+    float fw = W * 0.62f, fh = fw * 9.0f / 16.0f;
+    float fx = (W - fw) * 0.5f, fy = (H - fh) * 0.5f + H * 0.01f;
+    int iw = 0, ih = 0;
+    GLuint tex = pvTex(mPvList[mPvIdx], &iw, &ih);
+    if (tex && iw > 0 && ih > 0) {
+        // scissor-clip to the crop frame, draw the photo cover-filling it
+        int lx = (int)fx, ly = (int)fy, lw = (int)fw, lh = (int)fh;
+        int sx, sy, sw, sh;
+        switch (sDrmGlRotation ? sDrmRotationDeg : 0) {
+        case 90:  sx = ly; sy = (int)W - lx - lw; sw = lh; sh = lw; break;
+        case 180: sx = (int)W - lx - lw; sy = (int)H - ly - lh; sw = lw; sh = lh; break;
+        case 270: sx = (int)H - ly - lh; sy = lx; sw = lh; sh = lw; break;
+        default:  sx = lx; sy = ly; sw = lw; sh = lh; break;
+        }
+        glEnable(GL_SCISSOR_TEST); glScissor(sx, sy, sw, sh);
+        float z = mPvWpZoom <= 0 ? 1.0f : mPvWpZoom;
+        float s = fmaxf(fw / iw, fh / ih) * z;
+        float dw = iw * s, dh = ih * s;
+        drawIconTex(tex, fx + (fw - dw) * 0.5f, fy + (fh - dh) * 0.5f, dw, dh, 1, 1, 1, 1.0f);
+        glDisable(GL_SCISSOR_TEST);
+    }
+    // crop frame border
+    float bw = fmaxf(2.0f, H * 0.003f);
+    drawQuad(fx, fy, fw, bw, 1, 1, 1, 0.9f);
+    drawQuad(fx, fy + fh - bw, fw, bw, 1, 1, 1, 0.9f);
+    drawQuad(fx, fy, bw, fh, 1, 1, 1, 0.9f);
+    drawQuad(fx + fw - bw, fy, bw, fh, 1, 1, 1, 0.9f);
+    // bottom button hints
+    float hs = PFS(24.0f);
+    drawText("Enter", W * 0.42f, ps3::baselineToTopY(H * 0.935f, hs), hs, 1, 1, 1, 0.95f);
+    drawText("Back", W * 0.58f, ps3::baselineToTopY(H * 0.935f, hs), hs, 1, 1, 1, 0.95f);
+}
+void NanoMenu::pvWallpaperConfirm() {
+    mPvWpMode = false;
+    if (mPvIdx >= 0 && mPvIdx < (int)mPvList.size()) {
+        const std::string& f = mPhotos[mPvList[mPvIdx]].file;
+        property_set("persist.gammaos.nano.photo_wallpaper", f.c_str());
+    }
+    pvShowMsg("The wallpaper has been set.", 1100.0f);
+}
+
+// ---------------------------------------------------------------------------
+// Photo playlists + the add-to-playlist chooser.
+// ---------------------------------------------------------------------------
+void NanoMenu::photoCreatePlaylist(const std::string& name) {
+    if (name.empty()) return;
+    PhotoPlaylist pl; pl.name = name;
+    mPhotoPlaylists.push_back(pl);
+    savePhotoConfig();
+}
+void NanoMenu::photoAddToPlaylist(int plIdx, const std::string& file) {
+    if (plIdx < 0 || plIdx >= (int)mPhotoPlaylists.size() || file.empty()) return;
+    auto& files = mPhotoPlaylists[plIdx].files;
+    if (std::find(files.begin(), files.end(), file) == files.end()) files.push_back(file);
+    savePhotoConfig();
+}
+void NanoMenu::buildPhotoPlaylistsScreen(Ps3Level& out) {
+    out.items.clear(); out.sel = 0; out.title = "Playlists"; out.screenKind = 0;
+    { Ps3Item it; it.label = "Create New Playlist"; it.kind = PS3_PHOTO_PL_NEW;
+      it.iconTex = 0; it.nmapTex = nmapForIcon(50); it.iconR = it.iconG = it.iconB = 1.0f;
+      out.items.push_back(it); }
+    for (size_t p = 0; p < mPhotoPlaylists.size(); p++) {
+        Ps3Item it; it.label = mPhotoPlaylists[p].name; it.kind = PS3_PHOTO_PLAYLIST; it.a = (int)p;
+        size_t n = mPhotoPlaylists[p].files.size();
+        char v[32]; snprintf(v, sizeof(v), "%zu %s", n, n == 1 ? "Image" : "Images"); it.value = v;
+        it.iconTex = 0; it.nmapTex = nmapForIcon(62); it.iconR = it.iconG = it.iconB = 1.0f;
+        out.items.push_back(it);
+    }
+}
+void NanoMenu::buildPhotoPlaylistGridList(int plIdx, std::vector<int>& out, std::string& title) {
+    out.clear();
+    if (plIdx < 0 || plIdx >= (int)mPhotoPlaylists.size()) { title = "Playlist"; return; }
+    title = mPhotoPlaylists[plIdx].name;
+    for (const auto& f : mPhotoPlaylists[plIdx].files)
+        for (size_t i = 0; i < mPhotos.size(); i++)
+            if (mPhotos[i].file == f) { out.push_back((int)i); break; }
+}
+void NanoMenu::pvOpenAddChooser(const std::string& file) {
+    mPvPlChooserFile = file;
+    mPvPlChooserOpts.clear();
+    mPvPlChooserOpts.push_back("New Playlist...");
+    for (const auto& p : mPhotoPlaylists) mPvPlChooserOpts.push_back(p.name);
+    mPvPlChooserSel = 0;
+    mPvPlChooserActive = true;
+}
+void NanoMenu::pvPlChooserMove(int dir) {
+    if (!mPvPlChooserActive) return;
+    int n = (int)mPvPlChooserOpts.size(); if (n <= 0) return;
+    mPvPlChooserSel = (mPvPlChooserSel + dir + n) % n;
+}
+void NanoMenu::pvPlChooserCancel() { mPvPlChooserActive = false; }
+void NanoMenu::pvPlChooserSelect() {
+    if (!mPvPlChooserActive) return;
+    std::string file = mPvPlChooserFile;
+    int sel = mPvPlChooserSel;
+    mPvPlChooserActive = false;
+    if (sel == 0) {
+        openOskForPassword("Enter a name for the playlist",
+            [this, file](const std::string& nm) {
+                if (nm.empty()) return;
+                photoCreatePlaylist(nm);
+                photoAddToPlaylist((int)mPhotoPlaylists.size() - 1, file);
+                pvShowMsg("Added to the playlist", 900.0f);
+            });
+    } else {
+        photoAddToPlaylist(sel - 1, file);
+        pvShowMsg("Added to the playlist", 900.0f);
+    }
+}
+void NanoMenu::drawPvPlChooser() {
+    float t = mPvPlChooserAnim; if (t < 0.004f) return;
+    int W = mWidth, H = mHeight;
+    drawQuad(0, 0, (float)W, (float)H, 0, 0, 0, 0.5f * t);
+    float fs = PFS(26.0f), lh = PSZ(0.058f);
+    int n = (int)mPvPlChooserOpts.size();
+    float mw = measureText("Add to Playlist", fs);
+    for (auto& o : mPvPlChooserOpts) mw = fmaxf(mw, measureText(o.c_str(), fs));
+    float pw = mw + PXD(0.08f), ph = lh * (n + 1) + PSZ(0.05f);
+    float px = (W - pw) * 0.5f, py = (H - ph) * 0.5f;
+    drawQuad(px, py, pw, ph, 0.07f, 0.08f, 0.10f, 0.92f * t);
+    float cx = W * 0.5f;
+    float titleY = py + PSZ(0.05f);
+    float tw = measureText("Add to Playlist", fs);
+    drawText("Add to Playlist", cx - tw * 0.5f, ps3::baselineToTopY(titleY, fs), fs, 1, 1, 1, 0.95f * t);
+    for (int i = 0; i < n; i++) {
+        float oy = titleY + lh * (i + 1);
+        bool sel = (i == mPvPlChooserSel);
+        if (sel) drawQuad(px + PXD(0.02f), oy - lh * 0.42f, pw - PXD(0.04f), lh * 0.82f, 1, 1, 1, 0.18f * t);
+        float ow = measureText(mPvPlChooserOpts[i].c_str(), fs);
+        drawText(mPvPlChooserOpts[i].c_str(), cx - ow * 0.5f, ps3::baselineToTopY(oy, fs), fs,
+                 sel ? 1.0f : 0.82f, sel ? 1.0f : 0.82f, sel ? 1.0f : 0.85f, 0.95f * t);
+    }
+}
+void NanoMenu::pvSlideshowStart(const std::vector<int>& list, int idx, int style) {
+    openPhotoViewer(list, idx);
+    if (!mPvActive) return;
+    mPvSlideStyle = style;
+    mPvSlideshow = true; mPvPaused = false;
+    mPvSlideNext = mEffectTime * 1000.0f + mPvSlideMs;
+    mPvHintUntil = 0.0f;
 }
 
 } // namespace android
