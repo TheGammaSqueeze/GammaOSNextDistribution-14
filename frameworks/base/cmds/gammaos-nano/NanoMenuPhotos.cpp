@@ -650,6 +650,32 @@ void NanoMenu::photoFreeCovers() {
     mPhotoCoverCache.clear();
 }
 
+// Folder-shaped column icon (silver folder + tab) with the cover photo / album art
+// inset in the body - the web XMB photo-folder look. coverTex 0 = plain folder.
+void NanoMenu::drawFolderIcon(float ix, float iy, float dsz, float alpha, GLuint coverTex) {
+    float a = alpha;
+    // soft drop shadow under the folder so it reads over the bright wave
+    drawRoundedRect(ix + dsz * 0.05f, iy + dsz * 0.20f, dsz * 0.92f, dsz * 0.76f,
+                    dsz * 0.07f, 0.0f, 0.0f, 0.0f, mPs3ShadowAlpha * 0.6f * a);
+    // tab (behind the body; only its top sliver shows above the body's top edge)
+    drawRoundedRect(ix + dsz * 0.07f, iy + dsz * 0.075f, dsz * 0.40f, dsz * 0.17f,
+                    dsz * 0.045f, 0.78f, 0.79f, 0.83f, a);
+    // body
+    float bx = ix + dsz * 0.035f, by = iy + dsz * 0.165f, bw = dsz * 0.93f, bh = dsz * 0.77f;
+    drawRoundedRect(bx, by, bw, bh, dsz * 0.06f, 0.85f, 0.86f, 0.90f, a);
+    // top highlight strip for a little depth
+    drawRoundedRect(bx, by, bw, dsz * 0.05f, dsz * 0.06f, 0.95f, 0.96f, 0.99f, a * 0.55f);
+    // cover inset: a centred square (the covers are square crops), nudged into the body
+    if (coverTex) {
+        float cs = dsz * 0.66f;
+        float cx = ix + (dsz - cs) * 0.5f;
+        float cy = by + bh * 0.5f - cs * 0.5f + dsz * 0.035f;
+        drawQuad(cx - dsz * 0.012f, cy - dsz * 0.012f, cs + dsz * 0.024f, cs + dsz * 0.024f,
+                 0.08f, 0.08f, 0.10f, a);                       // thin dark mat
+        drawIconTex(coverTex, cx, cy, cs, cs, 1.0f, 1.0f, 1.0f, a);
+    }
+}
+
 void NanoMenu::openPhotoGrid(const std::vector<int>& list, const std::string& title, int fromPl) {
     mPhotoGridList = list;
     mPhotoGridCursor = 0;
@@ -1012,18 +1038,20 @@ void NanoMenu::renderPhotoViewer() {
     }
     if (mPvDispModeUntil > mEffectTime) drawPvDispModePill();
     if (mPvPlChooserActive || mPvPlChooserAnim > 0.004f) drawPvPlChooser();
-    // transient full-screen message (Delete / 2D-3D / wallpaper-set), music-style
-    if (mPvMsgStart >= 0.0f) {
-        float el = (mEffectTime - mPvMsgStart) * 1000.0f;
-        if (el >= mPvMsgDur) mPvMsgStart = -1.0f;
-        else {
-            float fade = fminf(1.0f, el / 150.0f) * fminf(1.0f, fmaxf(0.0f, (mPvMsgDur - el)) / 200.0f);
-            drawQuad(0, 0, (float)W, (float)H, 0, 0, 0, 0.45f * fade);
-            float ms = PFS(28.0f); float mw = measureText(mPvMsg.c_str(), ms);
-            drawText(mPvMsg.c_str(), (W - mw) * 0.5f,
-                     ps3::baselineToTopY(PYP(0.5f), ms), ms, 1.0f, 1.0f, 1.0f, fade);
-        }
-    }
+    drawPhotoMsg();
+}
+
+// Shared transient full-screen message (Delete / Copy / 2D-3D / wallpaper-set),
+// music-player style; drawn by the viewer, the grid and the multi-select screen.
+void NanoMenu::drawPhotoMsg() {
+    if (mPvMsgStart < 0.0f) return;
+    int W = mWidth, H = mHeight;
+    float el = (mEffectTime - mPvMsgStart) * 1000.0f;
+    if (el >= mPvMsgDur) { mPvMsgStart = -1.0f; return; }
+    float fade = fminf(1.0f, el / 150.0f) * fminf(1.0f, fmaxf(0.0f, (mPvMsgDur - el)) / 200.0f);
+    drawQuad(0, 0, (float)W, (float)H, 0, 0, 0, 0.45f * fade);
+    float ms = PFS(28.0f); float mw = measureText(mPvMsg.c_str(), ms);
+    drawText(mPvMsg.c_str(), (W - mw) * 0.5f, ps3::baselineToTopY(PYP(0.5f), ms), ms, 1.0f, 1.0f, 1.0f, fade);
 }
 
 // ---------------------------------------------------------------------------
@@ -1550,6 +1578,101 @@ void NanoMenu::pvSlideshowStart(const std::vector<int>& list, int idx, int style
     mPvSlideshow = true; mPvPaused = false;
     mPvSlideNext = mEffectTime * 1000.0f + mPvSlideMs;
     mPvHintUntil = 0.0f;
+}
+
+// ---------------------------------------------------------------------------
+// Multi-select (Delete Multiple / Copy Multiple) checkbox screen (web photoMulti).
+// ---------------------------------------------------------------------------
+void NanoMenu::photoMultiOpen(int mode) {
+    if (mPhotoGridList.empty()) return;
+    mPhotoMultiItems = mPhotoGridList;
+    mPhotoMultiMode = mode;
+    mPhotoMultiSel = (mPhotoGridCursor >= 0 && mPhotoGridCursor < (int)mPhotoMultiItems.size())
+                         ? mPhotoGridCursor : 0;
+    mPhotoMultiBtn = -1;
+    mPhotoMultiChecked.clear();
+    mPhotoMultiActive = true;
+}
+void NanoMenu::photoMultiClose() { mPhotoMultiActive = false; mPhotoMultiItems.clear(); mPhotoMultiChecked.clear(); }
+void NanoMenu::photoMultiMove(int d) {
+    if (mPhotoMultiBtn >= 0) { mPhotoMultiBtn += d; if (mPhotoMultiBtn < 0) mPhotoMultiBtn = 0; if (mPhotoMultiBtn > 2) mPhotoMultiBtn = 2; return; }
+    int n = (int)mPhotoMultiItems.size(); if (n <= 0) return;
+    mPhotoMultiSel += d; if (mPhotoMultiSel < 0) mPhotoMultiSel = 0; if (mPhotoMultiSel >= n) mPhotoMultiSel = n - 1;
+}
+void NanoMenu::photoMultiLR(int d) {
+    if (d > 0) { if (mPhotoMultiBtn < 0) mPhotoMultiBtn = 0; }
+    else       { if (mPhotoMultiBtn >= 0) mPhotoMultiBtn = -1; }
+}
+void NanoMenu::photoMultiActivate() {
+    if (mPhotoMultiBtn == 0) {        // Select All
+        for (int i = 0; i < (int)mPhotoMultiItems.size(); i++) mPhotoMultiChecked.insert(i);
+        return;
+    }
+    if (mPhotoMultiBtn == 1) { mPhotoMultiChecked.clear(); return; }   // Clear All
+    if (mPhotoMultiBtn == 2) {        // OK -> confirm
+        int n = (int)mPhotoMultiChecked.size();
+        bool del = (mPhotoMultiMode == 0);
+        photoMultiClose();
+        if (n > 0) pvShowMsg(del ? "Delete completed." : "Copy completed.", 1100.0f);
+        return;
+    }
+    // toggle the focused row
+    if (mPhotoMultiChecked.count(mPhotoMultiSel)) mPhotoMultiChecked.erase(mPhotoMultiSel);
+    else mPhotoMultiChecked.insert(mPhotoMultiSel);
+}
+void NanoMenu::renderPhotoMulti() {
+    int W = mWidth, H = mHeight;
+    drawQuad(0, 0, (float)W, (float)H, 0, 0, 0, 1.0f);
+    float ts = fmaxf(1.0f, (float)H / 768.0f);
+    // header
+    const char* hdr = (mPhotoMultiMode == 0) ? "Select images to delete." : "Select images to copy.";
+    drawText(hdr, W * 0.10f, 44.0f * ts, 1.2f * ts, 1.0f, 1.0f, 1.0f, 1.0f);
+    // scrolling list: checkbox + 16:9 thumb + name + date
+    float rowH = 86.0f * ts, listTop = 110.0f * ts;
+    int visRows = (int)((H - listTop - 70.0f * ts) / rowH); if (visRows < 1) visRows = 1;
+    int n = (int)mPhotoMultiItems.size();
+    int top = mPhotoMultiSel - visRows / 2; if (top > n - visRows) top = n - visRows; if (top < 0) top = 0;
+    float cbCx = W * 0.07f, thX = W * 0.11f, thW = rowH * 1.55f, thH = thW * 9.0f / 16.0f, nameX = W * 0.11f + thW + W * 0.02f;
+    int wantDecode = -1;
+    for (int r = 0; r < visRows && top + r < n; r++) {
+        int i = top + r;
+        float cy = listTop + r * rowH + rowH * 0.5f;
+        bool focus = (i == mPhotoMultiSel && mPhotoMultiBtn < 0);
+        // checkbox
+        float cbS = 28.0f * ts, cbx = cbCx - cbS * 0.5f, cby = cy - cbS * 0.5f;
+        drawQuad(cbx, cby, cbS, cbS, 0.9f, 0.9f, 0.92f, focus ? 0.95f : 0.6f);
+        drawQuad(cbx + 2, cby + 2, cbS - 4, cbS - 4, 0.06f, 0.07f, 0.09f, 1.0f);
+        if (mPhotoMultiChecked.count(i)) drawQuad(cbx + 5, cby + 5, cbS - 10, cbS - 10, 0.18f, 0.5f, 0.95f, 1.0f);
+        // thumbnail
+        int pIdx = mPhotoMultiItems[i];
+        GLuint tex = 0; auto cit = mPhotoThumbCache.find(pIdx);
+        if (cit != mPhotoThumbCache.end()) tex = cit->second; else if (wantDecode < 0) wantDecode = pIdx;
+        float tx = thX, tyy = cy - thH * 0.5f;
+        drawQuad(tx - 1, tyy - 1, thW + 2, thH + 2, 0, 0, 0, focus ? 0.9f : 0.6f);
+        if (tex) drawIconTex(tex, tx, tyy, thW, thH, 1, 1, 1, focus ? 1.0f : 0.9f);
+        else     drawQuad(tx, tyy, thW, thH, 0.1f, 0.11f, 0.13f, 0.9f);
+        // name + date
+        if (pIdx >= 0 && pIdx < (int)mPhotos.size()) {
+            const PhotoItem& p = mPhotos[pIdx];
+            float ns = (focus ? 1.05f : 0.95f) * ts;
+            drawText(p.name.c_str(), nameX, cy - 12.0f * ts, ns, focus ? 1.0f : 0.85f, focus ? 1.0f : 0.85f, focus ? 1.0f : 0.86f, 1.0f);
+            drawText(fmtPhotoDate(p.date).c_str(), nameX, cy + 14.0f * ts, 0.85f * ts, 0.78f, 0.8f, 0.85f, 0.95f);
+        }
+    }
+    if (wantDecode >= 0) { photoThumb(wantDecode); photoThumbEvict(); }
+    // side buttons
+    const char* btnLabels[3] = {"Select All", "Clear All", "OK"};
+    float bw = W * 0.13f, bh = 46.0f * ts, bx = W * 0.78f, by0 = H * 0.40f, bpitch = 62.0f * ts;
+    for (int b = 0; b < 3; b++) {
+        bool sel = (mPhotoMultiBtn == b);
+        float by = by0 + b * bpitch;
+        drawRoundedRect(bx, by, bw, bh, 6.0f, sel ? 0.55f : 0.32f, sel ? 0.55f : 0.32f, sel ? 0.58f : 0.34f, 0.95f);
+        float ls = 1.0f * ts, lw = measureText(btnLabels[b], ls);
+        drawText(btnLabels[b], bx + (bw - lw) * 0.5f, by + bh * 0.5f - 12.0f * ts, ls, 1, 1, 1, 0.96f);
+    }
+    // footer hints
+    drawText("Enter: Toggle / Select    Back: Cancel", W * 0.10f, (float)H - 34.0f * ts, 0.9f * ts, 0.78f, 0.82f, 0.9f, 0.95f);
+    drawPhotoMsg();
 }
 
 } // namespace android

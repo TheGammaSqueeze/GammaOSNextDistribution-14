@@ -1618,6 +1618,10 @@ private:
     std::map<int, GLuint> mPhotoCoverCache;   // photo idx -> 160px square cover
     GLuint photoGroupCover(int photoIdx);
     void photoFreeCovers();
+    // Draw a folder-shaped column icon (silver folder + tab) with an optional cover
+    // photo / album art inset in the body, matching the web XMB photo folders. Shared
+    // by the Photo group folders and the Music album folders.
+    void drawFolderIcon(float ix, float iy, float dsz, float alpha, GLuint coverTex);
 
     // full-screen viewer
     bool  mPvActive = false;
@@ -1700,6 +1704,21 @@ private:
     void drawPvPlChooser();
     void pvSlideshowStart(const std::vector<int>& list, int idx, int style);
     void photoTick();                     // per-frame: viewer enter fade + slideshow + timers
+    // Multi-select (Delete Multiple / Copy Multiple) checkbox screen (web photoMulti):
+    // checkbox + thumbnail + name + date rows, Select All / Clear All / OK buttons.
+    bool mPhotoMultiActive = false;
+    int  mPhotoMultiMode = 0;             // 0 = delete, 1 = copy
+    std::vector<int> mPhotoMultiItems;    // photo indices in the open album/grid
+    int  mPhotoMultiSel = 0;
+    int  mPhotoMultiBtn = -1;             // -1 list, 0 Select All, 1 Clear All, 2 OK
+    std::set<int> mPhotoMultiChecked;     // checked row indices
+    void photoMultiOpen(int mode);
+    void photoMultiMove(int d);           // up/down (list or button column)
+    void photoMultiLR(int d);             // left = list, right = the side buttons
+    void photoMultiActivate();            // X
+    void photoMultiClose();
+    void renderPhotoMulti();
+    void drawPhotoMsg();                  // shared transient-message render (viewer/grid/multi)
 
     std::vector<Ps3Item>& ps3CurItems();   // current visible item list (top or submenu)
     int& ps3CurSel();

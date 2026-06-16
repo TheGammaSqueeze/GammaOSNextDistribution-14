@@ -1053,6 +1053,8 @@ void NanoMenu::ps3XmbLeft() {
                mMpSeekTarget = p; mMpSeekPending = true; mMpSeekInputT = mEffectTime; }
         return;
     }
+    if (mPvPlChooserActive) return;   // add-to-playlist chooser ignores left/right
+    if (mPhotoMultiActive) { photoMultiLR(-1); return; }
     if (mPvActive) { if (mPvPlChooserActive || mPvWpMode || mPvTrimMode) return;
                      if (mPvPanel || mPvCpSub) pvPanelMove(-1, 0); else pvStep(-1); return; }
     if (ps3TopScreenKind() == GS_ICONGRID) { iconGridNav(-1, 0); return; }
@@ -1087,6 +1089,8 @@ void NanoMenu::ps3XmbRight() {
                mMpSeekTarget = np; mMpSeekPending = true; mMpSeekInputT = mEffectTime; }
         return;
     }
+    if (mPvPlChooserActive) return;   // add-to-playlist chooser ignores left/right
+    if (mPhotoMultiActive) { photoMultiLR(+1); return; }
     if (mPvActive) { if (mPvPlChooserActive || mPvWpMode || mPvTrimMode) return;
                      if (mPvPanel || mPvCpSub) pvPanelMove(+1, 0); else pvStep(+1); return; }
     if (ps3TopScreenKind() == GS_ICONGRID) { iconGridNav(+1, 0); return; }
@@ -1114,6 +1118,8 @@ void NanoMenu::ps3XmbUp() {
     if (mPs3OptActive) { xmbOptMove(-1); return; }
     if (mMpActive) { if (mMpPlChooserActive) { mpPlChooserMove(-1); return; }
                      if (mMpCpOpen) mpOptMove(0, +1); return; }   // panel grid nav (screen-up = grid-up)
+    if (mPvPlChooserActive) { pvPlChooserMove(-1); return; }
+    if (mPhotoMultiActive) { photoMultiMove(-1); return; }
     if (mPvActive) { if (mPvPlChooserActive) { pvPlChooserMove(-1); return; }
                      if (mPvWpMode || mPvTrimMode) return;
                      if (mPvPanel || mPvCpSub) pvPanelMove(0, -1); return; }
@@ -1131,6 +1137,8 @@ void NanoMenu::ps3XmbDown() {
     if (mPs3OptActive) { xmbOptMove(+1); return; }
     if (mMpActive) { if (mMpPlChooserActive) { mpPlChooserMove(+1); return; }
                      if (mMpCpOpen) mpOptMove(0, -1); return; }   // panel grid nav (screen-down = grid-down)
+    if (mPvPlChooserActive) { pvPlChooserMove(+1); return; }
+    if (mPhotoMultiActive) { photoMultiMove(+1); return; }
     if (mPvActive) { if (mPvPlChooserActive) { pvPlChooserMove(+1); return; }
                      if (mPvWpMode || mPvTrimMode) return;
                      if (mPvPanel || mPvCpSub) pvPanelMove(0, +1); return; }
@@ -1153,6 +1161,8 @@ void NanoMenu::ps3XmbSelect() {
         else mpAudioCmd(mMusicPlayer.isPlaying() ? MpAudioCmd::Pause : MpAudioCmd::Play);
         return;
     }
+    if (mPvPlChooserActive) { pvPlChooserSelect(); return; }   // X: commit the chooser
+    if (mPhotoMultiActive) { photoMultiActivate(); return; }   // X: toggle row / activate button
     if (mPvActive) {   // X: chooser select / range-selector confirm / panel activate
         if (mPvPlChooserActive) { pvPlChooserSelect(); return; }
         if (mPvWpMode) { pvWallpaperConfirm(); return; }
@@ -1435,6 +1445,8 @@ void NanoMenu::ps3XmbBack() {
     if (mPs3OptActive) { closeXmbOpt(); return; }   // option menu: O dismisses
     if (mMpActive) { if (mMpPlChooserActive) { mpPlChooserCancel(); return; }
                      if (mMpCpOpen) mpOptBack(); else minimizeMusicPlayer(); return; }   // O: chooser cancel / panel back / minimize (audio keeps playing)
+    if (mPvPlChooserActive) { pvPlChooserCancel(); return; }   // O: cancel the chooser
+    if (mPhotoMultiActive) { photoMultiClose(); return; }   // O: leave multi-select
     if (mPvActive) {   // O: chooser/range cancel -> submenu -> panel -> stop slideshow -> close
         if (mPvPlChooserActive) { pvPlChooserCancel(); return; }
         if (mPvWpMode || mPvTrimMode) { mPvWpMode = false; mPvTrimMode = false; return; }
@@ -1509,10 +1521,13 @@ void NanoMenu::renderPs3Xmb() {
     if (ps3TopScreenKind() == GS_ICONGRID) { renderIconGridPicker(); return; }
     // The viewer opens ON TOP of the grid level (the grid stays on the stack), so the
     // viewer (mPvActive) must take precedence over the grid screen render.
+    if (mPhotoMultiActive) { renderPhotoMulti(); return; }   // multi-select overlays the grid
     if (!mPvActive && mPvEnterRaw <= 0.004f && ps3TopScreenKind() == PHOTO_GRID) {
         renderPhotoGrid();
         if (mPs3OptActive || mPs3OptClosing) renderXmbOpt();   // option menu over the grid
         if (mPs3DlgActive || mPs3DlgClosing) renderPs3Dialog(); // Information dialog over the grid
+        if (mPvPlChooserActive || mPvPlChooserAnim > 0.004f) drawPvPlChooser();  // add-to-playlist chooser
+        drawPhotoMsg();   // post-confirm Delete/Copy message
         return;
     }
 
@@ -1929,11 +1944,11 @@ void NanoMenu::renderPs3Xmb() {
             }
             // Album folder art embedded in the column icon (like the web XMB photo
             // folders): a per-folder cover replaces the generic glass folder icon.
-            GLuint albumArt = (it.kind == PS3_MUSIC_ALBUM) ? mpAlbumArt(it.label)
+            bool isFolderKind = (it.kind == PS3_MUSIC_ALBUM || it.kind == PS3_PHOTO_ALBUM);
+            GLuint folderCover = (it.kind == PS3_MUSIC_ALBUM) ? mpAlbumArt(it.label)
                             : (it.kind == PS3_PHOTO_ALBUM && it.b >= 0) ? photoGroupCover(it.b) : 0;
-            if (albumArt) {
-                drawIconStroke(albumArt, ix, iy, dsz, dsz, mPs3ShadowAlpha * 0.7f * alpha);
-                drawIconTex(albumArt, ix, iy, dsz, dsz, 1.0f, 1.0f, 1.0f, alpha);
+            if (isFolderKind) {
+                drawFolderIcon(ix, iy, dsz, alpha, folderCover);
             } else {
             // Icon outline silhouette behind the flat menu icons so they read over
             // the bright wave. RetroArch/console icons (isRetroIcon) are skipped:
@@ -3981,6 +3996,12 @@ void NanoMenu::openXmbOpt() {
         int pIdx = mPhotoGridList[mPhotoGridCursor];
         add("View", "pgview", true);
         add("Slideshow", "pgslidegrid", false);
+        add("Add to Playlist", "pgaddgrid", false);
+        add("Copy", "pgcopy", false);
+        add("Print", "pgprint", false);
+        add("Delete", "pgdelete", false);
+        add("Delete Multiple", "delmulti", false);
+        add("Copy Multiple", "copymulti", false);
         add("Information", "photoinfo", false);
         mPs3OptCtxKind = PS3_PHOTO; mPs3OptCtxA = pIdx; mPs3OptCtxB = 0;
         mPs3OptCtxLabel = (pIdx >= 0 && pIdx < (int)mPhotos.size()) ? mPhotos[pIdx].name : std::string();
@@ -4006,6 +4027,8 @@ void NanoMenu::openXmbOpt() {
             add("Play", "playpl", true); add("Information", "info", false); break;
         case PS3_PHOTO_ALBUM:
             add("Slideshow", "pgslidefolder", true);
+            add("Copy", "pcopyfolder", false);
+            add("Delete", "pdelfolder", false);
             add("Information", "photofolderinfo", false); break;
         default:
             add("Information", "info", false); break;
@@ -4149,6 +4172,26 @@ void NanoMenu::xmbOptAction(const std::string& act) {
             if (mPhotoGridList[i] == mPs3OptCtxA) { vi = (int)i; break; }
         if (act == "pgview") openPhotoViewer(mPhotoGridList, vi);
         else pvSlideshowStart(mPhotoGridList, vi, mPvSlideStyle);
+        return;
+    }
+    if (act == "pgaddgrid") {   // add the focused grid photo to a playlist (chooser over the grid)
+        if (mPs3OptCtxA >= 0 && mPs3OptCtxA < (int)mPhotos.size())
+            pvOpenAddChooser(mPhotos[mPs3OptCtxA].file);
+        return;
+    }
+    if (act == "delmulti")  { photoMultiOpen(0); return; }   // Delete Multiple checkbox screen
+    if (act == "copymulti") { photoMultiOpen(1); return; }   // Copy Multiple checkbox screen
+    if (act == "pgcopy")   { pvShowMsg("Copy completed.", 1100.0f); return; }    // grid photo (simulated)
+    if (act == "pgdelete") { pvShowMsg("Delete completed.", 1100.0f); return; }  // grid photo (simulated)
+    if (act == "pgprint")  { return; }   // no printer in this environment (web closes too)
+    if (act == "pcopyfolder" || act == "pdelfolder") {   // folder Copy/Delete -> result dialog over the column
+        mPs3DlgOptions.clear(); mPs3DlgSwatch.clear();
+        mPs3DlgKind = 0; mPs3DlgType = 0; mPs3DlgThemeKey = 0; mPs3DlgBinding = nullptr;
+        mPs3DlgIllust = 0; mPs3DlgNotice.clear();
+        mPs3DlgTitle = ""; mPs3DlgBody = (act == "pdelfolder") ? "Delete completed." : "Copy completed.";
+        mPs3DlgSel = 0; mPs3DlgOrigSel = 0;
+        mPs3DlgIconTex = 0; mPs3DlgIconNmap = 0; mPs3DlgIconR = mPs3DlgIconG = mPs3DlgIconB = 1.0f;
+        mPs3DlgActive = true; mPs3DlgAnim = 0.0f; mPs3DlgBlurValid = false;
         return;
     }
     if (act == "photoinfo") {   // photo Information (File / Date taken / Image size / Size)
