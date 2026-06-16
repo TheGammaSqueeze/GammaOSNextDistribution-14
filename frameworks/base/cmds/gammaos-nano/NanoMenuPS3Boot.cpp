@@ -91,6 +91,17 @@ void NanoMenu::ps3BootSkip() {
     mPs3BootElapsedMs = BOOT_SEQ_END_MS;
 }
 
+// Test hook (nav-hook token "bootreplay"): re-run the whole cold-boot intro from
+// t=0 so the sequence can be verified 1:1 against the web without a real reboot.
+// The logo/footer plates are freed once the first boot completes, so force a
+// reload; the warning backdrop blur is captured live each frame and needs no reset.
+void NanoMenu::ps3BootReplay() {
+    mPs3BootPlatesLoaded = false;
+    mPs3BootLogoTex = 0;
+    mPs3BootFooterTex = 0;
+    ps3BootReset(false);
+}
+
 // Advance the boot clock and recompute the cross-module reveal values + the
 // wave-brightness hook. Returns true while the XMB UI must stay suppressed.
 bool NanoMenu::ps3BootUpdate(float dtSeconds) {

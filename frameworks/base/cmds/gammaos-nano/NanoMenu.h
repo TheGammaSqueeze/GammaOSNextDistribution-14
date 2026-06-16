@@ -1196,6 +1196,7 @@ private:
     void  ps3BootReset(bool freshSetup);
     bool  ps3BootActive() const { return mPs3BootActive; }
     void  ps3BootSkip();
+    void  ps3BootReplay();                  // test hook: re-run the cold-boot intro from t=0
     bool  ps3BootUpdate(float dtSeconds);   // advances clock; returns true while the XMB UI must stay suppressed
     void  renderPs3BootOverlay();           // logo/footer plate, warning, scene-reveal black wash
     GLuint loadPs3BootPlate(const char* name);

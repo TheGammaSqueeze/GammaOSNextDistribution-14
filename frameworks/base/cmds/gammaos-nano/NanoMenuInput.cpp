@@ -964,6 +964,9 @@ void NanoMenu::pollInput() {
                     }
                 }
             }
+            // Cold-boot intro replay: re-run the boot sequence from t=0 so it can be
+            // verified 1:1 against the web without a real reboot.
+            else if (!strcmp(navbuf, "bootreplay")) { if (mPs3Xmb) ps3BootReplay(); }
             property_set("sys.gammaos.nano.nav", "");
         }
         // Recapture the serial AFTER the (possible) self-clear so the next frame is
