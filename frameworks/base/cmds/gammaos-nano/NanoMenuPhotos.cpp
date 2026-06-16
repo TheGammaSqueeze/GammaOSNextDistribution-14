@@ -34,6 +34,7 @@
 
 #include <android/imagedecoder.h>
 #include <android/bitmap.h>
+#include <android/rect.h>
 #include <GLES2/gl2.h>
 
 #include <dirent.h>
@@ -387,6 +388,7 @@ void NanoMenu::photoDrainScanResults() {
         mPhotoScanResults.clear();
         mPhotoScanReady = false;
     }
+    photoFreeCovers();   // photo indices changed -> the cover cache is stale
     savePhotoConfig();
     mPhotoCatsStale = true;
 }
@@ -531,6 +533,7 @@ void NanoMenu::buildPhotoColumnItems(std::vector<Ps3Item>& out) {
     std::vector<PhotoGroup> groups = photoGroups();
     for (size_t a = 0; a < groups.size(); a++) {
         Ps3Item it; it.label = groups[a].name; it.kind = PS3_PHOTO_ALBUM; it.a = (int)a;
+        it.b = groups[a].idx.empty() ? -1 : groups[a].idx[0];   // cover = the group's first photo
         size_t n = groups[a].idx.size();
         char v[32]; snprintf(v, sizeof(v), "%zu %s", n, n == 1 ? "Image" : "Images"); it.value = v;
         it.iconTex = 0; it.nmapTex = folderNmap; it.iconR = it.iconG = it.iconB = 1.0f;
@@ -586,6 +589,65 @@ void NanoMenu::photoFreeThumbs() {
     for (auto& kv : mPhotoThumbCache) if (kv.second) glDeleteTextures(1, &kv.second);
     mPhotoThumbCache.clear();
     mPhotoThumbAR.clear();
+}
+
+// Group-folder cover: a 160px centre-square crop of the group's first photo,
+// drawn as the column icon (mirrors the Music album art). Cached by photo index;
+// dropped on rescan since indices change.
+GLuint NanoMenu::photoGroupCover(int photoIdx) {
+    auto cit = mPhotoCoverCache.find(photoIdx);
+    if (cit != mPhotoCoverCache.end()) return cit->second;
+    GLuint tex = 0;
+    if (photoIdx >= 0 && photoIdx < (int)mPhotos.size()) {
+        int fd = open(mPhotos[photoIdx].file.c_str(), O_RDONLY);
+        if (fd >= 0) {
+            AImageDecoder* dec = nullptr;
+            if (AImageDecoder_createFromFd(fd, &dec) == ANDROID_IMAGE_DECODER_SUCCESS && dec) {
+                const AImageDecoderHeaderInfo* hi = AImageDecoder_getHeaderInfo(dec);
+                int sw = AImageDecoderHeaderInfo_getWidth(hi), sh = AImageDecoderHeaderInfo_getHeight(hi);
+                if (sw > 0 && sh > 0) {
+                    const int S = 160;
+                    int tw, th;
+                    if (sw >= sh) { th = S; tw = (int)((float)S * sw / sh + 0.5f); }
+                    else          { tw = S; th = (int)((float)S * sh / sw + 0.5f); }
+                    if (tw < S) tw = S; if (th < S) th = S;
+                    AImageDecoder_setAndroidBitmapFormat(dec, ANDROID_BITMAP_FORMAT_RGBA_8888);
+                    AImageDecoder_setUnpremultipliedRequired(dec, true);
+                    AImageDecoder_setTargetSize(dec, tw, th);
+                    ARect crop; crop.left = (tw - S) / 2; crop.top = (th - S) / 2;
+                    crop.right = crop.left + S; crop.bottom = crop.top + S;
+                    AImageDecoder_setCrop(dec, crop);
+                    size_t stride = AImageDecoder_getMinimumStride(dec);
+                    std::vector<uint8_t> buf(stride * (size_t)S);
+                    if (AImageDecoder_decodeImage(dec, buf.data(), stride, buf.size()) == ANDROID_IMAGE_DECODER_SUCCESS) {
+                        const uint8_t* px = buf.data();
+                        std::vector<uint8_t> packed;
+                        if (stride != (size_t)S * 4) {
+                            packed.resize((size_t)S * S * 4);
+                            for (int y = 0; y < S; y++)
+                                memcpy(&packed[(size_t)y * S * 4], &buf[(size_t)y * stride], (size_t)S * 4);
+                            px = packed.data();
+                        }
+                        glGenTextures(1, &tex); glBindTexture(GL_TEXTURE_2D, tex);
+                        glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+                        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, S, S, 0, GL_RGBA, GL_UNSIGNED_BYTE, px);
+                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+                    }
+                }
+                AImageDecoder_delete(dec);
+            }
+            close(fd);
+        }
+    }
+    mPhotoCoverCache[photoIdx] = tex;
+    return tex;
+}
+void NanoMenu::photoFreeCovers() {
+    for (auto& kv : mPhotoCoverCache) if (kv.second) glDeleteTextures(1, &kv.second);
+    mPhotoCoverCache.clear();
 }
 
 void NanoMenu::openPhotoGrid(const std::vector<int>& list, const std::string& title, int fromPl) {

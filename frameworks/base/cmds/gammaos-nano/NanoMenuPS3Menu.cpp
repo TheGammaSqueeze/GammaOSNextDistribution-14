@@ -1929,7 +1929,8 @@ void NanoMenu::renderPs3Xmb() {
             }
             // Album folder art embedded in the column icon (like the web XMB photo
             // folders): a per-folder cover replaces the generic glass folder icon.
-            GLuint albumArt = (it.kind == PS3_MUSIC_ALBUM) ? mpAlbumArt(it.label) : 0;
+            GLuint albumArt = (it.kind == PS3_MUSIC_ALBUM) ? mpAlbumArt(it.label)
+                            : (it.kind == PS3_PHOTO_ALBUM && it.b >= 0) ? photoGroupCover(it.b) : 0;
             if (albumArt) {
                 drawIconStroke(albumArt, ix, iy, dsz, dsz, mPs3ShadowAlpha * 0.7f * alpha);
                 drawIconTex(albumArt, ix, iy, dsz, dsz, 1.0f, 1.0f, 1.0f, alpha);
@@ -2145,7 +2146,8 @@ void NanoMenu::renderPs3Xmb() {
                 ps3FillCircle(cxg, cyg, gr * 0.72f,  0.55f, 0.90f, 1.0f, gb * 0.8f);
                 ps3FillCircle(cxg, cyg, gr * 0.50f,  0.70f, 0.95f, 1.0f, gb);
             }
-            GLuint albumArt = (it.kind == PS3_MUSIC_ALBUM) ? mpAlbumArt(it.label) : 0;
+            GLuint albumArt = (it.kind == PS3_MUSIC_ALBUM) ? mpAlbumArt(it.label)
+                            : (it.kind == PS3_PHOTO_ALBUM && it.b >= 0) ? photoGroupCover(it.b) : 0;
             if (albumArt) {
                 drawIconStroke(albumArt, ix, iy, dsz, dsz, mPs3ShadowAlpha * 0.7f * a);
                 drawIconTex(albumArt, ix, iy, dsz, dsz, 1.0f, 1.0f, 1.0f, a);

@@ -1613,6 +1613,11 @@ private:
     GLuint photoThumb(int photoIdx);      // lazy thumbnail (maxDim ~256), cached
     void photoThumbEvict();               // bound the thumb cache around the cursor
     void photoFreeThumbs();               // drop the whole thumb cache (on grid close)
+    // Group-folder cover: a centre-square thumbnail of the group's first photo,
+    // drawn as the column icon (like the Music album art / the web photo folders).
+    std::map<int, GLuint> mPhotoCoverCache;   // photo idx -> 160px square cover
+    GLuint photoGroupCover(int photoIdx);
+    void photoFreeCovers();
 
     // full-screen viewer
     bool  mPvActive = false;
