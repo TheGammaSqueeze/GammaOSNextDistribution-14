@@ -149,21 +149,23 @@ static const char* SCENE_FS =
     "    }\n"
     "  }\n"
     "  vec3 L = col * 0.0986;\n"           // GLOW_SLUM*0.125 exposure
-    "  vec3 toned = (L * (1.0 + L / 11.6225)) / (1.0 + L);\n"   // extended Reinhard, W=3.40918
-    "  gl_FragColor = vec4(clamp(toned, 0.0, 1.0), 1.0);\n"
+    "  vec3 toned = (L * (1.0 + L / 11.6225)) / (1.0 + L);\n"   // extended Reinhard, W=3.40918 (can exceed 1 for over-range energy)
+    "  float glare = max(max(toned.r, max(toned.g, toned.b)) - 0.553, 0.0);\n"  // GLARE_THRESH: the over-display-range part, captured BEFORE the rgb clamp
+    "  gl_FragColor = vec4(clamp(toned, 0.0, 1.0), clamp(glare, 0.0, 1.0));\n"   // rgb = display, a = glare for the HDR-style bright-pass
     "}\n";
 
-// Bright-pass: extract the over-threshold (sun + lit limb) energy -> bloom source.
+// Bright-pass: the bloom source is the display color weighted by the over-range glare
+// the scene pass stored in alpha (the web's GlareSource: only over-GLARE_THRESH energy
+// blooms, so bright clouds/limb pop while the dark side stays clean). uThresh kept for
+// the live-tune path (folded into uGain now); the selectivity lives in the alpha glare.
 static const char* BRIGHT_FS =
     "precision mediump float;\n"
     "varying vec2 vUV;\n"
     "uniform sampler2D uTex;\n"
     "uniform float uThresh;\n"
     "void main(){\n"
-    "  vec3 c = texture2D(uTex, vUV * 0.5 + 0.5).rgb;\n"
-    "  float m = max(c.r, max(c.g, c.b));\n"
-    "  float k = max(m - uThresh, 0.0) / max(1.0 - uThresh, 0.001);\n"
-    "  gl_FragColor = vec4(c * k, 1.0);\n"
+    "  vec4 c = texture2D(uTex, vUV * 0.5 + 0.5);\n"
+    "  gl_FragColor = vec4(c.rgb * c.a, 1.0);\n"
     "}\n";
 
 // Separable Gaussian blur (9-tap, linear-sampled pairs -> 5 fetches).
