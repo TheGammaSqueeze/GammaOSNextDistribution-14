@@ -51,7 +51,8 @@ static float TUNE_NIGHTBRI = 0.9f;    // night-lights (earth_night) brightness (
 static float TUNE_RIM      = 0.50f;   // atmosphere fresnel rim strength (the always-on blue limb)
 static float TUNE_HALO     = 0.70f;   // outer atmosphere halo strength
 static float TUNE_HALOFALL  = 100.0f; // outer halo falloff rate (higher = tighter glow hugging the limb); tuned vs web
-static float TUNE_DAYK      = 2.40f;  // lit-side (day) albedo gain; between firmware 1.5 and a no-bloom-haze lift, so the day side reads bright without washing out the night/twilight crescents
+static float TUNE_DAYK      = 2.10f;  // lit-side (day) albedo gain; tuned toward the web earth brightness (live-tunable via globe.dayk)
+static float TUNE_GLINT     = 6.0f;   // sun glint strength on the atmospheric edge (0 = off); tuned for a visible moving highlight
 
 static float propF(const char* key, float def) {
     char v[PROPERTY_VALUE_MAX] = {};
@@ -75,7 +76,7 @@ static const char* SCENE_FS =
     "uniform float uTanHF, uAspect;\n"
     "uniform vec3 uSun;\n"
     "uniform sampler2D uDay, uNight, uClouds;\n"
-    "uniform float uStars, uNightBri, uRim, uHalo, uSunBri, uSunHalo, uNightLift, uHaloFall, uDayK;\n"
+    "uniform float uStars, uNightBri, uRim, uHalo, uSunBri, uSunHalo, uNightLift, uHaloFall, uDayK, uGlint;\n"
     "const float PI = 3.14159265;\n"
     "vec2 erUV(vec3 n){\n"
     "  float u = atan(n.z, n.x) * (0.1591549) + 0.5;\n"
@@ -103,7 +104,7 @@ static const char* SCENE_FS =
     "      vec3 ntex = texture2D(uNight, uv).rgb;\n"
     "      float ndl = dot(N, uSun);\n"
     "      float day = 1.0 - smoothstep(0.62, -0.30, ndl);\n"
-    "      vec3 dayC = mix(alb, vec3(1.0), cloud * 0.5) * uDayK * vec3(1.0,0.98,0.93);\n"  // brighter lit side (web earth reads bright); subtle warm cast
+    "      vec3 dayC = mix(alb, vec3(1.0), cloud * 0.5) * uDayK * vec3(0.98,1.0,1.04);\n"  // neutral-to-slightly-cool lit side to match the web earth (was a warm golden cast)
     "      vec3 nightC = ntex * uNightBri + uNightLift * (vec3(0.020,0.042,0.072)\n"  // city lights + per-scene cool ambient (darker/less blue so the lit crescents pop, matches web night)
     "                  + cloud * vec3(0.010,0.014,0.020));\n"
     "      vec3 termGlow = vec3(0.11,0.06,0.035) *\n"
@@ -129,8 +130,12 @@ static const char* SCENE_FS =
     "      if (limbD > 0.0) {\n"
     "        float halo = exp(-limbD * uHaloFall);\n"  // tight glow hugging the limb so space above reads black (web look)
     "        col += uHalo * halo * vec3(0.45,0.65,1.0) * 34.0;\n"  // outer limb glow; bright light-blue whitens at the limb core, blue band outward (the web glowing ring)
-    "      }\n"
-    "    }\n"
+    "        vec3 limbN = normalize(ro - b * rd);\n"      // direction of the limb point this ray skims
+    "        float sg = max(dot(limbN, uSun), 0.0);\n"    // alignment of that limb point with the sun
+    "        float glint = pow(sg, 42.0) * exp(-limbD * uHaloFall * 0.55);\n"  // sharp forward-scatter glint that sweeps the edge as the camera moves
+    "        col += uGlint * glint * vec3(1.0,0.96,0.88) * 30.0;\n"  // warm-white lit glint on the sunward atmospheric edge
+    "      }\n"   // close if(limbD>0)
+    "    }\n"     // close if(b<0)
     "    float sd = max(dot(rd, uSun), 0.0);\n"
     "    vec3 perp = rd - uSun * sd;\n"                               // screen-space offset from the sun centre
     "    float px = dot(perp, uRight), py = dot(perp, uUp);\n"
@@ -208,7 +213,7 @@ static const char* COMP_FS =
 static bool sReady = false, sTried = false;
 static GLuint sSceneProg = 0, sBrightProg = 0, sBlurProg = 0, sCompProg = 0;
 static GLint scAPos, scEye, scFwd, scRight, scUp, scTanHF, scAspect, scSun,
-             scDay, scNight, scClouds, scStars, scNightBri, scRim, scHalo, scSunBri, scSunHalo, scNightLift, scHaloFall, scDayK;
+             scDay, scNight, scClouds, scStars, scNightBri, scRim, scHalo, scSunBri, scSunHalo, scNightLift, scHaloFall, scDayK, scGlint;
 static GLint brAPos, brTex, brThresh;
 static GLint blAPos, blTex, blStep;
 static GLint cmAPos, cmAUV, cmScene, cmBloomA, cmBloomB, cmGain, cmAlpha, cmFade, cmRot;
@@ -352,6 +357,7 @@ bool init() {
     TUNE_HALO      = propF("persist.gammaos.nano.globe.halo", TUNE_HALO);
     TUNE_HALOFALL  = propF("persist.gammaos.nano.globe.halofall", TUNE_HALOFALL);
     TUNE_DAYK      = propF("persist.gammaos.nano.globe.dayk", TUNE_DAYK);
+    TUNE_GLINT     = propF("persist.gammaos.nano.globe.glint", TUNE_GLINT);
     sSceneProg  = linkProgram(FULL_VS, SCENE_FS);
     sBrightProg = linkProgram(FULL_VS, BRIGHT_FS);
     sBlurProg   = linkProgram(FULL_VS, BLUR_FS);
@@ -373,6 +379,7 @@ bool init() {
     scNightLift= glGetUniformLocation(sSceneProg, "uNightLift");
     scHaloFall= glGetUniformLocation(sSceneProg, "uHaloFall");
     scDayK    = glGetUniformLocation(sSceneProg, "uDayK");
+    scGlint   = glGetUniformLocation(sSceneProg, "uGlint");
     scRim     = glGetUniformLocation(sSceneProg, "uRim");
     scHalo    = glGetUniformLocation(sSceneProg, "uHalo");
     scSunBri  = glGetUniformLocation(sSceneProg, "uSunBri");
@@ -482,6 +489,7 @@ void render(int panelW, int panelH, const float rotMat2[4], float alpha,
         TUNE_HALO     = propF("persist.gammaos.nano.globe.halo", TUNE_HALO);
         TUNE_HALOFALL = propF("persist.gammaos.nano.globe.halofall", TUNE_HALOFALL);
         TUNE_DAYK     = propF("persist.gammaos.nano.globe.dayk", TUNE_DAYK);
+        TUNE_GLINT    = propF("persist.gammaos.nano.globe.glint", TUNE_GLINT);
         TUNE_RIM      = propF("persist.gammaos.nano.globe.rim", TUNE_RIM);
         TUNE_NIGHTBRI = propF("persist.gammaos.nano.globe.nightbri", TUNE_NIGHTBRI);
         TUNE_BLOOMTHR = propF("persist.gammaos.nano.globe.bloomthr", TUNE_BLOOMTHR);
@@ -503,7 +511,7 @@ void render(int panelW, int panelH, const float rotMat2[4], float alpha,
     nrm(up);
     float tanHF = tanf(fovy * (float)M_PI / 180.0f * 0.5f);
     float aspect = (float)fw / (float)fh;
-    float starsOn = (sScn == 0) ? 0.0f : 1.0f;   // STARTEX_SKIP_SCENES = [0]
+    float starsOn = 1.0f;   // stars in every scene (user request; was off on scene 0)
 
     // ---- pass 1: ray-march the scene -> sScene (full-res, display-toned) ----
     glDisable(GL_DEPTH_TEST);
@@ -529,6 +537,7 @@ void render(int panelW, int panelH, const float rotMat2[4], float alpha,
     glUniform1f(scNightLift, (sScn <= 1) ? 0.0f : 1.0f);
     glUniform1f(scHaloFall, TUNE_HALOFALL);
     glUniform1f(scDayK, TUNE_DAYK);
+    glUniform1f(scGlint, TUNE_GLINT);
     glUniform1f(scRim, TUNE_RIM);
     glUniform1f(scHalo, TUNE_HALO);
     // subtle audio reactivity: the bass pulses the sun brightness / corona.
