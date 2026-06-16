@@ -801,8 +801,9 @@ void NanoMenu::openPhotoViewer(const std::vector<int>& list, int idx) {
 void NanoMenu::closePhotoViewer() {
     mPvActive = false;
     mPvPanel = false; mPvCpClosing = false; mPvSlideshow = false; mPvInfo = false;
-    mPvWpMode = false; mPvTrimMode = false; mPvCpSub = false;
-    pvFreeTextures();
+    mPvWpMode = false; mPvTrimMode = false; mPvCpSub = false; mPvPlChooserActive = false;
+    // Textures + list are kept so renderPhotoViewer can draw the exit fade-to-black;
+    // photoTick frees them once mPvEnterRaw eases to ~0.
 }
 
 void NanoMenu::pvStep(int d) {
@@ -1308,12 +1309,12 @@ void NanoMenu::photoTick() {
     float dt0 = mFrameDt; if (dt0 < 0.0f || dt0 > 0.2f) dt0 = 0.016f;
     float ct = mPvPlChooserActive ? 1.0f : 0.0f;
     mPvPlChooserAnim += (ct - mPvPlChooserAnim) * fminf(1.0f, dt0 * 10.0f);
-    if (!mPvActive) {
-        // ease the enter fade back to 0 so a re-open starts from black
-        if (mPvEnterRaw > 0.0f) {
-            mPvEnterRaw = fmaxf(0.0f, mPvEnterRaw - (dt0 * 1000.0f) / 400.0f);
-            mPvEnterT = mPvEnterRaw * mPvEnterRaw * (3.0f - 2.0f * mPvEnterRaw);
-        }
+    // Once the exit fade has fully run (renderPhotoViewer eases mPvEnterRaw down; the
+    // render dispatch stops calling it below ~0.004), drop the kept textures + list.
+    if (!mPvActive && mPvEnterRaw <= 0.004f && (!mPvList.empty() || !mPvTexCache.empty())) {
+        mPvEnterRaw = 0.0f; mPvEnterT = 0.0f;
+        pvFreeTextures();
+        mPvList.clear();
     }
 }
 

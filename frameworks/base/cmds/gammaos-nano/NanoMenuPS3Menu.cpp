@@ -1509,7 +1509,7 @@ void NanoMenu::renderPs3Xmb() {
     if (ps3TopScreenKind() == GS_ICONGRID) { renderIconGridPicker(); return; }
     // The viewer opens ON TOP of the grid level (the grid stays on the stack), so the
     // viewer (mPvActive) must take precedence over the grid screen render.
-    if (!mPvActive && ps3TopScreenKind() == PHOTO_GRID) { renderPhotoGrid(); return; }
+    if (!mPvActive && mPvEnterRaw <= 0.004f && ps3TopScreenKind() == PHOTO_GRID) { renderPhotoGrid(); return; }
 
     // Overlay entrance: when the in-game overlay is raised, the blurred backdrop
     // is already there; the XMB chrome (category labels/icons, item list, clock)
@@ -1558,7 +1558,7 @@ void NanoMenu::renderPs3Xmb() {
     // Full-screen photo viewer: drawn over the wave background, replacing the XMB
     // chrome (the viewer fades in from black). The control panel + EXIF overlay
     // live in NanoMenuPhotos.cpp.
-    if (mPvActive) { renderPhotoViewer(); return; }
+    if (mPvActive || mPvEnterRaw > 0.004f) { renderPhotoViewer(); return; }   // keep drawing through the exit fade
 
     // In the in-game overlay (scrim mode: a live app is behind us) a FULLSCREEN
     // dialog or the network wizard must HIDE the XMB chrome and show ONLY the
@@ -3979,6 +3979,9 @@ void NanoMenu::openXmbOpt() {
             add("Play", "playtrack", true); add("Information", "info", false); break;
         case PS3_MUSIC_PLAYLIST:
             add("Play", "playpl", true); add("Information", "info", false); break;
+        case PS3_PHOTO_ALBUM:
+            add("Slideshow", "pgslidefolder", true);
+            add("Information", "photofolderinfo", false); break;
         default:
             add("Information", "info", false); break;
     }
@@ -4108,6 +4111,33 @@ void NanoMenu::xmbOptAction(const std::string& act) {
             Ps3Level lvl; buildMusicPlaylistSubmenu(mPs3OptCtxA, lvl);
             if (!lvl.items.empty()) openMusicPlayer(lvl.items, 0);
         }
+        return;
+    }
+    if (act == "pgslidefolder") {   // slideshow the focused group folder
+        std::vector<PhotoGroup> groups = photoGroups();
+        if (mPs3OptCtxA >= 0 && mPs3OptCtxA < (int)groups.size() && !groups[mPs3OptCtxA].idx.empty())
+            pvSlideshowStart(groups[mPs3OptCtxA].idx, 0, mPvSlideStyle);
+        return;
+    }
+    if (act == "photofolderinfo") {   // folder Information (Folder / Images / Size)
+        std::vector<PhotoGroup> groups = photoGroups();
+        std::string title = mPs3OptCtxLabel.empty() ? std::string("Information") : mPs3OptCtxLabel;
+        std::string body = "No information is available.";
+        if (mPs3OptCtxA >= 0 && mPs3OptCtxA < (int)groups.size()) {
+            const PhotoGroup& g = groups[mPs3OptCtxA];
+            int64_t total = 0; for (int i : g.idx) total += mPhotos[i].sz;
+            char b[256];
+            snprintf(b, sizeof(b), "Folder        %s\nImages        %d\nSize          %s",
+                     g.name.c_str(), (int)g.idx.size(), fmtFileSize(total).c_str());
+            body = b;
+        }
+        mPs3DlgOptions.clear(); mPs3DlgSwatch.clear();
+        mPs3DlgKind = 0; mPs3DlgType = 0; mPs3DlgThemeKey = 0; mPs3DlgBinding = nullptr;
+        mPs3DlgIllust = 0; mPs3DlgNotice.clear();
+        mPs3DlgTitle = title; mPs3DlgBody = body;
+        mPs3DlgSel = 0; mPs3DlgOrigSel = 0;
+        mPs3DlgIconTex = 0; mPs3DlgIconNmap = 0; mPs3DlgIconR = mPs3DlgIconG = mPs3DlgIconB = 1.0f;
+        mPs3DlgActive = true; mPs3DlgAnim = 0.0f; mPs3DlgBlurValid = false;
         return;
     }
 }
