@@ -1008,11 +1008,24 @@ void NanoMenu::pollInput() {
             if (ev.type == EV_KEY && ev.code == BTN_SELECT) {
                 if (ev.value == 1) {
                     if (mOskActive) oskCycleLanguage(1);   // Select cycles language
+                    // Photo viewer: SELECT toggles the EXIF/Information overlay (the
+                    // "Display" control), matching the real PS3 photo viewer - which is
+                    // why the viewer panel shows the SELECT pill only on that control.
+                    else if (mPvActive && !mPvWpMode && !mPvTrimMode
+                             && !mPs3DlgActive && !mPvPlChooserActive) {
+                        mPvInfo = !mPvInfo; mPvPanel = false;
+                    }
                     else if (mXmbMode) forceRescanAllSystems();
                 }
                 mSelectHeld = (ev.value != 0);
             }
             if (ev.type == EV_KEY && ev.code == BTN_START) {
+                // Photo viewer: during a running slideshow, START toggles play/pause.
+                if (ev.value == 1 && mPvActive && mPvSlideshow && !mPvWpMode
+                    && !mPvTrimMode && !mPs3DlgActive && !mPvPlChooserActive) {
+                    mPvPaused = !mPvPaused;
+                    if (!mPvPaused) mPvSlideNext = mEffectTime * 1000.0f + mPvSlideMs;
+                }
                 mStartHeld = (ev.value != 0);
             }
             // Power button handling

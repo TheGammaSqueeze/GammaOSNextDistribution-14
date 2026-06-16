@@ -1199,7 +1199,13 @@ void NanoMenu::drawPvInfo() {
         float y = top + i * rowH;
         const char* f = kPvExifFields[i];
         std::string val = "-";
-        if (!strcmp(f, "Date taken")) val = fmtPhotoDate(p.date);
+        if (!strcmp(f, "Date taken")) {
+            // The EXIF viewer panel shows seconds (the web appends ":SS", default
+            // "00" when the source has none); our mtime dates carry no seconds.
+            val = fmtPhotoDate(p.date);
+            if (val.size() >= 5 && val.find(':') != std::string::npos)
+                val += (p.date.size() >= 19) ? (":" + p.date.substr(17, 2)) : ":00";
+        }
         else if (!strcmp(f, "Image size")) val = (p.w && p.h)
                  ? (std::to_string(p.w) + " x " + std::to_string(p.h)) : "-";
         else if (!strcmp(f, "Exposure program") || !strcmp(f, "MeteringMode")
@@ -1467,16 +1473,24 @@ void NanoMenu::drawPvPanel(float closeT) {
         }
         if (flash > 0.0f) glyph(g, icn, 0, 0, 1, 1, 1, flash);
     }
-    // focused label + SELECT pill, centred at the grid origin (mirrors drawMpOpt)
+    // focused label + button-hint pill, centred at the grid origin (mirrors the web
+    // photo viewer panel). The pill shows ONLY on a control with a physical-button
+    // shortcut: "Display" (showinfo) is toggled by SELECT, the running-slideshow
+    // "Play/Pause" (pause) is toggled by START. Every other control shows the label
+    // only. (This differs from the music panel, where the web draws SELECT on every
+    // control - so the music panel keeps its unconditional pill.)
     if (mPvCpSel >= 0 && mPvCpSel < cnt) {
         const char* lab = (!strcmp(cp[mPvCpSel].act, "pause")) ? (mPvPaused ? "Play" : "Pause") : cp[mPvCpSel].label;
+        const char* pillTxt = (!strcmp(cp[mPvCpSel].act, "showinfo")) ? "SELECT"
+                            : (!strcmp(cp[mPvCpSel].act, "pause")) ? "START" : nullptr;
+        bool showPill = (!mPvCpSub && pillTxt);
         float ls = PFS(20.0f * ui), lw = measureText(lab, ls);
         float gap = PXD(0.008f * ui), pillW = PXD(0.050f * ui), pillH = PSZ(0.030f * ui);
-        float total = lw + (mPvCpSub ? 0.0f : (gap + pillW));
+        float total = lw + (showPill ? (gap + pillW) : 0.0f);
         float ccx = PXP(0.5f), sx = ccx - total * 0.5f;
         float labBaseY = oy + 2.0f * cellY + PSZ(0.060f * ui);
         drawText(lab, sx, ps3::baselineToTopY(labBaseY, ls), ls, 1.0f, 1.0f, 1.0f, 0.95f * t);
-        if (!mPvCpSub) {
+        if (showPill) {
             float px = sx + lw + gap;
             float py = labBaseY - pillH * 0.78f;
             float bw = 1.2f * ui;
@@ -1488,8 +1502,8 @@ void NanoMenu::drawPvPanel(float closeT) {
             };
             pill(px - bw, py - bw, pillW + 2.0f * bw, pillH + 2.0f * bw, 225/255.0f, 225/255.0f, 225/255.0f, 0.7f * t);
             pill(px, py, pillW, pillH, 150/255.0f, 150/255.0f, 150/255.0f, 0.55f * t);
-            float fs = PFS(15.0f * ui), fw = measureText("SELECT", fs);
-            drawText("SELECT", px + pillW * 0.5f - fw * 0.5f,
+            float fs = PFS(15.0f * ui), fw = measureText(pillTxt, fs);
+            drawText(pillTxt, px + pillW * 0.5f - fw * 0.5f,
                      ps3::baselineToTopY(py + pillH * 0.66f, fs), fs, 1, 1, 1, 0.95f * t);
         }
     }
