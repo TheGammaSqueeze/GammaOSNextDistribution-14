@@ -96,6 +96,17 @@ service gammaos-nano-overlay /system/bin/gammaos-nano --overlay
 on property:sys.gammaos.minimal_boot=1 && property:persist.gammaos.nano.overlay=
     setprop persist.gammaos.nano.overlay 1
 
+# Default overlay-home ON the same way (fill in only when the user has never set it).
+# overlay_home makes the resident overlay the persistent post-app launcher: on app exit
+# nanoRaiseOverlay() raises the already-alive overlay as the full-wallpaper XMB instead
+# of restarting the home nano (which fights SF and flashes black through a mode switch).
+# It is a persist prop with no build/runtime writer, so after a /data wipe it was unset
+# and nanoRaiseOverlay() returned false: app exit relaunched a fresh home (broke the
+# seamless return and made post-app sleep slow). An explicit persist value (0 or 1)
+# already in /data makes the empty match fail, so this never overrides the user's choice.
+on property:sys.gammaos.minimal_boot=1 && property:persist.gammaos.nano.overlay_home=
+    setprop persist.gammaos.nano.overlay_home 1
+
 on property:sys.boot_completed=1 && property:persist.gammaos.nano.overlay=1 && property:sys.gammaos.minimal_boot=1
     start gammaos-nano-overlay
 
