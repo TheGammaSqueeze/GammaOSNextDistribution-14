@@ -197,35 +197,37 @@ void NanoMenu::renderBrightnessBar() {
 // ---------------------------------------------------------------------------
 
 void NanoMenu::adjustVolume(int direction) {
-    // PhoneWindowManager is the single volume authority in nano mode: it sets EVERY
-    // audible stream to one level and publishes persist.gammaos.nano.volume (index)
-    // + persist.gammaos.nano.volmax (range). Sync from those real values first so the
-    // slider never drifts from actual output, then apply the press optimistically for
-    // instant feedback; the injected key below makes PWM do the real all-stream change
-    // and re-publish, so the next press re-syncs. We do NOT persist here (PWM owns it).
+    // PhoneWindowManager is the single volume authority in nano mode: the SAME physical
+    // volume key that nano reads here ALSO reaches PWM (nano reads the evdev nodes
+    // SHARED, it does not EVIOCGRAB them), and PWM.handleVolumeKey sets every audible
+    // stream to one level + publishes persist.gammaos.nano.volume/volmax + persists it.
+    // So this function is DISPLAY-ONLY: we must NOT inject a synthetic key (that made
+    // PWM apply the change a SECOND time -> the volume jumped two steps per press while
+    // the slider moved one, the reported drift). We just move the slider optimistically
+    // for instant feedback; PWM's handling of the same key does the real change.
     char vmax[PROPERTY_VALUE_MAX] = {};
     property_get("persist.gammaos.nano.volmax", vmax, "");
     if (vmax[0]) { int m = atoi(vmax); if (m > 0) mMaxVolume = m; }
-    char cur[PROPERTY_VALUE_MAX] = {};
-    property_get("persist.gammaos.nano.volume", cur, "");
-    if (cur[0]) mVolume = atoi(cur);
+    // Re-sync the slider base from PWM's real published index ONLY at the START of a
+    // burst (mShowVolumeBar is false -> the last press was >1.5s ago, so PWM has long
+    // since processed it and re-published). Mid-burst we keep our own optimistic
+    // counter: the injected key -> InputManager -> PWM -> re-publish round-trip lags
+    // rapid presses, so re-reading the prop here returns a STALE index and several
+    // consecutive presses would land on the SAME displayed step while PWM (which
+    // queues every key event) actually moves the volume each time - the reported bug.
+    if (!mShowVolumeBar) {
+        char cur[PROPERTY_VALUE_MAX] = {};
+        property_get("persist.gammaos.nano.volume", cur, "");
+        if (cur[0]) mVolume = atoi(cur);
+    }
     mVolume += direction;
     if (mVolume < 0) mVolume = 0;
     if (mVolume > mMaxVolume) mVolume = mMaxVolume;
 
-    // NanoMenu has the input devices grabbed via EVIOCGRAB, so physical volume keys
-    // never reach PhoneWindowManager directly. Inject a synthetic KeyEvent via
-    // `input keyevent`, which goes through InputManager -> InputDispatcher ->
-    // PhoneWindowManager.handleVolumeKey -> nanoSyncAllStreamsVolume (all streams +
-    // republish + persist across reboots).
-    const char* keyCode = (direction > 0) ? "KEYCODE_VOLUME_UP" : "KEYCODE_VOLUME_DOWN";
-    std::string cmd = std::string("/system/bin/input keyevent ") + keyCode + " 2>/dev/null";
-    std::thread([cmd]() {
-        int rc = system(cmd.c_str());
-        if (rc != 0) {
-            ALOGW("NanoMenu: input keyevent volume failed rc=%d", rc);
-        }
-    }).detach();
+    // No synthetic key injection: the physical key nano just read is ALSO dispatched
+    // to PhoneWindowManager, which does the real all-stream change + republish +
+    // persist. Injecting another key here applied the change twice (the 2-steps-per-
+    // press bug). The optimistic mVolume above keeps the slider in lockstep with it.
 
     mShowVolumeBar = true;
     mVolumeBarTimer = 90; // ~1.5s at 60fps
