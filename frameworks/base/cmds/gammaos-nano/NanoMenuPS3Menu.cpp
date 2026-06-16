@@ -2433,13 +2433,30 @@ void NanoMenu::drawPs3Clock(float fadeMul) {
     float R = ps3::devS(ps3::CLOCK_ICON_R);
     float ringW = fmaxf(1.5f, R * 0.16f);
     float handW = fmaxf(2.0f, R * 0.25f);
-    float hourAng = -(float)M_PI / 2.0f + (((lt.tm_hour % 12) + lt.tm_min / 60.0f) / 12.0f) * 2.0f * (float)M_PI;
-    float minAng  = -(float)M_PI / 2.0f + (lt.tm_min / 60.0f) * 2.0f * (float)M_PI;
-    auto face = [&](float ox, float oy, float r, float g, float b, float a) {
+    // One-shot hand spin (web drawClock): the hands cycle a whole revolution and
+    // settle back on the time whenever the menu context changes (submenu depth or
+    // a dialog opening/closing - NOT a category switch or side-panel chooser), and
+    // during the cold-boot/XMB-load reveal (fadeMul 0->1). MIN_TURNS/HOUR_TURNS are
+    // integers (2 and 1) so the hands always land exactly on the current time and
+    // cross into one line once mid-spin. 620ms, smoothstep-eased.
+    int spinSig = (int)mPs3Stack.size() * 2 + (mPs3DlgActive ? 1 : 0);
+    if (mPs3ClockSpinSig < 0) mPs3ClockSpinSig = spinSig;                       // first frame: no spin
+    else if (spinSig != mPs3ClockSpinSig) { mPs3ClockSpinSig = spinSig; mPs3ClockSpinStart = mEffectTime; }
+    float spinProg = fmaxf(0.0f, fminf(1.0f, (mEffectTime - mPs3ClockSpinStart) / 0.62f));
+    float spinT = easeSmooth(fmaxf(spinProg, fmaxf(0.0f, 1.0f - fadeMul)));
+    float spin = spinT * 2.0f * (float)M_PI;
+    float hourAng = -(float)M_PI / 2.0f + (((lt.tm_hour % 12) + lt.tm_min / 60.0f) / 12.0f) * 2.0f * (float)M_PI
+                    + spin * (float)ps3::CLOCK_HOUR_TURNS;
+    float minAng  = -(float)M_PI / 2.0f + (lt.tm_min / 60.0f) * 2.0f * (float)M_PI
+                    + spin * (float)ps3::CLOCK_MIN_TURNS;
+    // grow widens the ring/hands outward by `grow` px so the same geometry, drawn
+    // wider at low alpha, approximates the web's soft white glow halo (canvas
+    // shadowBlur 3.5) - no blur shader on ES2.
+    auto face = [&](float ox, float oy, float grow, float r, float g, float b, float a) {
         const int SEG = 28;
+        float ro = R + grow, ri = fmaxf(0.0f, R - ringW - grow);
         for (int i = 0; i < SEG; i++) {
             float a0 = (float)i / SEG * 2.0f * (float)M_PI, a1 = (float)(i + 1) / SEG * 2.0f * (float)M_PI;
-            float ro = R, ri = R - ringW;
             float x0o = iconCX + cosf(a0) * ro + ox, y0o = iconCY + sinf(a0) * ro + oy;
             float x1o = iconCX + cosf(a1) * ro + ox, y1o = iconCY + sinf(a1) * ro + oy;
             float x0i = iconCX + cosf(a0) * ri + ox, y0i = iconCY + sinf(a0) * ri + oy;
@@ -2447,18 +2464,22 @@ void NanoMenu::drawPs3Clock(float fadeMul) {
             drawTriangle(x0o, y0o, x1o, y1o, x0i, y0i, r, g, b, a);
             drawTriangle(x1o, y1o, x1i, y1i, x0i, y0i, r, g, b, a);
         }
+        float hw = handW + grow * 2.0f;
         auto hand = [&](float ang, float len) {
-            float ex = iconCX + cosf(ang) * len + ox, ey = iconCY + sinf(ang) * len + oy;
+            float ll = len + grow;
+            float ex = iconCX + cosf(ang) * ll + ox, ey = iconCY + sinf(ang) * ll + oy;
             float bx = iconCX + ox, by = iconCY + oy;
-            float px = -sinf(ang) * handW * 0.5f, py = cosf(ang) * handW * 0.5f;
+            float px = -sinf(ang) * hw * 0.5f, py = cosf(ang) * hw * 0.5f;
             drawTriangle(bx + px, by + py, bx - px, by - py, ex + px, ey + py, r, g, b, a);
             drawTriangle(ex + px, ey + py, ex - px, ey - py, bx - px, by - py, r, g, b, a);
         };
         hand(hourAng, R * 0.47f);
         hand(minAng, R * 0.69f);
     };
-    face(so[0], so[1], 0.0f, 0.0f, 0.0f, 0.55f * fadeMul);      // drop shadow (panel-down)
-    face(0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 0.96f * fadeMul);        // crisp
+    face(so[0], so[1], 0.0f, 0.0f, 0.0f, 0.0f, 0.55f * fadeMul);                // 1. dark drop shadow (panel-down)
+    face(0.0f, 0.0f, ps3::devS(3.0f), 1.0f, 1.0f, 1.0f, 0.12f * fadeMul);       // 2a. soft white glow halo (outer)
+    face(0.0f, 0.0f, ps3::devS(1.5f), 1.0f, 1.0f, 1.0f, 0.22f * fadeMul);       // 2b. soft white glow halo (inner)
+    face(0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 0.96f * fadeMul);                  // 3. crisp face on top
     endSolidBatch();   // flush the batched panel/glow/border/face as one draw
 
     // ---- bar layout: status icons [battery][Wi-Fi][BT] anchored to the LEFT of

@@ -1132,6 +1132,11 @@ private:
     char   mPs3ClockStr[48] = {0};
     int    mPs3ClockKMin = -1, mPs3ClockKHour = -1, mPs3ClockKMday = -1,
            mPs3ClockKMon = -1, mPs3ClockKDateFmt = -1, mPs3ClockKTimeFmt = -1;
+    // One-shot analog-hand spin on a menu context change (submenu enter/leave or a
+    // dialog open/close), mirroring the web drawClock. mPs3ClockSpinSig is the last
+    // seen context signature; a change restarts the spin at mPs3ClockSpinStart.
+    int    mPs3ClockSpinSig = -1;
+    float  mPs3ClockSpinStart = -1.0e9f;
     // Flat-colour batch state (see beginSolidBatch). When true, drawQuad/
     // drawTriangle accumulate instead of drawing.
     bool   mSolidBatchActive = false;
