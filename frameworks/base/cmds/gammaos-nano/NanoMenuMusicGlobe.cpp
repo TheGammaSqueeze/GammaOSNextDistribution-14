@@ -45,8 +45,8 @@ namespace ps3mpglobe {
 // ---------------------------------------------------------------------------
 static float TUNE_SUNBRI   = 60.0f;   // sun HDR core brightness (blooms into the corona)
 static float TUNE_SUNHALO  = 2.2f;    // broad warm sun halo strength
-static float TUNE_BLOOMTHR = 0.42f;   // bright-pass threshold (display luminance)
-static float TUNE_BLOOMGAIN= 1.30f;   // additive bloom gain
+static float TUNE_BLOOMTHR = 0.55f;   // bright-pass threshold: more selective (only the bright limb/clouds bloom, like the web's over-range bright-pass), less mid-tone haze
+static float TUNE_BLOOMGAIN= 1.80f;   // additive bloom gain (those highlights pop)
 static float TUNE_NIGHTBRI = 0.9f;    // night-lights (earth_night) brightness (web shows them subtly)
 static float TUNE_RIM      = 0.50f;   // atmosphere fresnel rim strength (the always-on blue limb)
 static float TUNE_HALO     = 0.70f;   // outer atmosphere halo strength
