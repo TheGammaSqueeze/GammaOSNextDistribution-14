@@ -51,7 +51,7 @@ static float TUNE_NIGHTBRI = 0.9f;    // night-lights (earth_night) brightness (
 static float TUNE_RIM      = 0.50f;   // atmosphere fresnel rim strength (the always-on blue limb)
 static float TUNE_HALO     = 0.70f;   // outer atmosphere halo strength
 static float TUNE_HALOFALL  = 100.0f; // outer halo falloff rate (higher = tighter glow hugging the limb); tuned vs web
-static float TUNE_DAYK      = 3.40f;  // lit-side (day) albedo gain; tuned so the lit earth matches the web brightness
+static float TUNE_DAYK      = 2.40f;  // lit-side (day) albedo gain; between firmware 1.5 and a no-bloom-haze lift, so the day side reads bright without washing out the night/twilight crescents
 
 static float propF(const char* key, float def) {
     char v[PROPERTY_VALUE_MAX] = {};
