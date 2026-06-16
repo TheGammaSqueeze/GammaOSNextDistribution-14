@@ -40,6 +40,7 @@
 #include <string.h>
 #include <strings.h>
 #include <algorithm>
+#include <cstdio>
 #include <cmath>
 #include <cstdlib>
 #include <map>
@@ -129,6 +130,7 @@ bool NanoMenu::loadMusicConfig() {
             mt.durationSec = t.find("dur") ? t.find("dur")->asNumber(0) : 0;
             mt.trackNo = t.getInt("track", 0);
             mt.mtime = t.find("mtime") ? (int64_t)t.find("mtime")->asNumber(0) : 0;
+            mt.albumHidden = t.getInt("ah", 0) != 0;
             mMusicTracks.push_back(std::move(mt));
         }
 
@@ -140,6 +142,7 @@ bool NanoMenu::loadMusicConfig() {
             if (pl.name.empty()) continue;
             if (const njson::Value* fs = p.find("files"); fs && fs->isArray())
                 for (const auto& f : fs->arr) if (f.isString()) pl.files.push_back(f.str);
+            pl.m3uPath = p.getString("m3u");
             mMusicPlaylists.push_back(std::move(pl));
         }
     ALOGI("NanoMenu: loaded music library (%zu folders, %zu tracks, %zu playlists)",
@@ -164,6 +167,7 @@ void NanoMenu::saveMusicConfig() {
         v.set("dur") = njson::Value::makeNumber(t.durationSec);
         v.set("track") = njson::Value::makeNumber(t.trackNo);
         v.set("mtime") = njson::Value::makeNumber((double)t.mtime);
+        if (t.albumHidden) v.set("ah") = njson::Value::makeNumber(1);
         tracks.arr.push_back(std::move(v));
     }
     root.set("tracks") = std::move(tracks);
@@ -174,6 +178,7 @@ void NanoMenu::saveMusicConfig() {
         njson::Value fs = njson::Value::makeArray();
         for (const auto& f : p.files) fs.arr.push_back(njson::Value::makeString(f));
         v.set("files") = std::move(fs);
+        if (!p.m3uPath.empty()) v.set("m3u") = njson::Value::makeString(p.m3uPath);
         pls.arr.push_back(std::move(v));
     }
     root.set("playlists") = std::move(pls);
@@ -230,8 +235,16 @@ void NanoMenu::musicEnsureLoaded() {
 // Scanner: recurse every imported folder, collect audio files, probe metadata
 // (mtime-cached against the current library), publish under a mutex.
 // ---------------------------------------------------------------------------
+static bool isM3uExt(const std::string& nameLower) {
+    size_t dot = nameLower.rfind('.');
+    if (dot == std::string::npos) return false;
+    std::string ext = nameLower.substr(dot);
+    return ext == ".m3u" || ext == ".m3u8";
+}
+
 static void scanDirRecursive(const std::string& dir,
-                             std::vector<std::string>& outFiles, int depth) {
+                             std::vector<std::string>& outFiles, int depth,
+                             std::vector<std::string>* outM3u = nullptr) {
     if (depth > 8) return;   // sane recursion bound
     DIR* d = opendir(dir.c_str());
     if (!d) return;
@@ -247,11 +260,42 @@ static void scanDirRecursive(const std::string& dir,
         std::string lower = e->d_name;
         for (auto& c : lower) if (c >= 'A' && c <= 'Z') c += 32;
         if (isAudioExt(lower)) outFiles.push_back(child);
+        else if (outM3u && isM3uExt(lower)) outM3u->push_back(child);
     }
     closedir(d);
     std::sort(subdirs.begin(), subdirs.end(),
               [](const std::string& a, const std::string& b){ return strcasecmp(a.c_str(), b.c_str()) < 0; });
-    for (const auto& s : subdirs) scanDirRecursive(s, outFiles, depth + 1);
+    for (const auto& s : subdirs) scanDirRecursive(s, outFiles, depth + 1, outM3u);
+}
+
+// Parse an .m3u/.m3u8 into a playlist. Resolves each entry relative to the m3u's
+// directory (absolute paths kept as-is), keeps only entries that exist on disk and
+// are audio. Skips blank lines and #EXTM3U/#EXTINF comment lines.
+bool NanoMenu::parseM3u(const std::string& m3uPath, NanoMenu::MusicPlaylist& out) {
+    FILE* f = fopen(m3uPath.c_str(), "rb");
+    if (!f) return false;
+    std::string dir = m3uPath.substr(0, m3uPath.rfind('/') + 1);
+    char line[4096];
+    while (fgets(line, sizeof(line), f)) {
+        std::string s(line);
+        // trim trailing CR/LF/space and leading space
+        while (!s.empty() && (s.back() == '\n' || s.back() == '\r' || s.back() == ' ' || s.back() == '\t')) s.pop_back();
+        size_t b = s.find_first_not_of(" \t");
+        if (b == std::string::npos) continue;
+        s = s.substr(b);
+        if (s.empty() || s[0] == '#') continue;      // comment / directive
+        for (auto& c : s) if (c == '\\') c = '/';     // windows separators
+        std::string path = (s[0] == '/') ? s : (dir + s);
+        std::string lower = path; for (auto& c : lower) if (c >= 'A' && c <= 'Z') c += 32;
+        if (!isAudioExt(lower)) continue;
+        struct stat st;
+        if (stat(path.c_str(), &st) != 0 || !S_ISREG(st.st_mode)) continue;
+        out.files.push_back(path);
+    }
+    fclose(f);
+    out.m3uPath = m3uPath;
+    out.name = stripExt(baseName(m3uPath));
+    return !out.files.empty();
 }
 
 // True when the imported music folders are actually reachable. External storage
@@ -302,7 +346,8 @@ void NanoMenu::musicScanThreadFunc() {
     if (!forceReprobe) for (const auto& t : cacheVec) cache[t.file] = &t;
 
     std::vector<std::string> files;
-    for (const auto& f : folders) scanDirRecursive(f, files, 0);
+    std::vector<std::string> m3uFiles;
+    for (const auto& f : folders) scanDirRecursive(f, files, 0, &m3uFiles);
     // Storage-not-ready guard: if we found nothing but a configured folder is not
     // even openable (its volume is not mounted yet), do NOT publish - that would
     // wipe a previously-scanned library. Bail and let the UI retry once storage
@@ -352,23 +397,50 @@ void NanoMenu::musicScanThreadFunc() {
         if (tr.album.empty()) { tr.album = parentName(path); if (tr.album.empty()) tr.album = "Unknown Album"; }
         results.push_back(std::move(tr));
     }
+    // Parse .m3u/.m3u8 into playlists (regenerated each scan) and note their directories
+    // so the folder-fallback album is suppressed for those dirs (shown via the playlist).
+    std::sort(m3uFiles.begin(), m3uFiles.end());
+    m3uFiles.erase(std::unique(m3uFiles.begin(), m3uFiles.end()), m3uFiles.end());
+    std::vector<MusicPlaylist> m3uPlaylists;
+    std::set<std::string> m3uDirs;
+    for (const auto& mp : m3uFiles) {
+        MusicPlaylist pl;
+        if (parseM3u(mp, pl)) {
+            m3uDirs.insert(mp.substr(0, mp.rfind('/') + 1));
+            m3uPlaylists.push_back(std::move(pl));
+        }
+    }
+    // Recompute albumHidden fresh each scan (an m3u may have been added or removed).
+    for (auto& tr : results) {
+        std::string d = tr.file.substr(0, tr.file.rfind('/') + 1);
+        tr.albumHidden = (m3uDirs.count(d) > 0);
+    }
     {
         std::lock_guard<std::mutex> lk(mMusicScanMutex);
         mMusicScanResults = std::move(results);
+        mMusicScanPlaylists = std::move(m3uPlaylists);
         mMusicScanReady = true;
     }
     mMusicScanRunning = false;
-    ALOGI("NanoMenu: music scan finished (%zu files)", files.size());
+    ALOGI("NanoMenu: music scan finished (%zu files, %zu m3u playlists)", files.size(), m3uFiles.size());
 }
 
 void NanoMenu::musicDrainScanResults() {
     if (!mMusicScanReady) return;
+    std::vector<MusicPlaylist> m3uPlaylists;
     {
         std::lock_guard<std::mutex> lk(mMusicScanMutex);
         mMusicTracks = std::move(mMusicScanResults);
         mMusicScanResults.clear();
+        m3uPlaylists = std::move(mMusicScanPlaylists);
+        mMusicScanPlaylists.clear();
         mMusicScanReady = false;
     }
+    // Keep the user-created playlists; replace the m3u-derived ones with this scan's.
+    std::vector<MusicPlaylist> merged;
+    for (auto& p : mMusicPlaylists) if (p.m3uPath.empty()) merged.push_back(std::move(p));
+    for (auto& p : m3uPlaylists) merged.push_back(std::move(p));
+    mMusicPlaylists = std::move(merged);
     saveMusicConfig();
     mMusicCatsStale = true;   // rebuild the Music column at the settled root
 }
@@ -380,7 +452,7 @@ std::vector<std::string> NanoMenu::musicAlbumNames() const {
     std::vector<std::string> names;
     std::set<std::string> seen;
     for (const auto& t : mMusicTracks)
-        if (seen.insert(t.album).second) names.push_back(t.album);
+        if (!t.albumHidden && seen.insert(t.album).second) names.push_back(t.album);
     std::sort(names.begin(), names.end(),
               [](const std::string& a, const std::string& b){ return strcasecmp(a.c_str(), b.c_str()) < 0; });
     return names;
@@ -389,7 +461,7 @@ std::vector<std::string> NanoMenu::musicAlbumNames() const {
 std::vector<int> NanoMenu::musicAlbumTrackIndices(const std::string& album) const {
     std::vector<int> idx;
     for (size_t i = 0; i < mMusicTracks.size(); i++)
-        if (mMusicTracks[i].album == album) idx.push_back((int)i);
+        if (!mMusicTracks[i].albumHidden && mMusicTracks[i].album == album) idx.push_back((int)i);
     // Keep tracks in FILE order (sort by path, the order the files appear on disk -
     // e.g. "01 - ...", "02 - ...") rather than re-sorting by the parsed tag title.
     // The displayed text comes from the metadata tags; only the ordering stays

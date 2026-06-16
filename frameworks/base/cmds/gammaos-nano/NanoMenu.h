@@ -1353,10 +1353,14 @@ private:
         double durationSec = 0.0;
         int trackNo = 0;
         int64_t mtime = 0;       // for incremental rescan
+        bool albumHidden = false; // track lives in a folder that has an .m3u: shown via the playlist,
+                                  // not as a duplicate folder-fallback album
     };
     struct MusicPlaylist {
         std::string name;
         std::vector<std::string> files;   // references MusicTrack.file
+        std::string m3uPath;              // non-empty: derived from this .m3u (regenerated on scan);
+                                          // empty: user-created (preserved across scans)
     };
     int mFolderPickTarget = 0;             // 0 = Game Systems scan source, 1 = Music library
     std::vector<std::string> mMusicFolders;
@@ -1366,13 +1370,15 @@ private:
     // Metadata-parser schema version. Bumped whenever the way we read tags changes
     // so an existing library (mtime-cached) re-probes instead of keeping stale data.
     // v2: read real container tags (title/artist/album) via the fixed getFileFormat.
-    static const int kMusicMetaVersion = 2;
+    // v3: parse .m3u/.m3u8 into playlists + hide the folder-fallback album for m3u dirs.
+    static const int kMusicMetaVersion = 3;
     int mMusicCfgVersion = 0;              // version found in nano_music.json (0 = none)
     bool mMusicLoaded = false;             // library parsed once (lazy, first Music entry)
     bool mMusicCatsStale = false;          // a scan finished -> rebuild the Music column at root
     // scan worker
     std::mutex mMusicScanMutex;
     std::vector<MusicTrack> mMusicScanResults;
+    std::vector<MusicPlaylist> mMusicScanPlaylists;   // m3u-derived playlists from the last scan
     bool mMusicScanReady = false;
     bool mMusicScanRunning = false;
     bool mMusicScanPending = false;        // scan deferred until external storage is mounted
@@ -1387,6 +1393,7 @@ private:
     // scan
     void musicScanAsync();                 // detached worker over mMusicFolders
     void musicScanThreadFunc();            // the worker body
+    static bool parseM3u(const std::string& m3uPath, MusicPlaylist& out);  // .m3u/.m3u8 -> playlist
     void musicDrainScanResults();          // render-thread: swap in finished results + rebuild
     // folder import (Search for Media Servers)
     void musicOpenFolders();               // push the music folders screen
