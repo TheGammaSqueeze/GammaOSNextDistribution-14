@@ -111,20 +111,21 @@ bool NanoMenu::photoProbeDims(const std::string& path, int* w, int* h, int64_t* 
     return true;
 }
 
-GLuint NanoMenu::photoDecodeTex(const std::string& path, int maxDim, int* outW, int* outH) {
+// ---- CPU image decode (no GL) + GL upload + disk thumbnail cache --------------
+// photoDecodeRGBACpu: decode `path` to tightly-packed RGBA, longest side <= maxDim
+// (0 = native). NO GL calls, so it is safe on the scan / async decode worker.
+static bool photoDecodeRGBACpu(const std::string& path, int maxDim,
+                               int* outW, int* outH, std::vector<uint8_t>& out) {
     int fd = open(path.c_str(), O_RDONLY);
-    if (fd < 0) return 0;
+    if (fd < 0) return false;
     AImageDecoder* dec = nullptr;
-    int r = AImageDecoder_createFromFd(fd, &dec);
-    if (r != ANDROID_IMAGE_DECODER_SUCCESS || !dec) { close(fd); return 0; }
+    if (AImageDecoder_createFromFd(fd, &dec) != ANDROID_IMAGE_DECODER_SUCCESS || !dec) { close(fd); return false; }
     const AImageDecoderHeaderInfo* hi = AImageDecoder_getHeaderInfo(dec);
-    int sw = AImageDecoderHeaderInfo_getWidth(hi);
-    int sh = AImageDecoderHeaderInfo_getHeight(hi);
-    if (sw <= 0 || sh <= 0) { AImageDecoder_delete(dec); close(fd); return 0; }
+    int sw = AImageDecoderHeaderInfo_getWidth(hi), sh = AImageDecoderHeaderInfo_getHeight(hi);
+    if (sw <= 0 || sh <= 0) { AImageDecoder_delete(dec); close(fd); return false; }
     AImageDecoder_setAndroidBitmapFormat(dec, ANDROID_BITMAP_FORMAT_RGBA_8888);
-    AImageDecoder_setUnpremultipliedRequired(dec, true);   // photos are opaque; keep colours linear
-    int tw = sw, th = sh;
-    int longSide = sw > sh ? sw : sh;
+    AImageDecoder_setUnpremultipliedRequired(dec, true);   // photos are opaque
+    int tw = sw, th = sh, longSide = sw > sh ? sw : sh;
     if (maxDim > 0 && longSide > maxDim) {
         float s = (float)maxDim / (float)longSide;
         tw = (int)(sw * s + 0.5f); th = (int)(sh * s + 0.5f);
@@ -132,30 +133,153 @@ GLuint NanoMenu::photoDecodeTex(const std::string& path, int maxDim, int* outW, 
         AImageDecoder_setTargetSize(dec, tw, th);
     }
     size_t stride = AImageDecoder_getMinimumStride(dec);
-    size_t bufSize = stride * (size_t)th;
-    std::vector<uint8_t> buf(bufSize);
-    r = AImageDecoder_decodeImage(dec, buf.data(), stride, bufSize);
-    AImageDecoder_delete(dec);
-    close(fd);
-    if (r != ANDROID_IMAGE_DECODER_SUCCESS) return 0;
-    const uint8_t* px = buf.data();
-    std::vector<uint8_t> packed;
-    if (stride != (size_t)tw * 4) {   // pack rows tightly for glTexImage2D
-        packed.resize((size_t)tw * th * 4);
-        for (int y = 0; y < th; y++)
-            memcpy(&packed[(size_t)y * tw * 4], &buf[(size_t)y * stride], (size_t)tw * 4);
-        px = packed.data();
+    std::vector<uint8_t> buf(stride * (size_t)th);
+    int r = AImageDecoder_decodeImage(dec, buf.data(), stride, buf.size());
+    AImageDecoder_delete(dec); close(fd);
+    if (r != ANDROID_IMAGE_DECODER_SUCCESS) return false;
+    out.resize((size_t)tw * th * 4);
+    if (stride == (size_t)tw * 4) memcpy(out.data(), buf.data(), out.size());
+    else for (int y = 0; y < th; y++) memcpy(&out[(size_t)y * tw * 4], &buf[(size_t)y * stride], (size_t)tw * 4);
+    *outW = tw; *outH = th;
+    return true;
+}
+
+// CPU centre-square crop decode (no GL), S x S RGBA, for the group-folder cover.
+static bool photoDecodeCropRGBACpu(const std::string& path, int S, std::vector<uint8_t>& out) {
+    int fd = open(path.c_str(), O_RDONLY);
+    if (fd < 0) return false;
+    AImageDecoder* dec = nullptr;
+    if (AImageDecoder_createFromFd(fd, &dec) != ANDROID_IMAGE_DECODER_SUCCESS || !dec) { close(fd); return false; }
+    const AImageDecoderHeaderInfo* hi = AImageDecoder_getHeaderInfo(dec);
+    int sw = AImageDecoderHeaderInfo_getWidth(hi), sh = AImageDecoderHeaderInfo_getHeight(hi);
+    bool ok = false;
+    if (sw > 0 && sh > 0) {
+        int tw, th;
+        if (sw >= sh) { th = S; tw = (int)((float)S * sw / sh + 0.5f); }
+        else          { tw = S; th = (int)((float)S * sh / sw + 0.5f); }
+        if (tw < S) tw = S; if (th < S) th = S;
+        AImageDecoder_setAndroidBitmapFormat(dec, ANDROID_BITMAP_FORMAT_RGBA_8888);
+        AImageDecoder_setUnpremultipliedRequired(dec, true);
+        AImageDecoder_setTargetSize(dec, tw, th);
+        ARect crop; crop.left = (tw - S) / 2; crop.top = (th - S) / 2;
+        crop.right = crop.left + S; crop.bottom = crop.top + S;
+        AImageDecoder_setCrop(dec, crop);
+        size_t stride = AImageDecoder_getMinimumStride(dec);
+        std::vector<uint8_t> buf(stride * (size_t)S);
+        if (AImageDecoder_decodeImage(dec, buf.data(), stride, buf.size()) == ANDROID_IMAGE_DECODER_SUCCESS) {
+            out.resize((size_t)S * S * 4);
+            if (stride == (size_t)S * 4) memcpy(out.data(), buf.data(), out.size());
+            else for (int y = 0; y < S; y++) memcpy(&out[(size_t)y * S * 4], &buf[(size_t)y * stride], (size_t)S * 4);
+            ok = true;
+        }
     }
-    GLuint tex = 0;
-    glGenTextures(1, &tex);
-    glBindTexture(GL_TEXTURE_2D, tex);
+    AImageDecoder_delete(dec); close(fd);
+    return ok;
+}
+
+static GLuint uploadRGBATex(const uint8_t* px, int w, int h) {
+    if (!px || w <= 0 || h <= 0) return 0;
+    GLuint tex = 0; glGenTextures(1, &tex); glBindTexture(GL_TEXTURE_2D, tex);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tw, th, 0, GL_RGBA, GL_UNSIGNED_BYTE, px);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, px);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    if (outW) *outW = tw; if (outH) *outH = th;
+    return tex;
+}
+
+// ---- persistent disk thumbnail cache (RGB565 blobs) --------------------------
+// Re-opening an album used to re-decode every 12-16MP source. The disk cache turns
+// that into a tiny RGB565 read + upload. Keyed by path+mtime+size so a changed
+// source auto-invalidates. RGB565 raw (not JPEG) so there is NO new dependency and
+// zero decode on load. (issue: album loading slow)
+static const char* kThumbCacheDir = "/data/system/nano_thumb_cache";
+static const int   kThumbCacheVer = 1;
+static bool sThumbCacheDirReady = false;
+static void ensureThumbCacheDir() {
+    if (sThumbCacheDirReady) return;
+    mkdir(kThumbCacheDir, 0755);
+    chmod(kThumbCacheDir, 0755);
+    sThumbCacheDirReady = true;
+}
+static std::string photoCacheFile(const std::string& file, int64_t mtime, int64_t sz, char kind) {
+    char meta[1200];
+    snprintf(meta, sizeof(meta), "%c%d|%s|%lld|%lld", kind, kThumbCacheVer,
+             file.c_str(), (long long)mtime, (long long)sz);
+    uint64_t h = 1469598103934665603ULL;             // FNV-1a 64
+    for (const char* p = meta; *p; ++p) { h ^= (uint8_t)*p; h *= 1099511628211ULL; }
+    char nm[96]; snprintf(nm, sizeof(nm), "%s/%016llx.ntc", kThumbCacheDir, (unsigned long long)h);
+    return nm;
+}
+static bool photoCacheWrite565(const std::string& file, const uint8_t* rgba, int w, int h) {
+    if (!rgba || w <= 0 || h <= 0 || w > 4096 || h > 4096) return false;
+    ensureThumbCacheDir();
+    std::vector<uint8_t> blob(8 + (size_t)w * h * 2);
+    blob[0]='N'; blob[1]='T'; blob[2]='C'; blob[3]='5';
+    blob[4]=(uint8_t)(w & 0xff); blob[5]=(uint8_t)((w>>8)&0xff);
+    blob[6]=(uint8_t)(h & 0xff); blob[7]=(uint8_t)((h>>8)&0xff);
+    uint16_t* dst = reinterpret_cast<uint16_t*>(&blob[8]);
+    for (int i = 0; i < w * h; i++) {
+        uint8_t r = rgba[(size_t)i*4], g = rgba[(size_t)i*4+1], b = rgba[(size_t)i*4+2];
+        dst[i] = (uint16_t)(((r & 0xf8) << 8) | ((g & 0xfc) << 3) | (b >> 3));
+    }
+    std::string tmp = file + ".tmp";
+    int fd = open(tmp.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
+    if (fd < 0) return false;
+    bool ok = write(fd, blob.data(), blob.size()) == (ssize_t)blob.size();
+    close(fd);
+    if (!ok) { unlink(tmp.c_str()); return false; }
+    if (rename(tmp.c_str(), file.c_str()) != 0) { unlink(tmp.c_str()); return false; }
+    return true;
+}
+static GLuint photoCacheRead565(const std::string& file, float* outAR) {
+    int fd = open(file.c_str(), O_RDONLY);
+    if (fd < 0) return 0;
+    uint8_t hdr[8];
+    if (read(fd, hdr, 8) != 8 || hdr[0]!='N'||hdr[1]!='T'||hdr[2]!='C'||hdr[3]!='5') { close(fd); return 0; }
+    int w = hdr[4] | (hdr[5]<<8), h = hdr[6] | (hdr[7]<<8);
+    if (w <= 0 || h <= 0 || w > 4096 || h > 4096) { close(fd); return 0; }
+    std::vector<uint8_t> px((size_t)w * h * 2);
+    bool ok = read(fd, px.data(), px.size()) == (ssize_t)px.size();
+    close(fd);
+    if (!ok) return 0;
+    utimensat(AT_FDCWD, file.c_str(), nullptr, 0);   // LRU touch (read = recently used)
+    GLuint tex = 0; glGenTextures(1, &tex); glBindTexture(GL_TEXTURE_2D, tex);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 2);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_UNSIGNED_SHORT_5_6_5, px.data());
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+    if (outAR) *outAR = (h > 0) ? (float)w / (float)h : 1.0f;
+    return tex;
+}
+// LRU-bound the cache dir to ~96 MB (oldest-mtime first). Runs on the scan thread.
+static void photoThumbCacheGc() {
+    DIR* d = opendir(kThumbCacheDir); if (!d) return;
+    struct Ent { std::string path; off_t sz; time_t mt; };
+    std::vector<Ent> ents; long long total = 0;
+    struct dirent* e;
+    while ((e = readdir(d)) != nullptr) {
+        if (e->d_name[0] == '.') continue;
+        std::string p = std::string(kThumbCacheDir) + "/" + e->d_name;
+        struct stat st; if (stat(p.c_str(), &st) != 0 || !S_ISREG(st.st_mode)) continue;
+        ents.push_back({p, st.st_size, st.st_mtime}); total += (long long)st.st_size;
+    }
+    closedir(d);
+    const long long cap = 96LL * 1024 * 1024;
+    if (total <= cap) return;
+    std::sort(ents.begin(), ents.end(), [](const Ent& a, const Ent& b){ return a.mt < b.mt; });
+    for (auto& en : ents) { if (total <= cap) break; if (unlink(en.path.c_str()) == 0) total -= (long long)en.sz; }
+}
+
+GLuint NanoMenu::photoDecodeTex(const std::string& path, int maxDim, int* outW, int* outH) {
+    int w = 0, h = 0; std::vector<uint8_t> px;
+    if (!photoDecodeRGBACpu(path, maxDim, &w, &h, px)) return 0;
+    GLuint tex = uploadRGBATex(px.data(), w, h);
+    if (outW) *outW = w; if (outH) *outH = h;
     return tex;
 }
 
@@ -452,6 +576,11 @@ void NanoMenu::photoScanThreadFunc() {
         else { struct stat s2; p.sz = (stat(path.c_str(), &s2) == 0) ? (int64_t)s2.st_size : 0; }
         results.push_back(std::move(p));
     }
+    // Snapshot the cache keys before `results` is moved, so the warm pass below can
+    // run without touching shared state.
+    struct WarmKey { std::string file; int64_t mtime; int64_t sz; };
+    std::vector<WarmKey> warm; warm.reserve(results.size());
+    for (auto& p : results) warm.push_back({p.file, p.mtime, p.sz});
     {
         std::lock_guard<std::mutex> lk(mPhotoScanMutex);
         mPhotoScanResults = std::move(results);
@@ -459,6 +588,19 @@ void NanoMenu::photoScanThreadFunc() {
     }
     mPhotoScanRunning = false;
     ALOGI("NanoMenu: photo scan finished (%zu images)", files.size());
+    // Warm the on-disk thumbnail cache off the render thread so the FIRST album open
+    // after a scan is fast too (decode + RGB565-write each missing thumb). Throttled
+    // so it never competes with the live wave render; skips already-cached entries.
+    for (auto& wk : warm) {
+        if (mPhotoScanRunning) break;   // a newer scan started; defer to it
+        std::string cf = photoCacheFile(wk.file, wk.mtime, wk.sz, 't');
+        if (access(cf.c_str(), F_OK) == 0) continue;
+        int dw = 0, dh = 0; std::vector<uint8_t> px;
+        if (photoDecodeRGBACpu(wk.file, 256, &dw, &dh, px))
+            photoCacheWrite565(cf, px.data(), dw, dh);
+        usleep(4000);
+    }
+    photoThumbCacheGc();
 }
 
 void NanoMenu::photoDrainScanResults() {
@@ -675,8 +817,18 @@ GLuint NanoMenu::photoThumb(int photoIdx) {
     auto it = mPhotoThumbCache.find(photoIdx);
     if (it != mPhotoThumbCache.end()) return it->second;
     if (photoIdx < 0 || photoIdx >= (int)mPhotos.size()) return 0;
-    int w = 0, h = 0;
-    GLuint tex = photoDecodeTex(mPhotos[photoIdx].file, 256, &w, &h);
+    const PhotoItem& p = mPhotos[photoIdx];
+    // Disk-cache fast path: a tiny RGB565 read + upload, no multi-MP decode.
+    std::string cf = photoCacheFile(p.file, p.mtime, p.sz, 't');
+    float ar = 1.0f;
+    GLuint tex = photoCacheRead565(cf, &ar);
+    if (tex) { mPhotoThumbCache[photoIdx] = tex; mPhotoThumbAR[photoIdx] = ar; return tex; }
+    // Cold: decode the source once, upload, and persist the thumb for next time.
+    int w = 0, h = 0; std::vector<uint8_t> px;
+    if (photoDecodeRGBACpu(p.file, 256, &w, &h, px)) {
+        tex = uploadRGBATex(px.data(), w, h);
+        photoCacheWrite565(cf, px.data(), w, h);
+    }
     mPhotoThumbCache[photoIdx] = tex;
     mPhotoThumbAR[photoIdx] = (tex && h > 0) ? (float)w / (float)h : 1.0f;
     return tex;
@@ -715,47 +867,16 @@ GLuint NanoMenu::photoGroupCover(int photoIdx) {
     if (cit != mPhotoCoverCache.end()) return cit->second;
     GLuint tex = 0;
     if (photoIdx >= 0 && photoIdx < (int)mPhotos.size()) {
-        int fd = open(mPhotos[photoIdx].file.c_str(), O_RDONLY);
-        if (fd >= 0) {
-            AImageDecoder* dec = nullptr;
-            if (AImageDecoder_createFromFd(fd, &dec) == ANDROID_IMAGE_DECODER_SUCCESS && dec) {
-                const AImageDecoderHeaderInfo* hi = AImageDecoder_getHeaderInfo(dec);
-                int sw = AImageDecoderHeaderInfo_getWidth(hi), sh = AImageDecoderHeaderInfo_getHeight(hi);
-                if (sw > 0 && sh > 0) {
-                    const int S = 160;
-                    int tw, th;
-                    if (sw >= sh) { th = S; tw = (int)((float)S * sw / sh + 0.5f); }
-                    else          { tw = S; th = (int)((float)S * sh / sw + 0.5f); }
-                    if (tw < S) tw = S; if (th < S) th = S;
-                    AImageDecoder_setAndroidBitmapFormat(dec, ANDROID_BITMAP_FORMAT_RGBA_8888);
-                    AImageDecoder_setUnpremultipliedRequired(dec, true);
-                    AImageDecoder_setTargetSize(dec, tw, th);
-                    ARect crop; crop.left = (tw - S) / 2; crop.top = (th - S) / 2;
-                    crop.right = crop.left + S; crop.bottom = crop.top + S;
-                    AImageDecoder_setCrop(dec, crop);
-                    size_t stride = AImageDecoder_getMinimumStride(dec);
-                    std::vector<uint8_t> buf(stride * (size_t)S);
-                    if (AImageDecoder_decodeImage(dec, buf.data(), stride, buf.size()) == ANDROID_IMAGE_DECODER_SUCCESS) {
-                        const uint8_t* px = buf.data();
-                        std::vector<uint8_t> packed;
-                        if (stride != (size_t)S * 4) {
-                            packed.resize((size_t)S * S * 4);
-                            for (int y = 0; y < S; y++)
-                                memcpy(&packed[(size_t)y * S * 4], &buf[(size_t)y * stride], (size_t)S * 4);
-                            px = packed.data();
-                        }
-                        glGenTextures(1, &tex); glBindTexture(GL_TEXTURE_2D, tex);
-                        glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
-                        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, S, S, 0, GL_RGBA, GL_UNSIGNED_BYTE, px);
-                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-                    }
-                }
-                AImageDecoder_delete(dec);
+        const PhotoItem& p = mPhotos[photoIdx];
+        const int S = 160;
+        std::string cf = photoCacheFile(p.file, p.mtime, p.sz, 'c');
+        tex = photoCacheRead565(cf, nullptr);     // disk-cache fast path
+        if (!tex) {
+            std::vector<uint8_t> px;
+            if (photoDecodeCropRGBACpu(p.file, S, px)) {
+                tex = uploadRGBATex(px.data(), S, S);
+                photoCacheWrite565(cf, px.data(), S, S);
             }
-            close(fd);
         }
     }
     mPhotoCoverCache[photoIdx] = tex;
@@ -898,7 +1019,7 @@ void NanoMenu::renderPhotoGrid() {
     int first = mPhotoGridTop * PG_COLS;
     int last = first + PG_COLS * visRows;
     int n = (int)mPhotoGridList.size();
-    int wantDecode = -1;   // decode at most one uncached visible thumb per frame
+    std::vector<int> need;   // uncached visible thumbs, decoded in a budgeted batch
     for (int idx = first; idx < last && idx < n; idx++) {
         int gi = idx - first;
         int cx = gi % PG_COLS, cy = gi / PG_COLS;
@@ -914,7 +1035,7 @@ void NanoMenu::renderPhotoGrid() {
         GLuint tex = 0;
         auto cit = mPhotoThumbCache.find(pIdx);
         if (cit != mPhotoThumbCache.end()) tex = cit->second;
-        else if (wantDecode < 0) wantDecode = pIdx;
+        else need.push_back(pIdx);
         // opaque base (drop-shadow substitute): a dark card behind the thumb
         drawQuad(x - 2, y - 2, w + 4, h + 4, 0.0f, 0.0f, 0.0f, (sel ? 0.8f : 0.6f) * a);
         if (tex) drawIconTex(tex, x, y, w, h, 1.0f, 1.0f, 1.0f, (sel ? 1.0f : 0.92f) * a);
@@ -935,7 +1056,21 @@ void NanoMenu::renderPhotoGrid() {
             drawQuad(x + w - iw2, y, iw2, h, 1, 1, 1, 0.95f * a);
         }
     }
-    if (wantDecode >= 0) { photoThumb(wantDecode); photoThumbEvict(); }
+    // Decode this frame's missing thumbs: many fast disk-cache reads, but only a
+    // couple of cold (source-decode) ones so a not-yet-warmed album still scrolls.
+    if (!need.empty()) {
+        int fast = 8, cold = 2;
+        for (int pIdx : need) {
+            if (fast <= 0 && cold <= 0) break;
+            const PhotoItem& pp = mPhotos[pIdx];
+            std::string cf = photoCacheFile(pp.file, pp.mtime, pp.sz, 't');
+            bool cached = (access(cf.c_str(), F_OK) == 0);
+            if (cached) { if (fast <= 0) continue; fast--; }
+            else        { if (cold <= 0) continue; cold--; }
+            photoThumb(pIdx);
+        }
+        photoThumbEvict();
+    }
 
     // focused caption (filename + date) under the grid
     if (mPhotoGridCursor >= 0 && mPhotoGridCursor < n) {
@@ -953,32 +1088,106 @@ void NanoMenu::renderPhotoGrid() {
 // ---------------------------------------------------------------------------
 // Full-screen photo viewer (firmware photoviewer_plugin.rco).
 // ---------------------------------------------------------------------------
+// Non-blocking: return the cached display texture if ready, else enqueue an async
+// decode and return 0 (the caller falls back to the thumbnail placeholder). NEVER
+// decodes inline, so the render thread stays at a locked 60fps.
 GLuint NanoMenu::pvTex(int photoIdx, int* w, int* h) {
     auto it = mPvTexCache.find(photoIdx);
     if (it != mPvTexCache.end()) {
         if (w) *w = mPvTexW[photoIdx]; if (h) *h = mPvTexH[photoIdx];
         return it->second;
     }
-    if (photoIdx < 0 || photoIdx >= (int)mPhotos.size()) return 0;
-    int dw = 0, dh = 0;
-    int maxDim = (mWidth > mHeight ? mWidth : mHeight);
-    if (maxDim < 1024) maxDim = 1024;       // never decode below a crisp display size
-    if (maxDim > 1920) maxDim = 1920;
-    GLuint tex = photoDecodeTex(mPhotos[photoIdx].file, maxDim, &dw, &dh);
-    mPvTexCache[photoIdx] = tex;
-    mPvTexW[photoIdx] = dw; mPvTexH[photoIdx] = dh;
-    if (w) *w = dw; if (h) *h = dh;
-    return tex;
+    if (w) *w = 0; if (h) *h = 0;
+    pvRequestDecode(photoIdx);
+    return 0;
+}
+
+void NanoMenu::pvStartDecodeWorker() {
+    if (mPvDecStarted.load()) return;
+    mPvDecStop.store(false);
+    mPvDecThread = std::thread([this]{ pvDecodeThreadFunc(); });
+    mPvDecStarted.store(true);
+}
+
+void NanoMenu::pvStopDecodeWorker() {
+    if (!mPvDecStarted.load()) return;
+    mPvDecStop.store(true);
+    mPvDecCv.notify_all();
+    if (mPvDecThread.joinable()) mPvDecThread.join();
+    mPvDecStarted.store(false);
+}
+
+// Worker thread: pops the request closest to the current focus and decodes it to
+// CPU RGBA (NO GL here). Results are uploaded on the render thread by pvDrainDecodes.
+void NanoMenu::pvDecodeThreadFunc() {
+    for (;;) {
+        PvDecReq req;
+        {
+            std::unique_lock<std::mutex> lk(mPvDecMutex);
+            mPvDecCv.wait(lk, [&]{ return mPvDecStop.load() || !mPvDecQueue.empty(); });
+            if (mPvDecStop.load()) return;
+            int focus = mPvFocusIdx.load();
+            auto pick = mPvDecQueue.begin();
+            for (auto i = mPvDecQueue.begin(); i != mPvDecQueue.end(); ++i)
+                if (i->idx == focus) { pick = i; break; }
+            req = *pick; mPvDecQueue.erase(pick);
+        }
+        if (req.gen != mPvDecGen.load()) {   // stale (viewer reopened / list changed)
+            std::lock_guard<std::mutex> lk(mPvDecMutex); mPvDecInFlight.erase(req.idx); continue;
+        }
+        int w = 0, h = 0; std::vector<uint8_t> px;
+        bool ok = photoDecodeRGBACpu(req.path, req.maxDim, &w, &h, px);
+        {
+            std::lock_guard<std::mutex> lk(mPvDecMutex);
+            mPvDecInFlight.erase(req.idx);
+            if (ok && req.gen == mPvDecGen.load()) {
+                PvDecRes res; res.idx = req.idx; res.w = w; res.h = h; res.gen = req.gen;
+                res.px = std::move(px);
+                mPvDecDone.push_back(std::move(res));
+            }
+        }
+    }
+}
+
+void NanoMenu::pvRequestDecode(int photoIdx) {
+    if (photoIdx < 0 || photoIdx >= (int)mPhotos.size()) return;
+    if (mPvTexCache.count(photoIdx)) return;
+    pvStartDecodeWorker();
+    {
+        std::lock_guard<std::mutex> lk(mPvDecMutex);
+        if (mPvDecInFlight.count(photoIdx)) return;
+        mPvDecInFlight.insert(photoIdx);
+        PvDecReq r; r.idx = photoIdx; r.path = mPhotos[photoIdx].file;
+        r.maxDim = mPvMaxDim; r.gen = mPvDecGen.load();
+        mPvDecQueue.push_back(r);
+    }
+    mPvDecCv.notify_one();
+}
+
+// Render/GL thread: upload any finished CPU decodes to GL textures.
+void NanoMenu::pvDrainDecodes() {
+    std::vector<PvDecRes> done;
+    { std::lock_guard<std::mutex> lk(mPvDecMutex); done.swap(mPvDecDone); }
+    uint64_t gen = mPvDecGen.load();
+    for (auto& r : done) {
+        if (r.gen != gen) continue;
+        if (mPvTexCache.count(r.idx)) continue;
+        GLuint tex = uploadRGBATex(r.px.data(), r.w, r.h);
+        mPvTexCache[r.idx] = tex; mPvTexW[r.idx] = r.w; mPvTexH[r.idx] = r.h;
+    }
 }
 
 void NanoMenu::pvPrefetch() {
-    // decode current + immediate neighbours; drop anything outside that window
+    // Request current + direction-window neighbours (async, idempotent) and evict
+    // uploaded textures outside the +/-2 window so the cache stays at kPvTexCap.
     if (mPvList.empty()) return;
+    int n = (int)mPvList.size();
     std::set<int> keep;
-    for (int d = -1; d <= 1; d++) {
-        int i = mPvIdx + d;
-        if (i < 0 || i >= (int)mPvList.size()) continue;
-        keep.insert(mPvList[i]);
+    for (int d = -2; d <= 2; d++) { int i = mPvIdx + d; if (i < 0 || i >= n) continue; keep.insert(mPvList[i]); }
+    for (int d = 0; d <= 2; d++) {
+        int a = mPvIdx + d, b = mPvIdx - d;
+        if (a >= 0 && a < n) pvRequestDecode(mPvList[a]);
+        if (b >= 0 && b < n) pvRequestDecode(mPvList[b]);
     }
     for (auto i = mPvTexCache.begin(); i != mPvTexCache.end(); ) {
         if (keep.count(i->first)) { ++i; continue; }
@@ -991,6 +1200,10 @@ void NanoMenu::pvPrefetch() {
 void NanoMenu::pvFreeTextures() {
     for (auto& kv : mPvTexCache) if (kv.second) glDeleteTextures(1, &kv.second);
     mPvTexCache.clear(); mPvTexW.clear(); mPvTexH.clear();
+    // Drop any pending async work tied to this viewer session.
+    mPvDecGen.fetch_add(1);
+    std::lock_guard<std::mutex> lk(mPvDecMutex);
+    mPvDecQueue.clear(); mPvDecDone.clear(); mPvDecInFlight.clear();
 }
 
 void NanoMenu::openPhotoViewer(const std::vector<int>& list, int idx) {
@@ -1004,7 +1217,14 @@ void NanoMenu::openPhotoViewer(const std::vector<int>& list, int idx) {
     mPvSlideshow = false; mPvPaused = false; mPvWpMode = false; mPvTrimMode = false;
     mPvTrans = false;
     if (mPvEffect.empty()) mPvEffect = "Normal";
-    pvTex(mPvList[mPvIdx], nullptr, nullptr);
+    // Async decode: never block the render thread. Display long-side, clamped crisp.
+    mPvMaxDim = (mWidth > mHeight ? mWidth : mHeight);
+    if (mPvMaxDim < 1024) mPvMaxDim = 1024;
+    if (mPvMaxDim > 1920) mPvMaxDim = 1920;
+    mPvDecGen.fetch_add(1);            // invalidate any results from a prior session
+    pvStartDecodeWorker();
+    mPvFocusIdx.store(mPvList[mPvIdx]);
+    pvRequestDecode(mPvList[mPvIdx]);  // current; neighbours requested by pvPrefetch
 }
 
 void NanoMenu::closePhotoViewer() {
@@ -1027,14 +1247,21 @@ void NanoMenu::pvStep(int d) {
     int n = (int)mPvList.size();
     mPvIdx = ((mPvIdx + d) % n + n) % n;
     mPvRot = 0; mPvZoom = 1.0f; mPvPanX = 0.0f; mPvPanY = 0.0f;
-    mPvHintUntil = mEffectTime + 1.5f;
-    pvTex(mPvList[mPvIdx], nullptr, nullptr);
+    // NOTE: do NOT re-arm the help hint here. It is shown once on viewer open;
+    // re-arming on every step made it flash between each photo / slideshow advance.
+    // Async: prioritise the new current photo, and pre-decode the direction-ahead
+    // neighbour so the next advance is instant. No synchronous decode here.
+    mPvFocusIdx.store(mPvList[mPvIdx]);
+    pvRequestDecode(mPvList[mPvIdx]);
+    int nb = mPvIdx + (d >= 0 ? 1 : -1);
+    if (nb >= 0 && nb < n) pvRequestDecode(mPvList[nb]);
 }
 
 // Draw one photo fit-to-screen with rotation / zoom / pan, at a given alpha and
 // horizontal screen offset (for the Slide transition). Mirrors web drawPhoto.
 void NanoMenu::renderPhotoViewer() {
     if (mPvList.empty()) { mPvActive = false; return; }
+    pvDrainDecodes();   // upload any finished async decodes (GL on the render thread)
     int W = mWidth, H = mHeight;
     float dt = mFrameDt; if (dt < 0.0f || dt > 0.2f) dt = 0.016f;
     // slideshow auto-advance
@@ -1058,6 +1285,12 @@ void NanoMenu::renderPhotoViewer() {
         if (alpha <= 0.001f) return;
         int iw = 0, ih = 0;
         GLuint tex = pvTex(photoIdx, &iw, &ih);
+        if (!tex) {   // full image not decoded yet: show the disk-cached thumbnail
+            tex = photoThumb(photoIdx);   // 256px, fast (RGB565 disk read)
+            if (photoIdx >= 0 && photoIdx < (int)mPhotos.size()) {
+                iw = mPhotos[photoIdx].w; ih = mPhotos[photoIdx].h;   // native aspect = same fit rect
+            }
+        }
         if (!tex || iw <= 0 || ih <= 0) return;
         bool swap = (rot == 90 || rot == 270);
         float bw = swap ? (float)ih : (float)iw;
@@ -1427,21 +1660,22 @@ void NanoMenu::drawPvPanel(float closeT) {
             : (mPvCpAnimStart >= 0.0f ? fminf(1.0f, (mEffectTime - mPvCpAnimStart) / 0.2f) : 1.0f);
     if (t < 0) t = 0;
     float ui = pvUiScale(mWidth, mHeight);
-    // Same cell sizing + treatment as drawMpOpt; the photo grid is wider (8 cols)
-    // so it is centred on the screen rather than offset to the music origin.
+    // Same cell sizing + origin as drawMpOpt so the icons line up with the music
+    // panel: the grid's gx span is centred about the music origin (0.273) and the
+    // three rows are centred on oy (gy-1) the way music does (cy = oy - gy*cellY).
     float cellX = PXD(0.033f * ui), cellY = PSZ(0.061f * ui), ih = PSZ(0.046f * ui);
     int cnt; const PvCp* cp = pvCpTable(mPvSlideshow, &cnt);
-    // grid horizontal extent (min/max gx) to centre it
+    // grid horizontal extent (min/max gx) to centre the gx span on the music origin
     float gmin = 1e9f, gmax = -1e9f;
     for (int i = 0; i < cnt; i++) { gmin = fminf(gmin, cp[i].gx); gmax = fmaxf(gmax, cp[i].gx); }
     float gcen = (gmin + gmax) * 0.5f;
-    float ox = PXP(0.5f) - gcen * cellX - (1.0f - t) * PSZ(0.018f * ui);   // slide-in from the left
+    float ox = PXP(0.273f) - gcen * cellX - (1.0f - t) * PSZ(0.018f * ui);   // music origin + slide-in
     float oy = PYP(0.441f);
     float pulse = 0.5f + 0.5f * cosf(mEffectTime * 2.0f * 3.14159f / 1.5f);
     for (int i = 0; i < cnt; i++) {
         const PvCp& b = cp[i];
         bool focus = (i == mPvCpSel);
-        float cx = ox + b.gx * cellX, cy = oy + b.gy * cellY;
+        float cx = ox + b.gx * cellX, cy = oy + (b.gy - 1.0f) * cellY;   // centre the 3 rows on oy (music scheme)
         int icn = (!strcmp(b.act, "pause")) ? (mPvPaused ? 3 : 4) : b.ic;
         GLuint g = pvIcon(icn);
         float baseScale = focus ? 1.18f : 1.0f;
@@ -1487,8 +1721,8 @@ void NanoMenu::drawPvPanel(float closeT) {
         float ls = PFS(20.0f * ui), lw = measureText(lab, ls);
         float gap = PXD(0.008f * ui), pillW = PXD(0.050f * ui), pillH = PSZ(0.030f * ui);
         float total = lw + (showPill ? (gap + pillW) : 0.0f);
-        float ccx = PXP(0.5f), sx = ccx - total * 0.5f;
-        float labBaseY = oy + 2.0f * cellY + PSZ(0.060f * ui);
+        float ccx = PXP(0.273f), sx = ccx - total * 0.5f;   // match the music label centre
+        float labBaseY = oy + cellY + PSZ(0.060f * ui);     // below the recentred bottom row, as music
         drawText(lab, sx, ps3::baselineToTopY(labBaseY, ls), ls, 1.0f, 1.0f, 1.0f, 0.95f * t);
         if (showPill) {
             float px = sx + lw + gap;
@@ -1510,10 +1744,10 @@ void NanoMenu::drawPvPanel(float closeT) {
     // control submenu (Change Effect / Speed / Style) under the label
     if (mPvCpSub && !mPvCpSubOpts.empty()) {
         float fs = PFS(24.0f * ui), lh = PSZ(0.045f * ui);
-        float ccx = PXP(0.5f);
+        float ccx = PXP(0.273f);   // match the music label centre
         float mw = 0; for (auto& o : mPvCpSubOpts) mw = fmaxf(mw, measureText(o.c_str(), fs));
         float sx = ccx - mw * 0.5f;
-        float sy = oy + 2.0f * cellY + PSZ(0.110f * ui);
+        float sy = oy + cellY + PSZ(0.110f * ui);   // below the recentred label
         drawQuad(sx - fs * 0.5f, sy - lh * 0.5f, mw + fs, lh * mPvCpSubOpts.size() + lh * 0.3f, 0, 0, 0, 0.55f * t);
         for (int i = 0; i < (int)mPvCpSubOpts.size(); i++) {
             float oy2 = sy + i * lh;
@@ -1576,7 +1810,12 @@ void NanoMenu::drawPvWallpaperSel() {
     float fw = W * 0.62f, fh = fw * 9.0f / 16.0f;
     float fx = (W - fw) * 0.5f, fy = (H - fh) * 0.5f + H * 0.01f;
     int iw = 0, ih = 0;
-    GLuint tex = pvTex(mPvList[mPvIdx], &iw, &ih);
+    int curPhoto = mPvList[mPvIdx];
+    GLuint tex = pvTex(curPhoto, &iw, &ih);
+    if (!tex) {   // full image not ready: cover-fill with the disk-cached thumbnail
+        tex = photoThumb(curPhoto);
+        if (curPhoto >= 0 && curPhoto < (int)mPhotos.size()) { iw = mPhotos[curPhoto].w; ih = mPhotos[curPhoto].h; }
+    }
     if (tex && iw > 0 && ih > 0) {
         // scissor-clip to the crop frame, draw the photo cover-filling it
         int lx = (int)fx, ly = (int)fy, lw = (int)fw, lh = (int)fh;
@@ -1768,7 +2007,7 @@ void NanoMenu::renderPhotoMulti() {
     int n = (int)mPhotoMultiItems.size();
     int top = mPhotoMultiSel - visRows / 2; if (top > n - visRows) top = n - visRows; if (top < 0) top = 0;
     float cbCx = W * 0.07f, thX = W * 0.11f, thW = rowH * 1.55f, thH = thW * 9.0f / 16.0f, nameX = W * 0.11f + thW + W * 0.02f;
-    int wantDecode = -1;
+    std::vector<int> need;
     for (int r = 0; r < visRows && top + r < n; r++) {
         int i = top + r;
         float cy = listTop + r * rowH + rowH * 0.5f;
@@ -1781,7 +2020,7 @@ void NanoMenu::renderPhotoMulti() {
         // thumbnail
         int pIdx = mPhotoMultiItems[i];
         GLuint tex = 0; auto cit = mPhotoThumbCache.find(pIdx);
-        if (cit != mPhotoThumbCache.end()) tex = cit->second; else if (wantDecode < 0) wantDecode = pIdx;
+        if (cit != mPhotoThumbCache.end()) tex = cit->second; else need.push_back(pIdx);
         float tx = thX, tyy = cy - thH * 0.5f;
         drawQuad(tx - 1, tyy - 1, thW + 2, thH + 2, 0, 0, 0, focus ? 0.9f : 0.6f);
         if (tex) drawIconTex(tex, tx, tyy, thW, thH, 1, 1, 1, focus ? 1.0f : 0.9f);
@@ -1794,7 +2033,19 @@ void NanoMenu::renderPhotoMulti() {
             drawText(fmtPhotoDate(p.date).c_str(), nameX, cy + 14.0f * ts, 0.85f * ts, 0.78f, 0.8f, 0.85f, 0.95f);
         }
     }
-    if (wantDecode >= 0) { photoThumb(wantDecode); photoThumbEvict(); }
+    if (!need.empty()) {
+        int fast = 8, cold = 2;
+        for (int pIdx : need) {
+            if (fast <= 0 && cold <= 0) break;
+            const PhotoItem& pp = mPhotos[pIdx];
+            std::string cf = photoCacheFile(pp.file, pp.mtime, pp.sz, 't');
+            bool cached = (access(cf.c_str(), F_OK) == 0);
+            if (cached) { if (fast <= 0) continue; fast--; }
+            else        { if (cold <= 0) continue; cold--; }
+            photoThumb(pIdx);
+        }
+        photoThumbEvict();
+    }
     // side buttons
     const char* btnLabels[3] = {"Select All", "Clear All", "OK"};
     float bw = W * 0.13f, bh = 46.0f * ts, bx = W * 0.78f, by0 = H * 0.40f, bpitch = 62.0f * ts;

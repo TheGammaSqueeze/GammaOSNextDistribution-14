@@ -1652,6 +1652,29 @@ private:
     GLuint pvTex(int photoIdx, int* w, int* h);
     void pvPrefetch();
     void pvFreeTextures();
+    // Async display-size decode worker: the multi-MP decode runs OFF the render
+    // thread (worker produces CPU RGBA); pvDrainDecodes uploads to GL on the render
+    // thread each frame. Keeps slideshow/navigation at a locked 60fps and pre-decodes
+    // direction-ahead neighbours so each advance is instant. (issue: viewer 60fps)
+    struct PvDecReq { int idx; std::string path; int maxDim; uint64_t gen; };
+    struct PvDecRes { int idx; int w; int h; uint64_t gen; std::vector<uint8_t> px; };
+    std::thread mPvDecThread;
+    std::mutex mPvDecMutex;
+    std::condition_variable mPvDecCv;
+    std::deque<PvDecReq> mPvDecQueue;
+    std::vector<PvDecRes> mPvDecDone;
+    std::set<int> mPvDecInFlight;
+    std::atomic<bool> mPvDecStop{false};
+    std::atomic<bool> mPvDecStarted{false};
+    std::atomic<int>  mPvFocusIdx{0};        // photo idx the worker decodes first
+    std::atomic<uint64_t> mPvDecGen{0};      // bumped on open/free to drop stale results
+    int mPvMaxDim = 1920;
+    static const int kPvTexCap = 5;          // current +/- 2 uploaded display textures
+    void pvDecodeThreadFunc();
+    void pvRequestDecode(int photoIdx);
+    void pvDrainDecodes();
+    void pvStartDecodeWorker();
+    void pvStopDecodeWorker();               // stop + join (called from ~NanoMenu)
     void openPhotoViewer(const std::vector<int>& list, int idx);
     void closePhotoViewer();
     void pvStep(int d);

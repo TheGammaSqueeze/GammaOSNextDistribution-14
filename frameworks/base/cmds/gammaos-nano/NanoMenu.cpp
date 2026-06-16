@@ -311,6 +311,8 @@ NanoMenu::~NanoMenu() {
     // Stop the network HUD poller first so its worker thread can't
     // race with teardown of other state.
     stopNetPollThread();
+    // Stop the photo viewer async decode worker (join the thread).
+    pvStopDecodeWorker();
 
     // GammaOS: Clean up secondary display wallpaper resources.
     for (size_t i = 0; i < mSecondaryEglSurfaces.size(); i++) {
