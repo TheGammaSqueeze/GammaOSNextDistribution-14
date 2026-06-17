@@ -2437,13 +2437,13 @@ void NanoMenu::drawPs3CinfoBg(const char* focusLabel) {
     glDisableVertexAttribArray(mTextLocTexCoord);
     glDisableVertexAttribArray(mTextLocColor);
 
-    // Title + word-wrapped description over the bg. Web coords as VW/VH fractions mapped
-    // via the ps3 layout helpers; canvas baseline 'middle' -> drawText top = devY - em/2.
-    float titleScale = ps3::fontScale(ps3::XCF(ps3::VH * 0.0315f));
+    // Word-wrapped description over the bg. Web coords as VW/VH fractions mapped via the
+    // ps3 layout helpers. The TITLE is the focused item's own label ("Photo Gallery"),
+    // which the chrome already draws over this bg at the active slot - in the web the
+    // cinfo title merely coincides with that label, so drawing a second copy here would
+    // double it. We render only the description.
     float descScale  = ps3::fontScale(ps3::XCF(ps3::VH * 0.0241f));
     float lx = ps3::devX(ps3::XCP(ps3::VW * 0.3427f));
-    float titleY = ps3::devY(ps3::VH * 0.4384f) - 0.5f * ps3::emPx(titleScale);
-    drawText(trDyn("Photo Gallery"), lx, titleY, titleScale, 1.0f, 1.0f, 1.0f, a);
 
     static const char* kDesc =
         "Create a space to enjoy and enhance your photos.\n"
