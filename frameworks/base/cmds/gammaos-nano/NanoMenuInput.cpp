@@ -956,6 +956,14 @@ void NanoMenu::pollInput() {
                          && !mPs3OptActive && !mPs3DlgActive && mPhotoLoaded
                          && mPs3CatIdx >= 0 && mPs3CatIdx < (int)mPs3Cats.size()
                          && mPs3Cats[mPs3CatIdx].name == "Photo") photoSortCycleY();  // Y: cycle Sort By on the column
+                else if (mPs3Xmb && !mOskActive && mPs3Stack.empty() && !mPs3OptActive && !mPs3DlgActive
+                         && !mVideoTest && mVideoLoaded && !mVideos.empty()
+                         && mPs3CatIdx >= 0 && mPs3CatIdx < (int)mPs3Cats.size()
+                         && mPs3Cats[mPs3CatIdx].name == "Video") videoSortCycleY();   // Y: cycle Sort By on the Video column
+                else if (mPs3Xmb && !mOskActive && mPs3Stack.empty() && !mMpActive && !mPs3OptActive && !mPs3DlgActive
+                         && mMusicLoaded && !mMusicTracks.empty()
+                         && mPs3CatIdx >= 0 && mPs3CatIdx < (int)mPs3Cats.size()
+                         && mPs3Cats[mPs3CatIdx].name == "Music") musicSortCycleY();    // Y: cycle Sort By on the Music column
             }
             // Game Systems list scripting: l1/r1 reorder the selected system,
             // x toggles its enabled state (the physical L1/R1/X buttons do the
@@ -1238,6 +1246,11 @@ void NanoMenu::pollInput() {
                             && !mVideoTest && mVideoLoaded && !mVideos.empty()
                             && mPs3CatIdx >= 0 && mPs3CatIdx < (int)mPs3Cats.size()
                             && mPs3Cats[mPs3CatIdx].name == "Video") { videoSortCycleY(); break; }
+                        // Music column root: Y cycles the album Sort By order (Title / Date / Tracks).
+                        if (mPs3Xmb && !mOskActive && mPs3Stack.empty() && !mMpActive && !mPs3OptActive && !mPs3DlgActive
+                            && mMusicLoaded && !mMusicTracks.empty()
+                            && mPs3CatIdx >= 0 && mPs3CatIdx < (int)mPs3Cats.size()
+                            && mPs3Cats[mPs3CatIdx].name == "Music") { musicSortCycleY(); break; }
                         if (mMenuState == MENU_WIFI) { handleWifiScreenY(); break; }
                         if (mMenuState == MENU_BT)   { handleBtScreenY();   break; }
                         // Icon grid picker: Y opens the name-filter OSK.

@@ -1453,6 +1453,13 @@ private:
     // helpers
     std::vector<int> musicAlbumTrackIndices(const std::string& album) const;  // sorted track idxs
     std::vector<std::string> musicAlbumNames() const;                          // unique, ordered
+    // Sort By (Y) on the Music column: orders the albums (within-album track order
+    // stays on-disk by file path, deliberately - user 2026-06-15).
+    int  mMusicSortField = 0;               // 0 = name, 1 = date (newest album track mtime), 2 = track count
+    int  mMusicSortDir   = 1;               // 0 = desc, 1 = asc (name forced asc)
+    int64_t musicAlbumNewestMtime(const std::string& album) const;
+    std::string musicSortLabelCur() const;
+    void musicSortCycleY();                 // Y on the Music column: cycle sort + banner
     // playlists
     void musicCreatePlaylist(const std::string& name);
     void musicAddTrackToPlaylist(int plIdx, const std::string& file);

@@ -448,14 +448,56 @@ void NanoMenu::musicDrainScanResults() {
 // ---------------------------------------------------------------------------
 // Album grouping (derived from mMusicTracks).
 // ---------------------------------------------------------------------------
+int64_t NanoMenu::musicAlbumNewestMtime(const std::string& album) const {
+    int64_t newest = 0;
+    for (const auto& t : mMusicTracks)
+        if (!t.albumHidden && t.album == album && t.mtime > newest) newest = t.mtime;
+    return newest;
+}
+
 std::vector<std::string> NanoMenu::musicAlbumNames() const {
     std::vector<std::string> names;
     std::set<std::string> seen;
     for (const auto& t : mMusicTracks)
         if (!t.albumHidden && seen.insert(t.album).second) names.push_back(t.album);
-    std::sort(names.begin(), names.end(),
-              [](const std::string& a, const std::string& b){ return strcasecmp(a.c_str(), b.c_str()) < 0; });
+    auto nameLess = [](const std::string& a, const std::string& b){ return strcasecmp(a.c_str(), b.c_str()) < 0; };
+    if (mMusicSortField == 1) {            // date: by the album's newest track mtime
+        std::sort(names.begin(), names.end(), [&](const std::string& a, const std::string& b){
+            int64_t ma = musicAlbumNewestMtime(a), mb = musicAlbumNewestMtime(b);
+            if (ma != mb) return mMusicSortDir == 0 ? (ma > mb) : (ma < mb);
+            return nameLess(a, b);
+        });
+    } else if (mMusicSortField == 2) {     // track count
+        std::sort(names.begin(), names.end(), [&](const std::string& a, const std::string& b){
+            size_t ca = musicAlbumTrackIndices(a).size(), cb = musicAlbumTrackIndices(b).size();
+            if (ca != cb) return mMusicSortDir == 0 ? (ca > cb) : (ca < cb);
+            return nameLess(a, b);
+        });
+    } else {                                // name: always ascending
+        std::sort(names.begin(), names.end(), nameLess);
+    }
     return names;
+}
+
+std::string NanoMenu::musicSortLabelCur() const {
+    switch (mMusicSortField) {
+        case 1:  return std::string("Date") + (mMusicSortDir == 0 ? " (newest)" : " (oldest)");
+        case 2:  return std::string("Tracks") + (mMusicSortDir == 0 ? " (most)" : " (fewest)");
+        default: return "Title";
+    }
+}
+
+void NanoMenu::musicSortCycleY() {
+    // 4 modes: Title, Date newest, Date oldest, Tracks most. Mirrors the video cycle.
+    static const int kField[4] = {0, 1, 1, 2};
+    static const int kDir[4]   = {1, 0, 1, 0};
+    int cur = 0;
+    for (int i = 0; i < 4; i++)
+        if (kField[i] == mMusicSortField && (mMusicSortField == 0 || kDir[i] == mMusicSortDir)) { cur = i; break; }
+    int nx = (cur + 1) % 4;
+    mMusicSortField = kField[nx]; mMusicSortDir = kDir[nx];
+    mMusicCatsStale = true;                 // rebuild the Music column in the new order
+    photoShowBanner(musicSortLabelCur());   // reuse the shared sort banner overlay
 }
 
 std::vector<int> NanoMenu::musicAlbumTrackIndices(const std::string& album) const {

@@ -613,6 +613,9 @@ void NanoMenu::buildPs3Cats() {
             it.iconTex = mIconTextures[15]; it.nmapTex = bevelForIconIdx(15);
             it.iconR = it.iconG = it.iconB = 1.0f; nano.push_back(it);
         }
+        { Ps3Item it; it.label = "Applications"; it.kind = PS3_APP_LIST;
+          it.iconTex = mIconTextures[16]; it.nmapTex = bevelForIconIdx(16);
+          it.iconR = it.iconG = it.iconB = 1.0f; nano.push_back(it); }
         for (size_t s = 0; s < mXmbSystems.size(); s++) {
             const XmbSystem& sys = mXmbSystems[s];
             if (!sys.enabled) continue;
@@ -627,9 +630,6 @@ void NanoMenu::buildPs3Cats() {
             char buf[32]; snprintf(buf, sizeof(buf), "%zu", sys.roms.size()); it.value = buf;
             nano.push_back(it);
         }
-        { Ps3Item it; it.label = "Applications"; it.kind = PS3_APP_LIST;
-          it.iconTex = mIconTextures[16]; it.nmapTex = bevelForIconIdx(16);
-          it.iconR = it.iconG = it.iconB = 1.0f; nano.push_back(it); }
         game.items.insert(game.items.begin(), nano.begin(), nano.end());
     }
 
@@ -4636,13 +4636,22 @@ void NanoMenu::xmbOptAction(const std::string& act) {
                 char pad[20]; snprintf(pad, sizeof(pad), "%-15s", label);
                 body += pad; body += val; body += "\n";
             };
+            // File name + directory split from the absolute path.
+            std::string fname = v.file, dir = "/";
+            size_t slash = v.file.find_last_of('/');
+            if (slash != std::string::npos) {
+                fname = v.file.substr(slash + 1);
+                dir = (slash == 0) ? std::string("/") : v.file.substr(0, slash);
+            }
             row("Title", v.name);
+            row("File Name", fname);
             row("Length", fmtLen(v.durationSec));
             row("Resolution", res);
             row("Video Codec", vc);
             row("Audio Codec", ac);
             row("File Type", vc);   // web filetype == vcodec for these
             row("Size", fmtFileSize(v.sz));
+            row("Path", dir);
         }
         mPs3DlgOptions.clear(); mPs3DlgSwatch.clear();
         mPs3DlgKind = 0; mPs3DlgType = 0; mPs3DlgThemeKey = 0; mPs3DlgBinding = nullptr;
