@@ -304,11 +304,14 @@ void NanoVideo::draw(int screenW, int screenH, float rx, float ry, float rw, flo
     float y0 = cy - dh * 0.5f, y1 = cy + dh * 0.5f;
     auto ndcX = [&](float x){ return (x / screenW) * 2.0f - 1.0f; };
     auto ndcY = [&](float y){ return 1.0f - (y / screenH) * 2.0f; };
-    // 4 corners: TL, TR, BR, BL with UVs (0,0)(1,0)(1,1)(0,1).
+    // 4 corners: TL, TR, BR, BL. UVs use the GL bottom-left origin (screen-top = v1)
+    // because the GLConsumer transform matrix (uST) maps t' = 1 - t for video frames;
+    // top-left-origin UVs would render every frame upside down (only hidden on
+    // vertically-symmetric content). v: TL=1, TR=1, BR=0, BL=0.
     float px[4] = { x0, x1, x1, x0 };
     float py[4] = { y0, y0, y1, y1 };
     float u[4]  = { 0.0f, 1.0f, 1.0f, 0.0f };
-    float v[4]  = { 0.0f, 0.0f, 1.0f, 1.0f };
+    float v[4]  = { 1.0f, 1.0f, 0.0f, 0.0f };
     const int order[6] = {0, 1, 2, 0, 2, 3};
     GLfloat verts[12], uvs[12];
     for (int k = 0; k < 6; k++) {
@@ -365,12 +368,43 @@ double NanoVideo::position() const { return mPosSec.load(); }
 void NanoVideo::release() {
     mQuit = true; mPlaying = false; mEnded = false;
     if (mWorker.joinable()) mWorker.join();
+    if (mReleaseThread.joinable()) mReleaseThread.join();   // in case an async release was in flight
     if (mCodec) { AMediaCodec_stop(mCodec); AMediaCodec_delete(mCodec); mCodec = nullptr; }
     if (mEx) { AMediaExtractor_delete(mEx); mEx = nullptr; }
     mConsumer.clear();        // releases the GL texture image + consumer
     mSurface.clear();
     if (mTexId) { glDeleteTextures(1, &mTexId); mTexId = 0; }
     mVideoTrack = -1; mWidth = mHeight = 0; mDurationSec = 0.0; mPosSec = 0.0;
-    mSeekPending = false;
+    mSeekPending = false; mAsyncReleasing = false; mAsyncDone = false;
     mOpen = false;
+}
+
+// Render thread: stop + join the decode worker (fast), then hand the BLOCKING
+// AMediaCodec_stop/delete + AMediaExtractor_delete to a detached thread so the
+// render loop never blocks (the OMX stop can take many seconds on this hardware,
+// which would freeze the render heartbeat and trip the watchdog).
+void NanoVideo::releaseAsync() {
+    if (mAsyncReleasing) return;                 // already tearing down
+    mQuit = true; mPlaying = false; mEnded = false; mOpen = false;
+    if (mWorker.joinable()) mWorker.join();      // worker exits on mQuit within a dequeue timeout (~ms)
+    AMediaCodec* codec = mCodec; mCodec = nullptr;
+    AMediaExtractor* ex = mEx; mEx = nullptr;
+    mAsyncDone.store(false);
+    mAsyncReleasing = true;
+    mReleaseThread = std::thread([this, codec, ex]() {
+        if (codec) { AMediaCodec_stop(codec); AMediaCodec_delete(codec); }
+        if (ex) AMediaExtractor_delete(ex);
+        mAsyncDone.store(true);
+    });
+}
+
+// Render thread: once releaseAsyncDone(), finish the GL teardown (needs the EGL
+// context) and clear all state. The owner deletes the object after this returns.
+void NanoVideo::finishRelease() {
+    if (mReleaseThread.joinable()) mReleaseThread.join();   // done already -> instant
+    mConsumer.clear();
+    mSurface.clear();
+    if (mTexId) { glDeleteTextures(1, &mTexId); mTexId = 0; }
+    mVideoTrack = -1; mWidth = mHeight = 0; mDurationSec = 0.0; mPosSec = 0.0;
+    mSeekPending = false; mAsyncReleasing = false;
 }

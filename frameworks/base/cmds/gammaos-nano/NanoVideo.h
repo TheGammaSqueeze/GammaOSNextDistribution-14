@@ -36,7 +36,15 @@ public:
 
     // Open + start decoding (render thread, EGL context current). false = failed.
     bool open(const std::string& path);
-    void release();                 // full teardown (idempotent; render thread)
+    void release();                 // full SYNC teardown (idempotent; render thread; may block)
+    // Async teardown: AMediaCodec_stop() can block for seconds on this OMX decoder,
+    // which would freeze the render thread and trip the render watchdog. releaseAsync()
+    // stops+joins the decode worker (fast) and hands the blocking codec/extractor
+    // teardown to a detached thread; the render thread polls releaseAsyncDone() and
+    // calls finishRelease() (GL cleanup, needs the EGL context) once it completes.
+    void releaseAsync();
+    bool releaseAsyncDone() const { return !mAsyncReleasing || mAsyncDone.load(); }
+    void finishRelease();
     bool isOpen() const { return mOpen; }
 
     // Transport.
@@ -87,6 +95,12 @@ private:
     GLint mLocPos = -1, mLocTex = -1, mLocST = -1, mLocAlpha = -1;
 
     std::thread mWorker;
+
+    // Async teardown (releaseAsync/finishRelease): the detached thread that runs the
+    // blocking AMediaCodec_stop/delete off the render thread.
+    std::thread mReleaseThread;
+    bool mAsyncReleasing = false;
+    std::atomic<bool> mAsyncDone{false};
 
     // A/V clock: wall-clock anchor for the first rendered PTS so frames pace to real time.
     mutable std::mutex mClockMx;

@@ -314,7 +314,7 @@ NanoMenu::~NanoMenu() {
     // Stop the photo viewer async decode worker (join the thread).
     pvStopDecodeWorker();
     // Tear down the video decoder (joins its worker, frees codec/extractor/surface/texture).
-    videoHardFree();
+    videoHardFree(true);   // dtor: synchronous (no render loop left to reap an async teardown)
 
     // GammaOS: Clean up secondary display wallpaper resources.
     for (size_t i = 0; i < mSecondaryEglSurfaces.size(); i++) {

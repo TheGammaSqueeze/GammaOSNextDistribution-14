@@ -1546,7 +1546,7 @@ private:
     void closeVideoPlayer();                // release the decoder + fade out
     void videoTick();                       // enter/leave ease + end-of-stream auto-advance
     bool renderVideoPlayer();               // draws the player; true = it owns the screen
-    void videoHardFree();                   // immediate full decoder teardown (sleep/occlusion/dtor; idempotent)
+    void videoHardFree(bool sync = false);  // full decoder teardown; sync=true blocks (dtor), else async (sleep/occlusion)
     void vidSeek(double deltaSec);          // relative seek (D-pad L/R)
     void vidStepTitle(int dir);             // previous / next video in the queue
     void vidTogglePlay();
@@ -1839,6 +1839,11 @@ private:
     // openVideoPlayer, fully torn down in closeVideoPlayer/videoTick so an idle launcher
     // holds no video resources.
     NanoVideo* mVideoTest = nullptr;
+    // A decoder being torn down asynchronously (releaseAsync): the blocking OMX stop
+    // runs off the render thread; videoTick polls it and frees it once done, so the
+    // render loop never blocks on teardown (which would trip the render watchdog).
+    NanoVideo* mVidDying = nullptr;
+    void vidReapDying();   // render thread: finish + free mVidDying when its async teardown completes
     // scan worker
     std::mutex mPhotoScanMutex;
     std::vector<PhotoItem> mPhotoScanResults;
