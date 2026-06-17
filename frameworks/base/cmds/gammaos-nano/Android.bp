@@ -129,6 +129,7 @@ cc_binary {
         "nano_xmb_audioplayer",
         "nano_xmb_canyon",
         "nano_xmb_photoviewer",
+        "nano_xmb_backgrounds",
     ],
 }
 
@@ -229,6 +230,12 @@ prebuilt_etc {
     name: "nano_xmb_photoviewer",
     srcs: ["ps3xmb/photoviewer/*.png"],
     sub_dir: "nano_xmb/photoviewer",
+}
+
+prebuilt_etc {
+    name: "nano_xmb_backgrounds",
+    srcs: ["ps3xmb/backgrounds/*.jpg"],
+    sub_dir: "nano_xmb/backgrounds",
 }
 
 // 3D Earth maps for the Time Zone globe selector (web tzglobe screen). Day /

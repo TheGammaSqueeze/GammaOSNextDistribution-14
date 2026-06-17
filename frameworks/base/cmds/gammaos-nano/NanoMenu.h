@@ -1759,6 +1759,16 @@ private:
     int& ps3CurSel();
     void renderPs3Xmb();
     void drawPs3Clock(float fadeMul);   // U-frame + analog face + DD/M H:MM
+    // Content-info hover background + description (web HOVER_BG/CINFO_DESC): dwell on a
+    // mapped item ("Photo Gallery" is the only one reachable in nano) fades a full-frame
+    // bg image + firmware title/description in over the wave, under the chrome.
+    void drawPs3CinfoBg(const char* focusLabel);
+    GLuint mCinfoTex = 0;            // lazily-loaded cinfo background texture
+    bool   mCinfoTexTried = false;   // load attempted (don't retry on failure)
+    int    mCinfoTexW = 0, mCinfoTexH = 0;
+    float  mCinfoAlpha = 0.0f;       // current visible alpha (0 .. 0.85)
+    std::string mCinfoFocusKey;      // currently focused mapped item name (or empty)
+    float  mCinfoDwellStart = -1.0f; // mEffectTime when focus moved to the mapped item
     void ps3XmbLeft();
     void ps3XmbRight();
     void ps3XmbUp();

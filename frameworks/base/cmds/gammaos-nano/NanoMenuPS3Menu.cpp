@@ -34,6 +34,7 @@
 #include "NanoMenuUtils.h" // setLaunchRomPath for the Applications launch
 #include "NanoI18n.h"      // trDyn() runtime translation of hardcoded UI strings
 #include "NanoMenuStrings.h" // NanoLocale/LocaleInfo + nanoGetLocale/SetLocale/ApplyLocaleToSystem (System Language picker)
+#include "stb_image.h"     // stbi_load for the cinfo hover background JPEG (impl lives in NanoMenuPS3Icons.cpp)
 
 #include <ctype.h>
 #include <math.h>
@@ -1641,6 +1642,19 @@ void NanoMenu::renderPs3Xmb() {
     { ps3::LayoutParams lp; lp.panelW = mWidth; lp.panelH = mHeight; lp.uiScale = mPs3UiScale;
       ps3::layoutCompute(lp); }
 
+    // Content-info hover background: drawn here (after layoutCompute, over the wave) so
+    // it sits under the category bar / item list / clock rendered below. Home contexts
+    // only - not over a live app behind the in-game overlay scrim.
+    {
+        const char* cinfoFocus = "";
+        if (!mOverlayMode || mOverlayWallpaper) {
+            std::vector<Ps3Item>& ci = ps3CurItems();
+            int cs = ps3CurSel();
+            if (cs >= 0 && cs < (int)ci.size()) cinfoFocus = ci[cs].label.c_str();
+        }
+        drawPs3CinfoBg(cinfoFocus);
+    }
+
     // Dynamic text outline: alpha scales with wallpaper brightness so it is minimal
     // on a dark wallpaper (the bright text already reads) and stronger on a light
     // one (needs the contrast). It is the even 4-offset outline (drawText mode 1),
@@ -2337,6 +2351,133 @@ void NanoMenu::renderPs3Xmb() {
     // Restore the reveal multipliers scaled for the chrome cross-fade (they persist
     // across frames otherwise, leaving the chrome hidden after the player closes).
     if (mpChromeScaled) { mPs3BootIconReveal = mpSavedIconReveal; mPs3BootLabelReveal = mpSavedLabelReveal; }
+}
+
+// ---------------------------------------------------------------------------
+// Content-info hover background + description (web HOVER_BG / CINFO_DESC, drawCinfoBg).
+// Only "Photo Gallery" is reachable in nano (the other web HOVER_BG items are in the
+// excluded PSN category). Dwell >= 1.5s -> a full-frame cover-cropped bg image fades in
+// (max alpha 0.85) over the wave, under the chrome, with the firmware title + wrapped
+// description over it. Fade-in 500ms, fade-out 300ms.
+// ---------------------------------------------------------------------------
+void NanoMenu::drawPs3CinfoBg(const char* focusLabel) {
+    bool isCinfo = focusLabel && !strcmp(focusLabel, "Photo Gallery");
+    std::string key = isCinfo ? "Photo Gallery" : "";
+    if (key != mCinfoFocusKey) { mCinfoFocusKey = key; mCinfoDwellStart = mEffectTime; }
+    float target = (!key.empty() && (mEffectTime - mCinfoDwellStart) >= 1.5f) ? 0.85f : 0.0f;
+    float dt = mFrameDt; if (dt < 0.0f || dt > 0.2f) dt = 0.016f;
+    float dur = (target > mCinfoAlpha) ? 0.5f : 0.3f;        // fade-in 500ms / out 300ms
+    float stp = (dt / dur) * 0.85f;
+    if (target > mCinfoAlpha) mCinfoAlpha = fminf(target, mCinfoAlpha + stp);
+    else                      mCinfoAlpha = fmaxf(0.0f,   mCinfoAlpha - stp);
+    if (mCinfoAlpha <= 0.001f) return;
+
+    // Lazy-load the background JPEG (stb_image; /data override then /system).
+    if (!mCinfoTex && !mCinfoTexTried) {
+        mCinfoTexTried = true;
+        const char* paths[2] = {
+            "/data/system/nano_xmb/backgrounds/cinfo-bg-photogallery.jpg",
+            "/system/etc/nano_xmb/backgrounds/cinfo-bg-photogallery.jpg" };
+        for (const char* p : paths) {
+            int w = 0, h = 0, n = 0;
+            stbi_uc* d = stbi_load(p, &w, &h, &n, 4);
+            if (!d) continue;
+            glGenTextures(1, &mCinfoTex);
+            glBindTexture(GL_TEXTURE_2D, mCinfoTex);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, d);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+            stbi_image_free(d);
+            mCinfoTexW = w; mCinfoTexH = h;
+            break;
+        }
+    }
+    if (!mCinfoTex || mCinfoTexW <= 0 || mCinfoTexH <= 0) return;
+
+    const float W = (float)mWidth, H = (float)mHeight, a = mCinfoAlpha;
+
+    // Cover-crop full-frame blit: a centred quad scaled to FILL the frame at the image's
+    // aspect (overflow clipped by the viewport). Same textured-quad path as the photo
+    // viewer (mTextProgram samples RGBA * vertex colour).
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    float sc = fmaxf(W / (float)mCinfoTexW, H / (float)mCinfoTexH);
+    float dw = mCinfoTexW * sc, dh = mCinfoTexH * sc;
+    float cx = W * 0.5f, cy = H * 0.5f, hw = dw * 0.5f, hh = dh * 0.5f;
+    float qx[4] = { cx - hw, cx + hw, cx + hw, cx - hw };
+    float qy[4] = { cy - hh, cy - hh, cy + hh, cy + hh };
+    float uu[4] = { 0.0f, 1.0f, 1.0f, 0.0f };
+    float vv[4] = { 0.0f, 0.0f, 1.0f, 1.0f };
+    auto ndcX = [&](float x){ return (x / W) * 2.0f - 1.0f; };
+    auto ndcY = [&](float y){ return 1.0f - (y / H) * 2.0f; };
+    GLfloat verts[12], uvs[12], cols[24];
+    const int order[6] = { 0, 1, 2, 0, 2, 3 };
+    for (int k = 0; k < 6; k++) {
+        int c = order[k];
+        verts[k*2] = ndcX(qx[c]); verts[k*2+1] = ndcY(qy[c]);
+        uvs[k*2] = uu[c]; uvs[k*2+1] = vv[c];
+        cols[k*4] = 1.0f; cols[k*4+1] = 1.0f; cols[k*4+2] = 1.0f; cols[k*4+3] = a;
+    }
+    glUseProgram(mTextProgram);
+    if (mTextLocSharp >= 0) glUniform1f(mTextLocSharp, 0.0f);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, mCinfoTex);
+    glUniform1i(mTextLocTexture, 0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glVertexAttribPointer(mTextLocPosition, 2, GL_FLOAT, GL_FALSE, 0, verts);
+    glEnableVertexAttribArray(mTextLocPosition);
+    glVertexAttribPointer(mTextLocTexCoord, 2, GL_FLOAT, GL_FALSE, 0, uvs);
+    glEnableVertexAttribArray(mTextLocTexCoord);
+    glVertexAttribPointer(mTextLocColor, 4, GL_FLOAT, GL_FALSE, 0, cols);
+    glEnableVertexAttribArray(mTextLocColor);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    glDisableVertexAttribArray(mTextLocPosition);
+    glDisableVertexAttribArray(mTextLocTexCoord);
+    glDisableVertexAttribArray(mTextLocColor);
+
+    // Title + word-wrapped description over the bg. Web coords as VW/VH fractions mapped
+    // via the ps3 layout helpers; canvas baseline 'middle' -> drawText top = devY - em/2.
+    float titleScale = ps3::fontScale(ps3::XCF(ps3::VH * 0.0315f));
+    float descScale  = ps3::fontScale(ps3::XCF(ps3::VH * 0.0241f));
+    float lx = ps3::devX(ps3::XCP(ps3::VW * 0.3427f));
+    float titleY = ps3::devY(ps3::VH * 0.4384f) - 0.5f * ps3::emPx(titleScale);
+    drawText(trDyn("Photo Gallery"), lx, titleY, titleScale, 1.0f, 1.0f, 1.0f, a);
+
+    static const char* kDesc =
+        "Create a space to enjoy and enhance your photos.\n"
+        "Turn the photos on your PS3\xe2\x84\xa2 system into great albums in minutes.\n"
+        "You can sort your photos by themes, add music to enhance a slideshow or add "
+        "custom frames to your photos. The more photos you add, the more fun you can "
+        "have - the possibilities are endless!";
+    std::string desc = kDesc;
+    float wrapW = ps3::devS(ps3::XCF(ps3::VW * 0.527f));
+    float lineH = ps3::devS(ps3::VH * 0.0345f);
+    float y = ps3::devY(ps3::VH * 0.490f) - 0.5f * ps3::emPx(descScale);
+    size_t start = 0;
+    while (start <= desc.size()) {
+        size_t nl = desc.find('\n', start);
+        std::string para = desc.substr(start, (nl == std::string::npos) ? std::string::npos : nl - start);
+        std::string line;
+        size_t ws = 0;
+        while (ws < para.size()) {
+            size_t sp = para.find(' ', ws);
+            std::string word = para.substr(ws, (sp == std::string::npos) ? std::string::npos : sp - ws);
+            std::string trial = line.empty() ? word : line + " " + word;
+            if (!line.empty() && measureText(trial.c_str(), descScale) > wrapW) {
+                drawText(line.c_str(), lx, y, descScale, 0.94f, 0.94f, 0.94f, a);
+                y += lineH; line = word;
+            } else {
+                line = trial;
+            }
+            if (sp == std::string::npos) break;
+            ws = sp + 1;
+        }
+        if (!line.empty()) { drawText(line.c_str(), lx, y, descScale, 0.94f, 0.94f, 0.94f, a); y += lineH; }
+        if (nl == std::string::npos) break;
+        start = nl + 1;
+    }
 }
 
 // ---------------------------------------------------------------------------
