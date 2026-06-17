@@ -1558,7 +1558,7 @@ bool NanoMenu::renderVideoPlayer() {
         GLuint sp = vidIcon(114);
         if (sp) {
             float sz = H * 0.06f, ccx = W * 0.5f, ccy = H * 0.5f;
-            float ang = fmodf(mEffectTime * (2.0f * 3.14159265f / 0.6f), 2.0f * 3.14159265f);
+            float ang = fmodf(mEffectTime * 1.66667f, 2.0f * 3.14159265f);   // web rotate(now/600), ~3.8s/rev
             float ca = cosf(ang), sn = sinf(ang), hw = sz * 0.5f, hh = sz * 0.5f;
             float lx[4] = {-hw, hw, hw, -hw}, ly[4] = {-hh, -hh, hh, hh};
             float u[4] = {0, 1, 1, 0}, v[4] = {0, 0, 1, 1};
@@ -1622,8 +1622,26 @@ bool NanoMenu::renderVideoPlayer() {
                 drawQuad(bx + bw * cf - 1.0f, by - bh, 2.0f, bh * 3.0f, 1.0f, 1.0f, 1.0f, 0.65f * barA);
             }
         }
-        float kn = H * 0.012f;                                                // knob (square)
-        drawQuad(bx + bw * frac - kn * 0.5f, by + bh * 0.5f - kn * 0.5f, kn, kn, 1.0f, 1.0f, 1.0f, 0.95f * barA);
+        // A-B Repeat markers + loop-region highlight (web 12768-12774).
+        if (mVidRepeat == 3 && (mVidAbA >= 0.0 || mVidAbB >= 0.0)) {
+            float af = mVidAbA >= 0.0 ? (float)(mVidAbA / dur) : -1.0f;
+            float bf = mVidAbB >= 0.0 ? (float)(mVidAbB / dur) : -1.0f;
+            if (af > 1) af = 1; if (bf > 1) bf = 1;
+            if (af >= 0.0f && bf >= 0.0f)
+                drawQuad(bx + bw * af, by, bw * (bf - af), bh, 0.47f, 0.784f, 1.0f, 0.45f * barA);   // loop region
+            float lfs = ps3::fontScale(18.0f);
+            if (af >= 0.0f) {
+                drawQuad(bx + bw * af - 1.0f, by - bh, 2.0f, bh * 3.0f, 0.47f, 0.784f, 1.0f, 0.95f * barA);
+                float aw = measureText("A", lfs);
+                drawText("A", bx + bw * af - aw * 0.5f, ps3::baselineToTopY(by - bh * 2.5f, lfs), lfs, 0.47f, 0.784f, 1.0f, 0.95f * barA);
+            }
+            if (bf >= 0.0f) {
+                drawQuad(bx + bw * bf - 1.0f, by - bh, 2.0f, bh * 3.0f, 0.47f, 0.784f, 1.0f, 0.95f * barA);
+                float bwid = measureText("B", lfs);
+                drawText("B", bx + bw * bf - bwid * 0.5f, ps3::baselineToTopY(by - bh * 2.5f, lfs), lfs, 0.47f, 0.784f, 1.0f, 0.95f * barA);
+            }
+        }
+        ps3FillCircle(bx + bw * frac, by + bh * 0.5f, H * 0.008f, 1.0f, 1.0f, 1.0f, 0.95f * barA);   // knob (web arc)
         float fs = ps3::fontScale(20.0f);
         std::string el = vFmtTime(pos), tot = vFmtTime(dur);
         drawText(el.c_str(), bx, ps3::baselineToTopY(by - H * 0.012f, fs), fs, 0.96f, 0.96f, 0.96f, barA);
@@ -1654,12 +1672,12 @@ bool NanoMenu::renderVideoPlayer() {
         const char* l2 = "Circle: Home Menu";
         float w1 = measureText(l1, fs), w2 = measureText(l2, fs);
         float tw = fmaxf(w1, w2);
-        float padx = W * 0.018f, lh = H * 0.034f;
-        float ph = lh * 2.0f + H * 0.018f, pw = tw + padx * 2.0f;
-        float px = W - pw - W * 0.03f, py = H * 0.80f;
+        float padx = W * 0.018f;
+        float ph = H * 0.068f, pw = tw + padx * 2.0f;            // web pill height ~0.068*CH
+        float px = W - pw - W * 0.03f, py = H * 0.86f;           // web py = CH*0.86
         drawQuad(px, py, pw, ph, 0.235f, 0.235f, 0.26f, 0.72f * hintA);
-        drawText(l1, px + padx, ps3::baselineToTopY(py + lh * 0.9f, fs), fs, 1.0f, 1.0f, 1.0f, 0.95f * hintA);
-        drawText(l2, px + padx, ps3::baselineToTopY(py + lh * 1.8f, fs), fs, 1.0f, 1.0f, 1.0f, 0.95f * hintA);
+        drawText(l1, px + padx, ps3::baselineToTopY(py + H * 0.030f, fs), fs, 1.0f, 1.0f, 1.0f, 0.95f * hintA);
+        drawText(l2, px + padx, ps3::baselineToTopY(py + H * 0.056f, fs), fs, 1.0f, 1.0f, 1.0f, 0.95f * hintA);
     }
 
     // Layer 9: the control panel (200ms open/close, web drawVideoPanel).
@@ -1846,7 +1864,7 @@ void NanoMenu::vidPanelActivate() {
     else if (!strcmp(a, "flashr"))     vidFlash(-1);
     else if (!strcmp(a, "beginning"))  vidBeginning();
     else if (!strcmp(a, "next"))       vidStepTitle(1);
-    else if (!strcmp(a, "showinfo"))   { mVidOsd = !mVidOsd; vidPanelClose(); }
+    else if (!strcmp(a, "showinfo"))   { mVidOsd = !mVidOsd; mVidCpOpen = false; mVidCpClosing = false; }   // web: instant close
     else if (!strcmp(a, "screenmode")) { vidSubBuild(0); mVidSubOpen = true; }
     else if (!strcmp(a, "repeat"))     { vidSubBuild(1); mVidSubOpen = true; }
     else if (!strcmp(a, "volume"))     { vidSubBuild(2); mVidSubOpen = true; }
