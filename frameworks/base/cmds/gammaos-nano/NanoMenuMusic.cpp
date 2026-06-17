@@ -792,16 +792,21 @@ void NanoMenu::musicTick() {
     ps3bg::setMusicVisTarget((mMpActive && mMpVis == 0) ? 1.0f : 0.0f);
     float dt = mFrameDt;
     if (dt < 0.0f || dt > 0.2f) dt = 0.016f;
-    // Player ENTER cross-fade, 1:1 with the web (drawBG mpEnterRaw/mpChromeRaw): the
-    // now-playing bar fades IN over ~1.0s (linear progress -> smoothstep) while the XMB
-    // chrome fades OUT over ~0.4s (mMpChromeT, scaled into the cold-boot reveal in
-    // renderPs3Xmb). Leave is instant - the player state is torn down on close/minimize -
-    // so snap both back when the player is not active (the chrome returns at full).
+    // Player ENTER/LEAVE cross-fade, 1:1 with the web (drawBG mpEnterRaw/mpChromeRaw):
+    // the now-playing bar fades over ~1.0s (linear progress -> smoothstep) while the XMB
+    // chrome fades over ~0.4s (mMpChromeT, scaled into the cold-boot reveal in
+    // renderPs3Xmb). Enter: bar IN, chrome OUT. Leave via minimize (Circle keeps the
+    // audio + queue, so the bar can fade out live): bar OUT, chrome IN. A full close
+    // clears the queue and snaps to the instant branch (the bar cannot fade without the
+    // track data).
     if (mMpActive) {
-        mMpEnterRaw = fminf(1.0f, mMpEnterRaw + dt / 1.0f);   // ~1.0s linear
-        mMpChromeT  = fmaxf(0.0f, mMpChromeT  - dt / 0.4f);   // ~0.4s linear
+        mMpEnterRaw = fminf(1.0f, mMpEnterRaw + dt / 1.0f);   // bar IN  ~1.0s
+        mMpChromeT  = fmaxf(0.0f, mMpChromeT  - dt / 0.4f);   // chrome OUT ~0.4s
+    } else if (!mMpQueue.empty()) {
+        mMpEnterRaw = fmaxf(0.0f, mMpEnterRaw - dt / 1.0f);   // bar OUT ~1.0s (minimize)
+        mMpChromeT  = fminf(1.0f, mMpChromeT  + dt / 0.4f);   // chrome IN ~0.4s
     } else {
-        mMpEnterRaw = 0.0f;
+        mMpEnterRaw = 0.0f;                                   // closed (queue cleared): instant
         mMpChromeT  = 1.0f;
     }
     mMpEnterT = mMpEnterRaw * mMpEnterRaw * (3.0f - 2.0f * mMpEnterRaw);   // smoothstep

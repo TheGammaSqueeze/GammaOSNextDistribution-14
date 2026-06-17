@@ -1574,23 +1574,27 @@ void NanoMenu::renderPs3Xmb() {
     // expensive menu/glass-icon pass entirely.
     if (mPs3TzActive) { renderTimezoneGlobe(); return; }
 
-    // Now-Playing music screen: cross-fade with the XMB chrome on enter, 1:1 with the
-    // web (drawBG). The chrome fades OUT over ~0.4s - mMpChromeT scaled into the
-    // cold-boot reveal multipliers, the SAME validated path that fades the chrome in at
-    // boot - while the now-playing bar fades IN over ~1.0s (mMpEnterT, in
-    // renderMusicPlayer). Once the chrome is fully gone we skip it entirely (perf). Leave
-    // is instant (player state is torn down on close/minimize). The Waves morph animates
-    // the background underneath; the control panel + bar live in NanoMenuMusic.cpp.
+    // Now-Playing music screen: cross-fade with the XMB chrome both ways, 1:1 with the
+    // web (drawBG). The chrome fades via mMpChromeT scaled into the cold-boot reveal
+    // multipliers (the SAME validated path that fades the chrome in at boot) - OUT over
+    // ~0.4s on enter, back IN over ~0.4s on leave - while the now-playing bar fades via
+    // mMpEnterT - IN over ~1.0s on enter, OUT over ~1.0s on leave (in renderMusicPlayer).
+    // Leave fades only when minimizing (Circle keeps the audio + queue, so the bar can
+    // fade out live); a full close clears the queue and is instant. Once the chrome is
+    // fully gone in the steady player we skip it entirely (perf). The Waves morph
+    // animates the background underneath; the panel + bar live in NanoMenuMusic.cpp.
     // The reveal multipliers are NOT recomputed each frame post-boot (only the boot
     // intro / overlay entrance set them), so the chrome cross-fade below scales them in
     // place and MUST restore them at the end of this function - otherwise the chrome
     // would stay hidden after the player closes.
+    bool mpVisible = mMpActive || (mMpEnterT > 0.004f && !mMpQueue.empty());
     float mpSavedIconReveal = mPs3BootIconReveal, mpSavedLabelReveal = mPs3BootLabelReveal;
     bool  mpChromeScaled = false;
-    if (mMpActive) {
-        if (mMpChromeT <= 0.004f) { renderMusicPlayer(); return; }
-        // chrome still fading out: scale the cold-boot reveal so the whole chrome
-        // fades, render it below, then composite the player on top at the end.
+    if (mpVisible) {
+        if (mMpActive && mMpChromeT <= 0.004f) { renderMusicPlayer(); return; }
+        // entering (chrome fading out) or leaving (chrome fading in): scale the cold-boot
+        // reveal so the whole chrome fades, render it below, then composite the player on
+        // top at the end.
         mPs3BootIconReveal  *= mMpChromeT;
         mPs3BootLabelReveal *= mMpChromeT;
         mpChromeScaled = true;
@@ -2325,10 +2329,11 @@ void NanoMenu::renderPs3Xmb() {
     else if (mPs3DlgActive || mPs3DlgClosing) renderPs3Dialog();   // mPs3DlgClosing: side-panel fade-out
     else if (mPs3LangActive) renderLanguagePicker();   // System Language: frosted backdrop + fade, over the menu
 
-    // Player enter cross-fade: the now-playing screen composites OVER the fading XMB
-    // chrome (the mMpActive branch near the top scaled the reveal) until the chrome is
-    // fully gone, at which point the early return above takes the perf path instead.
-    if (mMpActive && mMpChromeT > 0.004f) renderMusicPlayer();
+    // Player enter/leave cross-fade: the now-playing screen composites OVER the fading
+    // XMB chrome (the mpVisible branch near the top scaled the reveal). On enter this runs
+    // until the chrome is gone (then the early return above takes the perf path); on leave
+    // it runs while the bar fades out with the queue still loaded (minimize).
+    if (mpVisible) renderMusicPlayer();
     // Restore the reveal multipliers scaled for the chrome cross-fade (they persist
     // across frames otherwise, leaving the chrome hidden after the player closes).
     if (mpChromeScaled) { mPs3BootIconReveal = mpSavedIconReveal; mPs3BootLabelReveal = mpSavedLabelReveal; }
