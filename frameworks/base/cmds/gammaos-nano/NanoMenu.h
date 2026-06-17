@@ -1564,6 +1564,20 @@ private:
     NanoAudioPlayer mVidAudio;
     bool   mVidHasAudio = false;
     bool   mVidAudioStarted = false;        // audio held until the first video frame (avoids warmup desync)
+    // ---- multiple audio tracks + subtitles (built per opened title; web audioTracks/subList) ----
+    struct VidCue { double t = 0.0, d = 0.0; std::string text; };   // start, duration, text
+    struct VidAudTrk { int idx = 0; std::string name; };           // idx = extractor track index
+    struct VidSubTrk { std::string name; bool external = false; std::string file; int embIdx = -1;
+                       std::vector<VidCue> cues; };
+    std::vector<VidAudTrk> mVidAudTracks;   // all audio tracks in the current file
+    std::vector<VidSubTrk> mVidSubTracks;   // embedded text subs + external SRT/VTT sidecars
+    int mVidAudCur = 0;                      // current index into mVidAudTracks
+    int mVidSubCur = -1;                     // -1 = Off, else index into mVidSubTracks
+    void vidBuildTracks(const std::string& file);   // enumerate audio + embedded text subs + sidecars
+    void vidReadEmbeddedCues(const std::string& file, int trackIdx, std::vector<VidCue>& out);
+    void vidSetAudioTrack(int ordinal);             // switch the active audio track (re-opens mVidAudio)
+    std::vector<VidCue> vidParseSrt(const std::string& text);   // SRT/VTT cue parser (web vidParseCues)
+    const std::vector<VidCue>* vidActiveSubCues() const;        // cues for the selected sub track, or null
     bool   mVidAvBnr = false, mVidAvFnr = false, mVidAvMnr = false, mVidAvUpscale = false;
     double mVidScanLastTick = -1.0;         // wall-clock anchor for timer-driven scan
     double mVidScanPos = 0.0;               // commanded scan clock (decoder position lags + snaps to keyframes)

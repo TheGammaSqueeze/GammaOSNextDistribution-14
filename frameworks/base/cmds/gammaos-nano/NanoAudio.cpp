@@ -111,12 +111,23 @@ static const char* codecBadge(const char* mime) {
 
 static bool readMetaFromExtractor(AMediaExtractor* ex, int fd,
                                   NanoAudioPlayer::Meta& meta, int* trackOut,
-                                  AMediaFormat** trackFmtOut) {
+                                  AMediaFormat** trackFmtOut, int wantTrack = -1) {
     int n = AMediaExtractor_getTrackCount(ex);
     int track = -1;
     AMediaFormat* tf = nullptr;
     const char* mime = nullptr;
-    for (int i = 0; i < n; i++) {
+    // If a specific audio track is requested and it really is audio, use it exactly.
+    if (wantTrack >= 0 && wantTrack < n) {
+        AMediaFormat* f = AMediaExtractor_getTrackFormat(ex, wantTrack);
+        const char* m = nullptr;
+        if (AMediaFormat_getString(f, AMEDIAFORMAT_KEY_MIME, &m) && m && !strncmp(m, "audio/", 6)) {
+            track = wantTrack; tf = f; mime = m;
+        } else {
+            AMediaFormat_delete(f);
+        }
+    }
+    // Otherwise (or on a bad request) fall back to the first audio track.
+    for (int i = 0; track < 0 && i < n; i++) {
         AMediaFormat* f = AMediaExtractor_getTrackFormat(ex, i);
         const char* m = nullptr;
         if (AMediaFormat_getString(f, AMEDIAFORMAT_KEY_MIME, &m) && m && !strncmp(m, "audio/", 6)) {
@@ -180,7 +191,7 @@ void NanoAudioPlayer::init() {
     mInited = true;
 }
 
-bool NanoAudioPlayer::probe(const std::string& path, Meta& out) {
+bool NanoAudioPlayer::probe(const std::string& path, Meta& out, int wantTrack) {
     int fd = ::open(path.c_str(), O_RDONLY);
     if (fd < 0) return false;
     struct stat st;
@@ -190,7 +201,7 @@ bool NanoAudioPlayer::probe(const std::string& path, Meta& out) {
     bool ok = false;
     if (ms == AMEDIA_OK) {
         AMediaFormat* tf = nullptr;
-        ok = readMetaFromExtractor(ex, fd, out, nullptr, &tf);
+        ok = readMetaFromExtractor(ex, fd, out, nullptr, &tf, wantTrack);
         if (tf) AMediaFormat_delete(tf);
     }
     AMediaExtractor_delete(ex);
@@ -251,10 +262,11 @@ void NanoAudioPlayer::stopDecoder() {
     mDecodeStop = false;
 }
 
-bool NanoAudioPlayer::open(const std::string& path) {
+bool NanoAudioPlayer::open(const std::string& path, int audioTrackIndex) {
     init();
+    mForcedAudioTrack = audioTrackIndex;   // -1 = first audio (default); >=0 = that extractor track
     Meta m;
-    if (!probe(path, m)) { ALOGW("NanoAudio: probe failed %s", path.c_str()); return false; }
+    if (!probe(path, m, audioTrackIndex)) { ALOGW("NanoAudio: probe failed %s", path.c_str()); return false; }
 
     stopDecoder();                 // join any previous decode
 
@@ -451,7 +463,7 @@ void NanoAudioPlayer::decodeThreadFunc(std::string path) {
     Meta tmp;
     int track = -1;
     AMediaFormat* tf = nullptr;
-    if (!readMetaFromExtractor(ex, fd, tmp, &track, &tf)) {
+    if (!readMetaFromExtractor(ex, fd, tmp, &track, &tf, mForcedAudioTrack)) {
         AMediaExtractor_delete(ex); ::close(fd); mEos = true; return;
     }
     AMediaExtractor_selectTrack(ex, track);

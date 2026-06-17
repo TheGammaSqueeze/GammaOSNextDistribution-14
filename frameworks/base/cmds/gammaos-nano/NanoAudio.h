@@ -77,7 +77,9 @@ public:
 
     // Start decoding `path`. Reopens the AAudio stream if the format changed. Begins
     // PAUSED; call play() to start. Returns false if the file can't be opened/decoded.
-    bool open(const std::string& path);
+    // audioTrackIndex: -1 = first audio track (default); >=0 = that exact extractor track
+    // (used by the video player to switch between multiple embedded audio tracks).
+    bool open(const std::string& path, int audioTrackIndex = -1);
 
     void play();
     void pause();
@@ -102,7 +104,7 @@ public:
     // Metadata + duration only, no playback: used by the library scanner. Cheap-ish
     // (opens an extractor, reads the container/track format, closes). Thread-safe
     // (static, touches no instance state).
-    static bool probe(const std::string& path, Meta& out);
+    static bool probe(const std::string& path, Meta& out, int wantTrack = -1);
 
     // --- internal: called by the AAudio data callback (public so the C trampoline
     // in the .cpp can reach it; do not call from app code) ---
@@ -132,6 +134,7 @@ private:
     // ---- decoder thread ----
     std::thread mDecodeThread;
     std::atomic<bool> mDecodeStop{false};       // ask the decoder to exit
+    int mForcedAudioTrack = -1;                  // -1 = first audio; >=0 = exact extractor track (set in open(), read on the decode thread before it starts)
     std::atomic<bool> mEos{false};              // decoder hit end-of-stream
     std::atomic<int64_t> mPendingSeekUs{-1};    // seek (us) the next decode consumes at start
     std::string mCurrentPath;                   // path of the open track (for re-seek respawn)

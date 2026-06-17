@@ -16,10 +16,15 @@
 #include <math.h>
 #include <map>
 #include <set>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <thread>
 #include <unistd.h>
+#include <utility>
+
+#include <media/NdkMediaExtractor.h>
+#include <media/NdkMediaFormat.h>
 
 #include <cutils/properties.h>
 
@@ -552,6 +557,221 @@ void NanoMenu::videoRemoveFolder(int idx) {
 }
 
 // ===========================================================================
+// Multiple audio tracks + subtitles (web audioTracks / subList / vidParseCues).
+// Audio: enumerate all audio tracks; switching re-opens mVidAudio on that exact
+// extractor track. Subtitles: embedded text (mov_text, mime text/3gpp-tt) read as
+// cues, plus external .srt/.vtt sidecars parsed off disk. Bitmap subs (DVB/PGS) are
+// NOT supported - the Android NDK has no decoder + the extractors drop those tracks.
+// ===========================================================================
+static const char* vidAudCodecBadge(const char* mime) {
+    if (!mime) return "Audio";
+    if (!strcmp(mime, "audio/mpeg")) return "MP3";
+    if (!strncmp(mime, "audio/mp4a", 10) || !strcmp(mime, "audio/aac")) return "AAC";
+    if (!strcmp(mime, "audio/flac")) return "FLAC";
+    if (!strcmp(mime, "audio/raw"))  return "PCM";
+    if (!strcmp(mime, "audio/vorbis")) return "Vorbis";
+    if (!strcmp(mime, "audio/opus"))   return "Opus";
+    if (!strcmp(mime, "audio/ac3"))    return "AC3";
+    if (!strcmp(mime, "audio/eac3"))   return "EAC3";
+    return "Audio";
+}
+// Only TEXT subtitle mimes are renderable (we read the cue text directly). Bitmap
+// subtitle mimes (dvb/pgs/vobsub) are deliberately excluded.
+static bool vidIsTextSubMime(const char* mime) {
+    if (!mime) return false;
+    return !strcmp(mime, "text/3gpp-tt") ||        // mov_text / tx3g (mp4)
+           !strcmp(mime, "application/x-subrip") ||
+           !strcmp(mime, "text/x-subrip") ||
+           !strcmp(mime, "application/x-media-subtitle/srt") ||
+           !strcmp(mime, "text/vtt");
+}
+
+// SRT/VTT cue parser, 1:1 with the web vidParseCues/vidParseTime.
+std::vector<NanoMenu::VidCue> NanoMenu::vidParseSrt(const std::string& textIn) {
+    std::vector<VidCue> cues;
+    std::string text = textIn;
+    text.erase(std::remove(text.begin(), text.end(), '\r'), text.end());
+    auto trim = [](std::string s) {
+        size_t a = s.find_first_not_of(" \t\n"); size_t b = s.find_last_not_of(" \t\n");
+        return a == std::string::npos ? std::string() : s.substr(a, b - a + 1);
+    };
+    auto parseTime = [](std::string s) -> double {
+        size_t a = s.find_first_not_of(" \t"); size_t b = s.find_last_not_of(" \t");
+        if (a == std::string::npos) return 0.0; s = s.substr(a, b - a + 1);
+        for (auto& c : s) if (c == ',') c = '.';
+        std::vector<std::string> p; size_t pos = 0, col;
+        while ((col = s.find(':', pos)) != std::string::npos) { p.push_back(s.substr(pos, col - pos)); pos = col + 1; }
+        p.push_back(s.substr(pos));
+        double h = 0, m = 0, sec = 0;
+        if (p.size() == 3) { h = atof(p[0].c_str()); m = atof(p[1].c_str()); sec = atof(p[2].c_str()); }
+        else if (p.size() == 2) { m = atof(p[0].c_str()); sec = atof(p[1].c_str()); }
+        else { sec = atof(p[0].c_str()); }
+        return h * 3600.0 + m * 60.0 + sec;
+    };
+    size_t i = 0, n = text.size();
+    while (i < n) {
+        size_t dbl = text.find("\n\n", i);
+        std::string blk = text.substr(i, (dbl == std::string::npos ? n : dbl) - i);
+        i = (dbl == std::string::npos) ? n : dbl + 2;
+        while (i < n && text[i] == '\n') i++;
+        std::vector<std::string> lines; size_t lp = 0, nl;
+        while ((nl = blk.find('\n', lp)) != std::string::npos) { lines.push_back(blk.substr(lp, nl - lp)); lp = nl + 1; }
+        lines.push_back(blk.substr(lp));
+        int ai = -1;
+        for (size_t j = 0; j < lines.size(); j++) if (lines[j].find("-->") != std::string::npos) { ai = (int)j; break; }
+        if (ai < 0) continue;
+        size_t arrow = lines[ai].find("-->");
+        std::string endRest = lines[ai].substr(arrow + 3);
+        { size_t a = endRest.find_first_not_of(" \t"); if (a != std::string::npos) endRest = endRest.substr(a);
+          size_t sp = endRest.find_first_of(" \t"); if (sp != std::string::npos) endRest = endRest.substr(0, sp); }
+        double start = parseTime(lines[ai].substr(0, arrow)), end = parseTime(endRest);
+        std::string txt;
+        for (size_t j = ai + 1; j < lines.size(); j++) { if (!txt.empty()) txt += "\n"; txt += lines[j]; }
+        std::string clean; bool intag = false;
+        for (char c : txt) { if (c == '<') intag = true; else if (c == '>') intag = false;
+                             else if (!intag) clean += (c == '|' ? '\n' : c); }
+        clean = trim(clean);
+        if (!clean.empty() && end > start) { VidCue cu; cu.t = start; cu.d = end - start; cu.text = clean; cues.push_back(cu); }
+    }
+    return cues;
+}
+
+// Read an embedded TEXT subtitle track (mov_text: U16-BE length + UTF-8) into cues.
+// Per-sample durations are derived from the next sample's start (web does the same).
+void NanoMenu::vidReadEmbeddedCues(const std::string& file, int trackIdx, std::vector<VidCue>& out) {
+    int fd = ::open(file.c_str(), O_RDONLY);
+    if (fd < 0) return;
+    struct stat st;
+    if (fstat(fd, &st) != 0 || st.st_size <= 0) { ::close(fd); return; }
+    AMediaExtractor* ex = AMediaExtractor_new();
+    if (AMediaExtractor_setDataSourceFd(ex, fd, 0, st.st_size) == AMEDIA_OK) {
+        AMediaExtractor_selectTrack(ex, trackIdx);
+        std::vector<std::pair<double, std::string>> raw;
+        std::vector<uint8_t> buf(8192);
+        for (int guard = 0; guard < 100000; guard++) {
+            ssize_t n = AMediaExtractor_readSampleData(ex, buf.data(), buf.size());
+            if (n < 0) break;
+            int64_t pts = AMediaExtractor_getSampleTime(ex);
+            double start = pts >= 0 ? (double)pts / 1e6 : 0.0;
+            std::string txt;
+            if (n >= 2) {
+                int len = (buf[0] << 8) | buf[1];          // mov_text 2-byte BE length prefix
+                if (len > 0 && 2 + len <= n) txt.assign((char*)buf.data() + 2, len);
+                else if (len == 0) txt.clear();            // clear-cue sample (gap)
+                else txt.assign((char*)buf.data(), n);     // raw text fallback (subrip-style)
+            }
+            raw.push_back({start, txt});
+            if (!AMediaExtractor_advance(ex)) break;
+        }
+        for (size_t k = 0; k < raw.size(); k++) {
+            if (raw[k].second.empty()) continue;
+            double end = (k + 1 < raw.size()) ? raw[k + 1].first : raw[k].first + 3.0;
+            if (end <= raw[k].first) end = raw[k].first + 3.0;
+            VidCue c; c.t = raw[k].first; c.d = end - raw[k].first; c.text = raw[k].second;
+            out.push_back(c);
+        }
+    }
+    AMediaExtractor_delete(ex);
+    ::close(fd);
+}
+
+// Enumerate the file's audio tracks + embedded text-subtitle tracks, then probe for
+// external .srt/.vtt sidecars next to it. Cheap (text + extractor walk); nothing resident.
+void NanoMenu::vidBuildTracks(const std::string& file) {
+    mVidAudTracks.clear();
+    mVidSubTracks.clear();
+    std::vector<int> embSubIdx;
+    std::vector<std::string> embSubName;
+    int fd = ::open(file.c_str(), O_RDONLY);
+    if (fd >= 0) {
+        struct stat st;
+        if (fstat(fd, &st) == 0 && st.st_size > 0) {
+            AMediaExtractor* ex = AMediaExtractor_new();
+            if (AMediaExtractor_setDataSourceFd(ex, fd, 0, st.st_size) == AMEDIA_OK) {
+                size_t nt = AMediaExtractor_getTrackCount(ex);
+                for (size_t i = 0; i < nt; i++) {
+                    AMediaFormat* f = AMediaExtractor_getTrackFormat(ex, i);
+                    const char* mime = nullptr;
+                    if (f && AMediaFormat_getString(f, AMEDIAFORMAT_KEY_MIME, &mime) && mime) {
+                        const char* lang = nullptr;
+                        AMediaFormat_getString(f, AMEDIAFORMAT_KEY_LANGUAGE, &lang);
+                        VLOGI("NanoMenu: vid track %zu mime=%s lang=%s", i, mime, lang ? lang : "?");
+                        bool haveLang = lang && *lang && strcmp(lang, "und");
+                        if (!strncmp(mime, "audio/", 6)) {
+                            VidAudTrk t; t.idx = (int)i;
+                            std::string nm = haveLang ? lang : "";
+                            std::string codec = vidAudCodecBadge(mime);
+                            if (nm.empty()) { char b[24]; snprintf(b, sizeof(b), "Audio %zu  %s", mVidAudTracks.size() + 1, codec.c_str()); nm = b; }
+                            else nm += std::string("  ") + codec;
+                            t.name = nm;
+                            mVidAudTracks.push_back(t);
+                        } else if (vidIsTextSubMime(mime)) {
+                            std::string nm = haveLang ? lang : "";
+                            if (nm.empty()) { char b[24]; snprintf(b, sizeof(b), "Track %zu", embSubIdx.size() + 1); nm = b; }
+                            embSubIdx.push_back((int)i); embSubName.push_back(nm);
+                        }
+                    }
+                    if (f) AMediaFormat_delete(f);
+                }
+            }
+            AMediaExtractor_delete(ex);
+        }
+        ::close(fd);
+    }
+    // embedded text-sub cues (separate extractor pass per track)
+    for (size_t s = 0; s < embSubIdx.size(); s++) {
+        VidSubTrk t; t.external = false; t.embIdx = embSubIdx[s]; t.name = embSubName[s];
+        vidReadEmbeddedCues(file, embSubIdx[s], t.cues);
+        if (!t.cues.empty()) mVidSubTracks.push_back(std::move(t));
+    }
+    // external sidecars: <basename without ext> + .srt / .vtt
+    std::string base = file; size_t dot = base.find_last_of('.');
+    if (dot != std::string::npos) base = base.substr(0, dot);
+    static const char* kExt[] = {".srt", ".vtt"};
+    for (const char* e : kExt) {
+        std::string sp = base + e;
+        struct stat st;
+        if (stat(sp.c_str(), &st) == 0 && st.st_size > 0 && st.st_size < 4 * 1024 * 1024) {
+            int sfd = ::open(sp.c_str(), O_RDONLY);
+            if (sfd < 0) continue;
+            std::string content; content.resize(st.st_size);
+            ssize_t rd = read(sfd, &content[0], st.st_size);
+            ::close(sfd);
+            if (rd <= 0) continue;
+            content.resize(rd);
+            VidSubTrk t; t.external = true; t.file = sp;
+            t.name = std::string("Sidecar (") + (e + 1) + ")";
+            t.cues = vidParseSrt(content);
+            if (!t.cues.empty()) mVidSubTracks.push_back(std::move(t));
+        }
+    }
+    VLOGI("NanoMenu: vidBuildTracks %s -> %zu audio, %zu subtitle tracks",
+          file.c_str(), mVidAudTracks.size(), mVidSubTracks.size());
+}
+
+const std::vector<NanoMenu::VidCue>* NanoMenu::vidActiveSubCues() const {
+    if (mVidSubCur < 0 || mVidSubCur >= (int)mVidSubTracks.size()) return nullptr;
+    return &mVidSubTracks[mVidSubCur].cues;
+}
+
+// Switch the active audio track: re-open mVidAudio on that exact extractor track,
+// reseeked to the picture and resumed if playing (web vidSetAudioTrack).
+void NanoMenu::vidSetAudioTrack(int ordinal) {
+    if (ordinal < 0 || ordinal >= (int)mVidAudTracks.size()) return;
+    mVidAudCur = ordinal;
+    if (mVidList.empty() || mVidIdx < 0 || mVidIdx >= (int)mVidList.size()) return;
+    int vi = mVidList[mVidIdx];
+    if (vi < 0 || vi >= (int)mVideos.size()) return;
+    double pos = mVideoTest ? mVideoTest->position() : 0.0;
+    mVidAudio.release();
+    mVidHasAudio = mVidAudio.open(mVideos[vi].file, mVidAudTracks[ordinal].idx);
+    mVidAudioStarted = false;
+    if (mVidHasAudio) { mVidAudio.setVolume(mVidVolume); if (pos > 0.0) mVidAudio.seek(pos); }
+    mVidDispMode = std::string("Audio: ") + mVidAudTracks[ordinal].name;
+    mVidDispModeUntil = mEffectTime + 1.8f;
+}
+
+// ===========================================================================
 // Video player screen (R4 V2) - full-screen 1:1 playback (web drawVideoPlayer).
 // HW decode via NanoVideo (mVideoTest). Lazy: decoder created on open, freed on
 // close. The control panel / scene-search / options come next.
@@ -589,13 +809,17 @@ void NanoMenu::openVideoPlayer(const std::vector<Ps3Item>& list, int listSel) {
     // Stop background music so the video owns the audio path (web 12350).
     if (mMusicPlayer.isPlaying()) mMusicPlayer.pause();
 
-    // Open the file's audio track in a second HW audio engine; it is started by videoTick
-    // once the first picture frame lands (avoids the decode-warmup desync). If the file has
-    // no audio track, open() fails and we run silent.
-    mVidHasAudio = mVidAudio.open(mVideos[vi].file);
+    // Enumerate audio + subtitle tracks (and external sidecars) for this title.
+    vidBuildTracks(mVideos[vi].file);
+    mVidAudCur = 0; mVidSubCur = -1;
+    // Open the chosen audio track in a second HW audio engine; it is started by videoTick
+    // once the first picture frame lands (avoids the decode-warmup desync).
+    mVidHasAudio = false;
+    if (!mVidAudTracks.empty()) {
+        mVidHasAudio = mVidAudio.open(mVideos[vi].file, mVidAudTracks[0].idx);
+        if (mVidHasAudio) mVidAudio.setVolume(mVidVolume); else mVidAudio.release();
+    }
     mVidAudioStarted = false;
-    if (mVidHasAudio) mVidAudio.setVolume(mVidVolume);
-    else mVidAudio.release();
 
     mVidActive = true;
     mVidPlaying = true;
@@ -625,6 +849,7 @@ void NanoMenu::videoHardFree() {
     mVidActive = false; mVidPlaying = false;
     mVidEnterRaw = 0.0f; mVidEnterT = 0.0f;
     mVidCpOpen = mVidCpClosing = mVidSubOpen = mVidGoToOpen = false;
+    mVidAudTracks.clear(); mVidSubTracks.clear(); mVidAudCur = 0; mVidSubCur = -1;
 }
 
 void NanoMenu::vidShowTransient(const std::string& text, float ms) {
@@ -662,11 +887,16 @@ void NanoMenu::vidStepTitle(int dir) {
     if (vi < 0 || vi >= (int)mVideos.size()) return;
     mVideoTest->release();
     if (!mVideoTest->open(mVideos[vi].file)) return;
-    // re-open the audio track for the new title (videoTick starts it on the first frame)
+    // rebuild tracks + re-open the audio for the new title (videoTick starts it on frame 1)
+    vidBuildTracks(mVideos[vi].file);
+    mVidAudCur = 0; mVidSubCur = -1;
     mVidAudio.release();
-    mVidHasAudio = mVidAudio.open(mVideos[vi].file);
+    mVidHasAudio = false;
+    if (!mVidAudTracks.empty()) {
+        mVidHasAudio = mVidAudio.open(mVideos[vi].file, mVidAudTracks[0].idx);
+        if (mVidHasAudio) mVidAudio.setVolume(mVidVolume); else mVidAudio.release();
+    }
     mVidAudioStarted = false;
-    if (mVidHasAudio) mVidAudio.setVolume(mVidVolume);
     // web vidStepTitle resets rate / stopped / play state.
     mVidRate = 1.0; mVidStopped = false; mVidPlaying = true;
     mVidAbA = mVidAbB = -1.0;
@@ -764,6 +994,7 @@ void NanoMenu::videoTick() {
         mVideoTest->release(); delete mVideoTest; mVideoTest = nullptr;
         if (mVidHasAudio) { mVidAudio.release(); mVidHasAudio = false; }
         mVidCpOpen = mVidCpClosing = mVidSubOpen = mVidGoToOpen = false;
+        mVidAudTracks.clear(); mVidSubTracks.clear(); mVidAudCur = 0; mVidSubCur = -1;
     }
     // While leaving (fading out) keep the audio quiet even before the decoder is freed.
     if (!mVidActive && mVidHasAudio && mVidAudio.isPlaying()) mVidAudio.pause();
@@ -865,6 +1096,35 @@ bool NanoMenu::renderVideoPlayer() {
         mVideoTest->draw(W, H, 0.0f, 0.0f, (float)W, (float)H, et, mVidScreenMode);
     }
     if (!mVideoTest) return et > 0.001f;   // exit fade: black only
+
+    // Layer 1b: active subtitle cue (embedded text track or external sidecar), web 12739-12753.
+    {
+        const std::vector<VidCue>* cues = vidActiveSubCues();
+        if (cues) {
+            double tc = mVideoTest->position();
+            const std::string* txt = nullptr;
+            for (const auto& c : *cues) if (tc >= c.t && tc < c.t + c.d) { txt = &c.text; break; }
+            if (txt && !txt->empty()) {
+                float fs = ps3::fontScale(40.0f);   // web round(CH*0.040)
+                float lh = H * 0.05f, ow = fmaxf(1.5f, H * 0.004f);
+                std::vector<std::string> ls; size_t lp = 0, nl; const std::string& s = *txt;
+                while ((nl = s.find('\n', lp)) != std::string::npos) { ls.push_back(s.substr(lp, nl - lp)); lp = nl + 1; }
+                ls.push_back(s.substr(lp));
+                float y0s = H * 0.855f - (float)(ls.size() - 1) * lh;   // multi-line stacks upward
+                for (size_t li = 0; li < ls.size(); li++) {
+                    if (ls[li].empty()) continue;
+                    float yy = y0s + (float)li * lh;
+                    float tw = measureText(ls[li].c_str(), fs);
+                    float x = W * 0.5f - tw * 0.5f, topy = ps3::baselineToTopY(yy, fs);
+                    for (int oy = -1; oy <= 1; oy++) for (int ox = -1; ox <= 1; ox++) {   // emulated dark outline
+                        if (!ox && !oy) continue;
+                        drawText(ls[li].c_str(), x + ox * ow, topy + oy * ow, fs, 0, 0, 0, 0.9f * et);
+                    }
+                    drawText(ls[li].c_str(), x, topy, fs, 1.0f, 1.0f, 1.0f, 0.98f * et);
+                }
+            }
+        }
+    }
 
     // Layer 2: buffering spinner (warmup / post-seek refill / stall) - icon 114 rotating at
     // centre + "Buffering..." below it (web drawVideoPlayer 12754-12756).
@@ -1091,6 +1351,13 @@ void NanoMenu::vidSubBuild(int kind) {
                 std::string s = kVidAvSet[i]; s += "   "; s += keys[i] ? "Automatic" : "Off";
                 mVidSubOpts.push_back(s);
             } } break;
+        case 4: mVidSubLabel = "Audio Options";   // one row per audio track
+            for (const auto& a : mVidAudTracks) mVidSubOpts.push_back(a.name);
+            mVidSubSel = (mVidAudCur >= 0 && mVidAudCur < (int)mVidAudTracks.size()) ? mVidAudCur : 0; break;
+        case 5: mVidSubLabel = "Subtitle Options";   // Off + each subtitle track
+            mVidSubOpts.push_back("Off");
+            for (const auto& t : mVidSubTracks) mVidSubOpts.push_back(t.name + (t.external ? "  (External)" : ""));
+            mVidSubSel = mVidSubCur + 1; break;
     }
 }
 
@@ -1122,6 +1389,16 @@ void NanoMenu::vidSubConfirm() {
             mVidDispMode = std::string(kVidAvSet[sel]) + ": " + (*keys[sel] ? "Automatic" : "Off");
             mVidDispModeUntil = mEffectTime + 1.8f;
             vidSubBuild(3); mVidSubSel = sel; } break;
+        case 4:   // audio track
+            vidSetAudioTrack(sel); mVidSubOpen = false; break;
+        case 5: { // subtitle track (row 0 = Off)
+            mVidSubCur = sel - 1;
+            if (mVidSubCur >= 0 && mVidSubCur < (int)mVidSubTracks.size()) {
+                const VidSubTrk& t = mVidSubTracks[mVidSubCur];
+                mVidDispMode = std::string("Subtitle: ") + t.name + (t.external ? " (External)" : "");
+            } else { mVidSubCur = -1; mVidDispMode = "Subtitle: Off"; }
+            mVidDispModeUntil = mEffectTime + 1.8f;
+            mVidSubOpen = false; } break;
     }
 }
 
@@ -1151,16 +1428,12 @@ void NanoMenu::vidPanelActivate() {
     else if (!strcmp(a, "goto"))       vidGoToOpen();
     else if (!strcmp(a, "scene"))      vidShowTransient("No chapters", 1400.0f);
     else if (!strcmp(a, "audio")) {
-        // The video's own audio track plays via mVidAudio; track switching is not exposed,
-        // so this names the active track or the firmware "no audio" notice.
-        const VideoItem& v = mVideos[mVidList[mVidIdx]];
-        vidPanelClose();
-        if (mVidHasAudio) vidShowTransient(std::string("Audio Track:  ") + (v.acodec.empty() ? "On" : v.acodec), 1600.0f);
-        else vidShowTransient("There is no audio.", 1600.0f);
+        if (mVidAudTracks.empty()) { vidPanelClose(); vidShowTransient("There is no audio.", 1600.0f); }
+        else { vidSubBuild(4); mVidSubOpen = true; }
     }
     else if (!strcmp(a, "subtitle")) {
-        vidPanelClose();
-        vidShowTransient("There are no subtitle options available.", 1700.0f);
+        if (mVidSubTracks.empty()) { vidPanelClose(); vidShowTransient("There are no subtitle options available.", 1700.0f); }
+        else { vidSubBuild(5); mVidSubOpen = true; }
     }
     else if (!strcmp(a, "del")) { vidPanelClose(); vidShowTransient("Delete completed.", 1400.0f); }
     else if (!strcmp(a, "chgicon")) {
