@@ -586,9 +586,16 @@ void NanoMenu::openVideoPlayer(const std::vector<Ps3Item>& list, int listSel) {
     mVideoTest = new NanoVideo();
     if (!mVideoTest->open(mVideos[vi].file)) { delete mVideoTest; mVideoTest = nullptr; return; }
 
-    // Stop background music so the video owns the audio path (web 12350); video audio
-    // output itself is added next - the picture plays now.
+    // Stop background music so the video owns the audio path (web 12350).
     if (mMusicPlayer.isPlaying()) mMusicPlayer.pause();
+
+    // Open the file's audio track in a second HW audio engine; it is started by videoTick
+    // once the first picture frame lands (avoids the decode-warmup desync). If the file has
+    // no audio track, open() fails and we run silent.
+    mVidHasAudio = mVidAudio.open(mVideos[vi].file);
+    mVidAudioStarted = false;
+    if (mVidHasAudio) mVidAudio.setVolume(mVidVolume);
+    else mVidAudio.release();
 
     mVidActive = true;
     mVidPlaying = true;
@@ -613,6 +620,7 @@ void NanoMenu::closeVideoPlayer() {
 // and process shutdown. Joins the worker, frees codec/extractor/surface/OES texture.
 void NanoMenu::videoHardFree() {
     if (mVideoTest) { mVideoTest->release(); delete mVideoTest; mVideoTest = nullptr; }
+    if (mVidHasAudio) { mVidAudio.release(); mVidHasAudio = false; }
     mVidActive = false; mVidPlaying = false;
     mVidEnterRaw = 0.0f; mVidEnterT = 0.0f;
     mVidCpOpen = mVidCpClosing = mVidSubOpen = mVidGoToOpen = false;
@@ -626,9 +634,10 @@ void NanoMenu::vidTogglePlay() {
     if (!mVideoTest) return;
     // web vidPlayToggle: forces rate 1, un-stops (restart from 0 if stopped), flips playing.
     mVidRate = 1.0; mVidTransientUntil = 0.0f;
-    if (mVidStopped) { mVidStopped = false; mVideoTest->seek(0.0); }
+    if (mVidStopped) { mVidStopped = false; mVideoTest->seek(0.0); if (mVidHasAudio) mVidAudio.seek(0.0); }
     mVidPlaying = !mVidPlaying;
     if (mVidPlaying) mVideoTest->play(); else mVideoTest->pause();
+    // audio play/pause is reconciled in videoTick (single source of truth)
     mVidHintUntil = mEffectTime + 1.5f;
 }
 
@@ -640,6 +649,7 @@ void NanoMenu::vidSeek(double deltaSec) {
     if (p < 0.0) p = 0.0;
     if (dur > 0.0 && p > dur - 0.05) p = dur - 0.05;   // keep inside the stream (no EOS trip)
     mVideoTest->seek(p);
+    if (mVidHasAudio) mVidAudio.seek(p);
     mVidHintUntil = mEffectTime + 1.5f;
 }
 
@@ -651,6 +661,11 @@ void NanoMenu::vidStepTitle(int dir) {
     if (vi < 0 || vi >= (int)mVideos.size()) return;
     mVideoTest->release();
     if (!mVideoTest->open(mVideos[vi].file)) return;
+    // re-open the audio track for the new title (videoTick starts it on the first frame)
+    mVidAudio.release();
+    mVidHasAudio = mVidAudio.open(mVideos[vi].file);
+    mVidAudioStarted = false;
+    if (mVidHasAudio) mVidAudio.setVolume(mVidVolume);
     // web vidStepTitle resets rate / stopped / play state.
     mVidRate = 1.0; mVidStopped = false; mVidPlaying = true;
     mVidAbA = mVidAbB = -1.0;
@@ -662,6 +677,7 @@ void NanoMenu::vidStop() {
     if (!mVideoTest) return;
     mVideoTest->pause();
     mVideoTest->seek(0.0);
+    if (mVidHasAudio) { mVidAudio.pause(); mVidAudio.seek(0.0); }
     mVidPlaying = false; mVidStopped = true; mVidRate = 1.0;
     mVidTransientUntil = 0.0f;
     mVidHintUntil = mEffectTime + 1.5f;
@@ -706,6 +722,7 @@ void NanoMenu::vidStepFrame(int dir) {
     if (p < 0.0) p = 0.0;
     if (dur > 0.0 && p > dur - 0.02) p = dur - 0.02;
     mVideoTest->seek(p);
+    if (mVidHasAudio) { mVidAudio.pause(); mVidAudio.seek(p); }   // frame step keeps audio paused on the frame
     mVidHintUntil = mEffectTime + 1.5f;
 }
 
@@ -717,6 +734,7 @@ void NanoMenu::vidFlash(int dir) {
     if (p < 0.0) p = 0.0;
     if (dur > 0.0 && p > dur - 0.05) p = dur - 0.05;
     mVideoTest->seek(p);
+    if (mVidHasAudio) mVidAudio.seek(p);
     vidShowTransient(dir > 0 ? "Instant Advance" : "Instant Replay", 1200.0f);
     mVidHintUntil = mEffectTime + 1.5f;
 }
@@ -743,8 +761,11 @@ void NanoMenu::videoTick() {
     mVidEnterT = mVidEnterRaw * mVidEnterRaw * (3.0f - 2.0f * mVidEnterRaw);
     if (!mVidActive && mVidEnterRaw <= 0.001f && mVideoTest) {
         mVideoTest->release(); delete mVideoTest; mVideoTest = nullptr;
+        if (mVidHasAudio) { mVidAudio.release(); mVidHasAudio = false; }
         mVidCpOpen = mVidCpClosing = mVidSubOpen = mVidGoToOpen = false;
     }
+    // While leaving (fading out) keep the audio quiet even before the decoder is freed.
+    if (!mVidActive && mVidHasAudio && mVidAudio.isPlaying()) mVidAudio.pause();
     if (!mVidActive || !mVideoTest) return;
 
     // Timer-driven scan/slow: NanoVideo only plays at 1x, so any non-1x rate pauses
@@ -775,16 +796,36 @@ void NanoMenu::videoTick() {
         else if (!wantNative && mVideoTest->isPlaying()) mVideoTest->pause();
     }
 
+    // Audio (the video's own track) follows the picture: held until the first frame lands,
+    // then plays at normal speed, pauses during scan/slow/stop/pause, and resnaps when it
+    // drifts > 0.3s (web vidSyncAux). The picture is the master clock.
+    if (mVidHasAudio) {
+        bool wantAudio = mVidPlaying && mVidRate == 1.0 && !mVidStopped;
+        double vp = mVideoTest->position();
+        if (wantAudio && vp > 0.0) {
+            if (!mVidAudioStarted) { mVidAudio.seek(vp); mVidAudio.play(); mVidAudioStarted = true; }
+            else {
+                if (!mVidAudio.isPlaying()) mVidAudio.play();
+                double ap = mVidAudio.position();
+                if (fabs(ap - vp) > 0.3) mVidAudio.seek(vp);
+            }
+        } else if (!wantAudio && mVidAudio.isPlaying()) {
+            mVidAudio.pause();
+        }
+    }
+
     // A-B repeat: loop back to A once playback passes B.
     if (mVidRepeat == 3 && mVidAbA >= 0.0 && mVidAbB > mVidAbA
         && mVideoTest->position() >= mVidAbB) {
         mVideoTest->seek(mVidAbA);
+        if (mVidHasAudio) mVidAudio.seek(mVidAbA);
     }
 
     // End of stream: repeat / auto-advance / stop (web vidOnEnded).
     if (mVidPlaying && mVideoTest->ended()) {
         if (mVidRepeat == 1 || mVidRepeat == 2) {          // Repeat On / Title Repeat
             mVideoTest->seek(0.0); mVideoTest->play();
+            if (mVidHasAudio) { mVidAudio.seek(0.0); mVidAudio.play(); }
         } else if (mVidIdx < (int)mVidList.size() - 1) {    // auto-advance
             vidStepTitle(1);
         } else {
@@ -1013,7 +1054,9 @@ void NanoMenu::vidSubConfirm() {
             } else { mVidRepeat = sel; mVidAbA = mVidAbB = -1.0; }
             mVidSubOpen = false; break;
         case 2:   // volume
-            mVidVolume = 1.0f - sel * 0.2f; mVidSubOpen = false; break;
+            mVidVolume = 1.0f - sel * 0.2f;
+            if (mVidHasAudio) mVidAudio.setVolume(mVidVolume);
+            mVidSubOpen = false; break;
         case 3: { // AV settings: toggle the key, flash the pill, keep the submenu open
             bool* keys[4] = {&mVidAvBnr, &mVidAvFnr, &mVidAvMnr, &mVidAvUpscale};
             *keys[sel] = !*keys[sel];
@@ -1049,12 +1092,12 @@ void NanoMenu::vidPanelActivate() {
     else if (!strcmp(a, "goto"))       vidGoToOpen();
     else if (!strcmp(a, "scene"))      vidShowTransient("No chapters", 1400.0f);
     else if (!strcmp(a, "audio")) {
-        // Audio decode/output is not wired yet (flagged gap): show the firmware notice,
-        // or name the clip's audio codec if it has one.
+        // The video's own audio track plays via mVidAudio; track switching is not exposed,
+        // so this names the active track or the firmware "no audio" notice.
         const VideoItem& v = mVideos[mVidList[mVidIdx]];
         vidPanelClose();
-        if (v.acodec.empty()) vidShowTransient("There is no audio.", 1600.0f);
-        else vidShowTransient(std::string("Audio Track:  ") + v.acodec, 1600.0f);
+        if (mVidHasAudio) vidShowTransient(std::string("Audio Track:  ") + (v.acodec.empty() ? "On" : v.acodec), 1600.0f);
+        else vidShowTransient("There is no audio.", 1600.0f);
     }
     else if (!strcmp(a, "subtitle")) {
         vidPanelClose();

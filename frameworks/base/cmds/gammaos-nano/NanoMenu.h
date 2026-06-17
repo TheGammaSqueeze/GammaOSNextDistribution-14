@@ -1557,7 +1557,13 @@ private:
     bool   mVidStopped = false;             // Stop pressed (paused at t=0)
     int    mVidRepeat = 0;                  // 0 off,1 on,2 title,3 A-B,4 folder
     double mVidAbA = -1.0, mVidAbB = -1.0;  // A-B repeat points (seconds; -1 = unset)
-    float  mVidVolume = 1.0f;               // 0..1 (applied once NanoVideo gains audio)
+    float  mVidVolume = 1.0f;               // 0..1 (applied to the video's audio track)
+    // The video file's audio track: a second HW audio engine (AMediaExtractor/AMediaCodec ->
+    // AAudio) opened on the same file, the picture is the master clock and the audio resnaps
+    // when it drifts > 0.3s (web vidSyncAux). Lazy: opened on play, released on leave.
+    NanoAudioPlayer mVidAudio;
+    bool   mVidHasAudio = false;
+    bool   mVidAudioStarted = false;        // audio held until the first video frame (avoids warmup desync)
     bool   mVidAvBnr = false, mVidAvFnr = false, mVidAvMnr = false, mVidAvUpscale = false;
     double mVidScanLastTick = -1.0;         // wall-clock anchor for timer-driven scan
     double mVidScanPos = 0.0;               // commanded scan clock (decoder position lags + snaps to keyframes)
