@@ -228,7 +228,7 @@ void NanoMenu::musicEnsureLoaded() {
     // Rebuild the Music column at the next settled root so the albums parsed from
     // nano_music.json appear immediately, independent of any rescan that follows.
     mMusicCatsStale = true;
-    if (!mMusicFolders.empty() && !mMusicScanRunning) musicScanAsync();
+    if (!mMusicScanRunning) musicScanAsync();   // always: default media dirs are scanned too
 }
 
 // ---------------------------------------------------------------------------
@@ -303,11 +303,13 @@ bool NanoMenu::parseM3u(const std::string& m3uPath, NanoMenu::MusicPlaylist& out
 // it is ready would see an empty tree and could wipe the saved library. We wait
 // for boot completion AND at least one configured folder to be openable.
 bool NanoMenu::musicStorageReady() const {
-    if (mMusicFolders.empty()) return true;   // nothing to scan; trivially ready
+    // Defaults live on storage that mounts at/after boot, so always wait for boot.
     char bc[PROPERTY_VALUE_MAX] = {0};
     property_get("sys.boot_completed", bc, "0");
     if (bc[0] != '1') return false;
-    for (const auto& f : mMusicFolders) {
+    std::vector<std::string> dirs = nanoMediaScanDirs(2, mMusicFolders);
+    if (dirs.empty()) return true;   // nothing to scan (worker guards against wiping)
+    for (const auto& f : dirs) {
         DIR* d = opendir(f.c_str());
         if (d) { closedir(d); return true; }
     }
@@ -336,7 +338,7 @@ void NanoMenu::musicRefresh() {
 
 void NanoMenu::musicScanThreadFunc() {
     // Snapshot the inputs so the worker never races the render thread.
-    std::vector<std::string> folders = mMusicFolders;
+    std::vector<std::string> folders = nanoMediaScanDirs(2, mMusicFolders);   // user folders + default media dirs
     // mtime cache: path -> existing track (carry metadata over if unchanged). When
     // the on-disk library predates the current metadata-parser version, drop the
     // cache so every track re-probes once and picks up the real container tags.
@@ -348,20 +350,24 @@ void NanoMenu::musicScanThreadFunc() {
     std::vector<std::string> files;
     std::vector<std::string> m3uFiles;
     for (const auto& f : folders) scanDirRecursive(f, files, 0, &m3uFiles);
-    // Storage-not-ready guard: if we found nothing but a configured folder is not
-    // even openable (its volume is not mounted yet), do NOT publish - that would
-    // wipe a previously-scanned library. Bail and let the UI retry once storage
-    // mounts. A genuinely empty (but mounted+openable) folder still publishes.
-    if (files.empty() && !folders.empty()) {
-        bool anyUnreadable = false;
-        for (const auto& f : folders) {
-            DIR* d = opendir(f.c_str());
-            if (!d) anyUnreadable = true; else closedir(d);
+    // Storage-not-ready guard: never publish an empty result that would wipe the
+    // saved library when a source is merely not mounted yet. Publish empty only when
+    // every scan dir is openable (mounted + genuinely empty), or there are no scan
+    // dirs and nothing was saved before.
+    if (files.empty()) {
+        bool safe;
+        if (folders.empty()) safe = cacheVec.empty();
+        else {
+            safe = true;
+            for (const auto& f : folders) {
+                DIR* d = opendir(f.c_str());
+                if (!d) safe = false; else closedir(d);
+            }
         }
-        if (anyUnreadable) {
+        if (!safe) {
             mMusicScanRunning = false;
             mMusicScanPending = true;
-            ALOGW("NanoMenu: music scan found no files and a folder is unreadable; "
+            ALOGW("NanoMenu: music scan found no files and a source is unreadable; "
                   "deferring instead of wiping the library (storage not ready)");
             return;
         }

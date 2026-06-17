@@ -1429,6 +1429,14 @@ private:
     bool mMusicScanPending = false;        // scan deferred until external storage is mounted
     bool musicStorageReady() const;        // true when the imported folders are reachable
     void musicRefresh();                   // user-triggered rescan of the imported folders
+    // Default media directories: nano always scans the standard media folders that
+    // exist across every storage medium (internal + each mounted external volume),
+    // in addition to any folders the user imported. kind: 0 = photo, 1 = video,
+    // 2 = music. nanoDefaultMediaDirs returns the existing standard dirs; the *ScanDirs
+    // helper merges them with the user folders (deduped). Both skip paths that do not
+    // exist, so an unmounted card or missing folder is handled gracefully.
+    std::vector<std::string> nanoDefaultMediaDirs(int kind) const;
+    std::vector<std::string> nanoMediaScanDirs(int kind, const std::vector<std::string>& userFolders) const;
     // persistence + lazy load
     int64_t musicConfigStamp() const;
     bool loadMusicConfig();

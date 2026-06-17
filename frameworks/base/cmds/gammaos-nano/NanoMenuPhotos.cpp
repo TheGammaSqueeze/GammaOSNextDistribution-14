@@ -471,11 +471,17 @@ void NanoMenu::savePhotoConfig() {
 // Lazy load + storage gate + refresh (mirror musicEnsureLoaded / musicOnCatFocus).
 // ---------------------------------------------------------------------------
 bool NanoMenu::photoStorageReady() const {
-    for (const auto& f : mPhotoFolders) {
+    // Defaults live on storage that mounts at/after boot, so always wait for boot.
+    char bc[PROPERTY_VALUE_MAX] = {0};
+    property_get("sys.boot_completed", bc, "0");
+    if (bc[0] != '1') return false;
+    std::vector<std::string> dirs = nanoMediaScanDirs(0, mPhotoFolders);
+    if (dirs.empty()) return true;   // nothing to scan (worker guards against wiping)
+    for (const auto& f : dirs) {
         struct stat st;
         if (stat(f.c_str(), &st) == 0 && S_ISDIR(st.st_mode)) return true;
     }
-    return mPhotoFolders.empty();
+    return false;
 }
 
 void NanoMenu::photoOnCatFocus() {
@@ -490,7 +496,7 @@ void NanoMenu::photoEnsureLoaded() {
     mPhotoLoaded = true;
     loadPhotoConfig();
     mPhotoCatsStale = true;
-    if (!mPhotoFolders.empty() && !mPhotoScanRunning) photoScanAsync();
+    if (!mPhotoScanRunning) photoScanAsync();   // always: default media dirs are scanned too
 }
 
 void NanoMenu::photoRefresh() {
@@ -544,7 +550,7 @@ void NanoMenu::photoScanAsync() {
 }
 
 void NanoMenu::photoScanThreadFunc() {
-    std::vector<std::string> folders = mPhotoFolders;
+    std::vector<std::string> folders = nanoMediaScanDirs(0, mPhotoFolders);   // user folders + default media dirs
     bool forceReprobe = (mPhotoCfgVersion < kPhotoMetaVersion);
     std::vector<PhotoItem> cacheVec = mPhotos;
     std::map<std::string, const PhotoItem*> cache;
@@ -552,6 +558,26 @@ void NanoMenu::photoScanThreadFunc() {
 
     std::vector<std::string> files;
     for (const auto& f : folders) scanPhotosRecursive(f, files, 0);
+    // Storage-not-ready guard: never publish an empty result that would wipe the
+    // saved library when a source is merely not mounted yet. Publish empty only when
+    // every scan dir is openable (mounted + genuinely empty), or there are no scan
+    // dirs and nothing was saved before.
+    if (files.empty()) {
+        bool safe;
+        if (folders.empty()) safe = cacheVec.empty();
+        else {
+            safe = true;
+            for (const auto& f : folders) {
+                DIR* d = opendir(f.c_str());
+                if (!d) safe = false; else closedir(d);
+            }
+        }
+        if (!safe) {
+            mPhotoScanRunning = false; mPhotoScanPending = true;
+            ALOGI("NanoMenu: photo scan found nothing + a source is unreadable; deferring");
+            return;
+        }
+    }
     std::sort(files.begin(), files.end());
     files.erase(std::unique(files.begin(), files.end()), files.end());
 

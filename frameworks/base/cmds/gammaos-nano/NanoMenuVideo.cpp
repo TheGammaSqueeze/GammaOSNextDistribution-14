@@ -214,15 +214,68 @@ void NanoMenu::videoEnsureLoaded() {
     loadVideoConfig();
     videoSortApply();
     mVideoCatsStale = true;
-    if (!mVideoFolders.empty() && !mVideoScanRunning) videoScanAsync();
+    if (!mVideoScanRunning) videoScanAsync();   // always: default media dirs are scanned too
+}
+
+// Standard media subdirectories scanned on every storage medium, in addition to
+// the user's imported folders, so media on internal storage or any inserted SD/USB
+// card is found automatically. Only directories that actually exist are returned, so
+// an unmounted volume or absent folder simply contributes nothing.
+std::vector<std::string> NanoMenu::nanoDefaultMediaDirs(int kind) const {
+    std::vector<const char*> subs;
+    if (kind == 0)      subs = {"DCIM", "Pictures"};          // photo
+    else if (kind == 1) subs = {"DCIM", "Movies"};            // video
+    else                subs = {"Music"};                     // music
+    // Storage roots: internal + every mounted external volume under /storage. The
+    // internal root is "/storage/emulated/0" (NOT "/sdcard"): the folder picker stores
+    // user folders with that prefix, so using the same prefix lets the merge below
+    // string-dedup a default dir against an identical user folder (the two are the
+    // same directory via different paths and would otherwise be scanned twice).
+    // Skip the "emulated" pool dir, the "self" symlink namespace, and the synthetic
+    // "00000000-0000-0000-0000-*" volume ids (vold's internal-primary view + its
+    // pre-created public mount points; the internal one duplicates the emulated view
+    // and the rest are empty placeholders). A real SD/USB card mounts under its own
+    // volume serial / UUID.
+    std::vector<std::string> roots;
+    roots.push_back("/storage/emulated/0");
+    if (DIR* d = opendir("/storage")) {
+        struct dirent* e;
+        while ((e = readdir(d)) != nullptr) {
+            if (e->d_name[0] == '.') continue;
+            std::string n = e->d_name;
+            if (n == "emulated" || n == "self") continue;
+            if (n.rfind("00000000-0000-0000-0000-", 0) == 0) continue;   // synthetic/internal
+            roots.push_back("/storage/" + n);
+        }
+        closedir(d);
+    }
+    std::vector<std::string> out;
+    for (const auto& r : roots) {
+        for (const char* s : subs) {
+            std::string p = r + "/" + s;
+            struct stat st;
+            if (stat(p.c_str(), &st) == 0 && S_ISDIR(st.st_mode)) out.push_back(p);
+        }
+    }
+    return out;
+}
+
+// User-imported folders merged with the existing default media dirs (deduped).
+std::vector<std::string> NanoMenu::nanoMediaScanDirs(int kind, const std::vector<std::string>& userFolders) const {
+    std::vector<std::string> out = userFolders;
+    for (const auto& d : nanoDefaultMediaDirs(kind))
+        if (std::find(out.begin(), out.end(), d) == out.end()) out.push_back(d);
+    return out;
 }
 
 bool NanoMenu::videoStorageReady() const {
-    if (mVideoFolders.empty()) return true;
+    // Defaults live on storage that mounts at/after boot, so always wait for boot.
     char bc[PROPERTY_VALUE_MAX] = {0};
     property_get("sys.boot_completed", bc, "0");
     if (bc[0] != '1') return false;
-    for (const auto& f : mVideoFolders) {
+    std::vector<std::string> dirs = nanoMediaScanDirs(1, mVideoFolders);
+    if (dirs.empty()) return true;   // nothing to scan (worker guards against wiping)
+    for (const auto& f : dirs) {
         DIR* d = opendir(f.c_str());
         if (d) { closedir(d); return true; }
     }
@@ -245,7 +298,7 @@ void NanoMenu::videoRefresh() {
 }
 
 void NanoMenu::videoScanThreadFunc() {
-    std::vector<std::string> folders = mVideoFolders;
+    std::vector<std::string> folders = nanoMediaScanDirs(1, mVideoFolders);   // user folders + default media dirs
     bool forceReprobe = (mVideoCfgVersion < kVideoMetaVersion);
     std::vector<VideoItem> cacheVec = mVideos;
     std::map<std::string, const VideoItem*> cache;
@@ -257,14 +310,17 @@ void NanoMenu::videoScanThreadFunc() {
 
     std::vector<std::string> files;
     for (const auto& f : folders) vScanDirRecursive(f, files, 0);
-    // Storage-not-ready guard: do not publish an empty result that would wipe the
-    // library if a configured folder's volume is not mounted yet.
-    if (files.empty() && !folders.empty()) {
-        bool anyUnreadable = false;
-        for (const auto& f : folders) { DIR* d = opendir(f.c_str()); if (!d) anyUnreadable = true; else closedir(d); }
-        if (anyUnreadable) {
+    // Storage-not-ready guard: never publish an empty result that would wipe the
+    // saved library when the source is merely not mounted yet. Publish empty only
+    // when every scan dir is openable (mounted + genuinely empty), or there are no
+    // scan dirs and nothing was saved before.
+    if (files.empty()) {
+        bool safe;
+        if (folders.empty()) safe = cacheVec.empty();
+        else { safe = true; for (const auto& f : folders) { DIR* d = opendir(f.c_str()); if (!d) safe = false; else closedir(d); } }
+        if (!safe) {
             mVideoScanRunning = false; mVideoScanPending = true;
-            VLOGW("NanoMenu: video scan found nothing + a folder is unreadable; deferring");
+            VLOGW("NanoMenu: video scan found nothing + a source is unreadable; deferring");
             return;
         }
     }
