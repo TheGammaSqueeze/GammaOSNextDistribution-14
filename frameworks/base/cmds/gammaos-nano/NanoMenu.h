@@ -1129,6 +1129,14 @@ private:
     // watchdog must skip its stall check or it would abort the whole process (which
     // also kills background music) on every power-button sleep.
     std::atomic<bool> mInDrmSleep{false};
+    // True while opening a video on the render thread. NanoVideo::open() (and track
+    // enumeration / audio open) make synchronous binder calls into MediaExtractorService
+    // and the codec service that can block for seconds when those services are cold or
+    // contended (e.g. while a previous title's async teardown is still settling). The
+    // render loop legitimately stops bumping the heartbeat during that call, so the
+    // watchdog skips its stall check while this is set (same contract as mInDrmSleep)
+    // rather than aborting the process on a slow-but-not-hung open.
+    std::atomic<bool> mVidOpening{false};
     void   startRenderWatchdog();
     // Fullscreen dialog page (mPs3DlgKind==0). Mirrors web DIALOG_TEMPLATES +
     // drawDialog: a body type, an optional vector illustration, a notice line and
@@ -1850,15 +1858,46 @@ private:
     void photoShowBanner(const std::string& text);
     void drawPhotoBanner();
 
+    // ==== Global search (Select on the home XMB) ==========================
+    // A categorized results overlay across every XMB section (Games, Music, Photos,
+    // Videos). Lazy: nothing is built until the user runs a search; the result list
+    // is freed on close so an idle launcher holds no search state. Reuses the OSK for
+    // the query and each section's existing open/launch path to activate a result.
+    struct GSearchResult {
+        int section = 0;          // 0 Games, 1 Music, 2 Photo, 3 Video
+        std::string label;        // primary display text
+        std::string sub;          // secondary text (system / artist+album / date / codec)
+        int kind = 0;             // dispatch kind (PS3_ROM / PS3_RECENT / PS3_APP / PS3_MUSIC_TRACK / PS3_VIDEO_FILE / PS3_PHOTO)
+        int a = 0, b = 0;         // dispatch indices (kind specific)
+        std::string payload;      // dispatch payload (app package)
+    };
+    bool mGSearchActive = false;
+    std::string mGSearchQuery;
+    std::vector<GSearchResult> mGSearchResults;
+    int mGSearchSel = 0;          // selected result index (into mGSearchResults)
+    int mGSearchScrollRow = 0;    // first visible visual row (results + section headers)
+    float mGSearchAnim = 0.0f;    // open ease
+    void gsearchOpen();           // Select pressed on the home XMB: open the query OSK
+    void gsearchBuild(const std::string& q);  // run the search, populate results
+    void gsearchClose();
+    void gsearchMove(int dir);    // up/down through results
+    void gsearchActivate();       // launch / open the selected result
+    int  gsearchVisRow(int resultIdx) const;  // visual row of a result (counts preceding headers)
+    void renderGlobalSearch();    // draw the overlay (returns nothing; caller gates on mGSearchActive)
+
     // VIDEO (R4) - the HW decoder instance for the player. Lazily created in
     // openVideoPlayer, fully torn down in closeVideoPlayer/videoTick so an idle launcher
     // holds no video resources.
     NanoVideo* mVideoTest = nullptr;
-    // A decoder being torn down asynchronously (releaseAsync): the blocking OMX stop
-    // runs off the render thread; videoTick polls it and frees it once done, so the
-    // render loop never blocks on teardown (which would trip the render watchdog).
-    NanoVideo* mVidDying = nullptr;
-    void vidReapDying();   // render thread: finish + free mVidDying when its async teardown completes
+    // Decoders being torn down asynchronously (releaseAsync): the worker join + the
+    // blocking OMX stop run entirely off the render thread, and vidReapDying frees each
+    // wrapper once its background teardown completes. A LIST (not a single pointer): the
+    // render thread must never block waiting on an in-flight teardown, so it can never
+    // synchronously release a previous one to make room - it just queues another and
+    // reaps them as they finish. Drains to empty when idle (no leak).
+    std::vector<NanoVideo*> mVidDying;
+    void vidAsyncFree(NanoVideo* v);   // hand v to async teardown + queue it for reaping
+    void vidReapDying();               // free any queued decoder whose async teardown is done
     // scan worker
     std::mutex mPhotoScanMutex;
     std::vector<PhotoItem> mPhotoScanResults;

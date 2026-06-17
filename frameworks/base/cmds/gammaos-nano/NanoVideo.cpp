@@ -379,21 +379,29 @@ void NanoVideo::release() {
     mOpen = false;
 }
 
-// Render thread: stop + join the decode worker (fast), then hand the BLOCKING
-// AMediaCodec_stop/delete + AMediaExtractor_delete to a detached thread so the
-// render loop never blocks (the OMX stop can take many seconds on this hardware,
-// which would freeze the render heartbeat and trip the watchdog).
+// Render thread: signal the worker to quit, then hand the ENTIRE blocking teardown
+// (joining the decode worker + AMediaCodec_stop/delete + AMediaExtractor_delete) to a
+// detached thread. The render loop never blocks. Crucially the worker join is done on
+// the background thread too, NOT the render thread: the worker can be wedged inside an
+// AMediaCodec dequeue while a stop holds the codec lock, so joining it on the render
+// thread would freeze the heartbeat and trip the watchdog (the bug this replaces). The
+// background thread joins the worker first (it exits within a dequeue timeout once mQuit
+// is set, with no concurrent stop to contend the lock), then stops + frees the codec.
 void NanoVideo::releaseAsync() {
     if (mAsyncReleasing) return;                 // already tearing down
     mQuit = true; mPlaying = false; mEnded = false; mOpen = false;
-    if (mWorker.joinable()) mWorker.join();      // worker exits on mQuit within a dequeue timeout (~ms)
-    AMediaCodec* codec = mCodec; mCodec = nullptr;
-    AMediaExtractor* ex = mEx; mEx = nullptr;
+    // Hand the worker thread to the bg teardown. CRUCIAL ordering: mCodec / mEx are NOT
+    // touched here - the decode worker is still running and reads mCodec inside its
+    // AMediaCodec dequeue calls, so nulling/freeing the codec now would crash it (null
+    // deref). The bg thread joins the worker FIRST (it exits on mQuit), and only THEN
+    // stops + frees the codec/extractor, after which nothing reads them.
+    std::thread worker = std::move(mWorker);
     mAsyncDone.store(false);
     mAsyncReleasing = true;
-    mReleaseThread = std::thread([this, codec, ex]() {
-        if (codec) { AMediaCodec_stop(codec); AMediaCodec_delete(codec); }
-        if (ex) AMediaExtractor_delete(ex);
+    mReleaseThread = std::thread([this, w = std::move(worker)]() mutable {
+        if (w.joinable()) w.join();              // decode worker fully stopped before we free its codec
+        if (mCodec) { AMediaCodec_stop(mCodec); AMediaCodec_delete(mCodec); mCodec = nullptr; }
+        if (mEx) { AMediaExtractor_delete(mEx); mEx = nullptr; }
         mAsyncDone.store(true);
     });
 }

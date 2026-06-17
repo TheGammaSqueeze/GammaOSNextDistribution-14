@@ -1255,9 +1255,16 @@ void NanoMenu::openVideoPlayer(const std::vector<Ps3Item>& list, int listSel) {
 
     int vi = mVidList[mVidIdx];
     if (vi < 0 || vi >= (int)mVideos.size()) return;
-    if (mVideoTest) { mVideoTest->release(); delete mVideoTest; mVideoTest = nullptr; }
+    if (mVideoTest) { vidAsyncFree(mVideoTest); mVideoTest = nullptr; }   // never block the render thread on teardown
     mVideoTest = new NanoVideo();
-    if (!mVideoTest->open(mVideos[vi].file)) { delete mVideoTest; mVideoTest = nullptr; return; }
+    // The open + track-enumeration + audio-open below make synchronous media-service
+    // binder calls that can block for seconds when those services are cold/contended;
+    // exempt the render watchdog for the duration so a slow open never aborts nano.
+    mVidOpening.store(true, std::memory_order_relaxed);
+    if (!mVideoTest->open(mVideos[vi].file)) {
+        delete mVideoTest; mVideoTest = nullptr;
+        mVidOpening.store(false, std::memory_order_relaxed); return;
+    }
 
     // Stop background music so the video owns the audio path (web 12350).
     if (mMusicPlayer.isPlaying()) mMusicPlayer.pause();
@@ -1274,6 +1281,7 @@ void NanoMenu::openVideoPlayer(const std::vector<Ps3Item>& list, int listSel) {
         if (mVidHasAudio) mVidAudio.setVolume(mVidVolume); else mVidAudio.release();
     }
     mVidAudioStarted = false;
+    mVidOpening.store(false, std::memory_order_relaxed);
 
     mVidActive = true;
     mVidPlaying = true;
@@ -1342,12 +1350,26 @@ void NanoMenu::closeVideoPlayer() {
 // Immediate, idempotent full teardown of the video decoder + player state. Used where
 // there is no time for the leave fade: sleep/power-press, occlusion by a foreground app,
 // and process shutdown. Joins the worker, frees codec/extractor/surface/OES texture.
-// Finish + free an asynchronously-released decoder once its background teardown
-// (the blocking AMediaCodec_stop) completes. Runs on the render thread (GL teardown).
+// Hand a decoder to async teardown and queue it for reaping. The render thread NEVER
+// blocks: the worker join + OMX stop run on the decoder's own background thread.
+void NanoMenu::vidAsyncFree(NanoVideo* v) {
+    if (!v) return;
+    v->releaseAsync();
+    mVidDying.push_back(v);
+}
+
+// Free any queued decoder whose background teardown has completed. Runs on the render
+// thread (the GL teardown in finishRelease needs the EGL context). Never blocks: it
+// only finishes decoders that already signalled done.
 void NanoMenu::vidReapDying() {
-    if (mVidDying && mVidDying->releaseAsyncDone()) {
-        mVidDying->finishRelease();
-        delete mVidDying; mVidDying = nullptr;
+    for (size_t i = 0; i < mVidDying.size();) {
+        if (mVidDying[i]->releaseAsyncDone()) {
+            mVidDying[i]->finishRelease();
+            delete mVidDying[i];
+            mVidDying.erase(mVidDying.begin() + i);
+        } else {
+            ++i;
+        }
     }
 }
 
@@ -1356,13 +1378,15 @@ void NanoMenu::videoHardFree(bool sync) {
     if (mVidResumeDirty) { saveVideoConfig(); mVidResumeDirty = false; }
     if (mVideoTest) {
         if (sync) { mVideoTest->release(); delete mVideoTest; mVideoTest = nullptr; }
-        else {
-            // Async teardown so the OMX stop never blocks the render thread (watchdog).
-            if (mVidDying) { mVidDying->release(); delete mVidDying; mVidDying = nullptr; }
-            mVideoTest->releaseAsync(); mVidDying = mVideoTest; mVideoTest = nullptr;
-        }
+        else { vidAsyncFree(mVideoTest); mVideoTest = nullptr; }   // OMX stop off the render thread (watchdog)
     }
-    if (sync && mVidDying) { mVidDying->release(); delete mVidDying; mVidDying = nullptr; }
+    // Synchronous path (process shutdown): drain every queued async teardown too. Each
+    // finishRelease joins its background thread (blocking is acceptable at dtor) then
+    // frees the GL state. Reap the already-done ones first, then force the rest.
+    if (sync) {
+        for (NanoVideo* v : mVidDying) { v->finishRelease(); delete v; }
+        mVidDying.clear();
+    }
     if (mVidHasAudio) { mVidAudio.release(); mVidHasAudio = false; }
     mVidActive = false; mVidPlaying = false;
     mVidResumeAsk = false;
@@ -1409,10 +1433,14 @@ void NanoMenu::vidStepTitle(int dir) {
     if (vi < 0 || vi >= (int)mVideos.size()) return;
     // Async-release the outgoing title (its OMX stop must not block the render thread)
     // and open the new one in a fresh decoder; the old one is reaped by vidReapDying.
-    if (mVidDying) { mVidDying->release(); delete mVidDying; mVidDying = nullptr; }
-    mVideoTest->releaseAsync(); mVidDying = mVideoTest;
+    // The open/track/audio binder calls can block; exempt the watchdog for the duration.
+    vidAsyncFree(mVideoTest);
     mVideoTest = new NanoVideo();
-    if (!mVideoTest->open(mVideos[vi].file)) { delete mVideoTest; mVideoTest = nullptr; return; }
+    mVidOpening.store(true, std::memory_order_relaxed);
+    if (!mVideoTest->open(mVideos[vi].file)) {
+        delete mVideoTest; mVideoTest = nullptr;
+        mVidOpening.store(false, std::memory_order_relaxed); return;
+    }
     // rebuild tracks + re-open the audio for the new title (videoTick starts it on frame 1)
     vidBuildTracks(mVideos[vi].file);
     vidParseChapters(mVideos[vi].file);   // Scene Search chapter markers
@@ -1425,6 +1453,7 @@ void NanoMenu::vidStepTitle(int dir) {
         if (mVidHasAudio) mVidAudio.setVolume(mVidVolume); else mVidAudio.release();
     }
     mVidAudioStarted = false;
+    mVidOpening.store(false, std::memory_order_relaxed);
     // web vidStepTitle resets rate / stopped / play state.
     mVidRate = 1.0; mVidStopped = false; mVidPlaying = true;
     mVidAbA = mVidAbB = -1.0;
@@ -1535,10 +1564,9 @@ void NanoMenu::videoTick() {
     else if (mVidEnterRaw > target) mVidEnterRaw = fmaxf(target, mVidEnterRaw - step);
     mVidEnterT = mVidEnterRaw * mVidEnterRaw * (3.0f - 2.0f * mVidEnterRaw);
     if (!mVidActive && mVidEnterRaw <= 0.001f && mVideoTest) {
-        // Async teardown: hand the blocking OMX stop to a bg thread so the render
+        // Async teardown: the worker join + OMX stop run on a bg thread so the render
         // loop never blocks (vidReapDying frees it once done).
-        if (mVidDying) { mVidDying->release(); delete mVidDying; mVidDying = nullptr; }
-        mVideoTest->releaseAsync(); mVidDying = mVideoTest; mVideoTest = nullptr;
+        vidAsyncFree(mVideoTest); mVideoTest = nullptr;
         if (mVidHasAudio) { mVidAudio.release(); mVidHasAudio = false; }
         mVidCpOpen = mVidCpClosing = mVidSubOpen = mVidGoToOpen = false;
         mVidSceneOpen = mVidSceneClosing = false;

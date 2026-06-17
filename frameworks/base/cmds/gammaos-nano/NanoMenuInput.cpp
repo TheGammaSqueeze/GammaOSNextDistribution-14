@@ -981,6 +981,11 @@ void NanoMenu::pollInput() {
             // Cold-boot intro replay: re-run the boot sequence from t=0 so it can be
             // verified 1:1 against the web without a real reboot.
             else if (!strcmp(navbuf, "bootreplay")) { if (mPs3Xmb) ps3BootReplay(); }
+            // Global search scripting: "search" opens the query keyboard (physical
+            // Select); "search:<query>" runs the search directly (bypasses the OSK so
+            // the categorized results overlay can be verified headlessly).
+            else if (!strcmp(navbuf, "search")) { if (mPs3Xmb) gsearchOpen(); }
+            else if (!strncmp(navbuf, "search:", 7)) { if (mPs3Xmb) gsearchBuild(std::string(navbuf + 7)); }
             property_set("sys.gammaos.nano.nav", "");
         }
         // Recapture the serial AFTER the (possible) self-clear so the next frame is
@@ -1037,6 +1042,14 @@ void NanoMenu::pollInput() {
                     else if (mVidActive) {
                         mVidOsd = !mVidOsd;
                         if (mVidCpOpen) vidPanelClose();
+                    }
+                    // PS3 XMB: SELECT invokes the global search (categorized results
+                    // across Games / Music / Photos / Videos). Opens the query keyboard;
+                    // re-opens it to refine when results are already showing. Gated off
+                    // any other modal so it never steals input from a player/dialog.
+                    else if (mPs3Xmb && !mMpActive && !mPs3OptActive && !mPs3DlgActive
+                             && !mPs3WizActive && !mPs3TzActive && !mPs3LangActive) {
+                        gsearchOpen();
                     }
                     else if (mXmbMode) forceRescanAllSystems();
                 }
@@ -1314,19 +1327,11 @@ void NanoMenu::pollInput() {
                                 videoRemoveFolder(its[sel].a);
                             break;
                         }
-                        if (mXmbMode) {
-                            // Y: search in XMB mode
-                            if (mOskActive) {
-                                closeOsk();
-                            } else if (mSearchActive) {
-                                mOskActive = true;
-                            } else {
-                                openOsk();
-                            }
-                        }
-                        // Home PS3 XMB: Y (Square) is otherwise unused now - the
-                        // wallpaper changer moved to Settings > Theme Settings >
-                        // Wallpaper, and per-item options live on Triangle/X.
+                        // Y-to-search was removed (it never worked): the PS3 XMB now
+                        // uses Select for a categorical global search (gsearchOpen).
+                        // Home PS3 XMB: Y (Square) is otherwise unused - the wallpaper
+                        // changer moved to Settings > Theme Settings > Wallpaper, and
+                        // per-item options live on Triangle/X.
                         break;
                     case BTN_NORTH: // X button (Nintendo layout: BTN_NORTH = X); PS3 Triangle in music
                         if (mOskActive) { oskBackspace(); break; }

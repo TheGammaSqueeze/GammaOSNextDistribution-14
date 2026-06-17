@@ -1060,6 +1060,7 @@ void NanoMenu::ps3DlgNav(int dir, bool horizontal) {
 }
 
 void NanoMenu::ps3XmbLeft() {
+    if (mGSearchActive) return;   // results overlay ignores left/right
     if (mVidActive) {   // video player: Go To field / Scene grid / panel grid / rewind 10s
         if (mVidResumeAsk) { mVidResumeSel = 0; return; }   // Resume prompt: left = Resume
         if (mVidGoToOpen) vidGoToMove(-1);
@@ -1104,6 +1105,7 @@ void NanoMenu::ps3XmbLeft() {
 }
 
 void NanoMenu::ps3XmbRight() {
+    if (mGSearchActive) return;   // results overlay ignores left/right
     if (mVidActive) {   // video player: Go To field / Scene grid / panel grid / forward 10s
         if (mVidResumeAsk) { mVidResumeSel = 1; return; }   // Resume prompt: right = Play from beginning
         if (mVidGoToOpen) vidGoToMove(+1);
@@ -1149,6 +1151,7 @@ void NanoMenu::ps3XmbRight() {
 }
 
 void NanoMenu::ps3XmbUp() {
+    if (mGSearchActive) { gsearchMove(-1); return; }   // global search results
     if (mVidActive) {   // video player: Go To digit up / Scene grid up / panel grid up
         if (mVidResumeAsk) { mVidResumeSel = 0; return; }   // Resume prompt: up = Resume
         if (mVidGoToOpen) vidGoToAdjust(+1);
@@ -1176,6 +1179,7 @@ void NanoMenu::ps3XmbUp() {
     if (s > 0) { mPs3ItemAnimFrom = mPs3AnimItem; mPs3ItemAnimStart = mEffectTime; s--; }
 }
 void NanoMenu::ps3XmbDown() {
+    if (mGSearchActive) { gsearchMove(+1); return; }   // global search results
     if (mVidActive) {   // video player: Go To digit down / Scene grid down / panel grid down
         if (mVidResumeAsk) { mVidResumeSel = 1; return; }   // Resume prompt: down = Play from beginning
         if (mVidGoToOpen) vidGoToAdjust(-1);
@@ -1204,6 +1208,7 @@ void NanoMenu::ps3XmbDown() {
 }
 
 void NanoMenu::ps3XmbSelect() {
+    if (mGSearchActive) { gsearchActivate(); return; }   // launch / open the selected result
     if (mVidActive) {   // video player: Go To enter / Scene seek / panel activate / play-pause
         if (mVidResumeAsk) { vidResumeConfirm(); return; }   // Resume prompt: confirm the choice
         if (mVidGoToOpen) vidGoToActivate();
@@ -1534,6 +1539,7 @@ void NanoMenu::ps3XmbSelect() {
 }
 
 void NanoMenu::ps3XmbBack() {
+    if (mGSearchActive) { gsearchClose(); return; }   // close the global search overlay
     if (mVidActive) {   // video player: cascade Go To -> Scene Search -> submenu -> panel -> close
         if (mVidResumeAsk) { mVidResumeSel = 0; vidResumeConfirm(); return; }   // Circle defaults to Resume
         if (mVidGoToOpen) { vidGoToClose(); return; }
@@ -1594,6 +1600,7 @@ void NanoMenu::renderPs3Xmb() {
     eqPreviewTick();   // retry the GammaEQ preview open if the audio HAL was not ready
     musicTick();       // music player: auto-advance to the next track at end-of-stream
     photoTick();       // photo viewer: enter-fade easing + slideshow timers
+    vidReapDying();    // free any async-released video decoders every frame (also after the player closes)
     if (renderVideoPlayer()) return;   // full-screen video player owns the screen while up/fading
     // Arm the once-per-frame glass-icon uniform upload (drawGlassIcon sends the
     // frame-invariant uniforms on the first icon, skips them on the rest).
@@ -1618,6 +1625,8 @@ void NanoMenu::renderPs3Xmb() {
     // routes to renderSetupWizard once mPs3BootActive is false.)
     if (mSetupWizardActive) { renderSetupWizard(); return; }
     if (mPs3Cats.empty()) return;
+    // Global search overlay (Select): a categorized results list over the dimmed XMB.
+    if (mGSearchActive) { renderGlobalSearch(); return; }
     if (mMenuState == MENU_WIFI) { renderWifiScreen(); return; }
     if (mMenuState == MENU_BT)   { renderBtScreen();   return; }
     if (ps3TopScreenKind() == GS_ICONGRID) { renderIconGridPicker(); return; }
