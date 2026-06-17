@@ -1506,6 +1506,27 @@ private:
     std::string videoSortLabelCur() const;
     bool videoSortLess(int a, int b) const;
 
+    // ---- Video player screen (R4 V2) - the full-screen 1:1 player (web drawVideoPlayer)
+    bool mVidActive = false;                // the player is up
+    std::vector<int> mVidList;              // mVideos indices in the player queue (all column videos)
+    int  mVidIdx = 0;                       // current index into mVidList
+    float mVidEnterRaw = 0.0f;              // linear 0..1 (~400ms)
+    float mVidEnterT = 0.0f;                // smoothstep of mVidEnterRaw (multiplies every layer's alpha)
+    bool mVidPlaying = true;
+    int  mVidScreenMode = 0;                // 0 Normal,1 Full Screen,2 Original,3 Zoom,4 Double Scale
+    float mVidHintUntil = 0.0f;             // OSD bar auto-hide deadline (mEffectTime seconds)
+    bool mVidOsd = false;                   // persistent Display toggle (keeps the bar visible)
+    std::string mVidTransient; float mVidTransientUntil = 0.0f;   // top-center flash (FF/Rew/etc.)
+    std::string mVidDispMode; float mVidDispModeUntil = 0.0f;     // screen-mode pill
+    void openVideoPlayer(const std::vector<Ps3Item>& list, int listSel);
+    void closeVideoPlayer();                // release the decoder + fade out
+    void videoTick();                       // enter/leave ease + end-of-stream auto-advance
+    bool renderVideoPlayer();               // draws the player; true = it owns the screen
+    void vidSeek(double deltaSec);          // relative seek (D-pad L/R)
+    void vidStepTitle(int dir);             // previous / next video in the queue
+    void vidTogglePlay();
+    void vidShowTransient(const std::string& text, float ms);
+
     // ---- Now-Playing screen state (control panel + visualizers in Phase 3-5) ----
     bool mMpActive = false;            // the Now-Playing fullscreen is up
     std::vector<int> mMpQueue;         // track indices (into mMusicTracks) being played
@@ -1664,11 +1685,10 @@ private:
     void photoShowBanner(const std::string& text);
     void drawPhotoBanner();
 
-    // VIDEO (R4) - HW-decode spike. Lazily created on first use, torn down on close so
-    // an idle player holds no video resources. mVideoTest is the V0 fullscreen-decode
-    // proof; driven by `setprop sys.gammaos.nano.video.test <path>` (or "stop").
+    // VIDEO (R4) - the HW decoder instance for the player. Lazily created in
+    // openVideoPlayer, fully torn down in closeVideoPlayer/videoTick so an idle launcher
+    // holds no video resources.
     NanoVideo* mVideoTest = nullptr;
-    bool videoTestTick();   // returns true if the test took over the screen this frame
     // scan worker
     std::mutex mPhotoScanMutex;
     std::vector<PhotoItem> mPhotoScanResults;

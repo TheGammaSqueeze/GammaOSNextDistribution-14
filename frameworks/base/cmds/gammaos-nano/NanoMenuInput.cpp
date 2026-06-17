@@ -1020,6 +1020,8 @@ void NanoMenu::pollInput() {
                              && !mPs3DlgActive && !mPvPlChooserActive) {
                         mPvInfo = !mPvInfo; mPvPanel = false;
                     }
+                    // Video player: SELECT toggles the persistent Display OSD bar.
+                    else if (mVidActive) { mVidOsd = !mVidOsd; mVidHintUntil = mEffectTime + 1.5f; }
                     else if (mXmbMode) forceRescanAllSystems();
                 }
                 mSelectHeld = (ev.value != 0);
@@ -1031,6 +1033,8 @@ void NanoMenu::pollInput() {
                     mPvPaused = !mPvPaused;
                     if (!mPvPaused) mPvSlideNext = mEffectTime * 1000.0f + mPvSlideMs;
                 }
+                // Video player: START toggles play/pause (web START shortcut).
+                else if (ev.value == 1 && mVidActive) { vidTogglePlay(); }
                 mStartHeld = (ev.value != 0);
             }
             // Power button handling

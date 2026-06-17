@@ -1060,6 +1060,7 @@ void NanoMenu::ps3DlgNav(int dir, bool horizontal) {
 }
 
 void NanoMenu::ps3XmbLeft() {
+    if (mVidActive) { vidSeek(-10.0); return; }   // video player: rewind 10s
     if (mPs3OptActive) { if (mPs3OptSubOpen) xmbOptCloseSub(); else closeXmbOpt(); return; }   // Left: back out of a submenu, else dismiss (web optBack)
     if (mMpActive) {   // chooser ignores L/R; panel grid nav, or scrub back 5s with no panel
         if (mMpPlChooserActive) return;
@@ -1096,6 +1097,7 @@ void NanoMenu::ps3XmbLeft() {
 }
 
 void NanoMenu::ps3XmbRight() {
+    if (mVidActive) { vidSeek(10.0); return; }   // video player: forward 10s
     if (mPs3OptActive) { if (!mPs3OptSubOpen) xmbOptOpenSub(); return; }   // Right: open the focused row's submenu (web optOpenSub)
     if (mMpActive) {   // panel grid nav, or scrub fwd 5s with no panel (hold = continuous; debounced commit)
         if (mMpPlChooserActive) return;
@@ -1133,6 +1135,7 @@ void NanoMenu::ps3XmbRight() {
 }
 
 void NanoMenu::ps3XmbUp() {
+    if (mVidActive) return;   // video player owns the screen (panel nav comes with the control panel)
     if (mPs3OptActive) { xmbOptMove(-1); return; }
     if (mMpActive) { if (mMpPlChooserActive) { mpPlChooserMove(-1); return; }
                      if (mMpCpOpen) mpOptMove(0, +1); return; }   // panel grid nav (screen-up = grid-up)
@@ -1152,6 +1155,7 @@ void NanoMenu::ps3XmbUp() {
     if (s > 0) { mPs3ItemAnimFrom = mPs3AnimItem; mPs3ItemAnimStart = mEffectTime; s--; }
 }
 void NanoMenu::ps3XmbDown() {
+    if (mVidActive) return;   // video player owns the screen (panel nav comes with the control panel)
     if (mPs3OptActive) { xmbOptMove(+1); return; }
     if (mMpActive) { if (mMpPlChooserActive) { mpPlChooserMove(+1); return; }
                      if (mMpCpOpen) mpOptMove(0, -1); return; }   // panel grid nav (screen-down = grid-down)
@@ -1172,6 +1176,7 @@ void NanoMenu::ps3XmbDown() {
 }
 
 void NanoMenu::ps3XmbSelect() {
+    if (mVidActive) { vidTogglePlay(); return; }   // video player: Cross = play/pause
     if (mPs3OptActive) { xmbOptEnter(); return; }   // option menu: activate the highlighted action
     if (mMpActive) {   // X: chooser select, panel control, or toggle play/pause with no panel up
         if (mMpPlChooserActive) { mpPlChooserSelect(); return; }
@@ -1311,12 +1316,8 @@ void NanoMenu::ps3XmbSelect() {
             return;
         }
         case PS3_VIDEO_FILE: {
-            // Open the focused video. For now this is the basic full-screen NanoVideo
-            // playback (the full player UI + control panel + transport are built on top
-            // of this next). Lazy: the decoder is created here and torn down on Back.
-            if (mVideoTest) { mVideoTest->release(); delete mVideoTest; mVideoTest = nullptr; }
-            mVideoTest = new NanoVideo();
-            if (!mVideoTest->open(it.payloadStr)) { delete mVideoTest; mVideoTest = nullptr; }
+            // Open the full-screen video player on the surrounding list of videos.
+            openVideoPlayer(items, sel);
             return;
         }
         case PS3_VIDEO_REFRESH: { videoRefresh(); return; }
@@ -1476,9 +1477,7 @@ void NanoMenu::ps3XmbSelect() {
 }
 
 void NanoMenu::ps3XmbBack() {
-    if (mVideoTest) {   // basic full-screen video playback: Back stops + frees the decoder
-        mVideoTest->release(); delete mVideoTest; mVideoTest = nullptr; return;
-    }
+    if (mVidActive) { closeVideoPlayer(); return; }   // video player: Circle backs out (fades + frees)
     if (mPs3OptActive) { if (mPs3OptSubOpen) xmbOptCloseSub(); else closeXmbOpt(); return; }   // O: back out of a submenu, else dismiss
     if (mMpActive) { if (mMpPlChooserActive) { mpPlChooserCancel(); return; }
                      if (mMpCpOpen) mpOptBack(); else minimizeMusicPlayer(); return; }   // O: chooser cancel / panel back / minimize (audio keeps playing)
@@ -1530,7 +1529,7 @@ void NanoMenu::renderPs3Xmb() {
     eqPreviewTick();   // retry the GammaEQ preview open if the audio HAL was not ready
     musicTick();       // music player: auto-advance to the next track at end-of-stream
     photoTick();       // photo viewer: enter-fade easing + slideshow timers
-    if (videoTestTick()) return;   // V0 HW-decode spike: fullscreen video test owns the screen
+    if (renderVideoPlayer()) return;   // full-screen video player owns the screen while up/fading
     // Arm the once-per-frame glass-icon uniform upload (drawGlassIcon sends the
     // frame-invariant uniforms on the first icon, skips them on the rest).
     mGlassUniformsSet = false;
@@ -2386,27 +2385,6 @@ void NanoMenu::renderPs3Xmb() {
     // across frames otherwise, leaving the chrome hidden after the player closes).
     if (mpChromeScaled) { mPs3BootIconReveal = mpSavedIconReveal; mPs3BootLabelReveal = mpSavedLabelReveal; }
     if (!mMpActive && !mPvActive) drawPhotoBanner();   // Sort By / Group Content change banner (column level)
-}
-
-// Basic full-screen video playback (opened by PS3_VIDEO_FILE; the full player UI and
-// control panel are built on top of this). Returns true when it owns the screen this
-// frame so renderPs3Xmb can early-out. Zero cost when no video is open (the player is
-// torn down on Back via videoBasicClose).
-bool NanoMenu::videoTestTick() {
-    if (!mVideoTest || !mVideoTest->isOpen()) return false;
-
-    int W = mWidth, H = mHeight;
-    drawQuad(0, 0, (float)W, (float)H, 0.0f, 0.0f, 0.0f, 1.0f);   // black backdrop
-    mVideoTest->updateFrame();
-    mVideoTest->draw(W, H, 0.0f, 0.0f, (float)W, (float)H, 1.0f, 0 /*fit*/);
-    // Position / duration overlay so I can confirm playback advances.
-    char ov[64];
-    double p = mVideoTest->position(), d = mVideoTest->duration();
-    snprintf(ov, sizeof(ov), "%d:%02d / %d:%02d  %dx%d", (int)p / 60, (int)p % 60,
-             (int)d / 60, (int)d % 60, mVideoTest->width(), mVideoTest->height());
-    float fs = ps3::fontScale(22.0f);
-    drawText(ov, ps3::devX(ps3::XCP(60.0f)), ps3::devY(60.0f), fs, 1.0f, 1.0f, 1.0f, 0.9f);
-    return true;
 }
 
 // ---------------------------------------------------------------------------
@@ -4233,7 +4211,7 @@ void NanoMenu::openXmbOpt() {
     if (mPs3OptActive) return;
     // Only over the live home column - never while another modal owns input, and
     // not over a live in-game app in the overlay (where a dialog could fight it).
-    if (mPs3DlgActive || mMpActive || mPvActive || mPs3WizActive || mPs3TzActive || mPs3LangActive
+    if (mPs3DlgActive || mMpActive || mPvActive || mVidActive || mPs3WizActive || mPs3TzActive || mPs3LangActive
         || mPs3BrightSlider || mOskActive) return;
     if (mOverlayMode && !mOverlayWallpaper) return;
 

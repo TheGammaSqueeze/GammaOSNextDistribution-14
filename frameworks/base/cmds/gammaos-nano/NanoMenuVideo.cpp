@@ -13,6 +13,7 @@
 #include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <math.h>
 #include <map>
 #include <set>
 #include <string.h>
@@ -420,6 +421,178 @@ void NanoMenu::videoRemoveFolder(int idx) {
     videoScanAsync();
     if (!mPs3Stack.empty() && mPs3Stack.back().screenKind == VIDEO_FOLDER)
         buildVideoFoldersScreen(mPs3Stack.back());
+}
+
+// ===========================================================================
+// Video player screen (R4 V2) - full-screen 1:1 playback (web drawVideoPlayer).
+// HW decode via NanoVideo (mVideoTest). Lazy: decoder created on open, freed on
+// close. The control panel / scene-search / options come next.
+// ===========================================================================
+static std::string vFmtTime(double s) {
+    if (s < 0) s = 0;
+    int t = (int)(s + 0.5);
+    int h = t / 3600, m = (t % 3600) / 60, sec = t % 60;
+    char b[24];
+    if (h > 0) snprintf(b, sizeof(b), "%d:%02d:%02d", h, m, sec);
+    else       snprintf(b, sizeof(b), "%d:%02d", m, sec);
+    return b;
+}
+
+void NanoMenu::openVideoPlayer(const std::vector<Ps3Item>& list, int listSel) {
+    videoEnsureLoaded();
+    // Queue = every video file in the current list, starting on the selected one.
+    mVidList.clear();
+    int start = 0;
+    for (size_t i = 0; i < list.size(); i++) {
+        if (list[i].kind != PS3_VIDEO_FILE) continue;
+        if ((int)i == listSel) start = (int)mVidList.size();
+        mVidList.push_back(list[i].a);
+    }
+    if (mVidList.empty()) return;
+    if (start < 0 || start >= (int)mVidList.size()) start = 0;
+    mVidIdx = start;
+
+    int vi = mVidList[mVidIdx];
+    if (vi < 0 || vi >= (int)mVideos.size()) return;
+    if (mVideoTest) { mVideoTest->release(); delete mVideoTest; mVideoTest = nullptr; }
+    mVideoTest = new NanoVideo();
+    if (!mVideoTest->open(mVideos[vi].file)) { delete mVideoTest; mVideoTest = nullptr; return; }
+
+    // Stop background music so the video owns the audio path (web 12350); video audio
+    // output itself is added next - the picture plays now.
+    if (mMusicPlayer.isPlaying()) mMusicPlayer.pause();
+
+    mVidActive = true;
+    mVidPlaying = true;
+    mVidScreenMode = 0;
+    mVidOsd = false;
+    mVidHintUntil = mEffectTime + 4.0f;     // show the OSD bar for 4s on open
+    mVidTransientUntil = 0.0f; mVidDispModeUntil = 0.0f;
+}
+
+void NanoMenu::closeVideoPlayer() {
+    // Begin the leave fade; the decoder is freed once mVidEnterT reaches 0 (videoTick),
+    // so the last frame fades out instead of cutting to black.
+    mVidActive = false;
+}
+
+void NanoMenu::vidShowTransient(const std::string& text, float ms) {
+    mVidTransient = text; mVidTransientUntil = mEffectTime + ms / 1000.0f;
+}
+
+void NanoMenu::vidTogglePlay() {
+    if (!mVideoTest) return;
+    mVidPlaying = !mVidPlaying;
+    if (mVidPlaying) mVideoTest->play(); else mVideoTest->pause();
+    mVidHintUntil = mEffectTime + 1.5f;
+}
+
+void NanoMenu::vidSeek(double deltaSec) {
+    if (!mVideoTest) return;
+    double p = mVideoTest->position() + deltaSec;
+    mVideoTest->seek(p);
+    mVidHintUntil = mEffectTime + 1.5f;
+}
+
+void NanoMenu::vidStepTitle(int dir) {
+    if (mVidList.empty() || !mVideoTest) return;
+    int n = (int)mVidList.size();
+    mVidIdx = (mVidIdx + dir % n + n) % n;
+    int vi = mVidList[mVidIdx];
+    if (vi < 0 || vi >= (int)mVideos.size()) return;
+    mVideoTest->release();
+    if (!mVideoTest->open(mVideos[vi].file)) return;
+    mVidPlaying = true;
+    mVidHintUntil = mEffectTime + 1.5f;
+}
+
+void NanoMenu::videoTick() {
+    float dt = mFrameDt; if (dt < 0.0f || dt > 0.2f) dt = 0.016f;
+    // 400ms smoothstep enter/leave (web vidEnterT). Eases toward 1 while active, 0 when
+    // closing; the decoder is freed once fully faded out.
+    float target = mVidActive ? 1.0f : 0.0f;
+    float step = (dt * 1000.0f) / 400.0f;
+    if (mVidEnterRaw < target) mVidEnterRaw = fminf(target, mVidEnterRaw + step);
+    else if (mVidEnterRaw > target) mVidEnterRaw = fmaxf(target, mVidEnterRaw - step);
+    mVidEnterT = mVidEnterRaw * mVidEnterRaw * (3.0f - 2.0f * mVidEnterRaw);
+    if (!mVidActive && mVidEnterRaw <= 0.001f && mVideoTest) {
+        mVideoTest->release(); delete mVideoTest; mVideoTest = nullptr;
+    }
+    // End of stream: auto-advance to the next video, or stop on the last one.
+    if (mVidActive && mVideoTest && mVidPlaying && mVideoTest->ended()) {
+        if (mVidIdx < (int)mVidList.size() - 1) vidStepTitle(1);
+        else { mVidPlaying = false; mVideoTest->pause(); }
+    }
+}
+
+bool NanoMenu::renderVideoPlayer() {
+    videoTick();
+    if (mVidEnterT <= 0.001f && !mVidActive) return false;
+    if (!mVideoTest) { if (mVidEnterT <= 0.001f) return false; }
+
+    int W = mWidth, H = mHeight;
+    float et = mVidEnterT;
+    drawQuad(0, 0, (float)W, (float)H, 0.0f, 0.0f, 0.0f, 1.0f);   // black backdrop
+
+    // Layer 1: the video frame (Normal = aspect-fit; other screen modes come with the
+    // control panel). updateFrame latches the newest decoded frame on the render thread.
+    if (mVideoTest) {
+        mVideoTest->updateFrame();
+        int fit = (mVidScreenMode == 1 || mVidScreenMode == 3) ? 1 : 0;   // FullScreen/Zoom = fill
+        mVideoTest->draw(W, H, 0.0f, 0.0f, (float)W, (float)H, et, fit);
+    }
+    if (!mVideoTest) return et > 0.001f;   // exit fade: black only
+
+    double pos = mVideoTest->position(), dur = mVideoTest->duration();
+    float bx = W * 0.10f, bw = W * 0.80f, by = H * 0.90f, bh = H * 0.006f;
+
+    // Layer 3: title (top-left) + the seek bar + times. The bar auto-hides via
+    // mVidHintUntil unless the Display OSD toggle keeps it on.
+    float hintA = fminf(1.0f, fmaxf(0.0f, (mVidHintUntil - mEffectTime)) / 0.6f) * et;
+    float barA = mVidOsd ? et : hintA;
+    // Title is shown with the bar.
+    if (barA > 0.01f) {
+        const VideoItem& v = mVideos[mVidList[mVidIdx]];
+        std::string title = v.name; if (!mVidPlaying) title += "   (Paused)";
+        float tfs = ps3::fontScale(26.0f);
+        drawText(title.c_str(), bx, ps3::baselineToTopY(H * 0.10f, tfs), tfs, 1.0f, 1.0f, 1.0f, 0.95f * barA);
+    }
+    if (barA > 0.01f && dur > 0.0) {
+        float frac = (float)(pos / dur); if (frac < 0) frac = 0; if (frac > 1) frac = 1;
+        drawQuad(bx, by, bw, bh, 1.0f, 1.0f, 1.0f, 0.25f * barA);             // track
+        drawQuad(bx, by, bw * frac, bh, 1.0f, 1.0f, 1.0f, 0.95f * barA);      // fill
+        float kn = H * 0.012f;                                                // knob (square)
+        drawQuad(bx + bw * frac - kn * 0.5f, by + bh * 0.5f - kn * 0.5f, kn, kn, 1.0f, 1.0f, 1.0f, 0.95f * barA);
+        float fs = ps3::fontScale(20.0f);
+        std::string el = vFmtTime(pos), tot = vFmtTime(dur);
+        drawText(el.c_str(), bx, ps3::baselineToTopY(by - H * 0.012f, fs), fs, 0.96f, 0.96f, 0.96f, barA);
+        float tw = measureText(tot.c_str(), fs);
+        drawText(tot.c_str(), bx + bw - tw, ps3::baselineToTopY(by - H * 0.012f, fs), fs, 0.96f, 0.96f, 0.96f, barA);
+    }
+
+    // Layer 4: transient flash (top-center) - FF/Rewind/etc.
+    if (!mVidTransient.empty() && mEffectTime < mVidTransientUntil) {
+        float a = fminf(1.0f, (mVidTransientUntil - mEffectTime) / 0.4f) * et;
+        float fs = ps3::fontScale(45.0f);
+        float tw = measureText(mVidTransient.c_str(), fs);
+        drawText(mVidTransient.c_str(), (W - tw) * 0.5f, ps3::baselineToTopY(H * 0.14f, fs), fs, 1.0f, 1.0f, 1.0f, 0.95f * a);
+    }
+
+    // Layer 8: help-hint pill (bottom-right) while the OSD bar is showing.
+    if (hintA > 0.01f) {
+        float fs = ps3::fontScale(21.0f);
+        const char* l1 = "Triangle: Control Panel";
+        const char* l2 = "Circle: Home Menu";
+        float w1 = measureText(l1, fs), w2 = measureText(l2, fs);
+        float tw = fmaxf(w1, w2);
+        float padx = W * 0.018f, lh = H * 0.034f;
+        float ph = lh * 2.0f + H * 0.018f, pw = tw + padx * 2.0f;
+        float px = W - pw - W * 0.03f, py = H * 0.80f;
+        drawQuad(px, py, pw, ph, 0.235f, 0.235f, 0.26f, 0.72f * hintA);
+        drawText(l1, px + padx, ps3::baselineToTopY(py + lh * 0.9f, fs), fs, 1.0f, 1.0f, 1.0f, 0.95f * hintA);
+        drawText(l2, px + padx, ps3::baselineToTopY(py + lh * 1.8f, fs), fs, 1.0f, 1.0f, 1.0f, 0.95f * hintA);
+    }
+    return true;
 }
 
 }  // namespace android
