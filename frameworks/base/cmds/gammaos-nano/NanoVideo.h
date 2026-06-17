@@ -29,6 +29,11 @@ public:
     NanoVideo() = default;
     ~NanoVideo() { release(); }
 
+    // Lightweight metadata probe (extractor only, no codec/decode) for the library:
+    // duration (s), pixel size, and the video codec short name (e.g. "AVC"/"HEVC").
+    struct Meta { double durationSec = 0.0; int width = 0; int height = 0; std::string vcodec; std::string acodec; };
+    static bool probe(const std::string& path, Meta& out);
+
     // Open + start decoding (render thread, EGL context current). false = failed.
     bool open(const std::string& path);
     void release();                 // full teardown (idempotent; render thread)

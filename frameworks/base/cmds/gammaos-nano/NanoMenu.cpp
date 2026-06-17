@@ -3945,11 +3945,22 @@ if (sRingPrimedCount >= 2) {
                         loadPhotoConfig();
                         mPhotoCatsStale = true;
                     }
-                    if (mPs3CatsStale || mMusicCatsStale || mPhotoCatsStale) {
+                    // Video library: same drain / pending-retry / external-reload as music.
+                    videoDrainScanResults();
+                    if (mVideoScanPending && !mVideoScanRunning && videoStorageReady())
+                        videoScanAsync();
+                    if (mVideoLoaded && !mVideoScanRunning
+                        && videoConfigStamp() != mVideoCfgStamp) {
+                        loadVideoConfig();
+                        videoSortApply();
+                        mVideoCatsStale = true;
+                    }
+                    if (mPs3CatsStale || mMusicCatsStale || mPhotoCatsStale || mVideoCatsStale) {
                         rebuildPs3CatsPreserveSel();
                         mPs3CatsStale = false;
                         mMusicCatsStale = false;
                         mPhotoCatsStale = false;
+                        mVideoCatsStale = false;
                     }
                 }
             }

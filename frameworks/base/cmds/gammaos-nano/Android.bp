@@ -70,6 +70,7 @@ cc_binary {
         "NanoMenuMusicGlobe.cpp",
         "NanoMenuPhotos.cpp",
         "NanoVideo.cpp",
+        "NanoMenuVideo.cpp",
         "NanoJson.cpp",
         "NanoI18n.cpp",
         "NanoOsk.cpp",

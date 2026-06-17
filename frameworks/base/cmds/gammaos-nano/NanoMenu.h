@@ -43,6 +43,8 @@
 #include <EGL/egl.h>
 #include <GLES2/gl2.h>
 
+class NanoVideo;   // global; HW video decoder (NanoVideo.h). Forward-declared to keep gui/ headers out of NanoMenu.h.
+
 namespace android {
 
 class Surface;
@@ -943,13 +945,18 @@ private:
         PS3_PHOTO_PL_NEW,   // "Create New Playlist" row in the photo playlists screen (OSK name)
         PS3_PHOTO_FOLDER_ROW,// a configured photo scan-folder row (a = mPhotoFolders idx; Y removes)
         PS3_PHOTO_REFRESH,  // "Refresh" row in the photo folders screen -> rescan the library
+        // ---- Video player (PS3 XMB video port) ----
+        PS3_VIDEO_FILE,     // a video file row (a = video idx in mVideos) -> open the player
+        PS3_VIDEO_FOLDER_ROW,// a configured video scan-folder row (a = mVideoFolders idx; Y removes)
+        PS3_VIDEO_REFRESH,  // "Refresh" row in the video folders screen -> rescan the library
     };
     // Game Systems editor screen kinds (Ps3Level.screenKind). Used to route the
     // X / L1 / R1 / Y buttons contextually while a GS screen is on the nav stack.
     // MUSIC_FOLDER = the music library's folder-list screen (Search for Media Servers).
     enum GsScreenKind { GS_NONE = 0, GS_LIST = 1, GS_EDITOR = 2, GS_FOLDER = 3,
                         GS_ICONGRID = 4, GS_EMUPICK = 5, GS_FOLDERBROWSE = 6,
-                        MUSIC_FOLDER = 7, PHOTO_FOLDER = 8, PHOTO_GRID = 9 };
+                        MUSIC_FOLDER = 7, PHOTO_FOLDER = 8, PHOTO_GRID = 9,
+                        VIDEO_FOLDER = 10 };
     struct Ps3Item {
         std::string label;
         std::string desc;
@@ -1397,7 +1404,7 @@ private:
         std::string m3uPath;              // non-empty: derived from this .m3u (regenerated on scan);
                                           // empty: user-created (preserved across scans)
     };
-    int mFolderPickTarget = 0;             // 0 = Game Systems scan source, 1 = Music library, 2 = Photo library
+    int mFolderPickTarget = 0;             // 0 = Game Systems scan source, 1 = Music library, 2 = Photo library, 3 = Video library
     std::vector<std::string> mMusicFolders;
     std::vector<MusicTrack>  mMusicTracks;
     std::vector<MusicPlaylist> mMusicPlaylists;
@@ -1449,6 +1456,55 @@ private:
     // The audio engine instance (decode + AAudio + FFT). Lazy: init() on first Music
     // entry; open()/play() on first track play.
     NanoAudioPlayer mMusicPlayer;
+
+    // ==== Video library (R4) ==============================================
+    // Mirrors the Music library; HW playback via NanoVideo. Folder import reuses the
+    // picker (mFolderPickTarget = 3). The web video section has no library/import/sort
+    // (videos are flat demo items); these are a nano addition (user request) on top of
+    // a 1:1 player UI. Persisted to nano_video.json. Lazy: parsed on first Video focus.
+    struct VideoItem {
+        std::string file;        // absolute path
+        std::string name;        // display name (filename without extension)
+        std::string vcodec;      // "AVC"/"HEVC"/... (column subtitle + Info)
+        std::string acodec;
+        double durationSec = 0.0;
+        int w = 0, h = 0;
+        int64_t sz = 0;          // file size in bytes
+        int64_t mtime = 0;       // for incremental rescan
+    };
+    std::vector<std::string> mVideoFolders;
+    std::vector<VideoItem>   mVideos;
+    int64_t mVideoCfgStamp = -1;
+    static const int kVideoMetaVersion = 1;
+    int  mVideoCfgVersion = 0;
+    bool mVideoLoaded = false;              // library parsed once (lazy, first Video entry)
+    bool mVideoCatsStale = false;           // a scan finished -> rebuild the Video column
+    int  mVideoSortField = 0;               // 0 = name, 1 = date (mtime), 2 = duration
+    int  mVideoSortDir = 1;                 // 0 = desc, 1 = asc (name forced asc)
+    std::mutex mVideoScanMutex;
+    std::vector<VideoItem> mVideoScanResults;
+    bool mVideoScanReady = false;
+    bool mVideoScanRunning = false;
+    bool mVideoScanPending = false;
+    bool videoStorageReady() const;
+    int64_t videoConfigStamp() const;
+    bool loadVideoConfig();
+    void saveVideoConfig();
+    void videoEnsureLoaded();               // parse JSON + kick a stale scan (guarded)
+    void videoOnCatFocus();                 // lazy-load when the Video category is focused
+    void videoScanAsync();
+    void videoScanThreadFunc();
+    void videoDrainScanResults();           // render-thread: swap in finished results + rebuild
+    void videoRefresh();                    // user-triggered rescan
+    void videoOpenFolders();                // push the video folders screen (import)
+    void buildVideoFoldersScreen(Ps3Level& out);
+    void videoFolderSelect(const std::string& path);
+    void videoRemoveFolder(int idx);
+    void buildVideoColumnItems(std::vector<Ps3Item>& out);   // scanned video files for the Video cat
+    void videoSortApply();                  // re-sort mVideos by the current field+dir
+    void videoSortCycleY();                 // Y on the Video column: cycle sort + banner
+    std::string videoSortLabelCur() const;
+    bool videoSortLess(int a, int b) const;
 
     // ---- Now-Playing screen state (control panel + visualizers in Phase 3-5) ----
     bool mMpActive = false;            // the Now-Playing fullscreen is up
@@ -1607,6 +1663,12 @@ private:
     std::string mPhotoBanner; float mPhotoBannerStart = -1.0f;
     void photoShowBanner(const std::string& text);
     void drawPhotoBanner();
+
+    // VIDEO (R4) - HW-decode spike. Lazily created on first use, torn down on close so
+    // an idle player holds no video resources. mVideoTest is the V0 fullscreen-decode
+    // proof; driven by `setprop sys.gammaos.nano.video.test <path>` (or "stop").
+    NanoVideo* mVideoTest = nullptr;
+    bool videoTestTick();   // returns true if the test took over the screen this frame
     // scan worker
     std::mutex mPhotoScanMutex;
     std::vector<PhotoItem> mPhotoScanResults;

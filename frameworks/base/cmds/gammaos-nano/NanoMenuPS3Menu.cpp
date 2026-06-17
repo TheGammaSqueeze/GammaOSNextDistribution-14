@@ -27,6 +27,7 @@
 #include "NanoMenu.h"
 #include "NanoMenuPS3.h"
 #include "NanoMenuPS3Bg.h"
+#include "NanoVideo.h"
 #include "NanoMenuPS3Globe.h"
 #include "NanoMenuPS3Data.h"
 #include "NanoMenuShaders.h" // kEffectNames/kActiveEffects/sActiveEffectIdx for the Wallpaper picker
@@ -515,6 +516,7 @@ void NanoMenu::buildPs3Cats() {
     int settingsCatRuntimeIdx = -1;
     int musicCatRuntimeIdx = -1;
     int photoCatRuntimeIdx = -1;
+    int videoCatRuntimeIdx = -1;
     mPs3QuickCatIdx = -1;
 
     // ---- Quick Menu (GammaOS Nano legacy global actions) ----
@@ -565,6 +567,7 @@ void NanoMenu::buildPs3Cats() {
         if (strcmp(dc.id, "settings") == 0) settingsCatRuntimeIdx = (int)mPs3Cats.size();
         if (strcmp(dc.id, "music") == 0)    musicCatRuntimeIdx    = (int)mPs3Cats.size();
         if (strcmp(dc.id, "photo") == 0)    photoCatRuntimeIdx    = (int)mPs3Cats.size();
+        if (strcmp(dc.id, "video") == 0)    videoCatRuntimeIdx    = (int)mPs3Cats.size();
         mPs3Cats.push_back(c);
     }
 
@@ -587,6 +590,16 @@ void NanoMenu::buildPs3Cats() {
         buildPhotoColumnItems(groups);
         Ps3Cat& photo = mPs3Cats[photoCatRuntimeIdx];
         photo.items.insert(photo.items.end(), groups.begin(), groups.end());
+    }
+
+    // Video library: append the scanned video files below the firmware stub items
+    // (BD Data Utility / Search for Media Servers / Video Editor & Uploader), mirroring
+    // the Music column. Lazy: empty until the user imports a folder.
+    if (videoCatRuntimeIdx >= 0 && mVideoLoaded && !mVideos.empty()) {
+        std::vector<Ps3Item> vids;
+        buildVideoColumnItems(vids);
+        Ps3Cat& video = mPs3Cats[videoCatRuntimeIdx];
+        video.items.insert(video.items.end(), vids.begin(), vids.end());
     }
 
     // The ONLY nano addition: the emulator consoles / Recently Played / Apps go
@@ -1079,6 +1092,7 @@ void NanoMenu::ps3XmbLeft() {
     mPs3CatT = 0.0f; mPs3CatAnimActive = true;
     musicOnCatFocus();   // lazy-load the music library when the Music column is focused
     photoOnCatFocus();   // lazy-load the photo library when the Photo column is focused
+    videoOnCatFocus();   // lazy-load the video library when the Video column is focused
 }
 
 void NanoMenu::ps3XmbRight() {
@@ -1115,6 +1129,7 @@ void NanoMenu::ps3XmbRight() {
     mPs3CatT = 0.0f; mPs3CatAnimActive = true;
     musicOnCatFocus();   // lazy-load the music library when the Music column is focused
     photoOnCatFocus();   // lazy-load the photo library when the Photo column is focused
+    videoOnCatFocus();   // lazy-load the video library when the Video column is focused
 }
 
 void NanoMenu::ps3XmbUp() {
@@ -1246,6 +1261,7 @@ void NanoMenu::ps3XmbSelect() {
         case PS3_GS_SELFOLDER: {
             if (mFolderPickTarget == 1) musicFolderSelect(it.payloadStr);
             else if (mFolderPickTarget == 2) photoFolderSelect(it.payloadStr);
+            else if (mFolderPickTarget == 3) videoFolderSelect(it.payloadStr);
             else gsFolderSelect(it.payloadStr);
             return;
         }
@@ -1294,6 +1310,16 @@ void NanoMenu::ps3XmbSelect() {
             openMusicPlayer(items, sel);
             return;
         }
+        case PS3_VIDEO_FILE: {
+            // Open the focused video. For now this is the basic full-screen NanoVideo
+            // playback (the full player UI + control panel + transport are built on top
+            // of this next). Lazy: the decoder is created here and torn down on Back.
+            if (mVideoTest) { mVideoTest->release(); delete mVideoTest; mVideoTest = nullptr; }
+            mVideoTest = new NanoVideo();
+            if (!mVideoTest->open(it.payloadStr)) { delete mVideoTest; mVideoTest = nullptr; }
+            return;
+        }
+        case PS3_VIDEO_REFRESH: { videoRefresh(); return; }
         case PS3_MUSIC_PL_NEW: {
             openOskForPassword("Enter a name for the playlist",
                 [this](const std::string& nm){ musicCreatePlaylist(nm);
@@ -1344,6 +1370,9 @@ void NanoMenu::ps3XmbSelect() {
                                && mPs3Cats[mPs3CatIdx].name == "Music");
             bool inPhotoCat = (mPs3CatIdx >= 0 && mPs3CatIdx < (int)mPs3Cats.size()
                                && mPs3Cats[mPs3CatIdx].name == "Photo");
+            bool inVideoCat = (mPs3CatIdx >= 0 && mPs3CatIdx < (int)mPs3Cats.size()
+                               && mPs3Cats[mPs3CatIdx].name == "Video");
+            if (inVideoCat && it.label == "Search for Media Servers") { videoOpenFolders(); return; }
             if (inPhotoCat && it.label == "Search for Media Servers") { photoOpenFolders(); return; }
             if (inPhotoCat && it.label == "Photo Gallery") { return; }   // info item (no-op)
             if (inPhotoCat && it.label == "Playlists") {
@@ -1447,6 +1476,9 @@ void NanoMenu::ps3XmbSelect() {
 }
 
 void NanoMenu::ps3XmbBack() {
+    if (mVideoTest) {   // basic full-screen video playback: Back stops + frees the decoder
+        mVideoTest->release(); delete mVideoTest; mVideoTest = nullptr; return;
+    }
     if (mPs3OptActive) { if (mPs3OptSubOpen) xmbOptCloseSub(); else closeXmbOpt(); return; }   // O: back out of a submenu, else dismiss
     if (mMpActive) { if (mMpPlChooserActive) { mpPlChooserCancel(); return; }
                      if (mMpCpOpen) mpOptBack(); else minimizeMusicPlayer(); return; }   // O: chooser cancel / panel back / minimize (audio keeps playing)
@@ -1498,6 +1530,7 @@ void NanoMenu::renderPs3Xmb() {
     eqPreviewTick();   // retry the GammaEQ preview open if the audio HAL was not ready
     musicTick();       // music player: auto-advance to the next track at end-of-stream
     photoTick();       // photo viewer: enter-fade easing + slideshow timers
+    if (videoTestTick()) return;   // V0 HW-decode spike: fullscreen video test owns the screen
     // Arm the once-per-frame glass-icon uniform upload (drawGlassIcon sends the
     // frame-invariant uniforms on the first icon, skips them on the rest).
     mGlassUniformsSet = false;
@@ -2353,6 +2386,27 @@ void NanoMenu::renderPs3Xmb() {
     // across frames otherwise, leaving the chrome hidden after the player closes).
     if (mpChromeScaled) { mPs3BootIconReveal = mpSavedIconReveal; mPs3BootLabelReveal = mpSavedLabelReveal; }
     if (!mMpActive && !mPvActive) drawPhotoBanner();   // Sort By / Group Content change banner (column level)
+}
+
+// Basic full-screen video playback (opened by PS3_VIDEO_FILE; the full player UI and
+// control panel are built on top of this). Returns true when it owns the screen this
+// frame so renderPs3Xmb can early-out. Zero cost when no video is open (the player is
+// torn down on Back via videoBasicClose).
+bool NanoMenu::videoTestTick() {
+    if (!mVideoTest || !mVideoTest->isOpen()) return false;
+
+    int W = mWidth, H = mHeight;
+    drawQuad(0, 0, (float)W, (float)H, 0.0f, 0.0f, 0.0f, 1.0f);   // black backdrop
+    mVideoTest->updateFrame();
+    mVideoTest->draw(W, H, 0.0f, 0.0f, (float)W, (float)H, 1.0f, 0 /*fit*/);
+    // Position / duration overlay so I can confirm playback advances.
+    char ov[64];
+    double p = mVideoTest->position(), d = mVideoTest->duration();
+    snprintf(ov, sizeof(ov), "%d:%02d / %d:%02d  %dx%d", (int)p / 60, (int)p % 60,
+             (int)d / 60, (int)d % 60, mVideoTest->width(), mVideoTest->height());
+    float fs = ps3::fontScale(22.0f);
+    drawText(ov, ps3::devX(ps3::XCP(60.0f)), ps3::devY(60.0f), fs, 1.0f, 1.0f, 1.0f, 0.9f);
+    return true;
 }
 
 // ---------------------------------------------------------------------------

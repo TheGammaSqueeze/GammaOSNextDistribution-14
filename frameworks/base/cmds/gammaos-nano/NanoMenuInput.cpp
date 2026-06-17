@@ -1221,6 +1221,11 @@ void NanoMenu::pollInput() {
                         if (mPs3Xmb && !mOskActive && mPs3Stack.empty() && !mPs3OptActive && !mPs3DlgActive
                             && mPhotoLoaded && mPs3CatIdx >= 0 && mPs3CatIdx < (int)mPs3Cats.size()
                             && mPs3Cats[mPs3CatIdx].name == "Photo") { photoSortCycleY(); break; }
+                        // Video column root: Y cycles the Sort By order (Title / Date / Length).
+                        if (mPs3Xmb && !mOskActive && mPs3Stack.empty() && !mPs3OptActive && !mPs3DlgActive
+                            && !mVideoTest && mVideoLoaded && !mVideos.empty()
+                            && mPs3CatIdx >= 0 && mPs3CatIdx < (int)mPs3Cats.size()
+                            && mPs3Cats[mPs3CatIdx].name == "Video") { videoSortCycleY(); break; }
                         if (mMenuState == MENU_WIFI) { handleWifiScreenY(); break; }
                         if (mMenuState == MENU_BT)   { handleBtScreenY();   break; }
                         // Icon grid picker: Y opens the name-filter OSK.
@@ -1275,6 +1280,13 @@ void NanoMenu::pollInput() {
                             auto& its = mPs3Stack.back().items; int sel = mPs3Stack.back().sel;
                             if (sel >= 0 && sel < (int)its.size() && its[sel].kind == PS3_PHOTO_FOLDER_ROW)
                                 photoRemoveFolder(its[sel].a);
+                            break;
+                        }
+                        // Video folders screen: Y removes the selected video folder.
+                        if (mPs3Xmb && ps3TopScreenKind() == VIDEO_FOLDER) {
+                            auto& its = mPs3Stack.back().items; int sel = mPs3Stack.back().sel;
+                            if (sel >= 0 && sel < (int)its.size() && its[sel].kind == PS3_VIDEO_FOLDER_ROW)
+                                videoRemoveFolder(its[sel].a);
                             break;
                         }
                         if (mXmbMode) {

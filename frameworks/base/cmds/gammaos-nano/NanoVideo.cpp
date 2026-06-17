@@ -27,6 +27,61 @@ static int64_t monoNs() {
     return (int64_t)ts.tv_sec * 1000000000LL + ts.tv_nsec;
 }
 
+static std::string codecShortName(const char* mime) {
+    if (!mime) return "";
+    std::string m = mime;
+    if (m == "video/avc")        return "AVC";
+    if (m == "video/hevc")       return "HEVC";
+    if (m == "video/x-vnd.on2.vp8") return "VP8";
+    if (m == "video/x-vnd.on2.vp9") return "VP9";
+    if (m == "video/av01")       return "AV1";
+    if (m == "video/mp4v-es")    return "MPEG4";
+    if (m == "audio/mp4a-latm")  return "AAC";
+    if (m == "audio/mpeg")       return "MP3";
+    if (m == "audio/ac3")        return "AC3";
+    if (m == "audio/raw")        return "PCM";
+    size_t sl = m.find('/');
+    std::string s = (sl != std::string::npos) ? m.substr(sl + 1) : m;
+    for (auto& c : s) if (c >= 'a' && c <= 'z') c -= 32;
+    return s;
+}
+
+bool NanoVideo::probe(const std::string& path, Meta& out) {
+    int fd = ::open(path.c_str(), O_RDONLY);
+    if (fd < 0) return false;
+    off_t len = lseek(fd, 0, SEEK_END);
+    lseek(fd, 0, SEEK_SET);
+    AMediaExtractor* ex = AMediaExtractor_new();
+    media_status_t st = AMediaExtractor_setDataSourceFd(ex, fd, 0, len);
+    ::close(fd);
+    if (st != AMEDIA_OK) { AMediaExtractor_delete(ex); return false; }
+    bool gotVideo = false;
+    size_t n = AMediaExtractor_getTrackCount(ex);
+    for (size_t i = 0; i < n; i++) {
+        AMediaFormat* f = AMediaExtractor_getTrackFormat(ex, i);
+        const char* mime = nullptr;
+        if (AMediaFormat_getString(f, AMEDIAFORMAT_KEY_MIME, &mime) && mime) {
+            int64_t durUs = 0;
+            if (AMediaFormat_getInt64(f, AMEDIAFORMAT_KEY_DURATION, &durUs) && durUs / 1e6 > out.durationSec)
+                out.durationSec = durUs / 1e6;
+            if (!strncmp(mime, "video/", 6)) {
+                int32_t w = 0, h = 0;
+                AMediaFormat_getInt32(f, AMEDIAFORMAT_KEY_WIDTH, &w);
+                AMediaFormat_getInt32(f, AMEDIAFORMAT_KEY_HEIGHT, &h);
+                if (w > 0) out.width = w;
+                if (h > 0) out.height = h;
+                out.vcodec = codecShortName(mime);
+                gotVideo = true;
+            } else if (!strncmp(mime, "audio/", 6) && out.acodec.empty()) {
+                out.acodec = codecShortName(mime);
+            }
+        }
+        AMediaFormat_delete(f);
+    }
+    AMediaExtractor_delete(ex);
+    return gotVideo;
+}
+
 bool NanoVideo::open(const std::string& path) {
     if (mOpen) release();
 
