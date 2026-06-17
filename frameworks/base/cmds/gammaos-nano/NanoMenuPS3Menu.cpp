@@ -1624,6 +1624,7 @@ void NanoMenu::renderPs3Xmb() {
     bool mpVisible = mMpActive || (mMpEnterT > 0.004f && !mMpQueue.empty());
     float mpSavedIconReveal = mPs3BootIconReveal, mpSavedLabelReveal = mPs3BootLabelReveal;
     bool  mpChromeScaled = false;
+    bool  mpExitFade = false;
     if (mpVisible) {
         if (mMpActive && mMpChromeT <= 0.004f) { renderMusicPlayer(); return; }
         // entering (chrome fading out) or leaving (chrome fading in): scale the cold-boot
@@ -1632,6 +1633,13 @@ void NanoMenu::renderPs3Xmb() {
         mPs3BootIconReveal  *= mMpChromeT;
         mPs3BootLabelReveal *= mMpChromeT;
         mpChromeScaled = true;
+        // On LEAVE (minimize) the web composites the now-playing bar fading OUT UNDER the
+        // menu chrome fading IN, so the returning column (with its enlarged focused track)
+        // sits ON TOP of the bar. nano was drawing the bar last (on top), so the small
+        // bar overlapped the big focused item and read as the HUD "getting bigger". Render
+        // the player here, under the chrome drawn below; the chrome text re-asserts outline
+        // mode 1 after (renderMusicPlayer leaves it 0). Enter keeps the player on top.
+        if (!mMpActive) { renderMusicPlayer(); mTextOutlineMode = 1; mpExitFade = true; }
     }
 
     // Full-screen photo viewer: drawn over the wave background, replacing the XMB
@@ -2380,7 +2388,7 @@ void NanoMenu::renderPs3Xmb() {
     // XMB chrome (the mpVisible branch near the top scaled the reveal). On enter this runs
     // until the chrome is gone (then the early return above takes the perf path); on leave
     // it runs while the bar fades out with the queue still loaded (minimize).
-    if (mpVisible) renderMusicPlayer();
+    if (mpVisible && !mpExitFade) renderMusicPlayer();   // enter/steady: player on top; exit drew it under the chrome above
     // Restore the reveal multipliers scaled for the chrome cross-fade (they persist
     // across frames otherwise, leaving the chrome hidden after the player closes).
     if (mpChromeScaled) { mPs3BootIconReveal = mpSavedIconReveal; mPs3BootLabelReveal = mpSavedLabelReveal; }

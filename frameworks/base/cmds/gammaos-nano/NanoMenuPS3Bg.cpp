@@ -995,15 +995,22 @@ void render(int panelW, int panelH, float dt, const float rotMat2[4], bool /*rot
                    || fabsf(sThemeCurR - sGradLastR) > 1.5e-3f
                    || fabsf(sThemeCurG - sGradLastG) > 1.5e-3f
                    || fabsf(sThemeCurB - sGradLastB) > 1.5e-3f;
+    // The music-vis blend (sMvBlend) changes EVERY frame during the ~1s player morph.
+    // Re-baking the gradient cache each frame forces a per-frame FBO resolve on the
+    // tile GPU (the blit samples sGradTex right after), which judders the morph. The
+    // shift is a slow background colour fade, so quantize the recache to ~16 steps over
+    // the morph (endpoints 0 and 1 land exactly); the wave + particles still morph every
+    // frame, only the cached gradient colour steps. ~4x fewer resolves during the morph.
+    float mvQ = floorf(sMvBlend * 16.0f + 0.5f) / 16.0f;
     if (sGradDirty || lt.tm_mon != sGradMonth || fabsf(blendQ - sGradBlendQ) > 1e-4f || themeMoved
-        || fabsf(sMvBlend - sGradLastMv) > 1e-3f) {
+        || fabsf(mvQ - sGradLastMv) > 1e-4f) {
         renderGradientCache(gw, gh, lt.tm_mon, nightDayBlend);
         sGradDirty = false;
         sGradMonth = lt.tm_mon;
         sGradBlendQ = blendQ;
         sGradLastStr = sThemeStrCur;
         sGradLastR = sThemeCurR; sGradLastG = sThemeCurG; sGradLastB = sThemeCurB;
-        sGradLastMv = sMvBlend;
+        sGradLastMv = mvQ;
     }
 
     // Build the work buffer at full resolution: gradient blit, then additive wave.
