@@ -1061,6 +1061,7 @@ void NanoMenu::ps3DlgNav(int dir, bool horizontal) {
 
 void NanoMenu::ps3XmbLeft() {
     if (mVidActive) {   // video player: Go To field / Scene grid / panel grid / rewind 10s
+        if (mVidResumeAsk) { mVidResumeSel = 0; return; }   // Resume prompt: left = Resume
         if (mVidGoToOpen) vidGoToMove(-1);
         else if (mVidSceneOpen) vidSceneMove(-1, 0);
         else if (mVidCpOpen) vidPanelMove(-1, 0);
@@ -1104,6 +1105,7 @@ void NanoMenu::ps3XmbLeft() {
 
 void NanoMenu::ps3XmbRight() {
     if (mVidActive) {   // video player: Go To field / Scene grid / panel grid / forward 10s
+        if (mVidResumeAsk) { mVidResumeSel = 1; return; }   // Resume prompt: right = Play from beginning
         if (mVidGoToOpen) vidGoToMove(+1);
         else if (mVidSceneOpen) vidSceneMove(+1, 0);
         else if (mVidCpOpen) vidPanelMove(+1, 0);
@@ -1148,6 +1150,7 @@ void NanoMenu::ps3XmbRight() {
 
 void NanoMenu::ps3XmbUp() {
     if (mVidActive) {   // video player: Go To digit up / Scene grid up / panel grid up
+        if (mVidResumeAsk) { mVidResumeSel = 0; return; }   // Resume prompt: up = Resume
         if (mVidGoToOpen) vidGoToAdjust(+1);
         else if (mVidSceneOpen) vidSceneMove(0, -1);
         else if (mVidCpOpen) vidPanelMove(0, -1);
@@ -1174,6 +1177,7 @@ void NanoMenu::ps3XmbUp() {
 }
 void NanoMenu::ps3XmbDown() {
     if (mVidActive) {   // video player: Go To digit down / Scene grid down / panel grid down
+        if (mVidResumeAsk) { mVidResumeSel = 1; return; }   // Resume prompt: down = Play from beginning
         if (mVidGoToOpen) vidGoToAdjust(-1);
         else if (mVidSceneOpen) vidSceneMove(0, +1);
         else if (mVidCpOpen) vidPanelMove(0, +1);
@@ -1201,6 +1205,7 @@ void NanoMenu::ps3XmbDown() {
 
 void NanoMenu::ps3XmbSelect() {
     if (mVidActive) {   // video player: Go To enter / Scene seek / panel activate / play-pause
+        if (mVidResumeAsk) { vidResumeConfirm(); return; }   // Resume prompt: confirm the choice
         if (mVidGoToOpen) vidGoToActivate();
         else if (mVidSceneOpen) vidSceneActivate();
         else if (mVidCpOpen) vidPanelActivate();
@@ -1530,6 +1535,7 @@ void NanoMenu::ps3XmbSelect() {
 
 void NanoMenu::ps3XmbBack() {
     if (mVidActive) {   // video player: cascade Go To -> Scene Search -> submenu -> panel -> close
+        if (mVidResumeAsk) { mVidResumeSel = 0; vidResumeConfirm(); return; }   // Circle defaults to Resume
         if (mVidGoToOpen) { vidGoToClose(); return; }
         if (mVidSceneOpen) { vidSceneClose(); return; }
         if (mVidSubOpen)  { mVidSubOpen = false; return; }

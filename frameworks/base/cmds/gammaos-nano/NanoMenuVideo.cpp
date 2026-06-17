@@ -125,6 +125,7 @@ bool NanoMenu::loadVideoConfig() {
             it.h = v.getInt("h", 0);
             it.sz = v.find("sz") ? (int64_t)v.find("sz")->asNumber(0) : 0;
             it.mtime = v.find("mtime") ? (int64_t)v.find("mtime")->asNumber(0) : 0;
+            it.resumeSec = v.find("pos") ? v.find("pos")->asNumber(0) : 0;   // Resume position
             mVideos.push_back(std::move(it));
         }
 
@@ -160,6 +161,7 @@ void NanoMenu::saveVideoConfig() {
         v.set("h") = njson::Value::makeNumber(it.h);
         v.set("sz") = njson::Value::makeNumber((double)it.sz);
         v.set("mtime") = njson::Value::makeNumber((double)it.mtime);
+        if (it.resumeSec > 0.0) v.set("pos") = njson::Value::makeNumber((double)(int64_t)it.resumeSec);   // whole seconds
         vids.arr.push_back(std::move(v));
     }
     root.set("videos") = std::move(vids);
@@ -248,6 +250,10 @@ void NanoMenu::videoScanThreadFunc() {
     std::vector<VideoItem> cacheVec = mVideos;
     std::map<std::string, const VideoItem*> cache;
     if (!forceReprobe) for (const auto& v : cacheVec) cache[v.file] = &v;
+    // Resume positions must survive a re-probe / metaVersion bump (cache is empty
+    // when forceReprobe), so carry them by path unconditionally.
+    std::map<std::string, double> resumeCarry;
+    for (const auto& v : cacheVec) if (v.resumeSec > 0.0) resumeCarry[v.file] = v.resumeSec;
 
     std::vector<std::string> files;
     for (const auto& f : folders) vScanDirRecursive(f, files, 0);
@@ -288,6 +294,8 @@ void NanoMenu::videoScanThreadFunc() {
             v.vcodec = meta.vcodec; v.acodec = meta.acodec;
         }
         v.name = vStripExt(vBaseName(path));
+        auto rc = resumeCarry.find(path);
+        if (rc != resumeCarry.end()) v.resumeSec = rc->second;   // keep Resume across re-probe
         results.push_back(std::move(v));
     }
     {
@@ -1222,9 +1230,54 @@ void NanoMenu::openVideoPlayer(const std::vector<Ps3Item>& list, int listSel) {
     mVidScanLastTick = -1.0;
     mVidLastPos = -1.0; mVidLastPosT = mEffectTime; mVidBuffering = false;
     mVidCpOpen = mVidCpClosing = mVidSubOpen = false; mVidGoToOpen = false;
+    mVidSceneOpen = mVidSceneClosing = false;
+    // Resume: offer Resume / Play-from-beginning when this title has a saved position
+    // (>5s in and not within 5s of the end). Hold playback until the user chooses.
+    mVidResumeAsk = false; mVidResumeSel = 0; mVidResumeAskSec = 0.0;
+    mVidResumeDirty = false; mVidResumeSaveT = mEffectTime;
+    {
+        double rs = mVideos[vi].resumeSec, dur = mVideoTest->duration();
+        if (rs > 5.0 && (dur <= 0.0 || rs < dur - 5.0)) {
+            mVidResumeAsk = true; mVidResumeAskSec = rs; mVidPlaying = false;   // wait for the choice
+        }
+    }
+}
+
+// Store the playing title's current position for Resume (kept only when >5s in and
+// not within 5s of the end; otherwise cleared so a finished/near-start video resets).
+void NanoMenu::vidCaptureResume() {
+    if (!mVideoTest || mVidList.empty() || mVidIdx < 0 || mVidIdx >= (int)mVidList.size()) return;
+    int vi = mVidList[mVidIdx];
+    if (vi < 0 || vi >= (int)mVideos.size()) return;
+    double p = mVideoTest->position(), dur = mVideoTest->duration();
+    double rs = (p > 5.0 && dur > 0.0 && p < dur - 5.0) ? p : 0.0;
+    if (mVideos[vi].resumeSec != rs) { mVideos[vi].resumeSec = rs; mVidResumeDirty = true; }
+}
+
+// Apply the highlighted Resume-prompt choice (0 = Resume, 1 = Play from beginning).
+void NanoMenu::vidResumeConfirm() {
+    if (!mVidResumeAsk) return;
+    mVidResumeAsk = false;
+    if (mVidResumeSel == 0) {                       // Resume
+        if (mVideoTest) mVideoTest->seek(mVidResumeAskSec);
+        if (mVidHasAudio) mVidAudio.seek(mVidResumeAskSec);
+        mVidHintUntil = mEffectTime + 1.5f;
+    } else {                                        // Play from beginning
+        if (mVidIdx >= 0 && mVidIdx < (int)mVidList.size()) {
+            int vi = mVidList[mVidIdx];
+            if (vi >= 0 && vi < (int)mVideos.size() && mVideos[vi].resumeSec != 0.0) {
+                mVideos[vi].resumeSec = 0.0; mVidResumeDirty = true;
+            }
+        }
+    }
+    mVidPlaying = true;
 }
 
 void NanoMenu::closeVideoPlayer() {
+    // Capture the Resume position before the leave fade (the decoder is still alive here;
+    // it is freed later in videoTick once the fade completes).
+    vidCaptureResume();
+    if (mVidResumeDirty) { saveVideoConfig(); mVidResumeDirty = false; }
     // Begin the leave fade; the decoder is freed once mVidEnterT reaches 0 (videoTick),
     // so the last frame fades out instead of cutting to black.
     mVidActive = false;
@@ -1234,9 +1287,12 @@ void NanoMenu::closeVideoPlayer() {
 // there is no time for the leave fade: sleep/power-press, occlusion by a foreground app,
 // and process shutdown. Joins the worker, frees codec/extractor/surface/OES texture.
 void NanoMenu::videoHardFree() {
+    vidCaptureResume();   // persist the Resume position before tearing the decoder down
+    if (mVidResumeDirty) { saveVideoConfig(); mVidResumeDirty = false; }
     if (mVideoTest) { mVideoTest->release(); delete mVideoTest; mVideoTest = nullptr; }
     if (mVidHasAudio) { mVidAudio.release(); mVidHasAudio = false; }
     mVidActive = false; mVidPlaying = false;
+    mVidResumeAsk = false;
     mVidEnterRaw = 0.0f; mVidEnterT = 0.0f;
     mVidCpOpen = mVidCpClosing = mVidSubOpen = mVidGoToOpen = false;
     mVidSceneOpen = mVidSceneClosing = false;
@@ -1273,6 +1329,7 @@ void NanoMenu::vidSeek(double deltaSec) {
 
 void NanoMenu::vidStepTitle(int dir) {
     if (mVidList.empty() || !mVideoTest) return;
+    vidCaptureResume();   // persist the OUTGOING title's position before we leave it
     int n = (int)mVidList.size();
     mVidIdx = ((mVidIdx + dir) % n + n) % n;
     int vi = mVidList[mVidIdx];
@@ -1295,6 +1352,14 @@ void NanoMenu::vidStepTitle(int dir) {
     mVidRate = 1.0; mVidStopped = false; mVidPlaying = true;
     mVidAbA = mVidAbB = -1.0;
     mVidHintUntil = mEffectTime + 1.5f;
+    // Auto-advance never prompts: silently resume the new title from its saved position.
+    {
+        double rs = mVideos[vi].resumeSec, dur = mVideoTest->duration();
+        if (rs > 5.0 && (dur <= 0.0 || rs < dur - 5.0)) {
+            mVideoTest->seek(rs);
+            if (mVidHasAudio) mVidAudio.seek(rs);
+        }
+    }
 }
 
 // ---- transport extras (web vidStop/vidScan/vidSlow/vidStepFrame/vidFlash) -----
@@ -1306,6 +1371,13 @@ void NanoMenu::vidStop() {
     mVidPlaying = false; mVidStopped = true; mVidRate = 1.0;
     mVidTransientUntil = 0.0f;
     mVidHintUntil = mEffectTime + 1.5f;
+    // Explicit stop+rewind clears the Resume bookmark for this title.
+    if (mVidIdx >= 0 && mVidIdx < (int)mVidList.size()) {
+        int vi = mVidList[mVidIdx];
+        if (vi >= 0 && vi < (int)mVideos.size() && mVideos[vi].resumeSec != 0.0) {
+            mVideos[vi].resumeSec = 0.0; mVidResumeDirty = true;
+        }
+    }
 }
 
 void NanoMenu::vidScan(int dir) {
@@ -1456,6 +1528,15 @@ void NanoMenu::videoTick() {
         mVidBuffering = false; mVidLastPos = -1.0;
     }
 
+    // Resume: live-capture the position while playing + debounced save (~12s) so a
+    // crash/sleep loses at most the last interval. Piggybacks the per-frame position read.
+    if (mVidPlaying && mVidRate == 1.0 && !mVidStopped && !mVidResumeAsk) {
+        vidCaptureResume();
+        if (mVidResumeDirty && (mVidResumeSaveT < 0.0 || mEffectTime - mVidResumeSaveT > 12.0f)) {
+            saveVideoConfig(); mVidResumeDirty = false; mVidResumeSaveT = mEffectTime;
+        }
+    }
+
     // A-B repeat: loop back to A once playback passes B.
     if (mVidRepeat == 3 && mVidAbA >= 0.0 && mVidAbB > mVidAbA
         && mVideoTest->position() >= mVidAbB) {
@@ -1472,6 +1553,7 @@ void NanoMenu::videoTick() {
             vidStepTitle(1);
         } else {
             mVidPlaying = false; mVidStopped = true; mVideoTest->pause();
+            vidCaptureResume();   // finished at the tail -> clears the Resume bookmark
         }
     }
 }
@@ -1696,6 +1778,8 @@ bool NanoMenu::renderVideoPlayer() {
         if (p >= 1.0f) mVidSceneClosing = false;
     }
     if (mVidGoToOpen) drawVideoGoTo();
+    // Layer 11: the Resume / Play-from-beginning prompt (shown on open over everything).
+    if (mVidResumeAsk) drawVideoResume(et);
     return true;
 }
 
@@ -2049,6 +2133,35 @@ void NanoMenu::drawVideoGoTo() {
     const char* foot = "Up/Down  Adjust     Left/Right  Field     Cross  Enter     Circle  Back";
     float fw = measureText(foot, fs);
     drawText(foot, (W - fw) * 0.5f, ps3::baselineToTopY(H * 0.66f, fs), fs, 1, 1, 1, 0.85f * et);
+}
+
+// Resume / Play-from-beginning prompt shown on opening a partly-watched video.
+void NanoMenu::drawVideoResume(float et) {
+    int W = mWidth, H = mHeight;
+    float A = (et > 0.0f) ? et : 1.0f;
+    drawQuad(0, 0, (float)W, (float)H, 0, 0, 0, 0.72f * A);
+    float ts = ps3::fontScale(30.0f);
+    const char* title = "Resume Playback";
+    float tw = measureText(title, ts);
+    drawText(title, (W - tw) * 0.5f, ps3::baselineToTopY(H * 0.34f, ts), ts, 1, 1, 1, 0.95f * A);
+    float ss = ps3::fontScale(22.0f);
+    std::string sub = std::string("Last stopped at ") + vFmtTime(mVidResumeAskSec);
+    float sw = measureText(sub.c_str(), ss);
+    drawText(sub.c_str(), (W - sw) * 0.5f, ps3::baselineToTopY(H * 0.42f, ss), ss, 0.85f, 0.85f, 0.85f, 0.9f * A);
+    const char* opt[2] = {"Resume", "Play from beginning"};
+    float ofs = ps3::fontScale(26.0f), lh = H * 0.078f, oy0 = H * 0.54f;
+    for (int i = 0; i < 2; i++) {
+        bool sel = (i == mVidResumeSel);
+        float ow = measureText(opt[i], ofs);
+        float ox = (W - ow) * 0.5f, oy = oy0 + (float)i * lh;
+        if (sel) { float pad = ofs * 0.45f; drawQuad(ox - pad, oy - lh * 0.30f, ow + pad * 2.0f, lh * 0.60f, 1, 1, 1, 0.18f * A); }
+        float c = sel ? 1.0f : 0.68f;
+        drawText(opt[i], ox, ps3::baselineToTopY(oy, ofs), ofs, c, c, c, A);
+    }
+    float ffs = ps3::fontScale(20.0f);
+    const char* foot = "Cross  Select      Circle  Resume";
+    float fw = measureText(foot, ffs);
+    drawText(foot, (W - fw) * 0.5f, ps3::baselineToTopY(H * 0.88f, ffs), ffs, 0.9f, 0.9f, 0.9f, 0.9f * A);
 }
 
 // ===========================================================================

@@ -1474,6 +1474,7 @@ private:
         int w = 0, h = 0;
         int64_t sz = 0;          // file size in bytes
         int64_t mtime = 0;       // for incremental rescan
+        double resumeSec = 0.0;  // last-played position for Resume (0 = none / start fresh)
     };
     struct VideoPlaylist {
         std::string name;
@@ -1483,7 +1484,7 @@ private:
     std::vector<VideoItem>   mVideos;
     std::vector<VideoPlaylist> mVideoPlaylists;
     int64_t mVideoCfgStamp = -1;
-    static const int kVideoMetaVersion = 1;
+    static const int kVideoMetaVersion = 2;   // 2 = added per-file resume position ("pos")
     int  mVideoCfgVersion = 0;
     bool mVideoLoaded = false;              // library parsed once (lazy, first Video entry)
     bool mVideoCatsStale = false;           // a scan finished -> rebuild the Video column
@@ -1584,6 +1585,15 @@ private:
     double mVidLastPos = -1.0;              // buffering detection: last seen playback position
     float  mVidLastPosT = 0.0f;            // time the position last advanced
     bool   mVidBuffering = false;           // no new frame while playing -> show the buffering spinner
+    // ---- Resume at last timestamp (per-file, persisted in nano_video.json "pos") ----
+    bool   mVidResumeDirty = false;         // resume position changed since the last save
+    double mVidResumeSaveT = -1.0;          // last debounced save time (mEffectTime)
+    bool   mVidResumeAsk = false;           // the Resume / Play-from-beginning prompt is up
+    int    mVidResumeSel = 0;               // 0 = Resume (default), 1 = Play from beginning
+    double mVidResumeAskSec = 0.0;          // the saved position offered by the prompt
+    void vidCaptureResume();                // store the current position onto the playing VideoItem
+    void vidResumeConfirm();                // apply the highlighted Resume-prompt choice
+    void drawVideoResume(float et);         // render the Resume prompt
     void vidStop();                         // pause + rewind to 0
     void vidScan(int dir);                  // Fast Forward / Fast Reverse (steps 1.5/10/30/120)
     void vidSlow(int dir);                  // Slow Forward / Slow Reverse (+-0.5)
