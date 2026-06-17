@@ -1574,10 +1574,27 @@ void NanoMenu::renderPs3Xmb() {
     // expensive menu/glass-icon pass entirely.
     if (mPs3TzActive) { renderTimezoneGlobe(); return; }
 
-    // Now-Playing music screen: drawn over the wave background (already rendered by
-    // render() before us), replacing the XMB chrome. The control panel + bar live in
-    // NanoMenuMusic.cpp. The Waves morph (Phase 4) animates the background underneath.
-    if (mMpActive) { renderMusicPlayer(); return; }
+    // Now-Playing music screen: cross-fade with the XMB chrome on enter, 1:1 with the
+    // web (drawBG). The chrome fades OUT over ~0.4s - mMpChromeT scaled into the
+    // cold-boot reveal multipliers, the SAME validated path that fades the chrome in at
+    // boot - while the now-playing bar fades IN over ~1.0s (mMpEnterT, in
+    // renderMusicPlayer). Once the chrome is fully gone we skip it entirely (perf). Leave
+    // is instant (player state is torn down on close/minimize). The Waves morph animates
+    // the background underneath; the control panel + bar live in NanoMenuMusic.cpp.
+    // The reveal multipliers are NOT recomputed each frame post-boot (only the boot
+    // intro / overlay entrance set them), so the chrome cross-fade below scales them in
+    // place and MUST restore them at the end of this function - otherwise the chrome
+    // would stay hidden after the player closes.
+    float mpSavedIconReveal = mPs3BootIconReveal, mpSavedLabelReveal = mPs3BootLabelReveal;
+    bool  mpChromeScaled = false;
+    if (mMpActive) {
+        if (mMpChromeT <= 0.004f) { renderMusicPlayer(); return; }
+        // chrome still fading out: scale the cold-boot reveal so the whole chrome
+        // fades, render it below, then composite the player on top at the end.
+        mPs3BootIconReveal  *= mMpChromeT;
+        mPs3BootLabelReveal *= mMpChromeT;
+        mpChromeScaled = true;
+    }
 
     // Full-screen photo viewer: drawn over the wave background, replacing the XMB
     // chrome (the viewer fades in from black). The control panel + EXIF overlay
@@ -2307,6 +2324,14 @@ void NanoMenu::renderPs3Xmb() {
     if (mPs3WizActive) renderNetWizard();
     else if (mPs3DlgActive || mPs3DlgClosing) renderPs3Dialog();   // mPs3DlgClosing: side-panel fade-out
     else if (mPs3LangActive) renderLanguagePicker();   // System Language: frosted backdrop + fade, over the menu
+
+    // Player enter cross-fade: the now-playing screen composites OVER the fading XMB
+    // chrome (the mMpActive branch near the top scaled the reveal) until the chrome is
+    // fully gone, at which point the early return above takes the perf path instead.
+    if (mMpActive && mMpChromeT > 0.004f) renderMusicPlayer();
+    // Restore the reveal multipliers scaled for the chrome cross-fade (they persist
+    // across frames otherwise, leaving the chrome hidden after the player closes).
+    if (mpChromeScaled) { mPs3BootIconReveal = mpSavedIconReveal; mPs3BootLabelReveal = mpSavedLabelReveal; }
 }
 
 // ---------------------------------------------------------------------------

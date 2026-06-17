@@ -792,9 +792,19 @@ void NanoMenu::musicTick() {
     ps3bg::setMusicVisTarget((mMpActive && mMpVis == 0) ? 1.0f : 0.0f);
     float dt = mFrameDt;
     if (dt < 0.0f || dt > 0.2f) dt = 0.016f;
-    // Presence + full-info fades (exp ease toward target; ~0.2s).
-    float ent = mMpActive ? 1.0f : 0.0f;
-    mMpEnterT += (ent - mMpEnterT) * fminf(1.0f, dt * 5.0f);
+    // Player ENTER cross-fade, 1:1 with the web (drawBG mpEnterRaw/mpChromeRaw): the
+    // now-playing bar fades IN over ~1.0s (linear progress -> smoothstep) while the XMB
+    // chrome fades OUT over ~0.4s (mMpChromeT, scaled into the cold-boot reveal in
+    // renderPs3Xmb). Leave is instant - the player state is torn down on close/minimize -
+    // so snap both back when the player is not active (the chrome returns at full).
+    if (mMpActive) {
+        mMpEnterRaw = fminf(1.0f, mMpEnterRaw + dt / 1.0f);   // ~1.0s linear
+        mMpChromeT  = fmaxf(0.0f, mMpChromeT  - dt / 0.4f);   // ~0.4s linear
+    } else {
+        mMpEnterRaw = 0.0f;
+        mMpChromeT  = 1.0f;
+    }
+    mMpEnterT = mMpEnterRaw * mMpEnterRaw * (3.0f - 2.0f * mMpEnterRaw);   // smoothstep
     float fi = mMpFullInfo ? 1.0f : 0.0f;
     mMpFullInfoT += (fi - mMpFullInfoT) * fminf(1.0f, dt * 8.0f);
     // Waves<->Canyon visualizer crossfade: ramp the Canyon alpha toward 1 while the

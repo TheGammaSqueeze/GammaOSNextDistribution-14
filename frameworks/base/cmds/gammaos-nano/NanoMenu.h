@@ -1477,7 +1477,9 @@ private:
     // per-frame auto-advance would fire repeatedly and skip tracks.
     bool mMpAdvancing = false;
     int  mMpVolLevel = 0;              // -4..+4 (web volLevel); maps to (lvl+4)/8 gain
-    float mMpEnterT = 0.0f;            // player-presence fade 0..1 (bar fades in)
+    float mMpEnterT = 0.0f;            // player-presence fade 0..1 (bar fades in), smoothstep of mMpEnterRaw
+    float mMpEnterRaw = 0.0f;          // linear 0..1 enter progress (~1.0s), eased into mMpEnterT (web mpEnterRaw)
+    float mMpChromeT = 1.0f;           // XMB chrome presence during the player enter cross-fade (1 full, 0 hidden)
     float mMpFullInfoT = 0.0f;         // full-info cluster fade 0..1
     // control panel (TRIANGLE)
     bool  mMpCpOpen = false;
