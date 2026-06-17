@@ -1044,6 +1044,16 @@ void NanoMenu::pollInput() {
                     continue;
                 }
                 if (ev.value == 1) {
+                    // On a device without a DRM-direct path the framework owns display
+                    // power: if the screen is already off, a power press is a WAKE
+                    // (PowerManager turns the panel back on), not a request to sleep.
+                    // Consume it so nano does not re-enter enterDrmSleep and sleep again;
+                    // the render loop resumes when sys.screen.state flips back on.
+                    if (!sDrmActive) {
+                        char ss[PROPERTY_VALUE_MAX] = {};
+                        property_get("sys.screen.state", ss, "on");
+                        if (!strcmp(ss, "off")) { mPowerPressTime = 0; continue; }
+                    }
                     mPowerPressTime = android::uptimeMillis();
                     // Immediately start polling for long press in a tight loop
                     // so we can shutdown before the hardware cuts power

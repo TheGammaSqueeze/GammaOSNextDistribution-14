@@ -357,6 +357,21 @@ status_t NanoMenu::readyToRun() {
         t0 = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL;
     };
 
+    // Release any stale "nano_music" kernel wakelock left behind by a previous nano
+    // instance that died (LMK / watchdog / crash) while holding it for screen-off
+    // playback. Named /sys/power/wake_lock entries persist past process death, and a
+    // fresh process's in-memory "held" flags reset to false, so without this a leaked
+    // lock would block suspend forever. Safe here: at startup this process has played
+    // nothing (the music library is lazy-loaded), and the cold-boot home + resident
+    // overlay both reach this before any track can play, so it never races real
+    // playback. The lock is re-acquired only while a track is actually playing
+    // screen-off (enterDrmSleep / the overlay screen-off path) and released on
+    // pause / stop / queue-end / wake.
+    {
+        int wl = open("/sys/power/wake_unlock", O_WRONLY | O_CLOEXEC);
+        if (wl >= 0) { ssize_t n = write(wl, "nano_music", 10); (void)n; close(wl); }
+    }
+
     // On non-Qualcomm SoCs, main() already grabbed DRM master early.
     // On Qualcomm, gEarlyDrmFd is -1 (grab deferred to after skip_nano).
     int earlyDrmFd = gEarlyDrmFd;
@@ -3541,6 +3556,54 @@ if (sRingPrimedCount >= 2) {
             }
             if (screenOff) {
                 usleep(250000);   // 4Hz idle poll while the panel is off (no audio)
+                continue;
+            }
+        }
+        // Screen-off pause for the NON-overlay home on devices without a DRM-direct
+        // path (this Brick renders the home through SurfaceFlinger). There the framework
+        // owns the display + power button, so a display timeout / framework sleep blanks
+        // the panel via sys.screen.state=off WITHOUT nano ever running enterDrmSleep
+        // (which only fires on nano's own power handling, and on this device the
+        // framework can sleep us first). The cold-boot home would otherwise keep
+        // rendering the wave wallpaper at full rate behind a black screen, pegging a core
+        // (measured ~25% during sleep = battery drain). Mirror the overlay: drop to
+        // powersave, hold the music wakelock only while a track is actually playing, run
+        // the audio-only auto-advance, and idle-poll instead of rendering. pollInput()
+        // already ran above this point, so input stays live while parked; the framework
+        // owns wake and flips sys.screen.state back on. (DRM-direct homes keep using
+        // enterDrmSleep, which blocks the render thread itself, so this is gated off there.)
+        else if (!sDrmActive) {
+            char ss[PROPERTY_VALUE_MAX] = {};
+            property_get("sys.screen.state", ss, "on");
+            bool screenOff = !strcmp(ss, "off");
+            static bool sSfPwrSave = false;
+            if (screenOff && !sSfPwrSave) { nanoApplyPerfClock("powersave"); sSfPwrSave = true; }
+            else if (!screenOff && sSfPwrSave) { nanoRestorePerfClock(); sSfPwrSave = false; }
+            bool audioActive = mMusicPlayer.isPlaying() ||
+                               (mMpAdvancing && !mMusicPlayer.isPaused());
+            static bool sSfAudioWake = false;
+            if (screenOff && audioActive) {
+                if (!sSfAudioWake) {
+                    int wl = open("/sys/power/wake_lock", O_WRONLY | O_CLOEXEC);
+                    if (wl >= 0) { ssize_t n = write(wl, "nano_music", 10); (void)n; close(wl); }
+                    sSfAudioWake = true;
+                }
+                if (mMpAdvancing && !mMusicPlayer.ended()) mMpAdvancing = false;
+                if (!mMpQueue.empty() && mMusicPlayer.ended() && !mMpAdvancing) {
+                    mMpAdvancing = true;
+                    if (mMpRepeat == 2) mpPlayCurrent();
+                    else mpStep(1, true);
+                }
+                usleep(1000000);   // 1Hz while playing screen-off (catch end-of-track)
+                continue;
+            }
+            if (sSfAudioWake) {    // screen back on, or audio stopped / queue ended -> release
+                int wl = open("/sys/power/wake_unlock", O_WRONLY | O_CLOEXEC);
+                if (wl >= 0) { ssize_t n = write(wl, "nano_music", 10); (void)n; close(wl); }
+                sSfAudioWake = false;
+            }
+            if (screenOff) {
+                usleep(250000);   // 4Hz idle while the framework holds the panel off
                 continue;
             }
         }
