@@ -606,6 +606,7 @@ void NanoMenu::openVideoPlayer(const std::vector<Ps3Item>& list, int listSel) {
     // fresh transport + panel state
     mVidRate = 1.0; mVidStopped = false; mVidRepeat = 0; mVidAbA = mVidAbB = -1.0;
     mVidScanLastTick = -1.0;
+    mVidLastPos = -1.0; mVidLastPosT = mEffectTime; mVidBuffering = false;
     mVidCpOpen = mVidCpClosing = mVidSubOpen = false; mVidGoToOpen = false;
 }
 
@@ -766,6 +767,7 @@ void NanoMenu::videoTick() {
     }
     // While leaving (fading out) keep the audio quiet even before the decoder is freed.
     if (!mVidActive && mVidHasAudio && mVidAudio.isPlaying()) mVidAudio.pause();
+    if (!mVidActive) mVidBuffering = false;   // no spinner during the leave fade
     if (!mVidActive || !mVideoTest) return;
 
     // Timer-driven scan/slow: NanoVideo only plays at 1x, so any non-1x rate pauses
@@ -814,6 +816,19 @@ void NanoMenu::videoTick() {
         }
     }
 
+    // Buffering: the picture is playing at 1x but the decoded position has not advanced for
+    // a moment (warmup / post-seek refill / stall) -> show the spinner (web Layer 2).
+    if (mVidPlaying && mVidRate == 1.0 && !mVidStopped) {
+        double p = mVideoTest->position();
+        if (mVidLastPos < 0.0 || fabs(p - mVidLastPos) > 1e-4) {
+            mVidLastPos = p; mVidLastPosT = mEffectTime; mVidBuffering = false;
+        } else if (mEffectTime - mVidLastPosT > 0.4f) {
+            mVidBuffering = true;
+        }
+    } else {
+        mVidBuffering = false; mVidLastPos = -1.0;
+    }
+
     // A-B repeat: loop back to A once playback passes B.
     if (mVidRepeat == 3 && mVidAbA >= 0.0 && mVidAbB > mVidAbA
         && mVideoTest->position() >= mVidAbB) {
@@ -850,6 +865,50 @@ bool NanoMenu::renderVideoPlayer() {
         mVideoTest->draw(W, H, 0.0f, 0.0f, (float)W, (float)H, et, mVidScreenMode);
     }
     if (!mVideoTest) return et > 0.001f;   // exit fade: black only
+
+    // Layer 2: buffering spinner (warmup / post-seek refill / stall) - icon 114 rotating at
+    // centre + "Buffering..." below it (web drawVideoPlayer 12754-12756).
+    if (mVidBuffering) {
+        GLuint sp = vidIcon(114);
+        if (sp) {
+            float sz = H * 0.06f, ccx = W * 0.5f, ccy = H * 0.5f;
+            float ang = fmodf(mEffectTime * (2.0f * 3.14159265f / 0.6f), 2.0f * 3.14159265f);
+            float ca = cosf(ang), sn = sinf(ang), hw = sz * 0.5f, hh = sz * 0.5f;
+            float lx[4] = {-hw, hw, hw, -hw}, ly[4] = {-hh, -hh, hh, hh};
+            float u[4] = {0, 1, 1, 0}, v[4] = {0, 0, 1, 1};
+            const int order[6] = {0, 1, 2, 0, 2, 3};
+            GLfloat verts[12], uvs[12], cols[24];
+            for (int k = 0; k < 6; k++) {
+                int c = order[k];
+                float rx = lx[c] * ca - ly[c] * sn, ry = lx[c] * sn + ly[c] * ca;
+                verts[k * 2] = ((ccx + rx) / W) * 2.0f - 1.0f;
+                verts[k * 2 + 1] = 1.0f - ((ccy + ry) / H) * 2.0f;
+                uvs[k * 2] = u[c]; uvs[k * 2 + 1] = v[c];
+                cols[k * 4] = cols[k * 4 + 1] = cols[k * 4 + 2] = 1.0f; cols[k * 4 + 3] = et * 0.9f;
+            }
+            glUseProgram(mTextProgram);
+            if (mTextLocSharp >= 0) glUniform1f(mTextLocSharp, 0.0f);
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, sp);
+            glUniform1i(mTextLocTexture, 0);
+            glBindBuffer(GL_ARRAY_BUFFER, 0);
+            glVertexAttribPointer(mTextLocPosition, 2, GL_FLOAT, GL_FALSE, 0, verts);
+            glEnableVertexAttribArray(mTextLocPosition);
+            glVertexAttribPointer(mTextLocTexCoord, 2, GL_FLOAT, GL_FALSE, 0, uvs);
+            glEnableVertexAttribArray(mTextLocTexCoord);
+            glVertexAttribPointer(mTextLocColor, 4, GL_FLOAT, GL_FALSE, 0, cols);
+            glEnableVertexAttribArray(mTextLocColor);
+            glDrawArrays(GL_TRIANGLES, 0, 6);
+            glDisableVertexAttribArray(mTextLocPosition);
+            glDisableVertexAttribArray(mTextLocTexCoord);
+            glDisableVertexAttribArray(mTextLocColor);
+        }
+        float tfs = ps3::fontScale(24.0f);
+        const char* bt = "Buffering...";
+        float bwid = measureText(bt, tfs);
+        drawText(bt, W * 0.5f - bwid * 0.5f, ps3::baselineToTopY(H * 0.5f + H * 0.07f, tfs),
+                 tfs, 1.0f, 1.0f, 1.0f, 0.9f * et);
+    }
 
     double pos = mVideoTest->position(), dur = mVideoTest->duration();
     float bx = W * 0.10f, bw = W * 0.80f, by = H * 0.90f, bh = H * 0.006f;

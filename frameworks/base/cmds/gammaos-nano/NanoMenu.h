@@ -1567,6 +1567,9 @@ private:
     bool   mVidAvBnr = false, mVidAvFnr = false, mVidAvMnr = false, mVidAvUpscale = false;
     double mVidScanLastTick = -1.0;         // wall-clock anchor for timer-driven scan
     double mVidScanPos = 0.0;               // commanded scan clock (decoder position lags + snaps to keyframes)
+    double mVidLastPos = -1.0;              // buffering detection: last seen playback position
+    float  mVidLastPosT = 0.0f;            // time the position last advanced
+    bool   mVidBuffering = false;           // no new frame while playing -> show the buffering spinner
     void vidStop();                         // pause + rewind to 0
     void vidScan(int dir);                  // Fast Forward / Fast Reverse (steps 1.5/10/30/120)
     void vidSlow(int dir);                  // Slow Forward / Slow Reverse (+-0.5)
