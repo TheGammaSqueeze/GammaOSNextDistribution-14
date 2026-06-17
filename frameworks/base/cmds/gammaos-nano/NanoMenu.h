@@ -1443,6 +1443,7 @@ private:
     void openMusicPlayer(const std::vector<Ps3Item>& list, int listSel);
     void closeMusicPlayer();           // full stop + release the audio engine
     void minimizeMusicPlayer();        // hide the Now-Playing UI but keep audio playing
+    void freeMusicVisGl();             // free Canyon/Globe GL immediately (park point; idempotent)
     void resumeMusicPlayer();          // reopen the Now-Playing screen on the live queue
     void mpPlayCurrent();
     void mpRebuildOrder();

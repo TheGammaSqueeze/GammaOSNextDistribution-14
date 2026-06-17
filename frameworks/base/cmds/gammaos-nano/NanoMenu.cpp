@@ -3363,6 +3363,11 @@ if (sRingPrimedCount >= 2) {
                 // Parked (occluded by the foreground app): render() is skipped, so
                 // keep the watchdog heartbeat alive or it aborts this process after 8s.
                 mRenderHeartbeat.fetch_add(1, std::memory_order_relaxed);
+                // Occluded by a foreground app. If the music player was minimized into the
+                // background, free any Canyon/Globe visualizer GL now (a leave fade may have
+                // been interrupted mid-ramp before musicTick could free it), so the vis GL
+                // never lingers while an app runs. Idempotent (ready()-gated).
+                if (!mMpActive) freeMusicVisGl();
                 usleep(33000);   // ~30Hz; no input, no render while occluded
                 continue;
             }

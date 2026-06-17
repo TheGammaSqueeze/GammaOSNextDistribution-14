@@ -676,10 +676,19 @@ void NanoMenu::closeMusicPlayer() {
 void NanoMenu::minimizeMusicPlayer() {
     mMpActive = false;
     mMpCpOpen = false; mMpCpClosing = false; mMpVolSub = false;
-    ps3canyon::shutdown();
-    ps3mpglobe::shutdown();
-    mMpCanyonAlpha = 0.0f;
-    mMpGlobeAlpha = 0.0f;
+    // Do NOT shut down the Canyon/Globe GL here: let musicTick ramp their alpha to 0 over
+    // the ~1.0s leave fade (matching the bar) so the visualizer fades out instead of
+    // cutting, then free the GL once faded (Guard A in musicTick). If the loop is occluded
+    // by a foreground app mid-fade, the park point frees it (Guard B / freeMusicVisGl), so
+    // the GL never lingers behind a running app.
+}
+
+// Free the Canyon/Globe visualizer GL immediately (idempotent; ready()-gated). Called at
+// the occlusion park point so a leave fade interrupted by a foreground app cannot leave
+// the visualizer GL allocated while the app runs.
+void NanoMenu::freeMusicVisGl() {
+    if (ps3canyon::ready())  { ps3canyon::shutdown();  mMpCanyonAlpha = 0.0f; }
+    if (ps3mpglobe::ready()) { ps3mpglobe::shutdown(); mMpGlobeAlpha  = 0.0f; }
 }
 
 // Reopen the Now-Playing screen on the live queue (Quick Menu "Resume Audio Player").
@@ -815,13 +824,21 @@ void NanoMenu::musicTick() {
     // Waves<->Canyon visualizer crossfade: ramp the Canyon alpha toward 1 while the
     // Canyon is the active visualizer, 0 otherwise, over ~0.5s. As it ramps up the
     // wave morph (above) ramps down (vis != 0), so they dissolve into each other.
-    float cStep = dt / 0.5f;
+    // 0.5s for the active Square-cycle crossfade (web mpVisXfade); 1.0s on leave so the
+    // visualizer fades out over the same arc as the bar (mMpEnterT leave fade).
+    float cStep = dt / (mMpActive ? 0.5f : 1.0f);
     float canyonTarget = (mMpActive && mMpVis == 1) ? 1.0f : 0.0f;
     if (mMpCanyonAlpha < canyonTarget) mMpCanyonAlpha = fminf(canyonTarget, mMpCanyonAlpha + cStep);
     else if (mMpCanyonAlpha > canyonTarget) mMpCanyonAlpha = fmaxf(canyonTarget, mMpCanyonAlpha - cStep);
     float globeTarget = (mMpActive && mMpVis == 2) ? 1.0f : 0.0f;
     if (mMpGlobeAlpha < globeTarget) mMpGlobeAlpha = fminf(globeTarget, mMpGlobeAlpha + cStep);
     else if (mMpGlobeAlpha > globeTarget) mMpGlobeAlpha = fmaxf(globeTarget, mMpGlobeAlpha - cStep);
+    // Leave fade complete: free a faded visualizer's GL so nothing lingers in the
+    // background (lazy - re-inits on the next Square cycle). ready()-gated => idempotent.
+    if (!mMpActive) {
+        if (mMpCanyonAlpha <= 0.0f && ps3canyon::ready()) ps3canyon::shutdown();
+        if (mMpGlobeAlpha  <= 0.0f && ps3mpglobe::ready()) ps3mpglobe::shutdown();
+    }
 
     // The following run whether or not the Now-Playing screen is shown, so playback
     // keeps going while the player is minimized into the background.
