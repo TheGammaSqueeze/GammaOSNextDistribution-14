@@ -344,6 +344,7 @@ static const Ps3DataItem kVideoItems[] = {
   {"BD Data Utility",62,"Delete BD data saved on the system storage.",nullptr,0,nullptr,0},
   {"Search for Media Servers",35,"Scans the network and connects to a media server. To use this function, a media server must be set up to allow connections from the PS3™ system.",nullptr,0,nullptr,0},
   {"Video Editor & Uploader",67,"You can edit a video that you like, upload it to a video sharing website, and then invite your friends to view the video.",nullptr,0,nullptr,0},
+  {"Playlists",37,nullptr,nullptr,0,nullptr,0},
 };
 
 // ---- Game (firmware items; nano consoles appended at runtime) -----------

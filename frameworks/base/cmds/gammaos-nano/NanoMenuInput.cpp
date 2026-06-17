@@ -699,6 +699,9 @@ bool NanoMenu::enterDrmSleep() {
     // button looks dead, and any background music is torn down (see the watchdog
     // in NanoMenuRender.cpp).
     mInDrmSleep.store(true, std::memory_order_relaxed);
+    // A video player session does not survive sleep (the decoder is silent and a running
+    // codec/worker through standby just wastes power); tear it fully down before parking.
+    videoHardFree();
     // If music is actively playing, keep it playing with the screen off: blank the
     // panel but do NOT drive a full system suspend (which would freeze the decoder
     // and AAudio threads), and hold a kernel wakelock so the SoC stays up. The
@@ -940,7 +943,8 @@ void NanoMenu::pollInput() {
             // control panel (physical Triangle/BTN_NORTH), `sq` cycles the
             // visualizer (physical Square/BTN_WEST). No effect off Now-Playing.
             else if (!strcmp(navbuf, "tri")) {
-                if (mMpActive) { if (mMpCpOpen) closeMpOpt(); else openMpOpt(); }
+                if (mVidActive) { if (!mVidGoToOpen) vidPanelToggle(); }
+                else if (mMpActive) { if (mMpCpOpen) closeMpOpt(); else openMpOpt(); }
                 else if (mPvActive) { if (mPvPanel) closePvPanel(); else openPvPanel(); }
                 else if (mPs3Xmb) { if (mPs3OptActive) closeXmbOpt(); else openXmbOpt(); }
             }
@@ -1020,8 +1024,12 @@ void NanoMenu::pollInput() {
                              && !mPs3DlgActive && !mPvPlChooserActive) {
                         mPvInfo = !mPvInfo; mPvPanel = false;
                     }
-                    // Video player: SELECT toggles the persistent Display OSD bar.
-                    else if (mVidActive) { mVidOsd = !mVidOsd; mVidHintUntil = mEffectTime + 1.5f; }
+                    // Video player: SELECT toggles the Display OSD bar (web vidToggleInfo:
+                    // osd=!osd, panel=false), so it also dismisses the control panel.
+                    else if (mVidActive) {
+                        mVidOsd = !mVidOsd;
+                        if (mVidCpOpen) vidPanelClose();
+                    }
                     else if (mXmbMode) forceRescanAllSystems();
                 }
                 mSelectHeld = (ev.value != 0);
@@ -1309,6 +1317,7 @@ void NanoMenu::pollInput() {
                         break;
                     case BTN_NORTH: // X button (Nintendo layout: BTN_NORTH = X); PS3 Triangle in music
                         if (mOskActive) { oskBackspace(); break; }
+                        if (mVidActive) { if (mVidGoToOpen) break; vidPanelToggle(); break; }   // Triangle: video control panel
                         if (mMpActive) { if (mMpCpOpen) closeMpOpt(); else openMpOpt(); break; }   // Triangle: control panel
                         if (mPvActive) { if (mPvPanel) closePvPanel(); else openPvPanel(); break; }   // Triangle: photo control panel
                         if (mPs3WizActive) { wizRescan(); break; }   // X: re-scan on the AP list

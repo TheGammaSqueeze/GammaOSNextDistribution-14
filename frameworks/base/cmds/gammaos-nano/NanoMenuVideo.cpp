@@ -98,6 +98,7 @@ bool NanoMenu::loadVideoConfig() {
 
     mVideoFolders.clear();
     mVideos.clear();
+    mVideoPlaylists.clear();
     mVideoCfgVersion = root.find("version") ? (int)root.find("version")->asNumber(0) : 0;
 
     if (const njson::Value* folders = root.find("folders"); folders && folders->isArray())
@@ -119,8 +120,18 @@ bool NanoMenu::loadVideoConfig() {
             it.mtime = v.find("mtime") ? (int64_t)v.find("mtime")->asNumber(0) : 0;
             mVideos.push_back(std::move(it));
         }
-    VLOGI("NanoMenu: loaded video library (%zu folders, %zu videos)",
-          mVideoFolders.size(), mVideos.size());
+
+    if (const njson::Value* pls = root.find("playlists"); pls && pls->isArray())
+        for (const auto& p : pls->arr) {
+            if (!p.isObject()) continue;
+            VideoPlaylist pl; pl.name = p.getString("name");
+            if (pl.name.empty()) continue;
+            if (const njson::Value* files = p.find("files"); files && files->isArray())
+                for (const auto& f : files->arr) if (f.isString()) pl.files.push_back(f.str);
+            mVideoPlaylists.push_back(std::move(pl));
+        }
+    VLOGI("NanoMenu: loaded video library (%zu folders, %zu videos, %zu playlists)",
+          mVideoFolders.size(), mVideos.size(), mVideoPlaylists.size());
     return true;
 }
 
@@ -145,6 +156,16 @@ void NanoMenu::saveVideoConfig() {
         vids.arr.push_back(std::move(v));
     }
     root.set("videos") = std::move(vids);
+    njson::Value pls = njson::Value::makeArray();
+    for (const auto& pl : mVideoPlaylists) {
+        njson::Value p = njson::Value::makeObject();
+        p.set("name") = njson::Value::makeString(pl.name);
+        njson::Value files = njson::Value::makeArray();
+        for (const auto& f : pl.files) files.arr.push_back(njson::Value::makeString(f));
+        p.set("files") = std::move(files);
+        pls.arr.push_back(std::move(p));
+    }
+    root.set("playlists") = std::move(pls);
     std::string text = njson::serialize(root, true);
 
     const char* path = "/data/system/nano_video.json";
@@ -357,6 +378,113 @@ void NanoMenu::buildVideoColumnItems(std::vector<Ps3Item>& out) {
 }
 
 // ---------------------------------------------------------------------------
+// Video playlists (nano addition; the web video section has none) - mirror the music
+// + photo playlist machinery: a Playlists screen (Create + each playlist), a per-playlist
+// file submenu, create/add, and the column "Add to Playlist" chooser. Persisted in
+// nano_video.json (user-only, preserved across rescans).
+// ---------------------------------------------------------------------------
+void NanoMenu::videoCreatePlaylist(const std::string& name) {
+    if (name.empty()) return;
+    for (const auto& pl : mVideoPlaylists) if (pl.name == name) return;   // dedup by name
+    VideoPlaylist pl; pl.name = name;
+    mVideoPlaylists.push_back(std::move(pl));
+    saveVideoConfig();
+}
+void NanoMenu::videoAddToPlaylist(int plIdx, const std::string& file) {
+    if (plIdx < 0 || plIdx >= (int)mVideoPlaylists.size() || file.empty()) return;
+    auto& files = mVideoPlaylists[plIdx].files;
+    if (std::find(files.begin(), files.end(), file) == files.end()) files.push_back(file);
+    saveVideoConfig();
+}
+void NanoMenu::buildVideoPlaylistsScreen(Ps3Level& out) {
+    out.items.clear(); out.sel = 0; out.title = "Playlists"; out.screenKind = GS_NONE;
+    { Ps3Item it; it.label = "Create New Playlist"; it.kind = PS3_VIDEO_PL_NEW;
+      it.iconTex = 0; it.nmapTex = nmapForIcon(50); it.iconR = it.iconG = it.iconB = 1.0f;
+      out.items.push_back(it); }
+    for (size_t p = 0; p < mVideoPlaylists.size(); p++) {
+        Ps3Item it; it.label = mVideoPlaylists[p].name; it.kind = PS3_VIDEO_PLAYLIST; it.a = (int)p;
+        size_t n = mVideoPlaylists[p].files.size();
+        char v[32]; snprintf(v, sizeof(v), "%zu %s", n, n == 1 ? "Video" : "Videos"); it.value = v;
+        it.iconTex = 0; it.nmapTex = nmapForIcon(62); it.iconR = it.iconG = it.iconB = 1.0f;
+        out.items.push_back(it);
+    }
+}
+void NanoMenu::buildVideoPlaylistSubmenu(int plIdx, Ps3Level& out) {
+    out.items.clear(); out.sel = 0; out.screenKind = GS_NONE;
+    if (plIdx < 0 || plIdx >= (int)mVideoPlaylists.size()) { out.title = "Playlist"; return; }
+    out.title = mVideoPlaylists[plIdx].name;
+    GLuint filmNmap = nmapForIcon(4);
+    for (const auto& f : mVideoPlaylists[plIdx].files) {
+        int vi = -1;
+        for (size_t i = 0; i < mVideos.size(); i++) if (mVideos[i].file == f) { vi = (int)i; break; }
+        if (vi < 0) continue;   // file no longer in the library
+        const VideoItem& v = mVideos[vi];
+        Ps3Item it; it.label = v.name; it.kind = PS3_VIDEO_FILE; it.a = vi; it.payloadStr = v.file;
+        std::string sub = v.vcodec;
+        if (v.w > 0 && v.h > 0) { char wh[32]; snprintf(wh, sizeof(wh), "%s%dx%d", sub.empty() ? "" : "  ", v.w, v.h); sub += wh; }
+        it.value = sub;
+        it.iconTex = 0; it.nmapTex = filmNmap; it.iconR = it.iconG = it.iconB = 1.0f;
+        out.items.push_back(it);
+    }
+}
+void NanoMenu::vidOpenAddChooser(const std::string& file) {
+    mVidPlChooserFile = file;
+    mVidPlChooserOpts.clear();
+    mVidPlChooserOpts.push_back("New Playlist...");
+    for (const auto& p : mVideoPlaylists) mVidPlChooserOpts.push_back(p.name);
+    mVidPlChooserSel = 0;
+    mVidPlChooserActive = true;
+}
+void NanoMenu::vidPlChooserMove(int dir) {
+    if (!mVidPlChooserActive) return;
+    int n = (int)mVidPlChooserOpts.size(); if (n <= 0) return;
+    mVidPlChooserSel = (mVidPlChooserSel + dir + n) % n;
+}
+void NanoMenu::vidPlChooserCancel() { mVidPlChooserActive = false; }
+void NanoMenu::vidPlChooserSelect() {
+    if (!mVidPlChooserActive) return;
+    std::string file = mVidPlChooserFile;
+    int sel = mVidPlChooserSel;
+    mVidPlChooserActive = false;
+    if (sel == 0) {
+        openOskForPassword("Enter a name for the playlist",
+            [this, file](const std::string& nm) {
+                if (nm.empty()) return;
+                videoCreatePlaylist(nm);
+                videoAddToPlaylist((int)mVideoPlaylists.size() - 1, file);
+                photoShowBanner("Added to the playlist");
+            });
+        mOskPasswordMode = false; mOskPlaintext = true;   // a playlist name is plain text, not masked
+    } else {
+        videoAddToPlaylist(sel - 1, file);
+        photoShowBanner("Added to the playlist");
+    }
+}
+void NanoMenu::drawVidPlChooser() {
+    float t = mVidPlChooserAnim; if (t < 0.004f) return;
+    int W = mWidth, H = mHeight;
+    drawQuad(0, 0, (float)W, (float)H, 0, 0, 0, 0.5f * t);
+    float fs = ps3::fontScale(26.0f), lh = H * 0.058f;
+    int n = (int)mVidPlChooserOpts.size();
+    float mw = measureText("Add to Playlist", fs);
+    for (auto& o : mVidPlChooserOpts) mw = fmaxf(mw, measureText(o.c_str(), fs));
+    float pw = mw + W * 0.08f, ph = lh * (n + 1) + H * 0.05f;
+    float px = (W - pw) * 0.5f, py = (H - ph) * 0.5f;
+    drawQuad(px, py, pw, ph, 0.07f, 0.08f, 0.10f, 0.92f * t);
+    float cx = W * 0.5f, titleY = py + H * 0.05f;
+    float tw = measureText("Add to Playlist", fs);
+    drawText("Add to Playlist", cx - tw * 0.5f, ps3::baselineToTopY(titleY, fs), fs, 1, 1, 1, 0.95f * t);
+    for (int i = 0; i < n; i++) {
+        float oy = titleY + lh * (i + 1);
+        bool sel = (i == mVidPlChooserSel);
+        if (sel) drawQuad(px + W * 0.02f, oy - lh * 0.42f, pw - W * 0.04f, lh * 0.82f, 1, 1, 1, 0.18f * t);
+        float ow = measureText(mVidPlChooserOpts[i].c_str(), fs);
+        drawText(mVidPlChooserOpts[i].c_str(), cx - ow * 0.5f, ps3::baselineToTopY(oy, fs), fs,
+                 sel ? 1.0f : 0.82f, sel ? 1.0f : 0.82f, sel ? 1.0f : 0.85f, 0.95f * t);
+    }
+}
+
+// ---------------------------------------------------------------------------
 // Folder import: the video folders screen + the picker reuse (mFolderPickTarget=3).
 // ---------------------------------------------------------------------------
 void NanoMenu::buildVideoFoldersScreen(Ps3Level& out) {
@@ -468,6 +596,10 @@ void NanoMenu::openVideoPlayer(const std::vector<Ps3Item>& list, int listSel) {
     mVidOsd = false;
     mVidHintUntil = mEffectTime + 4.0f;     // show the OSD bar for 4s on open
     mVidTransientUntil = 0.0f; mVidDispModeUntil = 0.0f;
+    // fresh transport + panel state
+    mVidRate = 1.0; mVidStopped = false; mVidRepeat = 0; mVidAbA = mVidAbB = -1.0;
+    mVidScanLastTick = -1.0;
+    mVidCpOpen = mVidCpClosing = mVidSubOpen = false; mVidGoToOpen = false;
 }
 
 void NanoMenu::closeVideoPlayer() {
@@ -476,12 +608,25 @@ void NanoMenu::closeVideoPlayer() {
     mVidActive = false;
 }
 
+// Immediate, idempotent full teardown of the video decoder + player state. Used where
+// there is no time for the leave fade: sleep/power-press, occlusion by a foreground app,
+// and process shutdown. Joins the worker, frees codec/extractor/surface/OES texture.
+void NanoMenu::videoHardFree() {
+    if (mVideoTest) { mVideoTest->release(); delete mVideoTest; mVideoTest = nullptr; }
+    mVidActive = false; mVidPlaying = false;
+    mVidEnterRaw = 0.0f; mVidEnterT = 0.0f;
+    mVidCpOpen = mVidCpClosing = mVidSubOpen = mVidGoToOpen = false;
+}
+
 void NanoMenu::vidShowTransient(const std::string& text, float ms) {
     mVidTransient = text; mVidTransientUntil = mEffectTime + ms / 1000.0f;
 }
 
 void NanoMenu::vidTogglePlay() {
     if (!mVideoTest) return;
+    // web vidPlayToggle: forces rate 1, un-stops (restart from 0 if stopped), flips playing.
+    mVidRate = 1.0; mVidTransientUntil = 0.0f;
+    if (mVidStopped) { mVidStopped = false; mVideoTest->seek(0.0); }
     mVidPlaying = !mVidPlaying;
     if (mVidPlaying) mVideoTest->play(); else mVideoTest->pause();
     mVidHintUntil = mEffectTime + 1.5f;
@@ -489,7 +634,11 @@ void NanoMenu::vidTogglePlay() {
 
 void NanoMenu::vidSeek(double deltaSec) {
     if (!mVideoTest) return;
+    mVidRate = 1.0;   // a manual seek cancels any scan (web vidSeek)
+    double dur = mVideoTest->duration();
     double p = mVideoTest->position() + deltaSec;
+    if (p < 0.0) p = 0.0;
+    if (dur > 0.0 && p > dur - 0.05) p = dur - 0.05;   // keep inside the stream (no EOS trip)
     mVideoTest->seek(p);
     mVidHintUntil = mEffectTime + 1.5f;
 }
@@ -497,13 +646,90 @@ void NanoMenu::vidSeek(double deltaSec) {
 void NanoMenu::vidStepTitle(int dir) {
     if (mVidList.empty() || !mVideoTest) return;
     int n = (int)mVidList.size();
-    mVidIdx = (mVidIdx + dir % n + n) % n;
+    mVidIdx = ((mVidIdx + dir) % n + n) % n;
     int vi = mVidList[mVidIdx];
     if (vi < 0 || vi >= (int)mVideos.size()) return;
     mVideoTest->release();
     if (!mVideoTest->open(mVideos[vi].file)) return;
-    mVidPlaying = true;
+    // web vidStepTitle resets rate / stopped / play state.
+    mVidRate = 1.0; mVidStopped = false; mVidPlaying = true;
+    mVidAbA = mVidAbB = -1.0;
     mVidHintUntil = mEffectTime + 1.5f;
+}
+
+// ---- transport extras (web vidStop/vidScan/vidSlow/vidStepFrame/vidFlash) -----
+void NanoMenu::vidStop() {
+    if (!mVideoTest) return;
+    mVideoTest->pause();
+    mVideoTest->seek(0.0);
+    mVidPlaying = false; mVidStopped = true; mVidRate = 1.0;
+    mVidTransientUntil = 0.0f;
+    mVidHintUntil = mEffectTime + 1.5f;
+}
+
+void NanoMenu::vidScan(int dir) {
+    if (!mVideoTest) return;
+    static const double kMag[4] = {1.5, 10.0, 30.0, 120.0};
+    double cur = mVidRate;
+    bool sameDir = (dir > 0 && cur > 1.0) || (dir < 0 && cur < -1.0);
+    double mag = 1.5;
+    if (sameDir) {
+        double a = cur < 0 ? -cur : cur; int idx = 0;
+        for (int i = 0; i < 4; i++) if (a >= kMag[i] - 0.01) idx = i;
+        mag = kMag[(idx + 1) % 4];            // step up, wrapping back to 1.5
+    }
+    mVidRate = dir > 0 ? mag : -mag;
+    mVidStopped = false; mVidPlaying = true;
+    mVidScanLastTick = -1.0; mVidScanPos = mVideoTest->position();
+    mVideoTest->pause();                       // timer-driven from here (videoTick)
+    char b[48];
+    snprintf(b, sizeof(b), "%s  x %g", dir > 0 ? "Fast Forward" : "Fast Reverse", mag);
+    vidShowTransient(b, 1400.0f);
+    mVidHintUntil = mEffectTime + 1.5f;
+}
+
+void NanoMenu::vidSlow(int dir) {
+    if (!mVideoTest) return;
+    mVidRate = dir > 0 ? 0.5 : -0.5;
+    mVidStopped = false; mVidPlaying = true;
+    mVidScanLastTick = -1.0; mVidScanPos = mVideoTest->position();
+    mVideoTest->pause();
+    vidShowTransient(dir > 0 ? "Slow (Forward)" : "Slow (Reverse)", 1400.0f);
+    mVidHintUntil = mEffectTime + 1.5f;
+}
+
+void NanoMenu::vidStepFrame(int dir) {
+    if (!mVideoTest) return;
+    mVidPlaying = false; mVidRate = 1.0; mVideoTest->pause();
+    double dur = mVideoTest->duration();
+    double p = mVideoTest->position() + (dir > 0 ? 1.0 : -1.0) / 30.0;
+    if (p < 0.0) p = 0.0;
+    if (dur > 0.0 && p > dur - 0.02) p = dur - 0.02;
+    mVideoTest->seek(p);
+    mVidHintUntil = mEffectTime + 1.5f;
+}
+
+void NanoMenu::vidFlash(int dir) {
+    if (!mVideoTest) return;
+    mVidRate = 1.0;
+    double dur = mVideoTest->duration();
+    double p = mVideoTest->position() + (dir > 0 ? 15.0 : -15.0);
+    if (p < 0.0) p = 0.0;
+    if (dur > 0.0 && p > dur - 0.05) p = dur - 0.05;
+    mVideoTest->seek(p);
+    vidShowTransient(dir > 0 ? "Instant Advance" : "Instant Replay", 1200.0f);
+    mVidHintUntil = mEffectTime + 1.5f;
+}
+
+void NanoMenu::vidBeginning() {
+    if (!mVideoTest) return;
+    if (mVideoTest->position() > 2.0) {
+        mVidRate = 1.0; mVideoTest->seek(0.0);
+        vidShowTransient("Return to Beginning", 1000.0f);
+        mVidHintUntil = mEffectTime + 1.5f;
+    } else {
+        vidStepTitle(-1);
+    }
 }
 
 void NanoMenu::videoTick() {
@@ -517,11 +743,53 @@ void NanoMenu::videoTick() {
     mVidEnterT = mVidEnterRaw * mVidEnterRaw * (3.0f - 2.0f * mVidEnterRaw);
     if (!mVidActive && mVidEnterRaw <= 0.001f && mVideoTest) {
         mVideoTest->release(); delete mVideoTest; mVideoTest = nullptr;
+        mVidCpOpen = mVidCpClosing = mVidSubOpen = mVidGoToOpen = false;
     }
-    // End of stream: auto-advance to the next video, or stop on the last one.
-    if (mVidActive && mVideoTest && mVidPlaying && mVideoTest->ended()) {
-        if (mVidIdx < (int)mVidList.size() - 1) vidStepTitle(1);
-        else { mVidPlaying = false; mVideoTest->pause(); }
+    if (!mVidActive || !mVideoTest) return;
+
+    // Timer-driven scan/slow: NanoVideo only plays at 1x, so any non-1x rate pauses
+    // native playback and advances the position by rate*dt each frame (web vidTick).
+    if (mVidPlaying && mVidRate != 1.0) {
+        double now = mEffectTime;
+        double sdt = (mVidScanLastTick < 0.0) ? 0.016 : (now - mVidScanLastTick);
+        if (sdt > 0.1) sdt = 0.1;
+        mVidScanLastTick = now;
+        double dur = mVideoTest->duration();
+        // Advance a COMMANDED clock (decoder position lags + snaps to keyframes, so re-basing
+        // off it would stall the scan), then seek the picture to it (web vidTick accumulator).
+        mVidScanPos += mVidRate * sdt;
+        if (mVidScanPos <= 0.0) {              // hit the start: resume normal play
+            mVidRate = 1.0; mVideoTest->seek(0.0); mVideoTest->play();
+            mVidTransientUntil = 0.0f;
+        } else if (dur > 0.0 && mVidScanPos >= dur - 0.05) {
+            // hit the end: resume at the tail so natural EOS triggers vidOnEnded below
+            mVidRate = 1.0; mVideoTest->seek(dur - 0.05); mVideoTest->play();
+        } else {
+            mVideoTest->seek(mVidScanPos);
+        }
+    } else {
+        mVidScanLastTick = -1.0;
+        // Reconcile native playback with the play/pause state at 1x.
+        bool wantNative = mVidPlaying && mVidRate == 1.0;
+        if (wantNative && !mVideoTest->isPlaying()) mVideoTest->play();
+        else if (!wantNative && mVideoTest->isPlaying()) mVideoTest->pause();
+    }
+
+    // A-B repeat: loop back to A once playback passes B.
+    if (mVidRepeat == 3 && mVidAbA >= 0.0 && mVidAbB > mVidAbA
+        && mVideoTest->position() >= mVidAbB) {
+        mVideoTest->seek(mVidAbA);
+    }
+
+    // End of stream: repeat / auto-advance / stop (web vidOnEnded).
+    if (mVidPlaying && mVideoTest->ended()) {
+        if (mVidRepeat == 1 || mVidRepeat == 2) {          // Repeat On / Title Repeat
+            mVideoTest->seek(0.0); mVideoTest->play();
+        } else if (mVidIdx < (int)mVidList.size() - 1) {    // auto-advance
+            vidStepTitle(1);
+        } else {
+            mVidPlaying = false; mVidStopped = true; mVideoTest->pause();
+        }
     }
 }
 
@@ -534,12 +802,11 @@ bool NanoMenu::renderVideoPlayer() {
     float et = mVidEnterT;
     drawQuad(0, 0, (float)W, (float)H, 0.0f, 0.0f, 0.0f, 1.0f);   // black backdrop
 
-    // Layer 1: the video frame (Normal = aspect-fit; other screen modes come with the
-    // control panel). updateFrame latches the newest decoded frame on the render thread.
+    // Layer 1: the video frame at the chosen Screen Mode (0 Normal .. 4 Double Scale,
+    // mapped 1:1 in NanoVideo::draw). updateFrame latches the newest decoded frame.
     if (mVideoTest) {
         mVideoTest->updateFrame();
-        int fit = (mVidScreenMode == 1 || mVidScreenMode == 3) ? 1 : 0;   // FullScreen/Zoom = fill
-        mVideoTest->draw(W, H, 0.0f, 0.0f, (float)W, (float)H, et, fit);
+        mVideoTest->draw(W, H, 0.0f, 0.0f, (float)W, (float)H, et, mVidScreenMode);
     }
     if (!mVideoTest) return et > 0.001f;   // exit fade: black only
 
@@ -547,9 +814,10 @@ bool NanoMenu::renderVideoPlayer() {
     float bx = W * 0.10f, bw = W * 0.80f, by = H * 0.90f, bh = H * 0.006f;
 
     // Layer 3: title (top-left) + the seek bar + times. The bar auto-hides via
-    // mVidHintUntil unless the Display OSD toggle keeps it on.
+    // mVidHintUntil unless the Display OSD toggle or the control panel keeps it on.
+    bool panelUp = mVidCpOpen || mVidCpClosing;
     float hintA = fminf(1.0f, fmaxf(0.0f, (mVidHintUntil - mEffectTime)) / 0.6f) * et;
-    float barA = mVidOsd ? et : hintA;
+    float barA = (mVidOsd || panelUp) ? et : hintA;
     // Title is shown with the bar.
     if (barA > 0.01f) {
         const VideoItem& v = mVideos[mVidList[mVidIdx]];
@@ -578,8 +846,16 @@ bool NanoMenu::renderVideoPlayer() {
         drawText(mVidTransient.c_str(), (W - tw) * 0.5f, ps3::baselineToTopY(H * 0.14f, fs), fs, 1.0f, 1.0f, 1.0f, 0.95f * a);
     }
 
-    // Layer 8: help-hint pill (bottom-right) while the OSD bar is showing.
-    if (hintA > 0.01f) {
+    // Layer 5: screen-mode pill (bottom-left), fading like the transient.
+    if (!mVidDispMode.empty() && mEffectTime < mVidDispModeUntil) {
+        float a = fminf(1.0f, (mVidDispModeUntil - mEffectTime) / 0.4f) * et;
+        float fs = ps3::fontScale(28.0f);
+        drawText(mVidDispMode.c_str(), W * 0.057f, ps3::baselineToTopY(H * 0.82f, fs),
+                 fs, 1.0f, 1.0f, 1.0f, 0.95f * a);
+    }
+
+    // Layer 8: help-hint pill (bottom-right) while the OSD bar shows and no panel is up.
+    if (hintA > 0.01f && !panelUp) {
         float fs = ps3::fontScale(21.0f);
         const char* l1 = "Triangle: Control Panel";
         const char* l2 = "Circle: Home Menu";
@@ -592,7 +868,369 @@ bool NanoMenu::renderVideoPlayer() {
         drawText(l1, px + padx, ps3::baselineToTopY(py + lh * 0.9f, fs), fs, 1.0f, 1.0f, 1.0f, 0.95f * hintA);
         drawText(l2, px + padx, ps3::baselineToTopY(py + lh * 1.8f, fs), fs, 1.0f, 1.0f, 1.0f, 0.95f * hintA);
     }
+
+    // Layer 9: the control panel (200ms open/close, web drawVideoPanel).
+    if (mVidCpOpen) drawVideoPanel(-1.0f);
+    else if (mVidCpClosing) {
+        float p = fminf(1.0f, (mEffectTime - mVidCpCloseStart) / 0.2f);
+        drawVideoPanel(1.0f - p);
+        if (p >= 1.0f) mVidCpClosing = false;
+    }
+
+    // Layer 10: the Go To picker over everything.
+    if (mVidGoToOpen) drawVideoGoTo();
     return true;
+}
+
+// ===========================================================================
+// Video control panel (web VIDEO_CP / drawVideoPanel). Same look as the music
+// panel (drawMpOpt) but the video grid layout, 1.5x focus, the videoplayer icons,
+// and the screen-mode / repeat / volume / AV-settings submenus.
+// ===========================================================================
+struct VidCp { const char* act; const char* label; int ic; int gx; int gy; };
+static const VidCp kVidCp[] = {
+    {"scene",      "Scene Search",        18,  1, 0},
+    {"goto",       "Go To",               19,  2, 0},
+    {"audio",      "Audio Options",        3,  3, 0},
+    {"subtitle",   "Subtitle Options",    22,  4, 0},
+    {"volume",     "Volume Control",       2,  5, 0},
+    {"avset",      "AV Settings",         23,  6, 0},
+    {"screenmode", "Screen Mode",          1,  7, 0},
+    {"chgicon",    "Change Icon",         24,  8, 0},
+    {"del",        "Delete",               4,  9, 0},
+    {"showinfo",   "Display",              0, 10, 0},
+    {"beginning",  "Return to Beginning",  9,  0, 1},
+    {"next",       "Next",                10,  1, 1},
+    {"frev",       "Fast Reverse",        11,  2, 1},
+    {"ffwd",       "Fast Forward",        12,  3, 1},
+    {"play",       "Play",                 6,  4, 1},
+    {"pause",      "Pause",                8,  5, 1},
+    {"stop",       "Stop",                 7,  6, 1},
+    {"flashr",     "Instant Replay",      15,  7, 1},
+    {"flashf",     "Instant Advance",     16,  8, 1},
+    {"srev",       "Slow  (Reverse)",     20,  9, 1},
+    {"sfwd",       "Slow  (Forward)",     13, 10, 1},
+    {"stepb",      "Frame Reverse",       21, 11, 1},
+    {"stepf",      "Frame Advance",       14, 12, 1},
+    {"repeat",     "Repeat",              17,  6, 2},
+};
+static const int kVidCpCount = (int)(sizeof(kVidCp) / sizeof(kVidCp[0]));
+static int vidCpDefault() {
+    for (int i = 0; i < kVidCpCount; i++) if (!strcmp(kVidCp[i].act, "play")) return i;
+    return 0;
+}
+static const char* kVidScreenModes[] = {"Normal", "Full Screen", "Original", "Zoom", "Double Scale"};
+static const char* kVidRepeatModes[] = {"Repeat Off", "Repeat On", "Title Repeat", "A-B Repeat", "Folder Repeat"};
+static const char* kVidAvSet[]       = {"Block Noise Reduction", "Frame Noise Reduction",
+                                        "Mosquito Noise Reduction", "Upscale"};
+
+void NanoMenu::vidPanelToggle() { if (mVidCpOpen) vidPanelClose(); else vidPanelOpen(); }
+
+void NanoMenu::vidPanelOpen() {
+    if (mVidCpOpen) return;
+    mVidCpOpen = true; mVidCpClosing = false; mVidSubOpen = false;
+    mVidCpSel = vidCpDefault(); mVidCpSelPrev = mVidCpSel;
+    mVidCpAnimStart = mEffectTime; mVidCpFocusStart = mEffectTime;
+    mVidCpPressStart = -1.0f; mVidCpPressSel = -1;
+    mVidHintUntil = 0.0f;
+    for (int i = 0; i < kVidCpCount; i++) vidIcon(kVidCp[i].ic);   // warm glyphs
+}
+
+void NanoMenu::vidPanelClose() {
+    if (!mVidCpOpen && !mVidSubOpen) return;
+    mVidSubOpen = false;
+    mVidCpOpen = false; mVidCpClosing = true; mVidCpCloseStart = mEffectTime;
+}
+
+void NanoMenu::vidPanelBack() {
+    if (mVidSubOpen) { mVidSubOpen = false; return; }
+    vidPanelClose();
+}
+
+void NanoMenu::vidPanelMove(int dx, int dy) {
+    if (!mVidCpOpen) return;
+    if (mVidSubOpen) {
+        if (dy != 0 && !mVidSubOpts.empty()) {
+            int n = (int)mVidSubOpts.size();
+            mVidSubSel = (mVidSubSel + (dy > 0 ? 1 : -1) + n) % n;
+        }
+        return;
+    }
+    const VidCp& cur = kVidCp[mVidCpSel]; int best = -1; float bestd = 1e9f;
+    for (int i = 0; i < kVidCpCount; i++) {
+        if (i == mVidCpSel) continue;
+        const VidCp& b = kVidCp[i];
+        int ddx = b.gx - cur.gx, ddy = b.gy - cur.gy;
+        if (dx > 0 && ddx <= 0) continue; if (dx < 0 && ddx >= 0) continue;
+        if (dy > 0 && ddy <= 0) continue; if (dy < 0 && ddy >= 0) continue;
+        float adx = (float)(ddx < 0 ? -ddx : ddx), ady = (float)(ddy < 0 ? -ddy : ddy);
+        float along = dx ? adx : ady, perp = dx ? ady : adx;
+        float d = along + perp * 3.0f;
+        if (d < bestd) { bestd = d; best = i; }
+    }
+    if (best >= 0) { mVidCpSelPrev = mVidCpSel; mVidCpFocusStart = mEffectTime; mVidCpSel = best; }
+}
+
+void NanoMenu::vidSubBuild(int kind) {
+    mVidSubKind = kind; mVidSubOpts.clear(); mVidSubSel = 0;
+    switch (kind) {
+        case 0: mVidSubLabel = "Screen Mode";
+            for (const char* s : kVidScreenModes) mVidSubOpts.push_back(s);
+            mVidSubSel = mVidScreenMode; break;
+        case 1: mVidSubLabel = "Repeat";
+            for (const char* s : kVidRepeatModes) mVidSubOpts.push_back(s);
+            mVidSubSel = mVidRepeat; break;
+        case 2: mVidSubLabel = "Volume Control"; {
+            static const char* v[] = {"100%", "80%", "60%", "40%", "20%", "0%"};
+            for (const char* s : v) mVidSubOpts.push_back(s);
+            int sel = (int)((1.0f - mVidVolume) / 0.2f + 0.5f);
+            if (sel < 0) sel = 0; if (sel > 5) sel = 5; mVidSubSel = sel; } break;
+        case 3: mVidSubLabel = "AV Settings"; {
+            bool keys[4] = {mVidAvBnr, mVidAvFnr, mVidAvMnr, mVidAvUpscale};
+            for (int i = 0; i < 4; i++) {
+                std::string s = kVidAvSet[i]; s += "   "; s += keys[i] ? "Automatic" : "Off";
+                mVidSubOpts.push_back(s);
+            } } break;
+    }
+}
+
+void NanoMenu::vidSubConfirm() {
+    int sel = mVidSubSel;
+    switch (mVidSubKind) {
+        case 0:   // screen mode
+            mVidScreenMode = sel;
+            mVidDispMode = kVidScreenModes[sel]; mVidDispModeUntil = mEffectTime + 1.8f;
+            mVidSubOpen = false; break;
+        case 1:   // repeat
+            if (sel == 3) {   // progressive A-B: set A, then B (needs >0.5s gap), then clear
+                double p = mVideoTest ? mVideoTest->position() : 0.0;
+                if (mVidAbA < 0.0) { mVidAbA = p; mVidAbB = -1.0; mVidRepeat = 3;
+                                     mVidDispMode = "A-B Repeat: Point A set"; mVidDispModeUntil = mEffectTime + 1.8f; }
+                else if (mVidAbB < 0.0 && p > mVidAbA + 0.5) { mVidAbB = p;
+                                     mVidDispMode = "A-B Repeat: Point B set"; mVidDispModeUntil = mEffectTime + 1.8f; }
+                else if (mVidAbB >= 0.0) { mVidAbA = mVidAbB = -1.0; mVidRepeat = 0;
+                                     mVidDispMode = "A-B Repeat Off"; mVidDispModeUntil = mEffectTime + 1.8f; }
+            } else { mVidRepeat = sel; mVidAbA = mVidAbB = -1.0; }
+            mVidSubOpen = false; break;
+        case 2:   // volume
+            mVidVolume = 1.0f - sel * 0.2f; mVidSubOpen = false; break;
+        case 3: { // AV settings: toggle the key, flash the pill, keep the submenu open
+            bool* keys[4] = {&mVidAvBnr, &mVidAvFnr, &mVidAvMnr, &mVidAvUpscale};
+            *keys[sel] = !*keys[sel];
+            mVidDispMode = std::string(kVidAvSet[sel]) + ": " + (*keys[sel] ? "Automatic" : "Off");
+            mVidDispModeUntil = mEffectTime + 1.8f;
+            vidSubBuild(3); mVidSubSel = sel; } break;
+    }
+}
+
+void NanoMenu::vidPanelActivate() {
+    if (!mVidCpOpen) return;
+    if (mVidSubOpen) { vidSubConfirm(); return; }
+    mVidCpPressStart = mEffectTime; mVidCpPressSel = mVidCpSel;
+    const char* a = kVidCp[mVidCpSel].act;
+    if (!strcmp(a, "play"))            { if (!mVidPlaying || mVidStopped) vidTogglePlay(); }
+    else if (!strcmp(a, "pause"))      { if (mVidPlaying && !mVidStopped) vidTogglePlay(); }
+    else if (!strcmp(a, "stop"))       vidStop();
+    else if (!strcmp(a, "ffwd"))       vidScan(+1);
+    else if (!strcmp(a, "frev"))       vidScan(-1);
+    else if (!strcmp(a, "sfwd"))       vidSlow(+1);
+    else if (!strcmp(a, "srev"))       vidSlow(-1);
+    else if (!strcmp(a, "stepf"))      vidStepFrame(+1);
+    else if (!strcmp(a, "stepb"))      vidStepFrame(-1);
+    else if (!strcmp(a, "flashf"))     vidFlash(+1);
+    else if (!strcmp(a, "flashr"))     vidFlash(-1);
+    else if (!strcmp(a, "beginning"))  vidBeginning();
+    else if (!strcmp(a, "next"))       vidStepTitle(1);
+    else if (!strcmp(a, "showinfo"))   { mVidOsd = !mVidOsd; vidPanelClose(); }
+    else if (!strcmp(a, "screenmode")) { vidSubBuild(0); mVidSubOpen = true; }
+    else if (!strcmp(a, "repeat"))     { vidSubBuild(1); mVidSubOpen = true; }
+    else if (!strcmp(a, "volume"))     { vidSubBuild(2); mVidSubOpen = true; }
+    else if (!strcmp(a, "avset"))      { vidSubBuild(3); mVidSubOpen = true; }
+    else if (!strcmp(a, "goto"))       vidGoToOpen();
+    else if (!strcmp(a, "scene"))      vidShowTransient("No chapters", 1400.0f);
+    else if (!strcmp(a, "audio")) {
+        // Audio decode/output is not wired yet (flagged gap): show the firmware notice,
+        // or name the clip's audio codec if it has one.
+        const VideoItem& v = mVideos[mVidList[mVidIdx]];
+        vidPanelClose();
+        if (v.acodec.empty()) vidShowTransient("There is no audio.", 1600.0f);
+        else vidShowTransient(std::string("Audio Track:  ") + v.acodec, 1600.0f);
+    }
+    else if (!strcmp(a, "subtitle")) {
+        vidPanelClose();
+        vidShowTransient("There are no subtitle options available.", 1700.0f);
+    }
+    else if (!strcmp(a, "del")) { vidPanelClose(); vidShowTransient("Delete completed.", 1400.0f); }
+    else if (!strcmp(a, "chgicon")) {
+        double rem = mVideoTest ? (mVideoTest->duration() - mVideoTest->position()) : 0.0;
+        vidPanelClose();
+        if (rem < 15.0) vidShowTransient("You cannot create an icon less than 15 seconds in length.", 1800.0f);
+        else vidShowTransient("The icon has been changed.", 1600.0f);
+    }
+}
+
+void NanoMenu::drawVideoPanel(float closeT) {
+    int W = mWidth, H = mHeight;
+    float t = (closeT >= 0.0f) ? closeT
+            : (mVidCpAnimStart >= 0.0f ? fminf(1.0f, (mEffectTime - mVidCpAnimStart) / 0.2f) : 1.0f);
+    if (t < 0) t = 0;
+    float A = t * mVidEnterT;                              // overall panel alpha
+    float x0 = W * 0.1589f - (1.0f - t) * W * 0.012f;
+    float y0 = H * 0.4148f;
+    float colW = W * 0.03526f, rowH = H * 0.061f, sz = H * 0.060f;
+    float pulse = 0.5f + 0.5f * sinf(mEffectTime * 2.0f * 3.14159265f / 1.5f);
+
+    for (int i = 0; i < kVidCpCount; i++) {
+        const VidCp& b = kVidCp[i];
+        bool focus = (i == mVidCpSel);
+        float cx = x0 + b.gx * colW, cy = y0 + b.gy * rowH;
+        float baseScale = focus ? 1.5f : 1.0f;
+        if (mVidCpFocusStart >= 0.0f) {
+            float fe = fminf(1.0f, (mEffectTime - mVidCpFocusStart) / 0.14f);
+            float fk = 1.0f - powf(1.0f - fe, 3.0f);
+            if (focus) baseScale = 1.0f + 0.5f * fk;
+            else if (i == mVidCpSelPrev) baseScale = 1.5f - 0.5f * fk;
+        }
+        float ps = baseScale, flash = 0.0f;
+        if (mVidCpPressSel == i && mVidCpPressStart >= 0.0f) {
+            float e = (mEffectTime - mVidCpPressStart) / 0.24f;
+            if (e < 1.0f) { float s = sinf(e * 3.14159265f); ps *= 1.0f - 0.18f * s; flash = s * 0.55f; }
+        }
+        GLuint tex = vidIcon(b.ic); float ar = vidIconAR(b.ic);
+        auto glyph = [&](float dx, float dy, float r, float g, float bl, float al, float scl) {
+            if (!tex) return;
+            float hh = sz * scl, ww = hh * ar;
+            drawIconTex(tex, cx - ww * 0.5f + dx, cy - hh * 0.5f + dy, ww, hh, r, g, bl, A * al);
+        };
+        if (focus) {
+            glyph(0, 0, 0.86f, 0.92f, 1.0f, (0.22f + 0.18f * pulse) * 0.6f, ps * 1.18f);  // breathing halo
+            glyph(0, 0, 1, 1, 1, 1.0f, ps);                                               // crisp glyph
+        } else {
+            glyph(sz * 0.03f, sz * 0.04f, 0, 0, 0, 0.5f, ps);   // drop shadow
+            glyph(0, 0, 1, 1, 1, 0.85f, ps);                    // dimmed glyph
+        }
+        if (flash > 0.0f) glyph(0, 0, 1, 1, 1, flash, ps);      // activate brightness pop
+    }
+
+    // focused label (left-aligned) + the SELECT/START button-hint pills
+    if (mVidCpSel >= 0 && mVidCpSel < kVidCpCount) {
+        const VidCp& b = kVidCp[mVidCpSel];
+        std::string lab = b.label;
+        if (!strcmp(b.act, "ffwd") && mVidRate > 1.0) {
+            char x[40]; snprintf(x, sizeof(x), "Fast Forward  x %g", mVidRate); lab = x;
+        } else if (!strcmp(b.act, "frev") && mVidRate < -1.0) {
+            char x[40]; snprintf(x, sizeof(x), "Fast Reverse  x %g", -mVidRate); lab = x;
+        } else if (!strcmp(b.act, "beginning")) {
+            lab = (mVideoTest && mVideoTest->position() > 2.0) ? "Return to Beginning" : "Previous";
+        }
+        float lx = x0 + colW * 0.1f, ly = y0 + 2.9f * rowH;
+        float ls = ps3::fontScale(24.0f);
+        drawText(lab.c_str(), lx, ps3::baselineToTopY(ly, ls), ls, 0.96f, 0.96f, 0.96f, A);
+        if (!mVidSubOpen) {
+            const char* pill = nullptr;
+            if (!strcmp(b.act, "showinfo")) pill = "SELECT";
+            else if (!strcmp(b.act, "play")) pill = "START";
+            if (pill) {
+                float lw = measureText(lab.c_str(), ls);
+                float pillH = H * 0.030f, gap = W * 0.006f;
+                float pfs = ps3::fontScale(13.8f), pillTxtW = measureText(pill, pfs);
+                float pw = pillTxtW + W * 0.012f;
+                float px = lx + lw + gap, py = ly - pillH * 0.82f;
+                auto cap = [&](float qx, float qy, float qw, float qh, float r, float g, float bl, float a) {
+                    float rr = qh * 0.5f;
+                    drawQuad(qx + rr, qy, qw - 2.0f * rr, qh, r, g, bl, a);
+                    ps3FillCircle(qx + rr, qy + rr, rr, r, g, bl, a);
+                    ps3FillCircle(qx + qw - rr, qy + rr, rr, r, g, bl, a);
+                };
+                float bw = 1.2f;
+                cap(px - bw, py - bw, pw + 2.0f * bw, pillH + 2.0f * bw, 225/255.f, 225/255.f, 225/255.f, 0.7f * A);
+                cap(px, py, pw, pillH, 150/255.f, 150/255.f, 150/255.f, 0.55f * A);
+                drawText(pill, px + pw * 0.5f - pillTxtW * 0.5f, ps3::baselineToTopY(py + pillH * 0.56f, pfs),
+                         pfs, 1, 1, 1, 0.95f * A);
+            }
+        }
+    }
+
+    // submenu plate + rows (web drawVideoPanel submenu, 12685-12701): plate is sized to the
+    // widest option, rows centred in their highlight band.
+    if (mVidSubOpen && !mVidSubOpts.empty()) {
+        float sx = x0 + colW * 0.1f, sy = y0 + 3.5f * rowH;
+        float lh = H * 0.045f, fs = ps3::fontScale(26.0f);
+        float fpx = ps3::emPx(fs);              // device-px font size (web 'fs' inset unit)
+        int n = (int)mVidSubOpts.size();
+        float mw = 0.0f;
+        for (int i = 0; i < n; i++) { float w = measureText(mVidSubOpts[i].c_str(), fs); if (w > mw) mw = w; }
+        drawQuad(sx - fpx * 0.6f, sy - lh * 0.7f, mw + fpx * 1.6f, lh * n + lh * 0.3f, 0, 0, 0, 0.55f * A);
+        for (int i = 0; i < n; i++) {
+            float oy = sy + i * lh + lh * 0.1f;  // row centre (web textBaseline='middle' at oy)
+            bool sel = (i == mVidSubSel);
+            if (sel) drawQuad(sx - fpx * 0.4f, oy - lh * 0.45f, mw + fpx * 0.8f, lh * 0.9f, 1, 1, 1, 0.20f * A);
+            float c = sel ? 1.0f : 0.88f;
+            drawText(mVidSubOpts[i].c_str(), sx, ps3::baselineToTopY(oy + fpx * 0.35f, fs),
+                     fs, c, c, c, (sel ? 1.0f : 0.85f) * A);
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Go To (in-player H:MM:SS seek picker, web vidGoTo* / drawVideoGoTo).
+// ---------------------------------------------------------------------------
+void NanoMenu::vidGoToOpen() {
+    double p = mVideoTest ? mVideoTest->position() : 0.0;
+    int t = (int)p;
+    mVidGoToH = t / 3600; mVidGoToM = (t % 3600) / 60; mVidGoToS = t % 60; mVidGoToField = 0;
+    mVidGoToOpen = true; vidPanelClose();
+}
+void NanoMenu::vidGoToMove(int dx) {
+    mVidGoToField += (dx > 0 ? 1 : -1);
+    if (mVidGoToField < 0) mVidGoToField = 0; if (mVidGoToField > 2) mVidGoToField = 2;
+}
+void NanoMenu::vidGoToAdjust(int dy) {
+    int d = dy > 0 ? 1 : -1;
+    if (mVidGoToField == 0)      { mVidGoToH += d; if (mVidGoToH < 0) mVidGoToH = 0; if (mVidGoToH > 9) mVidGoToH = 9; }
+    else if (mVidGoToField == 1) { mVidGoToM = (mVidGoToM + d + 60) % 60; }
+    else                         { mVidGoToS = (mVidGoToS + d + 60) % 60; }
+}
+void NanoMenu::vidGoToActivate() {
+    double target = mVidGoToH * 3600.0 + mVidGoToM * 60.0 + mVidGoToS;
+    double dur = mVideoTest ? mVideoTest->duration() : 0.0;
+    if (dur > 0.0 && target > dur) {
+        vidShowTransient("The range you can specify has been exceeded.", 1600.0f);
+        return;
+    }
+    if (mVideoTest) { mVidRate = 1.0; mVideoTest->seek(target); if (mVidPlaying) mVideoTest->play(); }
+    mVidGoToOpen = false; mVidHintUntil = mEffectTime + 1.5f;
+}
+void NanoMenu::vidGoToClose() { mVidGoToOpen = false; }
+
+void NanoMenu::drawVideoGoTo() {
+    int W = mWidth, H = mHeight; float et = mVidEnterT;
+    drawQuad(0, 0, (float)W, (float)H, 0, 0, 0, 0.72f * et);
+    float ts = ps3::fontScale(34.0f);
+    const char* title = "Go To"; float tw = measureText(title, ts);
+    drawText(title, (W - tw) * 0.5f, ps3::baselineToTopY(H * 0.36f, ts), ts, 1, 1, 1, 0.95f * et);
+
+    char hb[8], mb[8], sb[8];
+    snprintf(hb, sizeof(hb), "%d", mVidGoToH);
+    snprintf(mb, sizeof(mb), "%02d", mVidGoToM);
+    snprintf(sb, sizeof(sb), "%02d", mVidGoToS);
+    const char* seg[5] = {hb, " : ", mb, " : ", sb};
+    int segField[5] = {0, -1, 1, -1, 2};
+    float fh = ps3::fontScale(70.0f);
+    float total = 0; for (const char* s : seg) total += measureText(s, fh);
+    float x = (W - total) * 0.5f, by = H * 0.52f;
+    for (int i = 0; i < 5; i++) {
+        float w = measureText(seg[i], fh);
+        bool foc = (segField[i] == mVidGoToField);
+        if (foc) { float pad = fh * 0.1f; drawQuad(x - pad, by - fh * 0.6f, w + pad * 2.0f, fh * 1.2f, 1, 1, 1, 0.18f * et); }
+        float c = foc ? 1.0f : 0.88f;
+        drawText(seg[i], x, ps3::baselineToTopY(by + fh * 0.4f, fh), fh, c, c, c, et);
+        x += w;
+    }
+    float fs = ps3::fontScale(20.0f);
+    const char* foot = "Up/Down  Adjust     Left/Right  Field     Cross  Enter     Circle  Back";
+    float fw = measureText(foot, fs);
+    drawText(foot, (W - fw) * 0.5f, ps3::baselineToTopY(H * 0.66f, fs), fs, 1, 1, 1, 0.85f * et);
 }
 
 }  // namespace android

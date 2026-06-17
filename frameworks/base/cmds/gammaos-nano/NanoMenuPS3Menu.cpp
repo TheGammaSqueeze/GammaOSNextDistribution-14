@@ -1060,7 +1060,12 @@ void NanoMenu::ps3DlgNav(int dir, bool horizontal) {
 }
 
 void NanoMenu::ps3XmbLeft() {
-    if (mVidActive) { vidSeek(-10.0); return; }   // video player: rewind 10s
+    if (mVidActive) {   // video player: Go To field / panel grid / rewind 10s
+        if (mVidGoToOpen) vidGoToMove(-1);
+        else if (mVidCpOpen) vidPanelMove(-1, 0);
+        else vidSeek(-10.0);
+        return;
+    }
     if (mPs3OptActive) { if (mPs3OptSubOpen) xmbOptCloseSub(); else closeXmbOpt(); return; }   // Left: back out of a submenu, else dismiss (web optBack)
     if (mMpActive) {   // chooser ignores L/R; panel grid nav, or scrub back 5s with no panel
         if (mMpPlChooserActive) return;
@@ -1070,7 +1075,7 @@ void NanoMenu::ps3XmbLeft() {
                mMpSeekTarget = p; mMpSeekPending = true; mMpSeekInputT = mEffectTime; }
         return;
     }
-    if (mPvPlChooserActive) return;   // add-to-playlist chooser ignores left/right
+    if (mPvPlChooserActive || mVidPlChooserActive) return;   // add-to-playlist chooser ignores left/right
     if (mPhotoMultiActive) { photoMultiLR(-1); return; }
     if (mPvActive) { if (mPvPlChooserActive || mPvWpMode || mPvTrimMode) return;
                      if (mPvPanel || mPvCpSub) pvPanelMove(-1, 0); else pvStep(-1); return; }
@@ -1097,7 +1102,12 @@ void NanoMenu::ps3XmbLeft() {
 }
 
 void NanoMenu::ps3XmbRight() {
-    if (mVidActive) { vidSeek(10.0); return; }   // video player: forward 10s
+    if (mVidActive) {   // video player: Go To field / panel grid / forward 10s
+        if (mVidGoToOpen) vidGoToMove(+1);
+        else if (mVidCpOpen) vidPanelMove(+1, 0);
+        else vidSeek(10.0);
+        return;
+    }
     if (mPs3OptActive) { if (!mPs3OptSubOpen) xmbOptOpenSub(); return; }   // Right: open the focused row's submenu (web optOpenSub)
     if (mMpActive) {   // panel grid nav, or scrub fwd 5s with no panel (hold = continuous; debounced commit)
         if (mMpPlChooserActive) return;
@@ -1108,7 +1118,7 @@ void NanoMenu::ps3XmbRight() {
                mMpSeekTarget = np; mMpSeekPending = true; mMpSeekInputT = mEffectTime; }
         return;
     }
-    if (mPvPlChooserActive) return;   // add-to-playlist chooser ignores left/right
+    if (mPvPlChooserActive || mVidPlChooserActive) return;   // add-to-playlist chooser ignores left/right
     if (mPhotoMultiActive) { photoMultiLR(+1); return; }
     if (mPvActive) { if (mPvPlChooserActive || mPvWpMode || mPvTrimMode) return;
                      if (mPvPanel || mPvCpSub) pvPanelMove(+1, 0); else pvStep(+1); return; }
@@ -1135,11 +1145,16 @@ void NanoMenu::ps3XmbRight() {
 }
 
 void NanoMenu::ps3XmbUp() {
-    if (mVidActive) return;   // video player owns the screen (panel nav comes with the control panel)
+    if (mVidActive) {   // video player: Go To digit up / panel grid up
+        if (mVidGoToOpen) vidGoToAdjust(+1);
+        else if (mVidCpOpen) vidPanelMove(0, -1);
+        return;
+    }
     if (mPs3OptActive) { xmbOptMove(-1); return; }
     if (mMpActive) { if (mMpPlChooserActive) { mpPlChooserMove(-1); return; }
                      if (mMpCpOpen) mpOptMove(0, +1); return; }   // panel grid nav (screen-up = grid-up)
     if (mPvPlChooserActive) { pvPlChooserMove(-1); return; }
+    if (mVidPlChooserActive) { vidPlChooserMove(-1); return; }
     if (mPhotoMultiActive) { photoMultiMove(-1); return; }
     if (mPvActive) { if (mPvPlChooserActive) { pvPlChooserMove(-1); return; }
                      if (mPvWpMode || mPvTrimMode) return;
@@ -1155,11 +1170,16 @@ void NanoMenu::ps3XmbUp() {
     if (s > 0) { mPs3ItemAnimFrom = mPs3AnimItem; mPs3ItemAnimStart = mEffectTime; s--; }
 }
 void NanoMenu::ps3XmbDown() {
-    if (mVidActive) return;   // video player owns the screen (panel nav comes with the control panel)
+    if (mVidActive) {   // video player: Go To digit down / panel grid down
+        if (mVidGoToOpen) vidGoToAdjust(-1);
+        else if (mVidCpOpen) vidPanelMove(0, +1);
+        return;
+    }
     if (mPs3OptActive) { xmbOptMove(+1); return; }
     if (mMpActive) { if (mMpPlChooserActive) { mpPlChooserMove(+1); return; }
                      if (mMpCpOpen) mpOptMove(0, -1); return; }   // panel grid nav (screen-down = grid-down)
     if (mPvPlChooserActive) { pvPlChooserMove(+1); return; }
+    if (mVidPlChooserActive) { vidPlChooserMove(+1); return; }
     if (mPhotoMultiActive) { photoMultiMove(+1); return; }
     if (mPvActive) { if (mPvPlChooserActive) { pvPlChooserMove(+1); return; }
                      if (mPvWpMode || mPvTrimMode) return;
@@ -1176,7 +1196,12 @@ void NanoMenu::ps3XmbDown() {
 }
 
 void NanoMenu::ps3XmbSelect() {
-    if (mVidActive) { vidTogglePlay(); return; }   // video player: Cross = play/pause
+    if (mVidActive) {   // video player: Go To enter / panel activate / play-pause toggle
+        if (mVidGoToOpen) vidGoToActivate();
+        else if (mVidCpOpen) vidPanelActivate();
+        else vidTogglePlay();
+        return;
+    }
     if (mPs3OptActive) { xmbOptEnter(); return; }   // option menu: activate the highlighted action
     if (mMpActive) {   // X: chooser select, panel control, or toggle play/pause with no panel up
         if (mMpPlChooserActive) { mpPlChooserSelect(); return; }
@@ -1185,6 +1210,7 @@ void NanoMenu::ps3XmbSelect() {
         return;
     }
     if (mPvPlChooserActive) { pvPlChooserSelect(); return; }   // X: commit the chooser
+    if (mVidPlChooserActive) { vidPlChooserSelect(); return; }
     if (mPhotoMultiActive) { photoMultiActivate(); return; }   // X: toggle row / activate button
     if (mPvActive) {   // X: chooser select / range-selector confirm / panel activate
         if (mPvPlChooserActive) { pvPlChooserSelect(); return; }
@@ -1321,6 +1347,18 @@ void NanoMenu::ps3XmbSelect() {
             return;
         }
         case PS3_VIDEO_REFRESH: { videoRefresh(); return; }
+        case PS3_VIDEO_PLAYLIST: {   // open the playlist's file submenu
+            Ps3Level lvl; buildVideoPlaylistSubmenu(it.a, lvl); mPs3Stack.push_back(lvl); return;
+        }
+        case PS3_VIDEO_PL_NEW: {
+            openOskForPassword("Enter a name for the playlist",
+                [this](const std::string& nm){ videoCreatePlaylist(nm);
+                    if (!mPs3Stack.empty() && mPs3Stack.back().screenKind == GS_NONE
+                        && mPs3Stack.back().title == "Playlists")
+                        buildVideoPlaylistsScreen(mPs3Stack.back()); });
+            mOskPasswordMode = false; mOskPlaintext = true;   // a playlist name is plain text, not masked
+            return;
+        }
         case PS3_MUSIC_PL_NEW: {
             openOskForPassword("Enter a name for the playlist",
                 [this](const std::string& nm){ musicCreatePlaylist(nm);
@@ -1374,6 +1412,15 @@ void NanoMenu::ps3XmbSelect() {
             bool inVideoCat = (mPs3CatIdx >= 0 && mPs3CatIdx < (int)mPs3Cats.size()
                                && mPs3Cats[mPs3CatIdx].name == "Video");
             if (inVideoCat && it.label == "Search for Media Servers") { videoOpenFolders(); return; }
+            if (inVideoCat && it.label == "Playlists") {
+                videoEnsureLoaded();
+                std::vector<Ps3Item> ps = ps3CurItems(); int pSel = ps3CurSel();
+                Ps3Level lvl; buildVideoPlaylistsScreen(lvl); mPs3Stack.push_back(lvl);
+                mPs3SubParentItems = ps; mPs3SubParentIdx = pSel; mPs3SubChildItems = mPs3Stack.back().items;
+                mPs3SubDir = 1; mPs3SubAnimStart = mEffectTime; mPs3SubAnim = 0.0f;
+                mPs3AnimItem = 0.0f; mPs3ItemAnimStart = -1.0f;
+                return;
+            }
             if (inPhotoCat && it.label == "Search for Media Servers") { photoOpenFolders(); return; }
             if (inPhotoCat && it.label == "Photo Gallery") { return; }   // info item (no-op)
             if (inPhotoCat && it.label == "Playlists") {
@@ -1477,11 +1524,17 @@ void NanoMenu::ps3XmbSelect() {
 }
 
 void NanoMenu::ps3XmbBack() {
-    if (mVidActive) { closeVideoPlayer(); return; }   // video player: Circle backs out (fades + frees)
+    if (mVidActive) {   // video player: cascade Go To -> submenu -> panel -> close player
+        if (mVidGoToOpen) { vidGoToClose(); return; }
+        if (mVidSubOpen)  { mVidSubOpen = false; return; }
+        if (mVidCpOpen)   { vidPanelClose(); return; }
+        closeVideoPlayer(); return;
+    }
     if (mPs3OptActive) { if (mPs3OptSubOpen) xmbOptCloseSub(); else closeXmbOpt(); return; }   // O: back out of a submenu, else dismiss
     if (mMpActive) { if (mMpPlChooserActive) { mpPlChooserCancel(); return; }
                      if (mMpCpOpen) mpOptBack(); else minimizeMusicPlayer(); return; }   // O: chooser cancel / panel back / minimize (audio keeps playing)
     if (mPvPlChooserActive) { pvPlChooserCancel(); return; }   // O: cancel the chooser
+    if (mVidPlChooserActive) { vidPlChooserCancel(); return; }
     if (mPhotoMultiActive) { photoMultiClose(); return; }   // O: leave multi-select
     if (mPvActive) {   // O: chooser/range cancel -> submenu -> panel -> stop slideshow -> close
         if (mPvPlChooserActive) { pvPlChooserCancel(); return; }
@@ -2393,6 +2446,14 @@ void NanoMenu::renderPs3Xmb() {
     // across frames otherwise, leaving the chrome hidden after the player closes).
     if (mpChromeScaled) { mPs3BootIconReveal = mpSavedIconReveal; mPs3BootLabelReveal = mpSavedLabelReveal; }
     if (!mMpActive && !mPvActive) drawPhotoBanner();   // Sort By / Group Content change banner (column level)
+
+    // Video "Add to Playlist" chooser over the live Video column (modal; eased fade).
+    {
+        float ct = mVidPlChooserActive ? 1.0f : 0.0f;
+        float d = mFrameDt; if (d < 0.0f || d > 0.2f) d = 0.016f;
+        mVidPlChooserAnim += (ct - mVidPlChooserAnim) * fminf(1.0f, d * 10.0f);
+        if (mVidPlChooserActive || mVidPlChooserAnim > 0.004f) drawVidPlChooser();
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -4220,7 +4281,7 @@ void NanoMenu::openXmbOpt() {
     // Only over the live home column - never while another modal owns input, and
     // not over a live in-game app in the overlay (where a dialog could fight it).
     if (mPs3DlgActive || mMpActive || mPvActive || mVidActive || mPs3WizActive || mPs3TzActive || mPs3LangActive
-        || mPs3BrightSlider || mOskActive) return;
+        || mPs3BrightSlider || mOskActive || mVidPlChooserActive) return;
     if (mOverlayMode && !mOverlayWallpaper) return;
 
     mPs3OptLabels.clear(); mPs3OptActs.clear(); mPs3OptStart.clear();
@@ -4313,6 +4374,13 @@ void NanoMenu::openXmbOpt() {
             add("Play", "playtrack", true); add("Information", "info", false); break;
         case PS3_MUSIC_PLAYLIST:
             add("Play", "playpl", true); add("Information", "info", false); break;
+        case PS3_VIDEO_FILE:
+            // Web video option menu (index.html 13279-13282): Play / Copy / Delete /
+            // Information. No Sort By/Group (video has no groupModes). "Add to Playlist"
+            // is a nano addition (web video has no playlists), inserted after Play.
+            add("Play", "vplay", true); add("Add to Playlist", "vaddpl", false);
+            add("Copy", "vcopy", false); add("Delete", "vdelete", false);
+            add("Information", "vinfo", false); break;
         case PS3_PHOTO_ALBUM: {
             // Photo column-root folder: 1:1 with the web (Sort By + Group Content,
             // a gap, then Slideshow / Copy / Delete / Information).
@@ -4518,6 +4586,59 @@ void NanoMenu::xmbOptAction(const std::string& act) {
             Ps3Level lvl; buildMusicPlaylistSubmenu(mPs3OptCtxA, lvl);
             if (!lvl.items.empty()) openMusicPlayer(lvl.items, 0);
         }
+        return;
+    }
+    if (act == "vplay") { openVideoPlayer(mPs3OptCtxList, mPs3OptCtxSel); return; }
+    if (act == "vaddpl") {   // add the focused video to a playlist (chooser over the column)
+        if (mPs3OptCtxA >= 0 && mPs3OptCtxA < (int)mVideos.size())
+            vidOpenAddChooser(mVideos[mPs3OptCtxA].file);
+        return;
+    }
+    if (act == "vcopy" || act == "vdelete") {   // simulated (web doOptAction no-op) -> result dialog
+        mPs3DlgOptions.clear(); mPs3DlgSwatch.clear();
+        mPs3DlgKind = 0; mPs3DlgType = 0; mPs3DlgThemeKey = 0; mPs3DlgBinding = nullptr;
+        mPs3DlgIllust = 0; mPs3DlgNotice.clear();
+        mPs3DlgTitle = ""; mPs3DlgBody = (act == "vdelete") ? "Delete completed." : "Copy completed.";
+        mPs3DlgSel = 0; mPs3DlgOrigSel = 0;
+        mPs3DlgIconTex = 0; mPs3DlgIconNmap = 0; mPs3DlgIconR = mPs3DlgIconG = mPs3DlgIconB = 1.0f;
+        mPs3DlgActive = true; mPs3DlgAnim = 0.0f; mPs3DlgBlurValid = false;
+        return;
+    }
+    if (act == "vinfo") {   // video Information (7 firmware lines, web openContentInfo 13456-13464)
+        std::string title = mPs3OptCtxLabel.empty() ? std::string("Information") : mPs3OptCtxLabel;
+        std::string body = "No information is available.";
+        if (mPs3OptCtxA >= 0 && mPs3OptCtxA < (int)mVideos.size()) {
+            const VideoItem& v = mVideos[mPs3OptCtxA];
+            auto fmtLen = [](double s) -> std::string {
+                if (s <= 0.0) return "-";
+                int t = (int)s, h = t / 3600, m = (t % 3600) / 60, sec = t % 60; char b[24];
+                if (h > 0) snprintf(b, sizeof(b), "%d:%02d:%02d", h, m, sec);
+                else snprintf(b, sizeof(b), "%d:%02d", m, sec);
+                return b;
+            };
+            std::string res = (v.w && v.h) ? (std::to_string(v.w) + " x " + std::to_string(v.h)) : std::string("-");
+            std::string vc = v.vcodec.empty() ? "-" : v.vcodec;
+            std::string ac = v.acodec.empty() ? "-" : v.acodec;
+            body.clear();
+            auto row = [&](const char* label, const std::string& val) {
+                char pad[20]; snprintf(pad, sizeof(pad), "%-15s", label);
+                body += pad; body += val; body += "\n";
+            };
+            row("Title", v.name);
+            row("Length", fmtLen(v.durationSec));
+            row("Resolution", res);
+            row("Video Codec", vc);
+            row("Audio Codec", ac);
+            row("File Type", vc);   // web filetype == vcodec for these
+            row("Size", fmtFileSize(v.sz));
+        }
+        mPs3DlgOptions.clear(); mPs3DlgSwatch.clear();
+        mPs3DlgKind = 0; mPs3DlgType = 0; mPs3DlgThemeKey = 0; mPs3DlgBinding = nullptr;
+        mPs3DlgIllust = 0; mPs3DlgNotice.clear();
+        mPs3DlgTitle = title; mPs3DlgBody = body;
+        mPs3DlgSel = 0; mPs3DlgOrigSel = 0;
+        mPs3DlgIconTex = 0; mPs3DlgIconNmap = 0; mPs3DlgIconR = mPs3DlgIconG = mPs3DlgIconB = 1.0f;
+        mPs3DlgActive = true; mPs3DlgAnim = 0.0f; mPs3DlgBlurValid = false;
         return;
     }
     if (act == "pgslidefolder") {   // slideshow the focused group folder

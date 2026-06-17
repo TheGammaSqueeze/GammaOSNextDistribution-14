@@ -313,6 +313,8 @@ NanoMenu::~NanoMenu() {
     stopNetPollThread();
     // Stop the photo viewer async decode worker (join the thread).
     pvStopDecodeWorker();
+    // Tear down the video decoder (joins its worker, frees codec/extractor/surface/texture).
+    videoHardFree();
 
     // GammaOS: Clean up secondary display wallpaper resources.
     for (size_t i = 0; i < mSecondaryEglSurfaces.size(); i++) {
@@ -3383,6 +3385,10 @@ if (sRingPrimedCount >= 2) {
                 // been interrupted mid-ramp before musicTick could free it), so the vis GL
                 // never lingers while an app runs. Idempotent (ready()-gated).
                 if (!mMpActive) freeMusicVisGl();
+                // Likewise hard-free the video decoder if one is still alive (the player is
+                // full-screen on the home, but never let a codec/worker/surface linger behind
+                // a foreground app). Idempotent.
+                videoHardFree();
                 usleep(33000);   // ~30Hz; no input, no render while occluded
                 continue;
             }

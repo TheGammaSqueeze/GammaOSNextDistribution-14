@@ -949,6 +949,8 @@ private:
         PS3_VIDEO_FILE,     // a video file row (a = video idx in mVideos) -> open the player
         PS3_VIDEO_FOLDER_ROW,// a configured video scan-folder row (a = mVideoFolders idx; Y removes)
         PS3_VIDEO_REFRESH,  // "Refresh" row in the video folders screen -> rescan the library
+        PS3_VIDEO_PLAYLIST, // a video playlist -> its file submenu (a = playlist idx)
+        PS3_VIDEO_PL_NEW,   // "Create New Playlist" row in the video playlists screen (OSK name)
     };
     // Game Systems editor screen kinds (Ps3Level.screenKind). Used to route the
     // X / L1 / R1 / Y buttons contextually while a GS screen is on the nav stack.
@@ -1472,8 +1474,13 @@ private:
         int64_t sz = 0;          // file size in bytes
         int64_t mtime = 0;       // for incremental rescan
     };
+    struct VideoPlaylist {
+        std::string name;
+        std::vector<std::string> files;   // references VideoItem.file (user-only; preserved across scans)
+    };
     std::vector<std::string> mVideoFolders;
     std::vector<VideoItem>   mVideos;
+    std::vector<VideoPlaylist> mVideoPlaylists;
     int64_t mVideoCfgStamp = -1;
     static const int kVideoMetaVersion = 1;
     int  mVideoCfgVersion = 0;
@@ -1501,6 +1508,21 @@ private:
     void videoFolderSelect(const std::string& path);
     void videoRemoveFolder(int idx);
     void buildVideoColumnItems(std::vector<Ps3Item>& out);   // scanned video files for the Video cat
+    // Video playlists (a nano addition; the web video section has none) - mirror music/photo.
+    void buildVideoPlaylistsScreen(Ps3Level& out);
+    void buildVideoPlaylistSubmenu(int plIdx, Ps3Level& out);
+    void videoCreatePlaylist(const std::string& name);
+    void videoAddToPlaylist(int plIdx, const std::string& file);
+    bool  mVidPlChooserActive = false;
+    std::vector<std::string> mVidPlChooserOpts;   // "New Playlist..." + existing names
+    int   mVidPlChooserSel = 0;
+    std::string mVidPlChooserFile;                // video file being added
+    float mVidPlChooserAnim = 0.0f;
+    void vidOpenAddChooser(const std::string& file);
+    void vidPlChooserMove(int dir);
+    void vidPlChooserSelect();
+    void vidPlChooserCancel();
+    void drawVidPlChooser();
     void videoSortApply();                  // re-sort mVideos by the current field+dir
     void videoSortCycleY();                 // Y on the Video column: cycle sort + banner
     std::string videoSortLabelCur() const;
@@ -1522,10 +1544,70 @@ private:
     void closeVideoPlayer();                // release the decoder + fade out
     void videoTick();                       // enter/leave ease + end-of-stream auto-advance
     bool renderVideoPlayer();               // draws the player; true = it owns the screen
+    void videoHardFree();                   // immediate full decoder teardown (sleep/occlusion/dtor; idempotent)
     void vidSeek(double deltaSec);          // relative seek (D-pad L/R)
     void vidStepTitle(int dir);             // previous / next video in the queue
     void vidTogglePlay();
     void vidShowTransient(const std::string& text, float ms);
+
+    // ---- Video transport extras (web vidScan/vidSlow/vidStepFrame/vidStop) -----
+    // NanoVideo plays only at 1x, so every non-1x rate is timer-driven in videoTick:
+    // native playback is paused and the position is seek()ed by rate*dt each frame.
+    double mVidRate = 1.0;                   // scan/slow rate (1 = normal; <0 = reverse)
+    bool   mVidStopped = false;             // Stop pressed (paused at t=0)
+    int    mVidRepeat = 0;                  // 0 off,1 on,2 title,3 A-B,4 folder
+    double mVidAbA = -1.0, mVidAbB = -1.0;  // A-B repeat points (seconds; -1 = unset)
+    float  mVidVolume = 1.0f;               // 0..1 (applied once NanoVideo gains audio)
+    bool   mVidAvBnr = false, mVidAvFnr = false, mVidAvMnr = false, mVidAvUpscale = false;
+    double mVidScanLastTick = -1.0;         // wall-clock anchor for timer-driven scan
+    double mVidScanPos = 0.0;               // commanded scan clock (decoder position lags + snaps to keyframes)
+    void vidStop();                         // pause + rewind to 0
+    void vidScan(int dir);                  // Fast Forward / Fast Reverse (steps 1.5/10/30/120)
+    void vidSlow(int dir);                  // Slow Forward / Slow Reverse (+-0.5)
+    void vidStepFrame(int dir);             // single-frame step (pause + seek 1/30s)
+    void vidFlash(int dir);                 // Instant Replay / Advance (+-15s)
+    void vidBeginning();                    // Return to Beginning (or Previous if near start)
+
+    // ---- Video control panel (VID_CP, web drawVideoPanel) ----------------------
+    bool  mVidCpOpen = false;
+    int   mVidCpSel = 0;                    // index into kVidCp
+    int   mVidCpSelPrev = -1;
+    float mVidCpAnimStart = -1.0f;          // open slide/fade start
+    float mVidCpFocusStart = -1.0f;         // focus-change ease start
+    bool  mVidCpClosing = false;
+    float mVidCpCloseStart = -1.0f;
+    float mVidCpPressStart = -1.0f;         // button invoke flash
+    int   mVidCpPressSel = -1;
+    // Panel submenu (screen mode / repeat / volume / AV settings / audio / subtitle)
+    bool  mVidSubOpen = false;
+    int   mVidSubKind = 0;                  // 0 screenmode,1 repeat,2 volume,3 avset,4 audio,5 subtitle
+    std::string mVidSubLabel;
+    std::vector<std::string> mVidSubOpts;
+    int   mVidSubSel = 0;
+    void vidPanelToggle();                  // Triangle: open/close the control panel
+    void vidPanelOpen();
+    void vidPanelClose();
+    void vidPanelMove(int dx, int dy);      // spatial grid nav (+ submenu wrap)
+    void vidPanelActivate();                // Cross on the focused control / submenu row
+    void vidPanelBack();                    // Circle: close submenu, else close panel
+    void vidSubBuild(int kind);             // populate mVidSubOpts/Sel for a control
+    void vidSubConfirm();                   // apply the highlighted submenu row
+    void drawVideoPanel(float closeT);      // render the panel (closeT>=0 drives close anim)
+    GLuint vidIcon(int n);                  // load+cache a videoplayer icon (NanoMenuPS3Icons.cpp)
+    float  vidIconAR(int n);                // cached aspect ratio (w/h)
+    std::map<int, GLuint> mVidIconCache;
+    std::map<int, float>  mVidIconAR;
+
+    // ---- Go To (in-player H:MM:SS seek picker, web drawVideoGoTo) ---------------
+    bool mVidGoToOpen = false;
+    int  mVidGoToH = 0, mVidGoToM = 0, mVidGoToS = 0;
+    int  mVidGoToField = 0;                 // 0 h, 1 m, 2 s
+    void vidGoToOpen();
+    void vidGoToMove(int dx);               // L/R: change field
+    void vidGoToAdjust(int dy);             // U/D: change the focused digit
+    void vidGoToActivate();                 // Cross: seek to the chosen time
+    void vidGoToClose();
+    void drawVideoGoTo();
 
     // ---- Now-Playing screen state (control panel + visualizers in Phase 3-5) ----
     bool mMpActive = false;            // the Now-Playing fullscreen is up

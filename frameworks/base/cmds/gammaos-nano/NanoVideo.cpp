@@ -136,9 +136,12 @@ bool NanoVideo::open(const std::string& path) {
     mConsumer->setDefaultBufferSize(mWidth, mHeight);
     mSurface = new Surface(producer);
 
+    // Copy the mime now; it points into fmt and would dangle after the delete below.
+    std::string mimeStr = mime;
+
     // Codec configured to render directly into the surface (HW path, zero CPU copy).
-    mCodec = AMediaCodec_createDecoderByType(mime);
-    if (!mCodec) { LOGE("createDecoderByType(%s) failed", mime); AMediaFormat_delete(fmt); release(); return false; }
+    mCodec = AMediaCodec_createDecoderByType(mimeStr.c_str());
+    if (!mCodec) { LOGE("createDecoderByType(%s) failed", mimeStr.c_str()); AMediaFormat_delete(fmt); release(); return false; }
     media_status_t cs = AMediaCodec_configure(mCodec, fmt, mSurface.get(), nullptr, 0);
     AMediaFormat_delete(fmt);
     if (cs != AMEDIA_OK) { LOGE("codec configure failed (%d)", cs); release(); return false; }
@@ -148,12 +151,13 @@ bool NanoVideo::open(const std::string& path) {
     { std::lock_guard<std::mutex> lk(mClockMx); mClockBaseNs = 0; mClockBasePts = 0.0; }
     mOpen = true;
     mWorker = std::thread(&NanoVideo::decodeLoop, this);
-    LOGV("opened %s (%dx%d, %.1fs, %s)", path.c_str(), mWidth, mHeight, mDurationSec, mime);
+    LOGV("opened %s (%dx%d, %.1fs, %s)", path.c_str(), mWidth, mHeight, mDurationSec, mimeStr.c_str());
     return true;
 }
 
 void NanoVideo::decodeLoop() {
     bool sawInputEos = false;
+    int hardErr = 0;   // consecutive hard codec errors -> back off + park (never hot-loop)
     while (!mQuit.load()) {
         if (!mPlaying.load() && !mSeekPending.load()) {
             { std::lock_guard<std::mutex> lk(mClockMx); mClockBaseNs = 0; }   // re-anchor on resume
@@ -203,6 +207,7 @@ void NanoVideo::decodeLoop() {
                 mPosSec = pts;
             }
             AMediaCodec_releaseOutputBuffer(mCodec, outIdx, render);
+            hardErr = 0;
             if (info.flags & AMEDIACODEC_BUFFER_FLAG_END_OF_STREAM) {
                 mEnded = true;
                 while (!mQuit.load() && mEnded.load() && !mSeekPending.load()) usleep(16000);
@@ -214,6 +219,21 @@ void NanoVideo::decodeLoop() {
             if (AMediaFormat_getInt32(of, AMEDIAFORMAT_KEY_HEIGHT, &h) && h > 0) mHeight = h;
             if (mConsumer != nullptr) mConsumer->setDefaultBufferSize(mWidth, mHeight);
             AMediaFormat_delete(of);
+            hardErr = 0;
+        } else if (outIdx == AMEDIACODEC_INFO_TRY_AGAIN_LATER
+                   || outIdx == AMEDIACODEC_INFO_OUTPUT_BUFFERS_CHANGED) {
+            hardErr = 0;   // benign: the dequeue timeout already paced us
+        } else {
+            // Hard codec error (e.g. the component went to a released/error state). Back off
+            // so we never burn CPU hot-looping a dead codec, and park after ~1s of failures.
+            if (hardErr == 0) LOGE("decode output error %zd; backing off", (ssize_t)outIdx);
+            usleep(20000);
+            if (++hardErr > 50) {
+                LOGE("codec unrecoverable; parking decode worker");
+                mEnded = true;
+                while (!mQuit.load() && !mSeekPending.load()) usleep(50000);
+                hardErr = 0;
+            }
         }
     }
 }
@@ -266,14 +286,19 @@ void NanoVideo::draw(int screenW, int screenH, float rx, float ry, float rw, flo
     if (!mOpen || !mTexId || mWidth <= 0 || mHeight <= 0 || alpha <= 0.001f) return;
     if (!ensureProgram()) return;
 
-    // Aspect-fit the video (mWidth x mHeight) inside the target rect.
+    // Screen Mode fit (web drawVideoPlayer 12712-12737), fitMode = screenMode index:
+    //   0 Normal = contain (min), 1 Full Screen = cover (max), 2 Original = 1:1,
+    //   3 Zoom = cover*1.33, 4 Double Scale = 2x.
     float vw = (float)mWidth, vh = (float)mHeight;
-    float dw = rw, dh = rh;
-    if (fitMode == 0) {                                  // fit (letterbox)
-        float s = fminf(rw / vw, rh / vh); dw = vw * s; dh = vh * s;
-    } else if (fitMode == 1) {                           // fill (crop)
-        float s = fmaxf(rw / vw, rh / vh); dw = vw * s; dh = vh * s;
-    }                                                    // else stretch -> dw/dh = rw/rh
+    float s;
+    switch (fitMode) {
+        case 1:  s = fmaxf(rw / vw, rh / vh); break;
+        case 2:  s = 1.0f; break;
+        case 3:  s = fmaxf(rw / vw, rh / vh) * 1.33f; break;
+        case 4:  s = 2.0f; break;
+        default: s = fminf(rw / vw, rh / vh); break;
+    }
+    float dw = vw * s, dh = vh * s;
     float cx = rx + rw * 0.5f, cy = ry + rh * 0.5f;
     float x0 = cx - dw * 0.5f, x1 = cx + dw * 0.5f;
     float y0 = cy - dh * 0.5f, y1 = cy + dh * 0.5f;

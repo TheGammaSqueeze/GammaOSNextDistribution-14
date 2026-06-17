@@ -129,6 +129,7 @@ cc_binary {
         "nano_xmb_i18n",
         "nano_xmb_audio",
         "nano_xmb_audioplayer",
+        "nano_xmb_videoplayer",
         "nano_xmb_canyon",
         "nano_xmb_photoviewer",
         "nano_xmb_backgrounds",
@@ -215,6 +216,15 @@ prebuilt_etc {
     name: "nano_xmb_audioplayer",
     srcs: ["ps3xmb/audioplayer/*.png"],
     sub_dir: "nano_xmb/audioplayer",
+}
+
+// Video player control-panel icons (scene / go-to / audio / subtitle / transport
+// etc), decoded full-colour. Loaded lazily on first video-player entry. Dev
+// override /data/system/nano_xmb/videoplayer/ is checked first.
+prebuilt_etc {
+    name: "nano_xmb_videoplayer",
+    srcs: ["ps3xmb/videoplayer/*.png"],
+    sub_dir: "nano_xmb/videoplayer",
 }
 
 // Canyon music visualizer assets: the 128x128 tangent-space normal/height map the

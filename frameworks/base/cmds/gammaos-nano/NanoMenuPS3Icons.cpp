@@ -371,6 +371,32 @@ float NanoMenu::mpIconAR(int n) {
     return (it != mMpIconAR.end()) ? it->second : 1.0f;
 }
 
+// Video player control-panel icons (the web app's images/videoplayer set,
+// icon_NNN.png). Full-colour glyphs, cached by index; 0 cached on miss so it never
+// re-reads. Lazy: only loaded on first video-player control-panel use. Mirrors mpIcon.
+GLuint NanoMenu::vidIcon(int n) {
+    auto it = mVidIconCache.find(n);
+    if (it != mVidIconCache.end()) return it->second;
+    char file[40];
+    snprintf(file, sizeof(file), "icon_%03d.png", n);
+    char path[256];
+    std::vector<uint8_t> px; int w = 0, h = 0;
+    snprintf(path, sizeof(path), "/data/system/nano_xmb/videoplayer/%s", file);
+    if (!decodeRGBA(path, nullptr, 0, &w, &h, &px, false)) {
+        snprintf(path, sizeof(path), "/system/etc/nano_xmb/videoplayer/%s", file);
+        if (!decodeRGBA(path, nullptr, 0, &w, &h, &px, false)) { mVidIconCache[n] = 0; return 0; }
+    }
+    GLuint tex = uploadRGBA(px.data(), w, h, /*wantMipmap=*/true);
+    mVidIconCache[n] = tex;
+    mVidIconAR[n] = (h > 0) ? (float)w / (float)h : 1.0f;
+    return tex;
+}
+
+float NanoMenu::vidIconAR(int n) {
+    auto it = mVidIconAR.find(n);
+    return (it != mVidIconAR.end()) ? it->second : 1.0f;
+}
+
 // Music jacket placeholder (assets/icon_fw_track.png, the web's default cover /
 // plane_default_music_cover). Colour PNG, loaded once and cached in mMpJacketTex.
 GLuint NanoMenu::mpJacket() {
