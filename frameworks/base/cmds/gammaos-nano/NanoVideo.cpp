@@ -1,0 +1,296 @@
+#include "NanoVideo.h"
+
+#include <GLES2/gl2ext.h>      // GL_TEXTURE_EXTERNAL_OES
+#include <fcntl.h>
+#include <time.h>
+#include <unistd.h>
+#include <cstring>
+
+#include <gui/BufferQueue.h>
+#include <gui/IGraphicBufferConsumer.h>
+#include <gui/IGraphicBufferProducer.h>
+
+#include <android/log.h>
+#define LOGV(...) __android_log_print(ANDROID_LOG_INFO, "nanovideo", __VA_ARGS__)
+#define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, "nanovideo", __VA_ARGS__)
+
+using android::BufferQueue;
+using android::GLConsumer;
+using android::IGraphicBufferConsumer;
+using android::IGraphicBufferProducer;
+using android::Surface;
+using android::sp;
+
+static int64_t monoNs() {
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    return (int64_t)ts.tv_sec * 1000000000LL + ts.tv_nsec;
+}
+
+bool NanoVideo::open(const std::string& path) {
+    if (mOpen) release();
+
+    int fd = ::open(path.c_str(), O_RDONLY);
+    if (fd < 0) { LOGE("open fd failed: %s", path.c_str()); return false; }
+    off_t len = lseek(fd, 0, SEEK_END);
+    lseek(fd, 0, SEEK_SET);
+
+    mEx = AMediaExtractor_new();
+    media_status_t st = AMediaExtractor_setDataSourceFd(mEx, fd, 0, len);
+    ::close(fd);   // the extractor dups the fd
+    if (st != AMEDIA_OK) { LOGE("setDataSourceFd failed (%d)", st); release(); return false; }
+
+    // Find the first video track + read its format.
+    size_t nTracks = AMediaExtractor_getTrackCount(mEx);
+    const char* mime = nullptr;
+    AMediaFormat* fmt = nullptr;
+    for (size_t i = 0; i < nTracks; i++) {
+        AMediaFormat* f = AMediaExtractor_getTrackFormat(mEx, i);
+        const char* m = nullptr;
+        if (AMediaFormat_getString(f, AMEDIAFORMAT_KEY_MIME, &m) && m && !strncmp(m, "video/", 6)) {
+            mVideoTrack = (int)i; fmt = f; mime = m; break;
+        }
+        AMediaFormat_delete(f);
+    }
+    if (mVideoTrack < 0 || !fmt) { LOGE("no video track in %s", path.c_str()); release(); return false; }
+
+    int32_t w = 0, h = 0; int64_t durUs = 0;
+    AMediaFormat_getInt32(fmt, AMEDIAFORMAT_KEY_WIDTH, &w);
+    AMediaFormat_getInt32(fmt, AMEDIAFORMAT_KEY_HEIGHT, &h);
+    AMediaFormat_getInt64(fmt, AMEDIAFORMAT_KEY_DURATION, &durUs);
+    mWidth = w > 0 ? w : 1; mHeight = h > 0 ? h : 1;
+    mDurationSec = durUs > 0 ? durUs / 1e6 : 0.0;
+
+    AMediaExtractor_selectTrack(mEx, mVideoTrack);
+
+    // GL output: an external-OES texture latched from a BufferQueue via GLConsumer; the
+    // codec renders into the matching Surface (producer side).
+    glGenTextures(1, &mTexId);
+    glBindTexture(GL_TEXTURE_EXTERNAL_OES, mTexId);
+    glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glBindTexture(GL_TEXTURE_EXTERNAL_OES, 0);
+
+    sp<IGraphicBufferProducer> producer;
+    sp<IGraphicBufferConsumer> consumer;
+    BufferQueue::createBufferQueue(&producer, &consumer);
+    mConsumer = new GLConsumer(consumer, mTexId, GL_TEXTURE_EXTERNAL_OES, true, false);
+    mConsumer->setName(android::String8("NanoVideo"));
+    mConsumer->setDefaultBufferSize(mWidth, mHeight);
+    mSurface = new Surface(producer);
+
+    // Codec configured to render directly into the surface (HW path, zero CPU copy).
+    mCodec = AMediaCodec_createDecoderByType(mime);
+    if (!mCodec) { LOGE("createDecoderByType(%s) failed", mime); AMediaFormat_delete(fmt); release(); return false; }
+    media_status_t cs = AMediaCodec_configure(mCodec, fmt, mSurface.get(), nullptr, 0);
+    AMediaFormat_delete(fmt);
+    if (cs != AMEDIA_OK) { LOGE("codec configure failed (%d)", cs); release(); return false; }
+    if (AMediaCodec_start(mCodec) != AMEDIA_OK) { LOGE("codec start failed"); release(); return false; }
+
+    mQuit = false; mEnded = false; mPlaying = true; mPosSec = 0.0;
+    { std::lock_guard<std::mutex> lk(mClockMx); mClockBaseNs = 0; mClockBasePts = 0.0; }
+    mOpen = true;
+    mWorker = std::thread(&NanoVideo::decodeLoop, this);
+    LOGV("opened %s (%dx%d, %.1fs, %s)", path.c_str(), mWidth, mHeight, mDurationSec, mime);
+    return true;
+}
+
+void NanoVideo::decodeLoop() {
+    bool sawInputEos = false;
+    while (!mQuit.load()) {
+        if (!mPlaying.load() && !mSeekPending.load()) {
+            { std::lock_guard<std::mutex> lk(mClockMx); mClockBaseNs = 0; }   // re-anchor on resume
+            usleep(8000);
+            continue;
+        }
+        if (mSeekPending.exchange(false)) {
+            double t = mSeekTarget.load();
+            AMediaExtractor_seekTo(mEx, (int64_t)(t * 1e6), AMEDIAEXTRACTOR_SEEK_CLOSEST_SYNC);
+            AMediaCodec_flush(mCodec);
+            sawInputEos = false; mEnded = false;
+            { std::lock_guard<std::mutex> lk(mClockMx); mClockBaseNs = 0; }
+        }
+
+        // Feed one input sample.
+        if (!sawInputEos) {
+            ssize_t inIdx = AMediaCodec_dequeueInputBuffer(mCodec, 2000);
+            if (inIdx >= 0) {
+                size_t cap = 0;
+                uint8_t* buf = AMediaCodec_getInputBuffer(mCodec, inIdx, &cap);
+                ssize_t sz = buf ? AMediaExtractor_readSampleData(mEx, buf, cap) : -1;
+                if (sz < 0) {
+                    AMediaCodec_queueInputBuffer(mCodec, inIdx, 0, 0, 0, AMEDIACODEC_BUFFER_FLAG_END_OF_STREAM);
+                    sawInputEos = true;
+                } else {
+                    int64_t pts = AMediaExtractor_getSampleTime(mEx);
+                    AMediaCodec_queueInputBuffer(mCodec, inIdx, 0, sz, pts, 0);
+                    AMediaExtractor_advance(mEx);
+                }
+            }
+        }
+
+        // Drain one output buffer, pacing its render to the wall clock by PTS.
+        AMediaCodecBufferInfo info;
+        ssize_t outIdx = AMediaCodec_dequeueOutputBuffer(mCodec, &info, 4000);
+        if (outIdx >= 0) {
+            double pts = info.presentationTimeUs / 1e6;
+            bool render = info.size > 0 && !(info.flags & AMEDIACODEC_BUFFER_FLAG_CODEC_CONFIG);
+            if (render) {
+                int64_t now = monoNs();
+                int64_t waitNs = 0;
+                { std::lock_guard<std::mutex> lk(mClockMx);
+                  if (mClockBaseNs == 0) { mClockBaseNs = now; mClockBasePts = pts; }
+                  int64_t targetNs = mClockBaseNs + (int64_t)((pts - mClockBasePts) * 1e9);
+                  waitNs = targetNs - now; }
+                if (waitNs > 0 && waitNs < 1000000000LL) usleep((useconds_t)(waitNs / 1000));
+                mPosSec = pts;
+            }
+            AMediaCodec_releaseOutputBuffer(mCodec, outIdx, render);
+            if (info.flags & AMEDIACODEC_BUFFER_FLAG_END_OF_STREAM) {
+                mEnded = true;
+                while (!mQuit.load() && mEnded.load() && !mSeekPending.load()) usleep(16000);
+            }
+        } else if (outIdx == AMEDIACODEC_INFO_OUTPUT_FORMAT_CHANGED) {
+            AMediaFormat* of = AMediaCodec_getOutputFormat(mCodec);
+            int32_t w = 0, h = 0;
+            if (AMediaFormat_getInt32(of, AMEDIAFORMAT_KEY_WIDTH, &w) && w > 0) mWidth = w;
+            if (AMediaFormat_getInt32(of, AMEDIAFORMAT_KEY_HEIGHT, &h) && h > 0) mHeight = h;
+            if (mConsumer != nullptr) mConsumer->setDefaultBufferSize(mWidth, mHeight);
+            AMediaFormat_delete(of);
+        }
+    }
+}
+
+static GLuint compileShader(GLenum type, const char* src) {
+    GLuint s = glCreateShader(type);
+    glShaderSource(s, 1, &src, nullptr);
+    glCompileShader(s);
+    GLint ok = 0; glGetShaderiv(s, GL_COMPILE_STATUS, &ok);
+    if (!ok) { char log[512]; glGetShaderInfoLog(s, sizeof(log), nullptr, log); LOGE("shader: %s", log); glDeleteShader(s); return 0; }
+    return s;
+}
+
+bool NanoVideo::ensureProgram() {
+    if (mProg) return true;
+    static const char* VS =
+        "attribute vec2 aPos;\n"
+        "attribute vec2 aTex;\n"
+        "uniform mat4 uST;\n"
+        "varying vec2 vTex;\n"
+        "void main(){ vTex = (uST * vec4(aTex, 0.0, 1.0)).xy; gl_Position = vec4(aPos, 0.0, 1.0); }\n";
+    static const char* FS =
+        "#extension GL_OES_EGL_image_external : require\n"
+        "precision mediump float;\n"
+        "uniform samplerExternalOES uTex;\n"
+        "uniform float uAlpha;\n"
+        "varying vec2 vTex;\n"
+        "void main(){ vec4 c = texture2D(uTex, vTex); gl_FragColor = vec4(c.rgb, c.a * uAlpha); }\n";
+    GLuint vs = compileShader(GL_VERTEX_SHADER, VS);
+    GLuint fs = compileShader(GL_FRAGMENT_SHADER, FS);
+    if (!vs || !fs) { if (vs) glDeleteShader(vs); if (fs) glDeleteShader(fs); return false; }
+    mProg = glCreateProgram();
+    glAttachShader(mProg, vs); glAttachShader(mProg, fs);
+    glBindAttribLocation(mProg, 0, "aPos");
+    glBindAttribLocation(mProg, 1, "aTex");
+    glLinkProgram(mProg);
+    glDeleteShader(vs); glDeleteShader(fs);
+    GLint ok = 0; glGetProgramiv(mProg, GL_LINK_STATUS, &ok);
+    if (!ok) { char log[512]; glGetProgramInfoLog(mProg, sizeof(log), nullptr, log); LOGE("link: %s", log); glDeleteProgram(mProg); mProg = 0; return false; }
+    mLocPos = 0; mLocTex = 1;
+    mLocST = glGetUniformLocation(mProg, "uST");
+    mLocAlpha = glGetUniformLocation(mProg, "uAlpha");
+    GLint loc = glGetUniformLocation(mProg, "uTex");
+    glUseProgram(mProg); glUniform1i(loc, 0); glUseProgram(0);
+    return true;
+}
+
+void NanoVideo::draw(int screenW, int screenH, float rx, float ry, float rw, float rh,
+                     float alpha, int fitMode) {
+    if (!mOpen || !mTexId || mWidth <= 0 || mHeight <= 0 || alpha <= 0.001f) return;
+    if (!ensureProgram()) return;
+
+    // Aspect-fit the video (mWidth x mHeight) inside the target rect.
+    float vw = (float)mWidth, vh = (float)mHeight;
+    float dw = rw, dh = rh;
+    if (fitMode == 0) {                                  // fit (letterbox)
+        float s = fminf(rw / vw, rh / vh); dw = vw * s; dh = vh * s;
+    } else if (fitMode == 1) {                           // fill (crop)
+        float s = fmaxf(rw / vw, rh / vh); dw = vw * s; dh = vh * s;
+    }                                                    // else stretch -> dw/dh = rw/rh
+    float cx = rx + rw * 0.5f, cy = ry + rh * 0.5f;
+    float x0 = cx - dw * 0.5f, x1 = cx + dw * 0.5f;
+    float y0 = cy - dh * 0.5f, y1 = cy + dh * 0.5f;
+    auto ndcX = [&](float x){ return (x / screenW) * 2.0f - 1.0f; };
+    auto ndcY = [&](float y){ return 1.0f - (y / screenH) * 2.0f; };
+    // 4 corners: TL, TR, BR, BL with UVs (0,0)(1,0)(1,1)(0,1).
+    float px[4] = { x0, x1, x1, x0 };
+    float py[4] = { y0, y0, y1, y1 };
+    float u[4]  = { 0.0f, 1.0f, 1.0f, 0.0f };
+    float v[4]  = { 0.0f, 0.0f, 1.0f, 1.0f };
+    const int order[6] = {0, 1, 2, 0, 2, 3};
+    GLfloat verts[12], uvs[12];
+    for (int k = 0; k < 6; k++) {
+        int c = order[k];
+        verts[k * 2] = ndcX(px[c]); verts[k * 2 + 1] = ndcY(py[c]);
+        uvs[k * 2] = u[c]; uvs[k * 2 + 1] = v[c];
+    }
+    float st[16]; getTransform(st);
+
+    glUseProgram(mProg);
+    glUniformMatrix4fv(mLocST, 1, GL_FALSE, st);
+    if (mLocAlpha >= 0) glUniform1f(mLocAlpha, alpha);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_EXTERNAL_OES, mTexId);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glVertexAttribPointer(mLocPos, 2, GL_FLOAT, GL_FALSE, 0, verts);
+    glEnableVertexAttribArray(mLocPos);
+    glVertexAttribPointer(mLocTex, 2, GL_FLOAT, GL_FALSE, 0, uvs);
+    glEnableVertexAttribArray(mLocTex);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    glDisableVertexAttribArray(mLocPos);
+    glDisableVertexAttribArray(mLocTex);
+    glBindTexture(GL_TEXTURE_EXTERNAL_OES, 0);
+    glUseProgram(0);
+}
+
+bool NanoVideo::updateFrame() {
+    if (!mOpen || mConsumer == nullptr) return false;
+    android::status_t r = mConsumer->updateTexImage();
+    return r == android::OK;
+}
+
+void NanoVideo::getTransform(float m[16]) {
+    if (mConsumer != nullptr) mConsumer->getTransformMatrix(m);
+    else { for (int i = 0; i < 16; i++) m[i] = 0.0f; m[0] = m[5] = m[10] = m[15] = 1.0f; }
+}
+
+void NanoVideo::play() {
+    if (!mOpen) return;
+    if (mEnded.load()) { seek(0.0); mEnded = false; }
+    mPlaying = true;
+}
+void NanoVideo::pause() { mPlaying = false; }
+
+void NanoVideo::seek(double sec) {
+    if (!mOpen) return;
+    if (sec < 0.0) sec = 0.0;
+    if (mDurationSec > 0.0 && sec > mDurationSec) sec = mDurationSec;
+    mSeekTarget = sec; mSeekPending = true;
+}
+
+double NanoVideo::position() const { return mPosSec.load(); }
+
+void NanoVideo::release() {
+    mQuit = true; mPlaying = false; mEnded = false;
+    if (mWorker.joinable()) mWorker.join();
+    if (mCodec) { AMediaCodec_stop(mCodec); AMediaCodec_delete(mCodec); mCodec = nullptr; }
+    if (mEx) { AMediaExtractor_delete(mEx); mEx = nullptr; }
+    mConsumer.clear();        // releases the GL texture image + consumer
+    mSurface.clear();
+    if (mTexId) { glDeleteTextures(1, &mTexId); mTexId = 0; }
+    mVideoTrack = -1; mWidth = mHeight = 0; mDurationSec = 0.0; mPosSec = 0.0;
+    mSeekPending = false;
+    mOpen = false;
+}
