@@ -1047,7 +1047,7 @@ void NanoMenu::ps3DlgNav(int dir, bool horizontal) {
 }
 
 void NanoMenu::ps3XmbLeft() {
-    if (mPs3OptActive) { closeXmbOpt(); return; }   // option menu: Left dismisses (web optBack)
+    if (mPs3OptActive) { if (mPs3OptSubOpen) xmbOptCloseSub(); else closeXmbOpt(); return; }   // Left: back out of a submenu, else dismiss (web optBack)
     if (mMpActive) {   // chooser ignores L/R; panel grid nav, or scrub back 5s with no panel
         if (mMpPlChooserActive) return;
         if (mMpCpOpen) mpOptMove(-1, 0);
@@ -1082,7 +1082,7 @@ void NanoMenu::ps3XmbLeft() {
 }
 
 void NanoMenu::ps3XmbRight() {
-    if (mPs3OptActive) return;   // option menu is a vertical list, no horizontal nav
+    if (mPs3OptActive) { if (!mPs3OptSubOpen) xmbOptOpenSub(); return; }   // Right: open the focused row's submenu (web optOpenSub)
     if (mMpActive) {   // panel grid nav, or scrub fwd 5s with no panel (hold = continuous; debounced commit)
         if (mMpPlChooserActive) return;
         if (mMpCpOpen) mpOptMove(+1, 0);
@@ -1447,7 +1447,7 @@ void NanoMenu::ps3XmbSelect() {
 }
 
 void NanoMenu::ps3XmbBack() {
-    if (mPs3OptActive) { closeXmbOpt(); return; }   // option menu: O dismisses
+    if (mPs3OptActive) { if (mPs3OptSubOpen) xmbOptCloseSub(); else closeXmbOpt(); return; }   // O: back out of a submenu, else dismiss
     if (mMpActive) { if (mMpPlChooserActive) { mpPlChooserCancel(); return; }
                      if (mMpCpOpen) mpOptBack(); else minimizeMusicPlayer(); return; }   // O: chooser cancel / panel back / minimize (audio keeps playing)
     if (mPvPlChooserActive) { pvPlChooserCancel(); return; }   // O: cancel the chooser
@@ -1532,7 +1532,8 @@ void NanoMenu::renderPs3Xmb() {
         if (mPs3OptActive || mPs3OptClosing) renderXmbOpt();   // option menu over the grid
         if (mPs3DlgActive || mPs3DlgClosing) renderPs3Dialog(); // Information dialog over the grid
         if (mPvPlChooserActive || mPvPlChooserAnim > 0.004f) drawPvPlChooser();  // add-to-playlist chooser
-        drawPhotoMsg();   // post-confirm Delete/Copy message
+        drawPhotoMsg();    // post-confirm Delete/Copy message
+        drawPhotoBanner(); // Sort By / Group Content change banner
         return;
     }
 
@@ -2351,6 +2352,7 @@ void NanoMenu::renderPs3Xmb() {
     // Restore the reveal multipliers scaled for the chrome cross-fade (they persist
     // across frames otherwise, leaving the chrome hidden after the player closes).
     if (mpChromeScaled) { mPs3BootIconReveal = mpSavedIconReveal; mPs3BootLabelReveal = mpSavedLabelReveal; }
+    if (!mMpActive && !mPvActive) drawPhotoBanner();   // Sort By / Group Content change banner (column level)
 }
 
 // ---------------------------------------------------------------------------
@@ -4182,33 +4184,78 @@ void NanoMenu::openXmbOpt() {
     if (mOverlayMode && !mOverlayWallpaper) return;
 
     mPs3OptLabels.clear(); mPs3OptActs.clear(); mPs3OptStart.clear();
+    mPs3OptSep.clear(); mPs3OptHasSub.clear(); mPs3OptSubDef.clear(); mPs3OptSubRows.clear();
+    mPs3OptSubOpen = false; mPs3OptSubSel = 0;
     auto add = [&](const char* label, const char* act, bool start) {
         mPs3OptLabels.push_back(label); mPs3OptActs.push_back(act);
         mPs3OptStart.push_back(start ? 1 : 0);
+        mPs3OptSep.push_back(0); mPs3OptHasSub.push_back(0);
+        mPs3OptSubDef.push_back(0); mPs3OptSubRows.push_back({});
+    };
+    auto addSep = [&]() {   // a visual gap between the list-level group and the per-item actions
+        mPs3OptLabels.push_back(""); mPs3OptActs.push_back("");
+        mPs3OptStart.push_back(0); mPs3OptSep.push_back(1); mPs3OptHasSub.push_back(0);
+        mPs3OptSubDef.push_back(0); mPs3OptSubRows.push_back({});
+    };
+    auto addSub = [&](const char* label, bool start, const std::vector<Ps3OptSub>& sub, int subDef) {
+        mPs3OptLabels.push_back(label); mPs3OptActs.push_back("");
+        mPs3OptStart.push_back(start ? 1 : 0); mPs3OptSep.push_back(0); mPs3OptHasSub.push_back(1);
+        mPs3OptSubDef.push_back(subDef); mPs3OptSubRows.push_back(sub);
+    };
+    // Photo Sort By submenu (web photoSortBy, 5 firmware options). Default focus tracks
+    // the live sort. Film/Import Date desc/asc + Image Name.
+    auto photoSortSub = [&]() {
+        std::vector<Ps3OptSub> v;
+        auto S = [](const char* l, int f, int d) { Ps3OptSub s; s.label = l; s.kind = 0; s.field = f; s.dir = d; return s; };
+        v.push_back(S("Film Date (newest)",   0, 0));
+        v.push_back(S("Film Date (oldest)",   0, 1));
+        v.push_back(S("Import Date (newest)", 1, 0));
+        v.push_back(S("Import Date (oldest)", 1, 1));
+        v.push_back(S("Image Name",           2, 1));
+        return v;
+    };
+    auto photoSortDef = [&]() {
+        if (mPhotoSortField == 2) return 4;
+        if (mPhotoSortField == 1) return mPhotoSortDir == 0 ? 2 : 3;
+        return mPhotoSortDir == 0 ? 0 : 1;
+    };
+    // Photo Slideshow style submenu (web photoStyles, 5 styles).
+    auto photoStyleSub = [&]() {
+        std::vector<Ps3OptSub> v;
+        static const char* kS[5] = {"Normal", "Slide", "Portrait", "Photo Album", "Photo Album 2"};
+        for (int i = 0; i < 5; i++) { Ps3OptSub s; s.label = kS[i]; s.kind = 2; s.sstyle = i; v.push_back(s); }
+        return v;
+    };
+    // Photo Group Content submenu (By Month / By Year / By Album / All).
+    auto photoGroupSub = [&]() {
+        std::vector<Ps3OptSub> v;
+        static const char* kG[4] = {"By Month", "By Year", "By Album", "All"};
+        for (int i = 0; i < 4; i++) { Ps3OptSub s; s.label = kG[i]; s.kind = 1; s.groupIdx = i; v.push_back(s); }
+        return v;
     };
 
     // Photo thumbnail grid: per-photo options for the focused thumbnail (the grid
     // is a full-takeover screen with an empty stack level, so it is handled before
-    // the normal item-list path).
+    // the normal item-list path). Layout/order 1:1 with the web in-album option menu.
     if (ps3TopScreenKind() == PHOTO_GRID) {
         if (mPhotoGridCursor < 0 || mPhotoGridCursor >= (int)mPhotoGridList.size()) return;
         int pIdx = mPhotoGridList[mPhotoGridCursor];
-        std::string sortLbl = "Sort By: " + photoSortLabel(mPhotoSortMode);
-        add("View", "pgview", true);
-        add("Slideshow", "pgslidegrid", false);
-        add(sortLbl.c_str(), "sortby", false);
-        add("Add to Playlist", "pgaddgrid", false);
-        add("Copy", "pgcopy", false);
-        add("Print", "pgprint", false);
-        add("Delete", "pgdelete", false);
         add("Delete Multiple", "delmulti", false);
         add("Copy Multiple", "copymulti", false);
+        addSub("Sort By", false, photoSortSub(), photoSortDef());
+        addSub("Slideshow", true, photoStyleSub(), (mPvSlideStyle >= 0 && mPvSlideStyle < 5) ? mPvSlideStyle : 0);
+        addSep();
+        add("View", "pgview", false);
+        add("Copy", "pgcopy", false);
+        add("Add to Playlist", "pgaddgrid", false);
+        add("Print", "pgprint", false);
+        add("Delete", "pgdelete", false);
         add("Information", "photoinfo", false);
         mPs3OptCtxKind = PS3_PHOTO; mPs3OptCtxA = pIdx; mPs3OptCtxB = 0;
         mPs3OptCtxLabel = (pIdx >= 0 && pIdx < (int)mPhotos.size()) ? mPhotos[pIdx].name : std::string();
         mPs3OptCtxPayload.clear(); mPs3OptCtxDesc.clear();
         mPs3OptCtxList.clear(); mPs3OptCtxSel = 0;
-        mPs3OptSel = 0; mPs3OptActive = true; mPs3OptClosing = false; mPs3OptAnim = 0.0f; mPs3OptBlurValid = false;
+        mPs3OptSel = xmbOptDefaultSel(); mPs3OptActive = true; mPs3OptClosing = false; mPs3OptAnim = 0.0f; mPs3OptBlurValid = false;
         return;
     }
 
@@ -4227,9 +4274,12 @@ void NanoMenu::openXmbOpt() {
         case PS3_MUSIC_PLAYLIST:
             add("Play", "playpl", true); add("Information", "info", false); break;
         case PS3_PHOTO_ALBUM: {
-            std::string sortLbl = "Sort By: " + photoSortLabel(mPhotoSortMode);
-            add("Slideshow", "pgslidefolder", true);
-            add(sortLbl.c_str(), "sortby", false);
+            // Photo column-root folder: 1:1 with the web (Sort By + Group Content,
+            // a gap, then Slideshow / Copy / Delete / Information).
+            addSub("Sort By", false, photoSortSub(), photoSortDef());
+            addSub("Group Content", false, photoGroupSub(), mPhotoGroupIdx);
+            addSep();
+            addSub("Slideshow", true, photoStyleSub(), (mPvSlideStyle >= 0 && mPvSlideStyle < 5) ? mPvSlideStyle : 0);
             add("Copy", "pcopyfolder", false);
             add("Delete", "pdelfolder", false);
             add("Information", "photofolderinfo", false); break;
@@ -4242,7 +4292,7 @@ void NanoMenu::openXmbOpt() {
     mPs3OptCtxKind = it.kind; mPs3OptCtxA = it.a; mPs3OptCtxB = it.b;
     mPs3OptCtxLabel = it.label; mPs3OptCtxPayload = it.payloadStr; mPs3OptCtxDesc = it.desc;
     mPs3OptCtxList = items; mPs3OptCtxSel = sel;
-    mPs3OptSel = 0;
+    mPs3OptSel = xmbOptDefaultSel();
     mPs3OptActive = true; mPs3OptClosing = false; mPs3OptAnim = 0.0f; mPs3OptBlurValid = false;
 }
 
@@ -4251,19 +4301,84 @@ void NanoMenu::closeXmbOpt() {
     mPs3OptClosing = true;
     mPs3OptCloseAnim = (mPs3OptAnim > 0.02f ? mPs3OptAnim : 1.0f);
     mPs3OptActive = false;
+    mPs3OptSubOpen = false;
+}
+
+// Default cursor: the first per-item action (the first non-separator row after the
+// list-level group's separator), or row 0 if there is no separator (web openOptMenu).
+int NanoMenu::xmbOptDefaultSel() {
+    int n = (int)mPs3OptSep.size();
+    int sep = -1;
+    for (int i = 0; i < n; i++) if (mPs3OptSep[i]) { sep = i; break; }
+    if (sep < 0) return 0;
+    for (int i = sep + 1; i < n; i++) if (!mPs3OptSep[i]) return i;
+    return 0;
 }
 
 void NanoMenu::xmbOptMove(int dir) {
+    if (mPs3OptSubOpen) {   // navigate within the open submenu (wrap)
+        int sn = (mPs3OptSel >= 0 && mPs3OptSel < (int)mPs3OptSubRows.size())
+                 ? (int)mPs3OptSubRows[mPs3OptSel].size() : 0;
+        if (sn <= 0) return;
+        mPs3OptSubSel = (mPs3OptSubSel + (dir % sn) + sn) % sn;
+        return;
+    }
     int n = (int)mPs3OptLabels.size();
     if (n <= 0) return;
-    mPs3OptSel = (mPs3OptSel + (dir % n) + n) % n;
+    int s = mPs3OptSel;
+    do { s = (s + dir + n) % n; } while (s >= 0 && s < (int)mPs3OptSep.size() && mPs3OptSep[s]);
+    mPs3OptSel = s;
+}
+
+void NanoMenu::xmbOptOpenSub() {
+    if (mPs3OptSubOpen) return;
+    if (mPs3OptSel < 0 || mPs3OptSel >= (int)mPs3OptHasSub.size()) return;
+    if (!mPs3OptHasSub[mPs3OptSel] || mPs3OptSubRows[mPs3OptSel].empty()) return;
+    mPs3OptSubOpen = true;
+    int def = (mPs3OptSel < (int)mPs3OptSubDef.size()) ? mPs3OptSubDef[mPs3OptSel] : 0;
+    int sn = (int)mPs3OptSubRows[mPs3OptSel].size();
+    mPs3OptSubSel = (def >= 0 && def < sn) ? def : 0;
+}
+
+void NanoMenu::xmbOptCloseSub() {
+    mPs3OptSubOpen = false;
 }
 
 void NanoMenu::xmbOptEnter() {
+    if (mPs3OptSubOpen) {
+        if (mPs3OptSel >= 0 && mPs3OptSel < (int)mPs3OptSubRows.size()
+            && mPs3OptSubSel >= 0 && mPs3OptSubSel < (int)mPs3OptSubRows[mPs3OptSel].size())
+            xmbOptApplySub(mPs3OptSubRows[mPs3OptSel][mPs3OptSubSel]);
+        return;
+    }
     if (mPs3OptSel < 0 || mPs3OptSel >= (int)mPs3OptActs.size()) return;
+    if (mPs3OptSel < (int)mPs3OptHasSub.size() && mPs3OptHasSub[mPs3OptSel]) { xmbOptOpenSub(); return; }
     std::string act = mPs3OptActs[mPs3OptSel];
     closeXmbOpt();
     xmbOptAction(act);
+}
+
+// Apply a chosen submenu row, then close the whole option menu (web applyOptSub).
+void NanoMenu::xmbOptApplySub(const Ps3OptSub& sr) {
+    if (sr.kind == 0) {            // Sort By
+        photoSetSort(sr.field, sr.dir);
+        closeXmbOpt();
+    } else if (sr.kind == 1) {     // Group Content
+        photoSetGroup(sr.groupIdx);
+        closeXmbOpt();
+    } else if (sr.kind == 2) {     // Slideshow style -> start the show
+        int style = sr.sstyle;
+        closeXmbOpt();
+        if (mPs3OptCtxKind == PS3_PHOTO_ALBUM) {
+            std::vector<PhotoGroup> groups = photoGroups();
+            if (mPs3OptCtxA >= 0 && mPs3OptCtxA < (int)groups.size() && !groups[mPs3OptCtxA].idx.empty())
+                pvSlideshowStart(groups[mPs3OptCtxA].idx, 0, style);
+        } else {   // grid (PS3_PHOTO): slideshow the open grid from the focused photo
+            int vi = 0; for (size_t i = 0; i < mPhotoGridList.size(); i++)
+                if (mPhotoGridList[i] == mPs3OptCtxA) { vi = (int)i; break; }
+            if (!mPhotoGridList.empty()) pvSlideshowStart(mPhotoGridList, vi, style);
+        }
+    }
 }
 
 void NanoMenu::xmbOptAction(const std::string& act) {
@@ -4383,7 +4498,6 @@ void NanoMenu::xmbOptAction(const std::string& act) {
             pvOpenAddChooser(mPhotos[mPs3OptCtxA].file);
         return;
     }
-    if (act == "sortby")    { photoSortCycle(); return; }    // cycle Date newest/oldest/Name
     if (act == "delmulti")  { photoMultiOpen(0); return; }   // Delete Multiple checkbox screen
     if (act == "copymulti") { photoMultiOpen(1); return; }   // Copy Multiple checkbox screen
     if (act == "pgcopy")   { pvShowMsg("Copy completed.", 1100.0f); return; }    // grid photo (simulated)
@@ -4461,8 +4575,20 @@ void NanoMenu::renderXmbOpt() {
 
     const float fb = ps3DlgFontBoost();
     const bool sp43 = ps3::LAYOUT_XC < 0.999f;
-    const float SP_PANEL_LEFT = ps3::XCP(sp43 ? 1056.0f : 1324.0f);
-    const float SP_TEXT_X     = ps3::XCP(sp43 ? 1100.0f : 1340.0f);
+    // Submenu (side-panel) layout: when a submenu opens, the main column slides LEFT
+    // by SUB_SHIFT and the submenu takes the original (rightmost) slot, the selected
+    // sub-row aligned to the parent row (web optMenu side-swap).
+    const float SUB_SHIFT = 330.0f;     // virtual-px the main column slides left (web)
+    const float SP_ARROW_DX = 232.0f;   // ">" arrow column, virtual-px offset from the text x
+    const bool subOpen = mPs3OptSubOpen && mPs3OptSel >= 0 && mPs3OptSel < (int)mPs3OptSubRows.size()
+                         && !mPs3OptSubRows[mPs3OptSel].empty();
+    // Bases in virtual (1920) space; the submenu shift is applied here (before XCP) so it
+    // tracks the layout's x-scale, not the frame-fit scale.
+    const float SP_PANEL_LEFT_BASE = sp43 ? 1056.0f : 1324.0f;
+    const float SP_TEXT_BASE       = sp43 ? 1100.0f : 1340.0f;
+    const float mainShift = subOpen ? SUB_SHIFT : 0.0f;
+    const float SP_PANEL_LEFT = ps3::XCP(SP_PANEL_LEFT_BASE - mainShift);
+    const float SP_TEXT_X     = ps3::XCP(SP_TEXT_BASE);   // submenu (right, unshifted) slot
     const float SP_ITEM_PITCH = 44.0f;
     const float SP_LIST_TOP_Y = 470.0f;
 
@@ -4498,16 +4624,28 @@ void NanoMenu::renderXmbOpt() {
 
     float ss = ps3::devS(1.5f);
     float so[2] = { sDrmRotMat[2] * ss, sDrmRotMat[3] * ss };
-    const float txDev = ps3::devX(SP_TEXT_X + xShiftV);
+    const float txDev = ps3::devX(ps3::XCP(SP_TEXT_BASE - mainShift) + xShiftV);
     int n = (int)mPs3OptLabels.size();
+    float yV = SP_LIST_TOP_Y;          // running y (separators add a gap, not a full row)
+    float parentYV = SP_LIST_TOP_Y;    // y of the open-submenu parent, for sub alignment
     for (int i = 0; i < n; i++) {
+        if (i < (int)mPs3OptSep.size() && mPs3OptSep[i]) {
+            float dyDev = ps3::devY(yV + SP_ITEM_PITCH * 0.10f);
+            drawQuad(txDev, dyDev, ps3::devS(300.0f), ps3::devS(1.0f), 1.0f, 1.0f, 1.0f, 0.12f * ap);
+            yV += SP_ITEM_PITCH * 0.55f;
+            continue;
+        }
         bool sel = (i == mPs3OptSel);
-        float cyDev = ps3::devY(SP_LIST_TOP_Y + (float)i * SP_ITEM_PITCH);
+        if (sel) parentYV = yV;
+        float cyDev = ps3::devY(yV);
         float fs = ps3::fontScale((sel ? 26.0f : 22.0f) * fb);
         float ty = cyDev - 0.45f * ps3::emPx(fs);
         const char* txt = trDyn(mPs3OptLabels[i].c_str());
-        float a2 = (sel ? 1.0f : 0.82f) * ap;
-        drawText(txt, txDev + so[0], ty + so[1], fs, 0.0f, 0.0f, 0.0f, 0.35f * ap);
+        // While a submenu is open the parent column dims (web: parent ~0.5), the open
+        // parent kept a touch brighter for context.
+        float baseA = subOpen ? (sel ? 0.9f : 0.40f) : (sel ? 1.0f : 0.82f);
+        float a2 = baseA * ap;
+        drawText(txt, txDev + so[0], ty + so[1], fs, 0.0f, 0.0f, 0.0f, 0.35f * ap * (subOpen ? 0.5f : 1.0f));
         drawText(txt, txDev, ty, fs, 1.0f, 1.0f, 1.0f, a2);
         // START pill on the primary action row.
         if (i < (int)mPs3OptStart.size() && mPs3OptStart[i]) {
@@ -4522,6 +4660,33 @@ void NanoMenu::renderXmbOpt() {
             drawQuad(px, py, pw + padx * 2.0f, ph, 1.0f, 1.0f, 1.0f, 0.22f * ap);
             float pty = cyDev - 0.42f * ps3::emPx(pfs);
             drawText(pill, px + padx, pty, pfs, 1.0f, 1.0f, 1.0f, 0.95f * ap);
+        }
+        // ">" arrow on rows that open a submenu (right-aligned at a fixed column).
+        if (i < (int)mPs3OptHasSub.size() && mPs3OptHasSub[i]) {
+            float afs = ps3::fontScale(20.0f * fb);
+            float ax = ps3::devX(ps3::XCP(SP_TEXT_BASE - mainShift + SP_ARROW_DX) + xShiftV);
+            float aty = cyDev - 0.45f * ps3::emPx(afs);
+            drawText(">", ax + so[0], aty + so[1], afs, 0.0f, 0.0f, 0.0f, 0.30f * ap);
+            drawText(">", ax, aty, afs, 1.0f, 1.0f, 1.0f, a2);
+        }
+        yV += SP_ITEM_PITCH;
+    }
+
+    // Open submenu: the right (original) slot, the selected sub-row aligned to its parent.
+    if (subOpen) {
+        const std::vector<Ps3OptSub>& sub = mPs3OptSubRows[mPs3OptSel];
+        const float subTxDev = ps3::devX(SP_TEXT_X + xShiftV);
+        float syV = parentYV - (float)mPs3OptSubSel * SP_ITEM_PITCH;
+        for (int j = 0; j < (int)sub.size(); j++) {
+            bool ssel = (j == mPs3OptSubSel);
+            float cyDev = ps3::devY(syV);
+            float fs = ps3::fontScale((ssel ? 26.0f : 22.0f) * fb);
+            float ty = cyDev - 0.45f * ps3::emPx(fs);
+            const char* txt = trDyn(sub[j].label.c_str());
+            float a2 = (ssel ? 1.0f : 0.82f) * ap;
+            drawText(txt, subTxDev + so[0], ty + so[1], fs, 0.0f, 0.0f, 0.0f, 0.35f * ap);
+            drawText(txt, subTxDev, ty, fs, 1.0f, 1.0f, 1.0f, a2);
+            syV += SP_ITEM_PITCH;
         }
     }
 }

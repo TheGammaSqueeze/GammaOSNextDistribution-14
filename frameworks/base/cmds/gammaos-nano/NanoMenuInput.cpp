@@ -946,10 +946,12 @@ void NanoMenu::pollInput() {
             }
             else if (!strcmp(navbuf, "sq")) {
                 if (mMpActive && !mOskActive) mpCycleVis();
+                else if (mPs3Xmb && !mOskActive && !mPvActive && !mPs3OptActive && !mPs3DlgActive
+                         && ps3TopScreenKind() == PHOTO_GRID) photoSortCycleY();   // Y: cycle Sort By on the grid
                 else if (!mPvActive && mPs3Xmb && !mOskActive && mPs3Stack.empty()
                          && !mPs3OptActive && !mPs3DlgActive && mPhotoLoaded
                          && mPs3CatIdx >= 0 && mPs3CatIdx < (int)mPs3Cats.size()
-                         && mPs3Cats[mPs3CatIdx].name == "Photo") photoCycleGroup();
+                         && mPs3Cats[mPs3CatIdx].name == "Photo") photoSortCycleY();  // Y: cycle Sort By on the column
             }
             // Game Systems list scripting: l1/r1 reorder the selected system,
             // x toggles its enabled state (the physical L1/R1/X buttons do the
@@ -1200,10 +1202,15 @@ void NanoMenu::pollInput() {
                             if (!mPvWpMode && !mPvTrimMode && !mPvPlChooserActive) pvShow3D();
                             break;
                         }
-                        // Photo column root: Square cycles Group Content (By Month/Year/Album/All).
+                        // Photo album grid: Y cycles the Sort By order (+ banner). Group
+                        // Content lives in the Triangle option menu (a submenu).
+                        if (mPs3Xmb && !mOskActive && !mPs3OptActive && !mPs3DlgActive
+                            && ps3TopScreenKind() == PHOTO_GRID) { photoSortCycleY(); break; }
+                        // Photo column root: Y cycles the Sort By order (+ banner). Group
+                        // Content moved to the Triangle option menu (user: sort folders with Y).
                         if (mPs3Xmb && !mOskActive && mPs3Stack.empty() && !mPs3OptActive && !mPs3DlgActive
                             && mPhotoLoaded && mPs3CatIdx >= 0 && mPs3CatIdx < (int)mPs3Cats.size()
-                            && mPs3Cats[mPs3CatIdx].name == "Photo") { photoCycleGroup(); break; }
+                            && mPs3Cats[mPs3CatIdx].name == "Photo") { photoSortCycleY(); break; }
                         if (mMenuState == MENU_WIFI) { handleWifiScreenY(); break; }
                         if (mMenuState == MENU_BT)   { handleBtScreenY();   break; }
                         // Icon grid picker: Y opens the name-filter OSK.

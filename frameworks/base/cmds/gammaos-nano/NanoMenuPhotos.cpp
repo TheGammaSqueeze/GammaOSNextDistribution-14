@@ -713,19 +713,8 @@ std::string NanoMenu::fmtFileSize(int64_t b) {
 std::vector<NanoMenu::PhotoGroup> NanoMenu::photoGroups() const {
     std::vector<int> order(mPhotos.size());
     for (size_t i = 0; i < mPhotos.size(); i++) order[i] = (int)i;
-    // Sort By: 0 = date newest, 1 = date oldest (web default), 2 = image name.
-    int sm = mPhotoSortMode;
-    auto nameLess = [&](int a, int b) {
-        const std::string& x = mPhotos[a].name, &y = mPhotos[b].name;
-        if (x.size() != y.size()) return x.size() < y.size();   // numeric-aware for digit names
-        return strcasecmp(x.c_str(), y.c_str()) < 0;
-    };
-    std::sort(order.begin(), order.end(), [&](int a, int b) {
-        if (sm == 2) return nameLess(a, b);
-        const std::string& x = mPhotos[a].date, &y = mPhotos[b].date;
-        if (x != y) return sm == 0 ? (x > y) : (x < y);
-        return nameLess(a, b);
-    });
+    // Sort By the current field+dir (web photoSortBy: film/import date desc/asc, name).
+    std::sort(order.begin(), order.end(), [&](int a, int b) { return photoSortLess(a, b); });
     static const char* MON[12] = {"Jan","Feb","Mar","Apr","May","Jun",
                                   "Jul","Aug","Sep","Oct","Nov","Dec"};
     std::vector<PhotoGroup> out;
@@ -771,41 +760,101 @@ void NanoMenu::buildPhotoColumnItems(std::vector<Ps3Item>& out) {
     }
 }
 
-std::string NanoMenu::photoSortLabel(int mode) {
-    switch (mode) {
-        case 0:  return "Date (newest)";
+// Compare two photo indices by the current Sort By field+dir (web photoSortBy).
+// field 0 = film(EXIF) date, 1 = import(file mtime) date, 2 = image name.
+bool NanoMenu::photoSortLess(int a, int b) const {
+    if (a < 0 || a >= (int)mPhotos.size() || b < 0 || b >= (int)mPhotos.size()) return a < b;
+    auto nameLess = [&]() {
+        const std::string& x = mPhotos[a].name, &y = mPhotos[b].name;
+        if (x.size() != y.size()) return x.size() < y.size();   // numeric-aware for digit names
+        return strcasecmp(x.c_str(), y.c_str()) < 0;
+    };
+    if (mPhotoSortField == 2) return nameLess();   // Image Name: always ascending
+    if (mPhotoSortField == 1) {                    // Import Date: file mtime
+        if (mPhotos[a].mtime != mPhotos[b].mtime)
+            return mPhotoSortDir == 0 ? (mPhotos[a].mtime > mPhotos[b].mtime)
+                                      : (mPhotos[a].mtime < mPhotos[b].mtime);
+        return nameLess();
+    }
+    const std::string& x = mPhotos[a].date, &y = mPhotos[b].date;   // Film Date: EXIF/capture date
+    if (x != y) return mPhotoSortDir == 0 ? (x > y) : (x < y);
+    return nameLess();
+}
+
+std::string NanoMenu::photoSortLabelCur() const {
+    const char* arrow = (mPhotoSortDir == 0) ? " (newest)" : " (oldest)";
+    switch (mPhotoSortField) {
         case 2:  return "Image Name";
-        default: return "Date (oldest)";
+        case 1:  return std::string("Import Date") + arrow;
+        default: return std::string("Film Date") + arrow;
     }
 }
-void NanoMenu::photoSortCycle() {
-    mPhotoSortMode = (mPhotoSortMode + 1) % 3;
-    mPhotoCatsStale = true;   // re-group the Photo column with the new order
-    // If inside an album grid, re-sort the open photo list in place too.
+
+// Re-group the Photo column with the new order, and re-sort the open album grid in place.
+void NanoMenu::photoApplySort() {
+    mPhotoCatsStale = true;
     if (!mPhotoGridList.empty()) {
-        int sm = mPhotoSortMode;
-        auto nameLess = [&](int a, int b) {
-            const std::string& x = mPhotos[a].name, &y = mPhotos[b].name;
-            if (x.size() != y.size()) return x.size() < y.size();
-            return strcasecmp(x.c_str(), y.c_str()) < 0;
-        };
-        std::sort(mPhotoGridList.begin(), mPhotoGridList.end(), [&](int a, int b) {
-            if (a < 0 || a >= (int)mPhotos.size() || b < 0 || b >= (int)mPhotos.size()) return a < b;
-            if (sm == 2) return nameLess(a, b);
-            const std::string& x = mPhotos[a].date, &y = mPhotos[b].date;
-            if (x != y) return sm == 0 ? (x > y) : (x < y);
-            return nameLess(a, b);
-        });
+        std::sort(mPhotoGridList.begin(), mPhotoGridList.end(),
+                  [&](int a, int b) { return photoSortLess(a, b); });
         mPhotoGridCursor = 0; mPhotoGridTop = 0;
     }
+}
+
+void NanoMenu::photoSetSort(int field, int dir) {
+    mPhotoSortField = field;
+    mPhotoSortDir = (field == 2) ? 1 : dir;   // name forced ascending
+    photoApplySort();
+    photoShowBanner(photoSortLabelCur());
+}
+
+// Y on the grid/folder: step through the 5 firmware Sort By options + show a banner.
+// Order: Film Date desc, Film Date asc, Import Date desc, Import Date asc, Image Name.
+void NanoMenu::photoSortCycleY() {
+    static const int kField[5] = {0, 0, 1, 1, 2};
+    static const int kDir[5]   = {0, 1, 0, 1, 1};
+    int cur = 0;
+    for (int i = 0; i < 5; i++)
+        if (kField[i] == mPhotoSortField && (mPhotoSortField == 2 || kDir[i] == mPhotoSortDir)) { cur = i; break; }
+    int nx = (cur + 1) % 5;
+    photoSetSort(kField[nx], kDir[nx]);
+}
+
+void NanoMenu::photoShowBanner(const std::string& text) {
+    mPhotoBanner = text; mPhotoBannerStart = mEffectTime;
+}
+
+// Transient centered banner over the photo column/grid (web showGroupBanner): fades
+// in 150ms, holds, fades out over the last 300ms of a 2.0s life. No-op when inactive.
+void NanoMenu::drawPhotoBanner() {
+    if (mPhotoBannerStart < 0.0f || mPhotoBanner.empty()) return;
+    float el = (mEffectTime - mPhotoBannerStart) * 1000.0f;
+    const float life = 2000.0f;
+    if (el >= life) { mPhotoBannerStart = -1.0f; return; }
+    float fade = fminf(1.0f, el / 150.0f) * fminf(1.0f, fmaxf(0.0f, (life - el)) / 300.0f);
+    int W = mWidth, H = mHeight;
+    const char* txt = mPhotoBanner.c_str();
+    float fs = PFS(30.0f);
+    float tw = measureText(txt, fs);
+    float cx = (W - tw) * 0.5f;
+    float cy = (float)H * 0.12f;
+    float pad = PFS(18.0f);
+    drawQuad(cx - pad, cy - PFS(8.0f), tw + pad * 2.0f, PFS(46.0f), 0.0f, 0.0f, 0.0f, 0.55f * fade);
+    drawText(txt, cx, ps3::baselineToTopY(cy + PFS(30.0f), fs), fs, 1.0f, 1.0f, 1.0f, fade);
 }
 void NanoMenu::photoCycleGroup() {
     static const char* kModeNames[4] = {"By Month", "By Year", "By Album", "All"};
     mPhotoGroupIdx = (mPhotoGroupIdx + 1) % 4;
     mPhotoCatsStale = true;
-    // brief banner reusing the music banner overlay would need mMpActive; instead
-    // just rebuild the column - the new groups appear immediately.
+    photoShowBanner(kModeNames[mPhotoGroupIdx]);
     ALOGI("NanoMenu: photo group -> %s", kModeNames[mPhotoGroupIdx]);
+}
+// Set a specific group-content mode (option-menu Group Content submenu).
+void NanoMenu::photoSetGroup(int mode) {
+    if (mode < 0 || mode > 3) return;
+    static const char* kModeNames[4] = {"By Month", "By Year", "By Album", "All"};
+    mPhotoGroupIdx = mode;
+    mPhotoCatsStale = true;
+    photoShowBanner(kModeNames[mPhotoGroupIdx]);
 }
 
 // ---------------------------------------------------------------------------

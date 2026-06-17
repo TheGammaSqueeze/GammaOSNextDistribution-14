@@ -1050,10 +1050,32 @@ private:
     std::string mPs3OptCtxLabel, mPs3OptCtxPayload, mPs3OptCtxDesc;
     std::vector<Ps3Item> mPs3OptCtxList;
     int    mPs3OptCtxSel = 0;
+    // Nested side-panel submenu (web optMenu.subOpen/subRows): a parent row can
+    // carry a list of sub-rows. Opening it slides the main column left and shows the
+    // submenu in the right slot, the selected sub-row aligned to the parent. Single
+    // level only. The vectors are populated only while the menu is open (no idle cost).
+    struct Ps3OptSub {
+        std::string label;
+        int kind = 0;      // 0 = sort, 1 = group content, 2 = slideshow style
+        int field = 0;     // sort: 0 = film date, 1 = import date, 2 = name
+        int dir = 1;       // sort: 0 = desc, 1 = asc
+        int groupIdx = 0;  // group-content mode index
+        int sstyle = 0;    // slideshow style 0..4
+    };
+    std::vector<char> mPs3OptSep;                       // parallel: 1 = separator row (skipped in nav)
+    std::vector<char> mPs3OptHasSub;                    // parallel: 1 = row opens a submenu
+    std::vector<int>  mPs3OptSubDef;                    // parallel: default sub-selection
+    std::vector<std::vector<Ps3OptSub>> mPs3OptSubRows; // parallel: each row's submenu rows
+    bool   mPs3OptSubOpen = false;
+    int    mPs3OptSubSel = 0;
     void   openXmbOpt();          // build context rows + open (no-op if nothing useful)
     void   closeXmbOpt();
+    int    xmbOptDefaultSel();    // first per-item action after the list-group separator
     void   xmbOptMove(int dir);
     void   xmbOptEnter();         // activate the highlighted row
+    void   xmbOptOpenSub();       // open the focused row's submenu (Right / Cross)
+    void   xmbOptCloseSub();      // close the open submenu back to the parent list (Left / Circle)
+    void   xmbOptApplySub(const Ps3OptSub& sr);   // apply a chosen submenu row
     void   xmbOptAction(const std::string& act);
     void   renderXmbOpt();
     // GammaEQ audio preview: a looping PCM clip played via AAudio so the equalizer
@@ -1570,9 +1592,21 @@ private:
     bool mPhotoLoaded = false;            // library parsed once (lazy, first Photo entry)
     bool mPhotoCatsStale = false;         // a scan finished -> rebuild the Photo column at root
     int  mPhotoGroupIdx = 0;              // 0 By Month, 1 By Year, 2 By Album, 3 All
-    int  mPhotoSortMode = 1;             // 0 Date newest, 1 Date oldest, 2 Image Name
-    void photoSortCycle();               // Sort By: cycle the mode + re-sort column / grid
-    static std::string photoSortLabel(int mode);
+    // Sort By (web photoSortBy, 5 options): field 0 = film(EXIF) date, 1 = import
+    // (file mtime) date, 2 = image name. dir 0 = desc, 1 = asc (name forced asc).
+    // Default = Film Date ascending (web subDef 1, the live firmware default).
+    int  mPhotoSortField = 0;
+    int  mPhotoSortDir   = 1;
+    bool photoSortLess(int a, int b) const;   // compare two photo indices by the current field+dir
+    void photoApplySort();                    // re-group the column + re-sort the open grid in place
+    void photoSetSort(int field, int dir);    // set + apply (option-menu submenu)
+    void photoSortCycleY();                   // Y on the grid/folder: cycle the 5 sort options + banner
+    std::string photoSortLabelCur() const;    // current sort label for the option-menu "Sort By" row
+    // Transient centered banner over the photo column/grid (Sort By / Group Content
+    // change feedback, web showGroupBanner). Empty start = inactive (no idle cost).
+    std::string mPhotoBanner; float mPhotoBannerStart = -1.0f;
+    void photoShowBanner(const std::string& text);
+    void drawPhotoBanner();
     // scan worker
     std::mutex mPhotoScanMutex;
     std::vector<PhotoItem> mPhotoScanResults;
@@ -1603,6 +1637,7 @@ private:
     // column content + grouping
     void buildPhotoColumnItems(std::vector<Ps3Item>& out);
     void photoCycleGroup();               // SQUARE in the Photo column -> next Group Content mode
+    void photoSetGroup(int mode);         // option-menu Group Content submenu -> a specific mode
     struct PhotoGroup { std::string name; std::vector<int> idx; };
     std::vector<PhotoGroup> photoGroups() const;   // groups per the current mode
     static std::string fmtPhotoDate(const std::string& iso);   // "YYYY-MM-DD HH:MM" -> "D/M/YYYY H:MM"
