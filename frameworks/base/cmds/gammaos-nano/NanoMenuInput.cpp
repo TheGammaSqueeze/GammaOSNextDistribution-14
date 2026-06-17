@@ -943,7 +943,7 @@ void NanoMenu::pollInput() {
             // control panel (physical Triangle/BTN_NORTH), `sq` cycles the
             // visualizer (physical Square/BTN_WEST). No effect off Now-Playing.
             else if (!strcmp(navbuf, "tri")) {
-                if (mVidActive) { if (!mVidGoToOpen) vidPanelToggle(); }
+                if (mVidActive) { if (!mVidGoToOpen && !mVidSceneOpen) vidPanelToggle(); }
                 else if (mMpActive) { if (mMpCpOpen) closeMpOpt(); else openMpOpt(); }
                 else if (mPvActive) { if (mPvPanel) closePvPanel(); else openPvPanel(); }
                 else if (mPs3Xmb) { if (mPs3OptActive) closeXmbOpt(); else openXmbOpt(); }
@@ -1317,7 +1317,7 @@ void NanoMenu::pollInput() {
                         break;
                     case BTN_NORTH: // X button (Nintendo layout: BTN_NORTH = X); PS3 Triangle in music
                         if (mOskActive) { oskBackspace(); break; }
-                        if (mVidActive) { if (mVidGoToOpen) break; vidPanelToggle(); break; }   // Triangle: video control panel
+                        if (mVidActive) { if (mVidGoToOpen || mVidSceneOpen) break; vidPanelToggle(); break; }   // Triangle: video control panel
                         if (mMpActive) { if (mMpCpOpen) closeMpOpt(); else openMpOpt(); break; }   // Triangle: control panel
                         if (mPvActive) { if (mPvPanel) closePvPanel(); else openPvPanel(); break; }   // Triangle: photo control panel
                         if (mPs3WizActive) { wizRescan(); break; }   // X: re-scan on the AP list

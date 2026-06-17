@@ -44,6 +44,7 @@
 #include <GLES2/gl2.h>
 
 class NanoVideo;   // global; HW video decoder (NanoVideo.h). Forward-declared to keep gui/ headers out of NanoMenu.h.
+class NanoDvbSub;  // global; DVB bitmap subtitle decoder (NanoDvbSub.h).
 
 namespace android {
 
@@ -1568,7 +1569,7 @@ private:
     struct VidCue { double t = 0.0, d = 0.0; std::string text; };   // start, duration, text
     struct VidAudTrk { int idx = 0; std::string name; };           // idx = extractor track index
     struct VidSubTrk { std::string name; bool external = false; std::string file; int embIdx = -1;
-                       std::vector<VidCue> cues; };
+                       std::vector<VidCue> cues; bool dvb = false; int dvbPid = -1; };
     std::vector<VidAudTrk> mVidAudTracks;   // all audio tracks in the current file
     std::vector<VidSubTrk> mVidSubTracks;   // embedded text subs + external SRT/VTT sidecars
     int mVidAudCur = 0;                      // current index into mVidAudTracks
@@ -1578,7 +1579,6 @@ private:
     void vidSetAudioTrack(int ordinal);             // switch the active audio track (re-opens mVidAudio)
     std::vector<VidCue> vidParseSrt(const std::string& text);   // SRT/VTT cue parser (web vidParseCues)
     const std::vector<VidCue>* vidActiveSubCues() const;        // cues for the selected sub track, or null
-    bool   mVidAvBnr = false, mVidAvFnr = false, mVidAvMnr = false, mVidAvUpscale = false;
     double mVidScanLastTick = -1.0;         // wall-clock anchor for timer-driven scan
     double mVidScanPos = 0.0;               // commanded scan clock (decoder position lags + snaps to keyframes)
     double mVidLastPos = -1.0;              // buffering detection: last seen playback position
@@ -1603,7 +1603,7 @@ private:
     int   mVidCpPressSel = -1;
     // Panel submenu (screen mode / repeat / volume / AV settings / audio / subtitle)
     bool  mVidSubOpen = false;
-    int   mVidSubKind = 0;                  // 0 screenmode,1 repeat,2 volume,3 avset,4 audio,5 subtitle
+    int   mVidSubKind = 0;                  // 0 screenmode,1 repeat,2 volume,4 audio,5 subtitle
     std::string mVidSubLabel;
     std::vector<std::string> mVidSubOpts;
     int   mVidSubSel = 0;
@@ -1631,6 +1631,41 @@ private:
     void vidGoToActivate();                 // Cross: seek to the chosen time
     void vidGoToClose();
     void drawVideoGoTo();
+
+    // ---- Scene Search (chapter grid, web vidScene* / drawVideoScene) ------------
+    // Chapters parsed directly from the container (mp4/mov QT chapter track + Nero
+    // chpl; mkv EBML Chapters) since the NDK extractor does not expose chapters.
+    struct VidChapter { double t = 0.0; std::string title; };
+    std::vector<VidChapter> mVidChapters;   // sorted by time; empty = "No chapters"
+    void vidParseChapters(const std::string& file);   // fill mVidChapters from the file
+    bool  mVidSceneOpen = false;
+    bool  mVidSceneClosing = false;
+    int   mVidSceneSel = 0;
+    int   mVidSceneSelPrev = 0;
+    float mVidSceneAnimStart = -1.0f;       // open fade start
+    float mVidSceneCloseStart = -1.0f;
+    float mVidSceneFocusStart = -1.0f;      // selection-change ease start
+    void vidSceneOpen();                    // Scene Search: open the chapter grid (or "No chapters")
+    void vidSceneClose();
+    void vidSceneMove(int dx, int dy);      // grid nav (L/R = +-1 wrap, U/D = +-cols)
+    void vidSceneActivate();                // Cross: seek to the focused chapter
+    void drawVideoScene(float closeT);      // render the grid (closeT>=0 drives close anim)
+
+    // ---- DVB / bitmap subtitles (NanoDvbSub) -----------------------------------
+    // Decoded off the render thread (a large .ts can take seconds to stream + the
+    // render watchdog would abort on a synchronous decode). Lazy: created only when
+    // the user selects the DVB track, the whole pipeline freed on deselect/close.
+    NanoDvbSub*       mVidDvb = nullptr;        // decoded subtitle timeline (or null)
+    std::thread       mVidDvbThread;            // background decode worker
+    std::atomic<bool> mVidDvbReady{false};      // timeline decoded + safe to read
+    std::atomic<bool> mVidDvbLoading{false};    // decode in progress (shows a hint)
+    std::atomic<bool> mVidDvbAbort{false};      // cancel a long decode on deselect/teardown
+    std::string       mVidDvbPath;              // .ts being decoded
+    int               mVidDvbPid = -1;          // subtitle PID (from probe)
+    GLuint            mVidDvbTex = 0;            // currently uploaded region bitmap
+    int               mVidDvbTexRegion = -1;    // which region index mVidDvbTex holds
+    void vidDvbSelect(const std::string& file, int pid);   // start the background decode
+    void vidDvbFree();                                     // join the worker + free all
 
     // ---- Now-Playing screen state (control panel + visualizers in Phase 3-5) ----
     bool mMpActive = false;            // the Now-Playing fullscreen is up

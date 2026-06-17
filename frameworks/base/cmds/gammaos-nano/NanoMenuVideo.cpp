@@ -7,9 +7,11 @@
 #include "NanoMenu.h"
 #include "NanoMenuPS3.h"
 #include "NanoVideo.h"
+#include "NanoDvbSub.h"
 #include "NanoJson.h"
 
 #include <algorithm>
+#include <cstdint>
 #include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -675,6 +677,355 @@ void NanoMenu::vidReadEmbeddedCues(const std::string& file, int trackIdx, std::v
     ::close(fd);
 }
 
+// ===========================================================================
+// Chapter parsing (Scene Search). The NDK AMediaExtractor does not surface
+// chapters, so parse the container directly: MP4/MOV via the QuickTime chapter
+// text track (referenced by the video track's tref/chap) with a Nero `chpl`
+// fallback, and Matroska/WebM via the EBML Chapters element. File-offset reads
+// only (pread), no whole-file load, nothing resident after parsing.
+// ===========================================================================
+namespace {
+
+// Standalone chapter item the free parsers fill (NanoMenu::VidChapter is private).
+struct ChapItem { double t = 0.0; std::string title; };
+
+static bool vidPreadAll(int fd, int64_t off, void* buf, size_t len) {
+    uint8_t* p = (uint8_t*)buf; size_t got = 0;
+    while (got < len) {
+        ssize_t n = pread(fd, p + got, len - got, off + (int64_t)got);
+        if (n <= 0) return false;
+        got += (size_t)n;
+    }
+    return true;
+}
+static inline uint16_t vidRdU16(const uint8_t* p) { return (uint16_t)((p[0] << 8) | p[1]); }
+static inline uint32_t vidRdU32(const uint8_t* p) {
+    return ((uint32_t)p[0] << 24) | ((uint32_t)p[1] << 16) | ((uint32_t)p[2] << 8) | p[3];
+}
+static inline uint64_t vidRdU64(const uint8_t* p) {
+    uint64_t v = 0; for (int i = 0; i < 8; i++) v = (v << 8) | p[i]; return v;
+}
+
+// --- MP4/MOV box helpers ---------------------------------------------------
+// Find the first child box of fourcc within [start,end); returns its payload range.
+static bool mp4FindBox(int fd, int64_t start, int64_t end, const char* fourcc,
+                       int64_t& payOff, int64_t& payLen) {
+    int64_t o = start;
+    while (o + 8 <= end) {
+        uint8_t hdr[16];
+        if (!vidPreadAll(fd, o, hdr, 8)) return false;
+        uint64_t sz = vidRdU32(hdr); int hdrLen = 8;
+        if (sz == 1) { if (!vidPreadAll(fd, o + 8, hdr + 8, 8)) return false; sz = vidRdU64(hdr + 8); hdrLen = 16; }
+        else if (sz == 0) sz = (uint64_t)(end - o);
+        if (sz < (uint64_t)hdrLen || o + (int64_t)sz > end) break;
+        if (!memcmp(hdr + 4, fourcc, 4)) { payOff = o + hdrLen; payLen = (int64_t)sz - hdrLen; return true; }
+        o += (int64_t)sz;
+    }
+    return false;
+}
+// Collect the payload ranges of every child box of fourcc within [start,end).
+static void mp4EachBox(int fd, int64_t start, int64_t end, const char* fourcc,
+                       std::vector<std::pair<int64_t, int64_t>>& out) {
+    int64_t o = start;
+    while (o + 8 <= end) {
+        uint8_t hdr[16];
+        if (!vidPreadAll(fd, o, hdr, 8)) return;
+        uint64_t sz = vidRdU32(hdr); int hdrLen = 8;
+        if (sz == 1) { if (!vidPreadAll(fd, o + 8, hdr + 8, 8)) return; sz = vidRdU64(hdr + 8); hdrLen = 16; }
+        else if (sz == 0) sz = (uint64_t)(end - o);
+        if (sz < (uint64_t)hdrLen || o + (int64_t)sz > end) return;
+        if (!memcmp(hdr + 4, fourcc, 4)) out.push_back({o + hdrLen, (int64_t)sz - hdrLen});
+        o += (int64_t)sz;
+    }
+}
+
+// Read the QuickTime chapter text track (sample text = U16-BE length + UTF-8),
+// times from stts/mdhd, sample file offsets from stsc/stco|co64/stsz.
+static bool mp4ChapterTrack(int fd, int64_t moovOff, int64_t moovEnd,
+                            std::vector<ChapItem>& out) {
+    std::vector<std::pair<int64_t, int64_t>> traks;
+    mp4EachBox(fd, moovOff, moovEnd, "trak", traks);
+    if (traks.empty()) return false;
+    std::vector<uint32_t> trackIds(traks.size(), 0);
+    std::vector<uint32_t> chapIds;
+    for (size_t i = 0; i < traks.size(); i++) {
+        int64_t tOff = traks[i].first, tEnd = tOff + traks[i].second, off, len;
+        if (mp4FindBox(fd, tOff, tEnd, "tkhd", off, len) && len >= 24) {
+            uint8_t b[24];
+            if (vidPreadAll(fd, off, b, 24)) trackIds[i] = (b[0] == 1) ? vidRdU32(b + 20) : vidRdU32(b + 12);
+        }
+        int64_t trefOff, trefLen;
+        if (mp4FindBox(fd, tOff, tEnd, "tref", trefOff, trefLen)) {
+            int64_t chapOff, chapLen;
+            if (mp4FindBox(fd, trefOff, trefOff + trefLen, "chap", chapOff, chapLen)) {
+                for (int64_t k = 0; k + 4 <= chapLen; k += 4) {
+                    uint8_t b[4]; if (vidPreadAll(fd, chapOff + k, b, 4)) chapIds.push_back(vidRdU32(b));
+                }
+            }
+        }
+    }
+    int chapTrak = -1;
+    for (uint32_t cid : chapIds) {
+        for (size_t i = 0; i < traks.size() && chapTrak < 0; i++) if (trackIds[i] == cid) chapTrak = (int)i;
+        if (chapTrak >= 0) break;
+    }
+    if (chapTrak < 0) return false;
+
+    int64_t tOff = traks[chapTrak].first, tEnd = tOff + traks[chapTrak].second;
+    int64_t mdiaOff, mdiaLen; if (!mp4FindBox(fd, tOff, tEnd, "mdia", mdiaOff, mdiaLen)) return false;
+    int64_t mdiaEnd = mdiaOff + mdiaLen;
+    uint32_t timescale = 1000;
+    int64_t mdhdOff, mdhdLen;
+    if (mp4FindBox(fd, mdiaOff, mdiaEnd, "mdhd", mdhdOff, mdhdLen)) {
+        uint8_t b[24]; if (vidPreadAll(fd, mdhdOff, b, 24)) timescale = (b[0] == 1) ? vidRdU32(b + 20) : vidRdU32(b + 12);
+    }
+    if (timescale == 0) timescale = 1000;
+    int64_t minfOff, minfLen; if (!mp4FindBox(fd, mdiaOff, mdiaEnd, "minf", minfOff, minfLen)) return false;
+    int64_t stblOff, stblLen; if (!mp4FindBox(fd, minfOff, minfOff + minfLen, "stbl", stblOff, stblLen)) return false;
+    int64_t stblEnd = stblOff + stblLen;
+
+    std::vector<double> times;
+    int64_t off, len;
+    if (mp4FindBox(fd, stblOff, stblEnd, "stts", off, len)) {
+        uint8_t hb[8];
+        if (vidPreadAll(fd, off, hb, 8)) {
+            uint32_t n = vidRdU32(hb + 4); uint64_t cum = 0;
+            for (uint32_t e = 0; e < n && e < 100000; e++) {
+                uint8_t eb[8]; if (!vidPreadAll(fd, off + 8 + (int64_t)e * 8, eb, 8)) break;
+                uint32_t cnt = vidRdU32(eb), delta = vidRdU32(eb + 4);
+                for (uint32_t s = 0; s < cnt && times.size() < 100000; s++) { times.push_back((double)cum / timescale); cum += delta; }
+            }
+        }
+    }
+    std::vector<uint32_t> sizes;
+    if (mp4FindBox(fd, stblOff, stblEnd, "stsz", off, len)) {
+        uint8_t hb[12];
+        if (vidPreadAll(fd, off, hb, 12)) {
+            uint32_t uniform = vidRdU32(hb + 4), cnt = vidRdU32(hb + 8);
+            if (uniform != 0) { for (uint32_t s = 0; s < cnt && s < 100000; s++) sizes.push_back(uniform); }
+            else for (uint32_t s = 0; s < cnt && s < 100000; s++) {
+                uint8_t sb[4]; if (!vidPreadAll(fd, off + 12 + (int64_t)s * 4, sb, 4)) break; sizes.push_back(vidRdU32(sb));
+            }
+        }
+    }
+    std::vector<uint64_t> chunkOff;
+    if (mp4FindBox(fd, stblOff, stblEnd, "stco", off, len)) {
+        uint8_t hb[8];
+        if (vidPreadAll(fd, off, hb, 8)) { uint32_t n = vidRdU32(hb + 4);
+            for (uint32_t e = 0; e < n && e < 100000; e++) { uint8_t eb[4]; if (!vidPreadAll(fd, off + 8 + (int64_t)e * 4, eb, 4)) break; chunkOff.push_back(vidRdU32(eb)); } }
+    } else if (mp4FindBox(fd, stblOff, stblEnd, "co64", off, len)) {
+        uint8_t hb[8];
+        if (vidPreadAll(fd, off, hb, 8)) { uint32_t n = vidRdU32(hb + 4);
+            for (uint32_t e = 0; e < n && e < 100000; e++) { uint8_t eb[8]; if (!vidPreadAll(fd, off + 8 + (int64_t)e * 8, eb, 8)) break; chunkOff.push_back(vidRdU64(eb)); } }
+    }
+    struct Stsc { uint32_t first, spc; };
+    std::vector<Stsc> stsc;
+    if (mp4FindBox(fd, stblOff, stblEnd, "stsc", off, len)) {
+        uint8_t hb[8];
+        if (vidPreadAll(fd, off, hb, 8)) { uint32_t n = vidRdU32(hb + 4);
+            for (uint32_t e = 0; e < n && e < 100000; e++) { uint8_t eb[12]; if (!vidPreadAll(fd, off + 8 + (int64_t)e * 12, eb, 12)) break; stsc.push_back({vidRdU32(eb), vidRdU32(eb + 4)}); } }
+    }
+    // Resolve each sample's absolute file offset.
+    std::vector<int64_t> sampleOff;
+    if (!chunkOff.empty() && !stsc.empty() && !sizes.empty()) {
+        size_t si = 0;
+        for (size_t ci = 0; ci < chunkOff.size() && si < sizes.size(); ci++) {
+            uint32_t spc = stsc.back().spc;
+            for (size_t e = 0; e < stsc.size(); e++) {
+                uint32_t fc = stsc[e].first, nextfc = (e + 1 < stsc.size()) ? stsc[e + 1].first : 0xffffffffu;
+                if ((uint32_t)(ci + 1) >= fc && (uint32_t)(ci + 1) < nextfc) { spc = stsc[e].spc; break; }
+            }
+            int64_t o = (int64_t)chunkOff[ci];
+            for (uint32_t s = 0; s < spc && si < sizes.size(); s++) { sampleOff.push_back(o); o += sizes[si]; si++; }
+        }
+    }
+    size_t ns = sampleOff.size();
+    if (times.size() < ns) ns = times.size();
+    if (sizes.size() < ns) ns = sizes.size();
+    for (size_t s = 0; s < ns; s++) {
+        uint32_t sz = sizes[s]; if (sz < 2 || sz > 4096) continue;
+        std::vector<uint8_t> buf(sz);
+        if (!vidPreadAll(fd, sampleOff[s], buf.data(), sz)) continue;
+        uint32_t tl = vidRdU16(buf.data()); if (tl > sz - 2) tl = sz - 2;
+        std::string title((char*)buf.data() + 2, tl);
+        // QuickTime text samples are UTF-8 (ffmpeg/Handbrake); honour a UTF-16-BE BOM if present.
+        if (tl >= 2 && (uint8_t)title[0] == 0xFE && (uint8_t)title[1] == 0xFF) {
+            std::string u8;
+            for (size_t k = 2; k + 1 < title.size(); k += 2) {
+                unsigned c = ((unsigned char)title[k] << 8) | (unsigned char)title[k + 1];
+                if (c < 0x80) u8 += (char)c;
+                else if (c < 0x800) { u8 += (char)(0xC0 | (c >> 6)); u8 += (char)(0x80 | (c & 0x3F)); }
+                else { u8 += (char)(0xE0 | (c >> 12)); u8 += (char)(0x80 | ((c >> 6) & 0x3F)); u8 += (char)(0x80 | (c & 0x3F)); }
+            }
+            title = u8;
+        } else if (title.size() >= 3 && (uint8_t)title[0] == 0xEF && (uint8_t)title[1] == 0xBB && (uint8_t)title[2] == 0xBF) {
+            title = title.substr(3);   // strip a UTF-8 BOM
+        }
+        ChapItem ch; ch.t = times[s]; ch.title = title; out.push_back(ch);
+    }
+    return !out.empty();
+}
+
+// Nero chpl fallback: moov/udta/chpl. u8 ver, u24 flags, u32 reserved, u8 count,
+// then per chapter: u64 start (100ns units) + u8 title-len + UTF-8 title.
+static bool mp4Chpl(int fd, int64_t moovOff, int64_t moovEnd, std::vector<ChapItem>& out) {
+    int64_t udtaOff, udtaLen;
+    if (!mp4FindBox(fd, moovOff, moovEnd, "udta", udtaOff, udtaLen)) return false;
+    int64_t chplOff, chplLen;
+    if (!mp4FindBox(fd, udtaOff, udtaOff + udtaLen, "chpl", chplOff, chplLen) || chplLen < 9) return false;
+    uint8_t hb[9]; if (!vidPreadAll(fd, chplOff, hb, 9)) return false;
+    int count = hb[8];
+    int64_t p = chplOff + 9, end = chplOff + chplLen;
+    for (int i = 0; i < count && p + 9 <= end; i++) {
+        uint8_t eb[9]; if (!vidPreadAll(fd, p, eb, 9)) break;
+        uint64_t start100ns = vidRdU64(eb); int len2 = eb[8]; p += 9;
+        std::string title;
+        if (len2 > 0 && p + len2 <= end) { std::vector<uint8_t> tb(len2); if (vidPreadAll(fd, p, tb.data(), len2)) title.assign((char*)tb.data(), len2); }
+        p += len2;
+        ChapItem ch; ch.t = (double)start100ns / 1e7; ch.title = title; out.push_back(ch);
+    }
+    return !out.empty();
+}
+
+static bool vidParseMp4Chapters(int fd, int64_t fsize, std::vector<ChapItem>& out) {
+    int64_t moovOff, moovLen;
+    if (!mp4FindBox(fd, 0, fsize, "moov", moovOff, moovLen)) return false;
+    int64_t moovEnd = moovOff + moovLen;
+    if (mp4ChapterTrack(fd, moovOff, moovEnd, out)) return true;   // QuickTime chapter track
+    out.clear();
+    return mp4Chpl(fd, moovOff, moovEnd, out);                     // Nero chpl fallback
+}
+
+// --- Matroska/WebM EBML helpers --------------------------------------------
+// Read an EBML variable-length integer at *pos (within [pos,end)). For IDs keep
+// the length-marker bits; for sizes strip them. Advances *pos. Returns -1 on error.
+static int64_t ebmlVint(int fd, int64_t& pos, int64_t end, bool keepMarker, bool* unknownSize = nullptr) {
+    if (unknownSize) *unknownSize = false;
+    if (pos >= end) return -1;
+    uint8_t first; if (!vidPreadAll(fd, pos, &first, 1)) return -1;
+    int len = 0; uint8_t mask = 0x80;
+    for (len = 1; len <= 8; len++) { if (first & mask) break; mask >>= 1; }
+    if (len > 8 || pos + len > end) return -1;
+    uint8_t b[8]; if (!vidPreadAll(fd, pos, b, len)) return -1;
+    pos += len;
+    uint64_t v = keepMarker ? b[0] : (uint64_t)(b[0] & (mask - 1));
+    bool allOnes = (uint64_t)(b[0] & (mask - 1)) == (uint64_t)(mask - 1);
+    for (int i = 1; i < len; i++) { v = (v << 8) | b[i]; if (b[i] != 0xFF) allOnes = false; }
+    if (unknownSize && !keepMarker && allOnes) *unknownSize = true;
+    return (int64_t)v;
+}
+
+// Recursively walk Chapters > EditionEntry > ChapterAtom, emitting one chapter
+// per ChapterAtom (ChapterTimeStart in ns + ChapterDisplay/ChapterString UTF-8).
+static void mkvParseChapterTree(int fd, int64_t start, int64_t end, std::vector<ChapItem>& out, int depth) {
+    if (depth > 8) return;
+    int64_t pos = start;
+    while (pos < end) {
+        int64_t id = ebmlVint(fd, pos, end, true);
+        if (id < 0) break;
+        bool unk = false;
+        int64_t size = ebmlVint(fd, pos, end, false, &unk);
+        if (size < 0) break;
+        int64_t dStart = pos, dEnd = unk ? end : pos + size;
+        if (dEnd > end || dEnd < dStart) dEnd = end;
+        if (id == 0x45B9) {                       // EditionEntry
+            mkvParseChapterTree(fd, dStart, dEnd, out, depth + 1);
+        } else if (id == 0xB6) {                  // ChapterAtom
+            double t = -1.0; std::string title;
+            int64_t p = dStart;
+            while (p < dEnd) {
+                int64_t cid = ebmlVint(fd, p, dEnd, true);
+                if (cid < 0) break;
+                int64_t csz = ebmlVint(fd, p, dEnd, false);
+                if (csz < 0) break;
+                int64_t cs = p, ce = p + csz; if (ce > dEnd || ce < cs) ce = dEnd;
+                if (cid == 0x91) {                // ChapterTimeStart (ns)
+                    int n = (int)(ce - cs); if (n > 8) n = 8;
+                    uint8_t bb[8]; uint64_t v = 0;
+                    if (n > 0 && vidPreadAll(fd, cs, bb, n)) { for (int i = 0; i < n; i++) v = (v << 8) | bb[i]; t = (double)v / 1e9; }
+                } else if (cid == 0x80) {         // ChapterDisplay
+                    int64_t q = cs;
+                    while (q < ce) {
+                        int64_t did = ebmlVint(fd, q, ce, true);
+                        if (did < 0) break;
+                        int64_t dsz = ebmlVint(fd, q, ce, false);
+                        if (dsz < 0) break;
+                        int64_t ds = q, de = q + dsz; if (de > ce || de < ds) de = ce;
+                        if (did == 0x85 && dsz > 0 && dsz < 4096 && title.empty()) {   // ChapterString UTF-8
+                            std::vector<uint8_t> tb(dsz);
+                            if (vidPreadAll(fd, ds, tb.data(), dsz)) title.assign((char*)tb.data(), dsz);
+                        }
+                        q = de;
+                    }
+                }
+                p = ce;
+            }
+            if (t >= 0.0) { ChapItem ch; ch.t = t; ch.title = title; out.push_back(ch); }
+            mkvParseChapterTree(fd, dStart, dEnd, out, depth + 1);   // nested sub-chapters
+        }
+        pos = dEnd;
+    }
+}
+
+static bool vidParseMkvChapters(int fd, int64_t fsize, std::vector<ChapItem>& out) {
+    // Top level: find Segment (0x18538067).
+    int64_t pos = 0, segStart = -1, segEnd = fsize;
+    while (pos + 4 < fsize) {
+        int64_t id = ebmlVint(fd, pos, fsize, true);
+        if (id < 0) break;
+        bool unk = false;
+        int64_t size = ebmlVint(fd, pos, fsize, false, &unk);
+        if (size < 0) break;
+        int64_t dStart = pos, dEnd = unk ? fsize : pos + size;
+        if (dEnd > fsize || dEnd < dStart) dEnd = fsize;
+        if (id == 0x18538067) { segStart = dStart; segEnd = dEnd; break; }
+        pos = dEnd;
+    }
+    if (segStart < 0) return false;
+    // Within Segment, find Chapters (0x1043A770). Skip Clusters/other top-level
+    // elements by their declared size (ffmpeg/mkvmerge write Chapters in the header).
+    pos = segStart;
+    int64_t chOff = -1, chEnd = -1;
+    for (int guard = 0; guard < 100000 && pos + 4 < segEnd; guard++) {
+        int64_t id = ebmlVint(fd, pos, segEnd, true);
+        if (id < 0) break;
+        bool unk = false;
+        int64_t size = ebmlVint(fd, pos, segEnd, false, &unk);
+        if (size < 0) break;
+        int64_t dStart = pos, dEnd = unk ? segEnd : pos + size;
+        if (dEnd > segEnd || dEnd < dStart) { if (unk) break; dEnd = segEnd; }
+        if (id == 0x1043A770) { chOff = dStart; chEnd = dEnd; break; }
+        pos = dEnd;
+    }
+    if (chOff < 0) return false;
+    mkvParseChapterTree(fd, chOff, chEnd, out, 0);
+    return !out.empty();
+}
+
+}  // namespace
+
+void NanoMenu::vidParseChapters(const std::string& file) {
+    mVidChapters.clear();
+    int fd = ::open(file.c_str(), O_RDONLY);
+    if (fd < 0) return;
+    struct stat st;
+    if (fstat(fd, &st) != 0 || st.st_size <= 16) { ::close(fd); return; }
+    int64_t fsize = st.st_size;
+    std::vector<ChapItem> tmp;
+    uint8_t magic[8];
+    if (vidPreadAll(fd, 0, magic, 8)) {
+        if (magic[0] == 0x1A && magic[1] == 0x45 && magic[2] == 0xDF && magic[3] == 0xA3)
+            vidParseMkvChapters(fd, fsize, tmp);     // Matroska / WebM
+        else
+            vidParseMp4Chapters(fd, fsize, tmp);     // MP4 / MOV / M4V
+    }
+    ::close(fd);
+    std::sort(tmp.begin(), tmp.end(), [](const ChapItem& a, const ChapItem& b) { return a.t < b.t; });
+    if (tmp.size() > 200) tmp.resize(200);
+    for (const ChapItem& c : tmp) { VidChapter v; v.t = c.t; v.title = c.title; mVidChapters.push_back(v); }
+    VLOGI("NanoMenu: vidParseChapters %s -> %zu chapters", file.c_str(), mVidChapters.size());
+}
+
 // Enumerate the file's audio tracks + embedded text-subtitle tracks, then probe for
 // external .srt/.vtt sidecars next to it. Cheap (text + extractor walk); nothing resident.
 void NanoMenu::vidBuildTracks(const std::string& file) {
@@ -745,8 +1096,46 @@ void NanoMenu::vidBuildTracks(const std::string& file) {
             if (!t.cues.empty()) mVidSubTracks.push_back(std::move(t));
         }
     }
+    // DVB bitmap subtitles (MPEG-TS). Cheap probe only (PAT/PMT scan); the full
+    // timeline is decoded lazily when the user selects the track (vidDvbSelect).
+    {
+        int dvbPid = -1;
+        if (NanoDvbSub::probe(file, dvbPid)) {
+            VidSubTrk t; t.dvb = true; t.dvbPid = dvbPid; t.file = file;
+            t.name = "DVB Subtitle";
+            mVidSubTracks.push_back(std::move(t));
+        }
+    }
     VLOGI("NanoMenu: vidBuildTracks %s -> %zu audio, %zu subtitle tracks",
           file.c_str(), mVidAudTracks.size(), mVidSubTracks.size());
+}
+
+// Start decoding a DVB subtitle track off the render thread (a large .ts streams
+// for seconds; a synchronous decode would trip the render watchdog). Lazy: the
+// decoder + its timeline live only between selection and deselect/close.
+void NanoMenu::vidDvbSelect(const std::string& file, int pid) {
+    vidDvbFree();
+    mVidDvbPath = file; mVidDvbPid = pid;
+    mVidDvbReady.store(false); mVidDvbLoading.store(true); mVidDvbAbort.store(false);
+    mVidDvb = new NanoDvbSub();
+    NanoDvbSub* dvb = mVidDvb;
+    std::string path = file; int p = pid;
+    mVidDvbThread = std::thread([this, dvb, path, p]() {
+        dvb->open(path, p, &mVidDvbAbort);
+        mVidDvbReady.store(true);
+        mVidDvbLoading.store(false);
+    });
+}
+
+// Join the worker and free the decoder + the uploaded region texture. Idempotent.
+void NanoMenu::vidDvbFree() {
+    mVidDvbAbort.store(true);                   // unblock a long streaming decode
+    if (mVidDvbThread.joinable()) mVidDvbThread.join();
+    if (mVidDvb) { mVidDvb->close(); delete mVidDvb; mVidDvb = nullptr; }
+    if (mVidDvbTex) { glDeleteTextures(1, &mVidDvbTex); mVidDvbTex = 0; }
+    mVidDvbTexRegion = -1;
+    mVidDvbReady.store(false); mVidDvbLoading.store(false);
+    mVidDvbPath.clear(); mVidDvbPid = -1;
 }
 
 const std::vector<NanoMenu::VidCue>* NanoMenu::vidActiveSubCues() const {
@@ -811,6 +1200,7 @@ void NanoMenu::openVideoPlayer(const std::vector<Ps3Item>& list, int listSel) {
 
     // Enumerate audio + subtitle tracks (and external sidecars) for this title.
     vidBuildTracks(mVideos[vi].file);
+    vidParseChapters(mVideos[vi].file);   // Scene Search chapter markers
     mVidAudCur = 0; mVidSubCur = -1;
     // Open the chosen audio track in a second HW audio engine; it is started by videoTick
     // once the first picture frame lands (avoids the decode-warmup desync).
@@ -849,7 +1239,9 @@ void NanoMenu::videoHardFree() {
     mVidActive = false; mVidPlaying = false;
     mVidEnterRaw = 0.0f; mVidEnterT = 0.0f;
     mVidCpOpen = mVidCpClosing = mVidSubOpen = mVidGoToOpen = false;
-    mVidAudTracks.clear(); mVidSubTracks.clear(); mVidAudCur = 0; mVidSubCur = -1;
+    mVidSceneOpen = mVidSceneClosing = false;
+    mVidAudTracks.clear(); mVidSubTracks.clear(); mVidChapters.clear(); mVidAudCur = 0; mVidSubCur = -1;
+    vidDvbFree();
 }
 
 void NanoMenu::vidShowTransient(const std::string& text, float ms) {
@@ -889,6 +1281,8 @@ void NanoMenu::vidStepTitle(int dir) {
     if (!mVideoTest->open(mVideos[vi].file)) return;
     // rebuild tracks + re-open the audio for the new title (videoTick starts it on frame 1)
     vidBuildTracks(mVideos[vi].file);
+    vidParseChapters(mVideos[vi].file);   // Scene Search chapter markers
+    mVidSceneOpen = false; mVidSceneClosing = false;
     mVidAudCur = 0; mVidSubCur = -1;
     mVidAudio.release();
     mVidHasAudio = false;
@@ -994,7 +1388,9 @@ void NanoMenu::videoTick() {
         mVideoTest->release(); delete mVideoTest; mVideoTest = nullptr;
         if (mVidHasAudio) { mVidAudio.release(); mVidHasAudio = false; }
         mVidCpOpen = mVidCpClosing = mVidSubOpen = mVidGoToOpen = false;
-        mVidAudTracks.clear(); mVidSubTracks.clear(); mVidAudCur = 0; mVidSubCur = -1;
+        mVidSceneOpen = mVidSceneClosing = false;
+        mVidAudTracks.clear(); mVidSubTracks.clear(); mVidChapters.clear(); mVidAudCur = 0; mVidSubCur = -1;
+        vidDvbFree();
     }
     // While leaving (fading out) keep the audio quiet even before the decoder is freed.
     if (!mVidActive && mVidHasAudio && mVidAudio.isPlaying()) mVidAudio.pause();
@@ -1126,6 +1522,36 @@ bool NanoMenu::renderVideoPlayer() {
         }
     }
 
+    // Layer 1b (DVB): bitmap subtitle regions (NanoDvbSub), scaled from the DVB
+    // display canvas to the screen. Decoded off-thread; drawn only once ready. The
+    // region bitmap is cached in mVidDvbTex and only re-uploaded when it changes.
+    if (mVidSubCur >= 0 && mVidSubCur < (int)mVidSubTracks.size() &&
+        mVidSubTracks[mVidSubCur].dvb && mVidDvb && mVidDvbReady.load()) {
+        double tc = mVideoTest->position();
+        const std::vector<NanoDvbSub::Region>& regions = mVidDvb->regions();
+        int dw = mVidDvb->displayWidth(), dh = mVidDvb->displayHeight();
+        if (dw < 1) dw = 720;
+        if (dh < 1) dh = 576;
+        float sx = (float)W / (float)dw, sy = (float)H / (float)dh;
+        for (int ri = 0; ri < (int)regions.size(); ri++) {
+            const NanoDvbSub::Region& r = regions[ri];
+            if (tc < r.startSec || tc >= r.endSec) continue;
+            if (r.w <= 0 || r.h <= 0 || (int)r.rgba.size() < r.w * r.h * 4) continue;
+            if (mVidDvbTexRegion != ri || !mVidDvbTex) {
+                if (!mVidDvbTex) glGenTextures(1, &mVidDvbTex);
+                glBindTexture(GL_TEXTURE_2D, mVidDvbTex);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+                glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, r.w, r.h, 0, GL_RGBA, GL_UNSIGNED_BYTE, r.rgba.data());
+                mVidDvbTexRegion = ri;
+            }
+            drawIconTex(mVidDvbTex, r.x * sx, r.y * sy, r.w * sx, r.h * sy, 1.0f, 1.0f, 1.0f, et);
+        }
+    }
+
     // Layer 2: buffering spinner (warmup / post-seek refill / stall) - icon 114 rotating at
     // centre + "Buffering..." below it (web drawVideoPlayer 12754-12756).
     if (mVidBuffering) {
@@ -1189,6 +1615,13 @@ bool NanoMenu::renderVideoPlayer() {
         float frac = (float)(pos / dur); if (frac < 0) frac = 0; if (frac > 1) frac = 1;
         drawQuad(bx, by, bw, bh, 1.0f, 1.0f, 1.0f, 0.25f * barA);             // track
         drawQuad(bx, by, bw * frac, bh, 1.0f, 1.0f, 1.0f, 0.95f * barA);      // fill
+        // Chapter markers (web 12766): white ticks at each chapter time.
+        if (mVidChapters.size() > 1) {
+            for (const auto& ch : mVidChapters) {
+                float cf = (float)(ch.t / dur); if (cf < 0) cf = 0; if (cf > 1) cf = 1;
+                drawQuad(bx + bw * cf - 1.0f, by - bh, 2.0f, bh * 3.0f, 1.0f, 1.0f, 1.0f, 0.65f * barA);
+            }
+        }
         float kn = H * 0.012f;                                                // knob (square)
         drawQuad(bx + bw * frac - kn * 0.5f, by + bh * 0.5f - kn * 0.5f, kn, kn, 1.0f, 1.0f, 1.0f, 0.95f * barA);
         float fs = ps3::fontScale(20.0f);
@@ -1237,7 +1670,13 @@ bool NanoMenu::renderVideoPlayer() {
         if (p >= 1.0f) mVidCpClosing = false;
     }
 
-    // Layer 10: the Go To picker over everything.
+    // Layer 10: the Scene Search grid + Go To picker over everything (web 12823-12824).
+    if (mVidSceneOpen) drawVideoScene(-1.0f);
+    else if (mVidSceneClosing) {
+        float p = fminf(1.0f, (mEffectTime - mVidSceneCloseStart) / 0.2f);
+        drawVideoScene(p);
+        if (p >= 1.0f) mVidSceneClosing = false;
+    }
     if (mVidGoToOpen) drawVideoGoTo();
     return true;
 }
@@ -1254,11 +1693,10 @@ static const VidCp kVidCp[] = {
     {"audio",      "Audio Options",        3,  3, 0},
     {"subtitle",   "Subtitle Options",    22,  4, 0},
     {"volume",     "Volume Control",       2,  5, 0},
-    {"avset",      "AV Settings",         23,  6, 0},
-    {"screenmode", "Screen Mode",          1,  7, 0},
-    {"chgicon",    "Change Icon",         24,  8, 0},
-    {"del",        "Delete",               4,  9, 0},
-    {"showinfo",   "Display",              0, 10, 0},
+    {"screenmode", "Screen Mode",          1,  6, 0},
+    {"chgicon",    "Change Icon",         24,  7, 0},
+    {"del",        "Delete",               4,  8, 0},
+    {"showinfo",   "Display",              0,  9, 0},
     {"beginning",  "Return to Beginning",  9,  0, 1},
     {"next",       "Next",                10,  1, 1},
     {"frev",       "Fast Reverse",        11,  2, 1},
@@ -1281,8 +1719,6 @@ static int vidCpDefault() {
 }
 static const char* kVidScreenModes[] = {"Normal", "Full Screen", "Original", "Zoom", "Double Scale"};
 static const char* kVidRepeatModes[] = {"Repeat Off", "Repeat On", "Title Repeat", "A-B Repeat", "Folder Repeat"};
-static const char* kVidAvSet[]       = {"Block Noise Reduction", "Frame Noise Reduction",
-                                        "Mosquito Noise Reduction", "Upscale"};
 
 void NanoMenu::vidPanelToggle() { if (mVidCpOpen) vidPanelClose(); else vidPanelOpen(); }
 
@@ -1345,12 +1781,6 @@ void NanoMenu::vidSubBuild(int kind) {
             for (const char* s : v) mVidSubOpts.push_back(s);
             int sel = (int)((1.0f - mVidVolume) / 0.2f + 0.5f);
             if (sel < 0) sel = 0; if (sel > 5) sel = 5; mVidSubSel = sel; } break;
-        case 3: mVidSubLabel = "AV Settings"; {
-            bool keys[4] = {mVidAvBnr, mVidAvFnr, mVidAvMnr, mVidAvUpscale};
-            for (int i = 0; i < 4; i++) {
-                std::string s = kVidAvSet[i]; s += "   "; s += keys[i] ? "Automatic" : "Off";
-                mVidSubOpts.push_back(s);
-            } } break;
         case 4: mVidSubLabel = "Audio Options";   // one row per audio track
             for (const auto& a : mVidAudTracks) mVidSubOpts.push_back(a.name);
             mVidSubSel = (mVidAudCur >= 0 && mVidAudCur < (int)mVidAudTracks.size()) ? mVidAudCur : 0; break;
@@ -1383,20 +1813,16 @@ void NanoMenu::vidSubConfirm() {
             mVidVolume = 1.0f - sel * 0.2f;
             if (mVidHasAudio) mVidAudio.setVolume(mVidVolume);
             mVidSubOpen = false; break;
-        case 3: { // AV settings: toggle the key, flash the pill, keep the submenu open
-            bool* keys[4] = {&mVidAvBnr, &mVidAvFnr, &mVidAvMnr, &mVidAvUpscale};
-            *keys[sel] = !*keys[sel];
-            mVidDispMode = std::string(kVidAvSet[sel]) + ": " + (*keys[sel] ? "Automatic" : "Off");
-            mVidDispModeUntil = mEffectTime + 1.8f;
-            vidSubBuild(3); mVidSubSel = sel; } break;
         case 4:   // audio track
             vidSetAudioTrack(sel); mVidSubOpen = false; break;
         case 5: { // subtitle track (row 0 = Off)
             mVidSubCur = sel - 1;
             if (mVidSubCur >= 0 && mVidSubCur < (int)mVidSubTracks.size()) {
                 const VidSubTrk& t = mVidSubTracks[mVidSubCur];
+                if (t.dvb) vidDvbSelect(t.file, t.dvbPid);   // lazy background decode
+                else vidDvbFree();                            // leaving a DVB track
                 mVidDispMode = std::string("Subtitle: ") + t.name + (t.external ? " (External)" : "");
-            } else { mVidSubCur = -1; mVidDispMode = "Subtitle: Off"; }
+            } else { mVidSubCur = -1; vidDvbFree(); mVidDispMode = "Subtitle: Off"; }
             mVidDispModeUntil = mEffectTime + 1.8f;
             mVidSubOpen = false; } break;
     }
@@ -1424,9 +1850,8 @@ void NanoMenu::vidPanelActivate() {
     else if (!strcmp(a, "screenmode")) { vidSubBuild(0); mVidSubOpen = true; }
     else if (!strcmp(a, "repeat"))     { vidSubBuild(1); mVidSubOpen = true; }
     else if (!strcmp(a, "volume"))     { vidSubBuild(2); mVidSubOpen = true; }
-    else if (!strcmp(a, "avset"))      { vidSubBuild(3); mVidSubOpen = true; }
     else if (!strcmp(a, "goto"))       vidGoToOpen();
-    else if (!strcmp(a, "scene"))      vidShowTransient("No chapters", 1400.0f);
+    else if (!strcmp(a, "scene"))      vidSceneOpen();
     else if (!strcmp(a, "audio")) {
         if (mVidAudTracks.empty()) { vidPanelClose(); vidShowTransient("There is no audio.", 1600.0f); }
         else { vidSubBuild(4); mVidSubOpen = true; }
@@ -1606,6 +2031,124 @@ void NanoMenu::drawVideoGoTo() {
     const char* foot = "Up/Down  Adjust     Left/Right  Field     Cross  Enter     Circle  Back";
     float fw = measureText(foot, fs);
     drawText(foot, (W - fw) * 0.5f, ps3::baselineToTopY(H * 0.66f, fs), fs, 1, 1, 1, 0.85f * et);
+}
+
+// ===========================================================================
+// Scene Search (web vidSceneOpen/Move/Activate/Close + drawVideoScene): a
+// chapter grid; Cross seeks to the focused chapter, Circle closes. Chapters
+// come from vidParseChapters (mp4/mov chpl+chap, mkv EBML). Per the web the
+// thumbnails are real frames at the chapter times via authored assets; nano has
+// none on-device and live per-chapter HW frame extraction would glitch playback
+// on this decoder, so the grid uses the web's gray-placeholder cell look with
+// the "Chapter N  M:SS" label. Nothing is allocated here (no extra decode/mem).
+// ===========================================================================
+void NanoMenu::vidSceneOpen() {
+    if (mVidChapters.empty()) { vidShowTransient("No chapters", 1400.0f); return; }
+    double cur = mVideoTest ? mVideoTest->position() : 0.0;
+    int sel = 0;
+    for (size_t i = 0; i < mVidChapters.size(); i++) if (cur >= mVidChapters[i].t) sel = (int)i;
+    mVidSceneSel = sel; mVidSceneSelPrev = sel;
+    mVidSceneOpen = true; mVidSceneClosing = false;
+    mVidSceneAnimStart = mEffectTime; mVidSceneFocusStart = mEffectTime;
+    vidPanelClose();                          // web: v.panel = false
+}
+
+void NanoMenu::vidSceneClose() {
+    if (!mVidSceneOpen) return;
+    mVidSceneOpen = false; mVidSceneClosing = true; mVidSceneCloseStart = mEffectTime;
+}
+
+void NanoMenu::vidSceneMove(int dx, int dy) {
+    if (!mVidSceneOpen || mVidChapters.empty()) return;
+    int n = (int)mVidChapters.size();
+    int cols = n < 4 ? n : 4; if (cols < 1) cols = 1;
+    int sel = mVidSceneSel;
+    if (dx) sel = (sel + dx + n) % n;                          // L/R wrap (web vidSceneMove)
+    if (dy) { int ns = sel + dy * cols; if (ns >= 0 && ns < n) sel = ns; }   // U/D by a row
+    if (sel != mVidSceneSel) { mVidSceneSelPrev = mVidSceneSel; mVidSceneFocusStart = mEffectTime; mVidSceneSel = sel; }
+}
+
+void NanoMenu::vidSceneActivate() {
+    if (!mVidSceneOpen || mVidChapters.empty()) return;
+    int sel = mVidSceneSel;
+    if (sel < 0 || sel >= (int)mVidChapters.size()) return;
+    double t = mVidChapters[sel].t;
+    if (mVideoTest) {
+        mVidRate = 1.0;
+        mVideoTest->seek(t);
+        if (mVidHasAudio) mVidAudio.seek(t);
+        if (mVidPlaying) mVideoTest->play();
+    }
+    mVidSceneOpen = false; mVidSceneClosing = true; mVidSceneCloseStart = mEffectTime;
+    mVidHintUntil = mEffectTime + 1.5f;
+}
+
+void NanoMenu::drawVideoScene(float closeT) {
+    int W = mWidth, H = mHeight;
+    float t = (closeT >= 0.0f) ? (1.0f - closeT)
+            : (mVidSceneAnimStart >= 0.0f ? fminf(1.0f, (mEffectTime - mVidSceneAnimStart) / 0.2f) : 1.0f);
+    if (t < 0) t = 0;
+    float A = t * mVidEnterT;
+    if (A <= 0.001f) return;
+    int n = (int)mVidChapters.size();
+    if (n <= 0) return;
+
+    // Dim backdrop (web rgba(0,0,0,0.72)).
+    drawQuad(0, 0, (float)W, (float)H, 0, 0, 0, 0.72f * A);
+
+    // Title (web round(CH*0.034) at CW*0.10, CH*0.16, left, dark shadow).
+    {
+        float ts = ps3::fontScale(34.0f);
+        float tx = W * 0.10f, topy = ps3::baselineToTopY(H * 0.16f, ts);
+        drawText("Scene Search", tx + 2.0f, topy + 2.0f, ts, 0, 0, 0, 0.7f * A);
+        drawText("Scene Search", tx, topy, ts, 1.0f, 1.0f, 1.0f, 0.95f * A);
+    }
+
+    // Grid: cols = min(n,4); cells tw = CW*0.20, th = tw*9/16, gap = CW*0.03. The
+    // web lays everything on one row (its demo data is <=4 chapters); nano wraps to
+    // additional rows so files with more chapters do not overlap.
+    int cols = n < 4 ? n : 4; if (cols < 1) cols = 1;
+    float tw = W * 0.20f, th = tw * 9.0f / 16.0f, gap = W * 0.03f;
+    float totalW = cols * tw + (cols - 1) * gap;
+    float x0 = (W - totalW) * 0.5f, y0 = H * 0.42f;
+    float rowH = th + H * 0.10f;                     // cell + label + spacing
+    float lblFs = ps3::fontScale(22.0f);             // web round(CH*0.022)
+
+    for (int i = 0; i < n; i++) {
+        int col = i % cols, row = i / cols;
+        float cx = x0 + col * (tw + gap), cy = y0 + row * rowH;
+        bool sel = (i == mVidSceneSel);
+
+        // Placeholder cell (web fallback rgba(40,40,46,0.9)).
+        drawQuad(cx, cy, tw, th, 0.157f, 0.157f, 0.18f, 0.9f * A);
+
+        // Border: 4 thin quads. Selected = bright + a faint outer glow ring.
+        float bw = sel ? fmaxf(2.0f, H * 0.004f) : fmaxf(1.0f, H * 0.0022f);
+        float br, bg, bb, ba;
+        if (sel) { br = bg = bb = 1.0f; ba = 0.95f * A;
+                   float g = fmaxf(3.0f, H * 0.012f);   // soft glow ring
+                   drawQuad(cx - g, cy - g, tw + 2 * g, bw + 2 * g, 0.86f, 0.92f, 1.0f, 0.18f * A);
+                   drawQuad(cx - g, cy + th - bw - g, tw + 2 * g, bw + 2 * g, 0.86f, 0.92f, 1.0f, 0.18f * A);
+                   drawQuad(cx - g, cy - g, bw + 2 * g, th + 2 * g, 0.86f, 0.92f, 1.0f, 0.18f * A);
+                   drawQuad(cx + tw - bw - g, cy - g, bw + 2 * g, th + 2 * g, 0.86f, 0.92f, 1.0f, 0.18f * A); }
+        else { br = bg = bb = 0.7f; ba = 0.5f * A; }
+        drawQuad(cx, cy, tw, bw, br, bg, bb, ba);                 // top
+        drawQuad(cx, cy + th - bw, tw, bw, br, bg, bb, ba);       // bottom
+        drawQuad(cx, cy, bw, th, br, bg, bb, ba);                 // left
+        drawQuad(cx + tw - bw, cy, bw, th, br, bg, bb, ba);       // right
+
+        // Label "Chapter N   M:SS" (web cy + th + CH*0.04, left).
+        char lbl[64];
+        snprintf(lbl, sizeof(lbl), "Chapter %d   %s", i + 1, vFmtTime(mVidChapters[i].t).c_str());
+        float lc = sel ? 1.0f : 0.82f;
+        drawText(lbl, cx, ps3::baselineToTopY(cy + th + H * 0.04f, lblFs), lblFs, lc, lc, lc, (sel ? 1.0f : 0.85f) * A);
+    }
+
+    // Footer hint (web "✕ Enter   ○ Back").
+    float ffs = ps3::fontScale(20.0f);
+    const char* foot = "Cross  Enter      Circle  Back";
+    float fw = measureText(foot, ffs);
+    drawText(foot, (W - fw) * 0.5f, ps3::baselineToTopY(H * 0.90f, ffs), ffs, 0.92f, 0.92f, 0.92f, 0.9f * A);
 }
 
 }  // namespace android

@@ -1060,8 +1060,9 @@ void NanoMenu::ps3DlgNav(int dir, bool horizontal) {
 }
 
 void NanoMenu::ps3XmbLeft() {
-    if (mVidActive) {   // video player: Go To field / panel grid / rewind 10s
+    if (mVidActive) {   // video player: Go To field / Scene grid / panel grid / rewind 10s
         if (mVidGoToOpen) vidGoToMove(-1);
+        else if (mVidSceneOpen) vidSceneMove(-1, 0);
         else if (mVidCpOpen) vidPanelMove(-1, 0);
         else vidSeek(-10.0);
         return;
@@ -1102,8 +1103,9 @@ void NanoMenu::ps3XmbLeft() {
 }
 
 void NanoMenu::ps3XmbRight() {
-    if (mVidActive) {   // video player: Go To field / panel grid / forward 10s
+    if (mVidActive) {   // video player: Go To field / Scene grid / panel grid / forward 10s
         if (mVidGoToOpen) vidGoToMove(+1);
+        else if (mVidSceneOpen) vidSceneMove(+1, 0);
         else if (mVidCpOpen) vidPanelMove(+1, 0);
         else vidSeek(10.0);
         return;
@@ -1145,8 +1147,9 @@ void NanoMenu::ps3XmbRight() {
 }
 
 void NanoMenu::ps3XmbUp() {
-    if (mVidActive) {   // video player: Go To digit up / panel grid up
+    if (mVidActive) {   // video player: Go To digit up / Scene grid up / panel grid up
         if (mVidGoToOpen) vidGoToAdjust(+1);
+        else if (mVidSceneOpen) vidSceneMove(0, -1);
         else if (mVidCpOpen) vidPanelMove(0, -1);
         return;
     }
@@ -1170,8 +1173,9 @@ void NanoMenu::ps3XmbUp() {
     if (s > 0) { mPs3ItemAnimFrom = mPs3AnimItem; mPs3ItemAnimStart = mEffectTime; s--; }
 }
 void NanoMenu::ps3XmbDown() {
-    if (mVidActive) {   // video player: Go To digit down / panel grid down
+    if (mVidActive) {   // video player: Go To digit down / Scene grid down / panel grid down
         if (mVidGoToOpen) vidGoToAdjust(-1);
+        else if (mVidSceneOpen) vidSceneMove(0, +1);
         else if (mVidCpOpen) vidPanelMove(0, +1);
         return;
     }
@@ -1196,8 +1200,9 @@ void NanoMenu::ps3XmbDown() {
 }
 
 void NanoMenu::ps3XmbSelect() {
-    if (mVidActive) {   // video player: Go To enter / panel activate / play-pause toggle
+    if (mVidActive) {   // video player: Go To enter / Scene seek / panel activate / play-pause
         if (mVidGoToOpen) vidGoToActivate();
+        else if (mVidSceneOpen) vidSceneActivate();
         else if (mVidCpOpen) vidPanelActivate();
         else vidTogglePlay();
         return;
@@ -1524,8 +1529,9 @@ void NanoMenu::ps3XmbSelect() {
 }
 
 void NanoMenu::ps3XmbBack() {
-    if (mVidActive) {   // video player: cascade Go To -> submenu -> panel -> close player
+    if (mVidActive) {   // video player: cascade Go To -> Scene Search -> submenu -> panel -> close
         if (mVidGoToOpen) { vidGoToClose(); return; }
+        if (mVidSceneOpen) { vidSceneClose(); return; }
         if (mVidSubOpen)  { mVidSubOpen = false; return; }
         if (mVidCpOpen)   { vidPanelClose(); return; }
         closeVideoPlayer(); return;

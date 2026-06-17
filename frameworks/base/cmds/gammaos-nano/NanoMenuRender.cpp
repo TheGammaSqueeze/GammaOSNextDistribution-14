@@ -1988,6 +1988,11 @@ void NanoMenu::render() {
         // (Canyon or Globe) fully covers.
         bool visCovers = mMpActive && ((mMpVis == 1 && mMpCanyonAlpha >= 0.999f) ||
                                        (mMpVis == 2 && mMpGlobeAlpha >= 0.999f));
+        // The full-screen video player paints an opaque black backdrop over the whole
+        // screen for the entire time it is up (enter fade, playback and leave fade), so
+        // the home wallpaper/wave behind it is never visible. Skip the wave work-texture
+        // render whenever the video player covers (it does not use glass-icon refraction).
+        if (mVidActive || mVidEnterT > 0.001f) visCovers = true;
         // The music player's XMB Waves visualizer (vis 0) IS the wave morph, so it
         // must show the wave regardless of the home wallpaper. When it is active and
         // the wallpaper is not already the wave, composite the (morphing) wave to the
