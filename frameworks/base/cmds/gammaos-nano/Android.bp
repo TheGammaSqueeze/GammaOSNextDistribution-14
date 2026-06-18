@@ -73,12 +73,20 @@ cc_binary {
         "NanoDvbSub.cpp",
         "NanoMenuVideo.cpp",
         "NanoMenuSearch.cpp",
+        "NanoAc3.cpp",
         "NanoJson.cpp",
         "NanoI18n.cpp",
         "NanoOsk.cpp",
         "LibretroRunner.cpp",
         "FakeJNI.cpp",
         "DrasticRunner.cpp",
+    ],
+
+    // Vendored liba52 public header (a52.h) for NanoAc3.cpp.
+    local_include_dirs: ["liba52/include"],
+
+    static_libs: [
+        "liba52_nano",   // AC-3 decoder (no AC-3 codec on the device)
     ],
 
     header_libs: [
@@ -135,6 +143,38 @@ cc_binary {
         "nano_xmb_canyon",
         "nano_xmb_photoviewer",
         "nano_xmb_backgrounds",
+    ],
+}
+
+// Vendored liba52 (a52dec 0.7.4, GPL-2) - AC-3 decoder. The device has no hardware
+// or software AC-3 codec, so NanoAc3 uses this to decode AC-3 audio in .ts / MKV / VOB.
+// Pure-C generic path (no SIMD / djbfft / memalign); -w because the 2002-era source
+// is not -Werror clean. config.h lives in liba52/include.
+cc_library_static {
+    name: "liba52_nano",
+    srcs: [
+        "liba52/liba52/bit_allocate.c",
+        "liba52/liba52/bitstream.c",
+        "liba52/liba52/downmix.c",
+        "liba52/liba52/imdct.c",
+        "liba52/liba52/parse.c",
+    ],
+    local_include_dirs: [
+        "liba52/include",
+        "liba52/liba52",
+    ],
+    export_include_dirs: ["liba52/include"],
+    cflags: [
+        "-Wno-error",
+        "-Wno-unused-parameter",
+        "-Wno-unused-variable",
+        "-Wno-unused-function",
+        "-Wno-sign-compare",
+        "-Wno-implicit-fallthrough",
+        "-Wno-missing-field-initializers",
+        "-Wno-constant-conversion",
+        "-Wno-shift-negative-value",
+        "-Wno-self-assign",
     ],
 }
 

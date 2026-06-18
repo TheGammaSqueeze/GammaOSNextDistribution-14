@@ -17,6 +17,7 @@
 #define LOG_TAG "GammaOSNano"
 
 #include "NanoAudio.h"
+#include "NanoAc3.h"   // liba52 AC-3 -> int16 stereo (device has no AC-3 codec)
 
 #include <aaudio/AAudio.h>
 #include <media/NdkMediaExtractor.h>
@@ -106,8 +107,14 @@ static const char* codecBadge(const char* mime) {
     if (!strcmp(mime, "audio/vorbis")) return "OGG";
     if (!strcmp(mime, "audio/opus"))   return "OPUS";
     if (!strcmp(mime, "audio/x-ms-wma")) return "WMA";
+    if (!strcmp(mime, "audio/ac3"))    return "AC3";
+    if (!strcmp(mime, "audio/eac3"))   return "EAC3";
     return "AUDIO";
 }
+
+// AC-3 (audio/ac3) is decoded by the vendored liba52, not AMediaCodec (the device has
+// no AC-3 decoder). E-AC-3 / DTS are NOT handled by liba52 and remain unsupported.
+static bool isAc3Mime(const char* mime) { return mime && !strcmp(mime, "audio/ac3"); }
 
 static bool readMetaFromExtractor(AMediaExtractor* ex, int fd,
                                   NanoAudioPlayer::Meta& meta, int* trackOut,
@@ -279,10 +286,14 @@ bool NanoAudioPlayer::open(const std::string& path, int audioTrackIndex) {
     mStopped = false;
     { std::lock_guard<std::mutex> lk(mMetaMutex); mMeta = m; }
 
-    if (!ensureStream(m.sampleRate, m.channels)) return false;
+    // AC-3 is decoded by liba52 and downmixed to stereo, so the output stream/ring are
+    // 2-channel regardless of the coded channel count (which may be 5.1).
+    bool ac3 = (m.codec == "AC3");
+    int outChans = ac3 ? 2 : m.channels;
+    if (!ensureStream(m.sampleRate, outChans)) return false;
 
     // Size the ring to ~3s of audio at the stream format (reuse if big enough).
-    size_t need = (size_t)m.sampleRate * (size_t)m.channels * 3;
+    size_t need = (size_t)m.sampleRate * (size_t)outChans * 3;
     if (mRingCap < need) {
         mRing.assign(need, 0);
         mRingCap = need;
@@ -395,7 +406,12 @@ int32_t NanoAudioPlayer::fillAudio(void* audioData, int32_t numFrames) {
     }
     for (int32_t i = toRead; i < want; i++) dst[i] = 0;   // underrun -> silence
     mTail.store(tail + toRead, std::memory_order_release);
-    if (ch > 0) mFramesConsumed.fetch_add(toRead / ch, std::memory_order_relaxed);
+    // Advance the presentation clock by the FULL request (numFrames), not just the
+    // frames actually drained: silence emitted on underrun is still played time, so the
+    // audio clock must track wall time. Counting only real frames froze the clock while
+    // the decoder re-primed after a seek, which made the video A/V resync (drift > 0.3s)
+    // reseek forever on slow-to-reopen containers (TS), thrashing AC-3 audio.
+    if (ch > 0) mFramesConsumed.fetch_add(numFrames, std::memory_order_relaxed);
 
     // FFT tap: roll the emitted frames (downmixed to mono) into a 512-sample window
     // and publish a linear copy for getBands() on the UI thread.
@@ -470,10 +486,11 @@ void NanoAudioPlayer::decodeThreadFunc(std::string path) {
 
     const char* mime = nullptr;
     AMediaFormat_getString(tf, AMEDIAFORMAT_KEY_MIME, &mime);
-    AMediaCodec* codec = mime ? AMediaCodec_createDecoderByType(mime) : nullptr;
+    bool useAc3 = isAc3Mime(mime);   // decode AC-3 via liba52, not AMediaCodec
+    AMediaCodec* codec = (!useAc3 && mime) ? AMediaCodec_createDecoderByType(mime) : nullptr;
     bool rawPcm = false;
-    if (!codec || AMediaCodec_configure(codec, tf, nullptr, nullptr, 0) != AMEDIA_OK ||
-        AMediaCodec_start(codec) != AMEDIA_OK) {
+    if (!useAc3 && (!codec || AMediaCodec_configure(codec, tf, nullptr, nullptr, 0) != AMEDIA_OK ||
+        AMediaCodec_start(codec) != AMEDIA_OK)) {
         // No decoder (e.g. raw PCM WAV): copy extractor sample data straight through.
         if (codec) { AMediaCodec_delete(codec); codec = nullptr; }
         rawPcm = true;
@@ -507,7 +524,25 @@ void NanoAudioPlayer::decodeThreadFunc(std::string path) {
         }
     };
 
-    if (rawPcm) {
+    if (useAc3) {
+        // AC-3 -> int16 stereo via liba52. Each extractor access unit is one AC-3 frame.
+        NanoAc3 ac3; ac3.init();
+        const size_t kBuf = 8192;
+        std::vector<uint8_t> buf(kBuf);
+        std::vector<int16_t> pcm;
+        ALOGI("NanoAudio: AC-3 (liba52) path, stream=%dHz/%dch", mStreamRate, mStreamChans);
+        while (!mDecodeStop.load()) {
+            int64_t sk2 = mPendingSeekUs.exchange(-1);
+            if (sk2 >= 0) { AMediaExtractor_seekTo(ex, sk2, AMEDIAEXTRACTOR_SEEK_PREVIOUS_SYNC); ac3.reset(); }
+            ssize_t got = AMediaExtractor_readSampleData(ex, buf.data(), kBuf);
+            if (got <= 0) { mEos = true; break; }
+            pcm.clear();
+            int rate = 0;
+            ac3.decode(buf.data(), (int)got, pcm, rate);
+            if (!pcm.empty()) writeRing(pcm.data(), pcm.size());
+            AMediaExtractor_advance(ex);
+        }
+    } else if (rawPcm) {
         // Direct passthrough of extractor PCM samples (16-bit assumed; WAV).
         const size_t kBuf = 16384;
         std::vector<uint8_t> buf(kBuf);
