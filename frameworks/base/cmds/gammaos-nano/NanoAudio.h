@@ -81,6 +81,16 @@ public:
     // (used by the video player to switch between multiple embedded audio tracks).
     bool open(const std::string& path, int audioTrackIndex = -1);
 
+    // "Fed" mode: an external producer (NanoTsDemux) decodes and pushes PCM via
+    // feedPcm() instead of NanoAudio running its own extractor + decode thread. Sets up
+    // only the ring + AAudio + clock at the given format. feedPcm() returns the number of
+    // int16 samples written (non-blocking; 0 if the ring is full - the producer paces on
+    // that). seekFed() rebases the presentation clock to `sec` and clears the ring (the
+    // producer repositions its own source).
+    bool openFed(int rate, int channels);
+    size_t feedPcm(const int16_t* s, size_t nSamples);
+    void seekFed(double sec);
+
     void play();
     void pause();
     void togglePause();

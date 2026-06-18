@@ -33,6 +33,7 @@
 #include "NanoMenuSettingsTree.h"
 #include "NanoOsk.h"
 #include "NanoAudio.h"
+#include "NanoTsDemux.h"
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -1590,6 +1591,10 @@ private:
     bool   mVidHasAudio = false;
     bool   mVidAudioStarted = false;        // audio held until the first video frame (avoids warmup desync)
     float  mVidAudioResyncT = 0.0f;         // last A/V resync time (cooldown so resync never tight-loops)
+    // .ts audio runs through the in-process single-pass demuxer (multi-track + cheap
+    // switch + no system extractor); everything else stays on mVidAudio's own extractor.
+    NanoTsDemux mVidTsDemux;
+    bool   mVidTsAudio = false;             // current title's audio is fed by mVidTsDemux
     // ---- multiple audio tracks + subtitles (built per opened title; web audioTracks/subList) ----
     struct VidCue { double t = 0.0, d = 0.0; std::string text; };   // start, duration, text
     struct VidAudTrk { int idx = 0; std::string name; };           // idx = extractor track index
@@ -1602,6 +1607,9 @@ private:
     void vidBuildTracks(const std::string& file);   // enumerate audio + embedded text subs + sidecars
     void vidReadEmbeddedCues(const std::string& file, int trackIdx, std::vector<VidCue>& out);
     void vidSetAudioTrack(int ordinal);             // switch the active audio track (re-opens mVidAudio)
+    void vidOpenTitleAudio(const std::string& file);   // open audio for a title (.ts via demux, else mVidAudio)
+    void vidCloseTitleAudio();                      // stop the demux (if any) + release mVidAudio
+    void vidAudioSeek(double sec);                  // seek the audio, routed to the demux for .ts
     std::vector<VidCue> vidParseSrt(const std::string& text);   // SRT/VTT cue parser (web vidParseCues)
     const std::vector<VidCue>* vidActiveSubCues() const;        // cues for the selected sub track, or null
     double mVidScanLastTick = -1.0;         // wall-clock anchor for timer-driven scan

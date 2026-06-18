@@ -117,9 +117,12 @@ bool NanoVideo::open(const std::string& path) {
     int pmtPid = -1;
     media_status_t st;
     if (tsNeedsDescramble(fd, pmtPid)) {
-        mDataSource = tsMakeDataSource(fd, (off64_t)len, pmtPid, &mTsPatch);
+        // Video-only feed: strip the audio PIDs so the system extractor's ATSParser never
+        // parses the audio (its AC-3/E-AC-3 access-unit parser crashes on seek for some
+        // HDHomeRun captures). Audio is decoded separately by NanoTsDemux.
+        mDataSource = tsMakeDataSource(fd, (off64_t)len, pmtPid, &mTsPatch, /*stripAudio=*/true);
         st = mDataSource ? AMediaExtractor_setDataSourceCustom(mEx, mDataSource) : AMEDIA_ERROR_UNKNOWN;
-        if (st == AMEDIA_OK) LOGV("TS descramble active (PMT pid %d) for %s", pmtPid, path.c_str());
+        if (st == AMEDIA_OK) LOGV("TS descramble active (PMT pid %d, audio stripped) for %s", pmtPid, path.c_str());
     } else {
         st = AMediaExtractor_setDataSourceFd(mEx, fd, 0, len);
     }

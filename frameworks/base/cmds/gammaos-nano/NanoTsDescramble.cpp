@@ -89,8 +89,58 @@ bool patchPmtPacket(uint8_t* p, int pmtPid) {
     return changed;
 }
 
-// Data source userdata: a dup'd fd + the file size + the PMT pid to patch.
-struct TsPatch { int fd; off64_t size; int pmtPid; };
+// Data source userdata: a dup'd fd + the file size + the PMT pid to patch + an optional
+// set of audio PIDs to nullify (so the system extractor never parses the audio).
+struct TsPatch { int fd; off64_t size; int pmtPid; std::vector<int> stripPids; };
+
+// Is `pid` in the strip set? (small set, linear scan is fine)
+static inline bool inStrip(const std::vector<int>& s, int pid) {
+    for (int p : s) if (p == pid) return true;
+    return false;
+}
+
+// Parse the PMT (one bounded head read) and collect the elementary-stream PIDs of audio
+// types (MPEG audio / AAC / AC-3 / E-AC-3 / DTS) into `out`. Used to nullify them for the
+// video-only system-extractor feed.
+void parseAudioPids(int fd, int pmtPid, std::vector<int>& out) {
+    const size_t kScan = (size_t)kTsPkt * 4000;
+    std::vector<uint8_t> buf(kScan);
+    ssize_t n = pread(fd, buf.data(), kScan, 0);
+    if (n < kTsPkt) return;
+    int base = -1;
+    for (int o = 0; o < kTsPkt && o + 3 * kTsPkt < (int)n; o++)
+        if (buf[o] == 0x47 && buf[o + kTsPkt] == 0x47 && buf[o + 2 * kTsPkt] == 0x47) { base = o; break; }
+    if (base < 0) return;
+    for (ssize_t i = base; i + kTsPkt <= n; i += kTsPkt) {
+        uint8_t* p = &buf[i];
+        if (p[0] != 0x47) continue;
+        if ((((p[1] & 0x1f) << 8) | p[2]) != pmtPid) continue;
+        if (((p[1] >> 6) & 1) == 0) continue;
+        int afc = (p[3] >> 4) & 3, off = 4;
+        if (afc == 3) off += 1 + p[4]; else if (afc != 1) continue;
+        off += 1 + p[off];
+        if (off + 12 > kTsPkt) continue;
+        if (p[off] != 0x02) continue;
+        int secLen = ((p[off + 1] & 0x0f) << 8) | p[off + 2];
+        int secEnd = off + 3 + secLen;
+        if (secEnd > kTsPkt) continue;
+        int pil = ((p[off + 10] & 0x0f) << 8) | p[off + 11];
+        int es = off + 12 + pil, crcStart = secEnd - 4;
+        while (es + 5 <= crcStart) {
+            int stype = p[es];
+            int epid = ((p[es + 1] & 0x1f) << 8) | p[es + 2];
+            int esil = ((p[es + 3] & 0x0f) << 8) | p[es + 4];
+            switch (stype) {
+                case 0x03: case 0x04: case 0x0f: case 0x11:   // MP1/MP2/AAC-ADTS/AAC-LATM
+                case 0x81: case 0x87: case 0x8a:              // AC-3 / E-AC-3 / DTS
+                    out.push_back(epid); break;
+                default: break;
+            }
+            es += 5 + esil;
+        }
+        return;
+    }
+}
 
 ssize_t tsReadAt(void* u, off64_t offset, void* buffer, size_t size) {
     TsPatch* t = (TsPatch*)u;
@@ -106,8 +156,14 @@ ssize_t tsReadAt(void* u, off64_t offset, void* buffer, size_t size) {
     std::vector<uint8_t> tmp(span);
     ssize_t got = pread(t->fd, tmp.data(), span, aStart);
     if (got <= 0) return got == 0 ? -1 : got;
-    for (off64_t p = 0; p + kTsPkt <= got; p += kTsPkt)
-        patchPmtPacket(tmp.data() + (size_t)p, t->pmtPid);
+    for (off64_t p = 0; p + kTsPkt <= got; p += kTsPkt) {
+        uint8_t* pk = tmp.data() + (size_t)p;
+        patchPmtPacket(pk, t->pmtPid);
+        if (!t->stripPids.empty() && pk[0] == 0x47) {     // nullify audio PIDs (video-only)
+            int pid = ((pk[1] & 0x1f) << 8) | pk[2];
+            if (inStrip(t->stripPids, pid)) { pk[1] = (uint8_t)((pk[1] & 0xE0) | 0x1F); pk[2] = 0xFF; }
+        }
+    }
     off64_t skip = offset - aStart;
     if (skip >= got) return -1;
     size_t avail = (size_t)(got - skip);
@@ -176,10 +232,12 @@ bool tsNeedsDescramble(int fd, int& outPmtPid) {
     return false;
 }
 
-AMediaDataSource* tsMakeDataSource(int fd, off64_t size, int pmtPid, void** outUserdata) {
+AMediaDataSource* tsMakeDataSource(int fd, off64_t size, int pmtPid, void** outUserdata,
+                                   bool stripAudio) {
     int dfd = dup(fd);
     if (dfd < 0) return nullptr;
-    TsPatch* t = new TsPatch{dfd, size, pmtPid};
+    TsPatch* t = new TsPatch{dfd, size, pmtPid, {}};
+    if (stripAudio) parseAudioPids(dfd, pmtPid, t->stripPids);
     AMediaDataSource* ds = AMediaDataSource_new();
     if (!ds) { ::close(dfd); delete t; return nullptr; }
     AMediaDataSource_setUserdata(ds, t);

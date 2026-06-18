@@ -325,6 +325,54 @@ bool NanoAudioPlayer::open(const std::string& path, int audioTrackIndex) {
     return true;
 }
 
+bool NanoAudioPlayer::openFed(int rate, int channels) {
+    init();
+    stopDecoder();                 // no decode thread runs in fed mode, but be safe
+    freeExtractor();               // fed mode owns no extractor
+    mHead = 0; mTail = 0;
+    mEos = false;
+    mFramesConsumed = 0;
+    mSeekBaseFrames = 0;
+    mClockArmed = false;
+    mPendingSeekUs = -1;
+    mStopped = false;
+    { std::lock_guard<std::mutex> lk(mMetaMutex); mMeta = Meta{}; mMeta.sampleRate = rate; mMeta.channels = channels; }
+    if (rate <= 0 || channels <= 0) return false;
+    if (!ensureStream(rate, channels)) return false;
+    size_t need = (size_t)rate * (size_t)channels * 3;     // ~3s ring
+    if (mRingCap < need) { mRing.assign(need, 0); mRingCap = need; }
+    mCurrentPath.clear();
+    return true;
+}
+
+size_t NanoAudioPlayer::feedPcm(const int16_t* s, size_t n) {
+    if (n == 0 || mRingCap == 0) return 0;
+    size_t head = mHead.load(std::memory_order_relaxed);
+    size_t tail = mTail.load(std::memory_order_acquire);
+    size_t freeS = mRingCap - (head - tail);
+    size_t chunk = std::min(n, freeS);
+    if (chunk == 0) return 0;
+    size_t idx = head % mRingCap;
+    size_t first = std::min(chunk, mRingCap - idx);
+    memcpy(&mRing[idx], s, first * sizeof(int16_t));
+    if (chunk > first) memcpy(&mRing[0], s + first, (chunk - first) * sizeof(int16_t));
+    mHead.store(head + chunk, std::memory_order_release);
+    return chunk;
+}
+
+void NanoAudioPlayer::seekFed(double sec) {
+    if (sec < 0) sec = 0;
+    bool wasPlaying = mStarted.load();
+    pause();                       // halt the callback before clearing the ring
+    mHead = 0; mTail = 0;
+    mEos = false;
+    mSeekBaseFrames = (int64_t)(sec * mStreamRate);
+    mFramesConsumed = 0;
+    mClockArmed = false;
+    mStopped = false;
+    if (wasPlaying) play();
+}
+
 void NanoAudioPlayer::play() {
     std::lock_guard<std::mutex> lk(mStreamMutex);
     if (mStream && !mStarted) {

@@ -72,6 +72,7 @@ cc_binary {
         "NanoVideo.cpp",
         "NanoDvbSub.cpp",
         "NanoTsDescramble.cpp",
+        "NanoTsDemux.cpp",
         "NanoMenuVideo.cpp",
         "NanoMenuSearch.cpp",
         "NanoAc3.cpp",

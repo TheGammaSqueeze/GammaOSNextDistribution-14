@@ -54,6 +54,28 @@ static bool isVideoExt(const std::string& nameLower) {
            e == ".mov" || e == ".3gp" || e == ".avi" || e == ".ts"   ||
            e == ".mpg" || e == ".mpeg" || e == ".mp2t";
 }
+// MPEG-TS containers we demux in-process (multi-audio + captions + low-memory). The real
+// gate is NanoTsDemux::open() (it verifies TS sync), so a mislabelled file falls back.
+static bool vidFileIsTs(const std::string& path) {
+    std::string l = path;
+    for (auto& c : l) if (c >= 'A' && c <= 'Z') c += 32;
+    size_t dot = l.rfind('.');
+    if (dot == std::string::npos) return false;
+    std::string e = l.substr(dot);
+    return e == ".ts" || e == ".m2ts" || e == ".mts" || e == ".trp" || e == ".mp2t";
+}
+// Friendly audio-track label from an ISO-639 language code (the .ts carries no track name).
+static std::string vidLangName(const std::string& code, size_t idx) {
+    static const struct { const char* c; const char* n; } M[] = {
+        {"eng","English"}, {"spa","Spanish"}, {"fra","French"}, {"fre","French"},
+        {"deu","German"},  {"ger","German"},  {"ita","Italian"}, {"por","Portuguese"},
+        {"jpn","Japanese"},{"kor","Korean"},  {"chi","Chinese"}, {"zho","Chinese"},
+        {"rus","Russian"}, {"ara","Arabic"},  {"hin","Hindi"},   {"nld","Dutch"},
+    };
+    for (auto& m : M) if (code == m.c) return m.n;
+    if (!code.empty() && code != "und") return code;
+    char b[16]; snprintf(b, sizeof(b), "Audio %zu", idx + 1); return b;
+}
 static void vScanDirRecursive(const std::string& dir, std::vector<std::string>& out, int depth) {
     if (depth > 8) return;
     DIR* d = opendir(dir.c_str());
@@ -1104,11 +1126,12 @@ void NanoMenu::vidBuildTracks(const std::string& file) {
         if (fstat(fd, &st) == 0 && st.st_size > 0) {
             AMediaExtractor* ex = AMediaExtractor_new();
             // Scrambled-flagged .ts (CA descriptor in the PMT): feed the descramble data
-            // source so the audio tracks (e.g. AC-3) enumerate. Freed after the extractor.
+            // source. Strip audio (the demuxer enumerates + decodes the .ts audio; the
+            // system extractor's AC-3 parser can crash on these captures). Freed after.
             AMediaDataSource* tsDs = nullptr; void* tsUd = nullptr; int tsPmt = -1;
             media_status_t dst;
             if (tsNeedsDescramble(fd, tsPmt)) {
-                tsDs = tsMakeDataSource(fd, (off64_t)st.st_size, tsPmt, &tsUd);
+                tsDs = tsMakeDataSource(fd, (off64_t)st.st_size, tsPmt, &tsUd, /*stripAudio=*/true);
                 dst = tsDs ? AMediaExtractor_setDataSourceCustom(ex, tsDs) : AMEDIA_ERROR_UNKNOWN;
             } else {
                 dst = AMediaExtractor_setDataSourceFd(ex, fd, 0, st.st_size);
@@ -1219,19 +1242,71 @@ const std::vector<NanoMenu::VidCue>* NanoMenu::vidActiveSubCues() const {
     return &mVidSubTracks[mVidSubCur].cues;
 }
 
-// Switch the active audio track: re-open mVidAudio on that exact extractor track,
-// reseeked to the picture and resumed if playing (web vidSetAudioTrack).
+// Open the current title's audio. For .ts the in-process demuxer owns it (every audio
+// PID enumerated, decoded by liba52 into mVidAudio's fed ring, switchable in O(1)); for
+// every other container mVidAudio uses its own extractor as before. Call after the video
+// is open and vidBuildTracks has populated subtitles.
+void NanoMenu::vidOpenTitleAudio(const std::string& file) {
+    mVidHasAudio = false;
+    mVidTsAudio = false;
+    mVidTsDemux.close();
+    if (vidFileIsTs(file) && mVidTsDemux.open(file) && !mVidTsDemux.audioTracks().empty()) {
+        mVidAudTracks.clear();
+        const auto& ats = mVidTsDemux.audioTracks();
+        for (size_t k = 0; k < ats.size(); k++) {
+            VidAudTrk t; t.idx = (int)k;          // idx = ordinal into the demux audio list
+            t.name = vidLangName(ats[k].lang, k) + "  AC-3";
+            mVidAudTracks.push_back(t);
+        }
+        if (mVidAudio.openFed(48000, 2)) {        // AC-3 -> stereo 48k fed ring
+            mVidAudio.setVolume(mVidVolume);
+            mVidTsDemux.start(&mVidAudio, 0, 0.0);
+            mVidTsAudio = true; mVidHasAudio = true;
+        } else {
+            mVidTsDemux.close();
+        }
+    }
+    if (!mVidTsAudio && !mVidAudTracks.empty()) {
+        mVidHasAudio = mVidAudio.open(file, mVidAudTracks[0].idx);
+        if (mVidHasAudio) mVidAudio.setVolume(mVidVolume); else mVidAudio.release();
+    }
+}
+
+// Tear down the title's audio: stop the demuxer worker (if any) then release mVidAudio.
+void NanoMenu::vidCloseTitleAudio() {
+    if (mVidTsAudio) { mVidTsDemux.close(); mVidTsAudio = false; }
+    mVidAudio.release();
+    mVidHasAudio = false;
+}
+
+// Seek the audio, routed to the demuxer for .ts (it repositions the fd + rebases the
+// fed clock) or to mVidAudio's own extractor otherwise.
+void NanoMenu::vidAudioSeek(double sec) {
+    if (mVidTsAudio) mVidTsDemux.seek(sec);
+    else if (mVidHasAudio) mVidAudio.seek(sec);
+}
+
+// Switch the active audio track. For .ts this is an O(1) PID re-route on the demuxer's
+// shared PCR clock; otherwise re-open mVidAudio on that extractor track (web vidSetAudioTrack).
 void NanoMenu::vidSetAudioTrack(int ordinal) {
     if (ordinal < 0 || ordinal >= (int)mVidAudTracks.size()) return;
     mVidAudCur = ordinal;
-    if (mVidList.empty() || mVidIdx < 0 || mVidIdx >= (int)mVidList.size()) return;
-    int vi = mVidList[mVidIdx];
-    if (vi < 0 || vi >= (int)mVideos.size()) return;
-    double pos = mVideoTest ? mVideoTest->position() : 0.0;
-    mVidAudio.release();
-    mVidHasAudio = mVidAudio.open(mVideos[vi].file, mVidAudTracks[ordinal].idx);
-    mVidAudioStarted = false;
-    if (mVidHasAudio) { mVidAudio.setVolume(mVidVolume); if (pos > 0.0) mVidAudio.seek(pos); }
+    if (mVidTsAudio) {
+        // Re-route the PID and reseek to the picture so the ~3s of already-buffered old-track
+        // audio is dropped and the new track starts in sync (a brief gap, like the web aux switch).
+        mVidTsDemux.selectAudio(ordinal);
+        mVidTsDemux.seek(mVideoTest ? mVideoTest->position() : 0.0);
+        mVidAudio.setVolume(mVidVolume);
+    } else {
+        if (mVidList.empty() || mVidIdx < 0 || mVidIdx >= (int)mVidList.size()) return;
+        int vi = mVidList[mVidIdx];
+        if (vi < 0 || vi >= (int)mVideos.size()) return;
+        double pos = mVideoTest ? mVideoTest->position() : 0.0;
+        mVidAudio.release();
+        mVidHasAudio = mVidAudio.open(mVideos[vi].file, mVidAudTracks[ordinal].idx);
+        mVidAudioStarted = false;
+        if (mVidHasAudio) { mVidAudio.setVolume(mVidVolume); if (pos > 0.0) mVidAudio.seek(pos); }
+    }
     mVidDispMode = std::string("Audio: ") + mVidAudTracks[ordinal].name;
     mVidDispModeUntil = mEffectTime + 1.8f;
 }
@@ -1285,13 +1360,9 @@ void NanoMenu::openVideoPlayer(const std::vector<Ps3Item>& list, int listSel) {
     vidBuildTracks(mVideos[vi].file);
     vidParseChapters(mVideos[vi].file);   // Scene Search chapter markers
     mVidAudCur = 0; mVidSubCur = -1;
-    // Open the chosen audio track in a second HW audio engine; it is started by videoTick
-    // once the first picture frame lands (avoids the decode-warmup desync).
-    mVidHasAudio = false;
-    if (!mVidAudTracks.empty()) {
-        mVidHasAudio = mVidAudio.open(mVideos[vi].file, mVidAudTracks[0].idx);
-        if (mVidHasAudio) mVidAudio.setVolume(mVidVolume); else mVidAudio.release();
-    }
+    // Open the title's audio (.ts -> in-process demuxer with every track; else mVidAudio's
+    // own extractor). It is started by videoTick once the first picture frame lands.
+    vidOpenTitleAudio(mVideos[vi].file);
     mVidAudioStarted = false;
     mVidOpening.store(false, std::memory_order_relaxed);
 
@@ -1336,7 +1407,7 @@ void NanoMenu::vidResumeConfirm() {
     mVidResumeAsk = false;
     if (mVidResumeSel == 0) {                       // Resume
         if (mVideoTest) mVideoTest->seek(mVidResumeAskSec);
-        if (mVidHasAudio) mVidAudio.seek(mVidResumeAskSec);
+        if (mVidHasAudio) vidAudioSeek(mVidResumeAskSec);
         mVidHintUntil = mEffectTime + 1.5f;
     } else {                                        // Play from beginning
         if (mVidIdx >= 0 && mVidIdx < (int)mVidList.size()) {
@@ -1399,7 +1470,7 @@ void NanoMenu::videoHardFree(bool sync) {
         for (NanoVideo* v : mVidDying) { v->finishRelease(); delete v; }
         mVidDying.clear();
     }
-    if (mVidHasAudio) { mVidAudio.release(); mVidHasAudio = false; }
+    vidCloseTitleAudio();
     mVidActive = false; mVidPlaying = false;
     mVidResumeAsk = false;
     mVidEnterRaw = 0.0f; mVidEnterT = 0.0f;
@@ -1417,7 +1488,7 @@ void NanoMenu::vidTogglePlay() {
     if (!mVideoTest) return;
     // web vidPlayToggle: forces rate 1, un-stops (restart from 0 if stopped), flips playing.
     mVidRate = 1.0; mVidTransientUntil = 0.0f;
-    if (mVidStopped) { mVidStopped = false; mVideoTest->seek(0.0); if (mVidHasAudio) mVidAudio.seek(0.0); }
+    if (mVidStopped) { mVidStopped = false; mVideoTest->seek(0.0); if (mVidHasAudio) vidAudioSeek(0.0); }
     mVidPlaying = !mVidPlaying;
     if (mVidPlaying) mVideoTest->play(); else mVideoTest->pause();
     // audio play/pause is reconciled in videoTick (single source of truth)
@@ -1432,7 +1503,7 @@ void NanoMenu::vidSeek(double deltaSec) {
     if (p < 0.0) p = 0.0;
     if (dur > 0.0 && p > dur - 0.05) p = dur - 0.05;   // keep inside the stream (no EOS trip)
     mVideoTest->seek(p);
-    if (mVidHasAudio) mVidAudio.seek(p);
+    if (mVidHasAudio) vidAudioSeek(p);
     mVidHintUntil = mEffectTime + 1.5f;
 }
 
@@ -1458,12 +1529,8 @@ void NanoMenu::vidStepTitle(int dir) {
     vidParseChapters(mVideos[vi].file);   // Scene Search chapter markers
     mVidSceneOpen = false; mVidSceneClosing = false;
     mVidAudCur = 0; mVidSubCur = -1;
-    mVidAudio.release();
-    mVidHasAudio = false;
-    if (!mVidAudTracks.empty()) {
-        mVidHasAudio = mVidAudio.open(mVideos[vi].file, mVidAudTracks[0].idx);
-        if (mVidHasAudio) mVidAudio.setVolume(mVidVolume); else mVidAudio.release();
-    }
+    vidCloseTitleAudio();                       // stop the outgoing title's demux/audio
+    vidOpenTitleAudio(mVideos[vi].file);        // .ts -> demuxer, else mVidAudio
     mVidAudioStarted = false;
     mVidOpening.store(false, std::memory_order_relaxed);
     // web vidStepTitle resets rate / stopped / play state.
@@ -1475,7 +1542,7 @@ void NanoMenu::vidStepTitle(int dir) {
         double rs = mVideos[vi].resumeSec, dur = mVideoTest->duration();
         if (rs > 5.0 && (dur <= 0.0 || rs < dur - 5.0)) {
             mVideoTest->seek(rs);
-            if (mVidHasAudio) mVidAudio.seek(rs);
+            if (mVidHasAudio) vidAudioSeek(rs);
         }
     }
 }
@@ -1485,7 +1552,7 @@ void NanoMenu::vidStop() {
     if (!mVideoTest) return;
     mVideoTest->pause();
     mVideoTest->seek(0.0);
-    if (mVidHasAudio) { mVidAudio.pause(); mVidAudio.seek(0.0); }
+    if (mVidHasAudio) { mVidAudio.pause(); vidAudioSeek(0.0); }
     mVidPlaying = false; mVidStopped = true; mVidRate = 1.0;
     mVidTransientUntil = 0.0f;
     mVidHintUntil = mEffectTime + 1.5f;
@@ -1537,7 +1604,7 @@ void NanoMenu::vidStepFrame(int dir) {
     if (p < 0.0) p = 0.0;
     if (dur > 0.0 && p > dur - 0.02) p = dur - 0.02;
     mVideoTest->seek(p);
-    if (mVidHasAudio) { mVidAudio.pause(); mVidAudio.seek(p); }   // frame step keeps audio paused on the frame
+    if (mVidHasAudio) { mVidAudio.pause(); vidAudioSeek(p); }   // frame step keeps audio paused on the frame
     mVidHintUntil = mEffectTime + 1.5f;
 }
 
@@ -1549,7 +1616,7 @@ void NanoMenu::vidFlash(int dir) {
     if (p < 0.0) p = 0.0;
     if (dur > 0.0 && p > dur - 0.05) p = dur - 0.05;
     mVideoTest->seek(p);
-    if (mVidHasAudio) mVidAudio.seek(p);
+    if (mVidHasAudio) vidAudioSeek(p);
     vidShowTransient(dir > 0 ? "Instant Advance" : "Instant Replay", 1200.0f);
     mVidHintUntil = mEffectTime + 1.5f;
 }
@@ -1579,7 +1646,7 @@ void NanoMenu::videoTick() {
         // Async teardown: the worker join + OMX stop run on a bg thread so the render
         // loop never blocks (vidReapDying frees it once done).
         vidAsyncFree(mVideoTest); mVideoTest = nullptr;
-        if (mVidHasAudio) { mVidAudio.release(); mVidHasAudio = false; }
+        vidCloseTitleAudio();
         mVidCpOpen = mVidCpClosing = mVidSubOpen = mVidGoToOpen = false;
         mVidSceneOpen = mVidSceneClosing = false;
         mVidAudTracks.clear(); mVidSubTracks.clear(); mVidChapters.clear(); mVidAudCur = 0; mVidSubCur = -1;
@@ -1629,7 +1696,7 @@ void NanoMenu::videoTick() {
                 // One-time alignment to the picture, then let audio free-run (below).
                 double ap = mVidAudio.position();
                 VLOGI("NanoMenu: vidsync START ap=%.3f vp=%.3f drift=%.3f", ap, vp, ap - vp);
-                if (fabs(ap - vp) > 0.3) mVidAudio.seek(vp);
+                if (fabs(ap - vp) > 0.3) vidAudioSeek(vp);
                 mVidAudio.play(); mVidAudioStarted = true;
                 mVidAudioResyncT = mEffectTime;
             }
@@ -1642,7 +1709,7 @@ void NanoMenu::videoTick() {
                 // resets it every frame and stutters the sound (it never actually plays).
                 if (fabs(ap - vp) > 0.6 && (mEffectTime - mVidAudioResyncT) > 2.0f) {
                     VLOGI("NanoMenu: vidsync RESEEK ap=%.3f vp=%.3f drift=%.3f", ap, vp, ap - vp);
-                    mVidAudio.seek(vp);
+                    vidAudioSeek(vp);
                     mVidAudioResyncT = mEffectTime;
                 }
             }
@@ -1677,14 +1744,14 @@ void NanoMenu::videoTick() {
     if (mVidRepeat == 3 && mVidAbA >= 0.0 && mVidAbB > mVidAbA
         && mVideoTest->position() >= mVidAbB) {
         mVideoTest->seek(mVidAbA);
-        if (mVidHasAudio) mVidAudio.seek(mVidAbA);
+        if (mVidHasAudio) vidAudioSeek(mVidAbA);
     }
 
     // End of stream: repeat / auto-advance / stop (web vidOnEnded).
     if (mVidPlaying && mVideoTest->ended()) {
         if (mVidRepeat == 1 || mVidRepeat == 2) {          // Repeat On / Title Repeat
             mVideoTest->seek(0.0); mVideoTest->play();
-            if (mVidHasAudio) { mVidAudio.seek(0.0); mVidAudio.play(); }
+            if (mVidHasAudio) { vidAudioSeek(0.0); mVidAudio.play(); }
         } else if (mVidIdx < (int)mVidList.size() - 1) {    // auto-advance
             vidStepTitle(1);
         } else {
@@ -2343,7 +2410,7 @@ void NanoMenu::vidSceneActivate() {
     if (mVideoTest) {
         mVidRate = 1.0;
         mVideoTest->seek(t);
-        if (mVidHasAudio) mVidAudio.seek(t);
+        if (mVidHasAudio) vidAudioSeek(t);
         if (mVidPlaying) mVideoTest->play();
     }
     mVidSceneOpen = false; mVidSceneClosing = true; mVidSceneCloseStart = mEffectTime;

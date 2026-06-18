@@ -28,7 +28,15 @@ bool tsNeedsDescramble(int fd, int& outPmtPid);
 // returned source + its userdata must be freed with freeTsDataSource() AFTER the
 // AMediaExtractor that used them is deleted. Returns nullptr on failure (outUserdata
 // untouched).
-AMediaDataSource* tsMakeDataSource(int fd, off64_t size, int pmtPid, void** outUserdata);
+//
+// stripAudio: also nullify every audio elementary-stream PID listed in the PMT (turn
+// those packets into null packets). The video path uses this so the system MPEG2TS
+// extractor's ATSParser never parses the audio - on some HDHomeRun captures its AC-3 /
+// E-AC-3 access-unit parser crashes (memcpy overflow in dequeueAccessUnitEAC3) on a
+// seek, taking the process down. Audio for these files is decoded separately by
+// NanoTsDemux, so the system extractor only needs the picture.
+AMediaDataSource* tsMakeDataSource(int fd, off64_t size, int pmtPid, void** outUserdata,
+                                   bool stripAudio = false);
 
 // Delete the data source + free its userdata (closes the dup'd fd). nullptr-safe.
 void tsFreeDataSource(AMediaDataSource* ds, void* userdata);
