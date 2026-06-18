@@ -1157,6 +1157,7 @@ void NanoMenu::ps3XmbUp() {
         if (mVidGoToOpen) vidGoToAdjust(+1);
         else if (mVidSceneOpen) vidSceneMove(0, -1);
         else if (mVidCpOpen) vidPanelMove(0, -1);
+        else adjustBrightness(+1);   // plain playback: Up raises screen brightness (HUD bar)
         return;
     }
     if (mPs3OptActive) { xmbOptMove(-1); return; }
@@ -1185,6 +1186,7 @@ void NanoMenu::ps3XmbDown() {
         if (mVidGoToOpen) vidGoToAdjust(-1);
         else if (mVidSceneOpen) vidSceneMove(0, +1);
         else if (mVidCpOpen) vidPanelMove(0, +1);
+        else adjustBrightness(-1);   // plain playback: Down lowers screen brightness (HUD bar)
         return;
     }
     if (mPs3OptActive) { xmbOptMove(+1); return; }

@@ -19,6 +19,11 @@ namespace android {
 namespace {
 constexpr int kPkt = 188;
 
+// cc_data display-order reorder depth. Well above the MPEG-2 decode/display gap (a couple of
+// B-frames) so the oldest buffered picture is final before it is decoded; ~0.5s of latency at
+// 30fps, imperceptible for captions.
+constexpr size_t kCcReorderWindow = 16;
+
 // 33-bit PCR base (90kHz) from the 6 PCR bytes; returns seconds (ignores the 27MHz ext).
 double pcrSeconds(const uint8_t* b) {
     uint64_t base = ((uint64_t)b[0] << 25) | ((uint64_t)b[1] << 17) |
@@ -213,6 +218,9 @@ void NanoTsDemux::stop() {
     mVideoPes.buf.clear(); mVideoPes.started = false;
     mAc3Buf.clear();
     mAc3.free();                  // release the liba52 state (no idle audio-decoder footprint when closed)
+    mCea608.reset();             // drop caption state + cues (nothing resident when closed)
+    mCcReorder.clear();
+    { std::lock_guard<std::mutex> lk(mCueMx); mCues.clear(); }
     mSink = nullptr;
     mVideoSink = nullptr;
 }
@@ -231,6 +239,7 @@ void NanoTsDemux::seek(double targetSec) {
 void NanoTsDemux::setCea608(bool enable, int ccChannel) {
     mCcChannel.store(ccChannel);
     mCcEnable.store(enable);
+    mCcGen.fetch_add(1);   // force the worker to (re)configure + reset the decoder cleanly
 }
 
 bool NanoTsDemux::hasCea608(int /*ccChannel*/) { return mCcSeen.load(); }
@@ -292,34 +301,49 @@ void NanoTsDemux::flushAudioPes() {
 void NanoTsDemux::emitVideoPes(const uint8_t* pes, size_t len) {
     const uint8_t* es = nullptr; size_t esLen = 0; int64_t pts = -1;
     if (!pesPayload(pes, len, &es, &esLen, &pts)) return;
+    // Normalize to the stream's PTS origin (broadcast captures start the PTS at an arbitrary
+    // 90kHz value, e.g. ~19300s) so position() maps onto [0, duration] and the seek bar +
+    // relative seeks + caption timestamps line up with the byte<->time model. The base is
+    // captured once at first play and kept across seeks (later bytes carry later PTS).
+    double ptsSec = -1.0;
+    if (pts >= 0) {
+        if (mPtsBaseUs < 0) mPtsBaseUs = pts;
+        int64_t o = pts - mPtsBaseUs; if (o < 0) o = 0;   // PTS discontinuity before the base: clamp
+        ptsSec = (double)o / 1e6;
+    }
     // Captions: decode when a CC track is selected; otherwise a BOUNDED presence probe
     // (first ~300 pictures) so a non-captioned stream costs nothing after a couple seconds.
     if (mCcEnable.load()) {
-        scanVideoUserData(es, esLen, pts);
+        scanVideoUserData(es, esLen, ptsSec);
     } else if (!mCcSeen.load() && mCcProbe < 300) {
-        scanVideoUserData(es, esLen, pts);
+        scanVideoUserData(es, esLen, ptsSec);
         mCcProbe++;
     }
     if (mVideoSink && esLen) {
         // Start feeding the codec at a sequence header (00 00 01 B3) so a cold MPEG-2
         // decoder gets a clean, decodable first access unit (mid-GOP pictures can fault it).
         if (!mVideoStartedFeed) {
-            bool hasSeq = false;
+            bool hasSeq = false; size_t seqAt = 0;
             for (size_t i = 0; i + 4 <= esLen; i++)
-                if (es[i] == 0 && es[i + 1] == 0 && es[i + 2] == 1 && es[i + 3] == 0xB3) { hasSeq = true; break; }
+                if (es[i] == 0 && es[i + 1] == 0 && es[i + 2] == 1 && es[i + 3] == 0xB3) { hasSeq = true; seqAt = i; break; }
             if (!hasSeq) return;            // drop pre-sequence-header pictures
+            // MPEG-2 sequence header: aspect_ratio_information is the high nibble of the byte
+            // after horizontal(12)+vertical(12). 2=DAR 4:3, 3=16:9, 4=2.21:1 (1/other = square
+            // pixels). SD broadcast is usually 720x480/576 anamorphic; tell the sink its true
+            // display shape so the picture is not stretched (the web XMB gets this from the
+            // browser). Parse once per feed start (cheap; same value re-applied after a seek).
+            // Only for MPEG-1/2 (0xB3 is their sequence-header start code) so a stray 00 00 01 B3
+            // byte run inside an AVC/HEVC stream cannot set a bogus DAR.
+            if ((mVideoStreamType == 0x01 || mVideoStreamType == 0x02) && seqAt + 8 <= esLen) {
+                int arc = es[seqAt + 7] >> 4;
+                float dar = (arc == 2) ? (4.0f / 3.0f)
+                          : (arc == 3) ? (16.0f / 9.0f)
+                          : (arc == 4) ? 2.21f : 0.0f;
+                mVideoSink->setDisplayAspect(dar);
+            }
             mVideoStartedFeed = true;
         }
-        // Normalize to the stream's PTS origin (broadcast captures start the PTS at an
-        // arbitrary 90kHz value, e.g. ~19300s) so position() maps onto [0, duration] and
-        // the seek bar + relative seeks line up with the byte<->time model. The base is
-        // captured once at first play and kept across seeks (later bytes carry later PTS).
-        int64_t outPts = pts;
-        if (pts >= 0) {
-            if (mPtsBaseUs < 0) mPtsBaseUs = pts;
-            outPts = pts - mPtsBaseUs;
-            if (outPts < 0) outPts = 0;     // PTS discontinuity before the base: clamp
-        }
+        int64_t outPts = (ptsSec >= 0.0) ? (int64_t)(ptsSec * 1e6) : pts;
         mVideoSink->feedVideo(es, esLen, outPts);  // blocks on back-pressure
     }
 }
@@ -360,6 +384,7 @@ void NanoTsDemux::workerFunc(double startSec) {
     mAc3Buf.clear();
     mAc3.init();        // allocate the liba52 state (without this decode() no-ops -> silent audio)
     mAc3.reset();
+    mCea608.reset(); mCcGenApplied = -1; mCcReorder.clear();   // captions decode fresh from this start position
 
     const size_t kChunk = (size_t)kPkt * 64;     // ~12 KB working set
     std::vector<uint8_t> buf(kChunk);
@@ -379,6 +404,7 @@ void NanoTsDemux::workerFunc(double startSec) {
             mAudioPes.buf.clear(); mAudioPes.started = false;
             mVideoPes.buf.clear(); mVideoPes.started = false; mVideoStartedFeed = false;
             mAc3Buf.clear(); mAc3.reset();
+            mCea608.reset(); mCcReorder.clear(); { std::lock_guard<std::mutex> lk(mCueMx); mCues.clear(); }   // captions re-decode from here
             if (mSink) mSink->seekFed(sk);
             if (mVideoSink) mVideoSink->flushFed(sk);
             TLOGI("NanoTsDemux: seek %.2f -> byte %lld (bps=%.0f)", sk, (long long)pos, mBytesPerSec);
@@ -406,17 +432,62 @@ void NanoTsDemux::workerFunc(double startSec) {
     }
 }
 
-// CEA-608 extraction (wired in the captions step; here it only records presence so the
-// UI can offer the track once NanoCea608 lands).
-void NanoTsDemux::scanVideoUserData(const uint8_t* es, size_t len, int64_t /*ptsUs*/) {
+// CEA-608 extraction from the MPEG-2 picture user_data (00 00 01 B2 'GA94' 0x03 cc_data).
+// Records presence (mCcSeen) for the track UI; when a CC track is selected (mCcEnable) it
+// routes the cc_data through NanoCea608 and publishes the cue snapshot under mCueMx. Worker only.
+void NanoTsDemux::scanVideoUserData(const uint8_t* es, size_t len, double ptsSec) {
     for (size_t i = 0; i + 9 <= len; i++) {
-        if (es[i] == 0 && es[i + 1] == 0 && es[i + 2] == 1 && es[i + 3] == 0xB2) {
-            if (es[i + 4] == 'G' && es[i + 5] == 'A' && es[i + 6] == '9' && es[i + 7] == '4' &&
-                es[i + 8] == 0x03) {
-                mCcSeen.store(true);
-                return;
+        if (es[i] == 0 && es[i + 1] == 0 && es[i + 2] == 1 && es[i + 3] == 0xB2 &&
+            es[i + 4] == 'G' && es[i + 5] == 'A' && es[i + 6] == '9' && es[i + 7] == '4' &&
+            es[i + 8] == 0x03) {
+            mCcSeen.store(true);
+            if (mCcEnable.load()) {
+                int gen = mCcGen.load();
+                if (gen != mCcGenApplied) {
+                    mCea608.setChannel(mCcChannel.load());   // (re)select channel + reset the decoder
+                    mCcGenApplied = gen;
+                    mCcReorder.clear();                      // drop pre-switch pictures
+                    std::lock_guard<std::mutex> lk(mCueMx); mCues.clear();
+                }
+                // Buffer this picture's cc_data with its PTS; decode in display order below.
+                // Copy only the cc_data span (header + cc_count*3 + trailing marker), not the
+                // whole picture, so the reorder buffer stays tiny.
+                const uint8_t* cc = es + i + 9;
+                size_t avail = len - (i + 9);
+                if (avail >= 2) {
+                    int cnt = cc[0] & 0x1f;
+                    size_t need = (size_t)(2 + cnt * 3 + 1);
+                    if (cnt > 0 && need <= avail) {
+                        mCcReorder.push_back({ ptsSec >= 0.0 ? ptsSec : 0.0,
+                                               std::vector<uint8_t>(cc, cc + need) });
+                        ccReorderFlush(kCcReorderWindow);
+                    }
+                }
             }
+            return;
         }
+    }
+}
+
+// Drain the cc_data reorder buffer down to `keep` entries, feeding the oldest-by-PTS pictures
+// into the line-21 decoder so captions are processed in DISPLAY order. A window well above the
+// MPEG-2 reorder depth guarantees the minimum-PTS entry left is final before it is emitted.
+void NanoTsDemux::ccReorderFlush(size_t keep) {
+    bool changed = false;
+    while (mCcReorder.size() > keep) {
+        size_t mi = 0;
+        for (size_t k = 1; k < mCcReorder.size(); k++)
+            if (mCcReorder[k].pts < mCcReorder[mi].pts) mi = k;
+        CcUnit u = std::move(mCcReorder[mi]);
+        mCcReorder.erase(mCcReorder.begin() + mi);
+        if (mCea608.feedGa94(u.data.data(), u.data.size(), u.pts)) changed = true;
+    }
+    if (changed) {
+        std::vector<NanoCea608::Cue> tmp;
+        mCea608.copyCues(tmp);
+        std::lock_guard<std::mutex> lk(mCueMx);
+        mCues.clear();
+        for (const auto& c : tmp) mCues.push_back({c.startSec, c.endSec, c.text});
     }
 }
 

@@ -1242,7 +1242,16 @@ void NanoMenu::vidDvbFree() {
 
 const std::vector<NanoMenu::VidCue>* NanoMenu::vidActiveSubCues() const {
     if (mVidSubCur < 0 || mVidSubCur >= (int)mVidSubTracks.size()) return nullptr;
-    return &mVidSubTracks[mVidSubCur].cues;
+    const VidSubTrk& t = mVidSubTracks[mVidSubCur];
+    if (t.cea608) {
+        // Live line-21 captions: pull the demuxer's current cue snapshot (cheap, bounded list).
+        std::vector<NanoTsDemux::Cue> tmp;
+        const_cast<NanoMenu*>(this)->mVidTsDemux.copyCea608Cues(tmp);
+        mVidCcCues.clear();
+        for (const auto& c : tmp) mVidCcCues.push_back({ c.startSec, c.endSec - c.startSec, c.text });
+        return &mVidCcCues;
+    }
+    return &t.cues;
 }
 
 // Open audio for a NON-.ts title via mVidAudio's own extractor (called by vidOpenTitle for
@@ -2128,6 +2137,21 @@ void NanoMenu::vidSubBuild(int kind) {
             for (const auto& a : mVidAudTracks) mVidSubOpts.push_back(a.name);
             mVidSubSel = (mVidAudCur >= 0 && mVidAudCur < (int)mVidAudTracks.size()) ? mVidAudCur : 0; break;
         case 5: mVidSubLabel = "Subtitle Options";   // Off + each subtitle track
+            // .ts line-21 captions: once the demuxer has actually seen GA94 cc_data, offer the
+            // four caption channels (added once; no clutter for streams without captions).
+            if (mVidTsMode && mVidTsDemux.hasCea608(0)) {
+                bool have = false;
+                for (const auto& t : mVidSubTracks) if (t.cea608) { have = true; break; }
+                if (!have) {
+                    static const char* kCcNames[4] = {
+                        "Closed Captions (CC1)", "Closed Captions (CC2)",
+                        "Closed Captions (CC3)", "Closed Captions (CC4)" };
+                    for (int c = 0; c < 4; c++) {
+                        VidSubTrk t; t.cea608 = true; t.ccChannel = c; t.name = kCcNames[c];
+                        mVidSubTracks.push_back(t);
+                    }
+                }
+            }
             mVidSubOpts.push_back("Off");
             for (const auto& t : mVidSubTracks) mVidSubOpts.push_back(t.name + (t.external ? "  (External)" : ""));
             mVidSubSel = mVidSubCur + 1; break;
@@ -2164,8 +2188,15 @@ void NanoMenu::vidSubConfirm() {
                 const VidSubTrk& t = mVidSubTracks[mVidSubCur];
                 if (t.dvb) vidDvbSelect(t.file, t.dvbPid);   // lazy background decode
                 else vidDvbFree();                            // leaving a DVB track
+                // Live line-21 captions: turn the demuxer's CEA-608 decode on for this channel
+                // (off for any non-CC track so it stops scanning user_data).
+                if (mVidTsMode) mVidTsDemux.setCea608(t.cea608, t.ccChannel);
                 mVidDispMode = std::string("Subtitle: ") + t.name + (t.external ? " (External)" : "");
-            } else { mVidSubCur = -1; vidDvbFree(); mVidDispMode = "Subtitle: Off"; }
+            } else {
+                mVidSubCur = -1; vidDvbFree();
+                if (mVidTsMode) mVidTsDemux.setCea608(false, 0);
+                mVidDispMode = "Subtitle: Off";
+            }
             mVidDispModeUntil = mEffectTime + 1.8f;
             mVidSubOpen = false; } break;
     }
@@ -2200,7 +2231,10 @@ void NanoMenu::vidPanelActivate() {
         else { vidSubBuild(4); mVidSubOpen = true; }
     }
     else if (!strcmp(a, "subtitle")) {
-        if (mVidSubTracks.empty()) { vidPanelClose(); vidShowTransient("There are no subtitle options available.", 1700.0f); }
+        // Line-21 captions live behind the demuxer (added by vidSubBuild), not in
+        // mVidSubTracks yet, so a .ts with only CC must not bail on the empty check.
+        bool haveCc = mVidTsMode && mVidTsDemux.hasCea608(0);
+        if (mVidSubTracks.empty() && !haveCc) { vidPanelClose(); vidShowTransient("There are no subtitle options available.", 1700.0f); }
         else { vidSubBuild(5); mVidSubOpen = true; }
     }
     else if (!strcmp(a, "del")) { vidPanelClose(); vidShowTransient("Delete completed.", 1400.0f); }
@@ -2377,32 +2411,54 @@ void NanoMenu::drawVideoGoTo() {
 }
 
 // Resume / Play-from-beginning prompt shown on opening a partly-watched video.
+// Drawn in the XMB fullscreen-dialog style (the System Update message dialog): the
+// same 1920x1080 virtual space, top/bottom dividers, header title, centred body and
+// glowing breathing options (ps3DlgOption) + footer button hints, so it matches the
+// firmware message dialogs 1:1 and adapts to any resolution/aspect/orientation.
 void NanoMenu::drawVideoResume(float et) {
     int W = mWidth, H = mHeight;
     float A = (et > 0.0f) ? et : 1.0f;
-    drawQuad(0, 0, (float)W, (float)H, 0, 0, 0, 0.72f * A);
-    float ts = ps3::fontScale(30.0f);
-    const char* title = "Resume Playback";
-    float tw = measureText(title, ts);
-    drawText(title, (W - tw) * 0.5f, ps3::baselineToTopY(H * 0.34f, ts), ts, 1, 1, 1, 0.95f * A);
-    float ss = ps3::fontScale(22.0f);
+    // Darken the just-opened (paused) video frame behind the dialog so it reads,
+    // exactly like the fullscreen XMB dialogs darken the blurred menu behind them.
+    drawQuad(0, 0, (float)W, (float)H, 0, 0, 0, 0.78f * A);
+
+    { ps3::LayoutParams lp; lp.panelW = mWidth; lp.panelH = mHeight; lp.uiScale = mPs3UiScale; ps3::layoutCompute(lp); }
+    setGlyphAtlasAA(true);
+    mTextOutlineRatio = 0.5f;
+    float ui = mPs3UiScale; if (ui < 0.5f) ui = 0.5f; if (ui > 2.0f) ui = 2.0f;
+    const float S = ps3::gScale / ui;
+    const float offX = ps3::gFrameX + (ps3::gFrameW - S * ps3::XCF(ps3::VW)) * 0.5f;
+    const float offY = ps3::gFrameY + ps3::gFrameH * 0.5f - S * (ps3::VH * 0.5f);
+    auto X  = [&](float vx) { return S * vx + offX; };
+    auto XC = [&](float vx) { return S * ps3::XCF(vx) + offX; };
+    auto Y  = [&](float vy) { return S * vy + offY; };
+    auto DS = [&](float v)  { return S * v; };
+    const float fb = ps3DlgFontBoost();
+    auto FS = [&](float px) { return S * px * fb / 16.0f; };
+    const float VW = ps3::VW;
+    const float innerTop = 199.0f, innerBot = 880.0f;
+
+    // Header title + top/bottom frame dividers.
+    ps3DlgText("Resume Playback", X(160.0f), Y(187.0f), FS(28.0f), 1.0f, 1.0f, 1.0f, A, 0);
+    float divLw = fmaxf(1.0f, DS(1.0f));
+    drawQuad(ps3::gFrameX, Y(innerTop), ps3::gFrameW, divLw, 1.0f, 1.0f, 1.0f, 0.55f * A);
+    drawQuad(ps3::gFrameX, Y(innerBot), ps3::gFrameW, divLw, 1.0f, 1.0f, 1.0f, 0.55f * A);
+
+    // Body: where playback was last stopped, centred like the confirm dialogs.
     std::string sub = std::string("Last stopped at ") + vFmtTime(mVidResumeAskSec);
-    float sw = measureText(sub.c_str(), ss);
-    drawText(sub.c_str(), (W - sw) * 0.5f, ps3::baselineToTopY(H * 0.42f, ss), ss, 0.85f, 0.85f, 0.85f, 0.9f * A);
-    const char* opt[2] = {"Resume", "Play from beginning"};
-    float ofs = ps3::fontScale(26.0f), lh = H * 0.078f, oy0 = H * 0.54f;
-    for (int i = 0; i < 2; i++) {
-        bool sel = (i == mVidResumeSel);
-        float ow = measureText(opt[i], ofs);
-        float ox = (W - ow) * 0.5f, oy = oy0 + (float)i * lh;
-        if (sel) { float pad = ofs * 0.45f; drawQuad(ox - pad, oy - lh * 0.30f, ow + pad * 2.0f, lh * 0.60f, 1, 1, 1, 0.18f * A); }
-        float c = sel ? 1.0f : 0.68f;
-        drawText(opt[i], ox, ps3::baselineToTopY(oy, ofs), ofs, c, c, c, A);
-    }
-    float ffs = ps3::fontScale(20.0f);
-    const char* foot = "Cross  Select      Circle  Resume";
-    float fw = measureText(foot, ffs);
-    drawText(foot, (W - fw) * 0.5f, ps3::baselineToTopY(H * 0.88f, ffs), ffs, 0.9f, 0.9f, 0.9f, 0.9f * A);
+    ps3DlgText(sub.c_str(), XC(VW * 0.5f), Y(innerTop + 150.0f), FS(26.0f), 0.95f, 0.95f, 0.95f, A, 1);
+
+    // Options: the selected one carries the XMB active-label breathing glow.
+    const char* opt[2] = { "Resume", "Play from beginning" };
+    const float optTopV = innerTop + 330.0f, optSpacingV = 64.0f;
+    for (int i = 0; i < 2; i++)
+        ps3DlgOption(opt[i], XC(VW * 0.5f), Y(optTopV + (float)i * optSpacingV),
+                     i == mVidResumeSel, false, A, S);
+
+    // Footer button hints (X selects the highlight, O resumes by default).
+    float hintY = Y(909.0f);
+    ps3DlgHint(XC(VW * 0.401f), true,  "Select", hintY, S, A);
+    ps3DlgHint(XC(VW * 0.629f), false, "Resume", hintY, S, A);
 }
 
 // ===========================================================================

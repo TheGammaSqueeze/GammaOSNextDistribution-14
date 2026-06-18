@@ -32,13 +32,13 @@
 #include <vector>
 
 #include "NanoAc3.h"
+#include "NanoCea608.h"
 
 class NanoVideo;   // defined at global scope (NanoVideo.h is outside any namespace)
 
 namespace android {
 
 class NanoAudioPlayer;
-class NanoCea608;
 
 class NanoTsDemux {
 public:
@@ -101,7 +101,8 @@ private:
     void emitAudioPes(const uint8_t* pes, size_t len, int64_t ptsUs);
     void flushVideoPes();                  // feed whatever video PES is pending
     void emitVideoPes(const uint8_t* pes, size_t len);
-    void scanVideoUserData(const uint8_t* es, size_t len, int64_t ptsUs);
+    void scanVideoUserData(const uint8_t* es, size_t len, double ptsSec);
+    void ccReorderFlush(size_t keep);        // feed buffered cc_data to the decoder in PTS (display) order
     off64_t estimateByteForTime(double sec) const;
 
     std::string mPath;
@@ -139,9 +140,18 @@ private:
     PidPes mVideoPes;                        // video PES reassembly (picture + caption probe)
     bool mVideoStartedFeed = false;          // worker-only: a sequence header has been fed (clean codec start)
     std::mutex mCueMx;
-    std::vector<Cue> mCues;
+    std::vector<Cue> mCues;                  // shared snapshot (guarded by mCueMx); worker writes, UI reads
     std::atomic<bool> mCcSeen{false};
     int mCcProbe = 0;                        // worker-only: frames probed for CC presence (bounded)
+    NanoCea608 mCea608;                      // worker-only: the line-21 decoder
+    std::atomic<int> mCcGen{0};              // bumped by setCea608 (enable/disable/channel change)
+    int mCcGenApplied = -1;                  // worker-only: last mCcGen applied to mCea608
+    // cc_data rides in each coded picture in DECODE order, but line-21 captions must be
+    // processed in DISPLAY order (B-frame reordering otherwise scrambles the characters).
+    // Buffer each picture's cc_data with its PTS and drain the oldest in PTS order once the
+    // window exceeds the max MPEG-2 reorder depth. Worker-only.
+    struct CcUnit { double pts; std::vector<uint8_t> data; };
+    std::vector<CcUnit> mCcReorder;          // worker-only: pending cc_data, drained in PTS order
 };
 
 } // namespace android

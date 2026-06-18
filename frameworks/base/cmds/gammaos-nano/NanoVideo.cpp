@@ -106,6 +106,7 @@ bool NanoVideo::probe(const std::string& path, Meta& out) {
 
 bool NanoVideo::open(const std::string& path) {
     if (mOpen) release();
+    mDisplayAspect.store(0.0f);   // non-fed extractor path: square pixels (no anamorphic source here)
 
     int fd = ::open(path.c_str(), O_RDONLY);
     if (fd < 0) { LOGE("open fd failed: %s", path.c_str()); return false; }
@@ -194,6 +195,7 @@ bool NanoVideo::open(const std::string& path) {
 bool NanoVideo::openFed(const std::string& mime, int width, int height, AMediaFormat* srcFmt) {
     if (mOpen) release();
     mFed = true; mFedMime = mime; mFedRecreate = 0;
+    mDisplayAspect.store(0.0f);   // square pixels until the demuxer parses an anamorphic DAR
     if (srcFmt) {   // prefer the real decoded size from the extractor format
         int32_t w = 0, h = 0;
         if (AMediaFormat_getInt32(srcFmt, AMEDIAFORMAT_KEY_WIDTH, &w) && w > 0) width = w;
@@ -559,16 +561,24 @@ void NanoVideo::draw(int screenW, int screenH, float rx, float ry, float rw, flo
     // Screen Mode fit (web drawVideoPlayer 12712-12737), fitMode = screenMode index:
     //   0 Normal = contain (min), 1 Full Screen = cover (max), 2 Original = 1:1,
     //   3 Zoom = cover*1.33, 4 Double Scale = 2x.
+    // Display dims = the browser's el.videoWidth/Height. For anamorphic content the coded
+    // grid (mWidth x mHeight) is stretched to the intended display aspect ratio so the
+    // frame is shown at its true shape (the web XMB relies on the browser to do this).
+    // Keep the coded height and widen to the DAR; square-pixel content (dar == 0) is
+    // unchanged, so the fit math is identical to before for it.
     float vw = (float)mWidth, vh = (float)mHeight;
+    float dar = mDisplayAspect.load();
+    float dispW = (dar > 0.0f) ? (vh * dar) : vw;
+    float dispH = vh;
     float s;
     switch (fitMode) {
-        case 1:  s = fmaxf(rw / vw, rh / vh); break;
+        case 1:  s = fmaxf(rw / dispW, rh / dispH); break;
         case 2:  s = 1.0f; break;
-        case 3:  s = fmaxf(rw / vw, rh / vh) * 1.33f; break;
+        case 3:  s = fmaxf(rw / dispW, rh / dispH) * 1.33f; break;
         case 4:  s = 2.0f; break;
-        default: s = fminf(rw / vw, rh / vh); break;
+        default: s = fminf(rw / dispW, rh / dispH); break;
     }
-    float dw = vw * s, dh = vh * s;
+    float dw = dispW * s, dh = dispH * s;
     float cx = rx + rw * 0.5f, cy = ry + rh * 0.5f;
     float x0 = cx - dw * 0.5f, x1 = cx + dw * 0.5f;
     float y0 = cy - dh * 0.5f, y1 = cy + dh * 0.5f;

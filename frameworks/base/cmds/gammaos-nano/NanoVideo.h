@@ -96,6 +96,13 @@ public:
     int width() const { return mWidth; }
     int height() const { return mHeight; }
 
+    // Set the intended display aspect ratio (DAR = display width / height) for anamorphic
+    // content (e.g. SD broadcast MPEG-2 with non-square pixels). The browser the web XMB
+    // draws applies the sample aspect ratio automatically; we replicate that so the frame
+    // is shown at its true shape, not the coded pixel grid. <= 0 means "use the coded
+    // ratio" (square pixels), so square-pixel content is drawn exactly as before.
+    void setDisplayAspect(float dar) { mDisplayAspect.store(dar > 0.0f ? dar : 0.0f); }
+
     // Render thread: draw the current frame into the given screen-space rect (device px),
     // aspect-fit inside it, applying the decoder UV transform. fitMode: 0 = fit (letterbox),
     // 1 = fill (crop), 2 = stretch. alpha multiplies the output.
@@ -124,6 +131,7 @@ private:
     void freeTsSource();             // delete the data source + free its userdata (after mEx)
     int mVideoTrack = -1;
     int mWidth = 0, mHeight = 0;
+    std::atomic<float> mDisplayAspect{0.0f};   // intended DAR; 0 = use the coded pixel ratio
     double mDurationSec = 0.0;
 
     // GL output path (libgui): BufferQueue -> GLConsumer(OES tex) + Surface(producer).
