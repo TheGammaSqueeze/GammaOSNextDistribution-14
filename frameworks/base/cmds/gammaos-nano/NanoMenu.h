@@ -1507,7 +1507,7 @@ private:
     std::vector<VideoItem>   mVideos;
     std::vector<VideoPlaylist> mVideoPlaylists;
     int64_t mVideoCfgStamp = -1;
-    static const int kVideoMetaVersion = 2;   // 2 = added per-file resume position ("pos")
+    static const int kVideoMetaVersion = 5;   // 2 = per-file resume position ("pos"); 3-5 = re-probe TS so the descramble path replaces stale "SCRAMBLED" codec labels
     int  mVideoCfgVersion = 0;
     bool mVideoLoaded = false;              // library parsed once (lazy, first Video entry)
     bool mVideoCatsStale = false;           // a scan finished -> rebuild the Video column

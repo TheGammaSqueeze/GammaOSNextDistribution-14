@@ -20,6 +20,7 @@
 #include <gui/GLConsumer.h>
 #include <gui/Surface.h>
 #include <media/NdkMediaCodec.h>
+#include <media/NdkMediaDataSource.h>
 #include <media/NdkMediaExtractor.h>
 #include <media/NdkMediaFormat.h>
 #include <utils/StrongPointer.h>
@@ -81,6 +82,15 @@ private:
 
     AMediaExtractor* mEx = nullptr;
     AMediaCodec* mCodec = nullptr;
+    // MPEG-TS descramble path: HDHomeRun / ATSC captures carry a CA_descriptor in the
+    // PMT even when the payload is clear, so Android's extractor reports the tracks as
+    // "...scrambled" and they will not decode. For those files we feed the extractor a
+    // custom data source that rewrites the CA descriptor tag out of the PMT on the fly
+    // (recomputing the section CRC), so the stream is seen as clear and the MPEG-2 video
+    // decodes on the HW path. nullptr for normal files (which use setDataSourceFd).
+    AMediaDataSource* mDataSource = nullptr;
+    void* mTsPatch = nullptr;        // TsPatch userdata (dup'd fd + PMT pid) for mDataSource
+    void freeTsSource();             // delete the data source + free its userdata (after mEx)
     int mVideoTrack = -1;
     int mWidth = 0, mHeight = 0;
     double mDurationSec = 0.0;
