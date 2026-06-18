@@ -1585,6 +1585,7 @@ private:
     int    mVidRepeat = 0;                  // 0 off,1 on,2 title,3 A-B,4 folder
     double mVidAbA = -1.0, mVidAbB = -1.0;  // A-B repeat points (seconds; -1 = unset)
     float  mVidVolume = 1.0f;               // 0..1 (applied to the video's audio track)
+    int    mVidVolLevel = 0;                // Volume Control bar level -4..+4 (web v.volLevel); vol=(lvl+4)/8 on change
     // The video file's audio track: a second HW audio engine (AMediaExtractor/AMediaCodec ->
     // AAudio) opened on the same file, the picture is the master clock and the audio resnaps
     // when it drifts > 0.3s (web vidSyncAux). Lazy: opened on play, released on leave.

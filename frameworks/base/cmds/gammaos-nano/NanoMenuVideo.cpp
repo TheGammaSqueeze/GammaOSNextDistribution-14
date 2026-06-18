@@ -1397,7 +1397,7 @@ void NanoMenu::vidSetAudioTrack(int ordinal) {
 // ===========================================================================
 static std::string vFmtTime(double s) {
     if (s < 0) s = 0;
-    int t = (int)(s + 0.5);
+    int t = (int)s;                         // floor (web Math.floor), not round, so 12.7s reads 0:12
     int h = t / 3600, m = (t % 3600) / 60, sec = t % 60;
     char b[24];
     if (h > 0) snprintf(b, sizeof(b), "%d:%02d:%02d", h, m, sec);
@@ -1809,6 +1809,8 @@ void NanoMenu::videoTick() {
         if (mVidRepeat == 1 || mVidRepeat == 2) {          // Repeat On / Title Repeat
             mVideoTest->seek(0.0); mVideoTest->play();
             if (mVidHasAudio) { vidAudioSeek(0.0); mVidAudio.play(); }
+        } else if (mVidRepeat == 4) {                       // Folder Repeat: next title, wraps the list (web vidOnEnded 12361)
+            vidStepTitle(1);
         } else if (mVidIdx < (int)mVidList.size() - 1) {    // auto-advance
             vidStepTitle(1);
         } else {
@@ -2068,8 +2070,8 @@ static const VidCp kVidCp[] = {
     {"stop",       "Stop",                 7,  6, 1},
     {"flashr",     "Instant Replay",      15,  7, 1},
     {"flashf",     "Instant Advance",     16,  8, 1},
-    {"srev",       "Slow  (Reverse)",     20,  9, 1},
-    {"sfwd",       "Slow  (Forward)",     13, 10, 1},
+    {"srev",       "Slow (Reverse)",      20,  9, 1},
+    {"sfwd",       "Slow (Forward)",      13, 10, 1},
     {"stepb",      "Frame Reverse",       21, 11, 1},
     {"stepf",      "Frame Advance",       14, 12, 1},
     {"repeat",     "Repeat",              17,  6, 2},
@@ -2108,6 +2110,16 @@ void NanoMenu::vidPanelBack() {
 void NanoMenu::vidPanelMove(int dx, int dy) {
     if (!mVidCpOpen) return;
     if (mVidSubOpen) {
+        if (mVidSubKind == 2) {   // Volume Control: Left/Right steps the -4..+4 bar + live-applies (web vidPanelMove 12660-12670)
+            if (dx != 0) {
+                mVidVolLevel += (dx > 0 ? 1 : -1);
+                if (mVidVolLevel < -4) mVidVolLevel = -4;
+                if (mVidVolLevel > 4) mVidVolLevel = 4;
+                mVidVolume = (float)(mVidVolLevel + 4) / 8.0f;   // -4 -> 0.0, 0 -> 0.5 (Normal), +4 -> 1.0
+                if (mVidHasAudio) mVidAudio.setVolume(mVidVolume);
+            }
+            return;
+        }
         if (dy != 0 && !mVidSubOpts.empty()) {
             int n = (int)mVidSubOpts.size();
             mVidSubSel = (mVidSubSel + (dy > 0 ? 1 : -1) + n) % n;
@@ -2138,11 +2150,8 @@ void NanoMenu::vidSubBuild(int kind) {
         case 1: mVidSubLabel = "Repeat";
             for (const char* s : kVidRepeatModes) mVidSubOpts.push_back(s);
             mVidSubSel = mVidRepeat; break;
-        case 2: mVidSubLabel = "Volume Control"; {
-            static const char* v[] = {"100%", "80%", "60%", "40%", "20%", "0%"};
-            for (const char* s : v) mVidSubOpts.push_back(s);
-            int sel = (int)((1.0f - mVidVolume) / 0.2f + 0.5f);
-            if (sel < 0) sel = 0; if (sel > 5) sel = 5; mVidSubSel = sel; } break;
+        case 2: mVidSubLabel = "Volume Control";   // -4..+4 live segment bar (web cpSub.kind=='volume'),
+            break;                                 // rendered by drawVideoPanel + stepped by vidPanelMove (no list)
         case 4: mVidSubLabel = "Audio Options";   // one row per audio track
             for (const auto& a : mVidAudTracks) mVidSubOpts.push_back(a.name);
             mVidSubSel = (mVidAudCur >= 0 && mVidAudCur < (int)mVidAudTracks.size()) ? mVidAudCur : 0; break;
@@ -2184,11 +2193,10 @@ void NanoMenu::vidSubConfirm() {
                                      mVidDispMode = "A-B Repeat: Point B set"; mVidDispModeUntil = mEffectTime + 1.8f; }
                 else if (mVidAbB >= 0.0) { mVidAbA = mVidAbB = -1.0; mVidRepeat = 0;
                                      mVidDispMode = "A-B Repeat Off"; mVidDispModeUntil = mEffectTime + 1.8f; }
-            } else { mVidRepeat = sel; mVidAbA = mVidAbB = -1.0; }
+            } else { mVidRepeat = sel; mVidAbA = mVidAbB = -1.0;
+                     mVidDispMode = kVidRepeatModes[sel]; mVidDispModeUntil = mEffectTime + 1.8f; }   // web: dispMode = mode name
             mVidSubOpen = false; break;
-        case 2:   // volume
-            mVidVolume = 1.0f - sel * 0.2f;
-            if (mVidHasAudio) mVidAudio.setVolume(mVidVolume);
+        case 2:   // volume: applied live by the -4..+4 segment bar in vidPanelMove; confirm just closes
             mVidSubOpen = false; break;
         case 4:   // audio track
             vidSetAudioTrack(sel); mVidSubOpen = false; break;
@@ -2338,6 +2346,31 @@ void NanoMenu::drawVideoPanel(float closeT) {
         }
     }
 
+    // Volume Control: the -4..+4 nine-segment live bar (web drawVideoPanel 12818-12834), mirroring
+    // the music player's drawMpVolMeter. Stepped by Left/Right (vidPanelMove), applied live.
+    if (mVidSubOpen && mVidSubKind == 2) {
+        float sx = x0 + colW * 0.1f, sy = y0 + 3.7f * rowH;
+        float fs = ps3::fontScale(26.0f), fpx = ps3::emPx(fs);   // web fs = round(CH*0.026)
+        int lvl = mVidVolLevel;
+        char nm[8];
+        if (lvl == 0)      snprintf(nm, sizeof(nm), "Normal");
+        else if (lvl > 0)  snprintf(nm, sizeof(nm), "+%d", lvl);
+        else               snprintf(nm, sizeof(nm), "%d", lvl);
+        drawQuad(sx - fpx * 0.6f, sy - fpx * 1.5f, W * 0.20f, fpx * 3.6f, 0, 0, 0, 0.55f * A);   // backplate
+        drawText(nm, sx, ps3::baselineToTopY(sy - fpx * 0.4f, fs), fs, 1, 1, 1, A);              // level name
+        float segW = W * 0.0095f, gp = W * 0.004f, hh = H * 0.028f;
+        float my = sy + fpx * 0.3f, x0s = sx + fpx * 0.9f;
+        float mw = measureText("-", fs);
+        drawText("-", x0s - W * 0.008f - mw, ps3::baselineToTopY(my + hh * 0.85f, fs), fs, 1, 1, 1, A);
+        int filled = lvl + 5;                                  // -4 -> 1 seg, 0 -> 5, +4 -> 9
+        for (int i = 0; i < 9; i++) {
+            float fx = x0s + i * (segW + gp);
+            if (i < filled) drawQuad(fx, my, segW, hh, 0.470f, 0.882f, 1.0f, 0.95f * A);   // rgba(120,225,255)
+            else            drawQuad(fx, my, segW, hh, 1.0f, 1.0f, 1.0f, 0.20f * A);
+        }
+        drawText("+", x0s + 9 * (segW + gp) + W * 0.004f, ps3::baselineToTopY(my + hh * 0.85f, fs), fs, 1, 1, 1, A);
+    }
+
     // submenu plate + rows (web drawVideoPanel submenu, 12685-12701): plate is sized to the
     // widest option, rows centred in their highlight band.
     if (mVidSubOpen && !mVidSubOpts.empty()) {
@@ -2479,6 +2512,8 @@ void NanoMenu::drawVideoResume(float et) {
 // none on-device and live per-chapter HW frame extraction would glitch playback
 // on this decoder, so the grid uses the web's gray-placeholder cell look with
 // the "Chapter N  M:SS" label. Nothing is allocated here (no extra decode/mem).
+// (Web also has an interval grid for chapter-less clips; deferred for nano - its
+// own layout breaks past ~8 rows, e.g. a 75-min .ts, and Go To already time-jumps.)
 // ===========================================================================
 void NanoMenu::vidSceneOpen() {
     if (mVidChapters.empty()) { vidShowTransient("No chapters", 1400.0f); return; }
@@ -2501,8 +2536,8 @@ void NanoMenu::vidSceneMove(int dx, int dy) {
     int n = (int)mVidChapters.size();
     int cols = n < 4 ? n : 4; if (cols < 1) cols = 1;
     int sel = mVidSceneSel;
-    if (dx) sel = (sel + dx + n) % n;                          // L/R wrap (web vidSceneMove)
-    if (dy) { int ns = sel + dy * cols; if (ns >= 0 && ns < n) sel = ns; }   // U/D by a row
+    if (dx) sel = (sel + dx + n) % n;                          // L/R wrap (web step=1)
+    if (dy) sel = (sel + dy * cols + n) % n;                   // U/D by a row, wraps (web step=cols)
     if (sel != mVidSceneSel) { mVidSceneSelPrev = mVidSceneSel; mVidSceneFocusStart = mEffectTime; mVidSceneSel = sel; }
 }
 
