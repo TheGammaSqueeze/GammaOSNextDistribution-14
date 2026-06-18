@@ -801,8 +801,18 @@ void NanoMenu::gsRefreshStackLevels() {
 // Editor field ids (Ps3Item.a for PS3_GS_FIELD rows).
 enum {
     GSF_ENABLED = 0, GSF_NAME, GSF_SHORT, GSF_LTYPE, GSF_EMULATOR, GSF_CORE, GSF_PACKAGE,
-    GSF_ARGS, GSF_INTENT, GSF_EXTS, GSF_SCAN, GSF_ICON, GSF_TINT, GSF_RESET, GSF_DELETE
+    GSF_ARGS, GSF_INTENT, GSF_EXTS, GSF_SCAN, GSF_ICON, GSF_TINT,
+    GSF_SCRAPER, GSF_SCRAPE_USER, GSF_SCRAPE_PASS, GSF_RESET, GSF_DELETE
 };
+
+// Per-system scraper-override row value: "Default" (inherit global) or the chosen
+// engine / Off. Empty override string == inherit.
+static const char* scraperOverrideLabel(const std::string& ov) {
+    if (ov == "screenscraper") return "ScreenScraper";
+    if (ov == "thegamesdb")    return "TheGamesDB";
+    if (ov == "off")           return "Off";
+    return "Default";
+}
 
 static const char* launchTypeLabel(int lt) {
     switch (lt) {
@@ -862,6 +872,12 @@ void NanoMenu::buildGameSystemEditor(int sysIdx, Ps3Level& out) {
       resolveSystemIcon(sys.iconRef, &it.iconTex, &it.nmapTex);
       it.iconR = sys.iconR; it.iconG = sys.iconG; it.iconB = sys.iconB;
       out.items.push_back(it); }
+    // Boxart scraper per-system overrides (inherit the global Settings by default).
+    add("Scraper", GSF_SCRAPER, scraperOverrideLabel(sys.scraperOverride));
+    add("Scraper Username", GSF_SCRAPE_USER, sys.scrapeUser.empty() ? "Default" : sys.scrapeUser);
+    add("Scraper Password", GSF_SCRAPE_PASS,
+        sys.scrapePass.empty() ? std::string("Default")
+                               : std::string((sys.scrapePass.size() > 8 ? 8 : sys.scrapePass.size()), '*'));
     if (sys.builtin) add("Reset to Default", GSF_RESET, "");
     else             add("Delete System", GSF_DELETE, "");
 }
@@ -897,6 +913,9 @@ void NanoMenu::gsEditField(int field) {
         case GSF_SCAN:     gsOpenScanFolders(); return;
         case GSF_ICON:     openIconGridPicker(); return;
         case GSF_TINT:    gsOpenTintChooser(); return;
+        case GSF_SCRAPER:      gsOpenScraperChooser(); return;
+        case GSF_SCRAPE_USER:  gsEditScraperCred(false); return;
+        case GSF_SCRAPE_PASS:  gsEditScraperCred(true); return;
         case GSF_RESET:   gsOpenResetConfirm(); return;
         case GSF_DELETE:  gsOpenRemoveConfirm(idx); return;
         default: break;
@@ -965,6 +984,43 @@ void NanoMenu::gsOpenLaunchTypeChooser() {
 }
 
 // gsOpenTintChooser() is defined further down, next to the kPs3ColorOpts table.
+
+// Per-system scraper override chooser (Default = inherit the global Settings).
+// Commit handled in applyThemeSetting case 24.
+void NanoMenu::gsOpenScraperChooser() {
+    if (mGsEditIdx < 0 || mGsEditIdx >= (int)mXmbSystems.size()) return;
+    mPs3DlgOptions.clear(); mPs3DlgSwatch.clear();
+    mPs3DlgKind = 1; mPs3DlgThemeKey = 24; mPs3DlgTitle = "Scraper"; mPs3DlgBody.clear();
+    static const char* kOpts[] = {"Default", "ScreenScraper", "TheGamesDB", "Off"};
+    for (const char* s : kOpts) { mPs3DlgOptions.push_back(s); mPs3DlgSwatch.push_back(-1); }
+    const std::string& ov = mXmbSystems[mGsEditIdx].scraperOverride;
+    int sel = 0;
+    if (ov == "screenscraper") sel = 1; else if (ov == "thegamesdb") sel = 2; else if (ov == "off") sel = 3;
+    mPs3DlgSel = sel; mPs3DlgOrigSel = sel;
+    mPs3DlgIconTex = 0; mPs3DlgIconNmap = nmapForIcon(22);
+    mPs3DlgIconR = mPs3DlgIconG = mPs3DlgIconB = 1.0f;
+    mPs3DlgActive = true; mPs3DlgAnim = 0.0f; mPs3DlgBlurValid = false;
+}
+
+// Per-system scraper credential (ScreenScraper account) override via the OSK.
+// masked = password field. Empty commit clears the override (inherit global).
+void NanoMenu::gsEditScraperCred(bool masked) {
+    int idx = mGsEditIdx;
+    if (idx < 0 || idx >= (int)mXmbSystems.size()) return;
+    const XmbSystem& sys = mXmbSystems[idx];
+    std::string cur = masked ? std::string() : sys.scrapeUser;
+    const char* prompt = masked ? "Scraper Password (blank = use global)"
+                                : "Scraper Username (blank = use global)";
+    openOskForPassword(prompt, [this, idx, masked](const std::string& val) {
+        if (idx < 0 || idx >= (int)mXmbSystems.size()) return;
+        XmbSystem& s = mXmbSystems[idx];
+        if (masked) s.scrapePass = val; else s.scrapeUser = val;   // blank clears (inherit)
+        saveSystemsConfig();
+        gsRefreshStackLevels();
+    });
+    mOskPasswordMode = masked; mOskPlaintext = !masked;
+    mOskQuery = cur; mOsk.caret = (int)mOskQuery.size();
+}
 
 void NanoMenu::gsOpenResetConfirm() {
     if (mGsEditIdx < 0 || mGsEditIdx >= (int)mXmbSystems.size()) return;
@@ -3152,6 +3208,20 @@ static const Ps3SettingBinding kPs3Bindings[] = {
     {"PEQ2 Band 0", SettingSource::kProp, "persist.sys.spk.peq2.b0", "1.0", "slider:0:3:0.05:2"},
     {"PEQ2 Band 1", SettingSource::kProp, "persist.sys.spk.peq2.b1", "0", "slider:-4:4:0.05:2"},
     {"PEQ2 Band 2", SettingSource::kProp, "persist.sys.spk.peq2.b2", "0", "slider:0:2:0.05:2"},
+    // Boxart / cover scraper (persist.gammaos.scraper.* props). Credentials are
+    // user-supplied (both services require an account/key); "@password" masks them.
+    {"Scraper", SettingSource::kProp, "persist.gammaos.scraper.engine", "screenscraper",
+     "screenscraper:ScreenScraper,thegamesdb:TheGamesDB"},
+    {"Replace Icons with Boxart", SettingSource::kProp, "persist.gammaos.scraper.boxart", "true", "false:Off,true:On"},
+    {"Hover Background Art", SettingSource::kProp, "persist.gammaos.scraper.fanart", "true", "false:Off,true:On"},
+    {"Scrape Region", SettingSource::kProp, "persist.gammaos.scraper.region", "us",
+     "us:USA,eu:Europe,jp:Japan,wor:World"},
+    {"Overwrite Existing", SettingSource::kProp, "persist.gammaos.scraper.overwrite", "false", "false:Off,true:On"},
+    {"ScreenScraper Username", SettingSource::kProp, "persist.gammaos.scraper.ssuser", "", "@text"},
+    {"ScreenScraper Password", SettingSource::kProp, "persist.gammaos.scraper.sspass", "", "@password"},
+    {"ScreenScraper Dev ID", SettingSource::kProp, "persist.gammaos.scraper.ssdevid", "", "@text"},
+    {"ScreenScraper Dev Password", SettingSource::kProp, "persist.gammaos.scraper.ssdevpw", "", "@password"},
+    {"TheGamesDB API Key", SettingSource::kProp, "persist.gammaos.scraper.tgdbkey", "", "@password"},
 };
 
 const Ps3SettingBinding* ps3BindingFor(const std::string& label) {
@@ -3464,22 +3534,27 @@ void NanoMenu::openBoundChooser(const Ps3SettingBinding* b) {
     std::string cur = ps3BoundValue(b);
     // Free-text setting: open the on-screen keyboard prefilled with the current
     // value; commit writes the typed string back. No side-panel dialog is shown.
-    if (!strcmp(b->options, "@text")) {
+    // "@password" is the masked variant (scraper credentials) - the typed text is
+    // hidden on entry and shown as bullets in the menu (resolvePs3ItemValue).
+    bool isText = !strcmp(b->options, "@text");
+    bool isPassword = !strcmp(b->options, "@password");
+    if (isText || isPassword) {
         mPs3DlgActive = false; mPs3DlgBinding = nullptr;
-        std::string prefill = cur;
+        std::string prefill = isPassword ? std::string() : cur;
         if (prefill.empty() && !strcmp(b->key, "persist.gammaos.nano.system_name")) {
             char mb[PROPERTY_VALUE_MAX]; property_get("ro.product.model", mb, "GammaOS");
             prefill = mb;
         }
         SettingSource src = b->source; std::string key = b->key, label = b->label;
-        openOskForPassword(label, [this, src, key, label](const std::string& val) {
-            if (val.empty()) return;   // keep the previous value rather than blanking it
+        bool allowBlank = isPassword;   // a password field must be clearable
+        openOskForPassword(label, [this, src, key, label, allowBlank](const std::string& val) {
+            if (val.empty() && !allowBlank) return;   // keep the previous value rather than blanking it
             writeSettingValue(src, key, val);
             mPs3BindCache[label] = val;
             if (label == "System Name") mPs3SystemName = val;   // keep the legacy cache in sync
             mDisplayDirty = true;
         });
-        mOskPasswordMode = false; mOskPlaintext = true;
+        mOskPasswordMode = isPassword; mOskPlaintext = !isPassword;
         mOskQuery = prefill; mOsk.caret = (int)mOskQuery.size();
         return;
     }
@@ -3548,6 +3623,11 @@ std::string NanoMenu::resolvePs3ItemValue(const Ps3Item& it) {
                 return std::string(mb);
             }
             return std::string("-");
+        }
+        if (!strcmp(b->options, "@password")) {
+            if (cur.empty()) return std::string("-");
+            int n = (int)cur.size(); if (n > 8) n = 8;   // never reveal the secret
+            return std::string(n, '*');
         }
         if (!strcmp(b->options, "@rgbeffect")) {
             // cur is gammargb.control; "off" wins, else map the rgb.effect code.
@@ -4220,6 +4300,15 @@ void NanoMenu::applyThemeSetting(int themeKey, int sel) {
         }
         case 23: {  // Game Systems: remove custom system confirm (sel 1 = remove)
             if (sel == 1 && mGsEditIdx >= 0) gsRemoveSystem(mGsEditIdx);
+            break;
+        }
+        case 24: {  // Game Systems editor: per-system scraper override
+            if (mGsEditIdx >= 0 && mGsEditIdx < (int)mXmbSystems.size() && sel >= 0 && sel <= 3) {
+                static const char* kVals[] = {"", "screenscraper", "thegamesdb", "off"};
+                mXmbSystems[mGsEditIdx].scraperOverride = kVals[sel];
+                saveSystemsConfig();
+                gsRefreshStackLevels();
+            }
             break;
         }
         default: break;

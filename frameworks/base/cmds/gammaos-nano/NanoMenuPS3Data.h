@@ -46,6 +46,20 @@ static const Ps3DataItem kGameSettingsCh[] = {
 static const Ps3DataItem kVideoSettingsCh[] = {
   {"BD/DVD Auto-start",22,"Configure BD/DVD auto-start settings.","On",0,nullptr,0},
 };
+// Boxart / cover scraper (GammaOS addition). Leaves bind to persist.gammaos.scraper.*
+// via kPs3Bindings (matched by label); "Scrape All Systems" is an action leaf.
+static const Ps3DataItem kScraperSettingsCh[] = {
+  {"Scraper",22,"Choose the online service used to fetch box art and background art for your games.","ScreenScraper",1,nullptr,0},
+  {"Replace Icons with Boxart",22,"Show scraped cover art in place of the generic game icon in the Game menu.","On",1,nullptr,0},
+  {"Hover Background Art",22,"Fade the game's background art in behind the menu while it is highlighted.","On",1,nullptr,0},
+  {"Scrape Region",22,"Preferred region for box art when a game has more than one regional release.","USA",1,nullptr,0},
+  {"Overwrite Existing",22,"Re-download art for games that have already been scraped.","Off",1,nullptr,0},
+  {"ScreenScraper Username",22,"Optional ScreenScraper account for higher download limits. Register free at screenscraper.fr.",nullptr,1,nullptr,0},
+  {"ScreenScraper Password",22,"Password for the ScreenScraper account above.",nullptr,1,nullptr,0},
+  {"ScreenScraper Dev ID",22,"ScreenScraper developer ID. Required by the service; request one at screenscraper.fr.",nullptr,1,nullptr,0},
+  {"ScreenScraper Dev Password",22,"ScreenScraper developer password paired with the developer ID.",nullptr,1,nullptr,0},
+  {"TheGamesDB API Key",22,"API key for TheGamesDB. Request one at thegamesdb.net.",nullptr,1,nullptr,0},
+};
 static const Ps3DataItem kSystemSettingsCh[] = {
   {"Automatic Update",22,"Starts the system automatically and downloads game patches, uploads new saved data to online storage and syncs trophy information with the server.","Off",0,nullptr,0},
   {"System Name",22,"Sets the name used to identify this system on the network.","PS3-625",1,nullptr,0},
@@ -304,6 +318,7 @@ static const Ps3DataItem kGammaEqCh[] = {
 static const Ps3DataItem kSettingsItems[] = {
   {"System Update",8,"Update the PS3™ system software.",nullptr,1,nullptr,0},
   {"Game Settings",5,"Adjusts settings for games.",nullptr,0,PS3CH(kGameSettingsCh)},
+  {"Boxart Scraper",5,"Downloads box art and background art for your games and replaces the game icons.",nullptr,0,PS3CH(kScraperSettingsCh)},
   {"Video Settings",9,"Adjusts settings for video.",nullptr,0,PS3CH(kVideoSettingsCh)},
   {"Music Settings",3,"Adjusts settings for music.",nullptr,0,nullptr,0},
   {"Chat Settings",42,"Adjusts settings for chat.",nullptr,0,nullptr,0},

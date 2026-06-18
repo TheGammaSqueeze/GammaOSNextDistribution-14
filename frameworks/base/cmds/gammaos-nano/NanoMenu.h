@@ -174,6 +174,16 @@ public:
         bool scanned = false;
         bool pathExists = false;
         int64_t lastScanTime = 0; // elapsedRealtime() of last scan - for periodic rescan
+        // Boxart/cover scraper per-system overrides (empty = inherit the global
+        // Settings). scraperOverride: ""=default, "screenscraper", "thegamesdb",
+        // "off". scrapeUser/scrapePass override the ScreenScraper account; scrapeKey
+        // overrides the TheGamesDB key; scrapePlatform forces a ScreenScraper
+        // systemeid when the auto romDir->platform map is wrong.
+        std::string scraperOverride;
+        std::string scrapeUser;
+        std::string scrapePass;
+        std::string scrapeKey;
+        std::string scrapePlatform;
         bool isStandalone() const { return !launchPkg.empty(); }
     };
 
@@ -1339,6 +1349,8 @@ private:
     void gsOpenLaunchTypeChooser();             // side-panel chooser (theme key 20)
     void gsOpenTintChooser();                   // colour-swatch chooser (theme key 21)
     void gsOpenResetConfirm();                  // Cancel / Reset-to-default chooser (theme key 22)
+    void gsOpenScraperChooser();                // per-system scraper override (theme key 24)
+    void gsEditScraperCred(bool masked);        // per-system scraper credential override via OSK
     bool resetSystemToBuiltinDefaults(int sysIdx);  // restore a built-in's config from kXmbSystemDefs
     int mGsEditIdx = -1;   // mXmbSystems index currently open in the editor (for chooser/OSK writeback)
     float mGsTintOrigR = 1.0f, mGsTintOrigG = 1.0f, mGsTintOrigB = 1.0f;  // exact tint at chooser open (cancel restore)

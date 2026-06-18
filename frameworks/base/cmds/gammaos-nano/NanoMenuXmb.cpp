@@ -349,6 +349,18 @@ static njson::Value systemToJson(const NanoMenu::XmbSystem& sys) {
     icon.set("tintG") = njson::Value::makeNumber(sys.iconG);
     icon.set("tintB") = njson::Value::makeNumber(sys.iconB);
     o.set("icon") = std::move(icon);
+    // Boxart/cover scraper per-system overrides. Only emit the sub-object when at
+    // least one field is set, so untouched systems keep a clean config file.
+    if (!sys.scraperOverride.empty() || !sys.scrapeUser.empty() || !sys.scrapePass.empty()
+        || !sys.scrapeKey.empty() || !sys.scrapePlatform.empty()) {
+        njson::Value sc = njson::Value::makeObject();
+        if (!sys.scraperOverride.empty()) sc.set("override")  = njson::Value::makeString(sys.scraperOverride);
+        if (!sys.scrapeUser.empty())      sc.set("user")      = njson::Value::makeString(sys.scrapeUser);
+        if (!sys.scrapePass.empty())      sc.set("pass")      = njson::Value::makeString(sys.scrapePass);
+        if (!sys.scrapeKey.empty())       sc.set("key")       = njson::Value::makeString(sys.scrapeKey);
+        if (!sys.scrapePlatform.empty())  sc.set("platform")  = njson::Value::makeString(sys.scrapePlatform);
+        o.set("scraper") = std::move(sc);
+    }
     return o;
 }
 
@@ -391,6 +403,13 @@ static NanoMenu::XmbSystem jsonToSystem(const njson::Value& o) {
         if (tr) sys.iconR = (float)tr->asNumber(sys.iconR);
         if (tg) sys.iconG = (float)tg->asNumber(sys.iconG);
         if (tb) sys.iconB = (float)tb->asNumber(sys.iconB);
+    }
+    if (const njson::Value* sc = o.find("scraper")) {
+        sys.scraperOverride = sc->getString("override");
+        sys.scrapeUser      = sc->getString("user");
+        sys.scrapePass      = sc->getString("pass");
+        sys.scrapeKey       = sc->getString("key");
+        sys.scrapePlatform  = sc->getString("platform");
     }
     // Derive legacy backward-compat fields the renderer/launch path read.
     if (sys.launchType == NanoMenu::XLT_CUSTOM_PACKAGE) {
