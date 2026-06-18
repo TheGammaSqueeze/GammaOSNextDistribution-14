@@ -4398,10 +4398,17 @@ void NanoMenu::openXmbOpt() {
         case PS3_MUSIC_PLAYLIST:
             add("Play", "playpl", true); add("Information", "info", false); break;
         case PS3_VIDEO_FILE:
-            // Web video option menu (index.html 13279-13282): Play / Copy / Delete /
-            // Information. No Sort By/Group (video has no groupModes). "Add to Playlist"
-            // is a nano addition (web video has no playlists), inserted after Play.
-            add("Play", "vplay", true); add("Add to Playlist", "vaddpl", false);
+            // Web video option menu (index.html 13446-13464): a watched title (resumeSec>0)
+            // shows Resume + Play from Beginning; an unwatched one shows a single Play. Then
+            // Copy / Delete / Information. "Add to Playlist" is a nano addition (web video has
+            // no playlists), inserted after the play row(s).
+            if (it.a >= 0 && it.a < (int)mVideos.size() && mVideos[it.a].resumeSec > 0.0) {
+                add("Resume", "vplay", true);
+                add("Play from Beginning", "vplaybegin", false);
+            } else {
+                add("Play", "vplay", true);
+            }
+            add("Add to Playlist", "vaddpl", false);
             add("Copy", "vcopy", false); add("Delete", "vdelete", false);
             add("Information", "vinfo", false); break;
         case PS3_PHOTO_ALBUM: {
@@ -4611,7 +4618,14 @@ void NanoMenu::xmbOptAction(const std::string& act) {
         }
         return;
     }
-    if (act == "vplay") { openVideoPlayer(mPs3OptCtxList, mPs3OptCtxSel); return; }
+    if (act == "vplay") { openVideoPlayer(mPs3OptCtxList, mPs3OptCtxSel, 1); return; }   // Resume (or Play if unwatched); no prompt
+    if (act == "vplaybegin") {   // "Play from Beginning" (web playbegin): clear the bookmark, start at 0
+        if (mPs3OptCtxA >= 0 && mPs3OptCtxA < (int)mVideos.size() && mVideos[mPs3OptCtxA].resumeSec != 0.0) {
+            mVideos[mPs3OptCtxA].resumeSec = 0.0; mVidResumeDirty = true;
+        }
+        openVideoPlayer(mPs3OptCtxList, mPs3OptCtxSel, 0);
+        return;
+    }
     if (act == "vaddpl") {   // add the focused video to a playlist (chooser over the column)
         if (mPs3OptCtxA >= 0 && mPs3OptCtxA < (int)mVideos.size())
             vidOpenAddChooser(mVideos[mPs3OptCtxA].file);

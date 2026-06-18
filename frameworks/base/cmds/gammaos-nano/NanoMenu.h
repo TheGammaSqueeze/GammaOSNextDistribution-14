@@ -1567,7 +1567,10 @@ private:
     bool mVidOsd = false;                   // persistent Display toggle (keeps the bar visible)
     std::string mVidTransient; float mVidTransientUntil = 0.0f;   // top-center flash (FF/Rew/etc.)
     std::string mVidDispMode; float mVidDispModeUntil = 0.0f;     // screen-mode pill
-    void openVideoPlayer(const std::vector<Ps3Item>& list, int listSel);
+    // resumeChoice: -1 = ask (direct Enter shows the Resume prompt for a watched title);
+    // 1 = resume now (option-menu "Resume", no prompt); 0 = play from the start (option-menu
+    // "Play from Beginning", caller clears the bookmark first).
+    void openVideoPlayer(const std::vector<Ps3Item>& list, int listSel, int resumeChoice = -1);
     void closeVideoPlayer();                // release the decoder + fade out
     void videoTick();                       // enter/leave ease + end-of-stream auto-advance
     bool renderVideoPlayer();               // draws the player; true = it owns the screen

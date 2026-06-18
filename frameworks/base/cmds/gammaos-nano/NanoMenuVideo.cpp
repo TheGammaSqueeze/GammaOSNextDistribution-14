@@ -1405,7 +1405,7 @@ static std::string vFmtTime(double s) {
     return b;
 }
 
-void NanoMenu::openVideoPlayer(const std::vector<Ps3Item>& list, int listSel) {
+void NanoMenu::openVideoPlayer(const std::vector<Ps3Item>& list, int listSel, int resumeChoice) {
     videoEnsureLoaded();
     // Queue = every video file in the current list, starting on the selected one.
     mVidList.clear();
@@ -1457,7 +1457,13 @@ void NanoMenu::openVideoPlayer(const std::vector<Ps3Item>& list, int listSel) {
     mVidResumeDirty = false; mVidResumeSaveT = mEffectTime;
     {
         double rs = mVideos[vi].resumeSec, dur = vidDuration();
-        if (rs > 5.0 && (dur <= 0.0 || rs < dur - 5.0)) {
+        bool resumable = (rs > 5.0 && (dur <= 0.0 || rs < dur - 5.0));
+        if (resumeChoice == 1 && resumable) {        // option-menu "Resume": seek now, no prompt
+            if (mVideoTest) mVideoTest->seek(rs);
+            if (mVidHasAudio) vidAudioSeek(rs);
+            mVidHintUntil = mEffectTime + 1.5f;
+        } else if (resumeChoice == 0) {              // option-menu "Play from Beginning": start at 0 (bookmark already cleared)
+        } else if (resumeChoice < 0 && resumable) {  // direct Enter: prompt Resume / Play from beginning
             mVidResumeAsk = true; mVidResumeAskSec = rs; mVidPlaying = false;   // wait for the choice
         }
     }
