@@ -1276,6 +1276,16 @@ bool NanoMenu::vidOpenTitle(const std::string& file, int w, int h) {
     // for .ts (instead of the single-demuxer fed codec) to compare HW MPEG-2 cold-start reliability.
     bool noFed = property_get_bool("persist.gammaos.nano.vid.nofed", 0);
     bool isTs = !noFed && vidFileIsTs(file) && mVidTsDemux.open(file) && mVidTsDemux.videoPid() >= 0;
+    // The in-process demuxer exists only for what the system extractor cannot do: AC-3 audio
+    // (no device decoder, decoded via liba52), multi-audio, CEA-608 captions and scrambled
+    // MPEG-2 - i.e. the MPEG-2 + AC-3 broadcast profile. It feeds ONLY MPEG-2 video and
+    // enumerates ONLY AC-3 audio, so a clean H.264/HEVC .ts (or an MPEG-2 .ts without AC-3)
+    // would play black with no sound through it. Those decode natively on the system
+    // extractor (including HW AAC), so hand them to the normal open() path instead.
+    if (isTs && (strcmp(mVidTsDemux.videoMime(), "video/mpeg2") != 0 || mVidTsDemux.audioTracks().empty())) {
+        mVidTsDemux.close();
+        isTs = false;
+    }
     if (!isTs) {
         if (!mVideoTest->open(file)) return false;
     }
