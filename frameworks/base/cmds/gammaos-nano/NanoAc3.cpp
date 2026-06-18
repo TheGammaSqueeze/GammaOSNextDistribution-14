@@ -24,6 +24,8 @@ bool NanoAc3::init() {
     return mState != nullptr;
 }
 
+void NanoAc3::free() { if (mState) { a52_free(mState); mState = nullptr; } }
+
 void NanoAc3::reset() { /* liba52 is per-frame stateless across our use; nothing to do */ }
 
 int NanoAc3::decode(const uint8_t* data, int len, std::vector<int16_t>& out, int& outRate) {

@@ -1118,6 +1118,7 @@ void NanoMenu::vidParseChapters(const std::string& file) {
 void NanoMenu::vidBuildTracks(const std::string& file) {
     mVidAudTracks.clear();
     mVidSubTracks.clear();
+    if (mVidTsVideoFmt) { AMediaFormat_delete(mVidTsVideoFmt); mVidTsVideoFmt = nullptr; }
     std::vector<int> embSubIdx;
     std::vector<std::string> embSubName;
     int fd = ::open(file.c_str(), O_RDONLY);
@@ -1158,6 +1159,8 @@ void NanoMenu::vidBuildTracks(const std::string& file) {
                             std::string nm = haveLang ? lang : "";
                             if (nm.empty()) { char b[24]; snprintf(b, sizeof(b), "Track %zu", embSubIdx.size() + 1); nm = b; }
                             embSubIdx.push_back((int)i); embSubName.push_back(nm);
+                        } else if (!strncmp(mime, "video/", 6) && !mVidTsVideoFmt) {
+                            mVidTsVideoFmt = f; f = nullptr;   // keep the real video format for openFed
                         }
                     }
                     if (f) AMediaFormat_delete(f);
@@ -1242,48 +1245,105 @@ const std::vector<NanoMenu::VidCue>* NanoMenu::vidActiveSubCues() const {
     return &mVidSubTracks[mVidSubCur].cues;
 }
 
-// Open the current title's audio. For .ts the in-process demuxer owns it (every audio
-// PID enumerated, decoded by liba52 into mVidAudio's fed ring, switchable in O(1)); for
-// every other container mVidAudio uses its own extractor as before. Call after the video
-// is open and vidBuildTracks has populated subtitles.
+// Open audio for a NON-.ts title via mVidAudio's own extractor (called by vidOpenTitle for
+// the normal path). The .ts path opens audio through the demuxer in vidOpenTitle instead.
 void NanoMenu::vidOpenTitleAudio(const std::string& file) {
     mVidHasAudio = false;
-    mVidTsAudio = false;
-    mVidTsDemux.close();
-    if (vidFileIsTs(file) && mVidTsDemux.open(file) && !mVidTsDemux.audioTracks().empty()) {
-        mVidAudTracks.clear();
-        const auto& ats = mVidTsDemux.audioTracks();
-        for (size_t k = 0; k < ats.size(); k++) {
-            VidAudTrk t; t.idx = (int)k;          // idx = ordinal into the demux audio list
-            t.name = vidLangName(ats[k].lang, k) + "  AC-3";
-            mVidAudTracks.push_back(t);
-        }
-        if (mVidAudio.openFed(48000, 2)) {        // AC-3 -> stereo 48k fed ring
-            mVidAudio.setVolume(mVidVolume);
-            mVidTsDemux.start(&mVidAudio, 0, 0.0);
-            mVidTsAudio = true; mVidHasAudio = true;
-        } else {
-            mVidTsDemux.close();
-        }
-    }
-    if (!mVidTsAudio && !mVidAudTracks.empty()) {
+    if (!mVidAudTracks.empty()) {
         mVidHasAudio = mVidAudio.open(file, mVidAudTracks[0].idx);
         if (mVidHasAudio) mVidAudio.setVolume(mVidVolume); else mVidAudio.release();
     }
 }
 
-// Tear down the title's audio: stop the demuxer worker (if any) then release mVidAudio.
+// Open a title's picture + audio. mVideoTest must already be allocated. For .ts the single
+// in-process demuxer feeds BOTH the HW video codec (fed mode) and the audio (liba52) from
+// one read pointer, so A/V stay locked with no system extractor; everything else uses the
+// normal AMediaExtractor path. Returns false only if the picture could not be opened.
+bool NanoMenu::vidOpenTitle(const std::string& file, int w, int h) {
+    mVidTsMode = false; mVidTsAudio = false; mVidHasAudio = false;
+    mVidTsDemux.close();
+
+    // Debug A/B toggle: persist.gammaos.nano.vid.nofed=1 forces the extractor-driven open() path
+    // for .ts (instead of the single-demuxer fed codec) to compare HW MPEG-2 cold-start reliability.
+    bool noFed = property_get_bool("persist.gammaos.nano.vid.nofed", 0);
+    bool isTs = !noFed && vidFileIsTs(file) && mVidTsDemux.open(file) && mVidTsDemux.videoPid() >= 0;
+    if (!isTs) {
+        if (!mVideoTest->open(file)) return false;
+    }
+
+    // Subtitles (sidecars, embedded text, DVB). For .ts vidBuildTracks strips audio so the
+    // system extractor (used only here, briefly, for sub enumeration) never crashes; it is
+    // NOT used during playback. Audio it enumerates is replaced by the demuxer below.
+    // CRUCIAL for .ts: this enumeration opens the SLOW system MPEG2TSExtractor (seconds), so it
+    // runs BEFORE the fed HW codec is created/started. Leaving the Allwinner MPEG-2 decoder
+    // started-but-unfed for those seconds intermittently wedges it at cold start (it then never
+    // produces output and never errors). Create + feed the codec back-to-back instead.
+    vidBuildTracks(file);
+    if (!isTs) vidParseChapters(file);   // TS broadcast has no chapter track
+    mVidAudCur = 0; mVidSubCur = -1;
+
+    if (isTs) {
+        int vw = w > 0 ? w : 720, vh = h > 0 ? h : 480;     // size hint; FORMAT_CHANGED corrects it
+        bool fedOk = mVideoTest->openFed(mVidTsDemux.videoMime(), vw, vh, mVidTsVideoFmt);
+        if (mVidTsVideoFmt) { AMediaFormat_delete(mVidTsVideoFmt); mVidTsVideoFmt = nullptr; }  // consumed by configure
+        if (!fedOk) {
+            mVidTsDemux.close();
+            if (!mVideoTest->open(file)) return false;       // fall back to the normal path
+        } else {
+            mVidTsMode = true;
+            mVidAudTracks.clear();
+            const auto& ats = mVidTsDemux.audioTracks();
+            for (size_t k = 0; k < ats.size(); k++) {
+                VidAudTrk t; t.idx = (int)k;                  // idx = ordinal into the demux audio list
+                t.name = vidLangName(ats[k].lang, k) + "  AC-3";
+                mVidAudTracks.push_back(t);
+            }
+            if (!ats.empty() && mVidAudio.openFed(48000, 2)) { // AC-3 -> stereo 48k fed ring
+                mVidAudio.setVolume(mVidVolume);
+                mVidTsAudio = true; mVidHasAudio = true;
+            }
+            // One worker feeds the picture (mVideoTest) + the selected audio from one read pointer,
+            // starting immediately so the codec is never idle after start.
+            mVidTsDemux.start(mVideoTest, mVidHasAudio ? &mVidAudio : nullptr, 0, 0.0);
+        }
+    }
+    if (!mVidTsMode) {
+        vidOpenTitleAudio(file);
+        // Audio-master pacing for the separate-extractor path too: the picture slews to the
+        // audio playback clock so A/V stay locked (and re-sync after a seek, which re-anchors
+        // the audio clock). Gated on isPlaying so scan/seek/pause fall back to wall-clock pacing.
+        if (mVidHasAudio && mVideoTest) {
+            NanoAudioPlayer* a = &mVidAudio;
+            mVideoTest->setClockFn([a]{ return a->isPlaying() ? a->position() : -1.0; });
+        }
+    }
+    return true;
+}
+
+// Tear down the title's audio + picture demuxer. Stops the demux worker (which feeds
+// mVideoTest) FIRST so the picture can then be freed safely, then releases mVidAudio.
 void NanoMenu::vidCloseTitleAudio() {
-    if (mVidTsAudio) { mVidTsDemux.close(); mVidTsAudio = false; }
+    // Drop the picture's audio-clock fn BEFORE the demuxer/audio are torn down so the video
+    // worker stops reading a clock whose backing audio is going away (.ts: the demuxer also
+    // clears it in stop(); this covers the separate-extractor path).
+    if (mVideoTest) mVideoTest->setClockFn(nullptr);
+    if (mVidTsMode || mVidTsAudio) { mVidTsDemux.close(); mVidTsMode = false; mVidTsAudio = false; }
     mVidAudio.release();
     mVidHasAudio = false;
 }
 
-// Seek the audio, routed to the demuxer for .ts (it repositions the fd + rebases the
-// fed clock) or to mVidAudio's own extractor otherwise.
+// Seek, routed to the demuxer for .ts (repositions the single read pointer + flushes both
+// the video codec and the audio ring) or to mVidAudio's own extractor otherwise.
 void NanoMenu::vidAudioSeek(double sec) {
-    if (mVidTsAudio) mVidTsDemux.seek(sec);
+    if (mVidTsMode) mVidTsDemux.seek(sec);
     else if (mVidHasAudio) mVidAudio.seek(sec);
+}
+
+// Duration (s): the demuxer's PCR estimate for .ts (NanoVideo fed mode has none), else the
+// extractor's value.
+double NanoMenu::vidDuration() const {
+    if (mVidTsMode) return mVidTsDemux.duration();
+    return mVideoTest ? mVideoTest->duration() : 0.0;
 }
 
 // Switch the active audio track. For .ts this is an O(1) PID re-route on the demuxer's
@@ -1292,10 +1352,10 @@ void NanoMenu::vidSetAudioTrack(int ordinal) {
     if (ordinal < 0 || ordinal >= (int)mVidAudTracks.size()) return;
     mVidAudCur = ordinal;
     if (mVidTsAudio) {
-        // Re-route the PID and reseek to the picture so the ~3s of already-buffered old-track
-        // audio is dropped and the new track starts in sync (a brief gap, like the web aux switch).
+        // O(1) PID re-route on the shared read pointer: the ~0.8s of already-buffered old-track
+        // audio drains, then the new track flows, in sync (no seek -> no video disturbance, and
+        // no byte-estimate jump on discontinuity captures). Brief changeover, like the web aux.
         mVidTsDemux.selectAudio(ordinal);
-        mVidTsDemux.seek(mVideoTest ? mVideoTest->position() : 0.0);
         mVidAudio.setVolume(mVidVolume);
     } else {
         if (mVidList.empty() || mVidIdx < 0 || mVidIdx >= (int)mVidList.size()) return;
@@ -1342,27 +1402,21 @@ void NanoMenu::openVideoPlayer(const std::vector<Ps3Item>& list, int listSel) {
 
     int vi = mVidList[mVidIdx];
     if (vi < 0 || vi >= (int)mVideos.size()) return;
+    vidCloseTitleAudio();   // stop any prior demux/audio (it feeds mVideoTest) before freeing it
     if (mVideoTest) { vidAsyncFree(mVideoTest); mVideoTest = nullptr; }   // never block the render thread on teardown
     mVideoTest = new NanoVideo();
-    // The open + track-enumeration + audio-open below make synchronous media-service
-    // binder calls that can block for seconds when those services are cold/contended;
-    // exempt the render watchdog for the duration so a slow open never aborts nano.
+    // The open + track-enumeration + audio-open below can make synchronous media-service
+    // binder calls that block for seconds when those services are cold/contended; exempt
+    // the render watchdog for the duration so a slow open never aborts nano.
     mVidOpening.store(true, std::memory_order_relaxed);
-    if (!mVideoTest->open(mVideos[vi].file)) {
+    // Stop background music so the video owns the audio path (web 12350).
+    if (mMusicPlayer.isPlaying()) mMusicPlayer.pause();
+    // Open the title (.ts -> single in-process demuxer feeds picture + audio in lockstep;
+    // else the normal AMediaExtractor path). Audio starts in videoTick on the first frame.
+    if (!vidOpenTitle(mVideos[vi].file, mVideos[vi].w, mVideos[vi].h)) {
         delete mVideoTest; mVideoTest = nullptr;
         mVidOpening.store(false, std::memory_order_relaxed); return;
     }
-
-    // Stop background music so the video owns the audio path (web 12350).
-    if (mMusicPlayer.isPlaying()) mMusicPlayer.pause();
-
-    // Enumerate audio + subtitle tracks (and external sidecars) for this title.
-    vidBuildTracks(mVideos[vi].file);
-    vidParseChapters(mVideos[vi].file);   // Scene Search chapter markers
-    mVidAudCur = 0; mVidSubCur = -1;
-    // Open the title's audio (.ts -> in-process demuxer with every track; else mVidAudio's
-    // own extractor). It is started by videoTick once the first picture frame lands.
-    vidOpenTitleAudio(mVideos[vi].file);
     mVidAudioStarted = false;
     mVidOpening.store(false, std::memory_order_relaxed);
 
@@ -1383,7 +1437,7 @@ void NanoMenu::openVideoPlayer(const std::vector<Ps3Item>& list, int listSel) {
     mVidResumeAsk = false; mVidResumeSel = 0; mVidResumeAskSec = 0.0;
     mVidResumeDirty = false; mVidResumeSaveT = mEffectTime;
     {
-        double rs = mVideos[vi].resumeSec, dur = mVideoTest->duration();
+        double rs = mVideos[vi].resumeSec, dur = vidDuration();
         if (rs > 5.0 && (dur <= 0.0 || rs < dur - 5.0)) {
             mVidResumeAsk = true; mVidResumeAskSec = rs; mVidPlaying = false;   // wait for the choice
         }
@@ -1396,7 +1450,7 @@ void NanoMenu::vidCaptureResume() {
     if (!mVideoTest || mVidList.empty() || mVidIdx < 0 || mVidIdx >= (int)mVidList.size()) return;
     int vi = mVidList[mVidIdx];
     if (vi < 0 || vi >= (int)mVideos.size()) return;
-    double p = mVideoTest->position(), dur = mVideoTest->duration();
+    double p = mVideoTest->position(), dur = vidDuration();
     double rs = (p > 5.0 && dur > 0.0 && p < dur - 5.0) ? p : 0.0;
     if (mVideos[vi].resumeSec != rs) { mVideos[vi].resumeSec = rs; mVidResumeDirty = true; }
 }
@@ -1459,6 +1513,7 @@ void NanoMenu::vidReapDying() {
 void NanoMenu::videoHardFree(bool sync) {
     vidCaptureResume();   // persist the Resume position before tearing the decoder down
     if (mVidResumeDirty) { saveVideoConfig(); mVidResumeDirty = false; }
+    vidCloseTitleAudio();   // stop the demuxer FIRST (it feeds mVideoTest) before freeing it
     if (mVideoTest) {
         if (sync) { mVideoTest->release(); delete mVideoTest; mVideoTest = nullptr; }
         else { vidAsyncFree(mVideoTest); mVideoTest = nullptr; }   // OMX stop off the render thread (watchdog)
@@ -1470,13 +1525,13 @@ void NanoMenu::videoHardFree(bool sync) {
         for (NanoVideo* v : mVidDying) { v->finishRelease(); delete v; }
         mVidDying.clear();
     }
-    vidCloseTitleAudio();
     mVidActive = false; mVidPlaying = false;
     mVidResumeAsk = false;
     mVidEnterRaw = 0.0f; mVidEnterT = 0.0f;
     mVidCpOpen = mVidCpClosing = mVidSubOpen = mVidGoToOpen = false;
     mVidSceneOpen = mVidSceneClosing = false;
     mVidAudTracks.clear(); mVidSubTracks.clear(); mVidChapters.clear(); mVidAudCur = 0; mVidSubCur = -1;
+    if (mVidTsVideoFmt) { AMediaFormat_delete(mVidTsVideoFmt); mVidTsVideoFmt = nullptr; }
     vidDvbFree();
 }
 
@@ -1498,7 +1553,7 @@ void NanoMenu::vidTogglePlay() {
 void NanoMenu::vidSeek(double deltaSec) {
     if (!mVideoTest) return;
     mVidRate = 1.0;   // a manual seek cancels any scan (web vidSeek)
-    double dur = mVideoTest->duration();
+    double dur = vidDuration();
     double p = mVideoTest->position() + deltaSec;
     if (p < 0.0) p = 0.0;
     if (dur > 0.0 && p > dur - 0.05) p = dur - 0.05;   // keep inside the stream (no EOS trip)
@@ -1514,23 +1569,18 @@ void NanoMenu::vidStepTitle(int dir) {
     mVidIdx = ((mVidIdx + dir) % n + n) % n;
     int vi = mVidList[mVidIdx];
     if (vi < 0 || vi >= (int)mVideos.size()) return;
-    // Async-release the outgoing title (its OMX stop must not block the render thread)
-    // and open the new one in a fresh decoder; the old one is reaped by vidReapDying.
-    // The open/track/audio binder calls can block; exempt the watchdog for the duration.
+    // Stop the outgoing title's demuxer FIRST (it feeds mVideoTest), THEN async-release the
+    // old decoder (its OMX stop must not block the render thread; reaped by vidReapDying) and
+    // open the new one. The open/track binder calls can block; exempt the watchdog.
+    vidCloseTitleAudio();
     vidAsyncFree(mVideoTest);
     mVideoTest = new NanoVideo();
     mVidOpening.store(true, std::memory_order_relaxed);
-    if (!mVideoTest->open(mVideos[vi].file)) {
+    mVidSceneOpen = false; mVidSceneClosing = false;
+    if (!vidOpenTitle(mVideos[vi].file, mVideos[vi].w, mVideos[vi].h)) {
         delete mVideoTest; mVideoTest = nullptr;
         mVidOpening.store(false, std::memory_order_relaxed); return;
     }
-    // rebuild tracks + re-open the audio for the new title (videoTick starts it on frame 1)
-    vidBuildTracks(mVideos[vi].file);
-    vidParseChapters(mVideos[vi].file);   // Scene Search chapter markers
-    mVidSceneOpen = false; mVidSceneClosing = false;
-    mVidAudCur = 0; mVidSubCur = -1;
-    vidCloseTitleAudio();                       // stop the outgoing title's demux/audio
-    vidOpenTitleAudio(mVideos[vi].file);        // .ts -> demuxer, else mVidAudio
     mVidAudioStarted = false;
     mVidOpening.store(false, std::memory_order_relaxed);
     // web vidStepTitle resets rate / stopped / play state.
@@ -1539,10 +1589,10 @@ void NanoMenu::vidStepTitle(int dir) {
     mVidHintUntil = mEffectTime + 1.5f;
     // Auto-advance never prompts: silently resume the new title from its saved position.
     {
-        double rs = mVideos[vi].resumeSec, dur = mVideoTest->duration();
+        double rs = mVideos[vi].resumeSec, dur = vidDuration();
         if (rs > 5.0 && (dur <= 0.0 || rs < dur - 5.0)) {
-            mVideoTest->seek(rs);
-            if (mVidHasAudio) vidAudioSeek(rs);
+            mVideoTest->seek(rs);   // no-op in fed mode; the demux seek below handles .ts
+            vidAudioSeek(rs);
         }
     }
 }
@@ -1599,7 +1649,7 @@ void NanoMenu::vidSlow(int dir) {
 void NanoMenu::vidStepFrame(int dir) {
     if (!mVideoTest) return;
     mVidPlaying = false; mVidRate = 1.0; mVideoTest->pause();
-    double dur = mVideoTest->duration();
+    double dur = vidDuration();
     double p = mVideoTest->position() + (dir > 0 ? 1.0 : -1.0) / 30.0;
     if (p < 0.0) p = 0.0;
     if (dur > 0.0 && p > dur - 0.02) p = dur - 0.02;
@@ -1611,7 +1661,7 @@ void NanoMenu::vidStepFrame(int dir) {
 void NanoMenu::vidFlash(int dir) {
     if (!mVideoTest) return;
     mVidRate = 1.0;
-    double dur = mVideoTest->duration();
+    double dur = vidDuration();
     double p = mVideoTest->position() + (dir > 0 ? 15.0 : -15.0);
     if (p < 0.0) p = 0.0;
     if (dur > 0.0 && p > dur - 0.05) p = dur - 0.05;
@@ -1644,9 +1694,10 @@ void NanoMenu::videoTick() {
     mVidEnterT = mVidEnterRaw * mVidEnterRaw * (3.0f - 2.0f * mVidEnterRaw);
     if (!mVidActive && mVidEnterRaw <= 0.001f && mVideoTest) {
         // Async teardown: the worker join + OMX stop run on a bg thread so the render
-        // loop never blocks (vidReapDying frees it once done).
-        vidAsyncFree(mVideoTest); mVideoTest = nullptr;
+        // loop never blocks (vidReapDying frees it once done). Stop the demuxer FIRST (it
+        // feeds mVideoTest) before handing the decoder to async teardown.
         vidCloseTitleAudio();
+        vidAsyncFree(mVideoTest); mVideoTest = nullptr;
         mVidCpOpen = mVidCpClosing = mVidSubOpen = mVidGoToOpen = false;
         mVidSceneOpen = mVidSceneClosing = false;
         mVidAudTracks.clear(); mVidSubTracks.clear(); mVidChapters.clear(); mVidAudCur = 0; mVidSubCur = -1;
@@ -1664,7 +1715,7 @@ void NanoMenu::videoTick() {
         double sdt = (mVidScanLastTick < 0.0) ? 0.016 : (now - mVidScanLastTick);
         if (sdt > 0.1) sdt = 0.1;
         mVidScanLastTick = now;
-        double dur = mVideoTest->duration();
+        double dur = vidDuration();
         // Advance a COMMANDED clock (decoder position lags + snaps to keyframes, so re-basing
         // off it would stall the scan), then seek the picture to it (web vidTick accumulator).
         mVidScanPos += mVidRate * sdt;
@@ -1689,31 +1740,18 @@ void NanoMenu::videoTick() {
     // then plays at normal speed, pauses during scan/slow/stop/pause, and resnaps when it
     // drifts > 0.3s (web vidSyncAux). The picture is the master clock.
     if (mVidHasAudio) {
+        // The AUDIO is the master clock and the picture follows it (NanoVideo slews its frame
+        // pacing to mVidAudio's position via the clock fn set at open, for BOTH the .ts demuxer
+        // and the separate-extractor path). So here we only run/pause the audio with playback:
+        // play it as soon as we want sound (the clock only arms on real PCM, so the AAudio HAL
+        // cold-start hides in the decode warmup instead of baking a startup lip-sync skew), and
+        // pause during scan/slow/stop/pause. No reseeking against the picture - the picture is
+        // the follower, and a seek already re-anchors the audio clock which the picture tracks.
         bool wantAudio = mVidPlaying && mVidRate == 1.0 && !mVidStopped;
-        double vp = mVideoTest->position();
-        if (wantAudio && vp > 0.0) {
-            if (!mVidAudioStarted) {
-                // One-time alignment to the picture, then let audio free-run (below).
-                double ap = mVidAudio.position();
-                VLOGI("NanoMenu: vidsync START ap=%.3f vp=%.3f drift=%.3f", ap, vp, ap - vp);
-                if (fabs(ap - vp) > 0.3) vidAudioSeek(vp);
-                mVidAudio.play(); mVidAudioStarted = true;
-                mVidAudioResyncT = mEffectTime;
-            }
-            else {
-                if (!mVidAudio.isPlaying()) mVidAudio.play();
-                double ap = mVidAudio.position();
-                // The picture is the master clock; audio free-runs alongside it (both advance at
-                // 1x). Only correct a LARGE drift, and never more often than the cooldown: a tight
-                // per-frame resync loop reseeks before the audio clock can re-establish, which
-                // resets it every frame and stutters the sound (it never actually plays).
-                if (fabs(ap - vp) > 0.6 && (mEffectTime - mVidAudioResyncT) > 2.0f) {
-                    VLOGI("NanoMenu: vidsync RESEEK ap=%.3f vp=%.3f drift=%.3f", ap, vp, ap - vp);
-                    vidAudioSeek(vp);
-                    mVidAudioResyncT = mEffectTime;
-                }
-            }
-        } else if (!wantAudio && mVidAudio.isPlaying()) {
+        if (wantAudio) {
+            if (!mVidAudio.isPlaying()) mVidAudio.play();
+            mVidAudioStarted = true;
+        } else if (mVidAudio.isPlaying()) {
             mVidAudio.pause();
         }
     }
@@ -1881,7 +1919,7 @@ bool NanoMenu::renderVideoPlayer() {
                  tfs, 1.0f, 1.0f, 1.0f, 0.9f * et);
     }
 
-    double pos = mVideoTest->position(), dur = mVideoTest->duration();
+    double pos = mVideoTest->position(), dur = vidDuration();
     float bx = W * 0.10f, bw = W * 0.80f, by = H * 0.90f, bh = H * 0.006f;
 
     // Layer 3: title (top-left) + the seek bar + times. The bar auto-hides via
@@ -2167,7 +2205,7 @@ void NanoMenu::vidPanelActivate() {
     }
     else if (!strcmp(a, "del")) { vidPanelClose(); vidShowTransient("Delete completed.", 1400.0f); }
     else if (!strcmp(a, "chgicon")) {
-        double rem = mVideoTest ? (mVideoTest->duration() - mVideoTest->position()) : 0.0;
+        double rem = mVideoTest ? (vidDuration() - mVideoTest->position()) : 0.0;
         vidPanelClose();
         if (rem < 15.0) vidShowTransient("You cannot create an icon less than 15 seconds in length.", 1800.0f);
         else vidShowTransient("The icon has been changed.", 1600.0f);
@@ -2298,7 +2336,7 @@ void NanoMenu::vidGoToAdjust(int dy) {
 }
 void NanoMenu::vidGoToActivate() {
     double target = mVidGoToH * 3600.0 + mVidGoToM * 60.0 + mVidGoToS;
-    double dur = mVideoTest ? mVideoTest->duration() : 0.0;
+    double dur = mVideoTest ? vidDuration() : 0.0;
     if (dur > 0.0 && target > dur) {
         vidShowTransient("The range you can specify has been exceeded.", 1600.0f);
         return;

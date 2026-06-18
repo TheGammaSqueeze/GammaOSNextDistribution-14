@@ -986,6 +986,23 @@ void NanoMenu::pollInput() {
             // the categorized results overlay can be verified headlessly).
             else if (!strcmp(navbuf, "search")) { if (mPs3Xmb) gsearchOpen(); }
             else if (!strncmp(navbuf, "search:", 7)) { if (mPs3Xmb) gsearchBuild(std::string(navbuf + 7)); }
+            // Video playback scripting: "vidplay:<substr>" opens the first library video whose
+            // path contains <substr> directly in the player (bypasses column navigation so the
+            // .ts/demuxer A/V path can be verified headlessly without resume-position drift).
+            else if (!strncmp(navbuf, "vidplay:", 8)) {
+                if (mPs3Xmb) {
+                    videoEnsureLoaded();
+                    std::string sub(navbuf + 8);
+                    int found = -1;
+                    for (size_t i = 0; i < mVideos.size(); i++)
+                        if (mVideos[i].file.find(sub) != std::string::npos) { found = (int)i; break; }
+                    if (found >= 0) {
+                        std::vector<Ps3Item> one(1);
+                        one[0].kind = PS3_VIDEO_FILE; one[0].a = found;
+                        openVideoPlayer(one, 0);
+                    }
+                }
+            }
             property_set("sys.gammaos.nano.nav", "");
         }
         // Recapture the serial AFTER the (possible) self-clear so the next frame is

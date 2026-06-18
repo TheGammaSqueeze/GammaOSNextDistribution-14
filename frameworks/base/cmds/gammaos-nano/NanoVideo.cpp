@@ -5,6 +5,7 @@
 #include <fcntl.h>
 #include <time.h>
 #include <unistd.h>
+#include <chrono>
 #include <cstring>
 
 #include <gui/BufferQueue.h>
@@ -189,40 +190,226 @@ bool NanoVideo::open(const std::string& path) {
     return true;
 }
 
+// Open in fed mode: codec + GL output set up by mime/size, input pushed by feedVideo().
+bool NanoVideo::openFed(const std::string& mime, int width, int height, AMediaFormat* srcFmt) {
+    if (mOpen) release();
+    mFed = true; mFedMime = mime; mFedRecreate = 0;
+    if (srcFmt) {   // prefer the real decoded size from the extractor format
+        int32_t w = 0, h = 0;
+        if (AMediaFormat_getInt32(srcFmt, AMEDIAFORMAT_KEY_WIDTH, &w) && w > 0) width = w;
+        if (AMediaFormat_getInt32(srcFmt, AMEDIAFORMAT_KEY_HEIGHT, &h) && h > 0) height = h;
+    }
+    mWidth = width > 0 ? width : 1; mHeight = height > 0 ? height : 1;
+    mDurationSec = 0.0;
+
+    glGenTextures(1, &mTexId);
+    glBindTexture(GL_TEXTURE_EXTERNAL_OES, mTexId);
+    glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glBindTexture(GL_TEXTURE_EXTERNAL_OES, 0);
+
+    sp<IGraphicBufferProducer> producer;
+    sp<IGraphicBufferConsumer> consumer;
+    BufferQueue::createBufferQueue(&producer, &consumer);
+    mConsumer = new GLConsumer(consumer, mTexId, GL_TEXTURE_EXTERNAL_OES, true, false);
+    mConsumer->setName(android::String8("NanoVideoFed"));
+    mConsumer->setDefaultBufferSize(mWidth, mHeight);
+    mSurface = new Surface(producer);
+
+    mCodec = createFedDecoder(false);
+    if (!mCodec) { LOGE("openFed create decoder(%s) failed", mime.c_str()); release(); return false; }
+    media_status_t cs;
+    if (srcFmt) {
+        // Configure with the extractor's full format (csd, colour aspects, ...) for a reliable
+        // HW cold start. Force the mime in case the source format omitted/differs.
+        AMediaFormat_setString(srcFmt, AMEDIAFORMAT_KEY_MIME, mime.c_str());
+        cs = AMediaCodec_configure(mCodec, srcFmt, mSurface.get(), nullptr, 0);
+    } else {
+        AMediaFormat* fmt = AMediaFormat_new();
+        AMediaFormat_setString(fmt, AMEDIAFORMAT_KEY_MIME, mime.c_str());
+        AMediaFormat_setInt32(fmt, AMEDIAFORMAT_KEY_WIDTH, mWidth);
+        AMediaFormat_setInt32(fmt, AMEDIAFORMAT_KEY_HEIGHT, mHeight);
+        cs = AMediaCodec_configure(mCodec, fmt, mSurface.get(), nullptr, 0);
+        AMediaFormat_delete(fmt);
+    }
+    if (cs != AMEDIA_OK) { LOGE("openFed configure failed (%d)", cs); release(); return false; }
+    if (AMediaCodec_start(mCodec) != AMEDIA_OK) { LOGE("openFed codec start failed"); release(); return false; }
+
+    mQuit = false; mEnded = false; mPlaying = true; mPosSec = 0.0;
+    mFedEos = false; mFedFlush = false;
+    { std::lock_guard<std::mutex> lk(mFedMx); mFedQ.clear(); }
+    { std::lock_guard<std::mutex> lk(mClockMx); mClockBaseNs = 0; mClockBasePts = 0.0; }
+    mOpen = true;
+    mWorker = std::thread(&NanoVideo::decodeLoop, this);
+    LOGV("openFed %s (%dx%d hint)", mime.c_str(), mWidth, mHeight);
+    return true;
+}
+
+bool NanoVideo::feedVideo(const uint8_t* es, size_t len, int64_t ptsUs) {
+    if (!mFed || len == 0) return !mQuit.load();
+    std::unique_lock<std::mutex> lk(mFedMx);
+    mFedCv.wait(lk, [this]{ return mFedQ.size() < kFedQMax || mQuit.load() || mFedFlush.load(); });
+    if (mQuit.load()) return false;
+    if (mFedFlush.load()) return true;     // drop: a seek is in flight, this AU is stale
+    FedAu au; au.es.assign(es, es + len); au.ptsUs = ptsUs;
+    mFedQ.push_back(std::move(au));
+    lk.unlock();
+    mFedCv.notify_all();
+    return true;
+}
+
+void NanoVideo::feedVideoEos() { mFedEos.store(true); mFedCv.notify_all(); }
+
+void NanoVideo::setClockFn(std::function<double()> fn) {
+    std::lock_guard<std::mutex> lk(mClockMx);
+    mClockFn = std::move(fn);
+}
+
+void NanoVideo::flushFed(double newBaseSec) {
+    mFedFlushBase.store(newBaseSec);
+    { std::lock_guard<std::mutex> lk(mFedMx); mFedQ.clear(); }
+    mFedFlush.store(true);
+    mFedCv.notify_all();
+}
+
+// Worker: take the next access unit, waiting up to timeoutMs. false = none (timeout/quit/flush).
+bool NanoVideo::popFedAu(FedAu& out, int timeoutMs) {
+    std::unique_lock<std::mutex> lk(mFedMx);
+    if (mFedQ.empty()) {
+        mFedCv.wait_for(lk, std::chrono::milliseconds(timeoutMs),
+                        [this]{ return !mFedQ.empty() || mQuit.load() || mFedFlush.load(); });
+    }
+    if (mFedQ.empty()) return false;
+    out = std::move(mFedQ.front());
+    mFedQ.pop_front();
+    lk.unlock();
+    mFedCv.notify_all();           // wake feedVideo (space freed)
+    return true;
+}
+
+// Pick the fed-mode decoder for the current mime. The Allwinner MPEG-2 HW decoder
+// intermittently wedges at cold start (no output, no error) ~half the time, so broadcast
+// MPEG-2 (SD) decodes on the reliable software decoder; AVC/HEVC keep the HW decoder.
+// forceSw bypasses HW entirely (the recreate fallback for a faulted HW AVC/HEVC codec).
+AMediaCodec* NanoVideo::createFedDecoder(bool forceSw) {
+    // Default: the platform decoder for the mime (HW), created exactly as the reliable
+    // extractor-driven open() path does. Do NOT speculatively try a software codec first - on
+    // this device createCodecByName("c2.android...") fails (the swcodec service is unreachable
+    // from the launcher process) and that failed create leaves the codec2 client in a state
+    // that makes the subsequent HW codec wedge at cold start. Software is only attempted as a
+    // last-ditch recreate fallback (forceSw) for a genuinely faulted HW AVC/HEVC codec.
+    if (forceSw) {
+        const char* swName = nullptr;
+        if (mFedMime == "video/mpeg2") swName = "c2.android.mpeg2.decoder";
+        else if (mFedMime == "video/avc")  swName = "c2.android.avc.decoder";
+        else if (mFedMime == "video/hevc") swName = "c2.android.hevc.decoder";
+        else if (mFedMime == "video/mp4v-es") swName = "c2.android.mpeg4.decoder";
+        if (swName) { AMediaCodec* c = AMediaCodec_createCodecByName(swName); if (c) return c; }
+    }
+    return AMediaCodec_createDecoderByType(mFedMime.c_str());
+}
+
+// Rebuild a faulted fed-mode codec. A fresh codec usually recovers; the first couple of
+// attempts use the normal picker (SW for MPEG-2, HW for AVC/HEVC), later attempts force SW.
+// Returns false when out of options. Runs on the decode worker.
+bool NanoVideo::recreateFedCodec() {
+    if (mCodec) { AMediaCodec_delete(mCodec); mCodec = nullptr; }   // faulted: delete, do not stop
+    mFedRecreate++;
+    mCodec = createFedDecoder(/*forceSw=*/mFedRecreate > 2);
+    if (!mCodec) return false;
+    AMediaFormat* fmt = AMediaFormat_new();
+    AMediaFormat_setString(fmt, AMEDIAFORMAT_KEY_MIME, mFedMime.c_str());
+    AMediaFormat_setInt32(fmt, AMEDIAFORMAT_KEY_WIDTH, mWidth);
+    AMediaFormat_setInt32(fmt, AMEDIAFORMAT_KEY_HEIGHT, mHeight);
+    media_status_t cs = AMediaCodec_configure(mCodec, fmt, mSurface.get(), nullptr, 0);
+    AMediaFormat_delete(fmt);
+    if (cs != AMEDIA_OK || AMediaCodec_start(mCodec) != AMEDIA_OK) {
+        if (mCodec) { AMediaCodec_delete(mCodec); mCodec = nullptr; }
+        return false;
+    }
+    LOGE("recreateFedCodec attempt %d (%s)", mFedRecreate, mFedRecreate > 2 ? "forced-sw" : "default");
+    return true;
+}
+
 void NanoVideo::decodeLoop() {
     bool sawInputEos = false;
     int hardErr = 0;   // consecutive hard codec errors -> back off + park (never hot-loop)
+    bool queuedAny = false;          // at least one input AU has been queued since (re)start/flush
+    int64_t lastProgressNs = monoNs(); // wall time of the last decoded frame (stall watchdog)
     while (!mQuit.load()) {
-        if (!mPlaying.load() && !mSeekPending.load()) {
+        if (!mPlaying.load() && !mSeekPending.load() && !mFedFlush.load()) {
             { std::lock_guard<std::mutex> lk(mClockMx); mClockBaseNs = 0; }   // re-anchor on resume
             usleep(8000);
             continue;
         }
-        if (mSeekPending.exchange(false)) {
+        if (mFed) {
+            if (mFedFlush.exchange(false)) {              // seek: drop queued input, flush, re-anchor
+                AMediaCodec_flush(mCodec);
+                { std::lock_guard<std::mutex> lk(mFedMx); mFedQ.clear(); }
+                sawInputEos = false; mEnded = false; mFedEos = false;
+                queuedAny = false; lastProgressNs = monoNs();   // need fresh input before output again
+                { std::lock_guard<std::mutex> lk(mClockMx); mClockBaseNs = 0; mClockBasePts = mFedFlushBase.load(); }
+                mFedCv.notify_all();
+            }
+        } else if (mSeekPending.exchange(false)) {
             double t = mSeekTarget.load();
             AMediaExtractor_seekTo(mEx, (int64_t)(t * 1e6), AMEDIAEXTRACTOR_SEEK_CLOSEST_SYNC);
             AMediaCodec_flush(mCodec);
             sawInputEos = false; mEnded = false;
+            queuedAny = false; lastProgressNs = monoNs();
             { std::lock_guard<std::mutex> lk(mClockMx); mClockBaseNs = 0; }
         }
 
-        // Feed one input sample.
+        // Feed one input access unit (fed: from the demuxer queue; else: from the extractor).
         if (!sawInputEos) {
-            ssize_t inIdx = AMediaCodec_dequeueInputBuffer(mCodec, 2000);
-            if (inIdx >= 0) {
-                size_t cap = 0;
-                uint8_t* buf = AMediaCodec_getInputBuffer(mCodec, inIdx, &cap);
-                ssize_t sz = buf ? AMediaExtractor_readSampleData(mEx, buf, cap) : -1;
-                if (sz < 0) {
-                    AMediaCodec_queueInputBuffer(mCodec, inIdx, 0, 0, 0, AMEDIACODEC_BUFFER_FLAG_END_OF_STREAM);
-                    sawInputEos = true;
-                } else {
-                    int64_t pts = AMediaExtractor_getSampleTime(mEx);
-                    AMediaCodec_queueInputBuffer(mCodec, inIdx, 0, sz, pts, 0);
-                    AMediaExtractor_advance(mEx);
+            if (mFed) {
+                FedAu au; bool have = popFedAu(au, 3);
+                if (have || mFedEos.load()) {
+                    ssize_t inIdx = AMediaCodec_dequeueInputBuffer(mCodec, 2000);
+                    if (inIdx >= 0) {
+                        if (have) {
+                            size_t cap = 0;
+                            uint8_t* buf = AMediaCodec_getInputBuffer(mCodec, inIdx, &cap);
+                            size_t n = (buf && cap < au.es.size()) ? cap : au.es.size();
+                            if (buf && n) memcpy(buf, au.es.data(), n);
+                            AMediaCodec_queueInputBuffer(mCodec, inIdx, 0, buf ? n : 0,
+                                                         au.ptsUs < 0 ? 0 : (uint64_t)au.ptsUs, 0);
+                            queuedAny = true;
+                        } else {
+                            AMediaCodec_queueInputBuffer(mCodec, inIdx, 0, 0, 0, AMEDIACODEC_BUFFER_FLAG_END_OF_STREAM);
+                            sawInputEos = true;
+                        }
+                    } else if (have) {                    // no input buffer free; retry this AU next loop
+                        std::lock_guard<std::mutex> lk(mFedMx);
+                        mFedQ.push_front(std::move(au));
+                    }
+                }
+            } else {
+                ssize_t inIdx = AMediaCodec_dequeueInputBuffer(mCodec, 2000);
+                if (inIdx >= 0) {
+                    size_t cap = 0;
+                    uint8_t* buf = AMediaCodec_getInputBuffer(mCodec, inIdx, &cap);
+                    ssize_t sz = buf ? AMediaExtractor_readSampleData(mEx, buf, cap) : -1;
+                    if (sz < 0) {
+                        AMediaCodec_queueInputBuffer(mCodec, inIdx, 0, 0, 0, AMEDIACODEC_BUFFER_FLAG_END_OF_STREAM);
+                        sawInputEos = true;
+                    } else {
+                        int64_t pts = AMediaExtractor_getSampleTime(mEx);
+                        AMediaCodec_queueInputBuffer(mCodec, inIdx, 0, sz, pts, 0);
+                        AMediaExtractor_advance(mEx);
+                        queuedAny = true;
+                    }
                 }
             }
         }
+
+        // Do not dequeue output before any input has been queued: the Allwinner MPEG-2 OMX
+        // decoder can BLOCK dequeueOutputBuffer (ignoring the timeout) when it has been started
+        // but never fed, which would freeze this worker (and back-pressure the demuxer into a
+        // full stop). Wait for the demuxer to deliver the first access unit first.
+        if (!queuedAny && !sawInputEos) { usleep(3000); continue; }
 
         // Drain one output buffer, pacing its render to the wall clock by PTS.
         AMediaCodecBufferInfo info;
@@ -235,14 +422,23 @@ void NanoVideo::decodeLoop() {
                 int64_t waitNs = 0;
                 { std::lock_guard<std::mutex> lk(mClockMx);
                   if (mClockBaseNs == 0) { mClockBaseNs = now; mClockBasePts = pts; }
+                  // Frames pace to the wall clock by PTS delta (smooth, native frame rate). When an
+                  // audio clock is present (A/V), SLEW the video timeline to it - the audio is the
+                  // master - by re-anchoring only when the wall-clock-predicted position diverges
+                  // from the audio position beyond a small window. This keeps lip-sync without the
+                  // per-frame gating that, when the decode runs ahead of audio playback, throttled
+                  // the picture to the cap rate (the half-frame-rate bug).
+                  double aclk = mClockFn ? mClockFn() : -1.0;
+                  if (aclk >= 0.0) {
+                      double predicted = mClockBasePts + (double)(now - mClockBaseNs) / 1e9;
+                      if (predicted - aclk > 0.10 || aclk - predicted > 0.10) {
+                          mClockBaseNs = now; mClockBasePts = aclk;
+                      }
+                  }
                   int64_t targetNs = mClockBaseNs + (int64_t)((pts - mClockBasePts) * 1e9);
                   waitNs = targetNs - now;
                   // PTS discontinuity (MPEG-TS / HDHomeRun captures jump the PES PTS) or a big
-                  // decode stall: the frame is wildly off the established clock. Re-anchor here
-                  // instead of pacing against the stale base. The old "skip the sleep if waitNs
-                  // >= 1s" left the base stale, so after ONE forward jump every later frame was
-                  // >1s "ahead", the sleep was skipped forever, and the picture raced through the
-                  // whole stream at full decode speed (~2x) while the audio played at 1x.
+                  // decode stall: re-anchor instead of pacing against the stale base.
                   if (waitNs > 500000000LL || waitNs < -500000000LL) {
                       mClockBaseNs = now; mClockBasePts = pts; waitNs = 0;
                   }
@@ -252,9 +448,10 @@ void NanoVideo::decodeLoop() {
             }
             AMediaCodec_releaseOutputBuffer(mCodec, outIdx, render);
             hardErr = 0;
+            lastProgressNs = monoNs();   // the codec is alive and producing output
             if (info.flags & AMEDIACODEC_BUFFER_FLAG_END_OF_STREAM) {
                 mEnded = true;
-                while (!mQuit.load() && mEnded.load() && !mSeekPending.load()) usleep(16000);
+                while (!mQuit.load() && mEnded.load() && !mSeekPending.load() && !mFedFlush.load()) usleep(16000);
             }
         } else if (outIdx == AMEDIACODEC_INFO_OUTPUT_FORMAT_CHANGED) {
             AMediaFormat* of = AMediaCodec_getOutputFormat(mCodec);
@@ -264,6 +461,7 @@ void NanoVideo::decodeLoop() {
             if (mConsumer != nullptr) mConsumer->setDefaultBufferSize(mWidth, mHeight);
             AMediaFormat_delete(of);
             hardErr = 0;
+            lastProgressNs = monoNs();
         } else if (outIdx == AMEDIACODEC_INFO_TRY_AGAIN_LATER
                    || outIdx == AMEDIACODEC_INFO_OUTPUT_BUFFERS_CHANGED) {
             hardErr = 0;   // benign: the dequeue timeout already paced us
@@ -273,11 +471,39 @@ void NanoVideo::decodeLoop() {
             if (hardErr == 0) LOGE("decode output error %zd; backing off", (ssize_t)outIdx);
             usleep(20000);
             if (++hardErr > 50) {
+                // Fed mode: a faulted codec (the Allwinner MPEG-2 cold-start glitch) is
+                // recoverable by rebuilding it - the fresh codec resyncs at the next in-stream
+                // sequence header. Retry HW, then the software decoder, before giving up.
+                if (mFed && mFedRecreate < 4 && recreateFedCodec()) {
+                    { std::lock_guard<std::mutex> lk(mFedMx); mFedQ.clear(); }
+                    mFedCv.notify_all();
+                    sawInputEos = false; mEnded = false; hardErr = 0;
+                    { std::lock_guard<std::mutex> lk(mClockMx); mClockBaseNs = 0; }
+                    continue;
+                }
                 LOGE("codec unrecoverable; parking decode worker");
                 mEnded = true;
-                while (!mQuit.load() && !mSeekPending.load()) usleep(50000);
+                while (!mQuit.load() && !mSeekPending.load() && !mFedFlush.load()) usleep(50000);
                 hardErr = 0;
             }
+        }
+
+        // Stall watchdog (fed mode): the Allwinner MPEG-2 decoder intermittently cold-starts into
+        // a state where it neither errors nor produces output (dequeueOutputBuffer just returns
+        // TRY_AGAIN forever while the input queue backs up). hardErr never trips, so rebuild the
+        // codec if input has been flowing but NO frame has decoded for a few seconds.
+        if (mFed && queuedAny && !mEnded.load() && mPlaying.load() &&
+            (monoNs() - lastProgressNs) > 4000000000LL) {
+            LOGE("no decoded output for 4s; codec stalled, rebuilding (attempt %d)", mFedRecreate + 1);
+            if (mFedRecreate < 4 && recreateFedCodec()) {
+                { std::lock_guard<std::mutex> lk(mFedMx); mFedQ.clear(); }
+                mFedCv.notify_all();
+                sawInputEos = false; mEnded = false; hardErr = 0;
+                queuedAny = false; lastProgressNs = monoNs();
+                { std::lock_guard<std::mutex> lk(mClockMx); mClockBaseNs = 0; }
+                continue;
+            }
+            lastProgressNs = monoNs();   // out of rebuild attempts: stop hammering, keep trying to drain
         }
     }
 }
@@ -402,6 +628,7 @@ void NanoVideo::pause() { mPlaying = false; }
 
 void NanoVideo::seek(double sec) {
     if (!mOpen) return;
+    if (mFed) return;               // fed mode: the demuxer repositions + flushes (flushFed)
     if (sec < 0.0) sec = 0.0;
     if (mDurationSec > 0.0 && sec > mDurationSec) sec = mDurationSec;
     mSeekTarget = sec; mSeekPending = true;
@@ -411,9 +638,15 @@ double NanoVideo::position() const { return mPosSec.load(); }
 
 void NanoVideo::release() {
     mQuit = true; mPlaying = false; mEnded = false;
+    mFedCv.notify_all();      // wake the fed worker (and any feedVideo) so it can exit
+    // Stop the codec BEFORE joining: the Allwinner MPEG-2 decoder can wedge dequeueOutputBuffer
+    // (it ignores the timeout and blocks forever), so the worker would never see mQuit and the
+    // join would hang. stop() halts the component and makes the blocked dequeue return, freeing
+    // the (single-instance) HW decoder so the next title can open.
+    if (mCodec) AMediaCodec_stop(mCodec);
     if (mWorker.joinable()) mWorker.join();
     if (mReleaseThread.joinable()) mReleaseThread.join();   // in case an async release was in flight
-    if (mCodec) { AMediaCodec_stop(mCodec); AMediaCodec_delete(mCodec); mCodec = nullptr; }
+    if (mCodec) { AMediaCodec_delete(mCodec); mCodec = nullptr; }
     if (mEx) { AMediaExtractor_delete(mEx); mEx = nullptr; }
     freeTsSource();           // after the extractor (it read through the data source)
     mConsumer.clear();        // releases the GL texture image + consumer
@@ -442,6 +675,7 @@ void NanoVideo::freeTsSource() {
 void NanoVideo::releaseAsync() {
     if (mAsyncReleasing) return;                 // already tearing down
     mQuit = true; mPlaying = false; mEnded = false; mOpen = false;
+    mFedCv.notify_all();                         // wake the fed worker so the join below is fast
     // Hand the worker thread to the bg teardown. CRUCIAL ordering: mCodec / mEx are NOT
     // touched here - the decode worker is still running and reads mCodec inside its
     // AMediaCodec dequeue calls, so nulling/freeing the codec now would crash it (null
@@ -451,8 +685,14 @@ void NanoVideo::releaseAsync() {
     mAsyncDone.store(false);
     mAsyncReleasing = true;
     mReleaseThread = std::thread([this, w = std::move(worker)]() mutable {
+        // Stop the codec FIRST so a worker wedged in dequeueOutputBuffer (the Allwinner MPEG-2
+        // cold-start hang ignores the dequeue timeout) is released and the join can complete;
+        // otherwise the bg thread hangs forever and the single HW decoder is never freed, so
+        // every subsequent title also wedges. The worker only reads mCodec inside dequeue, which
+        // stop() unblocks; it then exits on mQuit before we delete the codec below.
+        if (mCodec) AMediaCodec_stop(mCodec);
         if (w.joinable()) w.join();              // decode worker fully stopped before we free its codec
-        if (mCodec) { AMediaCodec_stop(mCodec); AMediaCodec_delete(mCodec); mCodec = nullptr; }
+        if (mCodec) { AMediaCodec_delete(mCodec); mCodec = nullptr; }
         if (mEx) { AMediaExtractor_delete(mEx); mEx = nullptr; }
         freeTsSource();                          // after the extractor (it read through the source)
         mAsyncDone.store(true);

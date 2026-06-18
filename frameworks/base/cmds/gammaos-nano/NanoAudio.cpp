@@ -310,13 +310,28 @@ bool NanoAudioPlayer::open(const std::string& path, int audioTrackIndex) {
     // 2-channel regardless of the coded channel count (which may be 5.1).
     bool ac3 = (m.codec == "AC3");
     int outChans = ac3 ? 2 : m.channels;
-    if (!ensureStream(m.sampleRate, outChans)) return false;
-
-    // Size the ring to ~3s of audio at the stream format (reuse if big enough).
-    size_t need = (size_t)m.sampleRate * (size_t)outChans * 3;
-    if (mRingCap < need) {
-        mRing.assign(need, 0);
-        mRingCap = need;
+    bool streamUp = false;
+    if (m.sampleRate > 0 && outChans > 0 && ensureStream(m.sampleRate, outChans)) {
+        // Size the ring to ~3s of audio at the stream format (reuse if big enough).
+        size_t need = (size_t)m.sampleRate * (size_t)outChans * 3;
+        if (mRingCap < need) { mRing.assign(need, 0); mRingCap = need; }
+        streamUp = true;
+    }
+    if (!streamUp) {
+        // The container's rate/channels were missing or AAudio rejected them (e.g. mp4a-latm AAC
+        // in a .mov reports a rate AAudio will not open). Defer the stream + ring to the decode
+        // thread, which (re)opens with the TRUE values from the codec's first OUTPUT_FORMAT_CHANGED.
+        // Do NOT fail here - that dropped the audio entirely. AC-3 (liba52) has no codec format
+        // event, so for it fall back to the container rate (or 48k) when the stream is still down.
+        ALOGI("NanoAudio: stream not up at open (container rate/ch %d/%d); deferring to decoder",
+              m.sampleRate, outChans);
+        if (ac3) {
+            int r = m.sampleRate > 0 ? m.sampleRate : 48000;
+            if (ensureStream(r, 2)) {
+                size_t need = (size_t)r * 2 * 3;
+                if (mRingCap < need) { mRing.assign(need, 0); mRingCap = need; }
+            }
+        }
     }
 
     mCurrentPath = path;
@@ -718,6 +733,21 @@ void NanoAudioPlayer::decodeThreadFunc(std::string /*path*/) {
                 if (of) {
                     int32_t enc = 0;
                     if (AMediaFormat_getInt32(of, AMEDIAFORMAT_KEY_PCM_ENCODING, &enc)) pcmEnc = enc;
+                    // The codec's output format carries the true rate/channels even when the
+                    // container omitted them (e.g. mp4a-latm AAC), so (re)open the AAudio stream
+                    // and ring here if they are not open yet or changed. closeStream() first so
+                    // the ring resize never races the audio callback.
+                    int32_t r2 = 0, c2 = 0;
+                    AMediaFormat_getInt32(of, AMEDIAFORMAT_KEY_SAMPLE_RATE, &r2);
+                    AMediaFormat_getInt32(of, AMEDIAFORMAT_KEY_CHANNEL_COUNT, &c2);
+                    if (r2 > 0 && c2 > 0 && (!mStream || mStreamRate != r2 || mStreamChans != c2)) {
+                        ALOGI("NanoAudio: codec output format %dHz x%d; (re)opening stream", r2, c2);
+                        closeStream();
+                        size_t need = (size_t)r2 * (size_t)c2 * 3;
+                        if (mRingCap < need) { mRing.assign(need, 0); mRingCap = need; }
+                        ensureStream(r2, c2);
+                        { std::lock_guard<std::mutex> lk(mMetaMutex); mMeta.sampleRate = r2; mMeta.channels = c2; }
+                    }
                     AMediaFormat_delete(of);
                 }
             }

@@ -2,6 +2,7 @@
 #include "NanoTsDemux.h"
 
 #include "NanoAudio.h"
+#include "NanoVideo.h"
 
 #include <fcntl.h>
 #include <unistd.h>
@@ -110,7 +111,7 @@ bool NanoTsDemux::open(const std::string& path) {
             }
             bool isVideo = (stype == 0x01 || stype == 0x02 || stype == 0x1b || stype == 0x24);
             bool isAc3   = (stype == 0x81);                    // ATSC AC-3
-            if (isVideo && mVideoPid < 0) mVideoPid = epid;
+            if (isVideo && mVideoPid < 0) { mVideoPid = epid; mVideoStreamType = stype; }
             if (isAc3) { AudioTrack t; t.pid = epid; t.streamType = stype; t.lang = lang; mAudio.push_back(t); }
             es = dEnd;
         }
@@ -162,6 +163,15 @@ void NanoTsDemux::close() {
     { std::lock_guard<std::mutex> lk(mCueMx); mCues.clear(); }
 }
 
+const char* NanoTsDemux::videoMime() const {
+    switch (mVideoStreamType) {
+        case 0x1b: return "video/avc";
+        case 0x24: return "video/hevc";
+        case 0x10: return "video/mp4v-es";
+        default:   return "video/mpeg2";    // 0x01/0x02 MPEG-1/2 (the common ATSC case)
+    }
+}
+
 off64_t NanoTsDemux::estimateByteForTime(double sec) const {
     if (mBytesPerSec <= 0 || sec <= 0) return mAlign;
     off64_t b = (off64_t)(sec * mBytesPerSec);
@@ -172,25 +182,39 @@ off64_t NanoTsDemux::estimateByteForTime(double sec) const {
     return b;
 }
 
-bool NanoTsDemux::start(NanoAudioPlayer* sink, int audioIndex, double startSec) {
-    if (mFd < 0 || audioIndex < 0 || audioIndex >= (int)mAudio.size()) return false;
+bool NanoTsDemux::start(NanoVideo* video, NanoAudioPlayer* audio, int audioIndex, double startSec) {
+    if (mFd < 0) return false;
     stop();
-    mSink = sink;
-    mSelPid.store(mAudio[audioIndex].pid);
+    mVideoSink = video;
+    mSink = audio;
+    mSelPid.store((audioIndex >= 0 && audioIndex < (int)mAudio.size()) ? mAudio[audioIndex].pid : -1);
     mPendSelPid.store(-1);
     mPendSeek.store(-1.0);
     mStop.store(false);
+    // Audio-master pacing: the picture follows the audio playback clock so the two stay in
+    // lip-sync (both come off one read pointer; the audio plays continuously, the video tracks
+    // it). Only when there is an audio sink; otherwise NanoVideo paces to the wall clock.
+    if (mVideoSink) {
+        // Gate on isPlaying() so scan/seek/pause (audio stopped) falls back to wall-clock pacing
+        // instead of freezing the picture against a halted audio clock.
+        if (mSink) { NanoAudioPlayer* a = mSink; mVideoSink->setClockFn([a]{ return a->isPlaying() ? a->position() : -1.0; }); }
+        else mVideoSink->setClockFn(nullptr);
+    }
     mWorker = std::thread(&NanoTsDemux::workerFunc, this, startSec);
     return true;
 }
 
 void NanoTsDemux::stop() {
     mStop.store(true);
+    if (mVideoSink) mVideoSink->setClockFn(nullptr);   // drop the audio-clock fn before audio is freed
+    if (mVideoSink) mVideoSink->flushFed(0.0);   // unblock a feedVideo waiting on a full queue
     if (mWorker.joinable()) mWorker.join();
     mAudioPes.buf.clear(); mAudioPes.started = false;
     mVideoPes.buf.clear(); mVideoPes.started = false;
     mAc3Buf.clear();
+    mAc3.free();                  // release the liba52 state (no idle audio-decoder footprint when closed)
     mSink = nullptr;
+    mVideoSink = nullptr;
 }
 
 void NanoTsDemux::selectAudio(int audioIndex) {
@@ -200,6 +224,7 @@ void NanoTsDemux::selectAudio(int audioIndex) {
 
 void NanoTsDemux::seek(double targetSec) {
     if (targetSec < 0) targetSec = 0;
+    if (mVideoSink) mVideoSink->flushFed(targetSec);  // unblock a (possibly paused) feedVideo
     mPendSeek.store(targetSec);
 }
 
@@ -246,7 +271,6 @@ void NanoTsDemux::emitAudioPes(const uint8_t* pes, size_t len, int64_t /*ptsUs*/
     int consumed = mAc3.decode(mAc3Buf.data(), (int)mAc3Buf.size(), pcm, rate);
     if (consumed > 0) mAc3Buf.erase(mAc3Buf.begin(), mAc3Buf.begin() + consumed);
     if (rate > 0) mStreamRate = rate;
-    { static int dbg = 0; if ((dbg++ % 200) == 0) TLOGI("NanoTsDemux: feed pcm=%zu rate=%d acbuf=%zu", pcm.size(), rate, mAc3Buf.size()); }
     if (!pcm.empty() && mSink) {
         size_t off = 0;
         while (off < pcm.size() && !mStop.load() && mPendSeek.load() < 0 && mPendSelPid.load() < 0) {
@@ -261,6 +285,49 @@ void NanoTsDemux::flushAudioPes() {
     if (mAudioPes.started && !mAudioPes.buf.empty())
         emitAudioPes(mAudioPes.buf.data(), mAudioPes.buf.size(), -1);
     mAudioPes.buf.clear(); mAudioPes.started = false;
+}
+
+// Feed one reassembled video PES to the picture sink (the access unit is one coded
+// MPEG-2 picture for broadcast TS) and, when captions are on, scan its user_data.
+void NanoTsDemux::emitVideoPes(const uint8_t* pes, size_t len) {
+    const uint8_t* es = nullptr; size_t esLen = 0; int64_t pts = -1;
+    if (!pesPayload(pes, len, &es, &esLen, &pts)) return;
+    // Captions: decode when a CC track is selected; otherwise a BOUNDED presence probe
+    // (first ~300 pictures) so a non-captioned stream costs nothing after a couple seconds.
+    if (mCcEnable.load()) {
+        scanVideoUserData(es, esLen, pts);
+    } else if (!mCcSeen.load() && mCcProbe < 300) {
+        scanVideoUserData(es, esLen, pts);
+        mCcProbe++;
+    }
+    if (mVideoSink && esLen) {
+        // Start feeding the codec at a sequence header (00 00 01 B3) so a cold MPEG-2
+        // decoder gets a clean, decodable first access unit (mid-GOP pictures can fault it).
+        if (!mVideoStartedFeed) {
+            bool hasSeq = false;
+            for (size_t i = 0; i + 4 <= esLen; i++)
+                if (es[i] == 0 && es[i + 1] == 0 && es[i + 2] == 1 && es[i + 3] == 0xB3) { hasSeq = true; break; }
+            if (!hasSeq) return;            // drop pre-sequence-header pictures
+            mVideoStartedFeed = true;
+        }
+        // Normalize to the stream's PTS origin (broadcast captures start the PTS at an
+        // arbitrary 90kHz value, e.g. ~19300s) so position() maps onto [0, duration] and
+        // the seek bar + relative seeks line up with the byte<->time model. The base is
+        // captured once at first play and kept across seeks (later bytes carry later PTS).
+        int64_t outPts = pts;
+        if (pts >= 0) {
+            if (mPtsBaseUs < 0) mPtsBaseUs = pts;
+            outPts = pts - mPtsBaseUs;
+            if (outPts < 0) outPts = 0;     // PTS discontinuity before the base: clamp
+        }
+        mVideoSink->feedVideo(es, esLen, outPts);  // blocks on back-pressure
+    }
+}
+
+void NanoTsDemux::flushVideoPes() {
+    if (mVideoPes.started && !mVideoPes.buf.empty())
+        emitVideoPes(mVideoPes.buf.data(), mVideoPes.buf.size());
+    mVideoPes.buf.clear(); mVideoPes.started = false;
 }
 
 void NanoTsDemux::handlePacket(const uint8_t* p) {
@@ -279,15 +346,8 @@ void NanoTsDemux::handlePacket(const uint8_t* p) {
     if (pid == selPid) {
         if (pusi) { flushAudioPes(); mAudioPes.started = true; }
         if (mAudioPes.started) mAudioPes.buf.insert(mAudioPes.buf.end(), payload, payload + plen);
-    } else if (mCcEnable.load() && pid == mVideoPid) {
-        if (pusi) {
-            if (mVideoPes.started && !mVideoPes.buf.empty()) {
-                const uint8_t* es = nullptr; size_t esLen = 0; int64_t pts = -1;
-                if (pesPayload(mVideoPes.buf.data(), mVideoPes.buf.size(), &es, &esLen, &pts))
-                    scanVideoUserData(es, esLen, pts);
-            }
-            mVideoPes.buf.clear(); mVideoPes.started = true;
-        }
+    } else if (pid == mVideoPid && (mVideoSink || mCcEnable.load() || (!mCcSeen.load() && mCcProbe < 300))) {
+        if (pusi) { flushVideoPes(); mVideoPes.started = true; }   // emit the completed picture
         if (mVideoPes.started) mVideoPes.buf.insert(mVideoPes.buf.end(), payload, payload + plen);
     }
 }
@@ -296,8 +356,9 @@ void NanoTsDemux::workerFunc(double startSec) {
     if (mSink) mSink->seekFed(startSec);
     off64_t pos = estimateByteForTime(startSec);
     mAudioPes.buf.clear(); mAudioPes.started = false;
-    mVideoPes.buf.clear(); mVideoPes.started = false;
+    mVideoPes.buf.clear(); mVideoPes.started = false; mVideoStartedFeed = false;
     mAc3Buf.clear();
+    mAc3.init();        // allocate the liba52 state (without this decode() no-ops -> silent audio)
     mAc3.reset();
 
     const size_t kChunk = (size_t)kPkt * 64;     // ~12 KB working set
@@ -309,21 +370,25 @@ void NanoTsDemux::workerFunc(double startSec) {
         int ps = mPendSelPid.exchange(-1);
         if (ps >= 0) { flushAudioPes(); mAc3Buf.clear(); mAc3.reset(); mSelPid.store(ps); }
 
-        // pending seek (reposition the fd + flush the sink ring + decoder).
+        // pending seek (reposition the single read pointer + flush BOTH sinks so A/V
+        // resume together at the new position).
         double sk = mPendSeek.exchange(-1.0);
         if (sk >= 0) {
             pos = estimateByteForTime(sk);
             partial = 0;
             mAudioPes.buf.clear(); mAudioPes.started = false;
-            mVideoPes.buf.clear(); mVideoPes.started = false;
+            mVideoPes.buf.clear(); mVideoPes.started = false; mVideoStartedFeed = false;
             mAc3Buf.clear(); mAc3.reset();
             if (mSink) mSink->seekFed(sk);
+            if (mVideoSink) mVideoSink->flushFed(sk);
             TLOGI("NanoTsDemux: seek %.2f -> byte %lld (bps=%.0f)", sk, (long long)pos, mBytesPerSec);
         }
 
         ssize_t got = pread64(mFd, buf.data() + partial, kChunk - partial, pos);
         if (got <= 0) {                          // EOF: park (the picture may repeat or seek back)
             flushAudioPes();
+            flushVideoPes();
+            if (mVideoSink) mVideoSink->feedVideoEos();
             while (!mStop.load() && mPendSeek.load() < 0 && mPendSelPid.load() < 0) usleep(10000);
             continue;
         }

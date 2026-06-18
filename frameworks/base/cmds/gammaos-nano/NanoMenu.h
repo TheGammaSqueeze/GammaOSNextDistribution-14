@@ -46,6 +46,7 @@
 
 class NanoVideo;   // global; HW video decoder (NanoVideo.h). Forward-declared to keep gui/ headers out of NanoMenu.h.
 class NanoDvbSub;  // global; DVB bitmap subtitle decoder (NanoDvbSub.h).
+typedef struct AMediaFormat AMediaFormat;   // NDK media format (kept opaque here; pointer member only).
 
 namespace android {
 
@@ -1591,10 +1592,16 @@ private:
     bool   mVidHasAudio = false;
     bool   mVidAudioStarted = false;        // audio held until the first video frame (avoids warmup desync)
     float  mVidAudioResyncT = 0.0f;         // last A/V resync time (cooldown so resync never tight-loops)
-    // .ts audio runs through the in-process single-pass demuxer (multi-track + cheap
-    // switch + no system extractor); everything else stays on mVidAudio's own extractor.
+    // .ts runs through the in-process single-pass demuxer: ONE read pointer feeds both the
+    // HW video codec (NanoVideo fed mode) and the audio (liba52 -> mVidAudio fed ring), so
+    // A/V stay in lockstep with no system extractor. Everything else uses the normal path.
     NanoTsDemux mVidTsDemux;
+    bool   mVidTsMode = false;              // current title's PICTURE is fed by mVidTsDemux
     bool   mVidTsAudio = false;             // current title's audio is fed by mVidTsDemux
+    // The .ts video track's real AMediaFormat (captured by vidBuildTracks from the system
+    // extractor): handed to NanoVideo::openFed so the HW decoder gets the full format (csd,
+    // colour aspects) and cold-starts reliably. Owned here; freed right after openFed/on close.
+    AMediaFormat* mVidTsVideoFmt = nullptr;
     // ---- multiple audio tracks + subtitles (built per opened title; web audioTracks/subList) ----
     struct VidCue { double t = 0.0, d = 0.0; std::string text; };   // start, duration, text
     struct VidAudTrk { int idx = 0; std::string name; };           // idx = extractor track index
@@ -1607,9 +1614,11 @@ private:
     void vidBuildTracks(const std::string& file);   // enumerate audio + embedded text subs + sidecars
     void vidReadEmbeddedCues(const std::string& file, int trackIdx, std::vector<VidCue>& out);
     void vidSetAudioTrack(int ordinal);             // switch the active audio track (re-opens mVidAudio)
-    void vidOpenTitleAudio(const std::string& file);   // open audio for a title (.ts via demux, else mVidAudio)
+    void vidOpenTitleAudio(const std::string& file);   // open audio for a NON-.ts title (mVidAudio)
+    bool vidOpenTitle(const std::string& file, int w, int h);  // open a title's video+audio (.ts demux or normal)
     void vidCloseTitleAudio();                      // stop the demux (if any) + release mVidAudio
     void vidAudioSeek(double sec);                  // seek the audio, routed to the demux for .ts
+    double vidDuration() const;                     // duration (s): demux for .ts, else NanoVideo
     std::vector<VidCue> vidParseSrt(const std::string& text);   // SRT/VTT cue parser (web vidParseCues)
     const std::vector<VidCue>* vidActiveSubCues() const;        // cues for the selected sub track, or null
     double mVidScanLastTick = -1.0;         // wall-clock anchor for timer-driven scan

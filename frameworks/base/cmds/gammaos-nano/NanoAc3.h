@@ -20,6 +20,7 @@ public:
 
     bool init();              // allocate the liba52 state (idempotent)
     bool ready() const { return mState != nullptr; }
+    void free();              // release the liba52 state (full teardown when audio stops)
     void reset();             // forget partial-frame state (on seek/flush)
 
     // Decode AC-3 from a buffer that may hold zero or more whole frames. Appends

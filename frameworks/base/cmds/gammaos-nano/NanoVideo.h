@@ -12,6 +12,10 @@
 
 #include <GLES2/gl2.h>
 #include <atomic>
+#include <condition_variable>
+#include <cstdint>
+#include <deque>
+#include <functional>
 #include <mutex>
 #include <string>
 #include <thread>
@@ -37,6 +41,33 @@ public:
 
     // Open + start decoding (render thread, EGL context current). false = failed.
     bool open(const std::string& path);
+
+    // "Fed" mode: the picture is decoded from access units pushed by an external demuxer
+    // (NanoTsDemux) instead of NanoVideo's own AMediaExtractor. This is how a .ts plays:
+    // ONE in-process demuxer feeds both this video codec and the audio decoder from a
+    // single read pointer, so A/V stay in lockstep (no second extractor, no system
+    // MPEG2TSExtractor, no byte-position guesswork). openFed sets up the codec + GL output
+    // by mime (e.g. "video/mpeg2") with a size hint (corrected by FORMAT_CHANGED); the
+    // worker pulls input from feedVideo(). Render thread, EGL current.
+    // srcFmt (optional): the real track format from an AMediaExtractor (csd, colour aspects,
+    // etc). Configuring the HW decoder with the full format - exactly as the extractor-driven
+    // open() path does - makes the Allwinner MPEG-2 decoder cold-start reliably; a bare
+    // mime+size format intermittently wedges it. Ownership stays with the caller.
+    bool openFed(const std::string& mime, int width, int height, AMediaFormat* srcFmt = nullptr);
+    // Push one coded picture (elementary-stream access unit) + its PTS (us). Blocks while
+    // the bounded input queue is full (back-pressure paces the demuxer); returns false if
+    // the player is tearing down. Call from the demuxer worker.
+    bool feedVideo(const uint8_t* es, size_t len, int64_t ptsUs);
+    void feedVideoEos();            // no more access units are coming
+    void flushFed(double newBaseSec); // drop queued input + flush the codec + re-anchor (seek)
+    bool isFed() const { return mFed; }
+
+    // Audio-master pacing: when set, the decode worker holds each frame until this clock
+    // (the audio playback position, s) reaches the frame PTS, so the picture tracks the audio
+    // (the demuxer feeds both off one read pointer; the audio plays continuously and the video
+    // follows it). Cleared (nullptr) to fall back to wall-clock-by-PTS pacing. Set by the demuxer.
+    void setClockFn(std::function<double()> fn);
+
     void release();                 // full SYNC teardown (idempotent; render thread; may block)
     // Async teardown: AMediaCodec_stop() can block for seconds on this OMX decoder,
     // which would freeze the render thread and trip the render watchdog. releaseAsync()
@@ -117,8 +148,25 @@ private:
     double mClockBasePts = 0.0;     // PTS (s) at the anchor
     int64_t mClockBaseNs = 0;       // CLOCK_MONOTONIC ns at the anchor
     std::atomic<double> mPosSec{0.0};
+    std::function<double()> mClockFn;  // audio-master clock (guarded by mClockMx); null = wall-clock
 
     // Seek request handed to the worker.
     std::atomic<bool> mSeekPending{false};
     std::atomic<double> mSeekTarget{0.0};
+
+    // ---- fed mode (demuxer-driven .ts video) ----
+    bool mFed = false;
+    std::string mFedMime;                     // codec mime (for recreate-on-fault)
+    int mFedRecreate = 0;                      // recreate attempts (HW retry, then SW fallback)
+    AMediaCodec* createFedDecoder(bool forceSw); // pick SW (MPEG-2) or HW (AVC/HEVC) decoder by mime
+    bool recreateFedCodec();                   // rebuild a faulted codec; false when out of options
+    struct FedAu { std::vector<uint8_t> es; int64_t ptsUs; };
+    std::deque<FedAu> mFedQ;                  // bounded input queue (demuxer -> worker)
+    std::mutex mFedMx;
+    std::condition_variable mFedCv;           // worker waits for input / space
+    std::atomic<bool> mFedEos{false};
+    std::atomic<bool> mFedFlush{false};       // worker flushes the codec + queue on seek
+    std::atomic<double> mFedFlushBase{0.0};
+    static constexpr size_t kFedQMax = 24;    // ~0.8s of pictures; back-pressures the demuxer
+    bool popFedAu(FedAu& out, int timeoutMs); // worker: take next AU (false on timeout/quit)
 };

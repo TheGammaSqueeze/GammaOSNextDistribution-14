@@ -8,16 +8,18 @@
 // data source) re-parses the whole container on every open/seek - slow and heavy.
 //
 // NanoTsDemux reads the file ONCE with its own buffered fd reader, parses PAT/PMT
-// once (enumerating every audio PID + the video PID + the PCR PID), and on a worker
-// thread routes the SELECTED audio PID's PES through liba52 (NanoAc3) into a
-// NanoAudioPlayer fed ring. It ignores the CA_descriptor and transport scrambling
-// bits entirely (the payload is clear), so no descramble shim, no binder, no system
-// extractor. Audio-track switching is an O(1) PID re-route on the same PCR clock.
-// Captions (CEA-608 from the video PES user_data) hook into the same single pass.
+// once (enumerating every audio PID + the video PID + the PCR PID), and on a single
+// worker thread routes, from ONE read pointer: the video PID's PES to NanoVideo (fed
+// mode -> HW MPEG-2 codec), the SELECTED audio PID's PES through liba52 (NanoAc3) into
+// a NanoAudioPlayer fed ring, and (when enabled) the video user_data to a CEA-608
+// caption decoder. Because A and V come off the same read pointer they stay in lockstep
+// with no second extractor and no byte-position guesswork; audio-track switching is an
+// O(1) PID re-route on the shared clock. It ignores the CA_descriptor and transport
+// scrambling bits entirely (the payload is clear), so no descramble shim, no binder,
+// and no system MPEG2TSExtractor (whose AC-3 parser crashes on these captures).
 //
 // Lazy + self-contained: nothing is allocated until open(); stop()/close() join the
-// worker and free everything. The video picture still decodes through NanoVideo for
-// now; this engine owns the .ts audio (+ captions) only.
+// worker and free everything.
 #ifndef GAMMAOS_NANO_TS_DEMUX_H
 #define GAMMAOS_NANO_TS_DEMUX_H
 
@@ -30,6 +32,8 @@
 #include <vector>
 
 #include "NanoAc3.h"
+
+class NanoVideo;   // defined at global scope (NanoVideo.h is outside any namespace)
 
 namespace android {
 
@@ -56,22 +60,25 @@ public:
 
     const std::vector<AudioTrack>& audioTracks() const { return mAudio; }
     int videoPid() const { return mVideoPid; }
+    const char* videoMime() const;          // codec mime for the video stream type (e.g. "video/mpeg2")
     double duration() const { return mDurationSec; }
     bool isOpen() const { return mFd >= 0; }
 
-    // Start the audio worker: decode the audio track at `audioIndex` (into mAudio) via
-    // liba52 and feed `sink` (which must be put into fed mode by the caller at the
-    // track's rate, stereo). The worker paces itself on the sink's ring (blocks when
-    // full), so it never reads unboundedly ahead. Idempotent stop() joins it.
-    bool start(NanoAudioPlayer* sink, int audioIndex, double startSec);
+    // Start the single demux worker: feed `video` (NanoVideo in fed mode) the picture and
+    // decode the audio track at `audioIndex` via liba52 into `audio` (NanoAudio in fed
+    // mode at the track rate/stereo). Either sink may be null. The worker paces itself on
+    // the sinks' bounded queues (blocks when full), so it never reads unboundedly ahead.
+    // Idempotent stop() joins it.
+    bool start(NanoVideo* video, NanoAudioPlayer* audio, int audioIndex, double startSec);
     void stop();
 
-    // O(1) audio-track switch: re-route to a different audio PID and flush. The PCR
-    // timeline is shared, so playback continues at the same position (no re-open).
+    // O(1) audio-track switch: re-route to a different audio PID and flush. The shared
+    // read pointer means playback continues at the same position (no re-open).
     void selectAudio(int audioIndex);
 
-    // Seek the audio worker near targetSec (byte estimate from the PCR bitrate) and
-    // flush the decoder + sink ring. The picture (NanoVideo) seeks independently.
+    // Seek near targetSec (byte estimate from the PCR bitrate), repositioning the single
+    // read pointer and flushing BOTH sinks so video + audio resume together (in sync) at
+    // the new position.
     void seek(double targetSec);
 
     // CEA-608 captions: enable extraction from the video PES user_data and decode the
@@ -92,6 +99,8 @@ private:
     void handlePacket(const uint8_t* p);   // route one 188-byte packet
     void flushAudioPes();                  // decode whatever audio PES is pending
     void emitAudioPes(const uint8_t* pes, size_t len, int64_t ptsUs);
+    void flushVideoPes();                  // feed whatever video PES is pending
+    void emitVideoPes(const uint8_t* pes, size_t len);
     void scanVideoUserData(const uint8_t* es, size_t len, int64_t ptsUs);
     off64_t estimateByteForTime(double sec) const;
 
@@ -104,6 +113,8 @@ private:
     int mPmtPid = -1;
     int mPcrPid = -1;
     int mVideoPid = -1;
+    int mVideoStreamType = 0;                // PMT stream_type of the video ES (0x02 MPEG-2, etc)
+    int64_t mPtsBaseUs = -1;                 // first video PTS (us); subtracted so position starts at 0
     std::vector<AudioTrack> mAudio;
     double mDurationSec = 0.0;
     double mFirstPcr = -1.0;
@@ -116,6 +127,7 @@ private:
     std::atomic<int> mPendSelPid{-1};        // requested switch (-1 = none)
     std::atomic<double> mPendSeek{-1.0};     // requested seek sec (-1 = none)
     NanoAudioPlayer* mSink = nullptr;
+    NanoVideo* mVideoSink = nullptr;         // picture sink (fed mode); null = audio-only
     NanoAc3 mAc3;
     PidPes mAudioPes;
     std::vector<uint8_t> mAc3Buf;            // AC-3 ES accumulator across PES
@@ -124,10 +136,12 @@ private:
     // CEA-608
     std::atomic<bool> mCcEnable{false};
     std::atomic<int> mCcChannel{0};
-    PidPes mVideoPes;                        // only reassembled while CC is on
+    PidPes mVideoPes;                        // video PES reassembly (picture + caption probe)
+    bool mVideoStartedFeed = false;          // worker-only: a sequence header has been fed (clean codec start)
     std::mutex mCueMx;
     std::vector<Cue> mCues;
     std::atomic<bool> mCcSeen{false};
+    int mCcProbe = 0;                        // worker-only: frames probed for CC presence (bounded)
 };
 
 } // namespace android
