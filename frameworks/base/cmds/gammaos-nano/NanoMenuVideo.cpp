@@ -8,6 +8,7 @@
 #include "NanoMenuPS3.h"
 #include "NanoVideo.h"
 #include "NanoDvbSub.h"
+#include "NanoTsDescramble.h"
 #include "NanoJson.h"
 
 #include <algorithm>
@@ -1102,7 +1103,17 @@ void NanoMenu::vidBuildTracks(const std::string& file) {
         struct stat st;
         if (fstat(fd, &st) == 0 && st.st_size > 0) {
             AMediaExtractor* ex = AMediaExtractor_new();
-            if (AMediaExtractor_setDataSourceFd(ex, fd, 0, st.st_size) == AMEDIA_OK) {
+            // Scrambled-flagged .ts (CA descriptor in the PMT): feed the descramble data
+            // source so the audio tracks (e.g. AC-3) enumerate. Freed after the extractor.
+            AMediaDataSource* tsDs = nullptr; void* tsUd = nullptr; int tsPmt = -1;
+            media_status_t dst;
+            if (tsNeedsDescramble(fd, tsPmt)) {
+                tsDs = tsMakeDataSource(fd, (off64_t)st.st_size, tsPmt, &tsUd);
+                dst = tsDs ? AMediaExtractor_setDataSourceCustom(ex, tsDs) : AMEDIA_ERROR_UNKNOWN;
+            } else {
+                dst = AMediaExtractor_setDataSourceFd(ex, fd, 0, st.st_size);
+            }
+            if (dst == AMEDIA_OK) {
                 size_t nt = AMediaExtractor_getTrackCount(ex);
                 for (size_t i = 0; i < nt; i++) {
                     AMediaFormat* f = AMediaExtractor_getTrackFormat(ex, i);
@@ -1130,6 +1141,7 @@ void NanoMenu::vidBuildTracks(const std::string& file) {
                 }
             }
             AMediaExtractor_delete(ex);
+            tsFreeDataSource(tsDs, tsUd);   // after the extractor that used it
         }
         ::close(fd);
     }
@@ -1613,11 +1625,26 @@ void NanoMenu::videoTick() {
         bool wantAudio = mVidPlaying && mVidRate == 1.0 && !mVidStopped;
         double vp = mVideoTest->position();
         if (wantAudio && vp > 0.0) {
-            if (!mVidAudioStarted) { mVidAudio.seek(vp); mVidAudio.play(); mVidAudioStarted = true; }
+            if (!mVidAudioStarted) {
+                // One-time alignment to the picture, then let audio free-run (below).
+                double ap = mVidAudio.position();
+                VLOGI("NanoMenu: vidsync START ap=%.3f vp=%.3f drift=%.3f", ap, vp, ap - vp);
+                if (fabs(ap - vp) > 0.3) mVidAudio.seek(vp);
+                mVidAudio.play(); mVidAudioStarted = true;
+                mVidAudioResyncT = mEffectTime;
+            }
             else {
                 if (!mVidAudio.isPlaying()) mVidAudio.play();
                 double ap = mVidAudio.position();
-                if (fabs(ap - vp) > 0.3) mVidAudio.seek(vp);
+                // The picture is the master clock; audio free-runs alongside it (both advance at
+                // 1x). Only correct a LARGE drift, and never more often than the cooldown: a tight
+                // per-frame resync loop reseeks before the audio clock can re-establish, which
+                // resets it every frame and stutters the sound (it never actually plays).
+                if (fabs(ap - vp) > 0.6 && (mEffectTime - mVidAudioResyncT) > 2.0f) {
+                    VLOGI("NanoMenu: vidsync RESEEK ap=%.3f vp=%.3f drift=%.3f", ap, vp, ap - vp);
+                    mVidAudio.seek(vp);
+                    mVidAudioResyncT = mEffectTime;
+                }
             }
         } else if (!wantAudio && mVidAudio.isPlaying()) {
             mVidAudio.pause();

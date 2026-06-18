@@ -115,6 +115,11 @@ private:
     bool ensureStream(int rate, int channels); // open/reopen AAudio for the format
     void closeStream();
     void stopDecoder();                         // signal + join the decode thread
+    // Parse the container + select the audio track ONCE (fills outMeta), caching the
+    // extractor/format/datasource/fd below so seek() (decode-thread restart) reuses them
+    // instead of re-parsing. Must be called with the decode thread stopped.
+    bool setupExtractor(const std::string& path, int wantTrack, Meta& outMeta);
+    void freeExtractor();                        // tear the cached demuxer down (thread stopped)
 
     // ---- AAudio output ----
     void* mStream = nullptr;                    // AAudioStream* (opaque)
@@ -135,6 +140,20 @@ private:
     std::thread mDecodeThread;
     std::atomic<bool> mDecodeStop{false};       // ask the decoder to exit
     int mForcedAudioTrack = -1;                  // -1 = first audio; >=0 = exact extractor track (set in open(), read on the decode thread before it starts)
+
+    // ---- cached demuxer (parsed once in open(), reused across seek() restarts) ----
+    // Stored as void* so the NDK media headers stay out of this header. A seek restarts the
+    // decode thread but reuses these, so it never re-parses the container; this is essential
+    // for slow sources (large MPEG-TS via the descramble data source) where re-parsing on
+    // every A/V resync drift correction starves playback into a death spiral.
+    void* mExtractor = nullptr;                  // AMediaExtractor*
+    void* mExFormat = nullptr;                   // AMediaFormat* of the selected track
+    void* mExTsDs = nullptr;                     // AMediaDataSource* (TS descramble) or null
+    void* mExTsUd = nullptr;                     // descramble userdata
+    int   mExFd = -1;                            // fd backing the extractor
+    std::string mExPath;                         // path the cached extractor was built for
+    int   mExTrack = -1;                         // selected track index
+    bool  mExUseAc3 = false;                     // selected track is AC-3 (liba52 path)
     std::atomic<bool> mEos{false};              // decoder hit end-of-stream
     std::atomic<int64_t> mPendingSeekUs{-1};    // seek (us) the next decode consumes at start
     std::string mCurrentPath;                   // path of the open track (for re-seek respawn)
@@ -142,6 +161,9 @@ private:
     // ---- position / metadata ----
     std::atomic<int64_t> mFramesConsumed{0};    // frames the callback has emitted
     std::atomic<int64_t> mSeekBaseFrames{0};    // frame offset applied on the last seek
+    std::atomic<bool> mClockArmed{false};       // real audio has flowed since the last seek/open;
+                                                // before that, underrun silence must NOT advance the
+                                                // clock (else it races ahead during a slow re-prime)
     Meta mMeta;
     mutable std::mutex mMetaMutex;
 

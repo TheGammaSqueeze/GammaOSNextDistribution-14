@@ -1589,6 +1589,7 @@ private:
     NanoAudioPlayer mVidAudio;
     bool   mVidHasAudio = false;
     bool   mVidAudioStarted = false;        // audio held until the first video frame (avoids warmup desync)
+    float  mVidAudioResyncT = 0.0f;         // last A/V resync time (cooldown so resync never tight-loops)
     // ---- multiple audio tracks + subtitles (built per opened title; web audioTracks/subList) ----
     struct VidCue { double t = 0.0, d = 0.0; std::string text; };   // start, duration, text
     struct VidAudTrk { int idx = 0; std::string name; };           // idx = extractor track index

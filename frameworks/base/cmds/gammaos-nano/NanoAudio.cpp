@@ -18,6 +18,7 @@
 
 #include "NanoAudio.h"
 #include "NanoAc3.h"   // liba52 AC-3 -> int16 stereo (device has no AC-3 codec)
+#include "NanoTsDescramble.h"   // descramble scrambled-flagged .ts so its audio track extracts
 
 #include <aaudio/AAudio.h>
 #include <media/NdkMediaExtractor.h>
@@ -204,7 +205,17 @@ bool NanoAudioPlayer::probe(const std::string& path, Meta& out, int wantTrack) {
     struct stat st;
     if (fstat(fd, &st) != 0 || st.st_size <= 0) { ::close(fd); return false; }
     AMediaExtractor* ex = AMediaExtractor_new();
-    media_status_t ms = AMediaExtractor_setDataSourceFd(ex, fd, 0, st.st_size);
+    // Scrambled-flagged .ts (CA descriptor in the PMT): feed the descramble data source
+    // so the audio track (e.g. AC-3) is visible to the extractor. Without this the probe
+    // fails on a scrambled .ts and open() bails before the decode thread starts.
+    AMediaDataSource* tsDs = nullptr; void* tsUd = nullptr; int tsPmt = -1;
+    media_status_t ms;
+    if (tsNeedsDescramble(fd, tsPmt)) {
+        tsDs = tsMakeDataSource(fd, (off64_t)st.st_size, tsPmt, &tsUd);
+        ms = tsDs ? AMediaExtractor_setDataSourceCustom(ex, tsDs) : AMEDIA_ERROR_UNKNOWN;
+    } else {
+        ms = AMediaExtractor_setDataSourceFd(ex, fd, 0, st.st_size);
+    }
     bool ok = false;
     if (ms == AMEDIA_OK) {
         AMediaFormat* tf = nullptr;
@@ -212,6 +223,7 @@ bool NanoAudioPlayer::probe(const std::string& path, Meta& out, int wantTrack) {
         if (tf) AMediaFormat_delete(tf);
     }
     AMediaExtractor_delete(ex);
+    tsFreeDataSource(tsDs, tsUd);   // after the extractor that used it
     ::close(fd);
     return ok && out.sampleRate > 0 && out.channels > 0;
 }
@@ -272,16 +284,24 @@ void NanoAudioPlayer::stopDecoder() {
 bool NanoAudioPlayer::open(const std::string& path, int audioTrackIndex) {
     init();
     mForcedAudioTrack = audioTrackIndex;   // -1 = first audio (default); >=0 = that extractor track
-    Meta m;
-    if (!probe(path, m, audioTrackIndex)) { ALOGW("NanoAudio: probe failed %s", path.c_str()); return false; }
 
-    stopDecoder();                 // join any previous decode
+    stopDecoder();                 // join any previous decode (thread no longer owns the extractor)
+
+    // Parse the container + select the track ONCE here (fills the meta) and cache the
+    // demuxer; the decode thread and every later seek reuse it without re-parsing.
+    Meta m;
+    if (!setupExtractor(path, audioTrackIndex, m)) {
+        ALOGW("NanoAudio: open failed %s", path.c_str());
+        freeExtractor();
+        return false;
+    }
 
     // Reset playback state.
     mHead = 0; mTail = 0;
     mEos = false;
     mFramesConsumed = 0;
     mSeekBaseFrames = 0;
+    mClockArmed = false;
     mPendingSeekUs = -1;
     mStopped = false;
     { std::lock_guard<std::mutex> lk(mMetaMutex); mMeta = m; }
@@ -341,10 +361,13 @@ void NanoAudioPlayer::seek(double sec) {
     mEos = false;
     mSeekBaseFrames = (int64_t)(sec * mStreamRate);
     mFramesConsumed = 0;
+    mClockArmed = false;
     mPendingSeekUs = (int64_t)(sec * 1e6);
     mStopped = false;
     mDecodeStop = false;
-    if (!mCurrentPath.empty())
+    // Restart the decode thread on the SAME cached extractor: it only AMediaExtractor_seekTo's
+    // (cheap), never re-parses the container. This makes A/V resync affordable on slow sources.
+    if (mExtractor)
         mDecodeThread = std::thread(&NanoAudioPlayer::decodeThreadFunc, this, mCurrentPath);
     if (wasPlaying) play();
 }
@@ -380,6 +403,7 @@ NanoAudioPlayer::Meta NanoAudioPlayer::meta() const {
 
 void NanoAudioPlayer::release() {
     stopDecoder();
+    freeExtractor();               // decode thread joined: safe to drop the cached demuxer
     closeStream();
     std::vector<int16_t>().swap(mRing);
     mRingCap = 0;
@@ -406,12 +430,20 @@ int32_t NanoAudioPlayer::fillAudio(void* audioData, int32_t numFrames) {
     }
     for (int32_t i = toRead; i < want; i++) dst[i] = 0;   // underrun -> silence
     mTail.store(tail + toRead, std::memory_order_release);
-    // Advance the presentation clock by the FULL request (numFrames), not just the
-    // frames actually drained: silence emitted on underrun is still played time, so the
-    // audio clock must track wall time. Counting only real frames froze the clock while
-    // the decoder re-primed after a seek, which made the video A/V resync (drift > 0.3s)
-    // reseek forever on slow-to-reopen containers (TS), thrashing AC-3 audio.
-    if (ch > 0) mFramesConsumed.fetch_add(numFrames, std::memory_order_relaxed);
+    // Presentation clock. Once real audio has flowed since the last seek/open, silence
+    // emitted on a mid-stream underrun is still played time, so advance by the FULL request
+    // (counting only real frames would freeze the clock on underrun). But BEFORE the first
+    // real frame (the decoder is still priming / a slow container like TS is re-parsing) the
+    // stream has not actually started: advancing on that startup silence races the clock
+    // seconds ahead of the picture and makes the video A/V resync reseek forever. So hold the
+    // clock until real audio appears, then arm it.
+    if (ch > 0) {
+        if (toRead > 0) mClockArmed.store(true, std::memory_order_relaxed);
+        if (mClockArmed.load(std::memory_order_relaxed))
+            mFramesConsumed.fetch_add(numFrames, std::memory_order_relaxed);   // armed: silence counts
+        else
+            mFramesConsumed.fetch_add(toRead / ch, std::memory_order_relaxed); // priming: real frames only
+    }
 
     // FFT tap: roll the emitted frames (downmixed to mono) into a 512-sample window
     // and publish a linear copy for getBands() on the UI thread.
@@ -465,28 +497,63 @@ void NanoAudioPlayer::getBands(Bands& out) {
     out.treble = (kFftBins - mEnd) > 0 ? st / (kFftBins - mEnd) : 0;
 }
 
-// ---- decoder worker: AMediaExtractor + AMediaCodec -> int16 PCM ring ----
-void NanoAudioPlayer::decodeThreadFunc(std::string path) {
+// Parse the container + select the audio track once, caching the demuxer so seeks (which
+// restart the decode thread) never re-parse. Must run with the decode thread stopped.
+bool NanoAudioPlayer::setupExtractor(const std::string& path, int wantTrack, Meta& outMeta) {
+    freeExtractor();                                  // drop any previous cache
     int fd = ::open(path.c_str(), O_RDONLY);
-    if (fd < 0) { mEos = true; return; }
+    if (fd < 0) return false;
     struct stat st;
-    if (fstat(fd, &st) != 0 || st.st_size <= 0) { ::close(fd); mEos = true; return; }
+    if (fstat(fd, &st) != 0 || st.st_size <= 0) { ::close(fd); return false; }
 
     AMediaExtractor* ex = AMediaExtractor_new();
-    if (AMediaExtractor_setDataSourceFd(ex, fd, 0, st.st_size) != AMEDIA_OK) {
-        AMediaExtractor_delete(ex); ::close(fd); mEos = true; return;
+    // Scrambled-flagged .ts (CA descriptor in the PMT): feed the descramble data source so
+    // the audio track (e.g. AC-3) is extractable, the same source the video path uses.
+    AMediaDataSource* tsDs = nullptr; void* tsUd = nullptr; int tsPmt = -1;
+    media_status_t dst;
+    if (tsNeedsDescramble(fd, tsPmt)) {
+        tsDs = tsMakeDataSource(fd, (off64_t)st.st_size, tsPmt, &tsUd);
+        dst = tsDs ? AMediaExtractor_setDataSourceCustom(ex, tsDs) : AMEDIA_ERROR_UNKNOWN;
+    } else {
+        dst = AMediaExtractor_setDataSourceFd(ex, fd, 0, st.st_size);
     }
-    Meta tmp;
+    if (dst != AMEDIA_OK) {
+        AMediaExtractor_delete(ex); tsFreeDataSource(tsDs, tsUd); ::close(fd); return false;
+    }
     int track = -1;
     AMediaFormat* tf = nullptr;
-    if (!readMetaFromExtractor(ex, fd, tmp, &track, &tf, mForcedAudioTrack)) {
-        AMediaExtractor_delete(ex); ::close(fd); mEos = true; return;
+    if (!readMetaFromExtractor(ex, fd, outMeta, &track, &tf, wantTrack)) {
+        AMediaExtractor_delete(ex); tsFreeDataSource(tsDs, tsUd); ::close(fd); return false;
     }
     AMediaExtractor_selectTrack(ex, track);
+    const char* mime = nullptr;
+    AMediaFormat_getString(tf, AMEDIAFORMAT_KEY_MIME, &mime);
+
+    mExtractor = ex; mExFormat = tf; mExTsDs = tsDs; mExTsUd = tsUd; mExFd = fd;
+    mExTrack = track; mExPath = path; mExUseAc3 = isAc3Mime(mime);
+    return true;
+}
+
+void NanoAudioPlayer::freeExtractor() {
+    if (mExFormat) { AMediaFormat_delete(static_cast<AMediaFormat*>(mExFormat)); mExFormat = nullptr; }
+    if (mExtractor) { AMediaExtractor_delete(static_cast<AMediaExtractor*>(mExtractor)); mExtractor = nullptr; }
+    tsFreeDataSource(static_cast<AMediaDataSource*>(mExTsDs), mExTsUd);   // null-safe
+    mExTsDs = nullptr; mExTsUd = nullptr;
+    if (mExFd >= 0) { ::close(mExFd); mExFd = -1; }
+    mExPath.clear(); mExTrack = -1; mExUseAc3 = false;
+}
+
+// ---- decoder worker: AMediaExtractor + AMediaCodec -> int16 PCM ring ----
+// Uses the cached extractor/format built by setupExtractor() (parsed once in open()).
+// A seek restarts this thread, which only seeks the existing extractor - no re-parse.
+void NanoAudioPlayer::decodeThreadFunc(std::string /*path*/) {
+    AMediaExtractor* ex = static_cast<AMediaExtractor*>(mExtractor);
+    AMediaFormat* tf = static_cast<AMediaFormat*>(mExFormat);
+    if (!ex || !tf) { mEos = true; return; }
 
     const char* mime = nullptr;
     AMediaFormat_getString(tf, AMEDIAFORMAT_KEY_MIME, &mime);
-    bool useAc3 = isAc3Mime(mime);   // decode AC-3 via liba52, not AMediaCodec
+    bool useAc3 = mExUseAc3;          // decode AC-3 via liba52, not AMediaCodec
     AMediaCodec* codec = (!useAc3 && mime) ? AMediaCodec_createDecoderByType(mime) : nullptr;
     bool rawPcm = false;
     if (!useAc3 && (!codec || AMediaCodec_configure(codec, tf, nullptr, nullptr, 0) != AMEDIA_OK ||
@@ -610,10 +677,9 @@ void NanoAudioPlayer::decodeThreadFunc(std::string path) {
         }
     }
 
+    // Drop only the codec; the extractor/format/datasource/fd are cached members reused on
+    // the next seek-restart (freed in freeExtractor() once the thread is stopped for good).
     if (codec) { AMediaCodec_stop(codec); AMediaCodec_delete(codec); }
-    AMediaFormat_delete(tf);
-    AMediaExtractor_delete(ex);
-    ::close(fd);
     if (!mDecodeStop.load()) mEos = true;   // natural end
 }
 
