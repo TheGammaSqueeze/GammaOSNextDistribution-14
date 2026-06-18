@@ -1457,8 +1457,8 @@ void NanoMenu::openVideoPlayer(const std::vector<Ps3Item>& list, int listSel, in
     mVidResumeDirty = false; mVidResumeSaveT = mEffectTime;
     mVidDlgActive = false; mVidDlgBusyUntil = 0.0f;   // clear any stale confirm/info/busy modal
     {
-        double rs = mVideos[vi].resumeSec, dur = vidDuration();
-        bool resumable = (rs > 5.0 && (dur <= 0.0 || rs < dur - 5.0));
+        double rs = mVideos[vi].resumeSec;
+        bool resumable = (rs > 0.0);   // web shows Resume whenever a point was saved (vidCaptureResume gates it)
         if (resumeChoice == 1 && resumable) {        // option-menu "Resume": seek now, no prompt
             if (mVideoTest) mVideoTest->seek(rs);
             if (mVidHasAudio) vidAudioSeek(rs);
@@ -1477,7 +1477,8 @@ void NanoMenu::vidCaptureResume() {
     int vi = mVidList[mVidIdx];
     if (vi < 0 || vi >= (int)mVideos.size()) return;
     double p = mVideoTest->position(), dur = vidDuration();
-    double rs = (p > 5.0 && dur > 0.0 && p < dur - 5.0) ? p : 0.0;
+    // web: keep a resume point when 3s < pos < dur-5 AND pos < 97% (drop a near-finished title).
+    double rs = (dur > 0.0 && p > 3.0 && p < dur - 5.0 && p < dur * 0.97) ? p : 0.0;
     if (mVideos[vi].resumeSec != rs) { mVideos[vi].resumeSec = rs; mVidResumeDirty = true; }
 }
 
@@ -2200,11 +2201,13 @@ void NanoMenu::vidSubConfirm() {
             if (sel == 3) {   // progressive A-B: set A, then B (needs >0.5s gap), then clear
                 double p = mVideoTest ? mVideoTest->position() : 0.0;
                 if (mVidAbA < 0.0) { mVidAbA = p; mVidAbB = -1.0; mVidRepeat = 3;
-                                     mVidDispMode = "A-B Repeat: Point A set"; mVidDispModeUntil = mEffectTime + 1.8f; }
-                else if (mVidAbB < 0.0 && p > mVidAbA + 0.5) { mVidAbB = p;
-                                     mVidDispMode = "A-B Repeat: Point B set"; mVidDispModeUntil = mEffectTime + 1.8f; }
-                else if (mVidAbB >= 0.0) { mVidAbA = mVidAbB = -1.0; mVidRepeat = 0;
-                                     mVidDispMode = "A-B Repeat Off"; mVidDispModeUntil = mEffectTime + 1.8f; }
+                                     mVidDispMode = "A-B Repeat: Point A set"; }
+                else if (mVidAbB < 0.0) {            // B not set yet: accept if past A, else re-prompt A (web)
+                    if (p > mVidAbA + 0.5) { mVidAbB = p; mVidDispMode = "A-B Repeat: Point B set"; }
+                    else                   { mVidDispMode = "A-B Repeat: Point A set"; }
+                }
+                else { mVidAbA = mVidAbB = -1.0; mVidRepeat = 0; mVidDispMode = "A-B Repeat Off"; }
+                mVidDispModeUntil = mEffectTime + 1.8f;
             } else { mVidRepeat = sel; mVidAbA = mVidAbB = -1.0;
                      mVidDispMode = kVidRepeatModes[sel]; mVidDispModeUntil = mEffectTime + 1.8f; }   // web: dispMode = mode name
             mVidSubOpen = false; break;
@@ -2706,7 +2709,7 @@ void NanoMenu::drawVideoScene(float closeT) {
         char lbl[64];
         snprintf(lbl, sizeof(lbl), "Chapter %d   %s", i + 1, vFmtTime(mVidChapters[i].t).c_str());
         float lc = sel ? 1.0f : 0.82f;
-        drawText(lbl, cx, ps3::baselineToTopY(cy + th + H * 0.04f, lblFs), lblFs, lc, lc, lc, (sel ? 1.0f : 0.85f) * A);
+        drawText(lbl, cx, ps3::baselineToTopY(cy + th + H * 0.034f, lblFs), lblFs, lc, lc, lc, (sel ? 1.0f : 0.85f) * A);   // web cy+th+CH*0.034
     }
 
     // Footer hint (web "✕ Enter   ○ Back").
