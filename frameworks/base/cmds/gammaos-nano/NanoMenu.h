@@ -1641,6 +1641,21 @@ private:
     void vidCaptureResume();                // store the current position onto the playing VideoItem
     void vidResumeConfirm();                // apply the highlighted Resume-prompt choice
     void drawVideoResume(float et);         // render the Resume prompt
+    // Video-player modal dialog (web drawDialog confirm/info/busy), mirroring the home XMB
+    // message dialog: Delete + Change Icon confirms, the Creating-icon/result chain, and the
+    // no-audio / no-subtitle / Go-To-over-limit errors (web shows centred modals, not the
+    // transient flashes nano used). Exists only while open; no allocations.
+    bool   mVidDlgActive = false;
+    int    mVidDlgKind = 0;                 // 0 = info (OK), 1 = confirm (Yes/No), 2 = busy (no button)
+    std::string mVidDlgBody;
+    int    mVidDlgSel = 1;                  // confirm: 0 = Yes, 1 = No (web defaultSel = No)
+    int    mVidDlgYesAct = 0;               // confirm Yes action: 1 = Delete, 2 = Change Icon
+    float  mVidDlgBusyUntil = 0.0f;         // busy auto-advance time (Creating icon... -> result)
+    void   vidDlgInfo(const std::string& body);
+    void   vidDlgConfirm(const std::string& body, int yesAct);
+    void   vidDlgActivate();                // Cross on the dialog
+    void   vidDlgBack();                    // Circle/Back on the dialog
+    void   drawVideoDialog(float et);       // render the modal
     void vidStop();                         // pause + rewind to 0
     void vidScan(int dir);                  // Fast Forward / Fast Reverse (steps 1.5/10/30/120)
     void vidSlow(int dir);                  // Slow Forward / Slow Reverse (+-0.5)

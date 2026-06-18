@@ -1455,6 +1455,7 @@ void NanoMenu::openVideoPlayer(const std::vector<Ps3Item>& list, int listSel, in
     // (>5s in and not within 5s of the end). Hold playback until the user chooses.
     mVidResumeAsk = false; mVidResumeSel = 0; mVidResumeAskSec = 0.0;
     mVidResumeDirty = false; mVidResumeSaveT = mEffectTime;
+    mVidDlgActive = false; mVidDlgBusyUntil = 0.0f;   // clear any stale confirm/info/busy modal
     {
         double rs = mVideos[vi].resumeSec, dur = vidDuration();
         bool resumable = (rs > 5.0 && (dur <= 0.0 || rs < dur - 5.0));
@@ -1709,6 +1710,9 @@ void NanoMenu::vidBeginning() {
 
 void NanoMenu::videoTick() {
     vidReapDying();   // free any async-released decoder whose background teardown finished
+    // Change Icon busy dialog auto-advances to the result (web vidCreateIcon ~650ms timer).
+    if (mVidDlgActive && mVidDlgKind == 2 && mEffectTime >= mVidDlgBusyUntil)
+        vidDlgInfo("The icon has been changed.");
     float dt = mFrameDt; if (dt < 0.0f || dt > 0.2f) dt = 0.016f;
     // 400ms smoothstep enter/leave (web vidEnterT). Eases toward 1 while active, 0 when
     // closing; the decoder is freed once fully faded out.
@@ -2048,6 +2052,8 @@ bool NanoMenu::renderVideoPlayer() {
     if (mVidGoToOpen) drawVideoGoTo();
     // Layer 11: the Resume / Play-from-beginning prompt (shown on open over everything).
     if (mVidResumeAsk) drawVideoResume(et);
+    // Layer 12: confirm/info/busy modal (Delete, Change Icon, errors), over everything.
+    if (mVidDlgActive) drawVideoDialog(et);
     return true;
 }
 
@@ -2251,22 +2257,26 @@ void NanoMenu::vidPanelActivate() {
     else if (!strcmp(a, "goto"))       vidGoToOpen();
     else if (!strcmp(a, "scene"))      vidSceneOpen();
     else if (!strcmp(a, "audio")) {
-        if (mVidAudTracks.empty()) { vidPanelClose(); vidShowTransient("There is no audio.", 1600.0f); }
+        if (mVidAudTracks.empty()) { vidPanelClose(); vidDlgInfo("There is no audio."); }
         else { vidSubBuild(4); mVidSubOpen = true; }
     }
     else if (!strcmp(a, "subtitle")) {
         // Line-21 captions live behind the demuxer (added by vidSubBuild), not in
         // mVidSubTracks yet, so a .ts with only CC must not bail on the empty check.
         bool haveCc = mVidTsMode && mVidTsDemux.hasCea608(0);
-        if (mVidSubTracks.empty() && !haveCc) { vidPanelClose(); vidShowTransient("There are no subtitle options available.", 1700.0f); }
+        if (mVidSubTracks.empty() && !haveCc) { vidPanelClose(); vidDlgInfo("There are no subtitle options available."); }
         else { vidSubBuild(5); mVidSubOpen = true; }
     }
-    else if (!strcmp(a, "del")) { vidPanelClose(); vidShowTransient("Delete completed.", 1400.0f); }
+    else if (!strcmp(a, "del")) {   // web del: confirm (default No) -> "Delete completed." (a no-op like the web)
+        vidPanelClose();
+        vidDlgConfirm("The title that is currently playing will be deleted.\nAre you sure you want to continue?", 1);
+    }
     else if (!strcmp(a, "chgicon")) {
         double rem = mVideoTest ? (vidDuration() - mVideoTest->position()) : 0.0;
         vidPanelClose();
-        if (rem < 15.0) vidShowTransient("You cannot create an icon less than 15 seconds in length.", 1800.0f);
-        else vidShowTransient("The icon has been changed.", 1600.0f);
+        if (rem < 15.0) vidDlgInfo("You cannot create an icon less than 15 seconds in length.");
+        else vidDlgConfirm("15 seconds of video starting from this scene will be set as the icon.\n"
+                           "If an icon has already been set, it will be overwritten.\nDo you want to continue?", 2);
     }
 }
 
@@ -2421,7 +2431,7 @@ void NanoMenu::vidGoToActivate() {
     double target = mVidGoToH * 3600.0 + mVidGoToM * 60.0 + mVidGoToS;
     double dur = mVideoTest ? vidDuration() : 0.0;
     if (dur > 0.0 && target > dur) {
-        vidShowTransient("The range you can specify has been exceeded.", 1600.0f);
+        vidDlgInfo("The range you can specify has been exceeded.");   // web: centred modal over the picker
         return;
     }
     if (mVideoTest) { mVidRate = 1.0; mVideoTest->seek(target); if (mVidPlaying) mVideoTest->play(); }
@@ -2508,6 +2518,82 @@ void NanoMenu::drawVideoResume(float et) {
     float hintY = Y(909.0f);
     ps3DlgHint(XC(VW * 0.401f), true,  "Select", hintY, S, A);
     ps3DlgHint(XC(VW * 0.629f), false, "Resume", hintY, S, A);
+}
+
+// Video-player modal dialog (info / confirm / busy), drawn in the same XMB message-dialog
+// style as the Resume prompt. Used for the Delete + Change Icon confirms, the Creating-icon
+// busy->result chain, and the no-audio / no-subtitle / Go-To-over-limit errors.
+void NanoMenu::vidDlgInfo(const std::string& body) {
+    mVidDlgActive = true; mVidDlgKind = 0; mVidDlgBody = body; mVidDlgSel = 0; mVidDlgBusyUntil = 0.0f;
+}
+void NanoMenu::vidDlgConfirm(const std::string& body, int yesAct) {
+    mVidDlgActive = true; mVidDlgKind = 1; mVidDlgBody = body; mVidDlgYesAct = yesAct; mVidDlgSel = 1; mVidDlgBusyUntil = 0.0f;   // default = No (web defaultSel)
+}
+void NanoMenu::vidDlgActivate() {                  // Cross
+    if (!mVidDlgActive) return;
+    if (mVidDlgKind == 2) return;                  // busy: no button
+    if (mVidDlgKind == 0) { mVidDlgActive = false; return; }   // info: OK dismisses
+    if (mVidDlgSel == 0) {                          // confirm -> Yes
+        if (mVidDlgYesAct == 1) vidDlgInfo("Delete completed.");
+        else if (mVidDlgYesAct == 2) {              // Change Icon: busy -> result (web vidCreateIcon)
+            mVidDlgActive = true; mVidDlgKind = 2; mVidDlgBody = "Creating icon...\nPlease wait.";
+            mVidDlgBusyUntil = mEffectTime + 0.65f;
+        } else mVidDlgActive = false;
+    } else mVidDlgActive = false;                   // confirm -> No
+}
+void NanoMenu::vidDlgBack() {                       // Circle / Back
+    if (!mVidDlgActive) return;
+    if (mVidDlgKind == 2) return;                  // busy: not dismissable
+    mVidDlgActive = false;                          // info OK / confirm cancel (= No)
+}
+
+void NanoMenu::drawVideoDialog(float et) {
+    int W = mWidth, H = mHeight;
+    float A = (et > 0.0f) ? et : 1.0f;
+    drawQuad(0, 0, (float)W, (float)H, 0, 0, 0, 0.78f * A);   // darken behind the modal
+    { ps3::LayoutParams lp; lp.panelW = mWidth; lp.panelH = mHeight; lp.uiScale = mPs3UiScale; ps3::layoutCompute(lp); }
+    setGlyphAtlasAA(true);
+    mTextOutlineRatio = 0.5f;
+    float ui = mPs3UiScale; if (ui < 0.5f) ui = 0.5f; if (ui > 2.0f) ui = 2.0f;
+    const float S = ps3::gScale / ui;
+    const float offX = ps3::gFrameX + (ps3::gFrameW - S * ps3::XCF(ps3::VW)) * 0.5f;
+    const float offY = ps3::gFrameY + ps3::gFrameH * 0.5f - S * (ps3::VH * 0.5f);
+    auto XC = [&](float vx) { return S * ps3::XCF(vx) + offX; };
+    auto Y  = [&](float vy) { return S * vy + offY; };
+    auto DS = [&](float v)  { return S * v; };
+    const float fb = ps3DlgFontBoost();
+    auto FS = [&](float px) { return S * px * fb / 16.0f; };
+    const float VW = ps3::VW;
+    const float innerTop = 199.0f, innerBot = 880.0f;
+
+    float divLw = fmaxf(1.0f, DS(1.0f));
+    drawQuad(ps3::gFrameX, Y(innerTop), ps3::gFrameW, divLw, 1.0f, 1.0f, 1.0f, 0.55f * A);
+    drawQuad(ps3::gFrameX, Y(innerBot), ps3::gFrameW, divLw, 1.0f, 1.0f, 1.0f, 0.55f * A);
+
+    // Body (centred, multi-line on '\n'). Confirm sits higher to leave room for Yes/No.
+    std::vector<std::string> lines; std::string cur;
+    for (char c : mVidDlgBody) { if (c == '\n') { lines.push_back(cur); cur.clear(); } else cur.push_back(c); }
+    lines.push_back(cur);
+    float lh = DS(40.0f);
+    float bodyCenterV = (mVidDlgKind == 1) ? (innerTop + 230.0f) : ((innerTop + innerBot) * 0.5f);
+    float by = Y(bodyCenterV) - (float)((int)lines.size() - 1) * lh * 0.5f;
+    for (auto& ln : lines) { ps3DlgText(ln.c_str(), XC(VW * 0.5f), by, FS(26.0f), 0.95f, 0.95f, 0.95f, A, 1); by += lh; }
+
+    if (mVidDlgKind == 1) {                          // confirm: Yes / No (glowing selected)
+        const char* opt[2] = { "Yes", "No" };
+        float bxc = XC(VW * 0.5f) - DS(110.0f), byv = Y(innerTop + 470.0f);
+        for (int i = 0; i < 2; i++)
+            ps3DlgOption(opt[i], bxc + (float)i * DS(220.0f), byv, i == mVidDlgSel, false, A, S);
+    }
+
+    float hintY = Y(909.0f);
+    if (mVidDlgKind == 0) {
+        ps3DlgHint(XC(VW * 0.629f), false, "OK", hintY, S, A);
+    } else if (mVidDlgKind == 1) {
+        ps3DlgHint(XC(VW * 0.401f), true,  "Enter", hintY, S, A);
+        ps3DlgHint(XC(VW * 0.629f), false, "Back", hintY, S, A);
+    }
+    // busy (kind 2): no button hint (web busy dialogs)
 }
 
 // ===========================================================================
