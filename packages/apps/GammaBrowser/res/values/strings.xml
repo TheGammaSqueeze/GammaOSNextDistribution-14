@@ -6,4 +6,15 @@
     <string name="cd_forward">Forward</string>
     <string name="cd_reload">Reload</string>
     <string name="cd_go">Go</string>
+    <string name="cd_bookmark">Bookmark this page</string>
+    <string name="cd_menu">Bookmarks and history</string>
+    <string name="tab_bookmarks">Bookmarks</string>
+    <string name="tab_history">History</string>
+    <string name="desktop_on">Desktop site: On</string>
+    <string name="desktop_off">Desktop site: Off</string>
+    <string name="empty_bookmarks">No bookmarks yet. Press the star to save a page.</string>
+    <string name="empty_history">No history yet.</string>
+    <string name="panel_hint">A Open    X Delete    Y Desktop site    L1/R1 Switch    B Close</string>
+    <string name="bookmarked">Bookmark added</string>
+    <string name="unbookmarked">Bookmark removed</string>
 </resources>
