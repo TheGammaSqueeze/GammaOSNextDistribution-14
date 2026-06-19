@@ -274,7 +274,7 @@ void NanoMenu::buildSettingsTree() {
         b.toggle("immersive", "Immersive Mode",
                  SettingSource::kProp, "persist.gammaos.immersive", "0");
         b.toggle("refresh_lock", "Refresh Rate Lock",
-                 SettingSource::kProp, "persist.gammaos.refresh.lock", "false");
+                 SettingSource::kProp, "persist.gammaos.refresh.lock", "0");
         b.text("refresh_rate", "Refresh Rate",
                SettingSource::kProp, "persist.gammaos.refresh.rate", "0");
         b.toggle("display_tweaks", "Display Tweaks",
@@ -635,7 +635,7 @@ void NanoMenu::buildSettingsTree() {
         b.toggle("ra_backbutton", "RetroArch Back Button Override",
                  SettingSource::kProp, "persist.gammaos.retroarchoverride.backbutton", "0");
         b.toggle("startselectled", "Start+Select LED",
-                 SettingSource::kProp, "persist.gammaos.startselectled", "false");
+                 SettingSource::kProp, "persist.gammaos.startselectled", "0");
       b.endCategory();
 
       // -- USB & Docking --

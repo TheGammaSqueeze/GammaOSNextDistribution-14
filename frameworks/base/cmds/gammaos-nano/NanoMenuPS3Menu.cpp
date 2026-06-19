@@ -761,6 +761,24 @@ void NanoMenu::buildQuickSettingsSubmenu(Ps3Level& out) {
     leaf("RetroArch Back Button Override", nullptr, 16);
     act ("Edit Button Mappings", QA_LAUNCH_REMAP, 16, nullptr);
     leaf("Screen Map", nullptr, 16);
+    // Display / refresh
+    leaf("Black Frame Insertion", nullptr, 16);
+    leaf("Refresh Rate Lock", nullptr, 16);
+    leaf("Refresh Rate", nullptr, 16);
+    leaf("Split Brightness", nullptr, 16);
+    leaf("Dual Focus Mode", nullptr, 16);
+    // External display
+    leaf("External as Primary", nullptr, 16);
+    leaf("Force Mirror", nullptr, 16);
+    leaf("Resize to External Display", nullptr, 16);
+    leaf("Secondary Display Apps", nullptr, 16);
+    leaf("Secondary Display Packages", nullptr, 16);
+    // Feature flags (reuse existing bindings; display name may differ from the binding label)
+    leaf("DualStack", "Dual-Stack Display", 16);
+    leaf("Launch Guard", nullptr, 16);
+    leaf("USB Controller Switch", nullptr, 16);
+    leaf("Start/Select LED", "Start+Select LED", 16);
+    leaf("GammaEQ", "Enable EQ", 16);
 }
 
 // --- Notifications submenu ---------------------------------------------------
@@ -3480,14 +3498,21 @@ static const Ps3SettingBinding kPs3Bindings[] = {
     {"Fan Speed", SettingSource::kProp, "persist.gammaos.fan_mode", "auto",
      "auto:Auto,cool:Cool,max:Max,off:Off"},
     {"Immersive Mode", SettingSource::kProp, "persist.gammaos.immersive", "0", "0:Off,1:On"},
-    {"Refresh Rate Lock", SettingSource::kProp, "persist.gammaos.refresh.lock", "false", "false:Off,true:On"},
+    // Scheduler.cpp reads refresh.lock via GetIntProperty(...)==1, so store 0/1 (a
+    // "true" string parses to 0 = the HW-VSYNC keepalive never engages).
+    {"Refresh Rate Lock", SettingSource::kProp, "persist.gammaos.refresh.lock", "0", "0:Off,1:On"},
+    // Fixed refresh rate (GetIntProperty, only honoured while Refresh Rate Lock is On).
+    {"Refresh Rate", SettingSource::kProp, "persist.gammaos.refresh.rate", "0",
+     "0:Automatic,60:60 Hz,90:90 Hz,120:120 Hz"},
     {"Display Tweaks", SettingSource::kProp, "persist.gammaos.display.tweaks", "false", "false:Off,true:On"},
     {"Force Client Composition", SettingSource::kProp, "persist.gammaos.force_client_comp", "false", "false:Off,true:On"},
     {"Desktop Fullscreen", SettingSource::kProp, "persist.gammaos.desktop.fullscreen", "false", "false:Off,true:On"},
     {"Multi-Volume", SettingSource::kProp, "persist.gammaos.audio.multivolume", "false", "false:Off,true:On"},
     {"Ultra Low Power Saving", SettingSource::kProp, "persist.gammaos.ultra_low_power_saving_mode", "false", "false:Off,true:On"},
     {"RetroArch Back Button Override", SettingSource::kProp, "persist.gammaos.retroarchoverride.backbutton", "0", "0:Off,1:On"},
-    {"Start+Select LED", SettingSource::kProp, "persist.gammaos.startselectled", "false", "false:Off,true:On"},
+    // The RG477V tile reads startselectled via getInt, so store 0/1 (a "false"/"true"
+    // string parses to 0 = the LED never turns on). Label kept for the Settings leaf.
+    {"Start+Select LED", SettingSource::kProp, "persist.gammaos.startselectled", "0", "0:Off,1:On"},
     {"USB Controller Switch", SettingSource::kProp, "persist.gammaos.usbcontrollerswitch", "false", "false:Off,true:On"},
     {"DC Dimming Emulation", SettingSource::kProp, "persist.gammaos.dcdimmingemulation", "0", "0:Off,1:On"},
     {"Phone Taskbar", SettingSource::kProp, "persist.gammaos.taskbar.phone", "true", "false:Off,true:On"},
@@ -3497,6 +3522,16 @@ static const Ps3SettingBinding kPs3Bindings[] = {
     {"Dual-Stack Display", SettingSource::kProp, "persist.gammaos.dualstack.enabled", "false", "false:Off,true:On"},
     {"RGB LED", SettingSource::kProp, "persist.gammaos.rgb.enable", "false", "false:Off,true:On"},
     {"Launch Guard", SettingSource::kProp, "persist.gammaos.launch.guard.enabled", "false", "false:Off,true:On"},
+    // Multi-display (persist.gammaos.multidisplay.* - read live by WMS / split-backlight).
+    {"Dual Focus Mode", SettingSource::kProp, "persist.gammaos.multidisplay.dual_focus", "false", "false:Off,true:On"},
+    {"Split Brightness", SettingSource::kProp, "persist.gammaos.multidisplay.split_brightness", "0", "0:Off,1:On"},
+    // External display (persist.gammaos.ext.* - DMS/WM consume on the next HDMI/DP hotplug).
+    {"External as Primary", SettingSource::kProp, "persist.gammaos.ext.primary", "0", "0:Off,1:On"},
+    {"Force Mirror", SettingSource::kProp, "persist.gammaos.ext.force_mirror", "false", "false:Off,true:On"},
+    {"Resize to External Display", SettingSource::kProp, "persist.gammaos.ext.mirror_resize", "false", "false:Off,true:On"},
+    // Secondary display apps (ActivityStarter getBoolean; the toggle is inert without a package list).
+    {"Secondary Display Apps", SettingSource::kProp, "persist.gammaos.secondary_display.enabled", "0", "0:Off,1:On"},
+    {"Secondary Display Packages", SettingSource::kProp, "persist.gammaos.secondary_display.packages", "", "@text"},
     // GammaRGB (persist.gammaos.rgb.* + persist.gammargb.control - sampler polls live, no seq).
     // "@rgbeffect"/"@rgbcolor" are special choosers handled in openBoundChooser/closePs3Dialog.
     {"Effect", SettingSource::kProp, "persist.gammargb.control", "on", "@rgbeffect"},
