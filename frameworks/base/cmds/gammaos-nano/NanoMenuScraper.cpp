@@ -124,70 +124,210 @@ void NanoMenu::saveScrapeIndex() {
 const NanoMenu::ScrapeEntry* NanoMenu::scrapeEntryFor(const std::string& romPath) {
     scraperEnsureLoaded();
     auto it = mScrapeIndex.find(romPath);
-    return (it != mScrapeIndex.end()) ? &it->second : nullptr;
+    if (it != mScrapeIndex.end()) return &it->second;
+    // Storage-alias normalization: /storage/emulated/0, /data/media/0, /sdcard and
+    // /storage/self/primary all name the SAME internal storage, but the Recently
+    // Played playlist (RetroArch history) and the ROM scanner can use different ones,
+    // so a recent game's path may not string-match the manifest key. Retry the lookup
+    // with each equivalent prefix so boxart/fanart/Information resolve for recents too.
+    static const char* const kAliases[] = {
+        "/storage/emulated/0", "/data/media/0", "/sdcard", "/storage/self/primary" };
+    std::string rest; size_t matchedLen = 0;
+    for (const char* a : kAliases) {
+        size_t al = strlen(a);
+        if (romPath.size() > al && romPath.compare(0, al, a) == 0 && romPath[al] == '/') {
+            rest = romPath.substr(al); matchedLen = al; break;
+        }
+    }
+    if (matchedLen > 0) {
+        for (const char* a : kAliases) {
+            std::string alt = std::string(a) + rest;
+            if (alt == romPath) continue;
+            auto it2 = mScrapeIndex.find(alt);
+            if (it2 != mScrapeIndex.end()) return &it2->second;
+        }
+    }
+    return nullptr;
 }
 
 bool NanoMenu::scraperBoxartEnabled() {
     return property_get_bool("persist.gammaos.scraper.boxart", true);
 }
 
-// Decode scraped art to a GL texture via stb_image. AImageDecoder
-// (photoDecodeTex) silently returns failure on the scrape PNGs on this device,
-// while stb_image decodes them fine (it is what the cinfo bg uses). maxDim>0
-// downscales (nearest, cheap) to bound VRAM for the small icon slot.
-GLuint NanoMenu::scraperDecodeTex(const std::string& path, int maxDim, float* outAR) {
+// GL-free half of the decode: stb_image load + nearest-downscale to a tightly
+// packed RGBA buffer. Safe on the async worker thread (no GL). maxDim>0 bounds the
+// long side. *outAR = the TRUE source aspect (width/height).
+bool NanoMenu::scraperDecodeRGBACpu(const std::string& path, int maxDim, int* outW,
+                                    int* outH, float* outAR, std::vector<uint8_t>& out) {
     int w = 0, h = 0, n = 0;
     stbi_uc* d = stbi_load(path.c_str(), &w, &h, &n, 4);
-    if (!d || w <= 0 || h <= 0) { if (d) stbi_image_free(d); return 0; }
+    if (!d || w <= 0 || h <= 0) { if (d) stbi_image_free(d); return false; }
     if (outAR) *outAR = (float)w / (float)h;
-    const stbi_uc* src = d; int sw = w, sh = h;
-    std::vector<stbi_uc> small;
+    int sw = w, sh = h;
     int longSide = w > h ? w : h;
     if (maxDim > 0 && longSide > maxDim) {
         float s = (float)maxDim / (float)longSide;
         int tw = (int)(w * s + 0.5f), th = (int)(h * s + 0.5f);
         if (tw < 1) tw = 1; if (th < 1) th = 1;
-        small.resize((size_t)tw * th * 4);
+        out.resize((size_t)tw * th * 4);
         for (int y = 0; y < th; y++) {
             int sy = (int)(((float)y + 0.5f) / th * h); if (sy >= h) sy = h - 1;
             for (int x = 0; x < tw; x++) {
                 int sx = (int)(((float)x + 0.5f) / tw * w); if (sx >= w) sx = w - 1;
-                memcpy(&small[((size_t)y * tw + x) * 4], &d[((size_t)sy * w + sx) * 4], 4);
+                memcpy(&out[((size_t)y * tw + x) * 4], &d[((size_t)sy * w + sx) * 4], 4);
             }
         }
-        src = small.data(); sw = tw; sh = th;
+        sw = tw; sh = th;
+    } else {
+        out.resize((size_t)w * h * 4);
+        memcpy(out.data(), d, out.size());
     }
+    stbi_image_free(d);
+    if (outW) *outW = sw; if (outH) *outH = sh;
+    return true;
+}
+
+// Upload a packed RGBA buffer to a GL texture (render thread only).
+static GLuint saUploadRGBA(const uint8_t* px, int w, int h) {
+    if (!px || w <= 0 || h <= 0) return 0;
     GLuint t = 0; glGenTextures(1, &t); glBindTexture(GL_TEXTURE_2D, t);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, sw, sh, 0, GL_RGBA, GL_UNSIGNED_BYTE, src);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, px);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    stbi_image_free(d);
     return t;
 }
 
-// Lazy per-ROM cover texture. Decodes the scraped cover (scaled) on first use and
-// caches the GLuint + aspect ratio; 0 means "no art / tried". Called from the
-// render thread (drawList), so GL is current. Freed by scraperFreeBoxart().
+// Synchronous decode-to-GL (kept for any inline use; the three hot art sites now go
+// through the async worker below). Render thread only.
+GLuint NanoMenu::scraperDecodeTex(const std::string& path, int maxDim, float* outAR) {
+    int w = 0, h = 0; std::vector<uint8_t> px;
+    if (!scraperDecodeRGBACpu(path, maxDim, &w, &h, outAR, px)) return 0;
+    return saUploadRGBA(px.data(), w, h);
+}
+
+// ---- async scraper-art decode worker (mirrors the photo-viewer pattern) --------
+static std::string saTagKey(int target, const std::string& path) {
+    return std::string(1, (char)('0' + target)) + "|" + path;
+}
+
+void NanoMenu::saStartArtWorker() {
+    if (mSaDecStarted.load()) return;
+    mSaDecStop.store(false);
+    mSaDecThread = std::thread([this] { saArtThreadFunc(); });
+    mSaDecStarted.store(true);
+}
+
+void NanoMenu::saStopArtWorker() {
+    if (!mSaDecStarted.load()) return;
+    mSaDecStop.store(true);
+    mSaDecCv.notify_all();
+    if (mSaDecThread.joinable()) mSaDecThread.join();
+    mSaDecStarted.store(false);
+    mSaDecGen.fetch_add(1);                   // drop any in-flight/finished results
+    std::lock_guard<std::mutex> lk(mSaDecMutex);
+    mSaDecQueue.clear(); mSaDecDone.clear(); mSaDecInFlight.clear();
+}
+
+// Worker: pop a request, decode RGBA off-thread (NO GL), publish for the drain.
+void NanoMenu::saArtThreadFunc() {
+    for (;;) {
+        SaDecReq req;
+        {
+            std::unique_lock<std::mutex> lk(mSaDecMutex);
+            mSaDecCv.wait(lk, [&] { return mSaDecStop.load() || !mSaDecQueue.empty(); });
+            if (mSaDecStop.load()) return;
+            req = mSaDecQueue.front(); mSaDecQueue.pop_front();
+        }
+        if (req.gen != mSaDecGen.load()) {    // stale (left Game / reopened)
+            std::lock_guard<std::mutex> lk(mSaDecMutex);
+            mSaDecInFlight.erase(saTagKey(req.target, req.path));
+            continue;
+        }
+        SaDecRes res; res.path = req.path; res.target = req.target; res.key = req.key; res.gen = req.gen;
+        bool ok = scraperDecodeRGBACpu(req.path, req.maxDim, &res.w, &res.h, &res.ar, res.px);
+        std::lock_guard<std::mutex> lk(mSaDecMutex);
+        mSaDecInFlight.erase(saTagKey(req.target, req.path));
+        if (ok && req.gen == mSaDecGen.load()) mSaDecDone.push_back(std::move(res));
+    }
+}
+
+void NanoMenu::saRequestArt(const std::string& path, int maxDim, int target, const std::string& key) {
+    if (path.empty()) return;
+    saStartArtWorker();
+    {
+        std::lock_guard<std::mutex> lk(mSaDecMutex);
+        std::string tk = saTagKey(target, path);
+        if (mSaDecInFlight.count(tk)) return;     // already queued / decoding
+        mSaDecInFlight.insert(tk);
+        SaDecReq r; r.path = path; r.maxDim = maxDim; r.target = target; r.key = key; r.gen = mSaDecGen.load();
+        mSaDecQueue.push_back(std::move(r));
+    }
+    mSaDecCv.notify_one();
+}
+
+// Render thread: upload any finished CPU decodes to GL and route each to its target.
+void NanoMenu::saDrainArt() {
+    std::vector<SaDecRes> done;
+    { std::lock_guard<std::mutex> lk(mSaDecMutex); if (mSaDecDone.empty()) return; done.swap(mSaDecDone); }
+    uint64_t gen = mSaDecGen.load();
+    for (auto& r : done) {
+        if (r.gen != gen) continue;
+        GLuint tex = saUploadRGBA(r.px.data(), r.w, r.h);
+        if (!tex) continue;
+        switch (r.target) {
+            case SA_BOX: {
+                BoxTex& bt = mRomBoxartCache[r.key];
+                if (bt.tex) glDeleteTextures(1, &bt.tex);
+                bt.tex = tex; bt.ar = r.ar;
+                break;
+            }
+            case SA_CINFO_FAN:
+                if (mFanartPath == r.path) {
+                    if (mFanartTex) glDeleteTextures(1, &mFanartTex);
+                    mFanartTex = tex; mFanartTexW = r.w; mFanartTexH = r.h;
+                } else glDeleteTextures(1, &tex);
+                break;
+            case SA_DLG_FAN:
+                if (mPs3DlgRomInfo && mPs3DlgPendingFan == r.path) {
+                    if (mPs3DlgFanTex) glDeleteTextures(1, &mPs3DlgFanTex);
+                    mPs3DlgFanTex = tex; mPs3DlgFanW = r.w; mPs3DlgFanH = r.h;
+                } else glDeleteTextures(1, &tex);
+                break;
+            case SA_DLG_BOX:
+                if (mPs3DlgRomInfo && mPs3DlgPendingBox == r.path) {
+                    if (mPs3DlgBoxTex) glDeleteTextures(1, &mPs3DlgBoxTex);
+                    mPs3DlgBoxTex = tex; mPs3DlgBoxW = r.w; mPs3DlgBoxH = r.h;
+                } else glDeleteTextures(1, &tex);
+                break;
+            default: glDeleteTextures(1, &tex); break;
+        }
+    }
+}
+
+// Lazy per-ROM cover texture. The decode is now ASYNC (saRequestArt): the first
+// call enqueues the cover and inserts a 0-texture placeholder so the column draws
+// the generic cartridge icon until the worker finishes; saDrainArt fills the entry
+// in and the cover appears the next frame. Render thread (drawList). Freed by
+// scraperFreeBoxart().
 GLuint NanoMenu::romBoxartTex(const std::string& romPath, float* outAR) {
     auto it = mRomBoxartCache.find(romPath);
     if (it != mRomBoxartCache.end()) { if (outAR) *outAR = it->second.ar; return it->second.tex; }
-    BoxTex bt;
-    const ScrapeEntry* e = scrapeEntryFor(romPath);
-    if (e && !e->box.empty())
-        bt.tex = scraperDecodeTex(e->box, 256, &bt.ar);
-    // Backstop: if the cache grows large (browsing many systems without leaving
-    // Game), free it all and rebuild lazily. The free-on-leave-Game path is the
-    // normal lifecycle; this only guards a pathological session.
+    // Backstop FIRST (before enqueueing) so the just-queued request is not wiped:
+    // if the cache grows large (browsing many systems without leaving Game), free it
+    // all + stop the worker, then re-request lazily. Normal lifecycle = leave-Game.
     if (mRomBoxartCache.size() >= 96) scraperFreeBoxart();
-    mRomBoxartCache[romPath] = bt;
-    if (outAR) *outAR = bt.ar;
-    return bt.tex;
+    const ScrapeEntry* e = scrapeEntryFor(romPath);
+    if (e && !e->box.empty()) saRequestArt(e->box, 256, SA_BOX, romPath);
+    mRomBoxartCache[romPath] = BoxTex{};       // tex=0 placeholder; drain fills it
+    if (outAR) *outAR = 1.0f;
+    return 0;
 }
 
 void NanoMenu::scraperFreeBoxart() {
+    saStopArtWorker();                          // join the worker so nothing runs at idle
     for (auto& kv : mRomBoxartCache)
         if (kv.second.tex) glDeleteTextures(1, &kv.second.tex);
     mRomBoxartCache.clear();

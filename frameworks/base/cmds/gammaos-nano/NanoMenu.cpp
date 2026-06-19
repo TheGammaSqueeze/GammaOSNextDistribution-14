@@ -313,6 +313,8 @@ NanoMenu::~NanoMenu() {
     stopNetPollThread();
     // Stop the photo viewer async decode worker (join the thread).
     pvStopDecodeWorker();
+    // Stop the scraper-art async decode worker (join the thread; no GL in dtor).
+    saStopArtWorker();
     // Tear down the video decoder (joins its worker, frees codec/extractor/surface/texture).
     videoHardFree(true);   // dtor: synchronous (no render loop left to reap an async teardown)
 

@@ -1162,10 +1162,12 @@ private:
     std::string mPs3RomInfoDate, mPs3RomInfoDev, mPs3RomInfoPub;     // scraped metadata
     std::string mPs3RomInfoFileName, mPs3RomInfoDir, mPs3RomInfoSize, mPs3RomInfoCore, mPs3RomInfoSystem;
     bool   mPs3RomInfoCoreIsApp = false;   // true = standalone app (label "App"), false = libretro core ("Core")
+    int    mPs3RomInfoScroll = 0;  // first visible wrapped description line (Up/Down scroll)
     GLuint mPs3DlgFanTex = 0;       // fanart texture for the info page (freed on dialog close)
     int    mPs3DlgFanW = 0, mPs3DlgFanH = 0;
     GLuint mPs3DlgBoxTex = 0;       // cover texture for the info page (freed on dialog close)
     int    mPs3DlgBoxW = 0, mPs3DlgBoxH = 0;
+    std::string mPs3DlgPendingFan, mPs3DlgPendingBox;  // async-decode target paths (drain routes results here)
     int    mPs3DlgIllust = 0;      // 0 none,1 hdmi_cable,2 av_multi,3 hdd_warning,4 globe,5 controller,6 bd_remote
     std::string mPs3DlgNotice;     // chooser_illust bottom notice line
     unsigned int mPs3DlgIconTex = 0;   // header item icon (flat fallback)
@@ -1534,6 +1536,32 @@ private:
     // fails on the scrape PNGs on this device; stb_image works, same as the cinfo
     // bg). maxDim>0 downscales (nearest) to bound VRAM. Render thread only.
     GLuint scraperDecodeTex(const std::string& path, int maxDim, float* outAR);
+    // ---- async scraper-art decode (mirrors the photo-viewer worker) ----------
+    // ONE worker for ALL scraper art (boxart icons + hover fanart + Information
+    // page art): decode RGBA off the render thread, upload GL in saDrainArt() on
+    // the render thread, so opening a Game system or Information never hitches.
+    // Lazy-started on the first request; fully stopped+joined (zero threads/CPU at
+    // idle) by scraperFreeBoxart on leaving Game / occlusion / the 96-cache backstop.
+    enum ScrapeArtTarget { SA_BOX = 0, SA_CINFO_FAN, SA_DLG_FAN, SA_DLG_BOX };
+    struct SaDecReq { std::string path; int maxDim = 0; int target = 0; std::string key; uint64_t gen = 0; };
+    struct SaDecRes { std::string path; int target = 0; std::string key; int w = 0, h = 0; float ar = 1.0f;
+                      uint64_t gen = 0; std::vector<uint8_t> px; };
+    std::thread mSaDecThread;
+    std::mutex mSaDecMutex;
+    std::condition_variable mSaDecCv;
+    std::deque<SaDecReq> mSaDecQueue;
+    std::vector<SaDecRes> mSaDecDone;
+    std::set<std::string> mSaDecInFlight;        // dedup key = target-tagged path
+    std::atomic<bool> mSaDecStop{false};
+    std::atomic<bool> mSaDecStarted{false};
+    std::atomic<uint64_t> mSaDecGen{0};          // bumped on teardown to drop stale results
+    bool scraperDecodeRGBACpu(const std::string& path, int maxDim, int* outW, int* outH,
+                              float* outAR, std::vector<uint8_t>& out);   // GL-free
+    void saStartArtWorker();
+    void saStopArtWorker();
+    void saArtThreadFunc();
+    void saRequestArt(const std::string& path, int maxDim, int target, const std::string& key);
+    void saDrainArt();                           // render thread: upload + route results
     // persistence + lazy load
     int64_t musicConfigStamp() const;
     bool loadMusicConfig();

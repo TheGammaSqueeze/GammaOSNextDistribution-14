@@ -1092,6 +1092,10 @@ static float ps3CatOffset(bool active, float t, float fromOff) {
 // Up/Down (horizontal=false) scroll chooser lists only; Left/Right (horizontal=
 // true) scroll choosers AND toggle a confirm dialog's Yes/No. Info pages ignore.
 void NanoMenu::ps3DlgNav(int dir, bool horizontal) {
+    if (mPs3DlgRomInfo) {   // rich Information page: Up/Down scroll the description; L/R inert
+        if (!horizontal) { mPs3RomInfoScroll += dir; if (mPs3RomInfoScroll < 0) mPs3RomInfoScroll = 0; }
+        return;             // the renderer clamps the upper bound (it knows the line count)
+    }
     int n = (int)mPs3DlgOptions.size();
     if (mPs3DlgKind == 1) {
         if (mPs3DlgSlider) {
@@ -1833,8 +1837,16 @@ void NanoMenu::renderPs3Xmb() {
     {
         bool inGame = (mPs3CatIdx >= 0 && mPs3CatIdx < (int)mPs3Cats.size()
                        && mPs3Cats[mPs3CatIdx].name == "Game");
-        if (!inGame && !mRomBoxartCache.empty()) scraperFreeBoxart();
+        // Leaving Game frees the boxart/fanart GL AND joins the async decode worker
+        // (scraperFreeBoxart). Fire it whenever any scraper-art state is live (cache,
+        // hover fanart, or a running worker) so nothing lingers when not browsing games.
+        if (!inGame && (!mRomBoxartCache.empty() || mFanartTex || mSaDecStarted.load()))
+            scraperFreeBoxart();
     }
+    // Upload any finished async art decodes (boxart / hover fanart / Information art)
+    // to GL on the render thread; the worker decoded the pixels off-thread so opening
+    // a Game system or Information never blocks the render loop.
+    saDrainArt();
 
     // Content-info hover background is drawn further down, AFTER the submenu frost
     // backdrop, so a scraped ROM's fanart in a submenu is not hidden by the frost.
@@ -2001,11 +2013,18 @@ void NanoMenu::renderPs3Xmb() {
             if (cs >= 0 && cs < (int)ci.size()) {
                 const Ps3Item& f = ci[cs];
                 cinfoFocus = f.label.c_str();
-                // A focused, scraped ROM shows its fanart as the hover background.
-                if (f.kind == PS3_ROM && scraperFanartEnabled()
+                // A focused, scraped ROM shows its fanart as the hover background -
+                // in a system submenu (PS3_ROM) AND in Recently Played (PS3_RECENT).
+                std::string focusRom;
+                if (f.kind == PS3_ROM
                     && f.a >= 0 && f.a < (int)mXmbSystems.size()
-                    && f.b >= 0 && f.b < (int)mXmbSystems[f.a].roms.size()) {
-                    const ScrapeEntry* e = scrapeEntryFor(mXmbSystems[f.a].roms[f.b]);
+                    && f.b >= 0 && f.b < (int)mXmbSystems[f.a].roms.size())
+                    focusRom = mXmbSystems[f.a].roms[f.b];
+                else if (f.kind == PS3_RECENT
+                         && f.a >= 0 && f.a < (int)mXmbRecent.size())
+                    focusRom = mXmbRecent[f.a].romPath;
+                if (!focusRom.empty() && scraperFanartEnabled()) {
+                    const ScrapeEntry* e = scrapeEntryFor(focusRom);
                     if (e && !e->fan.empty()) fanFile = e->fan;
                 }
             }
@@ -2203,6 +2222,10 @@ void NanoMenu::renderPs3Xmb() {
                 && it.a >= 0 && it.a < (int)mXmbSystems.size()
                 && it.b >= 0 && it.b < (int)mXmbSystems[it.a].roms.size())
                 boxTex = romBoxartTex(mXmbSystems[it.a].roms[it.b], &boxAR);
+            else if (mScrapeBoxartOn && it.kind == PS3_RECENT
+                     && it.a >= 0 && it.a < (int)mXmbRecent.size()
+                     && !mXmbRecent[it.a].romPath.empty())
+                boxTex = romBoxartTex(mXmbRecent[it.a].romPath, &boxAR);   // boxart in Recently Played too
             if (isFolderKind) {
                 drawFolderIcon(ix, iy, dsz, alpha, folderCover);
             } else if (boxTex) {
@@ -2629,13 +2652,13 @@ void NanoMenu::drawPs3CinfoBg(const char* focusLabel, const std::string& fanFile
         // to ~0 by the dwell reset, or none loaded yet). This makes scrolling a
         // scraped library a clean fade-out/fade-in instead of a strobe of pictures.
         if (!mFanartTex || (mFanartPath != fanFile && mCinfoAlpha <= 0.02f)) {
-            if (mFanartTex) { glDeleteTextures(1, &mFanartTex); mFanartTex = 0; }
-            float ar = 1.0f;
-            mFanartTex = scraperDecodeTex(fanFile, 1024, &ar);
-            // size is only used for cover-crop scaling; recover from ar (w/h).
-            mFanartTexH = 1024; mFanartTexW = (int)(1024.0f * ar + 0.5f);
-            if (mFanartTexW < 1) mFanartTexW = 1;
+            if (mFanartTex) { glDeleteTextures(1, &mFanartTex); mFanartTex = 0; mFanartTexW = mFanartTexH = 0; }
+            // Decode ASYNC off the render thread (no hitch when scrolling a scraped
+            // library). mFanartPath is set now so saDrainArt routes the result here;
+            // mFanartTex stays 0 until it lands, and the early-out below keeps the
+            // old/empty frame until then = the existing clean fade-in.
             mFanartPath = fanFile;
+            saRequestArt(fanFile, 1024, SA_CINFO_FAN, "");
         }
         bgTex = mFanartTex; bgW = mFanartTexW; bgH = mFanartTexH;
     } else {
@@ -4479,11 +4502,15 @@ void NanoMenu::closePs3Dialog(bool apply) {
     // so the fading panel still renders; input returns to the menu immediately.
     // Fullscreen dialogs (kind 0) close instantly as before.
     if (mPs3DlgKind == 1) { mPs3DlgClosing = true; mPs3DlgCloseAnim = (mPs3DlgAnim > 0.02f ? mPs3DlgAnim : 1.0f); }
-    // Release the ROM Information page art (page-owned textures) on close.
+    // Release the ROM Information page art (page-owned textures) on close. The
+    // pending paths are cleared so any late async result is freed by saDrainArt, not
+    // routed to a closed page.
     if (mPs3DlgRomInfo) {
         if (mPs3DlgFanTex) { glDeleteTextures(1, &mPs3DlgFanTex); mPs3DlgFanTex = 0; }
         if (mPs3DlgBoxTex) { glDeleteTextures(1, &mPs3DlgBoxTex); mPs3DlgBoxTex = 0; }
         mPs3DlgFanW = mPs3DlgFanH = mPs3DlgBoxW = mPs3DlgBoxH = 0;
+        mPs3DlgPendingFan.clear(); mPs3DlgPendingBox.clear();
+        mPs3RomInfoScroll = 0;
         mPs3DlgRomInfo = false;
     }
     mPs3DlgActive = false;
@@ -4786,11 +4813,13 @@ void NanoMenu::xmbOptAction(const std::string& act) {
             core = isApp ? s.launchPkg : s.coreSo;
             sysName = s.name;
         } else if (mPs3OptCtxKind == PS3_RECENT
-                   && mPs3OptCtxA >= 0 && mPs3OptCtxA < (int)mRecentEntries.size()) {
-            const RecentEntry& r = mRecentEntries[mPs3OptCtxA];
-            romPath = r.romPath; name = r.label;
-            core = !r.coreName.empty() ? r.coreName : r.corePath;
-            sysName = r.dbName;
+                   && mPs3OptCtxA >= 0 && mPs3OptCtxA < (int)mXmbRecent.size()) {
+            // buildRecentSubmenu iterates mXmbRecent, so it.a (= mPs3OptCtxA) indexes it.
+            const XmbRecentEntry& r = mXmbRecent[mPs3OptCtxA];
+            romPath = r.romPath; name = r.displayName;
+            isApp = r.standalone;
+            core = isApp ? r.launchPkg : r.coreSo;
+            sysName = r.systemName;
         }
         if (name.empty()) name = mPs3OptCtxLabel;
         mPs3RomInfoCoreIsApp = isApp;
@@ -4828,6 +4857,7 @@ void NanoMenu::xmbOptAction(const std::string& act) {
 
         if (rich) {
             mPs3DlgRomInfo = true;
+            mPs3RomInfoScroll = 0;
             mPs3RomInfoSyn     = se->synopsis;
             mPs3RomInfoGenre   = se->genre;
             mPs3RomInfoPlayers = se->players;
@@ -4840,17 +4870,14 @@ void NanoMenu::xmbOptAction(const std::string& act) {
             mPs3RomInfoSize    = sizeStr;
             mPs3RomInfoCore    = core;
             mPs3RomInfoSystem  = sysName;
-            // Decode the art into page-owned textures (freed on dialog close).
-            if (!se->fan.empty()) {
-                float ar = 1.0f;
-                mPs3DlgFanTex = scraperDecodeTex(se->fan, 1024, &ar);
-                if (mPs3DlgFanTex) { mPs3DlgFanW = (ar > 0.0f ? (int)(1000.0f * ar) : 1000); mPs3DlgFanH = 1000; }
-            }
-            if (!se->box.empty()) {
-                float ar = 1.0f;
-                mPs3DlgBoxTex = scraperDecodeTex(se->box, 512, &ar);
-                if (mPs3DlgBoxTex) { mPs3DlgBoxW = (ar > 0.0f ? (int)(1000.0f * ar) : 1000); mPs3DlgBoxH = 1000; }
-            }
+            // Decode the art ASYNC into page-owned textures (no hitch on open). The
+            // pending paths route the drained results; the renderers guard on tex!=0,
+            // so the page draws metadata immediately and the art fades in (with
+            // mPs3DlgAnim) once the worker lands. Freed on dialog close.
+            mPs3DlgPendingFan = se->fan;
+            mPs3DlgPendingBox = se->box;
+            if (!se->fan.empty()) saRequestArt(se->fan, 1024, SA_DLG_FAN, "");
+            if (!se->box.empty()) saRequestArt(se->box, 512,  SA_DLG_BOX, "");
             mPs3DlgBody.clear();
         } else {
             // Fallback: firmware file facts, centred like the other Information pages.
@@ -5511,15 +5538,25 @@ void NanoMenu::renderPs3Dialog() {
         std::string dlgBody = trDyn(mPs3DlgBody.c_str());
         int n = (int)mPs3DlgOptions.size();
         if (mPs3DlgRomInfo) {                   // rich ROM Information (cover + metadata + synopsis)
-            // ---- left: cover, contain-fit in a fixed box with a thin frame ----
-            bool hasCover = (mPs3DlgBoxTex != 0 && mPs3DlgBoxW > 0 && mPs3DlgBoxH > 0);
-            if (hasCover) {
+            // FIT-AWARE: every horizontal position uses XC() (= S*XCF(vx)+offX) and
+            // every horizontal span compresses by LAYOUT_FIT, so the cover, metadata
+            // column and wrapped description stay inside the visible frame on ANY
+            // aspect (4:3/1:1/16:9/portrait). On 16:9 LAYOUT_FIT==1 so XC()==X() and
+            // this is pixel-identical to before. Raw X() here pushed content offscreen
+            // on the 4:3 Brick panel (LAYOUT_FIT=0.75). Vertical Y()/heights are uniform.
+            const float fit = ps3::LAYOUT_FIT;
+            // ---- left: cover, contain-fit in a (compressed) box with a thin frame ----
+            // Reserve the cover slot when a cover was REQUESTED (pending path set), not
+            // only when it has finished decoding, so the metadata column does not jump
+            // right when the async cover lands a frame or two after the page opens.
+            bool hasCover = !mPs3DlgPendingBox.empty();
+            if (hasCover && mPs3DlgBoxTex != 0 && mPs3DlgBoxW > 0 && mPs3DlgBoxH > 0) {
                 float bxL = 130.0f, bxT = innerTop + 50.0f, bxW = 470.0f, bxH = (innerBot - 50.0f) - bxT;
+                float boxWdev = DS(bxW * fit), boxHdev = DS(bxH);
                 float car = (float)mPs3DlgBoxW / (float)mPs3DlgBoxH;
-                float cw = bxW, ch = cw / car;
-                if (ch > bxH) { ch = bxH; cw = ch * car; }
-                float cx = X(bxL + (bxW - cw) * 0.5f), cy = Y(bxT + (bxH - ch) * 0.5f);
-                float cwd = DS(cw), chd = DS(ch);
+                float cwd = boxWdev, chd = cwd / car;
+                if (chd > boxHdev) { chd = boxHdev; cwd = chd * car; }
+                float cx = XC(bxL) + (boxWdev - cwd) * 0.5f, cy = Y(bxT) + (boxHdev - chd) * 0.5f;
                 drawQuad(cx - DS(2.0f), cy - DS(2.0f), cwd + DS(4.0f), chd + DS(4.0f), 1.0f, 1.0f, 1.0f, 0.25f * ap); // frame
                 drawIconTex(mPs3DlgBoxTex, cx, cy, cwd, chd, 1.0f, 1.0f, 1.0f, ap);
             }
@@ -5530,8 +5567,8 @@ void NanoMenu::renderPs3Dialog() {
             float vy = innerTop + 58.0f;
             auto mrow = [&](const char* label, const std::string& val, float lum) {
                 if (val.empty()) return;
-                ps3DlgText(label, X(metaX), Y(vy), FS(20.0f), 0.60f, 0.65f, 0.72f, ap, 0);
-                ps3DlgText(val.c_str(), X(valX), Y(vy), FS(21.0f), lum, lum, lum, ap, 0);
+                ps3DlgText(label, XC(metaX), Y(vy), FS(20.0f), 0.60f, 0.65f, 0.72f, ap, 0);
+                ps3DlgText(val.c_str(), XC(valX), Y(vy), FS(21.0f), lum, lum, lum, ap, 0);
                 vy += 38.0f;
             };
             mrow("Genre",     mPs3RomInfoGenre,   0.95f);
@@ -5551,12 +5588,13 @@ void NanoMenu::renderPs3Dialog() {
             float ffRowH = 32.0f;
             float ffTop  = innerBot - 26.0f - (float)ffN * ffRowH;
 
-            // Synopsis fills the gap between the rows and the file-facts block.
+            // Synopsis fills the gap between the rows and the file-facts block. Long
+            // descriptions scroll with Up/Down (mPs3RomInfoScroll = first visible line).
             if (!mPs3RomInfoSyn.empty()) {
                 float synTop = vy + 6.0f;
-                ps3DlgText("Description", X(metaX), Y(synTop), FS(20.0f), 0.60f, 0.65f, 0.72f, ap, 0);
-                float synFs = FS(19.0f), lineH = 27.0f;
-                float wdev = X(metaR) - X(metaX);
+                ps3DlgText("Description", XC(metaX), Y(synTop), FS(20.0f), 0.60f, 0.65f, 0.72f, ap, 0);
+                float synFs = FS(19.0f), lineH = 27.0f;     // lineH in virtual px
+                float wdev = XC(metaR) - XC(metaX);          // fit-compressed wrap width
                 auto wrapW = [&](const std::string& text, float fs) {
                     std::vector<std::string> out; std::string line, word;
                     auto commit = [&]() {
@@ -5573,24 +5611,36 @@ void NanoMenu::renderPs3Dialog() {
                     if (!line.empty()) out.push_back(line);
                     return out;
                 };
-                std::vector<std::string> lines = wrapW(mPs3RomInfoSyn, synFs);
-                float ly = synTop + 34.0f;
-                float synBot = ffTop - 18.0f;
-                for (auto& ln : lines) {
-                    if (ly > synBot) break;   // clamp; never overrun the file-facts block
-                    if (!ln.empty()) ps3DlgText(ln.c_str(), X(metaX), Y(ly), synFs, 0.92f, 0.92f, 0.92f, ap, 0);
+                std::vector<std::string> lines = wrapW(mPs3RomInfoSyn, synFs);   // full wrap, once
+                int total = (int)lines.size();
+                float firstY = synTop + 34.0f;               // virtual y of the first line
+                float synBot = ffTop - 18.0f;                // virtual y limit (above the facts)
+                int maxVis = (int)((synBot - firstY) / lineH) + 1;   // lines that fit
+                if (maxVis < 1) maxVis = 1;
+                int maxScroll = total - maxVis; if (maxScroll < 0) maxScroll = 0;
+                if (mPs3RomInfoScroll < 0) mPs3RomInfoScroll = 0;
+                if (mPs3RomInfoScroll > maxScroll) mPs3RomInfoScroll = maxScroll;   // clamp (input only +'d)
+                int first = mPs3RomInfoScroll;
+                int last  = first + maxVis; if (last > total) last = total;
+                float ly = firstY;
+                for (int i = first; i < last; i++) {
+                    if (!lines[i].empty()) ps3DlgText(lines[i].c_str(), XC(metaX), Y(ly), synFs, 0.92f, 0.92f, 0.92f, ap, 0);
                     ly += lineH;
                 }
+                // Scroll-more chevrons at the right edge of the description column.
+                float chX = XC(metaR) - DS(14.0f);
+                if (first > 0)     ps3DlgText("\xE2\x96\xB2", chX, Y(firstY), FS(15.0f), 0.85f, 0.88f, 0.92f, ap, 2);
+                if (last < total)  ps3DlgText("\xE2\x96\xBC", chX, Y(synBot), FS(15.0f), 0.85f, 0.88f, 0.92f, ap, 2);
             }
 
             if (ffN > 0) {
                 float dy = ffTop - 16.0f;
-                drawQuad(X(metaX), Y(dy), DS(metaR - metaX), fmaxf(1.0f, DS(1.0f)), 1.0f, 1.0f, 1.0f, 0.18f * ap);
+                drawQuad(XC(metaX), Y(dy), XC(metaR) - XC(metaX), fmaxf(1.0f, DS(1.0f)), 1.0f, 1.0f, 1.0f, 0.18f * ap);
                 float fy = ffTop;
                 for (auto& f : ffAll) {
                     if (f.v->empty()) continue;
-                    ps3DlgText(f.l, X(metaX), Y(fy), FS(17.0f), 0.55f, 0.60f, 0.66f, ap, 0);
-                    ps3DlgText(f.v->c_str(), X(valX), Y(fy), FS(17.0f), 0.80f, 0.80f, 0.80f, ap, 0);
+                    ps3DlgText(f.l, XC(metaX), Y(fy), FS(17.0f), 0.55f, 0.60f, 0.66f, ap, 0);
+                    ps3DlgText(f.v->c_str(), XC(valX), Y(fy), FS(17.0f), 0.80f, 0.80f, 0.80f, ap, 0);
                     fy += ffRowH;
                 }
             }
