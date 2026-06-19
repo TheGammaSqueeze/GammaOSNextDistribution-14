@@ -3389,6 +3389,7 @@ if (sRingPrimedCount >= 2) {
                 // full-screen on the home, but never let a codec/worker/surface linger behind
                 // a foreground app). Idempotent.
                 videoHardFree();
+                scraperFreeBoxart();   // never let scraped cover textures linger behind an app
                 usleep(33000);   // ~30Hz; no input, no render while occluded
                 continue;
             }

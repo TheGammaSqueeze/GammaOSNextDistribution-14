@@ -21,6 +21,7 @@
 #include "NanoMenu.h"
 #include "NanoScraper.h"
 #include "NanoJson.h"
+#include "stb_image.h"   // stbi_load (impl in NanoMenuPS3Icons.cpp); AImageDecoder fails on the scrape art
 
 #include <dirent.h>
 #include <fcntl.h>
@@ -114,6 +115,71 @@ const NanoMenu::ScrapeEntry* NanoMenu::scrapeEntryFor(const std::string& romPath
 
 bool NanoMenu::scraperBoxartEnabled() {
     return property_get_bool("persist.gammaos.scraper.boxart", true);
+}
+
+// Decode scraped art to a GL texture via stb_image. AImageDecoder
+// (photoDecodeTex) silently returns failure on the scrape PNGs on this device,
+// while stb_image decodes them fine (it is what the cinfo bg uses). maxDim>0
+// downscales (nearest, cheap) to bound VRAM for the small icon slot.
+GLuint NanoMenu::scraperDecodeTex(const std::string& path, int maxDim, float* outAR) {
+    int w = 0, h = 0, n = 0;
+    stbi_uc* d = stbi_load(path.c_str(), &w, &h, &n, 4);
+    if (!d || w <= 0 || h <= 0) { if (d) stbi_image_free(d); return 0; }
+    if (outAR) *outAR = (float)w / (float)h;
+    const stbi_uc* src = d; int sw = w, sh = h;
+    std::vector<stbi_uc> small;
+    int longSide = w > h ? w : h;
+    if (maxDim > 0 && longSide > maxDim) {
+        float s = (float)maxDim / (float)longSide;
+        int tw = (int)(w * s + 0.5f), th = (int)(h * s + 0.5f);
+        if (tw < 1) tw = 1; if (th < 1) th = 1;
+        small.resize((size_t)tw * th * 4);
+        for (int y = 0; y < th; y++) {
+            int sy = (int)(((float)y + 0.5f) / th * h); if (sy >= h) sy = h - 1;
+            for (int x = 0; x < tw; x++) {
+                int sx = (int)(((float)x + 0.5f) / tw * w); if (sx >= w) sx = w - 1;
+                memcpy(&small[((size_t)y * tw + x) * 4], &d[((size_t)sy * w + sx) * 4], 4);
+            }
+        }
+        src = small.data(); sw = tw; sh = th;
+    }
+    GLuint t = 0; glGenTextures(1, &t); glBindTexture(GL_TEXTURE_2D, t);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, sw, sh, 0, GL_RGBA, GL_UNSIGNED_BYTE, src);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    stbi_image_free(d);
+    return t;
+}
+
+// Lazy per-ROM cover texture. Decodes the scraped cover (scaled) on first use and
+// caches the GLuint + aspect ratio; 0 means "no art / tried". Called from the
+// render thread (drawList), so GL is current. Freed by scraperFreeBoxart().
+GLuint NanoMenu::romBoxartTex(const std::string& romPath, float* outAR) {
+    auto it = mRomBoxartCache.find(romPath);
+    if (it != mRomBoxartCache.end()) { if (outAR) *outAR = it->second.ar; return it->second.tex; }
+    BoxTex bt;
+    const ScrapeEntry* e = scrapeEntryFor(romPath);
+    if (e && !e->box.empty())
+        bt.tex = scraperDecodeTex(e->box, 256, &bt.ar);
+    // Backstop: if the cache grows large (browsing many systems without leaving
+    // Game), free it all and rebuild lazily. The free-on-leave-Game path is the
+    // normal lifecycle; this only guards a pathological session.
+    if (mRomBoxartCache.size() >= 96) scraperFreeBoxart();
+    mRomBoxartCache[romPath] = bt;
+    if (outAR) *outAR = bt.ar;
+    return bt.tex;
+}
+
+void NanoMenu::scraperFreeBoxart() {
+    for (auto& kv : mRomBoxartCache)
+        if (kv.second.tex) glDeleteTextures(1, &kv.second.tex);
+    mRomBoxartCache.clear();
+    // Also drop the hover-fanart texture (Phase 4) so no scraper GL lingers.
+    if (mFanartTex) { glDeleteTextures(1, &mFanartTex); mFanartTex = 0; }
+    mFanartPath.clear(); mFanartTexW = mFanartTexH = 0;
 }
 bool NanoMenu::scraperFanartEnabled() {
     return property_get_bool("persist.gammaos.scraper.fanart", true);

@@ -1824,18 +1824,19 @@ void NanoMenu::renderPs3Xmb() {
     { ps3::LayoutParams lp; lp.panelW = mWidth; lp.panelH = mHeight; lp.uiScale = mPs3UiScale;
       ps3::layoutCompute(lp); }
 
-    // Content-info hover background: drawn here (after layoutCompute, over the wave) so
-    // it sits under the category bar / item list / clock rendered below. Home contexts
-    // only - not over a live app behind the in-game overlay scrim.
+    // Boxart: cache the toggle once per frame (drawList reads it per visible ROM),
+    // and free the cover textures whenever the Game category is not the active one,
+    // so the feature holds no GL memory when you are not browsing games. They reload
+    // lazily from the disk cache on return.
+    mScrapeBoxartOn = scraperBoxartEnabled();
     {
-        const char* cinfoFocus = "";
-        if (!mOverlayMode || mOverlayWallpaper) {
-            std::vector<Ps3Item>& ci = ps3CurItems();
-            int cs = ps3CurSel();
-            if (cs >= 0 && cs < (int)ci.size()) cinfoFocus = ci[cs].label.c_str();
-        }
-        drawPs3CinfoBg(cinfoFocus);
+        bool inGame = (mPs3CatIdx >= 0 && mPs3CatIdx < (int)mPs3Cats.size()
+                       && mPs3Cats[mPs3CatIdx].name == "Game");
+        if (!inGame && !mRomBoxartCache.empty()) scraperFreeBoxart();
     }
+
+    // Content-info hover background is drawn further down, AFTER the submenu frost
+    // backdrop, so a scraped ROM's fanart in a submenu is not hidden by the frost.
 
     // Dynamic text outline: alpha scales with wallpaper brightness so it is minimal
     // on a dark wallpaper (the bright text already reads) and stronger on a light
@@ -1984,6 +1985,31 @@ void NanoMenu::renderPs3Xmb() {
                              1.0f, 1.0f, 1.0f, 1.0f, catT, /*waveSpace=*/true);
     } else {
         mPs3GlassValid = false;
+    }
+
+    // Content-info hover background: drawn here (after the submenu frost backdrop,
+    // over the wave) so it sits under the category bar / item list / clock but ON
+    // TOP of the frost - otherwise a scraped ROM's fanart in a submenu would be
+    // hidden by the full-screen frost. Home contexts only (not over a live app).
+    {
+        const char* cinfoFocus = "";
+        std::string fanFile;
+        if (!mOverlayMode || mOverlayWallpaper) {
+            std::vector<Ps3Item>& ci = ps3CurItems();
+            int cs = ps3CurSel();
+            if (cs >= 0 && cs < (int)ci.size()) {
+                const Ps3Item& f = ci[cs];
+                cinfoFocus = f.label.c_str();
+                // A focused, scraped ROM shows its fanart as the hover background.
+                if (f.kind == PS3_ROM && scraperFanartEnabled()
+                    && f.a >= 0 && f.a < (int)mXmbSystems.size()
+                    && f.b >= 0 && f.b < (int)mXmbSystems[f.a].roms.size()) {
+                    const ScrapeEntry* e = scrapeEntryFor(mXmbSystems[f.a].roms[f.b]);
+                    if (e && !e->fan.empty()) fanFile = e->fan;
+                }
+            }
+        }
+        drawPs3CinfoBg(cinfoFocus, fanFile);
     }
 
     float catOffset = ps3CatOffset(mPs3CatAnimActive, mPs3CatT, mPs3CatFromOffset);
@@ -2168,8 +2194,22 @@ void NanoMenu::renderPs3Xmb() {
             bool isFolderKind = (it.kind == PS3_MUSIC_ALBUM || it.kind == PS3_PHOTO_ALBUM);
             GLuint folderCover = (it.kind == PS3_MUSIC_ALBUM) ? mpAlbumArt(it.label)
                             : (it.kind == PS3_PHOTO_ALBUM && it.b >= 0) ? photoGroupCover(it.b) : 0;
+            // Scraped boxart cover replaces a ROM's generic cartridge icon when
+            // available (lazy GL texture, freed on leaving Game). Aspect-fit inside
+            // the icon box (covers are usually portrait) with the XMB drop shadow.
+            GLuint boxTex = 0; float boxAR = 1.0f;
+            if (mScrapeBoxartOn && it.kind == PS3_ROM
+                && it.a >= 0 && it.a < (int)mXmbSystems.size()
+                && it.b >= 0 && it.b < (int)mXmbSystems[it.a].roms.size())
+                boxTex = romBoxartTex(mXmbSystems[it.a].roms[it.b], &boxAR);
             if (isFolderKind) {
                 drawFolderIcon(ix, iy, dsz, alpha, folderCover);
+            } else if (boxTex) {
+                float bw = dsz, bh = dsz;
+                if (boxAR >= 1.0f) bh = dsz / boxAR; else bw = dsz * boxAR;
+                float bx = ix + (dsz - bw) * 0.5f, by = iy + (dsz - bh) * 0.5f;
+                drawIconStroke(boxTex, bx, by, bw, bh, mPs3ShadowAlpha * 0.7f * alpha);
+                drawIconTex(boxTex, bx, by, bw, bh, 1.0f, 1.0f, 1.0f, alpha);
             } else {
             // Icon outline silhouette behind the flat menu icons so they read over
             // the bright wave. RetroArch/console icons (isRetroIcon) are skipped:
@@ -2551,41 +2591,67 @@ void NanoMenu::renderPs3Xmb() {
 // (max alpha 0.85) over the wave, under the chrome, with the firmware title + wrapped
 // description over it. Fade-in 500ms, fade-out 300ms.
 // ---------------------------------------------------------------------------
-void NanoMenu::drawPs3CinfoBg(const char* focusLabel) {
-    bool isCinfo = focusLabel && !strcmp(focusLabel, "Photo Gallery");
-    std::string key = isCinfo ? "Photo Gallery" : "";
+void NanoMenu::drawPs3CinfoBg(const char* focusLabel, const std::string& fanFile) {
+    // fanFile set => a scraped ROM is focused: show its fanart (no description).
+    // Otherwise the Photo Gallery cinfo bg. The two are mutually exclusive.
+    bool romFan = !fanFile.empty();
+    bool isCinfo = !romFan && focusLabel && !strcmp(focusLabel, "Photo Gallery");
+    std::string key = romFan ? ("fan:" + fanFile) : (isCinfo ? "Photo Gallery" : "");
     if (key != mCinfoFocusKey) { mCinfoFocusKey = key; mCinfoDwellStart = mEffectTime; }
-    float target = (!key.empty() && (mEffectTime - mCinfoDwellStart) >= 1.5f) ? 0.85f : 0.0f;
+    float dwell = romFan ? 0.5f : 1.5f;   // fanart appears a touch sooner than the cinfo
+    float target = (!key.empty() && (mEffectTime - mCinfoDwellStart) >= dwell) ? 0.85f : 0.0f;
     float dt = mFrameDt; if (dt < 0.0f || dt > 0.2f) dt = 0.016f;
     float dur = (target > mCinfoAlpha) ? 0.5f : 0.3f;        // fade-in 500ms / out 300ms
     float stp = (dt / dur) * 0.85f;
     if (target > mCinfoAlpha) mCinfoAlpha = fminf(target, mCinfoAlpha + stp);
     else                      mCinfoAlpha = fmaxf(0.0f,   mCinfoAlpha - stp);
-    if (mCinfoAlpha <= 0.001f) return;
-
-    // Lazy-load the background JPEG (stb_image; /data override then /system).
-    if (!mCinfoTex && !mCinfoTexTried) {
-        mCinfoTexTried = true;
-        const char* paths[2] = {
-            "/data/system/nano_xmb/backgrounds/cinfo-bg-photogallery.jpg",
-            "/system/etc/nano_xmb/backgrounds/cinfo-bg-photogallery.jpg" };
-        for (const char* p : paths) {
-            int w = 0, h = 0, n = 0;
-            stbi_uc* d = stbi_load(p, &w, &h, &n, 4);
-            if (!d) continue;
-            glGenTextures(1, &mCinfoTex);
-            glBindTexture(GL_TEXTURE_2D, mCinfoTex);
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, d);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-            stbi_image_free(d);
-            mCinfoTexW = w; mCinfoTexH = h;
-            break;
+    if (mCinfoAlpha <= 0.001f) {
+        // Fully faded: drop the fanart texture if it is no longer the focus.
+        if (mFanartTex && (!romFan || fanFile != mFanartPath)) {
+            glDeleteTextures(1, &mFanartTex); mFanartTex = 0; mFanartPath.clear(); mFanartTexW = mFanartTexH = 0;
         }
+        return;
     }
-    if (!mCinfoTex || mCinfoTexW <= 0 || mCinfoTexH <= 0) return;
+
+    GLuint bgTex = 0; int bgW = 0, bgH = 0;
+    if (romFan) {
+        // Lazy (re)load the focused ROM's fanart at full-frame resolution.
+        if (mFanartPath != fanFile || !mFanartTex) {
+            if (mFanartTex) { glDeleteTextures(1, &mFanartTex); mFanartTex = 0; }
+            float ar = 1.0f;
+            mFanartTex = scraperDecodeTex(fanFile, 1024, &ar);
+            // size is only used for cover-crop scaling; recover from ar (w/h).
+            mFanartTexH = 1024; mFanartTexW = (int)(1024.0f * ar + 0.5f);
+            if (mFanartTexW < 1) mFanartTexW = 1;
+            mFanartPath = fanFile;
+        }
+        bgTex = mFanartTex; bgW = mFanartTexW; bgH = mFanartTexH;
+    } else {
+        // Lazy-load the Photo Gallery background JPEG (stb_image; /data then /system).
+        if (!mCinfoTex && !mCinfoTexTried) {
+            mCinfoTexTried = true;
+            const char* paths[2] = {
+                "/data/system/nano_xmb/backgrounds/cinfo-bg-photogallery.jpg",
+                "/system/etc/nano_xmb/backgrounds/cinfo-bg-photogallery.jpg" };
+            for (const char* p : paths) {
+                int w = 0, h = 0, n = 0;
+                stbi_uc* d = stbi_load(p, &w, &h, &n, 4);
+                if (!d) continue;
+                glGenTextures(1, &mCinfoTex);
+                glBindTexture(GL_TEXTURE_2D, mCinfoTex);
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, d);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+                stbi_image_free(d);
+                mCinfoTexW = w; mCinfoTexH = h;
+                break;
+            }
+        }
+        bgTex = mCinfoTex; bgW = mCinfoTexW; bgH = mCinfoTexH;
+    }
+    if (!bgTex || bgW <= 0 || bgH <= 0) return;
 
     const float W = (float)mWidth, H = (float)mHeight, a = mCinfoAlpha;
 
@@ -2594,8 +2660,8 @@ void NanoMenu::drawPs3CinfoBg(const char* focusLabel) {
     // viewer (mTextProgram samples RGBA * vertex colour).
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    float sc = fmaxf(W / (float)mCinfoTexW, H / (float)mCinfoTexH);
-    float dw = mCinfoTexW * sc, dh = mCinfoTexH * sc;
+    float sc = fmaxf(W / (float)bgW, H / (float)bgH);
+    float dw = bgW * sc, dh = bgH * sc;
     float cx = W * 0.5f, cy = H * 0.5f, hw = dw * 0.5f, hh = dh * 0.5f;
     float qx[4] = { cx - hw, cx + hw, cx + hw, cx - hw };
     float qy[4] = { cy - hh, cy - hh, cy + hh, cy + hh };
@@ -2614,7 +2680,7 @@ void NanoMenu::drawPs3CinfoBg(const char* focusLabel) {
     glUseProgram(mTextProgram);
     if (mTextLocSharp >= 0) glUniform1f(mTextLocSharp, 0.0f);
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, mCinfoTex);
+    glBindTexture(GL_TEXTURE_2D, bgTex);
     glUniform1i(mTextLocTexture, 0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glVertexAttribPointer(mTextLocPosition, 2, GL_FLOAT, GL_FALSE, 0, verts);
@@ -2627,6 +2693,10 @@ void NanoMenu::drawPs3CinfoBg(const char* focusLabel) {
     glDisableVertexAttribArray(mTextLocPosition);
     glDisableVertexAttribArray(mTextLocTexCoord);
     glDisableVertexAttribArray(mTextLocColor);
+
+    // ROM fanart is a plain background (no firmware description); only the Photo
+    // Gallery cinfo carries the descriptive paragraph.
+    if (romFan) return;
 
     // Word-wrapped description over the bg. Web coords as VW/VH fractions mapped via the
     // ps3 layout helpers. The TITLE is the focused item's own label ("Photo Gallery"),

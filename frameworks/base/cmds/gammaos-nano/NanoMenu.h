@@ -1510,6 +1510,17 @@ private:
     std::vector<std::pair<std::string, ScrapeEntry>> mScrapePending;  // finished -> merge on drain
     bool mScrapeBox = true, mScrapeFan = true;   // snapshot of the enabled-media toggles for the worker
     std::string mScrapeCacheDir = "/data/system/nano_scrape";
+    // Boxart icon textures: lazy per-ROM cover GL textures that replace the generic
+    // cartridge icon, freed when leaving the Game category and on sleep/occlusion.
+    struct BoxTex { GLuint tex = 0; float ar = 1.0f; };   // ar = width/height
+    std::unordered_map<std::string, BoxTex> mRomBoxartCache;
+    bool mScrapeBoxartOn = false;        // per-frame cache of scraperBoxartEnabled()
+    GLuint romBoxartTex(const std::string& romPath, float* outAR);
+    void scraperFreeBoxart();            // delete all cached cover textures
+    // Decode scraped art to a GL texture via stb_image (AImageDecoder silently
+    // fails on the scrape PNGs on this device; stb_image works, same as the cinfo
+    // bg). maxDim>0 downscales (nearest) to bound VRAM. Render thread only.
+    GLuint scraperDecodeTex(const std::string& path, int maxDim, float* outAR);
     // persistence + lazy load
     int64_t musicConfigStamp() const;
     bool loadMusicConfig();
@@ -2191,13 +2202,20 @@ private:
     // Content-info hover background + description (web HOVER_BG/CINFO_DESC): dwell on a
     // mapped item ("Photo Gallery" is the only one reachable in nano) fades a full-frame
     // bg image + firmware title/description in over the wave, under the chrome.
-    void drawPs3CinfoBg(const char* focusLabel);
+    // fanFile non-empty => draw a scraped ROM fanart background (no description)
+    // instead of the Photo Gallery cinfo bg; the two are mutually exclusive.
+    void drawPs3CinfoBg(const char* focusLabel, const std::string& fanFile = std::string());
     GLuint mCinfoTex = 0;            // lazily-loaded cinfo background texture
     bool   mCinfoTexTried = false;   // load attempted (don't retry on failure)
     int    mCinfoTexW = 0, mCinfoTexH = 0;
     float  mCinfoAlpha = 0.0f;       // current visible alpha (0 .. 0.85)
     std::string mCinfoFocusKey;      // currently focused mapped item name (or empty)
     float  mCinfoDwellStart = -1.0f; // mEffectTime when focus moved to the mapped item
+    // Scraped ROM fanart hover background (Phase 4): one texture at a time, reloaded
+    // when the focused ROM changes, freed on fade-out / leaving Game / occlusion.
+    GLuint mFanartTex = 0;
+    int    mFanartTexW = 0, mFanartTexH = 0;
+    std::string mFanartPath;         // path currently loaded into mFanartTex
     void ps3XmbLeft();
     void ps3XmbRight();
     void ps3XmbUp();
