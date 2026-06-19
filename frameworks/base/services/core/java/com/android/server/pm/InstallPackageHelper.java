@@ -966,6 +966,15 @@ final class InstallPackageHelper {
             final String seInfo = ps.getSeInfo();
             final RollbackManagerInternal rollbackManager =
                     mInjector.getLocalService(RollbackManagerInternal.class);
+            // GammaOS Nano boots minimal (sys.gammaos.minimal_boot) and skips the
+            // RollbackManagerService for memory, so its local service is null. Calling
+            // through it would NPE and crash system_server during post-install (it hit
+            // installs that request rollback or downgrade, e.g. an app updating itself).
+            // Rollback is simply unavailable in nano: skip the snapshot/restore and let
+            // the install finish normally.
+            if (rollbackManager == null) {
+                return false;
+            }
             rollbackManager.snapshotAndRestoreUserData(packageName,
                     UserHandle.toUserHandles(installedUsers), appId, ceDataInode, seInfo, token);
             return true;
