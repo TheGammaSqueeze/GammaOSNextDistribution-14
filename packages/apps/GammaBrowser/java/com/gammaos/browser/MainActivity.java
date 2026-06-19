@@ -47,7 +47,17 @@ import java.util.List;
 
 public class MainActivity extends Activity {
 
-    private static final String HOME_URL = "https://www.google.com";
+    // Search engines, mirrored from nano's kNanoSearchEngines. The XMB Internet
+    // Search engine picker writes persist.gammaos.nano.search_engine; honour it here
+    // so an address-bar query and the default home use the engine the user chose.
+    private static final String[][] ENGINES = {
+        {"google",     "https://www.google.com/search?q=%s",           "https://www.google.com"},
+        {"bing",       "https://www.bing.com/search?q=%s",             "https://www.bing.com"},
+        {"duckduckgo", "https://duckduckgo.com/?q=%s",                 "https://duckduckgo.com"},
+        {"brave",      "https://search.brave.com/search?q=%s",         "https://search.brave.com"},
+        {"startpage",  "https://www.startpage.com/sp/search?query=%s", "https://www.startpage.com"},
+        {"ecosia",     "https://www.ecosia.org/search?q=%s",           "https://www.ecosia.org"},
+    };
     // A common desktop Chrome UA so sites serve their full-width layout when the
     // user toggles "Desktop site" (the gamepad-mouse makes desktop layouts usable).
     private static final String DESKTOP_UA =
@@ -408,12 +418,12 @@ public class MainActivity extends Activity {
         if (url == null && intent != null) {
             if (Intent.ACTION_WEB_SEARCH.equals(intent.getAction())) {
                 String q = intent.getStringExtra(SearchManager.QUERY);
-                if (!TextUtils.isEmpty(q)) url = HOME_URL + "/search?q=" + Uri.encode(q);
+                if (!TextUtils.isEmpty(q)) url = searchUrl(q);
             }
             if (url == null) url = intent.getStringExtra("com.gammaos.browser.extra.URL");
             if (url == null) url = intent.getDataString();
         }
-        if (TextUtils.isEmpty(url)) url = HOME_URL;
+        if (TextUtils.isEmpty(url)) url = engineHome();
         mRetriedOnce = false;   // allow one cold-start retry for this load
         mWeb.loadUrl(url);
     }
@@ -429,7 +439,7 @@ public class MainActivity extends Activity {
         } else if (!text.contains(" ") && text.contains(".")) {
             url = "https://" + text;
         } else {
-            url = HOME_URL + "/search?q=" + Uri.encode(text);
+            url = searchUrl(text);
         }
         hideKeyboard();
         mWeb.requestFocus();
@@ -598,6 +608,23 @@ public class MainActivity extends Activity {
     }
 
     // ---- Small helpers ------------------------------------------------------
+
+    private static String[] engineRow() {
+        String key = "google";
+        try {
+            key = android.os.SystemProperties.get("persist.gammaos.nano.search_engine", "google");
+        } catch (Exception ignored) {}
+        for (String[] e : ENGINES) if (e[0].equals(key)) return e;
+        return ENGINES[0];
+    }
+
+    private static String searchUrl(String query) {
+        return engineRow()[1].replace("%s", Uri.encode(query));
+    }
+
+    private static String engineHome() {
+        return engineRow()[2];
+    }
 
     private static boolean sameUrl(String a, String b) {
         return a != null && a.equals(b);
