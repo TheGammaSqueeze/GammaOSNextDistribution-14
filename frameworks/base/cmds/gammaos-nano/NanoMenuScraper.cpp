@@ -355,6 +355,7 @@ void NanoMenu::scrapeThreadFunc(std::vector<ScrapeJob> jobs) {
             if (!r.ok && r.networkFail && mScrapeError.empty()) mScrapeError = r.error;
         }
     }
+    nanoscraper::freeTgdbResources();   // drop the TheGamesDB resource maps (zero idle)
     {
         std::lock_guard<std::mutex> lk(mScrapeMutex);
         mScrapeRunning = false;

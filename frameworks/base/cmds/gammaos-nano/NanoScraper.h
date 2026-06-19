@@ -93,6 +93,11 @@ ScrapeOutcome scrapeRom(Engine engine, const Credentials& cred,
 // Stable 64-bit FNV-1a hex key for a rom path (cache filename stem).
 std::string cacheKey(const std::string& romPath);
 
+// Release the cached TheGamesDB resource maps (genre/developer/publisher id->name).
+// They are fetched lazily on the first TheGamesDB game of a scrape; the scrape worker
+// calls this when it finishes so nothing is held at idle. Idempotent.
+void freeTgdbResources();
+
 } // namespace nanoscraper
 } // namespace android
 

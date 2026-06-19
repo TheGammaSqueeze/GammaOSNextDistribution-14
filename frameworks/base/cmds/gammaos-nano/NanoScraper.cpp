@@ -26,6 +26,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <zlib.h>
+#include <map>
 
 #include <log/log.h>
 
@@ -493,6 +494,74 @@ static ScrapeOutcome scrapeScreenScraper(const Credentials& cred,
 }
 
 // ---------------------------------------------------------------------------
+// TheGamesDB resource maps (genre / developer / publisher id -> name). The game
+// records reference these by numeric id; the names live in three separate static
+// lists. We fetch them ONCE per scrape (the first TheGamesDB game), cache them in
+// a file-static, and free them when the worker finishes (freeTgdbResources, called
+// from the scrape worker). The scrape worker is single-threaded and only one scrape
+// runs at a time, so no locking is needed. Nothing is held at idle.
+// ---------------------------------------------------------------------------
+namespace {
+struct TgdbResMaps {
+    std::map<int, std::string> genre, developer, publisher;
+    bool loaded = false;
+};
+TgdbResMaps gTgdbRes;
+
+// Fetch one resource endpoint (Genres/Developers/Publishers) and fold its
+// {idstr:{id,name}} object into id->name.
+void loadTgdbResMap(const char* curl, const std::string& key, const char* endpoint,
+                    const char* member, const std::string& resp,
+                    std::map<int, std::string>& out) {
+    std::vector<std::pair<std::string, std::string>> q = {{"apikey", key}};
+    std::string url = std::string("https://api.thegamesdb.net/v1/") + endpoint;
+    if (!curlToFile(curl, url, q, resp, 30)) return;
+    std::string body = readFile(resp, 4 * 1024 * 1024);
+    unlink(resp.c_str());
+    njson::Value root;
+    if (body.empty() || !njson::parse(body, &root)) return;
+    const njson::Value* data = root.find("data");
+    const njson::Value* m = data ? data->find(member) : nullptr;
+    if (!m || !m->isObject()) return;
+    for (const auto& kv : m->obj) {
+        int id = kv.second.getInt("id", -1);
+        std::string nm = kv.second.getString("name");
+        if (id >= 0 && !nm.empty()) out[id] = nm;
+    }
+}
+
+void ensureTgdbResMaps(const char* curl, const std::string& key, const std::string& resp) {
+    if (gTgdbRes.loaded) return;
+    gTgdbRes.loaded = true;   // set first: a failed fetch is not retried per ROM
+    loadTgdbResMap(curl, key, "Genres",     "genres",     resp, gTgdbRes.genre);
+    loadTgdbResMap(curl, key, "Developers", "developers", resp, gTgdbRes.developer);
+    loadTgdbResMap(curl, key, "Publishers", "publishers", resp, gTgdbRes.publisher);
+}
+
+// Map the first known id in a game's int-array field to its resource name.
+std::string firstResName(const njson::Value* game, const char* field,
+                         const std::map<int, std::string>& m) {
+    const njson::Value* a = game ? game->find(field) : nullptr;
+    if (!a || !a->isArray()) return "";
+    for (const auto& e : a->arr) {
+        if (!e.isNumber()) continue;
+        auto it = m.find(e.asInt());
+        if (it != m.end()) return it->second;
+    }
+    return "";
+}
+}  // namespace
+
+// Free the cached TheGamesDB resource maps (called by the scrape worker on finish so
+// nothing lingers at idle). Idempotent.
+void freeTgdbResources() {
+    gTgdbRes.genre.clear();
+    gTgdbRes.developer.clear();
+    gTgdbRes.publisher.clear();
+    gTgdbRes.loaded = false;
+}
+
+// ---------------------------------------------------------------------------
 // TheGamesDB
 // ---------------------------------------------------------------------------
 static ScrapeOutcome scrapeTheGamesDb(const Credentials& cred,
@@ -517,7 +586,7 @@ static ScrapeOutcome scrapeTheGamesDb(const Credentials& cred,
     // result on the requested platform; filter[platform] also narrows server-side.
     std::vector<std::pair<std::string, std::string>> q = {
         {"apikey", cred.tgdbKey},
-        {"fields", "players,publishers,genres,overview,platform,rating,release_date"},
+        {"fields", "players,publishers,developers,genres,overview,platform,rating,release_date"},
         {"name", qname},
     };
     if (plat.tgdb > 0) q.push_back({"filter[platform]", std::to_string(plat.tgdb)});
@@ -546,14 +615,20 @@ static ScrapeOutcome scrapeTheGamesDb(const Credentials& cred,
     r.title = gsel->getString("game_title");
     if (gameId < 0) { r.error = "No match"; return r; }
     if (r.title.empty()) r.title = stripExt(displayName);
-    // Metadata (only the directly-readable fields; genre/developer/publisher are
-    // numeric IDs needing extra resource-map fetches, skipped per the lean policy).
+    // Metadata. overview/players/rating/release_date are directly readable; genre,
+    // developer and publisher are numeric ids resolved through the resource maps
+    // (fetched once per scrape, freed on finish).
     r.synopsis = gsel->getString("overview");
     { int pl = gsel->getInt("players", 0); if (pl > 0) r.players = std::to_string(pl); }
     r.rating = gsel->getString("rating");
     r.releaseDate = gsel->getString("release_date");
     if (r.releaseDate.size() > 10) r.releaseDate = r.releaseDate.substr(0, 10);
+    ensureTgdbResMaps(curl, cred.tgdbKey, resp);
+    r.genre     = firstResName(gsel, "genres",     gTgdbRes.genre);
+    r.developer = firstResName(gsel, "developers", gTgdbRes.developer);
+    r.publisher = firstResName(gsel, "publishers", gTgdbRes.publisher);
     htmlUnescape(r.synopsis); htmlUnescape(r.rating);
+    htmlUnescape(r.genre); htmlUnescape(r.developer); htmlUnescape(r.publisher);
 
     // 2) Images -> boxart + fanart filenames. es-de fetches all image types and
     // filters client-side (no filter[type]) so screenshot/titlescreen remain as
