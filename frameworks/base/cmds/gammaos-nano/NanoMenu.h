@@ -2399,6 +2399,11 @@ private:
                                         // a new OSK from inside the old OSK's callback)
     // Wizard lifecycle + render (NanoMenuPS3Menu.cpp).
     void startNetWizard();
+    // Network: Internet Browser / Internet Search (launch the com.gammaos.browser app).
+    void openInternetBrowser();
+    void openInternetSearch();
+    bool tryOpenSearchEngineChooser();   // X/Triangle on Internet Search -> engine chooser
+    void launchUrl(const std::string& url);
     void startDateTimeWizard(int mode);   // 0 = Set via Internet, 1 = Set Manually (reuses net-wizard UI)
     void wizEnter(int id, int dir);       // push/go to a screen
     void wizConfirm();                    // X / Enter

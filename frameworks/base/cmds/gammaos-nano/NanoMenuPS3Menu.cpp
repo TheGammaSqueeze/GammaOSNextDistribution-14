@@ -1454,6 +1454,93 @@ void NanoMenu::ps3XmbDown() {
     if (s < n - 1) { mPs3ItemAnimFrom = mPs3AnimItem; mPs3ItemAnimStart = mEffectTime; s++; }
 }
 
+// ---- Internet Browser / Internet Search (Network category) ------------------
+// Launches the lightweight com.gammaos.browser WebView app with a URL. The browser
+// is a separate on-demand process, so nano holds nothing browser-related when it is
+// not open (zero idle cost). The search engine is a persisted prop, default Google.
+struct NanoSearchEngine { const char* key; const char* label; const char* query; const char* home; };
+static const NanoSearchEngine kNanoSearchEngines[] = {
+    { "google",     "Google",     "https://www.google.com/search?q=%s",           "https://www.google.com"     },
+    { "bing",       "Bing",       "https://www.bing.com/search?q=%s",             "https://www.bing.com"       },
+    { "duckduckgo", "DuckDuckGo", "https://duckduckgo.com/?q=%s",                 "https://duckduckgo.com"     },
+    { "brave",      "Brave",      "https://search.brave.com/search?q=%s",         "https://search.brave.com"   },
+    { "startpage",  "Startpage",  "https://www.startpage.com/sp/search?query=%s", "https://www.startpage.com"  },
+    { "ecosia",     "Ecosia",     "https://www.ecosia.org/search?q=%s",           "https://www.ecosia.org"     },
+};
+static const int kNanoSearchEngineCount = (int)(sizeof(kNanoSearchEngines)/sizeof(kNanoSearchEngines[0]));
+
+static const NanoSearchEngine& nanoSearchEngine() {
+    char buf[PROPERTY_VALUE_MAX] = {0};
+    property_get("persist.gammaos.nano.search_engine", buf, "google");
+    for (int i = 0; i < kNanoSearchEngineCount; ++i)
+        if (!strcmp(buf, kNanoSearchEngines[i].key)) return kNanoSearchEngines[i];
+    return kNanoSearchEngines[0];   // unknown/empty -> Google
+}
+
+// Percent-encode to RFC3986 unreserved only, so the result carries no spaces or
+// shell metacharacters (UTF-8 encoded byte-by-byte).
+static std::string nanoUrlEncode(const std::string& in) {
+    static const char hex[] = "0123456789ABCDEF";
+    std::string out; out.reserve(in.size() * 3);
+    for (unsigned char c : in) {
+        if ((c>='A'&&c<='Z')||(c>='a'&&c<='z')||(c>='0'&&c<='9')||
+            c=='-'||c=='_'||c=='.'||c=='~') out.push_back((char)c);
+        else { out.push_back('%'); out.push_back(hex[c>>4]); out.push_back(hex[c&0x0F]); }
+    }
+    return out;
+}
+
+static std::string nanoSearchUrl(const std::string& query) {
+    const NanoSearchEngine& e = nanoSearchEngine();
+    std::string t = e.query; size_t pos = t.find("%s");
+    if (pos != std::string::npos) t.replace(pos, 2, nanoUrlEncode(query));
+    return t;
+}
+
+void NanoMenu::launchUrl(const std::string& url) {
+    // nano owns the DRM display as home, so a launched activity is only visible once
+    // nano exits (releasing DRM) - the same handshake real app launches use. The URL
+    // is handed to the browser via a prop it reads on start (the LAUNCHER intent the
+    // framework fires on nano exit carries no data).
+    const char* pkg = "com.gammaos.browser";
+    property_set("sys.gammaos.nano.browser_url", url.c_str());
+    if (mOverlayMode) { overlayLaunchPackage(pkg); return; }   // in-game: replace the app
+    if (!isLaunchReady()) { showLaunchBusyToast(); return; }
+    property_set("sys.gammaos.nano.launch_app", pkg);
+    property_set("sys.gammaos.nano.launched_pkg", pkg);
+    setLaunchRomPath("");
+    property_set("sys.gammaos.nano.launch_core", "");
+    property_set("persist.gammaos.nano.qr_prepared", "0");
+    property_set("persist.gammaos.nano.qr_core", "");
+    property_set("sys.gammaos.nano.return_apps", "1");
+    property_set("service.bootanim.nano_retroarch", "1");
+    property_set("sys.gammaos.nano.drop_input", "1");
+    mWaitForRelease = true;   // fade out + exit so the browser is on top
+}
+
+void NanoMenu::openInternetBrowser() {
+    launchUrl(nanoSearchEngine().home);   // opens to the engine home; the app's address bar handles URLs
+}
+
+void NanoMenu::openInternetSearch() {
+    openOskForPassword("Search the Internet", [this](const std::string& q){
+        if (q.empty()) return;
+        launchUrl(nanoSearchUrl(q));
+    });
+    mOskPasswordMode = false; mOskPlaintext = true;   // plain text, not masked; opens empty
+}
+
+// X (Square) / Triangle on the focused "Internet Search" home item opens the engine
+// chooser (the same side-panel chooser as the settings rows). Returns true if it
+// handled the press so the input handler can stop.
+bool NanoMenu::tryOpenSearchEngineChooser() {
+    if (!mPs3Xmb || mOskActive || mPs3OptActive || mPs3DlgActive || !mPs3Stack.empty()) return false;
+    std::vector<Ps3Item>& its = ps3CurItems(); int sel = ps3CurSel();
+    if (sel < 0 || sel >= (int)its.size() || its[sel].label != "Internet Search") return false;
+    if (const Ps3SettingBinding* b = ps3BindingFor("Internet Search")) { openBoundChooser(b); return true; }
+    return false;
+}
+
 void NanoMenu::ps3XmbSelect() {
     if (mGSearchActive) { gsearchActivate(); return; }   // launch / open the selected result
     if (mVidActive) {   // video player: Go To enter / Scene seek / panel activate / play-pause
@@ -1709,6 +1796,8 @@ void NanoMenu::ps3XmbSelect() {
             // web NETCONF flow, real scan/connect). "Internet Connection" opens the
             // side-panel Enabled/Disabled toggle for the Wi-Fi radio.
             if (it.label == "Internet Connection Settings") { startNetWizard(); return; }
+            if (it.label == "Internet Browser") { openInternetBrowser(); return; }   // Network: open the browser
+            if (it.label == "Internet Search")  { openInternetSearch();  return; }   // Network: OSK query -> search
             if (it.label == "Internet Connection") { openPs3Dialog(it); return; }
             if (it.label == "Time Zone") { openTimezoneGlobe(); return; }   // 3D Earth selector
             // Block ONLY when a live app is behind the in-game overlay (scrim):
@@ -3450,6 +3539,10 @@ static const Ps3SettingBinding kPs3Bindings[] = {
      "0.85:Small,1.0:Default,1.15:Large,1.30:Largest"},
     // Free-text setting edited via the on-screen keyboard ("@text" special).
     {"System Name", SettingSource::kProp, "persist.gammaos.nano.system_name", "", "@text"},
+    // Internet Search engine: shows as the item's right-side value and drives the
+    // Square/Triangle chooser; Enter on the item opens the OSK (handled explicitly).
+    {"Internet Search", SettingSource::kProp, "persist.gammaos.nano.search_engine", "google",
+     "google:Google,bing:Bing,duckduckgo:DuckDuckGo,brave:Brave,startpage:Startpage,ecosia:Ecosia"},
     {"Touch Sounds", SettingSource::kSystem, "sound_effects_enabled", "1", "0:Off,1:On"},
     {"Charging Sounds", SettingSource::kGlobal, "charging_sounds_enabled", "1", "0:Off,1:On"},
     {"Screen Lock Sounds", SettingSource::kSystem, "lockscreen_sounds_enabled", "1", "0:Off,1:On"},

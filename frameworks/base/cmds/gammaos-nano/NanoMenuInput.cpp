@@ -1362,6 +1362,7 @@ void NanoMenu::pollInput() {
                         // Home PS3 XMB: Y (Square) is otherwise unused - the wallpaper
                         // changer moved to Settings > Theme Settings > Wallpaper, and
                         // per-item options live on Triangle/X.
+                        if (tryOpenSearchEngineChooser()) break;   // Square/X on Internet Search: pick the engine
                         break;
                     case BTN_NORTH: // X button (Nintendo layout: BTN_NORTH = X); PS3 Triangle in music
                         if (mOskActive) { oskBackspace(); break; }
@@ -1378,6 +1379,9 @@ void NanoMenu::pollInput() {
                                 gsToggleSystem(its[sel].a);
                             break;
                         }
+                        // Triangle on the focused Internet Search item picks the engine
+                        // (before the generic option menu).
+                        if (tryOpenSearchEngineChooser()) break;
                         // X acts as PS3 Triangle on the home XMB: open the per-item
                         // option menu (Start / Play / Information). The wallpaper
                         // changer it used to cycle moved to Settings > Theme Settings >
