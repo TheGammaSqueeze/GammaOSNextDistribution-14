@@ -779,6 +779,13 @@ void NanoMenu::buildQuickSettingsSubmenu(Ps3Level& out) {
     leaf("USB Controller Switch", nullptr, 16);
     leaf("Start/Select LED", "Start+Select LED", 16);
     leaf("GammaEQ", "Enable EQ", 16);
+    // Stock system toggles (replace the Android QS panel)
+    leaf("Wi-Fi", nullptr, 16);
+    leaf("Bluetooth", nullptr, 16);
+    leaf("Airplane Mode", nullptr, 16);
+    leaf("Location", nullptr, 16);
+    leaf("Do Not Disturb", nullptr, 16);
+    leaf("Auto-Rotate", nullptr, 16);
 }
 
 // --- Notifications submenu ---------------------------------------------------
@@ -3532,6 +3539,14 @@ static const Ps3SettingBinding kPs3Bindings[] = {
     // Secondary display apps (ActivityStarter getBoolean; the toggle is inert without a package list).
     {"Secondary Display Apps", SettingSource::kProp, "persist.gammaos.secondary_display.enabled", "0", "0:Off,1:On"},
     {"Secondary Display Packages", SettingSource::kProp, "persist.gammaos.secondary_display.packages", "", "@text"},
+    // Stock system quick toggles. The bound setting is the display mirror (preselects
+    // the chooser + updates the row instantly); the authoritative radio/policy change
+    // is the cmd run in closePs3Dialog (a bare settings write does not flip the radio).
+    {"Airplane Mode", SettingSource::kGlobal, "airplane_mode_on", "0", "0:Off,1:On"},
+    {"Wi-Fi", SettingSource::kGlobal, "wifi_on", "1", "0:Off,1:On"},
+    {"Bluetooth", SettingSource::kGlobal, "bluetooth_on", "0", "0:Off,1:On"},
+    {"Do Not Disturb", SettingSource::kGlobal, "zen_mode", "0", "0:Off,2:On"},
+    {"Location", SettingSource::kSecure, "location_mode", "0", "0:Off,3:On"},
     // GammaRGB (persist.gammaos.rgb.* + persist.gammargb.control - sampler polls live, no seq).
     // "@rgbeffect"/"@rgbcolor" are special choosers handled in openBoundChooser/closePs3Dialog.
     {"Effect", SettingSource::kProp, "persist.gammargb.control", "on", "@rgbeffect"},
@@ -4757,6 +4772,29 @@ void NanoMenu::closePs3Dialog(bool apply) {
                         std::thread([on]{ system(on
                             ? "am start-foreground-service -n com.gammaos.screenmapper/.ScreenMapOverlayService --ei mode 1 2>/dev/null"
                             : "am stopservice -n com.gammaos.screenmapper/.ScreenMapOverlayService 2>/dev/null"); }).detach();
+                    }
+                    // Stock system toggles: the setting write above only mirrors the
+                    // state for display; the radio/policy is actually flipped by the
+                    // matching cmd, run off the render thread.
+                    {
+                        bool on = (v != "0" && v != "false");
+                        const char* cmd = nullptr;
+                        if (!strcmp(b->label, "Airplane Mode"))
+                            cmd = on ? "cmd connectivity airplane-mode enable 2>/dev/null"
+                                     : "cmd connectivity airplane-mode disable 2>/dev/null";
+                        else if (!strcmp(b->label, "Wi-Fi"))
+                            cmd = on ? "cmd wifi set-wifi-enabled enabled 2>/dev/null"
+                                     : "cmd wifi set-wifi-enabled disabled 2>/dev/null";
+                        else if (!strcmp(b->label, "Bluetooth"))
+                            cmd = on ? "cmd bluetooth_manager enable 2>/dev/null"
+                                     : "cmd bluetooth_manager disable 2>/dev/null";
+                        else if (!strcmp(b->label, "Do Not Disturb"))
+                            cmd = on ? "cmd notification set_dnd on 2>/dev/null"
+                                     : "cmd notification set_dnd off 2>/dev/null";
+                        else if (!strcmp(b->label, "Location"))
+                            cmd = on ? "cmd location set-location-enabled true 2>/dev/null"
+                                     : "cmd location set-location-enabled false 2>/dev/null";
+                        if (cmd) { std::string c = cmd; std::thread([c]{ system(c.c_str()); }).detach(); }
                     }
                     mDisplayDirty = true;
                 }
