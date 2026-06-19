@@ -1530,14 +1530,43 @@ void NanoMenu::openInternetSearch() {
     mOskPasswordMode = false; mOskPlaintext = true;   // plain text, not masked; opens empty
 }
 
-// X (Square) / Triangle on the focused "Internet Search" home item opens the engine
-// chooser (the same side-panel chooser as the settings rows). Returns true if it
-// handled the press so the input handler can stop.
+// Go to URL: an OSK prefilled with https:// that launches the typed address. A
+// bare host-like token gets https:// added; anything with a space falls back to a
+// search on the current engine. Reachable via X/Triangle on "Internet Browser".
+void NanoMenu::openGoToUrl() {
+    openOskForPassword("Go to URL", [this](const std::string& in){
+        std::string url = in;
+        while (!url.empty() && (url.front()==' ' || url.front()=='\t')) url.erase(url.begin());
+        while (!url.empty() && (url.back()==' ' || url.back()=='\t' ||
+                                url.back()=='\n' || url.back()=='\r')) url.pop_back();
+        if (url.empty() || url == "https://" || url == "http://") { openInternetBrowser(); return; }
+        size_t c = url.find("://");
+        bool hasScheme = (c != std::string::npos && c > 0);
+        if (!hasScheme) {
+            bool looksHost = (url.find(' ') == std::string::npos) && (url.find('.') != std::string::npos);
+            url = looksHost ? ("https://" + url) : nanoSearchUrl(url);
+        }
+        launchUrl(url);
+    });
+    mOskPasswordMode = false; mOskPlaintext = true;
+    mOskQuery = "https://";                 // prefill AFTER openOskForPassword (which clears it)
+    mOsk.caret = (int)mOskQuery.size();
+}
+
+// X (Square) / Triangle on a focused Network home item: "Internet Search" opens the
+// engine chooser (the same side-panel chooser as the settings rows); "Internet
+// Browser" opens the Go-to-URL OSK. Returns true if it handled the press so the
+// input handler can stop.
 bool NanoMenu::tryOpenSearchEngineChooser() {
     if (!mPs3Xmb || mOskActive || mPs3OptActive || mPs3DlgActive || !mPs3Stack.empty()) return false;
     std::vector<Ps3Item>& its = ps3CurItems(); int sel = ps3CurSel();
-    if (sel < 0 || sel >= (int)its.size() || its[sel].label != "Internet Search") return false;
-    if (const Ps3SettingBinding* b = ps3BindingFor("Internet Search")) { openBoundChooser(b); return true; }
+    if (sel < 0 || sel >= (int)its.size()) return false;
+    const std::string& lbl = its[sel].label;
+    if (lbl == "Internet Search") {
+        if (const Ps3SettingBinding* b = ps3BindingFor("Internet Search")) { openBoundChooser(b); return true; }
+        return false;
+    }
+    if (lbl == "Internet Browser") { openGoToUrl(); return true; }
     return false;
 }
 

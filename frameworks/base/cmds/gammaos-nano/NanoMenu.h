@@ -2402,7 +2402,8 @@ private:
     // Network: Internet Browser / Internet Search (launch the com.gammaos.browser app).
     void openInternetBrowser();
     void openInternetSearch();
-    bool tryOpenSearchEngineChooser();   // X/Triangle on Internet Search -> engine chooser
+    void openGoToUrl();                  // OSK prefilled https:// -> launch the typed URL
+    bool tryOpenSearchEngineChooser();   // X/Triangle: Internet Search -> engine chooser, Internet Browser -> Go to URL
     void launchUrl(const std::string& url);
     void startDateTimeWizard(int mode);   // 0 = Set via Internet, 1 = Set Manually (reuses net-wizard UI)
     void wizEnter(int id, int dir);       // push/go to a screen
