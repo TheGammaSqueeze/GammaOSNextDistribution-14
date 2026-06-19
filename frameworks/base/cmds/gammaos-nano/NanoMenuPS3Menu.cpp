@@ -48,6 +48,7 @@
 #include <thread>
 #include <vector>
 #include <functional>
+#include <sys/stat.h>   // stat() for ROM file size in the Information page
 #include <aaudio/AAudio.h>   // GammaEQ audio preview (looping playback)
 
 #ifndef M_PI
@@ -2599,12 +2600,19 @@ void NanoMenu::drawPs3CinfoBg(const char* focusLabel, const std::string& fanFile
     std::string key = romFan ? ("fan:" + fanFile) : (isCinfo ? "Photo Gallery" : "");
     if (key != mCinfoFocusKey) { mCinfoFocusKey = key; mCinfoDwellStart = mEffectTime; }
     float dwell = romFan ? 0.5f : 1.5f;   // fanart appears a touch sooner than the cinfo
-    float target = (!key.empty() && (mEffectTime - mCinfoDwellStart) >= dwell) ? 0.85f : 0.0f;
+    // Wrap-safe dwell: mEffectTime is fmod(BOOTTIME,500), so the delta goes negative
+    // once every ~8.3 min and would briefly force target=0 (a stray flash).
+    float since = mEffectTime - mCinfoDwellStart; if (since < 0.0f) since += 500.0f;
+    float target = (!key.empty() && since >= dwell) ? 0.85f : 0.0f;
     float dt = mFrameDt; if (dt < 0.0f || dt > 0.2f) dt = 0.016f;
     float dur = (target > mCinfoAlpha) ? 0.5f : 0.3f;        // fade-in 500ms / out 300ms
     float stp = (dt / dur) * 0.85f;
-    if (target > mCinfoAlpha) mCinfoAlpha = fminf(target, mCinfoAlpha + stp);
-    else                      mCinfoAlpha = fmaxf(0.0f,   mCinfoAlpha - stp);
+    // Settle deadband: snap to target once within one frame step, so the alpha does
+    // NOT fence-post oscillate (0.85>0.85 is false -> would step down then up) and
+    // strobe the full-screen fanart while it is supposed to be held steady.
+    if (fabsf(target - mCinfoAlpha) <= stp) mCinfoAlpha = target;
+    else if (target > mCinfoAlpha)          mCinfoAlpha += stp;   // fade in
+    else                                    mCinfoAlpha -= stp;   // fade out
     if (mCinfoAlpha <= 0.001f) {
         // Fully faded: drop the fanart texture if it is no longer the focus.
         if (mFanartTex && (!romFan || fanFile != mFanartPath)) {
@@ -2615,8 +2623,12 @@ void NanoMenu::drawPs3CinfoBg(const char* focusLabel, const std::string& fanFile
 
     GLuint bgTex = 0; int bgW = 0, bgH = 0;
     if (romFan) {
-        // Lazy (re)load the focused ROM's fanart at full-frame resolution.
-        if (mFanartPath != fanFile || !mFanartTex) {
+        // Load the focused ROM's fanart, but do NOT hard-swap the visible image
+        // mid-scroll: while the OLD image is still up (path differs) keep drawing it
+        // so it fades out first; only bind the NEW one once nothing is shown (faded
+        // to ~0 by the dwell reset, or none loaded yet). This makes scrolling a
+        // scraped library a clean fade-out/fade-in instead of a strobe of pictures.
+        if (!mFanartTex || (mFanartPath != fanFile && mCinfoAlpha <= 0.02f)) {
             if (mFanartTex) { glDeleteTextures(1, &mFanartTex); mFanartTex = 0; }
             float ar = 1.0f;
             mFanartTex = scraperDecodeTex(fanFile, 1024, &ar);
@@ -2669,13 +2681,17 @@ void NanoMenu::drawPs3CinfoBg(const char* focusLabel, const std::string& fanFile
     float vv[4] = { 0.0f, 0.0f, 1.0f, 1.0f };
     auto ndcX = [&](float x){ return (x / W) * 2.0f - 1.0f; };
     auto ndcY = [&](float y){ return 1.0f - (y / H) * 2.0f; };
+    // ROM fanart shows at its true colours; a 50% black scrim drawn AFTER it (below)
+    // provides the darkening so the ROM list reads on top. The Photo Gallery cinfo
+    // sits beside its menu column, so it also keeps full brightness (no scrim).
+    float tint = 1.0f;
     GLfloat verts[12], uvs[12], cols[24];
     const int order[6] = { 0, 1, 2, 0, 2, 3 };
     for (int k = 0; k < 6; k++) {
         int c = order[k];
         verts[k*2] = ndcX(qx[c]); verts[k*2+1] = ndcY(qy[c]);
         uvs[k*2] = uu[c]; uvs[k*2+1] = vv[c];
-        cols[k*4] = 1.0f; cols[k*4+1] = 1.0f; cols[k*4+2] = 1.0f; cols[k*4+3] = a;
+        cols[k*4] = tint; cols[k*4+1] = tint; cols[k*4+2] = tint; cols[k*4+3] = a;
     }
     glUseProgram(mTextProgram);
     if (mTextLocSharp >= 0) glUniform1f(mTextLocSharp, 0.0f);
@@ -2693,6 +2709,11 @@ void NanoMenu::drawPs3CinfoBg(const char* focusLabel, const std::string& fanFile
     glDisableVertexAttribArray(mTextLocPosition);
     glDisableVertexAttribArray(mTextLocTexCoord);
     glDisableVertexAttribArray(mTextLocColor);
+
+    // 50% black scrim over the ROM fanart (under the chrome) so the list reads on
+    // top of bright art. Tracks the fanart's own fade (0..0.5) so it never pops in.
+    if (romFan)
+        drawQuad(0.0f, 0.0f, W, H, 0.0f, 0.0f, 0.0f, 0.5f * (a / 0.85f));
 
     // ROM fanart is a plain background (no firmware description); only the Photo
     // Gallery cinfo carries the descriptive paragraph.
@@ -4458,6 +4479,13 @@ void NanoMenu::closePs3Dialog(bool apply) {
     // so the fading panel still renders; input returns to the menu immediately.
     // Fullscreen dialogs (kind 0) close instantly as before.
     if (mPs3DlgKind == 1) { mPs3DlgClosing = true; mPs3DlgCloseAnim = (mPs3DlgAnim > 0.02f ? mPs3DlgAnim : 1.0f); }
+    // Release the ROM Information page art (page-owned textures) on close.
+    if (mPs3DlgRomInfo) {
+        if (mPs3DlgFanTex) { glDeleteTextures(1, &mPs3DlgFanTex); mPs3DlgFanTex = 0; }
+        if (mPs3DlgBoxTex) { glDeleteTextures(1, &mPs3DlgBoxTex); mPs3DlgBoxTex = 0; }
+        mPs3DlgFanW = mPs3DlgFanH = mPs3DlgBoxW = mPs3DlgBoxH = 0;
+        mPs3DlgRomInfo = false;
+    }
     mPs3DlgActive = false;
     mPs3DlgBlurValid = false;
 }
@@ -4557,6 +4585,9 @@ void NanoMenu::openXmbOpt() {
     const Ps3Item& it = items[sel];
     switch (it.kind) {
         case PS3_ROM: case PS3_RECENT:
+            // ROMs get the rich scraped Information page (cover + fanart + metadata,
+            // falling back to file path/size/core when nothing has been scraped).
+            add("Start", "start", true); add("Information", "rominfo", false); break;
         case PS3_APP: case PS3_LAUNCH_PKG:
             add("Start", "start", true); add("Information", "info", false); break;
         case PS3_MUSIC_ALBUM:
@@ -4731,11 +4762,114 @@ void NanoMenu::xmbOptAction(const std::string& act) {
         }
         mPs3DlgOptions.clear(); mPs3DlgSwatch.clear();
         mPs3DlgKind = 0; mPs3DlgType = 0; mPs3DlgThemeKey = 0; mPs3DlgBinding = nullptr;
-        mPs3DlgIllust = 0; mPs3DlgNotice.clear();
+        mPs3DlgIllust = 0; mPs3DlgNotice.clear(); mPs3DlgRomInfo = false;
         mPs3DlgTitle = title;
         mPs3DlgBody  = body;
         mPs3DlgSel = 0; mPs3DlgOrigSel = 0;
         mPs3DlgIconTex = 0; mPs3DlgIconNmap = 0; mPs3DlgIconR = mPs3DlgIconG = mPs3DlgIconB = 1.0f;
+        mPs3DlgActive = true; mPs3DlgAnim = 0.0f; mPs3DlgBlurValid = false;
+        return;
+    }
+    if (act == "rominfo") {
+        // Rich game Information page. When the ROM has scraped data, show the cover,
+        // a faint fanart backdrop and the scraped metadata (synopsis/genre/players/
+        // rating/release/developer/publisher). Otherwise fall back to the firmware
+        // file facts: name, file name, path, size and core/app.
+        std::string romPath, name, core, sysName;
+        bool isApp = false;
+        if (mPs3OptCtxKind == PS3_ROM
+            && mPs3OptCtxA >= 0 && mPs3OptCtxA < (int)mXmbSystems.size()) {
+            const XmbSystem& s = mXmbSystems[mPs3OptCtxA];
+            if (mPs3OptCtxB >= 0 && mPs3OptCtxB < (int)s.roms.size()) romPath = s.roms[mPs3OptCtxB];
+            if (mPs3OptCtxB >= 0 && mPs3OptCtxB < (int)s.displayNames.size()) name = s.displayNames[mPs3OptCtxB];
+            isApp = s.isStandalone();
+            core = isApp ? s.launchPkg : s.coreSo;
+            sysName = s.name;
+        } else if (mPs3OptCtxKind == PS3_RECENT
+                   && mPs3OptCtxA >= 0 && mPs3OptCtxA < (int)mRecentEntries.size()) {
+            const RecentEntry& r = mRecentEntries[mPs3OptCtxA];
+            romPath = r.romPath; name = r.label;
+            core = !r.coreName.empty() ? r.coreName : r.corePath;
+            sysName = r.dbName;
+        }
+        if (name.empty()) name = mPs3OptCtxLabel;
+        mPs3RomInfoCoreIsApp = isApp;
+
+        // File name / directory split + on-disk size.
+        std::string fname = romPath, dir = "/";
+        size_t slash = romPath.find_last_of('/');
+        if (slash != std::string::npos) {
+            fname = romPath.substr(slash + 1);
+            dir = (slash == 0) ? std::string("/") : romPath.substr(0, slash);
+        }
+        std::string sizeStr;
+        struct stat stt;
+        if (!romPath.empty() && stat(romPath.c_str(), &stt) == 0)
+            sizeStr = fmtFileSize((int64_t)stt.st_size);
+
+        // Free any prior info-page art before (maybe) decoding new ones.
+        if (mPs3DlgFanTex) { glDeleteTextures(1, &mPs3DlgFanTex); mPs3DlgFanTex = 0; }
+        if (mPs3DlgBoxTex) { glDeleteTextures(1, &mPs3DlgBoxTex); mPs3DlgBoxTex = 0; }
+        mPs3DlgFanW = mPs3DlgFanH = 0; mPs3DlgBoxW = mPs3DlgBoxH = 0;
+
+        const ScrapeEntry* se = romPath.empty() ? nullptr : scrapeEntryFor(romPath);
+        bool rich = se && (!se->box.empty() || !se->fan.empty() ||
+                           !se->synopsis.empty() || !se->genre.empty() ||
+                           !se->developer.empty() || !se->publisher.empty() ||
+                           !se->players.empty() || !se->rating.empty() ||
+                           !se->releaseDate.empty());
+
+        mPs3DlgOptions.clear(); mPs3DlgSwatch.clear();
+        mPs3DlgKind = 0; mPs3DlgType = 0; mPs3DlgThemeKey = 0; mPs3DlgBinding = nullptr;
+        mPs3DlgIllust = 0; mPs3DlgNotice.clear();
+        mPs3DlgTitle = name.empty() ? std::string("Information") : name;
+        mPs3DlgSel = 0; mPs3DlgOrigSel = 0;
+        mPs3DlgIconTex = 0; mPs3DlgIconNmap = 0; mPs3DlgIconR = mPs3DlgIconG = mPs3DlgIconB = 1.0f;
+
+        if (rich) {
+            mPs3DlgRomInfo = true;
+            mPs3RomInfoSyn     = se->synopsis;
+            mPs3RomInfoGenre   = se->genre;
+            mPs3RomInfoPlayers = se->players;
+            mPs3RomInfoRating  = se->rating;
+            mPs3RomInfoDate    = se->releaseDate;
+            mPs3RomInfoDev     = se->developer;
+            mPs3RomInfoPub     = se->publisher;
+            mPs3RomInfoFileName = fname;
+            mPs3RomInfoDir     = dir;
+            mPs3RomInfoSize    = sizeStr;
+            mPs3RomInfoCore    = core;
+            mPs3RomInfoSystem  = sysName;
+            // Decode the art into page-owned textures (freed on dialog close).
+            if (!se->fan.empty()) {
+                float ar = 1.0f;
+                mPs3DlgFanTex = scraperDecodeTex(se->fan, 1024, &ar);
+                if (mPs3DlgFanTex) { mPs3DlgFanW = (ar > 0.0f ? (int)(1000.0f * ar) : 1000); mPs3DlgFanH = 1000; }
+            }
+            if (!se->box.empty()) {
+                float ar = 1.0f;
+                mPs3DlgBoxTex = scraperDecodeTex(se->box, 512, &ar);
+                if (mPs3DlgBoxTex) { mPs3DlgBoxW = (ar > 0.0f ? (int)(1000.0f * ar) : 1000); mPs3DlgBoxH = 1000; }
+            }
+            mPs3DlgBody.clear();
+        } else {
+            // Fallback: firmware file facts, centred like the other Information pages.
+            mPs3DlgRomInfo = false;
+            std::string body;
+            auto row = [&](const char* label, const std::string& v) {
+                if (v.empty()) return;
+                char pad[24]; snprintf(pad, sizeof(pad), "%-15s", label);
+                body += pad; body += v; body += "\n";
+            };
+            row("Title", name);
+            row("File Name", fname);
+            row("Path", dir);
+            row("Size", sizeStr);
+            row(isApp ? "App" : "Core", core);
+            row("System", sysName);
+            if (body.empty()) body = "No information is available.";
+            mPs3DlgBody = body;
+        }
         mPs3DlgActive = true; mPs3DlgAnim = 0.0f; mPs3DlgBlurValid = false;
         return;
     }
@@ -4848,7 +4982,7 @@ void NanoMenu::xmbOptAction(const std::string& act) {
         }
         mPs3DlgOptions.clear(); mPs3DlgSwatch.clear();
         mPs3DlgKind = 0; mPs3DlgType = 0; mPs3DlgThemeKey = 0; mPs3DlgBinding = nullptr;
-        mPs3DlgIllust = 0; mPs3DlgNotice.clear();
+        mPs3DlgIllust = 0; mPs3DlgNotice.clear(); mPs3DlgRomInfo = false;
         mPs3DlgTitle = title; mPs3DlgBody = body;
         mPs3DlgSel = 0; mPs3DlgOrigSel = 0;
         mPs3DlgIconTex = 0; mPs3DlgIconNmap = 0; mPs3DlgIconR = mPs3DlgIconG = mPs3DlgIconB = 1.0f;
@@ -5343,6 +5477,20 @@ void NanoMenu::renderPs3Dialog() {
             return out;
         };
 
+        // ---- ROM Information faint fanart backdrop (behind the title/dividers) ----
+        // Contain-fit the scraped fanart inside the content band (never overflowing
+        // past the dividers) and draw it dimmed so it reads as a backdrop, not chrome.
+        // The 50% page dim above already darkens whatever is behind it.
+        if (mPs3DlgRomInfo && mPs3DlgFanTex && mPs3DlgFanW > 0 && mPs3DlgFanH > 0) {
+            float rx = ps3::gFrameX, rw = ps3::gFrameW;
+            float ry = Y(innerTop), rh = Y(innerBot) - Y(innerTop);
+            float far_ = (float)mPs3DlgFanW / (float)mPs3DlgFanH;
+            float dw = rw, dh = dw / far_;
+            if (dh > rh) { dh = rh; dw = dh * far_; }   // contain: fit inside the band
+            float dx = rx + (rw - dw) * 0.5f, dy = ry + (rh - dh) * 0.5f;
+            drawIconTex(mPs3DlgFanTex, dx, dy, dw, dh, 1.0f, 1.0f, 1.0f, 0.20f * ap);
+        }
+
         // ---- header: item icon + title + top/bottom dividers ----
         float iconSz = DS(36.0f);
         if (mPs3DlgIconNmap && mIconGlassReady && ps3bg::workTex())
@@ -5362,7 +5510,91 @@ void NanoMenu::renderPs3Dialog() {
         // results - have no key and pass through unchanged).
         std::string dlgBody = trDyn(mPs3DlgBody.c_str());
         int n = (int)mPs3DlgOptions.size();
-        if (mPs3DlgType == 0) {                 // info
+        if (mPs3DlgRomInfo) {                   // rich ROM Information (cover + metadata + synopsis)
+            // ---- left: cover, contain-fit in a fixed box with a thin frame ----
+            bool hasCover = (mPs3DlgBoxTex != 0 && mPs3DlgBoxW > 0 && mPs3DlgBoxH > 0);
+            if (hasCover) {
+                float bxL = 130.0f, bxT = innerTop + 50.0f, bxW = 470.0f, bxH = (innerBot - 50.0f) - bxT;
+                float car = (float)mPs3DlgBoxW / (float)mPs3DlgBoxH;
+                float cw = bxW, ch = cw / car;
+                if (ch > bxH) { ch = bxH; cw = ch * car; }
+                float cx = X(bxL + (bxW - cw) * 0.5f), cy = Y(bxT + (bxH - ch) * 0.5f);
+                float cwd = DS(cw), chd = DS(ch);
+                drawQuad(cx - DS(2.0f), cy - DS(2.0f), cwd + DS(4.0f), chd + DS(4.0f), 1.0f, 1.0f, 1.0f, 0.25f * ap); // frame
+                drawIconTex(mPs3DlgBoxTex, cx, cy, cwd, chd, 1.0f, 1.0f, 1.0f, ap);
+            }
+            // ---- right: metadata rows, synopsis, bottom-anchored file facts ----
+            float metaX  = hasCover ? 660.0f : 140.0f;
+            float valX   = metaX + 230.0f;
+            float metaR  = VW - 120.0f;
+            float vy = innerTop + 58.0f;
+            auto mrow = [&](const char* label, const std::string& val, float lum) {
+                if (val.empty()) return;
+                ps3DlgText(label, X(metaX), Y(vy), FS(20.0f), 0.60f, 0.65f, 0.72f, ap, 0);
+                ps3DlgText(val.c_str(), X(valX), Y(vy), FS(21.0f), lum, lum, lum, ap, 0);
+                vy += 38.0f;
+            };
+            mrow("Genre",     mPs3RomInfoGenre,   0.95f);
+            mrow("Players",   mPs3RomInfoPlayers, 0.95f);
+            mrow("Rating",    mPs3RomInfoRating,  0.95f);
+            mrow("Released",  mPs3RomInfoDate,    0.95f);
+            mrow("Developer", mPs3RomInfoDev,     0.95f);
+            mrow("Publisher", mPs3RomInfoPub,     0.95f);
+            const char* coreLabel = mPs3RomInfoCoreIsApp ? "App" : "Core";
+
+            // File facts pinned to the bottom of the band (dimmer), with a divider.
+            struct FF { const char* l; const std::string* v; };
+            FF ffAll[] = { {"File", &mPs3RomInfoFileName}, {"Size", &mPs3RomInfoSize},
+                           {coreLabel, &mPs3RomInfoCore},  {"System", &mPs3RomInfoSystem},
+                           {"Path", &mPs3RomInfoDir} };
+            int ffN = 0; for (auto& f : ffAll) if (!f.v->empty()) ffN++;
+            float ffRowH = 32.0f;
+            float ffTop  = innerBot - 26.0f - (float)ffN * ffRowH;
+
+            // Synopsis fills the gap between the rows and the file-facts block.
+            if (!mPs3RomInfoSyn.empty()) {
+                float synTop = vy + 6.0f;
+                ps3DlgText("Description", X(metaX), Y(synTop), FS(20.0f), 0.60f, 0.65f, 0.72f, ap, 0);
+                float synFs = FS(19.0f), lineH = 27.0f;
+                float wdev = X(metaR) - X(metaX);
+                auto wrapW = [&](const std::string& text, float fs) {
+                    std::vector<std::string> out; std::string line, word;
+                    auto commit = [&]() {
+                        if (word.empty()) return;
+                        std::string trial = line.empty() ? word : line + " " + word;
+                        if (!line.empty() && measureText(trial.c_str(), fs) > wdev) { out.push_back(line); line = word; }
+                        else line = trial;
+                        word.clear();
+                    };
+                    for (const char* q = text.c_str(); ; ++q) {
+                        if (*q == ' ' || *q == '\n' || *q == '\0') { commit(); if (*q == '\n') out.push_back(""); if (*q == '\0') break; }
+                        else word.push_back(*q);
+                    }
+                    if (!line.empty()) out.push_back(line);
+                    return out;
+                };
+                std::vector<std::string> lines = wrapW(mPs3RomInfoSyn, synFs);
+                float ly = synTop + 34.0f;
+                float synBot = ffTop - 18.0f;
+                for (auto& ln : lines) {
+                    if (ly > synBot) break;   // clamp; never overrun the file-facts block
+                    if (!ln.empty()) ps3DlgText(ln.c_str(), X(metaX), Y(ly), synFs, 0.92f, 0.92f, 0.92f, ap, 0);
+                    ly += lineH;
+                }
+            }
+
+            if (ffN > 0) {
+                float dy = ffTop - 16.0f;
+                drawQuad(X(metaX), Y(dy), DS(metaR - metaX), fmaxf(1.0f, DS(1.0f)), 1.0f, 1.0f, 1.0f, 0.18f * ap);
+                float fy = ffTop;
+                for (auto& f : ffAll) {
+                    if (f.v->empty()) continue;
+                    ps3DlgText(f.l, X(metaX), Y(fy), FS(17.0f), 0.55f, 0.60f, 0.66f, ap, 0);
+                    ps3DlgText(f.v->c_str(), X(valX), Y(fy), FS(17.0f), 0.80f, 0.80f, 0.80f, ap, 0);
+                    fy += ffRowH;
+                }
+            }
+        } else if (mPs3DlgType == 0) {          // info
             float centerCY = (innerTop + innerBot) * 0.5f;
             if (mPs3DlgIllust) { ps3DlgIllustration(mPs3DlgIllust, XC(VW * 0.5f), Y(innerTop + 230.0f), DS(280.0f), ap); centerCY = innerTop + 460.0f; }
             float fs = FS(26.0f), lh = DS(36.0f);

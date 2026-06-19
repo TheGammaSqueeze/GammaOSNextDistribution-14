@@ -1155,6 +1155,17 @@ private:
     // drawDialog: a body type, an optional vector illustration, a notice line and
     // the source item's header icon.
     int    mPs3DlgType = 0;        // 0 info, 1 chooser, 2 chooser_illust, 3 confirm
+    // Rich ROM Information page (a type-0 dialog variant): scraped cover + faint
+    // fanart + metadata rows, with file path/size/core fallback when not scraped.
+    bool   mPs3DlgRomInfo = false;
+    std::string mPs3RomInfoSyn, mPs3RomInfoGenre, mPs3RomInfoPlayers, mPs3RomInfoRating;
+    std::string mPs3RomInfoDate, mPs3RomInfoDev, mPs3RomInfoPub;     // scraped metadata
+    std::string mPs3RomInfoFileName, mPs3RomInfoDir, mPs3RomInfoSize, mPs3RomInfoCore, mPs3RomInfoSystem;
+    bool   mPs3RomInfoCoreIsApp = false;   // true = standalone app (label "App"), false = libretro core ("Core")
+    GLuint mPs3DlgFanTex = 0;       // fanart texture for the info page (freed on dialog close)
+    int    mPs3DlgFanW = 0, mPs3DlgFanH = 0;
+    GLuint mPs3DlgBoxTex = 0;       // cover texture for the info page (freed on dialog close)
+    int    mPs3DlgBoxW = 0, mPs3DlgBoxH = 0;
     int    mPs3DlgIllust = 0;      // 0 none,1 hdmi_cable,2 av_multi,3 hdd_warning,4 globe,5 controller,6 bd_remote
     std::string mPs3DlgNotice;     // chooser_illust bottom notice line
     unsigned int mPs3DlgIconTex = 0;   // header item icon (flat fallback)
@@ -1471,6 +1482,8 @@ private:
         std::string title;   // matched game title
         std::string scraper; // "screenscraper" | "thegamesdb"
         long long when = 0;  // epoch seconds when scraped
+        // Metadata for the Information screen (empty = no data).
+        std::string synopsis, genre, players, rating, releaseDate, developer, publisher;
     };
     std::unordered_map<std::string, ScrapeEntry> mScrapeIndex;
     bool mScrapeIndexLoaded = false;

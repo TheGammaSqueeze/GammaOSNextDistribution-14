@@ -77,6 +77,13 @@ void NanoMenu::loadScrapeIndex() {
         e.title   = it.getString("title");
         e.scraper = it.getString("scraper");
         e.when    = (long long)it.getInt("when", 0);
+        e.synopsis    = it.getString("desc");
+        e.genre       = it.getString("genre");
+        e.players     = it.getString("players");
+        e.rating      = it.getString("rating");
+        e.releaseDate = it.getString("date");
+        e.developer   = it.getString("dev");
+        e.publisher   = it.getString("pub");
         mScrapeIndex[rom] = std::move(e);
     }
     ALOGD("scraper: loaded %zu manifest entries", mScrapeIndex.size());
@@ -84,7 +91,7 @@ void NanoMenu::loadScrapeIndex() {
 
 void NanoMenu::saveScrapeIndex() {
     njson::Value root = njson::Value::makeObject();
-    root.set("version") = njson::Value::makeNumber(1);
+    root.set("version") = njson::Value::makeNumber(2);
     njson::Value items = njson::Value::makeArray();
     for (const auto& kv : mScrapeIndex) {
         njson::Value o = njson::Value::makeObject();
@@ -93,6 +100,13 @@ void NanoMenu::saveScrapeIndex() {
         if (!kv.second.fan.empty())     o.set("fan")     = njson::Value::makeString(kv.second.fan);
         if (!kv.second.title.empty())   o.set("title")   = njson::Value::makeString(kv.second.title);
         if (!kv.second.scraper.empty()) o.set("scraper") = njson::Value::makeString(kv.second.scraper);
+        if (!kv.second.synopsis.empty())    o.set("desc")    = njson::Value::makeString(kv.second.synopsis);
+        if (!kv.second.genre.empty())       o.set("genre")   = njson::Value::makeString(kv.second.genre);
+        if (!kv.second.players.empty())     o.set("players") = njson::Value::makeString(kv.second.players);
+        if (!kv.second.rating.empty())      o.set("rating")  = njson::Value::makeString(kv.second.rating);
+        if (!kv.second.releaseDate.empty()) o.set("date")    = njson::Value::makeString(kv.second.releaseDate);
+        if (!kv.second.developer.empty())   o.set("dev")     = njson::Value::makeString(kv.second.developer);
+        if (!kv.second.publisher.empty())   o.set("pub")     = njson::Value::makeString(kv.second.publisher);
         o.set("when")    = njson::Value::makeNumber((double)kv.second.when);
         items.arr.push_back(std::move(o));
     }
@@ -328,6 +342,9 @@ void NanoMenu::scrapeThreadFunc(std::vector<ScrapeJob> jobs) {
 
         ScrapeEntry e;
         e.box = r.boxFile; e.fan = r.fanFile; e.title = r.title;
+        e.synopsis = r.synopsis; e.genre = r.genre; e.players = r.players;
+        e.rating = r.rating; e.releaseDate = r.releaseDate;
+        e.developer = r.developer; e.publisher = r.publisher;
         e.scraper = (j.engine == (int)nanoscraper::ENGINE_THEGAMESDB) ? "thegamesdb" : "screenscraper";
         e.when = (long long)time(nullptr);
         {

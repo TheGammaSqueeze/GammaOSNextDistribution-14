@@ -71,6 +71,14 @@ struct ScrapeOutcome {
     std::string boxFile;        // written cover path, or empty
     std::string fanFile;        // written fanart path, or empty
     std::string error;          // human-readable failure reason
+    // Game metadata for the Information screen (best effort; empty = no data).
+    std::string synopsis;       // description / overview
+    std::string genre;
+    std::string players;        // e.g. "1" or "1-2"
+    std::string rating;         // ScreenScraper "16/20"; TheGamesDB e.g. "E - Everyone"
+    std::string releaseDate;    // "YYYY-MM-DD" or "YYYY"
+    std::string developer;
+    std::string publisher;
 };
 
 // Scrape one ROM. Writes "<key>.box.png" / "<key>.fan.jpg" into cacheDir (key =

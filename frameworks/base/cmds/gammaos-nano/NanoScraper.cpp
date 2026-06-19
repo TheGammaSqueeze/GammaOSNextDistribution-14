@@ -179,6 +179,25 @@ static std::string cleanQueryName(const std::string& in) {
     return t;
 }
 
+// Decode the handful of HTML entities the APIs return in metadata text (es-de does
+// the same). In-place, conservative; leaves unknown entities untouched.
+static void htmlUnescape(std::string& s) {
+    static const std::pair<const char*, const char*> kEnt[] = {
+        {"&nbsp;", " "}, {"&amp;", "&"}, {"&#x26;", "&"}, {"&#38;", "&"},
+        {"&quot;", "\""}, {"&#34;", "\""}, {"&apos;", "'"}, {"&#39;", "'"},
+        {"&#039;", "'"}, {"&#x27;", "'"}, {"&copy;", "\xC2\xA9"}, {"&#169;", "\xC2\xA9"},
+        {"&lt;", "<"}, {"&gt;", ">"}, {"&eacute;", "\xC3\xA9"}, {"&deg;", "\xC2\xB0"},
+    };
+    for (const auto& e : kEnt) {
+        size_t p = 0;
+        const std::string from = e.first, to = e.second;
+        while ((p = s.find(from, p)) != std::string::npos) { s.replace(p, from.size(), to); p += to.size(); }
+    }
+    // trim leading/trailing whitespace
+    size_t a = s.find_first_not_of(" \t\r\n"); size_t b = s.find_last_not_of(" \t\r\n");
+    if (a == std::string::npos) s.clear(); else s = s.substr(a, b - a + 1);
+}
+
 Engine engineFromName(const std::string& name) {
     if (name == "thegamesdb")   return ENGINE_THEGAMESDB;
     if (name == "off" || name == "none") return ENGINE_OFF;
@@ -386,6 +405,43 @@ static ScrapeOutcome scrapeScreenScraper(const Credentials& cred,
     if (r.title.empty()) r.title = jeu->getString("nom");
     if (r.title.empty()) r.title = stripExt(displayName);
 
+    // Game metadata for the Information screen (best effort). language-/region-preferred.
+    auto langText = [](const njson::Value* arr) -> std::string {
+        if (!arr || !arr->isArray() || arr->arr.empty()) return std::string();
+        std::string first, picked;
+        for (const auto& o : arr->arr) {
+            std::string lg = o.getString("langue"), tx = o.getString("text");
+            if (first.empty()) first = tx;
+            if (lg == "en" && picked.empty()) picked = tx;
+        }
+        return picked.empty() ? first : picked;
+    };
+    r.synopsis = langText(jeu->find("synopsis"));
+    if (const njson::Value* gs = jeu->find("genres")) {
+        if (gs->isArray() && !gs->arr.empty()) {
+            const njson::Value* gp = &gs->arr[0];
+            for (const auto& g : gs->arr) if (g.getString("principale") == "1") { gp = &g; break; }
+            r.genre = langText(gp->find("noms"));
+        }
+    }
+    if (const njson::Value* jo = jeu->find("joueurs")) r.players = jo->getString("text");
+    if (const njson::Value* nt = jeu->find("note")) { std::string v = nt->getString("text"); if (!v.empty()) r.rating = v + "/20"; }
+    if (const njson::Value* ds = jeu->find("dates")) {
+        if (ds->isArray() && !ds->arr.empty()) {
+            std::string first, picked;
+            for (const auto& d : ds->arr) {
+                std::string rg = d.getString("region"), tx = d.getString("text");
+                if (first.empty()) first = tx;
+                for (const std::string& want : regs) if (rg == want && picked.empty()) picked = tx;
+            }
+            r.releaseDate = picked.empty() ? first : picked;
+        }
+    }
+    if (const njson::Value* dv = jeu->find("developpeur")) r.developer = dv->getString("text");
+    if (const njson::Value* ed = jeu->find("editeur")) r.publisher = ed->getString("text");
+    htmlUnescape(r.synopsis); htmlUnescape(r.genre); htmlUnescape(r.players);
+    htmlUnescape(r.developer); htmlUnescape(r.publisher); htmlUnescape(r.releaseDate);
+
     const njson::Value* medias = jeu->find("medias");
     if (!medias || !medias->isArray()) { r.error = "No media"; return r; }
 
@@ -461,7 +517,7 @@ static ScrapeOutcome scrapeTheGamesDb(const Credentials& cred,
     // result on the requested platform; filter[platform] also narrows server-side.
     std::vector<std::pair<std::string, std::string>> q = {
         {"apikey", cred.tgdbKey},
-        {"fields", "players,publishers,genres,overview,platform"},
+        {"fields", "players,publishers,genres,overview,platform,rating,release_date"},
         {"name", qname},
     };
     if (plat.tgdb > 0) q.push_back({"filter[platform]", std::to_string(plat.tgdb)});
@@ -481,12 +537,23 @@ static ScrapeOutcome scrapeTheGamesDb(const Credentials& cred,
 
     int gameId = -1;
     // Prefer a game on the requested platform; otherwise the first result.
+    const njson::Value* gsel = nullptr;
     if (plat.tgdb > 0)
         for (const auto& g : games->arr)
-            if (g.getInt("platform", -1) == plat.tgdb) { gameId = g.getInt("id", -1); r.title = g.getString("game_title"); break; }
-    if (gameId < 0) { gameId = games->arr[0].getInt("id", -1); r.title = games->arr[0].getString("game_title"); }
+            if (g.getInt("platform", -1) == plat.tgdb) { gsel = &g; break; }
+    if (!gsel) gsel = &games->arr[0];
+    gameId = gsel->getInt("id", -1);
+    r.title = gsel->getString("game_title");
     if (gameId < 0) { r.error = "No match"; return r; }
     if (r.title.empty()) r.title = stripExt(displayName);
+    // Metadata (only the directly-readable fields; genre/developer/publisher are
+    // numeric IDs needing extra resource-map fetches, skipped per the lean policy).
+    r.synopsis = gsel->getString("overview");
+    { int pl = gsel->getInt("players", 0); if (pl > 0) r.players = std::to_string(pl); }
+    r.rating = gsel->getString("rating");
+    r.releaseDate = gsel->getString("release_date");
+    if (r.releaseDate.size() > 10) r.releaseDate = r.releaseDate.substr(0, 10);
+    htmlUnescape(r.synopsis); htmlUnescape(r.rating);
 
     // 2) Images -> boxart + fanart filenames. es-de fetches all image types and
     // filters client-side (no filter[type]) so screenshot/titlescreen remain as
