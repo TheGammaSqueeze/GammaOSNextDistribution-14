@@ -1424,7 +1424,14 @@ public final class SystemServer implements Dumpable {
         t.traceEnd();
 
         // Tracks whether the updatable WebView is in a ready state and watches for update installs.
-        if (!minimalBootEarly && mPackageManager.hasSystemFeature(PackageManager.FEATURE_WEBVIEW)) {
+        // GammaOS Nano: minimal_boot normally skips this to save memory, but the nano XMB
+        // Internet Browser needs a WebView provider, so start it in minimal_boot too unless
+        // persist.gammaos.nano.webview is explicitly turned off. The heavy renderer only
+        // loads in app processes that use WebView (the browser, when open); idle cost here
+        // is just the service + the shared relro.
+        boolean webViewWanted = !minimalBootEarly
+                || SystemProperties.getBoolean("persist.gammaos.nano.webview", true);
+        if (webViewWanted && mPackageManager.hasSystemFeature(PackageManager.FEATURE_WEBVIEW)) {
             t.traceBegin("StartWebViewUpdateService");
             mWebViewUpdateService = mSystemServiceManager.startService(WebViewUpdateService.class);
             t.traceEnd();
@@ -3529,8 +3536,12 @@ public final class SystemServer implements Dumpable {
                     Slog.i(TAG, WEBVIEW_PREPARATION);
                     TimingsTraceAndSlog traceLog = TimingsTraceAndSlog.newAsyncLog();
                     traceLog.traceBegin(WEBVIEW_PREPARATION);
-                    ConcurrentUtils.waitForFutureNoInterrupt(mZygotePreload, "Zygote preload");
-                    mZygotePreload = null;
+                    // GammaOS Nano: minimal_boot skips the zygote preload, so mZygotePreload
+                    // is null here. Guard the wait or it NPEs and crash-loops system_server.
+                    if (mZygotePreload != null) {
+                        ConcurrentUtils.waitForFutureNoInterrupt(mZygotePreload, "Zygote preload");
+                        mZygotePreload = null;
+                    }
                     mWebViewUpdateService.prepareWebViewInSystemServer();
                     traceLog.traceEnd();
                 }, WEBVIEW_PREPARATION);
