@@ -1318,6 +1318,7 @@ void NanoMenu::addXmbRecent(int sysIdx, int gameIdx) {
 // ---------------------------------------------------------------------------
 
 void NanoMenu::handleLeft() {
+    if (mScrapeProgActive) return;   // modal swallows navigation
     // GammaOS Nano: navigating cancels any queued launch.
     cancelPendingLaunch();
     if (mOskActive) {
@@ -1343,6 +1344,7 @@ void NanoMenu::handleLeft() {
 }
 
 void NanoMenu::handleRight() {
+    if (mScrapeProgActive) return;   // modal swallows navigation
     // GammaOS Nano: navigating cancels any queued launch.
     cancelPendingLaunch();
     if (mOskActive) {

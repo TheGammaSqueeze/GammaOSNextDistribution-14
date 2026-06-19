@@ -34,6 +34,7 @@
 #include "NanoOsk.h"
 #include "NanoAudio.h"
 #include "NanoTsDemux.h"
+#include "NanoScraper.h"
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -1459,6 +1460,56 @@ private:
     // exist, so an unmounted card or missing folder is handled gracefully.
     std::vector<std::string> nanoDefaultMediaDirs(int kind) const;
     std::vector<std::string> nanoMediaScanDirs(int kind, const std::vector<std::string>& userFolders) const;
+
+    // ---- Boxart / cover scraper (NanoMenuScraper.cpp) ---------------------
+    // Manifest of scraped art keyed by ROM path -> on-disk cover/fanart files.
+    // Tiny metadata; loaded lazily, kept resident. The GL textures it points to
+    // are loaded/freed on demand (Phase 3/4), not here.
+    struct ScrapeEntry {
+        std::string box;     // cover file path ("" = none)
+        std::string fan;     // fanart file path ("" = none)
+        std::string title;   // matched game title
+        std::string scraper; // "screenscraper" | "thegamesdb"
+        long long when = 0;  // epoch seconds when scraped
+    };
+    std::unordered_map<std::string, ScrapeEntry> mScrapeIndex;
+    bool mScrapeIndexLoaded = false;
+    void scraperEnsureLoaded();            // lazy-load index.json
+    void loadScrapeIndex();
+    void saveScrapeIndex();
+    const ScrapeEntry* scrapeEntryFor(const std::string& romPath);
+    bool scraperBoxartEnabled();           // persist.gammaos.scraper.boxart
+    bool scraperFanartEnabled();           // persist.gammaos.scraper.fanart
+    nanoscraper::Credentials scraperCredsFor(int sysIdx);   // global + per-system override
+    nanoscraper::Engine scraperEngineFor(int sysIdx, const nanoscraper::Credentials& cred);
+    void scrapeAllSystems();               // Settings action: scrape every enabled system
+    void scrapeOneSystem(int sysIdx);      // Game Systems editor action
+    // One ROM of work, fully snapshotted so the worker never touches mXmbSystems.
+    struct ScrapeJob {
+        std::string romPath;
+        std::string displayName;
+        std::string sysName;
+        int engine = 0;                    // nanoscraper::Engine
+        nanoscraper::Credentials cred;
+        nanoscraper::PlatformIds plat;
+    };
+    void scrapeSystemsAsync(const std::vector<int>& sysIdxs);
+    void scrapeThreadFunc(std::vector<ScrapeJob> jobs);
+    void scraperDrainResults();            // render thread: merge finished art + progress
+    void scraperCancel();
+    void renderScrapeProgress();           // the progress / result modal
+    // scrape worker state
+    std::mutex mScrapeMutex;
+    bool mScrapeRunning = false;           // worker alive
+    bool mScrapeCancel = false;            // cancel requested
+    bool mScrapeProgActive = false;        // modal shown
+    bool mScrapeDoneFlag = false;          // worker finished -> show summary
+    int  mScrapeDone = 0, mScrapeTotal = 0, mScrapeHits = 0, mScrapeFail = 0;
+    std::string mScrapeStatus;             // "System / Game" current line (under mutex)
+    std::string mScrapeError;              // terminal message (creds missing / network)
+    std::vector<std::pair<std::string, ScrapeEntry>> mScrapePending;  // finished -> merge on drain
+    bool mScrapeBox = true, mScrapeFan = true;   // snapshot of the enabled-media toggles for the worker
+    std::string mScrapeCacheDir = "/data/system/nano_scrape";
     // persistence + lazy load
     int64_t musicConfigStamp() const;
     bool loadMusicConfig();

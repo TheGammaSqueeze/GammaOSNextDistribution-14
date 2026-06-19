@@ -802,7 +802,7 @@ void NanoMenu::gsRefreshStackLevels() {
 enum {
     GSF_ENABLED = 0, GSF_NAME, GSF_SHORT, GSF_LTYPE, GSF_EMULATOR, GSF_CORE, GSF_PACKAGE,
     GSF_ARGS, GSF_INTENT, GSF_EXTS, GSF_SCAN, GSF_ICON, GSF_TINT,
-    GSF_SCRAPER, GSF_SCRAPE_USER, GSF_SCRAPE_PASS, GSF_RESET, GSF_DELETE
+    GSF_SCRAPER, GSF_SCRAPE_USER, GSF_SCRAPE_PASS, GSF_SCRAPE_NOW, GSF_RESET, GSF_DELETE
 };
 
 // Per-system scraper-override row value: "Default" (inherit global) or the chosen
@@ -878,6 +878,7 @@ void NanoMenu::buildGameSystemEditor(int sysIdx, Ps3Level& out) {
     add("Scraper Password", GSF_SCRAPE_PASS,
         sys.scrapePass.empty() ? std::string("Default")
                                : std::string((sys.scrapePass.size() > 8 ? 8 : sys.scrapePass.size()), '*'));
+    add("Scrape This System", GSF_SCRAPE_NOW, "");
     if (sys.builtin) add("Reset to Default", GSF_RESET, "");
     else             add("Delete System", GSF_DELETE, "");
 }
@@ -916,6 +917,7 @@ void NanoMenu::gsEditField(int field) {
         case GSF_SCRAPER:      gsOpenScraperChooser(); return;
         case GSF_SCRAPE_USER:  gsEditScraperCred(false); return;
         case GSF_SCRAPE_PASS:  gsEditScraperCred(true); return;
+        case GSF_SCRAPE_NOW:   scrapeOneSystem(idx); return;
         case GSF_RESET:   gsOpenResetConfirm(); return;
         case GSF_DELETE:  gsOpenRemoveConfirm(idx); return;
         default: break;
@@ -1548,6 +1550,7 @@ void NanoMenu::ps3XmbSelect() {
             if (it.label == "BD Remote Control Registration") { startBtWizard(1); return; }
             if (it.label == "Audio Device Settings")          { startBtWizard(2); return; }
             // Data-driven settings leaf -> bound side chooser (real backing setting).
+            if (it.label == "Scrape All Systems") { scrapeAllSystems(); return; }
             if (const Ps3SettingBinding* b = ps3BindingFor(it.label)) { openBoundChooser(b); return; }
             if (it.action == 1) openPs3Dialog(it);   // action='dialog' -> dialog/chooser
             return;

@@ -3889,6 +3889,12 @@ if (sRingPrimedCount >= 2) {
                     pendingCacheWrites.clear();
                 }
 
+                // Boxart scraper: merge finished cover/fanart into the manifest +
+                // save. Must run every frame (not only at the settled XMB root like
+                // the media drains below) because a scrape runs while the user is
+                // deep in the Settings submenu with the progress modal up.
+                scraperDrainResults();
+
                 // Periodic rescan every 30s (runs on background thread,
                 // zero impact on render)
                 if (mXmbBootCompleted && !mBgScanThreadRunning

@@ -2019,6 +2019,7 @@ void NanoMenu::render() {
         // Bluetooth sub-screens itself when mMenuState is MENU_WIFI / MENU_BT, and
         // drives + renders the cold-boot intro when mPs3BootActive.
         renderPs3Xmb();
+        renderScrapeProgress();   // boxart-scraper progress / result modal, over the XMB
         renderOsk();
         // Overlay launch transition: fade the whole XMB to black over ~300ms so the
         // app's own cold start is covered by a clean fade-out instead of a frozen,

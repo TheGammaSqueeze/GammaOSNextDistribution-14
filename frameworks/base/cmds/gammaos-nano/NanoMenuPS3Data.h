@@ -59,6 +59,7 @@ static const Ps3DataItem kScraperSettingsCh[] = {
   {"ScreenScraper Dev ID",22,"ScreenScraper developer ID. Required by the service; request one at screenscraper.fr.",nullptr,1,nullptr,0},
   {"ScreenScraper Dev Password",22,"ScreenScraper developer password paired with the developer ID.",nullptr,1,nullptr,0},
   {"TheGamesDB API Key",22,"API key for TheGamesDB. Request one at thegamesdb.net.",nullptr,1,nullptr,0},
+  {"Scrape All Systems",22,"Fetch box art and background art for every enabled game system now.",nullptr,1,nullptr,0},
 };
 static const Ps3DataItem kSystemSettingsCh[] = {
   {"Automatic Update",22,"Starts the system automatically and downloads game patches, uploads new saved data to online storage and syncs trophy information with the server.","Off",0,nullptr,0},

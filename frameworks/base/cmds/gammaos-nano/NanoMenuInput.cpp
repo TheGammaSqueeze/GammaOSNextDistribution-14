@@ -258,6 +258,12 @@ void NanoMenu::handleBack() {
     // before the system was ready. Without this, mLaunchPending
     // would still re-fire handleSelect() once isLaunchReady() flips.
     cancelPendingLaunch();
+    // Boxart scraper modal: O cancels an in-flight scrape, or closes the summary.
+    if (mScrapeProgActive) {
+        if (mScrapeRunning) scraperCancel();
+        else { mScrapeProgActive = false; mDisplayDirty = true; }
+        return;
+    }
     if (mOskActive) {
         closeOsk();
         return;
@@ -304,6 +310,11 @@ void NanoMenu::handleBack() {
 }
 
 void NanoMenu::handleSelect() {
+    // Boxart scraper modal: X closes the summary once the scrape has finished.
+    if (mScrapeProgActive) {
+        if (!mScrapeRunning) { mScrapeProgActive = false; mDisplayDirty = true; }
+        return;
+    }
     if (mOskActive) {
         oskAPress();
         return;
@@ -473,6 +484,7 @@ void NanoMenu::handleSelect() {
 }
 
 void NanoMenu::handleUp() {
+    if (mScrapeProgActive) return;   // modal swallows navigation
     // GammaOS Nano: navigating cancels any queued launch.
     cancelPendingLaunch();
     if (mSetupWizardActive && mMenuState == MENU_SETUP_WIZARD && !mPs3WizActive) {
@@ -525,6 +537,7 @@ void NanoMenu::handleUp() {
 }
 
 void NanoMenu::handleDown() {
+    if (mScrapeProgActive) return;   // modal swallows navigation
     // GammaOS Nano: navigating cancels any queued launch.
     cancelPendingLaunch();
     if (mSetupWizardActive && mMenuState == MENU_SETUP_WIZARD && !mPs3WizActive) {

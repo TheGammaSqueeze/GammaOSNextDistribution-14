@@ -77,6 +77,8 @@ cc_binary {
         "NanoMenuSearch.cpp",
         "NanoAc3.cpp",
         "NanoCea608.cpp",
+        "NanoScraper.cpp",
+        "NanoMenuScraper.cpp",
         "NanoJson.cpp",
         "NanoI18n.cpp",
         "NanoOsk.cpp",
