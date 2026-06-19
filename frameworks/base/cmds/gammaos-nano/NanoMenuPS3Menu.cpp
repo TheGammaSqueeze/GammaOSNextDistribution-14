@@ -3099,28 +3099,33 @@ void NanoMenu::drawPs3Clock(float fadeMul) {
 // firmware-measured palette from the web xmb (COLOR_OPTIONS[].swatch), distinct from
 // the tint (e.g. Original's swatch is silver while its tint is plum).
 struct Ps3ColorOpt { const char* name; float r, g, b; float sr, sg, sb; };
+// {name, r,g,b (XMB icon/theme tint), sr,sg,sb (swatch preview + LED-drive hex)}.
+// The sr,sg,sb set is written verbatim to persist.gammaos.primary.rgb_hex_custom and
+// thus drives the physical RGB LED, so it must be saturated/near-primary (matching the
+// original GammaRGB JoystickLedPicker palette) or the LED reads as pale/washed-out. The
+// r,g,b tint stays soft for the on-screen icon look and is intentionally separate.
 static const Ps3ColorOpt kPs3ColorOpts[] = {
     {"Original",    0.82f,0.62f,0.90f,  0.722f,0.749f,0.792f},
-    {"Yellow",      1.00f,0.88f,0.20f,  0.800f,0.722f,0.110f},
-    {"Green",       0.65f,0.87f,0.30f,  0.451f,0.663f,0.157f},
-    {"Pink",        1.00f,0.64f,0.72f,  0.871f,0.431f,0.506f},
-    {"Dark Green",  0.25f,0.70f,0.25f,  0.114f,0.482f,0.114f},
-    {"Light Purple",0.82f,0.62f,0.90f,  0.573f,0.435f,0.741f},
-    {"Teal",        0.30f,0.88f,0.85f,  0.141f,0.722f,0.671f},
-    {"Dark Blue",   0.10f,0.30f,0.80f,  0.031f,0.216f,0.651f},
-    {"Magenta",     0.70f,0.30f,0.80f,  0.553f,0.208f,0.608f},
-    {"Orange",      1.00f,0.70f,0.15f,  0.765f,0.565f,0.067f},
-    {"Brown",       0.62f,0.43f,0.18f,  0.624f,0.431f,0.180f},
-    {"Red",         0.90f,0.22f,0.22f,  0.902f,0.220f,0.220f},
+    {"Yellow",      1.00f,0.88f,0.20f,  1.000f,0.957f,0.000f},
+    {"Green",       0.65f,0.87f,0.30f,  0.443f,1.000f,0.208f},
+    {"Pink",        1.00f,0.64f,0.72f,  1.000f,0.235f,0.553f},
+    {"Dark Green",  0.25f,0.70f,0.25f,  0.000f,0.600f,0.000f},
+    {"Light Purple",0.82f,0.62f,0.90f,  0.667f,0.290f,1.000f},
+    {"Teal",        0.30f,0.88f,0.85f,  0.000f,0.760f,0.690f},
+    {"Dark Blue",   0.10f,0.30f,0.80f,  0.000f,0.150f,0.850f},
+    {"Magenta",     0.70f,0.30f,0.80f,  1.000f,0.000f,1.000f},
+    {"Orange",      1.00f,0.70f,0.15f,  1.000f,0.541f,0.165f},
+    {"Brown",       0.62f,0.43f,0.18f,  0.545f,0.235f,0.000f},
+    {"Red",         0.90f,0.22f,0.22f,  1.000f,0.180f,0.180f},
     {"Black",       0.06f,0.06f,0.075f, 0.039f,0.039f,0.047f},
     {"White",       0.95f,0.95f,0.98f,  0.949f,0.949f,0.961f},
     {"Gray",        0.55f,0.57f,0.62f,  0.549f,0.561f,0.620f},
-    {"Blue",        0.20f,0.45f,0.95f,  0.212f,0.447f,0.949f},
-    {"Cyan",        0.20f,0.85f,0.95f,  0.200f,0.851f,0.949f},
-    {"Lime",        0.55f,0.95f,0.20f,  0.549f,0.949f,0.200f},
-    {"Gold",        1.00f,0.78f,0.25f,  1.000f,0.780f,0.251f},
-    {"Violet",      0.55f,0.35f,0.95f,  0.549f,0.349f,0.949f},
-    {"Crimson",     0.80f,0.10f,0.30f,  0.800f,0.102f,0.302f},
+    {"Blue",        0.20f,0.45f,0.95f,  0.000f,0.231f,1.000f},
+    {"Cyan",        0.20f,0.85f,0.95f,  0.000f,0.737f,0.831f},
+    {"Lime",        0.55f,0.95f,0.20f,  0.549f,1.000f,0.000f},
+    {"Gold",        1.00f,0.78f,0.25f,  1.000f,0.757f,0.027f},
+    {"Violet",      0.55f,0.35f,0.95f,  0.541f,0.169f,0.886f},
+    {"Crimson",     0.80f,0.10f,0.30f,  0.863f,0.078f,0.235f},
 };
 static const int kPs3ColorCount = 21;
 
