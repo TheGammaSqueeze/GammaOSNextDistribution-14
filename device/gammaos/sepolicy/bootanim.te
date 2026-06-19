@@ -10,3 +10,11 @@ allow bootanim gpu_device:dir r_dir_perms;
 # these rules make it correct on an enforcing build too.)
 allow bootanim self:capability2 block_suspend;
 allow bootanim sysfs_wake_lock:file rw_file_perms;
+
+# Nano Quick Menu: the Notifications submenu reads `dumpsys notification --noredact`
+# and dismisses via `cmd notification snooze`, and the Quick Settings "Secondary
+# Display" row calls `cmd display`. These popen children stay in the bootanim domain
+# and reach system_server / notification_service over binder. (Works under a
+# permissive bootanim today; these make it correct on an enforcing build.)
+binder_call(bootanim, system_server)
+allow bootanim notification_service:service_manager find;

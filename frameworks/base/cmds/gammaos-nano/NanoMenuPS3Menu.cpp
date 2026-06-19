@@ -509,6 +509,12 @@ enum {
     QA_RECOVERY,         // reboot to recovery
     QA_SAFEMODE,         // reboot to safe mode
     QA_BOOT_ANDROID,     // exit nano -> full Android
+    QA_QUICK_SETTINGS,   // open the Quick Settings submenu (ported GammaOS QS tiles)
+    QA_NOTIFICATIONS,    // open the Notifications submenu (active notifications)
+    QA_SECONDARY_DISPLAY,// toggle the external display (cmd display enable/disable-display 2)
+    QA_LAUNCH_CALIBRATION,// am start the LineageParts gamepad calibration activity
+    QA_LAUNCH_REMAP,     // am start the LineageParts gamepad button-remap activity
+    QA_NOTIF_DISMISS,    // dismiss (snooze ~1yr) the focused notification, then refresh
 };
 
 void NanoMenu::buildPs3Cats() {
@@ -541,6 +547,8 @@ void NanoMenu::buildPs3Cats() {
         if (mMusicResumeShown) qItem("Resume Audio Player", QA_RESUME_AUDIO, 3);
         qItem("Screen Brightness",   QA_BRIGHTNESS,    16);
         qItem("Performance Mode",    QA_PERFORMANCE,   21);
+        qItem("Quick Settings",      QA_QUICK_SETTINGS, 21);
+        qItem("Notifications",       QA_NOTIFICATIONS,  16);
         qItem("Close Current App",   QA_CLOSE_APP,     24);
         qItem("Kill Background Apps", QA_KILL_BG,       49);
         qItem("Kill All Apps",       QA_KILL_ALL,      25);
@@ -712,6 +720,151 @@ void NanoMenu::buildQuickPowerSubmenu(Ps3Level& out) {
     q("Recovery",     QA_RECOVERY,     22);   // wrench
     q("Safe Mode",    QA_SAFEMODE,     18);   // wrench + lock
     q("Boot Android", QA_BOOT_ANDROID, 44);   // android robot
+}
+
+// Quick Menu -> Quick Settings submenu: the custom GammaOS Quick Settings tiles
+// surfaced as XMB options. Toggle/cycle/slider rows are PS3_DATA_LEAF bound to a
+// kPs3Bindings entry (A opens the side-panel chooser, the row shows the live value);
+// action rows (Secondary Display, Calibration, Remap) are PS3_QUICK with a QA_ code.
+// Built lazily on open and discarded on pop, so it costs nothing while closed.
+void NanoMenu::buildQuickSettingsSubmenu(Ps3Level& out) {
+    out.items.clear(); out.sel = 0; out.title = "Quick Settings"; out.screenKind = 0;
+    // A bound leaf: display label may differ from the binding label (dispatch and
+    // value both prefer it.binding when set), letting us use the tile's name while
+    // reusing an existing setting binding.
+    auto leaf = [&](const char* label, const char* bindLabel, int icon) {
+        Ps3Item it; it.label = label; it.kind = PS3_DATA_LEAF; it.action = 1;
+        it.binding = ps3BindingFor(bindLabel ? bindLabel : label);
+        it.nmapTex = nmapForIcon(icon); it.iconR = it.iconG = it.iconB = 1.0f;
+        out.items.push_back(it);
+    };
+    auto act = [&](const char* label, int qa, int icon, const char* val) {
+        Ps3Item it; it.label = label; it.kind = PS3_QUICK; it.a = qa;
+        if (val) it.value = val;
+        it.nmapTex = nmapForIcon(icon); it.iconR = it.iconG = it.iconB = 1.0f;
+        out.items.push_back(it);
+    };
+    act ("Performance Mode", QA_PERFORMANCE, 21, nullptr);     // existing side-panel chooser
+    leaf("Fan Speed", nullptr, 16);
+    leaf("GammaShader", "CRT Shader", 16);
+    act ("Secondary Display", QA_SECONDARY_DISPLAY, 16, mSecondaryDisplayOn ? "On" : "Off");
+    leaf("GammaRGB", "Effect", 16);                            // GammaRGB effect chooser
+    leaf("ABXY Swap", nullptr, 16);
+    leaf("Deep Sleep Mode", "Ultra Low Power Saving", 16);
+    leaf("Immersive Mode", nullptr, 16);
+    leaf("DPAD/Analog Swap", nullptr, 16);
+    leaf("Analog Sensitivity", "Global Sensitivity", 16);
+    act ("Analog Calibration", QA_LAUNCH_CALIBRATION, 16, nullptr);
+    leaf("Invert Left Stick", nullptr, 16);
+    leaf("Invert Right Stick", nullptr, 16);
+    leaf("DC Dimming Emulation", nullptr, 16);
+    leaf("RetroArch Back Button Override", nullptr, 16);
+    act ("Edit Button Mappings", QA_LAUNCH_REMAP, 16, nullptr);
+    leaf("Screen Map", nullptr, 16);
+}
+
+// --- Notifications submenu ---------------------------------------------------
+// A native list of the device's currently-active notifications, parsed on demand
+// from `dumpsys notification --noredact` (single popen) when the submenu opens,
+// and freed on close - nothing runs while it is shut. App = opPkg, title/body =
+// android.title / android.text (or android.bigText). Dismiss = snooze ~1 year
+// (the only safe mechanism reachable from this process; a true cancel is not).
+
+// "String (value)" -> "value", taking the LAST ')' so values with parens survive.
+static std::string nanoStripStringExtra(const std::string& v) {
+    size_t p = v.find("String (");
+    if (p == std::string::npos) return std::string();
+    size_t a = p + 8;
+    size_t b = v.rfind(')');
+    if (b == std::string::npos || b < a) return std::string();
+    return v.substr(a, b - a);
+}
+
+// A notification key is "userId|pkg|id|tag|uid". Only pass a validated key into a
+// shell command: digits, '|', and the limited package/tag character set, no spaces
+// or shell metacharacters.
+static bool nanoValidNotifKey(const std::string& k) {
+    if (k.empty() || k.find('|') == std::string::npos) return false;
+    for (char c : k) {
+        if (!(isalnum((unsigned char)c) || c=='|' || c=='.' || c=='_' ||
+              c=='-' || c==':' || c=='/' || c=='#' || c=='+')) return false;
+    }
+    return true;
+}
+
+void NanoMenu::readNotifications(std::vector<NanoNotif>& out) {
+    out.clear();
+    FILE* f = popen("dumpsys notification --noredact 2>/dev/null", "r");
+    if (!f) return;
+    char buf[8192];
+    bool inList = false, inExtras = false, have = false;
+    NanoNotif cur;
+    auto flush = [&]() { if (have) { out.push_back(cur); cur = NanoNotif(); have = false; inExtras = false; } };
+    while (fgets(buf, sizeof(buf), f)) {
+        std::string line(buf);
+        while (!line.empty() && (line.back()=='\n' || line.back()=='\r')) line.pop_back();
+        if (line.rfind("  Notification List:", 0) == 0) { inList = true; continue; }
+        if (!inList) continue;
+        if (line.rfind("    NotificationRecord(0x", 0) == 0) {
+            flush(); have = true;
+            size_t k = line.find(" key=");
+            if (k != std::string::npos) {
+                size_t s = k + 5, e = line.find(": Notification(", s);
+                if (e != std::string::npos) cur.key = line.substr(s, e - s);
+            }
+            continue;
+        }
+        // Section terminator: a 3-space general-state line, or the next "  X:" header.
+        if (have && line.rfind("   ", 0) == 0 && line.size() > 3 && line[3] != ' ') { flush(); inList = false; continue; }
+        if (line.rfind("  Notification attention state:", 0) == 0) { flush(); inList = false; continue; }
+        if (!have) continue;
+        if (line.rfind("      opPkg=", 0) == 0)               cur.pkg = line.substr(12);
+        else if (line.rfind("      key=", 0) == 0 && cur.key.empty()) cur.key = line.substr(10);
+        else if (line.find("extras={") != std::string::npos) inExtras = true;
+        else if (inExtras) {
+            size_t t;
+            if ((t = line.find("android.title=")) != std::string::npos)
+                cur.title = nanoStripStringExtra(line.substr(t + 14));
+            else if ((t = line.find("android.bigText=")) != std::string::npos) {
+                std::string bt = nanoStripStringExtra(line.substr(t + 16));
+                if (!bt.empty()) cur.text = bt;          // bigText preferred when present
+            } else if ((t = line.find("android.text=")) != std::string::npos && cur.text.empty())
+                cur.text = nanoStripStringExtra(line.substr(t + 13));
+            else if (line.find('}') != std::string::npos && line.find('=') == std::string::npos)
+                inExtras = false;
+        }
+    }
+    flush();
+    pclose(f);
+}
+
+void NanoMenu::buildNotificationsSubmenu(Ps3Level& out) {
+    mNotifs.clear();
+    readNotifications(mNotifs);                       // lazy: only runs on open
+    buildNotificationsLevel(out);
+}
+
+// Build the submenu rows from the CURRENT mNotifs (no dumpsys read). Used after a
+// dismiss so the row disappears immediately while the snooze applies asynchronously.
+void NanoMenu::buildNotificationsLevel(Ps3Level& out) {
+    out.items.clear(); out.sel = 0; out.title = "Notifications"; out.screenKind = 0;
+    for (size_t i = 0; i < mNotifs.size(); i++) {
+        const NanoNotif& n = mNotifs[i];
+        Ps3Item it;
+        if (!n.title.empty())      it.label = n.title;
+        else if (!n.pkg.empty())   it.label = n.pkg;
+        else                       it.label = "Notification";
+        it.desc = n.text;                            // body shown as the active-row description
+        it.kind = PS3_QUICK; it.a = QA_NOTIF_DISMISS; it.b = (int)i;
+        it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 1.0f;
+        out.items.push_back(it);
+    }
+    if (out.items.empty()) {                          // PS3 empty-list parity
+        Ps3Item it; it.label = "There are no notifications";
+        it.kind = PS3_DATA_LEAF; it.action = 0; it.iconTex = 0; it.nmapTex = 0;
+        it.iconR = it.iconG = it.iconB = 1.0f;
+        out.items.push_back(it);
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -1556,7 +1709,9 @@ void NanoMenu::ps3XmbSelect() {
             if (it.label == "Audio Device Settings")          { startBtWizard(2); return; }
             // Data-driven settings leaf -> bound side chooser (real backing setting).
             if (it.label == "Scrape All Systems") { scrapeAllSystems(); return; }
-            if (const Ps3SettingBinding* b = ps3BindingFor(it.label)) { openBoundChooser(b); return; }
+            // Prefer the item's pre-resolved binding (Quick Settings leaves bind a
+            // tile-named row to an existing setting), else match by label.
+            if (const Ps3SettingBinding* b = it.binding ? it.binding : ps3BindingFor(it.label)) { openBoundChooser(b); return; }
             if (it.action == 1) openPs3Dialog(it);   // action='dialog' -> dialog/chooser
             return;
         }
@@ -1566,6 +1721,8 @@ void NanoMenu::ps3XmbSelect() {
             switch (it.a) {
                 case QA_RESUME_AUDIO: resumeMusicPlayer(); return;   // reopen Now-Playing on the live queue
                 case QA_POWER_SUBMENU: { Ps3Level lvl; buildQuickPowerSubmenu(lvl); mPs3Stack.push_back(lvl); break; }
+                case QA_QUICK_SETTINGS: { Ps3Level lvl; buildQuickSettingsSubmenu(lvl); mPs3Stack.push_back(lvl); break; }
+                case QA_NOTIFICATIONS:  { Ps3Level lvl; buildNotificationsSubmenu(lvl);  mPs3Stack.push_back(lvl); break; }
                 case QA_BRIGHTNESS:   mPs3BrightSlider = true; mShowBrightnessBar = true; mBrightnessBarTimer = 90; return;
                 case QA_PERFORMANCE:  openPerformanceChooser(); return;
                 case QA_CLOSE_APP:    if (mOverlayMode) overlayQuitToHome(); return;  // home: no fg app
@@ -1589,6 +1746,49 @@ void NanoMenu::ps3XmbSelect() {
                 case QA_BOOT_ANDROID: property_set("persist.gammaos.nano.qr_prepared", "0");
                                       property_set("persist.gammaos.nano.qr_core", "");
                                       prepareShutdown("android"); return;
+                case QA_SECONDARY_DISPLAY: {
+                    // In-memory toggle like the QS tile (the real state is in
+                    // DisplayManagerService). enable/disable display id 2; a no-op when
+                    // no external panel is attached. Run off the render thread.
+                    mSecondaryDisplayOn = !mSecondaryDisplayOn;
+                    bool on = mSecondaryDisplayOn;
+                    std::thread([on]{ system(on ? "cmd display enable-display 2 2>/dev/null"
+                                                : "cmd display disable-display 2 2>/dev/null"); }).detach();
+                    // Reflect the new state in the open Quick Settings row.
+                    if (!mPs3Stack.empty())
+                        for (auto& r : mPs3Stack.back().items)
+                            if (r.kind == PS3_QUICK && r.a == QA_SECONDARY_DISPLAY) r.value = on ? "On" : "Off";
+                    mDisplayDirty = true; return;
+                }
+                case QA_LAUNCH_CALIBRATION:
+                    std::thread([]{ system("am start -a org.lineageos.lineageparts.GAMEPAD_CALIBRATION 2>/dev/null"); }).detach();
+                    return;
+                case QA_LAUNCH_REMAP:
+                    std::thread([]{ system("am start -n org.lineageos.lineageparts/.input.GamepadSettings "
+                                           "--es :settings:fragment_args_key gamepad_remap_buttons 2>/dev/null"); }).detach();
+                    return;
+                case QA_NOTIF_DISMISS: {
+                    if (it.b >= 0 && it.b < (int)mNotifs.size()) {
+                        const std::string key = mNotifs[it.b].key;
+                        if (nanoValidNotifKey(key)) {   // snooze ~1yr = effective dismiss (no true cancel from here)
+                            std::string c = "cmd notification snooze --for 31536000000 \"" + key + "\" >/dev/null 2>&1";
+                            std::thread([c]{ system(c.c_str()); }).detach();
+                        }
+                        // Optimistically drop the row now and rebuild from the local list
+                        // (the snooze applies asynchronously, so re-reading dumpsys here
+                        // would still show it). The cursor is kept, clamped to the list.
+                        mNotifs.erase(mNotifs.begin() + it.b);
+                        if (!mPs3Stack.empty() && mPs3Stack.back().screenKind == 0 &&
+                            mPs3Stack.back().title == "Notifications") {
+                            int keep = mPs3Stack.back().sel;
+                            buildNotificationsLevel(mPs3Stack.back());
+                            int n = (int)mPs3Stack.back().items.size();
+                            mPs3Stack.back().sel = keep < n ? keep : (n > 0 ? n - 1 : 0);
+                        }
+                        mDisplayDirty = true;
+                    }
+                    return;
+                }
                 default: return;
             }
             break;   // only QA_POWER_SUBMENU reaches here -> collapse animation
@@ -1644,6 +1844,11 @@ void NanoMenu::ps3XmbBack() {
     // Overlay XMB: Back at the top level RESUMES the running game (dismiss + thaw).
     if (overlayAtTopLevel()) { overlayResume(); return; }
     if (!mPs3Stack.empty()) {
+        // Leaving the Notifications submenu: drop the parsed list so nothing is held
+        // while it is closed (zero idle cost).
+        if (mPs3Stack.back().title == "Notifications" && mPs3Stack.back().screenKind == 0) {
+            mNotifs.clear(); mNotifs.shrink_to_fit();
+        }
         // Snapshot the child list (being left) for the slide-out, then pop and
         // expand the parent back out of the breadcrumb column (timed, dir -1).
         mPs3SubChildItems  = mPs3Stack.back().items;
@@ -3242,11 +3447,18 @@ static const Ps3SettingBinding kPs3Bindings[] = {
     {"Controller Enable", SettingSource::kProp, "persist.gammaos.gamepad.enable", "false", "false:Off,true:On"},
     {"Merge Controllers", SettingSource::kProp, "persist.gammaos.gamepad.merge", "true", "false:Off,true:On"},
     {"Hide Source Device", SettingSource::kProp, "persist.gammaos.gamepad.hide_source", "true", "false:Off,true:On"},
-    {"ABXY Swap", SettingSource::kProp, "persist.gammaos.gamepad.abxy_swap", "false", "false:Off,true:On"},
-    {"Invert Left Stick", SettingSource::kProp, "persist.gammaos.gamepad.invert_left", "false", "false:Off,true:On"},
-    {"Invert Right Stick", SettingSource::kProp, "persist.gammaos.gamepad.invert_right", "false", "false:Off,true:On"},
-    {"Analog to D-Pad", SettingSource::kProp, "persist.gammaos.gamepad.analog_to_dpad", "false", "false:Off,true:On"},
-    {"D-Pad to Analog", SettingSource::kProp, "persist.gammaos.gamepad.dpad_to_analog", "false", "false:Off,true:On"},
+    // Gamepad transform props are read by the gammapad daemon via GetIntProperty,
+    // so they MUST be stored as 0/1 (a "true"/"false" string parses to 0 = Off and
+    // the swap/invert never engages). writeSettingValue bumps gamepad config_version.
+    {"ABXY Swap", SettingSource::kProp, "persist.gammaos.gamepad.abxy_swap", "0", "0:Off,1:On"},
+    {"Invert Left Stick", SettingSource::kProp, "persist.gammaos.gamepad.invert_left", "0", "0:Off,1:On"},
+    {"Invert Right Stick", SettingSource::kProp, "persist.gammaos.gamepad.invert_right", "0", "0:Off,1:On"},
+    {"Analog to D-Pad", SettingSource::kProp, "persist.gammaos.gamepad.analog_to_dpad", "0", "0:Off,1:On"},
+    {"D-Pad to Analog", SettingSource::kProp, "persist.gammaos.gamepad.dpad_to_analog", "0", "0:Off,1:On"},
+    // Combined swap (the GammaOS QS "DPAD/Analog Swap" tile): writes BOTH transform
+    // props to the same value. The mirror write to dpad_to_analog is in closePs3Dialog
+    // (keyed on this label so the standalone rows above stay independent).
+    {"DPAD/Analog Swap", SettingSource::kProp, "persist.gammaos.gamepad.analog_to_dpad", "0", "0:Off,1:On"},
     {"Global Sensitivity", SettingSource::kProp, "persist.gammaos.gamepad.global_sensitivity", "0",
      "-3:-50%,-2:-25%,-1:-10%,0:Off,1:+10%,2:+25%,3:+50%"},
     {"PWM Enable", SettingSource::kProp, "persist.gammaos.gamepad.pwm_enable", "true", "false:Off,true:On"},
@@ -3254,7 +3466,7 @@ static const Ps3SettingBinding kPs3Bindings[] = {
      "64:64,96:96,128:128,160:160,192:192,224:224,255:255 (Max)"},
     {"D-Pad Threshold", SettingSource::kProp, "persist.gammaos.gamepad.dpad_threshold", "50",
      "10:10,20:20,30:30,40:40,50:50,60:60,70:70,80:80,90:90"},
-    {"Screen Map", SettingSource::kProp, "persist.gammaos.screenmap.enabled", "false", "false:Off,true:On"},
+    {"Screen Map", SettingSource::kProp, "persist.gammaos.screenmap.enabled", "0", "0:Off,1:On"},
     // Mouse Mode (persist.gammaos.gamepad.mouse_* props)
     {"Stick Speed", SettingSource::kProp, "persist.gammaos.gamepad.mouse_stick_speed", "12",
      "4:4,8:8,12:12,16:16,20:20,24:24,30:30"},
@@ -3265,21 +3477,23 @@ static const Ps3SettingBinding kPs3Bindings[] = {
     {"Scroll Speed", SettingSource::kProp, "persist.gammaos.gamepad.mouse_scroll_speed", "4",
      "1:1,2:2,4:4,8:8,16:16,30:30"},
     // GammaOS Toolbox (persist.gammaos.* props)
-    {"Immersive Mode", SettingSource::kProp, "persist.gammaos.immersive", "false", "false:Off,true:On"},
+    {"Fan Speed", SettingSource::kProp, "persist.gammaos.fan_mode", "auto",
+     "auto:Auto,cool:Cool,max:Max,off:Off"},
+    {"Immersive Mode", SettingSource::kProp, "persist.gammaos.immersive", "0", "0:Off,1:On"},
     {"Refresh Rate Lock", SettingSource::kProp, "persist.gammaos.refresh.lock", "false", "false:Off,true:On"},
     {"Display Tweaks", SettingSource::kProp, "persist.gammaos.display.tweaks", "false", "false:Off,true:On"},
     {"Force Client Composition", SettingSource::kProp, "persist.gammaos.force_client_comp", "false", "false:Off,true:On"},
     {"Desktop Fullscreen", SettingSource::kProp, "persist.gammaos.desktop.fullscreen", "false", "false:Off,true:On"},
     {"Multi-Volume", SettingSource::kProp, "persist.gammaos.audio.multivolume", "false", "false:Off,true:On"},
     {"Ultra Low Power Saving", SettingSource::kProp, "persist.gammaos.ultra_low_power_saving_mode", "false", "false:Off,true:On"},
-    {"RetroArch Back Button Override", SettingSource::kProp, "persist.gammaos.retroarchoverride.backbutton", "false", "false:Off,true:On"},
+    {"RetroArch Back Button Override", SettingSource::kProp, "persist.gammaos.retroarchoverride.backbutton", "0", "0:Off,1:On"},
     {"Start+Select LED", SettingSource::kProp, "persist.gammaos.startselectled", "false", "false:Off,true:On"},
     {"USB Controller Switch", SettingSource::kProp, "persist.gammaos.usbcontrollerswitch", "false", "false:Off,true:On"},
-    {"DC Dimming Emulation", SettingSource::kProp, "persist.gammaos.dcdimmingemulation", "false", "false:Off,true:On"},
+    {"DC Dimming Emulation", SettingSource::kProp, "persist.gammaos.dcdimmingemulation", "0", "0:Off,1:On"},
     {"Phone Taskbar", SettingSource::kProp, "persist.gammaos.taskbar.phone", "true", "false:Off,true:On"},
     {"Dual Taskbar", SettingSource::kProp, "persist.gammaos.taskbar.dual", "false", "false:Off,true:On"},
     {"Black Frame Insertion", SettingSource::kProp, "persist.gammaos.bfi.enable", "false", "false:Off,true:On"},
-    {"CRT Shader", SettingSource::kProp, "persist.gammaos.shader.enable", "false", "false:Off,true:On"},
+    {"CRT Shader", SettingSource::kProp, "persist.gammaos.shader.enable", "0", "0:Off,1:On"},
     {"Dual-Stack Display", SettingSource::kProp, "persist.gammaos.dualstack.enabled", "false", "false:Off,true:On"},
     {"RGB LED", SettingSource::kProp, "persist.gammaos.rgb.enable", "false", "false:Off,true:On"},
     {"Launch Guard", SettingSource::kProp, "persist.gammaos.launch.guard.enabled", "false", "false:Off,true:On"},
@@ -4491,8 +4705,24 @@ void NanoMenu::closePs3Dialog(bool apply) {
             } else {
                 std::vector<SettingListOption> opts = parseListOptions(b->options);
                 if (mPs3DlgSel >= 0 && mPs3DlgSel < (int)opts.size()) {
-                    writeSettingValue(b->source, b->key, opts[mPs3DlgSel].value);
-                    mPs3BindCache[b->label] = opts[mPs3DlgSel].value;
+                    const std::string& v = opts[mPs3DlgSel].value;
+                    writeSettingValue(b->source, b->key, v);
+                    mPs3BindCache[b->label] = v;
+                    // Quick Settings "DPAD/Analog Swap" tile writes BOTH transform
+                    // props to the same value (the standalone Settings rows above
+                    // stay independent, so key on the label not the prop).
+                    if (!strcmp(b->label, "DPAD/Analog Swap"))
+                        writeSettingValue(SettingSource::kProp, "persist.gammaos.gamepad.dpad_to_analog", v);
+                    // Screen Map: mirror the volatile active flag and show/hide the
+                    // cosmetic button-hint overlay service (functional effect is the
+                    // two props, consumed by the gammapad daemon).
+                    if (!strcmp(b->label, "Screen Map")) {
+                        bool on = (v == "1" || v == "true");
+                        writeSettingValue(SettingSource::kProp, "sys.gammaos.screenmap.active", on ? "1" : "0");
+                        std::thread([on]{ system(on
+                            ? "am start-foreground-service -n com.gammaos.screenmapper/.ScreenMapOverlayService --ei mode 1 2>/dev/null"
+                            : "am stopservice -n com.gammaos.screenmapper/.ScreenMapOverlayService 2>/dev/null"); }).detach();
+                    }
                     mDisplayDirty = true;
                 }
             }

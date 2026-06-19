@@ -1344,6 +1344,18 @@ private:
     // Quick Menu (nano legacy global actions): the Power submenu builder, the
     // performance-mode side-panel chooser, and the kill-apps backend.
     void buildQuickPowerSubmenu(Ps3Level& out);
+    // Quick Settings submenu (ported GammaOS QS tiles) + Notifications submenu.
+    void buildQuickSettingsSubmenu(Ps3Level& out);
+    void buildNotificationsSubmenu(Ps3Level& out);   // re-reads the live list, then builds
+    void buildNotificationsLevel(Ps3Level& out);     // builds rows from the current mNotifs (no read)
+    // One active notification, parsed from `dumpsys notification --noredact` only
+    // while the Notifications submenu is open (mNotifs is cleared on close).
+    struct NanoNotif { std::string key, pkg, title, text; };
+    std::vector<NanoNotif> mNotifs;
+    void readNotifications(std::vector<NanoNotif>& out);
+    // Secondary (external) display on/off, in-memory like the QS tile (default on,
+    // not persisted; the real state lives in DisplayManagerService).
+    bool mSecondaryDisplayOn = true;
     void openPerformanceChooser();
     void quickKillApps(bool includeForeground);
     void overlayKillAll();   // Quick Menu Kill All Apps (overlay): hard-stop every app incl the game, no relaunch

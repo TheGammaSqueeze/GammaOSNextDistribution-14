@@ -272,7 +272,7 @@ void NanoMenu::buildSettingsTree() {
       // -- Display --
       b.beginCategory("gos_display", "Display");
         b.toggle("immersive", "Immersive Mode",
-                 SettingSource::kProp, "persist.gammaos.immersive", "false");
+                 SettingSource::kProp, "persist.gammaos.immersive", "0");
         b.toggle("refresh_lock", "Refresh Rate Lock",
                  SettingSource::kProp, "persist.gammaos.refresh.lock", "false");
         b.text("refresh_rate", "Refresh Rate",
@@ -359,7 +359,7 @@ void NanoMenu::buildSettingsTree() {
       // -- CRT Shader --
       b.beginCategory("gos_shader", "CRT Shader");
         b.toggle("shader_enable", "Enable",
-                 SettingSource::kProp, "persist.gammaos.shader.enable", "false");
+                 SettingSource::kProp, "persist.gammaos.shader.enable", "0");
         b.text("shader_type", "Shader Type",
                SettingSource::kProp, "persist.gammaos.shader.type", "");
         b.text("shader_bp_grace", "BP Grace Frames",
@@ -522,16 +522,18 @@ void NanoMenu::buildSettingsTree() {
                  SettingSource::kProp, "persist.gammaos.gamepad.hide_source", "true");
         b.text("gp_devices", "Device Paths",
                SettingSource::kProp, "persist.gammaos.gamepad.devices", "");
+        // Gamepad transform props read by the gammapad daemon via GetIntProperty:
+        // store 0/1 (a "true"/"false" string parses to 0 = Off). Default "0".
         b.toggle("gp_abxy_swap", "ABXY Swap",
-                 SettingSource::kProp, "persist.gammaos.gamepad.abxy_swap", "false");
+                 SettingSource::kProp, "persist.gammaos.gamepad.abxy_swap", "0");
         b.toggle("gp_invert_left", "Invert Left Stick",
-                 SettingSource::kProp, "persist.gammaos.gamepad.invert_left", "false");
+                 SettingSource::kProp, "persist.gammaos.gamepad.invert_left", "0");
         b.toggle("gp_invert_right", "Invert Right Stick",
-                 SettingSource::kProp, "persist.gammaos.gamepad.invert_right", "false");
+                 SettingSource::kProp, "persist.gammaos.gamepad.invert_right", "0");
         b.toggle("gp_analog_dpad", "Analog to D-Pad",
-                 SettingSource::kProp, "persist.gammaos.gamepad.analog_to_dpad", "false");
+                 SettingSource::kProp, "persist.gammaos.gamepad.analog_to_dpad", "0");
         b.toggle("gp_dpad_analog", "D-Pad to Analog",
-                 SettingSource::kProp, "persist.gammaos.gamepad.dpad_to_analog", "false");
+                 SettingSource::kProp, "persist.gammaos.gamepad.dpad_to_analog", "0");
         b.text("gp_dpad_threshold", "D-Pad Threshold",
                SettingSource::kProp, "persist.gammaos.gamepad.dpad_threshold", "50");
         b.text("gp_sensitivity", "Global Sensitivity",
@@ -555,7 +557,7 @@ void NanoMenu::buildSettingsTree() {
         b.text("gp_blacklist_pass", "Blacklist Passthrough",
                SettingSource::kProp, "persist.gammaos.gamepad.blacklist_pass", "");
         b.toggle("gp_screenmap", "Screen Map",
-                 SettingSource::kProp, "persist.gammaos.screenmap.enabled", "false");
+                 SettingSource::kProp, "persist.gammaos.screenmap.enabled", "0");
       b.endCategory();
 
       // -- Mouse Mode --
@@ -631,7 +633,7 @@ void NanoMenu::buildSettingsTree() {
       // -- RetroArch & Emulation --
       b.beginCategory("gos_retro", "RetroArch & Emulation");
         b.toggle("ra_backbutton", "RetroArch Back Button Override",
-                 SettingSource::kProp, "persist.gammaos.retroarchoverride.backbutton", "false");
+                 SettingSource::kProp, "persist.gammaos.retroarchoverride.backbutton", "0");
         b.toggle("startselectled", "Start+Select LED",
                  SettingSource::kProp, "persist.gammaos.startselectled", "false");
       b.endCategory();
@@ -641,7 +643,7 @@ void NanoMenu::buildSettingsTree() {
         b.toggle("usb_controller_switch", "USB Controller Switch",
                  SettingSource::kProp, "persist.gammaos.usbcontrollerswitch", "false");
         b.toggle("dc_dimming", "DC Dimming Emulation",
-                 SettingSource::kProp, "persist.gammaos.dcdimmingemulation", "false");
+                 SettingSource::kProp, "persist.gammaos.dcdimmingemulation", "0");
       b.endCategory();
 
       // -- Desktop & Taskbar --
@@ -833,6 +835,22 @@ void writeSettingValue(SettingSource src, const std::string& key,
     }
     default:
         break;
+    }
+    // The gammapad daemon watches persist.gammaos.gamepad.config_version (it polls
+    // it every ~1s) and does a lightweight transform reload when it changes. Every
+    // SystemUI gamepad tile bumps it after writing a transform/calibration prop, so
+    // mirror that here for ANY gamepad prop write or the change never applies live.
+    // Do NOT touch full_reload (that forces a heavy device release/re-grab); the
+    // lightweight bump is what the tiles do for the toggle/cycle path.
+    if (src == SettingSource::kProp &&
+        key.rfind("persist.gammaos.gamepad.", 0) == 0 &&
+        key != "persist.gammaos.gamepad.config_version" &&
+        key != "persist.gammaos.gamepad.full_reload") {
+        char vb[PROPERTY_VALUE_MAX] = "0";
+        property_get("persist.gammaos.gamepad.config_version", vb, "0");
+        long v = strtol(vb, nullptr, 10);
+        char nb[16]; snprintf(nb, sizeof(nb), "%ld", v + 1);
+        property_set("persist.gammaos.gamepad.config_version", nb);
     }
 }
 
