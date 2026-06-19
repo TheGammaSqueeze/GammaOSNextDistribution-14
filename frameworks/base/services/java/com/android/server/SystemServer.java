@@ -3090,6 +3090,23 @@ public final class SystemServer implements Dumpable {
         mSystemServiceManager.startService(ClipboardService.class);
         t.traceEnd();
 
+        // GammaOS Nano: ShortcutService (and the LauncherApps service it backs) must
+        // start even in minimal boot - apps like Aurora Store call
+        // getSystemService(ShortcutManager).isRequestPinShortcutSupported() (to offer a
+        // home-screen shortcut after an install) and crash with an NPE if it is null.
+        // Full boot already started them in the !minimalBoot block above, so only do it
+        // here for minimal_boot; guarded so a failure cannot crash-loop system_server.
+        if (minimalBoot) {
+            t.traceBegin("StartShortcutServiceMinimal");
+            try {
+                mSystemServiceManager.startService(ShortcutService.Lifecycle.class);
+                mSystemServiceManager.startService(LauncherAppsService.class);
+            } catch (Throwable e) {
+                reportWtf("starting ShortcutService/LauncherApps in minimal boot", e);
+            }
+            t.traceEnd();
+        }
+
         if (!minimalBoot) { // GammaOS Nano: skip MediaProjection through Lineage
         t.traceBegin("StartMediaProjectionManager");
         mSystemServiceManager.startService(MediaProjectionManagerService.class);
