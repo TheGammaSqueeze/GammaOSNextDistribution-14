@@ -334,6 +334,9 @@ void NanoMenu::scraperFreeBoxart() {
     // Also drop the hover-fanart texture (Phase 4) so no scraper GL lingers.
     if (mFanartTex) { glDeleteTextures(1, &mFanartTex); mFanartTex = 0; }
     mFanartPath.clear(); mFanartTexW = mFanartTexH = 0;
+    // The cinfo "shown" alias may point at the fanart we just freed; clear it so the
+    // hover-bg fade-out never reads a dangling texture after leaving Game.
+    mCinfoShownTex = 0; mCinfoShownW = mCinfoShownH = 0;
 }
 bool NanoMenu::scraperFanartEnabled() {
     return property_get_bool("persist.gammaos.scraper.fanart", true);

@@ -2252,6 +2252,11 @@ private:
     float  mCinfoAlpha = 0.0f;       // current visible alpha (0 .. 0.85)
     std::string mCinfoFocusKey;      // currently focused mapped item name (or empty)
     float  mCinfoDwellStart = -1.0f; // mEffectTime when focus moved to the mapped item
+    // The texture actually on screen last frame, so a focus move to an item with NO
+    // cinfo (a game without fanart) fades OUT whatever was shown instead of cross-
+    // showing the Photo Gallery bg. Not owned (aliases mFanartTex / mCinfoTex).
+    GLuint mCinfoShownTex = 0;
+    int    mCinfoShownW = 0, mCinfoShownH = 0;
     // Scraped ROM fanart hover background (Phase 4): one texture at a time, reloaded
     // when the focused ROM changes, freed on fade-out / leaving Game / occlusion.
     GLuint mFanartTex = 0;

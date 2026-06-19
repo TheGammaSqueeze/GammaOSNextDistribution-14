@@ -2637,10 +2637,12 @@ void NanoMenu::drawPs3CinfoBg(const char* focusLabel, const std::string& fanFile
     else if (target > mCinfoAlpha)          mCinfoAlpha += stp;   // fade in
     else                                    mCinfoAlpha -= stp;   // fade out
     if (mCinfoAlpha <= 0.001f) {
-        // Fully faded: drop the fanart texture if it is no longer the focus.
+        // Fully faded: drop the fanart texture if it is no longer the focus, and clear
+        // the shown-image alias so the next focus starts a clean fade-in.
         if (mFanartTex && (!romFan || fanFile != mFanartPath)) {
             glDeleteTextures(1, &mFanartTex); mFanartTex = 0; mFanartPath.clear(); mFanartTexW = mFanartTexH = 0;
         }
+        mCinfoShownTex = 0; mCinfoShownW = mCinfoShownH = 0;
         return;
     }
 
@@ -2661,7 +2663,7 @@ void NanoMenu::drawPs3CinfoBg(const char* focusLabel, const std::string& fanFile
             saRequestArt(fanFile, 1024, SA_CINFO_FAN, "");
         }
         bgTex = mFanartTex; bgW = mFanartTexW; bgH = mFanartTexH;
-    } else {
+    } else if (isCinfo) {
         // Lazy-load the Photo Gallery background JPEG (stb_image; /data then /system).
         if (!mCinfoTex && !mCinfoTexTried) {
             mCinfoTexTried = true;
@@ -2685,6 +2687,16 @@ void NanoMenu::drawPs3CinfoBg(const char* focusLabel, const std::string& fanFile
             }
         }
         bgTex = mCinfoTex; bgW = mCinfoTexW; bgH = mCinfoTexH;
+    }
+    // Track the live source as the "shown" image. When the focus moves to an item
+    // with NO cinfo (a game without fanart, or a non-Photo-Gallery item), bgTex is 0
+    // here, so we keep drawing the LAST shown image as it fades out - never cross-show
+    // the Photo Gallery bg over a game (the reported flash) and still fade the cinfo
+    // out cleanly when leaving Photo Gallery.
+    if (bgTex && bgW > 0 && bgH > 0) {
+        mCinfoShownTex = bgTex; mCinfoShownW = bgW; mCinfoShownH = bgH;
+    } else {
+        bgTex = mCinfoShownTex; bgW = mCinfoShownW; bgH = mCinfoShownH;
     }
     if (!bgTex || bgW <= 0 || bgH <= 0) return;
 
