@@ -23,6 +23,7 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     JoystickLedPicker \
     ShaderControl \
+    GammaBrowser \
     DualStackControl \
     GammaEQ \
     GammaScreenMapper \

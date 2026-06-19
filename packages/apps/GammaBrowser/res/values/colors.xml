@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- XMB look: near-black page, dark translucent chrome, cool white text -->
+    <color name="xmb_background">#FF05060A</color>
+    <color name="xmb_bar">#E6101522</color>
+    <color name="xmb_text">#FFF2F5FA</color>
+    <color name="xmb_hint">#80F2F5FA</color>
+    <color name="xmb_accent">#FF8FB8FF</color>
+    <color name="xmb_field">#33203040</color>
+    <color name="xmb_progress">#FF8FB8FF</color>
+    <color name="xmb_progress_track">#22FFFFFF</color>
+</resources>

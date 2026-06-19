@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.GammaBrowser" parent="@android:style/Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/xmb_background</item>
+        <item name="android:colorAccent">@color/xmb_accent</item>
+        <item name="android:textColorPrimary">@color/xmb_text</item>
+        <item name="android:textColorHint">@color/xmb_hint</item>
+        <item name="android:statusBarColor">@color/xmb_bar</item>
+        <item name="android:navigationBarColor">@color/xmb_bar</item>
+    </style>
+</resources>

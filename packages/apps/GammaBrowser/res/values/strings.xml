@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Internet Browser</string>
+    <string name="hint_address">Enter address or search</string>
+    <string name="cd_back">Back</string>
+    <string name="cd_forward">Forward</string>
+    <string name="cd_reload">Reload</string>
+    <string name="cd_go">Go</string>
+</resources>

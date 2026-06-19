@@ -1,0 +1,19 @@
+android_app {
+    name: "GammaBrowser",
+
+    srcs: [
+        "java/**/*.java",
+    ],
+    resource_dirs: ["res"],
+    manifest: "AndroidManifest.xml",
+
+    platform_apis: true,
+    certificate: "platform",
+    privileged: false,
+
+    // No androidx deps: a single Activity using platform widgets + a Material theme,
+    // so the APK stays tiny and links nothing beyond the framework + system WebView.
+    optimize: {
+        enabled: false,
+    },
+}

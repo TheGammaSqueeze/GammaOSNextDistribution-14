@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/xmb_background">
+
+    <!-- XMB-style translucent toolbar -->
+    <LinearLayout
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@color/xmb_bar"
+        android:gravity="center_vertical"
+        android:paddingLeft="6dp"
+        android:paddingRight="6dp"
+        android:paddingTop="4dp"
+        android:paddingBottom="4dp">
+
+        <ImageButton
+            android:id="@+id/btn_back"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:src="@drawable/ic_back"
+            android:background="@drawable/btn_bg"
+            android:scaleType="fitCenter"
+            android:padding="9dp"
+            android:focusable="true"
+            android:contentDescription="@string/cd_back" />
+
+        <ImageButton
+            android:id="@+id/btn_forward"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:src="@drawable/ic_forward"
+            android:background="@drawable/btn_bg"
+            android:scaleType="fitCenter"
+            android:padding="9dp"
+            android:focusable="true"
+            android:contentDescription="@string/cd_forward" />
+
+        <ImageButton
+            android:id="@+id/btn_reload"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:src="@drawable/ic_reload"
+            android:background="@drawable/btn_bg"
+            android:scaleType="fitCenter"
+            android:padding="9dp"
+            android:focusable="true"
+            android:contentDescription="@string/cd_reload" />
+
+        <EditText
+            android:id="@+id/address"
+            android:layout_width="0dp"
+            android:layout_height="44dp"
+            android:layout_weight="1"
+            android:layout_marginLeft="6dp"
+            android:layout_marginRight="6dp"
+            android:background="@drawable/field_bg"
+            android:paddingLeft="14dp"
+            android:paddingRight="14dp"
+            android:singleLine="true"
+            android:textColor="@color/xmb_text"
+            android:textColorHint="@color/xmb_hint"
+            android:textSize="15sp"
+            android:hint="@string/hint_address"
+            android:inputType="textUri"
+            android:imeOptions="actionGo"
+            android:selectAllOnFocus="true" />
+
+        <ImageButton
+            android:id="@+id/btn_go"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:src="@drawable/ic_go"
+            android:background="@drawable/btn_bg"
+            android:scaleType="fitCenter"
+            android:padding="9dp"
+            android:focusable="true"
+            android:contentDescription="@string/cd_go" />
+    </LinearLayout>
+
+    <ProgressBar
+        android:id="@+id/progress"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="3dp"
+        android:max="100"
+        android:progress="0"
+        android:progressTint="@color/xmb_progress"
+        android:progressBackgroundTint="@color/xmb_progress_track"
+        android:visibility="gone" />
+
+    <WebView
+        android:id="@+id/webview"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+</LinearLayout>
