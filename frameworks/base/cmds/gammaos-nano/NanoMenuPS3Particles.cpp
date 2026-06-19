@@ -271,6 +271,14 @@ void render(float scaleX, float scaleY, float yFlip, float frameH,
         sPartsExtra.resize(kNumParticles);
         for (Particle& p : sPartsExtra) spawn(p);
         sBuf.resize((size_t)kNumParticles * 2 * 8);
+    } else if (!useExtra && !sPartsExtra.empty()) {
+        // The music "XMB Waves" morph has fully settled back to the wallpaper: drop the
+        // doubled pool and its half of the upload buffer so nothing extra is held at idle
+        // (the next morph re-spawns it lazily above, unseen while it fades in from 0).
+        // The blend ramp is monotonic per transition, so this fires once on leave, not
+        // in a spawn/free churn.
+        std::vector<Particle>().swap(sPartsExtra);
+        std::vector<float>((size_t)kNumParticles * 8).swap(sBuf);
     }
 
     // Re-project the particle cloud at ~30Hz (every other frame): the loop below
