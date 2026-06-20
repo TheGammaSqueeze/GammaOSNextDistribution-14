@@ -46,6 +46,11 @@
 #include <unistd.h>
 #include <time.h>
 #include <thread>
+#include <dirent.h>
+#include <fcntl.h>
+#include <sys/ioctl.h>
+#include <linux/input.h>
+#include <algorithm>
 #include <vector>
 #include <functional>
 #include <sys/stat.h>   // stat() for ROM file size in the Information page
@@ -521,6 +526,13 @@ enum {
     QA_REMAP_AXIS_MENU,  // open the axis-remap source list (remap_axis)
     QA_REMAP_SRC,        // a source button/axis row -> open its target chooser (it.b = src code)
     QA_REMAP_SET,        // a target row -> set src->target in the remap prop (it.b = target, -1 = default)
+    QA_DEV_CAPTURE_MENU, // open the "Devices to Capture" multi-select (detected /dev/input names)
+    QA_DEV_CAPTURE_TOGGLE,// toggle a device name in the capture list (it.value = name)
+    QA_FF_DEVICE_MENU,   // open the vibration-device single chooser
+    QA_FF_DEVICE_SET,    // set the vibration device (it.value = name, "" = auto)
+    QA_BLACKLIST_MENU,   // open the passthrough-blacklist button multi-select
+    QA_BLACKLIST_TOGGLE, // toggle a button code in blacklist_pass (it.b = code)
+    QA_NOOP,             // non-selectable info row (does nothing on activate)
 };
 
 void NanoMenu::buildPs3Cats() {
@@ -813,7 +825,7 @@ void NanoMenu::buildGamepadSubmenu(Ps3Level& out) {
     leaf("Controller Enable", nullptr, 16);
     leaf("Merge Controllers", nullptr, 16);
     leaf("Hide Source Device", nullptr, 16);
-    leaf("Devices to Capture", nullptr, 16);
+    act ("Devices to Capture", QA_DEV_CAPTURE_MENU, 16, nullptr);
     leaf("Virtual Device Name", nullptr, 16);
     // Layout / sticks
     leaf("ABXY Swap", nullptr, 16);
@@ -828,14 +840,14 @@ void NanoMenu::buildGamepadSubmenu(Ps3Level& out) {
     // Rumble
     leaf("PWM Enable", nullptr, 16);
     leaf("PWM Intensity", nullptr, 16);
-    leaf("Vibration Device", nullptr, 16);
+    act ("Vibration Device", QA_FF_DEVICE_MENU, 16, nullptr);
     // Mapping: native button/axis remap pickers (Inc2). Combo/axis-to-button/blacklist
     // remain OSK-text for now (Inc3 -> pickers).
     act ("Button Remap", QA_REMAP_BTN_MENU, 16, nullptr);
     act ("Axis Remap", QA_REMAP_AXIS_MENU, 16, nullptr);
     leaf("Button Combo Map", nullptr, 16);
     leaf("Axis to Button", nullptr, 16);
-    leaf("Passthrough Blacklist", nullptr, 16);
+    act ("Passthrough Blacklist", QA_BLACKLIST_MENU, 16, nullptr);
     act ("Edit Button Mappings (App)", QA_LAUNCH_REMAP, 16, nullptr);
     // Touch mapping
     leaf("Screen Map", nullptr, 16);
@@ -957,6 +969,108 @@ void NanoMenu::buildRemapTargetSubmenu(Ps3Level& out) {
     for (int i = 0; i < n; i++) {
         row(t[i].name, t[i].code);
         if (t[i].code == curTarget) out.sel = (int)out.items.size() - 1;
+    }
+}
+
+// --- Device pickers + blacklist ---------------------------------------------
+namespace {
+// Enumerate /dev/input/event* device names via EVIOCGNAME (deduped, non-empty).
+std::vector<std::string> gpEnumInputDevices() {
+    std::vector<std::string> out;
+    DIR* d = opendir("/dev/input");
+    if (!d) return out;
+    struct dirent* e;
+    while ((e = readdir(d)) != nullptr) {
+        if (strncmp(e->d_name, "event", 5) != 0) continue;
+        char path[64]; snprintf(path, sizeof(path), "/dev/input/%s", e->d_name);
+        int fd = open(path, O_RDONLY | O_NONBLOCK | O_CLOEXEC);
+        if (fd < 0) continue;
+        char nm[128] = {0};
+        if (ioctl(fd, EVIOCGNAME(sizeof(nm) - 1), nm) > 0 && nm[0]) {
+            std::string s = nm;
+            if (std::find(out.begin(), out.end(), s) == out.end()) out.push_back(s);
+        }
+        close(fd);
+    }
+    closedir(d);
+    std::sort(out.begin(), out.end());
+    return out;
+}
+// Split a separated list ("a;b" or "a,b") into trimmed non-empty tokens.
+std::vector<std::string> gpSplit(const std::string& s, char sep) {
+    std::vector<std::string> v; size_t i = 0;
+    while (i <= s.size()) {
+        size_t p = s.find(sep, i);
+        std::string tok = s.substr(i, p == std::string::npos ? std::string::npos : p - i);
+        size_t a = tok.find_first_not_of(" \t"); size_t b = tok.find_last_not_of(" \t");
+        if (a != std::string::npos) v.push_back(tok.substr(a, b - a + 1));
+        if (p == std::string::npos) break; i = p + 1;
+    }
+    return v;
+}
+std::string gpJoin(const std::vector<std::string>& v, char sep) {
+    std::string o; for (auto& s : v) { if (!o.empty()) o += sep; o += s; } return o;
+}
+} // namespace
+
+// "Devices to Capture": multi-select of detected device names (semicolon list). The
+// daemon matches names as substrings, so the exact name is a valid pattern. Changing
+// the set needs a full device re-grab, so we also raise full_reload.
+void NanoMenu::buildDevicesSubmenu(Ps3Level& out) {
+    out.items.clear(); out.sel = 0; out.screenKind = 0; out.title = "Devices to Capture";
+    std::vector<std::string> sel = gpSplit(
+        readSettingValue(SettingSource::kProp, "persist.gammaos.gamepad.devices", ""), ';');
+    std::vector<std::string> devs = gpEnumInputDevices();
+    {   // help row (non-selectable info; QA_NOOP does nothing on activate)
+        Ps3Item it; it.kind = PS3_QUICK; it.a = QA_NOOP;
+        it.label = devs.empty() ? "(no input devices detected)"
+                                : "Select controllers to capture:";
+        it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 0.6f;
+        out.items.push_back(it);
+    }
+    for (auto& name : devs) {
+        bool on = std::find(sel.begin(), sel.end(), name) != sel.end();
+        Ps3Item it; it.kind = PS3_QUICK; it.a = QA_DEV_CAPTURE_TOGGLE; it.value = name;
+        it.label = name + (on ? "    [Captured]" : "");
+        it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 1.0f;
+        out.items.push_back(it);
+    }
+    out.sel = devs.empty() ? 0 : 1;
+}
+
+// "Vibration Device": single-select of detected device names (+ Auto). Writes the name
+// (the daemon resolves it by EVIOCGNAME) or empty for auto-detect.
+void NanoMenu::buildFfDeviceSubmenu(Ps3Level& out) {
+    out.items.clear(); out.sel = 0; out.screenKind = 0; out.title = "Vibration Device";
+    std::string cur = readSettingValue(SettingSource::kProp, "persist.gammaos.gamepad.ff_vibrate_device", "");
+    auto row = [&](const std::string& label, const std::string& val) {
+        Ps3Item it; it.kind = PS3_QUICK; it.a = QA_FF_DEVICE_SET; it.value = val; it.label = label;
+        it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 1.0f;
+        out.items.push_back(it);
+    };
+    row("Auto-detect", "");
+    if (cur.empty()) out.sel = 0;
+    for (auto& name : gpEnumInputDevices()) {
+        row(name, name);
+        if (name == cur) out.sel = (int)out.items.size() - 1;
+    }
+}
+
+// "Passthrough Blacklist": multi-select of buttons to suppress at runtime (comma list
+// of decimal codes).
+void NanoMenu::buildBlacklistSubmenu(Ps3Level& out) {
+    out.items.clear(); out.sel = 0; out.screenKind = 0; out.title = "Passthrough Blacklist";
+    std::vector<std::string> sel = gpSplit(
+        readSettingValue(SettingSource::kProp, "persist.gammaos.gamepad.blacklist_pass", ""), ',');
+    auto has = [&](int code){
+        for (auto& s : sel) if (strtol(s.c_str(), nullptr, 0) == code) return true; return false;
+    };
+    int n; const GpCode* t = gpTable(false, n);
+    for (int i = 0; i < n; i++) {
+        Ps3Item it; it.kind = PS3_QUICK; it.a = QA_BLACKLIST_TOGGLE; it.b = t[i].code;
+        it.label = std::string(t[i].name) + (has(t[i].code) ? "    [Blocked]" : "");
+        it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 1.0f;
+        out.items.push_back(it);
     }
 }
 
@@ -2046,6 +2160,47 @@ void NanoMenu::ps3XmbSelect() {
                                           Ps3Level lvl; buildRemapSrcSubmenu(lvl, true);  mPs3Stack.push_back(lvl); break; }
                 case QA_REMAP_SRC:      { mRemapSrc = it.b;
                                           Ps3Level lvl; buildRemapTargetSubmenu(lvl);     mPs3Stack.push_back(lvl); break; }
+                case QA_NOOP: return;   // non-selectable info row
+                case QA_DEV_CAPTURE_MENU: { Ps3Level lvl; buildDevicesSubmenu(lvl);  mPs3Stack.push_back(lvl); break; }
+                case QA_FF_DEVICE_MENU:   { Ps3Level lvl; buildFfDeviceSubmenu(lvl); mPs3Stack.push_back(lvl); break; }
+                case QA_BLACKLIST_MENU:   { Ps3Level lvl; buildBlacklistSubmenu(lvl); mPs3Stack.push_back(lvl); break; }
+                case QA_DEV_CAPTURE_TOGGLE: {
+                    // Add/remove this device name in the semicolon capture list, then
+                    // force a full device re-grab (device-set changes need it) + rebuild
+                    // the list in place so the [Captured] tag updates.
+                    std::vector<std::string> sel = gpSplit(readSettingValue(SettingSource::kProp,
+                        "persist.gammaos.gamepad.devices", ""), ';');
+                    auto f = std::find(sel.begin(), sel.end(), it.value);
+                    if (f != sel.end()) sel.erase(f); else sel.push_back(it.value);
+                    writeSettingValue(SettingSource::kProp, "persist.gammaos.gamepad.devices", gpJoin(sel, ';'));
+                    property_set("persist.gammaos.gamepad.full_reload", "1");
+                    if (!mPs3Stack.empty()) { int s = mPs3Stack.back().sel; buildDevicesSubmenu(mPs3Stack.back());
+                        if (s >= 0 && s < (int)mPs3Stack.back().items.size()) mPs3Stack.back().sel = s; }
+                    mDisplayDirty = true; return;
+                }
+                case QA_BLACKLIST_TOGGLE: {
+                    std::vector<std::string> sel = gpSplit(readSettingValue(SettingSource::kProp,
+                        "persist.gammaos.gamepad.blacklist_pass", ""), ',');
+                    std::vector<std::string> nw; bool removed = false;
+                    for (auto& s : sel) { if (strtol(s.c_str(), nullptr, 0) == it.b) removed = true; else nw.push_back(s); }
+                    if (!removed) nw.push_back(std::to_string(it.b));
+                    writeSettingValue(SettingSource::kProp, "persist.gammaos.gamepad.blacklist_pass", gpJoin(nw, ','));
+                    if (!mPs3Stack.empty()) { int s = mPs3Stack.back().sel; buildBlacklistSubmenu(mPs3Stack.back());
+                        if (s >= 0 && s < (int)mPs3Stack.back().items.size()) mPs3Stack.back().sel = s; }
+                    mDisplayDirty = true; return;
+                }
+                case QA_FF_DEVICE_SET: {
+                    writeSettingValue(SettingSource::kProp, "persist.gammaos.gamepad.ff_vibrate_device", it.value);
+                    property_set("persist.gammaos.gamepad.full_reload", "1");   // FF device rebind
+                    if (!mPs3Stack.empty()) {
+                        mPs3SubChildItems = mPs3Stack.back().items;
+                        mPs3Stack.pop_back();
+                        mPs3SubParentItems = ps3CurItems(); mPs3SubParentIdx = ps3CurSel();
+                        mPs3SubDir = -1; mPs3SubAnimStart = mEffectTime; mPs3SubAnim = 1.0f;
+                        mPs3AnimItem = (float)ps3CurSel(); mPs3ItemAnimStart = -1.0f;
+                    }
+                    mDisplayDirty = true; return;
+                }
                 case QA_REMAP_SET: {
                     // Write src->target (it.b, -1 = default/erase) into the remap prop,
                     // then pop the target chooser back to the (rebuilt) source list with

@@ -1351,6 +1351,9 @@ private:
     void buildMouseSubmenu(Ps3Level& out);           // Mouse Mode cursor-speed settings
     void buildRemapSrcSubmenu(Ps3Level& out, bool axis);  // button/axis remap source list
     void buildRemapTargetSubmenu(Ps3Level& out);          // target chooser for mRemapSrc
+    void buildDevicesSubmenu(Ps3Level& out);              // capture-device multi-select
+    void buildFfDeviceSubmenu(Ps3Level& out);             // vibration-device single-select
+    void buildBlacklistSubmenu(Ps3Level& out);            // passthrough-blacklist button multi-select
     std::string mRemapKey;        // remap prop being edited (remap_btn / remap_axis)
     bool mRemapAxis = false;      // axis (vs button) name table for the active remap picker
     int  mRemapSrc = 0;           // source code chosen, awaiting a target pick
