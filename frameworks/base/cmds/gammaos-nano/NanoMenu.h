@@ -56,6 +56,12 @@ class Surface;
 class SurfaceComposerClient;
 class SurfaceControl;
 
+// Release/restore the Bluetooth bluesleep LPM wakelock around the framework-owned
+// (overlay / SurfaceFlinger) screen-off path so a held bluesleep does not block
+// suspend-to-RAM while an app is foreground. Defined in NanoMenuInput.cpp; mirrors
+// the enterDrmSleep fix for nano's own DRM-home sleep. `disabled` is the caller's latch.
+void nanoBtLpmSuspendGate(bool screenOff, bool& disabled);
+
 // Adapter that lets the shared NanoSliderHud spec draw through NanoMenu's
 // private GL primitives (drawQuad/drawText/measureText). Defined in
 // NanoMenuSystem.cpp; friended so the volume/brightness HUD matches the

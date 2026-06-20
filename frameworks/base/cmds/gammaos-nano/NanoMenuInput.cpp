@@ -745,6 +745,26 @@ static bool nanoBtLpmSet(int v) {
     close(fd);
     return n == 1;
 }
+// Drive BT LPM for the FRAMEWORK-owned sleep path (overlay / SurfaceFlinger home):
+// when an app is foreground the framework, not nano, blanks the panel and drives
+// suspend on screen-off, so enterDrmSleep never runs and the held bluesleep wakelock
+// would still block suspend-to-RAM. On screen-off with BT powered off, release it;
+// restore it (always, if we changed it) on screen-on. Idempotent; `disabled` is the
+// caller's per-path latch. Same gating/kill-switch as the enterDrmSleep path.
+void nanoBtLpmSuspendGate(bool screenOff, bool& disabled) {
+    if (screenOff == disabled) return;   // already in the desired state
+    if (screenOff) {
+        if (property_get_bool("persist.gammaos.nano.btlpmsleep", true)
+            && nanoBtPoweredOff() && nanoBtLpmGet() == 1 && nanoBtLpmSet(0)) {
+            disabled = true;
+            ALOGI("NanoMenu: BT off, screen off -> released bluesleep so the SoC can suspend");
+        }
+    } else {
+        nanoBtLpmSet(1);                  // restore what we disabled
+        disabled = false;
+        ALOGI("NanoMenu: screen on -> restored BT LPM");
+    }
+}
 
 // ---------------------------------------------------------------------------
 // Event loop: drain every input fd, dispatch to navigation / power / OSK.

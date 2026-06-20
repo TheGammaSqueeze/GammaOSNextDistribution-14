@@ -3530,6 +3530,10 @@ if (sRingPrimedCount >= 2) {
             static bool sOvlPwrSave = false;
             if (screenOff && !sOvlPwrSave) { nanoApplyPerfClock("powersave"); sOvlPwrSave = true; }
             else if (!screenOff && sOvlPwrSave) { nanoRestorePerfClock(); sOvlPwrSave = false; }
+            // The framework drives suspend for the overlay; release the BT bluesleep
+            // wakelock (BT off) so it is not blocked. Restored when the panel returns.
+            static bool sOvlBtLpm = false;
+            nanoBtLpmSuspendGate(screenOff, sOvlBtLpm);
             // Keep background music alive across screen-off, including a real
             // suspend on battery: the framework drives standby for the overlay, but
             // nothing holds the SoC up for the in-process decode/AAudio threads, so
@@ -3588,6 +3592,10 @@ if (sRingPrimedCount >= 2) {
             static bool sSfPwrSave = false;
             if (screenOff && !sSfPwrSave) { nanoApplyPerfClock("powersave"); sSfPwrSave = true; }
             else if (!screenOff && sSfPwrSave) { nanoRestorePerfClock(); sSfPwrSave = false; }
+            // Release the BT bluesleep wakelock (BT off) on framework-driven screen-off
+            // so suspend-to-RAM is not blocked; restored when the panel returns.
+            static bool sSfBtLpm = false;
+            nanoBtLpmSuspendGate(screenOff, sSfBtLpm);
             bool audioActive = mMusicPlayer.isPlaying() ||
                                (mMpAdvancing && !mMusicPlayer.isPaused());
             static bool sSfAudioWake = false;
