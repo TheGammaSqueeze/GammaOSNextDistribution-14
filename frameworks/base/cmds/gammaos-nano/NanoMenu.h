@@ -1347,6 +1347,8 @@ private:
     void buildQuickPowerSubmenu(Ps3Level& out);
     // Quick Settings submenu (ported GammaOS QS tiles) + Notifications submenu.
     void buildQuickSettingsSubmenu(Ps3Level& out);
+    void buildGamepadSubmenu(Ps3Level& out);         // full GammaPad settings (Settings-app parity)
+    void buildMouseSubmenu(Ps3Level& out);           // Mouse Mode cursor-speed settings
     void buildNotificationsSubmenu(Ps3Level& out);   // re-reads the live list, then builds
     void buildNotificationsLevel(Ps3Level& out);     // builds rows from the current mNotifs (no read)
     // One active notification, parsed from `dumpsys notification --noredact` only

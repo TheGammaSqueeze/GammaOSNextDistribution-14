@@ -515,6 +515,8 @@ enum {
     QA_LAUNCH_CALIBRATION,// am start the LineageParts gamepad calibration activity
     QA_LAUNCH_REMAP,     // am start the LineageParts gamepad button-remap activity
     QA_NOTIF_DISMISS,    // dismiss (snooze ~1yr) the focused notification, then refresh
+    QA_GAMEPAD_MENU,     // open the dedicated GammaPad settings submenu (all gamepad props)
+    QA_MOUSE_MENU,       // open the Mouse Mode settings submenu (mouse_* props)
 };
 
 void NanoMenu::buildPs3Cats() {
@@ -749,18 +751,14 @@ void NanoMenu::buildQuickSettingsSubmenu(Ps3Level& out) {
     leaf("GammaShader", "CRT Shader", 16);
     act ("Secondary Display", QA_SECONDARY_DISPLAY, 16, mSecondaryDisplayOn ? "On" : "Off");
     leaf("GammaRGB", "Effect", 16);                            // GammaRGB effect chooser
-    leaf("ABXY Swap", nullptr, 16);
     leaf("Deep Sleep Mode", "Ultra Low Power Saving", 16);
     leaf("Immersive Mode", nullptr, 16);
-    leaf("DPAD/Analog Swap", nullptr, 16);
-    leaf("Analog Sensitivity", "Global Sensitivity", 16);
-    act ("Analog Calibration", QA_LAUNCH_CALIBRATION, 16, nullptr);
-    leaf("Invert Left Stick", nullptr, 16);
-    leaf("Invert Right Stick", nullptr, 16);
+    // The full GammaPad / Mouse Mode settings now live in dedicated submenus (every
+    // Settings-app gamepad + mouse option, controller-first), replacing the scattered rows.
+    act ("Gamepad Settings", QA_GAMEPAD_MENU, 16, nullptr);
+    act ("Mouse Mode", QA_MOUSE_MENU, 16, nullptr);
     leaf("DC Dimming Emulation", nullptr, 16);
     leaf("RetroArch Back Button Override", nullptr, 16);
-    act ("Edit Button Mappings", QA_LAUNCH_REMAP, 16, nullptr);
-    leaf("Screen Map", nullptr, 16);
     // Display / refresh
     leaf("Black Frame Insertion", nullptr, 16);
     leaf("Refresh Rate Lock", nullptr, 16);
@@ -786,6 +784,72 @@ void NanoMenu::buildQuickSettingsSubmenu(Ps3Level& out) {
     leaf("Location", nullptr, 16);
     leaf("Do Not Disturb", nullptr, 16);
     leaf("Auto-Rotate", nullptr, 16);
+}
+
+// Quick Menu -> Gamepad Settings: the complete GammaPad section ported 1:1 from the
+// Settings app "Gamepad" category (persist.gammaos.gamepad.* + screenmap), readapted
+// controller-first - toggles, discrete lists and OSK-text rows are bound leaves whose
+// A-press opens the side-panel chooser / keyboard; calibration + the legacy remap app
+// stay reachable as action rows. Built lazily on open, discarded on pop (zero idle cost).
+void NanoMenu::buildGamepadSubmenu(Ps3Level& out) {
+    out.items.clear(); out.sel = 0; out.title = "Gamepad Settings"; out.screenKind = 0;
+    auto leaf = [&](const char* label, const char* bindLabel, int icon) {
+        Ps3Item it; it.label = label; it.kind = PS3_DATA_LEAF; it.action = 1;
+        it.binding = ps3BindingFor(bindLabel ? bindLabel : label);
+        it.nmapTex = nmapForIcon(icon); it.iconR = it.iconG = it.iconB = 1.0f;
+        out.items.push_back(it);
+    };
+    auto act = [&](const char* label, int qa, int icon, const char* val) {
+        Ps3Item it; it.label = label; it.kind = PS3_QUICK; it.a = qa;
+        if (val) it.value = val;
+        it.nmapTex = nmapForIcon(icon); it.iconR = it.iconG = it.iconB = 1.0f;
+        out.items.push_back(it);
+    };
+    // Core
+    leaf("Controller Enable", nullptr, 16);
+    leaf("Merge Controllers", nullptr, 16);
+    leaf("Hide Source Device", nullptr, 16);
+    leaf("Devices to Capture", nullptr, 16);
+    leaf("Virtual Device Name", nullptr, 16);
+    // Layout / sticks
+    leaf("ABXY Swap", nullptr, 16);
+    leaf("Invert Left Stick", nullptr, 16);
+    leaf("Invert Right Stick", nullptr, 16);
+    leaf("Analog to D-Pad", nullptr, 16);
+    leaf("D-Pad to Analog", nullptr, 16);
+    leaf("DPAD/Analog Swap", nullptr, 16);
+    leaf("D-Pad Threshold", nullptr, 16);
+    leaf("Global Sensitivity", nullptr, 16);
+    act ("Analog Calibration", QA_LAUNCH_CALIBRATION, 16, nullptr);
+    // Rumble
+    leaf("PWM Enable", nullptr, 16);
+    leaf("PWM Intensity", nullptr, 16);
+    leaf("Vibration Device", nullptr, 16);
+    // Mapping (OSK text for now; Inc2/Inc3 -> native pickers)
+    leaf("Button Remap", nullptr, 16);
+    leaf("Axis Remap", nullptr, 16);
+    leaf("Button Combo Map", nullptr, 16);
+    leaf("Axis to Button", nullptr, 16);
+    leaf("Passthrough Blacklist", nullptr, 16);
+    act ("Edit Button Mappings (App)", QA_LAUNCH_REMAP, 16, nullptr);
+    // Touch mapping
+    leaf("Screen Map", nullptr, 16);
+}
+
+// Quick Menu -> Mouse Mode: the Settings-app "Mouse Mode" category (gamepad-as-mouse
+// cursor speeds). Discrete-list bound leaves, controller-first. Lazy build, zero idle.
+void NanoMenu::buildMouseSubmenu(Ps3Level& out) {
+    out.items.clear(); out.sel = 0; out.title = "Mouse Mode"; out.screenKind = 0;
+    auto leaf = [&](const char* label, const char* bindLabel, int icon) {
+        Ps3Item it; it.label = label; it.kind = PS3_DATA_LEAF; it.action = 1;
+        it.binding = ps3BindingFor(bindLabel ? bindLabel : label);
+        it.nmapTex = nmapForIcon(icon); it.iconR = it.iconG = it.iconB = 1.0f;
+        out.items.push_back(it);
+    };
+    leaf("Stick Speed", nullptr, 16);
+    leaf("D-Pad Speed", nullptr, 16);
+    leaf("Boost", nullptr, 16);
+    leaf("Scroll Speed", nullptr, 16);
 }
 
 // --- Notifications submenu ---------------------------------------------------
@@ -1866,6 +1930,8 @@ void NanoMenu::ps3XmbSelect() {
                 case QA_POWER_SUBMENU: { Ps3Level lvl; buildQuickPowerSubmenu(lvl); mPs3Stack.push_back(lvl); break; }
                 case QA_QUICK_SETTINGS: { Ps3Level lvl; buildQuickSettingsSubmenu(lvl); mPs3Stack.push_back(lvl); break; }
                 case QA_NOTIFICATIONS:  { Ps3Level lvl; buildNotificationsSubmenu(lvl);  mPs3Stack.push_back(lvl); break; }
+                case QA_GAMEPAD_MENU:   { Ps3Level lvl; buildGamepadSubmenu(lvl);       mPs3Stack.push_back(lvl); break; }
+                case QA_MOUSE_MENU:     { Ps3Level lvl; buildMouseSubmenu(lvl);         mPs3Stack.push_back(lvl); break; }
                 case QA_BRIGHTNESS:   mPs3BrightSlider = true; mShowBrightnessBar = true; mBrightnessBarTimer = 90; return;
                 case QA_PERFORMANCE:  openPerformanceChooser(); return;
                 case QA_CLOSE_APP:    if (mOverlayMode) overlayQuitToHome(); return;  // home: no fg app
@@ -3614,6 +3680,19 @@ static const Ps3SettingBinding kPs3Bindings[] = {
     {"D-Pad Threshold", SettingSource::kProp, "persist.gammaos.gamepad.dpad_threshold", "50",
      "10:10,20:20,30:30,40:40,50:50,60:60,70:70,80:80,90:90"},
     {"Screen Map", SettingSource::kProp, "persist.gammaos.screenmap.enabled", "0", "0:Off,1:On"},
+    // Gamepad free-text / mapping fields (edited via the OSK for now; Inc2/Inc3 readapt
+    // these into native button/axis/device pickers). Formats match the gammapad daemon:
+    //   devices/blacklist_pass: device-name patterns (';') / button codes (',')
+    //   remap_btn/remap_axis:   "SRC:DST,SRC:DST" (decimal or 0xNN codes)
+    //   combo_map:              "b1+b2=emit,..."   axis_btn: "axis:btn:on%:off%[:h|b],..."
+    {"Devices to Capture", SettingSource::kProp, "persist.gammaos.gamepad.devices", "", "@text"},
+    {"Virtual Device Name", SettingSource::kProp, "persist.gammaos.gamepad.device_name", "Xbox Wireless Controller", "@text"},
+    {"Button Remap", SettingSource::kProp, "persist.gammaos.gamepad.remap_btn", "", "@text"},
+    {"Axis Remap", SettingSource::kProp, "persist.gammaos.gamepad.remap_axis", "", "@text"},
+    {"Button Combo Map", SettingSource::kProp, "persist.gammaos.gamepad.combo_map", "", "@text"},
+    {"Axis to Button", SettingSource::kProp, "persist.gammaos.gamepad.axis_btn", "", "@text"},
+    {"Vibration Device", SettingSource::kProp, "persist.gammaos.gamepad.ff_vibrate_device", "", "@text"},
+    {"Passthrough Blacklist", SettingSource::kProp, "persist.gammaos.gamepad.blacklist_pass", "", "@text"},
     // Mouse Mode (persist.gammaos.gamepad.mouse_* props)
     {"Stick Speed", SettingSource::kProp, "persist.gammaos.gamepad.mouse_stick_speed", "12",
      "4:4,8:8,12:12,16:16,20:20,24:24,30:30"},
