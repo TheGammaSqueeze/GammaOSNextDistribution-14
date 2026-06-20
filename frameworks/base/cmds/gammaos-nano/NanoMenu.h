@@ -1354,6 +1354,10 @@ private:
     void buildDevicesSubmenu(Ps3Level& out);              // capture-device multi-select
     void buildFfDeviceSubmenu(Ps3Level& out);             // vibration-device single-select
     void buildBlacklistSubmenu(Ps3Level& out);            // passthrough-blacklist button multi-select
+    void buildComboSubmenu(Ps3Level& out);                // combo_map list editor (add-flow state machine)
+    void buildAxisBtnSubmenu(Ps3Level& out);              // axis_btn list editor
+    int mComboStage = 0; int mComboB1 = 0; int mComboB2 = 0;   // combo add-flow state
+    int mAxbStage = 0;   int mAxbAxis = 0; int mAxbBtn = 0;    // axis_btn add-flow state
     std::string mRemapKey;        // remap prop being edited (remap_btn / remap_axis)
     bool mRemapAxis = false;      // axis (vs button) name table for the active remap picker
     int  mRemapSrc = 0;           // source code chosen, awaiting a target pick

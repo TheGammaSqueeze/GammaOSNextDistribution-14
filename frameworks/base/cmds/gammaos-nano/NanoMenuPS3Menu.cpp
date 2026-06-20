@@ -533,6 +533,14 @@ enum {
     QA_BLACKLIST_MENU,   // open the passthrough-blacklist button multi-select
     QA_BLACKLIST_TOGGLE, // toggle a button code in blacklist_pass (it.b = code)
     QA_NOOP,             // non-selectable info row (does nothing on activate)
+    QA_COMBO_MENU,       // open the combo_map list editor
+    QA_COMBO_ADD,        // start the add-combo flow (stage 1)
+    QA_COMBO_PICK,       // a button pick within the add-combo flow (it.b = code)
+    QA_COMBO_DEL,        // remove a combo entry (it.value = "b1+b2=emit")
+    QA_AXISBTN_MENU,     // open the axis_btn list editor
+    QA_AXISBTN_ADD,      // start the add-axis-button flow (stage 1)
+    QA_AXISBTN_PICK,     // a pick within the add flow (it.b = code, or it.value = preset)
+    QA_AXISBTN_DEL,      // remove an axis_btn entry (it.value = entry)
 };
 
 void NanoMenu::buildPs3Cats() {
@@ -845,8 +853,8 @@ void NanoMenu::buildGamepadSubmenu(Ps3Level& out) {
     // remain OSK-text for now (Inc3 -> pickers).
     act ("Button Remap", QA_REMAP_BTN_MENU, 16, nullptr);
     act ("Axis Remap", QA_REMAP_AXIS_MENU, 16, nullptr);
-    leaf("Button Combo Map", nullptr, 16);
-    leaf("Axis to Button", nullptr, 16);
+    act ("Button Combo Map", QA_COMBO_MENU, 16, nullptr);
+    act ("Axis to Button", QA_AXISBTN_MENU, 16, nullptr);
     act ("Passthrough Blacklist", QA_BLACKLIST_MENU, 16, nullptr);
     act ("Edit Button Mappings (App)", QA_LAUNCH_REMAP, 16, nullptr);
     // Touch mapping
@@ -1072,6 +1080,92 @@ void NanoMenu::buildBlacklistSubmenu(Ps3Level& out) {
         it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 1.0f;
         out.items.push_back(it);
     }
+}
+
+// --- Combo map + axis-to-button list editors --------------------------------
+// Add/remove lists built as a single Ps3Level whose contents depend on an add-flow
+// stage (rebuilt in place, no nested push/pop). Stage 0 = list of entries + "Add..".
+// Stages 1..3 = pick the parts; the final pick appends the entry and returns to stage 0.
+
+// "Button Combo Map": entries "b1+b2=emit" (both held -> emit). mComboStage drives the
+// add flow: 1 pick first button, 2 pick second, 3 pick the emitted button.
+void NanoMenu::buildComboSubmenu(Ps3Level& out) {
+    out.items.clear(); out.sel = 0; out.screenKind = 0; out.title = "Button Combo Map";
+    auto info = [&](const std::string& s){ Ps3Item it; it.kind = PS3_QUICK; it.a = QA_NOOP;
+        it.label = s; it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 0.6f; out.items.push_back(it); };
+    auto btn = [&](int qa){ int n; const GpCode* t = gpTable(false, n);
+        for (int i = 0; i < n; i++) { Ps3Item it; it.kind = PS3_QUICK; it.a = qa; it.b = t[i].code;
+            it.label = t[i].name; it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 1.0f; out.items.push_back(it); } };
+    if (mComboStage == 1) { info("Hold-combo: pick the FIRST button"); btn(QA_COMBO_PICK); out.sel = 1; return; }
+    if (mComboStage == 2) { const char* b1 = gpCodeName(mComboB1, false);
+        info(std::string("First: ") + (b1?b1:"?") + " - pick the SECOND button"); btn(QA_COMBO_PICK); out.sel = 1; return; }
+    if (mComboStage == 3) { const char* b1 = gpCodeName(mComboB1,false); const char* b2 = gpCodeName(mComboB2,false);
+        info(std::string(b1?b1:"?") + " + " + (b2?b2:"?") + " - pick the OUTPUT button"); btn(QA_COMBO_PICK); out.sel = 1; return; }
+    // stage 0: the list
+    std::vector<std::string> ents = gpSplit(readSettingValue(SettingSource::kProp,
+        "persist.gammaos.gamepad.combo_map", ""), ',');
+    info(ents.empty() ? "No combos. Add one below:" : "Select a combo to remove:");
+    for (auto& e : ents) {
+        size_t plus = e.find('+'), eq = e.find('=');
+        std::string lbl = e;
+        if (plus != std::string::npos && eq != std::string::npos && eq > plus) {
+            int b1 = (int)strtol(e.c_str(), nullptr, 0);
+            int b2 = (int)strtol(e.c_str() + plus + 1, nullptr, 0);
+            int em = (int)strtol(e.c_str() + eq + 1, nullptr, 0);
+            const char* n1 = gpCodeName(b1,false); const char* n2 = gpCodeName(b2,false); const char* ne = gpCodeName(em,false);
+            lbl = std::string(n1?n1:"?") + " + " + (n2?n2:"?") + "  =  " + (ne?ne:"?");
+        }
+        Ps3Item it; it.kind = PS3_QUICK; it.a = QA_COMBO_DEL; it.value = e; it.label = lbl;
+        it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 1.0f; out.items.push_back(it);
+    }
+    { Ps3Item it; it.kind = PS3_QUICK; it.a = QA_COMBO_ADD; it.label = "Add Combo...";
+      it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 1.0f; out.items.push_back(it); }
+    out.sel = (int)out.items.size() - 1;
+}
+
+// "Axis to Button": entries "axis:btn:on%:off%[:mode]". Stage 1 pick axis, 2 pick the
+// emitted button, 3 pick a threshold/mode preset.
+void NanoMenu::buildAxisBtnSubmenu(Ps3Level& out) {
+    out.items.clear(); out.sel = 0; out.screenKind = 0; out.title = "Axis to Button";
+    auto info = [&](const std::string& s){ Ps3Item it; it.kind = PS3_QUICK; it.a = QA_NOOP;
+        it.label = s; it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 0.6f; out.items.push_back(it); };
+    if (mAxbStage == 1) { info("Pick the AXIS (e.g. a trigger)");
+        int n; const GpCode* t = gpTable(true, n);
+        for (int i = 0; i < n; i++) { Ps3Item it; it.kind = PS3_QUICK; it.a = QA_AXISBTN_PICK; it.b = t[i].code;
+            it.label = t[i].name; it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 1.0f; out.items.push_back(it); }
+        out.sel = 1; return; }
+    if (mAxbStage == 2) { const char* a = gpCodeName(mAxbAxis, true);
+        info(std::string("Axis: ") + (a?a:"?") + " - pick the OUTPUT button");
+        int n; const GpCode* t = gpTable(false, n);
+        for (int i = 0; i < n; i++) { Ps3Item it; it.kind = PS3_QUICK; it.a = QA_AXISBTN_PICK; it.b = t[i].code;
+            it.label = t[i].name; it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 1.0f; out.items.push_back(it); }
+        out.sel = 1; return; }
+    if (mAxbStage == 3) { info("Pick a trigger sensitivity");
+        auto pre = [&](const char* label, const char* val){ Ps3Item it; it.kind = PS3_QUICK; it.a = QA_AXISBTN_PICK;
+            it.value = val; it.label = label; it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 1.0f; out.items.push_back(it); };
+        pre("Standard (press at 80%)", "80:60:h");
+        pre("Light (press at 50%)", "50:40:h");
+        pre("Standard, keep axis", "80:60:b");
+        out.sel = 1; return; }
+    // stage 0: the list
+    std::vector<std::string> ents = gpSplit(readSettingValue(SettingSource::kProp,
+        "persist.gammaos.gamepad.axis_btn", ""), ',');
+    info(ents.empty() ? "No mappings. Add one below:" : "Select a mapping to remove:");
+    for (auto& e : ents) {
+        std::vector<std::string> f = gpSplit(e, ':');
+        std::string lbl = e;
+        if (f.size() >= 2) {
+            const char* an = gpCodeName((int)strtol(f[0].c_str(),nullptr,0), true);
+            const char* bn = gpCodeName((int)strtol(f[1].c_str(),nullptr,0), false);
+            lbl = std::string(an?an:"?") + "  ->  " + (bn?bn:"?");
+            if (f.size() >= 3) lbl += "  (" + f[2] + "%)";
+        }
+        Ps3Item it; it.kind = PS3_QUICK; it.a = QA_AXISBTN_DEL; it.value = e; it.label = lbl;
+        it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 1.0f; out.items.push_back(it);
+    }
+    { Ps3Item it; it.kind = PS3_QUICK; it.a = QA_AXISBTN_ADD; it.label = "Add Mapping...";
+      it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 1.0f; out.items.push_back(it); }
+    out.sel = (int)out.items.size() - 1;
 }
 
 // --- Notifications submenu ---------------------------------------------------
@@ -2199,6 +2293,58 @@ void NanoMenu::ps3XmbSelect() {
                         mPs3SubDir = -1; mPs3SubAnimStart = mEffectTime; mPs3SubAnim = 1.0f;
                         mPs3AnimItem = (float)ps3CurSel(); mPs3ItemAnimStart = -1.0f;
                     }
+                    mDisplayDirty = true; return;
+                }
+                // --- Combo map list editor (single-level add-flow state machine) ---
+                case QA_COMBO_MENU:  { mComboStage = 0; Ps3Level lvl; buildComboSubmenu(lvl); mPs3Stack.push_back(lvl); break; }
+                case QA_COMBO_ADD:   { mComboStage = 1; if (!mPs3Stack.empty()) { buildComboSubmenu(mPs3Stack.back()); }
+                                       mDisplayDirty = true; return; }
+                case QA_COMBO_PICK: {
+                    if (mComboStage == 1) { mComboB1 = it.b; mComboStage = 2; }
+                    else if (mComboStage == 2) { mComboB2 = it.b; mComboStage = 3; }
+                    else if (mComboStage == 3) {
+                        std::string cur = readSettingValue(SettingSource::kProp, "persist.gammaos.gamepad.combo_map", "");
+                        std::vector<std::string> ents = gpSplit(cur, ',');
+                        ents.push_back(std::to_string(mComboB1) + "+" + std::to_string(mComboB2) + "=" + std::to_string(it.b));
+                        writeSettingValue(SettingSource::kProp, "persist.gammaos.gamepad.combo_map", gpJoin(ents, ','));
+                        mComboStage = 0;
+                    }
+                    if (!mPs3Stack.empty()) buildComboSubmenu(mPs3Stack.back());
+                    mDisplayDirty = true; return;
+                }
+                case QA_COMBO_DEL: {
+                    std::vector<std::string> ents = gpSplit(readSettingValue(SettingSource::kProp,
+                        "persist.gammaos.gamepad.combo_map", ""), ',');
+                    ents.erase(std::remove(ents.begin(), ents.end(), it.value), ents.end());
+                    writeSettingValue(SettingSource::kProp, "persist.gammaos.gamepad.combo_map", gpJoin(ents, ','));
+                    if (!mPs3Stack.empty()) { int s = mPs3Stack.back().sel; buildComboSubmenu(mPs3Stack.back());
+                        if (s >= 0 && s < (int)mPs3Stack.back().items.size()) mPs3Stack.back().sel = s; }
+                    mDisplayDirty = true; return;
+                }
+                // --- Axis-to-button list editor ---
+                case QA_AXISBTN_MENU: { mAxbStage = 0; Ps3Level lvl; buildAxisBtnSubmenu(lvl); mPs3Stack.push_back(lvl); break; }
+                case QA_AXISBTN_ADD:  { mAxbStage = 1; if (!mPs3Stack.empty()) { buildAxisBtnSubmenu(mPs3Stack.back()); }
+                                        mDisplayDirty = true; return; }
+                case QA_AXISBTN_PICK: {
+                    if (mAxbStage == 1) { mAxbAxis = it.b; mAxbStage = 2; }
+                    else if (mAxbStage == 2) { mAxbBtn = it.b; mAxbStage = 3; }
+                    else if (mAxbStage == 3) {
+                        std::vector<std::string> ents = gpSplit(readSettingValue(SettingSource::kProp,
+                            "persist.gammaos.gamepad.axis_btn", ""), ',');
+                        ents.push_back(std::to_string(mAxbAxis) + ":" + std::to_string(mAxbBtn) + ":" + it.value);
+                        writeSettingValue(SettingSource::kProp, "persist.gammaos.gamepad.axis_btn", gpJoin(ents, ','));
+                        mAxbStage = 0;
+                    }
+                    if (!mPs3Stack.empty()) buildAxisBtnSubmenu(mPs3Stack.back());
+                    mDisplayDirty = true; return;
+                }
+                case QA_AXISBTN_DEL: {
+                    std::vector<std::string> ents = gpSplit(readSettingValue(SettingSource::kProp,
+                        "persist.gammaos.gamepad.axis_btn", ""), ',');
+                    ents.erase(std::remove(ents.begin(), ents.end(), it.value), ents.end());
+                    writeSettingValue(SettingSource::kProp, "persist.gammaos.gamepad.axis_btn", gpJoin(ents, ','));
+                    if (!mPs3Stack.empty()) { int s = mPs3Stack.back().sel; buildAxisBtnSubmenu(mPs3Stack.back());
+                        if (s >= 0 && s < (int)mPs3Stack.back().items.size()) mPs3Stack.back().sel = s; }
                     mDisplayDirty = true; return;
                 }
                 case QA_REMAP_SET: {
