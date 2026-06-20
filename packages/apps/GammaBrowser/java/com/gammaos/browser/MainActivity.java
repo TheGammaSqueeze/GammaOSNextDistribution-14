@@ -15,13 +15,19 @@ import android.app.SearchManager;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.text.TextUtils;
+import android.view.Choreographer;
+import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
+import android.webkit.JavascriptInterface;
+import android.webkit.RenderProcessGoneDetail;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -30,6 +36,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -91,6 +98,46 @@ public class MainActivity extends Activity {
     private String mCurrentUrl = "";
     private String mCurrentTitle = "";
 
+    // ---- In-app gamepad mouse mode ----
+    private CursorView mCursor;
+    private InputMethodManager mImm;            // cached
+    private boolean mCursorMode = false;        // user's Y toggle (persists across IME)
+    private boolean mImeUp = false;             // a page text field has the IME up
+    private boolean mPaused = false;            // activity backgrounded (keep renderer idle)
+    private int mEdgeTick = 0;                  // throttles edge-scroll JS injection
+    private float mCx, mCy;                     // cursor position, WebView-local px
+    private float mSaveCx, mSaveCy;             // remembered across an IME session
+    private float mStickX, mStickY;             // left analog stick (deadzoned), -1..1
+    private boolean mLeftHeld, mRightHeld, mUpHeld, mDownHeld;  // d-pad held flags (key path)
+    private int mHatX, mHatY;                   // d-pad delivered as a hat axis (motion path)
+    private int mKeyDx, mKeyDy;                 // {-1,0,1} combined d-pad direction
+    private Choreographer mChoreo;
+    private Choreographer.FrameCallback mFrameCb;
+    private boolean mFrameScheduled = false;
+    private long mLastFrameNanos = 0L;
+    private float mDensity = 1f;
+    private final int[] mLocWeb = new int[2];
+    private final int[] mLocRoot = new int[2];
+    private static final float CURSOR_SPEED_DP_S = 760f;   // pointer travel speed
+    private static final float STICK_DEADZONE    = 0.18f;
+    private static final float EDGE_MARGIN_DP    = 42f;     // edge band that scrolls
+    private static final int   EDGE_SCROLL_CSS   = 22;      // CSS px per frame at the edge
+    // The page focusin/focusout bridge is the source of truth for the IME on the
+    // leanback fullscreen-extract keyboard (where WindowInsets.ime() is unreliable).
+    private static final String EDITABLE_BRIDGE_JS =
+        "(function(){if(window.__gbHook)return;window.__gbHook=1;" +
+        "var T={text:1,search:1,url:1,email:1,tel:1,password:1,number:1," +
+        "'datetime-local':1,date:1,time:1,month:1,week:1};" +
+        "function ed(e){if(!e)return false;if(e.isContentEditable)return true;" +
+        "var g=e.tagName?e.tagName.toUpperCase():'';" +
+        "if(g==='TEXTAREA')return !e.disabled&&!e.readOnly;" +
+        "if(g==='INPUT'){var t=(e.type||'text').toLowerCase();return T[t]===1&&!e.disabled&&!e.readOnly;}" +
+        "return false;}" +
+        "document.addEventListener('focusin',function(e){if(ed(e.target)){try{Android.onEditableFocus();}catch(_){}}},true);" +
+        "document.addEventListener('focusout',function(e){if(ed(e.target)){try{Android.onEditableBlur();}catch(_){}}},true);" +
+        "if(document.activeElement&&ed(document.activeElement)){try{Android.onEditableFocus();}catch(_){}}" +
+        "})();";
+
     /** A bookmark or history entry: a page title over its URL. */
     private static final class Entry {
         String title;
@@ -120,6 +167,12 @@ public class MainActivity extends Activity {
         mTabBookmarks = findViewById(R.id.tab_bookmarks);
         mTabHistory = findViewById(R.id.tab_history);
         mBtnDesktop = findViewById(R.id.btn_desktop);
+
+        mCursor = findViewById(R.id.cursor);
+        mImm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+        mDensity = getResources().getDisplayMetrics().density;
+        mChoreo = Choreographer.getInstance();
+        mFrameCb = this::onCursorFrame;
 
         loadStore();           // before configureWebView so the desktop-UA choice applies
         configureWebView();
@@ -156,8 +209,7 @@ public class MainActivity extends Activity {
     private void configureWebView() {
         android.webkit.WebSettings s = mWeb.getSettings();
         s.setJavaScriptEnabled(true);
-        s.setDomStorageEnabled(true);
-        s.setDatabaseEnabled(true);
+        s.setDomStorageEnabled(true);            // localStorage, small + needed
         s.setSupportZoom(true);
         s.setBuiltInZoomControls(true);
         s.setDisplayZoomControls(false);
@@ -165,7 +217,19 @@ public class MainActivity extends Activity {
         s.setUseWideViewPort(true);
         s.setMixedContentMode(android.webkit.WebSettings.MIXED_CONTENT_COMPATIBILITY_MODE);
         s.setMediaPlaybackRequiresUserGesture(true);
+        // No GMS -> Safe Browsing can't do real checks anyway; off saves its init + memory.
+        try { s.setSafeBrowsingEnabled(false); } catch (Exception ignored) {}
         if (mDesktop) s.setUserAgentString(DESKTOP_UA);
+
+        // Let lmkd reclaim the (heavy) renderer process when the WebView is invisible
+        // (the nano launcher takes the display when backgrounded). onRenderProcessGone
+        // rebuilds the WebView so the app never crashes when the renderer is reaped.
+        try { mWeb.setRendererPriorityPolicy(WebView.RENDERER_PRIORITY_BOUND, true); }
+        catch (Exception ignored) {}
+
+        // Page->app bridge: report when a page text field gains/loses focus so we can
+        // raise the IME and pause/resume mouse mode. Two no-arg void methods only.
+        mWeb.addJavascriptInterface(new EditableBridge(this), "Android");
 
         mWeb.setWebViewClient(new WebViewClient() {
             @Override
@@ -184,6 +248,9 @@ public class MainActivity extends Activity {
                 mCurrentUrl = url != null ? url : "";
                 if (!mAddress.hasFocus()) mAddress.setText(url);
                 mProgress.setVisibility(View.VISIBLE);
+                // A new document means the old field's focusout will never arrive: clear
+                // any stale IME state so it does not suppress the cursor on the new page.
+                if (mImeUp) { mImeUp = false; onImeDismissed(); }
                 updateStar();
             }
             @Override
@@ -196,7 +263,42 @@ public class MainActivity extends Activity {
                 String title = view.getTitle();
                 mCurrentTitle = !TextUtils.isEmpty(title) ? title : url;
                 addHistory(url, mCurrentTitle);
+                if (url != null && (url.startsWith("https://") || url.startsWith("http://")))
+                    view.evaluateJavascript(EDITABLE_BRIDGE_JS, null);
                 updateStar();
+            }
+            @Override
+            public boolean onRenderProcessGone(WebView view, RenderProcessGoneDetail detail) {
+                // The renderer was reaped (usually by lmkd while backgrounded). A dead
+                // WebView can never be reused: tear it down and rebuild, then reload.
+                if (mWeb != view) return true;
+                // A reaped renderer can leave IME state latched (focusout never arrives
+                // on a fresh WebView) which would deaden the controller; clear it.
+                mImeUp = false;
+                ViewGroup parent = (ViewGroup) view.getParent();
+                int idx = parent != null ? parent.indexOfChild(view) : -1;
+                if (parent != null) parent.removeView(view);
+                view.destroy();
+                String last = mCurrentUrl;
+                mWeb = new WebView(MainActivity.this);
+                if (parent != null) parent.addView(mWeb, idx,
+                        new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
+                configureWebView();
+                mWeb.requestFocus();
+                // A fresh WebView starts with timers running; if we were backgrounded
+                // (the reason the renderer was reaped), keep the new one idle too.
+                if (mPaused) { mWeb.onPause(); mWeb.pauseTimers(); }
+                if (!TextUtils.isEmpty(last) && !"about:blank".equals(last)) {
+                    mRetriedOnce = false;
+                    mWeb.loadUrl(last);
+                }
+                if (mCursorMode) mWeb.post(() -> {
+                    if (!mCursorMode) return;            // re-center over the new view
+                    mCx = Math.max(1, mWeb.getWidth())  * 0.5f;
+                    mCy = Math.max(1, mWeb.getHeight()) * 0.5f;
+                    positionCursor();
+                });
+                return true;   // handled: do not let the framework kill the app
             }
             @Override
             public void onReceivedError(WebView view, android.webkit.WebResourceRequest req,
@@ -269,6 +371,7 @@ public class MainActivity extends Activity {
 
     private void openPanel() {
         if (mPanelOpen) return;
+        if (mCursorMode) setCursorMode(false);   // one overlay at a time
         mPanelOpen = true;
         showTab(mShowingBookmarks);
         mPanel.setVisibility(View.VISIBLE);
@@ -497,10 +600,61 @@ public class MainActivity extends Activity {
             return super.dispatchKeyEvent(event);
         }
 
+        // While a page text field has the IME up, let the framework/IME own every key
+        // (typing + leanback keyboard navigation). The cursor resumes on dismiss.
+        // Y is always an escape hatch so a stuck IME state can never deaden input.
+        if (mImeUp) {
+            if (kc == KeyEvent.KEYCODE_BUTTON_Y && event.getAction() == KeyEvent.ACTION_DOWN) {
+                dismissPageIme();
+                return true;
+            }
+            return super.dispatchKeyEvent(event);
+        }
+
+        // Mouse mode: the cursor is driven here; the WebView gets no nav/face keys.
+        if (mCursorMode) {
+            final boolean down = event.getAction() == KeyEvent.ACTION_DOWN;
+            switch (kc) {
+                case KeyEvent.KEYCODE_BUTTON_Y:
+                    if (down) toggleCursorMode();        // Y exits mouse mode
+                    return true;
+                case KeyEvent.KEYCODE_BUTTON_A:
+                case KeyEvent.KEYCODE_DPAD_CENTER:
+                case KeyEvent.KEYCODE_ENTER:
+                    if (down) cursorClick(false);        // left click
+                    return true;
+                case KeyEvent.KEYCODE_BUTTON_B:
+                    if (down) cursorClick(true);         // right click (contextmenu)
+                    return true;
+                case KeyEvent.KEYCODE_DPAD_LEFT:  mLeftHeld  = down; recomputeKeyDir(); startCursorLoop(); return true;
+                case KeyEvent.KEYCODE_DPAD_RIGHT: mRightHeld = down; recomputeKeyDir(); startCursorLoop(); return true;
+                case KeyEvent.KEYCODE_DPAD_UP:    mUpHeld    = down; recomputeKeyDir(); startCursorLoop(); return true;
+                case KeyEvent.KEYCODE_DPAD_DOWN:  mDownHeld  = down; recomputeKeyDir(); startCursorLoop(); return true;
+                case KeyEvent.KEYCODE_BUTTON_SELECT:
+                    if (down) { setCursorMode(false); openPanel(); }
+                    return true;
+                case KeyEvent.KEYCODE_BUTTON_L1:
+                    if (down && mWeb.canGoBack()) mWeb.goBack();
+                    return true;
+                case KeyEvent.KEYCODE_BUTTON_R1:
+                    if (down && mWeb.canGoForward()) mWeb.goForward();
+                    return true;
+                case KeyEvent.KEYCODE_BUTTON_X:
+                case KeyEvent.KEYCODE_BUTTON_START:
+                    if (down) { setCursorMode(false); focusAddress(); }
+                    return true;
+                case KeyEvent.KEYCODE_BACK:
+                    if (down) setCursorMode(false);      // hardware back exits mode first
+                    return true;
+                default:
+                    return true;                          // swallow the rest; no spatial nav
+            }
+        }
+
         if (event.getAction() == KeyEvent.ACTION_DOWN) {
             switch (kc) {
-                case KeyEvent.KEYCODE_BUTTON_Y:           // reload
-                    mWeb.reload();
+                case KeyEvent.KEYCODE_BUTTON_Y:           // toggle mouse mode
+                    toggleCursorMode();
                     return true;
                 case KeyEvent.KEYCODE_BUTTON_X:           // jump to the address bar
                     focusAddress();
@@ -527,6 +681,31 @@ public class MainActivity extends Activity {
         return super.dispatchKeyEvent(event);
     }
 
+    @Override
+    public boolean onGenericMotionEvent(MotionEvent ev) {
+        // Read the left analog stick (and hat axis) for cursor movement. On this device
+        // the stick is mapped to the d-pad (handled as keys), but this keeps the mode
+        // portable to pads that report a real analog axis.
+        if (mCursorMode && !mImeUp
+                && (ev.getSource() & InputDevice.SOURCE_JOYSTICK) == InputDevice.SOURCE_JOYSTICK
+                && ev.getAction() == MotionEvent.ACTION_MOVE) {
+            float x = ev.getAxisValue(MotionEvent.AXIS_X);
+            float y = ev.getAxisValue(MotionEvent.AXIS_Y);
+            mStickX = Math.abs(x) > STICK_DEADZONE ? x : 0f;
+            mStickY = Math.abs(y) > STICK_DEADZONE ? y : 0f;
+            // The d-pad may arrive as a hat axis instead of (or in addition to) DPAD
+            // keys; recomputeKeyDir combines both without double-counting.
+            float hx = ev.getAxisValue(MotionEvent.AXIS_HAT_X);
+            float hy = ev.getAxisValue(MotionEvent.AXIS_HAT_Y);
+            mHatX = hx > 0.5f ? 1 : (hx < -0.5f ? -1 : 0);
+            mHatY = hy > 0.5f ? 1 : (hy < -0.5f ? -1 : 0);
+            recomputeKeyDir();
+            startCursorLoop();
+            return true;
+        }
+        return super.onGenericMotionEvent(ev);
+    }
+
     private void handleBack() {
         if (mPanelOpen) { closePanel(); return; }
         if (mAddress.hasFocus()) { hideKeyboard(); mWeb.requestFocus(); return; }
@@ -537,6 +716,244 @@ public class MainActivity extends Activity {
     @Override
     public void onBackPressed() {
         handleBack();
+    }
+
+    // ---- In-app gamepad mouse mode ------------------------------------------
+
+    // The system GammaPad daemon can draw its own OS-level cursor; never run two
+    // cursors at once. If the system mouse is active, our in-app mode stays off.
+    private boolean systemMouseActive() {
+        try { return android.os.SystemProperties.getInt("sys.gammaos.gamepad.mouse_active", 0) != 0; }
+        catch (Exception e) { return false; }
+    }
+
+    private void toggleCursorMode() {
+        if (mCursorMode) { setCursorMode(false); return; }
+        if (systemMouseActive()) { toast(getString(R.string.system_mouse_on)); return; }
+        if (mPanelOpen || mAddress.hasFocus()) return;
+        setCursorMode(true);
+    }
+
+    private void setCursorMode(boolean on) {
+        mCursorMode = on;
+        clearHeldKeys();
+        mStickX = mStickY = 0f;
+        if (on) {
+            int w = Math.max(1, mWeb.getWidth()), h = Math.max(1, mWeb.getHeight());
+            mCx = w * 0.5f; mCy = h * 0.5f;
+            mCursor.setVisibility(View.VISIBLE);
+            positionCursor();
+            startCursorLoop();
+            toast(getString(R.string.cursor_on));
+        } else {
+            stopCursorLoop();
+            mCursor.setVisibility(View.GONE);
+            toast(getString(R.string.cursor_off));
+        }
+    }
+
+    // Combine the d-pad delivered as keys (held flags) and as a hat axis (mHatX/Y);
+    // clamp so the two never add up past 1 (no double speed) and a centered hat never
+    // cancels a held key.
+    private void recomputeKeyDir() {
+        int x = (mRightHeld ? 1 : 0) - (mLeftHeld ? 1 : 0) + mHatX;
+        int y = (mDownHeld ? 1 : 0) - (mUpHeld ? 1 : 0) + mHatY;
+        mKeyDx = Math.max(-1, Math.min(1, x));
+        mKeyDy = Math.max(-1, Math.min(1, y));
+    }
+
+    private void clearHeldKeys() {
+        mLeftHeld = mRightHeld = mUpHeld = mDownHeld = false;
+        mHatX = mHatY = 0;
+        mKeyDx = mKeyDy = 0;
+    }
+
+    private void startCursorLoop() {
+        if (mFrameScheduled || !mCursorMode || mImeUp) return;
+        mLastFrameNanos = 0L;
+        mFrameScheduled = true;
+        mChoreo.postFrameCallback(mFrameCb);
+    }
+
+    private void stopCursorLoop() {
+        if (!mFrameScheduled) return;
+        mFrameScheduled = false;
+        mChoreo.removeFrameCallback(mFrameCb);
+    }
+
+    // Per-frame cursor integration. Re-posts only while input is active, so the loop
+    // costs nothing once the stick/d-pad rests (and nothing at all when mode is off).
+    private void onCursorFrame(long frameNanos) {
+        mFrameScheduled = false;
+        if (!mCursorMode || mImeUp) return;
+        float dt = (mLastFrameNanos == 0L) ? (1f / 60f)
+                 : Math.min(0.05f, (frameNanos - mLastFrameNanos) / 1e9f);
+        mLastFrameNanos = frameNanos;
+
+        float ix = mKeyDx + mStickX;
+        float iy = mKeyDy + mStickY;
+        float mag = (float) Math.hypot(ix, iy);
+        boolean moving = mag > 0.001f;
+        if (mag > 1f) { ix /= mag; iy /= mag; }
+
+        if (moving) {
+            float speed = CURSOR_SPEED_DP_S * mDensity;
+            int w = Math.max(1, mWeb.getWidth()), h = Math.max(1, mWeb.getHeight());
+            mCx = Math.max(0, Math.min(w - 1, mCx + ix * speed * dt));
+            mCy = Math.max(0, Math.min(h - 1, mCy + iy * speed * dt));
+            positionCursor();
+            edgeScroll(ix, iy, w, h);
+        }
+        if (mCursorMode && !mImeUp && moving) {
+            mFrameScheduled = true;
+            mChoreo.postFrameCallback(mFrameCb);
+        }
+    }
+
+    // Place the arrow so its hotspot (top-left, 0,0) sits at WebView-local (mCx,mCy).
+    // setX/setY are in the cursor's parent space, so measure the WebView relative to
+    // that same parent (the root FrameLayout the cursor lives in), not the decor view.
+    private void positionCursor() {
+        View ref = (View) mCursor.getParent();
+        if (ref == null) return;
+        mWeb.getLocationInWindow(mLocWeb);
+        ref.getLocationInWindow(mLocRoot);
+        mCursor.setX(mLocWeb[0] - mLocRoot[0] + mCx);
+        mCursor.setY(mLocWeb[1] - mLocRoot[1] + mCy);
+    }
+
+    // Scroll the page (or the scrollable element under the cursor) when the cursor is
+    // pinned at an edge and the input is still pushing that way.
+    private void edgeScroll(float ix, float iy, int w, int h) {
+        int m = (int) (EDGE_MARGIN_DP * mDensity);
+        int dx = 0, dy = 0;
+        if (mCx <= m && ix < 0)             dx = -EDGE_SCROLL_CSS;
+        else if (mCx >= w - 1 - m && ix > 0) dx = EDGE_SCROLL_CSS;
+        if (mCy <= m && iy < 0)             dy = -EDGE_SCROLL_CSS;
+        else if (mCy >= h - 1 - m && iy > 0) dy = EDGE_SCROLL_CSS;
+        // Throttle the JS injection (its DOM walk is non-trivial) to every 3rd frame;
+        // scale the step up to keep the same scroll rate.
+        if (dx != 0 || dy != 0) {
+            if (++mEdgeTick % 3 == 0) injectScroll(mCx, mCy, dx * 3, dy * 3);
+        } else {
+            mEdgeTick = 0;
+        }
+    }
+
+    private void cursorClick(boolean rightClick) {
+        if (rightClick) { injectContextMenu(mCx, mCy); return; }
+        long t = SystemClock.uptimeMillis();
+        sendTouch(MotionEvent.ACTION_DOWN, mCx, mCy, t, t);
+        sendTouch(MotionEvent.ACTION_UP, mCx, mCy, t, t + 20);
+        // If the tap focused a text field, the page bridge fires onEditableFocus()
+        // and we suspend for the IME there.
+    }
+
+    private void sendTouch(int action, float x, float y, long downTime, long eventTime) {
+        float lx = Math.max(0, Math.min(Math.max(0, mWeb.getWidth() - 1), x));
+        float ly = Math.max(0, Math.min(Math.max(0, mWeb.getHeight() - 1), y));
+        MotionEvent e = MotionEvent.obtain(downTime, eventTime, action, lx, ly, 0);
+        e.setSource(InputDevice.SOURCE_TOUCHSCREEN);
+        mWeb.dispatchTouchEvent(e);
+        e.recycle();
+    }
+
+    // Right click: dispatch a DOM contextmenu at the cursor (device px -> CSS px via dpr).
+    private void injectContextMenu(float lx, float ly) {
+        String js =
+            "(function(px,py){var d=window.devicePixelRatio||1;var x=px/d,y=py/d;" +
+            "var el=document.elementFromPoint(x,y);if(!el)return;" +
+            "el.dispatchEvent(new MouseEvent('contextmenu',{bubbles:true,cancelable:true," +
+            "view:window,button:2,buttons:2,clientX:x,clientY:y}));})(" + lx + "," + ly + ");";
+        mWeb.evaluateJavascript(js, null);
+    }
+
+    // Edge scroll: scroll the nearest scrollable ancestor under the cursor, else the page.
+    private void injectScroll(float lx, float ly, int dx, int dy) {
+        String js =
+            "(function(px,py,dx,dy){var d=window.devicePixelRatio||1;var x=px/d,y=py/d;" +
+            "var el=document.elementFromPoint(x,y);" +
+            "function sc(n){while(n&&n!==document.body&&n!==document.documentElement){var s=getComputedStyle(n);" +
+            "if(((s.overflowY==='auto'||s.overflowY==='scroll')&&n.scrollHeight>n.clientHeight)||" +
+            "((s.overflowX==='auto'||s.overflowX==='scroll')&&n.scrollWidth>n.clientWidth))return n;n=n.parentElement;}return null;}" +
+            "var t=sc(el);if(t){t.scrollLeft+=dx;t.scrollTop+=dy;}else{window.scrollBy(dx,dy);}" +
+            "})(" + lx + "," + ly + "," + dx + "," + dy + ");";
+        mWeb.evaluateJavascript(js, null);
+    }
+
+    // Page -> app bridge: two no-arg void methods only (safe minimal surface). Calls
+    // arrive on a binder thread, so hop to the UI thread.
+    private static final class EditableBridge {
+        private final MainActivity host;
+        EditableBridge(MainActivity h) { host = h; }
+        @JavascriptInterface public void onEditableFocus() { host.runOnUiThread(host::onWebEditableFocus); }
+        @JavascriptInterface public void onEditableBlur()  { host.runOnUiThread(host::onWebEditableBlur); }
+    }
+
+    private void onWebEditableFocus() {
+        if (mImeUp) return;
+        mImeUp = true;
+        if (mCursorMode) {
+            mSaveCx = mCx; mSaveCy = mCy;     // remember where to resume
+            stopCursorLoop();
+            // Drop any held d-pad/stick state: while the IME owns input the release
+            // events bypass us, so without this the cursor would drift on resume.
+            clearHeldKeys();
+            mStickX = mStickY = 0f;
+            mCursor.setVisibility(View.GONE);
+        }
+        showImeForWeb();
+    }
+
+    private void onWebEditableBlur() {
+        onImeDismissed();
+    }
+
+    // Force the page IME away (Y escape hatch). Clears the latched state and resumes.
+    private void dismissPageIme() {
+        if (mImm != null) mImm.hideSoftInputFromWindow(mWeb.getWindowToken(), 0);
+        mWeb.evaluateJavascript("if(document.activeElement)document.activeElement.blur();", null);
+        onImeDismissed();
+    }
+
+    // Resume cursor mode after the page IME goes away (driven by focusout, by
+    // onWindowFocusChanged for the leanback fullscreen IME, and by a page navigation).
+    private void onImeDismissed() {
+        if (!mImeUp) return;
+        mImeUp = false;
+        // Do not resume the cursor if focus moved to the address bar (its own IME).
+        if (mCursorMode && !mPanelOpen && !mAddress.hasFocus() && hasWindowFocus()) {
+            mCx = mSaveCx; mCy = mSaveCy;
+            mCursor.setVisibility(View.VISIBLE);
+            positionCursor();
+            startCursorLoop();
+        }
+    }
+
+    private void showImeForWeb() {
+        mWeb.setFocusable(true);
+        mWeb.setFocusableInTouchMode(true);
+        mWeb.requestFocus();
+        if (mImm == null) return;
+        try { mImm.restartInput(mWeb); } catch (Exception ignored) {}
+        mWeb.post(() -> {
+            if (mWeb != null && mWeb.hasWindowFocus())
+                mImm.showSoftInput(mWeb, InputMethodManager.SHOW_IMPLICIT);
+        });
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus && mImeUp) {
+            // The leanback fullscreen IME is a separate window; regaining focus while
+            // we think the IME is up means it just closed.
+            onImeDismissed();
+        } else if (!hasFocus) {
+            stopCursorLoop();                 // don't tick while the display is taken
+        } else if (mCursorMode && !mImeUp) {
+            startCursorLoop();
+        }
     }
 
     // ---- Persistence --------------------------------------------------------
@@ -656,20 +1073,44 @@ public class MainActivity extends Activity {
     @Override
     protected void onPause() {
         super.onPause();
+        mPaused = true;
+        stopCursorLoop();
         mWeb.onPause();
+        mWeb.pauseTimers();    // process-wide: idle the renderer so it is reclaimable
         writeStore();          // flush any history accumulated since the last write
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        mPaused = false;
         mWeb.onResume();
+        mWeb.resumeTimers();   // must mirror pauseTimers
+        if (mCursorMode && systemMouseActive()) setCursorMode(false);   // system cursor won
+    }
+
+    @Override
+    public void onTrimMemory(int level) {
+        super.onTrimMemory(level);
+        if (mWeb != null && level >= TRIM_MEMORY_BACKGROUND) {
+            mWeb.clearCache(false);   // drop the in-RAM resource cache, keep the disk cache
+        }
+    }
+
+    @Override
+    public void onLowMemory() {
+        super.onLowMemory();
+        if (mWeb != null) mWeb.clearCache(false);
     }
 
     @Override
     protected void onDestroy() {
         writeStore();
+        stopCursorLoop();
         if (mWeb != null) {
+            try { mWeb.removeJavascriptInterface("Android"); } catch (Exception ignored) {}
+            ViewGroup p = (ViewGroup) mWeb.getParent();
+            if (p != null) p.removeView(mWeb);   // detach before destroy (avoids a leak warning)
             mWeb.loadUrl("about:blank");
             mWeb.destroy();
             mWeb = null;

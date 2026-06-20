@@ -12,6 +12,11 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.GammaBrowser">
 
+        <!-- No GMS on this device, so WebView Safe Browsing cannot perform real checks
+             anyway; disabling it skips its init + background update path and saves memory. -->
+        <meta-data android:name="android.webkit.WebView.EnableSafeBrowsing"
+                   android:value="false" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true"

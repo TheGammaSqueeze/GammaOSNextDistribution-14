@@ -129,6 +129,18 @@
 
     </LinearLayout>
 
+    <!-- In-app gamepad cursor. Painted over the page but under the panel scrim.
+         Non-focusable / non-clickable so it never steals d-pad focus or eats touch.
+         GONE (zero cost) until Y turns on mouse mode. -->
+    <com.gammaos.browser.CursorView
+        android:id="@+id/cursor"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:clickable="false"
+        android:visibility="gone" />
+
     <!-- Bookmarks / history overlay: a dimmed scrim with a centered XMB card.
          Hidden until the menu button or SELECT opens it. -->
     <FrameLayout

@@ -17,4 +17,7 @@
     <string name="panel_hint">A Open    X Delete    Y Desktop site    L1/R1 Switch    B Close</string>
     <string name="bookmarked">Bookmark added</string>
     <string name="unbookmarked">Bookmark removed</string>
+    <string name="cursor_on">Mouse mode on</string>
+    <string name="cursor_off">Mouse mode off</string>
+    <string name="system_mouse_on">System mouse mode is active</string>
 </resources>
