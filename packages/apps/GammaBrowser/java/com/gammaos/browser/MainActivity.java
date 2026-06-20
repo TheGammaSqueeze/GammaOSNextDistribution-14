@@ -116,9 +116,14 @@ public class MainActivity extends Activity {
     private boolean mFrameScheduled = false;
     private long mLastFrameNanos = 0L;
     private float mDensity = 1f;
+    private float mMoveAccumS = 0f;             // seconds the cursor has moved continuously
     private final int[] mLocWeb = new int[2];
     private final int[] mLocRoot = new int[2];
-    private static final float CURSOR_SPEED_DP_S = 760f;   // pointer travel speed
+    // Cursor travel accelerates: slow at first for precise aiming at small links, then
+    // ramps up while a direction is held so crossing the screen is still quick.
+    private static final float CURSOR_SPEED_MIN_DP_S = 300f;
+    private static final float CURSOR_SPEED_MAX_DP_S = 1050f;
+    private static final float CURSOR_ACCEL_RAMP_S   = 0.55f;   // time to reach max speed
     private static final float STICK_DEADZONE    = 0.18f;
     private static final float EDGE_MARGIN_DP    = 42f;     // edge band that scrolls
     private static final int   EDGE_SCROLL_CSS   = 22;      // CSS px per frame at the edge
@@ -766,6 +771,7 @@ public class MainActivity extends Activity {
         mLeftHeld = mRightHeld = mUpHeld = mDownHeld = false;
         mHatX = mHatY = 0;
         mKeyDx = mKeyDy = 0;
+        mMoveAccumS = 0f;
     }
 
     private void startCursorLoop() {
@@ -796,8 +802,13 @@ public class MainActivity extends Activity {
         boolean moving = mag > 0.001f;
         if (mag > 1f) { ix /= mag; iy /= mag; }
 
+        // Accelerate the longer a direction is held; reset the instant it rests.
+        mMoveAccumS = moving ? (mMoveAccumS + dt) : 0f;
+        float ramp = Math.min(1f, mMoveAccumS / CURSOR_ACCEL_RAMP_S);
+        float speedDpS = CURSOR_SPEED_MIN_DP_S + (CURSOR_SPEED_MAX_DP_S - CURSOR_SPEED_MIN_DP_S) * ramp;
+
         if (moving) {
-            float speed = CURSOR_SPEED_DP_S * mDensity;
+            float speed = speedDpS * mDensity;
             int w = Math.max(1, mWeb.getWidth()), h = Math.max(1, mWeb.getHeight());
             mCx = Math.max(0, Math.min(w - 1, mCx + ix * speed * dt));
             mCy = Math.max(0, Math.min(h - 1, mCy + iy * speed * dt));
