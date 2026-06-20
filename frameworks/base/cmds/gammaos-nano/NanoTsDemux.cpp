@@ -46,6 +46,18 @@ static int findAlign(const uint8_t* buf, size_t n) {
 bool NanoTsDemux::open(const std::string& path) {
     close();
     mPath = path;
+    // Per-title state reset. This single NanoTsDemux instance is reused (close()+open())
+    // for every .ts title, but close()/stop()/workerFunc do NOT clear the PTS origin, the
+    // AC-3 stream rate, or the CEA-608 presence probe. Without this, the 2nd and later .ts
+    // titles inherit the 1st title's mPtsBaseUs (so position()/the seek bar/Resume are pinned
+    // near 0 or wildly offset, and the audio-master slew fights a bogus video clock) and its
+    // exhausted caption probe (mCcProbe==300 -> the new title's captions are never detected,
+    // or it falsely reports the previous title as having captions). Safe to reset here: close()
+    // has already joined any prior worker, so nothing else touches these members.
+    mPtsBaseUs = -1;
+    mStreamRate = 48000;
+    mCcSeen.store(false);
+    mCcProbe = 0;
     int fd = ::open(path.c_str(), O_RDONLY);
     if (fd < 0) return false;
     struct stat st;

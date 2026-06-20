@@ -1997,7 +1997,12 @@ void NanoMenu::renderXmb() {
                 sysLabel = mXmbRecent[i].systemName.c_str();
             } else if (mSearchActive && i < (int)mSearchResults.size()) {
                 const auto& res = mSearchResults[i];
-                if (res.sysIdx < numSys) {
+                // gameIdx must be re-bounded against the CURRENT list: a background rescan can
+                // shrink a system's displayNames while this overlay is up, leaving a stale
+                // index in mSearchResults (which is not revalidated on rescan) -> OOB read.
+                if (res.sysIdx >= 0 && res.sysIdx < numSys &&
+                    res.gameIdx >= 0 &&
+                    res.gameIdx < (int)mXmbSystems[res.sysIdx].displayNames.size()) {
                     displayText = mXmbSystems[res.sysIdx].displayNames[res.gameIdx].c_str();
                     sysLabel = mXmbSystems[res.sysIdx].shortname.c_str();
                 }
