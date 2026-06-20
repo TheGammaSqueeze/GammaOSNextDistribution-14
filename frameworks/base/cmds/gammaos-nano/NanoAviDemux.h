@@ -1,0 +1,111 @@
+// NanoAviDemux - a self-contained RIFF/AVI container demuxer for the PS3 XMB video
+// player. Android's NDK AMediaExtractor has no AVI support on this device, so AVI
+// files (typically DivX / Xvid / MPEG-4 ASP or MJPEG video with MP3 / PCM / AC-3
+// audio) will not play through the normal path. The Allwinner SoC DOES have HW
+// decoders for those codecs (OMX.allwinner.video.decoder.{divx,xvid,mpeg4,mjpeg,...}),
+// so the only missing piece is the container parse + demux.
+//
+// This mirrors NanoTsDemux: parse the container ONCE, enumerate the streams, then a
+// single worker reads the interleaved 'movi' chunks from one read pointer and routes
+// the video elementary stream to NanoVideo (fed mode -> HW codec) and the audio to a
+// decoder feeding NanoAudio - so A and V stay in lockstep with no second extractor.
+//
+// This header is deliberately Android-free (pure POSIX fd + byte parsing) so the
+// parser can be unit-tested on the host; the NanoVideo/NanoAudio worker wiring is a
+// thin layer added on top.
+#ifndef GAMMAOS_NANO_AVI_DEMUX_H
+#define GAMMAOS_NANO_AVI_DEMUX_H
+
+#include <cstdint>
+#include <string>
+#include <vector>
+
+class NanoAviDemux {
+public:
+    enum StreamKind { STREAM_NONE = 0, STREAM_VIDEO, STREAM_AUDIO };
+
+    struct VideoInfo {
+        bool present = false;
+        int streamIndex = -1;        // AVI stream number (the NN in 'NNdc')
+        char fourcc[5] = {0};        // biCompression / fccHandler, lowercased (e.g. "xvid")
+        int width = 0, height = 0;
+        double fps = 0.0;            // dwRate / dwScale
+        int64_t frames = 0;          // dwLength (stream sample count)
+        std::vector<uint8_t> csd;    // codec-specific data (MPEG-4 VOL) from strf extradata
+    };
+    struct AudioInfo {
+        bool present = false;
+        int streamIndex = -1;
+        int formatTag = 0;           // WAVEFORMATEX wFormatTag (0x0055 MP3, 0x2000 AC3, 1 PCM, 0xFF AAC)
+        int channels = 0;
+        int sampleRate = 0;
+        int bitsPerSample = 0;
+        int blockAlign = 0;
+        int avgBytesPerSec = 0;
+        std::vector<uint8_t> csd;    // extradata (e.g. AAC AudioSpecificConfig), may be empty
+    };
+
+    // One movi data chunk located by the parser / index.
+    struct Sample {
+        StreamKind kind = STREAM_NONE;
+        int streamIndex = -1;
+        int64_t offset = 0;          // absolute file offset of the chunk PAYLOAD
+        uint32_t size = 0;           // payload size (bytes)
+        bool keyframe = false;       // from idx1 AVIIF_KEYFRAME (video)
+        int64_t frameIndex = 0;      // running per-stream sample index
+        double ptsSec = 0.0;         // presentation time (video: idx/fps; audio: bytes/avgBytesPerSec)
+    };
+
+    NanoAviDemux() = default;
+    ~NanoAviDemux() { close(); }
+
+    // Parse the container: RIFF/hdrl (avih + per-stream strh/strf) + locate movi + read
+    // idx1 (if present, else scan movi). Returns false if not a parseable AVI. Cheap:
+    // header reads + the index; the bulk 'movi' payload is read lazily during demux.
+    bool open(const std::string& path);
+    void close();
+    bool isOpen() const { return mFd >= 0; }
+
+    const VideoInfo& video() const { return mVideo; }
+    const AudioInfo& audio() const { return mAudio; }
+    double durationSec() const { return mDurationSec; }
+    int sampleCount() const { return (int) mSamples.size(); }
+    const Sample& sample(int i) const { return mSamples[i]; }
+
+    // Read the payload of sample i into out (resized). Returns false on IO error.
+    bool readSample(int i, std::vector<uint8_t>& out);
+
+    // Index of the first video keyframe sample at or before targetSec (for seeking),
+    // or 0 if none. Uses the sample list + fps.
+    int seekSampleForTime(double targetSec) const;
+
+    // PTS (seconds) of a sample (precomputed at index time).
+    double samplePts(const Sample& s) const { return s.ptsSec; }
+
+    bool indexFromIdx1() const { return mHadIdx1; }   // true if idx1 was used (vs scanned)
+
+private:
+    bool parseHdrl(int64_t pos, uint32_t size);
+    bool parseStrl(int64_t pos, uint32_t size, int streamIndex);
+    bool parseIdx1(int64_t pos, uint32_t size);
+    bool scanMovi();                  // fallback: walk movi chunks when idx1 is absent/bad
+    bool readAt(int64_t off, void* buf, size_t n) const;
+
+    int mFd = -1;
+    int64_t mFileSize = 0;
+    int64_t mMoviPos = 0;             // file offset of the 'movi' LIST payload (after the 'movi' fourcc)
+    uint32_t mMoviSize = 0;
+    bool mHadIdx1 = false;
+    bool mIdxOffsetsAbsolute = false; // idx1 offsets: absolute vs relative-to-movi (auto-detected)
+    int mStreamCount = 0;
+    // Per-stream kind, captured while parsing strl, so movi chunk ids map to streams even
+    // when an id's two-letter suffix is ambiguous.
+    StreamKind mStreamKind[64] = {};
+
+    VideoInfo mVideo;
+    AudioInfo mAudio;
+    double mDurationSec = 0.0;
+    std::vector<Sample> mSamples;     // all demuxable chunks in file order
+};
+
+#endif // GAMMAOS_NANO_AVI_DEMUX_H
