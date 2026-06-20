@@ -147,6 +147,7 @@ bool NanoMenu::loadMusicConfig() {
         }
     ALOGI("NanoMenu: loaded music library (%zu folders, %zu tracks, %zu playlists)",
           mMusicFolders.size(), mMusicTracks.size(), mMusicPlaylists.size());
+    musicRemapQueueAfterReload();   // keep a minimized-playing queue valid across the reload
     return true;
 }
 
@@ -449,6 +450,39 @@ void NanoMenu::musicDrainScanResults() {
     mMusicPlaylists = std::move(merged);
     saveMusicConfig();
     mMusicCatsStale = true;   // rebuild the Music column at the settled root
+    musicRemapQueueAfterReload();
+}
+
+// mMusicTracks is replaced wholesale by a finished rescan or an external reload (the other
+// nano process editing nano_music.json); these run at the settled XMB root, which is exactly
+// when a track can be playing minimized in the background. The play queue still holds indices
+// into the OLD vector, so re-resolve them by file path: the right track keeps playing, the
+// now-playing display and auto-advance stay correct, queued files that vanished are dropped,
+// and mMpIdx follows the file that is currently playing. The live decoder is untouched (it
+// already has its file open); this only repairs the queue bookkeeping.
+void NanoMenu::musicRemapQueueAfterReload() {
+    if (mMpQueue.empty() || mMpQueueFiles.size() != mMpQueue.size()) return;
+    std::map<std::string, int> idxByFile;
+    for (int i = 0; i < (int)mMusicTracks.size(); i++) idxByFile[mMusicTracks[i].file] = i;
+    std::vector<int> newQueue;
+    std::vector<std::string> newFiles;
+    int newIdx = -1, survivingBeforeCur = 0;
+    for (int i = 0; i < (int)mMpQueueFiles.size(); i++) {
+        auto it = idxByFile.find(mMpQueueFiles[i]);
+        if (it == idxByFile.end()) continue;            // file gone from the library
+        if (i == mMpIdx) newIdx = (int)newQueue.size();
+        else if (i < mMpIdx) survivingBeforeCur++;
+        newQueue.push_back(it->second);
+        newFiles.push_back(mMpQueueFiles[i]);
+    }
+    if (newQueue.empty()) return;                       // keep the old queue + the live decoder
+    bool sizeChanged = (newQueue.size() != mMpQueue.size());
+    if (newIdx < 0) newIdx = survivingBeforeCur;        // the playing file was removed: next survivor
+    if (newIdx >= (int)newQueue.size()) newIdx = (int)newQueue.size() - 1;
+    mMpQueue = std::move(newQueue);
+    mMpQueueFiles = std::move(newFiles);
+    mMpIdx = newIdx;
+    if (sizeChanged) mpRebuildOrder();                  // queue positions changed; rebuild the order
 }
 
 // ---------------------------------------------------------------------------
@@ -679,11 +713,14 @@ void NanoMenu::openMusicPlayer(const std::vector<Ps3Item>& list, int listSel) {
     // Build the queue from every track row in the current list; remember where the
     // selected row lands so playback starts there.
     mMpQueue.clear();
+    mMpQueueFiles.clear();
     int start = 0;
     for (int i = 0; i < (int)list.size(); i++) {
         if (list[i].kind != PS3_MUSIC_TRACK) continue;
         if (i == listSel) start = (int)mMpQueue.size();
         mMpQueue.push_back(list[i].a);   // mMusicTracks index
+        mMpQueueFiles.push_back((list[i].a >= 0 && list[i].a < (int)mMusicTracks.size())
+                                ? mMusicTracks[list[i].a].file : std::string());
     }
     if (mMpQueue.empty()) return;
     mMpIdx = (start >= 0 && start < (int)mMpQueue.size()) ? start : 0;
@@ -708,7 +745,7 @@ void NanoMenu::closeMusicPlayer() {
     } else {
         mMusicPlayer.release();   // worker never started; safe to release directly
     }
-    mMpQueue.clear(); mMpOrder.clear(); mMpIdx = 0;
+    mMpQueue.clear(); mMpQueueFiles.clear(); mMpOrder.clear(); mMpIdx = 0;
     mpFreeArt();              // free the cached album-art texture
     ps3canyon::shutdown();    // free the Canyon GL objects (lazy-reloaded next time)
     ps3mpglobe::shutdown();   // free the Globe GL objects

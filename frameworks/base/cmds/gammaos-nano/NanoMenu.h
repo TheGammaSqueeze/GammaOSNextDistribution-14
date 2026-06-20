@@ -1886,6 +1886,9 @@ private:
     // ---- Now-Playing screen state (control panel + visualizers in Phase 3-5) ----
     bool mMpActive = false;            // the Now-Playing fullscreen is up
     std::vector<int> mMpQueue;         // track indices (into mMusicTracks) being played
+    std::vector<std::string> mMpQueueFiles;  // parallel file paths so the queue survives a
+                                       // library reload (mMusicTracks is replaced by a finished
+                                       // rescan / external edit; the indices would otherwise dangle)
     int  mMpIdx = 0;                   // position in mMpQueue
     int  mMpVis = 0;                   // 0 = XMB Waves, 1 = Canyon, 2 = Globe, 3.. = wallpaper effects
     float mMpCanyonAlpha = 0.0f;       // Waves<->Canyon crossfade (eased 0..1 over ~0.5s)
@@ -1896,6 +1899,7 @@ private:
     bool mMpShuffle = false;
     std::vector<int> mMpOrder;         // playback order (indices into mMpQueue)
     void openMusicPlayer(const std::vector<Ps3Item>& list, int listSel);
+    void musicRemapQueueAfterReload(); // re-resolve mMpQueue indices by file path after mMusicTracks is replaced
     void closeMusicPlayer();           // full stop + release the audio engine
     void minimizeMusicPlayer();        // hide the Now-Playing UI but keep audio playing
     void freeMusicVisGl();             // free Canyon/Globe GL immediately (park point; idempotent)
