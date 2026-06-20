@@ -4096,9 +4096,14 @@ static const Ps3SettingBinding kPs3Bindings[] = {
     {"Animator Duration Scale", SettingSource::kGlobal, "animator_duration_scale", "1.0",
      "0:Off,0.5:0.5x,1.0:1x,1.5:1.5x,2.0:2x"},
     // Gamepad Settings (persist.gammaos.gamepad.* props)
-    {"Controller Enable", SettingSource::kProp, "persist.gammaos.gamepad.enable", "false", "false:Off,true:On"},
-    {"Merge Controllers", SettingSource::kProp, "persist.gammaos.gamepad.merge", "true", "false:Off,true:On"},
-    {"Hide Source Device", SettingSource::kProp, "persist.gammaos.gamepad.hide_source", "true", "false:Off,true:On"},
+    // These four are read by the gammapad daemon via GetIntProperty AND the init rc
+    // triggers on persist.gammaos.gamepad.enable=1, so they MUST be stored 0/1 - a
+    // "true"/"false" string fails GetIntProperty (falls back to the default) and never
+    // matches the init =1 trigger, so the daemon would never start. (Matches the
+    // transform toggles below, which were already fixed to 0/1.)
+    {"Controller Enable", SettingSource::kProp, "persist.gammaos.gamepad.enable", "0", "0:Off,1:On"},
+    {"Merge Controllers", SettingSource::kProp, "persist.gammaos.gamepad.merge", "1", "0:Off,1:On"},
+    {"Hide Source Device", SettingSource::kProp, "persist.gammaos.gamepad.hide_source", "1", "0:Off,1:On"},
     // Gamepad transform props are read by the gammapad daemon via GetIntProperty,
     // so they MUST be stored as 0/1 (a "true"/"false" string parses to 0 = Off and
     // the swap/invert never engages). writeSettingValue bumps gamepad config_version.
@@ -4113,7 +4118,7 @@ static const Ps3SettingBinding kPs3Bindings[] = {
     {"DPAD/Analog Swap", SettingSource::kProp, "persist.gammaos.gamepad.analog_to_dpad", "0", "0:Off,1:On"},
     {"Global Sensitivity", SettingSource::kProp, "persist.gammaos.gamepad.global_sensitivity", "0",
      "-3:-50%,-2:-25%,-1:-10%,0:Off,1:+10%,2:+25%,3:+50%"},
-    {"PWM Enable", SettingSource::kProp, "persist.gammaos.gamepad.pwm_enable", "true", "false:Off,true:On"},
+    {"PWM Enable", SettingSource::kProp, "persist.gammaos.gamepad.pwm_enable", "1", "0:Off,1:On"},
     {"PWM Intensity", SettingSource::kProp, "persist.gammaos.gamepad.pwm_intensity", "255",
      "64:64,96:96,128:128,160:160,192:192,224:224,255:255 (Max)"},
     {"D-Pad Threshold", SettingSource::kProp, "persist.gammaos.gamepad.dpad_threshold", "50",

@@ -514,12 +514,15 @@ void NanoMenu::buildSettingsTree() {
 
       // -- Gamepad --
       b.beginCategory("gos_gamepad", "Gamepad");
+        // enable/merge/hide_source: the init rc starts gammapad on enable=1 and the
+        // daemon reads these via GetIntProperty, so store 0/1 (a "true"/"false" string
+        // never matches =1 and fails GetIntProperty), like the transform toggles below.
         b.toggle("gp_enable", "Enable",
-                 SettingSource::kProp, "persist.gammaos.gamepad.enable", "false");
+                 SettingSource::kProp, "persist.gammaos.gamepad.enable", "0");
         b.toggle("gp_merge", "Merge Controllers",
-                 SettingSource::kProp, "persist.gammaos.gamepad.merge", "true");
+                 SettingSource::kProp, "persist.gammaos.gamepad.merge", "1");
         b.toggle("gp_hide_source", "Hide Source Device",
-                 SettingSource::kProp, "persist.gammaos.gamepad.hide_source", "true");
+                 SettingSource::kProp, "persist.gammaos.gamepad.hide_source", "1");
         b.text("gp_devices", "Device Paths",
                SettingSource::kProp, "persist.gammaos.gamepad.devices", "");
         // Gamepad transform props read by the gammapad daemon via GetIntProperty:
@@ -539,7 +542,7 @@ void NanoMenu::buildSettingsTree() {
         b.text("gp_sensitivity", "Global Sensitivity",
                SettingSource::kProp, "persist.gammaos.gamepad.global_sensitivity", "0");
         b.toggle("gp_pwm_enable", "PWM Enable",
-                 SettingSource::kProp, "persist.gammaos.gamepad.pwm_enable", "true");
+                 SettingSource::kProp, "persist.gammaos.gamepad.pwm_enable", "1");
         b.text("gp_pwm_intensity", "PWM Intensity",
                SettingSource::kProp, "persist.gammaos.gamepad.pwm_intensity", "255");
         b.text("gp_device_name", "Device Name",
