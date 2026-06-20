@@ -563,6 +563,12 @@ static void loadWaveSeq() {
     memcpy(&zwRatio, raw + 20, 4);
     const int NV = (int)(gridN * gridN);
     if (NV != WAVE_NV || vstride != 3) { free(raw); ALOGE("ps3bg: wave_seq2 unexpected layout"); return; }
+    // Validate the payload length against the header BEFORE indexing it: a truncated
+    // or corrupt file (e.g. an interrupted flash) would otherwise overread the heap and
+    // SIGSEGV at boot, since the wave loads on startup. frameCount==0 also guards the
+    // meanY divide below. Mirrors the size check loadWaveGeo already does.
+    size_t need = 24 + (size_t)frameCount * (size_t)NV * (size_t)vstride * sizeof(uint16_t);
+    if (frameCount == 0 || (size_t)sz < need) { free(raw); ALOGE("ps3bg: wave_seq2 truncated/corrupt"); return; }
     const uint16_t* u16 = (const uint16_t*)(raw + 24);
 
     sSeqFrames.clear();
