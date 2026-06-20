@@ -879,15 +879,27 @@ public class MainActivity extends Activity {
         mWeb.evaluateJavascript(js, null);
     }
 
-    // Edge scroll: scroll the nearest scrollable ancestor under the cursor, else the page.
+    // Edge scroll: scroll the nearest scrollable ancestor under the cursor that can
+    // actually move in this direction; else the main content scroller under the
+    // viewport centre; else the document root. The old version scrolled whatever was
+    // directly under the clamped edge cursor (often a fixed header/footer or an
+    // already-at-limit nested scroller) and fell back to window.scrollBy, which misses
+    // pages whose scroll lives on documentElement or an inner container (e.g. Google
+    // results), so the page never moved.
     private void injectScroll(float lx, float ly, int dx, int dy) {
         String js =
             "(function(px,py,dx,dy){var d=window.devicePixelRatio||1;var x=px/d,y=py/d;" +
-            "var el=document.elementFromPoint(x,y);" +
+            "function canY(n){return dy>0?(n.scrollTop+n.clientHeight<n.scrollHeight-1):(dy<0&&n.scrollTop>0);}" +
+            "function canX(n){return dx>0?(n.scrollLeft+n.clientWidth<n.scrollWidth-1):(dx<0&&n.scrollLeft>0);}" +
             "function sc(n){while(n&&n!==document.body&&n!==document.documentElement){var s=getComputedStyle(n);" +
-            "if(((s.overflowY==='auto'||s.overflowY==='scroll')&&n.scrollHeight>n.clientHeight)||" +
-            "((s.overflowX==='auto'||s.overflowX==='scroll')&&n.scrollWidth>n.clientWidth))return n;n=n.parentElement;}return null;}" +
-            "var t=sc(el);if(t){t.scrollLeft+=dx;t.scrollTop+=dy;}else{window.scrollBy(dx,dy);}" +
+            "var oy=(s.overflowY==='auto'||s.overflowY==='scroll'),ox=(s.overflowX==='auto'||s.overflowX==='scroll');" +
+            "if((dy&&oy&&n.scrollHeight>n.clientHeight&&canY(n))||(dx&&ox&&n.scrollWidth>n.clientWidth&&canX(n)))return n;" +
+            "n=n.parentElement;}return null;}" +
+            "var t=sc(document.elementFromPoint(x,y));" +
+            "if(!t){t=sc(document.elementFromPoint((window.innerWidth/2)|0,(window.innerHeight/2)|0));}" +
+            "if(t){t.scrollLeft+=dx;t.scrollTop+=dy;return;}" +
+            "var r=document.scrollingElement||document.documentElement||document.body;" +
+            "if(r){r.scrollLeft+=dx;r.scrollTop+=dy;}else{window.scrollBy(dx,dy);}" +
             "})(" + lx + "," + ly + "," + dx + "," + dy + ");";
         mWeb.evaluateJavascript(js, null);
     }
