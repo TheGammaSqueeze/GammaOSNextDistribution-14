@@ -3834,7 +3834,11 @@ public final class SystemServer implements Dumpable {
         }
         t.traceEnd();
 
-        if (!minimalBoot) {
+        // GammaOS Nano: the gammapad vibration bridge carries PWM gamepad rumble AND
+        // drives the per-app gamepad profile tracker (sys.gammaos.gamepad.fg_pkg), so it
+        // must run even in nano minimal_boot - only SystemUI is skipped. It degrades
+        // gracefully if the vibrator is unavailable, and its task-stack listener is
+        // try-guarded, so it is safe to start here.
         t.traceBegin("StartGammapadVibrationBridge");
         try {
             mSystemServiceManager.startService(
@@ -3844,6 +3848,7 @@ public final class SystemServer implements Dumpable {
         }
         t.traceEnd();
 
+        if (!minimalBoot) {
         t.traceBegin("StartSystemUI");
         try {
             startSystemUi(context, windowManagerF);
@@ -3852,7 +3857,7 @@ public final class SystemServer implements Dumpable {
         }
         t.traceEnd();
         } else {
-            Slog.i(TAG, "GammaOS Nano: skipping SystemUI and GammapadVibrationBridge");
+            Slog.i(TAG, "GammaOS Nano: skipping SystemUI (gammapad vibration bridge started)");
             // Preload RetroArch behind the nano menu: call finishBooting (which
             // triggers user unlock + home activity launch) but NOT enableScreenAfterBoot
             // (which would kill the bootanim overlay).  The nano menu stays visible
