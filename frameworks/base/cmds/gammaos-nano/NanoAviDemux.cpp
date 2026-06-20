@@ -103,6 +103,7 @@ bool NanoAviDemux::open(const std::string& path) {
 }
 
 void NanoAviDemux::close() {
+    stop();
     if (mFd >= 0) ::close(mFd);
     mFd = -1; mFileSize = 0; mMoviPos = 0; mMoviSize = 0;
     mHadIdx1 = false; mIdxOffsetsAbsolute = false; mStreamCount = 0;
@@ -291,6 +292,84 @@ int NanoAviDemux::seekSampleForTime(double targetSec) const {
     }
     return best;
 }
+
+const char* NanoAviDemux::videoMime() const {
+    if (!mVideo.present) return nullptr;
+    const char* f = mVideo.fourcc;
+    auto is = [&](const char* s){ return f[0]==s[0]&&f[1]==s[1]&&f[2]==s[2]&&f[3]==s[3]; };
+    // MPEG-4 ASP family -> the standard MPEG-4 mime (Allwinner mpeg4/divx/xvid HW decoders).
+    if (is("xvid")||is("divx")||is("dx50")||is("dx40")||is("mp4v")||is("fmp4")||is("3iv2")||
+        is("m4s2")||is("mp4s")||is("blz0")||is("xvix")||is("div5")||is("divf")||is("rmp4")||
+        is("sedg")||is("geox")||is("mvxm"))
+        return "video/mp4v-es";
+    // Motion-JPEG (mjpg/jpeg/dmb1) is intentionally left unsupported: this SoC has no runtime
+    // MJPEG video MediaCodec. The vendor media_codecs.xml lists OMX.allwinner.video.decoder.mjpeg
+    // (mime "video/jpeg") but it is not registered at runtime (createDecoderByType and
+    // createCodecByName both fail), so we return nullptr and the caller falls back cleanly
+    // rather than spinning up a decoder that cannot exist.
+    return nullptr;    // unsupported (mjpeg: no HW codec; div3/MS-MPEG4v3; h264-in-avi rare) -> caller falls back
+}
+
+bool NanoAviDemux::videoCsd(std::vector<uint8_t>& out) {
+    out.clear();
+    if (mVideo.csd.size() >= 4) { out = mVideo.csd; return true; }
+    // ffmpeg-muxed AVIs carry the MPEG-4 VOL in the first frame, not strf. Extract the
+    // headers before the first VOP start code (00 00 01 B6) as csd-0.
+    for (int i = 0; i < (int) mSamples.size(); i++) {
+        if (mSamples[i].kind != STREAM_VIDEO) continue;
+        std::vector<uint8_t> f;
+        if (!readSample(i, f) || f.size() < 8) return false;
+        for (size_t p = 0; p + 4 <= f.size(); p++) {
+            if (f[p]==0 && f[p+1]==0 && f[p+2]==1 && f[p+3]==0xB6) {   // VOP start
+                if (p > 0) { out.assign(f.begin(), f.begin() + p); return true; }
+                return false;        // VOP first, no leading VOL
+            }
+        }
+        return false;                // no VOP marker found in the first frame
+    }
+    return false;
+}
+
+// stop()/seekWorker() are NanoVideo-free so they compile in the host test too; start()
+// + workerFunc() reference NanoVideo and are excluded from the host build.
+void NanoAviDemux::stop() {
+    mStop = true;
+    if (mWorker.joinable()) mWorker.join();
+    mVideoSink = nullptr;
+    mStop = false;
+}
+void NanoAviDemux::seekWorker(double sec) { mPendSeek.store(sec); }
+
+#ifndef NANOAVI_TEST
+#include "NanoVideo.h"
+bool NanoAviDemux::start(NanoVideo* video, double startSec) {
+    if (!isOpen() || !video) return false;
+    stop();
+    mStop = false; mPendSeek = -1.0; mVideoSink = video;
+    mWorker = std::thread([this, startSec]{ workerFunc(startSec); });
+    return true;
+}
+void NanoAviDemux::workerFunc(double startSec) {
+    int i = (startSec > 0.05) ? seekSampleForTime(startSec) : 0;
+    std::vector<uint8_t> buf;
+    while (!mStop.load()) {
+        double sk = mPendSeek.exchange(-1.0);
+        if (sk >= 0.0) {
+            i = seekSampleForTime(sk);
+            if (mVideoSink) mVideoSink->flushFed(sk);
+        }
+        if (i >= (int) mSamples.size()) { if (mVideoSink) mVideoSink->feedVideoEos(); break; }
+        const Sample& s = mSamples[i];
+        if (s.kind == STREAM_VIDEO) {
+            if (readSample(i, buf) && !buf.empty()) {
+                // Blocks while the sink's bounded queue is full (back-pressure); false = teardown.
+                if (!mVideoSink->feedVideo(buf.data(), buf.size(), (int64_t)(s.ptsSec * 1e6))) break;
+            }
+        }
+        i++;
+    }
+}
+#endif
 
 #ifdef NANOAVI_TEST
 #include <cstdio>

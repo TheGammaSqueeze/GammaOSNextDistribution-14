@@ -34,6 +34,7 @@
 #include "NanoOsk.h"
 #include "NanoAudio.h"
 #include "NanoTsDemux.h"
+#include "NanoAviDemux.h"
 #include "NanoScraper.h"
 
 #include <ft2build.h>
@@ -1729,6 +1730,8 @@ private:
     NanoTsDemux mVidTsDemux;
     bool   mVidTsMode = false;              // current title's PICTURE is fed by mVidTsDemux
     bool   mVidTsAudio = false;             // current title's audio is fed by mVidTsDemux
+    NanoAviDemux mVidAviDemux;              // RIFF/AVI demuxer (NDK extractor has no AVI support)
+    bool   mVidAviMode = false;            // current title's PICTURE is fed by mVidAviDemux (audio TODO)
     // The .ts video track's real AMediaFormat (captured by vidBuildTracks from the system
     // extractor): handed to NanoVideo::openFed so the HW decoder gets the full format (csd,
     // colour aspects) and cold-starts reliably. Owned here; freed right after openFed/on close.

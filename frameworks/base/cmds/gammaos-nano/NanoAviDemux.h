@@ -16,9 +16,13 @@
 #ifndef GAMMAOS_NANO_AVI_DEMUX_H
 #define GAMMAOS_NANO_AVI_DEMUX_H
 
+#include <atomic>
 #include <cstdint>
 #include <string>
+#include <thread>
 #include <vector>
+
+class NanoVideo;   // global scope (NanoVideo.h is outside any namespace), like NanoTsDemux
 
 class NanoAviDemux {
 public:
@@ -84,6 +88,22 @@ public:
 
     bool indexFromIdx1() const { return mHadIdx1; }   // true if idx1 was used (vs scanned)
 
+    // The AMediaCodec mime for the video stream's fourcc, or nullptr if we have no
+    // decoder route for it. MPEG-4 ASP family (xvid/divx/dx50/mp4v/...) -> video/mp4v-es.
+    const char* videoMime() const;
+    // Codec-specific data (MPEG-4 VOL) for the HW decoder: the strf extradata if present,
+    // else the VOL prefix extracted from the first video frame (before the first VOP start
+    // code). Empty if none can be found. Reads from the file, so call after open().
+    bool videoCsd(std::vector<uint8_t>& out);
+
+    // ---- playback worker (feeds NanoVideo fed mode) ----
+    // Start a worker that reads movi video samples in order from startSec and pushes each
+    // coded frame to `video` (NanoVideo in fed mode) with its PTS. Back-pressured by the
+    // sink's bounded queue. Audio is fed by a later increment. Idempotent stop() joins it.
+    bool start(NanoVideo* video, double startSec);
+    void stop();
+    void seekWorker(double sec);   // reposition the worker to a keyframe near sec
+
 private:
     bool parseHdrl(int64_t pos, uint32_t size);
     bool parseStrl(int64_t pos, uint32_t size, int streamIndex);
@@ -106,6 +126,13 @@ private:
     AudioInfo mAudio;
     double mDurationSec = 0.0;
     std::vector<Sample> mSamples;     // all demuxable chunks in file order
+
+    // worker
+    void workerFunc(double startSec);
+    std::thread mWorker;
+    std::atomic<bool> mStop{false};
+    std::atomic<double> mPendSeek{-1.0};
+    NanoVideo* mVideoSink = nullptr;
 };
 
 #endif // GAMMAOS_NANO_AVI_DEMUX_H

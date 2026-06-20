@@ -64,6 +64,15 @@ static bool vidFileIsTs(const std::string& path) {
     std::string e = l.substr(dot);
     return e == ".ts" || e == ".m2ts" || e == ".mts" || e == ".trp" || e == ".mp2t";
 }
+// AVI: the NDK AMediaExtractor has no AVI support on this device, so we demux it in-process
+// (NanoAviDemux) and feed the HW MPEG-4/Xvid/DivX decoder via NanoVideo fed mode. The real
+// gate is NanoAviDemux::open() + a known video mime, so a mislabelled file falls back.
+static bool vidFileIsAvi(const std::string& path) {
+    std::string l = path;
+    for (auto& c : l) if (c >= 'A' && c <= 'Z') c += 32;
+    size_t dot = l.rfind('.');
+    return dot != std::string::npos && l.substr(dot) == ".avi";
+}
 // Friendly audio-track label from an ISO-639 language code (the .ts carries no track name).
 static std::string vidLangName(const std::string& code, size_t idx) {
     static const struct { const char* c; const char* n; } M[] = {
@@ -371,6 +380,21 @@ void NanoMenu::videoScanThreadFunc() {
             v.durationSec = meta.durationSec;
             v.w = meta.width; v.h = meta.height;
             v.vcodec = meta.vcodec; v.acodec = meta.acodec;
+        } else if (vidFileIsAvi(path)) {
+            // The NDK extractor cannot probe AVI; use our own demuxer for the metadata.
+            NanoAviDemux ad;
+            if (ad.open(path)) {
+                v.durationSec = ad.durationSec();
+                v.w = ad.video().width; v.h = ad.video().height;
+                if (ad.video().present) v.vcodec = ad.video().fourcc;
+                switch (ad.audio().formatTag) {
+                    case 0x0055: v.acodec = "MP3"; break;
+                    case 0x2000: v.acodec = "AC-3"; break;
+                    case 0x0001: v.acodec = "PCM"; break;
+                    case 0x00FF: case 0x1601: v.acodec = "AAC"; break;
+                    default: break;
+                }
+            }
         }
         v.name = vStripExt(vBaseName(path));
         auto rc = resumeCarry.find(path);
@@ -1271,6 +1295,7 @@ void NanoMenu::vidOpenTitleAudio(const std::string& file) {
 bool NanoMenu::vidOpenTitle(const std::string& file, int w, int h) {
     mVidTsMode = false; mVidTsAudio = false; mVidHasAudio = false;
     mVidTsDemux.close();
+    mVidAviMode = false; mVidAviDemux.close();
 
     // Debug A/B toggle: persist.gammaos.nano.vid.nofed=1 forces the extractor-driven open() path
     // for .ts (instead of the single-demuxer fed codec) to compare HW MPEG-2 cold-start reliability.
@@ -1286,7 +1311,17 @@ bool NanoMenu::vidOpenTitle(const std::string& file, int w, int h) {
         mVidTsDemux.close();
         isTs = false;
     }
-    if (!isTs) {
+    // AVI: the NDK extractor has no AVI support, so demux it in-process and feed the HW
+    // MPEG-4/Xvid/DivX decoder. Gate on a successful parse + a known video mime; otherwise
+    // fall through to the normal open() (which will simply fail for AVI, as today).
+    bool isAvi = false;
+    if (!isTs && !noFed && vidFileIsAvi(file)) {
+        if (mVidAviDemux.open(file) && mVidAviDemux.video().present && mVidAviDemux.videoMime() != nullptr)
+            isAvi = true;
+        else
+            mVidAviDemux.close();
+    }
+    if (!isTs && !isAvi) {
         if (!mVideoTest->open(file)) return false;
     }
 
@@ -1298,7 +1333,7 @@ bool NanoMenu::vidOpenTitle(const std::string& file, int w, int h) {
     // started-but-unfed for those seconds intermittently wedges it at cold start (it then never
     // produces output and never errors). Create + feed the codec back-to-back instead.
     vidBuildTracks(file);
-    if (!isTs) vidParseChapters(file);   // TS broadcast has no chapter track
+    if (!isTs && !isAvi) vidParseChapters(file);   // TS broadcast / AVI have no chapter track
     mVidAudCur = 0; mVidSubCur = -1;
 
     if (isTs) {
@@ -1326,7 +1361,33 @@ bool NanoMenu::vidOpenTitle(const std::string& file, int w, int h) {
             mVidTsDemux.start(mVideoTest, mVidHasAudio ? &mVidAudio : nullptr, 0, 0.0);
         }
     }
-    if (!mVidTsMode) {
+    if (isAvi) {
+        const auto& vi = mVidAviDemux.video();
+        int vw = vi.width  > 0 ? vi.width  : (w > 0 ? w : 640);
+        int vh = vi.height > 0 ? vi.height : (h > 0 ? h : 480);
+        const char* mime = mVidAviDemux.videoMime();
+        // Configure the HW decoder with the MPEG-4 VOL csd (from strf or the first frame)
+        // so it cold-starts reliably, exactly as the .ts MPEG-2 fed path does.
+        AMediaFormat* fmt = AMediaFormat_new();
+        AMediaFormat_setString(fmt, AMEDIAFORMAT_KEY_MIME, mime);
+        AMediaFormat_setInt32(fmt, AMEDIAFORMAT_KEY_WIDTH, vw);
+        AMediaFormat_setInt32(fmt, AMEDIAFORMAT_KEY_HEIGHT, vh);
+        std::vector<uint8_t> csd;
+        if (mVidAviDemux.videoCsd(csd) && !csd.empty())
+            AMediaFormat_setBuffer(fmt, "csd-0", csd.data(), csd.size());
+        bool fedOk = mVideoTest->openFed(mime, vw, vh, fmt);
+        AMediaFormat_delete(fmt);
+        if (!fedOk) {
+            mVidAviDemux.close();
+            if (!mVideoTest->open(file)) return false;   // fall back (normally fails for AVI)
+        } else {
+            mVidAviMode = true;
+            // Video-only this increment: the worker feeds the picture; NanoVideo paces it
+            // to wall-clock by PTS (no audio clock yet). Audio is the next increment.
+            mVidAviDemux.start(mVideoTest, 0.0);
+        }
+    }
+    if (!mVidTsMode && !mVidAviMode) {
         vidOpenTitleAudio(file);
         // Audio-master pacing for the separate-extractor path too: the picture slews to the
         // audio playback clock so A/V stay locked (and re-sync after a seek, which re-anchors
@@ -1347,6 +1408,8 @@ void NanoMenu::vidCloseTitleAudio() {
     // clears it in stop(); this covers the separate-extractor path).
     if (mVideoTest) mVideoTest->setClockFn(nullptr);
     if (mVidTsMode || mVidTsAudio) { mVidTsDemux.close(); mVidTsMode = false; mVidTsAudio = false; }
+    // AVI: close() joins the demux worker (which feeds mVideoTest) BEFORE the picture is freed.
+    if (mVidAviMode) { mVidAviDemux.close(); mVidAviMode = false; }
     mVidAudio.release();
     mVidHasAudio = false;
 }
@@ -1355,6 +1418,7 @@ void NanoMenu::vidCloseTitleAudio() {
 // the video codec and the audio ring) or to mVidAudio's own extractor otherwise.
 void NanoMenu::vidAudioSeek(double sec) {
     if (mVidTsMode) mVidTsDemux.seek(sec);
+    else if (mVidAviMode) mVidAviDemux.seekWorker(sec);
     else if (mVidHasAudio) mVidAudio.seek(sec);
 }
 
@@ -1593,21 +1657,26 @@ void NanoMenu::vidStepTitle(int dir) {
     if (mVidList.empty() || !mVideoTest) return;
     vidCaptureResume();   // persist the OUTGOING title's position before we leave it
     int n = (int)mVidList.size();
-    mVidIdx = ((mVidIdx + dir) % n + n) % n;
-    int vi = mVidList[mVidIdx];
-    if (vi < 0 || vi >= (int)mVideos.size()) return;
     // Stop the outgoing title's demuxer FIRST (it feeds mVideoTest), THEN async-release the
     // old decoder (its OMX stop must not block the render thread; reaped by vidReapDying) and
     // open the new one. The open/track binder calls can block; exempt the watchdog.
     vidCloseTitleAudio();
-    vidAsyncFree(mVideoTest);
-    mVideoTest = new NanoVideo();
+    vidAsyncFree(mVideoTest); mVideoTest = nullptr;
     mVidOpening.store(true, std::memory_order_relaxed);
     mVidSceneOpen = false; mVidSceneClosing = false;
-    if (!vidOpenTitle(mVideos[vi].file, mVideos[vi].w, mVideos[vi].h)) {
-        delete mVideoTest; mVideoTest = nullptr;
-        mVidOpening.store(false, std::memory_order_relaxed); return;
+    // Advance to the next title, skipping any that fail to open (an unplayable codec/container
+    // would otherwise strand auto-advance / folder-repeat on a black screen). Bounded by the
+    // list length so an all-unplayable list still terminates.
+    int vi = -1;
+    for (int tries = 0; tries < n; tries++) {
+        mVidIdx = ((mVidIdx + dir) % n + n) % n;
+        vi = mVidList[mVidIdx];
+        if (vi < 0 || vi >= (int)mVideos.size()) continue;
+        mVideoTest = new NanoVideo();
+        if (vidOpenTitle(mVideos[vi].file, mVideos[vi].w, mVideos[vi].h)) break;
+        vidAsyncFree(mVideoTest); mVideoTest = nullptr;
     }
+    if (!mVideoTest) { mVidOpening.store(false, std::memory_order_relaxed); return; }
     mVidAudioStarted = false;
     mVidOpening.store(false, std::memory_order_relaxed);
     // web vidStepTitle resets rate / stopped / play state.
