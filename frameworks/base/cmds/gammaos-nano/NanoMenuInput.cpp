@@ -702,6 +702,51 @@ void NanoMenu::tickNavRepeat() {
 }
 
 // ---------------------------------------------------------------------------
+// Bluetooth bluesleep LPM wakelock helpers (sleep-time SoC-suspend fix).
+//
+// On the Allwinner/xradio Brick the vendor bt_chip_warmup.sh leaves
+// /proc/bluetooth/sleep/lpm = 1 (LPM enabled) at boot even though Bluetooth is
+// never turned on. The xradio_btlpm kernel driver then holds the "bluesleep"
+// wakeup_source continuously (confirmed: it is held 100% of every screen-off
+// window), which blocks suspend-to-RAM, so the SoC never deep-sleeps and the
+// battery drains ~4-5%/hr while "asleep". When BT is powered off the LPM
+// machinery is pure waste, so before driving a real suspend we disable LPM
+// (releases bluesleep, verified via /sys/kernel/debug/wakeup_sources) and
+// restore it on wake. Gated on rfkill (BT off) so we never disturb an active
+// BT session, and on a kill-switch property. Everything no-ops if the nodes are
+// absent (other devices / no xradio BT), so this is Brick-safe but harmless
+// elsewhere.
+// ---------------------------------------------------------------------------
+static bool nanoBtPoweredOff() {
+    // rfkill0 == "sunxi-bt" (type bluetooth) on the Brick; state 0 == powered off.
+    int fd = open("/sys/class/rfkill/rfkill0/state", O_RDONLY | O_CLOEXEC);
+    if (fd < 0) return false;            // cannot tell -> conservative (do nothing)
+    char st = 0;
+    ssize_t n = read(fd, &st, 1);
+    close(fd);
+    return n == 1 && st == '0';
+}
+static int nanoBtLpmGet() {              // -1 unknown, else current "lpm enable: N"
+    int fd = open("/proc/bluetooth/sleep/lpm", O_RDONLY | O_CLOEXEC);
+    if (fd < 0) return -1;
+    char buf[64] = {0};
+    ssize_t n = read(fd, buf, sizeof(buf) - 1);
+    close(fd);
+    if (n <= 0) return -1;
+    for (ssize_t i = n - 1; i >= 0; --i)
+        if (buf[i] == '0' || buf[i] == '1') return buf[i] - '0';
+    return -1;
+}
+static bool nanoBtLpmSet(int v) {
+    int fd = open("/proc/bluetooth/sleep/lpm", O_WRONLY | O_CLOEXEC);
+    if (fd < 0) return false;
+    char c = v ? '1' : '0';
+    ssize_t n = write(fd, &c, 1);
+    close(fd);
+    return n == 1;
+}
+
+// ---------------------------------------------------------------------------
 // Event loop: drain every input fd, dispatch to navigation / power / OSK.
 // ---------------------------------------------------------------------------
 
@@ -720,6 +765,18 @@ bool NanoMenu::enterDrmSleep() {
     // and AAudio threads), and hold a kernel wakelock so the SoC stays up. The
     // user pressed power expecting the track to keep going, like any music player.
     bool keepAudio = !mMpQueue.empty() && mMusicPlayer.isPlaying();
+    // Set when we have disabled BT LPM for this suspend so we can restore it on wake.
+    bool btLpmDisabled = false;
+    const bool btLpmFix = property_get_bool("persist.gammaos.nano.btlpmsleep", true);
+    // Release the bluesleep wakelock if (and only if) BT is powered off, so a real
+    // suspend is not blocked. Idempotent; restored on wake.
+    auto releaseBtLpm = [&]() {
+        if (btLpmFix && !btLpmDisabled && nanoBtPoweredOff()
+            && nanoBtLpmGet() == 1 && nanoBtLpmSet(0)) {
+            btLpmDisabled = true;
+            ALOGI("NanoMenu: BT off -> disabled BT LPM (released bluesleep) so the SoC can suspend");
+        }
+    };
 
     // Blank our DRM-owned panels: clear the slot-0 AHB FBOs (what drmFrameEnd
     // scans out) and turn every backlight off, so the wake-time recommit
@@ -769,6 +826,7 @@ bool NanoMenu::enterDrmSleep() {
     } else if (pmSleep) {
         ALOGI("NanoMenu: services up -> PowerManager system sleep");
         property_set("sys.gammaos.nano.dosleep", "1");
+        releaseBtLpm();   // BT off: drop the bluesleep wakelock so suspend-to-RAM works
     }
 
     bool asleep = true;
@@ -838,7 +896,7 @@ bool NanoMenu::enterDrmSleep() {
                 ALOGI("NanoMenu: music finished -> releasing wakelock, system sleep");
                 keepAudio = false;
                 pmSleep = property_get_bool("sys.boot_completed", false);
-                if (pmSleep) property_set("sys.gammaos.nano.dosleep", "1");
+                if (pmSleep) { property_set("sys.gammaos.nano.dosleep", "1"); releaseBtLpm(); }
                 sleepStart = android::uptimeMillis();   // restart the legacy 60s budget if PM is unavailable
             }
         } else {
@@ -857,6 +915,12 @@ bool NanoMenu::enterDrmSleep() {
     if (keepAudio) {
         int wl = open("/sys/power/wake_unlock", O_WRONLY | O_CLOEXEC);
         if (wl >= 0) { ssize_t n = write(wl, "nano_music", 10); (void)n; close(wl); }
+    }
+    // Restore BT LPM to the boot state we found it in, so BT-enable behaviour is
+    // byte-identical to shipping outside of nano's suspend window.
+    if (btLpmDisabled) {
+        nanoBtLpmSet(1);
+        ALOGI("NanoMenu: woke -> restored BT LPM");
     }
     usleep(200000);
     { struct input_event d; for (int dfd : mInputFds) {
