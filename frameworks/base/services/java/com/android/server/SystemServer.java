@@ -3686,7 +3686,23 @@ public final class SystemServer implements Dumpable {
             if (minimalBoot) {
                 t.traceBegin("StartJobScheduler_Nano");
                 try {
-                    mSystemServiceManager.startService(JOB_SCHEDULER_SERVICE_CLASS);
+                    SystemService jobScheduler =
+                            mSystemServiceManager.startService(JOB_SCHEDULER_SERVICE_CLASS);
+                    // GammaOS Nano: JobScheduler is started here, well after
+                    // PHASE_SYSTEM_SERVICES_READY has already been dispatched, so
+                    // SystemServiceManager never delivers it the boot phases that wire up
+                    // its dependencies. The most important is PHASE_SYSTEM_SERVICES_READY,
+                    // which assigns mAppStateTracker; without it JobScheduler.schedule()
+                    // NPEs in isUidActive() for EVERY app that schedules a job (observed:
+                    // WebView's ComponentsProviderService crashes on the first browser
+                    // launch). Drive the phases JobScheduler handles now that all the
+                    // services they need (AppStateTracker, DeviceIdleInternal,
+                    // StorageManagerInternal) are up.
+                    if (jobScheduler != null) {
+                        jobScheduler.onBootPhase(SystemService.PHASE_LOCK_SETTINGS_READY);
+                        jobScheduler.onBootPhase(SystemService.PHASE_SYSTEM_SERVICES_READY);
+                        jobScheduler.onBootPhase(SystemService.PHASE_THIRD_PARTY_APPS_CAN_START);
+                    }
                 } catch (Throwable e) {
                     Slog.w(TAG, "GammaOS Nano: JobScheduler failed", e);
                 }
