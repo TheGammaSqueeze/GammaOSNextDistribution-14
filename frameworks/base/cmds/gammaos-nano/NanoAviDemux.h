@@ -22,7 +22,12 @@
 #include <thread>
 #include <vector>
 
-class NanoVideo;   // global scope (NanoVideo.h is outside any namespace), like NanoTsDemux
+class NanoVideo;        // global scope (NanoVideo.h is outside any namespace), like NanoTsDemux
+struct AMediaCodec;     // NDK MP3 decoder (opaque, C type)
+namespace android {
+class NanoAudioPlayer;  // fed-mode PCM sink for the audio track (android namespace)
+class NanoAc3;          // liba52 AC-3 decoder (forward-declared so the host parser test stays Android-free)
+}
 
 class NanoAviDemux {
 public:
@@ -96,11 +101,19 @@ public:
     // code). Empty if none can be found. Reads from the file, so call after open().
     bool videoCsd(std::vector<uint8_t>& out);
 
-    // ---- playback worker (feeds NanoVideo fed mode) ----
-    // Start a worker that reads movi video samples in order from startSec and pushes each
-    // coded frame to `video` (NanoVideo in fed mode) with its PTS. Back-pressured by the
-    // sink's bounded queue. Audio is fed by a later increment. Idempotent stop() joins it.
-    bool start(NanoVideo* video, double startSec);
+    // True if the audio stream is one we can decode/feed (PCM / MP3 / AC-3).
+    bool audioDecodable() const;
+    int  audioFormatTag() const { return mAudio.formatTag; }
+    // Sample rate to open the fed ring at (AC-3 always decodes to 48k; PCM/MP3 use strf).
+    int  audioFedRate() const;
+
+    // ---- playback worker (feeds NanoVideo fed mode + NanoAudio fed mode) ----
+    // Start a worker that reads the interleaved movi samples in order from startSec: each
+    // coded video frame goes to `video` (NanoVideo fed mode) with its PTS, and each audio
+    // chunk is decoded (PCM passthrough / MP3 via AMediaCodec / AC-3 via liba52) to int16
+    // stereo and pushed to `audio` (NanoAudio fed mode). Either sink may be null. Back-
+    // pressured by the sinks' bounded queues. Idempotent stop() joins it.
+    bool start(NanoVideo* video, android::NanoAudioPlayer* audio, double startSec);
     void stop();
     void seekWorker(double sec);   // reposition the worker to a keyframe near sec
 
@@ -133,6 +146,18 @@ private:
     std::atomic<bool> mStop{false};
     std::atomic<double> mPendSeek{-1.0};
     NanoVideo* mVideoSink = nullptr;
+
+    // audio decode (worker side) - all guarded NANOAVI_TEST-free in the .cpp
+    void audioOpenDecoder();                                   // lazy: MP3 codec / AC-3 state
+    void audioCloseDecoder();                                  // free codec/state + clear buffers
+    void audioDecodeSample(const uint8_t* data, size_t len);   // one movi audio chunk -> PCM -> sink
+    void audioFeedStereo(const int16_t* pcm, size_t nSamples, int chIn);  // up-mix mono, then feed
+    void feedPcmBlocking(const int16_t* pcm, size_t nSamples); // feed with back-pressure
+    android::NanoAudioPlayer* mAudioSink = nullptr;
+    android::NanoAc3* mAc3 = nullptr;    // AC-3 path (heap, lazy)
+    std::vector<uint8_t> mAc3Buf;        // AC-3 ES accumulator across chunks
+    AMediaCodec* mMp3Codec = nullptr;    // MP3 path
+    int mMp3Ch = 0;                      // MP3 output channels (from OUTPUT_FORMAT_CHANGED, else strf)
 };
 
 #endif // GAMMAOS_NANO_AVI_DEMUX_H

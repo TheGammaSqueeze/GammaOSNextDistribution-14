@@ -1382,9 +1382,26 @@ bool NanoMenu::vidOpenTitle(const std::string& file, int w, int h) {
             if (!mVideoTest->open(file)) return false;   // fall back (normally fails for AVI)
         } else {
             mVidAviMode = true;
-            // Video-only this increment: the worker feeds the picture; NanoVideo paces it
-            // to wall-clock by PTS (no audio clock yet). Audio is the next increment.
-            mVidAviDemux.start(mVideoTest, 0.0);
+            // Audio: open the fed ring (always stereo, like the .ts path) at the stream rate and
+            // let the demux worker decode the audio chunks (PCM / MP3 / AC-3) into it.
+            bool audioOn = false;
+            if (mVidAviDemux.audioDecodable() && mVidAudio.openFed(mVidAviDemux.audioFedRate(), 2)) {
+                mVidAudio.setVolume(mVidVolume);
+                mVidHasAudio = true; audioOn = true;
+                int tag = mVidAviDemux.audioFormatTag();
+                const char* ac = tag == 0x0055 ? "MP3" : tag == 0x2000 ? "AC-3" : "PCM";
+                mVidAudTracks.clear();
+                VidAudTrk t; t.idx = 0; t.name = std::string("Audio  ") + ac;
+                mVidAudTracks.push_back(t);
+            }
+            // One worker feeds the picture + (when present) the decoded audio from one read pointer.
+            mVidAviDemux.start(mVideoTest, audioOn ? &mVidAudio : nullptr, 0.0);
+            // Audio-master pacing: the picture slews to the audio clock so A/V stay locked (and
+            // re-sync after a seek). Gated on isPlaying so scan/seek/pause fall back to wall-clock.
+            if (audioOn) {
+                NanoAudioPlayer* a = &mVidAudio;
+                mVideoTest->setClockFn([a]{ return a->isPlaying() ? a->position() : -1.0; });
+            }
         }
     }
     if (!mVidTsMode && !mVidAviMode) {

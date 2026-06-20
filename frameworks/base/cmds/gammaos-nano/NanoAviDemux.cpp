@@ -330,25 +330,153 @@ bool NanoAviDemux::videoCsd(std::vector<uint8_t>& out) {
     return false;
 }
 
+// We can feed PCM (0x0001), MP3 (0x0055) and AC-3 (0x2000) audio; everything else
+// (e.g. WMA) has no decode route here so the title plays video-only.
+bool NanoAviDemux::audioDecodable() const {
+    if (!mAudio.present) return false;
+    int t = mAudio.formatTag;
+    return t == 0x0001 || t == 0x0055 || t == 0x2000;
+}
+// AC-3 always decodes to 48k stereo via liba52; PCM/MP3 use the strf rate.
+int NanoAviDemux::audioFedRate() const {
+    if (mAudio.formatTag == 0x2000) return 48000;
+    return mAudio.sampleRate > 0 ? mAudio.sampleRate : 48000;
+}
+
 // stop()/seekWorker() are NanoVideo-free so they compile in the host test too; start()
-// + workerFunc() reference NanoVideo and are excluded from the host build.
+// + workerFunc() + the audio decoders reference NanoVideo/NanoAudio and are excluded
+// from the host build (stubbed below).
 void NanoAviDemux::stop() {
     mStop = true;
     if (mWorker.joinable()) mWorker.join();
-    mVideoSink = nullptr;
+    audioCloseDecoder();
+    mVideoSink = nullptr; mAudioSink = nullptr;
     mStop = false;
 }
 void NanoAviDemux::seekWorker(double sec) { mPendSeek.store(sec); }
 
-#ifndef NANOAVI_TEST
+#ifdef NANOAVI_TEST
+// Host parser test: no Android, so the audio decode path is stubbed out.
+void NanoAviDemux::audioOpenDecoder() {}
+void NanoAviDemux::audioCloseDecoder() {}
+void NanoAviDemux::audioDecodeSample(const uint8_t*, size_t) {}
+void NanoAviDemux::audioFeedStereo(const int16_t*, size_t, int) {}
+void NanoAviDemux::feedPcmBlocking(const int16_t*, size_t) {}
+#else
 #include "NanoVideo.h"
-bool NanoAviDemux::start(NanoVideo* video, double startSec) {
+#include "NanoAudio.h"
+#include "NanoAc3.h"
+#include <media/NdkMediaCodec.h>
+#include <media/NdkMediaFormat.h>
+#include <unistd.h>
+#include <cstring>
+
+bool NanoAviDemux::start(NanoVideo* video, android::NanoAudioPlayer* audio, double startSec) {
     if (!isOpen() || !video) return false;
     stop();
-    mStop = false; mPendSeek = -1.0; mVideoSink = video;
+    mStop = false; mPendSeek = -1.0; mVideoSink = video; mAudioSink = audio;
+    if (mAudioSink) audioOpenDecoder();
     mWorker = std::thread([this, startSec]{ workerFunc(startSec); });
     return true;
 }
+
+void NanoAviDemux::audioOpenDecoder() {
+    mMp3Ch = mAudio.channels > 0 ? mAudio.channels : 2;
+    if (mAudio.formatTag == 0x0055) {                 // MP3 -> NDK audio/mpeg decoder
+        mMp3Codec = AMediaCodec_createDecoderByType("audio/mpeg");
+        if (mMp3Codec) {
+            AMediaFormat* f = AMediaFormat_new();
+            AMediaFormat_setString(f, AMEDIAFORMAT_KEY_MIME, "audio/mpeg");
+            AMediaFormat_setInt32(f, AMEDIAFORMAT_KEY_SAMPLE_RATE, mAudio.sampleRate > 0 ? mAudio.sampleRate : 44100);
+            AMediaFormat_setInt32(f, AMEDIAFORMAT_KEY_CHANNEL_COUNT, mMp3Ch);
+            if (AMediaCodec_configure(mMp3Codec, f, nullptr, nullptr, 0) != AMEDIA_OK ||
+                AMediaCodec_start(mMp3Codec) != AMEDIA_OK) {
+                AMediaCodec_delete(mMp3Codec); mMp3Codec = nullptr;
+            }
+            AMediaFormat_delete(f);
+        }
+    } else if (mAudio.formatTag == 0x2000) {          // AC-3 -> liba52
+        mAc3 = new android::NanoAc3();
+        if (!mAc3->init()) { delete mAc3; mAc3 = nullptr; }
+    }
+    // PCM (0x0001): no decoder state needed.
+}
+
+void NanoAviDemux::audioCloseDecoder() {
+    if (mMp3Codec) { AMediaCodec_stop(mMp3Codec); AMediaCodec_delete(mMp3Codec); mMp3Codec = nullptr; }
+    if (mAc3) { delete mAc3; mAc3 = nullptr; }
+    mAc3Buf.clear();
+}
+
+void NanoAviDemux::feedPcmBlocking(const int16_t* pcm, size_t nSamples) {
+    if (!mAudioSink) return;
+    size_t off = 0;
+    while (off < nSamples && !mStop.load() && mPendSeek.load() < 0.0) {
+        size_t w = mAudioSink->feedPcm(pcm + off, nSamples - off);
+        off += w;
+        if (w == 0) usleep(2000);          // ring full: let the AAudio callback drain
+    }
+}
+
+// The fed ring is always opened stereo (matching the .ts path); up-mix mono here.
+void NanoAviDemux::audioFeedStereo(const int16_t* pcm, size_t nSamples, int chIn) {
+    if (nSamples == 0) return;
+    if (chIn == 2) { feedPcmBlocking(pcm, nSamples); return; }
+    if (chIn == 1) {
+        std::vector<int16_t> st(nSamples * 2);
+        for (size_t i = 0; i < nSamples; i++) { st[2*i] = pcm[i]; st[2*i+1] = pcm[i]; }
+        feedPcmBlocking(st.data(), st.size());
+        return;
+    }
+    // >2ch: take the first two channels.
+    size_t frames = nSamples / chIn;
+    std::vector<int16_t> st(frames * 2);
+    for (size_t f = 0; f < frames; f++) { st[2*f] = pcm[f*chIn]; st[2*f+1] = pcm[f*chIn + 1]; }
+    feedPcmBlocking(st.data(), st.size());
+}
+
+void NanoAviDemux::audioDecodeSample(const uint8_t* data, size_t len) {
+    if (!mAudioSink || len == 0) return;
+    int tag = mAudio.formatTag;
+    if (tag == 0x0001) {                              // PCM int16 LE
+        audioFeedStereo((const int16_t*)data, len / 2, mAudio.channels > 0 ? mAudio.channels : 1);
+    } else if (tag == 0x2000) {                       // AC-3 via liba52
+        if (!mAc3) return;
+        mAc3Buf.insert(mAc3Buf.end(), data, data + len);
+        std::vector<int16_t> pcm; int rate = 48000;
+        int consumed = mAc3->decode(mAc3Buf.data(), (int)mAc3Buf.size(), pcm, rate);
+        if (consumed > 0) mAc3Buf.erase(mAc3Buf.begin(), mAc3Buf.begin() + consumed);
+        if (!pcm.empty()) audioFeedStereo(pcm.data(), pcm.size(), 2);  // liba52 emits interleaved stereo
+    } else if (tag == 0x0055) {                       // MP3 via AMediaCodec
+        if (!mMp3Codec) return;
+        size_t inOff = 0;
+        // Feed this chunk (it may exceed one input buffer) and drain whatever PCM is ready.
+        while (inOff < len && !mStop.load() && mPendSeek.load() < 0.0) {
+            ssize_t ii = AMediaCodec_dequeueInputBuffer(mMp3Codec, 5000);
+            if (ii >= 0) {
+                size_t cap = 0; uint8_t* ib = AMediaCodec_getInputBuffer(mMp3Codec, ii, &cap);
+                size_t put = (cap && len - inOff > cap) ? cap : (len - inOff);
+                if (ib && put) memcpy(ib, data + inOff, put);
+                inOff += put;
+                AMediaCodec_queueInputBuffer(mMp3Codec, ii, 0, put, 0, 0);
+            }
+            AMediaCodecBufferInfo info; ssize_t oi;
+            while ((oi = AMediaCodec_dequeueOutputBuffer(mMp3Codec, &info, 0)) >= 0) {
+                if (info.size > 0) {
+                    size_t osz = 0; uint8_t* ob = AMediaCodec_getOutputBuffer(mMp3Codec, oi, &osz);
+                    if (ob) audioFeedStereo((const int16_t*)(ob + info.offset), info.size / 2, mMp3Ch);
+                }
+                AMediaCodec_releaseOutputBuffer(mMp3Codec, oi, false);
+            }
+            if (oi == AMEDIACODEC_INFO_OUTPUT_FORMAT_CHANGED) {
+                AMediaFormat* of = AMediaCodec_getOutputFormat(mMp3Codec);
+                int32_t c = 0; if (AMediaFormat_getInt32(of, AMEDIAFORMAT_KEY_CHANNEL_COUNT, &c) && c > 0) mMp3Ch = c;
+                AMediaFormat_delete(of);
+            }
+        }
+    }
+}
+
 void NanoAviDemux::workerFunc(double startSec) {
     int i = (startSec > 0.05) ? seekSampleForTime(startSec) : 0;
     std::vector<uint8_t> buf;
@@ -357,6 +485,7 @@ void NanoAviDemux::workerFunc(double startSec) {
         if (sk >= 0.0) {
             i = seekSampleForTime(sk);
             if (mVideoSink) mVideoSink->flushFed(sk);
+            if (mAudioSink) { mAudioSink->seekFed(sk); mAc3Buf.clear(); if (mMp3Codec) AMediaCodec_flush(mMp3Codec); }
         }
         if (i >= (int) mSamples.size()) { if (mVideoSink) mVideoSink->feedVideoEos(); break; }
         const Sample& s = mSamples[i];
@@ -365,6 +494,8 @@ void NanoAviDemux::workerFunc(double startSec) {
                 // Blocks while the sink's bounded queue is full (back-pressure); false = teardown.
                 if (!mVideoSink->feedVideo(buf.data(), buf.size(), (int64_t)(s.ptsSec * 1e6))) break;
             }
+        } else if (s.kind == STREAM_AUDIO && mAudioSink) {
+            if (readSample(i, buf) && !buf.empty()) audioDecodeSample(buf.data(), buf.size());
         }
         i++;
     }
