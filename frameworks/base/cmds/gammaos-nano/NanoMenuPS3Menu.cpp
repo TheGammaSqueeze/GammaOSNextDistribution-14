@@ -517,6 +517,10 @@ enum {
     QA_NOTIF_DISMISS,    // dismiss (snooze ~1yr) the focused notification, then refresh
     QA_GAMEPAD_MENU,     // open the dedicated GammaPad settings submenu (all gamepad props)
     QA_MOUSE_MENU,       // open the Mouse Mode settings submenu (mouse_* props)
+    QA_REMAP_BTN_MENU,   // open the button-remap source list (remap_btn)
+    QA_REMAP_AXIS_MENU,  // open the axis-remap source list (remap_axis)
+    QA_REMAP_SRC,        // a source button/axis row -> open its target chooser (it.b = src code)
+    QA_REMAP_SET,        // a target row -> set src->target in the remap prop (it.b = target, -1 = default)
 };
 
 void NanoMenu::buildPs3Cats() {
@@ -825,9 +829,10 @@ void NanoMenu::buildGamepadSubmenu(Ps3Level& out) {
     leaf("PWM Enable", nullptr, 16);
     leaf("PWM Intensity", nullptr, 16);
     leaf("Vibration Device", nullptr, 16);
-    // Mapping (OSK text for now; Inc2/Inc3 -> native pickers)
-    leaf("Button Remap", nullptr, 16);
-    leaf("Axis Remap", nullptr, 16);
+    // Mapping: native button/axis remap pickers (Inc2). Combo/axis-to-button/blacklist
+    // remain OSK-text for now (Inc3 -> pickers).
+    act ("Button Remap", QA_REMAP_BTN_MENU, 16, nullptr);
+    act ("Axis Remap", QA_REMAP_AXIS_MENU, 16, nullptr);
     leaf("Button Combo Map", nullptr, 16);
     leaf("Axis to Button", nullptr, 16);
     leaf("Passthrough Blacklist", nullptr, 16);
@@ -850,6 +855,109 @@ void NanoMenu::buildMouseSubmenu(Ps3Level& out) {
     leaf("D-Pad Speed", nullptr, 16);
     leaf("Boost", nullptr, 16);
     leaf("Scroll Speed", nullptr, 16);
+}
+
+// --- Button / Axis remap pickers --------------------------------------------
+// Controller-first readaptation of the remap_btn / remap_axis EditText fields. The
+// gammapad daemon takes "SRC:DST,SRC:DST" of Linux input codes (InputTransformer.cpp).
+// We present a fixed remap TABLE: one row per source button/axis showing its current
+// target; activating a row opens a target chooser; picking a target rewrites that
+// source's entry in the prop. No free typing of codes.
+namespace {
+struct GpCode { int code; const char* name; };
+// Linux BTN_* (KeyLayoutParser.cpp). Order = a familiar pad layout.
+const GpCode kGpButtons[] = {
+    {0x130,"A (South)"}, {0x131,"B (East)"}, {0x133,"X (West)"}, {0x134,"Y (North)"},
+    {0x136,"L1"}, {0x137,"R1"}, {0x138,"L2"}, {0x139,"R2"},
+    {0x13a,"Select"}, {0x13b,"Start"}, {0x13c,"Guide"}, {0x13d,"L3"}, {0x13e,"R3"},
+};
+// Linux ABS_* (KeyLayoutParser.cpp).
+const GpCode kGpAxes[] = {
+    {0,"Left Stick X"}, {1,"Left Stick Y"}, {3,"Right Stick X"}, {4,"Right Stick Y"},
+    {2,"Z (R-Stick X / LT)"}, {5,"RZ (R-Stick Y / RT)"},
+    {9,"Right Trigger"}, {10,"Left Trigger"}, {16,"D-Pad X"}, {17,"D-Pad Y"},
+};
+inline const GpCode* gpTable(bool axis, int& n) {
+    if (axis) { n = (int)(sizeof(kGpAxes)/sizeof(kGpAxes[0])); return kGpAxes; }
+    n = (int)(sizeof(kGpButtons)/sizeof(kGpButtons[0])); return kGpButtons;
+}
+const char* gpCodeName(int code, bool axis) {
+    int n; const GpCode* t = gpTable(axis, n);
+    for (int i = 0; i < n; i++) if (t[i].code == code) return t[i].name;
+    return nullptr;   // unknown / not in the table
+}
+// Parse "src:dst,src:dst" (decimal or 0xNN) into a map. Tolerant of spaces/garbage.
+std::map<int,int> gpParseRemap(const std::string& s) {
+    std::map<int,int> m;
+    size_t i = 0;
+    while (i < s.size()) {
+        size_t comma = s.find(',', i);
+        std::string tok = s.substr(i, comma == std::string::npos ? std::string::npos : comma - i);
+        size_t colon = tok.find(':');
+        if (colon != std::string::npos) {
+            long a = strtol(tok.c_str(), nullptr, 0);
+            long b = strtol(tok.c_str() + colon + 1, nullptr, 0);
+            if (a > 0 || (a == 0 && tok[0] == '0')) m[(int)a] = (int)b;
+        }
+        if (comma == std::string::npos) break;
+        i = comma + 1;
+    }
+    return m;
+}
+// Serialize back to decimal "src:dst,..." (the daemon accepts decimal).
+std::string gpSerializeRemap(const std::map<int,int>& m) {
+    std::string out;
+    for (const auto& kv : m) {
+        if (kv.second < 0 || kv.second == kv.first) continue;   // default / identity = drop
+        if (!out.empty()) out += ',';
+        out += std::to_string(kv.first); out += ':'; out += std::to_string(kv.second);
+    }
+    return out;
+}
+} // namespace
+
+// Source list: one row per button/axis "Name  ->  Target" (Target = "-" when unmapped).
+void NanoMenu::buildRemapSrcSubmenu(Ps3Level& out, bool axis) {
+    out.items.clear(); out.sel = 0; out.screenKind = 0;
+    out.title = axis ? "Axis Remap" : "Button Remap";
+    std::string key = axis ? "persist.gammaos.gamepad.remap_axis"
+                           : "persist.gammaos.gamepad.remap_btn";
+    std::map<int,int> m = gpParseRemap(readSettingValue(SettingSource::kProp, key, ""));
+    int n; const GpCode* t = gpTable(axis, n);
+    for (int i = 0; i < n; i++) {
+        Ps3Item it; it.kind = PS3_QUICK; it.a = QA_REMAP_SRC; it.b = t[i].code;
+        std::string lbl = t[i].name;
+        auto f = m.find(t[i].code);
+        if (f != m.end() && f->second != t[i].code) {
+            const char* dn = gpCodeName(f->second, axis);
+            lbl += "   ->   ";
+            lbl += dn ? std::string(dn) : ("Code " + std::to_string(f->second));
+        }
+        it.label = lbl;
+        it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 1.0f;
+        out.items.push_back(it);
+    }
+}
+
+// Target chooser for the currently-picked source (mRemapSrc / mRemapAxis).
+void NanoMenu::buildRemapTargetSubmenu(Ps3Level& out) {
+    out.items.clear(); out.sel = 0; out.screenKind = 0;
+    const char* srcName = gpCodeName(mRemapSrc, mRemapAxis);
+    out.title = std::string("Map ") + (srcName ? srcName : "?") + " to";
+    std::map<int,int> m = gpParseRemap(readSettingValue(SettingSource::kProp, mRemapKey, ""));
+    int curTarget = -1; auto f = m.find(mRemapSrc); if (f != m.end()) curTarget = f->second;
+    auto row = [&](const char* label, int code) {
+        Ps3Item it; it.kind = PS3_QUICK; it.a = QA_REMAP_SET; it.b = code;
+        it.label = label; it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 1.0f;
+        out.items.push_back(it);
+    };
+    row("Default (no remap)", -1);            // index 0
+    if (curTarget < 0) out.sel = 0;
+    int n; const GpCode* t = gpTable(mRemapAxis, n);
+    for (int i = 0; i < n; i++) {
+        row(t[i].name, t[i].code);
+        if (t[i].code == curTarget) out.sel = (int)out.items.size() - 1;
+    }
 }
 
 // --- Notifications submenu ---------------------------------------------------
@@ -1932,6 +2040,36 @@ void NanoMenu::ps3XmbSelect() {
                 case QA_NOTIFICATIONS:  { Ps3Level lvl; buildNotificationsSubmenu(lvl);  mPs3Stack.push_back(lvl); break; }
                 case QA_GAMEPAD_MENU:   { Ps3Level lvl; buildGamepadSubmenu(lvl);       mPs3Stack.push_back(lvl); break; }
                 case QA_MOUSE_MENU:     { Ps3Level lvl; buildMouseSubmenu(lvl);         mPs3Stack.push_back(lvl); break; }
+                case QA_REMAP_BTN_MENU: { mRemapAxis = false; mRemapKey = "persist.gammaos.gamepad.remap_btn";
+                                          Ps3Level lvl; buildRemapSrcSubmenu(lvl, false); mPs3Stack.push_back(lvl); break; }
+                case QA_REMAP_AXIS_MENU:{ mRemapAxis = true;  mRemapKey = "persist.gammaos.gamepad.remap_axis";
+                                          Ps3Level lvl; buildRemapSrcSubmenu(lvl, true);  mPs3Stack.push_back(lvl); break; }
+                case QA_REMAP_SRC:      { mRemapSrc = it.b;
+                                          Ps3Level lvl; buildRemapTargetSubmenu(lvl);     mPs3Stack.push_back(lvl); break; }
+                case QA_REMAP_SET: {
+                    // Write src->target (it.b, -1 = default/erase) into the remap prop,
+                    // then pop the target chooser back to the (rebuilt) source list with
+                    // the normal slide-out so the "src -> dst" label refreshes.
+                    std::map<int,int> m = gpParseRemap(readSettingValue(SettingSource::kProp, mRemapKey, ""));
+                    if (it.b < 0 || it.b == mRemapSrc) m.erase(mRemapSrc); else m[mRemapSrc] = it.b;
+                    writeSettingValue(SettingSource::kProp, mRemapKey, gpSerializeRemap(m));
+                    if (!mPs3Stack.empty()) {
+                        mPs3SubChildItems = mPs3Stack.back().items;
+                        mPs3Stack.pop_back();
+                        if (!mPs3Stack.empty()) {
+                            int keep = mPs3Stack.back().sel;
+                            buildRemapSrcSubmenu(mPs3Stack.back(), mRemapAxis);
+                            if (keep >= 0 && keep < (int)mPs3Stack.back().items.size())
+                                mPs3Stack.back().sel = keep;
+                        }
+                        mPs3SubParentItems = ps3CurItems();
+                        mPs3SubParentIdx   = ps3CurSel();
+                        mPs3SubDir = -1; mPs3SubAnimStart = mEffectTime; mPs3SubAnim = 1.0f;
+                        mPs3AnimItem = (float)ps3CurSel(); mPs3ItemAnimStart = -1.0f;
+                    }
+                    mDisplayDirty = true;
+                    return;
+                }
                 case QA_BRIGHTNESS:   mPs3BrightSlider = true; mShowBrightnessBar = true; mBrightnessBarTimer = 90; return;
                 case QA_PERFORMANCE:  openPerformanceChooser(); return;
                 case QA_CLOSE_APP:    if (mOverlayMode) overlayQuitToHome(); return;  // home: no fg app

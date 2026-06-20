@@ -1349,6 +1349,11 @@ private:
     void buildQuickSettingsSubmenu(Ps3Level& out);
     void buildGamepadSubmenu(Ps3Level& out);         // full GammaPad settings (Settings-app parity)
     void buildMouseSubmenu(Ps3Level& out);           // Mouse Mode cursor-speed settings
+    void buildRemapSrcSubmenu(Ps3Level& out, bool axis);  // button/axis remap source list
+    void buildRemapTargetSubmenu(Ps3Level& out);          // target chooser for mRemapSrc
+    std::string mRemapKey;        // remap prop being edited (remap_btn / remap_axis)
+    bool mRemapAxis = false;      // axis (vs button) name table for the active remap picker
+    int  mRemapSrc = 0;           // source code chosen, awaiting a target pick
     void buildNotificationsSubmenu(Ps3Level& out);   // re-reads the live list, then builds
     void buildNotificationsLevel(Ps3Level& out);     // builds rows from the current mNotifs (no read)
     // One active notification, parsed from `dumpsys notification --noredact` only
