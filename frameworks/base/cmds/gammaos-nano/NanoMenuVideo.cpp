@@ -1793,14 +1793,25 @@ void NanoMenu::vidStepTitle(int dir) {
         vidAsyncFree(mVideoTest); mVideoTest = nullptr;
         mVidOpening.store(true, std::memory_order_relaxed);
         mVidSceneOpen = false; mVidSceneClosing = false;
+        // Skipping dead channels is convenient, but each vidOpenStream does a BLOCKING
+        // network fetch on the render thread, so cap the scan tightly: an all-dead /
+        // geo-blocked / encrypted run would otherwise grind the whole group and freeze the
+        // UI for minutes. Try a few then give up with an error (the user can pick another).
+        const int kStreamStepCap = 4;
+        int cap = n < kStreamStepCap ? n : kStreamStepCap;
         bool ok = false;
-        for (int tries = 0; tries < n; tries++) {
+        for (int tries = 0; tries < cap; tries++) {
             mVidIdx = ((mVidIdx + dir) % n + n) % n;
             mVideoTest = new NanoVideo();
             if (vidOpenStream(mVidStreamList[mVidIdx])) { ok = true; break; }
             vidAsyncFree(mVideoTest); mVideoTest = nullptr;
         }
-        if (!ok) { mVidOpening.store(false, std::memory_order_relaxed); return; }
+        if (!ok) {
+            mVidOpening.store(false, std::memory_order_relaxed);
+            mVidPlaying = false; mVidStopped = true;
+            photoShowBanner("Could not open this channel");
+            return;
+        }
         mVidAudioStarted = false;
         mVidOpening.store(false, std::memory_order_relaxed);
         mVidRate = 1.0; mVidStopped = false; mVidPlaying = true;
@@ -2040,7 +2051,15 @@ void NanoMenu::videoTick() {
 
     // End of stream: repeat / auto-advance / stop (web vidOnEnded).
     if (mVidPlaying && mVideoTest->ended()) {
-        if (mVidRepeat == 1 || mVidRepeat == 2) {          // Repeat On / Title Repeat
+        if (mVidIsStream) {
+            // Live IPTV: ended() means the channel dropped or never delivered media, NOT
+            // "play the next channel". Auto-surfing the group would blocking-fetch every
+            // (often dead / geo-blocked / AES-encrypted) channel's playlist on the render
+            // thread, freezing the UI for minutes. Stop here; the user changes channel with
+            // prev/next.
+            mVidPlaying = false; mVidStopped = true; mVideoTest->pause();
+            photoShowBanner("Stream unavailable");
+        } else if (mVidRepeat == 1 || mVidRepeat == 2) {   // Repeat On / Title Repeat
             mVideoTest->seek(0.0); mVideoTest->play();
             if (mVidHasAudio) { vidAudioSeek(0.0); mVidAudio.play(); }
         } else if (mVidRepeat == 4) {                       // Folder Repeat: next title, wraps the list (web vidOnEnded 12361)
