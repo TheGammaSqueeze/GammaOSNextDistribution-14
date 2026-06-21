@@ -232,7 +232,12 @@ bool NanoAudioPlayer::probe(const std::string& path, Meta& out, int wantTrack) {
 bool NanoAudioPlayer::ensureStream(int rate, int channels) {
     std::lock_guard<std::mutex> lk(mStreamMutex);
     if (mStream && mStreamRate == rate && mStreamChans == channels) return true;
-    // close existing
+    return openStreamLocked(rate, channels);
+}
+
+// Build (or rebuild) the AAudio output stream. Caller holds mStreamMutex. Installs the data
+// AND error callbacks; the error callback drives route-change recovery (see recoverStream).
+bool NanoAudioPlayer::openStreamLocked(int rate, int channels) {
     if (mStream) {
         AAudioStream* s = static_cast<AAudioStream*>(mStream);
         AAudioStream_requestStop(s);
@@ -253,6 +258,15 @@ bool NanoAudioPlayer::ensureStream(int rate, int channels) {
         return (aaudio_data_callback_result_t)
             static_cast<NanoAudioPlayer*>(u)->fillAudio(data, n);
     }, this);
+    // Output-device change (headphone plug/unplug, BT connect) DISCONNECTS the stream; reopen
+    // it on the new default device from a one-shot thread (must not close/reopen in the callback).
+    AAudioStreamBuilder_setErrorCallback(b, [](AAudioStream*, void* u, aaudio_result_t err) {
+        NanoAudioPlayer* self = static_cast<NanoAudioPlayer*>(u);
+        if (err != AAUDIO_ERROR_DISCONNECTED || self->mShutdown.load()) return;
+        bool expected = false;
+        if (self->mRecovering.compare_exchange_strong(expected, true))
+            std::thread(&NanoAudioPlayer::recoverStream, self).detach();
+    }, this);
     AAudioStream* s = nullptr;
     aaudio_result_t r = AAudioStreamBuilder_openStream(b, &s);
     AAudioStreamBuilder_delete(b);
@@ -263,6 +277,25 @@ bool NanoAudioPlayer::ensureStream(int rate, int channels) {
     mStarted = false;
     ALOGI("NanoAudio: stream open %dHz x%d", rate, channels);
     return true;
+}
+
+// Reopen the output stream after an AAUDIO_ERROR_DISCONNECTED (output device changed). Runs on
+// a detached one-shot thread. Audioserver is alive for a route change so the AAudio calls return
+// promptly (the audioserver-death case never reaches here - that error callback does not fire).
+// The decode thread keeps the ring filled, so a fresh stream resumes playback on the new device.
+void NanoAudioPlayer::recoverStream() {
+    {
+        std::lock_guard<std::mutex> lk(mStreamMutex);
+        if (!mShutdown.load() && mStreamRate > 0 && mStreamChans > 0) {
+            bool wasStarted = mStarted.load();
+            if (openStreamLocked(mStreamRate, mStreamChans) && wasStarted && !mStopped.load()) {
+                if (AAudioStream_requestStart(static_cast<AAudioStream*>(mStream)) == AAUDIO_OK)
+                    mStarted = true;
+            }
+            ALOGI("NanoAudio: stream recovered after route change (playing=%d)", (int)mStarted.load());
+        }
+    }
+    mRecovering.store(false);
 }
 
 void NanoAudioPlayer::closeStream() {
@@ -284,6 +317,7 @@ void NanoAudioPlayer::stopDecoder() {
 
 bool NanoAudioPlayer::open(const std::string& path, int audioTrackIndex) {
     init();
+    mShutdown.store(false);   // re-arm route-change recovery for this playback
     mForcedAudioTrack = audioTrackIndex;   // -1 = first audio (default); >=0 = that extractor track
 
     stopDecoder();                 // join any previous decode (thread no longer owns the extractor)
@@ -343,6 +377,7 @@ bool NanoAudioPlayer::open(const std::string& path, int audioTrackIndex) {
 
 bool NanoAudioPlayer::openFed(int rate, int channels) {
     init();
+    mShutdown.store(false);   // re-arm route-change recovery for this playback
     stopDecoder();                 // no decode thread runs in fed mode, but be safe
     freeExtractor();               // fed mode owns no extractor
     mHead = 0; mTail = 0;
@@ -466,6 +501,9 @@ NanoAudioPlayer::Meta NanoAudioPlayer::meta() const {
 }
 
 void NanoAudioPlayer::release() {
+    mShutdown.store(true);   // block any new route-change recovery from touching the stream
+    // Wait out an in-flight recovery (bounded) so its detached thread never reopens after free.
+    for (int i = 0; i < 100 && mRecovering.load(); i++) usleep(10000);
     if (mExHls) mExHls->requestStop();   // unblock a decode thread parked in the HLS readAt before join
     stopDecoder();
     freeExtractor();               // decode thread joined: safe to drop the cached demuxer

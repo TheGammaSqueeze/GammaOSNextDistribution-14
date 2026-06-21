@@ -140,6 +140,16 @@ private:
     std::mutex mStreamMutex;                    // guards open/close/start/pause
     std::atomic<bool> mStarted{false};          // requestStart issued (playing)
     std::atomic<bool> mStopped{false};          // user pressed Stop (vs Pause)
+    // Route-change recovery: an AAudio output stream is DISCONNECTED when the output device
+    // changes (e.g. a headphone is plugged in). Unlike AudioTrack (which AudioFlinger silently
+    // re-routes), an AAudio stream must be reopened by the app or it goes silent. On the error
+    // callback we reopen on a one-shot detached thread (audioserver is alive on a route change,
+    // so the AAudio calls return promptly; this is the case the prior audioserver-death attempt
+    // could not reach). mShutdown blocks recovery during teardown.
+    std::atomic<bool> mRecovering{false};
+    std::atomic<bool> mShutdown{false};
+    bool openStreamLocked(int rate, int channels);   // build the stream (mStreamMutex held)
+    void recoverStream();                            // reopen on the new device after a disconnect
 
     // ---- PCM ring (SPSC: decoder produces, callback consumes) ----
     std::vector<int16_t> mRing;                 // capacity in int16 samples
