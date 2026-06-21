@@ -2024,6 +2024,19 @@ private:
     void mpPrev();
     void musicTick();                  // per-frame: auto-advance on EOS + fades
 
+    // Bluetooth AVRCP media control (NanoMediaBridge in system_server owns an
+    // AVRCP-eligible MediaSession and bridges to these via system properties).
+    void nanoMediaDispatch(const char* cmd);   // one-shot transport command -> active player
+    void nanoPublishMediaState();              // publish now-playing state + metadata for the bridge
+    void writeMediaMetaJson(const std::string& title, const std::string& artist,
+                            const std::string& album, const char* kind, double dur);
+    std::string mMediaLastState;               // last-published playback state (change-gated)
+    std::string mMediaLastKind;                // last-published source kind
+    std::string mMediaLastPos;                 // last-published whole-second position
+    std::string mMediaLastDur;                 // last-published whole-second duration
+    std::string mMediaMetaSig;                 // last-published title/artist/album/kind signature
+    unsigned    mMediaMetaGen = 0;             // metadata generation counter (bumped on track change)
+
     // Now-Playing fullscreen render + control panel (1:1 web drawMusicPlayer / MP_CP).
     bool mMpFullInfo = true;           // Display toggle (counter/time/codec/seek cluster); shown by default
     // Coalesced (debounced) seek for Left/Right scrub: pressing only updates a target

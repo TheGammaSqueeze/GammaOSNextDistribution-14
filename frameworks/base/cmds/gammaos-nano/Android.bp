@@ -67,6 +67,7 @@ cc_binary {
         "NanoAudio.cpp",
         "NanoMenuAudioBands.cpp",
         "NanoMenuMusic.cpp",
+        "NanoMenuMedia.cpp",
         "NanoMenuMusicCanyon.cpp",
         "NanoMenuMusicGlobe.cpp",
         "NanoMenuPhotos.cpp",

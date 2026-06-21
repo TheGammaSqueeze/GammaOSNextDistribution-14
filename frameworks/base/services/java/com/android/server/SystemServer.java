@@ -3880,6 +3880,20 @@ public final class SystemServer implements Dumpable {
         }
         t.traceEnd();
 
+        // GammaOS Nano: the media bridge owns an AVRCP-eligible MediaSession and
+        // forwards Bluetooth transport keys (play/pause/skip) to the native nano
+        // launcher, which has no MediaSession of its own. Like the gammapad bridge it
+        // must run even in nano minimal_boot; it self-gates on the launcher actually
+        // playing (its session stays inactive otherwise) so it is harmless elsewhere.
+        t.traceBegin("StartNanoMediaBridge");
+        try {
+            mSystemServiceManager.startService(
+                    com.android.server.media.NanoMediaBridge.class);
+        } catch (Throwable e) {
+            reportWtf("starting NanoMediaBridge", e);
+        }
+        t.traceEnd();
+
         if (!minimalBoot) {
         t.traceBegin("StartSystemUI");
         try {

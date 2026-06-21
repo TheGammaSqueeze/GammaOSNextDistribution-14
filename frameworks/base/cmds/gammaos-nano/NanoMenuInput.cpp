@@ -1111,6 +1111,27 @@ void NanoMenu::pollInput() {
         sNavSerial = __system_property_serial(sNavPi);
         }
     }
+    // Bluetooth AVRCP media-control hook. NanoMediaBridge (system_server) owns an
+    // AVRCP-eligible MediaSession and writes a one-shot transport command here on a
+    // headphone/car button press; we dispatch it to the active player and self-clear,
+    // mirroring the nav hook (one cheap serial compare per frame when idle).
+    {
+        static const prop_info* sMedPi = nullptr;
+        static uint32_t sMedSerial = 0;
+        if (!sMedPi) sMedPi = __system_property_find("sys.gammaos.nano.media");
+        if (sMedPi && __system_property_serial(sMedPi) != sMedSerial) {
+            char mbuf[PROPERTY_VALUE_MAX];
+            if (property_get("sys.gammaos.nano.media", mbuf, "") > 0 && mbuf[0]) {
+                mLastInputMs = android::uptimeMillis();   // AVRCP press counts as activity
+                nanoMediaDispatch(mbuf);
+                property_set("sys.gammaos.nano.media", "");
+            }
+            sMedSerial = __system_property_serial(sMedPi);
+        }
+    }
+    // Publish now-playing state + metadata for the bridge (change-gated, zero writes when idle).
+    nanoPublishMediaState();
+
     struct input_event ev;
     for (int fd : mInputFds) {
         while (read(fd, &ev, sizeof(ev)) == sizeof(ev)) {
