@@ -47,10 +47,41 @@
 
 namespace android {
 
-static const char* kIptvUrl       = "https://raw.githubusercontent.com/Free-TV/IPTV/master/playlist.m3u8";
+static const char* kIptvDefaultUrl = "https://raw.githubusercontent.com/Free-TV/IPTV/master/playlist.m3u8";
 static const char* kIptvCache     = "/data/system/nano_iptv_ftv.m3u8";
 static const char* kIptvCacheTmp  = "/data/system/nano_iptv_ftv.m3u8.tmp";
+static const char* kIptvUrlMarker = "/data/system/nano_iptv_ftv.url";   // URL the cache was fetched from
 static const char* kIptvCacheOld  = "/data/system/nano_iptv.m3u";   // legacy iptv-org cache (removed on first run)
+
+// The playlist URL: a user override from Settings > Video Settings if set + valid, else the
+// default Free-TV list. (persist.gammaos.nano.iptv.url, OSK-entered.)
+static std::string iptvResolveUrl() {
+    char buf[PROPERTY_VALUE_MAX] = {0};
+    property_get("persist.gammaos.nano.iptv.url", buf, "");
+    std::string u = buf;
+    size_t a = u.find_first_not_of(" \t\r\n");
+    size_t b = u.find_last_not_of(" \t\r\n");
+    u = (a == std::string::npos) ? std::string() : u.substr(a, b - a + 1);
+    if (u.compare(0, 7, "http://") == 0 || u.compare(0, 8, "https://") == 0) return u;
+    return kIptvDefaultUrl;
+}
+static std::string iptvReadMarker() {
+    int fd = open(kIptvUrlMarker, O_RDONLY);
+    if (fd < 0) return std::string();
+    char buf[4096] = {0};
+    ssize_t n = read(fd, buf, sizeof(buf) - 1);
+    close(fd);
+    std::string s = (n > 0) ? std::string(buf, n) : std::string();
+    size_t e = s.find_last_not_of(" \t\r\n");
+    return (e == std::string::npos) ? std::string() : s.substr(0, e + 1);
+}
+static void iptvWriteMarker(const std::string& url) {
+    int fd = open(kIptvUrlMarker, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+    if (fd < 0) return;
+    (void)!write(fd, url.c_str(), url.size());
+    close(fd);
+    (void)chmod(kIptvUrlMarker, 0644);
+}
 static const long  kIptvMaxAgeSec = 24 * 60 * 60;   // refresh cadence
 static const int   kIptvFetchTimeoutSec = 30;
 static const size_t kIptvMaxChannels = 60000;       // sanity bound
@@ -70,8 +101,10 @@ static bool iptvCacheExists() {
 
 // curl the playlist into `dst`. True only if a non-empty, m3u-looking file was produced.
 bool NanoMenu::iptvDownloadIndex(const std::string& dst) {
+    std::string url = iptvResolveUrl();
+    if (url.find('\'') != std::string::npos) return false;   // never let a quote break the shell command
     std::string cmd = "/system/bin/curl -s -L --max-time " + std::to_string(kIptvFetchTimeoutSec)
-        + " -A 'gammaos-nano-iptv' -o '" + dst + "' '" + kIptvUrl + "' 2>/dev/null";
+        + " -A 'gammaos-nano-iptv' -o '" + dst + "' '" + url + "' 2>/dev/null";
     FILE* f = popen(cmd.c_str(), "r");
     if (!f) return false;
     char drain[256];
@@ -232,15 +265,18 @@ void NanoMenu::iptvPublish(std::vector<IptvChannel>& ch, std::vector<IptvCat>& c
 
 void NanoMenu::iptvFetchThreadFunc() {
     unlink(kIptvCacheOld);   // drop the legacy iptv-org cache, if present (one-time)
-    bool stale = iptvCacheStale();
+    // Refresh when the cache is missing/old OR the user changed the playlist URL (override).
+    bool urlChanged = (iptvResolveUrl() != iptvReadMarker());
+    bool stale = urlChanged || iptvCacheStale();
     bool downloaded = false;
     if (stale) {
         if (iptvDownloadIndex(kIptvCacheTmp)) {
             if (rename(kIptvCacheTmp, kIptvCache) == 0) {
                 (void)chown(kIptvCache, 0, 0);
                 (void)chmod(kIptvCache, 0644);
+                iptvWriteMarker(iptvResolveUrl());   // record which URL this cache came from
                 downloaded = true;
-                ILOGI("NanoMenu: IPTV playlist refreshed");
+                ILOGI("NanoMenu: IPTV playlist refreshed%s", urlChanged ? " (URL changed)" : "");
             } else {
                 unlink(kIptvCacheTmp);
             }

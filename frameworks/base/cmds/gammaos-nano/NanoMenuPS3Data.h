@@ -46,6 +46,7 @@ static const Ps3DataItem kGameSettingsCh[] = {
 static const Ps3DataItem kVideoSettingsCh[] = {
   {"BD/DVD Auto-start",22,"Configure BD/DVD auto-start settings.","On",0,nullptr,0},
   {"IPTV Channels",22,"Show the IPTV live channel browser in the Video menu.","On",1,nullptr,0},
+  {"IPTV Playlist URL",22,"Use your own IPTV playlist (m3u/m3u8) URL instead of the built-in Free-TV list. Leave blank for the default.","",1,nullptr,0},
 };
 // Boxart / cover scraper (GammaOS addition). Leaves bind to persist.gammaos.scraper.*
 // via kPs3Bindings (matched by label); "Scrape All Systems" is an action leaf.

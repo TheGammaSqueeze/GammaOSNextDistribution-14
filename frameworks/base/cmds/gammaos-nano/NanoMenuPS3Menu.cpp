@@ -4301,6 +4301,7 @@ static const Ps3SettingBinding kPs3Bindings[] = {
     {"Scraper", SettingSource::kProp, "persist.gammaos.scraper.engine", "screenscraper",
      "screenscraper:ScreenScraper,thegamesdb:TheGamesDB"},
     {"IPTV Channels", SettingSource::kProp, "persist.gammaos.nano.iptv", "true", "false:Off,true:On"},
+    {"IPTV Playlist URL", SettingSource::kProp, "persist.gammaos.nano.iptv.url", "", "@text"},
     {"Replace Icons with Boxart", SettingSource::kProp, "persist.gammaos.scraper.boxart", "true", "false:Off,true:On"},
     {"Hover Background Art", SettingSource::kProp, "persist.gammaos.scraper.fanart", "true", "false:Off,true:On"},
     {"Scrape Region", SettingSource::kProp, "persist.gammaos.scraper.region", "us",
