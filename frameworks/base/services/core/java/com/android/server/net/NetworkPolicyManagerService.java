@@ -5226,7 +5226,10 @@ public class NetworkPolicyManagerService extends INetworkPolicyManager.Stub {
      */
     @GuardedBy("mUidRulesFirstLock")
     private void updateRulesForAppIdleParoleUL() {
-        final boolean paroled = mAppStandby.isInParole();
+        // mAppStandby is null in GammaOS nano minimal boot (initService not run); with no
+        // app-standby service, treat everything as paroled so the standby chain stays off
+        // rather than NPE here.
+        final boolean paroled = (mAppStandby == null) || mAppStandby.isInParole();
         final boolean enableChain = !paroled;
 
         int ruleCount = mUidFirewallStandbyRules.size();
@@ -5336,8 +5339,13 @@ public class NetworkPolicyManagerService extends INetworkPolicyManager.Stub {
                         someArgs.argi3 = uidBlockedState.deriveUidRules();
                         uidStateUpdates.append(uid, someArgs);
                         // TODO: Update the state for all changed uids together.
-                        mActivityManagerInternal.onUidBlockedReasonsChanged(uid,
-                                uidBlockedState.effectiveBlockedReasons);
+                        // mActivityManagerInternal is null in GammaOS nano minimal boot
+                        // (initService not run); skipping the AMS notification is safe and
+                        // avoids an NPE that, reached via a binder call, crashes the app.
+                        if (mActivityManagerInternal != null) {
+                            mActivityManagerInternal.onUidBlockedReasonsChanged(uid,
+                                    uidBlockedState.effectiveBlockedReasons);
+                        }
                     }
                 }
             }
@@ -5573,7 +5581,9 @@ public class NetworkPolicyManagerService extends INetworkPolicyManager.Stub {
             mUidBlockedState.delete(uid);
         }
         mUidState.delete(uid);
-        mActivityManagerInternal.onUidBlockedReasonsChanged(uid, BLOCKED_REASON_NONE);
+        if (mActivityManagerInternal != null) {   // null in nano minimal boot (initService not run)
+            mActivityManagerInternal.onUidBlockedReasonsChanged(uid, BLOCKED_REASON_NONE);
+        }
         mUidPolicy.delete(uid);
         mUidFirewallStandbyRules.delete(uid);
         mUidFirewallDozableRules.delete(uid);
@@ -5928,7 +5938,9 @@ public class NetworkPolicyManagerService extends INetworkPolicyManager.Stub {
 
     private void handleBlockedReasonsChanged(int uid, int newEffectiveBlockedReasons,
             int oldEffectiveBlockedReasons) {
-        mActivityManagerInternal.onUidBlockedReasonsChanged(uid, newEffectiveBlockedReasons);
+        if (mActivityManagerInternal != null) {   // null in nano minimal boot (initService not run)
+            mActivityManagerInternal.onUidBlockedReasonsChanged(uid, newEffectiveBlockedReasons);
+        }
         postBlockedReasonsChangedMsg(uid, newEffectiveBlockedReasons, oldEffectiveBlockedReasons);
     }
 
@@ -6312,7 +6324,9 @@ public class NetworkPolicyManagerService extends INetworkPolicyManager.Stub {
                 // Now update the network policy rules as per the updated uid state.
                 updated = updateUidStateUL(uid, procState, procStateSeq, capability);
                 // Updating the network rules is done, so notify AMS about this.
-                mActivityManagerInternal.notifyNetworkPolicyRulesUpdated(uid, procStateSeq);
+                if (mActivityManagerInternal != null) {   // null in nano minimal boot
+                    mActivityManagerInternal.notifyNetworkPolicyRulesUpdated(uid, procStateSeq);
+                }
             }
             // Do this without the lock held. handleUidChanged() and handleUidGone() are
             // called from the handler, so there's no multi-threading issue.
