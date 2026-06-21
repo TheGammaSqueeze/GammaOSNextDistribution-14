@@ -138,6 +138,21 @@ void NanoMenu::gsearchBuild(const std::string& q) {
         }
     }
 
+    // --- Internet Radio: live stations by name (grouped under the Music section). Parse the
+    // cache inline on first search so stations are included without opening the browser first. ---
+    if (property_get_bool("persist.gammaos.nano.radio", true)) {
+        radioEnsureLoadedSync();
+        size_t rCount = 0;
+        std::lock_guard<std::mutex> lk(mRadioMutex);
+        for (size_t i = 0; i < mRadioStations.size() && rCount < kMaxPerSection; i++) {
+            if (!ciContains(mRadioStations[i].name, query)) continue;
+            GSearchResult gr; gr.section = 1; gr.label = mRadioStations[i].name;
+            gr.sub = "Internet Radio"; gr.kind = PS3_RADIO_STATION; gr.a = (int)i;
+            gr.payload = mRadioStations[i].url;
+            mGSearchResults.push_back(gr); rCount++;
+        }
+    }
+
     // Stable order: by section, then label (case-insensitive). std::stable_sort keeps
     // the within-section discovery order for equal labels.
     std::stable_sort(mGSearchResults.begin(), mGSearchResults.end(),
@@ -230,6 +245,14 @@ void NanoMenu::gsearchActivate() {
             std::vector<VidStreamRef> q;
             VidStreamRef s; s.name = r.label; s.url = r.payload; q.push_back(s);
             openIptvStream(q, 0);
+            return;
+        }
+        case PS3_RADIO_STATION: {
+            gsearchClose();
+            std::vector<Ps3Item> list;
+            Ps3Item it; it.kind = PS3_RADIO_STATION; it.label = r.label; it.payloadStr = r.payload;
+            list.push_back(it);
+            openRadioStation(list, 0);
             return;
         }
         default: return;

@@ -48,6 +48,10 @@ static const Ps3DataItem kVideoSettingsCh[] = {
   {"IPTV Channels",22,"Show the IPTV live channel browser in the Video menu.","On",1,nullptr,0},
   {"IPTV Playlist URL",22,"Use your own IPTV playlist (m3u/m3u8) URL instead of the built-in Free-TV list. Leave blank for the default.","",1,nullptr,0},
 };
+static const Ps3DataItem kMusicSettingsCh[] = {
+  {"Internet Radio",22,"Show the Internet Radio station browser in the Music menu.","On",1,nullptr,0},
+  {"Internet Radio Playlist URL",22,"Use your own radio playlist (m3u/pls) URL instead of the built-in list. Leave blank for the default.","",1,nullptr,0},
+};
 // Boxart / cover scraper (GammaOS addition). Leaves bind to persist.gammaos.scraper.*
 // via kPs3Bindings (matched by label); "Scrape All Systems" is an action leaf.
 static const Ps3DataItem kScraperSettingsCh[] = {
@@ -323,7 +327,7 @@ static const Ps3DataItem kSettingsItems[] = {
   {"Game Settings",5,"Adjusts settings for games.",nullptr,0,PS3CH(kGameSettingsCh)},
   {"Boxart Scraper",5,"Downloads box art and background art for your games and replaces the game icons.",nullptr,0,PS3CH(kScraperSettingsCh)},
   {"Video Settings",9,"Adjusts settings for video.",nullptr,0,PS3CH(kVideoSettingsCh)},
-  {"Music Settings",3,"Adjusts settings for music.",nullptr,0,nullptr,0},
+  {"Music Settings",3,"Adjusts settings for music.",nullptr,0,PS3CH(kMusicSettingsCh)},
   {"Chat Settings",42,"Adjusts settings for chat.",nullptr,0,nullptr,0},
   {"System Settings",12,"Adjusts settings for this PS3™ system.",nullptr,0,PS3CH(kSystemSettingsCh)},
   {"Developer Options",12,"Adjusts advanced settings for software developers.",nullptr,0,PS3CH(kDevOptionsCh)},
@@ -353,6 +357,7 @@ static const Ps3DataItem kPhotoItems[] = {
 
 // ---- Music --------------------------------------------------------------
 static const Ps3DataItem kMusicItems[] = {
+  {"Internet Radio",3,"Browse and listen to free live Internet radio stations from a community station list. Streams play over the Internet and are not hosted or verified by GammaOS.",nullptr,0,nullptr,0},
   {"Search for Media Servers",35,"Scans the network and connects to a media server. To use this function, a media server must be set up to allow connections from the PS3™ system.",nullptr,0,nullptr,0},
   {"Playlists",37,nullptr,nullptr,0,nullptr,0},
 };

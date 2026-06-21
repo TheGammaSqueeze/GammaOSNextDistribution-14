@@ -984,6 +984,10 @@ private:
         PS3_IPTV_GROUP,     // a category -> country submenu or channels (a = mIptvCats idx)
         PS3_IPTV_COUNTRY,   // a country within a category -> channel submenu (a = cat idx, b = country idx)
         PS3_IPTV_CHANNEL,   // a channel -> open the live stream player (a = mIptvChannels idx; payloadStr = stream URL)
+        // ---- Internet Radio (live audio stations m3u; nano addition, Music category) ----
+        PS3_RADIO_GROUP,    // a station group -> bucket submenu or stations (a = mRadioCats idx)
+        PS3_RADIO_BUCKET,   // an alpha bucket within a group -> station submenu (a = cat idx, b = bucket idx)
+        PS3_RADIO_STATION,  // a station -> open the audio stream in the music player (a = mRadioStations idx; payloadStr = URL)
     };
     // Game Systems editor screen kinds (Ps3Level.screenKind). Used to route the
     // X / L1 / R1 / Y buttons contextually while a GS screen is on the nav stack.
@@ -991,7 +995,7 @@ private:
     enum GsScreenKind { GS_NONE = 0, GS_LIST = 1, GS_EDITOR = 2, GS_FOLDER = 3,
                         GS_ICONGRID = 4, GS_EMUPICK = 5, GS_FOLDERBROWSE = 6,
                         MUSIC_FOLDER = 7, PHOTO_FOLDER = 8, PHOTO_GRID = 9,
-                        VIDEO_FOLDER = 10, IPTV_GROUPS = 11 };
+                        VIDEO_FOLDER = 10, IPTV_GROUPS = 11, RADIO_STATIONS = 12 };
     struct Ps3Item {
         std::string label;
         std::string desc;
@@ -1760,6 +1764,42 @@ private:
     void openIptvStream(const std::vector<VidStreamRef>& queue, int startIdx);  // play a channel (queue = the group)
     bool vidOpenStream(const VidStreamRef& s);        // URL analog of vidOpenTitle (picture + audio)
 
+    // ==== Internet Radio (live audio stations, nano addition - Music category) ============
+    // Mirrors IPTV but audio-only: stations parsed from a community m3u (default the Pulham
+    // Internet-Radio HQ list), downloaded via device curl, cached under /data, refreshed every
+    // 24h (cached copy kept on a failed refresh). Gated by a first-use disclaimer
+    // (persist.gammaos.nano.radio.agreed) and a Music Settings toggle (persist.gammaos.nano.radio).
+    // The user can override the playlist URL (persist.gammaos.nano.radio.url). Grouped by the m3u
+    // group-title; lists with no groups become one "All Stations" group split into alpha buckets.
+    // Activating a station streams its URL through the MUSIC player (openRadioStation) so it gets
+    // the Now-Playing screen, visualizers, clock-bar indicator and background playback.
+    struct RadioStation { std::string name; std::string url; std::string group; };
+    struct RadioBucket  { std::string name; std::vector<int> stations; };  // a sub-bucket (indices into mRadioStations)
+    struct RadioCat     { std::string title; std::vector<RadioBucket> buckets; int total = 0; };
+    std::vector<RadioStation> mRadioStations;         // published flat list (UI reads under mRadioMutex)
+    std::vector<RadioCat>     mRadioCats;             // group -> bucket -> stations (sorted)
+    std::mutex mRadioMutex;                            // guards the published stations/cats + status
+    std::atomic<bool> mRadioScanRunning{false};       // a fetch/parse worker is in flight
+    std::atomic<bool> mRadioReady{false};             // stations are loaded + usable
+    std::atomic<bool> mRadioDirty{false};             // worker finished -> rebuild the open radio screen
+    std::string mRadioStatus;                          // "Loading..."/error text (guarded by mRadioMutex)
+    int mRadioEnabledCache = -1;                       // last-seen persist.gammaos.nano.radio (live toggle-hide)
+    void radioOpen();                                  // disclaimer-passed entry: load + push the stations screen
+    void radioEnsureLoaded();                          // lazy: kick the (24h) refresh worker (async publish)
+    void radioEnsureLoadedSync();                      // parse the on-disk cache inline if not loaded (for search), then kick refresh
+    void radioFetchAsync();                            // spawn the download/parse worker (guarded)
+    void radioFetchThreadFunc();                       // worker: 24h-gated download -> parse -> publish (keep cache on fail)
+    bool radioDownloadIndex(const std::string& dst);   // curl the m3u to a temp file (true on non-empty success)
+    bool radioParseM3u(const std::string& path,
+                       std::vector<RadioStation>& outSt,
+                       std::vector<RadioCat>& outCat);
+    void radioPublish(std::vector<RadioStation>& st, std::vector<RadioCat>& cat);
+    void radioDrain();                                 // render thread: rebuild the open radio screen; live toggle-hide
+    void buildRadioRootScreen(Ps3Level& out);          // Internet Radio -> group/bucket/station list (screenKind RADIO_STATIONS)
+    void buildRadioBucketSubmenu(int catIdx, Ps3Level& out);                 // group -> bucket list
+    void buildRadioStationSubmenu(int catIdx, int bucketIdx, Ps3Level& out); // (group,bucket) -> stations
+    void openRadioStation(const std::vector<Ps3Item>& list, int listSel);    // play a station in the music player (queue = surrounding stations)
+
     // ---- Video player screen (R4 V2) - the full-screen 1:1 player (web drawVideoPlayer)
     bool mVidActive = false;                // the player is up
     std::vector<int> mVidList;              // mVideos indices in the player queue (all column videos)
@@ -1964,7 +2004,13 @@ private:
     bool mMusicResumeShown = false;    // is the Quick Menu "Resume Audio Player" item present
     int  mMpRepeat = 0;                // 0 off / 1 all / 2 one
     bool mMpShuffle = false;
-    std::vector<int> mMpOrder;         // playback order (indices into mMpQueue)
+    std::vector<int> mMpOrder;         // playback order (indices into mMpQueue, or mMpRadioQueue when radio)
+    // Internet Radio session: when true the player queue is mMpRadioQueue (live station URLs),
+    // not mMusicTracks. The Now-Playing screen shows station name / group / LIVE (no seek bar,
+    // no FF/REW, no auto-advance on end); L/R step stations. mMpIdx indexes mMpRadioQueue.
+    bool mMpIsRadio = false;
+    std::vector<RadioStation> mMpRadioQueue;   // the playing station queue (the surrounding group)
+    bool mMpRadioErrShown = false;             // one-shot: "Could not open this station." already shown
     void openMusicPlayer(const std::vector<Ps3Item>& list, int listSel);
     void musicRemapQueueAfterReload(); // re-resolve mMpQueue indices by file path after mMusicTracks is replaced
     void closeMusicPlayer();           // full stop + release the audio engine
@@ -1992,12 +2038,12 @@ private:
     // a watchdog abort or a hang. The render thread enqueues a command (cheap) and a
     // dedicated worker executes the blocking op, so the render loop never stalls.
     enum class MpAudioCmd { Play, Pause, Stop, Seek, OpenPlay, Release };
-    struct MpAudioReq { MpAudioCmd cmd; double arg; std::string path; };
+    struct MpAudioReq { MpAudioCmd cmd; double arg; std::string path; bool radio = false; };
     std::mutex mMpAudioMutex;
     std::condition_variable mMpAudioCv;
     std::deque<MpAudioReq> mMpAudioQueue;
     bool mMpAudioStarted = false;
-    void mpAudioCmd(MpAudioCmd cmd, double arg = 0.0, const std::string& path = std::string());
+    void mpAudioCmd(MpAudioCmd cmd, double arg = 0.0, const std::string& path = std::string(), bool radio = false);
     void mpAudioWorker();
     // True while an auto-advance OpenPlay is in flight. Since open() is async now,
     // ended() stays true until the worker loads the next track; without this the

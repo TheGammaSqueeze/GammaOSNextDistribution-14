@@ -81,7 +81,9 @@ public:
     // PAUSED; call play() to start. Returns false if the file can't be opened/decoded.
     // audioTrackIndex: -1 = first audio track (default); >=0 = that exact extractor track
     // (used by the video player to switch between multiple embedded audio tracks).
-    bool open(const std::string& path, int audioTrackIndex = -1);
+    // radioStream: the path is an Internet Radio URL - hint NanoHls to stream it continuously
+    // with bounded disk (see NanoHls directHint); ignored for local files.
+    bool open(const std::string& path, int audioTrackIndex = -1, bool radioStream = false);
 
     // "Fed" mode: an external producer (NanoTsDemux) decodes and pushes PCM via
     // feedPcm() instead of NanoAudio running its own extractor + decode thread. Sets up
@@ -103,6 +105,7 @@ public:
     bool isPaused() const;
     bool isStopped() const;
     bool ended();                              // EOS decoded AND ring drained (drives auto-advance)
+    bool openFailed() const { return mOpenFailed.load(); }   // last open() could not be decoded (UI error)
 
     double position() const;                    // elapsed seconds
     double duration() const;                    // track length seconds (from metadata)
@@ -148,6 +151,7 @@ private:
     // could not reach). mShutdown blocks recovery during teardown.
     std::atomic<bool> mRecovering{false};
     std::atomic<bool> mShutdown{false};
+    std::atomic<bool> mOpenFailed{false};       // open() failed to parse/decode (UI shows an error)
     bool openStreamLocked(int rate, int channels);   // build the stream (mStreamMutex held)
     void recoverStream();                            // reopen on the new device after a disconnect
 
@@ -162,6 +166,7 @@ private:
     std::thread mDecodeThread;
     std::atomic<bool> mDecodeStop{false};       // ask the decoder to exit
     int mForcedAudioTrack = -1;                  // -1 = first audio; >=0 = exact extractor track (set in open(), read on the decode thread before it starts)
+    bool mRadioStream = false;                    // open() flagged this as a continuous Internet Radio URL (NanoHls directHint)
 
     // ---- cached demuxer (parsed once in open(), reused across seek() restarts) ----
     // Stored as void* so the NDK media headers stay out of this header. A seek restarts the

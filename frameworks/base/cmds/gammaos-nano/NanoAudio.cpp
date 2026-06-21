@@ -315,10 +315,12 @@ void NanoAudioPlayer::stopDecoder() {
     mDecodeStop = false;
 }
 
-bool NanoAudioPlayer::open(const std::string& path, int audioTrackIndex) {
+bool NanoAudioPlayer::open(const std::string& path, int audioTrackIndex, bool radioStream) {
     init();
     mShutdown.store(false);   // re-arm route-change recovery for this playback
+    mOpenFailed.store(false); // clear any prior open error
     mForcedAudioTrack = audioTrackIndex;   // -1 = first audio (default); >=0 = that extractor track
+    mRadioStream = radioStream;            // continuous-stream hint for NanoHls (Internet Radio)
 
     stopDecoder();                 // join any previous decode (thread no longer owns the extractor)
 
@@ -327,6 +329,7 @@ bool NanoAudioPlayer::open(const std::string& path, int audioTrackIndex) {
     Meta m;
     if (!setupExtractor(path, audioTrackIndex, m)) {
         ALOGW("NanoAudio: open failed %s", path.c_str());
+        mOpenFailed.store(true);
         freeExtractor();
         return false;
     }
@@ -610,14 +613,30 @@ bool NanoAudioPlayer::setupExtractor(const std::string& path, int wantTrack, Met
     if (isUrl) {
         // Native AMediaExtractor cannot fetch http(s) (UNSUPPORTED). Fetch in-process via
         // curl/HLS and feed the bytes through a custom data source (mirrors the video path).
-        mExHls = new NanoHls(path);
+        // Internet Radio (mRadioStream) hints continuous streaming + bounded disk in NanoHls.
+        mExHls = new NanoHls(path, mRadioStream);
         if (!mExHls->start()) { delete mExHls; mExHls = nullptr; return false; }
+        if (mRadioStream) {
+            // Pre-buffer before the container probe: a raw-codec icecast stream (Ogg/FLAC/AAC)
+            // needs its full setup headers present when AMediaExtractor sniffs + enumerates
+            // tracks, otherwise the probe races the first byte and finds 0 tracks. Wait up to
+            // ~3s for 256 KB (plenty for any header); abort early on teardown.
+            for (int i = 0; i < 300 && mExHls->produced() < 256 * 1024; i++) {
+                if (mDecodeStop.load()) { delete mExHls; mExHls = nullptr; return false; }
+                usleep(10000);
+            }
+        }
         AMediaExtractor* ex = AMediaExtractor_new();
         media_status_t dst = AMediaExtractor_setDataSourceCustom(ex, mExHls->dataSource());
-        if (dst != AMEDIA_OK) { AMediaExtractor_delete(ex); delete mExHls; mExHls = nullptr; return false; }
+        if (dst != AMEDIA_OK) {
+            ALOGW("NanoAudio: setDataSourceCustom failed (%d) for %s", (int)dst, path.c_str());
+            AMediaExtractor_delete(ex); delete mExHls; mExHls = nullptr; return false;
+        }
         int track = -1;
         AMediaFormat* tf = nullptr;
         if (!readMetaFromExtractor(ex, -1, outMeta, &track, &tf, wantTrack)) {
+            ALOGW("NanoAudio: no audio track in stream %s (tracks=%zu)",
+                  path.c_str(), AMediaExtractor_getTrackCount(ex));
             AMediaExtractor_delete(ex); delete mExHls; mExHls = nullptr; return false;
         }
         AMediaExtractor_selectTrack(ex, track);

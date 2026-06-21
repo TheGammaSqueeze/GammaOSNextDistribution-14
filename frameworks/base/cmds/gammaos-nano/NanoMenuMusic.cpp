@@ -723,11 +723,39 @@ void NanoMenu::openMusicPlayer(const std::vector<Ps3Item>& list, int listSel) {
                                 ? mMusicTracks[list[i].a].file : std::string());
     }
     if (mMpQueue.empty()) return;
+    mMpIsRadio = false;        // a local-track session (clears any prior radio session)
+    mMpRadioQueue.clear();
     mMpIdx = (start >= 0 && start < (int)mMpQueue.size()) ? start : 0;
     mMpRepeat = 0;
     mMpShuffle = false;
     mpRebuildOrder();
     mMpActive = true;
+    mpPlayCurrent();
+}
+
+// Internet Radio: open the music player on a live-station queue (the audio analog of
+// openIptvStream). The queue is every station row in the current list; playback starts at the
+// selected row. mMpIsRadio routes mpPlayCurrent/render/step down the live-stream path (no seek
+// bar, no auto-advance; L/R step stations). Background playback + visualizers come for free.
+void NanoMenu::openRadioStation(const std::vector<Ps3Item>& list, int listSel) {
+    std::vector<RadioStation> q;
+    int start = 0;
+    for (int i = 0; i < (int)list.size(); i++) {
+        if (list[i].kind != PS3_RADIO_STATION) continue;
+        if (i == listSel) start = (int)q.size();
+        RadioStation s; s.name = list[i].label; s.url = list[i].payloadStr; s.group = list[i].desc;
+        q.push_back(std::move(s));
+    }
+    if (q.empty()) return;
+    mMpRadioQueue = std::move(q);
+    mMpQueue.clear(); mMpQueueFiles.clear();   // the radio session does not use the track queue
+    mMpIsRadio = true;
+    mMpIdx = (start >= 0 && start < (int)mMpRadioQueue.size()) ? start : 0;
+    mMpRepeat = 0;
+    mMpShuffle = false;
+    mpRebuildOrder();
+    mMpActive = true;
+    mMpEnterT = 0.0f;          // play the presence fade-in like a fresh open
     mpPlayCurrent();
 }
 
@@ -746,6 +774,7 @@ void NanoMenu::closeMusicPlayer() {
         mMusicPlayer.release();   // worker never started; safe to release directly
     }
     mMpQueue.clear(); mMpQueueFiles.clear(); mMpOrder.clear(); mMpIdx = 0;
+    mMpIsRadio = false; mMpRadioQueue.clear();   // end any Internet Radio session
     mpFreeArt();              // free the cached album-art texture
     ps3canyon::shutdown();    // free the Canyon GL objects (lazy-reloaded next time)
     ps3mpglobe::shutdown();   // free the Globe GL objects
@@ -778,8 +807,8 @@ void NanoMenu::freeMusicVisGl() {
 
 // Reopen the Now-Playing screen on the live queue (Quick Menu "Resume Audio Player").
 void NanoMenu::resumeMusicPlayer() {
-    if (mMpQueue.empty()) return;
-    musicEnsureLoaded();
+    if (mMpQueue.empty() && !(mMpIsRadio && !mMpRadioQueue.empty())) return;
+    if (!mMpIsRadio) musicEnsureLoaded();
     mMpActive = true;
     mMpEnterT = 0.0f;                 // replay the presence fade-in
     if (mMpVis == 1) ps3canyon::init();   // canyon was freed on minimize
@@ -789,7 +818,7 @@ void NanoMenu::resumeMusicPlayer() {
 // Enqueue an audio-control command for the worker thread. Render-thread-safe and
 // non-blocking: the worker runs the (possibly blocking) NanoAudio op so the render
 // loop never stalls on the audio server / codec. Lazy-starts the worker.
-void NanoMenu::mpAudioCmd(MpAudioCmd cmd, double arg, const std::string& path) {
+void NanoMenu::mpAudioCmd(MpAudioCmd cmd, double arg, const std::string& path, bool radio) {
     if (!mMpAudioStarted) {
         mMpAudioStarted = true;
         std::thread(&NanoMenu::mpAudioWorker, this).detach();
@@ -802,8 +831,9 @@ void NanoMenu::mpAudioCmd(MpAudioCmd cmd, double arg, const std::string& path) {
             !mMpAudioQueue.empty() && mMpAudioQueue.back().cmd == cmd) {
             mMpAudioQueue.back().arg = arg;
             mMpAudioQueue.back().path = path;
+            mMpAudioQueue.back().radio = radio;
         } else {
-            mMpAudioQueue.push_back({cmd, arg, path});
+            mMpAudioQueue.push_back({cmd, arg, path, radio});
         }
     }
     mMpAudioCv.notify_one();
@@ -824,7 +854,7 @@ void NanoMenu::mpAudioWorker() {
             case MpAudioCmd::Stop:  mMusicPlayer.stop();  break;
             case MpAudioCmd::Seek:  mMusicPlayer.seek(req.arg); break;
             case MpAudioCmd::OpenPlay:
-                if (!req.path.empty() && mMusicPlayer.open(req.path)) mMusicPlayer.play();
+                if (!req.path.empty() && mMusicPlayer.open(req.path, -1, req.radio)) mMusicPlayer.play();
                 break;
             case MpAudioCmd::Release: mMusicPlayer.release(); break;
         }
@@ -834,6 +864,12 @@ void NanoMenu::mpAudioWorker() {
 void NanoMenu::mpPlayCurrent() {
     mMpSeekPending = false;   // drop any in-flight scrub so it can't apply to the new track
     mMpAdvancing = true;      // a track is loading (async); suppress auto-advance until ended() clears
+    mMpRadioErrShown = false; // re-arm the radio open-error message for this station
+    if (mMpIsRadio) {         // Internet Radio: open the station URL as a continuous stream
+        if (mMpIdx < 0 || mMpIdx >= (int)mMpRadioQueue.size()) return;
+        mpAudioCmd(MpAudioCmd::OpenPlay, 0.0, mMpRadioQueue[mMpIdx].url, /*radio=*/true);
+        return;
+    }
     if (mMpIdx < 0 || mMpIdx >= (int)mMpQueue.size()) return;
     int ti = mMpQueue[mMpIdx];
     if (ti < 0 || ti >= (int)mMusicTracks.size()) return;
@@ -842,7 +878,7 @@ void NanoMenu::mpPlayCurrent() {
 
 void NanoMenu::mpRebuildOrder() {
     mMpOrder.clear();
-    int n = (int)mMpQueue.size();
+    int n = mMpIsRadio ? (int)mMpRadioQueue.size() : (int)mMpQueue.size();
     for (int i = 0; i < n; i++) mMpOrder.push_back(i);
     if (mMpShuffle && n > 1) {
         for (int i = n - 1; i > 0; i--) { int j = rand() % (i + 1); std::swap(mMpOrder[i], mMpOrder[j]); }
@@ -929,7 +965,8 @@ void NanoMenu::musicTick() {
     // keeps going while the player is minimized into the background.
     // Quick Menu "Resume Audio Player" visibility: rebuild the categories when audio
     // starts or stops so the item appears/disappears.
-    bool audioLoaded = !mMpQueue.empty() && (mMusicPlayer.isPlaying() || mMusicPlayer.isPaused());
+    bool audioLoaded = (!mMpQueue.empty() || (mMpIsRadio && !mMpRadioQueue.empty()))
+                       && (mMusicPlayer.isPlaying() || mMusicPlayer.isPaused());
     if (audioLoaded != mMusicResumeShown) { mMusicResumeShown = audioLoaded; mPs3CatsStale = true; }
     // Commit a debounced scrub seek once input has settled (~0.22s). The heavy seek
     // (it joins+restarts the decoder) runs on the audio worker, so the render thread
@@ -946,6 +983,13 @@ void NanoMenu::musicTick() {
         mMpAdvancing = true;
         if (mMpRepeat == 2) mpPlayCurrent();
         else mpStep(1, true);
+    }
+    // Internet Radio: a station the platform extractor cannot open (some Ogg/FLAC/HE-AAC raw
+    // streams) would otherwise sit at a silent 0:00 - surface a clear one-shot message so the
+    // user knows to try another station (Left/Right) or back out.
+    if (mMpIsRadio && mMpActive && !mMpAdvancing && !mMpRadioErrShown && mMusicPlayer.openFailed()) {
+        mMpRadioErrShown = true;
+        mpShowMsg("Could not open this station.", 1800.0f, 0);
     }
 
     if (!mMpActive) return;
@@ -1043,10 +1087,28 @@ void NanoMenu::mpCycleVis() {
 }
 
 void NanoMenu::renderMusicPlayer() {
-    if (mMpQueue.empty()) { mMpActive = false; return; }
-    int ti = (mMpIdx >= 0 && mMpIdx < (int)mMpQueue.size()) ? mMpQueue[mMpIdx] : -1;
-    if (ti < 0 || ti >= (int)mMusicTracks.size()) return;
-    const MusicTrack& t = mMusicTracks[ti];
+    // Resolve the current item's display data: a local track for the Internet Radio session
+    // (synthesized from the station + the live stream's codec), else the real library track.
+    MusicTrack radioT;
+    const MusicTrack* tp = nullptr;
+    int ti = -1;
+    const bool live = mMpIsRadio;
+    if (live) {
+        if (mMpRadioQueue.empty()) { mMpActive = false; return; }
+        if (mMpIdx < 0 || mMpIdx >= (int)mMpRadioQueue.size()) return;
+        const RadioStation& s = mMpRadioQueue[mMpIdx];
+        radioT.title = s.name;
+        radioT.artist = s.group.empty() ? "Internet Radio" : s.group;
+        NanoAudioPlayer::Meta m = mMusicPlayer.meta();
+        radioT.codec = m.codec;
+        tp = &radioT;
+    } else {
+        if (mMpQueue.empty()) { mMpActive = false; return; }
+        ti = (mMpIdx >= 0 && mMpIdx < (int)mMpQueue.size()) ? mMpQueue[mMpIdx] : -1;
+        if (ti < 0 || ti >= (int)mMusicTracks.size()) return;
+        tp = &mMusicTracks[ti];
+    }
+    const MusicTrack& t = *tp;
     float enter = mMpEnterT;
     bool panelUp = mMpCpOpen || mMpCpClosing;
 
@@ -1082,7 +1144,8 @@ void NanoMenu::renderMusicPlayer() {
     // their spacing scales too (exactly 0.866 / 0.900 at 1x).
     float jsz = SZ(0.085f * mpUi), ax = DXP(0.066f), ay = DYP(0.912f) - jsz;
     // Album art: per-track image, else per-folder cover, else the note placeholder.
-    GLuint jac = mpTrackArt(ti); if (!jac) jac = mpJacket();
+    // Internet Radio has no local file - always the note placeholder.
+    GLuint jac = (ti >= 0) ? mpTrackArt(ti) : 0; if (!jac) jac = mpJacket();
     if (jac) drawIconTex(jac, ax, ay, jsz, jsz, 1.0f, 1.0f, 1.0f, enter);
 
     float tx = ax + jsz + DXD(0.013f * mpUi);
@@ -1139,8 +1202,10 @@ void NanoMenu::renderMusicPlayer() {
              titleScale, 1.0f, 1.0f, 1.0f, 0.95f * enter);
     glDisable(GL_SCISSOR_TEST);
 
-    // artist / album (70%) - same marquee + clip so it never overlaps the seek bar
-    std::string sub = (t.artist.empty() ? "-" : t.artist) + " / " + (t.album.empty() ? "-" : t.album);
+    // artist / album (70%) - same marquee + clip so it never overlaps the seek bar.
+    // Internet Radio shows just the station group (no "/ album").
+    std::string sub = live ? (t.artist.empty() ? "Internet Radio" : t.artist)
+                           : (t.artist.empty() ? "-" : t.artist) + " / " + (t.album.empty() ? "-" : t.album);
     float subScale = FSZ(19.0f * mpUi);
     float soff = marqueeOff(measureText(sub.c_str(), subScale), bandW);
     clipBand(tx, bandW);
@@ -1161,7 +1226,8 @@ void NanoMenu::renderMusicPlayer() {
         float lineTime = ay + jsz * 0.60f;   // elapsed / total
         float seekY    = ay + jsz * 0.88f;   // seek bar
         // counter N/M right-aligned at clEnd
-        char cnt[24]; snprintf(cnt, sizeof(cnt), "%d / %d", mMpIdx + 1, (int)mMpQueue.size());
+        int qn = live ? (int)mMpRadioQueue.size() : (int)mMpQueue.size();
+        char cnt[24]; snprintf(cnt, sizeof(cnt), "%d / %d", mMpIdx + 1, qn);
         float cs = FSZ(17.0f * mpUi); float cnw = measureText(cnt, cs);
         drawText(cnt, clEnd - cnw, ps3::baselineToTopY(lineTop, cs), cs, 1.0f, 1.0f, 1.0f, 0.70f * fa);
         // codec badge left-aligned at clX (top line, off the time row, never overlaps it)
@@ -1171,19 +1237,34 @@ void NanoMenu::renderMusicPlayer() {
         GLuint cIc = mpIcon(cIdx);
         if (cIc) { float ch = SZ(0.024f * mpUi); float cbw = ch * mpIconAR(cIdx);
                    drawIconTex(cIc, clX, lineTop - ch, cbw, ch, 1, 1, 1, fa); }
-        // elapsed (left) / total (right) on the time line
-        float ts = FSZ(22.0f * mpUi);
-        std::string el = mpFmtTime(cur);
-        std::string tot = (dur > 0 ? mpFmtTime(dur) : "--:--:--");
-        drawText(el.c_str(), clX, ps3::baselineToTopY(lineTime, ts), ts, 1.0f, 1.0f, 1.0f, 0.80f * fa);
-        float totw = measureText(tot.c_str(), ts);
-        drawText(tot.c_str(), clEnd - totw, ps3::baselineToTopY(lineTime, ts), ts, 1.0f, 1.0f, 1.0f, 0.80f * fa);
-        // full-width seek bar
-        float sx = clX, sw = clEnd - clX, shh = SZ(0.012f * mpUi);
-        drawQuad(sx, seekY, sw, shh, 70/255.0f, 70/255.0f, 70/255.0f, 0.95f * fa);
-        drawQuad(sx, seekY, sw, fmaxf(1.0f, SZ(0.0015f * mpUi)), 150/255.0f, 150/255.0f, 150/255.0f, 0.85f * fa);
-        float frac = dur > 0 ? (float)(cur / dur) : 0.0f; if (frac < 0) frac = 0; if (frac > 1) frac = 1;
-        if (frac > 0) drawQuad(sx, seekY, fmaxf(2.0f, sw * frac), shh, 245/255.0f, 245/255.0f, 245/255.0f, 0.95f * fa);
+        if (live) {
+            // Internet Radio is a live stream: no elapsed/total and no seek bar. Show how long
+            // we have been listening (left) and a "LIVE" badge (right), with a static full-width
+            // bar so the layout matches the local-track player.
+            float ts = FSZ(22.0f * mpUi);
+            std::string el = mpFmtTime(cur);
+            drawText(el.c_str(), clX, ps3::baselineToTopY(lineTime, ts), ts, 1.0f, 1.0f, 1.0f, 0.80f * fa);
+            const char* liveStr = "LIVE";
+            float lw = measureText(liveStr, ts);
+            drawText(liveStr, clEnd - lw, ps3::baselineToTopY(lineTime, ts), ts, 1.0f, 0.45f, 0.45f, 0.90f * fa);
+            float sx = clX, sw = clEnd - clX, shh = SZ(0.012f * mpUi);
+            drawQuad(sx, seekY, sw, shh, 70/255.0f, 70/255.0f, 70/255.0f, 0.95f * fa);
+            drawQuad(sx, seekY, sw, shh, 245/255.0f, 90/255.0f, 90/255.0f, 0.35f * fa);   // live tint
+        } else {
+            // elapsed (left) / total (right) on the time line
+            float ts = FSZ(22.0f * mpUi);
+            std::string el = mpFmtTime(cur);
+            std::string tot = (dur > 0 ? mpFmtTime(dur) : "--:--:--");
+            drawText(el.c_str(), clX, ps3::baselineToTopY(lineTime, ts), ts, 1.0f, 1.0f, 1.0f, 0.80f * fa);
+            float totw = measureText(tot.c_str(), ts);
+            drawText(tot.c_str(), clEnd - totw, ps3::baselineToTopY(lineTime, ts), ts, 1.0f, 1.0f, 1.0f, 0.80f * fa);
+            // full-width seek bar
+            float sx = clX, sw = clEnd - clX, shh = SZ(0.012f * mpUi);
+            drawQuad(sx, seekY, sw, shh, 70/255.0f, 70/255.0f, 70/255.0f, 0.95f * fa);
+            drawQuad(sx, seekY, sw, fmaxf(1.0f, SZ(0.0015f * mpUi)), 150/255.0f, 150/255.0f, 150/255.0f, 0.85f * fa);
+            float frac = dur > 0 ? (float)(cur / dur) : 0.0f; if (frac < 0) frac = 0; if (frac > 1) frac = 1;
+            if (frac > 0) drawQuad(sx, seekY, fmaxf(2.0f, sw * frac), shh, 245/255.0f, 245/255.0f, 245/255.0f, 0.95f * fa);
+        }
     }
 
     if (panelUp) drawMpStatusRow(ax, enter);
@@ -1402,11 +1483,13 @@ void NanoMenu::mpOptActivate() {
     else if (!strcmp(a, "stop")) { mpAudioCmd(MpAudioCmd::Stop); }
     else if (!strcmp(a, "next")) { mMpTransientIcon = 2; mMpTransientUntil = mEffectTime + 0.9f; mpNext(); }
     else if (!strcmp(a, "prev")) { mMpTransientIcon = 1; mMpTransientUntil = mEffectTime + 0.9f; mpPrev(); }
-    else if (!strcmp(a, "rew")) { mMpTransientIcon = 5; mMpTransientUntil = mEffectTime + 0.9f;
+    else if (!strcmp(a, "rew")) { if (mMpIsRadio) return;   // live stream: no seek
+        mMpTransientIcon = 5; mMpTransientUntil = mEffectTime + 0.9f;
         double base = mMpSeekPending ? mMpSeekTarget : mMusicPlayer.position();
         double p = base - 10.0; if (p < 0.0) p = 0.0;
         mMpSeekTarget = p; mMpSeekPending = true; mMpSeekInputT = mEffectTime; }
-    else if (!strcmp(a, "ff")) { mMpTransientIcon = 6; mMpTransientUntil = mEffectTime + 0.9f;
+    else if (!strcmp(a, "ff")) { if (mMpIsRadio) return;   // live stream: no seek
+        mMpTransientIcon = 6; mMpTransientUntil = mEffectTime + 0.9f;
         double base = mMpSeekPending ? mMpSeekTarget : mMusicPlayer.position();
         double d = mMusicPlayer.duration(); double np = base + 10.0; if (d > 0.0 && np > d) np = d;
         mMpSeekTarget = np; mMpSeekPending = true; mMpSeekInputT = mEffectTime; }
@@ -1414,7 +1497,8 @@ void NanoMenu::mpOptActivate() {
     else if (!strcmp(a, "shuffle")) { mMpShuffle = !mMpShuffle; mpRebuildOrder(); }
     else if (!strcmp(a, "vis")) { mpCycleVis(); }
     else if (!strcmp(a, "disp")) { mMpFullInfo = !mMpFullInfo; }
-    else if (!strcmp(a, "del")) { mpShowMsg("Deleting...", 800.0f, 1); }
+    else if (!strcmp(a, "del")) { if (mMpIsRadio) return;   // nothing to delete for a live station
+        mpShowMsg("Deleting...", 800.0f, 1); }
     else if (!strcmp(a, "addpl")) {
         // Web mpOpenAddChooser: present an XMB-style chooser to add to an existing
         // playlist or create a new one (rather than jumping straight to the OSK).

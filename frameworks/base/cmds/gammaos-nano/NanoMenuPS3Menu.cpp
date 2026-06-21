@@ -597,9 +597,13 @@ void NanoMenu::buildPs3Cats() {
         c.iconTex = mPs3CatTex[catIdx];
         c.nmapTex = mPs3CatNmap[catIdx];
         bool iptvOn = property_get_bool("persist.gammaos.nano.iptv", true);
+        bool radioOn = property_get_bool("persist.gammaos.nano.radio", true);
         for (int ii = 0; ii < dc.itemCount; ii++) {
             // The IPTV row (Video category) is hidden when toggled off in Video Settings.
             if (strcmp(dc.id, "video") == 0 && !iptvOn && strcmp(dc.items[ii].name, "IPTV") == 0)
+                continue;
+            // The Internet Radio row (Music category) is hidden when toggled off in Music Settings.
+            if (strcmp(dc.id, "music") == 0 && !radioOn && strcmp(dc.items[ii].name, "Internet Radio") == 0)
                 continue;
             c.items.push_back(makeDataItem(&dc.items[ii]));
         }
@@ -1700,6 +1704,7 @@ void NanoMenu::ps3XmbLeft() {
     if (mMpActive) {   // chooser ignores L/R; panel grid nav, or scrub back 5s with no panel
         if (mMpPlChooserActive) return;
         if (mMpCpOpen) mpOptMove(-1, 0);
+        else if (mMpIsRadio) mpStep(-1, false);   // radio is live: L = previous station (no scrub)
         else { double base = mMpSeekPending ? mMpSeekTarget : mMusicPlayer.position();
                double p = base - 5.0; if (p < 0.0) p = 0.0;
                mMpSeekTarget = p; mMpSeekPending = true; mMpSeekInputT = mEffectTime; }
@@ -1746,6 +1751,7 @@ void NanoMenu::ps3XmbRight() {
     if (mMpActive) {   // panel grid nav, or scrub fwd 5s with no panel (hold = continuous; debounced commit)
         if (mMpPlChooserActive) return;
         if (mMpCpOpen) mpOptMove(+1, 0);
+        else if (mMpIsRadio) mpStep(+1, false);   // radio is live: R = next station (no scrub)
         else { double base = mMpSeekPending ? mMpSeekTarget : mMusicPlayer.position();
                double d = mMusicPlayer.duration(); double np = base + 5.0;
                if (d > 0.0 && np > d) np = d;
@@ -2006,6 +2012,13 @@ void NanoMenu::ps3XmbSelect() {
             if (sel == 0) { property_set("persist.gammaos.nano.iptv.agreed", "1"); iptvOpen(); }
             return;
         }
+        // Internet Radio first-use disclaimer (Music category): mirror the IPTV one.
+        if (mPs3DlgKind == 0 && mPs3DlgTitle == "Internet Radio") {
+            int sel = mPs3DlgSel;
+            mPs3DlgActive = false; mPs3DlgBlurValid = false;
+            if (sel == 0) { property_set("persist.gammaos.nano.radio.agreed", "1"); radioOpen(); }
+            return;
+        }
         // X commits a chooser (theme leaf or settings-bound leaf); on a plain
         // message dialog it just dismisses.
         closePs3Dialog(mPs3DlgThemeKey > 0 || mPs3DlgBinding != nullptr); return;
@@ -2156,6 +2169,24 @@ void NanoMenu::ps3XmbSelect() {
             openIptvStream(q, startIdx);
             return;
         }
+        case PS3_RADIO_GROUP: {   // a station group -> bucket submenu, or straight to stations if one bucket
+            int nBuckets;
+            { std::lock_guard<std::mutex> lk(mRadioMutex);
+              nBuckets = (it.a >= 0 && it.a < (int)mRadioCats.size()) ? (int)mRadioCats[it.a].buckets.size() : 0; }
+            Ps3Level lvl;
+            if (nBuckets <= 1) buildRadioStationSubmenu(it.a, 0, lvl);
+            else               buildRadioBucketSubmenu(it.a, lvl);
+            mPs3Stack.push_back(lvl); break;
+        }
+        case PS3_RADIO_BUCKET: {   // an alpha bucket within a group -> its station submenu
+            Ps3Level lvl; buildRadioStationSubmenu(it.a, it.b, lvl); mPs3Stack.push_back(lvl); break;
+        }
+        case PS3_RADIO_STATION: {
+            // Play this station in the music player. Queue = the surrounding station list so
+            // prev/next steps through the group.
+            openRadioStation(items, sel);
+            return;
+        }
         case PS3_MUSIC_PL_NEW: {
             openOskForPassword("Enter a name for the playlist",
                 [this](const std::string& nm){ musicCreatePlaylist(nm);
@@ -2234,6 +2265,13 @@ void NanoMenu::ps3XmbSelect() {
                 mPs3SubParentItems = ps; mPs3SubParentIdx = pSel; mPs3SubChildItems = mPs3Stack.back().items;
                 mPs3SubDir = 1; mPs3SubAnimStart = mEffectTime; mPs3SubAnim = 0.0f;
                 mPs3AnimItem = 0.0f; mPs3ItemAnimStart = -1.0f;
+                return;
+            }
+            if (inMusicCat && it.label == "Internet Radio") {
+                // First use requires accepting the content disclaimer; afterwards it goes
+                // straight to the station browser.
+                if (property_get_bool("persist.gammaos.nano.radio.agreed", false)) radioOpen();
+                else openPs3Dialog(it);   // disclaimer (kPs3DlgTemplates "Internet Radio"); accept -> radioOpen()
                 return;
             }
             if (inMusicCat && it.label == "Search for Media Servers") { musicOpenFolders(); return; }
@@ -4302,6 +4340,8 @@ static const Ps3SettingBinding kPs3Bindings[] = {
      "screenscraper:ScreenScraper,thegamesdb:TheGamesDB"},
     {"IPTV Channels", SettingSource::kProp, "persist.gammaos.nano.iptv", "true", "false:Off,true:On"},
     {"IPTV Playlist URL", SettingSource::kProp, "persist.gammaos.nano.iptv.url", "", "@text"},
+    {"Internet Radio", SettingSource::kProp, "persist.gammaos.nano.radio", "true", "false:Off,true:On"},
+    {"Internet Radio Playlist URL", SettingSource::kProp, "persist.gammaos.nano.radio.url", "", "@text"},
     {"Replace Icons with Boxart", SettingSource::kProp, "persist.gammaos.scraper.boxart", "true", "false:Off,true:On"},
     {"Hover Background Art", SettingSource::kProp, "persist.gammaos.scraper.fanart", "true", "false:Off,true:On"},
     {"Scrape Region", SettingSource::kProp, "persist.gammaos.scraper.region", "us",
@@ -4819,6 +4859,13 @@ static const Ps3DlgTemplate kPs3DlgTemplates[] = {
    "that a channel is licensed to broadcast in your region. Use these channels only where "
    "permitted by law.\n\n"
    "By continuing you accept that you view these channels at your own risk. Do you accept?",
+   {"I Accept","Decline",nullptr,nullptr},0,nullptr,1},
+  {"Internet Radio",3,"Internet Radio",
+   "Internet Radio stations are loaded from a community-maintained playlist. These streams "
+   "are publicly listed and are not hosted, validated, or curated by GammaOS.\n\n"
+   "GammaOS cannot guarantee that any source is free of copyrighted content, or that a "
+   "station is licensed to broadcast in your region. Listen only where permitted by law.\n\n"
+   "By continuing you accept that you listen to these stations at your own risk. Do you accept?",
    {"I Accept","Decline",nullptr,nullptr},0,nullptr,1},
   {"Audio Output Settings",2,"Audio Output Settings",
    "Select the connector on the TV or AV amplifier (receiver).",
