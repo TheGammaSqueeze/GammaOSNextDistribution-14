@@ -5143,7 +5143,11 @@ public class NetworkPolicyManagerService extends INetworkPolicyManager.Stub {
             final List<UserInfo> users = mUserManager.getUsers();
             for (int ui = users.size() - 1; ui >= 0; ui--) {
                 UserInfo user = users.get(ui);
-                int[] idleUids = mUsageStats.getIdleUidsForUser(user.id);
+                // mUsageStats is null in GammaOS nano minimal boot (initService not run);
+                // no app-standby data means no idle uids, so leave the standby chain empty
+                // instead of NPEing here.
+                int[] idleUids = (mUsageStats != null)
+                        ? mUsageStats.getIdleUidsForUser(user.id) : new int[0];
                 for (int uid : idleUids) {
                     if (!mPowerSaveTempWhitelistAppIds.get(UserHandle.getAppId(uid), false)) {
                         // quick check: if this uid doesn't have INTERNET permission, it
@@ -5512,6 +5516,15 @@ public class NetworkPolicyManagerService extends INetworkPolicyManager.Stub {
                 // UID is temporarily allowlisted.
                 return false;
             }
+        }
+
+        // GammaOS nano minimal boot creates this service on a background thread but does
+        // not run initService(), so UsageStatsManagerInternal (mUsageStats) is never wired.
+        // Without app-standby data, treat the uid as not idle (skip standby restriction)
+        // rather than NPE here - reached from jobFinished, the NPE is parceled back and
+        // crashes the job's owner app (e.g. com.android.webview:webview_apk).
+        if (mUsageStats == null) {
+            return false;
         }
 
         final String[] packages = mContext.getPackageManager().getPackagesForUid(uid);
