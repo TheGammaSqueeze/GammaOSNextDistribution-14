@@ -63,6 +63,7 @@ cc_binary {
         "NanoMenuPS3Boot.cpp",
         "NanoMenuSetupWizard.cpp",
         "NanoMenuStrings.cpp",
+        "NanoBtStable.cpp",
         "NanoAudio.cpp",
         "NanoMenuAudioBands.cpp",
         "NanoMenuMusic.cpp",

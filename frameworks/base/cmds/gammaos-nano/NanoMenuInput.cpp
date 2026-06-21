@@ -817,7 +817,10 @@ bool NanoMenu::enterDrmSleep() {
     nanobl::nanoBacklightSet(0);
     setBrightnessViaHal(0);
     // Drop to the powersave governor (lowest clocks) while the screen is off - audio
-    // decode + the 1Hz poll run comfortably there. Restored on wake.
+    // decode + the 1Hz poll run comfortably there. Restored on wake. Publish the
+    // screen-off state so the BT stability monitor reverts to powersave (not the
+    // user's perf mode) if A2DP audio stops while the screen is off.
+    property_set("sys.gammaos.nano.screenoff", "1");
     nanoApplyPerfClock("powersave");
 
     // Drive the WHOLE device into a real PowerManager suspend (not just a
@@ -959,6 +962,7 @@ bool NanoMenu::enterDrmSleep() {
         nanobl::nanoBacklightSet(mBrightness);
         setBrightnessViaHal(sysfs_val);
     }
+    property_set("sys.gammaos.nano.screenoff", "0");
     nanoRestorePerfClock();   // restore the user's performance mode (was powersave while off)
     ALOGI("NanoMenu: woke up");
     mInDrmSleep.store(false, std::memory_order_relaxed);

@@ -84,6 +84,7 @@ extern "C" uint32_t __system_property_serial(const prop_info* __pi);
 #include "NanoMenu.h"
 #include "NanoMenuShaders.h"
 #include "NanoMenuStrings.h"
+#include "NanoBtStable.h"
 #include "NanoMenuPS3Bg.h"   // ps3bg::themeFading() for the adaptive idle frame-rate
 
 extern int gEarlyDrmFd;
@@ -1228,6 +1229,13 @@ bool NanoMenu::threadLoop() {
                   strerror(rc));
         }
     }
+
+    // Launch the Bluetooth A2DP stability monitor on its own background thread.
+    // While a BT sink is the active audio route it keeps the controller awake and,
+    // while audio is streaming, pins the CPU so software A2DP encoding never
+    // starves (stability over battery, gated by persist.gammaos.nano.btstable).
+    // Idempotent + self-electing across the two nano processes; see NanoBtStable.
+    nanoStartBtStability();
 
     // GammaOS: Render thread is NOT pinned to a specific CPU.
     //
@@ -3528,8 +3536,8 @@ if (sRingPrimedCount >= 2) {
             // user's mode when it returns (the framework drives display standby for the
             // overlay, but not the CPU clocks).
             static bool sOvlPwrSave = false;
-            if (screenOff && !sOvlPwrSave) { nanoApplyPerfClock("powersave"); sOvlPwrSave = true; }
-            else if (!screenOff && sOvlPwrSave) { nanoRestorePerfClock(); sOvlPwrSave = false; }
+            if (screenOff && !sOvlPwrSave) { nanoApplyPerfClock("powersave"); property_set("sys.gammaos.nano.screenoff", "1"); sOvlPwrSave = true; }
+            else if (!screenOff && sOvlPwrSave) { property_set("sys.gammaos.nano.screenoff", "0"); nanoRestorePerfClock(); sOvlPwrSave = false; }
             // The framework drives suspend for the overlay; release the BT bluesleep
             // wakelock (BT off) so it is not blocked. Restored when the panel returns.
             static bool sOvlBtLpm = false;
@@ -3590,8 +3598,8 @@ if (sRingPrimedCount >= 2) {
             property_get("sys.screen.state", ss, "on");
             bool screenOff = !strcmp(ss, "off");
             static bool sSfPwrSave = false;
-            if (screenOff && !sSfPwrSave) { nanoApplyPerfClock("powersave"); sSfPwrSave = true; }
-            else if (!screenOff && sSfPwrSave) { nanoRestorePerfClock(); sSfPwrSave = false; }
+            if (screenOff && !sSfPwrSave) { nanoApplyPerfClock("powersave"); property_set("sys.gammaos.nano.screenoff", "1"); sSfPwrSave = true; }
+            else if (!screenOff && sSfPwrSave) { property_set("sys.gammaos.nano.screenoff", "0"); nanoRestorePerfClock(); sSfPwrSave = false; }
             // Release the BT bluesleep wakelock (BT off) on framework-driven screen-off
             // so suspend-to-RAM is not blocked; restored when the panel returns.
             static bool sSfBtLpm = false;
