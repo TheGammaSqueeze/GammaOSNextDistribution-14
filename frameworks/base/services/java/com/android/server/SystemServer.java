@@ -2536,6 +2536,22 @@ public final class SystemServer implements Dumpable {
                 t.traceEnd();
             }
 
+            // GammaOS Nano: wired/USB headset detection (WiredAccessoryManager) normally starts
+            // in the skipped !minimalBoot block below, so in minimal_boot a 3.5mm headset insert
+            // (SW_HEADPHONE_INSERT) was never reported to the audio policy and playback stayed on
+            // the speaker. Start it here too (same code the full boot runs), right after
+            // AudioService so the policy can act on the headset state.
+            if (minimalBoot && !isWatch) {
+                t.traceBegin("StartWiredAccessoryManager-minimal");
+                try {
+                    inputManager.setWiredAccessoryCallbacks(
+                            new WiredAccessoryManager(context, inputManager));
+                } catch (Throwable e) {
+                    reportWtf("starting WiredAccessoryManager (minimal)", e);
+                }
+                t.traceEnd();
+            }
+
             if (!minimalBoot) { // GammaOS Nano: skip SoundTrigger through MIDI
             t.traceBegin("StartSoundTriggerMiddlewareService");
             mSystemServiceManager.startService(SoundTriggerMiddlewareService.Lifecycle.class);
