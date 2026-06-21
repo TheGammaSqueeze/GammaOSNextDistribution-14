@@ -45,7 +45,8 @@
 
 namespace android {
 
-class NanoHls;   // in-process HTTP/HLS fetcher for IPTV audio (open() of an http URL)
+class NanoHls;       // in-process HTTP/HLS fetcher for IPTV audio (open() of an http URL)
+class NanoIcyDemux;  // custom streaming demuxer for radio Ogg/FLAC/AAC the extractor can't open
 
 class NanoAudioPlayer {
 public:
@@ -106,6 +107,10 @@ public:
     bool isStopped() const;
     bool ended();                              // EOS decoded AND ring drained (drives auto-advance)
     bool openFailed() const { return mOpenFailed.load(); }   // last open() could not be decoded (UI error)
+    void markOpenFailed() { mOpenFailed.store(true); }       // NanoIcyDemux signals a failed radio open
+    void setCodecLabel(const std::string& c) {               // NanoIcyDemux sets the codec badge (openFed clears meta)
+        std::lock_guard<std::mutex> lk(mMetaMutex); mMeta.codec = c;
+    }
 
     double position() const;                    // elapsed seconds
     double duration() const;                    // track length seconds (from metadata)
@@ -179,6 +184,8 @@ private:
     void* mExTsUd = nullptr;                     // descramble userdata
     int   mExFd = -1;                            // fd backing the extractor
     NanoHls* mExHls = nullptr;                    // in-process HTTP/HLS fetcher (http URL); freed after the extractor
+    NanoIcyDemux* mIcy = nullptr;                 // radio Ogg/FLAC/AAC custom demuxer (fed mode); null otherwise
+    void icyFree();                               // stop + join + delete the radio demuxer (idempotent)
     std::string mExPath;                         // path the cached extractor was built for
     int   mExTrack = -1;                         // selected track index
     bool  mExUseAc3 = false;                     // selected track is AC-3 (liba52 path)

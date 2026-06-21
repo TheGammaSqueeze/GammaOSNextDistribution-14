@@ -20,6 +20,7 @@
 #include "NanoAc3.h"   // liba52 AC-3 -> int16 stereo (device has no AC-3 codec)
 #include "NanoTsDescramble.h"   // descramble scrambled-flagged .ts so its audio track extracts
 #include "NanoHls.h"   // in-process HTTP/HLS fetcher (IPTV audio over http)
+#include "NanoIcyDemux.h"   // custom streaming demuxer for radio Ogg/FLAC/AAC
 
 #include <aaudio/AAudio.h>
 #include <media/NdkMediaExtractor.h>
@@ -315,6 +316,10 @@ void NanoAudioPlayer::stopDecoder() {
     mDecodeStop = false;
 }
 
+void NanoAudioPlayer::icyFree() {
+    if (mIcy) { mIcy->requestStop(); delete mIcy; mIcy = nullptr; }   // dtor joins the worker
+}
+
 bool NanoAudioPlayer::open(const std::string& path, int audioTrackIndex, bool radioStream) {
     init();
     mShutdown.store(false);   // re-arm route-change recovery for this playback
@@ -322,7 +327,29 @@ bool NanoAudioPlayer::open(const std::string& path, int audioTrackIndex, bool ra
     mForcedAudioTrack = audioTrackIndex;   // -1 = first audio (default); >=0 = that extractor track
     mRadioStream = radioStream;            // continuous-stream hint for NanoHls (Internet Radio)
 
+    icyFree();                     // drop any prior radio demuxer
     stopDecoder();                 // join any previous decode (thread no longer owns the extractor)
+
+    // Internet Radio: the platform AMediaExtractor cannot open Ogg (Vorbis/FLAC/Opus) or ADTS-AAC
+    // over a streaming source (0 tracks). Route those to NanoIcyDemux (custom demux -> AMediaCodec
+    // -> fed PCM). MP3 / HLS / unknown fall through to the extractor below (which handles them).
+    if (radioStream) {
+        NanoIcyDemux::Codec c = NanoIcyDemux::probe(path);
+        if (c == NanoIcyDemux::kOgg || c == NanoIcyDemux::kAac) {
+            freeExtractor();
+            mHead = 0; mTail = 0; mEos = false; mFramesConsumed = 0; mSeekBaseFrames = 0;
+            mClockArmed = false; mPendingSeekUs = -1; mStopped = false;
+            mCurrentPath = path;
+            { std::lock_guard<std::mutex> lk(mMetaMutex); mMeta = Meta{};
+              mMeta.codec = (c == NanoIcyDemux::kAac) ? "AAC" : "OGG"; }
+            mIcy = new NanoIcyDemux(path, this, c);
+            if (mIcy->start()) return true;   // worker calls openFed + play + feedPcm; sets openFailed on error
+            delete mIcy; mIcy = nullptr;
+            mOpenFailed.store(true);
+            return false;
+        }
+        // c == kUnknown: fall through to the extractor (MP3 etc.)
+    }
 
     // Parse the container + select the track ONCE here (fills the meta) and cache the
     // demuxer; the decode thread and every later seek reuse it without re-parsing.
@@ -507,6 +534,7 @@ void NanoAudioPlayer::release() {
     mShutdown.store(true);   // block any new route-change recovery from touching the stream
     // Wait out an in-flight recovery (bounded) so its detached thread never reopens after free.
     for (int i = 0; i < 100 && mRecovering.load(); i++) usleep(10000);
+    icyFree();                           // stop + join the radio demuxer (its worker calls feedPcm)
     if (mExHls) mExHls->requestStop();   // unblock a decode thread parked in the HLS readAt before join
     stopDecoder();
     freeExtractor();               // decode thread joined: safe to drop the cached demuxer
