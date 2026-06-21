@@ -3906,6 +3906,11 @@ if (sRingPrimedCount >= 2) {
                 // deep in the Settings submenu with the progress modal up.
                 scraperDrainResults();
 
+                // IPTV: rebuild the open channel-groups screen when the background fetch/
+                // parse finishes. Must run every frame (not only at the settled XMB root)
+                // because the groups screen is a pushed submenu (mPs3Stack non-empty).
+                iptvDrain();
+
                 // Periodic rescan every 30s (runs on background thread,
                 // zero impact on render)
                 if (mXmbBootCompleted && !mBgScanThreadRunning

@@ -45,6 +45,8 @@
 
 namespace android {
 
+class NanoHls;   // in-process HTTP/HLS fetcher for IPTV audio (open() of an http URL)
+
 class NanoAudioPlayer {
 public:
     struct Meta {
@@ -161,6 +163,7 @@ private:
     void* mExTsDs = nullptr;                     // AMediaDataSource* (TS descramble) or null
     void* mExTsUd = nullptr;                     // descramble userdata
     int   mExFd = -1;                            // fd backing the extractor
+    NanoHls* mExHls = nullptr;                    // in-process HTTP/HLS fetcher (http URL); freed after the extractor
     std::string mExPath;                         // path the cached extractor was built for
     int   mExTrack = -1;                         // selected track index
     bool  mExUseAc3 = false;                     // selected track is AC-3 (liba52 path)

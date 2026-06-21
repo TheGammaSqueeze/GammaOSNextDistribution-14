@@ -29,6 +29,8 @@
 #include <media/NdkMediaFormat.h>
 #include <utils/StrongPointer.h>
 
+namespace android { class NanoHls; }   // IPTV HTTP/HLS in-process fetcher (openUrl)
+
 class NanoVideo {
 public:
     NanoVideo() = default;
@@ -38,9 +40,17 @@ public:
     // duration (s), pixel size, and the video codec short name (e.g. "AVC"/"HEVC").
     struct Meta { double durationSec = 0.0; int width = 0; int height = 0; std::string vcodec; std::string acodec; };
     static bool probe(const std::string& path, Meta& out);
+    // Probe a network URL (http/https, incl. HLS .m3u8). Same fields as probe(); duration
+    // is 0 for live streams. Opens an extractor on the URL (one network connection), reads
+    // the track formats, closes. Blocks while the manifest/first segment is fetched.
+    static bool probeUrl(const std::string& url, Meta& out);
 
     // Open + start decoding (render thread, EGL context current). false = failed.
     bool open(const std::string& path);
+    // Open + start decoding from a network URL (http/https, incl. HLS .m3u8). The platform
+    // extractor fetches the manifest/segments transparently. Live streams report duration 0
+    // (no seek). Render thread, EGL current. false = failed.
+    bool openUrl(const std::string& url);
 
     // "Fed" mode: the picture is decoded from access units pushed by an external demuxer
     // (NanoTsDemux) instead of NanoVideo's own AMediaExtractor. This is how a .ts plays:
@@ -129,6 +139,11 @@ private:
     AMediaDataSource* mDataSource = nullptr;
     void* mTsPatch = nullptr;        // TsPatch userdata (dup'd fd + PMT pid) for mDataSource
     void freeTsSource();             // delete the data source + free its userdata (after mEx)
+    // IPTV: in-process HTTP/HLS fetcher backing the custom data source for openUrl(). Owns
+    // the streaming temp file; freed after mEx in release()/releaseAsync (the extractor read
+    // through its data source). null for local files.
+    android::NanoHls* mHls = nullptr;
+    void freeHls();
     int mVideoTrack = -1;
     int mWidth = 0, mHeight = 0;
     std::atomic<float> mDisplayAspect{0.0f};   // intended DAR; 0 = use the coded pixel ratio

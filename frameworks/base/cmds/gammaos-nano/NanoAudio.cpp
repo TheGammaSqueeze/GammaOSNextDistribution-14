@@ -19,6 +19,7 @@
 #include "NanoAudio.h"
 #include "NanoAc3.h"   // liba52 AC-3 -> int16 stereo (device has no AC-3 codec)
 #include "NanoTsDescramble.h"   // descramble scrambled-flagged .ts so its audio track extracts
+#include "NanoHls.h"   // in-process HTTP/HLS fetcher (IPTV audio over http)
 
 #include <aaudio/AAudio.h>
 #include <media/NdkMediaExtractor.h>
@@ -465,6 +466,7 @@ NanoAudioPlayer::Meta NanoAudioPlayer::meta() const {
 }
 
 void NanoAudioPlayer::release() {
+    if (mExHls) mExHls->requestStop();   // unblock a decode thread parked in the HLS readAt before join
     stopDecoder();
     freeExtractor();               // decode thread joined: safe to drop the cached demuxer
     closeStream();
@@ -564,6 +566,29 @@ void NanoAudioPlayer::getBands(Bands& out) {
 // restart the decode thread) never re-parse. Must run with the decode thread stopped.
 bool NanoAudioPlayer::setupExtractor(const std::string& path, int wantTrack, Meta& outMeta) {
     freeExtractor();                                  // drop any previous cache
+    // Network stream (http/https, incl. HLS .m3u8): point the extractor at the URL; the
+    // platform fetches the manifest/segments. No fd, no descramble (IPTV is clear).
+    bool isUrl = path.compare(0, 7, "http://") == 0 || path.compare(0, 8, "https://") == 0;
+    if (isUrl) {
+        // Native AMediaExtractor cannot fetch http(s) (UNSUPPORTED). Fetch in-process via
+        // curl/HLS and feed the bytes through a custom data source (mirrors the video path).
+        mExHls = new NanoHls(path);
+        if (!mExHls->start()) { delete mExHls; mExHls = nullptr; return false; }
+        AMediaExtractor* ex = AMediaExtractor_new();
+        media_status_t dst = AMediaExtractor_setDataSourceCustom(ex, mExHls->dataSource());
+        if (dst != AMEDIA_OK) { AMediaExtractor_delete(ex); delete mExHls; mExHls = nullptr; return false; }
+        int track = -1;
+        AMediaFormat* tf = nullptr;
+        if (!readMetaFromExtractor(ex, -1, outMeta, &track, &tf, wantTrack)) {
+            AMediaExtractor_delete(ex); delete mExHls; mExHls = nullptr; return false;
+        }
+        AMediaExtractor_selectTrack(ex, track);
+        const char* mime = nullptr;
+        AMediaFormat_getString(tf, AMEDIAFORMAT_KEY_MIME, &mime);
+        mExtractor = ex; mExFormat = tf; mExTsDs = nullptr; mExTsUd = nullptr; mExFd = -1;
+        mExTrack = track; mExPath = path; mExUseAc3 = isAc3Mime(mime);
+        return true;
+    }
     int fd = ::open(path.c_str(), O_RDONLY);
     if (fd < 0) return false;
     struct stat st;
@@ -602,6 +627,7 @@ void NanoAudioPlayer::freeExtractor() {
     if (mExtractor) { AMediaExtractor_delete(static_cast<AMediaExtractor*>(mExtractor)); mExtractor = nullptr; }
     tsFreeDataSource(static_cast<AMediaDataSource*>(mExTsDs), mExTsUd);   // null-safe
     mExTsDs = nullptr; mExTsUd = nullptr;
+    if (mExHls) { delete mExHls; mExHls = nullptr; }   // after the extractor (it read through the source)
     if (mExFd >= 0) { ::close(mExFd); mExFd = -1; }
     mExPath.clear(); mExTrack = -1; mExUseAc3 = false;
 }

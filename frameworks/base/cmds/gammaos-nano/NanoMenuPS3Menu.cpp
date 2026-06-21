@@ -596,8 +596,13 @@ void NanoMenu::buildPs3Cats() {
         int catIdx = (dc.icon >= 1 && dc.icon <= 6) ? dc.icon - 1 : 0;
         c.iconTex = mPs3CatTex[catIdx];
         c.nmapTex = mPs3CatNmap[catIdx];
-        for (int ii = 0; ii < dc.itemCount; ii++)
+        bool iptvOn = property_get_bool("persist.gammaos.nano.iptv", true);
+        for (int ii = 0; ii < dc.itemCount; ii++) {
+            // The IPTV row (Video category) is hidden when toggled off in Video Settings.
+            if (strcmp(dc.id, "video") == 0 && !iptvOn && strcmp(dc.items[ii].name, "IPTV") == 0)
+                continue;
             c.items.push_back(makeDataItem(&dc.items[ii]));
+        }
         if (strcmp(dc.id, "game") == 0)     gameCatRuntimeIdx     = (int)mPs3Cats.size();
         if (strcmp(dc.id, "settings") == 0) settingsCatRuntimeIdx = (int)mPs3Cats.size();
         if (strcmp(dc.id, "music") == 0)    musicCatRuntimeIdx    = (int)mPs3Cats.size();
@@ -1993,6 +1998,14 @@ void NanoMenu::ps3XmbSelect() {
             startDateTimeWizard(sel == 0 ? 0 : 1);
             return;
         }
+        // IPTV first-use disclaimer: "I Accept" (option 0) records the acceptance and opens
+        // the channel browser; "Decline" just closes (no access without acceptance).
+        if (mPs3DlgKind == 0 && mPs3DlgTitle == "IPTV") {
+            int sel = mPs3DlgSel;
+            mPs3DlgActive = false; mPs3DlgBlurValid = false;
+            if (sel == 0) { property_set("persist.gammaos.nano.iptv.agreed", "1"); iptvOpen(); }
+            return;
+        }
         // X commits a chooser (theme leaf or settings-bound leaf); on a plain
         // message dialog it just dismisses.
         closePs3Dialog(mPs3DlgThemeKey > 0 || mPs3DlgBinding != nullptr); return;
@@ -2118,6 +2131,31 @@ void NanoMenu::ps3XmbSelect() {
             mOskPasswordMode = false; mOskPlaintext = true;   // a playlist name is plain text, not masked
             return;
         }
+        case PS3_IPTV_GROUP: {   // a category -> country submenu, or straight to channels if single-country
+            int nCountries;
+            { std::lock_guard<std::mutex> lk(mIptvMutex);
+              nCountries = (it.a >= 0 && it.a < (int)mIptvCats.size()) ? (int)mIptvCats[it.a].countries.size() : 0; }
+            Ps3Level lvl;
+            if (nCountries <= 1) buildIptvChannelSubmenu(it.a, 0, lvl);
+            else                 buildIptvCountrySubmenu(it.a, lvl);
+            mPs3Stack.push_back(lvl); break;
+        }
+        case PS3_IPTV_COUNTRY: {   // a country within a category -> its channel submenu
+            Ps3Level lvl; buildIptvChannelSubmenu(it.a, it.b, lvl); mPs3Stack.push_back(lvl); break;
+        }
+        case PS3_IPTV_CHANNEL: {
+            // Stream this channel. Queue = the surrounding channel list so prev/next steps
+            // through the group (web-style folder navigation).
+            std::vector<VidStreamRef> q; int startIdx = 0;
+            for (size_t i = 0; i < items.size(); i++) {
+                if (items[i].kind != PS3_IPTV_CHANNEL) continue;
+                if ((int)i == sel) startIdx = (int)q.size();
+                VidStreamRef s; s.name = items[i].label; s.url = items[i].payloadStr; s.group = items[i].desc;
+                q.push_back(std::move(s));
+            }
+            openIptvStream(q, startIdx);
+            return;
+        }
         case PS3_MUSIC_PL_NEW: {
             openOskForPassword("Enter a name for the playlist",
                 [this](const std::string& nm){ musicCreatePlaylist(nm);
@@ -2171,6 +2209,13 @@ void NanoMenu::ps3XmbSelect() {
             bool inVideoCat = (mPs3CatIdx >= 0 && mPs3CatIdx < (int)mPs3Cats.size()
                                && mPs3Cats[mPs3CatIdx].name == "Video");
             if (inVideoCat && it.label == "Search for Media Servers") { videoOpenFolders(); return; }
+            if (inVideoCat && it.label == "IPTV") {
+                // First use requires accepting the iptv-org content disclaimer; afterwards
+                // it goes straight to the channel browser.
+                if (property_get_bool("persist.gammaos.nano.iptv.agreed", false)) iptvOpen();
+                else openPs3Dialog(it);   // disclaimer (kPs3DlgTemplates "IPTV"); accept -> iptvOpen()
+                return;
+            }
             if (inVideoCat && it.label == "Playlists") {
                 videoEnsureLoaded();
                 std::vector<Ps3Item> ps = ps3CurItems(); int pSel = ps3CurSel();
@@ -4255,6 +4300,7 @@ static const Ps3SettingBinding kPs3Bindings[] = {
     // user-supplied (both services require an account/key); "@password" masks them.
     {"Scraper", SettingSource::kProp, "persist.gammaos.scraper.engine", "screenscraper",
      "screenscraper:ScreenScraper,thegamesdb:TheGamesDB"},
+    {"IPTV Channels", SettingSource::kProp, "persist.gammaos.nano.iptv", "true", "false:Off,true:On"},
     {"Replace Icons with Boxart", SettingSource::kProp, "persist.gammaos.scraper.boxart", "true", "false:Off,true:On"},
     {"Hover Background Art", SettingSource::kProp, "persist.gammaos.scraper.fanart", "true", "false:Off,true:On"},
     {"Scrape Region", SettingSource::kProp, "persist.gammaos.scraper.region", "us",
@@ -4764,6 +4810,15 @@ struct Ps3DlgTemplate {
     int         defaultSel;
 };
 static const Ps3DlgTemplate kPs3DlgTemplates[] = {
+  {"IPTV",3,"IPTV",
+   "IPTV channels are loaded from the community-maintained Free-TV/IPTV project "
+   "(github.com/Free-TV/IPTV). These streams are publicly listed and are not hosted, "
+   "validated, or curated by GammaOS.\n\n"
+   "GammaOS cannot guarantee that any source is free of copyrighted or adult content, or "
+   "that a channel is licensed to broadcast in your region. Use these channels only where "
+   "permitted by law.\n\n"
+   "By continuing you accept that you view these channels at your own risk. Do you accept?",
+   {"I Accept","Decline",nullptr,nullptr},0,nullptr,1},
   {"Audio Output Settings",2,"Audio Output Settings",
    "Select the connector on the TV or AV amplifier (receiver).",
    {"HDMI","Optical Digital","Audio Input Connector / SCART / AV MULTI",nullptr},1,
@@ -5602,6 +5657,10 @@ void NanoMenu::openXmbOpt() {
             add("Add to Playlist", "vaddpl", false);
             add("Copy", "vcopy", false); add("Delete", "vdelete", false);
             add("Information", "vinfo", false); break;
+        case PS3_IPTV_CHANNEL:
+            // Live channel: Watch + Add to Playlist (so a channel can be saved like a video).
+            add("Watch", "iptvplay", true);
+            add("Add to Playlist", "iptvaddpl", false); break;
         case PS3_PHOTO_ALBUM: {
             // Photo column-root folder: 1:1 with the web (Sort By + Group Content,
             // a gap, then Slideshow / Copy / Delete / Information).
@@ -5923,6 +5982,22 @@ void NanoMenu::xmbOptAction(const std::string& act) {
     if (act == "vaddpl") {   // add the focused video to a playlist (chooser over the column)
         if (mPs3OptCtxA >= 0 && mPs3OptCtxA < (int)mVideos.size())
             vidOpenAddChooser(mVideos[mPs3OptCtxA].file);
+        return;
+    }
+    if (act == "iptvplay") {   // watch the focused channel (queue = the surrounding group)
+        std::vector<VidStreamRef> q; int startIdx = 0;
+        for (size_t i = 0; i < mPs3OptCtxList.size(); i++) {
+            if (mPs3OptCtxList[i].kind != PS3_IPTV_CHANNEL) continue;
+            if ((int)i == mPs3OptCtxSel) startIdx = (int)q.size();
+            VidStreamRef s; s.name = mPs3OptCtxList[i].label; s.url = mPs3OptCtxList[i].payloadStr;
+            s.group = mPs3OptCtxList[i].desc; q.push_back(std::move(s));
+        }
+        openIptvStream(q, startIdx);
+        return;
+    }
+    if (act == "iptvaddpl") {   // add the focused channel to a playlist
+        VidStreamRef s; s.name = mPs3OptCtxLabel; s.url = mPs3OptCtxPayload; s.group = mPs3OptCtxDesc;
+        if (!s.url.empty()) vidOpenAddStreamChooser(s);
         return;
     }
     if (act == "vcopy" || act == "vdelete") {   // simulated (web doOptAction no-op) -> result dialog
@@ -6655,7 +6730,10 @@ void NanoMenu::renderPs3Dialog() {
             std::vector<std::string> bodyLines = wrap(dlgBody, fs);
             float ty = Y(centerYV) - (float)((int)bodyLines.size() - 1) * lh * 0.5f - DS(50.0f);
             for (auto& ln : bodyLines) { if (!ln.empty()) ps3DlgText(ln.c_str(), XC(VW * 0.5f), ty, fs, 0.95f, 0.95f, 0.95f, ap, 1); ty += lh; }
+            // Custom confirm labels when the template supplies them (e.g. "I Accept"/
+            // "Decline"), else the default Yes/No.
             const char* labels[2] = { "Yes", "No" };
+            if (mPs3DlgOptions.size() >= 2) { labels[0] = mPs3DlgOptions[0].c_str(); labels[1] = mPs3DlgOptions[1].c_str(); }
             float bxc = XC(VW * 0.5f) - DS(110.0f);
             float byv = ty + DS(30.0f);
             for (int i = 0; i < 2; i++)

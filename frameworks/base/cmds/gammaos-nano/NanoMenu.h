@@ -980,6 +980,10 @@ private:
         PS3_VIDEO_REFRESH,  // "Refresh" row in the video folders screen -> rescan the library
         PS3_VIDEO_PLAYLIST, // a video playlist -> its file submenu (a = playlist idx)
         PS3_VIDEO_PL_NEW,   // "Create New Playlist" row in the video playlists screen (OSK name)
+        // ---- IPTV (live channels from iptv-org index.m3u; nano addition) ----
+        PS3_IPTV_GROUP,     // a category -> country submenu or channels (a = mIptvCats idx)
+        PS3_IPTV_COUNTRY,   // a country within a category -> channel submenu (a = cat idx, b = country idx)
+        PS3_IPTV_CHANNEL,   // a channel -> open the live stream player (a = mIptvChannels idx; payloadStr = stream URL)
     };
     // Game Systems editor screen kinds (Ps3Level.screenKind). Used to route the
     // X / L1 / R1 / Y buttons contextually while a GS screen is on the nav stack.
@@ -987,7 +991,7 @@ private:
     enum GsScreenKind { GS_NONE = 0, GS_LIST = 1, GS_EDITOR = 2, GS_FOLDER = 3,
                         GS_ICONGRID = 4, GS_EMUPICK = 5, GS_FOLDERBROWSE = 6,
                         MUSIC_FOLDER = 7, PHOTO_FOLDER = 8, PHOTO_GRID = 9,
-                        VIDEO_FOLDER = 10 };
+                        VIDEO_FOLDER = 10, IPTV_GROUPS = 11 };
     struct Ps3Item {
         std::string label;
         std::string desc;
@@ -1657,9 +1661,13 @@ private:
         int64_t mtime = 0;       // for incremental rescan
         double resumeSec = 0.0;  // last-played position for Resume (0 = none / start fresh)
     };
+    // A live stream reference (IPTV channel) carried by the player queue and stored in a
+    // playlist alongside local files. Keeps the channel name so it survives an index refresh.
+    struct VidStreamRef { std::string name; std::string url; std::string group; };
     struct VideoPlaylist {
         std::string name;
-        std::vector<std::string> files;   // references VideoItem.file (user-only; preserved across scans)
+        std::vector<std::string> files;       // references VideoItem.file (user-only; preserved across scans)
+        std::vector<VidStreamRef> streams;    // IPTV/live-stream channels added to this playlist
     };
     std::vector<std::string> mVideoFolders;
     std::vector<VideoItem>   mVideos;
@@ -1700,6 +1708,8 @@ private:
     std::vector<std::string> mVidPlChooserOpts;   // "New Playlist..." + existing names
     int   mVidPlChooserSel = 0;
     std::string mVidPlChooserFile;                // video file being added
+    bool  mVidPlChooserIsStream = false;          // true = adding an IPTV channel (mVidPlChooserStream)
+    VidStreamRef mVidPlChooserStream;             // the channel being added (when mVidPlChooserIsStream)
     float mVidPlChooserAnim = 0.0f;
     void vidOpenAddChooser(const std::string& file);
     void vidPlChooserMove(int dir);
@@ -1710,11 +1720,54 @@ private:
     void videoSortCycleY();                 // Y on the Video column: cycle sort + banner
     std::string videoSortLabelCur() const;
     bool videoSortLess(int a, int b) const;
+    void videoAddStreamToPlaylist(int plIdx, const VidStreamRef& s);   // add an IPTV channel to a playlist
+    void vidOpenAddStreamChooser(const VidStreamRef& s);               // "Add to Playlist" for a channel
+
+    // ==== IPTV (live channels, nano addition) =============================
+    // Channels parsed from the community iptv-org index.m3u (downloaded via device curl,
+    // cached under /data, refreshed every 24h, cached copy kept if a refresh fails). Gated
+    // by a first-use disclaimer (persist.gammaos.nano.iptv.agreed) and a Video Settings
+    // toggle (persist.gammaos.nano.iptv). Grouped by the m3u group-title; activating a
+    // channel streams its HLS URL through the video player (openIptvStream).
+    // Two-level hierarchy: Group (the m3u group-title - a country or content group) ->
+    // Sub (an alphabetical bucket, only when a group is large) -> Channels. A group small
+    // enough to list directly has a single unnamed sub and skips straight to its channels.
+    struct IptvChannel { std::string name; std::string url; std::string group; };
+    struct IptvCountry { std::string name; std::vector<int> channels; };  // a sub-bucket (indices into mIptvChannels)
+    struct IptvCat     { std::string title; std::vector<IptvCountry> countries; int total = 0; };
+    std::vector<IptvChannel> mIptvChannels;          // published flat list (UI reads under mIptvMutex)
+    std::vector<IptvCat>     mIptvCats;              // category -> country -> channels (sorted)
+    std::mutex mIptvMutex;                            // guards the published channels/cats + status
+    std::atomic<bool> mIptvScanRunning{false};       // a fetch/parse worker is in flight
+    std::atomic<bool> mIptvReady{false};             // channels are loaded + usable
+    std::atomic<bool> mIptvDirty{false};             // worker finished -> rebuild the open IPTV screen
+    std::string mIptvStatus;                          // "Loading..."/error text (guarded by mIptvMutex)
+    int mIptvEnabledCache = -1;                       // last-seen persist.gammaos.nano.iptv (live toggle-hide)
+    void iptvOpen();                                  // disclaimer-passed entry: load + push the categories screen
+    void iptvEnsureLoaded();                          // lazy: kick the (24h) refresh worker (async publish)
+    void iptvEnsureLoadedSync();                      // parse the on-disk cache inline if not loaded (for search), then kick refresh
+    void iptvFetchAsync();                            // spawn the download/parse worker (guarded)
+    void iptvFetchThreadFunc();                       // worker: 24h-gated download -> parse -> publish (keep cache on fail)
+    bool iptvDownloadIndex(const std::string& dst);   // curl the index.m3u to a temp file (true on non-empty success)
+    bool iptvParseM3u(const std::string& path,
+                      std::vector<IptvChannel>& outCh,
+                      std::vector<IptvCat>& outCat);
+    void iptvPublish(std::vector<IptvChannel>& ch, std::vector<IptvCat>& cat);
+    void iptvDrain();                                 // render thread: rebuild the open IPTV screen; live toggle-hide
+    void buildIptvCategoriesScreen(Ps3Level& out);    // IPTV -> category list (screenKind IPTV_GROUPS)
+    void buildIptvCountrySubmenu(int catIdx, Ps3Level& out);          // category -> country list
+    void buildIptvChannelSubmenu(int catIdx, int countryIdx, Ps3Level& out);  // (category,country) -> channels
+    void openIptvStream(const std::vector<VidStreamRef>& queue, int startIdx);  // play a channel (queue = the group)
+    bool vidOpenStream(const VidStreamRef& s);        // URL analog of vidOpenTitle (picture + audio)
 
     // ---- Video player screen (R4 V2) - the full-screen 1:1 player (web drawVideoPlayer)
     bool mVidActive = false;                // the player is up
     std::vector<int> mVidList;              // mVideos indices in the player queue (all column videos)
-    int  mVidIdx = 0;                       // current index into mVidList
+    int  mVidIdx = 0;                       // current index into mVidList (or mVidStreamList for IPTV)
+    // IPTV live-stream session: when true the player queue is mVidStreamList (channel URLs)
+    // instead of mVidList/mVideos. Streams are live (no duration / seek / Resume).
+    bool mVidIsStream = false;
+    std::vector<VidStreamRef> mVidStreamList;
     float mVidEnterRaw = 0.0f;              // linear 0..1 (~400ms)
     float mVidEnterT = 0.0f;                // smoothstep of mVidEnterRaw (multiplies every layer's alpha)
     bool mVidPlaying = true;

@@ -1,5 +1,6 @@
 #include "NanoVideo.h"
 #include "NanoTsDescramble.h"  // shared MPEG-TS descramble data source
+#include "NanoHls.h"           // in-process HTTP/HLS fetcher (IPTV streaming)
 
 #include <GLES2/gl2ext.h>      // GL_TEXTURE_EXTERNAL_OES
 #include <fcntl.h>
@@ -104,6 +105,37 @@ bool NanoVideo::probe(const std::string& path, Meta& out) {
     return gotVideo;
 }
 
+bool NanoVideo::probeUrl(const std::string& url, Meta& out) {
+    AMediaExtractor* ex = AMediaExtractor_new();
+    media_status_t st = AMediaExtractor_setDataSource(ex, url.c_str());
+    if (st != AMEDIA_OK) { AMediaExtractor_delete(ex); return false; }
+    bool gotVideo = false;
+    size_t n = AMediaExtractor_getTrackCount(ex);
+    for (size_t i = 0; i < n; i++) {
+        AMediaFormat* f = AMediaExtractor_getTrackFormat(ex, i);
+        const char* mime = nullptr;
+        if (AMediaFormat_getString(f, AMEDIAFORMAT_KEY_MIME, &mime) && mime) {
+            int64_t durUs = 0;
+            if (AMediaFormat_getInt64(f, AMEDIAFORMAT_KEY_DURATION, &durUs) && durUs / 1e6 > out.durationSec)
+                out.durationSec = durUs / 1e6;
+            if (!strncmp(mime, "video/", 6)) {
+                int32_t w = 0, h = 0;
+                AMediaFormat_getInt32(f, AMEDIAFORMAT_KEY_WIDTH, &w);
+                AMediaFormat_getInt32(f, AMEDIAFORMAT_KEY_HEIGHT, &h);
+                if (w > 0) out.width = w;
+                if (h > 0) out.height = h;
+                out.vcodec = codecShortName(mime);
+                gotVideo = true;
+            } else if (!strncmp(mime, "audio/", 6) && out.acodec.empty()) {
+                out.acodec = codecShortName(mime);
+            }
+        }
+        AMediaFormat_delete(f);
+    }
+    AMediaExtractor_delete(ex);
+    return gotVideo;
+}
+
 bool NanoVideo::open(const std::string& path) {
     if (mOpen) release();
     mDisplayAspect.store(0.0f);   // non-fed extractor path: square pixels (no anamorphic source here)
@@ -188,6 +220,77 @@ bool NanoVideo::open(const std::string& path) {
     mOpen = true;
     mWorker = std::thread(&NanoVideo::decodeLoop, this);
     LOGV("opened %s (%dx%d, %.1fs, %s)", path.c_str(), mWidth, mHeight, mDurationSec, mimeStr.c_str());
+    return true;
+}
+
+// Open a network stream (http/https, incl. HLS .m3u8). Mirrors open() but points the
+// extractor at the URL; the platform extractor fetches the manifest + segments. Live
+// streams report duration 0 so seek() is a no-op (mDurationSec <= 0). No descramble /
+// fed path here: IPTV streams decode natively through the system extractor + HW codec.
+bool NanoVideo::openUrl(const std::string& url) {
+    if (mOpen) release();
+    mDisplayAspect.store(0.0f);
+
+    // Native AMediaExtractor cannot fetch http(s) URLs (no Java MediaHTTPService -> UNSUPPORTED),
+    // so fetch the stream in-process (curl + HLS) and feed the bytes via a custom data source.
+    mHls = new android::NanoHls(url);
+    if (!mHls->start()) { LOGE("NanoHls start failed: %s", url.c_str()); release(); return false; }
+    mEx = AMediaExtractor_new();
+    media_status_t st = AMediaExtractor_setDataSourceCustom(mEx, mHls->dataSource());
+    if (st != AMEDIA_OK) { LOGE("setDataSourceCustom(url) failed (%d): %s", st, url.c_str()); release(); return false; }
+
+    // First video track + its format.
+    size_t nTracks = AMediaExtractor_getTrackCount(mEx);
+    const char* mime = nullptr;
+    AMediaFormat* fmt = nullptr;
+    for (size_t i = 0; i < nTracks; i++) {
+        AMediaFormat* f = AMediaExtractor_getTrackFormat(mEx, i);
+        const char* m = nullptr;
+        if (AMediaFormat_getString(f, AMEDIAFORMAT_KEY_MIME, &m) && m && !strncmp(m, "video/", 6)) {
+            mVideoTrack = (int)i; fmt = f; mime = m; break;
+        }
+        AMediaFormat_delete(f);
+    }
+    if (mVideoTrack < 0 || !fmt) { LOGE("no video track in url %s", url.c_str()); release(); return false; }
+
+    int32_t w = 0, h = 0; int64_t durUs = 0;
+    AMediaFormat_getInt32(fmt, AMEDIAFORMAT_KEY_WIDTH, &w);
+    AMediaFormat_getInt32(fmt, AMEDIAFORMAT_KEY_HEIGHT, &h);
+    AMediaFormat_getInt64(fmt, AMEDIAFORMAT_KEY_DURATION, &durUs);
+    mWidth = w > 0 ? w : 1; mHeight = h > 0 ? h : 1;
+    mDurationSec = durUs > 0 ? durUs / 1e6 : 0.0;   // 0 for live
+
+    AMediaExtractor_selectTrack(mEx, mVideoTrack);
+
+    glGenTextures(1, &mTexId);
+    glBindTexture(GL_TEXTURE_EXTERNAL_OES, mTexId);
+    glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glBindTexture(GL_TEXTURE_EXTERNAL_OES, 0);
+
+    sp<IGraphicBufferProducer> producer;
+    sp<IGraphicBufferConsumer> consumer;
+    BufferQueue::createBufferQueue(&producer, &consumer);
+    mConsumer = new GLConsumer(consumer, mTexId, GL_TEXTURE_EXTERNAL_OES, true, false);
+    mConsumer->setName(android::String8("NanoVideoUrl"));
+    mConsumer->setDefaultBufferSize(mWidth, mHeight);
+    mSurface = new Surface(producer);
+
+    std::string mimeStr = mime;
+    mCodec = AMediaCodec_createDecoderByType(mimeStr.c_str());
+    if (!mCodec) { LOGE("createDecoderByType(%s) failed", mimeStr.c_str()); AMediaFormat_delete(fmt); release(); return false; }
+    media_status_t cs = AMediaCodec_configure(mCodec, fmt, mSurface.get(), nullptr, 0);
+    AMediaFormat_delete(fmt);
+    if (cs != AMEDIA_OK) { LOGE("url codec configure failed (%d)", cs); release(); return false; }
+    if (AMediaCodec_start(mCodec) != AMEDIA_OK) { LOGE("url codec start failed"); release(); return false; }
+
+    mQuit = false; mEnded = false; mPlaying = true; mPosSec = 0.0;
+    { std::lock_guard<std::mutex> lk(mClockMx); mClockBaseNs = 0; mClockBasePts = 0.0; }
+    mOpen = true;
+    mWorker = std::thread(&NanoVideo::decodeLoop, this);
+    LOGV("opened url %s (%dx%d, %.1fs, %s)", url.c_str(), mWidth, mHeight, mDurationSec, mimeStr.c_str());
     return true;
 }
 
@@ -648,6 +751,7 @@ double NanoVideo::position() const { return mPosSec.load(); }
 
 void NanoVideo::release() {
     mQuit = true; mPlaying = false; mEnded = false;
+    if (mHls) mHls->requestStop();   // unblock the worker's readAt BEFORE joining (avoids deadlock)
     mFedCv.notify_all();      // wake the fed worker (and any feedVideo) so it can exit
     // Stop the codec BEFORE joining: the Allwinner MPEG-2 decoder can wedge dequeueOutputBuffer
     // (it ignores the timeout and blocks forever), so the worker would never see mQuit and the
@@ -659,6 +763,7 @@ void NanoVideo::release() {
     if (mCodec) { AMediaCodec_delete(mCodec); mCodec = nullptr; }
     if (mEx) { AMediaExtractor_delete(mEx); mEx = nullptr; }
     freeTsSource();           // after the extractor (it read through the data source)
+    freeHls();                // after the extractor (HLS fetcher backed the custom source)
     mConsumer.clear();        // releases the GL texture image + consumer
     mSurface.clear();
     if (mTexId) { glDeleteTextures(1, &mTexId); mTexId = 0; }
@@ -673,6 +778,10 @@ void NanoVideo::freeTsSource() {
     tsFreeDataSource(mDataSource, mTsPatch);   // delete source + close the dup'd fd
     mDataSource = nullptr; mTsPatch = nullptr;
 }
+void NanoVideo::freeHls() {
+    // Must run AFTER the extractor is deleted (it read through mHls's data source).
+    if (mHls) { delete mHls; mHls = nullptr; }
+}
 
 // Render thread: signal the worker to quit, then hand the ENTIRE blocking teardown
 // (joining the decode worker + AMediaCodec_stop/delete + AMediaExtractor_delete) to a
@@ -685,6 +794,7 @@ void NanoVideo::freeTsSource() {
 void NanoVideo::releaseAsync() {
     if (mAsyncReleasing) return;                 // already tearing down
     mQuit = true; mPlaying = false; mEnded = false; mOpen = false;
+    if (mHls) mHls->requestStop();               // unblock the worker's readAt BEFORE the bg join
     mFedCv.notify_all();                         // wake the fed worker so the join below is fast
     // Hand the worker thread to the bg teardown. CRUCIAL ordering: mCodec / mEx are NOT
     // touched here - the decode worker is still running and reads mCodec inside its
@@ -705,6 +815,7 @@ void NanoVideo::releaseAsync() {
         if (mCodec) { AMediaCodec_delete(mCodec); mCodec = nullptr; }
         if (mEx) { AMediaExtractor_delete(mEx); mEx = nullptr; }
         freeTsSource();                          // after the extractor (it read through the source)
+        freeHls();                               // after the extractor (HLS fetcher backed the source)
         mAsyncDone.store(true);
     });
 }

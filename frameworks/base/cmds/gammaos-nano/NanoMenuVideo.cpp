@@ -168,6 +168,14 @@ bool NanoMenu::loadVideoConfig() {
             if (pl.name.empty()) continue;
             if (const njson::Value* files = p.find("files"); files && files->isArray())
                 for (const auto& f : files->arr) if (f.isString()) pl.files.push_back(f.str);
+            if (const njson::Value* streams = p.find("streams"); streams && streams->isArray())
+                for (const auto& s : streams->arr) {
+                    if (!s.isObject()) continue;
+                    VidStreamRef ref; ref.url = s.getString("url");
+                    if (ref.url.empty()) continue;
+                    ref.name = s.getString("n"); ref.group = s.getString("g");
+                    pl.streams.push_back(std::move(ref));
+                }
             mVideoPlaylists.push_back(std::move(pl));
         }
     VLOGI("NanoMenu: loaded video library (%zu folders, %zu videos, %zu playlists)",
@@ -204,6 +212,15 @@ void NanoMenu::saveVideoConfig() {
         njson::Value files = njson::Value::makeArray();
         for (const auto& f : pl.files) files.arr.push_back(njson::Value::makeString(f));
         p.set("files") = std::move(files);
+        njson::Value streams = njson::Value::makeArray();
+        for (const auto& s : pl.streams) {
+            njson::Value sv = njson::Value::makeObject();
+            sv.set("url") = njson::Value::makeString(s.url);
+            sv.set("n") = njson::Value::makeString(s.name);
+            sv.set("g") = njson::Value::makeString(s.group);
+            streams.arr.push_back(std::move(sv));
+        }
+        p.set("streams") = std::move(streams);
         pls.arr.push_back(std::move(p));
     }
     root.set("playlists") = std::move(pls);
@@ -514,6 +531,13 @@ void NanoMenu::videoAddToPlaylist(int plIdx, const std::string& file) {
     if (std::find(files.begin(), files.end(), file) == files.end()) files.push_back(file);
     saveVideoConfig();
 }
+void NanoMenu::videoAddStreamToPlaylist(int plIdx, const VidStreamRef& s) {
+    if (plIdx < 0 || plIdx >= (int)mVideoPlaylists.size() || s.url.empty()) return;
+    auto& streams = mVideoPlaylists[plIdx].streams;
+    for (const auto& e : streams) if (e.url == s.url) return;   // dedup by URL
+    streams.push_back(s);
+    saveVideoConfig();
+}
 void NanoMenu::buildVideoPlaylistsScreen(Ps3Level& out) {
     out.items.clear(); out.sel = 0; out.title = "Playlists"; out.screenKind = GS_NONE;
     { Ps3Item it; it.label = "Create New Playlist"; it.kind = PS3_VIDEO_PL_NEW;
@@ -521,8 +545,8 @@ void NanoMenu::buildVideoPlaylistsScreen(Ps3Level& out) {
       out.items.push_back(it); }
     for (size_t p = 0; p < mVideoPlaylists.size(); p++) {
         Ps3Item it; it.label = mVideoPlaylists[p].name; it.kind = PS3_VIDEO_PLAYLIST; it.a = (int)p;
-        size_t n = mVideoPlaylists[p].files.size();
-        char v[32]; snprintf(v, sizeof(v), "%zu %s", n, n == 1 ? "Video" : "Videos"); it.value = v;
+        size_t n = mVideoPlaylists[p].files.size() + mVideoPlaylists[p].streams.size();
+        char v[32]; snprintf(v, sizeof(v), "%zu %s", n, n == 1 ? "Item" : "Items"); it.value = v;
         it.iconTex = 0; it.nmapTex = nmapForIcon(62); it.iconR = it.iconG = it.iconB = 1.0f;
         out.items.push_back(it);
     }
@@ -544,9 +568,27 @@ void NanoMenu::buildVideoPlaylistSubmenu(int plIdx, Ps3Level& out) {
         it.iconTex = 0; it.nmapTex = filmNmap; it.iconR = it.iconG = it.iconB = 1.0f;
         out.items.push_back(it);
     }
+    // IPTV channels saved to this playlist (nano addition): rendered as live-stream rows.
+    for (const auto& s : mVideoPlaylists[plIdx].streams) {
+        Ps3Item it; it.label = s.name; it.kind = PS3_IPTV_CHANNEL; it.a = -1;
+        it.payloadStr = s.url; it.desc = s.group; it.value = "Live";
+        it.iconTex = 0; it.nmapTex = filmNmap; it.iconR = it.iconG = it.iconB = 1.0f;
+        out.items.push_back(std::move(it));
+    }
 }
 void NanoMenu::vidOpenAddChooser(const std::string& file) {
     mVidPlChooserFile = file;
+    mVidPlChooserIsStream = false;
+    mVidPlChooserOpts.clear();
+    mVidPlChooserOpts.push_back("New Playlist...");
+    for (const auto& p : mVideoPlaylists) mVidPlChooserOpts.push_back(p.name);
+    mVidPlChooserSel = 0;
+    mVidPlChooserActive = true;
+}
+void NanoMenu::vidOpenAddStreamChooser(const VidStreamRef& s) {
+    mVidPlChooserStream = s;
+    mVidPlChooserFile.clear();
+    mVidPlChooserIsStream = true;
     mVidPlChooserOpts.clear();
     mVidPlChooserOpts.push_back("New Playlist...");
     for (const auto& p : mVideoPlaylists) mVidPlChooserOpts.push_back(p.name);
@@ -561,20 +603,24 @@ void NanoMenu::vidPlChooserMove(int dir) {
 void NanoMenu::vidPlChooserCancel() { mVidPlChooserActive = false; }
 void NanoMenu::vidPlChooserSelect() {
     if (!mVidPlChooserActive) return;
+    bool isStream = mVidPlChooserIsStream;
     std::string file = mVidPlChooserFile;
+    VidStreamRef stream = mVidPlChooserStream;
     int sel = mVidPlChooserSel;
     mVidPlChooserActive = false;
     if (sel == 0) {
         openOskForPassword("Enter a name for the playlist",
-            [this, file](const std::string& nm) {
+            [this, isStream, file, stream](const std::string& nm) {
                 if (nm.empty()) return;
                 videoCreatePlaylist(nm);
-                videoAddToPlaylist((int)mVideoPlaylists.size() - 1, file);
+                if (isStream) videoAddStreamToPlaylist((int)mVideoPlaylists.size() - 1, stream);
+                else          videoAddToPlaylist((int)mVideoPlaylists.size() - 1, file);
                 photoShowBanner("Added to the playlist");
             });
         mOskPasswordMode = false; mOskPlaintext = true;   // a playlist name is plain text, not masked
     } else {
-        videoAddToPlaylist(sel - 1, file);
+        if (isStream) videoAddStreamToPlaylist(sel - 1, stream);
+        else          videoAddToPlaylist(sel - 1, file);
         photoShowBanner("Added to the playlist");
     }
 }
@@ -1489,6 +1535,7 @@ static std::string vFmtTime(double s) {
 void NanoMenu::openVideoPlayer(const std::vector<Ps3Item>& list, int listSel, int resumeChoice) {
     videoEnsureLoaded();
     // Queue = every video file in the current list, starting on the selected one.
+    mVidIsStream = false; mVidStreamList.clear();   // a file session, not an IPTV stream
     mVidList.clear();
     int start = 0;
     for (size_t i = 0; i < list.size(); i++) {
@@ -1549,6 +1596,72 @@ void NanoMenu::openVideoPlayer(const std::vector<Ps3Item>& list, int listSel, in
             mVidResumeAsk = true; mVidResumeAskSec = rs; mVidPlaying = false;   // wait for the choice
         }
     }
+}
+
+// Open a live stream (IPTV channel) URL: picture via NanoVideo::openUrl, audio via a
+// second engine on the same URL (the picture slews to the audio clock; the slew only
+// re-anchors pacing, never seeks, so it is safe for live streams). No .ts/.avi demuxer,
+// no subtitles/chapters (live HLS has none here). Returns false if the picture failed.
+bool NanoMenu::vidOpenStream(const VidStreamRef& s) {
+    mVidTsMode = false; mVidTsAudio = false; mVidHasAudio = false;
+    mVidTsDemux.close();
+    mVidAviMode = false; mVidAviDemux.close();
+    mVidAudTracks.clear(); mVidSubTracks.clear(); mVidChapters.clear(); mVidCcCues.clear();
+    mVidAudCur = 0; mVidSubCur = -1;
+
+    if (!mVideoTest->openUrl(s.url)) return false;
+
+    mVidHasAudio = mVidAudio.open(s.url, -1);   // first audio track of the same stream
+    if (mVidHasAudio) {
+        mVidAudio.setVolume(mVidVolume);
+        VidAudTrk t; t.idx = -1; t.name = "Audio"; mVidAudTracks.push_back(t);
+        NanoAudioPlayer* a = &mVidAudio;
+        mVideoTest->setClockFn([a]{ return a->isPlaying() ? a->position() : -1.0; });
+    } else {
+        mVidAudio.release();
+    }
+    return true;
+}
+
+// Open the full-screen player on a live IPTV channel queue (the surrounding group), so
+// prev/next steps through the group's channels. Live: no Resume, no duration, no seek.
+void NanoMenu::openIptvStream(const std::vector<VidStreamRef>& queue, int startIdx) {
+    if (queue.empty()) return;
+    videoEnsureLoaded();
+    mVidStreamList = queue;
+    mVidList.clear();
+    mVidIsStream = true;
+    mVidIdx = (startIdx >= 0 && startIdx < (int)queue.size()) ? startIdx : 0;
+
+    vidCloseTitleAudio();   // stop any prior demux/audio before freeing the decoder
+    if (mVideoTest) { vidAsyncFree(mVideoTest); mVideoTest = nullptr; }
+    mVideoTest = new NanoVideo();
+    mVidOpening.store(true, std::memory_order_relaxed);
+    if (mMusicPlayer.isPlaying()) mMusicPlayer.pause();
+    if (!vidOpenStream(mVidStreamList[mVidIdx])) {
+        delete mVideoTest; mVideoTest = nullptr;
+        mVidOpening.store(false, std::memory_order_relaxed);
+        mVidIsStream = false;
+        photoShowBanner("Could not open this channel");
+        return;
+    }
+    mVidAudioStarted = false;
+    mVidOpening.store(false, std::memory_order_relaxed);
+
+    mVidActive = true;
+    mVidPlaying = true;
+    mVidScreenMode = 0;
+    mVidOsd = false;
+    mVidHintUntil = mEffectTime + 4.0f;
+    mVidTransientUntil = 0.0f; mVidDispModeUntil = 0.0f;
+    mVidRate = 1.0; mVidStopped = false; mVidRepeat = 0; mVidAbA = mVidAbB = -1.0;
+    mVidScanLastTick = -1.0;
+    mVidLastPos = -1.0; mVidLastPosT = mEffectTime; mVidBuffering = false;
+    mVidCpOpen = mVidCpClosing = mVidSubOpen = false; mVidGoToOpen = false;
+    mVidSceneOpen = mVidSceneClosing = false;
+    mVidResumeAsk = false; mVidResumeSel = 0; mVidResumeAskSec = 0.0;
+    mVidResumeDirty = false; mVidResumeSaveT = mEffectTime;
+    mVidDlgActive = false; mVidDlgBusyUntil = 0.0f;
 }
 
 // Store the playing title's current position for Resume (kept only when >5s in and
@@ -1671,6 +1784,30 @@ void NanoMenu::vidSeek(double deltaSec) {
 }
 
 void NanoMenu::vidStepTitle(int dir) {
+    if (mVidIsStream) {
+        // IPTV: step through the channel queue (the surrounding group), skipping any that
+        // fail to open. Live streams have no Resume/position to persist.
+        if (mVidStreamList.empty() || !mVideoTest) return;
+        int n = (int)mVidStreamList.size();
+        vidCloseTitleAudio();
+        vidAsyncFree(mVideoTest); mVideoTest = nullptr;
+        mVidOpening.store(true, std::memory_order_relaxed);
+        mVidSceneOpen = false; mVidSceneClosing = false;
+        bool ok = false;
+        for (int tries = 0; tries < n; tries++) {
+            mVidIdx = ((mVidIdx + dir) % n + n) % n;
+            mVideoTest = new NanoVideo();
+            if (vidOpenStream(mVidStreamList[mVidIdx])) { ok = true; break; }
+            vidAsyncFree(mVideoTest); mVideoTest = nullptr;
+        }
+        if (!ok) { mVidOpening.store(false, std::memory_order_relaxed); return; }
+        mVidAudioStarted = false;
+        mVidOpening.store(false, std::memory_order_relaxed);
+        mVidRate = 1.0; mVidStopped = false; mVidPlaying = true;
+        mVidAbA = mVidAbB = -1.0;
+        mVidHintUntil = mEffectTime + 1.5f;
+        return;
+    }
     if (mVidList.empty() || !mVideoTest) return;
     vidCaptureResume();   // persist the OUTGOING title's position before we leave it
     int n = (int)mVidList.size();
@@ -2047,8 +2184,14 @@ bool NanoMenu::renderVideoPlayer() {
     float barA = (mVidOsd || panelUp) ? et : hintA;
     // Title is shown with the bar.
     if (barA > 0.01f) {
-        const VideoItem& v = mVideos[mVidList[mVidIdx]];
-        std::string title = v.name; if (!mVidPlaying) title += "   (Paused)";
+        std::string title;
+        if (mVidIsStream) {
+            if (mVidIdx >= 0 && mVidIdx < (int)mVidStreamList.size()) title = mVidStreamList[mVidIdx].name;
+            title += "   (Live)";
+        } else if (!mVidList.empty() && mVidIdx >= 0 && mVidIdx < (int)mVidList.size()) {
+            title = mVideos[mVidList[mVidIdx]].name;
+        }
+        if (!mVidPlaying) title += "   (Paused)";
         float tfs = ps3::fontScale(26.0f);
         drawText(title.c_str(), bx, ps3::baselineToTopY(H * 0.10f, tfs), tfs, 1.0f, 1.0f, 1.0f, 0.95f * barA);
     }

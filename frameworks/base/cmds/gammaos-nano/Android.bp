@@ -75,6 +75,8 @@ cc_binary {
         "NanoTsDemux.cpp",
         "NanoAviDemux.cpp",
         "NanoMenuVideo.cpp",
+        "NanoMenuIptv.cpp",
+        "NanoHls.cpp",
         "NanoMenuSearch.cpp",
         "NanoAc3.cpp",
         "NanoCea608.cpp",

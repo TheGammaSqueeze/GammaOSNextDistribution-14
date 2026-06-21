@@ -17,7 +17,7 @@
 namespace android {
 
 namespace {
-const char* kSectionName[4] = { "Games", "Music", "Photos", "Videos" };
+const char* kSectionName[5] = { "Games", "Music", "Photos", "Videos", "IPTV" };
 // case-insensitive substring match
 bool ciContains(const std::string& hay, const std::string& needle) {
     if (needle.empty()) return false;
@@ -123,6 +123,21 @@ void NanoMenu::gsearchBuild(const std::string& q) {
         mGSearchResults.push_back(gr); vCount++;
     }
 
+    // --- IPTV: live channels by name (parse the cache inline on first search so it is
+    // included even without first opening the IPTV browser) ---
+    if (property_get_bool("persist.gammaos.nano.iptv", true)) {
+        iptvEnsureLoadedSync();
+        size_t iCount = 0;
+        std::lock_guard<std::mutex> lk(mIptvMutex);
+        for (size_t i = 0; i < mIptvChannels.size() && iCount < kMaxPerSection; i++) {
+            if (!ciContains(mIptvChannels[i].name, query)) continue;
+            GSearchResult gr; gr.section = 4; gr.label = mIptvChannels[i].name;
+            gr.sub = "IPTV"; gr.kind = PS3_IPTV_CHANNEL; gr.a = (int)i;
+            gr.payload = mIptvChannels[i].url;
+            mGSearchResults.push_back(gr); iCount++;
+        }
+    }
+
     // Stable order: by section, then label (case-insensitive). std::stable_sort keeps
     // the within-section discovery order for equal labels.
     std::stable_sort(mGSearchResults.begin(), mGSearchResults.end(),
@@ -208,6 +223,13 @@ void NanoMenu::gsearchActivate() {
             gsearchClose();
             std::vector<int> list; list.push_back(r.a);
             openPhotoViewer(list, 0);
+            return;
+        }
+        case PS3_IPTV_CHANNEL: {
+            gsearchClose();
+            std::vector<VidStreamRef> q;
+            VidStreamRef s; s.name = r.label; s.url = r.payload; q.push_back(s);
+            openIptvStream(q, 0);
             return;
         }
         default: return;

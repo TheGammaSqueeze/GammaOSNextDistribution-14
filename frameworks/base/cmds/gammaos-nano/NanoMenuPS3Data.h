@@ -45,6 +45,7 @@ static const Ps3DataItem kGameSettingsCh[] = {
 };
 static const Ps3DataItem kVideoSettingsCh[] = {
   {"BD/DVD Auto-start",22,"Configure BD/DVD auto-start settings.","On",0,nullptr,0},
+  {"IPTV Channels",22,"Show the IPTV live channel browser in the Video menu.","On",1,nullptr,0},
 };
 // Boxart / cover scraper (GammaOS addition). Leaves bind to persist.gammaos.scraper.*
 // via kPs3Bindings (matched by label); "Scrape All Systems" is an action leaf.
@@ -357,7 +358,7 @@ static const Ps3DataItem kMusicItems[] = {
 
 // ---- Video --------------------------------------------------------------
 static const Ps3DataItem kVideoItems[] = {
-  {"BD Data Utility",62,"Delete BD data saved on the system storage.",nullptr,0,nullptr,0},
+  {"IPTV",4,"Browse and watch free live IPTV channels from the community Free-TV/IPTV project. Channels are streamed over the Internet and are not hosted or verified by GammaOS.",nullptr,0,nullptr,0},
   {"Search for Media Servers",35,"Scans the network and connects to a media server. To use this function, a media server must be set up to allow connections from the PS3™ system.",nullptr,0,nullptr,0},
   {"Video Editor & Uploader",67,"You can edit a video that you like, upload it to a video sharing website, and then invite your friends to view the video.",nullptr,0,nullptr,0},
   {"Playlists",37,nullptr,nullptr,0,nullptr,0},
