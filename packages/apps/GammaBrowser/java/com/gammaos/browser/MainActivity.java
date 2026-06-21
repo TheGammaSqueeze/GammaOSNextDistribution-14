@@ -106,6 +106,9 @@ public class MainActivity extends Activity {
     private boolean mNanoOskActive = false;     // a nano OSK-over-app session is in flight
     private int mOskReqId = 0;                  // request id echoed back in osk_done
     private Runnable mOskWatch;                 // polls sys.gammaos.nano.osk_done
+    private boolean mAddressOsk = false;        // the active nano OSK targets the address bar, not a web field
+    private long mLastGen = -1;                 // last live-typing generation applied
+    private String mLastApplied = null;         // last text injected (dedupe live updates)
     private boolean mPaused = false;            // activity backgrounded (keep renderer idle)
     private int mEdgeTick = 0;                  // throttles edge-scroll JS injection
     private float mCx, mCy;                     // cursor position, WebView-local px
@@ -161,6 +164,13 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // Never let the system (leanback) IME show for this window: the browser is
+        // controller-driven and uses nano's own OSK for all text entry. FLAG_ALT_FOCUSABLE_IM
+        // on a focusable window makes it ineligible as an IME target, so Chromium's
+        // showSoftInput on a web field is a no-op (returning a null InputConnection was not
+        // enough). This is window-wide, so the address bar is routed through nano's OSK too.
+        getWindow().addFlags(android.view.WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
 
         mWeb = findViewById(R.id.webview);
         mAddress = findViewById(R.id.address);
@@ -562,10 +572,15 @@ public class MainActivity extends Activity {
     }
 
     private void focusAddress() {
+        // The system IME is suppressed window-wide (FLAG_ALT_FOCUSABLE_IM), so the address
+        // bar edits through nano's OSK like web fields do. mAddressOsk routes the result to
+        // navigation (commitAddress) instead of into the page.
+        if (mNanoOskActive) return;
         mAddress.requestFocus();
         mAddress.selectAll();
-        InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
-        if (imm != null) imm.showSoftInput(mAddress, InputMethodManager.SHOW_IMPLICIT);
+        mAddressOsk = true;
+        mImeUp = true;
+        requestNanoOsk(mAddress.getText() != null ? mAddress.getText().toString() : "", "text");
     }
 
     private void hideKeyboard() {
@@ -925,6 +940,7 @@ public class MainActivity extends Activity {
     private void onWebEditableFocus(String value, String type) {
         if (mImeUp) return;
         mImeUp = true;
+        mAddressOsk = false;   // a web field, not the address bar
         if (mCursorMode) {
             mSaveCx = mCx; mSaveCy = mCy;     // remember where to resume
             stopCursorLoop();
@@ -1009,17 +1025,31 @@ public class MainActivity extends Activity {
                 ? mWeb.getHandler() : new android.os.Handler(android.os.Looper.getMainLooper());
         if (mOskWatch != null) h.removeCallbacks(mOskWatch);
         final long start = android.os.SystemClock.uptimeMillis();
+        final String genPrefix = id + ":";
         mOskWatch = new Runnable() {
             @Override public void run() {
                 if (!mNanoOskActive) return;
+                // Live typing: when nano bumps the generation for this session, read the
+                // current buffer and inject it so the field fills as the user types.
+                String gen = android.os.SystemProperties.get("sys.gammaos.nano.osk_gen", "");
+                if (gen.startsWith(genPrefix)) {
+                    try {
+                        long n = Long.parseLong(gen.substring(genPrefix.length()));
+                        if (n != mLastGen) {
+                            mLastGen = n;
+                            applyOskText(readTextFile(new java.io.File(getFilesDir(), "nano_osk_live.txt")), false);
+                        }
+                    } catch (NumberFormatException ignored) {}
+                }
+                // Final handoff: commit (ok) submits, cancel just dismisses.
                 String done = android.os.SystemProperties.get("sys.gammaos.nano.osk_done", "");
                 if (("ok:" + id).equals(done)) {
                     android.os.SystemProperties.set("sys.gammaos.nano.osk_done", "");
-                    injectNanoOskResult(readTextFile(new java.io.File(getFilesDir(), "nano_osk_out.txt")));
+                    applyOskText(readTextFile(new java.io.File(getFilesDir(), "nano_osk_out.txt")), true);
                     finishNanoOsk();
                 } else if (("cancel:" + id).equals(done)) {
                     android.os.SystemProperties.set("sys.gammaos.nano.osk_done", "");
-                    mWeb.evaluateJavascript("if(window.__gbF)window.__gbF.blur();", null);
+                    if (!mAddressOsk) mWeb.evaluateJavascript("if(window.__gbF)window.__gbF.blur();", null);
                     finishNanoOsk();
                 } else if (android.os.SystemClock.uptimeMillis() - start > 180000L) {
                     finishNanoOsk();   // safety timeout (3 min)
@@ -1031,17 +1061,48 @@ public class MainActivity extends Activity {
         h.postDelayed(mOskWatch, 100);
     }
 
-    private void injectNanoOskResult(String val) {
-        String q = org.json.JSONObject.quote(val == null ? "" : val);
+    // Submit the focused web element on commit: prefer requestSubmit (runs validation +
+    // the page's submit handlers), fall back to submit(), and for form-less / SPA search
+    // boxes synthesize an Enter keypress.
+    private static final String SUBMIT_JS =
+            "try{var f=el.form;" +
+            "if(f){if(typeof f.requestSubmit==='function')f.requestSubmit();else f.submit();}" +
+            "else{var ev={key:'Enter',code:'Enter',keyCode:13,which:13,bubbles:true};" +
+            "el.dispatchEvent(new KeyboardEvent('keydown',ev));" +
+            "el.dispatchEvent(new KeyboardEvent('keyup',ev));}}catch(_){}";
+
+    // Apply OSK text to the active target. For the address bar (mAddressOsk) update the
+    // EditText live and navigate on submit; for a web field inject via JS, optionally
+    // submitting. Guards against stale ticks after the session ended and dedupes no-ops.
+    private void applyOskText(String val, boolean submit) {
+        if (!mNanoOskActive && !submit) return;   // stale live tick after finish
+        if (val == null) val = "";
+        if (mAddressOsk) {
+            if (!val.equals(mLastApplied)) {
+                mAddress.setText(val);
+                mAddress.setSelection(val.length());
+                mLastApplied = val;
+            }
+            if (submit) commitAddress();
+            return;
+        }
+        if (!submit && val.equals(mLastApplied)) return;   // dedupe redundant live updates
+        mLastApplied = val;
+        String q = org.json.JSONObject.quote(val);
         String js = "(function(v){var el=window.__gbF||document.activeElement;if(!el)return;" +
                 "if(el.isContentEditable){el.textContent=v;}else{el.value=v;}" +
                 "el.dispatchEvent(new Event('input',{bubbles:true}));" +
-                "el.dispatchEvent(new Event('change',{bubbles:true}));})(" + q + ");";
+                "el.dispatchEvent(new Event('change',{bubbles:true}));" +
+                (submit ? SUBMIT_JS : "") +
+                "})(" + q + ");";
         mWeb.evaluateJavascript(js, null);
     }
 
     private void finishNanoOsk() {
         mNanoOskActive = false;
+        mAddressOsk = false;
+        mLastApplied = null;
+        mLastGen = -1;
         onImeDismissed();   // clears mImeUp + resumes the cursor
     }
 

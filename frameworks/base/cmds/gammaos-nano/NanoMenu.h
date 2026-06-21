@@ -612,6 +612,9 @@ private:
     bool mOskOverApp = false;         // overlay is up purely to host an app's OSK request
     std::string mOskAppReqId;         // request id echoed back in osk_done
     std::string mOskAppDir;           // requesting app's files dir (in/out text files)
+    uint32_t mOskAppGen = 0;          // live-typing generation counter for the app OSK
+    std::string mOskAppLastBuf;       // last buffer streamed to the app (per-frame change gate)
+    void oskPublishLive();            // stream the current OSK buffer to the app for live typing
     bool mOverlayInited = false;      // one-time blur/hide transaction applied
     int  mOverlayInitTries = 0;       // init retries while SF surface control is still null
     int  mOverlayBlurPx = 0;          // background blur radius (px), 0 if unsupported

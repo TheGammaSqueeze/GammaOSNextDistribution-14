@@ -899,17 +899,46 @@ bool NanoMenu::overlayLaunchPackage(const std::string& pkg) {
 //   commit -> write <filesDir>/nano_osk_out.txt, setprop osk_done ok:<id>, dismiss
 //   cancel -> setprop osk_done cancel:<id>, dismiss
 // Text travels through a file (props cap at 91 bytes; URLs/fields exceed that).
+// Live typing: stream the current OSK buffer to the requesting app so the field
+// fills as the user types, instead of only on commit. Writes the plain buffer to
+// <dir>/nano_osk_live.txt (atomic temp+rename so the reader never sees a partial
+// file) and bumps sys.gammaos.nano.osk_gen=<id>:<n>, which the app polls. Only runs
+// during an app-hosted OSK session.
+void NanoMenu::oskPublishLive() {
+    if (!mOskOverApp || mOskAppDir.empty()) return;
+    std::string p = mOskAppDir + "/nano_osk_live.txt";
+    std::string tmp = p + ".tmp";
+    FILE* f = fopen(tmp.c_str(), "wb");
+    if (!f) return;
+    if (!mOskQuery.empty()) fwrite(mOskQuery.data(), 1, mOskQuery.size(), f);
+    fflush(f);
+    int fd = fileno(f);
+    if (fd >= 0) fsync(fd);          // buffer must be on disk before the gen bump
+    fclose(f);
+    chmod(tmp.c_str(), 0644);
+    if (rename(tmp.c_str(), p.c_str()) != 0) { unlink(tmp.c_str()); return; }
+    char v[80];
+    snprintf(v, sizeof v, "%s:%u", mOskAppReqId.c_str(), ++mOskAppGen);
+    property_set("sys.gammaos.nano.osk_gen", v);
+}
+
 void NanoMenu::overlayOskPoll() {
     if (mOskOverApp) {
         // A commit clears mOskOverApp inside its callback below; reaching here with
         // it still set once the OSK has fully closed means the user backed out.
         if (!mOskActive && !mOsk.closing) {
             std::string id = mOskAppReqId;
+            std::string dir = mOskAppDir;
             mOskOverApp = false;
             mOskAppReqId.clear();
+            property_set("sys.gammaos.nano.osk_gen", "");
+            if (!dir.empty()) unlink((dir + "/nano_osk_live.txt").c_str());
             property_set("sys.gammaos.nano.osk_done", ("cancel:" + id).c_str());
             property_set("sys.gammaos.nano.show_overlay", "0");
             overlayHide();
+        } else if (mOskQuery != mOskAppLastBuf) {
+            mOskAppLastBuf = mOskQuery;   // stream each edit to the app for live typing
+            oskPublishLive();
         }
         return;   // one OSK session at a time
     }
@@ -951,6 +980,8 @@ void NanoMenu::overlayOskPoll() {
         if (f) { fwrite(val.data(), 1, val.size(), f); fclose(f); chmod(p.c_str(), 0644); }
         mOskOverApp = false;
         mOskAppReqId.clear();
+        property_set("sys.gammaos.nano.osk_gen", "");
+        unlink((outDir + "/nano_osk_live.txt").c_str());
         property_set("sys.gammaos.nano.osk_done", ("ok:" + id).c_str());
         property_set("sys.gammaos.nano.show_overlay", "0");
         overlayHide();
@@ -958,6 +989,11 @@ void NanoMenu::overlayOskPoll() {
     mOskPlaintext = !masked;            // show typed text for normal fields, mask passwords
     mOskQuery = pre;                    // prefill AFTER openOskForPassword (it clears the query)
     mOsk.caret = (int)mOskQuery.size();
+    // Live-typing baseline: the prefill equals the field's current value, so seed the
+    // change-gate with it (first publish fires on the first real edit) and reset the gen.
+    mOskAppGen = 0;
+    mOskAppLastBuf = mOskQuery;
+    property_set("sys.gammaos.nano.osk_gen", "");
 }
 
 void NanoMenu::overlayPoll() {
