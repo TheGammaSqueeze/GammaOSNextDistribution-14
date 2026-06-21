@@ -605,6 +605,13 @@ private:
     // sys.gammaos.nano.show_overlay (set by PhoneWindowManager on power-hold).
     bool mOverlayMode = false;        // this process is the overlay instance
     bool mOverlayShown = false;       // overlay layer is currently visible + grabbing input
+    // OSK-over-app: an app (GammaBrowser web fields) requests nano's lightweight OSK
+    // because the framework leanback IME (~130MB) gets OOM-killed on this 1GB device
+    // under a heavy WebView. We raise the overlay in an OSK-only mode and hand the
+    // typed text back via a file + the sys.gammaos.nano.osk_done prop.
+    bool mOskOverApp = false;         // overlay is up purely to host an app's OSK request
+    std::string mOskAppReqId;         // request id echoed back in osk_done
+    std::string mOskAppDir;           // requesting app's files dir (in/out text files)
     bool mOverlayInited = false;      // one-time blur/hide transaction applied
     int  mOverlayInitTries = 0;       // init retries while SF surface control is still null
     int  mOverlayBlurPx = 0;          // background blur radius (px), 0 if unsupported
@@ -634,6 +641,7 @@ private:
     void setUiBlend();
     void overlayInitLayer();          // create the translucent layer + initial hide (once)
     void overlayPoll();               // watch show_overlay; drive show/hide each frame
+    void overlayOskPoll();            // watch osk_req; host an app's OSK over the live app
     void overlayShow();               // raise layer + drop_input=1 + reset to XMB top
     void overlayHide();               // hide layer + drop_input=0
     // Apply the mode-dependent presentation state (layer opaque flag + EGL swap

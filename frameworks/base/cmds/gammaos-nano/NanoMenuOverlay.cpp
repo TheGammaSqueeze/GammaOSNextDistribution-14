@@ -43,6 +43,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <sys/stat.h>
 #include <errno.h>
 #include <signal.h>
 #include <dirent.h>
@@ -886,7 +887,81 @@ bool NanoMenu::overlayLaunchPackage(const std::string& pkg) {
     return true;
 }
 
+// OSK-over-app bridge. An app that needs text entry (GammaBrowser web fields)
+// cannot rely on the framework leanback IME here: on this 1GB low-ram device it is
+// OOM-killed the instant it cold-starts under a heavy WebView. Instead the app asks
+// nano to host its own lightweight OSK over the live app:
+//   app  writes the current field text to <filesDir>/nano_osk_in.txt
+//   app  setprop sys.gammaos.nano.osk_dir  <filesDir>
+//   app  setprop sys.gammaos.nano.osk_type text|password
+//   app  setprop sys.gammaos.nano.osk_req  <id>     (triggers us)
+//   we   raise the overlay (drop_input=1) in OSK-only mode, prefilled
+//   commit -> write <filesDir>/nano_osk_out.txt, setprop osk_done ok:<id>, dismiss
+//   cancel -> setprop osk_done cancel:<id>, dismiss
+// Text travels through a file (props cap at 91 bytes; URLs/fields exceed that).
+void NanoMenu::overlayOskPoll() {
+    if (mOskOverApp) {
+        // A commit clears mOskOverApp inside its callback below; reaching here with
+        // it still set once the OSK has fully closed means the user backed out.
+        if (!mOskActive && !mOsk.closing) {
+            std::string id = mOskAppReqId;
+            mOskOverApp = false;
+            mOskAppReqId.clear();
+            property_set("sys.gammaos.nano.osk_done", ("cancel:" + id).c_str());
+            property_set("sys.gammaos.nano.show_overlay", "0");
+            overlayHide();
+        }
+        return;   // one OSK session at a time
+    }
+    if (mOverlayLaunchPending) return;   // never pop the OSK mid app-launch
+
+    char req[PROPERTY_VALUE_MAX] = {};
+    if (property_get("sys.gammaos.nano.osk_req", req, "") <= 0 || !req[0]) return;
+    property_set("sys.gammaos.nano.osk_req", "");   // consume the edge
+
+    char dir[PROPERTY_VALUE_MAX] = {}, type[PROPERTY_VALUE_MAX] = {};
+    property_get("sys.gammaos.nano.osk_dir", dir, "");
+    property_get("sys.gammaos.nano.osk_type", type, "text");
+    if (!dir[0]) return;
+    mOskAppDir = dir;
+    mOskAppReqId = req;
+
+    std::string pre;
+    {
+        std::string p = mOskAppDir + "/nano_osk_in.txt";
+        FILE* f = fopen(p.c_str(), "rb");
+        if (f) {
+            char buf[8192]; size_t n;
+            while ((n = fread(buf, 1, sizeof buf, f)) > 0) pre.append(buf, n);
+            fclose(f);
+        }
+    }
+    bool masked = (strcmp(type, "password") == 0);
+
+    mOskOverApp = true;
+    if (!mOverlayShown) {
+        property_set("sys.gammaos.nano.show_overlay", "1");
+        overlayShow();
+    }
+    std::string id = mOskAppReqId;
+    std::string outDir = mOskAppDir;
+    openOskForPassword("", [this, id, outDir](const std::string& val) {
+        std::string p = outDir + "/nano_osk_out.txt";
+        FILE* f = fopen(p.c_str(), "wb");
+        if (f) { fwrite(val.data(), 1, val.size(), f); fclose(f); chmod(p.c_str(), 0644); }
+        mOskOverApp = false;
+        mOskAppReqId.clear();
+        property_set("sys.gammaos.nano.osk_done", ("ok:" + id).c_str());
+        property_set("sys.gammaos.nano.show_overlay", "0");
+        overlayHide();
+    });
+    mOskPlaintext = !masked;            // show typed text for normal fields, mask passwords
+    mOskQuery = pre;                    // prefill AFTER openOskForPassword (it clears the query)
+    mOsk.caret = (int)mOskQuery.size();
+}
+
 void NanoMenu::overlayPoll() {
+    overlayOskPoll();
     // Deferred dismiss after launching another app from the overlay: hold the
     // overlay layer up (it occludes the dying old app / black) until the new app
     // is the resumed activity, or a safety timeout. Throttle the ActivityManager

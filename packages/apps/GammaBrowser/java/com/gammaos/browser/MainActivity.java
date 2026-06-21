@@ -103,6 +103,9 @@ public class MainActivity extends Activity {
     private InputMethodManager mImm;            // cached
     private boolean mCursorMode = false;        // user's Y toggle (persists across IME)
     private boolean mImeUp = false;             // a page text field has the IME up
+    private boolean mNanoOskActive = false;     // a nano OSK-over-app session is in flight
+    private int mOskReqId = 0;                  // request id echoed back in osk_done
+    private Runnable mOskWatch;                 // polls sys.gammaos.nano.osk_done
     private boolean mPaused = false;            // activity backgrounded (keep renderer idle)
     private int mEdgeTick = 0;                  // throttles edge-scroll JS injection
     private float mCx, mCy;                     // cursor position, WebView-local px
@@ -138,9 +141,12 @@ public class MainActivity extends Activity {
         "if(g==='TEXTAREA')return !e.disabled&&!e.readOnly;" +
         "if(g==='INPUT'){var t=(e.type||'text').toLowerCase();return T[t]===1&&!e.disabled&&!e.readOnly;}" +
         "return false;}" +
-        "document.addEventListener('focusin',function(e){if(ed(e.target)){try{Android.onEditableFocus();}catch(_){}}},true);" +
+        // Current value + type of an editable, so nano's OSK can prefill + mask.
+        "function gv(t){return t.isContentEditable?(t.textContent||''):(t.value||'');}" +
+        "function gt(t){return (t.tagName==='INPUT')?((t.type||'text').toLowerCase()):'text';}" +
+        "document.addEventListener('focusin',function(e){if(ed(e.target)){window.__gbF=e.target;try{Android.onEditableFocus(gv(e.target),gt(e.target));}catch(_){}}},true);" +
         "document.addEventListener('focusout',function(e){if(ed(e.target)){try{Android.onEditableBlur();}catch(_){}}},true);" +
-        "if(document.activeElement&&ed(document.activeElement)){try{Android.onEditableFocus();}catch(_){}}" +
+        "if(document.activeElement&&ed(document.activeElement)){window.__gbF=document.activeElement;try{Android.onEditableFocus(gv(document.activeElement),gt(document.activeElement));}catch(_){}}" +
         "})();";
 
     /** A bookmark or history entry: a page title over its URL. */
@@ -909,26 +915,33 @@ public class MainActivity extends Activity {
     private static final class EditableBridge {
         private final MainActivity host;
         EditableBridge(MainActivity h) { host = h; }
-        @JavascriptInterface public void onEditableFocus() { host.runOnUiThread(host::onWebEditableFocus); }
+        @JavascriptInterface public void onEditableFocus(final String value, final String type) {
+            host.runOnUiThread(() -> host.onWebEditableFocus(value == null ? "" : value,
+                                                             type == null ? "text" : type));
+        }
         @JavascriptInterface public void onEditableBlur()  { host.runOnUiThread(host::onWebEditableBlur); }
     }
 
-    private void onWebEditableFocus() {
+    private void onWebEditableFocus(String value, String type) {
         if (mImeUp) return;
         mImeUp = true;
         if (mCursorMode) {
             mSaveCx = mCx; mSaveCy = mCy;     // remember where to resume
             stopCursorLoop();
-            // Drop any held d-pad/stick state: while the IME owns input the release
+            // Drop any held d-pad/stick state: while the OSK owns input the release
             // events bypass us, so without this the cursor would drift on resume.
             clearHeldKeys();
             mStickX = mStickY = 0f;
             mCursor.setVisibility(View.GONE);
         }
-        showImeForWeb();
+        // The framework leanback IME is OOM-killed under a heavy WebView on this
+        // low-ram device, so ask nano to host its own lightweight OSK over us and
+        // hand the typed text back (see requestNanoOsk / overlayOskPoll in nano).
+        requestNanoOsk(value, type);
     }
 
     private void onWebEditableBlur() {
+        if (mNanoOskActive) return;   // the OSK session ends via its prop watch, not page blur
         onImeDismissed();
     }
 
@@ -965,12 +978,91 @@ public class MainActivity extends Activity {
         });
     }
 
+    // ---- nano OSK over the app (replaces the OOM-prone framework IME) ----------
+    // Write the current field text to a file, then poke the sys.gammaos.nano.osk_*
+    // props. nano raises its lightweight OSK over us (drop_input routes the gamepad
+    // to it), and signals osk_done=ok:<id>/cancel:<id> when finished; on ok we read
+    // the result file and inject it into the focused element.
+    private void requestNanoOsk(String value, String type) {
+        try {
+            java.io.File dir = getFilesDir();
+            java.io.FileOutputStream fos = new java.io.FileOutputStream(new java.io.File(dir, "nano_osk_in.txt"));
+            fos.write((value == null ? "" : value).getBytes("UTF-8"));
+            fos.close();
+            new java.io.File(dir, "nano_osk_out.txt").delete();
+            final String id = Integer.toString(++mOskReqId);
+            android.os.SystemProperties.set("sys.gammaos.nano.osk_done", "");
+            android.os.SystemProperties.set("sys.gammaos.nano.osk_dir", dir.getAbsolutePath());
+            android.os.SystemProperties.set("sys.gammaos.nano.osk_type",
+                    "password".equals(type) ? "password" : "text");
+            android.os.SystemProperties.set("sys.gammaos.nano.osk_req", id);
+            mNanoOskActive = true;
+            watchNanoOsk(id);
+        } catch (Exception e) {
+            mImeUp = false;
+            mNanoOskActive = false;
+        }
+    }
+
+    private void watchNanoOsk(final String id) {
+        final android.os.Handler h = mWeb.getHandler() != null
+                ? mWeb.getHandler() : new android.os.Handler(android.os.Looper.getMainLooper());
+        if (mOskWatch != null) h.removeCallbacks(mOskWatch);
+        final long start = android.os.SystemClock.uptimeMillis();
+        mOskWatch = new Runnable() {
+            @Override public void run() {
+                if (!mNanoOskActive) return;
+                String done = android.os.SystemProperties.get("sys.gammaos.nano.osk_done", "");
+                if (("ok:" + id).equals(done)) {
+                    android.os.SystemProperties.set("sys.gammaos.nano.osk_done", "");
+                    injectNanoOskResult(readTextFile(new java.io.File(getFilesDir(), "nano_osk_out.txt")));
+                    finishNanoOsk();
+                } else if (("cancel:" + id).equals(done)) {
+                    android.os.SystemProperties.set("sys.gammaos.nano.osk_done", "");
+                    mWeb.evaluateJavascript("if(window.__gbF)window.__gbF.blur();", null);
+                    finishNanoOsk();
+                } else if (android.os.SystemClock.uptimeMillis() - start > 180000L) {
+                    finishNanoOsk();   // safety timeout (3 min)
+                } else {
+                    h.postDelayed(this, 100);
+                }
+            }
+        };
+        h.postDelayed(mOskWatch, 100);
+    }
+
+    private void injectNanoOskResult(String val) {
+        String q = org.json.JSONObject.quote(val == null ? "" : val);
+        String js = "(function(v){var el=window.__gbF||document.activeElement;if(!el)return;" +
+                "if(el.isContentEditable){el.textContent=v;}else{el.value=v;}" +
+                "el.dispatchEvent(new Event('input',{bubbles:true}));" +
+                "el.dispatchEvent(new Event('change',{bubbles:true}));})(" + q + ");";
+        mWeb.evaluateJavascript(js, null);
+    }
+
+    private void finishNanoOsk() {
+        mNanoOskActive = false;
+        onImeDismissed();   // clears mImeUp + resumes the cursor
+    }
+
+    private String readTextFile(java.io.File f) {
+        try {
+            java.io.FileInputStream fis = new java.io.FileInputStream(f);
+            java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
+            byte[] b = new byte[4096]; int n;
+            while ((n = fis.read(b)) > 0) bos.write(b, 0, n);
+            fis.close();
+            return new String(bos.toByteArray(), "UTF-8");
+        } catch (Exception e) { return ""; }
+    }
+
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
-        if (hasFocus && mImeUp) {
+        if (hasFocus && mImeUp && !mNanoOskActive) {
             // The leanback fullscreen IME is a separate window; regaining focus while
-            // we think the IME is up means it just closed.
+            // we think the IME is up means it just closed. (A nano OSK session is a
+            // separate SF layer and ends via its prop watch, not window focus.)
             onImeDismissed();
         } else if (!hasFocus) {
             stopCursorLoop();                 // don't tick while the display is taken

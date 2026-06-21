@@ -2014,6 +2014,13 @@ void NanoMenu::render() {
         // (anim -> epilepsy warning) plays first; it cuts in once the intro ends.
         renderSetupWizard();
         renderOsk();
+    } else if (mPs3Xmb && mOskOverApp) {
+        // OSK-only over a live app (an app requested text entry; see overlayOskPoll).
+        // The app shows through the translucent overlay layer - dim it with a scrim
+        // and draw just the keyboard, no Quick Menu behind it.
+        setUiBlend();
+        drawQuad(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f, 0.0f, 0.0f, 0.55f);
+        renderOsk();
     } else if (mPs3Xmb) {
         // PS3 XMB layout (NanoMenuPS3Menu.cpp). renderPs3Xmb() draws the Wi-Fi /
         // Bluetooth sub-screens itself when mMenuState is MENU_WIFI / MENU_BT, and
