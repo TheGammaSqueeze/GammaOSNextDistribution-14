@@ -214,6 +214,16 @@ void monitorLoop() {
     setpriority(PRIO_PROCESS, 0, 10);   // be polite; this is a ~1 Hz housekeeping loop
     pthread_setname_np(pthread_self(), "nano-btstable");
 
+    // Stay completely idle during the boot window: no BT audio can be playing
+    // before boot_completed, and forking dumpsys while services are still
+    // starting only adds to the heavy boot-time memory/CPU contention (which can
+    // already trip the system_server watchdog on this memory-tight device). Wait
+    // for boot_completed (bounded to ~120s so a quirky boot still gets the
+    // monitor), then a short settle before the first poll.
+    for (int i = 0; i < 60 && !property_get_bool("sys.boot_completed", false); ++i)
+        sleep(2);
+    sleep(5);
+
     int lockFd = -1;
     bool haveLock = false;
 
