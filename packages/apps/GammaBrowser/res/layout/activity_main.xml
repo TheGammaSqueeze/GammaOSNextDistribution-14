@@ -121,7 +121,7 @@
             android:progressBackgroundTint="@color/xmb_progress_track"
             android:visibility="gone" />
 
-        <WebView
+        <com.gammaos.browser.NoImeWebView
             android:id="@+id/webview"
             android:layout_width="match_parent"
             android:layout_height="0dp"

@@ -291,7 +291,7 @@ public class MainActivity extends Activity {
                 if (parent != null) parent.removeView(view);
                 view.destroy();
                 String last = mCurrentUrl;
-                mWeb = new WebView(MainActivity.this);
+                mWeb = new NoImeWebView(MainActivity.this);
                 if (parent != null) parent.addView(mWeb, idx,
                         new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
                 configureWebView();
