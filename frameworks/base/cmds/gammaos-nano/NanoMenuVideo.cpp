@@ -1585,7 +1585,15 @@ void NanoMenu::openVideoPlayer(const std::vector<Ps3Item>& list, int listSel, in
 // player to its fresh on-open state, and spawn the blocking open worker. The spinner shows
 // immediately; videoTick adopts/aborts/cancels the open. No blocking work happens here.
 void NanoMenu::vidBeginOpen(const VidPending& p) {
-    if (mVidOpenThread.joinable()) mVidOpenThread.join();   // defensive: never move-assign a joinable thread
+    // Supersede any in-flight open: cancel its worker so this join is fast (a still-running worker
+    // would otherwise block the render thread here), and drop any pending deferred open. Never
+    // move-assign a joinable thread.
+    mVidOpenDeferred = false;
+    if (mVidOpenThread.joinable()) {
+        mVidOpenCancelReq = true;
+        if (mVideoTest) mVideoTest->requestOpenCancel();
+        mVidOpenThread.join();
+    }
     vidCloseTitleAudio();   // stop any prior demux/audio (it feeds mVideoTest) before freeing it
     if (mVideoTest) { vidAsyncFree(mVideoTest); mVideoTest = nullptr; }   // never block the render thread on teardown
 
@@ -1622,7 +1630,23 @@ void NanoMenu::vidBeginOpen(const VidPending& p) {
     mVidOpenOk.store(false, std::memory_order_relaxed);
     mVidOpenDone.store(false, std::memory_order_relaxed);
     mVidOpenInProgress.store(true, std::memory_order_relaxed);
-    VLOGI("vidBeginOpen: spawn worker stream=%d file=%s", (int)mVidIsStream, p.isStream ? p.url.c_str() : p.file.c_str());
+    // Single HW decoder: only spawn the worker (which creates the codec) once the previous title's
+    // codec has released it, or the create wedges and the new video hangs (switch-hang). If a
+    // teardown is still pending, DEFER - videoTick spawns the worker the moment the decoder frees.
+    // The spinner shows during the defer; nothing blocks the render thread.
+    if (mVidPrevCodecFreed.load(std::memory_order_acquire)) {
+        VLOGI("vidBeginOpen: spawn worker stream=%d file=%s", (int)mVidIsStream, p.isStream ? p.url.c_str() : p.file.c_str());
+        vidSpawnOpenWorker();
+    } else {
+        VLOGI("vidBeginOpen: defer worker (prev codec not freed) stream=%d", (int)mVidIsStream);
+        mVidOpenDeferred = true;
+    }
+}
+
+// Spawn the blocking open worker (the codec/extractor/audio open runs off the render thread).
+// Called from vidBeginOpen when the HW decoder is already free, or from videoTick once a deferred
+// open's previous codec has released it.
+void NanoMenu::vidSpawnOpenWorker() {
     mVidOpenThread = std::thread([this] {
         bool ok = mVidIsStream ? vidOpenStreamRun() : vidOpenTitleRun();
         VLOGI("vidOpen worker RETURNED ok=%d", (int)ok);
@@ -1799,6 +1823,7 @@ void NanoMenu::vidAsyncFree(NanoVideo* v) {
     if (!v) return;
     v->releaseAsync();
     mVidDying.push_back(v);
+    mVidPrevCodecFreed.store(false, std::memory_order_release);   // a codec teardown is now pending
 }
 
 // Free any queued decoder whose background teardown has completed. Runs on the render
@@ -1814,6 +1839,9 @@ void NanoMenu::vidReapDying() {
             ++i;
         }
     }
+    // All pending teardowns reaped -> the (single) HW decoder is free for the next title's codec.
+    // Release-store pairs with the deferred-open spawn check (acquire) in videoTick.
+    mVidPrevCodecFreed.store(mVidDying.empty(), std::memory_order_release);
 }
 
 void NanoMenu::videoHardFree(bool sync) {
@@ -1834,6 +1862,7 @@ void NanoMenu::videoHardFree(bool sync) {
             mVidTeardownExempt.store(false, std::memory_order_relaxed);
         }
         mVidOpenInProgress.store(false, std::memory_order_relaxed);
+        mVidOpenDeferred = false;   // a deferred (not-yet-spawned) open must not spawn on the freed mVideoTest
     }
     vidCaptureResume();   // persist the Resume position before tearing the decoder down
     if (mVidResumeDirty) { saveVideoConfig(); mVidResumeDirty = false; }
@@ -2004,6 +2033,19 @@ void NanoMenu::vidBeginning() {
 
 void NanoMenu::videoTick() {
     vidReapDying();   // free any async-released decoder whose background teardown finished
+    // Deferred open: the worker (which creates the codec) was held in vidBeginOpen until the
+    // previous title's codec released the single HW decoder, so the new create cannot race it
+    // (second-video-hangs-on-switch). Spawn it now that the decoder is free (vidReapDying above
+    // sets mVidPrevCodecFreed), or on a Back/cancel, or after a short deadline so a wedged
+    // teardown still proceeds (codec-recovery then covers a still-busy decoder). Non-blocking.
+    if (mVidOpenDeferred && mVideoTest &&
+        (mVidPrevCodecFreed.load(std::memory_order_acquire) || mVidOpenCancelReq ||
+         (mEffectTime - mVidOpenStartT) > 6.0f)) {
+        mVidOpenDeferred = false;
+        VLOGI("videoTick: spawning deferred open worker (freed=%d cancel=%d)",
+              (int)mVidPrevCodecFreed.load(), (int)mVidOpenCancelReq);
+        vidSpawnOpenWorker();
+    }
     // --- Async open state machine (single render-thread drain point) ---
     // While an open worker runs, the render thread shows the spinner (renderVideoPlayer) and
     // only adopts/aborts once the worker publishes mVidOpenDone (acquire pairs with the worker's

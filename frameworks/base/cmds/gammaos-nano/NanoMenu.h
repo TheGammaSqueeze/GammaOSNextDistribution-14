@@ -2256,6 +2256,15 @@ private:
     std::vector<NanoVideo*> mVidDying;
     void vidAsyncFree(NanoVideo* v);   // hand v to async teardown + queue it for reaping
     void vidReapDying();               // free any queued decoder whose async teardown is done
+    // Single HW video decoder: a new title's codec must not be created until the previous
+    // title's codec has fully released it, or the create wedges (second-video-hangs-on-switch).
+    // mVidPrevCodecFreed is true when no video-codec teardown is pending (mVidDying drained);
+    // false on vidAsyncFree, back to mVidDying.empty() in vidReapDying (render thread). The open
+    // WORKER is not spawned until it is true: vidBeginOpen DEFERS the spawn (mVidOpenDeferred)
+    // and videoTick spawns it once the decoder is free. Nothing blocks the render thread.
+    std::atomic<bool> mVidPrevCodecFreed{true};
+    bool mVidOpenDeferred = false;     // open worker held until the prev codec frees the HW decoder
+    void vidSpawnOpenWorker();         // spawn the blocking open worker (vidOpenTitle/StreamRun)
     // scan worker
     std::mutex mPhotoScanMutex;
     std::vector<PhotoItem> mPhotoScanResults;
