@@ -3921,10 +3921,19 @@ if (sRingPrimedCount >= 2) {
                 // Internet Radio: same, for the open stations screen (Music category).
                 radioDrain();
 
-                // Periodic rescan every 30s (runs on background thread,
-                // zero impact on render)
+                // Periodic rescan every 30s (runs on background thread).
+                // SUPPRESSED while a full-screen media player owns the screen
+                // (video/stream, music Now-Playing, photo viewer): the rescan
+                // worker walks the entire ROM tree on storage, and that I/O +
+                // allocation competes with live streaming (HLS network buffering
+                // + HW decoder). On a long-running stream that pressure stalled
+                // the render thread >8s and tripped the render watchdog, aborting
+                // nano. The Game column is not even visible behind a player, so
+                // there is nothing to refresh; the timer stays due and a single
+                // rescan fires the moment the player closes.
                 if (mXmbBootCompleted && !mBgScanThreadRunning
-                    && !mXmbSystems.empty()) {
+                    && !mXmbSystems.empty()
+                    && !mVidActive && !mMpActive && !mPvActive) {
                     int64_t now = elapsedRealtime();
                     if (mXmbSystems[0].lastScanTime > 0 &&
                         (now - mXmbSystems[0].lastScanTime) > 30000) {
@@ -3941,7 +3950,15 @@ if (sRingPrimedCount >= 2) {
                 //    overlay vs DRM home share nano_systems.json) edited the
                 //    systems config; reload it and rescan so both converge
                 //    without a restart.
+                // Also suppressed behind a full-screen media player (video/stream,
+                // music Now-Playing, photo viewer): this block kicks the game/music/
+                // photo/video library scans (forceRescanAllSystems/musicScanAsync/
+                // photoScanAsync/videoScanAsync) and rebuilds the XMB columns - all
+                // heavy storage I/O that is invisible behind a player and competes
+                // with live playback (the ROM/video tree-walk under streaming
+                // pressure stalled the render thread and tripped the watchdog).
                 if (mPs3Xmb && mPs3Stack.empty()
+                    && !mVidActive && !mMpActive && !mPvActive
                     && !mPs3DlgActive && !mOskActive && !mPs3WizActive
                     && !mPs3BootActive && !mPs3TzActive && !mPs3CatAnimActive
                     && mPs3ItemAnimStart < 0.0f && mPs3SubAnimStart < 0.0f) {
