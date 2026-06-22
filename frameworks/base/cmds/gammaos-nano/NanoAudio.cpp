@@ -604,10 +604,14 @@ int32_t NanoAudioPlayer::fillAudio(void* audioData, int32_t numFrames) {
     // clock until real audio appears, then arm it.
     if (ch > 0) {
         if (toRead > 0) mClockArmed.store(true, std::memory_order_relaxed);
-        if (mClockArmed.load(std::memory_order_relaxed))
-            mFramesConsumed.fetch_add(numFrames, std::memory_order_relaxed);   // armed: silence counts
-        else
-            mFramesConsumed.fetch_add(toRead / ch, std::memory_order_relaxed); // priming: real frames only
+        // Advance the presentation clock ONLY by real content frames played (toRead/ch), never by
+        // underrun (toRead < want) OR startup priming silence. Counting the full request on a
+        // mid-stream underrun advanced position() through silence that was not real content, so the
+        // picture (which paces to this clock) slowly drifted AHEAD of the audio over a long clip.
+        // With the picture-holds-for-audio pacing, a brief underrun now holds both together instead
+        // of accumulating drift. Before the first real frame toRead is 0, so the clock still does
+        // not race on startup silence (mClockArmed gates the video slew the same way).
+        mFramesConsumed.fetch_add(toRead / ch, std::memory_order_relaxed);
     }
 
     // FFT tap: roll the emitted frames (downmixed to mono) into a 512-sample window
