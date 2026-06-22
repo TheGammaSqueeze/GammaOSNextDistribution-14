@@ -848,6 +848,20 @@ int main(int argc, char** argv) {
                 return 0;
             }
         }
+        // GammaOS Nano: DRM-home XOR overlay backstop. The overlay must never run while
+        // the DRM home owns the display. The DRM home exists only at the cold-boot home
+        // (before the first app launch); after that it is gone for the session, and the
+        // overlay is started by the app-launch handoff (gammaos-nano.rc) with
+        // app_launched=1, or respawned with show_overlay=1. So if NEITHER app_launched
+        // nor show_overlay is set, the DRM home is still the home and this overlay start
+        // is premature/stray - exit (mirrors the stray-home guard on the non-overlay
+        // branch below). Do NOT key on drm_active: the overlay never writes it.
+        if (!property_get_bool("sys.gammaos.nano.app_launched", false) &&
+            !property_get_bool("sys.gammaos.nano.show_overlay", false)) {
+            ALOGI("GammaOS Nano: overlay started while the DRM home owns the display "
+                  "(app_launched=0, show_overlay=0) - exiting so only the home runs");
+            return 0;
+        }
         // The overlay is the in-game power-hold XMB. It is summoned only while
         // an app is running (i.e. the home nano has already exited and
         // SurfaceFlinger + the app own the display), so it never fights the

@@ -1725,8 +1725,7 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
             // as the launcher (show_overlay=1 with no app launched), it IS the home
             // surface. Skip the real home launch so the system launcher never starts
             // behind the opaque overlay layer and steals focus/resources.
-            if ("1".equals(android.os.SystemProperties.get(
-                    "persist.gammaos.nano.overlay_home", "0"))
+            if (nanoOverlayHomeActive()
                     && "1".equals(android.os.SystemProperties.get(
                             "sys.gammaos.nano.show_overlay", "0"))
                     && !"1".equals(android.os.SystemProperties.get(
@@ -2528,9 +2527,20 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
      * showNanoBlankOverlay() (its MAX-Z black layer would occlude the overlay) and
      * SKIP setting sys.gammaos.nano.restart (we do not want the DRM home back).
      */
+    // GammaOS Nano: the overlay-as-home model is active when overlay_home is set OR when
+    // the overlay feature itself is on. overlay=1 implies the overlay becomes the home
+    // after the first app launch, so the DRM home must never be relaunched on top of it
+    // (the restart=1 fallback). Treating overlay as implying overlay_home keeps the
+    // DRM-home XOR overlay invariant even if a user explicitly set overlay_home=0.
+    static boolean nanoOverlayHomeActive() {
+        return "1".equals(android.os.SystemProperties.get(
+                       "persist.gammaos.nano.overlay_home", "0"))
+                || "1".equals(android.os.SystemProperties.get(
+                       "persist.gammaos.nano.overlay", "0"));
+    }
+
     private boolean nanoRaiseOverlay() {
-        if (!"1".equals(android.os.SystemProperties.get(
-                "persist.gammaos.nano.overlay_home", "0"))) {
+        if (!nanoOverlayHomeActive()) {
             return false;
         }
         Slog.i(TAG, "GammaOS Nano: overlay-home, raising resident overlay as launcher");

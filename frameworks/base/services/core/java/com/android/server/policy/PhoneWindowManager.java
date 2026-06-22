@@ -2391,9 +2391,19 @@ public class PhoneWindowManager implements WindowManagerPolicy {
      * sys.gammaos.nano.restart (which would start the DRM home nano and fight SF
      * for the display). Returns true if it handled the raise.
      */
+    // GammaOS Nano: overlay-as-home is active when overlay_home is set OR when the
+    // overlay feature itself is on (overlay=1 implies the overlay becomes the home after
+    // the first app launch, so the DRM home must never be relaunched on top of it). Keeps
+    // the DRM-home XOR overlay invariant even if a user explicitly set overlay_home=0.
+    private static boolean nanoOverlayHomeActive() {
+        return "1".equals(android.os.SystemProperties.get(
+                       "persist.gammaos.nano.overlay_home", "0"))
+                || "1".equals(android.os.SystemProperties.get(
+                       "persist.gammaos.nano.overlay", "0"));
+    }
+
     private boolean nanoRaiseOverlayHome() {
-        if (!"1".equals(android.os.SystemProperties.get(
-                "persist.gammaos.nano.overlay_home", "0"))) {
+        if (!nanoOverlayHomeActive()) {
             return false;
         }
         Slog.i(TAG, "GammaOS Nano: overlay-home, raising overlay launcher (PWM)");

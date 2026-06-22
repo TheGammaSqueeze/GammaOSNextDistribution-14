@@ -80,14 +80,14 @@ service gammaos-nano-overlay /system/bin/gammaos-nano --overlay
     rlimit memlock 536870912 536870912
     task_profiles MaxPerformance
 
-# Start the resident overlay once the system is fully booted, the feature is opted
-# in, AND we are in nano mode (sys.gammaos.minimal_boot=1). persist.gammaos.nano.overlay
-# is a persist prop that stays 1 even after the user boots NORMAL Android, so gating on
-# it alone started the overlay there too - and the overlay then relaunched the boot
-# animation (readyToRun's skip_nano bail) and ate the stock power menu. minimal_boot is
-# the precise "nano home is running" signal and is set before boot_completed in nano
-# mode (init re-evaluates the trigger whenever a prop changes, so ordering is fine). The
-# binary also self-guards on persist.bootanim.skip_nano as a backstop.
+# The in-game overlay feature is gated on nano mode (sys.gammaos.minimal_boot=1).
+# persist.gammaos.nano.overlay is a persist prop that stays 1 even after the user boots
+# NORMAL Android, so gating the overlay on it alone would enable it there too - and the
+# overlay would relaunch the boot animation (readyToRun's skip_nano bail) and eat the
+# stock power menu. minimal_boot is the precise "nano home is running" signal. The binary
+# also self-guards on persist.bootanim.skip_nano as a backstop. (The overlay START used
+# to be a boot_completed trigger here, which left the DRM home and the overlay running at
+# the same time; it now starts on the app-launch handoff below - DRM-home XOR overlay.)
 # Default the in-game overlay ON. When nano mode engages, fill in the opt-in if
 # the user has never set it. Persisted props load from /data before minimal_boot is
 # set, so an explicit persist.gammaos.nano.overlay=0 (or 1) is already present and
@@ -107,7 +107,30 @@ on property:sys.gammaos.minimal_boot=1 && property:persist.gammaos.nano.overlay=
 on property:sys.gammaos.minimal_boot=1 && property:persist.gammaos.nano.overlay_home=
     setprop persist.gammaos.nano.overlay_home 1
 
-on property:sys.boot_completed=1 && property:persist.gammaos.nano.overlay=1 && property:sys.gammaos.minimal_boot=1
+# GammaOS Nano: DRM-home XOR overlay - the DRM home and the SF overlay must NEVER run
+# at the same time. The overlay is therefore NOT started at boot_completed (that left
+# BOTH alive at the cold-boot home, wasting ~100MB incl ~65MB of GPU buffers for a
+# parked process). It starts on the FIRST app launch, AFTER the DRM home has fully
+# exited: app_launched=1 is set (RootWindowContainer) while the home is still draining
+# its drmStop()+exit, and the home (oneshot) only flips init.svc.gammaos-nano=stopped
+# once it has returned and released DRM master. ANDing both guarantees the home is gone
+# before the overlay starts - no overlap, no DRM-master contention. A bare app_launched
+# trigger would fire mid-drmStop and reintroduce the overlap. minimal_boot keeps it
+# nano-only. Once started, the overlay is the home for the rest of the session
+# (overlay_home); the DRM home does not return until reboot.
+on property:sys.gammaos.nano.app_launched=1 && property:init.svc.gammaos-nano=stopped && property:persist.gammaos.nano.overlay=1 && property:sys.gammaos.minimal_boot=1
+    start gammaos-nano-overlay
+
+# GammaOS Nano: respawn a crashed overlay-home. After the first app launch the overlay
+# is the SOLE home; if it dies (watchdog SIGABRT / SF death) the user would be left with
+# no UI. Gate on sys.gammaos.nano.overlay_ran, which the overlay sets ONLY after it has
+# initialised its SF layer once (NanoMenuOverlay.cpp), so this can never fire at the
+# cold-boot home (overlay has never run there) and hot-loop against the DRM home. Bring
+# it back as the full-wallpaper home.
+on property:init.svc.gammaos-nano-overlay=stopped && property:sys.gammaos.nano.overlay_ran=1 && property:persist.gammaos.nano.overlay=1
+    setprop sys.gammaos.nano.app_launched 0
+    setprop sys.gammaos.nano.overlay_wallpaper 1
+    setprop sys.gammaos.nano.show_overlay 1
     start gammaos-nano-overlay
 
 on property:sys.gammaos.minimal_boot=1

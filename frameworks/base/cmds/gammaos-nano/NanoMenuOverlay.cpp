@@ -119,6 +119,12 @@ void NanoMenu::overlayInitLayer() {
     t.apply();
     mOverlayShown = false;
     mOverlayInited = true;   // only NOW, after the surface control is confirmed
+    // GammaOS Nano: DRM-home XOR overlay. Latch that the overlay has run THIS session,
+    // now that its SF layer is confirmed up. The crash-respawn trigger in gammaos-nano.rc
+    // is gated on this (sys.gammaos.nano.overlay_ran) so it only re-raises a crashed
+    // overlay-home AFTER the overlay has genuinely come up once - it can never fire at
+    // the cold-boot home (where the overlay has never started) and hot-loop the DRM home.
+    property_set("sys.gammaos.nano.overlay_ran", "1");
 
     ALOGI("overlay: layer initialised (translucent live-app + scrim), waiting on "
           "sys.gammaos.nano.show_overlay");
