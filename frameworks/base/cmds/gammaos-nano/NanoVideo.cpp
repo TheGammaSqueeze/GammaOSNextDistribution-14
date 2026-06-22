@@ -505,7 +505,12 @@ bool NanoVideo::recreateExtractorCodec() {
     const char* mime = nullptr;
     AMediaFormat_getString(fmt, AMEDIAFORMAT_KEY_MIME, &mime);
     AMediaCodec* c = nullptr;
-    if (mExtractorRecreate > 2 && mime) {            // last resort: force the software decoder
+    // Force the software decoder ONLY for small (<= ~PAL/480p) content. On this A53 the c2.android
+    // software decoder CANNOT do 720p/1080p at realtime (it runs ~0.5x AND pins all cores, starving
+    // system_server) - for hi-res the HW decoder is the only viable path, so keep rebuilding HW even
+    // when it cold-start-wedges rather than dropping to a software decoder that cannot keep up.
+    bool swOk = (int64_t)mWidth * mHeight > 0 && (int64_t)mWidth * mHeight <= 720 * 576;
+    if (mExtractorRecreate > 2 && mime && swOk) {    // last resort: force the software decoder (SD only)
         const std::string m = mime;
         const char* sw = (m == "video/avc")   ? "c2.android.avc.decoder"
                        : (m == "video/hevc")  ? "c2.android.hevc.decoder"
@@ -529,6 +534,9 @@ void NanoVideo::decodeLoop() {
     int hardErr = 0;   // consecutive hard codec errors -> back off + park (never hot-loop)
     bool queuedAny = false;          // at least one input AU has been queued since (re)start/flush
     int64_t lastProgressNs = monoNs(); // wall time of the last decoded frame (stall watchdog)
+    int inFail = 0;                  // consecutive loops with NO progress at EITHER stage (never-primed wedge)
+    int64_t firstFeedNs = monoNs();  // (re)start wall time; bounds the never-primed recovery
+    double prevPts = -1.0;           // last rendered frame PTS; detects genuine stream PTS jumps vs ahead-of-audio
     while (!mQuit.load()) {
         if (!mPlaying.load() && !mSeekPending.load() && !mFedFlush.load()) {
             { std::lock_guard<std::mutex> lk(mClockMx); mClockBaseNs = 0; }   // re-anchor on resume
@@ -537,7 +545,7 @@ void NanoVideo::decodeLoop() {
         }
         if (mFed) {
             if (mFedFlush.exchange(false)) {              // seek: drop queued input, flush, re-anchor
-                AMediaCodec_flush(mCodec);
+                if (mCodec) AMediaCodec_flush(mCodec);    // null-safe: a recovery park may have left mCodec null
                 { std::lock_guard<std::mutex> lk(mFedMx); mFedQ.clear(); }
                 sawInputEos = false; mEnded = false; mFedEos = false;
                 queuedAny = false; lastProgressNs = monoNs();   // need fresh input before output again
@@ -547,7 +555,7 @@ void NanoVideo::decodeLoop() {
         } else if (mSeekPending.exchange(false)) {
             double t = mSeekTarget.load();
             AMediaExtractor_seekTo(mEx, (int64_t)(t * 1e6), AMEDIAEXTRACTOR_SEEK_CLOSEST_SYNC);
-            AMediaCodec_flush(mCodec);
+            if (mCodec) AMediaCodec_flush(mCodec);        // null-safe: a recovery park may have left mCodec null
             sawInputEos = false; mEnded = false;
             queuedAny = false; lastProgressNs = monoNs();
             { std::lock_guard<std::mutex> lk(mClockMx); mClockBaseNs = 0; }
@@ -567,12 +575,13 @@ void NanoVideo::decodeLoop() {
                             if (buf && n) memcpy(buf, au.es.data(), n);
                             AMediaCodec_queueInputBuffer(mCodec, inIdx, 0, buf ? n : 0,
                                                          au.ptsUs < 0 ? 0 : (uint64_t)au.ptsUs, 0);
-                            queuedAny = true;
+                            queuedAny = true; inFail = 0;
                         } else {
                             AMediaCodec_queueInputBuffer(mCodec, inIdx, 0, 0, 0, AMEDIACODEC_BUFFER_FLAG_END_OF_STREAM);
                             sawInputEos = true;
                         }
                     } else if (have) {                    // no input buffer free; retry this AU next loop
+                        inFail++;                         // an AU is waiting but no buffer: count toward a wedge
                         std::lock_guard<std::mutex> lk(mFedMx);
                         mFedQ.push_front(std::move(au));
                     }
@@ -580,6 +589,7 @@ void NanoVideo::decodeLoop() {
             } else {
                 ssize_t inIdx = AMediaCodec_dequeueInputBuffer(mCodec, 2000);
                 if (inIdx >= 0) {
+                    inFail = 0;                           // obtained an input buffer: codec is alive at input
                     size_t cap = 0;
                     uint8_t* buf = AMediaCodec_getInputBuffer(mCodec, inIdx, &cap);
                     ssize_t sz = buf ? AMediaExtractor_readSampleData(mEx, buf, cap) : -1;
@@ -592,8 +602,37 @@ void NanoVideo::decodeLoop() {
                         AMediaExtractor_advance(mEx);
                         queuedAny = true;
                     }
+                } else {
+                    inFail++;                             // no input buffer (released/wedged codec, or backpressure)
                 }
             }
+        }
+
+        // Never-primed wedge recovery (symptom A): a released/errored/NULL mCodec fails the input
+        // dequeue forever, so queuedAny never flips and the short-circuit below would spin at 3ms,
+        // bypassing the output-side hard-error recovery and the stall watchdog (both reached only
+        // after queuedAny is true). Trigger ONLY while still un-primed (queuedAny == false): once
+        // primed, a wedged codec is owned by the output recovery (hardErr) + the stall watchdog.
+        // Backed off (20ms) so it can never hot-loop; parks on exhaustion (null OR released).
+        if (!queuedAny && (mCodec == nullptr ||
+                           (inFail > 50 && (monoNs() - firstFeedNs) > 3000000000LL))) {
+            usleep(20000);
+            bool rebuilt = mFed ? (mFedRecreate < 4 && recreateFedCodec())
+                                : (mExtractorRecreate < 4 && recreateExtractorCodec());
+            if (rebuilt) {
+                if (mFed) { std::lock_guard<std::mutex> lk(mFedMx); mFedQ.clear(); mFedCv.notify_all(); }
+                sawInputEos = false; mEnded = false; hardErr = 0;
+                inFail = 0; queuedAny = false; firstFeedNs = monoNs(); lastProgressNs = monoNs();
+                { std::lock_guard<std::mutex> lk(mClockMx); mClockBaseNs = 0; }
+                continue;
+            }
+            // Out of rebuild attempts and still cannot prime: park (covers BOTH a null mCodec and a
+            // released-but-non-null codec at exhaustion). Wakes on quit/seek/flush; never a 3ms spin.
+            LOGE("codec never primed and unrecoverable; parking decode worker (fed=%d)", (int)mFed);
+            mEnded = true;
+            while (!mQuit.load() && !mSeekPending.load() && !mFedFlush.load()) usleep(50000);
+            inFail = 0; hardErr = 0; firstFeedNs = monoNs();
+            continue;
         }
 
         // Do not dequeue output before any input has been queued: the Allwinner MPEG-2 OMX
@@ -618,8 +657,9 @@ void NanoVideo::decodeLoop() {
                 }
                 int64_t now = monoNs();
                 int64_t waitNs = 0;
+                int64_t dbgWaitNs = 0; int dbgReason = 0; double dbgPrev = -1.0;  // clkdbg pacing detail
                 { std::lock_guard<std::mutex> lk(mClockMx);
-                  if (mClockBaseNs == 0) { mClockBaseNs = now; mClockBasePts = pts; }
+                  if (mClockBaseNs == 0) { mClockBaseNs = now; mClockBasePts = pts; dbgReason = 1; }
                   // Frames pace to the wall clock by PTS delta (smooth, native frame rate). When an
                   // audio clock is present (A/V), SLEW the video timeline to it - the audio is the
                   // master - by re-anchoring only when the wall-clock-predicted position diverges
@@ -635,18 +675,49 @@ void NanoVideo::decodeLoop() {
                   }
                   int64_t targetNs = mClockBaseNs + (int64_t)((pts - mClockBasePts) * 1e9);
                   waitNs = targetNs - now;
-                  // PTS discontinuity (MPEG-TS / HDHomeRun captures jump the PES PTS) or a big
-                  // decode stall: re-anchor instead of pacing against the stale base.
-                  if (waitNs > 500000000LL || waitNs < -500000000LL) {
+                  // Re-anchor (render now) ONLY on a genuine stream PTS discontinuity (this frame's
+                  // PTS jumps >0.5s vs the PREVIOUS frame - MPEG-TS/HDHomeRun splices) or when the
+                  // picture has fallen BEHIND by >0.5s (stall / backward jump - catch up). A large
+                  // POSITIVE waitNs with a CONTINUOUS PTS just means the picture decoded ahead of the
+                  // audio (cold-start backlog): it must WAIT for the audio, not render now. Rendering
+                  // an ahead frame immediately is exactly what raced the picture to ~2x the audio.
+                  bool ptsJump = (prevPts >= 0.0 && (pts - prevPts > 0.5 || prevPts - pts > 0.5));
+                  dbgWaitNs = waitNs; dbgPrev = prevPts;
+                  if (ptsJump || waitNs < -500000000LL) {
+                      dbgReason = ptsJump ? 2 : 3;
                       mClockBaseNs = now; mClockBasePts = pts; waitNs = 0;
                   }
                 }
-                if (waitNs > 0) usleep((useconds_t)(waitNs / 1000));
+                prevPts = pts;
+                // Hold an early frame for the audio in short steps so quit/seek/flush stay responsive.
+                // Steady state waits ~one frame; a one-time cold-start backlog may hold a bit longer,
+                // then the audio catches up and pacing settles to 1x (no race).
+                while (waitNs > 0 && !mQuit.load() && !mSeekPending.load() && !mFedFlush.load()) {
+                    int64_t step = waitNs > 30000000LL ? 30000000LL : waitNs;
+                    usleep((useconds_t)(step / 1000));
+                    waitNs -= step;
+                }
                 mPosSec = pts;
+                // clkdbg (symptom-C diagnosis): once per ~2s, log how the picture clock tracks wall
+                // time and the audio clock, so a 2x picture can be pinned to the audio clock vs the
+                // PTS pacing. Cheap (1 line / 2s during playback); remove once C is fixed.
+                static int64_t sClkDbgNs = 0;
+                if (now - sClkDbgNs > 2000000000LL) {
+                    sClkDbgNs = now;
+                    double a = mClockFn ? mClockFn() : -1.0;
+                    LOGV("clkdbg: pts=%.3f aclk=%.3f basePts=%.3f wait=%.3f reason=%d prev=%.3f fed=%d",
+                         pts, a, mClockBasePts, (double)dbgWaitNs / 1e9, dbgReason, dbgPrev, (int)mFed);
+                }
             }
             AMediaCodec_releaseOutputBuffer(mCodec, outIdx, render);
-            hardErr = 0;
-            lastProgressNs = monoNs();   // the codec is alive and producing output
+            hardErr = 0; inFail = 0;
+            int64_t nowOk = monoNs();
+            if ((mExtractorRecreate || mFedRecreate) && (nowOk - lastProgressNs) < 1000000000LL) {
+                // a frame decoded < 1s after the previous one == a sustained healthy run; restore the
+                // rebuild budget so a later unrelated fault can still recover (only after real output).
+                mExtractorRecreate = 0; mFedRecreate = 0;
+            }
+            lastProgressNs = nowOk;       // the codec is alive and producing output
             if (info.flags & AMEDIACODEC_BUFFER_FLAG_END_OF_STREAM) {
                 mEnded = true;
                 while (!mQuit.load() && mEnded.load() && !mSeekPending.load() && !mFedFlush.load()) usleep(16000);
@@ -658,11 +729,11 @@ void NanoVideo::decodeLoop() {
             if (AMediaFormat_getInt32(of, AMEDIAFORMAT_KEY_HEIGHT, &h) && h > 0) mHeight = h;
             if (mConsumer != nullptr) mConsumer->setDefaultBufferSize(mWidth, mHeight);
             AMediaFormat_delete(of);
-            hardErr = 0;
+            hardErr = 0; inFail = 0;
             lastProgressNs = monoNs();
         } else if (outIdx == AMEDIACODEC_INFO_TRY_AGAIN_LATER
                    || outIdx == AMEDIACODEC_INFO_OUTPUT_BUFFERS_CHANGED) {
-            hardErr = 0;   // benign: the dequeue timeout already paced us
+            hardErr = 0; inFail = 0;   // benign: the dequeue timeout already paced us
         } else {
             // Hard codec error (e.g. the component went to a released/error state). Back off
             // so we never burn CPU hot-looping a dead codec, and park after ~1s of failures.
@@ -699,15 +770,26 @@ void NanoVideo::decodeLoop() {
         // flowing but NO frame has decoded for a few seconds. Applies to BOTH the fed path
         // (MPEG-2/.ts) and the extractor path (mp4/mov/live, notably 1080p AVC), the latter being
         // why bbb-style files could buffer forever with no recovery.
+        // First-frame window: the extractor HW path (1080p AVC) can be slow to cold-start under
+        // fresh-boot CPU contention, so give it 7s before declaring a stall (the fed/.ts path keeps
+        // 4s). Killing a slow-but-healthy HW codec early just churns rebuilds and ends on the (much
+        // slower, CPU-pinning) software decoder - the opposite of what we want for hi-res.
+        int64_t stallNs = mFed ? 4000000000LL : 7000000000LL;
         if (queuedAny && !mEnded.load() && mPlaying.load() &&
-            (monoNs() - lastProgressNs) > 4000000000LL) {
+            (monoNs() - lastProgressNs) > stallNs) {
             bool rebuilt = mFed ? (mFedRecreate < 4 && recreateFedCodec())
                                 : (mExtractorRecreate < 4 && recreateExtractorCodec());
-            LOGE("no decoded output for 4s; codec stalled, rebuilt=%d (fed=%d)", (int)rebuilt, (int)mFed);
+            LOGE("no decoded output for %llds; codec stalled, rebuilt=%d (fed=%d)",
+                 (long long)(stallNs / 1000000000LL), (int)rebuilt, (int)mFed);
             if (rebuilt) {
                 if (mFed) { std::lock_guard<std::mutex> lk(mFedMx); mFedQ.clear(); mFedCv.notify_all(); }
                 sawInputEos = false; mEnded = false; hardErr = 0;
-                queuedAny = false; lastProgressNs = monoNs();
+                queuedAny = false; inFail = 0;
+                // Give EVERY rebuilt HW codec the full stall window (7s extractor / 4s fed) to emit
+                // its first frame - on this device the HW decoder is the only viable hi-res path, so
+                // we'd rather wait for it than churn rebuilds toward a software decoder that cannot
+                // keep up. lastProgressNs resets to now so the fresh codec gets the whole window.
+                lastProgressNs = monoNs();
                 { std::lock_guard<std::mutex> lk(mClockMx); mClockBaseNs = 0; }
                 continue;
             }

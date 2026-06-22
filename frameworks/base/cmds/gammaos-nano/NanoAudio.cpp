@@ -276,7 +276,11 @@ bool NanoAudioPlayer::openStreamLocked(int rate, int channels) {
     mStreamRate = rate;
     mStreamChans = channels;
     mStarted = false;
-    ALOGI("NanoAudio: stream open %dHz x%d", rate, channels);
+    // clkdbg (symptom-C diagnosis): AAudio may negotiate a rate/channel count different from the
+    // request; position() divides the callback frame count by mStreamRate, so a mismatch would skew
+    // the A/V clock. Log both to confirm whether requested == device on this device.
+    ALOGI("NanoAudio: stream open req=%dHz x%d, device=%dHz x%d", rate, channels,
+          AAudioStream_getSampleRate(s), AAudioStream_getChannelCount(s));
     return true;
 }
 
