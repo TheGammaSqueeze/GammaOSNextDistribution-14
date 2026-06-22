@@ -46,11 +46,35 @@ public:
     static bool probeUrl(const std::string& url, Meta& out);
 
     // Open + start decoding (render thread, EGL context current). false = failed.
+    // Thin SYNCHRONOUS wrapper kept only for the in-worker .ts/.avi fed-fail fallback and
+    // probing; the render-thread player now uses the openBegin + openAsyncRun split below.
     bool open(const std::string& path);
     // Open + start decoding from a network URL (http/https, incl. HLS .m3u8). The platform
     // extractor fetches the manifest/segments transparently. Live streams report duration 0
     // (no seek). Render thread, EGL current. false = failed.
     bool openUrl(const std::string& url);
+
+    // ---- Async open split (no UI freeze on warmup) ----
+    // The blocking open work (network setDataSource/NanoHls, extractor build, codec
+    // create/configure/start) cannot run on the render thread - it would freeze the UI and
+    // trip the render watchdog. open() is therefore split into:
+    //   openBegin(wHint,hHint)  - RENDER THREAD, EGL current: GL allocation ONLY (texture +
+    //                             BufferQueue + GLConsumer + Surface), sized by hint.
+    //   openAsyncRun*(...)      - WORKER THREAD: all the blocking work, reusing the GL from
+    //                             openBegin, polling mCancel between steps; spawns the decode
+    //                             worker only on full success.
+    // openBegin must run first; the worker then re-sizes the GLConsumer (an IGraphicBuffer
+    // IPC, not GL) to the real dimensions before the decoder dequeues. On worker failure the
+    // owner frees the (partial) object on the render thread via releaseAsync()/finishRelease().
+    bool openBegin(int wHint, int hHint);
+    bool openAsyncRun(const std::string& path);
+    bool openAsyncRunUrl(const std::string& url);
+    bool openAsyncRunFed(const std::string& mime, int width, int height, AMediaFormat* srcFmt = nullptr);
+    // Render-thread cancel lever for an in-flight openAsyncRun*: sets mCancel (checked between
+    // blocking steps) and unblocks an in-flight NanoHls network read. Race-free against the
+    // worker publishing mHls (atomic acquire/release).
+    void requestOpenCancel();
+    bool openCanceled() const { return mCancel.load(std::memory_order_relaxed); }
 
     // "Fed" mode: the picture is decoded from access units pushed by an external demuxer
     // (NanoTsDemux) instead of NanoVideo's own AMediaExtractor. This is how a .ts plays:
@@ -122,11 +146,16 @@ public:
 private:
     void decodeLoop();              // worker thread
     bool ensureProgram();           // lazily compile the samplerExternalOES program
+    // Non-GL soft reset of the codec/extractor/fed state on the SAME object (keeps the GL
+    // texture/Consumer/Surface from openBegin), for the in-worker fed->normal fallback.
+    // Joins the decode worker if one is live (worker thread only - never the render thread).
+    void resetForReopen();
 
     bool mOpen = false;
     std::atomic<bool> mPlaying{false};
     std::atomic<bool> mEnded{false};
     std::atomic<bool> mQuit{false};
+    std::atomic<bool> mCancel{false};   // cancel an in-flight openAsyncRun* (separate from mQuit)
 
     AMediaExtractor* mEx = nullptr;
     AMediaCodec* mCodec = nullptr;
@@ -142,7 +171,9 @@ private:
     // IPTV: in-process HTTP/HLS fetcher backing the custom data source for openUrl(). Owns
     // the streaming temp file; freed after mEx in release()/releaseAsync (the extractor read
     // through its data source). null for local files.
-    android::NanoHls* mHls = nullptr;
+    // Atomic so requestOpenCancel() (render thread) can read it race-free while the open
+    // worker constructs+publishes it (release store after full construction, acquire load here).
+    std::atomic<android::NanoHls*> mHls{nullptr};
     void freeHls();
     int mVideoTrack = -1;
     int mWidth = 0, mHeight = 0;

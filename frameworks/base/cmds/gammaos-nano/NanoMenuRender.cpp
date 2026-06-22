@@ -1693,9 +1693,12 @@ void NanoMenu::startRenderWatchdog() {
             // relights, the power button looks dead, and background music dies.
             // Skip the stall check while parked.
             if (mInDrmSleep.load(std::memory_order_relaxed)
-                || mVidOpening.load(std::memory_order_relaxed)) {
-                // Parked for sleep, or blocked in a slow media-service binder call
-                // while opening a video: the heartbeat legitimately stalls; don't abort.
+                || mVidTeardownExempt.load(std::memory_order_relaxed)) {
+                // Parked for sleep, or joining a wedged video-open worker during a forced
+                // teardown (sleep/occlusion): the heartbeat legitimately stalls; don't abort.
+                // NOTE: a NORMAL video open no longer exempts the watchdog - the render thread
+                // stays responsive (it spins the loading spinner); only this rare blocking
+                // teardown join is exempt.
                 stuck = 0;
                 last = mRenderHeartbeat.load(std::memory_order_relaxed);
                 continue;

@@ -1044,7 +1044,7 @@ void NanoMenu::pollInput() {
             // control panel (physical Triangle/BTN_NORTH), `sq` cycles the
             // visualizer (physical Square/BTN_WEST). No effect off Now-Playing.
             else if (!strcmp(navbuf, "tri")) {
-                if (mVidActive) { if (!mVidGoToOpen && !mVidSceneOpen && !mVidResumeAsk) vidPanelToggle(); }
+                if (mVidActive) { if (!mVidOpenInProgress.load(std::memory_order_relaxed) && !mVidGoToOpen && !mVidSceneOpen && !mVidResumeAsk) vidPanelToggle(); }
                 else if (mMpActive) { if (mMpCpOpen) closeMpOpt(); else openMpOpt(); }
                 else if (mPvActive) { if (mPvPanel) closePvPanel(); else openPvPanel(); }
                 else if (mPs3Xmb) { if (mPs3OptActive) closeXmbOpt(); else openXmbOpt(); }
@@ -1179,8 +1179,10 @@ void NanoMenu::pollInput() {
                     // Video player: SELECT toggles the Display OSD bar (web vidToggleInfo:
                     // osd=!osd, panel=false), so it also dismisses the control panel.
                     else if (mVidActive) {
-                        mVidOsd = !mVidOsd;
-                        if (mVidCpOpen) vidPanelClose();
+                        if (!mVidOpenInProgress.load(std::memory_order_relaxed)) {   // ignore while opening
+                            mVidOsd = !mVidOsd;
+                            if (mVidCpOpen) vidPanelClose();
+                        }
                     }
                     // PS3 XMB: SELECT invokes the global search (categorized results
                     // across Games / Music / Photos / Videos). Opens the query keyboard;
@@ -1202,7 +1204,7 @@ void NanoMenu::pollInput() {
                     if (!mPvPaused) mPvSlideNext = mEffectTime * 1000.0f + mPvSlideMs;
                 }
                 // Video player: START toggles play/pause (web START shortcut).
-                else if (ev.value == 1 && mVidActive) { vidTogglePlay(); }
+                else if (ev.value == 1 && mVidActive) { if (!mVidOpenInProgress.load(std::memory_order_relaxed)) vidTogglePlay(); }
                 mStartHeld = (ev.value != 0);
             }
             // Power button handling
@@ -1475,7 +1477,7 @@ void NanoMenu::pollInput() {
                         break;
                     case BTN_NORTH: // X button (Nintendo layout: BTN_NORTH = X); PS3 Triangle in music
                         if (mOskActive) { oskBackspace(); break; }
-                        if (mVidActive) { if (mVidGoToOpen || mVidSceneOpen || mVidResumeAsk) break; vidPanelToggle(); break; }   // Triangle: video control panel
+                        if (mVidActive) { if (mVidOpenInProgress.load(std::memory_order_relaxed) || mVidGoToOpen || mVidSceneOpen || mVidResumeAsk) break; vidPanelToggle(); break; }   // Triangle: video control panel
                         if (mMpActive) { if (mMpCpOpen) closeMpOpt(); else openMpOpt(); break; }   // Triangle: control panel
                         if (mPvActive) { if (mPvPanel) closePvPanel(); else openPvPanel(); break; }   // Triangle: photo control panel
                         if (mPs3WizActive) { wizRescan(); break; }   // X: re-scan on the AP list

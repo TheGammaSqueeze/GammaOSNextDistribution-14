@@ -1338,7 +1338,13 @@ void NanoMenu::vidOpenTitleAudio(const std::string& file) {
 // in-process demuxer feeds BOTH the HW video codec (fed mode) and the audio (liba52) from
 // one read pointer, so A/V stay locked with no system extractor; everything else uses the
 // normal AMediaExtractor path. Returns false only if the picture could not be opened.
-bool NanoMenu::vidOpenTitle(const std::string& file, int w, int h) {
+// WORKER THREAD: the blocking part of opening a title (extractor build, fed/normal codec via
+// openAsyncRun*, sub-demuxer start, audio open), reusing the GL allocated by vidBeginOpen's
+// openBegin. Reads mVidPending. mVidTsMode/mVidAviMode are set TRUE the instant the demuxer is
+// started so a late cancel reliably tears it down. Polls mVidOpenCancelReq between steps.
+bool NanoMenu::vidOpenTitleRun() {
+    const std::string& file = mVidPending.file;
+    int w = mVidPending.w, h = mVidPending.h;
     mVidTsMode = false; mVidTsAudio = false; mVidHasAudio = false;
     mVidTsDemux.close();
     mVidAviMode = false; mVidAviDemux.close();
@@ -1367,8 +1373,9 @@ bool NanoMenu::vidOpenTitle(const std::string& file, int w, int h) {
         else
             mVidAviDemux.close();
     }
+    if (mVidOpenCancelReq) { mVidTsDemux.close(); mVidAviDemux.close(); return false; }   // cancel after demux probe
     if (!isTs && !isAvi) {
-        if (!mVideoTest->open(file)) return false;
+        if (!mVideoTest->openAsyncRun(file)) return false;   // worker open, reuses openBegin's GL
     }
 
     // Subtitles (sidecars, embedded text, DVB). For .ts vidBuildTracks strips audio so the
@@ -1381,16 +1388,18 @@ bool NanoMenu::vidOpenTitle(const std::string& file, int w, int h) {
     vidBuildTracks(file);
     if (!isTs && !isAvi) vidParseChapters(file);   // TS broadcast / AVI have no chapter track
     mVidAudCur = 0; mVidSubCur = -1;
+    if (mVidOpenCancelReq) { mVidTsDemux.close(); mVidAviDemux.close(); return false; }   // cancel after track build
 
     if (isTs) {
         int vw = w > 0 ? w : 720, vh = h > 0 ? h : 480;     // size hint; FORMAT_CHANGED corrects it
-        bool fedOk = mVideoTest->openFed(mVidTsDemux.videoMime(), vw, vh, mVidTsVideoFmt);
+        bool fedOk = mVideoTest->openAsyncRunFed(mVidTsDemux.videoMime(), vw, vh, mVidTsVideoFmt);
         if (mVidTsVideoFmt) { AMediaFormat_delete(mVidTsVideoFmt); mVidTsVideoFmt = nullptr; }  // consumed by configure
+        if (mVidOpenCancelReq) { mVidTsDemux.close(); return false; }
         if (!fedOk) {
             mVidTsDemux.close();
-            if (!mVideoTest->open(file)) return false;       // fall back to the normal path
+            if (!mVideoTest->openAsyncRun(file)) return false;   // fed->normal fallback on the SAME object (reuses GL)
         } else {
-            mVidTsMode = true;
+            mVidTsMode = true;   // set BEFORE start so a late cancel reliably closes the demuxer
             mVidAudTracks.clear();
             const auto& ats = mVidTsDemux.audioTracks();
             for (size_t k = 0; k < ats.size(); k++) {
@@ -1405,6 +1414,7 @@ bool NanoMenu::vidOpenTitle(const std::string& file, int w, int h) {
             // One worker feeds the picture (mVideoTest) + the selected audio from one read pointer,
             // starting immediately so the codec is never idle after start.
             mVidTsDemux.start(mVideoTest, mVidHasAudio ? &mVidAudio : nullptr, 0, 0.0);
+            if (mVidOpenCancelReq) return false;   // demuxer started; vidAbortOpen closes it
         }
     }
     if (isAvi) {
@@ -1421,13 +1431,14 @@ bool NanoMenu::vidOpenTitle(const std::string& file, int w, int h) {
         std::vector<uint8_t> csd;
         if (mVidAviDemux.videoCsd(csd) && !csd.empty())
             AMediaFormat_setBuffer(fmt, "csd-0", csd.data(), csd.size());
-        bool fedOk = mVideoTest->openFed(mime, vw, vh, fmt);
+        bool fedOk = mVideoTest->openAsyncRunFed(mime, vw, vh, fmt);
         AMediaFormat_delete(fmt);
+        if (mVidOpenCancelReq) { mVidAviDemux.close(); return false; }
         if (!fedOk) {
             mVidAviDemux.close();
-            if (!mVideoTest->open(file)) return false;   // fall back (normally fails for AVI)
+            if (!mVideoTest->openAsyncRun(file)) return false;   // fed->normal fallback on the SAME object
         } else {
-            mVidAviMode = true;
+            mVidAviMode = true;   // set BEFORE start so a late cancel reliably closes the demuxer
             // Audio: open the fed ring (always stereo, like the .ts path) at the stream rate and
             // let the demux worker decode the audio chunks (PCM / MP3 / AC-3) into it.
             bool audioOn = false;
@@ -1442,6 +1453,7 @@ bool NanoMenu::vidOpenTitle(const std::string& file, int w, int h) {
             }
             // One worker feeds the picture + (when present) the decoded audio from one read pointer.
             mVidAviDemux.start(mVideoTest, audioOn ? &mVidAudio : nullptr, 0.0);
+            if (mVidOpenCancelReq) return false;   // demuxer started; vidAbortOpen closes it
             // Audio-master pacing: the picture slews to the audio clock so A/V stay locked (and
             // re-sync after a seek). Gated on isPlaying so scan/seek/pause fall back to wall-clock.
             if (audioOn) {
@@ -1460,6 +1472,7 @@ bool NanoMenu::vidOpenTitle(const std::string& file, int w, int h) {
             mVideoTest->setClockFn([a]{ return a->isPlaying() ? a->position() : -1.0; });
         }
     }
+    if (mVidOpenCancelReq) return false;   // cancel after audio open
     return true;
 }
 
@@ -1470,9 +1483,12 @@ void NanoMenu::vidCloseTitleAudio() {
     // worker stops reading a clock whose backing audio is going away (.ts: the demuxer also
     // clears it in stop(); this covers the separate-extractor path).
     if (mVideoTest) mVideoTest->setClockFn(nullptr);
-    if (mVidTsMode || mVidTsAudio) { mVidTsDemux.close(); mVidTsMode = false; mVidTsAudio = false; }
-    // AVI: close() joins the demux worker (which feeds mVideoTest) BEFORE the picture is freed.
-    if (mVidAviMode) { mVidAviDemux.close(); mVidAviMode = false; }
+    // Close BOTH demuxers UNCONDITIONALLY (not gated on the mode flags): an in-flight open
+    // worker may have started a demuxer without the render thread having observed the mode
+    // flag yet, and close()->stop() is idempotent (null/joinable-checked). This joins the
+    // sub-demuxer worker - the real last toucher of mVideoTest - before the picture is freed.
+    mVidTsDemux.close(); mVidTsMode = false; mVidTsAudio = false;
+    mVidAviDemux.close(); mVidAviMode = false;
     mVidAudio.release();
     mVidHasAudio = false;
 }
@@ -1549,107 +1565,41 @@ void NanoMenu::openVideoPlayer(const std::vector<Ps3Item>& list, int listSel, in
 
     int vi = mVidList[mVidIdx];
     if (vi < 0 || vi >= (int)mVideos.size()) return;
+    // Async open: vidBeginOpen does the GL alloc on the render thread + spawns the blocking
+    // open (extractor/codec/audio) on a worker; videoTick adopts it (Resume per mVidPending).
+    VidPending p;
+    p.isStream = false;
+    p.file = mVideos[vi].file;
+    p.w = mVideos[vi].w; p.h = mVideos[vi].h;
+    p.resumeChoice = resumeChoice;
+    p.resumeSec = mVideos[vi].resumeSec;
+    p.vidIdx = mVidIdx;
+    mVidStepActive = false;   // a fresh user-initiated open, not a step-retry chain
+    vidBeginOpen(p);
+}
+
+// Render thread: tear down any prior title, allocate the GL output (openBegin), reset the
+// player to its fresh on-open state, and spawn the blocking open worker. The spinner shows
+// immediately; videoTick adopts/aborts/cancels the open. No blocking work happens here.
+void NanoMenu::vidBeginOpen(const VidPending& p) {
+    if (mVidOpenThread.joinable()) mVidOpenThread.join();   // defensive: never move-assign a joinable thread
     vidCloseTitleAudio();   // stop any prior demux/audio (it feeds mVideoTest) before freeing it
     if (mVideoTest) { vidAsyncFree(mVideoTest); mVideoTest = nullptr; }   // never block the render thread on teardown
+
+    mVidIsStream = p.isStream;
+    mVidPending = p;
     mVideoTest = new NanoVideo();
-    // The open + track-enumeration + audio-open below can make synchronous media-service
-    // binder calls that block for seconds when those services are cold/contended; exempt
-    // the render watchdog for the duration so a slow open never aborts nano.
-    mVidOpening.store(true, std::memory_order_relaxed);
-    // Stop background music so the video owns the audio path (web 12350).
-    if (mMusicPlayer.isPlaying()) mMusicPlayer.pause();
-    // Open the title (.ts -> single in-process demuxer feeds picture + audio in lockstep;
-    // else the normal AMediaExtractor path). Audio starts in videoTick on the first frame.
-    if (!vidOpenTitle(mVideos[vi].file, mVideos[vi].w, mVideos[vi].h)) {
-        delete mVideoTest; mVideoTest = nullptr;
-        mVidOpening.store(false, std::memory_order_relaxed); return;
-    }
-    mVidAudioStarted = false;
-    mVidOpening.store(false, std::memory_order_relaxed);
-
-    mVidActive = true;
-    mVidPlaying = true;
-    mVidScreenMode = 0;
-    mVidOsd = false;
-    mVidHintUntil = mEffectTime + 4.0f;     // show the OSD bar for 4s on open
-    mVidTransientUntil = 0.0f; mVidDispModeUntil = 0.0f;
-    // fresh transport + panel state
-    mVidRate = 1.0; mVidStopped = false; mVidRepeat = 0; mVidAbA = mVidAbB = -1.0;
-    mVidScanLastTick = -1.0;
-    mVidLastPos = -1.0; mVidLastPosT = mEffectTime; mVidBuffering = false;
-    mVidCpOpen = mVidCpClosing = mVidSubOpen = false; mVidGoToOpen = false;
-    mVidSceneOpen = mVidSceneClosing = false;
-    // Resume: offer Resume / Play-from-beginning when this title has a saved position
-    // (>5s in and not within 5s of the end). Hold playback until the user chooses.
-    mVidResumeAsk = false; mVidResumeSel = 0; mVidResumeAskSec = 0.0;
-    mVidResumeDirty = false; mVidResumeSaveT = mEffectTime;
-    mVidDlgActive = false; mVidDlgBusyUntil = 0.0f;   // clear any stale confirm/info/busy modal
-    {
-        double rs = mVideos[vi].resumeSec;
-        bool resumable = (rs > 0.0);   // web shows Resume whenever a point was saved (vidCaptureResume gates it)
-        if (resumeChoice == 1 && resumable) {        // option-menu "Resume": seek now, no prompt
-            if (mVideoTest) mVideoTest->seek(rs);
-            if (mVidHasAudio) vidAudioSeek(rs);
-            mVidHintUntil = mEffectTime + 1.5f;
-        } else if (resumeChoice == 0) {              // option-menu "Play from Beginning": start at 0 (bookmark already cleared)
-        } else if (resumeChoice < 0 && resumable) {  // direct Enter: prompt Resume / Play from beginning
-            mVidResumeAsk = true; mVidResumeAskSec = rs; mVidPlaying = false;   // wait for the choice
-        }
-    }
-}
-
-// Open a live stream (IPTV channel) URL: picture via NanoVideo::openUrl, audio via a
-// second engine on the same URL (the picture slews to the audio clock; the slew only
-// re-anchors pacing, never seeks, so it is safe for live streams). No .ts/.avi demuxer,
-// no subtitles/chapters (live HLS has none here). Returns false if the picture failed.
-bool NanoMenu::vidOpenStream(const VidStreamRef& s) {
-    mVidTsMode = false; mVidTsAudio = false; mVidHasAudio = false;
-    mVidTsDemux.close();
-    mVidAviMode = false; mVidAviDemux.close();
-    mVidAudTracks.clear(); mVidSubTracks.clear(); mVidChapters.clear(); mVidCcCues.clear();
-    mVidAudCur = 0; mVidSubCur = -1;
-
-    if (!mVideoTest->openUrl(s.url)) return false;
-
-    mVidHasAudio = mVidAudio.open(s.url, -1);   // first audio track of the same stream
-    if (mVidHasAudio) {
-        mVidAudio.setVolume(mVidVolume);
-        VidAudTrk t; t.idx = -1; t.name = "Audio"; mVidAudTracks.push_back(t);
-        NanoAudioPlayer* a = &mVidAudio;
-        mVideoTest->setClockFn([a]{ return a->isPlaying() ? a->position() : -1.0; });
-    } else {
-        mVidAudio.release();
-    }
-    return true;
-}
-
-// Open the full-screen player on a live IPTV channel queue (the surrounding group), so
-// prev/next steps through the group's channels. Live: no Resume, no duration, no seek.
-void NanoMenu::openIptvStream(const std::vector<VidStreamRef>& queue, int startIdx) {
-    if (queue.empty()) return;
-    videoEnsureLoaded();
-    mVidStreamList = queue;
-    mVidList.clear();
-    mVidIsStream = true;
-    mVidIdx = (startIdx >= 0 && startIdx < (int)queue.size()) ? startIdx : 0;
-
-    vidCloseTitleAudio();   // stop any prior demux/audio before freeing the decoder
-    if (mVideoTest) { vidAsyncFree(mVideoTest); mVideoTest = nullptr; }
-    mVideoTest = new NanoVideo();
-    mVidOpening.store(true, std::memory_order_relaxed);
-    if (mMusicPlayer.isPlaying()) mMusicPlayer.pause();
-    if (!vidOpenStream(mVidStreamList[mVidIdx])) {
-        delete mVideoTest; mVideoTest = nullptr;
-        mVidOpening.store(false, std::memory_order_relaxed);
-        mVidIsStream = false;
-        photoShowBanner("Could not open this channel");
+    int wHint = p.isStream ? 0 : p.w, hHint = p.isStream ? 0 : p.h;
+    if (!mVideoTest->openBegin(wHint, hHint)) {   // GL alloc (render thread, EGL current)
+        vidAsyncFree(mVideoTest); mVideoTest = nullptr;
+        if (p.isStream) photoShowBanner("Could not open this channel");
         return;
     }
-    mVidAudioStarted = false;
-    mVidOpening.store(false, std::memory_order_relaxed);
+    if (mMusicPlayer.isPlaying()) mMusicPlayer.pause();   // the video owns the audio path (web 12350)
 
+    // Fresh on-open player state (was inline in openVideoPlayer/openIptvStream).
     mVidActive = true;
-    mVidPlaying = true;
+    mVidPlaying = false;   // playback begins on adopt (vidAdoptOpen)
     mVidScreenMode = 0;
     mVidOsd = false;
     mVidHintUntil = mEffectTime + 4.0f;
@@ -1662,6 +1612,132 @@ void NanoMenu::openIptvStream(const std::vector<VidStreamRef>& queue, int startI
     mVidResumeAsk = false; mVidResumeSel = 0; mVidResumeAskSec = 0.0;
     mVidResumeDirty = false; mVidResumeSaveT = mEffectTime;
     mVidDlgActive = false; mVidDlgBusyUntil = 0.0f;
+    mVidAudioStarted = false;
+
+    mVidOpenStartT = mEffectTime;
+    mVidOpenCancelReq = false;
+    mVidOpenOk.store(false, std::memory_order_relaxed);
+    mVidOpenDone.store(false, std::memory_order_relaxed);
+    mVidOpenInProgress.store(true, std::memory_order_relaxed);
+    VLOGI("vidBeginOpen: spawn worker stream=%d file=%s", (int)mVidIsStream, p.isStream ? p.url.c_str() : p.file.c_str());
+    mVidOpenThread = std::thread([this] {
+        bool ok = mVidIsStream ? vidOpenStreamRun() : vidOpenTitleRun();
+        VLOGI("vidOpen worker RETURNED ok=%d", (int)ok);
+        mVidOpenOk.store(ok, std::memory_order_relaxed);
+        mVidOpenDone.store(true, std::memory_order_release);   // publish ok + all worker writes
+    });
+}
+
+// Render thread: adopt a finished, joined, successful open. Applies the Resume choice
+// captured at vidBeginOpen, then clears the open latch so playback + input resume.
+void NanoMenu::vidAdoptOpen() {
+    mVidAudioStarted = false;
+    mVidPlaying = true;
+    if (!mVidIsStream) {
+        double rs = mVidPending.resumeSec;
+        bool resumable = (rs > 0.0);
+        if (mVidPending.resumeChoice == 1 && resumable) {        // "Resume" / auto-advance: seek now
+            if (mVideoTest) mVideoTest->seek(rs);
+            if (mVidHasAudio) vidAudioSeek(rs);
+            mVidHintUntil = mEffectTime + 1.5f;
+        } else if (mVidPending.resumeChoice == 0) {              // "Play from Beginning": start at 0
+        } else if (mVidPending.resumeChoice < 0 && resumable) {  // direct Enter: prompt
+            mVidResumeAsk = true; mVidResumeAskSec = rs; mVidPlaying = false;
+        }
+    }
+    mVidOpenInProgress.store(false, std::memory_order_relaxed);
+}
+
+// Render thread: tear down a failed/canceled open (worker already joined by the caller), then
+// fade to the XMB. STRICT order: drop the audio clock, close BOTH demuxers (joins the
+// sub-demuxer worker that feeds mVideoTest) + release audio, THEN async-free the decoder.
+void NanoMenu::vidAbortOpen(const char* banner) {
+    if (mVideoTest) {
+        mVideoTest->setClockFn(nullptr);
+        vidCloseTitleAudio();
+        vidAsyncFree(mVideoTest); mVideoTest = nullptr;
+    }
+    mVidActive = false; mVidPlaying = false;
+    mVidIsStream = false;
+    mVidCpOpen = mVidCpClosing = mVidSubOpen = mVidGoToOpen = false;
+    mVidSceneOpen = mVidSceneClosing = false;
+    mVidResumeAsk = false;
+    mVidAudTracks.clear(); mVidSubTracks.clear(); mVidChapters.clear(); mVidAudCur = 0; mVidSubCur = -1;
+    if (mVidTsVideoFmt) { AMediaFormat_delete(mVidTsVideoFmt); mVidTsVideoFmt = nullptr; }
+    vidDvbFree();
+    mVidOpenInProgress.store(false, std::memory_order_relaxed);
+    if (banner) photoShowBanner(banner);
+}
+
+// Render thread: begin the next step-retry candidate (the prior one is already joined+aborted
+// by vidBeginOpen's teardown). Strictly sequential, so the shared demuxer/audio never race.
+void NanoMenu::vidStepRetryNext() {
+    if (mVidIsStream) {
+        int n = (int)mVidStreamList.size();
+        if (n <= 0) { vidAbortOpen("Could not open this channel"); return; }
+        mVidIdx = ((mVidIdx + mVidStepDir) % n + n) % n;
+        VidPending p; p.isStream = true; p.url = mVidStreamList[mVidIdx].url; p.vidIdx = mVidIdx;
+        vidBeginOpen(p);
+    } else {
+        int n = (int)mVidList.size();
+        if (n <= 0) { vidAbortOpen(nullptr); return; }
+        mVidIdx = ((mVidIdx + mVidStepDir) % n + n) % n;
+        int vi = mVidList[mVidIdx];
+        VidPending p; p.isStream = false; p.vidIdx = mVidIdx; p.resumeChoice = 1;   // silent resume
+        if (vi >= 0 && vi < (int)mVideos.size()) { p.file = mVideos[vi].file; p.w = mVideos[vi].w; p.h = mVideos[vi].h; p.resumeSec = mVideos[vi].resumeSec; }
+        vidBeginOpen(p);
+    }
+}
+
+// Open a live stream (IPTV channel) URL: picture via NanoVideo::openUrl, audio via a
+// second engine on the same URL (the picture slews to the audio clock; the slew only
+// re-anchors pacing, never seeks, so it is safe for live streams). No .ts/.avi demuxer,
+// no subtitles/chapters (live HLS has none here). Returns false if the picture failed.
+// WORKER THREAD: blocking IPTV stream open (network NanoHls + extractor + codec via
+// openAsyncRunUrl, then a second audio engine on the same URL), reusing the GL from
+// vidBeginOpen's openBegin. Reads mVidStreamList[mVidIdx]. Polls mVidOpenCancelReq.
+bool NanoMenu::vidOpenStreamRun() {
+    if (mVidIdx < 0 || mVidIdx >= (int)mVidStreamList.size()) return false;
+    const VidStreamRef& s = mVidStreamList[mVidIdx];
+    mVidTsMode = false; mVidTsAudio = false; mVidHasAudio = false;
+    mVidTsDemux.close();
+    mVidAviMode = false; mVidAviDemux.close();
+    mVidAudTracks.clear(); mVidSubTracks.clear(); mVidChapters.clear(); mVidCcCues.clear();
+    mVidAudCur = 0; mVidSubCur = -1;
+
+    if (!mVideoTest->openAsyncRunUrl(s.url)) return false;   // worker open, reuses openBegin's GL
+    if (mVidOpenCancelReq) return false;
+
+    mVidHasAudio = mVidAudio.open(s.url, -1);   // first audio track of the same stream
+    if (mVidHasAudio) {
+        mVidAudio.setVolume(mVidVolume);
+        VidAudTrk t; t.idx = -1; t.name = "Audio"; mVidAudTracks.push_back(t);
+        NanoAudioPlayer* a = &mVidAudio;
+        mVideoTest->setClockFn([a]{ return a->isPlaying() ? a->position() : -1.0; });
+    } else {
+        mVidAudio.release();
+    }
+    if (mVidOpenCancelReq) return false;
+    return true;
+}
+
+// Open the full-screen player on a live IPTV channel queue (the surrounding group), so
+// prev/next steps through the group's channels. Live: no Resume, no duration, no seek.
+void NanoMenu::openIptvStream(const std::vector<VidStreamRef>& queue, int startIdx) {
+    if (queue.empty()) return;
+    videoEnsureLoaded();
+    mVidStreamList = queue;
+    mVidList.clear();
+    mVidIdx = (startIdx >= 0 && startIdx < (int)queue.size()) ? startIdx : 0;
+
+    // Async open: vidBeginOpen allocates GL on the render thread + spawns the blocking network
+    // open on a worker; the "Connecting..." spinner shows immediately and Back cancels it.
+    VidPending p;
+    p.isStream = true;
+    p.url = mVidStreamList[mVidIdx].url;
+    p.vidIdx = mVidIdx;
+    mVidStepActive = false;
+    vidBeginOpen(p);
 }
 
 // Store the playing title's current position for Resume (kept only when >5s in and
@@ -1696,6 +1772,10 @@ void NanoMenu::vidResumeConfirm() {
 }
 
 void NanoMenu::closeVideoPlayer() {
+    // If an open is still in flight, do not touch the decoder/demuxer here (the worker may be
+    // mid extractor/codec/audio open). Request cancel; videoTick finishes it (vidAbortOpen
+    // tears down + fades to the XMB).
+    if (mVidOpenInProgress.load()) { mVidOpenCancelReq = true; mVidStepActive = false; return; }
     // Capture the Resume position before the leave fade (the decoder is still alive here;
     // it is freed later in videoTick once the fade completes).
     vidCaptureResume();
@@ -1732,6 +1812,24 @@ void NanoMenu::vidReapDying() {
 }
 
 void NanoMenu::videoHardFree(bool sync) {
+    // An open worker may be in flight (slow/wedged extractor/codec/network). Cancel it and
+    // settle the thread BEFORE the normal teardown so mVideoTest is fully owned here.
+    if (mVidOpenInProgress.load()) {
+        if (mVideoTest) mVideoTest->requestOpenCancel();
+        mVidOpenCancelReq = true; mVidStepActive = false;
+        if (mVidOpenDone.load(std::memory_order_acquire) || sync) {
+            // Done (fast join) or dtor (process exiting, blocking is acceptable).
+            if (mVidOpenThread.joinable()) mVidOpenThread.join();
+        } else {
+            // Sleep/occlusion with a possibly-wedged binder: join with the watchdog scoped-exempt
+            // so the render/threadLoop is not SIGABRT'd (rare backstop; the open worker only
+            // touches its own state, no orphaning of the shared demuxer/decoder needed).
+            mVidTeardownExempt.store(true, std::memory_order_relaxed);
+            if (mVidOpenThread.joinable()) mVidOpenThread.join();
+            mVidTeardownExempt.store(false, std::memory_order_relaxed);
+        }
+        mVidOpenInProgress.store(false, std::memory_order_relaxed);
+    }
     vidCaptureResume();   // persist the Resume position before tearing the decoder down
     if (mVidResumeDirty) { saveVideoConfig(); mVidResumeDirty = false; }
     vidCloseTitleAudio();   // stop the demuxer FIRST (it feeds mVideoTest) before freeing it
@@ -1783,79 +1881,35 @@ void NanoMenu::vidSeek(double deltaSec) {
     mVidHintUntil = mEffectTime + 1.5f;
 }
 
+// Step to the previous/next title (or IPTV channel). ASYNC: kicks off one open candidate via
+// vidBeginOpen and returns; videoTick drives it (spinner + Back-cancel), and on failure
+// retries the next candidate ONE PER FRAME (vidStepRetryNext) so the UI never freezes on a
+// long run of dead channels / unplayable files. Strictly sequential (the shared demuxer/audio
+// are never touched by two opens at once).
 void NanoMenu::vidStepTitle(int dir) {
+    if (mVidOpenInProgress.load()) return;   // an open is already in flight
     if (mVidIsStream) {
-        // IPTV: step through the channel queue (the surrounding group), skipping any that
-        // fail to open. Live streams have no Resume/position to persist.
-        if (mVidStreamList.empty() || !mVideoTest) return;
+        if (mVidStreamList.empty()) return;
         int n = (int)mVidStreamList.size();
-        vidCloseTitleAudio();
-        vidAsyncFree(mVideoTest); mVideoTest = nullptr;
-        mVidOpening.store(true, std::memory_order_relaxed);
+        mVidStepActive = true; mVidStepDir = dir;
+        mVidStepTries = n < 4 ? n : 4;   // kStreamStepCap: cap the dead-channel scan
         mVidSceneOpen = false; mVidSceneClosing = false;
-        // Skipping dead channels is convenient, but each vidOpenStream does a BLOCKING
-        // network fetch on the render thread, so cap the scan tightly: an all-dead /
-        // geo-blocked / encrypted run would otherwise grind the whole group and freeze the
-        // UI for minutes. Try a few then give up with an error (the user can pick another).
-        const int kStreamStepCap = 4;
-        int cap = n < kStreamStepCap ? n : kStreamStepCap;
-        bool ok = false;
-        for (int tries = 0; tries < cap; tries++) {
-            mVidIdx = ((mVidIdx + dir) % n + n) % n;
-            mVideoTest = new NanoVideo();
-            if (vidOpenStream(mVidStreamList[mVidIdx])) { ok = true; break; }
-            vidAsyncFree(mVideoTest); mVideoTest = nullptr;
-        }
-        if (!ok) {
-            mVidOpening.store(false, std::memory_order_relaxed);
-            mVidPlaying = false; mVidStopped = true;
-            photoShowBanner("Could not open this channel");
-            return;
-        }
-        mVidAudioStarted = false;
-        mVidOpening.store(false, std::memory_order_relaxed);
-        mVidRate = 1.0; mVidStopped = false; mVidPlaying = true;
-        mVidAbA = mVidAbB = -1.0;
-        mVidHintUntil = mEffectTime + 1.5f;
+        mVidIdx = ((mVidIdx + dir) % n + n) % n;
+        VidPending p; p.isStream = true; p.url = mVidStreamList[mVidIdx].url; p.vidIdx = mVidIdx;
+        vidBeginOpen(p);
         return;
     }
-    if (mVidList.empty() || !mVideoTest) return;
+    if (mVidList.empty()) return;
     vidCaptureResume();   // persist the OUTGOING title's position before we leave it
     int n = (int)mVidList.size();
-    // Stop the outgoing title's demuxer FIRST (it feeds mVideoTest), THEN async-release the
-    // old decoder (its OMX stop must not block the render thread; reaped by vidReapDying) and
-    // open the new one. The open/track binder calls can block; exempt the watchdog.
-    vidCloseTitleAudio();
-    vidAsyncFree(mVideoTest); mVideoTest = nullptr;
-    mVidOpening.store(true, std::memory_order_relaxed);
+    mVidStepActive = true; mVidStepDir = dir;
+    mVidStepTries = n;    // bound an all-unplayable list
     mVidSceneOpen = false; mVidSceneClosing = false;
-    // Advance to the next title, skipping any that fail to open (an unplayable codec/container
-    // would otherwise strand auto-advance / folder-repeat on a black screen). Bounded by the
-    // list length so an all-unplayable list still terminates.
-    int vi = -1;
-    for (int tries = 0; tries < n; tries++) {
-        mVidIdx = ((mVidIdx + dir) % n + n) % n;
-        vi = mVidList[mVidIdx];
-        if (vi < 0 || vi >= (int)mVideos.size()) continue;
-        mVideoTest = new NanoVideo();
-        if (vidOpenTitle(mVideos[vi].file, mVideos[vi].w, mVideos[vi].h)) break;
-        vidAsyncFree(mVideoTest); mVideoTest = nullptr;
-    }
-    if (!mVideoTest) { mVidOpening.store(false, std::memory_order_relaxed); return; }
-    mVidAudioStarted = false;
-    mVidOpening.store(false, std::memory_order_relaxed);
-    // web vidStepTitle resets rate / stopped / play state.
-    mVidRate = 1.0; mVidStopped = false; mVidPlaying = true;
-    mVidAbA = mVidAbB = -1.0;
-    mVidHintUntil = mEffectTime + 1.5f;
-    // Auto-advance never prompts: silently resume the new title from its saved position.
-    {
-        double rs = mVideos[vi].resumeSec, dur = vidDuration();
-        if (rs > 5.0 && (dur <= 0.0 || rs < dur - 5.0)) {
-            mVideoTest->seek(rs);   // no-op in fed mode; the demux seek below handles .ts
-            vidAudioSeek(rs);
-        }
-    }
+    mVidIdx = ((mVidIdx + dir) % n + n) % n;
+    int vi = mVidList[mVidIdx];
+    VidPending p; p.isStream = false; p.vidIdx = mVidIdx; p.resumeChoice = 1;   // auto-advance: silent resume
+    if (vi >= 0 && vi < (int)mVideos.size()) { p.file = mVideos[vi].file; p.w = mVideos[vi].w; p.h = mVideos[vi].h; p.resumeSec = mVideos[vi].resumeSec; }
+    vidBeginOpen(p);
 }
 
 // ---- transport extras (web vidStop/vidScan/vidSlow/vidStepFrame/vidFlash) -----
@@ -1945,6 +1999,32 @@ void NanoMenu::vidBeginning() {
 
 void NanoMenu::videoTick() {
     vidReapDying();   // free any async-released decoder whose background teardown finished
+    // --- Async open state machine (single render-thread drain point) ---
+    // While an open worker runs, the render thread shows the spinner (renderVideoPlayer) and
+    // only adopts/aborts once the worker publishes mVidOpenDone (acquire pairs with the worker's
+    // release store, so every worker write is visible before adopt). A Back/sleep/deadline cancel
+    // is translated to requestOpenCancel here; the 30s deadline forces an abort on the eventual
+    // done. We NEVER join before done on this path - a wedged binder just keeps the spinner up.
+    if (mVidOpenInProgress.load(std::memory_order_relaxed)) {
+        bool overDeadline = (mEffectTime - mVidOpenStartT) > 30.0f;
+        if ((mVidOpenCancelReq || overDeadline) && mVideoTest) mVideoTest->requestOpenCancel();
+        if (mVidOpenDone.load(std::memory_order_acquire)) {
+            if (mVidOpenThread.joinable()) mVidOpenThread.join();
+            bool ok = mVidOpenOk.load(std::memory_order_relaxed) && !mVidOpenCancelReq && !overDeadline;
+            VLOGI("drain: done ok=%d cancel=%d deadline=%d step=%d", (int)ok, (int)mVidOpenCancelReq, (int)overDeadline, (int)mVidStepActive);
+            mVidOpenInProgress.store(false, std::memory_order_relaxed);
+            if (ok) {
+                vidAdoptOpen();
+                mVidStepActive = false;
+            } else if (mVidStepActive && --mVidStepTries > 0) {
+                vidStepRetryNext();   // try the next candidate (prior one freed by vidBeginOpen)
+            } else {
+                mVidStepActive = false;
+                vidAbortOpen(mVidIsStream ? "Could not open this channel" : nullptr);
+            }
+        }
+        return;   // skip fade/playback while opening (the spinner is drawn by renderVideoPlayer)
+    }
     // Change Icon busy dialog auto-advances to the result (web vidCreateIcon ~650ms timer).
     if (mVidDlgActive && mVidDlgKind == 2 && mEffectTime >= mVidDlgBusyUntil)
         vidDlgInfo("The icon has been changed.");
@@ -2112,6 +2192,26 @@ void NanoMenu::drawLoadingSpinner(float ccx, float ccy, float sz, float alpha) {
 
 bool NanoMenu::renderVideoPlayer() {
     videoTick();
+    // Loading spinner while the open worker runs. MUST be the first thing after videoTick and
+    // BEFORE any mVideoTest->updateFrame()/draw()/position() or read of the worker-written
+    // mVidSubTracks/mVidChapters/mVidAudTracks: updateFrame() is render-thread GL on the OES
+    // texture whose producer Surface the worker is simultaneously configuring, and those
+    // vectors are mutated by vidBuildTracks on the worker (this gate is their only protection).
+    if (mVidOpenInProgress.load(std::memory_order_relaxed)) {
+        int W = mWidth, H = mHeight;
+        drawQuad(0, 0, (float)W, (float)H, 0.0f, 0.0f, 0.0f, 1.0f);   // black
+        if (mEffectTime - mVidOpenStartT > 0.3f) {   // no spinner flash on an instant local open
+            float a = fminf(1.0f, (mEffectTime - mVidOpenStartT - 0.3f) / 0.25f);
+            drawLoadingSpinner(W * 0.5f, H * 0.5f, H * 0.06f, 0.9f * a);
+            float tfs = ps3::fontScale(24.0f);
+            const char* t = mVidIsStream ? "Connecting..." : "Opening...";
+            drawText(t, (W - measureText(t, tfs)) * 0.5f, ps3::baselineToTopY(H * 0.5f + H * 0.09f, tfs), tfs, 1.0f, 1.0f, 1.0f, 0.95f * a);
+            float cfs = ps3::fontScale(18.0f);
+            const char* c = "Back: Cancel";
+            drawText(c, (W - measureText(c, cfs)) * 0.5f, ps3::baselineToTopY(H * 0.5f + H * 0.15f, cfs), cfs, 1.0f, 1.0f, 1.0f, 0.8f * a);
+        }
+        return true;
+    }
     if (mVidEnterT <= 0.001f && !mVidActive) return false;
     if (!mVideoTest) { if (mVidEnterT <= 0.001f) return false; }
 

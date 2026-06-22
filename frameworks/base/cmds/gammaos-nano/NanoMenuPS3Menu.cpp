@@ -1692,6 +1692,7 @@ void NanoMenu::ps3DlgNav(int dir, bool horizontal) {
 void NanoMenu::ps3XmbLeft() {
     if (mGSearchActive) return;   // results overlay ignores left/right
     if (mVidActive) {   // video player: Go To field / Scene grid / panel grid / rewind 10s
+        if (mVidOpenInProgress.load(std::memory_order_relaxed)) return;   // opening: only Back (cancel) is live
         if (mVidDlgActive) { if (mVidDlgKind == 1) mVidDlgSel = 0; return; }   // modal: left = Yes
         if (mVidResumeAsk) { mVidResumeSel = 0; return; }   // Resume prompt: left = Resume
         if (mVidGoToOpen) vidGoToMove(-1);
@@ -1739,6 +1740,7 @@ void NanoMenu::ps3XmbLeft() {
 void NanoMenu::ps3XmbRight() {
     if (mGSearchActive) return;   // results overlay ignores left/right
     if (mVidActive) {   // video player: Go To field / Scene grid / panel grid / forward 10s
+        if (mVidOpenInProgress.load(std::memory_order_relaxed)) return;   // opening: only Back (cancel) is live
         if (mVidDlgActive) { if (mVidDlgKind == 1) mVidDlgSel = 1; return; }   // modal: right = No
         if (mVidResumeAsk) { mVidResumeSel = 1; return; }   // Resume prompt: right = Play from beginning
         if (mVidGoToOpen) vidGoToMove(+1);
@@ -1787,6 +1789,7 @@ void NanoMenu::ps3XmbRight() {
 void NanoMenu::ps3XmbUp() {
     if (mGSearchActive) { gsearchMove(-1); return; }   // global search results
     if (mVidActive) {   // video player: Go To digit up / Scene grid up / panel grid up
+        if (mVidOpenInProgress.load(std::memory_order_relaxed)) return;   // opening: only Back (cancel) is live
         if (mVidDlgActive) return;   // modal: up/down inert (Yes/No is horizontal)
         if (mVidResumeAsk) { mVidResumeSel = 0; return; }   // Resume prompt: up = Resume
         if (mVidGoToOpen) vidGoToAdjust(+1);
@@ -1817,6 +1820,7 @@ void NanoMenu::ps3XmbUp() {
 void NanoMenu::ps3XmbDown() {
     if (mGSearchActive) { gsearchMove(+1); return; }   // global search results
     if (mVidActive) {   // video player: Go To digit down / Scene grid down / panel grid down
+        if (mVidOpenInProgress.load(std::memory_order_relaxed)) return;   // opening: only Back (cancel) is live
         if (mVidDlgActive) return;   // modal: up/down inert (Yes/No is horizontal)
         if (mVidResumeAsk) { mVidResumeSel = 1; return; }   // Resume prompt: down = Play from beginning
         if (mVidGoToOpen) vidGoToAdjust(-1);
@@ -1964,6 +1968,7 @@ bool NanoMenu::tryOpenSearchEngineChooser() {
 void NanoMenu::ps3XmbSelect() {
     if (mGSearchActive) { gsearchActivate(); return; }   // launch / open the selected result
     if (mVidActive) {   // video player: Go To enter / Scene seek / panel activate / play-pause
+        if (mVidOpenInProgress.load(std::memory_order_relaxed)) return;   // opening: only Back (cancel) is live
         if (mVidDlgActive) { vidDlgActivate(); return; }     // modal: OK / Yes-No confirm
         if (mVidResumeAsk) { vidResumeConfirm(); return; }   // Resume prompt: confirm the choice
         if (mVidGoToOpen) vidGoToActivate();
@@ -2543,6 +2548,9 @@ void NanoMenu::ps3XmbSelect() {
 void NanoMenu::ps3XmbBack() {
     if (mGSearchActive) { gsearchClose(); return; }   // close the global search overlay
     if (mVidActive) {   // video player: cascade Go To -> Scene Search -> submenu -> panel -> close
+        if (mVidOpenInProgress.load(std::memory_order_relaxed)) {   // opening: Back cancels the in-flight open
+            mVidOpenCancelReq = true; mVidStepActive = false; return;
+        }
         if (mVidDlgActive) { vidDlgBack(); return; }   // modal: dismiss / cancel (= No)
         if (mVidResumeAsk) { mVidResumeSel = 0; vidResumeConfirm(); return; }   // Circle defaults to Resume
         if (mVidGoToOpen) { vidGoToClose(); return; }

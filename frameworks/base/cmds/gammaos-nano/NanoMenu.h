@@ -1169,13 +1169,31 @@ private:
     // also kills background music) on every power-button sleep.
     std::atomic<bool> mInDrmSleep{false};
     // True while opening a video on the render thread. NanoVideo::open() (and track
-    // enumeration / audio open) make synchronous binder calls into MediaExtractorService
-    // and the codec service that can block for seconds when those services are cold or
-    // contended (e.g. while a previous title's async teardown is still settling). The
-    // render loop legitimately stops bumping the heartbeat during that call, so the
-    // watchdog skips its stall check while this is set (same contract as mInDrmSleep)
-    // rather than aborting the process on a slow-but-not-hung open.
-    std::atomic<bool> mVidOpening{false};
+    // Async video open (no UI freeze on warmup). The blocking open work (extractor build,
+    // codec create/configure/start, NanoHls network) runs on mVidOpenThread OFF the render
+    // thread; the render thread shows a cancelable spinner and adopts the decoder once the
+    // worker signals done (acquire/release handoff). The render thread is watchdog-protected
+    // throughout an open (it spins the spinner); only a blocking TEARDOWN join of a wedged
+    // worker (sleep/occlusion) is watchdog-exempt, via mVidTeardownExempt below.
+    std::atomic<bool> mVidOpenInProgress{false};  // an open worker is live, decoder not yet adopted
+    std::atomic<bool> mVidOpenDone{false};        // worker sets LAST (release); render reads (acquire)
+    std::atomic<bool> mVidOpenOk{false};          // worker result (stored before mVidOpenDone)
+    std::atomic<bool> mVidTeardownExempt{false};  // scoped watchdog exemption around a blocking teardown join
+    std::thread mVidOpenThread;                    // per-open worker (never move-assigned while joinable)
+    float  mVidOpenStartT = 0.0f;                  // mEffectTime at open begin (spinner delay + 30s deadline)
+    bool   mVidOpenCancelReq = false;             // Back/sleep/occlusion/deadline asked to cancel
+    bool   mVidStepActive = false;                // a next/prev/auto-advance step-retry chain is running
+    int    mVidStepDir = 0;                        // its direction
+    int    mVidStepTries = 0;                      // candidates left to try
+    struct VidPending { bool isStream = false; std::string file; std::string url; int w = 0, h = 0;
+                        int resumeChoice = -1; double resumeSec = 0.0; int vidIdx = 0; };
+    VidPending mVidPending;                         // params captured at vidBeginOpen, applied on adopt
+    void   vidBeginOpen(const VidPending& p);       // render: GL alloc + spawn the open worker
+    bool   vidOpenTitleRun();                       // worker: blocking title open (reads mVidPending)
+    bool   vidOpenStreamRun();                      // worker: blocking IPTV stream open
+    void   vidAdoptOpen();                          // render: adopt a finished+joined successful open
+    void   vidAbortOpen(const char* banner);        // render: tear down a failed/canceled open (then fade to XMB)
+    void   vidStepRetryNext();                      // render: advance to the next step candidate (after prior joined)
     void   startRenderWatchdog();
     // Fullscreen dialog page (mPs3DlgKind==0). Mirrors web DIALOG_TEMPLATES +
     // drawDialog: a body type, an optional vector illustration, a notice line and
@@ -1765,7 +1783,7 @@ private:
     void buildIptvCountrySubmenu(int catIdx, Ps3Level& out);          // category -> country list
     void buildIptvChannelSubmenu(int catIdx, int countryIdx, Ps3Level& out);  // (category,country) -> channels
     void openIptvStream(const std::vector<VidStreamRef>& queue, int startIdx);  // play a channel (queue = the group)
-    bool vidOpenStream(const VidStreamRef& s);        // URL analog of vidOpenTitle (picture + audio)
+    // (vidOpenStream/vidOpenTitle are now the worker-thread vidOpenStreamRun/vidOpenTitleRun above)
 
     // ==== Internet Radio (live audio stations, nano addition - Music category) ============
     // Mirrors IPTV but audio-only: stations parsed from a community m3u (default the Pulham
@@ -1875,7 +1893,7 @@ private:
     void vidReadEmbeddedCues(const std::string& file, int trackIdx, std::vector<VidCue>& out);
     void vidSetAudioTrack(int ordinal);             // switch the active audio track (re-opens mVidAudio)
     void vidOpenTitleAudio(const std::string& file);   // open audio for a NON-.ts title (mVidAudio)
-    bool vidOpenTitle(const std::string& file, int w, int h);  // open a title's video+audio (.ts demux or normal)
+    // (vidOpenTitle is now vidOpenTitleRun above - runs on the open worker thread)
     void vidCloseTitleAudio();                      // stop the demux (if any) + release mVidAudio
     void vidAudioSeek(double sec);                  // seek the audio, routed to the demux for .ts
     double vidDuration() const;                     // duration (s): demux for .ts, else NanoVideo
