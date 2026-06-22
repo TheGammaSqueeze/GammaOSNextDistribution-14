@@ -122,6 +122,13 @@ public:
     double duration() const { return mDurationSec; }
     bool ended() const { return mEnded.load(); }
 
+    // Step 1 A/V start-together: the host holds audio muted until the picture has decoded its
+    // first frame, then un-mutes audio anchored to firstFramePts() so both start together in one
+    // PTS domain (fixes the live raw-TS-vs-0-based catch-up). The video decode/pace path itself
+    // is unchanged (it renders from frame 0 as before); these just observe the first frame.
+    bool firstFrameReady() const { return mFirstFrameReady.load(); }
+    double firstFramePts() const; // PTS (s) of the first decoded frame (the shared origin)
+
     // Render thread: latch the most-recently decoded frame into the OES texture.
     // Returns true if a new frame became current this call.
     bool updateFrame();
@@ -203,6 +210,11 @@ private:
     int64_t mClockBaseNs = 0;       // CLOCK_MONOTONIC ns at the anchor
     std::atomic<double> mPosSec{0.0};
     std::function<double()> mClockFn;  // audio-master clock (guarded by mClockMx); null = wall-clock
+
+    // Step 1 start-together: set true on the first decoded (render-eligible) frame; mFirstFramePts
+    // captures that frame's PTS so the host anchors the audio clock to the same origin.
+    std::atomic<bool> mFirstFrameReady{false};
+    double mFirstFramePts = 0.0;       // guarded by mClockMx
 
     // Seek request handed to the worker.
     std::atomic<bool> mSeekPending{false};

@@ -238,7 +238,8 @@ bool NanoVideo::openAsyncRun(const std::string& path) {
     if (mCancel.load()) return false;
 
     mQuit = false; mEnded = false; mPlaying = true; mPosSec = 0.0;
-    { std::lock_guard<std::mutex> lk(mClockMx); mClockBaseNs = 0; mClockBasePts = 0.0; }
+    mFirstFrameReady.store(false);
+    { std::lock_guard<std::mutex> lk(mClockMx); mClockBaseNs = 0; mClockBasePts = 0.0; mFirstFramePts = 0.0; }
     mOpen = true;
     mWorker = std::thread(&NanoVideo::decodeLoop, this);   // spawn LAST, only on full success
     LOGV("opened %s (%dx%d, %.1fs, %s)", path.c_str(), mWidth, mHeight, mDurationSec, mimeStr.c_str());
@@ -339,7 +340,8 @@ bool NanoVideo::openAsyncRunUrl(const std::string& url) {
     if (mCancel.load()) return false;
 
     mQuit = false; mEnded = false; mPlaying = true; mPosSec = 0.0;
-    { std::lock_guard<std::mutex> lk(mClockMx); mClockBaseNs = 0; mClockBasePts = 0.0; }
+    mFirstFrameReady.store(false);
+    { std::lock_guard<std::mutex> lk(mClockMx); mClockBaseNs = 0; mClockBasePts = 0.0; mFirstFramePts = 0.0; }
     mOpen = true;
     mWorker = std::thread(&NanoVideo::decodeLoop, this);
     LOGV("opened url %s (%dx%d, %.1fs, %s)", url.c_str(), mWidth, mHeight, mDurationSec, mimeStr.c_str());
@@ -392,8 +394,9 @@ bool NanoVideo::openAsyncRunFed(const std::string& mime, int width, int height, 
 
     mQuit = false; mEnded = false; mPlaying = true; mPosSec = 0.0;
     mFedEos = false; mFedFlush = false;
+    mFirstFrameReady.store(false);
     { std::lock_guard<std::mutex> lk(mFedMx); mFedQ.clear(); }
-    { std::lock_guard<std::mutex> lk(mClockMx); mClockBaseNs = 0; mClockBasePts = 0.0; }
+    { std::lock_guard<std::mutex> lk(mClockMx); mClockBaseNs = 0; mClockBasePts = 0.0; mFirstFramePts = 0.0; }
     mOpen = true;
     mWorker = std::thread(&NanoVideo::decodeLoop, this);
     LOGV("openFed %s (%dx%d hint)", mime.c_str(), mWidth, mHeight);
@@ -571,6 +574,13 @@ void NanoVideo::decodeLoop() {
             double pts = info.presentationTimeUs / 1e6;
             bool render = info.size > 0 && !(info.flags & AMEDIACODEC_BUFFER_FLAG_CODEC_CONFIG);
             if (render) {
+                // Step 1 start-together: record the first decoded frame + its PTS so the host
+                // can un-mute audio anchored to this origin. The frame is still rendered normally
+                // (no gating/drop): the picture starts at frame 0 as before, audio joins it.
+                if (!mFirstFrameReady.load(std::memory_order_acquire)) {
+                    { std::lock_guard<std::mutex> lk(mClockMx); mFirstFramePts = pts; }
+                    mFirstFrameReady.store(true, std::memory_order_release);
+                }
                 int64_t now = monoNs();
                 int64_t waitNs = 0;
                 { std::lock_guard<std::mutex> lk(mClockMx);
@@ -796,6 +806,8 @@ void NanoVideo::seek(double sec) {
 }
 
 double NanoVideo::position() const { return mPosSec.load(); }
+
+double NanoVideo::firstFramePts() const { std::lock_guard<std::mutex> lk(mClockMx); return mFirstFramePts; }
 
 void NanoVideo::release() {
     mCancel.store(true);             // bail any in-flight openAsyncRun* at its next checkpoint

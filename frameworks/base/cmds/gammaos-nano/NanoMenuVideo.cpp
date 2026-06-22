@@ -1330,7 +1330,8 @@ void NanoMenu::vidOpenTitleAudio(const std::string& file) {
     mVidHasAudio = false;
     if (!mVidAudTracks.empty()) {
         mVidHasAudio = mVidAudio.open(file, mVidAudTracks[0].idx);
-        if (mVidHasAudio) mVidAudio.setVolume(mVidVolume); else mVidAudio.release();
+        if (mVidHasAudio) { mVidAudio.setVolume(mVidVolume); mVidAudio.setPrerollMute(true); }   // start-together: silent until the first frame
+        else mVidAudio.release();
     }
 }
 
@@ -1409,6 +1410,7 @@ bool NanoMenu::vidOpenTitleRun() {
             }
             if (!ats.empty() && mVidAudio.openFed(48000, 2)) { // AC-3 -> stereo 48k fed ring
                 mVidAudio.setVolume(mVidVolume);
+                mVidAudio.setPrerollMute(true);   // start-together: silent until the first frame
                 mVidTsAudio = true; mVidHasAudio = true;
             }
             // One worker feeds the picture (mVideoTest) + the selected audio from one read pointer,
@@ -1444,6 +1446,7 @@ bool NanoMenu::vidOpenTitleRun() {
             bool audioOn = false;
             if (mVidAviDemux.audioDecodable() && mVidAudio.openFed(mVidAviDemux.audioFedRate(), 2)) {
                 mVidAudio.setVolume(mVidVolume);
+                mVidAudio.setPrerollMute(true);   // start-together: silent until the first frame
                 mVidHasAudio = true; audioOn = true;
                 int tag = mVidAviDemux.audioFormatTag();
                 const char* ac = tag == 0x0055 ? "MP3" : tag == 0x2000 ? "AC-3" : "PCM";
@@ -1458,7 +1461,7 @@ bool NanoMenu::vidOpenTitleRun() {
             // re-sync after a seek). Gated on isPlaying so scan/seek/pause fall back to wall-clock.
             if (audioOn) {
                 NanoAudioPlayer* a = &mVidAudio;
-                mVideoTest->setClockFn([a]{ return a->isPlaying() ? a->position() : -1.0; });
+                mVideoTest->setClockFn([a]{ return (a->isPlaying() && a->clockArmed()) ? a->position() : -1.0; });
             }
         }
     }
@@ -1469,7 +1472,7 @@ bool NanoMenu::vidOpenTitleRun() {
         // the audio clock). Gated on isPlaying so scan/seek/pause fall back to wall-clock pacing.
         if (mVidHasAudio && mVideoTest) {
             NanoAudioPlayer* a = &mVidAudio;
-            mVideoTest->setClockFn([a]{ return a->isPlaying() ? a->position() : -1.0; });
+            mVideoTest->setClockFn([a]{ return (a->isPlaying() && a->clockArmed()) ? a->position() : -1.0; });
         }
     }
     if (mVidOpenCancelReq) return false;   // cancel after audio open
@@ -1711,9 +1714,10 @@ bool NanoMenu::vidOpenStreamRun() {
     mVidHasAudio = mVidAudio.open(s.url, -1);   // first audio track of the same stream
     if (mVidHasAudio) {
         mVidAudio.setVolume(mVidVolume);
+        mVidAudio.setPrerollMute(true);   // start-together: silent until the picture's first frame
         VidAudTrk t; t.idx = -1; t.name = "Audio"; mVidAudTracks.push_back(t);
         NanoAudioPlayer* a = &mVidAudio;
-        mVideoTest->setClockFn([a]{ return a->isPlaying() ? a->position() : -1.0; });
+        mVideoTest->setClockFn([a]{ return (a->isPlaying() && a->clockArmed()) ? a->position() : -1.0; });
     } else {
         mVidAudio.release();
     }
@@ -2084,17 +2088,25 @@ void NanoMenu::videoTick() {
     // then plays at normal speed, pauses during scan/slow/stop/pause, and resnaps when it
     // drifts > 0.3s (web vidSyncAux). The picture is the master clock.
     if (mVidHasAudio) {
-        // The AUDIO is the master clock and the picture follows it (NanoVideo slews its frame
-        // pacing to mVidAudio's position via the clock fn set at open, for BOTH the .ts demuxer
-        // and the separate-extractor path). So here we only run/pause the audio with playback:
-        // play it as soon as we want sound (the clock only arms on real PCM, so the AAudio HAL
-        // cold-start hides in the decode warmup instead of baking a startup lip-sync skew), and
-        // pause during scan/slow/stop/pause. No reseeking against the picture - the picture is
-        // the follower, and a seek already re-anchors the audio clock which the picture tracks.
+        // Step 1 start-together: the audio AAudio stream is started here (so the HAL cold-start
+        // overlaps the decode warmup), but it was opened MUTED (setPrerollMute) so it emits silence
+        // and its clock stays frozen at the origin. The moment the picture has decoded its first
+        // frame we un-mute + anchor the audio clock to that frame's PTS (armOrigin) - ONE shared
+        // origin - so audio and video begin at the same instant in one PTS domain. This kills the
+        // live "audio plays while video buffers, then video fast-forwards to catch up" desync
+        // (live video PTS is raw MPEG-TS while the separate audio engine is 0-based; the origin
+        // shift puts them in the same domain so the slew converges instead of free-running). The
+        // video itself is unchanged: it renders from frame 0, paced to wall-clock until the audio
+        // clock arms (clockArmed() gates the clock fn), then it slews to the audio.
         bool wantAudio = mVidPlaying && mVidRate == 1.0 && !mVidStopped;
         if (wantAudio) {
-            if (!mVidAudio.isPlaying()) mVidAudio.play();
-            mVidAudioStarted = true;
+            if (!mVidAudio.isPlaying()) mVidAudio.play();   // plays SILENT until armed (mPrerollMute)
+            if (!mVidAudioStarted && mVideoTest && mVideoTest->firstFrameReady()) {
+                mVidAudio.armOrigin(mVideoTest->firstFramePts());   // un-mute + share the video PTS origin
+                mVidAudioStarted = true;
+                VLOGI("vidStartTogether: armed audio videoFirstPts=%.3f at t=%.3f",
+                      mVideoTest->firstFramePts(), (double)mEffectTime);
+            }
         } else if (mVidAudio.isPlaying()) {
             mVidAudio.pause();
         }

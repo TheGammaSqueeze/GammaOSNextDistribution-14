@@ -116,6 +116,15 @@ public:
     double duration() const;                    // track length seconds (from metadata)
     void   setVolume(float v01);                // 0..1, applied in the callback
 
+    // Step 1 A/V start-together (video player only; music never calls these). After open the
+    // host sets the preroll mute so the stream plays SILENT and its clock stays frozen at the
+    // origin while the ring keeps draining (so the shared .ts/.avi demux worker never wedges on
+    // a full audio ring). When the picture has its first frame the host calls armOrigin(pts):
+    // it un-mutes and shifts position() into the video's PTS domain so both clocks agree.
+    void   setPrerollMute(bool m) { mPrerollMute.store(m); }
+    void   armOrigin(double originPtsSec);      // un-mute + set the shared PTS origin
+    bool   clockArmed() const { return mClockArmed.load(); }  // real PCM has flowed (clock is live)
+
     Meta meta() const;                          // thread-safe copy of the current track's tags
     void getBands(Bands& out);                  // compute the FFT bins/bands for this frame
 
@@ -196,6 +205,8 @@ private:
     // ---- position / metadata ----
     std::atomic<int64_t> mFramesConsumed{0};    // frames the callback has emitted
     std::atomic<int64_t> mSeekBaseFrames{0};    // frame offset applied on the last seek
+    std::atomic<double> mOriginPts{0.0};        // Step 1: PTS origin added to position() (0 = music/default)
+    std::atomic<bool> mPrerollMute{false};      // Step 1: emit silence + freeze the clock until armOrigin()
     std::atomic<bool> mClockArmed{false};       // real audio has flowed since the last seek/open;
                                                 // before that, underrun silence must NOT advance the
                                                 // clock (else it races ahead during a slow re-prime)

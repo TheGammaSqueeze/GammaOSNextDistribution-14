@@ -214,7 +214,7 @@ bool NanoTsDemux::start(NanoVideo* video, NanoAudioPlayer* audio, int audioIndex
     if (mVideoSink) {
         // Gate on isPlaying() so scan/seek/pause (audio stopped) falls back to wall-clock pacing
         // instead of freezing the picture against a halted audio clock.
-        if (mSink) { NanoAudioPlayer* a = mSink; mVideoSink->setClockFn([a]{ return a->isPlaying() ? a->position() : -1.0; }); }
+        if (mSink) { NanoAudioPlayer* a = mSink; mVideoSink->setClockFn([a]{ return (a->isPlaying() && a->clockArmed()) ? a->position() : -1.0; }); }
         else mVideoSink->setClockFn(nullptr);
     }
     mWorker = std::thread(&NanoTsDemux::workerFunc, this, startSec);

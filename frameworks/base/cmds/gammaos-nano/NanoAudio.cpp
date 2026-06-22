@@ -367,6 +367,7 @@ bool NanoAudioPlayer::open(const std::string& path, int audioTrackIndex, bool ra
     mFramesConsumed = 0;
     mSeekBaseFrames = 0;
     mClockArmed = false;
+    mOriginPts.store(0.0); mPrerollMute.store(false);   // Step 1: clean slate (music default; video re-mutes)
     mPendingSeekUs = -1;
     mStopped = false;
     { std::lock_guard<std::mutex> lk(mMetaMutex); mMeta = m; }
@@ -415,6 +416,7 @@ bool NanoAudioPlayer::openFed(int rate, int channels) {
     mFramesConsumed = 0;
     mSeekBaseFrames = 0;
     mClockArmed = false;
+    mOriginPts.store(0.0); mPrerollMute.store(false);   // Step 1: clean slate (video re-mutes after openFed)
     mPendingSeekUs = -1;
     mStopped = false;
     { std::lock_guard<std::mutex> lk(mMetaMutex); mMeta = Meta{}; mMeta.sampleRate = rate; mMeta.channels = channels; }
@@ -471,6 +473,21 @@ void NanoAudioPlayer::pause() {
     }
 }
 
+// Step 1 A/V start-together: un-mute and shift the clock into the video's PTS domain. Called once
+// by the host the moment the picture has decoded its first frame, with that frame's PTS. The
+// origin is the OFFSET between the video PTS domain and this engine's own 0-based position, so
+// position() == videoFirstPts at the arm instant and tracks the video thereafter. For a 0-based
+// path with a seek already applied (mp4/mov resume, .ts normalized) the raw position already
+// equals the media time, so the offset is ~0; for live (raw MPEG-TS PTS, no seek) it is the raw
+// first PTS. Computed while still muted (mFramesConsumed frozen), so the read is stable. Idempotent.
+void NanoAudioPlayer::armOrigin(double videoFirstPtsSec) {
+    double rawPos = 0.0;
+    if (mStreamRate > 0)
+        rawPos = (double)(mSeekBaseFrames.load() + mFramesConsumed.load()) / (double)mStreamRate;
+    mOriginPts.store(videoFirstPtsSec - rawPos);
+    mPrerollMute.store(false);
+}
+
 void NanoAudioPlayer::togglePause() {
     if (mStarted.load()) pause(); else play();
 }
@@ -510,9 +527,9 @@ bool NanoAudioPlayer::ended() {
 }
 
 double NanoAudioPlayer::position() const {
-    if (mStreamRate <= 0) return 0.0;
+    if (mStreamRate <= 0) return mOriginPts.load();   // deferred-rate stream: report the origin, not 0
     int64_t f = mSeekBaseFrames.load() + mFramesConsumed.load();
-    return (double)f / (double)mStreamRate;
+    return mOriginPts.load() + (double)f / (double)mStreamRate;   // Step 1: origin-shift into the video PTS domain
 }
 
 double NanoAudioPlayer::duration() const {
@@ -553,6 +570,16 @@ int32_t NanoAudioPlayer::fillAudio(void* audioData, int32_t numFrames) {
     size_t tail = mTail.load(std::memory_order_relaxed);
     size_t avail = head - tail;
     int32_t toRead = (int32_t)std::min((size_t)want, avail);
+
+    // Step 1 start-together preroll: emit SILENCE and FREEZE the clock until the host arms the
+    // origin, but keep DRAINING the ring so the shared .ts/.avi demux worker (video then audio off
+    // one read pointer) never wedges on a full audio ring. mClockArmed stays false -> clockArmed()
+    // keeps the video on wall-clock pacing until real audio actually starts.
+    if (mPrerollMute.load(std::memory_order_relaxed)) {
+        for (int32_t i = 0; i < want; i++) dst[i] = 0;
+        mTail.store(tail + toRead, std::memory_order_release);   // drain; do NOT count -> clock held at origin
+        return AAUDIO_CALLBACK_RESULT_CONTINUE;
+    }
     float vol = mVol.load(std::memory_order_relaxed);
 
     size_t idx = tail % mRingCap;
