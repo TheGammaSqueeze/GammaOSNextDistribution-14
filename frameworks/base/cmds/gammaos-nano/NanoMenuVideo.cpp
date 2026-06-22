@@ -1330,7 +1330,10 @@ void NanoMenu::vidOpenTitleAudio(const std::string& file) {
     mVidHasAudio = false;
     if (!mVidAudTracks.empty()) {
         mVidHasAudio = mVidAudio.open(file, mVidAudTracks[0].idx);
-        if (mVidHasAudio) { mVidAudio.setVolume(mVidVolume); mVidAudio.setPrerollMute(true); }   // start-together: silent until the first frame
+        // drain=false: this is mp4/mov with its OWN audio decoder, so HOLD the audio while muted
+        // (the decoder back-pressures) and begin at content time 0 with the picture's first frame,
+        // instead of discarding it and starting seconds ahead after a long video cold start.
+        if (mVidHasAudio) { mVidAudio.setVolume(mVidVolume); mVidAudio.setPrerollMute(true, /*drain=*/false); }
         else mVidAudio.release();
     }
 }
@@ -1740,8 +1743,17 @@ bool NanoMenu::vidOpenStreamRun() {
         mVidAudio.setVolume(mVidVolume);
         mVidAudio.setPrerollMute(true);   // start-together: silent until the picture's first frame
         VidAudTrk t; t.idx = -1; t.name = "Audio"; mVidAudTracks.push_back(t);
-        NanoAudioPlayer* a = &mVidAudio;
-        mVideoTest->setClockFn([a]{ return (a->isPlaying() && a->clockArmed()) ? a->position() : -1.0; });
+        // A live channel is TWO independent connections: the picture rides NanoVideo's own
+        // NanoHls, the audio rides mVidAudio's own NanoHls. The two land on slightly different
+        // live edges. Slewing the picture to the (ahead) audio clock made it fast-forward to
+        // catch the audio edge and then starve at its own behind-frontier - exactly the
+        // "fast forward, then endless buffering / freeze, video takes ages" the user reported.
+        // Pace the picture to its OWN wall clock at 1x instead (clockFn null). Both sides then
+        // run at 1x from the shared start (preroll-mute + armOrigin still align the first frame
+        // and the first audio sample), so they stay as close as the live-edge offset allows
+        // with no fast-forward and no starvation. Frame-accurate live lip-sync needs a single
+        // shared connection feeding both - a larger follow-up, not this pacing fix.
+        mVideoTest->setClockFn(nullptr);
     } else {
         mVidAudio.release();
     }

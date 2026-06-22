@@ -581,7 +581,13 @@ int32_t NanoAudioPlayer::fillAudio(void* audioData, int32_t numFrames) {
     // keeps the video on wall-clock pacing until real audio actually starts.
     if (mPrerollMute.load(std::memory_order_relaxed)) {
         for (int32_t i = 0; i < want; i++) dst[i] = 0;
-        mTail.store(tail + toRead, std::memory_order_release);   // drain; do NOT count -> clock held at origin
+        // drain (fed/live): discard the muted audio so the shared .ts/.avi worker never wedges on a
+        // full ring / the stream stays at the live edge. HOLD (mp4/mov separate decoder): leave the
+        // ring intact (the decoder back-pressures) so playback begins at content time 0 in lock-step
+        // with the picture's first frame, not skipped ahead by a long video cold start (the bbb
+        // audio-leads-video desync). Either way do NOT count -> the clock is held at origin until arm.
+        if (mPrerollDrain.load(std::memory_order_relaxed))
+            mTail.store(tail + toRead, std::memory_order_release);
         return AAUDIO_CALLBACK_RESULT_CONTINUE;
     }
     float vol = mVol.load(std::memory_order_relaxed);

@@ -121,7 +121,12 @@ public:
     // origin while the ring keeps draining (so the shared .ts/.avi demux worker never wedges on
     // a full audio ring). When the picture has its first frame the host calls armOrigin(pts):
     // it un-mutes and shifts position() into the video's PTS domain so both clocks agree.
-    void   setPrerollMute(bool m) { mPrerollMute.store(m); }
+    // drain=true (fed .ts/.avi shared worker, live edge): discard ring audio while muted so the
+    // shared demux worker never wedges on a full ring / the stream stays at the live edge. drain=false
+    // (mp4/.mov separate decoder): HOLD the audio (let the decoder back-pressure) so it begins at
+    // content time 0 in lock-step with the picture's first frame instead of being skipped ahead by
+    // a long cold start (the bbb desync).
+    void   setPrerollMute(bool m, bool drain = true) { mPrerollMute.store(m); mPrerollDrain.store(drain); }
     void   armOrigin(double originPtsSec);      // un-mute + set the shared PTS origin
     bool   clockArmed() const { return mClockArmed.load(); }  // real PCM has flowed (clock is live)
 
@@ -207,6 +212,7 @@ private:
     std::atomic<int64_t> mSeekBaseFrames{0};    // frame offset applied on the last seek
     std::atomic<double> mOriginPts{0.0};        // Step 1: PTS origin added to position() (0 = music/default)
     std::atomic<bool> mPrerollMute{false};      // Step 1: emit silence + freeze the clock until armOrigin()
+    std::atomic<bool> mPrerollDrain{true};      // while muted: true=discard ring (fed/live), false=hold (mp4/mov)
     std::atomic<bool> mClockArmed{false};       // real audio has flowed since the last seek/open;
                                                 // before that, underrun silence must NOT advance the
                                                 // clock (else it races ahead during a slow re-prime)
