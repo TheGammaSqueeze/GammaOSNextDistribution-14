@@ -132,6 +132,44 @@ void NanoMenu::writeMediaMetaJson(const std::string& title, const std::string& a
     (void)chmod(path, 0644);
 }
 
+// Detached writer thread for the metadata JSON. The render thread must never block
+// on the file write (open/write/fsync/rename on /data): under heavy I/O (a video or
+// stream playing) plus memory pressure that rename stalled ~8s and tripped the render
+// watchdog, aborting nano. Here, off the render thread, the blocking write is safe.
+// Writes the file FIRST then bumps the generation prop, so the bridge (which reads the
+// file when the prop changes) never sees a stale/missing file.
+void NanoMenu::mediaMetaWriter() {
+    for (;;) {
+        MediaMetaReq req;
+        {
+            std::unique_lock<std::mutex> lk(mMediaWriteMutex);
+            mMediaWriteCv.wait(lk, [this] { return mMediaWriteHasPending; });
+            req = mMediaWritePending;
+            mMediaWriteHasPending = false;
+        }
+        writeMediaMetaJson(req.title, req.artist, req.album, req.kind.c_str(), req.dur);
+        char buf[24];
+        snprintf(buf, sizeof buf, "%u", req.gen);
+        property_set("sys.gammaos.nano.media.meta", buf);
+    }
+}
+
+// Hand a metadata snapshot to the writer thread (lazy-started). Coalesces to a single
+// pending slot - only the most recent track/title matters - and never blocks the caller.
+void NanoMenu::queueMediaMetaWrite(const std::string& title, const std::string& artist,
+                                   const std::string& album, const char* kind, double dur, unsigned gen) {
+    if (!mMediaWriteStarted) {
+        mMediaWriteStarted = true;
+        std::thread(&NanoMenu::mediaMetaWriter, this).detach();
+    }
+    {
+        std::lock_guard<std::mutex> lk(mMediaWriteMutex);
+        mMediaWritePending = MediaMetaReq{title, artist, album, kind, dur, gen};
+        mMediaWriteHasPending = true;
+    }
+    mMediaWriteCv.notify_one();
+}
+
 // Publish the now-playing state for NanoMediaBridge. Called once per frame from
 // pollInput(); change-gated so a steady or idle player writes nothing.
 void NanoMenu::nanoPublishMediaState() {
@@ -173,13 +211,13 @@ void NanoMenu::nanoPublishMediaState() {
     snprintf(buf, sizeof buf, "%d", (int)(dur + 0.5));
     setPropIfChanged(mMediaLastDur, "sys.gammaos.nano.media.dur", buf);
 
-    // Metadata file + generation bump only on a track/title change.
+    // Metadata file + generation bump only on a track/title change. The file write is
+    // handed to the writer thread - it must NEVER run on the render thread, where a
+    // stalled rename under I/O+memory pressure tripped the render watchdog (SIGABRT).
     std::string sig = title + "\x1f" + artist + "\x1f" + album + "\x1f" + kind;
     if (sig != mMediaMetaSig) {
         mMediaMetaSig = sig;
-        writeMediaMetaJson(title, artist, album, kind, dur);
-        snprintf(buf, sizeof buf, "%u", (unsigned)(++mMediaMetaGen));
-        property_set("sys.gammaos.nano.media.meta", buf);
+        queueMediaMetaWrite(title, artist, album, kind, dur, (unsigned)(++mMediaMetaGen));
     }
 }
 

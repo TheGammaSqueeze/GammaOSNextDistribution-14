@@ -2048,6 +2048,21 @@ private:
     std::string mMediaLastDur;                 // last-published whole-second duration
     std::string mMediaMetaSig;                 // last-published title/artist/album/kind signature
     unsigned    mMediaMetaGen = 0;             // metadata generation counter (bumped on track change)
+    // The metadata JSON write (open/write/fsync/rename on /data) must NOT run on the
+    // render thread: under heavy I/O (a video/stream playing) + memory pressure the
+    // rename can stall for seconds and trip the render watchdog (SIGABRT). The render
+    // thread snapshots the metadata and hands it to this detached writer, which does
+    // the file write THEN the gen-prop bump (that order, so the bridge watching the
+    // prop always reads a current file). Single coalesced slot: only the latest matters.
+    struct MediaMetaReq { std::string title, artist, album, kind; double dur; unsigned gen; };
+    std::mutex mMediaWriteMutex;
+    std::condition_variable mMediaWriteCv;
+    MediaMetaReq mMediaWritePending;
+    bool mMediaWriteHasPending = false;
+    bool mMediaWriteStarted = false;
+    void mediaMetaWriter();                    // detached worker: file write + gen-prop bump
+    void queueMediaMetaWrite(const std::string& title, const std::string& artist,
+                             const std::string& album, const char* kind, double dur, unsigned gen);
 
     // Now-Playing fullscreen render + control panel (1:1 web drawMusicPlayer / MP_CP).
     bool mMpFullInfo = true;           // Display toggle (counter/time/codec/seek cluster); shown by default
