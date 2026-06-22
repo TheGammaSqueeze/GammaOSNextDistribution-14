@@ -133,6 +133,24 @@ on property:init.svc.gammaos-nano-overlay=stopped && property:sys.gammaos.nano.o
     setprop sys.gammaos.nano.show_overlay 1
     start gammaos-nano-overlay
 
+# GammaOS Nano: disable Bluetooth profiles unused on a retro handheld - NANO MODE ONLY.
+# Gated on minimal_boot, so NORMAL Android keeps every profile (these are persist-less,
+# non-ro props read at BT-stack init; nano enables BT only after boot_completed via
+# init.nano_hal_optimize.rc, well after minimal_boot=1, so the overrides are in place
+# first). Trims profile-service objects + worker threads from com.android.bluetooth, and
+# pbap.server=false also stops acore (ContactsProvider) being force-started to serve a
+# phonebook nano never has. KEPT: gatt, a2dp.source, avrcp.target (headphone buttons),
+# hid.host (BT controllers/keyboards), hfp.ag (headset mic), bas.client (device battery).
+on property:sys.gammaos.minimal_boot=1
+    setprop bluetooth.profile.pbap.server.enabled false
+    setprop bluetooth.profile.map.server.enabled false
+    setprop bluetooth.profile.sap.server.enabled false
+    setprop bluetooth.profile.opp.enabled false
+    setprop bluetooth.profile.pan.nap.enabled false
+    setprop bluetooth.profile.pan.panu.enabled false
+    setprop bluetooth.profile.hid.device.enabled false
+    setprop bluetooth.profile.asha.central.enabled false
+
 on property:sys.gammaos.minimal_boot=1
     chown bluetooth system /sys/class/rfkill/rfkill0/state
     chmod 0664 /sys/class/rfkill/rfkill0/state

@@ -1587,9 +1587,15 @@ public final class SystemServer implements Dumpable {
             mSystemServiceManager.startService(KeyChainSystemService.class);
             t.traceEnd();
 
-            t.traceBegin("StartBinaryTransparencyService");
-            mSystemServiceManager.startService(BinaryTransparencyService.class);
-            t.traceEnd();
+            // GammaOS Nano: skip binary transparency in nano mode. It hashes system
+            // binaries at boot_completed (a measurement/attestation job, not latency
+            // critical) and drives a large system_server heap spike during the nano
+            // warmup window. Normal Android still starts it.
+            if (!minimalBoot) {
+                t.traceBegin("StartBinaryTransparencyService");
+                mSystemServiceManager.startService(BinaryTransparencyService.class);
+                t.traceEnd();
+            }
 
             t.traceBegin("StartSchedulingPolicyService");
             ServiceManager.addService("scheduling_policy", new SchedulingPolicyService());

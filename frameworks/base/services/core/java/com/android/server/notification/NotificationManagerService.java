@@ -989,6 +989,13 @@ public class NotificationManagerService extends SystemService {
     }
 
     protected void setDefaultAssistantForUser(int userId) {
+        // GammaOS Nano: do not auto-grant the default NotificationAssistant in nano mode.
+        // It is the only persistent bind keeping android.ext.services resident (~16MB, and
+        // it thrashes in a start-timeout/kill loop under nano memory pressure). nano is a
+        // game launcher with no notification-ranking UX. Normal Android is unaffected.
+        if (android.os.SystemProperties.getBoolean("sys.gammaos.minimal_boot", false)) {
+            return;
+        }
         String overrideDefaultAssistantString = DeviceConfig.getProperty(
                 DeviceConfig.NAMESPACE_SYSTEMUI,
                 SystemUiDeviceConfigFlags.NAS_DEFAULT_SERVICE);
