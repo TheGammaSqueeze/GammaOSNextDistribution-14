@@ -1751,8 +1751,9 @@ void NanoMenu::vidCaptureResume() {
     int vi = mVidList[mVidIdx];
     if (vi < 0 || vi >= (int)mVideos.size()) return;
     double p = mVideoTest->position(), dur = vidDuration();
-    // web: keep a resume point when 3s < pos < dur-5 AND pos < 97% (drop a near-finished title).
-    double rs = (dur > 0.0 && p > 3.0 && p < dur - 5.0 && p < dur * 0.97) ? p : 0.0;
+    // Only offer Resume when the user got at least 10 minutes in (user request): short watches
+    // restart cleanly with no prompt. Still drop a near-finished title (within 5s / past 97%).
+    double rs = (dur > 0.0 && p >= 600.0 && p < dur - 5.0 && p < dur * 0.97) ? p : 0.0;
     if (mVideos[vi].resumeSec != rs) { mVideos[vi].resumeSec = rs; mVidResumeDirty = true; }
 }
 

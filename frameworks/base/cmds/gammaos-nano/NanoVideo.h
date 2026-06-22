@@ -226,6 +226,11 @@ private:
     int mFedRecreate = 0;                      // recreate attempts (HW retry, then SW fallback)
     AMediaCodec* createFedDecoder(bool forceSw); // pick SW (MPEG-2) or HW (AVC/HEVC) decoder by mime
     bool recreateFedCodec();                   // rebuild a faulted codec; false when out of options
+    // Extractor-path (mp4/mov/live) counterpart: the HW decoder (notably 1080p AVC) intermittently
+    // cold-starts into a faulted or no-output state on this path too; rebuild on the SAME extractor
+    // and re-seek to the current position so playback recovers instead of buffering forever.
+    int mExtractorRecreate = 0;
+    bool recreateExtractorCodec();
     struct FedAu { std::vector<uint8_t> es; int64_t ptsUs; };
     std::deque<FedAu> mFedQ;                  // bounded input queue (demuxer -> worker)
     std::mutex mFedMx;

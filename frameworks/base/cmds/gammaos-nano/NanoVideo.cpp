@@ -238,7 +238,7 @@ bool NanoVideo::openAsyncRun(const std::string& path) {
     if (mCancel.load()) return false;
 
     mQuit = false; mEnded = false; mPlaying = true; mPosSec = 0.0;
-    mFirstFrameReady.store(false);
+    mFirstFrameReady.store(false); mExtractorRecreate = 0;
     { std::lock_guard<std::mutex> lk(mClockMx); mClockBaseNs = 0; mClockBasePts = 0.0; mFirstFramePts = 0.0; }
     mOpen = true;
     mWorker = std::thread(&NanoVideo::decodeLoop, this);   // spawn LAST, only on full success
@@ -340,7 +340,7 @@ bool NanoVideo::openAsyncRunUrl(const std::string& url) {
     if (mCancel.load()) return false;
 
     mQuit = false; mEnded = false; mPlaying = true; mPosSec = 0.0;
-    mFirstFrameReady.store(false);
+    mFirstFrameReady.store(false); mExtractorRecreate = 0;
     { std::lock_guard<std::mutex> lk(mClockMx); mClockBaseNs = 0; mClockBasePts = 0.0; mFirstFramePts = 0.0; }
     mOpen = true;
     mWorker = std::thread(&NanoVideo::decodeLoop, this);
@@ -486,6 +486,41 @@ bool NanoVideo::recreateFedCodec() {
         return false;
     }
     LOGE("recreateFedCodec attempt %d (%s)", mFedRecreate, mFedRecreate > 2 ? "forced-sw" : "default");
+    return true;
+}
+
+// Extractor-path counterpart to recreateFedCodec. The Allwinner HW decoder (notably 1080p AVC)
+// intermittently cold-starts into a faulted (-10000) OR no-output state on the extractor-driven
+// path (mp4/mov/live), and unlike the fed path there was no recovery, so the picture buffered
+// forever. Rebuild the codec on the SAME extractor (its track format carries csd-0/csd-1), re-seek
+// to the current position, and resume. HW first; software only as a last-ditch retry (the swcodec
+// create can itself wedge on this device, so it is gated to later attempts like the fed path).
+// Runs on the decode worker.
+bool NanoVideo::recreateExtractorCodec() {
+    if (!mEx || mVideoTrack < 0) return false;
+    if (mCodec) { AMediaCodec_delete(mCodec); mCodec = nullptr; }   // faulted: delete, do not stop
+    mExtractorRecreate++;
+    AMediaFormat* fmt = AMediaExtractor_getTrackFormat(mEx, mVideoTrack);
+    if (!fmt) return false;
+    const char* mime = nullptr;
+    AMediaFormat_getString(fmt, AMEDIAFORMAT_KEY_MIME, &mime);
+    AMediaCodec* c = nullptr;
+    if (mExtractorRecreate > 2 && mime) {            // last resort: force the software decoder
+        const std::string m = mime;
+        const char* sw = (m == "video/avc")   ? "c2.android.avc.decoder"
+                       : (m == "video/hevc")  ? "c2.android.hevc.decoder"
+                       : (m == "video/mpeg2") ? "c2.android.mpeg2.decoder"
+                       : (m == "video/mp4v-es") ? "c2.android.mpeg4.decoder" : nullptr;
+        if (sw) c = AMediaCodec_createCodecByName(sw);
+    }
+    if (!c && mime) c = AMediaCodec_createDecoderByType(mime);
+    if (!c) { AMediaFormat_delete(fmt); return false; }
+    media_status_t cs = AMediaCodec_configure(c, fmt, mSurface.get(), nullptr, 0);
+    AMediaFormat_delete(fmt);
+    if (cs != AMEDIA_OK || AMediaCodec_start(c) != AMEDIA_OK) { AMediaCodec_delete(c); return false; }
+    mCodec = c;
+    AMediaExtractor_seekTo(mEx, (int64_t)(mPosSec.load() * 1e6), AMEDIAEXTRACTOR_SEEK_CLOSEST_SYNC);
+    LOGE("recreateExtractorCodec attempt %d (%s)", mExtractorRecreate, mExtractorRecreate > 2 ? "forced-sw" : "default");
     return true;
 }
 
@@ -644,6 +679,13 @@ void NanoVideo::decodeLoop() {
                     { std::lock_guard<std::mutex> lk(mClockMx); mClockBaseNs = 0; }
                     continue;
                 }
+                // Extractor path: same cold-start fault recovery (1080p AVC -10000 etc.).
+                if (!mFed && mExtractorRecreate < 4 && recreateExtractorCodec()) {
+                    sawInputEos = false; mEnded = false; hardErr = 0;
+                    queuedAny = false; lastProgressNs = monoNs();
+                    { std::lock_guard<std::mutex> lk(mClockMx); mClockBaseNs = 0; }
+                    continue;
+                }
                 LOGE("codec unrecoverable; parking decode worker");
                 mEnded = true;
                 while (!mQuit.load() && !mSeekPending.load() && !mFedFlush.load()) usleep(50000);
@@ -651,16 +693,19 @@ void NanoVideo::decodeLoop() {
             }
         }
 
-        // Stall watchdog (fed mode): the Allwinner MPEG-2 decoder intermittently cold-starts into
-        // a state where it neither errors nor produces output (dequeueOutputBuffer just returns
-        // TRY_AGAIN forever while the input queue backs up). hardErr never trips, so rebuild the
-        // codec if input has been flowing but NO frame has decoded for a few seconds.
-        if (mFed && queuedAny && !mEnded.load() && mPlaying.load() &&
+        // Stall watchdog: the Allwinner decoder intermittently cold-starts into a state where it
+        // neither errors nor produces output (dequeueOutputBuffer just returns TRY_AGAIN forever
+        // while input backs up). hardErr never trips, so rebuild the codec if input has been
+        // flowing but NO frame has decoded for a few seconds. Applies to BOTH the fed path
+        // (MPEG-2/.ts) and the extractor path (mp4/mov/live, notably 1080p AVC), the latter being
+        // why bbb-style files could buffer forever with no recovery.
+        if (queuedAny && !mEnded.load() && mPlaying.load() &&
             (monoNs() - lastProgressNs) > 4000000000LL) {
-            LOGE("no decoded output for 4s; codec stalled, rebuilding (attempt %d)", mFedRecreate + 1);
-            if (mFedRecreate < 4 && recreateFedCodec()) {
-                { std::lock_guard<std::mutex> lk(mFedMx); mFedQ.clear(); }
-                mFedCv.notify_all();
+            bool rebuilt = mFed ? (mFedRecreate < 4 && recreateFedCodec())
+                                : (mExtractorRecreate < 4 && recreateExtractorCodec());
+            LOGE("no decoded output for 4s; codec stalled, rebuilt=%d (fed=%d)", (int)rebuilt, (int)mFed);
+            if (rebuilt) {
+                if (mFed) { std::lock_guard<std::mutex> lk(mFedMx); mFedQ.clear(); mFedCv.notify_all(); }
                 sawInputEos = false; mEnded = false; hardErr = 0;
                 queuedAny = false; lastProgressNs = monoNs();
                 { std::lock_guard<std::mutex> lk(mClockMx); mClockBaseNs = 0; }
