@@ -2073,6 +2073,43 @@ void NanoMenu::videoTick() {
     }
 }
 
+// Shared rotating loading/buffering spinner (icon 114) centred at (ccx,ccy). Used by the
+// video buffering overlay and the music open-loading overlay. Render thread / EGL only.
+void NanoMenu::drawLoadingSpinner(float ccx, float ccy, float sz, float alpha) {
+    GLuint sp = vidIcon(114);
+    if (!sp) return;
+    float ang = fmodf(mEffectTime * 1.66667f, 2.0f * 3.14159265f);   // web rotate(now/600), ~3.8s/rev
+    float ca = cosf(ang), sn = sinf(ang), hw = sz * 0.5f, hh = sz * 0.5f;
+    float lx[4] = {-hw, hw, hw, -hw}, ly[4] = {-hh, -hh, hh, hh};
+    float u[4] = {0, 1, 1, 0}, v[4] = {0, 0, 1, 1};
+    const int order[6] = {0, 1, 2, 0, 2, 3};
+    GLfloat verts[12], uvs[12], cols[24];
+    for (int k = 0; k < 6; k++) {
+        int c = order[k];
+        float rx = lx[c] * ca - ly[c] * sn, ry = lx[c] * sn + ly[c] * ca;
+        verts[k * 2]     = ((ccx + rx) / mWidth) * 2.0f - 1.0f;
+        verts[k * 2 + 1] = 1.0f - ((ccy + ry) / mHeight) * 2.0f;
+        uvs[k * 2] = u[c]; uvs[k * 2 + 1] = v[c];
+        cols[k * 4] = cols[k * 4 + 1] = cols[k * 4 + 2] = 1.0f; cols[k * 4 + 3] = alpha;
+    }
+    glUseProgram(mTextProgram);
+    if (mTextLocSharp >= 0) glUniform1f(mTextLocSharp, 0.0f);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, sp);
+    glUniform1i(mTextLocTexture, 0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glVertexAttribPointer(mTextLocPosition, 2, GL_FLOAT, GL_FALSE, 0, verts);
+    glEnableVertexAttribArray(mTextLocPosition);
+    glVertexAttribPointer(mTextLocTexCoord, 2, GL_FLOAT, GL_FALSE, 0, uvs);
+    glEnableVertexAttribArray(mTextLocTexCoord);
+    glVertexAttribPointer(mTextLocColor, 4, GL_FLOAT, GL_FALSE, 0, cols);
+    glEnableVertexAttribArray(mTextLocColor);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    glDisableVertexAttribArray(mTextLocPosition);
+    glDisableVertexAttribArray(mTextLocTexCoord);
+    glDisableVertexAttribArray(mTextLocColor);
+}
+
 bool NanoMenu::renderVideoPlayer() {
     videoTick();
     if (mVidEnterT <= 0.001f && !mVidActive) return false;
@@ -2152,40 +2189,7 @@ bool NanoMenu::renderVideoPlayer() {
     // Layer 2: buffering spinner (warmup / post-seek refill / stall) - icon 114 rotating at
     // centre + "Buffering..." below it (web drawVideoPlayer 12754-12756).
     if (mVidBuffering) {
-        GLuint sp = vidIcon(114);
-        if (sp) {
-            float sz = H * 0.06f, ccx = W * 0.5f, ccy = H * 0.5f;
-            float ang = fmodf(mEffectTime * 1.66667f, 2.0f * 3.14159265f);   // web rotate(now/600), ~3.8s/rev
-            float ca = cosf(ang), sn = sinf(ang), hw = sz * 0.5f, hh = sz * 0.5f;
-            float lx[4] = {-hw, hw, hw, -hw}, ly[4] = {-hh, -hh, hh, hh};
-            float u[4] = {0, 1, 1, 0}, v[4] = {0, 0, 1, 1};
-            const int order[6] = {0, 1, 2, 0, 2, 3};
-            GLfloat verts[12], uvs[12], cols[24];
-            for (int k = 0; k < 6; k++) {
-                int c = order[k];
-                float rx = lx[c] * ca - ly[c] * sn, ry = lx[c] * sn + ly[c] * ca;
-                verts[k * 2] = ((ccx + rx) / W) * 2.0f - 1.0f;
-                verts[k * 2 + 1] = 1.0f - ((ccy + ry) / H) * 2.0f;
-                uvs[k * 2] = u[c]; uvs[k * 2 + 1] = v[c];
-                cols[k * 4] = cols[k * 4 + 1] = cols[k * 4 + 2] = 1.0f; cols[k * 4 + 3] = et * 0.9f;
-            }
-            glUseProgram(mTextProgram);
-            if (mTextLocSharp >= 0) glUniform1f(mTextLocSharp, 0.0f);
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, sp);
-            glUniform1i(mTextLocTexture, 0);
-            glBindBuffer(GL_ARRAY_BUFFER, 0);
-            glVertexAttribPointer(mTextLocPosition, 2, GL_FLOAT, GL_FALSE, 0, verts);
-            glEnableVertexAttribArray(mTextLocPosition);
-            glVertexAttribPointer(mTextLocTexCoord, 2, GL_FLOAT, GL_FALSE, 0, uvs);
-            glEnableVertexAttribArray(mTextLocTexCoord);
-            glVertexAttribPointer(mTextLocColor, 4, GL_FLOAT, GL_FALSE, 0, cols);
-            glEnableVertexAttribArray(mTextLocColor);
-            glDrawArrays(GL_TRIANGLES, 0, 6);
-            glDisableVertexAttribArray(mTextLocPosition);
-            glDisableVertexAttribArray(mTextLocTexCoord);
-            glDisableVertexAttribArray(mTextLocColor);
-        }
+        drawLoadingSpinner(W * 0.5f, H * 0.5f, H * 0.06f, et * 0.9f);
         float tfs = ps3::fontScale(24.0f);
         const char* bt = "Buffering...";
         float bwid = measureText(bt, tfs);

@@ -2026,6 +2026,15 @@ private:
     void mpNext();
     void mpPrev();
     void musicTick();                  // per-frame: auto-advance on EOS + fades
+    bool mpIsOpening() const;          // a track/station is loading (for the open spinner)
+    float mMpOpenStartT = 0.0f;        // when the current open began (spinner delay + spin)
+    bool mMpOpening = false;           // an OpenPlay was issued and audio has not started/failed yet.
+                                       // Latch: set in mpPlayCurrent, cleared in musicTick once the
+                                       // player starts (isPlaying) or fails (openFailed). NOT mMpAdvancing:
+                                       // that is cleared the moment the open begins (ended() goes false),
+                                       // so it cannot track a slow network/HLS open.
+    // Shared rotating loading/buffering spinner (icon 114); used by music + video overlays.
+    void drawLoadingSpinner(float ccx, float ccy, float sz, float alpha);
 
     // Bluetooth AVRCP media control (NanoMediaBridge in system_server owns an
     // AVRCP-eligible MediaSession and bridges to these via system properties).

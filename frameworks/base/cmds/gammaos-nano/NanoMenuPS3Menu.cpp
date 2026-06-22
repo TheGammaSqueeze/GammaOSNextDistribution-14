@@ -2553,7 +2553,9 @@ void NanoMenu::ps3XmbBack() {
     }
     if (mPs3OptActive) { if (mPs3OptSubOpen) xmbOptCloseSub(); else closeXmbOpt(); return; }   // O: back out of a submenu, else dismiss
     if (mMpActive) { if (mMpPlChooserActive) { mpPlChooserCancel(); return; }
-                     if (mMpCpOpen) mpOptBack(); else minimizeMusicPlayer(); return; }   // O: chooser cancel / panel back / minimize (audio keeps playing)
+                     if (mMpCpOpen) mpOptBack();
+                     else if (mpIsOpening()) closeMusicPlayer();   // abort a slow/stuck open (loading spinner up)
+                     else minimizeMusicPlayer(); return; }   // O: chooser cancel / panel back / minimize (audio keeps playing)
     if (mPvPlChooserActive) { pvPlChooserCancel(); return; }   // O: cancel the chooser
     if (mVidPlChooserActive) { vidPlChooserCancel(); return; }
     if (mPhotoMultiActive) { photoMultiClose(); return; }   // O: leave multi-select

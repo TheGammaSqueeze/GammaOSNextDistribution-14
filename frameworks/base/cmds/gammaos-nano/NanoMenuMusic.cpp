@@ -762,6 +762,7 @@ void NanoMenu::openRadioStation(const std::vector<Ps3Item>& list, int listSel) {
 void NanoMenu::closeMusicPlayer() {
     mMpActive = false;
     mMpSeekPending = false;
+    mMpOpening = false;   // cancel any in-flight open latch (Back during the loading spinner)
     // Tear the decoder down on the audio worker (serialized with any in-flight op so
     // they never race on the decode thread). Drop pending commands first so a stale
     // play/open can't fire after close.
@@ -864,6 +865,8 @@ void NanoMenu::mpAudioWorker() {
 void NanoMenu::mpPlayCurrent() {
     mMpSeekPending = false;   // drop any in-flight scrub so it can't apply to the new track
     mMpAdvancing = true;      // a track is loading (async); suppress auto-advance until ended() clears
+    mMpOpening = true;        // loading latch for the spinner (cleared in musicTick on play/fail)
+    mMpOpenStartT = mEffectTime;  // for the loading spinner's delay-before-show + spin
     mMpRadioErrShown = false; // re-arm the radio open-error message for this station
     if (mMpIsRadio) {         // Internet Radio: open the station URL as a continuous stream
         if (mMpIdx < 0 || mMpIdx >= (int)mMpRadioQueue.size()) return;
@@ -874,6 +877,19 @@ void NanoMenu::mpPlayCurrent() {
     int ti = mMpQueue[mMpIdx];
     if (ti < 0 || ti >= (int)mMusicTracks.size()) return;
     mpAudioCmd(MpAudioCmd::OpenPlay, 0.0, mMusicTracks[ti].file);   // open()+play() off the render thread
+}
+
+// A track/station is still opening when we have asked to play (mMpOpening, set in
+// mpPlayCurrent) but the worker has not started producing audio yet and has not failed.
+// Used to show a loading spinner for slow opens (radio / HLS); local files flip to
+// playing within a frame so the spinner (delayed ~300ms) never flashes for them.
+// mMpOpening - not mMpAdvancing - because the auto-advance gate clears mMpAdvancing the
+// instant the open begins (ended() goes false), which is far sooner than the stream
+// connects, so it could never represent "still connecting".
+bool NanoMenu::mpIsOpening() const {
+    return mMpActive && mMpOpening
+        && !mMusicPlayer.isPlaying()
+        && !mMusicPlayer.openFailed();
 }
 
 void NanoMenu::mpRebuildOrder() {
@@ -975,6 +991,10 @@ void NanoMenu::musicTick() {
         mMpSeekPending = false;
         mpAudioCmd(MpAudioCmd::Seek, mMpSeekTarget);
     }
+    // Clear the loading latch once the worker actually starts the stream (isPlaying) or
+    // gives up (openFailed); until then mpIsOpening() drives the loading spinner. This is
+    // independent of mMpAdvancing/ended() (the auto-advance gate, cleared much sooner).
+    if (mMpOpening && (mMusicPlayer.isPlaying() || mMusicPlayer.openFailed())) mMpOpening = false;
     // Auto-advance at end of track (repeat-one replays). Runs even when minimized.
     // mMpAdvancing gates against the async open: ended() stays true until the worker
     // loads the next track, so only fire once per end (cleared when ended() clears).
@@ -1297,6 +1317,24 @@ void NanoMenu::renderMusicPlayer() {
     }
     // Add-to-Playlist chooser modal (drawn on top of everything in the player).
     if (mMpPlChooserActive || mMpPlChooserAnim > 0.004f) drawMpPlChooser();
+
+    // Loading spinner while a slow open is in flight (radio / HLS streams). Local files
+    // start playing within a frame, and the ~300ms delay-before-show keeps the spinner
+    // from flashing for them. Audio open is already off the render thread, so this is
+    // purely a visible "is it loading" indicator + a cancel affordance (Back aborts).
+    if (mpIsOpening() && mEffectTime - mMpOpenStartT > 0.3f) {
+        float a = fminf(1.0f, (mEffectTime - mMpOpenStartT - 0.3f) / 0.25f);
+        drawQuad(0, 0, (float)mWidth, (float)mHeight, 0, 0, 0, 0.35f * a);   // dim scrim
+        drawLoadingSpinner(mWidth * 0.5f, mHeight * 0.5f, mHeight * 0.06f, 0.9f * a);
+        float fs = ps3::fontScale(24.0f);
+        const char* lt = mMpIsRadio ? "Connecting..." : "Loading...";
+        drawText(lt, (mWidth - measureText(lt, fs)) * 0.5f,
+                 ps3::baselineToTopY(mHeight * 0.5f + mHeight * 0.07f, fs), fs, 1.0f, 1.0f, 1.0f, 0.9f * a);
+        float cfs = ps3::fontScale(18.0f);
+        const char* ct = "Back: Cancel";
+        drawText(ct, (mWidth - measureText(ct, cfs)) * 0.5f,
+                 ps3::baselineToTopY(mHeight * 0.5f + mHeight * 0.12f, cfs), cfs, 1.0f, 1.0f, 1.0f, 0.7f * a);
+    }
     mTextOutlineMode = 0;
 }
 
