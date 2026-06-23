@@ -305,6 +305,18 @@ void NanoMenu::initSurfaceFlingerPath() {
 }
 
 NanoMenu::~NanoMenu() {
+    // Shutdown: the render loop has stopped bumping the watchdog heartbeat, and this
+    // destructor makes several blocking teardown joins (net/photo/scraper workers and, the
+    // slow one, videoHardFree -> NanoVideo::finishRelease, which joins the async-release
+    // thread while the Allwinner HW codec stops/frees - that can take well over the ~8s
+    // watchdog window). Without an exemption the watchdog aborts mid-destruction and the
+    // process exits via SIGABRT (seen as ~NanoMenu -> videoHardFree -> finishRelease ->
+    // pthread_join tombstones on app-launch handoff while a video was active). Exempt the
+    // render watchdog for the whole destruction - the same scoped exemption used for the
+    // sleep/occlusion teardown join. The teardown is designed to complete (release stops the
+    // codec first so the wedged worker unblocks and the join finishes), so this only turns a
+    // spurious abort into a clean, if slightly slow, exit; it is never reset (we are exiting).
+    mVidTeardownExempt.store(true, std::memory_order_relaxed);
     // Stop the GammaEQ audio preview stream if it is still playing.
     stopEqPreview();
     // Stop the setup log tailer if running.
