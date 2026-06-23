@@ -32,14 +32,6 @@
 namespace android {
 
 // ---- path helpers ---------------------------------------------------------
-static bool feIsStorageRoot(const std::string& p) {
-    if (p == "/storage/emulated/0") return true;
-    if (p.compare(0, 9, "/storage/") == 0 && p.find('/', 9) == std::string::npos) return true;
-    // "/mnt/media_rw/" is 14 chars: the prefix length and the find offset must both be 14, or a
-    // removable root is not recognised and its ".." climbs to /mnt -> / and gets stuck forever.
-    if (p.compare(0, 14, "/mnt/media_rw/") == 0 && p.find('/', 14) == std::string::npos) return true;
-    return false;
-}
 static std::string feBaseName(const std::string& p) {
     size_t sl = p.find_last_of('/');
     return (sl == std::string::npos) ? p : p.substr(sl + 1);
@@ -50,14 +42,9 @@ static std::string feParentDir(const std::string& p) {
     if (sl == 0) return "/";
     return p.substr(0, sl);
 }
-// Where ".." / Back goes from `path`. A storage root (or any path that cannot climb higher, e.g.
-// "/") returns "" = the storage-roots list, from which Back exits the explorer. This is the floor:
-// it can never loop (feParentDir("/") == "/") and never strands the user above the roots.
-static std::string feUpTarget(const std::string& path) {
-    if (path.empty() || feIsStorageRoot(path)) return std::string();
-    std::string parent = feParentDir(path);
-    if (parent.empty() || parent == path) return std::string();
-    return parent;
+// Join a directory and a child name without doubling the slash at root ("/" + "x" -> "/x").
+static std::string feJoin(const std::string& dir, const std::string& name) {
+    return (dir == "/" ? std::string("/") : dir + "/") + name;
 }
 static std::string feHumanSize(long long bytes) {
     char b[40];
@@ -154,47 +141,29 @@ static std::string feUniqueDest(const std::string& dst) {
 // ---- browser screen -------------------------------------------------------
 void NanoMenu::buildFileBrowser(const std::string& path, Ps3Level& out) {
     out.items.clear(); out.sel = 0; out.screenKind = FE_BROWSE;
-    mFeBrowsePath = path;
+    // Real-filesystem browser rooted at "/". Open defaults to /storage; ".." climbs the real tree up
+    // to "/" (so the user can reach /data etc.), and "/" is the top (no "..", Back exits). nano is
+    // root, so any directory is browsable/writable - the delete confirm is the safety net.
+    std::string cur = path.empty() ? std::string("/storage") : path;
+    mFeBrowsePath = cur;
     GLuint folderNmap = nmapForIcon(62);   // folder glyph
     GLuint fileNmap   = nmapForIcon(25);   // document/page glyph
+    out.title = cur;
+    // base avoids a doubled slash when cur == "/" (child = "/foo", not "//foo").
+    std::string base = (cur == "/") ? std::string() : cur;
 
-    if (path.empty()) {
-        // Storage roots (same set as the folder picker).
-        out.title = "File Explorer";
-        auto addRoot = [&](const std::string& label, const std::string& target) {
-            Ps3Item it; it.label = label; it.kind = PS3_FE_DIR; it.payloadStr = target;
-            it.iconTex = 0; it.nmapTex = folderNmap; it.iconR = it.iconG = it.iconB = 1.0f;
-            out.items.push_back(it);
-        };
-        addRoot("Internal storage", "/storage/emulated/0");
-        DIR* d = opendir("/storage");
-        if (d) { struct dirent* e; while ((e = readdir(d)) != nullptr) {
-            if (e->d_name[0] == '.') continue;
-            if (!strcmp(e->d_name, "emulated") || !strcmp(e->d_name, "self")) continue;
-            addRoot(std::string("SD: ") + e->d_name, std::string("/storage/") + e->d_name);
-        } closedir(d); }
-        d = opendir("/mnt/media_rw");
-        if (d) { struct dirent* e; while ((e = readdir(d)) != nullptr) {
-            if (e->d_name[0] == '.') continue;
-            addRoot(std::string("Removable: ") + e->d_name, std::string("/mnt/media_rw/") + e->d_name);
-        } closedir(d); }
-        for (auto& it : out.items) it.desc = "Storage";   // current-location subtitle
-        return;
+    // ".." up one real level, except at "/" (the top: there is nowhere higher, Back exits there).
+    if (cur != "/") {
+        Ps3Item it; it.label = ".."; it.kind = PS3_FE_DIR; it.payloadStr = feParentDir(cur);
+        it.iconTex = 0; it.nmapTex = folderNmap; it.iconR = it.iconG = it.iconB = 1.0f;
+        out.items.push_back(it);
     }
 
-    out.title = path;
-    // ".." up. feUpTarget funnels a storage root (or "/") back to the roots list ("") so the user
-    // can always escape, and never loops.
-    { Ps3Item it; it.label = ".."; it.kind = PS3_FE_DIR;
-      it.payloadStr = feUpTarget(path);
-      it.iconTex = 0; it.nmapTex = folderNmap; it.iconR = it.iconG = it.iconB = 1.0f;
-      out.items.push_back(it); }
-
     std::vector<std::string> dirs, files;
-    DIR* d = opendir(path.c_str());
+    DIR* d = opendir(cur.c_str());
     if (d) { struct dirent* e; while ((e = readdir(d)) != nullptr) {
-        if (e->d_name[0] == '.') continue;   // skip dotfiles (matches the folder picker)
-        std::string child = path + "/" + e->d_name;
+        if (e->d_name[0] == '.') continue;   // skip dotfiles
+        std::string child = base + "/" + e->d_name;
         struct stat st;
         if (stat(child.c_str(), &st) != 0) continue;
         if (S_ISDIR(st.st_mode)) dirs.push_back(e->d_name);
@@ -205,12 +174,12 @@ void NanoMenu::buildFileBrowser(const std::string& path, Ps3Level& out) {
     std::sort(files.begin(), files.end(), ci);
 
     for (const auto& n : dirs) {
-        Ps3Item it; it.label = n; it.kind = PS3_FE_DIR; it.payloadStr = path + "/" + n;
+        Ps3Item it; it.label = n; it.kind = PS3_FE_DIR; it.payloadStr = base + "/" + n;
         it.iconTex = 0; it.nmapTex = folderNmap; it.iconR = it.iconG = it.iconB = 1.0f;
         out.items.push_back(it);
     }
     for (const auto& n : files) {
-        Ps3Item it; it.label = n; it.kind = PS3_FE_FILE; it.payloadStr = path + "/" + n;
+        Ps3Item it; it.label = n; it.kind = PS3_FE_FILE; it.payloadStr = base + "/" + n;
         struct stat st; if (stat(it.payloadStr.c_str(), &st) == 0) it.value = feHumanSize((long long)st.st_size);
         it.iconTex = 0; it.nmapTex = fileNmap; it.iconR = it.iconG = it.iconB = 1.0f;
         out.items.push_back(it);
@@ -224,13 +193,13 @@ void NanoMenu::buildFileBrowser(const std::string& path, Ps3Level& out) {
         out.items.push_back(it);
     }
     // Show the current directory as every row's subtitle, so the path is always visible.
-    for (auto& it : out.items) it.desc = path;
+    for (auto& it : out.items) it.desc = cur;
 }
 
 void NanoMenu::feOpen() {
-    // Push the browser level at storage roots, reusing the standard submenu slide-in animation.
+    // Open at /storage, reusing the standard submenu slide-in animation. ".." from there climbs to "/".
     std::vector<Ps3Item> ps = ps3CurItems(); int pSel = ps3CurSel();
-    Ps3Level lvl; buildFileBrowser("", lvl); mPs3Stack.push_back(lvl);
+    Ps3Level lvl; buildFileBrowser("/storage", lvl); mPs3Stack.push_back(lvl);
     mPs3SubParentItems = ps; mPs3SubParentIdx = pSel; mPs3SubChildItems = mPs3Stack.back().items;
     mPs3SubDir = 1; mPs3SubAnimStart = mEffectTime; mPs3SubAnim = 0.0f;
     mPs3AnimItem = 0.0f; mPs3ItemAnimStart = -1.0f;
@@ -253,8 +222,8 @@ void NanoMenu::feRefresh() {
 
 bool NanoMenu::feBack() {
     if (mPs3Stack.empty() || mPs3Stack.back().screenKind != FE_BROWSE) return false;
-    if (mFeBrowsePath.empty()) return false;   // at the roots list: let the level pop (exit to Settings)
-    buildFileBrowser(feUpTarget(mFeBrowsePath), mPs3Stack.back());   // always escapes, never loops
+    if (mFeBrowsePath == "/" || mFeBrowsePath.empty()) return false;   // at "/": exit the explorer
+    buildFileBrowser(feParentDir(mFeBrowsePath), mPs3Stack.back());     // climb one real level
     return true;
 }
 
@@ -341,7 +310,7 @@ void NanoMenu::feAction(const std::string& act) {
 
     if (act == "fepaste") {
         if (mFeClipPath.empty() || mFeBrowsePath.empty()) return;
-        std::string dst = mFeBrowsePath + "/" + feBaseName(mFeClipPath);
+        std::string dst = feJoin(mFeBrowsePath, feBaseName(mFeClipPath));
         // Refuse to paste a folder into itself or its own subtree (would recurse forever).
         if (mFeClipMove && (mFeBrowsePath == feParentDir(mFeClipPath))) { mFeClipPath.clear(); return; }
         if (mFeBrowsePath == mFeClipPath ||
@@ -366,7 +335,7 @@ void NanoMenu::feAction(const std::string& act) {
             while (!nn.empty() && nn.front() == ' ') nn.erase(nn.begin());
             while (!nn.empty() && nn.back() == ' ') nn.pop_back();
             if (nn.empty() || nn == feBaseName(path)) return;
-            std::string ndst = dir + "/" + nn;
+            std::string ndst = feJoin(dir, nn);
             struct stat st;
             if (stat(ndst.c_str(), &st) == 0) { feInfoDialog("Rename", "A file with that name already exists."); return; }
             if (rename(path.c_str(), ndst.c_str()) == 0) feRefresh();
