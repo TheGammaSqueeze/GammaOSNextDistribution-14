@@ -43,10 +43,15 @@ PRODUCT_SYSTEM_PROPERTIES += \
     ro.sys.fw.bg_apps_limit=1 \
     persist.sys.fw.bg_apps_limit=1
 
-# 64-bit only zygote saves ~105MB by not forking 32-bit zygote.
-# Vendor overrides ro.zygote; we stop zygote_secondary via init trigger.
+# Zygote arch. ZYGOTE_FORCE_64 keeps the FLEET DEFAULT 64-bit-only (saves ~105MB by
+# not forking the 32-bit zygote) for any device that does not set its own ro.zygote.
+# A device opts back into 32-bit app support (armeabi-v7a) by shipping
+# ro.zygote=zygote64_32 in its vendor build.prop (e.g. the TrimUI Brick).
+# GammaOS: the global ro.zygote.disable_secondary=1 is REMOVED - it force-stopped the
+# 32-bit zygote on EVERY device and overrode the per-device vendor choice. Without it, a
+# zygote64_32 vendor actually starts the secondary; zygote64 vendors stay 64-only.
 ZYGOTE_FORCE_64 := true
-PRODUCT_SYSTEM_PROPERTIES += ro.zygote.disable_secondary=1
+# PRODUCT_SYSTEM_PROPERTIES += ro.zygote.disable_secondary=1
 
 # Remove packages not needed on low-RAM ATV devices.
 PRODUCT_REMOVE_PACKAGES += \
