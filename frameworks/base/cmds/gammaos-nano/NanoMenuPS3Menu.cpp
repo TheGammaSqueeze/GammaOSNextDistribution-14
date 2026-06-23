@@ -2086,6 +2086,14 @@ void NanoMenu::ps3XmbSelect() {
             else gsFolderSelect(it.payloadStr);
             return;
         }
+        case PS3_FE_DIR: {   // File Explorer: descend into the directory (rebuild the level in place)
+            feNavigate(it.payloadStr);
+            return;
+        }
+        case PS3_FE_FILE: {  // File Explorer: a file has no single default action -> open the X/Triangle menu
+            if (!it.payloadStr.empty()) openXmbOpt();
+            return;
+        }
         case PS3_PHOTO_REFRESH: { photoRefresh(); return; }   // rescan the imported photo folders
         case PS3_PHOTO_FOLDER_ROW: { return; }   // a display row; removal is via the option (Y)
         case PS3_PHOTO_ALBUM: {   // a group-folder -> open its thumbnail grid
@@ -2234,6 +2242,8 @@ void NanoMenu::ps3XmbSelect() {
             return;
         }
         case PS3_DATA_LEAF: {
+            // Settings: "File Explorer" opens the controller-first file manager.
+            if (it.label == "File Explorer") { feOpen(); return; }
             // Music category: "Search for Media Servers" manages the imported music
             // folders (reusing the Game Systems folder picker); "Playlists" opens the
             // playlists screen. Gated to the Music column so Photo/Video keep their
@@ -2577,6 +2587,8 @@ void NanoMenu::ps3XmbBack() {
     }
     if (ps3TopScreenKind() == GS_ICONGRID) { closeIconGridPicker(); mPs3Stack.pop_back(); return; }
     if (!mPs3DlgActive && ps3TopScreenKind() == PHOTO_GRID) { closePhotoGrid(); mPs3Stack.pop_back(); return; }
+    // File Explorer: Back climbs up one directory; at the storage-roots list it falls through to pop.
+    if (!mPs3DlgActive && ps3TopScreenKind() == FE_BROWSE) { if (feBack()) return; }
     if (mPs3BrightSlider) { mPs3BrightSlider = false; mShowBrightnessBar = false; mBrightnessBarTimer = 0; return; }  // O dismisses the brightness slider
     if (mPs3TzActive) { closeTimezoneGlobe(false); return; }   // O: cancel (keep current zone)
     if (mPs3LangActive) { closeLanguagePicker(false); return; }  // O: cancel (revert the live preview)
@@ -2618,6 +2630,7 @@ void NanoMenu::renderPs3Xmb() {
     eqPreviewTick();   // retry the GammaEQ preview open if the audio HAL was not ready
     musicTick();       // music player: auto-advance to the next track at end-of-stream
     photoTick();       // photo viewer: enter-fade easing + slideshow timers
+    feTick();          // File Explorer: reap a finished copy/move/delete worker, refresh + report
     vidReapDying();    // free any async-released video decoders every frame (also after the player closes)
     if (renderVideoPlayer()) return;   // full-screen video player owns the screen while up/fading
     // Arm the once-per-frame glass-icon uniform upload (drawGlassIcon sends the
@@ -5467,6 +5480,11 @@ void NanoMenu::applyThemeSetting(int themeKey, int sel) {
             }
             break;
         }
+        case 30: {  // File Explorer: delete confirm (sel 1 = delete the stashed target)
+            if (sel == 1 && !mFeDeleteTarget.empty()) feStartOp(3, mFeDeleteTarget, "");
+            mFeDeleteTarget.clear();
+            break;
+        }
         default: break;
     }
 }
@@ -5730,6 +5748,23 @@ void NanoMenu::openXmbOpt() {
             add("Delete", "pdelfolder", false);
             add("Information", "photofolderinfo", false); break;
         }
+        case PS3_FE_DIR: {   // File Explorer folder: Open (default), then file ops + Information
+            add("Open", "feopen", true);
+            add("Copy", "fecopy", false);
+            add("Move", "femove", false);
+            if (!mFeClipPath.empty()) add("Paste Here", "fepaste", false);
+            add("Rename", "ferename", false);
+            add("Delete", "fedelete", false);
+            add("Information", "feinfo", false); break;
+        }
+        case PS3_FE_FILE: {   // File Explorer file: Copy (default), then the rest + Information
+            add("Copy", "fecopy", true);
+            add("Move", "femove", false);
+            if (!mFeClipPath.empty()) add("Paste Here", "fepaste", false);
+            add("Rename", "ferename", false);
+            add("Delete", "fedelete", false);
+            add("Information", "feinfo", false); break;
+        }
         default:
             add("Information", "info", false); break;
     }
@@ -5828,6 +5863,7 @@ void NanoMenu::xmbOptApplySub(const Ps3OptSub& sr) {
 }
 
 void NanoMenu::xmbOptAction(const std::string& act) {
+    if (act.size() >= 2 && act[0] == 'f' && act[1] == 'e') { feAction(act); return; }   // File Explorer ops
     if (act == "info") {
         // Fullscreen info page. For a music track, show the FULL tag set (probed
         // fresh so genre/year/track are included even if not stored in the library);

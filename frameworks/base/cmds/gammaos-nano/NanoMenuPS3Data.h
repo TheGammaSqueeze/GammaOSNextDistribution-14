@@ -338,6 +338,7 @@ static const Ps3DataItem kSettingsItems[] = {
   {"Gamepad Settings",15,"Adjusts settings for game controllers.",nullptr,0,PS3CH(kGamepadCh)},
   {"Mouse Mode",15,"Adjusts mouse-mode pointer settings for controllers.",nullptr,0,PS3CH(kMouseCh)},
   {"GammaOS Toolbox",12,"Adjusts GammaOS-specific tweaks and enhancements.",nullptr,0,PS3CH(kToolboxCh)},
+  {"File Explorer",62,"Browse the file system and copy, move, rename or delete files and folders.",nullptr,0,nullptr,0},
   {"GammaRGB",23,"Adjusts the RGB LED lighting effects.",nullptr,0,PS3CH(kGammaRgbCh)},
   {"GammaEQ",17,"Adjusts the audio equalizer and speaker enhancements.",nullptr,0,PS3CH(kGammaEqCh)},
   {"Printer Settings",10,"Adjusts settings for printers that are connected to this system.",nullptr,0,nullptr,0},

@@ -58,6 +58,7 @@ cc_binary {
         "NanoMenuPS3IconGrid.cpp",
         "NanoMenuPS3EmuCatalog.cpp",
         "NanoMenuPS3Folder.cpp",
+        "NanoMenuFileExplorer.cpp",
         "NanoMenuPS3Menu.cpp",
         "NanoMenuPS3Globe.cpp",
         "NanoMenuPS3Boot.cpp",

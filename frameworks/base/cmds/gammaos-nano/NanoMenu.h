@@ -25,6 +25,7 @@
 #include <map>
 #include <unordered_map>
 #include <atomic>
+#include <memory>
 #include <mutex>
 #include <thread>
 #include <deque>
@@ -991,6 +992,9 @@ private:
         PS3_RADIO_GROUP,    // a station group -> bucket submenu or stations (a = mRadioCats idx)
         PS3_RADIO_BUCKET,   // an alpha bucket within a group -> station submenu (a = cat idx, b = bucket idx)
         PS3_RADIO_STATION,  // a station -> open the audio stream in the music player (a = mRadioStations idx; payloadStr = URL)
+        // ---- File Explorer (Settings > File Explorer; nano addition) ----
+        PS3_FE_DIR,         // a directory row in the file explorer (payloadStr = full path) -> navigate into it
+        PS3_FE_FILE,        // a file row in the file explorer (payloadStr = full path) -> X/Triangle for options
     };
     // Game Systems editor screen kinds (Ps3Level.screenKind). Used to route the
     // X / L1 / R1 / Y buttons contextually while a GS screen is on the nav stack.
@@ -998,7 +1002,8 @@ private:
     enum GsScreenKind { GS_NONE = 0, GS_LIST = 1, GS_EDITOR = 2, GS_FOLDER = 3,
                         GS_ICONGRID = 4, GS_EMUPICK = 5, GS_FOLDERBROWSE = 6,
                         MUSIC_FOLDER = 7, PHOTO_FOLDER = 8, PHOTO_GRID = 9,
-                        VIDEO_FOLDER = 10, IPTV_GROUPS = 11, RADIO_STATIONS = 12 };
+                        VIDEO_FOLDER = 10, IPTV_GROUPS = 11, RADIO_STATIONS = 12,
+                        FE_BROWSE = 13 };
     struct Ps3Item {
         std::string label;
         std::string desc;
@@ -1490,6 +1495,32 @@ private:
     void buildFolderBrowser(const std::string& path, Ps3Level& out);  // raw-path browser
     void gsFolderSelect(const std::string& path); // add a folder as a rawpath scan source
     void gsRemoveScanSource(int srcIdx);       // drop a scan source from the edited system
+
+    // ======================= File Explorer (Settings > File Explorer) =======================
+    // A controller-first file manager that reuses the folder-picker navigation (opendir/readdir,
+    // storage roots, ".." up) but lists files AND folders, and exposes Copy/Move/Delete/Rename/
+    // Information through the shared XMB X/Triangle side menu (openXmbOpt). Implementation in
+    // NanoMenuFileExplorer.cpp. Long-running copy/move/delete run on a detached worker (feOpWorker)
+    // so the render thread never blocks (see nano_render_thread_blocking).
+    std::string mFeBrowsePath;                  // current explorer directory ("" = storage roots)
+    std::string mFeClipPath;                    // pending Copy/Move source (empty = clipboard clear)
+    bool        mFeClipMove = false;            // true = Move (cut), false = Copy
+    std::string mFeDeleteTarget;                // path awaiting the delete confirm (dialog themeKey 30)
+    // Async copy/move/delete: the worker holds its OWN shared_ptr to this result block and touches
+    // ONLY the block + value-captured paths (never `this`), so a teardown mid-op cannot use-after-free.
+    // feTick polls done and reaps. One op at a time (mFeOp non-null = busy).
+    struct FeOp { std::atomic<bool> done{false}; std::atomic<bool> ok{false}; int kind = 0; std::string name; };
+    std::shared_ptr<FeOp> mFeOp;
+    void feOpen();                              // open the explorer at storage roots (from the Settings leaf)
+    void buildFileBrowser(const std::string& path, Ps3Level& out);  // list dirs + files at path
+    void feRefresh();                           // rebuild the current top level in place after an op
+    void feNavigate(const std::string& path);   // enter a directory (rebuild top level in place)
+    bool feBack();                              // Circle: up one dir if not at root; true = handled, false = pop
+    void feAction(const std::string& act);      // dispatch a side-menu action (fecopy/femove/...)
+    void feStartOp(int kind, const std::string& src, const std::string& dst);  // spawn the async worker
+    void feTick();                              // per-frame: reap a finished worker, refresh, result dialog
+    void feShowInfo(const std::string& path);   // open the Information page for a file/folder
+    void feInfoDialog(const std::string& title, const std::string& body);  // generic XMB info dialog (kind 0)
 
     // ======================= Music player (PS3 XMB port) =======================
     // Library model (nano_music.json), folder import (reuses the folder picker via
