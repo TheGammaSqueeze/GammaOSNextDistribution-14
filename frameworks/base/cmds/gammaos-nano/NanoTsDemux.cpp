@@ -381,6 +381,57 @@ off64_t NanoTsDemux::estimateByteForTime(double sec) const {
     return b;
 }
 
+// Accurate seek by PCR bisection (recorded .ts). The flat byte = sec*mBytesPerSec estimate uses a
+// single head-local bitrate, so on a VBR capture it undershoots badly for far seeks (the.americans:
+// a 1800s seek lands at content ~1441s). The PCR is strictly monotonic on these captures, so bisect
+// the byte range comparing the real PCR at each split against an absolute target. Reads only through
+// readSrc into a local buffer (no member-state change). Bounded to 18 iterations x a 300-packet scan
+// (~1MB I/O worst case). Falls back to the flat estimate when there is no usable PCR (no PCR PID /
+// no head PCR / target<=0), or the bisection fails to converge (non-monotonic or sparse-PCR capture)
+// so behavior is never worse than today for any other file. Live never reaches here (caller is !mLive).
+off64_t NanoTsDemux::pcrSeekByte(double targetSec) {
+    if (mPcrPid < 0 || mFirstPcr < 0 || targetSec <= 0 || mFileSize <= kPkt)
+        return estimateByteForTime(targetSec);
+    // Runtime seeks normalize video PTS to mPtsBaseUs (first video PTS); anchor the PCR target to the
+    // same origin. Before the first frame (Resume-on-open) mPtsBaseUs is -1, so use mFirstPcr.
+    double anchor = (mPtsBaseUs >= 0) ? (double)mPtsBaseUs / 1e6 : mFirstPcr;
+    double targetAbs = anchor + targetSec;
+    off64_t lo = mAlign, hi = mFileSize - kPkt;
+    off64_t best = estimateByteForTime(targetSec);
+    double bestErr = 1e18;
+    const size_t kScan = (size_t)kPkt * 300;     // ~56KB; the measured max PCR gap on the.americans is ~48KB
+    std::vector<uint8_t> buf(kScan);
+    for (int it = 0; it < 18 && hi - lo > 2 * kPkt; it++) {
+        off64_t mid = lo + (hi - lo) / 2;
+        mid -= (mid - mAlign) % kPkt;
+        if (mid < mAlign) mid = mAlign;
+        ssize_t n = readSrc(buf.data(), kScan, mid);
+        if (n < kPkt) { hi = mid; continue; }
+        // forward-scan for the next PCR on the PCR PID (same predicate as the head bitrate calc).
+        double pcr = -1.0; off64_t pcrByte = -1;
+        for (ssize_t i = 0; i + kPkt <= n; i += kPkt) {
+            const uint8_t* p = &buf[i];
+            if (p[0] != 0x47) continue;
+            if ((((p[1] & 0x1f) << 8) | p[2]) != mPcrPid) continue;
+            int afc = (p[3] >> 4) & 3;
+            if ((afc & 2) == 0 || p[4] == 0) continue;
+            if (!(p[5] & 0x10)) continue;
+            pcr = pcrSeconds(&p[6]); pcrByte = mid + i; break;
+        }
+        if (pcr < 0) { hi = mid; continue; }      // no PCR in window (rare): search earlier
+        double err = pcr - targetAbs;
+        double ae = err < 0 ? -err : err;
+        if (ae < bestErr) { bestErr = ae; best = pcrByte; }
+        if (ae < 0.5) break;                       // close enough
+        if (err < 0) lo = pcrByte + kPkt;          // PCR before target: seek later
+        else hi = mid;                             // PCR after target: seek earlier
+    }
+    if (bestErr > 5.0) return estimateByteForTime(targetSec);   // did not converge: keep today's behavior
+    best -= (best - mAlign) % kPkt;
+    if (best < mAlign) best = mAlign;
+    return best;
+}
+
 bool NanoTsDemux::start(NanoVideo* video, NanoAudioPlayer* audio, int audioIndex, double startSec,
                         bool audioPreOpened) {
     if (mFd < 0 && !mHls) return false;
@@ -725,7 +776,7 @@ void NanoTsDemux::handlePacket(const uint8_t* p) {
 
 void NanoTsDemux::workerFunc(double startSec) {
     if (mSink) mSink->seekFed(startSec);
-    off64_t pos = estimateByteForTime(startSec);
+    off64_t pos = pcrSeekByte(startSec);   // accurate (PCR-bisect); falls back to the flat estimate / mAlign
     mAudioPes.buf.clear(); mAudioPes.started = false;
     mVideoPes.buf.clear(); mVideoPes.started = false; mVideoStartedFeed = false;
     mAc3Buf.clear();
@@ -752,7 +803,7 @@ void NanoTsDemux::workerFunc(double startSec) {
         // seeking is a no-op there (the UI disables it; this guard is belt-and-suspenders).
         double sk = mPendSeek.exchange(-1.0);
         if (sk >= 0 && !mLive) {
-            pos = estimateByteForTime(sk);
+            pos = pcrSeekByte(sk);   // PCR-accurate seek; flat estimate is the fallback inside
             partial = 0;
             mAudioFirstPtsUs = -1;   // re-derive the audio-clock origin from the first POST-seek audio PES
             mAudioPes.buf.clear(); mAudioPes.started = false;
@@ -762,7 +813,8 @@ void NanoTsDemux::workerFunc(double startSec) {
             mCea608.reset(); mCcReorder.clear(); { std::lock_guard<std::mutex> lk(mCueMx); mCues.clear(); }   // captions re-decode from here
             if (mSink) mSink->seekFed(sk);
             if (mVideoSink) mVideoSink->flushFed(sk);
-            TLOGI("NanoTsDemux: seek %.2f -> byte %lld (bps=%.0f)", sk, (long long)pos, mBytesPerSec);
+            TLOGI("NanoTsDemux: seek %.2f -> byte %lld (flat %lld, bps=%.0f)", sk,
+                  (long long)pos, (long long)estimateByteForTime(sk), mBytesPerSec);
         }
 
         ssize_t got = readSrc(buf.data() + partial, kChunk - partial, pos);

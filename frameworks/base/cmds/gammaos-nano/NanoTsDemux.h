@@ -145,6 +145,10 @@ private:
     void scanVideoUserData(const uint8_t* es, size_t len, double ptsSec);
     void ccReorderFlush(size_t keep);        // feed buffered cc_data to the decoder in PTS (display) order
     off64_t estimateByteForTime(double sec) const;
+    // Accurate seek: bisect the file by the real PCR (recorded .ts only) so a far seek lands within
+    // ~0.5s of the target instead of undershooting via the flat VBR bitrate estimate. Falls back to
+    // estimateByteForTime when there is no usable PCR or it does not converge. Worker-thread only.
+    off64_t pcrSeekByte(double targetSec);
     // Read len bytes at byte offset `pos` from the active source (file fd or, for live, the
     // HLS byte stream). Returns bytes read, 0/-1 on EOF/teardown. The live read blocks until
     // bytes arrive at the live edge (NanoHls::readAt), so the worker paces to the stream.
