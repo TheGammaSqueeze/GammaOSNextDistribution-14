@@ -15,6 +15,7 @@
 
 #include <dirent.h>
 #include <unistd.h>
+#include <fcntl.h>
 #include <sys/stat.h>
 #include <stdio.h>
 #include <string.h>
@@ -61,8 +62,12 @@ static std::string feHumanSize(long long bytes) {
 static bool feCopyFile(const std::string& src, const std::string& dst) {
     FILE* in = fopen(src.c_str(), "rb");
     if (!in) return false;
-    FILE* out = fopen(dst.c_str(), "wb");
-    if (!out) { fclose(in); return false; }
+    // O_EXCL: never truncate an existing file. feUniqueDest already picked a free name; this closes
+    // the window where something created dst in between, so a copy can only ever create a new file.
+    int ofd = open(dst.c_str(), O_WRONLY | O_CREAT | O_EXCL, 0644);
+    if (ofd < 0) { fclose(in); return false; }
+    FILE* out = fdopen(ofd, "wb");
+    if (!out) { close(ofd); fclose(in); return false; }
     char buf[1 << 16];
     size_t n; bool ok = true;
     while ((n = fread(buf, 1, sizeof(buf), in)) > 0) {
@@ -88,6 +93,15 @@ static bool feCopyRecursive(const std::string& src, const std::string& dst) {
         }
         closedir(d);
         return ok;
+    }
+    if (S_ISLNK(st.st_mode)) {
+        // Preserve symlinks (cp -P semantics). lstat above did not follow the link, so without
+        // this a Move would feRemoveRecursive() the source symlink after "copying" nothing = loss.
+        char buf[4096];
+        ssize_t n = readlink(src.c_str(), buf, sizeof(buf) - 1);
+        if (n < 0) return false;
+        buf[n] = '\0';
+        return symlink(buf, dst.c_str()) == 0;
     }
     if (S_ISREG(st.st_mode)) return feCopyFile(src, dst);
     return true;   // skip special files (sockets/fifos/devices) without failing the whole op
@@ -123,7 +137,7 @@ static std::string feUniqueDest(const std::string& dst) {
         std::string cand = dir + "/" + stem + suf + ext;
         if (stat(cand.c_str(), &st) != 0) return cand;
     }
-    return dst;
+    return std::string();   // exhausted: caller must NOT proceed (never clobber the original dst)
 }
 
 // ---- browser screen -------------------------------------------------------
@@ -189,8 +203,10 @@ void NanoMenu::buildFileBrowser(const std::string& path, Ps3Level& out) {
         out.items.push_back(it);
     }
     if (dirs.empty() && files.empty()) {
-        // Inert placeholder so an empty directory is not a blank screen.
-        Ps3Item it; it.label = "(empty folder)"; it.kind = PS3_GS_FIELD; it.payloadStr = "";
+        // Inert placeholder so an empty directory is not a blank screen. PS3_FE_FILE with an empty
+        // payload is a no-op on Cross (the dispatch guards on a non-empty path) - do NOT use
+        // PS3_GS_FIELD here, whose Cross handler calls gsEditField() (wrong context).
+        Ps3Item it; it.label = "(empty folder)"; it.kind = PS3_FE_FILE; it.payloadStr = "";
         it.iconTex = 0; it.nmapTex = 0; it.iconR = it.iconG = it.iconB = 0.55f;
         out.items.push_back(it);
     }
@@ -286,6 +302,9 @@ void NanoMenu::feStartOp(int kind, const std::string& src, const std::string& ds
 void NanoMenu::feTick() {
     if (!mFeOp) return;
     if (!mFeOp->done.load(std::memory_order_acquire)) return;
+    // The op finished, but if the user is in a dialog or the OSK, defer reaping a frame so the
+    // result dialog never overwrites their active modal (and never clobbers a pending confirm).
+    if (mPs3DlgActive || mOskActive) return;
     std::shared_ptr<FeOp> op = mFeOp;
     mFeOp.reset();
     bool ok = op->ok.load(std::memory_order_acquire);
@@ -317,6 +336,7 @@ void NanoMenu::feAction(const std::string& act) {
             return;
         }
         dst = feUniqueDest(dst);
+        if (dst.empty()) { feInfoDialog("Paste", "Could not find a free name in this folder."); return; }
         feStartOp(mFeClipMove ? 2 : 1, mFeClipPath, dst);
         return;
     }
