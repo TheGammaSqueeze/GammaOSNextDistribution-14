@@ -198,12 +198,19 @@ private:
     // video access units (cheap, compressed) into this bounded queue and a separate feeder thread
     // drains them into NanoVideo::feedVideo() (which blocks on the decoder's bounded input). The
     // worker thus keeps reading + feeding the audio ring continuously; the queue absorbs the
-    // cold-start decode-ahead burst (a few seconds of compressed video). File mode feeds directly.
-    struct LiveAu { std::vector<uint8_t> es; int64_t ptsUs; };
+    // cold-start decode-ahead burst (a few seconds of compressed video). RECORDED files use this
+    // path too (not just live): if the worker fed video inline it would block on feedVideo's bounded
+    // queue (~0.8s) and decode audio only between feeds, so over a long playback the audio ring
+    // (~3s) slowly drained to empty -> the clock froze -> false buffering after ~30min. With the
+    // feeder draining video, the worker's only back-pressure is the audio ring (feedPcm, drains at
+    // exactly 1x), so it keeps the ring full indefinitely. mVidFeedGen is bumped on each seek so the
+    // feeder drops pre-seek AUs already in flight (the worker also clears the queue on seek).
+    struct LiveAu { std::vector<uint8_t> es; int64_t ptsUs; uint32_t gen; bool eos = false; };
     std::deque<LiveAu> mLiveVidQ;
     std::mutex mLiveVidMx;
     std::condition_variable mLiveVidCv;
     std::thread mVidFeeder;
+    std::atomic<uint32_t> mVidFeedGen{0};    // bumped on seek; feeder drops AUs stamped with an older gen
     // Live audio decode is ALSO off the demux worker: decoding the AAC AMediaCodec inline (between
     // video pushes) starved it (the worker spends its time on video), so the worker routes audio ES
     // into this queue and a dedicated thread decodes it - the same way the file path runs audio on

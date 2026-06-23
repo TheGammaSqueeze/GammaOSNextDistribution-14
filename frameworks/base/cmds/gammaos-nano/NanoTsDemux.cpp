@@ -455,7 +455,13 @@ bool NanoTsDemux::start(NanoVideo* video, NanoAudioPlayer* audio, int audioIndex
         if (mSink) { NanoAudioPlayer* a = mSink; mVideoSink->setClockFn([a]{ return (a->isPlaying() && a->clockArmed()) ? a->position() : -1.0; }); }
         else mVideoSink->setClockFn(nullptr);
     }
-    if (mLive && mVideoSink) mVidFeeder = std::thread(&NanoTsDemux::vidFeederFunc, this);
+    // Video always drains on the feeder thread (live AND recorded) so the worker never blocks on
+    // feedVideo's bounded queue - that block starved the inline audio decode and drained the ring
+    // over a long recorded playback (the ~30min false-buffering stall). Audio stays inline on the
+    // worker for recorded (the feedPcm ring is the worker's natural 1x back-pressure); live decodes
+    // audio on its own thread because the AAC codec is heavy and would otherwise contend.
+    mVidFeedGen.store(0);
+    if (mVideoSink) mVidFeeder = std::thread(&NanoTsDemux::vidFeederFunc, this);
     if (mLive && mSink) mAudDecoder = std::thread(&NanoTsDemux::audDecoderFunc, this);
     mWorker = std::thread(&NanoTsDemux::workerFunc, this, startSec);
     return true;
@@ -713,19 +719,17 @@ void NanoTsDemux::emitVideoPes(const uint8_t* pes, size_t len) {
             mVideoStartedFeed = true;
         }
         int64_t outPts = (ptsSec >= 0.0) ? (int64_t)(ptsSec * 1e6) : pts;
-        if (mLive) {
-            // Hand the coded AU to the feeder thread (see vidFeederFunc). Block only if the queue
-            // is genuinely huge (a stuck decoder), so the demux worker keeps feeding audio through
-            // the picture's cold-start decode-ahead instead of stalling on feedVideo back-pressure.
-            constexpr size_t kLiveVidQMax = 300;   // ~10s of compressed video; drains to ~0 in steady state
-            std::unique_lock<std::mutex> lk(mLiveVidMx);
-            mLiveVidCv.wait(lk, [&]{ return mLiveVidQ.size() < kLiveVidQMax || mStop.load(); });
-            if (mStop.load()) return;
-            mLiveVidQ.push_back({ std::vector<uint8_t>(es, es + esLen), outPts });
-            mLiveVidCv.notify_one();
-        } else {
-            mVideoSink->feedVideo(es, esLen, outPts);  // blocks on back-pressure
-        }
+        // Hand the coded AU to the feeder thread (see vidFeederFunc) for BOTH live and recorded.
+        // Block only if the queue is genuinely huge (a stuck decoder), so the demux worker keeps
+        // feeding audio through the picture's cold-start decode-ahead instead of stalling on
+        // feedVideo back-pressure. For recorded the worker is bounded ~3s ahead by the audio ring
+        // (feedPcm) well before this 10s cap, so memory stays small; the cap only matters for live.
+        constexpr size_t kLiveVidQMax = 300;   // ~10s of compressed video; drains to ~0 in steady state
+        std::unique_lock<std::mutex> lk(mLiveVidMx);
+        mLiveVidCv.wait(lk, [&]{ return mLiveVidQ.size() < kLiveVidQMax || mStop.load(); });
+        if (mStop.load()) return;
+        mLiveVidQ.push_back({ std::vector<uint8_t>(es, es + esLen), outPts, mVidFeedGen.load(), false });
+        mLiveVidCv.notify_one();
     }
 }
 
@@ -742,6 +746,10 @@ void NanoTsDemux::vidFeederFunc() {
             mLiveVidQ.pop_front();
             mLiveVidCv.notify_one();   // wake the demux worker if it was waiting on a full queue
         }
+        // Drop a pre-seek AU still in flight: the worker bumps mVidFeedGen + clears the queue on a
+        // seek and flushes the decoder, so feeding a stale picture here would flash the old position.
+        if (au.gen != mVidFeedGen.load()) continue;
+        if (au.eos) { if (mVideoSink) mVideoSink->feedVideoEos(); continue; }  // FIFO end-of-stream
         if (mVideoSink) mVideoSink->feedVideo(au.es.data(), au.es.size(), au.ptsUs);  // may block on the decoder
     }
 }
@@ -805,6 +813,11 @@ void NanoTsDemux::workerFunc(double startSec) {
         if (sk >= 0 && !mLive) {
             pos = pcrSeekByte(sk);   // PCR-accurate seek; flat estimate is the fallback inside
             partial = 0;
+            // Invalidate any video AUs the feeder still holds from before this seek, and drop the
+            // ones already queued, so the feeder never feeds a stale pre-seek picture after flushFed.
+            mVidFeedGen.fetch_add(1);
+            { std::lock_guard<std::mutex> lk(mLiveVidMx); mLiveVidQ.clear(); }
+            mLiveVidCv.notify_all();
             mAudioFirstPtsUs = -1;   // re-derive the audio-clock origin from the first POST-seek audio PES
             mAudioPes.buf.clear(); mAudioPes.started = false;
             mVideoPes.buf.clear(); mVideoPes.started = false; mVideoStartedFeed = false;
@@ -821,7 +834,15 @@ void NanoTsDemux::workerFunc(double startSec) {
         if (got <= 0) {                          // EOF: park (the picture may repeat or seek back)
             flushAudioPes();
             flushVideoPes();
-            if (mVideoSink) mVideoSink->feedVideoEos();
+            // Signal EOS THROUGH the feeder queue (not directly) so every queued video AU is fed
+            // before end-of-stream - feeding EOS directly would race the feeder still draining the
+            // queue and drop the file's last seconds. The inner park (until seek/stop) means this
+            // marker is enqueued once per EOF; a seek clears the queue (and any unfed marker).
+            if (mVideoSink) {
+                std::lock_guard<std::mutex> lk(mLiveVidMx);
+                mLiveVidQ.push_back({ std::vector<uint8_t>(), 0, mVidFeedGen.load(), true });
+                mLiveVidCv.notify_one();
+            }
             while (!mStop.load() && mPendSeek.load() < 0 && mPendSelPid.load() < 0) usleep(10000);
             continue;
         }
