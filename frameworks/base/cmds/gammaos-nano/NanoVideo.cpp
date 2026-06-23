@@ -1065,3 +1065,12 @@ void NanoVideo::finishRelease() {
     mVideoTrack = -1; mWidth = mHeight = 0; mDurationSec = 0.0; mPosSec = 0.0;
     mSeekPending = false; mAsyncReleasing = false;
 }
+
+// Shutdown only: give up on a wedged background teardown instead of joining it (which would
+// hang forever when AMediaCodec_stop/delete is stuck on a crashed HW decoder). Detaching makes
+// mReleaseThread non-joinable so neither this nor ~NanoVideo blocks; the GL teardown is skipped
+// (the EGL context dies with the process). The caller must LEAK this object - the detached thread
+// is still inside the codec and references it, and the process is exiting so the OS frees it all.
+void NanoVideo::abandonRelease() {
+    if (mReleaseThread.joinable()) mReleaseThread.detach();
+}

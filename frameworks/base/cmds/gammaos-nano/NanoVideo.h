@@ -111,6 +111,13 @@ public:
     void releaseAsync();
     bool releaseAsyncDone() const { return !mAsyncReleasing || mAsyncDone.load(); }
     void finishRelease();
+    // Process-shutdown escape hatch: the background teardown can wedge forever inside
+    // AMediaCodec_stop/delete on a crashed HW decoder (the sync ALooper call never returns),
+    // so finishRelease()'s join would hang shutdown. abandonRelease() detaches that thread so
+    // neither finishRelease() nor ~NanoVideo joins it; the caller must then LEAK this object
+    // (the detached thread still references it) - safe only because the process is exiting, so
+    // the OS reclaims the thread, codec and memory. Never blocks.
+    void abandonRelease();
     bool isOpen() const { return mOpen; }
 
     // Transport.

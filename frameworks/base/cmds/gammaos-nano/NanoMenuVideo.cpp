@@ -1950,11 +1950,22 @@ void NanoMenu::videoHardFree(bool sync) {
         if (sync) { mVideoTest->release(); delete mVideoTest; mVideoTest = nullptr; }
         else { vidAsyncFree(mVideoTest); mVideoTest = nullptr; }   // OMX stop off the render thread (watchdog)
     }
-    // Synchronous path (process shutdown): drain every queued async teardown too. Each
-    // finishRelease joins its background thread (blocking is acceptable at dtor) then
-    // frees the GL state. Reap the already-done ones first, then force the rest.
+    // Synchronous path (process shutdown): drain every queued async teardown too. A decoder
+    // whose background teardown finished is freed cleanly (finishRelease joins the already-exited
+    // thread, then frees GL state). One still in flight can be WEDGED forever inside
+    // AMediaCodec_stop/delete on a crashed HW decoder - joining it (the old unconditional
+    // finishRelease) hung shutdown indefinitely (a render-watchdog SIGABRT before the teardown
+    // exemption, a silent hung exit after it; seen in tombstones as ~NanoMenu -> videoHardFree ->
+    // finishRelease -> pthread_join). Abandon those: detach the stuck thread and LEAK the object
+    // so the process can exit now; the OS reclaims the thread, codec and memory on exit.
     if (sync) {
-        for (NanoVideo* v : mVidDying) { v->finishRelease(); delete v; }
+        for (NanoVideo* v : mVidDying) {
+            // Brief grace so a teardown that is merely still in flight (e.g. a close right before
+            // shutdown) finishes cleanly; a genuinely wedged one never completes and is abandoned.
+            for (int w = 0; w < 75 && !v->releaseAsyncDone(); w++) usleep(20000);   // up to ~1.5s
+            if (v->releaseAsyncDone()) { v->finishRelease(); delete v; }
+            else v->abandonRelease();   // wedged in the codec: detach + leak so shutdown never blocks
+        }
         mVidDying.clear();
     }
     mVidActive = false; mVidPlaying = false;
