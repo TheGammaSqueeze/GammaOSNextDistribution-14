@@ -34,7 +34,7 @@
 namespace android {
 
 static std::atomic<int> sHlsCounter{0};
-static const int64_t kHlsCapBytes = 256LL * 1024 * 1024;   // stop a long live session at ~256 MB
+static const int64_t kHlsCapBytes = 48LL * 1024 * 1024 * 1024;   // ~unlimited; /data bounded by hole-punch (~hours of live)
 static const int64_t kRadioCapBytes = 64LL * 1024 * 1024 * 1024;  // ~effectively unlimited (disk bounded by hole-punch)
 static const int kSegTimeoutSec = 20;
 static const int kDirectMaxTimeSec = 6 * 60 * 60;          // one continuous radio connection (6 h)
@@ -43,6 +43,10 @@ static const int kFirstByteDeadlineMs = 25000;             // open fails if no b
 // zone), keep MARGIN bytes behind the reader, and punch in STEP-sized chunks to limit syscalls.
 static const int64_t kPunchKeepHead = 1LL * 1024 * 1024;
 static const int64_t kPunchMargin   = 4LL * 1024 * 1024;
+// IPTV reads through the system MPEG2TSExtractor (or NanoTsDemux), which can look back a little
+// for PES/PTS reassembly, so keep a much larger margin behind the read frontier than radio's raw
+// forward reader - 64 MB on /data is trivial and removes any risk of reading into a freed hole.
+static const int64_t kPunchMarginIptv = 64LL * 1024 * 1024;
 static const int64_t kPunchStep     = 8LL * 1024 * 1024;
 
 // ---- URL helpers ----------------------------------------------------------
@@ -222,8 +226,11 @@ ssize_t NanoHls::readAt(off64_t offset, void* buffer, size_t size) {
 // without bound on /data. Keeps the first kPunchKeepHead bytes (header sniff zone) and a margin
 // behind the reader; the logical file size is preserved (KEEP_SIZE) so read offsets stay valid.
 void NanoHls::maybePunch() {
-    if (!mDirectHint) return;
-    int64_t target = mReadFrontier.load() - kPunchMargin;
+    // Both IPTV and radio free the consumed prefix so /data stays bounded (KEEP_SIZE preserves the
+    // logical offsets so reads remain valid). Radio uses a tight margin (raw forward reader); IPTV
+    // keeps a larger margin behind the read frontier for the TS extractor's look-back.
+    int64_t margin = mDirectHint ? kPunchMargin : kPunchMarginIptv;
+    int64_t target = mReadFrontier.load() - margin;
     int64_t start = (mPunchedTo < kPunchKeepHead) ? kPunchKeepHead : mPunchedTo;
     if (target - start < kPunchStep) return;            // punch in steps to limit syscalls
     int64_t len = target - start;
