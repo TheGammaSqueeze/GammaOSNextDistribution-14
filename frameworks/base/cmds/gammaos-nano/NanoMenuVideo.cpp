@@ -1737,16 +1737,16 @@ bool NanoMenu::vidOpenStreamRun() {
     mVidAudCur = 0; mVidSubCur = -1;
 
     // Single-connection live demux: ONE NanoHls feeds ONE NanoTsDemux that splits H.264 video (fed
-    // HW codec) + AAC/AC-3 audio off ONE read pointer onto one PTS timeline. The demux + decode all
-    // work (verified: H.264 SPS/PPS, HE-AAC), but the audio-master pacing cannot lock with the
-    // current codec-coupled decode loop: holding an ahead picture for the audio clock retains the
-    // codec output buffer, which back-pressures the single demux worker so it stops reading the
-    // stream and the audio ring starves - the clock then cannot advance and the picture stalls.
-    // Locking it needs the VLC-style display refactor (decode into a picture FIFO, schedule display
-    // by PTS deadline on the render thread, so holding never back-pressures the worker). Until then
-    // this path is OFF by default; live IPTV uses the working two-connection path below. Opt in with
-    // persist.gammaos.nano.vid.hlsdemux=1 (e.g. to test on a slow-decoding real-bitrate channel).
-    if (property_get_bool("persist.gammaos.nano.vid.hlsdemux", 0)) {
+    // HW codec) + AAC/AC-3 audio off ONE read pointer onto one PTS timeline, so the audio-master
+    // clock locks A/V exactly as it does for a recorded .ts (instead of two HLS connections drifting
+    // on different live edges). NanoTsDemux feeds the picture through a bounded compressed-AU queue +
+    // feeder thread in live mode, so a held (paced) frame never back-pressures the single worker into
+    // starving the audio - which was the only thing stopping the audio clock from advancing. Falls
+    // back to the two-connection path if the stream is not a muxed H.264/AAC TS (e.g. fMP4/CMAF) or
+    // the fed codec wont open. Default ON (persist.gammaos.nano.vid.hlsdemux): verified on device to
+    // lock A/V on real IPTV channels. The ~0.02x audio-clock crawl seen earlier was specific to one
+    // synthetic test stream, not real channels. Set the prop to 0 to force the two-connection path.
+    if (property_get_bool("persist.gammaos.nano.vid.hlsdemux", 1)) {
         android::NanoHls* hls = new android::NanoHls(s.url);
         bool demuxOk = false;
         if (hls->start()) {

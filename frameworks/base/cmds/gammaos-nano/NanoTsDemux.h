@@ -24,7 +24,9 @@
 #define GAMMAOS_NANO_TS_DEMUX_H
 
 #include <atomic>
+#include <condition_variable>
 #include <cstdint>
+#include <deque>
 #include <mutex>
 #include <string>
 #include <sys/types.h>
@@ -127,8 +129,11 @@ private:
     void handlePacket(const uint8_t* p);   // route one 188-byte packet
     void flushAudioPes();                  // decode whatever audio PES is pending
     void emitAudioPes(const uint8_t* pes, size_t len, int64_t ptsUs);
+    void decodeAudioES(const uint8_t* es, size_t esLen);   // AC-3/AAC -> PCM -> fed ring (worker or aud thread)
+    void audDecoderFunc();                 // live: decode mLiveAudQ off the demux thread
     void flushVideoPes();                  // feed whatever video PES is pending
     void emitVideoPes(const uint8_t* pes, size_t len);
+    void vidFeederFunc();                  // live: drain mLiveVidQ into the video sink off the demux thread
     void scanVideoUserData(const uint8_t* es, size_t len, double ptsSec);
     void ccReorderFlush(size_t keep);        // feed buffered cc_data to the decoder in PTS (display) order
     off64_t estimateByteForTime(double sec) const;
@@ -174,6 +179,26 @@ private:
     std::atomic<double> mPendSeek{-1.0};     // requested seek sec (-1 = none)
     NanoAudioPlayer* mSink = nullptr;
     NanoVideo* mVideoSink = nullptr;         // picture sink (fed mode); null = audio-only
+
+    // Live: a held (paced) picture must never back-pressure the single demux worker into starving
+    // the audio it also feeds off the one read pointer. So in live mode the worker pushes coded
+    // video access units (cheap, compressed) into this bounded queue and a separate feeder thread
+    // drains them into NanoVideo::feedVideo() (which blocks on the decoder's bounded input). The
+    // worker thus keeps reading + feeding the audio ring continuously; the queue absorbs the
+    // cold-start decode-ahead burst (a few seconds of compressed video). File mode feeds directly.
+    struct LiveAu { std::vector<uint8_t> es; int64_t ptsUs; };
+    std::deque<LiveAu> mLiveVidQ;
+    std::mutex mLiveVidMx;
+    std::condition_variable mLiveVidCv;
+    std::thread mVidFeeder;
+    // Live audio decode is ALSO off the demux worker: decoding the AAC AMediaCodec inline (between
+    // video pushes) starved it (the worker spends its time on video), so the worker routes audio ES
+    // into this queue and a dedicated thread decodes it - the same way the file path runs audio on
+    // its own decode thread. Keeps the audio decoder fed continuously regardless of the video pace.
+    std::deque<std::vector<uint8_t>> mLiveAudQ;
+    std::mutex mLiveAudMx;
+    std::condition_variable mLiveAudCv;
+    std::thread mAudDecoder;
     NanoAc3 mAc3;
     NanoAacDec mAac;                         // AAC decoder (live .ts AAC PID); idle for AC-3 streams
     PidPes mAudioPes;

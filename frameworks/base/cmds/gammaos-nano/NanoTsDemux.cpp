@@ -403,6 +403,8 @@ bool NanoTsDemux::start(NanoVideo* video, NanoAudioPlayer* audio, int audioIndex
         if (mSink) { NanoAudioPlayer* a = mSink; mVideoSink->setClockFn([a]{ return (a->isPlaying() && a->clockArmed()) ? a->position() : -1.0; }); }
         else mVideoSink->setClockFn(nullptr);
     }
+    if (mLive && mVideoSink) mVidFeeder = std::thread(&NanoTsDemux::vidFeederFunc, this);
+    if (mLive && mSink) mAudDecoder = std::thread(&NanoTsDemux::audDecoderFunc, this);
     mWorker = std::thread(&NanoTsDemux::workerFunc, this, startSec);
     return true;
 }
@@ -410,12 +412,18 @@ bool NanoTsDemux::start(NanoVideo* video, NanoAudioPlayer* audio, int audioIndex
 void NanoTsDemux::stop() {
     mStop.store(true);
     if (mVideoSink) mVideoSink->setClockFn(nullptr);   // drop the audio-clock fn before audio is freed
-    if (mVideoSink) mVideoSink->flushFed(0.0);   // unblock a feedVideo waiting on a full queue
+    if (mVideoSink) mVideoSink->flushFed(0.0);   // unblock a feedVideo waiting on a full queue (worker or feeder)
+    mLiveVidCv.notify_all();   // wake the live feeder + any worker push blocked on a full video queue
+    mLiveAudCv.notify_all();   // wake the live audio decoder + any worker push blocked on a full audio queue
     // Live: the worker may be blocked in NanoHls::readAt at the live frontier; unblock it (returns
     // EOS) before joining, or the join deadlocks. Only when a worker is actually running, so start()'s
     // pre-stop never kills a freshly-adopted source.
     if (mHls && mWorker.joinable()) mHls->requestStop();
+    if (mVidFeeder.joinable()) mVidFeeder.join();   // joins before mVideoSink is cleared below
+    if (mAudDecoder.joinable()) mAudDecoder.join(); // joins before mSink/mAac/mAc3 are freed below
     if (mWorker.joinable()) mWorker.join();
+    { std::lock_guard<std::mutex> lk(mLiveVidMx); mLiveVidQ.clear(); }
+    { std::lock_guard<std::mutex> lk(mLiveAudMx); mLiveAudQ.clear(); }
     mAudioPes.buf.clear(); mAudioPes.started = false;
     mVideoPes.buf.clear(); mVideoPes.started = false;
     mAc3Buf.clear(); mAacBuf.clear();
@@ -493,7 +501,26 @@ void NanoTsDemux::ensureAudioFed(int rate, int channels) {
 void NanoTsDemux::emitAudioPes(const uint8_t* pes, size_t len, int64_t /*ptsUs*/) {
     const uint8_t* es = nullptr; size_t esLen = 0; int64_t pts = -1;
     if (!pesPayload(pes, len, &es, &esLen, &pts)) return;
-    // Codec of the currently-selected audio PID (AC-3 via liba52, or AAC via AMediaCodec).
+    if (mLive) {
+        // Hand the audio ES to the audio decoder thread (audDecoderFunc) so the demux worker never
+        // decodes inline. Decoding the AAC AMediaCodec on the worker (between video pushes) starved
+        // it - the worker spent its time on video, so the codec was fed only a fraction of realtime.
+        // Block only if the queue is huge (a genuinely stuck decoder), so the worker keeps reading.
+        constexpr size_t kLiveAudQMax = 400;
+        std::unique_lock<std::mutex> lk(mLiveAudMx);
+        mLiveAudCv.wait(lk, [&]{ return mLiveAudQ.size() < kLiveAudQMax || mStop.load(); });
+        if (mStop.load()) return;
+        mLiveAudQ.push_back(std::vector<uint8_t>(es, es + esLen));
+        mLiveAudCv.notify_one();
+    } else {
+        decodeAudioES(es, esLen);
+    }
+}
+
+// Decode one audio ES chunk (AC-3 via liba52, AAC via AMediaCodec) and feed the PCM to the audio
+// fed ring. Runs inline on the demux worker for a recorded .ts, or on the dedicated audio decoder
+// thread for live - so a slow/contended AAC decode never blocks the worker from reading the stream.
+void NanoTsDemux::decodeAudioES(const uint8_t* es, size_t esLen) {
     int sel = mSelPid.load();
     int stype = 0x81;
     for (const auto& t : mAudio) if (t.pid == sel) { stype = t.streamType; break; }
@@ -521,6 +548,23 @@ void NanoTsDemux::emitAudioPes(const uint8_t* pes, size_t len, int64_t /*ptsUs*/
             off += w;
             if (w == 0) usleep(2000);
         }
+    }
+}
+
+// Live audio decoder thread: drains coded audio ES off the demux worker and decodes + feeds it,
+// so the worker keeps reading + routing while the AAC/AC-3 decode runs at its own pace.
+void NanoTsDemux::audDecoderFunc() {
+    while (!mStop.load()) {
+        std::vector<uint8_t> es;
+        {
+            std::unique_lock<std::mutex> lk(mLiveAudMx);
+            mLiveAudCv.wait(lk, [&]{ return !mLiveAudQ.empty() || mStop.load(); });
+            if (mStop.load()) break;
+            es = std::move(mLiveAudQ.front());
+            mLiveAudQ.pop_front();
+            mLiveAudCv.notify_one();   // wake the demux worker if it was waiting on a full queue
+        }
+        decodeAudioES(es.data(), es.size());
     }
 }
 
@@ -592,7 +636,36 @@ void NanoTsDemux::emitVideoPes(const uint8_t* pes, size_t len) {
             mVideoStartedFeed = true;
         }
         int64_t outPts = (ptsSec >= 0.0) ? (int64_t)(ptsSec * 1e6) : pts;
-        mVideoSink->feedVideo(es, esLen, outPts);  // blocks on back-pressure
+        if (mLive) {
+            // Hand the coded AU to the feeder thread (see vidFeederFunc). Block only if the queue
+            // is genuinely huge (a stuck decoder), so the demux worker keeps feeding audio through
+            // the picture's cold-start decode-ahead instead of stalling on feedVideo back-pressure.
+            constexpr size_t kLiveVidQMax = 300;   // ~10s of compressed video; drains to ~0 in steady state
+            std::unique_lock<std::mutex> lk(mLiveVidMx);
+            mLiveVidCv.wait(lk, [&]{ return mLiveVidQ.size() < kLiveVidQMax || mStop.load(); });
+            if (mStop.load()) return;
+            mLiveVidQ.push_back({ std::vector<uint8_t>(es, es + esLen), outPts });
+            mLiveVidCv.notify_one();
+        } else {
+            mVideoSink->feedVideo(es, esLen, outPts);  // blocks on back-pressure
+        }
+    }
+}
+
+// Live feeder thread: drains coded video AUs into the picture decoder off the demux worker, so the
+// decoder's bounded-input back-pressure never blocks the worker from feeding the audio ring.
+void NanoTsDemux::vidFeederFunc() {
+    while (!mStop.load()) {
+        LiveAu au;
+        {
+            std::unique_lock<std::mutex> lk(mLiveVidMx);
+            mLiveVidCv.wait(lk, [&]{ return !mLiveVidQ.empty() || mStop.load(); });
+            if (mStop.load()) break;
+            au = std::move(mLiveVidQ.front());
+            mLiveVidQ.pop_front();
+            mLiveVidCv.notify_one();   // wake the demux worker if it was waiting on a full queue
+        }
+        if (mVideoSink) mVideoSink->feedVideo(au.es.data(), au.es.size(), au.ptsUs);  // may block on the decoder
     }
 }
 

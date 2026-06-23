@@ -537,6 +537,12 @@ void NanoVideo::decodeLoop() {
     int inFail = 0;                  // consecutive loops with NO progress at EITHER stage (never-primed wedge)
     int64_t firstFeedNs = monoNs();  // (re)start wall time; bounds the never-primed recovery
     double prevPts = -1.0;           // last rendered frame PTS; detects genuine stream PTS jumps vs ahead-of-audio
+    double lastAclkVal = -1.0;       // last audio-clock value; detects a frozen (starved) audio clock at bootstrap
+    int64_t lastAclkAdvNs = monoNs();// wall time the audio clock last advanced
+    int64_t seekGraceUntilNs = 0;    // after a seek the audio ring drains + re-buffers (legitimately >250ms);
+                                     // suppress the frozen-clock guard until then so it does not misread the
+                                     // re-buffer as a dead clock and race the picture ahead. 0 at open so the
+                                     // initial-open bootstrap guard is unaffected; only a seek arms the grace.
     while (!mQuit.load()) {
         if (!mPlaying.load() && !mSeekPending.load() && !mFedFlush.load()) {
             { std::lock_guard<std::mutex> lk(mClockMx); mClockBaseNs = 0; }   // re-anchor on resume
@@ -550,6 +556,8 @@ void NanoVideo::decodeLoop() {
                 sawInputEos = false; mEnded = false; mFedEos = false;
                 queuedAny = false; lastProgressNs = monoNs();   // need fresh input before output again
                 { std::lock_guard<std::mutex> lk(mClockMx); mClockBaseNs = 0; mClockBasePts = mFedFlushBase.load(); }
+                lastAclkVal = -1.0; lastAclkAdvNs = monoNs();
+                seekGraceUntilNs = monoNs() + 3000000000LL;   // audio re-buffers after the seek; do not race the picture
                 mFedCv.notify_all();
             }
         } else if (mSeekPending.exchange(false)) {
@@ -559,6 +567,8 @@ void NanoVideo::decodeLoop() {
             sawInputEos = false; mEnded = false;
             queuedAny = false; lastProgressNs = monoNs();
             { std::lock_guard<std::mutex> lk(mClockMx); mClockBaseNs = 0; }
+            lastAclkVal = -1.0; lastAclkAdvNs = monoNs();
+            seekGraceUntilNs = monoNs() + 3000000000LL;       // audio re-buffers after the seek; do not race the picture
         }
 
         // Feed one input access unit (fed: from the demuxer queue; else: from the extractor).
@@ -667,6 +677,20 @@ void NanoVideo::decodeLoop() {
                   // per-frame gating that, when the decode runs ahead of audio playback, throttled
                   // the picture to the cap rate (the half-frame-rate bug).
                   double aclk = mClockFn ? mClockFn() : -1.0;
+                  if (aclk >= 0.0) {
+                      // Bootstrap/stall guard: if the audio clock has not advanced for >250ms it is
+                      // starved (the live single-demux bootstrap: the audio ring has not filled yet, so
+                      // position() is stuck near the arm origin). Holding the picture against that dead
+                      // clock back-pressures the shared demux read path and PREVENTS the audio from ever
+                      // being fed - a deadlock. Treat a frozen clock as absent: pace to wall clock +
+                      // render now so the codec/feed pipeline keeps flowing, the audio ring fills and the
+                      // clock recovers; the slew below re-locks the moment aclk advances. Healthy A/V
+                      // advances aclk every frame, so this never fires there (.ts/.mov/.mp4 unchanged).
+                      if (aclk > lastAclkVal + 0.0005) { lastAclkVal = aclk; lastAclkAdvNs = now; }
+                      else if (now - lastAclkAdvNs > 250000000LL && now > seekGraceUntilNs) {
+                          aclk = -1.0; mClockBaseNs = now; mClockBasePts = pts;   // render now, pace wall-clock
+                      }
+                  }
                   if (aclk >= 0.0) {
                       double predicted = mClockBasePts + (double)(now - mClockBaseNs) / 1e9;
                       if (predicted - aclk > 0.10 || aclk - predicted > 0.10) {
