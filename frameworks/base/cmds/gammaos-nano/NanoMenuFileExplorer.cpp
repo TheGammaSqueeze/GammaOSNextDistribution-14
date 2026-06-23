@@ -35,7 +35,9 @@ namespace android {
 static bool feIsStorageRoot(const std::string& p) {
     if (p == "/storage/emulated/0") return true;
     if (p.compare(0, 9, "/storage/") == 0 && p.find('/', 9) == std::string::npos) return true;
-    if (p.compare(0, 15, "/mnt/media_rw/") == 0 && p.find('/', 15) == std::string::npos) return true;
+    // "/mnt/media_rw/" is 14 chars: the prefix length and the find offset must both be 14, or a
+    // removable root is not recognised and its ".." climbs to /mnt -> / and gets stuck forever.
+    if (p.compare(0, 14, "/mnt/media_rw/") == 0 && p.find('/', 14) == std::string::npos) return true;
     return false;
 }
 static std::string feBaseName(const std::string& p) {
@@ -47,6 +49,15 @@ static std::string feParentDir(const std::string& p) {
     if (sl == std::string::npos) return "";
     if (sl == 0) return "/";
     return p.substr(0, sl);
+}
+// Where ".." / Back goes from `path`. A storage root (or any path that cannot climb higher, e.g.
+// "/") returns "" = the storage-roots list, from which Back exits the explorer. This is the floor:
+// it can never loop (feParentDir("/") == "/") and never strands the user above the roots.
+static std::string feUpTarget(const std::string& path) {
+    if (path.empty() || feIsStorageRoot(path)) return std::string();
+    std::string parent = feParentDir(path);
+    if (parent.empty() || parent == path) return std::string();
+    return parent;
 }
 static std::string feHumanSize(long long bytes) {
     char b[40];
@@ -167,13 +178,15 @@ void NanoMenu::buildFileBrowser(const std::string& path, Ps3Level& out) {
             if (e->d_name[0] == '.') continue;
             addRoot(std::string("Removable: ") + e->d_name, std::string("/mnt/media_rw/") + e->d_name);
         } closedir(d); }
+        for (auto& it : out.items) it.desc = "Storage";   // current-location subtitle
         return;
     }
 
     out.title = path;
-    // ".." up (a storage root climbs back to the roots list).
+    // ".." up. feUpTarget funnels a storage root (or "/") back to the roots list ("") so the user
+    // can always escape, and never loops.
     { Ps3Item it; it.label = ".."; it.kind = PS3_FE_DIR;
-      it.payloadStr = feIsStorageRoot(path) ? std::string("") : feParentDir(path);
+      it.payloadStr = feUpTarget(path);
       it.iconTex = 0; it.nmapTex = folderNmap; it.iconR = it.iconG = it.iconB = 1.0f;
       out.items.push_back(it); }
 
@@ -210,6 +223,8 @@ void NanoMenu::buildFileBrowser(const std::string& path, Ps3Level& out) {
         it.iconTex = 0; it.nmapTex = 0; it.iconR = it.iconG = it.iconB = 0.55f;
         out.items.push_back(it);
     }
+    // Show the current directory as every row's subtitle, so the path is always visible.
+    for (auto& it : out.items) it.desc = path;
 }
 
 void NanoMenu::feOpen() {
@@ -239,8 +254,7 @@ void NanoMenu::feRefresh() {
 bool NanoMenu::feBack() {
     if (mPs3Stack.empty() || mPs3Stack.back().screenKind != FE_BROWSE) return false;
     if (mFeBrowsePath.empty()) return false;   // at the roots list: let the level pop (exit to Settings)
-    std::string parent = feIsStorageRoot(mFeBrowsePath) ? std::string("") : feParentDir(mFeBrowsePath);
-    buildFileBrowser(parent, mPs3Stack.back());
+    buildFileBrowser(feUpTarget(mFeBrowsePath), mPs3Stack.back());   // always escapes, never loops
     return true;
 }
 

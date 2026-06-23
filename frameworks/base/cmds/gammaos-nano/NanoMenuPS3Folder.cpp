@@ -221,7 +221,7 @@ void NanoMenu::gsRemoveScanSource(int srcIdx) {
 static bool isStorageRoot(const std::string& p) {
     if (p == "/storage/emulated/0") return true;
     if (p.compare(0, 9, "/storage/") == 0 && p.find('/', 9) == std::string::npos) return true;
-    if (p.compare(0, 15, "/mnt/media_rw/") == 0 && p.find('/', 15) == std::string::npos) return true;
+    if (p.compare(0, 14, "/mnt/media_rw/") == 0 && p.find('/', 14) == std::string::npos) return true;
     return false;
 }
 
