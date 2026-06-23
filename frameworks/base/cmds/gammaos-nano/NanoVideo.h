@@ -210,6 +210,11 @@ private:
     int64_t mClockBaseNs = 0;       // CLOCK_MONOTONIC ns at the anchor
     std::atomic<double> mPosSec{0.0};
     std::function<double()> mClockFn;  // audio-master clock (guarded by mClockMx); null = wall-clock
+    double mMpeg2AvOffsetSec = 0.0;    // MPEG-2 .ts presentation skew (seconds); >0 presents the picture
+                                       // earlier to offset the display path (HW MPEG-2 decode + GLConsumer
+                                       // latch + DRM scanout) landing later than the AAudio HAL renders the
+                                       // already-consumed audio the master clock counts. Set ONLY on the
+                                       // video/mpeg2 fed open; applied only while mFed (0 for all else).
 
     // Step 1 start-together: set true on the first decoded (render-eligible) frame; mFirstFramePts
     // captures that frame's PTS so the host anchors the audio clock to the same origin.

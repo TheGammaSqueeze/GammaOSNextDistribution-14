@@ -106,6 +106,14 @@ public:
     // with no second arm. Set after preroll so the un-mute always follows it (race-free).
     bool liveAudioReady() const { return mLiveAudioReady.load(); }
 
+    // The audio-clock origin (seconds, normalized to the video PTS base): (first audio PES PTS -
+    // mPtsBaseUs)/1e6, valid once both the first audio PES and the video base are seen. The host arms
+    // the audio clock to THIS, not the video's first frame PTS - on a broadcast capture the first
+    // audio PES and first video frame can carry PTS that differ by seconds, so anchoring the audio
+    // clock to the video origin leaves the audio content offset by that gap (the 2s lip-sync bug).
+    // Re-derived after each seek (mAudioFirstPtsUs resets) so the post-seek origin is correct too.
+    bool audioOriginSec(double& outSec) const;
+
     // Seek near targetSec (byte estimate from the PCR bitrate), repositioning the single
     // read pointer and flushing BOTH sinks so video + audio resume together (in sync) at
     // the new position.
@@ -166,6 +174,7 @@ private:
     int mVideoW = 0, mVideoH = 0;            // SPS-derived dimensions (H.264); 0 = hint/unknown
     std::vector<uint8_t> mVidSps, mVidPps;   // H.264 csd (annexB, with start codes) from the head
     int64_t mPtsBaseUs = -1;                 // first video PTS (us); subtracted so position starts at 0
+    int64_t mAudioFirstPtsUs = -1;           // first audio PES PTS (us) since open/seek; the audio-clock origin
     std::vector<AudioTrack> mAudio;
     double mDurationSec = 0.0;
     double mFirstPcr = -1.0;

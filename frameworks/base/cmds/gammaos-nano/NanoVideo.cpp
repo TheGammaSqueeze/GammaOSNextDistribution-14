@@ -14,6 +14,7 @@
 #include <gui/IGraphicBufferProducer.h>
 
 #include <android/log.h>
+#include <cutils/properties.h>  // persist.gammaos.nano.vid.mpeg2avoffms (MPEG-2 .ts A/V presentation skew)
 #define LOGV(...) __android_log_print(ANDROID_LOG_INFO, "nanovideo", __VA_ARGS__)
 #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, "nanovideo", __VA_ARGS__)
 
@@ -361,6 +362,14 @@ bool NanoVideo::openFed(const std::string& mime, int width, int height, AMediaFo
 bool NanoVideo::openAsyncRunFed(const std::string& mime, int width, int height, AMediaFormat* srcFmt) {
     if (mCodec || mEx) resetForReopen();
     mFed = true; mFedMime = mime; mFedRecreate = 0;
+    // MPEG-2 .ts presents video behind audio: the HW MPEG-2 decode pipeline + GLConsumer latch + DRM
+    // scanout land the picture later than the AAudio HAL renders the (already-consumed) audio the master
+    // clock counts, a constant offset that 480i29.97 on a 60Hz panel makes visible. Pull the picture
+    // forward by a tunable skew, scoped to video/mpeg2 ONLY (0 for AVI mp4v / live HLS avc / the extractor
+    // path, so no other format changes). Live-tunable (ms) for ear calibration, then bake the default.
+    mMpeg2AvOffsetSec = (mime == "video/mpeg2")
+        ? (double)property_get_int32("persist.gammaos.nano.vid.mpeg2avoffms", 0) / 1000.0
+        : 0.0;
     mDisplayAspect.store(0.0f);   // square pixels until the demuxer parses an anamorphic DAR
     if (srcFmt) {   // prefer the real decoded size from the extractor format
         int32_t w = 0, h = 0;
@@ -537,12 +546,13 @@ void NanoVideo::decodeLoop() {
     int inFail = 0;                  // consecutive loops with NO progress at EITHER stage (never-primed wedge)
     int64_t firstFeedNs = monoNs();  // (re)start wall time; bounds the never-primed recovery
     double prevPts = -1.0;           // last rendered frame PTS; detects genuine stream PTS jumps vs ahead-of-audio
-    double lastAclkVal = -1.0;       // last audio-clock value; detects a frozen (starved) audio clock at bootstrap
-    int64_t lastAclkAdvNs = monoNs();// wall time the audio clock last advanced
+    double lastAclkVal = -1.0;       // audio-clock velocity sample anchor (value); detects a stalled/crawling clock
+    int64_t lastAclkAdvNs = monoNs();// wall time of the last velocity sample
+    bool   aclkStalled = false;      // audio clock frozen OR crawling (<0.25x) = the inline-audio worker is starved
     int64_t seekGraceUntilNs = 0;    // after a seek the audio ring drains + re-buffers (legitimately >250ms);
-                                     // suppress the frozen-clock guard until then so it does not misread the
-                                     // re-buffer as a dead clock and race the picture ahead. 0 at open so the
-                                     // initial-open bootstrap guard is unaffected; only a seek arms the grace.
+                                     // suppress the stall guard until then so it does not misread the re-buffer
+                                     // as a stalled clock and race the picture ahead. 0 at open so the initial-open
+                                     // bootstrap guard is unaffected; only a seek arms the grace.
     while (!mQuit.load()) {
         if (!mPlaying.load() && !mSeekPending.load() && !mFedFlush.load()) {
             { std::lock_guard<std::mutex> lk(mClockMx); mClockBaseNs = 0; }   // re-anchor on resume
@@ -556,7 +566,7 @@ void NanoVideo::decodeLoop() {
                 sawInputEos = false; mEnded = false; mFedEos = false;
                 queuedAny = false; lastProgressNs = monoNs();   // need fresh input before output again
                 { std::lock_guard<std::mutex> lk(mClockMx); mClockBaseNs = 0; mClockBasePts = mFedFlushBase.load(); }
-                lastAclkVal = -1.0; lastAclkAdvNs = monoNs();
+                lastAclkVal = -1.0; lastAclkAdvNs = monoNs(); aclkStalled = false;
                 seekGraceUntilNs = monoNs() + 3000000000LL;   // audio re-buffers after the seek; do not race the picture
                 mFedCv.notify_all();
             }
@@ -567,7 +577,7 @@ void NanoVideo::decodeLoop() {
             sawInputEos = false; mEnded = false;
             queuedAny = false; lastProgressNs = monoNs();
             { std::lock_guard<std::mutex> lk(mClockMx); mClockBaseNs = 0; }
-            lastAclkVal = -1.0; lastAclkAdvNs = monoNs();
+            lastAclkVal = -1.0; lastAclkAdvNs = monoNs(); aclkStalled = false;
             seekGraceUntilNs = monoNs() + 3000000000LL;       // audio re-buffers after the seek; do not race the picture
         }
 
@@ -677,17 +687,28 @@ void NanoVideo::decodeLoop() {
                   // per-frame gating that, when the decode runs ahead of audio playback, throttled
                   // the picture to the cap rate (the half-frame-rate bug).
                   double aclk = mClockFn ? mClockFn() : -1.0;
+                  // MPEG-2 .ts presentation skew: advance the clock the pacer chases so each picture
+                  // displays mMpeg2AvOffsetSec earlier (compensates the video display path landing later
+                  // than the audio HAL). Gated on mFed so a reused decoder opening a later non-fed
+                  // (.mp4/.mov) title can never inherit it; 0 for every non-mpeg2 fed open.
+                  if (aclk >= 0.0 && mFed) aclk += mMpeg2AvOffsetSec;
                   if (aclk >= 0.0) {
-                      // Bootstrap/stall guard: if the audio clock has not advanced for >250ms it is
-                      // starved (the live single-demux bootstrap: the audio ring has not filled yet, so
-                      // position() is stuck near the arm origin). Holding the picture against that dead
-                      // clock back-pressures the shared demux read path and PREVENTS the audio from ever
-                      // being fed - a deadlock. Treat a frozen clock as absent: pace to wall clock +
-                      // render now so the codec/feed pipeline keeps flowing, the audio ring fills and the
-                      // clock recovers; the slew below re-locks the moment aclk advances. Healthy A/V
-                      // advances aclk every frame, so this never fires there (.ts/.mov/.mp4 unchanged).
-                      if (aclk > lastAclkVal + 0.0005) { lastAclkVal = aclk; lastAclkAdvNs = now; }
-                      else if (now - lastAclkAdvNs > 250000000LL && now > seekGraceUntilNs) {
+                      // Audio-clock stall/crawl guard. Sample the clock VELOCITY over ~1s: a clock
+                      // advancing far slower than wall time (frozen 0x OR crawling, e.g. the inline-audio
+                      // .ts worker starved when the picture holds for it -> fed queue fills -> worker
+                      // blocks on feedVideo -> audio not fed -> the clock crawls at ~0.02x: a self-
+                      // sustaining "constant buffering" stall) is treated as absent: pace to wall clock +
+                      // render now so the fed queue drains, the worker unblocks, the audio ring refills and
+                      // the clock recovers; the slew below re-locks once it advances at ~1x. A legit cold-
+                      // start backlog keeps a HEALTHY ~1x clock (vel ~1) so this does NOT fire there - it
+                      // only catches a genuinely stalled clock. Healthy A/V is unaffected (.ts/.mov/.mp4).
+                      if (lastAclkVal < 0.0) { lastAclkVal = aclk; lastAclkAdvNs = now; }   // first sample
+                      else if (now - lastAclkAdvNs > 1000000000LL) {                        // re-sample ~1s
+                          double vel = (aclk - lastAclkVal) / ((double)(now - lastAclkAdvNs) / 1e9);
+                          aclkStalled = (vel < 0.25);
+                          lastAclkVal = aclk; lastAclkAdvNs = now;
+                      }
+                      if (aclkStalled && now > seekGraceUntilNs) {
                           aclk = -1.0; mClockBaseNs = now; mClockBasePts = pts;   // render now, pace wall-clock
                       }
                   }
@@ -729,8 +750,8 @@ void NanoVideo::decodeLoop() {
                 if (now - sClkDbgNs > 2000000000LL) {
                     sClkDbgNs = now;
                     double a = mClockFn ? mClockFn() : -1.0;
-                    LOGV("clkdbg: pts=%.3f aclk=%.3f basePts=%.3f wait=%.3f reason=%d prev=%.3f fed=%d",
-                         pts, a, mClockBasePts, (double)dbgWaitNs / 1e9, dbgReason, dbgPrev, (int)mFed);
+                    LOGV("clkdbg: pts=%.3f aclk=%.3f basePts=%.3f wait=%.3f reason=%d prev=%.3f fed=%d off=%.3f",
+                         pts, a, mClockBasePts, (double)dbgWaitNs / 1e9, dbgReason, dbgPrev, (int)mFed, mMpeg2AvOffsetSec);
                 }
             }
             AMediaCodec_releaseOutputBuffer(mCodec, outIdx, render);

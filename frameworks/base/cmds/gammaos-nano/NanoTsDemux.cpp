@@ -56,6 +56,7 @@ bool NanoTsDemux::open(const std::string& path) {
     // or it falsely reports the previous title as having captions). Safe to reset here: close()
     // has already joined any prior worker, so nothing else touches these members.
     mPtsBaseUs = -1;
+    mAudioFirstPtsUs = -1;
     mStreamRate = 48000;
     mCcSeen.store(false);
     mCcProbe = 0;
@@ -328,7 +329,7 @@ bool NanoTsDemux::openFromHls(NanoHls* hls) {
     if (!hls) return false;
     auto fail = [&]() -> bool { hls->requestStop(); delete hls; mHls = nullptr; mLive = false; return false; };
     mLive = true; mPath = "(live)";
-    mPtsBaseUs = -1; mStreamRate = 48000; mCcSeen.store(false); mCcProbe = 0;
+    mPtsBaseUs = -1; mAudioFirstPtsUs = -1; mStreamRate = 48000; mCcSeen.store(false); mCcProbe = 0;
     mHls = hls;
     // Pre-buffer so the head holds a full PAT/PMT (+ H.264 SPS/PPS at the segment start).
     for (int i = 0; i < 800 && hls->produced() < 256 * 1024; i++) usleep(10000);   // up to ~8s
@@ -449,6 +450,22 @@ void NanoTsDemux::seek(double targetSec) {
     mPendSeek.store(targetSec);
 }
 
+// The audio-clock origin (seconds), normalized to the video PTS base: (first audio PES PTS -
+// mPtsBaseUs)/1e6. Valid only once BOTH have been seen. The host arms the audio clock to this so
+// position() reports the audio CONTENT PTS - on a broadcast capture (the.americans) the first audio
+// PES and first video frame carry PTS that differ by seconds, so arming to the video origin would
+// leave the audio offset by that gap. Re-derived after each seek (mAudioFirstPtsUs reset in the
+// worker). Both fields are set-once on the worker before mLiveAudioReady, so the host's read after
+// liveAudioReady() sees them; 64-bit reads are atomic on the shipped arm64 build.
+bool NanoTsDemux::audioOriginSec(double& outSec) const {
+    int64_t a = mAudioFirstPtsUs, b = mPtsBaseUs;
+    if (a < 0 || b < 0) return false;
+    double o = (double)(a - b);
+    if (o < 0) o = 0;   // audio PES before the video base: clamp
+    outSec = o / 1e6;
+    return true;
+}
+
 void NanoTsDemux::setCea608(bool enable, int ccChannel) {
     mCcChannel.store(ccChannel);
     mCcEnable.store(enable);
@@ -488,9 +505,14 @@ static bool pesPayload(const uint8_t* pes, size_t len, const uint8_t** es, size_
 void NanoTsDemux::ensureAudioFed(int rate, int channels) {
     if (mAudioFedOpen || !mSink || rate <= 0) return;
     if (mSink->openFed(rate, channels > 0 ? channels : 2)) {
-        // Live start-together: hold the audio muted (draining at the live edge) until the picture's
-        // first frame arms the shared origin. The host calls armOrigin() once the frame is decoded.
-        mSink->setPrerollMute(true, /*drain=*/true);
+        // Start-together: hold the audio muted until the picture's first frame arms the shared origin.
+        // DRAIN only for LIVE (discard the muted audio to stay at the live edge). For a RECORDED .ts,
+        // HOLD (drain=false): leave the buffered audio intact so playback begins at content time 0 in
+        // lock-step with the picture, NOT skipped ahead by the slow HW MPEG-2 cold start. Draining a
+        // recorded file discarded ~2s of audio during that cold start, so the audio resumed seconds
+        // ahead of the video (the .ts lip-sync bug); the ~3s ring + the bounded video fed-queue mean
+        // HOLD never overflows here (feedPcm just drops if it ever did - it never blocks the worker).
+        mSink->setPrerollMute(true, /*drain=*/mLive);
         mSink->play();
         mAudioFedOpen = true;
         mLiveAudioReady.store(true);   // AFTER preroll+play so the host's arm/un-mute always follows
@@ -501,6 +523,10 @@ void NanoTsDemux::ensureAudioFed(int rate, int channels) {
 void NanoTsDemux::emitAudioPes(const uint8_t* pes, size_t len, int64_t /*ptsUs*/) {
     const uint8_t* es = nullptr; size_t esLen = 0; int64_t pts = -1;
     if (!pesPayload(pes, len, &es, &esLen, &pts)) return;
+    // First audio PES PTS since open/seek = the audio-clock origin. On a broadcast capture this can
+    // differ from the first video PTS by seconds; the host arms the audio clock to this (audioOriginSec)
+    // so the clock follows the audio content, not the video origin (fixes the ~2s .ts lip-sync offset).
+    if (mAudioFirstPtsUs < 0 && pts >= 0) mAudioFirstPtsUs = pts;
     if (mLive) {
         // Hand the audio ES to the audio decoder thread (audDecoderFunc) so the demux worker never
         // decodes inline. Decoding the AAC AMediaCodec on the worker (between video pushes) starved
@@ -728,6 +754,7 @@ void NanoTsDemux::workerFunc(double startSec) {
         if (sk >= 0 && !mLive) {
             pos = estimateByteForTime(sk);
             partial = 0;
+            mAudioFirstPtsUs = -1;   // re-derive the audio-clock origin from the first POST-seek audio PES
             mAudioPes.buf.clear(); mAudioPes.started = false;
             mVideoPes.buf.clear(); mVideoPes.started = false; mVideoStartedFeed = false;
             mAc3Buf.clear(); mAc3.reset();

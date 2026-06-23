@@ -1503,7 +1503,14 @@ void NanoMenu::vidCloseTitleAudio() {
 // Seek, routed to the demuxer for .ts (repositions the single read pointer + flushes both
 // the video codec and the audio ring) or to mVidAudio's own extractor otherwise.
 void NanoMenu::vidAudioSeek(double sec) {
-    if (mVidTsMode) mVidTsDemux.seek(sec);
+    if (mVidTsMode) {
+        mVidTsDemux.seek(sec);
+        // Re-mute + force a re-arm: the demux re-derives its audio-clock origin from the first
+        // POST-seek audio PES (audioOriginSec), so the clock must re-anchor or A/V stays offset after
+        // every seek (the seek-broken-on-.ts bug). The audio plays silent until vidStartTogether
+        // re-arms it to the new origin once the post-seek audio is flowing.
+        if (mVidTsAudio) { mVidAudio.setPrerollMute(true, /*drain=*/true); mVidAudioStarted = false; }
+    }
     else if (mVidAviMode) mVidAviDemux.seekWorker(sec);
     else if (mVidHasAudio) mVidAudio.seek(sec);
 }
@@ -2220,12 +2227,20 @@ void NanoMenu::videoTick() {
             // ring open + preroll-muted before arming: on a fast-decoding live stream the first
             // frame can land BEFORE the lazy audio open, and arming first would let the lazy open's
             // preroll-mute strand the audio muted with no second arm.
-            bool audioArmable = !mVidTsAudio || mVidTsDemux.liveAudioReady();
+            // The demuxer-audio path (.ts) anchors the audio clock to the AUDIO's first PES PTS
+            // (audioOriginSec), NOT the video's first frame: on a broadcast capture the two carry PTS
+            // that differ by seconds, so arming to the video origin left the audio offset by that gap
+            // (the ~2s .ts lip-sync bug). The separate-extractor path keeps the video-first-PTS origin
+            // (its 0-based audio already aligns to the seek/media time).
+            double tsAudioOrigin = 0.0;
+            bool tsOriginReady = mVidTsDemux.audioOriginSec(tsAudioOrigin);
+            bool audioArmable = !mVidTsAudio || (mVidTsDemux.liveAudioReady() && tsOriginReady);
             if (!mVidAudioStarted && audioArmable && mVideoTest && mVideoTest->firstFrameReady()) {
-                mVidAudio.armOrigin(mVideoTest->firstFramePts());   // un-mute + share the video PTS origin
+                double org = (mVidTsAudio && tsOriginReady) ? tsAudioOrigin : mVideoTest->firstFramePts();
+                mVidAudio.armOrigin(org);   // un-mute + share the one PTS origin
                 mVidAudioStarted = true;
-                VLOGI("vidStartTogether: armed audio videoFirstPts=%.3f at t=%.3f",
-                      mVideoTest->firstFramePts(), (double)mEffectTime);
+                VLOGI("vidStartTogether: armed audio origin=%.3f (tsAudio=%d) at t=%.3f",
+                      org, (int)(mVidTsAudio && tsOriginReady), (double)mEffectTime);
             }
         } else if (mVidAudio.isPlaying()) {
             mVidAudio.pause();
