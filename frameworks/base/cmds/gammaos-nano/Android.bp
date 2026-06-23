@@ -83,6 +83,7 @@ cc_binary {
         "NanoIcyDemux.cpp",
         "NanoMenuSearch.cpp",
         "NanoAc3.cpp",
+        "NanoAacDec.cpp",
         "NanoCea608.cpp",
         "NanoScraper.cpp",
         "NanoMenuScraper.cpp",

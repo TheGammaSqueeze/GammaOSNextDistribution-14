@@ -9,6 +9,7 @@
 #include "NanoVideo.h"
 #include "NanoDvbSub.h"
 #include "NanoTsDescramble.h"
+#include "NanoHls.h"
 #include "NanoJson.h"
 
 #include <algorithm>
@@ -1735,6 +1736,65 @@ bool NanoMenu::vidOpenStreamRun() {
     mVidAudTracks.clear(); mVidSubTracks.clear(); mVidChapters.clear(); mVidCcCues.clear();
     mVidAudCur = 0; mVidSubCur = -1;
 
+    // Single-connection live demux: ONE NanoHls feeds ONE NanoTsDemux that splits H.264 video (fed
+    // HW codec) + AAC/AC-3 audio off ONE read pointer onto one PTS timeline. The demux + decode all
+    // work (verified: H.264 SPS/PPS, HE-AAC), but the audio-master pacing cannot lock with the
+    // current codec-coupled decode loop: holding an ahead picture for the audio clock retains the
+    // codec output buffer, which back-pressures the single demux worker so it stops reading the
+    // stream and the audio ring starves - the clock then cannot advance and the picture stalls.
+    // Locking it needs the VLC-style display refactor (decode into a picture FIFO, schedule display
+    // by PTS deadline on the render thread, so holding never back-pressures the worker). Until then
+    // this path is OFF by default; live IPTV uses the working two-connection path below. Opt in with
+    // persist.gammaos.nano.vid.hlsdemux=1 (e.g. to test on a slow-decoding real-bitrate channel).
+    if (property_get_bool("persist.gammaos.nano.vid.hlsdemux", 0)) {
+        android::NanoHls* hls = new android::NanoHls(s.url);
+        bool demuxOk = false;
+        if (hls->start()) {
+            demuxOk = mVidTsDemux.openFromHls(hls)   // adopts hls on success; deletes it on failure
+                      && mVidTsDemux.videoPid() >= 0 && !mVidTsDemux.audioTracks().empty();
+            if (!demuxOk && mVidTsDemux.isOpen()) mVidTsDemux.close();   // opened but unusable
+        } else {
+            hls->requestStop(); delete hls;          // never started; openFromHls not reached
+        }
+        if (mVidOpenCancelReq) { mVidTsDemux.close(); return false; }
+        if (demuxOk) {
+            int vw = mVidTsDemux.videoWidth()  > 0 ? mVidTsDemux.videoWidth()  : 1280;
+            int vh = mVidTsDemux.videoHeight() > 0 ? mVidTsDemux.videoHeight() : 720;
+            const char* mime = mVidTsDemux.videoMime();
+            AMediaFormat* fmt = AMediaFormat_new();
+            AMediaFormat_setString(fmt, AMEDIAFORMAT_KEY_MIME, mime);
+            AMediaFormat_setInt32(fmt, AMEDIAFORMAT_KEY_WIDTH, vw);
+            AMediaFormat_setInt32(fmt, AMEDIAFORMAT_KEY_HEIGHT, vh);
+            std::vector<uint8_t> sps, pps;
+            if (mVidTsDemux.videoCsd(sps, pps)) {     // H.264 SPS/PPS for the cold HW decoder
+                if (!sps.empty()) AMediaFormat_setBuffer(fmt, "csd-0", sps.data(), sps.size());
+                if (!pps.empty()) AMediaFormat_setBuffer(fmt, "csd-1", pps.data(), pps.size());
+            }
+            bool fedOk = mVideoTest->openAsyncRunFed(mime, vw, vh, fmt);
+            AMediaFormat_delete(fmt);
+            if (mVidOpenCancelReq) { mVidTsDemux.close(); return false; }
+            if (fedOk) {
+                mVidTsMode = true;   // set BEFORE start so a late cancel reliably closes the demuxer
+                const auto& ats = mVidTsDemux.audioTracks();
+                for (size_t k = 0; k < ats.size(); k++) {
+                    VidAudTrk t; t.idx = (int)k;
+                    const char* ac = (ats[k].streamType == 0x0f) ? "AAC" : "AC-3";
+                    t.name = vidLangName(ats[k].lang, k) + std::string("  ") + ac;
+                    mVidAudTracks.push_back(t);
+                }
+                // The audio fed ring is opened LAZILY by the demuxer once the codec reports its
+                // true rate (AAC: after OUTPUT_FORMAT_CHANGED). Set volume now (it survives openFed);
+                // preroll-mute + play are applied by the demuxer at lazy-open, armOrigin by videoTick.
+                mVidAudio.setVolume(mVidVolume);
+                mVidHasAudio = true; mVidTsAudio = true;
+                mVidTsDemux.start(mVideoTest, &mVidAudio, 0, 0.0, /*audioPreOpened=*/false);
+                if (mVidOpenCancelReq) return false;   // demuxer started; vidAbortOpen closes it
+                return true;
+            }
+            mVidTsDemux.close();   // fed open failed: drop the demuxer, fall back to two connections
+        }
+    }
+
     if (!mVideoTest->openAsyncRunUrl(s.url)) return false;   // worker open, reuses openBegin's GL
     if (mVidOpenCancelReq) return false;
 
@@ -2156,7 +2216,12 @@ void NanoMenu::videoTick() {
         bool wantAudio = mVidPlaying && mVidRate == 1.0 && !mVidStopped;
         if (wantAudio) {
             if (!mVidAudio.isPlaying()) mVidAudio.play();   // plays SILENT until armed (mPrerollMute)
-            if (!mVidAudioStarted && mVideoTest && mVideoTest->firstFrameReady()) {
+            // For the demuxer-audio path (.ts file + live HLS) wait until the demuxer has the fed
+            // ring open + preroll-muted before arming: on a fast-decoding live stream the first
+            // frame can land BEFORE the lazy audio open, and arming first would let the lazy open's
+            // preroll-mute strand the audio muted with no second arm.
+            bool audioArmable = !mVidTsAudio || mVidTsDemux.liveAudioReady();
+            if (!mVidAudioStarted && audioArmable && mVideoTest && mVideoTest->firstFrameReady()) {
                 mVidAudio.armOrigin(mVideoTest->firstFramePts());   // un-mute + share the video PTS origin
                 mVidAudioStarted = true;
                 VLOGI("vidStartTogether: armed audio videoFirstPts=%.3f at t=%.3f",

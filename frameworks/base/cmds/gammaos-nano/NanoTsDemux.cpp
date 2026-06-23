@@ -3,6 +3,7 @@
 
 #include "NanoAudio.h"
 #include "NanoVideo.h"
+#include "NanoHls.h"
 
 #include <fcntl.h>
 #include <unistd.h>
@@ -72,69 +73,8 @@ bool NanoTsDemux::open(const std::string& path) {
     mAlign = findAlign(head.data(), (size_t)n);
     if (mAlign < 0) { ::close(fd); return false; }
 
-    // PAT -> first program's PMT pid.
-    mPmtPid = -1;
-    for (ssize_t i = mAlign; i + kPkt <= n && mPmtPid < 0; i += kPkt) {
-        const uint8_t* p = &head[i];
-        if (p[0] != 0x47) continue;
-        if ((((p[1] & 0x1f) << 8) | p[2]) != 0) continue;     // PAT pid 0
-        if (((p[1] >> 6) & 1) == 0) continue;                  // PUSI
-        int afc = (p[3] >> 4) & 3, off = 4;
-        if (afc == 3) off += 1 + p[4]; else if (afc != 1) continue;
-        off += 1 + p[off];                                     // pointer_field
-        if (off + 8 > kPkt) continue;
-        if (p[off] != 0x00) continue;                          // table_id PAT
-        int sl = ((p[off + 1] & 0x0f) << 8) | p[off + 2];
-        int end = off + 3 + sl - 4;
-        if (end > kPkt) end = kPkt;
-        for (int j = off + 8; j + 4 <= end; j += 4) {
-            int pn = (p[j] << 8) | p[j + 1];
-            int ppid = ((p[j + 2] & 0x1f) << 8) | p[j + 3];
-            if (pn != 0) { mPmtPid = ppid; break; }
-        }
-    }
-    if (mPmtPid < 0) { ::close(fd); return false; }
-
-    // PMT -> PCR pid, video pid, audio tracks (with language).
-    mAudio.clear(); mVideoPid = -1; mPcrPid = -1;
-    for (ssize_t i = mAlign; i + kPkt <= n; i += kPkt) {
-        const uint8_t* p = &head[i];
-        if (p[0] != 0x47) continue;
-        if ((((p[1] & 0x1f) << 8) | p[2]) != mPmtPid) continue;
-        if (((p[1] >> 6) & 1) == 0) continue;
-        int afc = (p[3] >> 4) & 3, off = 4;
-        if (afc == 3) off += 1 + p[4]; else if (afc != 1) continue;
-        off += 1 + p[off];
-        if (off + 12 > kPkt) continue;
-        if (p[off] != 0x02) continue;                          // table_id PMT
-        int secLen = ((p[off + 1] & 0x0f) << 8) | p[off + 2];
-        int secEnd = off + 3 + secLen;
-        if (secEnd > kPkt) continue;                           // single-packet PMT
-        mPcrPid = ((p[off + 8] & 0x1f) << 8) | p[off + 9];
-        int pil = ((p[off + 10] & 0x0f) << 8) | p[off + 11];
-        int es = off + 12 + pil, crcStart = secEnd - 4;
-        while (es + 5 <= crcStart) {
-            int stype = p[es];
-            int epid = ((p[es + 1] & 0x1f) << 8) | p[es + 2];
-            int esil = ((p[es + 3] & 0x0f) << 8) | p[es + 4];
-            int d = es + 5, dEnd = d + esil;
-            if (dEnd > crcStart) break;
-            std::string lang;
-            while (d + 2 <= dEnd) {                            // ES descriptors
-                int dt = p[d], dl = p[d + 1];
-                if (dt == 0x0a && dl >= 3)                     // ISO_639_language
-                    lang.assign((const char*)&p[d + 2], 3);
-                d += 2 + dl;
-            }
-            bool isVideo = (stype == 0x01 || stype == 0x02 || stype == 0x1b || stype == 0x24);
-            bool isAc3   = (stype == 0x81);                    // ATSC AC-3
-            if (isVideo && mVideoPid < 0) { mVideoPid = epid; mVideoStreamType = stype; }
-            if (isAc3) { AudioTrack t; t.pid = epid; t.streamType = stype; t.lang = lang; mAudio.push_back(t); }
-            es = dEnd;
-        }
-        break;
-    }
-    if (mVideoPid < 0 && mAudio.empty()) { ::close(fd); return false; }
+    if (!parsePsi(head.data(), (size_t)n)) { ::close(fd); return false; }
+    extractVideoCsd(head.data(), (size_t)n);   // H.264 SPS/PPS + dims (no-op for MPEG-2)
 
     // Bitrate from a LOCAL pair of PCRs in the head (first and last PCR within the head
     // window). End-to-end (head-PCR vs tail-PCR) is unreliable here: HDHomeRun/ATSC
@@ -171,9 +111,250 @@ bool NanoTsDemux::open(const std::string& path) {
     return true;
 }
 
+// Shared PAT -> PMT parse over a head buffer (used by both the file open and the live HLS
+// open). Sets mPmtPid, mPcrPid, mVideoPid/mVideoStreamType and the audio track list. The
+// head must already be aligned (mAlign found). Returns false if no program is parseable.
+bool NanoTsDemux::parsePsi(const uint8_t* head, size_t n) {
+    // PAT -> first program's PMT pid.
+    mPmtPid = -1;
+    for (size_t i = mAlign; i + kPkt <= n && mPmtPid < 0; i += kPkt) {
+        const uint8_t* p = &head[i];
+        if (p[0] != 0x47) continue;
+        if ((((p[1] & 0x1f) << 8) | p[2]) != 0) continue;     // PAT pid 0
+        if (((p[1] >> 6) & 1) == 0) continue;                  // PUSI
+        int afc = (p[3] >> 4) & 3, off = 4;
+        if (afc == 3) off += 1 + p[4]; else if (afc != 1) continue;
+        off += 1 + p[off];                                     // pointer_field
+        if (off + 8 > kPkt) continue;
+        if (p[off] != 0x00) continue;                          // table_id PAT
+        int sl = ((p[off + 1] & 0x0f) << 8) | p[off + 2];
+        int end = off + 3 + sl - 4;
+        if (end > kPkt) end = kPkt;
+        for (int j = off + 8; j + 4 <= end; j += 4) {
+            int pn = (p[j] << 8) | p[j + 1];
+            int ppid = ((p[j + 2] & 0x1f) << 8) | p[j + 3];
+            if (pn != 0) { mPmtPid = ppid; break; }
+        }
+    }
+    if (mPmtPid < 0) return false;
+
+    // PMT -> PCR pid, video pid, audio tracks (with language).
+    mAudio.clear(); mVideoPid = -1; mPcrPid = -1; mVideoStreamType = 0;
+    for (size_t i = mAlign; i + kPkt <= n; i += kPkt) {
+        const uint8_t* p = &head[i];
+        if (p[0] != 0x47) continue;
+        if ((((p[1] & 0x1f) << 8) | p[2]) != mPmtPid) continue;
+        if (((p[1] >> 6) & 1) == 0) continue;
+        int afc = (p[3] >> 4) & 3, off = 4;
+        if (afc == 3) off += 1 + p[4]; else if (afc != 1) continue;
+        off += 1 + p[off];
+        if (off + 12 > kPkt) continue;
+        if (p[off] != 0x02) continue;                          // table_id PMT
+        int secLen = ((p[off + 1] & 0x0f) << 8) | p[off + 2];
+        int secEnd = off + 3 + secLen;
+        if (secEnd > kPkt) continue;                           // single-packet PMT
+        mPcrPid = ((p[off + 8] & 0x1f) << 8) | p[off + 9];
+        int pil = ((p[off + 10] & 0x0f) << 8) | p[off + 11];
+        int es = off + 12 + pil, crcStart = secEnd - 4;
+        while (es + 5 <= crcStart) {
+            int stype = p[es];
+            int epid = ((p[es + 1] & 0x1f) << 8) | p[es + 2];
+            int esil = ((p[es + 3] & 0x0f) << 8) | p[es + 4];
+            int d = es + 5, dEnd = d + esil;
+            if (dEnd > crcStart) break;
+            std::string lang;
+            bool descAc3 = false;                              // AC-3 via registration/descriptor (DVB)
+            while (d + 2 <= dEnd) {                            // ES descriptors
+                int dt = p[d], dl = p[d + 1];
+                if (dt == 0x0a && dl >= 3)                     // ISO_639_language
+                    lang.assign((const char*)&p[d + 2], 3);
+                if (dt == 0x6a || dt == 0x7a) descAc3 = true;  // DVB AC-3 / E-AC-3 descriptor
+                d += 2 + dl;
+            }
+            bool isVideo = (stype == 0x01 || stype == 0x02 || stype == 0x1b || stype == 0x24);
+            bool isAc3   = (stype == 0x81) || descAc3;         // ATSC AC-3, or DVB-flagged
+            bool isAac   = (stype == 0x0f);                    // ISO/IEC 13818-7 AAC (ADTS)
+            if (isVideo && mVideoPid < 0) { mVideoPid = epid; mVideoStreamType = stype; }
+            if (isAc3 || isAac) {
+                AudioTrack t; t.pid = epid; t.streamType = isAc3 ? 0x81 : 0x0f; t.lang = lang;
+                mAudio.push_back(t);
+            }
+            es = dEnd;
+        }
+        break;
+    }
+    return (mVideoPid >= 0 || !mAudio.empty());
+}
+
+// Extract the H.264 SPS/PPS (and frame dimensions) from the head so the fed HW decoder can
+// be configured on a live URL where there is no system extractor to probe the track format.
+// HLS segments are independently decodable, so SPS+PPS+IDR sit at the segment start, in the
+// head. Reassemble the video PID's bytes (TS payloads concatenated; the PES headers stay
+// inline but have forbidden_zero=1 so the NAL scan skips them) and pull the first SPS/PPS.
+namespace {
+// Minimal Annex-B + exp-golomb SPS parser for coded width/height (best-effort; 0 on failure).
+struct BitRdr {
+    const uint8_t* d; size_t n; size_t bit = 0;
+    BitRdr(const uint8_t* p, size_t len) : d(p), n(len) {}
+    int u1() { if (bit >= n * 8) return 0; int b = (d[bit >> 3] >> (7 - (bit & 7))) & 1; bit++; return b; }
+    uint32_t u(int k) { uint32_t v = 0; while (k--) v = (v << 1) | u1(); return v; }
+    uint32_t ue() { int z = 0; while (bit < n * 8 && u1() == 0 && z < 32) z++; return (z ? ((1u << z) - 1 + u(z)) : 0); }
+    int32_t se() { uint32_t k = ue(); return (k & 1) ? (int32_t)((k + 1) >> 1) : -(int32_t)(k >> 1); }
+};
+// Strip emulation-prevention 0x03 bytes from a NAL RBSP.
+static std::vector<uint8_t> unescapeRbsp(const uint8_t* p, size_t n) {
+    std::vector<uint8_t> o; o.reserve(n);
+    for (size_t i = 0; i < n; i++) {
+        if (i + 2 < n && p[i] == 0 && p[i + 1] == 0 && p[i + 2] == 3) { o.push_back(0); o.push_back(0); i += 2; }
+        else o.push_back(p[i]);
+    }
+    return o;
+}
+static void parseSpsWh(const uint8_t* sps, size_t len, int& w, int& h) {
+    if (len < 4) return;
+    std::vector<uint8_t> rb = unescapeRbsp(sps + 1, len - 1);   // skip the 1-byte NAL header
+    BitRdr r(rb.data(), rb.size());
+    int profile = r.u(8); r.u(8); r.u(8);                       // profile, constraints, level
+    r.ue();                                                     // seq_parameter_set_id
+    if (profile == 100 || profile == 110 || profile == 122 || profile == 244 || profile == 44 ||
+        profile == 83 || profile == 86 || profile == 118 || profile == 128 || profile == 138 ||
+        profile == 139 || profile == 134 || profile == 135) {
+        int chroma = r.ue();
+        if (chroma == 3) r.u1();                                // separate_colour_plane_flag
+        r.ue(); r.ue();                                         // bit_depth_luma/chroma minus8
+        r.u1();                                                 // qpprime_y_zero_transform_bypass
+        if (r.u1()) {                                           // seq_scaling_matrix_present
+            int lists = (chroma != 3) ? 8 : 12;
+            for (int i = 0; i < lists; i++) {
+                if (r.u1()) {                                   // scaling_list_present
+                    int sz = (i < 6) ? 16 : 64, last = 8, next = 8;
+                    for (int j = 0; j < sz; j++) {
+                        if (next != 0) { int delta = r.se(); next = (last + delta + 256) % 256; }
+                        last = (next == 0) ? last : next;
+                    }
+                }
+            }
+        }
+    }
+    r.ue();                                                     // log2_max_frame_num_minus4
+    int poc = r.ue();
+    if (poc == 0) r.ue();                                       // log2_max_pic_order_cnt_lsb_minus4
+    else if (poc == 1) {
+        r.u1(); r.se(); r.se();
+        int num = r.ue();
+        for (int i = 0; i < num; i++) r.se();
+    }
+    r.ue();                                                     // max_num_ref_frames
+    r.u1();                                                     // gaps_in_frame_num_value_allowed
+    int wMbs = r.ue() + 1;                                      // pic_width_in_mbs_minus1
+    int hMap = r.ue() + 1;                                      // pic_height_in_map_units_minus1
+    int frameMbsOnly = r.u1();
+    if (!frameMbsOnly) r.u1();                                  // mb_adaptive_frame_field
+    r.u1();                                                     // direct_8x8_inference
+    int cl = 0, cr = 0, ct = 0, cb = 0;
+    if (r.u1()) { cl = r.ue(); cr = r.ue(); ct = r.ue(); cb = r.ue(); }   // frame_cropping
+    int width = wMbs * 16;
+    int height = (2 - frameMbsOnly) * hMap * 16;
+    // crop units: 4:2:0 -> 2 horiz, 2*(2-frameMbsOnly) vert (approximate, the common case)
+    width  -= (cl + cr) * 2;
+    height -= (ct + cb) * 2 * (2 - frameMbsOnly);
+    if (width > 0 && width <= 8192 && height > 0 && height <= 8192) { w = width; h = height; }
+}
+}  // namespace
+
+void NanoTsDemux::extractVideoCsd(const uint8_t* head, size_t n) {
+    mVidSps.clear(); mVidPps.clear(); mVideoW = mVideoH = 0;
+    if (mVideoStreamType != 0x1b) return;   // H.264 only (HEVC csd extraction deferred)
+    // Concatenate the video PID's TS payloads from the head.
+    std::vector<uint8_t> es; es.reserve(96 * 1024);
+    for (size_t i = mAlign; i + kPkt <= n && es.size() < 96 * 1024; i += kPkt) {
+        const uint8_t* p = &head[i];
+        if (p[0] != 0x47) continue;
+        if ((((p[1] & 0x1f) << 8) | p[2]) != mVideoPid) continue;
+        int afc = (p[3] >> 4) & 3;
+        if (afc == 0 || afc == 2) continue;
+        int off = 4;
+        if (afc == 3) off += 1 + p[4];
+        if (off >= kPkt) continue;
+        es.insert(es.end(), p + off, p + kPkt);
+    }
+    // Walk Annex-B NAL units; capture the first SPS (type 7) and PPS (type 8).
+    static const uint8_t kStart[4] = {0, 0, 0, 1};
+    auto findStart = [&](size_t from, size_t& scLen) -> size_t {
+        for (size_t k = from; k + 3 <= es.size(); k++) {
+            if (es[k] == 0 && es[k + 1] == 0 && es[k + 2] == 1) { scLen = 3; return k; }
+            if (k + 4 <= es.size() && es[k] == 0 && es[k + 1] == 0 && es[k + 2] == 0 && es[k + 3] == 1) { scLen = 4; return k; }
+        }
+        return es.size();
+    };
+    size_t scLen = 0; size_t s = findStart(0, scLen);
+    while (s < es.size()) {
+        size_t nalStart = s + scLen;
+        size_t scLen2 = 0; size_t next = findStart(nalStart, scLen2);
+        if (nalStart < es.size()) {
+            int forbidden = es[nalStart] & 0x80;
+            int type = es[nalStart] & 0x1f;
+            size_t nalLen = next - nalStart;
+            if (!forbidden && nalLen > 0) {
+                if (type == 7 && mVidSps.empty()) {
+                    mVidSps.assign(kStart, kStart + 4);
+                    mVidSps.insert(mVidSps.end(), es.begin() + nalStart, es.begin() + next);
+                    parseSpsWh(&es[nalStart], nalLen, mVideoW, mVideoH);
+                } else if (type == 8 && mVidPps.empty()) {
+                    mVidPps.assign(kStart, kStart + 4);
+                    mVidPps.insert(mVidPps.end(), es.begin() + nalStart, es.begin() + next);
+                }
+            }
+        }
+        if (!mVidSps.empty() && !mVidPps.empty()) break;
+        s = next; scLen = scLen2;
+    }
+}
+
+bool NanoTsDemux::videoCsd(std::vector<uint8_t>& sps, std::vector<uint8_t>& pps) const {
+    sps = mVidSps; pps = mVidPps;
+    return !mVidSps.empty();
+}
+
+ssize_t NanoTsDemux::readSrc(uint8_t* buf, size_t len, off64_t pos) {
+    if (mHls) return mHls->readAt(pos, buf, len);
+    if (mFd >= 0) return pread64(mFd, buf, len, pos);
+    return -1;
+}
+
+// Live HLS open: parse the program from the streaming byte source (NanoHls). See the header.
+bool NanoTsDemux::openFromHls(NanoHls* hls) {
+    close();
+    if (!hls) return false;
+    auto fail = [&]() -> bool { hls->requestStop(); delete hls; mHls = nullptr; mLive = false; return false; };
+    mLive = true; mPath = "(live)";
+    mPtsBaseUs = -1; mStreamRate = 48000; mCcSeen.store(false); mCcProbe = 0;
+    mHls = hls;
+    // Pre-buffer so the head holds a full PAT/PMT (+ H.264 SPS/PPS at the segment start).
+    for (int i = 0; i < 800 && hls->produced() < 256 * 1024; i++) usleep(10000);   // up to ~8s
+    const size_t kHead = (size_t)kPkt * 4000;   // ~752 KB
+    std::vector<uint8_t> head(kHead);
+    ssize_t n = readSrc(head.data(), kHead, 0);
+    if (n < kPkt * 8) return fail();
+    mAlign = findAlign(head.data(), (size_t)n);
+    if (mAlign < 0) return fail();
+    if (!parsePsi(head.data(), (size_t)n)) return fail();
+    extractVideoCsd(head.data(), (size_t)n);
+    mFileSize = 0; mBytesPerSec = 0.0; mDurationSec = 0.0;   // live: no duration, no seek
+    TLOGI("NanoTsDemux: openFromHls video=%d(%s %dx%d) audio=%zu sps=%zu pps=%zu",
+          mVideoPid, videoMime(), mVideoW, mVideoH, mAudio.size(), mVidSps.size(), mVidPps.size());
+    for (size_t k = 0; k < mAudio.size(); k++)
+        TLOGI("NanoTsDemux:   audio[%zu] pid=%d type=0x%02x lang=%s", k, mAudio[k].pid,
+              mAudio[k].streamType, mAudio[k].lang.empty() ? "?" : mAudio[k].lang.c_str());
+    return true;
+}
+
 void NanoTsDemux::close() {
     stop();
     if (mFd >= 0) { ::close(mFd); mFd = -1; }
+    if (mHls) { mHls->requestStop(); delete mHls; mHls = nullptr; }
+    mLive = false;
+    mVidSps.clear(); mVidPps.clear(); mVideoW = mVideoH = 0;
     mAudio.clear();
     mVideoPid = mPcrPid = mPmtPid = -1;
     mDurationSec = 0.0;
@@ -199,11 +380,16 @@ off64_t NanoTsDemux::estimateByteForTime(double sec) const {
     return b;
 }
 
-bool NanoTsDemux::start(NanoVideo* video, NanoAudioPlayer* audio, int audioIndex, double startSec) {
-    if (mFd < 0) return false;
+bool NanoTsDemux::start(NanoVideo* video, NanoAudioPlayer* audio, int audioIndex, double startSec,
+                        bool audioPreOpened) {
+    if (mFd < 0 && !mHls) return false;
     stop();
     mVideoSink = video;
     mSink = audio;
+    mAudioFedOpen = audioPreOpened;   // live (false): the demuxer opens the fed ring lazily
+    // Arm gate: the caller already opened+prerolled the ring (file path) so the host may arm as
+    // soon as the first frame lands; live defers until ensureAudioFed() finishes the lazy open.
+    mLiveAudioReady.store(audio == nullptr || audioPreOpened);
     mSelPid.store((audioIndex >= 0 && audioIndex < (int)mAudio.size()) ? mAudio[audioIndex].pid : -1);
     mPendSelPid.store(-1);
     mPendSeek.store(-1.0);
@@ -225,11 +411,18 @@ void NanoTsDemux::stop() {
     mStop.store(true);
     if (mVideoSink) mVideoSink->setClockFn(nullptr);   // drop the audio-clock fn before audio is freed
     if (mVideoSink) mVideoSink->flushFed(0.0);   // unblock a feedVideo waiting on a full queue
+    // Live: the worker may be blocked in NanoHls::readAt at the live frontier; unblock it (returns
+    // EOS) before joining, or the join deadlocks. Only when a worker is actually running, so start()'s
+    // pre-stop never kills a freshly-adopted source.
+    if (mHls && mWorker.joinable()) mHls->requestStop();
     if (mWorker.joinable()) mWorker.join();
     mAudioPes.buf.clear(); mAudioPes.started = false;
     mVideoPes.buf.clear(); mVideoPes.started = false;
-    mAc3Buf.clear();
+    mAc3Buf.clear(); mAacBuf.clear();
     mAc3.free();                  // release the liba52 state (no idle audio-decoder footprint when closed)
+    mAac.free();                  // release the AAC AMediaCodec (nothing resident when closed)
+    mAudioFedOpen = false;
+    mLiveAudioReady.store(false);
     mCea608.reset();             // drop caption state + cues (nothing resident when closed)
     mCcReorder.clear();
     { std::lock_guard<std::mutex> lk(mCueMx); mCues.clear(); }
@@ -282,17 +475,46 @@ static bool pesPayload(const uint8_t* pes, size_t len, const uint8_t** es, size_
     return true;
 }
 
+// Open the audio fed ring lazily (live) once the decoder reports a real rate. No-op when the
+// caller already opened it (recorded-.ts path: audioPreOpened=true). See NanoTsDemux.h.
+void NanoTsDemux::ensureAudioFed(int rate, int channels) {
+    if (mAudioFedOpen || !mSink || rate <= 0) return;
+    if (mSink->openFed(rate, channels > 0 ? channels : 2)) {
+        // Live start-together: hold the audio muted (draining at the live edge) until the picture's
+        // first frame arms the shared origin. The host calls armOrigin() once the frame is decoded.
+        mSink->setPrerollMute(true, /*drain=*/true);
+        mSink->play();
+        mAudioFedOpen = true;
+        mLiveAudioReady.store(true);   // AFTER preroll+play so the host's arm/un-mute always follows
+        TLOGI("NanoTsDemux: live audio fed ring opened %dHz x%d", rate, channels);
+    }
+}
+
 void NanoTsDemux::emitAudioPes(const uint8_t* pes, size_t len, int64_t /*ptsUs*/) {
     const uint8_t* es = nullptr; size_t esLen = 0; int64_t pts = -1;
     if (!pesPayload(pes, len, &es, &esLen, &pts)) return;
-    // accumulate ES bytes and decode whole AC-3 frames.
-    mAc3Buf.insert(mAc3Buf.end(), es, es + esLen);
+    // Codec of the currently-selected audio PID (AC-3 via liba52, or AAC via AMediaCodec).
+    int sel = mSelPid.load();
+    int stype = 0x81;
+    for (const auto& t : mAudio) if (t.pid == sel) { stype = t.streamType; break; }
+
     std::vector<int16_t> pcm;
-    int rate = mStreamRate;
-    int consumed = mAc3.decode(mAc3Buf.data(), (int)mAc3Buf.size(), pcm, rate);
-    if (consumed > 0) mAc3Buf.erase(mAc3Buf.begin(), mAc3Buf.begin() + consumed);
-    if (rate > 0) mStreamRate = rate;
-    if (!pcm.empty() && mSink) {
+    int rate = 0, chans = 2;
+    if (stype == 0x0f) {                                   // AAC (ADTS) -> AMediaCodec
+        mAacBuf.insert(mAacBuf.end(), es, es + esLen);
+        int consumed = mAac.decode(mAacBuf.data(), (int)mAacBuf.size(), pcm, rate, chans);
+        if (consumed > 0) mAacBuf.erase(mAacBuf.begin(), mAacBuf.begin() + consumed);
+        if (rate > 0) mStreamRate = rate;
+    } else {                                               // AC-3 -> liba52
+        mAc3Buf.insert(mAc3Buf.end(), es, es + esLen);
+        rate = mStreamRate;
+        int consumed = mAc3.decode(mAc3Buf.data(), (int)mAc3Buf.size(), pcm, rate);
+        if (consumed > 0) mAc3Buf.erase(mAc3Buf.begin(), mAc3Buf.begin() + consumed);
+        if (rate > 0) mStreamRate = rate;
+        chans = 2;
+    }
+    if (rate > 0) ensureAudioFed(rate, chans);
+    if (!pcm.empty() && mSink && mAudioFedOpen) {
         size_t off = 0;
         while (off < pcm.size() && !mStop.load() && mPendSeek.load() < 0 && mPendSelPid.load() < 0) {
             size_t w = mSink->feedPcm(pcm.data() + off, pcm.size() - off);
@@ -332,26 +554,40 @@ void NanoTsDemux::emitVideoPes(const uint8_t* pes, size_t len) {
         mCcProbe++;
     }
     if (mVideoSink && esLen) {
-        // Start feeding the codec at a sequence header (00 00 01 B3) so a cold MPEG-2
-        // decoder gets a clean, decodable first access unit (mid-GOP pictures can fault it).
+        // Start feeding the codec at a clean keyframe so a cold HW decoder gets a decodable first
+        // access unit (mid-GOP pictures fault it). MPEG-1/2: a sequence header (00 00 01 B3).
+        // H.264: an SPS (NAL 7) or IDR (NAL 5) - the codec is configured with the SPS/PPS csd, so
+        // an IDR is decodable. HEVC: a VPS/SPS or IRAP NAL.
         if (!mVideoStartedFeed) {
-            bool hasSeq = false; size_t seqAt = 0;
-            for (size_t i = 0; i + 4 <= esLen; i++)
-                if (es[i] == 0 && es[i + 1] == 0 && es[i + 2] == 1 && es[i + 3] == 0xB3) { hasSeq = true; seqAt = i; break; }
-            if (!hasSeq) return;            // drop pre-sequence-header pictures
-            // MPEG-2 sequence header: aspect_ratio_information is the high nibble of the byte
-            // after horizontal(12)+vertical(12). 2=DAR 4:3, 3=16:9, 4=2.21:1 (1/other = square
-            // pixels). SD broadcast is usually 720x480/576 anamorphic; tell the sink its true
-            // display shape so the picture is not stretched (the web XMB gets this from the
-            // browser). Parse once per feed start (cheap; same value re-applied after a seek).
-            // Only for MPEG-1/2 (0xB3 is their sequence-header start code) so a stray 00 00 01 B3
-            // byte run inside an AVC/HEVC stream cannot set a bogus DAR.
-            if ((mVideoStreamType == 0x01 || mVideoStreamType == 0x02) && seqAt + 8 <= esLen) {
-                int arc = es[seqAt + 7] >> 4;
-                float dar = (arc == 2) ? (4.0f / 3.0f)
-                          : (arc == 3) ? (16.0f / 9.0f)
-                          : (arc == 4) ? 2.21f : 0.0f;
-                mVideoSink->setDisplayAspect(dar);
+            bool h264 = (mVideoStreamType == 0x1b);
+            bool h265 = (mVideoStreamType == 0x24);
+            if (h264 || h265) {
+                bool ok = false;
+                for (size_t i = 0; i + 4 <= esLen; i++) {
+                    if (es[i] == 0 && es[i + 1] == 0 && es[i + 2] == 1) {
+                        if (h264) { int t = es[i + 3] & 0x1f; if (t == 5 || t == 7) { ok = true; break; } }
+                        else { int t = (es[i + 3] >> 1) & 0x3f;
+                               if ((t >= 16 && t <= 23) || t == 32 || t == 33) { ok = true; break; } }
+                    }
+                }
+                if (!ok) return;            // drop until the first keyframe
+            } else {
+                bool hasSeq = false; size_t seqAt = 0;
+                for (size_t i = 0; i + 4 <= esLen; i++)
+                    if (es[i] == 0 && es[i + 1] == 0 && es[i + 2] == 1 && es[i + 3] == 0xB3) { hasSeq = true; seqAt = i; break; }
+                if (!hasSeq) return;            // drop pre-sequence-header pictures
+                // MPEG-2 sequence header: aspect_ratio_information is the high nibble of the byte
+                // after horizontal(12)+vertical(12). 2=DAR 4:3, 3=16:9, 4=2.21:1 (1/other = square
+                // pixels). SD broadcast is usually 720x480/576 anamorphic; tell the sink its true
+                // display shape so the picture is not stretched (the web XMB gets this from the
+                // browser). Parse once per feed start (cheap; same value re-applied after a seek).
+                if ((mVideoStreamType == 0x01 || mVideoStreamType == 0x02) && seqAt + 8 <= esLen) {
+                    int arc = es[seqAt + 7] >> 4;
+                    float dar = (arc == 2) ? (4.0f / 3.0f)
+                              : (arc == 3) ? (16.0f / 9.0f)
+                              : (arc == 4) ? 2.21f : 0.0f;
+                    mVideoSink->setDisplayAspect(dar);
+                }
             }
             mVideoStartedFeed = true;
         }
@@ -405,24 +641,31 @@ void NanoTsDemux::workerFunc(double startSec) {
     while (!mStop.load()) {
         // pending audio-track switch (O(1): flush + re-route, keep streaming).
         int ps = mPendSelPid.exchange(-1);
-        if (ps >= 0) { flushAudioPes(); mAc3Buf.clear(); mAc3.reset(); mSelPid.store(ps); }
+        if (ps >= 0) {
+            flushAudioPes();
+            mAc3Buf.clear(); mAc3.reset();
+            mAacBuf.clear(); mAac.reset();
+            mSelPid.store(ps);
+        }
 
-        // pending seek (reposition the single read pointer + flush BOTH sinks so A/V
-        // resume together at the new position).
+        // pending seek (reposition the single read pointer + flush BOTH sinks so A/V resume
+        // together at the new position). Live has no byte<->time model and no past window, so
+        // seeking is a no-op there (the UI disables it; this guard is belt-and-suspenders).
         double sk = mPendSeek.exchange(-1.0);
-        if (sk >= 0) {
+        if (sk >= 0 && !mLive) {
             pos = estimateByteForTime(sk);
             partial = 0;
             mAudioPes.buf.clear(); mAudioPes.started = false;
             mVideoPes.buf.clear(); mVideoPes.started = false; mVideoStartedFeed = false;
             mAc3Buf.clear(); mAc3.reset();
+            mAacBuf.clear(); mAac.reset();
             mCea608.reset(); mCcReorder.clear(); { std::lock_guard<std::mutex> lk(mCueMx); mCues.clear(); }   // captions re-decode from here
             if (mSink) mSink->seekFed(sk);
             if (mVideoSink) mVideoSink->flushFed(sk);
             TLOGI("NanoTsDemux: seek %.2f -> byte %lld (bps=%.0f)", sk, (long long)pos, mBytesPerSec);
         }
 
-        ssize_t got = pread64(mFd, buf.data() + partial, kChunk - partial, pos);
+        ssize_t got = readSrc(buf.data() + partial, kChunk - partial, pos);
         if (got <= 0) {                          // EOF: park (the picture may repeat or seek back)
             flushAudioPes();
             flushVideoPes();

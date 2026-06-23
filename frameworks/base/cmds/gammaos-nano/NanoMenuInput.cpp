@@ -1104,6 +1104,18 @@ void NanoMenu::pollInput() {
                     }
                 }
             }
+            // Live-stream scripting: "streamopen:<url>" opens an arbitrary IPTV/HLS URL directly
+            // in the player (bypasses the channel-list navigation) so the live A/V pacing path
+            // can be verified headlessly against a known live .ts/HLS stream.
+            else if (!strncmp(navbuf, "streamopen:", 11)) {
+                if (mPs3Xmb) {
+                    videoEnsureLoaded();
+                    std::vector<VidStreamRef> one(1);
+                    one[0].url = std::string(navbuf + 11);
+                    one[0].name = "Test Stream";
+                    openIptvStream(one, 0);
+                }
+            }
             property_set("sys.gammaos.nano.nav", "");
         }
         // Recapture the serial AFTER the (possible) self-clear so the next frame is
