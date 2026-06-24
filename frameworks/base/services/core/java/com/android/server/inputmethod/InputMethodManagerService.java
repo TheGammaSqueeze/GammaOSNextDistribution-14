@@ -1769,8 +1769,19 @@ public final class InputMethodManagerService extends IInputMethodManager.Stub
             mClientController.addClientControllerCallback(c -> onClientRemoved(c));
         }
 
+        // GammaOS Nano: in minimal boot the nano UI draws its own on-screen
+        // keyboard, so the system IME (e.g. LeanbackIME) is only needed by
+        // launched full-Android apps. Stock keeps the selected IME warm via a
+        // BIND_AUTO_CREATE main connection the moment it becomes current, which
+        // pins ~25 MB of an idle process. Force the AOSP
+        // "prevent IME startup unless text editor" behavior on so the IME is
+        // bound only while a real editor is focused and is unbound (its process
+        // free to exit) the rest of the time. Typing still works because a
+        // window that requests soft input / declares a text editor bypasses
+        // this guard in shouldPreventImeStartupLocked().
         mPreventImeStartupUnlessTextEditor = mRes.getBoolean(
-                com.android.internal.R.bool.config_preventImeStartupUnlessTextEditor);
+                com.android.internal.R.bool.config_preventImeStartupUnlessTextEditor)
+                || "1".equals(SystemProperties.get("sys.gammaos.minimal_boot", "0"));
         mNonPreemptibleInputMethods = mRes.getStringArray(
                 com.android.internal.R.array.config_nonPreemptibleInputMethods);
         IntConsumer toolTypeConsumer =
