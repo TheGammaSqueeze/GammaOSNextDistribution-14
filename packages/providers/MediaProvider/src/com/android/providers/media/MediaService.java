@@ -154,6 +154,17 @@ public class MediaService extends JobIntentService {
     public static void onScanVolume(Context context, MediaVolume volume, int reason)
             throws IOException {
         final String volumeName = volume.getName();
+        // GammaOS Nano: nano does not use MediaStore (the XMB does its own file scanning), so a
+        // full MediaProvider volume scan is pure overhead. On a 1GB device with a game running it
+        // floods CPU/IO and, with the foreground-protective lmkd config, helped thrash the device
+        // into a freeze. Skip ALL full-volume scans (mount / idle / on-demand, internal + external)
+        // in minimal boot. This is the central choke for every volume scan; single-file scanFile()
+        // is unaffected.
+        if ("1".equals(android.os.SystemProperties.get("sys.gammaos.minimal_boot", "0"))) {
+            Log.i(TAG, "GammaOS Nano: skipping volume scan " + volumeName
+                    + " (reason=" + reason + ") in minimal boot");
+            return;
+        }
         if (!MediaStore.VOLUME_INTERNAL.equals(volumeName) && volume.getPath() == null) {
             /* This is a very unexpected state and can only ever happen with app-cloned users.
               In general, MediaVolumes should always be mounted and have a path, however, if the

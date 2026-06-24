@@ -28,8 +28,13 @@ import com.android.providers.media.stableuris.job.StableUriIdleMaintenanceServic
 public class MediaReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
-        // GammaOS Nano: skip all broadcast handling when JobScheduler is unavailable
-        if (context.getSystemService(android.app.job.JobScheduler.class) == null) {
+        // GammaOS Nano: skip all broadcast handling when JobScheduler is unavailable, and in
+        // minimal boot. Nano does not use MediaStore (the XMB does its own file scanning), so
+        // skip scheduling idle scans and enqueuing mount/scan work - otherwise MediaProvider
+        // floods CPU/IO scanning a full /sdcard, which on a 1GB device with a game running
+        // (and the foreground-protective lmkd config) can thrash the device into a freeze.
+        if (context.getSystemService(android.app.job.JobScheduler.class) == null
+                || "1".equals(android.os.SystemProperties.get("sys.gammaos.minimal_boot", "0"))) {
             return;
         }
         final String action = intent.getAction();
