@@ -37,6 +37,25 @@ namespace ps3 {
 constexpr float VW = 1920.0f;   // explore vaddr 0x270A38
 constexpr float VH = 1080.0f;   // explore vaddr 0x270A3C
 
+// Adaptive icon-texture cap. Source art ships at a fixed resolution (256/512),
+// but on a given panel an icon is only ever drawn at gScale*virtualSize px.
+// Return a power-of-two side >= 2x that max on-screen size (the 2x supersample
+// headroom, computed off the uiScale=1.0 base, also covers the full user
+// uiScale 0.5..2.0 zoom range without blur), clamped to [64, sourceSize].
+// Result: small panels (Brick 1024x768) get 256/128 textures = big VRAM saving;
+// high-DPI panels (1080p+) resolve back to the full source size = no blur. Pure
+// function of the panel resolution, so it scales correctly to any screen.
+inline int iconTexCap(int panelW, int panelH, float virtualSize, int sourceSize) {
+    float sx = (float)panelW / VW, sy = (float)panelH / VH;
+    float baseScale = sx < sy ? sx : sy;
+    if (baseScale <= 0.0f) baseScale = 1.0f;
+    int want = (int)(baseScale * virtualSize * 2.0f + 0.999f);
+    int p = 64;
+    while (p < want) p <<= 1;            // power-of-two ceiling, min 64
+    if (p > sourceSize) p = sourceSize;  // never upscale past the source asset
+    return p;
+}
+
 // ---- Category bar (measured from RPCS3 1080p capture) ----
 constexpr float CAT_Y = 289.0f;
 constexpr float CAT_Y_ACTIVE_OFFSET = -10.0f;

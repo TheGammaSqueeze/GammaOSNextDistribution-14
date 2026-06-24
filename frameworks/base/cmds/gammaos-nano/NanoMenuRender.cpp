@@ -143,8 +143,44 @@ static bool decodePngToRGBA(png_structp png, png_infop info,
     return true;
 }
 
-// Upload decoded RGBA pixels as a GL texture with mipmaps.
-static GLuint createIconTexture(const uint8_t* pixels, int width, int height) {
+// Box-average downscale of an RGBA image to (dw x dh). Used to right-size icon
+// textures to the panel before upload (the source art is 256/512 but is drawn
+// far smaller on a 1024x768 panel).
+static void boxDownscaleRGBA(const uint8_t* src, int sw, int sh,
+                             int dw, int dh, std::vector<uint8_t>& dst) {
+    dst.resize((size_t)dw * dh * 4);
+    for (int y = 0; y < dh; y++) {
+        int sy0 = y * sh / dh, sy1 = (y + 1) * sh / dh; if (sy1 <= sy0) sy1 = sy0 + 1;
+        for (int x = 0; x < dw; x++) {
+            int sx0 = x * sw / dw, sx1 = (x + 1) * sw / dw; if (sx1 <= sx0) sx1 = sx0 + 1;
+            uint32_t r = 0, g = 0, b = 0, a = 0, cnt = 0;
+            for (int yy = sy0; yy < sy1 && yy < sh; yy++)
+                for (int xx = sx0; xx < sx1 && xx < sw; xx++) {
+                    const uint8_t* p = src + ((size_t)yy * sw + xx) * 4;
+                    r += p[0]; g += p[1]; b += p[2]; a += p[3]; cnt++;
+                }
+            uint8_t* d = dst.data() + ((size_t)y * dw + x) * 4;
+            if (cnt) { d[0] = r / cnt; d[1] = g / cnt; d[2] = b / cnt; d[3] = a / cnt; }
+            else     { d[0] = d[1] = d[2] = 0; d[3] = 255; }
+        }
+    }
+}
+
+// Upload decoded RGBA pixels as a GL texture with mipmaps. When maxSize > 0 and
+// the source exceeds it, the image is box-downscaled to fit maxSize first (the
+// caller sizes maxSize from the panel resolution via ps3::iconTexCap, so the
+// texture is right-sized per screen with no perceptible quality loss).
+static GLuint createIconTexture(const uint8_t* pixels, int width, int height,
+                                int maxSize = 0) {
+    std::vector<uint8_t> scaled;
+    if (maxSize > 0 && (width > maxSize || height > maxSize)) {
+        int dw = width, dh = height;
+        if (width >= height) { dw = maxSize; dh = (int)((long)height * maxSize / width); }
+        else                 { dh = maxSize; dw = (int)((long)width * maxSize / height); }
+        if (dw < 1) dw = 1; if (dh < 1) dh = 1;
+        boxDownscaleRGBA(pixels, width, height, dw, dh, scaled);
+        pixels = scaled.data(); width = dw; height = dh;
+    }
     GLuint tex;
     glGenTextures(1, &tex);
     glBindTexture(GL_TEXTURE_2D, tex);
@@ -159,7 +195,8 @@ static GLuint createIconTexture(const uint8_t* pixels, int width, int height) {
 }
 
 // Load a PNG as RGBA texture from file. Returns true on success.
-static bool loadPngAsAlphaTexture(const char* path, GLuint* outTex, bool monoWhite = true) {
+static bool loadPngAsAlphaTexture(const char* path, GLuint* outTex, bool monoWhite = true,
+                                  int maxSize = 0) {
     FILE* fp = fopen(path, "rb");
     if (!fp) return false;
 
@@ -194,7 +231,7 @@ static bool loadPngAsAlphaTexture(const char* path, GLuint* outTex, bool monoWhi
     png_destroy_read_struct(&png, &info, nullptr);
     fclose(fp);
 
-    *outTex = createIconTexture(pixels.data(), width, height);
+    *outTex = createIconTexture(pixels.data(), width, height, maxSize);
     ALOGD("NanoMenu: loaded PNG icon %s (%dx%d, %s)", path, width, height,
           monoWhite ? "mono" : "color");
     return true;
@@ -215,7 +252,7 @@ static void pngReadFromMemory(png_structp png, png_bytep out, png_size_t count) 
 // Load a PNG from in-memory data as texture. Returns true on success.
 // If monoWhite is false, preserves original colors (for colored icons like PICO-8).
 static bool loadPngFromMemory(const uint8_t* pngData, int pngSize, GLuint* outTex,
-                              bool monoWhite = true) {
+                              bool monoWhite = true, int maxSize = 0) {
     if (pngSize < 8 || png_sig_cmp(pngData, 0, 8)) return false;
 
     png_structp png = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
@@ -241,7 +278,7 @@ static bool loadPngFromMemory(const uint8_t* pngData, int pngSize, GLuint* outTe
     }
     png_destroy_read_struct(&png, &info, nullptr);
 
-    *outTex = createIconTexture(pixels.data(), width, height);
+    *outTex = createIconTexture(pixels.data(), width, height, maxSize);
     ALOGD("NanoMenu: loaded embedded PNG icon (%dx%d, %s)", width, height,
           monoWhite ? "mono" : "color");
     return true;
@@ -345,8 +382,12 @@ void NanoMenu::overlayCaptureBackground() {
     glGetIntegerv(GL_VIEWPORT, prevVp);
     if (mOverlayBgTex == 0) glGenTextures(1, &mOverlayBgTex);
     glBindTexture(GL_TEXTURE_2D, mOverlayBgTex);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, mWidth, mHeight, 0,
-                 GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+    // RGB565 (16-bit) rather than RGBA8888: the baked backdrop is opaque and
+    // heavily blurred, so 16-bit colour is visually identical while halving this
+    // full-screen texture (e.g. 1024x768: 3MB -> 1.5MB). Fall back to RGBA8888 if
+    // the driver cannot render 565 to an FBO colour attachment.
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, mWidth, mHeight, 0,
+                 GL_RGB, GL_UNSIGNED_SHORT_5_6_5, nullptr);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -357,6 +398,16 @@ void NanoMenu::overlayCaptureBackground() {
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
                            GL_TEXTURE_2D, mOverlayBgTex, 0);
     GLenum fbStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+    if (fbStatus != GL_FRAMEBUFFER_COMPLETE) {
+        // 565 not colour-renderable on this GPU: retry the proven RGBA8888 path
+        // before giving up, so the backdrop still bakes (just at 32-bit).
+        glBindTexture(GL_TEXTURE_2D, mOverlayBgTex);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, mWidth, mHeight, 0,
+                     GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+                               GL_TEXTURE_2D, mOverlayBgTex, 0);
+        fbStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+    }
     if (fbStatus != GL_FRAMEBUFFER_COMPLETE) {
         // GL_RGBA is not guaranteed colour-renderable on every GLES2 GPU. If the
         // attachment is incomplete, baking would silently no-op (leaving a black
@@ -411,19 +462,23 @@ void NanoMenu::overlayCaptureBackground() {
 void NanoMenu::initIconTextures() {
     memset(mIconTextures, 0, sizeof(mIconTextures));
     int fileLoaded = 0, embeddedLoaded = 0;
+    // Right-size the console icons to this panel: they are drawn at ITEM_ICON_SIZE
+    // virtual px, so a 256 source is oversized on a small panel. iconTexCap keeps
+    // them crisp on high-DPI screens (returns up to the full source there).
+    const int iconCap = ps3::iconTexCap(mWidth, mHeight, ps3::ITEM_ICON_SIZE, 256);
     for (int i = 0; i < 18; i++) {
         // Try loading high-res PNG from on-device RetroArch assets
         bool mono = (i != 14); // PICO-8 (index 14) keeps its original colors
         std::string pngPath;
         const char* fname = kIconPngNames[i];
         if (fname) pngPath = std::string(kIconPngDir) + "/" + fname;
-        if (!pngPath.empty() && loadPngAsAlphaTexture(pngPath.c_str(), &mIconTextures[i], mono)) {
+        if (!pngPath.empty() && loadPngAsAlphaTexture(pngPath.c_str(), &mIconTextures[i], mono, iconCap)) {
             fileLoaded++;
             continue;
         }
         // Fallback: embedded 256x256 PNG data
         const EmbeddedIcon& icon = kEmbeddedIcons[i];
-        if (loadPngFromMemory(icon.data, icon.size, &mIconTextures[i], mono)) {
+        if (loadPngFromMemory(icon.data, icon.size, &mIconTextures[i], mono, iconCap)) {
             embeddedLoaded++;
             continue;
         }
@@ -883,18 +938,30 @@ void NanoMenu::initFonts() {
         return;
     }
     mFtNumFaces = 0;
-    // PS3 Rodin first so Latin text uses the authentic XMB font; CJK / Arabic /
-    // Thai / Hebrew / emoji fall through to the Noto faces below. Prefer the
-    // dev push dir, then the shipped asset.
+    // Theme override: a theme can replace the primary (Latin/UI) typeface by
+    // pointing persist.gammaos.nano.font at any .ttf/.otf (absolute path). This is
+    // the font-themeability hook; it loads as the first face so it wins for Latin,
+    // while CJK / Arabic / Thai / Hebrew / emoji still fall through to the Noto
+    // faces below. Empty / unloadable -> the bundled Rodin path runs as normal.
+    char fontProp[PROPERTY_VALUE_MAX] = {0};
+    property_get("persist.gammaos.nano.font", fontProp, "");
+    if (fontProp[0] && FT_New_Face(mFtLib, fontProp, 0, &mFtFaces[mFtNumFaces]) == 0) {
+        ALOGD("NanoMenu: loaded theme font: %s", fontProp);
+        mFtNumFaces++;
+    }
+    // PS3 Rodin so Latin text uses the authentic XMB font when no theme font is
+    // set. Prefer the dev push dir, then the shipped asset.
     const char* rodinPaths[] = {
         "/data/system/nano_xmb/fonts/ps3-rodin-regular.ttf",
         "/system/etc/nano_xmb/fonts/ps3-rodin-regular.ttf",
     };
-    for (const char* rp : rodinPaths) {
-        if (FT_New_Face(mFtLib, rp, 0, &mFtFaces[mFtNumFaces]) == 0) {
-            ALOGD("NanoMenu: loaded PS3 Rodin: %s", rp);
-            mFtNumFaces++;
-            break;
+    if (mFtNumFaces == 0) {
+        for (const char* rp : rodinPaths) {
+            if (FT_New_Face(mFtLib, rp, 0, &mFtFaces[mFtNumFaces]) == 0) {
+                ALOGD("NanoMenu: loaded PS3 Rodin: %s", rp);
+                mFtNumFaces++;
+                break;
+            }
         }
     }
     const char* fontPaths[] = {
@@ -926,8 +993,15 @@ void NanoMenu::initFonts() {
             FT_Set_Pixel_Sizes(mFtFaces[i], 0, mFontSize);
         }
     }
-    // Create RGBA glyph atlas
-    mAtlasW = 2048;
+    // Create RGBA glyph atlas. 1024x2048 (8 MB) rather than 2048x2048 (16 MB):
+    // the live render working set is only a few hundred glyphs (item labels +
+    // descriptions visible at once), packed into the top-left, so half the area
+    // is ample. If a single frame ever exceeds it the existing resetGlyphAtlas()
+    // recycle path re-rasterizes lazily (a one-off startup-prewarm hitch hidden
+    // behind the boot intro, never a steady-state cost). A further ~4 MB is
+    // available by moving mono glyphs to LUMINANCE_ALPHA with a separate small
+    // RGBA color-emoji atlas, which needs the text batch split per atlas.
+    mAtlasW = 1024;
     mAtlasH = 2048;
     mAtlasCurX = 1; // start at 1 to avoid bleeding from edge
     mAtlasCurY = 1;

@@ -47,6 +47,10 @@ void shutdown();
 // True once init() has fully succeeded and render() will draw the real wave.
 bool ready();
 
+// Free only the 21MB wave keyframe VBO (rebuilt lazily on the next live home
+// frame). Called when the overlay parks behind a game to reclaim GPU memory.
+void freeWaveSeq();
+
 // Mark the start of a new app frame. NanoMenu::render() calls this exactly once
 // per frame; the FIRST ps3bg::render call of the frame advances the wave/glitter
 // /theme-fade time and rebuilds the work texture, and any further calls in the

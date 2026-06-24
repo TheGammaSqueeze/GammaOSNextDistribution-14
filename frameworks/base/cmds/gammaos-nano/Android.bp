@@ -35,6 +35,14 @@ cc_binary {
         },
     },
 
+    // ThinLTO: cross-translation-unit inlining and dead-code stripping across the
+    // ~40 nano source files. Shrinks .text (clean/file-backed, but still image
+    // weight and faulted-in pages) and tightens the render hot path. No behaviour
+    // change; -ffast-math semantics are unchanged under LTO.
+    lto: {
+        thin: true,
+    },
+
     srcs: [
         "main.cpp",
         "NanoMenu.cpp",

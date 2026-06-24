@@ -144,7 +144,30 @@ void NanoMenu::drawIconStroke(unsigned int tex, float x, float y, float w, float
 // ---------------------------------------------------------------------------
 // libpng loader -> mono-white (silvery) RGBA texture for the PS3 icons.
 // ---------------------------------------------------------------------------
-static GLuint loadPs3IconTex(const char* file) {
+// Box-average downscale of an RGBA image to (dw x dh).
+static void ps3BoxDownscaleRGBA(const uint8_t* src, int sw, int sh,
+                                int dw, int dh, std::vector<unsigned char>& dst) {
+    dst.resize((size_t)dw * dh * 4);
+    for (int y = 0; y < dh; y++) {
+        int sy0 = y * sh / dh, sy1 = (y + 1) * sh / dh; if (sy1 <= sy0) sy1 = sy0 + 1;
+        for (int x = 0; x < dw; x++) {
+            int sx0 = x * sw / dw, sx1 = (x + 1) * sw / dw; if (sx1 <= sx0) sx1 = sx0 + 1;
+            uint32_t r = 0, g = 0, b = 0, a = 0, cnt = 0;
+            for (int yy = sy0; yy < sy1 && yy < sh; yy++)
+                for (int xx = sx0; xx < sx1 && xx < sw; xx++) {
+                    const uint8_t* p = src + ((size_t)yy * sw + xx) * 4;
+                    r += p[0]; g += p[1]; b += p[2]; a += p[3]; cnt++;
+                }
+            uint8_t* d = dst.data() + ((size_t)y * dw + x) * 4;
+            if (cnt) { d[0] = r / cnt; d[1] = g / cnt; d[2] = b / cnt; d[3] = a / cnt; }
+            else     { d[0] = d[1] = d[2] = 0; d[3] = 255; }
+        }
+    }
+}
+
+// maxSize>0 right-sizes the category icon to the panel (source art is 512 but is
+// drawn at <=CAT_ICON_ACTIVE px); 0 keeps full resolution.
+static GLuint loadPs3IconTex(const char* file, int maxSize = 0) {
     char path[256];
     FILE* fp = nullptr;
     snprintf(path, sizeof(path), "/data/system/nano_xmb/icons/%s", file);
@@ -181,14 +204,28 @@ static GLuint loadPs3IconTex(const char* file) {
     png_destroy_read_struct(&png, &info, nullptr);
     fclose(fp);
     for (size_t i = 0; i + 3 < pixels.size(); i += 4) { pixels[i] = 255; pixels[i+1] = 255; pixels[i+2] = 255; }
+    // Right-size to the panel before upload (no perceptible change: the icon is
+    // drawn far below its source resolution; high-DPI panels keep the full size).
+    const uint8_t* up = pixels.data();
+    std::vector<unsigned char> scaled;
+    if (maxSize > 0 && (w > maxSize || h > maxSize)) {
+        int dw = w, dh = h;
+        if (w >= h) { dw = maxSize; dh = (int)((long)h * maxSize / w); }
+        else        { dh = maxSize; dw = (int)((long)w * maxSize / h); }
+        if (dw < 1) dw = 1; if (dh < 1) dh = 1;
+        ps3BoxDownscaleRGBA(pixels.data(), w, h, dw, dh, scaled);
+        up = scaled.data(); w = dw; h = dh;
+    }
     GLuint tex = 0;
     glGenTextures(1, &tex);
     glBindTexture(GL_TEXTURE_2D, tex);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, up);
+    // Mipmaps so the inactive (minified) category icon does not shimmer/alias.
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glGenerateMipmap(GL_TEXTURE_2D);
     return tex;
 }
 
@@ -306,13 +343,14 @@ void NanoMenu::initPs3Menu() {
         "xmb_icon_001.png", "xmb_icon_002.png", "xmb_icon_003.png",
         "xmb_icon_004.png", "xmb_icon_005.png", "xmb_icon_006.png",
     };
+    const int catCap = ps3::iconTexCap(mWidth, mHeight, ps3::CAT_ICON_ACTIVE, 512);
     for (int i = 0; i < 6; i++) {
-        mPs3CatTex[i] = loadPs3IconTex(kCatIconFiles[i]);
+        mPs3CatTex[i] = loadPs3IconTex(kCatIconFiles[i], catCap);
         mPs3CatNmap[i] = nmapForIcon(i + 1);   // category icons are xmb_icon 1..6
     }
     // Quick Menu category icon (free slot 6): the xmb_icon_054 power glyph + its
     // glass normal map, so the new category renders the live-wave glass effect.
-    mPs3CatTex[6]  = loadPs3IconTex("xmb_icon_054.png");
+    mPs3CatTex[6]  = loadPs3IconTex("xmb_icon_054.png", catCap);
     mPs3CatNmap[6] = nmapForIcon(54);
     buildPs3Cats();
     // Pre-warm everything the first draw of any submenu would otherwise build
@@ -8196,6 +8234,12 @@ void NanoMenu::closeTimezoneGlobe(bool apply) {
     }
     mPs3TzActive = false;
     mTzGlobeFadeStart = -1.0f;
+    // Free the world-clock globe's FBO + day/night/cloud textures now that the
+    // picker is closed (the globe only renders while mPs3TzActive, gated at the
+    // renderTimezoneGlobe call site, so nothing samples these once it is false).
+    // ps3globe re-inits lazily (2-frame warm-up) the next time the picker opens.
+    // Reclaims ~3MB that otherwise stayed resident forever after the first open.
+    if (ps3globe::ready()) ps3globe::shutdown();
     // Snap the menu animation to settled so the item list draws immediately when
     // the globe was open across an mEffectTime wrap (defensive; the wrap guards in
     // renderPs3Xmb already handle the math).

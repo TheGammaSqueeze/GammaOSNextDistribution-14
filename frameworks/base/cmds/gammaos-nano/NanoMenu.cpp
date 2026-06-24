@@ -3265,6 +3265,15 @@ if (sRingPrimedCount >= 2) {
                     munlockall();
                     mOverlayPagesLocked = false;
                     ALOGW("NanoMenu: overlay parked -- munlockall (idle pages reclaimable)");
+                    // Hand GPU memory back to the foreground game too (GPU pages are
+                    // not swappable, so munlockall alone does not reclaim them). The
+                    // GL context is current on this render thread. Both are rebuilt
+                    // lazily/at next raise, spread by their own demand paths (never a
+                    // synchronous stall here): the 21MB wave keyframe VBO (rebuilt on
+                    // the next live home frame) and the baked overlay backdrop (re-
+                    // captured by overlayShow on every raise).
+                    ps3bg::freeWaveSeq();
+                    if (mOverlayBgTex) { glDeleteTextures(1, &mOverlayBgTex); mOverlayBgTex = 0; }
                 }
                 // Hidden overlay: block on the show_overlay trigger instead of
                 // spin-polling at 30Hz. A spin-poll wakes this thread 30x/sec

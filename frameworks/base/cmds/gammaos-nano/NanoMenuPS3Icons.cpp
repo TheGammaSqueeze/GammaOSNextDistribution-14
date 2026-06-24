@@ -576,6 +576,22 @@ GLuint NanoMenu::nmapForIcon(int iconIndex) {
 // GL texture (R=nx, G=ny, B=255, A=original silhouette), 0 on failure.
 GLuint NanoMenu::bevelFromRGBA(const uint8_t* px, int w, int h) {
     if (!px || w < 4 || h < 4) return 0;
+    // Right-size to the panel before generating the bevel. The bevel is a smooth,
+    // low-frequency relight field drawn at the console-icon size, so a 256 source
+    // is oversized on a small panel; this both shrinks the GPU texture and speeds
+    // up the (scalar) blur. High-DPI panels keep the full source resolution.
+    std::vector<uint8_t> capped;
+    {
+        int cap = ps3::iconTexCap(mWidth, mHeight, ps3::ITEM_ICON_SIZE, w > h ? w : h);
+        if (cap > 0 && (w > cap || h > cap)) {
+            int dw = w, dh = h;
+            if (w >= h) { dw = cap; dh = (int)((long)h * cap / w); }
+            else        { dh = cap; dw = (int)((long)w * cap / h); }
+            if (dw < 4) dw = 4; if (dh < 4) dh = 4;
+            artDownscaleRGBA(px, w, h, dw, dh, capped);
+            px = capped.data(); w = dw; h = dh;
+        }
+    }
     int N = w * h;
     std::vector<float> bufA((size_t)N), bufB((size_t)N), tmp((size_t)N);
     for (int i = 0; i < N; i++) bufA[(size_t)i] = px[(size_t)i * 4 + 3] / 255.0f;

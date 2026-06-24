@@ -757,6 +757,19 @@ bool ready() { return sReady; }
 
 GLuint workTex() { return sWorkTex; }
 void setScrimWaveFreeze(bool on) { sScrimFreeze = on; sScrimEpoch++; }
+
+// Free ONLY the 21MB keyframe VBO (sWaveSeqVBO) and mark the sequence not-ready,
+// leaving the rest of ps3bg intact (gradient, work texture, shaders). Called when
+// the overlay parks behind a game: the wave is not drawn while parked, so this
+// hands ~21MB of GPU memory back to the foreground app. render() rebuilds it
+// lazily (loadWaveSeq) the next time a live, unfrozen home frame is drawn. Safe to
+// call repeatedly. Does NOT clear sReady, so render() stays initialised and simply
+// skips the wave-draw block (guarded on sSeqReady && sWaveSeqVBO) until rebuilt.
+void freeWaveSeq() {
+    if (sWaveSeqVBO) { glDeleteBuffers(1, &sWaveSeqVBO); sWaveSeqVBO = 0; }
+    sSeqReady = false;
+    sSeqCount = 0;
+}
 void invalidateScrimWave() { sScrimEpoch++; }
 
 // Cold-boot wave brightness on uFade (1.0 = steady; the intro ramps 0->1).
@@ -1037,6 +1050,13 @@ void render(int panelW, int panelH, float dt, const float rotMat2[4], bool /*rot
     glBindTexture(GL_TEXTURE_2D, sGradTex);
     glUniform1i(sBlitTex, 0);
     drawFullQuad(sBlitPos, sBlitUV);
+
+    // Lazy rebuild of the 21MB keyframe VBO if it was freed while the overlay was
+    // parked behind a game (freeWaveSeq). This point is only reached on a live,
+    // UNfrozen frame (the scrim-freeze early-return above bails first), so the
+    // one-time reload lands on the real home/wallpaper where the wave is actually
+    // drawn - never while parked or while the overlay sits frozen over a game.
+    if (sWaveGeoReady && !sSeqReady) loadWaveSeq();
 
     if (sWaveGeoReady && sSeqReady && sWaveSeqVBO) {
         glUseProgram(sWaveProg);
