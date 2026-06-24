@@ -327,6 +327,19 @@ void NanoMenu::overlayShow() {
         return;
     }
 
+    // We deliberately do NOT mlockall() here on raise. The overlay's pages were released
+    // by munlockall() while it was parked behind a running app (see threadLoop) so the game
+    // could use that ~122MB. Re-locking here called mlockall(MCL_CURRENT), which faulted all
+    // ~122MB back from zram SYNCHRONOUSLY on the render thread; over a live app (which must
+    // be swapped out to make room) that stalled the render loop past the render watchdog ->
+    // SIGABRT -> the overlay crashed and respawned, so it could never be shown or dismissed
+    // (the reported "overlay won't dismiss" bug). Instead let the pages demand-fault from
+    // zram (fast, lz4) as the overlay renders, spread across frames so the heartbeat keeps
+    // ticking. The original mlockall (still unconditional at threadLoop, and active for the
+    // DRM cold-boot home) guarded glyph faults off the SLOW lz4 EROFS system image; the
+    // overlay's pages live in fast zram after parking, so demand-faulting them carries none
+    // of that EROFS thrash/OOM risk.
+
     // The offscreen wave is frozen (rendered once, reused as the glass-icon
     // refraction source). We deliberately do NOT invalidate it on each show: the
     // overlay frees its 21MB of wave keyframes after the first bake (to give a
@@ -447,6 +460,8 @@ void NanoMenu::overlayShow() {
     if (!mOverlayWallpaper && quickIdx < (int)mPs3Cats.size()) {
         mPs3Stack.clear();
         mPs3DlgActive = false; mPs3BrightSlider = false;
+        mMenuState = MENU_MAIN;   // start each scrim raise at a clean top-level menu state;
+                                  // a stale MENU_APPS/RECENT here used to block Back-to-dismiss
         mPs3CatIdx  = quickIdx;
         mPs3ItemIdx = 0;
         mPs3CatItemSel[mPs3CatIdx] = 0;
@@ -508,8 +523,17 @@ void NanoMenu::overlayHide() {
 }
 
 bool NanoMenu::overlayAtTopLevel() const {
+    // Back dismisses the overlay (resumes the running app) when it is at a bare top-level
+    // XMB category with no submenu/modal open. The sub-screen states (Settings/WiFi/BT) are
+    // already diverted by handleBack() before ps3XmbBack(), and the setup wizard is guarded
+    // by mPs3WizActive, so the only menu states that reach here are the top-level category
+    // states MAIN / RECENT / APPS - all of which must dismiss on Back (categories are moved
+    // through with Left/Right, not Back). Requiring exactly MENU_MAIN was the dismiss bug: a
+    // stale/navigated MENU_APPS left Back doing nothing over a live game
+    // (overlay-back-diag showed menuState=2 stack=0 atTop=0).
     return mOverlayMode && mPs3Stack.empty() && !mPs3DlgActive &&
-           !mPs3WizActive && !mPs3TzActive && mMenuState == MENU_MAIN;
+           !mPs3WizActive && !mPs3TzActive &&
+           (mMenuState == MENU_MAIN || mMenuState == MENU_RECENT || mMenuState == MENU_APPS);
 }
 
 void NanoMenu::overlayResume() {

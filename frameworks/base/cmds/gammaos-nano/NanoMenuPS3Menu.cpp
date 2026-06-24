@@ -2556,6 +2556,15 @@ void NanoMenu::ps3XmbSelect() {
 }
 
 void NanoMenu::ps3XmbBack() {
+    // GammaOS Nano diag: trace why the overlay does not dismiss on Back over a live app.
+    if (mOverlayMode) {
+        ALOGW("overlay-back-diag: menuState=%d stack=%zu dlg=%d opt=%d wiz=%d tz=%d lang=%d "
+              "vid=%d mp=%d pv=%d bright=%d gsearch=%d atTop=%d",
+              (int)mMenuState, mPs3Stack.size(), (int)mPs3DlgActive, (int)mPs3OptActive,
+              (int)mPs3WizActive, (int)mPs3TzActive, (int)mPs3LangActive, (int)mVidActive,
+              (int)mMpActive, (int)mPvActive, (int)mPs3BrightSlider, (int)mGSearchActive,
+              (int)overlayAtTopLevel());
+    }
     if (mGSearchActive) { gsearchClose(); return; }   // close the global search overlay
     if (mVidActive) {   // video player: cascade Go To -> Scene Search -> submenu -> panel -> close
         if (mVidOpenInProgress.load(std::memory_order_relaxed)) {   // opening: Back cancels the in-flight open

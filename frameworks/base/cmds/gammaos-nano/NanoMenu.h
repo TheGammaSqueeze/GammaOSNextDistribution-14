@@ -606,6 +606,9 @@ private:
     // sys.gammaos.nano.show_overlay (set by PhoneWindowManager on power-hold).
     bool mOverlayMode = false;        // this process is the overlay instance
     bool mOverlayShown = false;       // overlay layer is currently visible + grabbing input
+    bool mOverlayPagesLocked = true;  // overlay RSS pinned by the startup mlockall; released by
+                                      // munlockall once parked behind an app, then left reclaimable
+                                      // (demand-faults from zram on raise; NOT re-locked - see overlayShow)
     // OSK-over-app: an app (GammaBrowser web fields) requests nano's lightweight OSK
     // because the framework leanback IME (~130MB) gets OOM-killed on this 1GB device
     // under a heavy WebView. We raise the overlay in an OSK-only mode and hand the

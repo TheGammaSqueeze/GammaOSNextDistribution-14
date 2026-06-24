@@ -3253,6 +3253,19 @@ if (sRingPrimedCount >= 2) {
             if (!mOverlayInited) overlayInitLayer();
             overlayPoll();
             if (!mOverlayShown) {
+                // Parked behind a foreground app: the overlay renders nothing here, so
+                // release its mlockall pin (~122MB) and let those idle pages swap to zram
+                // for the running game (this is the single biggest RAM lever for in-game
+                // stutter). Re-locked in overlayShow() BEFORE the overlay draws again, so
+                // the visible home/OSK keep the no-glyph-fault guarantee. Latched so it
+                // runs once per park transition, not on every 250ms wait wakeup. Does NOT
+                // touch the wake path: overlayPoll() above still runs each tick and the
+                // property-wait below still fires the instant power-hold flips the trigger.
+                if (mOverlayPagesLocked) {
+                    munlockall();
+                    mOverlayPagesLocked = false;
+                    ALOGW("NanoMenu: overlay parked -- munlockall (idle pages reclaimable)");
+                }
                 // Hidden overlay: block on the show_overlay trigger instead of
                 // spin-polling at 30Hz. A spin-poll wakes this thread 30x/sec
                 // even with nothing to do, and while a 3D game is foreground
