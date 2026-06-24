@@ -1997,6 +1997,13 @@ public final class ProcessList {
 
             app.setGids(gids);
             app.setRequiredAbi(requiredAbi);
+            if (requiredAbi != null && !VMRuntime.is64BitAbi(requiredAbi)) {
+                // A 32-bit proc is launching: cancel any pending secondary-zygote reap so it
+                // cannot stop the daemon this fork is about to use. The on-demand start itself
+                // happens in ZygoteProcess.ensureSecondaryZygoteStarted during the async fork.
+                mService.mHandler.removeMessages(
+                        ActivityManagerService.MAYBE_STOP_SECONDARY_ZYGOTE_MSG);
+            }
             app.setInstructionSet(instructionSet);
 
             // If this was an external service, the package name and uid in the passed in
@@ -3466,6 +3473,26 @@ public final class ProcessList {
      * Call updateTimePrefs on all LRU processes
      * @param timePref The time pref to pass to each process
      */
+    // Count live 32-bit app processes (forked from zygote_secondary), excluding `exclude`
+    // (the process currently dying). Isolated/sdk-sandbox 32-bit procs ARE counted: on a
+    // zygote64_32 device they are also served by zygote_secondary, so reaping while one is
+    // alive would orphan its zygote parent. A null requiredAbi is only seen pre-attach and is
+    // treated as non-32-bit. Allocation-free.
+    @GuardedBy(anyOf = {"mService", "mProcLock"})
+    int countLive32BitProcsLOSP(ProcessRecord exclude) {
+        int n = 0;
+        for (int i = mLruProcesses.size() - 1; i >= 0; i--) {
+            ProcessRecord r = mLruProcesses.get(i);
+            if (r == exclude) continue;
+            if (r.getThread() == null) continue;     // not attached / already gone
+            if (r.isKilled()) continue;
+            final String abi = r.getRequiredAbi();
+            if (abi == null) continue;               // pre-attach -> treat as non-32-bit
+            if (!VMRuntime.is64BitAbi(abi)) n++;      // 32-bit
+        }
+        return n;
+    }
+
     @GuardedBy(anyOf = {"mService", "mProcLock"})
     void updateAllTimePrefsLOSP(int timePref) {
         for (int i = mLruProcesses.size() - 1; i >= 0; i--) {

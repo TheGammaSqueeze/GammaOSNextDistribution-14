@@ -755,6 +755,9 @@ userdebug_or_eng(`set_prop(system_server, system_user_mode_emulation_prop)')
 # ctl interface
 set_prop(system_server, ctl_default_prop)
 set_prop(system_server, ctl_bugreport_prop)
+# GammaOS lazy 32-bit zygote: AMS/ZygoteProcess start and reap zygote_secondary on demand.
+set_prop(system_server, ctl_start_prop)
+set_prop(system_server, ctl_stop_prop)
 set_prop(system_server, ctl_gsid_prop)
 
 # cppreopt property

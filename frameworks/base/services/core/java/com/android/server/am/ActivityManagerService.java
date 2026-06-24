@@ -1716,6 +1716,11 @@ public class ActivityManagerService extends IActivityManager.Stub
     static final int BIND_APPLICATION_TIMEOUT_HARD_MSG = 83;
     static final int SERVICE_FGS_TIMEOUT_MSG = 84;
     static final int SERVICE_FGS_ANR_TIMEOUT_MSG = 85;
+    // GammaOS lazy 32-bit zygote: debounced reap of zygote_secondary after the last 32-bit
+    // app process dies (absorbs back-to-back relaunches so we do not pay the lazy-preload
+    // restart cost repeatedly).
+    static final int MAYBE_STOP_SECONDARY_ZYGOTE_MSG = 86;
+    static final long SECONDARY_ZYGOTE_REAP_DELAY_MS = 15000;
 
     static final int FIRST_BROADCAST_QUEUE_MSG = 200;
 
@@ -1896,6 +1901,18 @@ public class ActivityManagerService extends IActivityManager.Stub
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
+            case MAYBE_STOP_SECONDARY_ZYGOTE_MSG: {
+                synchronized (ActivityManagerService.this) {
+                    if (mProcessList.countLive32BitProcsLOSP(null) == 0) {
+                        Slog.i(TAG, "lazy32: no 32-bit procs left, reaping zygote_secondary");
+                        // Issued under `this` so a concurrent 32-bit startProcessLocked (which
+                        // also needs `this`) cannot fork off the daemon between the check and
+                        // the stop. stopSecondaryZygote takes only ZygoteProcess.mLock; the
+                        // this -> mLock order is safe (no path holds mLock then takes `this`).
+                        Process.ZYGOTE_PROCESS.stopSecondaryZygote();
+                    }
+                }
+            } break;
             case GC_BACKGROUND_PROCESSES_MSG: {
                 synchronized (ActivityManagerService.this) {
                     mAppProfiler.performAppGcsIfAppropriateLocked();
@@ -3441,6 +3458,21 @@ public class ActivityManagerService extends IActivityManager.Stub
         }
     }
 
+    // GammaOS lazy 32-bit zygote: if the dying process was the last live 32-bit app,
+    // schedule a debounced reap of zygote_secondary. Gated on persist.gammaos.lazy32 and
+    // ro.zygote.disable_secondary=1 so a normally-configured device is untouched. Called
+    // under `this`, which satisfies the LOSP count guard.
+    @GuardedBy("this")
+    void maybeScheduleSecondaryZygoteReap(ProcessRecord dyingApp) {
+        if (!SystemProperties.getBoolean("persist.gammaos.lazy32", false)) return;
+        if (!"1".equals(SystemProperties.get("ro.zygote.disable_secondary", "0"))) return;
+        if (mProcessList.countLive32BitProcsLOSP(dyingApp) == 0) {
+            mHandler.removeMessages(MAYBE_STOP_SECONDARY_ZYGOTE_MSG);
+            mHandler.sendEmptyMessageDelayed(MAYBE_STOP_SECONDARY_ZYGOTE_MSG,
+                    SECONDARY_ZYGOTE_REAP_DELAY_MS);
+        }
+    }
+
     /**
      * Main function for removing an existing process from the activity manager
      * as a result of that process going away.  Clears out all connections
@@ -3508,6 +3540,15 @@ public class ActivityManagerService extends IActivityManager.Stub
                 ProcessList.remove(pid);
             }
         }
+
+        // GammaOS lazy 32-bit zygote: a 32-bit app process just died; if it was the last
+        // one, schedule the debounced reap of zygote_secondary.
+        try {
+            final String dabi = app.getRequiredAbi();
+            if (dabi != null && !VMRuntime.is64BitAbi(dabi)) {
+                maybeScheduleSecondaryZygoteReap(app);
+            }
+        } catch (Exception ignore) { }
 
         mAppProfiler.onAppDiedLocked(app);
 

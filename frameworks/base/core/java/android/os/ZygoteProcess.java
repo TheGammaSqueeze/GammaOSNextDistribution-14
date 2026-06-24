@@ -81,6 +81,15 @@ public class ZygoteProcess {
 
     private static final String LOG_TAG = "ZygoteProcess";
 
+    // Lazy secondary (32-bit) zygote: with ro.zygote.disable_secondary=1 init keeps it
+    // disabled at boot to save RAM on 1GB devices; it is started on the first 32-bit fork.
+    // Bounded so a stuck start fails like a normal connect miss. The fork runs on AMS
+    // mProcStartHandler (FLAG_PROCESS_START_ASYNC), which is NOT Watchdog-monitored and holds
+    // no AM lock, so a multi-second block here is safe; the budget covers
+    // --enable-lazy-preload on the first fork.
+    private static final int ZYGOTE_SECONDARY_LAZY_START_TIMEOUT_MS = 20000;
+    private static final int ZYGOTE_SECONDARY_LAZY_START_POLL_MS = 50;
+
     /**
      * The name of the socket used to communicate with the primary zygote.
      */
@@ -839,6 +848,23 @@ public class ZygoteProcess {
     }
 
     /**
+     * Stops the lazy secondary (32-bit) zygote to reclaim memory and invalidates the cached
+     * connection so the next 32-bit fork lazily restarts it via
+     * attemptConnectionToSecondaryZygote(). Safe to call when it is not running. Touches state
+     * only under mLock; never calls back into the caller's locks.
+     */
+    public void stopSecondaryZygote() {
+        synchronized (mLock) {
+            if (secondaryZygoteState != null) {
+                secondaryZygoteState.close();   // drop our session socket
+                secondaryZygoteState = null;    // force reconnect + restart on next fork
+            }
+            Slog.i(LOG_TAG, "Stopping secondary (32-bit) zygote to reclaim memory");
+            SystemProperties.set("ctl.stop", "zygote_secondary");
+        }
+    }
+
+    /**
      * Tries to establish a connection to the zygote that handles a given {@code abi}. Might block
      * and retry if the zygote is unresponsive. This method is a no-op if a connection is
      * already open.
@@ -1060,12 +1086,59 @@ public class ZygoteProcess {
     @GuardedBy("mLock")
     private void attemptConnectionToSecondaryZygote() throws IOException {
         if (secondaryZygoteState == null || secondaryZygoteState.isClosed()) {
+            ensureSecondaryZygoteStarted();
             secondaryZygoteState =
                     ZygoteState.connect(mZygoteSecondarySocketAddress,
                             mUsapPoolSecondarySocketAddress);
 
             maybeSetApiDenylistExemptions(secondaryZygoteState, false);
             maybeSetHiddenApiAccessLogSampleRate(secondaryZygoteState);
+        }
+    }
+
+    // Bring up the lazy secondary (32-bit) zygote and block until its socket accepts a
+    // connection. No-op when it is already up. Socket acceptance (not init.svc=running) is
+    // the readiness signal because the socket binds slightly after the service forks.
+    @GuardedBy("mLock")
+    private void ensureSecondaryZygoteStarted() throws IOException {
+        if (isSecondaryZygoteRunning()) {
+            return;
+        }
+        Slog.i(LOG_TAG, "Secondary (32-bit) zygote not running; starting on demand");
+        SystemProperties.set("ctl.start", "zygote_secondary");
+        final long deadline =
+                SystemClock.uptimeMillis() + ZYGOTE_SECONDARY_LAZY_START_TIMEOUT_MS;
+        while (true) {
+            if (isSecondaryZygoteRunning()) {
+                Slog.i(LOG_TAG, "Secondary zygote ready");
+                return;
+            }
+            if (SystemClock.uptimeMillis() >= deadline) {
+                throw new IOException("Timed out ("
+                        + ZYGOTE_SECONDARY_LAZY_START_TIMEOUT_MS
+                        + "ms) starting secondary zygote; init.svc.zygote_secondary="
+                        + SystemProperties.get("init.svc.zygote_secondary", "<unset>"));
+            }
+            try {
+                Thread.sleep(ZYGOTE_SECONDARY_LAZY_START_POLL_MS);
+            } catch (InterruptedException ignored) {
+                Thread.currentThread().interrupt();
+            }
+        }
+    }
+
+    // True iff a fresh probe session socket to the secondary zygote connects right now. The
+    // probe is closed immediately; the zygote accept()s, sees EOF, and discards the empty
+    // session with no fork. try/finally so the probe fd never leaks on the success path.
+    private boolean isSecondaryZygoteRunning() {
+        final LocalSocket probe = new LocalSocket();
+        try {
+            probe.connect(mZygoteSecondarySocketAddress);
+            return true;
+        } catch (IOException ex) {
+            return false;
+        } finally {
+            try { probe.close(); } catch (IOException ignore) { }
         }
     }
 

@@ -45,13 +45,19 @@ PRODUCT_SYSTEM_PROPERTIES += \
 
 # Zygote arch. ZYGOTE_FORCE_64 keeps the FLEET DEFAULT 64-bit-only (saves ~105MB by
 # not forking the 32-bit zygote) for any device that does not set its own ro.zygote.
-# A device opts back into 32-bit app support (armeabi-v7a) by shipping
-# ro.zygote=zygote64_32 in its vendor build.prop (e.g. the TrimUI Brick).
-# GammaOS: the global ro.zygote.disable_secondary=1 is REMOVED - it force-stopped the
-# 32-bit zygote on EVERY device and overrode the per-device vendor choice. Without it, a
-# zygote64_32 vendor actually starts the secondary; zygote64 vendors stay 64-only.
+# A device opts into 32-bit app support (armeabi-v7a) by shipping ro.zygote=zygote64_32
+# in its vendor build.prop (e.g. the TrimUI Brick).
+# GammaOS LAZY 32-bit zygote: keep ro.zygote.disable_secondary=1 so init does NOT auto-start
+# the 32-bit secondary at boot (no ~105MB cost on devices that never run a 32-bit app);
+# instead ZygoteProcess starts it on the first 32-bit app fork and AMS reaps it (gated by
+# persist.gammaos.lazy32) ~15s after the last 32-bit app exits. disable_secondary is read
+# only on the boot-enable triggers and ZygoteProcess.bootCompleted/waitForConnection, NOT on
+# the fork path, so on-demand forking still works. A zygote64_32 vendor (the Brick) thus gets
+# dynamic 32-bit support; zygote64 vendors have no secondary so these props are no-ops.
 ZYGOTE_FORCE_64 := true
-# PRODUCT_SYSTEM_PROPERTIES += ro.zygote.disable_secondary=1
+PRODUCT_SYSTEM_PROPERTIES += \
+    ro.zygote.disable_secondary=1 \
+    persist.gammaos.lazy32=1
 
 # Remove packages not needed on low-RAM ATV devices.
 PRODUCT_REMOVE_PACKAGES += \
