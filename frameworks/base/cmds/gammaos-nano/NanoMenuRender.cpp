@@ -675,11 +675,34 @@ void NanoMenu::drawTriangle(float x0, float y0, float x1, float y1,
 // which is why the frosted glass never appeared on rotated panels like the
 // 180-degree Brick). drawFrostedGlass maps each panel vertex into FB-NDC via
 // sDrmRotMat so it samples the correct screen region behind the panel.
+// Free the glass-blur scratch buffers (downsample pyramid + Gaussian ping-pong +
+// the full-screen capture snapshot). These are pure scratch: the overlay bakes its
+// backdrop once into mOverlayBgTex and samples only that, so while parked behind a
+// game none of this is needed. All paths re-allocate lazily (ensureFbo on tex==0,
+// captureGlass gen-on-zero), so this is safe to call on the park transition and the
+// next blur/capture rebuilds transparently.
+void NanoMenu::freeGlassScratch() {
+    for (int i = 0; i < 4; i++) {
+        if (mGlassDownTex[i]) { glDeleteTextures(1, &mGlassDownTex[i]); mGlassDownTex[i] = 0; }
+        if (mGlassFbo[i])     { glDeleteFramebuffers(1, &mGlassFbo[i]); mGlassFbo[i] = 0; }
+        mGlassDownW[i] = mGlassDownH[i] = 0;
+    }
+    for (int i = 0; i < 2; i++) {
+        if (mGlassGaussTex[i]) { glDeleteTextures(1, &mGlassGaussTex[i]); mGlassGaussTex[i] = 0; }
+        if (mGlassGaussFbo[i]) { glDeleteFramebuffers(1, &mGlassGaussFbo[i]); mGlassGaussFbo[i] = 0; }
+        mGlassGaussW[i] = mGlassGaussH[i] = 0;
+    }
+    mGlassBlurTex = 0;
+    if (mGlassTex) { glDeleteTextures(1, &mGlassTex); mGlassTex = 0; mGlassTexW = mGlassTexH = 0; }
+}
+
 bool NanoMenu::captureGlass(float /*x*/, float /*y*/, float /*w*/, float /*h*/) {
     GLint vp[4] = {0, 0, 0, 0};
     glGetIntegerv(GL_VIEWPORT, vp);
     int fbX = vp[0], fbY = vp[1], fbW = vp[2], fbH = vp[3];
     if (fbW <= 0 || fbH <= 0) return false;
+    // Self-heal if the snapshot texture was freed while parked (freeGlassScratch).
+    if (mGlassTex == 0) { glGenTextures(1, &mGlassTex); mGlassTexW = mGlassTexH = 0; }
     glBindTexture(GL_TEXTURE_2D, mGlassTex);
     if (mGlassTexW != fbW || mGlassTexH != fbH) {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, fbW, fbH, 0,
@@ -1021,10 +1044,22 @@ void NanoMenu::initFonts() {
     // RGB=255/A=coverage, so when a mip level averages a glyph edge against the
     // gutter the RGB stays 255 and only the coverage falls off -> no dark fringe
     // on minified text (the text shader multiplies texel.rgb * colour).
-    std::vector<uint8_t> blank(mAtlasW * mAtlasH * 4, 255);
-    for (size_t i = 3; i < blank.size(); i += 4) blank[i] = 0;
+    // Allocate the atlas, then clear it to white-transparent (RGB=255, A=0) in
+    // horizontal strips. Uploading strips from a small reusable buffer caps the
+    // transient CPU allocation at ~1 MB instead of the full mAtlasW*mAtlasH*4
+    // (8 MB) one-shot vector, which avoids an 8 MB heap high-water spike at init.
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, mAtlasW, mAtlasH, 0,
-                 GL_RGBA, GL_UNSIGNED_BYTE, blank.data());
+                 GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+    {
+        const int stripRows = 256;
+        std::vector<uint8_t> strip((size_t)mAtlasW * stripRows * 4, 255);
+        for (size_t i = 3; i < strip.size(); i += 4) strip[i] = 0;
+        for (int y = 0; y < mAtlasH; y += stripRows) {
+            int rows = (y + stripRows <= mAtlasH) ? stripRows : (mAtlasH - y);
+            glTexSubImage2D(GL_TEXTURE_2D, 0, 0, y, mAtlasW, rows,
+                            GL_RGBA, GL_UNSIGNED_BYTE, strip.data());
+        }
+    }
     // No mip chain: MIN_FILTER is GL_LINEAR (level 0 only), so the texture is
     // complete without one.
     ALOGD("NanoMenu: font atlas %dx%d, %d faces loaded", mAtlasW, mAtlasH, mFtNumFaces);

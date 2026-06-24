@@ -2856,6 +2856,7 @@ private:
     // Snapshot the framebuffer region [x,y,w,h] (logical px) into mGlassTex.
     // Returns false if capture is unavailable (e.g. active DRM GL rotation).
     bool captureGlass(float x, float y, float w, float h);
+    void freeGlassScratch();   // release glass-blur scratch buffers (parked overlay)
     // Draw a frosted-glass panel over the captured region (call captureGlass
     // first with the same rect). tint rgb darkens; tintA = panel opacity.
     void drawFrostedGlass(float x, float y, float w, float h, float radius,

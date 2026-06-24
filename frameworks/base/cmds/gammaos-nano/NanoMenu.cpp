@@ -3274,6 +3274,7 @@ if (sRingPrimedCount >= 2) {
                     // captured by overlayShow on every raise).
                     ps3bg::freeWaveSeq();
                     if (mOverlayBgTex) { glDeleteTextures(1, &mOverlayBgTex); mOverlayBgTex = 0; }
+                    freeGlassScratch();
                 }
                 // Hidden overlay: block on the show_overlay trigger instead of
                 // spin-polling at 30Hz. A spin-poll wakes this thread 30x/sec
