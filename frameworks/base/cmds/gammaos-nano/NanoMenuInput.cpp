@@ -33,6 +33,7 @@
 #include <errno.h>
 
 #include <linux/input.h>
+#include <sys/epoll.h>
 #include <sys/inotify.h>
 #include <sys/ioctl.h>
 #include <sys/stat.h>
@@ -855,17 +856,49 @@ bool NanoMenu::enterDrmSleep() {
     bool asleep = true;
     int64_t sleepStart = android::uptimeMillis();
     int mpDoneTicks = 0;   // consecutive polls with the queue finished (debounce)
+    // Held the moment a wake is detected and released only after the panel is
+    // relit, so the SoC cannot re-suspend in the gap between the power-button
+    // wake and the framework taking over the display. Without this the device
+    // wakes, nothing holds a wakelock, and SystemSuspend re-suspends within ~2s -
+    // so the user has to press power several times over ~30s to win the handoff.
+    // nano grabs the power key at the home (the framework never sees it), so this
+    // bridge is on nano; the in-app path is the framework's and is unaffected.
+    bool wokeWakelock = false;
+    auto holdWakeWakelock = [&]() {
+        if (wokeWakelock) return;
+        int wl = open("/sys/power/wake_lock", O_WRONLY | O_CLOEXEC);
+        if (wl >= 0) { ssize_t n = write(wl, "nano_wake", 9); (void)n; close(wl); }
+        wokeWakelock = true;
+    };
+    // Wait for the wake source with EPOLLWAKEUP. The framework EventHub reads
+    // input exactly this way, which is WHY in-app wake is reliable on the first
+    // press: with EPOLLWAKEUP the kernel holds a wakeup source from the instant
+    // an input event is queued, through the epoll_wait that returns it, until
+    // the next epoll_wait - so the SoC cannot re-suspend before this (frozen)
+    // thread is scheduled to read the event. nano EVIOCGRABs the devices and
+    // used to wait with a plain poll(), which has NO such guarantee: the power
+    // press woke the kernel for ~2s, but if this thread wasn't scheduled in that
+    // window the system re-suspended with the event still buffered, so the first
+    // press (or two) was lost and the user had to mash power 3+ times. nano runs
+    // as root so it has CAP_BLOCK_SUSPEND, the capability EPOLLWAKEUP requires.
+    int wakeEpoll = epoll_create1(EPOLL_CLOEXEC);
+    if (wakeEpoll >= 0) {
+        for (int fd : mInputFds) {
+            if (fd < 0) continue;
+            struct epoll_event ev = {};
+            ev.events = EPOLLIN | EPOLLWAKEUP;
+            ev.data.fd = fd;
+            epoll_ctl(wakeEpoll, EPOLL_CTL_ADD, fd, &ev);
+        }
+    } else {
+        ALOGE("NanoMenu: epoll_create1 failed (errno %d) - wake may need extra presses", errno);
+    }
     while (asleep) {
         // Block on the input fds so the CPU can idle / suspend (a busy poll
         // would keep it awake and defeat the suspend). With PowerManager
         // engaged, block indefinitely: the system suspends and this thread
         // freezes here until a wake source fires. Otherwise cap the wait at
         // the remaining 60s budget.
-        struct pollfd pfds[16];
-        int nf = 0;
-        for (int fd : mInputFds) {
-            if (fd >= 0 && nf < 16) { pfds[nf].fd = fd; pfds[nf].events = POLLIN; nf++; }
-        }
         int timeoutMs = -1;
         if (keepAudio) {
             timeoutMs = 1000;   // wake periodically to auto-advance the track
@@ -873,13 +906,26 @@ bool NanoMenu::enterDrmSleep() {
             int64_t left = 60000 - (android::uptimeMillis() - sleepStart);
             if (left <= 0) {
                 ALOGI("NanoMenu: sleep timeout, shutting down");
+                if (wakeEpoll >= 0) close(wakeEpoll);
                 prepareShutdown("shutdown");
                 mInDrmSleep.store(false, std::memory_order_relaxed);
                 return false;
             }
             timeoutMs = (int)left;
         }
-        poll(pfds, nf, timeoutMs);
+        if (wakeEpoll >= 0) {
+            struct epoll_event evs[16];
+            epoll_wait(wakeEpoll, evs, 16, timeoutMs);
+        } else {
+            // Fallback if epoll setup failed: the legacy poll() wait (no
+            // EPOLLWAKEUP, so the multi-press hazard above can recur).
+            struct pollfd pfds[16];
+            int nf = 0;
+            for (int fd : mInputFds) {
+                if (fd >= 0 && nf < 16) { pfds[nf].fd = fd; pfds[nf].events = POLLIN; nf++; }
+            }
+            poll(pfds, nf, timeoutMs);
+        }
         struct input_event wake;
         for (int wfd : mInputFds) {
             while (read(wfd, &wake, sizeof(wake)) == sizeof(wake)) {
@@ -898,6 +944,9 @@ bool NanoMenu::enterDrmSleep() {
                 }
             }
         }
+        // Woke: pin the SoC up immediately so it cannot re-suspend before the
+        // wake handling below relights the panel and the framework takes over.
+        if (!asleep) holdWakeWakelock();
         // Keep the album playing through track changes while the screen is off
         // (audio-only, no GL touched). Mirrors musicTick's auto-advance + the
         // mMpAdvancing gate (async open keeps ended() true until the next track loads).
@@ -926,6 +975,9 @@ bool NanoMenu::enterDrmSleep() {
             mpDoneTicks = 0;
         }
     }
+    // Drop the EPOLLWAKEUP source now that we own the wake (holdWakeWakelock took
+    // an explicit nano_wake wakelock above to bridge the relight below).
+    if (wakeEpoll >= 0) { close(wakeEpoll); wakeEpoll = -1; }
     // Woke. We always drove framework standby (dosleep) when boot_completed, so wake
     // PowerManager via an injected KEYCODE_WAKEUP (it never saw the wake source, so it
     // will not auto-wake). Release the music wakelock LAST - after dowake - so the SoC
@@ -964,6 +1016,53 @@ bool NanoMenu::enterDrmSleep() {
     }
     property_set("sys.gammaos.nano.screenoff", "0");
     nanoRestorePerfClock();   // restore the user's performance mode (was powersave while off)
+    // Hold nano_wake until the framework actually owns wakefulness. The wake key
+    // is injected via `input keyevent 224` -> app_process, which on a low-RAM
+    // device (1GB Brick) can take SECONDS to cold-start, deliver KEYCODE_WAKEUP
+    // and have PowerManager wake the display. PowerManagerService sets
+    // sys.screen.state=on exactly when it turns the display on and holds its
+    // display suspend-blocker. Releasing nano_wake after a fixed delay let the
+    // SoC re-suspend in that gap (kernel trace: "PM: suspend entry" at the same
+    // instant as "woke up", then a press/re-suspend ping-pong on event0), so the
+    // user had to mash power. nano_wake (a kernel wakelock) blocks BOTH the
+    // framework SystemSuspend AND the vendor forced-suspend handshake, so keep it
+    // until sys.screen.state=on, re-injecting the wake key once if it stalls, with
+    // a hard cap so a truly stuck framework can't pin the render thread forever.
+    if (pmSleep && wokeWakelock) {
+        const int64_t waitStart = android::uptimeMillis();
+        const int64_t maxWaitMs = 8000;
+        bool reinjected = false;
+        char ss[PROP_VALUE_MAX];
+        for (;;) {
+            property_get("sys.screen.state", ss, "off");
+            if (strcmp(ss, "on") == 0) {
+                ALOGI("NanoMenu: framework awake (screen on) after %lldms",
+                      (long long)(android::uptimeMillis() - waitStart));
+                break;
+            }
+            int64_t elapsed = android::uptimeMillis() - waitStart;
+            if (elapsed >= maxWaitMs) {
+                ALOGW("NanoMenu: PowerManager wake unconfirmed after %lldms, releasing wakelock anyway",
+                      (long long)elapsed);
+                break;
+            }
+            if (!reinjected && elapsed >= 2000) {
+                // The first KEYCODE_WAKEUP may have been lost to a re-suspend
+                // before app_process delivered it; retry the injection once.
+                property_set("sys.gammaos.nano.dowake", "1");
+                reinjected = true;
+                ALOGI("NanoMenu: re-injecting KEYCODE_WAKEUP (screen still off after 2s)");
+            }
+            usleep(100000);   // 100ms
+        }
+    }
+    // Framework now holds its own display suspend-blocker (or we hit the cap).
+    // Drop our bridge.
+    if (wokeWakelock) {
+        int wl = open("/sys/power/wake_unlock", O_WRONLY | O_CLOEXEC);
+        if (wl >= 0) { ssize_t n = write(wl, "nano_wake", 9); (void)n; close(wl); }
+        wokeWakelock = false;
+    }
     ALOGI("NanoMenu: woke up");
     mInDrmSleep.store(false, std::memory_order_relaxed);
     return true;
