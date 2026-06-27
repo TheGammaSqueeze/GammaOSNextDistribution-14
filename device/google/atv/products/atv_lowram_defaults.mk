@@ -59,6 +59,20 @@ PRODUCT_SYSTEM_PROPERTIES += \
     ro.zygote.disable_secondary=1 \
     persist.gammaos.lazy32=1
 
+# Keep the zygote USAP (unspecialized app process) pool off. On a device whose ART/mainline
+# apexes are a newer API level than the platform framework (e.g. Anbernic rk3568 RG DS: API-35
+# com.android.art on an API-34 system), the USAP fork-result native code in the ART apex and the
+# framework ZygoteProcess reader disagree by one byte, so the pid returned to system_server comes
+# back shifted left 8 bits (real pid x256). That exceeds pid_max, AMS files every app under a bogus
+# pid, attachApplication is rejected ("No pending application record") and the process dies on the
+# start timeout - no app can start and the device never reaches a usable home. The regular
+# (non-USAP) ZygoteConnection fork path is framework Java that matches the reader, so disabling the
+# pool fixes it. runtime_libart.mk sets dalvik.vm.usap_pool_enabled?=false already, but
+# ZygoteProcess honors the DeviceConfig override, so pin it off here. USAP is only a process-start
+# latency optimization, so off is safe.
+PRODUCT_SYSTEM_PROPERTIES += \
+    persist.device_config.runtime_native.usap_pool_enabled=false
+
 # Remove packages not needed on low-RAM ATV devices.
 PRODUCT_REMOVE_PACKAGES += \
     SecureElement
