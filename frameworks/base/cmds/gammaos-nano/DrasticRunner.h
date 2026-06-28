@@ -317,6 +317,23 @@ public:
     };
     DsMainRam dsMainRam();
 
+    // DS ARM9 Data TCM (16 KB). Some RetroAchievements DS sets read DTCM (the
+    // RetroAchievements address space flattens it to 0x1000000..0x1003FFF).
+    // DraStic keeps it in the same memory-region table as Main RAM: the table
+    // reached at context + 0x35d9930 holds the Main RAM pointer at offset 0 and
+    // the Data TCM pointer at offset 0x18 (the two entries in between are the
+    // ARM9 code TCMs, which hold ARM instructions; the DTCM entry holds the ARM9
+    // stack and fast data, full of 0x02xxxxxx and 0x040000xx addresses, which is
+    // how it was identified). Resolved through the live context pointer like
+    // dsMainRam(), so it survives any re-anchoring of the descriptor block. Only
+    // valid after isFrameReady().
+    struct DsDataTcm {
+        uint8_t* base = nullptr;    // start of the 16 KB Data TCM, null if unresolved
+        uint32_t mask = 0x3FFF;     // 16 KB
+        bool valid() const { return base != nullptr; }
+    };
+    DsDataTcm dsDataTcm();
+
     // The 16-bit emulated-frame counter from the master struct (master + 0x4b0).
     // On the in-process renderDsToOffscreen() path this counter is dead/frozen
     // (reads 0), so the RetroAchievements integration does NOT tick off it; it

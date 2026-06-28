@@ -2171,6 +2171,24 @@ DrasticRunner::DsMainRam DrasticRunner::dsMainRam() {
     return r;
 }
 
+DrasticRunner::DsDataTcm DrasticRunner::dsDataTcm() {
+    DsDataTcm r;
+    if (!mArm64Base) return r;
+    // Same chase as dsMainRam(): master = soBase + 0x14c000; the live context
+    // pointer is *(master). The DS memory-region table is at context + 0x35d9930;
+    // Main RAM is its first entry (offset 0) and Data TCM is the fourth (offset
+    // 0x18). Read through the live context pointer so it survives re-anchoring.
+    uintptr_t master = (uintptr_t)mArm64Base + 0x14c000;
+    uintptr_t ctx = *reinterpret_cast<uintptr_t*>(master);
+    if (!ctx) return r;
+    uintptr_t desc = ctx + 0x35d9930 + 0x18;
+    uint8_t* tcm = *reinterpret_cast<uint8_t**>(desc);
+    if (!tcm) return r;
+    r.base = tcm;
+    r.mask = 0x3FFF;
+    return r;
+}
+
 int DrasticRunner::waitForFrameAfter(int lastCount, int timeoutMs) {
     std::unique_lock<std::mutex> lk(mFrameCvMutex);
     mFrameCv.wait_for(lk, std::chrono::milliseconds(timeoutMs),

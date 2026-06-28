@@ -289,6 +289,12 @@ private:
     uint8_t* mRamBase = nullptr;
     uint32_t mRamMask = 0x3FFFFF;
     uint32_t mRamSize = 0x400000;
+    // DS ARM9 Data TCM (16 KB), the second readable region a DS achievement set
+    // can reference (RetroAchievements flattened address 0x1000000..0x1003FFF).
+    // Resolved alongside Main RAM at game load; null when unresolved, in which
+    // case reads of that region return 0 and rc_client marks them unsupported.
+    uint8_t* mDtcmBase = nullptr;
+    uint32_t mDtcmSize = 0x4000;
 
     // Render-loop vblank tick that drives do_frame at ~60Hz (see onRenderFrame).
     std::atomic<int> mRenderTick{0};

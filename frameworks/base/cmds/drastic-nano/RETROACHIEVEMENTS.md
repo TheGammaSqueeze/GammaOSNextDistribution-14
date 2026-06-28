@@ -42,18 +42,26 @@ All three are implemented in `NanoRetroAchievements.cpp`.
 
 ### Reading memory
 
-RetroAchievements addresses for the Nintendo DS map to the console's 4 MB main System RAM (the work RAM of the DS's primary processor, the ARM9). Drastic stores this as a single contiguous little-endian block directly in memory. Since the DraStic core loads into drastic-nano's own process, `readMemory` accesses it in-process with no inter-process communication:
+RetroAchievements flattens the Nintendo DS address space into the regions its console table defines. drastic-nano backs the two readable ones directly in-process (the DraStic core loads into drastic-nano's own process, so there is no inter-process communication): the 4 MB main System RAM, the work RAM of the DS's primary processor (the ARM9), at flattened address `0x000000..0x3FFFFF`; and the 16 KB ARM9 Data TCM at flattened address `0x1000000..0x1003FFF`. DraStic stores each as a contiguous little-endian block, so `readMemory` only has to select the region and copy:
 
 ```
-if (address >= ram_size) return 0;   // ram_size = 4 MB main RAM
-if (num_bytes > ram_size - address) return 0;
-memcpy(buffer, ram_base + address, num_bytes);
-return num_bytes;
+if (address < main_ram_size) {              // 4 MB main RAM at 0x000000
+    if (num_bytes > main_ram_size - address) return 0;
+    memcpy(buffer, main_ram_base + address, num_bytes);
+    return num_bytes;
+}
+if (address >= 0x1000000 && address < 0x1000000 + dtcm_size) {  // 16 KB Data TCM
+    uint32_t off = address - 0x1000000;
+    if (num_bytes > dtcm_size - off) return 0;
+    memcpy(buffer, dtcm_base + off, num_bytes);
+    return num_bytes;
+}
+return 0;                                    // unbacked address reads as zero
 ```
 
-The read callback resolves the stable `ram_base` pointer once at game load and uses a mask of `0x3FFFFF` for bounds checking. Reads outside the 4 MB main RAM return zero. This is safe: at game load, `rc_client_validate_addresses` runs every achievement and leaderboard's memory references through this same read callback, and marks any address it cannot read as unsupported. This prevents mis-evaluation and false-unlock from missing regions.
+The read callback resolves the stable `main_ram_base` and `dtcm_base` pointers once at game load, both from DraStic's memory-region table (Data TCM sits next to Main RAM in that table). Any flattened address outside the two backed regions, including the `0x400000..0xFFFFFF` DSi-only padding between them, reads as zero. This is safe: at game load, `rc_client_validate_addresses` runs every achievement and leaderboard's memory references through this same read callback and marks any address it cannot read as unsupported, which prevents mis-evaluation and false-unlock from an unbacked region.
 
-DS achievement logic lives in main RAM. RetroAchievements' own Nintendo DS developer guidance (its console-specific tips) references only main-RAM addresses (pointers in the console `0x02000000` region), which is exactly what drastic-nano serves. Data TCM (the 16 KB at console `0x0E000000`) is not served today. The DraStic core exposes its main RAM pointer to drastic-nano but does not expose Data TCM; when a game load discovers a TCM reference, `rc_client` automatically marks it unsupported. Data TCM mapping support can be added if a hardcore-eligible set requires it.
+DS achievement logic lives overwhelmingly in main RAM, and RetroAchievements' own Nintendo DS developer guidance (its console-specific tips) points authors at main-RAM addresses (the console `0x02000000` region), which is exactly what drastic-nano serves. The 16 KB Data TCM, the other region the RetroAchievements DS memory map exposes, holds the ARM9 stack and fast data; drastic-nano serves it as well so a set that reads it is supported rather than disabled.
 
 Before trusting the memory read, drastic-nano verifies it once the emulated cartridge finishes loading on a diagnostic thread. It confirms the base pointer is valid and page-aligned, then matches the main RAM contents against the loaded ROM (comparing the cartridge title and header that the DS boot sequence writes into RAM). The result is logged. If verification fails, the integration does not report unreliable reads to the runtime.
 
@@ -135,7 +143,7 @@ Enabling hardcore from the in-game Achievements menu restarts the game with a fr
 
 During bring-up, hardcore defaults to off (`persist.gammaos.drastic_nano.ra_hardcore=0`) so an unvalidated build cannot risk a player account. The product default is hardcore-on upon validation by the RetroAchievements team.
 
-![After enabling Hardcore from the Achievements menu, the game relaunches and boots fresh to the title screen, running in Hardcore, so the run starts clean with no pre-hardcore progress.](images/hardcore-restart.png)
+![An active Hardcore session enforcing the RetroAchievements restrictions: the in-game Cheats tab reports "Cheats disabled (RetroAchievements hardcore)". Save-state loading is blocked the same way and fast forward is suppressed while hardcore is on. Enabling Hardcore restarts the game so the run starts clean from the title screen.](images/hardcore-restart.png)
 
 ## User agent and hardcore validation
 
@@ -196,7 +204,7 @@ This maps the integration to the RetroAchievements Hardcore Compliance Requireme
 
 ### Memory coverage
 
-* The integration serves the 4 MB main System RAM where DS achievement logic lives. The validated Sonic Rush set exercises exactly this region. Any address the integration cannot serve (Data TCM) is marked unsupported by rc_client through the read callback at load time, so those achievements are disabled rather than mis-evaluated and cannot false-unlock.
+* The integration serves both readable regions the RetroAchievements DS console table defines: the 4 MB main System RAM, where DS achievement logic overwhelmingly lives and which the validated Sonic Rush set exercises, and the 16 KB ARM9 Data TCM. Any flattened address outside those two regions (the DSi-only padding) reads as zero and is marked unsupported by rc_client through the read callback at load time, so such references are disabled rather than mis-evaluated and cannot false-unlock.
 
 ## Login and credentials
 

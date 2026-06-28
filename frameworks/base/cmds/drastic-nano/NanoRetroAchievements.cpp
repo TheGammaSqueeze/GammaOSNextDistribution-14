@@ -93,6 +93,23 @@ void NanoRetroAchievements::onGameLoaded(DrasticRunner* dr, const std::string& r
     mRamBase = m.valid() ? m.base : nullptr;
     mRamMask = m.mask;
     mRamSize = m.mask + 1;
+    // Resolve the DS ARM9 Data TCM too, the second region a DS achievement set
+    // can read. When unresolved (null), reads of it return 0 and rc_client marks
+    // any achievement that references it unsupported rather than mis-evaluating.
+    DrasticRunner::DsDataTcm tcm = dr->dsDataTcm();
+    mDtcmBase = tcm.valid() ? tcm.base : nullptr;
+    mDtcmSize = tcm.mask + 1;
+    // Debug/testing A/B (default off): force Data TCM to be treated as unbacked
+    // so its references fall to the unsupported bucket, to demonstrate the
+    // difference Data TCM support makes for a set that reads it.
+    {
+        char nodtcm[PROPERTY_VALUE_MAX] = {};
+        property_get("persist.gammaos.drastic_nano.ra_no_dtcm", nodtcm, "0");
+        if (nodtcm[0] == '1') {
+            mDtcmBase = nullptr;
+            ALOGW("RA: Data TCM serving DISABLED (debug ra_no_dtcm=1)");
+        }
+    }
     // Verify the in-process read on a retry thread: the DS finishes its boot and
     // cartridge load a little after the first frame, so the header mirror and ARM9
     // image are not all present immediately. Purely diagnostic; the live reads
@@ -197,14 +214,33 @@ void NanoRetroAchievements::sLoadCallback(int result, const char* error_message,
 // ---------------------------------------------------------------------------
 
 uint32_t NanoRetroAchievements::readMemory(uint32_t address, uint8_t* buffer, uint32_t num_bytes) {
-    // RetroAchievements addresses for the DS start at $00000000 = the first byte
-    // of the 4 MB ARM9 Main RAM, which is exactly how DraStic stores it. No
-    // translation is needed; just bounds-check and copy.
-    if (!mRamBase || num_bytes == 0) return 0;
-    if (address >= mRamSize) return 0;
-    if (num_bytes > mRamSize - address) return 0;
-    memcpy(buffer, mRamBase + address, num_bytes);
-    return num_bytes;
+    // RetroAchievements flattens the DS address space into the regions its
+    // console table defines. Two are backed here:
+    //   - Main RAM: the 4 MB ARM9 work RAM at flat 0x000000..0x3FFFFF. DraStic
+    //     stores it as one contiguous little-endian block, so no per-byte
+    //     translation is needed; bounds-check and copy.
+    //   - Data TCM: the 16 KB ARM9 DTCM at flat 0x1000000..0x1003FFF, a separate
+    //     buffer in DraStic.
+    // Any other flat address (including the 0x400000..0xFFFFFF DSi-only padding
+    // between the two) is not backed and reads as zero, so at game load
+    // rc_client_validate_addresses marks references to it unsupported rather than
+    // mis-evaluating them. A read that would straddle the end of a region returns
+    // 0 (rc_client never legitimately reads across a region boundary).
+    if (num_bytes == 0) return 0;
+    if (address < mRamSize) {
+        if (!mRamBase) return 0;
+        if (num_bytes > mRamSize - address) return 0;
+        memcpy(buffer, mRamBase + address, num_bytes);
+        return num_bytes;
+    }
+    if (address >= 0x1000000 && address < 0x1000000 + mDtcmSize) {
+        if (!mDtcmBase) return 0;
+        uint32_t off = address - 0x1000000;
+        if (num_bytes > mDtcmSize - off) return 0;
+        memcpy(buffer, mDtcmBase + off, num_bytes);
+        return num_bytes;
+    }
+    return 0;
 }
 
 // ---------------------------------------------------------------------------
@@ -819,6 +855,17 @@ void NanoRetroAchievements::clientThreadMain() {
     mHardcorePref.store(hcOn);
     rc_client_set_hardcore_enabled(mClient, hcOn ? 1 : 0);
 
+    // Debug/testing aid (default off): load in-development "unofficial"
+    // achievements too, so a set being authored against drastic-nano (for
+    // example a Nintendo DS set that depends on Data TCM) can be exercised before
+    // it is published. Production loads only the published core set.
+    char unoff[PROPERTY_VALUE_MAX] = {};
+    property_get("persist.gammaos.drastic_nano.ra_unofficial", unoff, "0");
+    if (unoff[0] == '1') {
+        rc_client_set_unofficial_enabled(mClient, 1);
+        ALOGI("RA: unofficial (in-development) achievements ENABLED (debug)");
+    }
+
     // Login from stored credentials (token preferred, else password). The game
     // is identified and loaded only after login succeeds (see onLoginResult),
     // so the authenticated load calls never race the login. If this first try
@@ -1360,6 +1407,21 @@ void NanoRetroAchievements::onLoadResult(int result, const char* error_message) 
     rc_client_get_user_game_summary(mClient, &summary);
     const rc_client_game_t* g = rc_client_get_game_info(mClient);
 
+    // Diagnostic: the resolved game plus the achievement-set breakdown. The
+    // unsupported count is the load-time result of rc_client_validate_addresses
+    // running every memory reference through the read callback: any reference to
+    // an address the integration does not back (e.g. Data TCM when it cannot be
+    // resolved) lands here, disabled rather than mis-evaluated.
+    if (g) {
+        ALOGI("RA: game id=%u console=%u title='%s' hash=%s | "
+              "achievements core=%u unofficial=%u unlocked=%u UNSUPPORTED=%u | dtcm=%s",
+              g->id, g->console_id, g->title ? g->title : "",
+              g->hash ? g->hash : "?",
+              summary.num_core_achievements, summary.num_unofficial_achievements,
+              summary.num_unlocked_achievements, summary.num_unsupported_achievements,
+              mDtcmBase ? "served" : "unresolved");
+    }
+
     // Per the integration guide: if the game has no RA processing, disable
     // hardcore while it is loaded.
     if (!rc_client_is_processing_required(mClient)) {
@@ -1666,6 +1728,28 @@ void NanoRetroAchievements::verifyMainRamOnDevice(const std::string& romPath) {
                 ALOGI("RA: PROOF - PASS after %dms: in-process DS Main RAM confirmed "
                       "(base=%p, title at 0x%x, arm9NonZero=%d/256)",
                       attempt * 200, (void*)base, firstHit, arm9NonZero);
+                // Confirm the Data TCM region too: that it resolves, holds live
+                // data (the ARM9 stack, full of 0x02xxxxxx / 0x040000xx values),
+                // and that the read callback serves it at the RetroAchievements
+                // flat address 0x1000000 matching a direct read.
+                DrasticRunner::DsDataTcm tcm = mRunner ? mRunner->dsDataTcm()
+                                                       : DrasticRunner::DsDataTcm{};
+                if (tcm.valid()) {
+                    uint8_t direct[16] = {0}, viaCb[16] = {0};
+                    memcpy(direct, tcm.base, sizeof(direct));
+                    uint32_t got = readMemory(0x1000000, viaCb, sizeof(viaCb));
+                    int dtcmNonZero = 0;
+                    for (uint32_t i = 0; i <= tcm.mask; i++)
+                        if (tcm.base[i]) dtcmNonZero++;
+                    ALOGI("RA: PROOF - Data TCM confirmed (base=%p, 16KB, nonZero=%d/%u), "
+                          "read callback 0x1000000 served=%u bytes, match=%d",
+                          (void*)tcm.base, dtcmNonZero, tcm.mask + 1, got,
+                          (got == sizeof(viaCb) &&
+                           memcmp(direct, viaCb, sizeof(direct)) == 0) ? 1 : 0);
+                } else {
+                    ALOGW("RA: PROOF - Data TCM unresolved; DTCM-referencing achievements "
+                          "would be marked unsupported (Main RAM is unaffected)");
+                }
                 return;
             }
         }
