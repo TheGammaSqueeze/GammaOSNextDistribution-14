@@ -868,6 +868,14 @@ bool DrasticRunner::init(const std::string& cacheDir,
                 }
                 mShadowReady.store(true);
                 int fc = mFrameCounter.fetch_add(1) + 1;
+                // Wake any frame-ready waiter (waitForFrameAfter). Note this
+                // notify only fires while the pixel-pull thread runs; once
+                // renderDsToOffscreen takes over the renderFrame/fxRender path
+                // it stops the pull thread, so mFrameCounter freezes here.
+                // RetroAchievements do_frame is NOT driven off this wake on
+                // that path; it runs off the render-loop vblank tick (main.cpp
+                // onRenderFrame), since this counter is dead once pull stops.
+                mFrameCv.notify_all();
                 if (firstFrameLogged == 0) {
                     firstFrameLogged = 1;
                     ALOGW("DrasticRunner: first drastic frame produced");
@@ -2141,6 +2149,39 @@ int DrasticRunner::applyMasterStatePatch(const char* reason) {
     ALOGW("DrasticRunner: master-state patch (%s): rewrote %d / %d "
           "targets", reason ? reason : "?", rewrote, kNumTargets);
     return rewrote;
+}
+
+DrasticRunner::DsMainRam DrasticRunner::dsMainRam() {
+    DsMainRam r;
+    if (!mArm64Base) return r;
+    // master = soBase + 0x14c000; the live context pointer is stored at
+    // *(master) (it equals soBase + 0x14d000 once DraStic's onInit has run).
+    // The DS memory-region descriptor is context + 0x35d9930; its first field
+    // is the pointer to the 4 MB ARM9 Main RAM. Read it through the live
+    // context pointer rather than a fixed offset so the access survives any
+    // re-anchoring of the descriptor block.
+    uintptr_t master = (uintptr_t)mArm64Base + 0x14c000;
+    uintptr_t ctx = *reinterpret_cast<uintptr_t*>(master);
+    if (!ctx) return r;
+    uintptr_t desc = ctx + 0x35d9930;
+    uint8_t* ram = *reinterpret_cast<uint8_t**>(desc);
+    if (!ram) return r;
+    r.base = ram;
+    r.mask = 0x3FFFFF;
+    return r;
+}
+
+int DrasticRunner::waitForFrameAfter(int lastCount, int timeoutMs) {
+    std::unique_lock<std::mutex> lk(mFrameCvMutex);
+    mFrameCv.wait_for(lk, std::chrono::milliseconds(timeoutMs),
+                      [&] { return mFrameCounter.load() != lastCount; });
+    return mFrameCounter.load();
+}
+
+uint16_t DrasticRunner::dsEmulatedFrameCounter() {
+    if (!mArm64Base) return 0;
+    uintptr_t master = (uintptr_t)mArm64Base + 0x14c000;
+    return *reinterpret_cast<volatile uint16_t*>(master + 0x4b0);
 }
 
 // Overlay drastic's fast-forward bits onto an already-built config word.

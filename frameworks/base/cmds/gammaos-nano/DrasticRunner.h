@@ -19,6 +19,7 @@
 #include <atomic>
 #include <chrono>
 #include <mutex>
+#include <condition_variable>
 #include <vector>
 #include <dlfcn.h>
 #include <utils/Log.h>
@@ -74,6 +75,19 @@ public:
     // defer a launch-time auto-load of a save state until the core is
     // actually running.
     bool isFrameReady() const { return mShadowReady.load(); }
+
+    // Monotonic count of emulated frames the core has actually produced (the
+    // pixel-pull handshake increments it once per DS frame). NOTE: this counter
+    // only advances while the legacy pixel-pull thread runs; on the current
+    // renderDsToOffscreen() path that thread is stopped so this stays frozen.
+    // The RetroAchievements integration therefore does NOT drive do_frame off
+    // this; it ticks once per render-loop vblank via NanoRetroAchievements::
+    // onRenderFrame() (~60Hz, the DS rate).
+    int emulatedFrames() const { return mFrameCounter.load(); }
+    // Block until the emulated-frame count moves past lastCount (a new frame was
+    // produced) or timeoutMs elapses; returns the current count. Lets a consumer
+    // wake promptly per frame instead of polling.
+    int waitForFrameAfter(int lastCount, int timeoutMs);
 
     // Phase 4: GL surface bring-up. Must be called on the thread that
     // owns the EGL context (NanoMenu render thread). Sets up drastic's
@@ -284,6 +298,32 @@ public:
     static constexpr int kDsBtnStart  = 1 << 10;  // 0x400
     static constexpr int kDsBtnSelect = 1 << 11;  // 0x800
 
+    // ---- RetroAchievements memory access ----
+    // Expose DraStic's emulated DS Main RAM so an in-process achievement
+    // runtime can read console memory directly (libdrastic is loaded into
+    // this process, so no IPC is needed). The 4 MB ARM9 Main RAM is reached
+    // through the master struct: master = soBase + 0x14c000; the live context
+    // pointer is *(master); the DS memory-region descriptor is at
+    // context + 0x35d9930, and its first field is the pointer to the 4 MB Main
+    // RAM. Bytes are little-endian contiguous on this LE host, so the direct
+    // 8/16/32-bit reads an achievement trigger needs are valid.
+    //
+    // Only call after isFrameReady() is true (the descriptor is populated
+    // during DraStic's system init, which completes before the first frame).
+    struct DsMainRam {
+        uint8_t* base = nullptr;    // start of the 4 MB Main RAM, null if unresolved
+        uint32_t mask = 0x3FFFFF;   // address mask for retail DS (4 MB)
+        bool valid() const { return base != nullptr; }
+    };
+    DsMainRam dsMainRam();
+
+    // The 16-bit emulated-frame counter from the master struct (master + 0x4b0).
+    // On the in-process renderDsToOffscreen() path this counter is dead/frozen
+    // (reads 0), so the RetroAchievements integration does NOT tick off it; it
+    // drives do_frame off the render-loop vblank tick (onRenderFrame, ~60Hz).
+    // Returns 0 when the base is unresolved.
+    uint16_t dsEmulatedFrameCounter();
+
     // Singleton accessor. Stored as a file-scope pointer inside the
     // .cpp; set in init(), never cleared. NanoMenu's render loop uses
     // this to call initSurface/renderOneFrame without the smoke test
@@ -334,6 +374,12 @@ private:
     std::mutex mShadowMutex;
     std::atomic<bool> mShadowReady{false};
     std::atomic<int> mFrameCounter{0};
+    // Wakes any consumer blocked in waitForFrameAfter() when a new pixel-pull
+    // frame is produced. Note the RetroAchievements integration does not use
+    // this: it drives do_frame off the render-loop vblank tick (onRenderFrame),
+    // and this counter is frozen on the renderDsToOffscreen() path.
+    std::condition_variable mFrameCv;
+    std::mutex mFrameCvMutex;
 
     // JNI entry points resolved from libdrastic_arm64.so. Types match
     // the Java method signatures in DraSticJNI.smali translated to

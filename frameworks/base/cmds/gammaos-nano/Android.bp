@@ -200,6 +200,53 @@ cc_library_static {
     ],
 }
 
+// Vendored rcheevos (RetroAchievements official C library, v12.3.0, MIT - see
+// rcheevos/LICENSE). Provides rc_client (the recommended high-level achievement
+// client that owns the runtime, server protocol, hardcore policy, session/ping
+// and unlock queueing), the rc_api server request builders + JSON parsers, and
+// the canonical ROM hashers (rc_hash). drastic-nano links this to evaluate DS
+// achievements against the emulator's Main RAM and talk to retroachievements.org.
+//
+// File set follows the upstream Package.swift: everything under src, src/rcheevos,
+// src/rapi and src/rhash, minus rc_libretro.c, rc_client_external.c and the
+// Windows-only rc_client_raintegration.c (already pruned from the vendored tree).
+// RC_DISABLE_LUA drops the Lua dependency (DS achievement logic never uses Lua);
+// RC_CLIENT_SUPPORTS_HASH enables rc_client_begin_identify_and_load_game's hashing.
+// Built -Wno-error because upstream C is not clean under Soong's warning set (same
+// treatment as liba52_nano above).
+cc_library_static {
+    name: "librcheevos_nano",
+    srcs: [
+        "rcheevos/src/*.c",
+        "rcheevos/src/rcheevos/*.c",
+        "rcheevos/src/rapi/*.c",
+        "rcheevos/src/rhash/*.c",
+    ],
+    local_include_dirs: [
+        "rcheevos/include",
+        "rcheevos/src",
+        "rcheevos/src/rcheevos",
+    ],
+    export_include_dirs: ["rcheevos/include"],
+    shared_libs: ["libz"],
+    cflags: [
+        "-DRC_DISABLE_LUA",
+        "-DRC_CLIENT_SUPPORTS_HASH",
+        "-std=gnu11",
+        "-Wno-error",
+        "-Wno-unused-parameter",
+        "-Wno-unused-variable",
+        "-Wno-unused-function",
+        "-Wno-sign-compare",
+        "-Wno-implicit-fallthrough",
+        "-Wno-missing-field-initializers",
+        "-Wno-constant-conversion",
+        "-Wno-shift-negative-value",
+        "-Wno-self-assign",
+        "-Wno-pointer-sign",
+    ],
+}
+
 sh_binary {
     name: "nano-ce-unlock.sh",
     src: "nano-ce-unlock.sh",
