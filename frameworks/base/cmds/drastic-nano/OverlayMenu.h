@@ -297,7 +297,10 @@ private:
     bool  mRaTouchMoved = false;
     uint32_t mRaOpenLbId = 0;           // leaderboard whose rankings are open
     // Hit-test layout cached from the last draw (pixels), for tap handling.
+    // mLbHitBot / mLbHitTextH mirror the draw-side whole-row clip so a tap in a
+    // scrolled-off partial-row gap does not resolve to a hidden leaderboard.
     float mLbHitTop = 0.0f, mLbHitRowH = 1.0f;
+    float mLbHitBot = 0.0f, mLbHitTextH = 0.0f;
     std::vector<uint32_t> mLbHitIds;    // leaderboard ids in drawn order
     float mBackBtnX = 0, mBackBtnY = 0, mBackBtnW = 0, mBackBtnH = 0;
     void raHandleTap(float nx, float ny);

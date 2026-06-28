@@ -103,6 +103,26 @@ public:
     // (a hardcore session always boots fresh).
     bool hardcoreActive() const { return mHardcoreActive.load(); }
 
+    // True when hardcore restrictions must be enforced on live actions
+    // (fast-forward, save-state loading, cheats). This is hardcoreActive() once
+    // a game with achievements is loaded, but it ALSO covers the asynchronous
+    // identify + load window AFTER sign-in: while signed in with the hardcore
+    // preference on but the game not yet loaded, restrictions stay in force so a
+    // save-state load or fast-forward cannot advance the game into an
+    // illegitimate state before rc_client begins evaluating it. The mLoggedIn
+    // gate is deliberate: with no sign-in no hardcore credit is possible (an
+    // offline session never loads a game or earns anything), so restricting it
+    // would only strip fast-forward/cheats for no compliance gain, and the
+    // in-menu Hardcore off-switch is itself only reachable once signed in. Once
+    // the load resolves, mHardcoreActive (a game with achievements) or the
+    // no-achievement disable takes over: a game with no RA processing sets
+    // mGameActive without hardcore, so this returns false.
+    bool hardcoreRestrictionsActive() const {
+        return mHardcoreActive.load() ||
+               (mStarted && mLoggedIn.load() && mHardcorePref.load() &&
+                !mGameActive.load());
+    }
+
     // True (once) when hardcore has just been enabled live and the game must be
     // restarted fresh into hardcore. The render loop polls this each iteration
     // and, when set, drives the same fresh process relaunch as "Restart Game".

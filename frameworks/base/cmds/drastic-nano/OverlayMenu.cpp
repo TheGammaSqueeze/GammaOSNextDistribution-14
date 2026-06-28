@@ -219,10 +219,15 @@ void OverlayMenu::onRaUiEvent(const RaUiEvent& ev) {
             break;
         case RaUiEvent::ChallengeShow:
             // An achievement is primed (its trigger conditions are active): keep
-            // its badge so drawRaIndicators can show it over the game.
+            // its badge so drawRaIndicators can show it over the game. Fetch the
+            // badge only when this id is newly primed, not on every repeat event:
+            // the indicator draws from the on-disk cache (warmed by prefetch), so
+            // re-enqueuing per event just front-queues a disk read + PNG decode
+            // that the banner-only badge consumer then discards.
             if (ev.id) {
+                bool isNew = mRaChallenge.find(ev.id) == mRaChallenge.end();
                 mRaChallenge[ev.id] = ev.badgeUrl;
-                if (mRa && !ev.badgeUrl.empty())
+                if (isNew && mRa && !ev.badgeUrl.empty())
                     mRa->enqueueBadgeDownload(ev.id, ev.badgeUrl);
             }
             break;
@@ -233,13 +238,17 @@ void OverlayMenu::onRaUiEvent(const RaUiEvent& ev) {
             // Measured-progress update for an achievement (e.g. "23/50"): show a
             // brief popup. ev.subtitle is the measured string, ev.title the name.
             if (ev.id) {
+                bool idChanged = (mRaProgressId != ev.id);
                 mRaProgressId = ev.id;
                 mRaProgressText = ev.subtitle.empty()
                                       ? ev.title
                                       : (ev.title + "    " + ev.subtitle);
                 mRaProgressBadgeUrl = ev.badgeUrl;
                 mRaProgressUntilMs = android::elapsedRealtime() + 4000;  // safety tail
-                if (mRa && !ev.badgeUrl.empty())
+                // PROGRESS_INDICATOR_UPDATE fires on every measured-value change
+                // (e.g. each ring collected), so only fetch the badge when the
+                // achievement itself changes, not on every value tick.
+                if (idChanged && mRa && !ev.badgeUrl.empty())
                     mRa->enqueueBadgeDownload(ev.id, ev.badgeUrl);
             }
             break;
@@ -720,8 +729,18 @@ void OverlayMenu::update(const drastic_input::InputActions& a,
                         drastic_input::InputState* input) {
     // Short-press BACK toggles menu open/close regardless of state.
     if (a.menuToggle) {
-        if (mOpen) closeMenu();
-        else       openMenu();
+        if (mOpen) {
+            closeMenu();
+        } else if (mRa && mRa->hardcoreActive() && !mRa->canPauseNow()) {
+            // RetroAchievements hardcore throttles pause spam: opening the overlay
+            // pauses the emulator, so consult rc_client_can_pause first. When it
+            // refuses (the player paused too recently) keep playing instead of
+            // opening. Gated on the actually-active hardcore state, not the load
+            // window, so the menu always opens while RetroAchievements is loading.
+            toast("Pausing is limited in hardcore. Keep playing.");
+        } else {
+            openMenu();
+        }
         return;
     }
 
@@ -853,9 +872,12 @@ void OverlayMenu::update(const drastic_input::InputActions& a,
         }
         mPrevRaTouch = input->touchReal;
     } else {
-        // Left the panel (closed overlay or another section): drop the drill-in.
+        // Left the panel (closed overlay or another section): drop the drill-in
+        // and fully reset scroll state, matching closeMenu(), so returning to the
+        // Achievements section shows the leaderboard list from the top.
         mPrevRaTouch = false;
         mRaOpenLbId = 0;
+        mRaBottomScroll = 0.0f;
         mRaScrollVel = 0.0f;
     }
 
@@ -2171,12 +2193,22 @@ void OverlayMenu::raHandleTap(float /*nx*/, float ny) {
     // In the detail/summary view, tapping a leaderboard row opens its rankings.
     // Only taps inside the actual list band count (so a tap on the card above,
     // while the list is scrolled, does not spuriously open leaderboard 0).
-    if (py >= mLbHitTop && mLbHitRowH > 0.0f && !mLbHitIds.empty()) {
+    if (py >= mLbHitTop && py <= mLbHitBot && mLbHitRowH > 0.0f && !mLbHitIds.empty()) {
         int idx = (int)((py - mLbHitTop + mRaBottomScroll) / mLbHitRowH);
         if (idx >= 0 && idx < (int)mLbHitIds.size()) {
-            mRaOpenLbId = mLbHitIds[(size_t)idx];
-            mRaBottomScroll = 0.0f;
-            if (mRa) mRa->requestLeaderboardEntries(mRaOpenLbId);
+            // Accept only a row the draw actually painted. The list uses a
+            // whole-row clip (a row is drawn iff its top ry is in
+            // [mLbHitTop, mLbHitBot - mLbHitTextH]); the pixel scroll offset
+            // leaves a partial-row blank gap at the top and bottom of the band
+            // whose continuous hit index would otherwise resolve to a clipped,
+            // off-screen leaderboard. Reconstruct the row top and require it to
+            // be visible, exactly as the draw does.
+            float ry = mLbHitTop + (float)idx * mLbHitRowH - mRaBottomScroll;
+            if (ry >= mLbHitTop && ry <= mLbHitBot - mLbHitTextH) {
+                mRaOpenLbId = mLbHitIds[(size_t)idx];
+                mRaBottomScroll = 0.0f;
+                if (mRa) mRa->requestLeaderboardEntries(mRaOpenLbId);
+            }
         }
     }
 }
@@ -2260,8 +2292,13 @@ void OverlayMenu::drawRaBottomPanel(drastic_gfx::OverlayGfx& gfx) {
         if (mRa) entries = mRa->leaderboardEntriesSnapshot(&haveId, &loading);
         mLbHitIds.clear();   // taps here only hit the back bar
         if (haveId != mRaOpenLbId || loading) {
+            // Nothing scrollable yet: zero the clamp so a drag during the fetch
+            // cannot accumulate scroll against the previous view's (stale, larger)
+            // max and snap the list to its bottom when the entries arrive.
+            mRaBottomMaxScroll = 0.0f; mRaBottomScroll = 0.0f;
             gfx.text("Loading rankings...", x, y, sc(descPx), rgba(0.70f, 0.72f, 0.80f, 0.85f));
         } else if (entries.empty()) {
+            mRaBottomMaxScroll = 0.0f; mRaBottomScroll = 0.0f;
             gfx.text("No entries yet. Be the first!", x, y, sc(descPx),
                      rgba(0.60f, 0.62f, 0.70f, 0.75f));
         } else {
@@ -2385,7 +2422,8 @@ void OverlayMenu::drawRaBottomPanel(drastic_gfx::OverlayGfx& gfx) {
     const float contentH = (float)lbs.size() * rowH;
     mRaBottomMaxScroll = fmaxf(0.0f, contentH - fmaxf(0.0f, regionBot - regionTop));
     if (mRaBottomScroll > mRaBottomMaxScroll) mRaBottomScroll = mRaBottomMaxScroll;
-    mLbHitTop = regionTop; mLbHitRowH = rowH; mLbHitIds.clear();
+    mLbHitTop = regionTop; mLbHitRowH = rowH; mLbHitBot = regionBot;
+    mLbHitTextH = lbPx; mLbHitIds.clear();
     for (const auto& l : lbs) mLbHitIds.push_back(l.id);
     if (lbs.empty()) {
         gfx.text("No leaderboards for this game.", x, regionTop, sc(descPx),

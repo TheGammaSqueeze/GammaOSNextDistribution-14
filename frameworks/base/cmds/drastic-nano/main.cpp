@@ -1030,7 +1030,12 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                 raPrevOverlayOpen = ovOpen;
             }
         }
-        overlay.setHardcoreActive(ra.hardcoreActive());
+        // Drive the live action gates (cheats, save-state loading) off the
+        // restrictions signal, which also covers the async login+load window so a
+        // save-state load cannot advance the game into an illegitimate state
+        // before rc_client begins evaluating it. The Hardcore toggle display in
+        // the overlay reads hardcorePref() directly, so this does not mislabel it.
+        overlay.setHardcoreActive(ra.hardcoreRestrictionsActive());
         {
             android::RaUiEvent rev;
             while (ra.popUiEvent(&rev)) {
@@ -1080,8 +1085,10 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
         // is logged only -- drastic-nano has no mic pipeline today.
         // In RetroAchievements hardcore, fast-forward is disabled (the
         // integration gates it together with cheats, save-state load and
-        // auto-resume while hardcore is active).
-        dr->setFastForward(ra.hardcoreActive() ? false : actions.actFastFwd);
+        // auto-resume while hardcore is active). Use the restrictions signal so
+        // fast-forward is also blocked during the async login+load window, not
+        // just once the game is confirmed loaded.
+        dr->setFastForward(ra.hardcoreRestrictionsActive() ? false : actions.actFastFwd);
         if (actions.actSwapScreens) {
             screensSwapped = !screensSwapped;
             ALOGI("drastic-nano: screen swap = %d", screensSwapped);

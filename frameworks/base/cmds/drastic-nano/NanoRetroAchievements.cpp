@@ -133,9 +133,11 @@ void NanoRetroAchievements::shutdown() {
     mStop.store(true);
     mHttpCv.notify_all();
     // Interrupt any curl the HTTP worker is mid-flight on so the join below does
-    // not stall game-exit. Taken under mCurlMutex against the worker's fork so
-    // there is no race: either we see the live PID and kill it, or the worker
-    // has not forked yet and will see mStop and skip starting one.
+    // not stall game-exit. Taken under mCurlMutex against the worker's fork and
+    // its pre-reap clear: either we see the live PID (curl still running) and
+    // kill it, or the worker has not forked yet (sees mStop, skips it), or the
+    // worker has already cleared the PID before reaping (we read 0, kill nothing).
+    // So a reaped-and-recycled PID is never signalled.
     {
         std::lock_guard<std::mutex> lk(mCurlMutex);
         pid_t curl = mCurlChild.load();
@@ -304,8 +306,10 @@ void NanoRetroAchievements::httpThreadMain() {
             // The fork + child-PID publish happens under mCurlMutex, the same
             // lock shutdown() takes to read + kill the PID, so the worker never
             // starts a curl after shutdown has set mStop (and any curl it does
-            // start is visible for shutdown to kill). waitpid runs OUTSIDE the
-            // lock so a kill can interrupt it.
+            // start is visible for shutdown to kill). The PID stays published for
+            // the whole pipe read (where a stuck curl is blocked and a kill is
+            // useful), then is cleared under the lock before the reap so a
+            // recycled PID can never be signalled.
             {
                 std::lock_guard<std::mutex> lk(mCurlMutex);
                 if (!mStop.load() && pipe(pipefd) == 0) {
@@ -332,12 +336,20 @@ void NanoRetroAchievements::httpThreadMain() {
                     n += (size_t) r;
                 codebuf[n] = '\0';
                 close(pipefd[0]);
-                int wstatus = 0;
-                while (waitpid(pid, &wstatus, 0) < 0 && errno == EINTR) {}
+                // The read above hit EOF, which means curl closed its stdout, i.e.
+                // the process is exiting. Clear the published PID under the lock
+                // BEFORE we reap it: after this, shutdown() reads 0 and will not
+                // kill, so a PID that waitpid() reaps and the OS later recycles can
+                // never be signalled by a late shutdown(). The kill is only needed
+                // while curl is still running (blocked on the network during the
+                // read above), and that window is still covered because mCurlChild
+                // is live throughout the read.
                 {
                     std::lock_guard<std::mutex> lk(mCurlMutex);
                     mCurlChild.store(0);
                 }
+                int wstatus = 0;
+                while (waitpid(pid, &wstatus, 0) < 0 && errno == EINTR) {}
                 rc = (WIFEXITED(wstatus) && WEXITSTATUS(wstatus) == 0) ? 0 : -1;
             } else {
                 if (pipefd[0] >= 0) close(pipefd[0]);
@@ -823,7 +835,6 @@ void NanoRetroAchievements::clientThreadMain() {
     // (warming the cache from the pre-loaded set) rather than waiting a minute.
     auto lastBadgeSweep = steady_clock::now() - seconds(55);
     auto lastLbRefresh = steady_clock::now();
-    bool lastPaused = false;
     uint64_t framesTotal = 0;
     mLastRenderTick = mRenderTick.load(std::memory_order_relaxed);
     std::string prevRp;
@@ -906,8 +917,7 @@ void NanoRetroAchievements::clientThreadMain() {
             mCanPause.store(rc_client_can_pause(mClient, nullptr) != 0);
         }
 
-        bool paused = mPaused.load();
-        lastPaused = paused;
+        const bool paused = mPaused.load();
 
         bool framed = false;
         // Drive rc_client_do_frame off the render-loop vblank tick (~60Hz),
@@ -917,16 +927,18 @@ void NanoRetroAchievements::clientThreadMain() {
         // 1->0 for one frame). One do_frame per vblank samples ~once per emulated
         // frame, so those edges are caught.
         //
-        // We do NOT gate on mPaused: the in-game overlay does not freeze the
-        // emulator (it keeps running behind the menu, and the render loop keeps
-        // ticking), so gating would skip live frames. When the emulator IS frozen
-        // (sleep/screen-off) the render loop stops ticking too, so do_frame stops
-        // and we fall through to rc_client_idle.
+        // Gate on mPaused: opening the in-game overlay pauses the emulator (the
+        // render loop keeps ticking to draw the menu, but DS Main RAM is frozen),
+        // and so does sleep / screen-off. While paused we must NOT call do_frame
+        // on the frozen memory image (the integration guide requires idle, not
+        // do_frame, when the game is not advancing); we fall through to
+        // rc_client_idle below instead. We still consume the render ticks here so
+        // the pause does not leave a backlog to replay on resume.
         const int tickNow = mRenderTick.load(std::memory_order_relaxed);
         int tickDelta = tickNow - mLastRenderTick;
         if (tickDelta < 0) tickDelta = 0;           // wrapped/reset
         mLastRenderTick = tickNow;
-        if (mGameActive.load() && tickDelta > 0) {
+        if (!paused && mGameActive.load() && tickDelta > 0) {
             // Call do_frame EXACTLY ONCE per advance, never in a batch. We read
             // live DS RAM here, and that RAM only ever holds the producer's most
             // recent frame, so looping do_frame for tickDelta>1 would feed
@@ -1196,7 +1208,15 @@ void NanoRetroAchievements::onEvent(const rc_client_event_t* event) {
             u.title = a->title ? a->title : "";
             u.subtitle = a->measured_progress;
             u.badgeName = a->badge_name;
-            u.badgeUrl = a->badge_locked_url ? a->badge_locked_url : "";
+            // Use the colour (unlocked) badge URL, not badge_locked_url. The
+            // on-disk badge cache is keyed by achievement id only, and the
+            // prefetch, the unlock banner, the achievement list and the challenge
+            // indicator all use the colour badge; using the grayscale URL here
+            // would, on a slow link where prefetch has not yet covered this id,
+            // write the grayscale variant under the same <id>.png and make the
+            // colour consumers show grayscale. Keeping one colour badge per id is
+            // consistent across the whole UI.
+            u.badgeUrl = a->badge_url ? a->badge_url : "";
             pushUiEvent(u);
             break;
         }
