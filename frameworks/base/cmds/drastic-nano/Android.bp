@@ -1,5 +1,22 @@
 package {
-    default_applicable_licenses: ["frameworks_base_license"],
+    default_applicable_licenses: ["drastic_nano_license"],
+}
+
+// Explicit licensing for drastic-nano: the GammaOS frontend code is Apache-2.0
+// (LICENSE, NOTICE), and the RetroAchievements integration links rcheevos under
+// the MIT License (LICENSE.rcheevos, also reproduced in NOTICE).
+license {
+    name: "drastic_nano_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+        "SPDX-license-identifier-MIT",
+    ],
+    license_text: [
+        "LICENSE",
+        "LICENSE.rcheevos",
+        "NOTICE",
+    ],
 }
 
 cc_binary {
@@ -8,6 +25,10 @@ cc_binary {
     cflags: [
         "-DGL_GLEXT_PROTOTYPES",
         "-DEGL_EGLEXT_PROTOTYPES",
+        // Match the rcheevos build config so rc_client.h exposes the same API
+        // (the hash-based load) and the same lua_State typedef as librcheevos_nano.
+        "-DRC_DISABLE_LUA",
+        "-DRC_CLIENT_SUPPORTS_HASH",
         "-Wall",
         "-Werror",
         "-Wno-unused-parameter",
@@ -41,12 +62,20 @@ cc_binary {
         "OverlayGfx.cpp",
         "OverlayMenu.cpp",
         "DrasticOsk.cpp",
+        "NanoRetroAchievements.cpp",
         ":drastic_nano_shared_srcs",
     ],
 
     header_libs: [
         "libdrm_headers",
         "jni_headers",
+    ],
+
+    // RetroAchievements: the vendored rcheevos rc_client library. Its
+    // export_include_dirs makes <rc_client.h> etc. visible to
+    // NanoRetroAchievements.cpp, and it pulls libz for the rhash ROM hashers.
+    static_libs: [
+        "librcheevos_nano",
     ],
 
     shared_libs: [
@@ -62,6 +91,8 @@ cc_binary {
         "libGLESv2",
         "libnativewindow",
         "libft2",
+        "libz",
+        "libaaudio",
         "android.hardware.health-V2-ndk",
         "android.hardware.light-V2-ndk",
     ],

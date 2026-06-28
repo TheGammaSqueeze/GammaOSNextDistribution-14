@@ -94,6 +94,7 @@
 #include "NanoI18n.h"
 #include "OverlayGfx.h"
 #include "OverlayMenu.h"
+#include "NanoRetroAchievements.h"
 
 using android::DrasticRunner;
 
@@ -811,6 +812,45 @@ struct RunLoopResult {
     bool restartFresh;   // "Restart Game": relaunch + boot fresh, no save
 };
 
+// Debug screenshot. When sys.gammaos.drastic_nano.shot=1, read back the bound
+// framebuffers and write them as PPMs to /data. The standard VOP framebuffer
+// dump cannot capture the overlay plane, so this is the only way to get a true
+// picture of the in-game UI (the overlay menu, the Achievements list, and the
+// on-screen keyboard, which renders on the bottom panel). Both DS panels are
+// captured: the top (primary, with the overlay) and the bottom (secondary,
+// with the on-screen keyboard).
+static bool shotRequested() {
+    char shot[PROPERTY_VALUE_MAX] = {};
+    property_get("sys.gammaos.drastic_nano.shot", shot, "");
+    return shot[0] == '1';
+}
+
+static void captureFboToPpm(int w, int h, const char* path) {
+    std::vector<uint8_t> buf((size_t)w * h * 4);
+    glReadPixels(0, 0, w, h, GL_RGBA, GL_UNSIGNED_BYTE, buf.data());
+    FILE* f = fopen(path, "wb");
+    if (!f) return;
+    fprintf(f, "P6\n%d %d\n255\n", w, h);
+    std::vector<uint8_t> row((size_t)w * 3);
+    // glReadPixels returns rows bottom-to-top. On the rotated DRM panel the
+    // framebuffer is already vertically inverted relative to what the user
+    // sees, so the native row order comes out upright; on a non-rotated panel
+    // we flip to the usual top-left origin.
+    const bool flip = !android::sDrmGlRotation;
+    for (int i = 0; i < h; i++) {
+        const int y = flip ? (h - 1 - i) : i;
+        const uint8_t* src = buf.data() + (size_t)y * w * 4;
+        for (int x = 0; x < w; x++) {
+            row[x * 3 + 0] = src[x * 4 + 0];
+            row[x * 3 + 1] = src[x * 4 + 1];
+            row[x * 3 + 2] = src[x * 4 + 2];
+        }
+        fwrite(row.data(), 1, (size_t)w * 3, f);
+    }
+    fclose(f);
+    ALOGI("drastic-nano: wrote screenshot %s (%dx%d)", path, w, h);
+}
+
 RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                       const android::drastic_prefs::Prefs& initialPrefs,
                       uid_t appUid, gid_t appGid,
@@ -854,6 +894,15 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
     android::drastic_overlay::OverlayMenu overlay;
     overlay.init(dr, initialPrefs, appUid, appGid,
                  xmlPath, savestatesDir, romPath, shadersDir);
+
+    // RetroAchievements. Brought up once the core has produced its first frame
+    // (so Main RAM is populated). The client runs on its own threads; here we
+    // only start it, track pause state for rc_client idle, drain UI events, and
+    // read its hardcore state to gate features.
+    android::NanoRetroAchievements ra;
+    overlay.setRaClient(&ra);
+    bool raInited = false;
+    bool raPrevOverlayOpen = false;
 
     // Triple-buffered AHB ring: render slot[renderIdx], present
     // slot[renderIdx - 2]. Mirrors the gammaos-nano QR fast-path
@@ -961,6 +1010,34 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
             continue;
         }
         overlay.update(actions, &input);
+
+        // RetroAchievements lifecycle. Start once the first DS frame is ready,
+        // mirror the overlay's pause state into the client (so it idles instead
+        // of processing frames while the menu is open), and drain achievement UI
+        // events for the overlay to draw.
+        if (!raInited && dr->isFrameReady()) {
+            raInited = true;
+            ra.onGameLoaded(dr, romPath);
+        }
+        // One vblank tick per render-loop iteration drives rc_client_do_frame at
+        // ~60Hz (the DS frame rate). This replaces a wall-clock pace that
+        // under-sampled and missed single-frame achievement triggers.
+        if (raInited) ra.onRenderFrame();
+        {
+            bool ovOpen = overlay.isOpen();
+            if (ovOpen != raPrevOverlayOpen) {
+                ra.setPaused(ovOpen);
+                raPrevOverlayOpen = ovOpen;
+            }
+        }
+        overlay.setHardcoreActive(ra.hardcoreActive());
+        {
+            android::RaUiEvent rev;
+            while (ra.popUiEvent(&rev)) {
+                overlay.onRaUiEvent(rev);
+            }
+        }
+
         // In-app volume / brightness HUDs (VOL = volume, SELECT+VOL =
         // brightness). The SF system sliders never show on the DRM path.
         if (actions.volAdjust != 0)    overlay.onVolumeAdjust(actions.volAdjust);
@@ -984,13 +1061,27 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
             result.relaunchRequested = true;  // reuse the relaunch handshake
             exitRequested = true;
         }
+        if (raInited && ra.takeHardcoreRestart()) {
+            // Hardcore was just enabled: restart the game fresh into hardcore
+            // (RA convention). Reuse the same fresh-relaunch handshake as
+            // "Restart Game"; the relaunched process reads ra_hardcore=1 and
+            // boots into hardcore. The teardown frees the RA bottom-panel
+            // textures first, so the GL/DRM context teardown stays clean.
+            ALOGI("drastic-nano: hardcore enabled, restarting fresh into hardcore");
+            result.restartFresh = true;
+            result.relaunchRequested = true;
+            exitRequested = true;
+        }
         if (exitRequested) break;
 
         // Special action handlers. Fast-forward flips drastic's
         // runtime-only V bit via applyConfig (bit 29). Screen swap
         // toggles our own renderTop/renderBottom routing. Toggle-mic
         // is logged only -- drastic-nano has no mic pipeline today.
-        dr->setFastForward(actions.actFastFwd);
+        // In RetroAchievements hardcore, fast-forward is disabled (the
+        // integration gates it together with cheats, save-state load and
+        // auto-resume while hardcore is active).
+        dr->setFastForward(ra.hardcoreActive() ? false : actions.actFastFwd);
         if (actions.actSwapScreens) {
             screensSwapped = !screensSwapped;
             ALOGI("drastic-nano: screen swap = %d", screensSwapped);
@@ -1074,6 +1165,14 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
         gfx.beginFrame();
         overlay.draw(gfx);
         gfx.endFrame();
+        // Debug screenshot: latch the request now (primTgt is bound and holds
+        // the DS top screen + overlay), capture the bottom panel after the OSK
+        // pass below, then clear the request. This way a single shot grabs both
+        // DS panels, including the on-screen keyboard on the bottom screen.
+        const bool wantShot = shotRequested();
+        if (wantShot)
+            captureFboToPpm((int)primTgt.w, (int)primTgt.h,
+                            "/data/drastic_nano_shot.ppm");
 
         // On-screen keyboard: render on the BOTTOM DS panel (secondary FBO)
         // with its own scrim, so it does not cover the cheats menu on the top
@@ -1101,6 +1200,41 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                 overlay.drawOsk(gfx);
                 gfx.endFrame();
             }
+        }
+
+        // RetroAchievements detail + leaderboards on the BOTTOM DS panel while
+        // the Achievements section is open (keyboard takes priority above).
+        // Dual-panel only: the bottom panel is a real second screen there.
+        if (!overlay.oskActive() && hasDualDisplay && overlay.wantsRaBottomPanel()) {
+            glBindFramebuffer(GL_FRAMEBUFFER, secTgt.glFbo);
+            glViewport(0, 0, (GLsizei)secTgt.w, (GLsizei)secTgt.h);
+            gfx.setViewport((int)secTgt.w, (int)secTgt.h);
+            gfx.beginFrame();
+            overlay.drawRaBottomPanel(gfx);
+            gfx.endFrame();
+            gfx.setViewport((int)primTgt.w, (int)primTgt.h);
+        } else if (!overlay.oskActive() && hasDualDisplay && overlay.isOpen()) {
+            // Any other overlay section: dim the bottom DS panel with a scrim so
+            // the paused game reads as "the menu is open", matching the keyboard
+            // and Achievements passes.
+            glBindFramebuffer(GL_FRAMEBUFFER, secTgt.glFbo);
+            glViewport(0, 0, (GLsizei)secTgt.w, (GLsizei)secTgt.h);
+            gfx.setViewport((int)secTgt.w, (int)secTgt.h);
+            gfx.beginFrame();
+            overlay.drawBottomScrim(gfx);
+            gfx.endFrame();
+            gfx.setViewport((int)primTgt.w, (int)primTgt.h);
+        }
+
+        // Debug screenshot: bottom panel (secondary AHB slot = DS bottom screen
+        // plus the on-screen keyboard when active), then clear the request.
+        if (wantShot) {
+            if (hasDualDisplay) {
+                glBindFramebuffer(GL_FRAMEBUFFER, secTgt.glFbo);
+                captureFboToPpm((int)secTgt.w, (int)secTgt.h,
+                                "/data/drastic_nano_shot_bot.ppm");
+            }
+            property_set("sys.gammaos.drastic_nano.shot", "0");
         }
 
         if (tripleBuffer) {
@@ -1171,7 +1305,15 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
         android::drmDrainPageFlipEvents();
     }
 
+    // Stop the RetroAchievements client (joins its threads) before the runner
+    // and overlay tear down, since its threads read the runner's memory.
+    ra.shutdown();
     overlay.close();
+    // Free the overlay's RA badge/banner GL textures while the context is still
+    // current and idle, so the GL/DRM teardown below has no outstanding GPU
+    // resources to release (an outstanding bottom-panel texture set wedged the
+    // GPU driver during a relaunch teardown).
+    overlay.freeRaTextures(gfx);
     gfx.shutdown();
     android::drastic_input::closeInputDevices(&input);
     return result;
@@ -1405,8 +1547,15 @@ int main(int argc, char** argv) {
         property_set("sys.gammaos.drastic_nano.boot_fresh", "0");
         ALOGI("drastic-nano: boot_fresh set, forcing fresh boot");
     }
-    int autoLoadSlot = (!bootFresh && property_get_bool(
+    // RetroAchievements hardcore forbids loading save states, including the
+    // launch auto-resume, so a hardcore session always boots fresh. Hardcore is
+    // a per-session setting fixed at launch, so reading the props here matches
+    // what the client will enforce.
+    bool raHardcore = property_get_bool("persist.gammaos.drastic_nano.ra_enabled", false) &&
+                      property_get_bool("persist.gammaos.drastic_nano.ra_hardcore", false);
+    int autoLoadSlot = (!bootFresh && !raHardcore && property_get_bool(
             "persist.gammaos.drastic_nano.autoload", true)) ? 9 : -1;
+    if (raHardcore) ALOGI("drastic-nano: RA hardcore - forcing fresh boot (no auto-load)");
     ALOGI("drastic-nano: auto-load slot = %d", autoLoadSlot);
     if (!dr.init(kDrasticDataDir, romPath, libsDir,
                  /*soundEnabled=*/prefs.soundEnabled,

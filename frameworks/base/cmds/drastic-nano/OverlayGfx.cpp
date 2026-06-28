@@ -11,6 +11,7 @@
 
 #include <string.h>
 #include <stdlib.h>
+#include <math.h>
 
 #include <utils/Log.h>
 
@@ -65,6 +66,18 @@ const char kTextFS[] =
     "void main() {\n"
     "  float a = texture2D(uTex, vUv).r;\n"
     "  gl_FragColor = vec4(uColor.rgb, uColor.a * a);\n"
+    "}\n";
+
+// RGBA image (achievement badge): same per-vertex UV vertex shader as text,
+// but samples a full-colour texture and modulates by an overall alpha.
+const char kImageFS[] =
+    "precision mediump float;\n"
+    "varying vec2 vUv;\n"
+    "uniform sampler2D uTex;\n"
+    "uniform float uAlpha;\n"
+    "void main() {\n"
+    "  vec4 t = texture2D(uTex, vUv);\n"
+    "  gl_FragColor = vec4(t.rgb, t.a * uAlpha);\n"
     "}\n";
 
 // Rounded-rect SDF, transcribed 1:1 from gammaos-nano's ROUND_FRAGMENT_SHADER
@@ -185,6 +198,20 @@ bool OverlayGfx::init(int viewportW, int viewportH, const float rotMat[4]) {
     mRoundLocHalf     = glGetUniformLocation(mRoundProgram, "uHalf");
     mRoundLocRadius   = glGetUniformLocation(mRoundProgram, "uRadius");
 
+    GLuint ivs = compile(GL_VERTEX_SHADER,   kTextVS);   // shares aPos+aUv layout
+    GLuint ifs = compile(GL_FRAGMENT_SHADER, kImageFS);
+    if (!ivs || !ifs) return false;
+    mImageProgram = link(ivs, ifs);
+    glDeleteShader(ivs);
+    glDeleteShader(ifs);
+    if (!mImageProgram) return false;
+    mImgLocPos      = glGetAttribLocation(mImageProgram, "aPos");
+    mImgLocUv       = glGetAttribLocation(mImageProgram, "aUv");
+    mImgLocViewport = glGetUniformLocation(mImageProgram, "uViewport");
+    mImgLocRot      = glGetUniformLocation(mImageProgram, "uRot");
+    mImgLocSampler  = glGetUniformLocation(mImageProgram, "uTex");
+    mImgLocAlpha    = glGetUniformLocation(mImageProgram, "uAlpha");
+
     glGenBuffers(1, &mQuadVbo);
     glGenBuffers(1, &mTextVbo);
 
@@ -236,6 +263,7 @@ void OverlayGfx::shutdown() {
     if (mSolidProgram) { glDeleteProgram(mSolidProgram); mSolidProgram = 0; }
     if (mTextProgram)  { glDeleteProgram(mTextProgram);  mTextProgram = 0; }
     if (mRoundProgram) { glDeleteProgram(mRoundProgram); mRoundProgram = 0; }
+    if (mImageProgram) { glDeleteProgram(mImageProgram); mImageProgram = 0; }
     if (mFtFace) {
         FT_Done_Face((FT_Face)mFtFace);
         mFtFace = nullptr;
@@ -359,6 +387,76 @@ void OverlayGfx::triangle(float x0, float y0, float x1, float y1,
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
+void OverlayGfx::star(float cx, float cy, float r, Color c) {
+    if (r <= 0.0f) return;
+    const float inner = r * 0.42f;
+    float px[10], py[10];
+    for (int i = 0; i < 10; i++) {
+        // Start at the top point and alternate outer/inner radius.
+        float ang = -1.5707963f + (float)i * 0.62831853f;   // -pi/2 + i*pi/5
+        float rad = (i & 1) ? inner : r;
+        px[i] = cx + cosf(ang) * rad;
+        py[i] = cy + sinf(ang) * rad;
+    }
+    for (int i = 0; i < 10; i++) {
+        int j = (i + 1) % 10;
+        triangle(cx, cy, px[i], py[i], px[j], py[j], c);
+    }
+}
+
+GLuint OverlayGfx::createImageTexture(const uint8_t* rgba, int w, int h) {
+    if (!rgba || w <= 0 || h <= 0) return 0;
+    GLuint tex = 0;
+    glGenTextures(1, &tex);
+    if (!tex) return 0;
+    glBindTexture(GL_TEXTURE_2D, tex);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA,
+                 GL_UNSIGNED_BYTE, rgba);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    return tex;
+}
+
+void OverlayGfx::drawImage(GLuint tex, float x, float y, float w, float h,
+                           float alpha) {
+    if (!tex || !mImageProgram) return;
+    glUseProgram(mImageProgram);
+    glUniform2f(mImgLocViewport, (float)mViewportW, (float)mViewportH);
+    glUniformMatrix2fv(mImgLocRot, 1, GL_FALSE, mRot);
+    glUniform1f(mImgLocAlpha, alpha);
+    glActiveTexture(GL_TEXTURE0);
+    glUniform1i(mImgLocSampler, 0);
+
+    const float verts[] = {
+        x,     y,     0.0f, 0.0f,
+        x + w, y,     1.0f, 0.0f,
+        x,     y + h, 0.0f, 1.0f,
+        x + w, y + h, 1.0f, 1.0f,
+    };
+    glBindBuffer(GL_ARRAY_BUFFER, mTextVbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(verts), verts, GL_STREAM_DRAW);
+    glEnableVertexAttribArray(mImgLocPos);
+    glVertexAttribPointer(mImgLocPos, 2, GL_FLOAT, GL_FALSE,
+                          4 * sizeof(float), nullptr);
+    glEnableVertexAttribArray(mImgLocUv);
+    glVertexAttribPointer(mImgLocUv, 2, GL_FLOAT, GL_FALSE,
+                          4 * sizeof(float), (void*)(2 * sizeof(float)));
+    glBindTexture(GL_TEXTURE_2D, tex);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    glDisableVertexAttribArray(mImgLocPos);
+    glDisableVertexAttribArray(mImgLocUv);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
+void OverlayGfx::destroyTexture(GLuint tex) {
+    if (tex) glDeleteTextures(1, &tex);
+}
+
 bool OverlayGfx::loadGlyph(uint32_t cp, int pxSize, Glyph* out) const {
     if (!mFtFace) return false;
     FT_Face face = (FT_Face)mFtFace;
@@ -383,8 +481,10 @@ bool OverlayGfx::loadGlyph(uint32_t cp, int pxSize, Glyph* out) const {
     glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE,
                  out->w, out->h, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE,
                  g->bitmap.buffer);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    // Glyphs are rasterized at the display pixel size and drawn 1:1 on the pixel
+    // grid, so nearest-neighbour sampling keeps them pixel-perfect and crisp.
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     out->tex = tex;
@@ -432,8 +532,14 @@ float OverlayGfx::text(const char* s, float x, float y, float scale, Color c) {
     if (pxSize < 4) pxSize = 4;
     if (pxSize > 256) pxSize = 256;
 
-    float penX = x;
-    const float baseline = y + mAscent * scale;
+    // Snap the pen and baseline to whole pixels. Each glyph is rasterized at an
+    // integer pixel size and drawn 1:1, so if it were placed at a fractional
+    // coordinate the bitmap would straddle the pixel grid and GL_LINEAR would
+    // blur it, which is the "badly scaled" look on low-resolution panels.
+    // Advances and bearings are already whole pixels, so once the pen starts on
+    // an integer every glyph in the run lands on the grid and stays crisp.
+    float penX = floorf(x + 0.5f);
+    const float baseline = floorf(y + mAscent * scale + 0.5f);
     const char* p = s;
     const char* end = s + strlen(s);
     while (p < end) {

@@ -86,6 +86,21 @@ public:
     void triangle(float x0, float y0, float x1, float y1,
                   float x2, float y2, Color c);
 
+    // Filled 5-point star centred at (cx, cy) with outer radius r. Drawn as
+    // geometry (not a font glyph) so the "unlocked" marker renders regardless
+    // of font coverage (Roboto has no U+2605).
+    void star(float cx, float cy, float r, Color c);
+
+    // RGBA image drawing (achievement badges). createImageTexture uploads raw
+    // 8-bit RGBA pixels (w*h*4 bytes) and returns a GL texture name (0 on
+    // failure); drawImage draws it as a quad in overlay pixel space with an
+    // overall alpha multiplier; destroyTexture frees it. Must be called with a
+    // current GL context (render thread).
+    GLuint createImageTexture(const uint8_t* rgba, int w, int h);
+    void   drawImage(GLuint tex, float x, float y, float w, float h,
+                     float alpha = 1.0f);
+    void   destroyTexture(GLuint tex);
+
     // Override the logical viewport (pixel->NDC denominator). Lets the same
     // OverlayGfx draw into a differently-sized FBO (e.g. the bottom DS panel
     // for the OSK) for one pass; restore the primary size afterwards.
@@ -117,10 +132,13 @@ private:
     GLuint mSolidProgram = 0;
     GLuint mTextProgram  = 0;
     GLuint mRoundProgram = 0;
+    GLuint mImageProgram = 0;
     GLint  mSolidLocPos = -1, mSolidLocColor = -1, mSolidLocViewport = -1, mSolidLocRot = -1;
     GLint  mTextLocPos = -1, mTextLocUv = -1, mTextLocColor = -1, mTextLocViewport = -1, mTextLocRot = -1, mTextLocSampler = -1;
     GLint  mRoundLocPos = -1, mRoundLocLocal = -1, mRoundLocColor = -1,
            mRoundLocViewport = -1, mRoundLocRot = -1, mRoundLocHalf = -1, mRoundLocRadius = -1;
+    GLint  mImgLocPos = -1, mImgLocUv = -1, mImgLocViewport = -1, mImgLocRot = -1,
+           mImgLocSampler = -1, mImgLocAlpha = -1;
 
     GLuint mQuadVbo = 0;   // scratch VBO, refilled per-draw
     GLuint mTextVbo = 0;

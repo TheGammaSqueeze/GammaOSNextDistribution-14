@@ -2,9 +2,10 @@
  * Copyright (C) 2026 GammaOS
  *
  * OverlayMenu: the in-game transparent menu that opens on a short-
- * press of KEY_BACK. Shows four tabbed sections (Save States, Video,
- * Audio, Controls) and lets the user adjust settings without leaving
- * the game.
+ * press of KEY_BACK. Shows six tabbed sections (Save States, Video,
+ * Audio, Controls, Cheats, Achievements) and lets the user adjust
+ * settings without leaving the game. The Achievements section hosts
+ * RetroAchievements login and the achievement list.
  *
  * The menu is driven by an InputActions struct produced by InputMap;
  * rendering goes through OverlayGfx.
@@ -12,7 +13,9 @@
 
 #pragma once
 
+#include <deque>
 #include <functional>
+#include <map>
 #include <string>
 #include <sys/types.h>
 #include <vector>
@@ -24,6 +27,8 @@
 
 namespace android {
 class DrasticRunner;
+class NanoRetroAchievements;
+struct RaUiEvent;
 }
 
 namespace android {
@@ -74,10 +79,45 @@ public:
     // True while the on-screen keyboard is up (drives the bottom-screen pass).
     bool oskActive() const { return mOsk.active(); }
 
+    // True when the bottom screen should show the RetroAchievements detail panel
+    // (overlay open on the Achievements section, logged in, no keyboard up).
+    bool wantsRaBottomPanel() const;
+    // Draw the RetroAchievements detail + leaderboards panel on the bottom DS
+    // screen: the selected achievement's badge, title, full description and
+    // status, plus the game's leaderboards. Touch scrolls. Rendered against the
+    // secondary FBO by main.cpp, same as drawOsk.
+    void drawRaBottomPanel(drastic_gfx::OverlayGfx& gfx);
+    // Feed a bottom-screen touch (normalized 0..1) to the RA panel for scrolling.
+    void raBottomTouch(bool down, bool held, float nx, float ny);
+    // Dim the bottom DS screen while the overlay is open on any section, so the
+    // paused game reads as "menu is up". Drawn against the secondary FBO.
+    void drawBottomScrim(drastic_gfx::OverlayGfx& gfx);
+    // Free the bottom-panel / banner GL textures. Call before tearing the GL
+    // context down (game exit or relaunch) so no GPU resources are outstanding
+    // when the driver releases the context.
+    void freeRaTextures(drastic_gfx::OverlayGfx& gfx);
+
     // Called from the main loop on volume-key presses: VOL = volume,
     // SELECT+VOL = brightness. Adjusts the level and shows the slider HUD.
     void onVolumeAdjust(int dir)     { adjustVolume(dir); }
     void onBrightnessAdjust(int dir) { adjustBrightness(dir); }
+
+    // RetroAchievements: surface a UI event (unlock, game placard, login, etc.)
+    // as an on-screen message, and learn whether hardcore restrictions are
+    // currently active so the menu can gate cheats and save-state loading.
+    void onRaUiEvent(const RaUiEvent& ev);
+    void setHardcoreActive(bool on) {
+        if (on != mRaHardcore) {
+            mRaHardcore = on;
+            // Reflect the cheats / load-state gating immediately if the menu is
+            // already open when RetroAchievements finishes loading.
+            if (mOpen) rebuildRows();
+        }
+    }
+    bool hardcoreActive() const { return mRaHardcore; }
+    // Give the menu the RetroAchievements client so the Achievements section can
+    // show login + the achievement list.
+    void setRaClient(NanoRetroAchievements* ra) { mRa = ra; }
 
     // True if the user picked an option that requires drastic to
     // quit and relaunch (e.g. Hi-res toggle). main.cpp polls this
@@ -109,7 +149,7 @@ public:
 
 private:
     enum Section { kSec_Save = 0, kSec_Video, kSec_Audio, kSec_Controls,
-                   kSec_Cheats, kSec_COUNT };
+                   kSec_Cheats, kSec_Achievements, kSec_COUNT };
     enum class NavDir { None, Up, Down, Left, Right };
 
     struct RowAction {
@@ -119,7 +159,16 @@ private:
         std::function<void()> onAccept;
         // Left/Right handler for adjustable fields. Optional.
         std::function<void(int dir)> onAdjust;
+        // Colour hint for the Achievements list: 0 normal, 1 unlocked (gold),
+        // 2 locked (dim), 3 section header (accent).
+        int tag = 0;
+        // Optional detail (achievement description) shown for the selected row.
+        std::string detail;
+        // Achievement id for an Achievements-list row (0 otherwise), used to
+        // pull the badge for the bottom-screen detail panel.
+        uint32_t raAchId = 0;
     };
+    enum { kRowNormal = 0, kRowUnlocked = 1, kRowLocked = 2, kRowHeader = 3 };
 
     DrasticRunner* mRunner = nullptr;
     drastic_prefs::Prefs mPrefs;      // staged / live prefs
@@ -135,9 +184,41 @@ private:
     bool mRelaunch = false;
     bool mExitApp = false;            // "Exit Game" row selected
     bool mRestartFresh = false;       // "Restart Game" row selected
+    bool mRaHardcore = false;         // RetroAchievements hardcore restrictions active
+    NanoRetroAchievements* mRa = nullptr;   // RetroAchievements client (for the Achievements section)
+    uint32_t mRaUiGen = 0;            // last seen RA UI generation (refresh Achievements on change)
+    bool mRaShownLoggedIn = false;    // login state the Achievements rows were built for
+    bool mRaShownActive = false;      // gameActive() the Achievements rows were built for
+
+    // RetroAchievements rich banner (top-right, drawn over gameplay and over the
+    // menu). Used for unlocks AND all other RA messages (login, placard, mastery,
+    // errors). The badge texture is created lazily when the decoded image arrives
+    // from the RA client (NanoRetroAchievements::popBadge).
+    bool        mBannerActive = false;
+    int64_t     mBannerStartMs = 0;
+    int64_t     mBannerDurMs = 6000;
+    std::string mBannerHeader;        // small top line, e.g. "ACHIEVEMENT UNLOCKED"
+    std::string mBannerTitle;
+    std::string mBannerDesc;
+    int         mBannerPoints = -1;   // <0 hides the points chip
+    uint32_t    mBannerAchId = 0;     // 0 = no badge (a plain message)
+    unsigned    mBannerBadgeTex = 0;       // GLuint; 0 until the badge is uploaded
+    uint32_t    mBannerBadgeTexAchId = 0;  // achievement the current texture belongs to
+    // Accent colour of the banner frame (varies by message kind).
+    float       mBannerAccent[3] = {0.96f, 0.80f, 0.28f};
+    // Queue of pending banners so several achievements unlocking at once are
+    // shown one after another instead of clobbering each other.
+    struct BannerSpec {
+        std::string header, title, desc, badgeUrl;
+        int points = -1;
+        uint32_t achId = 0;
+        float accent[3] = {0.96f, 0.80f, 0.28f};
+    };
+    std::deque<BannerSpec> mBannerQueue;
+    void startNextBanner();   // pop the next queued banner and show it
     Section mSection = kSec_Save;
-    int mCursor[kSec_COUNT] = {0, 0, 0, 0, 0};
-    int mScroll[kSec_COUNT] = {0, 0, 0, 0, 0};
+    int mCursor[kSec_COUNT] = {};   // zero-init all sections (count-proof)
+    int mScroll[kSec_COUNT] = {};
     bool mCaptureKey = false;
     int  mCaptureActionIdx = -1;      // when mCaptureKey: which action
     bool mDirty = false;              // staged edits pending write
@@ -186,6 +267,44 @@ private:
     bool mOskTouchFlipX = false;
     bool mOskTouchFlipY = false;
 
+    // Bottom-screen RetroAchievements detail panel: badge textures lazily built
+    // from the on-disk cache keyed by achievement id, plus its touch scroll.
+    std::map<uint32_t, unsigned> mRaBadgeTex;
+    // Throttle: last elapsedRealtime (ms) a not-yet-cached badge was attempted,
+    // so a missing badge is retried ~1Hz instead of a file read+decode/frame.
+    std::map<uint32_t, int64_t> mRaBadgeMissAt;
+    // In-gameplay RA indicators (RA compliance: Measured/progress and
+    // Trigger/challenge flags must be shown during play, not only in the list).
+    // Challenge: the set of currently primed achievements (id -> badge url),
+    // toggled by the runtime's CHALLENGE_INDICATOR_SHOW/HIDE events; their badges
+    // are drawn at the screen edge while playing.
+    std::map<uint32_t, std::string> mRaChallenge;
+    // Progress: the most recent measured-progress popup (badge + "title  23/50"),
+    // shown on PROGRESS_INDICATOR_SHOW/UPDATE and auto-hidden after a short tail.
+    uint32_t    mRaProgressId = 0;
+    std::string mRaProgressText;
+    std::string mRaProgressBadgeUrl;
+    int64_t     mRaProgressUntilMs = 0;
+    float mRaBottomScroll = 0.0f;       // leaderboard list scroll (pixels)
+    float mRaBottomMaxScroll = 0.0f;    // clamp, set each draw from content size
+    float mRaBottomViewH = 1.0f;        // panel height (pixels), set each draw
+    float mRaScrollVel = 0.0f;          // inertial scroll velocity (px/frame)
+    bool  mRaBottomTouchActive = false; // a drag is in progress
+    float mRaBottomTouchY = 0.0f;       // last touch Y (normalized) for the drag
+    bool  mPrevRaTouch = false;         // previous-frame finger state (tap edge)
+    // Tap vs drag detection + leaderboard drill-in (online rankings) state.
+    float mRaTouchDownX = 0.0f, mRaTouchDownY = 0.0f;
+    bool  mRaTouchMoved = false;
+    uint32_t mRaOpenLbId = 0;           // leaderboard whose rankings are open
+    // Hit-test layout cached from the last draw (pixels), for tap handling.
+    float mLbHitTop = 0.0f, mLbHitRowH = 1.0f;
+    std::vector<uint32_t> mLbHitIds;    // leaderboard ids in drawn order
+    float mBackBtnX = 0, mBackBtnY = 0, mBackBtnW = 0, mBackBtnH = 0;
+    void raHandleTap(float nx, float ny);
+    // Lazily decode + upload an achievement badge from the on-disk cache.
+    // Returns a GL texture (0 if not cached yet). Cached for the session.
+    unsigned raBadgeTex(uint32_t achId, drastic_gfx::OverlayGfx& gfx);
+
     // In-app volume / brightness slider HUDs (ported from the Nano home),
     // shown on the volume keys since the SF system HUDs never appear on the
     // DRM-direct path. Render every frame (even with the menu closed) and
@@ -208,6 +327,17 @@ private:
     void rebuildAudio();
     void rebuildControls();
     void rebuildCheats();
+    void rebuildAchievements();
+    void startRaLogin();   // chained username + password OSK -> mRa->requestLogin
+    // Show the rich banner. header is the small top line; points<0 hides the
+    // points chip; achId>0 requests the badge image; accent is the frame colour.
+    void showBanner(const std::string& header, const std::string& title,
+                    const std::string& desc, int points, uint32_t achId,
+                    float ar, float ag, float ab, const std::string& badgeUrl = "");
+    void drawAchievementBanner(drastic_gfx::OverlayGfx& gfx, float sf);
+    // Draw the in-gameplay challenge (primed) and progress (measured) indicators
+    // over the running game (skipped while the overlay menu itself is open).
+    void drawRaIndicators(drastic_gfx::OverlayGfx& gfx, float sf);
 
     // Hold-to-repeat navigation, ported from the PS3 XMB (NanoMenu
     // navPress/navRelease/tickNavRepeat): holding a dpad direction scrolls

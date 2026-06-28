@@ -6,6 +6,7 @@
 
 #include "OverlayMenu.h"
 #include "NanoI18n.h"   // trDyn() shared nano UI translations
+#include "NanoRetroAchievements.h"   // RaUiEvent
 
 #include <dirent.h>
 #include <errno.h>
@@ -43,7 +44,7 @@ using drastic_gfx::rgba;
 
 namespace {
 constexpr const char* kSectionNames[] = {
-    "Save States", "Video", "Audio", "Controls", "Cheats",
+    "Save States", "Video", "Audio", "Controls", "Cheats", "Achievements",
 };
 // XMB-style layout constants. Coordinates scale with sf =
 // min(vw/1080, vh/720), matching the nano XMB scaling so the overlay
@@ -151,6 +152,8 @@ void OverlayMenu::closeMenu() {
     mOpen = false;
     mCaptureKey = false;
     mCaptureActionIdx = -1;
+    // Drop any leaderboard drill-in so reopening starts on the detail/list view.
+    mRaOpenLbId = 0; mRaBottomScroll = 0.0f; mRaScrollVel = 0.0f;
     if (mRunner) {
         mRunner->pauseToggle(false);
         // Re-assert the live config on the now-running emulator. Live
@@ -177,6 +180,287 @@ void OverlayMenu::close() {
 void OverlayMenu::toast(const std::string& msg, int64_t ms) {
     mToast = msg;
     mToastUntilMs = android::elapsedRealtime() + ms;
+}
+
+void OverlayMenu::onRaUiEvent(const RaUiEvent& ev) {
+    // Every RetroAchievements message uses the rich top-right banner (no more
+    // plain toasts). Accent colour cues the kind: gold for unlocks, green for
+    // sign-in / success, red for errors, blue for informational placards.
+    switch (ev.kind) {
+        case RaUiEvent::Unlock:
+            // Badge + title + points + chime (chime played by the RA client).
+            // The badge image arrives asynchronously and is attached by
+            // drawAchievementBanner once decoded.
+            showBanner("ACHIEVEMENT UNLOCKED", ev.title, ev.subtitle,
+                       (int)ev.points, ev.id, 0.96f, 0.80f, 0.28f, ev.badgeUrl);
+            break;
+        case RaUiEvent::Mastery:
+            showBanner("GAME MASTERED", ev.title.empty() ? "Congratulations!" : ev.title,
+                       ev.subtitle, -1, 0, 0.96f, 0.80f, 0.28f);
+            break;
+        case RaUiEvent::GamePlacard:
+            showBanner("RETROACHIEVEMENTS", ev.title.empty() ? "RetroAchievements" : ev.title,
+                       ev.subtitle, -1, 0, 0.36f, 0.62f, 0.96f);
+            break;
+        case RaUiEvent::Login:
+            if (ev.ok)
+                showBanner("SIGNED IN", ev.title.empty() ? "RetroAchievements" : ev.title,
+                           "Achievements are now active.", -1, 0, 0.34f, 0.80f, 0.46f);
+            else
+                showBanner("RETROACHIEVEMENTS", "Sign-in failed",
+                           ev.subtitle, -1, 0, 0.93f, 0.36f, 0.34f);
+            break;
+        case RaUiEvent::LeaderboardSubmitted:
+            showBanner("LEADERBOARD", ev.title, ev.subtitle, -1, 0, 0.36f, 0.62f, 0.96f);
+            break;
+        case RaUiEvent::ServerError:
+            showBanner("RETROACHIEVEMENTS", "Server error", ev.subtitle,
+                       -1, 0, 0.93f, 0.36f, 0.34f);
+            break;
+        case RaUiEvent::ChallengeShow:
+            // An achievement is primed (its trigger conditions are active): keep
+            // its badge so drawRaIndicators can show it over the game.
+            if (ev.id) {
+                mRaChallenge[ev.id] = ev.badgeUrl;
+                if (mRa && !ev.badgeUrl.empty())
+                    mRa->enqueueBadgeDownload(ev.id, ev.badgeUrl);
+            }
+            break;
+        case RaUiEvent::ChallengeHide:
+            mRaChallenge.erase(ev.id);
+            break;
+        case RaUiEvent::ProgressShow:
+            // Measured-progress update for an achievement (e.g. "23/50"): show a
+            // brief popup. ev.subtitle is the measured string, ev.title the name.
+            if (ev.id) {
+                mRaProgressId = ev.id;
+                mRaProgressText = ev.subtitle.empty()
+                                      ? ev.title
+                                      : (ev.title + "    " + ev.subtitle);
+                mRaProgressBadgeUrl = ev.badgeUrl;
+                mRaProgressUntilMs = android::elapsedRealtime() + 4000;  // safety tail
+                if (mRa && !ev.badgeUrl.empty())
+                    mRa->enqueueBadgeDownload(ev.id, ev.badgeUrl);
+            }
+            break;
+        case RaUiEvent::ProgressHide:
+            mRaProgressId = 0;
+            mRaProgressText.clear();
+            break;
+        default:
+            break;
+    }
+}
+
+void OverlayMenu::showBanner(const std::string& header, const std::string& title,
+                             const std::string& desc, int points, uint32_t achId,
+                             float ar, float ag, float ab, const std::string& badgeUrl) {
+    // Queue the banner so simultaneous unlocks (a level can pop several at once)
+    // are shown one after another instead of overwriting each other. If nothing
+    // is on screen, start it immediately.
+    BannerSpec b;
+    b.header = header; b.title = title; b.desc = desc; b.badgeUrl = badgeUrl;
+    b.points = points; b.achId = achId;
+    b.accent[0] = ar; b.accent[1] = ag; b.accent[2] = ab;
+    if (mBannerQueue.size() > 32) mBannerQueue.pop_front();   // sanity cap
+    mBannerQueue.push_back(std::move(b));
+    if (!mBannerActive) startNextBanner();
+}
+
+void OverlayMenu::startNextBanner() {
+    if (mBannerQueue.empty()) { mBannerActive = false; return; }
+    BannerSpec b = std::move(mBannerQueue.front());
+    mBannerQueue.pop_front();
+    mBannerHeader  = b.header;
+    mBannerTitle   = b.title;
+    mBannerDesc    = b.desc;
+    mBannerPoints  = b.points;
+    mBannerAchId   = b.achId;
+    mBannerAccent[0] = b.accent[0];
+    mBannerAccent[1] = b.accent[1];
+    mBannerAccent[2] = b.accent[2];
+    mBannerStartMs = android::elapsedRealtime();
+    mBannerDurMs   = 6000;
+    mBannerActive  = true;
+    // Re-request the badge for this now-current banner. An earlier banner's
+    // per-frame badge drain may have already consumed and discarded this one's
+    // decoded image, so ask again; it is served instantly from the on-disk
+    // cache (no network) and re-queued for drawAchievementBanner to pick up.
+    if (mRa && mBannerAchId != 0 && !b.badgeUrl.empty())
+        mRa->enqueueBadgeDownload(mBannerAchId, b.badgeUrl);
+    // A leftover badge texture from the previous banner is freed lazily in
+    // drawAchievementBanner once it no longer matches mBannerAchId.
+}
+
+// How long to hold an unlock banner open waiting for its badge to download, and
+// the minimum on-screen time once a late badge finally arrives.
+static constexpr int64_t kBannerBadgeWaitMaxMs = 12000;
+static constexpr int64_t kBannerBadgeTailMs     = 2500;
+
+void OverlayMenu::drawAchievementBanner(drastic_gfx::OverlayGfx& gfx, float sf) {
+    using drastic_gfx::rgba;
+
+    // Drain decoded badges (never let the queue back up). Keep one only if it
+    // belongs to the banner currently on screen. Render thread -> GL upload OK.
+    if (mRa) {
+        uint32_t id = 0; std::vector<uint8_t> px; int bw = 0, bh = 0;
+        while (mRa->popBadge(&id, &px, &bw, &bh)) {
+            if (mBannerActive && id == mBannerAchId && !px.empty() &&
+                bw > 0 && bh > 0 &&
+                !(mBannerBadgeTex && mBannerBadgeTexAchId == id)) {
+                // Already holding this banner's texture means a duplicate decode
+                // arrived; skip it so we never destroy and re-create the same GL
+                // texture in one frame (texture churn the rk GPU driver dislikes).
+                if (mBannerBadgeTex) gfx.destroyTexture(mBannerBadgeTex);
+                mBannerBadgeTex = gfx.createImageTexture(px.data(), bw, bh);
+                mBannerBadgeTexAchId = id;
+                // The badge may have arrived late (a freshly fetched icon on a
+                // slow link). Keep it on screen for a minimum tail so it is
+                // actually seen, not flashed as the banner expires.
+                const int64_t el = android::elapsedRealtime() - mBannerStartMs;
+                if (mBannerDurMs - el < kBannerBadgeTailMs)
+                    mBannerDurMs = el + kBannerBadgeTailMs;
+            }
+        }
+    }
+
+    if (!mBannerActive) {
+        if (mBannerBadgeTex) {
+            gfx.destroyTexture(mBannerBadgeTex);
+            mBannerBadgeTex = 0; mBannerBadgeTexAchId = 0;
+        }
+        return;
+    }
+    if (mBannerBadgeTex && mBannerBadgeTexAchId != mBannerAchId) {
+        gfx.destroyTexture(mBannerBadgeTex);
+        mBannerBadgeTex = 0; mBannerBadgeTexAchId = 0;
+    }
+
+    const int64_t now = android::elapsedRealtime();
+    const int64_t t = now - mBannerStartMs;
+    // Effective on-screen time. When more banners are queued (several unlocks at
+    // once) each shows for a 3s minimum then advances, so a burst clears quickly;
+    // a lone banner keeps its full time, held longer only while still waiting for
+    // a late badge to arrive (bounded so it never lingers forever).
+    const bool backlog = !mBannerQueue.empty();
+    const bool awaitingBadge =
+        (mBannerAchId != 0 && mBannerBadgeTex == 0 && t < kBannerBadgeWaitMaxMs && !backlog);
+    const int64_t effDur = backlog       ? (int64_t) 3000
+                         : awaitingBadge ? kBannerBadgeWaitMaxMs
+                                         : mBannerDurMs;
+    if (t >= effDur) {
+        if (mBannerBadgeTex) {
+            gfx.destroyTexture(mBannerBadgeTex);
+            mBannerBadgeTex = 0; mBannerBadgeTexAchId = 0;
+        }
+        mBannerActive = false;
+        startNextBanner();   // show the next queued unlock, if any
+        return;
+    }
+
+    const float vw    = (float)gfx.viewportW();
+    const float lineH = (float)gfx.fontLineH();
+    const float basePx = (float)gfx.fontBasePx();
+    auto scaleFor = [&](float px) { return px / basePx; };
+
+    const bool  hasBadge = (mBannerAchId != 0);
+    const float pad     = fmaxf(5.0f, lineH * 0.42f);
+    const float margin  = lineH * 0.5f;
+    const float badgeSz = lineH * 2.0f;
+    // Smaller text than before (the previous sizes overflowed the banner).
+    const float headPx  = lineH * 0.52f;
+    const float titlePx = lineH * 0.76f;
+    const float descPx  = lineH * 0.56f;
+
+    // A slightly wider banner so most text fits without scrolling.
+    float textColW = lineH * 11.0f;
+    float bannerW  = pad + (hasBadge ? badgeSz + pad : 0.0f) + textColW + pad;
+    const float maxW = vw - 2.0f * margin;
+    if (bannerW > maxW) {
+        bannerW = maxW;
+        textColW = bannerW - (pad * 2.0f + (hasBadge ? badgeSz + pad : 0.0f));
+    }
+    const float bannerH = (hasBadge ? badgeSz : lineH * 1.9f) + 2.0f * pad;
+    const float radius  = lineH * 0.4f;
+
+    // Slide in / hold / slide out, with a matching alpha fade.
+    auto easeOut = [](float p) { float q = 1.0f - p; return 1.0f - q * q * q; };
+    auto clamp01 = [](float v) { return fminf(fmaxf(v, 0.0f), 1.0f); };
+    float vis = 1.0f;
+    const float inMs = 240.0f, outMs = 320.0f;
+    if (t < inMs) vis = easeOut(clamp01((float)t / inMs));
+    // Fade/slide out against the effective end time (effDur, computed above):
+    // the 3s backlog cut, the badge-wait cap, or the full duration, so the
+    // slide-out always plays against the time the banner actually leaves.
+    const float remain = (float)(effDur - t);
+    if (remain < outMs) vis = fminf(vis, clamp01(remain / outMs));
+    const float alpha = vis;
+
+    const float xRest = vw - bannerW - margin;
+    const float x = xRest + (1.0f - vis) * (bannerW + margin);   // slides in from the right
+    const float y = margin;
+
+    const Color accent = rgba(mBannerAccent[0], mBannerAccent[1], mBannerAccent[2], alpha);
+    gfx.roundedRect(x - 2.0f, y - 2.0f, bannerW + 4.0f, bannerH + 4.0f,
+                    radius + 2.0f, rgba(mBannerAccent[0], mBannerAccent[1],
+                                        mBannerAccent[2], alpha * 0.95f));
+    gfx.roundedRect(x, y, bannerW, bannerH, radius,
+                    rgba(0.06f, 0.07f, 0.11f, alpha * 0.97f));
+
+    float colX = x + pad;
+    if (hasBadge) {
+        const float bx = x + pad;
+        const float by = y + (bannerH - badgeSz) * 0.5f;
+        if (mBannerBadgeTex) gfx.drawImage(mBannerBadgeTex, bx, by, badgeSz, badgeSz, alpha);
+        else gfx.roundedRect(bx, by, badgeSz, badgeSz, radius * 0.6f,
+                             rgba(0.16f, 0.17f, 0.22f, alpha));
+        colX = bx + badgeSz + pad;
+    }
+    const float headScale  = scaleFor(headPx);
+    const float titleScale = scaleFor(titlePx);
+    const float descScale  = scaleFor(descPx);
+
+    // A robust ticker for text that overflows the column: wrap with a gap and
+    // window a fitting substring (no GL clipping needed, works at any opacity).
+    auto rowText = [&](const std::string& s, float scale, float rowY, float colW,
+                       Color col) {
+        if (s.empty()) return;
+        if (gfx.measure(s.c_str(), scale) <= colW) {
+            gfx.text(s.c_str(), colX, rowY, scale, col);
+            return;
+        }
+        std::string scroll = s + "     ";
+        int n = (int)scroll.size();
+        int shift = (int)(((t / 220) % n + n) % n);
+        std::string rot = scroll.substr(shift) + scroll.substr(0, shift);
+        std::string visStr;
+        for (size_t i = 0; i < rot.size(); i++) {
+            std::string cand = visStr; cand += rot[i];
+            if (gfx.measure(cand.c_str(), scale) > colW) break;
+            visStr = cand;
+        }
+        gfx.text(visStr.c_str(), colX, rowY, scale, col);
+    };
+
+    // Header row (accent) with an optional "+N" points chip on the right.
+    float headColW = textColW;
+    const float yHead = y + pad * 0.55f;
+    if (mBannerPoints >= 0) {
+        char pts[24];
+        snprintf(pts, sizeof(pts), "+%d", mBannerPoints);
+        const float ptw = gfx.measure(pts, headScale);
+        gfx.text(pts, x + bannerW - pad - ptw, yHead, headScale, accent);
+        headColW = textColW - ptw - pad;
+    }
+    rowText(mBannerHeader, headScale, yHead, headColW, accent);
+
+    const float yTitle = yHead + headPx + 3.0f * sf;
+    rowText(mBannerTitle, titleScale, yTitle, textColW, rgba(1.0f, 1.0f, 1.0f, alpha));
+
+    if (!mBannerDesc.empty()) {
+        const float yDesc = yTitle + titlePx + 3.0f * sf;
+        rowText(mBannerDesc, descScale, yDesc, textColW, rgba(0.80f, 0.82f, 0.88f, alpha));
+    }
 }
 
 namespace {
@@ -448,7 +732,8 @@ void OverlayMenu::update(const drastic_input::InputActions& a,
         // when the menu isn't visible.
         if (mRunner) {
             if (a.actQuickSave) mRunner->saveStateSlot(0);
-            if (a.actQuickLoad) mRunner->loadStateSlot(0);
+            // Quick-load is a save-state load, disabled in hardcore.
+            if (a.actQuickLoad && !mRaHardcore) mRunner->loadStateSlot(0);
         }
         return;
     }
@@ -520,6 +805,60 @@ void OverlayMenu::update(const drastic_input::InputActions& a,
         return;
     }
 
+    // Achievements section auto-refresh: the RA client loads login + the
+    // achievement set on its own thread, so a section opened mid-load would
+    // otherwise cache a stale "Loading..." / "no achievements". Rebuild when the
+    // RA UI generation advances (login resolved, game loaded, snapshot ready),
+    // and also whenever the login or game-active state diverges from what the
+    // current rows were built for, so the list always converges to reality even
+    // if a generation bump and the state flags are observed slightly apart.
+    if (mSection == kSec_Achievements && mRa) {
+        if (mRa->uiGeneration() != mRaUiGen ||
+            mRa->isLoggedIn()   != mRaShownLoggedIn ||
+            mRa->gameActive()   != mRaShownActive) {
+            rebuildRows();   // rebuildAchievements re-syncs the baselines
+        }
+    }
+
+    // Bottom-screen RA panel touch: a finger drag scrolls the leaderboard list.
+    // The bottom DS panel is the touch panel; only real finger touches count.
+    if (wantsRaBottomPanel() && input) {
+        if (!mOskTouchInit) {
+            mOskTouchFlipX = property_get_bool(
+                    "persist.gammaos.drastic_nano.osk_touch_flipx", false);
+            mOskTouchFlipY = property_get_bool(
+                    "persist.gammaos.drastic_nano.osk_touch_flipy", false);
+            mOskTouchInit = true;
+        }
+        if (input->touchReal) {
+            float nx = (float)input->touchDsX / 256.0f;
+            float ny = (float)input->touchDsY / 192.0f;
+            if (mOskTouchFlipX) nx = 1.0f - nx;
+            if (mOskTouchFlipY) ny = 1.0f - ny;
+            raBottomTouch(!mPrevRaTouch, true, nx, ny);
+        } else {
+            raBottomTouch(false, false, 0.0f, 0.0f);
+            // Inertial scrolling: a flick keeps gliding and decays with friction,
+            // like a phone list.
+            if (fabsf(mRaScrollVel) > 0.3f) {
+                mRaBottomScroll += mRaScrollVel;
+                mRaScrollVel *= 0.90f;
+                if (mRaBottomScroll < 0.0f) { mRaBottomScroll = 0.0f; mRaScrollVel = 0.0f; }
+                if (mRaBottomScroll > mRaBottomMaxScroll) {
+                    mRaBottomScroll = mRaBottomMaxScroll; mRaScrollVel = 0.0f;
+                }
+            } else {
+                mRaScrollVel = 0.0f;
+            }
+        }
+        mPrevRaTouch = input->touchReal;
+    } else {
+        // Left the panel (closed overlay or another section): drop the drill-in.
+        mPrevRaTouch = false;
+        mRaOpenLbId = 0;
+        mRaScrollVel = 0.0f;
+    }
+
     // Normal navigation.
     if (a.navPrevTab) {
         mSection = (Section)((mSection + kSec_COUNT - 1) % kSec_COUNT);
@@ -570,6 +909,7 @@ void OverlayMenu::rebuildRows() {
     case kSec_Audio:    rebuildAudio();    break;
     case kSec_Controls: rebuildControls(); break;
     case kSec_Cheats:   rebuildCheats();   break;
+    case kSec_Achievements: rebuildAchievements(); break;
     default: break;
     }
     if (mCursor[mSection] >= (int)mRows.size()) {
@@ -668,7 +1008,13 @@ void OverlayMenu::rebuildSave() {
         };
         mRows.push_back(std::move(r));
     }
-    for (int slot = 0; slot < 9; slot++) {
+    // RetroAchievements hardcore forbids loading save states (saving is fine).
+    if (mRaHardcore) {
+        RowAction r;
+        r.label = "Load State disabled (RetroAchievements hardcore)";
+        mRows.push_back(std::move(r));
+    }
+    for (int slot = 0; !mRaHardcore && slot < 9; slot++) {
         char label[64];
         snprintf(label, sizeof(label), "Load from Slot %d", slot);
         RowAction r;
@@ -878,10 +1224,177 @@ void OverlayMenu::drawHud(drastic_gfx::OverlayGfx& gfx) {
     }
 }
 
+void OverlayMenu::rebuildAchievements() {
+    if (!mRa) {
+        RowAction r;
+        r.label = "RetroAchievements unavailable";
+        mRows.push_back(std::move(r));
+        return;
+    }
+    // Stay in sync with the RA client so the per-frame watcher only rebuilds on
+    // a real change, not on the rebuild this very call performs.
+    mRaUiGen = mRa->uiGeneration();
+    mRaShownLoggedIn = mRa->isLoggedIn();
+    mRaShownActive = mRa->gameActive();
+    if (!mRa->isLoggedIn()) {
+        {
+            RowAction r;
+            r.label = "Log In to RetroAchievements";
+            r.onAccept = [this]() { startRaLogin(); };
+            mRows.push_back(std::move(r));
+        }
+        {
+            RowAction r;
+            r.label = "Enter your RetroAchievements account to track achievements.";
+            mRows.push_back(std::move(r));
+        }
+        return;
+    }
+    {
+        RowAction r;
+        r.label = "Account";
+        r.value = mRa->userDisplayName();
+        mRows.push_back(std::move(r));
+    }
+    {
+        // Hardcore toggle. Enabling hardcore restarts the game from the title:
+        // the RetroAchievements convention is that a hardcore run starts clean,
+        // with no pre-hardcore progress carried in. The restart is raised by the
+        // RA client thread when it applies the enable (so it fires for both this
+        // menu toggle and the ra_test_hardcore debug hook), and main.cpp turns it
+        // into the same fresh process relaunch as the "Restart Game" menu item.
+        // drastic's in-process soft reset (resetDS) is neutered by the boot-race
+        // longjmp patch and only half-completes, which freezes the game, so a
+        // real restart must relaunch the process. The relaunch teardown frees the
+        // Achievements bottom-panel textures first (main.cpp calls freeRaTextures
+        // before gfx.shutdown), so tearing the GL/DRM context down does not wedge
+        // the GPU driver. The relaunched process reads
+        // persist.gammaos.drastic_nano.ra_hardcore=1 and boots fresh into
+        // hardcore. Disabling hardcore drops to softcore live (no restart). In
+        // hardcore, save-state loading, cheats, fast-forward and auto-resume are
+        // disabled. The server only credits hardcore unlocks once the client is a
+        // registered emulator; this build's User-Agent is not on RA's recognized
+        // list yet (the 0-point "Warning: Unknown Emulator" entry), which is why
+        // the row below flags pending approval.
+        RowAction r;
+        r.label = "Hardcore Mode";
+        r.value = mRa->hardcorePref() ? "On" : "Off";
+        auto toggle = [this]() {
+            if (!mRa) return;
+            const bool newOn = !mRa->hardcorePref();
+            mRa->setHardcorePref(newOn);   // persist + apply; the client thread
+                                           // raises the restart on enable
+            closeMenu();
+            toast(newOn ? "Hardcore on, restarting..." : "Hardcore Mode off");
+        };
+        r.onAccept = toggle;
+        r.onAdjust = [toggle](int /*dir*/) { toggle(); };
+        mRows.push_back(std::move(r));
+    }
+    {
+        // RetroAchievements hardcore-compliance note: a new client only becomes
+        // eligible for hardcore credit after RA approval and a ~6-month timeline
+        // from release, so make users aware before they rely on it.
+        RowAction r;
+        r.label = "Hardcore credit pending RA approval (~6-month eligibility)";
+        r.tag = kRowLocked;
+        mRows.push_back(std::move(r));
+    }
+    // The snapshot may be the live set (gameActive) or, when the network load
+    // has not finished, the on-disk cache from a previous sync (so the list is
+    // usable on a poor or absent link instead of stuck on "Loading...").
+    const bool live = mRa->gameActive();
+    std::vector<NanoRetroAchievements::AchievementInfo> list = mRa->achievementSnapshot();
+    if (list.empty()) {
+        // Nothing cached yet and the live load has not arrived.
+        RowAction r;
+        r.label = live ? "This game has no achievements" : "Loading achievements...";
+        mRows.push_back(std::move(r));
+        return;
+    }
+    if (!live) {
+        // Showing the cached set; unlock state is from the last sync and will
+        // update once the network load completes.
+        RowAction r;
+        r.label = "Offline - showing last synced achievements";
+        r.tag = kRowLocked;
+        mRows.push_back(std::move(r));
+    }
+    // Unlocked achievements (recently unlocked + older) grouped together at the
+    // top in gold; then the locked ones grouped by their progress bucket, dim.
+    bool anyUnlocked = false;
+    for (const auto& a : list) if (a.unlocked) { anyUnlocked = true; break; }
+    if (anyUnlocked) {
+        RowAction hdr; hdr.label = "- Unlocked -"; hdr.tag = kRowHeader;
+        mRows.push_back(std::move(hdr));
+        for (const auto& a : list) {
+            if (!a.unlocked) continue;
+            RowAction r;
+            r.label = a.title;
+            r.tag = kRowUnlocked;
+            r.detail = a.description;   // shown for the selected row
+            r.raAchId = a.id;
+            char val[40];
+            snprintf(val, sizeof(val), "%u pts", a.points);
+            r.value = val;
+            mRows.push_back(std::move(r));
+        }
+    }
+    std::string curBucket;
+    for (const auto& a : list) {
+        if (a.unlocked) continue;
+        const std::string b = a.bucket.empty() ? std::string("Locked") : a.bucket;
+        if (b != curBucket) {
+            curBucket = b;
+            RowAction hdr;
+            hdr.label = std::string("- ") + curBucket + " -";
+            hdr.tag = kRowHeader;
+            mRows.push_back(std::move(hdr));
+        }
+        RowAction r;
+        r.label = a.title;
+        r.tag = kRowLocked;
+        r.detail = a.description;
+        r.raAchId = a.id;
+        char val[72];
+        // Show measured progress (e.g. "23/50") for measured achievements so the
+        // Measured flag is visible in the list, not only as a gameplay popup.
+        if (!a.measuredProgress.empty())
+            snprintf(val, sizeof(val), "%s    %u pts",
+                     a.measuredProgress.c_str(), a.points);
+        else
+            snprintf(val, sizeof(val), "%u pts", a.points);
+        r.value = val;
+        mRows.push_back(std::move(r));
+    }
+}
+
+void OverlayMenu::startRaLogin() {
+    // Chained on-screen keyboards: username, then password, then request login.
+    mOsk.open("RetroAchievements username", "", DrasticOsk::Mode::Text,
+        [this](const std::string& user) {
+            if (user.empty()) return;
+            std::string u = user;
+            mOsk.open("RetroAchievements password", "", DrasticOsk::Mode::Text,
+                [this, u](const std::string& pass) {
+                    if (pass.empty() || !mRa) return;
+                    mRa->requestLogin(u, pass);
+                    toast("Logging in to RetroAchievements...", 2500);
+                });
+        });
+}
+
 void OverlayMenu::rebuildCheats() {
     if (!mRunner || !mRunner->hasCheatApi()) {
         RowAction r;
         r.label = "Cheats not available";
+        mRows.push_back(std::move(r));
+        return;
+    }
+    // RetroAchievements hardcore forbids gameplay-altering cheats.
+    if (mRaHardcore) {
+        RowAction r;
+        r.label = "Cheats disabled (RetroAchievements hardcore)";
         mRows.push_back(std::move(r));
         return;
     }
@@ -1404,6 +1917,10 @@ void OverlayMenu::draw(drastic_gfx::OverlayGfx& gfx) {
         // HUD timers still tick) while the menu is closed -- the user
         // adjusts volume/brightness during gameplay.
         drawHud(gfx);
+        // The achievement unlock banner shows during gameplay (top-right).
+        drawAchievementBanner(gfx, sf);
+        // Challenge (primed) and progress (measured) indicators over the game.
+        drawRaIndicators(gfx, sf);
         if (mToast.empty() ||
             android::elapsedRealtime() > mToastUntilMs) return;
         drawToast(gfx, mToast, sf);
@@ -1429,7 +1946,65 @@ void OverlayMenu::draw(drastic_gfx::OverlayGfx& gfx) {
     float listTop = catBarY + categoryBlockH;
     float footerBandH = gfx.fontLineH() * kFooterScale * sf + 18.0f * sf;
     float listBottom = vh - footerBandH - 12.0f * sf;
+
+    // In the Achievements section, reserve a band above the footer to show the
+    // selected achievement's description (RetroAchievements sends one per
+    // achievement). Larger text and up to three wrapped lines so it is readable
+    // on small panels (e.g. 640x480).
+    const int   kDetailLines = 3;
+    float detailBandH = 0.0f;
+    const float detailScale = 0.85f * sf;
+    if (mSection == kSec_Achievements) {
+        detailBandH = gfx.fontLineH() * detailScale * (float)kDetailLines + 14.0f * sf;
+        listBottom -= detailBandH;
+    }
+
     drawList(gfx, vw, listTop, listBottom - listTop, sf);
+
+    if (detailBandH > 0.0f) {
+        int cur = mCursor[mSection];
+        const std::string detail =
+            (cur >= 0 && cur < (int)mRows.size()) ? mRows[cur].detail : std::string();
+        float dx = vw * kContentLeftFrac;
+        float dyTop = listBottom + 6.0f * sf;
+        // Thin separator line.
+        gfx.fillRect(dx, listBottom + 2.0f * sf, vw * kContentRightFrac - dx,
+                     1.0f * sf, rgba(1, 1, 1, 0.10f));
+        if (!detail.empty()) {
+            // Greedy word-wrap into up to kDetailLines lines within the width.
+            float wrapW = vw * kContentRightFrac - dx;
+            std::vector<std::string> lines(1);
+            size_t pos = 0;
+            while (pos < detail.size() && (int)lines.size() <= kDetailLines) {
+                size_t sp = detail.find(' ', pos);
+                std::string word = detail.substr(
+                    pos, sp == std::string::npos ? std::string::npos : sp - pos);
+                std::string& cur2 = lines.back();
+                std::string cand = cur2.empty() ? word : (cur2 + " " + word);
+                if (cur2.empty() || gfx.measure(cand.c_str(), detailScale) <= wrapW) {
+                    cur2 = cand;
+                } else if ((int)lines.size() < kDetailLines) {
+                    lines.push_back(word);
+                } else {
+                    break;   // last line full; remaining text is truncated below
+                }
+                pos = (sp == std::string::npos) ? detail.size() : sp + 1;
+            }
+            // If text remained, mark the last line as truncated.
+            if (pos < detail.size() && !lines.empty()) {
+                std::string& last = lines.back();
+                while (!last.empty() &&
+                       gfx.measure((last + "...").c_str(), detailScale) > wrapW)
+                    last.pop_back();
+                last += "...";
+            }
+            Color dc = rgba(0.82f, 0.84f, 0.90f, 0.95f);
+            for (size_t i = 0; i < lines.size(); i++)
+                gfx.text(lines[i].c_str(), dx,
+                         dyTop + gfx.fontLineH() * detailScale * (float)i,
+                         detailScale, dc);
+        }
+    }
 
     drawFooter(gfx, vw, vh, sf);
 
@@ -1439,6 +2014,7 @@ void OverlayMenu::draw(drastic_gfx::OverlayGfx& gfx) {
 
     // Volume/brightness HUD sits above the menu too.
     drawHud(gfx);
+    drawAchievementBanner(gfx, sf);
 
     if (!mToast.empty() && android::elapsedRealtime() <= mToastUntilMs) {
         drawToast(gfx, mToast, sf);
@@ -1453,6 +2029,382 @@ void OverlayMenu::drawOsk(drastic_gfx::OverlayGfx& gfx) {
     float vh = (float)gfx.viewportH();
     gfx.fillRect(0, 0, vw, vh, rgba(0, 0, 0, 0.72f));
     mOsk.render(gfx);
+}
+
+// ---------------------------------------------------------------------------
+// Bottom-screen RetroAchievements detail + leaderboards panel
+// ---------------------------------------------------------------------------
+
+bool OverlayMenu::wantsRaBottomPanel() const {
+    return mOpen && mSection == kSec_Achievements && mRa &&
+           mRa->isLoggedIn() && !mOsk.active();
+}
+
+void OverlayMenu::drawBottomScrim(drastic_gfx::OverlayGfx& gfx) {
+    using drastic_gfx::rgba;
+    gfx.fillRect(0, 0, (float)gfx.viewportW(), (float)gfx.viewportH(),
+                 rgba(0, 0, 0, 0.72f));
+}
+
+void OverlayMenu::drawRaIndicators(drastic_gfx::OverlayGfx& gfx, float /*sf*/) {
+    using drastic_gfx::rgba;
+    // Only over the running game; while the overlay menu is open it has its own
+    // UI (and the achievement list shows the same Measured/Trigger state).
+    if (mOpen) return;
+    if (mRaChallenge.empty() && (!mRaProgressId || mRaProgressText.empty())) return;
+
+    const float vw     = (float) gfx.viewportW();
+    const float vh     = (float) gfx.viewportH();
+    const float lineH  = (float) gfx.fontLineH();
+    const float basePx = (float) gfx.fontBasePx();
+    auto scaleFor = [&](float px) { return px / basePx; };
+    const int64_t now = android::elapsedRealtime();
+
+    // Challenge (Trigger) indicators: a stacked column of the currently primed
+    // achievements' badges at the left edge, so the player sees which are active.
+    if (!mRaChallenge.empty()) {
+        const float sz  = floorf(lineH * 1.7f);
+        const float gap = floorf(sz * 0.18f);
+        const float x   = floorf(vw * 0.012f);
+        float y         = floorf(vh * 0.16f);
+        for (const auto& kv : mRaChallenge) {
+            gfx.roundedRect(x - 2.0f, y - 2.0f, sz + 4.0f, sz + 4.0f, sz * 0.22f,
+                            rgba(0.05f, 0.06f, 0.10f, 0.55f));
+            unsigned tex = raBadgeTex(kv.first, gfx);
+            if (tex) gfx.drawImage(tex, x, y, sz, sz, 0.95f);
+            y += sz + gap;
+            if (y + sz > vh * 0.92f) break;   // cap the column
+        }
+    }
+
+    // Progress (Measured) indicator: a brief centred popup near the bottom with
+    // the badge and the measured value (e.g. "Collect 50 rings    23/50").
+    if (mRaProgressId && now < mRaProgressUntilMs && !mRaProgressText.empty()) {
+        const float pad   = fmaxf(5.0f, lineH * 0.40f);
+        const float sz    = lineH * 1.55f;
+        const float txtPx = lineH * 0.62f;
+        const float boxW  = fminf(vw * 0.72f, sz + pad * 3.0f + lineH * 9.5f);
+        const float boxH  = sz + pad * 2.0f;
+        const float x     = floorf((vw - boxW) * 0.5f);
+        const float y     = floorf(vh * 0.80f);
+        float a = 1.0f;
+        const int64_t left = mRaProgressUntilMs - now;
+        if (left < 400) a = (float) left / 400.0f;     // fade-out tail
+        gfx.roundedRect(x, y, boxW, boxH, lineH * 0.35f,
+                        rgba(0.05f, 0.06f, 0.10f, a * 0.92f));
+        gfx.roundedRect(x, y, boxW, 3.0f, 1.5f, rgba(0.36f, 0.62f, 0.96f, a));
+        const float bx = x + pad;
+        const float by = y + (boxH - sz) * 0.5f;
+        unsigned tex = raBadgeTex(mRaProgressId, gfx);
+        if (tex) gfx.drawImage(tex, bx, by, sz, sz, a);
+        else     gfx.roundedRect(bx, by, sz, sz, sz * 0.2f,
+                                 rgba(0.16f, 0.17f, 0.22f, a));
+        const float tx = bx + sz + pad;
+        const float ty = y + (boxH - txtPx) * 0.5f;
+        gfx.text(mRaProgressText.c_str(), tx, ty, scaleFor(txtPx),
+                 rgba(0.93f, 0.95f, 1.0f, a));
+    }
+}
+
+void OverlayMenu::freeRaTextures(drastic_gfx::OverlayGfx& gfx) {
+    for (auto& kv : mRaBadgeTex) if (kv.second) gfx.destroyTexture(kv.second);
+    mRaBadgeTex.clear();
+    mRaBadgeMissAt.clear();
+    if (mBannerBadgeTex) {
+        gfx.destroyTexture(mBannerBadgeTex);
+        mBannerBadgeTex = 0; mBannerBadgeTexAchId = 0;
+    }
+}
+
+unsigned OverlayMenu::raBadgeTex(uint32_t achId, drastic_gfx::OverlayGfx& gfx) {
+    if (!achId || !mRa) return 0;
+    auto it = mRaBadgeTex.find(achId);
+    if (it != mRaBadgeTex.end()) return it->second;   // already uploaded
+    // Not cached yet: throttle disk read + decode to ~1Hz per badge so a badge
+    // that is still downloading does not cause a file read every frame on the
+    // render thread (the client thread keeps warming the cache asynchronously).
+    const int64_t now = android::elapsedRealtime();
+    auto mt = mRaBadgeMissAt.find(achId);
+    if (mt != mRaBadgeMissAt.end() && now - mt->second < 1000) return 0;
+    mRaBadgeMissAt[achId] = now;
+    std::vector<uint8_t> px; int w = 0, h = 0;
+    unsigned tex = 0;
+    if (mRa->loadCachedBadge(achId, &px, &w, &h) && !px.empty())
+        tex = gfx.createImageTexture(px.data(), w, h);
+    if (tex) { mRaBadgeTex[achId] = tex; mRaBadgeMissAt.erase(achId); }
+    return tex;
+}
+
+void OverlayMenu::raBottomTouch(bool down, bool held, float nx, float ny) {
+    if (down) {
+        mRaBottomTouchActive = true;
+        mRaTouchMoved = false;
+        mRaTouchDownX = nx; mRaTouchDownY = ny;
+        mRaBottomTouchY = ny;
+        mRaScrollVel = 0.0f;   // grabbing the list stops any inertia
+        return;
+    }
+    if (held) {
+        if (mRaBottomTouchActive) {
+            if (fabsf(ny - mRaTouchDownY) > 0.025f) mRaTouchMoved = true;
+            float dpx = (mRaBottomTouchY - ny) * mRaBottomViewH;
+            mRaBottomScroll += dpx;
+            mRaScrollVel = dpx;   // last per-frame delta becomes the flick velocity
+            if (mRaBottomScroll < 0.0f) mRaBottomScroll = 0.0f;
+            if (mRaBottomScroll > mRaBottomMaxScroll) mRaBottomScroll = mRaBottomMaxScroll;
+        }
+        mRaBottomTouchY = ny;
+        return;
+    }
+    // Finger up: a touch that did not drag is a tap (momentum carries a flick).
+    if (mRaBottomTouchActive && !mRaTouchMoved) raHandleTap(mRaTouchDownX, mRaTouchDownY);
+    mRaBottomTouchActive = false;
+}
+
+void OverlayMenu::raHandleTap(float /*nx*/, float ny) {
+    const float py = ny * mRaBottomViewH;
+    if (mRaOpenLbId != 0) {
+        // In the rankings view, tapping the top back-bar returns to the list.
+        if (py <= mBackBtnH) { mRaOpenLbId = 0; mRaBottomScroll = 0.0f; }
+        return;
+    }
+    // In the detail/summary view, tapping a leaderboard row opens its rankings.
+    // Only taps inside the actual list band count (so a tap on the card above,
+    // while the list is scrolled, does not spuriously open leaderboard 0).
+    if (py >= mLbHitTop && mLbHitRowH > 0.0f && !mLbHitIds.empty()) {
+        int idx = (int)((py - mLbHitTop + mRaBottomScroll) / mLbHitRowH);
+        if (idx >= 0 && idx < (int)mLbHitIds.size()) {
+            mRaOpenLbId = mLbHitIds[(size_t)idx];
+            mRaBottomScroll = 0.0f;
+            if (mRa) mRa->requestLeaderboardEntries(mRaOpenLbId);
+        }
+    }
+}
+
+void OverlayMenu::drawRaBottomPanel(drastic_gfx::OverlayGfx& gfx) {
+    using drastic_gfx::rgba;
+    const float vw = (float)gfx.viewportW();
+    const float vh = (float)gfx.viewportH();
+    mRaBottomViewH = vh;
+    const float basePx = (float)gfx.fontBasePx();
+    auto sc = [&](float px) { return (basePx > 0.0f) ? (px / basePx) : 1.0f; };
+
+    // Background, rich-banner style.
+    gfx.fillRect(0, 0, vw, vh, rgba(0.05f, 0.06f, 0.09f, 1.0f));
+
+    const float pad = fmaxf(8.0f, vw * 0.035f);
+    const float x = pad;
+    const float contentW = vw - pad * 2.0f;
+    const float titlePx  = fmaxf(12.0f, vh * 0.095f);
+    const float statusPx = fmaxf(10.0f, vh * 0.062f);
+    const float descPx   = fmaxf(10.0f, vh * 0.060f);
+    const float lbPx     = fmaxf(10.0f, vh * 0.060f);
+
+    // Left-right bouncing marquee window of `s` that fits availW (no clipping
+    // needed: it returns the visible substring), used for long titles.
+    auto marquee = [&](const std::string& s, float scale, float availW) -> std::string {
+        if (s.empty() || gfx.measure(s.c_str(), scale) <= availW) return s;
+        const int n = (int)s.size();
+        int maxStart = n - 1;
+        for (int st = 0; st < n; st++)
+            if (gfx.measure(s.c_str() + st, scale) <= availW) { maxStart = st; break; }
+        if (maxStart <= 0) return s;
+        const int hold = 3, leg = maxStart + hold, full = leg * 2;
+        int p = (int)((android::elapsedRealtime() / 260) % full);
+        int start = (p < leg) ? (p < maxStart ? p : maxStart)
+                              : ((full - p) < maxStart ? (full - p) : maxStart);
+        if (start < 0) start = 0;
+        std::string out;
+        for (int e = start; e < n; e++) {
+            std::string cand = s.substr(start, (size_t)(e - start + 1));
+            if (gfx.measure(cand.c_str(), scale) > availW) break;
+            out = cand;
+        }
+        return out.empty() ? s.substr((size_t)start, 1) : out;
+    };
+
+    // Thin scroll bar on the right edge of a scrollable list region.
+    auto drawScrollBar = [&](float regionTop, float regionBot, float contentH) {
+        if (mRaBottomMaxScroll <= 0.0f) return;
+        const float viewH = regionBot - regionTop;
+        if (viewH <= 0.0f || contentH <= 0.0f) return;
+        const float barW = fmaxf(3.0f, vw * 0.012f);
+        const float barX = vw - barW - 2.0f;
+        const float thumbH = fmaxf(viewH * (viewH / contentH), 14.0f);
+        const float thumbY =
+            regionTop + (viewH - thumbH) * (mRaBottomScroll / mRaBottomMaxScroll);
+        gfx.fillRect(barX, regionTop, barW, viewH, rgba(1, 1, 1, 0.05f));
+        gfx.fillRect(barX, thumbY, barW, thumbH, rgba(0.55f, 0.70f, 0.98f, 0.55f));
+    };
+
+    // ===================== Leaderboard rankings (drill-in) =====================
+    if (mRaOpenLbId != 0) {
+        const float barH = titlePx * 1.7f;
+        mBackBtnH = barH;
+        gfx.fillRect(0, 0, vw, barH, rgba(0.10f, 0.12f, 0.17f, 1.0f));
+        gfx.text("< Back", x, (barH - statusPx) * 0.5f, sc(statusPx),
+                 rgba(0.60f, 0.78f, 1.0f, 0.95f));
+        float bw = gfx.measure("< Back", sc(statusPx));
+        std::string lbTitle;
+        if (mRa) {
+            auto lbs2 = mRa->leaderboardSnapshot();
+            for (auto& l : lbs2) if (l.id == mRaOpenLbId) { lbTitle = l.title; break; }
+        }
+        gfx.text(marquee(lbTitle, sc(statusPx), contentW - bw - pad).c_str(),
+                 x + bw + pad, (barH - statusPx) * 0.5f, sc(statusPx),
+                 rgba(0.99f, 0.83f, 0.32f, 0.95f));
+
+        float y = barH + pad * 0.6f;
+        uint32_t haveId = 0; bool loading = false;
+        std::vector<NanoRetroAchievements::LeaderboardEntry> entries;
+        if (mRa) entries = mRa->leaderboardEntriesSnapshot(&haveId, &loading);
+        mLbHitIds.clear();   // taps here only hit the back bar
+        if (haveId != mRaOpenLbId || loading) {
+            gfx.text("Loading rankings...", x, y, sc(descPx), rgba(0.70f, 0.72f, 0.80f, 0.85f));
+        } else if (entries.empty()) {
+            gfx.text("No entries yet. Be the first!", x, y, sc(descPx),
+                     rgba(0.60f, 0.62f, 0.70f, 0.75f));
+        } else {
+            const float rowH = lbPx * 1.55f;
+            const float regionTop = y, regionBot = vh - pad;
+            const float contentH = (float)entries.size() * rowH;
+            mRaBottomMaxScroll = fmaxf(0.0f, contentH - fmaxf(0.0f, regionBot - regionTop));
+            if (mRaBottomScroll > mRaBottomMaxScroll) mRaBottomScroll = mRaBottomMaxScroll;
+            for (size_t i = 0; i < entries.size(); i++) {
+                float ry = regionTop + (float)i * rowH - mRaBottomScroll;
+                if (ry < regionTop || ry > regionBot - lbPx) continue;  // whole-row clip
+                char rk[16]; snprintf(rk, sizeof(rk), "%u", entries[i].rank);
+                gfx.text(rk, x, ry, sc(lbPx), rgba(0.70f, 0.72f, 0.80f, 0.92f));
+                gfx.text(entries[i].user.c_str(), x + contentW * 0.16f, ry, sc(lbPx),
+                         rgba(0.88f, 0.90f, 0.95f, 0.94f));
+                if (!entries[i].score.empty()) {
+                    float swid = gfx.measure(entries[i].score.c_str(), sc(lbPx));
+                    gfx.text(entries[i].score.c_str(), x + contentW - swid, ry, sc(lbPx),
+                             rgba(0.99f, 0.83f, 0.32f, 0.92f));
+                }
+            }
+            drawScrollBar(regionTop, regionBot, contentH);
+        }
+        return;
+    }
+
+    // ===================== Detail / summary view =====================
+    float y = pad;
+    const RowAction* sel = nullptr;
+    int cur = mCursor[kSec_Achievements];
+    if (cur >= 0 && cur < (int)mRows.size() && mRows[cur].raAchId) sel = &mRows[cur];
+    // No fallback: only show a card when an actual achievement row is selected.
+
+    if (sel) {
+        const bool unlocked = (sel->tag == kRowUnlocked);
+        const float badgeSz = fmaxf(40.0f, vh * 0.28f);
+        unsigned tex = raBadgeTex(sel->raAchId, gfx);
+        if (tex) gfx.drawImage(tex, x, y, badgeSz, badgeSz, 1.0f);
+        else     gfx.roundedRect(x, y, badgeSz, badgeSz, 6.0f, rgba(1, 1, 1, 0.06f));
+
+        const float tx = x + badgeSz + pad;
+        const float tw = contentW - badgeSz - pad;
+        gfx.text(marquee(sel->label, sc(titlePx), tw).c_str(), tx, y, sc(titlePx),
+                 unlocked ? rgba(0.99f, 0.83f, 0.32f, 0.98f)
+                          : rgba(0.92f, 0.93f, 0.97f, 0.96f));
+        const float sy = y + titlePx * 1.25f;
+        gfx.text(unlocked ? "UNLOCKED" : "LOCKED", tx, sy, sc(statusPx),
+                 unlocked ? rgba(0.45f, 0.85f, 0.50f, 0.95f)
+                          : rgba(0.60f, 0.62f, 0.70f, 0.80f));
+        if (!sel->value.empty()) {
+            float pwid = gfx.measure(sel->value.c_str(), sc(statusPx));
+            gfx.text(sel->value.c_str(), tx + tw - pwid, sy, sc(statusPx),
+                     rgba(0.85f, 0.86f, 0.92f, 0.90f));
+        }
+        y += badgeSz + pad * 0.5f;
+        gfx.fillRect(x, y, contentW, fmaxf(1.0f, vh * 0.004f), rgba(1, 1, 1, 0.10f));
+        y += pad * 0.6f;
+        if (!sel->detail.empty()) {
+            const int maxLines = 4;
+            std::vector<std::string> lines(1);
+            size_t pos = 0;
+            const std::string& d = sel->detail;
+            while (pos < d.size() && (int)lines.size() <= maxLines) {
+                size_t spn = d.find(' ', pos);
+                std::string word = d.substr(
+                    pos, spn == std::string::npos ? std::string::npos : spn - pos);
+                std::string& ln = lines.back();
+                std::string cand = ln.empty() ? word : (ln + " " + word);
+                if (ln.empty() || gfx.measure(cand.c_str(), sc(descPx)) <= contentW)
+                    ln = cand;
+                else if ((int)lines.size() < maxLines) lines.push_back(word);
+                else break;
+                pos = (spn == std::string::npos) ? d.size() : spn + 1;
+            }
+            if (pos < d.size() && !lines.empty()) {
+                std::string& last = lines.back();
+                while (!last.empty() &&
+                       gfx.measure((last + "...").c_str(), sc(descPx)) > contentW)
+                    last.pop_back();
+                last += "...";
+            }
+            for (auto& ln : lines) {
+                gfx.text(ln.c_str(), x, y, sc(descPx), rgba(0.82f, 0.84f, 0.90f, 0.95f));
+                y += descPx * 1.25f;
+            }
+            y += pad * 0.3f;
+        }
+    } else {
+        // Non-achievement row (Account/Hardcore/headers): show a game summary,
+        // never a stray achievement card.
+        gfx.text("Achievements", x, y, sc(titlePx), rgba(0.92f, 0.93f, 0.97f, 0.96f));
+        y += titlePx * 1.3f;
+        if (mRa) {
+            auto list = mRa->achievementSnapshot();
+            int total = 0, unl = 0; uint32_t pts = 0, tot = 0;
+            for (const auto& a : list) {
+                if (a.id >= 100000000u) continue;   // skip the pseudo entry
+                total++; tot += a.points;
+                if (a.unlocked) { unl++; pts += a.points; }
+            }
+            char buf[96];
+            snprintf(buf, sizeof(buf), "%d of %d unlocked    %u / %u points",
+                     unl, total, pts, tot);
+            gfx.text(buf, x, y, sc(statusPx), rgba(0.82f, 0.84f, 0.90f, 0.92f));
+            y += statusPx * 1.5f;
+        }
+    }
+
+    // Divider between the achievement description / summary above and the
+    // Leaderboards section below.
+    gfx.fillRect(x, y, contentW, fmaxf(1.0f, vh * 0.004f), rgba(1, 1, 1, 0.12f));
+    y += pad * 0.7f;
+
+    // ===================== Leaderboards list (tappable) =====================
+    gfx.text("Leaderboards", x, y, sc(statusPx), rgba(0.55f, 0.70f, 0.98f, 0.95f));
+    y += statusPx * 1.5f;
+    std::vector<NanoRetroAchievements::LeaderboardInfo> lbs;
+    if (mRa) lbs = mRa->leaderboardSnapshot();
+    const float regionTop = y, regionBot = vh - pad;
+    const float rowH = lbPx * 1.6f;
+    const float contentH = (float)lbs.size() * rowH;
+    mRaBottomMaxScroll = fmaxf(0.0f, contentH - fmaxf(0.0f, regionBot - regionTop));
+    if (mRaBottomScroll > mRaBottomMaxScroll) mRaBottomScroll = mRaBottomMaxScroll;
+    mLbHitTop = regionTop; mLbHitRowH = rowH; mLbHitIds.clear();
+    for (const auto& l : lbs) mLbHitIds.push_back(l.id);
+    if (lbs.empty()) {
+        gfx.text("No leaderboards for this game.", x, regionTop, sc(descPx),
+                 rgba(0.60f, 0.62f, 0.70f, 0.70f));
+    }
+    const float chW = gfx.measure(">", sc(lbPx));
+    for (size_t i = 0; i < lbs.size(); i++) {
+        float ry = regionTop + (float)i * rowH - mRaBottomScroll;
+        if (ry < regionTop || ry > regionBot - lbPx) continue;   // whole-row clip
+        gfx.text(lbs[i].title.c_str(), x, ry, sc(lbPx), rgba(0.86f, 0.88f, 0.93f, 0.92f));
+        // Chevron: a touch affordance showing the row opens its rankings.
+        gfx.text(">", x + contentW - chW, ry, sc(lbPx), rgba(0.55f, 0.70f, 0.98f, 0.95f));
+        if (!lbs[i].value.empty()) {
+            float vwid = gfx.measure(lbs[i].value.c_str(), sc(lbPx));
+            gfx.text(lbs[i].value.c_str(), x + contentW - chW - pad - vwid, ry, sc(lbPx),
+                     rgba(0.99f, 0.83f, 0.32f, 0.92f));
+        }
+    }
+    drawScrollBar(regionTop, regionBot, contentH);
 }
 
 void OverlayMenu::drawCategoryBar(drastic_gfx::OverlayGfx& gfx,
@@ -1520,8 +2472,19 @@ void OverlayMenu::drawList(drastic_gfx::OverlayGfx& gfx, float vw,
         const auto& r = mRows[i];
         bool active = (i == cur);
         float sc = (active ? kRowSelScale : kRowBaseScale) * sf;
-        Color fg = active ? rgba(1.0f, 1.0f, 1.0f, 1.0f)
-                          : rgba(0.65f, 0.66f, 0.72f, 0.70f);
+        // Colour-code the Achievements list: unlocked gold, locked dim, section
+        // headers in accent blue. Other sections use tag 0 (default grey).
+        Color fg;
+        if (active) {
+            fg = rgba(1.0f, 1.0f, 1.0f, 1.0f);
+        } else {
+            switch (r.tag) {
+                case kRowUnlocked: fg = rgba(0.99f, 0.83f, 0.32f, 0.95f); break;
+                case kRowLocked:   fg = rgba(0.56f, 0.58f, 0.65f, 0.55f); break;
+                case kRowHeader:   fg = rgba(0.45f, 0.74f, 1.00f, 0.92f); break;
+                default:           fg = rgba(0.65f, 0.66f, 0.72f, 0.70f); break;
+            }
+        }
         float txtH = gfx.fontLineH() * sc;
         float txtY = rowY + (rowH - txtH) / 2.0f;
 
@@ -1538,10 +2501,21 @@ void OverlayMenu::drawList(drastic_gfx::OverlayGfx& gfx, float vw,
         }
 
         gfx.text(trDyn(r.label.c_str()), contentLeft, txtY, sc, fg);
+        float vWidth = 0.0f;
         if (!r.value.empty()) {
             const char* rv = trDyn(r.value.c_str());
-            float vWidth = gfx.measure(rv, sc);
+            vWidth = gfx.measure(rv, sc);
             gfx.text(rv, contentRight - vWidth, txtY, sc, fg);
+        }
+        // Unlocked marker: a small gold star drawn as geometry (the font has no
+        // U+2605), placed just left of the points value.
+        if (r.tag == kRowUnlocked) {
+            float starR = txtH * 0.30f;
+            float starCx = contentRight - vWidth - 9.0f * sf - starR;
+            float starCy = txtY + txtH * 0.5f;
+            gfx.star(starCx, starCy, starR,
+                     active ? rgba(1.0f, 1.0f, 1.0f, 1.0f)
+                            : rgba(0.99f, 0.83f, 0.32f, 0.95f));
         }
 
         rowY += rowH;
