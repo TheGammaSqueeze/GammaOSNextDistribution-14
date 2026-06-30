@@ -108,13 +108,11 @@ int btRadioState() {
     return st;
 }
 
-int lpmGet() {
-    char b[64];
-    if (!readFile(kLpmNode, b, sizeof b)) return -1;
-    for (int i = (int)strlen(b) - 1; i >= 0; --i)
-        if (b[i] == '0' || b[i] == '1') return b[i] - '0';
-    return -1;
-}
+// NEVER read() kLpmNode: on some devices (e.g. the RG DS / rk3568 Broadcom
+// bluesleep) the proc read handler writes into the user buffer without
+// copy_to_user, so a read faults in kernel context and panics the box. We only
+// ever write the node and track the last value we applied (lpmSet uses O_WRONLY,
+// which fails cleanly where the node is read-only).
 bool lpmSet(int v) { return writeFile(kLpmNode, v ? "1" : "0"); }
 
 // Is a BT A2DP sink the active output route? Parse `dumpsys bluetooth_manager`:
@@ -280,9 +278,9 @@ void monitorLoop() {
         // ---- Tier 1: keep the BT controller awake while A2DP is the route ----
         // Only touch lpm while the radio is ON; BT-off lpm is nano's suspend domain.
         if (bt == 1) {
+            static int lastLpm = -1;            // what we last wrote; never read the node
             const int wantLpm = routeActive ? 0 : 1;
-            const int cur = lpmGet();
-            if (cur != -1 && cur != wantLpm) lpmSet(wantLpm);
+            if (wantLpm != lastLpm && lpmSet(wantLpm)) lastLpm = wantLpm;
         }
 
         // ---- Tier 2: pin the CPU while audio is actually streaming to A2DP ----

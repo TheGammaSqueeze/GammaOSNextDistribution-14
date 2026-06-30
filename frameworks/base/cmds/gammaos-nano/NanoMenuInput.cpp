@@ -717,6 +717,17 @@ void NanoMenu::tickNavRepeat() {
 // BT session, and on a kill-switch property. Everything no-ops if the nodes are
 // absent (other devices / no xradio BT), so this is Brick-safe but harmless
 // elsewhere.
+//
+// We must NEVER read() /proc/bluetooth/sleep/lpm. On other devices that expose
+// this node (e.g. the Anbernic RG DS / rk3568 with a Broadcom bluesleep driver)
+// the proc read handler is broken: bluesleep_read_proc_lpm writes straight into
+// the caller's user buffer without copy_to_user, so under PAN the read faults in
+// kernel context ("kernel access to user memory outside uaccess routines") and
+// panics the box. Pressing power at the XMB home used to hit exactly this. So we
+// only ever WRITE the node (0 to release, 1 to restore) and remember what we
+// changed with our own latch instead of reading the current value. On those
+// devices the node is read-only (0444), so the write fails cleanly and the whole
+// feature self-disables there.
 // ---------------------------------------------------------------------------
 static bool nanoBtPoweredOff() {
     // rfkill0 == "sunxi-bt" (type bluetooth) on the Brick; state 0 == powered off.
@@ -726,17 +737,6 @@ static bool nanoBtPoweredOff() {
     ssize_t n = read(fd, &st, 1);
     close(fd);
     return n == 1 && st == '0';
-}
-static int nanoBtLpmGet() {              // -1 unknown, else current "lpm enable: N"
-    int fd = open("/proc/bluetooth/sleep/lpm", O_RDONLY | O_CLOEXEC);
-    if (fd < 0) return -1;
-    char buf[64] = {0};
-    ssize_t n = read(fd, buf, sizeof(buf) - 1);
-    close(fd);
-    if (n <= 0) return -1;
-    for (ssize_t i = n - 1; i >= 0; --i)
-        if (buf[i] == '0' || buf[i] == '1') return buf[i] - '0';
-    return -1;
 }
 static bool nanoBtLpmSet(int v) {
     int fd = open("/proc/bluetooth/sleep/lpm", O_WRONLY | O_CLOEXEC);
@@ -756,7 +756,7 @@ void nanoBtLpmSuspendGate(bool screenOff, bool& disabled) {
     if (screenOff == disabled) return;   // already in the desired state
     if (screenOff) {
         if (property_get_bool("persist.gammaos.nano.btlpmsleep", true)
-            && nanoBtPoweredOff() && nanoBtLpmGet() == 1 && nanoBtLpmSet(0)) {
+            && nanoBtPoweredOff() && nanoBtLpmSet(0)) {
             disabled = true;
             ALOGI("NanoMenu: BT off, screen off -> released bluesleep so the SoC can suspend");
         }
@@ -793,7 +793,7 @@ bool NanoMenu::enterDrmSleep() {
     // suspend is not blocked. Idempotent; restored on wake.
     auto releaseBtLpm = [&]() {
         if (btLpmFix && !btLpmDisabled && nanoBtPoweredOff()
-            && nanoBtLpmGet() == 1 && nanoBtLpmSet(0)) {
+            && nanoBtLpmSet(0)) {
             btLpmDisabled = true;
             ALOGI("NanoMenu: BT off -> disabled BT LPM (released bluesleep) so the SoC can suspend");
         }
