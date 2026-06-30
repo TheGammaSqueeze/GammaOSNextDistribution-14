@@ -55,6 +55,14 @@ struct InputState {
     int64_t powerPressStartMs = 0;
     bool powerHoldFired = false;
 
+    // Whether scanInputDevices admits a power-only (KEY_POWER) device. The DRM
+    // backend reads the power key off evdev to drive its own sleep/overlay
+    // (doSleep); the SF backend must NOT capture power - it runs as a normal
+    // foreground app and PhoneWindowManager owns the power gestures - so it sets
+    // this false before the scan and leaves the power node entirely to the
+    // framework.
+    bool admitPowerKey = true;
+
     // Lid (hall-effect) switch state, EV_SW/SW_LID. value 1 = closed.
     // Tracked as a level so a close edge sleeps and an open edge wakes.
     bool lidClosed = false;

@@ -1848,6 +1848,11 @@ RunLoopResult runLoopSf(drastic_nano::IDisplayBackend* backend,
 
     android::drastic_input::InputState input{};
     android::drastic_input::applyPrefs(&input, initialPrefs);
+    // SF runs as a normal foreground app: PhoneWindowManager owns the power
+    // gestures (short = sleep, hold = overlay show/hide), so do not open or read
+    // the power node here. The framework handles power exactly as it does for any
+    // app once this session presents as app-foreground (see app_launched below).
+    input.admitPowerKey = false;
     android::drastic_input::scanInputDevices(&input);
     ALOGI("drastic-nano: SF loop %dx%d, %d display(s), found %zu input devices",
           W, H, backend->displayCount(), input.fds.size());
@@ -1905,16 +1910,31 @@ RunLoopResult runLoopSf(drastic_nano::IDisplayBackend* backend,
                     ((audioBoostSweeps < kAudioFastSweeps) ? kAudioFastGapMs : kAudioSlowGapMs);
         }
 
+        // Keep this drastic-SF session presenting to the framework as a normal
+        // foreground app. The framework sets sys.gammaos.nano.app_launched=1 when
+        // it launches the DrasticSf host, but clears it once that thin host
+        // activity goes STOPPED behind the takeover by this separate drastic-nano
+        // renderer. While app_launched != 1, PhoneWindowManager swallows the power
+        // key in interceptKeyBeforeQueueing and the resident gammaos-nano-overlay
+        // service is never (re)started, so the power button appears dead. Re-assert
+        // it every frame, guarded so it is a no-op once stable and does not churn
+        // the overlay init trigger. This disarms the swallow and lets the framework
+        // own power exactly as it does for any app: short press = sleep, power hold
+        // = overlay show/hide.
+        if (!property_get_bool("sys.gammaos.nano.app_launched", false)) {
+            property_set("sys.gammaos.nano.app_launched", "1");
+        }
+
         android::drastic_input::InputActions actions{};
         android::drastic_input::pollInputMap(
                 &input, overlay.isOpen(), overlay.isCapturingKey(),
                 kBackShortMs, kBackHoldMs, kPowerHoldMs, &actions);
 
-        // SF mode does NOT capture the power button. We run inside an Android
-        // activity window, so PhoneWindowManager owns power (sleep, the system
-        // overlay) just like any app. Acting on it here would fight the
-        // framework (double sleep, a blanked panel). drastic's in-game menu is
-        // still reachable through the BACK button (menuToggle) below.
+        // SF does NOT capture the power button: the power node is not opened
+        // (admitPowerKey=false above), so pollInputMap never produces power actions
+        // here and PhoneWindowManager owns every power gesture, just like for any
+        // app. These stay as a defensive no-op for a multi-key device that also
+        // happens to report KEY_POWER.
         (void)actions.sleepRequested;
         (void)actions.xmbOverlayRequested;
         // Automation hook: sys.gammaos.drastic_nano.menu=1 toggles the overlay

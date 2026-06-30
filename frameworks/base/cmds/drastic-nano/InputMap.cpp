@@ -134,12 +134,15 @@ void scanInputDevices(InputState* st) {
                 return (keys[code / (8 * sizeof(long))] >>
                         (code % (8 * sizeof(long)))) & 1;
             };
-            // KEY_POWER admits the gpio-keys power button device: the
-            // framework consumes KEYCODE_POWER inertly while a drastic
-            // session runs (minimal_boot with no app/overlay foreground),
-            // so the power gestures must be read from evdev here.
+            // KEY_POWER admits the gpio-keys power button device for the DRM
+            // backend: there the framework consumes KEYCODE_POWER inertly while a
+            // drastic session runs (the DRM home swallows it), so the power
+            // gestures must be read from evdev. The SF backend runs as a normal
+            // foreground app and leaves power entirely to PhoneWindowManager, so
+            // it clears admitPowerKey and a power-only node is not opened here.
+            const bool powerAdmit = st->admitPowerKey && has(KEY_POWER);
             if (has(BTN_SOUTH) || has(BTN_A) || has(KEY_BACK) ||
-                has(KEY_UP) || has(KEY_VOLUMEUP) || has(KEY_POWER)) {
+                has(KEY_UP) || has(KEY_VOLUMEUP) || powerAdmit) {
                 st->fds.push_back(fd);
                 // Read axis calibration for any sticks / triggers on
                 // this device. Missing axes leave the struct at
