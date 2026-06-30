@@ -3335,8 +3335,77 @@ if (sRingPrimedCount >= 2) {
             // rather than re-entering the QR preview for a ROM that
             // is now a stale reference.
             property_set("persist.gammaos.nano.qr_prepared", "0");
-            // setDrasticNanoRomPath() already wrote the ROM file; we
-            // just need to pull the trigger.
+            // SurfaceFlinger mode: instead of the DRM-direct handshake, launch
+            // the DrasticSf host activity first. Starting any normal app already
+            // hands the panel from this DRM home to SurfaceFlinger seamlessly,
+            // and the foreground host keeps SF presenting while drastic-nano
+            // renders its SF layer. Opt-in via the backend property; the
+            // dual-display RG DS and every DRM-direct default keep
+            // backend=auto/drm and take the unchanged handshake below.
+            if (android::base::GetProperty(
+                        "persist.gammaos.drastic_nano.backend", "auto") == "sf") {
+                ALOGW("drastic nano: SF mode -- launching DrasticSf via launch_app");
+                // Launch the DrasticSf host activity through the SAME path a
+                // normal app (e.g. the store) uses: set launch_app and let the
+                // home's existing app-launch handoff run. That handoff is what
+                // cleanly exits DRM mode (drops DRM master) and brings the overlay
+                // up to present through SurfaceFlinger; an abrupt am-start + _exit
+                // here skips it and leaves DRM holding the panel (black). The
+                // DrasticSf activity starts the drastic-nano binary itself
+                // (start_sf) once it is foreground, and drastic renders into its
+                // SurfaceView. setDrasticNanoRomPath() already wrote the ROM file.
+                //
+                // CRITICAL: the standalone XMB launch path already wrote a
+                // launch_intent="file" pointing at the STOCK DraStic am-start
+                // intent (nano_launch_intent.txt) and set launch_app to
+                // com.dsemu.drastic. We must clear that intent and the framework
+                // ROM so RootWindowContainer does a plain generic LAUNCHER start
+                // of DrasticSf -- otherwise it relaunches stock DraStic from the
+                // stale intent file (the "original drastic launches" bug).
+                android::base::SetProperty("sys.gammaos.nano.launch_app",
+                                           "com.gammaos.drasticsf");
+                android::base::SetProperty("sys.gammaos.nano.launched_pkg",
+                                           "com.gammaos.drasticsf");
+                android::base::SetProperty("sys.gammaos.nano.launch_intent", "");
+                setLaunchRomPath("");
+                android::base::SetProperty("sys.gammaos.nano.launch_core", "");
+                property_set("sys.gammaos.nano.return_recent", "1");
+                property_set("service.bootanim.nano_retroarch", "1");
+                property_set("sys.gammaos.nano.drop_input", "1");
+                mDrasticNanoPending = false;
+                // Drive the SAME graceful DRM->SurfaceFlinger handoff a normal app
+                // launch uses, but kick it off directly. A button-press launch sets
+                // mWaitForRelease and the fade (mLaunchFadeStart) is stamped by the
+                // release handler in pollInput; we are in the render loop with no
+                // pending release event, so stamp the fade ourselves. With
+                // mLaunchFadeStart set the occlusion guard above does NOT park the
+                // home, pollInput runs each frame, and once the ~260ms fade
+                // completes it sets mExitRequested -> the post-loop path drops DRM
+                // master and exits, so SurfaceFlinger (driven by the overlay
+                // panel-takeover keeper) presents the DrasticSf surface. Without
+                // this the home parks holding DRM master and the panel freezes on
+                // the last XMB frame while drastic renders unseen into its surface.
+                if (mLaunchFadeStart == 0) mLaunchFadeStart = uptimeMillis();
+                // Do NOT _exit and do NOT leave the render loop here: keep rendering
+                // the fade (continue back to the loop top); the fade -> mExitRequested
+                // path performs the clean exit + DRM-master drop, exactly as it does
+                // for any launched app. Exiting abruptly here would strand the panel.
+                continue;
+            }
+            // Fade to black first, like a normal app launch (the SF branch above
+            // uses the same mLaunchFadeStart). Render the fade inline -- render()
+            // draws the black ramp while mLaunchFadeStart is set -- and keep the
+            // heartbeat alive; once the ~260ms fade completes, pull the start
+            // trigger and exit. We stay in this block (continue, mDrasticNanoPending
+            // not cleared) so pollInput and the normal fade->mExitRequested handoff
+            // never run, and the occlusion guard below is not reached.
+            if (mLaunchFadeStart == 0) mLaunchFadeStart = uptimeMillis();
+            if ((int64_t)uptimeMillis() - mLaunchFadeStart < 260) {
+                render();
+                mRenderHeartbeat.fetch_add(1, std::memory_order_relaxed);
+                continue;
+            }
+            // setDrasticNanoRomPath() already wrote the ROM file; pull the trigger.
             property_set("sys.gammaos.drastic_nano.start", "1");
             _exit(0);
         }

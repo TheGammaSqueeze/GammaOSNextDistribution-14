@@ -61,8 +61,11 @@ cc_binary {
         "InputMap.cpp",
         "OverlayGfx.cpp",
         "OverlayMenu.cpp",
+        "OverlayMenuRa.cpp",
         "DrasticOsk.cpp",
         "NanoRetroAchievements.cpp",
+        "DsScreenLayout.cpp",
+        "SfDisplayBackend.cpp",
         ":drastic_nano_shared_srcs",
     ],
 

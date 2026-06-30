@@ -59,8 +59,13 @@ struct InputState {
     // Tracked as a level so a close edge sleeps and an open edge wakes.
     bool lidClosed = false;
 
-    // Touchscreen state.
-    int touchFd = -1;
+    // Touchscreen state. A unit can expose more than one touch node for
+    // the same panel (for example a MediaTek "mtk-tpd" alongside the
+    // vendor controller "hyn_ts"); every touch-capable node is opened and
+    // drained, since only one of them actually streams events and which one
+    // varies by kernel. touchPanelW/H hold the panel's ABS range, which is
+    // identical across a unit's touch nodes.
+    std::vector<int> touchFds;
     int touchPanelW = 0;
     int touchPanelH = 0;
     int touchDsX = 0;
@@ -92,8 +97,21 @@ struct InputState {
     // as a momentary stylus tap at the current cursor position: while
     // held, the stylus is "down" at (touchDsX, touchDsY) even if no
     // real touchscreen finger is present. Lets the player drive the
-    // stylus via LS (analogTouch mode) + R3 tap.
+    // stylus via LS (analogTouch mode) + R3 tap. NOTE: the default R3
+    // binding now toggles the virtual cursor below; this momentary mode
+    // survives only for a button explicitly remapped to action 28.
     bool stylusBtnHeld = false;
+
+    // Virtual touch cursor. Toggled by the "Touch Cursor" action (R3 by
+    // default). While active a pointer is drawn over the DS bottom screen
+    // and moved by the D-Pad / left stick (X held = faster, Y held =
+    // slower); A taps/holds a touch at its position. The cursor-control
+    // buttons (D-Pad, A, X, Y) are then consumed so they do not also reach
+    // the game. Position is kept in DS-native units so it injects directly.
+    bool  cursorMode = false;
+    float cursorX = 128.0f;            // DS native 0..255
+    float cursorY = 96.0f;             // DS native 0..191
+    bool  cursorToggleWasDown = false; // edge-detect the toggle button
     // Last hat axis value for debounce: emit nav events only on
     // transitions (pad stays at the same hat value across many
     // EV_ABS events; firing nav every time scrolls the menu in a
@@ -124,6 +142,10 @@ struct InputActions {
     int  touchX = 0;
     int  touchY = 0;
     bool touchHeld = false;
+    // touchX/touchY are already FINAL DS-native coordinates (the virtual
+    // cursor), so the render loop must inject them directly and skip the
+    // real-panel digitizer->layout remap. False for an ordinary panel touch.
+    bool touchDirect = false;
 
     // Navigation (only set when overlayOpen is true).
     bool navUp = false;
@@ -177,7 +199,7 @@ struct InputActions {
     int capturedAndroidKc = 0;
 };
 
-// Populate state->fds and state->touchFd by walking /dev/input.
+// Populate state->fds and state->touchFds by walking /dev/input.
 // Reads EVIOCGABS for each detected axis so deadzone/scaling work.
 void scanInputDevices(InputState* st);
 

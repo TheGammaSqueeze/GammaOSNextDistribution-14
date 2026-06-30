@@ -38,7 +38,7 @@ static constexpr int kNumPlayers = 3;
 //   18..19: reserved / unknown
 //   20:     Menu
 //   21..27: reserved / unknown
-//   28:     Stylus Touch (synthesizes a stylus tap while held)
+//   28:     Touch Cursor (toggles the virtual touch cursor; default R3)
 static constexpr int kNumActions = 29;
 
 struct Prefs {

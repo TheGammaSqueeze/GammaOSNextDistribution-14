@@ -470,11 +470,23 @@ bool DrasticRunner::init(const std::string& cacheDir,
     // sample those textures (see the `if (mFxRender && mOffscreenTex)`
     // checks there).
     {
+        // The fxRender shader path is for a real play session. Two signals
+        // mark one: the persist drastic-nano feature flag (set on devices that
+        // route DS launches through drastic-nano, also the home's launch gate)
+        // and sys.gammaos.drastic_nano.session, which the drastic-nano binary
+        // sets for its own lifetime. The home's QR preview sets neither, so it
+        // stays on the renderFrame path and never walks an empty pass list
+        // (the SurfaceFlinger-gated dead path that left a red canary). Gating on
+        // the session prop too means the player binary always shades, even when
+        // the persist feature flag has not been set on the device.
         char dnProp[PROPERTY_VALUE_MAX] = {};
         property_get("persist.gammaos.nano.drastic_nano", dnProp, "0");
-        if (dnProp[0] != '1') {
-            ALOGI("DrasticRunner: drastic_nano=0 -- disabling fxRender "
-                  "shader path, using renderFrame for QR preview");
+        const bool realSession =
+                (dnProp[0] == '1') ||
+                property_get_bool("sys.gammaos.drastic_nano.session", false);
+        if (!realSession) {
+            ALOGI("DrasticRunner: not a real session -- disabling fxRender "
+                  "shader path, using renderFrame (QR preview)");
             mFxRender = nullptr;
             mFxLoad   = nullptr;
         }
@@ -1246,6 +1258,49 @@ void DrasticRunner::initSurface(int viewportW, int viewportH,
         glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
 
+    // Dedicated VBO for renderSlotShaded (single-panel layout path). Same
+    // pos@0 / uv@192 24-vertex layout fxLoad expects, so binding it before an
+    // fxRender call is transparent to the pass runner -- but the shared mFxVbo
+    // (used by renderDsToOffscreen on every other device, incl. the RG DS) is
+    // never touched. verts 0..5 are a full-NDC quad with V-FLIPPED UVs so one
+    // screen drawn full lands DS-top at the slot top, matching the drawDsQuad
+    // orientation the layout composite expects; verts 6..11 are a degenerate
+    // zero-area quad for the suppressed screen; verts 18..23 are the full-NDC
+    // standard-UV quad the multi-pass prescale intermediates draw.
+    glGenBuffers(1, &mSlotVbo);
+    {
+        const float slotVerts[96] = {
+            // verts 0..5: active-screen quad (BL, BR, TL / TL, BR, TR).
+            -1.0f, -1.0f,   +1.0f, -1.0f,   -1.0f, +1.0f,
+            -1.0f, +1.0f,   +1.0f, -1.0f,   +1.0f, +1.0f,
+            // verts 6..11: degenerate (suppressed screen).
+            +1.0f, +1.0f,   +1.0f, +1.0f,   +1.0f, +1.0f,
+            +1.0f, +1.0f,   +1.0f, +1.0f,   +1.0f, +1.0f,
+            // verts 12..17: unused, degenerate.
+            +1.0f, +1.0f,   +1.0f, +1.0f,   +1.0f, +1.0f,
+            +1.0f, +1.0f,   +1.0f, +1.0f,   +1.0f, +1.0f,
+            // verts 18..23: full-NDC intermediate quad.
+            -1.0f, -1.0f,   +1.0f, -1.0f,   -1.0f, +1.0f,
+            -1.0f, +1.0f,   +1.0f, -1.0f,   +1.0f, +1.0f,
+            // UVs 0..5: V-flipped so NDC top (+y) samples the DS top row (v=0).
+            0.0f, 1.0f,   1.0f, 1.0f,   0.0f, 0.0f,
+            0.0f, 0.0f,   1.0f, 1.0f,   1.0f, 0.0f,
+            // UVs 6..11 (degenerate).
+            1.0f, 1.0f,   1.0f, 1.0f,   1.0f, 1.0f,
+            1.0f, 1.0f,   1.0f, 1.0f,   1.0f, 1.0f,
+            // UVs 12..17 (degenerate).
+            1.0f, 1.0f,   1.0f, 1.0f,   1.0f, 1.0f,
+            1.0f, 1.0f,   1.0f, 1.0f,   1.0f, 1.0f,
+            // UVs 18..23: full texture, standard orientation.
+            0.0f, 0.0f,   1.0f, 0.0f,   0.0f, 1.0f,
+            0.0f, 1.0f,   1.0f, 0.0f,   1.0f, 1.0f,
+        };
+        glBindBuffer(GL_ARRAY_BUFFER, mSlotVbo);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(slotVerts), slotVerts,
+                     GL_STATIC_DRAW);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+    }
+
     // Call fxSetup LAST so drastic's GL state (program, vertex
     // attribs, texture bindings) is the active state when
     // renderFrame runs. renderFrame does NOT call glUseProgram or
@@ -1355,12 +1410,24 @@ void DrasticRunner::initSurface(int viewportW, int viewportH,
 }
 
 void DrasticRunner::patchFinalPassFbo() {
+    // Forward to the parameterized walk with our shared offscreen FBO, then
+    // invalidate the slot-shade cache: this no-arg form is called by init,
+    // hi-res redim and the runtime shader swap, all of which rebuild the pass
+    // list at mOffscreenW/H and re-point the final pass at mOffscreenFbo, so a
+    // prior slot-sized setup must not be reused by renderSlotShaded.
+    patchFinalPassFbo(mOffscreenFbo);
+    mSlotShadeW = -1;
+    mSlotShadeH = -1;
+    mSlotShadeFbo = 0;
+}
+
+void DrasticRunner::patchFinalPassFbo(unsigned int targetFbo) {
     if (!mArm64Base) {
         ALOGW("DrasticRunner::patchFinalPassFbo: no base address, skip");
         return;
     }
-    if (mOffscreenFbo == 0) {
-        ALOGW("DrasticRunner::patchFinalPassFbo: no offscreen FBO, skip");
+    if (targetFbo == 0) {
+        ALOGW("DrasticRunner::patchFinalPassFbo: no target FBO, skip");
         return;
     }
 
@@ -1443,7 +1510,7 @@ void DrasticRunner::patchFinalPassFbo() {
     }
 
     uint32_t oldFbo = *reinterpret_cast<uint32_t*>(last + kPassFboOff);
-    *reinterpret_cast<uint32_t*>(last + kPassFboOff) = mOffscreenFbo;
+    *reinterpret_cast<uint32_t*>(last + kPassFboOff) = targetFbo;
 
     uint32_t program    = *reinterpret_cast<uint32_t*>(last + 0);
     uint32_t posAttrib  = *reinterpret_cast<uint32_t*>(last + 4);
@@ -1459,8 +1526,8 @@ void DrasticRunner::patchFinalPassFbo() {
     uint32_t samplerCnt = *reinterpret_cast<uint32_t*>(last + 364);
 
     ALOGI("DrasticRunner::patchFinalPassFbo: walked %d pass(es), "
-          "final pass.fbo %u -> %u (offscreenFbo)",
-          count, oldFbo, mOffscreenFbo);
+          "final pass.fbo %u -> %u (targetFbo)",
+          count, oldFbo, targetFbo);
     ALOGI("DrasticRunner::patchFinalPassFbo: pass fields "
           "program=%u posAttrib=%u uvAttrib=%u resUnif=%u sclUnif=%u "
           "outW=%u outH=%u samplerCount=%u",
@@ -1713,6 +1780,80 @@ void DrasticRunner::renderDsToOffscreen() {
     }
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+bool DrasticRunner::renderSlotShaded(int which, unsigned int targetFbo,
+                                     int vx, int vy, int vw, int vh) {
+    // Shader-enabled per-slot render. Falls back (returns false) when the
+    // .dfx path is inactive (QR preview / missing fxRender) so the caller can
+    // use the re-sampled renderTop/BottomScreen blit instead. Only the single-
+    // panel DRM layout calls this; the dual-panel (RG DS) and offscreen paths
+    // never do, so renderDsToOffscreen and its callers are untouched.
+    if (!mSurfaceReady || !mFxRender || targetFbo == 0) return false;
+    if (vw <= 0 || vh <= 0) return false;
+
+    // Consume a pending Hi-res 3D re-dim before the upload, like
+    // renderDsToOffscreen, so the textures and the upload size agree.
+    if (mPendingDsReDim.exchange(false)) {
+        redimDsTextures();
+    }
+
+    // Take over frame consumption from the background pixel-pull thread. This
+    // mirrors renderDsToOffscreen's one-time stop but with its own latch so we
+    // never have to touch that function (which the RG DS path relies on).
+    static bool sSlotPixelPullStopped = false;
+    if (!sSlotPixelPullStopped && mPixelPullRunning.load()) {
+        ALOGI("DrasticRunner: stopping pixel-pull for renderSlotShaded takeover");
+        mPixelPullRunning.store(false);
+        usleep(50000);
+        if (mSignalScreen) {
+            mSignalScreen(mFakeEnv, mFakeCls);
+            ALOGI("DrasticRunner: signalScreen kick after pixel-pull stop");
+        }
+        sSlotPixelPullStopped = true;
+    }
+
+    // (Re)size AND place the shader pass list for this slot. fxRender ignores
+    // its own viewport args -- the final pass uses the viewport fxSetup stored
+    // -- so the slot ORIGIN (vx,vy) as well as the size goes through fxSetup.
+    // That also makes the prescale/LCD grid uniforms match the real on-screen
+    // pixel size. fxSetup clears the final-pass FBO redirect, so re-patch
+    // after. Cached on the full rect: a stable layout re-sizes once per
+    // distinct slot rect; an asymmetric big+small layout re-runs fxSetup per
+    // screen each frame (correct -- each prescale must match its own slot).
+    if (mSlotShadeX != vx || mSlotShadeY != vy ||
+        mSlotShadeW != vw || mSlotShadeH != vh) {
+        mFxSetup(mFakeEnv, mFakeCls, mFxTexW, mFxTexH, vx, vy, vw, vh);
+        mSlotShadeX = vx;
+        mSlotShadeY = vy;
+        mSlotShadeW = vw;
+        mSlotShadeH = vh;
+        mSlotShadeFbo = 0;  // fxSetup reset the patch; force a re-patch below
+    }
+    if (mSlotShadeFbo != targetFbo) {
+        patchFinalPassFbo(targetFbo);
+        mSlotShadeFbo = targetFbo;
+    }
+
+    glBindFramebuffer(GL_FRAMEBUFFER, targetFbo);
+    glBindBuffer(GL_ARRAY_BUFFER, mSlotVbo);
+    while (glGetError() != GL_NO_ERROR) {}
+    // Draw exactly one screen filling the slot. The chosen screen uses the
+    // full-NDC V-flipped quad (mSlotVbo verts 0..5); the other uses the
+    // degenerate zero-area quad (verts 6..11) so it contributes nothing.
+    // fxRender uploads the top frame into mDsTopTex and the bottom frame into
+    // mDsBotTex, then its final pass draws the top quad sampling mDsTopTex and
+    // the bottom quad sampling mDsBotTex -- so firstTop=0/firstBot=6 yields the
+    // top screen alone, and firstTop=6/firstBot=0 yields the bottom alone.
+    if (which == 0) {
+        mFxRender(mFakeEnv, mFakeCls, (int)mDsTopTex, (int)mDsBotTex,
+                  0, 6, 18, vx, vy, vw, vh, 0);
+    } else {
+        mFxRender(mFakeEnv, mFakeCls, (int)mDsTopTex, (int)mDsBotTex,
+                  6, 0, 18, vx, vy, vw, vh, 0);
+    }
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    return true;
 }
 
 void DrasticRunner::updatePixels() {

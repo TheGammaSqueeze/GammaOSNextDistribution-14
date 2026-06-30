@@ -119,14 +119,30 @@ void NanoRetroAchievements::onGameLoaded(DrasticRunner* dr, const std::string& r
     char enabled[PROPERTY_VALUE_MAX] = {};
     property_get("persist.gammaos.drastic_nano.ra_enabled", enabled, "0");
     if (enabled[0] != '1') {
-        ALOGI("RA: disabled (persist.gammaos.drastic_nano.ra_enabled=0)");
+        // RA off at load. Do NOT start the client now, but leave the door open:
+        // a UI login (requestLogin) enables RA and starts the client on demand,
+        // so the login is no longer a silent no-op when RA was not pre-enabled.
+        ALOGI("RA: disabled at load (persist.gammaos.drastic_nano.ra_enabled=0); "
+              "a UI login will enable and start it on demand");
         return;
     }
     if (!mRamBase) {
         ALOGE("RA: DS Main RAM unresolved; not starting RetroAchievements");
         return;
     }
+    startClient();
+}
 
+// Start the rc_client + HTTP worker threads for the already-loaded game. Shared
+// by onGameLoaded (RA pre-enabled) and requestLogin (RA enabled on demand by a UI
+// login). mRunner/mRomPath/mRamBase were resolved by onGameLoaded before either
+// caller reaches here.
+bool NanoRetroAchievements::startClient() {
+    if (mStarted) return true;
+    if (!mRamBase) {
+        ALOGE("RA: DS Main RAM unresolved; cannot start the client");
+        return false;
+    }
     mStateDir = "/data/system/nano_ra";
     mkdir(mStateDir.c_str(), 0700);
 
@@ -140,6 +156,7 @@ void NanoRetroAchievements::onGameLoaded(DrasticRunner* dr, const std::string& r
     mHttpThread = std::thread(&NanoRetroAchievements::httpThreadMain, this);
     mClientThread = std::thread(&NanoRetroAchievements::clientThreadMain, this);
     ALOGI("RA: started (rc_client thread + http worker)");
+    return true;
 }
 
 void NanoRetroAchievements::setPaused(bool paused) {
@@ -357,6 +374,18 @@ void NanoRetroAchievements::httpThreadMain() {
                         if (dn >= 0) { dup2(dn, STDERR_FILENO); close(dn); }
                         close(pipefd[0]);
                         close(pipefd[1]);
+                        // Close every OTHER inherited fd before exec. drastic holds
+                        // ~55 fds (DRM master, EGL/GLES render node, /dev/binder,
+                        // AAudio, SurfaceFlinger/libgui sockets), none opened
+                        // O_CLOEXEC. The forked curl inheriting them is the single
+                        // difference from a standalone/runcon curl (which works), and
+                        // is what made the in-process login fail with -32. Also clear
+                        // any blocked signal mask the dlopen'd DS core may have left on
+                        // this worker thread so curl starts with clean signal state.
+                        for (int fd = 3; fd < 1024; fd++) close(fd);
+                        sigset_t empty;
+                        sigemptyset(&empty);
+                        sigprocmask(SIG_SETMASK, &empty, nullptr);
                         execv(argv[0], argv.data());
                         _exit(127);
                     }
@@ -408,6 +437,9 @@ void NanoRetroAchievements::httpThreadMain() {
             if (rc == 0 && httpcode > 0) {
                 status = httpcode;
                 ok = true;
+            } else {
+                ALOGW("RA: curl xfer FAILED rc=%d httpcode=%d bodylen=%zu url=%s",
+                      rc, httpcode, body.size(), j.url.c_str());
             }
         }
 
@@ -634,6 +666,8 @@ void NanoRetroAchievements::refreshAchievementSnapshot() {
                 // sets "unlocked"/full for completed, so only show it while locked.
                 if (!info.unlocked && ach->measured_progress[0])
                     info.measuredProgress = ach->measured_progress;
+                info.rarity = ach->rarity;            // % of players (RA "rarity")
+                info.unlockTime = (int64_t)ach->unlock_time;  // 0 if still locked
                 char burl[256] = {0};
                 if (rc_client_achievement_get_image_url(
                         ach, RC_CLIENT_ACHIEVEMENT_STATE_UNLOCKED,
@@ -1492,6 +1526,25 @@ void NanoRetroAchievements::setHardcorePref(bool on) {
     property_set("persist.gammaos.drastic_nano.ra_hardcore", on ? "1" : "0");
 }
 
+bool NanoRetroAchievements::isEnabled() const {
+    return property_get_bool("persist.gammaos.drastic_nano.ra_enabled", false);
+}
+
+void NanoRetroAchievements::setEnabled(bool on) {
+    property_set("persist.gammaos.drastic_nano.ra_enabled", on ? "1" : "0");
+    if (on) {
+        // Start live this session if a game is loaded. startClient() auto-runs
+        // attemptStoredLogin(), so a previously-credentialed account resumes
+        // without re-entering a password; with no token the UI shows the login.
+        if (!mStarted) startClient();
+    } else {
+        // Stop live (kills any in-flight curl, joins the worker threads). Quick
+        // because the client is paused while the menu is open.
+        if (mStarted) shutdown();
+    }
+    ALOGI("RA: master %s from UI", on ? "ENABLED" : "DISABLED");
+}
+
 void NanoRetroAchievements::requestLogin(const std::string& user, const std::string& pass) {
     if (user.empty() || pass.empty()) return;
     {
@@ -1499,9 +1552,19 @@ void NanoRetroAchievements::requestLogin(const std::string& user, const std::str
         mPendingUser = user;
         mPendingPass = pass;
     }
-    // Persist as the bootstrap credential so the next launch can log in too.
+    // The user explicitly logging in IS the signal to enable RetroAchievements.
+    // Persist it so the client runs on this and every future launch -- without
+    // this the client thread (the SOLE consumer of a login) may not be running
+    // and the login silently no-ops, leaving the cred file behind. This is the
+    // exact bug on a unit where ra_enabled was never set.
+    property_set("persist.gammaos.drastic_nano.ra_enabled", "1");
+
+    // Persist as the bootstrap credential. Drop any stale token first so the
+    // fresh username/password win over a previous (possibly wrong) token when the
+    // client reads stored credentials.
     std::string dir = mStateDir.empty() ? std::string("/data/system/nano_ra") : mStateDir;
     mkdir(dir.c_str(), 0700);
+    unlink((dir + "/token").c_str());
     std::string cred = dir + "/cred";
     std::string tmp = cred + ".tmp";
     FILE* f = fopen(tmp.c_str(), "wb");
@@ -1513,7 +1576,20 @@ void NanoRetroAchievements::requestLogin(const std::string& user, const std::str
         chmod(tmp.c_str(), 0600);
         rename(tmp.c_str(), cred.c_str());
     }
-    mPendingLogin.store(true);
+
+    if (!mStarted) {
+        // RA was not pre-enabled, so the client isn't running. Bring it up now;
+        // its startup attemptStoredLogin() reads the cred we just wrote and logs
+        // in this session (no mPendingLogin needed -- that would double-login).
+        if (!startClient()) {
+            ALOGW("RA: could not start the client now (RAM unresolved); the login "
+                  "will apply on the next launch (RA is now enabled)");
+            return;
+        }
+    } else {
+        // Client already running: hand the new credentials to its loop.
+        mPendingLogin.store(true);
+    }
     ALOGI("RA: login requested from UI for '%s'", user.c_str());
 }
 

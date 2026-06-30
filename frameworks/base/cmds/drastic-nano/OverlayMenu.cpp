@@ -5,6 +5,7 @@
 #define LOG_TAG "DrasticNano.Overlay"
 
 #include "OverlayMenu.h"
+#include "DsScreenLayout.h"   // presetCount()/presetName() for the Layout Preset row
 #include "NanoI18n.h"   // trDyn() shared nano UI translations
 #include "NanoRetroAchievements.h"   // RaUiEvent
 
@@ -56,8 +57,8 @@ constexpr float kCatBarTopFrac  = 0.06f;   // where the category title sits
 // overlay is readable on small handheld panels. Footer intentionally
 // stays modest so the hint strip fits the screen width.
 constexpr float kCatActiveSc    = 2.025f;  // active category title scale
-constexpr float kRowSelScale    = 1.77f;
-constexpr float kRowBaseScale   = 1.50f;
+// kRowSelScale / kRowBaseScale moved to OverlayMenu.h so the Achievements page
+// (OverlayMenuRa.cpp) sizes its rows the same way the normal list does.
 constexpr float kBatTextScale   = 1.425f;
 constexpr float kBatIconScale   = 1.5f;    // battery-body dimension multiplier
 constexpr float kFooterScale    = 1.35f;   // help hint strip at bottom
@@ -66,6 +67,18 @@ constexpr float kFooterScale    = 1.35f;   // help hint strip at bottom
 // shrink from 16%/84% to 5%/95%.
 constexpr float kContentLeftFrac  = 0.05f;
 constexpr float kContentRightFrac = 0.95f;
+
+// Compress an XMB scale factor above the small-panel regime. The overlay's
+// per-element multipliers are tuned for handheld panels whose natural sf is
+// ~0.5 to 0.7; without this a 960- or 1080-line panel (natural sf > 1) renders
+// the menu oversized. Below the knee the value passes through unchanged; above
+// it the excess is scaled down, so the menu keeps a consistent on-screen
+// fraction from a 480p panel up through 1080p.
+inline float scaleForViewport(float sf) {
+    constexpr float kKnee  = 0.65f;   // small-panel sf ceiling, passed through
+    constexpr float kSlope = 0.40f;   // growth rate applied past the knee
+    return (sf > kKnee) ? (kKnee + (sf - kKnee) * kSlope) : sf;
+}
 } // anonymous namespace
 
 OverlayMenu::OverlayMenu() {}
@@ -154,6 +167,7 @@ void OverlayMenu::closeMenu() {
     mCaptureActionIdx = -1;
     // Drop any leaderboard drill-in so reopening starts on the detail/list view.
     mRaOpenLbId = 0; mRaBottomScroll = 0.0f; mRaScrollVel = 0.0f;
+    mRaView = 0;   // single-screen drill-in returns to the achievement list
     if (mRunner) {
         mRunner->pauseToggle(false);
         // Re-assert the live config on the now-running emulator. Live
@@ -662,13 +676,25 @@ static constexpr float   kNavAccelMult       = 1.4f;
 
 void OverlayMenu::handleNavUp() {
     if (mRows.empty()) return;
-    mCursor[mSection]--;
-    if (mCursor[mSection] < 0) mCursor[mSection] = (int)mRows.size() - 1;
+    const int n = (int)mRows.size();
+    int c = mCursor[mSection];
+    // Skip section-header rows (e.g. the Achievements "- Unlocked -" labels):
+    // they are not selectable, so the cursor lands on the next real row.
+    for (int k = 0; k < n; k++) {
+        c = (c - 1 + n) % n;
+        if (mRows[c].tag != kRowHeader) break;
+    }
+    mCursor[mSection] = c;
 }
 void OverlayMenu::handleNavDown() {
     if (mRows.empty()) return;
-    mCursor[mSection]++;
-    if (mCursor[mSection] >= (int)mRows.size()) mCursor[mSection] = 0;
+    const int n = (int)mRows.size();
+    int c = mCursor[mSection];
+    for (int k = 0; k < n; k++) {
+        c = (c + 1) % n;
+        if (mRows[c].tag != kRowHeader) break;
+    }
+    mCursor[mSection] = c;
 }
 void OverlayMenu::adjustCurrent(int dir) {
     int cur = mCursor[mSection];
@@ -727,6 +753,17 @@ void OverlayMenu::tickNavRepeat() {
 
 void OverlayMenu::update(const drastic_input::InputActions& a,
                         drastic_input::InputState* input) {
+    // Debug: force the Achievements section open for headless menu shots (this
+    // platform cannot inject controller input). Gated; default off.
+    {
+        char md[PROPERTY_VALUE_MAX] = {};
+        property_get("persist.gammaos.drastic_nano.menu_dbg", md, "0");
+        if (md[0] == '1' && (!mOpen || mSection != kSec_Achievements)) {
+            mOpen = true;
+            mSection = kSec_Achievements;
+            rebuildRows();
+        }
+    }
     // Short-press BACK toggles menu open/close regardless of state.
     if (a.menuToggle) {
         if (mOpen) {
@@ -871,10 +908,15 @@ void OverlayMenu::update(const drastic_input::InputActions& a,
             }
         }
         mPrevRaTouch = input->touchReal;
-    } else {
-        // Left the panel (closed overlay or another section): drop the drill-in
-        // and fully reset scroll state, matching closeMenu(), so returning to the
-        // Achievements section shows the leaderboard list from the top.
+    } else if (!mSingleScreen) {
+        // Dual-screen only: left the bottom panel (closed overlay or another
+        // section), so drop the drill-in and reset scroll state, matching
+        // closeMenu(). On a single-screen device this branch must NOT run every
+        // frame -- wantsRaBottomPanel() is always false there, and clobbering
+        // mRaOpenLbId each frame would reset the rankings drill-in the moment
+        // raSingleAccept opens it (the "Loading rankings..." that never resolves).
+        // The single-screen drill-in owns mRaOpenLbId/mRaView via raSingle* and
+        // the tab-switch / closeMenu resets.
         mPrevRaTouch = false;
         mRaOpenLbId = 0;
         mRaBottomScroll = 0.0f;
@@ -883,10 +925,12 @@ void OverlayMenu::update(const drastic_input::InputActions& a,
 
     // Normal navigation.
     if (a.navPrevTab) {
+        mRaView = 0;   // leave any single-screen RA drill-in when switching tabs
         mSection = (Section)((mSection + kSec_COUNT - 1) % kSec_COUNT);
         rebuildRows();
     }
     if (a.navNextTab) {
+        mRaView = 0;
         mSection = (Section)((mSection + 1) % kSec_COUNT);
         rebuildRows();
     }
@@ -898,21 +942,37 @@ void OverlayMenu::update(const drastic_input::InputActions& a,
     else if (a.navDownHeld)  held = NavDir::Down;
     else if (a.navLeftHeld)  held = NavDir::Left;
     else if (a.navRightHeld) held = NavDir::Right;
-    if (held != mNavHeldDir) {
+    const bool raSub =
+            (mSingleScreen && mSection == kSec_Achievements && mRaView != 0);
+    if (raSub) {
+        // Single-screen RA drill-in: edge-triggered step (short lists / page
+        // scroll), routed to the active view instead of the list cursor.
+        if (held != mNavHeldDir) {
+            if (held != NavDir::None) raSingleNav(held);
+            mNavHeldDir = held;
+        }
+    } else if (held != mNavHeldDir) {
         if (held == NavDir::None) navRelease();
         else                      navPress(held);   // fires one step now
     } else {
         tickNavRepeat();
     }
     if (a.navAccept) {
-        int cur = mCursor[mSection];
-        if (cur >= 0 && cur < (int)mRows.size() && mRows[cur].onAccept) {
-            mRows[cur].onAccept();
-            rebuildRows();
+        // The single-screen RA drill-in claims Accept first (open detail /
+        // rankings); only a non-achievement row falls through to its onAccept.
+        if (!(mSingleScreen && mSection == kSec_Achievements && raSingleAccept())) {
+            int cur = mCursor[mSection];
+            if (cur >= 0 && cur < (int)mRows.size() && mRows[cur].onAccept) {
+                mRows[cur].onAccept();
+                rebuildRows();
+            }
         }
     }
     if (a.navCancel) {
-        closeMenu();
+        // In a single-screen RA sub-view, Cancel steps back one level instead
+        // of closing the menu.
+        if (!(mSingleScreen && mSection == kSec_Achievements && raSingleCancel()))
+            closeMenu();
     }
 
     // Keep the input layer in sync with any deadzone / analog-touch
@@ -938,6 +998,15 @@ void OverlayMenu::rebuildRows() {
         mCursor[mSection] = (int)mRows.size() - 1;
     }
     if (mCursor[mSection] < 0) mCursor[mSection] = 0;
+    // Never rest the cursor on a non-selectable section header (the rich
+    // Achievements list groups rows under "- Unlocked -" / "- Locked -").
+    {
+        int n = (int)mRows.size();
+        for (int k = 0; k < n && mCursor[mSection] < n &&
+                        mRows[mCursor[mSection]].tag == kRowHeader; k++) {
+            mCursor[mSection] = (mCursor[mSection] + 1) % n;
+        }
+    }
 }
 
 void OverlayMenu::rebuildSave() {
@@ -1258,6 +1327,31 @@ void OverlayMenu::rebuildAchievements() {
     mRaUiGen = mRa->uiGeneration();
     mRaShownLoggedIn = mRa->isLoggedIn();
     mRaShownActive = mRa->gameActive();
+
+    // Master On/Off toggle, always first. Default OFF when the prop is unset.
+    const bool raOn = mRa->isEnabled();
+    {
+        RowAction r;
+        r.label = "RetroAchievements";
+        r.value = raOn ? "On" : "Off";
+        auto toggle = [this]() {
+            bool cur = mRa->isEnabled();
+            mRa->setEnabled(!cur);
+            toast(cur ? "RetroAchievements: Off" : "RetroAchievements: On");
+            rebuildRows();   // refresh the On/Off value (and the rows below) in place
+        };
+        r.onAccept = toggle;
+        r.onAdjust = [toggle](int) { toggle(); };
+        mRows.push_back(std::move(r));
+    }
+    if (!raOn) {
+        RowAction r;
+        r.label = "RetroAchievements is off";
+        r.tag = kRowLocked;
+        mRows.push_back(std::move(r));
+        return;
+    }
+
     if (!mRa->isLoggedIn()) {
         {
             RowAction r;
@@ -1320,6 +1414,14 @@ void OverlayMenu::rebuildAchievements() {
         RowAction r;
         r.label = "Hardcore credit pending RA approval (~6-month eligibility)";
         r.tag = kRowLocked;
+        mRows.push_back(std::move(r));
+    }
+    // Single-screen devices have no bottom DS panel for leaderboards, so give
+    // them a drill-in entry (dual-panel devices show leaderboards on screen 2).
+    if (mSingleScreen && !mRa->leaderboardSnapshot().empty()) {
+        RowAction r;
+        r.label = "View Leaderboards";
+        r.onAccept = [this]() { mRaView = 2; mLbCursor = 0; };
         mRows.push_back(std::move(r));
     }
     // The snapshot may be the live set (gameActive) or, when the network load
@@ -1633,6 +1735,165 @@ void OverlayMenu::rebuildVideo() {
         };
         mRows.push_back(std::move(r));
     }
+    // Screen Layout presets (advanced_drastic). These place the two DS screens
+    // within a single SurfaceFlinger window or single panel; the render loop
+    // re-reads the properties every frame, so the change applies the instant the
+    // row is adjusted. On a two-panel session they are inert except for Swap.
+    {
+        RowAction r;
+        r.label = "Screen Layout";
+        static const char* const kVals[]   = {"auto", "horizontal",
+                                              "vertical", "single"};
+        static const char* const kLabels[] = {"Auto", "Side by Side",
+                                              "Stacked", "Single Screen"};
+        static const int kCount = 4;
+        auto curIdx = []() {
+            char cur[PROPERTY_VALUE_MAX] = {};
+            property_get("persist.gammaos.drastic_nano.orientation", cur, "auto");
+            for (int i = 0; i < kCount; i++)
+                if (strcmp(cur, kVals[i]) == 0) return i;
+            return 0;
+        };
+        r.value = kLabels[curIdx()];
+        r.onAdjust = [curIdx](int dir) {
+            int idx = (curIdx() + dir + kCount) % kCount;
+            property_set("persist.gammaos.drastic_nano.orientation", kVals[idx]);
+        };
+        mRows.push_back(std::move(r));
+    }
+    {
+        // Layout Preset (advanced_drastic / drastic_layout): a fixed handheld
+        // arrangement (Full Screen, Side by Side, picture-in-picture, Big+Small,
+        // Stacked...) that OVERRIDES the parametric Screen Layout/Scaling above.
+        // "Off" keeps the parametric layout. Live: the render loop re-reads it each
+        // frame. Cycles Off (-1) .. presetCount-1.
+        RowAction r;
+        r.label = "Layout Preset";
+        const int n = drastic_nano::presetCount();
+        int idx;
+        {
+            char cur[PROPERTY_VALUE_MAX] = {};
+            property_get("persist.gammaos.drastic_nano.layout_preset", cur, "-1");
+            idx = atoi(cur);
+        }
+        r.value = (idx >= 0 && idx < n) ? drastic_nano::presetName(idx) : "Off";
+        r.onAdjust = [n](int dir) {
+            char cur[PROPERTY_VALUE_MAX] = {};
+            property_get("persist.gammaos.drastic_nano.layout_preset", cur, "-1");
+            int i = atoi(cur) + dir;
+            if (i < -1) i = n - 1; else if (i >= n) i = -1;
+            char buf[16];
+            snprintf(buf, sizeof(buf), "%d", i);
+            property_set("persist.gammaos.drastic_nano.layout_preset", buf);
+        };
+        mRows.push_back(std::move(r));
+    }
+    {
+        // PiP Opacity: how see-through the picture-in-picture INSET screen is, so
+        // the big screen shows through where they overlap. Only affects the PiP
+        // Tiny/Small presets. Live (the render loop re-reads it each frame).
+        RowAction r;
+        r.label = "PiP Opacity";
+        static const char* const kAVals[]   = {"100", "80", "60", "40"};
+        static const char* const kALabels[] = {"Opaque", "80%", "60%", "40%"};
+        static const int kACount = 4;
+        auto curIdx = []() {
+            char cur[PROPERTY_VALUE_MAX] = {};
+            property_get("persist.gammaos.drastic_nano.pip_alpha", cur, "100");
+            for (int i = 0; i < kACount; i++)
+                if (strcmp(cur, kAVals[i]) == 0) return i;
+            return 0;
+        };
+        r.value = kALabels[curIdx()];
+        r.onAdjust = [curIdx](int dir) {
+            int idx = (curIdx() + dir + kACount) % kACount;
+            property_set("persist.gammaos.drastic_nano.pip_alpha", kAVals[idx]);
+        };
+        mRows.push_back(std::move(r));
+    }
+    {
+        // Display Rotation: rotates the WHOLE single-panel output (the DS layout
+        // AND the overlay) on top of the panel's install orientation, so the
+        // console can be held in portrait ("hold it tall"). Real-time: the DRM
+        // render loop re-reads the property each frame and re-lays everything out.
+        RowAction r;
+        r.label = "Display Rotation";
+        static const char* const kRVals[]   = {"0", "90", "180", "270"};
+        static const char* const kRLabels[] = {"Normal", "90", "180", "270"};
+        static const int kRCount = 4;
+        auto curIdx = []() {
+            char cur[PROPERTY_VALUE_MAX] = {};
+            property_get("persist.gammaos.drastic_nano.display_rotate", cur, "0");
+            for (int i = 0; i < kRCount; i++)
+                if (strcmp(cur, kRVals[i]) == 0) return i;
+            return 0;
+        };
+        r.value = kRLabels[curIdx()];
+        r.onAdjust = [curIdx](int dir) {
+            int idx = (curIdx() + dir + kRCount) % kRCount;
+            property_set("persist.gammaos.drastic_nano.display_rotate", kRVals[idx]);
+        };
+        mRows.push_back(std::move(r));
+    }
+    {
+        RowAction r;
+        r.label = "Screen Scaling";
+        static const char* const kVals[]   = {"stretch", "none", "1x2x", "2x1x"};
+        static const char* const kLabels[] = {"Stretch", "Native",
+                                              "Small + Big", "Big + Small"};
+        static const int kCount = 4;
+        auto curIdx = []() {
+            char cur[PROPERTY_VALUE_MAX] = {};
+            property_get("persist.gammaos.drastic_nano.scaling", cur, "stretch");
+            for (int i = 0; i < kCount; i++)
+                if (strcmp(cur, kVals[i]) == 0) return i;
+            return 0;
+        };
+        r.value = kLabels[curIdx()];
+        r.onAdjust = [curIdx](int dir) {
+            int idx = (curIdx() + dir + kCount) % kCount;
+            property_set("persist.gammaos.drastic_nano.scaling", kVals[idx]);
+        };
+        mRows.push_back(std::move(r));
+    }
+    {
+        // Screen Gap: separation between the two DS screens, mainly for stacked
+        // (top/bottom) layouts so the two screens read as distinct. Stored as a
+        // percent of the leading screen's stacking dimension; the layout folds
+        // it into the fit so both screens still fit. Off keeps them touching.
+        RowAction r;
+        r.label = "Screen Gap";
+        static const char* const kGVals[]   = {"0", "8", "16", "25"};
+        static const char* const kGLabels[] = {"Off", "Small", "Medium", "Large"};
+        static const int kGCount = 4;
+        auto curIdx = []() {
+            char cur[PROPERTY_VALUE_MAX] = {};
+            property_get("persist.gammaos.drastic_nano.screen_gap", cur, "0");
+            for (int i = 0; i < kGCount; i++)
+                if (strcmp(cur, kGVals[i]) == 0) return i;
+            return 0;
+        };
+        r.value = kGLabels[curIdx()];
+        r.onAdjust = [curIdx](int dir) {
+            int idx = (curIdx() + dir + kGCount) % kGCount;
+            property_set("persist.gammaos.drastic_nano.screen_gap", kGVals[idx]);
+        };
+        mRows.push_back(std::move(r));
+    }
+    {
+        RowAction r;
+        r.label = "Swap Screens";
+        r.value = property_get_bool("persist.gammaos.drastic_nano.swap", false)
+                          ? "On" : "Off";
+        auto flip = []() {
+            bool cur = property_get_bool(
+                    "persist.gammaos.drastic_nano.swap", false);
+            property_set("persist.gammaos.drastic_nano.swap", cur ? "0" : "1");
+        };
+        r.onAccept = flip;
+        r.onAdjust = [flip](int) { flip(); };
+        mRows.push_back(std::move(r));
+    }
     auto addBool = [&](const char* label, bool& field,
                        bool requiresRestart) {
         RowAction r;
@@ -1868,6 +2129,56 @@ void OverlayMenu::rebuildControls() {
         };
         mRows.push_back(std::move(r));
     }
+    {
+        // Portrait Controls: turn the D-Pad + ABXY by this amount so they stay
+        // natural when the console is physically held tall. Independent of the
+        // screen's Display Rotation (a separate Video setting) so you can rotate
+        // the controls without rotating the picture, or vice versa. The input
+        // layer reads this property every frame. Off disables the remap.
+        RowAction r;
+        r.label = "Portrait Controls";
+        static const char* const kPVals[]   = {"0", "90", "180", "270"};
+        static const char* const kPLabels[] = {"Off", "90", "180", "270"};
+        static const int kPCount = 4;
+        auto curIdx = []() {
+            char cur[PROPERTY_VALUE_MAX] = {};
+            property_get("persist.gammaos.drastic_nano.portrait_controls", cur, "0");
+            for (int i = 0; i < kPCount; i++)
+                if (strcmp(cur, kPVals[i]) == 0) return i;
+            return 0;
+        };
+        r.value = kPLabels[curIdx()];
+        r.onAdjust = [curIdx](int dir) {
+            int idx = (curIdx() + dir + kPCount) % kPCount;
+            property_set("persist.gammaos.drastic_nano.portrait_controls", kPVals[idx]);
+        };
+        mRows.push_back(std::move(r));
+    }
+    {
+        // Portrait Layout: which control drives the direction while Portrait
+        // Controls is on. "Right Stick" keeps the D-Pad as the D-Pad and adds
+        // the right stick as a second D-Pad. "D-Pad as Face" flips it the other
+        // way: the physical D-Pad presses ABXY and the LEFT stick steers, so the
+        // console can be held the opposite way up.
+        RowAction r;
+        r.label = "Portrait Layout";
+        static const char* const kLVals[]   = {"0", "1"};
+        static const char* const kLLabels[] = {"Right Stick", "D-Pad as Face"};
+        static const int kLCount = 2;
+        auto curIdx = []() {
+            char cur[PROPERTY_VALUE_MAX] = {};
+            property_get("persist.gammaos.drastic_nano.portrait_layout", cur, "0");
+            for (int i = 0; i < kLCount; i++)
+                if (strcmp(cur, kLVals[i]) == 0) return i;
+            return 0;
+        };
+        r.value = kLLabels[curIdx()];
+        r.onAdjust = [curIdx](int dir) {
+            int idx = (curIdx() + dir + kLCount) % kLCount;
+            property_set("persist.gammaos.drastic_nano.portrait_layout", kLVals[idx]);
+        };
+        mRows.push_back(std::move(r));
+    }
     // Only expose slots drastic-nano actually handles; the rest stay
     // in the XML untouched (so drastic-app-level bindings the user
     // set up elsewhere aren't clobbered).
@@ -1933,6 +2244,17 @@ void OverlayMenu::draw(drastic_gfx::OverlayGfx& gfx) {
     float vw = (float)gfx.viewportW();
     float vh = (float)gfx.viewportH();
     float sf = clampf(fminf(vw / 1080.0f, vh / 720.0f), kSfMin, kSfMax);
+    // The per-element multipliers (kCatActiveSc, kRowSelScale, ...) are tuned
+    // for the small DRM handheld panels the overlay first shipped on, where
+    // the natural sf sits around 0.5 to 0.7. On a larger, higher-resolution
+    // panel -- a SurfaceFlinger handheld presenting a single 960- or 1080-line
+    // window -- sf climbs past 1.0 and the menu grows out of proportion: an
+    // oversized title with only a few rows visible and the footer hint clipped
+    // at the screen edges. Compress the portion of sf above the small-panel
+    // regime so the menu holds a consistent on-screen fraction from a 480p
+    // panel up through 1080p. Panels at or below the knee are left untouched,
+    // so the existing small-panel look does not regress.
+    sf = scaleForViewport(sf);
 
     if (!mOpen) {
         // The volume/brightness HUD and brief toasts still render (and the
@@ -1973,59 +2295,20 @@ void OverlayMenu::draw(drastic_gfx::OverlayGfx& gfx) {
     // selected achievement's description (RetroAchievements sends one per
     // achievement). Larger text and up to three wrapped lines so it is readable
     // on small panels (e.g. 640x480).
-    const int   kDetailLines = 3;
-    float detailBandH = 0.0f;
-    const float detailScale = 0.85f * sf;
-    if (mSection == kSec_Achievements) {
-        detailBandH = gfx.fontLineH() * detailScale * (float)kDetailLines + 14.0f * sf;
-        listBottom -= detailBandH;
-    }
+    const bool raSubView =
+            (mSingleScreen && mSection == kSec_Achievements && mRaView != 0);
 
-    drawList(gfx, vw, listTop, listBottom - listTop, sf);
-
-    if (detailBandH > 0.0f) {
-        int cur = mCursor[mSection];
-        const std::string detail =
-            (cur >= 0 && cur < (int)mRows.size()) ? mRows[cur].detail : std::string();
-        float dx = vw * kContentLeftFrac;
-        float dyTop = listBottom + 6.0f * sf;
-        // Thin separator line.
-        gfx.fillRect(dx, listBottom + 2.0f * sf, vw * kContentRightFrac - dx,
-                     1.0f * sf, rgba(1, 1, 1, 0.10f));
-        if (!detail.empty()) {
-            // Greedy word-wrap into up to kDetailLines lines within the width.
-            float wrapW = vw * kContentRightFrac - dx;
-            std::vector<std::string> lines(1);
-            size_t pos = 0;
-            while (pos < detail.size() && (int)lines.size() <= kDetailLines) {
-                size_t sp = detail.find(' ', pos);
-                std::string word = detail.substr(
-                    pos, sp == std::string::npos ? std::string::npos : sp - pos);
-                std::string& cur2 = lines.back();
-                std::string cand = cur2.empty() ? word : (cur2 + " " + word);
-                if (cur2.empty() || gfx.measure(cand.c_str(), detailScale) <= wrapW) {
-                    cur2 = cand;
-                } else if ((int)lines.size() < kDetailLines) {
-                    lines.push_back(word);
-                } else {
-                    break;   // last line full; remaining text is truncated below
-                }
-                pos = (sp == std::string::npos) ? detail.size() : sp + 1;
-            }
-            // If text remained, mark the last line as truncated.
-            if (pos < detail.size() && !lines.empty()) {
-                std::string& last = lines.back();
-                while (!last.empty() &&
-                       gfx.measure((last + "...").c_str(), detailScale) > wrapW)
-                    last.pop_back();
-                last += "...";
-            }
-            Color dc = rgba(0.82f, 0.84f, 0.90f, 0.95f);
-            for (size_t i = 0; i < lines.size(); i++)
-                gfx.text(lines[i].c_str(), dx,
-                         dyTop + gfx.fontLineH() * detailScale * (float)i,
-                         detailScale, dc);
-        }
+    if (raSubView) {
+        const float cxL = vw * kContentLeftFrac;
+        const float cxR = vw * kContentRightFrac;
+        drawRaSingle(gfx, cxL, listTop, cxR - cxL, listBottom - listTop, sf);
+    } else if (mSection == kSec_Achievements) {
+        // Rich RetroAchievements list (badge + title + description + unlock date
+        // / rarity + points). Each row carries its own description, so there is
+        // no separate detail band and the list gets the full content region.
+        drawAchievementsList(gfx, vw, listTop, listBottom - listTop, sf);
+    } else {
+        drawList(gfx, vw, listTop, listBottom - listTop, sf);
     }
 
     drawFooter(gfx, vw, vh, sf);
@@ -2053,397 +2336,6 @@ void OverlayMenu::drawOsk(drastic_gfx::OverlayGfx& gfx) {
     mOsk.render(gfx);
 }
 
-// ---------------------------------------------------------------------------
-// Bottom-screen RetroAchievements detail + leaderboards panel
-// ---------------------------------------------------------------------------
-
-bool OverlayMenu::wantsRaBottomPanel() const {
-    return mOpen && mSection == kSec_Achievements && mRa &&
-           mRa->isLoggedIn() && !mOsk.active();
-}
-
-void OverlayMenu::drawBottomScrim(drastic_gfx::OverlayGfx& gfx) {
-    using drastic_gfx::rgba;
-    gfx.fillRect(0, 0, (float)gfx.viewportW(), (float)gfx.viewportH(),
-                 rgba(0, 0, 0, 0.72f));
-}
-
-void OverlayMenu::drawRaIndicators(drastic_gfx::OverlayGfx& gfx, float /*sf*/) {
-    using drastic_gfx::rgba;
-    // Only over the running game; while the overlay menu is open it has its own
-    // UI (and the achievement list shows the same Measured/Trigger state).
-    if (mOpen) return;
-    if (mRaChallenge.empty() && (!mRaProgressId || mRaProgressText.empty())) return;
-
-    const float vw     = (float) gfx.viewportW();
-    const float vh     = (float) gfx.viewportH();
-    const float lineH  = (float) gfx.fontLineH();
-    const float basePx = (float) gfx.fontBasePx();
-    auto scaleFor = [&](float px) { return px / basePx; };
-    const int64_t now = android::elapsedRealtime();
-
-    // Challenge (Trigger) indicators: a stacked column of the currently primed
-    // achievements' badges at the left edge, so the player sees which are active.
-    if (!mRaChallenge.empty()) {
-        const float sz  = floorf(lineH * 1.7f);
-        const float gap = floorf(sz * 0.18f);
-        const float x   = floorf(vw * 0.012f);
-        float y         = floorf(vh * 0.16f);
-        for (const auto& kv : mRaChallenge) {
-            gfx.roundedRect(x - 2.0f, y - 2.0f, sz + 4.0f, sz + 4.0f, sz * 0.22f,
-                            rgba(0.05f, 0.06f, 0.10f, 0.55f));
-            unsigned tex = raBadgeTex(kv.first, gfx);
-            if (tex) gfx.drawImage(tex, x, y, sz, sz, 0.95f);
-            y += sz + gap;
-            if (y + sz > vh * 0.92f) break;   // cap the column
-        }
-    }
-
-    // Progress (Measured) indicator: a brief centred popup near the bottom with
-    // the badge and the measured value (e.g. "Collect 50 rings    23/50").
-    if (mRaProgressId && now < mRaProgressUntilMs && !mRaProgressText.empty()) {
-        const float pad   = fmaxf(5.0f, lineH * 0.40f);
-        const float sz    = lineH * 1.55f;
-        const float txtPx = lineH * 0.62f;
-        const float boxW  = fminf(vw * 0.72f, sz + pad * 3.0f + lineH * 9.5f);
-        const float boxH  = sz + pad * 2.0f;
-        const float x     = floorf((vw - boxW) * 0.5f);
-        const float y     = floorf(vh * 0.80f);
-        float a = 1.0f;
-        const int64_t left = mRaProgressUntilMs - now;
-        if (left < 400) a = (float) left / 400.0f;     // fade-out tail
-        gfx.roundedRect(x, y, boxW, boxH, lineH * 0.35f,
-                        rgba(0.05f, 0.06f, 0.10f, a * 0.92f));
-        gfx.roundedRect(x, y, boxW, 3.0f, 1.5f, rgba(0.36f, 0.62f, 0.96f, a));
-        const float bx = x + pad;
-        const float by = y + (boxH - sz) * 0.5f;
-        unsigned tex = raBadgeTex(mRaProgressId, gfx);
-        if (tex) gfx.drawImage(tex, bx, by, sz, sz, a);
-        else     gfx.roundedRect(bx, by, sz, sz, sz * 0.2f,
-                                 rgba(0.16f, 0.17f, 0.22f, a));
-        const float tx = bx + sz + pad;
-        const float ty = y + (boxH - txtPx) * 0.5f;
-        gfx.text(mRaProgressText.c_str(), tx, ty, scaleFor(txtPx),
-                 rgba(0.93f, 0.95f, 1.0f, a));
-    }
-}
-
-void OverlayMenu::freeRaTextures(drastic_gfx::OverlayGfx& gfx) {
-    for (auto& kv : mRaBadgeTex) if (kv.second) gfx.destroyTexture(kv.second);
-    mRaBadgeTex.clear();
-    mRaBadgeMissAt.clear();
-    if (mBannerBadgeTex) {
-        gfx.destroyTexture(mBannerBadgeTex);
-        mBannerBadgeTex = 0; mBannerBadgeTexAchId = 0;
-    }
-}
-
-unsigned OverlayMenu::raBadgeTex(uint32_t achId, drastic_gfx::OverlayGfx& gfx) {
-    if (!achId || !mRa) return 0;
-    auto it = mRaBadgeTex.find(achId);
-    if (it != mRaBadgeTex.end()) return it->second;   // already uploaded
-    // Not cached yet: throttle disk read + decode to ~1Hz per badge so a badge
-    // that is still downloading does not cause a file read every frame on the
-    // render thread (the client thread keeps warming the cache asynchronously).
-    const int64_t now = android::elapsedRealtime();
-    auto mt = mRaBadgeMissAt.find(achId);
-    if (mt != mRaBadgeMissAt.end() && now - mt->second < 1000) return 0;
-    mRaBadgeMissAt[achId] = now;
-    std::vector<uint8_t> px; int w = 0, h = 0;
-    unsigned tex = 0;
-    if (mRa->loadCachedBadge(achId, &px, &w, &h) && !px.empty())
-        tex = gfx.createImageTexture(px.data(), w, h);
-    if (tex) { mRaBadgeTex[achId] = tex; mRaBadgeMissAt.erase(achId); }
-    return tex;
-}
-
-void OverlayMenu::raBottomTouch(bool down, bool held, float nx, float ny) {
-    if (down) {
-        mRaBottomTouchActive = true;
-        mRaTouchMoved = false;
-        mRaTouchDownX = nx; mRaTouchDownY = ny;
-        mRaBottomTouchY = ny;
-        mRaScrollVel = 0.0f;   // grabbing the list stops any inertia
-        return;
-    }
-    if (held) {
-        if (mRaBottomTouchActive) {
-            if (fabsf(ny - mRaTouchDownY) > 0.025f) mRaTouchMoved = true;
-            float dpx = (mRaBottomTouchY - ny) * mRaBottomViewH;
-            mRaBottomScroll += dpx;
-            mRaScrollVel = dpx;   // last per-frame delta becomes the flick velocity
-            if (mRaBottomScroll < 0.0f) mRaBottomScroll = 0.0f;
-            if (mRaBottomScroll > mRaBottomMaxScroll) mRaBottomScroll = mRaBottomMaxScroll;
-        }
-        mRaBottomTouchY = ny;
-        return;
-    }
-    // Finger up: a touch that did not drag is a tap (momentum carries a flick).
-    if (mRaBottomTouchActive && !mRaTouchMoved) raHandleTap(mRaTouchDownX, mRaTouchDownY);
-    mRaBottomTouchActive = false;
-}
-
-void OverlayMenu::raHandleTap(float /*nx*/, float ny) {
-    const float py = ny * mRaBottomViewH;
-    if (mRaOpenLbId != 0) {
-        // In the rankings view, tapping the top back-bar returns to the list.
-        if (py <= mBackBtnH) { mRaOpenLbId = 0; mRaBottomScroll = 0.0f; }
-        return;
-    }
-    // In the detail/summary view, tapping a leaderboard row opens its rankings.
-    // Only taps inside the actual list band count (so a tap on the card above,
-    // while the list is scrolled, does not spuriously open leaderboard 0).
-    if (py >= mLbHitTop && py <= mLbHitBot && mLbHitRowH > 0.0f && !mLbHitIds.empty()) {
-        int idx = (int)((py - mLbHitTop + mRaBottomScroll) / mLbHitRowH);
-        if (idx >= 0 && idx < (int)mLbHitIds.size()) {
-            // Accept only a row the draw actually painted. The list uses a
-            // whole-row clip (a row is drawn iff its top ry is in
-            // [mLbHitTop, mLbHitBot - mLbHitTextH]); the pixel scroll offset
-            // leaves a partial-row blank gap at the top and bottom of the band
-            // whose continuous hit index would otherwise resolve to a clipped,
-            // off-screen leaderboard. Reconstruct the row top and require it to
-            // be visible, exactly as the draw does.
-            float ry = mLbHitTop + (float)idx * mLbHitRowH - mRaBottomScroll;
-            if (ry >= mLbHitTop && ry <= mLbHitBot - mLbHitTextH) {
-                mRaOpenLbId = mLbHitIds[(size_t)idx];
-                mRaBottomScroll = 0.0f;
-                if (mRa) mRa->requestLeaderboardEntries(mRaOpenLbId);
-            }
-        }
-    }
-}
-
-void OverlayMenu::drawRaBottomPanel(drastic_gfx::OverlayGfx& gfx) {
-    using drastic_gfx::rgba;
-    const float vw = (float)gfx.viewportW();
-    const float vh = (float)gfx.viewportH();
-    mRaBottomViewH = vh;
-    const float basePx = (float)gfx.fontBasePx();
-    auto sc = [&](float px) { return (basePx > 0.0f) ? (px / basePx) : 1.0f; };
-
-    // Background, rich-banner style.
-    gfx.fillRect(0, 0, vw, vh, rgba(0.05f, 0.06f, 0.09f, 1.0f));
-
-    const float pad = fmaxf(8.0f, vw * 0.035f);
-    const float x = pad;
-    const float contentW = vw - pad * 2.0f;
-    const float titlePx  = fmaxf(12.0f, vh * 0.095f);
-    const float statusPx = fmaxf(10.0f, vh * 0.062f);
-    const float descPx   = fmaxf(10.0f, vh * 0.060f);
-    const float lbPx     = fmaxf(10.0f, vh * 0.060f);
-
-    // Left-right bouncing marquee window of `s` that fits availW (no clipping
-    // needed: it returns the visible substring), used for long titles.
-    auto marquee = [&](const std::string& s, float scale, float availW) -> std::string {
-        if (s.empty() || gfx.measure(s.c_str(), scale) <= availW) return s;
-        const int n = (int)s.size();
-        int maxStart = n - 1;
-        for (int st = 0; st < n; st++)
-            if (gfx.measure(s.c_str() + st, scale) <= availW) { maxStart = st; break; }
-        if (maxStart <= 0) return s;
-        const int hold = 3, leg = maxStart + hold, full = leg * 2;
-        int p = (int)((android::elapsedRealtime() / 260) % full);
-        int start = (p < leg) ? (p < maxStart ? p : maxStart)
-                              : ((full - p) < maxStart ? (full - p) : maxStart);
-        if (start < 0) start = 0;
-        std::string out;
-        for (int e = start; e < n; e++) {
-            std::string cand = s.substr(start, (size_t)(e - start + 1));
-            if (gfx.measure(cand.c_str(), scale) > availW) break;
-            out = cand;
-        }
-        return out.empty() ? s.substr((size_t)start, 1) : out;
-    };
-
-    // Thin scroll bar on the right edge of a scrollable list region.
-    auto drawScrollBar = [&](float regionTop, float regionBot, float contentH) {
-        if (mRaBottomMaxScroll <= 0.0f) return;
-        const float viewH = regionBot - regionTop;
-        if (viewH <= 0.0f || contentH <= 0.0f) return;
-        const float barW = fmaxf(3.0f, vw * 0.012f);
-        const float barX = vw - barW - 2.0f;
-        const float thumbH = fmaxf(viewH * (viewH / contentH), 14.0f);
-        const float thumbY =
-            regionTop + (viewH - thumbH) * (mRaBottomScroll / mRaBottomMaxScroll);
-        gfx.fillRect(barX, regionTop, barW, viewH, rgba(1, 1, 1, 0.05f));
-        gfx.fillRect(barX, thumbY, barW, thumbH, rgba(0.55f, 0.70f, 0.98f, 0.55f));
-    };
-
-    // ===================== Leaderboard rankings (drill-in) =====================
-    if (mRaOpenLbId != 0) {
-        const float barH = titlePx * 1.7f;
-        mBackBtnH = barH;
-        gfx.fillRect(0, 0, vw, barH, rgba(0.10f, 0.12f, 0.17f, 1.0f));
-        gfx.text("< Back", x, (barH - statusPx) * 0.5f, sc(statusPx),
-                 rgba(0.60f, 0.78f, 1.0f, 0.95f));
-        float bw = gfx.measure("< Back", sc(statusPx));
-        std::string lbTitle;
-        if (mRa) {
-            auto lbs2 = mRa->leaderboardSnapshot();
-            for (auto& l : lbs2) if (l.id == mRaOpenLbId) { lbTitle = l.title; break; }
-        }
-        gfx.text(marquee(lbTitle, sc(statusPx), contentW - bw - pad).c_str(),
-                 x + bw + pad, (barH - statusPx) * 0.5f, sc(statusPx),
-                 rgba(0.99f, 0.83f, 0.32f, 0.95f));
-
-        float y = barH + pad * 0.6f;
-        uint32_t haveId = 0; bool loading = false;
-        std::vector<NanoRetroAchievements::LeaderboardEntry> entries;
-        if (mRa) entries = mRa->leaderboardEntriesSnapshot(&haveId, &loading);
-        mLbHitIds.clear();   // taps here only hit the back bar
-        if (haveId != mRaOpenLbId || loading) {
-            // Nothing scrollable yet: zero the clamp so a drag during the fetch
-            // cannot accumulate scroll against the previous view's (stale, larger)
-            // max and snap the list to its bottom when the entries arrive.
-            mRaBottomMaxScroll = 0.0f; mRaBottomScroll = 0.0f;
-            gfx.text("Loading rankings...", x, y, sc(descPx), rgba(0.70f, 0.72f, 0.80f, 0.85f));
-        } else if (entries.empty()) {
-            mRaBottomMaxScroll = 0.0f; mRaBottomScroll = 0.0f;
-            gfx.text("No entries yet. Be the first!", x, y, sc(descPx),
-                     rgba(0.60f, 0.62f, 0.70f, 0.75f));
-        } else {
-            const float rowH = lbPx * 1.55f;
-            const float regionTop = y, regionBot = vh - pad;
-            const float contentH = (float)entries.size() * rowH;
-            mRaBottomMaxScroll = fmaxf(0.0f, contentH - fmaxf(0.0f, regionBot - regionTop));
-            if (mRaBottomScroll > mRaBottomMaxScroll) mRaBottomScroll = mRaBottomMaxScroll;
-            for (size_t i = 0; i < entries.size(); i++) {
-                float ry = regionTop + (float)i * rowH - mRaBottomScroll;
-                if (ry < regionTop || ry > regionBot - lbPx) continue;  // whole-row clip
-                char rk[16]; snprintf(rk, sizeof(rk), "%u", entries[i].rank);
-                gfx.text(rk, x, ry, sc(lbPx), rgba(0.70f, 0.72f, 0.80f, 0.92f));
-                gfx.text(entries[i].user.c_str(), x + contentW * 0.16f, ry, sc(lbPx),
-                         rgba(0.88f, 0.90f, 0.95f, 0.94f));
-                if (!entries[i].score.empty()) {
-                    float swid = gfx.measure(entries[i].score.c_str(), sc(lbPx));
-                    gfx.text(entries[i].score.c_str(), x + contentW - swid, ry, sc(lbPx),
-                             rgba(0.99f, 0.83f, 0.32f, 0.92f));
-                }
-            }
-            drawScrollBar(regionTop, regionBot, contentH);
-        }
-        return;
-    }
-
-    // ===================== Detail / summary view =====================
-    float y = pad;
-    const RowAction* sel = nullptr;
-    int cur = mCursor[kSec_Achievements];
-    if (cur >= 0 && cur < (int)mRows.size() && mRows[cur].raAchId) sel = &mRows[cur];
-    // No fallback: only show a card when an actual achievement row is selected.
-
-    if (sel) {
-        const bool unlocked = (sel->tag == kRowUnlocked);
-        const float badgeSz = fmaxf(40.0f, vh * 0.28f);
-        unsigned tex = raBadgeTex(sel->raAchId, gfx);
-        if (tex) gfx.drawImage(tex, x, y, badgeSz, badgeSz, 1.0f);
-        else     gfx.roundedRect(x, y, badgeSz, badgeSz, 6.0f, rgba(1, 1, 1, 0.06f));
-
-        const float tx = x + badgeSz + pad;
-        const float tw = contentW - badgeSz - pad;
-        gfx.text(marquee(sel->label, sc(titlePx), tw).c_str(), tx, y, sc(titlePx),
-                 unlocked ? rgba(0.99f, 0.83f, 0.32f, 0.98f)
-                          : rgba(0.92f, 0.93f, 0.97f, 0.96f));
-        const float sy = y + titlePx * 1.25f;
-        gfx.text(unlocked ? "UNLOCKED" : "LOCKED", tx, sy, sc(statusPx),
-                 unlocked ? rgba(0.45f, 0.85f, 0.50f, 0.95f)
-                          : rgba(0.60f, 0.62f, 0.70f, 0.80f));
-        if (!sel->value.empty()) {
-            float pwid = gfx.measure(sel->value.c_str(), sc(statusPx));
-            gfx.text(sel->value.c_str(), tx + tw - pwid, sy, sc(statusPx),
-                     rgba(0.85f, 0.86f, 0.92f, 0.90f));
-        }
-        y += badgeSz + pad * 0.5f;
-        gfx.fillRect(x, y, contentW, fmaxf(1.0f, vh * 0.004f), rgba(1, 1, 1, 0.10f));
-        y += pad * 0.6f;
-        if (!sel->detail.empty()) {
-            const int maxLines = 4;
-            std::vector<std::string> lines(1);
-            size_t pos = 0;
-            const std::string& d = sel->detail;
-            while (pos < d.size() && (int)lines.size() <= maxLines) {
-                size_t spn = d.find(' ', pos);
-                std::string word = d.substr(
-                    pos, spn == std::string::npos ? std::string::npos : spn - pos);
-                std::string& ln = lines.back();
-                std::string cand = ln.empty() ? word : (ln + " " + word);
-                if (ln.empty() || gfx.measure(cand.c_str(), sc(descPx)) <= contentW)
-                    ln = cand;
-                else if ((int)lines.size() < maxLines) lines.push_back(word);
-                else break;
-                pos = (spn == std::string::npos) ? d.size() : spn + 1;
-            }
-            if (pos < d.size() && !lines.empty()) {
-                std::string& last = lines.back();
-                while (!last.empty() &&
-                       gfx.measure((last + "...").c_str(), sc(descPx)) > contentW)
-                    last.pop_back();
-                last += "...";
-            }
-            for (auto& ln : lines) {
-                gfx.text(ln.c_str(), x, y, sc(descPx), rgba(0.82f, 0.84f, 0.90f, 0.95f));
-                y += descPx * 1.25f;
-            }
-            y += pad * 0.3f;
-        }
-    } else {
-        // Non-achievement row (Account/Hardcore/headers): show a game summary,
-        // never a stray achievement card.
-        gfx.text("Achievements", x, y, sc(titlePx), rgba(0.92f, 0.93f, 0.97f, 0.96f));
-        y += titlePx * 1.3f;
-        if (mRa) {
-            auto list = mRa->achievementSnapshot();
-            int total = 0, unl = 0; uint32_t pts = 0, tot = 0;
-            for (const auto& a : list) {
-                if (a.id >= 100000000u) continue;   // skip the pseudo entry
-                total++; tot += a.points;
-                if (a.unlocked) { unl++; pts += a.points; }
-            }
-            char buf[96];
-            snprintf(buf, sizeof(buf), "%d of %d unlocked    %u / %u points",
-                     unl, total, pts, tot);
-            gfx.text(buf, x, y, sc(statusPx), rgba(0.82f, 0.84f, 0.90f, 0.92f));
-            y += statusPx * 1.5f;
-        }
-    }
-
-    // Divider between the achievement description / summary above and the
-    // Leaderboards section below.
-    gfx.fillRect(x, y, contentW, fmaxf(1.0f, vh * 0.004f), rgba(1, 1, 1, 0.12f));
-    y += pad * 0.7f;
-
-    // ===================== Leaderboards list (tappable) =====================
-    gfx.text("Leaderboards", x, y, sc(statusPx), rgba(0.55f, 0.70f, 0.98f, 0.95f));
-    y += statusPx * 1.5f;
-    std::vector<NanoRetroAchievements::LeaderboardInfo> lbs;
-    if (mRa) lbs = mRa->leaderboardSnapshot();
-    const float regionTop = y, regionBot = vh - pad;
-    const float rowH = lbPx * 1.6f;
-    const float contentH = (float)lbs.size() * rowH;
-    mRaBottomMaxScroll = fmaxf(0.0f, contentH - fmaxf(0.0f, regionBot - regionTop));
-    if (mRaBottomScroll > mRaBottomMaxScroll) mRaBottomScroll = mRaBottomMaxScroll;
-    mLbHitTop = regionTop; mLbHitRowH = rowH; mLbHitBot = regionBot;
-    mLbHitTextH = lbPx; mLbHitIds.clear();
-    for (const auto& l : lbs) mLbHitIds.push_back(l.id);
-    if (lbs.empty()) {
-        gfx.text("No leaderboards for this game.", x, regionTop, sc(descPx),
-                 rgba(0.60f, 0.62f, 0.70f, 0.70f));
-    }
-    const float chW = gfx.measure(">", sc(lbPx));
-    for (size_t i = 0; i < lbs.size(); i++) {
-        float ry = regionTop + (float)i * rowH - mRaBottomScroll;
-        if (ry < regionTop || ry > regionBot - lbPx) continue;   // whole-row clip
-        gfx.text(lbs[i].title.c_str(), x, ry, sc(lbPx), rgba(0.86f, 0.88f, 0.93f, 0.92f));
-        // Chevron: a touch affordance showing the row opens its rankings.
-        gfx.text(">", x + contentW - chW, ry, sc(lbPx), rgba(0.55f, 0.70f, 0.98f, 0.95f));
-        if (!lbs[i].value.empty()) {
-            float vwid = gfx.measure(lbs[i].value.c_str(), sc(lbPx));
-            gfx.text(lbs[i].value.c_str(), x + contentW - chW - pad - vwid, ry, sc(lbPx),
-                     rgba(0.99f, 0.83f, 0.32f, 0.92f));
-        }
-    }
-    drawScrollBar(regionTop, regionBot, contentH);
-}
 
 void OverlayMenu::drawCategoryBar(drastic_gfx::OverlayGfx& gfx,
                                   float vw, float barY, float sf) {

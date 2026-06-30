@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- DrasticSf: the SurfaceFlinger host activity for drastic-nano. The XMB
+     am-starts this for a DS ROM when persist.gammaos.drastic_nano.backend=sf. -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.gammaos.drasticsf">
+
+    <application
+        android:allowBackup="false"
+        android:label="DraStic"
+        android:hardwareAccelerated="true"
+        android:supportsRtl="true"
+        android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen">
+
+        <activity
+            android:name=".DrasticSfActivity"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:excludeFromRecents="true"
+            android:resizeableActivity="false"
+            android:screenOrientation="nosensor"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|screenSize|smallestScreenSize|density|uiMode|navigation">
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>

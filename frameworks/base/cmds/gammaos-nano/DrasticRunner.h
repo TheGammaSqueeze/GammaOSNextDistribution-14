@@ -124,11 +124,39 @@ public:
     // to appear on one panel.
     void renderBothScreens(float saturation, float gradient);
 
+    // Render ONE DS screen through the loaded .dfx shader at the exact slot
+    // size, straight into targetFbo at GL viewport (vx,vy,vw,vh). The shader
+    // pass list is (re)sized to (vw,vh) so prescale/LCD grids land on the
+    // final on-screen pixels -- the way stock DraStic renders each screen at
+    // its real size -- instead of shading a fixed shared offscreen that the
+    // layout path then re-samples (which blurs the grid and breaks asymmetric
+    // big+small slots). which: 0 = top screen, 1 = bottom screen. Returns
+    // false when the shader path is inactive; the caller then falls back to a
+    // re-sampled blit (renderTopScreen / renderBottomScreen).
+    bool renderSlotShaded(int which, unsigned int targetFbo,
+                          int vx, int vy, int vw, int vh);
+
     // Push the DRM rotation matrix (same 2x2 that NanoMenu uses for
     // its own shaders). Mirrors LibretroRunner::setRotationMatrix.
     // Must be called before each render pass if the rotation changes.
     void setRotationMatrix(const float mat[4]) {
         for (int i = 0; i < 4; i++) mRotationMatrix[i] = mat[i];
+    }
+
+    // Composite an arbitrary RGBA texture across the whole current viewport,
+    // transformed by the given 2x2 NDC matrix. Used by the single-panel DRM
+    // layout path: the DS screens are laid out into a logical-size offscreen
+    // with no rotation, then that offscreen is drawn into the panel-native FBO
+    // here, rotated by the install matrix -- so the layout math stays in the
+    // logical (landscape) space and only this final quad maps it onto a rotated
+    // (portrait) panel, avoiding the stretch a direct rotated layout produces.
+    // Saves and restores the rotation matrix so it does not disturb the loop.
+    void blitFullTexture(unsigned int tex, const float rotMat[4]) {
+        float saved[4] = {mRotationMatrix[0], mRotationMatrix[1],
+                          mRotationMatrix[2], mRotationMatrix[3]};
+        for (int i = 0; i < 4; i++) mRotationMatrix[i] = rotMat[i];
+        drawDsQuad(tex, 0.0f, 1.0f, 1.0f, 0.0f);
+        for (int i = 0; i < 4; i++) mRotationMatrix[i] = saved[i];
     }
 
     // Inject gamepad button state into drastic's running core so the
@@ -635,6 +663,12 @@ private:
     // disasm evidence and the derivation of the +0xd208 offset.
     void patchFinalPassFbo();
 
+    // Same walk as patchFinalPassFbo() but redirects the final pass to an
+    // arbitrary FBO (used by renderSlotShaded to render the shader straight
+    // into the layout offscreen). The no-arg version above forwards to this
+    // with mOffscreenFbo and additionally invalidates the slot-shade cache.
+    void patchFinalPassFbo(unsigned int targetFbo);
+
     // Inverse of patchFinalPassFbo: walk the current pass list and
     // reset the final pass.fbo field back to 0. Called before a
     // runtime shader swap so fxLoad's internal teardown cannot delete
@@ -677,6 +711,27 @@ private:
     // (setShaderRuntime) can re-invoke fxSetup with the same geometry.
     int mFxTexW = 0;
     int mFxTexH = 0;
+
+    // renderSlotShaded cache: the slot rect the shader pass list is currently
+    // sized/placed for (fxRender ignores its own viewport args -- the final
+    // pass uses fxSetup's viewport, so the slot ORIGIN must go through
+    // fxSetup), and the FBO its final pass is patched to. Sentinels force a
+    // re-fxSetup + re-patch on the next call. Invalidated by the no-arg
+    // patchFinalPassFbo() (used by init / hi-res redim / shader swap), so a
+    // pass list rebuilt at mOffscreenW/H is never mistaken for slot-sized.
+    int mSlotShadeX = -1;
+    int mSlotShadeY = -1;
+    int mSlotShadeW = -1;
+    int mSlotShadeH = -1;
+    unsigned int mSlotShadeFbo = 0;
+
+    // Dedicated VBO for renderSlotShaded so the shared mFxVbo (used by the
+    // RG DS / offscreen path) is never re-bound or re-laid-out. Same 24-pos +
+    // 24-uv layout fxLoad expects (pos at 0, uv at 192); verts 0..5 are a full
+    // quad with V-flipped UVs (DS-top at the slot top, matching the drawDsQuad
+    // orientation), verts 6..11 a degenerate zero-area quad, verts 18..23 the
+    // full-NDC standard-UV quad for intermediate passes.
+    unsigned int mSlotVbo = 0;
 
     // DS texture geometry. drastic uploads each DS screen via
     // glTexSubImage2D at (0,0) with 256x192 (native) or 512x384 (_Hires3D);

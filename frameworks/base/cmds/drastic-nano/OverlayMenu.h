@@ -34,6 +34,14 @@ struct RaUiEvent;
 namespace android {
 namespace drastic_overlay {
 
+// Row text scales, shared so every page sizes its rows the same way. The list
+// renderer uses kRowBaseScale for a normal row and kRowSelScale for the
+// selected one (both multiplied by the viewport scale sf). The Achievements
+// page reads kRowBaseScale too so its rows match the rest of the menu instead
+// of being sized off a panel-height fraction.
+constexpr float kRowSelScale  = 1.77f;
+constexpr float kRowBaseScale = 1.50f;
+
 class OverlayMenu {
 public:
     OverlayMenu();
@@ -79,6 +87,14 @@ public:
     // True while the on-screen keyboard is up (drives the bottom-screen pass).
     bool oskActive() const { return mOsk.active(); }
 
+    // Debug: open the keyboard for headless OSK-placement verification (this
+    // platform cannot inject controller input). Gated by a prop in the render loop.
+    void debugOpenOsk() {
+        if (!mOsk.active())
+            mOsk.open("Keyboard test", "", DrasticOsk::Mode::Text,
+                      [](const std::string&) {});
+    }
+
     // True when the bottom screen should show the RetroAchievements detail panel
     // (overlay open on the Achievements section, logged in, no keyboard up).
     bool wantsRaBottomPanel() const;
@@ -118,6 +134,12 @@ public:
     // Give the menu the RetroAchievements client so the Achievements section can
     // show login + the achievement list.
     void setRaClient(NanoRetroAchievements* ra) { mRa = ra; }
+    // Single-screen mode: no second DS screen to host the RetroAchievements
+    // detail panel, so the Achievements section gets a controller-driven
+    // drill-in (achievement detail with badge + description + progress, and a
+    // leaderboards view) rendered on the one screen. Set false for dual-panel
+    // devices (RG DS), which keep the bottom-screen panel instead.
+    void setSingleScreen(bool s) { mSingleScreen = s; }
 
     // True if the user picked an option that requires drastic to
     // quit and relaunch (e.g. Hi-res toggle). main.cpp polls this
@@ -304,6 +326,35 @@ private:
     std::vector<uint32_t> mLbHitIds;    // leaderboard ids in drawn order
     float mBackBtnX = 0, mBackBtnY = 0, mBackBtnW = 0, mBackBtnH = 0;
     void raHandleTap(float nx, float ny);
+
+    // Single-screen RetroAchievements drill-in (no bottom DS panel). View:
+    // 0 = achievement list (normal), 1 = achievement detail card,
+    // 2 = leaderboards list, 3 = one leaderboard's online rankings.
+    bool mSingleScreen = false;
+    int  mRaView = 0;
+    int  mAchTopRow = 0;           // first visible row of the rich achievements
+                                   // list (whole-row scroll, so the cursor moves
+                                   // within the window and only scrolls at edges,
+                                   // and no partial row overlaps the footer)
+    uint32_t mRaDetailAchId = 0;   // achievement shown in the detail card (view 1)
+    int   mLbCursor = 0;           // selected row in the leaderboards list (view 2)
+    float mRaViewScroll = 0.0f;    // scroll offset for the rankings list (view 3)
+    float mRaViewMaxScroll = 0.0f; // clamp, recomputed each draw from content size
+    // Handle Accept / Cancel / Up-Down in the single-screen RA drill-in. Each
+    // returns true when it consumed the input (so normal list nav is skipped).
+    bool raSingleAccept();
+    bool raSingleCancel();
+    bool raSingleNav(NavDir dir);
+    // Draw the active single-screen RA view (detail / leaderboards / rankings)
+    // into the list region. Returns true when it drew (caller skips the list).
+    bool drawRaSingle(drastic_gfx::OverlayGfx& gfx, float x, float top,
+                      float w, float h, float sf);
+    // Rich RetroAchievements list (badge + title + description + unlock date /
+    // rarity + points per row, grouped by bucket), replacing the plain text
+    // list for the Achievements section. Uses mRows for order/cursor and the
+    // achievement snapshot for the badge/rarity/unlock-time detail.
+    void drawAchievementsList(drastic_gfx::OverlayGfx& gfx, float vw,
+                              float listY, float listH, float sf);
     // Lazily decode + upload an achievement badge from the on-disk cache.
     // Returns a GL texture (0 if not cached yet). Cached for the session.
     unsigned raBadgeTex(uint32_t achId, drastic_gfx::OverlayGfx& gfx);

@@ -69,14 +69,30 @@ const char kTextFS[] =
     "}\n";
 
 // RGBA image (achievement badge): same per-vertex UV vertex shader as text,
-// but samples a full-colour texture and modulates by an overall alpha.
+// but samples a full-colour texture and modulates by an overall alpha. Badges
+// are small bitmaps drawn much larger, so a plain bilinear upscale looks soft.
+// This samples with "sharp bilinear": it keeps each texel's interior crisp and
+// confines the linear blend to the one-output-pixel seam between texels, which
+// is as sharp as linear filtering gets without the blockiness of nearest. It
+// needs the texel grid (uTexSize) and the on-screen upscale (uScale = output
+// pixels per texel). At uScale 1 (no upscale) the math reduces to plain
+// bilinear, so a 1:1 or downscaled draw is unchanged.
 const char kImageFS[] =
     "precision mediump float;\n"
     "varying vec2 vUv;\n"
     "uniform sampler2D uTex;\n"
     "uniform float uAlpha;\n"
+    "uniform vec2 uTexSize;\n"
+    "uniform vec2 uScale;\n"
     "void main() {\n"
-    "  vec4 t = texture2D(uTex, vUv);\n"
+    "  vec2 texel = vUv * uTexSize;\n"
+    "  vec2 tFloor = floor(texel);\n"
+    "  vec2 s = fract(texel);\n"
+    "  vec2 region = 0.5 - 0.5 / uScale;\n"
+    "  vec2 cd = s - 0.5;\n"
+    "  vec2 f = (cd - clamp(cd, -region, region)) * uScale + 0.5;\n"
+    "  vec2 uv = (tFloor + f) / uTexSize;\n"
+    "  vec4 t = texture2D(uTex, uv);\n"
     "  gl_FragColor = vec4(t.rgb, t.a * uAlpha);\n"
     "}\n";
 
@@ -211,6 +227,8 @@ bool OverlayGfx::init(int viewportW, int viewportH, const float rotMat[4]) {
     mImgLocRot      = glGetUniformLocation(mImageProgram, "uRot");
     mImgLocSampler  = glGetUniformLocation(mImageProgram, "uTex");
     mImgLocAlpha    = glGetUniformLocation(mImageProgram, "uAlpha");
+    mImgLocTexSize  = glGetUniformLocation(mImageProgram, "uTexSize");
+    mImgLocScale    = glGetUniformLocation(mImageProgram, "uScale");
 
     glGenBuffers(1, &mQuadVbo);
     glGenBuffers(1, &mTextVbo);
@@ -418,6 +436,7 @@ GLuint OverlayGfx::createImageTexture(const uint8_t* rgba, int w, int h) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glBindTexture(GL_TEXTURE_2D, 0);
+    mImgSizes[tex] = { w, h };   // remembered for the sharp-bilinear sampler
     return tex;
 }
 
@@ -430,6 +449,20 @@ void OverlayGfx::drawImage(GLuint tex, float x, float y, float w, float h,
     glUniform1f(mImgLocAlpha, alpha);
     glActiveTexture(GL_TEXTURE0);
     glUniform1i(mImgLocSampler, 0);
+    // Drive the sharp-bilinear sampler from the texture's native size and the
+    // on-screen upscale. uScale stays >= 1 so a 1:1 or downscaled draw, or a
+    // texture whose size we never recorded, falls back to plain bilinear (the
+    // shader reduces to an identity sample at uScale 1).
+    float texW = 1.0f, texH = 1.0f, scaleX = 1.0f, scaleY = 1.0f;
+    auto szIt = mImgSizes.find(tex);
+    if (szIt != mImgSizes.end()) {
+        texW = (float)szIt->second.first;
+        texH = (float)szIt->second.second;
+        if (texW > 0.0f && w > texW) scaleX = w / texW;
+        if (texH > 0.0f && h > texH) scaleY = h / texH;
+    }
+    glUniform2f(mImgLocTexSize, texW, texH);
+    glUniform2f(mImgLocScale, scaleX, scaleY);
 
     const float verts[] = {
         x,     y,     0.0f, 0.0f,
@@ -455,6 +488,7 @@ void OverlayGfx::drawImage(GLuint tex, float x, float y, float w, float h,
 
 void OverlayGfx::destroyTexture(GLuint tex) {
     if (tex) glDeleteTextures(1, &tex);
+    mImgSizes.erase(tex);
 }
 
 bool OverlayGfx::loadGlyph(uint32_t cp, int pxSize, Glyph* out) const {

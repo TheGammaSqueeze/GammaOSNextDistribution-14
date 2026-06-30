@@ -488,7 +488,7 @@ const char* actionName(int a) {
     case 16: return "Screen Swap";
     case 17: return "Fast Forward";
     case 20: return "Menu";
-    case 28: return "Stylus Touch";
+    case 28: return "Touch Cursor";
     default: {
         static thread_local char buf[16];
         snprintf(buf, sizeof(buf), "Action %d", a);

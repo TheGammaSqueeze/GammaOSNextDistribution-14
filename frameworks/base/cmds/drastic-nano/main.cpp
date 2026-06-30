@@ -95,6 +95,9 @@
 #include "OverlayGfx.h"
 #include "OverlayMenu.h"
 #include "NanoRetroAchievements.h"
+#include "DisplayBackend.h"
+#include "SfDisplayBackend.h"
+#include "DsScreenLayout.h"
 
 using android::DrasticRunner;
 
@@ -433,7 +436,22 @@ struct Display {
 // pbuffer context suitable for AHB FBO rendering, then wire up the
 // zero-copy AHB -> DRM PRIME scanout path via drmSetupZeroCopy().
 bool setupDisplay(Display* out) {
+    // The relaunch handshake ("Restart Game", a hardcore toggle, or a
+    // restart-required setting) starts this instance while the previous
+    // drastic-nano may still be tearing down and still holding DRM master. The
+    // master is exclusive, so our first grab can enumerate zero displays (the
+    // modeset that adds a display needs master). drmEarlySplash drops master and
+    // closes its fd when it finds no displays, so each attempt is self-contained
+    // -- retry briefly to let the outgoing instance release master before we
+    // give up and fall back to SurfaceFlinger, which strands offscreen on a
+    // DRM-direct panel and would leave the user on a dead home.
     android::drmEarlySplash();
+    for (int tries = 0;
+         (!android::sDrmActive || android::sDrmDisplays.empty()) && tries < 30;
+         tries++) {
+        usleep(100 * 1000);   // 100 ms per attempt, up to ~3s total
+        android::drmEarlySplash();
+    }
     if (!android::sDrmActive || android::sDrmDisplays.empty()) {
         ALOGE("drastic-nano: DRM master / display enumeration failed");
         return false;
@@ -744,8 +762,8 @@ void doSleep(android::drastic_input::InputState* input,
         for (int fd : input->fds) {
             while (read(fd, &d, sizeof(d)) == sizeof(d)) {}
         }
-        if (input->touchFd >= 0) {
-            while (read(input->touchFd, &d, sizeof(d)) == sizeof(d)) {}
+        for (int fd : input->touchFds) {
+            while (read(fd, &d, sizeof(d)) == sizeof(d)) {}
         }
     }
     input->powerWasDown = false;
@@ -851,6 +869,34 @@ static void captureFboToPpm(int w, int h, const char* path) {
     ALOGI("drastic-nano: wrote screenshot %s (%dx%d)", path, w, h);
 }
 
+// Defined below (shared by the DRM single-panel layout path and runLoopSf).
+static drastic_nano::LayoutConfig readSfLayoutConfig(int surfaceW, int surfaceH);
+
+// Draws the virtual touch cursor (a crosshair) over the bottom DS screen. The
+// cursor position is in DS-native units (0..255, 0..191); it maps onto the
+// bottom screen's on-screen rectangle. Drawn in the overlay's logical pixel
+// space (the same space compute()/bottomRect() use), so it tracks the layout
+// and any display rotation. Turns green while A is held (touch down).
+static void drawTouchCursor(android::drastic_gfx::OverlayGfx& gfx,
+                            const drastic_nano::Rect& br,
+                            float cursorX, float cursorY, bool pressed) {
+    if (br.w <= 0.0f || br.h <= 0.0f) return;
+    using android::drastic_gfx::Color;
+    const float px = br.x + (cursorX / 256.0f) * br.w;
+    const float py = br.y + (cursorY / 192.0f) * br.h;
+    float len = br.w * 0.030f;  if (len < 9.0f)  len = 9.0f;
+    float thin = len * 0.20f;   if (thin < 2.0f) thin = 2.0f;
+    const Color dark = { 0.0f, 0.0f, 0.0f, 0.75f };
+    const Color fill = pressed ? Color{ 0.25f, 1.0f, 0.40f, 0.95f }
+                               : Color{ 1.0f, 0.85f, 0.20f, 0.95f };
+    // Dark backing (1px larger) for contrast, then the bright crosshair + dot.
+    gfx.fillRect(px - len - 1.0f, py - thin * 0.5f - 1.0f, 2.0f * len + 2.0f, thin + 2.0f, dark);
+    gfx.fillRect(px - thin * 0.5f - 1.0f, py - len - 1.0f, thin + 2.0f, 2.0f * len + 2.0f, dark);
+    gfx.fillRect(px - len, py - thin * 0.5f, 2.0f * len, thin, fill);
+    gfx.fillRect(px - thin * 0.5f, py - len, thin, 2.0f * len, fill);
+    gfx.fillRect(px - thin, py - thin, 2.0f * thin, 2.0f * thin, fill);
+}
+
 RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                       const android::drastic_prefs::Prefs& initialPrefs,
                       uid_t appUid, gid_t appGid,
@@ -863,6 +909,74 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                             android::sAhbRingSecondary[0].glFbo != 0);
     dr->initSurface(dpy->width, dpy->height, hasDualDisplay);
     dr->setRotationMatrix(android::sDrmRotMat);
+
+    // Single-panel DRM layout (opt-in via persist.gammaos.drastic_nano.drm_single_layout).
+    // The dual-panel branch (RG DS, two DSI panels) is never touched. When enabled on a
+    // single-panel device the DS screens are laid out by the advanced_drastic presets into
+    // a logical-orientation offscreen, then composited onto the panel-native FBO rotated by
+    // the install matrix -- so a rotated (portrait) panel shows the landscape layout without
+    // the stretch a direct rotated layout produces. Off by default: the existing
+    // renderBothScreens (fixed stack) stays the default for every device that relies on it.
+    const bool drmSingleLayout =
+            !hasDualDisplay &&
+            property_get_bool("persist.gammaos.drastic_nano.drm_single_layout", false);
+    // The panel's native FBO size (what the AHB ring scans out).
+    const int drmPanelW = (android::sAhbRingPrimary[0].glFbo != 0)
+                          ? (int)android::sAhbRingPrimary[0].w : dpy->width;
+    const int drmPanelH = (android::sAhbRingPrimary[0].glFbo != 0)
+                          ? (int)android::sAhbRingPrimary[0].h : dpy->height;
+    // The effective rotation is the panel install orientation plus a live user
+    // Display Rotation (persist.gammaos.drastic_nano.display_rotate), so the
+    // whole single-panel output can be turned for portrait play. The logical
+    // (content) size swaps on a perpendicular rotation; these are mutable and
+    // recomputed in the loop when the user changes Display Rotation.
+    int drmDisplayRotate = 0;
+    {
+        char drp[PROPERTY_VALUE_MAX] = {};
+        property_get("persist.gammaos.drastic_nano.display_rotate", drp, "0");
+        drmDisplayRotate = atoi(drp);
+    }
+    int drmEffRot = ((android::sDrmRotationDeg + drmDisplayRotate) % 360 + 360) % 360;
+    bool drmRotated = (drmEffRot == 90 || drmEffRot == 270);
+    int drmLogicalW = drmRotated ? drmPanelH : drmPanelW;
+    int drmLogicalH = drmRotated ? drmPanelW : drmPanelH;
+    GLuint drmLayoutFbo = 0, drmLayoutTex = 0;
+    if (drmSingleLayout) {
+        glGenTextures(1, &drmLayoutTex);
+        glBindTexture(GL_TEXTURE_2D, drmLayoutTex);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, drmLogicalW, drmLogicalH, 0,
+                     GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+        // NEAREST, not LINEAR: the offscreen->panel blit is 1:1 (or a 90/180/270
+        // turn), so bilinear only adds a half-texel smear that softens the
+        // integer-scaled DS pixels (most visible at 2x). NEAREST keeps it crisp.
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glGenFramebuffers(1, &drmLayoutFbo);
+        glBindFramebuffer(GL_FRAMEBUFFER, drmLayoutFbo);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+                               GL_TEXTURE_2D, drmLayoutTex, 0);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        ALOGI("drastic-nano: DRM single-panel layout ON (logical %dx%d, panel %dx%d, rot=%d)",
+              drmLogicalW, drmLogicalH, drmPanelW, drmPanelH, android::sDrmRotationDeg);
+    }
+    const float drmIdentityMat[4] = {1.0f, 0.0f, 0.0f, 1.0f};
+
+    // Logical->panel "install" matrix (rotation + user flip_h/flip_v), built
+    // from the same DRM props the XMB reads so the drastic session honors the
+    // panel's orientation and flip correction instead of hard-coding one. The
+    // overlay menu draws its geometry straight into the panel FBO like the XMB
+    // does, so it uses this matrix directly. The DS layout is composited from a
+    // logical-orientation offscreen texture, and sampling a texture inverts one
+    // axis versus a direct geometry draw, so its composite matrix is the install
+    // matrix with the second column negated (which cancels that inversion -- a
+    // pure rotation for a rotated panel, identity for an unrotated one).
+    float drmInstallMat[4];
+    android::drmBuildInstallMatrix(drmInstallMat, drmEffRot);
+    float drmCompositeMat[4] = {
+        drmInstallMat[0], drmInstallMat[1], -drmInstallMat[2], -drmInstallMat[3]
+    };
 
     android::drastic_input::InputState input{};
     android::drastic_input::applyPrefs(&input, initialPrefs);
@@ -884,12 +998,53 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
         overlayW = android::sAhbRingPrimary[0].w;
         overlayH = android::sAhbRingPrimary[0].h;
     }
-    if (!gfx.init(overlayW, overlayH, android::sDrmRotMat)) {
+    // Default rotation matrix for overlay geometry: the shared sDrmRotMat,
+    // correct for non-rotated panels and the dual-panel path. For the single-
+    // panel layout, lay the overlay out in the logical (landscape) space and
+    // rotate it onto the panel with the install matrix, so its responsive
+    // design sees the real on-screen aspect instead of the panel's native
+    // portrait dimensions (which stretched it on a rotated panel).
+    const float* overlayRotMat = android::sDrmRotMat;
+    if (drmSingleLayout) {
+        overlayW = drmLogicalW;
+        overlayH = drmLogicalH;
+        overlayRotMat = drmInstallMat;
+    }
+    if (!gfx.init(overlayW, overlayH, overlayRotMat)) {
         ALOGW("drastic-nano: OverlayGfx init failed; overlay disabled");
     } else {
         ALOGI("drastic-nano: overlay gfx ready (%dx%d)",
               overlayW, overlayH);
     }
+
+    // Re-lay-out the single-panel output for a new effective rotation (install +
+    // live Display Rotation). Only resizes the layout texture + overlay when the
+    // logical orientation actually flips, so a no-op frame is cheap. Touch and
+    // the render branch read drmLogicalW/H + the matrices, so they follow.
+    auto applyDrmRotation = [&](int effRot) {
+        const bool rot = (effRot == 90 || effRot == 270);
+        const int newLW = rot ? drmPanelH : drmPanelW;
+        const int newLH = rot ? drmPanelW : drmPanelH;
+        if ((newLW != drmLogicalW || newLH != drmLogicalH) && drmLayoutTex != 0) {
+            glBindTexture(GL_TEXTURE_2D, drmLayoutTex);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, newLW, newLH, 0,
+                         GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+            glBindTexture(GL_TEXTURE_2D, 0);
+        }
+        drmEffRot = effRot;
+        drmLogicalW = newLW;
+        drmLogicalH = newLH;
+        drmRotated = rot;
+        android::drmBuildInstallMatrix(drmInstallMat, effRot);
+        drmCompositeMat[0] = drmInstallMat[0];
+        drmCompositeMat[1] = drmInstallMat[1];
+        drmCompositeMat[2] = -drmInstallMat[2];
+        drmCompositeMat[3] = -drmInstallMat[3];
+        gfx.setViewport(drmLogicalW, drmLogicalH);
+        gfx.setRotationMatrix(drmInstallMat);
+        ALOGI("drastic-nano: display rotation -> eff=%d (logical %dx%d)",
+              effRot, drmLogicalW, drmLogicalH);
+    };
 
     android::drastic_overlay::OverlayMenu overlay;
     overlay.init(dr, initialPrefs, appUid, appGid,
@@ -901,6 +1056,9 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
     // read its hardcore state to gate features.
     android::NanoRetroAchievements ra;
     overlay.setRaClient(&ra);
+    // No second DS screen for the RA panel unless this is a dual-panel device
+    // (RG DS): single-panel devices get the on-screen Achievements drill-in.
+    overlay.setSingleScreen(!hasDualDisplay);
     bool raInited = false;
     bool raPrevOverlayOpen = false;
 
@@ -1043,6 +1201,22 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
             }
         }
 
+        // Debug: drive a UI-style login from a prop (this platform cannot inject
+        // OSK input). Format "user:pass"; fires once then clears the prop. Same
+        // entry point the on-screen keyboard uses, so it validates the exact
+        // login path (enable RA on demand + start the client). Inert when unset.
+        {
+            char ld[PROPERTY_VALUE_MAX] = {};
+            property_get("persist.gammaos.drastic_nano.ra_login_dbg", ld, "");
+            if (ld[0]) {
+                std::string s(ld);
+                size_t c = s.find(':');
+                if (c != std::string::npos && c + 1 < s.size())
+                    ra.requestLogin(s.substr(0, c), s.substr(c + 1));
+                property_set("persist.gammaos.drastic_nano.ra_login_dbg", "");
+            }
+        }
+
         // In-app volume / brightness HUDs (VOL = volume, SELECT+VOL =
         // brightness). The SF system sliders never show on the DRM path.
         if (actions.volAdjust != 0)    overlay.onVolumeAdjust(actions.volAdjust);
@@ -1093,28 +1267,121 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
             screensSwapped = !screensSwapped;
             ALOGI("drastic-nano: screen swap = %d", screensSwapped);
         }
+        // Live Display Rotation: re-lay-out the single-panel output when the user
+        // changes it in Video settings. Runs before touch + render so both follow.
+        if (drmSingleLayout) {
+            char drp[PROPERTY_VALUE_MAX] = {};
+            property_get("persist.gammaos.drastic_nano.display_rotate", drp, "0");
+            int eff = ((android::sDrmRotationDeg + atoi(drp)) % 360 + 360) % 360;
+            if (eff != drmEffRot) applyDrmRotation(eff);
+        }
         if (actions.actToggleMic) {
             ALOGI("drastic-nano: toggle-mic action (no mic path)");
         }
         // Forward the possibly-suppressed DS input to drastic. When
         // the overlay is open, pollInputMap zeroes dsBtnMask and
         // touchHeld, leaving the emulator idle until the user closes.
-        dr->setInputWithTouch(actions.dsBtnMask,
-                               actions.touchX, actions.touchY,
-                               actions.touchHeld);
+        //
+        // Map the stylus to the bottom (touch) DS screen. The input layer
+        // collapses the raw panel touch to DS coords across the WHOLE physical
+        // panel (touchX/256, touchY/192 = the panel-normalized position). In
+        // the dual-panel path that panel IS the bottom screen, so the coords
+        // pass through unchanged (RG DS, left untouched). In the single-panel
+        // layout the bottom screen occupies only a sub-rect of a possibly-
+        // rotated panel, so undo the composite rotation to recover the logical
+        // point, then rescale it through the bottom screen's layout rectangle
+        // -- the same remap the SF single-window path does, but accounting for
+        // the panel rotation so touch and image agree under any layout/flip
+        // (including asymmetric big+small).
+        int dsTouchX = actions.touchX;
+        int dsTouchY = actions.touchY;
+        bool dsTouchHeld = actions.touchHeld;
+        if (drmSingleLayout && !actions.touchDirect) {
+            // The input layer normalizes the raw touch to (touchX/256,
+            // touchY/192) across the digitizer's native axes, whose pixel range
+            // is read from the evdev node at scan time (input.touchPanelW/H --
+            // retrieved from Android, never hard-coded). Handhelds wire the
+            // digitizer in the orientation the device is actually used in, so
+            // when the digitizer and the logical (layout) space share an
+            // orientation the normalized fractions map straight across; when
+            // they differ by 90 degrees (e.g. a portrait digitizer under a
+            // landscape layout) the axes are swapped. Either way the point is
+            // then rescaled through the bottom screen's layout rect, exactly
+            // like the SF single-window path, so any preset (incl. big+small)
+            // lines up.
+            // Digitizer fraction in its own native frame.
+            const float fx = actions.touchX / 256.0f;
+            const float fy = actions.touchY / 192.0f;
+            // The digitizer is wired to the panel's INSTALL (un-rotated) logical
+            // frame, so first align the fraction to that frame: when the
+            // digitizer and the install-logical space share an orientation the
+            // fractions pass straight, otherwise the axes swap (a portrait
+            // digitizer under a landscape install, etc). This is the same base
+            // the install-only path used; with no Display Rotation it is final.
+            const bool digitizerLandscape =
+                    (input.touchPanelW >= input.touchPanelH);
+            const bool installRot = (android::sDrmRotationDeg == 90 ||
+                                     android::sDrmRotationDeg == 270);
+            const int instLW = installRot ? drmPanelH : drmPanelW;
+            const int instLH = installRot ? drmPanelW : drmPanelH;
+            const bool installLandscape = (instLW >= instLH);
+            float a, b;
+            if (digitizerLandscape == installLandscape) { a = fx; b = fy; }
+            else { a = fy; b = fx; }
+            // Then turn the touch by the user's Display Rotation (effRot minus
+            // the install) so it tracks the rotated image. The content turned by
+            // this amount, so the touch turns the same way to recover the point
+            // in the now-rotated logical frame. With no rotation (touchRot 0)
+            // this is identity, leaving the install-only behaviour unchanged.
+            const int touchRot =
+                    ((drmEffRot - android::sDrmRotationDeg) % 360 + 360) % 360;
+            float p, q;
+            switch (touchRot) {
+            case 90:  p = b;        q = 1.0f - a; break;
+            case 180: p = 1.0f - a; q = 1.0f - b; break;
+            case 270: p = 1.0f - b; q = a;        break;
+            default:  p = a;        q = b;        break;
+            }
+            float lx = p * (float)drmLogicalW;
+            float ly = q * (float)drmLogicalH;
+            drastic_nano::LayoutConfig tc =
+                    readSfLayoutConfig(drmLogicalW, drmLogicalH);
+            tc.swap = tc.swap ^ screensSwapped;
+            drastic_nano::Rect br = drastic_nano::bottomRect(
+                    drastic_nano::compute(tc, (uint32_t)drmLogicalW,
+                                          (uint32_t)drmLogicalH));
+            if (br.w > 0.0f && br.h > 0.0f) {
+                if (lx >= br.x && lx < br.x + br.w &&
+                    ly >= br.y && ly < br.y + br.h) {
+                    dsTouchX = (int)((lx - br.x) / br.w * 256.0f);
+                    dsTouchY = (int)((ly - br.y) / br.h * 192.0f);
+                    if (dsTouchX < 0)   dsTouchX = 0;
+                    if (dsTouchY < 0)   dsTouchY = 0;
+                    if (dsTouchX > 255) dsTouchX = 255;
+                    if (dsTouchY > 191) dsTouchY = 191;
+                } else {
+                    dsTouchHeld = false;  // touch outside the bottom screen
+                }
+            }
+        }
+        dr->setInputWithTouch(actions.dsBtnMask, dsTouchX, dsTouchY,
+                              dsTouchHeld);
 
         // Consumer-side frameskip (see fsCounter declaration above). Skip
         // the DS upload/shade on N of every (N+1) vblanks; the blit and
         // page-flip below still run every vblank so the panel keeps its
         // cadence and shows the last DS frame until the next render.
-        {
-            const auto& lp = overlay.prefs();
-            int fsSkip = (lp.frameskipType == 0) ? lp.frameskipValue : 0;
-            if (fsSkip < 0) fsSkip = 0;
-            bool renderDs = (fsSkip == 0) || (fsCounter % (fsSkip + 1) == 0);
-            fsCounter++;
-            if (renderDs) dr->renderDsToOffscreen();
-        }
+        const auto& fsPrefs = overlay.prefs();
+        int fsSkip = (fsPrefs.frameskipType == 0) ? fsPrefs.frameskipValue : 0;
+        if (fsSkip < 0) fsSkip = 0;
+        const bool renderDs = (fsSkip == 0) || (fsCounter % (fsSkip + 1) == 0);
+        fsCounter++;
+        // The single-panel layout renders the shader per slot, straight into
+        // the layout offscreen (renderSlotShaded, below), so it does NOT use
+        // the shared stacked offscreen that renderDsToOffscreen fills. Every
+        // other path (dual-panel RG DS, fixed stack) still pre-renders here
+        // exactly as before -- their render code is left untouched.
+        if (renderDs && !drmSingleLayout) dr->renderDsToOffscreen();
 
         const int renderIdx =
                 tripleBuffer ? android::sRingRenderIdx : 0;
@@ -1144,6 +1411,66 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
             } else {
                 dr->renderTopScreen(saturation, gradient);
             }
+        } else if (drmSingleLayout) {
+            // Lay out the DS screens by the advanced_drastic preset into the
+            // logical (landscape) offscreen with NO rotation, exactly as the SF
+            // single-window path does, then composite that offscreen onto the
+            // panel-native FBO rotated by the install matrix. Keeping the layout
+            // math in logical space and rotating only the final quad means a
+            // rotated portrait panel shows the landscape layout without stretch.
+            drastic_nano::LayoutConfig lay = readSfLayoutConfig(drmLogicalW, drmLogicalH);
+            lay.swap = lay.swap ^ screensSwapped;
+            drastic_nano::LayoutPlan plan =
+                    drastic_nano::compute(lay, (uint32_t)drmLogicalW, (uint32_t)drmLogicalH);
+
+            // Render the DS screens into the logical-orientation layout offscreen.
+            // Skipped on frameskip vblanks: drmLayoutTex keeps the last frame and
+            // is still composited below, so the panel cadence is preserved.
+            if (renderDs) {
+                glBindFramebuffer(GL_FRAMEBUFFER, drmLayoutFbo);
+                glDisable(GL_SCISSOR_TEST);
+                glViewport(0, 0, drmLogicalW, drmLogicalH);
+                glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+                glClear(GL_COLOR_BUFFER_BIT);
+                bool sharedOffscreenFilled = false;
+                for (int i = 0; i < plan.count; i++) {
+                    const drastic_nano::SlotPlan& s = plan.slots[i];
+                    const int vx = (int)s.rect.x;
+                    const int vy = drmLogicalH - (int)(s.rect.y + s.rect.h);
+                    const int vw = (int)s.rect.w;
+                    const int vh = (int)s.rect.h;
+                    const int which =
+                            (s.content == drastic_nano::DsScreen::Top) ? 0 : 1;
+                    // Per-slot shader render at the slot's exact size so the
+                    // prescale/LCD grid lands on the final pixels (crisp, and
+                    // correct for asymmetric big+small slots), matching stock
+                    // DraStic. Returns false only when the .dfx path is inactive;
+                    // then fall back to the shared-offscreen re-sampled blit (the
+                    // old behavior) so output is never blank.
+                    if (dr->renderSlotShaded(which, drmLayoutFbo, vx, vy, vw, vh))
+                        continue;
+                    if (!sharedOffscreenFilled) {
+                        dr->renderDsToOffscreen();
+                        sharedOffscreenFilled = true;
+                    }
+                    glBindFramebuffer(GL_FRAMEBUFFER, drmLayoutFbo);
+                    glViewport(vx, vy, vw, vh);
+                    glEnable(GL_SCISSOR_TEST);
+                    glScissor(vx, vy, vw, vh);
+                    dr->setRotationMatrix(drmIdentityMat);
+                    if (which == 0) dr->renderTopScreen(saturation, gradient);
+                    else            dr->renderBottomScreen(saturation, gradient);
+                    glDisable(GL_SCISSOR_TEST);
+                    dr->setRotationMatrix(android::sDrmRotMat);
+                }
+                glDisable(GL_SCISSOR_TEST);
+            }
+
+            glBindFramebuffer(GL_FRAMEBUFFER, primTgt.glFbo);
+            glViewport(0, 0, (GLsizei)primTgt.w, (GLsizei)primTgt.h);
+            glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT);
+            dr->blitFullTexture(drmLayoutTex, drmCompositeMat);
         } else {
             glBindFramebuffer(GL_FRAMEBUFFER, primTgt.glFbo);
             if (android::sDrmGlRotation) {
@@ -1171,6 +1498,16 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
         }
         gfx.beginFrame();
         overlay.draw(gfx);
+        if (input.cursorMode && !overlay.isOpen()) {
+            drastic_nano::LayoutConfig cc =
+                    readSfLayoutConfig(drmLogicalW, drmLogicalH);
+            cc.swap = cc.swap ^ screensSwapped;
+            drastic_nano::Rect cbr = drastic_nano::bottomRect(
+                    drastic_nano::compute(cc, (uint32_t)drmLogicalW,
+                                          (uint32_t)drmLogicalH));
+            drawTouchCursor(gfx, cbr, input.cursorX, input.cursorY,
+                            (input.dsBtnMask & DrasticRunner::kDsBtnA) != 0);
+        }
         gfx.endFrame();
         // Debug screenshot: latch the request now (primTgt is bound and holds
         // the DS top screen + overlay), capture the bottom panel after the OSK
@@ -1186,6 +1523,9 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
         // screen. On a single-panel device there is no separate bottom FBO, so
         // fall back to drawing it over the primary. The keyboard is drawn after
         // the DS frames and the top overlay, before the slot fence.
+        { char od[PROPERTY_VALUE_MAX] = {};
+          property_get("persist.gammaos.drastic_nano.osk_dbg", od, "0");
+          if (od[0] == '1') overlay.debugOpenOsk(); }
         if (overlay.oskActive()) {
             if (hasDualDisplay) {
                 glBindFramebuffer(GL_FRAMEBUFFER, secTgt.glFbo);
@@ -1198,14 +1538,33 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                 gfx.setViewport((int)primTgt.w, (int)primTgt.h);
             } else {
                 glBindFramebuffer(GL_FRAMEBUFFER, primTgt.glFbo);
-                if (android::sDrmGlRotation) {
-                    glViewport(0, 0, (GLsizei)primTgt.w, (GLsizei)primTgt.h);
+                // Constrain the keyboard to the bottom (touch) DS screen's rect so
+                // it sits on the touch screen and does not cover the top screen,
+                // matching the SF single-window path. Under a live Display Rotation
+                // the overlay is turned by a matrix and a logical-space glViewport
+                // crop would not align, so fall back to the full panel there.
+                drastic_nano::Rect obr{};
+                if (!android::sDrmGlRotation) {
+                    // Stacked-layout bottom rect so the keyboard takes the bottom
+                    // half, never the whole panel (matches the SF path above).
+                    drastic_nano::LayoutConfig oc;
+                    oc.orient = drastic_nano::Orientation::Vertical;
+                    oc.scaling = drastic_nano::Scaling::Stretch;
+                    oc.swap = false;
+                    obr = drastic_nano::bottomRect(drastic_nano::compute(
+                            oc, (uint32_t)drmLogicalW, (uint32_t)drmLogicalH));
+                }
+                if (obr.w > 0.0f && obr.h > 0.0f) {
+                    glViewport((int)obr.x, drmLogicalH - (int)(obr.y + obr.h),
+                               (int)obr.w, (int)obr.h);
+                    gfx.setViewport((int)obr.w, (int)obr.h);
                 } else {
                     glViewport(0, 0, dpy->width, dpy->height);
                 }
                 gfx.beginFrame();
                 overlay.drawOsk(gfx);
                 gfx.endFrame();
+                gfx.setViewport(drmLogicalW, drmLogicalH);   // restore logical
             }
         }
 
@@ -1301,6 +1660,7 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
 
         if (android::sDrmFd >= 0 && !android::sDrmDisplays.empty() &&
             !android::sDrmVblankBroken && android::sDrmDisplays.size() <= 1) {
+            const int64_t vblT0 = android::elapsedRealtimeNano();
             union drm_wait_vblank vbl = {};
             vbl.request.type = (enum drm_vblank_seq_type)(
                     _DRM_VBLANK_RELATIVE
@@ -1308,6 +1668,18 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                        << _DRM_VBLANK_HIGH_CRTC_SHIFT));
             vbl.request.sequence = 1;
             ioctl(android::sDrmFd, DRM_IOCTL_WAIT_VBLANK, &vbl);
+            // A DSI command-mode panel (phone-class AMOLED) raises no periodic
+            // vblank, so this ioctl blocks until its multi-second timeout and
+            // collapses output to well under 1 fps. Detect that the first time
+            // and switch to page-flip-event pacing (drmDrainPageFlipEvents below)
+            // from then on, the same fallback the home's render loop uses.
+            const int64_t vblNs = android::elapsedRealtimeNano() - vblT0;
+            if (vblNs > 100000000LL) {   // 100 ms
+                android::sDrmVblankBroken = true;
+                ALOGW("drastic-nano: DRM_IOCTL_WAIT_VBLANK took %lld ms -- "
+                      "switching to page-flip-event pacing",
+                      (long long)(vblNs / 1000000LL));
+            }
         }
         android::drmDrainPageFlipEvents();
     }
@@ -1322,6 +1694,555 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
     // GPU driver during a relaunch teardown).
     overlay.freeRaTextures(gfx);
     gfx.shutdown();
+    android::drastic_input::closeInputDevices(&input);
+    return result;
+}
+
+// Reads the single-view layout choice from the layout properties. The values
+// mirror the advanced_drastic naming so the menu, the property, and the upstream
+// build all line up. "auto" orientation resolves to horizontal on a landscape
+// surface and vertical on a portrait one, which reproduces the per-device
+// defaults; runLoopSf does that resolve once it knows the window size.
+// Reads the live layout choice from the persisted properties, resolving the
+// "auto" orientation against the surface aspect. Cheap enough (three property
+// reads) to call once per frame so the in-game Screen Layout menu applies its
+// changes without a relaunch.
+static drastic_nano::LayoutConfig readSfLayoutConfig(int surfaceW, int surfaceH) {
+    drastic_nano::LayoutConfig cfg;
+    char buf[PROPERTY_VALUE_MAX] = {};
+
+    property_get("persist.gammaos.drastic_nano.orientation", buf, "auto");
+    if (!strcmp(buf, "horizontal"))    cfg.orient = drastic_nano::Orientation::Horizontal;
+    else if (!strcmp(buf, "vertical")) cfg.orient = drastic_nano::Orientation::Vertical;
+    else if (!strcmp(buf, "single"))   cfg.orient = drastic_nano::Orientation::Single;
+    else cfg.orient = (surfaceW >= surfaceH) ? drastic_nano::Orientation::Horizontal
+                                             : drastic_nano::Orientation::Vertical;  // auto
+
+    property_get("persist.gammaos.drastic_nano.scaling", buf, "stretch");
+    if (!strcmp(buf, "none"))        cfg.scaling = drastic_nano::Scaling::None;
+    else if (!strcmp(buf, "1x2x"))   cfg.scaling = drastic_nano::Scaling::S1x2x;
+    else if (!strcmp(buf, "2x1x"))   cfg.scaling = drastic_nano::Scaling::S2x1x;
+    else                             cfg.scaling = drastic_nano::Scaling::Stretch;
+
+    cfg.swap = property_get_bool("persist.gammaos.drastic_nano.swap", false);
+
+    // Screen gap: stored as a percent (0..50) of the leading screen's stacking
+    // dimension, applied between the two screens in any two-screen layout.
+    property_get("persist.gammaos.drastic_nano.screen_gap", buf, "0");
+    int gapPct = atoi(buf);
+    if (gapPct < 0) gapPct = 0; else if (gapPct > 50) gapPct = 50;
+    cfg.gap = (float)gapPct / 100.0f;
+
+    // Predetermined handheld layout preset. -1 (default) keeps the parametric
+    // orientation/scaling above; 0..presetCount-1 selects a preset that overrides
+    // them (Full Screen, Side by Side, PiP, Big+Small, Stacked, ...).
+    property_get("persist.gammaos.drastic_nano.layout_preset", buf, "-1");
+    int presetIdx = atoi(buf);
+    if (presetIdx >= 0 && presetIdx < drastic_nano::presetCount()) cfg.preset = presetIdx;
+
+    // PiP inset opacity (percent, 0..100) for the picture-in-picture presets, so
+    // the big screen shows through the overlapping inset. Default 100 (opaque).
+    property_get("persist.gammaos.drastic_nano.pip_alpha", buf, "100");
+    int pipPct = atoi(buf);
+    if (pipPct < 0) pipPct = 0; else if (pipPct > 100) pipPct = 100;
+    cfg.pipAlpha = (float)pipPct / 100.0f;
+    return cfg;
+}
+
+// SurfaceFlinger render loop. This is the twin of runLoop above for the SF
+// backend: it reuses every shared piece (the DraStic core, input, overlay, OSK,
+// RetroAchievements, sleep) and differs only in how a finished frame reaches the
+// panel. A single-display session composites both DS screens into one window
+// through the advanced_drastic layout presets; a dual-display session draws one
+// DS screen per window. runLoop above stays untouched, so the DRM path is
+// unaffected by this code.
+RunLoopResult runLoopSf(drastic_nano::IDisplayBackend* backend,
+                        DrasticRunner* dr,
+                        const android::drastic_prefs::Prefs& initialPrefs,
+                        uid_t appUid, gid_t appGid,
+                        const std::string& xmlPath,
+                        const std::string& savestatesDir,
+                        const std::string& romPath,
+                        const std::string& shadersDir) {
+    RunLoopResult result{false, false};
+
+    uint32_t pw = 0, ph = 0;
+    backend->primarySize(&pw, &ph);
+    const int W = (int)pw, H = (int)ph;
+    const bool dual = backend->hasSecondary();
+
+    // The DS offscreen carries both screens; a dual session sizes it for two full
+    // screens, a single session for the one window. The layout quads then sample
+    // the matching half into each slot.
+    dr->initSurface(W, H, dual);
+    float ident[4] = {1.0f, 0.0f, 0.0f, 1.0f};   // SF layer is display-space
+    dr->setRotationMatrix(ident);
+
+    // Single-window layout offscreen. renderSlotShaded MUST target a non-zero
+    // FBO: the .dfx shader's final-pass redirect (patchFinalPassFbo) treats FBO 0
+    // as "no target" and skips, so rendering the shaded slots straight to the
+    // window made renderSlotShaded return false every frame and the path fell back
+    // to the blurry re-sampled renderTopScreen blit -- the .dfx shaders (prescale/
+    // LCD/scanline) never applied. So render the shaded slots into this offscreen,
+    // then blit it to the window. Mirrors the DRM single-panel path (drmLayoutFbo).
+    GLuint sfLayoutFbo = 0, sfLayoutTex = 0;
+    // Display Rotation (persist.gammaos.drastic_nano.display_rotate, 0/90/180/270)
+    // for portrait play, the SF analog of the DRM single-panel path. The game,
+    // overlay and OSK are all rendered into a LOGICAL-orientation offscreen, then
+    // the whole offscreen is blitted to the window rotated, so everything turns
+    // together with no per-element rotation math. The logical dims swap for the
+    // quarter turns (a portrait offscreen rotated 90 fills the landscape window).
+    // SurfaceFlinger still owns the physical panel rotation; this is the extra,
+    // user-chosen rotation on top.
+    int   sfRot  = 0;            // current display_rotate
+    int   sfLogW = W, sfLogH = H;
+    // Blit matrix = rotate(sfRot) composed with the texture-sampling Y-flip
+    // ([1,0,0,-1] at 0deg, validated). Recomputed by applySfRotation.
+    float sfBlitMat[4] = {1.0f, 0.0f, 0.0f, -1.0f};
+    auto sfReadRotate = []() -> int {
+        char v[PROPERTY_VALUE_MAX] = {};
+        property_get("persist.gammaos.drastic_nano.display_rotate", v, "0");
+        int r = atoi(v);
+        return ((r % 360) + 360) % 360;
+    };
+    if (backend->composeMode() == drastic_nano::ComposeMode::kLayoutPreset) {
+        glGenTextures(1, &sfLayoutTex);
+        glGenFramebuffers(1, &sfLayoutFbo);
+    }
+    // (Re)allocate the offscreen for the logical dims of `rot` and set the blit
+    // matrix. Called once up front and again whenever display_rotate changes.
+    auto applySfRotation = [&](int rot) {
+        sfRot  = rot;
+        sfLogW = (rot == 90 || rot == 270) ? H : W;
+        sfLogH = (rot == 90 || rot == 270) ? W : H;
+        if (sfLayoutTex) {
+            glBindTexture(GL_TEXTURE_2D, sfLayoutTex);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, sfLogW, sfLogH, 0, GL_RGBA,
+                         GL_UNSIGNED_BYTE, nullptr);
+            // NEAREST: the offscreen->window blit is 1:1 (or a quarter turn), so
+            // bilinear only smears the integer-scaled DS pixels (the "blurry at
+            // 2x" the user saw). NEAREST keeps integer scaling crisp.
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+            glBindFramebuffer(GL_FRAMEBUFFER, sfLayoutFbo);
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+                                   GL_TEXTURE_2D, sfLayoutTex, 0);
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        }
+        // rotate(rot) * Yflip, column-major [m0,m1,m2,m3] = [[m0,m2],[m1,m3]].
+        switch (rot) {
+        case 90:  sfBlitMat[0]= 0; sfBlitMat[1]= 1; sfBlitMat[2]= 1; sfBlitMat[3]= 0; break;
+        case 180: sfBlitMat[0]=-1; sfBlitMat[1]= 0; sfBlitMat[2]= 0; sfBlitMat[3]= 1; break;
+        case 270: sfBlitMat[0]= 0; sfBlitMat[1]=-1; sfBlitMat[2]=-1; sfBlitMat[3]= 0; break;
+        default:  sfBlitMat[0]= 1; sfBlitMat[1]= 0; sfBlitMat[2]= 0; sfBlitMat[3]=-1; break;
+        }
+        ALOGI("drastic-nano: SF display_rotate=%d, logical %dx%d", rot, sfLogW, sfLogH);
+    };
+    if (sfLayoutTex) applySfRotation(sfReadRotate());
+
+    // The layout choice, re-read each frame so the in-game Screen Layout menu
+    // applies live. Seeded here for any pre-loop reference.
+    drastic_nano::LayoutConfig layout = readSfLayoutConfig(W, H);
+
+    android::drastic_input::InputState input{};
+    android::drastic_input::applyPrefs(&input, initialPrefs);
+    android::drastic_input::scanInputDevices(&input);
+    ALOGI("drastic-nano: SF loop %dx%d, %d display(s), found %zu input devices",
+          W, H, backend->displayCount(), input.fds.size());
+
+    android::drastic_gfx::OverlayGfx gfx;
+    if (!gfx.init(W, H, ident)) {
+        ALOGW("drastic-nano: SF OverlayGfx init failed; overlay disabled");
+    }
+
+    android::drastic_overlay::OverlayMenu overlay;
+    overlay.init(dr, initialPrefs, appUid, appGid,
+                 xmlPath, savestatesDir, romPath, shadersDir);
+
+    android::NanoRetroAchievements ra;
+    overlay.setRaClient(&ra);
+    // The SF single-window path has no second screen for RA, so use the
+    // on-screen Achievements drill-in here too.
+    overlay.setSingleScreen(true);
+    bool raInited = false;
+    bool raPrevOverlayOpen = false;
+
+    const float saturation = 1.0f;
+    const float gradient   = 0.0f;
+    int  fsCounter = 0;
+    bool screensSwapped = false;
+
+    // Lightweight present-rate log: count presents and report the measured FPS
+    // every ~2 seconds. SurfaceFlinger keeps no latency stats for a
+    // device-composited layer, so this is the throughput signal on the SF path.
+    // Negligible overhead.
+    int64_t fpsWindowStartMs = android::elapsedRealtime();
+    int     fpsFrameCount    = 0;
+
+    int64_t audioBoostDeadlineMs = android::elapsedRealtime() + 1000;
+    int audioBoostSweeps = 0;
+    constexpr int kAudioFastSweeps    = 3;
+    constexpr int64_t kAudioFastGapMs = 2000;
+    constexpr int64_t kAudioSlowGapMs = 30000;
+
+    // The SF host activity shows a "Loading..." splash from launch until the
+    // first frame reaches the panel; the cold start (dlopen libdrastic + ROM/
+    // savestate load) is a few seconds of otherwise-blank surface. We raise this
+    // signal the instant the first present lands so the activity can drop the
+    // splash exactly when there is something to show.
+    bool firstPresented = false;
+    bool exitRequested = false;
+    while (!exitRequested) {
+        const int64_t _frameStartNs = android::elapsedRealtimeNano();
+        // Pick up live Screen Layout menu changes (orientation / scaling / swap).
+        layout = readSfLayoutConfig(W, H);
+        if (android::elapsedRealtime() >= audioBoostDeadlineMs) {
+            boostAudioServer();
+            audioBoostSweeps++;
+            audioBoostDeadlineMs = android::elapsedRealtime() +
+                    ((audioBoostSweeps < kAudioFastSweeps) ? kAudioFastGapMs : kAudioSlowGapMs);
+        }
+
+        android::drastic_input::InputActions actions{};
+        android::drastic_input::pollInputMap(
+                &input, overlay.isOpen(), overlay.isCapturingKey(),
+                kBackShortMs, kBackHoldMs, kPowerHoldMs, &actions);
+
+        // SF mode does NOT capture the power button. We run inside an Android
+        // activity window, so PhoneWindowManager owns power (sleep, the system
+        // overlay) just like any app. Acting on it here would fight the
+        // framework (double sleep, a blanked panel). drastic's in-game menu is
+        // still reachable through the BACK button (menuToggle) below.
+        (void)actions.sleepRequested;
+        (void)actions.xmbOverlayRequested;
+        // Automation hook: sys.gammaos.drastic_nano.menu=1 toggles the overlay
+        // once, then clears the property. Lets a screenshot or test session
+        // raise the in-game menu without a physical button, mirroring the
+        // sys.gammaos.drastic_nano.shot capture trigger.
+        if (property_get_bool("sys.gammaos.drastic_nano.menu", false)) {
+            property_set("sys.gammaos.drastic_nano.menu", "0");
+            actions.menuToggle = true;
+        }
+        overlay.update(actions, &input);
+
+        if (!raInited && dr->isFrameReady()) {
+            raInited = true;
+            ra.onGameLoaded(dr, romPath);
+        }
+        if (raInited) ra.onRenderFrame();
+        {
+            bool ovOpen = overlay.isOpen();
+            if (ovOpen != raPrevOverlayOpen) {
+                ra.setPaused(ovOpen);
+                raPrevOverlayOpen = ovOpen;
+            }
+        }
+        overlay.setHardcoreActive(ra.hardcoreRestrictionsActive());
+        {
+            android::RaUiEvent rev;
+            while (ra.popUiEvent(&rev)) overlay.onRaUiEvent(rev);
+        }
+
+        // Debug: drive a UI-style login from a prop (mirrors the DRM loop). Format
+        // "user:pass"; fires once then clears the prop. Validates the exact login
+        // path on the SF backend (the path the Brick always uses). Inert when unset.
+        {
+            char ld[PROPERTY_VALUE_MAX] = {};
+            property_get("persist.gammaos.drastic_nano.ra_login_dbg", ld, "");
+            if (ld[0]) {
+                std::string s(ld);
+                size_t c = s.find(':');
+                if (c != std::string::npos && c + 1 < s.size())
+                    ra.requestLogin(s.substr(0, c), s.substr(c + 1));
+                property_set("persist.gammaos.drastic_nano.ra_login_dbg", "");
+            }
+        }
+
+        if (actions.volAdjust != 0)    overlay.onVolumeAdjust(actions.volAdjust);
+        if (actions.brightAdjust != 0) overlay.onBrightnessAdjust(actions.brightAdjust);
+        if (actions.exitRequested)        exitRequested = true;
+        if (overlay.exitAppRequested())   exitRequested = true;
+        if (overlay.relaunchRequested()) { result.relaunchRequested = true; exitRequested = true; }
+        if (overlay.restartFreshRequested()) {
+            result.restartFresh = true; result.relaunchRequested = true; exitRequested = true;
+        }
+        if (raInited && ra.takeHardcoreRestart()) {
+            result.restartFresh = true; result.relaunchRequested = true; exitRequested = true;
+        }
+        if (exitRequested) break;
+
+        dr->setFastForward(ra.hardcoreRestrictionsActive() ? false : actions.actFastFwd);
+        if (actions.actSwapScreens) screensSwapped = !screensSwapped;
+
+        // Touch maps to the bottom (touch) DS screen. In dual mode the touch
+        // panel already is the bottom screen, so the input layer's coordinates
+        // are correct as-is. In a single window the touch panel covers the whole
+        // surface, so a touch is rescaled through the bottom screen's layout
+        // rectangle: the input layer reports a panel-normalized position
+        // (touchX/256, touchY/192), which maps to a window pixel, and only a
+        // window pixel inside the bottom rect counts, rescaled into 256x192.
+        int dsTouchX = actions.touchX;
+        int dsTouchY = actions.touchY;
+        bool dsTouchHeld = actions.touchHeld;
+        if (backend->composeMode() == drastic_nano::ComposeMode::kLayoutPreset &&
+            !actions.touchDirect) {
+            // Map at the LOGICAL dims (which swap under a quarter-turn display
+            // rotation), and rotate the window touch fraction into logical space
+            // first so a touch lands on the right DS pixel after the display turns.
+            // Same inverse-rotation family the DRM single-panel touch map uses.
+            drastic_nano::LayoutConfig fc = readSfLayoutConfig(sfLogW, sfLogH);
+            fc.swap = fc.swap ^ screensSwapped;
+            drastic_nano::Rect br = drastic_nano::bottomRect(
+                    drastic_nano::compute(fc, (uint32_t)sfLogW, (uint32_t)sfLogH));
+            if (br.w > 0.0f && br.h > 0.0f) {
+                const float a = actions.touchX / 256.0f;   // window fraction
+                const float b = actions.touchY / 192.0f;
+                float la = a, lb = b;                       // -> logical fraction
+                switch (sfRot) {
+                case 90:  la = b;        lb = 1.0f - a; break;
+                case 180: la = 1.0f - a; lb = 1.0f - b; break;
+                case 270: la = 1.0f - b; lb = a;        break;
+                default:  la = a;        lb = b;        break;
+                }
+                const float wx = la * (float)sfLogW;
+                const float wy = lb * (float)sfLogH;
+                if (wx >= br.x && wx < br.x + br.w && wy >= br.y && wy < br.y + br.h) {
+                    dsTouchX = (int)((wx - br.x) / br.w * 256.0f);
+                    dsTouchY = (int)((wy - br.y) / br.h * 192.0f);
+                    if (dsTouchX > 255) dsTouchX = 255;
+                    if (dsTouchY > 191) dsTouchY = 191;
+                } else {
+                    dsTouchHeld = false;   // touch outside the bottom screen
+                }
+            }
+        }
+        dr->setInputWithTouch(actions.dsBtnMask, dsTouchX, dsTouchY, dsTouchHeld);
+
+        {
+            const auto& lp = overlay.prefs();
+            int fsSkip = (lp.frameskipType == 0) ? lp.frameskipValue : 0;
+            if (fsSkip < 0) fsSkip = 0;
+            bool renderDs = (fsSkip == 0) || (fsCounter % (fsSkip + 1) == 0);
+            fsCounter++;
+            // The layout-preset path renders the shader per slot (renderSlotShaded)
+            // and fills the shared offscreen only on its fallback, so skip the
+            // pre-render there. The dual-target path still needs it pre-filled.
+            if (renderDs &&
+                backend->composeMode() != drastic_nano::ComposeMode::kLayoutPreset)
+                dr->renderDsToOffscreen();
+        }
+
+        drastic_nano::FrameTargets ft = backend->acquireFrameTargets();
+
+        if (backend->composeMode() == drastic_nano::ComposeMode::kDualTarget) {
+            // One DS screen per window, mirroring the DRM dual branch.
+            backend->bindSecondary();
+            glViewport(0, 0, (GLsizei)ft.secondaryW, (GLsizei)ft.secondaryH);
+            if (screensSwapped) dr->renderTopScreen(saturation, gradient);
+            else                dr->renderBottomScreen(saturation, gradient);
+
+            backend->bindPrimary();
+            glViewport(0, 0, (GLsizei)ft.primaryW, (GLsizei)ft.primaryH);
+            if (screensSwapped) dr->renderBottomScreen(saturation, gradient);
+            else                dr->renderTopScreen(saturation, gradient);
+        } else {
+            // Both DS screens in one window, placed by the layout preset. The
+            // runtime swap toggle flips which screen leads on top of the property.
+            // Render the shaded slots into the layout OFFSCREEN (renderSlotShaded
+            // needs a non-zero FBO; see sfLayoutFbo setup above), then blit the
+            // offscreen to the window. This is what makes the .dfx shaders apply in
+            // SF mode; before this they fell back to the re-sampled blit.
+            //
+            // Display Rotation: a live display_rotate change re-sizes the offscreen
+            // to the LOGICAL orientation and sets the blit matrix. The layout is
+            // computed at the logical dims (so a quarter turn lays the screens out
+            // for portrait), rendered into the offscreen, then blitted to the window
+            // turned by the matrix.
+            { int wantRot = sfReadRotate(); if (wantRot != sfRot) applySfRotation(wantRot); }
+
+            drastic_nano::LayoutConfig frameCfg = readSfLayoutConfig(sfLogW, sfLogH);
+            frameCfg.swap = frameCfg.swap ^ screensSwapped;
+            drastic_nano::LayoutPlan plan =
+                    drastic_nano::compute(frameCfg, (uint32_t)sfLogW, (uint32_t)sfLogH);
+
+            glBindFramebuffer(GL_FRAMEBUFFER, sfLayoutFbo);
+            glDisable(GL_SCISSOR_TEST);
+            glViewport(0, 0, sfLogW, sfLogH);
+            glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT);
+            bool sharedOffscreenFilled = false;
+            for (int i = 0; i < plan.count; i++) {
+                const drastic_nano::SlotPlan& s = plan.slots[i];
+                const int vx = (int)s.rect.x;
+                const int vy = sfLogH - (int)(s.rect.y + s.rect.h);  // top-left -> GL bottom-left
+                const int vw = (int)s.rect.w;
+                const int vh = (int)s.rect.h;
+                const int which =
+                        (s.content == drastic_nano::DsScreen::Top) ? 0 : 1;
+                // Translucent PiP inset: blend this slot over the big screen already
+                // in the offscreen using a constant alpha (the DS frame writes
+                // alpha=1, so constant-alpha blending is what makes it see-through).
+                const bool blend = (s.alpha < 0.999f);
+                if (blend) {
+                    glEnable(GL_BLEND);
+                    glBlendColor(0.0f, 0.0f, 0.0f, s.alpha);
+                    glBlendFunc(GL_CONSTANT_ALPHA, GL_ONE_MINUS_CONSTANT_ALPHA);
+                }
+                // Per-slot shader render at the slot's exact size into the layout
+                // offscreen, so the prescale/LCD grid lands on the final pixels
+                // (crisp, correct for asymmetric big+small slots), matching stock
+                // DraStic and the DRM single-panel path. Returns false only when
+                // the .dfx path is inactive; then fall back to the shared-offscreen
+                // re-sampled blit so output is never blank.
+                if (!dr->renderSlotShaded(which, sfLayoutFbo, vx, vy, vw, vh)) {
+                    if (!sharedOffscreenFilled) {
+                        dr->renderDsToOffscreen();
+                        sharedOffscreenFilled = true;
+                    }
+                    glBindFramebuffer(GL_FRAMEBUFFER, sfLayoutFbo);
+                    glViewport(vx, vy, vw, vh);
+                    glEnable(GL_SCISSOR_TEST);
+                    glScissor(vx, vy, vw, vh);
+                    dr->setRotationMatrix(ident);
+                    if (which == 0) dr->renderTopScreen(saturation, gradient);
+                    else            dr->renderBottomScreen(saturation, gradient);
+                    glDisable(GL_SCISSOR_TEST);
+                }
+                if (blend) glDisable(GL_BLEND);
+            }
+            glDisable(GL_SCISSOR_TEST);
+
+            // Composite the layout offscreen onto the window, turned by the rotation
+            // matrix (which folds in the texture-sampling Y-flip; see applySfRotation).
+            backend->bindPrimary();
+            glViewport(0, 0, W, H);
+            glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT);
+            dr->blitFullTexture(sfLayoutTex, sfBlitMat);
+        }
+
+        // Overlay over the whole primary window.
+        backend->bindPrimary();
+        glViewport(0, 0, W, H);
+        gfx.setViewport(W, H);
+        gfx.beginFrame();
+        overlay.draw(gfx);
+        if (input.cursorMode && !overlay.isOpen()) {
+            // Drawn in logical space (matches the bottom-screen rect with no
+            // display rotation, the common SF case; under a quarter-turn the SF
+            // overlay layer is known not to rotate, same as the menu/OSK).
+            drastic_nano::LayoutConfig cc = readSfLayoutConfig(sfLogW, sfLogH);
+            cc.swap = cc.swap ^ screensSwapped;
+            drastic_nano::Rect cbr = drastic_nano::bottomRect(
+                    drastic_nano::compute(cc, (uint32_t)sfLogW, (uint32_t)sfLogH));
+            drawTouchCursor(gfx, cbr, input.cursorX, input.cursorY,
+                            (input.dsBtnMask & DrasticRunner::kDsBtnA) != 0);
+        }
+        gfx.endFrame();
+
+        const bool wantShot = shotRequested();
+        if (wantShot) {
+            captureFboToPpm(W, H, "/data/drastic_nano_shot.ppm");
+            if (dual) {
+                // The second window holds the bottom DS screen; capture it too so
+                // a single shot covers both panels, like the DRM path.
+                backend->bindSecondary();
+                captureFboToPpm((int)ft.secondaryW, (int)ft.secondaryH,
+                                "/data/drastic_nano_shot_bot.ppm");
+                backend->bindPrimary();
+            }
+            // Clear the request so the capture is one-shot. Without this the
+            // glReadPixels readback and PPM write run every frame and collapse
+            // the frame rate -- the DRM path clears it here for the same reason.
+            property_set("sys.gammaos.drastic_nano.shot", "0");
+        }
+
+        // On-screen keyboard: on the bottom window for a dual session, anchored to
+        // the bottom screen's layout rect for a single window so the keys sit over
+        // the touch screen.
+        { char od[PROPERTY_VALUE_MAX] = {};
+          property_get("persist.gammaos.drastic_nano.osk_dbg", od, "0");
+          if (od[0] == '1') overlay.debugOpenOsk(); }
+        if (overlay.oskActive()) {
+            if (dual) {
+                backend->bindSecondary();
+                glViewport(0, 0, (GLsizei)ft.secondaryW, (GLsizei)ft.secondaryH);
+                gfx.setViewport((int)ft.secondaryW, (int)ft.secondaryH);
+                gfx.beginFrame();
+                overlay.drawOsk(gfx);
+                gfx.endFrame();
+                gfx.setViewport(W, H);
+            } else {
+                // Keyboard on the bottom screen's AREA, never the whole panel:
+                // use a STACKED (top/bottom) layout's bottom rect so the OSK takes
+                // the bottom half even when the game layout shows the bottom screen
+                // full-panel (the user's "OSK takes the whole screen" report). The
+                // game keeps rendering its own layout behind/above the keyboard.
+                drastic_nano::LayoutConfig fc;
+                fc.orient = drastic_nano::Orientation::Vertical;
+                fc.scaling = drastic_nano::Scaling::Stretch;
+                fc.swap = false;   // Bottom (touch) screen at the physical bottom
+                drastic_nano::Rect br = drastic_nano::bottomRect(
+                        drastic_nano::compute(fc, (uint32_t)W, (uint32_t)H));
+                backend->bindPrimary();
+                if (br.w > 0.0f && br.h > 0.0f) {
+                    const int vx = (int)br.x, vy = H - (int)(br.y + br.h);
+                    const int vw = (int)br.w, vh = (int)br.h;
+                    glViewport(vx, vy, vw, vh);
+                    gfx.setViewport(vw, vh);
+                } else {
+                    glViewport(0, 0, W, H);
+                    gfx.setViewport(W, H);
+                }
+                gfx.beginFrame();
+                overlay.drawOsk(gfx);
+                gfx.endFrame();
+                gfx.setViewport(W, H);
+            }
+        }
+
+        backend->present(ft);
+        if (!firstPresented) {
+            firstPresented = true;
+            property_set("sys.gammaos.drastic_nano.rendering", "1");
+        }
+
+        fpsFrameCount++;
+        {
+            const int64_t nowMs = android::elapsedRealtime();
+            const int64_t dtMs = nowMs - fpsWindowStartMs;
+            if (dtMs >= 2000) {
+                ALOGI("drastic-nano: SF present rate %.1f fps",
+                      fpsFrameCount * 1000.0 / (double)dtMs);
+                fpsFrameCount = 0;
+                fpsWindowStartMs = nowMs;
+            }
+        }
+
+        // Cap the present rate at the DS-native / panel 60 Hz. The SF window
+        // swaps with interval 0 so eglSwapBuffers never blocks; without a cap
+        // the loop re-presents the same emulated frame as fast as the GPU
+        // allows (hundreds of fps), pinning a CPU core and overheating the
+        // handheld for no visible gain. Sleeping the rest of each 60 Hz slice
+        // idles the core between frames while keeping the game smooth.
+        {
+            constexpr int64_t kFrameNs = 16666667;   // 1/60 s
+            const int64_t usedNs = android::elapsedRealtimeNano() - _frameStartNs;
+            if (usedNs < kFrameNs) {
+                struct timespec ts = {0, (long)(kFrameNs - usedNs)};
+                nanosleep(&ts, nullptr);
+            }
+        }
+    }
+
+    ra.shutdown();
+    overlay.close();
+    overlay.freeRaTextures(gfx);
+    gfx.shutdown();
+    if (sfLayoutFbo) glDeleteFramebuffers(1, &sfLayoutFbo);
+    if (sfLayoutTex) glDeleteTextures(1, &sfLayoutTex);
     android::drastic_input::closeInputDevices(&input);
     return result;
 }
@@ -1499,8 +2420,77 @@ int main(int argc, char** argv) {
     // master is ours. Mirrors gammaos-nano's QR preview pattern.
 
     Display dpy{};
-    if (!setupDisplay(&dpy)) {
-        ALOGE("drastic-nano: display setup failed");
+    // Select the display backend.
+    //   drm  - grab DRM master and render the panel(s) directly through the AHB
+    //          ring (the reliable path on a device that boots DRM-direct).
+    //   sf   - render through SurfaceFlinger as an ordinary client layer, for a
+    //          true pure-SF device whose panels belong to the compositor and that
+    //          has no DRM-direct path of its own.
+    //   auto - (default) prefer DRM: a device that can grab DRM master uses it,
+    //          and only a device with no DRM-direct path falls back to
+    //          SurfaceFlinger. A DRM-capable handheld (the RG units boot
+    //          DRM-direct) is reliably served by DRM and never has to wrestle the
+    //          panel away from the home through SurfaceFlinger.
+    // The DRM path and its runLoop are untouched. The sf path fills the same dpy
+    // fields and runs runLoopSf below.
+    std::unique_ptr<drastic_nano::IDisplayBackend> sfBackend;
+    bool sfMode = false;
+    bool drmUp  = false;
+    {
+        char backendProp[PROPERTY_VALUE_MAX] = {};
+        property_get("persist.gammaos.drastic_nano.backend", backendProp, "auto");
+        const bool forceDrm = (strcmp(backendProp, "drm") == 0);
+        const bool forceSf  = (strcmp(backendProp, "sf") == 0);
+
+        // DRM first unless SurfaceFlinger is explicitly forced. setupDisplay grabs
+        // DRM master; it succeeds on a DRM-capable panel and returns false on a
+        // device with no DRM-direct path.
+        if (!forceSf) {
+            drmUp = setupDisplay(&dpy);
+            if (drmUp) {
+                ALOGI("drastic-nano: DRM backend up (%dx%d)", dpy.width, dpy.height);
+            }
+        }
+
+        // SurfaceFlinger when DRM is not up and was not explicitly forced.
+        if (!drmUp && !forceDrm) {
+            auto* sfb = new drastic_nano::SfDisplayBackend();
+            // backend=sf is the explicit, DRM-boot opt-in: render into the
+            // DrasticSf host activity's Surface so SurfaceFlinger actually
+            // presents us. The auto-fallback (a pure-SF device whose panels
+            // already belong to SF) keeps the own-layer path. Set on the
+            // concrete type before it is held by the IDisplayBackend pointer.
+            sfb->setHostSurfaceMode(forceSf);
+            sfBackend.reset(sfb);
+            drastic_nano::DisplayEnv env{};
+            if (sfBackend->createContext(&env)) {
+                dpy.eglDpy = env.eglDpy;
+                dpy.eglCtx = env.eglCtx;
+                dpy.eglSurf = env.eglSurf;
+                dpy.width = env.width;
+                dpy.height = env.height;
+                sfMode = true;
+                ALOGI("drastic-nano: SurfaceFlinger backend up (%dx%d)",
+                      dpy.width, dpy.height);
+                // On a DRM-direct device the gammaos-nano overlay is what holds
+                // SurfaceFlinger presenting to the panel (it performs the DRM ->
+                // SF takeover and drops DRM master). When we are hosted by the
+                // DrasticSf activity (backend=sf), that overlay MUST stay up or
+                // our SF layer renders to a panel SF is not scanning out -- a
+                // black screen. So only suppress the overlay on a pure-SF device
+                // (the auto fallback, where SF always owns the panel); there it
+                // would otherwise composite its XMB over the emulator.
+                if (!forceSf) {
+                    property_set("sys.gammaos.nano.overlay_ran", "0");
+                    property_set("ctl.stop", "gammaos-nano-overlay");
+                }
+            } else {
+                sfBackend.reset();
+            }
+        }
+    }
+    if (!drmUp && !sfMode) {
+        ALOGE("drastic-nano: no display backend (DRM and SF both unavailable)");
         property_set(kSessionDoneProp, "1");
         return 6;
     }
@@ -1564,6 +2554,11 @@ int main(int argc, char** argv) {
             "persist.gammaos.drastic_nano.autoload", true)) ? 9 : -1;
     if (raHardcore) ALOGI("drastic-nano: RA hardcore - forcing fresh boot (no auto-load)");
     ALOGI("drastic-nano: auto-load slot = %d", autoLoadSlot);
+    // Mark this as a real play session so DrasticRunner enables the fxRender
+    // shader path regardless of the persist drastic-nano feature flag. The
+    // home's QR preview never sets this, so it stays on the renderFrame path.
+    // drastic-nano.rc clears it on session_done (clean exit and crash).
+    property_set("sys.gammaos.drastic_nano.session", "1");
     if (!dr.init(kDrasticDataDir, romPath, libsDir,
                  /*soundEnabled=*/prefs.soundEnabled,
                  /*configBitsOverride=*/userBits,
@@ -1577,9 +2572,15 @@ int main(int argc, char** argv) {
     // Push the user's stored volume (0..10) into the live mixer.
     dr.setVolumeRuntime(prefs.volume * 10);
 
-    RunLoopResult rlr = runLoop(&dpy, &dr, prefs, appUid, appGid,
-                                prefsPath, savestatesDir, romPath,
-                                shadersDir);
+    RunLoopResult rlr = sfMode
+            ? runLoopSf(sfBackend.get(), &dr, prefs, appUid, appGid,
+                        prefsPath, savestatesDir, romPath, shadersDir)
+            : runLoop(&dpy, &dr, prefs, appUid, appGid,
+                      prefsPath, savestatesDir, romPath, shadersDir);
+    // Release the SurfaceFlinger layer(s) so the compositor recomposites the home
+    // behind them. The DRM teardown below is guarded by sDrmActive and no-ops on
+    // the SF path.
+    if (sfMode && sfBackend) sfBackend->teardown();
 
     // Persist the autosave (slot 9) that the next launch auto-loads.
     // The DrasticRunner destructor's quitSystem does NOT reliably

@@ -1,8 +1,13 @@
 service drastic-nano /system/bin/drastic-nano
     class main
     user root
-    group root graphics input system media_rw sdcard_rw everybody external_storage package_info audio readproc
+    group root graphics input system media_rw sdcard_rw everybody external_storage package_info audio readproc inet net_bw_stats
     capabilities SYS_NICE IPC_LOCK SYS_RESOURCE DAC_READ_SEARCH DAC_OVERRIDE CHOWN
+    # `inet` (AID_INET 3003) is REQUIRED for network: the rc restricts capabilities
+    # (no CAP_NET_RAW), so Android's paranoid-network gate (in_egroup_p(AID_INET) ||
+    # capable(CAP_NET_RAW)) would otherwise EACCES every socket -- which broke the
+    # RetroAchievements login (the forked curl could not open a socket). net_bw_stats
+    # (3006) lets its sockets be tagged for per-uid stats like every other net client.
     disabled
     oneshot
     ioprio rt 0
@@ -29,7 +34,32 @@ on property:sys.gammaos.drastic_nano.start=1
     # master, input fds, and CPU -- visible as frame spikes / slow
     # drmDrainPageFlipEvents (user-confirmed 2026-04-17). Belt-and-
     # braces.
+    #
+    # Also stop the resident overlay (gammaos-nano --overlay). In overlay-home
+    # mode the overlay is the launcher and owns SurfaceFlinger's panel takeover;
+    # a DS ROM launched from it routes here (NanoMenu::overlayLaunchGame), so the
+    # overlay must release the panel before drastic-nano grabs DRM master. A
+    # no-op when the overlay is not running (the normal home launch).
     stop gammaos-nano
+    stop gammaos-nano-overlay
+    start drastic-nano
+
+# drastic-nano start trigger for SurfaceFlinger mode (backend=sf). This ONLY
+# starts the binary -- it must NOT stop the home (gammaos-nano) or the overlay.
+# In SF mode the DrasticSf host activity is launched as a normal app (launch_app),
+# so the home performs its OWN clean DRM -> SurfaceFlinger handoff exactly like an
+# Aurora Store launch: the framework sets service.bootanim.exit=1 once the activity
+# window draws (WindowManagerService, gated on nano_retroarch=1) and the home
+# self-exits there, dropping DRM master so SurfaceFlinger can present to the panel,
+# and the overlay comes up as the SF panel-takeover keeper. A `stop gammaos-nano`
+# here KILLS the home at ~114ms BEFORE that clean handoff runs, leaving the panel
+# not presenting through SF -- a black screen for BOTH drastic and the overlay
+# menu. drastic-nano reads backend=sf and goes host-surface (never touches DRM
+# master), so starting it early is harmless: it just waits for the activity's
+# Surface while the home hands off.
+on property:sys.gammaos.drastic_nano.start_sf=1
+    setprop sys.gammaos.drastic_nano.start_sf 0
+    setprop sys.gammaos.drastic_nano.session_done 0
     start drastic-nano
 
 # drastic-nano exit trigger. drastic-nano sets session_done=1 on
@@ -37,6 +67,9 @@ on property:sys.gammaos.drastic_nano.start=1
 # brings the user back to the XMB.
 on property:sys.gammaos.drastic_nano.session_done=1
     setprop sys.gammaos.drastic_nano.session_done 0
+    # Clear the real-session shader signal so the home's QR preview, which
+    # shares DrasticRunner, stays on the renderFrame path after the session.
+    setprop sys.gammaos.drastic_nano.session 0
     setprop service.bootanim.exit 0
     setprop service.bootanim.nano_retroarch 0
     start gammaos-nano

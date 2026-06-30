@@ -1705,6 +1705,10 @@ void NanoMenu::launchXmbGame() {
                 setDrasticNanoRomPath(romPath);
                 ALOGW("drastic nano: XMB system launch, "
                       "qr=%d", mQuickResumeEnabled ? 1 : 0);
+                // Record in Recently Played, same as the normal launch tail (this
+                // intercept returns before that call), so drastic-nano games show
+                // up in the Recently Played row.
+                addXmbRecent(sysIdx, gameIdx);
                 mDrasticNanoPending = true;
                 mSearchActive = false;
                 mOskActive = false;

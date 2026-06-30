@@ -83,7 +83,7 @@ float normAxis(const InputState::Axis& a, float deadzone) {
 } // anonymous namespace
 
 void scanInputDevices(InputState* st) {
-    st->touchFd = -1;
+    st->touchFds.clear();
     st->touchPanelW = 0;
     st->touchPanelH = 0;
     DIR* d = opendir("/dev/input");
@@ -96,17 +96,35 @@ void scanInputDevices(InputState* st) {
         if (fd < 0) continue;
         char name[64] = {};
         ioctl(fd, EVIOCGNAME(sizeof(name) - 1), name);
-        if (strcmp(name, kTouchDeviceName) == 0) {
-            struct input_absinfo abs = {};
-            if (ioctl(fd, EVIOCGABS(ABS_MT_POSITION_X), &abs) >= 0) {
-                st->touchPanelW = abs.maximum > 0 ? abs.maximum : 1;
+
+        // Touch panel detection. The known DRM unit names its panel
+        // "gt9xx-0", but an arbitrary device (the SurfaceFlinger handhelds)
+        // names it anything, so a panel is recognized by capability: a
+        // multitouch digitizer reports ABS_MT_POSITION_X/Y. Both the exact
+        // name and the capability open the node here. Gamepads never expose
+        // ABS_MT_POSITION_X, so the analog-stick devices fall through to the
+        // gamepad path below untouched.
+        const bool namedTouch = (strcmp(name, kTouchDeviceName) == 0);
+        struct input_absinfo absX = {}, absY = {};
+        const bool hasMtX =
+                ioctl(fd, EVIOCGABS(ABS_MT_POSITION_X), &absX) >= 0 &&
+                absX.maximum > 0;
+        const bool hasMtY =
+                ioctl(fd, EVIOCGABS(ABS_MT_POSITION_Y), &absY) >= 0 &&
+                absY.maximum > 0;
+        if (namedTouch || (hasMtX && hasMtY)) {
+            const int pw = absX.maximum > 0 ? absX.maximum : 1;
+            const int ph = absY.maximum > 0 ? absY.maximum : 1;
+            // The named panel's range wins; otherwise the first panel seen
+            // sets it. A unit's touch nodes share one ABS range, so this is
+            // the panel size whichever node ends up streaming events.
+            if (namedTouch || st->touchPanelW == 0) {
+                st->touchPanelW = pw;
+                st->touchPanelH = ph;
             }
-            if (ioctl(fd, EVIOCGABS(ABS_MT_POSITION_Y), &abs) >= 0) {
-                st->touchPanelH = abs.maximum > 0 ? abs.maximum : 1;
-            }
-            st->touchFd = fd;
-            ALOGI("DrasticNano::input: touch %s %s (panel %dx%d)",
-                  name, p.c_str(), st->touchPanelW, st->touchPanelH);
+            st->touchFds.push_back(fd);
+            ALOGI("DrasticNano::input: touch %s %s (panel %dx%d)%s",
+                  name, p.c_str(), pw, ph, namedTouch ? " [named]" : " [mt]");
             continue;
         }
         unsigned long keys[(KEY_MAX + 8 * sizeof(long)) /
@@ -178,19 +196,17 @@ void applyPrefs(InputState* st, const drastic_prefs::Prefs& p) {
 void closeInputDevices(InputState* st) {
     for (int fd : st->fds) close(fd);
     st->fds.clear();
-    if (st->touchFd >= 0) {
-        close(st->touchFd);
-        st->touchFd = -1;
-    }
+    for (int fd : st->touchFds) close(fd);
+    st->touchFds.clear();
 }
 
 namespace {
 
 // Drain all queued touchscreen events and update touchHeld + touchDs*.
 void drainTouch(InputState* st) {
-    if (st->touchFd < 0) return;
     struct input_event ev;
-    while (read(st->touchFd, &ev, sizeof(ev)) == sizeof(ev)) {
+    for (int touchFd : st->touchFds) {
+    while (read(touchFd, &ev, sizeof(ev)) == sizeof(ev)) {
         if (ev.type == EV_KEY && ev.code == BTN_TOUCH) {
             st->touchHeld = (ev.value != 0);
             st->touchReal = (ev.value != 0);
@@ -221,6 +237,7 @@ void drainTouch(InputState* st) {
             }
         }
     }
+    }
 }
 
 // Derive DS D-Pad bits from the left analog stick position. Allows
@@ -239,6 +256,103 @@ int stickDpadBits(const InputState* st) {
     if (nx < -kDpadThresh) bits |= DrasticRunner::kDsBtnLeft;
     if (nx >  kDpadThresh) bits |= DrasticRunner::kDsBtnRight;
     return bits;
+}
+
+// Right-stick normalized X / Y, robust to controller variety with no
+// per-device hardcoding. We read raw evdev, so we classify axes the way the
+// kernel reports them rather than assuming one controller's codes: a thumbstick
+// axis is BIDIRECTIONAL (min < 0, it swings both ways about centre) while a
+// trigger is unidirectional (min == 0). The right stick is therefore the
+// bidirectional secondary pair, whichever code the pad uses for it -- ABS_RX/RY
+// on retrogame and generic pads, ABS_Z/RZ on Xbox-style pads (where ABS_RX/RY
+// are absent). This mirrors what Android's per-device key layouts normalize to
+// AXIS_Z/AXIS_RZ. A unidirectional ABS_Z/RZ (an analog trigger) is skipped so a
+// resting trigger never reads as a held direction.
+float rightStickX(const InputState* st) {
+    if (st->axRX.seen && st->axRX.min < 0)
+        return normAxis(st->axRX, st->analogDeadzone);
+    if (st->axLZ.seen && st->axLZ.min < 0)
+        return normAxis(st->axLZ, st->analogDeadzone);
+    return 0.0f;
+}
+float rightStickY(const InputState* st) {
+    if (st->axRY.seen && st->axRY.min < 0)
+        return normAxis(st->axRY, st->analogDeadzone);
+    if (st->axRZ.seen && st->axRZ.min < 0)
+        return normAxis(st->axRZ, st->analogDeadzone);
+    return 0.0f;
+}
+
+// Portrait play: the RIGHT analog stick acts as the DS D-Pad. Same 8-way
+// thresholding as the left-stick path but reading the resolved right-stick
+// axes, so the user can drive the D-Pad with the stick that is ergonomic when
+// the console is turned, on whatever controller is connected.
+int stickDpadBitsRight(const InputState* st) {
+    float nx = rightStickX(st);
+    float ny = rightStickY(st);
+    constexpr float kDpadThresh = 0.4f;
+    int bits = 0;
+    if (ny < -kDpadThresh) bits |= DrasticRunner::kDsBtnUp;
+    if (ny >  kDpadThresh) bits |= DrasticRunner::kDsBtnDown;
+    if (nx < -kDpadThresh) bits |= DrasticRunner::kDsBtnLeft;
+    if (nx >  kDpadThresh) bits |= DrasticRunner::kDsBtnRight;
+    return bits;
+}
+
+// Rotate the DS D-Pad and face-button (ABXY) bits by `deg` (0/90/180/270) in
+// 90-degree clockwise steps, for portrait play where the console is physically
+// turned. Both the D-Pad and the ABXY diamond rotate together so they stay
+// natural in the rotated hold. Other bits (L/R/Start/Select) are untouched.
+int rotateDsControls(int m, int deg) {
+    using R = DrasticRunner;
+    int dpad = m & (R::kDsBtnUp | R::kDsBtnDown | R::kDsBtnLeft | R::kDsBtnRight);
+    int face = m & (R::kDsBtnA | R::kDsBtnB | R::kDsBtnX | R::kDsBtnY);
+    int rest = m & ~(dpad | face);
+    int steps = ((deg / 90) % 4 + 4) % 4;
+    for (int t = 0; t < steps; t++) {
+        int nd = 0;   // 90 CW: Up->Right, Right->Down, Down->Left, Left->Up
+        if (dpad & R::kDsBtnUp)    nd |= R::kDsBtnRight;
+        if (dpad & R::kDsBtnRight) nd |= R::kDsBtnDown;
+        if (dpad & R::kDsBtnDown)  nd |= R::kDsBtnLeft;
+        if (dpad & R::kDsBtnLeft)  nd |= R::kDsBtnUp;
+        dpad = nd;
+        int nf = 0;   // 90 CW around the DS diamond: X(top)->A(right)->B(bottom)->Y(left)->X
+        if (face & R::kDsBtnX) nf |= R::kDsBtnA;
+        if (face & R::kDsBtnA) nf |= R::kDsBtnB;
+        if (face & R::kDsBtnB) nf |= R::kDsBtnY;
+        if (face & R::kDsBtnY) nf |= R::kDsBtnX;
+        face = nf;
+    }
+    return rest | dpad | face;
+}
+
+// Build the final DS button mask for portrait play. `rot` (90/180/270) turns
+// the D-Pad + ABXY diamonds to match a physically rotated console. `scheme`
+// picks the layout:
+//   0 = Right Stick: the right analog stick is an extra D-Pad; the D-Pad keeps
+//       its role. Everything rotates by `rot`.
+//   1 = D-Pad as Face: the physical D-Pad presses the ABXY face buttons (mapped
+//       around the diamond) and the LEFT stick drives the direction instead, so
+//       you can hold the console the other way up. Everything rotates by `rot`.
+int applyPortraitControls(const InputState* st, int physMask, int lsDpad,
+                          int rot, int scheme) {
+    using R = DrasticRunner;
+    const int kDpad = R::kDsBtnUp | R::kDsBtnDown | R::kDsBtnLeft | R::kDsBtnRight;
+    if (scheme != 1) {
+        // Right-stick layout: the right stick adds to the D-Pad; rotate all.
+        int m = physMask | lsDpad | stickDpadBitsRight(st);
+        return rotateDsControls(m, rot);
+    }
+    // D-Pad-as-face layout: physical D-Pad -> ABXY diamond, left stick -> D-Pad.
+    int physDpad = physMask & kDpad;
+    int rest     = physMask & ~kDpad;     // physical ABXY + L/R/Start/Select
+    int face     = 0;
+    if (physDpad & R::kDsBtnUp)    face |= R::kDsBtnX;   // top
+    if (physDpad & R::kDsBtnRight) face |= R::kDsBtnA;   // right
+    if (physDpad & R::kDsBtnDown)  face |= R::kDsBtnB;   // bottom
+    if (physDpad & R::kDsBtnLeft)  face |= R::kDsBtnY;   // left
+    int m = rest | face | lsDpad;
+    return rotateDsControls(m, rot);
 }
 
 // Apply the LS -> stylus remap when analog touch is enabled. Called
@@ -264,6 +378,36 @@ void applyAnalogStylus(InputState* st) {
     st->touchDsX = dx;
     st->touchDsY = dy;
     st->touchHeld = true;
+}
+
+// Move the virtual touch cursor for this frame. Direction comes from the left
+// stick (fine, analog) or, when the stick is centered, the D-Pad (full speed).
+// Holding X speeds movement up, holding Y slows it down, neither/both = normal.
+// The position is kept in DS-native units (0..255 x, 0..191 y) so it feeds the
+// touch injection directly. The render loops are paced to the DS-native 60 Hz,
+// so a fixed per-frame step is used rather than a wall-clock dt.
+void updateTouchCursor(InputState* st) {
+    float dx = normAxis(st->axLX, st->analogDeadzone);
+    float dy = normAxis(st->axLY, st->analogDeadzone);
+    if (dx == 0.0f && dy == 0.0f) {
+        const int m = st->dsBtnMask | stickDpadBits(st);
+        if (m & DrasticRunner::kDsBtnLeft)  dx = -1.0f;
+        if (m & DrasticRunner::kDsBtnRight) dx =  1.0f;
+        if (m & DrasticRunner::kDsBtnUp)    dy = -1.0f;
+        if (m & DrasticRunner::kDsBtnDown)  dy =  1.0f;
+    }
+    constexpr float kBase = 3.0f, kFast = 7.0f, kSlow = 1.0f;
+    float speed = kBase;
+    const bool xHeld = (st->dsBtnMask & DrasticRunner::kDsBtnX) != 0;
+    const bool yHeld = (st->dsBtnMask & DrasticRunner::kDsBtnY) != 0;
+    if (xHeld && !yHeld)      speed = kFast;
+    else if (yHeld && !xHeld) speed = kSlow;
+    st->cursorX += dx * speed;
+    st->cursorY += dy * speed;
+    if (st->cursorX < 0.0f)   st->cursorX = 0.0f;
+    if (st->cursorX > 255.0f) st->cursorX = 255.0f;
+    if (st->cursorY < 0.0f)   st->cursorY = 0.0f;
+    if (st->cursorY > 191.0f) st->cursorY = 191.0f;
 }
 
 // Map digital press/release of an Android keycode into nav/action
@@ -439,7 +583,18 @@ void pollInputMap(InputState* st, bool overlayOpen, bool captureKey,
                         // release so the lever / touch stays active
                         // while the button is held.
                         case 17: st->btnFastFwd   = pressed; break;
-                        case 28: st->stylusBtnHeld = pressed; break;
+                        // Touch Cursor: edge-toggle the virtual cursor (the new
+                        // default R3 behavior, replacing the momentary stylus).
+                        case 28:
+                            if (pressed && !st->cursorToggleWasDown) {
+                                st->cursorMode = !st->cursorMode;
+                                if (st->cursorMode) {
+                                    st->cursorX = 128.0f;   // center on enter
+                                    st->cursorY = 96.0f;
+                                }
+                            }
+                            st->cursorToggleWasDown = pressed;
+                            break;
                         // Edge-triggered (fire once on press only).
                         case 16: if (pressed) out->actSwapScreens = true; break;
                         // Menu action: SAME short-press-overlay /
@@ -546,11 +701,24 @@ void pollInputMap(InputState* st, bool overlayOpen, bool captureKey,
     // touchscreen state for this frame.
     applyAnalogStylus(st);
 
+    // Debug: force the virtual cursor on for headless shot validation (this
+    // platform cannot inject controller input). Default off; gated behind a
+    // non-default prop so it is inert in normal use.
+    {
+        char cdbg[PROPERTY_VALUE_MAX] = {};
+        property_get("persist.gammaos.drastic_nano.cursor_dbg", cdbg, "0");
+        if (cdbg[0] == '1') st->cursorMode = true;
+    }
+
     // Held dpad level (keys + HAT + stick) for the overlay's hold-to-repeat
     // scroll. Independent of overlayOpen: out->dsBtnMask is zeroed for the
     // game while the menu is up, but the menu still needs the held level to
     // edge-detect press/release and auto-repeat.
     {
+        // Overlay navigation always uses the un-rotated D-Pad / left stick.
+        // Rotating menu navigation with Portrait Controls was jarring, so the
+        // menu stays in its on-screen orientation regardless of the portrait
+        // remap (which only applies to gameplay, below).
         int navLevel = st->dsBtnMask | stickDpadBits(st);
         out->navUpHeld    = (navLevel & DrasticRunner::kDsBtnUp)    != 0;
         out->navDownHeld  = (navLevel & DrasticRunner::kDsBtnDown)  != 0;
@@ -571,11 +739,49 @@ void pollInputMap(InputState* st, bool overlayOpen, bool captureKey,
         // menu and then releases the FF button (we would not see
         // the release).
         out->actFastFwd = false;
+    } else if (st->cursorMode) {
+        // Virtual touch cursor active. It owns the D-Pad / left stick (move the
+        // pointer), A (tap/hold a touch at the pointer), and X/Y (movement
+        // speed); those are consumed here so they do not also reach the DS game,
+        // while every other button still passes through. touchDirect tells the
+        // render loop these are already final DS-native coordinates (skip the
+        // real-panel remap). The pointer is drawn over the bottom screen by the
+        // render loop.
+        updateTouchCursor(st);
+        out->dsBtnMask = st->dsBtnMask &
+                ~(DrasticRunner::kDsBtnUp   | DrasticRunner::kDsBtnDown  |
+                  DrasticRunner::kDsBtnLeft | DrasticRunner::kDsBtnRight |
+                  DrasticRunner::kDsBtnA    | DrasticRunner::kDsBtnX     |
+                  DrasticRunner::kDsBtnY);
+        out->touchX = (int)(st->cursorX + 0.5f);
+        out->touchY = (int)(st->cursorY + 0.5f);
+        out->touchHeld = (st->dsBtnMask & DrasticRunner::kDsBtnA) != 0;
+        out->touchDirect = true;
+        out->actFastFwd = st->btnFastFwd;
     } else {
         // Layer stick-as-DPad bits on top of latched DPad / button state
         // so the stick acts as a secondary DPad for games that don't use
         // the touchscreen.
-        out->dsBtnMask = st->dsBtnMask | stickDpadBits(st);
+        int physMask = st->dsBtnMask;
+        int lsDpad = stickDpadBits(st);
+        int raw = physMask | lsDpad;
+        // Portrait play: rotate the D-Pad + ABXY (and optionally swap which
+        // control drives the direction) so they stay natural when the console
+        // is physically turned. These are their OWN controller settings,
+        // independent of the screen's Display Rotation:
+        //   portrait_controls = 0/90/180/270  (0 = off, also the turn amount)
+        //   portrait_layout    = 0 right-stick D-Pad / 1 D-Pad-as-face
+        {
+            char pc[PROPERTY_VALUE_MAX] = {};
+            property_get("persist.gammaos.drastic_nano.portrait_controls", pc, "0");
+            int pcRot = atoi(pc);
+            if (pcRot != 0) {
+                char sl[PROPERTY_VALUE_MAX] = {};
+                property_get("persist.gammaos.drastic_nano.portrait_layout", sl, "0");
+                raw = applyPortraitControls(st, physMask, lsDpad, pcRot, atoi(sl));
+            }
+        }
+        out->dsBtnMask = raw;
         out->touchX = st->touchDsX;
         out->touchY = st->touchDsY;
         // Real finger wins; otherwise the stylus-touch button synthesizes

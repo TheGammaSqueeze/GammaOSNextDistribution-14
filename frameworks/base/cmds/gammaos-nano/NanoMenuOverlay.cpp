@@ -39,6 +39,7 @@
 #include "NanoMenu.h"
 #include "NanoMenuPS3.h"      // ps3::layoutComputeNative for the boot warm-up
 #include "NanoMenuPS3Bg.h"    // ps3bg::init for the boot warm-up
+#include "NanoMenuUtils.h"    // setDrasticNanoRomPath for the overlay launch route
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -1121,6 +1122,48 @@ void NanoMenu::overlayLaunchGame() {
         launchPkg = sys.launchPkg; launchIntent = sys.launchIntent; standalone = sys.isStandalone();
     }
     if (romPath.empty()) return;
+
+    // GammaOS: drastic-nano intercept for the resident overlay launcher. The
+    // home XMB reroutes a DS ROM to the drastic-nano binary when
+    // persist.gammaos.nano.drastic_nano=1; do the same here so launching a DS
+    // ROM while the overlay is the launcher (overlay-home mode) does not fall
+    // back to the stock DraStic APK. backend=drm/auto takes the DRM handshake:
+    // drastic-nano grabs the panel, and the start trigger stops both the home
+    // and this overlay. The dual-display RG DS uses exactly this DRM path,
+    // unchanged. (SF mode is launched through its own host-activity path.)
+    char dnGate[PROPERTY_VALUE_MAX] = {};
+    property_get("persist.gammaos.nano.drastic_nano", dnGate, "0");
+    char dnBackend[PROPERTY_VALUE_MAX] = {};
+    property_get("persist.gammaos.drastic_nano.backend", dnBackend, "auto");
+    if (standalone && launchPkg == "com.dsemu.drastic" && dnGate[0] == '1') {
+        setDrasticNanoRomPath(romPath);
+        if (strcmp(dnBackend, "sf") == 0) {
+            // SurfaceFlinger mode: launch the DrasticSf host activity through the
+            // SAME overlay launch path as any other app (overlayLaunchCommand).
+            // That is what dismisses the XMB onto the new app (overlayPoll), sets
+            // app_launched, and runs the clean handoff -- the XMB must not be
+            // treated specially here. The overlay stays running as the SF panel
+            // keeper (the activity composites on top of it) and the activity starts
+            // the drastic-nano binary itself (start_sf from onResume); we never
+            // touch DRM master and never _exit.
+            ALOGW("drastic nano: overlay launch -> drastic-nano (SF host)");
+            overlayLaunchCommand("com.gammaos.drasticsf",
+                "am start -W -n com.gammaos.drasticsf/.DrasticSfActivity "
+                "-a android.intent.action.MAIN -c android.intent.category.LAUNCHER "
+                "--activity-clear-task 2>/dev/null");
+            return;
+        }
+        // DRM mode: do not let the overlay respawn after we exit -- drastic-nano
+        // owns the panel via DRM now. Clear the QR prime so the home comes back
+        // plain. The dual-display RG DS uses this DRM path, unchanged.
+        property_set("sys.gammaos.nano.overlay_ran", "0");
+        property_set("sys.gammaos.nano.app_launched", "0");
+        property_set("sys.gammaos.nano.show_overlay", "0");
+        property_set("persist.gammaos.nano.qr_prepared", "0");
+        ALOGW("drastic nano: overlay launch -> drastic-nano (DRM)");
+        property_set("sys.gammaos.drastic_nano.start", "1");
+        _exit(0);
+    }
 
     std::string pkg, cmd;
     if (standalone) {

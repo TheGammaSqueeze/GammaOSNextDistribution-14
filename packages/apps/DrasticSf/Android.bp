@@ -1,0 +1,27 @@
+// DrasticSf: a tiny host Activity that lets drastic-nano run in SurfaceFlinger
+// mode on a device that boots DRM-direct. Launching any normal app already hands
+// the panel from the DRM home to SurfaceFlinger seamlessly; this app is that
+// "normal app" for a DS ROM. It does nothing but hold the foreground (so SF keeps
+// presenting), start the drastic-nano binary in SF mode, and finish when it exits.
+// drastic-nano renders its own SF layer on top; the DRM-direct path (the RG DS
+// dual-display units) never uses this app and is untouched.
+android_app {
+    name: "DrasticSf",
+
+    srcs: [
+        "java/**/*.java",
+    ],
+    manifest: "AndroidManifest.xml",
+
+    // platform_apis + platform certificate so the host can read the system
+    // properties (init.svc.drastic-nano, the backend gate) it polls. It only
+    // READS properties; the root XMB does the launching, so no app needs to set
+    // a protected property.
+    platform_apis: true,
+    certificate: "platform",
+    privileged: false,
+
+    optimize: {
+        enabled: false,
+    },
+}

@@ -251,6 +251,14 @@ inline void drmFrameEnd(EGLDisplay dpy, EGLSurface surf) {
 }
 void drmPushFrame(uint32_t glWidth, uint32_t glHeight);
 void drmStop();
+
+// Build the logical->panel "install" transform that the XMB applies in
+// NanoMenu::initShaders(), derived purely from the DRM orientation + user
+// flip props (sDrmRotationDeg / sDrmFlipH / sDrmFlipV). Lets a caller that
+// never runs initShaders (the drastic single-panel composite) honor the
+// exact same panel correction as the home menu instead of hard-coding one.
+// Column-major 2x2 NDC matrix written to out[4].
+void drmBuildInstallMatrix(float out[4], int degrees = -1);
 // Re-commit the modeset + reset flip bookkeeping after a kernel
 // suspend/resume cycle (resume re-enables the CRTCs with no planes; every
 // legacy page flip then EBUSYs forever). Call once at the wake point, on

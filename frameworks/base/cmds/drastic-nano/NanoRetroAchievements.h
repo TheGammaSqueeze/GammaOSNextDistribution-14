@@ -160,6 +160,13 @@ public:
     // login on the client thread; on success the game is identified and loaded.
     void requestLogin(const std::string& user, const std::string& pass);
 
+    // Master enable/disable from the in-game UI (the Achievements On/Off toggle).
+    // Persists persist.gammaos.drastic_nano.ra_enabled (default OFF when unset) and
+    // takes effect live: On starts the client now (auto-logs in from a stored token
+    // if a game is loaded); Off stops it. Both also apply on the next launch.
+    void setEnabled(bool on);
+    bool isEnabled() const;
+
     // Hardcore toggle from the in-game UI. The user's preference (persisted to
     // persist.gammaos.drastic_nano.ra_hardcore) is applied live on the client
     // thread via rc_client_set_hardcore_enabled. hardcorePref() is the user's
@@ -178,6 +185,10 @@ public:
         std::string badgeUrl; // unlocked (colour) badge image URL
         std::string measuredProgress;  // measured progress, e.g. "23/50" (live;
                                        // empty for non-measured or from the cache)
+        float    rarity = 0.0f;        // percent of players who have unlocked it
+                                       // (0 from the disk cache; live only)
+        int64_t  unlockTime = 0;       // unix time this player unlocked it (0 if
+                                       // locked, or from the disk cache)
     };
     // One leaderboard for the bottom-screen detail panel.
     struct LeaderboardInfo {
@@ -262,6 +273,11 @@ private:
     std::string achSetCachePath() const;
     void writeAchSetCache();
     void loadAchSetCache();
+    // Bring up the rc_client + HTTP worker threads for the loaded game. Called
+    // from onGameLoaded when RA is enabled at load, and on demand from
+    // requestLogin so a UI login still works when RA was not pre-enabled. Returns
+    // false (no-op) if already started or the DS Main RAM is unresolved.
+    bool startClient();
     // Begin a login from stored credentials (client thread); retried on a timer.
     void attemptStoredLogin();
     // Begin the game identify+load (client thread); retried on a timer.

@@ -25,6 +25,7 @@
 
 #include <string>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 #include <GLES2/gl2.h>
@@ -138,7 +139,12 @@ private:
     GLint  mRoundLocPos = -1, mRoundLocLocal = -1, mRoundLocColor = -1,
            mRoundLocViewport = -1, mRoundLocRot = -1, mRoundLocHalf = -1, mRoundLocRadius = -1;
     GLint  mImgLocPos = -1, mImgLocUv = -1, mImgLocViewport = -1, mImgLocRot = -1,
-           mImgLocSampler = -1, mImgLocAlpha = -1;
+           mImgLocSampler = -1, mImgLocAlpha = -1, mImgLocTexSize = -1,
+           mImgLocScale = -1;
+    // Native pixel size of each image texture, remembered at upload so drawImage
+    // can drive the sharp-bilinear sampler (it needs the texel grid and the
+    // on-screen upscale factor). Cleared in destroyTexture.
+    std::unordered_map<GLuint, std::pair<int, int>> mImgSizes;
 
     GLuint mQuadVbo = 0;   // scratch VBO, refilled per-draw
     GLuint mTextVbo = 0;

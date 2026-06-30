@@ -883,6 +883,35 @@ void drmSetupZeroCopy(EGLDisplay eglDpy) {
     }
 }
 
+// Reproduce the logical->panel "install" matrix that NanoMenu::initShaders()
+// computes from the DRM orientation + flip props, for callers that draw
+// DRM-direct but never construct a NanoMenu (the drastic single-panel
+// composite). Mirrors the rotation cases and flip composition in
+// NanoMenuShaders.cpp exactly: the rotated cases bake the GL y-up correction
+// into the matrix, the 0-degree case applies the same PRIME Y-flip that
+// drmSetupZeroCopy does, and the user flips negate row 0 (H) / row 1 (V).
+// Keep this in sync with initShaders() if those props' handling changes.
+void drmBuildInstallMatrix(float out[4], int degrees) {
+    // degrees < 0 means "use the panel install orientation". A caller can pass
+    // an effective rotation (install + a user Display Rotation) so the whole
+    // single-panel output can be turned for portrait play.
+    const int deg = (degrees < 0) ? sDrmRotationDeg : (((degrees % 360) + 360) % 360);
+    switch (deg) {
+    case 90:  out[0] =  0.0f; out[1] = -1.0f; out[2] =  1.0f; out[3] =  0.0f; break;
+    case 180: out[0] = -1.0f; out[1] =  0.0f; out[2] =  0.0f; out[3] = -1.0f; break;
+    case 270: out[0] =  0.0f; out[1] =  1.0f; out[2] = -1.0f; out[3] =  0.0f; break;
+    default:  out[0] =  1.0f; out[1] =  0.0f; out[2] =  0.0f; out[3] =  1.0f; break;
+    }
+    // The PRIME scanout Y-flip is a property of the PHYSICAL panel install, not
+    // the logical content rotation. Apply it only on a true 0-degree-install
+    // panel. A rotated panel (install 90/180/270) turned to an effective 0 by a
+    // user Display Rotation must NOT get it, or that one orientation comes out
+    // mirrored/upside-down while every other rotation is correct.
+    if (deg == 0 && sDrmRotationDeg == 0) { out[1] = -out[1]; out[3] = -out[3]; }
+    if (sDrmFlipH) { out[0] = -out[0]; out[2] = -out[2]; }
+    if (sDrmFlipV) { out[1] = -out[1]; out[3] = -out[3]; }
+}
+
 // ---------------------------------------------------------------------------
 // Rendering helpers
 // ---------------------------------------------------------------------------
