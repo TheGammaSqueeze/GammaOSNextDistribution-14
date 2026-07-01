@@ -3842,27 +3842,55 @@ if (sRingPrimedCount >= 2) {
                     if (s != sAgSer) {
                         sAgSer = s;
                         ALOGI("GammaOS Nano: apps_generation bumped, refreshing Applications");
+                        // Snapshot the current package set so a freshly installed app can be
+                        // spotted after the reload and the cursor moved to it (the list stays
+                        // alphabetical, so a new app otherwise lands mid-list out of view).
+                        std::vector<std::string> prevPkgs;
+                        prevPkgs.reserve(mAppEntries.size());
+                        for (auto& a : mAppEntries) prevPkgs.push_back(a.packageName);
                         // Re-read packages.list + the label cache (sets mAppsLoaded=true).
                         loadInstalledApps();
+                        // First package present now but not before = the new install (if any).
+                        std::string newPkg;
+                        for (auto& a : mAppEntries) {
+                            bool had = false;
+                            for (auto& p : prevPkgs) if (p == a.packageName) { had = true; break; }
+                            if (!had) { newPkg = a.packageName; break; }
+                        }
                         // Free the cached real-icon GL textures before clearing the map, so
                         // an updated icon is re-decoded and no texture leaks. buildAppSubmenu
                         // re-lazy-loads each icon on the next build (it caches successes only).
                         for (auto& kv : mPs3AppIcons)
                             if (kv.second) { GLuint t = kv.second; glDeleteTextures(1, &t); }
                         mPs3AppIcons.clear();
-                        // Rebuild the visible Applications level in place, keeping the cursor.
+                        // Rebuild the visible Applications level in place. If an app was just
+                        // installed while this list is open, put the cursor on it so it scrolls
+                        // into view; otherwise keep the cursor where it was.
                         if (!mPs3Stack.empty() && mPs3Stack.back().title == "Applications") {
                             int keep = mPs3Stack.back().sel;
                             buildAppSubmenu(mPs3Stack.back());
                             int n = (int)mPs3Stack.back().items.size();
-                            if (n <= 0) mPs3Stack.back().sel = 0;
+                            int target = -1;
+                            if (!newPkg.empty())
+                                for (int i = 0; i < n; i++)
+                                    if (mPs3Stack.back().items[i].payloadStr == newPkg) {
+                                        target = i; break;
+                                    }
+                            if (target >= 0) mPs3Stack.back().sel = target;
+                            else if (n <= 0) mPs3Stack.back().sel = 0;
                             else { if (keep < 0) keep = 0; if (keep > n - 1) keep = n - 1;
                                    mPs3Stack.back().sel = keep; }
                         }
-                        if (mMenuState == MENU_APPS
-                                && mAppSelectedIndex >= (int)mAppEntries.size()) {
-                            mAppSelectedIndex = mAppEntries.empty()
-                                    ? 0 : (int)mAppEntries.size() - 1;
+                        // Legacy (non-ps3xmb) Applications list: same jump-to-new-app, else clamp.
+                        if (mMenuState == MENU_APPS) {
+                            int target = -1;
+                            if (!newPkg.empty())
+                                for (int i = 0; i < (int)mAppEntries.size(); i++)
+                                    if (mAppEntries[i].packageName == newPkg) { target = i; break; }
+                            if (target >= 0) mAppSelectedIndex = target;
+                            else if (mAppSelectedIndex >= (int)mAppEntries.size())
+                                mAppSelectedIndex = mAppEntries.empty()
+                                        ? 0 : (int)mAppEntries.size() - 1;
                         }
                         mDisplayDirty = true;
                     }
