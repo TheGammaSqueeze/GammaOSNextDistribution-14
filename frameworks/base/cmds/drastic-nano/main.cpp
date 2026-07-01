@@ -2692,8 +2692,20 @@ int main(int argc, char** argv) {
 
     restoreDeepCpuIdle();
 
-    // SF was never stopped, so only the session_done trigger is
-    // needed to bring nano back up on the XMB.
+    // Return to the launcher. In SF / overlay-home mode the resident overlay is
+    // the home, so raise it in wallpaper mode: clear sys.gammaos.nano.app_launched
+    // (held at 1 through the session so PhoneWindowManager owned the power
+    // gestures) and set show_overlay=1, exactly as a normal app exit does. Without
+    // this the overlay stays hidden behind app_launched=1 and the nano menu never
+    // comes back. Skipped on a relaunch (Restart Game / a settings change), where
+    // the next session re-takes the panel and re-asserts app_launched itself.
+    if (sfMode && !rlr.relaunchRequested) {
+        property_set("sys.gammaos.nano.app_launched", "0");
+        property_set("sys.gammaos.nano.show_overlay", "1");
+    }
+
+    // SF was never stopped, so with that launcher state set the session_done
+    // trigger brings nano back up on the XMB.
     property_set(kSessionDoneProp, "1");
     ALOGI("drastic-nano: exit");
     return 0;
