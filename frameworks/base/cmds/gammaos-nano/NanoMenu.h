@@ -1006,7 +1006,7 @@ private:
                         GS_ICONGRID = 4, GS_EMUPICK = 5, GS_FOLDERBROWSE = 6,
                         MUSIC_FOLDER = 7, PHOTO_FOLDER = 8, PHOTO_GRID = 9,
                         VIDEO_FOLDER = 10, IPTV_GROUPS = 11, RADIO_STATIONS = 12,
-                        FE_BROWSE = 13, APP_INFO = 14 };
+                        FE_BROWSE = 13, APP_INFO = 14, APP_STORAGE = 15, APP_PERMS = 16 };
     struct Ps3Item {
         std::string label;
         std::string desc;
@@ -1225,9 +1225,19 @@ private:
     int         mPs3AppInfoScroll     = 0;
     int         mPs3AppInfoWaitFrames = 0;
     std::string mPs3AppInfoPkg;            // package the open App Information level acts on
+    // Parsed App Information (filled by parseAppInfo from the framework's tagged file); the
+    // Information page and the Storage / Permissions submenus all build from these.
+    struct AppPerm { std::string perm, label; bool granted; };
+    bool                     mAppInfoLoaded = false;
+    std::vector<std::string> mAppInfoFacts;              // "Label    value" display rows
+    std::string              mAppInfoCacheSz, mAppInfoDataSz;
+    std::vector<AppPerm>     mAppInfoPerms;
     bool readNanoAppInfo(const std::string& nonce, std::string& bodyOut);
-    void buildAppInfoLevel(Ps3Level& out, const std::string* body);  // App Information rows
-    void appInfoTick();                    // per-frame: async-refresh the App Information level
+    void parseAppInfo(const std::string& body);          // tagged file -> the members above
+    void buildAppInfoLevel(Ps3Level& out);               // facts + Storage + Permissions rows
+    void buildAppStorageLevel(Ps3Level& out);            // Clear Cache / Clear Data
+    void buildAppPermsLevel(Ps3Level& out);              // per-permission grant/deny toggles
+    void appInfoTick();                    // per-frame: async-refresh the App Information levels
     // Auto-scroll: glide the Applications cursor to a freshly installed app "as if the nav
     // button were held", reusing the accelerating nav cadence + the item ease.
     int     mPs3AutoScrollTarget = -1;     // >=0: step the cursor toward this row
