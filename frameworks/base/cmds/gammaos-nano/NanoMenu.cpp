@@ -3876,7 +3876,16 @@ if (sRingPrimedCount >= 2) {
                                     if (mPs3Stack.back().items[i].payloadStr == newPkg) {
                                         target = i; break;
                                     }
-                            if (target >= 0) mPs3Stack.back().sel = target;
+                            if (target >= 0) {
+                                // Smooth-glide to the new app "as if the nav button were
+                                // held": keep the cursor where it visually is (buildAppSubmenu
+                                // reset sel to 0) and arm tickAutoScroll to step to target.
+                                if (keep < 0) keep = 0; if (keep > n - 1) keep = n - 1;
+                                mPs3Stack.back().sel = keep;
+                                mPs3AutoScrollTarget = target;
+                                mPs3AutoScrollLastMs = 0;   // first step fires immediately
+                                mPs3AutoScrollCount  = 0;
+                            }
                             else if (n <= 0) mPs3Stack.back().sel = 0;
                             else { if (keep < 0) keep = 0; if (keep > n - 1) keep = n - 1;
                                    mPs3Stack.back().sel = keep; }

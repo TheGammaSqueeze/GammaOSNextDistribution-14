@@ -632,6 +632,7 @@ static constexpr float   kNavAccelMult         = 1.4f;  // INPUT_ACCEL_MULT
 
 void NanoMenu::navPress(NavDir dir) {
     if (dir == NavDir::None) return;
+    mPs3AutoScrollTarget = -1;   // any manual nav cancels an in-flight auto-scroll
     mLastInputMs = android::uptimeMillis();   // dpad/HAT/stick = user activity
     // Idempotent: if this direction is already the held one, don't re-fire.
     // Guards against duplicate events (e.g. HAT re-reporting same value)
@@ -700,6 +701,35 @@ void NanoMenu::tickNavRepeat() {
     mLastInputMs     = now;   // a held direction is ongoing user activity
     mNavLastRepeatMs = now;
     mNavRepeatCount++;
+}
+
+// Glide the Applications cursor to a freshly installed app "as if the nav button were
+// held": step one row toward mPs3AutoScrollTarget on the same accelerating cadence as
+// tickNavRepeat, seeding the item ease each step so it scrolls smoothly (not a snap).
+void NanoMenu::tickAutoScroll() {
+    if (mPs3AutoScrollTarget < 0) return;
+    if (mPs3Stack.empty() || mPs3Stack.back().title != "Applications") { mPs3AutoScrollTarget = -1; return; }
+    if (mNavHeldDir != NavDir::None) { mPs3AutoScrollTarget = -1; return; }   // user takes over
+    int n = (int)mPs3Stack.back().items.size();
+    if (n <= 0) { mPs3AutoScrollTarget = -1; return; }
+    if (mPs3AutoScrollTarget > n - 1) mPs3AutoScrollTarget = n - 1;           // list shrank
+    int& s = ps3CurSel();
+    if (s == mPs3AutoScrollTarget) { mPs3AutoScrollTarget = -1; return; }     // arrived
+    const int64_t now = android::uptimeMillis();
+    int64_t interval;
+    if (mPs3AutoScrollCount == 0) interval = kNavInitialDelayMs;
+    else {
+        interval = (int64_t)((float)kNavSlowIntervalMs /
+                             powf(kNavAccelMult, (float)(mPs3AutoScrollCount - 1)));
+        if (interval < kNavMinIntervalMs) interval = kNavMinIntervalMs;
+    }
+    if (now - mPs3AutoScrollLastMs < interval) return;
+    mPs3ItemAnimFrom  = mPs3AnimItem;     // ease from the current animated position...
+    mPs3ItemAnimStart = mEffectTime;      // ...to the new sel (same as a real nav step)
+    s += (mPs3AutoScrollTarget > s) ? 1 : -1;
+    mPs3AutoScrollLastMs = now;
+    mPs3AutoScrollCount++;
+    mDisplayDirty = true;
 }
 
 // ---------------------------------------------------------------------------
@@ -1712,6 +1742,7 @@ void NanoMenu::pollInput() {
     // every frame, not only when events arrive, because held axes stop
     // emitting events once settled.
     tickNavRepeat();
+    tickAutoScroll();   // glide the Applications cursor to a freshly installed app
 }
 
 } // namespace android

@@ -506,6 +506,9 @@ public final class SystemServer implements Dumpable {
     // native menu can watch its serial and swap "Loading..." for the real details.
     private final java.util.concurrent.atomic.AtomicInteger mNanoAppInfoGeneration =
             new java.util.concurrent.atomic.AtomicInteger(0);
+    // GammaOS Nano: the app-info request (pkg#nonce) currently being shown, so an async
+    // grant/revoke/clear can rewrite the same file the menu is still waiting on.
+    private volatile String mNanoInfoReq = "";
 
     // TODO: remove all of these references by improving dependency resolution and boot phases
     private PowerManagerService mPowerManagerService;
@@ -4081,7 +4084,7 @@ public final class SystemServer implements Dumpable {
                 // this (now long-lived) thread, mirroring the do_launch monitor above -
                 // the proven signalling pattern here. The work runs off the main thread;
                 // 150ms is imperceptible for a user-initiated menu action.
-                String lastInfoReq = "", lastUninstall = "";
+                String lastInfoReq = "", lastUninstall = "", lastAction = "";
                 while (true) {
                     try { Thread.sleep(150); } catch (InterruptedException ignored) {}
                     String req = SystemProperties.get("sys.gammaos.nano.appinfo_req", "");
@@ -4093,6 +4096,12 @@ public final class SystemServer implements Dumpable {
                         lastUninstall = "";   // doNanoUninstall cleared it: allow a re-uninstall
                     } else if (!un.equals(lastUninstall)) {
                         lastUninstall = un; doNanoUninstall(un);
+                    }
+                    String act = SystemProperties.get("sys.gammaos.nano.app_action", "");
+                    if (act.isEmpty()) {
+                        lastAction = "";   // doNanoAppAction cleared it: allow a repeat
+                    } else if (!act.equals(lastAction)) {
+                        lastAction = act; doNanoAppAction(act);
                     }
                 }
             }, "NanoLabelCache").start();
@@ -4216,6 +4225,7 @@ public final class SystemServer implements Dumpable {
         String pkg = req;
         int hash = req.lastIndexOf('#');
         if (hash >= 0) pkg = req.substring(0, hash);
+        mNanoInfoReq = req;   // remember for async action refreshes (grant/revoke/clear)
         StringBuilder sb = new StringBuilder();
         sb.append("req|").append(req).append('\n');
         try {
@@ -4231,47 +4241,51 @@ public final class SystemServer implements Dumpable {
                 if (s != null) installer = s;
             } catch (Exception ignored) {}
             java.text.DateFormat df = java.text.DateFormat.getDateInstance();
-            sb.append(nanoPad("Package")).append(pkg).append('\n');
-            sb.append(nanoPad("Version")).append(pi.versionName)
+            // Tagged lines the native menu parses into a navigable page: F| = a display
+            // fact, CACHE|/DATA| = sizes for the Clear rows, PERM|<perm>|<label>|<0|1> = a
+            // runtime-permission toggle (granted AND denied).
+            sb.append("F|Package|").append(pkg).append('\n');
+            sb.append("F|Version|").append(pi.versionName)
               .append(" (").append(pi.getLongVersionCode()).append(")\n");
+            long cacheBytes = -1, dataBytes = -1;
             try {
                 android.app.usage.StorageStatsManager ssm =
                         mSystemContext.getSystemService(android.app.usage.StorageStatsManager.class);
                 android.app.usage.StorageStats st = ssm.queryStatsForPackage(
                         ai.storageUuid, pkg,
                         android.os.UserHandle.of(android.os.UserHandle.myUserId()));
-                long app = st.getAppBytes(), data = st.getDataBytes(), cache = st.getCacheBytes();
-                sb.append(nanoPad("Size")).append(nanoSize(app + data)).append('\n');
-                sb.append(nanoPad("  App")).append(nanoSize(app)).append('\n');
-                sb.append(nanoPad("  Data")).append(nanoSize(data)).append('\n');
-                sb.append(nanoPad("  Cache")).append(nanoSize(cache)).append('\n');
+                long app = st.getAppBytes(); dataBytes = st.getDataBytes(); cacheBytes = st.getCacheBytes();
+                sb.append("F|Size|").append(nanoSize(app + dataBytes)).append('\n');
+                sb.append("F|  App|").append(nanoSize(app)).append('\n');
+                sb.append("F|  Data|").append(nanoSize(dataBytes)).append('\n');
+                sb.append("F|  Cache|").append(nanoSize(cacheBytes)).append('\n');
             } catch (Exception e) {
-                sb.append(nanoPad("Size")).append("Unavailable\n");
+                sb.append("F|Size|Unavailable\n");
             }
-            sb.append(nanoPad("Type")).append(system ? "System app" : "User app").append('\n');
-            if (!installer.isEmpty()) sb.append(nanoPad("Installer")).append(installer).append('\n');
-            sb.append(nanoPad("Target SDK")).append(ai.targetSdkVersion).append('\n');
-            sb.append(nanoPad("Min SDK")).append(ai.minSdkVersion).append('\n');
-            sb.append(nanoPad("Installed")).append(df.format(new java.util.Date(pi.firstInstallTime))).append('\n');
-            sb.append(nanoPad("Updated")).append(df.format(new java.util.Date(pi.lastUpdateTime))).append('\n');
-            sb.append('\n').append("Permissions").append('\n');
-            int shown = 0;
+            sb.append("F|Type|").append(system ? "System app" : "User app").append('\n');
+            if (!installer.isEmpty()) sb.append("F|Installer|").append(installer).append('\n');
+            sb.append("F|Target SDK|").append(ai.targetSdkVersion).append('\n');
+            sb.append("F|Min SDK|").append(ai.minSdkVersion).append('\n');
+            sb.append("F|Installed|").append(df.format(new java.util.Date(pi.firstInstallTime))).append('\n');
+            sb.append("F|Updated|").append(df.format(new java.util.Date(pi.lastUpdateTime))).append('\n');
+            sb.append("CACHE|").append(cacheBytes >= 0 ? nanoSize(cacheBytes) : "").append('\n');
+            sb.append("DATA|").append(dataBytes >= 0 ? nanoSize(dataBytes) : "").append('\n');
             if (pi.requestedPermissions != null) {
                 for (int i = 0; i < pi.requestedPermissions.length; i++) {
-                    if ((pi.requestedPermissionsFlags[i]
-                            & android.content.pm.PackageInfo.REQUESTED_PERMISSION_GRANTED) == 0) continue;
                     String p = pi.requestedPermissions[i];
                     try {
                         android.content.pm.PermissionInfo info = pm.getPermissionInfo(p, 0);
                         if (info.getProtection()
                                 != android.content.pm.PermissionInfo.PROTECTION_DANGEROUS) continue;
+                        boolean granted = (pi.requestedPermissionsFlags[i]
+                                & android.content.pm.PackageInfo.REQUESTED_PERMISSION_GRANTED) != 0;
                         CharSequence lbl = info.loadLabel(pm);
-                        sb.append("  ").append(lbl != null ? lbl : p).append('\n');
-                        shown++;
+                        String name = (lbl != null ? lbl.toString() : p).replace('|', ' ');
+                        sb.append("PERM|").append(p).append('|').append(name)
+                          .append('|').append(granted ? '1' : '0').append('\n');
                     } catch (Exception ignored) {}
                 }
             }
-            if (shown == 0) sb.append("  ").append("No permissions granted").append('\n');
         } catch (Exception e) {
             sb.append("Information unavailable.").append('\n');
         }
@@ -4320,6 +4334,62 @@ public final class SystemServer implements Dumpable {
         } finally {
             // Clear so a later re-install of the same package can be removed again.
             SystemProperties.set("sys.gammaos.nano.app_uninstall", "");
+        }
+    }
+
+    /**
+     * GammaOS Nano: grant/revoke a runtime permission or clear cache/data for an app the
+     * Information page is showing. Runs in system_server (holds the runtime-permission and
+     * clear-data/cache powers), same trust model as doNanoUninstall - no new sepolicy.
+     * Refuses protected packages. After the change, rewrites nano_app_info.txt against the
+     * request nonce the menu is still waiting on so the page reflects the new state (the
+     * async clear observers refresh once deletion really completes). spec =
+     * "<pkg>|<grant|revoke|clearcache|cleardata>|<perm?>".
+     */
+    private void doNanoAppAction(String spec) {
+        final String reqAtDispatch = mNanoInfoReq;   // the nonce the menu is waiting on
+        try {
+            String[] p = spec.split("\\|", -1);
+            String pkg  = p.length > 0 ? p[0] : "";
+            String op   = p.length > 1 ? p[1] : "";
+            String perm = p.length > 2 ? p[2] : "";
+            if (pkg.isEmpty()) return;
+            if (pkg.startsWith("com.android.") || pkg.startsWith("org.lineageos.")
+                    || pkg.startsWith("com.gammaos.") || pkg.startsWith("com.topjohnwu.")
+                    || pkg.startsWith("com.retroarch.aarch64")) return;
+            android.content.pm.PackageManager pm = mSystemContext.getPackageManager();
+            android.os.UserHandle user = android.os.UserHandle.of(android.os.UserHandle.myUserId());
+            switch (op) {
+                case "grant":
+                    if (!perm.isEmpty()) pm.grantRuntimePermission(pkg, perm, user);
+                    if (!reqAtDispatch.isEmpty()) writeNanoAppInfo(reqAtDispatch);
+                    break;
+                case "revoke":
+                    if (!perm.isEmpty()) pm.revokeRuntimePermission(pkg, perm, user);
+                    if (!reqAtDispatch.isEmpty()) writeNanoAppInfo(reqAtDispatch);
+                    break;
+                case "clearcache":
+                    pm.deleteApplicationCacheFiles(pkg,
+                            new android.content.pm.IPackageDataObserver.Stub() {
+                        public void onRemoveCompleted(String pn, boolean ok) {
+                            if (!reqAtDispatch.isEmpty()) writeNanoAppInfo(reqAtDispatch);
+                        }
+                    });
+                    break;
+                case "cleardata":
+                    pm.clearApplicationUserData(pkg,
+                            new android.content.pm.IPackageDataObserver.Stub() {
+                        public void onRemoveCompleted(String pn, boolean ok) {
+                            if (!reqAtDispatch.isEmpty()) writeNanoAppInfo(reqAtDispatch);
+                        }
+                    });
+                    break;
+            }
+            Slog.i(TAG, "GammaOS Nano: app action " + spec);
+        } catch (Exception e) {
+            Slog.w(TAG, "GammaOS Nano: app action failed for " + spec, e);
+        } finally {
+            SystemProperties.set("sys.gammaos.nano.app_action", "");   // consumed; allow repeats
         }
     }
 

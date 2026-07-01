@@ -1006,7 +1006,7 @@ private:
                         GS_ICONGRID = 4, GS_EMUPICK = 5, GS_FOLDERBROWSE = 6,
                         MUSIC_FOLDER = 7, PHOTO_FOLDER = 8, PHOTO_GRID = 9,
                         VIDEO_FOLDER = 10, IPTV_GROUPS = 11, RADIO_STATIONS = 12,
-                        FE_BROWSE = 13 };
+                        FE_BROWSE = 13, APP_INFO = 14 };
     struct Ps3Item {
         std::string label;
         std::string desc;
@@ -1224,7 +1224,16 @@ private:
     std::string mPs3AppInfoNonce;         // "<pkg>#<n>" we asked for; must match the file's req| line
     int         mPs3AppInfoScroll     = 0;
     int         mPs3AppInfoWaitFrames = 0;
+    std::string mPs3AppInfoPkg;            // package the open App Information level acts on
     bool readNanoAppInfo(const std::string& nonce, std::string& bodyOut);
+    void buildAppInfoLevel(Ps3Level& out, const std::string* body);  // App Information rows
+    void appInfoTick();                    // per-frame: async-refresh the App Information level
+    // Auto-scroll: glide the Applications cursor to a freshly installed app "as if the nav
+    // button were held", reusing the accelerating nav cadence + the item ease.
+    int     mPs3AutoScrollTarget = -1;     // >=0: step the cursor toward this row
+    int64_t mPs3AutoScrollLastMs = 0;
+    int     mPs3AutoScrollCount  = 0;
+    void tickAutoScroll();
     GLuint mPs3DlgFanTex = 0;       // fanart texture for the info page (freed on dialog close)
     int    mPs3DlgFanW = 0, mPs3DlgFanH = 0;
     GLuint mPs3DlgBoxTex = 0;       // cover texture for the info page (freed on dialog close)

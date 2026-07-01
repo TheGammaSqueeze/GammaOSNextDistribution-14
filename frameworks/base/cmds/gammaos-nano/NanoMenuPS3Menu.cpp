@@ -52,6 +52,7 @@
 #include <linux/input.h>
 #include <algorithm>
 #include <vector>
+#include <tuple>   // buildAppInfoLevel permission rows
 #include <functional>
 #include <sys/stat.h>   // stat() for ROM file size in the Information page
 #include <aaudio/AAudio.h>   // GammaEQ audio preview (looping playback)
@@ -584,6 +585,9 @@ enum {
     QA_AXISBTN_ADD,      // start the add-axis-button flow (stage 1)
     QA_AXISBTN_PICK,     // a pick within the add flow (it.b = code, or it.value = preset)
     QA_AXISBTN_DEL,      // remove an axis_btn entry (it.value = entry)
+    QA_APP_PERM_TOGGLE,  // App Information: toggle a runtime permission (it.value=perm, it.b=granted)
+    QA_APP_CLEAR_CACHE,  // App Information: clear the app's cache
+    QA_APP_CLEAR_DATA,   // App Information: clear the app's data (confirm first)
 };
 
 void NanoMenu::buildPs3Cats() {
@@ -1072,6 +1076,100 @@ std::string gpJoin(const std::vector<std::string>& v, char sep) {
     std::string o; for (auto& s : v) { if (!o.empty()) o += sep; o += s; } return o;
 }
 } // namespace
+
+// App Information rows, parsed from the framework's tagged nano_app_info.txt:
+//   F|<label>|<value>  = a display fact (non-selectable)
+//   CACHE|<size>       = size shown on the Clear Cache row
+//   DATA|<size>        = size shown on the Clear Data row
+//   PERM|<perm>|<label>|<0|1> = a runtime-permission toggle row
+// body == nullptr renders a "Loading..." placeholder. Mirrors buildDevicesSubmenu's
+// use of QA_NOOP non-selectable rows for the facts/headings.
+void NanoMenu::buildAppInfoLevel(Ps3Level& out, const std::string* body) {
+    out.items.clear(); out.sel = 0; out.screenKind = APP_INFO;
+    auto noop = [&](const std::string& text) {
+        Ps3Item it; it.kind = PS3_QUICK; it.a = QA_NOOP; it.label = text;
+        it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 0.6f;
+        out.items.push_back(it);
+    };
+    if (!body) { noop("Loading..."); return; }
+    std::string cacheSz, dataSz;
+    std::vector<std::string> facts;
+    std::vector<std::tuple<std::string, std::string, bool>> perms;   // perm, label, granted
+    size_t pos = 0;
+    while (pos < body->size()) {
+        size_t nl = body->find('\n', pos);
+        std::string line = body->substr(pos, nl == std::string::npos ? std::string::npos : nl - pos);
+        pos = (nl == std::string::npos) ? body->size() : nl + 1;
+        if (line.empty()) continue;
+        if (line.rfind("F|", 0) == 0) {
+            size_t b1 = line.find('|', 2);
+            std::string lbl = (b1 == std::string::npos) ? line.substr(2) : line.substr(2, b1 - 2);
+            std::string val = (b1 == std::string::npos) ? "" : line.substr(b1 + 1);
+            facts.push_back(lbl + (val.empty() ? "" : "    " + val));
+        } else if (line.rfind("CACHE|", 0) == 0) cacheSz = line.substr(6);
+        else if (line.rfind("DATA|", 0) == 0)   dataSz  = line.substr(5);
+        else if (line.rfind("PERM|", 0) == 0) {
+            size_t a = line.find('|', 5);
+            size_t b = (a == std::string::npos) ? a : line.find('|', a + 1);
+            if (a != std::string::npos && b != std::string::npos)
+                perms.emplace_back(line.substr(5, a - 5), line.substr(a + 1, b - a - 1),
+                                   line.substr(b + 1) == "1");
+        }
+    }
+    for (auto& f : facts) noop(f);
+    int firstAction = (int)out.items.size();
+    noop("Storage");
+    { Ps3Item it; it.kind = PS3_QUICK; it.a = QA_APP_CLEAR_CACHE;
+      it.label = std::string("Clear Cache") + (cacheSz.empty() ? "" : "    " + cacheSz);
+      it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 1.0f;
+      out.items.push_back(it); }
+    { Ps3Item it; it.kind = PS3_QUICK; it.a = QA_APP_CLEAR_DATA;
+      it.label = std::string("Clear Data") + (dataSz.empty() ? "" : "    " + dataSz);
+      it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 1.0f;
+      out.items.push_back(it); }
+    if (!perms.empty()) {
+        noop("Permissions");
+        for (auto& p : perms) {
+            Ps3Item it; it.kind = PS3_QUICK; it.a = QA_APP_PERM_TOGGLE;
+            it.value = std::get<0>(p); it.b = std::get<2>(p) ? 1 : 0;
+            it.label = std::get<1>(p) + (std::get<2>(p) ? "    [Granted]" : "    [Denied]");
+            it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 1.0f;
+            out.items.push_back(it);
+        }
+    }
+    out.sel = (firstAction < (int)out.items.size()) ? firstAction : 0;
+}
+
+// Per-frame: while an App Information level is open, swap "Loading..." for the parsed
+// rows once the framework writes nano_app_info.txt + bumps appinfo_gen (nonce-guarded),
+// and re-parse after every grant / revoke / clear (which re-writes the file). Preserves
+// the cursor across a refresh. ~3s timeout so it never hangs on "Loading...".
+void NanoMenu::appInfoTick() {
+    if (mPs3Stack.empty() || mPs3Stack.back().screenKind != APP_INFO) {
+        mPs3AppInfoWaitFrames = 0; return;
+    }
+    static const prop_info* sAiPi = nullptr; static uint32_t sAiSer = 0;
+    if (!sAiPi) sAiPi = __system_property_find("sys.gammaos.nano.appinfo_gen");
+    bool bumped = false;
+    if (sAiPi) { uint32_t s = __system_property_serial(sAiPi); if (s != sAiSer) { sAiSer = s; bumped = true; } }
+    Ps3Level& lvl = mPs3Stack.back();
+    bool loading = (lvl.items.size() == 1 && lvl.items[0].a == QA_NOOP
+                    && lvl.items[0].label == "Loading...");
+    if (loading && ++mPs3AppInfoWaitFrames > 180) {   // ~3s
+        lvl.items.clear();
+        Ps3Item it; it.kind = PS3_QUICK; it.a = QA_NOOP; it.label = "Information unavailable.";
+        it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 0.6f;
+        lvl.items.push_back(it); lvl.sel = 0; mDisplayDirty = true; return;
+    }
+    if (!bumped) return;
+    std::string body;
+    if (!readNanoAppInfo(mPs3AppInfoNonce, body)) return;   // stale/not ours (nonce guard)
+    std::string savedTitle = lvl.title; int savedSel = lvl.sel;
+    buildAppInfoLevel(lvl, &body);
+    lvl.title = savedTitle;
+    if (savedSel >= 0 && savedSel < (int)lvl.items.size()) lvl.sel = savedSel;
+    mPs3AppInfoWaitFrames = 0; mDisplayDirty = true;
+}
 
 // "Devices to Capture": multi-select of detected device names (semicolon list). The
 // daemon matches names as substrings, so the exact name is a valid pattern. Changing
@@ -2491,6 +2589,38 @@ void NanoMenu::ps3XmbSelect() {
                         if (s >= 0 && s < (int)mPs3Stack.back().items.size()) mPs3Stack.back().sel = s; }
                     mDisplayDirty = true; return;
                 }
+                case QA_APP_PERM_TOGGLE: {
+                    // Ask the framework to grant/revoke the permission; it rewrites the info
+                    // file + bumps appinfo_gen, and appInfoTick rebuilds this level with the
+                    // true post-change state (so the row label flips to reflect reality).
+                    if (!mPs3AppInfoPkg.empty() && !it.value.empty())
+                        property_set("sys.gammaos.nano.app_action",
+                            (mPs3AppInfoPkg + "|" + (it.b ? "revoke" : "grant") + "|" + it.value).c_str());
+                    mDisplayDirty = true; return;
+                }
+                case QA_APP_CLEAR_CACHE: {
+                    if (!mPs3AppInfoPkg.empty())
+                        property_set("sys.gammaos.nano.app_action",
+                            (mPs3AppInfoPkg + "|clearcache|").c_str());
+                    mDisplayDirty = true; return;
+                }
+                case QA_APP_CLEAR_DATA: {
+                    // Destructive: centred confirm (themeKey 32), fires from applyThemeSetting(32,sel).
+                    mPs3DlgOptions.clear(); mPs3DlgSwatch.clear();
+                    mPs3DlgKind = 0; mPs3DlgType = 1; mPs3DlgThemeKey = 32; mPs3DlgBinding = nullptr;
+                    mPs3DlgSlider = false; mPs3DlgAppInfo = false; mPs3DlgRomInfo = false;
+                    mPs3DlgIllust = 0; mPs3DlgNotice.clear();
+                    mPs3DlgTitle = "Clear Data";
+                    mPs3DlgBody  = "This erases all of this application's data, including accounts, "
+                                   "settings and saved files. The app is reset to its default state.";
+                    mPs3DlgOptions.push_back("Cancel");     mPs3DlgSwatch.push_back(-1);
+                    mPs3DlgOptions.push_back("Clear Data"); mPs3DlgSwatch.push_back(-1);
+                    mPs3DlgSel = 0; mPs3DlgOrigSel = 0;
+                    mPs3DlgIconTex = 0; mPs3DlgIconNmap = nmapForIcon(16);
+                    mPs3DlgIconR = mPs3DlgIconG = mPs3DlgIconB = 1.0f;
+                    mPs3DlgActive = true; mPs3DlgAnim = 0.0f; mPs3DlgBlurValid = false;
+                    return;
+                }
                 case QA_REMAP_SET: {
                     // Write src->target (it.b, -1 = default/erase) into the remap prop,
                     // then pop the target chooser back to the (rebuilt) source list with
@@ -2686,6 +2816,7 @@ void NanoMenu::renderPs3Xmb() {
     musicTick();       // music player: auto-advance to the next track at end-of-stream
     photoTick();       // photo viewer: enter-fade easing + slideshow timers
     feTick();          // File Explorer: reap a finished copy/move/delete worker, refresh + report
+    appInfoTick();     // App Information: async-refresh the level from the framework
     vidReapDying();    // free any async-released video decoders every frame (also after the player closes)
     if (renderVideoPlayer()) return;   // full-screen video player owns the screen while up/fading
     // Arm the once-per-frame glass-icon uniform upload (drawGlassIcon sends the
@@ -5578,6 +5709,12 @@ void NanoMenu::applyThemeSetting(int themeKey, int sel) {
             mNanoUninstallPkg.clear();
             break;
         }
+        case 32: {  // App Information: Clear Data confirm (sel 1 = wipe the app's data)
+            if (sel == 1 && !mPs3AppInfoPkg.empty())
+                property_set("sys.gammaos.nano.app_action",
+                             (mPs3AppInfoPkg + "|cleardata|").c_str());
+            break;
+        }
         default: break;
     }
 }
@@ -5890,7 +6027,9 @@ void NanoMenu::openXmbOpt() {
     mPs3OptCtxKind = it.kind; mPs3OptCtxA = it.a; mPs3OptCtxB = it.b;
     mPs3OptCtxLabel = it.label; mPs3OptCtxPayload = it.payloadStr; mPs3OptCtxDesc = it.desc;
     mPs3OptCtxList = items; mPs3OptCtxSel = sel;
-    mPs3OptSel = xmbOptDefaultSel();
+    // The app menu wants Start (row 0) highlighted, not the post-separator Uninstall the
+    // generic "first action after the separator" heuristic would pick.
+    mPs3OptSel = (it.kind == PS3_APP) ? 0 : xmbOptDefaultSel();
     mPs3OptActive = true; mPs3OptClosing = false; mPs3OptAnim = 0.0f; mPs3OptBlurValid = false;
 }
 
@@ -6020,26 +6159,32 @@ void NanoMenu::xmbOptAction(const std::string& act) {
             row("File", fname);
             if (body.empty()) body = "No information is available.";
         } else if (mPs3OptCtxKind == PS3_APP && !mPs3OptCtxPayload.empty()) {
-            // App Information: nano is native and cannot resolve version / size /
-            // permissions, so ask the framework (SystemServer writes the details file
-            // and bumps sys.gammaos.nano.appinfo_gen). Show "Loading..." now; the poll
-            // in renderPs3Dialog swaps in the real body when it lands. The nonce guards
-            // against a stale reply from a previous request.
+            // App Information is a navigable submenu level served by the framework (nano is
+            // native and cannot resolve version / size / permissions). Ask for the details
+            // (stable session nonce), push a "Loading..." level with the normal collapse +
+            // slide; appInfoTick swaps in the parsed rows when the file lands and after
+            // every grant / revoke / clear.
             static uint32_t sInfoSeq = 0;
             char nb[96];
             snprintf(nb, sizeof(nb), "%s#%u", mPs3OptCtxPayload.c_str(), ++sInfoSeq);
             mPs3AppInfoNonce = nb;
-            mPs3DlgAppInfo = true; mPs3DlgAppInfoPending = true;
-            mPs3AppInfoScroll = 0; mPs3AppInfoWaitFrames = 0;
+            mPs3AppInfoPkg   = mPs3OptCtxPayload;
+            mPs3AppInfoWaitFrames = 0;
             property_set("sys.gammaos.nano.appinfo_req", nb);
-            mPs3DlgOptions.clear(); mPs3DlgSwatch.clear();
-            mPs3DlgKind = 0; mPs3DlgType = 0; mPs3DlgThemeKey = 0; mPs3DlgBinding = nullptr;
-            mPs3DlgIllust = 0; mPs3DlgNotice.clear(); mPs3DlgRomInfo = false;
-            mPs3DlgTitle = title;
-            mPs3DlgBody  = "Loading...";
-            mPs3DlgSel = 0; mPs3DlgOrigSel = 0;
-            mPs3DlgIconTex = 0; mPs3DlgIconNmap = 0; mPs3DlgIconR = mPs3DlgIconG = mPs3DlgIconB = 1.0f;
-            mPs3DlgActive = true; mPs3DlgAnim = 0.0f; mPs3DlgBlurValid = false;
+            std::vector<Ps3Item> parentSnap = ps3CurItems();
+            int parentSelSnap = ps3CurSel();
+            Ps3Level lvl; buildAppInfoLevel(lvl, nullptr);
+            lvl.title = mPs3OptCtxLabel.empty() ? std::string("Information") : mPs3OptCtxLabel;
+            mPs3Stack.push_back(lvl);
+            mPs3SubParentItems = std::move(parentSnap);
+            mPs3SubParentIdx   = parentSelSnap;
+            mPs3SubChildItems  = mPs3Stack.back().items;
+            mPs3SubDir         = 1;
+            mPs3SubAnimStart   = mEffectTime;
+            mPs3SubAnim        = 0.0f;
+            mPs3AnimItem       = 0.0f;
+            mPs3ItemAnimStart  = -1.0f;
+            mDisplayDirty = true;
             return;
         } else {
             body = mPs3OptCtxDesc.empty() ? std::string("No information is available.") : mPs3OptCtxDesc;
@@ -6056,17 +6201,20 @@ void NanoMenu::xmbOptAction(const std::string& act) {
     }
     if (act == "app_uninstall") {
         if (mPs3OptCtxKind != PS3_APP || mPs3OptCtxPayload.empty()) return;
-        // Confirm first (kind-1 dialog, themeKey 31). The actual uninstall dispatch
-        // happens on accept in applyThemeSetting(31, sel).
+        // Centred confirmation (kind-0 type-1), themeKey 31. Accept routes through the
+        // generic X handler -> applyThemeSetting(31, sel), the SAME path as before, so the
+        // "Uninstalling..." progress modal reconfigure in case 31 is unchanged.
         mNanoUninstallPkg = mPs3OptCtxPayload;
         mPs3DlgOptions.clear(); mPs3DlgSwatch.clear();
-        mPs3DlgKind = 1; mPs3DlgThemeKey = 31; mPs3DlgAppInfo = false;
+        mPs3DlgKind = 0; mPs3DlgType = 1; mPs3DlgThemeKey = 31; mPs3DlgBinding = nullptr;
+        mPs3DlgSlider = false; mPs3DlgAppInfo = false; mPs3DlgRomInfo = false;
+        mPs3DlgIllust = 0; mPs3DlgNotice.clear();
         mPs3DlgTitle = std::string("Uninstall ") +
             (mPs3OptCtxLabel.empty() ? mPs3OptCtxPayload : mPs3OptCtxLabel);
-        mPs3DlgBody.clear();
+        mPs3DlgBody  = "This application will be uninstalled.";
         mPs3DlgOptions.push_back("Cancel");    mPs3DlgSwatch.push_back(-1);
         mPs3DlgOptions.push_back("Uninstall"); mPs3DlgSwatch.push_back(-1);
-        mPs3DlgSel = 0; mPs3DlgOrigSel = 0;
+        mPs3DlgSel = 0; mPs3DlgOrigSel = 0;    // default Cancel
         mPs3DlgIconTex = 0; mPs3DlgIconNmap = nmapForIcon(22);
         mPs3DlgIconR = mPs3DlgIconG = mPs3DlgIconB = 1.0f;
         mPs3DlgActive = true; mPs3DlgAnim = 0.0f; mPs3DlgBlurValid = false;
@@ -6457,7 +6605,8 @@ void NanoMenu::renderXmbOpt() {
     float parentYV = SP_LIST_TOP_Y;    // y of the open-submenu parent, for sub alignment
     for (int i = 0; i < n; i++) {
         if (i < (int)mPs3OptSep.size() && mPs3OptSep[i]) {
-            float dyDev = ps3::devY(yV + SP_ITEM_PITCH * 0.10f);
+            // Centre the divider line in the gap between the option above and below it.
+            float dyDev = ps3::devY(yV - SP_ITEM_PITCH * 0.225f);
             drawQuad(txDev, dyDev, ps3::devS(300.0f), ps3::devS(1.0f), 1.0f, 1.0f, 1.0f, 0.12f * ap);
             yV += SP_ITEM_PITCH * 0.55f;
             continue;
@@ -6530,27 +6679,6 @@ void NanoMenu::renderPs3Dialog() {
     if (mPs3NetTestLive) {
         std::lock_guard<std::mutex> lk(mPs3NetTestMutex);
         mPs3DlgBody = mPs3NetTestBody;
-    }
-    // App Information: swap the "Loading..." placeholder for the real details once the
-    // framework has written /data/system/nano_app_info.txt and bumped appinfo_gen. The
-    // nonce guards against a stale reply from an earlier request; a ~3s frame timeout
-    // guarantees we never hang on "Loading...".
-    if (mPs3DlgAppInfoPending) {
-        static const prop_info* sAiPi = nullptr; static uint32_t sAiSer = 0;
-        if (!sAiPi) sAiPi = __system_property_find("sys.gammaos.nano.appinfo_gen");
-        if (sAiPi) {
-            uint32_t s = __system_property_serial(sAiPi);
-            if (s != sAiSer) {
-                sAiSer = s;
-                std::string body;
-                if (readNanoAppInfo(mPs3AppInfoNonce, body)) {
-                    mPs3DlgBody = body; mPs3DlgAppInfoPending = false; mPs3AppInfoScroll = 0;
-                }
-            }
-        }
-        if (mPs3DlgAppInfoPending && ++mPs3AppInfoWaitFrames > 180) {
-            mPs3DlgBody = "Information unavailable."; mPs3DlgAppInfoPending = false;
-        }
     }
     float dt = mFrameDt; if (dt < 0.0f) dt = 0.0f; if (dt > 0.1f) dt = 0.1f;
     float ap;
