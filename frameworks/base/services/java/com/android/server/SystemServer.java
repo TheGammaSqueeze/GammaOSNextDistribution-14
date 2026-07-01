@@ -4255,10 +4255,8 @@ public final class SystemServer implements Dumpable {
                         ai.storageUuid, pkg,
                         android.os.UserHandle.of(android.os.UserHandle.myUserId()));
                 long app = st.getAppBytes(); dataBytes = st.getDataBytes(); cacheBytes = st.getCacheBytes();
+                // Total only; the Clear Cache / Clear Data rows show the cache/data sizes.
                 sb.append("F|Size|").append(nanoSize(app + dataBytes)).append('\n');
-                sb.append("F|  App|").append(nanoSize(app)).append('\n');
-                sb.append("F|  Data|").append(nanoSize(dataBytes)).append('\n');
-                sb.append("F|  Cache|").append(nanoSize(cacheBytes)).append('\n');
             } catch (Exception e) {
                 sb.append("F|Size|Unavailable\n");
             }

@@ -1131,8 +1131,10 @@ void NanoMenu::buildAppInfoLevel(Ps3Level& out, const std::string* body) {
         noop("Permissions");
         for (auto& p : perms) {
             Ps3Item it; it.kind = PS3_QUICK; it.a = QA_APP_PERM_TOGGLE;
-            it.value = std::get<0>(p); it.b = std::get<2>(p) ? 1 : 0;
-            it.label = std::get<1>(p) + (std::get<2>(p) ? "    [Granted]" : "    [Denied]");
+            it.label      = std::get<1>(p);                       // permission label (left)
+            it.value      = std::get<2>(p) ? "Granted" : "Denied"; // state (right column)
+            it.payloadStr = std::get<0>(p);                       // raw permission (for the action)
+            it.b          = std::get<2>(p) ? 1 : 0;
             it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 1.0f;
             out.items.push_back(it);
         }
@@ -2590,12 +2592,12 @@ void NanoMenu::ps3XmbSelect() {
                     mDisplayDirty = true; return;
                 }
                 case QA_APP_PERM_TOGGLE: {
-                    // Ask the framework to grant/revoke the permission; it rewrites the info
-                    // file + bumps appinfo_gen, and appInfoTick rebuilds this level with the
-                    // true post-change state (so the row label flips to reflect reality).
-                    if (!mPs3AppInfoPkg.empty() && !it.value.empty())
+                    // Ask the framework to grant/revoke the permission (raw name in payloadStr);
+                    // it rewrites the info file + bumps appinfo_gen, and appInfoTick rebuilds
+                    // this level so the Granted/Denied value flips to reflect reality.
+                    if (!mPs3AppInfoPkg.empty() && !it.payloadStr.empty())
                         property_set("sys.gammaos.nano.app_action",
-                            (mPs3AppInfoPkg + "|" + (it.b ? "revoke" : "grant") + "|" + it.value).c_str());
+                            (mPs3AppInfoPkg + "|" + (it.b ? "revoke" : "grant") + "|" + it.payloadStr).c_str());
                     mDisplayDirty = true; return;
                 }
                 case QA_APP_CLEAR_CACHE: {
