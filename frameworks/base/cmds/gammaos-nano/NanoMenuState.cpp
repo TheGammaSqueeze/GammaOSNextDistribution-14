@@ -413,4 +413,24 @@ void NanoMenu::loadInstalledApps() {
     ALOGD("NanoMenu: loaded %zu installed apps from packages.list", mAppEntries.size());
 }
 
+// Read the on-demand app Information file the framework wrote for our request. The
+// first line must be "req|<nonce>" matching what we asked for (so a stale reply from
+// an earlier request is ignored); everything after the first newline is the body.
+bool NanoMenu::readNanoAppInfo(const std::string& nonce, std::string& bodyOut) {
+    int fd = open("/data/system/nano_app_info.txt", O_RDONLY | O_CLOEXEC);
+    if (fd < 0) return false;
+    struct stat st;
+    if (fstat(fd, &st) < 0 || st.st_size <= 0 || st.st_size > 512 * 1024) { close(fd); return false; }
+    std::string content(st.st_size, '\0');
+    ssize_t n = read(fd, &content[0], st.st_size);
+    close(fd);
+    if (n <= 0) return false;
+    content.resize(n);
+    size_t nl = content.find('\n');
+    if (nl == std::string::npos) return false;
+    if (content.compare(0, nl, std::string("req|") + nonce) != 0) return false;  // stale reply
+    bodyOut = content.substr(nl + 1);
+    return true;
+}
+
 } // namespace android

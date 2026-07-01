@@ -64,6 +64,11 @@
 #include <png.h>
 
 #include <cutils/properties.h>
+#include <sys/system_properties.h>   // prop_info + __system_property_find for the app-info gen watch
+// __system_property_serial is exported by libc but declared only internally; forward
+// declare it (same as NanoMenu.cpp) so the dialog poll can detect a property change by
+// serial instead of a full name lookup every frame.
+extern "C" uint32_t __system_property_serial(const prop_info* __pi);
 #include <utils/Log.h>
 
 namespace android {
@@ -1697,8 +1702,11 @@ static float ps3CatOffset(bool active, float t, float fromOff) {
 // Up/Down (horizontal=false) scroll chooser lists only; Left/Right (horizontal=
 // true) scroll choosers AND toggle a confirm dialog's Yes/No. Info pages ignore.
 void NanoMenu::ps3DlgNav(int dir, bool horizontal) {
-    if (mPs3DlgRomInfo) {   // rich Information page: Up/Down scroll the description; L/R inert
-        if (!horizontal) { mPs3RomInfoScroll += dir; if (mPs3RomInfoScroll < 0) mPs3RomInfoScroll = 0; }
+    if (mPs3DlgRomInfo || mPs3DlgAppInfo) {   // rich Information page: Up/Down scroll; L/R inert
+        if (!horizontal) {
+            int& sc = mPs3DlgRomInfo ? mPs3RomInfoScroll : mPs3AppInfoScroll;
+            sc += dir; if (sc < 0) sc = 0;
+        }
         return;             // the renderer clamps the upper bound (it knows the line count)
     }
     int n = (int)mPs3DlgOptions.size();
@@ -5532,6 +5540,44 @@ void NanoMenu::applyThemeSetting(int themeKey, int sel) {
             mFeDeleteTarget.clear();
             break;
         }
+        case 31: {  // App uninstall confirm (sel 1 = uninstall the stashed package)
+            std::string label = mPs3DlgTitle;              // "Uninstall <label>"
+            if (label.rfind("Uninstall ", 0) == 0) label = label.substr(10);
+            if (sel == 1 && !mNanoUninstallPkg.empty()) {
+                const std::string& p = mNanoUninstallPkg;
+                // Defence in depth versus the framework's own guard: never remove a
+                // system / protected package even if the prop were spoofed.
+                bool excl = p.rfind("com.android.",   0) == 0
+                         || p.rfind("org.lineageos.", 0) == 0
+                         || p.rfind("com.gammaos.",   0) == 0
+                         || p.rfind("com.topjohnwu.", 0) == 0
+                         || p == "com.retroarch.aarch64";
+                if (!excl) {
+                    property_set("sys.gammaos.nano.app_uninstall", p.c_str());
+                    mNanoUninstallPending = p;   // the Applications refresh closes the modal
+                    // Progress modal: stays up until the list refresh shows the app gone
+                    // (closed from the apps_generation handler), or a ~10s timeout.
+                    mPs3DlgOptions.clear(); mPs3DlgSwatch.clear();
+                    mPs3DlgKind = 0; mPs3DlgType = 0; mPs3DlgThemeKey = 0; mPs3DlgBinding = nullptr;
+                    mPs3DlgIllust = 0; mPs3DlgNotice.clear();
+                    mPs3DlgRomInfo = false; mPs3DlgAppInfo = false;
+                    mPs3DlgTitle = "Uninstalling";
+                    mPs3DlgBody  = std::string("Uninstalling ") + label + "...";
+                    mPs3DlgSel = 0; mPs3DlgOrigSel = 0;
+                    mPs3DlgIconTex = 0; mPs3DlgIconNmap = nmapForIcon(22);
+                    mPs3DlgIconR = mPs3DlgIconG = mPs3DlgIconB = 1.0f;
+                    mPs3DlgActive = true; mPs3DlgAnim = 0.0f; mPs3DlgBlurValid = false;
+                    // We are running inside closePs3Dialog (it called applyThemeSetting):
+                    // tell it not to tear the dialog down, so this reconfigured progress
+                    // modal survives instead of the accepted confirm dialog.
+                    mPs3DlgKeepOpen = true;
+                    mNanoUninstallPkg.clear();
+                    return;
+                }
+            }
+            mNanoUninstallPkg.clear();
+            break;
+        }
         default: break;
     }
 }
@@ -5656,6 +5702,15 @@ void NanoMenu::closePs3Dialog(bool apply) {
         mPs3RomInfoScroll = 0;
         mPs3DlgRomInfo = false;
     }
+    // A confirm dialog whose accept handler reconfigured itself into a progress modal
+    // (uninstall) must NOT be torn down here - keep it up until its own logic closes it.
+    if (mPs3DlgKeepOpen) { mPs3DlgKeepOpen = false; return; }
+    // Reset the async App Information state and any uninstall-in-progress latch on a real close.
+    if (mPs3DlgAppInfo) {
+        mPs3DlgAppInfo = false; mPs3DlgAppInfoPending = false;
+        mPs3AppInfoNonce.clear(); mPs3AppInfoScroll = 0;
+    }
+    mNanoUninstallPending.clear();
     mPs3DlgActive = false;
     mPs3DlgBlurValid = false;
 }
@@ -5758,7 +5813,22 @@ void NanoMenu::openXmbOpt() {
             // ROMs get the rich scraped Information page (cover + fanart + metadata,
             // falling back to file path/size/core when nothing has been scraped).
             add("Start", "start", true); add("Information", "rominfo", false); break;
-        case PS3_APP: case PS3_LAUNCH_PKG:
+        case PS3_APP: {
+            add("Start", "start", true); add("Information", "info", false);
+            // Uninstall is offered only for real user apps - never the launcher-shortcut
+            // kind, and never the same excluded packages the Applications loader hides
+            // (NanoMenuState.cpp): those are system/protected and must not be removed.
+            const std::string& p = it.payloadStr;   // package name (set at buildAppSubmenu)
+            bool excl = p.empty()
+                || p == "com.retroarch.aarch64"
+                || p.rfind("com.android.",   0) == 0
+                || p.rfind("org.lineageos.", 0) == 0
+                || p.rfind("com.gammaos.",   0) == 0
+                || p.rfind("com.topjohnwu.", 0) == 0;
+            if (!excl) { addSep(); add("Uninstall", "app_uninstall", false); }
+            break;
+        }
+        case PS3_LAUNCH_PKG:
             add("Start", "start", true); add("Information", "info", false); break;
         case PS3_MUSIC_ALBUM:
             add("Play", "playalbum", true); add("Information", "info", false); break;
@@ -5949,16 +6019,56 @@ void NanoMenu::xmbOptAction(const std::string& act) {
             if (m.bitRate > 0)    { char b[24]; snprintf(b, sizeof(b), "%d kbps", m.bitRate / 1000); row("Bitrate", b); }
             row("File", fname);
             if (body.empty()) body = "No information is available.";
+        } else if (mPs3OptCtxKind == PS3_APP && !mPs3OptCtxPayload.empty()) {
+            // App Information: nano is native and cannot resolve version / size /
+            // permissions, so ask the framework (SystemServer writes the details file
+            // and bumps sys.gammaos.nano.appinfo_gen). Show "Loading..." now; the poll
+            // in renderPs3Dialog swaps in the real body when it lands. The nonce guards
+            // against a stale reply from a previous request.
+            static uint32_t sInfoSeq = 0;
+            char nb[96];
+            snprintf(nb, sizeof(nb), "%s#%u", mPs3OptCtxPayload.c_str(), ++sInfoSeq);
+            mPs3AppInfoNonce = nb;
+            mPs3DlgAppInfo = true; mPs3DlgAppInfoPending = true;
+            mPs3AppInfoScroll = 0; mPs3AppInfoWaitFrames = 0;
+            property_set("sys.gammaos.nano.appinfo_req", nb);
+            mPs3DlgOptions.clear(); mPs3DlgSwatch.clear();
+            mPs3DlgKind = 0; mPs3DlgType = 0; mPs3DlgThemeKey = 0; mPs3DlgBinding = nullptr;
+            mPs3DlgIllust = 0; mPs3DlgNotice.clear(); mPs3DlgRomInfo = false;
+            mPs3DlgTitle = title;
+            mPs3DlgBody  = "Loading...";
+            mPs3DlgSel = 0; mPs3DlgOrigSel = 0;
+            mPs3DlgIconTex = 0; mPs3DlgIconNmap = 0; mPs3DlgIconR = mPs3DlgIconG = mPs3DlgIconB = 1.0f;
+            mPs3DlgActive = true; mPs3DlgAnim = 0.0f; mPs3DlgBlurValid = false;
+            return;
         } else {
             body = mPs3OptCtxDesc.empty() ? std::string("No information is available.") : mPs3OptCtxDesc;
         }
         mPs3DlgOptions.clear(); mPs3DlgSwatch.clear();
         mPs3DlgKind = 0; mPs3DlgType = 0; mPs3DlgThemeKey = 0; mPs3DlgBinding = nullptr;
-        mPs3DlgIllust = 0; mPs3DlgNotice.clear(); mPs3DlgRomInfo = false;
+        mPs3DlgIllust = 0; mPs3DlgNotice.clear(); mPs3DlgRomInfo = false; mPs3DlgAppInfo = false;
         mPs3DlgTitle = title;
         mPs3DlgBody  = body;
         mPs3DlgSel = 0; mPs3DlgOrigSel = 0;
         mPs3DlgIconTex = 0; mPs3DlgIconNmap = 0; mPs3DlgIconR = mPs3DlgIconG = mPs3DlgIconB = 1.0f;
+        mPs3DlgActive = true; mPs3DlgAnim = 0.0f; mPs3DlgBlurValid = false;
+        return;
+    }
+    if (act == "app_uninstall") {
+        if (mPs3OptCtxKind != PS3_APP || mPs3OptCtxPayload.empty()) return;
+        // Confirm first (kind-1 dialog, themeKey 31). The actual uninstall dispatch
+        // happens on accept in applyThemeSetting(31, sel).
+        mNanoUninstallPkg = mPs3OptCtxPayload;
+        mPs3DlgOptions.clear(); mPs3DlgSwatch.clear();
+        mPs3DlgKind = 1; mPs3DlgThemeKey = 31; mPs3DlgAppInfo = false;
+        mPs3DlgTitle = std::string("Uninstall ") +
+            (mPs3OptCtxLabel.empty() ? mPs3OptCtxPayload : mPs3OptCtxLabel);
+        mPs3DlgBody.clear();
+        mPs3DlgOptions.push_back("Cancel");    mPs3DlgSwatch.push_back(-1);
+        mPs3DlgOptions.push_back("Uninstall"); mPs3DlgSwatch.push_back(-1);
+        mPs3DlgSel = 0; mPs3DlgOrigSel = 0;
+        mPs3DlgIconTex = 0; mPs3DlgIconNmap = nmapForIcon(22);
+        mPs3DlgIconR = mPs3DlgIconG = mPs3DlgIconB = 1.0f;
         mPs3DlgActive = true; mPs3DlgAnim = 0.0f; mPs3DlgBlurValid = false;
         return;
     }
@@ -6421,6 +6531,27 @@ void NanoMenu::renderPs3Dialog() {
         std::lock_guard<std::mutex> lk(mPs3NetTestMutex);
         mPs3DlgBody = mPs3NetTestBody;
     }
+    // App Information: swap the "Loading..." placeholder for the real details once the
+    // framework has written /data/system/nano_app_info.txt and bumped appinfo_gen. The
+    // nonce guards against a stale reply from an earlier request; a ~3s frame timeout
+    // guarantees we never hang on "Loading...".
+    if (mPs3DlgAppInfoPending) {
+        static const prop_info* sAiPi = nullptr; static uint32_t sAiSer = 0;
+        if (!sAiPi) sAiPi = __system_property_find("sys.gammaos.nano.appinfo_gen");
+        if (sAiPi) {
+            uint32_t s = __system_property_serial(sAiPi);
+            if (s != sAiSer) {
+                sAiSer = s;
+                std::string body;
+                if (readNanoAppInfo(mPs3AppInfoNonce, body)) {
+                    mPs3DlgBody = body; mPs3DlgAppInfoPending = false; mPs3AppInfoScroll = 0;
+                }
+            }
+        }
+        if (mPs3DlgAppInfoPending && ++mPs3AppInfoWaitFrames > 180) {
+            mPs3DlgBody = "Information unavailable."; mPs3DlgAppInfoPending = false;
+        }
+    }
     float dt = mFrameDt; if (dt < 0.0f) dt = 0.0f; if (dt > 0.1f) dt = 0.1f;
     float ap;
     if (mPs3DlgActive) {
@@ -6825,6 +6956,26 @@ void NanoMenu::renderPs3Dialog() {
                     fy += ffRowH;
                 }
             }
+        } else if (mPs3DlgType == 0 && mPs3DlgAppInfo) {   // App Information: left, top-anchored, scrolls
+            float fs = FS(22.0f), lh = DS(30.0f);
+            std::vector<std::string> lines = wrap(dlgBody, fs);
+            int total = (int)lines.size();
+            float topY = Y(innerTop + 96.0f);
+            float botY = Y(innerBot - 34.0f);
+            int maxVis = (int)((botY - topY) / lh); if (maxVis < 1) maxVis = 1;
+            int maxScroll = total - maxVis; if (maxScroll < 0) maxScroll = 0;
+            if (mPs3AppInfoScroll < 0) mPs3AppInfoScroll = 0;
+            if (mPs3AppInfoScroll > maxScroll) mPs3AppInfoScroll = maxScroll;
+            int first = mPs3AppInfoScroll, last = first + maxVis; if (last > total) last = total;
+            float ty = topY;
+            for (int i = first; i < last; i++) {
+                if (!lines[i].empty())
+                    ps3DlgText(lines[i].c_str(), XC(VW * 0.5f - 300.0f), ty, fs, 0.92f, 0.92f, 0.92f, ap, 0);
+                ty += lh;
+            }
+            float chX = XC(VW * 0.5f + 300.0f);
+            if (first > 0)    ps3DlgText("\xE2\x96\xB2", chX, topY, FS(15.0f), 0.85f, 0.88f, 0.92f, ap, 1);
+            if (last < total) ps3DlgText("\xE2\x96\xBC", chX, botY, FS(15.0f), 0.85f, 0.88f, 0.92f, ap, 1);
         } else if (mPs3DlgType == 0) {          // info
             float centerCY = (innerTop + innerBot) * 0.5f;
             if (mPs3DlgIllust) { ps3DlgIllustration(mPs3DlgIllust, XC(VW * 0.5f), Y(innerTop + 230.0f), DS(280.0f), ap); centerCY = innerTop + 460.0f; }

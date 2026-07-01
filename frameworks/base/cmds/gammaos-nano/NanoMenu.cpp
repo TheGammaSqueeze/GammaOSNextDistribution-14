@@ -3892,6 +3892,18 @@ if (sRingPrimedCount >= 2) {
                                 mAppSelectedIndex = mAppEntries.empty()
                                         ? 0 : (int)mAppEntries.size() - 1;
                         }
+                        // Uninstall complete: this refresh was triggered by the removal, so
+                        // the pending package is now gone from the list. Close the
+                        // "Uninstalling..." progress modal (see applyThemeSetting case 31).
+                        if (!mNanoUninstallPending.empty()) {
+                            bool stillThere = false;
+                            for (auto& a : mAppEntries)
+                                if (a.packageName == mNanoUninstallPending) { stillThere = true; break; }
+                            if (!stillThere) {
+                                mNanoUninstallPending.clear();
+                                if (mPs3DlgActive) closePs3Dialog(false);
+                            }
+                        }
                         mDisplayDirty = true;
                     }
                 }

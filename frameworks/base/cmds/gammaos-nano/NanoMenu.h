@@ -1061,6 +1061,7 @@ private:
     // Settings: Theme/Colour/Background/Font/Day-Night) or a fullscreen message
     // dialog (System Update, System Information, Format Utility, ...).
     bool   mPs3DlgActive = false;
+    bool   mPs3DlgKeepOpen = false; // set by an accept handler that reconfigured the dialog in place (uninstall progress); closePs3Dialog then leaves it up
     int    mPs3DlgKind = 0;        // 0 = fullscreen message/chooser, 1 = side-panel theme chooser
     int    mPs3DlgThemeKey = 0;    // 0 none, 1 theme, 2 colour, 3 background, 4 font, 5 day/night
     std::string mPs3DlgTitle;
@@ -1215,6 +1216,15 @@ private:
     std::string mPs3RomInfoFileName, mPs3RomInfoDir, mPs3RomInfoSize, mPs3RomInfoCore, mPs3RomInfoSystem;
     bool   mPs3RomInfoCoreIsApp = false;   // true = standalone app (label "App"), false = libretro core ("Core")
     int    mPs3RomInfoScroll = 0;  // first visible wrapped description line (Up/Down scroll)
+    // App Information page (kind-0 dialog, filled asynchronously): "info" on an app sets
+    // sys.gammaos.nano.appinfo_req=<pkg>#<n>, the framework writes the details file and
+    // bumps sys.gammaos.nano.appinfo_gen, and we swap the "Loading..." body for it.
+    bool        mPs3DlgAppInfo        = false;
+    bool        mPs3DlgAppInfoPending = false;
+    std::string mPs3AppInfoNonce;         // "<pkg>#<n>" we asked for; must match the file's req| line
+    int         mPs3AppInfoScroll     = 0;
+    int         mPs3AppInfoWaitFrames = 0;
+    bool readNanoAppInfo(const std::string& nonce, std::string& bodyOut);
     GLuint mPs3DlgFanTex = 0;       // fanart texture for the info page (freed on dialog close)
     int    mPs3DlgFanW = 0, mPs3DlgFanH = 0;
     GLuint mPs3DlgBoxTex = 0;       // cover texture for the info page (freed on dialog close)
@@ -1509,6 +1519,8 @@ private:
     std::string mFeClipPath;                    // pending Copy/Move source (empty = clipboard clear)
     bool        mFeClipMove = false;            // true = Move (cut), false = Copy
     std::string mFeDeleteTarget;                // path awaiting the delete confirm (dialog themeKey 30)
+    std::string mNanoUninstallPkg;              // pkg awaiting the uninstall confirm (dialog themeKey 31)
+    std::string mNanoUninstallPending;          // pkg being uninstalled: the "Uninstalling..." dialog stays up until it is gone
     // Async copy/move/delete: the worker holds its OWN shared_ptr to this result block and touches
     // ONLY the block + value-captured paths (never `this`), so a teardown mid-op cannot use-after-free.
     // feTick polls done and reaps. One op at a time (mFeOp non-null = busy).

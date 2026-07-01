@@ -502,6 +502,10 @@ public final class SystemServer implements Dumpable {
     // live-refresh the Applications list on install / remove / update.
     private final java.util.concurrent.atomic.AtomicInteger mNanoAppsGeneration =
             new java.util.concurrent.atomic.AtomicInteger(0);
+    // GammaOS Nano: bumped after an on-demand app Information file is written, so the
+    // native menu can watch its serial and swap "Loading..." for the real details.
+    private final java.util.concurrent.atomic.AtomicInteger mNanoAppInfoGeneration =
+            new java.util.concurrent.atomic.AtomicInteger(0);
 
     // TODO: remove all of these references by improving dependency resolution and boot phases
     private PowerManagerService mPowerManagerService;
@@ -4070,6 +4074,27 @@ public final class SystemServer implements Dumpable {
                 f.addDataScheme("package");
                 // Dispatch on the HandlerThread, not the main looper.
                 mSystemContext.registerReceiver(rcvr, f, null, h);
+
+                // Serve the nano menu's app Information + Uninstall requests. nano sets
+                // sys.gammaos.nano.appinfo_req=<pkg>#<nonce> to ask for an app's details
+                // and sys.gammaos.nano.app_uninstall=<pkg> to remove it. Poll for them on
+                // this (now long-lived) thread, mirroring the do_launch monitor above -
+                // the proven signalling pattern here. The work runs off the main thread;
+                // 150ms is imperceptible for a user-initiated menu action.
+                String lastInfoReq = "", lastUninstall = "";
+                while (true) {
+                    try { Thread.sleep(150); } catch (InterruptedException ignored) {}
+                    String req = SystemProperties.get("sys.gammaos.nano.appinfo_req", "");
+                    if (!req.isEmpty() && !req.equals(lastInfoReq)) {
+                        lastInfoReq = req; writeNanoAppInfo(req);
+                    }
+                    String un = SystemProperties.get("sys.gammaos.nano.app_uninstall", "");
+                    if (un.isEmpty()) {
+                        lastUninstall = "";   // doNanoUninstall cleared it: allow a re-uninstall
+                    } else if (!un.equals(lastUninstall)) {
+                        lastUninstall = un; doNanoUninstall(un);
+                    }
+                }
             }, "NanoLabelCache").start();
 
         }
@@ -4171,6 +4196,130 @@ public final class SystemServer implements Dumpable {
                     + apps.size() + " apps, " + iconCount + " icons, gen=" + gen);
         } catch (Exception e) {
             Slog.w(TAG, "GammaOS Nano: failed to write app label/icon cache", e);
+        }
+    }
+
+    private static String nanoPad(String s) { return String.format("%-16s", s); }
+    private String nanoSize(long b) {
+        return android.text.format.Formatter.formatFileSize(mSystemContext, b);
+    }
+
+    /**
+     * GammaOS Nano: write the Information details for one package to
+     * /data/system/nano_app_info.txt on request, then bump sys.gammaos.nano.appinfo_gen
+     * so the native menu swaps its "Loading..." placeholder for the real facts. The
+     * request is "<pkg>#<nonce>"; the nonce is echoed on line 1 so nano ignores a stale
+     * reply from an earlier request. Always writes a file and bumps the gen (even on
+     * failure) so the menu never hangs on "Loading...". Mirrors Settings / TvSettings.
+     */
+    private void writeNanoAppInfo(String req) {
+        String pkg = req;
+        int hash = req.lastIndexOf('#');
+        if (hash >= 0) pkg = req.substring(0, hash);
+        StringBuilder sb = new StringBuilder();
+        sb.append("req|").append(req).append('\n');
+        try {
+            android.content.pm.PackageManager pm = mSystemContext.getPackageManager();
+            android.content.pm.PackageInfo pi = pm.getPackageInfo(pkg,
+                    android.content.pm.PackageManager.GET_PERMISSIONS);
+            android.content.pm.ApplicationInfo ai = pi.applicationInfo;
+            boolean system = (ai.flags & android.content.pm.ApplicationInfo.FLAG_SYSTEM) != 0
+                          || (ai.flags & android.content.pm.ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) != 0;
+            String installer = "";
+            try {
+                String s = pm.getInstallSourceInfo(pkg).getInstallingPackageName();
+                if (s != null) installer = s;
+            } catch (Exception ignored) {}
+            java.text.DateFormat df = java.text.DateFormat.getDateInstance();
+            sb.append(nanoPad("Package")).append(pkg).append('\n');
+            sb.append(nanoPad("Version")).append(pi.versionName)
+              .append(" (").append(pi.getLongVersionCode()).append(")\n");
+            try {
+                android.app.usage.StorageStatsManager ssm =
+                        mSystemContext.getSystemService(android.app.usage.StorageStatsManager.class);
+                android.app.usage.StorageStats st = ssm.queryStatsForPackage(
+                        ai.storageUuid, pkg,
+                        android.os.UserHandle.of(android.os.UserHandle.myUserId()));
+                long app = st.getAppBytes(), data = st.getDataBytes(), cache = st.getCacheBytes();
+                sb.append(nanoPad("Size")).append(nanoSize(app + data)).append('\n');
+                sb.append(nanoPad("  App")).append(nanoSize(app)).append('\n');
+                sb.append(nanoPad("  Data")).append(nanoSize(data)).append('\n');
+                sb.append(nanoPad("  Cache")).append(nanoSize(cache)).append('\n');
+            } catch (Exception e) {
+                sb.append(nanoPad("Size")).append("Unavailable\n");
+            }
+            sb.append(nanoPad("Type")).append(system ? "System app" : "User app").append('\n');
+            if (!installer.isEmpty()) sb.append(nanoPad("Installer")).append(installer).append('\n');
+            sb.append(nanoPad("Target SDK")).append(ai.targetSdkVersion).append('\n');
+            sb.append(nanoPad("Min SDK")).append(ai.minSdkVersion).append('\n');
+            sb.append(nanoPad("Installed")).append(df.format(new java.util.Date(pi.firstInstallTime))).append('\n');
+            sb.append(nanoPad("Updated")).append(df.format(new java.util.Date(pi.lastUpdateTime))).append('\n');
+            sb.append('\n').append("Permissions").append('\n');
+            int shown = 0;
+            if (pi.requestedPermissions != null) {
+                for (int i = 0; i < pi.requestedPermissions.length; i++) {
+                    if ((pi.requestedPermissionsFlags[i]
+                            & android.content.pm.PackageInfo.REQUESTED_PERMISSION_GRANTED) == 0) continue;
+                    String p = pi.requestedPermissions[i];
+                    try {
+                        android.content.pm.PermissionInfo info = pm.getPermissionInfo(p, 0);
+                        if (info.getProtection()
+                                != android.content.pm.PermissionInfo.PROTECTION_DANGEROUS) continue;
+                        CharSequence lbl = info.loadLabel(pm);
+                        sb.append("  ").append(lbl != null ? lbl : p).append('\n');
+                        shown++;
+                    } catch (Exception ignored) {}
+                }
+            }
+            if (shown == 0) sb.append("  ").append("No permissions granted").append('\n');
+        } catch (Exception e) {
+            sb.append("Information unavailable.").append('\n');
+        }
+        try {
+            java.io.File dst = new java.io.File("/data/system/nano_app_info.txt");
+            java.io.File tmp = new java.io.File("/data/system/nano_app_info.txt.tmp");
+            try (java.io.FileWriter fw = new java.io.FileWriter(tmp)) { fw.write(sb.toString()); }
+            tmp.setReadable(true, false);
+            tmp.renameTo(dst);
+        } catch (Exception e) {
+            Slog.w(TAG, "GammaOS Nano: app-info write failed for " + req, e);
+            return;
+        }
+        // Bump last, so nano only reads a complete file.
+        SystemProperties.set("sys.gammaos.nano.appinfo_gen",
+                Integer.toString(mNanoAppInfoGeneration.incrementAndGet()));
+    }
+
+    /**
+     * GammaOS Nano: silently uninstall a user package the menu asked to remove. Runs in
+     * system_server (which holds DELETE_PACKAGES), so no new sepolicy and the confirm
+     * dialog in nano is the sole user gate. Refuses system / updated-system / excluded
+     * packages authoritatively against the live PackageManager. The resulting
+     * ACTION_PACKAGE_REMOVED drives the normal cache rewrite + apps_generation bump, so
+     * the Applications list refreshes itself. Clears the request prop when done.
+     */
+    private void doNanoUninstall(String pkg) {
+        try {
+            if (pkg.startsWith("com.android.") || pkg.startsWith("org.lineageos.")
+                    || pkg.startsWith("com.gammaos.") || pkg.startsWith("com.topjohnwu.")
+                    || pkg.startsWith("com.retroarch.aarch64")) return;
+            android.content.pm.PackageManager pm = mSystemContext.getPackageManager();
+            android.content.pm.ApplicationInfo ai = pm.getApplicationInfo(pkg, 0);
+            if ((ai.flags & android.content.pm.ApplicationInfo.FLAG_SYSTEM) != 0
+                    || (ai.flags & android.content.pm.ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) != 0) return;
+            android.content.Intent it = new android.content.Intent(
+                    "com.gammaos.nano.UNINSTALL_RESULT").setPackage("android");
+            android.app.PendingIntent pi = android.app.PendingIntent.getBroadcast(
+                    mSystemContext, 0, it,
+                    android.app.PendingIntent.FLAG_IMMUTABLE
+                  | android.app.PendingIntent.FLAG_UPDATE_CURRENT);
+            pm.getPackageInstaller().uninstall(pkg, pi.getIntentSender());
+            Slog.i(TAG, "GammaOS Nano: uninstalling " + pkg);
+        } catch (Exception e) {
+            Slog.w(TAG, "GammaOS Nano: uninstall failed for " + pkg, e);
+        } finally {
+            // Clear so a later re-install of the same package can be removed again.
+            SystemProperties.set("sys.gammaos.nano.app_uninstall", "");
         }
     }
 
