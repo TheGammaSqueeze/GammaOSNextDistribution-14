@@ -3825,6 +3825,50 @@ if (sRingPrimedCount >= 2) {
                 }
             }
 
+            // GammaOS Nano: live-refresh the Applications list on install / remove /
+            // update. SystemServer's package receiver rewrites nano_app_icons/<pkg>.png
+            // and nano_app_labels.txt, THEN bumps sys.gammaos.nano.apps_generation. We
+            // watch only that prop's serial (the value is for logging): any advance
+            // means the app set changed, including the first appearance when the boot
+            // cache lands, so even the cold-boot home picks up real labels/icons without
+            // a manual re-open. This runs on the render thread with the GL context
+            // current (see glDeleteTextures below), so the file read, the icon-texture
+            // invalidate, and the rebuild are all safe here, at the ~0.5s cadence.
+            {
+                static const prop_info* sAgPi = nullptr; static uint32_t sAgSer = 0;
+                if (!sAgPi) sAgPi = __system_property_find("sys.gammaos.nano.apps_generation");
+                if (sAgPi) {
+                    uint32_t s = __system_property_serial(sAgPi);
+                    if (s != sAgSer) {
+                        sAgSer = s;
+                        ALOGI("GammaOS Nano: apps_generation bumped, refreshing Applications");
+                        // Re-read packages.list + the label cache (sets mAppsLoaded=true).
+                        loadInstalledApps();
+                        // Free the cached real-icon GL textures before clearing the map, so
+                        // an updated icon is re-decoded and no texture leaks. buildAppSubmenu
+                        // re-lazy-loads each icon on the next build (it caches successes only).
+                        for (auto& kv : mPs3AppIcons)
+                            if (kv.second) { GLuint t = kv.second; glDeleteTextures(1, &t); }
+                        mPs3AppIcons.clear();
+                        // Rebuild the visible Applications level in place, keeping the cursor.
+                        if (!mPs3Stack.empty() && mPs3Stack.back().title == "Applications") {
+                            int keep = mPs3Stack.back().sel;
+                            buildAppSubmenu(mPs3Stack.back());
+                            int n = (int)mPs3Stack.back().items.size();
+                            if (n <= 0) mPs3Stack.back().sel = 0;
+                            else { if (keep < 0) keep = 0; if (keep > n - 1) keep = n - 1;
+                                   mPs3Stack.back().sel = keep; }
+                        }
+                        if (mMenuState == MENU_APPS
+                                && mAppSelectedIndex >= (int)mAppEntries.size()) {
+                            mAppSelectedIndex = mAppEntries.empty()
+                                    ? 0 : (int)mAppEntries.size() - 1;
+                        }
+                        mDisplayDirty = true;
+                    }
+                }
+            }
+
             // GammaOS: Late-display re-probe. Any DRM CRTC that wasn't ready at
             // splash time gets a second chance here. Bounded to a 5-second boot
             // window by drmRescanDisplays itself. No-op post-boot (sDrmFd = -1).

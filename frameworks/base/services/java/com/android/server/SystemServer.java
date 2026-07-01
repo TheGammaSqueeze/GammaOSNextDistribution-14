@@ -497,6 +497,12 @@ public final class SystemServer implements Dumpable {
     private Context mSystemContext;
     private SystemServiceManager mSystemServiceManager;
 
+    // GammaOS Nano: monotonically increasing token bumped after the app label/icon
+    // cache is (re)written, so the native nano menu can watch its property serial and
+    // live-refresh the Applications list on install / remove / update.
+    private final java.util.concurrent.atomic.AtomicInteger mNanoAppsGeneration =
+            new java.util.concurrent.atomic.AtomicInteger(0);
+
     // TODO: remove all of these references by improving dependency resolution and boot phases
     private PowerManagerService mPowerManagerService;
     private ActivityManagerService mActivityManagerService;
@@ -3996,91 +4002,176 @@ public final class SystemServer implements Dumpable {
             }, "NanoRelaunchMonitor").start();
 
             // Write app label + icon cache for the nano menu (the C++ side can't
-            // resolve resource-based labels or render drawables). Runs once after
-            // user unlock so PackageManager can resolve all labels/icons. Labels go
-            // to /data/system/nano_app_labels.txt; real app icons are rendered to
-            // /data/system/nano_app_icons/<pkg>.png so the Applications list shows
-            // the actual APK icon (cached on DE so it is available on early boot).
+            // resolve resource-based labels or render drawables). The cache is
+            // written once after user unlock, and again whenever a package is
+            // installed / removed / updated, so the Applications list stays live.
+            // Labels go to /data/system/nano_app_labels.txt; real app icons are
+            // rendered to /data/system/nano_app_icons/<pkg>.png (cached on DE so it
+            // is available on early boot). See writeNanoAppCache().
             new Thread(() -> {
                 // Wait for user unlock so PM can resolve resource labels
                 while (!"1".equals(SystemProperties.get("sys.boot_completed"))) {
                     try { Thread.sleep(200); } catch (InterruptedException ignored) {}
                 }
                 try { Thread.sleep(500); } catch (InterruptedException ignored) {}
-                try {
-                    android.content.pm.PackageManager pm = mSystemContext.getPackageManager();
-                    java.util.List<android.content.pm.ApplicationInfo> apps =
-                            pm.getInstalledApplications(
-                                    android.content.pm.PackageManager.MATCH_ALL);
-                    java.io.File iconDir = new java.io.File("/data/system/nano_app_icons");
-                    iconDir.mkdirs();
-                    iconDir.setReadable(true, false);
-                    iconDir.setExecutable(true, false);
-                    final int ICON_PX = 144;
-                    StringBuilder sb = new StringBuilder();
-                    int iconCount = 0;
-                    for (android.content.pm.ApplicationInfo info : apps) {
-                        CharSequence label = pm.getApplicationLabel(info);
-                        if (label != null && label.length() > 0) {
-                            sb.append(info.packageName).append('|')
-                              .append(label).append('\n');
-                        }
-                        // Render the real icon only for the user-installed apps the
-                        // nano Applications list shows (non-system, minus the same
-                        // package prefixes nano excludes).
-                        String pkg = info.packageName;
-                        boolean isSystem =
-                                (info.flags & android.content.pm.ApplicationInfo.FLAG_SYSTEM) != 0
-                             || (info.flags & android.content.pm.ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) != 0;
-                        if (isSystem
+
+                // Initial boot-time write (also establishes apps_generation=1).
+                writeNanoAppCache("boot");
+
+                // Live refresh on package changes. We are past sys.boot_completed, so
+                // AMS/PMS are up and registerReceiver cannot race system-ready. A
+                // dedicated HandlerThread both dispatches the receiver and runs the
+                // rebuild, so it is never on the main thread and a burst of events is
+                // serialized (single-flight) with a trailing debounce.
+                android.os.HandlerThread ht = new android.os.HandlerThread("NanoAppCache");
+                ht.start();
+                final android.os.Handler h = new android.os.Handler(ht.getLooper());
+                final Runnable refresh = () -> writeNanoAppCache("pkg-change");
+                android.content.BroadcastReceiver rcvr = new android.content.BroadcastReceiver() {
+                    @Override public void onReceive(android.content.Context c,
+                                                    android.content.Intent i) {
+                        // Ignore packages the nano list never shows, so frequent
+                        // system-component / Play-services updates never cause churn.
+                        // Prefix filter always; the system-flag filter only when the
+                        // package still resolves (i.e. not a full removal).
+                        android.net.Uri data = i.getData();
+                        String pkg = (data != null) ? data.getSchemeSpecificPart() : null;
+                        if (pkg == null
                                 || pkg.startsWith("com.android.")
                                 || pkg.startsWith("org.lineageos.")
                                 || pkg.startsWith("com.gammaos.")
                                 || pkg.startsWith("com.topjohnwu.")
                                 || pkg.startsWith("com.retroarch.aarch64")) {
-                            continue;
+                            return;
                         }
-                        try {
-                            android.graphics.drawable.Drawable d = pm.getApplicationIcon(info);
-                            if (d != null) {
-                                android.graphics.Bitmap bmp = android.graphics.Bitmap.createBitmap(
-                                        ICON_PX, ICON_PX, android.graphics.Bitmap.Config.ARGB_8888);
-                                try {
-                                    android.graphics.Canvas c = new android.graphics.Canvas(bmp);
-                                    d.setBounds(0, 0, ICON_PX, ICON_PX);
-                                    d.draw(c);
-                                    java.io.File iconFile = new java.io.File(iconDir, pkg + ".png");
-                                    java.io.FileOutputStream fos =
-                                            new java.io.FileOutputStream(iconFile);
-                                    bmp.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, fos);
-                                    fos.close();
-                                    iconFile.setReadable(true, false);
-                                    iconCount++;
-                                } finally {
-                                    bmp.recycle();
+                        String action = i.getAction();
+                        if (!android.content.Intent.ACTION_PACKAGE_FULLY_REMOVED.equals(action)
+                                && !android.content.Intent.ACTION_PACKAGE_REMOVED.equals(action)) {
+                            try {
+                                android.content.pm.ApplicationInfo ai =
+                                        c.getPackageManager().getApplicationInfo(pkg, 0);
+                                if ((ai.flags & android.content.pm.ApplicationInfo.FLAG_SYSTEM) != 0
+                                 || (ai.flags & android.content.pm.ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) != 0) {
+                                    return;
                                 }
-                            }
-                        } catch (Exception e) {
-                            // Skip a single bad/corrupt icon; keep going.
+                            } catch (Exception ignored) { /* unresolvable -> proceed */ }
                         }
+                        // Trailing debounce: coalesce an install/restore burst into one
+                        // rebuild that snapshots PackageManager at execution time.
+                        h.removeCallbacks(refresh);
+                        h.postDelayed(refresh, 1500);
                     }
-                    java.io.File cacheFile = new java.io.File(
-                            "/data/system/nano_app_labels.txt");
-                    java.io.FileWriter fw = new java.io.FileWriter(cacheFile);
-                    fw.write(sb.toString());
-                    fw.close();
-                    // Make it readable by graphics group
-                    cacheFile.setReadable(true, false);
-                    Slog.i(TAG, "GammaOS Nano: wrote app label cache ("
-                            + apps.size() + " apps) and " + iconCount + " app icons");
-                } catch (Exception e) {
-                    Slog.w(TAG, "GammaOS Nano: failed to write app label/icon cache", e);
-                }
+                };
+                android.content.IntentFilter f = new android.content.IntentFilter();
+                f.addAction(android.content.Intent.ACTION_PACKAGE_ADDED);
+                f.addAction(android.content.Intent.ACTION_PACKAGE_REMOVED);
+                f.addAction(android.content.Intent.ACTION_PACKAGE_FULLY_REMOVED);
+                f.addAction(android.content.Intent.ACTION_PACKAGE_REPLACED);
+                f.addDataScheme("package");
+                // Dispatch on the HandlerThread, not the main looper.
+                mSystemContext.registerReceiver(rcvr, f, null, h);
             }, "NanoLabelCache").start();
 
         }
 
         t.traceEnd(); // startOtherServices
+    }
+
+    /**
+     * GammaOS Nano: (re)write the app label + icon cache the native nano menu reads,
+     * then bump the generation prop so nano live-refreshes the Applications list.
+     * Idempotent; safe to call at boot and on every package change. MUST run off the
+     * main thread (it renders drawables and does file IO). Every file is written
+     * temp+rename so a concurrent nano reader never sees a partial file, and the
+     * generation prop is bumped strictly last, after every file has landed.
+     */
+    private void writeNanoAppCache(String reason) {
+        try {
+            android.content.pm.PackageManager pm = mSystemContext.getPackageManager();
+            java.util.List<android.content.pm.ApplicationInfo> apps =
+                    pm.getInstalledApplications(android.content.pm.PackageManager.MATCH_ALL);
+            java.io.File iconDir = new java.io.File("/data/system/nano_app_icons");
+            iconDir.mkdirs();
+            iconDir.setReadable(true, false);
+            iconDir.setExecutable(true, false);
+            final int ICON_PX = 144;
+            StringBuilder sb = new StringBuilder();
+            int iconCount = 0;
+            // <pkg>.png files we still want; everything else in the dir is pruned.
+            java.util.HashSet<String> liveIcons = new java.util.HashSet<>();
+            for (android.content.pm.ApplicationInfo info : apps) {
+                CharSequence label = pm.getApplicationLabel(info);
+                if (label != null && label.length() > 0) {
+                    sb.append(info.packageName).append('|').append(label).append('\n');
+                }
+                // Render the real icon only for the user-installed apps the nano
+                // Applications list shows (non-system, minus the same prefixes nano skips).
+                String pkg = info.packageName;
+                boolean isSystem =
+                        (info.flags & android.content.pm.ApplicationInfo.FLAG_SYSTEM) != 0
+                     || (info.flags & android.content.pm.ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) != 0;
+                if (isSystem
+                        || pkg.startsWith("com.android.")
+                        || pkg.startsWith("org.lineageos.")
+                        || pkg.startsWith("com.gammaos.")
+                        || pkg.startsWith("com.topjohnwu.")
+                        || pkg.startsWith("com.retroarch.aarch64")) {
+                    continue;
+                }
+                liveIcons.add(pkg + ".png");
+                try {
+                    android.graphics.drawable.Drawable d = pm.getApplicationIcon(info);
+                    if (d != null) {
+                        android.graphics.Bitmap bmp = android.graphics.Bitmap.createBitmap(
+                                ICON_PX, ICON_PX, android.graphics.Bitmap.Config.ARGB_8888);
+                        try {
+                            android.graphics.Canvas c = new android.graphics.Canvas(bmp);
+                            d.setBounds(0, 0, ICON_PX, ICON_PX);
+                            d.draw(c);
+                            java.io.File dst = new java.io.File(iconDir, pkg + ".png");
+                            java.io.File tmp = new java.io.File(iconDir, pkg + ".png.tmp");
+                            java.io.FileOutputStream fos = new java.io.FileOutputStream(tmp);
+                            bmp.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, fos);
+                            fos.close();
+                            tmp.setReadable(true, false);
+                            tmp.renameTo(dst);   // atomic replace; no partial read
+                            iconCount++;
+                        } finally {
+                            bmp.recycle();
+                        }
+                    }
+                } catch (Exception e) {
+                    // Skip a single bad/corrupt icon; keep going.
+                }
+            }
+            // Prune icons for apps uninstalled (or now excluded) since the last write.
+            // Self-healing, so uninstall/update need no special-casing in the receiver.
+            java.io.File[] existing = iconDir.listFiles();
+            if (existing != null) {
+                for (java.io.File ef : existing) {
+                    String n = ef.getName();
+                    if (n.endsWith(".png") && !liveIcons.contains(n)) {
+                        ef.delete();
+                    }
+                }
+            }
+            // Label cache, temp+rename so it lands atomically, after all icons.
+            java.io.File dstLabels = new java.io.File("/data/system/nano_app_labels.txt");
+            java.io.File tmpLabels = new java.io.File("/data/system/nano_app_labels.txt.tmp");
+            java.io.FileWriter fw = new java.io.FileWriter(tmpLabels);
+            fw.write(sb.toString());
+            fw.close();
+            tmpLabels.setReadable(true, false);
+            tmpLabels.renameTo(dstLabels);
+            // Signal LAST: every file is on disk before the serial advances, so nano's
+            // reload always sees the complete new label + icon set.
+            int gen = mNanoAppsGeneration.incrementAndGet();
+            SystemProperties.set("sys.gammaos.nano.apps_generation", Integer.toString(gen));
+            Slog.i(TAG, "GammaOS Nano: wrote app cache (" + reason + "): "
+                    + apps.size() + " apps, " + iconCount + " icons, gen=" + gen);
+        } catch (Exception e) {
+            Slog.w(TAG, "GammaOS Nano: failed to write app label/icon cache", e);
+        }
     }
 
     /**
