@@ -53,6 +53,13 @@ using namespace android;
 // HWC starts. On Qualcomm, this stays -1 (grab deferred to readyToRun).
 int gEarlyDrmFd = -1;
 
+// Set by main() the moment runDrasticInitIfNeeded() returns. The preload
+// thread gates its heavy libOpenSLES warm-up on this so its dlopen (bionic
+// linker lock, ~200 transitive media libs, seconds when cold) can never
+// serialize against DrasticRunner's libdrastic dlopen or readyToRun's EGL
+// vendor-driver load on the boot-critical path.
+static std::atomic<bool> sDrasticEarlyInitDone{false};
+
 // waitForSurfaceFlinger removed: readyToRun() handles SF wait internally
 // when the SF path is needed (restart case). On the DRM boot path, SF is
 // not required at all.
@@ -326,10 +333,32 @@ static void runDrasticInitIfNeeded() {
                   "nano_drastic_nano_rom.txt -- skipping", tag);
             return;
         }
+        // Cache first: the launch/shutdown staging keeps a copy of this
+        // exact game's ROM in the DE cache, which is readable the moment
+        // this process starts. The real path lives on FUSE /sdcard, which
+        // mounts many seconds after we run at boot, so preferring it here
+        // stalled the whole QR preview behind a storage wait (measured 15s
+        // on the RG Vita Pro) while the correct cached copy sat warm the
+        // entire time. Match by basename so a stale cache holding a
+        // different game can never preview the wrong title; identity is
+        // all the preview needs, and the post-handoff session re-reads the
+        // real path itself once storage is up.
+        {
+            std::string base = romPath;
+            size_t ls = base.rfind('/');
+            if (ls != std::string::npos) base = base.substr(ls + 1);
+            std::string cached = cacheDir + "/rom/" + base;
+            if (!base.empty() && access(cached.c_str(), R_OK) == 0) {
+                ALOGI("%s: drastic nano using cached ROM immediately: %s",
+                      tag, cached.c_str());
+                romPath = cached;
+            }
+        }
         // Wait for external storage to mount. SD cards can take a few
         // seconds after boot. We check if the ROM file is accessible,
         // polling up to 15s. Internal storage (/data/) is always
-        // available, so this only blocks for external paths.
+        // available, so this only blocks for external paths. Only reached
+        // when the cache had no staged copy of this game.
         if (access(romPath.c_str(), R_OK) != 0) {
             ALOGI("%s: drastic nano ROM not accessible yet, "
                   "waiting for storage mount...", tag);
@@ -350,13 +379,22 @@ static void runDrasticInitIfNeeded() {
                 std::string romDir = cacheDir + "/rom";
                 DIR* d = opendir(romDir.c_str());
                 if (d) {
+                    // Accept every drastic-loadable extension, matching
+                    // the non-drastic-nano cache scanner below: a .zip
+                    // ROM staged in the cache must not strand the
+                    // preview on a text-only splash.
+                    auto loadable = [](const std::string& n, const char* ext) {
+                        size_t elen = strlen(ext);
+                        return n.size() >= elen &&
+                               strcasecmp(n.c_str() + n.size() - elen,
+                                          ext) == 0;
+                    };
                     struct dirent* e;
                     while ((e = readdir(d)) != nullptr) {
                         std::string name(e->d_name);
                         if (name == "." || name == "..") continue;
-                        if (name.size() >= 4 &&
-                            strcasecmp(name.c_str() + name.size() - 4,
-                                       ".nds") == 0) {
+                        if (loadable(name, ".nds") || loadable(name, ".zip") ||
+                            loadable(name, ".7z")  || loadable(name, ".rar")) {
                             romPath = romDir + "/" + name;
                             break;
                         }
@@ -657,12 +695,6 @@ static void startDrasticLibPreloadThread() {
             return;
         }
 
-        // (A) libdrastic's static DT_NEEDED heavy dep. libOpenSLES
-        // pulls in libwilhelm → libmedia → ~200 lib media stack
-        // transitively. Warming it in background hides the cold
-        // page cache cost from the user-visible QR window.
-        warmLib("libOpenSLES.so");
-
         // (B) libdrastic's runtime-dlopen'd deps, observed via strace
         // inside the startGame thread. Each of these is a system lib
         // that drastic opens LATER (not at JNI_OnLoad time), so our
@@ -814,6 +846,31 @@ static void startDrasticLibPreloadThread() {
                 closedir(appsDir);
             }
         }
+
+        // (A) libdrastic's static DT_NEEDED heavy dep, warmed LAST.
+        // libOpenSLES pulls in libwilhelm -> libmedia -> ~200 lib media
+        // stack transitively and takes seconds on a cold page cache.
+        // dlopen holds bionic's linker lock, so doing this first used to
+        // serialize against DrasticRunner's libdrastic dlopen (the QR
+        // preview) and readyToRun's EGL vendor-driver load, delaying the
+        // first frame by the full warm-up. Nothing on the preview path
+        // needs OpenSLES (initialize_audio is patched out); this warm
+        // only serves the later full drastic session, so wait until the
+        // boot-critical dlopens are done (sDrasticEarlyInitDone, set the
+        // moment runDrasticInitIfNeeded returns) plus a short grace for
+        // readyToRun's EGL bring-up, then warm at leisure.
+        {
+            int waited = 0;
+            while (!sDrasticEarlyInitDone.load(std::memory_order_acquire)
+                   && waited < 25000) {
+                usleep(100 * 1000);
+                waited += 100;
+            }
+            usleep(2000 * 1000);
+            ALOGI("drastic preload: OpenSLES warm after %dms init-wait",
+                  waited);
+        }
+        warmLib("libOpenSLES.so");
 
         int64_t t_end = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL;
         ALOGI("drastic preload: total %lldms", t_end - t0);
@@ -1035,6 +1092,9 @@ int main(int argc, char** argv) {
     startDrasticLibPreloadThread();
 
     runDrasticInitIfNeeded();
+    // Unblock the preload thread's deferred libOpenSLES warm: every
+    // boot-critical dlopen (libdrastic, when QR is primed) is done now.
+    sDrasticEarlyInitDone.store(true, std::memory_order_release);
     startDrasticQrTestWatcher();
 
     sp<ProcessState> proc(ProcessState::self());

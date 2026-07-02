@@ -52,6 +52,10 @@ public:
     // Clean up
     void shutdown();
 
+    // Neuter a core that crashed under the first-frame guard so neither
+    // shutdown() nor the destructor re-enters it (deliberate leak).
+    void abandon();
+
     // Set input state (called before runFrame)
     void setButton(unsigned port, unsigned button, bool pressed);
     void setAnalog(unsigned port, unsigned index, unsigned id, int16_t value);

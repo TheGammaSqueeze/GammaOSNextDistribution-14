@@ -163,6 +163,24 @@ inline void setDrasticNanoRomPath(const std::string& romPath) {
 //    defers external SD scanning until after the secure keyguard step,
 //    so this can take 3-5s after NanoMenu starts.
 inline bool isQrRomStorageReady() {
+    // Gate 0: the framework must confirm external storage is MOUNTED
+    // for user 0. The probes below run as root in nano's own mount
+    // namespace and can pass several seconds before the storage session
+    // APPS see is actually served -- on the RG Vita Pro that window let
+    // the handoff fire while RetroArch still resolved its storage paths
+    // to garbage ("<garbage>/saves") and hung on a black screen forever.
+    // The NanoRelaunchMonitor thread in SystemServer publishes this
+    // property the moment Environment.getExternalStorageState() reports
+    // "mounted", the same signal apps get. Every handoff this function
+    // gates needs the framework running anyway, so requiring its signal
+    // cannot deadlock a handoff that could otherwise succeed; the QR
+    // preview keeps rendering (and stays playable) until it flips.
+    {
+        char fw[PROPERTY_VALUE_MAX] = {};
+        property_get("sys.gammaos.nano.ext_storage_ready", fw, "0");
+        if (fw[0] != '1') return false;
+    }
+
     // Gate 1: emulated FUSE must be ACTUALLY MOUNTED, not just the
     // tmpfs placeholder directory. /storage/emulated/0 exists as an
     // empty tmpfs from very early boot (created by vold), so a plain

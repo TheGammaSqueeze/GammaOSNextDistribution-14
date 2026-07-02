@@ -3984,13 +3984,60 @@ public final class SystemServer implements Dumpable {
                     try { Thread.sleep(25); } catch (InterruptedException ignored) {}
                 }
                 Slog.i(TAG, "GammaOS Nano: relaunch monitor active");
+                // GammaOS Nano: publish the app-visible external-storage state
+                // for the QR handoff. NanoMenu's isQrRomStorageReady() probes
+                // storage as root in its own mount namespace, which passes
+                // seconds before the storage session APPS see is served; a
+                // RetroArch launched in that window resolves its storage paths
+                // to garbage ("<garbage>/saves") and hangs on a black screen.
+                // Poll the same signal apps get and publish
+                // sys.gammaos.nano.ext_storage_ready=1 once it reports
+                // mounted; nano's QR preview keeps rendering until it flips.
+                boolean extStorageReady = false;
                 while (true) {
+                    if (!extStorageReady) {
+                        try {
+                            if (android.os.Environment.MEDIA_MOUNTED.equals(
+                                    android.os.Environment.getExternalStorageState())) {
+                                SystemProperties.set(
+                                        "sys.gammaos.nano.ext_storage_ready", "1");
+                                extStorageReady = true;
+                                Slog.i(TAG, "GammaOS Nano: external storage mounted,"
+                                        + " ext_storage_ready=1");
+                            }
+                        } catch (Exception ignored) {
+                            // Storage service not registered yet: not ready.
+                        }
+                    }
                     if (!"1".equals(SystemProperties.get("sys.gammaos.nano.do_launch"))) {
                         try { Thread.sleep(25); } catch (InterruptedException ignored) {}
                         continue;
                     }
                     SystemProperties.set("sys.gammaos.nano.do_launch", "0");
                     Slog.i(TAG, "GammaOS Nano: do_launch detected, triggering relaunch");
+                    // GammaOS Nano: never start the app before its storage is
+                    // served. The native-preview handoff already gates on
+                    // ext_storage_ready, but the no-preview fallback and the
+                    // init trigger chain fire do_launch with no storage gate,
+                    // and an early RetroArch hangs black on garbage paths.
+                    // Bounded so a storage failure degrades to the old
+                    // behavior instead of never launching.
+                    for (int i = 0; i < 1200 && !extStorageReady; i++) {
+                        try {
+                            if (android.os.Environment.MEDIA_MOUNTED.equals(
+                                    android.os.Environment.getExternalStorageState())) {
+                                SystemProperties.set(
+                                        "sys.gammaos.nano.ext_storage_ready", "1");
+                                extStorageReady = true;
+                                break;
+                            }
+                        } catch (Exception ignored) { }
+                        try { Thread.sleep(25); } catch (InterruptedException ignored) {}
+                    }
+                    if (!extStorageReady) {
+                        Slog.w(TAG, "GammaOS Nano: external storage still not"
+                                + " mounted after 30s, launching anyway");
+                    }
                     // Signal RootWindowContainer to reset the launch grace period
                     // BEFORE posting to main looper — prevents the "app exited" check
                     // from firing before the new app process has started.

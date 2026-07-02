@@ -93,6 +93,10 @@ namespace android {
 
 using ui::DisplayMode;
 
+// Snapshot hook (sys.gammaos.nano.shot), defined in NanoMenuRender.cpp.
+// Declared at file scope so every QR preview/splash loop can call it.
+void maybeNanoScreenshot();
+
 NanoMenu::NanoMenu()
     : Thread(false),
       mWidth(0), mHeight(0),
@@ -2796,8 +2800,15 @@ if (sRingPrimedCount >= 2) {
         }   // end else (non-SF: in-process DRM-direct DrasticRunner preview)
     }
 
-    // Quick Resume: auto-launch into saved game on boot if prepared
-    if (mQuickResumeEnabled) {
+    // Quick Resume: auto-launch into saved game on boot if prepared.
+    // Never in the resident overlay instance: it runs this same
+    // threadLoop mid-session (started at the first app-launch handoff,
+    // when overlayLaunchGame has just primed qr_prepared=1 with
+    // handoff_fired still 0), and without the guard it could dlopen a
+    // libretro core inside the SF overlay process and fire a spurious
+    // handoff over the running game. Mirrors the drastic QR guard in
+    // readyToRun.
+    if (mQuickResumeEnabled && !mOverlayMode) {
         std::string qrPrepared = android::base::GetProperty(
                 "persist.gammaos.nano.qr_prepared", "0");
         if (qrPrepared == "1") {
@@ -3043,7 +3054,24 @@ if (sRingPrimedCount >= 2) {
                         if (sDrmGlRotation) {
                             runner.setRotationMatrix(sDrmRotMat);
                         }
-                        if (runner.init(coreFile, romFile, statePath, sramPath)) {
+                        bool coreUp = runner.init(coreFile, romFile,
+                                                  statePath, sramPath);
+                        // Run the very first core frame under the sigsetjmp
+                        // crash guard. A core that faults on frame 1 (missing
+                        // BIOS, bad dynarec mapping) would otherwise kill the
+                        // whole nano process here, leaving the panel black
+                        // until reboot; caught, it degrades to the rendered
+                        // fallback splash + RetroArch APK launch below.
+                        if (coreUp && !runner.trySafeFirstFrame()) {
+                            ALOGW("Quick Resume: core crashed on first frame "
+                                  "-- falling back to RetroArch APK");
+                            // abandon(), not shutdown(): re-entering the
+                            // faulted core to unload it can crash again,
+                            // this time unguarded. Leak it deliberately.
+                            runner.abandon();
+                            coreUp = false;
+                        }
+                        if (coreUp) {
                             ALOGI("Quick Resume: native libretro loading screen active!");
                             nativeLaunch = true;
 
@@ -3070,6 +3098,11 @@ if (sRingPrimedCount >= 2) {
                             if (dot != std::string::npos) romName = romName.substr(0, dot);
                             bool bootComplete = false;
                             int64_t bootCompleteTime = 0;
+                            // Storage-gate wait start (0 = ramp not done
+                            // yet). Caps the isQrRomStorageReady() wait so
+                            // a framework that never publishes the storage
+                            // signal cannot hold the handoff forever.
+                            int64_t handoffStorageWaitMs = 0;
                             float textScale = fminf((float)mWidth / 1080.0f,
                                                     (float)mHeight / 720.0f);
                             if (textScale < 0.5f) textScale = 0.5f;
@@ -3216,7 +3249,28 @@ if (sRingPrimedCount >= 2) {
                                     saturation = 0.35f + t * 0.65f;
                                     gradient = 0.7f * (1.0f - t);
 
-                                    if (t >= 1.0f && isQrRomStorageReady()) {
+                                    bool handoffStorageOk = false;
+                                    if (t >= 1.0f) {
+                                        if (handoffStorageWaitMs == 0)
+                                            handoffStorageWaitMs = elapsedRealtime();
+                                        handoffStorageOk = isQrRomStorageReady();
+                                        // Bounded: after 30s of storage never
+                                        // reporting ready, hand off anyway. The
+                                        // relaunch monitor in SystemServer holds
+                                        // the actual app start on its own
+                                        // storage gate, so this only stops the
+                                        // preview from waiting forever when
+                                        // that signal is broken.
+                                        if (!handoffStorageOk &&
+                                            elapsedRealtime() - handoffStorageWaitMs
+                                                    > 30000) {
+                                            ALOGW("Quick Resume: storage not "
+                                                  "ready after 30s -- handing "
+                                                  "off anyway");
+                                            handoffStorageOk = true;
+                                        }
+                                    }
+                                    if (t >= 1.0f && handoffStorageOk) {
                                         // Fully saturated AND the ROM's backing
                                         // storage is mounted. On cold boot, vold
                                         // defers external SD mounting until after
@@ -3308,6 +3362,10 @@ if (sRingPrimedCount >= 2) {
                                 }
                                 glDisable(GL_BLEND);
 
+                                // Snapshot hook (sys.gammaos.nano.shot), like
+                                // the drastic QR loop: the only way to capture
+                                // this preview on the DRM-direct scanout path.
+                                maybeNanoScreenshot();
                                 drmFrameEnd(mDisplay, mSurface);
                                 // Vsync gate: match drastic QR pacing.
                                 // DRM path uses vblank wait or page-flip
@@ -3374,8 +3432,100 @@ if (sRingPrimedCount >= 2) {
                           property_set("sys.gammaos.nano.xmb_return_game", buf);
                         }
                         property_set("sys.gammaos.nano.return_recent", "0");
-                        property_set("service.bootanim.nano_retroarch", "1");
+
+                        // Never exit frame-less. This branch used to set the
+                        // launch props and quit immediately: the panel stayed
+                        // on drmEarlySplash's kernel-zeroed black buffer and
+                        // RetroArch was cold-started through the init trigger
+                        // chain with NO storage gate, before FUSE served the
+                        // app's storage view -- it then resolved its paths to
+                        // garbage and hung on that black screen forever.
+                        // Render the same "Quick Resuming..." splash as the
+                        // native preview and hold the handoff until boot +
+                        // storage are actually ready (the same gates the
+                        // native handoff uses), with a frame cap so a storage
+                        // failure still degrades to launching.
+                        {
+                            std::string gameName = android::base::GetProperty(
+                                    "persist.gammaos.nano.qr_game_name", "");
+                            if (gameName.empty()) {
+                                gameName = qrRom;
+                                size_t sl = gameName.rfind('/');
+                                if (sl != std::string::npos)
+                                    gameName = gameName.substr(sl + 1);
+                                size_t dot = gameName.rfind('.');
+                                if (dot != std::string::npos)
+                                    gameName.erase(dot);
+                            }
+                            float textScale = fminf((float)mWidth / 1080.0f,
+                                                    (float)mHeight / 720.0f);
+                            if (textScale < 0.5f) textScale = 0.5f;
+                            float loadScale = 2.5f * textScale;
+                            for (int frame = 0; frame < 1800; frame++) {
+                                mRenderHeartbeat.fetch_add(
+                                        1, std::memory_order_relaxed);
+                                {
+                                    char bc[PROPERTY_VALUE_MAX] = {};
+                                    property_get("sys.boot_completed", bc, "0");
+                                    if (bc[0] == '1' && isQrRomStorageReady())
+                                        break;
+                                }
+                                // Drain input; the splash is inert.
+                                struct input_event iev;
+                                for (int fd : mInputFds) {
+                                    if (fd < 0) continue;
+                                    while (read(fd, &iev, sizeof(iev)) ==
+                                           (ssize_t)sizeof(iev)) { }
+                                }
+                                drmFrameBegin();
+                                glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+                                glClear(GL_COLOR_BUFFER_BIT);
+                                if (sDrmGlRotation) {
+                                    glViewport(0, 0, sAhbTarget.w, sAhbTarget.h);
+                                } else {
+                                    glViewport(0, 0, mWidth, mHeight);
+                                }
+                                glEnable(GL_BLEND);
+                                glBlendFunc(GL_SRC_ALPHA,
+                                            GL_ONE_MINUS_SRC_ALPHA);
+                                const char* msg = "Quick Resuming...";
+                                float msgW = measureText(msg, loadScale);
+                                float msgX = (mWidth - msgW) / 2.0f;
+                                float msgY = mHeight * 0.75f;
+                                float pulse = 0.7f + 0.3f * sinf(
+                                        (float)elapsedRealtime() * 0.004f);
+                                drawText(msg, msgX, msgY, loadScale,
+                                         1.0f, 1.0f, 1.0f, pulse);
+                                if (!gameName.empty()) {
+                                    float nameScale = 1.5f * textScale;
+                                    float nameW = measureText(
+                                            gameName.c_str(), nameScale);
+                                    float nameX = (mWidth - nameW) / 2.0f;
+                                    float nameY = msgY
+                                            + FONT_CHAR_H * loadScale
+                                            + 12.0f * textScale;
+                                    drawText(gameName.c_str(), nameX, nameY,
+                                             nameScale, 0.7f, 0.7f, 0.8f,
+                                             pulse * 0.8f);
+                                }
+                                glDisable(GL_BLEND);
+                                maybeNanoScreenshot();
+                                drmFrameEnd(mDisplay, mSurface);
+                                usleep(16666);
+                            }
+                        }
+
+                        // Fire the DIRECT handoff exactly like the native
+                        // path: handoff_fired stops a respawned nano from
+                        // re-running QR, do_launch skips the several-second
+                        // init action-queue latency, and the legacy
+                        // nano_retroarch prop keeps its init side effects
+                        // (bootanim exit).
+                        property_set("sys.gammaos.nano.handoff_fired", "1");
+                        property_set("sys.gammaos.nano.pending_exit", "0");
                         property_set("sys.gammaos.nano.drop_input", "1");
+                        property_set("sys.gammaos.nano.do_launch", "1");
+                        property_set("service.bootanim.nano_retroarch", "1");
                         mExitRequested = true;
                     }
             } else {

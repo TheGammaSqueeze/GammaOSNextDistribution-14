@@ -15,6 +15,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/stat.h>
+#include <algorithm>
 #include <cstring>
 #include <cstdarg>
 #include <vector>
@@ -89,32 +90,41 @@ static std::vector<uint8_t> readFile(const std::string& path) {
     return data;
 }
 
-// RetroArch RZIP format: zlib-compressed save states.
-// Header: "#RZIPv" (6 bytes) + version (1 byte) + full_size (8 bytes LE)
-// Then compressed frames: uint32_le compressed_size + uint32_le uncompressed_size + zlib data
+// RetroArch RZIP format (libretro-common rzip_stream.c), the default
+// compressed save-state container (savestate_compress=true):
+//   bytes 0-7   magic "#RZIPv1#" (byte 6 is the binary version, currently 1)
+//   bytes 8-11  LE uint32 chunk size (uncompressed bytes per chunk)
+//   bytes 12-19 LE uint64 total uncompressed size
+// Then one frame per chunk: LE uint32 compressed size + zlib deflate data.
+// Every chunk inflates to exactly the header chunk size except the final
+// one, which holds the remainder. There is NO per-chunk uncompressed-size
+// field. (The previous parser assumed one and read the total size from the
+// wrong offset, so a real RetroArch state never decompressed and the QR
+// preview always fell back to a fresh boot.)
 static std::vector<uint8_t> tryDecompressRzip(const std::vector<uint8_t>& data) {
-    if (data.size() < 15 || memcmp(data.data(), "#RZIPv", 6) != 0)
+    if (data.size() < 20 || memcmp(data.data(), "#RZIPv", 6) != 0 ||
+        data[7] != '#')
         return {};
+    uint32_t chunkSize = 0;
+    for (int i = 0; i < 4; i++)
+        chunkSize |= (uint32_t)data[8 + i] << (i * 8);
     uint64_t fullSize = 0;
     for (int i = 0; i < 8; i++)
-        fullSize |= (uint64_t)data[7 + i] << (i * 8);
-    if (fullSize == 0 || fullSize > 64 * 1024 * 1024)
+        fullSize |= (uint64_t)data[12 + i] << (i * 8);
+    if (chunkSize == 0 || fullSize == 0 || fullSize > 64ull * 1024 * 1024)
         return {};
     std::vector<uint8_t> out(fullSize);
-    size_t pos = 15;
-    size_t outPos = 0;
-    while (pos + 8 <= data.size() && outPos < fullSize) {
-        uint32_t compSize = 0, uncompSize = 0;
-        for (int i = 0; i < 4; i++) {
+    size_t pos = 20;
+    uint64_t outPos = 0;
+    while (pos + 4 <= data.size() && outPos < fullSize) {
+        uint32_t compSize = 0;
+        for (int i = 0; i < 4; i++)
             compSize |= (uint32_t)data[pos + i] << (i * 8);
-            uncompSize |= (uint32_t)data[pos + 4 + i] << (i * 8);
-        }
-        pos += 8;
+        pos += 4;
         if (compSize == 0 || pos + compSize > data.size())
             break;
-        if (uncompSize == 0 || outPos + uncompSize > fullSize)
-            break;
-        uLongf destLen = uncompSize;
+        uLongf destLen = (uLongf)std::min<uint64_t>(chunkSize,
+                                                    fullSize - outPos);
         if (uncompress(out.data() + outPos, &destLen,
                        data.data() + pos, compSize) != Z_OK)
             return {};
@@ -123,7 +133,8 @@ static std::vector<uint8_t> tryDecompressRzip(const std::vector<uint8_t>& data) 
     }
     if (outPos != fullSize) {
         ALOGW("LibretroRunner: RZIP decompress incomplete "
-              "(%zu/%llu)", outPos, (unsigned long long)fullSize);
+              "(%llu/%llu)", (unsigned long long)outPos,
+              (unsigned long long)fullSize);
         return {};
     }
     ALOGI("LibretroRunner: RZIP decompressed %zu -> %llu bytes",
@@ -307,6 +318,20 @@ bool LibretroRunner::init(const std::string& corePath,
             if (!rzip.empty())
                 stateData = std::move(rzip);
 
+            // Still RZIP after a failed decompress: never hand the
+            // compressed container to retro_unserialize (and never let
+            // the pad/truncate retry below feed it zero-padded garbage,
+            // which can corrupt or crash a core mid-preview). Preview
+            // boots fresh instead; RetroArch loads its own state after
+            // handoff.
+            if (stateData.size() >= 6 &&
+                memcmp(stateData.data(), "#RZIPv", 6) == 0) {
+                ALOGW("LibretroRunner: state is RZIP but decompress "
+                      "failed -- skipping restore");
+                stateData.clear();
+            }
+        }
+        if (!stateData.empty()) {
             size_t expectedSize = retro_serialize_size();
             ALOGI("LibretroRunner: state file=%zu expected=%zu",
                   stateData.size(), expectedSize);
@@ -356,6 +381,30 @@ void LibretroRunner::shutdown() {
         dlclose(mCoreHandle);
         mCoreHandle = nullptr;
     }
+    if (mFrameTex) {
+        glDeleteTextures(1, &mFrameTex);
+        mFrameTex = 0;
+    }
+    if (mVideoProgram) {
+        glDeleteProgram(mVideoProgram);
+        mVideoProgram = 0;
+    }
+    shutdownAudio();
+    mInitialized = false;
+}
+
+// Abandon a core that crashed under the first-frame guard. After a
+// siglongjmp out of a faulted retro_run the core's internal state is
+// corrupt, and any re-entry (retro_unload_game / retro_deinit) or even
+// dlclose (module destructors) can fault again -- this time with no
+// guard installed, killing the whole process. Deliberately leak the
+// core instead: drop the handle and the teardown entry points so both
+// shutdown() and the destructor no-op on it, and free only the GL
+// objects we own (known safe; the core never touches them).
+void LibretroRunner::abandon() {
+    mCoreHandle = nullptr;       // leak: never dlclose a faulted core
+    retro_unload_game = nullptr;
+    retro_deinit = nullptr;
     if (mFrameTex) {
         glDeleteTextures(1, &mFrameTex);
         mFrameTex = 0;

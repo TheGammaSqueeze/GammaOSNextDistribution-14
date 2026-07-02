@@ -312,6 +312,22 @@ MEOF
                "$CACHE/saves" "$CACHE/states" "$CACHE/shared_prefs" 2>/dev/null
     find "$CACHE" -type f -exec chmod 0644 {} \; 2>/dev/null
 
+    # Verify staging before declaring the cache usable. An armed QR boot
+    # against a cache missing its ROM previews nothing, and a launch
+    # rewritten to a cache core path that does not exist strands
+    # RetroArch in its menu. Mirror populate_drastic: a definitively
+    # failed ROM stage also disarms QR so the next boot goes straight
+    # to the XMB instead of a doomed resume.
+    if [ ! -f "$cached_rom" ]; then
+        log_e "populate: ROM staging failed ($rom_raw) -- clearing qr_prepared, cache not ready"
+        setprop persist.gammaos.nano.qr_prepared 0
+        return 1
+    fi
+    if [ -n "$core_raw" ] && [ ! -f "$CACHE/cores/$(basename "$core_raw")" ]; then
+        log_e "populate: core staging failed ($core_raw) -- cache not ready"
+        return 1
+    fi
+
     log_i "populate: done (rom=$rom_file core=$core_file basename=$rom_basename)"
     setprop sys.gammaos.nano.cache_ready 1
 }
