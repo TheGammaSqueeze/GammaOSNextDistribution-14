@@ -70,6 +70,12 @@ on property:sys.gammaos.drastic_nano.session_done=1
     # Clear the real-session shader signal so the home's QR preview, which
     # shares DrasticRunner, stays on the renderFrame path after the session.
     setprop sys.gammaos.drastic_nano.session 0
+    # Clear the one-shot Quick Resume marker here (not only in drastic-nano's clean
+    # exit tail): session_done fires on clean exit, crash (crashCleanup) and init
+    # failure alike, so a crashed resume session cannot leak qr_resume=1 into a
+    # later same-boot direct DS launch (which would force a slot-9 load and drop RA
+    # hardcore for the wrong game). Fires AFTER the in-session RA client read.
+    setprop sys.gammaos.drastic_nano.qr_resume 0
     setprop service.bootanim.exit 0
     setprop service.bootanim.nano_retroarch 0
     start gammaos-nano

@@ -1751,7 +1751,9 @@ void NanoMenu::setupSecondaryEglSurfaces() {
 // SurfaceFlinger (screencap) and fbdev (/dev/graphics/fb0) see only black.
 // Set the prop to "1" for the default path, or to an absolute file path; it is
 // cleared after one capture.
-static void maybeNanoScreenshot() {
+// Non-static so the Quick Resume splash loop (NanoMenu.cpp), which renders
+// outside the normal render() path, can capture its live game preview too.
+void maybeNanoScreenshot() {
     char val[PROPERTY_VALUE_MAX] = {};
     property_get("sys.gammaos.nano.shot", val, "");
     if (!val[0]) return;

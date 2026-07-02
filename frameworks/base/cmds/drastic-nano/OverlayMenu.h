@@ -163,6 +163,14 @@ public:
     // reboots from the title.
     bool restartFreshRequested() const { return mRestartFresh; }
 
+    // True when the user picked "Power Off" / "Reboot" from the overlay. main.cpp
+    // saves DraStic slot 9 (and arms Quick Resume when enabled), then powers the
+    // device off / reboots instead of returning to the XMB. The only in-DRM power
+    // control besides the ~5s power-button hold (the SF gammaos-nano overlay
+    // cannot composite over a DRM-master game).
+    bool powerOffRequested() const { return mPowerOff; }
+    bool rebootRequested() const { return mReboot; }
+
     // Access staged prefs (for final write-on-close).
     const drastic_prefs::Prefs& prefs() const { return mPrefs; }
 
@@ -206,6 +214,8 @@ private:
     bool mRelaunch = false;
     bool mExitApp = false;            // "Exit Game" row selected
     bool mRestartFresh = false;       // "Restart Game" row selected
+    bool mPowerOff = false;           // "Power Off" row selected
+    bool mReboot = false;             // "Reboot" row selected
     bool mRaHardcore = false;         // RetroAchievements hardcore restrictions active
     NanoRetroAchievements* mRa = nullptr;   // RetroAchievements client (for the Achievements section)
     uint32_t mRaUiGen = 0;            // last seen RA UI generation (refresh Achievements on change)
@@ -367,6 +377,11 @@ private:
     int mVolHudTimer = 0;       // frames remaining (60fps)
     int mBrightHudTimer = 0;
     bool mBrightInit = false;
+    // System volume mirror for the DRM-path HUD: the real level PhoneWindowManager
+    // publishes (persist.gammaos.nano.volume/volmax). adjustVolume tracks it so the
+    // slider shows the actual output level, not the DS core's own mixer.
+    int mSysVol = 0;
+    int mSysVolMax = 15;
     // Cheat search filter (lowercased substring; empty = no filter).
     std::string mCheatFilter;
     // Show filter: 0 = all, 1 = enabled only, 2 = disabled only. Lets the

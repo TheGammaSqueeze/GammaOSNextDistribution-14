@@ -1861,6 +1861,20 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                         + "force-stopping running instance");
                 final String nanoAppPkg = android.os.SystemProperties.get(
                         "sys.gammaos.nano.launch_app", "com.retroarch.aarch64");
+                // Mark this as a managed kill-and-relaunch. The app-death handler
+                // in ActivityManagerService raises the overlay and clears
+                // launch_app when a nano-launched app dies, treating it as a user
+                // exit. Without this flag the forceStopPackage below trips that
+                // handler, which clears launch_app out from under the relaunch
+                // path just below, so a Quick Resume that force-stops the running
+                // instance to relaunch it (RetroArch QR resume) stranded at the
+                // overlay instead of coming back up in the game. The death
+                // handler is gated on this flag; clear it on a short delay that
+                // covers the async process-death callback and the relaunch.
+                android.os.SystemProperties.set("sys.gammaos.nano.killing", "1");
+                mService.mH.postDelayed(() ->
+                        android.os.SystemProperties.set(
+                                "sys.gammaos.nano.killing", "0"), 3000);
                 sNanoLaunchInProgress = true;
                 try {
                     android.app.IActivityManager am =
@@ -2413,7 +2427,16 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                                     + cfgFile.getAbsolutePath() + ", creating default");
                             try {
                                 cfgFile.getParentFile().mkdirs();
-                                cfgFile.createNewFile();
+                                // Enable auto-savestate so Quick Resume works out of
+                                // the box: RetroArch saves an auto state on a clean
+                                // (ESC) exit and loads it on the next launch. An empty
+                                // config leaves both false, so a graceful exit would
+                                // save SRAM but no resume state. Only written when NO
+                                // config exists, so an existing user config is untouched.
+                                try (java.io.FileWriter fw = new java.io.FileWriter(cfgFile)) {
+                                    fw.write("savestate_auto_save = \"true\"\n");
+                                    fw.write("savestate_auto_load = \"true\"\n");
+                                }
                             } catch (Exception ex) {
                                 Slog.e(TAG, "GammaOS Nano: failed to create retroarch.cfg", ex);
                             }

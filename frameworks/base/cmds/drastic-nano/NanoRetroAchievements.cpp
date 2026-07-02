@@ -885,7 +885,19 @@ void NanoRetroAchievements::clientThreadMain() {
     // Flip the default to 1 once the client is validated with the RA team.
     char hc[PROPERTY_VALUE_MAX] = {};
     property_get("persist.gammaos.drastic_nano.ra_hardcore", hc, "0");
-    const bool hcOn = (hc[0] == '1');
+    bool hcOn = (hc[0] == '1');
+    // RetroAchievements forbids hardcore over a loaded save state. main.cpp is the
+    // single decider of whether this session loaded a state (autoLoadSlot == 9) and
+    // publishes it as ra_force_softcore. Drop hardcore ONLY when a state was
+    // actually loaded, so a hardcore session that booted FRESH -- including a
+    // hardcore Quick Resume, which now always boots fresh -- correctly STAYS
+    // hardcore. Session-scoped: the persisted ra_hardcore setting is unchanged, so
+    // a later softcore state-load or fresh hardcore launch behaves per this prop.
+    if (hcOn && property_get_bool(
+            "sys.gammaos.drastic_nano.ra_force_softcore", false)) {
+        ALOGI("RA: a save state was loaded - dropping hardcore to softcore for this session");
+        hcOn = false;
+    }
     mHardcorePref.store(hcOn);
     rc_client_set_hardcore_enabled(mClient, hcOn ? 1 : 0);
 

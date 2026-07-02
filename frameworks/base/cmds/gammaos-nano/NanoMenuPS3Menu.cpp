@@ -589,6 +589,7 @@ enum {
     QA_APP_CLEAR_DATA,   // App Information: clear the app's data (confirm first)
     QA_APP_STORAGE,      // App Information: drill into the Storage submenu
     QA_APP_PERMS,        // App Information: drill into the Permissions submenu
+    QA_QUICK_RESUME_TOGGLE,// toggle Quick Resume (save+resume the last game across power off/reboot)
 };
 
 void NanoMenu::buildPs3Cats() {
@@ -626,6 +627,18 @@ void NanoMenu::buildPs3Cats() {
         qItem("Close Current App",   QA_CLOSE_APP,     24);
         qItem("Kill Background Apps", QA_KILL_BG,       49);
         qItem("Kill All Apps",       QA_KILL_ALL,      25);
+        // Quick Resume: a top-level toggle with an explanatory subtitle (it.desc,
+        // drawn under the active row). The On/Off value is resolved live from
+        // mQuickResumeEnabled in resolvePs3ItemValue, so flipping the flag updates
+        // the row without a rebuild. trDyn localizes the literal label + subtitle.
+        {
+            Ps3Item it; it.label = "Quick Resume"; it.kind = PS3_QUICK;
+            it.a = QA_QUICK_RESUME_TOGGLE;
+            it.desc = "Saves your game when you power off or restart, and resumes it "
+                      "automatically on the next boot.";
+            it.nmapTex = nmapForIcon(8); it.iconR = it.iconG = it.iconB = 1.0f;
+            q.items.push_back(it);
+        }
         qItem("Power",               QA_POWER_SUBMENU, 54);
         // Seed the cached Performance Mode row value from the persisted governor prop.
         { char pm[PROPERTY_VALUE_MAX]; property_get("persist.gammaos.performance_mode", pm, "stock");
@@ -2735,6 +2748,14 @@ void NanoMenu::ps3XmbSelect() {
                 case QA_BOOT_ANDROID: property_set("persist.gammaos.nano.qr_prepared", "0");
                                       property_set("persist.gammaos.nano.qr_core", "");
                                       prepareShutdown("android"); return;
+                case QA_QUICK_RESUME_TOGGLE:
+                    // Flip the durable toggle; the row value updates live via
+                    // resolvePs3ItemValue (mQuickResumeEnabled). Mirrors the R1 accelerator.
+                    mQuickResumeEnabled = !mQuickResumeEnabled;
+                    property_set("persist.gammaos.nano.quick_resume",
+                                 mQuickResumeEnabled ? "1" : "0");
+                    mDisplayDirty = true;
+                    return;
                 case QA_SECONDARY_DISPLAY: {
                     // In-memory toggle like the QS tile (the real state is in
                     // DisplayManagerService). enable/disable display id 2; a no-op when
@@ -5088,6 +5109,8 @@ std::string NanoMenu::resolvePs3ItemValue(const Ps3Item& it) {
         if (mPs3TimeFormatIdx >= 0 && mPs3TimeFormatIdx < 2) return kTimeFormatOpts[mPs3TimeFormatIdx];
     } else if (n == "Daylight Saving") {
         return mPs3DstNow ? "On" : "Off";
+    } else if (n == "Quick Resume") {
+        return mQuickResumeEnabled ? "On" : "Off";   // live toggle state (also flippable via R1)
     } else if (n == "Performance Mode") {
         return mPs3PerfModeLabel;   // cached; refreshed at build + on apply (no per-frame property_get)
     } else if (n == "Audio Preview") {

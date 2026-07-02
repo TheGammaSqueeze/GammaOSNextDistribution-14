@@ -18,6 +18,7 @@
 #define GAMMAOS_NANO_MENU_UTILS_H
 
 #include <string>
+#include <cstdio>       // rename() for the durable writePathFile
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/stat.h>
@@ -58,18 +59,43 @@ inline void writePathFile(const char* path, const std::string& value) {
         unlink(path);
         return;
     }
-    int fd = open(path, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+    // Durable write: write a temp file, fsync it, then atomically rename over the
+    // target. A plain O_TRUNC write can be truncated by a hard power cut (or a
+    // Quick Resume power off racing sys.powerctl), leaving a half-written path
+    // that resolves to the wrong game or nothing; the resume-target files are the
+    // source of truth, so they must land atomically.
+    std::string tmp = std::string(path) + ".tmp";
+    int fd = open(tmp.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0666);
     if (fd < 0) {
-        // File may be owned by a different user (e.g. root/system from
-        // nano_cache.sh). Remove and re-create so the calling process
-        // owns the new file.
-        unlink(path);
-        fd = open(path, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+        // Temp may be owned by a different user (e.g. root/system from
+        // nano_cache.sh). Remove and re-create so this process owns it.
+        unlink(tmp.c_str());
+        fd = open(tmp.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0666);
     }
-    if (fd >= 0) {
-        write(fd, value.c_str(), value.size());
+    if (fd < 0) return;
+    ssize_t n = write(fd, value.c_str(), value.size());
+    if (n != (ssize_t)value.size()) {
         close(fd);
-        chmod(path, 0666);
+        unlink(tmp.c_str());
+        return;
+    }
+    fsync(fd);
+    close(fd);
+    chmod(tmp.c_str(), 0666);
+    if (rename(tmp.c_str(), path) != 0) {
+        // Rename can fail if the target is owned by another user; replace it.
+        unlink(path);
+        if (rename(tmp.c_str(), path) != 0) { unlink(tmp.c_str()); return; }
+    }
+    // fsync the parent directory so the rename (a new directory entry) is durable
+    // across a hard cut -- prepareShutdown now writes the resume ROM on the
+    // power-off path, right before init issues sys.powerctl.
+    {
+        std::string dir(path);
+        size_t sl = dir.find_last_of('/');
+        dir = (sl == std::string::npos) ? std::string(".") : dir.substr(0, sl);
+        int dfd = open(dir.c_str(), O_RDONLY | O_DIRECTORY);
+        if (dfd >= 0) { fsync(dfd); close(dfd); }
     }
 }
 

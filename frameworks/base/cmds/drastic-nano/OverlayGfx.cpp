@@ -555,16 +555,38 @@ uint32_t decodeUtf8(const char** p, const char* end) {
 
 float OverlayGfx::text(const char* s, float x, float y, float scale, Color c) {
     if (!s || !*s || !mTextProgram) return 0.0f;
+    int pxSize = (int)(mFontPx * scale + 0.5f);
+    if (pxSize < 4) pxSize = 4;
+    if (pxSize > 256) pxSize = 256;
+
+    // Pre-cache pass: rasterize every glyph in the run BEFORE issuing any
+    // glDrawArrays below. loadGlyph creates a GL texture (glGenTextures +
+    // glTexImage2D); creating textures BETWEEN the per-glyph draw calls churns
+    // GL resources mid-draw, which corrupts the PowerVR (Rogue) tile-based
+    // deferred renderer and makes a later glDrawArrays dispatch through a garbage
+    // pointer -- observed as a SIGILL in libGLESv2_POWERVR_ROGUE from the
+    // achievement banner, which introduces new glyph sizes over a live game.
+    // Allocating them all up front keeps the draw loop free of resource creation.
+    {
+        const char* cp0 = s;
+        const char* cend = s + strlen(s);
+        while (cp0 < cend) {
+            uint32_t cp = decodeUtf8(&cp0, cend);
+            if (!cp) break;
+            uint64_t key = ((uint64_t)cp << 20) | (uint32_t)pxSize;
+            if (mGlyphs.find(key) == mGlyphs.end()) {
+                Glyph g{};
+                if (loadGlyph(cp, pxSize, &g)) mGlyphs.emplace(key, g);
+            }
+        }
+    }
+
     glUseProgram(mTextProgram);
     glUniform2f(mTextLocViewport, (float)mViewportW, (float)mViewportH);
     glUniformMatrix2fv(mTextLocRot, 1, GL_FALSE, mRot);
     glUniform4f(mTextLocColor, c.r, c.g, c.b, c.a);
     glActiveTexture(GL_TEXTURE0);
     glUniform1i(mTextLocSampler, 0);
-
-    int pxSize = (int)(mFontPx * scale + 0.5f);
-    if (pxSize < 4) pxSize = 4;
-    if (pxSize > 256) pxSize = 256;
 
     // Snap the pen and baseline to whole pixels. Each glyph is rasterized at an
     // integer pixel size and drawn 1:1, so if it were placed at a fractional
@@ -581,11 +603,7 @@ float OverlayGfx::text(const char* s, float x, float y, float scale, Color c) {
         if (!cp) break;
         uint64_t key = ((uint64_t)cp << 20) | (uint32_t)pxSize;
         auto it = mGlyphs.find(key);
-        if (it == mGlyphs.end()) {
-            Glyph g{};
-            if (!loadGlyph(cp, pxSize, &g)) continue;
-            it = mGlyphs.emplace(key, g).first;
-        }
+        if (it == mGlyphs.end()) continue;   // pre-cached above; skip if that failed
         const Glyph& g = it->second;
         if (g.tex) {
             // Metrics are already at the display pixel size -> draw 1:1.

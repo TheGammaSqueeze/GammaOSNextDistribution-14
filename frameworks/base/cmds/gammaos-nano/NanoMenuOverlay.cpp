@@ -1137,6 +1137,30 @@ void NanoMenu::overlayLaunchGame() {
     property_get("persist.gammaos.drastic_nano.backend", dnBackend, "auto");
     if (standalone && launchPkg == "com.dsemu.drastic" && dnGate[0] == '1') {
         setDrasticNanoRomPath(romPath);
+        // Keep Quick Resume's boot preview in sync with the game launched here. The
+        // preview shows qr_game_name and, when storage is slow to mount, falls back
+        // to the single .nds staged in the drastic cache. QR is armed later (at
+        // power-off in prepareShutdown), not here, so if we launch a DS game from
+        // the overlay without refreshing these the resume would preview the PREVIOUS
+        // game. Refresh the display name and re-stage the cache for THIS ROM now (an
+        // async copy that runs during gameplay), regardless of the QR toggle so a
+        // mid-game toggle-on is covered too. Mirrors the XMB launch path.
+        {
+            std::string gameName = romPath;
+            size_t ls = gameName.rfind('/');
+            if (ls != std::string::npos) gameName = gameName.substr(ls + 1);
+            size_t dot = gameName.rfind('.');
+            if (dot != std::string::npos) gameName.erase(dot);
+            property_set("persist.gammaos.nano.qr_game_name", gameName.c_str());
+            // Point qr_core at drastic now (the resume is armed at power-off, but
+            // the flag must not stay at a prior RetroArch core, or an abrupt reboot
+            // during this DS session would resume the wrong game on the wrong
+            // runtime). The boot dispatch reads qr_core to choose the DS preview vs
+            // the RetroArch relaunch.
+            property_set("persist.gammaos.nano.qr_core", "drastic");
+            property_set("sys.gammaos.nano.cache_ready", "0");
+            property_set("sys.gammaos.nano.cache_op", "populate_drastic");
+        }
         if (strcmp(dnBackend, "sf") == 0) {
             // SurfaceFlinger mode: launch the DrasticSf host activity through the
             // SAME overlay launch path as any other app (overlayLaunchCommand).
@@ -1154,8 +1178,23 @@ void NanoMenu::overlayLaunchGame() {
             return;
         }
         // DRM mode: do not let the overlay respawn after we exit -- drastic-nano
-        // owns the panel via DRM now. Clear the QR prime so the home comes back
-        // plain. The dual-display RG DS uses this DRM path, unchanged.
+        // owns the panel now. Clear the QR prime so the home comes back plain.
+        // The dual-display RG DS uses this DRM path, unchanged.
+        //
+        // Fade the overlay XMB to black first, exactly like a normal overlay game
+        // launch. overlayLaunchCommand() (the normal path) sets mOverlayLaunchPending
+        // so render() draws the ~300ms fade-to-black (the overlay launch transition
+        // in NanoMenuRender). This branch used to _exit immediately -- a hard cut
+        // with no fade while every other game/app faded. Drive that same fade inline
+        // on the render thread (we are called from the input handler on it), then
+        // hand the panel to drastic-nano. mOverlayLaunchPending also freezes input.
+        mOverlayLaunchStartMs = uptimeMillis();
+        mOverlayLaunchPending = true;
+        while ((int64_t)uptimeMillis() - mOverlayLaunchStartMs < 300) {
+            render();
+            mRenderHeartbeat.fetch_add(1, std::memory_order_relaxed);
+            usleep(16666);
+        }
         property_set("sys.gammaos.nano.overlay_ran", "0");
         property_set("sys.gammaos.nano.app_launched", "0");
         property_set("sys.gammaos.nano.show_overlay", "0");
@@ -1221,6 +1260,37 @@ void NanoMenu::overlayLaunchGame() {
     } else {
         addXmbRecent(mXmbSystemIndex, mXmbGameIndex);
     }
+    // Quick Resume prime for the overlay-launched game, mirroring the home XMB
+    // launch (launchXmbGame). On the Brick the resident overlay IS the home after
+    // the first game, so every launch after that comes through here -- and without
+    // the same prime a RetroArch launch leaves qr_core stale (for example "drastic"
+    // from a prior DS game). The boot resume dispatches on qr_core (== "drastic"
+    // takes the in-process DS preview, otherwise the framework relaunches RetroArch
+    // with that core), so a stale qr_core makes the next Restart resume the WRONG
+    // game on the WRONG runtime. The standalone drastic ROM already returned above
+    // via the drastic-nano intercept, so this only covers RetroArch cores and other
+    // standalone apps (PPSSPP, etc., which have no Quick Resume).
+    if (!standalone && mQuickResumeEnabled) {
+        std::string corePath =
+                "/data/data/com.retroarch.aarch64/cores/" + coreSo;
+        setQrRomPath(romPath);
+        property_set("persist.gammaos.nano.qr_core", corePath.c_str());
+        property_set("persist.gammaos.nano.qr_prepared", "1");
+        std::string gameName = romPath;
+        size_t ls = gameName.rfind('/');
+        if (ls != std::string::npos) gameName = gameName.substr(ls + 1);
+        size_t dot = gameName.rfind('.');
+        if (dot != std::string::npos) gameName.erase(dot);
+        property_set("persist.gammaos.nano.qr_game_name", gameName.c_str());
+        ALOGI("overlay: primed Quick Resume (qr_core=%s, rom=%s)",
+              corePath.c_str(), romPath.c_str());
+    } else {
+        // RetroArch with QR off, or a non-drastic standalone app: clear any stale
+        // prime so the next boot does not resume an unrelated game.
+        property_set("persist.gammaos.nano.qr_prepared", "0");
+        property_set("persist.gammaos.nano.qr_core", "");
+    }
+
     ALOGI("overlay: launch game pkg=%s standalone=%d rom=%s",
           pkg.c_str(), standalone ? 1 : 0, romPath.c_str());
     overlayLaunchCommand(pkg, cmd);

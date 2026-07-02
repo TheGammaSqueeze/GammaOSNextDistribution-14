@@ -435,7 +435,7 @@ bool dispatchNav(int androidKc, bool pressed, InputActions* out) {
 
 void pollInputMap(InputState* st, bool overlayOpen, bool captureKey,
                   int64_t shortBackMs, int64_t longBackMs,
-                  int64_t powerHoldMs, InputActions* out) {
+                  int64_t powerHoldMs, int64_t powerOffHoldMs, InputActions* out) {
     *out = {};
 
     // ---- Drain gamepad event devices ----
@@ -480,6 +480,7 @@ void pollInputMap(InputState* st, bool overlayOpen, bool captureKey,
                     if (pressed && !st->powerWasDown) {
                         st->powerPressStartMs = android::elapsedRealtime();
                         st->powerHoldFired = false;
+                        st->powerOffFired = false;
                     }
                     if (!pressed && st->powerWasDown) {
                         int64_t held = android::elapsedRealtime() -
@@ -695,6 +696,19 @@ void pollInputMap(InputState* st, bool overlayOpen, bool captureKey,
                   (long long)held);
             out->xmbOverlayRequested = true;
             st->powerHoldFired = true;
+        }
+    }
+    // POWER held past the longer threshold (~5s) = graceful power off. Its own
+    // one-shot latch, independent of powerHoldFired, so continuing to hold past
+    // the 1.5s overlay raise escalates to a shutdown. The run loop does the
+    // slot-9 save + Quick Resume arming before it powers the device off.
+    if (st->powerPressStartMs > 0 && !st->powerOffFired) {
+        int64_t held = android::elapsedRealtime() - st->powerPressStartMs;
+        if (held >= powerOffHoldMs) {
+            ALOGI("DrasticNano::input: KEY_POWER held %lldms -> power off",
+                  (long long)held);
+            out->powerOffRequested = true;
+            st->powerOffFired = true;
         }
     }
 

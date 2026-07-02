@@ -46,6 +46,7 @@
 #include "NanoBacklight.h"
 #include "NanoMenu.h"
 #include "NanoMenuShaders.h"
+#include "NanoMenuUtils.h"   // setQrRomPath / readPathFile for the QR arming sync
 #include "NanoSliderHud.h"
 
 namespace android {
@@ -543,16 +544,135 @@ bool NanoMenu::isRetroArchRunning() {
     return false;
 }
 
+// True if any process has `needle` in its /proc/<pid>/cmdline. Used to detect a
+// live RetroArch or drastic-nano session so shutdown can close it gracefully.
+static bool procCmdlineContains(const char* needle) {
+    DIR* dir = opendir("/proc");
+    if (!dir) return false;
+    struct dirent* entry;
+    bool found = false;
+    while ((entry = readdir(dir)) != nullptr) {
+        if (entry->d_type != DT_DIR) continue;
+        char* end;
+        long pid = strtol(entry->d_name, &end, 10);
+        if (*end != '\0' || pid <= 0) continue;
+        char cmdPath[64];
+        snprintf(cmdPath, sizeof(cmdPath), "/proc/%ld/cmdline", pid);
+        int fd = open(cmdPath, O_RDONLY);
+        if (fd < 0) continue;
+        char cmdline[256] = {};
+        read(fd, cmdline, sizeof(cmdline) - 1);
+        close(fd);
+        if (strstr(cmdline, needle)) { found = true; break; }
+    }
+    closedir(dir);
+    return found;
+}
+
 void NanoMenu::prepareShutdown(const char* action) {
-    // Always close RetroArch gracefully if running (saves state via ESC)
+    // When invoked from the resident in-game overlay, DISMISS the overlay FIRST.
+    // It sits over the running game as a non-focusable, input-GRABBING SF layer
+    // (overlayShow set drop_input=1), so an injected ESC is never delivered to the
+    // game and RetroArch would be hard-killed by the reboot without saving. Hiding
+    // it (overlayHide releases the input grab, drops a fence, and returns input to
+    // the app) gives the game focus so the graceful-exit ESC below actually lands.
+    // Only after that do we send the exit commands, wait for the save+quit, and
+    // finally fire the power action.
+    if (mOverlayMode && mOverlayShown) {
+        ALOGI("NanoMenu: dismissing overlay before graceful shutdown so the game receives ESC");
+        property_set("sys.gammaos.nano.show_overlay", "0");
+        overlayHide();
+        usleep(300000);   // ~300ms for the layer removal + focus to settle
+    }
+
+    // Close RetroArch gracefully so it auto-saves state before the power action.
+    // THREE things are needed and were all missing on this path:
+    //  1. Deliver ESC via sys.gammaos.nano.overlay_esc (PhoneWindowManager's
+    //     InputManager keyboard ESC), NOT sys.gammaos.nano.qr_send_esc (init.rc
+    //     `input keyevent 111`, a shell hard-key RetroArch's exit hotkey IGNORES).
+    //     This mirrors the overlay game-switch path (NanoMenuOverlay.cpp) and
+    //     ShutdownThread.nanoShutdownRetroArch.
+    //  2. Clear drop_input: the overlay isolates input with drop_input=1, and
+    //     InputDispatcher drops even an injected key at dispatch time until it is
+    //     cleared, so the ESC would never reach the focused game.
+    //  3. Set shutting_down=1: RootWindowContainer clears qr_prepared when the
+    //     foreground app exits unless this is set, which would wipe the Quick
+    //     Resume prime the game's launch armed.
     if (isRetroArchRunning()) {
-        ALOGI("NanoMenu: RetroArch still running, sending ESC to close gracefully");
-        property_set("sys.gammaos.nano.qr_send_esc", "1");
+        ALOGI("NanoMenu: RetroArch running, sending keyboard ESC (overlay_esc) to save+quit");
+        property_set("sys.gammaos.nano.shutting_down", "1");
+        bool resumePower = (!strcmp(action, "reboot") || !strcmp(action, "shutdown"));
+        if (resumePower &&
+            property_get_bool("persist.gammaos.nano.quick_resume", true)) {
+            // Re-affirm the running game's Quick Resume prime (armed at launch).
+            property_set("persist.gammaos.nano.qr_prepared", "1");
+        }
+        property_set("sys.gammaos.nano.drop_input", "0");
+        property_set("sys.gammaos.nano.overlay_esc", "1");
         for (int i = 0; i < 50 && isRetroArchRunning(); i++) {
-            usleep(100000); // 100ms
+            // Re-send a couple of times to beat quit_press_twice and any key
+            // dropped while focus settles after drop_input clears.
+            if (i == 10 || i == 25) property_set("sys.gammaos.nano.overlay_esc", "1");
+            usleep(100000); // 100ms, up to ~5s for save+quit
         }
         if (isRetroArchRunning()) {
             ALOGW("NanoMenu: RetroArch did not exit after ESC, proceeding anyway");
+        }
+    }
+
+    // Gracefully close a live in-process drastic-nano session (the SF path: in
+    // DRM mode gammaos-nano is stopped and drastic-nano owns the power gesture
+    // itself). ESC / moveTaskToFront cannot reach the DRM/evdev binary, so we use
+    // the dedicated quit channel: set the prop, and it saves DraStic slot 9 then
+    // exits. RetroArch and drastic-nano are never live together, so this wait does
+    // not stack with the RetroArch wait above. Arm Quick Resume for a reboot /
+    // power off so the next boot resumes the DS game (the ROM path file is already
+    // current from launch, and drastic-nano is saving slot 9 right now).
+    if (procCmdlineContains("drastic-nano")) {
+        bool resumePower = (!strcmp(action, "reboot") || !strcmp(action, "shutdown"));
+        if (resumePower &&
+            property_get_bool("persist.gammaos.nano.quick_resume", true)) {
+            // Point Quick Resume at the game actually running: nano_qr_rom.txt can
+            // be stale if this DS game was launched with QR off and the user then
+            // toggled it on mid-game via the overlay. nano_drastic_nano_rom.txt is
+            // always the current DS ROM (written at every launch), so sync from it.
+            std::string dsRom = readPathFile("/data/system/nano_drastic_nano_rom.txt");
+            if (!dsRom.empty()) setQrRomPath(dsRom);
+            property_set("persist.gammaos.nano.qr_prepared", "1");
+            property_set("persist.gammaos.nano.qr_core", "drastic");
+            // Keep the boot preview pointing at THIS game. The preview shows
+            // qr_game_name and, when storage is slow to mount, falls back to the
+            // single .nds staged in the drastic cache. Some launch paths (the
+            // overlay) set the ROM path but never refreshed either, so a resume
+            // would preview the PREVIOUS game. Set the display name from the running
+            // ROM and re-stage the cache now, BEFORE the quit wait below, so the
+            // async ROM copy overlaps that wait and finishes before the power action.
+            // populate_drastic reads nano_drastic_nano_rom.txt and evicts any
+            // previously-cached ROM, so the cache ends up holding exactly this game.
+            if (!dsRom.empty()) {
+                std::string gameName = dsRom;
+                size_t ls = gameName.rfind('/');
+                if (ls != std::string::npos) gameName = gameName.substr(ls + 1);
+                size_t dot = gameName.rfind('.');
+                if (dot != std::string::npos) gameName.erase(dot);
+                property_set("persist.gammaos.nano.qr_game_name", gameName.c_str());
+                property_set("sys.gammaos.nano.cache_ready", "0");
+                property_set("sys.gammaos.nano.cache_op", "populate_drastic");
+            }
+            ALOGI("NanoMenu: armed Quick Resume for the running DS game");
+        }
+        ALOGI("NanoMenu: drastic-nano session live, requesting graceful save + quit");
+        property_set("sys.gammaos.drastic_nano.quit", "1");
+        // Wait for the graceful save + clean exit. drastic-nano waits for its
+        // slot-9 write to settle at a stable size and then holds a 2s durability
+        // grace before exiting, so this must comfortably exceed that (worst case
+        // ~8s) or we would cut power mid-save. It breaks the instant drastic-nano
+        // exits, so the normal case (a few seconds) adds no extra delay.
+        for (int i = 0; i < 120 && procCmdlineContains("drastic-nano"); i++) {
+            usleep(100000);   // up to ~12s for the slot-9 stable write + 2s grace + exit
+        }
+        if (procCmdlineContains("drastic-nano")) {
+            ALOGW("NanoMenu: drastic-nano did not exit after quit, proceeding anyway");
         }
     }
 

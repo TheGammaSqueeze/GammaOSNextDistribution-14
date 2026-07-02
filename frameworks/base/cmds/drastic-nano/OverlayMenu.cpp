@@ -1071,6 +1071,31 @@ void OverlayMenu::rebuildSave() {
         mRows.push_back(std::move(r));
     }
 
+    // Power Off / Reboot: the in-DRM power controls. gammaos-nano is stopped
+    // during a DRM session so its overlay Quick Menu is unreachable; these give
+    // the same graceful save + power action from inside the game. main.cpp saves
+    // slot 9 (and arms Quick Resume when enabled) before the power action.
+    {
+        RowAction r;
+        r.label = "Power Off";
+        r.onAccept = [this]() {
+            mPowerOff = true;
+            closeMenu();
+            toast("Powering off...");
+        };
+        mRows.push_back(std::move(r));
+    }
+    {
+        RowAction r;
+        r.label = "Reboot";
+        r.onAccept = [this]() {
+            mReboot = true;
+            closeMenu();
+            toast("Rebooting...");
+        };
+        mRows.push_back(std::move(r));
+    }
+
     for (int slot = 0; slot < 9; slot++) {
         char label[64];
         snprintf(label, sizeof(label), "Save to Slot %d%s",
@@ -1251,14 +1276,26 @@ void OverlayMenu::addCustomCheatFlow() {
 }
 
 void OverlayMenu::adjustVolume(int dir) {
-    int v = mPrefs.volume + dir;
-    if (v < 0)  v = 0;
-    if (v > 10) v = 10;
-    if (v != mPrefs.volume) {
-        mPrefs.volume = v;
-        mDirty = true;   // persisted with the prefs on close
-        if (mRunner) mRunner->setVolumeRuntime(v * 10);
+    // The Android system volume is the single authority: PhoneWindowManager sets
+    // every audible stream and publishes persist.gammaos.nano.volume/volmax from the
+    // SAME physical VOL key we just read (we do not grab input), and the DS core's
+    // output goes through STREAM_MUSIC so that level already controls it. So this is
+    // DISPLAY-ONLY -- we do NOT touch the DS core's internal mixer (pinned at max in
+    // main). Mirror gammaos-nano's slider: re-sync the base from PWM's published
+    // index at the start of a burst, then move optimistically for instant feedback
+    // while PWM catches up and re-publishes. This path only runs on the DRM backend;
+    // in SF mode the overlay draws the slider and main does not call us.
+    char vmax[PROPERTY_VALUE_MAX] = {};
+    property_get("persist.gammaos.nano.volmax", vmax, "");
+    if (vmax[0]) { int m = atoi(vmax); if (m > 0) mSysVolMax = m; }
+    if (mVolHudTimer <= 0) {   // burst start: re-sync from PWM's real index
+        char cur[PROPERTY_VALUE_MAX] = {};
+        property_get("persist.gammaos.nano.volume", cur, "");
+        if (cur[0]) mSysVol = atoi(cur);
     }
+    mSysVol += dir;
+    if (mSysVol < 0)          mSysVol = 0;
+    if (mSysVol > mSysVolMax) mSysVol = mSysVolMax;
     mVolHudTimer = 90;   // ~1.5s at 60fps
 }
 
@@ -1310,8 +1347,11 @@ void OverlayMenu::drawHud(drastic_gfx::OverlayGfx& gfx) {
     }
     if (mVolHudTimer > 0) {
         mVolHudTimer--;
-        nano_slider::draw(be, vw, vh, nano_slider::kVolume,
-                          mPrefs.volume * 10, slot);
+        // Show the real system volume (set by adjustVolume from
+        // persist.gammaos.nano.volume), not the DS core's internal mixer, so the
+        // slider matches the actual output level.
+        int pct = (mSysVolMax > 0) ? (mSysVol * 100 / mSysVolMax) : 0;
+        nano_slider::draw(be, vw, vh, nano_slider::kVolume, pct, slot);
     }
 }
 

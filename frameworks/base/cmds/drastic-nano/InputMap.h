@@ -54,6 +54,10 @@ struct InputState {
     bool powerWasDown = false;
     int64_t powerPressStartMs = 0;
     bool powerHoldFired = false;
+    // Separate one-shot latch for the longer (~5s) power hold that powers the
+    // device off. Independent of powerHoldFired so holding past the 1.5s overlay
+    // raise escalates to a graceful power off (drastic saves slot 9 first).
+    bool powerOffFired = false;
 
     // Whether scanInputDevices admits a power-only (KEY_POWER) device. The DRM
     // backend reads the power key off evdev to drive its own sleep/overlay
@@ -192,6 +196,10 @@ struct InputActions {
     // POWER held >= powerHoldMs = raise the in-game overlay menu
     // (one-shot edge).
     bool xmbOverlayRequested = false;
+    // POWER held >= powerOffHoldMs (~5s) = graceful power off (one-shot edge).
+    // The run loop saves DraStic slot 9 (and arms Quick Resume when enabled)
+    // before setting service.bootanim.nano_action=shutdown.
+    bool powerOffRequested = false;
 
     // Special drastic actions triggered by the action-index remap.
     bool actFastFwd    = false;
@@ -231,6 +239,7 @@ void pollInputMap(InputState* st,
                   int64_t shortBackMs,
                   int64_t longBackMs,
                   int64_t powerHoldMs,
+                  int64_t powerOffHoldMs,
                   InputActions* out);
 
 // Close all fds owned by state and reset the vector.

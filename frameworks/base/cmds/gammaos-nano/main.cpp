@@ -890,6 +890,31 @@ int main(int argc, char** argv) {
         return 0;
     }
 
+    // Honor a drastic-nano relaunch request. When the user picks
+    // "Restart Game" (or changes a restart-required setting), drastic-nano
+    // exits with sys.gammaos.drastic_nano.auto_relaunch=1 alongside
+    // session_done. init's session_done trigger brings us up here; instead
+    // of rendering the XMB we immediately re-fire the drastic launch so the
+    // ROM reloads in place (boot_fresh, set by drastic-nano, makes that a
+    // fresh-from-title boot; a settings relaunch resumes slot 9). We return
+    // before grabbing DRM master / readyToRun, so there is no XMB flash.
+    // This MUST come before the overlay_home stray-guard below: on the SF path a
+    // relaunch deliberately keeps app_launched=1 (the next session re-takes the
+    // panel), which would otherwise trip the stray-guard and silently drop the
+    // relaunch, leaving the game dead -- the "reload fails" symptom seen after a
+    // hardcore / Restart Game relaunch.
+    if (property_get_bool("persist.gammaos.nano.drastic_nano", false) &&
+        property_get_bool("sys.gammaos.drastic_nano.auto_relaunch", false)) {
+        ALOGI("GammaOS Nano: drastic-nano relaunch requested, "
+              "re-firing drastic-nano.start (no XMB)");
+        property_set("sys.gammaos.drastic_nano.auto_relaunch", "0");
+        // The init start trigger does `stop gammaos-nano; start
+        // drastic-nano`; this instance is exiting, so it just brings the
+        // standalone binary back up with the persisted ROM path.
+        property_set("sys.gammaos.drastic_nano.start", "1");
+        return 0;
+    }
+
     // GammaOS: single-instance handover. In overlay_home mode the SF overlay
     // becomes the home the moment anything is launched after cold boot, and the
     // DRM-home service is oneshot+disabled - so if this non-overlay instance
@@ -902,7 +927,9 @@ int main(int argc, char** argv) {
     // before any setup; oneshot keeps us down so only the overlay remains. The
     // cold-boot home (app_launched=0, show_overlay=0) and the in-process
     // QR/force_drm fast path (where this instance legitimately renders the game)
-    // are excluded, so the real cold-boot launcher still runs.
+    // are excluded, so the real cold-boot launcher still runs. A drastic-nano
+    // relaunch (auto_relaunch) is handled above, so it is never mistaken for a
+    // stray here.
     if (property_get_bool("persist.gammaos.nano.overlay_home", false) &&
         !property_get_bool("sys.gammaos.nano.force_drm", false) &&
         !property_get_bool("persist.gammaos.nano.qr_prepared", false) &&
@@ -911,26 +938,6 @@ int main(int argc, char** argv) {
         ALOGI("GammaOS Nano: overlay already owns the home in overlay_home mode "
               "(app_launched/show_overlay set) - this DRM-home respawn is a stray, "
               "exiting so only the overlay runs (oneshot keeps us down)");
-        return 0;
-    }
-
-    // Honor a drastic-nano relaunch request. When the user picks
-    // "Restart Game" (or changes a restart-required setting), drastic-nano
-    // exits with sys.gammaos.drastic_nano.auto_relaunch=1 alongside
-    // session_done. init's session_done trigger brings us up here; instead
-    // of rendering the XMB we immediately re-fire the drastic launch so the
-    // ROM reloads in place (boot_fresh, set by drastic-nano, makes that a
-    // fresh-from-title boot; a settings relaunch resumes slot 9). We return
-    // before grabbing DRM master / readyToRun, so there is no XMB flash.
-    if (property_get_bool("persist.gammaos.nano.drastic_nano", false) &&
-        property_get_bool("sys.gammaos.drastic_nano.auto_relaunch", false)) {
-        ALOGI("GammaOS Nano: drastic-nano relaunch requested, "
-              "re-firing drastic-nano.start (no XMB)");
-        property_set("sys.gammaos.drastic_nano.auto_relaunch", "0");
-        // The init start trigger does `stop gammaos-nano; start
-        // drastic-nano`; this instance is exiting, so it just brings the
-        // standalone binary back up with the persisted ROM path.
-        property_set("sys.gammaos.drastic_nano.start", "1");
         return 0;
     }
 

@@ -1094,7 +1094,7 @@ public final class ShutdownThread extends Thread {
                 return;
             }
             if (!SystemProperties.getBoolean(
-                    "persist.gammaos.nano.quick_resume", false)) {
+                    "persist.gammaos.nano.quick_resume", true)) {   // default ON (matches every other reader)
                 Slog.i(TAG, "GammaOS: Quick Resume not enabled, "
                         + "skipping playlist save");
                 return;
@@ -1165,6 +1165,44 @@ public final class ShutdownThread extends Thread {
      */
     private void nanoShutdownDraStic() {
         try {
+            // The in-process drastic-nano binary (DRM / SF backends) owns evdev
+            // and the panel and has no Activity or task, so ESC injection and
+            // moveTaskToFront cannot reach it. Close it through its dedicated quit
+            // channel instead: setting the prop makes it save DraStic slot 9 and
+            // exit cleanly. (isNanoAppRunning("drastic") also substring-matches the
+            // binary, so this must be handled BEFORE the legacy APK path below or
+            // it would waste ~6s spamming ESC at a process that ignores it.)
+            if (isNanoAppRunning("drastic-nano")) {
+                Slog.i(TAG, "GammaOS: closing drastic-nano via quit prop before shutdown");
+                final boolean nanoModeDn = SystemProperties.getBoolean(
+                        "sys.gammaos.minimal_boot", false);
+                if (nanoModeDn) {
+                    SystemProperties.set("sys.gammaos.nano.shutting_down", "1");
+                    // Arm Quick Resume for the DS game (default on) so the next
+                    // boot resumes it; drastic-nano is saving slot 9 right now.
+                    if (SystemProperties.getBoolean(
+                            "persist.gammaos.nano.quick_resume", true)) {
+                        // Point the resume at the game actually running:
+                        // nano_qr_rom.txt can be stale if this game launched with QR
+                        // off and was toggled on mid-game. nano_drastic_nano_rom.txt
+                        // is always the current DS ROM (written at every launch).
+                        nanoSyncQrRomFromDrasticNano();
+                        SystemProperties.set("persist.gammaos.nano.qr_prepared", "1");
+                        SystemProperties.set("persist.gammaos.nano.qr_core", "drastic");
+                    }
+                }
+                SystemProperties.set("sys.gammaos.drastic_nano.quit", "1");
+                for (int i = 0; i < 40 && isNanoAppRunning("drastic-nano"); i++) {
+                    try { Thread.sleep(100); } catch (InterruptedException e) { }
+                }
+                if (isNanoAppRunning("drastic-nano")) {
+                    Slog.w(TAG, "GammaOS: drastic-nano still running after quit, "
+                            + "proceeding anyway");
+                } else {
+                    Slog.i(TAG, "GammaOS: drastic-nano exited gracefully");
+                }
+                return;
+            }
             if (!isNanoAppRunning("drastic")) {
                 return;
             }
@@ -1256,6 +1294,41 @@ public final class ShutdownThread extends Thread {
             }
         } catch (Exception e) {
             Slog.w(TAG, "GammaOS: DraStic graceful shutdown failed", e);
+        }
+    }
+
+    /**
+     * Copy the current DS ROM path (nano_drastic_nano_rom.txt, written at every
+     * drastic-nano launch) into nano_qr_rom.txt so Quick Resume points at the game
+     * actually running, not a stale prior one. Durable temp+fsync+rename, mirroring
+     * the native setQrRomPath.
+     */
+    private static void nanoSyncQrRomFromDrasticNano() {
+        try {
+            java.io.File src = new java.io.File(
+                    "/data/system/nano_drastic_nano_rom.txt");
+            if (!src.exists()) return;
+            String rom = new String(
+                    java.nio.file.Files.readAllBytes(src.toPath()),
+                    java.nio.charset.StandardCharsets.UTF_8).trim();
+            if (rom.isEmpty()) return;
+            java.io.File tmp = new java.io.File("/data/system/nano_qr_rom.txt.tmp");
+            try (java.io.FileOutputStream fos = new java.io.FileOutputStream(tmp)) {
+                fos.write(rom.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+                fos.getFD().sync();
+            }
+            java.io.File dst = new java.io.File("/data/system/nano_qr_rom.txt");
+            if (!tmp.renameTo(dst)) {
+                dst.delete();
+                tmp.renameTo(dst);
+            }
+            dst.setReadable(true, false);
+            dst.setWritable(true, false);
+            // Mirror into the persist prop like setQrRomPath (best effort; long SD
+            // paths exceed PROP_VALUE_MAX, and getQrRomPath prefers the file).
+            SystemProperties.set("persist.gammaos.nano.qr_rom", rom);
+        } catch (Exception e) {
+            Slog.w(TAG, "GammaOS: failed to sync qr_rom from drastic-nano", e);
         }
     }
 

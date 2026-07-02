@@ -399,11 +399,41 @@ void restoreDeepCpuIdle() {
 // property write) -- no logcat, no locale-dependent functions.
 void crashCleanup(int sig) {
     property_set(kSessionDoneProp, "1");
+    // On the SurfaceFlinger / overlay-home path a crash otherwise leaves
+    // app_launched=1 set (runLoopSf re-asserts it every frame), so the resident
+    // overlay stays parked behind the dead app and neither the game nor the home
+    // returns -- a stuck / black screen. Hand the home back: clear app_launched
+    // and raise the overlay. Both are async-signal-safe atomic property writes,
+    // like session_done above. Harmless on the DRM path, where session_done
+    // restarts the DRM home regardless.
+    property_set("sys.gammaos.nano.app_launched", "0");
+    property_set("sys.gammaos.nano.show_overlay", "1");
     // Restore default disposition and re-raise so tombstone catches
     // the crash with a proper stack trace.
     signal(sig, SIG_DFL);
     raise(sig);
 }
+
+// Save-state slot 9 path helpers, shared by the pre-load validation, the render
+// loop's crash-marker clear, and the shutdown save-and-verify tail. The .dss
+// basename is the ROM filename with its extension stripped (matches drastic's
+// savestates/<rom>_<slot>.dss layout).
+constexpr off_t kMinDssBytes = 4096;   // a valid DS save state is far larger; this only rejects empty/truncated files
+static std::string slot9Stem(const std::string& savestatesDir, const std::string& romPath) {
+    std::string b = romPath;
+    size_t sp = b.find_last_of('/'); if (sp != std::string::npos) b = b.substr(sp + 1);
+    size_t dt = b.find_last_of('.'); if (dt != std::string::npos) b = b.substr(0, dt);
+    return savestatesDir + "/" + b + "_9";   // caller appends ".dss" / ".loading" / ".dss.bad"
+}
+
+// Set by SIGTERM. At device shutdown init may "stop drastic-nano"; without this
+// the process would be killed mid-session and slot 9 (the Quick Resume state)
+// would never be saved. saveState runs on a DraStic worker thread and is NOT
+// async-signal-safe, so the handler only flips a flag the run loop polls -- the
+// loop then breaks into the normal save-and-exit tail. volatile sig_atomic_t is
+// the only object safe to touch from a signal handler.
+volatile sig_atomic_t gTermRequested = 0;
+void termCleanup(int) { gTermRequested = 1; }
 
 void installCrashHandler() {
     struct sigaction sa{};
@@ -413,11 +443,27 @@ void installCrashHandler() {
     // re-enters with default disposition (SIG_DFL) and aborts the
     // process cleanly.
     sa.sa_flags = SA_NODEFER | SA_RESETHAND;
-    sigaction(SIGBUS,  &sa, nullptr);
-    sigaction(SIGSEGV, &sa, nullptr);
-    sigaction(SIGABRT, &sa, nullptr);
-    sigaction(SIGILL,  &sa, nullptr);
-    sigaction(SIGFPE,  &sa, nullptr);
+    // Diagnostic escape hatch: when persist.gammaos.drastic_nano.crash_tombstone=1
+    // we do NOT install our crash handler, so debuggerd catches crash signals and
+    // writes a full /data/tombstones stack trace (our handler otherwise re-raises
+    // with SIG_DFL, which bypasses debuggerd and leaves no tombstone). Default off:
+    // production keeps the session_done-then-reraise behavior that returns the home.
+    if (!property_get_bool("persist.gammaos.drastic_nano.crash_tombstone", false)) {
+        sigaction(SIGBUS,  &sa, nullptr);
+        sigaction(SIGSEGV, &sa, nullptr);
+        sigaction(SIGABRT, &sa, nullptr);
+        sigaction(SIGILL,  &sa, nullptr);
+        sigaction(SIGFPE,  &sa, nullptr);
+    } else {
+        ALOGW("drastic-nano: crash_tombstone=1 -- crash handler DISABLED, debuggerd will tombstone");
+    }
+    // SIGTERM is a graceful stop request, not a crash: only set the flag (no
+    // re-raise), so the run loop can save slot 9 before exiting.
+    struct sigaction st{};
+    st.sa_handler = termCleanup;
+    sigemptyset(&st.sa_mask);
+    st.sa_flags = 0;
+    sigaction(SIGTERM, &st, nullptr);
 }
 
 // ------------------------------------------------------------------
@@ -824,10 +870,22 @@ constexpr int64_t kBackShortMs = 500;
 // in-game it raises the menu and there is no in-game power-shutdown
 // (exit is the BACK hold, shutdown lives in the XMB).
 constexpr int64_t kPowerHoldMs = 1500;
+// Hold POWER this long in-game (DRM) to power the device off. Continues past the
+// 1.5s overlay-raise, so a long hold escalates: tap = sleep, 1.5s = overlay,
+// 5s = graceful power off. The user picked "power off directly" for this gesture.
+constexpr int64_t kPowerOffHoldMs = 5000;
 
 struct RunLoopResult {
     bool relaunchRequested;
     bool restartFresh;   // "Restart Game": relaunch + boot fresh, no save
+    bool powerOffAfter;  // graceful save then power the device off (no XMB return)
+    bool rebootAfter;    // graceful save then reboot the device (no XMB return)
+    bool quitShutdown;   // external quit (nano/ShutdownThread) or SIGTERM: save +
+                         // exit; the CALLER issues the power action, so we skip
+                         // session_done (no home restart racing sys.powerctl).
+    bool exitToHome;     // back-hold graceful exit: force the slot-9 save then take
+                         // the normal return-to-launcher path (raise the overlay /
+                         // DRM home). Mirrors RetroArch's back-hold ESC + app close.
 };
 
 // Debug screenshot. When sys.gammaos.drastic_nano.shot=1, read back the bound
@@ -904,7 +962,7 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                       const std::string& savestatesDir,
                       const std::string& romPath,
                       const std::string& shadersDir) {
-    RunLoopResult result{false, false};
+    RunLoopResult result{false, false, false, false, false};
     bool hasDualDisplay = (android::sDrmActive && android::sDrmZeroCopy &&
                             android::sAhbRingSecondary[0].glFbo != 0);
     dr->initSurface(dpy->width, dpy->height, hasDualDisplay);
@@ -1149,7 +1207,7 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                 &input,
                 overlay.isOpen(),
                 overlay.isCapturingKey(),
-                kBackShortMs, kBackHoldMs, kPowerHoldMs, &actions);
+                kBackShortMs, kBackHoldMs, kPowerHoldMs, kPowerOffHoldMs, &actions);
         // Short power press = system sleep. Handled before the overlay
         // update so a sleep press while the menu is open does not also
         // feed the menu; the menu's pause state is preserved across the
@@ -1176,6 +1234,11 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
         if (!raInited && dr->isFrameReady()) {
             raInited = true;
             ra.onGameLoaded(dr, romPath);
+            // First frame rendered: any slot-9 auto-load succeeded, so clear the
+            // crash marker armed before dr.init (slot 9 validation in main). If we
+            // crash only AFTER this point the state was good, so it must NOT be
+            // quarantined. Harmless no-op when this session did not load slot 9.
+            unlink((slot9Stem(savestatesDir, romPath) + ".loading").c_str());
         }
         // One vblank tick per render-loop iteration drives rc_client_do_frame at
         // ~60Hz (the DS frame rate). This replaces a wall-clock pace that
@@ -1249,6 +1312,40 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
             ALOGI("drastic-nano: hardcore enabled, restarting fresh into hardcore");
             result.restartFresh = true;
             result.relaunchRequested = true;
+            exitRequested = true;
+        }
+        // Power off / reboot: from the overlay menu rows or the ~5s power-button
+        // hold. Break with the power action set so the exit tail saves slot 9
+        // (and arms Quick Resume) then powers the device down instead of
+        // returning to the XMB.
+        if (actions.powerOffRequested || overlay.powerOffRequested()) {
+            ALOGI("drastic-nano: power off requested (save + shutdown)");
+            result.powerOffAfter = true;
+            exitRequested = true;
+        }
+        if (overlay.rebootRequested()) {
+            ALOGI("drastic-nano: reboot requested (save + reboot)");
+            result.rebootAfter = true;
+            exitRequested = true;
+        }
+        // External graceful-quit channel: nano / the framework ShutdownThread set
+        // sys.gammaos.drastic_nano.quit=1 to ask for a clean save + exit (the
+        // caller then issues the power action). A SIGTERM stop at device shutdown
+        // breaks here too so slot 9 is saved rather than killed mid-session.
+        if (gTermRequested ||
+            property_get_bool("sys.gammaos.drastic_nano.quit", false)) {
+            property_set("sys.gammaos.drastic_nano.quit", "0");
+            ALOGI("drastic-nano: external quit / SIGTERM, saving and exiting");
+            result.quitShutdown = true;
+            exitRequested = true;
+        }
+        // Back-hold graceful exit (see the SF loop for the rationale): force the
+        // slot-9 save and return to the launcher instead of handing a power action
+        // to the caller.
+        if (property_get_bool("sys.gammaos.drastic_nano.exit_home", false)) {
+            property_set("sys.gammaos.drastic_nano.exit_home", "0");
+            ALOGI("drastic-nano: back-hold exit-to-home, saving and returning");
+            result.exitToHome = true;
             exitRequested = true;
         }
         if (exitRequested) break;
@@ -1764,7 +1861,7 @@ RunLoopResult runLoopSf(drastic_nano::IDisplayBackend* backend,
                         const std::string& savestatesDir,
                         const std::string& romPath,
                         const std::string& shadersDir) {
-    RunLoopResult result{false, false};
+    RunLoopResult result{false, false, false, false, false};
 
     uint32_t pw = 0, ph = 0;
     backend->primarySize(&pw, &ph);
@@ -1925,10 +2022,36 @@ RunLoopResult runLoopSf(drastic_nano::IDisplayBackend* backend,
             property_set("sys.gammaos.nano.app_launched", "1");
         }
 
+        // The framework XMB overlay (a power-hold in SF mode) sets
+        // sys.gammaos.nano.drop_input while it is shown so foreground apps stop
+        // acting on input. That isolation is enforced by InputDispatcher, which only
+        // covers apps that receive input through the framework -- drastic-nano reads
+        // the evdev nodes directly, so the drop never reaches it and the DS game
+        // keeps responding to the very dpad/buttons the user is navigating the
+        // overlay with. Honor the same contract ourselves: while drop_input is set,
+        // feed pollInputMap overlayOpen=true (it zeroes the DS button mask + touch)
+        // and then discard every resulting action so drastic neither drives its own
+        // menu nor exits/toggles behind the framework overlay. The game keeps
+        // rendering (the overlay is translucent over the live app) but ignores input
+        // until the overlay hides and clears drop_input. In a real launch drop_input
+        // is 0 during play (the overlay's hide() clears it), so this only takes
+        // effect while the framework overlay is actually up.
+        const bool fwOverlayInput =
+                property_get_bool("sys.gammaos.nano.drop_input", false);
         android::drastic_input::InputActions actions{};
         android::drastic_input::pollInputMap(
-                &input, overlay.isOpen(), overlay.isCapturingKey(),
-                kBackShortMs, kBackHoldMs, kPowerHoldMs, &actions);
+                &input, overlay.isOpen() || fwOverlayInput, overlay.isCapturingKey(),
+                kBackShortMs, kBackHoldMs, kPowerHoldMs, kPowerOffHoldMs, &actions);
+        {
+            static bool sInputSuppressed = false;
+            const bool suppress = fwOverlayInput && !overlay.isOpen();
+            if (suppress != sInputSuppressed) {
+                ALOGI("drastic-nano: DS input %s (framework overlay drop_input=%d)",
+                      suppress ? "suppressed" : "restored", fwOverlayInput ? 1 : 0);
+                sInputSuppressed = suppress;
+            }
+            if (suppress) actions = android::drastic_input::InputActions{};
+        }
 
         // SF does NOT capture the power button: the power node is not opened
         // (admitPowerKey=false above), so pollInputMap never produces power actions
@@ -1950,6 +2073,11 @@ RunLoopResult runLoopSf(drastic_nano::IDisplayBackend* backend,
         if (!raInited && dr->isFrameReady()) {
             raInited = true;
             ra.onGameLoaded(dr, romPath);
+            // First frame rendered: any slot-9 auto-load succeeded, so clear the
+            // crash marker armed before dr.init (slot 9 validation in main). If we
+            // crash only AFTER this point the state was good, so it must NOT be
+            // quarantined. Harmless no-op when this session did not load slot 9.
+            unlink((slot9Stem(savestatesDir, romPath) + ".loading").c_str());
         }
         if (raInited) ra.onRenderFrame();
         {
@@ -1980,6 +2108,13 @@ RunLoopResult runLoopSf(drastic_nano::IDisplayBackend* backend,
             }
         }
 
+        // Volume + brightness HUDs. The framework's own NanoVolume window renders
+        // BEHIND our own-layer SF surface (we composite on top of it), so it is
+        // hidden and we must draw the slider ourselves -- but from the SYSTEM volume
+        // (persist.gammaos.nano.volume, what PhoneWindowManager changes from the same
+        // shared VOL keys), not the DS core's internal mixer. See
+        // OverlayMenu::adjustVolume; the DS mixer is pinned at max in main so the
+        // system volume is the single control.
         if (actions.volAdjust != 0)    overlay.onVolumeAdjust(actions.volAdjust);
         if (actions.brightAdjust != 0) overlay.onBrightnessAdjust(actions.brightAdjust);
         if (actions.exitRequested)        exitRequested = true;
@@ -1990,6 +2125,33 @@ RunLoopResult runLoopSf(drastic_nano::IDisplayBackend* backend,
         }
         if (raInited && ra.takeHardcoreRestart()) {
             result.restartFresh = true; result.relaunchRequested = true; exitRequested = true;
+        }
+        // Power off / reboot from the overlay menu rows (SF does not open the
+        // power evdev node, so actions.powerOffRequested never fires here; the
+        // physical power gestures are owned by PhoneWindowManager).
+        if (overlay.powerOffRequested()) { result.powerOffAfter = true; exitRequested = true; }
+        if (overlay.rebootRequested())   { result.rebootAfter = true;   exitRequested = true; }
+        // External graceful-quit channel: nano's prepareShutdown (Quick Menu
+        // Power off / Reboot) or the framework ShutdownThread set
+        // sys.gammaos.drastic_nano.quit=1 and then wait for session_done before
+        // issuing the power action. SIGTERM at device shutdown breaks here too.
+        if (gTermRequested ||
+            property_get_bool("sys.gammaos.drastic_nano.quit", false)) {
+            property_set("sys.gammaos.drastic_nano.quit", "0");
+            ALOGI("drastic-nano: external quit / SIGTERM, saving and exiting (SF)");
+            result.quitShutdown = true;
+            exitRequested = true;
+        }
+        // Back-hold graceful exit. In SF mode drastic-nano is an own-layer surface,
+        // not a focusable Activity, so PhoneWindowManager cannot deliver a virtual
+        // ESC to it the way it does for RetroArch; instead its backLongPress sets
+        // this prop for us. Force the slot-9 save and return to the launcher (unlike
+        // the reboot/quit channels, which hand the power action to the caller).
+        if (property_get_bool("sys.gammaos.drastic_nano.exit_home", false)) {
+            property_set("sys.gammaos.drastic_nano.exit_home", "0");
+            ALOGI("drastic-nano: back-hold exit-to-home, saving and returning (SF)");
+            result.exitToHome = true;
+            exitRequested = true;
         }
         if (exitRequested) break;
 
@@ -2570,10 +2732,79 @@ int main(int argc, char** argv) {
     // what the client will enforce.
     bool raHardcore = property_get_bool("persist.gammaos.drastic_nano.ra_enabled", false) &&
                       property_get_bool("persist.gammaos.drastic_nano.ra_hardcore", false);
-    int autoLoadSlot = (!bootFresh && !raHardcore && property_get_bool(
-            "persist.gammaos.drastic_nano.autoload", true)) ? 9 : -1;
-    if (raHardcore) ALOGI("drastic-nano: RA hardcore - forcing fresh boot (no auto-load)");
-    ALOGI("drastic-nano: auto-load slot = %d", autoLoadSlot);
+    // Quick Resume boot: nano set sys.gammaos.drastic_nano.qr_resume on the resume
+    // handoff. A resume loads slot 9 even if boot_fresh would otherwise force a
+    // fresh boot -- but NOT under RA hardcore, which always boots fresh (below).
+    // qr_resume is a volatile prop (cleared on reboot); the run loop clears it on
+    // exit so an in-session relaunch (Restart Game) boots fresh.
+    bool qrResume = property_get_bool("sys.gammaos.drastic_nano.qr_resume", false);
+    // RetroAchievements hardcore forbids loading ANY save state, so a hardcore
+    // session ALWAYS boots fresh -- even a Quick Resume. Per the user policy a
+    // hardcore game does not resume from a state; it relaunches clean and STAYS
+    // hardcore. raHardcore therefore takes precedence over both qrResume and
+    // boot_fresh. Because no state is loaded under hardcore, the RA client keeps
+    // hardcore (see ra_force_softcore below).
+    int autoLoadSlot;
+    if (raHardcore) {
+        autoLoadSlot = -1;
+        ALOGI("drastic-nano: RA hardcore - forcing fresh boot (no auto-load, even for Quick Resume)");
+    } else if (qrResume) {
+        autoLoadSlot = 9;
+        ALOGI("drastic-nano: Quick Resume - forcing auto-load slot 9");
+    } else if (bootFresh) {
+        autoLoadSlot = -1;
+    } else {
+        autoLoadSlot = property_get_bool(
+                "persist.gammaos.drastic_nano.autoload", true) ? 9 : -1;
+    }
+    // Validate / quarantine slot 9 before we ever hand it to the drastic core. A
+    // corrupt (empty, truncated, or half-written) .dss crashes the boot-load, and
+    // because auto-load persists the SAME bad state reloads on every relaunch of
+    // this ROM -- a launch-crash loop. Two guards:
+    //   - a ".loading" crash marker written just before the load and cleared once
+    //     the game renders its first frame (in the run loop). If it is still
+    //     present now, the PREVIOUS load crashed before drawing anything, so slot 9
+    //     is bad even if its size looks plausible (catches content corruption);
+    //   - a minimum plausible size (catches an empty / truncated .dss).
+    // On either, move the .dss aside to <rom>_9.dss.bad (never silently deleted, so
+    // it can be inspected) and boot fresh. The stable-write tail below is what keeps
+    // us from PRODUCING a truncated state in the first place.
+    if (autoLoadSlot == 9) {
+        const std::string stem = slot9Stem(savestatesDir, romPath);
+        const std::string dss = stem + ".dss";
+        const std::string marker = stem + ".loading";
+        struct stat st{};
+        const bool crashedLast = (access(marker.c_str(), F_OK) == 0);
+        const bool missingOrSmall =
+                (stat(dss.c_str(), &st) != 0) || (st.st_size < kMinDssBytes);
+        if (crashedLast || missingOrSmall) {
+            const std::string bad = dss + ".bad";
+            ALOGW("drastic-nano: slot 9 unusable (%s) - quarantining to %s and booting fresh",
+                  crashedLast ? "previous load crashed before rendering"
+                              : "missing or too small",
+                  bad.c_str());
+            rename(dss.c_str(), bad.c_str());
+            unlink(marker.c_str());
+            autoLoadSlot = -1;
+        } else {
+            // Arm the crash marker. If the load below crashes before the game
+            // renders, this survives to the next launch and the state is
+            // quarantined; the run loop clears it once the first frame is ready.
+            int mfd = open(marker.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
+            if (mfd >= 0) close(mfd);
+        }
+    }
+    // Single source of truth for "this session loaded a save state, so the RA
+    // client MUST run softcore" (RetroAchievements bars hardcore over a loaded
+    // state). main.cpp is the sole decider of whether a state loads; the RA client
+    // reads this prop instead of re-deriving from qr_resume, so a hardcore session
+    // that boots fresh (autoLoadSlot == -1 above) correctly STAYS hardcore, while
+    // any softcore state-load forces softcore. Covers the QR resume and the
+    // on-demand in-game RA login alike.
+    property_set("sys.gammaos.drastic_nano.ra_force_softcore",
+                 autoLoadSlot == 9 ? "1" : "0");
+    ALOGI("drastic-nano: auto-load slot = %d (ra_force_softcore=%d)",
+          autoLoadSlot, autoLoadSlot == 9 ? 1 : 0);
     // Mark this as a real play session so DrasticRunner enables the fxRender
     // shader path regardless of the persist drastic-nano feature flag. The
     // home's QR preview never sets this, so it stays on the renderFrame path.
@@ -2589,8 +2820,13 @@ int main(int argc, char** argv) {
         property_set(kSessionDoneProp, "1");
         return 7;
     }
-    // Push the user's stored volume (0..10) into the live mixer.
-    dr.setVolumeRuntime(prefs.volume * 10);
+    // Pin the DS core's internal mixer to max so the Android system volume
+    // (STREAM_MUSIC, which PhoneWindowManager drives from the shared VOL keys and
+    // publishes as persist.gammaos.nano.volume) is the SINGLE volume control -- the
+    // DS OpenSL output already goes through STREAM_MUSIC, so its own mixer was just
+    // a second, unaligned attenuation. The volume HUD now reflects that system
+    // level; see OverlayMenu::adjustVolume / drawHud.
+    dr.setVolumeRuntime(100);
 
     RunLoopResult rlr = sfMode
             ? runLoopSf(sfBackend.get(), &dr, prefs, appUid, appGid,
@@ -2613,29 +2849,70 @@ int main(int argc, char** argv) {
     // "Restart Game" (rlr.restartFresh) must NOT autosave: the whole
     // point is to boot fresh from the title, so we leave slot 9 alone and
     // the relaunch passes auto-load = off (boot_fresh below).
+    // A Quick Resume power off / reboot FORCES the slot-9 save even when the
+    // Auto Load toggle is off: the next boot resumes via qr_resume (which forces
+    // the load regardless of autoload), so the state must exist. Quick Resume is
+    // default-on; when it is off we keep the plain autoload-gated behavior.
+    // Any shutdown path (our own DRM power tail, or an external quit / SIGTERM from
+    // nano prepareShutdown / ShutdownThread that arms qr_prepared before issuing the
+    // power action) must leave slot 9 current, else the next boot resumes a stale /
+    // missing state when the Auto Load toggle is off.
+    bool qrPowerAction = (rlr.powerOffAfter || rlr.rebootAfter || rlr.quitShutdown);
+    bool qrEnabled = property_get_bool("persist.gammaos.nano.quick_resume", true);
+    // exitToHome (back-hold) is a graceful close, so save slot 9 unconditionally
+    // (the point is to preserve progress on the way out), independent of the Quick
+    // Resume / Auto Load toggles.
+    bool forceSlot9 = (qrPowerAction && qrEnabled) || rlr.exitToHome;
     if (!rlr.restartFresh &&
-        property_get_bool("persist.gammaos.drastic_nano.autoload", true)) {
-        std::string base = romPath;
-        size_t sp = base.find_last_of('/');
-        if (sp != std::string::npos) base = base.substr(sp + 1);
-        size_t dt = base.find_last_of('.');
-        if (dt != std::string::npos) base = base.substr(0, dt);
-        std::string slot9 = savestatesDir + "/" + base + "_9.dss";
+        (forceSlot9 ||
+         property_get_bool("persist.gammaos.drastic_nano.autoload", true))) {
+        const std::string slot9 = slot9Stem(savestatesDir, romPath) + ".dss";
         struct stat before {};
         bool had = (stat(slot9.c_str(), &before) == 0);
         time_t beforeM = had ? before.st_mtime : 0;
         off_t  beforeS = had ? before.st_size  : 0;
         if (dr.saveAutosave()) {
-            for (int i = 0; i < 40; i++) {   // up to ~2s
+            // The save is queued to drastic's worker thread and the core writes the
+            // .dss in place (no atomic temp+rename), so we must NOT let the power
+            // action proceed until the write has fully finished: cutting power
+            // mid-write leaves a truncated state that the next boot auto-loads and
+            // crashes on (and, with auto-load on, keeps crashing every launch). Wait
+            // for the file to (a) change from its prior mtime/size, (b) reach a
+            // plausible minimum size, and (c) hold that size steady across several
+            // consecutive polls (write complete, not still growing). Typically this
+            // resolves in well under a second; the loop is only an upper bound so a
+            // stuck worker can never hang the shutdown. Then fsync and hold ~2 more
+            // seconds so the data is durable on storage before we cut power (the
+            // extra grace the user asked for, over and above the stable-size check).
+            off_t lastSize = -1;
+            int stableCount = 0;
+            bool stable = false;
+            for (int i = 0; i < 120; i++) {   // upper bound ~6s to observe a stable write
                 usleep(50 * 1000);
                 struct stat now {};
                 if (stat(slot9.c_str(), &now) == 0 &&
-                    (!had || now.st_mtime != beforeM ||
-                     now.st_size != beforeS)) {
-                    ALOGI("drastic-nano: autosave slot 9 flushed (%lld bytes)",
-                          (long long)now.st_size);
-                    break;
+                    (!had || now.st_mtime != beforeM || now.st_size != beforeS) &&
+                    now.st_size >= kMinDssBytes) {
+                    if (now.st_size == lastSize) {
+                        if (++stableCount >= 4) {   // ~200ms unchanged => write settled
+                            stable = true;
+                            ALOGI("drastic-nano: autosave slot 9 stable (%lld bytes)",
+                                  (long long)now.st_size);
+                            break;
+                        }
+                    } else {
+                        stableCount = 0;
+                        lastSize = now.st_size;
+                    }
                 }
+            }
+            if (stable) {
+                int fd = open(slot9.c_str(), O_RDONLY);
+                if (fd >= 0) { fsync(fd); close(fd); }
+                usleep(2 * 1000 * 1000);   // 2s durability grace before the power action
+                ALOGI("drastic-nano: autosave slot 9 fsynced (+2s durability grace)");
+            } else {
+                ALOGW("drastic-nano: autosave slot 9 never stabilized; leaving prior state, next boot may quarantine it");
             }
         }
     }
@@ -2671,6 +2948,12 @@ int main(int argc, char** argv) {
         android::sDrmActive = false;
     }
 
+    // Clear the one-shot Quick Resume marker so an in-session relaunch (Restart
+    // Game or a settings change) boots fresh instead of re-resuming slot 9. On a
+    // real reboot the volatile prop is gone anyway; this only matters for a same-
+    // boot relaunch.
+    property_set("sys.gammaos.drastic_nano.qr_resume", "0");
+
     // When the overlay asked for a relaunch (a restart-required
     // setting changed), set the auto_relaunch prop so gammaos-nano
     // (XMB) re-kicks drastic-nano.start instead of returning to the
@@ -2691,6 +2974,81 @@ int main(int argc, char** argv) {
     }
 
     restoreDeepCpuIdle();
+
+    // Quick Resume power off / reboot. drastic-nano owns the save + power action
+    // here because gammaos-nano is stopped during a DRM session (and in SF the
+    // framework owns the power gestures, so a power row / external quit routes
+    // through here too). Slot 9 was force-saved above; arm the resume descriptor
+    // when Quick Resume is enabled -- the ROM path file nano_drastic_nano_rom.txt
+    // is already current from launch, so qr_prepared + qr_core=drastic is all the
+    // next boot needs. Then issue the power action via init's nano_action hook and
+    // return WITHOUT setting session_done: setting it would restart the home and
+    // race sys.powerctl (init acts on nano_action synchronously). This also skips
+    // the SF overlay hand-back below, which would fight an in-progress shutdown.
+    if (rlr.powerOffAfter || rlr.rebootAfter) {
+        if (property_get_bool("persist.gammaos.nano.quick_resume", true)) {
+            // Point the resume at THIS game. nano's boot handoff reads
+            // /data/system/nano_qr_rom.txt (getQrRomPath), which can be stale from a
+            // prior libretro/other launch, so write the current ROM there durably
+            // (temp+fsync+rename) before the power action, plus the prop mirror.
+            {
+                const char* dst = "/data/system/nano_qr_rom.txt";
+                std::string tmp = std::string(dst) + ".tmp";
+                int fd = open(tmp.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0666);
+                if (fd >= 0) {
+                    if (write(fd, romPath.c_str(), romPath.size()) ==
+                            (ssize_t)romPath.size()) {
+                        fsync(fd); close(fd); chmod(tmp.c_str(), 0666);
+                        if (rename(tmp.c_str(), dst) != 0) unlink(tmp.c_str());
+                    } else { close(fd); unlink(tmp.c_str()); }
+                }
+            }
+            property_set("persist.gammaos.nano.qr_rom", romPath.c_str());
+            property_set("persist.gammaos.nano.qr_prepared", "1");
+            property_set("persist.gammaos.nano.qr_core", "drastic");
+            // Keep the boot preview pointing at THIS game: the preview shows
+            // qr_game_name and, when storage is slow to mount, falls back to the
+            // single .nds staged in the drastic cache. This own-power path (an
+            // in-game overlay Restart / Power Off) issues the power action right
+            // below, so unlike the framework prepareShutdown path -- which overlaps
+            // its drastic-nano quit wait with the async copy -- we set the name and
+            // re-stage the cache HERE and wait (bounded) for the copy before cutting
+            // power. populate_drastic reads nano_drastic_nano_rom.txt (current from
+            // launch) and evicts any previously-cached ROM.
+            {
+                std::string gameName = romPath;
+                size_t ls = gameName.rfind('/');
+                if (ls != std::string::npos) gameName = gameName.substr(ls + 1);
+                size_t dot = gameName.rfind('.');
+                if (dot != std::string::npos) gameName.erase(dot);
+                property_set("persist.gammaos.nano.qr_game_name", gameName.c_str());
+                property_set("sys.gammaos.nano.cache_ready", "0");
+                property_set("sys.gammaos.nano.cache_op", "populate_drastic");
+                for (int i = 0; i < 160; i++) {   // up to ~8s for the ROM copy to finish
+                    usleep(50 * 1000);
+                    if (property_get_bool("sys.gammaos.nano.cache_ready", false)) break;
+                }
+            }
+            ALOGI("drastic-nano: armed Quick Resume (qr_core=drastic, rom=%s)",
+                  romPath.c_str());
+        }
+        const char* action = rlr.rebootAfter ? "reboot" : "shutdown";
+        ALOGI("drastic-nano: %s after graceful save", action);
+        property_set("service.bootanim.nano_action", action);
+        ALOGI("drastic-nano: exit (power action)");
+        return 0;
+    }
+
+    // External quit / SIGTERM: nano prepareShutdown or the framework ShutdownThread
+    // asked us to save + exit and will issue the power action itself. Slot 9 was
+    // force-saved above. Skip the SF overlay hand-back AND session_done: setting
+    // session_done restarts gammaos-nano (drastic-nano.rc), which would race the
+    // caller's synchronous nano_action -> sys.powerctl. The caller detects our exit
+    // by scanning /proc, not by session_done.
+    if (rlr.quitShutdown) {
+        ALOGI("drastic-nano: exit (external shutdown quit, caller owns the power action)");
+        return 0;
+    }
 
     // Return to the launcher. In SF / overlay-home mode the resident overlay is
     // the home, so raise it in wallpaper mode: clear sys.gammaos.nano.app_launched

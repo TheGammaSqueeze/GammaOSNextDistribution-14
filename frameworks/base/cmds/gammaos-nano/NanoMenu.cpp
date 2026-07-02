@@ -142,7 +142,7 @@ NanoMenu::NanoMenu()
       mFrameDt(1.0f / 60.0f),
       mCurrentEffect(1),
       mEffectTime(0.0f),
-      mQuickResumeEnabled(false),
+      mQuickResumeEnabled(true),
       mXmbMode(false), mXmbRecentMax(50), mXmbSystemIndex(0), mXmbGameIndex(0),
       mXmbAnimX(0.0f), mXmbAnimY(0.0f),
       mXmbGameScrollTop(0), mXmbRomScanDone(false),
@@ -208,7 +208,7 @@ NanoMenu::NanoMenu()
     }
     // Load Quick Resume toggle from persistent property
     mQuickResumeEnabled = android::base::GetBoolProperty(
-            "persist.gammaos.nano.quick_resume", false);
+            "persist.gammaos.nano.quick_resume", true);   // default ON (user decision 2026-07-01)
 }
 
 void NanoMenu::initSurfaceFlingerPath() {
@@ -1370,7 +1370,7 @@ bool NanoMenu::threadLoop() {
     // Re-read quick resume flag — the constructor runs before persist props
     // are loaded, so the value read there may be stale (always false).
     mQuickResumeEnabled = android::base::GetBoolProperty(
-            "persist.gammaos.nano.quick_resume", false);
+            "persist.gammaos.nano.quick_resume", true);   // default ON (user decision 2026-07-01)
     mXmbMode = android::base::GetBoolProperty(
             "persist.gammaos.nano.xmb_mode", false);
     // PS3 XMB layout (NanoMenuPS3Menu.cpp). Dev-gated during build-up; takes
@@ -1481,6 +1481,158 @@ bool NanoMenu::threadLoop() {
     // skipping particle/fx/XMB shader compiles in readyToRun, this
     // brings the drastic first frame ~800ms closer to boot.
     if (sDrasticQrFastPath) {
+        // The in-process DRM-direct DrasticRunner preview only scans out on a true
+        // DRM panel; on a SurfaceFlinger-owned panel it renders solid red. nano
+        // cannot predict a device's mode when backend=="auto" (the binary resolves
+        // it at runtime by trying to grab DRM master), so key strictly on backend:
+        //   - "drm" : render the in-process DRM-direct preview (the else below).
+        //   - "sf"  : show a "Quick Resuming..." splash, then hand off to the
+        //             DrasticSf host activity (the SF preview + overlay keeper).
+        //   - "auto": show the splash, then hand off via the normal DRM handshake
+        //             (start=1) and let the binary self-resolve (DRM, or own-layer
+        //             SF on a pure-SF device). No device guess in nano.
+        std::string dnBackend = android::base::GetProperty(
+                "persist.gammaos.drastic_nano.backend", "auto");
+        bool dnGate = (android::base::GetProperty(
+                "persist.gammaos.nano.drastic_nano", "0") == "1");
+        bool splashHandoff = dnGate && (dnBackend == "sf" || dnBackend == "auto");
+        void maybeNanoScreenshot();   // defined in NanoMenuRender.cpp
+        if (splashHandoff) {
+            ALOGW("drastic nano QR: backend=%s -- splash then binary handoff (slot 9)",
+                  dnBackend.c_str());
+            std::string romName = android::base::GetProperty(
+                    "persist.gammaos.nano.qr_game_name", "");
+            float sfS = fminf((float)mWidth / 1080.0f, (float)mHeight / 720.0f);
+            if (sfS < 0.5f) sfS = 0.5f;
+            float loadScale = 3.0f * sfS;
+            struct input_event drain_ev;
+            // Prime the rotation-matrix uniform on both shaders so drawText maps to
+            // the (possibly rotated) DRM panel. Without this the text renders with a
+            // zero matrix and is invisible -- just the dark-blue clear shows.
+            // Mirrors the exit "Loading..." splash setup.
+            {
+                const GLuint progs[] = {mShaderProgram, mTextProgram};
+                const GLint  locs[]  = {mLocRotation, mTextLocRotation};
+                for (int i = 0; i < 2; i++) {
+                    glUseProgram(progs[i]);
+                    glUniformMatrix2fv(locs[i], 1, GL_FALSE, sDrmRotMat);
+                }
+            }
+            // Live DS game preview: the in-process DrasticRunner (already loaded at
+            // boot for this fast-path by main.cpp runDrasticInitIfNeeded) renders the
+            // resumed game into an OFFSCREEN texture, which renderBothScreens then
+            // blits into the present FBO. Unlike the DRM-direct AHB scanout (the else
+            // branch below) this goes through the SAME drmFrameBegin/drmFrameEnd path
+            // the text splash uses, so it does not render red on an SF panel. Falls
+            // back to the text-only splash when the core is not initialized/ready.
+            DrasticRunner* previewDs = DrasticRunner::getInstance();
+            bool haveCore = (previewDs && previewDs->isInitialized());
+            if (haveCore) {
+                system("/vendor/bin/setclock_max.sh");
+                previewDs->initSurface(mWidth, mHeight, /*dualDisplay=*/false);
+                previewDs->setRotationMatrix(sDrmRotMat);
+            }
+            float dsSat = 0.15f, dsGrad = 1.0f;   // desaturated -> full color ramp
+            // Show the splash until the framework can launch an activity (user
+            // unlock -> home_launching) AND the ROM's storage is mounted, then hand
+            // off. Drain input so a held button does not leak into the game. Bump
+            // the render heartbeat each frame so the watchdog does not abort a slow
+            // cold boot.
+            for (int wait = 0; wait < 900; wait++) {   // up to ~15s
+                for (int fd : mInputFds) {
+                    while (read(fd, &drain_ev, sizeof(drain_ev)) == sizeof(drain_ev)) {}
+                }
+                char val[PROPERTY_VALUE_MAX] = {};
+                property_get("sys.gammaos.nano.home_launching", val, "");
+                bool ready = (strcmp(val, "1") == 0);
+                if (!ready) { property_get("sys.boot_completed", val, "0");
+                              ready = (strcmp(val, "1") == 0); }
+                bool go = ready && isQrRomStorageReady();
+                // Advance one DS frame into the offscreen texture BEFORE binding the
+                // present target (renderDsToOffscreen leaves FBO 0 bound); then
+                // drmFrameBegin binds the real present FBO so the DS quad + the text
+                // both land in what actually gets presented (works whether that is
+                // the AHB scanout FBO or the EGL window surface).
+                if (haveCore) previewDs->renderDsToOffscreen();
+                drmFrameBegin();
+                if (sDrmGlRotation) glViewport(0, 0, sAhbTarget.w, sAhbTarget.h);
+                else                glViewport(0, 0, mWidth, mHeight);
+                glClearColor(0.0f, 0.0f, 0.0f, 1.0f);   // black behind the DS
+                glClear(GL_COLOR_BUFFER_BIT);
+                bool showingGame = (haveCore && previewDs->isFrameReady());
+                if (showingGame) {
+                    previewDs->renderBothScreens(dsSat, dsGrad);   // DS quad -> present FBO
+                    dsSat = fminf(dsSat + 0.01f, 1.0f);
+                    dsGrad = fmaxf(dsGrad - 0.01f, 0.0f);
+                }
+                glEnable(GL_BLEND);
+                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                // Caption: over the game (bottom) once it is showing, fading as the
+                // game reaches full color; else centered on the black splash.
+                float capA = showingGame ? fmaxf(1.15f - dsSat, 0.35f) : 1.0f;
+                const char* msg = "Quick Resuming...";
+                float msgW = measureText(msg, loadScale);
+                float msgY = showingGame ? mHeight * 0.80f : mHeight * 0.42f;
+                drawText(msg, (mWidth - msgW) / 2.0f, msgY, loadScale, 1.0f, 1.0f, 1.0f, capA);
+                float nameScale = loadScale * 0.5f;
+                float nameY = msgY + FONT_CHAR_H * loadScale + 12.0f * sfS;
+                if (!romName.empty()) {
+                    float nameW = measureText(romName.c_str(), nameScale);
+                    drawText(romName.c_str(), (mWidth - nameW) / 2.0f, nameY,
+                             nameScale, 0.85f, 0.85f, 0.95f, capA);
+                }
+                // System line (this fast-path is the drastic core -> Nintendo DS).
+                {
+                    const char* sysL = "Nintendo DS";
+                    float sysScale = loadScale * 0.4f;
+                    float sysW = measureText(sysL, sysScale);
+                    drawText(sysL, (mWidth - sysW) / 2.0f,
+                             nameY + FONT_CHAR_H * nameScale + 8.0f * sfS,
+                             sysScale, 0.6f, 0.65f, 0.75f, capA);
+                }
+                glDisable(GL_BLEND);
+                // Capture the composited splash+preview frame before the flip
+                // (glReadPixels needs the content still bound); no-op unless
+                // sys.gammaos.nano.shot is set. This is the only way to snapshot
+                // the QR preview on the DRM-direct scanout path.
+                maybeNanoScreenshot();
+                drmFrameEnd(mDisplay, mSurface);
+                mRenderHeartbeat.fetch_add(1, std::memory_order_relaxed);
+                if (go) break;
+                usleep(16666);
+            }
+            // Hand off to the binary. setDrasticNanoRomPath writes the ROM it reads;
+            // qr_resume forces the slot-9 load. Clear the stale com.dsemu.drastic
+            // launch_app/launch_intent readyToRun set early (else RootWindowContainer
+            // would relaunch the stock DraStic APK on the SF path).
+            std::string qrRom = getQrRomPath();
+            if (!qrRom.empty()) setDrasticNanoRomPath(qrRom);
+            property_set("persist.gammaos.nano.qr_prepared", "0");
+            property_set("sys.gammaos.drastic_nano.qr_resume", "1");
+            if (dnBackend == "sf") {
+                // Explicit SF: launch the DrasticSf host activity, exactly like the
+                // normal SF launch (the mDrasticNanoPending block ~3352). It fires
+                // start_sf and the overlay stays up as the SF panel keeper; the exit
+                // flow drops DRM master and the DRM-boot-path waits for app_launched.
+                android::base::SetProperty("sys.gammaos.nano.launch_app", "com.gammaos.drasticsf");
+                android::base::SetProperty("sys.gammaos.nano.launched_pkg", "com.gammaos.drasticsf");
+                android::base::SetProperty("sys.gammaos.nano.launch_intent", "");
+                setLaunchRomPath("");
+                android::base::SetProperty("sys.gammaos.nano.launch_core", "");
+                property_set("sys.gammaos.nano.return_recent", "1");
+                property_set("service.bootanim.nano_retroarch", "1");
+                property_set("sys.gammaos.nano.drop_input", "1");
+                mExitRequested = true;
+            } else {
+                // auto: the normal DRM handshake. The start trigger stops nano and
+                // starts the binary, which grabs DRM master (RG DS) or falls back to
+                // own-layer SF (pure-SF panel). Mirrors the normal launch's else
+                // branch (~3415). Exiting releases DRM master for the binary / SF.
+                property_set("sys.gammaos.nano.drop_input", "1");
+                property_set("sys.gammaos.drastic_nano.start", "1");
+                _exit(0);
+            }
+        } else {
         DrasticRunner* drastic = DrasticRunner::getInstance();
         if (drastic && drastic->isInitialized()) {
             // Max clocks for smooth DS emulation during QR preview.
@@ -2410,6 +2562,12 @@ if (sRingPrimedCount >= 2) {
                             // instead of re-entering the preview.
                             property_set(
                                 "persist.gammaos.nano.qr_prepared", "0");
+                            // Tell drastic-nano this launch is a Quick Resume so
+                            // it force-loads slot 9 (over boot_fresh/hardcore) and
+                            // drops RA hardcore for the resumed session. Volatile;
+                            // drastic-nano clears it on exit. Set before .start.
+                            property_set(
+                                "sys.gammaos.drastic_nano.qr_resume", "1");
                             property_set(
                                 "sys.gammaos.drastic_nano.start", "1");
                             property_set(
@@ -2635,6 +2793,7 @@ if (sRingPrimedCount >= 2) {
             property_set("persist.gammaos.nano.qr_prepared", "0");
             sDrasticQrFastPath = false;
         }
+        }   // end else (non-SF: in-process DRM-direct DrasticRunner preview)
     }
 
     // Quick Resume: auto-launch into saved game on boot if prepared

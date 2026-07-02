@@ -479,10 +479,16 @@ bool DrasticRunner::init(const std::string& cacheDir,
         // (the SurfaceFlinger-gated dead path that left a red canary). Gating on
         // the session prop too means the player binary always shades, even when
         // the persist feature flag has not been set on the device.
-        char dnProp[PROPERTY_VALUE_MAX] = {};
-        property_get("persist.gammaos.nano.drastic_nano", dnProp, "0");
+        // The ONLY reliable "this is a real play session" signal is
+        // sys.gammaos.drastic_nano.session, which the drastic-nano binary sets
+        // for its own lifetime (main.cpp, before dr.init) and drastic-nano.rc
+        // clears on session_done. Do NOT also treat persist.gammaos.nano.drastic_nano
+        // as a real-session signal: that is a DEVICE-level flag (set on every unit
+        // whose DS launches route through drastic-nano), so it is 1 during the
+        // home's in-process QR preview too -- which then wrongly took the fxRender
+        // path, walked an empty pass list (no .dfx in the QR cache), and left the
+        // red canary in mOffscreenFbo (the "no live preview, solid red" symptom).
         const bool realSession =
-                (dnProp[0] == '1') ||
                 property_get_bool("sys.gammaos.drastic_nano.session", false);
         if (!realSession) {
             ALOGI("DrasticRunner: not a real session -- disabling fxRender "

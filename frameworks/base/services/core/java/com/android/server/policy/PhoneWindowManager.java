@@ -1838,6 +1838,18 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         if (android.os.SystemProperties.getBoolean("sys.gammaos.minimal_boot", false)
                 && "1".equals(android.os.SystemProperties.get(
                         "sys.gammaos.nano.app_launched", "0"))) {
+            // GammaOS Nano: drastic-nano runs as an own-layer SurfaceFlinger/DRM
+            // binary, not a focusable Activity, so getForegroundAppPackageName()
+            // does not report it and a virtual ESC cannot reach it. Detect it by its
+            // session flag and ask it to exit gracefully through the prop channel it
+            // polls (which saves the Quick Resume state, then returns to the home) -
+            // the equivalent of the ESC-then-close path used for RetroArch below.
+            if ("1".equals(android.os.SystemProperties.get(
+                    "sys.gammaos.drastic_nano.session", "0"))) {
+                android.os.SystemProperties.set(
+                        "sys.gammaos.drastic_nano.exit_home", "1");
+                return;
+            }
             String fgApp = getForegroundAppPackageName();
             if (fgApp != null && (fgApp.toLowerCase().contains("retroarch")
                     || fgApp.toLowerCase().contains("drastic"))) {

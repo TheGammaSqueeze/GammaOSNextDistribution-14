@@ -1538,6 +1538,12 @@ void NanoMenu::launchXmbGame() {
                 if (dotPos != std::string::npos) gameName.erase(dotPos);
                 android::base::SetProperty(
                         "persist.gammaos.nano.qr_game_name", gameName);
+            } else {
+                // QR disabled: clear any stale prime (e.g. a previously-launched
+                // drastic game) so the next boot does not auto-resume an unrelated
+                // game.
+                property_set("persist.gammaos.nano.qr_prepared", "0");
+                android::base::SetProperty("persist.gammaos.nano.qr_core", "");
             }
         }
         ALOGI("NanoMenu XMB: recent launch %s [%s]", re.displayName.c_str(), re.systemName.c_str());
@@ -1744,6 +1750,11 @@ void NanoMenu::launchXmbGame() {
             if (dotPos != std::string::npos) gameName.erase(dotPos);
             android::base::SetProperty(
                     "persist.gammaos.nano.qr_game_name", gameName);
+        } else {
+            // QR disabled: clear any stale prime (e.g. a previously-launched drastic
+            // game) so the next boot does not auto-resume an unrelated game.
+            property_set("persist.gammaos.nano.qr_prepared", "0");
+            android::base::SetProperty("persist.gammaos.nano.qr_core", "");
         }
     }
 
