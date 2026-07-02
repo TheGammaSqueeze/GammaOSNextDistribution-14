@@ -1852,6 +1852,32 @@ void OverlayMenu::rebuildVideo() {
         mRows.push_back(std::move(r));
     }
     {
+        // PiP Corner: which corner the overlapping picture-in-picture INSET
+        // screen sits in (default Bottom Right). Only affects the PiP presets
+        // when the inset overlaps the big screen (a 4:3 / portrait panel); on a
+        // wide panel the inset sits side by side and the corner has no effect.
+        // Live (the render loop re-reads it each frame).
+        RowAction r;
+        r.label = "PiP Corner";
+        static const char* const kCVals[]   = {"br", "bl", "tr", "tl"};
+        static const char* const kCLabels[] = {"Bottom Right", "Bottom Left",
+                                               "Top Right", "Top Left"};
+        static const int kCCount = 4;
+        auto curIdx = []() {
+            char cur[PROPERTY_VALUE_MAX] = {};
+            property_get("persist.gammaos.drastic_nano.pip_corner", cur, "br");
+            for (int i = 0; i < kCCount; i++)
+                if (strcmp(cur, kCVals[i]) == 0) return i;
+            return 0;
+        };
+        r.value = kCLabels[curIdx()];
+        r.onAdjust = [curIdx](int dir) {
+            int idx = (curIdx() + dir + kCCount) % kCCount;
+            property_set("persist.gammaos.drastic_nano.pip_corner", kCVals[idx]);
+        };
+        mRows.push_back(std::move(r));
+    }
+    {
         // Display Rotation: rotates the WHOLE single-panel output (the DS layout
         // AND the overlay) on top of the panel's install orientation, so the
         // console can be held in portrait ("hold it tall"). Real-time: the DRM

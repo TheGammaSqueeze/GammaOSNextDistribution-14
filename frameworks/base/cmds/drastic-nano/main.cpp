@@ -1843,6 +1843,15 @@ static drastic_nano::LayoutConfig readSfLayoutConfig(int surfaceW, int surfaceH)
     int pipPct = atoi(buf);
     if (pipPct < 0) pipPct = 0; else if (pipPct > 100) pipPct = 100;
     cfg.pipAlpha = (float)pipPct / 100.0f;
+
+    // Which corner the overlapping picture-in-picture inset sits in. Default
+    // "br" (bottom-right, the original placement). Only affects the PiP presets
+    // when the inset overlaps the big screen (a 4:3 / portrait panel).
+    property_get("persist.gammaos.drastic_nano.pip_corner", buf, "br");
+    if      (!strcmp(buf, "bl")) cfg.pipCorner = drastic_nano::PipCorner::BottomLeft;
+    else if (!strcmp(buf, "tr")) cfg.pipCorner = drastic_nano::PipCorner::TopRight;
+    else if (!strcmp(buf, "tl")) cfg.pipCorner = drastic_nano::PipCorner::TopLeft;
+    else                         cfg.pipCorner = drastic_nano::PipCorner::BottomRight;
     return cfg;
 }
 

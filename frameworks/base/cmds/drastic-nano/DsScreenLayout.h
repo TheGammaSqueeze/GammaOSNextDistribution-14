@@ -48,6 +48,17 @@ enum class Scaling : int {
 // Which emulated DS screen a layout slot carries.
 enum class DsScreen : int { Top, Bottom };
 
+// Which corner the overlapping picture-in-picture inset screen sits in. Only
+// takes effect when the PiP inset overlaps the big screen (a 4:3 or portrait
+// panel, where there is no room to place it side by side); on a wide panel the
+// inset sits beside the big screen and the corner has no effect.
+enum class PipCorner : int {
+    BottomRight = 0,  // default: the inset's original placement
+    BottomLeft  = 1,
+    TopRight    = 2,
+    TopLeft     = 3,
+};
+
 // The user-selectable layout choice. `swap` exchanges which DS screen leads
 // (which one is the first slot, or which one shows in Single mode), matching the
 // runtime Screen-Swap action.
@@ -69,6 +80,10 @@ struct LayoutConfig {
     // big screen shows through where they overlap. 1 = opaque (no see-through).
     // Ignored by non-PiP layouts.
     float       pipAlpha = 1.0f;
+    // Which corner the overlapping picture-in-picture inset sits in (default
+    // bottom-right, the original placement). Only used when the PiP inset
+    // overlaps the big screen; ignored otherwise.
+    PipCorner   pipCorner = PipCorner::BottomRight;
 };
 
 // Number of predetermined layout presets (kLayoutPresets in DsScreenLayout.cpp).

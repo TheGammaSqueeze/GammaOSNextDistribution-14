@@ -54,12 +54,13 @@ constexpr float kPresetRefH = 720.0f;
 struct PresetScreen { DsScreen content; float x, y, w, h; };   // reference pixels
 // pipFrac > 0 marks a picture-in-picture preset that is COMPUTED rather than
 // taken from the reference rects: the big screen is fit 4:3 (centred) and the
-// inset is placed 4:3 in the bottom-right at pipFrac of the surface width, so the
-// inset sits mostly in a wide screen's side margin (minimal overlap) and can be
-// drawn translucent (LayoutConfig::pipAlpha). The reference rects are ignored.
+// inset is placed 4:3 in the configured corner (LayoutConfig::pipCorner, default
+// bottom-right) at pipFrac of the surface width, so the inset sits mostly in a
+// wide screen's side margin (minimal overlap) and can be drawn translucent
+// (LayoutConfig::pipAlpha). The reference rects are ignored.
 // pipFrac semantics: 0 = static (use s[] rects); > 0 = fixed-size inset of that
 // fraction of the surface width (placed side by side when there is room, else an
-// overlapping translucent inset bottom-right); < 0 = "Auto" (the second screen
+// overlapping translucent inset in the configured corner); < 0 = "Auto" (the second screen
 // dynamically fills the width left over beside the 4:3 big screen).
 // `fill` true marks a stretch-to-panel preset (Full Screen): the single screen is
 // intentionally drawn over the whole surface, ignoring aspect. Every other static
@@ -140,14 +141,22 @@ LayoutPlan compute(const LayoutConfig& cfg, uint32_t surfaceW, uint32_t surfaceH
                 plan.slots[0] = { roundRect({ bf.ox, bf.oy, bigW, bigH }), big, 1.0f };
                 return plan;
             }
-            // Overlapping translucent inset, bottom-right.
+            // Overlapping translucent inset, placed in the configured corner
+            // (default bottom-right). `inset` is the margin held from the two
+            // edges nearest the chosen corner.
             const float inset = 0.015f * H;
             const float iW = p.pipFrac * W, iH = iW * (SH / SW);
             float a = cfg.pipAlpha;
             if (a < 0.0f) a = 0.0f; else if (a > 1.0f) a = 1.0f;
+            const bool right = (cfg.pipCorner == PipCorner::BottomRight ||
+                                cfg.pipCorner == PipCorner::TopRight);
+            const bool bottom = (cfg.pipCorner == PipCorner::BottomRight ||
+                                 cfg.pipCorner == PipCorner::BottomLeft);
+            const float px = right  ? (W - iW - inset) : inset;
+            const float py = bottom ? (H - iH - inset) : inset;
             plan.count = 2;
             plan.slots[0] = { roundRect({ bf.ox, bf.oy, bigW, bigH }), big, 1.0f };
-            plan.slots[1] = { roundRect({ W - iW - inset, H - iH - inset, iW, iH }), ins, a };
+            plan.slots[1] = { roundRect({ px, py, iW, iH }), ins, a };
             return plan;
         }
 
