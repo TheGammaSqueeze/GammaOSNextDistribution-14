@@ -1971,30 +1971,9 @@ void NanoMenu::renderXmb() {
         const float selIconSz = iconSize * catActiveZoom;
         const float listScissorX = itemIconBaseX - selIconSz / 2.0f;
         const float listScissorW = contentRight - listScissorX;
-        glEnable(GL_SCISSOR_TEST);
-        {
-            int sx, sy, sw, sh;
-            int lx = (int)listScissorX, ly = 0,
-                lw = (int)listScissorW, lh = (int)mHeight;
-            switch (sDrmGlRotation ? sDrmRotationDeg : 0) {
-            case 90:
-                sx = ly; sy = mWidth - lx - lw;
-                sw = lh; sh = lw;
-                break;
-            case 180:
-                sx = mWidth - lx - lw; sy = mHeight - ly - lh;
-                sw = lw; sh = lh;
-                break;
-            case 270:
-                sx = mHeight - ly - lh; sy = lx;
-                sw = lh; sh = lw;
-                break;
-            default:
-                sx = lx; sy = ly; sw = lw; sh = lh;
-                break;
-            }
-            glScissor(sx, sy, sw, sh);
-        }
+        // Composed rotation+flip mapping (see scissorLogicalRect); the old
+        // rotation-only switch mirrored the band on flipped panels.
+        scissorLogicalRect(listScissorX, 0.0f, listScissorW, (float)mHeight);
 
         for (int i = startItem; i <= endItem; i++) {
             float relPos = (float)i - animCur;

@@ -877,6 +877,48 @@ void NanoMenu::blurGlassChain(GLuint srcTexIn, int srcWIn, int srcHIn,
     if (wasBlend) glEnable(GL_BLEND);
 }
 
+// Enable a scissor covering the LOGICAL rect (x,y,w,h) in menu coordinates,
+// valid for any panel rotation/flip. The call sites this replaces hand-rolled
+// a switch on sDrmRotationDeg alone, which ignored the flips composed into
+// sDrmRotMat (the persist.gammaos.nano.drm_flip_h/v device props, and the
+// DRM PRIME scanout Y-flip on non-rotated installs): on a rotated+flipped
+// panel (RG Vita Pro: 270 install + drm_flip_v=1, matrix [0,-1,-1,0]) every
+// band landed MIRRORED, clipping content that should be visible --
+// highlighted labels truncated mid-string, the boot-logo wipe scissoring
+// away the entire logo. Transform the rect's two opposite corners
+// through the SAME composed matrix the vertex shaders apply (uRotation =
+// sDrmRotMat); it is always a signed permutation of the axes, so min/max of
+// two opposite corners is the exact window-space rect. NDC maps to pixels via
+// the CURRENT viewport, which is authoritative: under rotation the main pass
+// renders into the panel-native AHB FBO while mWidth/mHeight stay logical.
+// Only valid during the main full-target pass (true for every caller); do not
+// call inside offscreen sub-viewport passes (blur/capture) without rework.
+void NanoMenu::scissorLogicalRect(float x, float y, float w, float h) {
+    float lx0 = (x / mWidth) * 2.0f - 1.0f;
+    float lx1 = ((x + w) / mWidth) * 2.0f - 1.0f;
+    float ly0 = 1.0f - ((y + h) / mHeight) * 2.0f;
+    float ly1 = 1.0f - (y / mHeight) * 2.0f;
+    float ax = lx0, ay = ly0, bx = lx1, by = ly1;
+    if (sDrmGlRotation) {
+        ax = sDrmRotMat[0] * lx0 + sDrmRotMat[2] * ly0;
+        ay = sDrmRotMat[1] * lx0 + sDrmRotMat[3] * ly0;
+        bx = sDrmRotMat[0] * lx1 + sDrmRotMat[2] * ly1;
+        by = sDrmRotMat[1] * lx1 + sDrmRotMat[3] * ly1;
+    }
+    float loX = fminf(ax, bx), hiX = fmaxf(ax, bx);
+    float loY = fminf(ay, by), hiY = fmaxf(ay, by);
+    GLint vp[4];
+    glGetIntegerv(GL_VIEWPORT, vp);
+    int sx = vp[0] + (int)floorf((loX + 1.0f) * 0.5f * (float)vp[2]);
+    int sy = vp[1] + (int)floorf((loY + 1.0f) * 0.5f * (float)vp[3]);
+    int sw = (int)ceilf((hiX - loX) * 0.5f * (float)vp[2]);
+    int sh = (int)ceilf((hiY - loY) * 0.5f * (float)vp[3]);
+    if (sw < 0) sw = 0;
+    if (sh < 0) sh = 0;
+    glEnable(GL_SCISSOR_TEST);
+    glScissor(sx, sy, sw, sh);
+}
+
 // Draw the frosted panel sampling mGlassTex (captured by captureGlass with the
 // same rect). texcoords are v-flipped because the FB snapshot is y-up.
 void NanoMenu::drawFrostedGlass(float x, float y, float w, float h, float radius,
@@ -2350,35 +2392,12 @@ void NanoMenu::render() {
         if (needsClip) {
             glEnable(GL_SCISSOR_TEST);
             // Scissor is applied in FBO pixel coords AFTER the vertex
-            // shader's rotation, so the logical-landscape rect we want
-            // (a horizontal band across the menu column) needs to be
-            // remapped to the panel-native FBO before glScissor. Without
-            // this, on a 90/270-rotated panel the scissor still clips a
-            // landscape band of the FBO, which only covers a fraction of
-            // the rotated content -- text outside that fraction gets
-            // truncated. RK3576 (1080x1920 portrait, 270° install) is
-            // the device that surfaced this.
-            int sx, sy, sw, sh;
-            int lx = (int)contentLeft, ly = 0, lw = (int)contentW,
-                lh = (int)mHeight;
-            switch (sDrmGlRotation ? sDrmRotationDeg : 0) {
-            case 90:
-                sx = ly; sy = mWidth - lx - lw;
-                sw = lh; sh = lw;
-                break;
-            case 180:
-                sx = mWidth - lx - lw; sy = mHeight - ly - lh;
-                sw = lw; sh = lh;
-                break;
-            case 270:
-                sx = mHeight - ly - lh; sy = lx;
-                sw = lh; sh = lw;
-                break;
-            default:
-                sx = lx; sy = ly; sw = lw; sh = lh;
-                break;
-            }
-            glScissor(sx, sy, sw, sh);
+            // shader's rotation, so the logical-landscape band must be mapped
+            // through the COMPOSED sDrmRotMat (rotation AND flips - the old
+            // rotation-only switch here mirrored the band on flipped panels).
+            // RK3576 (1080x1920 portrait, 270 install + drm_flip_v=1) is the
+            // device that surfaced both halves of this.
+            scissorLogicalRect(contentLeft, 0.0f, contentW, (float)mHeight);
         }
         drawText(mDisplayItems[i].c_str(), drawX, itemY, menuScale,
                  r, g, b, 1.0f);

@@ -3493,18 +3493,13 @@ void NanoMenu::renderPs3Xmb() {
             float tx = ps3::devX(ps3::XCP(ps3::ITEM_TEXT_X + xShiftV));
             float ty = ps3::baselineToTopY(ps3::devY(y), ts);
             const char* L = trDyn(it.label.c_str());
-            // Scissor a full-height X band [bx, bx+bw], mapped to the panel's
-            // DRM rotation. Used by both the label and the value tickers.
+            // Scissor a full-height X band [bx, bx+bw], mapped through the
+            // composed rotation+flip matrix (see scissorLogicalRect; the old
+            // rotation-only switch here mirrored the band on flipped panels,
+            // truncating long highlighted labels). Used by both the label and
+            // the value tickers.
             auto scissorBand = [&](float bx, float bw) {
-                int rlx = (int)bx, rly = 0, rlw = (int)bw, rlh = (int)mHeight;
-                int sx, sy, sw, sh;
-                switch (sDrmGlRotation ? sDrmRotationDeg : 0) {
-                    case 90:  sx = rly; sy = mWidth - rlx - rlw; sw = rlh; sh = rlw; break;
-                    case 180: sx = mWidth - rlx - rlw; sy = mHeight - rly - rlh; sw = rlw; sh = rlh; break;
-                    case 270: sx = mHeight - rly - rlh; sy = rlx; sw = rlh; sh = rlw; break;
-                    default:  sx = rlx; sy = rly; sw = rlw; sh = rlh; break;
-                }
-                glEnable(GL_SCISSOR_TEST); glScissor(sx, sy, sw, sh);
+                scissorLogicalRect(bx, 0.0f, bw, (float)mHeight);
             };
             // Ping-pong ticker offset (hold, scroll, hold, scroll back) for text
             // wider than its window - shared by the label and the value.

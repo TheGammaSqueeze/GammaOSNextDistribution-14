@@ -153,9 +153,11 @@ public:
 
     // Render thread: draw the current frame into the given screen-space rect (device px),
     // aspect-fit inside it, applying the decoder UV transform. fitMode: 0 = fit (letterbox),
-    // 1 = fill (crop), 2 = stretch. alpha multiplies the output.
+    // 1 = fill (crop), 2 = stretch. alpha multiplies the output. rotMat: the composed
+    // panel rotation+flip mat2 (sDrmRotMat), applied to the vertex positions exactly
+    // like the UI shaders' uRotation; nullptr = identity (SF/overlay + non-rotated).
     void draw(int screenW, int screenH, float rx, float ry, float rw, float rh,
-              float alpha, int fitMode = 0);
+              float alpha, int fitMode = 0, const float* rotMat = nullptr);
 
 private:
     void decodeLoop();              // worker thread
@@ -201,7 +203,7 @@ private:
 
     // samplerExternalOES draw program (lazy).
     GLuint mProg = 0;
-    GLint mLocPos = -1, mLocTex = -1, mLocST = -1, mLocAlpha = -1;
+    GLint mLocPos = -1, mLocTex = -1, mLocST = -1, mLocAlpha = -1, mLocRot = -1;
 
     std::thread mWorker;
 

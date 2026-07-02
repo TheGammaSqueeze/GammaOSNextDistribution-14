@@ -1199,19 +1199,11 @@ void NanoMenu::renderMusicPlayer() {
         else { float u = (tt - HOLD - scrollT - HOLD) / scrollT; p = 1.0f - u * u * (3 - 2 * u); }
         return over * p;
     };
-    // Rotation-aware horizontal clip band [bx, bx+bw] over the full screen height
-    // (the web ctx.clip), so a marquee's hold-at-start never spills past the band.
+    // Rotation+flip-aware horizontal clip band [bx, bx+bw] over the full screen
+    // height (the web ctx.clip), so a marquee's hold-at-start never spills past
+    // the band. Mapped through the composed matrix (see scissorLogicalRect).
     auto clipBand = [&](float bx, float bw) {
-        int lx = (int)bx, ly = 0, lw = (int)bw, lh = (int)mHeight;
-        if (lw < 0) lw = 0;
-        int sx, sy, sw, sh;
-        switch (sDrmGlRotation ? sDrmRotationDeg : 0) {
-        case 90:  sx = ly; sy = (int)mWidth - lx - lw; sw = lh; sh = lw; break;
-        case 180: sx = (int)mWidth - lx - lw; sy = (int)mHeight - ly - lh; sw = lw; sh = lh; break;
-        case 270: sx = (int)mHeight - ly - lh; sy = lx; sw = lh; sh = lw; break;
-        default:  sx = lx; sy = ly; sw = lw; sh = lh; break;
-        }
-        glEnable(GL_SCISSOR_TEST); glScissor(sx, sy, sw, sh);
+        scissorLogicalRect(bx, 0.0f, fmaxf(0.0f, bw), (float)mHeight);
     };
 
     // title (marquee bounce when too wide), clipped to the band

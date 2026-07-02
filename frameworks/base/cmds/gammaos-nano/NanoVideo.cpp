@@ -854,12 +854,20 @@ static GLuint compileShader(GLenum type, const char* src) {
 
 bool NanoVideo::ensureProgram() {
     if (mProg) return true;
+    // uRotation: the composed panel rotation+flip matrix (sDrmRotMat), the
+    // same mat2 every UI vertex shader applies. Without it the decoded frame
+    // was the ONLY on-screen draw in DRM mode that ignored the panel
+    // orientation: on a rotated+flipped panel (RG Vita Pro) video landed 90
+    // degrees off, stretched to the wrong axis AND mirrored. Identity is
+    // uploaded for the SF/overlay and non-rotated paths, so they are
+    // bit-identical to before.
     static const char* VS =
         "attribute vec2 aPos;\n"
         "attribute vec2 aTex;\n"
         "uniform mat4 uST;\n"
+        "uniform mat2 uRotation;\n"
         "varying vec2 vTex;\n"
-        "void main(){ vTex = (uST * vec4(aTex, 0.0, 1.0)).xy; gl_Position = vec4(aPos, 0.0, 1.0); }\n";
+        "void main(){ vTex = (uST * vec4(aTex, 0.0, 1.0)).xy; gl_Position = vec4(uRotation * aPos, 0.0, 1.0); }\n";
     static const char* FS =
         "#extension GL_OES_EGL_image_external : require\n"
         "precision mediump float;\n"
@@ -881,13 +889,20 @@ bool NanoVideo::ensureProgram() {
     mLocPos = 0; mLocTex = 1;
     mLocST = glGetUniformLocation(mProg, "uST");
     mLocAlpha = glGetUniformLocation(mProg, "uAlpha");
+    mLocRot = glGetUniformLocation(mProg, "uRotation");
     GLint loc = glGetUniformLocation(mProg, "uTex");
-    glUseProgram(mProg); glUniform1i(loc, 0); glUseProgram(0);
+    // Seed uRotation with identity right after link: an unset mat2 uniform
+    // reads as zeros in GLES2, which would collapse the quad to a point.
+    static const float kIdentity[4] = {1.0f, 0.0f, 0.0f, 1.0f};
+    glUseProgram(mProg);
+    glUniform1i(loc, 0);
+    if (mLocRot >= 0) glUniformMatrix2fv(mLocRot, 1, GL_FALSE, kIdentity);
+    glUseProgram(0);
     return true;
 }
 
 void NanoVideo::draw(int screenW, int screenH, float rx, float ry, float rw, float rh,
-                     float alpha, int fitMode) {
+                     float alpha, int fitMode, const float* rotMat) {
     if (!mOpen || !mTexId || mWidth <= 0 || mHeight <= 0 || alpha <= 0.001f) return;
     if (!ensureProgram()) return;
 
@@ -936,6 +951,12 @@ void NanoVideo::draw(int screenW, int screenH, float rx, float ry, float rw, flo
 
     glUseProgram(mProg);
     glUniformMatrix4fv(mLocST, 1, GL_FALSE, st);
+    // Upload the rotation every draw (not only at link): sDrmRotMat can
+    // change at runtime (user flip props) and the program can be lazily
+    // rebuilt after a GL context loss.
+    static const float kId[4] = {1.0f, 0.0f, 0.0f, 1.0f};
+    if (mLocRot >= 0)
+        glUniformMatrix2fv(mLocRot, 1, GL_FALSE, rotMat ? rotMat : kId);
     if (mLocAlpha >= 0) glUniform1f(mLocAlpha, alpha);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_EXTERNAL_OES, mTexId);

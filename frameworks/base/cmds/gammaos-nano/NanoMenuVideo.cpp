@@ -6,6 +6,7 @@
 // player UI. Everything is lazy: parsed on first Video focus, nothing at boot.
 #include "NanoMenu.h"
 #include "NanoMenuPS3.h"
+#include "NanoMenuDrm.h"    // sDrmRotMat for the video quad's panel rotation
 #include "NanoVideo.h"
 #include "NanoDvbSub.h"
 #include "NanoTsDescramble.h"
@@ -2379,9 +2380,13 @@ bool NanoMenu::renderVideoPlayer() {
 
     // Layer 1: the video frame at the chosen Screen Mode (0 Normal .. 4 Double Scale,
     // mapped 1:1 in NanoVideo::draw). updateFrame latches the newest decoded frame.
+    // sDrmRotMat rotates the quad for the panel exactly like every UI draw:
+    // identity in SF/overlay mode and on non-rotated panels (no-op there),
+    // the composed rotation+flip on a rotated DRM-direct panel.
     if (mVideoTest) {
         mVideoTest->updateFrame();
-        mVideoTest->draw(W, H, 0.0f, 0.0f, (float)W, (float)H, et, mVidScreenMode);
+        mVideoTest->draw(W, H, 0.0f, 0.0f, (float)W, (float)H, et,
+                         mVidScreenMode, sDrmRotMat);
     }
     if (!mVideoTest) return et > 0.001f;   // exit fade: black only
 

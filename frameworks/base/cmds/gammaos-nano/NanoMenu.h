@@ -571,6 +571,11 @@ private:
     void drawText(const char* str, float px, float py, float scale,
                   float r, float g, float b, float a);
     float measureText(const char* str, float scale);
+    // Enable a scissor covering the LOGICAL rect (x,y,w,h), correct for any
+    // panel rotation AND flip (transforms the rect through sDrmRotMat, the
+    // same composed matrix the vertex shaders apply). See the definition for
+    // why the old per-site rotation switches were wrong on flipped panels.
+    void scissorLogicalRect(float x, float y, float w, float h);
     void render();
     void drawQuad(float x, float y, float w, float h,
                   float r, float g, float b, float a);

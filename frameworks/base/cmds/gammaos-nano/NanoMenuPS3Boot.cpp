@@ -189,16 +189,12 @@ void NanoMenu::renderPs3BootOverlay() {
             float revealU = bootRamp(e, BOOT_LOGO_IN_A, BOOT_LOGO_IN_B);
             float front = revealU * (1.0f + EDGE_W);
             if (front > 1.0f) front = 1.0f;
-            int rlx = (int)lx, rly = 0, rlw = (int)(dW * front), rlh = (int)mHeight;
-            if (rlw < 1) rlw = 1;
-            int sx, sy, sw, sh;
-            switch (sDrmGlRotation ? sDrmRotationDeg : 0) {
-                case 90:  sx = rly; sy = mWidth - rlx - rlw; sw = rlh; sh = rlw; break;
-                case 180: sx = mWidth - rlx - rlw; sy = mHeight - rly - rlh; sw = rlw; sh = rlh; break;
-                case 270: sx = mHeight - rly - rlh; sy = rlx; sw = rlh; sh = rlw; break;
-                default:  sx = rlx; sy = rly; sw = rlw; sh = rlh; break;
-            }
-            glEnable(GL_SCISSOR_TEST); glScissor(sx, sy, sw, sh);
+            // Composed rotation+flip mapping (see scissorLogicalRect). The old
+            // rotation-only switch put the band on the wrong side of a flipped
+            // panel, scissoring away the ENTIRE logo for the whole wipe so it
+            // hard-popped at full alpha instead of fading in.
+            scissorLogicalRect(lx, 0.0f, fmaxf(1.0f, dW * front),
+                               (float)mHeight);
             scissorOn = true;
         }
         if (mPs3BootLogoTex) {

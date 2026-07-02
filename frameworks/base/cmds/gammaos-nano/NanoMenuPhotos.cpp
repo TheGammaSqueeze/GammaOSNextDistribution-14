@@ -1893,16 +1893,12 @@ void NanoMenu::drawPvWallpaperSel() {
         if (curPhoto >= 0 && curPhoto < (int)mPhotos.size()) { iw = mPhotos[curPhoto].w; ih = mPhotos[curPhoto].h; }
     }
     if (tex && iw > 0 && ih > 0) {
-        // scissor-clip to the crop frame, draw the photo cover-filling it
-        int lx = (int)fx, ly = (int)fy, lw = (int)fw, lh = (int)fh;
-        int sx, sy, sw, sh;
-        switch (sDrmGlRotation ? sDrmRotationDeg : 0) {
-        case 90:  sx = ly; sy = (int)W - lx - lw; sw = lh; sh = lw; break;
-        case 180: sx = (int)W - lx - lw; sy = (int)H - ly - lh; sw = lw; sh = lh; break;
-        case 270: sx = (int)H - ly - lh; sy = lx; sw = lh; sh = lw; break;
-        default:  sx = lx; sy = ly; sw = lw; sh = lh; break;
-        }
-        glEnable(GL_SCISSOR_TEST); glScissor(sx, sy, sw, sh);
+        // scissor-clip to the crop frame, draw the photo cover-filling it.
+        // Composed rotation+flip mapping (see scissorLogicalRect); the old
+        // rotation-only switch here also mis-mapped the Y extent on pure
+        // 90/270 rotations (case 90 used sy from lx but sx=ly instead of
+        // H-ly-lh), so this partial-height rect was wrong even without flips.
+        scissorLogicalRect(fx, fy, fw, fh);
         float z = mPvWpZoom <= 0 ? 1.0f : mPvWpZoom;
         float s = fmaxf(fw / iw, fh / ih) * z;
         float dw = iw * s, dh = ih * s;
