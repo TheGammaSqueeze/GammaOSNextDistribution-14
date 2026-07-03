@@ -84,6 +84,7 @@ extern "C" uint32_t __system_property_serial(const prop_info* __pi);
 #include "NanoMenu.h"
 #include "NanoMenuShaders.h"
 #include "NanoMenuStrings.h"
+#include "NanoI18n.h"      // trDyn() runtime translation of hardcoded UI strings
 #include "NanoBtStable.h"
 #include "NanoMenuPS3Bg.h"   // ps3bg::themeFading() for the adaptive idle frame-rate
 
@@ -1359,15 +1360,32 @@ bool NanoMenu::threadLoop() {
     // Initialize locale from system property
     nanoInitLocaleFromSystem();
 
-    // Check if setup wizard is needed (fast path via persist prop).
-    // The full settings DB check happens after boot_completed when the
-    // settings service is available.
+    // Check if setup wizard is needed. persist.gammaos.nano.setup_done is
+    // nano's own fast-path completion flag, but a device that already ran
+    // SetupWizard on the normal Android side (before ever booting into nano
+    // mode, or after a nano<->Android mode switch) will never have set it.
+    // persist.sys.device_provisioned is a persisted mirror of
+    // Settings.Global.DEVICE_PROVISIONED that ActivityManagerService keeps
+    // up to date (see watchDeviceProvisioned() in ActivityManagerService.java)
+    // regardless of which side completed setup, and unlike the settings
+    // provider it is safe to read this early since it is a plain persisted
+    // property, not something backed by a running service. Treat it as an
+    // equally valid "already provisioned" signal so switching between the
+    // two modes never re-triggers a wizard that already ran on the other side.
     {
         char setupDone[PROPERTY_VALUE_MAX] = {};
         property_get("persist.gammaos.nano.setup_done", setupDone, "");
         if (strcmp(setupDone, "1") != 0) {
-            startSetupWizard();
-            ALOGI("NanoMenu: setup wizard active (persist.gammaos.nano.setup_done != 1)");
+            char devProvisioned[PROPERTY_VALUE_MAX] = {};
+            property_get("persist.sys.device_provisioned", devProvisioned, "");
+            if (strcmp(devProvisioned, "1") == 0) {
+                property_set("persist.gammaos.nano.setup_done", "1");
+                ALOGI("NanoMenu: setup wizard skipped (already provisioned via "
+                      "persist.sys.device_provisioned)");
+            } else {
+                startSetupWizard();
+                ALOGI("NanoMenu: setup wizard active (persist.gammaos.nano.setup_done != 1)");
+            }
         }
     }
 
@@ -1574,7 +1592,7 @@ bool NanoMenu::threadLoop() {
                 // Caption: over the game (bottom) once it is showing, fading as the
                 // game reaches full color; else centered on the black splash.
                 float capA = showingGame ? fmaxf(1.15f - dsSat, 0.35f) : 1.0f;
-                const char* msg = "Quick Resuming...";
+                const char* msg = trDyn("Quick Resuming...");
                 float msgW = measureText(msg, loadScale);
                 float msgY = showingGame ? mHeight * 0.80f : mHeight * 0.42f;
                 drawText(msg, (mWidth - msgW) / 2.0f, msgY, loadScale, 1.0f, 1.0f, 1.0f, capA);
@@ -1587,7 +1605,7 @@ bool NanoMenu::threadLoop() {
                 }
                 // System line (this fast-path is the drastic core -> Nintendo DS).
                 {
-                    const char* sysL = "Nintendo DS";
+                    const char* sysL = trDyn("Nintendo DS");
                     float sysScale = loadScale * 0.4f;
                     float sysW = measureText(sysL, sysScale);
                     drawText(sysL, (mWidth - sysW) / 2.0f,
@@ -1836,7 +1854,7 @@ bool NanoMenu::threadLoop() {
             auto drawOverlay = [&](int vpW, int vpH) {
                 glEnable(GL_BLEND);
                 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-                const char* msg = "Quick Resuming...";
+                const char* msg = trDyn("Quick Resuming...");
                 float msgW = measureText(msg, loadScale);
                 float msgX = ((float)vpW - msgW) / 2.0f;
                 float msgY = (float)vpH * 0.78f;
@@ -3342,7 +3360,7 @@ if (sRingPrimedCount >= 2) {
                                 }
                                 glEnable(GL_BLEND);
                                 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-                                const char* msg = "Quick Resuming...";
+                                const char* msg = trDyn("Quick Resuming...");
                                 float msgW = measureText(msg, loadScale);
                                 float msgX = (mWidth - msgW) / 2.0f;
                                 float msgY = mHeight * 0.75f;
@@ -3488,7 +3506,7 @@ if (sRingPrimedCount >= 2) {
                                 glEnable(GL_BLEND);
                                 glBlendFunc(GL_SRC_ALPHA,
                                             GL_ONE_MINUS_SRC_ALPHA);
-                                const char* msg = "Quick Resuming...";
+                                const char* msg = trDyn("Quick Resuming...");
                                 float msgW = measureText(msg, loadScale);
                                 float msgX = (mWidth - msgW) / 2.0f;
                                 float msgY = mHeight * 0.75f;
@@ -4614,7 +4632,7 @@ if (sRingPrimedCount >= 2) {
                 glClear(GL_COLOR_BUFFER_BIT);
                 glEnable(GL_BLEND);
                 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-                const char* loadMsg = "Loading...";
+                const char* loadMsg = trDyn("Loading...");
                 float loadW = measureText(loadMsg, loadScale);
                 float loadX = (mWidth - loadW) / 2.0f;
                 float loadY = (mHeight - FONT_CHAR_H * loadScale) / 2.0f;

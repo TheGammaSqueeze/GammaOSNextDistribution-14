@@ -719,7 +719,7 @@ void NanoMenu::buildPs3Cats() {
             it.iconR = it.iconG = it.iconB = 1.0f; nano.push_back(it);
         }
         { Ps3Item it; it.label = "Applications"; it.kind = PS3_APP_LIST;
-          it.iconTex = mIconTextures[16]; it.nmapTex = bevelForIconIdx(16);
+          it.iconTex = mIconTextures[18]; it.nmapTex = bevelForIconIdx(18);   // app-grid glyph (index 18), NOT the generic game cartridge (16)
           it.iconR = it.iconG = it.iconB = 1.0f; nano.push_back(it); }
         for (size_t s = 0; s < mXmbSystems.size(); s++) {
             const XmbSystem& sys = mXmbSystems[s];
@@ -1109,7 +1109,13 @@ void NanoMenu::parseAppInfo(const std::string& body) {
             size_t b1 = line.find('|', 2);
             std::string lbl = (b1 == std::string::npos) ? line.substr(2) : line.substr(2, b1 - 2);
             std::string val = (b1 == std::string::npos) ? "" : line.substr(b1 + 1);
-            mAppInfoFacts.push_back(lbl + (val.empty() ? "" : "    " + val));
+            // Translate the framework's English fact label (Updated/Version/Size/
+            // Type/...) and value. trDyn passes non-key values (dates, version
+            // strings, package names, sizes) straight through, so only the fixed
+            // English tokens ("System app"/"User app"/"Unavailable") localize.
+            std::string tLbl = trDyn(lbl.c_str());
+            std::string tVal = val.empty() ? "" : trDyn(val.c_str());
+            mAppInfoFacts.push_back(tLbl + (tVal.empty() ? "" : "    " + tVal));
         } else if (line.rfind("CACHE|", 0) == 0) mAppInfoCacheSz = line.substr(6);
         else if (line.rfind("DATA|", 0) == 0)   mAppInfoDataSz  = line.substr(5);
         else if (line.rfind("PERM|", 0) == 0) {
@@ -1153,12 +1159,15 @@ void NanoMenu::buildAppInfoLevel(Ps3Level& out) {
 // Storage submenu: Clear Cache / Clear Data, each with the framework-reported size.
 void NanoMenu::buildAppStorageLevel(Ps3Level& out) {
     out.items.clear(); out.sel = 0; out.screenKind = APP_STORAGE;
+    // Keep the label a bare key ("Clear Cache") so it localizes live via the
+    // draw-time trDyn; the size goes in the value column (right) instead of
+    // being concatenated into the label, where it would never match a key.
     { Ps3Item it; it.kind = PS3_QUICK; it.a = QA_APP_CLEAR_CACHE;
-      it.label = std::string("Clear Cache") + (mAppInfoCacheSz.empty() ? "" : "    " + mAppInfoCacheSz);
+      it.label = "Clear Cache"; it.value = mAppInfoCacheSz;
       it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 1.0f;
       out.items.push_back(it); }
     { Ps3Item it; it.kind = PS3_QUICK; it.a = QA_APP_CLEAR_DATA;
-      it.label = std::string("Clear Data") + (mAppInfoDataSz.empty() ? "" : "    " + mAppInfoDataSz);
+      it.label = "Clear Data"; it.value = mAppInfoDataSz;
       it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 1.0f;
       out.items.push_back(it); }
     out.sel = 0;
@@ -8643,6 +8652,24 @@ void NanoMenu::closeLanguagePicker(bool apply) {
         nanoApplyLocaleToSystem();                  // persist.sys.locale = <code>-<region>
         ALOGI("ps3menu: system language set to %s",
               nanoGetLocaleInfo(nanoGetLocale()).englishName);
+        // If an App Information level is open, re-fetch it so its facts (Updated /
+        // Version / Type / ... are nano-translated when parsed) refresh into the
+        // new language. The framework re-serves the file; appInfoTick re-parses and
+        // rebuilds every open app-info level in place, preserving the cursor. (The
+        // per-permission NAMES come framework-localized off the system Configuration
+        // locale, which a persist.sys.locale change only updates on the next boot.)
+        bool anyAppLevel = false;
+        for (auto& l : mPs3Stack)
+            if (l.screenKind == APP_INFO || l.screenKind == APP_STORAGE ||
+                l.screenKind == APP_PERMS) { anyAppLevel = true; break; }
+        if (anyAppLevel && !mPs3AppInfoPkg.empty()) {
+            static uint32_t sLangInfoSeq = 0;
+            char nb[96];
+            snprintf(nb, sizeof(nb), "%s#L%u", mPs3AppInfoPkg.c_str(), ++sLangInfoSeq);
+            mPs3AppInfoNonce = nb;
+            mAppInfoLoaded = false;
+            property_set("sys.gammaos.nano.appinfo_req", nb);
+        }
     } else {
         // Cancel: undo the live preview (restore the locale that was active on open)
         // so the XMB returns to its previous language and nothing is persisted.

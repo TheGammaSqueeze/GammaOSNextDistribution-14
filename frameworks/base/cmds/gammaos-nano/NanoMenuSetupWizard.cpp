@@ -127,23 +127,6 @@ static const char* kSetupLogPath =
         "/data/data/org.lineageos.setupwizard/files/gammaos_setup.log";
 
 // ---------------------------------------------------------------------------
-// Provisioning check
-// ---------------------------------------------------------------------------
-
-bool NanoMenu::checkDeviceProvisioned() {
-    FILE* f = popen("settings get global device_provisioned 2>/dev/null", "r");
-    if (!f) return false;
-    char buf[64] = {};
-    if (fgets(buf, sizeof(buf), f)) {
-        pclose(f);
-        // "1" means provisioned, anything else means not
-        return (buf[0] == '1');
-    }
-    pclose(f);
-    return false;
-}
-
-// ---------------------------------------------------------------------------
 // Lifecycle
 // ---------------------------------------------------------------------------
 
@@ -166,10 +149,13 @@ void NanoMenu::startSetupWizard() {
 
 void NanoMenu::finishSetupWizard() {
     // Mark provisioned via settings DB. Order matters: DEVICE_PROVISIONED
-    // first (triggers AMS ContentObserver that sets ro.sys.device_provisioned),
-    // then USER_SETUP_COMPLETE (unblocks permission grants and storage).
-    // Run synchronously so the framework processes each change before the
-    // next one lands.
+    // first (triggers AMS's watchDeviceProvisioning() ContentObserver, which
+    // mirrors it to the persisted persist.sys.device_provisioned property --
+    // that mirror is what lets a later boot into normal Android mode see this
+    // device as already provisioned and skip its own SetupWizard), then
+    // USER_SETUP_COMPLETE (unblocks permission grants and storage). Run
+    // synchronously so the framework processes each change before the next
+    // one lands.
     system("settings put global device_provisioned 1 2>/dev/null");
     system("settings put secure user_setup_complete 1 2>/dev/null");
     system("settings put secure tv_user_setup_complete 1 2>/dev/null");
