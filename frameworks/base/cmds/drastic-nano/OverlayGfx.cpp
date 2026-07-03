@@ -12,6 +12,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
+#include <sys/system_properties.h>
 
 #include <utils/Log.h>
 
@@ -240,30 +241,47 @@ bool OverlayGfx::init(int viewportW, int viewportH, const float rotMat[4]) {
         return false;
     }
     mFtLibrary = lib;
-    const char* paths[] = {
-        "/system/fonts/Roboto-Regular.ttf",
-        "/system/fonts/DroidSans.ttf",
-        nullptr,
-    };
-    FT_Face face = nullptr;
-    for (int i = 0; paths[i]; i++) {
-        if (FT_New_Face(lib, paths[i], 0, &face) == 0) {
-            ALOGI("OverlayGfx: font loaded from %s", paths[i]);
-            break;
+    // Load the same font chain gammaos-nano uses (NanoMenuRender.cpp initFonts):
+    // a Rodin/theme primary for the authentic XMB Latin look, then the Noto
+    // script-fallback faces so CJK/Arabic/Thai/Hebrew glyphs render instead of
+    // tofu. Per-glyph, faceForCp() picks the first face that has the codepoint.
+    mFtNumFaces = 0;
+    auto tryLoad = [&](const char* path) {
+        if (!path || !*path || mFtNumFaces >= kMaxFtFaces) return;
+        FT_Face f = nullptr;
+        if (FT_New_Face(lib, path, 0, &f) == 0) {
+            mFtFaces[mFtNumFaces++] = f;
+            ALOGI("OverlayGfx: font loaded from %s", path);
         }
-        face = nullptr;
+    };
+    // Theme override (same prop as the XMB), else the bundled PS3 Rodin.
+    char fontProp[PROP_VALUE_MAX] = {0};
+    __system_property_get("persist.gammaos.nano.font", fontProp);
+    if (fontProp[0]) tryLoad(fontProp);
+    if (mFtNumFaces == 0) {
+        tryLoad("/data/system/nano_xmb/fonts/ps3-rodin-regular.ttf");
+        if (mFtNumFaces == 0)
+            tryLoad("/system/etc/nano_xmb/fonts/ps3-rodin-regular.ttf");
     }
-    if (!face) {
+    // Latin fallbacks + the Noto script faces (CJK/Arabic/Thai/Hebrew).
+    tryLoad("/system/fonts/Roboto-Regular.ttf");
+    tryLoad("/system/fonts/DroidSans.ttf");
+    tryLoad("/system/fonts/NotoSansCJK-Regular.ttc");
+    tryLoad("/system/fonts/NotoNaskhArabic-Regular.ttf");
+    tryLoad("/system/fonts/NotoSansThai-Regular.ttf");
+    tryLoad("/system/fonts/NotoSansHebrew-Regular.ttf");
+    if (mFtNumFaces == 0) {
         ALOGE("OverlayGfx: no system font found");
         return false;
     }
+    FT_Face face = (FT_Face)mFtFaces[0];   // primary drives metrics/base size
     // Scale font with viewport height so tiny 480-tall panels still
     // fit readable text. Target ~22 lines of text on a 480-tall panel.
     mFontPx = viewportH / 22;
     if (mFontPx < 12) mFontPx = 12;
     if (mFontPx > 32) mFontPx = 32;
-    FT_Set_Pixel_Sizes(face, 0, mFontPx);
-    mFtFace = face;
+    for (int i = 0; i < mFtNumFaces; i++)
+        FT_Set_Pixel_Sizes((FT_Face)mFtFaces[i], 0, mFontPx);
     mAscent = face->size->metrics.ascender / 64;
     mLineH  = face->size->metrics.height / 64;
     ALOGI("OverlayGfx: font %dpx ascent=%d lineH=%d viewport %dx%d",
@@ -282,10 +300,11 @@ void OverlayGfx::shutdown() {
     if (mTextProgram)  { glDeleteProgram(mTextProgram);  mTextProgram = 0; }
     if (mRoundProgram) { glDeleteProgram(mRoundProgram); mRoundProgram = 0; }
     if (mImageProgram) { glDeleteProgram(mImageProgram); mImageProgram = 0; }
-    if (mFtFace) {
-        FT_Done_Face((FT_Face)mFtFace);
-        mFtFace = nullptr;
+    for (int i = 0; i < mFtNumFaces; i++) {
+        if (mFtFaces[i]) FT_Done_Face((FT_Face)mFtFaces[i]);
+        mFtFaces[i] = nullptr;
     }
+    mFtNumFaces = 0;
     if (mFtLibrary) {
         FT_Done_FreeType((FT_Library)mFtLibrary);
         mFtLibrary = nullptr;
@@ -491,9 +510,16 @@ void OverlayGfx::destroyTexture(GLuint tex) {
     mImgSizes.erase(tex);
 }
 
+void* OverlayGfx::faceForCp(uint32_t cp) const {
+    for (int i = 0; i < mFtNumFaces; i++) {
+        if (FT_Get_Char_Index((FT_Face)mFtFaces[i], cp) != 0) return mFtFaces[i];
+    }
+    return mFtNumFaces > 0 ? mFtFaces[0] : nullptr;   // primary (renders .notdef)
+}
+
 bool OverlayGfx::loadGlyph(uint32_t cp, int pxSize, Glyph* out) const {
-    if (!mFtFace) return false;
-    FT_Face face = (FT_Face)mFtFace;
+    FT_Face face = (FT_Face)faceForCp(cp);
+    if (!face) return false;
     if (pxSize < 4) pxSize = 4;
     if (pxSize > 256) pxSize = 256;
     FT_Set_Pixel_Sizes(face, 0, pxSize);   // rasterize at the display size
@@ -652,8 +678,10 @@ float OverlayGfx::measure(const char* s, float scale) const {
         uint64_t key = ((uint64_t)cp << 20) | (uint32_t)pxSize;
         auto it = mGlyphs.find(key);
         if (it != mGlyphs.end()) { penX += it->second.advance; continue; }
-        // Not cached: ask FT for the advance at this size without rendering.
-        FT_Face face = (FT_Face)mFtFace;
+        // Not cached: ask FT for the advance at this size without rendering
+        // (same script-fallback face selection as loadGlyph, so CJK/Arabic
+        // advances match what actually gets drawn).
+        FT_Face face = (FT_Face)faceForCp(cp);
         if (!face) continue;
         FT_Set_Pixel_Sizes(face, 0, pxSize);
         if (FT_Load_Char(face, cp, FT_LOAD_DEFAULT) != 0) continue;

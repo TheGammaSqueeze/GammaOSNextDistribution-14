@@ -998,6 +998,20 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
     bool drmRotated = (drmEffRot == 90 || drmEffRot == 270);
     int drmLogicalW = drmRotated ? drmPanelH : drmPanelW;
     int drmLogicalH = drmRotated ? drmPanelW : drmPanelH;
+    // Fixed (install-only) logical size + rotation matrix for the overlay
+    // menu, built from the panel's physical mounting alone. drmLogicalW/H
+    // and drmInstallMat/drmCompositeMat below fold in the LIVE user Display
+    // Rotation setting as well, which is correct for the DS video content
+    // and touch mapping (they should follow the user's chosen orientation),
+    // but the menu chrome must stay pinned to the panel's physical
+    // orientation regardless of that setting -- Display Rotation is a
+    // video-only knob and must never turn the menu with it.
+    const bool drmFixedRotated =
+            (android::sDrmRotationDeg == 90 || android::sDrmRotationDeg == 270);
+    const int drmFixedLogicalW = drmFixedRotated ? drmPanelH : drmPanelW;
+    const int drmFixedLogicalH = drmFixedRotated ? drmPanelW : drmPanelH;
+    float drmFixedMat[4];
+    android::drmBuildInstallMatrix(drmFixedMat, android::sDrmRotationDeg);
     GLuint drmLayoutFbo = 0, drmLayoutTex = 0;
     if (drmSingleLayout) {
         glGenTextures(1, &drmLayoutTex);
@@ -1022,10 +1036,12 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
     const float drmIdentityMat[4] = {1.0f, 0.0f, 0.0f, 1.0f};
 
     // Logical->panel "install" matrix (rotation + user flip_h/flip_v), built
-    // from the same DRM props the XMB reads so the drastic session honors the
-    // panel's orientation and flip correction instead of hard-coding one. The
-    // overlay menu draws its geometry straight into the panel FBO like the XMB
-    // does, so it uses this matrix directly. The DS layout is composited from a
+    // from the same DRM props the XMB reads, folding in the live effective
+    // rotation (install + user Display Rotation) so the DS video content
+    // honors both the panel's orientation and the user's chosen play
+    // orientation. This is a VIDEO-only matrix -- the overlay menu uses the
+    // separate install-only drmFixedMat above instead, so it never turns
+    // with the Display Rotation setting. The DS layout is composited from a
     // logical-orientation offscreen texture, and sampling a texture inverts one
     // axis versus a direct geometry draw, so its composite matrix is the install
     // matrix with the second column negated (which cancels that inversion -- a
@@ -1058,15 +1074,17 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
     }
     // Default rotation matrix for overlay geometry: the shared sDrmRotMat,
     // correct for non-rotated panels and the dual-panel path. For the single-
-    // panel layout, lay the overlay out in the logical (landscape) space and
-    // rotate it onto the panel with the install matrix, so its responsive
+    // panel layout, lay the overlay out in the fixed (install-only, landscape)
+    // space and rotate it onto the panel with drmFixedMat, so its responsive
     // design sees the real on-screen aspect instead of the panel's native
-    // portrait dimensions (which stretched it on a rotated panel).
+    // portrait dimensions (which stretched it on a rotated panel) -- and,
+    // deliberately, so it never follows the live user Display Rotation
+    // setting the way the DS video content does.
     const float* overlayRotMat = android::sDrmRotMat;
     if (drmSingleLayout) {
-        overlayW = drmLogicalW;
-        overlayH = drmLogicalH;
-        overlayRotMat = drmInstallMat;
+        overlayW = drmFixedLogicalW;
+        overlayH = drmFixedLogicalH;
+        overlayRotMat = drmFixedMat;
     }
     if (!gfx.init(overlayW, overlayH, overlayRotMat)) {
         ALOGW("drastic-nano: OverlayGfx init failed; overlay disabled");
@@ -1078,7 +1096,10 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
     // Re-lay-out the single-panel output for a new effective rotation (install +
     // live Display Rotation). Only resizes the layout texture + overlay when the
     // logical orientation actually flips, so a no-op frame is cheap. Touch and
-    // the render branch read drmLogicalW/H + the matrices, so they follow.
+    // the render branch read drmLogicalW/H + the matrices, so they follow. The
+    // overlay's own viewport/rotation (gfx) is intentionally NOT touched here --
+    // it stays pinned to the fixed install-only matrix set up at gfx.init(), so
+    // changing this setting never turns the menu chrome, only the DS video.
     auto applyDrmRotation = [&](int effRot) {
         const bool rot = (effRot == 90 || effRot == 270);
         const int newLW = rot ? drmPanelH : drmPanelW;
@@ -1098,8 +1119,6 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
         drmCompositeMat[1] = drmInstallMat[1];
         drmCompositeMat[2] = -drmInstallMat[2];
         drmCompositeMat[3] = -drmInstallMat[3];
-        gfx.setViewport(drmLogicalW, drmLogicalH);
-        gfx.setRotationMatrix(drmInstallMat);
         ALOGI("drastic-nano: display rotation -> eff=%d (logical %dx%d)",
               effRot, drmLogicalW, drmLogicalH);
     };
@@ -1661,7 +1680,10 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                 gfx.beginFrame();
                 overlay.drawOsk(gfx);
                 gfx.endFrame();
-                gfx.setViewport(drmLogicalW, drmLogicalH);   // restore logical
+                // Restore the overlay's fixed (install-only) baseline, not the
+                // live drmLogicalW/H -- those track the user's Display Rotation
+                // setting, which must never resize/turn the menu chrome.
+                gfx.setViewport(drmFixedLogicalW, drmFixedLogicalH);
             }
         }
 

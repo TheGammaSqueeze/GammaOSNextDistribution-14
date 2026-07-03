@@ -152,7 +152,12 @@ private:
 
     // FreeType glyph cache.
     void* mFtLibrary = nullptr;
-    void* mFtFace = nullptr;
+    // Primary (Rodin/theme) face plus script-fallback faces (CJK/Arabic/Thai/
+    // Hebrew), mirroring gammaos-nano's chain so overlay text renders every
+    // translated locale instead of tofu boxes for glyphs the primary lacks.
+    static const int kMaxFtFaces = 10;
+    void* mFtFaces[kMaxFtFaces] = {};
+    int   mFtNumFaces = 0;
     int   mFontPx = 18;        // base pixel height
     int   mAscent = 0;
     int   mLineH  = 0;
@@ -170,6 +175,9 @@ private:
 
     void drawSolidQuad(float x, float y, float w, float h, Color c);
     bool loadGlyph(uint32_t codepoint, int pxSize, Glyph* out) const;
+    // Pick the first loaded face that has a glyph for this codepoint (script
+    // fallback), or the primary face if none does. Returns an FT_Face (void*).
+    void* faceForCp(uint32_t cp) const;
 };
 
 } // namespace drastic_gfx
