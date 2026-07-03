@@ -452,7 +452,6 @@ private:
     void settingsSetTextValue(int nodeIdx, const std::string& val);
 
     // Setup wizard (NanoMenuSetupWizard.cpp)
-    bool checkDeviceProvisioned();
     void startSetupWizard();
     void finishSetupWizard();
     void renderSetupWizard();
@@ -2765,7 +2764,7 @@ private:
     // mIconTextures[]). Supports a non-square w/h. (NanoMenuPS3Menu.cpp)
     void drawIconTex(GLuint tex, float x, float y, float w, float h,
                      float r, float g, float b, float a);
-    GLuint mIconTextures[18]; // 0-14=systems, 15=history, 16=game item, 17=setting
+    GLuint mIconTextures[19]; // 0-14=systems, 15=history, 16=generic game cartridge, 17=setting, 18=Applications app-grid
 
     // On-screen keyboard. mOskActive + mOskQuery are the keep-stable members
     // external code reads/writes directly; all new runtime state is in mOsk.

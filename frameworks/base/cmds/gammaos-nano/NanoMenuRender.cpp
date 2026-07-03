@@ -63,6 +63,7 @@
 
 #include "DrasticRunner.h"
 #include "NanoMenu.h"
+#include "NanoI18n.h"      // trDyn() runtime translation of hardcoded UI strings
 #include "NanoMenuDrm.h"
 #include "NanoMenuShaders.h"
 #include "NanoMenuPS3.h"
@@ -79,7 +80,7 @@ using ui::DisplayMode;
 
 // Map system index to RetroArch XMB monochrome icon filename
 // Order MUST match kXmbSystemDefs (in NanoMenuXmb.cpp): NES,SNES,GB,GBC,GBA,N64,NDS,GEN,SMS,GG,PSX,PSP,DC,NGP,P8,history,<game slot has no file>,setting
-static const char* kIconPngNames[18] = {
+static const char* kIconPngNames[19] = {
     "Nintendo - Nintendo Entertainment System.png",       // 0: NES
     "Nintendo - Super Nintendo Entertainment System.png", // 1: SNES
     "Nintendo - Game Boy.png",                            // 2: GB
@@ -96,8 +97,9 @@ static const char* kIconPngNames[18] = {
     "SNK - Neo Geo Pocket Color.png",                     // 13: NGP
     "PICO-8.png",                                         // 14: PICO-8
     "history.png",                                        // 15: Recently Played
-    nullptr,                                              // 16: game item (embedded only)
+    nullptr,                                              // 16: generic game cartridge (embedded only)
     "setting.png",                                        // 17: Settings column
+    nullptr,                                              // 18: Applications app-grid (embedded only)
 };
 
 static const char* kIconPngDir = "/data/system/nano_icons";
@@ -466,7 +468,7 @@ void NanoMenu::initIconTextures() {
     // virtual px, so a 256 source is oversized on a small panel. iconTexCap keeps
     // them crisp on high-DPI screens (returns up to the full source there).
     const int iconCap = ps3::iconTexCap(mWidth, mHeight, ps3::ITEM_ICON_SIZE, 256);
-    for (int i = 0; i < 18; i++) {
+    for (int i = 0; i < 19; i++) {
         // Try loading high-res PNG from on-device RetroArch assets
         bool mono = (i != 14); // PICO-8 (index 14) keeps its original colors
         std::string pngPath;
@@ -489,7 +491,7 @@ void NanoMenu::initIconTextures() {
 
 void NanoMenu::drawIcon(int iconIdx, float x, float y, float size,
                         float r, float g, float b, float a) {
-    if (iconIdx < 0 || iconIdx >= 18 || mIconTextures[iconIdx] == 0) return;
+    if (iconIdx < 0 || iconIdx >= 19 || mIconTextures[iconIdx] == 0) return;
 
     float x0 = (x / mWidth) * 2.0f - 1.0f;
     float y0 = 1.0f - ((y + size) / mHeight) * 2.0f;
@@ -2262,10 +2264,11 @@ void NanoMenu::render() {
     if (startY < 10.0f) startY = 10.0f;
 
     // Title
-    float titleW = measureText(mTitle.c_str(), titleScale);
+    const char* titleTr = trDyn(mTitle.c_str());
+    float titleW = measureText(titleTr, titleScale);
     float titleX = (mWidth - titleW) / 2.0f;
     float titleY = startY;
-    drawText(mTitle.c_str(), titleX, titleY, titleScale,
+    drawText(titleTr, titleX, titleY, titleScale,
              0.0f, 0.85f, 1.0f, 1.0f);
 
     // Subtitle
@@ -2458,7 +2461,7 @@ void NanoMenu::render() {
         float qrScale = 1.5f * sf;
         float dotSize = 10.0f * sf;
         float pad = 15.0f * sf;
-        const char* qrLabel = "Quick Resume";
+        const char* qrLabel = trDyn("Quick Resume");
         float qrLabelW = measureText(qrLabel, qrScale);
         float qrX = mWidth - qrLabelW - pad;
         float dotX = qrX + qrLabelW / 2.0f - dotSize / 2.0f;

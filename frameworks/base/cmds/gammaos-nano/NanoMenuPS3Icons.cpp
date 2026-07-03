@@ -656,7 +656,7 @@ GLuint NanoMenu::bevelFromRGBA(const uint8_t* px, int w, int h) {
 
 // Embedded console-icon bevel (0..17), cached per index.
 GLuint NanoMenu::bevelForIconIdx(int iconIdx) {
-    if (iconIdx < 0 || iconIdx >= 18) return 0;
+    if (iconIdx < 0 || iconIdx >= 19) return 0;
     auto it = mPs3BevelByIconIdx.find(iconIdx);
     if (it != mPs3BevelByIconIdx.end()) return it->second;
     std::vector<uint8_t> px; int w = 0, h = 0;
