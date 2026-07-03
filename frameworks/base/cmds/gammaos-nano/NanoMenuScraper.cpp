@@ -21,6 +21,7 @@
 #include "NanoMenu.h"
 #include "NanoScraper.h"
 #include "NanoJson.h"
+#include "NanoI18n.h"    // trDyn() runtime translation of hardcoded UI strings
 #include "stb_image.h"   // stbi_load (impl in NanoMenuPS3Icons.cpp); AImageDecoder fails on the scrape art
 
 #include <dirent.h>
@@ -441,8 +442,8 @@ void NanoMenu::scrapeSystemsAsync(const std::vector<int>& sysIdxs) {
 
     if (jobs.empty()) {
         // Nothing to do: explain why (no credentials, or already complete).
-        mScrapeError = anyConfigured ? "All games already have art (enable Overwrite to refresh)."
-                                     : "Set your scraper credentials in Settings first.";
+        mScrapeError = anyConfigured ? trDyn("All games already have art (enable Overwrite to refresh).")
+                                     : trDyn("Set your scraper credentials in Settings first.");
         mScrapeDoneFlag = true;
         mScrapeBox = wantBox; mScrapeFan = wantFan;   // (unused, keeps -Wunused quiet via assign)
         return;
@@ -565,7 +566,7 @@ void NanoMenu::renderScrapeProgress() {
         drawText(s, cx - w * 0.5f, y, scale, r, g, b, a);
     };
 
-    const char* title = "Boxart Scraper";
+    const char* title = trDyn("Boxart Scraper");
     centered(title, py + ph * 0.20f, 1.7f * sf, 1.0f, 1.0f, 1.0f, 1.0f);
 
     char line[256];
@@ -573,13 +574,15 @@ void NanoMenu::renderScrapeProgress() {
         if (!err.empty() && hits == 0) {
             centered(err.c_str(), py + ph * 0.52f, 1.0f * sf, 1.0f, 0.85f, 0.6f, 1.0f);
         } else {
-            snprintf(line, sizeof(line), "Done. %d game%s with art, %d not found.",
-                     hits, hits == 1 ? "" : "s", fail);
+            snprintf(line, sizeof(line),
+                     hits == 1 ? trDyn("Done. %d game with art, %d not found.")
+                               : trDyn("Done. %d games with art, %d not found."),
+                     hits, fail);
             centered(line, py + ph * 0.50f, 1.15f * sf, 0.85f, 1.0f, 0.85f, 1.0f);
         }
-        centered("Press X or O to close", py + ph * 0.80f, 0.95f * sf, 0.75f, 0.78f, 0.82f, 0.9f);
+        centered(trDyn("Press X or O to close"), py + ph * 0.80f, 0.95f * sf, 0.75f, 0.78f, 0.82f, 0.9f);
     } else {
-        snprintf(line, sizeof(line), "%d / %d   (%d found)", done, total, hits);
+        snprintf(line, sizeof(line), trDyn("%d / %d   (%d found)"), done, total, hits);
         centered(line, py + ph * 0.46f, 1.3f * sf, 1.0f, 1.0f, 1.0f, 1.0f);
         // current game (clipped)
         std::string s = status;
@@ -588,7 +591,7 @@ void NanoMenu::renderScrapeProgress() {
             s += "...";
         }
         centered(s.c_str(), py + ph * 0.66f, 0.95f * sf, 0.78f, 0.82f, 0.88f, 1.0f);
-        centered("Press O to cancel", py + ph * 0.86f, 0.9f * sf, 0.7f, 0.72f, 0.76f, 0.85f);
+        centered(trDyn("Press O to cancel"), py + ph * 0.86f, 0.9f * sf, 0.7f, 0.72f, 0.76f, 0.85f);
     }
 }
 

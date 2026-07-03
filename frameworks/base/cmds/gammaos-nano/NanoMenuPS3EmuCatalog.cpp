@@ -16,6 +16,7 @@
 
 #include "NanoMenu.h"
 #include "NanoJson.h"
+#include "NanoI18n.h"      // trDyn() runtime translation of hardcoded UI strings
 
 #include <dirent.h>
 #include <fcntl.h>
@@ -105,7 +106,7 @@ void NanoMenu::loadEmuCatalog() {
         std::string platName = plat ? plat->getString("name") : "";
         std::string platRegex = plat ? plat->getString("acceptedFilenameRegex") : "";
         std::string platId = plat ? plat->getString("uniqueId") : "";
-        if (platName.empty()) platName = "Platform";
+        if (platName.empty()) platName = trDyn("Platform");
         const njson::Value* players = root.find("playerList");
         if (!players || !players->isArray()) continue;
         for (const auto& pv : players->arr) {

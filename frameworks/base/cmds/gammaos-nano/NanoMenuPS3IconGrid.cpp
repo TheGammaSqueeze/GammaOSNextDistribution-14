@@ -13,6 +13,7 @@
 #define LOG_TAG "GammaOSNano"
 
 #include "NanoMenu.h"
+#include "NanoI18n.h"      // trDyn() runtime translation of hardcoded UI strings
 #include "NanoMenuPS3.h"
 #include "NanoMenuPS3Bg.h"
 
@@ -243,13 +244,13 @@ void NanoMenu::renderIconGridPicker() {
     float iconSz = cell * 0.66f;
 
     // Title + filter line.
-    drawText("Choose Icon", margin, 28.0f * ts + slide, 1.6f * ts, 1.0f, 1.0f, 1.0f, a);
+    drawText(trDyn("Choose Icon"), margin, 28.0f * ts + slide, 1.6f * ts, 1.0f, 1.0f, 1.0f, a);
     char info[160];
     if (mIconGridFilter.empty())
-        snprintf(info, sizeof(info), "%zu icons", mIconGridFiltered.size());
+        snprintf(info, sizeof(info), "%zu %s", mIconGridFiltered.size(), trDyn("icons"));
     else
-        snprintf(info, sizeof(info), "filter: \"%s\"  (%zu)",
-                 mIconGridFilter.c_str(), mIconGridFiltered.size());
+        snprintf(info, sizeof(info), "%s: \"%s\"  (%zu)",
+                 trDyn("filter"), mIconGridFilter.c_str(), mIconGridFiltered.size());
     drawText(info, margin, 76.0f * ts + slide, 1.0f * ts, 0.75f, 0.85f, 0.95f, a);
 
     // Visible cells.
@@ -283,7 +284,7 @@ void NanoMenu::renderIconGridPicker() {
         drawText(nm.c_str(), (W - tw) * 0.5f, (float)H - footerH - 26.0f * ts, ns,
                  1.0f, 1.0f, 1.0f, a);
     }
-    const char* hints = "Enter: Select    Y: Filter    Back: Cancel";
+    const char* hints = trDyn("Enter: Select    Y: Filter    Back: Cancel");
     float hs = 0.9f * ts;
     float hw = measureText(hints, hs);
     drawText(hints, (W - hw) * 0.5f, (float)H - 30.0f * ts, hs, 0.7f, 0.78f, 0.88f, a);

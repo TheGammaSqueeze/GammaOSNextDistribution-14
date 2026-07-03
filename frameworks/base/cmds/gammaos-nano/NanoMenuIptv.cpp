@@ -28,6 +28,7 @@
 
 #include "NanoMenu.h"
 #include "NanoMenuPS3.h"
+#include "NanoI18n.h"      // trDyn() runtime translation of hardcoded UI strings
 
 #include <algorithm>
 #include <cctype>
@@ -364,7 +365,7 @@ void NanoMenu::buildIptvCategoriesScreen(Ps3Level& out) {
     for (size_t c = 0; c < mIptvCats.size(); c++) {
         Ps3Item it; it.label = mIptvCats[c].title; it.kind = PS3_IPTV_GROUP; it.a = (int)c;
         int n = mIptvCats[c].total;
-        char v[32]; snprintf(v, sizeof(v), "%d %s", n, n == 1 ? "Channel" : "Channels"); it.value = v;
+        char v[32]; snprintf(v, sizeof(v), "%d %s", n, trDyn(n == 1 ? "Channel" : "Channels")); it.value = v;
         it.iconTex = 0; it.nmapTex = nm; it.iconR = it.iconG = it.iconB = 1.0f;
         out.items.push_back(std::move(it));
     }
@@ -381,7 +382,7 @@ void NanoMenu::buildIptvCountrySubmenu(int catIdx, Ps3Level& out) {
         Ps3Item it; it.label = c.countries[k].name.empty() ? "All" : c.countries[k].name;
         it.kind = PS3_IPTV_COUNTRY; it.a = catIdx; it.b = (int)k;
         int n = (int)c.countries[k].channels.size();
-        char v[32]; snprintf(v, sizeof(v), "%d %s", n, n == 1 ? "Channel" : "Channels"); it.value = v;
+        char v[32]; snprintf(v, sizeof(v), "%d %s", n, trDyn(n == 1 ? "Channel" : "Channels")); it.value = v;
         it.iconTex = 0; it.nmapTex = nm; it.iconR = it.iconG = it.iconB = 1.0f;
         out.items.push_back(std::move(it));
     }

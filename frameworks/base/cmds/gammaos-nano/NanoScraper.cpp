@@ -14,6 +14,7 @@
 
 #include "NanoScraper.h"
 #include "NanoJson.h"
+#include "NanoI18n.h"    // trDyn() runtime translation of hardcoded UI strings
 
 #include <cctype>
 #include <cstdint>
@@ -366,7 +367,7 @@ static ScrapeOutcome scrapeScreenScraper(const Credentials& cred,
     off_t fsz = 0; if (fileExistsNonEmpty(romPath, &fsz)) q.push_back({"romtaille", std::to_string((long long)fsz)});
 
     if (!curlToFile(curl, "https://api.screenscraper.fr/api2/jeuInfos.php", q, resp, 30)) {
-        r.networkFail = true; r.error = "ScreenScraper request failed"; return r;
+        r.networkFail = true; r.error = trDyn("ScreenScraper request failed"); return r;
     }
     std::string body = readFile(resp, 2 * 1024 * 1024);
     unlink(resp.c_str());
@@ -375,7 +376,7 @@ static ScrapeOutcome scrapeScreenScraper(const Credentials& cred,
         if (body.find("identifiants") != std::string::npos || body.find("login") != std::string::npos
             || body.find("Erreur") != std::string::npos) {
             r.networkFail = true;
-            r.error = "ScreenScraper: " + (body.size() > 120 ? body.substr(0, 120) : body);
+            r.error = std::string(trDyn("ScreenScraper: ")) + (body.size() > 120 ? body.substr(0, 120) : body);
         } else {
             r.error = "No match";
         }
@@ -591,14 +592,14 @@ static ScrapeOutcome scrapeTheGamesDb(const Credentials& cred,
     };
     if (plat.tgdb > 0) q.push_back({"filter[platform]", std::to_string(plat.tgdb)});
     if (!curlToFile(curl, "https://api.thegamesdb.net/v1/Games/ByGameName", q, resp, 30)) {
-        r.networkFail = true; r.error = "TheGamesDB request failed"; return r;
+        r.networkFail = true; r.error = trDyn("TheGamesDB request failed"); return r;
     }
     std::string body = readFile(resp, 2 * 1024 * 1024);
     unlink(resp.c_str());
     njson::Value root;
-    if (body.empty() || !njson::parse(body, &root)) { r.networkFail = true; r.error = "TheGamesDB: bad response"; return r; }
+    if (body.empty() || !njson::parse(body, &root)) { r.networkFail = true; r.error = trDyn("TheGamesDB: bad response"); return r; }
     int code = root.getInt("code", 0);
-    if (code == 403 || code == 401) { r.networkFail = true; r.error = "TheGamesDB: invalid API key"; return r; }
+    if (code == 403 || code == 401) { r.networkFail = true; r.error = trDyn("TheGamesDB: invalid API key"); return r; }
 
     const njson::Value* data = root.find("data");
     const njson::Value* games = data ? data->find("games") : nullptr;
@@ -637,12 +638,12 @@ static ScrapeOutcome scrapeTheGamesDb(const Credentials& cred,
         {"apikey", cred.tgdbKey}, {"games_id", std::to_string(gameId)},
     };
     if (!curlToFile(curl, "https://api.thegamesdb.net/v1/Games/Images", q2, resp, 30)) {
-        r.networkFail = true; r.error = "TheGamesDB images request failed"; return r;
+        r.networkFail = true; r.error = trDyn("TheGamesDB images request failed"); return r;
     }
     std::string body2 = readFile(resp, 2 * 1024 * 1024);
     unlink(resp.c_str());
     njson::Value root2;
-    if (body2.empty() || !njson::parse(body2, &root2)) { r.networkFail = true; r.error = "TheGamesDB: bad images response"; return r; }
+    if (body2.empty() || !njson::parse(body2, &root2)) { r.networkFail = true; r.error = trDyn("TheGamesDB: bad images response"); return r; }
     const njson::Value* d2 = root2.find("data");
     if (!d2) { r.error = "No media"; return r; }
     std::string base;

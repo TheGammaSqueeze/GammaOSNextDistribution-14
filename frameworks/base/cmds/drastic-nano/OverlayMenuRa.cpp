@@ -255,9 +255,9 @@ void OverlayMenu::drawRaBottomPanel(drastic_gfx::OverlayGfx& gfx) {
         const float barH = titlePx * 1.7f;
         mBackBtnH = barH;
         gfx.fillRect(0, 0, vw, barH, rgba(0.10f, 0.12f, 0.17f, 1.0f));
-        gfx.text("< Back", x, (barH - statusPx) * 0.5f, sc(statusPx),
+        gfx.text(trDyn("< Back"), x, (barH - statusPx) * 0.5f, sc(statusPx),
                  rgba(0.60f, 0.78f, 1.0f, 0.95f));
-        float bw = gfx.measure("< Back", sc(statusPx));
+        float bw = gfx.measure(trDyn("< Back"), sc(statusPx));
         std::string lbTitle;
         if (mRa) {
             auto lbs2 = mRa->leaderboardSnapshot();
@@ -277,10 +277,10 @@ void OverlayMenu::drawRaBottomPanel(drastic_gfx::OverlayGfx& gfx) {
             // cannot accumulate scroll against the previous view's (stale, larger)
             // max and snap the list to its bottom when the entries arrive.
             mRaBottomMaxScroll = 0.0f; mRaBottomScroll = 0.0f;
-            gfx.text("Loading rankings...", x, y, sc(descPx), rgba(0.70f, 0.72f, 0.80f, 0.85f));
+            gfx.text(trDyn("Loading rankings..."), x, y, sc(descPx), rgba(0.70f, 0.72f, 0.80f, 0.85f));
         } else if (entries.empty()) {
             mRaBottomMaxScroll = 0.0f; mRaBottomScroll = 0.0f;
-            gfx.text("No entries yet. Be the first!", x, y, sc(descPx),
+            gfx.text(trDyn("No entries yet. Be the first!"), x, y, sc(descPx),
                      rgba(0.60f, 0.62f, 0.70f, 0.75f));
         } else {
             const float rowH = lbPx * 1.55f;
@@ -326,7 +326,7 @@ void OverlayMenu::drawRaBottomPanel(drastic_gfx::OverlayGfx& gfx) {
                  unlocked ? rgba(0.99f, 0.83f, 0.32f, 0.98f)
                           : rgba(0.92f, 0.93f, 0.97f, 0.96f));
         const float sy = y + titlePx * 1.25f;
-        gfx.text(unlocked ? "UNLOCKED" : "LOCKED", tx, sy, sc(statusPx),
+        gfx.text(trDyn(unlocked ? "UNLOCKED" : "LOCKED"), tx, sy, sc(statusPx),
                  unlocked ? rgba(0.45f, 0.85f, 0.50f, 0.95f)
                           : rgba(0.60f, 0.62f, 0.70f, 0.80f));
         if (!sel->value.empty()) {
@@ -370,7 +370,7 @@ void OverlayMenu::drawRaBottomPanel(drastic_gfx::OverlayGfx& gfx) {
     } else {
         // Non-achievement row (Account/Hardcore/headers): show a game summary,
         // never a stray achievement card.
-        gfx.text("Achievements", x, y, sc(titlePx), rgba(0.92f, 0.93f, 0.97f, 0.96f));
+        gfx.text(trDyn("Achievements"), x, y, sc(titlePx), rgba(0.92f, 0.93f, 0.97f, 0.96f));
         y += titlePx * 1.3f;
         if (mRa) {
             auto list = mRa->achievementSnapshot();
@@ -381,8 +381,8 @@ void OverlayMenu::drawRaBottomPanel(drastic_gfx::OverlayGfx& gfx) {
                 if (a.unlocked) { unl++; pts += a.points; }
             }
             char buf[96];
-            snprintf(buf, sizeof(buf), "%d of %d unlocked    %u / %u points",
-                     unl, total, pts, tot);
+            snprintf(buf, sizeof(buf), "%d %s %d %s    %u / %u %s",
+                     unl, trDyn("of"), total, trDyn("unlocked"), pts, tot, trDyn("points"));
             gfx.text(buf, x, y, sc(statusPx), rgba(0.82f, 0.84f, 0.90f, 0.92f));
             y += statusPx * 1.5f;
         }
@@ -394,7 +394,7 @@ void OverlayMenu::drawRaBottomPanel(drastic_gfx::OverlayGfx& gfx) {
     y += pad * 0.7f;
 
     // ===================== Leaderboards list (tappable) =====================
-    gfx.text("Leaderboards", x, y, sc(statusPx), rgba(0.55f, 0.70f, 0.98f, 0.95f));
+    gfx.text(trDyn("Leaderboards"), x, y, sc(statusPx), rgba(0.55f, 0.70f, 0.98f, 0.95f));
     y += statusPx * 1.5f;
     std::vector<NanoRetroAchievements::LeaderboardInfo> lbs;
     if (mRa) lbs = mRa->leaderboardSnapshot();
@@ -407,7 +407,7 @@ void OverlayMenu::drawRaBottomPanel(drastic_gfx::OverlayGfx& gfx) {
     mLbHitTextH = lbPx; mLbHitIds.clear();
     for (const auto& l : lbs) mLbHitIds.push_back(l.id);
     if (lbs.empty()) {
-        gfx.text("No leaderboards for this game.", x, regionTop, sc(descPx),
+        gfx.text(trDyn("No leaderboards for this game."), x, regionTop, sc(descPx),
                  rgba(0.60f, 0.62f, 0.70f, 0.70f));
     }
     const float chW = gfx.measure(">", sc(lbPx));
@@ -496,7 +496,7 @@ bool OverlayMenu::drawRaSingle(drastic_gfx::OverlayGfx& gfx, float x, float top,
 
     // Panel background + a "Back" affordance shared by all three views.
     gfx.fillRect(x, top, w, h, rgba(0.05f, 0.06f, 0.09f, 0.92f));
-    const char* backHint = (mRaView == 3) ? "< Back to Leaderboards" : "< Back";
+    const char* backHint = trDyn((mRaView == 3) ? "< Back to Leaderboards" : "< Back");
     gfx.text(backHint, x + pad, top + pad, sc(statusPx), rgba(0.60f, 0.78f, 1.0f, 0.95f));
     float y = top + pad + statusPx * 1.6f;
     const float cx = x + pad;
@@ -542,10 +542,10 @@ bool OverlayMenu::drawRaSingle(drastic_gfx::OverlayGfx& gfx, float x, float top,
                                    : rgba(0.92f, 0.93f, 0.97f, 0.96f));
             ty += titlePx * 1.18f;
         }
-        gfx.text(info.unlocked ? "UNLOCKED" : "LOCKED", tx, ty, sc(statusPx),
+        gfx.text(trDyn(info.unlocked ? "UNLOCKED" : "LOCKED"), tx, ty, sc(statusPx),
                  info.unlocked ? rgba(0.45f, 0.85f, 0.50f, 0.95f)
                                : rgba(0.60f, 0.62f, 0.70f, 0.85f));
-        char pts[40]; snprintf(pts, sizeof(pts), "%u pts", info.points);
+        char pts[40]; snprintf(pts, sizeof(pts), "%u %s", info.points, trDyn("pts"));
         float pw = gfx.measure(pts, sc(statusPx));
         gfx.text(pts, tx + tw - pw, ty, sc(statusPx), rgba(0.85f, 0.86f, 0.92f, 0.90f));
 
@@ -564,7 +564,7 @@ bool OverlayMenu::drawRaSingle(drastic_gfx::OverlayGfx& gfx, float x, float top,
 
         // Progress indicator: a bar plus the measured fraction (or "Unlocked").
         float frac = info.unlocked ? 1.0f : 0.0f;
-        std::string ptext = info.unlocked ? "Complete" : "";
+        std::string ptext = info.unlocked ? trDyn("Complete") : "";
         if (!info.unlocked && !info.measuredProgress.empty()) {
             ptext = info.measuredProgress;
             int cur = 0, tot = 0;
@@ -572,7 +572,7 @@ bool OverlayMenu::drawRaSingle(drastic_gfx::OverlayGfx& gfx, float x, float top,
                 frac = fminf(1.0f, fmaxf(0.0f, (float)cur / (float)tot));
         }
         if (info.unlocked || !info.measuredProgress.empty()) {
-            gfx.text("Progress", cx, y, sc(statusPx), rgba(0.55f, 0.70f, 0.98f, 0.95f));
+            gfx.text(trDyn("Progress"), cx, y, sc(statusPx), rgba(0.55f, 0.70f, 0.98f, 0.95f));
             if (!ptext.empty()) {
                 float vwid = gfx.measure(ptext.c_str(), sc(statusPx));
                 gfx.text(ptext.c_str(), cx + cw - vwid, y, sc(statusPx),
@@ -591,13 +591,13 @@ bool OverlayMenu::drawRaSingle(drastic_gfx::OverlayGfx& gfx, float x, float top,
 
     // ===================== View 2: leaderboards list =====================
     if (mRaView == 2) {
-        gfx.text("Leaderboards", cx, y, sc(titlePx), rgba(0.92f, 0.93f, 0.97f, 0.96f));
+        gfx.text(trDyn("Leaderboards"), cx, y, sc(titlePx), rgba(0.92f, 0.93f, 0.97f, 0.96f));
         y += titlePx * 1.4f;
         auto lbs = mRa->leaderboardSnapshot();
         if (mLbCursor >= (int)lbs.size()) mLbCursor = (int)lbs.size() - 1;
         if (mLbCursor < 0) mLbCursor = 0;
         if (lbs.empty()) {
-            gfx.text("No leaderboards for this game.", cx, y, sc(descPx),
+            gfx.text(trDyn("No leaderboards for this game."), cx, y, sc(descPx),
                      rgba(0.60f, 0.62f, 0.70f, 0.75f));
             return true;
         }
@@ -635,12 +635,12 @@ bool OverlayMenu::drawRaSingle(drastic_gfx::OverlayGfx& gfx, float x, float top,
         auto entries = mRa->leaderboardEntriesSnapshot(&haveId, &loading);
         if (haveId != mRaOpenLbId || loading) {
             mRaViewMaxScroll = 0.0f; mRaViewScroll = 0.0f;
-            gfx.text("Loading rankings...", cx, y, sc(descPx), rgba(0.70f, 0.72f, 0.80f, 0.85f));
+            gfx.text(trDyn("Loading rankings..."), cx, y, sc(descPx), rgba(0.70f, 0.72f, 0.80f, 0.85f));
             return true;
         }
         if (entries.empty()) {
             mRaViewMaxScroll = 0.0f; mRaViewScroll = 0.0f;
-            gfx.text("No entries yet. Be the first!", cx, y, sc(descPx),
+            gfx.text(trDyn("No entries yet. Be the first!"), cx, y, sc(descPx),
                      rgba(0.60f, 0.62f, 0.70f, 0.75f));
             return true;
         }
@@ -795,7 +795,7 @@ void OverlayMenu::drawAchievementsList(drastic_gfx::OverlayGfx& gfx, float vw,
 
         const float tx = bx + badge + rowPad * 1.3f;
         uint32_t pts = (it != info.end()) ? it->second.points : 0;
-        char pb[24]; snprintf(pb, sizeof(pb), "%u %s", pts, pts == 1 ? "point" : "points");
+        char pb[24]; snprintf(pb, sizeof(pb), "%u %s", pts, trDyn(pts == 1 ? "point" : "points"));
         const float ptsW = gfx.measure(pb, sc(metaPx));
         gfx.text(pb, contentRight - ptsW, by, sc(metaPx),
                  unlocked ? rgba(0.99f, 0.83f, 0.32f, 0.95f)
@@ -820,14 +820,14 @@ void OverlayMenu::drawAchievementsList(drastic_gfx::OverlayGfx& gfx, float vw,
                 time_t t = (time_t)a.unlockTime;
                 struct tm tmv; localtime_r(&t, &tmv);
                 char db[40];
-                snprintf(db, sizeof(db), "Unlocked %d/%d/%02d", tmv.tm_mon + 1,
-                         tmv.tm_mday, (tmv.tm_year + 1900) % 100);
+                snprintf(db, sizeof(db), "%s %d/%d/%02d", trDyn("Unlocked"),
+                         tmv.tm_mon + 1, tmv.tm_mday, (tmv.tm_year + 1900) % 100);
                 meta = db;
             } else if (!unlocked && !a.measuredProgress.empty()) {
                 meta = a.measuredProgress;
             }
             if (a.rarity > 0.0f) {
-                char rb[40]; snprintf(rb, sizeof(rb), "%.1f%% of players", a.rarity);
+                char rb[40]; snprintf(rb, sizeof(rb), "%.1f%% %s", a.rarity, trDyn("of players"));
                 meta = meta.empty() ? rb : (meta + "   -   " + rb);
             }
         }

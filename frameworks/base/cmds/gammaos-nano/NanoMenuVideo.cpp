@@ -5,6 +5,7 @@
 // flat demo entries); these are a nano addition (user request) on top of a 1:1
 // player UI. Everything is lazy: parsed on first Video focus, nothing at boot.
 #include "NanoMenu.h"
+#include "NanoI18n.h"      // trDyn() runtime translation of hardcoded UI strings
 #include "NanoMenuPS3.h"
 #include "NanoMenuDrm.h"    // sDrmRotMat for the video quad's panel rotation
 #include "NanoVideo.h"
@@ -83,9 +84,9 @@ static std::string vidLangName(const std::string& code, size_t idx) {
         {"jpn","Japanese"},{"kor","Korean"},  {"chi","Chinese"}, {"zho","Chinese"},
         {"rus","Russian"}, {"ara","Arabic"},  {"hin","Hindi"},   {"nld","Dutch"},
     };
-    for (auto& m : M) if (code == m.c) return m.n;
+    for (auto& m : M) if (code == m.c) return trDyn(m.n);
     if (!code.empty() && code != "und") return code;
-    char b[16]; snprintf(b, sizeof(b), "Audio %zu", idx + 1); return b;
+    char b[16]; snprintf(b, sizeof(b), "%s %zu", trDyn("Audio"), idx + 1); return b;
 }
 static void vScanDirRecursive(const std::string& dir, std::vector<std::string>& out, int depth) {
     if (depth > 8) return;
@@ -473,9 +474,9 @@ void NanoMenu::videoSortApply() {
 
 std::string NanoMenu::videoSortLabelCur() const {
     switch (mVideoSortField) {
-        case 1:  return std::string("Date") + (mVideoSortDir == 0 ? " (newest)" : " (oldest)");
-        case 2:  return std::string("Length") + (mVideoSortDir == 0 ? " (longest)" : " (shortest)");
-        default: return "Title";
+        case 1:  return std::string(trDyn("Date")) + trDyn(mVideoSortDir == 0 ? " (newest)" : " (oldest)");
+        case 2:  return std::string(trDyn("Length")) + trDyn(mVideoSortDir == 0 ? " (longest)" : " (shortest)");
+        default: return trDyn("Title");
     }
 }
 
@@ -582,7 +583,7 @@ void NanoMenu::vidOpenAddChooser(const std::string& file) {
     mVidPlChooserFile = file;
     mVidPlChooserIsStream = false;
     mVidPlChooserOpts.clear();
-    mVidPlChooserOpts.push_back("New Playlist...");
+    mVidPlChooserOpts.push_back(trDyn("New Playlist..."));
     for (const auto& p : mVideoPlaylists) mVidPlChooserOpts.push_back(p.name);
     mVidPlChooserSel = 0;
     mVidPlChooserActive = true;
@@ -592,7 +593,7 @@ void NanoMenu::vidOpenAddStreamChooser(const VidStreamRef& s) {
     mVidPlChooserFile.clear();
     mVidPlChooserIsStream = true;
     mVidPlChooserOpts.clear();
-    mVidPlChooserOpts.push_back("New Playlist...");
+    mVidPlChooserOpts.push_back(trDyn("New Playlist..."));
     for (const auto& p : mVideoPlaylists) mVidPlChooserOpts.push_back(p.name);
     mVidPlChooserSel = 0;
     mVidPlChooserActive = true;
@@ -617,13 +618,13 @@ void NanoMenu::vidPlChooserSelect() {
                 videoCreatePlaylist(nm);
                 if (isStream) videoAddStreamToPlaylist((int)mVideoPlaylists.size() - 1, stream);
                 else          videoAddToPlaylist((int)mVideoPlaylists.size() - 1, file);
-                photoShowBanner("Added to the playlist");
+                photoShowBanner(trDyn("Added to the playlist"));
             });
         mOskPasswordMode = false; mOskPlaintext = true;   // a playlist name is plain text, not masked
     } else {
         if (isStream) videoAddStreamToPlaylist(sel - 1, stream);
         else          videoAddToPlaylist(sel - 1, file);
-        photoShowBanner("Added to the playlist");
+        photoShowBanner(trDyn("Added to the playlist"));
     }
 }
 void NanoMenu::drawVidPlChooser() {
@@ -1223,13 +1224,13 @@ void NanoMenu::vidBuildTracks(const std::string& file) {
                             VidAudTrk t; t.idx = (int)i;
                             std::string nm = haveLang ? lang : "";
                             std::string codec = vidAudCodecBadge(mime);
-                            if (nm.empty()) { char b[24]; snprintf(b, sizeof(b), "Audio %zu  %s", mVidAudTracks.size() + 1, codec.c_str()); nm = b; }
+                            if (nm.empty()) { char b[24]; snprintf(b, sizeof(b), "%s %zu  %s", trDyn("Audio"), mVidAudTracks.size() + 1, codec.c_str()); nm = b; }
                             else nm += std::string("  ") + codec;
                             t.name = nm;
                             mVidAudTracks.push_back(t);
                         } else if (vidIsTextSubMime(mime)) {
                             std::string nm = haveLang ? lang : "";
-                            if (nm.empty()) { char b[24]; snprintf(b, sizeof(b), "Track %zu", embSubIdx.size() + 1); nm = b; }
+                            if (nm.empty()) { char b[24]; snprintf(b, sizeof(b), "%s %zu", trDyn("Track"), embSubIdx.size() + 1); nm = b; }
                             embSubIdx.push_back((int)i); embSubName.push_back(nm);
                         } else if (!strncmp(mime, "video/", 6) && !mVidTsVideoFmt) {
                             mVidTsVideoFmt = f; f = nullptr;   // keep the real video format for openFed
@@ -1265,7 +1266,7 @@ void NanoMenu::vidBuildTracks(const std::string& file) {
             if (rd <= 0) continue;
             content.resize(rd);
             VidSubTrk t; t.external = true; t.file = sp;
-            t.name = std::string("Sidecar (") + (e + 1) + ")";
+            t.name = std::string(trDyn("Sidecar")) + " (" + (e + 1) + ")";
             t.cues = vidParseSrt(content);
             if (!t.cues.empty()) mVidSubTracks.push_back(std::move(t));
         }
@@ -1276,7 +1277,7 @@ void NanoMenu::vidBuildTracks(const std::string& file) {
         int dvbPid = -1;
         if (NanoDvbSub::probe(file, dvbPid)) {
             VidSubTrk t; t.dvb = true; t.dvbPid = dvbPid; t.file = file;
-            t.name = "DVB Subtitle";
+            t.name = trDyn("DVB Subtitle");
             mVidSubTracks.push_back(std::move(t));
         }
     }
@@ -1456,7 +1457,7 @@ bool NanoMenu::vidOpenTitleRun() {
                 int tag = mVidAviDemux.audioFormatTag();
                 const char* ac = tag == 0x0055 ? "MP3" : tag == 0x2000 ? "AC-3" : "PCM";
                 mVidAudTracks.clear();
-                VidAudTrk t; t.idx = 0; t.name = std::string("Audio  ") + ac;
+                VidAudTrk t; t.idx = 0; t.name = std::string(trDyn("Audio")) + "  " + ac;
                 mVidAudTracks.push_back(t);
             }
             // One worker feeds the picture + (when present) the decoded audio from one read pointer.
@@ -1544,7 +1545,7 @@ void NanoMenu::vidSetAudioTrack(int ordinal) {
         mVidAudioStarted = false;
         if (mVidHasAudio) { mVidAudio.setVolume(mVidVolume); if (pos > 0.0) mVidAudio.seek(pos); }
     }
-    mVidDispMode = std::string("Audio: ") + mVidAudTracks[ordinal].name;
+    mVidDispMode = std::string(trDyn("Audio: ")) + mVidAudTracks[ordinal].name;
     mVidDispModeUntil = mEffectTime + 1.8f;
 }
 
@@ -1615,7 +1616,7 @@ void NanoMenu::vidBeginOpen(const VidPending& p) {
     int wHint = p.isStream ? 0 : p.w, hHint = p.isStream ? 0 : p.h;
     if (!mVideoTest->openBegin(wHint, hHint)) {   // GL alloc (render thread, EGL current)
         vidAsyncFree(mVideoTest); mVideoTest = nullptr;
-        if (p.isStream) photoShowBanner("Could not open this channel");
+        if (p.isStream) photoShowBanner(trDyn("Could not open this channel"));
         return;
     }
     if (mMusicPlayer.isPlaying()) mMusicPlayer.pause();   // the video owns the audio path (web 12350)
@@ -1713,7 +1714,7 @@ void NanoMenu::vidAbortOpen(const char* banner) {
 void NanoMenu::vidStepRetryNext() {
     if (mVidIsStream) {
         int n = (int)mVidStreamList.size();
-        if (n <= 0) { vidAbortOpen("Could not open this channel"); return; }
+        if (n <= 0) { vidAbortOpen(trDyn("Could not open this channel")); return; }
         mVidIdx = ((mVidIdx + mVidStepDir) % n + n) % n;
         VidPending p; p.isStream = true; p.url = mVidStreamList[mVidIdx].url; p.vidIdx = mVidIdx;
         vidBeginOpen(p);
@@ -1810,7 +1811,7 @@ bool NanoMenu::vidOpenStreamRun() {
     if (mVidHasAudio) {
         mVidAudio.setVolume(mVidVolume);
         mVidAudio.setPrerollMute(true);   // start-together: silent until the picture's first frame
-        VidAudTrk t; t.idx = -1; t.name = "Audio"; mVidAudTracks.push_back(t);
+        VidAudTrk t; t.idx = -1; t.name = trDyn("Audio"); mVidAudTracks.push_back(t);
         // A live channel is TWO independent connections: the picture rides NanoVideo's own
         // NanoHls, the audio rides mVidAudio's own NanoHls. The two land on slightly different
         // live edges. Slewing the picture to the (ahead) audio clock made it fast-forward to
@@ -2071,7 +2072,7 @@ void NanoMenu::vidScan(int dir) {
     mVidScanLastTick = -1.0; mVidScanPos = mVideoTest->position();
     mVideoTest->pause();                       // timer-driven from here (videoTick)
     char b[48];
-    snprintf(b, sizeof(b), "%s  x %g", dir > 0 ? "Fast Forward" : "Fast Reverse", mag);
+    snprintf(b, sizeof(b), "%s  x %g", dir > 0 ? trDyn("Fast Forward") : trDyn("Fast Reverse"), mag);
     vidShowTransient(b, 1400.0f);
     mVidHintUntil = mEffectTime + 1.5f;
 }
@@ -2082,7 +2083,7 @@ void NanoMenu::vidSlow(int dir) {
     mVidStopped = false; mVidPlaying = true;
     mVidScanLastTick = -1.0; mVidScanPos = mVideoTest->position();
     mVideoTest->pause();
-    vidShowTransient(dir > 0 ? "Slow (Forward)" : "Slow (Reverse)", 1400.0f);
+    vidShowTransient(dir > 0 ? trDyn("Slow (Forward)") : trDyn("Slow (Reverse)"), 1400.0f);
     mVidHintUntil = mEffectTime + 1.5f;
 }
 
@@ -2107,7 +2108,7 @@ void NanoMenu::vidFlash(int dir) {
     if (dur > 0.0 && p > dur - 0.05) p = dur - 0.05;
     mVideoTest->seek(p);
     if (mVidHasAudio) vidAudioSeek(p);
-    vidShowTransient(dir > 0 ? "Instant Advance" : "Instant Replay", 1200.0f);
+    vidShowTransient(dir > 0 ? trDyn("Instant Advance") : trDyn("Instant Replay"), 1200.0f);
     mVidHintUntil = mEffectTime + 1.5f;
 }
 
@@ -2115,7 +2116,7 @@ void NanoMenu::vidBeginning() {
     if (!mVideoTest) return;
     if (mVideoTest->position() > 2.0) {
         mVidRate = 1.0; mVideoTest->seek(0.0);
-        vidShowTransient("Return to Beginning", 1000.0f);
+        vidShowTransient(trDyn("Return to Beginning"), 1000.0f);
         mVidHintUntil = mEffectTime + 1.5f;
     } else {
         vidStepTitle(-1);
@@ -2158,7 +2159,7 @@ void NanoMenu::videoTick() {
                 vidStepRetryNext();   // try the next candidate (prior one freed by vidBeginOpen)
             } else {
                 mVidStepActive = false;
-                vidAbortOpen(mVidIsStream ? "Could not open this channel" : nullptr);
+                vidAbortOpen(mVidIsStream ? trDyn("Could not open this channel") : nullptr);
             }
         }
         return;   // skip fade/playback while opening (the spinner is drawn by renderVideoPlayer)
@@ -2297,7 +2298,7 @@ void NanoMenu::videoTick() {
             // thread, freezing the UI for minutes. Stop here; the user changes channel with
             // prev/next.
             mVidPlaying = false; mVidStopped = true; mVideoTest->pause();
-            photoShowBanner("Stream unavailable");
+            photoShowBanner(trDyn("Stream unavailable"));
         } else if (mVidRepeat == 1 || mVidRepeat == 2) {   // Repeat On / Title Repeat
             mVideoTest->seek(0.0); mVideoTest->play();
             if (mVidHasAudio) { vidAudioSeek(0.0); mVidAudio.play(); }
@@ -2473,11 +2474,11 @@ bool NanoMenu::renderVideoPlayer() {
         std::string title;
         if (mVidIsStream) {
             if (mVidIdx >= 0 && mVidIdx < (int)mVidStreamList.size()) title = mVidStreamList[mVidIdx].name;
-            title += "   (Live)";
+            title += trDyn("   (Live)");
         } else if (!mVidList.empty() && mVidIdx >= 0 && mVidIdx < (int)mVidList.size()) {
             title = mVideos[mVidList[mVidIdx]].name;
         }
-        if (!mVidPlaying) title += "   (Paused)";
+        if (!mVidPlaying) title += trDyn("   (Paused)");
         float tfs = ps3::fontScale(26.0f);
         drawText(title.c_str(), bx, ps3::baselineToTopY(H * 0.10f, tfs), tfs, 1.0f, 1.0f, 1.0f, 0.95f * barA);
     }
@@ -2539,7 +2540,7 @@ bool NanoMenu::renderVideoPlayer() {
     if (hintA > 0.01f && !panelUp) {
         float fs = ps3::fontScale(21.0f);
         const char* l1 = "Triangle: Control Panel";
-        const char* l2 = "Circle: Home Menu";
+        const char* l2 = trDyn("Circle: Home Menu");
         float w1 = measureText(l1, fs), w2 = measureText(l2, fs);
         float tw = fmaxf(w1, w2);
         float padx = W * 0.018f;
@@ -2673,10 +2674,10 @@ void NanoMenu::vidSubBuild(int kind) {
     mVidSubKind = kind; mVidSubOpts.clear(); mVidSubSel = 0;
     switch (kind) {
         case 0: mVidSubLabel = "Screen Mode";
-            for (const char* s : kVidScreenModes) mVidSubOpts.push_back(s);
+            for (const char* s : kVidScreenModes) mVidSubOpts.push_back(trDyn(s));
             mVidSubSel = mVidScreenMode; break;
         case 1: mVidSubLabel = "Repeat";
-            for (const char* s : kVidRepeatModes) mVidSubOpts.push_back(s);
+            for (const char* s : kVidRepeatModes) mVidSubOpts.push_back(trDyn(s));
             mVidSubSel = mVidRepeat; break;
         case 2: mVidSubLabel = "Volume Control";   // -4..+4 live segment bar (web cpSub.kind=='volume'),
             break;                                 // rendered by drawVideoPanel + stepped by vidPanelMove (no list)
@@ -2694,13 +2695,13 @@ void NanoMenu::vidSubBuild(int kind) {
                         "Closed Captions (CC1)", "Closed Captions (CC2)",
                         "Closed Captions (CC3)", "Closed Captions (CC4)" };
                     for (int c = 0; c < 4; c++) {
-                        VidSubTrk t; t.cea608 = true; t.ccChannel = c; t.name = kCcNames[c];
+                        VidSubTrk t; t.cea608 = true; t.ccChannel = c; t.name = trDyn(kCcNames[c]);
                         mVidSubTracks.push_back(t);
                     }
                 }
             }
-            mVidSubOpts.push_back("Off");
-            for (const auto& t : mVidSubTracks) mVidSubOpts.push_back(t.name + (t.external ? "  (External)" : ""));
+            mVidSubOpts.push_back(trDyn("Off"));
+            for (const auto& t : mVidSubTracks) mVidSubOpts.push_back(t.name + (t.external ? trDyn("  (External)") : ""));
             mVidSubSel = mVidSubCur + 1; break;
     }
 }
@@ -2710,21 +2711,21 @@ void NanoMenu::vidSubConfirm() {
     switch (mVidSubKind) {
         case 0:   // screen mode
             mVidScreenMode = sel;
-            mVidDispMode = kVidScreenModes[sel]; mVidDispModeUntil = mEffectTime + 1.8f;
+            mVidDispMode = trDyn(kVidScreenModes[sel]); mVidDispModeUntil = mEffectTime + 1.8f;
             mVidSubOpen = false; break;
         case 1:   // repeat
             if (sel == 3) {   // progressive A-B: set A, then B (needs >0.5s gap), then clear
                 double p = mVideoTest ? mVideoTest->position() : 0.0;
                 if (mVidAbA < 0.0) { mVidAbA = p; mVidAbB = -1.0; mVidRepeat = 3;
-                                     mVidDispMode = "A-B Repeat: Point A set"; }
+                                     mVidDispMode = trDyn("A-B Repeat: Point A set"); }
                 else if (mVidAbB < 0.0) {            // B not set yet: accept if past A, else re-prompt A (web)
-                    if (p > mVidAbA + 0.5) { mVidAbB = p; mVidDispMode = "A-B Repeat: Point B set"; }
-                    else                   { mVidDispMode = "A-B Repeat: Point A set"; }
+                    if (p > mVidAbA + 0.5) { mVidAbB = p; mVidDispMode = trDyn("A-B Repeat: Point B set"); }
+                    else                   { mVidDispMode = trDyn("A-B Repeat: Point A set"); }
                 }
-                else { mVidAbA = mVidAbB = -1.0; mVidRepeat = 0; mVidDispMode = "A-B Repeat Off"; }
+                else { mVidAbA = mVidAbB = -1.0; mVidRepeat = 0; mVidDispMode = trDyn("A-B Repeat Off"); }
                 mVidDispModeUntil = mEffectTime + 1.8f;
             } else { mVidRepeat = sel; mVidAbA = mVidAbB = -1.0;
-                     mVidDispMode = kVidRepeatModes[sel]; mVidDispModeUntil = mEffectTime + 1.8f; }   // web: dispMode = mode name
+                     mVidDispMode = trDyn(kVidRepeatModes[sel]); mVidDispModeUntil = mEffectTime + 1.8f; }   // web: dispMode = mode name
             mVidSubOpen = false; break;
         case 2:   // volume: applied live by the -4..+4 segment bar in vidPanelMove; confirm just closes
             mVidSubOpen = false; break;
@@ -2739,11 +2740,11 @@ void NanoMenu::vidSubConfirm() {
                 // Live line-21 captions: turn the demuxer's CEA-608 decode on for this channel
                 // (off for any non-CC track so it stops scanning user_data).
                 if (mVidTsMode) mVidTsDemux.setCea608(t.cea608, t.ccChannel);
-                mVidDispMode = std::string("Subtitle: ") + t.name + (t.external ? " (External)" : "");
+                mVidDispMode = std::string(trDyn("Subtitle: ")) + t.name + (t.external ? trDyn(" (External)") : "");
             } else {
                 mVidSubCur = -1; vidDvbFree();
                 if (mVidTsMode) mVidTsDemux.setCea608(false, 0);
-                mVidDispMode = "Subtitle: Off";
+                mVidDispMode = std::string(trDyn("Subtitle: ")) + trDyn("Off");
             }
             mVidDispModeUntil = mEffectTime + 1.8f;
             mVidSubOpen = false; } break;
@@ -2982,7 +2983,7 @@ void NanoMenu::drawVideoGoTo() {
         x += w;
     }
     float fs = ps3::fontScale(20.0f);
-    const char* foot = "Up/Down  Adjust     Left/Right  Field     Cross  Enter     Circle  Back";
+    const char* foot = trDyn("Up/Down  Adjust     Left/Right  Field     Cross  Enter     Circle  Back");
     float fw = measureText(foot, fs);
     drawText(foot, (W - fw) * 0.5f, ps3::baselineToTopY(H * 0.66f, fs), fs, 1, 1, 1, 0.85f * et);
 }
@@ -3126,7 +3127,7 @@ void NanoMenu::drawVideoDialog(float et) {
 // own layout breaks past ~8 rows, e.g. a 75-min .ts, and Go To already time-jumps.)
 // ===========================================================================
 void NanoMenu::vidSceneOpen() {
-    if (mVidChapters.empty()) { vidShowTransient("No chapters", 1400.0f); return; }
+    if (mVidChapters.empty()) { vidShowTransient(trDyn("No chapters"), 1400.0f); return; }
     double cur = mVideoTest ? mVideoTest->position() : 0.0;
     int sel = 0;
     for (size_t i = 0; i < mVidChapters.size(); i++) if (cur >= mVidChapters[i].t) sel = (int)i;
@@ -3183,8 +3184,9 @@ void NanoMenu::drawVideoScene(float closeT) {
     {
         float ts = ps3::fontScale(34.0f);
         float tx = W * 0.10f, topy = ps3::baselineToTopY(H * 0.16f, ts);
-        drawText("Scene Search", tx + 2.0f, topy + 2.0f, ts, 0, 0, 0, 0.7f * A);
-        drawText("Scene Search", tx, topy, ts, 1.0f, 1.0f, 1.0f, 0.95f * A);
+        const char* sceneTitle = trDyn("Scene Search");
+        drawText(sceneTitle, tx + 2.0f, topy + 2.0f, ts, 0, 0, 0, 0.7f * A);
+        drawText(sceneTitle, tx, topy, ts, 1.0f, 1.0f, 1.0f, 0.95f * A);
     }
 
     // Grid: cols = min(n,4); cells tw = CW*0.20, th = tw*9/16, gap = CW*0.03. The
@@ -3222,14 +3224,14 @@ void NanoMenu::drawVideoScene(float closeT) {
 
         // Label "Chapter N   M:SS" (web cy + th + CH*0.04, left).
         char lbl[64];
-        snprintf(lbl, sizeof(lbl), "Chapter %d   %s", i + 1, vFmtTime(mVidChapters[i].t).c_str());
+        snprintf(lbl, sizeof(lbl), "%s %d   %s", trDyn("Chapter"), i + 1, vFmtTime(mVidChapters[i].t).c_str());
         float lc = sel ? 1.0f : 0.82f;
         drawText(lbl, cx, ps3::baselineToTopY(cy + th + H * 0.034f, lblFs), lblFs, lc, lc, lc, (sel ? 1.0f : 0.85f) * A);   // web cy+th+CH*0.034
     }
 
     // Footer hint (web "✕ Enter   ○ Back").
     float ffs = ps3::fontScale(20.0f);
-    const char* foot = "Cross  Enter      Circle  Back";
+    const char* foot = trDyn("Cross  Enter      Circle  Back");
     float fw = measureText(foot, ffs);
     drawText(foot, (W - fw) * 0.5f, ps3::baselineToTopY(H * 0.90f, ffs), ffs, 0.92f, 0.92f, 0.92f, 0.9f * A);
 }

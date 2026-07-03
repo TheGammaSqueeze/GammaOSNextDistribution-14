@@ -23,6 +23,7 @@
 #define LOG_TAG "GammaOSNano"
 
 #include "NanoMenu.h"
+#include "NanoI18n.h"      // trDyn() runtime translation of hardcoded UI strings
 #include "NanoMenuPS3.h"
 #include "NanoMenuPS3Bg.h"
 #include "NanoMenuDrm.h"   // sDrmGlRotation / sDrmRotationDeg for the title clip scissor
@@ -521,9 +522,9 @@ std::vector<std::string> NanoMenu::musicAlbumNames() const {
 
 std::string NanoMenu::musicSortLabelCur() const {
     switch (mMusicSortField) {
-        case 1:  return std::string("Date") + (mMusicSortDir == 0 ? " (newest)" : " (oldest)");
-        case 2:  return std::string("Tracks") + (mMusicSortDir == 0 ? " (most)" : " (fewest)");
-        default: return "Title";
+        case 1:  return std::string(trDyn("Date")) + trDyn(mMusicSortDir == 0 ? " (newest)" : " (oldest)");
+        case 2:  return std::string(trDyn("Tracks")) + trDyn(mMusicSortDir == 0 ? " (most)" : " (fewest)");
+        default: return trDyn("Title");
     }
 }
 
@@ -1009,14 +1010,14 @@ void NanoMenu::musicTick() {
     // user knows to try another station (Left/Right) or back out.
     if (mMpIsRadio && mMpActive && !mMpAdvancing && !mMpRadioErrShown && mMusicPlayer.openFailed()) {
         mMpRadioErrShown = true;
-        mpShowMsg("Could not open this station.", 1800.0f, 0);
+        mpShowMsg(trDyn("Could not open this station."), 1800.0f, 0);
     }
 
     if (!mMpActive) return;
     // Full-screen message chain (Deleting... -> Delete completed. -> mpNext).
     if (mMpMsgStart >= 0.0f && (mEffectTime - mMpMsgStart) >= mMpMsgDur / 1000.0f) {
         int then = mMpMsgThen; mMpMsgStart = -1.0f; mMpMsg.clear(); mMpMsgThen = 0;
-        if (then == 1) mpShowMsg("Delete completed.", 900.0f, 2);
+        if (then == 1) mpShowMsg(trDyn("Delete completed."), 900.0f, 2);
         else if (then == 2) mpNext();
     }
 }
@@ -1446,10 +1447,11 @@ void NanoMenu::drawMpVolMeter(float t) {
     // Stack below the (scaled) panel grid so it never overlaps it.
     float titleBaseY = DYP(0.441f) + SZ(0.061f * mpUi) + SZ(0.055f * mpUi);
     float vts = FSZ(22.0f * mpUi);
-    drawText("Volume Control", cx - measureText("Volume Control", vts) * 0.5f,
+    const char* volTitle = trDyn("Volume Control");
+    drawText(volTitle, cx - measureText(volTitle, vts) * 0.5f,
              ps3::baselineToTopY(titleBaseY, vts), vts, 1, 1, 1, t);
     int lvl = mMpVolLevel;
-    char nm[8]; if (lvl == 0) snprintf(nm, sizeof(nm), "Normal"); else snprintf(nm, sizeof(nm), "%+d", lvl);
+    char nm[16]; if (lvl == 0) snprintf(nm, sizeof(nm), "%s", trDyn("Normal")); else snprintf(nm, sizeof(nm), "%+d", lvl);
     float nts = FSZ(18.0f * mpUi), nameBaseY = titleBaseY + SZ(0.040f * mpUi);
     drawText(nm, cx - measureText(nm, nts) * 0.5f, ps3::baselineToTopY(nameBaseY, nts), nts, 1, 1, 1, 0.85f * t);
     int segN = 9; float segW = SZ(0.020f * mpUi), gap = SZ(0.006f * mpUi), hh = SZ(0.024f * mpUi);
@@ -1528,7 +1530,7 @@ void NanoMenu::mpOptActivate() {
     else if (!strcmp(a, "vis")) { mpCycleVis(); }
     else if (!strcmp(a, "disp")) { mMpFullInfo = !mMpFullInfo; }
     else if (!strcmp(a, "del")) { if (mMpIsRadio) return;   // nothing to delete for a live station
-        mpShowMsg("Deleting...", 800.0f, 1); }
+        mpShowMsg(trDyn("Deleting..."), 800.0f, 1); }
     else if (!strcmp(a, "addpl")) {
         // Web mpOpenAddChooser: present an XMB-style chooser to add to an existing
         // playlist or create a new one (rather than jumping straight to the OSK).
@@ -1547,7 +1549,7 @@ void NanoMenu::mpOpenAddChooser() {
     if (ti < 0 || ti >= (int)mMusicTracks.size()) return;
     mMpPlChooserTrack = ti;
     mMpPlChooserOpts.clear();
-    mMpPlChooserOpts.push_back("New Playlist...");
+    mMpPlChooserOpts.push_back(trDyn("New Playlist..."));
     for (const auto& pl : mMusicPlaylists) mMpPlChooserOpts.push_back(pl.name);
     mMpPlChooserSel = mMusicPlaylists.empty() ? 0 : 1;   // default to the first existing (web)
     mMpPlChooserAnim = 0.0f;
@@ -1577,7 +1579,7 @@ void NanoMenu::mpPlChooserSelect() {
         int pl = sel - 1;
         if (pl >= 0 && pl < (int)mMusicPlaylists.size()) {
             musicAddTrackToPlaylist(pl, file);
-            mpShowMsg("Added to playlist", 800.0f, 0);
+            mpShowMsg(trDyn("Added to playlist"), 800.0f, 0);
         }
     }
 }
@@ -1605,7 +1607,7 @@ void NanoMenu::drawMpPlChooser() {
     float py = DYP(0.5f) - panelH * 0.5f;
     drawQuad(px, py, panelW, panelH, 0.10f, 0.12f, 0.16f, 0.92f * a);
     float ts = FSZ(24.0f * ui);
-    drawText("Add to Playlist", px + padX, ps3::baselineToTopY(py + titleH * 0.62f, ts),
+    drawText(trDyn("Add to Playlist"), px + padX, ps3::baselineToTopY(py + titleH * 0.62f, ts),
              ts, 1.0f, 1.0f, 1.0f, 0.95f * a);
     drawQuad(px + padX, py + titleH - SZ(0.004f), panelW - 2.0f * padX,
              fmaxf(1.0f, SZ(0.0015f)), 1.0f, 1.0f, 1.0f, 0.25f * a);

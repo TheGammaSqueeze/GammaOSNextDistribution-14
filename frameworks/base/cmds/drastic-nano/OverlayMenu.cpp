@@ -192,7 +192,10 @@ void OverlayMenu::close() {
 }
 
 void OverlayMenu::toast(const std::string& msg, int64_t ms) {
-    mToast = msg;
+    // Localize static toast text. Dynamic snprintf'd toasts (e.g. "Saved slot 3")
+    // trDyn their format string at the call site instead, since the filled-in
+    // value would not match a key; a non-key message here passes through as-is.
+    mToast = trDyn(msg.c_str());
     mToastUntilMs = android::elapsedRealtime() + ms;
 }
 
@@ -205,30 +208,33 @@ void OverlayMenu::onRaUiEvent(const RaUiEvent& ev) {
             // Badge + title + points + chime (chime played by the RA client).
             // The badge image arrives asynchronously and is attached by
             // drawAchievementBanner once decoded.
-            showBanner("ACHIEVEMENT UNLOCKED", ev.title, ev.subtitle,
+            showBanner(trDyn("ACHIEVEMENT UNLOCKED"), ev.title, ev.subtitle,
                        (int)ev.points, ev.id, 0.96f, 0.80f, 0.28f, ev.badgeUrl);
             break;
         case RaUiEvent::Mastery:
-            showBanner("GAME MASTERED", ev.title.empty() ? "Congratulations!" : ev.title,
+            showBanner(trDyn("GAME MASTERED"),
+                       ev.title.empty() ? trDyn("Congratulations!") : ev.title,
                        ev.subtitle, -1, 0, 0.96f, 0.80f, 0.28f);
             break;
         case RaUiEvent::GamePlacard:
-            showBanner("RETROACHIEVEMENTS", ev.title.empty() ? "RetroAchievements" : ev.title,
+            showBanner(trDyn("RETROACHIEVEMENTS"),
+                       ev.title.empty() ? trDyn("RetroAchievements") : ev.title,
                        ev.subtitle, -1, 0, 0.36f, 0.62f, 0.96f);
             break;
         case RaUiEvent::Login:
             if (ev.ok)
-                showBanner("SIGNED IN", ev.title.empty() ? "RetroAchievements" : ev.title,
-                           "Achievements are now active.", -1, 0, 0.34f, 0.80f, 0.46f);
+                showBanner(trDyn("SIGNED IN"),
+                           ev.title.empty() ? trDyn("RetroAchievements") : ev.title,
+                           trDyn("Achievements are now active."), -1, 0, 0.34f, 0.80f, 0.46f);
             else
-                showBanner("RETROACHIEVEMENTS", "Sign-in failed",
+                showBanner(trDyn("RETROACHIEVEMENTS"), trDyn("Sign-in failed"),
                            ev.subtitle, -1, 0, 0.93f, 0.36f, 0.34f);
             break;
         case RaUiEvent::LeaderboardSubmitted:
-            showBanner("LEADERBOARD", ev.title, ev.subtitle, -1, 0, 0.36f, 0.62f, 0.96f);
+            showBanner(trDyn("LEADERBOARD"), ev.title, ev.subtitle, -1, 0, 0.36f, 0.62f, 0.96f);
             break;
         case RaUiEvent::ServerError:
-            showBanner("RETROACHIEVEMENTS", "Server error", ev.subtitle,
+            showBanner(trDyn("RETROACHIEVEMENTS"), trDyn("Server error"), ev.subtitle,
                        -1, 0, 0.93f, 0.36f, 0.34f);
             break;
         case RaUiEvent::ChallengeShow:
@@ -1098,15 +1104,15 @@ void OverlayMenu::rebuildSave() {
 
     for (int slot = 0; slot < 9; slot++) {
         char label[64];
-        snprintf(label, sizeof(label), "Save to Slot %d%s",
-                 slot, slotFileExists(slot) ? " (overwrite)" : "");
+        snprintf(label, sizeof(label), trDyn("Save to Slot %d"), slot);
         RowAction r;
         r.label = label;
+        if (slotFileExists(slot)) r.label += trDyn(" (overwrite)");
         r.onAccept = [this, slot]() {
             if (!mRunner) return;
             if (mRunner->saveStateSlot(slot)) {
                 char msg[64];
-                snprintf(msg, sizeof(msg), "Saved slot %d", slot);
+                snprintf(msg, sizeof(msg), trDyn("Saved slot %d"), slot);
                 toast(msg);
                 // Fix up ownership of the new .dss so the real drastic
                 // app can read it later.
@@ -1132,7 +1138,7 @@ void OverlayMenu::rebuildSave() {
     }
     for (int slot = 0; !mRaHardcore && slot < 9; slot++) {
         char label[64];
-        snprintf(label, sizeof(label), "Load from Slot %d", slot);
+        snprintf(label, sizeof(label), trDyn("Load from Slot %d"), slot);
         RowAction r;
         r.label = label;
         r.value = slotFileExists(slot) ? "ready" : "empty";
@@ -1144,7 +1150,7 @@ void OverlayMenu::rebuildSave() {
             }
             if (mRunner->loadStateSlot(slot)) {
                 char msg[64];
-                snprintf(msg, sizeof(msg), "Loaded slot %d", slot);
+                snprintf(msg, sizeof(msg), trDyn("Loaded slot %d"), slot);
                 toast(msg);
             } else {
                 toast("Load failed");
@@ -1489,7 +1495,7 @@ void OverlayMenu::rebuildAchievements() {
     bool anyUnlocked = false;
     for (const auto& a : list) if (a.unlocked) { anyUnlocked = true; break; }
     if (anyUnlocked) {
-        RowAction hdr; hdr.label = "- Unlocked -"; hdr.tag = kRowHeader;
+        RowAction hdr; hdr.label = std::string("- ") + trDyn("Unlocked") + " -"; hdr.tag = kRowHeader;
         mRows.push_back(std::move(hdr));
         for (const auto& a : list) {
             if (!a.unlocked) continue;
@@ -1499,7 +1505,7 @@ void OverlayMenu::rebuildAchievements() {
             r.detail = a.description;   // shown for the selected row
             r.raAchId = a.id;
             char val[40];
-            snprintf(val, sizeof(val), "%u pts", a.points);
+            snprintf(val, sizeof(val), "%u %s", a.points, trDyn("pts"));
             r.value = val;
             mRows.push_back(std::move(r));
         }
@@ -1511,7 +1517,8 @@ void OverlayMenu::rebuildAchievements() {
         if (b != curBucket) {
             curBucket = b;
             RowAction hdr;
-            hdr.label = std::string("- ") + curBucket + " -";
+            std::string shown = a.bucket.empty() ? trDyn("Locked") : b;
+            hdr.label = std::string("- ") + shown + " -";
             hdr.tag = kRowHeader;
             mRows.push_back(std::move(hdr));
         }
@@ -1524,10 +1531,10 @@ void OverlayMenu::rebuildAchievements() {
         // Show measured progress (e.g. "23/50") for measured achievements so the
         // Measured flag is visible in the list, not only as a gameplay popup.
         if (!a.measuredProgress.empty())
-            snprintf(val, sizeof(val), "%s    %u pts",
-                     a.measuredProgress.c_str(), a.points);
+            snprintf(val, sizeof(val), "%s    %u %s",
+                     a.measuredProgress.c_str(), a.points, trDyn("pts"));
         else
-            snprintf(val, sizeof(val), "%u pts", a.points);
+            snprintf(val, sizeof(val), "%u %s", a.points, trDyn("pts"));
         r.value = val;
         mRows.push_back(std::move(r));
     }
@@ -1667,7 +1674,7 @@ void OverlayMenu::rebuildCheats() {
         mRows.push_back(std::move(r));
     } else if (!anyShown && !mCheatFilter.empty()) {
         RowAction r;
-        r.label = "No matches for \"" + mCheatFilter + "\"";
+        r.label = std::string(trDyn("No matches for")) + " \"" + mCheatFilter + "\"";
         mRows.push_back(std::move(r));
     }
 
@@ -1964,10 +1971,10 @@ void OverlayMenu::rebuildVideo() {
                        bool requiresRestart) {
         RowAction r;
         r.label = label;
-        r.value = field ? "On" : "Off";
+        r.value = trDyn(field ? "On" : "Off");
         // Live settings apply immediately; the few that genuinely need a
         // relaunch are tagged so the user knows it lands on next launch.
-        if (requiresRestart) r.value += "  (next launch)";
+        if (requiresRestart) r.value += trDyn("  (next launch)");
         auto flip = [this, &field, requiresRestart]() {
             field = !field;
             mDirty = true;
@@ -2093,7 +2100,7 @@ void OverlayMenu::rebuildAudio() {
         // so it cannot change live and lands on the next launch.
         RowAction r;
         r.label = "Audio Latency";
-        r.value = std::to_string(mPrefs.audioLatency) + "  (next launch)";
+        r.value = std::to_string(mPrefs.audioLatency) + trDyn("  (next launch)");
         r.onAdjust = [this](int dir) {
             int v = mPrefs.audioLatency + dir;
             if (v < 0) v = 0; if (v > 4) v = 4;

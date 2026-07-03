@@ -33,6 +33,7 @@
 #include "NanoMenu.h"
 #include "NanoMenuSettingsTree.h"
 #include "NanoMenuStrings.h"
+#include "NanoI18n.h"
 
 namespace android {
 
@@ -772,10 +773,10 @@ std::string NanoMenu::settingsTreeBreadcrumb() const {
         int idx = mSettingsNavStack[i];
         if (idx >= 0 && idx < (int)mSettingsNodes.size()) {
             if (!trail.empty()) trail += " > ";
-            trail += mSettingsNodes[idx].label;
+            trail += trDyn(mSettingsNodes[idx].label.c_str());
         }
     }
-    if (trail.empty()) trail = "Settings";
+    if (trail.empty()) trail = trDyn("Settings");
     return trail;
 }
 

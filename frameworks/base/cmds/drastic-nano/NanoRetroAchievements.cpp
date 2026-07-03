@@ -13,6 +13,7 @@
 
 #include "NanoRetroAchievements.h"
 #include "DrasticRunner.h"
+#include "NanoI18n.h"   // trDyn() shared nano UI translations
 
 #include <rc_consoles.h>
 #include <rc_error.h>
@@ -1325,7 +1326,7 @@ void NanoRetroAchievements::onEvent(const rc_client_event_t* event) {
             const rc_client_game_t* g = rc_client_get_game_info(mClient);
             if (g) {
                 // rc_client_game_t exposes title/badge_name; keep it minimal here.
-                u.title = "Game completed";
+                u.title = trDyn("Game completed");
             }
             pushUiEvent(u);
             ALOGI("RA: game completed (mastery)");
@@ -1377,7 +1378,7 @@ void NanoRetroAchievements::onLoginResult(int result, const char* error_message)
         RaUiEvent u;
         u.kind = RaUiEvent::Login;
         u.ok = false;
-        u.subtitle = error_message ? error_message : "Login failed";
+        u.subtitle = error_message ? error_message : trDyn("Login failed");
         pushUiEvent(u);
         mUiGen.fetch_add(1, std::memory_order_relaxed);
         return;
@@ -1478,10 +1479,10 @@ void NanoRetroAchievements::onLoadResult(int result, const char* error_message) 
 
     RaUiEvent u;
     u.kind = RaUiEvent::GamePlacard;
-    u.title = "RetroAchievements";
+    u.title = trDyn("RetroAchievements");
     char msg[192];
     if (summary.num_core_achievements == 0) {
-        snprintf(msg, sizeof(msg), "This game has no achievements.");
+        snprintf(msg, sizeof(msg), "%s", trDyn("This game has no achievements."));
     } else {
         // Always state the active mode at game start so the player can see
         // whether this session is Hardcore or Softcore (RA compliance: the
@@ -1489,8 +1490,8 @@ void NanoRetroAchievements::onLoadResult(int result, const char* error_message) 
         // hardcore the game restarts and reloads, so this fires again and
         // announces "Hardcore mode" for the fresh hardcore session.
         snprintf(msg, sizeof(msg),
-                 "%s. You have %u of %u achievements unlocked.",
-                 mHardcoreActive.load() ? "Hardcore mode" : "Softcore mode",
+                 trDyn("%s. You have %u of %u achievements unlocked."),
+                 mHardcoreActive.load() ? trDyn("Hardcore mode") : trDyn("Softcore mode"),
                  summary.num_unlocked_achievements, summary.num_core_achievements);
     }
     u.subtitle = msg;

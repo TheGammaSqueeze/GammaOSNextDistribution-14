@@ -43,6 +43,7 @@
 #include "NanoMenuDrm.h"
 #include "NanoMenuUtils.h"
 #include "NanoMenu.h"
+#include "NanoI18n.h"      // trDyn() runtime translation of hardcoded UI strings
 #include "NanoMenuShaders.h"
 #include "NanoJson.h"
 
@@ -2001,7 +2002,7 @@ void NanoMenu::renderXmb() {
                     sysLabel = mXmbSystems[res.sysIdx].shortname.c_str();
                 }
             } else if (isSettings && i < (int)mSettingsItems.size()) {
-                displayText = mSettingsItems[i].label.c_str();
+                displayText = trDyn(mSettingsItems[i].label.c_str());
             } else {
                 int si = mXmbSystemIndex;
                 if (si >= 0 && si < numSys && i < (int)mXmbSystems[si].displayNames.size()) {

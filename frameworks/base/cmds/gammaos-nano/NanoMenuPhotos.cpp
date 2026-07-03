@@ -28,6 +28,7 @@
 #define LOG_TAG "GammaOSNano"
 
 #include "NanoMenu.h"
+#include "NanoI18n.h"      // trDyn() runtime translation of hardcoded UI strings
 #include "NanoMenuPS3.h"
 #include "NanoMenuDrm.h"   // sDrmGlRotation / sDrmRotationDeg for the wallpaper crop scissor
 #include "NanoJson.h"
@@ -808,11 +809,11 @@ bool NanoMenu::photoSortLess(int a, int b) const {
 }
 
 std::string NanoMenu::photoSortLabelCur() const {
-    const char* arrow = (mPhotoSortDir == 0) ? " (newest)" : " (oldest)";
+    const char* arrow = trDyn((mPhotoSortDir == 0) ? " (newest)" : " (oldest)");
     switch (mPhotoSortField) {
-        case 2:  return "Image Name";
-        case 1:  return std::string("Import Date") + arrow;
-        default: return std::string("Film Date") + arrow;
+        case 2:  return trDyn("Image Name");
+        case 1:  return std::string(trDyn("Import Date")) + arrow;
+        default: return std::string(trDyn("Film Date")) + arrow;
     }
 }
 
@@ -871,7 +872,7 @@ void NanoMenu::photoCycleGroup() {
     static const char* kModeNames[4] = {"By Month", "By Year", "By Album", "All"};
     mPhotoGroupIdx = (mPhotoGroupIdx + 1) % 4;
     mPhotoCatsStale = true;
-    photoShowBanner(kModeNames[mPhotoGroupIdx]);
+    photoShowBanner(trDyn(kModeNames[mPhotoGroupIdx]));
     ALOGI("NanoMenu: photo group -> %s", kModeNames[mPhotoGroupIdx]);
 }
 // Set a specific group-content mode (option-menu Group Content submenu).
@@ -880,7 +881,7 @@ void NanoMenu::photoSetGroup(int mode) {
     static const char* kModeNames[4] = {"By Month", "By Year", "By Album", "All"};
     mPhotoGroupIdx = mode;
     mPhotoCatsStale = true;
-    photoShowBanner(kModeNames[mPhotoGroupIdx]);
+    photoShowBanner(trDyn(kModeNames[mPhotoGroupIdx]));
 }
 
 // ---------------------------------------------------------------------------
@@ -1862,11 +1863,11 @@ void NanoMenu::pvShowMsg(const std::string& text, float durMs) {
 void NanoMenu::pvShowDeleteConfirm() {
     // Simulated delete (the web does not unlink the real file either); show the
     // same completion message style the music player uses.
-    pvShowMsg("Delete completed.", 1100.0f);
+    pvShowMsg(trDyn("Delete completed."), 1100.0f);
 }
 void NanoMenu::pvShow3D() {
     // 3D display cannot render here; report it the way the firmware fallback does.
-    pvShowMsg("An error occurred while switching to display in 3D.", 1600.0f);
+    pvShowMsg(trDyn("An error occurred while switching to display in 3D."), 1600.0f);
 }
 
 // ---------------------------------------------------------------------------
@@ -1922,7 +1923,7 @@ void NanoMenu::pvWallpaperConfirm() {
         const std::string& f = mPhotos[mPvList[mPvIdx]].file;
         property_set("persist.gammaos.nano.photo_wallpaper", f.c_str());
     }
-    pvShowMsg("The wallpaper has been set.", 1100.0f);
+    pvShowMsg(trDyn("The wallpaper has been set."), 1100.0f);
 }
 
 // ---------------------------------------------------------------------------
@@ -1964,7 +1965,7 @@ void NanoMenu::buildPhotoPlaylistGridList(int plIdx, std::vector<int>& out, std:
 void NanoMenu::pvOpenAddChooser(const std::string& file) {
     mPvPlChooserFile = file;
     mPvPlChooserOpts.clear();
-    mPvPlChooserOpts.push_back("New Playlist...");
+    mPvPlChooserOpts.push_back(trDyn("New Playlist..."));
     for (const auto& p : mPhotoPlaylists) mPvPlChooserOpts.push_back(p.name);
     mPvPlChooserSel = 0;
     mPvPlChooserActive = true;
@@ -1986,12 +1987,12 @@ void NanoMenu::pvPlChooserSelect() {
                 if (nm.empty()) return;
                 photoCreatePlaylist(nm);
                 photoAddToPlaylist((int)mPhotoPlaylists.size() - 1, file);
-                pvShowMsg("Added to the playlist", 900.0f);
+                pvShowMsg(trDyn("Added to the playlist"), 900.0f);
             });
         mOskPasswordMode = false; mOskPlaintext = true;   // a playlist name is plain text, not masked
     } else {
         photoAddToPlaylist(sel - 1, file);
-        pvShowMsg("Added to the playlist", 900.0f);
+        pvShowMsg(trDyn("Added to the playlist"), 900.0f);
     }
 }
 void NanoMenu::drawPvPlChooser() {
@@ -2000,15 +2001,16 @@ void NanoMenu::drawPvPlChooser() {
     drawQuad(0, 0, (float)W, (float)H, 0, 0, 0, 0.5f * t);
     float fs = PFS(26.0f), lh = PSZ(0.058f);
     int n = (int)mPvPlChooserOpts.size();
-    float mw = measureText("Add to Playlist", fs);
+    const char* plTitle = trDyn("Add to Playlist");
+    float mw = measureText(plTitle, fs);
     for (auto& o : mPvPlChooserOpts) mw = fmaxf(mw, measureText(o.c_str(), fs));
     float pw = mw + PXD(0.08f), ph = lh * (n + 1) + PSZ(0.05f);
     float px = (W - pw) * 0.5f, py = (H - ph) * 0.5f;
     drawQuad(px, py, pw, ph, 0.07f, 0.08f, 0.10f, 0.92f * t);
     float cx = W * 0.5f;
     float titleY = py + PSZ(0.05f);
-    float tw = measureText("Add to Playlist", fs);
-    drawText("Add to Playlist", cx - tw * 0.5f, ps3::baselineToTopY(titleY, fs), fs, 1, 1, 1, 0.95f * t);
+    float tw = measureText(plTitle, fs);
+    drawText(plTitle, cx - tw * 0.5f, ps3::baselineToTopY(titleY, fs), fs, 1, 1, 1, 0.95f * t);
     for (int i = 0; i < n; i++) {
         float oy = titleY + lh * (i + 1);
         bool sel = (i == mPvPlChooserSel);
@@ -2060,7 +2062,7 @@ void NanoMenu::photoMultiActivate() {
         int n = (int)mPhotoMultiChecked.size();
         bool del = (mPhotoMultiMode == 0);
         photoMultiClose();
-        if (n > 0) pvShowMsg(del ? "Delete completed." : "Copy completed.", 1100.0f);
+        if (n > 0) pvShowMsg(del ? trDyn("Delete completed.") : trDyn("Copy completed."), 1100.0f);
         return;
     }
     // toggle the focused row
@@ -2120,7 +2122,7 @@ void NanoMenu::renderPhotoMulti() {
         photoThumbEvict();
     }
     // side buttons
-    const char* btnLabels[3] = {"Select All", "Clear All", "OK"};
+    const char* btnLabels[3] = {trDyn("Select All"), trDyn("Clear All"), trDyn("OK")};
     float bw = W * 0.13f, bh = 46.0f * ts, bx = W * 0.78f, by0 = H * 0.40f, bpitch = 62.0f * ts;
     for (int b = 0; b < 3; b++) {
         bool sel = (mPhotoMultiBtn == b);
@@ -2130,7 +2132,7 @@ void NanoMenu::renderPhotoMulti() {
         drawText(btnLabels[b], bx + (bw - lw) * 0.5f, by + bh * 0.5f - 12.0f * ts, ls, 1, 1, 1, 0.96f);
     }
     // footer hints
-    drawText("Enter: Toggle / Select    Back: Cancel", W * 0.10f, (float)H - 34.0f * ts, 0.9f * ts, 0.78f, 0.82f, 0.9f, 0.95f);
+    drawText(trDyn("Enter: Toggle / Select    Back: Cancel"), W * 0.10f, (float)H - 34.0f * ts, 0.9f * ts, 0.78f, 0.82f, 0.9f, 0.95f);
     drawPhotoMsg();
 }
 

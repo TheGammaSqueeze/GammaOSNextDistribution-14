@@ -13,6 +13,7 @@
 #define LOG_TAG "GammaOSNano"
 
 #include "NanoMenu.h"
+#include "NanoI18n.h"      // trDyn() runtime translation of hardcoded UI strings
 
 #include <dirent.h>
 #include <unistd.h>
@@ -174,14 +175,14 @@ void NanoMenu::buildScanFoldersScreen(Ps3Level& out) {
             if (sl != std::string::npos && r.compare(0, sl, ap) == 0) cnt++;
         }
         Ps3Item it; it.label = ap; it.kind = PS3_GS_FIELD; it.a = -1;   // inert (auto)
-        char v[24]; snprintf(v, sizeof(v), "auto: %d", cnt); it.value = v;
+        char v[24]; snprintf(v, sizeof(v), "%s%d", trDyn("auto: "), cnt); it.value = v;
         it.iconTex = 0; it.nmapTex = nmapForIcon(62);
         it.iconR = it.iconG = it.iconB = 0.62f;
         out.items.push_back(it);
     }
 
     if (sys.scanSources.empty() && sys.activePaths.empty()) {
-        Ps3Item it; it.label = "No ROMs found in ROMs/" + sys.romDir;
+        Ps3Item it; it.label = std::string(trDyn("No ROMs found in ROMs/")) + sys.romDir;
         it.kind = PS3_GS_FIELD; it.a = -1;
         it.iconTex = 0; it.nmapTex = 0; it.iconR = it.iconG = it.iconB = 0.55f;
         out.items.push_back(it);
@@ -242,12 +243,12 @@ void NanoMenu::buildFolderBrowser(const std::string& path, Ps3Level& out) {
         if (d) { struct dirent* e; while ((e = readdir(d)) != nullptr) {
             if (e->d_name[0] == '.') continue;
             if (!strcmp(e->d_name, "emulated") || !strcmp(e->d_name, "self")) continue;
-            addDir(std::string("SD: ") + e->d_name, std::string("/storage/") + e->d_name);
+            addDir(std::string(trDyn("SD: ")) + e->d_name, std::string("/storage/") + e->d_name);
         } closedir(d); }
         d = opendir("/mnt/media_rw");
         if (d) { struct dirent* e; while ((e = readdir(d)) != nullptr) {
             if (e->d_name[0] == '.') continue;
-            addDir(std::string("Removable: ") + e->d_name, std::string("/mnt/media_rw/") + e->d_name);
+            addDir(std::string(trDyn("Removable: ")) + e->d_name, std::string("/mnt/media_rw/") + e->d_name);
         } closedir(d); }
         return;
     }

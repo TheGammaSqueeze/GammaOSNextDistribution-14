@@ -5,6 +5,7 @@
 // the user runs a search, and gsearchClose() frees the result list so an idle launcher
 // holds no search state. Replaces the old (non-functional) Y-to-search.
 #include "NanoMenu.h"
+#include "NanoI18n.h"      // trDyn() runtime translation of hardcoded UI strings
 #include "NanoMenuPS3.h"
 #include "NanoMenuUtils.h"   // setLaunchRomPath for the Applications launch
 
@@ -66,7 +67,7 @@ void NanoMenu::gsearchBuild(const std::string& q) {
         const XmbRecentEntry& r = mXmbRecent[i];
         if (!ciContains(r.displayName, query)) continue;
         GSearchResult gr; gr.section = 0; gr.label = r.displayName;
-        gr.sub = "Recently Played"; gr.kind = PS3_RECENT; gr.a = (int)i;
+        gr.sub = trDyn("Recently Played"); gr.kind = PS3_RECENT; gr.a = (int)i;
         mGSearchResults.push_back(gr); gCount++;
     }
     for (size_t s = 0; s < mXmbSystems.size() && gCount < kMaxPerSection; s++) {
@@ -83,7 +84,7 @@ void NanoMenu::gsearchBuild(const std::string& q) {
         const AppEntry& app = mAppEntries[i];
         if (!ciContains(app.label, query)) continue;
         GSearchResult gr; gr.section = 0; gr.label = app.label;
-        gr.sub = "Application"; gr.kind = PS3_APP; gr.payload = app.packageName;
+        gr.sub = trDyn("Application"); gr.kind = PS3_APP; gr.payload = app.packageName;
         mGSearchResults.push_back(gr); gCount++;
     }
 
@@ -132,7 +133,7 @@ void NanoMenu::gsearchBuild(const std::string& q) {
         for (size_t i = 0; i < mIptvChannels.size() && iCount < kMaxPerSection; i++) {
             if (!ciContains(mIptvChannels[i].name, query)) continue;
             GSearchResult gr; gr.section = 4; gr.label = mIptvChannels[i].name;
-            gr.sub = "IPTV"; gr.kind = PS3_IPTV_CHANNEL; gr.a = (int)i;
+            gr.sub = trDyn("IPTV"); gr.kind = PS3_IPTV_CHANNEL; gr.a = (int)i;
             gr.payload = mIptvChannels[i].url;
             mGSearchResults.push_back(gr); iCount++;
         }
@@ -147,7 +148,7 @@ void NanoMenu::gsearchBuild(const std::string& q) {
         for (size_t i = 0; i < mRadioStations.size() && rCount < kMaxPerSection; i++) {
             if (!ciContains(mRadioStations[i].name, query)) continue;
             GSearchResult gr; gr.section = 1; gr.label = mRadioStations[i].name;
-            gr.sub = "Internet Radio"; gr.kind = PS3_RADIO_STATION; gr.a = (int)i;
+            gr.sub = trDyn("Internet Radio"); gr.kind = PS3_RADIO_STATION; gr.a = (int)i;
             gr.payload = mRadioStations[i].url;
             mGSearchResults.push_back(gr); rCount++;
         }
@@ -274,13 +275,13 @@ void NanoMenu::renderGlobalSearch() {
     drawQuad(0, 0, (float)W, (float)H, 0.04f, 0.05f, 0.06f, 0.90f * a);
 
     float margin = W * 0.06f;
-    drawText("Search Results", margin, 34.0f * ts + slide, 1.7f * ts, 1.0f, 1.0f, 1.0f, a);
+    drawText(trDyn("Search Results"), margin, 34.0f * ts + slide, 1.7f * ts, 1.0f, 1.0f, 1.0f, a);
     char info[160];
     int n = (int)mGSearchResults.size();
     if (n == 0)
-        snprintf(info, sizeof(info), "No results for \"%s\"", mGSearchQuery.c_str());
+        snprintf(info, sizeof(info), "%s \"%s\"", trDyn("No results for"), mGSearchQuery.c_str());
     else
-        snprintf(info, sizeof(info), "\"%s\"   %d %s", mGSearchQuery.c_str(), n, n == 1 ? "result" : "results");
+        snprintf(info, sizeof(info), "\"%s\"   %d %s", mGSearchQuery.c_str(), n, n == 1 ? trDyn("result") : trDyn("results"));
     drawText(info, margin, 84.0f * ts + slide, 1.0f * ts, 0.75f, 0.85f, 0.95f, a);
 
     // Build the flat visual-row list (header rows + item rows). Cheap: results capped.
@@ -321,7 +322,7 @@ void NanoMenu::renderGlobalSearch() {
         float y = top + vi * rowH;
         const VRow& vr = rows[rr];
         if (vr.header) {
-            drawText(kSectionName[vr.section], margin, y + rowH * 0.18f, 0.92f * ts, 0.55f, 0.78f, 1.0f, a);
+            drawText(trDyn(kSectionName[vr.section]), margin, y + rowH * 0.18f, 0.92f * ts, 0.55f, 0.78f, 1.0f, a);
             continue;
         }
         const GSearchResult& g = mGSearchResults[vr.resultIdx];
@@ -341,7 +342,7 @@ void NanoMenu::renderGlobalSearch() {
     }
 
     // hint bar
-    const char* hint = (n > 0) ? "Enter  Select       Back  Cancel" : "Back  Cancel";
+    const char* hint = (n > 0) ? trDyn("Enter  Select       Back  Cancel") : trDyn("Back  Cancel");
     float hs = 0.85f * ts;
     float hw = measureText(hint, hs);
     drawText(hint, (W - hw) * 0.5f, H - hintSpace + 22.0f * ts, hs, 0.85f, 0.90f, 1.0f, a);

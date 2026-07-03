@@ -12,6 +12,7 @@
 // never blocks the render thread (the watchdog hazard, see nano_render_thread_blocking).
 
 #include "NanoMenu.h"
+#include "NanoI18n.h"      // trDyn() runtime translation of hardcoded UI strings
 
 #include <dirent.h>
 #include <unistd.h>
@@ -235,11 +236,11 @@ void NanoMenu::feShowInfo(const std::string& path) {
     std::string body;
     auto row = [&](const char* label, const std::string& v) {
         if (v.empty()) return;
-        char pad[20]; snprintf(pad, sizeof(pad), "%-12s", label);
+        char pad[20]; snprintf(pad, sizeof(pad), "%-12s", trDyn(label));
         body += pad; body += v; body += "\n";
     };
     row("Name", feBaseName(path));
-    row("Type", isDir ? "Folder" : "File");
+    row("Type", trDyn(isDir ? "Folder" : "File"));
     if (haveStat) {
         if (isDir) {
             int count = 0;
@@ -247,7 +248,7 @@ void NanoMenu::feShowInfo(const std::string& path) {
             if (d) { struct dirent* e; while ((e = readdir(d)) != nullptr) {
                 if (e->d_name[0] == '.') continue; count++;
             } closedir(d); }
-            char c[24]; snprintf(c, sizeof(c), "%d item%s", count, count == 1 ? "" : "s");
+            char c[32]; snprintf(c, sizeof(c), "%d %s", count, trDyn(count == 1 ? "item" : "items"));
             row("Contents", c);
         } else {
             row("Size", feHumanSize((long long)st.st_size));
@@ -294,7 +295,7 @@ void NanoMenu::feTick() {
     if (op->kind == 2 && ok) mFeClipPath.clear();   // a Move consumed the clipboard
     feRefresh();
     const char* verb = (op->kind == 1) ? "Copy" : (op->kind == 2) ? "Move" : "Delete";
-    std::string msg = std::string(verb) + (ok ? " completed." : " failed.");
+    std::string msg = std::string(trDyn(verb)) + trDyn(ok ? " completed." : " failed.");
     feInfoDialog(verb, msg);
 }
 

@@ -44,6 +44,7 @@
 #include <sys/stat.h>   // isLaunchReady FUSE-mount probe
 
 #include "NanoBacklight.h"
+#include "NanoI18n.h"
 #include "NanoMenu.h"
 #include "NanoMenuShaders.h"
 #include "NanoMenuUtils.h"   // setQrRomPath / readPathFile for the QR arming sync
@@ -322,8 +323,8 @@ void NanoMenu::renderLaunchBusyToast() {
     float sf = fminf((float)mWidth / 1080.0f, (float)mHeight / 720.0f);
     if (sf < 0.5f) sf = 0.5f;
 
-    const char* line1 = "Booting up...";
-    const char* line2 = "Your game will launch shortly";
+    const char* line1 = trDyn("Booting up...");
+    const char* line2 = trDyn("Your game will launch shortly");
     float scale1 = 2.5f * sf;
     float scale2 = 1.5f * sf;
 

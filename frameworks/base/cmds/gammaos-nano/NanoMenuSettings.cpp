@@ -41,6 +41,7 @@
 #include <GLES2/gl2.h>
 
 #include "NanoMenu.h"
+#include "NanoI18n.h"      // trDyn() runtime translation of hardcoded UI strings
 #include "NanoMenuShaders.h"
 
 namespace android {
@@ -499,7 +500,7 @@ void NanoMenu::openWifiScreen() {
     // take ~300 ms cold and would visibly freeze the XMB. The existing
     // scan thread does a refresh at the end of its cycle so we get a
     // populated list with a "Scanning..." status in the meantime.
-    mWifiStatusMsg = "Loading...";
+    mWifiStatusMsg = trDyn("Loading...");
     mWifiStatusMsgUntilMs = std::chrono::duration_cast<std::chrono::milliseconds>(
             std::chrono::steady_clock::now().time_since_epoch()).count() + 4000;
     mDisplayDirty = true;
@@ -533,7 +534,7 @@ void NanoMenu::refreshWifiList() {
     // detect it via bssid.
     {
         NanoMenu::WifiNetEntry toggle{};
-        toggle.ssid = radioOn ? "Wi-Fi: On" : "Wi-Fi: Off";
+        toggle.ssid = std::string(trDyn("Wi-Fi")) + ": " + (radioOn ? trDyn("On") : trDyn("Off"));
         toggle.bssid = "__TOGGLE__";
         toggle.rssi = -127;
         toggle.security = 0;
@@ -588,7 +589,7 @@ void NanoMenu::startWifiScanAsync() {
     if (mWifiScanInProgress) return;
     if (mWifiScanThread.joinable()) mWifiScanThread.detach();
     mWifiScanInProgress = true;
-    mWifiStatusMsg = "Scanning...";
+    mWifiStatusMsg = trDyn("Scanning...");
     mWifiStatusMsgUntilMs = std::chrono::duration_cast<std::chrono::milliseconds>(
             std::chrono::steady_clock::now().time_since_epoch()).count() + 4000;
     mWifiScanThread = std::thread([this]() { wifiScanThreadFunc(); });
@@ -610,7 +611,7 @@ void NanoMenu::connectToSavedWifi(int savedNetId) {
     // same 35s so it remains visible throughout the full
     // disconnect-scan-connect-maybe-retry cycle (cross-band switches
     // on congested 5 GHz need 20-25s end-to-end).
-    mWifiStatusMsg = "Connecting...";
+    mWifiStatusMsg = trDyn("Connecting...");
     mWifiStatusMsgUntilMs = std::chrono::duration_cast<std::chrono::milliseconds>(
             std::chrono::steady_clock::now().time_since_epoch()).count() + 35000;
     mDisplayDirty = true;
@@ -658,7 +659,7 @@ void NanoMenu::addAndConnectWifi(const std::string& ssid, int security,
     if (security != 0 && security != 4) {
         cmdline += " " + shellQuote(password);
     }
-    mWifiStatusMsg = "Connecting...";
+    mWifiStatusMsg = trDyn("Connecting...");
     mWifiStatusMsgUntilMs = std::chrono::duration_cast<std::chrono::milliseconds>(
             std::chrono::steady_clock::now().time_since_epoch()).count() + 12000;
     mDisplayDirty = true;
@@ -711,7 +712,7 @@ void NanoMenu::connectWithWizardSettings() {
     }
     if (mPs3WizMtuMode == "Manual" && !mPs3WizMtu.empty())
         cmd += " --mtu " + shellQuote(mPs3WizMtu);
-    mWifiStatusMsg = "Applying settings...";
+    mWifiStatusMsg = trDyn("Applying settings...");
     mWifiStatusMsgUntilMs = std::chrono::duration_cast<std::chrono::milliseconds>(
             std::chrono::steady_clock::now().time_since_epoch()).count() + 20000;
     mDisplayDirty = true;
@@ -742,7 +743,7 @@ void NanoMenu::toggleWifiRadio(bool on) {
     (void)runCmd(on ? "cmd wifi set-wifi-enabled enabled"
                     : "cmd wifi set-wifi-enabled disabled");
     { std::lock_guard<std::mutex> lk(mNetStateMutex); mWifiRadioOn = on; }
-    mWifiStatusMsg = on ? "Enabling Wi-Fi..." : "Disabling Wi-Fi...";
+    mWifiStatusMsg = trDyn(on ? "Enabling Wi-Fi..." : "Disabling Wi-Fi...");
     mWifiStatusMsgUntilMs = std::chrono::duration_cast<std::chrono::milliseconds>(
             std::chrono::steady_clock::now().time_since_epoch()).count() + 2000;
     if (on) startWifiScanAsync();
@@ -782,7 +783,7 @@ void NanoMenu::handleWifiScreenSelect() {
     }
     if (e.connected) {
         // Already connected -- no-op (could offer disconnect later).
-        mWifiStatusMsg = "Already connected";
+        mWifiStatusMsg = trDyn("Already connected");
         mWifiStatusMsgUntilMs = std::chrono::duration_cast<std::chrono::milliseconds>(
                 std::chrono::steady_clock::now().time_since_epoch()).count() + 2000;
         return;
@@ -803,7 +804,7 @@ void NanoMenu::handleWifiScreenSelect() {
     openOskForPassword(prompt,
         [this](const std::string& pw) {
             if (pw.empty()) {
-                mWifiStatusMsg = "Cancelled";
+                mWifiStatusMsg = trDyn("Cancelled");
                 mWifiStatusMsgUntilMs = std::chrono::duration_cast<std::chrono::milliseconds>(
                         std::chrono::steady_clock::now().time_since_epoch()).count() + 2000;
                 return;
@@ -828,9 +829,9 @@ void NanoMenu::handleWifiScreenY() {
         // forget-network removes the saved config (and disconnects if it is the
         // currently associated network), then a rescan repopulates the list.
         forgetWifiNetwork(e.savedNetId);
-        mWifiStatusMsg = e.connected ? "Disconnected and removed" : "Removed saved network";
+        mWifiStatusMsg = trDyn(e.connected ? "Disconnected and removed" : "Removed saved network");
     } else {
-        mWifiStatusMsg = "Network is not saved";
+        mWifiStatusMsg = trDyn("Network is not saved");
     }
     mWifiStatusMsgUntilMs = nowMs + 2500;
     mDisplayDirty = true;
@@ -926,14 +927,14 @@ std::string NanoMenu::buildNetStatusBody() {
     std::string mac = netTrim(runCmd("cat /sys/class/net/wlan0/address 2>/dev/null"));
     auto orDash = [](const std::string& s) { return s.empty() ? std::string("-") : s; };
     std::string body;
-    body += "Connection Method  Wireless (Wi-Fi)\n";
-    body += std::string("Connection Status  ") + (connected ? "Connected" : "Not connected") + "\n";
-    body += std::string("SSID               ") + orDash(connected ? ssid : std::string("")) + "\n";
-    body += std::string("IP Address         ") + orDash(ip) + "\n";
-    body += std::string("Default Gateway    ") + orDash(gw) + "\n";
-    body += std::string("Primary DNS        ") + orDash(dns) + "\n";
-    body += std::string("Secondary DNS      ") + orDash(dns2) + "\n";
-    body += std::string("MAC Address        ") + orDash(mac) + "\n";
+    body += std::string(trDyn("Connection Method")) + "  " + trDyn("Wireless (Wi-Fi)") + "\n";
+    body += std::string(trDyn("Connection Status")) + "  " + (connected ? trDyn("Connected") : trDyn("Not connected")) + "\n";
+    body += std::string(trDyn("SSID")) + "  " + orDash(connected ? ssid : std::string("")) + "\n";
+    body += std::string(trDyn("IP Address")) + "  " + orDash(ip) + "\n";
+    body += std::string(trDyn("Default Gateway")) + "  " + orDash(gw) + "\n";
+    body += std::string(trDyn("Primary DNS")) + "  " + orDash(dns) + "\n";
+    body += std::string(trDyn("Secondary DNS")) + "  " + orDash(dns2) + "\n";
+    body += std::string(trDyn("MAC Address")) + "  " + orDash(mac) + "\n";
     return body;
 }
 
@@ -999,7 +1000,7 @@ void NanoMenu::startNetTest() {
     stopNetTest();
     {
         std::lock_guard<std::mutex> lk(mPs3NetTestMutex);
-        mPs3NetTestBody = "Testing the Internet connection.\nPlease wait...\n";
+        mPs3NetTestBody = std::string(trDyn("Testing the Internet connection.")) + "\n" + trDyn("Please wait...") + "\n";
     }
     mPs3NetTestActive = true;
     mPs3NetTestThread = std::thread([this]() {
@@ -1008,9 +1009,9 @@ void NanoMenu::startNetTest() {
             mPs3NetTestBody = s;
         };
         auto alive = [this]() { return mPs3NetTestActive.load(); };
-        const std::string L1 = "Obtain IP Address            ";
-        const std::string L2 = "Internet Connection          ";
-        const std::string L3 = "Name Resolution              ";
+        const std::string L1 = std::string(trDyn("Obtain IP Address")) + "  ";
+        const std::string L2 = std::string(trDyn("Internet Connection")) + "  ";
+        const std::string L3 = std::string(trDyn("Name Resolution")) + "  ";
         // Sleep in 100ms chunks so stopNetTest() stays responsive.
         auto nap = [&](int ms) { for (int k = 0; k < ms / 100 && alive(); k++)
             std::this_thread::sleep_for(std::chrono::milliseconds(100)); };
@@ -1033,7 +1034,7 @@ void NanoMenu::startNetTest() {
         // WifiInfo carries the IPv4 address; on a dual-stack or IPv6-only network
         // the OS also assigns IPv6, which WifiInfo does not surface, so a VALIDATED
         // link (it has a working v4 OR v6 address) also counts as "address obtained".
-        pub(L1 + "Testing...\n");
+        pub(L1 + trDyn("Testing...") + "\n");
         std::string ip, st; bool validated = false;
         for (int t = 0; t < 24 && alive(); t++) {
             st = runCmd("cmd wifi status 2>/dev/null");
@@ -1046,7 +1047,7 @@ void NanoMenu::startNetTest() {
         if (!alive()) return;
         // 2. Internet reachability - poll for the framework's VALIDATED capability
         // (Android runs its own connectivity validation a few seconds after assoc).
-        pub(L1 + (haveIp ? "Succeeded" : "Failed") + "\n" + L2 + "Testing...\n");
+        pub(L1 + (haveIp ? trDyn("Succeeded") : trDyn("Failed")) + "\n" + L2 + trDyn("Testing...") + "\n");
         bool inet = validated;
         for (int t = 0; t < 16 && haveIp && alive() && !inet; t++) {
             nap(700);
@@ -1056,14 +1057,14 @@ void NanoMenu::startNetTest() {
         if (!alive()) return;
         // 3. Name resolution - Android's validation probe resolves a hostname over
         // DNS, so a VALIDATED network has working name resolution.
-        pub(L1 + (haveIp ? "Succeeded" : "Failed") + "\n"
-          + L2 + (inet ? "Succeeded" : "Failed") + "\n" + L3 + "Testing...\n");
+        pub(L1 + (haveIp ? trDyn("Succeeded") : trDyn("Failed")) + "\n"
+          + L2 + (inet ? trDyn("Succeeded") : trDyn("Failed")) + "\n" + L3 + trDyn("Testing...") + "\n");
         bool dnsOk = inet;
         if (!alive()) return;
-        std::string out = L1 + (haveIp ? "Succeeded" : "Failed") + "\n"
-                        + L2 + (inet ? "Succeeded" : "Failed") + "\n"
-                        + L3 + (dnsOk ? "Succeeded" : "Failed") + "\n"
-                        + "\nIP Address                   "
+        std::string out = L1 + (haveIp ? trDyn("Succeeded") : trDyn("Failed")) + "\n"
+                        + L2 + (inet ? trDyn("Succeeded") : trDyn("Failed")) + "\n"
+                        + L3 + (dnsOk ? trDyn("Succeeded") : trDyn("Failed")) + "\n"
+                        + "\n" + trDyn("IP Address") + "  "
                         + (!ip.empty() ? ip : (haveIp ? std::string("(IPv6)") : std::string("-"))) + "\n";
         pub(out);
         mPs3NetTestActive = false;
@@ -1081,7 +1082,7 @@ void NanoMenu::openBtScreen() {
     // `dumpsys bluetooth_manager` is slow (sometimes > 500 ms) so we
     // never run it inline. Show a loading state and let the scan
     // thread populate the list.
-    mBtStatusMsg = "Loading...";
+    mBtStatusMsg = trDyn("Loading...");
     mBtStatusMsgUntilMs = std::chrono::duration_cast<std::chrono::milliseconds>(
             std::chrono::steady_clock::now().time_since_epoch()).count() + 3000;
     mDisplayDirty = true;
@@ -1153,7 +1154,7 @@ void NanoMenu::refreshBtList() {
     {
         NanoMenu::BtDevEntry toggle{};
         toggle.address = "__TOGGLE__";
-        toggle.name = btOn ? "Bluetooth: On" : "Bluetooth: Off";
+        toggle.name = std::string(trDyn("Bluetooth")) + ": " + (btOn ? trDyn("On") : trDyn("Off"));
         toggle.bonded = false;
         toggle.connected = false;
         merged.push_back(std::move(toggle));
@@ -1221,7 +1222,7 @@ void NanoMenu::startBtScanAsync() {
     if (mBtScanInProgress) return;
     if (mBtScanThread.joinable()) mBtScanThread.detach();
     mBtScanInProgress = true;
-    mBtStatusMsg = "Refreshing...";
+    mBtStatusMsg = trDyn("Refreshing...");
     mBtStatusMsgUntilMs = std::chrono::duration_cast<std::chrono::milliseconds>(
             std::chrono::steady_clock::now().time_since_epoch()).count() + 2000;
     mBtScanThread = std::thread([this]() { btScanThreadFunc(); });
@@ -1235,7 +1236,7 @@ void NanoMenu::btDiscoveryThreadFunc() {
     mBtDiscoveryInProgress = false;
     mBtLastScanMs = std::chrono::duration_cast<std::chrono::milliseconds>(
             std::chrono::steady_clock::now().time_since_epoch()).count();
-    mBtStatusMsg = "Scan complete";
+    mBtStatusMsg = trDyn("Scan complete");
     mBtStatusMsgUntilMs = std::chrono::duration_cast<std::chrono::milliseconds>(
             std::chrono::steady_clock::now().time_since_epoch()).count() + 2500;
     mDisplayDirty = true;
@@ -1245,7 +1246,7 @@ void NanoMenu::startBtDiscoveryAsync() {
     if (mBtDiscoveryInProgress) return;
     if (mBtDiscoveryThread.joinable()) mBtDiscoveryThread.detach();
     mBtDiscoveryInProgress = true;
-    mBtStatusMsg = "Scanning for devices...";
+    mBtStatusMsg = trDyn("Scanning for devices...");
     mBtStatusMsgUntilMs = std::chrono::duration_cast<std::chrono::milliseconds>(
             std::chrono::steady_clock::now().time_since_epoch()).count() + 10000;
     mDisplayDirty = true;
@@ -1255,7 +1256,7 @@ void NanoMenu::startBtDiscoveryAsync() {
 void NanoMenu::toggleBtRadio(bool on) {
     (void)runCmd(on ? "cmd bluetooth_manager enable"
                     : "cmd bluetooth_manager disable");
-    mBtStatusMsg = on ? "Enabling Bluetooth..." : "Disabling Bluetooth...";
+    mBtStatusMsg = trDyn(on ? "Enabling Bluetooth..." : "Disabling Bluetooth...");
     mBtStatusMsgUntilMs = std::chrono::duration_cast<std::chrono::milliseconds>(
             std::chrono::steady_clock::now().time_since_epoch()).count() + 2000;
     if (on) startBtScanAsync();
@@ -1267,7 +1268,7 @@ void NanoMenu::pairBtDevice(const std::string& mac) {
     // variants (the set Settings' BluetoothPairingController handles
     // without user input). Classic gamepads / headsets typically use
     // just-works or 0000, so this works without any extra UI from us.
-    mBtStatusMsg = "Pairing...";
+    mBtStatusMsg = trDyn("Pairing...");
     mBtStatusMsgUntilMs = std::chrono::duration_cast<std::chrono::milliseconds>(
             std::chrono::steady_clock::now().time_since_epoch()).count() + 30000;
     mDisplayDirty = true;
@@ -1281,7 +1282,7 @@ void NanoMenu::pairBtDevice(const std::string& mac) {
         bool ok = result.find("OK") != std::string::npos;
         if (!ok) ALOGW("pairBtDevice %s failed: %s",
                        macCopy.c_str(), result.c_str());
-        mBtStatusMsg = ok ? "Paired" : "Pair failed";
+        mBtStatusMsg = trDyn(ok ? "Paired" : "Pair failed");
         mBtStatusMsgUntilMs = std::chrono::duration_cast<std::chrono::milliseconds>(
                 std::chrono::steady_clock::now().time_since_epoch()).count() + 3000;
         refreshBtList();
@@ -1295,7 +1296,7 @@ void NanoMenu::unpairBtDevice(const std::string& mac) {
     bool ok = result.find("OK") != std::string::npos;
     if (!ok) ALOGW("unpairBtDevice %s failed: %s",
                    mac.c_str(), result.c_str());
-    mBtStatusMsg = ok ? "Removed" : "Unpair failed";
+    mBtStatusMsg = trDyn(ok ? "Removed" : "Unpair failed");
     mBtStatusMsgUntilMs = std::chrono::duration_cast<std::chrono::milliseconds>(
             std::chrono::steady_clock::now().time_since_epoch()).count() + 2500;
     startBtScanAsync();
@@ -1318,7 +1319,7 @@ void NanoMenu::connectBtDevice(const std::string& mac) {
     usleep(400 * 1000);
     (void)runCmd("cmd bluetooth_manager enable");
     (void)mac;
-    mBtStatusMsg = "Reconnecting...";
+    mBtStatusMsg = trDyn("Reconnecting...");
     mBtStatusMsgUntilMs = std::chrono::duration_cast<std::chrono::milliseconds>(
             std::chrono::steady_clock::now().time_since_epoch()).count() + 3000;
     startBtScanAsync();
@@ -1608,7 +1609,7 @@ void NanoMenu::renderSettingsList(float selIconX, float iconBarY,
         float tr = isSel ? 1.0f : 0.6f;
         float tg = isSel ? 1.0f : 0.6f;
         float tb = isSel ? 1.0f : 0.6f;
-        drawText(mSettingsItems[i].label.c_str(), tx, ty, tSc,
+        drawText(trDyn(mSettingsItems[i].label.c_str()), tx, ty, tSc,
                  tr, tg, tb, iAlpha);
     }
 }
@@ -1631,7 +1632,7 @@ void NanoMenu::renderWifiScreen() {
     float footScale = 1.3f * sf;
 
     if (!mSetupWizardActive) {
-        const char* title = "Wi-Fi";
+        const char* title = trDyn("Wi-Fi");
         drawText(title, pad, pad, titleScale, 0.95f, 0.95f, 1.0f, 1.0f);
     }
 
@@ -1649,7 +1650,7 @@ void NanoMenu::renderWifiScreen() {
         drawText(mWifiStatusMsg.c_str(), pad, statusY,
                  footScale, 0.80f, 0.75f, 0.15f, 0.95f);
     } else if (mWifiScanInProgress) {
-        drawText("Scanning...", pad, statusY,
+        drawText(trDyn("Scanning..."), pad, statusY,
                  footScale, 0.80f, 0.75f, 0.15f, 0.95f);
     }
 
@@ -1659,7 +1660,7 @@ void NanoMenu::renderWifiScreen() {
     if (visibleRows < 4) visibleRows = 4;
 
     if (entries.empty()) {
-        drawText("No Wi-Fi networks. Press X to rescan.",
+        drawText(trDyn("No Wi-Fi networks. Press X to rescan."),
                  pad, listTop, rowScale, 0.6f, 0.6f, 0.65f, 0.85f);
     } else {
         // Ensure selection is visible.
@@ -1721,17 +1722,17 @@ void NanoMenu::renderWifiScreen() {
             drawText(e.ssid.c_str(), textX, textY, rowScale, tr, tg, tb, 1.0f);
 
             // Security + connected markers (right side)
-            const char* secLabel = "Open";
+            const char* secLabel = trDyn("Open");
             switch (e.security) {
-            case 1: secLabel = "WEP"; break;
-            case 2: secLabel = "WPA2"; break;
-            case 3: secLabel = "WPA3"; break;
-            case 4: secLabel = "OWE"; break;
+            case 1: secLabel = trDyn("WEP"); break;
+            case 2: secLabel = trDyn("WPA2"); break;
+            case 3: secLabel = trDyn("WPA3"); break;
+            case 4: secLabel = trDyn("OWE"); break;
             }
             char marker[64];
             const char* status = "";
-            if (e.connected) status = " (Connected)";
-            else if (e.savedNetId >= 0) status = " (Saved)";
+            if (e.connected) status = trDyn(" (Connected)");
+            else if (e.savedNetId >= 0) status = trDyn(" (Saved)");
             snprintf(marker, sizeof(marker), "%s%s", secLabel, status);
             float mScale = rowScale * 0.7f;
             float mw = measureText(marker, mScale);
@@ -1751,8 +1752,8 @@ void NanoMenu::renderWifiScreen() {
             const WifiNetEntry& se = mWifiEntries[mWifiEntrySelected];
             selSaved = (se.bssid != "__TOGGLE__" && se.savedNetId >= 0);
         }
-        const char* footer = selSaved ? "A: Connect | Y: Forget | X: Rescan | B: Back"
-                                       : "A: Connect | X: Rescan | B: Back";
+        const char* footer = trDyn(selSaved ? "A: Connect | Y: Forget | X: Rescan | B: Back"
+                                       : "A: Connect | X: Rescan | B: Back");
         float fw = measureText(footer, footScale);
         drawText(footer, (mWidth - fw) / 2.0f,
                  mHeight - FONT_CHAR_H * footScale - 12.0f * sf,
@@ -1780,7 +1781,7 @@ void NanoMenu::renderBtScreen() {
     float footScale = 1.3f * sf;
 
     if (!mSetupWizardActive)
-        drawText("Bluetooth", pad, pad, titleScale, 0.95f, 0.95f, 1.0f, 1.0f);
+        drawText(trDyn("Bluetooth"), pad, pad, titleScale, 0.95f, 0.95f, 1.0f, 1.0f);
 
     std::vector<BtDevEntry> devs;
     {
@@ -1795,10 +1796,10 @@ void NanoMenu::renderBtScreen() {
         drawText(mBtStatusMsg.c_str(), pad, statusY,
                  footScale, 0.80f, 0.75f, 0.15f, 0.95f);
     } else if (mBtDiscoveryInProgress) {
-        drawText("Scanning for devices...", pad, statusY,
+        drawText(trDyn("Scanning for devices..."), pad, statusY,
                  footScale, 0.80f, 0.75f, 0.15f, 0.95f);
     } else if (mBtScanInProgress) {
-        drawText("Refreshing...", pad, statusY,
+        drawText(trDyn("Refreshing..."), pad, statusY,
                  footScale, 0.80f, 0.75f, 0.15f, 0.95f);
     }
 
@@ -1808,7 +1809,7 @@ void NanoMenu::renderBtScreen() {
     if (visibleRows < 4) visibleRows = 4;
 
     if (devs.empty()) {
-        drawText("No devices.  Press X to scan for nearby Bluetooth devices.",
+        drawText(trDyn("No devices.  Press X to scan for nearby Bluetooth devices."),
                  pad, listTop, rowScale * 0.85f, 0.6f, 0.6f, 0.65f, 0.85f);
     } else {
         if (mBtEntrySelected < mBtScrollTop) mBtScrollTop = mBtEntrySelected;
@@ -1858,8 +1859,8 @@ void NanoMenu::renderBtScreen() {
                      sel ? 1.0f : 0.88f,
                      sel ? 1.0f : 0.88f,
                      sel ? 1.0f : 0.90f, 1.0f);
-            const char* status = d.connected ? "Connected"
-                               : (d.bonded ? "Paired" : "Available");
+            const char* status = trDyn(d.connected ? "Connected"
+                               : (d.bonded ? "Paired" : "Available"));
             float statusR, statusG, statusB;
             if (d.connected) { statusR = 0.4f; statusG = 0.95f; statusB = 0.4f; }
             else if (d.bonded) { statusR = 0.6f; statusG = 0.6f; statusB = 0.65f; }
@@ -1879,9 +1880,9 @@ void NanoMenu::renderBtScreen() {
         selBonded = sel.bonded && sel.address != "__TOGGLE__";
     }
     if (!mSetupWizardActive) {
-        const char* footer = selBonded
+        const char* footer = trDyn(selBonded
                 ? "A: Connect | Y: Unpair | X: Scan | B: Back"
-                : "A: Pair/Connect | X: Scan | B: Back";
+                : "A: Pair/Connect | X: Scan | B: Back");
         float fw = measureText(footer, footScale);
         drawText(footer, (mWidth - fw) / 2.0f,
                  mHeight - FONT_CHAR_H * footScale - 12.0f * sf,

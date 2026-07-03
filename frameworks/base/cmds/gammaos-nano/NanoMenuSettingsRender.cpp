@@ -19,6 +19,7 @@
 #include "NanoMenu.h"
 #include "NanoMenuSettingsTree.h"
 #include "NanoMenuShaders.h"
+#include "NanoI18n.h"
 
 namespace android {
 
@@ -43,8 +44,8 @@ void NanoMenu::renderSettingsTree() {
 
     if (mSettingsNavStack.size() > 1) {
         float bY = headerH;
-        std::string parentLabel = "< Back";
-        drawText(parentLabel.c_str(), pad, bY, breadcrumbScale,
+        const char* parentLabel = trDyn("< Back");
+        drawText(parentLabel, pad, bY, breadcrumbScale,
                  0.50f, 0.50f, 0.55f, 0.7f);
         headerH = bY + FONT_CHAR_H * breadcrumbScale + 6.0f * sf;
     }
@@ -57,7 +58,7 @@ void NanoMenu::renderSettingsTree() {
     int numItems = (int)mSettingsTreeVisible.size();
 
     if (numItems == 0) {
-        drawText("No items", pad, listTop, rowScale,
+        drawText(trDyn("No items"), pad, listTop, rowScale,
                  0.5f, 0.5f, 0.55f, 0.7f);
     } else {
         if (mSettingsTreeSelected < mSettingsTreeScrollTop)
@@ -91,7 +92,7 @@ void NanoMenu::renderSettingsTree() {
             float labelB = sel ? 1.0f : 0.88f;
             float labelA = (node.type == SettingNodeType::kInfo) ? 0.65f : 1.0f;
 
-            drawText(node.label.c_str(), textX, textY, rowScale,
+            drawText(trDyn(node.label.c_str()), textX, textY, rowScale,
                      labelR, labelG, labelB, labelA);
 
             float rightEdge = mWidth - pad - 4.0f * sf;
@@ -108,7 +109,8 @@ void NanoMenu::renderSettingsTree() {
             case SettingNodeType::kToggle: {
                 std::string val = getSettingsCachedValue(nodeIdx);
                 bool isOn = (val == "1" || val == "true");
-                const char* pill = isOn ? "[ On ]" : "[ Off ]";
+                std::string pillStr = std::string("[ ") + (isOn ? trDyn("On") : trDyn("Off")) + " ]";
+                const char* pill = pillStr.c_str();
                 float pScale = rowScale * 0.85f;
                 float pw = measureText(pill, pScale);
                 drawText(pill, rightEdge - pw, y + rowH * 0.18f,
@@ -143,7 +145,7 @@ void NanoMenu::renderSettingsTree() {
                 auto opts = parseListOptions(node.options);
                 std::string display = val;
                 for (const auto& o : opts) {
-                    if (o.value == val) { display = o.label; break; }
+                    if (o.value == val) { display = trDyn(o.label.c_str()); break; }
                 }
                 if (display.size() > 25) display = display.substr(0, 22) + "...";
                 std::string listStr = "< " + display + " >";
@@ -177,7 +179,7 @@ void NanoMenu::renderSettingsTree() {
         }
     }
 
-    const char* footer = "A: Select | B: Back | L/R: Adjust";
+    const char* footer = trDyn("A: Select | B: Back | L/R: Adjust");
     float fw = measureText(footer, footScale);
     drawText(footer, (mWidth - fw) / 2.0f,
              mHeight - FONT_CHAR_H * footScale - 10.0f * sf,

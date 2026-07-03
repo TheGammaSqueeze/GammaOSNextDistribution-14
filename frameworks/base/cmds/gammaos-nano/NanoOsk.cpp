@@ -34,6 +34,7 @@
 #include <utils/Log.h>
 
 #include "NanoMenu.h"
+#include "NanoI18n.h"      // trDyn() runtime translation of hardcoded UI strings
 #include "NanoOsk.h"
 #include "NanoOskLayouts.h"
 #include "NanoOskLayoutsExtra.h"  // non-Latin keyboards (Korean, ...)
@@ -510,7 +511,7 @@ OskBox NanoMenu::oskLayoutBox() {
     if (sf < 0.5f) sf = 0.5f;
     // A wizard text field (callback armed) commits a value, so the action key
     // reads "Enter", not "Search" - "Search" is only for the free search OSK.
-    const char* actLabel = mOskPasswordCallback ? "Enter" : "Search";
+    const char* actLabel = trDyn(mOskPasswordCallback ? "Enter" : "Search");
     float actLabelPx = measureText(actLabel, 1.7f * sf);
     return oskComputeBox(mWidth, mHeight, actLabelPx);
 }
@@ -1125,12 +1126,12 @@ void NanoMenu::renderOsk() {
         std::string label, value;
         float pr, pg, pb;
         if (mOskPasswordCallback || mOskPasswordMode) {
-            label = (mOskPasswordPrompt.empty() ? "Text" : mOskPasswordPrompt) + ": ";
+            label = std::string(mOskPasswordPrompt.empty() ? trDyn("Text") : trDyn(mOskPasswordPrompt.c_str())) + ": ";
             value = (mOskPasswordMode && !mOskPlaintext) ? maskPassword(mOskQuery)
                                                          : mOskQuery;
             pr = 1.0f; pg = 0.78f; pb = 0.40f;
         } else {
-            label = "Search: ";
+            label = std::string(trDyn("Search")) + ": ";
             value = mOskQuery;
             pr = 0.45f; pg = 0.78f; pb = 1.0f;
         }
@@ -1314,7 +1315,7 @@ void NanoMenu::renderOsk() {
 
     // --- Action button (Enter / Search): accent rounded key ---
     {
-        const char* actLabel = mOskPasswordCallback ? "Enter" : "Search";
+        const char* actLabel = trDyn(mOskPasswordCallback ? "Enter" : "Search");
         float scale = 1.6f * b.sf;
         bool foc = mOsk.inAction;
         if (foc) drawRoundedRect(b.actX, b.actY, b.actW, b.actH, keyRad,
@@ -1332,9 +1333,9 @@ void NanoMenu::renderOsk() {
     // --- Footer / help line ---
     {
         float fScale = 1.35f * b.sf;
-        const char* footer = mOskPasswordCallback
+        const char* footer = trDyn(mOskPasswordCallback
             ? "A:Key  X:Back  L:Shift  R:Sym  Sel:Lang  Start:Enter  B:Cancel"
-            : "A:Key  X:Back  L:Shift  R:Sym  Sel:Lang  Start:Search  B:Cancel";
+            : "A:Key  X:Back  L:Shift  R:Sym  Sel:Lang  Start:Search  B:Cancel");
         float fw = measureText(footer, fScale);
         drawText(footer, b.panelX + b.panelW / 2.0f - fw / 2.0f, b.footerY, fScale,
                  0.58f, 0.60f, 0.68f, 0.80f * fade);
