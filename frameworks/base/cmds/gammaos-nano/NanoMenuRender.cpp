@@ -670,6 +670,22 @@ void NanoMenu::drawTriangle(float x0, float y0, float x1, float y1,
     glDisableVertexAttribArray(mLocPosition);
 }
 
+void NanoMenu::triAA(float x0, float y0, float a0,
+                     float x1, float y1, float a1,
+                     float x2, float y2, float a2,
+                     float r, float g, float b) {
+    if (mSolidBatchActive) {
+        if (sSolidN + 3 > SOLID_BATCH_MAX_VERTS) flushSolidBatch();
+        solidPush((x0 / mWidth) * 2.0f - 1.0f, 1.0f - (y0 / mHeight) * 2.0f, r, g, b, a0);
+        solidPush((x1 / mWidth) * 2.0f - 1.0f, 1.0f - (y1 / mHeight) * 2.0f, r, g, b, a1);
+        solidPush((x2 / mWidth) * 2.0f - 1.0f, 1.0f - (y2 / mHeight) * 2.0f, r, g, b, a2);
+        return;
+    }
+    // No per-vertex-colour batch open (rare: the clock and dialog glyphs always
+    // run inside one). Fall back to a flat solid triangle so nothing vanishes.
+    drawTriangle(x0, y0, x1, y1, x2, y2, r, g, b, (a0 + a1 + a2) * (1.0f / 3.0f));
+}
+
 // Snapshot the WHOLE framebuffer into mGlassTex, then blur it. We capture the
 // full viewport (not just the panel rect) so this is rotation/flip agnostic:
 // under DRM rotation the panel-rect-to-FB mapping is rotated and a per-region

@@ -179,9 +179,9 @@ void NanoMenu::renderSettingsTree() {
         }
     }
 
-    const char* footer = trDyn("A: Select | B: Back | L/R: Adjust");
-    float fw = measureText(footer, footScale);
-    drawText(footer, (mWidth - fw) / 2.0f,
+    std::string footer = themeButtonText(trDyn("Cross: Select | Circle: Back | L/R: Adjust"));
+    float fw = measureText(footer.c_str(), footScale);
+    drawText(footer.c_str(), (mWidth - fw) / 2.0f,
              mHeight - FONT_CHAR_H * footScale - 10.0f * sf,
              footScale, 0.50f, 0.50f, 0.55f, 0.85f);
 

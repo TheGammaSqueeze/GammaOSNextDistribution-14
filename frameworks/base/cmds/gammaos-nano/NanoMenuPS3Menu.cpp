@@ -907,6 +907,9 @@ void NanoMenu::buildGamepadSubmenu(Ps3Level& out) {
     leaf("Virtual Device Name", nullptr, 16);
     // Layout / sticks
     leaf("ABXY Swap", nullptr, 16);
+    // On-screen prompt theme (letters vs PlayStation glyphs, and which button is OK).
+    leaf("Button Prompts", nullptr, 16);
+    leaf("OK Button", nullptr, 16);
     leaf("Invert Left Stick", nullptr, 16);
     leaf("Invert Right Stick", nullptr, 16);
     leaf("Analog to D-Pad", nullptr, 16);
@@ -4508,6 +4511,14 @@ static const Ps3SettingBinding kPs3Bindings[] = {
     {"D-Pad Threshold", SettingSource::kProp, "persist.gammaos.gamepad.dpad_threshold", "50",
      "10:10,20:20,30:30,40:40,50:50,60:60,70:70,80:80,90:90"},
     {"Screen Map", SettingSource::kProp, "persist.gammaos.screenmap.enabled", "0", "0:Off,1:On"},
+    // On-screen button-prompt theme. Read live by refreshFaceButtonPrefs() (drawFaceGlyph
+    // for dialog glyphs, themeButtonText for legend text). "Button Prompts" picks letter
+    // glyphs (A/B/X/Y) or PlayStation glyphs; "OK Button" relabels which face button reads
+    // as OK/Cancel (relabel only - the input mapping is untouched).
+    {"Button Prompts", SettingSource::kProp, "persist.gammaos.nano.face_glyphs", "letters",
+     "letters:A / B / X / Y,playstation:PlayStation"},
+    {"OK Button", SettingSource::kProp, "persist.gammaos.nano.face_swap", "0",
+     "0:A / Cross,1:B / Circle"},
     // Gamepad free-text / mapping fields (edited via the OSK for now; Inc2/Inc3 readapt
     // these into native button/axis/device pickers). Formats match the gammapad daemon:
     //   devices/blacklist_pass: device-name patterns (';') / button codes (',')
@@ -5209,10 +5220,10 @@ static const Ps3DlgTemplate kPs3DlgTemplates[] = {
    "Obtains the correct date and time automatically via the Internet when you sign in to PSN, and sets them on your system.\n\nA network connection is required for this feature.",
    {nullptr,nullptr,nullptr,nullptr},4,nullptr,0},
   {"Set Manually",0,"Set Manually",
-   "Set the time and date.\n\nUse the arrow keys to adjust each field, then press the X button to apply.",
+   "Set the time and date.\n\nUse the arrow keys to adjust each field, then press Cross to apply.",
    {nullptr,nullptr,nullptr,nullptr},0,nullptr,0},
   {"Calibrate Motion Controller",0,"Calibrate Motion Controller",
-   "Calibrates the magnetic sensor of a motion controller. Use this setting when the motion controller does not control on-screen movement as expected.\n\nPlace the controller on a flat surface, then press the X button.",
+   "Calibrates the magnetic sensor of a motion controller. Use this setting when the motion controller does not control on-screen movement as expected.\n\nPlace the controller on a flat surface, then press Cross.",
    {nullptr,nullptr,nullptr,nullptr},5,nullptr,0},
   {"Reassign Controllers",0,"Reassign Controllers",
    "Change the number assigned to the controller that is currently in use.\n\nPress the PS button on the controller you want to reassign.",
@@ -5273,23 +5284,50 @@ static const Ps3DlgTemplate kPs3DlgTemplates[] = {
 };
 
 // --- low-level dialog draw primitives (device-px space) -------------------
+// Feather width, in logical device px, for the anti-aliased procedural shapes
+// (button glyphs, clock face/hands, glass-icon rings). The 50%-coverage edge sits
+// at the requested geometric edge, so widths and radii are unchanged; only a ~1px
+// alpha ramp is added so diagonals and curves stop stair-stepping.
+static const float kPs3EdgeFeatherPx = 1.0f;
+
 void NanoMenu::ps3ThickLine(float x0, float y0, float x1, float y1, float w,
                             float r, float g, float b, float a) {
     float dx = x1 - x0, dy = y1 - y0;
     float len = sqrtf(dx * dx + dy * dy);
     if (len < 1e-3f) return;
-    float nx = -dy / len * (w * 0.5f), ny = dx / len * (w * 0.5f);
-    drawTriangle(x0 + nx, y0 + ny, x0 - nx, y0 - ny, x1 - nx, y1 - ny, r, g, b, a);
-    drawTriangle(x0 + nx, y0 + ny, x1 - nx, y1 - ny, x1 + nx, y1 + ny, r, g, b, a);
+    const float fw = kPs3EdgeFeatherPx;
+    float ux = dx / len, uy = dy / len;          // unit along the line
+    float nx = -uy, ny = ux;                      // unit normal
+    float inner = fmaxf(w * 0.5f - fw * 0.5f, 0.0f);   // solid half-width
+    float outer = w * 0.5f + fw * 0.5f;                // feather edge (alpha 0)
+    float ix = nx * inner, iy = ny * inner;
+    float ox = nx * outer, oy = ny * outer;
+    // solid core quad
+    triAA(x0 + ix, y0 + iy, a, x0 - ix, y0 - iy, a, x1 - ix, y1 - iy, a, r, g, b);
+    triAA(x0 + ix, y0 + iy, a, x1 - ix, y1 - iy, a, x1 + ix, y1 + iy, a, r, g, b);
+    // feather band on the +normal side (alpha a -> 0)
+    triAA(x0 + ix, y0 + iy, a, x0 + ox, y0 + oy, 0, x1 + ox, y1 + oy, 0, r, g, b);
+    triAA(x0 + ix, y0 + iy, a, x1 + ox, y1 + oy, 0, x1 + ix, y1 + iy, a, r, g, b);
+    // feather band on the -normal side
+    triAA(x0 - ix, y0 - iy, a, x0 - ox, y0 - oy, 0, x1 - ox, y1 - oy, 0, r, g, b);
+    triAA(x0 - ix, y0 - iy, a, x1 - ox, y1 - oy, 0, x1 - ix, y1 - iy, a, r, g, b);
 }
 void NanoMenu::ps3FillCircle(float cx, float cy, float rad, float r, float g, float b, float a) {
-    const int N = 28;
-    float px = cx + rad, py = cy;
+    const int N = 40;
+    const float fw = kPs3EdgeFeatherPx;
+    float inner = fmaxf(rad - fw * 0.5f, 0.0f);
+    float outer = rad + fw * 0.5f;
+    float pxi = cx + inner, pyi = cy;
+    float pxo = cx + outer, pyo = cy;
     for (int i = 1; i <= N; i++) {
         float t = (float)i / (float)N * 2.0f * (float)M_PI;
-        float x = cx + cosf(t) * rad, y = cy + sinf(t) * rad;
-        drawTriangle(cx, cy, px, py, x, y, r, g, b, a);
-        px = x; py = y;
+        float c = cosf(t), s = sinf(t);
+        float xi = cx + c * inner, yi = cy + s * inner;
+        float xo = cx + c * outer, yo = cy + s * outer;
+        triAA(cx, cy, a, pxi, pyi, a, xi, yi, a, r, g, b);           // solid interior
+        triAA(pxi, pyi, a, pxo, pyo, 0, xo, yo, 0, r, g, b);         // feather band
+        triAA(pxi, pyi, a, xo, yo, 0, xi, yi, a, r, g, b);
+        pxi = xi; pyi = yi; pxo = xo; pyo = yo;
     }
 }
 void NanoMenu::ps3StrokeRing(float cx, float cy, float radX, float radY, float lw,
@@ -5359,6 +5397,96 @@ void NanoMenu::ps3DlgOption(const char* label, float cxDev, float midDev,
     }
 }
 
+void NanoMenu::refreshFaceButtonPrefs() {
+    char v[PROPERTY_VALUE_MAX];
+    property_get("persist.gammaos.nano.face_glyphs", v, "letters");
+    mFaceLetters = (strcmp(v, "playstation") != 0);   // default + any unknown = letters
+    property_get("persist.gammaos.nano.face_swap", v, "0");
+    mFaceSwapOk = (v[0] == '1');
+}
+
+// Replace every whole-word occurrence of `from` with `to` (word boundary = a
+// non-alphanumeric char or the string edge), so "Cross" in a legend is swapped
+// but a substring inside another word is left alone.
+static void ps3ReplaceWholeWord(std::string& s, const char* from, const char* to) {
+    std::string f = from; size_t fl = f.size();
+    if (!fl) return;
+    for (size_t pos = 0; (pos = s.find(f, pos)) != std::string::npos; ) {
+        bool lok = (pos == 0)          || !isalnum((unsigned char)s[pos - 1]);
+        bool rok = (pos + fl >= s.size()) || !isalnum((unsigned char)s[pos + fl]);
+        if (lok && rok) { s.replace(pos, fl, to); pos += strlen(to); }
+        else pos += fl;
+    }
+}
+
+std::string NanoMenu::themeButtonText(const char* in) {
+    if (!in) return std::string();
+    std::string s = in;
+    if (s.find("Cross") == std::string::npos && s.find("Circle") == std::string::npos &&
+        s.find("Square") == std::string::npos && s.find("Triangle") == std::string::npos)
+        return s;   // no canonical face-button words -> nothing to theme
+    refreshFaceButtonPrefs();
+    if (mFaceLetters) {
+        ps3ReplaceWholeWord(s, "Cross",    mFaceSwapOk ? "B" : "A");
+        ps3ReplaceWholeWord(s, "Circle",   mFaceSwapOk ? "A" : "B");
+        ps3ReplaceWholeWord(s, "Square",   "Y");
+        ps3ReplaceWholeWord(s, "Triangle", "X");
+    } else if (mFaceSwapOk) {                 // PlayStation names, OK/Cancel flipped
+        ps3ReplaceWholeWord(s, "Cross",  "\x01");
+        ps3ReplaceWholeWord(s, "Circle", "Cross");
+        ps3ReplaceWholeWord(s, "\x01",   "Circle");
+    }
+    return s;
+}
+
+// One themed face-button badge centred on (gcx,yDev). role: 0=Confirm, 1=Cancel,
+// 2=Square, 3=Triangle. Letters theme draws the mapped letter as anti-aliased
+// text; PlayStation theme draws the vector glyph. The OK/Cancel relabel swap
+// flips only the Confirm/Cancel display (the input mapping is untouched).
+void NanoMenu::drawFaceGlyph(int role, float gcx, float yDev, float glyphR, float lw, float ap) {
+    if (mFaceLetters) {
+        const char* L =
+            (role == 0) ? (mFaceSwapOk ? "B" : "A") :
+            (role == 1) ? (mFaceSwapOk ? "A" : "B") :
+            (role == 2) ? "Y" : "X";
+        // Thin ring around the letter so it reads as a face button. Same radius as
+        // the PlayStation "O" glyph so all four letter badges match that badge size.
+        bool localBatch = !mSolidBatchActive;
+        if (localBatch) beginSolidBatch();
+        ps3StrokeRing(gcx, yDev, glyphR, glyphR, lw, 1.0f, 1.0f, 1.0f, 0.95f * ap);
+        if (localBatch) endSolidBatch();   // flush the ring before the text pass
+        // Letter sized to sit inside the ring with padding (ring diameter is 2*glyphR).
+        float scale = glyphR * 1.40f / (float)FONT_CHAR_H;
+        float tw = measureText(L, scale);
+        float topY = yDev - 0.45f * (float)FONT_CHAR_H * scale;   // centres the cap ink on yDev
+        drawText(L, gcx - tw * 0.5f, topY, scale, 1.0f, 1.0f, 1.0f, 0.95f * ap);
+        return;
+    }
+    bool localBatch = !mSolidBatchActive;
+    if (localBatch) beginSolidBatch();
+    int slot = role;
+    if (mFaceSwapOk && (role == 0 || role == 1)) slot = (role == 0) ? 1 : 0;
+    if (slot == 0) {                        // cross (X)
+        float d = glyphR * 0.78f;
+        ps3ThickLine(gcx - d, yDev - d, gcx + d, yDev + d, lw, 1.0f, 1.0f, 1.0f, 0.95f * ap);
+        ps3ThickLine(gcx + d, yDev - d, gcx - d, yDev + d, lw, 1.0f, 1.0f, 1.0f, 0.95f * ap);
+    } else if (slot == 1) {                 // ring (O)
+        ps3StrokeRing(gcx, yDev, glyphR, glyphR, lw, 1.0f, 1.0f, 1.0f, 0.95f * ap);
+    } else if (role == 2) {                 // square (box outline)
+        float d = glyphR * 0.80f;
+        ps3ThickLine(gcx - d, yDev - d, gcx + d, yDev - d, lw, 1.0f, 1.0f, 1.0f, 0.95f * ap);
+        ps3ThickLine(gcx + d, yDev - d, gcx + d, yDev + d, lw, 1.0f, 1.0f, 1.0f, 0.95f * ap);
+        ps3ThickLine(gcx + d, yDev + d, gcx - d, yDev + d, lw, 1.0f, 1.0f, 1.0f, 0.95f * ap);
+        ps3ThickLine(gcx - d, yDev + d, gcx - d, yDev - d, lw, 1.0f, 1.0f, 1.0f, 0.95f * ap);
+    } else {                                // triangle outline (point up)
+        float d = glyphR * 0.95f;
+        ps3ThickLine(gcx, yDev - d, gcx + d * 0.92f, yDev + d * 0.72f, lw, 1.0f, 1.0f, 1.0f, 0.95f * ap);
+        ps3ThickLine(gcx + d * 0.92f, yDev + d * 0.72f, gcx - d * 0.92f, yDev + d * 0.72f, lw, 1.0f, 1.0f, 1.0f, 0.95f * ap);
+        ps3ThickLine(gcx - d * 0.92f, yDev + d * 0.72f, gcx, yDev - d, lw, 1.0f, 1.0f, 1.0f, 0.95f * ap);
+    }
+    if (localBatch) endSolidBatch();
+}
+
 // Footer button hint: glyph (X cross or O circle) + label, centred on slotCxDev.
 void NanoMenu::ps3DlgHint(float slotCxDev, bool cross, const char* label,
                           float yDev, float baseScale, float ap) {
@@ -5379,18 +5507,22 @@ void NanoMenu::ps3DlgHintG(float slotCxDev, int glyph, const char* label,
     float groupW = glyphR * 2.0f + gap + tw;
     float left = slotCxDev - groupW * 0.5f;
     float gcx = left + glyphR;
-    if (glyph == 0) {            // cross (X)
-        float d = glyphR * 0.78f;
-        ps3ThickLine(gcx - d, yDev - d, gcx + d, yDev + d, lw, 1.0f, 1.0f, 1.0f, 0.95f * ap);
-        ps3ThickLine(gcx + d, yDev - d, gcx - d, yDev + d, lw, 1.0f, 1.0f, 1.0f, 0.95f * ap);
-    } else if (glyph == 1) {     // ring (O)
-        ps3StrokeRing(gcx, yDev, glyphR, glyphR, lw, 1.0f, 1.0f, 1.0f, 0.95f * ap);
+    // Confirm (0) / Cancel (1) follow the user's Button Prompts theme (letters or
+    // PlayStation glyphs, with the OK/Cancel relabel swap); Start (2) is unchanged.
+    // drawFaceGlyph opens its own solid batch for the vector glyphs so the feathered
+    // primitives anti-alias even when the footer is drawn outside one.
+    refreshFaceButtonPrefs();
+    if (glyph == 0 || glyph == 1) {
+        drawFaceGlyph(glyph, gcx, yDev, glyphR, lw, ap);
     } else {                     // Start: the real PlayStation Start glyph - a
                                  // right-pointing filled "play" triangle.
+        bool localBatch = !mSolidBatchActive;
+        if (localBatch) beginSolidBatch();
         drawTriangle(gcx - glyphR * 0.62f, yDev - glyphR * 0.82f,
                      gcx - glyphR * 0.62f, yDev + glyphR * 0.82f,
                      gcx + glyphR * 0.98f, yDev,
                      1.0f, 1.0f, 1.0f, 0.95f * ap);
+        if (localBatch) endSolidBatch();
     }
     float topY = yDev - 0.45f * 16.0f * fs;
     drawText(label, left + glyphR * 2.0f + gap, topY, fs, 1.0f, 1.0f, 1.0f, 0.95f * ap);
@@ -7069,8 +7201,10 @@ void NanoMenu::renderPs3Dialog() {
         // ---- body by type ----
         // Translate the whole body BEFORE wrapping (the static dialog-template
         // bodies are translation keys; dynamic bodies - net status SSID/IP, NTP
-        // results - have no key and pass through unchanged).
-        std::string dlgBody = trDyn(mPs3DlgBody.c_str());
+        // results - have no key and pass through unchanged). themeButtonText maps
+        // any canonical Cross/Circle/Square/Triangle token to the active Button
+        // Prompts theme (letters A/B/X/Y or the PlayStation glyph names).
+        std::string dlgBody = themeButtonText(trDyn(mPs3DlgBody.c_str()));
         int n = (int)mPs3DlgOptions.size();
         if (mPs3DlgRomInfo) {                   // rich ROM Information (cover + metadata + synopsis)
             // FIT-AWARE: every horizontal position uses XC() (= S*XCF(vx)+offX) and
@@ -8401,7 +8535,7 @@ void NanoMenu::renderNetWizard() {
         int vis = (int)((innerBot - top - 20.0f) / pitch); if (vis < 3) vis = 3;
         int first = mPs3WizSel - vis / 2; if (first < 0) first = 0; if (n <= vis) first = 0; else if (first > n - vis) first = n - vis;
         if (n == 0)
-            ps3DlgText("No devices found. Press the square button to scan again.", bodyCx, Y(top + 30.0f), FS(22.0f), 0.9f, 0.9f, 0.9f, ap, 1);
+            ps3DlgText(themeButtonText(trDyn("No devices found. Press Triangle to scan again.")).c_str(), bodyCx, Y(top + 30.0f), FS(22.0f), 0.9f, 0.9f, 0.9f, ap, 1);
         for (int i = first; i < n && i < first + vis; i++) {
             float ry = Y(top + (i - first) * pitch);
             bool sel = (i == mPs3WizSel);
@@ -8425,7 +8559,7 @@ void NanoMenu::renderNetWizard() {
         int vis = (int)((innerBot - top - 20.0f) / pitch); if (vis < 3) vis = 3;
         int first = mPs3WizSel - vis / 2; if (first < 0) first = 0; if (n <= vis) first = 0; else if (first > n - vis) first = n - vis;
         if (n == 0)
-            ps3DlgText("No networks found. Press X to rescan.", bodyCx, Y(top + 30.0f), FS(22.0f), 0.9f, 0.9f, 0.9f, ap, 1);
+            ps3DlgText(themeButtonText(trDyn("No networks found. Press Triangle to rescan.")).c_str(), bodyCx, Y(top + 30.0f), FS(22.0f), 0.9f, 0.9f, 0.9f, ap, 1);
         for (int i = first; i < n && i < first + vis; i++) {
             float ry = Y(top + (i - first) * pitch);
             bool sel = (i == mPs3WizSel);
@@ -8525,22 +8659,22 @@ void NanoMenu::renderNetWizard() {
     } else if (d.kind == WK_TEST) {
         // running: no hints
     } else if (mPs3WizId == WS_APLIST || mPs3WizId == WS_BT_DEVICE_LIST) {
-        // Three slots: Enter (cross) / Cancel (circle) / Search (square = X button).
+        // Three slots: Enter (Confirm) / Cancel / Search. Search re-scans the list
+        // and is bound to the top face button (BTN_NORTH = X / Triangle, wizRescan).
         float e3 = XC(VW * 0.34f), c3 = XC(VW * 0.5f), s3 = XC(VW * 0.66f);
         ps3DlgHint(e3, true, "Enter", hintY, S, ap);
         ps3DlgHint(c3, false, "Cancel", hintY, S, ap);
-        // square glyph + "Search"
+        // Search badge: route through drawFaceGlyph(3) so it follows the Button
+        // Prompts theme (letters "X" / PlayStation triangle) and gets the same ring
+        // + anti-aliasing as the Enter/Cancel badges (was a hand-rolled raw square).
         {
+            refreshFaceButtonPrefs();
             const char* searchTxt = trDyn("Search");
             float sb = S * fb;   // small-panel boost, matching ps3DlgHint
             float fs = sb * 22.0f / 16.0f, glyphR = sb * 12.0f, gap = sb * 12.0f;
-            float lw = fmaxf(S * 2.0f, 1.5f), tw = measureText(searchTxt, fs);
+            float lw = fmaxf(sb * 2.0f, 1.5f), tw = measureText(searchTxt, fs);
             float groupW = glyphR * 2.0f + gap + tw, left = s3 - groupW * 0.5f, gcx = left + glyphR;
-            float h = glyphR * 0.78f;
-            drawQuad(gcx - h, hintY - h, 2.0f * h, lw, 1, 1, 1, 0.95f * ap);          // top
-            drawQuad(gcx - h, hintY + h - lw, 2.0f * h, lw, 1, 1, 1, 0.95f * ap);     // bottom
-            drawQuad(gcx - h, hintY - h, lw, 2.0f * h, 1, 1, 1, 0.95f * ap);          // left
-            drawQuad(gcx + h - lw, hintY - h, lw, 2.0f * h, 1, 1, 1, 0.95f * ap);     // right
+            drawFaceGlyph(3, gcx, hintY, glyphR, lw, ap);
             drawText(searchTxt, left + glyphR * 2.0f + gap, hintY - 0.45f * 16.0f * fs, fs, 1, 1, 1, 0.95f * ap);
         }
     } else {

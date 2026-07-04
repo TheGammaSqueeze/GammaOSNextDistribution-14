@@ -580,7 +580,7 @@ void NanoMenu::renderScrapeProgress() {
                      hits, fail);
             centered(line, py + ph * 0.50f, 1.15f * sf, 0.85f, 1.0f, 0.85f, 1.0f);
         }
-        centered(trDyn("Press X or O to close"), py + ph * 0.80f, 0.95f * sf, 0.75f, 0.78f, 0.82f, 0.9f);
+        centered(themeButtonText(trDyn("Press Cross or Circle to close")).c_str(), py + ph * 0.80f, 0.95f * sf, 0.75f, 0.78f, 0.82f, 0.9f);
     } else {
         snprintf(line, sizeof(line), trDyn("%d / %d   (%d found)"), done, total, hits);
         centered(line, py + ph * 0.46f, 1.3f * sf, 1.0f, 1.0f, 1.0f, 1.0f);
@@ -591,7 +591,7 @@ void NanoMenu::renderScrapeProgress() {
             s += "...";
         }
         centered(s.c_str(), py + ph * 0.66f, 0.95f * sf, 0.78f, 0.82f, 0.88f, 1.0f);
-        centered(trDyn("Press O to cancel"), py + ph * 0.86f, 0.9f * sf, 0.7f, 0.72f, 0.76f, 0.85f);
+        centered(themeButtonText(trDyn("Press Circle to cancel")).c_str(), py + ph * 0.86f, 0.9f * sf, 0.7f, 0.72f, 0.76f, 0.85f);
     }
 }
 

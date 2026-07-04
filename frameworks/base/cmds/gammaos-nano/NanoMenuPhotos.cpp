@@ -1448,16 +1448,16 @@ void NanoMenu::renderPhotoViewer() {
     float hintA = fmaxf(0.0f, fminf(1.0f, (mPvHintUntil - mEffectTime) / 0.6f)) * et;
     if (hintA > 0.01f) {
         float fs = PFS(20.0f);
-        const char* t1 = "Triangle : Control Panel";
-        const char* t2 = "PS : Home Menu";
-        float tw = fmaxf(measureText(t1, fs), measureText(t2, fs));
+        std::string t1 = themeButtonText(trDyn("Triangle: Control Panel"));
+        std::string t2 = trDyn("PS: Home Menu");
+        float tw = fmaxf(measureText(t1.c_str(), fs), measureText(t2.c_str(), fs));
         float padX = PSZ(0.012f), padY = PSZ(0.012f), lh = PSZ(0.034f);
         float pillW = tw + padX * 2.0f, pillH = lh * 2.0f + padY * 2.0f - lh * 0.4f;
         float px = (float)W - PXD(0.028f) - pillW, py = (float)H - PSZ(0.074f) - pillH;
         drawQuad(px, py, pillW, pillH, 64/255.0f, 64/255.0f, 68/255.0f, 0.82f * hintA);
         float y1 = py + padY, y2 = y1 + lh;
-        drawText(t1, px + padX, ps3::baselineToTopY(y1 + fs * 0.0f + PSZ(0.018f), fs), fs, 1, 1, 1, 0.95f * hintA);
-        drawText(t2, px + padX, ps3::baselineToTopY(y2 + fs * 0.0f + PSZ(0.018f), fs), fs, 1, 1, 1, 0.95f * hintA);
+        drawText(t1.c_str(), px + padX, ps3::baselineToTopY(y1 + fs * 0.0f + PSZ(0.018f), fs), fs, 1, 1, 1, 0.95f * hintA);
+        drawText(t2.c_str(), px + padX, ps3::baselineToTopY(y2 + fs * 0.0f + PSZ(0.018f), fs), fs, 1, 1, 1, 0.95f * hintA);
     }
 
     if (mPvWpMode || mPvTrimMode) drawPvWallpaperSel();   // Set as Wallpaper / Trimming range selector

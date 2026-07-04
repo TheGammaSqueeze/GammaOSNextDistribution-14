@@ -2539,16 +2539,16 @@ bool NanoMenu::renderVideoPlayer() {
     // Layer 8: help-hint pill (bottom-right) while the OSD bar shows and no panel is up.
     if (hintA > 0.01f && !panelUp) {
         float fs = ps3::fontScale(21.0f);
-        const char* l1 = "Triangle: Control Panel";
-        const char* l2 = trDyn("Circle: Home Menu");
-        float w1 = measureText(l1, fs), w2 = measureText(l2, fs);
+        std::string l1 = themeButtonText(trDyn("Triangle: Control Panel"));
+        std::string l2 = themeButtonText(trDyn("Circle: Home Menu"));
+        float w1 = measureText(l1.c_str(), fs), w2 = measureText(l2.c_str(), fs);
         float tw = fmaxf(w1, w2);
         float padx = W * 0.018f;
         float ph = H * 0.068f, pw = tw + padx * 2.0f;            // web pill height ~0.068*CH
         float px = W - pw - W * 0.03f, py = H * 0.86f;           // web py = CH*0.86
         drawQuad(px, py, pw, ph, 0.235f, 0.235f, 0.26f, 0.72f * hintA);
-        drawText(l1, px + padx, ps3::baselineToTopY(py + H * 0.030f, fs), fs, 1.0f, 1.0f, 1.0f, 0.95f * hintA);
-        drawText(l2, px + padx, ps3::baselineToTopY(py + H * 0.056f, fs), fs, 1.0f, 1.0f, 1.0f, 0.95f * hintA);
+        drawText(l1.c_str(), px + padx, ps3::baselineToTopY(py + H * 0.030f, fs), fs, 1.0f, 1.0f, 1.0f, 0.95f * hintA);
+        drawText(l2.c_str(), px + padx, ps3::baselineToTopY(py + H * 0.056f, fs), fs, 1.0f, 1.0f, 1.0f, 0.95f * hintA);
     }
 
     // Layer 9: the control panel (200ms open/close, web drawVideoPanel).
@@ -3231,9 +3231,9 @@ void NanoMenu::drawVideoScene(float closeT) {
 
     // Footer hint (web "✕ Enter   ○ Back").
     float ffs = ps3::fontScale(20.0f);
-    const char* foot = trDyn("Cross  Enter      Circle  Back");
-    float fw = measureText(foot, ffs);
-    drawText(foot, (W - fw) * 0.5f, ps3::baselineToTopY(H * 0.90f, ffs), ffs, 0.92f, 0.92f, 0.92f, 0.9f * A);
+    std::string foot = themeButtonText(trDyn("Cross  Enter      Circle  Back"));
+    float fw = measureText(foot.c_str(), ffs);
+    drawText(foot.c_str(), (W - fw) * 0.5f, ps3::baselineToTopY(H * 0.90f, ffs), ffs, 0.92f, 0.92f, 0.92f, 0.9f * A);
 }
 
 }  // namespace android

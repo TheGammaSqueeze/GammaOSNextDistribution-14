@@ -1660,7 +1660,7 @@ void NanoMenu::renderWifiScreen() {
     if (visibleRows < 4) visibleRows = 4;
 
     if (entries.empty()) {
-        drawText(trDyn("No Wi-Fi networks. Press X to rescan."),
+        drawText(themeButtonText(trDyn("No Wi-Fi networks. Press Triangle to rescan.")).c_str(),
                  pad, listTop, rowScale, 0.6f, 0.6f, 0.65f, 0.85f);
     } else {
         // Ensure selection is visible.
@@ -1752,10 +1752,11 @@ void NanoMenu::renderWifiScreen() {
             const WifiNetEntry& se = mWifiEntries[mWifiEntrySelected];
             selSaved = (se.bssid != "__TOGGLE__" && se.savedNetId >= 0);
         }
-        const char* footer = trDyn(selSaved ? "A: Connect | Y: Forget | X: Rescan | B: Back"
-                                       : "A: Connect | X: Rescan | B: Back");
-        float fw = measureText(footer, footScale);
-        drawText(footer, (mWidth - fw) / 2.0f,
+        std::string footer = themeButtonText(trDyn(selSaved
+                ? "Cross: Connect | Square: Forget | Triangle: Rescan | Circle: Back"
+                : "Cross: Connect | Triangle: Rescan | Circle: Back"));
+        float fw = measureText(footer.c_str(), footScale);
+        drawText(footer.c_str(), (mWidth - fw) / 2.0f,
                  mHeight - FONT_CHAR_H * footScale - 12.0f * sf,
                  footScale, 0.60f, 0.60f, 0.65f, 0.90f);
     }
@@ -1809,7 +1810,7 @@ void NanoMenu::renderBtScreen() {
     if (visibleRows < 4) visibleRows = 4;
 
     if (devs.empty()) {
-        drawText(trDyn("No devices.  Press X to scan for nearby Bluetooth devices."),
+        drawText(themeButtonText(trDyn("No devices.  Press Triangle to scan for nearby Bluetooth devices.")).c_str(),
                  pad, listTop, rowScale * 0.85f, 0.6f, 0.6f, 0.65f, 0.85f);
     } else {
         if (mBtEntrySelected < mBtScrollTop) mBtScrollTop = mBtEntrySelected;
@@ -1880,11 +1881,11 @@ void NanoMenu::renderBtScreen() {
         selBonded = sel.bonded && sel.address != "__TOGGLE__";
     }
     if (!mSetupWizardActive) {
-        const char* footer = trDyn(selBonded
-                ? "A: Connect | Y: Unpair | X: Scan | B: Back"
-                : "A: Pair/Connect | X: Scan | B: Back");
-        float fw = measureText(footer, footScale);
-        drawText(footer, (mWidth - fw) / 2.0f,
+        std::string footer = themeButtonText(trDyn(selBonded
+                ? "Cross: Connect | Square: Unpair | Triangle: Scan | Circle: Back"
+                : "Cross: Pair/Connect | Triangle: Scan | Circle: Back"));
+        float fw = measureText(footer.c_str(), footScale);
+        drawText(footer.c_str(), (mWidth - fw) / 2.0f,
                  mHeight - FONT_CHAR_H * footScale - 12.0f * sf,
                  footScale, 0.60f, 0.60f, 0.65f, 0.90f);
     }

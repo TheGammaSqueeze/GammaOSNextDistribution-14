@@ -1320,10 +1320,26 @@ private:
                                                   // names verbatim (language list)
     void   ps3DlgHint(float slotCxDev, bool cross, const char* label,
                       float yDev, float baseScale, float ap);
-    // Like ps3DlgHint but selects the button glyph: 0 = cross (X), 1 = ring (O),
-    // 2 = Start (pill + play arrow). ps3DlgHint forwards to this.
+    // Like ps3DlgHint but selects the button glyph: 0 = cross (X)/Confirm,
+    // 1 = ring (O)/Cancel, 2 = Start (pill + play arrow). ps3DlgHint forwards to
+    // this. The Confirm/Cancel glyphs follow the user's Button Prompts theme.
     void   ps3DlgHintG(float slotCxDev, int glyph, const char* label,
                        float yDev, float baseScale, float ap);
+    // Draw one themed face-button badge centred on (gcx,yDev): a letter (A/B/X/Y)
+    // in the default theme, or a PlayStation glyph (cross/ring/square/triangle)
+    // in the PlayStation theme. role: 0 = Confirm, 1 = Cancel, 2 = Square,
+    // 3 = Triangle. The OK/Cancel relabel swap flips the Confirm/Cancel display.
+    void   drawFaceGlyph(int role, float gcx, float yDev, float glyphR, float lw, float ap);
+    // Re-read persist.gammaos.nano.face_glyphs / face_swap (cheap shared-mem read).
+    void   refreshFaceButtonPrefs();
+    // Theme an on-screen legend that uses the canonical PlayStation face-button
+    // words (Cross/Circle/Square/Triangle) into the user's Button Prompts theme:
+    // letters map Cross->A, Circle->B, Square->Y, Triangle->X (the OK/Cancel swap
+    // flips Cross/Circle); the PlayStation theme keeps the names. Applied after
+    // trDyn so the translated action words are preserved.
+    std::string themeButtonText(const char* in);
+    bool   mFaceLetters = true;   // Button Prompts: letters (default) vs PlayStation
+    bool   mFaceSwapOk  = false;  // OK Button: false = A/Cross, true = B/Circle
     void   ps3DlgIllustration(int kind, float cx, float cy, float sz, float ap);
     void   ps3FillCircle(float cx, float cy, float rad, float r, float g, float b, float a);
     void   ps3StrokeRing(float cx, float cy, float radX, float radY, float lw,
@@ -2888,6 +2904,14 @@ private:
                          float r, float g, float b, float a);
     void drawTriangle(float x0, float y0, float x1, float y1, float x2, float y2,
                       float r, float g, float b, float a);
+    // Per-vertex-alpha triangle in logical device px, single RGB. Used to build
+    // anti-aliased procedural shapes (feathered edges ramp alpha to 0). Emits into
+    // the solid batch (per-vertex colour) when active; falls back to a flat solid
+    // triangle at the mean alpha otherwise.
+    void triAA(float x0, float y0, float a0,
+               float x1, float y1, float a1,
+               float x2, float y2, float a2,
+               float r, float g, float b);
     // Snapshot the framebuffer region [x,y,w,h] (logical px) into mGlassTex.
     // Returns false if capture is unavailable (e.g. active DRM GL rotation).
     bool captureGlass(float x, float y, float w, float h);

@@ -515,6 +515,15 @@ void NanoMenu::buildSettingsTree() {
 
       // -- Gamepad --
       b.beginCategory("gos_gamepad", "Gamepad");
+        // On-screen button prompts (the X/O glyphs and A/B/X/Y letters in dialogs
+        // and legends). face_glyphs picks the glyph set; face_swap relabels which
+        // face button reads as OK vs Cancel (display only, the input is unchanged).
+        b.list("btn_glyphs", "Button Prompts",
+               SettingSource::kProp, "persist.gammaos.nano.face_glyphs", "letters",
+               "letters:A / B / X / Y,playstation:PlayStation");
+        b.list("btn_swap", "OK Button",
+               SettingSource::kProp, "persist.gammaos.nano.face_swap", "0",
+               "0:A / Cross,1:B / Circle");
         // enable/merge/hide_source: the init rc starts gammapad on enable=1 and the
         // daemon reads these via GetIntProperty, so store 0/1 (a "true"/"false" string
         // never matches =1 and fails GetIntProperty), like the transform toggles below.
