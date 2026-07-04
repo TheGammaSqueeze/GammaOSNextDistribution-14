@@ -87,7 +87,7 @@ static const Ps3DataItem kSystemSettingsCh[] = {
 #if !NANO_XMB_HIDE_LEGACY
   {"Automatic Update",22,"Starts the system automatically and downloads game patches, uploads new saved data to online storage and syncs trophy information with the server.","Off",0,nullptr,0},
 #endif
-  {"System Name",22,"Sets the name used to identify this system on the network.","PS3-625",1,nullptr,0},
+  {"System Name",22,"Sets the name used to identify this system on the network.","GammaOS",1,nullptr,0},
   {"System Language",22,nullptr,"English (United Kingdom)",0,nullptr,0},
 #if !NANO_XMB_HIDE_LEGACY
   {"Character Set",22,nullptr,nullptr,0,nullptr,0},
@@ -112,7 +112,7 @@ static const Ps3DataItem kSystemSettingsCh[] = {
   {"Backup Utility",22,nullptr,nullptr,1,nullptr,0},
   {"Data Transfer Utility",22,nullptr,nullptr,1,nullptr,0},
   {"Restore Default Settings",22,nullptr,nullptr,1,nullptr,0},
-  {"Restore PS3™ System",22,nullptr,nullptr,1,nullptr,0},
+  {"Restore GammaOS System",22,nullptr,nullptr,1,nullptr,0},
   {"System Information",22,nullptr,nullptr,1,nullptr,0},
 };
 static const Ps3DataItem kThemeSettingsCh[] = {
@@ -120,9 +120,9 @@ static const Ps3DataItem kThemeSettingsCh[] = {
   {"Theme",22,"Sets for use of a preset combination of elements such as colour, background or icons.",nullptr,1,nullptr,0},
 #endif
   {"Colour",22,"Sets the colour of the background and options menu.",nullptr,1,nullptr,0},
-  {"Background",22,"Sets the background of the XMB™ screen.",nullptr,1,nullptr,0},
-  {"Wallpaper",22,"Sets the moving background effect (wave, particles and others) shown behind the XMB™ screen.",nullptr,1,nullptr,0},
-  {"Font",22,"Sets the font displayed on the XMB™ screen.",nullptr,1,nullptr,0},
+  {"Background",22,"Sets the background of the home screen.",nullptr,1,nullptr,0},
+  {"Wallpaper",22,"Sets the moving background effect (wave, particles and others) shown behind the home screen.",nullptr,1,nullptr,0},
+  {"Font",22,"Sets the font displayed on the home screen.",nullptr,1,nullptr,0},
   {"Day/Night",22,"Sets the time-of-day lighting (day, dusk, night or automatic).",nullptr,1,nullptr,0},
 };
 static const Ps3DataItem kDateTimeCh[] = {
@@ -131,7 +131,7 @@ static const Ps3DataItem kDateTimeCh[] = {
   {"Time Format",22,"Sets the time display to either a 12-hour or 24-hour clock.","24-Hour Clock",1,nullptr,0},
   {"Time Zone",22,nullptr,"GMT",0,nullptr,0},
   {"Daylight Saving",22,"Sets for daylight saving time.","Off",1,nullptr,0},
-  {"Set via Internet",22,"Obtains the correct date and time automatically via the Internet when you sign in to PSN, and sets them on your system.",nullptr,1,nullptr,0},
+  {"Set via Internet",22,"Obtains the correct date and time automatically via the Internet, and sets them on your system.",nullptr,1,nullptr,0},
   {"Set Manually",22,nullptr,nullptr,1,nullptr,0},
 };
 static const Ps3DataItem kPowerSaveCh[] = {
@@ -186,8 +186,8 @@ static const Ps3DataItem kDisplayCh[] = {
 static const Ps3DataItem kSoundCh[] = {
   {"Audio Output Settings",22,"Configure audio output settings.",nullptr,1,nullptr,0},
   {"Audio Multi-Output",22,"Sets to output audio through multiple connectors simultaneously. Audio output to connectors that are not selected in [Audio Output Settings] is downscaled to 2 Ch.","Off",0,nullptr,0},
-  {"Audio Output Device",22,"Sets the audio output device for use during remote play. To output audio from a PS Vita system, a PSP™ system, a PC or a mobile phone, select [Remote Play Device].","System Default",0,nullptr,0},
-  {"Key Tone",22,"Sets whether or not to use key tones on the XMB™ menu.","On",0,nullptr,0},
+  {"Audio Output Device",22,"Sets the audio output device for use during remote play. To output audio from a PC or a mobile phone, select [Remote Play Device].","System Default",0,nullptr,0},
+  {"Key Tone",22,"Sets whether or not to use key tones in the menu.","On",0,nullptr,0},
   {"BD Audio Language",22,"Set the default BD audio language.","Original",0,nullptr,0},
   {"DVD Audio Language",22,"Set the default DVD audio language.","English",0,nullptr,0},
   {"HDD Audio Language",22,"Set the default audio language for content on the HDD.","English",0,nullptr,0},
@@ -363,7 +363,7 @@ static const Ps3DataItem kGammaEqCh[] = {
 
 // ---- Settings top-level items -------------------------------------------
 static const Ps3DataItem kSettingsItems[] = {
-  {"System Update",8,"Update the PS3™ system software.",nullptr,1,nullptr,0},
+  {"System Update",8,"Update the GammaOS system software.",nullptr,1,nullptr,0},
   {"Game Settings",5,"Adjusts settings for games.",nullptr,0,PS3CH(kGameSettingsCh)},
   // Boxart Scraper moved under Game Settings (kGameSettingsCh); the top-level entry is retired.
 #if !NANO_XMB_HIDE_LEGACY
@@ -374,9 +374,9 @@ static const Ps3DataItem kSettingsItems[] = {
 #if !NANO_XMB_HIDE_LEGACY
   {"Chat Settings",42,"Adjusts settings for chat.",nullptr,0,nullptr,0},
 #endif
-  {"System Settings",12,"Adjusts settings for this PS3™ system.",nullptr,0,PS3CH(kSystemSettingsCh)},
+  {"System Settings",12,"Adjusts settings for this GammaOS system.",nullptr,0,PS3CH(kSystemSettingsCh)},
   {"Developer Options",12,"Adjusts advanced settings for software developers.",nullptr,0,PS3CH(kDevOptionsCh)},
-  {"Theme Settings",23,"Adjusts settings related to the appearance of the XMB™ screen.",nullptr,0,PS3CH(kThemeSettingsCh)},
+  {"Theme Settings",23,"Adjusts settings related to the appearance of the home screen.",nullptr,0,PS3CH(kThemeSettingsCh)},
   {"Date and Time Settings",14,"Adjusts date and time settings.",nullptr,0,PS3CH(kDateTimeCh)},
   {"Power Save Settings",56,"Adjusts settings to reduce power usage by this system.",nullptr,0,PS3CH(kPowerSaveCh)},
   {"Accessory Settings",15,"Adjusts settings for accessories that are connected to this system.",nullptr,0,PS3CH(kAccessoryCh)},
@@ -404,7 +404,7 @@ static const Ps3DataItem kSettingsItems[] = {
 
 // ---- Photo --------------------------------------------------------------
 static const Ps3DataItem kPhotoItems[] = {
-  {"Search for Media Servers",35,"Scans the network and connects to a media server. To use this function, a media server must be set up to allow connections from the PS3™ system.",nullptr,0,nullptr,0},
+  {"Search for Media Servers",35,"Scans the network and connects to a media server. To use this function, a media server must be set up to allow connections from the GammaOS system.",nullptr,0,nullptr,0},
 #if !NANO_XMB_HIDE_LEGACY
   {"Photo Gallery",64,"",nullptr,0,nullptr,0},   // no subtitle: the cinfo hover overlay provides the description (1:1 with the web, whose Photo Gallery item has no description)
 #endif
@@ -414,14 +414,14 @@ static const Ps3DataItem kPhotoItems[] = {
 // ---- Music --------------------------------------------------------------
 static const Ps3DataItem kMusicItems[] = {
   {"Internet Radio",3,"Browse and listen to free live Internet radio stations from a community station list. Streams play over the Internet and are not hosted or verified by GammaOS.",nullptr,0,nullptr,0},
-  {"Search for Media Servers",35,"Scans the network and connects to a media server. To use this function, a media server must be set up to allow connections from the PS3™ system.",nullptr,0,nullptr,0},
+  {"Search for Media Servers",35,"Scans the network and connects to a media server. To use this function, a media server must be set up to allow connections from the GammaOS system.",nullptr,0,nullptr,0},
   {"Playlists",37,nullptr,nullptr,0,nullptr,0},
 };
 
 // ---- Video --------------------------------------------------------------
 static const Ps3DataItem kVideoItems[] = {
   {"IPTV",4,"Browse and watch free live IPTV channels from the community Free-TV/IPTV project. Channels are streamed over the Internet and are not hosted or verified by GammaOS.",nullptr,0,nullptr,0},
-  {"Search for Media Servers",35,"Scans the network and connects to a media server. To use this function, a media server must be set up to allow connections from the PS3™ system.",nullptr,0,nullptr,0},
+  {"Search for Media Servers",35,"Scans the network and connects to a media server. To use this function, a media server must be set up to allow connections from the GammaOS system.",nullptr,0,nullptr,0},
 #if !NANO_XMB_HIDE_LEGACY
   {"Video Editor & Uploader",67,"You can edit a video that you like, upload it to a video sharing website, and then invite your friends to view the video.",nullptr,0,nullptr,0},
 #endif
@@ -439,13 +439,13 @@ static const Ps3DataItem kMemCardCh[] = {
 };
 static const Ps3DataItem kGameItems[] = {
   {"PS Vita System Application Utility",62,"*User",nullptr,0,nullptr,0},
-  {"Game Data Utility",62,"Manages game data installed on the PS3™ system. To delete a game data item, select it and then press the @T button.",nullptr,0,nullptr,0},
+  {"Game Data Utility",62,"Manages game data installed on the GammaOS system. To delete a game data item, select it and then press the @T button.",nullptr,0,nullptr,0},
   {"Memory Card Utility (PS/PS2)",64,"Manages internal memory cards for use with PlayStation® and PlayStation®2 format software.",nullptr,0,PS3CH(kMemCardCh)},
   {"Saved Data Utility (PS2)",63,"*User",nullptr,0,nullptr,0},
   {"Saved Data Utility (minis/PSP™)",66,"*User",nullptr,0,nullptr,0},
-  {"Saved Data Utility (PS3™)",63,"*User",nullptr,0,nullptr,0},
-  {"PlayStation®Store",-1,"FREE* to access, PlayStation®Store is the only place to download new and exclusive PS3™ games, FREE playable demos, add-on packs, and high-definition videos.\n\nGet more for your PS3™ and visit PlayStation®Store today.\n\n* Broadband Internet connection required.",nullptr,2,nullptr,0},
-  {"Software Instruction Manuals",30,"Displays manuals for the software installed on the PS3™ system.",nullptr,0,nullptr,0},
+  {"Saved Data Utility (GammaOS)",63,"*User",nullptr,0,nullptr,0},
+  {"PlayStation®Store",-1,"FREE* to access, PlayStation®Store is the only place to download new and exclusive GammaOS games, FREE playable demos, add-on packs, and high-definition videos.\n\nGet more for your GammaOS and visit PlayStation®Store today.\n\n* Broadband Internet connection required.",nullptr,2,nullptr,0},
+  {"Software Instruction Manuals",30,"Displays manuals for the software installed on the GammaOS system.",nullptr,0,nullptr,0},
   {"Corrupted Data",22,nullptr,nullptr,0,nullptr,0},
 };
 #endif

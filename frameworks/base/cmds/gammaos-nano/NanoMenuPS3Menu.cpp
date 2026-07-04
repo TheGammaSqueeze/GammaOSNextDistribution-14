@@ -4079,7 +4079,7 @@ void NanoMenu::drawPs3CinfoBg(const char* focusLabel, const std::string& fanFile
 
     static const char* kDesc =
         "Create a space to enjoy and enhance your photos.\n"
-        "Turn the photos on your PS3\xe2\x84\xa2 system into great albums in minutes.\n"
+        "Turn the photos on your GammaOS system into great albums in minutes.\n"
         "You can sort your photos by themes, add music to enhance a slideshow or add "
         "custom frames to your photos. The more photos you add, the more fun you can "
         "have - the possibilities are endless!";
@@ -5267,7 +5267,7 @@ static const Ps3DlgTemplate kPs3DlgTemplates[] = {
   {"System Update",1,"System Update","Select an update method.",
    {"Update via Internet","Update via Storage Media",nullptr,nullptr},0,nullptr,0},
   {"System Information",0,"System Information",
-   "System Software\nVersion 4.91\n\nMAC Address (Wired)\n00:1F:A7:00:00:00\n\nMAC Address (Wi-Fi)\n00:1F:A7:00:00:01\n\nIP Address\n192.168.1.10\n\nSystem Storage\n466 GB free of 500 GB",
+   "System Software\nGammaOS\n\nMAC Address (Wired)\n00:1F:A7:00:00:00\n\nMAC Address (Wi-Fi)\n00:1F:A7:00:00:01\n\nIP Address\n192.168.1.10\n\nSystem Storage\n466 GB free of 500 GB",
    {nullptr,nullptr,nullptr,nullptr},0,nullptr,0},
   {"Format Utility",1,"Format Utility",
    "Formats the system storage. All data on the system storage will be deleted during formatting.\nSelect an option.",
@@ -5275,7 +5275,7 @@ static const Ps3DlgTemplate kPs3DlgTemplates[] = {
   {"Format Hard Disk",3,"Format Hard Disk",
    "If you format, all data on the system storage will be deleted.\nThis data cannot be restored.\nAre you sure you want to continue?",
    {nullptr,nullptr,nullptr,nullptr},3,nullptr,1},
-  {"Restore PS3™ System",3,"Restore PS3™ System",
+  {"Restore GammaOS System",3,"Restore GammaOS System",
    "Formats the system storage and restores the system software to its default settings.\n\nAll data on the hard disk will be deleted, and the system software will be reinstalled.\nDo you want to continue?",
    {nullptr,nullptr,nullptr,nullptr},3,nullptr,1},
   {"Restore Default Settings",3,"Restore Default Settings",
@@ -5285,14 +5285,14 @@ static const Ps3DlgTemplate kPs3DlgTemplates[] = {
    "Backs up data saved on the system storage to storage media, or restores data that has been backed up.\nSelect an option.",
    {"Back Up","Restore","Delete Backup Data",nullptr},0,nullptr,0},
   {"Data Transfer Utility",1,"Data Transfer Utility",
-   "Transfers data that is saved on one PS3™ system to another PS3™ system. You can use this feature when replacing the PS3™ system that you usually use with another PS3™ system.",
-   {"1. Transfer data from this system to the other PS3™ system.",
-    "2. Transfer data from the other PS3™ system to this system.","Cancel",nullptr},0,nullptr,0},
+   "Transfers data that is saved on one GammaOS system to another GammaOS system. You can use this feature when replacing the GammaOS system that you usually use with another GammaOS system.",
+   {"1. Transfer data from this system to the other GammaOS system.",
+    "2. Transfer data from the other GammaOS system to this system.","Cancel",nullptr},0,nullptr,0},
   {"Date and Time",1,"Date and Time",
    "Sets the date and time for this system.\nSelect how to set the date and time.",
    {"Set via Internet","Set Manually",nullptr,nullptr},0,nullptr,0},
   {"Set via Internet",0,"Set via Internet",
-   "Obtains the correct date and time automatically via the Internet when you sign in to PSN, and sets them on your system.\n\nA network connection is required for this feature.",
+   "Obtains the correct date and time automatically via the Internet, and sets them on your system.\n\nA network connection is required for this feature.",
    {nullptr,nullptr,nullptr,nullptr},4,nullptr,0},
   {"Set Manually",0,"Set Manually",
    "Set the time and date.\n\nUse the arrow keys to adjust each field, then press Cross to apply.",
@@ -5304,7 +5304,7 @@ static const Ps3DlgTemplate kPs3DlgTemplates[] = {
    "Change the number assigned to the controller that is currently in use.\n\nPress the PS button on the controller you want to reassign.",
    {nullptr,nullptr,nullptr,nullptr},5,nullptr,0},
   {"BD Remote Control Registration",0,"BD Remote Control Registration",
-   "Register a BD remote control for use with the PS3™ system.\n\nPress the START button and ENTER button of the BD remote control you want to register at the same time, and hold down until the screen changes.",
+   "Register a BD remote control for use with the GammaOS system.\n\nPress the START button and ENTER button of the BD remote control you want to register at the same time, and hold down until the screen changes.",
    {nullptr,nullptr,nullptr,nullptr},6,nullptr,0},
   {"Manage Bluetooth® Devices",1,"Manage Bluetooth® Devices",
    "Register or manage Bluetooth® devices such as headsets, keyboards and mouse devices.\nSelect an option.",
@@ -5321,7 +5321,7 @@ static const Ps3DlgTemplate kPs3DlgTemplates[] = {
    "Change the password required to play games or videos, or to use the Internet browser.\n\nEnter your current password.",
    {nullptr,nullptr,nullptr,nullptr},0,nullptr,0},
   {"Register Device",0,"Register Device",
-   "Register a device (such as a PS Vita or a PSP™ system) to be used for remote play with this system. Select this option to register a device for remote play if using it for the first time.\n\nEnter the following number on the remote device:\n\n12345678",
+   "Register a device to be used for remote play with this system. Select this option to register a device for remote play if using it for the first time.\n\nEnter the following number on the remote device:\n\n12345678",
    {nullptr,nullptr,nullptr,nullptr},4,nullptr,0},
   {"Status of Registered Devices",0,"Status of Registered Devices",
    "Displays a list of devices registered with this system.\n\nNo devices are currently registered for remote play.",
@@ -5329,8 +5329,8 @@ static const Ps3DlgTemplate kPs3DlgTemplates[] = {
   {"Delete Registered Device",1,"Delete Registered Device",
    "Deletes registered remote play devices from this system.\nSelect a device to delete.",
    {"(No registered devices)",nullptr,nullptr,nullptr},0,nullptr,0},
-  {"Register PlayStation®Vita",0,"Register PlayStation®Vita",
-   "Follow the on-screen instructions on your PlayStation®Vita system.",
+  {"Register Handheld",0,"Register Handheld",
+   "Follow the on-screen instructions on your handheld system.",
    {nullptr,nullptr,nullptr,nullptr},0,nullptr,0},
   {"Settings and Connection Status List",0,"Settings and Connection Status List",
    "Displays current network settings and the Internet connection status.\n\nConnection Name    Default\nConnection Type    Wired\nIP Address         192.168.1.10\nSubnet Mask        255.255.255.0\nDefault Gateway    192.168.1.1\nPrimary DNS        8.8.8.8\nSecondary DNS      8.8.4.4",
@@ -5339,7 +5339,7 @@ static const Ps3DlgTemplate kPs3DlgTemplates[] = {
    "Sets the method for connecting the system to the Internet.\nSelect a connection method.",
    {"Easy","Custom",nullptr,nullptr},4,nullptr,0},
   {"Internet Connection Test",0,"Internet Connection Test",
-   "Tests the Internet connection and displays the results.\n\nObtain IP Address    Succeeded\nInternet Connection  Succeeded\nPlayStation™Network  Succeeded\nNAT Type             Type 2\nUPnP                 Available\nConnection Speed (Download)  85.4 Mbps\nConnection Speed (Upload)    24.7 Mbps",
+   "Tests the Internet connection and displays the results.\n\nObtain IP Address    Succeeded\nInternet Connection  Succeeded\nGammaOS Account      Succeeded\nNAT Type             Type 2\nUPnP                 Available\nConnection Speed (Download)  85.4 Mbps\nConnection Speed (Upload)    24.7 Mbps",
    {nullptr,nullptr,nullptr,nullptr},0,nullptr,0},
   {"Add/Edit Term",1,"Add/Edit Term",
    "Add words to be displayed as options for predictive text entry when using the on-screen keyboard.\nSelect an option.",
@@ -5350,12 +5350,14 @@ static const Ps3DlgTemplate kPs3DlgTemplates[] = {
   {"DivX® VOD Registration Code",0,"DivX® VOD Registration Code",
    "Displays the registration code that is required to play DivX® VOD content.\n\nRegistration Code:\n\n8C9D7E1F\n\nVisit http://www.divx.com/vod/ for instructions on how to register the code.",
    {nullptr,nullptr,nullptr,nullptr},0,nullptr,0},
+#if !NANO_XMB_HIDE_LEGACY
   {"List of Registered PS Vita Systems",0,"List of Registered PS Vita Systems",
    "Displays a list of PS Vita systems registered with this system.\n\nNo PS Vita systems are currently registered.",
    {nullptr,nullptr,nullptr,nullptr},0,nullptr,0},
   {"Delete PS Vita System's Backup Files",3,"Delete PS Vita System's Backup Files",
    "Deletes backup files for the PS Vita system saved on this system.\n\nThe backup files for the PS Vita system will be deleted.\nYou can only delete the backup files for your account.\n\nDo you want to delete the backup files?",
    {nullptr,nullptr,nullptr,nullptr},0,nullptr,1},
+#endif
 };
 
 // --- low-level dialog draw primitives (device-px space) -------------------
