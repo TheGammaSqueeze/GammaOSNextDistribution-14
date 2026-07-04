@@ -34,26 +34,18 @@ namespace android {
 #define PS3D  Ps3DataItem
 #define PS3CH(arr)  (arr), (int)(sizeof(arr)/sizeof((arr)[0]))
 
+// Set to 1 to hide PS3-firmware / legacy XMB items that are not relevant on this
+// GammaOS handheld. The rows stay in source (between the guards, for reference and
+// easy re-enable) but are excluded from the binary. PS3CH() recomputes childCount
+// from sizeof, so gating an element automatically shrinks its parent list.
+#ifndef NANO_XMB_HIDE_LEGACY
+#define NANO_XMB_HIDE_LEGACY 1
+#endif
+
 // ---- Settings submenus --------------------------------------------------
-static const Ps3DataItem kGameSettingsCh[] = {
-  {"View Mode (PSP Remasters)",22,"Configure the screen size for PSP® Remasters.","Normal",0,nullptr,0},
-  {"3D Display (PSP Remasters)",22,"Display PSP® Remasters in 3D.","Off",0,nullptr,0},
-  {"Ad Hoc Channel (PSP Remasters)",22,"Set the Ad Hoc Mode channel for PSP® Remasters.",nullptr,0,nullptr,0},
-  {"Ad Hoc Mode (PSP Remasters)",22,"Configure Ad Hoc Mode settings for PSP® Remasters.","Off",0,nullptr,0},
-  {"PS Upscaler",22,"Apply upscaling to PlayStation® format software.","Off",0,nullptr,0},
-  {"PS/PS2 Smoothing",22,"Smooth out the rough edges of images of PlayStation® and PlayStation®2 format software.","Off",0,nullptr,0},
-};
-static const Ps3DataItem kVideoSettingsCh[] = {
-  {"BD/DVD Auto-start",22,"Configure BD/DVD auto-start settings.","On",0,nullptr,0},
-  {"IPTV Channels",22,"Show the IPTV live channel browser in the Video menu.","On",1,nullptr,0},
-  {"IPTV Playlist URL",22,"Use your own IPTV playlist (m3u/m3u8) URL instead of the built-in Free-TV list. Leave blank for the default.","",1,nullptr,0},
-};
-static const Ps3DataItem kMusicSettingsCh[] = {
-  {"Internet Radio",22,"Show the Internet Radio station browser in the Music menu.","On",1,nullptr,0},
-  {"Internet Radio Playlist URL",22,"Use your own radio playlist (m3u/pls) URL instead of the built-in list. Leave blank for the default.","",1,nullptr,0},
-};
 // Boxart / cover scraper (GammaOS addition). Leaves bind to persist.gammaos.scraper.*
 // via kPs3Bindings (matched by label); "Scrape All Systems" is an action leaf.
+// Defined before kGameSettingsCh because Game Settings nests it as a sub-category.
 static const Ps3DataItem kScraperSettingsCh[] = {
   {"Scraper",22,"Choose the online service used to fetch box art and background art for your games.","ScreenScraper",1,nullptr,0},
   {"Replace Icons with Boxart",22,"Show scraped cover art in place of the generic game icon in the Game menu.","On",1,nullptr,0},
@@ -67,15 +59,44 @@ static const Ps3DataItem kScraperSettingsCh[] = {
   {"TheGamesDB API Key",22,"API key for TheGamesDB. Request one at thegamesdb.net.",nullptr,1,nullptr,0},
   {"Scrape All Systems",22,"Fetch box art and background art for every enabled game system now.",nullptr,1,nullptr,0},
 };
+// Game Settings now holds the two relevant editors (Game Systems, injected at
+// runtime, and Boxart Scraper below); the PSP-Remaster firmware rows are hidden.
+static const Ps3DataItem kGameSettingsCh[] = {
+#if !NANO_XMB_HIDE_LEGACY
+  {"View Mode (PSP Remasters)",22,"Configure the screen size for PSP® Remasters.","Normal",0,nullptr,0},
+  {"3D Display (PSP Remasters)",22,"Display PSP® Remasters in 3D.","Off",0,nullptr,0},
+  {"Ad Hoc Channel (PSP Remasters)",22,"Set the Ad Hoc Mode channel for PSP® Remasters.",nullptr,0,nullptr,0},
+  {"Ad Hoc Mode (PSP Remasters)",22,"Configure Ad Hoc Mode settings for PSP® Remasters.","Off",0,nullptr,0},
+  {"PS Upscaler",22,"Apply upscaling to PlayStation® format software.","Off",0,nullptr,0},
+  {"PS/PS2 Smoothing",22,"Smooth out the rough edges of images of PlayStation® and PlayStation®2 format software.","Off",0,nullptr,0},
+#endif
+  {"Boxart Scraper",5,"Downloads box art and background art for your games and replaces the game icons.",nullptr,0,PS3CH(kScraperSettingsCh)},
+};
+static const Ps3DataItem kVideoSettingsCh[] = {
+#if !NANO_XMB_HIDE_LEGACY
+  {"BD/DVD Auto-start",22,"Configure BD/DVD auto-start settings.","On",0,nullptr,0},
+#endif
+  {"IPTV Channels",22,"Show the IPTV live channel browser in the Video menu.","On",1,nullptr,0},
+  {"IPTV Playlist URL",22,"Use your own IPTV playlist (m3u/m3u8) URL instead of the built-in Free-TV list. Leave blank for the default.","",1,nullptr,0},
+};
+static const Ps3DataItem kMusicSettingsCh[] = {
+  {"Internet Radio",22,"Show the Internet Radio station browser in the Music menu.","On",1,nullptr,0},
+  {"Internet Radio Playlist URL",22,"Use your own radio playlist (m3u/pls) URL instead of the built-in list. Leave blank for the default.","",1,nullptr,0},
+};
 static const Ps3DataItem kSystemSettingsCh[] = {
+#if !NANO_XMB_HIDE_LEGACY
   {"Automatic Update",22,"Starts the system automatically and downloads game patches, uploads new saved data to online storage and syncs trophy information with the server.","Off",0,nullptr,0},
+#endif
   {"System Name",22,"Sets the name used to identify this system on the network.","PS3-625",1,nullptr,0},
   {"System Language",22,nullptr,"English (United Kingdom)",0,nullptr,0},
+#if !NANO_XMB_HIDE_LEGACY
   {"Character Set",22,nullptr,nullptr,0,nullptr,0},
   {"Dictionary Type",22,nullptr,"English (UK)",0,nullptr,0},
   {"Add/Edit Term",22,nullptr,nullptr,1,nullptr,0},
   {"Delete Predictive Text Dictionary",22,"Deletes words that were added automatically to the dictionary when using the on-screen keyboard.",nullptr,1,nullptr,0},
+#endif
   {"Notification Messages",22,nullptr,"Display",0,nullptr,0},
+#if !NANO_XMB_HIDE_LEGACY
   {"Trophy Notifications",22,nullptr,"Display",0,nullptr,0},
   {"Display [What's New]",22,nullptr,"On",0,nullptr,0},
   {"Disc Auto-Start",22,nullptr,"On",0,nullptr,0},
@@ -86,6 +107,7 @@ static const Ps3DataItem kSystemSettingsCh[] = {
   {"Connect PS Vita System Using Network",22,nullptr,"On",0,nullptr,0},
   {"List of Registered PS Vita Systems",22,nullptr,nullptr,1,nullptr,0},
   {"Delete PS Vita System's Backup Files",22,"Deletes backup files for the PS Vita system saved on this system.",nullptr,1,nullptr,0},
+#endif
   {"Format Utility",22,nullptr,nullptr,1,nullptr,0},
   {"Backup Utility",22,nullptr,nullptr,1,nullptr,0},
   {"Data Transfer Utility",22,nullptr,nullptr,1,nullptr,0},
@@ -94,7 +116,9 @@ static const Ps3DataItem kSystemSettingsCh[] = {
   {"System Information",22,nullptr,nullptr,1,nullptr,0},
 };
 static const Ps3DataItem kThemeSettingsCh[] = {
+#if !NANO_XMB_HIDE_LEGACY
   {"Theme",22,"Sets for use of a preset combination of elements such as colour, background or icons.",nullptr,1,nullptr,0},
+#endif
   {"Colour",22,"Sets the colour of the background and options menu.",nullptr,1,nullptr,0},
   {"Background",22,"Sets the background of the XMB™ screen.",nullptr,1,nullptr,0},
   {"Wallpaper",22,"Sets the moving background effect (wave, particles and others) shown behind the XMB™ screen.",nullptr,1,nullptr,0},
@@ -112,18 +136,25 @@ static const Ps3DataItem kDateTimeCh[] = {
 };
 static const Ps3DataItem kPowerSaveCh[] = {
   {"System Auto-Off",22,"Sets whether or not to automatically turn off this system. If you do not operate the system for a set amount of time, the system will turn off automatically.","Off",0,nullptr,0},
+#if !NANO_XMB_HIDE_LEGACY
   {"Controller Auto-Off",22,"Sets whether or not to automatically turn off controllers. If you do not use a controller for a set amount of time, it will turn off automatically.","After 10 min.",0,nullptr,0},
   {"Power Indicator",22,nullptr,"Bright",0,nullptr,0},
   {"Turn Off System Automatically After Background Download",22,nullptr,"Off",0,nullptr,0},
   {"Battery Percentage",22,"Show the battery charge percentage in the status bar.","Off",1,nullptr,0},
+#endif
   {"Battery Saver",22,"Reduce power usage to extend battery life.","Off",1,nullptr,0},
 };
 static const Ps3DataItem kAccessoryCh[] = {
+#if !NANO_XMB_HIDE_LEGACY
   {"Calibrate Motion Controller",22,"Calibrates the magnetic sensor of a motion controller. Use this setting when the motion controller does not control on-screen movement as expected.",nullptr,1,nullptr,0},
   {"Reassign Controllers",22,"Change the number assigned to the controller that is currently in use.",nullptr,1,nullptr,0},
+#endif
   {"Controller Vibration Function",22,"Sets whether or not to use the vibration function. This setting will be applied to all controllers that support the vibration function.","On",0,nullptr,0},
+#if !NANO_XMB_HIDE_LEGACY
   {"BD Remote Control Registration",22,"Register the BD Remote Control.",nullptr,1,nullptr,0},
+#endif
   {"Manage Bluetooth® Devices",22,"Manage Bluetooth® devices.",nullptr,1,nullptr,0},
+#if !NANO_XMB_HIDE_LEGACY
   {"Camera Device Settings",22,"Tests the image from a camera that is connected to the system using a USB cable. You can adjust settings to reduce flickering for some cameras.",nullptr,1,nullptr,0},
   {"Audio Device Settings",22,"Sets the audio input and output devices for voice/video chat and other communication features.",nullptr,1,nullptr,0},
   {"Stereo Headset Audio Extension",22,"Sets whether or not to output all audio to the headset.","Off",0,nullptr,0},
@@ -134,6 +165,7 @@ static const Ps3DataItem kAccessoryCh[] = {
   {"Key Repeat Rate",22,"Sets the rate at which a held key repeats.",nullptr,0,nullptr,0},
   {"Mouse Type",22,"Sets the mouse type. Set this option based on which hand you use to operate the mouse.","Right-handed",0,nullptr,0},
   {"Pointer Speed",22,"Sets the speed at which the mouse pointer moves. The mouse pointer is displayed in the Internet browser and in games and other software that support use of a mouse.","Normal",0,nullptr,0},
+#endif
 };
 static const Ps3DataItem kDisplayCh[] = {
   {"Video Output Settings",22,"Configure video output settings according to your TV.",nullptr,1,nullptr,0},
@@ -164,6 +196,9 @@ static const Ps3DataItem kSoundCh[] = {
   {"Charging Sounds",22,"Play a sound when the charger is connected.","On",1,nullptr,0},
   {"Screen Lock Sounds",22,"Play a sound when the screen locks or unlocks.","On",1,nullptr,0},
 };
+// kSecurityCh / kRemotePlayCh are only referenced by their (now hidden) top-level
+// entries; guard the definitions too so they are not unused under -Werror.
+#if !NANO_XMB_HIDE_LEGACY
 static const Ps3DataItem kSecurityCh[] = {
   {"Change Password",22,nullptr,nullptr,1,nullptr,0},
   {"Parental Control",22,nullptr,"Off",0,nullptr,0},
@@ -177,6 +212,7 @@ static const Ps3DataItem kRemotePlayCh[] = {
   {"Status of Registered Devices",22,nullptr,nullptr,1,nullptr,0},
   {"Delete Registered Device",22,nullptr,nullptr,1,nullptr,0},
 };
+#endif
 static const Ps3DataItem kNetworkSettingsCh[] = {
   {"Settings and Connection Status List",22,"Displays current network settings and connection status.",nullptr,1,nullptr,0},
   {"Internet Connection",22,"Sets whether or not to connect this system to the Internet. Select this option if you want to temporarily disable the Internet connection.","Enabled",0,nullptr,0},
@@ -208,12 +244,16 @@ static const Ps3DataItem kGamepadCh[] = {
   {"D-Pad Threshold",22,"Set how far the stick must move to register as a D-Pad press.","50",1,nullptr,0},
   {"Screen Map",22,"Enable touchscreen mapping for controllers.","Off",1,nullptr,0},
 };
+// kMouseCh (data-driven Mouse Mode) is retired: Mouse Mode now opens the code-built
+// buildMouseSubmenu via QA_MOUSE_MENU under Gamepad Settings. Guard so it is not unused.
+#if !NANO_XMB_HIDE_LEGACY
 static const Ps3DataItem kMouseCh[] = {
   {"Stick Speed",22,"Set the mouse pointer speed when using the analog stick.","12",1,nullptr,0},
   {"D-Pad Speed",22,"Set the mouse pointer speed when using the D-Pad.","6",1,nullptr,0},
   {"Boost",22,"Set the pointer speed multiplier when the boost button is held.","2x",1,nullptr,0},
   {"Scroll Speed",22,"Set the scroll-wheel speed in mouse mode.","4",1,nullptr,0},
 };
+#endif
 static const Ps3DataItem kToolboxCh[] = {
   {"Immersive Mode",22,"Hide the status and navigation bars for a fullscreen experience.","Off",1,nullptr,0},
   {"Refresh Rate Lock",22,"Lock the display to a fixed refresh rate.","Off",1,nullptr,0},
@@ -325,34 +365,49 @@ static const Ps3DataItem kGammaEqCh[] = {
 static const Ps3DataItem kSettingsItems[] = {
   {"System Update",8,"Update the PS3™ system software.",nullptr,1,nullptr,0},
   {"Game Settings",5,"Adjusts settings for games.",nullptr,0,PS3CH(kGameSettingsCh)},
+  // Boxart Scraper moved under Game Settings (kGameSettingsCh); the top-level entry is retired.
+#if !NANO_XMB_HIDE_LEGACY
   {"Boxart Scraper",5,"Downloads box art and background art for your games and replaces the game icons.",nullptr,0,PS3CH(kScraperSettingsCh)},
+#endif
   {"Video Settings",9,"Adjusts settings for video.",nullptr,0,PS3CH(kVideoSettingsCh)},
   {"Music Settings",3,"Adjusts settings for music.",nullptr,0,PS3CH(kMusicSettingsCh)},
+#if !NANO_XMB_HIDE_LEGACY
   {"Chat Settings",42,"Adjusts settings for chat.",nullptr,0,nullptr,0},
+#endif
   {"System Settings",12,"Adjusts settings for this PS3™ system.",nullptr,0,PS3CH(kSystemSettingsCh)},
   {"Developer Options",12,"Adjusts advanced settings for software developers.",nullptr,0,PS3CH(kDevOptionsCh)},
   {"Theme Settings",23,"Adjusts settings related to the appearance of the XMB™ screen.",nullptr,0,PS3CH(kThemeSettingsCh)},
   {"Date and Time Settings",14,"Adjusts date and time settings.",nullptr,0,PS3CH(kDateTimeCh)},
   {"Power Save Settings",56,"Adjusts settings to reduce power usage by this system.",nullptr,0,PS3CH(kPowerSaveCh)},
   {"Accessory Settings",15,"Adjusts settings for accessories that are connected to this system.",nullptr,0,PS3CH(kAccessoryCh)},
+  // Gamepad Settings opens the rich buildGamepadSubmenu (dispatch special-case in
+  // ps3XmbSelect); Mouse Mode is now nested inside it, so the top-level entry is retired.
   {"Gamepad Settings",15,"Adjusts settings for game controllers.",nullptr,0,PS3CH(kGamepadCh)},
+#if !NANO_XMB_HIDE_LEGACY
   {"Mouse Mode",15,"Adjusts mouse-mode pointer settings for controllers.",nullptr,0,PS3CH(kMouseCh)},
+#endif
   {"GammaOS Toolbox",12,"Adjusts GammaOS-specific tweaks and enhancements.",nullptr,0,PS3CH(kToolboxCh)},
   {"File Explorer",62,"Browse the file system and copy, move, rename or delete files and folders.",nullptr,0,nullptr,0},
   {"GammaRGB",23,"Adjusts the RGB LED lighting effects.",nullptr,0,PS3CH(kGammaRgbCh)},
   {"GammaEQ",17,"Adjusts the audio equalizer and speaker enhancements.",nullptr,0,PS3CH(kGammaEqCh)},
+#if !NANO_XMB_HIDE_LEGACY
   {"Printer Settings",10,"Adjusts settings for printers that are connected to this system.",nullptr,0,nullptr,0},
+#endif
   {"Display Settings",16,"Adjusts settings for video output.",nullptr,0,PS3CH(kDisplayCh)},
   {"Sound Settings",17,"Adjusts settings for audio output.",nullptr,0,PS3CH(kSoundCh)},
+#if !NANO_XMB_HIDE_LEGACY
   {"Security Settings",18,"Adjusts parental control settings.",nullptr,0,PS3CH(kSecurityCh)},
   {"Remote Play Settings",20,"Adjusts settings for remote play. Remote play enables you to use a device that supports the remote play feature (such as a PSP™ system) to operate this system over a network.",nullptr,0,PS3CH(kRemotePlayCh)},
+#endif
   {"Network Settings",6,"Adjusts settings for the Internet connection.",nullptr,0,PS3CH(kNetworkSettingsCh)},
 };
 
 // ---- Photo --------------------------------------------------------------
 static const Ps3DataItem kPhotoItems[] = {
   {"Search for Media Servers",35,"Scans the network and connects to a media server. To use this function, a media server must be set up to allow connections from the PS3™ system.",nullptr,0,nullptr,0},
+#if !NANO_XMB_HIDE_LEGACY
   {"Photo Gallery",64,"",nullptr,0,nullptr,0},   // no subtitle: the cinfo hover overlay provides the description (1:1 with the web, whose Photo Gallery item has no description)
+#endif
   {"Playlists",37,nullptr,nullptr,0,nullptr,0},
 };
 
@@ -367,11 +422,17 @@ static const Ps3DataItem kMusicItems[] = {
 static const Ps3DataItem kVideoItems[] = {
   {"IPTV",4,"Browse and watch free live IPTV channels from the community Free-TV/IPTV project. Channels are streamed over the Internet and are not hosted or verified by GammaOS.",nullptr,0,nullptr,0},
   {"Search for Media Servers",35,"Scans the network and connects to a media server. To use this function, a media server must be set up to allow connections from the PS3™ system.",nullptr,0,nullptr,0},
+#if !NANO_XMB_HIDE_LEGACY
   {"Video Editor & Uploader",67,"You can edit a video that you like, upload it to a video sharing website, and then invite your friends to view the video.",nullptr,0,nullptr,0},
+#endif
   {"Playlists",37,nullptr,nullptr,0,nullptr,0},
 };
 
-// ---- Game (firmware items; nano consoles appended at runtime) -----------
+// ---- Game (PS3 firmware items; nano consoles appended at runtime) --------
+// These firmware utilities appear in the Game column below the emulator systems.
+// Hidden on this handheld (the Game column is then just the nano consoles /
+// Recently Played / Applications, prepended at runtime in buildPs3Cats).
+#if !NANO_XMB_HIDE_LEGACY
 static const Ps3DataItem kMemCardCh[] = {
   {"Internal Memory Card",64,"Internal memory card for PS/PS2 saved data.",nullptr,0,nullptr,0},
   {"Create New Internal Memory Card",64,"Create a new internal memory card.",nullptr,0,nullptr,0},
@@ -387,11 +448,14 @@ static const Ps3DataItem kGameItems[] = {
   {"Software Instruction Manuals",30,"Displays manuals for the software installed on the PS3™ system.",nullptr,0,nullptr,0},
   {"Corrupted Data",22,nullptr,nullptr,0,nullptr,0},
 };
+#endif
 
 // ---- Network ------------------------------------------------------------
 static const Ps3DataItem kNetworkItems[] = {
+#if !NANO_XMB_HIDE_LEGACY
   {"Online Instruction Manuals",30,"View the online instruction manuals.\nThe latest version of the manual will be available.",nullptr,0,nullptr,0},
   {"Play Remote Devices",36,"Operate other devices on the network from this system.",nullptr,0,nullptr,0},
+#endif
   {"Internet Browser",40,"View Web pages on the Internet.",nullptr,0,nullptr,0},
   {"Internet Search",55,"Search the Internet.",nullptr,0,nullptr,0},
 };
@@ -403,7 +467,11 @@ static const Ps3DataCat kPs3DataCats[] = {
   {"photo",   "Photo",   2,kPhotoItems,   (int)(sizeof(kPhotoItems)/sizeof(kPhotoItems[0]))},
   {"music",   "Music",   3,kMusicItems,   (int)(sizeof(kMusicItems)/sizeof(kMusicItems[0]))},
   {"video",   "Video",   4,kVideoItems,   (int)(sizeof(kVideoItems)/sizeof(kVideoItems[0]))},
+#if NANO_XMB_HIDE_LEGACY
+  {"game",    "Game",    5,nullptr,       0},   // firmware items hidden; nano consoles are prepended at runtime
+#else
   {"game",    "Game",    5,kGameItems,    (int)(sizeof(kGameItems)/sizeof(kGameItems[0]))},
+#endif
   {"network", "Network", 6,kNetworkItems, (int)(sizeof(kNetworkItems)/sizeof(kNetworkItems[0]))},
 };
 static const int kPs3DataCatCount = (int)(sizeof(kPs3DataCats)/sizeof(kPs3DataCats[0]));

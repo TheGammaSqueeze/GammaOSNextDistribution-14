@@ -595,7 +595,6 @@ enum {
 void NanoMenu::buildPs3Cats() {
     mPs3Cats.clear();
     int gameCatRuntimeIdx = -1;
-    int settingsCatRuntimeIdx = -1;
     int musicCatRuntimeIdx = -1;
     int photoCatRuntimeIdx = -1;
     int videoCatRuntimeIdx = -1;
@@ -669,7 +668,6 @@ void NanoMenu::buildPs3Cats() {
             c.items.push_back(makeDataItem(&dc.items[ii]));
         }
         if (strcmp(dc.id, "game") == 0)     gameCatRuntimeIdx     = (int)mPs3Cats.size();
-        if (strcmp(dc.id, "settings") == 0) settingsCatRuntimeIdx = (int)mPs3Cats.size();
         if (strcmp(dc.id, "music") == 0)    musicCatRuntimeIdx    = (int)mPs3Cats.size();
         if (strcmp(dc.id, "photo") == 0)    photoCatRuntimeIdx    = (int)mPs3Cats.size();
         if (strcmp(dc.id, "video") == 0)    videoCatRuntimeIdx    = (int)mPs3Cats.size();
@@ -738,15 +736,9 @@ void NanoMenu::buildPs3Cats() {
         game.items.insert(game.items.begin(), nano.begin(), nano.end());
     }
 
-    // The "Game Systems" editor lives under Settings (it configures systems, so
-    // it belongs with the other settings). Appended as the last Settings item,
-    // glass wrench glyph (xmb_icon_022).
-    if (settingsCatRuntimeIdx >= 0) {
-        Ps3Item it; it.label = "Game Systems"; it.kind = PS3_GS_ROOT;
-        it.iconTex = 0; it.nmapTex = nmapForIcon(22);
-        it.iconR = it.iconG = it.iconB = 1.0f;
-        mPs3Cats[settingsCatRuntimeIdx].items.push_back(it);
-    }
+    // The "Game Systems" editor now lives UNDER Settings > Game Settings (injected
+    // as the first row when that submenu is entered, see the PS3_DATA_SUBMENU case);
+    // it is no longer a top-level Settings column item.
 
     // Preserve the user's position across rebuilds: Game Systems edits rebuild
     // the cats constantly (toggle/icon/emulator/name changes), and resetting to
@@ -823,6 +815,73 @@ void NanoMenu::buildQuickPowerSubmenu(Ps3Level& out) {
 // kPs3Bindings entry (A opens the side-panel chooser, the row shows the live value);
 // action rows (Secondary Display, Calibration, Remap) are PS3_QUICK with a QA_ code.
 // Built lazily on open and discarded on pop, so it costs nothing while closed.
+//
+// Quick Settings mirrors the Android SystemUI Quick Settings panel one-to-one: it
+// shows the SAME ordered tile set (persist.gammaos.qs.override_default_tiles_0..4,
+// gated by persist.gammaos.qs.override_default_tiles) and hides the SAME blacklisted
+// tiles (persist.gammaos.qs.blacklist(_0..4)) that SystemUI reads from build.prop.
+// This table maps each Android QS tile spec to the nano tile that drives the same
+// setting. qa >= 0 => a PS3_QUICK action (chooser / launcher); qa < 0 => a bound leaf
+// (bind = kPs3Bindings label, null => use the display label). Specs with no nano tile
+// (e.g. analogdeadzone) are skipped, exactly as SystemUI drops an unknown spec.
+namespace {
+struct QsTileMap { const char* spec; const char* label; const char* bind; int qa; int icon; };
+const QsTileMap kQsTileMap[] = {
+    {"internet",         "Wi-Fi",               nullptr,                  -1, 16},
+    {"bt",               "Bluetooth",           nullptr,                  -1, 16},
+    {"performance",      "Performance Mode",    nullptr,                  QA_PERFORMANCE, 21},
+    {"gammashader",      "GammaShader",         "CRT Shader",             -1, 16},
+    {"gammargb",         "GammaRGB",            "Effect",                 -1, 16},
+    {"gammaeq",          "GammaEQ",             "Enable EQ",              -1, 16},
+    {"rotation",         "Auto-Rotate",         nullptr,                  -1, 16},
+    {"screenmap",        "Screen Map",          nullptr,                  -1, 16},
+    {"deepsleepmode",    "Deep Sleep Mode",     "Ultra Low Power Saving", -1, 16},
+    {"externaldocking",  "External as Primary", nullptr,                  -1, 16},
+    {"immersivemode",    "Immersive Mode",      nullptr,                  -1, 16},
+    {"abxy",             "ABXY Swap",           nullptr,                  -1, 16},
+    {"dpadAnalogToggle", "DPAD/Analog Swap",    nullptr,                  -1, 16},
+    {"analogsensitivity","Global Sensitivity",  nullptr,                  -1, 16},
+    {"analogcalibration","Analog Calibration",  nullptr,                  QA_LAUNCH_CALIBRATION, 16},
+    {"analogaxis",       "Invert Left Stick",   nullptr,                  -1, 16},
+    {"rightanalogaxis",  "Invert Right Stick",  nullptr,                  -1, 16},
+};
+// Concatenate persist.<base>[_0..4] (and optionally <base> itself) into one CSV,
+// mirroring QSHost.getDefaultSpecs / QSTileHost.loadBlacklistedTileSpecs.
+static std::vector<std::string> qsSpecList(const char* base, bool includeBase) {
+    char buf[PROPERTY_VALUE_MAX];
+    std::string csv;
+    auto append = [&](const std::string& raw) {
+        size_t a = raw.find_first_not_of(" \t"); if (a == std::string::npos) return;
+        size_t b = raw.find_last_not_of(" \t");
+        std::string p = raw.substr(a, b - a + 1);
+        if (p.empty()) return;
+        if (!csv.empty() && csv.back() != ',') csv += ',';
+        csv += p;
+    };
+    if (includeBase) { property_get(base, buf, ""); append(buf); }
+    for (int i = 0; i < 5; i++) {
+        char key[128]; snprintf(key, sizeof(key), "%s_%d", base, i);
+        property_get(key, buf, ""); append(buf);
+    }
+    std::vector<std::string> out;
+    size_t i = 0;
+    while (i <= csv.size()) {
+        size_t c = csv.find(',', i);
+        std::string s = csv.substr(i, c == std::string::npos ? std::string::npos : c - i);
+        size_t a = s.find_first_not_of(" \t");
+        if (a != std::string::npos) {
+            size_t b = s.find_last_not_of(" \t");
+            s = s.substr(a, b - a + 1);
+            // Drop empty entries and anything with embedded whitespace (never a valid spec).
+            if (!s.empty() && s.find(' ') == std::string::npos) out.push_back(s);
+        }
+        if (c == std::string::npos) break;
+        i = c + 1;
+    }
+    return out;
+}
+}  // namespace
+
 void NanoMenu::buildQuickSettingsSubmenu(Ps3Level& out) {
     out.items.clear(); out.sel = 0; out.title = "Quick Settings"; out.screenKind = 0;
     // A bound leaf: display label may differ from the binding label (dispatch and
@@ -840,44 +899,37 @@ void NanoMenu::buildQuickSettingsSubmenu(Ps3Level& out) {
         it.nmapTex = nmapForIcon(icon); it.iconR = it.iconG = it.iconB = 1.0f;
         out.items.push_back(it);
     };
-    act ("Performance Mode", QA_PERFORMANCE, 21, nullptr);     // existing side-panel chooser
-    leaf("Fan Speed", nullptr, 16);
-    leaf("GammaShader", "CRT Shader", 16);
-    act ("Secondary Display", QA_SECONDARY_DISPLAY, 16, mSecondaryDisplayOn ? "On" : "Off");
-    leaf("GammaRGB", "Effect", 16);                            // GammaRGB effect chooser
-    leaf("Deep Sleep Mode", "Ultra Low Power Saving", 16);
-    leaf("Immersive Mode", nullptr, 16);
-    // The full GammaPad / Mouse Mode settings now live in dedicated submenus (every
-    // Settings-app gamepad + mouse option, controller-first), replacing the scattered rows.
-    act ("Gamepad Settings", QA_GAMEPAD_MENU, 16, nullptr);
-    act ("Mouse Mode", QA_MOUSE_MENU, 16, nullptr);
-    leaf("DC Dimming Emulation", nullptr, 16);
-    leaf("RetroArch Back Button Override", nullptr, 16);
-    // Display / refresh
-    leaf("Black Frame Insertion", nullptr, 16);
-    leaf("Refresh Rate Lock", nullptr, 16);
-    leaf("Refresh Rate", nullptr, 16);
-    leaf("Split Brightness", nullptr, 16);
-    leaf("Dual Focus Mode", nullptr, 16);
-    // External display
-    leaf("External as Primary", nullptr, 16);
-    leaf("Force Mirror", nullptr, 16);
-    leaf("Resize to External Display", nullptr, 16);
-    leaf("Secondary Display Apps", nullptr, 16);
-    leaf("Secondary Display Packages", nullptr, 16);
-    // Feature flags (reuse existing bindings; display name may differ from the binding label)
-    leaf("DualStack", "Dual-Stack Display", 16);
-    leaf("Launch Guard", nullptr, 16);
-    leaf("USB Controller Switch", nullptr, 16);
-    leaf("Start/Select LED", "Start+Select LED", 16);
-    leaf("GammaEQ", "Enable EQ", 16);
-    // Stock system toggles (replace the Android QS panel)
-    leaf("Wi-Fi", nullptr, 16);
-    leaf("Bluetooth", nullptr, 16);
-    leaf("Airplane Mode", nullptr, 16);
-    leaf("Location", nullptr, 16);
-    leaf("Do Not Disturb", nullptr, 16);
-    leaf("Auto-Rotate", nullptr, 16);
+    // Ordered tile specs, matching QSHost.getDefaultSpecs: only used when the override
+    // is enabled; otherwise fall back to the full nano tile set in map order.
+    char en[PROPERTY_VALUE_MAX];
+    property_get("persist.gammaos.qs.override_default_tiles", en, "0");
+    bool useOverride = (!strcmp(en, "1") || !strcmp(en, "true") ||
+                        !strcmp(en, "True") || !strcmp(en, "TRUE"));
+    std::vector<std::string> specs =
+        useOverride ? qsSpecList("persist.gammaos.qs.override_default_tiles", false)
+                    : std::vector<std::string>();
+    // Blacklisted specs are silently removed (mirrors QSTileHost.loadBlacklistedTileSpecs).
+    std::vector<std::string> blacklist = qsSpecList("persist.gammaos.qs.blacklist", true);
+    auto isBlacklisted = [&](const std::string& spec) {
+        for (const auto& b : blacklist) if (b == spec) return true;
+        return false;
+    };
+    auto emit = [&](const std::string& spec) {
+        if (isBlacklisted(spec)) return;
+        for (const auto& m : kQsTileMap) {
+            if (spec == m.spec) {
+                if (m.qa >= 0) act(m.label, m.qa, m.icon, nullptr);
+                else           leaf(m.label, m.bind, m.icon);
+                return;
+            }
+        }
+        // Spec with no nano tile (e.g. analogdeadzone) -> skip, as SystemUI drops it.
+    };
+    if (!specs.empty()) {
+        for (const auto& s : specs) emit(s);
+    } else {
+        for (const auto& m : kQsTileMap) emit(m.spec);   // no override configured
+    }
 }
 
 // Quick Menu -> Gamepad Settings: the complete GammaPad section ported 1:1 from the
@@ -932,6 +984,9 @@ void NanoMenu::buildGamepadSubmenu(Ps3Level& out) {
     act ("Edit Button Mappings (App)", QA_LAUNCH_REMAP, 16, nullptr);
     // Touch mapping
     leaf("Screen Map", nullptr, 16);
+    // Mouse Mode (gamepad-as-mouse) is nested here now that it is no longer a
+    // top-level Settings entry; opens the dedicated buildMouseSubmenu.
+    act ("Mouse Mode", QA_MOUSE_MENU, 16, nullptr);
 }
 
 // Quick Menu -> Mouse Mode: the Settings-app "Mouse Mode" category (gamepad-as-mouse
@@ -2258,8 +2313,28 @@ void NanoMenu::ps3XmbSelect() {
         case PS3_SYSTEM:       { Ps3Level lvl; buildRomSubmenu(it.a, lvl);     mPs3Stack.push_back(lvl); break; }
         case PS3_RECENT_LIST:  { Ps3Level lvl; buildRecentSubmenu(lvl);        mPs3Stack.push_back(lvl); break; }
         case PS3_APP_LIST:     { Ps3Level lvl; buildAppSubmenu(lvl);           mPs3Stack.push_back(lvl); break; }
-        case PS3_DATA_SUBMENU: { if (it.label == "GammaEQ") warmEqPreview();   // preload the clip before the user reaches Audio Preview
-                                 Ps3Level lvl; buildDataSubmenu(it.data, lvl); mPs3Stack.push_back(lvl); break; }
+        case PS3_DATA_SUBMENU: {
+            if (it.label == "GammaEQ") warmEqPreview();   // preload the clip before the user reaches Audio Preview
+            Ps3Level lvl;
+            if (it.label == "Gamepad Settings") {
+                // Gamepad Settings opens the full controller menu (Button Prompts,
+                // remap pickers and the nested Mouse Mode) rather than the thin data list.
+                buildGamepadSubmenu(lvl);
+            } else {
+                buildDataSubmenu(it.data, lvl);
+                if (it.label == "Game Settings") {
+                    // The Game Systems editor now lives under Game Settings; inject it as
+                    // the first row (it is a runtime PS3_GS_ROOT item, not static data).
+                    Ps3Item gs; gs.label = "Game Systems"; gs.kind = PS3_GS_ROOT;
+                    gs.iconTex = 0; gs.nmapTex = nmapForIcon(22);
+                    gs.iconR = gs.iconG = gs.iconB = 1.0f;
+                    lvl.items.insert(lvl.items.begin(), gs);
+                    lvl.sel = 0;
+                }
+            }
+            mPs3Stack.push_back(lvl);
+            break;
+        }
         case PS3_GS_ROOT:      { Ps3Level lvl; buildGameSystemsList(lvl);      mPs3Stack.push_back(lvl); break; }
         case PS3_GS_SYSTEM_ROW: { mGsEditIdx = it.a; Ps3Level lvl; buildGameSystemEditor(it.a, lvl); mPs3Stack.push_back(lvl); break; }
         case PS3_GS_FIELD:     { gsEditField(it.a); return; }   // open OSK / chooser / toggle
