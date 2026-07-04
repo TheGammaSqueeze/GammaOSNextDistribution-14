@@ -176,7 +176,8 @@ void NanoMenu::renderPs3BootOverlay() {
         else if (e < BOOT_LOGO_HOLD_B) mainA = 1.0f;
         else                           mainA = 1.0f - smooth01(bootRamp(e, BOOT_LOGO_HOLD_B, BOOT_LOGO_OUT_B));
 
-        // logo: native 700x350, dW = 0.365*fw, centred at (0.734fw, 0.532fh).
+        // logo: native 700x350, dW = 0.365*fw, centred at (0.734fw, 0.532fh) -
+        // the same position the PS3 logo occupied.
         float dW = 0.365f * fw, dH = dW * 0.5f;
         float lcx = fx + 0.734f * fw, lcy = fy + 0.532f * fh;
         float lx = lcx - dW * 0.5f, ly = lcy - dH * 0.5f;
@@ -268,9 +269,16 @@ void NanoMenu::renderPs3BootOverlay() {
         float totalH = totalLines * pitch;
         float baseY = fy + (fh - totalH) * 0.5f;
 
+        // Fade the warning TEXT in and out (matching the backdrop). The stock PS3/
+        // web boot hard-cuts the text, but that reads as an abrupt flash - especially
+        // on the DRM-direct path where the backdrop is a plain scrim. The alpha is a
+        // pipeline-agnostic ramp on the drawText colour, so it fades identically under
+        // both the DRM and SurfaceFlinger back-ends.
+        float warnA = smooth01(bootRamp(e, BOOT_WARN_IN, BOOT_WARN_IN + 400.0))
+                    * (1.0f - smooth01(bootRamp(e, BOOT_WARN_OUT - 400.0, BOOT_WARN_OUT)));
         auto line = [&](const char* t, float scale, float yTop) {
-            drawText(t, blockX + so[0], yTop + so[1], scale, 0.0f, 0.0f, 0.0f, 0.55f);
-            drawText(t, blockX, yTop, scale, 1.0f, 1.0f, 1.0f, 1.0f);
+            drawText(t, blockX + so[0], yTop + so[1], scale, 0.0f, 0.0f, 0.0f, 0.55f * warnA);
+            drawText(t, blockX, yTop, scale, 1.0f, 1.0f, 1.0f, warnA);
         };
         float y = baseY;
         line(warnTitle, titleS, y); y += pitch * 2.0f;   // title + blank line
