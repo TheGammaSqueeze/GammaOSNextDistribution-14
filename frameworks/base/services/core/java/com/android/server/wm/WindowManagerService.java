@@ -4514,7 +4514,28 @@ public class WindowManagerService extends IWindowManager.Stub
             if (dualStackSessionActive) {
                 return requestedOrientation;
             }
-            return ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+            // GammaOS Nano orientation control: nano publishes a foreground-aware token in
+            // sys.gammaos.nano.force_orientation. When the nano menu or its overlay is
+            // foreground the token is nano's own orientation (landscape by default), so the
+            // display is clamped and an app like Firefox cannot rotate the XMB to portrait.
+            // When a normal app is foreground with no per-app override the token is "none",
+            // so the app's own requested orientation is honored. An unset token falls back to
+            // the historical forced-landscape behaviour for back-compat with an old nano.
+            switch (android.os.SystemProperties.get("sys.gammaos.nano.force_orientation", "")) {
+                case "portrait":
+                    return ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+                case "rev_landscape":
+                    return ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE;
+                case "rev_portrait":
+                    return ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT;
+                case "landscape":
+                    return ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+                case "none":
+                case "auto":
+                    return requestedOrientation;
+                default:
+                    return ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+            }
         }
 
         // If the ignore-orientation-request policy is not enabled, honor the app request.
@@ -5588,7 +5609,54 @@ public class WindowManagerService extends IWindowManager.Stub
                 // Ignore, we cannot do anything if we failed to register VR mode listener
             }
         }
+
+        // GammaOS Nano: react immediately when nano flips its foreground-aware
+        // orientation token (sys.gammaos.nano.force_orientation), so raising the
+        // overlay or switching apps re-evaluates rotation without waiting for the
+        // next app-driven traversal. Only armed in nano mode to avoid any cost on
+        // normal Android. addChangeCallback fires on any property change; we filter
+        // to the token and post the rotation update onto the WM handler.
+        if (SystemProperties.getBoolean("sys.gammaos.minimal_boot", false)) {
+            mLastNanoForceOrientation =
+                    SystemProperties.get("sys.gammaos.nano.force_orientation", "");
+            // Poll the token on the WM handler. We cannot use
+            // SystemProperties.addChangeCallback here: it only fires for in-process
+            // reportSyspropChanged, and nano sets the property from native libcutils
+            // (a different process), so the callback never runs. A 200ms poll in nano
+            // mode is cheap and reliably catches the flip. On change we RE-WALK the
+            // display orientation (updateOrientation), not just updateRotation: the
+            // token flip changes the mapping applied in mapOrientationRequest, but the
+            // foreground app's raw orientation is unchanged, so updateRotation alone
+            // would reuse the cached mLastOrientation and never clamp. updateOrientation
+            // re-runs getOrientation -> mapOrientationRequest and sendNewConfiguration
+            // applies the resulting rotation.
+            final Runnable nanoOrientationPoll = new Runnable() {
+                @Override
+                public void run() {
+                    final String v = SystemProperties.get(
+                            "sys.gammaos.nano.force_orientation", "");
+                    if (!v.equals(mLastNanoForceOrientation)) {
+                        mLastNanoForceOrientation = v;
+                        Slog.i(TAG, "GammaOS Nano: force_orientation=" + v
+                                + ", re-evaluating display orientation");
+                        synchronized (mGlobalLock) {
+                            final DisplayContent dc = mRoot.getDefaultDisplay();
+                            if (dc != null && dc.updateOrientation()) {
+                                dc.sendNewConfiguration();
+                            }
+                        }
+                    }
+                    mH.postDelayed(this, 200);
+                }
+            };
+            mH.postDelayed(nanoOrientationPoll, 200);
+        }
     }
+
+    // GammaOS Nano: last seen value of sys.gammaos.nano.force_orientation, so the
+    // global property-change callback only triggers a rotation update when the
+    // nano orientation token actually changes.
+    private volatile String mLastNanoForceOrientation = "";
 
 
     // Keep logic in sync with SurfaceFlingerProperties.cpp
