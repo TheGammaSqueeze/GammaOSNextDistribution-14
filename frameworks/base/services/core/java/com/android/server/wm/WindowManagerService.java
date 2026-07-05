@@ -4514,28 +4514,20 @@ public class WindowManagerService extends IWindowManager.Stub
             if (dualStackSessionActive) {
                 return requestedOrientation;
             }
-            // GammaOS Nano orientation control: nano publishes a foreground-aware token in
-            // sys.gammaos.nano.force_orientation. When the nano menu or its overlay is
-            // foreground the token is nano's own orientation (landscape by default), so the
-            // display is clamped and an app like Firefox cannot rotate the XMB to portrait.
-            // When a normal app is foreground with no per-app override the token is "none",
-            // so the app's own requested orientation is honored. An unset token falls back to
-            // the historical forced-landscape behaviour for back-compat with an old nano.
-            switch (android.os.SystemProperties.get("sys.gammaos.nano.force_orientation", "")) {
-                case "portrait":
-                    return ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
-                case "rev_landscape":
-                    return ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE;
-                case "rev_portrait":
-                    return ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT;
-                case "landscape":
-                    return ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
-                case "none":
-                case "auto":
-                    return requestedOrientation;
-                default:
-                    return ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+            // GammaOS Nano orientation control: nano forces orientation at the DISPLAY level
+            // (setIgnoreOrientationRequest + freezeRotation from the orientation poll in
+            // systemReady, driven by sys.gammaos.nano.force_orientation). Forcing the display
+            // rather than the app's requested orientation lets an app that cannot render the
+            // forced orientation (e.g. a landscape-locked game asked for portrait) be
+            // letterboxed and stay visible, instead of being forced into it and black-screening.
+            // So whenever nano is driving orientation (any token is set, including none) honor
+            // the app's own request here. Only the back-compat unset case (an old nano that does
+            // not publish the token) keeps the historical forced landscape.
+            if (!android.os.SystemProperties.get("sys.gammaos.nano.force_orientation", "")
+                    .isEmpty()) {
+                return requestedOrientation;
             }
+            return ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
         }
 
         // If the ignore-orientation-request policy is not enabled, honor the app request.
@@ -5638,11 +5630,33 @@ public class WindowManagerService extends IWindowManager.Stub
                     if (!v.equals(mLastNanoForceOrientation)) {
                         mLastNanoForceOrientation = v;
                         Slog.i(TAG, "GammaOS Nano: force_orientation=" + v
-                                + ", re-evaluating display orientation");
+                                + ", applying display orientation");
                         synchronized (mGlobalLock) {
                             final DisplayContent dc = mRoot.getDefaultDisplay();
-                            if (dc != null && dc.updateOrientation()) {
-                                dc.sendNewConfiguration();
+                            if (dc != null) {
+                                final int so = nanoScreenOrientation(v);
+                                if (so == ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED) {
+                                    // none / auto: hand orientation back to the app. Do NOT
+                                    // thawRotation here - thaw switches to USER_ROTATION_FREE,
+                                    // which turns accelerometer_rotation back on and breaks the
+                                    // auto-rotate-off default. With setIgnoreOrientationRequest
+                                    // (false) an app that requests a fixed orientation still wins
+                                    // (it overrides the locked user rotation), and an unspecified
+                                    // app keeps the last locked rotation - no sensor, no flap.
+                                    dc.setIgnoreOrientationRequest(false);
+                                } else {
+                                    // Force the DISPLAY to this orientation and letterbox any
+                                    // app that cannot match, so it stays visible. rotationFor-
+                                    // Orientation makes the target rotation panel-correct.
+                                    dc.setIgnoreOrientationRequest(true);
+                                    final int rot = dc.getDisplayRotation()
+                                            .rotationForOrientation(so, dc.getRotation());
+                                    dc.getDisplayRotation().freezeRotation(
+                                            rot, "nano-orientation");
+                                }
+                                boolean cfg = dc.updateOrientation();
+                                if (dc.updateRotationUnchecked()) cfg = true;
+                                if (cfg) dc.sendNewConfiguration();
                             }
                         }
                     }
@@ -5654,9 +5668,20 @@ public class WindowManagerService extends IWindowManager.Stub
     }
 
     // GammaOS Nano: last seen value of sys.gammaos.nano.force_orientation, so the
-    // global property-change callback only triggers a rotation update when the
-    // nano orientation token actually changes.
+    // orientation poll only re-applies when the nano token actually changes.
     private volatile String mLastNanoForceOrientation = "";
+
+    // GammaOS Nano: map a force_orientation token to a fixed screen orientation, or
+    // SCREEN_ORIENTATION_UNSPECIFIED for "none"/"auto"/unset (follow the app).
+    private static int nanoScreenOrientation(String token) {
+        switch (token) {
+            case "landscape":     return ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+            case "portrait":      return ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+            case "rev_landscape": return ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE;
+            case "rev_portrait":  return ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT;
+            default:              return ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
+        }
+    }
 
 
     // Keep logic in sync with SurfaceFlingerProperties.cpp
