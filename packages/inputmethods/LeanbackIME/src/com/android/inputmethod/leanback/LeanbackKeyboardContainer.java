@@ -578,6 +578,10 @@ public class LeanbackKeyboardContainer {
         mVoiceButtonView = (RecognizerView) mRootView.findViewById(R.id.voice);
 
         mActionButtonView = (Button) mRootView.findViewById(R.id.enter);
+        // Let finger taps on the action button fall through to the root touch
+        // handler, which routes them to the action focus via getBestFocus. The
+        // button is driven by the custom focus system, never by Android clicks.
+        mActionButtonView.setClickable(false);
 
         mSelector = mRootView.findViewById(R.id.selector);
         mSelectorAnimation = new ScaleAnimation((FrameLayout) mSelector);

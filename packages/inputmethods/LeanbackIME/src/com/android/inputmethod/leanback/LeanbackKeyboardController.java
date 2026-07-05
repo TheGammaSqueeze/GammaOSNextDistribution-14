@@ -21,6 +21,7 @@ import android.inputmethodservice.InputMethodService;
 import android.inputmethodservice.Keyboard;
 import android.inputmethodservice.Keyboard.Key;
 import android.util.Log;
+import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -252,6 +253,65 @@ public class LeanbackKeyboardController implements LeanbackKeyboardContainer.Voi
     public void setKeyboardContainer(LeanbackKeyboardContainer container) {
         mContainer = container;
         container.getView().addOnLayoutChangeListener(mOnLayoutChangeListener);
+        // Drive the keyboard directly from finger taps on touchscreen panels.
+        // D-pad and touchpad (SOURCE_TOUCH_NAVIGATION) keep their own paths.
+        container.getView().setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return handleTouchEvent(event);
+            }
+        });
+    }
+
+    /**
+     * Handles a direct screen touch on the keyboard surface. The incoming
+     * coordinates are already in the root view's coordinate space (the view the
+     * listener is attached to), which is exactly what
+     * {@link LeanbackKeyboardContainer#getBestFocus} expects. A press moves the
+     * on-screen focus under the finger; lifting the finger commits that key,
+     * mirroring the D-pad center-click path so every key type (letters, space,
+     * delete, shift, symbol switch and the action button) behaves identically.
+     */
+    private boolean handleTouchEvent(MotionEvent event) {
+        if (mContainer == null) {
+            return false;
+        }
+        // Only real touchscreen contacts drive taps here. Touchpad navigation
+        // arrives as generic motion (SOURCE_TOUCH_NAVIGATION) and is handled
+        // elsewhere, and must not be double-processed.
+        if ((event.getSource() & InputDevice.SOURCE_TOUCHSCREEN)
+                != InputDevice.SOURCE_TOUCHSCREEN) {
+            return false;
+        }
+        // Voice recording owns the surface while it is up.
+        if (mContainer.isVoiceVisible()) {
+            return false;
+        }
+
+        final float x = event.getX();
+        final float y = event.getY();
+
+        switch (event.getActionMasked()) {
+            case MotionEvent.ACTION_DOWN:
+            case MotionEvent.ACTION_MOVE:
+                mContainer.setTouchState(LeanbackKeyboardContainer.TOUCH_STATE_TOUCH_MOVE);
+                if (mContainer.getBestFocus(x, y, mTempFocus)) {
+                    mContainer.setFocus(mTempFocus);
+                }
+                return true;
+            case MotionEvent.ACTION_UP:
+                mContainer.setTouchState(LeanbackKeyboardContainer.TOUCH_STATE_CLICK);
+                if (mContainer.getBestFocus(x, y, mTempFocus)) {
+                    mContainer.setFocus(mTempFocus);
+                    commitKey(mTempFocus);
+                }
+                mContainer.setTouchState(LeanbackKeyboardContainer.TOUCH_STATE_NO_TOUCH);
+                return true;
+            case MotionEvent.ACTION_CANCEL:
+                mContainer.setTouchState(LeanbackKeyboardContainer.TOUCH_STATE_NO_TOUCH);
+                return true;
+        }
+        return false;
     }
 
     public View getView() {
