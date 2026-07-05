@@ -223,6 +223,12 @@ void drmFlipRingSlot(int idx, bool skipNonPrimary = false);
 void drmFlipAll();
 bool drmAnyCrtcPending();
 void drmDrainPageFlipEvents();
+
+// GammaRGB Follow-Screen sampler (NanoMenuRgbFollow.cpp). Called once per home
+// render iteration; samples the just-presented AHB frame and publishes
+// persist.gammaos.primary.rgb_hex when in DRM mode + rgb.effect=follow. Cheap
+// no-op otherwise.
+void nanoRgbFollowSample();
 inline void drmFrameBegin() {
     if (sDrmActive && sDrmZeroCopy) {
         drmBindNextFbo();

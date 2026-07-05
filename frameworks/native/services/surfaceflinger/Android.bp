@@ -315,3 +315,12 @@ cc_library_shared {
         "libSurfaceFlingerProperties",
     ],
 }
+
+// Header-only GammaRGB colour-selection pipeline shared with gammaos-nano so the
+// DRM-mode sampler in nano produces byte-identical LED colours to this sampler.
+cc_library_headers {
+    name: "libgammargb_process_headers",
+    export_include_dirs: ["gammargb"],
+    vendor_available: true,
+    host_supported: false,
+}

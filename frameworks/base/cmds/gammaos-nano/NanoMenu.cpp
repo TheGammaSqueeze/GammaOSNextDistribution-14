@@ -4066,6 +4066,11 @@ if (sRingPrimedCount >= 2) {
 
         render();
 
+        // GammaRGB Follow-Screen: in DRM mode nano owns the panel, so SF's
+        // sampler is blind; sample our own just-presented frame and drive the
+        // LED colour prop (no-op unless rgb.effect=follow). Cheap, fps-paced.
+        nanoRgbFollowSample();
+
         // ADPF: tell the power HAL how long this frame's work took, so it can
         // scale to hold the 60fps target.
         perfHintReport();

@@ -47,6 +47,7 @@ cc_binary {
         "main.cpp",
         "NanoMenu.cpp",
         "NanoMenuDrm.cpp",
+        "NanoMenuRgbFollow.cpp",
         "NanoMenuXmb.cpp",
         "NanoMenuShaders.cpp",
         "NanoMenuEffects.cpp",
@@ -115,6 +116,7 @@ cc_binary {
         "libdrm_headers",
         "jni_headers",
         "native_headers",   // <android/imagedecoder.h> + <android/bitmap.h> (photo viewer decode)
+        "libgammargb_process_headers",   // shared GammaRGB colour pipeline (parity with SF sampler)
     ],
 
     shared_libs: [
