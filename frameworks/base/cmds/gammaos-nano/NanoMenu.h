@@ -354,6 +354,8 @@ private:
     void oskSetLanguage(const char* code, const char* region); // layout + IME
     void oskMoveCursor(NavDir dir); // geometric nearest-in-direction focus move
     void oskActivateKey(const OskKey& key); // dispatch a grid key (A on key)
+    void oskTouchFrame();                   // SYN_REPORT: normalize + dispatch the live touch
+    void oskTouchAt(float px, float py, bool tap); // hit-test a logical point against the keys
     void oskAPress();               // A pressed while OSK active
     void oskARelease();             // A released while OSK active
     void oskTick();                 // per-frame: long-press popup + animation clock
@@ -2789,6 +2791,17 @@ private:
     float mOskGlassT = 0.0f;       // mEffectTime of the last OSK panel capture
     std::string mOskQuery;     // current typed buffer (committed text)
     NanoOskState mOsk;         // page/shift/focus/caret/popup/candidates/IME state
+    // Touchscreen OSK input. The digitizer is read straight from the same evdev
+    // stream (ABS_MT_POSITION_X/Y + BTN_TOUCH); ranges are read lazily via
+    // EVIOCGABS. Raw -> panel-normalized -> logical is corrected per device by
+    // the osk_touch_swap/flipx/flipy props (DRM-rotated panels need them; SF and
+    // upright panels use the defaults). Works on both DRM and SF back-ends.
+    int   mTouchMinX = 0, mTouchMaxX = 0;   // digitizer X range (max<=min = unread)
+    int   mTouchMinY = 0, mTouchMaxY = 0;   // digitizer Y range
+    int   mTouchRawX = -1, mTouchRawY = -1; // last raw ABS_MT position
+    bool  mTouchDown = false, mTouchWasDown = false;
+    bool  mOskTouchTuneRead = false;
+    bool  mOskTouchSwap = false, mOskTouchFlipX = false, mOskTouchFlipY = false;
     std::vector<SearchResult> mSearchResults;
     int mSearchSelectedIndex;
     bool mSearchActive;        // Search results being displayed

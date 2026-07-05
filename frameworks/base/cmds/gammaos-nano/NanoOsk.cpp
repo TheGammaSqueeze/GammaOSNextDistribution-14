@@ -799,6 +799,61 @@ void NanoMenu::oskTick() {
 }
 
 // ---------------------------------------------------------------------------
+// Touchscreen input: raw digitizer -> panel-normalized -> logical hit-test.
+// Called once per SYN_REPORT while the OSK is up. The tuning members
+// (mOskTouchSwap/FlipX/FlipY) are read from props by the caller so this stays
+// free of the property API. Works for both DRM (rotated/flipped, corrected by
+// the props) and SF (upright, defaults) back-ends.
+// ---------------------------------------------------------------------------
+void NanoMenu::oskTouchFrame() {
+    if (!mOskActive) return;
+    if (mTouchMaxX <= mTouchMinX || mTouchMaxY <= mTouchMinY || mTouchRawX < 0) return;
+    float nx = (float)(mTouchRawX - mTouchMinX) / (float)(mTouchMaxX - mTouchMinX);
+    float ny = (float)(mTouchRawY - mTouchMinY) / (float)(mTouchMaxY - mTouchMinY);
+    if (mOskTouchSwap)  { float t = nx; nx = ny; ny = t; }
+    if (mOskTouchFlipX) nx = 1.0f - nx;
+    if (mOskTouchFlipY) ny = 1.0f - ny;
+    if (nx < 0.0f) nx = 0.0f; else if (nx > 1.0f) nx = 1.0f;
+    if (ny < 0.0f) ny = 0.0f; else if (ny > 1.0f) ny = 1.0f;
+    float px = nx * (float)mWidth;
+    float py = ny * (float)mHeight;
+    bool tap = (mTouchDown && !mTouchWasDown);   // press edge only presses a key
+    if (mTouchDown) oskTouchAt(px, py, tap);
+    mTouchWasDown = mTouchDown;
+}
+
+void NanoMenu::oskTouchAt(float px, float py, bool tap) {
+    if (!mOskActive || mOsk.miniOpen || mOsk.inCandidateBar) return;
+    OskBox b = oskLayoutBox();
+    // Action button (Done / Search).
+    if (px >= b.actX && px <= b.actX + b.actW && py >= b.actY && py <= b.actY + b.actH) {
+        mOsk.inAction = true;
+        mDisplayDirty = true;
+        if (tap) oskConfirm();
+        return;
+    }
+    // Grid keys: on the press edge press the key under the finger; a held slide
+    // just moves the focus so the user can correct before lifting.
+    const OskKeyboard* kb = oskCurrentKb();
+    for (int r = 0; r < kb->rowCount; r++) {
+        const OskRow& rr = kb->rows[r];
+        for (int c = 0; c < rr.keyCount; c++) {
+            const OskKey& k = rr.keys[c];
+            float kx, ky, kw, kh;
+            keyRect(b, k.fx, k.fw, rr.fy, rr.fh, kx, ky, kw, kh);
+            if (px >= kx && px <= kx + kw && py >= ky && py <= ky + kh) {
+                mOsk.inAction = false;
+                mOsk.focusRow = r;
+                mOsk.focusCol = c;
+                mDisplayDirty = true;
+                if (tap) oskActivateKey(k);
+                return;
+            }
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
 // Navigation: geometric nearest-in-direction
 // ---------------------------------------------------------------------------
 

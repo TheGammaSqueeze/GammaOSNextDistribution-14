@@ -1288,6 +1288,47 @@ void NanoMenu::pollInput() {
                 if (ev.type == EV_KEY && ev.value == 1) ps3BootSkip();
                 continue;
             }
+            // Touchscreen -> OSK. Read straight from the shared evdev stream:
+            // BTN_TOUCH gates finger down/up, ABS_MT_POSITION_X/Y carry the
+            // position (digitizer range read lazily via EVIOCGABS), and
+            // SYN_REPORT flushes one frame to the OSK hit-test. Only acts while
+            // the OSK is up, so the touchscreen stays ignored elsewhere as before.
+            if (ev.type == EV_KEY && ev.code == BTN_TOUCH) {
+                mTouchDown = (ev.value != 0);
+                continue;
+            }
+            if (ev.type == EV_ABS && ev.code == ABS_MT_POSITION_X) {
+                mTouchRawX = ev.value;
+                if (mTouchMaxX <= mTouchMinX) {
+                    struct input_absinfo a{};
+                    if (ioctl(fd, EVIOCGABS(ABS_MT_POSITION_X), &a) == 0 && a.maximum > a.minimum) {
+                        mTouchMinX = a.minimum; mTouchMaxX = a.maximum;
+                    }
+                }
+                continue;
+            }
+            if (ev.type == EV_ABS && ev.code == ABS_MT_POSITION_Y) {
+                mTouchRawY = ev.value;
+                if (mTouchMaxY <= mTouchMinY) {
+                    struct input_absinfo a{};
+                    if (ioctl(fd, EVIOCGABS(ABS_MT_POSITION_Y), &a) == 0 && a.maximum > a.minimum) {
+                        mTouchMinY = a.minimum; mTouchMaxY = a.maximum;
+                    }
+                }
+                continue;
+            }
+            if (ev.type == EV_SYN && ev.code == SYN_REPORT) {
+                if (mOskActive) {
+                    if (!mOskTouchTuneRead) {
+                        mOskTouchSwap  = android::base::GetBoolProperty("persist.gammaos.nano.osk_touch_swap", false);
+                        mOskTouchFlipX = android::base::GetBoolProperty("persist.gammaos.nano.osk_touch_flipx", false);
+                        mOskTouchFlipY = android::base::GetBoolProperty("persist.gammaos.nano.osk_touch_flipy", false);
+                        mOskTouchTuneRead = true;
+                    }
+                    oskTouchFrame();
+                }
+                continue;
+            }
             // Wait-for-release: after a launch is triggered, keep running
             // until the select key is released. This ensures Android's
             // InputReader sees the full press-release cycle before RetroArch
