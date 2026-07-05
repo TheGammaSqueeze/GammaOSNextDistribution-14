@@ -3635,6 +3635,16 @@ if (sRingPrimedCount >= 2) {
                 // not hung. Without this the watchdog aborts this process after 8s,
                 // killing background music and cascading to the foreground app.
                 mRenderHeartbeat.fetch_add(1, std::memory_order_relaxed);
+                // Keep the orientation token live while the overlay is parked behind
+                // a foreground app: the main-loop orientationTick() further down is
+                // skipped by this continue, so an app would otherwise stay clamped to
+                // whatever the home set. Run it here too, throttled to ~1s (this path
+                // wakes ~every 250ms) so the foreground-package dumpsys probe does not
+                // steal CPU from the running game.
+                {
+                    static unsigned sParkOrientCounter = 0;
+                    if ((sParkOrientCounter++ & 3u) == 0) orientationTick();
+                }
                 continue;
             }
         }
@@ -4133,6 +4143,12 @@ if (sRingPrimedCount >= 2) {
         int exitCheckInterval = animating ? 30 : 5; // 30*16ms or 5*100ms
         if (++exitCheckCounter >= exitCheckInterval) {
             exitCheckCounter = 0;
+            // GammaOS Nano orientation: publish the foreground-aware orientation
+            // token every tick (idempotent; only writes on change). Both the home
+            // and overlay processes run this and agree on the token from shared
+            // props, so the display holds nano's orientation while nano/overlay is
+            // foreground and hands back to the app otherwise.
+            orientationTick();
             char val[PROPERTY_VALUE_MAX] = {};
             property_get("service.bootanim.exit", val, "0");
             // The resident overlay process is the persistent launcher: it must

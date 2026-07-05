@@ -668,6 +668,22 @@ private:
     // none. Populated on every overlayShow() so quit/launch always have a target
     // regardless of whether the pause feature is enabled.
     std::string overlayResolveForegroundPkg();
+    // GammaOS Nano orientation control. orientationTick() runs on the ~0.5s
+    // cadence in both the home and overlay processes; it computes a single
+    // foreground-aware orientation token (nano's own setting when the menu or
+    // overlay is foreground, a per-app override or "none" when an app is) and
+    // publishes it to sys.gammaos.nano.force_orientation, which WindowManager
+    // reads in mapOrientationRequest. appOrientGet returns the stored override
+    // for a package (empty = none). See NanoMenuOrientation.cpp.
+    void orientationTick();
+    std::string appOrientGet(const std::string& pkg);
+    void appOrientSet(const std::string& pkg, const std::string& value);
+    void appOrientLoad();
+    void appOrientSave();
+    std::string mLastOrientToken;                 // last force_orientation we wrote
+    std::map<std::string,std::string> mAppOrient; // package -> orientation override
+    bool mAppOrientLoaded = false;
+    int64_t mAppOrientStamp = -1;                 // nano_app_orient.json mtime (cross-process reload)
     // Freeze/thaw the foreground app while the overlay is up (SIGSTOP/SIGCONT of
     // its process group), so gameplay + audio pause and its GPU/CPU is freed -
     // the real PS3 in-game XMB pauses the title. Gated by
@@ -1120,11 +1136,12 @@ private:
     // level only. The vectors are populated only while the menu is open (no idle cost).
     struct Ps3OptSub {
         std::string label;
-        int kind = 0;      // 0 = sort, 1 = group content, 2 = slideshow style
+        int kind = 0;      // 0 = sort, 1 = group content, 2 = slideshow style, 3 = per-app orientation
         int field = 0;     // sort: 0 = film date, 1 = import date, 2 = name
         int dir = 1;       // sort: 0 = desc, 1 = asc
         int groupIdx = 0;  // group-content mode index
         int sstyle = 0;    // slideshow style 0..4
+        std::string orient; // per-app orientation value ("" = default/none, else landscape/portrait/rev_*)
     };
     std::vector<char> mPs3OptSep;                       // parallel: 1 = separator row (skipped in nav)
     std::vector<char> mPs3OptHasSub;                    // parallel: 1 = row opens a submenu

@@ -40,6 +40,7 @@
 #include "NanoMenuPS3.h"      // ps3::layoutComputeNative for the boot warm-up
 #include "NanoMenuPS3Bg.h"    // ps3bg::init for the boot warm-up
 #include "NanoMenuUtils.h"    // setDrasticNanoRomPath for the overlay launch route
+#include "NanoJson.h"        // per-app orientation override persistence
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -486,6 +487,11 @@ void NanoMenu::overlayShow() {
     mPs3BootIconReveal = 0.0f;
     mPs3BootLabelReveal = 0.0f;
     mLastFrameNs = 0;
+    // Publish nano's orientation immediately so WM clamps the display to landscape
+    // (or the chosen nano orientation) the instant the overlay raises, instead of
+    // waiting for the next periodic tick - otherwise the overlay flashes truncated
+    // over a portrait app.
+    orientationTick();
     ALOGI("overlay: shown (translucent live-app + scrim, drop_input=1)");
 }
 
@@ -527,6 +533,9 @@ void NanoMenu::overlayHide() {
     mOverlayShown = false;
     mOverlayPendingShow = false;   // cancel any deferred show (hidden before 1st frame)
     mOverlayWallpaper = false;     // next in-game summon starts in scrim mode
+    // Hand orientation back to the foreground app (its per-app override or its own
+    // request) the instant the overlay is dismissed.
+    orientationTick();
     ALOGI("overlay: hidden (drop_input=0)");
 }
 
@@ -1301,6 +1310,149 @@ void NanoMenu::overlayLaunchGame() {
     ALOGI("overlay: launch game pkg=%s standalone=%d rom=%s",
           pkg.c_str(), standalone ? 1 : 0, romPath.c_str());
     overlayLaunchCommand(pkg, cmd);
+}
+
+// ===================== Orientation control =====================
+//
+// Nano publishes a single foreground-aware orientation token to
+// sys.gammaos.nano.force_orientation, which WindowManagerService reads in
+// mapOrientationRequest (only while auto-rotation is off, which is nano's
+// default). The token is: nano's own Screen Orientation setting when the nano
+// menu or its overlay is foreground (default "landscape", so an app like
+// Firefox cannot rotate the XMB to portrait), a per-app override when a normal
+// app with one is foreground, or "none" (honor the app's own request) otherwise.
+
+static int64_t nanoAppOrientMtime() {
+    struct stat st;
+    if (stat("/data/system/nano_app_orient.json", &st) != 0) return -1;
+    return (int64_t)st.st_mtim.tv_sec * 1000000000LL + st.st_mtim.tv_nsec;
+}
+
+void NanoMenu::appOrientLoad() {
+    mAppOrientLoaded = true;
+    mAppOrient.clear();
+    mAppOrientStamp = nanoAppOrientMtime();
+    int fd = open("/data/system/nano_app_orient.json", O_RDONLY);
+    if (fd < 0) return;
+    std::string content;
+    struct stat st;
+    if (fstat(fd, &st) == 0 && st.st_size > 0 && st.st_size < 1 * 1024 * 1024) {
+        char buf[4096];
+        ssize_t n;
+        while ((n = read(fd, buf, sizeof(buf))) > 0) content.append(buf, (size_t)n);
+    }
+    close(fd);
+    njson::Value root;
+    if (!njson::parse(content, &root) || !root.isObject()) return;
+    if (const njson::Value* apps = root.find("apps"); apps && apps->isObject())
+        for (const auto& kv : apps->obj)
+            if (kv.second.isString() && !kv.second.str.empty())
+                mAppOrient[kv.first] = kv.second.str;
+}
+
+void NanoMenu::appOrientSave() {
+    njson::Value root = njson::Value::makeObject();
+    root.set("version") = njson::Value::makeNumber(1);
+    njson::Value apps = njson::Value::makeObject();
+    for (const auto& kv : mAppOrient) apps.set(kv.first) = njson::Value::makeString(kv.second);
+    root.set("apps") = std::move(apps);
+    std::string text = njson::serialize(root, true);
+
+    const char* path = "/data/system/nano_app_orient.json";
+    const char* tmp = "/data/system/nano_app_orient.json.tmp";
+    int fd = open(tmp, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+    if (fd < 0) { ALOGW("nano: cannot write %s (errno %d)", tmp, errno); return; }
+    size_t off = 0; bool ok = true;
+    while (off < text.size()) {
+        ssize_t w = write(fd, text.c_str() + off, text.size() - off);
+        if (w <= 0) { ok = false; break; }
+        off += (size_t)w;
+    }
+    fsync(fd); close(fd);
+    if (!ok) { unlink(tmp); return; }
+    if (rename(tmp, path) != 0) { unlink(tmp); return; }
+    (void)chown(path, 0, 0);
+    (void)chmod(path, 0644);
+    mAppOrientStamp = nanoAppOrientMtime();
+}
+
+std::string NanoMenu::appOrientGet(const std::string& pkg) {
+    if (pkg.empty()) return std::string();
+    // Reload if another nano process (the home menu sets the override, the
+    // overlay enforces it) rewrote the file since we last read it.
+    if (!mAppOrientLoaded || nanoAppOrientMtime() != mAppOrientStamp) appOrientLoad();
+    auto it = mAppOrient.find(pkg);
+    return it == mAppOrient.end() ? std::string() : it->second;
+}
+
+void NanoMenu::appOrientSet(const std::string& pkg, const std::string& value) {
+    if (pkg.empty()) return;
+    if (!mAppOrientLoaded) appOrientLoad();
+    if (value.empty() || value == "default") mAppOrient.erase(pkg);
+    else                                     mAppOrient[pkg] = value;
+    appOrientSave();
+    mLastOrientToken.clear();   // re-publish on the next orientationTick
+}
+
+void NanoMenu::orientationTick() {
+    // One-shot: default auto-rotation OFF in nano mode. The WM landscape clamp /
+    // force_orientation control only engages when accelerometer_rotation is 0,
+    // but the device may already have it set to 1. Home process only, guarded by
+    // a persist prop so it runs once and never fights a later user toggle. Done on
+    // a detached thread that retries until the write takes (the settings provider
+    // may not be ready on the first tick).
+    if (!mOverlayMode &&
+        !property_get_bool("persist.gammaos.nano.accel_seeded", false)) {
+        property_set("persist.gammaos.nano.accel_seeded", "1");
+        std::thread([]() {
+            for (int i = 0; i < 20; i++) {
+                system("settings put system accelerometer_rotation 0 2>/dev/null");
+                char b[32] = {};
+                FILE* f = popen("settings get system accelerometer_rotation 2>/dev/null", "r");
+                if (f) { if (fgets(b, sizeof(b), f)) {} pclose(f); }
+                if (b[0] == '0') break;
+                usleep(500000);
+            }
+        }).detach();
+    }
+
+    char nb[PROPERTY_VALUE_MAX] = {};
+    property_get("persist.gammaos.nano.orientation", nb, "landscape");
+    std::string nanoSetting = nb[0] ? std::string(nb) : std::string("landscape");
+
+    // Foreground context. nano is what the user sees when it holds the panel as
+    // the DRM-direct home (drm_active) or when the overlay is raised over an app
+    // (show_overlay). Otherwise an app owns the SurfaceFlinger display: resolve
+    // the top resumed package (empty = nano SF home with no app). app_launched is
+    // NOT used here - it is unreliable (stays 0/stale across the overlay handoff).
+    const bool overlayShown = property_get_bool("sys.gammaos.nano.show_overlay", false);
+    const bool drmActive    = property_get_bool("sys.gammaos.nano.drm_active", false);
+
+    std::string token;
+    if (overlayShown || drmActive) {
+        token = nanoSetting;                     // nano menu / overlay is foreground
+    } else {
+        // An app owns SurfaceFlinger. Identify it by the package nano launched -
+        // reliable and cheap, unlike the dumpsys foreground-resolver popen which
+        // returns empty from the parked overlay's render thread. Empty = fall back
+        // to nano's own setting.
+        char pb[PROPERTY_VALUE_MAX] = {};
+        property_get("sys.gammaos.nano.launched_pkg", pb, "");
+        std::string fg = pb;
+        if (fg.empty()) {
+            token = nanoSetting;
+        } else {
+            std::string ov = appOrientGet(fg);   // per-app override, else honor the app
+            token = ov.empty() ? std::string("none") : ov;
+        }
+    }
+
+    if (token != mLastOrientToken) {
+        mLastOrientToken = token;
+        property_set("sys.gammaos.nano.force_orientation", token.c_str());
+        ALOGI("nano: force_orientation=%s (overlay=%d drm_active=%d)",
+              token.c_str(), overlayShown ? 1 : 0, drmActive ? 1 : 0);
+    }
 }
 
 } // namespace android

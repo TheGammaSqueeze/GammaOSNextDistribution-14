@@ -6255,10 +6255,31 @@ void NanoMenu::openXmbOpt() {
             add("Start", "start", true); add("Information", "rominfo", false); break;
         case PS3_APP: {
             add("Start", "start", true); add("Information", "info", false);
+            const std::string& p = it.payloadStr;   // package name (set at buildAppSubmenu)
+            // Per-app Screen Orientation override. While this app is foreground nano
+            // enforces the chosen orientation (via sys.gammaos.nano.force_orientation);
+            // Default hands back to the app's own requested orientation. Offered for any
+            // real package so e.g. a portrait-only app can be pinned landscape.
+            if (!p.empty()) {
+                std::vector<Ps3OptSub> osub;
+                auto O = [](const char* l, const char* v) {
+                    Ps3OptSub s; s.label = l; s.kind = 3; s.orient = v; return s;
+                };
+                osub.push_back(O("Default", ""));
+                osub.push_back(O("Auto", "auto"));
+                osub.push_back(O("Landscape", "landscape"));
+                osub.push_back(O("Landscape (reverse)", "rev_landscape"));
+                osub.push_back(O("Portrait", "portrait"));
+                osub.push_back(O("Portrait (reverse)", "rev_portrait"));
+                std::string cur = appOrientGet(p);
+                int odef = 0;
+                for (size_t i = 0; i < osub.size(); i++)
+                    if (osub[i].orient == cur) { odef = (int)i; break; }
+                addSub("Orientation", false, osub, odef);
+            }
             // Uninstall is offered only for real user apps - never the launcher-shortcut
             // kind, and never the same excluded packages the Applications loader hides
             // (NanoMenuState.cpp): those are system/protected and must not be removed.
-            const std::string& p = it.payloadStr;   // package name (set at buildAppSubmenu)
             bool excl = p.empty()
                 || p == "com.retroarch.aarch64"
                 || p.rfind("com.android.",   0) == 0
@@ -6425,6 +6446,9 @@ void NanoMenu::xmbOptApplySub(const Ps3OptSub& sr) {
                 if (mPhotoGridList[i] == mPs3OptCtxA) { vi = (int)i; break; }
             if (!mPhotoGridList.empty()) pvSlideshowStart(mPhotoGridList, vi, style);
         }
+    } else if (sr.kind == 3) {     // Per-app orientation override (mPs3OptCtxPayload = package)
+        appOrientSet(mPs3OptCtxPayload, sr.orient);
+        closeXmbOpt();
     }
 }
 

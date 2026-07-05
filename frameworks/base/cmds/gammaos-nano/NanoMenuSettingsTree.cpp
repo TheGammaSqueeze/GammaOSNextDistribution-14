@@ -237,7 +237,11 @@ void NanoMenu::buildSettingsTree() {
       b.toggle("dark_theme", "Dark Theme",
                SettingSource::kSecure, "ui_night_mode", "2");
       b.toggle("auto_rotate", "Auto-Rotate",
-               SettingSource::kSystem, "accelerometer_rotation", "1");
+               SettingSource::kSystem, "accelerometer_rotation", "0");
+      b.list("nano_orientation", "Screen Orientation",
+             SettingSource::kProp, "persist.gammaos.nano.orientation", "landscape",
+             "auto:Auto,landscape:Landscape,rev_landscape:Landscape (reverse),"
+             "portrait:Portrait,rev_portrait:Portrait (reverse)");
       b.list("font_scale", "Font Size",
              SettingSource::kSystem, "font_scale", "1.0",
              "0.85:Small,1.0:Default,1.15:Large,1.30:Largest");
