@@ -2220,6 +2220,26 @@ public final class SystemServer implements Dumpable {
             }
             } // !minimalBoot: PersistentDataBlock through Smartspace
 
+            // GammaOS Nano: start the Device Policy Manager in minimal boot too, and
+            // crucially BEFORE NotificationManagerService below. Full boot starts it
+            // unconditionally inside the block above; in minimal boot it was only
+            // started later, from the WiFi opt-in block, which runs after NMS.
+            // NotificationManagerService.onStart builds VisibilityExtractor, which
+            // caches DevicePolicyManager at construction time, so a missing or late
+            // device_policy binder leaves that cache null and notification ranking
+            // NPEs on the first ranked notification. Starting it here keeps the
+            // binder present when NMS captures it.
+            if (minimalBoot && dpms == null) {
+                t.traceBegin("StartDevicePolicyManager");
+                try {
+                    dpms = mSystemServiceManager.startService(
+                            DevicePolicyManagerService.Lifecycle.class);
+                } catch (Throwable e) {
+                    Slog.w(TAG, "GammaOS Nano: DevicePolicyManager failed", e);
+                }
+                t.traceEnd();
+            }
+
             // GammaOS Nano: NotificationManager must start even in minimal boot —
             // many apps need it for foreground services (notification channels).
             if (minimalBoot) {
@@ -2763,13 +2783,19 @@ public final class SystemServer implements Dumpable {
                 } catch (Throwable e) {
                     Slog.e(TAG, "GammaOS Nano: CompanionDeviceManager failed", e);
                 }
-                try {
-                    Slog.i(TAG, "GammaOS Nano: starting DevicePolicyManager");
-                    mSystemServiceManager.startService(
-                            DevicePolicyManagerService.Lifecycle.class);
-                    Slog.i(TAG, "GammaOS Nano: DevicePolicyManager ready");
-                } catch (Throwable e) {
-                    Slog.e(TAG, "GammaOS Nano: DevicePolicyManager failed", e);
+                // DevicePolicyManager is now started earlier (before NMS); only
+                // start it here if that earlier start did not run, so the BT
+                // adapter's onCreate() still finds the binder without us
+                // double-registering the service.
+                if (dpms == null) {
+                    try {
+                        Slog.i(TAG, "GammaOS Nano: starting DevicePolicyManager");
+                        dpms = mSystemServiceManager.startService(
+                                DevicePolicyManagerService.Lifecycle.class);
+                        Slog.i(TAG, "GammaOS Nano: DevicePolicyManager ready");
+                    } catch (Throwable e) {
+                        Slog.e(TAG, "GammaOS Nano: DevicePolicyManager failed", e);
+                    }
                 }
                 // MediaSessionService: BT's AvrcpTargetService calls
                 // MediaSessionManager.addOnActiveSessionsChangedListener
@@ -2797,6 +2823,38 @@ public final class SystemServer implements Dumpable {
                 } catch (Throwable e) {
                     Slog.e(TAG, "GammaOS Nano: Bluetooth stack failed", e);
                 }
+            }
+
+            // GammaOS Nano: AppWidgetService must run in minimal boot too. It used
+            // to live inside the !minimalBoot "ColorDisplay through MediaSession"
+            // block, so with the feature still declared (android.software.app_widgets)
+            // the "appwidget" binder was absent and AppWidgetManager.getInstance()
+            // returned null, which crashes apps that build a widget path
+            // unconditionally (for example Firefox's first-run onboarding "add
+            // search widget" page). Start it at top level, whenever the feature is
+            // declared, so it runs in both minimal and full boot.
+            if (mPackageManager.hasSystemFeature(PackageManager.FEATURE_APP_WIDGETS)
+                    || context.getResources().getBoolean(R.bool.config_enableAppWidgetService)) {
+                t.traceBegin("StartAppWidgetService");
+                mSystemServiceManager.startService(APPWIDGET_SERVICE_CLASS);
+                t.traceEnd();
+            }
+
+            // GammaOS Nano: TrustManagerService must run in minimal boot too.
+            // KeyguardManager's constructor resolves the "trust" binder via
+            // ServiceManager.getServiceOrThrow(TRUST_SERVICE), so without it
+            // getSystemService(KeyguardManager.class) throws and returns null,
+            // which NPEs notification ranking (NotificationRecord.isKeyguardLocked).
+            // Full boot starts it inside the !minimalBoot block below; add a
+            // minimal-boot copy here without disturbing the full-boot ordering.
+            if (minimalBoot) {
+                t.traceBegin("StartTrustManager");
+                try {
+                    mSystemServiceManager.startService(TrustManagerService.class);
+                } catch (Throwable e) {
+                    Slog.w(TAG, "GammaOS Nano: TrustManager failed", e);
+                }
+                t.traceEnd();
             }
 
             if (!minimalBoot) { // GammaOS Nano: skip Serial through BackgroundInstall
@@ -2848,12 +2906,8 @@ public final class SystemServer implements Dumpable {
                 t.traceEnd();
             }
 
-            if (mPackageManager.hasSystemFeature(PackageManager.FEATURE_APP_WIDGETS)
-                    || context.getResources().getBoolean(R.bool.config_enableAppWidgetService)) {
-                t.traceBegin("StartAppWidgetService");
-                mSystemServiceManager.startService(APPWIDGET_SERVICE_CLASS);
-                t.traceEnd();
-            }
+            // AppWidgetService is started earlier, before the !minimalBoot block,
+            // so it also runs in minimal boot; see the note there.
 
             // We need to always start this service, regardless of whether the
             // FEATURE_VOICE_RECOGNIZERS feature is set, because it needs to take care
