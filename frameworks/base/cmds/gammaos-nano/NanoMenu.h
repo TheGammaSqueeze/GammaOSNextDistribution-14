@@ -676,6 +676,12 @@ private:
     // reads in mapOrientationRequest. appOrientGet returns the stored override
     // for a package (empty = none). See NanoMenuOrientation.cpp.
     void orientationTick();
+    // SF overlay only: keep the overlay's render surface sized to the display's
+    // current logical size, so when nano forces a portrait orientation the XMB
+    // reflows to a real portrait layout instead of a rotated/truncated landscape
+    // one. Queries the display's layerStackSpaceRect each shown frame and resizes
+    // the SurfaceControl buffers + mWidth/mHeight when it changes.
+    void overlayUpdateSurfaceSize();
     std::string appOrientGet(const std::string& pkg);
     void appOrientSet(const std::string& pkg, const std::string& value);
     void appOrientLoad();

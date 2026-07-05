@@ -3647,6 +3647,10 @@ if (sRingPrimedCount >= 2) {
                 }
                 continue;
             }
+            // Overlay is shown: keep our render surface matched to the display's
+            // current logical size so a forced portrait orientation reflows the XMB
+            // to a real portrait layout (not a rotated/truncated landscape one).
+            overlayUpdateSurfaceSize();
         }
 
         // GammaOS: Drastic Nano cache-wait + restart. When

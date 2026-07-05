@@ -60,6 +60,7 @@
 #include <utils/Log.h>
 #include <utils/SystemClock.h>
 
+#include <ui/DisplayState.h>   // ui::DisplayState for overlayUpdateSurfaceSize
 #include <gui/Surface.h>
 #include <gui/SurfaceComposerClient.h>
 #include <gui/SurfaceControl.h>
@@ -1392,6 +1393,26 @@ void NanoMenu::appOrientSet(const std::string& pkg, const std::string& value) {
     else                                     mAppOrient[pkg] = value;
     appOrientSave();
     mLastOrientToken.clear();   // re-publish on the next orientationTick
+}
+
+void NanoMenu::overlayUpdateSurfaceSize() {
+    if (!mOverlayMode || mDisplayToken == nullptr || mFlingerSurface == nullptr) return;
+    ui::DisplayState state;
+    if (SurfaceComposerClient::getDisplayState(mDisplayToken, &state) != NO_ERROR) return;
+    const int lw = (int)state.layerStackSpaceRect.getWidth();
+    const int lh = (int)state.layerStackSpaceRect.getHeight();
+    if (lw <= 0 || lh <= 0) return;
+    if (lw == mWidth && lh == mHeight) return;   // display logical size unchanged
+    // The display's logical size changed (a rotation, e.g. nano forced portrait).
+    // Resize our SurfaceControl buffers to match so SF composites us upright and
+    // the per-frame ps3::layoutComputeNative(mWidth,mHeight) reflows the XMB to the
+    // new aspect (ORIENT_AUTO picks portrait when height > width). mWidth/mHeight
+    // also drive glViewport in the render path, so this is all that is needed.
+    mFlingerSurface->setBuffersDimensions((uint32_t)lw, (uint32_t)lh);
+    ALOGI("nano overlay: display logical size %dx%d -> resized surface (was %dx%d)",
+          lw, lh, mWidth, mHeight);
+    mWidth = lw; mHeight = lh;
+    mDisplayDirty = true;
 }
 
 void NanoMenu::orientationTick() {
