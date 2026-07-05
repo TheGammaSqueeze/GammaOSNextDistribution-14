@@ -54,8 +54,9 @@ static const Ps3DataItem kScraperSettingsCh[] = {
   {"Overwrite Existing",22,"Re-download art for games that have already been scraped.","Off",1,nullptr,0},
   {"ScreenScraper Username",22,"Optional ScreenScraper account for higher download limits. Register free at screenscraper.fr.",nullptr,1,nullptr,0},
   {"ScreenScraper Password",22,"Password for the ScreenScraper account above.",nullptr,1,nullptr,0},
-  {"ScreenScraper Dev ID",22,"ScreenScraper developer ID. Required by the service; request one at screenscraper.fr.",nullptr,1,nullptr,0},
-  {"ScreenScraper Dev Password",22,"ScreenScraper developer password paired with the developer ID.",nullptr,1,nullptr,0},
+  // ScreenScraper developer credentials (ssdevid/ssdevpw) ship as build defaults,
+  // like ES-DE, so scraping works out of the box and users never enter them - only
+  // the optional account above (ssuser/sspass) for a higher quota. Not in the UI.
   {"TheGamesDB API Key",22,"API key for TheGamesDB. Request one at thegamesdb.net.",nullptr,1,nullptr,0},
   {"Scrape All Systems",22,"Fetch box art and background art for every enabled game system now.",nullptr,1,nullptr,0},
 };

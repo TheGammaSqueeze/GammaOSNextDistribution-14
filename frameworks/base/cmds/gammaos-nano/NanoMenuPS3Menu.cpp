@@ -4721,8 +4721,10 @@ static const Ps3SettingBinding kPs3Bindings[] = {
     {"PEQ2 Band 0", SettingSource::kProp, "persist.sys.spk.peq2.b0", "1.0", "slider:0:3:0.05:2"},
     {"PEQ2 Band 1", SettingSource::kProp, "persist.sys.spk.peq2.b1", "0", "slider:-4:4:0.05:2"},
     {"PEQ2 Band 2", SettingSource::kProp, "persist.sys.spk.peq2.b2", "0", "slider:0:2:0.05:2"},
-    // Boxart / cover scraper (persist.gammaos.scraper.* props). Credentials are
-    // user-supplied (both services require an account/key); "@password" masks them.
+    // Boxart / cover scraper (persist.gammaos.scraper.* props). The ScreenScraper
+    // developer credentials (ssdevid/ssdevpw) ship as build defaults, like ES-DE,
+    // so they are NOT exposed here; users only optionally add their own account
+    // (ssuser/sspass) for a higher quota, or a TheGamesDB API key. "@password" masks.
     {"Scraper", SettingSource::kProp, "persist.gammaos.scraper.engine", "screenscraper",
      "screenscraper:ScreenScraper,thegamesdb:TheGamesDB"},
     {"IPTV Channels", SettingSource::kProp, "persist.gammaos.nano.iptv", "true", "false:Off,true:On"},
@@ -4736,8 +4738,6 @@ static const Ps3SettingBinding kPs3Bindings[] = {
     {"Overwrite Existing", SettingSource::kProp, "persist.gammaos.scraper.overwrite", "false", "false:Off,true:On"},
     {"ScreenScraper Username", SettingSource::kProp, "persist.gammaos.scraper.ssuser", "", "@text"},
     {"ScreenScraper Password", SettingSource::kProp, "persist.gammaos.scraper.sspass", "", "@password"},
-    {"ScreenScraper Dev ID", SettingSource::kProp, "persist.gammaos.scraper.ssdevid", "", "@text"},
-    {"ScreenScraper Dev Password", SettingSource::kProp, "persist.gammaos.scraper.ssdevpw", "", "@password"},
     {"TheGamesDB API Key", SettingSource::kProp, "persist.gammaos.scraper.tgdbkey", "", "@password"},
 };
 
