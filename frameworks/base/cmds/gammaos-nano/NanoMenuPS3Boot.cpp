@@ -60,11 +60,12 @@ static const double BOOT_SEQ_END_MS  = 16900.0;  // hand-off complete
 
 static const float EDGE_W = 1.6f;                // logo wipe soft-edge lead
 
-static const char* kWarnTitle = "PHOTOSENSITIVE EPILEPSY";
+static const char* kWarnTitle = "IMPORTANT NOTICE";
 static const char* kWarnBody =
-    "IF YOU HAVE A HISTORY OF EPILEPSY OR SEIZURES, CONSULT A DOCTOR BEFORE USE. "
-    "CERTAIN PATTERNS MAY TRIGGER SEIZURES WITH NO PRIOR HISTORY. BEFORE USING "
-    "THIS PRODUCT, CAREFULLY READ THE INSTRUCTION MANUAL.";
+    "GAMMAOS IS PROVIDED \"AS IS\", WITHOUT WARRANTY OR SUPPORT OF ANY KIND. "
+    "THE DEVELOPERS ASSUME NO LIABILITY FOR HARDWARE DAMAGE, INOPERABLE DEVICES "
+    "OR DATA LOSS DURING INSTALLATION OR USE. BY USING THIS SOFTWARE, YOU ACCEPT "
+    "THESE RISKS.";
 
 static inline float bootRamp(double e, double a, double b) {
     if (b <= a) return e >= b ? 1.0f : 0.0f;
