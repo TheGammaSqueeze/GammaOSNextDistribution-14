@@ -6322,6 +6322,13 @@ void NanoMenu::openXmbOpt() {
             add("Delete", "fedelete", false);
             add("Information", "feinfo", false); break;
         }
+        // Imported media folders ("Search for Media Servers") and game scan
+        // sources: surface the removal that was previously only on the hidden Y
+        // shortcut, so it is discoverable in the option menu like everything else.
+        case PS3_MUSIC_FOLDER_ROW: add("Remove Folder", "rmmusicfolder", true); break;
+        case PS3_VIDEO_FOLDER_ROW: add("Remove Folder", "rmvideofolder", true); break;
+        case PS3_PHOTO_FOLDER_ROW: add("Remove Folder", "rmphotofolder", true); break;
+        case PS3_GS_SCANSRC:       add("Remove Source", "rmscansrc",     true); break;
         default:
             add("Information", "info", false); break;
     }
@@ -6423,6 +6430,11 @@ void NanoMenu::xmbOptApplySub(const Ps3OptSub& sr) {
 
 void NanoMenu::xmbOptAction(const std::string& act) {
     if (act.size() >= 2 && act[0] == 'f' && act[1] == 'e') { feAction(act); return; }   // File Explorer ops
+    // Imported-media / scan-source folder removal (mPs3OptCtxA is the folder index).
+    if (act == "rmmusicfolder") { musicRemoveFolder(mPs3OptCtxA); return; }
+    if (act == "rmvideofolder") { videoRemoveFolder(mPs3OptCtxA); return; }
+    if (act == "rmphotofolder") { photoRemoveFolder(mPs3OptCtxA); return; }
+    if (act == "rmscansrc")     { gsRemoveScanSource(mPs3OptCtxA); return; }
     if (act == "info") {
         // Fullscreen info page. For a music track, show the FULL tag set (probed
         // fresh so genre/year/track are included even if not stored in the library);
