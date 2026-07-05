@@ -277,9 +277,16 @@ std::string NanoMenu::overlayResolveForegroundPkg() {
         }
         pclose(f);
     }
-    // Never target ourselves or the system; require a real package name with a dot.
+    // Never target the system; require a real package name with a dot. Do NOT
+    // filter the whole "gammaos" namespace: the overlay is a separate --overlay
+    // instance of this cc_binary with no package identity, so it can never be a
+    // ResumedActivity, while com.gammaos.browser and com.gammaos.drasticsf are
+    // real foreground apps that MUST be recognized here (otherwise the launch
+    // handoff never sees them come to the front and the overlay only clears via
+    // its 12s backstop, leaving the app hidden behind the XMB). quickKillApps
+    // keeps its own independent gammaos kill-protection, so nothing gammaos gets
+    // force-stopped by dropping the substring here.
     if (pkg[0] == '\0' || strchr(pkg, '.') == nullptr ||
-        strstr(pkg, "gammaos") != nullptr ||
         strcmp(pkg, "android") == 0 ||
         strncmp(pkg, "com.android.systemui", 20) == 0) {
         return std::string();
