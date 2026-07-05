@@ -5627,32 +5627,47 @@ public class WindowManagerService extends IWindowManager.Stub
                 public void run() {
                     final String v = SystemProperties.get(
                             "sys.gammaos.nano.force_orientation", "");
-                    if (!v.equals(mLastNanoForceOrientation)) {
-                        mLastNanoForceOrientation = v;
-                        Slog.i(TAG, "GammaOS Nano: force_orientation=" + v
-                                + ", applying display orientation");
-                        synchronized (mGlobalLock) {
-                            final DisplayContent dc = mRoot.getDefaultDisplay();
-                            if (dc != null) {
-                                final int so = nanoScreenOrientation(v);
-                                if (so == ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED) {
-                                    // none / auto: hand orientation back to the app. Do NOT
-                                    // thawRotation here - thaw switches to USER_ROTATION_FREE,
-                                    // which turns accelerometer_rotation back on and breaks the
-                                    // auto-rotate-off default. With setIgnoreOrientationRequest
-                                    // (false) an app that requests a fixed orientation still wins
-                                    // (it overrides the locked user rotation), and an unspecified
-                                    // app keeps the last locked rotation - no sensor, no flap.
+                    final boolean tokenChanged = !v.equals(mLastNanoForceOrientation);
+                    synchronized (mGlobalLock) {
+                        final DisplayContent dc = mRoot.getDefaultDisplay();
+                        if (dc != null) {
+                            final int so = nanoScreenOrientation(v);
+                            // Re-assert the state EVERY tick, not just on a token change: an
+                            // overlay show/hide can transiently hand the display back to the
+                            // app (none) and let it rotate, and the token can flip back to the
+                            // same value between polls, so a change-only poll would leave the
+                            // display drifted. We only do the expensive re-eval when the state
+                            // actually needs correcting, so the steady state is just two reads.
+                            boolean apply = false;
+                            if (so == ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED) {
+                                // none / auto: hand orientation back to the app. Do NOT
+                                // thawRotation - thaw switches to USER_ROTATION_FREE, turning
+                                // accelerometer_rotation back on and breaking auto-rotate-off.
+                                // With ignore-orientation-request off, a fixed-orientation app
+                                // wins and an unspecified app keeps the last locked rotation.
+                                if (dc.getIgnoreOrientationRequest()) {
                                     dc.setIgnoreOrientationRequest(false);
-                                } else {
-                                    // Force the DISPLAY to this orientation and letterbox any
-                                    // app that cannot match, so it stays visible. rotationFor-
-                                    // Orientation makes the target rotation panel-correct.
+                                    apply = true;
+                                }
+                            } else {
+                                // Force the DISPLAY to this orientation and letterbox any app
+                                // that cannot match, so it stays visible. rotationForOrientation
+                                // makes the target rotation panel-correct.
+                                final int rot = dc.getDisplayRotation()
+                                        .rotationForOrientation(so, dc.getRotation());
+                                if (!dc.getIgnoreOrientationRequest()) {
                                     dc.setIgnoreOrientationRequest(true);
-                                    final int rot = dc.getDisplayRotation()
-                                            .rotationForOrientation(so, dc.getRotation());
-                                    dc.getDisplayRotation().freezeRotation(
-                                            rot, "nano-orientation");
+                                    apply = true;
+                                }
+                                if (dc.getRotation() != rot) {
+                                    dc.getDisplayRotation().freezeRotation(rot, "nano-orientation");
+                                    apply = true;
+                                }
+                            }
+                            if (apply || tokenChanged) {
+                                if (tokenChanged) {
+                                    Slog.i(TAG, "GammaOS Nano: force_orientation=" + v
+                                            + ", applying display orientation");
                                 }
                                 boolean cfg = dc.updateOrientation();
                                 if (dc.updateRotationUnchecked()) cfg = true;
@@ -5660,6 +5675,7 @@ public class WindowManagerService extends IWindowManager.Stub
                             }
                         }
                     }
+                    mLastNanoForceOrientation = v;
                     mH.postDelayed(this, 200);
                 }
             };
