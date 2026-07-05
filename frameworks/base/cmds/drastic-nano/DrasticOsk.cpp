@@ -338,15 +338,19 @@ void DrasticOsk::activate() {
 
 void DrasticOsk::onBackspace() {
     if (!mActive) return;
-    if (mCaret <= 0 || mBuffer.empty()) {
-        // Nothing to delete: B on an empty buffer cancels the keyboard.
-        if (mBuffer.empty()) close();
-        return;
-    }
+    // Nothing to delete: do nothing. The keyboard is NEVER dismissed by a
+    // backspace on an empty buffer - it closes only via B (cancel) or
+    // Start/Enter (submit), matching the gammaos-nano OSK.
+    if (mCaret <= 0 || mBuffer.empty()) return;
     if (mCaret > (int)mBuffer.size()) mCaret = (int)mBuffer.size();
     int start = utf8PrevStart(mBuffer, mCaret);
     mBuffer.erase((size_t)start, (size_t)(mCaret - start));
     mCaret = start;
+}
+
+void DrasticOsk::submit() {   // Start / Enter shortcut: commit regardless of focus
+    if (!mActive) return;
+    commit();
 }
 
 void DrasticOsk::toggleShift() {

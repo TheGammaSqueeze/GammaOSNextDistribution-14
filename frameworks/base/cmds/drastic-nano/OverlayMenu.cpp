@@ -823,7 +823,8 @@ void OverlayMenu::update(const drastic_input::InputActions& a,
 
     // On-screen keyboard active: route all navigation to it. The
     // hold-to-repeat scheduler drives the key cursor (fireNav forwards to
-    // mOsk.moveCursor); A presses the focused key, B backspaces / cancels.
+    // mOsk.moveCursor). Buttons mirror the gammaos-nano OSK: A presses the
+    // focused key, X backspaces, B dismisses, Start submits, L/R = Shift/Sym.
     if (mOsk.active()) {
         NavDir held = NavDir::None;
         if (a.navUpHeld)         held = NavDir::Up;
@@ -836,8 +837,10 @@ void OverlayMenu::update(const drastic_input::InputActions& a,
         } else {
             tickNavRepeat();
         }
-        if (a.navAccept) mOsk.activate();
-        if (a.navCancel) mOsk.onBackspace();
+        if (a.navAccept) mOsk.activate();       // A = press the focused key
+        if (a.navX)      mOsk.onBackspace();    // X = backspace (matches gammaos-nano)
+        if (a.navCancel) mOsk.close();          // B = dismiss the keyboard (no commit)
+        if (a.navStart)  mOsk.submit();         // Start = submit the text
         if (a.navPrevTab) mOsk.toggleShift();   // L = Shift
         if (a.navNextTab) mOsk.toggleSym();     // R = Sym page
 

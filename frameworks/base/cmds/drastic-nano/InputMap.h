@@ -168,6 +168,8 @@ struct InputActions {
     bool navCancel = false;  // B
     bool navNextTab = false; // R / R1
     bool navPrevTab = false; // L / L1
+    bool navX = false;       // X (BTN_NORTH) - OSK backspace
+    bool navStart = false;   // Start - OSK submit
 
     // Held LEVEL of the dpad/stick directions (true the whole time the
     // direction is down, not just on the press edge). The overlay

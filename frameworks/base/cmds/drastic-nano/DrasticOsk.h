@@ -41,6 +41,7 @@ public:
     void onBackspace();                 // B: delete a char / cancel if empty
     void toggleShift();                 // L shortcut
     void toggleSym();                   // R shortcut
+    void submit();                      // Start/Enter: commit the text
 
     // Touchscreen input on the bottom DS panel. (nx, ny) are normalized panel
     // coordinates in [0,1]. touchMove moves the focus to the key/button under
