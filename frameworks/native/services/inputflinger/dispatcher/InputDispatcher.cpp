@@ -1129,8 +1129,17 @@ void InputDispatcher::dispatchOnceInnerLocked(nsecs_t& nextWakeupTime) {
             // GammaOS Nano: clear the boolean gate on focus GAIN so notifyKey()
             // stops blocking new events. The timestamp fence independently
             // handles stale pre-transition events in the dispatch path.
+            // Do NOT clear it while the XMB overlay is up (show_overlay=1): a
+            // display reconfiguration (e.g. an orientation change) re-focuses the
+            // app underneath and would otherwise clear drop_input mid-overlay,
+            // letting that app double-receive the input nano is already reading
+            // from evdev. show_overlay=1 lasts the whole overlay session and is
+            // cleared together with drop_input by nano's overlayHide(), so this
+            // gate never blocks a legitimate app launch or resume (those run with
+            // show_overlay=0/unset).
             if (typedEntry->hasFocus &&
-                android::base::GetBoolProperty("sys.gammaos.nano.drop_input", false)) {
+                android::base::GetBoolProperty("sys.gammaos.nano.drop_input", false) &&
+                !android::base::GetBoolProperty("sys.gammaos.nano.show_overlay", false)) {
                 android::base::SetProperty("sys.gammaos.nano.drop_input", "0");
             }
             break;
