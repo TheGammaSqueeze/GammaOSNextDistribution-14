@@ -8,6 +8,21 @@ service gammaos_on_boot /system/bin/gammaos-on-boot.sh
     oneshot
     disabled
 
+# Portrait-native mode (default OFF): apply the SurfaceFlinger orientation flip
+# only when the persisted prop is set. This trigger fires when persistent
+# properties are read (post-fs-data), which is after post-fs (where the prop is
+# still empty) and before surfaceflinger starts, so exec_start runs the resetprop
+# synchronously before SF reads the orientation. Runs in gammaos-on-boot.sh's
+# phhsu_daemon domain, which can write the property area. The wildcard matches any
+# value (portrait / 0 / 90 / 180 / 270 for per-device tuning); the script itself
+# no-ops on an unrecognised value, so `landscape`/`normal`/unset stay default.
+service gammaos_orient /system/bin/gammaos-on-boot.sh --orient
+    oneshot
+    disabled
+
+on property:persist.gammaos.nano.natural_orientation=*
+    exec_start gammaos_orient
+
 on property:apexd.status=activated
     start adbd
 

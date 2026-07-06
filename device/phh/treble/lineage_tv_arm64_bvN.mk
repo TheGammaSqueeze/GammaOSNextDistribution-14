@@ -19,6 +19,11 @@ PRODUCT_PACKAGES += \
     audio.sysbta.default \
     android.hardware.bluetooth.audio-service-system
 
+# resetprop_phh: writes write-once ro. props directly (used by gammaos-on-boot.sh
+# to flip the SurfaceFlinger primary display orientation for portrait-native mode).
+PRODUCT_PACKAGES += \
+    resetprop_phh
+
 # GammaOS packages
 PRODUCT_PACKAGES += \
     JoystickLedPicker \
