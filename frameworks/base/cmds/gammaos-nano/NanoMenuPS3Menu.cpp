@@ -590,6 +590,8 @@ enum {
     QA_APP_STORAGE,      // App Information: drill into the Storage submenu
     QA_APP_PERMS,        // App Information: drill into the Permissions submenu
     QA_QUICK_RESUME_TOGGLE,// toggle Quick Resume (save+resume the last game across power off/reboot)
+    QA_APP_ORIENT_MENU,  // overlay: open the per-app Orientation submenu for the foreground app
+    QA_APP_ORIENT_SET,   // overlay: apply it.value orientation token to the foreground app
 };
 
 void NanoMenu::buildPs3Cats() {
@@ -624,6 +626,14 @@ void NanoMenu::buildPs3Cats() {
         qItem("Quick Settings",      QA_QUICK_SETTINGS, 21);
         qItem("Notifications",       QA_NOTIFICATIONS,  16);
         qItem("Close Current App",   QA_CLOSE_APP,     24);
+        // Orientation: override the FOREGROUND app's orientation live. Only shown when
+        // the overlay is raised over an actual app (launched_pkg set); never at the home
+        // where there is no foreground app to target.
+        if (mOverlayMode) {
+            char lp[PROPERTY_VALUE_MAX] = {};
+            property_get("sys.gammaos.nano.launched_pkg", lp, "");
+            if (lp[0]) qItem("Orientation", QA_APP_ORIENT_MENU, 16);
+        }
         qItem("Kill Background Apps", QA_KILL_BG,       49);
         qItem("Kill All Apps",       QA_KILL_ALL,      25);
         // Quick Resume: a top-level toggle with an explanatory subtitle (it.desc,
@@ -810,6 +820,37 @@ void NanoMenu::buildQuickPowerSubmenu(Ps3Level& out) {
     q("Boot Android", QA_BOOT_ANDROID, 44);   // android robot
 }
 
+// Overlay-only per-app Orientation submenu: lets the user override the FOREGROUND
+// app's orientation live. Rows carry the token in it.value; QA_APP_ORIENT_SET writes
+// it via appOrientSet(launched_pkg, token) - the same persisted per-app override the
+// Applications Triangle menu uses. "Default" (empty token) erases the override and
+// hands the app back its own requested orientation. The chosen orientation takes
+// visible effect when the overlay is dismissed (the app cannot be seen rotating under
+// the opaque overlay). Preselect the row matching the app's current override.
+void NanoMenu::buildAppOrientSubmenu(Ps3Level& out) {
+    out.items.clear(); out.sel = 0; out.title = "Orientation";
+    char pb[PROPERTY_VALUE_MAX] = {};
+    property_get("sys.gammaos.nano.launched_pkg", pb, "");
+    std::string cur = pb[0] ? appOrientGet(std::string(pb)) : std::string();
+    struct { const char* label; const char* token; int icon; } rows[] = {
+        {"Default",             "",             22},
+        {"Auto",                "auto",         16},
+        {"Landscape",           "landscape",    16},
+        {"Landscape (reverse)", "rev_landscape",16},
+        {"Portrait",            "portrait",     16},
+        {"Portrait (reverse)",  "rev_portrait", 16},
+    };
+    for (size_t i = 0; i < sizeof(rows) / sizeof(rows[0]); i++) {
+        Ps3Item it; it.label = rows[i].label; it.kind = PS3_QUICK;
+        // Carry the token in payloadStr (not value) so it is NOT rendered in the row's
+        // right-hand value column - the label already says which orientation it is.
+        it.a = QA_APP_ORIENT_SET; it.payloadStr = rows[i].token;
+        it.nmapTex = nmapForIcon(rows[i].icon); it.iconR = it.iconG = it.iconB = 1.0f;
+        if (cur == rows[i].token) out.sel = (int)i;
+        out.items.push_back(it);
+    }
+}
+
 // Quick Menu -> Quick Settings submenu: the custom GammaOS Quick Settings tiles
 // surfaced as XMB options. Toggle/cycle/slider rows are PS3_DATA_LEAF bound to a
 // kPs3Bindings entry (A opens the side-panel chooser, the row shows the live value);
@@ -833,7 +874,9 @@ const QsTileMap kQsTileMap[] = {
     {"gammashader",      "GammaShader",         "CRT Shader",             -1, 16},
     {"gammargb",         "GammaRGB",            "Effect",                 -1, 16},
     {"gammaeq",          "GammaEQ",             "Enable EQ",              -1, 16},
-    {"rotation",         "Auto-Rotate",         nullptr,                  -1, 16},
+    // "rotation" (auto-rotate) tile intentionally omitted: orientation is controlled
+    // by Settings > Display > Screen Orientation (its "Auto" value), the single owner
+    // of accelerometer_rotation. A raw auto-rotate tile here would desync with it.
     {"screenmap",        "Screen Map",          nullptr,                  -1, 16},
     {"deepsleepmode",    "Deep Sleep Mode",     "Ultra Low Power Saving", -1, 16},
     {"externaldocking",  "External as Primary", nullptr,                  -1, 16},
@@ -2633,6 +2676,7 @@ void NanoMenu::ps3XmbSelect() {
             switch (it.a) {
                 case QA_RESUME_AUDIO: resumeMusicPlayer(); return;   // reopen Now-Playing on the live queue
                 case QA_POWER_SUBMENU: { Ps3Level lvl; buildQuickPowerSubmenu(lvl); mPs3Stack.push_back(lvl); break; }
+                case QA_APP_ORIENT_MENU: { Ps3Level lvl; buildAppOrientSubmenu(lvl); mPs3Stack.push_back(lvl); break; }
                 case QA_QUICK_SETTINGS: { Ps3Level lvl; buildQuickSettingsSubmenu(lvl); mPs3Stack.push_back(lvl); break; }
                 case QA_NOTIFICATIONS:  { Ps3Level lvl; buildNotificationsSubmenu(lvl);  mPs3Stack.push_back(lvl); break; }
                 case QA_GAMEPAD_MENU:   { Ps3Level lvl; buildGamepadSubmenu(lvl);       mPs3Stack.push_back(lvl); break; }
@@ -2675,6 +2719,25 @@ void NanoMenu::ps3XmbSelect() {
                 case QA_FF_DEVICE_SET: {
                     writeSettingValue(SettingSource::kProp, "persist.gammaos.gamepad.ff_vibrate_device", it.value);
                     property_set("persist.gammaos.gamepad.full_reload", "1");   // FF device rebind
+                    if (!mPs3Stack.empty()) {
+                        mPs3SubChildItems = mPs3Stack.back().items;
+                        mPs3Stack.pop_back();
+                        mPs3SubParentItems = ps3CurItems(); mPs3SubParentIdx = ps3CurSel();
+                        mPs3SubDir = -1; mPs3SubAnimStart = mEffectTime; mPs3SubAnim = 1.0f;
+                        mPs3AnimItem = (float)ps3CurSel(); mPs3ItemAnimStart = -1.0f;
+                    }
+                    mDisplayDirty = true; return;
+                }
+                case QA_APP_ORIENT_SET: {
+                    // Apply the chosen orientation to the CURRENT foreground app. Re-read
+                    // launched_pkg at apply time (never cache across the menu open).
+                    // appOrientSet writes nano_app_orient.json and clears mLastOrientToken
+                    // so the next orientationTick republishes force_orientation; the app
+                    // re-clamps the instant the overlay is dismissed. Then collapse back to
+                    // the Quick Menu with the standard submenu animation (as QA_FF_DEVICE_SET).
+                    char lp[PROPERTY_VALUE_MAX] = {};
+                    property_get("sys.gammaos.nano.launched_pkg", lp, "");
+                    if (lp[0]) appOrientSet(std::string(lp), it.payloadStr);
                     if (!mPs3Stack.empty()) {
                         mPs3SubChildItems = mPs3Stack.back().items;
                         mPs3Stack.pop_back();
@@ -4151,8 +4214,35 @@ void NanoMenu::drawPs3Clock(float fadeMul) {
     const char* timeStr = mPs3ClockStr;
 
     const float shiftV = ps3::VW * (ps3::LAYOUT_FIT - 1.0f);   // right-anchor
-    auto cx = [&](float vx) { return ps3::devX(vx + shiftV); };
-    float clockDY = (ps3::frameTopV() < 0.0f) ? (ps3::frameTopV() + 40.0f - ps3::CLOCK_FRAME_Y) : 0.0f;
+    // PORTRAIT: the clock is right-anchored to the visible frame's right edge, but the
+    // menu-size zoom (mPs3UiScale) pushes that edge PAST the panel right edge, so the
+    // clock slid off-screen to the RIGHT (the horizontal twin of the clockDY vanish
+    // below). Pin the clock frame's right edge (cx(VW+4)) to a small inset inside the
+    // PANEL right edge instead: solve devX(VW + 4 + shiftV + clockDX) == mWidth - inset.
+    // Only in the zoomed/tall-frame case (frameTopV < 0); landscape keeps clockDX = 0.
+    float clockDX = 0.0f;
+    if (ps3::frameTopV() < 0.0f && ps3::gScale > 0.0f) {
+        const float inset = ps3::devS(8.0f);
+        clockDX = ((float)mWidth - inset - ps3::gOffX) / ps3::gScale
+                  - (ps3::VW + 4.0f + shiftV);
+    }
+    auto cx = [&](float vx) { return ps3::devX(vx + shiftV + clockDX); };
+    // PORTRAIT: the visible frame extends above the virtual design (frameTopV < 0),
+    // so raise the clock toward the top of the frame (top edge ~40px below the frame
+    // top) instead of leaving it floating in the middle (web drawClock). The web pins
+    // it to frameTopV()+40 because there the frame top IS the panel top. nano's
+    // menu-size zoom (mPs3UiScale, default 1.12) enlarges the menu about the VISIBLE
+    // FRAME CENTRE, which pushes the tall portrait frame's top far above the panel;
+    // anchoring the clock to that zoomed frame top drove it off-screen (it vanished
+    // entirely in portrait). Pin the clock frame top to a small margin below the
+    // PANEL top instead: solve devY(CLOCK_FRAME_Y + clockDY) == 40*gScale, i.e.
+    // clockDY = 40 - CLOCK_FRAME_Y - gOffY/gScale. At uiScale 1.0 (and any native-fill
+    // panel) this reduces exactly to frameTopV()+40-CLOCK_FRAME_Y, so the web result
+    // is unchanged; only the zoomed portrait case is brought back on-screen. Landscape
+    // (frameTopV() >= 0) keeps clockDY = 0 as before.
+    float clockDY = (ps3::frameTopV() < 0.0f && ps3::gScale > 0.0f)
+        ? (40.0f - ps3::CLOCK_FRAME_Y - ps3::gOffY / ps3::gScale)
+        : 0.0f;
     auto cy = [&](float vy) { return ps3::devY(vy + clockDY); };
 
     float dxL = cx(ps3::CLOCK_FRAME_X);
@@ -4545,7 +4635,13 @@ static const Ps3SettingBinding kPs3Bindings[] = {
     {"Battery Percentage", SettingSource::kSystem, "status_bar_show_battery_percent", "0", "0:Off,1:On"},
     {"Battery Saver", SettingSource::kGlobal, "low_power", "0", "0:Off,1:On"},
     {"Dark Theme", SettingSource::kSecure, "ui_night_mode", "1", "1:Off,2:On"},
-    {"Auto-Rotate", SettingSource::kSystem, "accelerometer_rotation", "1", "0:Off,1:On"},
+    // nano's own home/menu orientation, and the SINGLE control for auto-rotate.
+    // Publishes persist.gammaos.nano.orientation; writeSettingValue couples it to
+    // accelerometer_rotation ("auto"->on, fixed->off) and orientationTick maps it to
+    // sys.gammaos.nano.force_orientation for the WM to force via mapOrientationRequest.
+    {"Screen Orientation", SettingSource::kProp, "persist.gammaos.nano.orientation", "landscape",
+     "auto:Auto,landscape:Landscape,rev_landscape:Landscape (reverse),"
+     "portrait:Portrait,rev_portrait:Portrait (reverse)"},
     // Developer Options
     {"USB Debugging", SettingSource::kGlobal, "adb_enabled", "0", "0:Off,1:On"},
     {"Stay Awake While Charging", SettingSource::kGlobal, "stay_on_while_plugged_in", "0", "0:Off,7:On"},

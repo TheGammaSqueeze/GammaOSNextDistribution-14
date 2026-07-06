@@ -236,8 +236,10 @@ void NanoMenu::buildSettingsTree() {
              "1800000:30 minutes,-1:Never");
       b.toggle("dark_theme", "Dark Theme",
                SettingSource::kSecure, "ui_night_mode", "2");
-      b.toggle("auto_rotate", "Auto-Rotate",
-               SettingSource::kSystem, "accelerometer_rotation", "0");
+      // Screen Orientation is the single control for accelerometer_rotation (its
+      // "Auto" value enables the sensor), so no separate Auto-Rotate toggle - two
+      // controls on the same key desync (Auto-Rotate On silently overrides a fixed
+      // orientation because WMS short-circuits when isAutoRotationEnabled()).
       b.list("nano_orientation", "Screen Orientation",
              SettingSource::kProp, "persist.gammaos.nano.orientation", "landscape",
              "auto:Auto,landscape:Landscape,rev_landscape:Landscape (reverse),"
@@ -852,6 +854,15 @@ void writeSettingValue(SettingSource src, const std::string& key,
     }
     default:
         break;
+    }
+    // GammaOS Nano orientation: the Screen Orientation setting is the SINGLE control
+    // for accelerometer_rotation (there is no separate Auto-Rotate toggle). "auto"
+    // enables the sensor; any fixed orientation disables it so the nano force
+    // (WMS mapOrientationRequest) engages. Recursion is safe - the inner write's key
+    // is accelerometer_rotation, which does not match this guard.
+    if (src == SettingSource::kProp && key == "persist.gammaos.nano.orientation") {
+        writeSettingValue(SettingSource::kSystem, "accelerometer_rotation",
+                          (val == "auto") ? "1" : "0");
     }
     // The gammapad daemon watches persist.gammaos.gamepad.config_version (it polls
     // it every ~1s) and does a lightweight transform reload when it changes. Every

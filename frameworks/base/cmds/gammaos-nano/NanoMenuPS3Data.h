@@ -182,7 +182,7 @@ static const Ps3DataItem kDisplayCh[] = {
   {"Screen Timeout",22,"Sets how long the screen stays on while idle.","1 minute",1,nullptr,0},
   {"Font Size",22,"Sets the size of text shown on the screen.","Default",1,nullptr,0},
   {"Dark Theme",22,"Use a dark colour scheme across the system.","On",1,nullptr,0},
-  {"Auto-Rotate",22,"Automatically rotate the screen when the device is turned.","On",1,nullptr,0},
+  {"Screen Orientation",22,"Sets the orientation of the home menu and apps. Choose Auto to follow the accelerometer, or lock to a fixed orientation.","Landscape",1,nullptr,0},
 };
 static const Ps3DataItem kSoundCh[] = {
   {"Audio Output Settings",22,"Configure audio output settings.",nullptr,1,nullptr,0},

@@ -1470,6 +1470,8 @@ private:
     // Quick Menu (nano legacy global actions): the Power submenu builder, the
     // performance-mode side-panel chooser, and the kill-apps backend.
     void buildQuickPowerSubmenu(Ps3Level& out);
+    // Overlay-only per-app Orientation submenu for the foreground app.
+    void buildAppOrientSubmenu(Ps3Level& out);
     // Quick Settings submenu (ported GammaOS QS tiles) + Notifications submenu.
     void buildQuickSettingsSubmenu(Ps3Level& out);
     void buildGamepadSubmenu(Ps3Level& out);         // full GammaPad settings (Settings-app parity)

@@ -68,6 +68,11 @@
 
 namespace android {
 
+// Defined in NanoMenuDrm.cpp. Forward-declared here (rather than pulling in
+// NanoMenuDrm.h, which drags in the DRM/NEON blit machinery) so the overlay
+// surface can be recreated at the same EGLConfig it was born with.
+EGLConfig getEglConfig(const EGLDisplay& display, bool wantAlpha);
+
 // Records the PIDs frozen by the overlay so they can always be thawed if the
 // overlay dies (graceful stop, crash, or kill) - prevents a wedged device.
 static const char* kOverlayFrozenMarker = "/data/local/tmp/.nano_overlay_frozen";
@@ -534,6 +539,12 @@ void NanoMenu::overlayHide() {
     mOverlayShown = false;
     mOverlayPendingShow = false;   // cancel any deferred show (hidden before 1st frame)
     mOverlayWallpaper = false;     // next in-game summon starts in scrim mode
+    // Clear the overlay-foreground flag here so the tail orientationTick() below always
+    // resolves the foreground APP's token (its per-app override or its own request),
+    // instead of relying on every caller to have cleared it first. All current dismiss
+    // callers already clear it, so this is a no-op today but prevents a future caller
+    // from leaving the app clamped to nano's orientation after dismiss.
+    property_set("sys.gammaos.nano.show_overlay", "0");
     // Hand orientation back to the foreground app (its per-app override or its own
     // request) the instant the overlay is dismissed.
     orientationTick();
@@ -1404,32 +1415,119 @@ void NanoMenu::overlayUpdateSurfaceSize() {
     if (lw <= 0 || lh <= 0) return;
     if (lw == mWidth && lh == mHeight) return;   // display logical size unchanged
     // The display's logical size changed (a rotation, e.g. nano forced portrait).
-    // Resize our SurfaceControl buffers to match so SF composites us upright and
-    // the per-frame ps3::layoutComputeNative(mWidth,mHeight) reflows the XMB to the
-    // new aspect (ORIENT_AUTO picks portrait when height > width). mWidth/mHeight
-    // also drive glViewport in the render path, so this is all that is needed.
-    mFlingerSurface->setBuffersDimensions((uint32_t)lw, (uint32_t)lh);
-    ALOGI("nano overlay: display logical size %dx%d -> resized surface (was %dx%d)",
-          lw, lh, mWidth, mHeight);
-    mWidth = lw; mHeight = lh;
+    // We must land a producer buffer of the NEW size so SurfaceFlinger composites
+    // us over the whole rotated display. setBuffersDimensions alone is not enough:
+    // the GLES driver caches the window geometry at eglCreateWindowSurface time and
+    // re-asserts it on every dequeue, so it clobbers a bare setBuffersDimensions and
+    // keeps handing out landscape (1920x1080) buffers. SF then crops that square and
+    // parks it in a corner of the portrait panel (observed on RK3576: source_crop
+    // 840,0,1920,1080 -> display_frame 0,840,1080,1920). Recreate the EGL window
+    // surface after resizing the ANativeWindow so the driver re-reads the new
+    // dimensions and allocates portrait (1080x1920) buffers that fill the display.
+    // A native window can host only ONE EGLSurface at a time, so the old surface
+    // must be torn down before the new one is created: creating first fails with
+    // EGL_BAD_ALLOC (the window is still connected to the old producer). Unbind the
+    // context, destroy the old surface, resize the ANativeWindow, then recreate.
+    const int prevW = mWidth, prevH = mHeight;
+    EGLConfig config = getEglConfig(mDisplay, mOverlayMode);
+    eglMakeCurrent(mDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+    if (mSurface != EGL_NO_SURFACE) {
+        eglDestroySurface(mDisplay, mSurface);
+        mSurface = EGL_NO_SURFACE;
+    }
+    // Resize the SurfaceControl's BLASTBufferQueue to the new size. This is the
+    // consumer (SurfaceFlinger) side: the layer's queue was created at the surface
+    // creation size (1920x1080), and SF only latches buffers that match the queue
+    // size. Without this, a portrait (1080x1920) buffer is produced but never
+    // latched, so SF keeps compositing the last landscape buffer - the menu renders
+    // and swaps but the panel is frozen on a stale frame (landscape-native sizes
+    // happen to match, so only portrait wedged). updateDefaultBufferSize forwards to
+    // BLASTBufferQueue::update so producer and consumer agree on the new geometry.
+    if (mFlingerSurfaceControl != nullptr)
+        mFlingerSurfaceControl->updateDefaultBufferSize((uint32_t)lw, (uint32_t)lh);
+    // Use USER dimensions, not buffer (request) dimensions: eglCreateWindowSurface
+    // sizes the surface from NATIVE_WINDOW_DEFAULT_WIDTH/HEIGHT, which reads the
+    // user dimensions and otherwise falls back to the SurfaceControl's creation
+    // size (1920x1080). setBuffersDimensions only sets the request size, so the
+    // driver kept making landscape surfaces. User dimensions also drive dequeue,
+    // so the whole pipeline (EGL surface + buffers) matches the portrait display.
+    native_window_set_buffers_user_dimensions(mFlingerSurface.get(), lw, lh);
+    EGLSurface ns = eglCreateWindowSurface(mDisplay, config, mFlingerSurface.get(), nullptr);
+    if (ns == EGL_NO_SURFACE) {
+        // Fall back to a surface at the previous size so rendering keeps going.
+        ALOGE("nano overlay: eglCreateWindowSurface failed at %dx%d (0x%x); "
+              "restoring %dx%d", lw, lh, eglGetError(), prevW, prevH);
+        if (mFlingerSurfaceControl != nullptr)
+            mFlingerSurfaceControl->updateDefaultBufferSize((uint32_t)prevW, (uint32_t)prevH);
+        native_window_set_buffers_user_dimensions(mFlingerSurface.get(), prevW, prevH);
+        ns = eglCreateWindowSurface(mDisplay, config, mFlingerSurface.get(), nullptr);
+        if (ns == EGL_NO_SURFACE) {
+            ALOGE("nano overlay: fallback surface create failed (0x%x)", eglGetError());
+            return;
+        }
+        eglMakeCurrent(mDisplay, ns, ns, mContext);
+        if (mOverlayMode) eglSwapInterval(mDisplay, 0);
+        mSurface = ns;
+        return;
+    }
+    eglMakeCurrent(mDisplay, ns, ns, mContext);
+    // Overlay pacing is swap-interval 0 (the threadLoop top-up sleep drives frames),
+    // matching the creation path in NanoMenu.cpp.
+    if (mOverlayMode) eglSwapInterval(mDisplay, 0);
+    mSurface = ns;
+
+    // Trust the actual surface geometry the driver gave us.
+    EGLint qw = lw, qh = lh;
+    eglQuerySurface(mDisplay, mSurface, EGL_WIDTH, &qw);
+    eglQuerySurface(mDisplay, mSurface, EGL_HEIGHT, &qh);
+    ALOGI("nano overlay: display logical size %dx%d -> recreated surface %dx%d (was %dx%d)",
+          lw, lh, qw, qh, prevW, prevH);
+    mWidth = qw; mHeight = qh;
     mDisplayDirty = true;
 }
 
 void NanoMenu::orientationTick() {
-    // One-shot: default auto-rotation OFF in nano mode. The WM landscape clamp /
-    // force_orientation control only engages when accelerometer_rotation is 0,
-    // but the device may already have it set to 1. Home process only, guarded by
-    // a persist prop so it runs once and never fights a later user toggle. Done on
-    // a detached thread that retries until the write takes (the settings provider
-    // may not be ready on the first tick).
+    // One-shot: seed auto-rotation from the persisted Screen Orientation - "auto" ->
+    // sensor ON, any fixed orientation -> OFF (nano forces it via mapOrientationRequest,
+    // which only engages when accelerometer_rotation is 0). The device may ship with a
+    // different value. Home process only, guarded by a persist prop so it runs once and
+    // never fights a later change. Detached thread that retries until the write takes
+    // (the settings provider may not be ready on the first tick).
     if (!mOverlayMode &&
         !property_get_bool("persist.gammaos.nano.accel_seeded", false)) {
         property_set("persist.gammaos.nano.accel_seeded", "1");
         std::thread([]() {
+            char ob[PROPERTY_VALUE_MAX] = {};
+            property_get("persist.gammaos.nano.orientation", ob, "landscape");
+            const char want = (std::string(ob) == "auto") ? '1' : '0';
             for (int i = 0; i < 20; i++) {
-                system("settings put system accelerometer_rotation 0 2>/dev/null");
+                char cmd[96];
+                snprintf(cmd, sizeof(cmd),
+                         "settings put system accelerometer_rotation %c 2>/dev/null", want);
+                (void)system(cmd);
                 char b[32] = {};
                 FILE* f = popen("settings get system accelerometer_rotation 2>/dev/null", "r");
+                if (f) { if (fgets(b, sizeof(b), f)) {} pclose(f); }
+                if (b[0] == want) break;
+                usleep(500000);
+            }
+        }).detach();
+    }
+
+    // One-shot: clear a stale user_rotation left by the previous freeze-based control.
+    // Mechanism A never writes user_rotation, but a device upgrading from the old build
+    // can carry mUserRotation=270, which would leak into any "none"/UNSPECIFIED path (an
+    // app that itself requests no orientation would inherit portrait). Reset to 0 once so
+    // natural landscape is the baseline. Own guard prop so it runs once even on devices
+    // that already seeded accel, and never fights a legitimate later rotation.
+    if (!mOverlayMode &&
+        !property_get_bool("persist.gammaos.nano.urot_reset", false)) {
+        property_set("persist.gammaos.nano.urot_reset", "1");
+        std::thread([]() {
+            for (int i = 0; i < 20; i++) {
+                (void)system("settings put system user_rotation 0 2>/dev/null");
+                char b[32] = {};
+                FILE* f = popen("settings get system user_rotation 2>/dev/null", "r");
                 if (f) { if (fgets(b, sizeof(b), f)) {} pclose(f); }
                 if (b[0] == '0') break;
                 usleep(500000);
@@ -1473,6 +1571,23 @@ void NanoMenu::orientationTick() {
         property_set("sys.gammaos.nano.force_orientation", token.c_str());
         ALOGI("nano: force_orientation=%s (overlay=%d drm_active=%d)",
               token.c_str(), overlayShown ? 1 : 0, drmActive ? 1 : 0);
+        // Screen Orientation is the single owner of accelerometer_rotation. Resolve it
+        // from the RESOLVED token (not just the nano setting) so a per-app "auto"
+        // override - which is applied via appOrientSet and bypasses the settings write
+        // path - also enables the sensor, and any fixed/none token disables it so the
+        // nano force engages. Only shell out when the bit actually changes ("settings
+        // put" forks the settings CLI); token changes are infrequent (fg transitions).
+        static int sLastAccel = -1;
+        const int wantAccel = (token == "auto") ? 1 : 0;
+        if (wantAccel != sLastAccel) {
+            sLastAccel = wantAccel;
+            std::thread([wantAccel]() {
+                char cmd[96];
+                snprintf(cmd, sizeof(cmd),
+                         "settings put system accelerometer_rotation %d 2>/dev/null", wantAccel);
+                (void)system(cmd);
+            }).detach();
+        }
     }
 }
 

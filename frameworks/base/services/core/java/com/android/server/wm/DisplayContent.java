@@ -2931,6 +2931,35 @@ class DisplayContent extends RootDisplayArea implements WindowManagerPolicy.Disp
 
         final int orientation = super.getOrientation();
 
+        // GammaOS Nano: force the nano orientation for the no-ACTIVITY case. The per-app
+        // force in mapOrientationRequest only runs via LetterboxUiController (i.e. only
+        // when an ActivityRecord is the orientation source). When nano's overlay-home is
+        // foreground with no resumed activity (e.g. after long-press-BACK force-stops the
+        // app), the source falls to a non-activity window (keyguard host, magnification,
+        // etc.) that holds the dead app's rotation, so the overlay stays portrait. Here we
+        // return nano's forced orientation directly whenever the source is NOT an activity.
+        // Gated cheapest-first (minimal_boot only) so non-nano/secondary displays pay one
+        // getBoolean. Returns a CONCRETE orientation, so DisplayRotation.rotationForOrientation
+        // resolves the constant mLandscape/mPortraitRotation (never mUserRotation - no wedge)
+        // and never calls configure or writes user_rotation (no natural-orientation scramble).
+        // Auto-rotate on makes this inert (matches mapOrientationRequest's isAutoRotationEnabled).
+        // An activity on top keeps asActivityRecord() != null, so the per-activity path stays
+        // authoritative. Frozen keyguard is already short-circuited above.
+        if (isDefaultDisplay
+                && SystemProperties.getBoolean("sys.gammaos.minimal_boot", false)) {
+            final int nanoSo = WindowManagerService.nanoScreenOrientation(
+                    SystemProperties.get("sys.gammaos.nano.force_orientation", ""));
+            if (nanoSo != SCREEN_ORIENTATION_UNSPECIFIED
+                    && Settings.System.getIntForUser(mWmService.mContext.getContentResolver(),
+                            Settings.System.ACCELEROMETER_ROTATION, 1, UserHandle.USER_CURRENT) == 0) {
+                final WindowContainer src = getLastOrientationSource();
+                if (src == null || src.asActivityRecord() == null) {
+                    mLastOrientationSource = null;
+                    return nanoSo;
+                }
+            }
+        }
+
         if (!handlesOrientationChangeFromDescendant(orientation)) {
             ActivityRecord topActivity = topRunningActivity(/* considerKeyguardState= */ true);
             if (topActivity != null && topActivity.mLetterboxUiController
