@@ -1547,9 +1547,27 @@ void NanoMenu::orientationTick() {
     const bool overlayShown = property_get_bool("sys.gammaos.nano.show_overlay", false);
     const bool drmActive    = property_get_bool("sys.gammaos.nano.drm_active", false);
 
+    // Global force-orientation mode. When persist.gammaos.nano.orient_mode is a force_*
+    // value, EVERY foreground app is forced to that orientation and cannot override it -
+    // this sits ABOVE the per-app override and the honor-the-app "none" default. The nano
+    // menu / overlay itself keeps following its own Screen Orientation (nanoSetting), an
+    // independent axis (forcing the XMB home to portrait is the deferred DRM AHB item).
+    // Note: an app that cannot render the forced orientation (e.g. a landscape-locked game
+    // asked for portrait) will still black-screen - that is inherent to the app, not this.
+    char mb[PROPERTY_VALUE_MAX] = {};
+    property_get("persist.gammaos.nano.orient_mode", mb, "normal");
+    std::string mode = mb[0] ? std::string(mb) : std::string("normal");
+    std::string forced;
+    if      (mode == "force_landscape")     forced = "landscape";
+    else if (mode == "force_portrait")      forced = "portrait";
+    else if (mode == "force_rev_landscape") forced = "rev_landscape";
+    else if (mode == "force_rev_portrait")  forced = "rev_portrait";
+
     std::string token;
     if (overlayShown || drmActive) {
         token = nanoSetting;                     // nano menu / overlay is foreground
+    } else if (!forced.empty()) {
+        token = forced;                          // force mode overrides the app entirely
     } else {
         // An app owns SurfaceFlinger. Identify it by the package nano launched -
         // reliable and cheap, unlike the dumpsys foreground-resolver popen which

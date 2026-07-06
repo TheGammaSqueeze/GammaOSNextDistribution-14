@@ -4642,6 +4642,10 @@ static const Ps3SettingBinding kPs3Bindings[] = {
     {"Screen Orientation", SettingSource::kProp, "persist.gammaos.nano.orientation", "landscape",
      "auto:Auto,landscape:Landscape,rev_landscape:Landscape (reverse),"
      "portrait:Portrait,rev_portrait:Portrait (reverse)"},
+    // Force every app to a fixed orientation, overriding the app's own request and any
+    // per-app override (orientationTick applies it above the app branch). "normal" = off.
+    {"Force Orientation", SettingSource::kProp, "persist.gammaos.nano.orient_mode", "normal",
+     "normal:Off,force_landscape:Force Landscape,force_portrait:Force Portrait"},
     // Developer Options
     {"USB Debugging", SettingSource::kGlobal, "adb_enabled", "0", "0:Off,1:On"},
     {"Stay Awake While Charging", SettingSource::kGlobal, "stay_on_while_plugged_in", "0", "0:Off,7:On"},

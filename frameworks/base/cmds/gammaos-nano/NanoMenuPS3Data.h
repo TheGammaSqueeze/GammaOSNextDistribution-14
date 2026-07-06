@@ -183,6 +183,7 @@ static const Ps3DataItem kDisplayCh[] = {
   {"Font Size",22,"Sets the size of text shown on the screen.","Default",1,nullptr,0},
   {"Dark Theme",22,"Use a dark colour scheme across the system.","On",1,nullptr,0},
   {"Screen Orientation",22,"Sets the orientation of the home menu and apps. Choose Auto to follow the accelerometer, or lock to a fixed orientation.","Landscape",1,nullptr,0},
+  {"Force Orientation",22,"When on, every app is forced to this orientation and cannot override it. Off keeps each app's own orientation and any per-app override.","Off",1,nullptr,0},
 };
 static const Ps3DataItem kSoundCh[] = {
   {"Audio Output Settings",22,"Configure audio output settings.",nullptr,1,nullptr,0},
