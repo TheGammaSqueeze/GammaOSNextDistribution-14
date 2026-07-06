@@ -356,6 +356,42 @@ private:
     void oskActivateKey(const OskKey& key); // dispatch a grid key (A on key)
     void oskTouchFrame();                   // SYN_REPORT: normalize + dispatch the live touch
     void oskTouchAt(float px, float py, bool tap); // hit-test a logical point against the keys
+    // XMB touch navigation (NanoMenuPS3Menu.cpp). Swipe left/right to change
+    // category, swipe up/down to scroll the item list with inertial momentum, tap
+    // to open an item/submenu, long-press to open the option side-menu, tap side-
+    // menu rows. Reuses the OSK raw-touch mapping (swap/flipX/flipY), so it is
+    // correct on both the DRM and SF back-ends.
+    void  xmbTouchFrame();                    // SYN_REPORT: gesture recognition + dispatch
+    bool  xmbTouchLive() const;               // true when the XMB home/submenu/opt owns touch
+    void  xmbTouchTap(float px, float py);    // single tap -> category jump / open item
+    void  xmbTouchLongPress(float px, float py); // hold -> open the option side-menu for the item
+    int   xmbTouchItemAt(float vy);           // item row nearest a virtual y (-1 = none in range)
+    void  xmbTouchSettleItem();               // snap the momentum scroll onto the nearest item
+    void  xmbCancelTouchScroll();             // stop an in-flight inertial fling (dpad takeover)
+    void  xmbTouchOptHover(float px, float py); // slide over the option panel: highlight a row
+    void  xmbTouchOptTap(float px, float py);   // tap the option panel: activate a row / dismiss
+    // Dialog touch (system-update / confirm / chooser / slider / info pages). Taps
+    // set mPs3DlgSel then reuse ps3XmbSelect (apply) / ps3XmbBack (cancel); drags
+    // scroll info pages, adjust the side-panel slider, or hover chooser rows.
+    void  xmbDialogTouchTap(float px, float py);  // tap a dialog button/option/footer -> apply/cancel
+    void  xmbDialogTouchDrag(float px, float py); // drag in a dialog -> scroll / slider / chooser hover
+    void  dlgFullscreenXform(float& S, float& offX, float& offY) const; // reconstruct renderPs3Dialog's local kind-0 transform
+    // Media-player touch (Gallery / YouTube / YouTube Music style). Each reuses the
+    // shared raw-digitizer -> logical mapping, then hit-tests its own controls and
+    // drives the same vid*/mp*/pv* handlers the D-pad uses. Each includes an on-screen
+    // way to exit the player (swipe-down).
+    bool  touchLogicalPx(float& px, float& py);   // shared raw digitizer -> logical pixel (swap/flip; DRM+SF)
+    void  pvTouchFrame();                          // photo viewer: swipe prev/next, tap controls, swipe-down exit
+    void  vidTouchFrame();                         // video player: tap controls, drag-scrub the seek bar, exit
+    void  mpTouchFrame();                          // music player: play/pause, drag-scrub, next/prev, exit
+    int   photoGridCellAt(float px, float py);     // thumbnail under a touch (-1 = none)
+    void  photoGridScrollTo(int topRow);           // clamp + set the grid's top visible row
+    void  photoGridScrollDrag(float downPy, float py, int anchorTop); // drag-scroll the grid
+    void  photoGridOpenAt(int idx);                // select + open a thumbnail into the viewer
+    void  photoGridBack();                         // close the thumbnail grid (touch back button)
+    bool  photoGridBackHit(float px, float py);    // top-left back chevron hit-test
+    int   xmbOptRowAt(float px, float py) const; // option-panel row under a touch (-1 = outside)
+    float xmbOptRowY(int row) const;          // virtual y of an option-panel main row
     void oskAPress();               // A pressed while OSK active
     void oskARelease();             // A released while OSK active
     void oskTick();                 // per-frame: long-press popup + animation clock
@@ -2063,8 +2099,19 @@ private:
     std::string mVidSubLabel;
     std::vector<std::string> mVidSubOpts;
     int   mVidSubSel = 0;
+    bool  mVidPanelTouch = false;           // panel opened by a screen tap -> enlarge icons
+    bool  mVidScrubbing = false;            // dragging the seek bar
+    // Debounced touch scrub: NanoAudioPlayer::seek() joins+restarts the decode thread
+    // (heavy, blocking on the render thread), so a live drag that seeks every move
+    // freezes the render heartbeat and trips the 8s watchdog. Instead the drag only
+    // previews a pending target; the real vidSeek fires once the finger settles/lifts
+    // (mirrors the music player's mMpSeekPending debounce).
+    bool   mVidScrubPending = false;
+    double mVidScrubTarget = 0.0;           // pending seek target (seconds)
+    float  mVidScrubInputT = 0.0f;          // mEffectTime of the last scrub input
     void vidPanelToggle();                  // Triangle: open/close the control panel
-    void vidPanelOpen();
+    void vidPanelOpen(bool byTouch = false);
+    float vidPanelUi();                     // vidUiScale, enlarged when opened by touch
     void vidPanelClose();
     void vidPanelMove(int dx, int dy);      // spatial grid nav (+ submenu wrap)
     void vidPanelActivate();                // Cross on the focused control / submenu row
@@ -2226,6 +2273,7 @@ private:
     float mMpFullInfoT = 0.0f;         // full-info cluster fade 0..1
     // control panel (TRIANGLE)
     bool  mMpCpOpen = false;
+    bool  mMpCpTouch = false;          // panel opened by a screen tap -> enlarge icons
     int   mMpCpSel = 0;                // index into MP_CP
     int   mMpCpSelPrev = -1;
     float mMpCpAnimStart = -1.0f;      // open slide/fade start (mEffectTime)
@@ -2259,7 +2307,8 @@ private:
     std::map<std::string, GLuint> mMpAlbumArt;
     GLuint mpAlbumArt(const std::string& albumName);
     void renderMusicPlayer();         // the Now-Playing fullscreen draw
-    void openMpOpt();                 // open the control panel
+    void openMpOpt(bool byTouch = false);  // open the control panel
+    float mpPanelUi();                // mpUiScale, enlarged when opened by touch
     void closeMpOpt();                // close it (or the volume submenu first)
     void mpOptMove(int dx, int dy);   // grid nav (dx +right, dy +grid-up)
     void mpOptActivate();             // X on the focused control
@@ -2415,7 +2464,9 @@ private:
     // thumbnail grid (screenKind PHOTO_GRID)
     std::vector<int> mPhotoGridList;      // photo indices in the open album/grid
     int  mPhotoGridCursor = 0;
-    int  mPhotoGridTop = 0;               // top visible row (scroll)
+    int  mPhotoGridTop = 0;               // top visible row (scroll, kept in sync with the pixel scroll)
+    float mPhotoGridScrollY = 0.0f;       // smooth pixel scroll (finger-driven; source of truth for the render)
+    float mPhotoGridScrollAnchor = 0.0f;  // mPhotoGridScrollY at the start of a drag
     std::string mPhotoGridTitle;
     float mPhotoGridAnim = 0.0f;          // open fade-in
     float mPhotoGridFocusStart = -1.0f;   // focus grow tween start
@@ -2454,6 +2505,15 @@ private:
     // photo-to-photo transition (Slide/Fade)
     bool  mPvTrans = false; int mPvTransFrom = -1; float mPvTransStart = 0.0f;
     int   mPvTransDir = 1; std::string mPvTransEffect;
+    // interactive touch swipe: the photo tracks the finger horizontally, then either
+    // completes to the neighbour or springs back on release (mobile-gallery feel).
+    bool  mPvDragActive = false;          // finger currently dragging the photo
+    float mPvDragDx = 0.0f;               // live horizontal offset (logical px)
+    bool  mPvDragSettle = false;          // releasing: easing dx toward the target
+    float mPvDragFrom = 0.0f, mPvDragTo = 0.0f, mPvDragSettleStart = 0.0f;
+    int   mPvDragCommitDir = 0;           // step to apply when a commit settle finishes
+    bool  mPvPanning = false;             // single-finger pan in progress (while zoomed)
+    void  pvGoTo(int newIdx);             // jump to a photo with no Slide/Fade transition
     // decoded viewer textures (current +/- neighbours), keyed by photo idx
     std::map<int, GLuint> mPvTexCache;
     std::map<int, int> mPvTexW, mPvTexH;  // decoded texture dims
@@ -2506,6 +2566,7 @@ private:
     void  pvShowMsg(const std::string& text, float durMs);
     // control panel (TRIANGLE) - mirrors the Music MP_CP look
     bool  mPvPanel = false;
+    bool  mPvPanelTouch = false;   // panel opened by a screen tap -> enlarge icons for touch
     int   mPvCpSel = 0, mPvCpSelPrev = -1;
     float mPvCpAnimStart = -1.0f, mPvCpFocusStart = -1.0f;
     bool  mPvCpClosing = false; float mPvCpCloseStart = -1.0f;
@@ -2513,7 +2574,8 @@ private:
     // control submenu (Change Effect / Slideshow Speed / Slideshow Style)
     bool  mPvCpSub = false; std::string mPvCpSubKind; std::vector<std::string> mPvCpSubOpts; int mPvCpSubSel = 0;
     void renderPhotoViewer();
-    void openPvPanel();
+    void openPvPanel(bool byTouch = false);
+    float pvPanelUi();   // pvUiScale, enlarged when the panel was opened by touch
     void closePvPanel();
     void pvPanelMove(int dx, int dy);
     void pvPanelActivate();
@@ -2823,10 +2885,34 @@ private:
     // upright panels use the defaults). Works on both DRM and SF back-ends.
     int   mTouchMinX = 0, mTouchMaxX = 0;   // digitizer X range (max<=min = unread)
     int   mTouchMinY = 0, mTouchMaxY = 0;   // digitizer Y range
-    int   mTouchRawX = -1, mTouchRawY = -1; // last raw ABS_MT position
+    int   mTouchRawX = -1, mTouchRawY = -1; // last raw ABS_MT position (slot 0)
     bool  mTouchDown = false, mTouchWasDown = false;
+    // Multi-touch slot tracking (Type-B) for pinch-zoom: two contacts is enough.
+    int   mTouchSlot = 0;                   // current ABS_MT_SLOT selector
+    int   mTouchId[2]  = { -1, -1 };        // per-slot tracking id (-1 = no contact)
+    int   mTouchSX[2]  = { 0, 0 };          // per-slot raw X
+    int   mTouchSY[2]  = { 0, 0 };          // per-slot raw Y
+    bool  mPvPinchActive = false;           // two-finger pinch in progress (photo)
+    float mPvPinchStartDist = 0.0f, mPvPinchStartZoom = 1.0f;
+    bool  touchMapRaw(int rawX, int rawY, float& px, float& py);  // raw -> logical px
     bool  mOskTouchTuneRead = false;
     bool  mOskTouchSwap = false, mOskTouchFlipX = false, mOskTouchFlipY = false;
+    // XMB touch-navigation gesture state. Positions are in logical pixels (post
+    // swap/flip), matching oskTouchFrame's px/py output. A released vertical drag
+    // hands mPs3AnimItem to an inertial fling that settles on the nearest item.
+    bool    mXmbTouchTracking = false;   // a finger-down gesture is being followed
+    int     mXmbTouchMode = 0;           // 0 undecided, 1 item drag, 2 category swipe, 3 option panel
+    bool    mXmbTouchMoved = false;      // exceeded the slop -> a drag, not a tap
+    bool    mXmbTouchLongFired = false;  // long-press already opened the side menu this gesture
+    int64_t mXmbTouchDownMs = 0;         // press start (uptimeMillis)
+    float   mXmbTouchDownPX = 0.0f, mXmbTouchDownPY = 0.0f;   // press position
+    float   mXmbTouchLastPX = 0.0f, mXmbTouchLastPY = 0.0f;   // previous-frame position
+    int64_t mXmbTouchLastMs = 0;
+    float   mXmbTouchAnchorItem = 0.0f;  // mPs3AnimItem at the start of a vertical drag
+    float   mXmbTouchCatAccum = 0.0f;    // accumulated horizontal virtual-px toward a category step
+    float   mXmbItemVel = 0.0f;          // item scroll velocity (rows/sec), tracked then flung
+    bool    mXmbItemFling = false;       // inertial glide active
+    int     mXmbDlgScrollBase = 0;       // rich-info dialog scroll value at the start of a drag
     std::vector<SearchResult> mSearchResults;
     int mSearchSelectedIndex;
     bool mSearchActive;        // Search results being displayed

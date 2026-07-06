@@ -36,6 +36,7 @@
 #include <fcntl.h>
 #include <cerrno>
 #include <unistd.h>
+#include <utils/SystemClock.h>   // android::uptimeMillis() for touch gesture timing
 #include <cutils/properties.h>   // property_get for the storage-ready gate
 #include <sys/stat.h>
 #include <string.h>
@@ -1293,6 +1294,21 @@ void NanoMenu::renderMusicPlayer() {
         }
     }
 
+    // Touch exit chevron (top-left), shown with the control panel; tapping it leaves
+    // the Now Playing view (mpTouchFrame hit-tests the same zone). Styled like the
+    // photo/video viewer chevrons.
+    if (mMpCpOpen || mMpCpClosing) {
+        float ca = enter * (mMpCpOpen ? 1.0f : fmaxf(0.0f, 1.0f - (mEffectTime - mMpCpCloseStart) / 0.2f));
+        const char* arrow = "\xE2\x80\xB9";   // U+2039
+        float afs = FSZ(56.0f);
+        float aw = measureText(arrow, afs);
+        float acx = DXP(0.045f), acy = DYP(0.075f);
+        float ax = acx - aw * 0.5f, ay = ps3::baselineToTopY(acy + afs * 0.30f, afs);
+        float so = SZ(0.003f);
+        drawText(arrow, ax + so, ay + so, afs, 0.0f, 0.0f, 0.0f, 0.55f * ca);
+        drawText(arrow, ax, ay, afs, 0.86f, 0.92f, 1.0f, 0.96f * ca);
+    }
+
     // control panel
     if (mMpCpOpen) drawMpOpt(-1.0f);
     else if (mMpCpClosing) {
@@ -1362,7 +1378,7 @@ void NanoMenu::drawMpOpt(float closeT) {
     float t = (closeT >= 0.0f) ? closeT
             : (mMpCpAnimStart >= 0.0f ? fminf(1.0f, (mEffectTime - mMpCpAnimStart) / 0.2f) : 1.0f);
     if (t < 0) t = 0;
-    float mpUi = mpUiScale(mWidth, mHeight);
+    float mpUi = mpPanelUi();   // enlarged when opened by touch
     float ox = DXP(0.273f) - (1.0f - t) * SZ(0.018f * mpUi);   // slide in from the left
     float oy = DYP(0.441f);
     float cellX = DXD(0.033f * mpUi), cellY = SZ(0.061f * mpUi), ih = SZ(0.046f * mpUi);
@@ -1470,8 +1486,17 @@ void NanoMenu::drawMpVolMeter(float t) {
 }
 
 // ---- control panel input ----
-void NanoMenu::openMpOpt() {
+// Enlarge the control panel ~1.55x when it was summoned by a screen tap so the
+// controller-sized glyphs become finger targets (controller keeps the original size).
+static const float MP_TOUCH_PANEL_SCALE = 1.55f;
+float NanoMenu::mpPanelUi() {
+    float ui = mpUiScale(mWidth, mHeight);
+    if (mMpCpTouch) ui *= MP_TOUCH_PANEL_SCALE;
+    return ui;
+}
+void NanoMenu::openMpOpt(bool byTouch) {
     if (mMpCpOpen) return;
+    mMpCpTouch = byTouch;
     mMpCpOpen = true; mMpCpClosing = false; mMpVolSub = false;
     mMpCpSel = mpCpDefault(); mMpCpAnimStart = mEffectTime; mMpCpFocusStart = mEffectTime;
 }
@@ -1483,6 +1508,68 @@ void NanoMenu::closeMpOpt() {
 void NanoMenu::mpOptBack() {
     if (mMpVolSub) { mMpVolSub = false; return; }
     closeMpOpt();
+}
+
+// ---------------------------------------------------------------------------
+// Music (Now Playing) touch. Tap -> reveal the control panel (enlarged for
+// touch); tap a control cell runs it; tap the top-left exit chevron minimizes
+// (audio keeps playing). Uses the shared raw->logical mapping (DRM + SF).
+// Dispatched from pollInput's SYN_REPORT when mMpActive.
+// ---------------------------------------------------------------------------
+void NanoMenu::mpTouchFrame() {
+    if (!mMpActive) { mXmbTouchTracking = false; mTouchWasDown = mTouchDown; return; }
+    if (mMpPlChooserActive || mpIsOpening()) { mTouchWasDown = mTouchDown; return; }   // modal/opening -> D-pad
+    float px, py;
+    if (!touchLogicalPx(px, py)) { mTouchWasDown = mTouchDown; return; }
+    const float SLOP = 16.0f, TAPMAX = 24.0f;
+    const int64_t TAPMS = 450;
+    int64_t now = android::uptimeMillis();
+    bool down = mTouchDown, downEdge = down && !mTouchWasDown, upEdge = !down && mTouchWasDown;
+
+    if (downEdge) {
+        mXmbTouchTracking = true; mXmbTouchMoved = false;
+        mXmbTouchDownMs = now; mXmbTouchDownPX = px; mXmbTouchDownPY = py;
+        mXmbTouchLastPX = px; mXmbTouchLastPY = py; mLastInputMs = now;
+        mTouchWasDown = mTouchDown; return;
+    }
+    if (down && mXmbTouchTracking) {
+        float dx = px - mXmbTouchDownPX, dy = py - mXmbTouchDownPY;
+        if (!mXmbTouchMoved && dx * dx + dy * dy >= SLOP * SLOP) mXmbTouchMoved = true;
+        mXmbTouchLastPX = px; mXmbTouchLastPY = py; mLastInputMs = now;
+        mTouchWasDown = mTouchDown; return;
+    }
+    if (!(upEdge && mXmbTouchTracking)) { mTouchWasDown = mTouchDown; return; }
+    mXmbTouchTracking = false; mLastInputMs = now; mTouchWasDown = mTouchDown;
+    float dx = px - mXmbTouchDownPX, dy = py - mXmbTouchDownPY;
+    int64_t held = now - mXmbTouchDownMs;
+    bool tap = !mXmbTouchMoved && held <= TAPMS && (dx * dx + dy * dy) <= TAPMAX * TAPMAX;
+    if (!tap) return;
+
+    // Top-left exit chevron (shown with the panel) -> minimize (audio keeps playing).
+    if (mMpCpOpen || mMpCpClosing) {
+        float acx = DXP(0.045f), acy = DYP(0.075f), r = SZ(0.06f);
+        if (fabsf(px - acx) <= r && fabsf(py - acy) <= r) { minimizeMusicPlayer(); return; }
+    }
+    if (mMpCpOpen) {
+        if (mMpVolSub) { mMpVolSub = false; return; }   // tap exits the volume submenu
+        // Hit-test the control-panel cells (same layout drawMpOpt renders).
+        float mpUi = mpPanelUi();
+        float ox = DXP(0.273f), oy = DYP(0.441f);
+        float cellX = DXD(0.033f * mpUi), cellY = SZ(0.061f * mpUi);
+        int best = -1; float bestD = 1e9f;
+        for (int i = 0; i < kMpCpCount; i++) {
+            float cx = ox + kMpCp[i].gx * cellX, cy = oy - kMpCp[i].gy * cellY;   // note: gy goes UP
+            if (fabsf(px - cx) <= cellX * 0.6f && fabsf(py - cy) <= cellY * 0.6f) {
+                float d = fabsf(px - cx) + fabsf(py - cy);
+                if (d < bestD) { bestD = d; best = i; }
+            }
+        }
+        if (best >= 0) { mMpCpSelPrev = mMpCpSel; mMpCpFocusStart = mEffectTime; mMpCpSel = best; mpOptActivate(); return; }
+        closeMpOpt();   // tap off a cell -> close the panel
+        return;
+    }
+    // No panel: a tap reveals the controls (enlarged for touch).
+    openMpOpt(true);
 }
 void NanoMenu::mpOptMove(int dx, int dy) {
     if (!mMpCpOpen) return;

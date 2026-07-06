@@ -17,6 +17,7 @@
 #include <algorithm>
 #include <cstdint>
 #include <dirent.h>
+#include <utils/SystemClock.h>   // android::uptimeMillis() for touch gesture timing
 #include <errno.h>
 #include <fcntl.h>
 #include <math.h>
@@ -1632,6 +1633,7 @@ void NanoMenu::vidBeginOpen(const VidPending& p) {
     mVidScanLastTick = -1.0;
     mVidLastPos = -1.0; mVidLastPosT = mEffectTime; mVidBuffering = false;
     mVidCpOpen = mVidCpClosing = mVidSubOpen = false; mVidGoToOpen = false;
+    mVidPanelTouch = false; mVidScrubbing = false; mVidScrubPending = false;
     mVidSceneOpen = mVidSceneClosing = false;
     mVidResumeAsk = false; mVidResumeSel = 0; mVidResumeAskSec = 0.0;
     mVidResumeDirty = false; mVidResumeSaveT = mEffectTime;
@@ -2191,6 +2193,15 @@ void NanoMenu::videoTick() {
     if (!mVidActive) mVidBuffering = false;   // no spinner during the leave fade
     if (!mVidActive || !mVideoTest) return;
 
+    // Debounced touch-scrub commit: once the finger has rested on a target for ~0.18s
+    // (a lift commits it directly in vidTouchFrame), do the ONE real vidSeek. This
+    // caps the heavy blocking audio-thread seek at controller frequency so a fast
+    // drag can never freeze the render heartbeat (the watchdog-abort this fixes).
+    if (mVidScrubPending && (mEffectTime - mVidScrubInputT) >= 0.18f) {
+        mVidScrubPending = false;
+        vidSeek(mVidScrubTarget - mVideoTest->position());
+    }
+
     // Timer-driven scan/slow: NanoVideo only plays at 1x, so any non-1x rate pauses
     // native playback and advances the position by rate*dt each frame (web vidTick).
     if (mVidPlaying && mVidRate != 1.0) {
@@ -2462,6 +2473,9 @@ bool NanoMenu::renderVideoPlayer() {
     }
 
     double pos = mVideoTest->position(), dur = vidDuration();
+    // While a touch scrub target is pending (debounced), show the bar + time at the
+    // finger's target so scrubbing feels live even though the real seek is deferred.
+    double dispPos = (mVidScrubPending && dur > 0.0) ? mVidScrubTarget : pos;
     float bx = W * 0.10f, bw = W * 0.80f, by = H * 0.90f, bh = H * 0.006f;
 
     // Layer 3: title (top-left) + the seek bar + times. The bar auto-hides via
@@ -2481,9 +2495,21 @@ bool NanoMenu::renderVideoPlayer() {
         if (!mVidPlaying) title += trDyn("   (Paused)");
         float tfs = ps3::fontScale(26.0f);
         drawText(title.c_str(), bx, ps3::baselineToTopY(H * 0.10f, tfs), tfs, 1.0f, 1.0f, 1.0f, 0.95f * barA);
+        // Touch exit chevron (top-left), shown with the controls; styled like the photo
+        // viewer's. Tapping it leaves the player (vidTouchFrame hit-tests the same zone).
+        {
+            const char* arrow = "\xE2\x80\xB9";   // U+2039
+            float afs = ps3::fontScale(56.0f);
+            float aw = measureText(arrow, afs);
+            float acx = W * 0.045f, acy = H * 0.075f;
+            float ax = acx - aw * 0.5f, ay = ps3::baselineToTopY(acy + afs * 0.30f, afs);
+            float so = H * 0.003f;
+            drawText(arrow, ax + so, ay + so, afs, 0.0f, 0.0f, 0.0f, 0.55f * barA);
+            drawText(arrow, ax, ay, afs, 0.86f, 0.92f, 1.0f, 0.96f * barA);
+        }
     }
     if (barA > 0.01f && dur > 0.0) {
-        float frac = (float)(pos / dur); if (frac < 0) frac = 0; if (frac > 1) frac = 1;
+        float frac = (float)(dispPos / dur); if (frac < 0) frac = 0; if (frac > 1) frac = 1;
         drawQuad(bx, by, bw, bh, 1.0f, 1.0f, 1.0f, 0.25f * barA);             // track
         drawQuad(bx, by, bw * frac, bh, 1.0f, 1.0f, 1.0f, 0.95f * barA);      // fill
         // Chapter markers (web 12766): white ticks at each chapter time.
@@ -2514,7 +2540,7 @@ bool NanoMenu::renderVideoPlayer() {
         }
         ps3FillCircle(bx + bw * frac, by + bh * 0.5f, H * 0.008f, 1.0f, 1.0f, 1.0f, 0.95f * barA);   // knob (web arc)
         float fs = ps3::fontScale(20.0f);
-        std::string el = vFmtTime(pos), tot = vFmtTime(dur);
+        std::string el = vFmtTime(dispPos), tot = vFmtTime(dur);
         drawText(el.c_str(), bx, ps3::baselineToTopY(by - H * 0.012f, fs), fs, 0.96f, 0.96f, 0.96f, barA);
         float tw = measureText(tot.c_str(), fs);
         drawText(tot.c_str(), bx + bw - tw, ps3::baselineToTopY(by - H * 0.012f, fs), fs, 0.96f, 0.96f, 0.96f, barA);
@@ -2615,8 +2641,9 @@ static const char* kVidRepeatModes[] = {"Repeat Off", "Repeat On", "Title Repeat
 
 void NanoMenu::vidPanelToggle() { if (mVidCpOpen) vidPanelClose(); else vidPanelOpen(); }
 
-void NanoMenu::vidPanelOpen() {
+void NanoMenu::vidPanelOpen(bool byTouch) {
     if (mVidCpOpen) return;
+    mVidPanelTouch = byTouch;
     mVidCpOpen = true; mVidCpClosing = false; mVidSubOpen = false;
     mVidCpSel = vidCpDefault(); mVidCpSelPrev = mVidCpSel;
     mVidCpAnimStart = mEffectTime; mVidCpFocusStart = mEffectTime;
@@ -2799,10 +2826,121 @@ void NanoMenu::vidPanelActivate() {
     }
 }
 
+// ---------------------------------------------------------------------------
+// Video player touch (YouTube style). Tap the video -> reveal controls (control
+// panel, enlarged for touch); tap a control cell runs it; tap the top-left exit
+// chevron leaves; drag the seek bar scrubs. Uses the shared raw->logical mapping
+// (correct on DRM + SF). Dispatched from pollInput's SYN_REPORT when mVidActive.
+// ---------------------------------------------------------------------------
+void NanoMenu::vidTouchFrame() {
+    if (!mVidActive) { mXmbTouchTracking = false; mVidScrubbing = false; mTouchWasDown = mTouchDown; return; }
+    // While opening, or with a resume/dialog/scene/goto modal up, leave it to the D-pad.
+    if (mVidOpenInProgress.load(std::memory_order_relaxed) || mVidResumeAsk || mVidDlgActive
+        || mVidGoToOpen || mVidSceneOpen || mVidPlChooserActive) { mTouchWasDown = mTouchDown; return; }
+    float px, py;
+    if (!touchLogicalPx(px, py)) { mTouchWasDown = mTouchDown; return; }
+    const float SLOP = 16.0f, TAPMAX = 24.0f;
+    const int64_t TAPMS = 450;
+    int64_t now = android::uptimeMillis();
+    bool down = mTouchDown, downEdge = down && !mTouchWasDown, upEdge = !down && mTouchWasDown;
+    float W = (float)mWidth, H = (float)mHeight;
+
+    // Seek-bar geometry (must match renderVideoPlayer).
+    float bx = W * 0.10f, bw = W * 0.80f, by = H * 0.90f;
+    bool  barShown = (mVidOsd || mVidCpOpen || mVidCpClosing || mVidHintUntil > mEffectTime);
+    double dur = vidDuration();
+    bool  seekable = (dur > 0.0 && !mVidIsStream && mVideoTest);
+
+    if (downEdge) {
+        mXmbTouchTracking = true; mXmbTouchMoved = false;
+        mXmbTouchDownMs = now; mXmbTouchDownPX = px; mXmbTouchDownPY = py;
+        mXmbTouchLastPX = px; mXmbTouchLastPY = py; mLastInputMs = now;
+        // Begin a scrub if the finger lands on the (visible) seek bar. Only PREVIEW
+        // the target here (mVidScrubPending); the actual vidSeek is debounced so a
+        // fast drag cannot pile up blocking audio-thread joins and freeze render.
+        mVidScrubbing = (barShown && seekable && fabsf(py - by) <= H * 0.055f &&
+                         px >= bx - W * 0.02f && px <= bx + bw + W * 0.02f);
+        if (mVidScrubbing) {
+            float frac = (px - bx) / bw; if (frac < 0) frac = 0; if (frac > 1) frac = 1;
+            mVidScrubTarget = frac * dur; mVidScrubPending = true; mVidScrubInputT = mEffectTime;
+            mVidHintUntil = mEffectTime + 2.5f; mDisplayDirty = true;
+        }
+        mTouchWasDown = mTouchDown; return;
+    }
+    if (down && mXmbTouchTracking) {
+        float dx = px - mXmbTouchDownPX, dy = py - mXmbTouchDownPY;
+        if (!mXmbTouchMoved && dx * dx + dy * dy >= SLOP * SLOP) mXmbTouchMoved = true;
+        if (mVidScrubbing && seekable) {
+            float frac = (px - bx) / bw; if (frac < 0) frac = 0; if (frac > 1) frac = 1;
+            mVidScrubTarget = frac * dur; mVidScrubPending = true; mVidScrubInputT = mEffectTime;
+            mVidHintUntil = mEffectTime + 2.5f; mDisplayDirty = true;
+        }
+        mXmbTouchLastPX = px; mXmbTouchLastPY = py; mLastInputMs = now;
+        mTouchWasDown = mTouchDown; return;
+    }
+    if (!(upEdge && mXmbTouchTracking)) { mTouchWasDown = mTouchDown; return; }
+
+    // ---- release ----
+    mXmbTouchTracking = false; mLastInputMs = now; mTouchWasDown = mTouchDown;
+    if (mVidScrubbing) {
+        // Finished dragging the bar. Leave mVidScrubPending set so the single debounced
+        // vidSeek in videoTick commits the final target ~0.18s later - this coalesces a
+        // fast drag AND rapid bar taps into controller-rate seeks (never a render stall).
+        mVidScrubbing = false;
+        mVidScrubInputT = mEffectTime;   // start the settle clock from the lift
+        return;
+    }
+    float dx = px - mXmbTouchDownPX, dy = py - mXmbTouchDownPY;
+    int64_t held = now - mXmbTouchDownMs;
+    bool tap = !mXmbTouchMoved && held <= TAPMS && (dx * dx + dy * dy) <= TAPMAX * TAPMAX;
+    if (!tap) return;
+
+    // Top-left exit chevron (shown with the controls) -> leave the player.
+    if (barShown) {
+        float acx = W * 0.045f, acy = H * 0.075f, r = H * 0.06f;
+        if (fabsf(px - acx) <= r && fabsf(py - acy) <= r) { closeVideoPlayer(); return; }
+    }
+
+    if (mVidCpOpen) {
+        // A submenu (Screen Mode / Repeat / Volume / AV) is drawn over the cells;
+        // a tap backs out of it rather than mis-hitting a main cell underneath.
+        if (mVidSubOpen) { mVidSubOpen = false; return; }
+        // Hit-test the control-panel cells (same layout drawVideoPanel renders).
+        float ui = vidPanelUi();
+        float x0 = ps3::devX(ps3::XCF(ps3::VW * 0.1589f));
+        float y0 = ps3::devY(ps3::VH * 0.4148f);
+        float colW = ps3::devS(ps3::XCF(ps3::VW * 0.03526f * ui));
+        float rowH = ps3::devS(ps3::VH * 0.061f * ui);
+        int best = -1; float bestD = 1e9f;
+        for (int i = 0; i < kVidCpCount; i++) {
+            float cx = x0 + kVidCp[i].gx * colW, cy = y0 + kVidCp[i].gy * rowH;
+            if (fabsf(px - cx) <= colW * 0.6f && fabsf(py - cy) <= rowH * 0.6f) {
+                float d = fabsf(px - cx) + fabsf(py - cy);
+                if (d < bestD) { bestD = d; best = i; }
+            }
+        }
+        if (best >= 0) { mVidCpSelPrev = mVidCpSel; mVidCpFocusStart = mEffectTime; mVidCpSel = best; vidPanelActivate(); return; }
+        vidPanelClose();   // tap off a cell -> close the panel
+        return;
+    }
+
+    // No panel: a tap reveals the controls (enlarged for touch). Play/pause stays on
+    // the on-screen Play control + the START button.
+    vidPanelOpen(true);
+}
+
 // UI-scale mirror of pvUiScale/mpUiScale (file-static in NanoMenuPhotos/Music, not
 // visible here): small panels (shorter side <= 768) get 2x so the control glyphs stay
 // legible, matching the audio and photo control panels.
 static inline float vidUiScale(int w, int h){ return ((w < h ? w : h) <= 768) ? 2.0f : 1.0f; }
+// Enlarge the control panel ~1.45x when it was summoned by a screen tap so the
+// controller-sized glyphs become finger targets (controller keeps the original size).
+static const float VID_TOUCH_PANEL_SCALE = 1.45f;
+float NanoMenu::vidPanelUi() {
+    float ui = vidUiScale(mWidth, mHeight);
+    if (mVidPanelTouch) ui *= VID_TOUCH_PANEL_SCALE;
+    return ui;
+}
 
 void NanoMenu::drawVideoPanel(float closeT) {
     int W = mWidth, H = mHeight;
@@ -2815,7 +2953,7 @@ void NanoMenu::drawVideoPanel(float closeT) {
     // and overlapped. This yields sz = 0.046*VH*gScale = 36px, identical to the audio
     // (NanoMenuMusic drawMpOpt) and photo (NanoMenuPhotos drawPvPanel) control panels,
     // keeping video's own 0.1589/0.4148 anchor mapped through the shared frame scale.
-    float ui = vidUiScale(W, H);
+    float ui = vidPanelUi();   // enlarged when opened by touch
     float x0 = ps3::devX(ps3::XCF(ps3::VW * 0.1589f)) - (1.0f - t) * ps3::devS(ps3::VW * 0.012f);
     float y0 = ps3::devY(ps3::VH * 0.4148f);
     float colW = ps3::devS(ps3::XCF(ps3::VW * 0.03526f * ui));

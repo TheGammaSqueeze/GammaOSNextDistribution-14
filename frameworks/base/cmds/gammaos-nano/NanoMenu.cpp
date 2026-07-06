@@ -3906,6 +3906,7 @@ if (sRingPrimedCount >= 2) {
                        && !mPs3BootActive && !mPs3WizActive && !mPs3DlgActive
                        && !mPs3TzActive && !mShowBrightnessBar && !mShowVolumeBar
                        && mLaunchFadeStart == 0 && !mOverlayLaunchPending
+                       && !mXmbItemFling && !mXmbTouchTracking
                        && !ps3bg::themeFading();
         int frameTimeUs;
         if (sDrmActive || xmbActive || mXmbMode || mPs3Xmb || proceduralFx) {

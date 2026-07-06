@@ -1297,8 +1297,20 @@ void NanoMenu::pollInput() {
                 mTouchDown = (ev.value != 0);
                 continue;
             }
+            // Multi-touch slot select (Type-B). Slots >= 2 are tracked as "ignore":
+            // pinch only needs two contacts, and the primary (slot 0) drives the
+            // single-finger path.
+            if (ev.type == EV_ABS && ev.code == ABS_MT_SLOT) {
+                mTouchSlot = ev.value;
+                continue;
+            }
+            if (ev.type == EV_ABS && ev.code == ABS_MT_TRACKING_ID) {
+                if (mTouchSlot >= 0 && mTouchSlot < 2) mTouchId[mTouchSlot] = ev.value;
+                continue;
+            }
             if (ev.type == EV_ABS && ev.code == ABS_MT_POSITION_X) {
-                mTouchRawX = ev.value;
+                if (mTouchSlot >= 0 && mTouchSlot < 2) mTouchSX[mTouchSlot] = ev.value;
+                if (mTouchSlot <= 0) mTouchRawX = ev.value;   // slot 0 = primary finger
                 if (mTouchMaxX <= mTouchMinX) {
                     struct input_absinfo a{};
                     if (ioctl(fd, EVIOCGABS(ABS_MT_POSITION_X), &a) == 0 && a.maximum > a.minimum) {
@@ -1308,7 +1320,8 @@ void NanoMenu::pollInput() {
                 continue;
             }
             if (ev.type == EV_ABS && ev.code == ABS_MT_POSITION_Y) {
-                mTouchRawY = ev.value;
+                if (mTouchSlot >= 0 && mTouchSlot < 2) mTouchSY[mTouchSlot] = ev.value;
+                if (mTouchSlot <= 0) mTouchRawY = ev.value;
                 if (mTouchMaxY <= mTouchMinY) {
                     struct input_absinfo a{};
                     if (ioctl(fd, EVIOCGABS(ABS_MT_POSITION_Y), &a) == 0 && a.maximum > a.minimum) {
@@ -1318,15 +1331,21 @@ void NanoMenu::pollInput() {
                 continue;
             }
             if (ev.type == EV_SYN && ev.code == SYN_REPORT) {
-                if (mOskActive) {
-                    if (!mOskTouchTuneRead) {
-                        mOskTouchSwap  = android::base::GetBoolProperty("persist.gammaos.nano.osk_touch_swap", false);
-                        mOskTouchFlipX = android::base::GetBoolProperty("persist.gammaos.nano.osk_touch_flipx", false);
-                        mOskTouchFlipY = android::base::GetBoolProperty("persist.gammaos.nano.osk_touch_flipy", false);
-                        mOskTouchTuneRead = true;
-                    }
-                    oskTouchFrame();
+                // The raw-touch panel corrections (swap/flipX/flipY) are shared by the
+                // OSK and the XMB touch navigation, so read them once regardless of
+                // which is up - otherwise XMB touch before the OSK is ever opened would
+                // run with uncorrected axes on DRM-rotated/flipped panels.
+                if (!mOskTouchTuneRead) {
+                    mOskTouchSwap  = android::base::GetBoolProperty("persist.gammaos.nano.osk_touch_swap", false);
+                    mOskTouchFlipX = android::base::GetBoolProperty("persist.gammaos.nano.osk_touch_flipx", false);
+                    mOskTouchFlipY = android::base::GetBoolProperty("persist.gammaos.nano.osk_touch_flipy", false);
+                    mOskTouchTuneRead = true;
                 }
+                if (mOskActive)      oskTouchFrame();
+                else if (mPvActive)  pvTouchFrame();    // photo viewer (Gallery-style touch)
+                else if (mVidActive) vidTouchFrame();   // video player (YouTube-style touch)
+                else if (mMpActive)  mpTouchFrame();    // music Now Playing touch
+                else                 xmbTouchFrame();   // XMB home/submenu/option-panel touch (self-guards)
                 continue;
             }
             // Wait-for-release: after a launch is triggered, keep running

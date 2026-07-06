@@ -43,6 +43,7 @@
 #include <cerrno>
 #include <unistd.h>
 #include <cutils/properties.h>
+#include <utils/SystemClock.h>   // android::uptimeMillis() for touch-gesture timing
 #include <sys/stat.h>
 #include <string.h>
 #include <strings.h>
@@ -67,6 +68,11 @@ static inline float PFS(float px){ return ps3::fontScale(px); }                /
 // Photo UI scale: double the control-panel grid on small panels (<=768) for
 // readability, exactly like the music control panel (mpUiScale).
 static inline float pvUiScale(int w, int h) { return ((w < h ? w : h) <= 768) ? 2.0f : 1.0f; }
+// When the control panel is summoned by a screen tap the tiny controller-sized
+// icons are hard to hit, so enlarge the whole panel uniformly (icons AND their
+// spacing scale together, so the layout does not reflow and the tap hit-test
+// stays aligned). Controller input keeps the original size.
+static const float PV_TOUCH_PANEL_SCALE = 1.55f;
 
 // Image extensions the scanner accepts (AImageDecoder handles all of these).
 static bool isPhotoExt(const std::string& nameLower) {
@@ -998,6 +1004,8 @@ void NanoMenu::openPhotoGrid(const std::vector<int>& list, const std::string& ti
     mPhotoGridList = list;
     mPhotoGridCursor = 0;
     mPhotoGridTop = 0;
+    mPhotoGridScrollY = 0.0f;
+    mPhotoGridScrollAnchor = 0.0f;
     mPhotoGridTitle = title;
     mPhotoGridAnim = 0.0f;
     mPhotoGridFocusStart = -1.0f;
@@ -1049,12 +1057,77 @@ void NanoMenu::photoGridNav(int dx, int dy) {
         if (curRow < mPhotoGridTop) mPhotoGridTop = curRow;
         if (curRow >= mPhotoGridTop + visRows) mPhotoGridTop = curRow - visRows + 1;
         if (mPhotoGridTop < 0) mPhotoGridTop = 0;
+        mPhotoGridScrollY = (float)mPhotoGridTop * cell;   // D-pad snaps the smooth scroll to the row
     }
 }
 
 void NanoMenu::photoGridSelect() {
     if (mPhotoGridCursor < 0 || mPhotoGridCursor >= (int)mPhotoGridList.size()) return;
     openPhotoViewer(mPhotoGridList, mPhotoGridCursor);
+}
+
+// ---- Photo grid touch (tap a thumbnail to open, drag to scroll) ----
+// Recompute the same cell layout renderPhotoGrid uses (slide=0 at rest) so a device
+// touch maps to a thumbnail index. mPhotoGridTop is the top visible row.
+static void pvGridLayout(int W, int H, float& margin, float& top, float& cell, int& visRows) {
+    float ts = fmaxf(1.0f, (float)H / 768.0f);
+    margin = W * 0.055f;
+    top    = 132.0f * ts;
+    float gridW = W - margin * 2.0f;
+    cell   = gridW / PG_COLS;
+    visRows = (int)((H - top - 70.0f * ts) / cell);
+    if (visRows < 1) visRows = 1;
+}
+int NanoMenu::photoGridCellAt(float px, float py) {
+    int n = (int)mPhotoGridList.size();
+    if (n <= 0) return -1;
+    float margin, top, cell; int visRows;
+    pvGridLayout(mWidth, mHeight, margin, top, cell, visRows);
+    if (py < top) return -1;                                          // title strip, not a cell
+    int col = (int)floorf((px - margin) / cell);
+    int row = (int)floorf((py - top + mPhotoGridScrollY) / cell);     // absolute row (smooth scroll)
+    if (col < 0 || col >= PG_COLS || row < 0) return -1;
+    int idx = row * PG_COLS + col;
+    if (idx < 0 || idx >= n) return -1;
+    return idx;
+}
+void NanoMenu::photoGridScrollTo(int topRow) {   // snap the pixel scroll to a whole row (D-pad helper)
+    float margin, top, cell; int visRows;
+    pvGridLayout(mWidth, mHeight, margin, top, cell, visRows);
+    mPhotoGridScrollY = (float)topRow * cell;   // the render clamps
+    mDisplayDirty = true;
+}
+void NanoMenu::photoGridScrollDrag(float downPy, float py, int /*unused*/) {
+    // Smooth pixel scroll from the anchor captured at touch-down (content follows the
+    // finger; finger up -> later rows). The render clamps to [0, maxScrollY].
+    mPhotoGridScrollY = mPhotoGridScrollAnchor + (downPy - py);
+    mDisplayDirty = true;
+}
+void NanoMenu::photoGridOpenAt(int idx) {
+    if (idx < 0 || idx >= (int)mPhotoGridList.size()) return;
+    mPhotoGridCursorPrev = mPhotoGridCursor;
+    mPhotoGridCursor = idx;
+    mPhotoGridFocusStart = mEffectTime;
+    photoGridSelect();
+}
+// Leave the folder/grid view (mirrors photoGridNav's LEFT-at-column-0 exit). A touch
+// tap on the top-left back chevron routes here; the grid is popped off the level stack.
+void NanoMenu::photoGridBack() {
+    closePhotoGrid();
+    if (!mPs3Stack.empty() && mPs3Stack.back().screenKind == PHOTO_GRID) mPs3Stack.pop_back();
+}
+// Hit-test the top-left back chevron zone (same layout renderPhotoGrid draws). The
+// zone is confined to the header strip above the first thumbnail row so it never
+// overlaps a cell tap.
+bool NanoMenu::photoGridBackHit(float px, float py) {
+    float ts = fmaxf(1.0f, (float)mHeight / 768.0f);
+    float margin = mWidth * 0.055f;
+    const char* bchev = "\xE2\x80\xB9";
+    float chFs = 2.0f * ts;
+    float chW = measureText(bchev, chFs);
+    // generous touch target around the chevron, still left of a long title
+    return px >= 0.0f && px <= margin + chW + 22.0f * ts &&
+           py >= 0.0f && py <= 118.0f * ts;
 }
 
 void NanoMenu::renderPhotoGrid() {
@@ -1076,12 +1149,22 @@ void NanoMenu::renderPhotoGrid() {
     int visRows = (int)((H - top - 70.0f * ts) / cell);
     if (visRows < 1) visRows = 1;
 
-    // title + count
-    drawText(mPhotoGridTitle.c_str(), margin, 34.0f * ts + slide, 1.7f * ts, 1.0f, 1.0f, 1.0f, a);
+    // back chevron (top-left) + title + count. The chevron is a touch exit for the
+    // folder view, styled like the photo-viewer exit glyph (dark shadow + silvery
+    // fill). The title indents to sit right of it, reading "< Folder".
+    const char* bchev = "\xE2\x80\xB9";   // U+2039, renders in Rodin (U+276E is tofu)
+    float chFs = 2.0f * ts;
+    float chW = measureText(bchev, chFs);
+    float chX = margin, chY = 30.0f * ts + slide;
+    float so = fmaxf(1.0f, 2.0f * ts);
+    drawText(bchev, chX + so, chY + so, chFs, 0.0f, 0.0f, 0.0f, 0.55f * a);
+    drawText(bchev, chX, chY, chFs, 0.86f, 0.92f, 1.0f, 0.96f * a);
+    float titleX = margin + chW + 20.0f * ts;
+    drawText(mPhotoGridTitle.c_str(), titleX, 34.0f * ts + slide, 1.7f * ts, 1.0f, 1.0f, 1.0f, a);
     char info[64];
     snprintf(info, sizeof(info), "%zu %s", mPhotoGridList.size(),
              mPhotoGridList.size() == 1 ? "image" : "images");
-    drawText(info, margin, 84.0f * ts + slide, 1.0f * ts, 0.75f, 0.85f, 0.95f, a);
+    drawText(info, titleX, 84.0f * ts + slide, 1.0f * ts, 0.75f, 0.85f, 0.95f, a);
 
     // focus grow tween (1.0 -> 1.36, easeOutCubic, mirrors the web drawPhotoGrid).
     // Duration matches the web V.ITEM_ANIM_MS (200ms), same as the XMB item scroll.
@@ -1093,15 +1176,26 @@ void NanoMenu::renderPhotoGrid() {
     }
     float pulse = 0.5f + 0.5f * cosf(mEffectTime * 2.0f * 3.14159f / 1.5f);
 
-    int first = mPhotoGridTop * PG_COLS;
-    int last = first + PG_COLS * visRows;
     int n = (int)mPhotoGridList.size();
+    int totalRows = (n + PG_COLS - 1) / PG_COLS;
+    // Smooth finger scroll: mPhotoGridScrollY is the pixels scrolled from the top. Clamp
+    // it, keep the legacy integer top row in sync (D-pad nav settles to it), and draw
+    // absolute rows offset by scrollY so a drag moves the grid pixel-for-pixel.
+    float maxScrollY = fmaxf(0.0f, (float)(totalRows - visRows) * cell);
+    if (mPhotoGridScrollY < 0.0f) mPhotoGridScrollY = 0.0f;
+    else if (mPhotoGridScrollY > maxScrollY) mPhotoGridScrollY = maxScrollY;
+    float scrollY = mPhotoGridScrollY;
+    mPhotoGridTop = (int)floorf(scrollY / cell + 0.5f);
+    int firstRow = (int)floorf(scrollY / cell) - 1; if (firstRow < 0) firstRow = 0;
+    int lastRow  = (int)floorf((scrollY + ((float)H - top)) / cell) + 1;
     std::vector<int> need;   // uncached visible thumbs, decoded in a budgeted batch
-    for (int idx = first; idx < last && idx < n; idx++) {
-        int gi = idx - first;
-        int cx = gi % PG_COLS, cy = gi / PG_COLS;
-        float ccx = margin + cx * cell + cell * 0.5f;
-        float ccy = top + cy * cell + cell * 0.5f;
+    for (int rr = firstRow; rr <= lastRow; rr++)
+      for (int cc = 0; cc < PG_COLS; cc++) {
+        int idx = rr * PG_COLS + cc;
+        if (idx >= n) break;
+        if (idx < 0) continue;
+        float ccx = margin + cc * cell + cell * 0.5f;
+        float ccy = top + (float)rr * cell + cell * 0.5f - scrollY;
         bool sel = (idx == mPhotoGridCursor);
         float sc = 1.0f;
         if (sel) sc = 1.0f + 0.36f * fe;
@@ -1159,6 +1253,22 @@ void NanoMenu::renderPhotoGrid() {
         float ds = 0.95f * ts;
         float dw = measureText(dt.c_str(), ds);
         drawText(dt.c_str(), (W - dw) * 0.5f, (float)H - 32.0f * ts, ds, 0.8f, 0.85f, 0.92f, a);
+    }
+
+    // Scroll indicator on the right edge when the grid overflows (a scrollable hint,
+    // so it is obvious there is more below). Track + a proportional thumb, tracking the
+    // smooth pixel scroll.
+    if (totalRows > visRows) {
+        float trackW = fmaxf(3.0f, PXD(0.006f));
+        float trackX = (float)W - margin * 0.5f - trackW;
+        float trackY = top;
+        float trackH = (float)visRows * cell - cell * 0.16f;
+        drawQuad(trackX, trackY, trackW, trackH, 1.0f, 1.0f, 1.0f, 0.14f * a);
+        float thumbH = trackH * (float)visRows / (float)totalRows;
+        if (thumbH < trackW * 3.0f) thumbH = trackW * 3.0f;
+        float pos = (maxScrollY > 0.0f) ? scrollY / maxScrollY : 0.0f;
+        if (pos < 0.0f) pos = 0.0f; else if (pos > 1.0f) pos = 1.0f;
+        drawQuad(trackX, trackY + (trackH - thumbH) * pos, trackW, thumbH, 1.0f, 1.0f, 1.0f, 0.5f * a);
     }
 }
 
@@ -1293,6 +1403,8 @@ void NanoMenu::openPhotoViewer(const std::vector<int>& list, int idx) {
     mPvPanel = false; mPvCpClosing = false; mPvInfo = false; mPvCpSub = false;
     mPvSlideshow = false; mPvPaused = false; mPvWpMode = false; mPvTrimMode = false;
     mPvTrans = false;
+    mPvDragActive = false; mPvDragSettle = false; mPvDragDx = 0.0f; mPvDragCommitDir = 0; mPvPanning = false;
+    mPvPinchActive = false;
     if (mPvEffect.empty()) mPvEffect = "Normal";
     // Async decode: never block the render thread. Display long-side, clamped crisp.
     mPvMaxDim = (mWidth > mHeight ? mWidth : mHeight);
@@ -1312,8 +1424,22 @@ void NanoMenu::closePhotoViewer() {
     // photoTick frees them once mPvEnterRaw eases to ~0.
 }
 
+// Land on a photo with no Slide/Fade transition (used by the interactive touch
+// swipe, which does its own finger-tracked slide). Resets view state + prefetch.
+void NanoMenu::pvGoTo(int newIdx) {
+    if (mPvList.empty()) return;
+    int n = (int)mPvList.size();
+    mPvIdx = ((newIdx % n) + n) % n;
+    mPvRot = 0; mPvZoom = 1.0f; mPvPanX = 0.0f; mPvPanY = 0.0f;
+    mPvFocusIdx.store(mPvList[mPvIdx]);
+    pvRequestDecode(mPvList[mPvIdx]);
+    if (mPvIdx + 1 < n) pvRequestDecode(mPvList[mPvIdx + 1]);
+    if (mPvIdx - 1 >= 0) pvRequestDecode(mPvList[mPvIdx - 1]);
+}
+
 void NanoMenu::pvStep(int d) {
     if (mPvList.empty()) return;
+    mPvDragActive = false; mPvDragSettle = false; mPvDragDx = 0.0f; mPvDragCommitDir = 0; mPvPanning = false;
     const std::string& eff = mPvEffect.empty() ? std::string("Normal") : mPvEffect;
     if (eff == "Slide" || eff == "Fade") {
         mPvTrans = true; mPvTransFrom = mPvIdx; mPvTransStart = mEffectTime;
@@ -1429,6 +1555,25 @@ void NanoMenu::renderPhotoViewer() {
         tp = fminf(1.0f, (mEffectTime - mPvTransStart) / 0.65f);
         if (tp >= 1.0f) mPvTrans = false;
     }
+    // Resolve the interactive swipe offset: live while a finger drags, then eased to
+    // the commit (+/-W) or spring-back (0) target on release. When a commit settle
+    // finishes, land on the neighbour with no extra Slide transition.
+    float ddx = 0.0f; bool showDrag = false;
+    if (mPvDragActive) { ddx = mPvDragDx; showDrag = true; }
+    else if (mPvDragSettle) {
+        float p = (mEffectTime - mPvDragSettleStart) / 0.26f;
+        if (p >= 1.0f) {
+            mPvDragSettle = false;
+            if (mPvDragCommitDir != 0) { pvGoTo(mPvIdx + mPvDragCommitDir); mPvDragCommitDir = 0; }
+            mPvDragDx = 0.0f; ddx = 0.0f; showDrag = false;
+        } else {
+            float e = 1.0f - powf(1.0f - p, 3.0f);
+            ddx = mPvDragFrom + (mPvDragTo - mPvDragFrom) * e;
+            showDrag = true;
+        }
+        mDisplayDirty = true;
+    }
+
     if (mPvTrans && tp < 1.0f) {
         float e = tp * tp * (3.0f - 2.0f * tp);
         if (mPvTransEffect == "Slide") {
@@ -1438,11 +1583,38 @@ void NanoMenu::renderPhotoViewer() {
             drawPhoto(mPvList[mPvTransFrom], 0, 1.0f, et * (1.0f - e), 0, 0, 0);
             drawPhoto(mPvList[mPvIdx], mPvRot, mPvZoom, et * e, 0, 0, 0);
         }
+    } else if (showDrag && fabsf(ddx) > 0.5f && (int)mPvList.size() > 1) {
+        // current photo follows the finger; the neighbour it is revealing slides in
+        // alongside it (next comes from the right, previous from the left).
+        int dir = (ddx < 0.0f) ? +1 : -1;
+        int n2 = (int)mPvList.size();
+        int nb = ((mPvIdx + dir) % n2 + n2) % n2;
+        float nbOff = ddx + ((ddx < 0.0f) ? (float)W : -(float)W);
+        drawPhoto(mPvList[mPvIdx], mPvRot, mPvZoom, et, ddx, 0, 0);
+        drawPhoto(mPvList[nb], 0, 1.0f, et, nbOff, 0, 0);
     } else {
         drawPhoto(mPvList[mPvIdx], mPvRot, mPvZoom, et, 0, mPvPanX, mPvPanY);
     }
 
     pvPrefetch();
+
+    // Touch exit affordance: a back chevron at the top-left, shown ONLY while the
+    // control panel is up (it comes up with the rest of the on-screen icons), styled
+    // to match the panel glyphs - a soft dark shadow for contrast on bright photos
+    // plus the same silvery fill the panel icons use, rather than a flat box. Tapping
+    // it leaves the viewer (pvTouchFrame hit-tests the same zone).
+    if (mPvPanel && !mPvWpMode && !mPvTrimMode && !mPvPlChooserActive) {
+        float pa = (mPvCpAnimStart >= 0.0f) ? fminf(1.0f, (mEffectTime - mPvCpAnimStart) / 0.2f) : 1.0f;
+        float a = pa * et;
+        float afs = PFS(58.0f);
+        const char* arrow = "\xE2\x80\xB9";   // U+2039 single left angle quote (renders in Rodin; U+276E was tofu)
+        float aw = measureText(arrow, afs);
+        float acx = PXD(0.052f), acy = PSZ(0.060f);
+        float ax = acx - aw * 0.5f, ay = ps3::baselineToTopY(acy + afs * 0.30f, afs);
+        float so = PSZ(0.0035f);
+        drawText(arrow, ax + so, ay + so, afs, 0.0f, 0.0f, 0.0f, 0.55f * a);
+        drawText(arrow, ax, ay, afs, 0.86f, 0.92f, 1.0f, 0.96f * a);
+    }
 
     // bottom-right auto-hiding help hint (two rows): Control Panel / Home Menu
     float hintA = fmaxf(0.0f, fminf(1.0f, (mPvHintUntil - mEffectTime) / 0.6f)) * et;
@@ -1622,14 +1794,21 @@ static const PvCp* pvCpTable(bool slideshow, int* count) {
     *count = kPvCpCount; return kPvCp;
 }
 
-void NanoMenu::openPvPanel() {
+void NanoMenu::openPvPanel(bool byTouch) {
     if (mPvPanel) return;
+    mPvPanelTouch = byTouch;
     int cnt; const PvCp* cp = pvCpTable(mPvSlideshow, &cnt);
     mPvPanel = true; mPvCpClosing = false; mPvCpSub = false;
     mPvCpSel = 0;
     if (mPvSlideshow) { for (int i = 0; i < cnt; i++) if (!strcmp(cp[i].act, "pause")) { mPvCpSel = i; break; } }
     mPvCpAnimStart = mEffectTime; mPvCpFocusStart = mEffectTime; mPvCpSelPrev = mPvCpSel;
     mPvCpPressStart = -1.0f; mPvHintUntil = 0.0f;
+}
+
+float NanoMenu::pvPanelUi() {
+    float ui = pvUiScale(mWidth, mHeight);
+    if (mPvPanelTouch) ui *= PV_TOUCH_PANEL_SCALE;
+    return ui;
 }
 
 void NanoMenu::closePvPanel() {
@@ -1731,12 +1910,179 @@ void NanoMenu::pvPanelActivate() {
             pvOpenAddChooser(mPhotos[mPvList[mPvIdx]].file); }
 }
 
+// ---------------------------------------------------------------------------
+// Photo viewer touch (Gallery style). Swipe left/right = next/previous photo,
+// tap = show/hide the control panel, tap a control cell runs it, tap-blank
+// dismisses the controls, a firm swipe down exits the viewer. Reuses the shared
+// raw->logical mapping (correct on DRM + SF); gestures drive the same pv*
+// handlers the D-pad uses. Called from pollInput's SYN_REPORT when mPvActive.
+// ---------------------------------------------------------------------------
+void NanoMenu::pvTouchFrame() {
+    if (!mPvActive) { mXmbTouchTracking = false; mTouchWasDown = mTouchDown; return; }
+    float px, py;
+    if (!touchLogicalPx(px, py)) { mTouchWasDown = mTouchDown; return; }
+    const float SLOP = 16.0f, TAPMAX = 24.0f;
+    const int64_t TAPMS = 450;
+    int64_t now = android::uptimeMillis();
+    bool down = mTouchDown, downEdge = down && !mTouchWasDown, upEdge = !down && mTouchWasDown;
+
+    // Two-finger pinch-to-zoom over the bare photo. Takes precedence over the
+    // single-finger drag/pan: while two contacts are active the zoom tracks the
+    // ratio of the finger distance to the distance when the second finger landed.
+    int nf = (mTouchId[0] >= 0 ? 1 : 0) + (mTouchId[1] >= 0 ? 1 : 0);
+    bool pinchable = !mPvPanel && !mPvInfo && !mPvWpMode && !mPvTrimMode && !mPvPlChooserActive;
+    if (nf >= 2 && pinchable) {
+        float ax, ay, bx, by;
+        if (touchMapRaw(mTouchSX[0], mTouchSY[0], ax, ay) &&
+            touchMapRaw(mTouchSX[1], mTouchSY[1], bx, by)) {
+            float dist = sqrtf((bx - ax) * (bx - ax) + (by - ay) * (by - ay));
+            if (!mPvPinchActive) {
+                mPvPinchActive = true;
+                mPvPinchStartDist = fmaxf(1.0f, dist);
+                mPvPinchStartZoom = (mPvZoom <= 0.0f ? 1.0f : mPvZoom);
+                mPvDragActive = false; mPvPanning = false;   // cancel any single-finger gesture
+            } else {
+                float z = mPvPinchStartZoom * (dist / mPvPinchStartDist);
+                mPvZoom = fmaxf(1.0f, fminf(8.0f, z));
+                if (mPvZoom <= 1.01f) { mPvPanX = 0.0f; mPvPanY = 0.0f; }
+                mDisplayDirty = true;
+            }
+        }
+        mXmbTouchTracking = false;   // the leftover finger must not step/tap on lift
+        mLastInputMs = now; mTouchWasDown = mTouchDown; return;
+    }
+    if (mPvPinchActive) {
+        // dropped below two fingers: end the pinch and swallow the remaining finger
+        // (single-finger drag resumes only after a fresh press).
+        mPvPinchActive = false;
+        mXmbTouchTracking = false;
+        mLastInputMs = now; mTouchWasDown = mTouchDown; return;
+    }
+
+    if (downEdge) {
+        mXmbTouchTracking = true; mXmbTouchMoved = false;
+        mXmbTouchDownMs = now; mXmbTouchDownPX = px; mXmbTouchDownPY = py;
+        mXmbTouchLastPX = px; mXmbTouchLastPY = py; mLastInputMs = now;
+        mTouchWasDown = mTouchDown; return;
+    }
+    if (down && mXmbTouchTracking) {
+        float dx = px - mXmbTouchDownPX, dy = py - mXmbTouchDownPY;
+        if (!mXmbTouchMoved && dx * dx + dy * dy >= SLOP * SLOP) mXmbTouchMoved = true;
+        // Interactive gestures over the bare photo (no panel/modal up). When zoomed a
+        // single finger pans the photo; otherwise a horizontal drag scrubs the photo
+        // toward its neighbour (which follows the finger 1:1 until release).
+        if (mXmbTouchMoved && !mPvPanel && !mPvInfo && !mPvWpMode && !mPvTrimMode && !mPvPlChooserActive) {
+            if (mPvZoom > 1.01f) {
+                mPvPanX += (px - mXmbTouchLastPX);
+                mPvPanY += (py - mXmbTouchLastPY);
+                mPvPanning = true; mPvDragActive = false;
+                mDisplayDirty = true;
+            } else if (fabsf(dx) > fabsf(dy)) {
+                mPvDragActive = true; mPvDragSettle = false;
+                mPvDragDx = dx;
+                mDisplayDirty = true;
+            }
+        }
+        mXmbTouchLastPX = px; mXmbTouchLastPY = py; mLastInputMs = now;
+        mTouchWasDown = mTouchDown; return;
+    }
+    if (!(upEdge && mXmbTouchTracking)) { mTouchWasDown = mTouchDown; return; }
+
+    // ---- release: classify the gesture and dispatch by viewer state ----
+    mXmbTouchTracking = false;
+    mLastInputMs = now;
+    mTouchWasDown = mTouchDown;
+    float dx = px - mXmbTouchDownPX, dy = py - mXmbTouchDownPY;
+    int64_t held = now - mXmbTouchDownMs;
+    bool tap = !mXmbTouchMoved && held <= TAPMS && (dx * dx + dy * dy) <= TAPMAX * TAPMAX;
+    bool horiz = fabsf(dx) > fabsf(dy);
+    float W = (float)mWidth, H = (float)mHeight;
+
+    // A finished interactive swipe settles to the neighbour (dragged past ~22% of the
+    // width) or springs back; a finished pan just ends. Both consume the release.
+    if (mPvDragActive) {
+        mPvDragActive = false;
+        float adx = mPvDragDx;
+        if (fabsf(adx) > W * 0.22f) {
+            mPvDragCommitDir = (adx < 0.0f) ? +1 : -1;
+            mPvDragTo = (adx < 0.0f) ? -W : W;
+        } else {
+            mPvDragCommitDir = 0;
+            mPvDragTo = 0.0f;
+        }
+        mPvDragFrom = adx; mPvDragSettle = true; mPvDragSettleStart = mEffectTime;
+        mDisplayDirty = true;
+        return;
+    }
+    if (mPvPanning) { mPvPanning = false; return; }
+
+    // Set-as-wallpaper / trim / add-to-playlist modals keep their D-pad handling.
+    if (mPvPlChooserActive || mPvWpMode || mPvTrimMode) return;
+
+    // Top-left back chevron (only while the panel is up): a generous corner zone -> exit.
+    if (tap && mPvPanel) {
+        float acx = PXD(0.052f), acy = PSZ(0.060f), r = PSZ(0.065f);
+        if (fabsf(px - acx) <= r && fabsf(py - acy) <= r) { closePhotoViewer(); return; }
+    }
+
+    if (mPvPanel) {
+        if (!tap) return;
+        float ui = pvPanelUi();   // matches the enlarged touch panel
+        if (mPvCpSub) {
+            // Change Effect / Slideshow Speed / Style submenu: tap a row to apply it
+            // (same layout drawPvPanel renders under the label).
+            if (!mPvCpSubOpts.empty()) {
+                float fs = PFS(24.0f * ui), lh = PSZ(0.045f * ui);
+                float ccx = PXP(0.273f);
+                float mw = 0; for (auto& o : mPvCpSubOpts) mw = fmaxf(mw, measureText(o.c_str(), fs));
+                float sx = ccx - mw * 0.5f;
+                float sy = PYP(0.441f) + PSZ(0.061f * ui) + PSZ(0.110f * ui);
+                for (int i = 0; i < (int)mPvCpSubOpts.size(); i++) {
+                    float oy2 = sy + i * lh;
+                    if (px >= sx - fs * 0.5f && px <= sx + mw + fs * 0.5f &&
+                        py >= oy2 - lh * 0.5f && py <= oy2 + lh * 0.5f) {
+                        mPvCpSubSel = i; pvPanelActivate(); return;   // applies + closes the submenu
+                    }
+                }
+            }
+            pvPanelBack();   // tap off the submenu -> back to the panel
+            return;
+        }
+        // Hit-test the control-panel cells (device space, nearest within a cell).
+        float cellX = PXD(0.033f * ui), cellY = PSZ(0.061f * ui);
+        int cnt; const PvCp* cp = pvCpTable(mPvSlideshow, &cnt);
+        float gmin = 1e9f, gmax = -1e9f;
+        for (int i = 0; i < cnt; i++) { gmin = fminf(gmin, cp[i].gx); gmax = fmaxf(gmax, cp[i].gx); }
+        float gcen = (gmin + gmax) * 0.5f;
+        float ox = PXP(0.273f) - gcen * cellX, oy = PYP(0.441f);
+        int best = -1; float bestD = 1e9f;
+        for (int i = 0; i < cnt; i++) {
+            float cx = ox + cp[i].gx * cellX, cy = oy + (cp[i].gy - 1.0f) * cellY;
+            if (fabsf(px - cx) <= cellX * 0.6f && fabsf(py - cy) <= cellY * 0.6f) {
+                float d = fabsf(px - cx) + fabsf(py - cy);
+                if (d < bestD) { bestD = d; best = i; }
+            }
+        }
+        if (best >= 0) { mPvCpSelPrev = mPvCpSel; mPvCpFocusStart = mEffectTime; mPvCpSel = best; pvPanelActivate(); return; }
+        pvPanelBack();   // tap off a cell -> close the panel
+        return;
+    }
+    if (mPvInfo) {
+        if (tap) mPvInfo = false;   // dismiss the EXIF overlay (mirrors SELECT)
+        return;
+    }
+    // No overlay: Gallery gestures over the photo. Horizontal swipes are handled
+    // interactively (mPvDragActive above); here only the vertical exit + tap remain.
+    if (!tap && !horiz && dy > H * 0.18f && mPvZoom <= 1.01f) { closePhotoViewer(); return; }  // firm swipe down = exit
+    if (tap)                                                  { openPvPanel(true); return; }   // tap = show controls (enlarged for touch)
+}
+
 void NanoMenu::drawPvPanel(float closeT) {
     if (mPvList.empty()) return;
     float t = (closeT >= 0.0f) ? closeT
             : (mPvCpAnimStart >= 0.0f ? fminf(1.0f, (mEffectTime - mPvCpAnimStart) / 0.2f) : 1.0f);
     if (t < 0) t = 0;
-    float ui = pvUiScale(mWidth, mHeight);
+    float ui = pvPanelUi();   // enlarged when opened by touch
     // Same cell sizing + origin as drawMpOpt so the icons line up with the music
     // panel: the grid's gx span is centred about the music origin (0.273) and the
     // three rows are centred on oy (gy-1) the way music does (cy = oy - gy*cellY).

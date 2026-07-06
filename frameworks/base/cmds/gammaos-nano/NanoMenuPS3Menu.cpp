@@ -36,6 +36,7 @@
 #include "NanoI18n.h"      // trDyn() runtime translation of hardcoded UI strings
 #include "NanoMenuStrings.h" // NanoLocale/LocaleInfo + nanoGetLocale/SetLocale/ApplyLocaleToSystem (System Language picker)
 #include "stb_image.h"     // stbi_load for the cinfo hover background JPEG (impl lives in NanoMenuPS3Icons.cpp)
+#include <utils/SystemClock.h>  // android::uptimeMillis() for touch-gesture timing (long-press, tap, velocity)
 
 #include <ctype.h>
 #include <math.h>
@@ -1963,6 +1964,35 @@ static float ps3CatOffset(bool active, float t, float fromOff) {
 }
 
 // ---------------------------------------------------------------------------
+// Touch-navigation tuning (logical px / ms / rows). The web app has no touch
+// input and no scroll momentum, so these follow the XMB's own easeOutCubic
+// language with an Instagram-style friction glide that settles on the nearest
+// item. Shared by xmbTouchFrame() and the per-frame fling in renderPs3Xmb(),
+// so they live above both.
+// ---------------------------------------------------------------------------
+static constexpr float   XMB_TOUCH_SLOP_PX    = 14.0f;  // travel before a press becomes a drag
+static constexpr float   XMB_TOUCH_TAP_MAX_PX = 22.0f;  // max travel still counted as a tap
+static constexpr int64_t XMB_TOUCH_LONG_MS    = 500;    // hold to open the option side-menu
+static constexpr int64_t XMB_TOUCH_TAP_MAX_MS = XMB_TOUCH_LONG_MS;  // any shorter still press is a tap
+static constexpr float   XMB_FLING_FRICTION   = 6.0f;   // per-second exponential velocity decay
+static constexpr float   XMB_FLING_MIN_VEL    = 0.6f;   // rows/sec below which the glide settles
+static constexpr float   XMB_FLING_MAX_VEL    = 24.0f;  // clamp the launch velocity (rows/sec)
+static constexpr float   XMB_ITEM_OVERSCROLL  = 0.85f;  // rows of damped rubber-band past the ends
+static constexpr float   XMB_TOUCH_ITEM_SENS  = 0.5f;   // item scroll sensitivity (rows per row-pitch of finger travel); <1 = less sensitive
+
+// Clamp a continuous item position with a damped rubber-band past the list ends,
+// so a drag can pull slightly beyond the first/last item then spring back.
+static float xmbClampScroll(float v, int n) {
+    if (n <= 1) return 0.0f;
+    const float lo = 0.0f, hi = (float)(n - 1);
+    if (v < lo)      v = lo - (lo - v) * 0.35f;
+    else if (v > hi) v = hi + (v - hi) * 0.35f;
+    if (v < lo - XMB_ITEM_OVERSCROLL) v = lo - XMB_ITEM_OVERSCROLL;
+    if (v > hi + XMB_ITEM_OVERSCROLL) v = hi + XMB_ITEM_OVERSCROLL;
+    return v;
+}
+
+// ---------------------------------------------------------------------------
 // navigation - smooth continuous item position; timed category slide rail.
 // ---------------------------------------------------------------------------
 
@@ -2004,6 +2034,7 @@ void NanoMenu::ps3DlgNav(int dir, bool horizontal) {
 }
 
 void NanoMenu::ps3XmbLeft() {
+    xmbCancelTouchScroll();       // a discrete nav press takes over from an inertial glide
     if (mGSearchActive) return;   // results overlay ignores left/right
     if (mVidActive) {   // video player: Go To field / Scene grid / panel grid / rewind 10s
         if (mVidOpenInProgress.load(std::memory_order_relaxed)) return;   // opening: only Back (cancel) is live
@@ -2052,6 +2083,7 @@ void NanoMenu::ps3XmbLeft() {
 }
 
 void NanoMenu::ps3XmbRight() {
+    xmbCancelTouchScroll();       // a discrete nav press takes over from an inertial glide
     if (mGSearchActive) return;   // results overlay ignores left/right
     if (mVidActive) {   // video player: Go To field / Scene grid / panel grid / forward 10s
         if (mVidOpenInProgress.load(std::memory_order_relaxed)) return;   // opening: only Back (cancel) is live
@@ -2101,6 +2133,7 @@ void NanoMenu::ps3XmbRight() {
 }
 
 void NanoMenu::ps3XmbUp() {
+    xmbCancelTouchScroll();       // a discrete nav press takes over from an inertial glide
     if (mGSearchActive) { gsearchMove(-1); return; }   // global search results
     if (mVidActive) {   // video player: Go To digit up / Scene grid up / panel grid up
         if (mVidOpenInProgress.load(std::memory_order_relaxed)) return;   // opening: only Back (cancel) is live
@@ -2132,6 +2165,7 @@ void NanoMenu::ps3XmbUp() {
     if (s > 0) { mPs3ItemAnimFrom = mPs3AnimItem; mPs3ItemAnimStart = mEffectTime; s--; }
 }
 void NanoMenu::ps3XmbDown() {
+    xmbCancelTouchScroll();       // a discrete nav press takes over from an inertial glide
     if (mGSearchActive) { gsearchMove(+1); return; }   // global search results
     if (mVidActive) {   // video player: Go To digit down / Scene grid down / panel grid down
         if (mVidOpenInProgress.load(std::memory_order_relaxed)) return;   // opening: only Back (cancel) is live
@@ -2280,6 +2314,7 @@ bool NanoMenu::tryOpenSearchEngineChooser() {
 }
 
 void NanoMenu::ps3XmbSelect() {
+    xmbCancelTouchScroll();       // settle any inertial glide before activating
     if (mGSearchActive) { gsearchActivate(); return; }   // launch / open the selected result
     if (mVidActive) {   // video player: Go To enter / Scene seek / panel activate / play-pause
         if (mVidOpenInProgress.load(std::memory_order_relaxed)) return;   // opening: only Back (cancel) is live
@@ -2970,6 +3005,7 @@ void NanoMenu::ps3XmbSelect() {
 }
 
 void NanoMenu::ps3XmbBack() {
+    xmbCancelTouchScroll();       // a discrete nav press takes over from an inertial glide
     // GammaOS Nano diag: trace why the overlay does not dismiss on Back over a live app.
     if (mOverlayMode) {
         ALOGW("overlay-back-diag: menuState=%d stack=%zu dlg=%d opt=%d wiz=%d tz=%d lang=%d "
@@ -3252,6 +3288,16 @@ void NanoMenu::renderPs3Xmb() {
 
     float dt = mFrameDt; if (dt < 0.0f) dt = 0.0f; if (dt > 0.1f) dt = 0.1f;
 
+    // Touch press-and-hold: fire the long-press (open the option side-menu) from the
+    // per-frame update rather than only on SYN_REPORT, because a perfectly still
+    // finger can emit no digitizer reports at all while it is held down.
+    if (mXmbTouchTracking && mTouchDown && !mXmbTouchMoved && !mXmbTouchLongFired
+        && mXmbTouchMode != 3 && xmbTouchLive()
+        && (android::uptimeMillis() - mXmbTouchDownMs) >= XMB_TOUCH_LONG_MS) {
+        mXmbTouchLongFired = true;
+        xmbTouchLongPress(mXmbTouchDownPX, mXmbTouchDownPY);
+    }
+
     // Dynamic subtitle reserve: grow the active-item pad to fit the active
     // description's actual wrapped line count (1..4), eased so the items below
     // reflow smoothly instead of snapping when scrolling between a short and a
@@ -3277,7 +3323,29 @@ void NanoMenu::renderPs3Xmb() {
     // step started at to the current selection (the web's itemAnim). Combined
     // with the accelerating auto-repeat this gives a smooth, snappy, continuously
     // accelerating hold-scroll. mPs3ItemAnimStart < 0 means "snap" (list change).
-    {
+    if (mXmbTouchTracking && mXmbTouchMode == 1) {
+        // A vertical touch drag owns mPs3AnimItem directly (written in xmbTouchFrame
+        // as the finger moves); the per-step ease is suspended so the list tracks the
+        // finger 1:1. Nothing to integrate here.
+    } else if (mXmbItemFling) {
+        // Inertial glide after a flick (the web has none - this is the added
+        // Instagram-style momentum): integrate the velocity with exponential
+        // friction, snap-stop at the list ends, keep the centred row selected
+        // (drawList highlights lroundf), and hand off to the 200ms ease once slow.
+        int n = (int)ps3CurItems().size();
+        mPs3AnimItem += mXmbItemVel * dt;
+        mXmbItemVel  *= expf(-XMB_FLING_FRICTION * dt);
+        if (n <= 1) { mPs3AnimItem = 0.0f; mXmbItemVel = 0.0f; mXmbItemFling = false; }
+        else {
+            if (mPs3AnimItem <= 0.0f)               { mPs3AnimItem = 0.0f;              mXmbItemVel = 0.0f; }
+            else if (mPs3AnimItem >= (float)(n - 1)) { mPs3AnimItem = (float)(n - 1);    mXmbItemVel = 0.0f; }
+            int sel = (int)lroundf(mPs3AnimItem);
+            if (sel < 0) sel = 0; else if (sel > n - 1) sel = n - 1;
+            ps3CurSel() = sel;
+        }
+        if (mXmbItemFling && fabsf(mXmbItemVel) < XMB_FLING_MIN_VEL) { mXmbItemFling = false; xmbTouchSettleItem(); }
+        mDisplayDirty = true;
+    } else {
         float target = (float)ps3CurSel();
         float dur = ps3::ITEM_ANIM_MS / 1000.0f;   // 200ms easeOutCubic, exactly the web's itemAnim
         float el = mEffectTime - mPs3ItemAnimStart;
@@ -6268,6 +6336,13 @@ void NanoMenu::openXmbOpt() {
         || mPs3BrightSlider || mOskActive || mVidPlChooserActive) return;
     if (mOverlayMode && !mOverlayWallpaper) return;
 
+    // Opening the option menu takes over from an inertial touch glide, the same way
+    // the D-pad handlers do. Physical/scripted Triangle emits no touch report, so
+    // without this the fling would keep scrolling the home column behind the panel
+    // and the selection would drift off the row the menu is being built for. Settle
+    // onto the centred item first so the menu targets what the user sees.
+    if (mXmbItemFling) { mXmbItemFling = false; mXmbItemVel = 0.0f; xmbTouchSettleItem(); }
+
     mPs3OptLabels.clear(); mPs3OptActs.clear(); mPs3OptStart.clear();
     mPs3OptSep.clear(); mPs3OptHasSub.clear(); mPs3OptSubDef.clear(); mPs3OptSubRows.clear();
     mPs3OptSubOpen = false; mPs3OptSubSel = 0;
@@ -6510,6 +6585,587 @@ void NanoMenu::xmbOptOpenSub() {
 
 void NanoMenu::xmbOptCloseSub() {
     mPs3OptSubOpen = false;
+}
+
+// ===========================================================================
+// Touch navigation
+//
+// Swipe left/right to change category, swipe up/down to scroll the item list
+// (with inertial momentum), single tap to open an item/submenu, long-press to
+// open the option side-menu for the touched item, and tap side-menu rows to
+// select them. Raw digitizer -> logical pixel reuses oskTouchFrame's exact
+// mapping (the shared osk_touch_swap/flipx/flipy corrections), which is proven
+// correct on BOTH the DRM (rotated/flipped panels) and SF back-ends; from there
+// we invert to virtual coords and drive the SAME ps3Xmb*/xmbOpt* handlers the
+// D-pad uses, so the slide-rail + item-scroll animation language is identical.
+// ===========================================================================
+
+// True only when the XMB home / a submenu / the option side-menu owns touch.
+// Every full-screen player, dialog, picker, grid modal and the boot/launch
+// transitions have their own input surface and are excluded.
+bool NanoMenu::xmbTouchLive() const {
+    // mPs3DlgActive (system-update / confirm / chooser dialogs) IS a touch target,
+    // handled by the dialog branch in xmbTouchFrame - so it is NOT excluded here.
+    return mPs3Xmb && !mPs3BootActive && !mOskActive
+        && !mVidActive && !mMpActive && !mPvActive
+        && !mPs3WizActive && !mPs3TzActive && !mPs3LangActive
+        && !mGSearchActive && !mPhotoMultiActive && !mPs3BrightSlider
+        && !(mOverlayMode && mOverlayLaunchPending)
+        && !mWaitForRelease && mLaunchFadeStart == 0;
+}
+
+// Shared raw-digitizer -> logical-pixel mapping (the exact chain oskTouchFrame uses,
+// so it is correct on both the DRM rotated/flipped panels and the SF back-end). Fills
+// (px,py) in the logical mWidth x mHeight space and returns false when no touch has
+// been seen yet. Reused by the XMB, dialog and media-player touch handlers.
+bool NanoMenu::touchMapRaw(int rawX, int rawY, float& px, float& py) {
+    if (mTouchMaxX <= mTouchMinX || mTouchMaxY <= mTouchMinY || rawX < 0) return false;
+    float nx = (float)(rawX - mTouchMinX) / (float)(mTouchMaxX - mTouchMinX);
+    float ny = (float)(rawY - mTouchMinY) / (float)(mTouchMaxY - mTouchMinY);
+    if (mOskTouchSwap)  { float t = nx; nx = ny; ny = t; }
+    if (mOskTouchFlipX) nx = 1.0f - nx;
+    if (mOskTouchFlipY) ny = 1.0f - ny;
+    if (nx < 0.0f) nx = 0.0f; else if (nx > 1.0f) nx = 1.0f;
+    if (ny < 0.0f) ny = 0.0f; else if (ny > 1.0f) ny = 1.0f;
+    px = nx * (float)mWidth;
+    py = ny * (float)mHeight;
+    return true;
+}
+// Slot-0 (primary finger) convenience wrapper.
+bool NanoMenu::touchLogicalPx(float& px, float& py) {
+    return touchMapRaw(mTouchRawX, mTouchRawY, px, py);
+}
+
+// Stop an inertial glide (a D-pad press or a context change takes over). Kept
+// tiny so it can be called from the top of every ps3Xmb* nav handler cheaply.
+void NanoMenu::xmbCancelTouchScroll() {
+    mXmbItemFling = false;
+    mXmbItemVel = 0.0f;
+    // A discrete nav press that reaches a ps3Xmb* handler also invalidates a resting
+    // finger, so a still finger left on the panel during D-pad navigation cannot then
+    // fire an unexpected long-press or tap-on-lift. Harmless for touch-driven callers:
+    // a swipe already has mXmbTouchMoved set, and a tap has cleared mXmbTouchTracking
+    // before it calls a ps3Xmb* handler.
+    mXmbTouchMoved = true;
+}
+
+// Snap the momentum scroll onto the nearest item and hand off to the 200ms
+// easeOutCubic so the list eases into the final slot exactly like a D-pad step.
+void NanoMenu::xmbTouchSettleItem() {
+    int n = (int)ps3CurItems().size();
+    if (n <= 0) { mPs3AnimItem = 0.0f; mPs3ItemAnimStart = -1.0f; mXmbItemVel = 0.0f; return; }
+    int target = (int)lroundf(mPs3AnimItem);
+    if (target < 0) target = 0; else if (target > n - 1) target = n - 1;
+    ps3CurSel() = target;
+    mPs3ItemAnimFrom  = mPs3AnimItem;
+    mPs3ItemAnimStart = mEffectTime;   // ease from the current animated position into the slot
+    mXmbItemVel = 0.0f;
+    mDisplayDirty = true;
+}
+
+// Virtual y of option-panel main row `row`, mirroring renderXmbOpt's running-y
+// (separators advance only 0.55*pitch and are non-selectable).
+float NanoMenu::xmbOptRowY(int row) const {
+    const float SP_ITEM_PITCH = 44.0f, SP_LIST_TOP_Y = 470.0f;
+    float yV = SP_LIST_TOP_Y;
+    int n = (int)mPs3OptLabels.size();
+    for (int i = 0; i < n; i++) {
+        if (i < (int)mPs3OptSep.size() && mPs3OptSep[i]) { yV += SP_ITEM_PITCH * 0.55f; continue; }
+        if (i == row) return yV;
+        yV += SP_ITEM_PITCH;
+    }
+    return SP_LIST_TOP_Y;
+}
+
+// Option-panel row under a touch, replicating renderXmbOpt's exact layout. When a
+// submenu is open the right (submenu) column is the active list and the returned
+// index is the sub-row; otherwise it is the main-row index. Returns -1 when the
+// touch is left of the panel or not over any row.
+int NanoMenu::xmbOptRowAt(float px, float py) const {
+    const bool sp43 = ps3::LAYOUT_XC < 0.999f;
+    const float SP_ITEM_PITCH = 44.0f, SP_LIST_TOP_Y = 470.0f, SUB_SHIFT = 330.0f;
+    const bool subOpen = mPs3OptSubOpen && mPs3OptSel >= 0 && mPs3OptSel < (int)mPs3OptSubRows.size()
+                         && !mPs3OptSubRows[mPs3OptSel].empty();
+    const float SP_PANEL_LEFT_BASE = sp43 ? 1056.0f : 1324.0f;
+    const float mainShift = subOpen ? SUB_SHIFT : 0.0f;
+    const float pLeftDev = ps3::devX(ps3::XCP(SP_PANEL_LEFT_BASE - mainShift));
+    if (px < pLeftDev) return -1;
+    const float vy = (py - ps3::gOffY) / ps3::gScale;
+    if (subOpen) {
+        // Submenu rows: the selected sub-row is aligned to its parent row's y.
+        float parentYV = xmbOptRowY(mPs3OptSel);
+        const std::vector<Ps3OptSub>& sub = mPs3OptSubRows[mPs3OptSel];
+        for (int j = 0; j < (int)sub.size(); j++) {
+            float cy = parentYV + (float)(j - mPs3OptSubSel) * SP_ITEM_PITCH;
+            if (fabsf(vy - cy) <= SP_ITEM_PITCH * 0.5f) return j;
+        }
+        return -1;
+    }
+    float yV = SP_LIST_TOP_Y;
+    int n = (int)mPs3OptLabels.size();
+    for (int i = 0; i < n; i++) {
+        if (i < (int)mPs3OptSep.size() && mPs3OptSep[i]) { yV += SP_ITEM_PITCH * 0.55f; continue; }
+        if (fabsf(vy - yV) <= SP_ITEM_PITCH * 0.5f) return i;
+        yV += SP_ITEM_PITCH;
+    }
+    return -1;
+}
+
+// Held slide over the option panel: move the highlight to the row under the
+// finger without activating (activation waits for the lift).
+void NanoMenu::xmbTouchOptHover(float px, float py) {
+    const bool subOpen = mPs3OptSubOpen && mPs3OptSel >= 0 && mPs3OptSel < (int)mPs3OptSubRows.size()
+                         && !mPs3OptSubRows[mPs3OptSel].empty();
+    if (subOpen) {
+        // The submenu re-anchors its selected row to the parent's y (renderXmbOpt:
+        // syV = parentYV - subSel*44), so absolute hover would shift the rows out from
+        // under the finger and run away. Scroll it like a picker wheel instead: move
+        // the selection by the finger travel from the drag anchor (content follows
+        // finger, finger up -> later rows), which is stable and can't overshoot.
+        int n = (int)mPs3OptSubRows[mPs3OptSel].size();
+        if (n <= 0) return;
+        float pitch = ps3::devS(44.0f); if (pitch < 1.0f) pitch = 1.0f;
+        int target = mXmbDlgScrollBase + (int)lroundf((mXmbTouchDownPY - py) / pitch);
+        if (target < 0) target = 0; else if (target > n - 1) target = n - 1;
+        if (target != mPs3OptSubSel) { mPs3OptSubSel = target; mDisplayDirty = true; }
+        return;
+    }
+    // Main list is fixed-position, so absolute hover is stable.
+    int row = xmbOptRowAt(px, py);
+    if (row < 0) return;
+    mPs3OptSel = row;
+    mDisplayDirty = true;
+}
+
+// Tap on the option panel: a row activates it (xmbOptEnter fans out to submenu-
+// open or the action); a tap on the dimmed home area to the left dismisses.
+void NanoMenu::xmbTouchOptTap(float px, float py) {
+    const bool sp43 = ps3::LAYOUT_XC < 0.999f;
+    const bool subOpen = mPs3OptSubOpen && mPs3OptSel >= 0 && mPs3OptSel < (int)mPs3OptSubRows.size()
+                         && !mPs3OptSubRows[mPs3OptSel].empty();
+    const float SP_PANEL_LEFT_BASE = sp43 ? 1056.0f : 1324.0f;
+    const float mainShift = subOpen ? 330.0f : 0.0f;
+    const float pLeftDev = ps3::devX(ps3::XCP(SP_PANEL_LEFT_BASE - mainShift));
+    if (px < pLeftDev) { closeXmbOpt(); return; }   // tapped outside the panel -> dismiss
+    int row = xmbOptRowAt(px, py);
+    if (row < 0) return;                            // inside the panel, no row -> ignore
+    if (subOpen) mPs3OptSubSel = row; else mPs3OptSel = row;
+    xmbOptEnter();
+    mDisplayDirty = true;
+}
+
+// Reconstruct the fullscreen (kind 0) dialog's own local virtual->device transform
+// (renderPs3Dialog builds S/offX/offY from gScale/gFrame*, folding in mPs3UiScale;
+// it does NOT use the global devX/devY there, so a kind-0 touch must invert with it).
+void NanoMenu::dlgFullscreenXform(float& S, float& offX, float& offY) const {
+    float ui = mPs3UiScale; if (ui < 0.5f) ui = 0.5f; if (ui > 2.0f) ui = 2.0f;
+    S = ps3::gScale / ui;
+    offX = ps3::gFrameX + (ps3::gFrameW - S * ps3::XCF(ps3::VW)) * 0.5f;
+    offY = ps3::gFrameY + ps3::gFrameH * 0.5f - S * (ps3::VH * 0.5f);
+}
+
+// Tap on an active dialog: hit-test the element and drive the SAME handlers the
+// D-pad uses. Setting mPs3DlgSel then ps3XmbSelect() applies the choice (functional
+// dialogs read mPs3DlgSel; cosmetic message dialogs just dismiss); ps3XmbBack()
+// cancels. Kind 1 (side-panel) uses the global devX/devY space; kind 0 (fullscreen)
+// uses its own transform.
+void NanoMenu::xmbDialogTouchTap(float px, float py) {
+    if (!mPs3DlgActive) return;
+    int n = (int)mPs3DlgOptions.size();
+
+    if (mPs3DlgKind == 1) {
+        // ---- side-panel chooser / slider (global devX/devY) ----
+        const bool sp43 = ps3::LAYOUT_XC < 0.999f;
+        const float pLeftDev = ps3::devX(ps3::XCP(sp43 ? 1056.0f : 1324.0f));
+        if (px < pLeftDev) { ps3XmbBack(); return; }        // tapped the exposed XMB -> cancel
+        if (mPs3DlgSlider) { ps3XmbSelect(); return; }      // tap the slider panel -> commit the current value
+        if (n <= 0) { ps3XmbSelect(); return; }
+        const float PITCH = 40.0f, TOP_Y = 510.0f, VIS_BOT = ps3::VH - 60.0f;
+        int maxFit = (int)((VIS_BOT - TOP_Y) / PITCH); if (maxFit < 1) maxFit = 1;
+        int firstVis = 0;
+        if (n > maxFit) {
+            if (mPs3DlgSel < maxFit - 1) firstVis = 0;
+            else if (mPs3DlgSel >= n - 1) firstVis = n - maxFit;
+            else firstVis = mPs3DlgSel - (int)(maxFit * 0.66f);
+            if (firstVis < 0) firstVis = 0; if (firstVis > n - maxFit) firstVis = n - maxFit;
+        }
+        int lastVis = (n > maxFit) ? firstVis + maxFit - 1 : n - 1;
+        float vy = (py - ps3::gOffY) / ps3::gScale;
+        int rel = (int)floorf((vy - (TOP_Y - PITCH * 0.5f)) / PITCH);
+        int idx = firstVis + rel;
+        if (idx >= firstVis && idx <= lastVis && idx >= 0 && idx < n) {
+            mPs3DlgSel = idx;
+            previewThemeSetting(mPs3DlgThemeKey, mPs3DlgSel);   // live preview (no-op for non-theme choosers)
+            ps3XmbSelect();
+        }
+        return;
+    }
+
+    // ---- fullscreen dialog (own transform) ----
+    float S, offX, offY; dlgFullscreenXform(S, offX, offY);
+    if (S < 0.0001f) { ps3XmbSelect(); return; }
+    float fit = ps3::LAYOUT_FIT; if (fit < 0.0001f) fit = 1.0f;
+    float vy  = (py - offY) / S;
+    float vxc = (px - offX) / (S * fit);   // centred (XC) virtual x
+    const float innerBot = 880.0f;
+
+    // Footer hint row (~y 909): left = Enter/confirm, right = Cancel (OK on info).
+    if (vy >= innerBot + 10.0f) {
+        if (vxc < ps3::VW * 0.5f) { ps3XmbSelect(); }
+        else { if (mPs3DlgType == 0 && !mPs3DlgRomInfo && !mPs3DlgAppInfo) ps3XmbSelect(); else ps3XmbBack(); }
+        return;
+    }
+    // Rich info pages: a plain tap confirms/closes (scrolling is a drag).
+    if (mPs3DlgRomInfo || mPs3DlgAppInfo) { ps3XmbSelect(); return; }
+
+    if (mPs3DlgType == 3) {                 // confirm: left half = option 0, right half = option 1
+        if (n >= 1) { int s = (vxc < ps3::VW * 0.5f) ? 0 : 1; if (s >= n) s = n - 1; mPs3DlgSel = s; }
+        ps3XmbSelect();
+        return;
+    }
+    if (mPs3DlgType == 1) {                 // centred chooser list (windowed), spacing 46 from innerTop+305
+        const float optTopV = 199.0f + 305.0f, optSpacingV = 46.0f;
+        int visibleCount = (int)((innerBot - optTopV - 40.0f) / optSpacingV); if (visibleCount < 3) visibleCount = 3;
+        int firstVis = 0;
+        if (n > visibleCount) { firstVis = mPs3DlgSel - visibleCount / 2; if (firstVis < 0) firstVis = 0; if (firstVis > n - visibleCount) firstVis = n - visibleCount; }
+        int lastVis = (n > visibleCount) ? firstVis + visibleCount - 1 : n - 1;
+        int rel = (int)lroundf((vy - optTopV) / optSpacingV);
+        int idx = firstVis + rel;
+        if (idx >= firstVis && idx <= lastVis && idx >= 0 && idx < n) { mPs3DlgSel = idx; ps3XmbSelect(); }
+        return;                              // a tap that misses every row is ignored
+    }
+    if (mPs3DlgType == 2) {                 // left-aligned illustrated chooser, spacing 42 from innerTop+220
+        const float optTopV = 199.0f + 220.0f, optSpacingV = 42.0f;
+        int idx = (int)lroundf((vy - optTopV) / optSpacingV);
+        if (idx >= 0 && idx < n) { mPs3DlgSel = idx; ps3XmbSelect(); }
+        return;
+    }
+    // type 0 info / cosmetic message dialogs: a tap anywhere is OK/dismiss.
+    ps3XmbSelect();
+}
+
+// Drag inside a dialog: scroll a rich info page, adjust the side-panel slider, or
+// hover chooser rows (live preview). Called each held frame once the gesture is a drag.
+void NanoMenu::xmbDialogTouchDrag(float px, float py) {
+    if (!mPs3DlgActive) return;
+    // Side-panel numeric slider: map the touch x on the track to the value.
+    if (mPs3DlgKind == 1 && mPs3DlgSlider) {
+        const bool sp43 = ps3::LAYOUT_XC < 0.999f;
+        float trkL = ps3::devX(ps3::XCP(sp43 ? 1100.0f : 1340.0f));
+        float trkR = (float)mWidth - ps3::devS(40.0f);
+        if (trkR < trkL + ps3::devS(40.0f)) trkR = trkL + ps3::devS(40.0f);
+        float frac = (trkR > trkL) ? (px - trkL) / (trkR - trkL) : 0.0f;
+        if (frac < 0.0f) frac = 0.0f; else if (frac > 1.0f) frac = 1.0f;
+        if (mPs3DlgSldStep > 0.0f) {
+            float v = mPs3DlgSldMin + frac * (mPs3DlgSldMax - mPs3DlgSldMin);
+            float steps = roundf((v - mPs3DlgSldMin) / mPs3DlgSldStep);
+            v = mPs3DlgSldMin + steps * mPs3DlgSldStep;
+            if (v < mPs3DlgSldMin) v = mPs3DlgSldMin; if (v > mPs3DlgSldMax) v = mPs3DlgSldMax;
+            mPs3DlgSldVal = v;
+        }
+        mDisplayDirty = true;
+        return;
+    }
+    // Side-panel chooser: scroll the selection like a picker wheel. The visible
+    // window re-centres on the selection, so absolute hover would run away to the
+    // end (the reported "flies to the bottom"). Move the selection incrementally by
+    // the finger travel from the drag anchor (content follows finger; finger up ->
+    // later rows), with a live preview so the colour/theme updates as you scroll.
+    if (mPs3DlgKind == 1 && !mPs3DlgOptions.empty()) {
+        int n = (int)mPs3DlgOptions.size();
+        float pitch = ps3::devS(40.0f); if (pitch < 1.0f) pitch = 1.0f;
+        int target = mXmbDlgScrollBase + (int)lroundf((mXmbTouchDownPY - py) / pitch);
+        if (target < 0) target = 0; else if (target > n - 1) target = n - 1;
+        if (target != mPs3DlgSel) {
+            mPs3DlgSel = target;
+            previewThemeSetting(mPs3DlgThemeKey, mPs3DlgSel);
+            mDisplayDirty = true;
+        }
+        return;
+    }
+    // Fullscreen rich info page: vertical drag scrolls (content follows the finger).
+    if (mPs3DlgKind == 0 && (mPs3DlgRomInfo || mPs3DlgAppInfo)) {
+        float S, offX, offY; dlgFullscreenXform(S, offX, offY);
+        float lineV = mPs3DlgRomInfo ? 27.0f : 30.0f;
+        float lineDev = S * lineV; if (lineDev < 1.0f) lineDev = 1.0f;
+        int delta = (int)lroundf((mXmbTouchDownPY - py) / lineDev);   // finger up -> scroll down the text
+        int& sc = mPs3DlgRomInfo ? mPs3RomInfoScroll : mPs3AppInfoScroll;
+        int want = mXmbDlgScrollBase + delta;
+        if (want < 0) want = 0;                 // renderer clamps the upper bound
+        if (want != sc) { sc = want; mDisplayDirty = true; }
+        return;
+    }
+}
+
+// Hit-test the item column (nearest row by y) and open it. A tap on the focused
+// item activates it; a tap on any other row moves the selection there and opens
+// it (single tap opens, per the request). Returns the row hit, or -1.
+int NanoMenu::xmbTouchItemAt(float vy) {
+    int n = (int)ps3CurItems().size();
+    if (n <= 0) return -1;
+    // Hit-test against the rendered layout: drawList places row i at
+    // itemSlotYf(i, mPs3AnimItem), so use the same continuous position (equal to
+    // ps3CurSel when settled, which is when taps land) to pick what is under the finger.
+    int best = -1; float bestDist = 1e9f;
+    for (int i = 0; i < n; i++) {
+        float d = fabsf(itemSlotYf(i, mPs3AnimItem) - vy);
+        if (d < bestDist) { bestDist = d; best = i; }
+    }
+    if (best < 0 || bestDist > ps3::ITEM_SPACING * 2.0f) return -1;
+    return best;
+}
+
+// Long-press: open the option side-menu for the item under the finger (mirrors
+// Triangle). Move the focus to the touched item first so the menu is built for it.
+void NanoMenu::xmbTouchLongPress(float px, float py) {
+    (void)px;   // the long-press acts on the row under the finger (y only); x is unused
+    if (mPs3OptActive) return;
+    int sk = ps3TopScreenKind();
+    if (sk != GS_ICONGRID && sk != PHOTO_GRID) {
+        float vy = (py - ps3::gOffY) / ps3::gScale;
+        int row = xmbTouchItemAt(vy);
+        if (row >= 0 && row != ps3CurSel()) {
+            ps3CurSel() = row;
+            mPs3AnimItem = (float)row; mPs3ItemAnimStart = -1.0f;   // snap; the panel opens over it
+        }
+    }
+    openXmbOpt();
+    mDisplayDirty = true;
+}
+
+// Single tap: a category-bar tap jumps to that category (via ps3XmbLeft/Right so
+// the slide rail animates); otherwise open the item under the finger.
+void NanoMenu::xmbTouchTap(float px, float py) {
+    float vx = (px - ps3::gOffX) / ps3::gScale;
+    float vy = (py - ps3::gOffY) / ps3::gScale;
+    // Category rail (root only, settled): a horizontal band around CAT_Y.
+    if (mPs3Stack.empty() && !mPs3CatAnimActive && !mPs3Cats.empty()) {
+        const float catTopV = ps3::CAT_Y - ps3::CAT_ICON_ACTIVE * 0.5f - 10.0f;   // ~197
+        const float catBotV = ps3::CAT_LABEL_Y + 14.0f;                           // ~380
+        if (vy >= catTopV && vy <= catBotV) {
+            float xtrue = (vx + ps3::LAYOUT_XSHIFT) / ps3::LAYOUT_XC;   // undo the left-anchored XCP
+            int idx = mPs3CatIdx + (int)lroundf((xtrue - ps3::CAT_X) / ps3::CAT_SPACING);
+            int nc = (int)mPs3Cats.size();
+            if (idx < 0) idx = 0; else if (idx > nc - 1) idx = nc - 1;
+            for (int d = idx - mPs3CatIdx; d > 0; d--) ps3XmbRight();
+            for (int d = mPs3CatIdx - idx; d > 0; d--) ps3XmbLeft();
+            return;
+        }
+    }
+    // Item column: open the tapped row (2D grids need their own hit-test - skip).
+    int sk = ps3TopScreenKind();
+    if (sk == GS_ICONGRID || sk == PHOTO_GRID) return;
+    int row = xmbTouchItemAt(vy);
+    if (row < 0) return;
+    if (row != ps3CurSel()) {
+        // Ease the selection to the tapped row, then activate; a submenu-open or
+        // launch transition hides the travel, a plain toggle glides in.
+        mPs3ItemAnimFrom = mPs3AnimItem; mPs3ItemAnimStart = mEffectTime;
+        ps3CurSel() = row;
+    }
+    ps3XmbSelect();
+    mDisplayDirty = true;
+}
+
+// SYN_REPORT gesture pump. Recognizes tap / long-press / vertical item drag (with
+// release momentum) / horizontal category swipe / option-panel taps, reusing the
+// OSK raw-touch mapping. Called from pollInput's SYN_REPORT branch when the XMB
+// owns touch (see xmbTouchLive()).
+void NanoMenu::xmbTouchFrame() {
+    if (!xmbTouchLive()) {
+        // Left the XMB touch context: drop any in-progress gesture and glide.
+        mXmbTouchTracking = false; mXmbTouchMode = 0;
+        mXmbItemFling = false; mXmbItemVel = 0.0f;
+        mTouchWasDown = mTouchDown;
+        return;
+    }
+    if (mTouchMaxX <= mTouchMinX || mTouchMaxY <= mTouchMinY || mTouchRawX < 0) {
+        mTouchWasDown = mTouchDown; return;   // digitizer range not read yet / no touch
+    }
+    // Raw digitizer -> logical pixel, identical to oskTouchFrame (DRM + SF correct).
+    float nx = (float)(mTouchRawX - mTouchMinX) / (float)(mTouchMaxX - mTouchMinX);
+    float ny = (float)(mTouchRawY - mTouchMinY) / (float)(mTouchMaxY - mTouchMinY);
+    if (mOskTouchSwap)  { float t = nx; nx = ny; ny = t; }
+    if (mOskTouchFlipX) nx = 1.0f - nx;
+    if (mOskTouchFlipY) ny = 1.0f - ny;
+    if (nx < 0.0f) nx = 0.0f; else if (nx > 1.0f) nx = 1.0f;
+    if (ny < 0.0f) ny = 0.0f; else if (ny > 1.0f) ny = 1.0f;
+    float px = nx * (float)mWidth;
+    float py = ny * (float)mHeight;
+    int64_t now = android::uptimeMillis();
+
+    bool down     = mTouchDown;
+    bool downEdge = down && !mTouchWasDown;
+    bool upEdge   = !down && mTouchWasDown;
+
+    if (downEdge) {
+        // A new touch cancels an in-flight fling and settles on the current item.
+        if (mXmbItemFling) { mXmbItemFling = false; mXmbItemVel = 0.0f; xmbTouchSettleItem(); }
+        mXmbTouchTracking = true;
+        mXmbTouchMoved = false;
+        mXmbTouchLongFired = false;
+        mXmbTouchDownMs = now;
+        mXmbTouchDownPX = px; mXmbTouchDownPY = py;
+        mXmbTouchLastPX = px; mXmbTouchLastPY = py; mXmbTouchLastMs = now;
+        mXmbTouchCatAccum = 0.0f;
+        mXmbTouchAnchorItem = mPs3AnimItem;
+        mXmbItemVel = 0.0f;
+        // Priority: an active dialog owns touch first, then the option panel, else
+        // the home category/item columns. (openXmbOpt already blocks over a dialog.)
+        if (mPs3DlgActive) {
+            mXmbTouchMode = 6;
+            // Anchor for an incremental drag-scroll: info-page line, else the chooser
+            // selection (side-panel chooser scrolls its selection like a picker wheel).
+            if (mPs3DlgRomInfo)      mXmbDlgScrollBase = mPs3RomInfoScroll;
+            else if (mPs3DlgAppInfo) mXmbDlgScrollBase = mPs3AppInfoScroll;
+            else                     mXmbDlgScrollBase = mPs3DlgSel;
+        } else if (mPs3OptActive || mPs3OptClosing) {
+            mXmbTouchMode = 3;
+            // Anchor for the submenu picker-wheel drag (the submenu re-anchors its
+            // selection to the parent y, so absolute hover runs away - scroll it).
+            mXmbDlgScrollBase = mPs3OptSubOpen ? mPs3OptSubSel : mPs3OptSel;
+        } else if (ps3TopScreenKind() == PHOTO_GRID) {
+            mXmbTouchMode = 7;                      // photo thumbnail grid: tap opens, drag scrolls
+            mPhotoGridScrollAnchor = mPhotoGridScrollY;
+        } else {
+            mXmbTouchMode = 0;
+        }
+        mLastInputMs = now;
+        mTouchWasDown = mTouchDown;
+        return;
+    }
+
+    if (down && mXmbTouchTracking) {
+        float dxAll = px - mXmbTouchDownPX;
+        float dyAll = py - mXmbTouchDownPY;
+        // The long-press itself is fired from the per-frame update in renderPs3Xmb
+        // (a perfectly still finger emits no reports, so a SYN-driven timer would
+        // never trip). Once it has fired, consume the rest of this gesture so the
+        // lift does not also tap.
+        if (mXmbTouchLongFired) { mXmbTouchLastPX = px; mXmbTouchLastPY = py; mXmbTouchLastMs = now; mLastInputMs = now; mTouchWasDown = mTouchDown; return; }
+        // Decide the drag axis once past the slop; re-reference so the content does
+        // not jump by the slop distance at drag start.
+        if (!mXmbTouchMoved && (dxAll * dxAll + dyAll * dyAll) >= XMB_TOUCH_SLOP_PX * XMB_TOUCH_SLOP_PX) {
+            mXmbTouchMoved = true;
+            if (mXmbTouchMode != 3 && mXmbTouchMode != 6 && mXmbTouchMode != 7) {   // 3 opt, 6 dialog, 7 photo grid keep their surface
+                bool horiz = fabsf(dxAll) > fabsf(dyAll);
+                if (horiz && !mPs3Stack.empty()) {
+                    // In a submenu the category rail is collapsed; a rightward swipe
+                    // goes back to the parent (the content-follows-finger direction).
+                    mXmbTouchMode = 5;   // one-shot, handled here; the rest of the drag is inert
+                    if (dxAll > 0.0f) ps3XmbBack();
+                } else {
+                    mXmbTouchMode = horiz ? 2 : 1;   // 2 = category swipe (root), 1 = item scroll
+                    mXmbTouchAnchorItem = mPs3AnimItem;
+                    mXmbTouchDownPX = px; mXmbTouchDownPY = py;
+                    mXmbTouchCatAccum = 0.0f;
+                }
+            }
+        }
+        if (mXmbTouchMode == 1) {
+            // Vertical item drag: content follows the finger, scaled by the scroll
+            // sensitivity (effPitch = one row per (pitch/SENS) px of finger travel).
+            float pitch = ps3::devS(ps3::ITEM_SPACING) / XMB_TOUCH_ITEM_SENS;
+            if (pitch < 1.0f) pitch = 1.0f;
+            int n = (int)ps3CurItems().size();
+            float target = xmbClampScroll(mXmbTouchAnchorItem + (mXmbTouchDownPY - py) / pitch, n);
+            mPs3AnimItem = target;
+            mPs3ItemAnimStart = -1.0f;   // touch owns the position; the ease is suspended by mode==1
+            int sel = (int)lroundf(mPs3AnimItem);
+            if (sel < 0) sel = 0; else if (sel > n - 1) sel = n - 1;
+            ps3CurSel() = sel;
+            float dtm = (float)(now - mXmbTouchLastMs);
+            if (dtm > 0.0f) {
+                float v = -((py - mXmbTouchLastPY) / pitch) / (dtm / 1000.0f);   // rows/sec (already sensitivity-scaled)
+                mXmbItemVel = mXmbItemVel * 0.6f + v * 0.4f;                      // light smoothing
+            }
+            mDisplayDirty = true;
+        } else if (mXmbTouchMode == 2) {
+            // Horizontal category swipe: step one category per CAT_SPACING of virtual
+            // travel (in the rail's left-anchored space), chaining the slide rail.
+            float scale = ps3::gScale * ps3::LAYOUT_XC;
+            if (scale > 0.0001f) mXmbTouchCatAccum += (px - mXmbTouchLastPX) / scale;
+            while (mXmbTouchCatAccum <= -ps3::CAT_SPACING) { ps3XmbRight(); mXmbTouchCatAccum += ps3::CAT_SPACING; }
+            while (mXmbTouchCatAccum >=  ps3::CAT_SPACING) { ps3XmbLeft();  mXmbTouchCatAccum -= ps3::CAT_SPACING; }
+        } else if (mXmbTouchMode == 3) {
+            xmbTouchOptHover(px, py);
+        } else if (mXmbTouchMode == 6) {
+            xmbDialogTouchDrag(px, py);
+        } else if (mXmbTouchMode == 7) {
+            photoGridScrollDrag(mXmbTouchDownPY, py, (int)mXmbDlgScrollBase);   // drag scrolls the thumbnail grid
+        }
+        mXmbTouchLastPX = px; mXmbTouchLastPY = py; mXmbTouchLastMs = now;
+        mLastInputMs = now;
+        mTouchWasDown = mTouchDown;
+        return;
+    }
+
+    if (upEdge && mXmbTouchTracking) {
+        mXmbTouchTracking = false;
+        int64_t held = now - mXmbTouchDownMs;
+        float dxAll = mXmbTouchDownPX - mXmbTouchLastPX;   // (down was re-referenced on drag start)
+        float dyAll = mXmbTouchDownPY - mXmbTouchLastPY;
+        bool wasTap = !mXmbTouchMoved && !mXmbTouchLongFired && held <= XMB_TOUCH_TAP_MAX_MS
+                      && (dxAll * dxAll + dyAll * dyAll) <= XMB_TOUCH_TAP_MAX_PX * XMB_TOUCH_TAP_MAX_PX;
+        if (mXmbTouchMode == 3) {
+            const bool subOpen = mPs3OptSubOpen && mPs3OptSel >= 0 && mPs3OptSel < (int)mPs3OptSubRows.size()
+                                 && !mPs3OptSubRows[mPs3OptSel].empty();
+            if (wasTap) {
+                xmbTouchOptTap(mXmbTouchDownPX, mXmbTouchDownPY);
+            } else if (subOpen) {
+                // The picker drag already scrolled mPs3OptSubSel to the highlighted
+                // sub-row; apply it.
+                xmbOptEnter();
+            } else {
+                // Main list: the hover tracked mPs3OptSel; apply the row under the
+                // lifted finger (a drag ending off the panel is ignored).
+                int row = xmbOptRowAt(mXmbTouchLastPX, mXmbTouchLastPY);
+                if (row >= 0) { mPs3OptSel = row; xmbOptEnter(); mDisplayDirty = true; }
+            }
+        } else if (mXmbTouchMode == 6) {
+            if (wasTap) {
+                xmbDialogTouchTap(mXmbTouchDownPX, mXmbTouchDownPY);
+            } else if (mPs3DlgActive && mPs3DlgKind == 1 && !mPs3DlgSlider && !mPs3DlgOptions.empty()) {
+                // Drag-release over a side-panel chooser row applies the hovered
+                // option (the drag already moved mPs3DlgSel + previewed it). A release
+                // off the panel leaves it open (no accidental apply/cancel).
+                const bool sp43 = ps3::LAYOUT_XC < 0.999f;
+                float pLeftDev = ps3::devX(ps3::XCP(sp43 ? 1056.0f : 1324.0f));
+                if (mXmbTouchLastPX >= pLeftDev) ps3XmbSelect();
+            }
+        } else if (mXmbTouchMode == 7) {
+            // Photo thumbnail grid: the top-left back chevron exits the folder, a tap
+            // elsewhere opens the thumbnail under it; a drag already scrolled.
+            if (wasTap) {
+                if (photoGridBackHit(mXmbTouchDownPX, mXmbTouchDownPY)) { photoGridBack(); }
+                else { int idx = photoGridCellAt(mXmbTouchDownPX, mXmbTouchDownPY); if (idx >= 0) photoGridOpenAt(idx); }
+            }
+        } else if (mXmbTouchLongFired) {
+            // consumed by the long-press
+        } else if (wasTap) {
+            xmbTouchTap(mXmbTouchDownPX, mXmbTouchDownPY);
+        } else if (mXmbTouchMode == 1) {
+            // Release a vertical drag into an inertial glide, or settle now. If the
+            // finger came to rest before lifting (no digitizer report for >80ms, so
+            // the velocity was never decayed toward 0), treat it as "place here", not
+            // a flick - otherwise a caught-and-held drag drifts past the target row.
+            if (now - mXmbTouchLastMs > 80) mXmbItemVel = 0.0f;
+            if (fabsf(mXmbItemVel) >= XMB_FLING_MIN_VEL) {
+                if (mXmbItemVel >  XMB_FLING_MAX_VEL) mXmbItemVel =  XMB_FLING_MAX_VEL;
+                if (mXmbItemVel < -XMB_FLING_MAX_VEL) mXmbItemVel = -XMB_FLING_MAX_VEL;
+                mXmbItemFling = true;
+            } else {
+                xmbTouchSettleItem();
+            }
+        }
+        // mode 2 already stepped during the drag; nothing to settle.
+        mXmbTouchMode = 0;
+        mLastInputMs = now;
+        mTouchWasDown = mTouchDown;
+        return;
+    }
+
+    mTouchWasDown = mTouchDown;
 }
 
 void NanoMenu::xmbOptEnter() {
