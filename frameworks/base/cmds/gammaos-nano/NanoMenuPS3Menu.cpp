@@ -6625,6 +6625,32 @@ bool NanoMenu::touchMapRaw(int rawX, int rawY, float& px, float& py) {
     if (mOskTouchSwap)  { float t = nx; nx = ny; ny = t; }
     if (mOskTouchFlipX) nx = 1.0f - nx;
     if (mOskTouchFlipY) ny = 1.0f - ny;
+    // Follow a runtime display rotation (e.g. force_orientation=portrait over a
+    // landscape-native panel) in the SF-composited overlay: the digitizer keeps
+    // reporting panel-native axes while mWidth/mHeight become the rotated logical
+    // size, so undo the rotation here. DRM mode bakes rotation into sDrmRotMat +
+    // the osk_touch props and runs with mOverlayMode=false, so it stays identity.
+    if (mOverlayMode) {
+        // Un-rotate the touch by the INVERSE of the current display rotation, exactly
+        // like the framework's TouchInputMapper::computeInputTransforms() Step 3
+        // (`toRotationFlags(-mViewport.orientation)`). mOverlayRotation is the LOGICAL
+        // display rotation from SurfaceComposerClient::getDisplayState (0 at the
+        // device's default landscape, independent of the panel's physical mount), so
+        // this follows any rotation on any panel with no per-device constant - the
+        // panel-mount props (ro.surface_flinger.primary_display_orientation, and the
+        // digitizer-side ro.input_flinger.primary_touch_orientation) are already folded
+        // into that logical rotation / the landscape baseline. The per-device digitizer
+        // alignment is the osk_touch_swap/flipx/flipy calibration applied above (the
+        // analog of TouchInputMapper Step 2). Hence: apply inverse(rotation), NOT the
+        // rotation itself (that was the 180-inverted first pass). ROTATION_0 = identity
+        // (the validated landscape case), ROTATION_180 is its own inverse.
+        switch (mOverlayRotation) {
+            case 1:  { float t = nx; nx = ny;        ny = 1.0f - t;  break; }  // display ROTATION_90  -> inverse (270)
+            case 2:  {               nx = 1.0f - nx; ny = 1.0f - ny; break; }  // display ROTATION_180 -> inverse (180)
+            case 3:  { float t = nx; nx = 1.0f - ny; ny = t;         break; }  // display ROTATION_270 -> inverse (90)
+            default: break;                                                    // display ROTATION_0   -> identity
+        }
+    }
     if (nx < 0.0f) nx = 0.0f; else if (nx > 1.0f) nx = 1.0f;
     if (ny < 0.0f) ny = 0.0f; else if (ny > 1.0f) ny = 1.0f;
     px = nx * (float)mWidth;
@@ -6979,19 +7005,13 @@ void NanoMenu::xmbTouchFrame() {
         mTouchWasDown = mTouchDown;
         return;
     }
-    if (mTouchMaxX <= mTouchMinX || mTouchMaxY <= mTouchMinY || mTouchRawX < 0) {
+    // Raw digitizer -> logical pixel via the shared mapping (identical to
+    // oskTouchFrame/pvTouchFrame; correct on DRM + SF, and it now also follows a
+    // runtime display rotation in overlay mode).
+    float px, py;
+    if (!touchMapRaw(mTouchRawX, mTouchRawY, px, py)) {
         mTouchWasDown = mTouchDown; return;   // digitizer range not read yet / no touch
     }
-    // Raw digitizer -> logical pixel, identical to oskTouchFrame (DRM + SF correct).
-    float nx = (float)(mTouchRawX - mTouchMinX) / (float)(mTouchMaxX - mTouchMinX);
-    float ny = (float)(mTouchRawY - mTouchMinY) / (float)(mTouchMaxY - mTouchMinY);
-    if (mOskTouchSwap)  { float t = nx; nx = ny; ny = t; }
-    if (mOskTouchFlipX) nx = 1.0f - nx;
-    if (mOskTouchFlipY) ny = 1.0f - ny;
-    if (nx < 0.0f) nx = 0.0f; else if (nx > 1.0f) nx = 1.0f;
-    if (ny < 0.0f) ny = 0.0f; else if (ny > 1.0f) ny = 1.0f;
-    float px = nx * (float)mWidth;
-    float py = ny * (float)mHeight;
     int64_t now = android::uptimeMillis();
 
     bool down     = mTouchDown;

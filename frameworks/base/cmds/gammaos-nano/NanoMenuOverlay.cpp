@@ -1410,6 +1410,10 @@ void NanoMenu::overlayUpdateSurfaceSize() {
     if (!mOverlayMode || mDisplayToken == nullptr || mFlingerSurface == nullptr) return;
     ui::DisplayState state;
     if (SurfaceComposerClient::getDisplayState(mDisplayToken, &state) != NO_ERROR) return;
+    // Cache the rotation BEFORE the size-unchanged early-return below: touchMapRaw
+    // reads mOverlayRotation to follow a forced-portrait rotation over a landscape
+    // panel. (A 90<->270 flip keeps the logical size but still rotates the axes.)
+    mOverlayRotation = (int)state.orientation;
     const int lw = (int)state.layerStackSpaceRect.getWidth();
     const int lh = (int)state.layerStackSpaceRect.getHeight();
     if (lw <= 0 || lh <= 0) return;

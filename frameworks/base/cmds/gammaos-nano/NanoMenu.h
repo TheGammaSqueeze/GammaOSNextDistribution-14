@@ -802,6 +802,10 @@ private:
     EGLContext  mContext;
     EGLSurface  mSurface;
     sp<IBinder> mDisplayToken;
+    // Live SF display rotation as ui::Rotation cast to int (0/1/2/3 = ROTATION_0/
+    // 90/180/270). Cached by overlayUpdateSurfaceSize; read by touchMapRaw so the
+    // touch axis follows a forced-portrait rotation over a landscape-native panel.
+    int mOverlayRotation = 0;
     uint32_t mAppliedLayerStack; // GammaOS: last layer stack applied to the nano surface
     std::vector<sp<IBinder>> mSecondaryDisplayTokens; // GammaOS: secondary display tokens
     std::vector<sp<SurfaceControl>> mSecondaryWallpaperControls; // GammaOS: wallpaper on secondaries
