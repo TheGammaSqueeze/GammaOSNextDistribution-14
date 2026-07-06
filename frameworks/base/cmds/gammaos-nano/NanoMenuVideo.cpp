@@ -2799,27 +2799,42 @@ void NanoMenu::vidPanelActivate() {
     }
 }
 
+// UI-scale mirror of pvUiScale/mpUiScale (file-static in NanoMenuPhotos/Music, not
+// visible here): small panels (shorter side <= 768) get 2x so the control glyphs stay
+// legible, matching the audio and photo control panels.
+static inline float vidUiScale(int w, int h){ return ((w < h ? w : h) <= 768) ? 2.0f : 1.0f; }
+
 void NanoMenu::drawVideoPanel(float closeT) {
     int W = mWidth, H = mHeight;
     float t = (closeT >= 0.0f) ? closeT
             : (mVidCpAnimStart >= 0.0f ? fminf(1.0f, (mEffectTime - mVidCpAnimStart) / 0.2f) : 1.0f);
     if (t < 0) t = 0;
     float A = t * mVidEnterT;                              // overall panel alpha
-    float x0 = W * 0.1589f - (1.0f - t) * W * 0.012f;
-    float y0 = H * 0.4148f;
-    float colW = W * 0.03526f, rowH = H * 0.061f, sz = H * 0.060f;
+    // Map the panel through the ps3 layout (gScale/gOffX/gOffY), NOT raw device W/H:
+    // raw H doubles in portrait (1080->1920), which is why the icons inflated to ~115px
+    // and overlapped. This yields sz = 0.046*VH*gScale = 36px, identical to the audio
+    // (NanoMenuMusic drawMpOpt) and photo (NanoMenuPhotos drawPvPanel) control panels,
+    // keeping video's own 0.1589/0.4148 anchor mapped through the shared frame scale.
+    float ui = vidUiScale(W, H);
+    float x0 = ps3::devX(ps3::XCF(ps3::VW * 0.1589f)) - (1.0f - t) * ps3::devS(ps3::VW * 0.012f);
+    float y0 = ps3::devY(ps3::VH * 0.4148f);
+    float colW = ps3::devS(ps3::XCF(ps3::VW * 0.03526f * ui));
+    float rowH = ps3::devS(ps3::VH * 0.061f * ui);
+    float sz   = ps3::devS(ps3::VH * 0.046f * ui);
     float pulse = 0.5f + 0.5f * sinf(mEffectTime * 2.0f * 3.14159265f / 1.5f);
 
     for (int i = 0; i < kVidCpCount; i++) {
         const VidCp& b = kVidCp[i];
         bool focus = (i == mVidCpSel);
         float cx = x0 + b.gx * colW, cy = y0 + b.gy * rowH;
-        float baseScale = focus ? 1.5f : 1.0f;
+        // Focus grow matches audio/photo (1.18x, not 1.5x) so the focused glyph stays
+        // inside the row pitch instead of overrunning its neighbours.
+        float baseScale = focus ? 1.18f : 1.0f;
         if (mVidCpFocusStart >= 0.0f) {
             float fe = fminf(1.0f, (mEffectTime - mVidCpFocusStart) / 0.14f);
             float fk = 1.0f - powf(1.0f - fe, 3.0f);
-            if (focus) baseScale = 1.0f + 0.5f * fk;
-            else if (i == mVidCpSelPrev) baseScale = 1.5f - 0.5f * fk;
+            if (focus) baseScale = 1.0f + 0.18f * fk;
+            else if (i == mVidCpSelPrev) baseScale = 1.18f - 0.18f * fk;
         }
         float ps = baseScale, flash = 0.0f;
         if (mVidCpPressSel == i && mVidCpPressStart >= 0.0f) {
