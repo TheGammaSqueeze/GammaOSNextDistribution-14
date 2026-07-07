@@ -4202,14 +4202,10 @@ void NanoMenu::drawPs3CinfoBg(const char* focusLabel, const std::string& fanFile
     // (an oversized quad cannot pan without also clipping). panU/panV sweep [0,ov].
     float uMin = panU, uMax = panU + (1.0f - ovx);
     float vMin = panV, vMax = panV + (1.0f - ovy);
-    // Publish this frame's shown fanart + cover-crop window for the side/Information
-    // panel frost (it blurs this exact texture through this exact window). Only when a
-    // ROM fanart is really on screen (not the Photo Gallery cinfo, and not a bg of 0).
-    if (!shownIsCinfo && bgTex) {
-        mFanartFrostTex = bgTex; mFanartFrostW = bgW; mFanartFrostH = bgH;
-        mFanartFrostU0 = uMin; mFanartFrostU1 = uMax;
-        mFanartFrostV0 = vMin; mFanartFrostV1 = vMax;
-    }
+    // Flag that a scraped ROM fanart is really on screen this frame (not the Photo
+    // Gallery cinfo, and not a bg of 0), so the option side panel skips its wave frost
+    // and lets the fanart show through the gradient scrim.
+    if (!shownIsCinfo && bgTex) mFanartFrostTex = bgTex;
     float qx[4] = { 0.0f, W, W, 0.0f };
     float qy[4] = { 0.0f, 0.0f, H, H };
     float uu[4] = { uMin, uMax, uMax, uMin };
@@ -7704,28 +7700,6 @@ void NanoMenu::xmbOptAction(const std::string& act) {
     }
 }
 
-bool NanoMenu::frostFanartBackdrop(float x, float y, float w, float h, float fade) {
-    // Only over the home XMB (never the in-game scrim - the dimmed live app must show
-    // through, and no fanart is drawn there). A scraped ROM's fanart is the shown
-    // hover background exactly when drawPs3CinfoBg published a non-zero frost texture
-    // this frame (it also carries the cover-crop UV window incl. the live pan).
-    const bool home = (!mOverlayMode || mOverlayWallpaper);
-    if (!home || !scraperFanartEnabled()
-        || mFanartFrostTex == 0 || mFanartFrostW <= 0 || mFanartFrostH <= 0)
-        return false;
-    // Blur the fanart TEXTURE directly (no framebuffer capture - glCopyTexSubImage2D
-    // gives GL_INVALID_OPERATION on the alpha-less SurfaceFlinger surface, leaving the
-    // panel black; reading an offscreen RGBA texture works in both DRM and SF). Result
-    // lands in mGlassBlurTex. Cheap enough per frame (the fanart is <=1024px), and it
-    // must run every frame anyway to survive the fullscreen submenu wave-frost clobber.
-    blurGlassChain(mFanartFrostTex, mFanartFrostW, mFanartFrostH);
-    // Cover-crop the panel region through the SAME UV window the live fanart drew, so
-    // the blurred backdrop tracks the on-screen art (including its slow Ken-Burns pan).
-    drawFrostedGlassRegion(x, y, w, h, fade,
-                           mFanartFrostU0, mFanartFrostU1, mFanartFrostV0, mFanartFrostV1);
-    return true;
-}
-
 void NanoMenu::renderXmbOpt() {
     if (!mPs3OptActive && !mPs3OptClosing) return;
     setGlyphAtlasAA(true);
@@ -7770,10 +7744,15 @@ void NanoMenu::renderXmbOpt() {
     const float pTopDev  = ps3::gFrameY;
     const float pHDev    = ps3::gFrameH;
 
-    // Frosted-glass backdrop behind the panel. Prefer a blurred copy of a focused
-    // scraped ROM's fanart (the visible background) so the side panel matches it;
-    // otherwise blur the live wave (theme-chooser style), the visible background.
-    if (!frostFanartBackdrop(pLeftDev, pTopDev, pWDev, pHDev, ap)) {
+    // Frosted-glass backdrop behind the panel. Over a scraped ROM's fanart (the visible
+    // background) do NOT blur - let the fanart show through the gradient scrim below, the
+    // same way the normal XMB shows the wave through the gradient (user request: don't
+    // blur games with a background). Over the live wave (no fanart) blur it, the normal
+    // XMB side panel look. The fanart already carries a 0.75 cinfo scrim, so it reads dark
+    // under the panel gradient without any extra frost.
+    const bool fanartBg = (!mOverlayMode || mOverlayWallpaper) && scraperFanartEnabled()
+                          && mFanartFrostTex != 0;
+    if (!fanartBg) {
         const bool frost = mCurrentEffect == 22 && (!mOverlayMode || mOverlayWallpaper);
         if (frost) {
             bool due = !mPs3OptBlurValid || (mEffectTime - mPs3OptBlurT) >= 0.0667f;
@@ -7785,12 +7764,15 @@ void NanoMenu::renderXmbOpt() {
     // Black scrim side panel: a smooth fade gradient, 50% black at its left edge to
     // fully transparent at the screen's right edge - the SAME style as the theme /
     // performance choosers (renderPs3Dialog kind 1), so the option menu matches the
-    // rest of nano's side panels (user request 2026-06-15).
+    // rest of nano's side panels (user request 2026-06-15). Over a scraped fanart the
+    // scrim is +70% darker (less transparent) so the bright unblurred game art does not
+    // wash out the option labels; the plain wave panel is unchanged.
+    const float scrimBoost = fanartBg ? 1.70f : 1.0f;
     const int kStrips = 64;
     for (int s = 0; s < kStrips; s++) {
         float u0 = (float)s / (float)kStrips, u1 = (float)(s + 1) / (float)kStrips;
         float uc = 0.5f * (u0 + u1);
-        float al = (0.50f * (1.0f - uc)) * ap;
+        float al = fminf(1.0f, 0.50f * scrimBoost * (1.0f - uc)) * ap;
         drawQuad(pLeftDev + pWDev * u0, pTopDev, pWDev * (u1 - u0), pHDev,
                  0.0f, 0.0f, 0.0f, al);
     }
@@ -7909,23 +7891,21 @@ void NanoMenu::renderPs3Dialog() {
         //   open, not per frame.
         // Never blur in the overlay scrim (the dimmed live app must show through).
         const bool frostHome = !mOverlayMode || mOverlayWallpaper;
-        // The ROM Information page opens over a scraped ROM whose fanart is the visible
-        // background (drawn under the chrome this frame): blur the composited framebuffer
-        // so the page sits on the blurred scraped art, not the wave. frostFanartBackdrop
-        // returns false when no fanart is present, falling through to the wave / wallpaper
-        // capture below.
-        if (!frostFanartBackdrop(0.0f, 0.0f, (float)mWidth, (float)mHeight, ap)) {
-            const bool waveSpace = (mCurrentEffect == 22);
-            float blurCad = ps3bg::themeFading() ? 0.0f : 0.0667f;
-            bool due = !mPs3DlgBlurValid || (waveSpace && (mEffectTime - mPs3DlgBlurT) >= blurCad);
-            if (due && frostHome) {
-                bool got = waveSpace ? captureGlassFromWave()
-                                     : captureGlass(0.0f, 0.0f, (float)mWidth, (float)mHeight);
-                if (got) { mPs3DlgBlurValid = true; mPs3DlgBlurT = mEffectTime; }
-            }
-            if (mPs3DlgBlurValid && frostHome)
-                drawFrostedGlass(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, ap, waveSpace);  // pure blur, no darkening
+        // Backdrop is the blurred XMB wave (NOT the scraped fanart): a full-screen blurred
+        // fanart made the ROM Information page unreadable over a light-background game (e.g.
+        // Pokemon White 2 blurs to near-white behind the white dialog body), so the page
+        // keeps the neutral wave backdrop. The scraped cover + the contained screenshot are
+        // still drawn inside the page body below.
+        const bool waveSpace = (mCurrentEffect == 22);
+        float blurCad = ps3bg::themeFading() ? 0.0f : 0.0667f;
+        bool due = !mPs3DlgBlurValid || (waveSpace && (mEffectTime - mPs3DlgBlurT) >= blurCad);
+        if (due && frostHome) {
+            bool got = waveSpace ? captureGlassFromWave()
+                                 : captureGlass(0.0f, 0.0f, (float)mWidth, (float)mHeight);
+            if (got) { mPs3DlgBlurValid = true; mPs3DlgBlurT = mEffectTime; }
         }
+        if (mPs3DlgBlurValid && frostHome)
+            drawFrostedGlass(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, ap, waveSpace);  // pure blur, no darkening
     }
 
     float ss = ps3::devS(1.5f);
@@ -7976,15 +7956,13 @@ void NanoMenu::renderPs3Dialog() {
         //     wave wallpaper); in the in-game overlay the live app is already blurred
         //     by SurfaceFlinger behind the scrim, so we skip it there.
         {
-            if (!frostFanartBackdrop(pLeftDev, pTopDev, pWDev, pHDev, ap)) {
-                const bool spFrost = mCurrentEffect == 22 && (!mOverlayMode || mOverlayWallpaper);
-                if (spFrost) {
-                    bool due = !mPs3DlgBlurValid || (mEffectTime - mPs3DlgBlurT) >= 0.0667f;
-                    if (due && captureGlassFromWave()) { mPs3DlgBlurValid = true; mPs3DlgBlurT = mEffectTime; }
-                    if (mPs3DlgBlurValid)
-                        drawFrostedGlass(pLeftDev, pTopDev, pWDev, pHDev, 0.0f,
-                                         1.0f, 1.0f, 1.0f, 1.0f, ap, /*waveSpace=*/true);
-                }
+            const bool spFrost = mCurrentEffect == 22 && (!mOverlayMode || mOverlayWallpaper);
+            if (spFrost) {
+                bool due = !mPs3DlgBlurValid || (mEffectTime - mPs3DlgBlurT) >= 0.0667f;
+                if (due && captureGlassFromWave()) { mPs3DlgBlurValid = true; mPs3DlgBlurT = mEffectTime; }
+                if (mPs3DlgBlurValid)
+                    drawFrostedGlass(pLeftDev, pTopDev, pWDev, pHDev, 0.0f,
+                                     1.0f, 1.0f, 1.0f, 1.0f, ap, /*waveSpace=*/true);
             }
         }
         const int   kStrips  = 64;

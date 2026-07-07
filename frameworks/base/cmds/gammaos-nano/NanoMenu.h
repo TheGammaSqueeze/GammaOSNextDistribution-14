@@ -2654,15 +2654,11 @@ private:
     int    mFanartTexW = 0, mFanartTexH = 0;
     std::string mFanartPath;         // path currently loaded into mFanartTex
     float mFanartPanStart = -1.0f;   // mEffectTime the focused fanart began its slow Ken-Burns pan (-1 = disarmed)
-    // Published each frame by drawPs3CinfoBg while a scraped ROM fanart is the shown
-    // hover background: the texture and the exact cover-crop UV window it drew (incl.
-    // the live Ken-Burns pan). The side/Information panel frost blurs THIS texture
-    // directly (no framebuffer capture, which fails on an alpha-less SurfaceFlinger
-    // surface) and cover-crops the panel region through the same window. 0 = no fanart.
+    // Set each frame by drawPs3CinfoBg to the shown scraped ROM fanart texture (0 when
+    // none). The option side panel reads it to decide NOT to draw its wave frost - it
+    // lets the fanart show through the gradient scrim instead (user: don't blur games
+    // with a background).
     GLuint mFanartFrostTex = 0;
-    int    mFanartFrostW = 0, mFanartFrostH = 0;
-    float  mFanartFrostU0 = 0.0f, mFanartFrostU1 = 1.0f;
-    float  mFanartFrostV0 = 0.0f, mFanartFrostV1 = 1.0f;
     void ps3XmbLeft();
     void ps3XmbRight();
     void ps3XmbUp();
@@ -3059,19 +3055,6 @@ private:
     void drawFrostedGlass(float x, float y, float w, float h, float radius,
                           float tr, float tg, float tb, float tintA, float fade,
                           bool waveSpace = false);
-    // Backdrop frost behind a panel when a scraped ROM fanart is the visible home
-    // background: blur the fanart TEXTURE directly (mFanartFrostTex, published by
-    // drawPs3CinfoBg) and cover-crop the panel region through the same UV window the
-    // live fanart used, so the panel shows the blurred scraped art, not the wave. No
-    // framebuffer capture (glCopyTexSubImage2D fails on an alpha-less SurfaceFlinger
-    // surface), so this is robust in both DRM and SF. Returns false (no draw) when
-    // there is no fanart, so the caller keeps its own wave/wallpaper frost.
-    bool frostFanartBackdrop(float x, float y, float w, float h, float fade);
-    // Draw mGlassBlurTex over the panel rect [x,y,w,h] (device px) sampling a source
-    // cover-crop UV window (su0..su1 x sv0..sv1, mapped to the FULL frame) sub-sampled
-    // for the panel. Positions rotate through sDrmRotMat like drawFrostedGlass.
-    void drawFrostedGlassRegion(float x, float y, float w, float h, float fade,
-                                float su0, float su1, float sv0, float sv1);
 
     // Setup wizard state
     bool mSetupWizardActive;
