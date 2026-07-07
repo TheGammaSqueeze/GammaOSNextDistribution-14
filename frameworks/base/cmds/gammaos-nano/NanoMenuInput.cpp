@@ -1410,6 +1410,19 @@ void NanoMenu::pollInput() {
             }
             // Power button handling
             if (ev.type == EV_KEY && ev.code == KEY_POWER) {
+                // Shader escape hatch: Power + Select turns the system-wide display
+                // shader OFF. A misbehaving custom shader can make the WHOLE screen
+                // unreadable (even this menu), so this hardware combo always clears it
+                // without needing to see the UI. Fires before any sleep/overlay/power
+                // logic and consumes the press (no sleep/shutdown on this event). Works
+                // in DRM-direct and SF home; the framework mirrors it for the in-app case.
+                if (ev.value == 1 && mSelectHeld) {
+                    property_set("persist.gammaos.shader.enable", "0");
+                    ALOGI("NanoMenu: Power+Select -> display shader disabled (escape hatch)");
+                    mPowerPressTime = 0;
+                    mDisplayDirty = true;
+                    continue;
+                }
                 // Overlay XMB: PhoneWindowManager OWNS the power button entirely -
                 // it detects nano mode and TOGGLES the overlay (show/hide) on a
                 // power-hold. nano must not act on power here (acting on the open,

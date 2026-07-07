@@ -799,6 +799,9 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         }
     };
     private boolean mNanoBackEmergencyPending = false;
+    // GammaOS Nano: tracks the gamepad Select button so Power+Select can act as a
+    // hardware escape hatch that turns the system-wide display shader off.
+    private boolean mNanoSelectHeld = false;
 
     // Track injected BTN_SELECT state so we can guarantee key-up on app switches.
     private boolean mRetroarchSelectDown = false;
@@ -5987,6 +5990,22 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         ensureRetroarchEntryState();
         final int keyCode = event.getKeyCode();
         final boolean down = event.getAction() == KeyEvent.ACTION_DOWN;
+
+        // GammaOS Nano: hardware escape hatch for the system-wide display shader.
+        // A misbehaving custom shader can make the ENTIRE screen unreadable - not just
+        // the home menu but any running game/app - so holding the gamepad Select and
+        // pressing Power always turns the shader OFF, no matter what is on screen. This
+        // runs before the nano power-swallow below so it fires in every context (home,
+        // in-app, overlay); nano's own evdev handler mirrors it for the DRM-direct home.
+        if (android.os.SystemProperties.getBoolean("sys.gammaos.minimal_boot", false)) {
+            if (keyCode == KeyEvent.KEYCODE_BUTTON_SELECT) {
+                mNanoSelectHeld = down;
+            } else if (keyCode == KeyEvent.KEYCODE_POWER && down && mNanoSelectHeld) {
+                android.os.SystemProperties.set("persist.gammaos.shader.enable", "0");
+                Slog.i(TAG, "GammaOS Nano: Power+Select -> display shader disabled (escape hatch)");
+                return 0; // consume; do not sleep/wake on this press
+            }
+        }
 
         // GammaOS Nano: swallow the power key while the DRM cold-boot home owns
         // it (the home nano grabs the power evdev node and drives sleep/wake
