@@ -20,6 +20,7 @@
 
 #include "NanoMenu.h"
 #include "NanoScraper.h"
+#include "NanoScraperDevCreds.h"   // compiled-in (obfuscated) ScreenScraper dev creds
 #include "NanoJson.h"
 #include "NanoI18n.h"    // trDyn() runtime translation of hardcoded UI strings
 #include "stb_image.h"   // stbi_load (impl in NanoMenuPS3Icons.cpp); AImageDecoder fails on the scrape art
@@ -189,13 +190,14 @@ bool NanoMenu::scraperDecodeRGBACpu(const std::string& path, int maxDim, int* ou
 }
 
 // Upload a packed RGBA buffer to a GL texture (render thread only).
-static GLuint saUploadRGBA(const uint8_t* px, int w, int h) {
+static GLuint saUploadRGBA(const uint8_t* px, int w, int h,
+                           GLenum minFilter = GL_LINEAR, GLenum magFilter = GL_LINEAR) {
     if (!px || w <= 0 || h <= 0) return 0;
     GLuint t = 0; glGenTextures(1, &t); glBindTexture(GL_TEXTURE_2D, t);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, px);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     return t;
@@ -276,7 +278,12 @@ void NanoMenu::saDrainArt() {
     uint64_t gen = mSaDecGen.load();
     for (auto& r : done) {
         if (r.gen != gen) continue;
-        GLuint tex = saUploadRGBA(r.px.data(), r.w, r.h);
+        // Fan art (the full-frame hover / dialog background) uses NEAREST so the
+        // upscale to fill the frame stays crisp instead of a soft bilinear blur; the
+        // small boxart column covers keep LINEAR (NEAREST would alias thumbnails).
+        bool fan = (r.target == SA_CINFO_FAN || r.target == SA_DLG_FAN);
+        GLuint tex = fan ? saUploadRGBA(r.px.data(), r.w, r.h, GL_NEAREST, GL_NEAREST)
+                         : saUploadRGBA(r.px.data(), r.w, r.h);
         if (!tex) continue;
         switch (r.target) {
             case SA_BOX: {
@@ -347,15 +354,35 @@ bool NanoMenu::scraperFanartEnabled() {
 // Per-system credential / engine resolution (global Settings + per-system
 // override). Empty per-system fields inherit the global value.
 // ---------------------------------------------------------------------------
+#ifdef NANO_SS_HAVE_DEV_CREDS
+// Reassemble an XOR-obfuscated, two-chunk credential from NanoScraperDevCreds.gen.h.
+static std::string nanoSsDecode(const unsigned char* h1, size_t n1,
+                                const unsigned char* h2, size_t n2) {
+    std::string s; s.reserve(n1 + n2);
+    size_t i = 0;
+    for (size_t j = 0; j < n1; j++, i++) s.push_back((char)(h1[j] ^ kNanoSsKey[i % sizeof(kNanoSsKey)]));
+    for (size_t j = 0; j < n2; j++, i++) s.push_back((char)(h2[j] ^ kNanoSsKey[i % sizeof(kNanoSsKey)]));
+    return s;
+}
+#endif
+
 nanoscraper::Credentials NanoMenu::scraperCredsFor(int sysIdx) {
     nanoscraper::Credentials c;
     char buf[PROPERTY_VALUE_MAX];
     property_get("persist.gammaos.scraper.ssdevid", buf, ""); c.ssDevId = buf;
     property_get("persist.gammaos.scraper.ssdevpw", buf, ""); c.ssDevPw = buf;
+    property_get("persist.gammaos.scraper.softname", buf, NANO_SS_SOFTNAME); c.ssSoftname = buf;
     property_get("persist.gammaos.scraper.ssuser",  buf, ""); c.ssUser  = buf;
     property_get("persist.gammaos.scraper.sspass",  buf, ""); c.ssPass  = buf;
     property_get("persist.gammaos.scraper.tgdbkey", buf, ""); c.tgdbKey = buf;
     property_get("persist.gammaos.scraper.region",  buf, "us"); c.region = buf;
+#ifdef NANO_SS_HAVE_DEV_CREDS
+    // Fall back to the built-in developer credentials when the props are unset, so
+    // scraping works out of the box without exposing the raw secret (see
+    // NanoScraperDevCreds.h). A user-set prop still overrides.
+    if (c.ssDevId.empty()) c.ssDevId = nanoSsDecode(kNanoSsID1, sizeof(kNanoSsID1), kNanoSsID2, sizeof(kNanoSsID2));
+    if (c.ssDevPw.empty()) c.ssDevPw = nanoSsDecode(kNanoSsPW1, sizeof(kNanoSsPW1), kNanoSsPW2, sizeof(kNanoSsPW2));
+#endif
     if (sysIdx >= 0 && sysIdx < (int)mXmbSystems.size()) {
         const XmbSystem& s = mXmbSystems[sysIdx];
         if (!s.scrapeUser.empty()) c.ssUser = s.scrapeUser;   // account override

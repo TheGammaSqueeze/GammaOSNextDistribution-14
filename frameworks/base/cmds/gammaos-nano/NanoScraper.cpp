@@ -357,7 +357,8 @@ static ScrapeOutcome scrapeScreenScraper(const Credentials& cred,
 
     std::vector<std::pair<std::string, std::string>> q = {
         {"devid", cred.ssDevId}, {"devpassword", cred.ssDevPw},
-        {"softname", "gammaos-nano"}, {"output", "json"},
+        {"softname", cred.ssSoftname.empty() ? std::string("gammaos-nano") : cred.ssSoftname},
+        {"output", "json"},
         {"romnom", fname},
     };
     if (!cred.ssUser.empty()) { q.push_back({"ssid", cred.ssUser}); q.push_back({"sspassword", cred.ssPass}); }

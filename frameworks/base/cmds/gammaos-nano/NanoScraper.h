@@ -43,6 +43,7 @@ struct Credentials {
     // ScreenScraper.fr
     std::string ssDevId;
     std::string ssDevPw;
+    std::string ssSoftname;   // registered application name for the dev account
     std::string ssUser;
     std::string ssPass;
     // TheGamesDB

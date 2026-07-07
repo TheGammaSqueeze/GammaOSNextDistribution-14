@@ -1011,6 +1011,63 @@ void NanoMenu::drawFrostedGlass(float x, float y, float w, float h, float radius
     glDisableVertexAttribArray(mGlassLocTexCoord);
 }
 
+// Draw the current blur (mGlassBlurTex) over the panel rect [x,y,w,h] (device px)
+// sampling an explicit source UV window instead of the auto full-screen mapping.
+// su0..su1 / sv0..sv1 is the cover-crop window mapped to the WHOLE device frame
+// [0,mWidth]x[0,mHeight] (as drawPs3CinfoBg draws the fanart); this sub-samples it for
+// the panel's screen fraction, so the panel shows the blurred art at the same place it
+// appears behind. Positions still rotate through sDrmRotMat (uRotation) for any DRM
+// rotation/flip. Used by frostFanartBackdrop; radius 0, no tonemap (the fanart texture
+// is already display-space, unlike the linear wave scene).
+void NanoMenu::drawFrostedGlassRegion(float x, float y, float w, float h, float fade,
+                                      float su0, float su1, float sv0, float sv1) {
+    if (mGlassProgram == 0) return;
+    // Panel corners -> NDC (bottom-left = x0,y0 ; top-right = x1,y1), same as drawFrostedGlass.
+    float x0 = (x / mWidth) * 2.0f - 1.0f;
+    float y0 = 1.0f - ((y + h) / mHeight) * 2.0f;
+    float x1 = ((x + w) / mWidth) * 2.0f - 1.0f;
+    float y1 = 1.0f - (y / mHeight) * 2.0f;
+    GLfloat verts[] = { x0,y0, x1,y0, x1,y1, x1,y1, x0,y1, x0,y0 };
+    float hw = w * 0.5f, hh = h * 0.5f;
+    GLfloat local[] = { -hw,hh, hw,hh, hw,-hh, hw,-hh, -hw,-hh, -hw,hh };
+    // Panel edges -> source UV (device x increases right -> u ; device y increases down
+    // -> v, matching the fanart quad's uu/vv layout in drawPs3CinfoBg).
+    float uL = su0 + (x / mWidth)  * (su1 - su0);
+    float uR = su0 + ((x + w) / mWidth)  * (su1 - su0);
+    float vT = sv0 + (y / mHeight) * (sv1 - sv0);
+    float vB = sv0 + ((y + h) / mHeight) * (sv1 - sv0);
+    // Order matches verts: BL,BR,TR, TR,TL,BL.
+    GLfloat tex[] = { uL,vB, uR,vB, uR,vT, uR,vT, uL,vT, uL,vB };
+    int   bw = (mGlassBlurW > 0) ? mGlassBlurW : mGlassTexW;
+    int   bh = (mGlassBlurH > 0) ? mGlassBlurH : mGlassTexH;
+    float texelX = (bw > 0) ? 1.0f / (float)bw : 0.02f;
+    float texelY = (bh > 0) ? 1.0f / (float)bh : 0.02f;
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glUseProgram(mGlassProgram);
+    glUniformMatrix2fv(mGlassLocRotation, 1, GL_FALSE, sDrmRotMat);
+    glUniform2f(mGlassLocHalf, hw, hh);
+    glUniform1f(mGlassLocRadius, 0.0f);
+    glUniform2f(mGlassLocTexel, texelX, texelY);
+    glUniform4f(mGlassLocTint, 1.0f, 1.0f, 1.0f, 1.0f);
+    glUniform1f(mGlassLocAlpha, fade);
+    if (mGlassLocTonemap >= 0) glUniform1f(mGlassLocTonemap, 0.0f);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, (mGlassBlurTex != 0) ? mGlassBlurTex : mGlassTex);
+    glUniform1i(mGlassLocTexture, 0);
+    glVertexAttribPointer(mGlassLocPosition, 2, GL_FLOAT, GL_FALSE, 0, verts);
+    glEnableVertexAttribArray(mGlassLocPosition);
+    glVertexAttribPointer(mGlassLocLocal, 2, GL_FLOAT, GL_FALSE, 0, local);
+    glEnableVertexAttribArray(mGlassLocLocal);
+    glVertexAttribPointer(mGlassLocTexCoord, 2, GL_FLOAT, GL_FALSE, 0, tex);
+    glEnableVertexAttribArray(mGlassLocTexCoord);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    glDisableVertexAttribArray(mGlassLocPosition);
+    glDisableVertexAttribArray(mGlassLocLocal);
+    glDisableVertexAttribArray(mGlassLocTexCoord);
+}
+
 // ---------------------------------------------------------------------------
 // FreeType font initialization
 // ---------------------------------------------------------------------------

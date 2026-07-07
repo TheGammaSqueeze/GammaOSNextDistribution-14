@@ -1,0 +1,4 @@
+# ScreenScraper developer credentials - local secret, never publish.
+# The raw values and the obfuscated header generated from them stay off the repo.
+screenscraper_dev.local.txt
+NanoScraperDevCreds.gen.h
