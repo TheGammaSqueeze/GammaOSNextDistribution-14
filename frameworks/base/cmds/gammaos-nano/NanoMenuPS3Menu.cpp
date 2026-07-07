@@ -597,6 +597,16 @@ enum {
     QA_QUICK_RESUME_TOGGLE,// toggle Quick Resume (save+resume the last game across power off/reboot)
     QA_APP_ORIENT_MENU,  // overlay: open the per-app Orientation submenu for the foreground app
     QA_APP_ORIENT_SET,   // overlay: apply it.value orientation token to the foreground app
+    // GammaShader (display post-process shader control, mirrors the ShaderControl app).
+    QA_SHADER_MENU,      // open the GammaShader submenu (Quick Menu)
+    QA_SHADER_PICK,      // open the shader-type side-panel chooser (Off/CRT/LCD3x/.../Custom)
+    QA_SHADER_PARAMS,    // drill into the active shader's Parameters submenu
+    QA_SHADER_PARAM,     // a single parameter row -> open its live slider (it.b = mShaderParams index)
+    QA_SHADER_RESET,     // reset the active shader's parameters to their defaults
+    QA_SHADER_OPT_MENU,  // open a discrete-option chooser for a shader prop (it.value = "key|opts|title")
+    QA_SHADER_OPT_SET,   // set a discrete option (it.value = "key=value")
+    QA_SHADER_BROWSE,    // custom: browse into a directory (it.value = absolute path)
+    QA_SHADER_PICK_FILE, // custom: select a preset file (it.value = absolute path)
 };
 
 void NanoMenu::buildPs3Cats() {
@@ -629,6 +639,7 @@ void NanoMenu::buildPs3Cats() {
         qItem("Screen Brightness",   QA_BRIGHTNESS,    16);
         qItem("Performance Mode",    QA_PERFORMANCE,   21);
         qItem("Quick Settings",      QA_QUICK_SETTINGS, 21);
+        qItem("GammaShader",         QA_SHADER_MENU,    22);
         qItem("Notifications",       QA_NOTIFICATIONS,  16);
         qItem("Close Current App",   QA_CLOSE_APP,     24);
         // Orientation: override the FOREGROUND app's orientation live. Only shown when
@@ -2023,6 +2034,11 @@ void NanoMenu::ps3DlgNav(int dir, bool horizontal) {
             if (v < mPs3DlgSldMin) v = mPs3DlgSldMin;
             if (v > mPs3DlgSldMax) v = mPs3DlgSldMax;
             mPs3DlgSldVal = v;
+            // GammaShader param slider: apply live so the shader updates in real time.
+            if (mShaderParamEdit >= 0 && mShaderParamEdit < (int)mShaderParams.size()) {
+                mShaderParams[mShaderParamEdit].cur = v;
+                shaderApplyParamLive(mShaderParamEdit);
+            }
             return;
         }
         // Theme side-panel chooser: clamp + live hover preview.
@@ -2377,9 +2393,9 @@ void NanoMenu::ps3XmbSelect() {
             if (sel == 0) { property_set("persist.gammaos.nano.radio.agreed", "1"); radioOpen(); }
             return;
         }
-        // X commits a chooser (theme leaf or settings-bound leaf); on a plain
-        // message dialog it just dismisses.
-        closePs3Dialog(mPs3DlgThemeKey > 0 || mPs3DlgBinding != nullptr); return;
+        // X commits a chooser (theme leaf, settings-bound leaf, or a GammaShader
+        // parameter slider); on a plain message dialog it just dismisses.
+        closePs3Dialog(mPs3DlgThemeKey > 0 || mPs3DlgBinding != nullptr || mShaderParamEdit >= 0); return;
     }
     std::vector<Ps3Item>& items = ps3CurItems();
     int sel = ps3CurSel();
@@ -2717,6 +2733,18 @@ void NanoMenu::ps3XmbSelect() {
                 case QA_POWER_SUBMENU: { Ps3Level lvl; buildQuickPowerSubmenu(lvl); mPs3Stack.push_back(lvl); break; }
                 case QA_APP_ORIENT_MENU: { Ps3Level lvl; buildAppOrientSubmenu(lvl); mPs3Stack.push_back(lvl); break; }
                 case QA_QUICK_SETTINGS: { Ps3Level lvl; buildQuickSettingsSubmenu(lvl); mPs3Stack.push_back(lvl); break; }
+                case QA_SHADER_MENU:    { Ps3Level lvl; buildShaderSubmenu(lvl);        mPs3Stack.push_back(lvl); break; }
+                case QA_SHADER_PARAMS:  { Ps3Level lvl; buildShaderParamsSubmenu(lvl);  mPs3Stack.push_back(lvl); break; }
+                case QA_SHADER_BROWSE: {   // custom-preset browser (drill by path)
+                    Ps3Level lvl; buildShaderBrowser(it.value.empty() ? std::string() : it.value, lvl);
+                    mPs3Stack.push_back(lvl); break;
+                }
+                case QA_SHADER_PICK:    openShaderChooser(); return;
+                case QA_SHADER_OPT_MENU: openShaderOptChooser(it.value); return;
+                case QA_SHADER_PARAM:   openShaderParamSlider(it.b); return;
+                case QA_SHADER_RESET:   shaderResetActive(); return;
+                case QA_SHADER_PICK_FILE:  // custom: select a preset file (copies if app-private)
+                    shaderSelectPreset(it.value); return;
                 case QA_NOTIFICATIONS:  { Ps3Level lvl; buildNotificationsSubmenu(lvl);  mPs3Stack.push_back(lvl); break; }
                 case QA_GAMEPAD_MENU:   { Ps3Level lvl; buildGamepadSubmenu(lvl);       mPs3Stack.push_back(lvl); break; }
                 case QA_MOUSE_MENU:     { Ps3Level lvl; buildMouseSubmenu(lvl);         mPs3Stack.push_back(lvl); break; }
@@ -3095,6 +3123,7 @@ void NanoMenu::renderPs3Xmb() {
     photoTick();       // photo viewer: enter-fade easing + slideshow timers
     feTick();          // File Explorer: reap a finished copy/move/delete worker, refresh + report
     appInfoTick();     // App Information: async-refresh the level from the framework
+    shaderMetaTick();  // GammaShader: pick up custom shader params once SF publishes them
     vidReapDying();    // free any async-released video decoders every frame (also after the player closes)
     if (renderVideoPlayer()) return;   // full-screen video player owns the screen while up/fading
     // Arm the once-per-frame glass-icon uniform upload (drawGlassIcon sends the
@@ -4034,6 +4063,20 @@ void NanoMenu::renderPs3Xmb() {
         drawList(mPs3Cats[mPs3CatIdx].items, mPs3AnimItem, barTravel * (1.0f - p), newAlpha);
     } else {
         drawList(ps3CurItems(), mPs3AnimItem, 0.0f, 1.0f);
+    }
+
+    // GammaShader custom-preset browser: a fixed breadcrumb above the list so the
+    // user always sees which folder they are in (the PS3 submenu list has no title
+    // bar of its own). Uses the same virtual->device transform as the row labels so
+    // it lands correctly under any rotation/flip. Only while a browser level is on top.
+    if (!mPs3Stack.empty() && mPs3Stack.back().screenKind == SHADER_BROWSE) {
+        const std::string& crumb = mPs3Stack.back().title;
+        if (!crumb.empty()) {
+            float hts = ps3::fontScale(26.0f);
+            float hx  = ps3::devX(ps3::XCP(ps3::ITEM_TEXT_X + ps3::SUBMENU_CHILD_X_SHIFT));
+            float hy  = ps3::baselineToTopY(ps3::devY(330.0f), hts);
+            drawText(crumb.c_str(), hx, hy, hts, 0.70f, 0.78f, 0.94f, 0.85f);
+        }
     }
 
     drawPs3Clock(mPs3BootIconReveal);   // fades in with the cold-boot hand-off (1.0 otherwise)
@@ -5349,6 +5392,25 @@ void NanoMenu::openBoundChooser(const Ps3SettingBinding* b) {
 // it without opening the chooser. Non-theme rows fall back to the static value.
 std::string NanoMenu::resolvePs3ItemValue(const Ps3Item& it) {
     const std::string& n = it.label;
+    // GammaShader discrete-option row: it.value holds the "key|opts|title" spec; show
+    // the label of the current value instead of the raw spec.
+    if (it.kind == PS3_QUICK && it.a == QA_SHADER_OPT_MENU && !it.value.empty())
+        return shaderOptCurrentLabel(it.value);
+    // GammaShader "Custom Shader" row: show the current preset's basename.
+    if (it.kind == PS3_QUICK && it.a == QA_SHADER_BROWSE && n == "Custom Shader") {
+        std::string preset = readSettingValue(SettingSource::kProp, "persist.gammaos.shader.custom.preset", "");
+        return preset.empty() ? std::string("None") : preset.substr(preset.find_last_of('/') + 1);
+    }
+    // Browser folder rows carry their path in it.value for the dispatch; the label
+    // already shows the name, so don't repeat the path on the right.
+    if (it.kind == PS3_QUICK && it.a == QA_SHADER_BROWSE)
+        return std::string();
+    // Browser preset rows: mark the one currently applied so the user can see which
+    // shader is live while trying others in place.
+    if (it.kind == PS3_QUICK && it.a == QA_SHADER_PICK_FILE) {
+        std::string cur = readSettingValue(SettingSource::kProp, "persist.gammaos.shader.custom.preset", "");
+        return (!cur.empty() && cur == it.value) ? std::string("Active") : std::string();
+    }
     // Use the binding resolved once at item build (makeDataItem) instead of
     // re-scanning kPs3Bindings by string-compare on every call (this runs per
     // visible item every frame in drawList).
@@ -6026,6 +6088,509 @@ void NanoMenu::openPerformanceChooser() {
     mPs3DlgActive = true; mPs3DlgAnim = 0.0f; mPs3DlgBlurValid = false;
 }
 
+// ===========================================================================
+// GammaShader: display post-process shader control (Quick Menu submenu).
+// Mirrors the ShaderControl app, driving the persist.gammaos.shader.* props and,
+// for custom presets, the /data/media/0/GammaShader/.shader_param_meta (native
+// -> us) + .shader_params (us -> native) file contract. Every control is a
+// chooser or a slider - the user never types text.
+// ===========================================================================
+namespace {
+struct GsParamDef { const char* suffix; const char* label; float mn, mx, step, def; int dec; };
+// prop = persist.gammaos.shader.<suffix>. Ranges/steps/defaults mirror ShaderControl.
+const GsParamDef kCrtParams[] = {
+    {"crt-simple.scan_px",        "Scanline Size",      1.0f, 12.0f,  0.1f,   4.0f, 1},
+    {"crt-simple.scan_strength",  "Scanline Strength",  0.0f, 1.0f,   0.01f,  0.40f,2},
+    {"crt-simple.curv",           "Curvature",          0.0f, 0.1f,   0.001f, 0.03f,3},
+    {"crt-simple.vignette",       "Vignette",           0.0f, 0.4f,   0.004f, 0.01f,3},
+    {"crt-simple.edge_soft_px",   "Edge Softness",      0.0f, 32.0f,  0.1f,   4.0f, 1},
+    {"crt-simple.blur_intensity", "Blur Intensity",     0.0f, 1.0f,   0.01f,  0.0f, 2},
+};
+const GsParamDef kLcd3xParams[] = {
+    {"lcd3x.brighten_scanlines",  "Brighten Scanlines", 1.0f, 10.0f,  0.01f,  4.0f, 2},
+    {"lcd3x.brighten_lcd",        "Brighten LCD",       1.0f, 10.0f,  0.01f,  4.0f, 2},
+    {"lcd3x.grid_px_x",           "Grid Width",         1.0f, 32.0f,  0.1f,   4.0f, 1},
+    {"lcd3x.grid_px_y",           "Grid Height",        1.0f, 32.0f,  0.1f,   4.0f, 1},
+};
+const GsParamDef kLcdParams[] = {
+    {"lcd.response_time",         "Response Time",      0.0f, 0.78f,  0.01f,  0.0f, 2},
+    {"lcd.scan_strength",         "Scanline Strength",  0.0f, 1.0f,   0.01f,  0.20f,2},
+    {"lcd.subpixel_strength",     "Subpixel Strength",  0.0f, 1.0f,   0.01f,  0.40f,2},
+    {"lcd.gap_strength",          "Gap Strength",       0.0f, 1.0f,   0.01f,  0.10f,2},
+    {"lcd.gap_px",                "Gap Size",           0.0f, 0.45f,  0.01f,  0.05f,2},
+};
+const GsParamDef kBlurParams[] = {
+    {"blurfill.sigma",            "Blur Amount",        0.1f, 64.0f,  0.1f,   12.0f,1},
+    {"blurfill.blur_scale",       "Blur Scale",         0.25f,4.0f,   0.01f,  1.0f, 2},
+    {"blurfill.edge_px",          "Edge Width",         1.0f, 4096.0f,1.0f,   160.0f,0},
+    {"blurfill.feather_px",       "Feather",            0.0f, 1024.0f,1.0f,   40.0f,0},
+    {"blurfill.strength",         "Strength",           0.0f, 1.0f,   0.01f,  1.0f, 2},
+    {"blurfill.res_scale",        "Resolution",         0.1f, 1.0f,   0.01f,  0.5f, 2},
+    {"blurfill.luma_threshold",   "Luma Threshold",     0.0f, 0.3f,   0.001f, 0.06f,3},
+};
+struct GsType { const char* label; const char* type; };
+const GsType kShaderTypes[] = {
+    {"Off",             ""},
+    {"CRT",             "crt-simple"},
+    {"LCD3x",           "lcd3x"},
+    {"LCD",             "lcd-shader"},
+    {"Blur Fill",       "blur-fill"},
+    {"Custom (SkSL)",   "custom"},
+    {"Custom (Vulkan)", "custom-vk"},
+    {"Custom (GLSL)",   "custom-gl"},
+};
+const int kNumShaderTypes = (int)(sizeof(kShaderTypes) / sizeof(kShaderTypes[0]));
+const char* kShaderMetaDir  = "/data/media/0/GammaShader";
+const char* kShaderMetaPath = "/data/media/0/GammaShader/.shader_param_meta";
+const char* kShaderValsPath = "/data/media/0/GammaShader/.shader_params";
+// Roots the custom-preset browser starts from. nano runs as root so it can read all
+// of these (including the RetroArch app-private library); SurfaceFlinger then loads
+// the chosen preset from the same path directly (it holds DAC_READ_SEARCH). The
+// canonical /data/data path is used for RetroArch so SF never has to chase the
+// /data/user/0 symlink.
+struct GsRoot { const char* path; const char* label; };
+const GsRoot kShaderRoots[] = {
+    {"/data/media/0/GammaShader",                      "GammaShader"},
+    {"/data/data/com.retroarch.aarch64/shaders",       "RetroArch Shaders"},
+    {"/data/media/0/RetroArch/config",                 "RetroArch Presets"},
+};
+const int kNumShaderRoots = (int)(sizeof(kShaderRoots) / sizeof(kShaderRoots[0]));
+static const GsParamDef* gsBuiltinParams(const std::string& type, int& n) {
+    if (type == "crt-simple") { n = 6; return kCrtParams; }
+    if (type == "lcd3x")      { n = 4; return kLcd3xParams; }
+    if (type == "lcd-shader") { n = 5; return kLcdParams; }
+    if (type == "blur-fill")  { n = 7; return kBlurParams; }
+    n = 0; return nullptr;
+}
+} // namespace
+
+std::string NanoMenu::shaderCurType() {
+    char en[PROPERTY_VALUE_MAX]; property_get("persist.gammaos.shader.enable", en, "0");
+    bool on = (!strcmp(en, "1") || !strcmp(en, "true"));
+    if (!on) return "";
+    char ty[PROPERTY_VALUE_MAX]; property_get("persist.gammaos.shader.type", ty, "crt-simple");
+    // Canonicalize the few aliases SF accepts.
+    std::string t = ty;
+    if (t == "lcd_shader" || t == "lcdshader" || t == "lcd") t = "lcd-shader";
+    if (t == "blurfill" || t == "blur_fill") t = "blur-fill";
+    return t;
+}
+
+std::string NanoMenu::shaderTypeLabel() {
+    std::string t = shaderCurType();
+    if (t.empty()) return "Off";
+    for (int i = 1; i < kNumShaderTypes; i++)
+        if (t == kShaderTypes[i].type) return kShaderTypes[i].label;
+    return t;
+}
+
+bool NanoMenu::isCustomShaderType(const std::string& t) {
+    return t == "custom" || t == "custom-vk" || t == "custom-gl";
+}
+
+// Populate mShaderParams for the active shader: builtin -> from the static tables
+// (current value read from the prop, default fallback); custom -> from the meta file.
+void NanoMenu::shaderLoadParams() {
+    mShaderParams.clear();
+    std::string type = shaderCurType();
+    int n = 0; const GsParamDef* defs = gsBuiltinParams(type, n);
+    if (defs) {
+        for (int i = 0; i < n; i++) {
+            ShaderParam p;
+            p.id = defs[i].suffix; p.label = defs[i].label;
+            p.mn = defs[i].mn; p.mx = defs[i].mx; p.step = defs[i].step; p.dec = defs[i].dec;
+            p.def = defs[i].def; p.isFile = false;
+            std::string key = std::string("persist.gammaos.shader.") + defs[i].suffix;
+            char buf[PROPERTY_VALUE_MAX]; property_get(key.c_str(), buf, "");
+            p.cur = buf[0] ? strtof(buf, nullptr) : defs[i].def;
+            if (p.cur < p.mn) p.cur = p.mn; if (p.cur > p.mx) p.cur = p.mx;
+            mShaderParams.push_back(p);
+        }
+    } else if (isCustomShaderType(type)) {
+        loadShaderParamMeta();
+    }
+}
+
+// Read /data/media/0/GammaShader/.shader_param_meta (id|desc|initial|min|max|step),
+// then overlay any current overrides from .shader_params (id=value).
+void NanoMenu::loadShaderParamMeta() {
+    mShaderParams.clear();
+    FILE* f = fopen(kShaderMetaPath, "r");
+    if (!f) return;
+    char line[1024];
+    while (fgets(line, sizeof(line), f)) {
+        // strip newline
+        char* nl = strchr(line, '\n'); if (nl) *nl = '\0';
+        if (line[0] == '\0') continue;
+        // split on '|' into up to 6 fields
+        std::vector<std::string> parts; parts.reserve(6);
+        const char* s = line; const char* p = s;
+        while (true) {
+            const char* bar = strchr(p, '|');
+            if (!bar || parts.size() == 5) { parts.push_back(std::string(p)); break; }
+            parts.push_back(std::string(p, bar - p)); p = bar + 1;
+        }
+        if (parts.size() < 6) continue;
+        ShaderParam sp;
+        sp.id = parts[0]; sp.label = parts[1];
+        sp.def = strtof(parts[2].c_str(), nullptr);
+        sp.mn  = strtof(parts[3].c_str(), nullptr);
+        sp.mx  = strtof(parts[4].c_str(), nullptr);
+        sp.step = strtof(parts[5].c_str(), nullptr);
+        if (sp.step <= 0.0f) sp.step = (sp.mx - sp.mn) / 100.0f;
+        if (sp.step <= 0.0f) sp.step = 0.01f;
+        sp.cur = sp.def; sp.isFile = true;
+        // decimals from the step magnitude
+        sp.dec = (sp.step >= 1.0f) ? 0 : (sp.step >= 0.1f ? 1 : (sp.step >= 0.01f ? 2 : 3));
+        mShaderParams.push_back(sp);
+    }
+    fclose(f);
+    // Overlay current overrides.
+    FILE* v = fopen(kShaderValsPath, "r");
+    if (v) {
+        while (fgets(line, sizeof(line), v)) {
+            char* nl = strchr(line, '\n'); if (nl) *nl = '\0';
+            char* eq = strchr(line, '='); if (!eq) continue;
+            *eq = '\0'; std::string id = line; float val = strtof(eq + 1, nullptr);
+            for (auto& sp : mShaderParams) if (sp.id == id) { sp.cur = val; break; }
+        }
+        fclose(v);
+    }
+}
+
+// Rewrite .shader_params with EVERY custom param as id=value (native reloads on mtime).
+void NanoMenu::writeShaderParams() {
+    mkdir(kShaderMetaDir, 0775);
+    std::string tmp = std::string(kShaderValsPath) + ".tmp";
+    FILE* f = fopen(tmp.c_str(), "w");
+    if (!f) return;
+    for (const auto& p : mShaderParams)
+        if (p.isFile) fprintf(f, "%s=%s\n", p.id.c_str(), ps3FormatNum(p.cur, p.dec).c_str());
+    fflush(f); fsync(fileno(f)); fclose(f);
+    chmod(tmp.c_str(), 0666);
+    rename(tmp.c_str(), kShaderValsPath);
+}
+
+void NanoMenu::shaderApplyParamLive(int idx) {
+    if (idx < 0 || idx >= (int)mShaderParams.size()) return;
+    const ShaderParam& p = mShaderParams[idx];
+    if (p.isFile) {
+        writeShaderParams();
+    } else {
+        std::string key = std::string("persist.gammaos.shader.") + p.id;
+        property_set(key.c_str(), ps3FormatNum(p.cur, p.dec).c_str());
+    }
+    mDisplayDirty = true;
+}
+
+void NanoMenu::shaderApplyType(int sel) {
+    if (sel < 0 || sel >= kNumShaderTypes) return;
+    const GsType& t = kShaderTypes[sel];
+    if (t.type[0] == '\0') {
+        property_set("persist.gammaos.shader.enable", "0");
+    } else {
+        property_set("persist.gammaos.shader.type", t.type);
+        property_set("persist.gammaos.shader.enable", "1");
+        // Entering a custom mode: arm the meta poll so the Parameters row can pick up
+        // the dynamic params once SurfaceFlinger loads the preset and publishes them.
+        if (isCustomShaderType(t.type)) {
+            unlink(kShaderMetaPath);
+            mShaderMetaDeadlineMs = (long)android::uptimeMillis() + 4000;
+        }
+    }
+    shaderLoadParams();
+    shaderRebuildOpenLevel();
+    mDisplayDirty = true;
+}
+
+void NanoMenu::shaderResetActive() {
+    std::string type = shaderCurType();
+    int n = 0; const GsParamDef* defs = gsBuiltinParams(type, n);
+    if (defs) {
+        for (int i = 0; i < n; i++) {
+            std::string key = std::string("persist.gammaos.shader.") + defs[i].suffix;
+            property_set(key.c_str(), ps3FormatNum(defs[i].def, defs[i].dec).c_str());
+        }
+    } else if (isCustomShaderType(type)) {
+        // Clear the overrides file so native falls back to each param's initial value.
+        FILE* f = fopen(kShaderValsPath, "w"); if (f) fclose(f);
+    }
+    shaderLoadParams();
+    shaderRebuildOpenLevel();
+    mDisplayDirty = true;
+}
+
+// Rebuild the currently open GammaShader / Parameters submenu level in place so its
+// rows and inline values refresh after a change, preserving the cursor position.
+void NanoMenu::shaderRebuildOpenLevel() {
+    if (mPs3Stack.empty()) return;
+    Ps3Level& lvl = mPs3Stack.back();
+    int s = lvl.sel;
+    if (lvl.title == "GammaShader")      buildShaderSubmenu(lvl);
+    else if (lvl.title == "Parameters")  buildShaderParamsSubmenu(lvl);
+    else return;
+    if (s >= 0 && s < (int)lvl.items.size()) lvl.sel = s;
+    mDisplayDirty = true;
+}
+
+void NanoMenu::buildShaderSubmenu(Ps3Level& out) {
+    out.items.clear(); out.sel = 0; out.title = "GammaShader"; out.screenKind = 0;
+    std::string type = shaderCurType();
+    bool custom = isCustomShaderType(type);
+    auto act = [&](const char* label, int qa, const std::string& val, int icon) {
+        Ps3Item it; it.label = label; it.kind = PS3_QUICK; it.a = qa;
+        if (!val.empty()) it.value = val;
+        it.nmapTex = nmapForIcon(icon); it.iconR = it.iconG = it.iconB = 1.0f;
+        out.items.push_back(it);
+    };
+    // Master shader selector (its inline value is the active shader label).
+    act("Shader", QA_SHADER_PICK, shaderTypeLabel(), 22);
+    if (type.empty()) return;   // Off: nothing else to configure
+    if (custom) {
+        // Empty payload -> the browser opens its roots list; the row's inline value
+        // (the current preset name) comes from resolvePs3ItemValue.
+        act("Custom Shader", QA_SHADER_BROWSE, std::string(), 22);
+        // Renderer applies only to .slangp presets (custom = SkSL, custom-vk = Vulkan).
+        if (type == "custom" || type == "custom-vk") {
+            act("Renderer", QA_SHADER_OPT_MENU,
+                std::string("@type|custom:SkSL,custom-vk:Vulkan|Renderer"), 22);
+        }
+        act("Resolution Scale", QA_SHADER_OPT_MENU,
+            std::string("persist.gammaos.shader.custom.res_scale|full:Full,3/4:3/4,1/2:1/2,1/4:1/4|Resolution Scale"), 22);
+    }
+    act("Parameters", QA_SHADER_PARAMS, std::string(), 22);
+}
+
+void NanoMenu::buildShaderParamsSubmenu(Ps3Level& out) {
+    out.items.clear(); out.sel = 0; out.title = "Parameters"; out.screenKind = 0;
+    shaderLoadParams();
+    std::string type = shaderCurType();
+    if (isCustomShaderType(type) && mShaderParams.empty()) {
+        // Meta not published yet (SF still loading, or no preset chosen).
+        Ps3Item it; it.label = (readSettingValue(SettingSource::kProp,
+            "persist.gammaos.shader.custom.preset", "").empty())
+            ? "Select a custom shader first" : "Loading parameters...";
+        it.kind = PS3_QUICK; it.a = QA_NOOP; it.iconR = it.iconG = it.iconB = 1.0f;
+        it.nmapTex = nmapForIcon(22);
+        out.items.push_back(it);
+        return;
+    }
+    for (int i = 0; i < (int)mShaderParams.size(); i++) {
+        Ps3Item it; it.label = mShaderParams[i].label;
+        it.kind = PS3_QUICK; it.a = QA_SHADER_PARAM; it.b = i;
+        it.value = ps3FormatNum(mShaderParams[i].cur, mShaderParams[i].dec);
+        it.nmapTex = nmapForIcon(22); it.iconR = it.iconG = it.iconB = 1.0f;
+        out.items.push_back(it);
+    }
+    // Blur Fill has a discrete orientation option in addition to its sliders.
+    if (type == "blur-fill") {
+        Ps3Item it; it.label = "Orientation"; it.kind = PS3_QUICK; it.a = QA_SHADER_OPT_MENU;
+        it.value = "persist.gammaos.shader.blurfill.orientation|auto:Auto,vertical:Vertical,horizontal:Horizontal|Orientation";
+        it.nmapTex = nmapForIcon(22); it.iconR = it.iconG = it.iconB = 1.0f;
+        out.items.push_back(it);
+    }
+    { Ps3Item it; it.label = "Reset to Defaults"; it.kind = PS3_QUICK; it.a = QA_SHADER_RESET;
+      it.nmapTex = nmapForIcon(22); it.iconR = it.iconG = it.iconB = 1.0f;
+      out.items.push_back(it); }
+}
+
+// Shader-type master chooser (side-panel list, theme key 40).
+void NanoMenu::openShaderChooser() {
+    mPs3DlgOptions.clear(); mPs3DlgSwatch.clear(); mPs3DlgBinding = nullptr; mPs3DlgSlider = false;
+    mPs3DlgKind = 1; mPs3DlgThemeKey = 40; mPs3DlgTitle = "Shader"; mPs3DlgBody.clear();
+    std::string cur = shaderCurType();
+    int sel = 0;
+    for (int i = 0; i < kNumShaderTypes; i++) {
+        mPs3DlgOptions.push_back(kShaderTypes[i].label); mPs3DlgSwatch.push_back(-1);
+        if ((i == 0 && cur.empty()) || (i > 0 && cur == kShaderTypes[i].type)) sel = i;
+    }
+    mPs3DlgSel = sel; mPs3DlgOrigSel = sel;
+    mPs3DlgIconTex = 0; mPs3DlgIconNmap = nmapForIcon(22); mPs3DlgIconR = mPs3DlgIconG = mPs3DlgIconB = 1.0f;
+    mPs3DlgActive = true; mPs3DlgAnim = 0.0f; mPs3DlgClosing = false; mPs3DlgBlurValid = false;
+}
+
+// Given a shader-opt spec "key|v1:l1,v2:l2,...|title", return the display label of the
+// currently-selected value (so the menu row shows "SkSL"/"Full" not the raw spec).
+std::string NanoMenu::shaderOptCurrentLabel(const std::string& spec) {
+    size_t a = spec.find('|'); size_t b = (a == std::string::npos) ? a : spec.find('|', a + 1);
+    if (a == std::string::npos || b == std::string::npos) return spec;
+    std::string key = spec.substr(0, a);
+    std::string opts = spec.substr(a + 1, b - a - 1);
+    std::string cur;
+    if (key == "@type") cur = shaderCurType();
+    else { char buf[PROPERTY_VALUE_MAX]; property_get(key.c_str(), buf, ""); cur = buf; }
+    std::string firstLabel;
+    size_t pos = 0;
+    while (pos <= opts.size()) {
+        size_t comma = opts.find(',', pos);
+        std::string tok = opts.substr(pos, comma == std::string::npos ? std::string::npos : comma - pos);
+        size_t colon = tok.find(':');
+        std::string val = (colon == std::string::npos) ? tok : tok.substr(0, colon);
+        std::string lab = (colon == std::string::npos) ? tok : tok.substr(colon + 1);
+        if (firstLabel.empty()) firstLabel = lab;
+        if (val == cur) return lab;
+        if (comma == std::string::npos) break; pos = comma + 1;
+    }
+    return cur.empty() ? firstLabel : cur;
+}
+
+// Generic discrete-option chooser for a shader prop (side-panel list, theme key 41).
+// spec = "key|v1:l1,v2:l2,...|title"; key "@type" means set persist.gammaos.shader.type.
+void NanoMenu::openShaderOptChooser(const std::string& spec) {
+    size_t a = spec.find('|'); size_t b = (a == std::string::npos) ? a : spec.find('|', a + 1);
+    if (a == std::string::npos || b == std::string::npos) return;
+    mShaderOptKey = spec.substr(0, a);
+    std::string opts = spec.substr(a + 1, b - a - 1);
+    std::string title = spec.substr(b + 1);
+    mShaderOptVals.clear(); mPs3DlgOptions.clear(); mPs3DlgSwatch.clear();
+    mPs3DlgBinding = nullptr; mPs3DlgSlider = false;
+    // current value
+    std::string cur;
+    if (mShaderOptKey == "@type") cur = shaderCurType();
+    else { char buf[PROPERTY_VALUE_MAX]; property_get(mShaderOptKey.c_str(), buf, ""); cur = buf; }
+    int sel = 0, i = 0;
+    size_t pos = 0;
+    while (pos <= opts.size()) {
+        size_t comma = opts.find(',', pos);
+        std::string tok = opts.substr(pos, comma == std::string::npos ? std::string::npos : comma - pos);
+        size_t colon = tok.find(':');
+        std::string val = (colon == std::string::npos) ? tok : tok.substr(0, colon);
+        std::string lab = (colon == std::string::npos) ? tok : tok.substr(colon + 1);
+        mShaderOptVals.push_back({val, lab});
+        mPs3DlgOptions.push_back(lab); mPs3DlgSwatch.push_back(-1);
+        if (val == cur) sel = i;
+        i++;
+        if (comma == std::string::npos) break; pos = comma + 1;
+    }
+    mPs3DlgKind = 1; mPs3DlgThemeKey = 41; mPs3DlgTitle = title; mPs3DlgBody.clear();
+    mPs3DlgSel = sel; mPs3DlgOrigSel = sel;
+    mPs3DlgIconTex = 0; mPs3DlgIconNmap = nmapForIcon(22); mPs3DlgIconR = mPs3DlgIconG = mPs3DlgIconB = 1.0f;
+    mPs3DlgActive = true; mPs3DlgAnim = 0.0f; mPs3DlgClosing = false; mPs3DlgBlurValid = false;
+}
+
+// Live slider for one shader parameter (writes prop/.shader_params on every step so
+// the shader updates in real time; cancel reverts to the value at open).
+void NanoMenu::openShaderParamSlider(int idx) {
+    if (idx < 0 || idx >= (int)mShaderParams.size()) return;
+    const ShaderParam& p = mShaderParams[idx];
+    mPs3DlgOptions.clear(); mPs3DlgSwatch.clear(); mPs3DlgBinding = nullptr;
+    mPs3DlgKind = 1; mPs3DlgThemeKey = 0; mPs3DlgTitle = p.label; mPs3DlgBody.clear();
+    mPs3DlgSlider = true;
+    mPs3DlgSldMin = p.mn; mPs3DlgSldMax = p.mx; mPs3DlgSldStep = p.step; mPs3DlgSldScale = p.dec;
+    mPs3DlgSldVal = p.cur; mPs3DlgSel = 0; mPs3DlgOrigSel = 0;
+    mShaderParamEdit = idx; mShaderParamOrig = p.cur;
+    mPs3DlgIconTex = 0; mPs3DlgIconNmap = nmapForIcon(22); mPs3DlgIconR = mPs3DlgIconG = mPs3DlgIconB = 1.0f;
+    mPs3DlgActive = true; mPs3DlgAnim = 0.0f; mPs3DlgClosing = false; mPs3DlgBlurValid = false;
+}
+
+// Per-frame: after a custom preset/type change we armed a deadline; poll for the
+// native-published .shader_param_meta and, once it lands, reload the params + refresh
+// the open shader submenu so the dynamic sliders appear. Cheap (one stat) and only
+// active for a few seconds after a change.
+void NanoMenu::shaderMetaTick() {
+    if (mShaderMetaDeadlineMs == 0) return;
+    if ((long)android::uptimeMillis() > mShaderMetaDeadlineMs) { mShaderMetaDeadlineMs = 0; return; }
+    struct stat st;
+    if (stat(kShaderMetaPath, &st) == 0 && st.st_size > 0) {
+        mShaderMetaDeadlineMs = 0;
+        if (!mPs3Stack.empty() &&
+            (mPs3Stack.back().title == "Parameters" || mPs3Stack.back().title == "GammaShader"))
+            shaderRebuildOpenLevel();
+        mDisplayDirty = true;
+    }
+}
+
+// Custom-preset file browser. path empty -> the seeded roots list; otherwise the
+// directory contents (folders + presets filtered by the active custom type's
+// extension). Mirrors ShaderControl's browser and nano's buildFolderBrowser.
+void NanoMenu::buildShaderBrowser(const std::string& path, Ps3Level& out) {
+    out.items.clear(); out.sel = 0; out.screenKind = SHADER_BROWSE;
+    std::string type = shaderCurType();
+    const char* ext = (type == "custom-gl") ? ".glslp" : ".slangp";
+    auto row = [&](const std::string& label, int qa, const std::string& val, int icon) {
+        Ps3Item it; it.label = label; it.kind = PS3_QUICK; it.a = qa;
+        if (!val.empty()) it.value = val;
+        it.nmapTex = nmapForIcon(icon); it.iconR = it.iconG = it.iconB = 1.0f;
+        out.items.push_back(it);
+    };
+    if (path.empty()) {
+        out.title = "Custom Shader";
+        for (int i = 0; i < kNumShaderRoots; i++) {
+            struct stat st;
+            if (stat(kShaderRoots[i].path, &st) == 0 && S_ISDIR(st.st_mode))
+                row(kShaderRoots[i].label, QA_SHADER_BROWSE, kShaderRoots[i].path, 22);
+        }
+        if (out.items.empty())
+            row("No shader folders found", QA_NOOP, std::string(), 22);
+        return;
+    }
+    // Readable breadcrumb for the header: map the absolute path back to its root
+    // label and append the relative folders, so the user always sees where they are
+    // (e.g. "RetroArch Shaders / shaders_slang / misc"). Falls back to the raw path.
+    {
+        std::string crumb;
+        for (int i = 0; i < kNumShaderRoots; i++) {
+            size_t rl = strlen(kShaderRoots[i].path);
+            if (path.size() >= rl && path.compare(0, rl, kShaderRoots[i].path) == 0) {
+                crumb = kShaderRoots[i].label;
+                std::string comp;
+                for (size_t k = rl; k <= path.size(); k++) {
+                    char c = (k < path.size()) ? path[k] : '/';
+                    if (c == '/') { if (!comp.empty()) { crumb += " / "; crumb += comp; comp.clear(); } }
+                    else comp += c;
+                }
+                break;
+            }
+        }
+        out.title = crumb.empty() ? path : crumb;
+    }
+    if (out.title.empty()) out.title = "Custom Shader";
+    // (No ".." row: nano's Back button pops each pushed browser level, so the parent
+    // is always one Back away - the standard nano submenu convention.)
+    DIR* d = opendir(path.c_str());
+    if (!d) { row("Cannot open folder", QA_NOOP, std::string(), 22); return; }
+    std::vector<std::string> dirs, files;
+    struct dirent* e;
+    while ((e = readdir(d))) {
+        if (e->d_name[0] == '.') continue;   // skip hidden + . / ..
+        std::string full = path + "/" + e->d_name;
+        struct stat st;
+        if (stat(full.c_str(), &st) != 0) continue;
+        if (S_ISDIR(st.st_mode)) dirs.push_back(e->d_name);
+        else {
+            size_t len = strlen(e->d_name), el = strlen(ext);
+            if (len > el && strcasecmp(e->d_name + len - el, ext) == 0) files.push_back(e->d_name);
+        }
+    }
+    closedir(d);
+    std::sort(dirs.begin(), dirs.end(), [](const std::string& a, const std::string& b){ return strcasecmp(a.c_str(), b.c_str()) < 0; });
+    std::sort(files.begin(), files.end(), [](const std::string& a, const std::string& b){ return strcasecmp(a.c_str(), b.c_str()) < 0; });
+    for (const auto& f : dirs)  row(f, QA_SHADER_BROWSE,    path + "/" + f, 22);
+    for (const auto& f : files) row(f, QA_SHADER_PICK_FILE, path + "/" + f, 22);
+    if (dirs.empty() && files.empty())
+        row(std::string("No ") + ext + " presets here", QA_NOOP, std::string(), 22);
+}
+
+// Select a custom preset. SurfaceFlinger reads the preset and its whole
+// #include/#reference/LUT dependency tree straight from wherever it lives - the
+// GammaShader folder, RetroArch's app-private library, or external storage - so we
+// just point the shader loader at the selected path. No copy: the dependencies
+// resolve in place against the original directory layout (SF holds DAC_READ_SEARCH
+// and the sepolicy reads to reach app-private/removable paths). Then arm the
+// metadata poll so the Parameters row picks up the new params.
+void NanoMenu::shaderSelectPreset(const std::string& path) {
+    if (path.empty()) return;
+    property_set("persist.gammaos.shader.custom.preset", path.c_str());
+    // Fresh preset -> native republishes meta + clears overrides; poll for it.
+    unlink(kShaderMetaPath);
+    mShaderMetaDeadlineMs = (long)android::uptimeMillis() + 4000;
+    mShaderParams.clear();
+    // Stay in the file browser so the user can try shaders back to back: the chosen
+    // preset applies live (SurfaceFlinger reloads on the prop change) and the browser
+    // row marks the active one (see resolvePs3ItemValue). No stack pop, no menu close.
+    mDisplayDirty = true;
+}
+
 void NanoMenu::previewThemeSetting(int themeKey, int sel) {
     // Apply a chooser value to the live state WITHOUT persisting (live preview
     // while scrolling + revert on cancel). The index members track the live
@@ -6239,11 +6804,45 @@ void NanoMenu::applyThemeSetting(int themeKey, int sel) {
                              (mPs3AppInfoPkg + "|cleardata|").c_str());
             break;
         }
+        case 40:    // GammaShader: master shader-type selection (enable+type) + rebuild
+            shaderApplyType(sel);
+            break;
+        case 41: {  // GammaShader: a discrete shader option (renderer / res_scale / orientation)
+            if (sel >= 0 && sel < (int)mShaderOptVals.size()) {
+                const std::string& val = mShaderOptVals[sel].first;
+                if (mShaderOptKey == "@type") {
+                    // Renderer swap: keep the custom preset, change the type between
+                    // custom (SkSL) and custom-vk (Vulkan).
+                    property_set("persist.gammaos.shader.type", val.c_str());
+                    property_set("persist.gammaos.shader.enable", "1");
+                } else {
+                    property_set(mShaderOptKey.c_str(), val.c_str());
+                }
+                shaderRebuildOpenLevel();
+                mDisplayDirty = true;
+            }
+            break;
+        }
         default: break;
     }
 }
 
 void NanoMenu::closePs3Dialog(bool apply) {
+    // GammaShader parameter slider (no binding): the value was written live as the
+    // user slid; confirm keeps it, cancel reverts to the value at open. Then refresh
+    // the open Parameters row's inline value.
+    if (mShaderParamEdit >= 0) {
+        int idx = mShaderParamEdit; mShaderParamEdit = -1;
+        if (!apply && idx < (int)mShaderParams.size()) {
+            mShaderParams[idx].cur = mShaderParamOrig;
+            shaderApplyParamLive(idx);
+        }
+        shaderRebuildOpenLevel();
+        mPs3DlgSlider = false;
+        if (mPs3DlgKind == 1) { mPs3DlgClosing = true; mPs3DlgCloseAnim = (mPs3DlgAnim > 0.02f ? mPs3DlgAnim : 1.0f); }
+        mPs3DlgActive = false; mPs3DlgBlurValid = false;
+        return;
+    }
     if (mPs3DlgBinding) {
         // Settings-bound chooser: write the selected option's value back to the
         // real setting on confirm (cancel just discards). Then refresh the cache

@@ -506,6 +506,7 @@ neverallow ~{
   traced_perf
   traced_probes
   heapprofd
+  surfaceflinger
 } self:global_capability_class_set dac_read_search;
 
 # Limit what domains can mount filesystems or change their mount flags.

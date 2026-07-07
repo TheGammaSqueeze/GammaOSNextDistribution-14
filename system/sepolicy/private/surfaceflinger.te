@@ -75,16 +75,31 @@ get_prop(surfaceflinger, debug_prop)
 allow surfaceflinger appdomain:fd use;
 allow surfaceflinger { app_data_file privapp_data_file }:file { read write };
 
-# GammaOS custom shaders: allow reading .slang/.slangp presets from
-# /data/media/0/GammaShader/ and /data/data/com.retroarch*/shaders/
-# Also allow writing param metadata/overrides to /data/media/0/GammaShader/
+# GammaOS custom shaders: load shader presets/passes/includes/LUTs from ANY path
+# the user selects - the GammaShader folder, RetroArch's app-private shader library
+# (/data/data/<pkg>/shaders, owned 0700/0600 by the app uid), or external storage.
+# Also write the param metadata/overrides back to /data/media/0/GammaShader/.
+# The SELinux type reads below plus the DAC_READ_SEARCH capability (which bypasses
+# the UNIX owner check on the 0700/0600 app-private files) together let the display
+# server read a shader wherever it lives, with its #include/#reference dependency
+# tree resolving in place - no copy-to-cache step.
+allow surfaceflinger self:global_capability_class_set dac_read_search;
 allow surfaceflinger media_userdir_file:dir r_dir_perms;
 allow surfaceflinger media_rw_data_file:dir { r_dir_perms add_name write create };
 allow surfaceflinger media_rw_data_file:file { r_file_perms w_file_perms create setattr };
 allow surfaceflinger system_data_root_file:dir search;
-allow surfaceflinger system_data_file:dir search;
+allow surfaceflinger system_data_file:dir { search read getattr open };
+allow surfaceflinger system_data_file:lnk_file { read getattr };
 allow surfaceflinger app_data_file:dir r_dir_perms;
 allow surfaceflinger app_data_file:file r_file_perms;
+allow surfaceflinger app_data_file:lnk_file { read getattr };
+# External storage (primary emulated + removable SD) so shaders placed there load too.
+allow surfaceflinger storage_file:dir r_dir_perms;
+allow surfaceflinger storage_file:lnk_file { read getattr };
+allow surfaceflinger sdcard_type:dir r_dir_perms;
+allow surfaceflinger sdcard_type:file r_file_perms;
+allow surfaceflinger mnt_media_rw_file:dir r_dir_perms;
+allow surfaceflinger mnt_media_rw_file:file r_file_perms;
 
 # Allow writing surface traces to /data/misc/wmtrace.
 userdebug_or_eng(`

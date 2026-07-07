@@ -2,7 +2,11 @@ service surfaceflinger /system/bin/surfaceflinger
     class core animation
     user system
     group graphics drmrpc readproc media_rw
-    capabilities SYS_NICE
+    # DAC_READ_SEARCH lets the GammaOS custom-shader loader read shader presets
+    # from ANY path the user selects, including RetroArch's app-private library
+    # (/data/data/<pkg>/shaders, owned 0700/0600 by the app uid) which the system
+    # uid cannot otherwise traverse. Read-only DAC bypass; SF never writes there.
+    capabilities SYS_NICE DAC_READ_SEARCH
     onrestart restart --only-if-running zygote
     task_profiles HighPerformance
     socket pdx/system/vr/display/client     stream 0666 system graphics u:object_r:pdx_display_client_endpoint_socket:s0

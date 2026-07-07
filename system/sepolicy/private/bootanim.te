@@ -56,6 +56,25 @@ allow bootanim media_userdir_file:dir { search getattr open read };
 allow bootanim media_rw_data_file:dir { search getattr open read };
 allow bootanim media_rw_data_file:file { read getattr open };
 
+# GammaOS Nano GammaShader menu: persist the live shader parameter overrides at
+# /data/media/0/GammaShader/.shader_params (media_rw_data_file), creating the
+# GammaShader folder on first use. Atomic writes go through a temp file plus rename,
+# hence the create/rename/unlink perms. (bootanim is permissive on current devices;
+# these keep it correct on an enforcing build too.)
+allow bootanim media_rw_data_file:dir { write add_name remove_name create };
+allow bootanim media_rw_data_file:file { write create setattr unlink rename };
+
+# GammaOS Nano GammaShader menu: enumerate the RetroArch shader library straight out
+# of the app-private install (/data/data/com.retroarch.aarch64/shaders/**) so the user
+# can pick a preset. RetroArch's private files carry the generic app_data_file label
+# with no MLS category on this build, so the browser needs read + traverse over
+# app_data_file. Read only; the menu never writes into app-private storage. (The
+# display server loads the chosen preset from the same path itself - see
+# surfaceflinger.te.)
+allow bootanim app_data_file:dir { search getattr open read };
+allow bootanim app_data_file:file { read getattr open };
+allow bootanim app_data_file:lnk_file { read getattr };
+
 # GammaOS OTA: allow NanoMenu to trigger OTA mode
 set_prop(bootanim, ctl_gammaosota_prop)
 set_prop(bootanim, gammaosota_prop)

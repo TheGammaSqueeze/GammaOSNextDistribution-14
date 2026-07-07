@@ -38,6 +38,8 @@
 
 #include "../debug/SkiaCapture.h"
 
+#include <sys/stat.h>
+
 #include <algorithm>
 #include <cmath>
 #include <cstring>
@@ -2196,6 +2198,7 @@ static std::unique_ptr<GammaVulkanFilterChain> sChain;
 static GammaSlangPreset sPreset;
 static std::string sLoadedPresetPath;
 static std::string sFailedPresetPath;  // avoid retrying failed shaders
+static std::string sMetaWrittenPath;   // preset whose param meta is already published
 static uint32_t sFrameCount = 0;
 static int sChainDisplayW = 0;
 static int sChainDisplayH = 0;
@@ -2269,6 +2272,35 @@ static bool ensureChainLoaded(bool debugLog, int displayW = 1920, int displayH =
     sLoadedPresetPath = presetPath;
     sChainDisplayW = displayW;
     sChainDisplayH = displayH;
+
+    // Publish parameter metadata so the on-screen UI (nano GammaShader menu /
+    // ShaderControl app) can build sliders for this preset's #pragma parameters.
+    // Format matches the SkSL/GLSL chains: one line per param
+    // id|desc|initial|min|max|step. Only rewrite when the preset path changes so
+    // we do not clobber live overrides on a display-size-driven reload.
+    if (sLoadedPresetPath != sMetaWrittenPath) {
+        const std::string metaDir = "/data/media/0/GammaShader";
+        mkdir(metaDir.c_str(), 0775);
+        const std::string metaPath = metaDir + "/.shader_param_meta";
+        std::ofstream meta(metaPath, std::ios::trunc);
+        if (meta.is_open()) {
+            for (const auto& p : sPreset.params) {
+                meta << p.id << "|" << p.desc << "|"
+                     << p.initial << "|" << p.minimum << "|"
+                     << p.maximum << "|" << p.step << "\n";
+            }
+            meta.close();
+            chmod(metaPath.c_str(), 0664);
+        }
+        // Clear any stale param overrides from a previous preset so the new one
+        // starts at its declared initials.
+        const std::string paramsPath = metaDir + "/.shader_params";
+        std::ofstream clear(paramsPath, std::ios::trunc);
+        clear.close();
+        chmod(paramsPath.c_str(), 0666);
+        sMetaWrittenPath = sLoadedPresetPath;
+    }
+
     return true;
 }
 

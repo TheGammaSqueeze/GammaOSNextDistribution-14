@@ -1074,7 +1074,8 @@ private:
                         GS_ICONGRID = 4, GS_EMUPICK = 5, GS_FOLDERBROWSE = 6,
                         MUSIC_FOLDER = 7, PHOTO_FOLDER = 8, PHOTO_GRID = 9,
                         VIDEO_FOLDER = 10, IPTV_GROUPS = 11, RADIO_STATIONS = 12,
-                        FE_BROWSE = 13, APP_INFO = 14, APP_STORAGE = 15, APP_PERMS = 16 };
+                        FE_BROWSE = 13, APP_INFO = 14, APP_STORAGE = 15, APP_PERMS = 16,
+                        SHADER_BROWSE = 17 };
     struct Ps3Item {
         std::string label;
         std::string desc;
@@ -1539,6 +1540,44 @@ private:
     // not persisted; the real state lives in DisplayManagerService).
     bool mSecondaryDisplayOn = true;
     void openPerformanceChooser();
+    // ---- GammaShader (display post-process shader control) ----------------------
+    // Mirrors the ShaderControl app, driving the persist.gammaos.shader.* props and,
+    // for custom presets, the /data/media/0/GammaShader/.shader_param_meta (native ->
+    // us) + .shader_params (us -> native) file contract. Everything is chooser/slider
+    // driven - the user never types text.
+    struct ShaderParam {
+        std::string id;      // custom: param id (in .shader_params); builtin: prop suffix after persist.gammaos.shader.
+        std::string label;   // display label
+        float mn = 0, mx = 1, step = 0.01f, cur = 0, def = 0;
+        int   dec = 2;       // decimals for display
+        bool  isFile = false;// true = custom param written to .shader_params; false = a persist.gammaos.shader.<id> prop
+    };
+    std::vector<ShaderParam> mShaderParams;   // active shader's parameters (rebuilt on open / shader change)
+    int    mShaderParamEdit = -1;             // mShaderParams index of the slider currently open, else -1
+    float  mShaderParamOrig = 0.0f;           // value at open, for revert on cancel
+    std::string mShaderParamsPreset;          // custom preset path the loaded meta belongs to
+    long   mShaderMetaDeadlineMs = 0;         // poll .shader_param_meta until this uptime (after a preset/type change)
+    std::string mShaderOptKey;                // discrete-option chooser: the prop key being edited
+    std::vector<std::pair<std::string,std::string>> mShaderOptVals;  // (value,label) for the open opt chooser
+    void shaderApplyParamLive(int idx);       // write mShaderParams[idx] live (prop or .shader_params)
+    void shaderResetActive();                 // reset the active shader's params to defaults
+    void buildShaderSubmenu(Ps3Level& out);          // top-level GammaShader submenu (dynamic by type)
+    void buildShaderParamsSubmenu(Ps3Level& out);    // the active shader's parameter rows
+    void buildShaderBrowser(const std::string& path, Ps3Level& out);  // custom-preset file browser
+    void shaderSelectPreset(const std::string& path);                 // point the shader loader at a custom preset (SF reads it in place) + arm meta poll
+    void openShaderChooser();                        // shader-type side-panel list chooser
+    void openShaderOptChooser(const std::string& spec); // discrete-option chooser (key|opts|title)
+    std::string shaderOptCurrentLabel(const std::string& spec); // display label of a shader-opt row's current value
+    void openShaderParamSlider(int idx);             // live slider for mShaderParams[idx]
+    void shaderApplyType(int sel);                   // commit a shader-type selection (enable+type) + rebuild
+    void shaderLoadParams();                          // populate mShaderParams for the active shader
+    void loadShaderParamMeta();                       // read .shader_param_meta (+ overlay .shader_params) into mShaderParams
+    void writeShaderParams();                         // rewrite .shader_params from mShaderParams (custom)
+    std::string shaderCurType();                      // active shader type ("" when disabled)
+    bool isCustomShaderType(const std::string& t);    // true for custom/custom-vk/custom-gl
+    std::string shaderTypeLabel();                    // friendly label of the active shader for the menu row
+    void shaderRebuildOpenLevel();                    // rebuild the open GammaShader/Params level in place (keep cursor)
+    void shaderMetaTick();                            // per-frame: pick up custom .shader_param_meta once SF publishes it
     void quickKillApps(bool includeForeground);
     void overlayKillAll();   // Quick Menu Kill All Apps (overlay): hard-stop every app incl the game, no relaunch
     void buildRecentSubmenu(Ps3Level& out);
