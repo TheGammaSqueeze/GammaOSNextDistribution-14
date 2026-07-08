@@ -6383,14 +6383,19 @@ void NanoMenu::buildShaderSubmenu(Ps3Level& out) {
         // Empty payload -> the browser opens at the RetroArch subfolder for this type;
         // the row's inline value (the current preset name) comes from resolvePs3ItemValue.
         act("Custom Shader", QA_SHADER_BROWSE, std::string(), 22);
-        // For CRT-style presets this doubles as the scanline density: "Full" lets
-        // the chain auto-pick (~240 lines, visible scanlines), and smaller
-        // fractions give coarser scanlines. For non-CRT presets it is a plain
-        // source-resolution scale.
+        // Base render resolution. "Auto" (default) lets the chain pick per preset
+        // (~240 lines for CRT/LCD so scanlines/grids show, full for everything
+        // else); "Full" always renders at full resolution; the fractions set an
+        // explicit low base resolution (lower = coarser + faster).
         act("Resolution Scale", QA_SHADER_OPT_MENU,
-            std::string("persist.gammaos.shader.custom.res_scale|full:Full,1/2:1/2,1/3:1/3,1/4:1/4,1/6:1/6,1/8:1/8|Resolution Scale"), 22);
+            std::string("persist.gammaos.shader.custom.res_scale|auto:Auto,full:Full,1/2:1/2,1/3:1/3,1/4:1/4,1/6:1/6,1/8:1/8|Resolution Scale"), 22);
     }
     act("Parameters", QA_SHADER_PARAMS, std::string(), 22);
+    // Also surface the reset at the top level so it is discoverable without
+    // scrolling past a long parameter list (it also lives at the bottom of the
+    // Parameters submenu). Resets the active shader's parameters to their
+    // defaults; the Resolution Scale is left as the user set it.
+    act("Reset to Defaults", QA_SHADER_RESET, std::string(), 22);
 }
 
 void NanoMenu::buildShaderParamsSubmenu(Ps3Level& out) {
