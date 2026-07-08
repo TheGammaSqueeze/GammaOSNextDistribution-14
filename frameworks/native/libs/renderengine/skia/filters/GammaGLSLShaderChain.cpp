@@ -567,7 +567,7 @@ static bool isLowResPreset(const std::string& type, const std::string& presetPat
     return false;
 }
 
-[[maybe_unused]] static GLuint downscaleTexture(GLuint srcTex, int srcW, int srcH,
+static GLuint downscaleTexture(GLuint srcTex, int srcW, int srcH,
                                 int dstW, int dstH) {
     if (!sDownscale.program) {
         const char* vs =
@@ -1286,44 +1286,55 @@ bool GammaGLSLShaderChain::apply(SkSurface* dstSurface,
         }
     }
 
-    // Advertise a synthetic "content" resolution to the shader chain.
+    // res_scale = base render resolution: physically downscale the composite to a
+    // low "source" before the shader chain.
     //
-    // A display-wide post-process has no native game raster: the source IS the
-    // full composited frame. CRT presets draw scanlines/beam/interlace as a
-    // function of InputSize.y over the OutputSize (display) grid, so they only
-    // come alive when InputSize.y is well below OutputSize.y. We keep SAMPLING
-    // the full-res composite (crisp) but tell the shader a low source height -
-    // that height is the scanline density. This is NOT a texture downscale/blur;
-    // srcTex stays full-res and the final pass still renders at the display size.
+    // A display-wide post-process has no native game raster - the source IS the
+    // full composited frame. Downscaling it is the base-resolution / performance
+    // control AND gives CRT/LCD/pixel-art presets the low native raster they are
+    // designed for (e.g. crt-geom-mini): their scanline/beam/interlace/grid terms
+    // key off InputSize.y and only come alive when the source is well below the
+    // display, the smaller source is much cheaper to sample, and the pixellation
+    // is the intended low-res look. The chain still OUTPUTS at the display size
+    // (passes run at the display viewport), so the scanline/mask overlay stays
+    // crisp while the content carries the low-res source through.
     const std::string& resScaleStr = sPropCache.resScaleStr;
     sResScale = parseResScale(resScaleStr);
 
     int chainSrcW = srcW, chainSrcH = srcH;
     {
         bool isFull = resScaleStr.empty() || resScaleStr == "full";
+        int targetH = srcH;
         if (isFull) {
-            // CRT / handheld-LCD presets default to ~240 active lines (visible
-            // scanlines or grid out of the box); everything else passes through
-            // at full resolution.
+            // CRT / handheld-LCD presets default to ~240 active lines (visible +
+            // fast out of the box); everything else stays at full resolution.
             if (isLowResPreset(sPropCache.type, sPropCache.presetPath))
-                chainSrcH = std::min(srcH, 240);
+                targetH = std::min(srcH, 240);
         } else if (sResScale < 1.0f) {
-            chainSrcH = std::max(1, (int)(srcH * sResScale + 0.5f));
+            targetH = std::max(1, (int)(srcH * sResScale + 0.5f));
         }
-        chainSrcW = std::max(1, (int)((double)chainSrcH * srcW / srcH + 0.5));
-        if (debugLog && chainSrcH != srcH) {
-            static bool sLoggedScale = false;
-            if (!sLoggedScale) {
-                ALOGD("GammaGLShader: content size %dx%d -> %dx%d (res_scale=%s)",
-                      srcW, srcH, chainSrcW, chainSrcH, resScaleStr.c_str());
-                sLoggedScale = true;
+        if (targetH < srcH) {
+            int targetW = std::max(1, (int)((double)targetH * srcW / srcH + 0.5));
+            GLuint scaled = downscaleTexture(srcTex, srcW, srcH, targetW, targetH);
+            if (scaled) {
+                srcTex = scaled;
+                chainSrcW = targetW;
+                chainSrcH = targetH;
+                if (debugLog) {
+                    static bool sLoggedScale = false;
+                    if (!sLoggedScale) {
+                        ALOGD("GammaGLShader: res_scale=%s src %dx%d -> %dx%d",
+                              resScaleStr.c_str(), srcW, srcH, targetW, targetH);
+                        sLoggedScale = true;
+                    }
+                }
             }
         }
     }
 
-    // Initialize chain if needed. Note: the chain's pass sizes come from the
-    // display dims, and the synthetic content size feeds a per-frame uniform, so
-    // a res_scale/density change no longer needs a full chain rebuild.
+    // Initialize chain if needed. Pass sizes come from the display dims and the
+    // source size feeds a per-frame uniform, so a res_scale change needs no
+    // chain rebuild (downscaleTexture resizes its own FBO on demand).
     if (!sChain.valid || sChain.loadedPreset != sLoadedPath ||
         sChain.displayW != dstW || sChain.displayH != dstH) {
         if (!initChain(sPreset, dstW, dstH)) {
