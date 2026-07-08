@@ -113,6 +113,7 @@ struct VkPassResources {
     // Intermediate framebuffer (not used for the final pass)
     VkImage        fbImage        = VK_NULL_HANDLE;
     VkDeviceMemory fbMemory       = VK_NULL_HANDLE;
+    VkDeviceSize   fbMemorySize   = 0;   // allocation size, needed to wrap the output for Skia
     VkImageView    fbView         = VK_NULL_HANDLE;
     VkFramebuffer  framebuffer    = VK_NULL_HANDLE;
     VkSampler      fbSampler      = VK_NULL_HANDLE;
@@ -219,8 +220,12 @@ public:
                           uint32_t frameCount);
 
     // Access the last pass's output image (valid after render()).
-    VkImage     getOutputImage()  const;
-    VkImageView getOutputView()   const;
+    VkImage        getOutputImage()     const;
+    VkImageView    getOutputView()      const;
+    // The output image's backing memory + its allocation size, so the caller can
+    // wrap the output VkImage as a Skia texture (BorrowTextureFrom needs fAlloc).
+    VkDeviceMemory getOutputMemory()    const;
+    VkDeviceSize   getOutputAllocSize() const;
     int         getOutputWidth()  const;
     int         getOutputHeight() const;
     VkFormat    getOutputFormat()  const;
@@ -292,7 +297,8 @@ private:
                          int& outW, int& outH);
 
     bool createImage(int width, int height, VkFormat format, VkImageUsageFlags usage,
-                     VkImage& image, VkDeviceMemory& memory, VkImageView& view);
+                     VkImage& image, VkDeviceMemory& memory, VkImageView& view,
+                     VkDeviceSize* outMemSize = nullptr);
     bool createSampler(bool linear, bool mipmap, VkSampler& sampler);
     uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
     void transitionImage(VkCommandBuffer cmd, VkImage image,

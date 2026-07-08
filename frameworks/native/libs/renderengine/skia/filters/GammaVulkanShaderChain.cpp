@@ -817,7 +817,8 @@ uint32_t GammaVulkanFilterChain::findMemoryType(
 
 bool GammaVulkanFilterChain::createImage(
         int width, int height, VkFormat format, VkImageUsageFlags usage,
-        VkImage& image, VkDeviceMemory& memory, VkImageView& view) {
+        VkImage& image, VkDeviceMemory& memory, VkImageView& view,
+        VkDeviceSize* outMemSize) {
 
     VkImageCreateInfo imgInfo = {};
     imgInfo.sType         = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -837,6 +838,7 @@ bool GammaVulkanFilterChain::createImage(
 
     VkMemoryRequirements memReqs;
     vkGetImageMemoryRequirements_(mCtx.device, image, &memReqs);
+    if (outMemSize) *outMemSize = memReqs.size;
 
     VkMemoryAllocateInfo allocInfo = {};
     allocInfo.sType           = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
@@ -981,11 +983,14 @@ bool GammaVulkanFilterChain::createPassFramebuffer(int passIndex, int width, int
     r.fbWidth  = width;
     r.fbHeight = height;
 
-    // Create image (TRANSFER_SRC needed for CPU readback via renderFromPixels)
+    // Create image. TRANSFER_SRC is needed for CPU readback via renderFromPixels;
+    // TRANSFER_DST is needed too because Skia refuses to wrap an external VkImage as a
+    // texture (BorrowTextureFrom) unless BOTH transfer bits are set - see
+    // GrVkGpu::check_image_info. Without it the GPU-direct hand-off to Skia fails.
     if (!createImage(width, height, fmt,
                      VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT |
-                     VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
-                     r.fbImage, r.fbMemory, r.fbView))
+                     VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
+                     r.fbImage, r.fbMemory, r.fbView, &r.fbMemorySize))
         return false;
 
     // Create render pass
@@ -1895,6 +1900,14 @@ VkImageView GammaVulkanFilterChain::getOutputView() const {
     return mPasses.empty() ? VK_NULL_HANDLE : mPasses.back().fbView;
 }
 
+VkDeviceMemory GammaVulkanFilterChain::getOutputMemory() const {
+    return mPasses.empty() ? VK_NULL_HANDLE : mPasses.back().fbMemory;
+}
+
+VkDeviceSize GammaVulkanFilterChain::getOutputAllocSize() const {
+    return mPasses.empty() ? 0 : mPasses.back().fbMemorySize;
+}
+
 int GammaVulkanFilterChain::getOutputWidth() const {
     return mPasses.empty() ? 0 : mPasses.back().fbWidth;
 }
@@ -2403,6 +2416,20 @@ bool GammaVulkanShaderChain::apply(SkSurface* dstSurface,
         }
     }
 
+    // Only the GPU-direct path is trustworthy. When SurfaceFlinger is not on the
+    // Skia Vulkan backend the source is not a VkImage, and the CPU round-trip below
+    // does not reproduce correctly on every driver, so rather than risk painting a
+    // wrong (e.g. all-white) frame we do nothing and leave the unshaded frame on
+    // screen. A Vulkan preset renders once SurfaceFlinger runs the Vulkan backend
+    // (the GammaShader menu stars the backend the device prefers, and selecting
+    // custom-vk makes SurfaceFlinger switch to Vulkan). The GLSL chain is symmetric:
+    // it bails when the backend is Vulkan.
+    if (!skiaVkBackend) {
+        if (debugLog) ALOGD("GammaVkShader: not on the Vulkan backend, skipping "
+                            "(use a GLSL preset, or switch the RenderEngine to Vulkan)");
+        return false;
+    }
+
     if (skiaVkBackend) {
 
         // Flush Skia's pending work before we touch the VkImage
@@ -2419,14 +2446,25 @@ bool GammaVulkanShaderChain::apply(SkSurface* dstSurface,
         int outW = sChain->getOutputWidth();
         int outH = sChain->getOutputHeight();
 
-        // Wrap Vulkan output as GrBackendTexture → SkImage
+        // Wrap Vulkan output as GrBackendTexture → SkImage. Skia needs the image's
+        // backing allocation (fAlloc) to adopt it; without it BorrowTextureFrom fails
+        // and the shader silently no-ops. We keep ownership of the memory (borrow
+        // semantics), so no coherency/mappable flags apply.
         GrVkImageInfo outVkInfo = {};
         outVkInfo.fImage       = sChain->getOutputImage();
+        outVkInfo.fAlloc.fMemory = sChain->getOutputMemory();
+        outVkInfo.fAlloc.fOffset = 0;
+        outVkInfo.fAlloc.fSize   = sChain->getOutputAllocSize();
+        outVkInfo.fAlloc.fFlags  = 0;
         outVkInfo.fImageTiling = VK_IMAGE_TILING_OPTIMAL;
         outVkInfo.fImageLayout = VK_IMAGE_LAYOUT_GENERAL;
         outVkInfo.fFormat      = VK_FORMAT_R8G8B8A8_UNORM;
+        // Must match the image's real usage AND include both transfer bits, which Skia
+        // requires to wrap an external VkImage (GrVkGpu::check_image_info).
         outVkInfo.fImageUsageFlags = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT |
-                                     VK_IMAGE_USAGE_SAMPLED_BIT;
+                                     VK_IMAGE_USAGE_SAMPLED_BIT |
+                                     VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
+                                     VK_IMAGE_USAGE_TRANSFER_DST_BIT;
         outVkInfo.fLevelCount  = 1;
         outVkInfo.fCurrentQueueFamily = sChain->getContext().queueFamily;
 
