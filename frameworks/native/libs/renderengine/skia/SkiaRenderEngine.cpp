@@ -1210,6 +1210,24 @@ void SkiaRenderEngine::drawLayersInternal(
     // ---------------- GammaOS: global CRT/scanline post-process ------------------------------
     const bool kRunUnifiedFx = kGammaShaderOn;
     if (kRunUnifiedFx) {
+        // GammaOS: keep sys.gammaos.renderengine.active in step with the backend that
+        // is really compositing. bootFinished() publishes it once, but a SurfaceFlinger
+        // restart can re-pick the backend (custom-vk forces Vulkan) without re-running
+        // bootFinished, so refresh it here whenever it changes. Cheap: only written on a
+        // change, and only while a shader is enabled (the only time the value matters).
+        {
+            static std::string sPublishedBackend;
+            // backend() is public on the base context, so read it directly - no downcast
+            // to GrDirectContext (that would be UB for a non-direct recording context).
+            GrRecordingContext* grCtx = dstSurface ? dstSurface->recordingContext() : nullptr;
+            if (grCtx) {
+                const char* be = (grCtx->backend() == GrBackendApi::kVulkan) ? "vk" : "gl";
+                if (sPublishedBackend != be) {
+                    sPublishedBackend = be;
+                    android::base::SetProperty("sys.gammaos.renderengine.active", be);
+                }
+            }
+        }
         const bool debugLog = android::base::GetBoolProperty("persist.gammaos.shader.debug", false);
         const bool isProtected = (buffer->getBuffer()->getUsage() & GRALLOC_USAGE_PROTECTED) != 0;
 

@@ -1418,6 +1418,9 @@ private:
     ui::Dataspace mWideColorGamutCompositionDataspace;
 
     std::unique_ptr<renderengine::RenderEngine> mRenderEngine;
+    // GammaOS: whether the RenderEngine was created on the Vulkan backend (published
+    // for the GammaShader menu's preferred-backend star).
+    bool mGammaReUsesVulkan = false;
     std::atomic<int> mNumTrustedPresentationListeners = 0;
 
     std::unique_ptr<compositionengine::CompositionEngine> mCompositionEngine;

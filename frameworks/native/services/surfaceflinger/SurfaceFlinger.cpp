@@ -685,6 +685,19 @@ void SurfaceFlinger::binderDied(const wp<IBinder>&) {
 }
 
 void SurfaceFlinger::run() {
+    // GammaOS: publish the RenderEngine backend for the GammaShader menu. This runs
+    // once here (post-init, before the blocking scheduler loop) because it executes on
+    // every device including GammaOS Nano boots, where SurfaceFlinger::bootFinished()
+    // is not driven the usual way and where the home may bypass SF composition entirely
+    // (so a per-frame publish would never fire). vk_ok = can this device run the Vulkan
+    // backend at all (drives the menu's preferred-backend star); active = which backend
+    // is running now (kept fresh per-frame by the shader dispatch when SF composites).
+    {
+        const bool vkOk = renderengine::RenderEngine::canSupport(
+                renderengine::RenderEngine::GraphicsApi::VK);
+        property_set("sys.gammaos.renderengine.vk_ok", vkOk ? "1" : "0");
+        property_set("sys.gammaos.renderengine.active", mGammaReUsesVulkan ? "vk" : "gl");
+    }
     mScheduler->run();
 }
 
@@ -914,7 +927,8 @@ void SurfaceFlinger::bootFinished() {
     }));
 }
 
-void chooseRenderEngineType(renderengine::RenderEngineCreationArgs::Builder& builder) {
+void chooseRenderEngineType(renderengine::RenderEngineCreationArgs::Builder& builder,
+                            bool* outUsesVulkan = nullptr) {
     char prop[PROPERTY_VALUE_MAX];
     property_get(PROPERTY_DEBUG_RENDERENGINE_BACKEND, prop, "");
     // GammaOS: allow persistent override via persist.gammaos.renderengine.backend
@@ -922,6 +936,7 @@ void chooseRenderEngineType(renderengine::RenderEngineCreationArgs::Builder& bui
         property_get("persist.gammaos.renderengine.backend", prop, "");
     }
 
+    bool usesVulkan = false;
     if (strcmp(prop, "skiagl") == 0) {
         builder.setThreaded(renderengine::RenderEngine::Threaded::NO)
                 .setGraphicsApi(renderengine::RenderEngine::GraphicsApi::GL);
@@ -931,9 +946,11 @@ void chooseRenderEngineType(renderengine::RenderEngineCreationArgs::Builder& bui
     } else if (strcmp(prop, "skiavk") == 0) {
         builder.setThreaded(renderengine::RenderEngine::Threaded::NO)
                 .setGraphicsApi(renderengine::RenderEngine::GraphicsApi::VK);
+        usesVulkan = true;
     } else if (strcmp(prop, "skiavkthreaded") == 0) {
         builder.setThreaded(renderengine::RenderEngine::Threaded::YES)
                 .setGraphicsApi(renderengine::RenderEngine::GraphicsApi::VK);
+        usesVulkan = true;
     } else {
         // GammaOS: force Vulkan backend when custom-vk shaders are enabled
         // (zero-copy GPU pipeline). Fall back to GL if Vulkan not available.
@@ -952,10 +969,14 @@ void chooseRenderEngineType(renderengine::RenderEngineCreationArgs::Builder& bui
             useVulkan = false;
         }
         builder.setGraphicsApi(useVulkan ? kVulkan : renderengine::RenderEngine::GraphicsApi::GL);
+        usesVulkan = useVulkan;
         if (useVulkan) {
             ALOGI("GammaOS: using Vulkan RenderEngine backend for custom-vk shader pipeline");
         }
     }
+    // GammaOS: remember the chosen backend so the shader menu can star the type the
+    // device prefers (Vulkan vs GLSL) and know whether a restart switched backends.
+    if (outUsesVulkan) *outUsesVulkan = usesVulkan;
 }
 
 // Do not call property_set on main thread which will be blocked by init
@@ -980,7 +1001,7 @@ void SurfaceFlinger::init() FTL_FAKE_GUARD(kMainThreadContext) {
                                    useContextPriority
                                            ? renderengine::RenderEngine::ContextPriority::REALTIME
                                            : renderengine::RenderEngine::ContextPriority::MEDIUM);
-    chooseRenderEngineType(builder);
+    chooseRenderEngineType(builder, &mGammaReUsesVulkan);
     mRenderEngine = renderengine::RenderEngine::create(builder.build());
     mCompositionEngine->setRenderEngine(mRenderEngine.get());
     mMaxRenderTargetSize =
