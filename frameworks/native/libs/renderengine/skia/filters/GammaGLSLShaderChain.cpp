@@ -516,7 +516,7 @@ static struct {
         shaderOn = GetBoolProperty("persist.gammaos.shader.enable", false);
         type = GetProperty("persist.gammaos.shader.type", "crt-simple");
         presetPath = GetProperty("persist.gammaos.shader.custom.preset", "");
-        resScaleStr = GetProperty("persist.gammaos.shader.custom.res_scale", "full");
+        resScaleStr = GetProperty("persist.gammaos.shader.custom.res_scale", "auto");
         if (!bootCompleted)
             bootCompleted = GetBoolProperty("sys.boot_completed", false);
     }
@@ -1303,11 +1303,14 @@ bool GammaGLSLShaderChain::apply(SkSurface* dstSurface,
 
     int chainSrcW = srcW, chainSrcH = srcH;
     {
-        bool isFull = resScaleStr.empty() || resScaleStr == "full";
+        // "auto" (default): CRT / handheld-LCD presets get ~240 active lines
+        // (visible + fast out of the box), everything else stays full. "full":
+        // always full resolution, no downscale (crisp, slow, no scanlines on a
+        // CRT). A fraction: that fraction of the display height. "full" parses to
+        // sResScale = 1.0 so it naturally skips the downscale below.
+        bool isAuto = resScaleStr.empty() || resScaleStr == "auto";
         int targetH = srcH;
-        if (isFull) {
-            // CRT / handheld-LCD presets default to ~240 active lines (visible +
-            // fast out of the box); everything else stays at full resolution.
+        if (isAuto) {
             if (isLowResPreset(sPropCache.type, sPropCache.presetPath))
                 targetH = std::min(srcH, 240);
         } else if (sResScale < 1.0f) {
