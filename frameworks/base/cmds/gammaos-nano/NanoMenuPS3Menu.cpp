@@ -5403,10 +5403,26 @@ std::string NanoMenu::resolvePs3ItemValue(const Ps3Item& it) {
     // the label of the current value instead of the raw spec.
     if (it.kind == PS3_QUICK && it.a == QA_SHADER_OPT_MENU && !it.value.empty())
         return shaderOptCurrentLabel(it.value);
-    // GammaShader "Custom Shader" row: show the current preset's basename.
+    // GammaShader "Custom Shader" row: show the current preset's basename, and
+    // flag it when SurfaceFlinger reports the preset cannot render (too many
+    // passes / parse / compile). The GL chain publishes sys.gammaos.shader.status,
+    // so the marker is only authoritative for the custom-gl engine.
     if (it.kind == PS3_QUICK && it.a == QA_SHADER_BROWSE && n == "Custom Shader") {
         std::string preset = readSettingValue(SettingSource::kProp, "persist.gammaos.shader.custom.preset", "");
-        return preset.empty() ? std::string("None") : preset.substr(preset.find_last_of('/') + 1);
+        if (preset.empty()) return std::string("None");
+        std::string base = preset.substr(preset.find_last_of('/') + 1);
+        if (shaderCurType() == "custom-gl") {
+            char st[PROPERTY_VALUE_MAX] = {};
+            property_get("sys.gammaos.shader.status", st, "ok");
+            if (st[0] && strcmp(st, "ok") != 0) {
+                const char* reason = "Incompatible";
+                if (!strncmp(st, "passes:", 7))       reason = "Incompatible (too many passes)";
+                else if (!strcmp(st, "parse_fail"))   reason = "Incompatible (invalid preset)";
+                else if (!strcmp(st, "compile_fail")) reason = "Incompatible (unsupported)";
+                return base + "  " + trDyn(reason);
+            }
+        }
+        return base;
     }
     // Browser folder rows carry their path in it.value for the dispatch; the label
     // already shows the name, so don't repeat the path on the right.
@@ -6367,8 +6383,12 @@ void NanoMenu::buildShaderSubmenu(Ps3Level& out) {
         // Empty payload -> the browser opens at the RetroArch subfolder for this type;
         // the row's inline value (the current preset name) comes from resolvePs3ItemValue.
         act("Custom Shader", QA_SHADER_BROWSE, std::string(), 22);
+        // For CRT-style presets this doubles as the scanline density: "Full" lets
+        // the chain auto-pick (~240 lines, visible scanlines), and smaller
+        // fractions give coarser scanlines. For non-CRT presets it is a plain
+        // source-resolution scale.
         act("Resolution Scale", QA_SHADER_OPT_MENU,
-            std::string("persist.gammaos.shader.custom.res_scale|full:Full,3/4:3/4,1/2:1/2,1/4:1/4|Resolution Scale"), 22);
+            std::string("persist.gammaos.shader.custom.res_scale|full:Full,1/2:1/2,1/3:1/3,1/4:1/4,1/6:1/6,1/8:1/8|Resolution Scale"), 22);
     }
     act("Parameters", QA_SHADER_PARAMS, std::string(), 22);
 }
