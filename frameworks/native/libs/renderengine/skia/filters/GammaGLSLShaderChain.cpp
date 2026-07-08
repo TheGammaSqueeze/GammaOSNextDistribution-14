@@ -272,20 +272,41 @@ static bool splitGLSLSource(const std::string& path,
     bool hasVertexGuard = (raw.find("defined(VERTEX)") != std::string::npos);
     bool hasFragmentGuard = (raw.find("defined(FRAGMENT)") != std::string::npos);
 
-    // GLES3 (#version 300 es) removed gl_FragColor. Most RetroArch shaders use
-    // the compat guard and declare `out vec4 FragColor` at __VERSION__ >= 130,
-    // but some still WRITE to gl_FragColor directly (e.g. the gameboy dot-matrix
-    // and simpletex_lcd handheld shaders), which then fails to compile. Alias
-    // gl_FragColor to that declared output. Inert for shaders that never use it.
-    std::string fragCompat;
-    if (raw.find("gl_FragColor") != std::string::npos)
-        fragCompat = "#define gl_FragColor FragColor\n";
+    // GLES3 (#version 300 es) reserves/removes several GLSL ES 1.00 constructs.
+    // Most RetroArch shaders use the COMPAT_* macros, but some use the raw legacy
+    // keywords directly - crt-pi's `varying`/`attribute`, the gameboy/simpletex
+    // `gl_FragColor`, older shaders' `texture2D` - which then fail to compile.
+    // Alias them per stage so those shaders build. Each is inert if the shader
+    // never uses it. `varying` maps to `out` in the vertex stage and `in` in the
+    // fragment stage. texture2D is only aliased when the shader does not define it
+    // itself, to avoid a macro-redefinition clash with a shader's own compat.
+    std::string vertCompat, fragCompat;
+    if (raw.find("gl_FragColor") != std::string::npos) {
+        // Fully-legacy shaders (e.g. crt-pi) write gl_FragColor with no output
+        // declared; declare one for them. Shaders that already declare their own
+        // "... vec4 FragColor;" (gameboy dot-matrix, dot, simpletex) keep theirs.
+        if (raw.find("vec4 FragColor") == std::string::npos)
+            fragCompat += "out vec4 FragColor;\n";
+        fragCompat += "#define gl_FragColor FragColor\n";
+    }
+    if (raw.find("varying") != std::string::npos) {
+        vertCompat += "#define varying out\n";
+        fragCompat += "#define varying in\n";
+    }
+    if (raw.find("attribute") != std::string::npos)
+        vertCompat += "#define attribute in\n";
+    if (raw.find("texture2D") != std::string::npos &&
+        raw.find("#define texture2D") == std::string::npos) {
+        vertCompat += "#define texture2D texture\n";
+        fragCompat += "#define texture2D texture\n";
+    }
 
     if (hasVertexGuard && hasFragmentGuard) {
         // Build vertex source: #define VERTEX before the shader code
         vertSrc = "#version 300 es\n"
                   "#define VERTEX\n"
                   "#define PARAMETER_UNIFORM\n"
+                  + vertCompat
                   + raw;
 
         // Build fragment source: #define FRAGMENT
