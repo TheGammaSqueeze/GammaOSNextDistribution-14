@@ -1311,8 +1311,14 @@ bool GammaGLSLShaderChain::apply(SkSurface* dstSurface,
         bool isAuto = resScaleStr.empty() || resScaleStr == "auto";
         int targetH = srcH;
         if (isAuto) {
+            // Auto adapts to the panel instead of a flat line count: aim for ~1/3
+            // of the panel height (a gentle ~3x downscale that reads as a CRT
+            // without being a blocky mess), but clamp to [240, 384] so tiny panels
+            // still get a visible effect and tall panels stay under the ~400-line
+            // scanline cutoff that shaders like easymode/geom use. On a 768 panel
+            // that is ~256 lines; on a 1080/1920 buffer it caps at 384.
             if (isLowResPreset(sPropCache.type, sPropCache.presetPath))
-                targetH = std::min(srcH, 240);
+                targetH = std::min(srcH, std::clamp(srcH / 3, 240, 384));
         } else if (sResScale < 1.0f) {
             targetH = std::max(1, (int)(srcH * sResScale + 0.5f));
         }
