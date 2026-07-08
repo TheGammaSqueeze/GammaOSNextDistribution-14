@@ -2736,8 +2736,15 @@ void NanoMenu::ps3XmbSelect() {
                 case QA_SHADER_MENU:    { Ps3Level lvl; buildShaderSubmenu(lvl);        mPs3Stack.push_back(lvl); break; }
                 case QA_SHADER_PARAMS:  { Ps3Level lvl; buildShaderParamsSubmenu(lvl);  mPs3Stack.push_back(lvl); break; }
                 case QA_SHADER_BROWSE: {   // custom-preset browser (drill by path)
-                    Ps3Level lvl; buildShaderBrowser(it.value.empty() ? std::string() : it.value, lvl);
-                    mPs3Stack.push_back(lvl); break;
+                    if (it.value.empty()) {
+                        // "Custom Shader" row: open at the RetroArch subfolder for this
+                        // shader type (pushes the parent levels so Back still traverses up).
+                        shaderOpenBrowserDefault();
+                    } else {
+                        Ps3Level lvl; buildShaderBrowser(it.value, lvl);
+                        mPs3Stack.push_back(lvl);
+                    }
+                    break;
                 }
                 case QA_SHADER_PICK:    openShaderChooser(); return;
                 case QA_SHADER_OPT_MENU: openShaderOptChooser(it.value); return;
@@ -6135,7 +6142,6 @@ const GsType kShaderTypes[] = {
     {"LCD3x",           "lcd3x"},
     {"LCD",             "lcd-shader"},
     {"Blur Fill",       "blur-fill"},
-    {"Custom (SkSL)",   "custom"},
     {"Custom (Vulkan)", "custom-vk"},
     {"Custom (GLSL)",   "custom-gl"},
 };
@@ -6186,6 +6192,17 @@ std::string NanoMenu::shaderTypeLabel() {
 
 bool NanoMenu::isCustomShaderType(const std::string& t) {
     return t == "custom" || t == "custom-vk" || t == "custom-gl";
+}
+
+// True when the RUNNING SurfaceFlinger RenderEngine backend is Vulkan (published as
+// sys.gammaos.renderengine.active). The chooser stars the custom shader type that
+// actually renders GPU-direct on the CURRENT backend - so a Vulkan-capable device whose
+// RenderEngine is on GL still stars GLSL, not Vulkan (we do not suggest a backend that
+// is not the one compositing right now).
+bool NanoMenu::shaderActiveVk() {
+    char buf[PROPERTY_VALUE_MAX];
+    property_get("sys.gammaos.renderengine.active", buf, "");
+    return !strcmp(buf, "vk");
 }
 
 // Populate mShaderParams for the active shader: builtin -> from the static tables
@@ -6347,14 +6364,9 @@ void NanoMenu::buildShaderSubmenu(Ps3Level& out) {
     act("Shader", QA_SHADER_PICK, shaderTypeLabel(), 22);
     if (type.empty()) return;   // Off: nothing else to configure
     if (custom) {
-        // Empty payload -> the browser opens its roots list; the row's inline value
-        // (the current preset name) comes from resolvePs3ItemValue.
+        // Empty payload -> the browser opens at the RetroArch subfolder for this type;
+        // the row's inline value (the current preset name) comes from resolvePs3ItemValue.
         act("Custom Shader", QA_SHADER_BROWSE, std::string(), 22);
-        // Renderer applies only to .slangp presets (custom = SkSL, custom-vk = Vulkan).
-        if (type == "custom" || type == "custom-vk") {
-            act("Renderer", QA_SHADER_OPT_MENU,
-                std::string("@type|custom:SkSL,custom-vk:Vulkan|Renderer"), 22);
-        }
         act("Resolution Scale", QA_SHADER_OPT_MENU,
             std::string("persist.gammaos.shader.custom.res_scale|full:Full,3/4:3/4,1/2:1/2,1/4:1/4|Resolution Scale"), 22);
     }
@@ -6394,14 +6406,47 @@ void NanoMenu::buildShaderParamsSubmenu(Ps3Level& out) {
       out.items.push_back(it); }
 }
 
+// Compatibility disclaimer shown before switching to a custom shader (centred Yes/No
+// confirm, themeKey 42). Accepting applies the pending type; declining leaves the shader
+// unchanged. Fired from applyThemeSetting(40) via the deferred arm in shaderMetaTick.
+void NanoMenu::openShaderDisclaimer() {
+    mPs3DlgOptions.clear(); mPs3DlgSwatch.clear();
+    mPs3DlgKind = 0; mPs3DlgType = 1; mPs3DlgThemeKey = 42; mPs3DlgBinding = nullptr;
+    mPs3DlgSlider = false; mPs3DlgAppInfo = false; mPs3DlgRomInfo = false;
+    mPs3DlgIllust = 0; mPs3DlgNotice.clear();
+    mPs3DlgTitle = "Custom Shaders";
+    mPs3DlgBody  = "Custom shaders run extra graphics work through the display, so their "
+                   "compatibility depends on your hardware and is not guaranteed - some "
+                   "presets may not display correctly. For the best result, use the shader "
+                   "engine marked with a star and lower the Resolution Scale for smoother "
+                   "performance.\n\nAt any time you can turn the shader off from the "
+                   "controller: hold Select first, then press Power.\n\nApply this custom shader?";
+    mPs3DlgOptions.push_back("Cancel"); mPs3DlgSwatch.push_back(-1);
+    mPs3DlgOptions.push_back("Apply");  mPs3DlgSwatch.push_back(-1);
+    mPs3DlgSel = 0; mPs3DlgOrigSel = 0;   // default to Cancel
+    mPs3DlgIconTex = 0; mPs3DlgIconNmap = nmapForIcon(22);
+    mPs3DlgIconR = mPs3DlgIconG = mPs3DlgIconB = 1.0f;
+    mPs3DlgActive = true; mPs3DlgAnim = 0.0f; mPs3DlgClosing = false; mPs3DlgBlurValid = false;
+}
+
 // Shader-type master chooser (side-panel list, theme key 40).
 void NanoMenu::openShaderChooser() {
     mPs3DlgOptions.clear(); mPs3DlgSwatch.clear(); mPs3DlgBinding = nullptr; mPs3DlgSlider = false;
     mPs3DlgKind = 1; mPs3DlgThemeKey = 40; mPs3DlgTitle = "Shader"; mPs3DlgBody.clear();
     std::string cur = shaderCurType();
+    // Star the custom type that renders GPU-direct on the CURRENTLY RUNNING backend:
+    // Vulkan when the RenderEngine is on Vulkan, GLSL otherwise. We do not star Vulkan
+    // just because the hardware could run it - only when it is the active backend.
+    bool activeVk = shaderActiveVk();
     int sel = 0;
     for (int i = 0; i < kNumShaderTypes; i++) {
-        mPs3DlgOptions.push_back(kShaderTypes[i].label); mPs3DlgSwatch.push_back(-1);
+        // Pre-translate here so the appended star does not defeat the render-time
+        // trDyn lookup (trDyn is a no-op on an already-translated string).
+        std::string lbl = trDyn(kShaderTypes[i].label);
+        const char* ty = kShaderTypes[i].type;
+        if ((activeVk && !strcmp(ty, "custom-vk")) || (!activeVk && !strcmp(ty, "custom-gl")))
+            lbl += "  ★";
+        mPs3DlgOptions.push_back(lbl); mPs3DlgSwatch.push_back(-1);
         if ((i == 0 && cur.empty()) || (i > 0 && cur == kShaderTypes[i].type)) sel = i;
     }
     mPs3DlgSel = sel; mPs3DlgOrigSel = sel;
@@ -6488,6 +6533,12 @@ void NanoMenu::openShaderParamSlider(int idx) {
 // the open shader submenu so the dynamic sliders appear. Cheap (one stat) and only
 // active for a few seconds after a change.
 void NanoMenu::shaderMetaTick() {
+    // Custom-shader disclaimer: armed by the type chooser, opened here once the closing
+    // chooser has fully gone (so the new dialog is not clobbered by the close).
+    if (mShaderDisclaimerArm && !mPs3DlgActive && !mPs3DlgClosing) {
+        mShaderDisclaimerArm = false;
+        openShaderDisclaimer();
+    }
     if (mShaderMetaDeadlineMs == 0) return;
     if ((long)android::uptimeMillis() > mShaderMetaDeadlineMs) { mShaderMetaDeadlineMs = 0; return; }
     struct stat st;
@@ -6497,6 +6548,28 @@ void NanoMenu::shaderMetaTick() {
             (mPs3Stack.back().title == "Parameters" || mPs3Stack.back().title == "GammaShader"))
             shaderRebuildOpenLevel();
         mDisplayDirty = true;
+    }
+}
+
+// Open the custom-preset browser at the RetroArch subfolder that matches the active
+// shader type (shaders_glsl for GLSL, shaders_slang for Vulkan/.slangp). The parent
+// levels are pushed first so Back still walks up to RetroArch Shaders, the roots list
+// (GammaShader / RetroArch Presets), and out of the browser - the user can still reach
+// any other folder. Degrades gracefully if RetroArch or the subfolder is not installed.
+void NanoMenu::shaderOpenBrowserDefault() {
+    // Roots level first (Back target: GammaShader + the other roots).
+    { Ps3Level lvl; buildShaderBrowser(std::string(), lvl); mPs3Stack.push_back(lvl); }
+    // Find the RetroArch shaders root among the browser roots.
+    std::string raRoot;
+    for (int i = 0; i < kNumShaderRoots; i++)
+        if (strstr(kShaderRoots[i].path, "com.retroarch") && strstr(kShaderRoots[i].path, "shaders"))
+            { raRoot = kShaderRoots[i].path; break; }
+    struct stat st;
+    if (raRoot.empty() || stat(raRoot.c_str(), &st) != 0 || !S_ISDIR(st.st_mode)) return;
+    { Ps3Level lvl; buildShaderBrowser(raRoot, lvl); mPs3Stack.push_back(lvl); }
+    std::string sub = raRoot + "/" + (shaderCurType() == "custom-gl" ? "shaders_glsl" : "shaders_slang");
+    if (stat(sub.c_str(), &st) == 0 && S_ISDIR(st.st_mode)) {
+        Ps3Level lvl; buildShaderBrowser(sub, lvl); mPs3Stack.push_back(lvl);
     }
 }
 
@@ -6524,26 +6597,9 @@ void NanoMenu::buildShaderBrowser(const std::string& path, Ps3Level& out) {
             row("No shader folders found", QA_NOOP, std::string(), 22);
         return;
     }
-    // Readable breadcrumb for the header: map the absolute path back to its root
-    // label and append the relative folders, so the user always sees where they are
-    // (e.g. "RetroArch Shaders / shaders_slang / misc"). Falls back to the raw path.
-    {
-        std::string crumb;
-        for (int i = 0; i < kNumShaderRoots; i++) {
-            size_t rl = strlen(kShaderRoots[i].path);
-            if (path.size() >= rl && path.compare(0, rl, kShaderRoots[i].path) == 0) {
-                crumb = kShaderRoots[i].label;
-                std::string comp;
-                for (size_t k = rl; k <= path.size(); k++) {
-                    char c = (k < path.size()) ? path[k] : '/';
-                    if (c == '/') { if (!comp.empty()) { crumb += " / "; crumb += comp; comp.clear(); } }
-                    else comp += c;
-                }
-                break;
-            }
-        }
-        out.title = crumb.empty() ? path : crumb;
-    }
+    // Header shows the actual filesystem path (e.g. /data/data/com.retroarch.aarch64/
+    // shaders/shaders_slang/misc) so the user always sees exactly where they are.
+    out.title = path;
     if (out.title.empty()) out.title = "Custom Shader";
     // (No ".." row: nano's Back button pops each pushed browser level, so the parent
     // is always one Back away - the standard nano submenu convention.)
@@ -6804,8 +6860,23 @@ void NanoMenu::applyThemeSetting(int themeKey, int sel) {
                              (mPs3AppInfoPkg + "|cleardata|").c_str());
             break;
         }
-        case 40:    // GammaShader: master shader-type selection (enable+type) + rebuild
-            shaderApplyType(sel);
+        case 40: {  // GammaShader: master shader-type selection (enable+type) + rebuild
+            // Switching from Off or a builtin shader to a CUSTOM one shows a one-time
+            // compatibility disclaimer the user must accept. Switching between custom
+            // types, or to a builtin/Off, applies immediately. Opening the dialog is
+            // deferred one frame so the closing chooser does not clobber it.
+            bool newCustom = (sel >= 0 && sel < kNumShaderTypes) && isCustomShaderType(kShaderTypes[sel].type);
+            if (newCustom && !isCustomShaderType(shaderCurType())) {
+                mShaderPendingTypeSel = sel;
+                mShaderDisclaimerArm = true;
+            } else {
+                shaderApplyType(sel);
+            }
+            break;
+        }
+        case 42:    // GammaShader: custom-shader disclaimer answered (Apply = option 1)
+            if (sel == 1 && mShaderPendingTypeSel >= 0) shaderApplyType(mShaderPendingTypeSel);
+            mShaderPendingTypeSel = -1;
             break;
         case 41: {  // GammaShader: a discrete shader option (renderer / res_scale / orientation)
             if (sel >= 0 && sel < (int)mShaderOptVals.size()) {
@@ -8900,9 +8971,13 @@ void NanoMenu::renderPs3Dialog() {
         } else if (mPs3DlgType == 1) {          // chooser
             float fs = FS(24.0f);
             std::vector<std::string> bodyLines = wrap(dlgBody, fs);
-            float by = Y(innerTop + 105.0f);
-            for (auto& ln : bodyLines) { if (!ln.empty()) ps3DlgText(ln.c_str(), XC(VW * 0.5f), by, fs, 0.95f, 0.95f, 0.95f, ap, 1); by += DS(32.0f); }
-            const float optTopV = innerTop + 305.0f, optSpacingV = 46.0f;
+            float byV = innerTop + 105.0f;                  // virtual y of the body block
+            for (auto& ln : bodyLines) { if (!ln.empty()) ps3DlgText(ln.c_str(), XC(VW * 0.5f), Y(byV), fs, 0.95f, 0.95f, 0.95f, ap, 1); byV += 32.0f; }
+            // Options normally sit in a fixed slot, but a long body (e.g. the Custom
+            // Shaders disclaimer) can wrap far enough to reach it, so push the option
+            // list below the last body line whenever the body runs long.
+            const float optSpacingV = 46.0f;
+            float optTopV = fmaxf(innerTop + 305.0f, byV + 22.0f);
             float availH = innerBot - optTopV - 40.0f;
             int visibleCount = (int)(availH / optSpacingV); if (visibleCount < 3) visibleCount = 3;
             int firstVis = 0, lastVis = n - 1;

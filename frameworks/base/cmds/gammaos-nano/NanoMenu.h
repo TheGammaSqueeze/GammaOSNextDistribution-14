@@ -1559,11 +1559,15 @@ private:
     long   mShaderMetaDeadlineMs = 0;         // poll .shader_param_meta until this uptime (after a preset/type change)
     std::string mShaderOptKey;                // discrete-option chooser: the prop key being edited
     std::vector<std::pair<std::string,std::string>> mShaderOptVals;  // (value,label) for the open opt chooser
+    int    mShaderPendingTypeSel = -1;        // kShaderTypes index awaiting the custom-shader disclaimer accept
+    bool   mShaderDisclaimerArm = false;      // open the custom-shader disclaimer dialog on the next frame
+    void   openShaderDisclaimer();            // confirm dialog shown before switching to a custom shader
     void shaderApplyParamLive(int idx);       // write mShaderParams[idx] live (prop or .shader_params)
     void shaderResetActive();                 // reset the active shader's params to defaults
     void buildShaderSubmenu(Ps3Level& out);          // top-level GammaShader submenu (dynamic by type)
     void buildShaderParamsSubmenu(Ps3Level& out);    // the active shader's parameter rows
     void buildShaderBrowser(const std::string& path, Ps3Level& out);  // custom-preset file browser
+    void shaderOpenBrowserDefault();                  // open the browser at the RetroArch subfolder for the active type (still traversable up)
     void shaderSelectPreset(const std::string& path);                 // point the shader loader at a custom preset (SF reads it in place) + arm meta poll
     void openShaderChooser();                        // shader-type side-panel list chooser
     void openShaderOptChooser(const std::string& spec); // discrete-option chooser (key|opts|title)
@@ -1575,6 +1579,7 @@ private:
     void writeShaderParams();                         // rewrite .shader_params from mShaderParams (custom)
     std::string shaderCurType();                      // active shader type ("" when disabled)
     bool isCustomShaderType(const std::string& t);    // true for custom/custom-vk/custom-gl
+    bool shaderActiveVk();                            // the RUNNING RenderEngine backend is Vulkan (stars the custom type that renders now)
     std::string shaderTypeLabel();                    // friendly label of the active shader for the menu row
     void shaderRebuildOpenLevel();                    // rebuild the open GammaShader/Params level in place (keep cursor)
     void shaderMetaTick();                            // per-frame: pick up custom .shader_param_meta once SF publishes it
