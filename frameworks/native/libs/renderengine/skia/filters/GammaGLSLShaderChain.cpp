@@ -32,6 +32,7 @@
 #include "../debug/SkiaCapture.h"
 
 #include <algorithm>
+#include <cctype>
 #include <cmath>
 #include <cstring>
 #include <fstream>
@@ -42,6 +43,15 @@
 
 using android::base::GetBoolProperty;
 using android::base::GetProperty;
+using android::base::SetProperty;
+
+// Publishes why the custom GLSL preset can (or cannot) render so the nano menu
+// can surface it. Volatile sys. prop: "ok" | "passes:<n>/<max>" | "parse_fail" |
+// "compile_fail". Throttled so it only writes on a change.
+static void setShaderStatus(const std::string& s) {
+    static std::string last;
+    if (last != s) { last = s; SetProperty("sys.gammaos.shader.status", s); }
+}
 
 namespace android {
 namespace renderengine {
@@ -262,6 +272,15 @@ static bool splitGLSLSource(const std::string& path,
     bool hasVertexGuard = (raw.find("defined(VERTEX)") != std::string::npos);
     bool hasFragmentGuard = (raw.find("defined(FRAGMENT)") != std::string::npos);
 
+    // GLES3 (#version 300 es) removed gl_FragColor. Most RetroArch shaders use
+    // the compat guard and declare `out vec4 FragColor` at __VERSION__ >= 130,
+    // but some still WRITE to gl_FragColor directly (e.g. the gameboy dot-matrix
+    // and simpletex_lcd handheld shaders), which then fails to compile. Alias
+    // gl_FragColor to that declared output. Inert for shaders that never use it.
+    std::string fragCompat;
+    if (raw.find("gl_FragColor") != std::string::npos)
+        fragCompat = "#define gl_FragColor FragColor\n";
+
     if (hasVertexGuard && hasFragmentGuard) {
         // Build vertex source: #define VERTEX before the shader code
         vertSrc = "#version 300 es\n"
@@ -277,6 +296,7 @@ static bool splitGLSLSource(const std::string& path,
                   "precision highp float;\n"
                   "#define FRAGMENT\n"
                   "#define PARAMETER_UNIFORM\n"
+                  + fragCompat
                   + raw;
     } else {
         // No guards — provide a stock vertex shader
@@ -294,6 +314,7 @@ static bool splitGLSLSource(const std::string& path,
                   "#define FRAGMENT\n"
                   "#define PARAMETER_UNIFORM\n"
                   "precision highp float;\n"
+                  + fragCompat
                   + raw;
     }
 
@@ -519,12 +540,34 @@ static struct {
 static float parseResScale(const std::string& val) {
     if (val == "3/4" || val == "0.75") return 0.75f;
     if (val == "1/2" || val == "0.5" || val == "0.50") return 0.5f;
-    if (val == "1/4" || val == "0.25") return 0.25f;
     if (val == "1/3" || val == "0.33") return 1.0f / 3.0f;
+    if (val == "1/4" || val == "0.25") return 0.25f;
+    if (val == "1/5" || val == "0.2")  return 0.2f;
+    if (val == "1/6")                  return 1.0f / 6.0f;
+    if (val == "1/8" || val == "0.125") return 0.125f;
     return 1.0f;  // "full" or unknown
 }
 
-static GLuint downscaleTexture(GLuint srcTex, int srcW, int srcH,
+// A display-wide post-process has no native game raster, so presets that emulate
+// a low native panel - CRT scanline/beam/interlace AND handheld LCD/dot-matrix
+// grids - key off InputSize.y and need a synthetic low source height to look
+// right. Detect them by name/path so they default to a visible density instead
+// of a flat full-res pass. Plain effect presets (blur/sharpen/colour grades) are
+// left at full resolution.
+static bool isLowResPreset(const std::string& type, const std::string& presetPath) {
+    std::string s = type + "|" + presetPath;
+    for (auto& c : s) c = (char)tolower((unsigned char)c);
+    static const char* kLowRes[] = {
+        // CRT families
+        "crt", "scanline", "aperture", "lottes", "geom", "easymode", "royale",
+        "ntsc", "slotmask", "dotmask", "trinitron", "hyllian", "zfast", "phosphor",
+        // handheld LCD / dot-matrix families (emulate a 160-240 line panel)
+        "handheld", "lcd", "dot-matrix", "gameboy", "dmg", "gba", "gbc"};
+    for (auto* k : kLowRes) if (s.find(k) != std::string::npos) return true;
+    return false;
+}
+
+[[maybe_unused]] static GLuint downscaleTexture(GLuint srcTex, int srcW, int srcH,
                                 int dstW, int dstH) {
     if (!sDownscale.program) {
         const char* vs =
@@ -739,9 +782,12 @@ static void computePassSize(const GLSLPassDef& def, int srcW, int srcH,
 // ---------------------------------------------------------------------------
 
 // Maximum number of shader passes allowed in the compositor.
-// Complex multi-pass chains (>4) can block surfaceflinger's render thread
-// beyond the vsync deadline, causing system hangs.
-static constexpr int kMaxGLSLPasses = 4;
+// Complex multi-pass chains can block surfaceflinger's render thread beyond the
+// vsync deadline, causing system hangs. 8 admits the popular 5-pass CRT families
+// (easymode-halation, lottes-multipass, geom-deluxe) whose intermediate passes
+// mostly run at fractional scale, while still rejecting the 10+ pass monsters
+// (crt-royale, guest-dr-venom) that would blow the deadline on a Mali-G52.
+static constexpr int kMaxGLSLPasses = 8;
 
 static bool initChain(GLSLPreset& preset, int viewW, int viewH) {
     sChain.destroy();
@@ -750,6 +796,8 @@ static bool initChain(GLSLPreset& preset, int viewW, int viewH) {
     if (numPasses > kMaxGLSLPasses) {
         ALOGE("GammaGLShader: preset has %d passes (max %d) — too many for compositor, skipping",
               numPasses, kMaxGLSLPasses);
+        setShaderStatus("passes:" + std::to_string(numPasses) + "/" +
+                        std::to_string(kMaxGLSLPasses));
         return false;
     }
     sChain.passes.resize(numPasses);
@@ -765,18 +813,19 @@ static bool initChain(GLSLPreset& preset, int viewW, int viewH) {
         if (!splitGLSLSource(def.shaderPath, vertSrc, fragSrc)) {
             ALOGE("GammaGLShader: failed to split shader %d: %s",
                   i, def.shaderPath.c_str());
+            setShaderStatus("compile_fail");
             return false;
         }
 
         GLuint vert = compileShader(GL_VERTEX_SHADER, vertSrc);
-        if (!vert) return false;
+        if (!vert) { setShaderStatus("compile_fail"); return false; }
         GLuint frag = compileShader(GL_FRAGMENT_SHADER, fragSrc);
-        if (!frag) { glDeleteShader(vert); return false; }
+        if (!frag) { glDeleteShader(vert); setShaderStatus("compile_fail"); return false; }
 
         gl.program = linkProgram(vert, frag);
         glDeleteShader(vert);
         glDeleteShader(frag);
-        if (!gl.program) return false;
+        if (!gl.program) { setShaderStatus("compile_fail"); return false; }
 
         // Get uniform locations
         gl.locMVP = glGetUniformLocation(gl.program, "MVPMatrix");
@@ -1121,6 +1170,7 @@ bool GammaGLSLShaderChain::apply(SkSurface* dstSurface,
         if (!parseGLSLPreset(presetPath, sPreset)) {
             // Don't cache failure — retry on next frame
             ALOGE("GammaGLShader: preset parse failed, will retry");
+            setShaderStatus("parse_fail");
             return false;
         }
         sLoadedPath = presetPath;
@@ -1236,35 +1286,46 @@ bool GammaGLSLShaderChain::apply(SkSurface* dstSurface,
         }
     }
 
-    // Apply resolution scale (downscale source before shader chain)
+    // Advertise a synthetic "content" resolution to the shader chain.
+    //
+    // A display-wide post-process has no native game raster: the source IS the
+    // full composited frame. CRT presets draw scanlines/beam/interlace as a
+    // function of InputSize.y over the OutputSize (display) grid, so they only
+    // come alive when InputSize.y is well below OutputSize.y. We keep SAMPLING
+    // the full-res composite (crisp) but tell the shader a low source height -
+    // that height is the scanline density. This is NOT a texture downscale/blur;
+    // srcTex stays full-res and the final pass still renders at the display size.
     const std::string& resScaleStr = sPropCache.resScaleStr;
-    float newResScale = parseResScale(resScaleStr);
-    bool resScaleChanged = (newResScale != sResScale);
-    sResScale = newResScale;
+    sResScale = parseResScale(resScaleStr);
 
     int chainSrcW = srcW, chainSrcH = srcH;
-    if (sResScale < 1.0f) {
-        int scaledW = std::max(1, (int)(srcW * sResScale));
-        int scaledH = std::max(1, (int)(srcH * sResScale));
-        GLuint scaled = downscaleTexture(srcTex, srcW, srcH, scaledW, scaledH);
-        if (scaled) {
-            srcTex = scaled;
-            chainSrcW = scaledW;
-            chainSrcH = scaledH;
-            if (debugLog) {
-                static bool sLoggedScale = false;
-                if (!sLoggedScale) {
-                    ALOGD("GammaGLShader: res_scale=%s → %dx%d → %dx%d",
-                          resScaleStr.c_str(), srcW, srcH, scaledW, scaledH);
-                    sLoggedScale = true;
-                }
+    {
+        bool isFull = resScaleStr.empty() || resScaleStr == "full";
+        if (isFull) {
+            // CRT / handheld-LCD presets default to ~240 active lines (visible
+            // scanlines or grid out of the box); everything else passes through
+            // at full resolution.
+            if (isLowResPreset(sPropCache.type, sPropCache.presetPath))
+                chainSrcH = std::min(srcH, 240);
+        } else if (sResScale < 1.0f) {
+            chainSrcH = std::max(1, (int)(srcH * sResScale + 0.5f));
+        }
+        chainSrcW = std::max(1, (int)((double)chainSrcH * srcW / srcH + 0.5));
+        if (debugLog && chainSrcH != srcH) {
+            static bool sLoggedScale = false;
+            if (!sLoggedScale) {
+                ALOGD("GammaGLShader: content size %dx%d -> %dx%d (res_scale=%s)",
+                      srcW, srcH, chainSrcW, chainSrcH, resScaleStr.c_str());
+                sLoggedScale = true;
             }
         }
     }
 
-    // Initialize chain if needed
+    // Initialize chain if needed. Note: the chain's pass sizes come from the
+    // display dims, and the synthetic content size feeds a per-frame uniform, so
+    // a res_scale/density change no longer needs a full chain rebuild.
     if (!sChain.valid || sChain.loadedPreset != sLoadedPath ||
-        sChain.displayW != dstW || sChain.displayH != dstH || resScaleChanged) {
+        sChain.displayW != dstW || sChain.displayH != dstH) {
         if (!initChain(sPreset, dstW, dstH)) {
             sInitRetryCount++;
             if (sInitRetryCount >= kMaxInitRetries) {
@@ -1281,6 +1342,7 @@ bool GammaGLSLShaderChain::apply(SkSurface* dstSurface,
         }
         sInitRetryCount = 0;
         sChain.loadedPreset = sLoadedPath;
+        setShaderStatus("ok");
     }
 
     // Apply parameter overrides — only re-read file when mtime changes
