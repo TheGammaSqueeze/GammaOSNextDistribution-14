@@ -1311,14 +1311,19 @@ bool GammaGLSLShaderChain::apply(SkSurface* dstSurface,
         bool isAuto = resScaleStr.empty() || resScaleStr == "auto";
         int targetH = srcH;
         if (isAuto) {
-            // Auto adapts to the panel instead of a flat line count: aim for ~1/3
-            // of the panel height (a gentle ~3x downscale that reads as a CRT
-            // without being a blocky mess), but clamp to [240, 384] so tiny panels
-            // still get a visible effect and tall panels stay under the ~400-line
-            // scanline cutoff that shaders like easymode/geom use. On a 768 panel
-            // that is ~256 lines; on a 1080/1920 buffer it caps at 384.
-            if (isLowResPreset(sPropCache.type, sPropCache.presetPath))
-                targetH = std::min(srcH, std::clamp(srcH / 3, 240, 384));
+            // Auto uses a resolution-adaptive base-resolution fraction for CRT/LCD
+            // presets: a gentle 1/2 on ~480-line panels sliding down to 1/4 on
+            // 1080p and up, so lower panels stay sharp and higher panels do not
+            // become a blocky mess. The result is then held under 400 lines, which
+            // is the cutoff scanline shaders like easymode and geom use to switch
+            // their effect off, so those keep working on any panel. Anchors:
+            // 640x480 -> ~240 lines (1/2), 1080p -> ~270 (1/4), 1080x1920 -> 384.
+            if (isLowResPreset(sPropCache.type, sPropCache.presetPath)) {
+                float frac = (srcH <= 480)       ? 0.5f
+                           : (srcH >= 1080)      ? 0.25f
+                           : 0.5f + (float)(srcH - 480) * (0.25f - 0.5f) / (1080.0f - 480.0f);
+                targetH = std::min(384, std::max(1, (int)(srcH * frac + 0.5f)));
+            }
         } else if (sResScale < 1.0f) {
             targetH = std::max(1, (int)(srcH * sResScale + 0.5f));
         }
