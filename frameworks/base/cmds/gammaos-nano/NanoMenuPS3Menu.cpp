@@ -636,22 +636,22 @@ void NanoMenu::buildPs3Cats() {
         // (minimized). musicTick rebuilds the cats when audio starts/stops so it
         // appears/disappears. Always the first item so it is the default landing.
         if (mMusicResumeShown) qItem("Resume Audio Player", QA_RESUME_AUDIO, 3);
-        qItem("Screen Brightness",   QA_BRIGHTNESS,    16);
-        qItem("Performance Mode",    QA_PERFORMANCE,   21);
-        qItem("Quick Settings",      QA_QUICK_SETTINGS, 21);
+        qItem("Screen Brightness",   QA_BRIGHTNESS,    73);
+        qItem("Performance Mode",    QA_PERFORMANCE,   81);
+        qItem("Quick Settings",      QA_QUICK_SETTINGS, 74);
         qItem("Global Shaders",      QA_SHADER_MENU,    16);
-        qItem("Notifications",       QA_NOTIFICATIONS,  16);
-        qItem("Close Current App",   QA_CLOSE_APP,     24);
+        qItem("Notifications",       QA_NOTIFICATIONS,  71);
+        qItem("Close Current App",   QA_CLOSE_APP,     83);
         // Orientation: override the FOREGROUND app's orientation live. Only shown when
         // the overlay is raised over an actual app (launched_pkg set); never at the home
         // where there is no foreground app to target.
         if (mOverlayMode) {
             char lp[PROPERTY_VALUE_MAX] = {};
             property_get("sys.gammaos.nano.launched_pkg", lp, "");
-            if (lp[0]) qItem("Orientation", QA_APP_ORIENT_MENU, 16);
+            if (lp[0]) qItem("Screen Orientation", QA_APP_ORIENT_MENU, 70);
         }
-        qItem("Kill Background Apps", QA_KILL_BG,       49);
-        qItem("Kill All Apps",       QA_KILL_ALL,      25);
+        qItem("Kill Background Apps", QA_KILL_BG,       84);
+        qItem("Kill All Apps",       QA_KILL_ALL,      82);
         // Quick Resume: a top-level toggle with an explanatory subtitle (it.desc,
         // drawn under the active row). The On/Off value is resolved live from
         // mQuickResumeEnabled in resolvePs3ItemValue, so flipping the flag updates
@@ -844,17 +844,17 @@ void NanoMenu::buildQuickPowerSubmenu(Ps3Level& out) {
 // visible effect when the overlay is dismissed (the app cannot be seen rotating under
 // the opaque overlay). Preselect the row matching the app's current override.
 void NanoMenu::buildAppOrientSubmenu(Ps3Level& out) {
-    out.items.clear(); out.sel = 0; out.title = "Orientation";
+    out.items.clear(); out.sel = 0; out.title = "Screen Orientation";
     char pb[PROPERTY_VALUE_MAX] = {};
     property_get("sys.gammaos.nano.launched_pkg", pb, "");
     std::string cur = pb[0] ? appOrientGet(std::string(pb)) : std::string();
     struct { const char* label; const char* token; int icon; } rows[] = {
         {"Default",             "",             22},
-        {"Auto",                "auto",         16},
-        {"Landscape",           "landscape",    16},
-        {"Landscape (reverse)", "rev_landscape",16},
-        {"Portrait",            "portrait",     16},
-        {"Portrait (reverse)",  "rev_portrait", 16},
+        {"Auto",                "auto",         70},
+        {"Landscape",           "landscape",    90},
+        {"Landscape (reverse)", "rev_landscape",90},
+        {"Portrait",            "portrait",     91},
+        {"Portrait (reverse)",  "rev_portrait", 91},
     };
     for (size_t i = 0; i < sizeof(rows) / sizeof(rows[0]); i++) {
         Ps3Item it; it.label = rows[i].label; it.kind = PS3_QUICK;
@@ -884,25 +884,25 @@ void NanoMenu::buildAppOrientSubmenu(Ps3Level& out) {
 namespace {
 struct QsTileMap { const char* spec; const char* label; const char* bind; int qa; int icon; };
 const QsTileMap kQsTileMap[] = {
-    {"internet",         "Wi-Fi",               nullptr,                  -1, 16},
-    {"bt",               "Bluetooth",           nullptr,                  -1, 16},
-    {"performance",      "Performance Mode",    nullptr,                  QA_PERFORMANCE, 21},
+    {"internet",         "Wi-Fi",               nullptr,                  -1, 85},
+    {"bt",               "Bluetooth",           nullptr,                  -1, 86},
+    {"performance",      "Performance Mode",    nullptr,                  QA_PERFORMANCE, 81},
     {"gammashader",      "Global Shaders",      "CRT Shader",             -1, 16},
-    {"gammargb",         "GammaRGB",            "Effect",                 -1, 16},
-    {"gammaeq",          "GammaEQ",             "Enable EQ",              -1, 16},
+    {"gammargb",         "GammaRGB",            "Effect",                 -1, 80},
+    {"gammaeq",          "GammaEQ",             "Enable EQ",              -1, 17},
     // "rotation" (auto-rotate) tile intentionally omitted: orientation is controlled
     // by Settings > Display > Screen Orientation (its "Auto" value), the single owner
     // of accelerometer_rotation. A raw auto-rotate tile here would desync with it.
-    {"screenmap",        "Screen Map",          nullptr,                  -1, 16},
-    {"deepsleepmode",    "Deep Sleep Mode",     "Ultra Low Power Saving", -1, 16},
-    {"externaldocking",  "External as Primary", nullptr,                  -1, 16},
-    {"immersivemode",    "Immersive Mode",      nullptr,                  -1, 16},
-    {"abxy",             "ABXY Swap",           nullptr,                  -1, 16},
-    {"dpadAnalogToggle", "DPAD/Analog Swap",    nullptr,                  -1, 16},
-    {"analogsensitivity","Global Sensitivity",  nullptr,                  -1, 16},
-    {"analogcalibration","Analog Calibration",  nullptr,                  QA_LAUNCH_CALIBRATION, 16},
-    {"analogaxis",       "Invert Left Stick",   nullptr,                  -1, 16},
-    {"rightanalogaxis",  "Invert Right Stick",  nullptr,                  -1, 16},
+    {"screenmap",        "Screen Map",          nullptr,                  -1, 5},
+    {"deepsleepmode",    "Deep Sleep Mode",     "Ultra Low Power Saving", -1, 89},
+    {"externaldocking",  "External as Primary", nullptr,                  -1, 87},
+    {"immersivemode",    "Immersive Mode",      nullptr,                  -1, 88},
+    {"abxy",             "ABXY Swap",           nullptr,                  -1, 5},
+    {"dpadAnalogToggle", "DPAD/Analog Swap",    nullptr,                  -1, 5},
+    {"analogsensitivity","Global Sensitivity",  nullptr,                  -1, 5},
+    {"analogcalibration","Analog Calibration",  nullptr,                  QA_LAUNCH_CALIBRATION, 5},
+    {"analogaxis",       "Invert Left Stick",   nullptr,                  -1, 5},
+    {"rightanalogaxis",  "Invert Right Stick",  nullptr,                  -1, 5},
 };
 // Concatenate persist.<base>[_0..4] (and optionally <base> itself) into one CSV,
 // mirroring QSHost.getDefaultSpecs / QSTileHost.loadBlacklistedTileSpecs.
@@ -1045,7 +1045,7 @@ void NanoMenu::buildGamepadSubmenu(Ps3Level& out) {
     leaf("Screen Map", nullptr, 16);
     // Mouse Mode (gamepad-as-mouse) is nested here now that it is no longer a
     // top-level Settings entry; opens the dedicated buildMouseSubmenu.
-    act ("Mouse Mode", QA_MOUSE_MENU, 16, nullptr);
+    act ("Mouse Mode", QA_MOUSE_MENU, 53, nullptr);
 }
 
 // Quick Menu -> Mouse Mode: the Settings-app "Mouse Mode" category (gamepad-as-mouse
@@ -1058,10 +1058,10 @@ void NanoMenu::buildMouseSubmenu(Ps3Level& out) {
         it.nmapTex = nmapForIcon(icon); it.iconR = it.iconG = it.iconB = 1.0f;
         out.items.push_back(it);
     };
-    leaf("Stick Speed", nullptr, 16);
-    leaf("D-Pad Speed", nullptr, 16);
-    leaf("Boost", nullptr, 16);
-    leaf("Scroll Speed", nullptr, 16);
+    leaf("Stick Speed", nullptr, 53);
+    leaf("D-Pad Speed", nullptr, 53);
+    leaf("Boost", nullptr, 53);
+    leaf("Scroll Speed", nullptr, 53);
 }
 
 // --- Button / Axis remap pickers --------------------------------------------
@@ -7208,7 +7208,7 @@ void NanoMenu::openXmbOpt() {
                 int odef = 0;
                 for (size_t i = 0; i < osub.size(); i++)
                     if (osub[i].orient == cur) { odef = (int)i; break; }
-                addSub("Orientation", false, osub, odef);
+                addSub("Screen Orientation", false, osub, odef);
             }
             // Uninstall is offered only for real user apps - never the launcher-shortcut
             // kind, and never the same excluded packages the Applications loader hides

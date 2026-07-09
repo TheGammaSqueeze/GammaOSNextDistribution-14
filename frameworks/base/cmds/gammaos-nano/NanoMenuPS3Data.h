@@ -71,7 +71,7 @@ static const Ps3DataItem kGameSettingsCh[] = {
   {"PS Upscaler",22,"Apply upscaling to PlayStation® format software.","Off",0,nullptr,0},
   {"PS/PS2 Smoothing",22,"Smooth out the rough edges of images of PlayStation® and PlayStation®2 format software.","Off",0,nullptr,0},
 #endif
-  {"Boxart Scraper",5,"Downloads box art and background art for your games and replaces the game icons.",nullptr,0,PS3CH(kScraperSettingsCh)},
+  {"Boxart Scraper",25,"Downloads box art and background art for your games and replaces the game icons.",nullptr,0,PS3CH(kScraperSettingsCh)},
 };
 static const Ps3DataItem kVideoSettingsCh[] = {
 #if !NANO_XMB_HIDE_LEGACY
@@ -182,7 +182,7 @@ static const Ps3DataItem kDisplayCh[] = {
   {"Screen Timeout",22,"Sets how long the screen stays on while idle.","1 minute",1,nullptr,0},
   {"Font Size",22,"Sets the size of text shown on the screen.","Default",1,nullptr,0},
   {"Dark Theme",22,"Use a dark colour scheme across the system.","On",1,nullptr,0},
-  {"Screen Orientation",22,"Sets the orientation of the home menu and apps. Choose Auto to follow the accelerometer, or lock to a fixed orientation.","Landscape",1,nullptr,0},
+  {"Screen Orientation",70,"Sets the orientation of the home menu and apps. Choose Auto to follow the accelerometer, or lock to a fixed orientation.","Landscape",1,nullptr,0},
   {"Force Orientation",22,"When on, every app is forced to this orientation and cannot override it. Off keeps each app's own orientation and any per-app override.","Off",1,nullptr,0},
 };
 static const Ps3DataItem kSoundCh[] = {
@@ -369,28 +369,28 @@ static const Ps3DataItem kSettingsItems[] = {
   {"Game Settings",5,"Adjusts settings for games.",nullptr,0,PS3CH(kGameSettingsCh)},
   // Boxart Scraper moved under Game Settings (kGameSettingsCh); the top-level entry is retired.
 #if !NANO_XMB_HIDE_LEGACY
-  {"Boxart Scraper",5,"Downloads box art and background art for your games and replaces the game icons.",nullptr,0,PS3CH(kScraperSettingsCh)},
+  {"Boxart Scraper",25,"Downloads box art and background art for your games and replaces the game icons.",nullptr,0,PS3CH(kScraperSettingsCh)},
 #endif
   {"Video Settings",9,"Adjusts settings for video.",nullptr,0,PS3CH(kVideoSettingsCh)},
   {"Music Settings",3,"Adjusts settings for music.",nullptr,0,PS3CH(kMusicSettingsCh)},
 #if !NANO_XMB_HIDE_LEGACY
   {"Chat Settings",42,"Adjusts settings for chat.",nullptr,0,nullptr,0},
 #endif
-  {"System Settings",12,"Adjusts settings for this GammaOS system.",nullptr,0,PS3CH(kSystemSettingsCh)},
-  {"Developer Options",12,"Adjusts advanced settings for software developers.",nullptr,0,PS3CH(kDevOptionsCh)},
-  {"Theme Settings",23,"Adjusts settings related to the appearance of the home screen.",nullptr,0,PS3CH(kThemeSettingsCh)},
+  {"System Settings",74,"Adjusts settings for this GammaOS system.",nullptr,0,PS3CH(kSystemSettingsCh)},
+  {"Developer Options",78,"Adjusts advanced settings for software developers.",nullptr,0,PS3CH(kDevOptionsCh)},
+  {"Theme Settings",79,"Adjusts settings related to the appearance of the home screen.",nullptr,0,PS3CH(kThemeSettingsCh)},
   {"Date and Time Settings",14,"Adjusts date and time settings.",nullptr,0,PS3CH(kDateTimeCh)},
-  {"Power Save Settings",56,"Adjusts settings to reduce power usage by this system.",nullptr,0,PS3CH(kPowerSaveCh)},
-  {"Accessory Settings",15,"Adjusts settings for accessories that are connected to this system.",nullptr,0,PS3CH(kAccessoryCh)},
+  {"Power Save Settings",27,"Adjusts settings to reduce power usage by this system.",nullptr,0,PS3CH(kPowerSaveCh)},
+  {"Accessory Settings",76,"Adjusts settings for accessories that are connected to this system.",nullptr,0,PS3CH(kAccessoryCh)},
   // Gamepad Settings opens the rich buildGamepadSubmenu (dispatch special-case in
   // ps3XmbSelect); Mouse Mode is now nested inside it, so the top-level entry is retired.
-  {"Gamepad Settings",15,"Adjusts settings for game controllers.",nullptr,0,PS3CH(kGamepadCh)},
+  {"Gamepad Settings",5,"Adjusts settings for game controllers.",nullptr,0,PS3CH(kGamepadCh)},
 #if !NANO_XMB_HIDE_LEGACY
   {"Mouse Mode",15,"Adjusts mouse-mode pointer settings for controllers.",nullptr,0,PS3CH(kMouseCh)},
 #endif
-  {"GammaOS Toolbox",12,"Adjusts GammaOS-specific tweaks and enhancements.",nullptr,0,PS3CH(kToolboxCh)},
+  {"GammaOS Toolbox",1,"Adjusts GammaOS-specific tweaks and enhancements.",nullptr,0,PS3CH(kToolboxCh)},
   {"File Explorer",62,"Browse the file system and copy, move, rename or delete files and folders.",nullptr,0,nullptr,0},
-  {"GammaRGB",23,"Adjusts the RGB LED lighting effects.",nullptr,0,PS3CH(kGammaRgbCh)},
+  {"GammaRGB",80,"Adjusts the RGB LED lighting effects.",nullptr,0,PS3CH(kGammaRgbCh)},
   {"GammaEQ",17,"Adjusts the audio equalizer and speaker enhancements.",nullptr,0,PS3CH(kGammaEqCh)},
 #if !NANO_XMB_HIDE_LEGACY
   {"Printer Settings",10,"Adjusts settings for printers that are connected to this system.",nullptr,0,nullptr,0},

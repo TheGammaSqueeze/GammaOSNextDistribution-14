@@ -159,6 +159,7 @@ cc_binary {
         "nano_xmb_textures",
         "nano_xmb_globe",
         "nano_xmb_icons_retroarch",
+        "nano_xmb_icons_ui",
         "nano_xmb_daijishou",
         "nano_xmb_i18n",
         "nano_xmb_audio",
@@ -407,6 +408,17 @@ prebuilt_etc {
     name: "nano_xmb_icons_retroarch",
     srcs: ["ps3xmb/icons_retroarch/*.png"],
     sub_dir: "nano_xmb/icons_retroarch",
+}
+
+// Framework/SystemUI vector icons rasterised to mono-white silhouettes for the
+// generic UI menu rows (Screen Orientation, Notifications, Security, Brightness,
+// System Settings, Memory Card, Accessories ...). Glass-relit at runtime via
+// bevelFromRGBA, the same path as the console icons, so they share the look.
+// nmapForIcon maps the UI icon index range to these by name.
+prebuilt_etc {
+    name: "nano_xmb_icons_ui",
+    srcs: ["ps3xmb/icons_ui/*.png"],
+    sub_dir: "nano_xmb/icons_ui",
 }
 
 // Daijishou community platform configs (119 platforms, ~917 players covering

@@ -555,13 +555,65 @@ GLuint NanoMenu::loadPs3BootPlate(const char* name) {
     return uploadRGBA(px.data(), w, h);
 }
 
+// Framework/SystemUI vector icons, rasterised to mono-white silhouettes and
+// shipped in /system/etc/nano_xmb/icons_ui/. They occupy the icon-index range at
+// or above kUiIconBase and are glass-relit at runtime by bevelFromRGBA - the same
+// path the console icons use - so they share the exact glass look. Assess the
+// menu item's meaning before assigning one (they are generic UI concepts).
+static const int kUiIconBase = 70;
+static const char* uiIconName(int idx) {
+    switch (idx) {
+        case 70: return "rotate";      // Screen Orientation (auto-rotate arrows)
+        case 71: return "bell";        // Notifications
+        case 72: return "lock";        // Security
+        case 73: return "brightness";  // Screen Brightness
+        case 74: return "gear";        // System Settings / Quick Settings
+        case 75: return "sdcard";      // Memory Card Utility
+        case 76: return "usb";         // Accessory Settings
+        case 77: return "power";       // spare power glyph
+        case 78: return "bug";         // Developer Options
+        case 79: return "palette";     // Theme Settings
+        case 80: return "bulb";        // GammaRGB (LED lighting)
+        case 81: return "bolt";        // Performance Mode
+        case 82: return "clear";       // Kill All Apps (close/clear tile)
+        case 83: return "logout";      // Close Current App (exit door)
+        case 84: return "layers";      // Kill Background Apps (stacked cards)
+        case 85: return "wifi";        // Quick Settings: Wi-Fi
+        case 86: return "bluetooth";   // Quick Settings: Bluetooth
+        case 87: return "present";     // Quick Settings: External as Primary
+        case 88: return "fullscreen";  // Quick Settings: Immersive Mode
+        case 89: return "moon";        // Quick Settings: Deep Sleep Mode
+        case 90: return "landscape";   // Screen Orientation: Landscape
+        case 91: return "portrait";    // Screen Orientation: Portrait
+        default: return nullptr;
+    }
+}
+
 GLuint NanoMenu::nmapForIcon(int iconIndex) {
     if (iconIndex < 0) return 0;
     auto it = mPs3NmapByIcon.find(iconIndex);
     if (it != mPs3NmapByIcon.end()) return it->second;
-    char file[32];
-    snprintf(file, sizeof(file), "nmap_%03d.png", iconIndex);
-    GLuint tex = loadPs3NmapTex(file);
+    GLuint tex = 0;
+    if (iconIndex >= kUiIconBase) {
+        // Framework UI icon: decode the mono silhouette and bevel it at runtime so
+        // it is relit identically to the console icons (dev override first).
+        const char* name = uiIconName(iconIndex);
+        if (name) {
+            char path[256];
+            std::vector<uint8_t> px; int w = 0, h = 0;
+            snprintf(path, sizeof(path), "/data/system/nano_xmb/icons_ui/%s.png", name);
+            bool ok = decodeRGBA(path, nullptr, 0, &w, &h, &px, true);
+            if (!ok) {
+                snprintf(path, sizeof(path), "/system/etc/nano_xmb/icons_ui/%s.png", name);
+                ok = decodeRGBA(path, nullptr, 0, &w, &h, &px, true);
+            }
+            if (ok && w >= 4 && h >= 4) tex = bevelFromRGBA(px.data(), w, h);
+        }
+    } else {
+        char file[32];
+        snprintf(file, sizeof(file), "nmap_%03d.png", iconIndex);
+        tex = loadPs3NmapTex(file);
+    }
     mPs3NmapByIcon[iconIndex] = tex;   // cache even 0 so we do not retry every frame
     return tex;
 }
