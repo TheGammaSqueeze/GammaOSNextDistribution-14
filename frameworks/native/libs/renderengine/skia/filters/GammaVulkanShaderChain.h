@@ -239,6 +239,12 @@ public:
     // Update parameter values (triggers UBO update, no recompilation needed).
     void setParam(const std::string& id, float value);
 
+    // GammaOS: advertise a lower effect source resolution (SourceSize/OriginalSize)
+    // to the shader so CRT scanlines / masks come out coarse and visible while the
+    // sampled texture stays full-res. This decouples effect density from base
+    // resolution, mirroring the GLSL chain's scanline_density control. 0 = off.
+    void setEffectSource(int w, int h) { mEffW = w; mEffH = h; }
+
     // Allocate/free a one-shot command buffer from the internal command pool.
     VkCommandBuffer allocCommandBuffer();
     void freeCommandBuffer(VkCommandBuffer cmd);
@@ -310,6 +316,9 @@ private:
     GammaVkContext mCtx = {};
     GammaSlangPreset* mPreset = nullptr;
     std::vector<VkPassResources> mPasses;
+
+    // Advertised effect source size (SourceSize/OriginalSize decouple). 0 = off.
+    int mEffW = 0, mEffH = 0;
 
     // Frame history ring buffer
     static constexpr int kMaxHistory = 8;

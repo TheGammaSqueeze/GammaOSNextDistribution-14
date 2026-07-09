@@ -199,6 +199,9 @@ cc_library_static {
         "src/codec/SkMaskSwizzler.cpp",
         "src/codec/SkParseEncodedOrigin.cpp",
         "src/codec/SkPixmapUtils.cpp",
+        // GammaOS: PNG codec for GammaShader .glslp LUT textures (bezels/masks).
+        // Enabled via SK_CODEC_DECODES_PNG in renderengine's SkUserConfig.h.
+        "src/codec/SkPngCodec.cpp",
         "src/codec/SkSampledCodec.cpp",
         "src/codec/SkSampler.cpp",
         "src/codec/SkSwizzler.cpp",

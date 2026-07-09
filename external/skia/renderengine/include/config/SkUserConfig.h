@@ -15,6 +15,17 @@
 #define SK_CODEC_DECODES_BMP
 #endif
 
+// GammaOS: enable the PNG codec in the RenderEngine Skia variant so the
+// GammaShader GL chain can decode .glslp LUT textures (CRT bezels / phosphor
+// masks / overlays). libpng is already in skia_renderengine_deps and the
+// palette/swizzler sources are already compiled; this pairs with adding
+// src/codec/SkPngCodec.cpp to libskia_renderengine in Android.bp. (This file is
+// normally gn-generated; re-running gn_to_bp.py would drop this - keep both
+// changes together.)
+#ifndef SK_CODEC_DECODES_PNG
+#define SK_CODEC_DECODES_PNG
+#endif
+
 #ifndef SK_CODEC_DECODES_WBMP
 #define SK_CODEC_DECODES_WBMP
 #endif

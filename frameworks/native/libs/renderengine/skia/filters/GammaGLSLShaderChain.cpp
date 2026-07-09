@@ -25,7 +25,9 @@
 
 #include <SkCanvas.h>
 #include <SkColorSpace.h>
+#include <SkData.h>
 #include <SkImage.h>
+#include <SkImageInfo.h>
 #include <SkPaint.h>
 #include <SkRect.h>
 
@@ -124,9 +126,24 @@ struct GLSLPassDef {
     std::string wrapMode = "clamp_to_border";
 };
 
+// A .glslp LUT texture (bezel / mask / overlay PNG). RetroArch presets declare
+// them via `textures = name1;name2`, then `<name> = path`, `<name>_linear`,
+// `<name>_wrap_mode`, `<name>_mipmap`. The shader samples them through a
+// `uniform sampler2D <name>` and may read `<name>Size`. Without loading them the
+// sampler defaults to texture unit 0 (the Source), which for bezel shaders like
+// crt-Cyclon paints a grey overlay over the whole frame.
+struct GLSLTexture {
+    std::string name;
+    std::string path;
+    bool linear = true;
+    bool mipmap = false;
+    std::string wrapMode = "clamp_to_border";
+};
+
 struct GLSLPreset {
     std::vector<GLSLPassDef> passes;
     std::vector<GLSLParam> params;
+    std::vector<GLSLTexture> textures;
 };
 
 static bool parseGLSLPreset(const std::string& path, GLSLPreset& out) {
@@ -155,6 +172,22 @@ static bool parseGLSLPreset(const std::string& path, GLSLPreset& out) {
 
         if (key == "shaders") {
             numShaders = std::atoi(val.c_str());
+        } else if (key == "textures") {
+            // Semicolon-separated list of LUT names, e.g. "bezel;overlay".
+            std::string list = val;
+            size_t pos = 0;
+            while (pos <= list.size()) {
+                size_t sep = list.find_first_of(";:", pos);
+                std::string name = trim(list.substr(
+                        pos, sep == std::string::npos ? std::string::npos : sep - pos));
+                if (!name.empty()) {
+                    GLSLTexture t;
+                    t.name = name;
+                    out.textures.push_back(t);
+                }
+                if (sep == std::string::npos) break;
+                pos = sep + 1;
+            }
         }
     }
 
@@ -211,6 +244,21 @@ static bool parseGLSLPreset(const std::string& path, GLSLPreset& out) {
                 out.passes[i].mipmapInput = (val == "true" || val == "1");
             } else if (key == "wrap_mode" + idx) {
                 out.passes[i].wrapMode = val;
+            }
+        }
+
+        // LUT texture keys: "<name>" = path, "<name>_linear", "<name>_wrap_mode",
+        // "<name>_mipmap". Matched against the names collected from "textures".
+        for (auto& tex : out.textures) {
+            if (key == tex.name) {
+                tex.path = resolvePath(baseDir, val);
+            } else if (key == tex.name + "_linear") {
+                tex.linear = (val == "true" || val == "1");
+            } else if (key == tex.name + "_wrap_mode") {
+                tex.wrapMode = val;
+            } else if (key == tex.name + "_mipmap" ||
+                       key == tex.name + "_mipmap_input") {
+                tex.mipmap = (val == "true" || val == "1");
             }
         }
     }
@@ -470,6 +518,10 @@ struct GLSLPassState {
     // Param uniform locations
     std::vector<GLint> paramLocs;
 
+    // LUT sampler + size locations (parallel to GLSLChainState::luts)
+    std::vector<GLint> lutLocs;
+    std::vector<GLint> lutSizeLocs;
+
     GLSLPassState() {
         for (auto& v : locPassTexture) v = -1;
         for (auto& v : locPassTextureSize) v = -1;
@@ -480,8 +532,16 @@ struct GLSLPassState {
     }
 };
 
+struct LoadedLut {
+    std::string name;
+    GLuint tex = 0;
+    int w = 0, h = 0;
+    bool owned = false;   // false for the shared transparent fallback
+};
+
 struct GLSLChainState {
     std::vector<GLSLPassState> passes;
+    std::vector<LoadedLut> luts;
     GLuint quadVBO = 0;
     GLuint quadVAO = 0;
     bool valid = false;
@@ -495,6 +555,9 @@ struct GLSLChainState {
             if (p.outTexture) glDeleteTextures(1, &p.outTexture);
         }
         passes.clear();
+        for (auto& l : luts)
+            if (l.owned && l.tex) glDeleteTextures(1, &l.tex);
+        luts.clear();
         if (quadVAO) glDeleteVertexArrays(1, &quadVAO);
         quadVAO = 0;
         if (quadVBO) glDeleteBuffers(1, &quadVBO);
@@ -525,6 +588,9 @@ static struct {
     std::string type;
     std::string presetPath;
     std::string resScaleStr;
+    std::string scanDensityStr;
+    std::string orientStr;
+    int installOrientDeg = -1;   // read once from the read-only install prop
     uint32_t callCount = 0;
     uint32_t lastRefreshCall = 0;
     bool bootCompleted = false;
@@ -538,6 +604,20 @@ static struct {
         type = GetProperty("persist.gammaos.shader.type", "crt-simple");
         presetPath = GetProperty("persist.gammaos.shader.custom.preset", "");
         resScaleStr = GetProperty("persist.gammaos.shader.custom.res_scale", "auto");
+        scanDensityStr = GetProperty("persist.gammaos.shader.custom.scanline_density", "auto");
+        orientStr = GetProperty("persist.gammaos.shader.orient", "auto");
+        if (installOrientDeg < 0) {
+            // SurfaceFlinger bakes the panel install rotation into the composited
+            // framebuffer this post-process runs on, so a CRT/LCD shader's scanline
+            // axis comes out rotated with it. Read the install orientation once so
+            // the chain can rotate the frame to an upright logical space, run the
+            // effect there, then rotate the result back to the panel.
+            std::string o = GetProperty("ro.surface_flinger.primary_display_orientation", "");
+            if      (o == "ORIENTATION_90")  installOrientDeg = 90;
+            else if (o == "ORIENTATION_180") installOrientDeg = 180;
+            else if (o == "ORIENTATION_270") installOrientDeg = 270;
+            else                             installOrientDeg = 0;
+        }
         if (!bootCompleted)
             bootCompleted = GetBoolProperty("sys.boot_completed", false);
     }
@@ -586,6 +666,70 @@ static bool isLowResPreset(const std::string& type, const std::string& presetPat
         "handheld", "lcd", "dot-matrix", "gameboy", "dmg", "gba", "gbc"};
     for (auto* k : kLowRes) if (s.find(k) != std::string::npos) return true;
     return false;
+}
+
+// The 8 axis-aligned dihedral maps in GL bottom-left [0,1] sample space. Each
+// gives the source coord to sample for an output coord (u,v):
+//   s = (m[0][0]*u + m[0][1]*v + m[0][2],  m[1][0]*u + m[1][1]*v + m[1][2])
+// `swap` marks the maps that exchange the width/height axes (the rotations by
+// 90/270 and the two transposes). Index 0 is identity.
+struct Dihedral { float m[2][3]; bool swap; };
+static const Dihedral kDihedral[8] = {
+    /*0 identity     */ {{{1, 0, 0}, {0, 1, 0}}, false},
+    /*1 rot90        */ {{{0, 1, 0}, {-1, 0, 1}}, true},
+    /*2 rot180       */ {{{-1, 0, 1}, {0, -1, 1}}, false},
+    /*3 rot270       */ {{{0, -1, 1}, {1, 0, 0}}, true},
+    /*4 flipV        */ {{{1, 0, 0}, {0, -1, 1}}, false},
+    /*5 flipH        */ {{{-1, 0, 1}, {0, 1, 0}}, false},
+    /*6 transpose    */ {{{0, 1, 0}, {1, 0, 0}}, true},
+    /*7 antitranspose*/ {{{0, -1, 1}, {-1, 0, 1}}, true},
+};
+// Inverse index for the post-pass (rotations 90<->270 pair; reflections are
+// self-inverse), so the logical->panel pass exactly undoes the panel->logical one.
+static const int kDihedralInv[8] = {0, 3, 2, 1, 4, 5, 6, 7};
+
+// Resolve the panel->logical dihedral index the chain must apply so it operates
+// in an upright logical space. "auto" follows the panel install orientation;
+// an explicit value overrides it (tuning / panels whose scanout convention
+// differs). Index 0 is a bit-exact no-op (the common non-rotated display).
+static int resolveOrientIndex(const std::string& orientStr, int installDeg) {
+    if (orientStr == "0")             return 0;
+    if (orientStr == "90")            return 1;
+    if (orientStr == "180")           return 2;
+    if (orientStr == "270")           return 3;
+    if (orientStr == "flipv")         return 4;
+    if (orientStr == "fliph")         return 5;
+    if (orientStr == "transpose")     return 6;
+    if (orientStr == "antitranspose") return 7;
+    // "auto" / anything else -> panel install orientation
+    int d = ((installDeg % 360) + 360) % 360;
+    if (d == 90)  return 1;
+    if (d == 180) return 2;
+    if (d == 270) return 3;
+    return 0;
+}
+
+// Decouple the advertised effect resolution (what the shader thinks the source
+// raster is, which drives scanline/beam/grid density) from the physical base
+// resolution (res_scale, which drives content sharpness and cost). A CRT/LCD
+// preset draws its scanlines as a function of InputSize.y over the display
+// height, so a lower advertised height yields fewer, thicker, more visible
+// scanlines while the actual sampled texture stays sharp. Target a fixed
+// scanline PERIOD in output pixels so the look is consistent across panel
+// resolutions. outH is the logical display (output) height the last pass runs
+// at. Returns the advertised effect height, or 0 for "no decouple".
+static int computeEffectHeight(const std::string& densityStr, int outH) {
+    float periodPx;
+    if      (densityStr == "off")    return 0;
+    else if (densityStr == "fine")   periodPx = 4.5f;
+    else if (densityStr == "coarse") periodPx = 8.0f;
+    else                             periodPx = 6.0f;  // "auto" / "medium"
+    int effH = (int)(outH / periodPx + 0.5f);
+    // Keep it visible but under 400 lines - the cutoff easymode/geom use to
+    // disable their scanline/interlace branches on hi-res sources.
+    if (effH < 64)  effH = 64;
+    if (effH > 384) effH = 384;
+    return effH;
 }
 
 static GLuint downscaleTexture(GLuint srcTex, int srcW, int srcH,
@@ -660,6 +804,194 @@ static GLuint downscaleTexture(GLuint srcTex, int srcW, int srcH,
     glDisableVertexAttribArray(0);
 
     return sDownscale.texture;
+}
+
+// ---------------------------------------------------------------------------
+// Orientation rotation (undo the panel install rotation for the chain)
+// ---------------------------------------------------------------------------
+//
+// The composited frame this post-process runs on already has the panel install
+// rotation baked in, so a CRT scanline drawn along the chain's Y axis lands on
+// the panel's physical Y and appears rotated to the viewer. We rotate the frame
+// into upright logical space before the chain (the panel->logical dihedral) and
+// rotate the result back to panel space after (its inverse). The transform is a
+// pure axis-aligned reorientation, sampled NEAREST so scanlines stay pixel-crisp
+// through the round trip.
+//
+// Sampling is in GL bottom-left [0,1] space, using the kDihedral maps above.
+// (Validated on a 270 install: reconstructing logical from the panel dump gave
+//  a mean pixel error of 0.05.)
+struct OrientState {
+    GLuint fbo = 0;
+    GLuint texture = 0;
+    int width = 0, height = 0;
+};
+static OrientState sOrientPre, sOrientPost;
+static struct {
+    GLuint program = 0;
+    GLint locTex = -1, locRow0 = -1, locRow1 = -1;
+} sOrient;
+
+static GLuint orientTexture(OrientState& st, GLuint srcTex, int dihedralIdx,
+                             int dstW, int dstH) {
+    if (!sOrient.program) {
+        const char* vs =
+            "#version 300 es\n"
+            "in vec2 aPos;\n"
+            "out vec2 vUV;\n"
+            "void main(){\n"
+            "  vUV = aPos * 0.5 + 0.5;\n"
+            "  gl_Position = vec4(aPos, 0.0, 1.0);\n"
+            "}\n";
+        const char* fs =
+            "#version 300 es\n"
+            "precision highp float;\n"
+            "uniform sampler2D uTex;\n"
+            "uniform vec3 uRow0;\n"
+            "uniform vec3 uRow1;\n"
+            "in vec2 vUV;\n"
+            "out vec4 fragColor;\n"
+            "void main(){\n"
+            "  vec2 s = vec2(dot(uRow0.xy, vUV) + uRow0.z,\n"
+            "                dot(uRow1.xy, vUV) + uRow1.z);\n"
+            "  fragColor = texture(uTex, s);\n"
+            "  fragColor.a = 1.0;\n"
+            "}\n";
+        GLuint vsh = compileShader(GL_VERTEX_SHADER, vs);
+        GLuint fsh = compileShader(GL_FRAGMENT_SHADER, fs);
+        if (!vsh || !fsh) { glDeleteShader(vsh); glDeleteShader(fsh); return 0; }
+        sOrient.program = glCreateProgram();
+        glAttachShader(sOrient.program, vsh);
+        glAttachShader(sOrient.program, fsh);
+        glBindAttribLocation(sOrient.program, 0, "aPos");
+        glLinkProgram(sOrient.program);
+        glDeleteShader(vsh);
+        glDeleteShader(fsh);
+        sOrient.locTex = glGetUniformLocation(sOrient.program, "uTex");
+        sOrient.locRow0 = glGetUniformLocation(sOrient.program, "uRow0");
+        sOrient.locRow1 = glGetUniformLocation(sOrient.program, "uRow1");
+    }
+
+    if (st.width != dstW || st.height != dstH) {
+        if (st.fbo) glDeleteFramebuffers(1, &st.fbo);
+        if (st.texture) glDeleteTextures(1, &st.texture);
+        glGenTextures(1, &st.texture);
+        glBindTexture(GL_TEXTURE_2D, st.texture);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, dstW, dstH, 0,
+                     GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glGenFramebuffers(1, &st.fbo);
+        glBindFramebuffer(GL_FRAMEBUFFER, st.fbo);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+                               GL_TEXTURE_2D, st.texture, 0);
+        st.width = dstW;
+        st.height = dstH;
+    }
+
+    int di = (dihedralIdx >= 0 && dihedralIdx < 8) ? dihedralIdx : 0;
+    const float* r0 = kDihedral[di].m[0];
+    const float* r1 = kDihedral[di].m[1];
+
+    glBindFramebuffer(GL_FRAMEBUFFER, st.fbo);
+    glViewport(0, 0, dstW, dstH);
+    glUseProgram(sOrient.program);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, srcTex);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glUniform1i(sOrient.locTex, 0);
+    glUniform3fv(sOrient.locRow0, 1, r0);
+    glUniform3fv(sOrient.locRow1, 1, r1);
+    glDisable(GL_BLEND);
+    glDisable(GL_DEPTH_TEST);
+
+    float tri[] = { -1,-1, 3,-1, -1,3 };
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, tri);
+    glDrawArrays(GL_TRIANGLES, 0, 3);
+    glDisableVertexAttribArray(0);
+
+    return st.texture;
+}
+
+// ---------------------------------------------------------------------------
+// LUT texture loading (.glslp `textures =` bezels / masks / overlays)
+// ---------------------------------------------------------------------------
+
+static GLint lutWrapMode(const std::string& w) {
+    if (w == "repeat") return GL_REPEAT;
+    if (w == "mirrored_repeat") return GL_MIRRORED_REPEAT;
+    // GLES has no CLAMP_TO_BORDER; both clamp modes fall back to CLAMP_TO_EDGE.
+    return GL_CLAMP_TO_EDGE;
+}
+
+// A 1x1 fully-transparent texture bound in place of a LUT that failed to load,
+// so a bezel/mask sampler returns (0,0,0,0) - the shader's bezel/mask code then
+// no-ops instead of painting a grey overlay from the default unit-0 binding.
+static GLuint sTransparentLut = 0;
+static GLuint transparentLutTexture() {
+    if (!sTransparentLut) {
+        const uint8_t zero[4] = {0, 0, 0, 0};
+        glGenTextures(1, &sTransparentLut);
+        glBindTexture(GL_TEXTURE_2D, sTransparentLut);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, zero);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    }
+    return sTransparentLut;
+}
+
+// Decode a PNG/JPG LUT into a GL texture via Skia (available in RenderEngine's
+// context). Returns 0 on failure. Flips vertically so the LUT sits upright in
+// the chain's bottom-left [0,1] sample space (same as the Source).
+static GLuint loadLutTexture(const std::string& path, bool linear,
+                              const std::string& wrapMode, bool mipmap,
+                              int& outW, int& outH) {
+    std::string p = normalizeStoragePath(path);
+    sk_sp<SkData> data = SkData::MakeFromFileName(p.c_str());
+    if (!data) { ALOGE("GammaGLShader: LUT not found '%s'", p.c_str()); return 0; }
+    sk_sp<SkImage> img = SkImages::DeferredFromEncodedData(data);
+    if (!img) { ALOGE("GammaGLShader: LUT decode failed '%s'", p.c_str()); return 0; }
+    int w = img->width(), h = img->height();
+    if (w <= 0 || h <= 0 || w > 8192 || h > 8192) return 0;
+    SkImageInfo info = SkImageInfo::Make(w, h, kRGBA_8888_SkColorType,
+                                         kUnpremul_SkAlphaType);
+    size_t rb = (size_t)w * 4;
+    std::vector<uint8_t> pixels(rb * h);
+    if (!img->readPixels(nullptr, info, pixels.data(), rb, 0, 0)) {
+        ALOGE("GammaGLShader: LUT readPixels failed '%s'", p.c_str());
+        return 0;
+    }
+    std::vector<uint8_t> flipped(rb * h);
+    for (int y = 0; y < h; y++)
+        memcpy(&flipped[(size_t)(h - 1 - y) * rb], &pixels[(size_t)y * rb], rb);
+
+    GLuint tex = 0;
+    glGenTextures(1, &tex);
+    glBindTexture(GL_TEXTURE_2D, tex);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, w, h, 0, GL_RGBA,
+                 GL_UNSIGNED_BYTE, flipped.data());
+    GLint wrap = lutWrapMode(wrapMode);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap);
+    GLenum magf = linear ? GL_LINEAR : GL_NEAREST;
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magf);
+    if (mipmap) {
+        glGenerateMipmap(GL_TEXTURE_2D);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+                        linear ? GL_LINEAR_MIPMAP_LINEAR : GL_NEAREST_MIPMAP_NEAREST);
+    } else {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, magf);
+    }
+    outW = w;
+    outH = h;
+    ALOGI("GammaGLShader: loaded LUT '%s' %dx%d", p.c_str(), w, h);
+    return tex;
 }
 
 // ---------------------------------------------------------------------------
@@ -823,6 +1155,25 @@ static bool initChain(GLSLPreset& preset, int viewW, int viewH) {
     }
     sChain.passes.resize(numPasses);
 
+    // Load .glslp LUT textures (bezels / masks / overlays) once for the chain.
+    // A LUT that fails to load falls back to a shared transparent texture so its
+    // sampler returns (0,0,0,0) instead of the default unit-0 (Source) binding.
+    for (auto& t : preset.textures) {
+        LoadedLut lut;
+        lut.name = t.name;
+        int lw = 0, lh = 0;
+        GLuint tex = t.path.empty() ? 0
+                   : loadLutTexture(t.path, t.linear, t.wrapMode, t.mipmap, lw, lh);
+        if (tex) {
+            lut.tex = tex; lut.w = lw; lut.h = lh; lut.owned = true;
+        } else {
+            lut.tex = transparentLutTexture(); lut.w = 1; lut.h = 1; lut.owned = false;
+            ALOGW("GammaGLShader: LUT '%s' unavailable, using transparent fallback",
+                  t.name.c_str());
+        }
+        sChain.luts.push_back(lut);
+    }
+
     int prevW = viewW, prevH = viewH;  // source size starts as view size
 
     for (int i = 0; i < numPasses; i++) {
@@ -886,6 +1237,16 @@ static bool initChain(GLSLPreset& preset, int viewW, int viewH) {
         for (int j = 0; j < (int)preset.params.size(); j++) {
             gl.paramLocs[j] = glGetUniformLocation(gl.program,
                     preset.params[j].id.c_str());
+        }
+
+        // LUT sampler + size locations (sampler2D <name>, uniform vec2 <name>Size)
+        gl.lutLocs.resize(sChain.luts.size(), -1);
+        gl.lutSizeLocs.resize(sChain.luts.size(), -1);
+        for (int j = 0; j < (int)sChain.luts.size(); j++) {
+            gl.lutLocs[j] = glGetUniformLocation(gl.program,
+                    sChain.luts[j].name.c_str());
+            gl.lutSizeLocs[j] = glGetUniformLocation(gl.program,
+                    (sChain.luts[j].name + "Size").c_str());
         }
 
         gl.filterLinear = def.filterLinear;
@@ -1017,6 +1378,17 @@ static bool renderChain(GLuint srcTexture, int srcW, int srcH,
         if (gl.locInputSize >= 0)
             glUniform2f(gl.locInputSize, (float)currentW, (float)currentH);
 
+        // Original (pass-0 source) sizes. These are semantic metadata, not tied
+        // to the OrigTexture sampler: many shaders (e.g. handheld/dot) use
+        // OrigInputSize/OrigTextureSize purely in coordinate math and never bind
+        // the sampler, so they must be uploaded unconditionally. Leaving them at
+        // the default 0 makes 1.0/OrigInputSize divide by zero -> NaN coords ->
+        // a flat (uniform) frame. srcW/srcH are the advertised source dims.
+        if (gl.locOrigTextureSize >= 0)
+            glUniform2f(gl.locOrigTextureSize, (float)srcW, (float)srcH);
+        if (gl.locOrigInputSize >= 0)
+            glUniform2f(gl.locOrigInputSize, (float)srcW, (float)srcH);
+
         int fc = frameCount;
         if (def.frameCountMod > 0) fc = fc % def.frameCountMod;
         if (gl.locFrameCount >= 0) glUniform1i(gl.locFrameCount, fc);
@@ -1045,69 +1417,73 @@ static bool renderChain(GLuint srcTexture, int srcW, int srcH,
             texUnit++;
         }
 
-        // Original texture (pass 0 source)
+        // Original texture (pass 0 source). Only the sampler binding is gated on
+        // its location; the Orig* sizes are uploaded unconditionally above.
         if (gl.locOrigTexture >= 0) {
             glActiveTexture(GL_TEXTURE0 + texUnit);
             glBindTexture(GL_TEXTURE_2D, srcTexture);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
             glUniform1i(gl.locOrigTexture, texUnit);
-            if (gl.locOrigTextureSize >= 0)
-                glUniform2f(gl.locOrigTextureSize, (float)srcW, (float)srcH);
-            if (gl.locOrigInputSize >= 0)
-                glUniform2f(gl.locOrigInputSize, (float)srcW, (float)srcH);
             texUnit++;
         }
 
-        // Previous pass output textures (absolute: PassNTexture)
+        // Previous pass output textures (absolute: PassNTexture). Sizes are
+        // uploaded whenever referenced (a shader may use PassNInputSize in math
+        // without sampling PassNTexture); only the sampler binding needs a unit.
         for (int j = 0; j < 16 && j < i; j++) {
+            if (gl.locPassTextureSize[j] >= 0)
+                glUniform2f(gl.locPassTextureSize[j],
+                            (float)sChain.passes[j].width,
+                            (float)sChain.passes[j].height);
+            if (gl.locPassInputSize[j] >= 0)
+                glUniform2f(gl.locPassInputSize[j],
+                            (float)sChain.passes[j].width,
+                            (float)sChain.passes[j].height);
             if (gl.locPassTexture[j] >= 0) {
                 glActiveTexture(GL_TEXTURE0 + texUnit);
                 glBindTexture(GL_TEXTURE_2D, sChain.passes[j].outTexture);
                 glUniform1i(gl.locPassTexture[j], texUnit);
-                if (gl.locPassTextureSize[j] >= 0)
-                    glUniform2f(gl.locPassTextureSize[j],
-                                (float)sChain.passes[j].width,
-                                (float)sChain.passes[j].height);
-                if (gl.locPassInputSize[j] >= 0)
-                    glUniform2f(gl.locPassInputSize[j],
-                                (float)sChain.passes[j].width,
-                                (float)sChain.passes[j].height);
                 texUnit++;
             }
         }
 
         // PassPrevN texture samplers (relative: PassPrevN = pass[i - N])
         // PassPrev1 = previous pass (i-1), PassPrev2 = i-2, etc.
-        // When i-N < 0, bind original source texture.
+        // When i-N < 0, reference the original source texture. Sizes uploaded
+        // unconditionally (as above); only the sampler binding needs a unit.
         for (int j = 1; j <= 15; j++) {
+            int refPass = i - j;
+            float refW = (refPass >= 0) ? (float)sChain.passes[refPass].width
+                                        : (float)srcW;
+            float refH = (refPass >= 0) ? (float)sChain.passes[refPass].height
+                                        : (float)srcH;
+            if (gl.locPassPrevTextureSize[j] >= 0)
+                glUniform2f(gl.locPassPrevTextureSize[j], refW, refH);
+            if (gl.locPassPrevInputSize[j] >= 0)
+                glUniform2f(gl.locPassPrevInputSize[j], refW, refH);
             if (gl.locPassPrevTexture[j] >= 0) {
-                int refPass = i - j;
                 glActiveTexture(GL_TEXTURE0 + texUnit);
-                if (refPass >= 0) {
-                    glBindTexture(GL_TEXTURE_2D, sChain.passes[refPass].outTexture);
-                    glUniform1i(gl.locPassPrevTexture[j], texUnit);
-                    if (gl.locPassPrevTextureSize[j] >= 0)
-                        glUniform2f(gl.locPassPrevTextureSize[j],
-                                    (float)sChain.passes[refPass].width,
-                                    (float)sChain.passes[refPass].height);
-                    if (gl.locPassPrevInputSize[j] >= 0)
-                        glUniform2f(gl.locPassPrevInputSize[j],
-                                    (float)sChain.passes[refPass].width,
-                                    (float)sChain.passes[refPass].height);
-                } else {
-                    // Reference before first pass → original source
-                    glBindTexture(GL_TEXTURE_2D, srcTexture);
-                    glUniform1i(gl.locPassPrevTexture[j], texUnit);
-                    if (gl.locPassPrevTextureSize[j] >= 0)
-                        glUniform2f(gl.locPassPrevTextureSize[j],
-                                    (float)srcW, (float)srcH);
-                    if (gl.locPassPrevInputSize[j] >= 0)
-                        glUniform2f(gl.locPassPrevInputSize[j],
-                                    (float)srcW, (float)srcH);
-                }
+                glBindTexture(GL_TEXTURE_2D, (refPass >= 0)
+                              ? sChain.passes[refPass].outTexture : srcTexture);
+                glUniform1i(gl.locPassPrevTexture[j], texUnit);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+                texUnit++;
+            }
+        }
+
+        // LUT textures (.glslp bezels / masks / overlays). Bind each to its own
+        // unit and publish <name>Size; a failed LUT holds the transparent
+        // fallback so its sampler no-ops instead of aliasing the Source.
+        for (int j = 0; j < (int)sChain.luts.size(); j++) {
+            if (gl.lutSizeLocs[j] >= 0)
+                glUniform2f(gl.lutSizeLocs[j],
+                            (float)sChain.luts[j].w, (float)sChain.luts[j].h);
+            if (gl.lutLocs[j] >= 0) {
+                glActiveTexture(GL_TEXTURE0 + texUnit);
+                glBindTexture(GL_TEXTURE_2D, sChain.luts[j].tex);
+                glUniform1i(gl.lutLocs[j], texUnit);
                 texUnit++;
             }
         }
@@ -1307,6 +1683,36 @@ bool GammaGLSLShaderChain::apply(SkSurface* dstSurface,
         }
     }
 
+    // Undo the panel install rotation so the whole chain runs in an upright
+    // logical space. SurfaceFlinger has already baked the install orientation
+    // into the composited frame we post-process, so a scanline drawn along the
+    // chain's Y axis lands on the panel's physical Y and reads rotated to the
+    // viewer. We rotate the frame to logical here, run the effect, then rotate
+    // the result back to the panel just before presenting. Index 0 (identity)
+    // is a bit-exact no-op (the common non-rotated display).
+    int orientIdx = resolveOrientIndex(sPropCache.orientStr, sPropCache.installOrientDeg);
+    bool axesSwap = kDihedral[orientIdx].swap;
+    // The install rotation only needs undoing on the PHYSICAL panel target, which
+    // a 90/270 install makes portrait (dstH > dstW). Other RenderEngine targets -
+    // notably the logical, already-upright landscape screenshot / virtual-display
+    // used by screencap and screenrecord - must NOT be rotated, or the effect
+    // comes out mis-oriented there while the panel is correct. Skip the rotation
+    // for a non-portrait target under a swap install (identity fast-path).
+    if (axesSwap && dstW >= dstH) { orientIdx = 0; axesSwap = false; }
+    int viewW = dstW, viewH = dstH;   // logical dims the chain and its passes run at
+    if (axesSwap) { viewW = dstH; viewH = dstW; }
+    int baseW = srcW, baseH = srcH;   // source dims feeding the chain
+    if (orientIdx != 0) {
+        GLuint rotated = orientTexture(sOrientPre, srcTex, orientIdx, viewW, viewH);
+        if (rotated) {
+            srcTex = rotated;
+            baseW = viewW;
+            baseH = viewH;
+        } else {
+            orientIdx = 0;  // rotation setup failed - fall back to the unrotated path
+        }
+    }
+
     // res_scale = base render resolution: physically downscale the composite to a
     // low "source" before the shader chain.
     //
@@ -1322,7 +1728,7 @@ bool GammaGLSLShaderChain::apply(SkSurface* dstSurface,
     const std::string& resScaleStr = sPropCache.resScaleStr;
     sResScale = parseResScale(resScaleStr);
 
-    int chainSrcW = srcW, chainSrcH = srcH;
+    int chainSrcW = baseW, chainSrcH = baseH;
     {
         // "auto" (default): CRT / handheld-LCD presets get ~240 active lines
         // (visible + fast out of the box), everything else stays full. "full":
@@ -1330,7 +1736,7 @@ bool GammaGLSLShaderChain::apply(SkSurface* dstSurface,
         // CRT). A fraction: that fraction of the display height. "full" parses to
         // sResScale = 1.0 so it naturally skips the downscale below.
         bool isAuto = resScaleStr.empty() || resScaleStr == "auto";
-        int targetH = srcH;
+        int targetH = baseH;
         if (isAuto) {
             // Auto uses a resolution-adaptive base-resolution fraction for CRT/LCD
             // presets: a gentle 1/2 on ~480-line panels sliding down to 1/4 on
@@ -1340,17 +1746,17 @@ bool GammaGLSLShaderChain::apply(SkSurface* dstSurface,
             // their effect off, so those keep working on any panel. Anchors:
             // 640x480 -> ~240 lines (1/2), 1080p -> ~270 (1/4), 1080x1920 -> 384.
             if (isLowResPreset(sPropCache.type, sPropCache.presetPath)) {
-                float frac = (srcH <= 480)       ? 0.5f
-                           : (srcH >= 1080)      ? 0.25f
-                           : 0.5f + (float)(srcH - 480) * (0.25f - 0.5f) / (1080.0f - 480.0f);
-                targetH = std::min(384, std::max(1, (int)(srcH * frac + 0.5f)));
+                float frac = (baseH <= 480)       ? 0.5f
+                           : (baseH >= 1080)      ? 0.25f
+                           : 0.5f + (float)(baseH - 480) * (0.25f - 0.5f) / (1080.0f - 480.0f);
+                targetH = std::min(384, std::max(1, (int)(baseH * frac + 0.5f)));
             }
         } else if (sResScale < 1.0f) {
-            targetH = std::max(1, (int)(srcH * sResScale + 0.5f));
+            targetH = std::max(1, (int)(baseH * sResScale + 0.5f));
         }
-        if (targetH < srcH) {
-            int targetW = std::max(1, (int)((double)targetH * srcW / srcH + 0.5));
-            GLuint scaled = downscaleTexture(srcTex, srcW, srcH, targetW, targetH);
+        if (targetH < baseH) {
+            int targetW = std::max(1, (int)((double)targetH * baseW / baseH + 0.5));
+            GLuint scaled = downscaleTexture(srcTex, baseW, baseH, targetW, targetH);
             if (scaled) {
                 srcTex = scaled;
                 chainSrcW = targetW;
@@ -1359,7 +1765,7 @@ bool GammaGLSLShaderChain::apply(SkSurface* dstSurface,
                     static bool sLoggedScale = false;
                     if (!sLoggedScale) {
                         ALOGD("GammaGLShader: res_scale=%s src %dx%d -> %dx%d",
-                              resScaleStr.c_str(), srcW, srcH, targetW, targetH);
+                              resScaleStr.c_str(), baseW, baseH, targetW, targetH);
                         sLoggedScale = true;
                     }
                 }
@@ -1367,12 +1773,40 @@ bool GammaGLSLShaderChain::apply(SkSurface* dstSurface,
         }
     }
 
-    // Initialize chain if needed. Pass sizes come from the display dims and the
-    // source size feeds a per-frame uniform, so a res_scale change needs no
-    // chain rebuild (downscaleTexture resizes its own FBO on demand).
+    // Decouple the advertised effect resolution from the physical base
+    // resolution. res_scale (above) sets how sharp the content is and how much
+    // the chain costs; the "scanline_density" knob sets how coarse the effect
+    // looks. We advertise a lower source height (InputSize/TextureSize) to the
+    // shader so its scanlines/beam/grid come out thick and visible, while the
+    // texture we actually sample stays at the sharper res_scale resolution -
+    // "keep the base resolution but apply the effect as if it were lower". The
+    // shader samples the sharp texture over [0,1] so content detail survives;
+    // only the scanline math uses the low advertised height. Off / non-low-res
+    // presets advertise the real dims (no change).
+    int advW = chainSrcW, advH = chainSrcH;
+    if (isLowResPreset(sPropCache.type, sPropCache.presetPath)) {
+        int effH = computeEffectHeight(sPropCache.scanDensityStr, viewH);
+        if (effH > 0 && effH != chainSrcH) {
+            advH = effH;
+            advW = std::max(1, (int)((double)effH * chainSrcW / chainSrcH + 0.5));
+            if (debugLog) {
+                static bool sLoggedEff = false;
+                if (!sLoggedEff) {
+                    ALOGD("GammaGLShader: scanline_density=%s effect %dx%d over %d out lines",
+                          sPropCache.scanDensityStr.c_str(), advW, advH, viewH);
+                    sLoggedEff = true;
+                }
+            }
+        }
+    }
+
+    // Initialize chain if needed. Pass sizes come from the (logical) view dims
+    // and the source size feeds a per-frame uniform, so a res_scale or density
+    // change needs no chain rebuild (downscaleTexture resizes its own FBO on
+    // demand). viewW/viewH are the rotation-corrected logical display dims.
     if (!sChain.valid || sChain.loadedPreset != sLoadedPath ||
-        sChain.displayW != dstW || sChain.displayH != dstH) {
-        if (!initChain(sPreset, dstW, dstH)) {
+        sChain.displayW != viewW || sChain.displayH != viewH) {
+        if (!initChain(sPreset, viewW, viewH)) {
             sInitRetryCount++;
             if (sInitRetryCount >= kMaxInitRetries) {
                 ALOGE("GammaGLShader: chain init failed %d times for '%s', giving up",
@@ -1429,9 +1863,33 @@ bool GammaGLSLShaderChain::apply(SkSurface* dstSurface,
         }
     }
 
-    // Render the shader chain
-    bool renderOk = renderChain(srcTex, chainSrcW, chainSrcH, dstW, dstH,
+    // Render the shader chain (in logical space; advW/advH are the advertised
+    // effect source dims, which may be lower than the sampled texture)
+    bool renderOk = renderChain(srcTex, advW, advH, viewW, viewH,
                                  sFrameCount, sPreset);
+
+    // Rotate the chain output back to panel space before presenting. Done here,
+    // while our GL context/FBOs are still active, i.e. before resetContext().
+    GLuint finalTex = 0;
+    int outW = 0, outH = 0;
+    bool lastPassFloat = false;
+    if (renderOk) {
+        auto& lastPass = sChain.passes.back();
+        finalTex = lastPass.outTexture;
+        outW = lastPass.width;
+        outH = lastPass.height;
+        lastPassFloat = sPreset.passes.back().floatFramebuffer;
+        if (orientIdx != 0) {
+            GLuint rotated = orientTexture(sOrientPost, finalTex,
+                                           kDihedralInv[orientIdx], dstW, dstH);
+            if (rotated) {
+                finalTex = rotated;
+                outW = dstW;
+                outH = dstH;
+                lastPassFloat = false;  // orient FBO is always RGBA8
+            }
+        }
+    }
 
     // Restore Skia's FBO
     glBindFramebuffer(GL_FRAMEBUFFER, prevFBO);
@@ -1443,16 +1901,11 @@ bool GammaGLSLShaderChain::apply(SkSurface* dstSurface,
     }
 
     // Wrap output texture as SkImage and draw to destination
-    auto& lastPass = sChain.passes.back();
-    int outW = lastPass.width;
-    int outH = lastPass.height;
-
     GrGLTextureInfo outGLInfo = {};
-    outGLInfo.fID = lastPass.outTexture;
+    outGLInfo.fID = finalTex;
     outGLInfo.fTarget = GL_TEXTURE_2D;
 
     // Match the internal format used when creating the FBO texture
-    bool lastPassFloat = sPreset.passes.back().floatFramebuffer;
     outGLInfo.fFormat = lastPassFloat ? GL_RGBA16F : GL_RGBA8;
 
     GrBackendTexture outBackendTex =

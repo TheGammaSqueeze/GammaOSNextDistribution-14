@@ -41,6 +41,7 @@
 #include <sys/stat.h>
 
 #include <algorithm>
+#include <cctype>
 #include <cmath>
 #include <cstring>
 #include <fstream>
@@ -63,6 +64,37 @@ static std::string readFile(const std::string& path) {
     std::ifstream f(path);
     if (!f) return {};
     return {std::istreambuf_iterator<char>(f), std::istreambuf_iterator<char>()};
+}
+
+// GammaOS: mirror the GLSL chain's scanline-density decouple. Advertise a lower
+// effect source height so CRT scanlines/masks come out coarse and visible while
+// the sampled image stays full-res. Target a fixed scanline PERIOD in output
+// pixels (outH is the display height the last pass runs at). 0 = "off" (no
+// decouple). Only meaningful for low-native-raster presets (CRT/LCD).
+static int computeEffectHeightVk(const std::string& density, int outH) {
+    float periodPx;
+    if      (density == "off")    return 0;
+    else if (density == "fine")   periodPx = 4.5f;
+    else if (density == "coarse") periodPx = 8.0f;
+    else                          periodPx = 6.0f;   // "auto" / "medium"
+    int effH = (int)(outH / periodPx + 0.5f);
+    if (effH < 64)  effH = 64;
+    if (effH > 384) effH = 384;
+    return effH;
+}
+
+// A .slangp preset emulating a low native raster (CRT/LCD) benefits from the
+// decouple; a plain effect/upscaler should stay full-res. Detect by name.
+static bool isLowResSlangPreset(const std::string& presetPath) {
+    std::string s = presetPath;
+    for (auto& c : s) c = (char)tolower((unsigned char)c);
+    static const char* kKeys[] = {
+        "crt", "scanline", "aperture", "lottes", "geom", "easymode", "royale",
+        "ntsc", "slotmask", "dotmask", "trinitron", "hyllian", "zfast", "phosphor",
+        "cyclon", "consumer", "handheld", "lcd", "dot-matrix", "gameboy", "dmg",
+        "gba", "gbc"};
+    for (auto* k : kKeys) if (s.find(k) != std::string::npos) return true;
+    return false;
 }
 
 static std::string dirOf(const std::string& path) {
@@ -1299,12 +1331,21 @@ void GammaVulkanFilterChain::fillUBO(int passIndex, int srcW, int srcH,
         writeFloat4(base, offsets.finalViewport,
                     (float)viewW, (float)viewH,
                     1.0f / viewW, 1.0f / viewH);
+        // Decouple the advertised effect resolution from the real texture size.
+        // SourceSize for pass 0 (and OriginalSize for all passes) is the frame
+        // source, whose height drives CRT scanline / mask density. Advertising a
+        // lower value (mEffH) makes the effect coarse and visible while the
+        // sampled image stays full-res. Later passes keep their real input size.
+        int esW = srcW, esH = srcH;   // SourceSize for this pass
+        if (mEffH > 0 && passIndex == 0) { esW = mEffW; esH = mEffH; }
+        int eoW = srcW, eoH = srcH;   // OriginalSize (frame source)
+        if (mEffH > 0) { eoW = mEffW; eoH = mEffH; }
         writeFloat4(base, offsets.sourceSize,
-                    (float)srcW, (float)srcH,
-                    1.0f / srcW, 1.0f / srcH);
+                    (float)esW, (float)esH,
+                    1.0f / esW, 1.0f / esH);
         writeFloat4(base, offsets.originalSize,
-                    (float)srcW, (float)srcH,
-                    1.0f / srcW, 1.0f / srcH);
+                    (float)eoW, (float)eoH,
+                    1.0f / eoW, 1.0f / eoH);
 
         uint32_t fc = frameCount;
         auto& pass = mPreset->passes[passIndex];
@@ -2431,6 +2472,31 @@ bool GammaVulkanShaderChain::apply(SkSurface* dstSurface,
     }
 
     if (skiaVkBackend) {
+
+        // Scanline-density decouple (mirrors the GLSL chain): advertise a lower
+        // effect source height for CRT/LCD presets so scanlines/masks come out
+        // coarse and visible while the sampled image stays full-res. The chain
+        // runs at the display height (dstH), so target the period against it.
+        {
+            const std::string presetPath =
+                    GetProperty("persist.gammaos.shader.custom.preset", "");
+            int effH = 0;
+            if (isLowResSlangPreset(presetPath)) {
+                const std::string density =
+                        GetProperty("persist.gammaos.shader.custom.scanline_density", "auto");
+                effH = computeEffectHeightVk(density, dstH);
+            }
+            int effW = effH > 0 ? std::max(1, (int)((double)effH * dstW / dstH + 0.5)) : 0;
+            sChain->setEffectSource(effW, effH);
+            if (debugLog && effH > 0) {
+                static bool sLoggedEff = false;
+                if (!sLoggedEff) {
+                    ALOGD("GammaVkShader: scanline_density effect %dx%d over %d lines",
+                          effW, effH, dstH);
+                    sLoggedEff = true;
+                }
+            }
+        }
 
         // Flush Skia's pending work before we touch the VkImage
         grContext->flushAndSubmit(GrSyncCpu::kYes);
