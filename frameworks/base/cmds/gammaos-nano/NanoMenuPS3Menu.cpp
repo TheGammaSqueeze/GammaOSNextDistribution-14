@@ -639,7 +639,7 @@ void NanoMenu::buildPs3Cats() {
         qItem("Screen Brightness",   QA_BRIGHTNESS,    16);
         qItem("Performance Mode",    QA_PERFORMANCE,   21);
         qItem("Quick Settings",      QA_QUICK_SETTINGS, 21);
-        qItem("GammaShader",         QA_SHADER_MENU,    22);
+        qItem("Global Shaders",      QA_SHADER_MENU,    16);
         qItem("Notifications",       QA_NOTIFICATIONS,  16);
         qItem("Close Current App",   QA_CLOSE_APP,     24);
         // Orientation: override the FOREGROUND app's orientation live. Only shown when
@@ -887,7 +887,7 @@ const QsTileMap kQsTileMap[] = {
     {"internet",         "Wi-Fi",               nullptr,                  -1, 16},
     {"bt",               "Bluetooth",           nullptr,                  -1, 16},
     {"performance",      "Performance Mode",    nullptr,                  QA_PERFORMANCE, 21},
-    {"gammashader",      "GammaShader",         "CRT Shader",             -1, 16},
+    {"gammashader",      "Global Shaders",      "CRT Shader",             -1, 16},
     {"gammargb",         "GammaRGB",            "Effect",                 -1, 16},
     {"gammaeq",          "GammaEQ",             "Enable EQ",              -1, 16},
     // "rotation" (auto-rotate) tile intentionally omitted: orientation is controlled
@@ -6172,7 +6172,7 @@ const char* kShaderValsPath = "/data/media/0/GammaShader/.shader_params";
 // /data/user/0 symlink.
 struct GsRoot { const char* path; const char* label; };
 const GsRoot kShaderRoots[] = {
-    {"/data/media/0/GammaShader",                      "GammaShader"},
+    {"/data/media/0/GammaShader",                      "Global Shaders"},
     {"/data/data/com.retroarch.aarch64/shaders",       "RetroArch Shaders"},
     {"/data/media/0/RetroArch/config",                 "RetroArch Presets"},
 };
@@ -6359,7 +6359,7 @@ void NanoMenu::shaderRebuildOpenLevel() {
     if (mPs3Stack.empty()) return;
     Ps3Level& lvl = mPs3Stack.back();
     int s = lvl.sel;
-    if (lvl.title == "GammaShader")      buildShaderSubmenu(lvl);
+    if (lvl.title == "Global Shaders")   buildShaderSubmenu(lvl);
     else if (lvl.title == "Parameters")  buildShaderParamsSubmenu(lvl);
     else return;
     if (s >= 0 && s < (int)lvl.items.size()) lvl.sel = s;
@@ -6367,7 +6367,7 @@ void NanoMenu::shaderRebuildOpenLevel() {
 }
 
 void NanoMenu::buildShaderSubmenu(Ps3Level& out) {
-    out.items.clear(); out.sel = 0; out.title = "GammaShader"; out.screenKind = 0;
+    out.items.clear(); out.sel = 0; out.title = "Global Shaders"; out.screenKind = 0;
     std::string type = shaderCurType();
     bool custom = isCustomShaderType(type);
     auto act = [&](const char* label, int qa, const std::string& val, int icon) {
@@ -6389,6 +6389,12 @@ void NanoMenu::buildShaderSubmenu(Ps3Level& out) {
         // explicit low base resolution (lower = coarser + faster).
         act("Resolution Scale", QA_SHADER_OPT_MENU,
             std::string("persist.gammaos.shader.custom.res_scale|auto:Auto,full:Full,1/2:1/2,1/3:1/3,1/4:1/4,1/6:1/6,1/8:1/8|Resolution Scale"), 22);
+        // Scanline / effect density. Decoupled from Resolution Scale: this sets how
+        // coarse the CRT scanlines / LCD grid look (a lower advertised source height)
+        // while the content stays sharp at the Resolution Scale above. "Off" ties the
+        // effect back to the base resolution.
+        act("Scanline Density", QA_SHADER_OPT_MENU,
+            std::string("persist.gammaos.shader.custom.scanline_density|auto:Auto,fine:Fine,coarse:Coarse,off:Off|Scanline Density"), 22);
     }
     act("Parameters", QA_SHADER_PARAMS, std::string(), 22);
     // Also surface the reset at the top level so it is discoverable without
@@ -6570,7 +6576,7 @@ void NanoMenu::shaderMetaTick() {
     if (stat(kShaderMetaPath, &st) == 0 && st.st_size > 0) {
         mShaderMetaDeadlineMs = 0;
         if (!mPs3Stack.empty() &&
-            (mPs3Stack.back().title == "Parameters" || mPs3Stack.back().title == "GammaShader"))
+            (mPs3Stack.back().title == "Parameters" || mPs3Stack.back().title == "Global Shaders"))
             shaderRebuildOpenLevel();
         mDisplayDirty = true;
     }
