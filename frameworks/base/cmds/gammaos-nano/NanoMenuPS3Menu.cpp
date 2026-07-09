@@ -6668,8 +6668,12 @@ void NanoMenu::buildShaderBrowser(const std::string& path, Ps3Level& out) {
 void NanoMenu::shaderSelectPreset(const std::string& path) {
     if (path.empty()) return;
     property_set("persist.gammaos.shader.custom.preset", path.c_str());
-    // Fresh preset -> native republishes meta + clears overrides; poll for it.
+    // Fresh preset -> native republishes meta; also clear the parameter overrides
+    // so a new shader starts at its own defaults instead of inheriting a previous
+    // shader's values by matching id (e.g. a CURV/scanlines override bleeding
+    // across CRT presets and suppressing its effect).
     unlink(kShaderMetaPath);
+    unlink(kShaderValsPath);
     mShaderMetaDeadlineMs = (long)android::uptimeMillis() + 4000;
     mShaderParams.clear();
     // Stay in the file browser so the user can try shaders back to back: the chosen
