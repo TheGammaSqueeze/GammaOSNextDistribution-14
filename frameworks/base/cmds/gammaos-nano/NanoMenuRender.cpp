@@ -2200,6 +2200,9 @@ void NanoMenu::render() {
         // Bluetooth sub-screens itself when mMenuState is MENU_WIFI / MENU_BT, and
         // drives + renders the cold-boot intro when mPs3BootActive.
         renderPs3Xmb();
+        // Live controller Test / Calibration screens draw over the menu when open.
+        if (mGpTestActive) renderGamepadTest();
+        else if (mGpCalibActive) renderGamepadCalib();
         renderScrapeProgress();   // boxart-scraper progress / result modal, over the XMB
         renderOsk();
         // Overlay launch transition: fade the whole XMB to black over ~300ms so the

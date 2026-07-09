@@ -906,6 +906,29 @@ private:
     bool mStickYTriggered; // prevents repeat until stick returns to center
     bool mStickXTriggered; // prevents repeat for horizontal axis
 
+    // Gamepad Test / Calibration screens (Settings > Gamepad > Calibrate & Test).
+    // While active, pollInput mirrors every raw button/axis into these maps so the
+    // screens can visualise the live controller state.
+    bool mGpTestActive = false;    // live Test Controller screen up
+    bool mGpCalibActive = false;   // analog calibration wizard up
+    long mGpScreenOpenMs = 0;      // when the screen opened (ignore the opening press)
+    long mGpSelectDownMs = 0;      // Select held-since, for hold-to-exit
+    std::map<int,int> mGpBtn;                       // evdev button code -> value (0/1)
+    std::map<int,int> mGpAxis;                      // ABS code -> latest raw value
+    std::map<int,std::pair<int,int>> mGpAxisRange;  // ABS code -> (min,max) from EVIOCGABS
+    // Calibration wizard (port of LineageParts GamepadCalibrationDialogFragment).
+    // Steps: 0 centre, 1 left-stick range, 2 right-stick range, 3 triggers,
+    // 4 deadzone, 5 sensitivity, 6 done.
+    int mGpCalStep = 0;
+    int mGpCalCen[4] = {0,0,0,0};                   // centre of X,Y,RX,RY
+    int mGpCalMin[4], mGpCalMax[4];                 // captured min/max of X,Y,RX,RY
+    int mGpCalTrigMax[2] = {0,0};                   // captured max of L2,R2
+    int mGpCalDead = 8;                             // deadzone percent 0..40
+    int mGpCalSens = 100;                           // sensitivity percent 50..200
+    int mGpCalRsx = 3, mGpCalRsy = 4;               // right-stick axis codes (ABS_RX/RY default)
+    long mGpCalStepMs = 0;                          // when the current step began (A debounce)
+    int mGpCalNavLatch = 0;                         // edge latch for HAT/stick slider adjust
+
     // Hold-to-repeat navigation. Set when a dpad key / HAT axis / stick
     // axis enters its held state; cleared on release. pollInput() ticks
     // this each frame and calls handleUp/Down/Left/Right at an
@@ -1478,6 +1501,7 @@ private:
     // RetroArch icons -> a bevel normal generated from the alpha silhouette).
     std::map<int, GLuint>    mPs3NmapByIcon;     // xmb_icon index -> nmap tex
     std::map<int, GLuint>    mPs3BevelByIconIdx; // console icon idx (0..17) -> bevel nmap
+    std::map<int, GLuint>    mGpGlassNmaps;      // gamepad-tester button shapes -> bevel nmap (by round<<20|aspect)
     // iconRef string -> (colour silhouette tex, glass bevel nmap) for retroarch:/core:/file: refs.
     std::map<std::string, std::pair<GLuint, GLuint>> mPs3IconRefCache;
     // Real per-app icons: package name -> full-colour GL texture, decoded from the
@@ -1515,7 +1539,29 @@ private:
     void buildAppOrientSubmenu(Ps3Level& out);
     // Quick Settings submenu (ported GammaOS QS tiles) + Notifications submenu.
     void buildQuickSettingsSubmenu(Ps3Level& out);
-    void buildGamepadSubmenu(Ps3Level& out);         // full GammaPad settings (Settings-app parity)
+    void buildGamepadSubmenu(Ps3Level& out);         // top-level Gamepad Settings section list
+    // Gamepad Settings sub-sections (grouped for readability) + shared row helpers.
+    void gpLeaf(Ps3Level& out, const char* label, const char* bindLabel, int icon);
+    void gpAct (Ps3Level& out, const char* label, int qa, int icon, const char* val);
+    void buildGpControllers(Ps3Level& out);
+    void buildGpSticks(Ps3Level& out);
+    void buildGpButtons(Ps3Level& out);
+    void buildGpCalTest(Ps3Level& out);
+    void buildGpRumble(Ps3Level& out);
+    void buildGpMapping(Ps3Level& out);
+    void buildGpTouch(Ps3Level& out);
+    void gamepadTestOpen();                          // enter the live controller test screen
+    void gamepadCalibOpen();                         // enter the analog calibration wizard
+    void gpCaptureEvent(int fd, int type, int code, int value); // mirror a raw event -> maps
+    bool gpScreenHandleKey(int code, int value);     // Test/Calib key handling (exit, wizard step)
+    void renderGamepadTest();                        // draw the live controller test screen
+    void renderGamepadCalib();                       // draw the calibration wizard
+    void gpDialogBackdrop(float ap);                 // frosted-wave + dim, System-Update dialog chrome
+    void gpDialogHeader(const char* title, int iconIdx, float ap); // icon + title + top/bottom dividers
+    float gpAxisNorm(int absCode);                   // latest axis value normalised to [-1,1]
+    void gpCalibTick();                              // per-frame min/max capture for range steps
+    void gpCalibNext(int dir);                       // advance/adjust the wizard (A / left / right)
+    void gpCalibSave();                              // write cal_axis props + bump config_version
     void buildMouseSubmenu(Ps3Level& out);           // Mouse Mode cursor-speed settings
     void buildRemapSrcSubmenu(Ps3Level& out, bool axis);  // button/axis remap source list
     void buildRemapTargetSubmenu(Ps3Level& out);          // target chooser for mRemapSrc
@@ -2732,6 +2778,7 @@ private:
     GLuint nmapForIcon(int iconIndex);     // load+cache nmap_NNN.png
     GLuint bevelForIconIdx(int iconIdx);   // bevel normal from a console icon's alpha
     GLuint bevelFromRGBA(const uint8_t* px, int w, int h);   // bevel normal from any silhouette buffer
+    GLuint gpGlassNmap(bool round, float wpx, float hpx);    // cached bevel nmap for a gamepad-tester button shape
     // Resolve a system iconRef (builtin:/retroarch:/core:/file:) to a (colour
     // tex, glass bevel nmap) pair, cached by ref string. See NanoMenuPS3Icons.cpp.
     void resolveSystemIcon(const std::string& ref, GLuint* outTex, GLuint* outNmap);

@@ -706,6 +706,52 @@ GLuint NanoMenu::bevelFromRGBA(const uint8_t* px, int w, int h) {
     return uploadRGBA(nmap.data(), w, h);
 }
 
+// Procedural bevel normal map for a gamepad-tester button shape, cached by shape +
+// aspect bucket so the Test Controller / Calibration buttons get the identical glass
+// relight as the console icons (bevelFromRGBA), refracting the live XMB wave. round =
+// a filled disc/ellipse; else a rounded rectangle. The silhouette is generated at the
+// requested aspect (uniform bevel band all round, no stretch) with a transparent
+// margin so the bevel has room to curve at the rim.
+GLuint NanoMenu::gpGlassNmap(bool round, float wpx, float hpx) {
+    float ar = (hpx > 0.5f) ? wpx / hpx : 1.0f;
+    if (ar < 0.2f) ar = 0.2f; if (ar > 6.0f) ar = 6.0f;
+    int bucket = (int)lroundf(ar * 8.0f); if (bucket < 1) bucket = 1;
+    int key = (round ? 1 : 0) * 1048576 + bucket;
+    auto it = mGpGlassNmaps.find(key);
+    if (it != mGpGlassNmaps.end()) return it->second;
+    // Texture dimensions at this aspect, ~112 px on the long side.
+    int W, H;
+    if (ar >= 1.0f) { W = (int)lroundf(112.0f * ar); H = 112; }
+    else            { W = 112; H = (int)lroundf(112.0f / ar); }
+    if (W < 8) W = 8; if (H < 8) H = 8; if (W > 340) W = 340; if (H > 340) H = 340;
+    std::vector<uint8_t> px((size_t)W * H * 4, 0);
+    const float cx = (W - 1) * 0.5f, cy = (H - 1) * 0.5f;
+    const float mgn = 0.15f;                                  // transparent margin fraction
+    const float hx = W * 0.5f * (1.0f - mgn), hy = H * 0.5f * (1.0f - mgn);
+    const float rr = round ? 0.0f : fminf(hx, hy) * 0.42f;    // rect corner radius
+    for (int y = 0; y < H; y++) {
+        for (int x = 0; x < W; x++) {
+            bool inside;
+            if (round) {
+                float ex = (x - cx) / hx, ey = (y - cy) / hy;
+                inside = (ex * ex + ey * ey) <= 1.0f;
+            } else {
+                float qx = fabsf(x - cx) - (hx - rr), qy = fabsf(y - cy) - (hy - rr);
+                float ax = fmaxf(qx, 0.0f), ay = fmaxf(qy, 0.0f);
+                float d = sqrtf(ax * ax + ay * ay) + fminf(fmaxf(qx, qy), 0.0f) - rr;
+                inside = d <= 0.0f;
+            }
+            if (inside) {
+                size_t o = ((size_t)y * W + x) * 4;
+                px[o + 0] = 255; px[o + 1] = 255; px[o + 2] = 255; px[o + 3] = 255;
+            }
+        }
+    }
+    GLuint tex = bevelFromRGBA(px.data(), W, H);   // hard edge; the bevel blur smooths it
+    mGpGlassNmaps[key] = tex;
+    return tex;
+}
+
 // Embedded console-icon bevel (0..17), cached per index.
 GLuint NanoMenu::bevelForIconIdx(int iconIdx) {
     if (iconIdx < 0 || iconIdx >= 19) return 0;

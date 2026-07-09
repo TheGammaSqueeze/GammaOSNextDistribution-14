@@ -255,6 +255,13 @@ void NanoMenu::checkInputHotplug() {
 // ---------------------------------------------------------------------------
 
 void NanoMenu::handleBack() {
+    // Live controller Test / Calibration screen: back closes it and returns to
+    // the Calibrate & Test list (does not pop the menu behind).
+    if (mGpTestActive || mGpCalibActive) {
+        mGpTestActive = false; mGpCalibActive = false; mGpSelectDownMs = 0;
+        mDisplayDirty = true;
+        return;
+    }
     // GammaOS Nano: back cancels any queued launch the user armed
     // before the system was ready. Without this, mLaunchPending
     // would still re-fire handleSelect() once isLaunchReady() flips.
@@ -1273,6 +1280,26 @@ void NanoMenu::pollInput() {
     // Publish now-playing state + metadata for the bridge (change-gated, zero writes when idle).
     nanoPublishMediaState();
 
+    // Live controller Test / Calibration screens: keep redrawing so the analog
+    // sticks/triggers animate, and exit on a ~1s Select hold (checked each frame
+    // so it fires even when nothing else is moving).
+    if (mGpTestActive || mGpCalibActive) {
+        mDisplayDirty = true;
+        if (mGpSelectDownMs && (long)android::uptimeMillis() - mGpSelectDownMs > 1000) {
+            mGpTestActive = false; mGpCalibActive = false; mGpSelectDownMs = 0;
+        } else if (mGpCalibActive) {
+            gpCalibTick();
+            // Slider steps also accept HAT0X (or the left stick) as left/right,
+            // edge-latched so one flick = one step.
+            if (mGpCalStep == 4 || mGpCalStep == 5) {
+                float navX = gpAxisNorm(ABS_HAT0X);
+                if (fabsf(navX) < 0.3f) navX = gpAxisNorm(ABS_X);
+                if (fabsf(navX) < 0.4f) mGpCalNavLatch = 0;
+                else if (mGpCalNavLatch == 0) { gpCalibNext(navX < 0 ? -1 : 1); mGpCalNavLatch = 1; }
+            }
+        }
+    }
+
     struct input_event ev;
     for (int fd : mInputFds) {
         while (read(fd, &ev, sizeof(ev)) == sizeof(ev)) {
@@ -1286,6 +1313,15 @@ void NanoMenu::pollInput() {
             // launch once the XMB appears). All events are swallowed during boot.
             if (mPs3BootActive) {
                 if (ev.type == EV_KEY && ev.value == 1) ps3BootSkip();
+                continue;
+            }
+            // Test / Calibration screen: mirror every raw button/axis into the
+            // live-state maps for the visualisation and swallow it so it does not
+            // navigate the menu behind. gpScreenHandleKey drives the hold-to-exit.
+            if ((mGpTestActive || mGpCalibActive) &&
+                (ev.type == EV_KEY || ev.type == EV_ABS)) {
+                gpCaptureEvent(fd, ev.type, ev.code, ev.value);
+                if (ev.type == EV_KEY) gpScreenHandleKey(ev.code, ev.value);
                 continue;
             }
             // Touchscreen -> OSK. Read straight from the shared evdev stream:

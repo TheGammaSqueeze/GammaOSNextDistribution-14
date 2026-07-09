@@ -570,6 +570,17 @@ enum {
     QA_NOTIF_DISMISS,    // dismiss (snooze ~1yr) the focused notification, then refresh
     QA_GAMEPAD_MENU,     // open the dedicated GammaPad settings submenu (all gamepad props)
     QA_MOUSE_MENU,       // open the Mouse Mode settings submenu (mouse_* props)
+    // Gamepad Settings is grouped into sub-sections for readability; each opens a
+    // short leaf list. Calibrate & Test hosts the two interactive screens.
+    QA_GP_CONTROLLERS,   // section: Controllers (enable/merge/capture/name)
+    QA_GP_STICKS,        // section: Sticks & D-Pad (invert/convert/threshold/sensitivity)
+    QA_GP_BUTTONS,       // section: Buttons (ABXY swap, prompt theme, OK button)
+    QA_GP_CALTEST,       // section: Calibrate & Test
+    QA_GP_RUMBLE,        // section: Vibration (PWM + device)
+    QA_GP_MAPPING,       // section: Button Mapping (remap pickers + app)
+    QA_GP_TOUCH,         // section: Touch & Mouse (screen map + mouse mode)
+    QA_GP_TEST,          // open the live controller test screen
+    QA_GP_CALIBRATE,     // open the in-nano analog calibration wizard
     QA_REMAP_BTN_MENU,   // open the button-remap source list (remap_btn)
     QA_REMAP_AXIS_MENU,  // open the axis-remap source list (remap_axis)
     QA_REMAP_SRC,        // a source button/axis row -> open its target chooser (it.b = src code)
@@ -608,6 +619,26 @@ enum {
     QA_SHADER_BROWSE,    // custom: browse into a directory (it.value = absolute path)
     QA_SHADER_PICK_FILE, // custom: select a preset file (it.value = absolute path)
 };
+
+// True for the QA_ action codes whose row drills into a deeper submenu list, so
+// it earns the right-edge submenu chevron. Rows that just toggle, fire an action
+// (power off, dismiss) or open a full-screen tool (Test Controller, Calibrate)
+// are excluded - only list-drilling rows get the indicator.
+static bool ps3QaOpensSubmenu(int qa) {
+    switch (qa) {
+        case QA_QUICK_SETTINGS: case QA_NOTIFICATIONS: case QA_MOUSE_MENU:
+        case QA_GAMEPAD_MENU:   case QA_POWER_SUBMENU:
+        case QA_GP_CONTROLLERS: case QA_GP_STICKS:  case QA_GP_BUTTONS:
+        case QA_GP_CALTEST:     case QA_GP_RUMBLE:  case QA_GP_MAPPING: case QA_GP_TOUCH:
+        case QA_DEV_CAPTURE_MENU: case QA_FF_DEVICE_MENU:
+        case QA_REMAP_BTN_MENU: case QA_REMAP_AXIS_MENU: case QA_REMAP_SRC:
+        case QA_COMBO_MENU:     case QA_AXISBTN_MENU:    case QA_BLACKLIST_MENU:
+        case QA_APP_ORIENT_MENU: case QA_APP_STORAGE:    case QA_APP_PERMS:
+        case QA_SHADER_MENU:    case QA_SHADER_PARAMS:   case QA_SHADER_BROWSE:
+            return true;
+        default: return false;
+    }
+}
 
 void NanoMenu::buildPs3Cats() {
     mPs3Cats.clear();
@@ -996,57 +1027,547 @@ void NanoMenu::buildQuickSettingsSubmenu(Ps3Level& out) {
 // controller-first - toggles, discrete lists and OSK-text rows are bound leaves whose
 // A-press opens the side-panel chooser / keyboard; calibration + the legacy remap app
 // stay reachable as action rows. Built lazily on open, discarded on pop (zero idle cost).
+// Shared row helpers for the Gamepad Settings sections. A leaf is a bound value
+// row (A opens its side-panel chooser); an act row dispatches a QA_ code.
+void NanoMenu::gpLeaf(Ps3Level& out, const char* label, const char* bindLabel, int icon) {
+    Ps3Item it; it.label = label; it.kind = PS3_DATA_LEAF; it.action = 1;
+    it.binding = ps3BindingFor(bindLabel ? bindLabel : label);
+    it.nmapTex = nmapForIcon(icon); it.iconR = it.iconG = it.iconB = 1.0f;
+    out.items.push_back(it);
+}
+void NanoMenu::gpAct(Ps3Level& out, const char* label, int qa, int icon, const char* val) {
+    Ps3Item it; it.label = label; it.kind = PS3_QUICK; it.a = qa;
+    if (val) it.value = val;
+    it.nmapTex = nmapForIcon(icon); it.iconR = it.iconG = it.iconB = 1.0f;
+    out.items.push_back(it);
+}
+
+// Gamepad Settings top level: a short list of sections, each opening its own
+// leaf list. Keeps the ~28 controller options scannable instead of one long list.
 void NanoMenu::buildGamepadSubmenu(Ps3Level& out) {
     out.items.clear(); out.sel = 0; out.title = "Gamepad Settings"; out.screenKind = 0;
-    auto leaf = [&](const char* label, const char* bindLabel, int icon) {
-        Ps3Item it; it.label = label; it.kind = PS3_DATA_LEAF; it.action = 1;
-        it.binding = ps3BindingFor(bindLabel ? bindLabel : label);
-        it.nmapTex = nmapForIcon(icon); it.iconR = it.iconG = it.iconB = 1.0f;
-        out.items.push_back(it);
-    };
-    auto act = [&](const char* label, int qa, int icon, const char* val) {
-        Ps3Item it; it.label = label; it.kind = PS3_QUICK; it.a = qa;
-        if (val) it.value = val;
-        it.nmapTex = nmapForIcon(icon); it.iconR = it.iconG = it.iconB = 1.0f;
-        out.items.push_back(it);
-    };
-    // Core
-    leaf("Controller Enable", nullptr, 16);
-    leaf("Merge Controllers", nullptr, 16);
-    leaf("Hide Source Device", nullptr, 16);
-    act ("Devices to Capture", QA_DEV_CAPTURE_MENU, 16, nullptr);
-    leaf("Virtual Device Name", nullptr, 16);
-    // Layout / sticks
-    leaf("ABXY Swap", nullptr, 16);
-    // On-screen prompt theme (letters vs PlayStation glyphs, and which button is OK).
-    leaf("Button Prompts", nullptr, 16);
-    leaf("OK Button", nullptr, 16);
-    leaf("Invert Left Stick", nullptr, 16);
-    leaf("Invert Right Stick", nullptr, 16);
-    leaf("Analog to D-Pad", nullptr, 16);
-    leaf("D-Pad to Analog", nullptr, 16);
-    leaf("DPAD/Analog Swap", nullptr, 16);
-    leaf("D-Pad Threshold", nullptr, 16);
-    leaf("Global Sensitivity", nullptr, 16);
-    act ("Analog Calibration", QA_LAUNCH_CALIBRATION, 16, nullptr);
-    // Rumble
-    leaf("PWM Enable", nullptr, 16);
-    leaf("PWM Intensity", nullptr, 16);
-    act ("Vibration Device", QA_FF_DEVICE_MENU, 16, nullptr);
-    // Mapping: native button/axis remap pickers (Inc2). Combo/axis-to-button/blacklist
-    // remain OSK-text for now (Inc3 -> pickers).
-    act ("Button Remap", QA_REMAP_BTN_MENU, 16, nullptr);
-    act ("Axis Remap", QA_REMAP_AXIS_MENU, 16, nullptr);
-    act ("Button Combo Map", QA_COMBO_MENU, 16, nullptr);
-    act ("Axis to Button", QA_AXISBTN_MENU, 16, nullptr);
-    act ("Passthrough Blacklist", QA_BLACKLIST_MENU, 16, nullptr);
-    act ("Edit Button Mappings (App)", QA_LAUNCH_REMAP, 16, nullptr);
-    // Touch mapping
-    leaf("Screen Map", nullptr, 16);
-    // Mouse Mode (gamepad-as-mouse) is nested here now that it is no longer a
-    // top-level Settings entry; opens the dedicated buildMouseSubmenu.
-    act ("Mouse Mode", QA_MOUSE_MENU, 53, nullptr);
+    gpAct(out, "Controllers",      QA_GP_CONTROLLERS, 5,  nullptr);
+    gpAct(out, "Sticks & D-Pad",   QA_GP_STICKS,      5,  nullptr);
+    gpAct(out, "Buttons",          QA_GP_BUTTONS,     5,  nullptr);
+    gpAct(out, "Calibrate & Test", QA_GP_CALTEST,     74, nullptr);
+    gpAct(out, "Vibration",        QA_GP_RUMBLE,      74, nullptr);
+    gpAct(out, "Button Mapping",   QA_GP_MAPPING,     74, nullptr);
+    gpAct(out, "Touch & Mouse",    QA_GP_TOUCH,       53, nullptr);
 }
+
+void NanoMenu::buildGpControllers(Ps3Level& out) {
+    out.items.clear(); out.sel = 0; out.title = "Controllers"; out.screenKind = 0;
+    gpLeaf(out, "Controller Enable", nullptr, 5);
+    gpLeaf(out, "Merge Controllers", nullptr, 5);
+    gpLeaf(out, "Hide Source Device", nullptr, 5);
+    gpAct (out, "Devices to Capture", QA_DEV_CAPTURE_MENU, 5, nullptr);
+    gpLeaf(out, "Virtual Device Name", nullptr, 5);
+}
+void NanoMenu::buildGpSticks(Ps3Level& out) {
+    out.items.clear(); out.sel = 0; out.title = "Sticks & D-Pad"; out.screenKind = 0;
+    gpLeaf(out, "Invert Left Stick", nullptr, 5);
+    gpLeaf(out, "Invert Right Stick", nullptr, 5);
+    gpLeaf(out, "Analog to D-Pad", nullptr, 5);
+    gpLeaf(out, "D-Pad to Analog", nullptr, 5);
+    gpLeaf(out, "DPAD/Analog Swap", nullptr, 5);
+    gpLeaf(out, "D-Pad Threshold", nullptr, 5);
+    gpLeaf(out, "Global Sensitivity", nullptr, 5);
+}
+void NanoMenu::buildGpButtons(Ps3Level& out) {
+    out.items.clear(); out.sel = 0; out.title = "Buttons"; out.screenKind = 0;
+    gpLeaf(out, "ABXY Swap", nullptr, 5);
+    // On-screen prompt theme (letters vs PlayStation glyphs, and which button is OK).
+    gpLeaf(out, "Button Prompts", nullptr, 5);
+    gpLeaf(out, "OK Button", nullptr, 5);
+}
+void NanoMenu::buildGpCalTest(Ps3Level& out) {
+    out.items.clear(); out.sel = 0; out.title = "Calibrate & Test"; out.screenKind = 0;
+    gpAct(out, "Test Controller",         QA_GP_TEST,      74, nullptr);
+    gpAct(out, "Calibrate Analog Sticks", QA_GP_CALIBRATE, 74, nullptr);
+}
+void NanoMenu::buildGpRumble(Ps3Level& out) {
+    out.items.clear(); out.sel = 0; out.title = "Vibration"; out.screenKind = 0;
+    gpLeaf(out, "PWM Enable", nullptr, 74);
+    gpLeaf(out, "PWM Intensity", nullptr, 74);
+    gpAct (out, "Vibration Device", QA_FF_DEVICE_MENU, 74, nullptr);
+}
+void NanoMenu::buildGpMapping(Ps3Level& out) {
+    out.items.clear(); out.sel = 0; out.title = "Button Mapping"; out.screenKind = 0;
+    gpAct(out, "Button Remap", QA_REMAP_BTN_MENU, 74, nullptr);
+    gpAct(out, "Axis Remap", QA_REMAP_AXIS_MENU, 74, nullptr);
+    gpAct(out, "Button Combo Map", QA_COMBO_MENU, 74, nullptr);
+    gpAct(out, "Axis to Button", QA_AXISBTN_MENU, 74, nullptr);
+    gpAct(out, "Passthrough Blacklist", QA_BLACKLIST_MENU, 74, nullptr);
+    gpAct(out, "Edit Button Mappings (App)", QA_LAUNCH_REMAP, 74, nullptr);
+}
+void NanoMenu::buildGpTouch(Ps3Level& out) {
+    out.items.clear(); out.sel = 0; out.title = "Touch & Mouse"; out.screenKind = 0;
+    gpLeaf(out, "Screen Map", nullptr, 53);
+    gpAct (out, "Mouse Mode", QA_MOUSE_MENU, 53, nullptr);
+}
+
+// ---------------------------------------------------------------------------
+// Live controller Test / Calibration screens
+// ---------------------------------------------------------------------------
+// Mirror a raw evdev event into the live-state maps. Axis ranges are fetched
+// lazily from the source fd so we can normalise sticks/triggers of any range.
+void NanoMenu::gpCaptureEvent(int fd, int type, int code, int value) {
+    if (type == EV_KEY) {
+        mGpBtn[code] = value ? 1 : 0;
+    } else if (type == EV_ABS) {
+        mGpAxis[code] = value;
+        if (mGpAxisRange.find(code) == mGpAxisRange.end()) {
+            struct input_absinfo a;
+            if (fd >= 0 && ioctl(fd, EVIOCGABS(code), &a) == 0 && a.maximum > a.minimum)
+                mGpAxisRange[code] = std::make_pair(a.minimum, a.maximum);
+            else
+                mGpAxisRange[code] = std::make_pair(-32768, 32767);
+        }
+    }
+}
+
+// Latest value of an axis normalised to [-1,1] (0 at rest for a centred axis).
+float NanoMenu::gpAxisNorm(int absCode) {
+    auto v = mGpAxis.find(absCode);
+    if (v == mGpAxis.end()) return 0.0f;
+    auto r = mGpAxisRange.find(absCode);
+    int lo = -32768, hi = 32767;
+    if (r != mGpAxisRange.end()) { lo = r->second.first; hi = r->second.second; }
+    if (hi <= lo) return 0.0f;
+    float t = (float)(v->second - lo) / (float)(hi - lo);   // 0..1
+    return t * 2.0f - 1.0f;                                 // -1..1
+}
+
+void NanoMenu::gamepadTestOpen() {
+    mGpBtn.clear(); mGpAxis.clear(); mGpAxisRange.clear();
+    mGpSelectDownMs = 0;
+    mGpScreenOpenMs = (long)android::uptimeMillis();
+    mPs3DlgBlurValid = false;                 // force a fresh frosted-wave capture on open
+    mGpTestActive = true;
+    mDisplayDirty = true;
+}
+
+// Frosted-wave backdrop + uniform dim, identical to the System Update dialog
+// chrome (renderPs3Dialog fullscreen branch), shared by the gamepad Test and
+// Calibrate full-screen pages. Layout must already be computed by the caller.
+void NanoMenu::gpDialogBackdrop(float ap) {
+    const bool frostHome = !mOverlayMode || mOverlayWallpaper;
+    const bool waveSpace = (mCurrentEffect == 22);
+    float blurCad = ps3bg::themeFading() ? 0.0f : 0.0667f;
+    bool due = !mPs3DlgBlurValid || (waveSpace && (mEffectTime - mPs3DlgBlurT) >= blurCad);
+    if (due && frostHome) {
+        bool got = waveSpace ? captureGlassFromWave()
+                             : captureGlass(0.0f, 0.0f, (float)mWidth, (float)mHeight);
+        if (got) { mPs3DlgBlurValid = true; mPs3DlgBlurT = mEffectTime; }
+    }
+    if (mPs3DlgBlurValid && frostHome)
+        drawFrostedGlass(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f,
+                         1.0f, 1.0f, 1.0f, 1.0f, ap, waveSpace);   // pure blur
+    if (frostHome)
+        drawQuad(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f, 0.0f, 0.0f, 0.40f * ap);  // dim
+    mTextOutlineRatio = 0.5f;                 // dialog text outline
+}
+
+// Header row shared by the gamepad Test/Calibrate pages: a glass icon, the title
+// and the top/bottom dividers, positioned exactly like renderPs3Dialog's header.
+void NanoMenu::gpDialogHeader(const char* title, int iconIdx, float ap) {
+    float ui = mPs3UiScale; if (ui < 0.5f) ui = 0.5f; if (ui > 2.0f) ui = 2.0f;
+    const float S = ps3::gScale / ui;
+    const float offX = ps3::gFrameX + (ps3::gFrameW - S * ps3::XCF(ps3::VW)) * 0.5f;
+    const float offY = ps3::gFrameY + ps3::gFrameH * 0.5f - S * (ps3::VH * 0.5f);
+    auto X  = [&](float vx) { return S * vx + offX; };
+    auto Y  = [&](float vy) { return S * vy + offY; };
+    auto DS = [&](float v)  { return S * v; };
+    const float fb = ps3DlgFontBoost();
+    auto FS = [&](float px) { return S * px * fb / 16.0f; };
+    const float innerTop = 199.0f, innerBot = 880.0f;
+    float iconSz = DS(36.0f);
+    GLuint nmap = iconIdx >= 0 ? nmapForIcon(iconIdx) : 0;
+    if (nmap && mIconGlassReady && ps3bg::workTex())
+        drawGlassIcon(nmap, X(130.0f) - iconSz * 0.5f, Y(175.0f) - iconSz * 0.5f, iconSz, iconSz,
+                      1.0f, 1.0f, 1.0f, ap);
+    ps3DlgText(title, X(160.0f), Y(187.0f), FS(28.0f), 1.0f, 1.0f, 1.0f, ap, 0);
+    float divLw = fmaxf(1.0f, DS(1.0f));
+    drawQuad(ps3::gFrameX, Y(innerTop), ps3::gFrameW, divLw, 1.0f, 1.0f, 1.0f, 0.55f * ap);
+    drawQuad(ps3::gFrameX, Y(innerBot), ps3::gFrameW, divLw, 1.0f, 1.0f, 1.0f, 0.55f * ap);
+}
+
+// Handle a button event while a Test/Calibration screen is up. Returns true if
+// it was consumed (so it does not leak into menu navigation behind the screen).
+bool NanoMenu::gpScreenHandleKey(int code, int value) {
+    if (!mGpTestActive && !mGpCalibActive) return false;
+    long now = (long)android::uptimeMillis();
+    // Ignore the button that opened the screen for a moment (debounce the A press).
+    if (now - mGpScreenOpenMs < 350) return true;
+    if (code == BTN_SELECT) {
+        // Hold Select ~1s to exit (a single button can't exit a button-test screen).
+        if (value) mGpSelectDownMs = now;
+        else       mGpSelectDownMs = 0;
+        return true;
+    }
+    // Calibration wizard button handling (press edges only).
+    if (mGpCalibActive && value == 1) {
+        if (code == BTN_SOUTH || code == KEY_ENTER)       gpCalibNext(0);
+        else if (code == BTN_EAST || code == KEY_BACK)  { mGpCalibActive = false; mDisplayDirty = true; }
+        else if (code == BTN_DPAD_LEFT)  gpCalibNext(-1);
+        else if (code == BTN_DPAD_RIGHT) gpCalibNext(+1);
+    }
+    return true;   // every other controller button is consumed by the test/calib screen
+}
+
+// Live controller diagram, drawn with the System Update dialog chrome (blurred
+// XMB wave + dim, glass icon, title, dividers, footer hint). Sticks show a dot at
+// the analog position, buttons and the D-pad light up when pressed, triggers fill
+// a bar with their analog travel. All geometry is laid out in the 1080 virtual
+// design space so it centres and scales in the dialog band on any panel/aspect.
+void NanoMenu::renderGamepadTest() {
+    setUiBlend();
+    setGlyphAtlasAA(true);
+    float ap = 1.0f;                                   // gentle fade-in on open
+    { long el = (long)android::uptimeMillis() - mGpScreenOpenMs;
+      if (el < 200) { float t = (float)el / 200.0f; ap = t * t * (3.0f - 2.0f * t); } }
+
+    { ps3::LayoutParams lp; lp.panelW = mWidth; lp.panelH = mHeight; lp.uiScale = mPs3UiScale; ps3::layoutCompute(lp); }
+    gpDialogBackdrop(ap);
+    gpDialogHeader("Test Controller", 5, ap);          // 5 = controller glass icon
+
+    float ui = mPs3UiScale; if (ui < 0.5f) ui = 0.5f; if (ui > 2.0f) ui = 2.0f;
+    const float S = ps3::gScale / ui;
+    const float offX = ps3::gFrameX + (ps3::gFrameW - S * ps3::XCF(ps3::VW)) * 0.5f;
+    const float offY = ps3::gFrameY + ps3::gFrameH * 0.5f - S * (ps3::VH * 0.5f);
+    auto XC = [&](float vx) { return S * ps3::XCF(vx) + offX; };
+    auto Y  = [&](float vy) { return S * vy + offY; };
+    auto DS = [&](float v)  { return S * v; };
+    const float fb = ps3DlgFontBoost();
+    auto FS = [&](float px) { return S * px * fb / 16.0f; };
+    const float VW = ps3::VW;
+
+    // cyan accent used for the trigger travel fills + footer progress bar
+    const float on[3]   = {0.20f, 0.85f, 1.00f};
+    auto B = [&](int c){ auto it = mGpBtn.find(c); return it != mGpBtn.end() && it->second; };
+    auto axPresent = [&](int c){ return mGpAxis.find(c) != mGpAxis.end(); };
+
+    const float cx = XC(VW * 0.5f), cy = Y(548.0f);
+    // Component centres (device px, offsets in virtual px via DS so they stay round).
+    const float lsX = cx - DS(300.0f), lsY = cy - DS(55.0f);   // left stick
+    const float fcX = cx + DS(300.0f), fcY = cy - DS(55.0f);   // face buttons
+    const float dcX = cx - DS(150.0f), dcY = cy + DS(95.0f);   // d-pad
+    const float rsX = cx + DS(150.0f), rsY = cy + DS(95.0f);   // right stick
+    const float sr = DS(78.0f), sd = DS(30.0f);                // stick ring / dot radius
+    const float fr = DS(34.0f), fo = DS(74.0f);                // face radius / diamond offset
+    const float dk = DS(26.0f), arm = DS(58.0f);               // d-pad square half / arm
+    // Shoulder/trigger rows sit above the body with clearance from the Y face disc.
+    const float trigY = cy - DS(260.0f), shY = cy - DS(212.0f);
+    const float bw = DS(150.0f), shH = DS(34.0f), th = DS(22.0f);
+    const float lSideX = cx - DS(300.0f), rSideX = cx + DS(300.0f);
+    const float pillY = cy - DS(64.0f), pw = DS(90.0f), ph = DS(34.0f);
+
+    int rsx = axPresent(ABS_RX) ? ABS_RX : ABS_Z;
+    int rsy = axPresent(ABS_RY) ? ABS_RY : ABS_RZ;
+    bool up = B(BTN_DPAD_UP)    || gpAxisNorm(ABS_HAT0Y) < -0.5f;
+    bool dn = B(BTN_DPAD_DOWN)  || gpAxisNorm(ABS_HAT0Y) >  0.5f;
+    bool lf = B(BTN_DPAD_LEFT)  || gpAxisNorm(ABS_HAT0X) < -0.5f;
+    bool rt = B(BTN_DPAD_RIGHT) || gpAxisNorm(ABS_HAT0X) >  0.5f;
+    auto trigFill = [&](int axA, int axB, int dcode){
+        float fill = 0.0f;
+        if (axPresent(axA)) fill = (gpAxisNorm(axA) + 1.0f) * 0.5f;
+        else if (axPresent(axB)) fill = (gpAxisNorm(axB) + 1.0f) * 0.5f;
+        if (B(dcode)) fill = fmaxf(fill, 1.0f);
+        return fill;
+    };
+    float lFill = trigFill(ABS_BRAKE, ABS_Z, BTN_TL2);
+    float rFill = trigFill(ABS_GAS, ABS_RZ, BTN_TR2);
+    float lnx = gpAxisNorm(ABS_X),  lny = gpAxisNorm(ABS_Y);
+    float rnx = gpAxisNorm(rsx),    rny = gpAxisNorm(rsy);
+
+    // ---- pass 1: the buttons, drawn with the console-icon GLASS relight ----
+    // Each shape is a beveled silhouette (gpGlassNmap) lit by the live XMB wave with
+    // the same chromatic refraction + fresnel as the game-system icons: silvery when
+    // idle, cyan-tinted when pressed. Falls back to a flat fill if the glass pipeline
+    // is not ready (mIconGlassReady/workTex), so nothing ever vanishes.
+    const float silver[3] = {1.0f, 1.0f, 1.0f};
+    const float cyanT[3]  = {0.26f, 0.90f, 1.10f};
+    auto tint = [&](bool a) -> const float* { return a ? cyanT : silver; };
+    auto glassCircle = [&](float ccx, float ccy, float rad, const float* t, float a){
+        GLuint nm = gpGlassNmap(true, rad * 2.0f, rad * 2.0f);
+        if (mIconGlassReady && nm && ps3bg::workTex())
+            drawGlassIcon(nm, ccx - rad, ccy - rad, rad * 2.0f, rad * 2.0f, t[0], t[1], t[2], a);
+        else { bool b = !mSolidBatchActive; if (b) beginSolidBatch();
+            ps3FillCircle(ccx, ccy, rad, t[0] * 0.6f, t[1] * 0.6f, t[2] * 0.6f, a); if (b) endSolidBatch(); }
+    };
+    auto glassRect = [&](float x, float y, float w, float h, const float* t, float a){
+        GLuint nm = gpGlassNmap(false, w, h);
+        if (mIconGlassReady && nm && ps3bg::workTex())
+            drawGlassIcon(nm, x, y, w, h, t[0], t[1], t[2], a);
+        else drawQuad(x, y, w, h, t[0] * 0.6f, t[1] * 0.6f, t[2] * 0.6f, a);
+    };
+    // sticks: a subtle gate ring + the glass thumb cap at the live position
+    { bool b = !mSolidBatchActive; if (b) beginSolidBatch();
+      ps3StrokeRing(lsX, lsY, sr, sr, DS(3.0f), 0.62f, 0.67f, 0.74f, 0.7f * ap);
+      ps3StrokeRing(rsX, rsY, sr, sr, DS(3.0f), 0.62f, 0.67f, 0.74f, 0.7f * ap);
+      if (b) endSolidBatch(); }
+    glassCircle(lsX + lnx * sr, lsY + lny * sr, sd, tint(B(BTN_THUMBL)), ap);
+    glassCircle(rsX + rnx * sr, rsY + rny * sr, sd, tint(B(BTN_THUMBR)), ap);
+    // d-pad cross
+    glassRect(dcX - dk,       dcY - arm - dk, dk * 2, dk * 2, tint(up), ap);
+    glassRect(dcX - dk,       dcY + arm - dk, dk * 2, dk * 2, tint(dn), ap);
+    glassRect(dcX - arm - dk, dcY - dk,       dk * 2, dk * 2, tint(lf), ap);
+    glassRect(dcX + arm - dk, dcY - dk,       dk * 2, dk * 2, tint(rt), ap);
+    // face buttons (diamond)
+    glassCircle(fcX,      fcY + fo, fr, tint(B(BTN_SOUTH)), ap);
+    glassCircle(fcX + fo, fcY,      fr, tint(B(BTN_EAST)),  ap);
+    glassCircle(fcX - fo, fcY,      fr, tint(B(BTN_WEST)),  ap);
+    glassCircle(fcX,      fcY - fo, fr, tint(B(BTN_NORTH)), ap);
+    // shoulders
+    glassRect(lSideX - bw * 0.5f, shY, bw, shH, tint(B(BTN_TL)), ap);
+    glassRect(rSideX - bw * 0.5f, shY, bw, shH, tint(B(BTN_TR)), ap);
+    // trigger bars: glass track + a cyan travel fill inset on top
+    glassRect(lSideX - bw * 0.5f, trigY, bw, th, silver, ap);
+    glassRect(rSideX - bw * 0.5f, trigY, bw, th, silver, ap);
+    if (lFill > 0.01f) drawQuad(lSideX - bw * 0.5f + DS(2.0f), trigY + DS(2.0f), (bw - DS(4.0f)) * lFill, th - DS(4.0f), on[0], on[1], on[2], 0.9f * ap);
+    if (rFill > 0.01f) drawQuad(rSideX - bw * 0.5f + DS(2.0f), trigY + DS(2.0f), (bw - DS(4.0f)) * rFill, th - DS(4.0f), on[0], on[1], on[2], 0.9f * ap);
+    // Select / Start pills
+    glassRect(cx - DS(14.0f) - pw, pillY, pw, ph, tint(B(BTN_SELECT)), ap);
+    glassRect(cx + DS(14.0f),      pillY, pw, ph, tint(B(BTN_START)),  ap);
+
+    // ---- pass 2: text labels (glyph shader, outside the solid batch) ----
+    auto lbl = [&](const char* s, float x, float baseY, float px, float r, float g, float b){
+        ps3DlgText(s, x, baseY, FS(px), r, g, b, ap, 1);
+    };
+    lbl("L", lsX, lsY + sr + DS(34.0f), 19.0f, 0.82f, 0.87f, 0.94f);
+    lbl("R", rsX, rsY + sr + DS(34.0f), 19.0f, 0.82f, 0.87f, 0.94f);
+    // face letters, dark on the (lit or idle) discs
+    lbl("A", fcX,      fcY + fo + DS(9.0f), 20.0f, 0.06f, 0.09f, 0.12f);
+    lbl("B", fcX + fo, fcY + DS(9.0f),      20.0f, 0.06f, 0.09f, 0.12f);
+    lbl("X", fcX - fo, fcY + DS(9.0f),      20.0f, 0.06f, 0.09f, 0.12f);
+    lbl("Y", fcX,      fcY - fo + DS(9.0f), 20.0f, 0.06f, 0.09f, 0.12f);
+    lbl("L1", lSideX, shY - DS(14.0f),  17.0f, 0.82f, 0.87f, 0.94f);
+    lbl("R1", rSideX, shY - DS(14.0f),  17.0f, 0.82f, 0.87f, 0.94f);
+    lbl("L2", lSideX, trigY - DS(12.0f), 15.0f, 0.72f, 0.78f, 0.86f);
+    lbl("R2", rSideX, trigY - DS(12.0f), 15.0f, 0.72f, 0.78f, 0.86f);
+    lbl("Select", cx - DS(14.0f) - pw * 0.5f, pillY + ph + DS(26.0f), 15.0f, 0.72f, 0.78f, 0.86f);
+    lbl("Start",  cx + DS(14.0f) + pw * 0.5f, pillY + ph + DS(26.0f), 15.0f, 0.72f, 0.78f, 0.86f);
+
+    // ---- footer: Select-hold-to-exit prompt with a live hold progress bar ----
+    float hintY = Y(909.0f);
+    ps3DlgText("Hold SELECT to exit", XC(VW * 0.5f), hintY, FS(22.0f), 1.0f, 1.0f, 1.0f, 0.9f * ap, 1);
+    if (mGpSelectDownMs) {
+        float held = (float)((long)android::uptimeMillis() - mGpSelectDownMs) / 1000.0f;
+        if (held < 0.0f) held = 0.0f; if (held > 1.0f) held = 1.0f;
+        float bwd = DS(220.0f), bhd = DS(6.0f);
+        float bx = XC(VW * 0.5f) - bwd * 0.5f, by = Y(928.0f);
+        drawQuad(bx, by, bwd, bhd, 1.0f, 1.0f, 1.0f, 0.22f * ap);
+        drawQuad(bx, by, bwd * held, bhd, on[0], on[1], on[2], 0.95f * ap);
+    }
+}
+
+// ---- Analog calibration wizard (in-nano port of LineageParts) --------------
+// Steps: 0 centre, 1 left range, 2 right range, 3 triggers, 4 deadzone,
+// 5 sensitivity, 6 saved. A advances, left/right adjust the sliders, Back cancels.
+void NanoMenu::gamepadCalibOpen() {
+    mGpBtn.clear(); mGpAxis.clear(); mGpAxisRange.clear();
+    mGpCalStep = 0;
+    for (int i = 0; i < 4; i++) { mGpCalCen[i] = 0; mGpCalMin[i] = 0; mGpCalMax[i] = 0; }
+    mGpCalTrigMax[0] = mGpCalTrigMax[1] = 0;
+    mGpCalDead = 8; mGpCalSens = 100;
+    mGpCalRsx = 3; mGpCalRsy = 4;   // ABS_RX / ABS_RY, retargeted in tick if absent
+    mGpSelectDownMs = 0;
+    mGpScreenOpenMs = mGpCalStepMs = (long)android::uptimeMillis();
+    mPs3DlgBlurValid = false;                 // force a fresh frosted-wave capture on open
+    mGpCalibActive = true;
+    mDisplayDirty = true;
+}
+
+void NanoMenu::gpCalibTick() {
+    if (!mGpCalibActive) return;
+    auto raw = [&](int c){ auto it = mGpAxis.find(c); return it != mGpAxis.end() ? it->second : 0; };
+    // Retarget the right stick to Z/RZ if RX/RY never appear on this pad.
+    if (mGpAxis.find(ABS_RX) == mGpAxis.end() && mGpAxis.find(ABS_Z) != mGpAxis.end()) {
+        mGpCalRsx = ABS_Z; mGpCalRsy = ABS_RZ;
+    }
+    int codes[4] = { ABS_X, ABS_Y, mGpCalRsx, mGpCalRsy };
+    if (mGpCalStep == 0) {
+        for (int i = 0; i < 4; i++) mGpCalCen[i] = raw(codes[i]);   // resting centre
+    } else if (mGpCalStep == 1 || mGpCalStep == 2) {
+        int a = (mGpCalStep == 1) ? 0 : 2;
+        for (int i = a; i < a + 2; i++) {
+            int v = raw(codes[i]);
+            if (v < mGpCalMin[i]) mGpCalMin[i] = v;
+            if (v > mGpCalMax[i]) mGpCalMax[i] = v;
+        }
+    } else if (mGpCalStep == 3) {
+        int lt = raw(mGpAxis.count(ABS_BRAKE) ? ABS_BRAKE : ABS_Z);
+        int rt = raw(mGpAxis.count(ABS_GAS)   ? ABS_GAS   : ABS_RZ);
+        if (lt > mGpCalTrigMax[0]) mGpCalTrigMax[0] = lt;
+        if (rt > mGpCalTrigMax[1]) mGpCalTrigMax[1] = rt;
+    }
+}
+
+void NanoMenu::gpCalibNext(int dir) {
+    if (!mGpCalibActive) return;
+    long now = (long)android::uptimeMillis();
+    if (dir == 0) {                       // A: advance / confirm
+        if (now - mGpCalStepMs < 300) return;   // debounce the press that entered the step
+        if (mGpCalStep >= 6) { mGpCalibActive = false; mDisplayDirty = true; return; }  // saved -> exit
+        mGpCalStep++;
+        mGpCalStepMs = now;
+        if (mGpCalStep == 1) { mGpCalMin[0] = mGpCalMin[1] = 32767; mGpCalMax[0] = mGpCalMax[1] = -32768; }
+        else if (mGpCalStep == 2) { mGpCalMin[2] = mGpCalMin[3] = 32767; mGpCalMax[2] = mGpCalMax[3] = -32768; }
+        else if (mGpCalStep == 6) gpCalibSave();
+    } else {                              // left / right: adjust the active slider
+        if (mGpCalStep == 4) { mGpCalDead += dir * 2; if (mGpCalDead < 0) mGpCalDead = 0; if (mGpCalDead > 40) mGpCalDead = 40; }
+        else if (mGpCalStep == 5) { mGpCalSens += dir * 5; if (mGpCalSens < 50) mGpCalSens = 50; if (mGpCalSens > 200) mGpCalSens = 200; }
+    }
+    mDisplayDirty = true;
+}
+
+void NanoMenu::gpCalibSave() {
+    int deadRaw = (int)(mGpCalDead / 100.0f * 32767.0f);
+    float sens = mGpCalSens / 100.0f;
+    auto save = [&](int absCode, int cen, int mn, int mx){
+        if (mx <= mn) { mn = cen - 25000; mx = cen + 25000; }   // no capture -> a sane default
+        char key[64], val[96];
+        snprintf(key, sizeof(key), "persist.gammaos.gamepad.cal_axis%d", absCode);
+        snprintf(val, sizeof(val), "%d,%d,%d,%d,%.3f,0", cen, mn, mx, deadRaw, sens);
+        property_set(key, val);
+    };
+    // Left stick -> ABS_X/ABS_Y; right stick always to the daemon's fixed ABS_RX/ABS_RY.
+    save(ABS_X, mGpCalCen[0], mGpCalMin[0], mGpCalMax[0]);
+    save(ABS_Y, mGpCalCen[1], mGpCalMin[1], mGpCalMax[1]);
+    save(ABS_RX, mGpCalCen[2], mGpCalMin[2], mGpCalMax[2]);
+    save(ABS_RY, mGpCalCen[3], mGpCalMin[3], mGpCalMax[3]);
+    // Bump the config version so the gammapad daemon reloads the calibration.
+    char cv[PROPERTY_VALUE_MAX] = {};
+    property_get("persist.gammaos.gamepad.config_version", cv, "0");
+    char nv[16]; snprintf(nv, sizeof(nv), "%d", atoi(cv) + 1);
+    property_set("persist.gammaos.gamepad.config_version", nv);
+}
+
+void NanoMenu::renderGamepadCalib() {
+    setUiBlend();
+    setGlyphAtlasAA(true);
+    float ap = 1.0f;
+    { long el = (long)android::uptimeMillis() - mGpScreenOpenMs;
+      if (el < 200) { float t = (float)el / 200.0f; ap = t * t * (3.0f - 2.0f * t); } }
+
+    { ps3::LayoutParams lp; lp.panelW = mWidth; lp.panelH = mHeight; lp.uiScale = mPs3UiScale; ps3::layoutCompute(lp); }
+    gpDialogBackdrop(ap);
+    gpDialogHeader("Calibrate Analog Sticks", 5, ap);
+
+    float ui = mPs3UiScale; if (ui < 0.5f) ui = 0.5f; if (ui > 2.0f) ui = 2.0f;
+    const float S = ps3::gScale / ui;
+    const float offX = ps3::gFrameX + (ps3::gFrameW - S * ps3::XCF(ps3::VW)) * 0.5f;
+    const float offY = ps3::gFrameY + ps3::gFrameH * 0.5f - S * (ps3::VH * 0.5f);
+    auto XC = [&](float vx) { return S * ps3::XCF(vx) + offX; };
+    auto Y  = [&](float vy) { return S * vy + offY; };
+    auto DS = [&](float v)  { return S * v; };
+    const float fb = ps3DlgFontBoost();
+    auto FS = [&](float px) { return S * px * fb / 16.0f; };
+    const float VW = ps3::VW;
+    const float innerTop = 199.0f;
+
+    static const char* kInstr[7] = {
+        "Leave both sticks centred, then press Enter",
+        "Rotate the LEFT stick in full circles, then press Enter",
+        "Rotate the RIGHT stick in full circles, then press Enter",
+        "Squeeze both triggers all the way, then press Enter",
+        "Set the stick deadzone",
+        "Set the stick sensitivity",
+        "Calibration saved",
+    };
+    static const char* kTitle[7] = {
+        "Centre", "Left Stick", "Right Stick", "Triggers", "Deadzone", "Sensitivity", "Done" };
+    int st = mGpCalStep; if (st < 0) st = 0; if (st > 6) st = 6;
+
+    // Step indicator + instruction inside the band, just under the header divider.
+    char sub[48]; snprintf(sub, sizeof(sub), "Step %d of 6   %s", (st < 6 ? st + 1 : 6), kTitle[st]);
+    ps3DlgText(sub, XC(VW * 0.5f), Y(innerTop + 52.0f), FS(21.0f), 0.65f, 0.75f, 0.85f, ap, 1);
+    ps3DlgText(kInstr[st], XC(VW * 0.5f), Y(innerTop + 112.0f), FS(25.0f), 0.92f, 0.94f, 0.97f, ap, 1);
+
+    const float on[3]     = {0.20f, 0.85f, 1.00f};
+    const float silver[3] = {1.0f, 1.0f, 1.0f};
+    const float cyanT[3]  = {0.26f, 0.90f, 1.10f};
+    // Console-icon GLASS relight for the round indicators + meter tracks (same
+    // pipeline as the game-system icons; flat fallback if glass is not ready).
+    auto glassCircle = [&](float ccx, float ccy, float rad, const float* t, float a){
+        GLuint nm = gpGlassNmap(true, rad * 2.0f, rad * 2.0f);
+        if (mIconGlassReady && nm && ps3bg::workTex())
+            drawGlassIcon(nm, ccx - rad, ccy - rad, rad * 2.0f, rad * 2.0f, t[0], t[1], t[2], a);
+        else { bool b = !mSolidBatchActive; if (b) beginSolidBatch();
+            ps3FillCircle(ccx, ccy, rad, t[0] * 0.6f, t[1] * 0.6f, t[2] * 0.6f, a); if (b) endSolidBatch(); }
+    };
+    auto glassRect = [&](float x, float y, float w, float h, const float* t, float a){
+        GLuint nm = gpGlassNmap(false, w, h);
+        if (mIconGlassReady && nm && ps3bg::workTex())
+            drawGlassIcon(nm, x, y, w, h, t[0], t[1], t[2], a);
+        else drawQuad(x, y, w, h, t[0] * 0.6f, t[1] * 0.6f, t[2] * 0.6f, a);
+    };
+
+    if (st <= 2) {
+        // Live stick preview for centre + range steps.
+        bool right = (st == 2);
+        int axX = right ? mGpCalRsx : ABS_X, axY = right ? mGpCalRsy : ABS_Y;
+        float ocx = XC(VW * 0.5f), ocy = Y(560.0f), rr = DS(178.0f);
+        float nx = gpAxisNorm(axX), ny = gpAxisNorm(axY);
+        { bool lb = !mSolidBatchActive; if (lb) beginSolidBatch();
+          ps3StrokeRing(ocx, ocy, rr, rr, DS(3.0f), 0.5f, 0.54f, 0.6f, ap);
+          if (st >= 1) {   // captured extent ring (range steps)
+              int mmi = right ? 2 : 0;
+              float ex = 0.0f;
+              if (mGpCalMax[mmi] > mGpCalMin[mmi])
+                  ex = fmaxf(fabsf((float)mGpCalMax[mmi]), fabsf((float)mGpCalMin[mmi])) / 32767.0f;
+              if (mGpCalMax[mmi+1] > mGpCalMin[mmi+1])
+                  ex = fmaxf(ex, fmaxf(fabsf((float)mGpCalMax[mmi+1]), fabsf((float)mGpCalMin[mmi+1])) / 32767.0f);
+              if (ex > 0.02f) ps3StrokeRing(ocx, ocy, rr * ex, rr * ex, DS(5.0f), on[0], on[1], on[2], 0.9f * ap);
+          }
+          if (lb) endSolidBatch(); }
+        glassCircle(ocx + nx * rr, ocy + ny * rr, DS(26.0f), cyanT, ap);   // glass live dot
+    } else if (st == 3) {
+        // Trigger fill bars: glass track + a cyan travel fill inset on top.
+        float bwd = DS(320.0f), bhd = DS(46.0f), by = Y(548.0f);
+        auto bar = [&](float bcx, int idx, const char* lab){
+            float fill = mGpCalTrigMax[idx] > 0 ? fminf(1.0f, mGpCalTrigMax[idx] / 32767.0f) : 0.0f;
+            float bx = bcx - bwd * 0.5f;
+            glassRect(bx, by, bwd, bhd, silver, ap);
+            if (fill > 0.01f) drawQuad(bx + DS(3.0f), by + DS(3.0f), (bwd - DS(6.0f)) * fill, bhd - DS(6.0f), on[0], on[1], on[2], 0.9f * ap);
+            ps3DlgText(lab, bcx, by - DS(26.0f), FS(20.0f), 0.85f, 0.9f, 0.95f, ap, 1);
+        };
+        bar(XC(VW * 0.5f) - DS(190.0f), 0, "L2");
+        bar(XC(VW * 0.5f) + DS(190.0f), 1, "R2");
+    } else if (st == 4 || st == 5) {
+        // Slider: deadzone (0-40%) or sensitivity (50-200%). Glass track + glass knob.
+        int val = (st == 4) ? mGpCalDead : mGpCalSens;
+        int lo = (st == 4) ? 0 : 50, hi = (st == 4) ? 40 : 200;
+        float t = (float)(val - lo) / (float)(hi - lo);
+        float bwd = DS(760.0f), bhd = DS(26.0f);
+        float bx = XC(VW * 0.5f) - bwd * 0.5f, by = Y(560.0f);
+        glassRect(bx, by, bwd, bhd, silver, ap);
+        if (t > 0.005f) drawQuad(bx + DS(3.0f), by + DS(3.0f), (bwd - DS(6.0f)) * t, bhd - DS(6.0f), on[0], on[1], on[2], 0.9f * ap);
+        glassCircle(bx + bwd * t, by + bhd * 0.5f, DS(22.0f), cyanT, ap);
+        char vs[24]; snprintf(vs, sizeof(vs), "%d%%", val);
+        ps3DlgText(vs, XC(VW * 0.5f), by + DS(96.0f), FS(30.0f), 1.0f, 1.0f, 1.0f, ap, 1);
+        ps3DlgText("Left / Right to adjust", XC(VW * 0.5f), by + DS(148.0f), FS(19.0f), 0.6f, 0.68f, 0.75f, ap, 1);
+    } else {
+        // Done: a large confirmation tick.
+        float ocx = XC(VW * 0.5f), ocy = Y(560.0f), rr = DS(90.0f);
+        bool lb = !mSolidBatchActive; if (lb) beginSolidBatch();
+        ps3StrokeRing(ocx, ocy, rr, rr, DS(6.0f), on[0], on[1], on[2], ap);
+        ps3ThickLine(ocx - DS(38.0f), ocy + DS(4.0f), ocx - DS(8.0f), ocy + DS(34.0f), DS(9.0f), on[0], on[1], on[2], ap);
+        ps3ThickLine(ocx - DS(8.0f),  ocy + DS(34.0f), ocx + DS(44.0f), ocy - DS(30.0f), DS(9.0f), on[0], on[1], on[2], ap);
+        if (lb) endSolidBatch();
+    }
+
+    // ---- footer button hints (real PS3 dialog glyphs) ----
+    float hintY = Y(909.0f);
+    if (st >= 6) {
+        ps3DlgHint(XC(VW * 0.5f), true, "Done", hintY, S, ap);
+    } else {
+        float enterCX = XC(VW * 0.401f), cancelCX = XC(VW * 0.629f);
+        ps3DlgHint(enterCX, true, "Enter", hintY, S, ap);
+        ps3DlgHint(cancelCX, false, "Cancel", hintY, S, ap);
+    }
+}
+
 
 // Quick Menu -> Mouse Mode: the Settings-app "Mouse Mode" category (gamepad-as-mouse
 // cursor speeds). Discrete-list bound leaves, controller-first. Lazy build, zero idle.
@@ -2755,6 +3276,15 @@ void NanoMenu::ps3XmbSelect() {
                 case QA_NOTIFICATIONS:  { Ps3Level lvl; buildNotificationsSubmenu(lvl);  mPs3Stack.push_back(lvl); break; }
                 case QA_GAMEPAD_MENU:   { Ps3Level lvl; buildGamepadSubmenu(lvl);       mPs3Stack.push_back(lvl); break; }
                 case QA_MOUSE_MENU:     { Ps3Level lvl; buildMouseSubmenu(lvl);         mPs3Stack.push_back(lvl); break; }
+                case QA_GP_CONTROLLERS: { Ps3Level lvl; buildGpControllers(lvl); mPs3Stack.push_back(lvl); break; }
+                case QA_GP_STICKS:      { Ps3Level lvl; buildGpSticks(lvl);      mPs3Stack.push_back(lvl); break; }
+                case QA_GP_BUTTONS:     { Ps3Level lvl; buildGpButtons(lvl);     mPs3Stack.push_back(lvl); break; }
+                case QA_GP_CALTEST:     { Ps3Level lvl; buildGpCalTest(lvl);     mPs3Stack.push_back(lvl); break; }
+                case QA_GP_RUMBLE:      { Ps3Level lvl; buildGpRumble(lvl);      mPs3Stack.push_back(lvl); break; }
+                case QA_GP_MAPPING:     { Ps3Level lvl; buildGpMapping(lvl);     mPs3Stack.push_back(lvl); break; }
+                case QA_GP_TOUCH:       { Ps3Level lvl; buildGpTouch(lvl);       mPs3Stack.push_back(lvl); break; }
+                case QA_GP_TEST:        gamepadTestOpen(); break;
+                case QA_GP_CALIBRATE:   gamepadCalibOpen(); break;
                 case QA_REMAP_BTN_MENU: { mRemapAxis = false; mRemapKey = "persist.gammaos.gamepad.remap_btn";
                                           Ps3Level lvl; buildRemapSrcSubmenu(lvl, false); mPs3Stack.push_back(lvl); break; }
                 case QA_REMAP_AXIS_MENU:{ mRemapAxis = true;  mRemapKey = "persist.gammaos.gamepad.remap_axis";
@@ -3802,7 +4332,8 @@ void NanoMenu::renderPs3Xmb() {
             // value sits to the chevron's left. Suppressed under the side panel.
             bool opensSub = (it.kind == PS3_DATA_SUBMENU || it.kind == PS3_SYSTEM ||
                              it.kind == PS3_RECENT_LIST || it.kind == PS3_APP_LIST ||
-                             it.kind == PS3_GS_ROOT || it.kind == PS3_GS_SYSTEM_ROW);
+                             it.kind == PS3_GS_ROOT || it.kind == PS3_GS_SYSTEM_ROW ||
+                             (it.kind == PS3_QUICK && ps3QaOpensSubmenu(it.a)));
             if ((mPs3DlgActive || mPs3DlgClosing) && mPs3DlgKind == 1) opensSub = false;
             const char* kChevron = "\xE2\x80\xBA";   // > single right angle quotation mark
             float chFs = ps3::fontScale(ps3::ITEM_TEXT_SIZE);
