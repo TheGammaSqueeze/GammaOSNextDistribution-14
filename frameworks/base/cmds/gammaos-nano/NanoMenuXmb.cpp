@@ -1333,7 +1333,8 @@ void NanoMenu::handleLeft() {
         if (mNdsTheme && mPs3Xmb && (ndsGameInfoActive() || ndsDlgInfoPaged())) { ndsInfoPage(-1); return; }
         // DSi stacked carousel: LEFT cycles the focused carousel back one card (categories at
         // the root, else the category/submenu cards). A modal (chooser/dialog) keeps XMB nav.
-        if (mNdsTheme && mPs3Xmb && !ndsInModal()) ndsNavHoriz(-1);
+        // A settings LIST level: LEFT walks up to the parent (a vertical list has no horizontal move).
+        if (mNdsTheme && mPs3Xmb && !ndsInModal()) { if (ndsCurLevelIsList()) ndsNavBack(); else ndsNavHoriz(-1); }
         else ps3XmbLeft();
         return;
     }
@@ -1366,7 +1367,8 @@ void NanoMenu::handleRight() {
         // DSi game Information page / paginated info dialog: RIGHT turns to the next page.
         if (mNdsTheme && mPs3Xmb && (ndsGameInfoActive() || ndsDlgInfoPaged())) { ndsInfoPage(+1); return; }
         // DSi stacked carousel: RIGHT cycles the focused carousel forward one card.
-        if (mNdsTheme && mPs3Xmb && !ndsInModal()) ndsNavHoriz(+1);
+        // A settings LIST level: RIGHT opens/drills the focused row (like A); a carousel cycles forward.
+        if (mNdsTheme && mPs3Xmb && !ndsInModal()) { if (ndsCurLevelIsList()) ndsNavSelect(false); else ndsNavHoriz(+1); }
         else ps3XmbRight();
         return;
     }

@@ -64,6 +64,7 @@
 #include "DrasticRunner.h"
 #include "NanoMenu.h"
 #include "NanoI18n.h"      // trDyn() runtime translation of hardcoded UI strings
+#include "NanoMenuStrings.h"  // NanoLocale / LocaleInfo / nanoGetLocaleInfo (DSi language picker)
 #include "NanoMenuDrm.h"
 #include "NanoMenuShaders.h"
 #include "NanoMenuPS3.h"
@@ -820,6 +821,8 @@ void NanoMenu::ndsNavHoriz(int dir) {
     if (n <= 0) return;
     int ni = *sel + dir; if (ni < 0) ni = 0; if (ni > n - 1) ni = n - 1;
     if (ni != *sel) { *sel = ni; mDisplayDirty = true; }
+    // A carousel blocked at the first/last card plays no reject blip: the real firmware's
+    // TWL_LAN_SE_SCROLL_INVALID could not be captured cleanly, so the source of truth dropped it.
 }
 
 // enter/drill/launch the focused card. At the root this enters the selected category; deeper,
@@ -871,6 +874,23 @@ void NanoMenu::ndsNavBack() {
     }
 }
 
+// A drill level whose items are ALL settings kinds (data toggles / data groups / quick-settings)
+// renders as the DSi vertical glossy LIST (renderNdsSubmenu) with each row's value inline, instead of
+// the horizontal icon-tile carousel, so On/Off state reads at a glance (user request). The root
+// categories, and any level that holds an app / game / system card, stay a carousel. Whitelisting the
+// settings kinds means a media / app category is never misdetected as a list.
+bool NanoMenu::ndsCurLevelIsList() const {
+    if (mNdsAtRoot) return false;
+    const std::vector<Ps3Item>* items = nullptr;
+    if (!mPs3Stack.empty()) items = &mPs3Stack.back().items;
+    else if (mPs3CatIdx >= 0 && mPs3CatIdx < (int)mPs3Cats.size()) items = &mPs3Cats[mPs3CatIdx].items;
+    if (!items || items->empty()) return false;
+    for (const Ps3Item& it : *items)
+        if (it.kind != PS3_DATA_LEAF && it.kind != PS3_DATA_SUBMENU && it.kind != PS3_QUICK)
+            return false;
+    return true;
+}
+
 // A DSi System Settings glossy list button (settings.js _glossyButtonVec + button_grads.json):
 // a dark drop-shadow rounded rect under a rounded rect filled with the exact 12-stop vertical
 // gradient - glossy grey when idle, glossy favColour-blue when selected. r/x/y/w/h in device px.
@@ -904,6 +924,49 @@ void NanoMenu::drawNdsGlossyBtn(float x, float y, float w, float h, float r, boo
     }
 }
 
+// DSi scrolling-list scrollbar, 1:1 with settings.js _drawCountryBottom + _scrollArrowVec: a
+// recessed groove (x233..251, #414141 outer / #595959 inner / #9a9a9a 1px edges) with a glossy
+// favColor-blue up/down arrow button (19x17, white triangle) at each end and a glossy blue thumb
+// (white grip pad + #1069f3 grip lines) sized to the visible fraction. cx/offY/scale rebuild the
+// caller's X/Y/S mapping so the same routine serves the settings list and the picker list.
+void NanoMenu::drawNdsListScrollbar(float cx, float offY, float scale,
+                                    float trackTopDS, float trackBotDS, float thumbFrac, float scrollFrac) {
+    auto X = [&](float d){ return cx + (d - 128.0f) * scale; };
+    auto Y = [&](float d){ return offY + d * scale; };
+    auto S = [&](float v){ return v * scale; };
+    const float sbx = 233.0f, sbw = 19.0f, aH = 17.0f;
+    const float grooveTop = trackTopDS + aH, grooveBot = trackBotDS - aH;
+    const float el = fmaxf(1.0f, S(1.0f));
+    // recessed groove
+    drawQuad(X(sbx),        Y(grooveTop), S(sbw),        Y(grooveBot) - Y(grooveTop), 0.255f, 0.255f, 0.255f, 1.0f); // #414141
+    drawQuad(X(sbx + 2.0f), Y(grooveTop), S(sbw - 4.0f), Y(grooveBot) - Y(grooveTop), 0.349f, 0.349f, 0.349f, 1.0f); // #595959 inner
+    drawQuad(X(sbx + 2.0f), Y(grooveTop), el,            Y(grooveBot) - Y(grooveTop), 0.604f, 0.604f, 0.604f, 1.0f); // #9a9a9a L edge
+    drawQuad(X(sbx + 16.0f),Y(grooveTop), el,            Y(grooveBot) - Y(grooveTop), 0.604f, 0.604f, 0.604f, 1.0f); // R edge
+    // glossy blue up/down arrow buttons with a white triangle (web _scrollArrowVec: cx=x+10, cy=y+9)
+    auto arrow = [&](float ay, int dir){
+        drawNdsGlossyBtn(X(sbx), Y(ay), S(sbw), S(aH), S(3.0f), true);
+        float acx = X(sbx + 10.0f), acy = Y(ay + 9.0f);
+        bool lb = !mSolidBatchActive; if (lb) beginSolidBatch();
+        if (dir > 0) drawTriangle(acx, acy - S(4.0f), acx + S(5.0f), acy + S(3.0f), acx - S(5.0f), acy + S(3.0f), 0.984f, 0.984f, 0.984f, 1.0f);
+        else         drawTriangle(acx, acy + S(4.0f), acx + S(5.0f), acy - S(3.0f), acx - S(5.0f), acy - S(3.0f), 0.984f, 0.984f, 0.984f, 1.0f);
+        if (lb) endSolidBatch();
+    };
+    arrow(trackTopDS, +1);
+    arrow(trackBotDS - aH, -1);
+    // glossy blue thumb (sized to the visible fraction) with a white grip pad + blue grip lines
+    const float grooveH = grooveBot - grooveTop;
+    float tf = thumbFrac; if (tf < 0.0f) tf = 0.0f; if (tf > 1.0f) tf = 1.0f;
+    float sf = scrollFrac; if (sf < 0.0f) sf = 0.0f; if (sf > 1.0f) sf = 1.0f;
+    float thumbH = fmaxf(12.0f, grooveH * tf);
+    if (thumbH > grooveH) thumbH = grooveH;
+    float thumbY = grooveTop + (grooveH - thumbH) * sf;
+    drawNdsGlossyBtn(X(sbx), Y(thumbY), S(sbw), S(thumbH), S(3.0f), true);
+    float gpY = thumbY + thumbH * 0.5f - 3.5f;                                   // 11x7 grip pad centred in the thumb
+    drawRoundedRect(X(sbx + 4.0f), Y(gpY), S(11.0f), S(7.0f), S(2.0f), 0.984f, 0.984f, 0.984f, 1.0f);
+    for (float gy = gpY + 1.0f; gy <= gpY + 5.0f; gy += 2.0f)                    // #1069f3 grip lines
+        drawQuad(X(sbx + 5.0f), Y(gy), S(9.0f), el, 0.063f, 0.412f, 0.953f, 1.0f);
+}
+
 // DSi System Settings submenu screen (settings.js _renderBottom): a dark scanline background
 // with a header title, a vertical scrolling stack of glossy list buttons (the current XMB
 // stack level's items, the selected one favColour-blue), a right-edge scrollbar for long
@@ -920,11 +983,17 @@ void NanoMenu::renderNdsSubmenu(float rx, float ry, float rw, float rh) {
     auto S = [&](float v){ return v * scale; };
     auto X = [&](float d){ return cx + (d - 128.0f) * scale; };
 
-    const Ps3Level& lvl = mPs3Stack.back();
-    const std::vector<Ps3Item>& items = lvl.items;
+    // Resolve the current drill level generically: a submenu (mPs3Stack) OR a drilled category
+    // (mPs3Cats[mPs3CatIdx], e.g. the Quick Menu). The selection index differs (stack.sel vs
+    // mPs3ItemIdx) exactly as ndsNavHoriz tracks it. Root never reaches here (always the carousel).
+    const std::vector<Ps3Item>* itemsP = nullptr; int selSrc = 0; std::string title;
+    if (!mPs3Stack.empty()) { itemsP = &mPs3Stack.back().items; selSrc = mPs3Stack.back().sel; title = mPs3Stack.back().title; }
+    else if (mPs3CatIdx >= 0 && mPs3CatIdx < (int)mPs3Cats.size()) { itemsP = &mPs3Cats[mPs3CatIdx].items; selSrc = mPs3ItemIdx; title = mPs3Cats[mPs3CatIdx].name; }
+    if (!itemsP) { mTextOutlineMode = ndsPrevOutline; mNdsFontPref = ndsPrevFont; return; }
+    const std::vector<Ps3Item>& items = *itemsP;
     int n = (int)items.size();
-    int sel = lvl.sel; if (sel < 0) sel = 0; if (n > 0 && sel >= n) sel = n - 1;
-    std::string title = lvl.title; if (title.empty()) title = "Settings";
+    int sel = selSrc; if (sel < 0) sel = 0; if (n > 0 && sel >= n) sel = n - 1;
+    if (title.empty()) title = "Settings";
 
     // dark scanline background (#383838 base, #414141 every other DS row) + darker header band.
     drawQuad(rx, ry, rw, rh, 0.220f, 0.220f, 0.220f, 1.0f);
@@ -946,16 +1015,40 @@ void NanoMenu::renderNdsSubmenu(float rx, float ry, float rw, float rh) {
     const float pitch = scrolling ? 32.0f : (n >= 4 ? 32.0f : 40.0f);
     float top0;
     if (scrolling) {
-        float targetScroll = (float)sel - (float)(fitRows / 2);
-        if (targetScroll < 0.0f) targetScroll = 0.0f;
-        if (targetScroll > (float)(n - fitRows)) targetScroll = (float)(n - fitRows);
-        float dt = fmaxf(0.0f, fminf(0.1f, mFrameDt)); float k = 1.0f - powf(1.0f - 0.4f, dt * 60.0f);
-        mNdsSubScroll += (targetScroll - mNdsSubScroll) * k;
-        if (fabsf(mNdsSubScroll - targetScroll) < 0.01f) mNdsSubScroll = targetScroll;
-        else mDisplayDirty = true;
+        const float dt = fmaxf(0.0f, fminf(0.1f, mFrameDt));
+        const float maxScroll = (float)(n - fitRows);
+        // Writable selection (stack level OR drilled category) so touch scrub / fling can move the
+        // highlight; `sel` (the local used to draw the highlighted row) is updated to match this frame.
+        int* selPtr = !mPs3Stack.empty() ? &mPs3Stack.back().sel
+                    : (mPs3CatIdx >= 0 && mPs3CatIdx < (int)mPs3Cats.size()) ? &mPs3ItemIdx : nullptr;
+        auto centreSel = [&]() {
+            int c = (int)lroundf(mNdsSubScroll + (float)(fitRows / 2));
+            if (c < 0) c = 0; if (c > n - 1) c = n - 1;
+            sel = c; if (selPtr) *selPtr = c;
+        };
+        if (mNdsListScrub) {                               // (a) finger owns the scroll (set in ndsSubmenuTouch)
+            if (mNdsSubScroll < 0.0f) mNdsSubScroll = 0.0f;
+            if (mNdsSubScroll > maxScroll) mNdsSubScroll = maxScroll;
+            centreSel(); mDisplayDirty = true;
+        } else if (fabsf(mNdsListFlingVel) > 1e-4f) {      // (b) momentum fling (web 0.85/frame decay)
+            mNdsSubScroll += mNdsListFlingVel * (dt * 60.0f);
+            mNdsListFlingVel *= powf(0.85f, dt * 60.0f);
+            if (mNdsSubScroll < 0.0f)        { mNdsSubScroll = 0.0f;      mNdsListFlingVel = 0.0f; }
+            if (mNdsSubScroll > maxScroll)   { mNdsSubScroll = maxScroll; mNdsListFlingVel = 0.0f; }
+            if (fabsf(mNdsListFlingVel) < 0.02f) { mNdsListFlingVel = 0.0f; mNdsSubScroll = roundf(mNdsSubScroll); }
+            centreSel(); mDisplayDirty = true;
+        } else {                                           // (c) D-pad: ease the scroll toward the selection
+            float targetScroll = (float)sel - (float)(fitRows / 2);
+            if (targetScroll < 0.0f) targetScroll = 0.0f;
+            if (targetScroll > maxScroll) targetScroll = maxScroll;
+            float k = 1.0f - powf(1.0f - 0.4f, dt * 60.0f);
+            mNdsSubScroll += (targetScroll - mNdsSubScroll) * k;
+            if (fabsf(mNdsSubScroll - targetScroll) < 0.01f) mNdsSubScroll = targetScroll;
+            else mDisplayDirty = true;
+        }
         top0 = listTop;
     } else {
-        mNdsSubScroll = 0.0f;
+        mNdsSubScroll = 0.0f; mNdsListFlingVel = 0.0f; mNdsListScrub = false; mNdsListThumb = false;
         top0 = roundf(94.0f - (float)(n - 1) * pitch * 0.5f - 12.0f);   // _btnY centring
     }
 
@@ -967,18 +1060,36 @@ void NanoMenu::renderNdsSubmenu(float rx, float ry, float rw, float rh) {
         // label: DSi banner font, cap ~12 DS px with baseline at rowTop+19 (measured off the
         // settings ref); nano drawText baseline is top+0.8*em, so S(16) at rowY+6 matches
         // (the old S(14) at rowY+4 rendered ~2px small and ~4px high in the 24px button).
-        float fs = S(16.0f) / (float)FONT_CHAR_H, tw = measureText(lbl.c_str(), fs);
-        float maxW = S(bw - 16.0f); if (tw > maxW) { fs *= maxW / tw; tw = measureText(lbl.c_str(), fs); }
+        float fs = S(16.0f) / (float)FONT_CHAR_H;
         float ic = (i == sel) ? 1.0f : 0.157f;                               // white sel / #282828 idle
-        drawText(lbl.c_str(), cx - tw * 0.5f, Y(rowY + 6.0f), fs, ic, ic, ic, 1.0f);
+        // Per-row icon: draw the item's icon ONLY where it is MEANINGFUL - the settings GROUPS, the
+        // Quick Menu items, and action rows that carry a real glyph (e.g. System Update = xmb_icon_008,
+        // which the user confirmed the XMB shows). The ~219 leaf rows that share the generic settings
+        // glyph (DATA icon index 22) stay text-only, matching the real DSi text list and avoiding a wall
+        // of identical icons. The row's current VALUE is NOT shown in the list: the user enters the row
+        // to see/change it (user 2026-07-11) - so a row is just [icon] label, or a centred label.
+        const int  iconIdx     = items[i].data ? items[i].data->icon : -1;   // -1 = Quick/dynamic (no DATA node)
+        const bool genericIcon = (iconIdx == 22);                            // shared placeholder settings glyph
+        const bool hasIcon     = items[i].iconTex && !genericIcon;
+        if (hasIcon) {
+            float isz = S(18.0f);
+            drawIconTex(items[i].iconTex, X(bx + 8.0f), Y(rowY + (bh - 18.0f) * 0.5f), isz, isz, ic, ic, ic, 1.0f);
+            float labelLeft = X(bx + 32.0f);                                 // label left-aligned after the icon
+            float lmax = X(bx + bw - 9.0f) - labelLeft;
+            float lw = measureText(lbl.c_str(), fs);
+            if (lw > lmax && lmax > 0.0f) fs *= lmax / lw;
+            drawText(lbl.c_str(), labelLeft, Y(rowY + 6.0f), fs, ic, ic, ic, 1.0f);
+        } else {
+            float tw = measureText(lbl.c_str(), fs);                         // centred DSi text row
+            float maxW = S(bw - 16.0f); if (tw > maxW) { fs *= maxW / tw; tw = measureText(lbl.c_str(), fs); }
+            drawText(lbl.c_str(), cx - tw * 0.5f, Y(rowY + 6.0f), fs, ic, ic, ic, 1.0f);
+        }
     }
-    // right-edge scrollbar (settings.js _drawMenuArrows: x250 w6 track, grey thumb) when scrolling.
+    // right-edge scrollbar: the real DSi scrolling-list bar (blue arrows + glossy thumb) when scrolling.
     if (scrolling) {
-        drawQuad(X(250.0f), Y(32.0f), S(6.0f), Y(154.0f) - Y(32.0f), 0.125f, 0.125f, 0.125f, 1.0f);
-        float trackH = Y(154.0f) - Y(34.0f);
-        float thumbH = trackH * (float)fitRows / (float)n;
-        float thumbY = Y(34.0f) + (trackH - thumbH) * (mNdsSubScroll / (float)(n - fitRows));
-        drawQuad(X(250.0f), thumbY, S(5.0f), thumbH, 0.827f, 0.827f, 0.827f, 1.0f);
+        float thumbFrac  = (float)fitRows / (float)n;
+        float scrollFrac = mNdsSubScroll / (float)(n - fitRows);
+        drawNdsListScrollbar(cx, offY, scale, 26.0f, 168.0f, thumbFrac, scrollFrac);
     }
     // bottom hint bar (settings.js _settingsBottomBar): #717171 top line + a #595959->#303030
     // gradient, with the Back/OK legend.
@@ -1002,6 +1113,89 @@ void NanoMenu::renderNdsSubmenu(float rx, float ry, float rw, float rh) {
         float fa = (lf - 3.0f) / 44.0f; if (fa < 0.0f) fa = 0.0f; if (fa > 1.0f) fa = 1.0f;
         if (fa > 0.0f) { drawQuad(rx, ry, rw, rh, 1.0f, 1.0f, 1.0f, fa); mDisplayDirty = true; }
     }
+    mTextOutlineMode = ndsPrevOutline;
+    mNdsFontPref = ndsPrevFont;
+}
+
+// DSi full-screen picker list (System Language / Time Zone). The XMB theme draws these as the
+// fullscreen native-language list / 3D globe; in the DSi theme they must match the rest of the
+// menu, so this renders the web Country/Language screen: dark scanline field, glossy button rows
+// (selected = blue), centred labels, a right-edge scrollbar and the Back/OK bar. Nav + apply are
+// still driven by the XMB langPickerNav/tzGlobeNav/close* handlers (ndsInModal falls through to
+// them); this only restyles the render. rx/ry/rw/rh is the target panel rect (the DSi bottom
+// screen). D-pad selection is `sel`; the list scrolls to keep it visible.
+void NanoMenu::renderNdsPickerList(float rx, float ry, float rw, float rh, const char* title,
+                                   const std::vector<std::string>& labels, int sel) {
+    setUiBlend();
+    const bool ndsPrevFont = mNdsFontPref; mNdsFontPref = true;
+    const int ndsPrevOutline = mTextOutlineMode; mTextOutlineMode = 2;   // DSi text is flat
+    float scale = rh / 192.0f;
+    if (256.0f * scale > rw + 0.5f) scale = rw / 256.0f;
+    const float offY = ry + (rh - 192.0f * scale) * 0.5f;
+    const float cx = rx + rw * 0.5f;
+    auto Y = [&](float d){ return offY + d * scale; };
+    auto S = [&](float v){ return v * scale; };
+    auto X = [&](float d){ return cx + (d - 128.0f) * scale; };
+
+    int n = (int)labels.size();
+    if (sel < 0) sel = 0; if (n > 0 && sel >= n) sel = n - 1;
+
+    // dark scanline background + darker header band (identical to renderNdsSubmenu).
+    drawQuad(rx, ry, rw, rh, 0.220f, 0.220f, 0.220f, 1.0f);
+    float lh = fmaxf(1.0f, S(1.0f));
+    for (float yy = ry; yy < ry + rh; yy += S(2.0f)) drawQuad(rx, yy, rw, lh, 0.255f, 0.255f, 0.255f, 1.0f);
+    drawQuad(rx, ry, rw, Y(23.0f) - ry, 0.188f, 0.188f, 0.188f, 1.0f);
+    for (float yy = ry; yy < Y(23.0f); yy += S(2.0f)) drawQuad(rx, yy, rw, lh, 0.220f, 0.220f, 0.220f, 1.0f);
+    { float fs = S(13.0f) / (float)FONT_CHAR_H; drawText(title, X(6.0f), Y(4.0f), fs, 0.984f, 0.984f, 0.984f, 1.0f); }
+    for (float xx = X(2.0f); xx < X(254.0f); xx += S(4.0f)) drawQuad(xx, Y(21.0f), fmaxf(1.0f, S(2.0f)), lh, 0.510f, 0.510f, 0.510f, 1.0f);
+
+    // Dense scrollable list: wide near-edge buttons (web _drawCountryBottom style) so the long zone
+    // strings ("GMT+05:30  Kolkata") fit, leaving the right margin (x233+) for the DSi scrollbar. Rows
+    // h24, pitch 26. A list that fits is vertically centred (_btnY); a longer one scrolls to the sel.
+    const float bh = 24.0f, bw = 210.0f, bx = 17.0f;
+    const float listTop = 30.0f, listBot = 168.0f, pitch = 26.0f;
+    const int fitRows = (int)((listBot - listTop) / pitch);
+    const bool scrolling = n > fitRows;
+    float top0;
+    if (scrolling) {
+        float targetScroll = (float)sel - (float)(fitRows / 2);
+        if (targetScroll < 0.0f) targetScroll = 0.0f;
+        if (targetScroll > (float)(n - fitRows)) targetScroll = (float)(n - fitRows);
+        float dt = fmaxf(0.0f, fminf(0.1f, mFrameDt)); float k = 1.0f - powf(1.0f - 0.4f, dt * 60.0f);
+        mNdsSubScroll += (targetScroll - mNdsSubScroll) * k;
+        if (fabsf(mNdsSubScroll - targetScroll) < 0.01f) mNdsSubScroll = targetScroll;
+        else mDisplayDirty = true;
+        top0 = listTop;
+    } else {
+        mNdsSubScroll = 0.0f;
+        top0 = roundf(94.0f - (float)(n - 1) * pitch * 0.5f - 12.0f);
+    }
+
+    for (int i = 0; i < n; i++) {
+        float rowY = top0 + ((float)i - mNdsSubScroll) * pitch;
+        if (rowY + bh < listTop - 1.0f || rowY > listBot + 1.0f) continue;
+        drawNdsGlossyBtn(X(bx), Y(rowY), S(bw), S(bh), S(5.0f), i == sel);
+        float fs = S(16.0f) / (float)FONT_CHAR_H;
+        float ic = (i == sel) ? 1.0f : 0.157f;                               // white sel / #282828 idle
+        float tw = measureText(labels[i].c_str(), fs);
+        float maxW = S(bw - 16.0f); if (tw > maxW) { fs *= maxW / tw; tw = measureText(labels[i].c_str(), fs); }
+        drawText(labels[i].c_str(), cx - tw * 0.5f, Y(rowY + 6.0f), fs, ic, ic, ic, 1.0f);
+    }
+    // right-edge scrollbar: the real DSi scrolling-list bar (blue arrows + glossy thumb) when scrolling.
+    if (scrolling && n > fitRows) {
+        float thumbFrac  = (float)fitRows / (float)n;
+        float scrollFrac = mNdsSubScroll / (float)(n - fitRows);
+        drawNdsListScrollbar(cx, offY, scale, 26.0f, 168.0f, thumbFrac, scrollFrac);
+    }
+    // bottom hint bar (Back / OK), identical to renderNdsSubmenu.
+    drawQuad(rx, Y(171.0f), rw, lh, 0.443f, 0.443f, 0.443f, 1.0f);
+    { const int NB = 14; float bandH = (Y(186.0f) - Y(172.0f)) / (float)NB;
+      for (int b = 0; b < NB; b++) { float t = (float)b / (float)(NB - 1); float c = 0.349f * (1.0f - t) + 0.188f * t;
+          drawQuad(rx, Y(172.0f) + (float)b * bandH, rw, bandH + 0.6f, c, c, c, 1.0f); }
+      drawQuad(rx, Y(186.0f), rw, Y(192.0f) - Y(186.0f), 0.188f, 0.188f, 0.188f, 1.0f); }
+    { float fs = S(11.0f) / (float)FONT_CHAR_H; drawText("Back", X(8.0f), Y(176.0f), fs, 0.898f, 0.898f, 0.898f, 1.0f);
+      float tw = measureText("OK", fs); drawText("OK", X(248.0f) - tw, Y(176.0f), fs, 0.898f, 0.898f, 0.898f, 1.0f); }
+
     mTextOutlineMode = ndsPrevOutline;
     mNdsFontPref = ndsPrevFont;
 }
@@ -1192,9 +1386,18 @@ void NanoMenu::renderNdsDialog(float rx, float ry, float rw, float rh) {
     const float byTgt = 18.0f, byOff = 118.0f;
     const float by = byOff + (byTgt - byOff) * ease;
     const float px = X(16.0f), pw = S(224.0f), pyTop = Y(by), ph = S(156.0f);
-    drawRoundedRect(px, pyTop + S(3.0f), pw, ph, S(6.0f), 0.05f, 0.05f, 0.05f, 0.55f * ap);   // drop shadow
-    drawRoundedRect(px, pyTop, pw, ph, S(6.0f), 0.86f, 0.87f, 0.89f, ap);                     // outer frame
-    drawRoundedRect(px + S(2.0f), pyTop + S(2.0f), pw - S(4.0f), ph - S(4.0f), S(5.0f), 0.97f, 0.97f, 0.98f, ap);  // white body
+    // DSi dialog panel: the real msk_dialog_BG sprite (white body + favColour-blue border with
+    // corner AA), 224x156 at x16 - matches the web `dialog_box_<favColor>` exactly (favColour 11 =
+    // blue = the device default). Falls back to the flat rounded rects if the sprite is missing.
+    static GLuint gDsiDialogTex = 0;
+    if (!gDsiDialogTex) gDsiDialogTex = ndsLoadTex("dialog_box_blue");
+    if (gDsiDialogTex) {
+        drawIconTex(gDsiDialogTex, px, pyTop, pw, ph, 1.0f, 1.0f, 1.0f, ap);   // colour-preserving
+    } else {
+        drawRoundedRect(px, pyTop + S(3.0f), pw, ph, S(6.0f), 0.05f, 0.05f, 0.05f, 0.55f * ap);   // drop shadow
+        drawRoundedRect(px, pyTop, pw, ph, S(6.0f), 0.86f, 0.87f, 0.89f, ap);                     // outer frame
+        drawRoundedRect(px + S(2.0f), pyTop + S(2.0f), pw - S(4.0f), ph - S(4.0f), S(5.0f), 0.97f, 0.97f, 0.98f, ap);  // white body
+    }
 
     // title: flat DSi ink, no drop shadow (the real DSi message-box title is flat dark grey).
     if (!mPs3DlgTitle.empty()) {
@@ -1254,6 +1457,34 @@ void NanoMenu::renderNdsDialog(float rx, float ry, float rw, float rh) {
                 drawRoundedRect(X(dxc) - S(9.0f), pillY - S(1.5f), S(18.0f), S(13.0f), S(3.0f), 0.28f, 0.28f, 0.30f, act * ap);
                 drawText(g, X(dxc) - gw * 0.5f, pillY, pf, 1.0f, 1.0f, 1.0f, act * ap); };
             pill(30.0f, "L", lA); pill(226.0f, "R", rA);
+        } else if (!infoStyle && total > maxVis) {
+            // Long confirm-dialog body (Yes/No, e.g. the IPTV disclaimer): AUTO-SCROLL it as a
+            // ping-pong marquee between the title and the buttons, scissor-clipped to the band, so
+            // the whole message is readable instead of being truncated (user request 2026-07-11).
+            const float bandTop = Y(by + 46.0f), bandBot = Y(by + 112.0f);
+            const float bandH = bandBot - bandTop;
+            const float contentH = lineH * (float)total;
+            float off = 0.0f;
+            if (contentH > bandH + 0.5f) {                          // overflows the band -> scroll
+                const float scrollRange = contentH - bandH;
+                const float scrollT = scrollRange / (20.0f * scale);   // 20 DS px/s
+                const float pause = 1.8f, cycle = 2.0f * (pause + scrollT);
+                float tt = fmodf((float)mEffectTime, cycle);
+                off = (tt < pause) ? 0.0f
+                    : (tt < pause + scrollT) ? (tt - pause) / scrollT * scrollRange
+                    : (tt < 2.0f * pause + scrollT) ? scrollRange
+                    : scrollRange - (tt - 2.0f * pause - scrollT) / scrollT * scrollRange;
+                mDisplayDirty = true;                              // keep the marquee animating
+            }
+            glEnable(GL_SCISSOR_TEST);
+            scissorLogicalRect(X(16.0f), bandTop, S(224.0f), bandH);
+            for (int k = 0; k < total; k++) {
+                float ty = bandTop + (float)k * lineH - off;
+                if (ty > bandBot || ty + lineH < bandTop) continue;   // fully outside the band
+                float tw = measureText(lines[k].c_str(), fs);
+                drawText(lines[k].c_str(), cx - tw * 0.5f, ty, fs, 0.20f, 0.20f, 0.22f, ap);
+            }
+            glDisable(GL_SCISSOR_TEST);
         } else {
             int shown = total; if (shown > maxVis + 1) shown = maxVis + 1;
             float blockH = lineH * (float)shown;
@@ -1315,6 +1546,25 @@ void NanoMenu::renderNdsCarousel(float rx, float ry, float rw, float rh) {
     setUiBlend();
     ensureNdsAssets();
     if (!mPs3MenuBuilt) initPs3Menu();   // the XMB hierarchy feeds the carousel tiles
+    ndsSfxTick();                        // DSi interactive SFX: fire nav/drill/back/launch by state diff
+    // The Time Zone and System Language selectors are full-screen. The XMB theme draws them as a
+    // native-language list / 3D globe, which looks out of place inside the DSi menu; render them as
+    // the DSi scrollable picker list instead (nav + apply stay on the XMB langPickerNav/tzGlobeNav/
+    // close* handlers via ndsInModal). Time Zone: "GMT+hh:mm City" rows. Language: native names with
+    // a live locale preview as the cursor moves (matching renderLanguagePicker).
+    if (mPs3TzActive) {
+        std::vector<std::string> labels; labels.reserve(mTzEntries.size());
+        for (const auto& z : mTzEntries) labels.push_back(z.display);
+        renderNdsPickerList(rx, ry, rw, rh, trDyn("Time Zone"), labels, mTzSelected);
+        return;
+    }
+    if (mPs3LangActive) {
+        nanoSetLocale((NanoLocale)mLangSelected);   // live locale preview as you scroll
+        std::vector<std::string> labels; labels.reserve(LOCALE_COUNT);
+        for (int i = 0; i < LOCALE_COUNT; i++) labels.push_back(nanoGetLocaleInfo((NanoLocale)i).nativeName);
+        renderNdsPickerList(rx, ry, rw, rh, trDyn("System Language"), labels, mLangSelected);
+        return;
+    }
     // Modal overlays (user redesign): the Triangle option menu and the list/slider choosers
     // replace the carousel with the DSi settings-options side panel; confirm dialogs are drawn
     // OVER the carousel at the end of this function (renderNdsDialog). Side panels return early.
@@ -1335,9 +1585,22 @@ void NanoMenu::renderNdsCarousel(float rx, float ry, float rw, float rh) {
           }
           mNdsPrevStackDepth = depth;
       } }
-    // Stacked-carousel nav: every level (categories root, a category's items, or a submenu)
-    // is a carousel. The dark settings-list (renderNdsSubmenu) is reserved for side panels
-    // (choosers/sliders) now, not the drill-down submenus. Build the category cards once.
+    // Settings screens (a drill level whose rows are all On/Off / choice settings, e.g. the Quick
+    // Menu or a System Settings submenu) render as the DSi vertical LIST with each row's value inline,
+    // not the horizontal carousel (user request). The depth-change fade was stamped just above, and
+    // renderNdsSubmenu draws it; app/game/media levels fall through to the carousel below.
+    if (ndsCurLevelIsList()) {
+        renderNdsSubmenu(rx, ry, rw, rh);
+        // A confirm/info dialog (kind-0) opened FROM a settings list must still draw: this list path
+        // returns before the carousel's dialog dispatch below, so a dialog opened here (System
+        // Information, IPTV/Radio disclaimer, Restore/Format confirms) would set mPs3DlgActive but
+        // never render. Draw it OVER the list (scrim + DSi panel), matching the carousel path.
+        if ((mPs3DlgActive || mPs3DlgClosing) && !ndsDlgIsSidePanel())
+            renderNdsDialog(rx, ry, rw, rh);
+        return;
+    }
+    // Stacked-carousel nav: every other level (categories root, a category's items, or a submenu)
+    // is a carousel. Build the category cards once.
     if (!mNdsCatCardsBuilt) ndsBuildCatCards();
     const bool ndsPrevFont = mNdsFontPref; mNdsFontPref = true;   // DSi text uses the DSVec faces
     const int ndsPrevOutline = mTextOutlineMode; mTextOutlineMode = 2;   // DSi menu text is flat (no drop shadow / outline)
@@ -1750,8 +2013,16 @@ void NanoMenu::renderNdsCarousel(float rx, float ry, float rw, float rh) {
         // category for context (launcher.js _drawNameBox is multi-line, #414141, centred).
         std::string l1, l2;
         int nameSlot = mNdsDispSel;   // web _displaySelected: hard-swaps at 42/58 of a slide
-        if (items && nameSlot >= 0 && nameSlot < nItems) l1 = (*items)[nameSlot].label;
-        l2 = ndsCtxTitle;
+        const Ps3Item* nameItem = (items && nameSlot >= 0 && nameSlot < nItems) ? &(*items)[nameSlot] : nullptr;
+        if (nameItem) l1 = nameItem->label;
+        // Only a genuine data-driven settings row (PS3_DATA_LEAF: Dark Theme -> On, Screen Orientation
+        // -> Landscape, Time Format -> 24-Hour Clock) shows its current value as the second line, so its
+        // state is readable while scrolling without opening it. Game systems (a rom count, "Game Boy
+        // Color / 3") and the Game Systems editor rows (an enabled state, "NES / On") also carry a value
+        // but read as nonsense next to a proper-noun label, so they keep the category context, as do
+        // apps, games and drill-in groups (which have no value anyway).
+        l2 = (nameItem && !nameItem->value.empty() && nameItem->kind == PS3_DATA_LEAF)
+                 ? nameItem->value : ndsCtxTitle;
         if (l1.empty()) { l1 = l2; l2.clear(); }
         if (l1.empty()) l1 = "GammaOS";
         if (!l2.empty() && l2 == l1) l2.clear();
@@ -2182,12 +2453,17 @@ void NanoMenu::renderNdsTop(float rx, float ry, float rw, float rh) {
     } else if (!mPs3Stack.empty()) {
         head = mPs3Stack.back().title;
         const auto& its = mPs3Stack.back().items;
-        int s = mNdsDispSel; if (s < 0) s = 0; if (s >= (int)its.size()) s = (int)its.size() - 1;
+        // A LIST level (renderNdsSubmenu) returns before the carousel updates mNdsDispSel, so that
+        // index is stale here - use the list's real selection so the top panel tracks the highlighted
+        // row exactly (a carousel level keeps the animated hard-swap index).
+        int s = ndsCurLevelIsList() ? mPs3Stack.back().sel : mNdsDispSel;
+        if (s < 0) s = 0; if (s >= (int)its.size()) s = (int)its.size() - 1;
         if (s >= 0 && s < (int)its.size()) { sub = its[s].label; selItem = &its[s]; }
     } else if (mPs3CatIdx >= 0 && mPs3CatIdx < (int)mPs3Cats.size()) {
         head = mPs3Cats[mPs3CatIdx].name;
         const auto& its = mPs3Cats[mPs3CatIdx].items;
-        int s = mNdsDispSel; if (s < 0) s = 0; if (s >= (int)its.size()) s = (int)its.size() - 1;
+        int s = ndsCurLevelIsList() ? mPs3ItemIdx : mNdsDispSel;
+        if (s < 0) s = 0; if (s >= (int)its.size()) s = (int)its.size() - 1;
         if (s >= 0 && s < (int)its.size()) { sub = its[s].label; selItem = &its[s]; }
     }
     // For a focused item/app/game inside a category or submenu, use that item's own icon.
@@ -2334,10 +2610,11 @@ void NanoMenu::renderNdsTop(float rx, float ry, float rw, float rh) {
             float tw = measureText(s.c_str(), fs);
             if (tw > ctxMaxW) { fs *= ctxMaxW / tw; tw = measureText(s.c_str(), fs); }
             drawText(s.c_str(), cx - tw * 0.5f, yc, fs, r, g, b, am); };
-        // The focused settings item's live VALUE (e.g. Quick Resume On/Off) + DESCRIPTION, like
-        // the PS3 XMB context. This makes a toggle visibly change even though the item is a
-        // carousel card with no inline value. Games (selItem with art) show art above, not this.
-        std::string val = selItem ? resolvePs3ItemValue(*selItem) : std::string();
+        // The focused settings item's DESCRIPTION (help text), like the PS3 XMB context. The current
+        // VALUE is deliberately NOT shown while browsing (user 2026-07-11: "don't show the current
+        // value, the user should enter the menu to see it") - so val stays empty and only the name +
+        // help + icon appear on the top screen. Games (selItem with art) show art above, not this.
+        std::string val;
         std::string dsc = selItem ? selItem->desc : std::string();
         if (!val.empty() && val == sub) val.clear();   // don't echo the label as a value
         if (val.empty() && dsc.empty()) {
@@ -4007,11 +4284,29 @@ void NanoMenu::render() {
             int sw = mWidth, sh = mHeight;
             mWidth = sAhbTargetSecondary.w; mHeight = sAhbTargetSecondary.h;
             renderNdsCarousel(0.0f, 0.0f, (float)mWidth, (float)mHeight);
+            // The Internet Connection / Bluetooth setup wizard (mPs3WizActive, renderNetWizard) was
+            // only dispatched from renderPs3Xmb (skipped in the DSi theme), so the WiFi/BT flow never
+            // drew even though nav worked - draw it here on the BOTTOM touch panel (its password/PIN
+            // OSK also lives here). renderNetWizard early-returns when the wizard is not active.
+            if (mPs3WizActive) renderNetWizard();
+            // Global search (SELECT): the results overlay + its keyboard both live on the BOTTOM
+            // touch panel. renderGlobalSearch was only dispatched from renderPs3Xmb (skipped in the
+            // DSi theme), so the results never appeared - draw them here on the secondary panel.
+            if (mGSearchActive) renderGlobalSearch();
+            renderOsk();   // DSi keyboard/OSK on the bottom touch panel (self-gates on mOskActive)
             mWidth = sw; mHeight = sh;
         } else {
             glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             renderEffect();
+            // PS3 XMB cold boot: match the primary panel's fade-in + frosted-wave blur on the SECONDARY
+            // panel too (user: it was showing the unfiltered wave). primary=false skips the logo + text.
+            if (!mNdsTheme && mPs3BootActive) {
+                int sw = mWidth, sh = mHeight;
+                mWidth = sAhbTargetSecondary.w; mHeight = sAhbTargetSecondary.h;
+                renderPs3BootOverlay(/*primary=*/false);
+                mWidth = sw; mHeight = sh;
+            }
             glDisable(GL_BLEND);
         }
         maybeNanoScreenshotSecondary();   // debug capture of the DRM bottom (AHB) panel
@@ -4216,7 +4511,13 @@ void NanoMenu::render() {
         if (mGpTestActive) renderGamepadTest();
         else if (mGpCalibActive) renderGamepadCalib();
         renderScrapeProgress();   // boxart-scraper progress / result modal, over the XMB
-        renderOsk();
+        // DSi dual-screen (RG DS): the OSK keyboard belongs on the BOTTOM touch panel, not the
+        // untouchable TOP one. On a device with a live secondary panel it is drawn in the secondary
+        // (bottom) pass instead (search / Wi-Fi password / System Name were appearing on the top,
+        // where touch does nothing). A single-panel device keeps drawing it here.
+        bool ndsOskOnSecondary = mNdsTheme &&
+            (sAhbTargetSecondary.glFbo != 0 || !mSecondaryEglSurfaces.empty());
+        if (!ndsOskOnSecondary) renderOsk();
         // Overlay launch transition: fade the whole XMB to black over ~300ms so the
         // app's own cold start is covered by a clean fade-out instead of a frozen,
         // still-navigable menu. The black holds (the input-freeze in pollInput keeps
@@ -4803,6 +5104,9 @@ if (sRingPrimedCount >= 2) {
             // DSi theme dual-panel: a live secondary always shows the carousel (never the PS3
             // wave), independent of the primary's stacking mode (same resolution as primary).
             renderNdsCarousel(0.0f, 0.0f, (float)mWidth, (float)mHeight);
+            if (i == 0 && mPs3WizActive) renderNetWizard();       // WiFi/BT setup wizard on the bottom panel
+            if (i == 0 && mGSearchActive) renderGlobalSearch();   // global search results on the bottom panel
+            if (i == 0) renderOsk();   // DSi keyboard/OSK on the bottom touch panel (self-gates on mOskActive)
         } else {
             renderEffect();
         }

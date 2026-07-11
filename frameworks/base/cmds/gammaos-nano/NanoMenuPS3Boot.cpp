@@ -197,6 +197,16 @@ static std::mutex  gBootSfxMx;
 static std::string gBootSfxPending;
 static bool        gBootSfxPendingSet = false;
 
+// ---- DSi interactive SFX (nav_blip / app_launch / settings_nav / settings_back / settings_enter) ----
+// The web app (audio.js) plays a distinct sound for each menu event; nano was silent in DS mode (the
+// PS3 cursor sound ps3NavSound is gated to the PS3 theme). Five FILE-STATIC low-latency retriggerable
+// players (one per clip) load their wav once on a bg thread and then trigger lock-free from the render
+// thread. File-static (not NanoMenu members) so the class layout is unchanged (no full recompile).
+enum NdsSfxId { NDS_SFX_NAV = 0, NDS_SFX_LAUNCH, NDS_SFX_SET_NAV, NDS_SFX_SET_BACK, NDS_SFX_SET_ENTER,
+                NDS_SFX_COUNT };
+static NanoSfxPlayer  gNdsSfx[NDS_SFX_COUNT];
+static std::atomic<bool> gNdsSfxOpening[NDS_SFX_COUNT] = {};   // per-clip open-in-flight guard
+
 void NanoMenu::dsiBootSound(DsiSfx which) {
     const char* file = which == DsiSfx::Chime ? "boot_chime.wav"
                      : which == DsiSfx::Touch ? "touch_continue.wav"
@@ -232,6 +242,72 @@ void NanoMenu::dsiBootSound(DsiSfx which) {
             return;
         }
     }).detach();
+}
+
+// Trigger one DSi interactive SFX (NDS_SFX_* id). Lazy-loads the clip once on a bg thread (AAudio /
+// decode never on the render thread), then triggers are lock-free. Only in the DSi theme (the PS3
+// theme uses ps3NavSound). Post-boot only in practice (nav happens after the audio server is up).
+void NanoMenu::ndsSfxPlay(int which) {
+    if (!mNdsTheme) return;
+    if (which < 0 || which >= NDS_SFX_COUNT) return;
+    if (gNdsSfx[which].loaded()) { gNdsSfx[which].trigger(); return; }
+    if (gNdsSfxOpening[which].exchange(true)) return;             // one decode in flight per clip
+    static const char* kFiles[NDS_SFX_COUNT] = {
+        "nav_blip.wav", "app_launch.wav", "settings_nav.wav", "settings_back.wav", "settings_enter.wav" };
+    std::string path = dsiAudioPath(kFiles[which]);
+    std::thread([which, path]() {
+        // master 0.4 = half the web level (user: the DSi SFX were too loud, drop to 50%). The BGM
+        // ambiance is unchanged.
+        if (gNdsSfx[which].load(path, 0.4f)) gNdsSfx[which].trigger();
+        gNdsSfxOpening[which].store(false);
+    }).detach();
+}
+
+// Per-frame DSi SFX driver: detect nav / drill / back / launch by DIFFING this frame's menu state
+// against the previous frame, so exactly one sound fires per event regardless of whether the change
+// came from the D-pad or from touch (no per-call-site wiring, no double-fire). Called once per frame
+// from renderNdsCarousel. Suppressed inside modals (they own their own feel) and during boot.
+void NanoMenu::ndsSfxTick() {
+    if (!mNdsTheme) return;
+    static bool    sInit = false, sRoot = true, sModal = false;
+    static int     sDepth = 0, sSel = 0, sModalSel = 0;
+    static int64_t sFade = 0;
+    // launch: fire once when the launch fade-out begins (a card/app is being launched).
+    if (mLaunchFadeStart != 0 && sFade == 0) ndsSfxPlay(NDS_SFX_LAUNCH);
+    sFade = mLaunchFadeStart;
+
+    const bool root  = mNdsAtRoot;
+    const int  depth = (int)mPs3Stack.size();
+    const int  sel   = mNdsAtRoot ? mPs3CatIdx
+                     : (mPs3Stack.empty() ? mPs3ItemIdx : mPs3Stack.back().sel);
+    // A modal (chooser / picker / option menu / dialog) owns input; track its own cursor so moving
+    // through its options still chimes (settings_nav) and opening/closing it fires enter/back, 1:1
+    // with the DSi. Pick the active modal's selection index.
+    const bool modal = ndsInModal();
+    const int  modalSel = mPs3TzActive   ? mTzSelected
+                        : mPs3LangActive  ? mLangSelected
+                        : (mPs3DlgActive || mPs3DlgClosing) ? mPs3DlgSel
+                        : mPs3OptActive   ? (mPs3OptSubOpen ? mPs3OptSubSel : mPs3OptSel)
+                        : 0;
+
+    if (!sInit) { sInit = true; sRoot = root; sDepth = depth; sSel = sel; sModal = modal; sModalSel = modalSel; return; }
+    if (mPs3BootActive || mLaunchFadeStart != 0) {   // no chime during boot or a launch fade
+        sRoot = root; sDepth = depth; sSel = sel; sModal = modal; sModalSel = modalSel; return;
+    }
+
+    if (modal || sModal) {
+        if      (modal && !sModal)                ndsSfxPlay(NDS_SFX_SET_ENTER);   // opened a chooser/picker/dialog
+        else if (!modal && sModal)                ndsSfxPlay(NDS_SFX_SET_BACK);    // closed it
+        else if (modal && modalSel != sModalSel)  ndsSfxPlay(NDS_SFX_SET_NAV);     // moved within it
+    } else {
+        const int curLevel  = root  ? 0 : depth + 1;    // 0 = categories root, 1 = a category, 2+ = a submenu
+        const int prevLevel = sRoot ? 0 : sDepth + 1;
+        if      (curLevel > prevLevel) ndsSfxPlay(NDS_SFX_SET_ENTER);                    // drilled in
+        else if (curLevel < prevLevel) ndsSfxPlay(NDS_SFX_SET_BACK);                     // popped up
+        else if (sel != sSel)          ndsSfxPlay(ndsCurLevelIsList() ? NDS_SFX_SET_NAV  // settings-list move
+                                                                      : NDS_SFX_NAV);    // carousel move
+    }
+    sRoot = root; sDepth = depth; sSel = sel; sModal = modal; sModalSel = modalSel;
 }
 
 // Per-frame carousel background ambiance: loop menu_ambiance.wav while the DSi home is up
@@ -408,7 +484,11 @@ bool NanoMenu::ps3BootUpdate(float dtSeconds) {
 // ---------------------------------------------------------------------------
 // overlay render (drawn on top of the composited wave/gradient, primary pass)
 // ---------------------------------------------------------------------------
-void NanoMenu::renderPs3BootOverlay() {
+// primary=true draws the full boot (fade + logo/wordmark + warning blur + warning text). primary=false
+// is the SECONDARY (bottom) panel on a dual-screen device: it gets the SAME black fade-in and the same
+// frosted-wave blur as the primary (user: the secondary must not show the unfiltered wave), but skips
+// the logo and the warning text, which are the primary panel's focal content.
+void NanoMenu::renderPs3BootOverlay(bool primary) {
     // Make sure the responsive layout globals are current (the menu, which
     // normally computes them, is suppressed during boot).
     { ps3::LayoutParams lp; lp.panelW = mWidth; lp.panelH = mHeight; lp.uiScale = mPs3UiScale;
@@ -434,18 +514,24 @@ void NanoMenu::renderPs3BootOverlay() {
     if (blackA > 0.001f)
         drawQuad(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f, 0.0f, 0.0f, blackA);
 
-    // ---- 2. logo + footer white plates (2200..6800) ----
-    if (e >= BOOT_LOGO_IN_A && e < BOOT_LOGO_OUT_B) {
+    // ---- 2. logo + footer white plates (2200..6800) - PRIMARY panel only ----
+    if (primary && e >= BOOT_LOGO_IN_A && e < BOOT_LOGO_OUT_B) {
         float mainA;
         if (e < BOOT_LOGO_IN_B)        { float u = bootRamp(e, BOOT_LOGO_IN_A, BOOT_LOGO_IN_B); mainA = u * u; }
         else if (e < BOOT_LOGO_HOLD_B) mainA = 1.0f;
         else                           mainA = 1.0f - smooth01(bootRamp(e, BOOT_LOGO_HOLD_B, BOOT_LOGO_OUT_B));
 
-        // logo: native 700x350, dW = 0.365*fw, centred at (0.734fw, 0.532fh) -
-        // the same position the PS3 logo occupied.
-        float dW = 0.365f * fw, dH = dW * 0.5f;
+        // logo: native 700x350, centred at (0.734fw, 0.532fh) - the same position the PS3 logo
+        // occupied - but 50% BIGGER than before (user request: dW 0.365*fw -> 0.5475*fw). The G ink
+        // (plate x235..464) stays on screen at this width; only the plate's transparent margin
+        // nominally overshoots the right edge.
+        float dW = 0.5475f * fw, dH = dW * 0.5f;
         float lcx = fx + 0.734f * fw, lcy = fy + 0.532f * fh;
         float lx = lcx - dW * 0.5f, ly = lcy - dH * 0.5f;
+        // sensible gap between the bigger G and the "GammaOS" wordmark (user request): the logo plate
+        // lifts and the wordmark plate drops half the gap each, so the group stays centred at lcy.
+        float wordGap = 0.030f * fh;
+        float lyLogo = ly - wordGap * 0.5f, lyFoot = ly + wordGap * 0.5f;
 
         // L->R wipe during the in-phase only (settled full after). A scissor on a
         // full-height band clips the revealed left fraction (rotation-aware).
@@ -464,16 +550,15 @@ void NanoMenu::renderPs3BootOverlay() {
             scissorOn = true;
         }
         if (mPs3BootLogoTex) {
-            drawIconTex(mPs3BootLogoTex, lx + so[0], ly + so[1], dW, dH, 0.0f, 0.0f, 0.0f, 0.45f * mainA);
-            drawIconTex(mPs3BootLogoTex, lx, ly, dW, dH, 1.0f, 1.0f, 1.0f, mainA);
+            drawIconTex(mPs3BootLogoTex, lx + so[0], lyLogo + so[1], dW, dH, 0.0f, 0.0f, 0.0f, 0.45f * mainA);
+            drawIconTex(mPs3BootLogoTex, lx, lyLogo, dW, dH, 1.0f, 1.0f, 1.0f, mainA);
         }
-        // The footer plate (the "PLAYSTATION 3" wordmark) is a SAME-SIZE 700x350
-        // overlay drawn at the SAME rect as the logo - its text is positioned
-        // within its own canvas to sit under the PS3 mark - and rides the same
-        // wipe. (Web: drawImage(LOGO, dx,dy,dW,dH); drawImage(FOOTER, dx,dy,dW,dH).)
+        // The footer plate (the "GammaOS" wordmark) is a SAME-SIZE 700x350 overlay - its text is
+        // positioned within its own canvas to sit under the mark - drawn a wordGap lower than the
+        // logo plate (sensible margin, user request) and riding the same wipe.
         if (mPs3BootFooterTex) {
-            drawIconTex(mPs3BootFooterTex, lx + so[0], ly + so[1], dW, dH, 0.0f, 0.0f, 0.0f, 0.45f * mainA);
-            drawIconTex(mPs3BootFooterTex, lx, ly, dW, dH, 1.0f, 1.0f, 1.0f, mainA);
+            drawIconTex(mPs3BootFooterTex, lx + so[0], lyFoot + so[1], dW, dH, 0.0f, 0.0f, 0.0f, 0.45f * mainA);
+            drawIconTex(mPs3BootFooterTex, lx, lyFoot, dW, dH, 1.0f, 1.0f, 1.0f, mainA);
         }
         if (scissorOn) glDisable(GL_SCISSOR_TEST);
     }
@@ -499,7 +584,7 @@ void NanoMenu::renderPs3BootOverlay() {
         }
     }
 
-    if (e >= BOOT_WARN_IN && e < BOOT_WARN_OUT) {
+    if (primary && e >= BOOT_WARN_IN && e < BOOT_WARN_OUT) {
         float sy = fh / 1080.0f;
         float titleS = ps3::fontScale(30.0f);
         float bodyS  = ps3::fontScale(24.0f);

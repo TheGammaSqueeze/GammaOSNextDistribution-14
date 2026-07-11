@@ -355,6 +355,17 @@ void NanoMenu::ndsRestoreReturnPath() {
     property_get("sys.gammaos.nano.nds_return", buf, "");
     property_set("sys.gammaos.nano.nds_return", "");   // one-shot
     if (!buf[0]) return;
+    // User (2026-07-11): after exiting a launched game/app, return to the EXACT card we launched from
+    // (e.g. Game -> SNES -> the actual game), drilled all the way INTO its carousel with that card
+    // focused, and let the entrance cascade animate the cards in (web _introFall on a game-exit).
+    // Format "catIdx|itemIdx,sel0,sel1,...": the category, the category-level selection, then one
+    // selected index per drilled submenu level down to the launched card. The launched card lives one
+    // or more levels below the category tile (a game is Game -> a system submenu -> the game leaf), so
+    // the WHOLE chain must be replayed, not just catIdx+itemIdx (that only reaches the system tile).
+    // The replay reuses ps3XmbSelect (the real drill) but is hard-guarded so it can NEVER re-launch:
+    // it stops the moment a step fails to grow the stack (a leaf / changed data), and any launch a
+    // stray leaf-drill might arm is snapshotted and unconditionally restored afterwards.
+    // mNdsIntroStart is 0 on this fresh process, so renderNdsCarousel fires the intro cascade.
     char* bar = strchr(buf, '|');
     if (!bar) return;
     *bar = '\0';
@@ -367,29 +378,39 @@ void NanoMenu::ndsRestoreReturnPath() {
     mNdsAtRoot = false;
     mPs3CatIdx = catIdx;
     mPs3Stack.clear();
-    int n0 = (int)mPs3Cats[catIdx].items.size();
+    const int n0 = (int)mPs3Cats[catIdx].items.size();
     mPs3ItemIdx = (chain[0] >= 0 && chain[0] < n0) ? chain[0] : 0;
 
+    // Snapshot everything a stray leaf-drill could arm, so the replay can never hand a launch back to
+    // the fresh process; restored unconditionally after the loop.
     const int64_t savedFade = mLaunchFadeStart;
+    const bool    savedWait = mWaitForRelease;
+    const bool    savedExit = mExitRequested;
     char savedPkg[PROPERTY_VALUE_MAX] = {};
     property_get("sys.gammaos.nano.launched_pkg", savedPkg, "");
+
     for (size_t i = 1; i < chain.size(); i++) {
         size_t before = mPs3Stack.size();
-        ps3XmbSelect();                                  // drill the current item (ps3CurSel already = chain[i-1])
-        if (mPs3Stack.size() <= before || mLaunchFadeStart != savedFade) {
-            // a leaf / changed data / spurious launch: undo any launch the replay armed, stop here.
-            mLaunchFadeStart = savedFade; mWaitForRelease = false;
-            property_set("sys.gammaos.nano.launched_pkg", savedPkg);
-            break;
-        }
+        ps3XmbSelect();                                  // drill the current item (ps3CurSel == chain[i-1])
+        if (mPs3Stack.size() <= before) break;           // a leaf / changed data: stop, do not go deeper
         int nk = (int)mPs3Stack.back().items.size();
         ps3CurSel() = (nk > 0 && chain[i] >= 0 && chain[i] < nk) ? chain[i] : 0;
     }
-    // The replay must not leave a modal or a pending launch behind on the restored home.
+    // A settings LIST category (Quick Menu / System Settings) must not drop the user INTO the list on
+    // return (jarring, "don't drop to quick menu"): if the chain was a single category-level pick and
+    // that category renders as a list, stay at the categories root instead.
+    if (chain.size() == 1 && ndsCurLevelIsList()) mNdsAtRoot = true;
+
+    // Never leave a modal, a pending launch, or the drill's collapse animation behind on the restored
+    // home. The DSi carousel plays its own entrance cascade off mNdsIntroStart (0 on a fresh process).
     mPs3DlgActive = mPs3OptActive = mPs3DlgClosing = mPs3OptClosing = false;
-    mLaunchFadeStart = savedFade; mWaitForRelease = false;
-    mNdsCamera = (float)ps3CurSel();
-    mNdsScrubbing = false; mNdsFlingVel = 0.0f;
+    mPs3WizActive = false;
+    mLaunchFadeStart = savedFade; mWaitForRelease = savedWait; mExitRequested = savedExit;
+    property_set("sys.gammaos.nano.launched_pkg", savedPkg);
+    mPs3SubAnimStart = -1.0f; mPs3SubAnim = 0.0f; mPs3SubDir = 0;
+    mPs3ItemAnimStart = -1.0f; mPs3AnimItem = (float)ps3CurSel();
+    mNdsCamera = mNdsAtRoot ? (float)mPs3CatIdx : (float)ps3CurSel();
+    mNdsScrubbing = false; mNdsFlingVel = 0.0f; mNdsFastScroll = false;
 }
 
 NanoMenu::Ps3Item NanoMenu::makeDataItem(const Ps3DataItem* d) {
@@ -3624,27 +3645,15 @@ void NanoMenu::ps3XmbSelect() {
                                       property_set("persist.gammaos.nano.qr_core", "");
                                       prepareShutdown("android"); return;
                 case QA_QUICK_RESUME_TOGGLE:
-                    // Flip the durable toggle; the row value updates live via
-                    // resolvePs3ItemValue (mQuickResumeEnabled). Mirrors the R1 accelerator.
-                    mQuickResumeEnabled = !mQuickResumeEnabled;
-                    property_set("persist.gammaos.nano.quick_resume",
-                                 mQuickResumeEnabled ? "1" : "0");
-                    mDisplayDirty = true;
+                    // Open the On/Off chooser (user: enter to see + choose the state, like the other
+                    // settings) instead of flipping blind. applyThemeSetting case 33 commits it.
+                    openOnOffChooser("Quick Resume", 8, mQuickResumeEnabled, 33);
                     return;
-                case QA_SECONDARY_DISPLAY: {
-                    // In-memory toggle like the QS tile (the real state is in
-                    // DisplayManagerService). enable/disable display id 2; a no-op when
-                    // no external panel is attached. Run off the render thread.
-                    mSecondaryDisplayOn = !mSecondaryDisplayOn;
-                    bool on = mSecondaryDisplayOn;
-                    std::thread([on]{ system(on ? "cmd display enable-display 2 2>/dev/null"
-                                                : "cmd display disable-display 2 2>/dev/null"); }).detach();
-                    // Reflect the new state in the open Quick Settings row.
-                    if (!mPs3Stack.empty())
-                        for (auto& r : mPs3Stack.back().items)
-                            if (r.kind == PS3_QUICK && r.a == QA_SECONDARY_DISPLAY) r.value = on ? "On" : "Off";
-                    mDisplayDirty = true; return;
-                }
+                case QA_SECONDARY_DISPLAY:
+                    // On/Off chooser (consistent with the other Quick Settings tiles, which are
+                    // choosers). applyThemeSetting case 34 runs enable/disable-display 2.
+                    openOnOffChooser("External Display", 16, mSecondaryDisplayOn, 34);
+                    return;
                 case QA_LAUNCH_CALIBRATION:
                     std::thread([]{ system("am start -a org.lineageos.lineageparts.GAMEPAD_CALIBRATION 2>/dev/null"); }).detach();
                     return;
@@ -6740,6 +6749,21 @@ void NanoMenu::openPs3Dialog(const Ps3Item& it) {
 // Quick Menu -> Performance Mode: a side-panel chooser (kind 1, theme key 10)
 // reusing the Theme Settings chooser infra. X commits via closePs3Dialog(true) ->
 // applyThemeSetting(10), which writes persist.gammaos.performance_mode.
+// Generic On/Off side chooser (user: Quick Resume and similar in-place toggles should open the same
+// list dialog as the other settings so the current state is visible and chosen, not flipped blind).
+// Mirrors openPerformanceChooser; applyThemeSetting(themeKey, sel) commits it (sel 0 = On, 1 = Off).
+void NanoMenu::openOnOffChooser(const char* title, int iconIdx, bool currentOn, int themeKey) {
+    mPs3DlgOptions.clear(); mPs3DlgSwatch.clear();
+    mPs3DlgKind = 1; mPs3DlgThemeKey = themeKey; mPs3DlgTitle = title; mPs3DlgBody.clear();
+    static const char* kOnOff[] = {"On", "Off"};
+    for (const char* s : kOnOff) { mPs3DlgOptions.push_back(s); mPs3DlgSwatch.push_back(-1); }
+    mPs3DlgSel = currentOn ? 0 : 1;
+    mPs3DlgIconTex = 0; mPs3DlgIconNmap = nmapForIcon(iconIdx);
+    mPs3DlgIconR = mPs3DlgIconG = mPs3DlgIconB = 1.0f;
+    mPs3DlgOrigSel = mPs3DlgSel;
+    mPs3DlgActive = true; mPs3DlgAnim = 0.0f; mPs3DlgBlurValid = false;
+}
+
 void NanoMenu::openPerformanceChooser() {
     mPs3DlgOptions.clear(); mPs3DlgSwatch.clear();
     mPs3DlgKind = 1; mPs3DlgThemeKey = 10; mPs3DlgTitle = "Performance Mode"; mPs3DlgBody.clear();
@@ -7535,6 +7559,23 @@ void NanoMenu::applyThemeSetting(int themeKey, int sel) {
             if (sel == 1 && !mPs3AppInfoPkg.empty())
                 property_set("sys.gammaos.nano.app_action",
                              (mPs3AppInfoPkg + "|cleardata|").c_str());
+            break;
+        }
+        case 33: {  // Quick Resume On/Off (sel 0 = On). Mirrors the old in-place QA_QUICK_RESUME_TOGGLE.
+            mQuickResumeEnabled = (sel == 0);
+            property_set("persist.gammaos.nano.quick_resume", mQuickResumeEnabled ? "1" : "0");
+            mDisplayDirty = true;
+            break;
+        }
+        case 34: {  // External Display On/Off (sel 0 = On). enable/disable display id 2 off-thread.
+            mSecondaryDisplayOn = (sel == 0);
+            bool on = mSecondaryDisplayOn;
+            std::thread([on]{ system(on ? "cmd display enable-display 2 2>/dev/null"
+                                        : "cmd display disable-display 2 2>/dev/null"); }).detach();
+            if (!mPs3Stack.empty())
+                for (auto& r : mPs3Stack.back().items)
+                    if (r.kind == PS3_QUICK && r.a == QA_SECONDARY_DISPLAY) r.value = on ? "On" : "Off";
+            mDisplayDirty = true;
             break;
         }
         case 40: {  // GammaShader: master shader-type selection (enable+type) + rebuild

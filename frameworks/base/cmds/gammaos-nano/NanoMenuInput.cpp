@@ -57,6 +57,7 @@ extern "C" uint32_t __system_property_serial(const prop_info* __pi);
 #include "NanoMenuDrm.h"
 #include "NanoMenuShaders.h"
 #include "NanoMenuUtils.h"
+#include "NanoMenuStrings.h"   // LOCALE_COUNT (DSi language picker touch)
 
 namespace android {
 
@@ -518,7 +519,8 @@ void NanoMenu::handleUp() {
     if (mPs3Xmb || mPs3WizActive) {
         // DSi stacked carousel: UP walks up to the parent level (the parent carousel is drawn
         // above the focused one). A modal keeps normal vertical list nav.
-        if (mNdsTheme && mPs3Xmb && !ndsInModal()) ndsNavBack();
+        // A settings LIST level moves the selection up a row; a carousel level walks up to the parent.
+        if (mNdsTheme && mPs3Xmb && !ndsInModal()) { if (ndsCurLevelIsList()) ndsNavHoriz(-1); else ndsNavBack(); }
         else ps3XmbUp();
         return;
     }
@@ -577,7 +579,8 @@ void NanoMenu::handleDown() {
     if (mPs3Xmb || mPs3WizActive) {
         // DSi stacked carousel: DOWN drills into the focused card (the child carousel comes
         // into focus below). A modal keeps normal vertical list nav.
-        if (mNdsTheme && mPs3Xmb && !ndsInModal()) ndsNavSelect(false);   // buttons navigate only; launch is touch-only
+        // A settings LIST level moves the selection down a row; a carousel level drills the focused card.
+        if (mNdsTheme && mPs3Xmb && !ndsInModal()) { if (ndsCurLevelIsList()) ndsNavHoriz(+1); else ndsNavSelect(false); }   // launch is touch-only
         else ps3XmbDown();
         return;
     }
@@ -1299,8 +1302,16 @@ void NanoMenu::ndsTouchFrame() {
 // list scrolling is by the D-pad (the list already follows the selection); this keeps the
 // touch surface honest to the visible rows.
 void NanoMenu::ndsSubmenuTouch() {
-    if (mPs3BootActive || mPs3Stack.empty()) { mTouchWasDown = mTouchDown; return; }
+    if (mPs3BootActive) { mTouchWasDown = mTouchDown; return; }
     if (!mOverlayMode && mLaunchFadeStart > 0) { mTouchWasDown = mTouchDown; return; }  // frozen during launch
+    // Resolve the current list level generically (a submenu OR the drilled category, e.g. the Quick
+    // Menu) exactly as renderNdsSubmenu + ndsCurLevelIsList; the selection index lives in stack.sel
+    // for a submenu, mPs3ItemIdx for a category.
+    std::vector<Ps3Item>* itemsP = nullptr; int* selPtr = nullptr;
+    if (!mPs3Stack.empty()) { itemsP = &mPs3Stack.back().items; selPtr = &mPs3Stack.back().sel; }
+    else if (mPs3CatIdx >= 0 && mPs3CatIdx < (int)mPs3Cats.size()) { itemsP = &mPs3Cats[mPs3CatIdx].items; selPtr = &mPs3ItemIdx; }
+    if (!itemsP) { mTouchWasDown = mTouchDown; return; }
+    std::vector<Ps3Item>& lvlItems = *itemsP;
     float px, py; bool mapped = touchMapRaw(mTouchRawX, mTouchRawY, px, py);
     float scale = (float)mHeight / 192.0f;
     if (256.0f * scale > (float)mWidth + 0.5f) scale = (float)mWidth / 256.0f;
@@ -1309,8 +1320,7 @@ void NanoMenu::ndsSubmenuTouch() {
     float dsX = mapped ? 128.0f + (px - (float)mWidth * 0.5f) / scale : mNdsTouchDownX;
     float dsY = mapped ? (py - offY) / scale : mNdsTouchDownY;
 
-    Ps3Level& lvl = mPs3Stack.back();
-    int n = (int)lvl.items.size();
+    int n = (int)lvlItems.size();
     bool down = mTouchDown, downEdge = down && !mTouchWasDown, upEdge = !down && mTouchWasDown;
     // Match renderNdsSubmenu's layout: a fitting list is centred (_btnY), a long list scrolls.
     const float listTop = 30.0f, listBot = 168.0f, bh = 24.0f;
@@ -1320,30 +1330,133 @@ void NanoMenu::ndsSubmenuTouch() {
     const float top0 = scrolling ? listTop : roundf(94.0f - (float)(n - 1) * pitch * 0.5f - 12.0f);
     const float scroll = scrolling ? mNdsSubScroll : 0.0f;
 
+    // Scrollbar geometry (mirrors drawNdsListScrollbar): column DS x233..251, up arrow y26..43, down
+    // arrow y151..168, glossy thumb in the groove y43..151. thumbFrac/scrollFrac as the renderer draws.
+    const float sbx = 233.0f, sbw = 19.0f, aH = 17.0f;
+    const float grooveTop = 26.0f + aH, grooveBot = 168.0f - aH, grooveH = grooveBot - grooveTop;
+    const float maxScroll = (float)(n - fitRows);
+    auto thumbHof = [&]() { float f = (float)fitRows / (float)n; float h = fmaxf(12.0f, grooveH * f); return h > grooveH ? grooveH : h; };
+    // Keep the highlighted row = the row at the vertical centre of the visible band, so the D-pad
+    // ease-to-selection (render mode c) does NOT snap the scroll back after a scrollbar interaction.
+    auto syncSel = [&]() { int c = (int)lroundf(mNdsSubScroll + (float)(fitRows / 2)); if (c < 0) c = 0; if (c > n - 1) c = n - 1; if (selPtr) *selPtr = c; };
+
     if (downEdge && mapped) {
-        mNdsTouchMoved = false; mNdsTouchDownX = dsX; mNdsTouchDownY = dsY; mNdsSubDownSel = lvl.sel;
-    } else if (down && mapped) {
-        if (fabsf(dsY - mNdsTouchDownY) > 8.0f || fabsf(dsX - mNdsTouchDownX) > 8.0f) mNdsTouchMoved = true;
-        // vertical drag on a scrolling list steps the selection (which drives the scroll),
-        // one row per pitch of finger travel (dragging up advances). Short lists don't scroll.
-        if (mNdsTouchMoved && scrolling && n > 0) {
-            int d = (int)lroundf((mNdsTouchDownY - dsY) / pitch);
-            int ns = mNdsSubDownSel + d; if (ns < 0) ns = 0; if (ns > n - 1) ns = n - 1;
-            if (ns != lvl.sel) { lvl.sel = ns; mDisplayDirty = true; }
+        mNdsTouchMoved = false; mNdsTouchDownX = dsX; mNdsTouchDownY = dsY; mNdsSubDownSel = *selPtr;
+        mNdsListScrubDown = mNdsSubScroll; mNdsListFlingVel = 0.0f; mNdsListScrub = false; mNdsListThumb = false;
+        // Scrollbar down (x233..252): arrows step, thumb grabs, blank groove jumps.
+        if (scrolling && dsX >= sbx && dsX < sbx + sbw) {
+            if (dsY >= 26.0f && dsY < 26.0f + aH) {                                   // up arrow
+                mNdsSubScroll = fmaxf(0.0f, mNdsSubScroll - 1.0f); syncSel(); mDisplayDirty = true;
+            } else if (dsY >= grooveBot && dsY < 168.0f) {                            // down arrow
+                mNdsSubScroll = fminf(maxScroll, mNdsSubScroll + 1.0f); syncSel(); mDisplayDirty = true;
+            } else if (dsY >= grooveTop && dsY < grooveBot) {                         // groove
+                float thumbH = thumbHof();
+                float scrollFrac = maxScroll > 0.0f ? mNdsSubScroll / maxScroll : 0.0f;
+                float thumbY = grooveTop + (grooveH - thumbH) * scrollFrac;
+                if (dsY >= thumbY && dsY < thumbY + thumbH) mNdsListThumb = true;      // grab the thumb 1:1
+                else {                                                                // blank groove: jump the thumb centre under the finger
+                    float f = (grooveH - thumbH) > 0.0f ? (dsY - grooveTop - thumbH * 0.5f) / (grooveH - thumbH) : 0.0f;
+                    if (f < 0.0f) f = 0.0f; if (f > 1.0f) f = 1.0f;
+                    mNdsSubScroll = f * maxScroll; syncSel(); mDisplayDirty = true;
+                }
+            }
         }
+    } else if (down && mapped) {
+        float prevScroll = mNdsSubScroll;
+        if (fabsf(dsY - mNdsTouchDownY) > 8.0f || fabsf(dsX - mNdsTouchDownX) > 8.0f) mNdsTouchMoved = true;
+        if (mNdsListThumb && scrolling && n > 0) {
+            // Scrollbar thumb drag: the thumb centre tracks the finger 1:1 (no fling on release).
+            float thumbH = thumbHof();
+            float f = (grooveH - thumbH) > 0.0f ? (dsY - grooveTop - thumbH * 0.5f) / (grooveH - thumbH) : 0.0f;
+            if (f < 0.0f) f = 0.0f; if (f > 1.0f) f = 1.0f;
+            mNdsSubScroll = f * maxScroll; syncSel(); mDisplayDirty = true;
+        } else if (mNdsTouchMoved && scrolling && n > 0 &&
+                   (mNdsListScrub || (mNdsTouchDownX >= 34.0f && mNdsTouchDownX <= 220.0f))) {
+            // Content pixel-scroll (web scrub): the list follows the finger 1:1; velocity feeds the fling.
+            mNdsListScrub = true;
+            mNdsSubScroll = mNdsListScrubDown + (mNdsTouchDownY - dsY) / pitch;
+            if (mNdsSubScroll < 0.0f) mNdsSubScroll = 0.0f;
+            if (mNdsSubScroll > maxScroll) mNdsSubScroll = maxScroll;
+            mNdsListFlingVel = mNdsSubScroll - prevScroll;   // rows/frame
+            mDisplayDirty = true;
+        }
+    } else if (upEdge && (mNdsListThumb || (mNdsTouchMoved && mNdsListScrub))) {
+        // Release a scrollbar/content drag: the thumb stops dead, a content drag coasts on its fling.
+        if (mNdsListThumb) mNdsListFlingVel = 0.0f;
+        mNdsListThumb = false; mNdsListScrub = false;
     } else if (upEdge && !mNdsTouchMoved) {                 // a TAP
         if (mNdsTouchDownY >= listTop && mNdsTouchDownY <= listBot &&
             mNdsTouchDownX >= 34.0f && mNdsTouchDownX <= 220.0f && n > 0) {
             int i = (int)floorf((mNdsTouchDownY - top0) / pitch + scroll);
             float rowY = top0 + ((float)i - scroll) * pitch;             // reject taps in the gap
             if (i >= 0 && i < n && mNdsTouchDownY >= rowY && mNdsTouchDownY <= rowY + bh) {
-                lvl.sel = i; mDisplayDirty = true;
-                ps3XmbSelect();                             // enter / activate / launch the row
+                *selPtr = i; mDisplayDirty = true;
+                ndsNavSelect(true);                        // activate the tapped row (root/category/stack aware)
                 if (mWaitForRelease && !mOverlayMode && mLaunchFadeStart == 0)
                     mLaunchFadeStart = uptimeMillis();      // touch launch: drive the fade (see ndsTouchFrame)
             }
         } else if (mNdsTouchDownY >= 170.0f && mNdsTouchDownX < 60.0f) {
-            ps3XmbBack();                                   // "Back" hint -> pop the submenu level
+            ndsNavBack();                                   // "Back" bar -> pop the level / return to the root
+        } else if (mNdsTouchDownY >= 170.0f && mNdsTouchDownX > 196.0f) {
+            ndsNavSelect(true);                             // "OK" bar -> activate the current selection
+            if (mWaitForRelease && !mOverlayMode && mLaunchFadeStart == 0)
+                mLaunchFadeStart = uptimeMillis();
+        }
+    }
+    mTouchWasDown = mTouchDown;
+}
+
+// DSi picker list touch (Time Zone / System Language), matching renderNdsPickerList's layout
+// (bx17 bw222, listTop30 listBot168, pitch26). Tap a row to pick it and confirm (DSi "touch
+// confirms" model); drag to scroll a long list; tap the "Back" hint to cancel or "OK" to confirm
+// the current selection. The picker index (mTzSelected / mLangSelected) is what the renderer and
+// the XMB apply path (closeTimezoneGlobe / closeLanguagePicker) both read.
+void NanoMenu::ndsPickerTouch() {
+    if (mPs3BootActive) { mTouchWasDown = mTouchDown; return; }
+    if (!mOverlayMode && mLaunchFadeStart > 0) { mTouchWasDown = mTouchDown; return; }  // frozen during launch
+    const bool isLang = mPs3LangActive;
+    int* selPtr = nullptr; int n = 0;
+    if (mPs3TzActive)        { selPtr = &mTzSelected;   n = (int)mTzEntries.size(); }
+    else if (mPs3LangActive) { selPtr = &mLangSelected; n = LOCALE_COUNT; }
+    if (!selPtr || n <= 0) { mTouchWasDown = mTouchDown; return; }
+
+    float px, py; bool mapped = touchMapRaw(mTouchRawX, mTouchRawY, px, py);
+    float scale = (float)mHeight / 192.0f;
+    if (256.0f * scale > (float)mWidth + 0.5f) scale = (float)mWidth / 256.0f;
+    if (scale < 1e-3f) { mTouchWasDown = mTouchDown; return; }
+    float offY = ((float)mHeight - 192.0f * scale) * 0.5f;
+    float dsX = mapped ? 128.0f + (px - (float)mWidth * 0.5f) / scale : mNdsTouchDownX;
+    float dsY = mapped ? (py - offY) / scale : mNdsTouchDownY;
+
+    bool down = mTouchDown, downEdge = down && !mTouchWasDown, upEdge = !down && mTouchWasDown;
+    const float listTop = 30.0f, listBot = 168.0f, bh = 24.0f, pitch = 26.0f;
+    const int fitRows = (int)((listBot - listTop) / pitch);
+    const bool scrolling = n > fitRows;
+    const float top0 = scrolling ? listTop : roundf(94.0f - (float)(n - 1) * pitch * 0.5f - 12.0f);
+    const float scroll = scrolling ? mNdsSubScroll : 0.0f;
+
+    if (downEdge && mapped) {
+        mNdsTouchMoved = false; mNdsTouchDownX = dsX; mNdsTouchDownY = dsY; mNdsSubDownSel = *selPtr;
+    } else if (down && mapped) {
+        if (fabsf(dsY - mNdsTouchDownY) > 8.0f || fabsf(dsX - mNdsTouchDownX) > 8.0f) mNdsTouchMoved = true;
+        if (mNdsTouchMoved && scrolling) {
+            int d = (int)lroundf((mNdsTouchDownY - dsY) / pitch);
+            int ns = mNdsSubDownSel + d; if (ns < 0) ns = 0; if (ns > n - 1) ns = n - 1;
+            if (ns != *selPtr) { *selPtr = ns; mDisplayDirty = true; }   // language: live preview follows in the dispatch
+        }
+    } else if (upEdge && !mNdsTouchMoved) {                              // a TAP
+        if (mNdsTouchDownY >= listTop && mNdsTouchDownY <= listBot &&
+            mNdsTouchDownX >= 17.0f && mNdsTouchDownX <= 227.0f) {
+            int i = (int)floorf((mNdsTouchDownY - top0) / pitch + scroll);
+            float rowY = top0 + ((float)i - scroll) * pitch;            // reject taps in the gap
+            if (i >= 0 && i < n && mNdsTouchDownY >= rowY && mNdsTouchDownY <= rowY + bh) {
+                *selPtr = i;
+                if (isLang) closeLanguagePicker(true); else closeTimezoneGlobe(true);   // pick + apply + close
+            }
+        } else if (mNdsTouchDownY >= 170.0f && mNdsTouchDownX < 60.0f) {
+            if (isLang) closeLanguagePicker(false); else closeTimezoneGlobe(false);     // "Back" -> cancel
+        } else if (mNdsTouchDownY >= 170.0f && mNdsTouchDownX > 196.0f) {
+            if (isLang) closeLanguagePicker(true); else closeTimezoneGlobe(true);       // "OK" -> confirm current
         }
     }
     mTouchWasDown = mTouchDown;
@@ -1432,7 +1545,12 @@ void NanoMenu::ndsSidePanelTouch() {
         }
     } else if (upEdge) {
         if (!mNdsTouchMoved && mNdsTouchDownY >= 170.0f && mNdsTouchDownX < 60.0f) {
-            ps3XmbBack();                                   // "Back" hint -> dismiss / back out a submenu
+            ps3XmbBack();                                   // "Back" bar -> dismiss / back out a submenu
+        } else if (!mNdsTouchMoved && mNdsTouchDownY >= 170.0f && mNdsTouchDownX > 196.0f) {
+            // "OK" bar -> confirm/apply the current selection (matches the D-pad confirm).
+            if (optSrc) xmbOptEnter(); else ps3XmbSelect();
+            if (mWaitForRelease && !mOverlayMode && mLaunchFadeStart == 0) mLaunchFadeStart = uptimeMillis();
+            mDisplayDirty = true;
         } else if (!mNdsTouchMoved && mNdsTouchDownY >= listTop && mNdsTouchDownY <= listBot &&
                    mNdsTouchDownX >= bx && mNdsTouchDownX <= bx + bw && n > 0) {
             int i = (int)floorf((mNdsTouchDownY - top0) / pitch + scroll);
@@ -1780,14 +1898,20 @@ void NanoMenu::pollInput() {
                 else if (mPvActive)  pvTouchFrame();    // photo viewer (Gallery-style touch)
                 else if (mVidActive) vidTouchFrame();   // video player (YouTube-style touch)
                 else if (mMpActive)  mpTouchFrame();    // music Now Playing touch
+                // DSi theme global search: tap a result row to select+activate (query OSK closed).
+                else if (mNdsTheme && mPs3Xmb && mGSearchActive)
+                                     gsearchTouch();
                 // DSi theme modals: the Triangle option menu + list/slider choosers use the DSi
                 // settings-options list touch; confirm dialogs use the DSi message-box touch.
                 else if (mNdsTheme && mPs3Xmb && mPs3OptActive)
                                      ndsSidePanelTouch();
                 else if (mNdsTheme && mPs3Xmb && mPs3DlgActive)
                                      { if (ndsDlgIsSidePanel()) ndsSidePanelTouch(); else ndsDialogTouch(); }
+                else if (mNdsTheme && mPs3Xmb && (mPs3TzActive || mPs3LangActive))
+                                     ndsPickerTouch();  // Time Zone / System Language DSi picker list touch
                 else if (mNdsTheme && mPs3Xmb && !ndsInModal())
-                                     ndsTouchFrame();   // DSi stacked carousel (every level is a carousel)
+                                     { if (ndsCurLevelIsList()) ndsSubmenuTouch();   // settings screens: DSi list touch
+                                       else                     ndsTouchFrame(); }   // app/game levels: stacked carousel
                 else                 xmbTouchFrame();   // modals + XMB: option panel / dialog / self-guards
                 continue;
             }

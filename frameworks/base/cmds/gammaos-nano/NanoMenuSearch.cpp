@@ -14,6 +14,7 @@
 #include <strings.h>   // strcasestr
 
 #include <cutils/properties.h>
+#include <utils/SystemClock.h>   // uptimeMillis (touch-launch fade stamp)
 
 namespace android {
 
@@ -24,6 +25,14 @@ bool ciContains(const std::string& hay, const std::string& needle) {
     if (needle.empty()) return false;
     return strcasestr(hay.c_str(), needle.c_str()) != nullptr;
 }
+// DSi-theme search list layout, in DS 256x192 units. Shared by renderGlobalSearch's DSi branch
+// and gsearchTouch so the drawn rows and the tap hit-test stay in lockstep. The list always
+// scrolls from kNdsListTop (whole-row scroll via mGSearchScrollRow); item rows are glossy
+// buttons, section headers are thin labels between them.
+constexpr float kNdsListTop = 30.0f, kNdsListBot = 166.0f;
+constexpr float kNdsPitch = 21.0f, kNdsBtnH = 18.0f;
+constexpr float kNdsBx = 12.0f, kNdsBw = 230.0f;
+inline int kNdsFitRows() { return (int)((kNdsListBot - kNdsListTop) / kNdsPitch); }
 }
 
 // Select pressed on the home XMB: open the query keyboard (plaintext). The submit
@@ -177,6 +186,30 @@ int NanoMenu::gsearchVisRow(int resultIdx) const {
     return row;
 }
 
+// Total visual rows = one header per section + one row per result. Mirrors gsearchVisRow's numbering.
+int NanoMenu::gsearchTotalVisRows() const {
+    int row = 0, prevSection = -1;
+    for (const auto& g : mGSearchResults) { if (g.section != prevSection) { prevSection = g.section; row++; } row++; }
+    return row;
+}
+
+// Inverse of gsearchVisRow: the result index at visual row `target`, or -1 if that row is a
+// section header or out of range. Header rows sit at the section-change position (row before the
+// first item of each section), exactly as gsearchVisRow / renderGlobalSearch lay them out.
+int NanoMenu::gsearchResultAtVisRow(int target) const {
+    int row = 0, prevSection = -1;
+    for (int k = 0; k < (int)mGSearchResults.size(); k++) {
+        if (mGSearchResults[k].section != prevSection) {
+            prevSection = mGSearchResults[k].section;
+            if (row == target) return -1;   // this row is the section header
+            row++;
+        }
+        if (row == target) return k;        // this row is item k
+        row++;
+    }
+    return -1;
+}
+
 void NanoMenu::gsearchMove(int dir) {
     int n = (int)mGSearchResults.size();
     if (n == 0) return;
@@ -272,6 +305,115 @@ void NanoMenu::renderGlobalSearch() {
     float slide = (1.0f - a) * 24.0f;
     float ts = fmaxf(1.0f, (float)H / 768.0f);
 
+    // DSi theme: render the results as the DSi System-Settings-style dark glossy list on the bottom
+    // screen (matching renderNdsPickerList / renderNdsSidePanel) instead of the XMB dark overlay, so
+    // search fits the DSi look when that theme is selected. Header band = query + result count; each
+    // result is a glossy button (label left, section/subtitle right); section names are thin blue
+    // dividers between them. Whole-row scroll via mGSearchScrollRow; tap handling is gsearchTouch.
+    if (mNdsTheme) {
+        setUiBlend();
+        const float kFontH = 16.0f;                                   // DS glyph cell height (FONT_CHAR_H)
+        const bool ndsPrevFont = mNdsFontPref; mNdsFontPref = true;
+        const int  ndsPrevOutline = mTextOutlineMode; mTextOutlineMode = 2;   // DSi text is flat
+        float scale = (float)H / 192.0f;
+        if (256.0f * scale > (float)W + 0.5f) scale = (float)W / 256.0f;
+        const float offY = ((float)H - 192.0f * scale) * 0.5f;
+        const float cx = (float)W * 0.5f;
+        auto Y = [&](float d){ return offY + d * scale; };
+        auto S = [&](float v){ return v * scale; };
+        auto X = [&](float d){ return cx + (d - 128.0f) * scale; };
+        const float lh = fmaxf(1.0f, S(1.0f));
+        const int nres = (int)mGSearchResults.size();
+
+        // background: #383838 scanline field + darker #303030 header band (renderNdsPickerList parity)
+        drawQuad(0, 0, (float)W, (float)H, 0.220f, 0.220f, 0.220f, 1.0f);
+        for (float yy = 0; yy < (float)H; yy += S(2.0f)) drawQuad(0, yy, (float)W, lh, 0.255f, 0.255f, 0.255f, 1.0f);
+        drawQuad(0, 0, (float)W, Y(23.0f), 0.188f, 0.188f, 0.188f, 1.0f);
+        for (float yy = 0; yy < Y(23.0f); yy += S(2.0f)) drawQuad(0, yy, (float)W, lh, 0.220f, 0.220f, 0.220f, 1.0f);
+
+        // header: query (left, shrunk to fit) + result count (right, blue)
+        { float fs = S(13.0f) / kFontH;
+          char q[96]; snprintf(q, sizeof(q), "\"%s\"", mGSearchQuery.c_str());
+          float qmaxW = X(178.0f) - X(6.0f), qw = measureText(q, fs);
+          if (qw > qmaxW && qw > 1.0f) fs *= qmaxW / qw;
+          drawText(q, X(6.0f), Y(4.0f), fs, 0.984f, 0.984f, 0.984f, 1.0f);
+          char c[48]; snprintf(c, sizeof(c), "%d %s", nres, nres == 1 ? trDyn("result") : trDyn("results"));
+          float cfs = S(11.0f) / kFontH, cw = measureText(c, cfs);
+          drawText(c, X(250.0f) - cw, Y(5.0f), cfs, 0.62f, 0.78f, 1.0f, 1.0f); }
+        for (float xx = X(2.0f); xx < X(254.0f); xx += S(4.0f)) drawQuad(xx, Y(21.0f), fmaxf(1.0f, S(2.0f)), lh, 0.510f, 0.510f, 0.510f, 1.0f);
+
+        if (nres == 0) {
+            char msg[160]; snprintf(msg, sizeof(msg), "%s \"%s\"", trDyn("No results for"), mGSearchQuery.c_str());
+            float fs = S(13.0f) / kFontH, mw = measureText(msg, fs);
+            if (mw > S(236.0f) && mw > 1.0f) fs *= S(236.0f) / mw, mw = measureText(msg, fs);
+            drawText(msg, cx - mw * 0.5f, Y(92.0f), fs, 0.70f, 0.70f, 0.70f, 1.0f);
+        } else {
+            const int fitRows = kNdsFitRows();
+            const int totalRows = gsearchTotalVisRows();
+            // keep the selected item's visual row (and its section header) in view; whole-row scroll
+            int selVis = gsearchVisRow(mGSearchSel);
+            if (selVis < mGSearchScrollRow + 1) mGSearchScrollRow = selVis - 1;
+            if (selVis > mGSearchScrollRow + fitRows - 1) mGSearchScrollRow = selVis - fitRows + 1;
+            int maxScroll = totalRows - fitRows; if (maxScroll < 0) maxScroll = 0;
+            if (mGSearchScrollRow > maxScroll) mGSearchScrollRow = maxScroll;
+            if (mGSearchScrollRow < 0) mGSearchScrollRow = 0;
+
+            for (int vi = 0; vi < fitRows; vi++) {
+                int rr = mGSearchScrollRow + vi;
+                if (rr < 0 || rr >= totalRows) continue;
+                float rowY = kNdsListTop + (float)vi * kNdsPitch;
+                int ridx = gsearchResultAtVisRow(rr);
+                if (ridx < 0) {                                        // a section header row
+                    int below = gsearchResultAtVisRow(rr + 1);
+                    int sec = (below >= 0 && below < nres) ? mGSearchResults[below].section : -1;
+                    if (sec >= 0 && sec < 5) {
+                        float fs = S(10.0f) / kFontH;
+                        drawText(trDyn(kSectionName[sec]), X(kNdsBx + 2.0f), Y(rowY + 5.0f), fs, 0.55f, 0.75f, 1.0f, 1.0f);
+                    }
+                    drawQuad(X(kNdsBx), Y(rowY + kNdsPitch - 4.0f), S(kNdsBw), lh, 0.45f, 0.45f, 0.45f, 1.0f);
+                    continue;
+                }
+                const GSearchResult& g = mGSearchResults[ridx];
+                bool sel = (ridx == mGSearchSel);
+                drawNdsGlossyBtn(X(kNdsBx), Y(rowY), S(kNdsBw), S(kNdsBtnH), S(4.0f), sel);
+                float ic = sel ? 1.0f : 0.157f;                        // white on blue sel / #282828 idle
+                float subc = sel ? 0.85f : 0.42f;
+                float sfs = S(10.0f) / kFontH;
+                float subw = g.sub.empty() ? 0.0f : measureText(g.sub.c_str(), sfs);
+                float fs = S(12.0f) / kFontH;
+                float labMaxW = S(kNdsBw - 16.0f) - (subw > 0.0f ? subw + S(10.0f) : 0.0f);
+                float lw = measureText(g.label.c_str(), fs);
+                if (lw > labMaxW && lw > 1.0f) fs *= labMaxW / lw;
+                drawText(g.label.c_str(), X(kNdsBx + 8.0f), Y(rowY + 5.0f), fs, ic, ic, ic, 1.0f);
+                if (subw > 0.0f)
+                    drawText(g.sub.c_str(), X(kNdsBx + kNdsBw - 8.0f) - subw, Y(rowY + 6.0f), sfs, subc, subc, subc, 1.0f);
+            }
+            // right-edge scrollbar when the list overflows (DSi track + thumb)
+            if (totalRows > fitRows) {
+                float trackH = S(kNdsListBot - kNdsListTop);
+                drawQuad(X(250.0f), Y(kNdsListTop), S(6.0f), trackH, 0.125f, 0.125f, 0.125f, 1.0f);
+                float thumbH = trackH * (float)fitRows / (float)totalRows;
+                float thumbY = Y(kNdsListTop) + (trackH - thumbH) * ((float)mGSearchScrollRow / (float)(totalRows - fitRows));
+                drawQuad(X(250.0f), thumbY, S(5.0f), thumbH, 0.827f, 0.827f, 0.827f, 1.0f);
+            }
+        }
+
+        // bottom hint bar (Back / OK), identical to renderNdsPickerList.
+        drawQuad(0, Y(171.0f), (float)W, lh, 0.443f, 0.443f, 0.443f, 1.0f);
+        { const int NB = 14; float bandH = (Y(186.0f) - Y(172.0f)) / (float)NB;
+          for (int b = 0; b < NB; b++) { float t = (float)b / (float)(NB - 1); float c = 0.349f * (1.0f - t) + 0.188f * t;
+              drawQuad(0, Y(172.0f) + (float)b * bandH, (float)W, bandH + 0.6f, c, c, c, 1.0f); }
+          drawQuad(0, Y(186.0f), (float)W, Y(192.0f) - Y(186.0f), 0.188f, 0.188f, 0.188f, 1.0f); }
+        { float fs = S(11.0f) / kFontH;
+          drawText("Back", X(8.0f), Y(176.0f), fs, 0.898f, 0.898f, 0.898f, 1.0f);
+          if (nres > 0) { float tw = measureText("OK", fs); drawText("OK", X(248.0f) - tw, Y(176.0f), fs, 0.898f, 0.898f, 0.898f, 1.0f); } }
+
+        mTextOutlineMode = ndsPrevOutline;
+        mNdsFontPref = ndsPrevFont;
+        mDisplayDirty = true;   // transient full-screen list: keep it painting while open
+        return;
+    }
+
     drawQuad(0, 0, (float)W, (float)H, 0.04f, 0.05f, 0.06f, 0.90f * a);
 
     float margin = W * 0.06f;
@@ -346,6 +488,59 @@ void NanoMenu::renderGlobalSearch() {
     float hs = 0.85f * ts;
     float hw = measureText(hint, hs);
     drawText(hint, (W - hw) * 0.5f, H - hintSpace + 22.0f * ts, hs, 0.85f, 0.90f, 1.0f, a);
+}
+
+// DSi theme: touch the results list. Tap a result row to select + activate it, drag the list to
+// scroll it, tap the bottom-left "Back" to cancel. Mirrors renderGlobalSearch's DSi layout (the
+// shared kNds* constants) so the tapped row maps to exactly the result the renderer drew. Only
+// dispatched in the DSi theme once the query keyboard has closed (mGSearchActive && !mOskActive).
+void NanoMenu::gsearchTouch() {
+    if (mPs3BootActive) { mTouchWasDown = mTouchDown; return; }
+    if (!mOverlayMode && mLaunchFadeStart > 0) { mTouchWasDown = mTouchDown; return; }  // frozen during launch
+    float px, py; bool mapped = touchMapRaw(mTouchRawX, mTouchRawY, px, py);
+    float scale = (float)mHeight / 192.0f;
+    if (256.0f * scale > (float)mWidth + 0.5f) scale = (float)mWidth / 256.0f;
+    if (scale < 1e-3f) { mTouchWasDown = mTouchDown; return; }
+    float offY = ((float)mHeight - 192.0f * scale) * 0.5f;
+    float dsX = mapped ? 128.0f + (px - (float)mWidth * 0.5f) / scale : mNdsTouchDownX;
+    float dsY = mapped ? (py - offY) / scale : mNdsTouchDownY;
+
+    const int totalRows = gsearchTotalVisRows();
+    const int fitRows = kNdsFitRows();
+    const int maxScroll = (totalRows > fitRows) ? (totalRows - fitRows) : 0;
+    bool down = mTouchDown, downEdge = down && !mTouchWasDown, upEdge = !down && mTouchWasDown;
+
+    if (downEdge && mapped) {
+        mNdsTouchMoved = false; mNdsTouchDownX = dsX; mNdsTouchDownY = dsY;
+        mNdsSubDownSel = mGSearchScrollRow;                  // scroll origin for a drag
+    } else if (down && mapped) {
+        if (fabsf(dsY - mNdsTouchDownY) > 8.0f || fabsf(dsX - mNdsTouchDownX) > 8.0f) mNdsTouchMoved = true;
+        if (mNdsTouchMoved && maxScroll > 0) {               // drag to scroll (whole-row)
+            int ns = mNdsSubDownSel + (int)lroundf((mNdsTouchDownY - dsY) / kNdsPitch);
+            if (ns < 0) ns = 0; if (ns > maxScroll) ns = maxScroll;
+            if (ns != mGSearchScrollRow) { mGSearchScrollRow = ns; mDisplayDirty = true; }
+        }
+    } else if (upEdge && !mNdsTouchMoved) {                  // a TAP
+        if (mNdsTouchDownY >= kNdsListTop && mNdsTouchDownY <= kNdsListBot &&
+            mNdsTouchDownX >= kNdsBx && mNdsTouchDownX <= kNdsBx + kNdsBw) {
+            int vi = (int)floorf((mNdsTouchDownY - kNdsListTop) / kNdsPitch);
+            float rowY = kNdsListTop + (float)vi * kNdsPitch;   // reject taps in the inter-row gap
+            if (vi >= 0 && vi < fitRows && mNdsTouchDownY <= rowY + kNdsBtnH) {
+                int ridx = gsearchResultAtVisRow(mGSearchScrollRow + vi);   // -1 for a section header
+                if (ridx >= 0 && ridx < (int)mGSearchResults.size()) {
+                    mGSearchSel = ridx;
+                    gsearchActivate();   // select + launch/open (clears the search state itself)
+                    // A touch tap has no select-key release, so stamp the launch fade here (as
+                    // ndsTouchFrame does) or an armed game/app launch would hang forever.
+                    if (mWaitForRelease && !mOverlayMode && mLaunchFadeStart == 0)
+                        mLaunchFadeStart = uptimeMillis();
+                }
+            }
+        } else if (mNdsTouchDownY >= 170.0f && mNdsTouchDownX < 60.0f) {
+            gsearchClose();   // bottom-left "Back" -> cancel
+        }
+    }
+    mTouchWasDown = mTouchDown;
 }
 
 }  // namespace android

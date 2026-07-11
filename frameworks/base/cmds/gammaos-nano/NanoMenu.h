@@ -1159,6 +1159,7 @@ private:
                          bool flat = false, float fr = 0.0f, float fg = 0.0f, float fb = 0.0f);  // 21-stop favColor pill; per-side corner radii (DS px); flat=grey-rim mode
     void ndsTouchFrame();         // DSi carousel touch: tap a tile / L-R button, drag to scroll (bottom panel)
     void ndsSubmenuTouch();       // DSi submenu list touch: tap a row to enter, tap Back to pop
+    void ndsPickerTouch();        // DSi picker list touch (Time Zone / System Language): tap a row to pick
     // DSi single/dual screen handling. mNdsStackMode is the persist.gammaos.nano.ndstheme.stack
     // request: 0=auto (stack on a single-screen device, dual on a two-panel device), 1=force
     // stacked, 2=force off (carousel-only on a single screen). mNdsStack is the EFFECTIVE value
@@ -1180,6 +1181,7 @@ private:
     void  ndsNavHoriz(int dir);            // cycle the focused carousel's selection
     void  ndsNavSelect(bool allowLaunch = true);  // enter/drill the focused card; allowLaunch=false (D-pad/buttons) navigates the hierarchy but never launches a leaf (launch is touch-only)
     void  ndsNavBack();                    // walk up one level (pop submenu / leave category / at root: noop)
+    bool  ndsCurLevelIsList() const;       // current drill level is a settings screen -> DSi vertical list, not the carousel
     int   ndsNavDepth() const;             // 0 = root categories, 1 = a category, 2+ = submenu levels
     bool  ndsInModal() const;              // a chooser/dialog/OSK/player owns nav -> delegate to XMB handlers
     int   ndsFocusSel() const;             // current selection index of the focused carousel
@@ -1228,9 +1230,20 @@ private:
     // and confirm dialogs (System Update, exit settings) render as the DSi message box.
     void   renderNdsSidePanel(float rx, float ry, float rw, float rh);  // choosers / option menu -> settings list
     void   renderNdsDialog(float rx, float ry, float rw, float rh);     // Yes/No confirm -> DSi message box
+    // DSi-styled full-screen picker list (System Language / Time Zone): the dense scrollable
+    // glossy-button list from the web Country/Language screens, replacing the XMB language list
+    // and 3D globe when the DSi theme is active so those selectors match the rest of the menu.
+    void   renderNdsPickerList(float rx, float ry, float rw, float rh, const char* title,
+                               const std::vector<std::string>& labels, int sel);
     void   ndsSidePanelTouch();            // tap/scroll the DSi side-panel list
     void   ndsDialogTouch();               // tap the DSi dialog buttons
     void   drawNdsGlossyBtn(float x, float y, float w, float h, float r, bool sel);
+    // DSi scrolling-list scrollbar (settings.js _drawCountryBottom / _scrollArrowVec): a recessed
+    // groove with a glossy favColor-blue up/down arrow button at each end and a glossy blue thumb
+    // with a white grip. cx/offY/scale reconstruct the caller's DS->device mapping; trackTopDS..
+    // trackBotDS is the full bar span in DS-y; thumbFrac = visible fraction, scrollFrac = 0..1 pos.
+    void   drawNdsListScrollbar(float cx, float offY, float scale,
+                               float trackTopDS, float trackBotDS, float thumbFrac, float scrollFrac);
     float  mNdsSubScroll = 0.0f;  // submenu list scroll offset (rows), smoothed toward the selection
     // DSi enter/back screen transition (settings.js press/fadeOut/hold/fadeIn): the new screen
     // fades in from black on every submenu enter or Back, masking the instant stack switch.
@@ -1238,6 +1251,13 @@ private:
     int64_t mNdsSubTransStart = 0; // uptimeMillis the current enter/back transition began (0 = none)
     int    mNdsTransDir = 0;       // +1 = drilled down (cards fall in from top), -1 = backed up (rise from bottom)
     int    mNdsSubDownSel = 0;     // submenu selection at touch-down (vertical drag-scroll anchor)
+    // DSi list momentum scroll + draggable scrollbar (web launcher.js scrub/fling model, 1:1): the
+    // finger scrubs mNdsSubScroll directly, release flings it with a 0.85/frame decay, the scrollbar
+    // thumb tracks the finger 1:1, and the selection is the row at the vertical centre of the band.
+    float  mNdsListScrubDown = 0.0f; // mNdsSubScroll at touch-down (pixel-scroll drag anchor)
+    float  mNdsListFlingVel = 0.0f;  // fling velocity (rows/frame), decays at 0.85 per frame; 0 = idle
+    bool   mNdsListScrub = false;    // finger owns mNdsSubScroll (active content drag)
+    bool   mNdsListThumb = false;    // scrollbar thumb grabbed (1:1 follow, no fling)
     GLuint mNdsFrameTex = 0;      // cell_00_blue frame sprite (blue border + START platform)
     GLuint mNdsTileTex  = 0;      // tile_white pillow sprite
     GLuint mNdsPhotoTex = 0;      // photo_U panel (grey/white bevel frame + mint field), top screen
@@ -1610,7 +1630,7 @@ private:
     void  ps3BootSkip();
     void  ps3BootReplay();                  // test hook: re-run the cold-boot intro from t=0
     bool  ps3BootUpdate(float dtSeconds);   // advances clock; returns true while the XMB UI must stay suppressed
-    void  renderPs3BootOverlay();           // logo/footer plate, warning, scene-reveal black wash
+    void  renderPs3BootOverlay(bool primary = true);   // logo/footer plate, warning, scene-reveal black wash (primary=false: fade+blur only, for the 2nd panel)
     void  renderNdsBootOverlay(bool primary);   // DSi-styled cold boot (white field + GammaOS logo + notice)
     GLuint loadPs3BootPlate(const char* name);
     std::vector<Ps3Cat> mPs3Cats;
@@ -1744,6 +1764,10 @@ private:
     // not persisted; the real state lives in DisplayManagerService).
     bool mSecondaryDisplayOn = true;
     void openPerformanceChooser();
+    // Generic On/Off side chooser (mirrors openPerformanceChooser) so an in-place toggle (Quick
+    // Resume, External Display) instead presents the same DSi list dialog with the current state
+    // highlighted; applyThemeSetting(themeKey, sel) commits it (sel 0 = On, 1 = Off).
+    void openOnOffChooser(const char* title, int iconIdx, bool currentOn, int themeKey);
     // ---- GammaShader (display post-process shader control) ----------------------
     // Mirrors the ShaderControl app, driving the persist.gammaos.shader.* props and,
     // for custom presets, the /data/media/0/GammaShader/.shader_param_meta (native ->
@@ -2100,6 +2124,8 @@ private:
     NanoAudioPlayer mAmbiancePlayer;
     std::atomic<bool> mAmbiancePlaying{false};
     void ndsAmbianceTick(bool wantOnHome);   // per-frame: start/loop/stop the carousel ambiance
+    void ndsSfxPlay(int which);              // trigger a DSi interactive SFX (NDS_SFX_* id, NanoMenuPS3Boot.cpp)
+    void ndsSfxTick();                       // per-frame: diff menu state -> fire nav/drill/back/launch SFX
     // PS3 XMB cursor/enter sound (SE02_Cursor.wav): a dedicated low-latency SFX player, decoded once
     // and retriggered by a non-blocking atomic on each D-pad/touch move and on item enter. The audio
     // is mixed on the AAudio callback thread so it never touches nano's render performance.
@@ -2692,7 +2718,10 @@ private:
     void gsearchMove(int dir);    // up/down through results
     void gsearchActivate();       // launch / open the selected result
     int  gsearchVisRow(int resultIdx) const;  // visual row of a result (counts preceding headers)
+    int  gsearchTotalVisRows() const;         // total visual rows (section headers + item rows)
+    int  gsearchResultAtVisRow(int visRow) const;  // result index at a visual row, -1 for a header/oob
     void renderGlobalSearch();    // draw the overlay (returns nothing; caller gates on mGSearchActive)
+    void gsearchTouch();          // DSi theme: tap a result row to select+activate, tap Back to cancel
 
     // VIDEO (R4) - the HW decoder instance for the player. Lazily created in
     // openVideoPlayer, fully torn down in closeVideoPlayer/videoTick so an idle launcher
