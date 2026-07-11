@@ -557,6 +557,14 @@ private:
 
     // Battery HUD
     void pollBattery();
+    void pollVolume();   // refresh mVolume from the PWM-published prop when not mid-burst
+    // DSi top-screen status indicators (replace the username): wifi / bluetooth / audio.
+    // Throttled sysfs+procfs poll so the status bar reflects the real radio/audio state.
+    void pollNdsStatus();
+    int  mNdsStatusPollTicks = 0;   // frames until next radio/audio state read
+    int  mNdsWifiState = 0;         // 0 off, 1 on-not-associated, 2 connected
+    bool mNdsBtOn = false;          // bluetooth radio unblocked
+    bool mNdsAudioActive = false;   // real audio coming out of the speaker (ALSA pcm RUNNING)
     // Returns the right-edge X (in surface pixels) of the whole battery
     // indicator (icon + text). Network HUD chains its own icons from this
     // x so the layout scales cleanly with resolution / orientation.
@@ -812,6 +820,7 @@ private:
     std::vector<EGLSurface> mSecondaryEglSurfaces; // GammaOS: EGL surfaces for secondary wallpaper
     std::vector<sp<Surface>> mSecondarySurfaces; // GammaOS: keep refs alive
     std::vector<uint32_t> mSecondaryAppliedLayerStacks; // GammaOS: last layer stack applied to each secondary wallpaper SC
+    bool mNdsSecondaryShown = true; // GammaOS DSi overlay: is the secondary panel SC currently shown (hidden during a translucent in-game overlay so the app's bottom screen is not covered)
     sp<SurfaceControl> mFlingerSurfaceControl;
     sp<Surface> mFlingerSurface;
 
@@ -970,6 +979,7 @@ private:
     int mBatteryPercent;      // -1 if unknown / no battery
     bool mBatteryCharging;    // true when charging or full
     int mBatteryPollTicks;    // frames until next sysfs read
+    int mVolumePollTicks = 0;  // frames until next volume-prop resync (DSi status-bar icon)
 
     // Network state (cached, refreshed from netPollThreadFunc at ~0.5 Hz).
     // All fields are guarded by mNetStateMutex; copy into locals before use.
@@ -1133,6 +1143,128 @@ private:
         int screenKind = 0;   // 0 = normal submenu; GS_* for the Game Systems editor screens
     };
     bool mPs3Xmb = false;         // persist.gammaos.nano.ps3xmb
+    bool mNdsTheme = false;       // persist.gammaos.nano.ndstheme (DSi System Menu theme, takes priority)
+    // ---- DSi System Menu theme (NanoMenuNds; 1:1 port of /work/nds launcher) ----
+    // Aspect-adaptive: the 256x192 DSi design letterboxes into any panel. On the dual-screen
+    // RG DS the carousel goes to the bottom panel and the DSi top screen to the top; single
+    // panels get the carousel scaled to fit.
+    void renderNds();             // DSi launcher home, aspect-adaptive; orchestrates the panel layout
+    void ensureNdsAssets();       // one-shot: load the DSi sprites + read the stack prop
+    void renderNdsCarousel(float rx, float ry, float rw, float rh);  // DSi bottom screen into a device rect
+    void renderNdsTop(float rx, float ry, float rw, float rh);       // DSi top screen (status bar + content)
+    void drawNdsArrowBtn(float x0, float y0, float wpx, float hpx, int dir,
+                         float outerDS = 3.0f, float innerDS = 1.5f);  // scrollbar L/R favColor pill; per-side corner radii (DS px)
+    void drawNdsPillGrad(float x0, float y0, float wpx, float hpx,
+                         float radLeftDS = 3.0f, float radRightDS = 3.0f,
+                         bool flat = false, float fr = 0.0f, float fg = 0.0f, float fb = 0.0f);  // 21-stop favColor pill; per-side corner radii (DS px); flat=grey-rim mode
+    void ndsTouchFrame();         // DSi carousel touch: tap a tile / L-R button, drag to scroll (bottom panel)
+    void ndsSubmenuTouch();       // DSi submenu list touch: tap a row to enter, tap Back to pop
+    // DSi single/dual screen handling. mNdsStackMode is the persist.gammaos.nano.ndstheme.stack
+    // request: 0=auto (stack on a single-screen device, dual on a two-panel device), 1=force
+    // stacked, 2=force off (carousel-only on a single screen). mNdsStack is the EFFECTIVE value
+    // computed per frame from the mode + whether a live secondary panel exists, so a single-screen
+    // device shows BOTH DSi screens stacked instead of dropping the top screen.
+    int  mNdsStackMode = 0;
+    bool mNdsStack = false;       // effective: stack both DSi screens on one panel this frame
+    bool mNdsHadSecondary = false;// latched: a secondary panel has been seen (never flips back,
+                                  // so a transient glFbo=0 during the boot handoff can't briefly
+                                  // toggle a dual device into single-screen stacked mode)
+    // Stacked-carousel navigation (user redesign): the root carousel is the XMB CATEGORIES;
+    // selecting one drills a level down (the parent carousel slides up + dims out of focus,
+    // the child comes into focus below). Back walks up. Submenu levels are carousels too, not
+    // the settings list. mNdsAtRoot = showing the categories; else showing a category/submenu.
+    bool  mNdsAtRoot = true;               // true = the categories carousel is the focused level
+    std::vector<Ps3Item> mNdsCatCards;     // the categories rendered as carousel cards (built once)
+    bool  mNdsCatCardsBuilt = false;
+    void  ndsBuildCatCards();              // populate mNdsCatCards from mPs3Cats
+    void  ndsNavHoriz(int dir);            // cycle the focused carousel's selection
+    void  ndsNavSelect(bool allowLaunch = true);  // enter/drill the focused card; allowLaunch=false (D-pad/buttons) navigates the hierarchy but never launches a leaf (launch is touch-only)
+    void  ndsNavBack();                    // walk up one level (pop submenu / leave category / at root: noop)
+    int   ndsNavDepth() const;             // 0 = root categories, 1 = a category, 2+ = submenu levels
+    bool  ndsInModal() const;              // a chooser/dialog/OSK/player owns nav -> delegate to XMB handlers
+    int   ndsFocusSel() const;             // current selection index of the focused carousel
+    int   ndsFocusCount() const;           // number of cards in the focused carousel
+    bool  ndsPlayerActive() const;         // a media player is up -> show the XMB player, not the carousel
+    bool  ndsDlgIsSidePanel() const;       // the active dialog is a chooser/slider (list) vs a confirm (buttons)
+    void  ndsSaveReturnPath();             // persist the nav path (cat + stack sels) before a launch-exit
+    void  ndsRestoreReturnPath();          // on the fresh return process, drill back to the launched card
+    float mNdsCamera = 3.0f;      // carousel scroll position (slot units, fractional while sliding)
+    float mNdsSettleT = -1.0f;    // select-landing squash: frames (0..3) since the frame settled (-1 = idle)
+    bool  mNdsCamMoving = false;   // was the carousel camera moving last frame (to detect a fresh landing)
+    // DSi carousel touch gesture state (bottom panel; reuses touchMapRaw). The web
+    // drives the camera 1:1 from the finger (launcher.scrub: camera = downCam - dx/65),
+    // then a 0.85/frame momentum fling on release, then snaps (main.js menuTouch*).
+    bool  mNdsTouchMoved = false;
+    float mNdsTouchDownX = 0.0f, mNdsTouchDownY = 0.0f;  // DS-space touch-down point
+    int   mNdsDragMode = 0;       // 0 none, 1 carousel drag, 2 thumb, 3/4 L/R arrow, 5 track jump
+    float mNdsDragDownCam = 0.0f; // camera at drag start (carousel finger-follow anchor)
+    float mNdsDragLastCam = 0.0f; // camera last move (for release velocity)
+    float mNdsFlingVel = 0.0f;    // active momentum fling velocity (slot units/frame), 0 = idle
+    bool  mNdsScrubbing = false;  // finger (or fling) owns the camera -> skip the nav lerp
+    bool  mNdsThumbHeld = false;  // scrollbar pill grabbed -> pressed light-blue window, frame hidden
+    bool  mNdsFastScroll = false; // scrollbar blank-track press -> fast ease-out glide (launcher.scrollTo)
+    // DSi boot->carousel entrance cascade (launcher._introFall): icons spring-fall in,
+    // staggered from the centre outward, replayed each time the DSi home appears.
+    int64_t mNdsIntroStart = 0;   // uptimeMillis the entrance began (0 = done/not started)
+    // DSi "4x" redrawn vector fonts (DSVec letters / DSVecNum digits): loaded as extra
+    // FT faces; ensureGlyph prefers them only while mNdsFontPref is set (NDS text only).
+    int  mNdsFontIdx = -1;        // mFtFaces index of dsvec.ttf (letters), -1 = not loaded
+    int  mNdsNumIdx  = -1;        // mFtFaces index of dsvecnum.ttf (digits), -1 = not loaded
+    bool mNdsFontPref = false;    // when true, ensureGlyph tries the DSVec faces first
+    // DSi "4x" SVG-rasterised sprites (the real firmware assets, redrawn as vectors):
+    // cell_00 selection frame (transparent centre) + the white pillow tile. Loaded lazily.
+    GLuint ndsLoadTex(const char* name);   // decode /data|/system nano_xmb/nds/<name>.png -> RGBA tex
+    GLuint ndsLoadTexMem(const unsigned char* data, int len);   // decode an embedded PNG -> RGBA tex
+    void   ensureNdsRing();                // lazy-load the 36 launch sparkle-ring frames
+    // DSi boot->carousel entrance: vertical offset (DS px, from settled) of the tile at
+    // screen offset `off` from centre at intro frame `f`; returns -1000 = not yet visible.
+    float  ndsIntroFall(int off, float f);
+    void   ndsCommitSelect(int slot);      // commit a scrub/fling landing as the selection
+    // DSi System Settings submenu list (settings.js): a dark scanline screen with glossy
+    // grey/blue button rows. Used for the nano XMB submenu levels (mPs3Stack non-empty).
+    void   renderNdsSubmenu(float rx, float ry, float rw, float rh);
+    // DSi-styled modal overlays for the stacked-carousel nav (user redesign): the option
+    // menu + list/slider choosers render as the DSi System Settings glossy list (side panel),
+    // and confirm dialogs (System Update, exit settings) render as the DSi message box.
+    void   renderNdsSidePanel(float rx, float ry, float rw, float rh);  // choosers / option menu -> settings list
+    void   renderNdsDialog(float rx, float ry, float rw, float rh);     // Yes/No confirm -> DSi message box
+    void   ndsSidePanelTouch();            // tap/scroll the DSi side-panel list
+    void   ndsDialogTouch();               // tap the DSi dialog buttons
+    void   drawNdsGlossyBtn(float x, float y, float w, float h, float r, bool sel);
+    float  mNdsSubScroll = 0.0f;  // submenu list scroll offset (rows), smoothed toward the selection
+    // DSi enter/back screen transition (settings.js press/fadeOut/hold/fadeIn): the new screen
+    // fades in from black on every submenu enter or Back, masking the instant stack switch.
+    int    mNdsPrevStackDepth = -1;
+    int64_t mNdsSubTransStart = 0; // uptimeMillis the current enter/back transition began (0 = none)
+    int    mNdsTransDir = 0;       // +1 = drilled down (cards fall in from top), -1 = backed up (rise from bottom)
+    int    mNdsSubDownSel = 0;     // submenu selection at touch-down (vertical drag-scroll anchor)
+    GLuint mNdsFrameTex = 0;      // cell_00_blue frame sprite (blue border + START platform)
+    GLuint mNdsTileTex  = 0;      // tile_white pillow sprite
+    GLuint mNdsPhotoTex = 0;      // photo_U panel (grey/white bevel frame + mint field), top screen
+    GLuint mNdsBattTex  = 0;      // spr_batt_full sprite (unknown-level fallback; the live battery is procedural + proportional)
+    // Status-bar glyph textures: crisp framework SystemUI vector icons (rasterised to mono-white
+    // PNGs) tinted per state, replacing the old hand-drawn procedural speaker/wifi/bt/note.
+    GLuint mNdsSbSpeaker = 0, mNdsSbSpeakerMute = 0, mNdsSbWifi = 0, mNdsSbBt = 0, mNdsSbNote = 0;
+    bool   mNdsSbIconsLoaded = false;
+    // DSi top-screen game preview (#66): the focused ROM's scraped fanart, decoded async
+    // into its own slot (SA_NDS_FAN) so it can cross-fade with the boxart in the mint panel.
+    GLuint mNdsFanTex = 0; int mNdsFanW = 0, mNdsFanH = 0;
+    std::string mNdsFanPath;      // fanart path currently loaded into mNdsFanTex ("" = none)
+    std::string mNdsPreviewRom;   // ROM path the preview art is currently focused on
+    float mNdsPreviewT0 = -1.0f;  // mEffectTime the current preview began (drives the box<->fan cross-fade)
+    std::string mNdsPrevPreviewRom;  // outgoing game held for the game-to-game preview dissolve
+    float mNdsGameXfadeStart = -1.0f; // mEffectTime the game->game preview transition began (-1 = settled)
+    // web _displaySelected(): the name box (bottom) and the top-screen mint panel HARD-SWAP
+    // the shown selection - the outgoing title stays crisp until the incoming card is 42/58
+    // (~72%) of the way centred, then flips. Item->item never cross-fades (launcher.js only
+    // dissolves populated<->empty). mNdsSlideFrom is the slot the current slide left;
+    // mNdsDispSel is the slot currently shown, published by renderNdsCarousel and read by
+    // renderNdsTop so both screens agree.
+    int mNdsSlideFrom = -1;
+    int mNdsDispSel = 0;
+    GLuint mNdsRingTex[36] = {0}; // launcher_d cell_53..88 sparkle-ring frames (launch effect)
+    bool   mNdsRingLoaded = false;// one-shot lazy load guard for the 36 ring frames
+    bool   mNdsTexLoaded = false; // one-shot load guard
     bool mPs3MenuBuilt = false;
     float mPs3UiScale = 1.0f;     // persist.gammaos.nano.ps3xmb.uiscale (menu zoom)
     // ---- PS3 cold-boot intro (NanoMenuPS3Boot.cpp) ----
@@ -1148,6 +1280,17 @@ private:
     GLuint mPs3BootLogoTex = 0;
     GLuint mPs3BootFooterTex = 0;
     bool   mPs3BootPlatesLoaded = false;
+    GLuint mDsiTriTex = 0;               // rasterised warning triangle (hs_triangle) for the DSi boot notice
+    // ---- DSi 1:1 boot state machine (mNdsTheme only; the PS3 boot keeps its own
+    // auto-advancing mPs3BootElapsedMs clock). Frame counter @60fps mirrors the web
+    // boot.js this.frame so the logo/prompt indices stay 1:1 with config.js/boot.js.
+    int    mDsiBootPhase   = 0;          // 0=boot 1=wait 2=entering 3=done
+    double mDsiBootFrame   = 0.0;        // frames @60fps since power-on
+    double mDsiEnterStart  = 0.0;        // frame proceed() fired
+    bool   mDsiChimePlayed = false;      // boot-chime one-shot guard
+    float  mDsiBootSeed = 0.0f;          // per-boot random seed for the converging mini-logo scatter
+    bool   mDsiWantProceed = false;      // set by touch/button during WAIT, consumed in ps3BootUpdate
+    int64_t mDsiEnterAudioStartMs = 0;   // uptimeMillis at the enter fanfare (ambiance starts +2.58s)
     // ---- PS3 Settings dialogs + Theme Settings (NanoMenuPS3Menu.cpp) ----
     // action='dialog' DATA leaves open either a side-panel chooser (Theme
     // Settings: Theme/Colour/Background/Font/Day-Night) or a fullscreen message
@@ -1309,6 +1452,19 @@ private:
     std::string mPs3RomInfoFileName, mPs3RomInfoDir, mPs3RomInfoSize, mPs3RomInfoCore, mPs3RomInfoSystem;
     bool   mPs3RomInfoCoreIsApp = false;   // true = standalone app (label "App"), false = libretro core ("Core")
     int    mPs3RomInfoScroll = 0;  // first visible wrapped description line (Up/Down scroll)
+    // DSi theme: a game Information page (scraped OR unscraped file-facts) is open. Routed to the
+    // top-screen mint canvas on a dual-screen device (like the PS3 XMB) with L/R pagination.
+    bool   mPs3DlgGameInfo = false;
+    int    mNdsInfoPage = 0;               // current description page (L/R paginate)
+    int    mNdsInfoPageCount = 1;          // total pages (computed each render; 1 -> hide L/R)
+    void   renderNdsInfoPage(float rx, float ry, float rw, float rh, int part);  // 0=full(single) 1=top(cover+meta) 2=bottom(description)
+    void   ndsInfoPage(int dir);           // L/R: turn the info page (clamped)
+    bool   ndsGameInfoActive() const { return mPs3DlgGameInfo && (mPs3DlgActive || mPs3DlgClosing); }
+    // A kind-0 info dialog (single OK, no Yes/No, not a side-panel chooser) whose body overflows
+    // one panel and therefore paginates with L/R (System Information, music tags, ...).
+    bool   ndsDlgInfoPaged() const { return (mPs3DlgActive || mPs3DlgClosing) && !mPs3DlgGameInfo
+                                          && !ndsDlgIsSidePanel() && (int)mPs3DlgOptions.size() <= 1
+                                          && mNdsInfoPageCount > 1; }
     // App Information page (kind-0 dialog, filled asynchronously): "info" on an app sets
     // sys.gammaos.nano.appinfo_req=<pkg>#<n>, the framework writes the details file and
     // bumps sys.gammaos.nano.appinfo_gen, and we swap the "Loading..." body for it.
@@ -1355,7 +1511,7 @@ private:
     int    mPs3ColorIdx = 0;
     int    mPs3BgIdx = 0;
     int    mPs3FontIdx = 0;
-    int    mPs3DayNightIdx = 0;
+    int    mPs3DayNightIdx = 5;   // default: Night (kPs3DayNightOpts index 5)
     // Date and Time settings (functional). Date Format / Time Format are nano-
     // local display choices the clock honours; Daylight Saving reflects the real
     // current DST state (tm_isdst, refreshed each frame in drawPs3Clock) and the
@@ -1455,6 +1611,7 @@ private:
     void  ps3BootReplay();                  // test hook: re-run the cold-boot intro from t=0
     bool  ps3BootUpdate(float dtSeconds);   // advances clock; returns true while the XMB UI must stay suppressed
     void  renderPs3BootOverlay();           // logo/footer plate, warning, scene-reveal black wash
+    void  renderNdsBootOverlay(bool primary);   // DSi-styled cold boot (white field + GammaOS logo + notice)
     GLuint loadPs3BootPlate(const char* name);
     std::vector<Ps3Cat> mPs3Cats;
     std::vector<Ps3Level> mPs3Stack;   // empty = at category top level
@@ -1500,6 +1657,7 @@ private:
     // index (PS3 icons -> nmap_NNN.png) and by flat-icon texture id (console /
     // RetroArch icons -> a bevel normal generated from the alpha silhouette).
     std::map<int, GLuint>    mPs3NmapByIcon;     // xmb_icon index -> nmap tex
+    std::map<int, GLuint>    mPs3IconTexByIndex; // xmb_icon index -> colour icon tex (DSi flat cards)
     std::map<int, GLuint>    mPs3BevelByIconIdx; // console icon idx (0..17) -> bevel nmap
     std::map<int, GLuint>    mGpGlassNmaps;      // gamepad-tester button shapes -> bevel nmap (by round<<20|aspect)
     // iconRef string -> (colour silhouette tex, glass bevel nmap) for retroarch:/core:/file: refs.
@@ -1844,6 +2002,7 @@ private:
     bool mScrapeBoxartOn = false;        // per-frame cache of scraperBoxartEnabled()
     GLuint romBoxartTex(const std::string& romPath, float* outAR);
     void scraperFreeBoxart();            // delete all cached cover textures
+    void scraperArtTick();               // per-frame: toggle cache + free-on-leave-Game + saDrainArt (both themes)
     // Decode scraped art to a GL texture via stb_image (AImageDecoder silently
     // fails on the scrape PNGs on this device; stb_image works, same as the cinfo
     // bg). maxDim>0 downscales (nearest) to bound VRAM. Render thread only.
@@ -1854,7 +2013,7 @@ private:
     // the render thread, so opening a Game system or Information never hitches.
     // Lazy-started on the first request; fully stopped+joined (zero threads/CPU at
     // idle) by scraperFreeBoxart on leaving Game / occlusion / the 96-cache backstop.
-    enum ScrapeArtTarget { SA_BOX = 0, SA_CINFO_FAN, SA_DLG_FAN, SA_DLG_BOX };
+    enum ScrapeArtTarget { SA_BOX = 0, SA_CINFO_FAN, SA_DLG_FAN, SA_DLG_BOX, SA_NDS_FAN };
     struct SaDecReq { std::string path; int maxDim = 0; int target = 0; std::string key; uint64_t gen = 0; };
     struct SaDecRes { std::string path; int target = 0; std::string key; int w = 0, h = 0; float ar = 1.0f;
                       uint64_t gen = 0; std::vector<uint8_t> px; };
@@ -1911,6 +2070,43 @@ private:
     // The audio engine instance (decode + AAudio + FFT). Lazy: init() on first Music
     // entry; open()/play() on first track play.
     NanoAudioPlayer mMusicPlayer;
+
+    // ---- DSi boot one-shot sound effects (chime / touch-continue / menu-enter) ----
+    // A dedicated player instance so boot fanfares never contend with the carousel
+    // music (mVidAudio already proves a second concurrent NanoAudioPlayer is safe).
+    NanoAudioPlayer mSfxPlayer;
+    enum class DsiSfx { Chime, Touch, Enter };
+    void dsiBootSound(DsiSfx which);   // play the matching /system/etc/nano_xmb/audio/*.wav
+    // AAudioStreamBuilder_openStream() BLOCKS until the audio service + HAL are up, which on a
+    // cold boot can exceed the render watchdog (8s) and SIGABRT the whole process into a crash
+    // loop. So every DSi boot/ambiance stream is opened on a DETACHED thread, never on the
+    // render thread. These atomics gate a single in-flight open so the render loop never
+    // touches a player while its stream is being (asynchronously) opened.
+    std::atomic<bool> mSfxOpening{false};
+    std::atomic<bool> mAmbianceOpening{false};
+    // Chime pre-warm: the boot chime stream is opened on a bg thread at boot start so the slow
+    // cold audio-service handshake overlaps the first ~1.9s of the animation. mChimeReady flips
+    // true once the stream is open; the render loop then play()s it (non-blocking) at the chime
+    // mark, or as soon as it becomes ready if the service was still coming up.
+    std::atomic<bool> mChimeReady{false};
+    bool mChimePlayReq = false;    // the chime mark (1.94s) has been reached -> play when ready
+    bool mChimeStarted = false;    // play() already issued (fire once)
+    std::atomic<bool> mDirectChimeInFlight{false};   // RG DS direct-ALSA chime worker guard (NanoBootChime)
+    bool mDirectAmbiancePlaying = false;   // the direct-PCM carousel BGM loop is the active bed (pre-boot)
+    bool mPs3ColdSoundPlayed = false;      // PS3 XMB cold-boot sound (coldboot_stereo.wav) fired this boot
+    void dsiPrewarmChime();        // open the boot chime early on a bg thread (no play)
+    // Looping DSi home background ambiance (menu_ambiance.wav). Started once the boot enter
+    // fanfare finishes (so it is not clipped), looped by restart-on-ended, stopped off-home.
+    NanoAudioPlayer mAmbiancePlayer;
+    std::atomic<bool> mAmbiancePlaying{false};
+    void ndsAmbianceTick(bool wantOnHome);   // per-frame: start/loop/stop the carousel ambiance
+    // PS3 XMB cursor/enter sound (SE02_Cursor.wav): a dedicated low-latency SFX player, decoded once
+    // and retriggered by a non-blocking atomic on each D-pad/touch move and on item enter. The audio
+    // is mixed on the AAudio callback thread so it never touches nano's render performance.
+    NanoSfxPlayer mNavSfx;
+    std::atomic<bool> mNavSfxLoaded{false};
+    std::atomic<bool> mNavSfxOpening{false};
+    void ps3NavSound();
 
     // ==== Video library (R4) ==============================================
     // Mirrors the Music library; HW playback via NanoVideo. Folder import reuses the
@@ -2776,6 +2972,8 @@ private:
     // Glass icon pipeline (NanoMenuPS3Icons.cpp).
     void initGlassIcons();                 // compile program, load amb/env textures
     GLuint nmapForIcon(int iconIndex);     // load+cache nmap_NNN.png
+    GLuint iconTexForIcon(int iconIndex);  // load+cache xmb_icon_NNN.png colour tex (DSi flat cards)
+    GLuint uiIconTexForIcon(int iconIndex);// framework UI icon (idx>=kUiIconBase): mono silhouette as a plain tex (else 0)
     GLuint bevelForIconIdx(int iconIdx);   // bevel normal from a console icon's alpha
     GLuint bevelFromRGBA(const uint8_t* px, int w, int h);   // bevel normal from any silhouette buffer
     GLuint gpGlassNmap(bool round, float wpx, float hpx);    // cached bevel nmap for a gamepad-tester button shape
@@ -3019,7 +3217,7 @@ private:
     bool mSearchActive;        // Search results being displayed
 
     // FreeType font rendering
-    static const int MAX_FT_FACES = 8;
+    static const int MAX_FT_FACES = 12;   // 7-8 system fonts + the DSi DSVec/DSVecNum faces
     FT_Library mFtLib;
     FT_Face mFtFaces[MAX_FT_FACES];
     int mFtNumFaces;

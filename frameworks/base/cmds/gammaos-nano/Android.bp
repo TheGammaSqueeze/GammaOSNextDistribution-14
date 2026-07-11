@@ -71,6 +71,7 @@ cc_binary {
         "NanoMenuPS3Menu.cpp",
         "NanoMenuPS3Globe.cpp",
         "NanoMenuPS3Boot.cpp",
+        "NanoBootChime.cpp",
         "NanoMenuSetupWizard.cpp",
         "NanoMenuStrings.cpp",
         "NanoBtStable.cpp",
@@ -142,6 +143,7 @@ cc_binary {
         "libandroid",   // APerformanceHint (ADPF render-thread hint session)
         "libaaudio",    // GammaEQ audio preview + music player output (AAudio)
         "libmediandk",  // music player decode: AMediaExtractor + AMediaCodec -> PCM
+        "libtinyalsa",  // RG DS boot chime: direct ALSA PCM write, bypasses AudioFlinger (NanoBootChime)
         "libjnigraphics",  // photo viewer: AImageDecoder scaled-on-decode (JPEG/PNG/...)
     ],
 
@@ -160,6 +162,7 @@ cc_binary {
         "nano_xmb_globe",
         "nano_xmb_icons_retroarch",
         "nano_xmb_icons_ui",
+        "nano_xmb_nds",
         "nano_xmb_daijishou",
         "nano_xmb_i18n",
         "nano_xmb_audio",
@@ -419,6 +422,17 @@ prebuilt_etc {
     name: "nano_xmb_icons_ui",
     srcs: ["ps3xmb/icons_ui/*.png"],
     sub_dir: "nano_xmb/icons_ui",
+}
+
+// DSi System Menu theme (persist.gammaos.nano.ndstheme) 4x assets: the DSVec vector
+// fonts (dsvec.ttf letters / dsvecnum.ttf digits) and the SVG-rasterised sprites
+// (cell_00 selection frame, tile_white). Installed to /system/etc/nano_xmb/nds so the
+// theme works after a factory reset (the runtime dev-override under /data is checked
+// first, this is the bundled fallback).
+prebuilt_etc {
+    name: "nano_xmb_nds",
+    srcs: ["ps3xmb/nds/*"],
+    sub_dir: "nano_xmb/nds",
 }
 
 // Daijishou community platform configs (119 platforms, ~917 players covering

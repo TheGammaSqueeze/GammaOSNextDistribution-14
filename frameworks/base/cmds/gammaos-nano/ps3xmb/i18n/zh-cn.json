@@ -1548,5 +1548,9 @@
  "ready": "有存档",
  "result": "条结果",
  "results": "条结果",
- "unlocked": "已解锁"
+ "unlocked": "已解锁",
+ "Home Theme": "主界面主题",
+ "GammaOS XMB": "GammaOS XMB",
+ "DSi Menu": "DSi 菜单",
+ "Switches the home screen between the GammaOS XMB and the DSi Menu. Applying restarts the home screen.": "在 GammaOS XMB 和 DSi 菜单之间切换主界面。应用后将重启主界面。"
 }

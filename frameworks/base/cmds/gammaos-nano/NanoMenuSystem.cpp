@@ -417,11 +417,58 @@ static bool queryHealthHidl(int* outPercent, bool* outCharging) {
     return true;
 }
 
+// Raw power_supply sysfs fallback. The IHealth HAL is the framework source of
+// truth, but it is not always reachable from every process context (e.g. the
+// resident nano overlay in the bootanim domain, or a minimal boot before the
+// HAL registers). The kernel power_supply nodes are always present once the
+// battery driver is up, so this keeps the indicator live when the binder path
+// returns nothing. Scans /sys/class/power_supply/* for the first node that
+// carries a capacity file and is of type "Battery".
+static bool queryHealthSysfs(int* outPercent, bool* outCharging) {
+    static const char* kBases[] = {
+        "/sys/class/power_supply/battery",
+        "/sys/class/power_supply/cw2015-battery",
+        "/sys/class/power_supply/bat",
+    };
+    auto readInt = [](const char* path, int* out) -> bool {
+        FILE* f = fopen(path, "r");
+        if (!f) return false;
+        int v = -1;
+        int n = fscanf(f, "%d", &v);
+        fclose(f);
+        if (n != 1) return false;
+        *out = v;
+        return true;
+    };
+    char path[256];
+    for (const char* base : kBases) {
+        snprintf(path, sizeof(path), "%s/capacity", base);
+        int cap = -1;
+        if (!readInt(path, &cap)) continue;
+        if (cap < 0) cap = 0;
+        if (cap > 100) cap = 100;
+        *outPercent = cap;
+        // status: "Charging"/"Full"/"Discharging"/"Not charging"/"Unknown"
+        snprintf(path, sizeof(path), "%s/status", base);
+        FILE* f = fopen(path, "r");
+        if (f) {
+            char st[32] = {};
+            if (fgets(st, sizeof(st), f))
+                *outCharging = (strncmp(st, "Charging", 8) == 0
+                                || strncmp(st, "Full", 4) == 0);
+            fclose(f);
+        }
+        return true;
+    }
+    return false;
+}
+
 // Read battery percentage and charging state. IHealth HAL is the primary
 // source (matches what BatteryService exposes to the rest of the system);
 // sysfs is the fallback if the HAL is not reachable (e.g. during early
-// boot before android.hardware.health/default has registered). Called once
-// per second from the render loop.
+// boot before android.hardware.health/default has registered, or from the
+// bootanim-domain overlay whose binder path to the HAL is unavailable).
+// Called once per second from the render loop.
 void NanoMenu::pollBattery() {
     if (--mBatteryPollTicks > 0) return;
     mBatteryPollTicks = 60; // ~1s at 60fps
@@ -432,11 +479,100 @@ void NanoMenu::pollBattery() {
     // (-1, indicator hidden) until the framework comes online and reports it.
     int pct = -1;
     bool charging = false;
-    if (queryHealthHal(&pct, &charging) || queryHealthHidl(&pct, &charging)) {
+    if (queryHealthHal(&pct, &charging) || queryHealthHidl(&pct, &charging)
+        || queryHealthSysfs(&pct, &charging)) {
         mBatteryPercent = pct;
         mBatteryCharging = charging;
     }
-    // else: leave the last known value (or -1) until the HAL is reachable.
+    // Charging status: the IHealth getChargeStatus query is unreliable on this device (it
+    // can leave the flag false while the charger is connected, so the DSi battery never
+    // turns green). The power_supply sysfs "status" node is the kernel truth, so always
+    // override the charging flag from it when it is readable (percentage still prefers the
+    // HAL above). This makes plug/unplug reflect within the 1s poll.
+    { int p2 = -1; bool c2 = false;
+      if (queryHealthSysfs(&p2, &c2)) mBatteryCharging = c2; }
+    // else: leave the last known value (or -1) until a source is reachable.
+}
+
+// Keep the DSi status-bar volume icon current with the REAL system volume. mVolume is only
+// advanced by nano's own changeVolume() (a volume-key press it handled), but in the resident
+// overlay the volume keys are consumed by PhoneWindowManager, which changes the streams and
+// republishes persist.gammaos.nano.volume WITHOUT touching this process's mVolume - so the
+// icon went stale. Resync mVolume from that published prop ~2x/sec, EXCEPT mid-burst (where
+// changeVolume's optimistic counter leads the PWM republish round-trip; see that comment).
+void NanoMenu::pollVolume() {
+    if (--mVolumePollTicks > 0) return;
+    mVolumePollTicks = 30; // ~0.5s at 60fps
+    if (mShowVolumeBar) return;   // in a burst: keep the optimistic slider value
+    char m[PROPERTY_VALUE_MAX] = {}, v[PROPERTY_VALUE_MAX] = {};
+    property_get("persist.gammaos.nano.volmax", m, "");
+    if (m[0]) { int mm = atoi(m); if (mm > 0) mMaxVolume = mm; }
+    property_get("persist.gammaos.nano.volume", v, "");
+    if (v[0]) { int vv = atoi(v); if (vv < 0) vv = 0; if (vv > mMaxVolume) vv = mMaxVolume; mVolume = vv; }
+}
+
+// Read the DSi top-screen status indicators (wifi / bluetooth / audio) from the
+// kernel. These are permission-free reads (sysfs/procfs) so they work from both
+// the primary service and the bootanim-domain overlay. Throttled like pollVolume
+// so the status bar reflects reality without hammering the filesystem every frame.
+static bool readFirstLine(const char* path, char* out, size_t n) {
+    FILE* f = fopen(path, "r");
+    if (!f) return false;
+    bool ok = fgets(out, (int)n, f) != nullptr;
+    fclose(f);
+    if (!ok) return false;
+    // strip trailing newline
+    size_t l = strlen(out);
+    while (l && (out[l-1] == '\n' || out[l-1] == '\r')) out[--l] = 0;
+    return true;
+}
+
+void NanoMenu::pollNdsStatus() {
+    if (--mNdsStatusPollTicks > 0) return;
+    mNdsStatusPollTicks = 30; // ~0.5s at 60fps
+
+    // --- radios via /sys/class/rfkill: read each entry's type + state. The
+    // rfkill index for wlan vs bluetooth is not fixed, so key off the type name.
+    bool wlanRadio = false, btRadio = false;
+    char path[256], buf[64];
+    for (int i = 0; i < 16; i++) {
+        snprintf(path, sizeof(path), "/sys/class/rfkill/rfkill%d/type", i);
+        if (!readFirstLine(path, buf, sizeof(buf))) {
+            if (i == 0) continue;   // gap: keep scanning a few more before giving up
+            if (i >= 8) break;      // no more entries
+            continue;
+        }
+        bool isWlan = (strcmp(buf, "wlan") == 0);
+        bool isBt   = (strcmp(buf, "bluetooth") == 0);
+        if (!isWlan && !isBt) continue;
+        snprintf(path, sizeof(path), "/sys/class/rfkill/rfkill%d/state", i);
+        int st = 0;
+        char sb[16];
+        if (readFirstLine(path, sb, sizeof(sb))) st = atoi(sb);   // 1 = radio unblocked/on
+        if (isWlan && st > 0) wlanRadio = true;
+        if (isBt   && st > 0) btRadio  = true;
+    }
+    // wifi: on-but-not-associated (1) vs connected to an AP (2, operstate "up").
+    int wifi = wlanRadio ? 1 : 0;
+    if (wlanRadio && readFirstLine("/sys/class/net/wlan0/operstate", buf, sizeof(buf))
+        && strcmp(buf, "up") == 0)
+        wifi = 2;
+    mNdsWifiState = wifi;
+    mNdsBtOn = btRadio;
+
+    // --- audio: is sound actually coming out of the speaker right now? The
+    // ALSA playback substream status reads "state: RUNNING" while any process
+    // (nano's own players, a foreground game/app, ...) is feeding the DAC.
+    bool audio = false;
+    for (int card = 0; card < 3 && !audio; card++) {
+        for (int dev = 0; dev < 4 && !audio; dev++) {
+            snprintf(path, sizeof(path),
+                     "/proc/asound/card%d/pcm%dp/sub0/status", card, dev);
+            if (readFirstLine(path, buf, sizeof(buf)))
+                if (strstr(buf, "RUNNING")) audio = true;
+        }
+    }
+    mNdsAudioActive = audio;
 }
 
 float NanoMenu::renderBatteryIndicator() {

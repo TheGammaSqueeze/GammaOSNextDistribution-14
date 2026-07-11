@@ -1548,5 +1548,9 @@
  "ready": "사용 중",
  "result": "결과",
  "results": "결과",
- "unlocked": "잠금 해제됨"
+ "unlocked": "잠금 해제됨",
+ "Home Theme": "홈 테마",
+ "GammaOS XMB": "GammaOS XMB",
+ "DSi Menu": "DSi 메뉴",
+ "Switches the home screen between the GammaOS XMB and the DSi Menu. Applying restarts the home screen.": "홈 화면을 GammaOS XMB와 DSi 메뉴 사이에서 전환합니다. 적용하면 홈 화면이 다시 시작됩니다."
 }

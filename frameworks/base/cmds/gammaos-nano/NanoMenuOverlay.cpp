@@ -534,7 +534,12 @@ void NanoMenu::overlayHide() {
     if (mFlingerSurfaceControl != nullptr) {
         SurfaceComposerClient::Transaction t;
         t.hide(mFlingerSurfaceControl);
+        // Also hide the secondary (bottom) surface, atomically with the primary, so the DSi
+        // in-game overlay's opaque RGBX bottom panel never covers the resumed game's bottom
+        // screen. The render-loop toggle also hides it (show_overlay=0), this is the belt.
+        for (const auto& sc : mSecondaryWallpaperControls) t.hide(sc);
         t.apply();
+        mNdsSecondaryShown = false;   // re-show on the next summon
     }
     mOverlayShown = false;
     mOverlayPendingShow = false;   // cancel any deferred show (hidden before 1st frame)

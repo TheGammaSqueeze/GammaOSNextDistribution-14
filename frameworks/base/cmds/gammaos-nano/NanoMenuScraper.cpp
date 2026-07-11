@@ -281,7 +281,7 @@ void NanoMenu::saDrainArt() {
         // Fan art (the full-frame hover / dialog background) uses NEAREST so the
         // upscale to fill the frame stays crisp instead of a soft bilinear blur; the
         // small boxart column covers keep LINEAR (NEAREST would alias thumbnails).
-        bool fan = (r.target == SA_CINFO_FAN || r.target == SA_DLG_FAN);
+        bool fan = (r.target == SA_CINFO_FAN || r.target == SA_DLG_FAN || r.target == SA_NDS_FAN);
         GLuint tex = fan ? saUploadRGBA(r.px.data(), r.w, r.h, GL_NEAREST, GL_NEAREST)
                          : saUploadRGBA(r.px.data(), r.w, r.h);
         if (!tex) continue;
@@ -296,6 +296,13 @@ void NanoMenu::saDrainArt() {
                 if (mFanartPath == r.path) {
                     if (mFanartTex) glDeleteTextures(1, &mFanartTex);
                     mFanartTex = tex; mFanartTexW = r.w; mFanartTexH = r.h;
+                } else glDeleteTextures(1, &tex);
+                break;
+            case SA_NDS_FAN:
+                // DSi top-screen preview fanart (#66): keep only if it is still the focus.
+                if (mNdsFanPath == r.path) {
+                    if (mNdsFanTex) glDeleteTextures(1, &mNdsFanTex);
+                    mNdsFanTex = tex; mNdsFanW = r.w; mNdsFanH = r.h;
                 } else glDeleteTextures(1, &tex);
                 break;
             case SA_DLG_FAN:
@@ -334,6 +341,22 @@ GLuint NanoMenu::romBoxartTex(const std::string& romPath, float* outAR) {
     return 0;
 }
 
+// Per-frame scraper-art lifecycle, shared by the XMB (renderPs3Xmb) and the DSi theme
+// (renderNds*). Caches the boxart toggle (drawList / the DSi tiles read it per visible
+// ROM), frees all cover/fanart GL + joins the decode worker whenever the Game category
+// is not active (so nothing lingers when not browsing games; it reloads lazily from the
+// disk cache on return), and uploads any finished async art decodes to GL on the render
+// thread. MUST be called once per frame from whichever theme render path is live, or
+// async covers never land (the DSi bug: renderPs3Xmb was the only caller of saDrainArt).
+void NanoMenu::scraperArtTick() {
+    mScrapeBoxartOn = scraperBoxartEnabled();
+    bool inGame = (mPs3CatIdx >= 0 && mPs3CatIdx < (int)mPs3Cats.size()
+                   && mPs3Cats[mPs3CatIdx].name == "Game");
+    if (!inGame && (!mRomBoxartCache.empty() || mFanartTex || mNdsFanTex || mSaDecStarted.load()))
+        scraperFreeBoxart();
+    saDrainArt();
+}
+
 void NanoMenu::scraperFreeBoxart() {
     saStopArtWorker();                          // join the worker so nothing runs at idle
     for (auto& kv : mRomBoxartCache)
@@ -342,6 +365,9 @@ void NanoMenu::scraperFreeBoxart() {
     // Also drop the hover-fanart texture (Phase 4) so no scraper GL lingers.
     if (mFanartTex) { glDeleteTextures(1, &mFanartTex); mFanartTex = 0; }
     mFanartPath.clear(); mFanartTexW = mFanartTexH = 0;
+    // DSi top-screen preview fanart (#66) shares the Game-category lifecycle.
+    if (mNdsFanTex) { glDeleteTextures(1, &mNdsFanTex); mNdsFanTex = 0; }
+    mNdsFanPath.clear(); mNdsFanW = mNdsFanH = 0;
     // The cinfo "shown" alias may point at the fanart we just freed; clear it so the
     // hover-bg fade-out never reads a dangling texture after leaving Game.
     mCinfoShownTex = 0; mCinfoShownW = mCinfoShownH = 0;

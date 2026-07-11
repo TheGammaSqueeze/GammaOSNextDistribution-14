@@ -1328,7 +1328,15 @@ void NanoMenu::handleLeft() {
     }
     if (mMenuState == MENU_WIFI || mMenuState == MENU_BT) return;
     if (mMenuState == MENU_SETTINGS) { handleSettingsTreeLeft(); return; }
-    if (mPs3Xmb || mPs3WizActive) { ps3XmbLeft(); return; }   // mPs3WizActive: setup-wizard net/BT step
+    if (mPs3Xmb || mPs3WizActive) {
+        // DSi game Information page / paginated info dialog: LEFT turns to the previous page.
+        if (mNdsTheme && mPs3Xmb && (ndsGameInfoActive() || ndsDlgInfoPaged())) { ndsInfoPage(-1); return; }
+        // DSi stacked carousel: LEFT cycles the focused carousel back one card (categories at
+        // the root, else the category/submenu cards). A modal (chooser/dialog) keeps XMB nav.
+        if (mNdsTheme && mPs3Xmb && !ndsInModal()) ndsNavHoriz(-1);
+        else ps3XmbLeft();
+        return;
+    }
     if (!mXmbMode) return;
     if (mSearchActive) return;
     int next = mXmbSystemIndex - 1;
@@ -1354,7 +1362,14 @@ void NanoMenu::handleRight() {
     }
     if (mMenuState == MENU_WIFI || mMenuState == MENU_BT) return;
     if (mMenuState == MENU_SETTINGS) { handleSettingsTreeRight(); return; }
-    if (mPs3Xmb || mPs3WizActive) { ps3XmbRight(); return; }   // mPs3WizActive: setup-wizard net/BT step
+    if (mPs3Xmb || mPs3WizActive) {
+        // DSi game Information page / paginated info dialog: RIGHT turns to the next page.
+        if (mNdsTheme && mPs3Xmb && (ndsGameInfoActive() || ndsDlgInfoPaged())) { ndsInfoPage(+1); return; }
+        // DSi stacked carousel: RIGHT cycles the focused carousel forward one card.
+        if (mNdsTheme && mPs3Xmb && !ndsInModal()) ndsNavHoriz(+1);
+        else ps3XmbRight();
+        return;
+    }
     if (!mXmbMode) return;
     if (mSearchActive) return;
     int numSys = (int)mXmbSystems.size();

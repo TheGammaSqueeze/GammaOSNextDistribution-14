@@ -1548,5 +1548,9 @@
  "ready": "hazır",
  "result": "sonuç",
  "results": "sonuç",
- "unlocked": "açıldı"
+ "unlocked": "açıldı",
+ "Home Theme": "Ana Ekran Teması",
+ "GammaOS XMB": "GammaOS XMB",
+ "DSi Menu": "DSi Menüsü",
+ "Switches the home screen between the GammaOS XMB and the DSi Menu. Applying restarts the home screen.": "Ana ekranı GammaOS XMB ile DSi Menüsü arasında değiştirir. Uygulamak ana ekranı yeniden başlatır."
 }

@@ -125,6 +125,7 @@ static const Ps3DataItem kThemeSettingsCh[] = {
   {"Wallpaper",22,"Sets the moving background effect (wave, particles and others) shown behind the home screen.",nullptr,1,nullptr,0},
   {"Font",22,"Sets the font displayed on the home screen.",nullptr,1,nullptr,0},
   {"Day/Night",22,"Sets the time-of-day lighting (day, dusk, night or automatic).",nullptr,1,nullptr,0},
+  {"Home Theme",22,"Switches the home screen between the GammaOS XMB and the DSi Menu. Applying restarts the home screen.","GammaOS XMB",1,nullptr,0},
 };
 static const Ps3DataItem kDateTimeCh[] = {
   {"Date and Time",22,"Sets the date and time for this system.",nullptr,1,nullptr,0},

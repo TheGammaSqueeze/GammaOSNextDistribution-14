@@ -1399,8 +1399,13 @@ bool NanoMenu::threadLoop() {
     // priority over the carousel (mXmbMode) when set.
     mPs3Xmb = android::base::GetBoolProperty(
             "persist.gammaos.nano.ps3xmb", true);   // default on when the prop is unset
-    ALOGI("NanoMenu: persist read quick_resume=%d xmb_mode=%d ps3xmb=%d",
-          mQuickResumeEnabled ? 1 : 0, mXmbMode ? 1 : 0, mPs3Xmb ? 1 : 0);
+    // DSi System Menu theme: an optional home theme that takes priority over the PS3
+    // XMB when set (renders the DSi launcher carousel, plays the DSi boot animation).
+    mNdsTheme = android::base::GetBoolProperty(
+            "persist.gammaos.nano.ndstheme", false);
+    if (mNdsTheme) mPs3Xmb = true;   // reuse the PS3 XMB home infrastructure (boot, input, overlay), swap the render
+    ALOGI("NanoMenu: persist read quick_resume=%d xmb_mode=%d ps3xmb=%d nds=%d",
+          mQuickResumeEnabled ? 1 : 0, mXmbMode ? 1 : 0, mPs3Xmb ? 1 : 0, mNdsTheme ? 1 : 0);
     // PS3 cold-boot intro: play the full intro (wave/gradient reveal from black,
     // the white logo plate, the photosensitivity warning, then the XMB icon
     // pop-in) on a NORMAL cold boot only. App-return restarts (boot_completed /
@@ -3978,6 +3983,10 @@ if (sRingPrimedCount >= 2) {
             char ss[PROPERTY_VALUE_MAX] = {};
             property_get("sys.screen.state", ss, "on");
             bool screenOff = !strcmp(ss, "off");
+            // The DSi home BGM (menu_ambiance) must NOT keep playing behind a dark screen
+            // (user: suspend properly). Stop it on screen-off; the idle-poll below never
+            // restarts it (ndsAmbianceTick only runs while rendering with the screen on).
+            if (screenOff && mAmbiancePlaying) { mAmbiancePlayer.stop(); mAmbiancePlaying = false; }
             // Drop to the powersave governor while the panel is off and restore the
             // user's mode when it returns (the framework drives display standby for the
             // overlay, but not the CPU clocks).
@@ -4043,6 +4052,8 @@ if (sRingPrimedCount >= 2) {
             char ss[PROPERTY_VALUE_MAX] = {};
             property_get("sys.screen.state", ss, "on");
             bool screenOff = !strcmp(ss, "off");
+            // Stop the DSi home BGM behind a dark screen (user: suspend properly).
+            if (screenOff && mAmbiancePlaying) { mAmbiancePlayer.stop(); mAmbiancePlaying = false; }
             static bool sSfPwrSave = false;
             if (screenOff && !sSfPwrSave) { nanoApplyPerfClock("powersave"); property_set("sys.gammaos.nano.screenoff", "1"); sSfPwrSave = true; }
             else if (!screenOff && sSfPwrSave) { property_set("sys.gammaos.nano.screenoff", "0"); nanoRestorePerfClock(); sSfPwrSave = false; }

@@ -1548,5 +1548,9 @@
  "ready": "使用中",
  "result": "件",
  "results": "件",
- "unlocked": "解除済み"
+ "unlocked": "解除済み",
+ "Home Theme": "ホームテーマ",
+ "GammaOS XMB": "GammaOS XMB",
+ "DSi Menu": "DSiメニュー",
+ "Switches the home screen between the GammaOS XMB and the DSi Menu. Applying restarts the home screen.": "ホーム画面を GammaOS XMB と DSi メニューで切り替えます。適用するとホーム画面が再起動します。"
 }

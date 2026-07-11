@@ -229,6 +229,35 @@ private:
     bool mInited = false;
 };
 
+// ---- Low-latency retriggerable one-shot SFX (e.g. the PS3 XMB nav cursor) ------------------------
+// Fully decoupled from the render thread: trigger() only flips an atomic voice flag (microseconds);
+// a persistent AAudio data callback mixes the pre-decoded PCM voices on the audio thread. Handles
+// rapid retrigger (holding a nav direction) and overlap, and idle-stops the stream to save power.
+// Volume follows the system STREAM_MUSIC (AAUDIO_USAGE_MEDIA) exactly like the other nano sounds,
+// with the per-voice master baked into the PCM so it matches the DSi effects.
+class NanoSfxPlayer {
+public:
+    bool    load(const std::string& wavPath, float master);   // decode once (mono upmixed); cheap, bg-callable
+    void    trigger();                                        // fire one playback; non-blocking (render-thread safe)
+    void    shutdown();
+    bool    loaded() const { return mLoaded.load(); }
+    int32_t fillCb(void* audioData, int32_t numFrames);       // AAudio data callback (public for the trampoline)
+private:
+    bool openStreamLocked();
+    std::vector<int16_t> mPcm;          // stereo interleaved S16, master gain baked in
+    int   mRate = 48000;
+    void* mStream = nullptr;            // AAudioStream*
+    std::mutex mStreamM;
+    static const int kVoices = 8;
+    std::atomic<int>  mVoicePos[kVoices];
+    std::atomic<bool> mVoiceOn[kVoices];
+    std::atomic<bool> mLoaded{false};
+    std::atomic<bool> mRunning{false};  // stream started
+    std::atomic<bool> mStarting{false};
+    std::atomic<bool> mShutdown{false};
+    int   mIdleCb = 0;                  // callback-owned idle counter (-> idle-stop)
+};
+
 } // namespace android
 
 #endif // GAMMAOS_NANO_AUDIO_H

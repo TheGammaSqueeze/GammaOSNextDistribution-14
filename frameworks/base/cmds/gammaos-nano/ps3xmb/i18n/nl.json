@@ -1548,5 +1548,9 @@
  "ready": "gereed",
  "result": "resultaat",
  "results": "resultaten",
- "unlocked": "ontgrendeld"
+ "unlocked": "ontgrendeld",
+ "Home Theme": "Startschermthema",
+ "GammaOS XMB": "GammaOS XMB",
+ "DSi Menu": "DSi-menu",
+ "Switches the home screen between the GammaOS XMB and the DSi Menu. Applying restarts the home screen.": "Schakelt het startscherm tussen GammaOS XMB en het DSi-menu. Toepassen start het startscherm opnieuw op."
 }

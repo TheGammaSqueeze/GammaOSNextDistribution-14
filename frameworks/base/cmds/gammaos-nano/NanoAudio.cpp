@@ -913,4 +913,111 @@ void NanoAudioPlayer::decodeThreadFunc(std::string /*path*/) {
     if (!mDecodeStop.load()) mEos = true;   // natural end
 }
 
+// ============================ NanoSfxPlayer (low-latency SFX) ============================
+
+bool NanoSfxPlayer::load(const std::string& wavPath, float master) {
+    FILE* f = fopen(wavPath.c_str(), "rb");
+    if (!f) { ALOGW("NanoSfx: cannot open %s", wavPath.c_str()); return false; }
+    unsigned char hdr[12];
+    if (fread(hdr, 1, 12, f) != 12 || memcmp(hdr, "RIFF", 4) || memcmp(hdr + 8, "WAVE", 4)) { fclose(f); return false; }
+    int ch = 0, rate = 0, bits = 0; long dataOff = 0; uint32_t dataLen = 0;
+    for (;;) {
+        unsigned char c[8]; if (fread(c, 1, 8, f) != 8) break;
+        uint32_t sz = (uint32_t)c[4] | ((uint32_t)c[5] << 8) | ((uint32_t)c[6] << 16) | ((uint32_t)c[7] << 24);
+        if (!memcmp(c, "fmt ", 4)) {
+            unsigned char fm[16]; uint32_t n = sz < 16 ? sz : 16; if (fread(fm, 1, n, f) != n) break;
+            ch   = (int)fm[2]  | ((int)fm[3]  << 8);
+            rate = (int)fm[4]  | ((int)fm[5]  << 8) | ((int)fm[6] << 16) | ((int)fm[7] << 24);
+            bits = (int)fm[14] | ((int)fm[15] << 8);
+            if (sz > n) fseek(f, (long)(sz - n), SEEK_CUR);
+        } else if (!memcmp(c, "data", 4)) { dataOff = ftell(f); dataLen = sz; break; }
+        else fseek(f, (long)((sz + 1) & ~1u), SEEK_CUR);
+    }
+    if (bits != 16 || ch < 1 || rate <= 0 || dataOff <= 0 || dataLen == 0) { fclose(f); return false; }
+    fseek(f, dataOff, SEEK_SET);
+    std::vector<int16_t> raw(dataLen / 2);
+    size_t got = fread(raw.data(), 1, dataLen, f); fclose(f); raw.resize(got / 2);
+    int g = (int)(master * 32768.0f + 0.5f); if (g < 0) g = 0; else if (g > 32768) g = 32768;
+    auto sat = [](int v) -> int16_t { return (int16_t)(v > 32767 ? 32767 : (v < -32768 ? -32768 : v)); };
+    if (ch == 1) {                              // mono -> stereo
+        mPcm.resize(raw.size() * 2);
+        for (size_t i = 0; i < raw.size(); i++) { int16_t s = sat(((int)raw[i] * g) >> 15); mPcm[i * 2] = mPcm[i * 2 + 1] = s; }
+    } else {                                    // already interleaved (2ch expected); keep channels
+        mPcm.resize(raw.size());
+        for (size_t i = 0; i < raw.size(); i++) mPcm[i] = sat(((int)raw[i] * g) >> 15);
+    }
+    mRate = rate;
+    for (int v = 0; v < kVoices; v++) { mVoiceOn[v].store(false); mVoicePos[v].store(0); }
+    mLoaded.store(true);
+    ALOGI("NanoSfx: loaded %s (%dHz %dch, %zu samp, master %.2f)", wavPath.c_str(), rate, ch, mPcm.size(), master);
+    return true;
+}
+
+int32_t NanoSfxPlayer::fillCb(void* audioData, int32_t numFrames) {
+    int16_t* out = (int16_t*)audioData;
+    const int16_t* pcm = mPcm.data(); const size_t len = mPcm.size();
+    bool any = false;
+    for (int32_t i = 0; i < numFrames; i++) {
+        int l = 0, r = 0;
+        for (int v = 0; v < kVoices; v++) {
+            if (!mVoiceOn[v].load(std::memory_order_relaxed)) continue;
+            int p = mVoicePos[v].load(std::memory_order_relaxed);
+            if ((size_t)(p + 1) < len) {
+                l += pcm[p]; r += pcm[p + 1];
+                mVoicePos[v].store(p + 2, std::memory_order_relaxed); any = true;
+            } else mVoiceOn[v].store(false, std::memory_order_relaxed);
+        }
+        out[i * 2]     = (int16_t)(l > 32767 ? 32767 : (l < -32768 ? -32768 : l));
+        out[i * 2 + 1] = (int16_t)(r > 32767 ? 32767 : (r < -32768 ? -32768 : r));
+    }
+    if (any) mIdleCb = 0;
+    else if (++mIdleCb > 150) { mRunning.store(false); return AAUDIO_CALLBACK_RESULT_STOP; }   // ~1.5s idle -> stop
+    return AAUDIO_CALLBACK_RESULT_CONTINUE;
+}
+
+bool NanoSfxPlayer::openStreamLocked() {        // mStreamM held
+    if (mStream) return true;
+    AAudioStreamBuilder* b = nullptr;
+    if (AAudio_createStreamBuilder(&b) != AAUDIO_OK || !b) return false;
+    AAudioStreamBuilder_setDirection(b, AAUDIO_DIRECTION_OUTPUT);
+    AAudioStreamBuilder_setFormat(b, AAUDIO_FORMAT_PCM_I16);
+    AAudioStreamBuilder_setChannelCount(b, 2);
+    AAudioStreamBuilder_setSampleRate(b, mRate);
+    AAudioStreamBuilder_setUsage(b, AAUDIO_USAGE_MEDIA);            // follow STREAM_MUSIC == the DSi sounds
+    AAudioStreamBuilder_setContentType(b, AAUDIO_CONTENT_TYPE_MUSIC);
+    AAudioStreamBuilder_setPerformanceMode(b, AAUDIO_PERFORMANCE_MODE_LOW_LATENCY);
+    AAudioStreamBuilder_setDataCallback(b, [](AAudioStream*, void* u, void* data, int32_t n) {
+        return (aaudio_data_callback_result_t)static_cast<NanoSfxPlayer*>(u)->fillCb(data, n);
+    }, this);
+    AAudioStream* s = nullptr;
+    aaudio_result_t r = AAudioStreamBuilder_openStream(b, &s);
+    AAudioStreamBuilder_delete(b);
+    if (r != AAUDIO_OK || !s) { ALOGW("NanoSfx: open stream failed (%d)", (int)r); return false; }
+    mStream = s;
+    return true;
+}
+
+void NanoSfxPlayer::trigger() {
+    if (!mLoaded.load() || mShutdown.load()) return;
+    for (int v = 0; v < kVoices; v++) {                 // activate a free voice (lock-free)
+        bool e = false;
+        if (mVoiceOn[v].compare_exchange_strong(e, true)) { mVoicePos[v].store(0); break; }
+    }
+    if (!mRunning.load() && !mStarting.exchange(true)) { // (re)start the stream off the render thread
+        std::thread([this]() {
+            std::lock_guard<std::mutex> lk(mStreamM);
+            if (!mStream) openStreamLocked();
+            if (mStream && AAudioStream_requestStart((AAudioStream*)mStream) == AAUDIO_OK) mRunning.store(true);
+            mStarting.store(false);
+        }).detach();
+    }
+}
+
+void NanoSfxPlayer::shutdown() {
+    mShutdown.store(true);
+    std::lock_guard<std::mutex> lk(mStreamM);
+    if (mStream) { AAudioStream_requestStop((AAudioStream*)mStream); AAudioStream_close((AAudioStream*)mStream); mStream = nullptr; }
+    mRunning.store(false);
+}
+
 } // namespace android

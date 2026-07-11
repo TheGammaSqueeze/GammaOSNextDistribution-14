@@ -312,6 +312,86 @@ void NanoMenu::drawIconTex(GLuint tex, float x, float y, float w, float h,
 // model build (1:1 from the web DATA tree + the nano Game consoles)
 // ---------------------------------------------------------------------------
 // Build one runtime Ps3Item from a static DATA node (glass via nmap_NNN).
+// Load + cache the colour icon texture (xmb_icon_NNN.png) for an icon index. Parallel to
+// nmapForIcon; used so DSi flat cards (which need iconTex to render) are never blank. Returns
+// 0 (cached) when no colour png exists (framework UI icons) - those fall back to the glass nmap.
+GLuint NanoMenu::iconTexForIcon(int iconIndex) {
+    if (iconIndex < 0) return 0;
+    auto it = mPs3IconTexByIndex.find(iconIndex);
+    if (it != mPs3IconTexByIndex.end()) return it->second;
+    // Framework UI icons (idx >= kUiIconBase, e.g. the Quick Settings / Settings tiles) have no
+    // colour xmb_icon_NNN.png; load their mono silhouette straight so the DSi card draws a flat
+    // dark glyph like the console icons. Non-framework indices fall through to the colour art.
+    GLuint tex = uiIconTexForIcon(iconIndex);
+    if (tex == 0) {
+        char file[32];
+        snprintf(file, sizeof(file), "xmb_icon_%03d.png", iconIndex);
+        tex = loadPs3IconTex(file);
+    }
+    mPs3IconTexByIndex[iconIndex] = tex;   // cache even 0 so we do not retry every frame
+    return tex;
+}
+
+// Persist the DSi carousel nav path before a launch hands off. nano exits on launch and the
+// post-game launcher / home is a FRESH process, so the path (category + the chain of selected
+// indices down to the launched card) is written to a prop and replayed on the next start so we
+// come back centred on the exact card we launched from. Format: "catIdx|sel0,sel1,sel2,...".
+void NanoMenu::ndsSaveReturnPath() {
+    if (!mNdsTheme || mNdsAtRoot) return;
+    if (mPs3CatIdx < 0 || mPs3CatIdx >= (int)mPs3Cats.size()) return;
+    std::string s = std::to_string(mPs3CatIdx) + "|" + std::to_string(mPs3ItemIdx);
+    for (const auto& lvl : mPs3Stack) s += "," + std::to_string(lvl.sel);
+    property_set("sys.gammaos.nano.nds_return", s.c_str());
+}
+
+// Restore the DSi nav path saved by ndsSaveReturnPath: enter the category and replay the
+// drill down to the launched card. The replay reuses ps3XmbSelect (the real drill) but is
+// hard-guarded so it can NEVER re-launch: it stops the moment a step fails to grow the stack
+// (a leaf / changed data) and cancels any launch-fade or launched_pkg the replay might arm.
+// One-shot (the prop is cleared on read); called once from initPs3Menu after the menu builds.
+void NanoMenu::ndsRestoreReturnPath() {
+    if (!mNdsTheme) return;
+    char buf[256] = {};
+    property_get("sys.gammaos.nano.nds_return", buf, "");
+    property_set("sys.gammaos.nano.nds_return", "");   // one-shot
+    if (!buf[0]) return;
+    char* bar = strchr(buf, '|');
+    if (!bar) return;
+    *bar = '\0';
+    int catIdx = atoi(buf);
+    if (catIdx < 0 || catIdx >= (int)mPs3Cats.size()) return;
+    std::vector<int> chain;
+    for (char* tok = strtok(bar + 1, ","); tok; tok = strtok(nullptr, ",")) chain.push_back(atoi(tok));
+    if (chain.empty()) return;
+
+    mNdsAtRoot = false;
+    mPs3CatIdx = catIdx;
+    mPs3Stack.clear();
+    int n0 = (int)mPs3Cats[catIdx].items.size();
+    mPs3ItemIdx = (chain[0] >= 0 && chain[0] < n0) ? chain[0] : 0;
+
+    const int64_t savedFade = mLaunchFadeStart;
+    char savedPkg[PROPERTY_VALUE_MAX] = {};
+    property_get("sys.gammaos.nano.launched_pkg", savedPkg, "");
+    for (size_t i = 1; i < chain.size(); i++) {
+        size_t before = mPs3Stack.size();
+        ps3XmbSelect();                                  // drill the current item (ps3CurSel already = chain[i-1])
+        if (mPs3Stack.size() <= before || mLaunchFadeStart != savedFade) {
+            // a leaf / changed data / spurious launch: undo any launch the replay armed, stop here.
+            mLaunchFadeStart = savedFade; mWaitForRelease = false;
+            property_set("sys.gammaos.nano.launched_pkg", savedPkg);
+            break;
+        }
+        int nk = (int)mPs3Stack.back().items.size();
+        ps3CurSel() = (nk > 0 && chain[i] >= 0 && chain[i] < nk) ? chain[i] : 0;
+    }
+    // The replay must not leave a modal or a pending launch behind on the restored home.
+    mPs3DlgActive = mPs3OptActive = mPs3DlgClosing = mPs3OptClosing = false;
+    mLaunchFadeStart = savedFade; mWaitForRelease = false;
+    mNdsCamera = (float)ps3CurSel();
+    mNdsScrubbing = false; mNdsFlingVel = 0.0f;
+}
+
 NanoMenu::Ps3Item NanoMenu::makeDataItem(const Ps3DataItem* d) {
     Ps3Item it;
     it.label = d->name;
@@ -327,6 +407,7 @@ NanoMenu::Ps3Item NanoMenu::makeDataItem(const Ps3DataItem* d) {
     // PS Store has no nano normal-map asset; stand in with the Game icon so it
     // still reads as glass. All other DATA icon indices have an nmap_NNN.
     int icon = (d->icon >= 0) ? d->icon : 5;
+    it.iconTex = iconTexForIcon(icon);   // colour tex so the DSi flat card is never blank
     it.nmapTex = nmapForIcon(icon);
     it.iconR = it.iconG = it.iconB = 1.0f;
     return it;
@@ -445,6 +526,9 @@ void NanoMenu::initPs3Menu() {
                               // Settings -> Date and Time shows the live "Time Zone" value
     mPs3MenuBuilt = true;
     ALOGI("ps3menu: built %zu categories", mPs3Cats.size());
+    // DSi theme: after an app exit this is a fresh process, so replay the saved nav path to
+    // return to the exact card we launched from (one-shot; no-op when the prop is empty).
+    ndsRestoreReturnPath();
 }
 
 // Build a submenu level from a static DATA node's children.
@@ -660,7 +744,12 @@ void NanoMenu::buildPs3Cats() {
         q.nmapTex = mPs3CatNmap[6];
         auto qItem = [&](const char* label, int action, int icon) {
             Ps3Item it; it.label = label; it.kind = PS3_QUICK; it.a = action;
-            it.nmapTex = nmapForIcon(icon); it.iconR = it.iconG = it.iconB = 1.0f;
+            // Set the flat mono icon texture (as makeDataItem does) so the DSi carousel draws
+            // these as flat dark glyphs like every other menu item, instead of falling through
+            // to the glass-relight path (which only nmapTex triggers). The PS3 XMB keeps using
+            // the glass nmap. (User: Quick Menu icons must match the flat shade of the rest.)
+            it.iconTex = iconTexForIcon(icon); it.nmapTex = nmapForIcon(icon);
+            it.iconR = it.iconG = it.iconB = 1.0f;
             q.items.push_back(it);
         };
         // Resume Audio Player: only present while music is playing in the background
@@ -692,7 +781,7 @@ void NanoMenu::buildPs3Cats() {
             it.a = QA_QUICK_RESUME_TOGGLE;
             it.desc = "Saves your game when you power off or restart, and resumes it "
                       "automatically on the next boot.";
-            it.nmapTex = nmapForIcon(8); it.iconR = it.iconG = it.iconB = 1.0f;
+            it.iconTex = iconTexForIcon(8); it.nmapTex = nmapForIcon(8); it.iconR = it.iconG = it.iconB = 1.0f;
             q.items.push_back(it);
         }
         qItem("Power",               QA_POWER_SUBMENU, 54);
@@ -857,7 +946,7 @@ void NanoMenu::buildQuickPowerSubmenu(Ps3Level& out) {
     out.items.clear(); out.sel = 0; out.title = "Power";
     auto q = [&](const char* label, int action, int icon) {
         Ps3Item it; it.label = label; it.kind = PS3_QUICK; it.a = action;
-        it.nmapTex = nmapForIcon(icon); it.iconR = it.iconG = it.iconB = 1.0f;
+        it.iconTex = iconTexForIcon(icon); it.nmapTex = nmapForIcon(icon); it.iconR = it.iconG = it.iconB = 1.0f;
         out.items.push_back(it);
     };
     q("Restart",      QA_RESTART,       8);   // refresh arrows
@@ -892,7 +981,7 @@ void NanoMenu::buildAppOrientSubmenu(Ps3Level& out) {
         // Carry the token in payloadStr (not value) so it is NOT rendered in the row's
         // right-hand value column - the label already says which orientation it is.
         it.a = QA_APP_ORIENT_SET; it.payloadStr = rows[i].token;
-        it.nmapTex = nmapForIcon(rows[i].icon); it.iconR = it.iconG = it.iconB = 1.0f;
+        it.iconTex = iconTexForIcon(rows[i].icon); it.nmapTex = nmapForIcon(rows[i].icon); it.iconR = it.iconG = it.iconB = 1.0f;
         if (cur == rows[i].token) out.sel = (int)i;
         out.items.push_back(it);
     }
@@ -980,13 +1069,13 @@ void NanoMenu::buildQuickSettingsSubmenu(Ps3Level& out) {
     auto leaf = [&](const char* label, const char* bindLabel, int icon) {
         Ps3Item it; it.label = label; it.kind = PS3_DATA_LEAF; it.action = 1;
         it.binding = ps3BindingFor(bindLabel ? bindLabel : label);
-        it.nmapTex = nmapForIcon(icon); it.iconR = it.iconG = it.iconB = 1.0f;
+        it.iconTex = iconTexForIcon(icon); it.nmapTex = nmapForIcon(icon); it.iconR = it.iconG = it.iconB = 1.0f;
         out.items.push_back(it);
     };
     auto act = [&](const char* label, int qa, int icon, const char* val) {
         Ps3Item it; it.label = label; it.kind = PS3_QUICK; it.a = qa;
         if (val) it.value = val;
-        it.nmapTex = nmapForIcon(icon); it.iconR = it.iconG = it.iconB = 1.0f;
+        it.iconTex = iconTexForIcon(icon); it.nmapTex = nmapForIcon(icon); it.iconR = it.iconG = it.iconB = 1.0f;
         out.items.push_back(it);
     };
     // Ordered tile specs, matching QSHost.getDefaultSpecs: only used when the override
@@ -1032,13 +1121,13 @@ void NanoMenu::buildQuickSettingsSubmenu(Ps3Level& out) {
 void NanoMenu::gpLeaf(Ps3Level& out, const char* label, const char* bindLabel, int icon) {
     Ps3Item it; it.label = label; it.kind = PS3_DATA_LEAF; it.action = 1;
     it.binding = ps3BindingFor(bindLabel ? bindLabel : label);
-    it.nmapTex = nmapForIcon(icon); it.iconR = it.iconG = it.iconB = 1.0f;
+    it.iconTex = iconTexForIcon(icon); it.nmapTex = nmapForIcon(icon); it.iconR = it.iconG = it.iconB = 1.0f;
     out.items.push_back(it);
 }
 void NanoMenu::gpAct(Ps3Level& out, const char* label, int qa, int icon, const char* val) {
     Ps3Item it; it.label = label; it.kind = PS3_QUICK; it.a = qa;
     if (val) it.value = val;
-    it.nmapTex = nmapForIcon(icon); it.iconR = it.iconG = it.iconB = 1.0f;
+    it.iconTex = iconTexForIcon(icon); it.nmapTex = nmapForIcon(icon); it.iconR = it.iconG = it.iconB = 1.0f;
     out.items.push_back(it);
 }
 
@@ -1576,7 +1665,7 @@ void NanoMenu::buildMouseSubmenu(Ps3Level& out) {
     auto leaf = [&](const char* label, const char* bindLabel, int icon) {
         Ps3Item it; it.label = label; it.kind = PS3_DATA_LEAF; it.action = 1;
         it.binding = ps3BindingFor(bindLabel ? bindLabel : label);
-        it.nmapTex = nmapForIcon(icon); it.iconR = it.iconG = it.iconB = 1.0f;
+        it.iconTex = iconTexForIcon(icon); it.nmapTex = nmapForIcon(icon); it.iconR = it.iconG = it.iconB = 1.0f;
         out.items.push_back(it);
     };
     leaf("Stick Speed", nullptr, 53);
@@ -1662,7 +1751,7 @@ void NanoMenu::buildRemapSrcSubmenu(Ps3Level& out, bool axis) {
             lbl += dn ? std::string(dn) : ("Code " + std::to_string(f->second));
         }
         it.label = lbl;
-        it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 1.0f;
+        it.iconTex = iconTexForIcon(16); it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 1.0f;
         out.items.push_back(it);
     }
 }
@@ -1676,7 +1765,7 @@ void NanoMenu::buildRemapTargetSubmenu(Ps3Level& out) {
     int curTarget = -1; auto f = m.find(mRemapSrc); if (f != m.end()) curTarget = f->second;
     auto row = [&](const char* label, int code) {
         Ps3Item it; it.kind = PS3_QUICK; it.a = QA_REMAP_SET; it.b = code;
-        it.label = label; it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 1.0f;
+        it.label = label; it.iconTex = iconTexForIcon(16); it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 1.0f;
         out.items.push_back(it);
     };
     row("Default (no remap)", -1);            // index 0
@@ -1779,17 +1868,17 @@ void NanoMenu::buildAppInfoLevel(Ps3Level& out) {
     out.items.clear(); out.sel = 0; out.screenKind = APP_INFO;
     auto noop = [&](const std::string& text) {
         Ps3Item it; it.kind = PS3_QUICK; it.a = QA_NOOP; it.label = text;
-        it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 0.6f;
+        it.iconTex = iconTexForIcon(16); it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 0.6f;
         out.items.push_back(it);
     };
     if (!mAppInfoLoaded) { noop("Loading..."); return; }
     for (auto& f : mAppInfoFacts) noop(f);
     int firstAction = (int)out.items.size();
     { Ps3Item it; it.kind = PS3_QUICK; it.a = QA_APP_STORAGE; it.label = "Storage";
-      it.nmapTex = nmapForIcon(22); it.iconR = it.iconG = it.iconB = 1.0f;
+      it.iconTex = iconTexForIcon(22); it.nmapTex = nmapForIcon(22); it.iconR = it.iconG = it.iconB = 1.0f;
       out.items.push_back(it); }
     { Ps3Item it; it.kind = PS3_QUICK; it.a = QA_APP_PERMS; it.label = "Permissions";
-      it.nmapTex = nmapForIcon(22); it.iconR = it.iconG = it.iconB = 1.0f;
+      it.iconTex = iconTexForIcon(22); it.nmapTex = nmapForIcon(22); it.iconR = it.iconG = it.iconB = 1.0f;
       out.items.push_back(it); }
     out.sel = (firstAction < (int)out.items.size()) ? firstAction : 0;
 }
@@ -1802,11 +1891,11 @@ void NanoMenu::buildAppStorageLevel(Ps3Level& out) {
     // being concatenated into the label, where it would never match a key.
     { Ps3Item it; it.kind = PS3_QUICK; it.a = QA_APP_CLEAR_CACHE;
       it.label = "Clear Cache"; it.value = mAppInfoCacheSz;
-      it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 1.0f;
+      it.iconTex = iconTexForIcon(16); it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 1.0f;
       out.items.push_back(it); }
     { Ps3Item it; it.kind = PS3_QUICK; it.a = QA_APP_CLEAR_DATA;
       it.label = "Clear Data"; it.value = mAppInfoDataSz;
-      it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 1.0f;
+      it.iconTex = iconTexForIcon(16); it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 1.0f;
       out.items.push_back(it); }
     out.sel = 0;
 }
@@ -1817,7 +1906,7 @@ void NanoMenu::buildAppPermsLevel(Ps3Level& out) {
     if (mAppInfoPerms.empty()) {
         Ps3Item it; it.kind = PS3_QUICK; it.a = QA_NOOP;
         it.label = "This application requests no adjustable permissions.";
-        it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 0.6f;
+        it.iconTex = iconTexForIcon(16); it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 0.6f;
         out.items.push_back(it); return;
     }
     for (auto& p : mAppInfoPerms) {
@@ -1826,7 +1915,7 @@ void NanoMenu::buildAppPermsLevel(Ps3Level& out) {
         it.value      = p.granted ? "Granted" : "Denied"; // state (right column)
         it.payloadStr = p.perm;                        // raw permission (for the action)
         it.b          = p.granted ? 1 : 0;
-        it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 1.0f;
+        it.iconTex = iconTexForIcon(16); it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 1.0f;
         out.items.push_back(it);
     }
     out.sel = 0;
@@ -1856,10 +1945,16 @@ void NanoMenu::appInfoTick() {
     if (loading && ++mPs3AppInfoWaitFrames > 180) {   // ~3s
         top.items.clear();
         Ps3Item it; it.kind = PS3_QUICK; it.a = QA_NOOP; it.label = "Information unavailable.";
-        it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 0.6f;
+        it.iconTex = iconTexForIcon(16); it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 0.6f;
         top.items.push_back(it); top.sel = 0; mDisplayDirty = true; return;
     }
-    if (!bumped) return;
+    // While the Information page still shows "Loading...", POLL the file every frame so the
+    // first parse never depends on catching the exact appinfo_gen bump - the framework may
+    // write + bump BEFORE this level opened, or a stale bump (a prior request) may be consumed
+    // with a non-matching nonce, either of which left the page hung on "Loading..." until the
+    // 3s timeout. The nonce guard in readNanoAppInfo keeps the poll safe (only our file parses).
+    // After the first successful parse the bump-driven re-read handles live grant/clear updates.
+    if (!bumped && !loading) return;
     std::string body;
     if (!readNanoAppInfo(mPs3AppInfoNonce, body)) return;   // stale/not ours (nonce guard)
     bool wasLoaded = mAppInfoLoaded;   // false on the first parse (Information page still "Loading...")
@@ -1890,14 +1985,14 @@ void NanoMenu::buildDevicesSubmenu(Ps3Level& out) {
         Ps3Item it; it.kind = PS3_QUICK; it.a = QA_NOOP;
         it.label = devs.empty() ? "(no input devices detected)"
                                 : "Select controllers to capture:";
-        it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 0.6f;
+        it.iconTex = iconTexForIcon(16); it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 0.6f;
         out.items.push_back(it);
     }
     for (auto& name : devs) {
         bool on = std::find(sel.begin(), sel.end(), name) != sel.end();
         Ps3Item it; it.kind = PS3_QUICK; it.a = QA_DEV_CAPTURE_TOGGLE; it.value = name;
         it.label = name + (on ? "    [Captured]" : "");
-        it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 1.0f;
+        it.iconTex = iconTexForIcon(16); it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 1.0f;
         out.items.push_back(it);
     }
     out.sel = devs.empty() ? 0 : 1;
@@ -1910,7 +2005,7 @@ void NanoMenu::buildFfDeviceSubmenu(Ps3Level& out) {
     std::string cur = readSettingValue(SettingSource::kProp, "persist.gammaos.gamepad.ff_vibrate_device", "");
     auto row = [&](const std::string& label, const std::string& val) {
         Ps3Item it; it.kind = PS3_QUICK; it.a = QA_FF_DEVICE_SET; it.value = val; it.label = label;
-        it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 1.0f;
+        it.iconTex = iconTexForIcon(16); it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 1.0f;
         out.items.push_back(it);
     };
     row("Auto-detect", "");
@@ -1934,7 +2029,7 @@ void NanoMenu::buildBlacklistSubmenu(Ps3Level& out) {
     for (int i = 0; i < n; i++) {
         Ps3Item it; it.kind = PS3_QUICK; it.a = QA_BLACKLIST_TOGGLE; it.b = t[i].code;
         it.label = std::string(t[i].name) + (has(t[i].code) ? "    [Blocked]" : "");
-        it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 1.0f;
+        it.iconTex = iconTexForIcon(16); it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 1.0f;
         out.items.push_back(it);
     }
 }
@@ -1949,10 +2044,10 @@ void NanoMenu::buildBlacklistSubmenu(Ps3Level& out) {
 void NanoMenu::buildComboSubmenu(Ps3Level& out) {
     out.items.clear(); out.sel = 0; out.screenKind = 0; out.title = "Button Combo Map";
     auto info = [&](const std::string& s){ Ps3Item it; it.kind = PS3_QUICK; it.a = QA_NOOP;
-        it.label = s; it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 0.6f; out.items.push_back(it); };
+        it.label = s; it.iconTex = iconTexForIcon(16); it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 0.6f; out.items.push_back(it); };
     auto btn = [&](int qa){ int n; const GpCode* t = gpTable(false, n);
         for (int i = 0; i < n; i++) { Ps3Item it; it.kind = PS3_QUICK; it.a = qa; it.b = t[i].code;
-            it.label = t[i].name; it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 1.0f; out.items.push_back(it); } };
+            it.label = t[i].name; it.iconTex = iconTexForIcon(16); it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 1.0f; out.items.push_back(it); } };
     if (mComboStage == 1) { info("Hold-combo: pick the FIRST button"); btn(QA_COMBO_PICK); out.sel = 1; return; }
     if (mComboStage == 2) { const char* b1 = gpCodeName(mComboB1, false);
         info(std::string("First: ") + (b1?b1:"?") + " - pick the SECOND button"); btn(QA_COMBO_PICK); out.sel = 1; return; }
@@ -1973,10 +2068,10 @@ void NanoMenu::buildComboSubmenu(Ps3Level& out) {
             lbl = std::string(n1?n1:"?") + " + " + (n2?n2:"?") + "  =  " + (ne?ne:"?");
         }
         Ps3Item it; it.kind = PS3_QUICK; it.a = QA_COMBO_DEL; it.value = e; it.label = lbl;
-        it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 1.0f; out.items.push_back(it);
+        it.iconTex = iconTexForIcon(16); it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 1.0f; out.items.push_back(it);
     }
     { Ps3Item it; it.kind = PS3_QUICK; it.a = QA_COMBO_ADD; it.label = "Add Combo...";
-      it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 1.0f; out.items.push_back(it); }
+      it.iconTex = iconTexForIcon(16); it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 1.0f; out.items.push_back(it); }
     out.sel = (int)out.items.size() - 1;
 }
 
@@ -1985,21 +2080,21 @@ void NanoMenu::buildComboSubmenu(Ps3Level& out) {
 void NanoMenu::buildAxisBtnSubmenu(Ps3Level& out) {
     out.items.clear(); out.sel = 0; out.screenKind = 0; out.title = "Axis to Button";
     auto info = [&](const std::string& s){ Ps3Item it; it.kind = PS3_QUICK; it.a = QA_NOOP;
-        it.label = s; it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 0.6f; out.items.push_back(it); };
+        it.label = s; it.iconTex = iconTexForIcon(16); it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 0.6f; out.items.push_back(it); };
     if (mAxbStage == 1) { info("Pick the AXIS (e.g. a trigger)");
         int n; const GpCode* t = gpTable(true, n);
         for (int i = 0; i < n; i++) { Ps3Item it; it.kind = PS3_QUICK; it.a = QA_AXISBTN_PICK; it.b = t[i].code;
-            it.label = t[i].name; it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 1.0f; out.items.push_back(it); }
+            it.label = t[i].name; it.iconTex = iconTexForIcon(16); it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 1.0f; out.items.push_back(it); }
         out.sel = 1; return; }
     if (mAxbStage == 2) { const char* a = gpCodeName(mAxbAxis, true);
         info(std::string("Axis: ") + (a?a:"?") + " - pick the OUTPUT button");
         int n; const GpCode* t = gpTable(false, n);
         for (int i = 0; i < n; i++) { Ps3Item it; it.kind = PS3_QUICK; it.a = QA_AXISBTN_PICK; it.b = t[i].code;
-            it.label = t[i].name; it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 1.0f; out.items.push_back(it); }
+            it.label = t[i].name; it.iconTex = iconTexForIcon(16); it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 1.0f; out.items.push_back(it); }
         out.sel = 1; return; }
     if (mAxbStage == 3) { info("Pick a trigger sensitivity");
         auto pre = [&](const char* label, const char* val){ Ps3Item it; it.kind = PS3_QUICK; it.a = QA_AXISBTN_PICK;
-            it.value = val; it.label = label; it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 1.0f; out.items.push_back(it); };
+            it.value = val; it.label = label; it.iconTex = iconTexForIcon(16); it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 1.0f; out.items.push_back(it); };
         pre("Standard (press at 80%)", "80:60:h");
         pre("Light (press at 50%)", "50:40:h");
         pre("Standard, keep axis", "80:60:b");
@@ -2018,10 +2113,10 @@ void NanoMenu::buildAxisBtnSubmenu(Ps3Level& out) {
             if (f.size() >= 3) lbl += "  (" + f[2] + "%)";
         }
         Ps3Item it; it.kind = PS3_QUICK; it.a = QA_AXISBTN_DEL; it.value = e; it.label = lbl;
-        it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 1.0f; out.items.push_back(it);
+        it.iconTex = iconTexForIcon(16); it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 1.0f; out.items.push_back(it);
     }
     { Ps3Item it; it.kind = PS3_QUICK; it.a = QA_AXISBTN_ADD; it.label = "Add Mapping...";
-      it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 1.0f; out.items.push_back(it); }
+      it.iconTex = iconTexForIcon(16); it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 1.0f; out.items.push_back(it); }
     out.sel = (int)out.items.size() - 1;
 }
 
@@ -2118,7 +2213,7 @@ void NanoMenu::buildNotificationsLevel(Ps3Level& out) {
         else                       it.label = "Notification";
         it.desc = n.text;                            // body shown as the active-row description
         it.kind = PS3_QUICK; it.a = QA_NOTIF_DISMISS; it.b = (int)i;
-        it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 1.0f;
+        it.iconTex = iconTexForIcon(16); it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 1.0f;
         out.items.push_back(it);
     }
     if (out.items.empty()) {                          // PS3 empty-list parity
@@ -2574,6 +2669,29 @@ void NanoMenu::ps3DlgNav(int dir, bool horizontal) {
     if (n > 0) mPs3DlgSel = (mPs3DlgSel + dir + n) % n;                            // chooser (wrap)
 }
 
+// PS3 XMB cursor/enter sound (SE02_Cursor.wav). PS3 theme only, and via the NORMAL AAudio path -
+// nav happens after boot so the audio server is up. Loaded once on a bg thread (AAudio open blocks
+// until the server is ready, so never on the render thread); each nav then seek-0 + play() re-ticks
+// it. The first nav before the player is ready is silent.
+void NanoMenu::ps3NavSound() {
+    if (mNdsTheme) return;                              // PS3 XMB theme only
+    if (!mNavSfxLoaded.load()) {
+        if (mNavSfxOpening.exchange(true)) return;      // one decode in flight
+        std::thread([this]() {
+            char p[256];
+            snprintf(p, sizeof(p), "/data/system/nano_xmb/audio/SE02_Cursor.wav");
+            std::string path = (access(p, R_OK) == 0) ? std::string(p)
+                             : std::string("/system/etc/nano_xmb/audio/SE02_Cursor.wav");
+            // master 0.8 == the DSi effects; audioserver's STREAM_MUSIC applies on top, so the PS3
+            // nav volume tracks the system volume the same as the DSi sounds.
+            if (mNavSfx.load(path, 0.8f)) mNavSfxLoaded.store(true);
+            mNavSfxOpening.store(false);
+        }).detach();
+        return;                                         // first nav is silent until decoded
+    }
+    mNavSfx.trigger();   // non-blocking flag flip; the AAudio callback mixes it (zero render-thread cost)
+}
+
 void NanoMenu::ps3XmbLeft() {
     xmbCancelTouchScroll();       // a discrete nav press takes over from an inertial glide
     if (mGSearchActive) return;   // results overlay ignores left/right
@@ -2610,6 +2728,7 @@ void NanoMenu::ps3XmbLeft() {
     if (mPs3DlgActive) { ps3DlgNav(-1, true); return; }   // chooser scroll / confirm toggle
     if (!mPs3Stack.empty()) { ps3XmbBack(); return; }
     if (mPs3Cats.empty() || mPs3CatIdx <= 0) return;
+    ps3NavSound();
     float live = ps3CatOffset(mPs3CatAnimActive, mPs3CatT, mPs3CatFromOffset);
     mPs3CatOldIdx = mPs3CatIdx; mPs3CatOldSel = mPs3ItemIdx;
     mPs3CatItemSel[mPs3CatIdx] = mPs3ItemIdx;
@@ -2660,6 +2779,7 @@ void NanoMenu::ps3XmbRight() {
     if (mPs3DlgActive) { ps3DlgNav(+1, true); return; }   // chooser scroll / confirm toggle
     if (!mPs3Stack.empty()) { ps3XmbSelect(); return; }
     if (mPs3Cats.empty() || mPs3CatIdx >= (int)mPs3Cats.size() - 1) return;
+    ps3NavSound();
     float live = ps3CatOffset(mPs3CatAnimActive, mPs3CatT, mPs3CatFromOffset);
     mPs3CatOldIdx = mPs3CatIdx; mPs3CatOldSel = mPs3ItemIdx;
     mPs3CatItemSel[mPs3CatIdx] = mPs3ItemIdx;
@@ -2703,7 +2823,7 @@ void NanoMenu::ps3XmbUp() {
     if (mPs3WizActive) { wizNav(-1, false); return; }
     if (mPs3DlgActive) { ps3DlgNav(-1, false); return; }
     int& s = ps3CurSel();
-    if (s > 0) { mPs3ItemAnimFrom = mPs3AnimItem; mPs3ItemAnimStart = mEffectTime; s--; }
+    if (s > 0) { mPs3ItemAnimFrom = mPs3AnimItem; mPs3ItemAnimStart = mEffectTime; s--; ps3NavSound(); }
 }
 void NanoMenu::ps3XmbDown() {
     xmbCancelTouchScroll();       // a discrete nav press takes over from an inertial glide
@@ -2735,7 +2855,7 @@ void NanoMenu::ps3XmbDown() {
     if (mPs3WizActive) { wizNav(+1, false); return; }
     if (mPs3DlgActive) { ps3DlgNav(+1, false); return; }
     int& s = ps3CurSel(); int n = (int)ps3CurItems().size();
-    if (s < n - 1) { mPs3ItemAnimFrom = mPs3AnimItem; mPs3ItemAnimStart = mEffectTime; s++; }
+    if (s < n - 1) { mPs3ItemAnimFrom = mPs3AnimItem; mPs3ItemAnimStart = mEffectTime; s++; ps3NavSound(); }
 }
 
 // ---- Internet Browser / Internet Search (Network category) ------------------
@@ -2856,6 +2976,7 @@ bool NanoMenu::tryOpenSearchEngineChooser() {
 
 void NanoMenu::ps3XmbSelect() {
     xmbCancelTouchScroll();       // settle any inertial glide before activating
+    ps3NavSound();                // PS3 XMB: cursor/enter sound on activate (no-op on the DSi theme)
     if (mGSearchActive) { gsearchActivate(); return; }   // launch / open the selected result
     if (mVidActive) {   // video player: Go To enter / Scene seek / panel activate / play-pause
         if (mVidOpenInProgress.load(std::memory_order_relaxed)) return;   // opening: only Back (cancel) is live
@@ -3829,24 +3950,9 @@ void NanoMenu::renderPs3Xmb() {
     { ps3::LayoutParams lp; lp.panelW = mWidth; lp.panelH = mHeight; lp.uiScale = mPs3UiScale;
       ps3::layoutCompute(lp); }
 
-    // Boxart: cache the toggle once per frame (drawList reads it per visible ROM),
-    // and free the cover textures whenever the Game category is not the active one,
-    // so the feature holds no GL memory when you are not browsing games. They reload
-    // lazily from the disk cache on return.
-    mScrapeBoxartOn = scraperBoxartEnabled();
-    {
-        bool inGame = (mPs3CatIdx >= 0 && mPs3CatIdx < (int)mPs3Cats.size()
-                       && mPs3Cats[mPs3CatIdx].name == "Game");
-        // Leaving Game frees the boxart/fanart GL AND joins the async decode worker
-        // (scraperFreeBoxart). Fire it whenever any scraper-art state is live (cache,
-        // hover fanart, or a running worker) so nothing lingers when not browsing games.
-        if (!inGame && (!mRomBoxartCache.empty() || mFanartTex || mSaDecStarted.load()))
-            scraperFreeBoxart();
-    }
-    // Upload any finished async art decodes (boxart / hover fanart / Information art)
-    // to GL on the render thread; the worker decoded the pixels off-thread so opening
-    // a Game system or Information never blocks the render loop.
-    saDrainArt();
+    // Boxart cache toggle + free-on-leave-Game + async art upload. Shared with the DSi
+    // theme (which never calls renderPs3Xmb) so its card/top-screen previews decode too.
+    scraperArtTick();
 
     // Content-info hover background is drawn further down, AFTER the submenu frost
     // backdrop, so a scraped ROM's fanart in a submenu is not hidden by the frost.
@@ -5282,15 +5388,15 @@ static const char* const kOffOnOpts[]      = {"Off","On"};
 
 void NanoMenu::loadPs3ThemeSettings() {
     char buf[PROPERTY_VALUE_MAX];
-    auto rd = [&](const char* prop, int cap) -> int {
-        property_get(prop, buf, "0"); int v = atoi(buf);
-        if (v < 0 || v >= cap) v = 0; return v;
+    auto rd = [&](const char* prop, int cap, const char* def = "0") -> int {
+        property_get(prop, buf, def); int v = atoi(buf);
+        if (v < 0 || v >= cap) v = atoi(def); if (v < 0 || v >= cap) v = 0; return v;
     };
     mPs3ThemeIdx    = rd("persist.gammaos.nano.ps3xmb.theme", 2);
     mPs3ColorIdx    = rd("persist.gammaos.nano.ps3xmb.color", kPs3ColorCount);
     mPs3BgIdx       = rd("persist.gammaos.nano.ps3xmb.bg", 3);
     mPs3FontIdx     = rd("persist.gammaos.nano.ps3xmb.font", 3);
-    mPs3DayNightIdx = rd("persist.gammaos.nano.ps3xmb.daynight", kPs3DayNightCount);
+    mPs3DayNightIdx = rd("persist.gammaos.nano.ps3xmb.daynight", kPs3DayNightCount, "5");   // default: Night
     // Apply the visual state (colour + day/night). Cross-fades from the boot
     // colour are handled in ps3bg; setThemeColor/setDayNightBlend just set the
     // target. mPs3ColorIdx 0 = Original (per-month hue).
@@ -5396,6 +5502,11 @@ static const Ps3SettingBinding kPs3Bindings[] = {
      "letters:A / B / X / Y,playstation:PlayStation"},
     {"OK Button", SettingSource::kProp, "persist.gammaos.nano.face_swap", "0",
      "0:A / Cross,1:B / Circle"},
+    // Home theme switch (persist. so it survives reboot). mNdsTheme is read once at startup,
+    // so applying restarts the main gammaos-nano home service - see the "Home Theme" hook in
+    // closePs3Dialog. "0"/empty = GammaOS XMB, "1" = the DSi Menu theme.
+    {"Home Theme", SettingSource::kProp, "persist.gammaos.nano.ndstheme", "0",
+     "0:GammaOS XMB,1:DSi Menu"},
     // Gamepad free-text / mapping fields (edited via the OSK for now; Inc2/Inc3 readapt
     // these into native button/axis/device pickers). Formats match the gammapad daemon:
     //   devices/blacklist_pass: device-name patterns (';') / button codes (',')
@@ -6904,7 +7015,7 @@ void NanoMenu::buildShaderSubmenu(Ps3Level& out) {
     auto act = [&](const char* label, int qa, const std::string& val, int icon) {
         Ps3Item it; it.label = label; it.kind = PS3_QUICK; it.a = qa;
         if (!val.empty()) it.value = val;
-        it.nmapTex = nmapForIcon(icon); it.iconR = it.iconG = it.iconB = 1.0f;
+        it.iconTex = iconTexForIcon(icon); it.nmapTex = nmapForIcon(icon); it.iconR = it.iconG = it.iconB = 1.0f;
         out.items.push_back(it);
     };
     // Master shader selector (its inline value is the active shader label).
@@ -6945,7 +7056,7 @@ void NanoMenu::buildShaderParamsSubmenu(Ps3Level& out) {
             "persist.gammaos.shader.custom.preset", "").empty())
             ? "Select a custom shader first" : "Loading parameters...";
         it.kind = PS3_QUICK; it.a = QA_NOOP; it.iconR = it.iconG = it.iconB = 1.0f;
-        it.nmapTex = nmapForIcon(22);
+        it.iconTex = iconTexForIcon(22); it.nmapTex = nmapForIcon(22);
         out.items.push_back(it);
         return;
     }
@@ -6953,18 +7064,18 @@ void NanoMenu::buildShaderParamsSubmenu(Ps3Level& out) {
         Ps3Item it; it.label = mShaderParams[i].label;
         it.kind = PS3_QUICK; it.a = QA_SHADER_PARAM; it.b = i;
         it.value = ps3FormatNum(mShaderParams[i].cur, mShaderParams[i].dec);
-        it.nmapTex = nmapForIcon(22); it.iconR = it.iconG = it.iconB = 1.0f;
+        it.iconTex = iconTexForIcon(22); it.nmapTex = nmapForIcon(22); it.iconR = it.iconG = it.iconB = 1.0f;
         out.items.push_back(it);
     }
     // Blur Fill has a discrete orientation option in addition to its sliders.
     if (type == "blur-fill") {
         Ps3Item it; it.label = "Orientation"; it.kind = PS3_QUICK; it.a = QA_SHADER_OPT_MENU;
         it.value = "persist.gammaos.shader.blurfill.orientation|auto:Auto,vertical:Vertical,horizontal:Horizontal|Orientation";
-        it.nmapTex = nmapForIcon(22); it.iconR = it.iconG = it.iconB = 1.0f;
+        it.iconTex = iconTexForIcon(22); it.nmapTex = nmapForIcon(22); it.iconR = it.iconG = it.iconB = 1.0f;
         out.items.push_back(it);
     }
     { Ps3Item it; it.label = "Reset to Defaults"; it.kind = PS3_QUICK; it.a = QA_SHADER_RESET;
-      it.nmapTex = nmapForIcon(22); it.iconR = it.iconG = it.iconB = 1.0f;
+      it.iconTex = iconTexForIcon(22); it.nmapTex = nmapForIcon(22); it.iconR = it.iconG = it.iconB = 1.0f;
       out.items.push_back(it); }
 }
 
@@ -7145,7 +7256,7 @@ void NanoMenu::buildShaderBrowser(const std::string& path, Ps3Level& out) {
     auto row = [&](const std::string& label, int qa, const std::string& val, int icon) {
         Ps3Item it; it.label = label; it.kind = PS3_QUICK; it.a = qa;
         if (!val.empty()) it.value = val;
-        it.nmapTex = nmapForIcon(icon); it.iconR = it.iconG = it.iconB = 1.0f;
+        it.iconTex = iconTexForIcon(icon); it.nmapTex = nmapForIcon(icon); it.iconR = it.iconG = it.iconB = 1.0f;
         out.items.push_back(it);
     };
     if (path.empty()) {
@@ -7524,6 +7635,28 @@ void NanoMenu::closePs3Dialog(bool apply) {
                     const std::string& v = opts[mPs3DlgSel].value;
                     writeSettingValue(b->source, b->key, v);
                     mPs3BindCache[b->label] = v;
+                    // Home Theme switch: apply LIVE (user: "apply immediately"). mNdsTheme is
+                    // read once at startup, but the render path re-reads it every frame and lazily
+                    // loads the DSi assets, so flipping it in-memory swaps the home instantly with
+                    // no service restart. Crucial on the RG DS where the home IS the resident
+                    // overlay process (restarting gammaos-nano would not touch it). The persist
+                    // prop was already written above, so the choice survives a reboot.
+                    if (!strcmp(b->label, "Home Theme")) {
+                        bool wantDsi = (v == "1" || v == "true");
+                        if (wantDsi != mNdsTheme) {
+                            mNdsTheme = wantDsi;
+                            if (wantDsi) ensureNdsAssets();
+                            // Reset to the home root so the new theme presents from a clean state
+                            // (both themes share mPs3Cats / mMenuState but lay it out differently).
+                            mMenuState = MENU_MAIN;
+                            mPs3Stack.clear();
+                            mPs3CatIdx = 0; mPs3ItemIdx = 0;
+                            mNdsAtRoot = true;
+                            mNdsCamera = 0.0f; mNdsScrubbing = false; mNdsFlingVel = 0.0f;
+                            mPs3AnimItem = 0.0f; mPs3ItemAnimStart = -1.0f;
+                            mPs3CatAnimActive = false; mPs3CatT = 1.0f; mPs3SubAnim = 0.0f;
+                        }
+                    }
                     // Quick Settings "DPAD/Analog Swap" tile writes BOTH transform
                     // props to the same value (the standalone Settings rows above
                     // stay independent, so key on the label not the prop).
@@ -7599,6 +7732,7 @@ void NanoMenu::closePs3Dialog(bool apply) {
         mPs3RomInfoScroll = 0;
         mPs3DlgRomInfo = false;
     }
+    mPs3DlgGameInfo = false; mNdsInfoPage = 0;   // DSi: top-screen info page closed
     // A confirm dialog whose accept handler reconfigured itself into a progress modal
     // (uninstall) must NOT be torn down here - keep it up until its own logic closes it.
     if (mPs3DlgKeepOpen) { mPs3DlgKeepOpen = false; return; }
@@ -8726,6 +8860,7 @@ void NanoMenu::xmbOptAction(const std::string& act) {
             mPs3DlgBody = body;
         }
         mPs3DlgActive = true; mPs3DlgAnim = 0.0f; mPs3DlgBlurValid = false;
+        mPs3DlgGameInfo = true; mNdsInfoPage = 0;   // DSi: route to the top-screen info page
         return;
     }
     if (act == "start") {

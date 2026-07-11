@@ -1548,5 +1548,9 @@
  "ready": "bereit",
  "result": "Ergebnis",
  "results": "Ergebnisse",
- "unlocked": "freigeschaltet"
+ "unlocked": "freigeschaltet",
+ "Home Theme": "Startbildschirm-Design",
+ "GammaOS XMB": "GammaOS XMB",
+ "DSi Menu": "DSi-Menü",
+ "Switches the home screen between the GammaOS XMB and the DSi Menu. Applying restarts the home screen.": "Wechselt den Startbildschirm zwischen GammaOS XMB und dem DSi-Menü. Beim Anwenden wird der Startbildschirm neu gestartet."
 }

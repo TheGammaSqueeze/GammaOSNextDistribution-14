@@ -1550,5 +1550,9 @@
  "ready": "جاهزة",
  "result": "نتيجة",
  "results": "نتائج",
- "unlocked": "مفتوح"
+ "unlocked": "مفتوح",
+ "Home Theme": "سمة الشاشة الرئيسية",
+ "GammaOS XMB": "GammaOS XMB",
+ "DSi Menu": "قائمة DSi",
+ "Switches the home screen between the GammaOS XMB and the DSi Menu. Applying restarts the home screen.": "يبدّل الشاشة الرئيسية بين GammaOS XMB وقائمة DSi. يؤدي التطبيق إلى إعادة تشغيل الشاشة الرئيسية."
 }

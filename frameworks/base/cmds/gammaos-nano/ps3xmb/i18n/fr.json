@@ -1548,5 +1548,9 @@
  "ready": "prêt",
  "result": "résultat",
  "results": "résultats",
- "unlocked": "débloqué"
+ "unlocked": "débloqué",
+ "Home Theme": "Thème de l'accueil",
+ "GammaOS XMB": "GammaOS XMB",
+ "DSi Menu": "Menu DSi",
+ "Switches the home screen between the GammaOS XMB and the DSi Menu. Applying restarts the home screen.": "Bascule l'écran d'accueil entre GammaOS XMB et le Menu DSi. L'application redémarre l'écran d'accueil."
 }

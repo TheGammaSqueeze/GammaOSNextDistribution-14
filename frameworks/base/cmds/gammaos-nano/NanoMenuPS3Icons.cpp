@@ -340,6 +340,32 @@ GLuint NanoMenu::loadPs3NmapTex(const char* file) {
     return uploadRGBA(px.data(), w, h);
 }
 
+// Load a DSi-theme colour sprite (an SVG rasterised to PNG, the real 4x asset) to a
+// full-RGBA GL texture. Dev-override under /data first, then the bundled /system path.
+// monoWhite=false so the sprite keeps its colours + alpha. 0 on failure (caller falls
+// back to the procedural draw).
+GLuint NanoMenu::ndsLoadTex(const char* name) {
+    char path[256];
+    std::vector<uint8_t> px; int w = 0, h = 0;
+    snprintf(path, sizeof(path), "/data/system/nano_xmb/nds/%s.png", name);
+    if (!decodeRGBA(path, nullptr, 0, &w, &h, &px, false)) {
+        snprintf(path, sizeof(path), "/system/etc/nano_xmb/nds/%s.png", name);
+        if (!decodeRGBA(path, nullptr, 0, &w, &h, &px, false)) return 0;
+    }
+    if (w < 2 || h < 2) return 0;
+    return uploadRGBA(px.data(), w, h);
+}
+
+// Decode a PNG embedded in the binary (no file dependency) -> RGBA texture. Used for the
+// status-bar glyphs so they never depend on /data or /system being readable at render time.
+GLuint NanoMenu::ndsLoadTexMem(const unsigned char* data, int len) {
+    if (!data || len < 8) return 0;
+    std::vector<uint8_t> px; int w = 0, h = 0;
+    if (!decodeRGBA(nullptr, data, len, &w, &h, &px, false)) return 0;
+    if (w < 2 || h < 2) return 0;
+    return uploadRGBA(px.data(), w, h);
+}
+
 // Music player control-panel / status / codec-badge icon (the web audioplayer set,
 // images/audioplayer/icon_NNN.png). Colour PNGs (not silhouettes), cached by index;
 // 0 cached on miss so it never re-reads. Lazy: only loaded on first Now-Playing use.
@@ -616,6 +642,28 @@ GLuint NanoMenu::nmapForIcon(int iconIndex) {
     }
     mPs3NmapByIcon[iconIndex] = tex;   // cache even 0 so we do not retry every frame
     return tex;
+}
+
+// Framework UI icon (index >= kUiIconBase) as a PLAIN mono silhouette texture. There is no
+// colour xmb_icon_NNN.png for these framework icons - the DSi carousel needs a mono-white
+// texture so it draws them as a flat dark glyph (drawIconTex dark), matching the console
+// icons, instead of falling through to the glass relight (which the DSi cards do not use).
+// The silhouette (icons_ui/<name>.png, white on alpha) is the same source nmapForIcon bevels;
+// here it is uploaded straight, un-beveled. Returns 0 for non-framework indices.
+GLuint NanoMenu::uiIconTexForIcon(int iconIndex) {
+    if (iconIndex < kUiIconBase) return 0;
+    const char* name = uiIconName(iconIndex);
+    if (!name) return 0;
+    char path[256];
+    std::vector<uint8_t> px; int w = 0, h = 0;
+    snprintf(path, sizeof(path), "/data/system/nano_xmb/icons_ui/%s.png", name);
+    bool ok = decodeRGBA(path, nullptr, 0, &w, &h, &px, false);
+    if (!ok) {
+        snprintf(path, sizeof(path), "/system/etc/nano_xmb/icons_ui/%s.png", name);
+        ok = decodeRGBA(path, nullptr, 0, &w, &h, &px, false);
+    }
+    if (ok && w >= 4 && h >= 4) return uploadRGBA(px.data(), w, h);
+    return 0;
 }
 
 // Generate a bevel normal map from a console icon's alpha silhouette. The
