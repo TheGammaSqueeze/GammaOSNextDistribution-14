@@ -126,39 +126,86 @@ bool loadDVoice(const std::string& path, DVoice& out) {
 
 const int64_t kDirectMaxLoopMs = 60000;    // hard cap: never hold the card past the free window
 
+// Enable the codec's speaker output route for the direct PCM. The vendor audio HAL normally programs
+// the route when it opens a stream, but the direct path runs BEFORE the audio server is up, so the DAC
+// route + speaker switch can be off and the PCM plays into a disabled output (silent). Apply a
+// best-effort set of common output-enable controls - only the ones that actually EXIST on this card -
+// so the early audio is audible on the rk817 (RG DS) AND the Allwinner sun50iw10codec (TrimUI Brick),
+// and a graceful no-op on other codecs (they keep whatever init/default route they have). Device-
+// agnostic where possible; the audio server re-programs its own route once it takes the card back.
+void directEnableSpeaker() {
+    struct mixer* mx = mixer_open(0);
+    if (!mx) return;
+    std::string set;
+    auto setEnum = [&](const char* name, const char* val) -> bool {
+        struct mixer_ctl* c = mixer_get_ctl_by_name(mx, name);
+        if (c && mixer_ctl_get_type(c) == MIXER_CTL_TYPE_ENUM &&
+            mixer_ctl_set_enum_by_string(c, val) == 0) { set += name; set += "; "; return true; }
+        return false;
+    };
+    auto setInt = [&](const char* name, int v) {
+        struct mixer_ctl* c = mixer_get_ctl_by_name(mx, name);
+        if (!c) return;
+        unsigned n = mixer_ctl_get_num_values(c);
+        for (unsigned i = 0; i < n; i++) mixer_ctl_set_value(c, i, v);
+        if (n) { set += name; set += "; "; }
+    };
+    // Device-agnostic route-enable: try every known output-route control; each is guarded by its
+    // own existence check, so only the controls a given codec actually has take effect. On rk817
+    // (RG DS) that lands as [Playback Path=SPK; Headphone Switch; Speaker Switch] (the AIF/DAC/HP
+    // Allwinner controls are absent and no-op); on the Allwinner sun50iw10codec (TrimUI Brick) it
+    // lands as [DAC volume; Headphone Switch; HpSpeaker Switch] (Playback Path is absent). This is
+    // the exact configuration the user confirmed working on both devices - do NOT gate the discrete
+    // chain behind Playback Path (that variant is unverified on rk817).
+    setEnum("Playback Path", "SPK");
+    setEnum("AIF1IN0R Mux", "AIF1_DA0R");
+    setEnum("AIF1IN0L Mux", "AIF1_DA0L");
+    setInt ("DACR Mixer AIF1DA0R Switch", 1);
+    setInt ("DACL Mixer AIF1DA0L Switch", 1);
+    setEnum("HP_R Mux", "DACR_HPR_Switch");
+    setEnum("HP_L Mux", "DACL_HPL_Switch");
+    setInt ("DAC volume", 160);
+    setInt ("headphone volume", 60);
+    setInt ("Headphone Switch", 1);
+    setInt ("HpSpeaker Switch", 1);
+    setInt ("Speaker Switch", 1);
+    mixer_close(mx);
+    NBC_I("direct: route-enable set [%s]", set.empty() ? "(none - unknown codec)" : set.c_str());
+}
+
 void directWorker() {
     struct pcm* pcm = nullptr;
     auto closePcm = [&]() { if (pcm) { pcm_close(pcm); pcm = nullptr; } gEng.pcmOwned.store(false); };
-    DVoice cur; bool haveCur = false; size_t pos = 0; int64_t loopStartMs = 0;
     std::vector<int16_t> period(960 * 2);
+
+    // Worker-local MIX state: the one looping bed (BGM) plus any concurrent one-shots (chime / SFX).
+    // The engine used to PREEMPT the loop for a one-shot (the BGM cut out); it now MIXES them - every
+    // active voice is summed into the period and clipped to S16 - so the DSi carousel music and its
+    // nav / enter / back / launch effects sound together during the pre-boot-complete window, 1:1 with
+    // the web app. The loop plays continuously (no restart on each effect).
+    DVoice loopV; bool loopActive = false; size_t loopPos = 0; int64_t loopStartMs = 0;
+    struct Shot { DVoice v; size_t pos; };
+    std::vector<Shot> shots;
 
     for (;;) {
         {
             std::unique_lock<std::mutex> lk(gEng.m);
             if (gEng.shutdown) break;
-            if (haveCur && cur.loop && !gEng.queue.empty()) haveCur = false;   // preempt loop for a one-shot
-            if (!haveCur) {
-                if (!gEng.queue.empty()) {
-                    cur = std::move(gEng.queue.front()); gEng.queue.pop_front();
-                    cur.loop = false; haveCur = true; pos = 0;
-                } else if (gEng.haveLoop) {
-                    cur = gEng.loopVoice; cur.loop = true; haveCur = true; pos = 0; loopStartMs = monoMs();
-                } else {
-                    closePcm();                        // nothing to play: free the card and park
-                    gEng.cv.wait(lk, [] { return gEng.shutdown || !gEng.queue.empty() || gEng.haveLoop; });
-                    if (gEng.shutdown) break;
-                    continue;
-                }
+            // Admit every pending one-shot into the active mix (no longer preempting the loop).
+            while (!gEng.queue.empty()) { shots.push_back({ std::move(gEng.queue.front()), 0 }); gEng.queue.pop_front(); }
+            // Sync the loop bed to the engine's current request.
+            if (gEng.haveLoop && !loopActive)      { loopV = gEng.loopVoice; loopActive = true; loopPos = 0; loopStartMs = monoMs(); }
+            else if (!gEng.haveLoop && loopActive) { loopActive = false; loopV.pcm.clear(); }
+            if (!loopActive && shots.empty()) {        // nothing to play: free the card and park
+                closePcm();
+                gEng.cv.wait(lk, [] { return gEng.shutdown || !gEng.queue.empty() || gEng.haveLoop; });
+                if (gEng.shutdown) break;
+                continue;
             }
         }
 
-        if (!pcm) {                                    // (re)open the PCM for this voice
-            if (struct mixer* mx = mixer_open(0)) {
-                struct mixer_ctl* c = mixer_get_ctl_by_name(mx, "Playback Path");
-                if (c && mixer_ctl_get_type(c) == MIXER_CTL_TYPE_ENUM)
-                    mixer_ctl_set_enum_by_string(c, "SPK");
-                mixer_close(mx);
-            }
+        if (!pcm) {                                    // (re)open the PCM
+            directEnableSpeaker();                      // device-agnostic route-enable (rk817 + Allwinner + ...)
             struct pcm_config cfg; memset(&cfg, 0, sizeof(cfg));
             cfg.channels = 2; cfg.rate = 48000; cfg.format = PCM_FORMAT_S16_LE;
             cfg.period_size = 960; cfg.period_count = 4;
@@ -166,8 +213,8 @@ void directWorker() {
             if (!pcm || !pcm_is_ready(pcm)) {          // EBUSY / unsupported -> this device can't do direct
                 NBC_W("direct: pcm_open failed: %s -> fall back to AAudio", pcm ? pcm_get_error(pcm) : "(null)");
                 if (pcm) { pcm_close(pcm); pcm = nullptr; }
-                if (haveCur && cur.inFlight) cur.inFlight->store(false);
-                haveCur = false;
+                for (auto& s : shots) if (s.v.inFlight) s.v.inFlight->store(false);
+                shots.clear(); loopActive = false;
                 gEng.failed.store(true);               // callers use the AAudio path from now on
                 std::lock_guard<std::mutex> lk(gEng.m); gEng.queue.clear(); gEng.haveLoop = false;
                 break;                                 // exit the worker; a later play respawns it (and re-checks)
@@ -175,21 +222,35 @@ void directWorker() {
             gEng.pcmOwned.store(true);
         }
 
-        // Fill one 2ch period from cur.pcm at `pos`, applying gain; wrap (loop) / zero-pad (one-shot).
-        float gf = cur.loop ? gEng.liveLoopGain.load() : cur.gain;
-        int   g  = (int)(gf * 32768.0f + 0.5f); if (g < 0) g = 0; else if (g > 32768) g = 32768;
-        const size_t len = cur.pcm.size();
-        const size_t step = (cur.channels == 1) ? 1 : 2;
+        // Mix one 2ch period: the loop bed + every active one-shot, per-voice gain, summed, clipped to
+        // S16. The loop reads its live gain once per period (lock-free); each one-shot uses its fixed gain.
+        int lg = 0;
+        if (loopActive) { float gf = gEng.liveLoopGain.load(); lg = (int)(gf * 32768.0f + 0.5f); if (lg < 0) lg = 0; else if (lg > 32768) lg = 32768; }
+        const size_t loopLen  = loopActive ? loopV.pcm.size() : 0;
+        const size_t loopStep = (loopActive && loopV.channels == 1) ? 1 : 2;
         for (size_t i = 0; i < 960; ++i) {
-            int16_t l = 0, r = 0;
-            if (pos < len) { l = cur.pcm[pos]; r = (step == 2 && pos + 1 < len) ? cur.pcm[pos + 1] : l; }
-            if (g != 32768) {
-                int vl = ((int)l * g) >> 15; if (vl > 32767) vl = 32767; else if (vl < -32768) vl = -32768; l = (int16_t)vl;
-                int vr = ((int)r * g) >> 15; if (vr > 32767) vr = 32767; else if (vr < -32768) vr = -32768; r = (int16_t)vr;
+            int sl = 0, sr = 0;
+            if (loopActive && loopLen) {
+                int16_t l = loopV.pcm[loopPos];
+                int16_t r = (loopStep == 2 && loopPos + 1 < loopLen) ? loopV.pcm[loopPos + 1] : l;
+                sl += ((int)l * lg) >> 15;
+                sr += ((int)r * lg) >> 15;
+                loopPos += loopStep; if (loopPos >= loopLen) loopPos = 0;
             }
-            period[i * 2] = l; period[i * 2 + 1] = r;
-            pos += step;
-            if (pos >= len && cur.loop) pos = 0;
+            for (Shot& s : shots) {
+                const size_t len = s.v.pcm.size();
+                if (s.pos >= len) continue;
+                int g = (int)(s.v.gain * 32768.0f + 0.5f); if (g < 0) g = 0; else if (g > 32768) g = 32768;
+                const size_t step = (s.v.channels == 1) ? 1 : 2;
+                int16_t l = s.v.pcm[s.pos];
+                int16_t r = (step == 2 && s.pos + 1 < len) ? s.v.pcm[s.pos + 1] : l;
+                sl += ((int)l * g) >> 15;
+                sr += ((int)r * g) >> 15;
+                s.pos += step;
+            }
+            if (sl > 32767) sl = 32767; else if (sl < -32768) sl = -32768;
+            if (sr > 32767) sr = 32767; else if (sr < -32768) sr = -32768;
+            period[i * 2] = (int16_t)sl; period[i * 2 + 1] = (int16_t)sr;
         }
 
         if (pcm_write(pcm, period.data(), (unsigned)(period.size() * 2)) != 0) {
@@ -197,16 +258,19 @@ void directWorker() {
             break;                                     // someone else wants the card / hw error: yield
         }
 
-        if (!cur.loop && pos >= len) {                 // one-shot finished
-            if (cur.inFlight) cur.inFlight->store(false);
-            haveCur = false;
+        // Retire finished one-shots (clear their in-flight flags).
+        for (size_t k = 0; k < shots.size(); ) {
+            if (shots[k].pos >= shots[k].v.pcm.size()) {
+                if (shots[k].v.inFlight) shots[k].v.inFlight->store(false);
+                shots.erase(shots.begin() + k);
+            } else ++k;
         }
-        if (cur.loop && (monoMs() - loopStartMs) > kDirectMaxLoopMs) {
+        if (loopActive && (monoMs() - loopStartMs) > kDirectMaxLoopMs) {
             NBC_W("direct: loop wall-cap hit -> release");
             break;
         }
     }
-    if (haveCur && cur.inFlight) cur.inFlight->store(false);
+    for (auto& s : shots) if (s.v.inFlight) s.v.inFlight->store(false);
     closePcm();
     std::lock_guard<std::mutex> lk(gEng.m);
     gEng.workerRunning = false;

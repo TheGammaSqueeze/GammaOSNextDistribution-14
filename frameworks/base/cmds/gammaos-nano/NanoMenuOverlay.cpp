@@ -484,6 +484,29 @@ void NanoMenu::overlayShow() {
         mPs3CatAnimActive = false; mPs3CatT = 1.0f; mPs3CatFromOffset = 0.0f;
     }
 
+    // DSi theme, app-EXIT return only (wallpaper/launcher raise, app_launched=0): replay the
+    // card-drop entrance cascade like a fresh home (user request), and reflect the Recently
+    // Played reorder. A scrim raise OVER a running app (app_launched=1) does neither - the
+    // menu just appears over the paused game. loadXmbRecent() above already reloaded the list
+    // (the just-played game moved to the front); rebuild any open Recently Played level from it
+    // so it shows the new order and lands on that game, and re-arm the intro so the cards drop.
+    if (mOverlayWallpaper && mNdsTheme) {
+        mNdsIntroStart = 0;   // renderNdsCarousel re-fires the DSi card-drop on the next frame
+        bool rebuiltRecent = false;
+        for (auto& lvl : mPs3Stack) {
+            if (!lvl.items.empty() && lvl.items[0].kind == PS3_RECENT) {
+                buildRecentSubmenu(lvl);   // rebuild from the freshly reloaded mXmbRecent
+                lvl.sel = 0;               // the just-played game is now the front card
+                rebuiltRecent = true;
+            }
+        }
+        if (rebuiltRecent) {
+            mNdsCamera = (float)ndsFocusSel();
+            mNdsScrubbing = false; mNdsFlingVel = 0.0f; mNdsFastScroll = false;
+            mPs3AnimItem = (float)ndsFocusSel(); mPs3ItemAnimStart = -1.0f;
+        }
+    }
+
     mOverlayShown = true;
     // Cold-boot-style fade + float-in of the XMB chrome. -2 = pending; the first
     // rendered frame begins it and it then advances by clamped per-frame dt, so the

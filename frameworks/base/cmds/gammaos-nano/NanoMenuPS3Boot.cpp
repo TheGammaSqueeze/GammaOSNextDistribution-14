@@ -247,19 +247,60 @@ void NanoMenu::dsiBootSound(DsiSfx which) {
 // Trigger one DSi interactive SFX (NDS_SFX_* id). Lazy-loads the clip once on a bg thread (AAudio /
 // decode never on the render thread), then triggers are lock-free. Only in the DSi theme (the PS3
 // theme uses ps3NavSound). Post-boot only in practice (nav happens after the audio server is up).
+// Shared early-audio hook for the interactive menu effects (DSi ndsSfxPlay + PS3 ps3NavSound). Before
+// boot-complete the RK3568 audio server (AudioPolicyManager) is still ~23s into its init, so AAudio is
+// blocked; play the effect on the direct-ALSA one-shot path instead, where the worker mixes it over any
+// early BGM bed. Lives here because dsiBootCompleted / dsiEarlyAudioGain / dsiAudioPath are file-local.
+// Returns true if it was queued to the direct mixer (caller done); false -> the caller uses AAudio.
+bool NanoMenu::earlySfxOneShot(const char* wavName, float master) {
+    if (!(nanoDirectAudioUsable() && !dsiBootCompleted())) return false;
+    nanoDirectPlayOneShot(dsiAudioPath(wavName), dsiEarlyAudioGain(master));
+    return true;
+}
+
 void NanoMenu::ndsSfxPlay(int which) {
     if (!mNdsTheme) return;
     if (which < 0 || which >= NDS_SFX_COUNT) return;
-    if (gNdsSfx[which].loaded()) { gNdsSfx[which].trigger(); return; }
-    if (gNdsSfxOpening[which].exchange(true)) return;             // one decode in flight per clip
     static const char* kFiles[NDS_SFX_COUNT] = {
         "nav_blip.wav", "app_launch.wav", "settings_nav.wav", "settings_back.wav", "settings_enter.wav" };
+    // Pre-boot-complete (RK3568 audio server still initialising): play on the direct-ALSA mixer so the
+    // nav / enter / back / launch effects are audible in the early menu instead of silent. Post-boot
+    // uses the pre-loaded low-latency AAudio player.
+    if (earlySfxOneShot(kFiles[which], 0.4f)) return;
+    if (gNdsSfx[which].loaded()) { gNdsSfx[which].trigger(); return; }
+    if (gNdsSfxOpening[which].exchange(true)) return;             // one decode in flight per clip
     std::string path = dsiAudioPath(kFiles[which]);
     std::thread([which, path]() {
         // master 0.4 = half the web level (user: the DSi SFX were too loud, drop to 50%). The BGM
         // ambiance is unchanged.
         if (gNdsSfx[which].load(path, 0.4f)) gNdsSfx[which].trigger();
         gNdsSfxOpening[which].store(false);
+    }).detach();
+}
+
+// ---- Authentic PS3 XMB nav effects (firmware system_plugin, /work/ps3/firmware_audio/system) --------
+// SE02 cursor move / SE03 normal OK / SE04 back / SE05 category OK / SE08 option / SE09 error. Mirrors
+// the DSi gNdsSfx model: FILE-STATIC low-latency players, one per clip, decoded once on a bg thread then
+// triggered lock-free. Pre-boot-complete they route to the direct-ALSA mixer (earlySfxOneShot) so PS3
+// XMB nav is audible in the early menu too; post-boot they use the pre-loaded AAudio players.
+// Ps3SfxId (PS3_SFX_*) lives at namespace scope in NanoMenu.h so both this file-static array and the
+// nav call sites in NanoMenuPS3Menu.cpp can name it.
+static NanoSfxPlayer     gPs3Sfx[PS3_SFX_COUNT];
+static std::atomic<bool> gPs3SfxOpening[PS3_SFX_COUNT] = {};
+
+void NanoMenu::ps3Sfx(int which) {
+    if (mNdsTheme) return;                              // PS3 XMB theme only (DSi uses ndsSfxPlay)
+    if (which < 0 || which >= PS3_SFX_COUNT) return;
+    static const char* kFiles[PS3_SFX_COUNT] = {
+        "SE02_Cursor.wav", "SE03_Normal_OK.wav", "SE04_Back.wav",
+        "SE05_Category_OK.wav", "SE08_Option.wav", "SE09_Error.wav" };
+    if (earlySfxOneShot(kFiles[which], 0.8f)) return;   // pre-boot-complete: direct mixer
+    if (gPs3Sfx[which].loaded()) { gPs3Sfx[which].trigger(); return; }
+    if (gPs3SfxOpening[which].exchange(true)) return;    // one decode in flight per clip
+    std::string path = dsiAudioPath(kFiles[which]);
+    std::thread([which, path]() {
+        if (gPs3Sfx[which].load(path, 0.8f)) gPs3Sfx[which].trigger();
+        gPs3SfxOpening[which].store(false);
     }).detach();
 }
 

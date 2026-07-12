@@ -394,7 +394,11 @@ void NanoMenu::ndsRestoreReturnPath() {
         ps3XmbSelect();                                  // drill the current item (ps3CurSel == chain[i-1])
         if (mPs3Stack.size() <= before) break;           // a leaf / changed data: stop, do not go deeper
         int nk = (int)mPs3Stack.back().items.size();
-        ps3CurSel() = (nk > 0 && chain[i] >= 0 && chain[i] < nk) ? chain[i] : 0;
+        // A Recently Played level reorders on launch (the just-played game moves to the front of
+        // the list), so the saved slot index is stale on return - land on the front card instead.
+        bool recentLvl = nk > 0 && mPs3Stack.back().items[0].kind == PS3_RECENT;
+        int want = recentLvl ? 0 : chain[i];
+        ps3CurSel() = (nk > 0 && want >= 0 && want < nk) ? want : 0;
     }
     // A settings LIST category (Quick Menu / System Settings) must not drop the user INTO the list on
     // return (jarring, "don't drop to quick menu"): if the chain was a single category-level pick and
@@ -2694,24 +2698,9 @@ void NanoMenu::ps3DlgNav(int dir, bool horizontal) {
 // nav happens after boot so the audio server is up. Loaded once on a bg thread (AAudio open blocks
 // until the server is ready, so never on the render thread); each nav then seek-0 + play() re-ticks
 // it. The first nav before the player is ready is silent.
-void NanoMenu::ps3NavSound() {
-    if (mNdsTheme) return;                              // PS3 XMB theme only
-    if (!mNavSfxLoaded.load()) {
-        if (mNavSfxOpening.exchange(true)) return;      // one decode in flight
-        std::thread([this]() {
-            char p[256];
-            snprintf(p, sizeof(p), "/data/system/nano_xmb/audio/SE02_Cursor.wav");
-            std::string path = (access(p, R_OK) == 0) ? std::string(p)
-                             : std::string("/system/etc/nano_xmb/audio/SE02_Cursor.wav");
-            // master 0.8 == the DSi effects; audioserver's STREAM_MUSIC applies on top, so the PS3
-            // nav volume tracks the system volume the same as the DSi sounds.
-            if (mNavSfx.load(path, 0.8f)) mNavSfxLoaded.store(true);
-            mNavSfxOpening.store(false);
-        }).detach();
-        return;                                         // first nav is silent until decoded
-    }
-    mNavSfx.trigger();   // non-blocking flag flip; the AAudio callback mixes it (zero render-thread cost)
-}
+// Cursor move (D-pad / touch scroll). Thin wrapper over the shared ps3Sfx dispatcher, which routes to
+// the early-boot direct mixer before the audio server is up and the pre-loaded AAudio player after.
+void NanoMenu::ps3NavSound() { ps3Sfx(PS3_SFX_CURSOR); }
 
 void NanoMenu::ps3XmbLeft() {
     xmbCancelTouchScroll();       // a discrete nav press takes over from an inertial glide
@@ -2997,7 +2986,7 @@ bool NanoMenu::tryOpenSearchEngineChooser() {
 
 void NanoMenu::ps3XmbSelect() {
     xmbCancelTouchScroll();       // settle any inertial glide before activating
-    ps3NavSound();                // PS3 XMB: cursor/enter sound on activate (no-op on the DSi theme)
+    ps3Sfx(PS3_SFX_OK);           // PS3 XMB: normal OK/enter sound on activate (no-op on the DSi theme)
     if (mGSearchActive) { gsearchActivate(); return; }   // launch / open the selected result
     if (mVidActive) {   // video player: Go To enter / Scene seek / panel activate / play-pause
         if (mVidOpenInProgress.load(std::memory_order_relaxed)) return;   // opening: only Back (cancel) is live
@@ -3705,6 +3694,7 @@ void NanoMenu::ps3XmbSelect() {
 
 void NanoMenu::ps3XmbBack() {
     xmbCancelTouchScroll();       // a discrete nav press takes over from an inertial glide
+    ps3Sfx(PS3_SFX_BACK);         // PS3 XMB: back/cancel sound on any Back press (user: back-from-selection)
     // GammaOS Nano diag: trace why the overlay does not dismiss on Back over a live app.
     if (mOverlayMode) {
         ALOGW("overlay-back-diag: menuState=%d stack=%zu dlg=%d opt=%d wiz=%d tz=%d lang=%d "
@@ -7799,6 +7789,7 @@ void NanoMenu::openXmbOpt() {
     if (mPs3DlgActive || mMpActive || mPvActive || mVidActive || mPs3WizActive || mPs3TzActive || mPs3LangActive
         || mPs3BrightSlider || mOskActive || mVidPlChooserActive) return;
     if (mOverlayMode && !mOverlayWallpaper) return;
+    ps3Sfx(PS3_SFX_OPTION);       // PS3 XMB: option / information panel sound as the menu opens
 
     // Opening the option menu takes over from an inertial touch glide, the same way
     // the D-pad handlers do. Physical/scripted Triangle emits no touch report, so
@@ -10658,6 +10649,14 @@ void NanoMenu::renderNetWizard() {
     float ease = 1.0f - (1.0f - sp) * (1.0f - sp) * (1.0f - sp);
     mPs3WizSlide = (float)mPs3WizSlideDir * ps3::VW * (1.0f - ease);
 
+    // DSi theme: the wizard must wear the DSi System Menu skin, not the XMB chrome. The
+    // state machine above (OSK defer, anim + slide easing, auto-advance for progress/BT
+    // screens, inbound-request poll) is theme-independent and already ran this frame, so
+    // hand the DRAW to the DSi painter and return before the XMB backdrop/layout below.
+    // mWidth/mHeight are the bottom DS panel dims at the DSi dispatch sites (the caller
+    // remapped them), so the painter fills the whole bottom touch screen.
+    if (mNdsTheme) { renderNdsNetWizardBody(0.0f, 0.0f, (float)mWidth, (float)mHeight); return; }
+
     bool oskUp = mOskActive;   // text screens render the OSK on top
 
     // ---- backdrop: blurred live wave + dim (same as the fullscreen dialogs) ----
@@ -11055,6 +11054,425 @@ void NanoMenu::renderNetWizard() {
         ps3DlgHint(enterCX, true, "Enter", hintY, S, ap);
         ps3DlgHint(cancelCX, false, "Cancel", hintY, S, ap);
     }
+}
+
+// ===========================================================================
+// DSi-theme WiFi/Bluetooth setup-wizard painter. renderNetWizard() runs the shared state
+// machine then delegates here when mNdsTheme. Draws the DSi System Menu visual language
+// (settings.js): a dark scanline field + darker header band with a banner title, a body /
+// glossy-button list / progress spinner / result mark per WizDesc kind, and the Back/OK
+// bottom bar. Chrome constants mirror renderNdsSubmenu (device-validated). Layout of each
+// screen kind is a judgment adaptation (the DSi firmware has no WiFi/BT flow to copy) and
+// gets tuned on-device. Nav/state stay in the XMB wiz* handlers (ndsInModal falls through).
+// ===========================================================================
+// Shared glossy-list geometry for the DSi wizard: BOTH renderNdsNetWizardBody (drawing) and
+// ndsWizTouch (hit-testing) derive rows from this, so tap rects can never drift from the drawn
+// rows. Constants mirror renderNdsSubmenu's list model, but the scroll centres on the selection
+// (mPs3WizSel) rather than a scroll accumulator. rowY(i) is in DS-256x192 space.
+struct WizListGeom {
+    float LB_X = 34.0f, LB_W = 186.0f, LB_H = 24.0f, LIST_TOP = 46.0f, LIST_BOT = 164.0f;
+    int   fitRows = 1; bool scrolling = false; float pitch = 40.0f, top0 = 0.0f; int first = 0;
+    float rowY(int i) const { return top0 + (float)(i - first) * pitch; }
+};
+static WizListGeom wizListGeom(int n, int sel) {
+    WizListGeom g;
+    g.fitRows = (int)((g.LIST_BOT - g.LIST_TOP) / 32.0f); if (g.fitRows < 1) g.fitRows = 1;
+    g.scrolling = n > g.fitRows;
+    g.pitch = g.scrolling ? 32.0f : (n >= 4 ? 32.0f : 40.0f);
+    if (g.scrolling) {
+        g.first = sel - g.fitRows / 2; if (g.first < 0) g.first = 0; if (g.first > n - g.fitRows) g.first = n - g.fitRows;
+        g.top0 = g.LIST_TOP;
+    } else {
+        g.first = 0;
+        g.top0 = roundf(0.5f * (g.LIST_TOP + g.LIST_BOT) - (float)(n - 1) * g.pitch * 0.5f - 12.0f);
+    }
+    return g;
+}
+
+void NanoMenu::renderNdsNetWizardBody(float rx, float ry, float rw, float rh) {
+    setUiBlend();
+    const bool ndsPrevFont = mNdsFontPref; mNdsFontPref = true;
+    const int  ndsPrevOutline = mTextOutlineMode; mTextOutlineMode = 2;   // DSi text is flat (no shadow/outline)
+
+    float scale = rh / 192.0f;
+    if (256.0f * scale > rw + 0.5f) scale = rw / 256.0f;
+    if (scale < 1e-4f) { mTextOutlineMode = ndsPrevOutline; mNdsFontPref = ndsPrevFont; return; }  // degenerate panel: the S()-stepped loops below would never terminate
+    const float offY = ry + (rh - 192.0f * scale) * 0.5f;
+    const float cx   = rx + rw * 0.5f;
+    auto Y  = [&](float d){ return offY + d * scale; };
+    auto S  = [&](float v){ return v * scale; };
+    auto X  = [&](float d){ return cx + (d - 128.0f) * scale; };
+    auto fsFor = [&](float px){ return S(px) / (float)FONT_CHAR_H; };
+    const float el = fmaxf(1.0f, S(1.0f));
+
+    WizDesc d; wizDesc(mPs3WizId, d);
+    const int id = mPs3WizId;
+
+    // ---- text helpers (DS coords) ----
+    auto textCenter = [&](const char* s, float dsY, float px, float r, float g, float b){
+        float fs = fsFor(px); float tw = measureText(s, fs);
+        drawText(s, cx - tw * 0.5f, Y(dsY), fs, r, g, b, 1.0f);
+    };
+    auto textLeft = [&](const char* s, float dsX, float dsY, float px, float r, float g, float b){
+        drawText(s, X(dsX), Y(dsY), fsFor(px), r, g, b, 1.0f);
+    };
+    auto textRight = [&](const char* s, float dsX, float dsY, float px, float r, float g, float b){
+        float fs = fsFor(px); float tw = measureText(s, fs);
+        drawText(s, X(dsX) - tw, Y(dsY), fs, r, g, b, 1.0f);
+    };
+    // word-wrap a (possibly multi-paragraph) string to maxDS DS-pixels wide.
+    auto wrapDs = [&](const std::string& text, float px, float maxDS){
+        float fs = fsFor(px); float maxW = S(maxDS);
+        std::vector<std::string> out; std::string para;
+        auto flush = [&](const std::string& p){
+            if (p.empty()) { out.push_back(""); return; }
+            std::string line, word;
+            auto commit = [&](){
+                if (word.empty()) return;
+                std::string trial = line.empty() ? word : line + " " + word;
+                if (!line.empty() && measureText(trial.c_str(), fs) > maxW) { out.push_back(line); line = word; }
+                else line = trial;
+                word.clear();
+            };
+            for (const char* q = p.c_str(); ; ++q) { if (*q == ' ' || *q == '\0') { commit(); if (*q == '\0') break; } else word.push_back(*q); }
+            if (!line.empty()) out.push_back(line);
+        };
+        for (size_t i = 0; i <= text.size(); i++) { if (i == text.size() || text[i] == '\n') { flush(para); para.clear(); } else para.push_back(text[i]); }
+        return out;
+    };
+    auto centeredBlock = [&](const std::vector<std::string>& lines, float centerDsY, float lineDs, float px, float r, float g, float b){
+        int nreal = (int)lines.size();
+        float startY = centerDsY - (float)(nreal - 1) * lineDs * 0.5f;
+        float ty = startY;
+        for (auto& ln : lines) { if (!ln.empty()) textCenter(ln.c_str(), ty, px, r, g, b); ty += lineDs; }
+        return startY;
+    };
+
+    // ---- background: DSi scanline field + darker header band (mirror renderNdsSubmenu) ----
+    drawQuad(rx, ry, rw, rh, 0.220f, 0.220f, 0.220f, 1.0f);
+    for (float yy = ry; yy < ry + rh; yy += S(2.0f)) drawQuad(rx, yy, rw, el, 0.255f, 0.255f, 0.255f, 1.0f);
+    drawQuad(rx, ry, rw, Y(23.0f) - ry, 0.188f, 0.188f, 0.188f, 1.0f);
+    for (float yy = ry; yy < Y(23.0f); yy += S(2.0f)) drawQuad(rx, yy, rw, el, 0.220f, 0.220f, 0.220f, 1.0f);
+    { std::string title = trDyn(d.title);
+      drawText(title.c_str(), X(6.0f), Y(4.0f), fsFor(13.0f), 0.984f, 0.984f, 0.984f, 1.0f); }
+    for (float xx = X(2.0f); xx < X(254.0f); xx += S(4.0f)) drawQuad(xx, Y(21.0f), fmaxf(1.0f, S(2.0f)), el, 0.510f, 0.510f, 0.510f, 1.0f);
+
+    // ---- shared glossy list renderer (choosers + scan lists) ----
+    // labels[i] in a glossy button (selected = favColour blue); optional rightDetail draws a per-row
+    // extra (signal bars / device type). Row geometry lives in WizListGeom (shared with ndsWizTouch);
+    // these outer consts are only what the scan-list detail callbacks + WK_REVIEW reference directly.
+    const float LB_X = 34.0f, LB_W = 186.0f, LIST_BOT = 164.0f;
+    auto drawGlossyList = [&](const std::vector<std::string>& labels,
+                              const std::function<void(int, float)>& rightDetail){
+        int n = (int)labels.size();
+        if (mPs3WizSel >= n) mPs3WizSel = n > 0 ? n - 1 : 0;
+        if (mPs3WizSel < 0) mPs3WizSel = 0;
+        WizListGeom g = wizListGeom(n, mPs3WizSel);          // shared with ndsWizTouch (hit-rects match)
+        const bool  leftAlign = (bool)rightDetail;           // scan lists: name left-aligned, detail on the right
+        const float rightReserve = leftAlign ? 48.0f : 0.0f; // DS px kept clear for signal bars / device type
+        for (int i = 0; i < n; i++) {
+            float rowY = g.rowY(i);
+            if (rowY + g.LB_H < g.LIST_TOP - 1.0f || rowY > g.LIST_BOT + 1.0f) continue;
+            bool sel = (i == mPs3WizSel);
+            drawNdsGlossyBtn(X(g.LB_X), Y(rowY), S(g.LB_W), S(g.LB_H), S(5.0f), sel);
+            float ic = sel ? 1.0f : 0.157f;                                  // white selected / #282828 idle
+            float fs = fsFor(16.0f);
+            const std::string& lbl = labels[i];
+            if (leftAlign) {                                                  // name left, clipped clear of the detail
+                float lx = X(g.LB_X + 10.0f), lmax = S(g.LB_W - 10.0f - rightReserve);
+                float lw = measureText(lbl.c_str(), fs);
+                if (lw > lmax && lmax > 0.0f) fs *= lmax / lw;
+                drawText(lbl.c_str(), lx, Y(rowY + 6.0f), fs, ic, ic, ic, 1.0f);
+            } else {                                                          // centred (choosers / menus)
+                float tw = measureText(lbl.c_str(), fs);
+                float maxW = S(g.LB_W - 16.0f); if (tw > maxW && maxW > 0.0f) { fs *= maxW / tw; tw = measureText(lbl.c_str(), fs); }
+                drawText(lbl.c_str(), cx - tw * 0.5f, Y(rowY + 6.0f), fs, ic, ic, ic, 1.0f);
+            }
+            if (rightDetail) rightDetail(i, Y(rowY));
+        }
+        // right-edge scrollbar for long lists (reuses the validated DSi bar)
+        if (g.scrolling) {
+            float thumbFrac = (float)g.fitRows / (float)n;
+            float scrollFrac = (n > g.fitRows) ? (float)g.first / (float)(n - g.fitRows) : 0.0f;
+            drawNdsListScrollbar(cx, offY, scale, g.LIST_TOP - 4.0f, g.LIST_BOT, thumbFrac, scrollFrac);
+        }
+    };
+
+    // ---- body per screen kind ----
+    if (id == WS_BT_INFO) {
+        // key/value info rows for a registered device.
+        struct KV { const char* k; std::string v; };
+        std::vector<KV> rows = {
+            {"Device Name",       mBtWizSelName.empty() ? mBtWizSelAddr : mBtWizSelName},
+            {"Bluetooth Address", mBtWizSelAddr},
+            {"Type",              btTypeLabel(mBtWizSelCod)},
+            {"Connection",        mBtWizSelConnected ? "Connected" : "Not Connected"},
+        };
+        float ty = 60.0f;
+        for (auto& kv : rows) {
+            textLeft(kv.k, 24.0f, ty, 11.0f, 0.62f, 0.62f, 0.66f);
+            textRight(kv.v.c_str(), 232.0f, ty, 11.0f, 0.98f, 0.98f, 0.98f);
+            ty += 26.0f;
+        }
+    } else if (id == WS_BT_BD_REMOTE) {
+        // instruction text at the top + a stylised vertical BD remote below (the XMB illustration at
+        // NanoMenuPS3Menu.cpp WS_BT_BD_REMOTE scaled into DS space): body + lower shade, IR window,
+        // D-pad, 3x3 button grid, and the highlighted START+ENTER buttons in yellow (labels omitted
+        // at DS scale - the body text names them).
+        auto lines = wrapDs(trDyn(d.body), 11.0f, 232.0f);
+        float ty = 28.0f;
+        for (auto& ln : lines) { if (!ln.empty()) textCenter(ln.c_str(), ty, 11.0f, 0.93f, 0.93f, 0.93f); ty += 13.0f; }
+        const float bw = 40.0f, bh = 98.0f, bx = 128.0f - bw * 0.5f, byTop = 60.0f;
+        drawRoundedRect(X(bx), Y(byTop), S(bw), S(bh), S(8.0f), 0.80f, 0.80f, 0.84f, 1.0f);                       // body
+        drawRoundedRect(X(bx), Y(byTop + bh * 0.5f), S(bw), S(bh * 0.5f), S(8.0f), 0.50f, 0.50f, 0.55f, 0.55f);  // lower shade
+        drawQuad(X(128.0f - 6.0f), Y(byTop + 5.0f), S(12.0f), S(3.0f), 0.08f, 0.08f, 0.10f, 1.0f);               // IR window
+        ps3FillCircle(X(128.0f), Y(byTop + 24.0f), S(8.0f), 0.42f, 0.42f, 0.47f, 1.0f);                          // D-pad
+        ps3FillCircle(X(128.0f), Y(byTop + 24.0f), S(3.0f), 0.20f, 0.20f, 0.23f, 1.0f);
+        for (int r = 0; r < 3; r++) for (int c = 0; c < 3; c++)                                                  // 3x3 button grid
+            ps3FillCircle(X(128.0f + (c - 1) * 10.0f), Y(byTop + 46.0f + r * 12.0f), S(3.5f), 0.24f, 0.24f, 0.27f, 1.0f);
+        const float pw = 15.0f, ph = 7.0f, py = byTop + bh - 15.0f;                                              // START + ENTER pills (yellow)
+        drawRoundedRect(X(128.0f - 17.0f), Y(py), S(pw), S(ph), S(2.0f), 0.99f, 0.88f, 0.29f, 1.0f);
+        drawRoundedRect(X(128.0f + 2.0f),  Y(py), S(pw), S(ph), S(2.0f), 0.99f, 0.88f, 0.29f, 1.0f);
+    } else if (d.kind == WK_INFO || d.kind == WK_RESULT) {
+        std::string body = d.body;
+        if (id == WS_SAVE) body = "Internet connection settings have been completed.\n\nSave completed.";
+        bool ok = true;
+        if (id == WS_BT_REGISTER_DONE && !mBtWizOpOk) { body = "The device could not be registered.\nMake sure the device is in pairing mode and try again."; ok = false; }
+        auto lines = wrapDs(trDyn(body.c_str()), 12.0f, 224.0f);
+        float startY = centeredBlock(lines, 104.0f, 15.0f, 12.0f, 0.93f, 0.93f, 0.93f);
+        if (d.kind == WK_RESULT) {                                     // status mark above the text
+            float r = S(11.0f), mcx = cx, mcy = Y(startY - 24.0f);
+            if (ok) {
+                ps3StrokeRing(mcx, mcy, r, r, S(2.0f), 0.45f, 0.90f, 0.45f, 1.0f);
+                ps3ThickLine(mcx - r * 0.45f, mcy + r * 0.05f, mcx - r * 0.10f, mcy + r * 0.45f, S(2.0f), 0.5f, 0.95f, 0.5f, 1.0f);
+                ps3ThickLine(mcx - r * 0.10f, mcy + r * 0.45f, mcx + r * 0.50f, mcy - r * 0.40f, S(2.0f), 0.5f, 0.95f, 0.5f, 1.0f);
+            } else {
+                ps3StrokeRing(mcx, mcy, r, r, S(2.0f), 0.95f, 0.45f, 0.45f, 1.0f);
+                ps3ThickLine(mcx - r * 0.4f, mcy - r * 0.4f, mcx + r * 0.4f, mcy + r * 0.4f, S(2.0f), 0.95f, 0.5f, 0.5f, 1.0f);
+                ps3ThickLine(mcx - r * 0.4f, mcy + r * 0.4f, mcx + r * 0.4f, mcy - r * 0.4f, S(2.0f), 0.95f, 0.5f, 0.5f, 1.0f);
+            }
+        }
+    } else if (d.kind == WK_TEST) {
+        std::string body; { std::lock_guard<std::mutex> lk(mPs3NetTestMutex); body = mPs3NetTestBody; }
+        auto lines = wrapDs(body, 12.0f, 224.0f);
+        centeredBlock(lines, 100.0f, 15.0f, 12.0f, 0.93f, 0.93f, 0.93f);
+    } else if (d.kind == WK_CHOOSER) {
+        std::vector<std::string> opts; std::string body = d.body;
+        if (id == WS_BT_MANAGE) {
+            if (!mBtWizRadioOn) { opts.push_back("Turn Bluetooth On"); }
+            else {
+                opts.push_back("Register New Device");
+                opts.push_back("Receive Registration Request");
+                { std::lock_guard<std::mutex> lk(mBtWizMutex);
+                  for (auto& b : mBtWizBonded) { std::string l = b.name.empty() ? b.address : b.name; if (b.connected) l += "   (Connected)"; opts.push_back(l); } }
+                opts.push_back("Turn Bluetooth Off");
+            }
+            float dt = mEffectTime - mBtWizManageRefreshT; if (dt < 0.0f) dt += 500.0f;
+            if (dt > 2.0f) { btWizRefreshBondedAsync(); mBtWizManageRefreshT = mEffectTime; }
+        } else if (id == WS_BT_DEVICE_OPTS) {
+            body = std::string("Registered Device:  ") + mBtWizSelName;
+            for (int i = 0; i < 8 && d.opts[i]; i++) opts.push_back(d.opts[i]);
+        } else {
+            for (int i = 0; i < 8 && d.opts[i]; i++) opts.push_back(d.opts[i]);
+        }
+        if (!body.empty()) { auto bl = wrapDs(trDyn(body.c_str()), 12.0f, 224.0f); float ty = 30.0f; for (auto& ln : bl) { if (!ln.empty()) textCenter(ln.c_str(), ty, 12.0f, 0.93f, 0.93f, 0.93f); ty += 14.0f; } }
+        drawGlossyList(opts, nullptr);
+    } else if (d.kind == WK_CONFIRM) {
+        std::string cbody = d.body;
+        if (id == WS_BT_INBOUND_CONFIRM) {
+            cbody = mBtWizSelName + "  (" + mBtWizSelAddr + ")\nis requesting to register with this system.";
+            if (!mBtWizInPasskey.empty()) cbody += "\n\nPass Key:  " + mBtWizInPasskey;
+            cbody += "\n\nAccept this device?";
+        }
+        auto lines = wrapDs(trDyn(cbody.c_str()), 12.0f, 224.0f);
+        centeredBlock(lines, 80.0f, 15.0f, 12.0f, 0.93f, 0.93f, 0.93f);
+        // Yes / No glossy buttons (dialog capsule geometry: h32 r4).
+        float by = 130.0f;
+        drawNdsGlossyBtn(X(37.0f),  Y(by), S(89.0f), S(32.0f), S(4.0f), mPs3WizSel == 0);
+        drawNdsGlossyBtn(X(134.0f), Y(by), S(89.0f), S(32.0f), S(4.0f), mPs3WizSel == 1);
+        { float ic0 = mPs3WizSel == 0 ? 1.0f : 0.157f, ic1 = mPs3WizSel == 1 ? 1.0f : 0.157f;
+          float fs = fsFor(16.0f), tw0 = measureText("Yes", fs), tw1 = measureText("No", fs);
+          drawText("Yes", X(37.0f + 44.5f) - tw0 * 0.5f, Y(by + 10.0f), fs, ic0, ic0, ic0, 1.0f);
+          drawText("No",  X(134.0f + 44.5f) - tw1 * 0.5f, Y(by + 10.0f), fs, ic1, ic1, ic1, 1.0f); }
+    } else if (d.kind == WK_PROGRESS) {
+        auto lines = wrapDs(trDyn(d.body), 12.0f, 224.0f);
+        centeredBlock(lines, 118.0f, 15.0f, 12.0f, 0.93f, 0.93f, 0.93f);
+        if (id == WS_BT_REGISTERING || id == WS_BT_INBOUND_PAIRING) {
+            char pk[PROPERTY_VALUE_MAX] = {0}; property_get("sys.gammaos.bt.passkey", pk, "");
+            if (pk[0]) { std::string pl = std::string("Pass Key:  ") + pk; textCenter(pl.c_str(), 150.0f, 13.0f, 1.0f, 0.92f, 0.66f); }
+        }
+        float mcx = cx, mcy = Y(70.0f), rad = S(14.0f);
+        int lead = (int)(mEffectTime * 8.0f) % 8;
+        for (int i = 0; i < 8; i++) {
+            float a = (float)i / 8.0f * 2.0f * (float)M_PI - (float)M_PI * 0.5f;
+            int dist = (lead - i + 8) % 8;
+            float br = 0.25f + 0.75f * fmaxf(0.0f, 1.0f - dist * 0.18f);
+            ps3FillCircle(mcx + cosf(a) * rad, mcy + sinf(a) * rad, S(2.4f), 0.9f, 0.9f, 0.95f, br);
+        }
+    } else if (d.kind == WK_SCANLIST && id == WS_BT_DEVICE_LIST) {
+        std::vector<BtDevEntry> devs; { std::lock_guard<std::mutex> lk(mBtWizMutex); devs = mBtWizScan; }
+        if (d.body[0]) textCenter(trDyn(d.body), 30.0f, 12.0f, 0.93f, 0.93f, 0.93f);
+        if (devs.empty()) { textCenter(trDyn("No devices found. Press X to scan again."), 100.0f, 12.0f, 0.85f, 0.85f, 0.85f); }
+        else {
+            std::vector<std::string> labels; for (auto& b : devs) labels.push_back(b.name.empty() ? b.address : b.name);
+            drawGlossyList(labels, [&](int i, float rowDevY){
+                if (i < 0 || i >= (int)devs.size()) return;
+                std::string t = btTypeLabel(devs[i].cod); if (devs[i].bonded) t += "  (Paired)";
+                float fs = fsFor(11.0f), tw = measureText(t.c_str(), fs);
+                float ic = (i == mPs3WizSel) ? 0.90f : 0.30f;
+                drawText(t.c_str(), X(LB_X + LB_W - 6.0f) - tw, rowDevY + S(8.0f), fs, ic, ic, ic, 1.0f);
+            });
+        }
+    } else if (d.kind == WK_SCANLIST) {
+        std::vector<WifiNetEntry> aps; { std::lock_guard<std::mutex> lk(mWifiListMutex); for (auto& e : mWifiEntries) if (e.bssid != "__TOGGLE__") aps.push_back(e); }
+        if (d.body[0]) textCenter(trDyn(d.body), 30.0f, 12.0f, 0.93f, 0.93f, 0.93f);
+        if (aps.empty()) { textCenter(trDyn("No networks found. Press X to rescan."), 100.0f, 12.0f, 0.85f, 0.85f, 0.85f); }
+        else {
+            std::vector<std::string> labels; for (auto& e : aps) labels.push_back(e.ssid);
+            drawGlossyList(labels, [&](int i, float rowDevY){
+                if (i < 0 || i >= (int)aps.size()) return;
+                bool sel = (i == mPs3WizSel); float ic = sel ? 0.95f : 0.30f;
+                int bars = 0, r = aps[i].rssi;
+                if (r >= -55) bars = 4; else if (r >= -66) bars = 3; else if (r >= -77) bars = 2; else if (r >= -88) bars = 1;
+                float bx0 = X(LB_X + LB_W - 44.0f), by0 = rowDevY + S(16.0f);
+                for (int b = 0; b < 4; b++) { float bh = S(4.0f + b * 3.0f); drawQuad(bx0 + b * S(7.0f), by0 - bh, S(5.0f), bh, ic, ic, ic, b < bars ? 1.0f : 0.35f); }
+                if (aps[i].security != 0 && aps[i].security != 4) {   // padlock hint
+                    float lx = X(LB_X + 8.0f), ly = rowDevY + S(12.0f);
+                    drawQuad(lx - S(3.0f), ly, S(6.0f), S(5.0f), ic, ic, ic, 0.9f);
+                }
+            });
+        }
+    } else if (d.kind == WK_TEXT) {
+        // field label + input box (the OSK overlays on the bottom panel via renderOsk).
+        textLeft(trDyn(d.label), 24.0f, 44.0f, 12.0f, 0.95f, 0.95f, 0.95f);
+        float bxx = X(24.0f), byy = Y(56.0f), bww = S(208.0f), bhh = S(24.0f);
+        drawRoundedRect(bxx, byy, bww, bhh, S(4.0f), 0.0f, 0.0f, 0.0f, 0.55f);
+        drawRoundedRect(bxx, byy, bww, el, S(4.0f), 0.6f, 0.6f, 0.6f, 0.8f);
+        std::string val = d.mask ? maskPassword(mOskQuery) : mOskQuery;
+        std::string composing = mOsk.im ? mOsk.im->composingText() : std::string();
+        if (!d.mask && !composing.empty()) val += composing;
+        float fs = fsFor(13.0f), vx = bxx + S(6.0f);
+        if (!val.empty()) { drawText(val.c_str(), vx, byy + S(17.0f), fs, 1.0f, 1.0f, 1.0f, 1.0f); vx += measureText(val.c_str(), fs); }
+        float blink = 0.5f + 0.5f * sinf(mEffectTime * 6.0f);
+        drawQuad(vx + S(1.0f), byy + S(5.0f), fmaxf(1.0f, S(1.5f)), S(15.0f), 1.0f, 1.0f, 1.0f, blink);
+        if (!mPs3WizFieldError.empty()) textLeft(mPs3WizFieldError.c_str(), 24.0f, 92.0f, 11.0f, 1.0f, 0.46f, 0.42f);
+    } else if (d.kind == WK_REVIEW) {
+        struct KV { std::string k; std::string v; };
+        std::vector<KV> rows;
+        rows.push_back({"Connection Method", mPs3WizConn.empty() ? "Wired Connection" : mPs3WizConn});
+        if (mPs3WizConn == "Wireless") {
+            rows.push_back({"SSID", mPs3WizSsid.empty() ? "-" : mPs3WizSsid});
+            rows.push_back({"Security", mPs3WizSecLabel.empty() ? "None" : mPs3WizSecLabel});
+        } else if (!mPs3WizOpmode.empty()) {
+            rows.push_back({"Speed and Duplex", mPs3WizOpmode == "Auto-Detect" ? "Auto-Detect" : (mPs3WizSpeedDuplex.empty() ? "Auto-Detect" : mPs3WizSpeedDuplex)});
+        }
+        rows.push_back({"IP Address Setting", mPs3WizIpMode.empty() ? "Automatic" : mPs3WizIpMode});
+        if (mPs3WizIpMode == "Manual") {
+            rows.push_back({"IP Address", mPs3WizIpAddr.empty() ? "-" : mPs3WizIpAddr});
+            rows.push_back({"Subnet Mask", mPs3WizSubnet.empty() ? "-" : mPs3WizSubnet});
+            rows.push_back({"Default Router", mPs3WizRouter.empty() ? "-" : mPs3WizRouter});
+        }
+        rows.push_back({"Primary DNS", mPs3WizPdns.empty() ? "Automatic" : mPs3WizPdns});
+        rows.push_back({"Secondary DNS", mPs3WizSdns.empty() ? "Automatic" : mPs3WizSdns});
+        rows.push_back({"MTU", mPs3WizMtuMode == "Manual" ? (mPs3WizMtu.empty() ? "-" : mPs3WizMtu) : "Automatic"});
+        rows.push_back({"Proxy Server", mPs3WizProxyMode.empty() ? "Do Not Use" : mPs3WizProxyMode});
+        rows.push_back({"UPnP", mPs3WizUpnp.empty() ? "Enable" : mPs3WizUpnp});
+        float availDS = (LIST_BOT - 34.0f);
+        float lineDs = fminf(20.0f, availDS / (float)rows.size());
+        float ty = 34.0f;
+        for (auto& kv : rows) {
+            textLeft(kv.k.c_str(), 20.0f, ty, 11.0f, 0.62f, 0.62f, 0.66f);
+            textRight(kv.v.c_str(), 236.0f, ty, 11.0f, 0.98f, 0.98f, 0.98f);
+            ty += lineDs;
+        }
+    }
+
+    // ---- bottom bar (settings.js _settingsBottomBar): Back (left) + OK (right), plus a Search
+    // centre on the scan lists. Skipped for WK_TEXT, whose OSK overlays the bottom panel and draws
+    // its own hints (the bar would otherwise sit under the keyboard). ----
+    if (d.kind != WK_TEXT) {
+        drawQuad(rx, Y(171.0f), rw, el, 0.443f, 0.443f, 0.443f, 1.0f);
+        { const int NB = 14; float bandH = (Y(186.0f) - Y(172.0f)) / (float)NB;
+          for (int b = 0; b < NB; b++) { float t = (float)b / (float)(NB - 1); float c = 0.349f * (1.0f - t) + 0.188f * t;
+              drawQuad(rx, Y(172.0f) + (float)b * bandH, rw, bandH + 0.6f, c, c, c, 1.0f); }
+          drawQuad(rx, Y(186.0f), rw, Y(192.0f) - Y(186.0f), 0.188f, 0.188f, 0.188f, 1.0f); }
+        const char* rightLbl = (d.kind == WK_PROGRESS) ? nullptr : "OK";
+        textLeft("Back", 8.0f, 176.0f, 11.0f, 0.90f, 0.90f, 0.90f);
+        if (d.kind == WK_SCANLIST) textCenter("Search", 176.0f, 11.0f, 0.90f, 0.90f, 0.90f);  // centre tap = rescan
+        if (rightLbl) textRight(rightLbl, 248.0f, 176.0f, 11.0f, 0.90f, 0.90f, 0.90f);
+    }
+
+    mTextOutlineMode = ndsPrevOutline;
+    mNdsFontPref = ndsPrevFont;
+}
+
+// Touch handler for the DSi wizard (gated mNdsTheme && mPs3WizActive; dispatched after the OSK
+// branch so WK_TEXT keeps routing to oskTouchFrame). Taps confirm: a list row / Yes-No button sets
+// mPs3WizSel then wizConfirm(); the Back bar cancels; the OK bar confirms; the Search centre (or a
+// tap on an empty scan list) rescans. Row geometry mirrors renderNdsNetWizardBody exactly via the
+// shared wizListGeom(), and the per-kind row count matches wizNav, so a tapped index lines up with
+// what wizConfirm reads.
+void NanoMenu::ndsWizTouch() {
+    if (mPs3BootActive) { mTouchWasDown = mTouchDown; return; }
+    if (mOskActive)     { mTouchWasDown = mTouchDown; return; }   // OSK owns the panel on WK_TEXT
+    if (!mOverlayMode && mLaunchFadeStart > 0) { mTouchWasDown = mTouchDown; return; }  // frozen during launch
+
+    float px, py; bool mapped = touchMapRaw(mTouchRawX, mTouchRawY, px, py);
+    float scale = (float)mHeight / 192.0f;
+    if (256.0f * scale > (float)mWidth + 0.5f) scale = (float)mWidth / 256.0f;
+    if (scale < 1e-3f) { mTouchWasDown = mTouchDown; return; }
+    float offY = ((float)mHeight - 192.0f * scale) * 0.5f;
+    float dsX = mapped ? 128.0f + (px - (float)mWidth * 0.5f) / scale : mNdsTouchDownX;
+    float dsY = mapped ? (py - offY) / scale : mNdsTouchDownY;
+
+    bool down = mTouchDown, downEdge = down && !mTouchWasDown, upEdge = !down && mTouchWasDown;
+    if (downEdge && mapped) { mNdsTouchMoved = false; mNdsTouchDownX = dsX; mNdsTouchDownY = dsY; }
+    else if (down && mapped) { if (fabsf(dsX - mNdsTouchDownX) > 8.0f || fabsf(dsY - mNdsTouchDownY) > 8.0f) mNdsTouchMoved = true; }
+    else if (upEdge && !mNdsTouchMoved) {
+        float tx = mNdsTouchDownX, ty = mNdsTouchDownY;                     // the tap point (DS coords)
+        WizDesc d; wizDesc(mPs3WizId, d);
+        const int id = mPs3WizId;
+        // Row count per kind, identical to wizNav so the tapped index matches wizConfirm's read.
+        int n = 0;
+        if (d.kind == WK_CHOOSER) {
+            if (id == WS_BT_MANAGE) {
+                if (!mBtWizRadioOn) n = 1;
+                else { std::lock_guard<std::mutex> lk(mBtWizMutex); n = 3 + (int)mBtWizBonded.size(); }
+            } else { while (n < 8 && d.opts[n]) n++; }
+        } else if (d.kind == WK_SCANLIST) {
+            if (id == WS_BT_DEVICE_LIST) { std::lock_guard<std::mutex> lk(mBtWizMutex); n = (int)mBtWizScan.size(); }
+            else { std::lock_guard<std::mutex> lk(mWifiListMutex); for (auto& e : mWifiEntries) if (e.bssid != "__TOGGLE__") n++; }
+        }
+        bool acted = false;
+        if (ty >= 170.0f) {                                                // bottom bar
+            if (tx < 60.0f) { wizBack(); acted = true; }                   // Back (left)
+            else if (tx > 196.0f) {                                        // OK / Select (right)
+                if (d.kind == WK_PROGRESS) { /* progress has no OK */ }
+                else if (d.kind == WK_SCANLIST && n == 0) { wizRescan(); acted = true; }
+                else { wizConfirm(); acted = true; }
+            } else if (d.kind == WK_SCANLIST) { wizRescan(); acted = true; }  // Search (centre)
+        } else if (d.kind == WK_CHOOSER || d.kind == WK_SCANLIST) {
+            if (n > 0) {
+                WizListGeom g = wizListGeom(n, mPs3WizSel);
+                for (int i = 0; i < n; i++) {
+                    float ry = g.rowY(i);
+                    if (ry + g.LB_H < g.LIST_TOP - 1.0f || ry > g.LIST_BOT + 1.0f) continue;   // clipped rows
+                    if (tx >= g.LB_X && tx <= g.LB_X + g.LB_W && ty >= ry && ty <= ry + g.LB_H
+                        && ty >= g.LIST_TOP && ty <= g.LIST_BOT) { mPs3WizSel = i; wizConfirm(); acted = true; break; }
+                }
+            } else if (d.kind == WK_SCANLIST && ty >= 30.0f && ty < 170.0f) { wizRescan(); acted = true; }  // empty list: tap to rescan
+        } else if (d.kind == WK_CONFIRM) {
+            if (ty >= 130.0f && ty <= 162.0f) {
+                if (tx >= 37.0f && tx <= 126.0f)       { mPs3WizSel = 0; wizConfirm(); acted = true; }   // Yes
+                else if (tx >= 134.0f && tx <= 223.0f) { mPs3WizSel = 1; wizConfirm(); acted = true; }   // No
+            }
+        } else if (d.kind == WK_INFO || d.kind == WK_RESULT || d.kind == WK_TEST || d.kind == WK_REVIEW) {
+            wizConfirm(); acted = true;                                     // info/result/test/review: body tap = advance
+        }
+        // WK_PROGRESS body: no-op (only the Back bar above is live).
+        if (acted) mDisplayDirty = true;
+    }
+    mTouchWasDown = mTouchDown;
 }
 
 // ===========================================================================

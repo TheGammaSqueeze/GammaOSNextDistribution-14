@@ -1735,6 +1735,11 @@ void NanoMenu::pollInput() {
             // verified 1:1 against the web without a real reboot.
             else if (!strcmp(navbuf, "bootreplay")) { if (mPs3Xmb) ps3BootReplay(); }
             else if (!strcmp(navbuf, "boottouch"))  { if (mPs3Xmb) ps3BootSkip(); }   // DSi boot: proceed() when in WAIT
+            // Setup-wizard scripting for 1:1 verification: jump straight into the WiFi Internet
+            // Connection wizard / the Manage Bluetooth wizard (bypasses deep menu navigation so the
+            // DSi wizard reskin can be captured + tuned headlessly).
+            else if (!strcmp(navbuf, "wizard")) { if (!mPs3WizActive) startNetWizard(); }
+            else if (!strcmp(navbuf, "btwiz"))  { if (!mPs3WizActive) startBtWizard(0); }
             // Global search scripting: "search" opens the query keyboard (physical
             // Select); "search:<query>" runs the search directly (bypasses the OSK so
             // the categorized results overlay can be verified headlessly).
@@ -1898,6 +1903,10 @@ void NanoMenu::pollInput() {
                 else if (mPvActive)  pvTouchFrame();    // photo viewer (Gallery-style touch)
                 else if (mVidActive) vidTouchFrame();   // video player (YouTube-style touch)
                 else if (mMpActive)  mpTouchFrame();    // music Now Playing touch
+                // DSi theme WiFi/Bluetooth setup wizard: tap a list row / Yes-No / Back-OK-Search bar.
+                // Gated on mPs3WizActive (NOT mPs3Xmb) so it also works in the first-run setup flow.
+                else if (mNdsTheme && mPs3WizActive)
+                                     ndsWizTouch();
                 // DSi theme global search: tap a result row to select+activate (query OSK closed).
                 else if (mNdsTheme && mPs3Xmb && mGSearchActive)
                                      gsearchTouch();

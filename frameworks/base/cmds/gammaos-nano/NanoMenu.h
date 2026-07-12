@@ -108,6 +108,11 @@ struct Ps3DataCat {
     int itemCount;
 };
 
+// Authentic PS3 XMB nav effect ids (firmware system_plugin). At namespace scope so both the file-static
+// player array in NanoMenuPS3Boot.cpp and the nav call sites in NanoMenuPS3Menu.cpp can name them.
+enum Ps3SfxId { PS3_SFX_CURSOR = 0, PS3_SFX_OK, PS3_SFX_BACK, PS3_SFX_CATEGORY, PS3_SFX_OPTION,
+                PS3_SFX_ERROR, PS3_SFX_COUNT };
+
 class NanoMenu : public Thread, public IBinder::DeathRecipient {
 public:
     NanoMenu();
@@ -2124,6 +2129,10 @@ private:
     NanoAudioPlayer mAmbiancePlayer;
     std::atomic<bool> mAmbiancePlaying{false};
     void ndsAmbianceTick(bool wantOnHome);   // per-frame: start/loop/stop the carousel ambiance
+    // Pre-boot-complete menu-effect hook shared by the DSi + PS3 themes: while the RK3568 audio server
+    // is still initialising, play the effect on the direct-ALSA one-shot path (mixed over any early
+    // BGM) instead of blocked AAudio. Returns true if queued to the direct mixer, false -> use AAudio.
+    bool earlySfxOneShot(const char* wavName, float master);
     void ndsSfxPlay(int which);              // trigger a DSi interactive SFX (NDS_SFX_* id, NanoMenuPS3Boot.cpp)
     void ndsSfxTick();                       // per-frame: diff menu state -> fire nav/drill/back/launch SFX
     // PS3 XMB cursor/enter sound (SE02_Cursor.wav): a dedicated low-latency SFX player, decoded once
@@ -2132,7 +2141,13 @@ private:
     NanoSfxPlayer mNavSfx;
     std::atomic<bool> mNavSfxLoaded{false};
     std::atomic<bool> mNavSfxOpening{false};
-    void ps3NavSound();
+    void ps3NavSound();                      // cursor move (SE02_Cursor); thin wrapper over ps3Sfx
+    // Authentic PS3 XMB nav effects (firmware system_plugin: SE02 cursor / SE03 OK / SE04 back /
+    // SE05 category / SE08 option / SE09 error). ps3Sfx(PS3_SFX_* id, the namespace-scope Ps3SfxId
+    // above) plays via the early-boot direct mixer before the audio server is up, else the pre-loaded
+    // AAudio player (NanoMenuPS3Boot.cpp). Enum is at namespace scope so the file-static player array
+    // in NanoMenuPS3Boot.cpp can name PS3_SFX_COUNT.
+    void ps3Sfx(int which);
 
     // ==== Video library (R4) ==============================================
     // Mirrors the Music library; HW playback via NanoVideo. Folder import reuses the
@@ -3118,6 +3133,12 @@ private:
     void wizRescan();                     // X: re-scan APs on the scan-list screen
     int  wizNextScreen(int id, int sel);  // forward-nav table (commits the choice)
     void renderNetWizard();
+    // DSi-theme painter for the WiFi/Bluetooth setup wizard: renderNetWizard() runs the
+    // shared state machine then delegates the DRAW to this when mNdsTheme, so the wizard
+    // matches the DSi System Menu (scanline field, banner header, glossy list buttons,
+    // Back/OK bar) instead of the XMB chrome. Panel rect = the bottom DS touch screen.
+    void renderNdsNetWizardBody(float rx, float ry, float rw, float rh);
+    void ndsWizTouch();                   // DSi wizard bottom-panel touch: tap rows / Yes-No / Back-OK-Search bar
 
     // Bluetooth sub-screen state
     std::vector<BtDevEntry> mBtEntries;
