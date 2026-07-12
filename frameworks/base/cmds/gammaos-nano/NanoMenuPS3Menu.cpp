@@ -9794,7 +9794,7 @@ enum WizScr {
     WS_UPNP,
     WS_WLAN, WS_WLAN_AUTO, WS_AOSS_PROMPT, WS_AOSS_WAIT,
     WS_RAKU1, WS_RAKU2, WS_RAKU3, WS_AOSS_DONE,
-    WS_SCANNING, WS_APLIST, WS_SSID, WS_SECURITY,
+    WS_SCANNING, WS_APLIST, WS_MANAGE, WS_SSID, WS_SECURITY,
     WS_WEP_KEY, WS_WPA_KEY,
     WS_EAP_AUTH, WS_EAP_USER, WS_EAP_PASS,
     WS_EASY_ADV, WS_REVIEW, WS_SAVE,
@@ -9814,6 +9814,30 @@ enum WizScr {
     WS_BT_INBOUND_WAIT, WS_BT_INBOUND_CONFIRM, WS_BT_INBOUND_PAIRING,
     WS_BT_AD_MENU, WS_BT_AD_INPUT, WS_BT_AD_OUTPUT, WS_BT_AD_MIC
 };
+
+// Wi-Fi manage step (WS_MANAGE): shown when the AP the user picked in the scan list
+// is ALREADY SAVED, so a wrong saved password can be corrected or the network removed
+// in place instead of the old behaviour that walked straight to the key screen and
+// silently overwrote the saved config. Action codes + the ordered option list are
+// shared by wizConfirm / wizNav / the two renderers / ndsWizTouch so they never drift.
+enum WizMngAct { WMNG_CONNECT = 0, WMNG_CHANGE_PW, WMNG_FORGET };
+static const char* wizMngLabel(int a) {
+    switch (a) {
+    case WMNG_CONNECT:   return "Connect";
+    case WMNG_CHANGE_PW: return "Change Password";
+    case WMNG_FORGET:    return "Forget This Network";
+    }
+    return "";
+}
+// Connect only when not already on this network; Change Password only for a secured net.
+static std::vector<int> wizManageActs(int security, bool connected) {
+    std::vector<int> a;
+    if (!connected) a.push_back(WMNG_CONNECT);
+    if (security != 0 && security != 4) a.push_back(WMNG_CHANGE_PW);
+    a.push_back(WMNG_FORGET);
+    return a;
+}
+
 // Bluetooth class-of-device -> human label for the "Type" column (1:1 with the
 // web device list's Audio Device / Human Interface Device split, extended for the
 // other major classes we may actually see).
@@ -9939,6 +9963,9 @@ static void wizDesc(int id, WizDesc& d) {
         d.body = "Scanning...\nPlease wait."; d.autoMs = 2500; d.autoNext = WS_APLIST; break;
     case WS_APLIST: d.kind = WK_SCANLIST; d.title = "WLAN Settings";
         d.body = "Select the access point to be used."; break;
+    case WS_MANAGE: d.kind = WK_CHOOSER; d.title = "WLAN Settings";
+        d.body = "This network is already saved.";   // the renderer swaps in the SSID
+        break;
     case WS_SSID: d.kind = WK_TEXT; d.title = "SSID"; d.label = "SSID"; d.field = WF_SSID; break;
     case WS_SECURITY: d.kind = WK_CHOOSER; d.title = "WLAN Security Setting"; d.body = "Security";
         for (int i = 0; WIZ_SEC_OPTS[i]; i++) d.opts[i] = WIZ_SEC_OPTS[i]; break;
@@ -10392,6 +10419,30 @@ void NanoMenu::wizConfirm() {
         property_set("persist.gammaos.nano.bt.ad_out", std::to_string(mPs3WizSel).c_str()); wizBack(); return; }
     if (mPs3WizId == WS_BT_AD_MIC)    { mBtWizAdMic = mPs3WizSel;
         property_set("persist.gammaos.nano.bt.ad_mic", std::to_string(mPs3WizSel).c_str()); wizBack(); return; }
+    if (mPs3WizId == WS_MANAGE) {             // saved-network options: Connect / Change Password / Forget
+        int netId = -1; bool connected = false;
+        { std::lock_guard<std::mutex> lk(mWifiListMutex);
+          for (auto& e : mWifiEntries) { if (e.bssid == "__TOGGLE__") continue;
+              if (e.ssid == mPs3WizSsid) { netId = e.savedNetId; connected = e.connected; break; } } }
+        std::vector<int> acts = wizManageActs(mPs3WizSecTok, connected);
+        if (mPs3WizSel < 0 || mPs3WizSel >= (int)acts.size()) return;
+        int act = acts[mPs3WizSel];
+        if (act == WMNG_CONNECT) {
+            if (netId >= 0) connectToSavedWifi(netId);          // reconnect with the saved key
+            mPs3WizStack.push_back(mPs3WizId);
+            wizEnter(WS_TEST_CONFIRM, 1);                       // offer the connection test for feedback
+        } else if (act == WMNG_CHANGE_PW) {
+            // Enter a new key; the normal key -> ... -> WS_SAVE flow overwrites the
+            // saved profile with it (WS_SAVE calls addAndConnectWifi).
+            int nxt = (mPs3WizSecTok == 1) ? WS_WEP_KEY : WS_WPA_KEY;
+            mPs3WizStack.push_back(mPs3WizId);
+            wizEnter(nxt, 1);
+        } else {                                                // WMNG_FORGET
+            if (netId >= 0) forgetWifiNetwork(netId);           // remove + async rescan
+            wizBack();                                          // back to the AP list (refreshes on the rescan)
+        }
+        return;
+    }
     if (mPs3WizId == WS_APLIST) {             // pick the selected real access point
         std::vector<WifiNetEntry> aps;
         { std::lock_guard<std::mutex> lk(mWifiListMutex);
@@ -10401,6 +10452,14 @@ void NanoMenu::wizConfirm() {
         mPs3WizSsid = ap.ssid; mPs3WizSecTok = ap.security;
         static const char* secNames[] = {"None","WEP","WPA2-PSK","WPA3-PSK","OWE"};
         mPs3WizSecLabel = secNames[(ap.security >= 0 && ap.security <= 4) ? ap.security : 0];
+        // Already-saved network: offer Connect / Change Password / Forget instead of
+        // walking straight to the key screen (which would silently overwrite the saved
+        // key). Brand-new networks keep the original scan -> key -> save flow.
+        if (ap.savedNetId >= 0) {
+            mPs3WizStack.push_back(mPs3WizId);
+            wizEnter(WS_MANAGE, 1);
+            return;
+        }
         // Mirror web wlan_ap_list.onSelect: open/OWE need no key; WEP -> WEP key;
         // everything else -> WPA key (then Easy: advanced? / Custom: IP setting).
         int nxt;
@@ -10460,6 +10519,12 @@ void NanoMenu::wizNav(int dir, bool /*horizontal*/) {
             if (!mBtWizRadioOn) { n = 1; }      // just "Turn Bluetooth On"
             else { std::lock_guard<std::mutex> lk(mBtWizMutex);
                    n = 3 + (int)mBtWizBonded.size(); }   // Register + Receive + bonded + Turn Off
+        } else if (mPs3WizId == WS_MANAGE) {
+            bool connected = false;
+            { std::lock_guard<std::mutex> lk(mWifiListMutex);
+              for (auto& e : mWifiEntries) { if (e.bssid == "__TOGGLE__") continue;
+                  if (e.ssid == mPs3WizSsid) { connected = e.connected; break; } } }
+            n = (int)wizManageActs(mPs3WizSecTok, connected).size();
         } else { n = 0; while (n < 8 && d.opts[n]) n++; }
         if (n > 0) mPs3WizSel = (mPs3WizSel + dir + n) % n;
     } else if (d.kind == WK_CONFIRM) {
@@ -10835,6 +10900,13 @@ void NanoMenu::renderNetWizard() {
         } else if (mPs3WizId == WS_BT_DEVICE_OPTS) {
             body = std::string("Registered Device:  ") + mBtWizSelName;
             for (int i = 0; i < 8 && d.opts[i]; i++) opts.push_back(d.opts[i]);
+        } else if (mPs3WizId == WS_MANAGE) {
+            body = mPs3WizSsid;                                  // the saved network name as the prompt
+            bool connected = false;
+            { std::lock_guard<std::mutex> lk(mWifiListMutex);
+              for (auto& e : mWifiEntries) { if (e.bssid == "__TOGGLE__") continue;
+                  if (e.ssid == mPs3WizSsid) { connected = e.connected; break; } } }
+            for (int a : wizManageActs(mPs3WizSecTok, connected)) opts.push_back(wizMngLabel(a));
         } else {
             for (int i = 0; i < 8 && d.opts[i]; i++) opts.push_back(d.opts[i]);
         }
@@ -11272,6 +11344,13 @@ void NanoMenu::renderNdsNetWizardBody(float rx, float ry, float rw, float rh) {
         } else if (id == WS_BT_DEVICE_OPTS) {
             body = std::string("Registered Device:  ") + mBtWizSelName;
             for (int i = 0; i < 8 && d.opts[i]; i++) opts.push_back(d.opts[i]);
+        } else if (id == WS_MANAGE) {
+            body = mPs3WizSsid;                                  // the saved network name as the prompt
+            bool connected = false;
+            { std::lock_guard<std::mutex> lk(mWifiListMutex);
+              for (auto& e : mWifiEntries) { if (e.bssid == "__TOGGLE__") continue;
+                  if (e.ssid == mPs3WizSsid) { connected = e.connected; break; } } }
+            for (int a : wizManageActs(mPs3WizSecTok, connected)) opts.push_back(wizMngLabel(a));
         } else {
             for (int i = 0; i < 8 && d.opts[i]; i++) opts.push_back(d.opts[i]);
         }
@@ -11438,6 +11517,12 @@ void NanoMenu::ndsWizTouch() {
             if (id == WS_BT_MANAGE) {
                 if (!mBtWizRadioOn) n = 1;
                 else { std::lock_guard<std::mutex> lk(mBtWizMutex); n = 3 + (int)mBtWizBonded.size(); }
+            } else if (id == WS_MANAGE) {
+                bool connected = false;
+                { std::lock_guard<std::mutex> lk(mWifiListMutex);
+                  for (auto& e : mWifiEntries) { if (e.bssid == "__TOGGLE__") continue;
+                      if (e.ssid == mPs3WizSsid) { connected = e.connected; break; } } }
+                n = (int)wizManageActs(mPs3WizSecTok, connected).size();
             } else { while (n < 8 && d.opts[n]) n++; }
         } else if (d.kind == WK_SCANLIST) {
             if (id == WS_BT_DEVICE_LIST) { std::lock_guard<std::mutex> lk(mBtWizMutex); n = (int)mBtWizScan.size(); }

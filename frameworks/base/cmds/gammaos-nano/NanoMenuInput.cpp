@@ -277,6 +277,7 @@ void NanoMenu::handleBack() {
         closeOsk();
         return;
     }
+    if (mWifiManageActive) { wifiManageClose(); return; }
     if (mMenuState == MENU_WIFI) {
         closeWifiScreen();
         if (mSetupWizardActive) mMenuState = MENU_SETUP_WIZARD;
@@ -333,6 +334,7 @@ void NanoMenu::handleSelect() {
         oskAPress();
         return;
     }
+    if (mWifiManageActive)           { wifiManageActivate();       return; }
     if (mMenuState == MENU_WIFI)     { handleWifiScreenSelect();   return; }
     if (mMenuState == MENU_BT)       { handleBtScreenSelect();     return; }
     if (mMenuState == MENU_SETTINGS) { handleSettingsTreeSelect();  return; }
@@ -513,6 +515,7 @@ void NanoMenu::handleUp() {
         oskMoveCursor(NavDir::Up);
         return;
     }
+    if (mWifiManageActive)           { wifiManageMove(-1);       return; }
     if (mMenuState == MENU_WIFI)     { handleWifiScreenUp();     return; }
     if (mMenuState == MENU_BT)       { handleBtScreenUp();       return; }
     if (mMenuState == MENU_SETTINGS) { handleSettingsTreeUp();    return; }
@@ -573,6 +576,7 @@ void NanoMenu::handleDown() {
         oskMoveCursor(NavDir::Down);
         return;
     }
+    if (mWifiManageActive)           { wifiManageMove(+1);         return; }
     if (mMenuState == MENU_WIFI)     { handleWifiScreenDown();     return; }
     if (mMenuState == MENU_BT)       { handleBtScreenDown();       return; }
     if (mMenuState == MENU_SETTINGS) { handleSettingsTreeDown();    return; }
@@ -1661,6 +1665,21 @@ void NanoMenu::pollInput() {
         if (mNdsTheme && mPs3Xmb) ndsSaveReturnPath();
         mExitRequested = true;
     }
+    // Deferred wrong-password re-prompt: wifiConnectWatch (a detached watch thread)
+    // arms mWifiRepromptPending when a just-tried key was rejected. Consume it here
+    // on the input thread so opening the password OSK is main-thread-safe, and only
+    // while the user is still on the Wi-Fi screen with nothing else in front.
+    if (mWifiRepromptPending.load(std::memory_order_relaxed)
+        && mMenuState == MENU_WIFI && !mOskActive && !mWifiManageActive) {
+        mWifiRepromptPending.store(false, std::memory_order_relaxed);
+        mWifiPendingSsid     = mWifiRepromptSsid;
+        mWifiPendingSecurity = mWifiRepromptSecurity;
+        std::string prompt = "Re-enter Wi-Fi password \"" + mWifiRepromptSsid + "\"";
+        openOskForPassword(prompt, [this](const std::string& pw) {
+            if (pw.empty()) return;
+            addAndConnectWifi(mWifiPendingSsid, mWifiPendingSecurity, pw, true);
+        });
+    }
     // Test navigation hook: `setprop sys.gammaos.nano.nav <action>` injects one
     // nav action (left/right/up/down/enter/back) then clears the prop. The
     // device analog of the web app's simulateInput, used for scripted on-device
@@ -1903,6 +1922,11 @@ void NanoMenu::pollInput() {
                 else if (mPvActive)  pvTouchFrame();    // photo viewer (Gallery-style touch)
                 else if (mVidActive) vidTouchFrame();   // video player (YouTube-style touch)
                 else if (mMpActive)  mpTouchFrame();    // music Now Playing touch
+                // Standalone Wi-Fi screen (Settings > Network): tap a row to activate /
+                // open the manage dialog, or tap within the manage overlay. Must sit
+                // before the DSi carousel branches (ndsInModal does not cover MENU_WIFI).
+                else if (mMenuState == MENU_WIFI && !mSetupWizardActive && !mPs3WizActive)
+                                     wifiScreenTouch();
                 // DSi theme WiFi/Bluetooth setup wizard: tap a list row / Yes-No / Back-OK-Search bar.
                 // Gated on mPs3WizActive (NOT mPs3Xmb) so it also works in the first-run setup flow.
                 else if (mNdsTheme && mPs3WizActive)

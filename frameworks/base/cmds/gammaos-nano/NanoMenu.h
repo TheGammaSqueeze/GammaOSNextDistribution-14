@@ -113,6 +113,12 @@ struct Ps3DataCat {
 enum Ps3SfxId { PS3_SFX_CURSOR = 0, PS3_SFX_OK, PS3_SFX_BACK, PS3_SFX_CATEGORY, PS3_SFX_OPTION,
                 PS3_SFX_ERROR, PS3_SFX_COUNT };
 
+// DSi interactive SFX ids (nav_blip / app_launch / settings_nav / settings_back / settings_enter).
+// At namespace scope so the file-static player array in NanoMenuPS3Boot.cpp and the call sites in
+// other TUs (e.g. the Wi-Fi manage dialog in NanoMenuSettings.cpp) can name them.
+enum NdsSfxId { NDS_SFX_NAV = 0, NDS_SFX_LAUNCH, NDS_SFX_SET_NAV, NDS_SFX_SET_BACK, NDS_SFX_SET_ENTER,
+                NDS_SFX_COUNT };
+
 class NanoMenu : public Thread, public IBinder::DeathRecipient {
 public:
     NanoMenu();
@@ -437,9 +443,25 @@ private:
     void handleWifiScreenY();            // forget / remove the selected saved network
     void connectToSavedWifi(int savedNetId);
     void addAndConnectWifi(const std::string& ssid, int security,
-                           const std::string& password);
+                           const std::string& password, bool force = false);
     void connectWithWizardSettings();   // applies the wizard's static IP/DNS/MTU/proxy
     void forgetWifiNetwork(int savedNetId);
+    // Manage dialog for an already-saved network: Connect / Change Password /
+    // Forget (Disconnect when connected). Opened from handleWifiScreenSelect
+    // when a saved row is activated, so a wrong saved password can be corrected
+    // in place instead of the framework silently retrying the old key.
+    void openWifiManage(const WifiNetEntry& e);
+    void wifiManageMove(int dir);        // -1 up / +1 down through the option rows
+    void wifiManageActivate();           // run the selected option
+    void wifiManageClose();
+    void wifiManageTouch();              // tap an option row / Back-OK bar
+    void wifiScreenTouch();             // Wi-Fi list tap (opens manage) or manage-overlay tap
+    void renderWifiManage();            // themed overlay (XMB dark panel / DSi glossy card)
+    // Watch a connect attempt and surface a clear "wrong password" result instead
+    // of an endless silent retry. Runs on a detached thread. On a wrong-password
+    // outcome for a secure network it shows a clear message and arms
+    // mWifiRepromptPending so the WiFi screen re-opens the password OSK.
+    void wifiConnectWatch(const std::string& ssid, int security);
     void toggleWifiRadio(bool on);
     bool wifiRadioEnabled();   // live Wi-Fi radio state (for the Internet Connection toggle)
     // Network Settings dialogs backed by the live system state:
@@ -2122,6 +2144,7 @@ private:
     bool mChimeStarted = false;    // play() already issued (fire once)
     std::atomic<bool> mDirectChimeInFlight{false};   // RG DS direct-ALSA chime worker guard (NanoBootChime)
     bool mDirectAmbiancePlaying = false;   // the direct-PCM carousel BGM loop is the active bed (pre-boot)
+    bool mPs3DirectHolding = false;        // PS3 theme is holding card0 open through early boot (ps3EarlyAudioTick)
     bool mPs3ColdSoundPlayed = false;      // PS3 XMB cold-boot sound (coldboot_stereo.wav) fired this boot
     void dsiPrewarmChime();        // open the boot chime early on a bg thread (no play)
     // Looping DSi home background ambiance (menu_ambiance.wav). Started once the boot enter
@@ -2129,6 +2152,7 @@ private:
     NanoAudioPlayer mAmbiancePlayer;
     std::atomic<bool> mAmbiancePlaying{false};
     void ndsAmbianceTick(bool wantOnHome);   // per-frame: start/loop/stop the carousel ambiance
+    void ps3EarlyAudioTick();                // per-frame: PS3 theme holds card0 open through early boot (SFX audibility)
     // Pre-boot-complete menu-effect hook shared by the DSi + PS3 themes: while the RK3568 audio server
     // is still initialising, play the effect on the direct-ALSA one-shot path (mixed over any early
     // BGM) instead of blocked AAudio. Returns true if queued to the direct mixer, false -> use AAudio.
@@ -3070,6 +3094,22 @@ private:
     // callback can finish the `cmd wifi connect-network` invocation.
     std::string mWifiPendingSsid;
     int mWifiPendingSecurity;
+    // ---- Wi-Fi manage dialog (saved-network Connect / Change Password / Forget) ----
+    // Opened when the user activates a SAVED row in the Wi-Fi list. Themed for both
+    // XMB (dark PS3 panel) and DSi (glossy DS card); controller + touch driven.
+    enum WifiManageAction { WMA_CONNECT = 0, WMA_DISCONNECT, WMA_CHANGE_PW, WMA_FORGET };
+    bool mWifiManageActive = false;
+    int  mWifiManageSel = 0;
+    int  mWifiManageNetId = -1;          // saved network id being managed
+    std::string mWifiManageSsid;
+    int  mWifiManageSecurity = 0;        // 0=open,1=wep,2=wpa2,3=wpa3,4=owe
+    bool mWifiManageConnected = false;
+    std::vector<int> mWifiManageActions; // WifiManageAction values, in display order
+    // Auto re-prompt after a wrong-password failure: wifiConnectWatch (detached)
+    // sets these and pollInput (main input thread) pops the password OSK.
+    std::atomic<bool> mWifiRepromptPending{false};
+    std::string mWifiRepromptSsid;
+    int  mWifiRepromptSecurity = 2;
     // Internet Connection Test (Network Settings dialog): an async thread runs the
     // connectivity checks and publishes progressive result text here; renderPs3Dialog
     // copies it into the dialog body each frame while mPs3NetTestLive is set.

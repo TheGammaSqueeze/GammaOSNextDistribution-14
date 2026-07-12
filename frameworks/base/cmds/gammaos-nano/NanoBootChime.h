@@ -46,5 +46,6 @@ void nanoDirectPlayOneShot(const std::string& wavPath, float gain);  // queue a 
 void nanoDirectStartLoop  (const std::string& wavPath, float gain);  // set/replace the looping voice
 void nanoDirectSetGain    (float gain);   // live-update the active loop gain (volume changed mid-boot)
 void nanoDirectStopLoop   ();             // clear the loop; worker idles + closes once the queue drains
+void nanoDirectHoldOpen   (bool on);      // hold card0 open (silent) while true so one-shots mix without a re-open
 void nanoDirectShutdown   ();             // stop everything, close the PCM, let the worker exit
 bool nanoDirectActive     ();             // true while the worker owns the PCM (handoff gate)

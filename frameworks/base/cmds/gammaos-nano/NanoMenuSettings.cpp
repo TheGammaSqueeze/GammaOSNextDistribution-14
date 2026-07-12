@@ -508,6 +508,8 @@ void NanoMenu::openWifiScreen() {
 }
 
 void NanoMenu::closeWifiScreen() {
+    mWifiManageActive = false;
+    mWifiRepromptPending.store(false, std::memory_order_relaxed);
     if (mWifiScanThread.joinable()) {
         mWifiScanInProgress = false;
         mWifiScanThread.detach();
@@ -643,7 +645,7 @@ void NanoMenu::connectToSavedWifi(int savedNetId) {
 }
 
 void NanoMenu::addAndConnectWifi(const std::string& ssid, int security,
-                                 const std::string& password) {
+                                 const std::string& password, bool force) {
     // cmd wifi connect-network SSID <security> <password>
     // Accepts: open, owe, wpa2, wpa3, wep per WifiShellCommand#connectNetwork.
     const char* secTok = "open";
@@ -664,17 +666,22 @@ void NanoMenu::addAndConnectWifi(const std::string& ssid, int security,
             std::chrono::steady_clock::now().time_since_epoch()).count() + 12000;
     mDisplayDirty = true;
     std::string ssidCapture = ssid;
-    std::thread([this, cmdline, ssidCapture]() {
+    std::thread([this, cmdline, ssidCapture, force]() {
         // Don't tear down a working link: if we are already associated with this
         // SSID, skip the (disruptive) reconnect. connect-network re-creates the
         // profile and re-associates, which briefly drops an otherwise-good
         // connection - and the wizard runs the connectivity test right after.
+        // force==true (an explicit "Change Password") always overwrites, even
+        // while connected, so a deliberate key change is not silently dropped.
         std::string st = runCmd("cmd wifi status 2>/dev/null");
-        if (connectedSsidFromStatus(st) != ssidCapture) {
+        if (force || connectedSsidFromStatus(st) != ssidCapture) {
             (void)runCmd(cmdline);
         }
         startWifiScanAsync();
     }).detach();
+    // Watch the outcome so a wrong password produces a clear message + re-prompt
+    // rather than an endless silent retry (secure networks only).
+    if (security != 0 && security != 4) wifiConnectWatch(ssid, security);
 }
 
 // Build a `gammaos-net wifi configure` command from the wizard's collected
@@ -762,6 +769,7 @@ void NanoMenu::handleWifiScreenDown() {
 }
 
 void NanoMenu::handleWifiScreenX() {
+    if (mWifiManageActive) return;   // manage overlay owns input
     startWifiScanAsync();
 }
 
@@ -781,15 +789,24 @@ void NanoMenu::handleWifiScreenSelect() {
         toggleWifiRadio(turningOn);
         return;
     }
+    if (e.savedNetId >= 0) {
+        // During the first-run setup wizard, keep the simple reconnect (its input
+        // routes through handleSetup*, which cannot drive the manage overlay).
+        if (mSetupWizardActive) { connectToSavedWifi(e.savedNetId); return; }
+        // Saved network (connected or not): open the manage dialog so the user
+        // can Connect / Change Password / Forget. This replaces the old "reconnect
+        // with the saved key" behaviour, which had no way to correct a wrong saved
+        // password -- the framework just silently retried the bad key. See
+        // wifiConnectWatch for the wrong-password surfacing.
+        openWifiManage(e);
+        return;
+    }
     if (e.connected) {
-        // Already connected -- no-op (could offer disconnect later).
+        // Connected but not in the saved list (rare transient during a fresh
+        // association) -- nothing to manage yet.
         mWifiStatusMsg = trDyn("Already connected");
         mWifiStatusMsgUntilMs = std::chrono::duration_cast<std::chrono::milliseconds>(
                 std::chrono::steady_clock::now().time_since_epoch()).count() + 2000;
-        return;
-    }
-    if (e.savedNetId >= 0) {
-        connectToSavedWifi(e.savedNetId);
         return;
     }
     if (e.security == 0 || e.security == 4) {
@@ -814,6 +831,7 @@ void NanoMenu::handleWifiScreenSelect() {
 }
 
 void NanoMenu::handleWifiScreenY() {
+    if (mWifiManageActive) return;   // manage overlay owns input
     WifiNetEntry e;
     {
         std::lock_guard<std::mutex> lk(mWifiListMutex);
@@ -835,6 +853,333 @@ void NanoMenu::handleWifiScreenY() {
     }
     mWifiStatusMsgUntilMs = nowMs + 2500;
     mDisplayDirty = true;
+}
+
+// ---------------------------------------------------------------------------
+// Wi-Fi manage dialog (saved-network Connect / Change Password / Forget)
+// ---------------------------------------------------------------------------
+
+// Scan `dumpsys wifi` for a wrong-password disable reason co-located with the
+// given SSID. AOSP spells the reason a few ways across versions; match them all.
+static bool wifiDumpWrongPassword(const std::string& dump, const std::string& ssid) {
+    if (ssid.empty()) return false;
+    const std::string q = "\"" + ssid + "\"";
+    size_t p = dump.find(q);
+    while (p != std::string::npos) {
+        // Look within a window after the SSID (the per-network block that carries
+        // the NetworkSelectionStatus / recent-failure fields).
+        size_t win = 700;
+        size_t nl = dump.find("\n\n", p);
+        if (nl != std::string::npos && nl - p < win) win = nl - p;
+        std::string block = dump.substr(p, win);
+        if (block.find("WRONG_PASSWORD") != std::string::npos
+         || block.find("WRONG_PSWD")     != std::string::npos
+         || block.find("BY_WRONG_PASSWORD") != std::string::npos
+         || block.find("DISABLED_AUTHENTICATION_FAILURE") != std::string::npos)
+            return true;
+        p = dump.find(q, p + q.size());
+    }
+    return false;
+}
+
+void NanoMenu::wifiConnectWatch(const std::string& ssid, int security) {
+    // Only secure networks can fail on a wrong password.
+    if (security == 0 || security == 4) return;
+    std::thread([this, ssid, security]() {
+        // Poll ~16s for either a successful association to `ssid` or a
+        // wrong-password disable. `cmd wifi status` gives the live SSID;
+        // `dumpsys wifi` exposes the per-network disable reason.
+        for (int i = 0; i < 32; i++) {
+            usleep(500 * 1000);
+            std::string st = runCmd("cmd wifi status 2>/dev/null");
+            if (connectedSsidFromStatus(st) == ssid) return;  // connected: generic flow clears the HUD
+            std::string dump = runCmd("dumpsys wifi 2>/dev/null");
+            if (wifiDumpWrongPassword(dump, ssid)) {
+                int64_t now = std::chrono::duration_cast<std::chrono::milliseconds>(
+                        std::chrono::steady_clock::now().time_since_epoch()).count();
+                mWifiStatusMsg = std::string(trDyn("Wrong password")) + ": " + ssid;
+                mWifiStatusMsgUntilMs = now + 9000;
+                mWifiRepromptSsid = ssid;
+                mWifiRepromptSecurity = security;
+                mWifiRepromptPending.store(true);
+                mDisplayDirty = true;
+                return;
+            }
+        }
+    }).detach();
+}
+
+void NanoMenu::openWifiManage(const WifiNetEntry& e) {
+    mWifiManageActive     = true;
+    mWifiManageSel        = 0;
+    mWifiManageNetId      = e.savedNetId;
+    mWifiManageSsid       = e.ssid;
+    mWifiManageSecurity   = e.security;
+    mWifiManageConnected  = e.connected;
+    mWifiManageActions.clear();
+    // Connect only makes sense when not already on this network.
+    if (!e.connected) mWifiManageActions.push_back(WMA_CONNECT);
+    // Change Password only for secure networks (open / OWE have no key).
+    if (e.security != 0 && e.security != 4) mWifiManageActions.push_back(WMA_CHANGE_PW);
+    mWifiManageActions.push_back(WMA_FORGET);
+    mDisplayDirty = true;
+    ps3Sfx(PS3_SFX_OPTION);            // XMB option chime (no-op on the DSi theme)
+    ndsSfxPlay(NDS_SFX_SET_ENTER);     // DSi enter chime (no-op on the XMB theme)
+}
+
+void NanoMenu::wifiManageMove(int dir) {
+    if (!mWifiManageActive || mWifiManageActions.empty()) return;
+    int n = (int)mWifiManageActions.size();
+    int next = mWifiManageSel + (dir < 0 ? -1 : 1);
+    if (next < 0) next = 0;
+    if (next > n - 1) next = n - 1;
+    if (next != mWifiManageSel) {
+        mWifiManageSel = next;
+        ps3Sfx(PS3_SFX_CURSOR);
+        ndsSfxPlay(NDS_SFX_SET_NAV);
+        mDisplayDirty = true;
+    }
+}
+
+void NanoMenu::wifiManageClose() {
+    if (!mWifiManageActive) return;
+    mWifiManageActive = false;
+    ps3Sfx(PS3_SFX_BACK);
+    ndsSfxPlay(NDS_SFX_SET_BACK);
+    mDisplayDirty = true;
+}
+
+void NanoMenu::wifiManageActivate() {
+    if (!mWifiManageActive || mWifiManageActions.empty()) return;
+    if (mWifiManageSel < 0) mWifiManageSel = 0;
+    if (mWifiManageSel >= (int)mWifiManageActions.size())
+        mWifiManageSel = (int)mWifiManageActions.size() - 1;
+    const int action   = mWifiManageActions[mWifiManageSel];
+    const int netId    = mWifiManageNetId;
+    const std::string  ssid = mWifiManageSsid;
+    const int security = mWifiManageSecurity;
+    const bool wasConnected = mWifiManageConnected;
+    int64_t now = std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::steady_clock::now().time_since_epoch()).count();
+    ps3Sfx(PS3_SFX_OK);
+    ndsSfxPlay(NDS_SFX_SET_ENTER);
+    mWifiManageActive = false;   // close the overlay; each action drives its own HUD
+    switch (action) {
+    case WMA_CONNECT:
+        if (netId >= 0) {
+            connectToSavedWifi(netId);
+            wifiConnectWatch(ssid, security);   // surface a wrong saved password
+        }
+        break;
+    case WMA_CHANGE_PW: {
+        mWifiPendingSsid     = ssid;
+        mWifiPendingSecurity = security;
+        std::string prompt = std::string(trDyn("New Wi-Fi password")) + " \"" + ssid + "\"";
+        openOskForPassword(prompt, [this](const std::string& pw) {
+            if (pw.empty()) {
+                int64_t t = std::chrono::duration_cast<std::chrono::milliseconds>(
+                        std::chrono::steady_clock::now().time_since_epoch()).count();
+                mWifiStatusMsg = trDyn("Cancelled");
+                mWifiStatusMsgUntilMs = t + 2000;
+                return;
+            }
+            // connect-network overwrites the saved profile with the new key;
+            // force=true so it applies even if we are still associated.
+            addAndConnectWifi(mWifiPendingSsid, mWifiPendingSecurity, pw, true);
+        });
+        break; }
+    case WMA_FORGET:
+        if (netId >= 0) {
+            forgetWifiNetwork(netId);
+            mWifiStatusMsg = trDyn(wasConnected ? "Disconnected and removed"
+                                                : "Removed saved network");
+            mWifiStatusMsgUntilMs = now + 2500;
+        }
+        break;
+    default:
+        break;
+    }
+    mDisplayDirty = true;
+}
+
+// Wi-Fi list touch: while the manage overlay is up, route to it; otherwise a tap
+// on a network row activates it (handleWifiScreenSelect -> toggle / open manage /
+// prompt for a new password). Row geometry mirrors renderWifiScreen exactly. A tap
+// can only OPEN the manage dialog or connect -- Forget lives one deliberate tap
+// deeper -- so a slightly mis-mapped tap is never destructive.
+void NanoMenu::wifiScreenTouch() {
+    if (mWifiManageActive) { wifiManageTouch(); return; }
+    if (mSetupWizardActive) { mTouchWasDown = mTouchDown; return; }   // setup wizard owns its own touch
+    float px, py; bool mapped = touchMapRaw(mTouchRawX, mTouchRawY, px, py);
+    bool down = mTouchDown, upEdge = !down && mTouchWasDown;
+    if (down && !mTouchWasDown && mapped) { mNdsTouchDownX = px; mNdsTouchDownY = py; mNdsTouchMoved = false; }
+    else if (down && mapped) { if (fabsf(px - mNdsTouchDownX) > 12.0f || fabsf(py - mNdsTouchDownY) > 12.0f) mNdsTouchMoved = true; }
+    if (!(upEdge && mapped && !mNdsTouchMoved)) { mTouchWasDown = mTouchDown; return; }
+    // Mirror renderWifiScreen's row layout.
+    float sf = fminf((float)mWidth / 1080.0f, (float)mHeight / 720.0f); if (sf < 0.5f) sf = 0.5f;
+    float pad = 20.0f * sf, titleScale = 2.6f * sf, rowScale = 1.9f * sf, footScale = 1.3f * sf;
+    float statusY = pad + FONT_CHAR_H * titleScale + 4.0f * sf;
+    float listTop = statusY + FONT_CHAR_H * footScale + 8.0f * sf;
+    float rowH = FONT_CHAR_H * rowScale + 8.0f * sf;
+    int visibleRows = (int)((mHeight - listTop - 60.0f * sf) / rowH); if (visibleRows < 4) visibleRows = 4;
+    int count;
+    { std::lock_guard<std::mutex> lk(mWifiListMutex); count = (int)mWifiEntries.size(); }
+    if (mWifiScrollTop < 0) mWifiScrollTop = 0;
+    int end = mWifiScrollTop + visibleRows; if (end > count) end = count;
+    for (int i = mWifiScrollTop; i < end; i++) {
+        float y = listTop + (i - mWifiScrollTop) * rowH;
+        if (px >= pad - 6.0f * sf && px <= (float)mWidth - pad + 6.0f * sf
+            && py >= y - 4.0f * sf && py <= y - 4.0f * sf + rowH) {
+            mWifiEntrySelected = i;
+            handleWifiScreenSelect();    // toggle row / saved -> manage / unsaved secure -> OSK
+            break;
+        }
+    }
+    mTouchWasDown = mTouchDown;
+}
+
+// Tap an option row, or the Back / OK affordance, in the manage overlay. The
+// hit geometry mirrors renderWifiManage exactly for each theme.
+void NanoMenu::wifiManageTouch() {
+    if (!mWifiManageActive) { mTouchWasDown = mTouchDown; return; }
+    float px, py; bool mapped = touchMapRaw(mTouchRawX, mTouchRawY, px, py);
+    bool down = mTouchDown, upEdge = !down && mTouchWasDown;
+    if (down && !mTouchWasDown && mapped) { mNdsTouchDownX = px; mNdsTouchDownY = py; mNdsTouchMoved = false; }
+    else if (down && mapped) { if (fabsf(px - mNdsTouchDownX) > 10.0f || fabsf(py - mNdsTouchDownY) > 10.0f) mNdsTouchMoved = true; }
+    if (!(upEdge && mapped && !mNdsTouchMoved)) { mTouchWasDown = mTouchDown; return; }
+
+    const int n = (int)mWifiManageActions.size();
+    if (mNdsTheme) {
+        // DS-256x192 mapped geometry (matches renderWifiManage DSi path).
+        float rw = (float)mWidth, rh = (float)mHeight;
+        float scale = rh / 192.0f; if (256.0f * scale > rw + 0.5f) scale = rw / 256.0f;
+        if (scale < 1e-4f) { mTouchWasDown = mTouchDown; return; }
+        float offY = (rh - 192.0f * scale) * 0.5f, cx = rw * 0.5f;
+        float dsX = 128.0f + (px - cx) / scale;
+        float dsY = (py - offY) / scale;
+        if (dsY >= 168.0f) {                                   // bottom bar
+            if (dsX < 64.0f) wifiManageClose();                // Back (left)
+            else if (dsX > 192.0f) wifiManageActivate();       // OK (right)
+        } else {                                               // option rows
+            const float LB_X = 34.0f, LB_W = 186.0f, LB_H = 24.0f, pitch = 40.0f;
+            float top0 = roundf(0.5f * (56.0f + 164.0f) - (float)(n - 1) * pitch * 0.5f - 12.0f);
+            for (int i = 0; i < n; i++) {
+                float ry = top0 + i * pitch;
+                if (dsX >= LB_X && dsX <= LB_X + LB_W && dsY >= ry && dsY <= ry + LB_H) {
+                    mWifiManageSel = i; wifiManageActivate(); break;
+                }
+            }
+        }
+    } else {
+        // XMB centered panel geometry (matches renderWifiManage XMB path).
+        float s = fminf((float)mWidth / 1080.0f, (float)mHeight / 720.0f); if (s < 0.5f) s = 0.5f;
+        float pw = 560.0f * s, rowH = 56.0f * s, titleH = 96.0f * s;
+        float ph = titleH + n * rowH + 40.0f * s;
+        float pX = ((float)mWidth - pw) * 0.5f, pY = ((float)mHeight - ph) * 0.5f;
+        float listY = pY + titleH;
+        if (px >= pX && px <= pX + pw) {
+            for (int i = 0; i < n; i++) {
+                float ry = listY + i * rowH;
+                if (py >= ry && py <= ry + rowH) { mWifiManageSel = i; wifiManageActivate(); break; }
+            }
+        } else {
+            wifiManageClose();   // tap outside the panel closes it
+        }
+    }
+    mTouchWasDown = mTouchDown;
+}
+
+// Themed overlay drawn on top of renderWifiScreen when the manage dialog is up.
+void NanoMenu::renderWifiManage() {
+    if (mWifiManageActions.empty()) return;
+    setUiBlend();
+    auto label = [&](int a) -> std::string {
+        switch (a) {
+        case WMA_CONNECT:    return trDyn("Connect");
+        case WMA_CHANGE_PW:  return trDyn("Change Password");
+        case WMA_FORGET:     return trDyn("Forget This Network");
+        case WMA_DISCONNECT: return trDyn("Disconnect");
+        }
+        return "";
+    };
+    const int n = (int)mWifiManageActions.size();
+
+    if (mNdsTheme) {
+        // DSi glossy card, DS-256x192 mapped (mirrors renderNdsNetWizardBody chrome).
+        float rx = 0, ry = 0, rw = (float)mWidth, rh = (float)mHeight;
+        float scale = rh / 192.0f; if (256.0f * scale > rw + 0.5f) scale = rw / 256.0f;
+        if (scale < 1e-4f) return;
+        float offY = ry + (rh - 192.0f * scale) * 0.5f;
+        float cx = rx + rw * 0.5f;
+        auto Y = [&](float d){ return offY + d * scale; };
+        auto S = [&](float v){ return v * scale; };
+        auto X = [&](float d){ return cx + (d - 128.0f) * scale; };
+        auto fsFor = [&](float pxs){ return S(pxs) / (float)FONT_CHAR_H; };
+        float el = fmaxf(1.0f, S(1.0f));
+        const bool ndsPrevFont = mNdsFontPref; mNdsFontPref = true;
+        const int  ndsPrevOutline = mTextOutlineMode; mTextOutlineMode = 2;
+        // scanline field + header band + title
+        drawQuad(rx, ry, rw, rh, 0.220f, 0.220f, 0.220f, 1.0f);
+        for (float yy = ry; yy < ry + rh; yy += S(2.0f)) drawQuad(rx, yy, rw, el, 0.255f, 0.255f, 0.255f, 1.0f);
+        drawQuad(rx, ry, rw, Y(23.0f) - ry, 0.188f, 0.188f, 0.188f, 1.0f);
+        for (float yy = ry; yy < Y(23.0f); yy += S(2.0f)) drawQuad(rx, yy, rw, el, 0.220f, 0.220f, 0.220f, 1.0f);
+        drawText(trDyn("Manage Network"), X(6.0f), Y(4.0f), fsFor(13.0f), 0.984f, 0.984f, 0.984f, 1.0f);
+        for (float xx = X(2.0f); xx < X(254.0f); xx += S(4.0f)) drawQuad(xx, Y(21.0f), fmaxf(1.0f, S(2.0f)), el, 0.510f, 0.510f, 0.510f, 1.0f);
+        // SSID subtitle (centered, clipped)
+        { float fs = fsFor(13.0f); std::string s = mWifiManageSsid;
+          float tw = measureText(s.c_str(), fs), maxW = S(232.0f);
+          if (tw > maxW && maxW > 0.0f) { fs *= maxW / tw; tw = measureText(s.c_str(), fs); }
+          drawText(s.c_str(), cx - tw * 0.5f, Y(32.0f), fs, 0.93f, 0.93f, 0.93f, 1.0f); }
+        // glossy option list, vertically centered in the 56..164 band
+        const float LB_X = 34.0f, LB_W = 186.0f, LB_H = 24.0f, pitch = 40.0f;
+        float top0 = roundf(0.5f * (56.0f + 164.0f) - (float)(n - 1) * pitch * 0.5f - 12.0f);
+        for (int i = 0; i < n; i++) {
+            float rowY = top0 + i * pitch;
+            bool sel = (i == mWifiManageSel);
+            drawNdsGlossyBtn(X(LB_X), Y(rowY), S(LB_W), S(LB_H), S(5.0f), sel);
+            float ic = sel ? 1.0f : 0.157f, fs = fsFor(16.0f);
+            std::string lbl = label(mWifiManageActions[i]);
+            float tw = measureText(lbl.c_str(), fs), maxW = S(LB_W - 16.0f);
+            if (tw > maxW && maxW > 0.0f) { fs *= maxW / tw; tw = measureText(lbl.c_str(), fs); }
+            drawText(lbl.c_str(), cx - tw * 0.5f, Y(rowY + 6.0f), fs, ic, ic, ic, 1.0f);
+        }
+        // bottom Back / OK bar
+        for (float xx = X(2.0f); xx < X(254.0f); xx += S(4.0f)) drawQuad(xx, Y(167.0f), fmaxf(1.0f, S(2.0f)), el, 0.510f, 0.510f, 0.510f, 1.0f);
+        drawText(trDyn("Back"), X(8.0f), Y(173.0f), fsFor(12.0f), 0.90f, 0.90f, 0.90f, 1.0f);
+        { std::string ok = trDyn("OK"); float fs = fsFor(12.0f), tw = measureText(ok.c_str(), fs);
+          drawText(ok.c_str(), X(248.0f) - tw, Y(173.0f), fs, 0.90f, 0.90f, 0.90f, 1.0f); }
+        mTextOutlineMode = ndsPrevOutline; mNdsFontPref = ndsPrevFont;
+    } else {
+        // XMB dark PS3 panel, centered over the dimmed Wi-Fi list.
+        float sf = fminf((float)mWidth / 1080.0f, (float)mHeight / 720.0f); if (sf < 0.5f) sf = 0.5f;
+        float pw = 560.0f * sf, rowH = 56.0f * sf, titleH = 96.0f * sf;
+        float ph = titleH + n * rowH + 40.0f * sf;
+        float pX = ((float)mWidth - pw) * 0.5f, pY = ((float)mHeight - ph) * 0.5f;
+        drawQuad(0, 0, mWidth, mHeight, 0.0f, 0.0f, 0.0f, 0.45f);
+        drawRoundedRect(pX, pY, pw, ph, 14.0f * sf, 0.06f, 0.08f, 0.12f, 0.97f);
+        drawRoundedRect(pX, pY, pw, 3.0f * sf, 1.5f * sf, 0.40f, 0.60f, 0.90f, 0.55f);   // top accent
+        // title = SSID
+        { float ts = 2.0f * sf; std::string s = mWifiManageSsid;
+          float tw = measureText(s.c_str(), ts), maxW = pw - 40.0f * sf;
+          if (tw > maxW) { ts *= maxW / tw; tw = measureText(s.c_str(), ts); }
+          drawText(s.c_str(), pX + (pw - tw) * 0.5f, pY + 22.0f * sf, ts, 0.95f, 0.95f, 1.0f, 1.0f); }
+        { std::string sub = trDyn("Manage Network"); float ss = 1.2f * sf;
+          float tw = measureText(sub.c_str(), ss);
+          drawText(sub.c_str(), pX + (pw - tw) * 0.5f, pY + 60.0f * sf, ss, 0.60f, 0.70f, 0.85f, 0.90f); }
+        float listY = pY + titleH;
+        for (int i = 0; i < n; i++) {
+            float ry = listY + i * rowH; bool sel = (i == mWifiManageSel);
+            if (sel) drawRoundedRect(pX + 14.0f * sf, ry + 4.0f * sf, pw - 28.0f * sf, rowH - 8.0f * sf,
+                                     8.0f * sf, 0.15f, 0.35f, 0.70f, 0.85f);
+            std::string lbl = label(mWifiManageActions[i]);
+            float ts = 1.7f * sf, ty = ry + rowH * 0.5f - FONT_CHAR_H * ts * 0.5f;
+            float c = sel ? 1.0f : 0.85f;
+            drawText(lbl.c_str(), pX + 34.0f * sf, ty, ts, c, c, c, 1.0f);
+        }
+        std::string footer = themeButtonText(trDyn("Cross: Select | Circle: Back"));
+        float fscale = 1.2f * sf, fw = measureText(footer.c_str(), fscale);
+        drawText(footer.c_str(), pX + (pw - fw) * 0.5f, pY + ph - 26.0f * sf, fscale, 0.60f, 0.60f, 0.65f, 0.90f);
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -1760,6 +2105,10 @@ void NanoMenu::renderWifiScreen() {
                  mHeight - FONT_CHAR_H * footScale - 12.0f * sf,
                  footScale, 0.60f, 0.60f, 0.65f, 0.90f);
     }
+
+    // Manage dialog (Connect / Change Password / Forget) for a saved network,
+    // drawn on top of the list. Themed for XMB and DSi inside renderWifiManage.
+    if (mWifiManageActive) renderWifiManage();
 
     // The OSK (including its password preview line) is drawn last in render(),
     // on top of this screen, by NanoMenu::renderOsk().

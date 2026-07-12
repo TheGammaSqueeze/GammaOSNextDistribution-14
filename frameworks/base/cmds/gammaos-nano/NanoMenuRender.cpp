@@ -4477,6 +4477,10 @@ void NanoMenu::render() {
                         && !(mOverlayMode && !mOverlayWallpaper)
                         && mLaunchFadeStart == 0 && !mOverlayLaunchPending
                         && !property_get_bool("sys.gammaos.nano.app_launched", false));
+        // PS3 XMB theme: hold card0 open through the pre-boot-complete window so nav SFX are audible
+        // in the early menu (self-gates to !mNdsTheme; the DSi hold is ndsAmbianceTick above). Runs
+        // every frame including the boot intro, so nano owns card0 before the audio HAL can grab it.
+        ps3EarlyAudioTick();
         if (mNdsTheme && mPs3BootActive) {
             // DSi cold boot: drive the shared boot clock (advances mPs3BootElapsedMs and
             // clears mPs3BootActive at the end -> the carousel intro cascade takes over the

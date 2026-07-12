@@ -202,8 +202,7 @@ static bool        gBootSfxPendingSet = false;
 // PS3 cursor sound ps3NavSound is gated to the PS3 theme). Five FILE-STATIC low-latency retriggerable
 // players (one per clip) load their wav once on a bg thread and then trigger lock-free from the render
 // thread. File-static (not NanoMenu members) so the class layout is unchanged (no full recompile).
-enum NdsSfxId { NDS_SFX_NAV = 0, NDS_SFX_LAUNCH, NDS_SFX_SET_NAV, NDS_SFX_SET_BACK, NDS_SFX_SET_ENTER,
-                NDS_SFX_COUNT };
+// NdsSfxId now lives at namespace scope in NanoMenu.h so other TUs can name the ids too.
 static NanoSfxPlayer  gNdsSfx[NDS_SFX_COUNT];
 static std::atomic<bool> gNdsSfxOpening[NDS_SFX_COUNT] = {};   // per-clip open-in-flight guard
 
@@ -402,6 +401,38 @@ void NanoMenu::ndsAmbianceTick(bool wantOnHome) {
         return;
     }
     if (mAmbiancePlayer.ended()) { mAmbiancePlayer.seek(0.0); mAmbiancePlayer.play(); }  // loop
+}
+
+// PS3 XMB early-boot audio hold. The DSi keeps card0 (the direct-ALSA PCM) held open through the
+// pre-boot-complete window via its menu_ambiance loop, so its nav SFX mix into an already-open
+// substream. The PS3 theme has no early BGM, so it never held card0: the worker parked after the
+// boot chime / coldboot, and the first post-intro nav SFX re-opened card0 exactly as the RK3568
+// audio HAL was grabbing it (EBUSY), permanently latching gEng.failed and dropping all PS3 early
+// SFX onto the still-blocked AAudio path -> silence until boot_completed. Fix: hold card0 open with
+// SILENCE through the pre-boot-complete window (nav one-shots mix in), then hand it to the HAL at
+// boot_completed so post-boot audio is unaffected. DSi is handled by ndsAmbianceTick; this is the
+// PS3 (!mNdsTheme) equivalent. Called once per frame from render().
+void NanoMenu::ps3EarlyAudioTick() {
+    if (mNdsTheme) {
+        // A LIVE PS3->DSi theme switch (the Home Theme row flips mNdsTheme in-memory without a
+        // restart) during the hold window would leak our hold; release it so ndsAmbianceTick
+        // cleanly owns the direct engine from here.
+        if (mPs3DirectHolding) { nanoDirectHoldOpen(false); mPs3DirectHolding = false; }
+        return;                                              // DSi uses ndsAmbianceTick's own hold
+    }
+    const bool direct = nanoDirectAudioUsable() && !dsiBootCompleted();
+    if (direct) {
+        if (!mPs3DirectHolding) { nanoDirectHoldOpen(true); mPs3DirectHolding = true; }
+        return;
+    }
+    // Booted (or direct unavailable) while we were holding -> release the hold + the card for the
+    // audio HAL, exactly once. nanoDirectShutdown does a bounded wait so card0 is closed before
+    // AAudio opens (no EBUSY), mirroring the DSi handoff in ndsAmbianceTick.
+    if (mPs3DirectHolding) {
+        nanoDirectHoldOpen(false);
+        nanoDirectShutdown();
+        mPs3DirectHolding = false;
+    }
 }
 
 // Test hook (nav-hook token "bootreplay"): re-run the whole cold-boot intro from

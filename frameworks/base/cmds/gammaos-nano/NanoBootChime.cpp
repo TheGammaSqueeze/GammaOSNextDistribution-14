@@ -106,6 +106,8 @@ struct DEngine {
     bool   workerRunning = false;
     std::atomic<bool> pcmOwned{false};     // true while the worker holds the substream
     std::atomic<bool> failed{false};       // set on the first pcm_open failure -> callers fall back to AAudio
+    std::atomic<bool> holdOpen{false};     // keep the PCM open (writing silence) when idle, so one-shots
+                                           // mix in without a re-open (PS3 early-boot card0 hold)
 };
 DEngine gEng;
 
@@ -186,6 +188,7 @@ void directWorker() {
     DVoice loopV; bool loopActive = false; size_t loopPos = 0; int64_t loopStartMs = 0;
     struct Shot { DVoice v; size_t pos; };
     std::vector<Shot> shots;
+    int64_t holdSilenceStart = 0;   // when a voice-less hold-open period began (wall-capped below)
 
     for (;;) {
         {
@@ -196,12 +199,14 @@ void directWorker() {
             // Sync the loop bed to the engine's current request.
             if (gEng.haveLoop && !loopActive)      { loopV = gEng.loopVoice; loopActive = true; loopPos = 0; loopStartMs = monoMs(); }
             else if (!gEng.haveLoop && loopActive) { loopActive = false; loopV.pcm.clear(); }
-            if (!loopActive && shots.empty()) {        // nothing to play: free the card and park
+            if (!loopActive && shots.empty() && !gEng.holdOpen.load()) {   // nothing to play + no hold: free the card and park
                 closePcm();
-                gEng.cv.wait(lk, [] { return gEng.shutdown || !gEng.queue.empty() || gEng.haveLoop; });
+                gEng.cv.wait(lk, [] { return gEng.shutdown || !gEng.queue.empty() || gEng.haveLoop || gEng.holdOpen.load(); });
                 if (gEng.shutdown) break;
                 continue;
             }
+            // holdOpen with nothing to play: fall through and write a SILENT period so the PCM
+            // (card0) stays open and one-shots can mix in without a re-open (PS3 early-boot hold).
         }
 
         if (!pcm) {                                    // (re)open the PCM
@@ -268,6 +273,15 @@ void directWorker() {
         if (loopActive && (monoMs() - loopStartMs) > kDirectMaxLoopMs) {
             NBC_W("direct: loop wall-cap hit -> release");
             break;
+        }
+        // Silent hold-open safety: if we are ONLY holding the card open (no loop, no shots) past the
+        // wall cap, release it so a stuck hold (e.g. the render loop stopped before boot_completed)
+        // cannot own card0 forever and block the audio HAL. A real voice resets the timer.
+        if (gEng.holdOpen.load() && !loopActive && shots.empty()) {
+            if (holdSilenceStart == 0) holdSilenceStart = monoMs();
+            else if (monoMs() - holdSilenceStart > kDirectMaxLoopMs) { NBC_W("direct: hold-open wall-cap -> release"); break; }
+        } else {
+            holdSilenceStart = 0;
         }
     }
     for (auto& s : shots) if (s.v.inFlight) s.v.inFlight->store(false);
@@ -352,6 +366,18 @@ void nanoDirectStopLoop() {
     std::lock_guard<std::mutex> lk(gEng.m);
     gEng.haveLoop = false;
     gEng.loopVoice.pcm.clear();
+    gEng.cv.notify_one();
+}
+
+// Keep the direct PCM (card0) held open while `on`, even with no voice playing, so interactive
+// one-shots (PS3 XMB nav SFX) mix into an already-open substream instead of re-opening card0 - a
+// re-open collides with the initialising audio HAL and permanently latches gEng.failed. The PS3
+// theme requests this through the pre-boot-complete window and drops it (+ nanoDirectShutdown) at
+// boot_completed, mirroring the DSi menu_ambiance hold. No-op-safe to call every frame.
+void nanoDirectHoldOpen(bool on) {
+    std::lock_guard<std::mutex> lk(gEng.m);
+    gEng.holdOpen.store(on);
+    if (on) ensureWorkerLocked();   // wake / respawn the parked worker so it opens + holds the PCM
     gEng.cv.notify_one();
 }
 
