@@ -171,6 +171,73 @@ void directEnableSpeaker() {
     setInt ("Headphone Switch", 1);
     setInt ("HpSpeaker Switch", 1);
     setInt ("Speaker Switch", 1);
+    // ES8388 (rockchip-es8388, e.g. RG Vita Pro RK3576): the codec Speaker/Headphone Switch above
+    // only gate the codec output enable; the DAC still has to be routed through the output mixer to
+    // the OUT1/OUT2 stages and the external amp GPIOs, and the output amp volumes default to 0 (min,
+    // ~-45 dB). Enable the whole DAC -> mixer -> output -> amp playback path so the direct PCM is
+    // audible before the HAL takes the card. Device-confirmed on the RG Vita Pro; guarded by
+    // existence so it is a no-op on the rk817 / Allwinner codecs.
+    setInt ("Left Mixer Left Playback Switch", 1);   // DAC L -> left output mixer
+    setInt ("Right Mixer Right Playback Switch", 1); // DAC R -> right output mixer
+    setInt ("OUT1 Switch", 1);                        // enable Output 1 (headphone)
+    setInt ("OUT2 Switch", 1);                        // enable Output 2 (speaker)
+    setInt ("Output 1 Playback Volume", 30);          // ~0 dB (range 0..33)
+    setInt ("Output 2 Playback Volume", 30);
+    setInt ("spk switch", 1);                         // external speaker amp enable
+    setInt ("hp switch", 1);                          // external headphone amp enable
+
+    // Generalized best-effort output-route enable, so a NEW codec that follows the same pattern (a
+    // playback route left disabled at rest, as on the ES8388) can also get early audio without an
+    // explicit list. ADDITIVE + conservative: walk every control and (a) turn ON output-route BOOLEAN
+    // switches (speaker / headphone / lineout / OUTn / *playback switch / *mixer*playback), and (b)
+    // lift any ANALOG OUTPUT volume that is parked at its range MINIMUM (a disabled output) up to its
+    // maximum - the direct path applies its own per-sample gain, so a full-scale output stage is
+    // correct. NEVER touches capture / mic / jack-detect / loopback / bypass / digital DAC-PCM
+    // controls. For the known codecs above it just re-confirms the same output switches (harmless), and
+    // the min-only volume guard means it does not disturb an output whose volume was already set.
+    {
+        auto lc = [](const char* s){ std::string o; for (; s && *s; ++s) { char c = *s; o.push_back((c >= 'A' && c <= 'Z') ? (char)(c + 32) : c); } return o; };
+        auto has = [](const std::string& h, const char* n){ return h.find(n) != std::string::npos; };
+        unsigned nctl = mixer_get_num_ctls(mx);
+        for (unsigned i = 0; i < nctl; i++) {
+            struct mixer_ctl* c = mixer_get_ctl(mx, i);
+            if (!c) continue;
+            const char* raw = mixer_ctl_get_name(c);
+            if (!raw) continue;
+            std::string nm = lc(raw);
+            if (has(nm,"capture") || has(nm,"mic") || has(nm,"adc") || has(nm,"loopback") ||
+                has(nm,"bypass") || has(nm,"jack") || has(nm,"sidetone") || has(nm,"monitor") ||
+                has(nm,"detect")) continue;                                   // never touch input / detect paths
+            int type = mixer_ctl_get_type(c);
+            unsigned nv = mixer_ctl_get_num_values(c);
+            if (nv == 0) continue;
+            if (type == MIXER_CTL_TYPE_BOOL) {
+                bool out = has(nm,"speaker") || has(nm,"spk") || has(nm,"headphone") || has(nm,"hpout") ||
+                           has(nm,"hp switch") || has(nm,"lineout") || has(nm,"line out") ||
+                           has(nm,"receiver") || has(nm,"earpiece") || has(nm,"playback switch") ||
+                           has(nm,"out1") || has(nm,"out2") || has(nm,"out3") || has(nm,"out4") ||
+                           (has(nm,"mixer") && has(nm,"playback"));
+                if (!out) continue;
+                bool changed = false;
+                for (unsigned v = 0; v < nv; v++) if (mixer_ctl_get_value(c, v) != 1) { mixer_ctl_set_value(c, v, 1); changed = true; }
+                if (changed) { set += raw; set += "; "; }
+            } else if (type == MIXER_CTL_TYPE_INT) {
+                bool outvol = has(nm,"playback volume") &&
+                    (has(nm,"output") || has(nm,"speaker") || has(nm,"spk") || has(nm,"headphone") ||
+                     has(nm,"hpout") || has(nm,"lineout") || has(nm,"line out") || has(nm,"receiver") ||
+                     has(nm,"earpiece")) &&
+                    !has(nm,"dac") && !has(nm,"pcm") && !has(nm,"digital");   // leave digital DAC vols alone (often inverted)
+                if (!outvol) continue;
+                int mn = mixer_ctl_get_range_min(c), mxv = mixer_ctl_get_range_max(c);
+                if (mxv <= mn) continue;
+                bool atMin = true;
+                for (unsigned v = 0; v < nv; v++) if (mixer_ctl_get_value(c, v) != mn) { atMin = false; break; }
+                if (!atMin) continue;                                          // only lift a fully-min (disabled) output
+                for (unsigned v = 0; v < nv; v++) mixer_ctl_set_value(c, v, mxv);
+                set += raw; set += "(vol->max); ";
+            }
+        }
+    }
     mixer_close(mx);
     NBC_I("direct: route-enable set [%s]", set.empty() ? "(none - unknown codec)" : set.c_str());
 }
