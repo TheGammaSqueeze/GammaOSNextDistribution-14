@@ -1003,7 +1003,10 @@ void NanoMenu::renderNdsSubmenu(float rx, float ry, float rw, float rh) {
     for (float yy = ry; yy < Y(23.0f); yy += S(2.0f)) drawQuad(rx, yy, rw, lh, 0.220f, 0.220f, 0.220f, 1.0f);
     // header title (banner-style, white, DS x6 baseline like settings.js) + dashed rule y21.
     { float fs = S(13.0f) / (float)FONT_CHAR_H; drawText(title.c_str(), X(6.0f), Y(4.0f), fs, 0.984f, 0.984f, 0.984f, 1.0f); }
-    for (float xx = X(2.0f); xx < X(254.0f); xx += S(4.0f)) drawQuad(xx, Y(21.0f), fmaxf(1.0f, S(2.0f)), lh, 0.510f, 0.510f, 0.510f, 1.0f);
+    for (float xx = X(2.0f); xx < X(254.0f); xx += S(4.0f)) {   // web dashed rule (settings.js): 1px #828282 + 1px #717171, then 2px gap
+        drawQuad(xx,             Y(21.0f), fmaxf(1.0f, S(1.0f)), lh, 0.510f, 0.510f, 0.510f, 1.0f);
+        drawQuad(xx + S(1.0f),   Y(21.0f), fmaxf(1.0f, S(1.0f)), lh, 0.443f, 0.443f, 0.443f, 1.0f);
+    }
 
     // list: glossy buttons x34 w186 h24. A list that FITS is vertically centred like the real
     // DSi (_btnY: pitch 40 for <4 items, 32 for 4, y0 = round(94 - (n-1)*pitch/2 - 12)); a list
@@ -1147,7 +1150,10 @@ void NanoMenu::renderNdsPickerList(float rx, float ry, float rw, float rh, const
     drawQuad(rx, ry, rw, Y(23.0f) - ry, 0.188f, 0.188f, 0.188f, 1.0f);
     for (float yy = ry; yy < Y(23.0f); yy += S(2.0f)) drawQuad(rx, yy, rw, lh, 0.220f, 0.220f, 0.220f, 1.0f);
     { float fs = S(13.0f) / (float)FONT_CHAR_H; drawText(title, X(6.0f), Y(4.0f), fs, 0.984f, 0.984f, 0.984f, 1.0f); }
-    for (float xx = X(2.0f); xx < X(254.0f); xx += S(4.0f)) drawQuad(xx, Y(21.0f), fmaxf(1.0f, S(2.0f)), lh, 0.510f, 0.510f, 0.510f, 1.0f);
+    for (float xx = X(2.0f); xx < X(254.0f); xx += S(4.0f)) {   // web dashed rule (settings.js): 1px #828282 + 1px #717171, then 2px gap
+        drawQuad(xx,             Y(21.0f), fmaxf(1.0f, S(1.0f)), lh, 0.510f, 0.510f, 0.510f, 1.0f);
+        drawQuad(xx + S(1.0f),   Y(21.0f), fmaxf(1.0f, S(1.0f)), lh, 0.443f, 0.443f, 0.443f, 1.0f);
+    }
 
     // Dense scrollable list: wide near-edge buttons (web _drawCountryBottom style) so the long zone
     // strings ("GMT+05:30  Kolkata") fit, leaving the right margin (x233+) for the DSi scrollbar. Rows
@@ -1285,7 +1291,10 @@ void NanoMenu::renderNdsSidePanel(float rx, float ry, float rw, float rh) {
     drawQuad(rx, ry, rw, Y(23.0f) - ry, 0.188f, 0.188f, 0.188f, 1.0f);
     for (float yy = ry; yy < Y(23.0f); yy += S(2.0f)) drawQuad(rx, yy, rw, lh, 0.220f, 0.220f, 0.220f, 1.0f);
     { float fs = S(13.0f) / (float)FONT_CHAR_H; drawText(title.c_str(), X(6.0f), Y(4.0f), fs, 0.984f, 0.984f, 0.984f, 1.0f); }
-    for (float xx = X(2.0f); xx < X(254.0f); xx += S(4.0f)) drawQuad(xx, Y(21.0f), fmaxf(1.0f, S(2.0f)), lh, 0.510f, 0.510f, 0.510f, 1.0f);
+    for (float xx = X(2.0f); xx < X(254.0f); xx += S(4.0f)) {   // web dashed rule (settings.js): 1px #828282 + 1px #717171, then 2px gap
+        drawQuad(xx,             Y(21.0f), fmaxf(1.0f, S(1.0f)), lh, 0.510f, 0.510f, 0.510f, 1.0f);
+        drawQuad(xx + S(1.0f),   Y(21.0f), fmaxf(1.0f, S(1.0f)), lh, 0.443f, 0.443f, 0.443f, 1.0f);
+    }
 
     if (slider) {
         // Numeric slider (GammaShader / bound value): a centred value read-out + a favColour
