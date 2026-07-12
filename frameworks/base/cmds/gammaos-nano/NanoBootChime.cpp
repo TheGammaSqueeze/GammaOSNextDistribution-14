@@ -186,6 +186,20 @@ void directEnableSpeaker() {
     setInt ("spk switch", 1);                         // external speaker amp enable
     setInt ("hp switch", 1);                          // external headphone amp enable
 
+    // MediaTek MT6789 / MT6366 (mt6358-family, e.g. Helio G99 handhelds): audio routing is a DAPM
+    // interconnect MATRIX, not a set of simple output switches. The DL memif (card0 device0 = DL1) has
+    // NO backend wired at rest, so pcm_write fails "cannot prepare channel: Invalid argument" (the DPCM
+    // frontend finds no connected backend to prepare) and nothing in the analog chain powers. Connect
+    // DL1 into the internal DAC (ADDA) and point the codec output muxes at the loudspeaker path; the
+    // AFE/codec supplies, clocks, charge pump and the external speaker amp are all DAPM-powered the
+    // moment the PCM starts running. Device-verified on an MT6789 board (Ext_Speaker_Amp powers On,
+    // user-confirmed audible). Existence-guarded, so a no-op on the rk817 / Allwinner / ES8388 codecs.
+    setInt ("ADDA_DL_CH1 DL1_CH1", 1);                // DL1 L -> internal DAC left
+    setInt ("ADDA_DL_CH2 DL1_CH2", 1);                // DL1 R -> internal DAC right
+    setEnum("DAC In Mux", "Normal Path");             // DAC fed from the DL path, not the internal sine-gen
+    setEnum("HPL Mux", "LoudSPK Playback");           // HP buffer L -> loudspeaker (external amp) path
+    setEnum("HPR Mux", "LoudSPK Playback");           // HP buffer R -> loudspeaker (external amp) path
+
     // Generalized best-effort output-route enable, so a NEW codec that follows the same pattern (a
     // playback route left disabled at rest, as on the ES8388) can also get early audio without an
     // explicit list. ADDITIVE + conservative: walk every control and (a) turn ON output-route BOOLEAN
@@ -381,8 +395,33 @@ bool nanoBootChimeIsRkDevice() {
     return cached == 1;
 }
 
+// MediaTek MT6357/58/59/66 PMIC codec (e.g. the mt6789-mt6366 machine on an MT6789 board). Its
+// loudspeaker is an external AW87xxx smart-PA that only amplifies once the vendor audio HAL has run,
+// and on this platform that HAL comes up at almost the same instant nano would play the early boot
+// chime (device-measured: HAL init and the chime queue within ~0.5s of each other, ~14s in). So the
+// pre-boot-complete direct-ALSA window is not usable here: the DAC plays into a powered-down amp
+// (silent), and driving the amp from nano contends with the HAL's concurrent codec init and stalls
+// the audio worker. Detect it so early-boot audio takes the AAudio path instead, which plays the
+// moment the audio server is up (a little late, but audible), rather than the silent direct path.
+bool nanoBootChimeIsMtkDevice() {
+    static int cached = -1;
+    if (cached >= 0) return cached == 1;
+    cached = 0;
+    FILE* f = fopen("/proc/asound/card0/id", "rb");
+    if (f) {
+        char id[64] = {};
+        size_t n = fread(id, 1, sizeof(id) - 1, f);
+        fclose(f);
+        for (size_t i = 0; i < n; i++) if (id[i] >= 'A' && id[i] <= 'Z') id[i] = (char)(id[i] + 32);
+        if (strstr(id, "mt6366") || strstr(id, "mt6358") || strstr(id, "mt6359") || strstr(id, "mt6357"))
+            cached = 1;
+    }
+    return cached == 1;
+}
+
 bool nanoDirectAudioUsable() {
     if (gEng.failed.load()) return false;              // a prior direct open failed -> AAudio only
+    if (nanoBootChimeIsMtkDevice()) return false;      // no usable pre-HAL window here -> AAudio path (plays once the audio server is up)
     static int hasNode = -1;                           // card 0 playback PCM present? (cheap, cached)
     if (hasNode < 0) hasNode = (access("/dev/snd/pcmC0D0p", W_OK) == 0) ? 1 : 0;
     return hasNode == 1;

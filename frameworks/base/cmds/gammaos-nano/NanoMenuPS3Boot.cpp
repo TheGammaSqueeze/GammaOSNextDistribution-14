@@ -99,6 +99,7 @@ static inline float smooth01(float u) { return u * u * (3.0f - 2.0f * u); }
 // lifecycle
 // ---------------------------------------------------------------------------
 static std::string dsiAudioPath(const char* file);   // defined below (used by the pre-warm)
+static float dsiEarlyAudioGain(float master);        // defined below (used by the pre-warm volume)
 void NanoMenu::ps3BootReset(bool freshSetup) {
     mPs3BootElapsedMs = 0.0;
     mPs3BootActive = true;
@@ -132,7 +133,7 @@ void NanoMenu::dsiPrewarmChime() {
         // until ps3BootUpdate calls play() at the chime mark (fixes the too-early boot chime).
         mSfxPlayer.pause();
         bool ok = mSfxPlayer.open(path);
-        if (ok) { mSfxPlayer.setVolume(0.8f); mSfxPlayer.pause(); }
+        if (ok) { mSfxPlayer.setVolume(dsiEarlyAudioGain(0.8f)); mSfxPlayer.pause(); }   // volume-model scaled
         mChimeReady.store(ok);
         mSfxOpening.store(false);
     }).detach();
@@ -234,7 +235,7 @@ void NanoMenu::dsiBootSound(DsiSfx which) {
         std::string p = path;
         for (;;) {
             mSfxPlayer.init();
-            if (mSfxPlayer.open(p)) { mSfxPlayer.setVolume(0.8f); mSfxPlayer.play(); }
+            if (mSfxPlayer.open(p)) { mSfxPlayer.setVolume(dsiEarlyAudioGain(0.8f)); mSfxPlayer.play(); }   // volume-model scaled
             std::lock_guard<std::mutex> lk(gBootSfxMx);
             if (gBootSfxPendingSet) { p = gBootSfxPending; gBootSfxPendingSet = false; continue; }  // enter after touch
             mSfxOpening.store(false);   // reset under the lock so a concurrent request re-claims cleanly
@@ -518,7 +519,7 @@ bool NanoMenu::ps3BootUpdate(float dtSeconds) {
             std::string path = dsiAudioPath("coldboot_stereo.wav");
             std::thread([this, path]() {
                 mSfxPlayer.init();
-                if (mSfxPlayer.open(path)) { mSfxPlayer.setVolume(0.8f); mSfxPlayer.play(); }
+                if (mSfxPlayer.open(path)) { mSfxPlayer.setVolume(dsiEarlyAudioGain(0.8f)); mSfxPlayer.play(); }   // volume-model scaled, matching the direct path (not a flat 0.8)
                 mSfxOpening.store(false);
             }).detach();
         }
