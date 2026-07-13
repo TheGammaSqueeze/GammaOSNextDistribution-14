@@ -20,6 +20,7 @@
 #include <string>
 #include <vector>
 #include <set>
+#include <utility>
 #include <unordered_map>
 #include <mutex>
 #include <pthread.h>
@@ -74,6 +75,14 @@ public:
         STATE_FAILED,           // Error with retry/restore options
     };
 
+    // Visual theme for the full-screen OTA UI. Selected via the
+    // sys.gammaos.ota.theme property ("ps3" / "dsi", else default).
+    enum OtaTheme {
+        THEME_DEFAULT,          // Original plain flat UI
+        THEME_PS3,              // PlayStation 3 XMB look
+        THEME_DSI,              // Nintendo DSi look
+    };
+
 private:
     virtual bool        threadLoop();
     virtual status_t    readyToRun();
@@ -100,8 +109,26 @@ private:
                   float r, float g, float b, float a);
     void drawProgressBar(float x, float y, float w, float h, float progress);
 
+    // Themed rendering (PS3 XMB / Nintendo DSi). Each draws the complete frame
+    // for the current mState. The plain default path stays in render().
+    void renderPs3();
+    void renderDsi();
+    // Themed progress meter shared by the themed frames.
+    void drawThemedProgressBar(float x, float y, float w, float h, float progress,
+                               float troughR, float troughG, float troughB,
+                               float fillR, float fillG, float fillB,
+                               float borderR, float borderG, float borderB,
+                               bool drawBorder);
+    // Shared helper: current phase label + progress percent for the flashing
+    // screens, derived from mCurrentStatus (thread-safe read).
+    void themedFlashInfo(std::string* phaseLabel, int* percent, bool* isWrite);
+
     // File browser
     void scanForPackages();
+    // Extract a package .zip to /data/gammaos_ota/package (shared by the file browser and the
+    // nano-handed-off auto-install path). Returns {pkgDir,""} on success, {"",error} on failure.
+    std::pair<std::string, std::string> extractZipHelper(const std::string& zipPath);
+    static bool isZipFile(const std::string& path);
     struct FileEntry {
         std::string path;
         std::string displayName;
@@ -187,6 +214,11 @@ private:
     // Layout metrics (set during render, used by touch)
     float mItemStartY;   // Y position where first menu item starts
     float mItemHeight;   // height per menu item
+
+    // Visual theme (default / PS3 XMB / DSi). Read once in readyToRun() from
+    // the sys.gammaos.ota.theme property. Placed last with a default member
+    // initializer so it does not disturb the ordered constructor init list.
+    OtaTheme mTheme = THEME_DEFAULT;
 };
 
 } // namespace android

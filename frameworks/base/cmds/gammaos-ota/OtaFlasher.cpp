@@ -158,6 +158,30 @@ bool OtaFlasher::stageToTmpfs(int argc, char** argv) {
         return ret == 0;
     };
 
+    // Count the files up front so we can report REAL staging progress to nano's "Preparing
+    // update... X%" screen while we do the slow (~60s) copy - the panel is never black.
+    int totalStageFiles = 0;
+    { DIR* d = opendir("/system/bin"); if (d) { struct dirent* e;
+        while ((e = readdir(d)) != nullptr) {
+            if (e->d_name[0] == '.') continue;
+            if (e->d_type != DT_REG && e->d_type != DT_LNK) continue;
+            totalStageFiles++;
+        } closedir(d); } }
+    { DIR* d = opendir("/system/lib64"); if (d) { struct dirent* e;
+        while ((e = readdir(d)) != nullptr) {
+            if (e->d_name[0] == '.') continue;
+            totalStageFiles++;
+        } closedir(d); } }
+    if (totalStageFiles < 1) totalStageFiles = 1;
+    int stageDone = 0;
+    android::base::SetProperty("sys.gammaos.ota.stageprog", "0");
+    auto reportStage = [&]() {
+        stageDone++;
+        if (stageDone % 12 == 0)
+            android::base::SetProperty("sys.gammaos.ota.stageprog",
+                                       std::to_string(stageDone * 95 / totalStageFiles));
+    };
+
     // Copy ALL binaries from /system/bin/ to tmpfs
     // This ensures nothing is left demand-paging from the system partition
     logToFile("INFO", "Copying ALL binaries from /system/bin/ ...");
@@ -172,6 +196,7 @@ bool OtaFlasher::stageToTmpfs(int argc, char** argv) {
                 std::string src = "/system/bin/" + std::string(entry->d_name);
                 std::string dst = binDir + "/" + entry->d_name;
                 if (copyFile(src, dst)) binCount++;
+                reportStage();
             }
             closedir(dir);
         }
@@ -190,6 +215,7 @@ bool OtaFlasher::stageToTmpfs(int argc, char** argv) {
                 std::string src = "/system/lib64/" + std::string(entry->d_name);
                 std::string dst = libDir + "/" + entry->d_name;
                 if (copyFile(src, dst)) libCount++;
+                reportStage();
             }
             closedir(dir);
         }

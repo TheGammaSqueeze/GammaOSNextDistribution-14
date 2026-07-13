@@ -67,6 +67,24 @@ int main(int argc, char** argv) {
 
     ALOGI("Running from tmpfs: %s", OtaFlasher::isRunningFromTmpfs() ? "yes" : "no");
 
+    // Coordinated handoff (no black screen): nano started us early (on sys.gammaos.ota.prestage=1)
+    // and stayed up showing "Preparing update... X%" while we staged to tmpfs. Now that we are
+    // staged and about to take the SurfaceFlinger panel, tell nano we are ready, then wait for it
+    // to release DRM master (exit) before we init our display. This keeps the panel painted by nano
+    // right up to the moment we take over, and avoids DRM master contention.
+    if (OtaFlasher::isRunningFromTmpfs() &&
+        android::base::GetProperty("sys.gammaos.ota.prestage", "") == "1") {
+        android::base::SetProperty("sys.gammaos.ota.stageprog", "100");
+        android::base::SetProperty("sys.gammaos.ota.staged", "1");
+        ALOGI("Staged; waiting for the home to release DRM master...");
+        for (int i = 0; i < 200; i++) {   // up to ~20s, then proceed anyway
+            if (android::base::GetProperty("init.svc.gammaos-nano", "") != "running") break;
+            usleep(100 * 1000);
+        }
+        ALOGI("Home released DRM (svc=%s); taking the panel.",
+              android::base::GetProperty("init.svc.gammaos-nano", "?").c_str());
+    }
+
     // Read package path and autoinstall flag from system properties
     std::string packagePath = android::base::GetProperty("sys.gammaos.ota.package", "");
     std::string autoInstall = android::base::GetProperty("sys.gammaos.ota.autoinstall", "0");

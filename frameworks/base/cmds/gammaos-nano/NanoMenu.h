@@ -1368,6 +1368,51 @@ private:
     float  mPs3DlgSldStep = 1.0f;
     float  mPs3DlgSldVal  = 0.0f;
     int    mPs3DlgSldScale = 0;    // decimal places (0 = integer)
+
+    // ---- GammaOS "System Update" (OTA) flow (NanoMenuOta.cpp) -----------------
+    // nano owns the online check + download, drawn through the existing themed dialog
+    // chrome (renderPs3Dialog for XMB, renderNdsDialog for DSi) via a dynamic dialog +
+    // in-place reconfigure, then hands off to the gammaos-ota native flasher which draws
+    // the themed flashing screens (it reads sys.gammaos.ota.theme). Because gammaos-ota
+    // stops the framework and writes partitions, nano must release the DRM display first;
+    // the handoff sets the OTA props + sys.gammaos.nano.start_ota=1 then _exit(0) (process
+    // teardown releases DRM master; an init rule starts gammaos-ota once nano is stopped).
+    bool        mOtaFlowActive = false;
+    int         mOtaStage = 0;              // OtaStage constants (defined in NanoMenuOta.cpp)
+    std::mutex  mOtaMutex;                  // guards the result fields + mOtaGen below
+    uint32_t    mOtaGen = 0;                // worker generation, bumped on every spawn/cancel so a
+                                            // stale worker (cancel + re-enter) publishes nothing
+    bool        mOtaWorkerDone = false;     // guarded by mOtaMutex
+    bool        mOtaWorkerOk = false;       // guarded by mOtaMutex
+    bool        mOtaAvail = false;          // guarded by mOtaMutex
+    std::string mOtaVersion, mOtaUrl, mOtaFilename, mOtaCurrentVer, mOtaError;  // guarded by mOtaMutex
+    uint64_t    mOtaSize = 0;               // guarded by mOtaMutex
+    std::atomic<int>  mOtaProgress{0};      // advisory 0..100 download progress (lock-free UI read)
+    // In-nano storage-media browser: nano scans + lists + confirms the OTA package ITSELF
+    // (owning the DRM panel), handing off to the flasher ONLY at Install. The *.zip list
+    // reuses the chooser dialog chrome (mPs3Dlg*); mOtaBrowseFiles[mPs3DlgSel] = the current
+    // selection. mOtaBrowseFiles is published by the scan worker under mOtaMutex.
+    struct OtaFileEntry { std::string path; std::string label; uint64_t size; };
+    std::vector<OtaFileEntry> mOtaBrowseFiles;   // discovered *.zip (guarded by mOtaMutex on publish)
+    std::string mOtaSelectedZip;                 // chosen package path, handed off at Install
+    std::string mOtaPeekVersion, mOtaPeekParts;  // manifest peek result (guarded by mOtaMutex)
+    void startOtaFlow(bool internet);       // entry from the "System Update" method chooser accept
+    void otaFlowTick();                     // per-frame: consume worker results + live download %
+    bool otaDialogAccept();                 // from ps3XmbSelect when mOtaFlowActive; true = handled
+    void otaEndFlow();                      // dismiss + invalidate any in-flight worker
+    void otaSetDialog(const char* title, const std::string& body,
+                      const std::vector<std::string>& opts, int type, int defSel);
+    void otaStartFlash(const char* pkg);    // start the flasher pre-staging + show "Preparing" in nano
+    bool otaInBrowse() const;               // true while the OTA package browser (list) is up (DSi list-style)
+    bool otaInProgress() const;             // true on a non-interactive OTA progress screen (checking/downloading/reading/preparing) - suppress confirm buttons + footer hints
+    void otaBrowseInit();                   // scan storage + show the themed *.zip chooser dialog
+    void otaBrowseShowList();               // (re)show the cached file list as a chooser dialog
+    void otaBrowseSelect();                 // A on a file: peek its manifest off-thread
+    void otaBrowseConfirm();                // show the themed Install/Cancel confirm dialog
+    void scanOtaZips(std::vector<OtaFileEntry>& out) const;   // worker-thread safe (touches only out)
+    bool peekOtaManifest(const std::string& zip, std::string& ver,
+                         std::string& parts) const;           // worker-thread safe
+
     // ---- Home XMB option menu (Triangle / X) ----------------------------------
     // The web optMenu context "sidebar": pressing Triangle on a focused item opens
     // a small list of real per-item actions (Start, Play, Information). A separate

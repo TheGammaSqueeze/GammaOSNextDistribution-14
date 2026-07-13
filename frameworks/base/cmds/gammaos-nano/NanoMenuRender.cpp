@@ -776,6 +776,8 @@ bool NanoMenu::ndsPlayerActive() const {
 bool NanoMenu::ndsDlgIsSidePanel() const {
     if (mPs3DlgSlider) return true;
     if (mPs3DlgKind == 1) return true;
+    if (otaInBrowse()) return true;   // OTA package browser: always the DSi vertical list (a single
+                                      // long "systest.zip (1.67 GB)" label overflows a modal button)
     if ((int)mPs3DlgOptions.size() > 3) return true;   // long option list -> list style, not buttons
     // 2-3 options whose labels are too long for the horizontal DSi buttons (they would collide,
     // e.g. System Update: "Update via Internet" / "Update via Storage Media") read as a vertical
@@ -1508,7 +1510,12 @@ void NanoMenu::renderNdsDialog(float rx, float ry, float rw, float rh) {
     int nOpt = (int)mPs3DlgOptions.size();
     int selOpt = mPs3DlgSel; if (selOpt < 0) selOpt = 0; if (nOpt > 0 && selOpt >= nOpt) selOpt = nOpt - 1;
     const float btnY = Y(by + 118.0f), btnH = S(32.0f), btnR = S(4.0f);
-    if (nOpt <= 1) {
+    if (otaInProgress()) {
+        // Non-interactive OTA progress screen (Checking / Downloading / Reading / Preparing):
+        // draw NO confirm button. It auto-advances to the reboot and a stray press is a no-op,
+        // so a lone "OK" here was dead + un-DSi. Result/info dialogs (up-to-date, error) and
+        // other 0-option info pages (System Information) still get their OK below.
+    } else if (nOpt <= 1) {
         const char* lbl = (nOpt == 1) ? trDyn(mPs3DlgOptions[0].c_str()) : "OK";
         float bxp = X(84.0f), bwp = S(88.0f);
         drawNdsGlossyBtn(bxp, btnY, bwp, btnH, btnR, true);
@@ -4118,6 +4125,10 @@ void NanoMenu::render() {
     // path) and abort into a tombstone instead of leaving the device frozen.
     mRenderHeartbeat.fetch_add(1, std::memory_order_relaxed);
     if (!mWatchdogStarted) { mWatchdogStarted = true; startRenderWatchdog(); }
+
+    // GammaOS System Update (OTA): pump the check/download state machine + live download %
+    // while the flow owns the shared dialog (NanoMenuOta.cpp). A handoff exits the process.
+    if (mOtaFlowActive) otaFlowTick();
 
     // Allow at most one glyph-atlas recycle per frame (see ensureGlyph): the
     // first overflow rewinds the atlas, later overflows in the same frame fall

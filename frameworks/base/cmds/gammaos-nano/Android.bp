@@ -72,6 +72,8 @@ cc_binary {
         "NanoMenuPS3Globe.cpp",
         "NanoMenuPS3Boot.cpp",
         "NanoBootChime.cpp",
+        "NanoOtaCheck.cpp",
+        "NanoMenuOta.cpp",
         "NanoMenuSetupWizard.cpp",
         "NanoMenuStrings.cpp",
         "NanoBtStable.cpp",

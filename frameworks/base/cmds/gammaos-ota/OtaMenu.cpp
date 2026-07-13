@@ -187,6 +187,21 @@ void OtaMenu::binderDied(const wp<IBinder>& /*who*/) {
 }
 
 status_t OtaMenu::readyToRun() {
+    // Select the visual theme for the full-screen OTA UI. nano hands the
+    // SurfaceFlinger surface off to us, so this binary must match the active
+    // GammaOS front-end look (PS3 XMB or Nintendo DSi).
+    std::string themeProp = android::base::GetProperty("sys.gammaos.ota.theme", "");
+    if (themeProp == "ps3") {
+        mTheme = THEME_PS3;
+    } else if (themeProp == "dsi") {
+        mTheme = THEME_DSI;
+    } else {
+        mTheme = THEME_DEFAULT;
+    }
+    ALOGI("OTA theme: %s (prop='%s')",
+          mTheme == THEME_PS3 ? "ps3" : mTheme == THEME_DSI ? "dsi" : "default",
+          themeProp.c_str());
+
     mSession = new SurfaceComposerClient();
 
     // Get display info
@@ -196,6 +211,21 @@ status_t OtaMenu::readyToRun() {
         return NO_INIT;
     }
     mDisplayToken = SurfaceComposerClient::getPhysicalDisplayToken(displayIds[0]);
+
+    // The GammaOS home (gammaos-nano) drives the panel as DRM master via direct
+    // KMS. When it hands off to us it simply exits: that drops DRM master, but
+    // SurfaceFlinger's HWC display pipe stays inactive (hardware vsync remains
+    // disabled and it holds no master) because SF's software power state never
+    // changed away from ON, so it never re-issues a power transition to HWC.
+    // Our composited frames would then never scan out and the panel stays black.
+    // Force a real OFF -> ON transition here (nano is already gone, so DRM master
+    // is free): SF pushes setPowerMode to HWC, which re-acquires DRM master,
+    // mode-sets the panel and re-enables vsync before we draw our first frame.
+    // PowerMode: OFF=0, ON=2 (android.hardware.graphics.composer IComposerClient).
+    SurfaceComposerClient::setDisplayPowerMode(mDisplayToken, 0);
+    usleep(150 * 1000);
+    SurfaceComposerClient::setDisplayPowerMode(mDisplayToken, 2);
+    usleep(50 * 1000);
 
     DisplayMode displayMode;
     SurfaceComposerClient::getActiveDisplayMode(mDisplayToken, &displayMode);
@@ -248,11 +278,31 @@ status_t OtaMenu::readyToRun() {
         mCurrentStatus = status;
     });
 
-    // If package path was set (Mode A), jump straight to confirm
+    // If package path was set (Mode A), jump straight to confirm/flash.
     if (!mPackagePath.empty()) {
-        if (mManifest.parse(mPackagePath + "/manifest.json") ||
-            mManifest.parse(mPackagePath)) {
-            mFlasher.setPackageDir(mPackagePath);
+        // nano hands off a selected .zip (browse + confirm happened in the home UI). Extract it
+        // here, then treat the extracted dir like a pre-staged package. A dir path (legacy
+        // pre-extracted Mode A) is used as-is.
+        std::string pkgDir = mPackagePath;
+        if (isZipFile(mPackagePath)) {
+            // Paint one themed "Staging..." frame before the blocking unzip so the panel is not
+            // black while extraction runs (the render loop has not started yet at readyToRun).
+            mState = STATE_STAGING;
+            render();
+            eglSwapBuffers(mDisplay, mSurface);
+            auto extracted = extractZipHelper(mPackagePath);
+            if (!extracted.second.empty()) {
+                mErrorMessage = "Failed to extract update package: " + extracted.second;
+                android::base::SetProperty("sys.gammaos.ota.result",
+                                           "failed:extraction:" + extracted.second);
+                mState = STATE_FAILED;
+                return NO_ERROR;
+            }
+            pkgDir = extracted.first;
+        }
+        if (mManifest.parse(pkgDir + "/manifest.json") ||
+            mManifest.parse(pkgDir)) {
+            mFlasher.setPackageDir(pkgDir);
             // Check for autoinstall property — skip confirm screen
             std::string autoInstall = android::base::GetProperty("sys.gammaos.ota.autoinstall", "");
             if (autoInstall == "1") {
@@ -262,7 +312,7 @@ status_t OtaMenu::readyToRun() {
                 mState = STATE_CONFIRM;
             }
         } else {
-            mErrorMessage = "Failed to parse manifest from: " + mPackagePath;
+            mErrorMessage = "Failed to parse manifest from: " + pkgDir;
             android::base::SetProperty("sys.gammaos.ota.result",
                                        "failed:manifest:" + mErrorMessage);
             mState = STATE_FAILED;
@@ -469,11 +519,33 @@ void OtaMenu::drawProgressBar(float x, float y, float w, float h, float progress
 void OtaMenu::scanForPackages() {
     mFileEntries.clear();
 
-    // Scan /data/gammaos_ota/
-    const char* dirs[] = {"/data/gammaos_ota", "/mnt/media_rw"};
+    // The same package can surface through more than one mount (e.g. /sdcard
+    // and /sdcard/Download, or the internal path and its raw /data/media view),
+    // so de-dupe on name + size.
+    std::set<std::string> seen;
+    auto addZip = [&](const std::string& fullPath, const std::string& name,
+                      const std::string& displayPrefix) {
+        if (name.size() <= 4 || name.substr(name.size() - 4) != ".zip") return;
+        struct stat st;
+        if (stat(fullPath.c_str(), &st) != 0) return;
+        std::string key = name + "|" + std::to_string((long long)st.st_size);
+        if (!seen.insert(key).second) return;
+        FileEntry fe;
+        fe.path = fullPath;
+        fe.displayName = displayPrefix + name;
+        fe.size = (uint64_t)st.st_size;
+        mFileEntries.push_back(fe);
+    };
+
+    // Where a user actually drops an update: internal shared storage first
+    // (/sdcard is the primary user-facing location), then the OTA staging dir,
+    // then removable USB media.
+    const char* dirs[] = {"/sdcard", "/sdcard/Download",
+                          "/data/gammaos_ota", "/mnt/media_rw"};
     for (const char* dirPath : dirs) {
         DIR* dir = opendir(dirPath);
         if (!dir) continue;
+        bool isUsbRoot = (std::string(dirPath) == "/mnt/media_rw");
         struct dirent* entry;
         while ((entry = readdir(dir)) != nullptr) {
             std::string name = entry->d_name;
@@ -481,36 +553,19 @@ void OtaMenu::scanForPackages() {
 
             std::string fullPath = std::string(dirPath) + "/" + name;
 
-            // Check for .zip files
-            if (name.size() > 4 && name.substr(name.size() - 4) == ".zip") {
-                struct stat st;
-                if (stat(fullPath.c_str(), &st) == 0) {
-                    FileEntry fe;
-                    fe.path = fullPath;
-                    fe.displayName = name;
-                    fe.size = (uint64_t)st.st_size;
-                    mFileEntries.push_back(fe);
-                }
-            }
+            addZip(fullPath, name, "");
 
             // For /mnt/media_rw, also scan one level deeper (USB drives)
-            if (std::string(dirPath) == "/mnt/media_rw" && entry->d_type == DT_DIR) {
+            if (isUsbRoot && entry->d_type == DT_DIR &&
+                name != "." && name != "..") {
                 DIR* subdir = opendir(fullPath.c_str());
                 if (!subdir) continue;
                 struct dirent* subentry;
                 while ((subentry = readdir(subdir)) != nullptr) {
                     std::string subname = subentry->d_name;
-                    if (subname.size() > 4 && subname.substr(subname.size() - 4) == ".zip") {
-                        std::string subPath = fullPath + "/" + subname;
-                        struct stat st;
-                        if (stat(subPath.c_str(), &st) == 0) {
-                            FileEntry fe;
-                            fe.path = subPath;
-                            fe.displayName = "[USB] " + subname;
-                            fe.size = (uint64_t)st.st_size;
-                            mFileEntries.push_back(fe);
-                        }
-                    }
+                    if (subname.size() < 4) continue;
+                    std::string subPath = fullPath + "/" + subname;
+                    addZip(subPath, subname, "[USB] ");
                 }
                 closedir(subdir);
             }
@@ -647,45 +702,62 @@ void OtaMenu::handleDown() {
     }
 }
 
+bool OtaMenu::isZipFile(const std::string& path) {
+    return path.size() >= 4 && path.substr(path.size() - 4) == ".zip";
+}
+
+// Extract a package .zip into /data/gammaos_ota/package. Shared by the file browser and the
+// nano auto-install handoff. Returns {pkgDir,""} on success, {"",error} on failure.
+std::pair<std::string, std::string> OtaMenu::extractZipHelper(const std::string& zipPath) {
+    std::string targetDir = "/data/gammaos_ota";
+    mkdir(targetDir.c_str(), 0755);
+    std::string pkgDir = targetDir + "/package";
+    std::string cleanCmd = "rm -rf '" + pkgDir + "'";
+    system(cleanCmd.c_str());
+    mkdir(pkgDir.c_str(), 0755);
+
+    // Removable media (USB) can unmount mid-flash, so copy it local first.
+    std::string zip = zipPath;
+    if (zipPath.rfind("/mnt/media_rw/", 0) == 0) {
+        std::string localPath = targetDir + "/external_update.zip";
+        std::string cpCmd = "cp '" + zipPath + "' '" + localPath + "'";
+        if (system(cpCmd.c_str()) != 0)
+            return { "", "could not copy package from removable storage" };
+        zip = localPath;
+    }
+
+    std::string pathPrefix;
+    if (OtaFlasher::isRunningFromTmpfs()) {
+        pathPrefix = "PATH=/data/gammaos-ota-stage/bin:/system/bin:/vendor/bin "
+                     "LD_LIBRARY_PATH=/data/gammaos-ota-stage/lib64:/system/lib64 ";
+    }
+    // Single-quote the (user-selected) paths so spaces / metacharacters survive.
+    std::string unzipCmd = pathPrefix + "unzip -o '" + zip + "' -d '" + pkgDir + "' 2>/dev/null";
+    ALOGI("Extracting %s to %s", zip.c_str(), pkgDir.c_str());
+    int ret = system(unzipCmd.c_str());
+    if (ret != 0) return { "", "unzip failed (rc=" + std::to_string(ret) + ")" };
+    return { pkgDir, "" };
+}
+
 void OtaMenu::handleSelect() {
     switch (mState) {
         case STATE_FILE_BROWSER:
             if (!mFileEntries.empty()) {
                 auto& fe = mFileEntries[mFileSelectedIndex];
-                std::string targetDir = "/data/gammaos_ota";
-                mkdir(targetDir.c_str(), 0755);
-
-                std::string pkgDir = targetDir + "/package";
-                // Clean and recreate package dir
-                std::string cleanCmd = "rm -rf " + pkgDir;
-                system(cleanCmd.c_str());
-                mkdir(pkgDir.c_str(), 0755);
-
-                // If from external storage, copy to /data first
-                std::string zipPath = fe.path;
-                if (fe.path.find("/mnt/media_rw/") == 0) {
-                    std::string localPath = targetDir + "/external_update.zip";
-                    std::string cpCmd = "cp " + fe.path + " " + localPath;
-                    system(cpCmd.c_str());
-                    zipPath = localPath;
-                }
-
-                // Extract zip to package dir (use staged binaries if available)
-                ALOGI("Extracting %s to %s", zipPath.c_str(), pkgDir.c_str());
-                std::string pathPrefix;
-                if (OtaFlasher::isRunningFromTmpfs()) {
-                    pathPrefix = "PATH=/data/gammaos-ota-stage/bin:/system/bin:/vendor/bin "
-                                 "LD_LIBRARY_PATH=/data/gammaos-ota-stage/lib64:/system/lib64 ";
-                }
-                std::string unzipCmd = pathPrefix + "unzip -o " + zipPath + " -d " + pkgDir + " 2>/dev/null";
-                int ret = system(unzipCmd.c_str());
-
-                mFlasher.setPackageDir(pkgDir);
-                if (ret == 0 && mManifest.parse(pkgDir + "/manifest.json")) {
-                    mState = STATE_CONFIRM;
-                } else {
-                    mErrorMessage = "Failed to extract or parse update package";
+                auto extracted = extractZipHelper(fe.path);
+                const std::string& pkgDir = extracted.first;
+                const std::string& err = extracted.second;
+                if (!err.empty()) {
+                    mErrorMessage = "Failed to extract update package: " + err;
                     mState = STATE_FAILED;
+                } else {
+                    mFlasher.setPackageDir(pkgDir);
+                    if (mManifest.parse(pkgDir + "/manifest.json")) {
+                        mState = STATE_CONFIRM;
+                    } else {
+                        mErrorMessage = "Failed to parse update package manifest";
+                        mState = STATE_FAILED;
+                    }
                 }
             }
             break;
@@ -858,6 +930,11 @@ void OtaMenu::runFlashSequence() {
 }
 
 void OtaMenu::render() {
+    // Themed front-ends take over the whole frame. The default path below is
+    // preserved byte-for-byte for THEME_DEFAULT.
+    if (mTheme == THEME_PS3) { renderPs3(); return; }
+    if (mTheme == THEME_DSI) { renderDsi(); return; }
+
     glClearColor(0.08f, 0.08f, 0.12f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
     glViewport(0, 0, mWidth, mHeight);
@@ -876,7 +953,7 @@ void OtaMenu::render() {
             if (mFileEntries.empty()) {
                 drawText("No update packages found.", margin, y, scale, 0.7f, 0.7f, 0.7f, 1.0f);
                 y += lineH;
-                drawText("Place .zip files in /data/gammaos_ota/", margin, y, scale,
+                drawText("Place .zip files in /sdcard/", margin, y, scale,
                          0.5f, 0.5f, 0.5f, 1.0f);
                 y += lineH;
                 drawText("or connect USB storage.", margin, y, scale, 0.5f, 0.5f, 0.5f, 1.0f);
@@ -1077,6 +1154,635 @@ void OtaMenu::render() {
                 }
                 float brightness = sel ? 1.0f : 0.5f;
                 drawText(label.c_str(), margin, y, scale, brightness, brightness, brightness, 1.0f);
+                y += lineH;
+            }
+            break;
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Themed rendering helpers (PS3 XMB / Nintendo DSi)
+// ---------------------------------------------------------------------------
+
+void OtaMenu::drawThemedProgressBar(float x, float y, float w, float h, float progress,
+                                    float troughR, float troughG, float troughB,
+                                    float fillR, float fillG, float fillB,
+                                    float borderR, float borderG, float borderB,
+                                    bool drawBorder) {
+    if (progress < 0.0f) progress = 0.0f;
+    if (progress > 100.0f) progress = 100.0f;
+
+    // Optional 1px border (drawn as a slightly larger quad behind the trough).
+    if (drawBorder) {
+        drawQuad(x - 1, y - 1, w + 2, h + 2, borderR, borderG, borderB, 1.0f);
+    }
+    // Trough
+    drawQuad(x, y, w, h, troughR, troughG, troughB, 1.0f);
+    // Fill (inset by 1px so the trough reads as a rim even at low percentages).
+    float inset = 1.0f;
+    float fillW = (w - inset * 2.0f) * (progress / 100.0f);
+    if (fillW > 0.0f) {
+        drawQuad(x + inset, y + inset, fillW, h - inset * 2.0f,
+                 fillR, fillG, fillB, 1.0f);
+    }
+}
+
+void OtaMenu::themedFlashInfo(std::string* phaseLabel, int* percent, bool* isWrite) {
+    FlashStatus status;
+    {
+        std::lock_guard<std::mutex> lock(mStatusMutex);
+        status = mCurrentStatus;
+    }
+
+    bool write = false;
+    std::string label;
+    switch (status.phase) {
+        case FlashPhase::STAGING:            label = "Preparing update"; break;
+        case FlashPhase::PREFLIGHT:          label = "Checking update"; break;
+        case FlashPhase::BACKUP:             label = "Backing up"; break;
+        case FlashPhase::STOPPING_FRAMEWORK: label = "Stopping system"; break;
+        case FlashPhase::DECOMPRESSING:      label = "Decompressing"; break;
+        case FlashPhase::FLASHING_PHYSICAL:  label = "Writing firmware"; write = true; break;
+        case FlashPhase::FLASHING_LOGICAL:   label = "Writing system"; write = true; break;
+        case FlashPhase::VERIFYING:          label = "Verifying"; break;
+        case FlashPhase::COMPLETE:           label = "Complete"; break;
+        case FlashPhase::FAILED:             label = "Failed"; break;
+        default:                             label = "Working"; break;
+    }
+    if (!status.currentPartition.empty() &&
+        (write || status.phase == FlashPhase::DECOMPRESSING ||
+         status.phase == FlashPhase::VERIFYING)) {
+        label += " (" + status.currentPartition + ")";
+    }
+
+    // Overall progress: completed partitions plus the fraction of the current
+    // one, so the bar advances smoothly across the whole flash.
+    int percentVal = status.progressPercent;
+    if (status.partitionCount > 0) {
+        float per = 100.0f / (float)status.partitionCount;
+        float done = (float)status.partitionIndex * per;
+        float cur = (per * (float)status.progressPercent) / 100.0f;
+        percentVal = (int)(done + cur + 0.5f);
+        if (percentVal > 100) percentVal = 100;
+        if (percentVal < 0) percentVal = 0;
+    }
+
+    if (phaseLabel) *phaseLabel = label;
+    if (percent) *percent = percentVal;
+    if (isWrite) *isWrite = write;
+}
+
+// --- PS3 XMB ----------------------------------------------------------------
+
+void OtaMenu::renderPs3() {
+    glViewport(0, 0, mWidth, mHeight);
+
+    // Vertical XMB blue-black gradient, approximated with horizontal bands.
+    glClearColor(0.03f, 0.04f, 0.07f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+    const int bands = 24;
+    for (int i = 0; i < bands; i++) {
+        float t0 = (float)i / (float)bands;
+        float t1 = (float)(i + 1) / (float)bands;
+        // Interpolate top rgb(0.10,0.13,0.20) -> bottom rgb(0.03,0.04,0.07).
+        float tm = (t0 + t1) * 0.5f;
+        float r = 0.10f + (0.03f - 0.10f) * tm;
+        float g = 0.13f + (0.04f - 0.13f) * tm;
+        float b = 0.20f + (0.07f - 0.20f) * tm;
+        drawQuad(0.0f, t0 * mHeight, mWidth, (t1 - t0) * mHeight + 1.0f, r, g, b, 1.0f);
+    }
+
+    float margin = mWidth * 0.06f;
+    float scale = 1.0f;
+    float lineH = mFontSize * 1.5f;
+
+    // Header: title + hairline dividers mimicking the XMB dialog frame.
+    float headerY = margin + mFontSize;
+    drawText("System Update", margin, headerY, scale * 1.15f, 1.0f, 1.0f, 1.0f, 1.0f);
+    float topRuleY = headerY + mFontSize * 0.55f;
+    drawQuad(margin, topRuleY, mWidth - margin * 2.0f, 1.0f, 0.75f, 0.82f, 0.95f, 0.28f);
+    float bottomRuleY = mHeight - margin;
+    drawQuad(margin, bottomRuleY, mWidth - margin * 2.0f, 1.0f, 0.75f, 0.82f, 0.95f, 0.28f);
+
+    switch (mState) {
+        case STATE_FILE_BROWSER: {
+            float y = topRuleY + lineH;
+            if (mFileEntries.empty()) {
+                drawText("No update packages found.", margin, y, scale, 0.72f, 0.78f, 0.9f, 1.0f);
+                y += lineH;
+                drawText("Place .zip files in /sdcard/", margin, y, scale,
+                         0.55f, 0.6f, 0.72f, 1.0f);
+                y += lineH;
+                drawText("or connect USB storage.", margin, y, scale, 0.55f, 0.6f, 0.72f, 1.0f);
+            } else {
+                drawText("Select update package", margin, y, scale, 0.82f, 0.88f, 1.0f, 1.0f);
+                y += lineH * 1.2f;
+                mItemStartY = y - mFontSize;
+                mItemHeight = lineH;
+                for (int i = 0; i < (int)mFileEntries.size(); i++) {
+                    bool sel = (i == mFileSelectedIndex);
+                    if (sel) {
+                        // XMB selection glow bar.
+                        drawQuad(margin - 6, y - mFontSize, mWidth - margin * 2.0f + 12, lineH,
+                                 0.30f, 0.42f, 0.62f, 0.85f);
+                        drawQuad(margin - 6, y - mFontSize, 3.0f, lineH, 0.75f, 0.85f, 1.0f, 1.0f);
+                    }
+                    std::string sizeStr = std::to_string(mFileEntries[i].size / 1024 / 1024) + " MB";
+                    drawText(mFileEntries[i].displayName.c_str(), margin + 8, y, scale,
+                             sel ? 1.0f : 0.72f, sel ? 1.0f : 0.78f, sel ? 1.0f : 0.9f, 1.0f);
+                    drawText(sizeStr.c_str(),
+                             mWidth - margin - measureText(sizeStr.c_str(), scale), y,
+                             scale, 0.6f, 0.66f, 0.8f, 1.0f);
+                    y += lineH;
+                }
+            }
+            drawText("Up/Down  Select: A   Back: B", margin, bottomRuleY - mFontSize * 0.5f,
+                     scale * 0.8f, 0.55f, 0.6f, 0.72f, 1.0f);
+            break;
+        }
+
+        case STATE_CONFIRM: {
+            float y = topRuleY + lineH;
+            drawText(("Version: " + mManifest.version).c_str(), margin, y, scale,
+                     0.82f, 0.88f, 1.0f, 1.0f);
+            y += lineH * 1.2f;
+            drawText("Partitions to update:", margin, y, scale, 0.72f, 0.78f, 0.9f, 1.0f);
+            y += lineH;
+            for (const auto& part : mManifest.partitions) {
+                std::string info = "  " + part.name + "  (" + part.type + ")";
+                if (part.type == "logical" && part.size > 0) {
+                    info += "  " + std::to_string(part.size / 1024 / 1024) + " MB";
+                }
+                if (part.type == "physical") info += "  (both slots)";
+                drawText(info.c_str(), margin, y, scale, 0.65f, 0.72f, 0.85f, 1.0f);
+                y += lineH;
+            }
+            y += lineH;
+
+            const char* options[] = {"Install", "Cancel", "Toggle backup"};
+            mItemStartY = y - mFontSize;
+            mItemHeight = lineH;
+            for (int i = 0; i < 3; i++) {
+                bool sel = (i == mConfirmSelectedIndex);
+                std::string label = options[i];
+                if (i == 2) label += mBackupRequested ? "  [ON]" : "  [OFF]";
+                if (sel) {
+                    drawQuad(margin - 6, y - mFontSize, mWidth - margin * 2.0f + 12, lineH,
+                             0.30f, 0.42f, 0.62f, 0.85f);
+                    drawQuad(margin - 6, y - mFontSize, 3.0f, lineH, 0.75f, 0.85f, 1.0f, 1.0f);
+                }
+                drawText(label.c_str(), margin + 8, y, scale,
+                         sel ? 1.0f : 0.68f, sel ? 1.0f : 0.74f, sel ? 1.0f : 0.86f, 1.0f);
+                y += lineH;
+            }
+            break;
+        }
+
+        case STATE_STAGING:
+        case STATE_PREFLIGHT:
+        case STATE_BACKUP:
+        case STATE_FLASHING:
+        case STATE_VERIFYING: {
+            std::string phaseLabel;
+            int percent = 0;
+            themedFlashInfo(&phaseLabel, &percent, nullptr);
+
+            // Status/phase line above the bar.
+            float centerY = mHeight * 0.5f;
+            float statusY = centerY - lineH * 1.6f;
+            drawText((phaseLabel + "...").c_str(), margin, statusY, scale,
+                     0.85f, 0.9f, 1.0f, 1.0f);
+
+            // Slim horizontal bar, vertically centered.
+            float barW = mWidth - margin * 2.0f;
+            float barH = fmaxf(10.0f, mHeight * 0.014f);
+            float barX = margin;
+            float barY = centerY - barH * 0.5f;
+            drawThemedProgressBar(barX, barY, barW, barH, (float)percent,
+                                  0.15f, 0.18f, 0.24f,   // trough
+                                  0.75f, 0.85f, 1.0f,    // fill
+                                  0.0f, 0.0f, 0.0f, false);
+
+            // Percentage centered above the bar.
+            char pct[16];
+            snprintf(pct, sizeof(pct), "%d%%", percent);
+            float pctW = measureText(pct, scale);
+            drawText(pct, mWidth * 0.5f - pctW * 0.5f, barY - mFontSize * 0.6f, scale,
+                     1.0f, 1.0f, 1.0f, 1.0f);
+
+            // Amber warning below the bar.
+            const char* warn = "Do not turn off the system.";
+            float warnW = measureText(warn, scale);
+            drawText(warn, mWidth * 0.5f - warnW * 0.5f, barY + barH + lineH * 1.4f, scale,
+                     1.0f, 0.78f, 0.25f, 1.0f);
+            break;
+        }
+
+        case STATE_SUCCESS: {
+            float cx = mWidth * 0.5f;
+            float cy = mHeight * 0.42f;
+            float rad = fmaxf(24.0f, mHeight * 0.09f);
+
+            // Filled circle approximated by a fan of quads (triangle strip
+            // ring), drawn in the XMB green.
+            const int seg = 40;
+            for (int i = 0; i < seg; i++) {
+                float a0 = (float)i / seg * 2.0f * (float)M_PI;
+                float a1 = (float)(i + 1) / seg * 2.0f * (float)M_PI;
+                float x0 = cx + cosf(a0) * rad;
+                float y0 = cy + sinf(a0) * rad;
+                float x1 = cx + cosf(a1) * rad;
+                float y1 = cy + sinf(a1) * rad;
+                // Cover the wedge with an axis-aligned bounding quad segment.
+                float minx = fminf(cx, fminf(x0, x1));
+                float miny = fminf(cy, fminf(y0, y1));
+                float maxx = fmaxf(cx, fmaxf(x0, x1));
+                float maxy = fmaxf(cy, fmaxf(y0, y1));
+                drawQuad(minx, miny, maxx - minx, maxy - miny,
+                         0.5f, 0.88f, 0.5f, 1.0f);
+            }
+
+            // White check mark built from two thick line segments (quads).
+            float t = fmaxf(4.0f, rad * 0.14f);
+            // Short stroke: down-right.
+            float ax = cx - rad * 0.40f, ay = cy + rad * 0.02f;
+            float bx = cx - rad * 0.10f, by = cy + rad * 0.34f;
+            // Long stroke: up-right.
+            float dx = cx + rad * 0.46f, dy = cy - rad * 0.34f;
+            // Approximate the two strokes with a small chain of quads.
+            const int steps = 12;
+            for (int i = 0; i < steps; i++) {
+                float f0 = (float)i / steps;
+                float px = ax + (bx - ax) * f0;
+                float py = ay + (by - ay) * f0;
+                drawQuad(px - t * 0.5f, py - t * 0.5f, t, t, 1.0f, 1.0f, 1.0f, 1.0f);
+            }
+            for (int i = 0; i < steps; i++) {
+                float f0 = (float)i / steps;
+                float px = bx + (dx - bx) * f0;
+                float py = by + (dy - by) * f0;
+                drawQuad(px - t * 0.5f, py - t * 0.5f, t, t, 1.0f, 1.0f, 1.0f, 1.0f);
+            }
+
+            const char* done = "Update complete";
+            float dw = measureText(done, scale * 1.2f);
+            drawText(done, cx - dw * 0.5f, cy + rad + lineH * 1.4f, scale * 1.2f,
+                     0.85f, 1.0f, 0.85f, 1.0f);
+
+            // Existing 5s reboot countdown behavior.
+            mSuccessTimer++;
+            int secondsLeft = 5 - (mSuccessTimer / 30);
+            if (secondsLeft <= 0) {
+                mFlasher.reboot();
+            }
+            std::string rebootMsg = "Rebooting in " +
+                std::to_string(secondsLeft > 0 ? secondsLeft : 1) + " seconds...";
+            float rw = measureText(rebootMsg.c_str(), scale);
+            drawText(rebootMsg.c_str(), cx - rw * 0.5f, cy + rad + lineH * 2.6f, scale,
+                     0.85f, 0.9f, 1.0f, 1.0f);
+            const char* now = "A: Reboot now";
+            float nw = measureText(now, scale * 0.85f);
+            drawText(now, cx - nw * 0.5f, cy + rad + lineH * 3.7f, scale * 0.85f,
+                     0.55f, 0.6f, 0.72f, 1.0f);
+            break;
+        }
+
+        case STATE_FAILED: {
+            float cx = mWidth * 0.5f;
+            float cy = mHeight * 0.34f;
+            float rad = fmaxf(20.0f, mHeight * 0.075f);
+            float t = fmaxf(4.0f, rad * 0.16f);
+
+            // Red X: two thick diagonal strokes.
+            const int steps = 14;
+            for (int i = 0; i < steps; i++) {
+                float f0 = (float)i / (steps - 1);
+                float px = cx - rad + (2.0f * rad) * f0;
+                float py = cy - rad + (2.0f * rad) * f0;
+                drawQuad(px - t * 0.5f, py - t * 0.5f, t, t, 0.9f, 0.35f, 0.35f, 1.0f);
+                float px2 = cx - rad + (2.0f * rad) * f0;
+                float py2 = cy + rad - (2.0f * rad) * f0;
+                drawQuad(px2 - t * 0.5f, py2 - t * 0.5f, t, t, 0.9f, 0.35f, 0.35f, 1.0f);
+            }
+
+            float y = cy + rad + lineH * 1.2f;
+            const char* head = "Update failed";
+            float hw = measureText(head, scale * 1.15f);
+            drawText(head, cx - hw * 0.5f, y, scale * 1.15f, 0.95f, 0.5f, 0.5f, 1.0f);
+            y += lineH * 1.4f;
+
+            // Word-wrapped error message, centered.
+            {
+                float maxWidth = mWidth - margin * 2.0f;
+                std::string remaining = mErrorMessage;
+                while (!remaining.empty()) {
+                    size_t fitLen = remaining.size();
+                    while (fitLen > 0 &&
+                           measureText(remaining.substr(0, fitLen).c_str(), scale) > maxWidth) {
+                        size_t spacePos = remaining.rfind(' ', fitLen - 1);
+                        if (spacePos != std::string::npos && spacePos > 0) fitLen = spacePos;
+                        else fitLen--;
+                    }
+                    if (fitLen == 0) fitLen = 1;
+                    std::string chunk = remaining.substr(0, fitLen);
+                    float lw = measureText(chunk.c_str(), scale);
+                    drawText(chunk.c_str(), cx - lw * 0.5f, y, scale, 0.85f, 0.72f, 0.72f, 1.0f);
+                    y += lineH;
+                    remaining = remaining.substr(fitLen);
+                    if (!remaining.empty() && remaining[0] == ' ') remaining = remaining.substr(1);
+                }
+            }
+            y += lineH * 0.5f;
+
+            // Retry / restore / reboot options in the XMB list look.
+            const char* options[] = {"Retry flash", "Restore from backup", "Reboot anyway"};
+            mItemStartY = y - mFontSize;
+            mItemHeight = lineH;
+            for (int i = 0; i < 3; i++) {
+                if (i == 1 && !mHasBackup) continue;
+                bool sel = (i == mErrorSelectedIndex);
+                std::string label = options[i];
+                float lw = measureText(label.c_str(), scale);
+                if (sel) {
+                    drawQuad(cx - lw * 0.5f - 12, y - mFontSize, lw + 24, lineH,
+                             0.42f, 0.24f, 0.24f, 0.9f);
+                }
+                float br = sel ? 1.0f : 0.66f;
+                drawText(label.c_str(), cx - lw * 0.5f, y, scale, br, br * 0.72f, br * 0.72f, 1.0f);
+                y += lineH;
+            }
+            break;
+        }
+    }
+}
+
+// --- Nintendo DSi -----------------------------------------------------------
+
+void OtaMenu::renderDsi() {
+    glViewport(0, 0, mWidth, mHeight);
+
+    // Light DSi background with a 2-row scanline pattern.
+    glClearColor(0.96f, 0.96f, 0.96f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+    // Draw 2px darker rows every 4px to get the alternating grey scanline look.
+    for (int yy = 2; yy < mHeight; yy += 4) {
+        drawQuad(0.0f, (float)yy, mWidth, 2.0f, 0.90f, 0.90f, 0.90f, 1.0f);
+    }
+
+    float margin = mWidth * 0.06f;
+    float scale = 1.0f;
+    float lineH = mFontSize * 1.5f;
+
+    // Title band + 2-tone dashed rule under it (#828282 then #717171).
+    float headerY = margin + mFontSize;
+    drawText("System Update", margin, headerY, scale * 1.1f, 0.16f, 0.16f, 0.16f, 1.0f);
+    float ruleY = headerY + mFontSize * 0.55f;
+    float ruleX0 = margin;
+    float ruleX1 = mWidth - margin;
+    // Alternating short dashes: 6px #828282 (0.510) then 6px #717171 (0.443).
+    float dashW = fmaxf(4.0f, mWidth * 0.008f);
+    bool dark = true;
+    for (float dx = ruleX0; dx < ruleX1; dx += dashW) {
+        float w = fminf(dashW, ruleX1 - dx);
+        if (dark) drawQuad(dx, ruleY, w, 1.0f, 0.510f, 0.510f, 0.510f, 1.0f);
+        else      drawQuad(dx, ruleY, w, 1.0f, 0.443f, 0.443f, 0.443f, 1.0f);
+        dark = !dark;
+    }
+
+    float bottomRuleY = mHeight - margin;
+
+    switch (mState) {
+        case STATE_FILE_BROWSER: {
+            float y = ruleY + lineH;
+            if (mFileEntries.empty()) {
+                drawText("No update packages found.", margin, y, scale, 0.3f, 0.3f, 0.3f, 1.0f);
+                y += lineH;
+                drawText("Place .zip files in /sdcard/", margin, y, scale,
+                         0.45f, 0.45f, 0.45f, 1.0f);
+                y += lineH;
+                drawText("or connect USB storage.", margin, y, scale, 0.45f, 0.45f, 0.45f, 1.0f);
+            } else {
+                drawText("Select update package", margin, y, scale, 0.2f, 0.2f, 0.2f, 1.0f);
+                y += lineH * 1.2f;
+                mItemStartY = y - mFontSize;
+                mItemHeight = lineH;
+                for (int i = 0; i < (int)mFileEntries.size(); i++) {
+                    bool sel = (i == mFileSelectedIndex);
+                    if (sel) {
+                        // DSi blue selection row.
+                        drawQuad(margin - 6, y - mFontSize, mWidth - margin * 2.0f + 12, lineH,
+                                 0.16f, 0.44f, 0.90f, 1.0f);
+                    }
+                    std::string sizeStr = std::to_string(mFileEntries[i].size / 1024 / 1024) + " MB";
+                    float rgb = sel ? 1.0f : 0.18f;
+                    drawText(mFileEntries[i].displayName.c_str(), margin + 8, y, scale,
+                             rgb, rgb, rgb, 1.0f);
+                    drawText(sizeStr.c_str(),
+                             mWidth - margin - measureText(sizeStr.c_str(), scale), y,
+                             scale, sel ? 0.9f : 0.5f, sel ? 0.9f : 0.5f, sel ? 0.9f : 0.5f, 1.0f);
+                    y += lineH;
+                }
+            }
+            drawText("Up/Down  Select: A   Back: B", margin, bottomRuleY,
+                     scale * 0.8f, 0.45f, 0.45f, 0.45f, 1.0f);
+            break;
+        }
+
+        case STATE_CONFIRM: {
+            float y = ruleY + lineH;
+            drawText(("Version: " + mManifest.version).c_str(), margin, y, scale,
+                     0.2f, 0.2f, 0.2f, 1.0f);
+            y += lineH * 1.2f;
+            drawText("Partitions to update:", margin, y, scale, 0.3f, 0.3f, 0.3f, 1.0f);
+            y += lineH;
+            for (const auto& part : mManifest.partitions) {
+                std::string info = "  " + part.name + "  (" + part.type + ")";
+                if (part.type == "logical" && part.size > 0) {
+                    info += "  " + std::to_string(part.size / 1024 / 1024) + " MB";
+                }
+                if (part.type == "physical") info += "  (both slots)";
+                drawText(info.c_str(), margin, y, scale, 0.35f, 0.35f, 0.35f, 1.0f);
+                y += lineH;
+            }
+            y += lineH;
+
+            const char* options[] = {"Install", "Cancel", "Toggle backup"};
+            mItemStartY = y - mFontSize;
+            mItemHeight = lineH;
+            for (int i = 0; i < 3; i++) {
+                bool sel = (i == mConfirmSelectedIndex);
+                std::string label = options[i];
+                if (i == 2) label += mBackupRequested ? "  [ON]" : "  [OFF]";
+                if (sel) {
+                    drawQuad(margin - 6, y - mFontSize, mWidth - margin * 2.0f + 12, lineH,
+                             0.16f, 0.44f, 0.90f, 1.0f);
+                }
+                float rgb = sel ? 1.0f : 0.2f;
+                drawText(label.c_str(), margin + 8, y, scale, rgb, rgb, rgb, 1.0f);
+                y += lineH;
+            }
+            break;
+        }
+
+        case STATE_STAGING:
+        case STATE_PREFLIGHT:
+        case STATE_BACKUP:
+        case STATE_FLASHING:
+        case STATE_VERIFYING: {
+            std::string phaseLabel;
+            int percent = 0;
+            themedFlashInfo(&phaseLabel, &percent, nullptr);
+
+            float centerY = mHeight * 0.5f;
+            float statusY = centerY - lineH * 1.6f;
+            float sw = measureText((phaseLabel + "...").c_str(), scale);
+            drawText((phaseLabel + "...").c_str(), mWidth * 0.5f - sw * 0.5f, statusY, scale,
+                     0.16f, 0.16f, 0.16f, 1.0f);
+
+            // Rounded DSi meter: light border, white interior, blue fill.
+            float barW = mWidth - margin * 2.0f;
+            float barH = fmaxf(14.0f, mHeight * 0.022f);
+            float barX = margin;
+            float barY = centerY - barH * 0.5f;
+            drawThemedProgressBar(barX, barY, barW, barH, (float)percent,
+                                  1.0f, 1.0f, 1.0f,      // trough (white interior)
+                                  0.16f, 0.44f, 0.90f,   // fill (DSi blue)
+                                  0.82f, 0.82f, 0.82f, true); // border
+
+            // Percentage above the meter.
+            char pct[16];
+            snprintf(pct, sizeof(pct), "%d%%", percent);
+            float pctW = measureText(pct, scale);
+            drawText(pct, mWidth * 0.5f - pctW * 0.5f, barY - mFontSize * 0.6f, scale,
+                     0.16f, 0.16f, 0.16f, 1.0f);
+
+            // Bold dark warning below the meter (drawn twice for a faux-bold).
+            const char* warn = "Do not turn off the power.";
+            float warnW = measureText(warn, scale);
+            float warnX = mWidth * 0.5f - warnW * 0.5f;
+            float warnY = barY + barH + lineH * 1.4f;
+            drawText(warn, warnX, warnY, scale, 0.12f, 0.12f, 0.12f, 1.0f);
+            drawText(warn, warnX + 1.0f, warnY, scale, 0.12f, 0.12f, 0.12f, 1.0f);
+            break;
+        }
+
+        case STATE_SUCCESS: {
+            float cx = mWidth * 0.5f;
+            float cy = mHeight * 0.42f;
+            float rad = fmaxf(22.0f, mHeight * 0.085f);
+
+            // Blue DSi check inside a light ring.
+            const int seg = 40;
+            for (int i = 0; i < seg; i++) {
+                float a0 = (float)i / seg * 2.0f * (float)M_PI;
+                float a1 = (float)(i + 1) / seg * 2.0f * (float)M_PI;
+                float x0 = cx + cosf(a0) * rad, y0 = cy + sinf(a0) * rad;
+                float x1 = cx + cosf(a1) * rad, y1 = cy + sinf(a1) * rad;
+                float minx = fminf(cx, fminf(x0, x1));
+                float miny = fminf(cy, fminf(y0, y1));
+                float maxx = fmaxf(cx, fmaxf(x0, x1));
+                float maxy = fmaxf(cy, fmaxf(y0, y1));
+                drawQuad(minx, miny, maxx - minx, maxy - miny, 0.16f, 0.44f, 0.90f, 1.0f);
+            }
+            // White check mark.
+            float t = fmaxf(4.0f, rad * 0.14f);
+            float ax = cx - rad * 0.40f, ay = cy + rad * 0.02f;
+            float bx = cx - rad * 0.10f, by = cy + rad * 0.34f;
+            float dx = cx + rad * 0.46f, dy = cy - rad * 0.34f;
+            const int steps = 12;
+            for (int i = 0; i < steps; i++) {
+                float f0 = (float)i / steps;
+                float px = ax + (bx - ax) * f0, py = ay + (by - ay) * f0;
+                drawQuad(px - t * 0.5f, py - t * 0.5f, t, t, 1.0f, 1.0f, 1.0f, 1.0f);
+            }
+            for (int i = 0; i < steps; i++) {
+                float f0 = (float)i / steps;
+                float px = bx + (dx - bx) * f0, py = by + (dy - by) * f0;
+                drawQuad(px - t * 0.5f, py - t * 0.5f, t, t, 1.0f, 1.0f, 1.0f, 1.0f);
+            }
+
+            const char* done = "Update complete";
+            float dw = measureText(done, scale * 1.15f);
+            drawText(done, cx - dw * 0.5f, cy + rad + lineH * 1.4f, scale * 1.15f,
+                     0.16f, 0.16f, 0.16f, 1.0f);
+
+            mSuccessTimer++;
+            int secondsLeft = 5 - (mSuccessTimer / 30);
+            if (secondsLeft <= 0) {
+                mFlasher.reboot();
+            }
+            std::string rebootMsg = "Rebooting in " +
+                std::to_string(secondsLeft > 0 ? secondsLeft : 1) + " seconds...";
+            float rw = measureText(rebootMsg.c_str(), scale);
+            drawText(rebootMsg.c_str(), cx - rw * 0.5f, cy + rad + lineH * 2.6f, scale,
+                     0.3f, 0.3f, 0.3f, 1.0f);
+            const char* now = "A: Reboot now";
+            float nw = measureText(now, scale * 0.85f);
+            drawText(now, cx - nw * 0.5f, cy + rad + lineH * 3.7f, scale * 0.85f,
+                     0.45f, 0.45f, 0.45f, 1.0f);
+            break;
+        }
+
+        case STATE_FAILED: {
+            float cx = mWidth * 0.5f;
+            float cy = mHeight * 0.34f;
+            float rad = fmaxf(18.0f, mHeight * 0.07f);
+            float t = fmaxf(4.0f, rad * 0.16f);
+
+            // Red X.
+            const int steps = 14;
+            for (int i = 0; i < steps; i++) {
+                float f0 = (float)i / (steps - 1);
+                float px = cx - rad + (2.0f * rad) * f0;
+                float py = cy - rad + (2.0f * rad) * f0;
+                drawQuad(px - t * 0.5f, py - t * 0.5f, t, t, 0.85f, 0.2f, 0.2f, 1.0f);
+                float py2 = cy + rad - (2.0f * rad) * f0;
+                drawQuad(px - t * 0.5f, py2 - t * 0.5f, t, t, 0.85f, 0.2f, 0.2f, 1.0f);
+            }
+
+            float y = cy + rad + lineH * 1.2f;
+            const char* head = "Update failed";
+            float hw = measureText(head, scale * 1.1f);
+            drawText(head, cx - hw * 0.5f, y, scale * 1.1f, 0.75f, 0.15f, 0.15f, 1.0f);
+            y += lineH * 1.4f;
+
+            {
+                float maxWidth = mWidth - margin * 2.0f;
+                std::string remaining = mErrorMessage;
+                while (!remaining.empty()) {
+                    size_t fitLen = remaining.size();
+                    while (fitLen > 0 &&
+                           measureText(remaining.substr(0, fitLen).c_str(), scale) > maxWidth) {
+                        size_t spacePos = remaining.rfind(' ', fitLen - 1);
+                        if (spacePos != std::string::npos && spacePos > 0) fitLen = spacePos;
+                        else fitLen--;
+                    }
+                    if (fitLen == 0) fitLen = 1;
+                    std::string chunk = remaining.substr(0, fitLen);
+                    float lw = measureText(chunk.c_str(), scale);
+                    drawText(chunk.c_str(), cx - lw * 0.5f, y, scale, 0.3f, 0.3f, 0.3f, 1.0f);
+                    y += lineH;
+                    remaining = remaining.substr(fitLen);
+                    if (!remaining.empty() && remaining[0] == ' ') remaining = remaining.substr(1);
+                }
+            }
+            y += lineH * 0.5f;
+
+            const char* options[] = {"Retry flash", "Restore from backup", "Reboot anyway"};
+            mItemStartY = y - mFontSize;
+            mItemHeight = lineH;
+            for (int i = 0; i < 3; i++) {
+                if (i == 1 && !mHasBackup) continue;
+                bool sel = (i == mErrorSelectedIndex);
+                std::string label = options[i];
+                float lw = measureText(label.c_str(), scale);
+                if (sel) {
+                    drawQuad(cx - lw * 0.5f - 12, y - mFontSize, lw + 24, lineH,
+                             0.16f, 0.44f, 0.90f, 1.0f);
+                }
+                float rgb = sel ? 1.0f : 0.25f;
+                drawText(label.c_str(), cx - lw * 0.5f, y, scale, rgb, rgb, rgb, 1.0f);
                 y += lineH;
             }
             break;

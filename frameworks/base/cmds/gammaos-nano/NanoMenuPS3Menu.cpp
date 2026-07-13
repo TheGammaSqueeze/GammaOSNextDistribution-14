@@ -3022,6 +3022,15 @@ void NanoMenu::ps3XmbSelect() {
     if (mPs3LangActive) { closeLanguagePicker(true); return; }  // X: apply the highlighted language + close
     if (mPs3WizActive) { wizConfirm(); return; }   // X: advance the network setup wizard
     if (mPs3DlgActive) {
+        // GammaOS System Update (OTA): while the OTA flow owns the dialog, its accept
+        // handler drives the check/confirm/download state machine (NanoMenuOta.cpp).
+        if (mOtaFlowActive) { if (otaDialogAccept()) return; }
+        // "System Update" method chooser (kPs3DlgTemplates): option 0 = Update via
+        // Internet, 1 = Update via Storage Media. Starts the OTA flow in place.
+        if (mPs3DlgKind == 0 && mPs3DlgTitle == "System Update" && !mOtaFlowActive) {
+            startOtaFlow(mPs3DlgSel == 0);
+            return;
+        }
         // The "Date and Time" fullscreen chooser launches the matching wizard on
         // confirm (option 0 = Set via Internet, 1 = Set Manually).
         if (mPs3DlgKind == 0 && mPs3DlgType == 1 && mPs3DlgTitle == "Date and Time") {
@@ -9758,7 +9767,11 @@ void NanoMenu::renderPs3Dialog() {
         float hintY = Y(909.0f);
         float enterCX = XC(VW * 0.401f), cancelCX = XC(VW * 0.629f);
         if (mPs3DlgType == 0) {
-            ps3DlgHint(cancelCX, false, "OK", hintY, S, ap);
+            // OTA progress screens (checking/downloading/reading/preparing) are
+            // non-interactive: no "OK" footer hint. Every other type-0 info dialog
+            // (System Information, network status, OTA up-to-date/error, App/ROM Info)
+            // keeps it as the dismiss affordance.
+            if (!otaInProgress()) ps3DlgHint(cancelCX, false, "OK", hintY, S, ap);
         } else if (mPs3DlgType == 1 || mPs3DlgType == 2) {
             if (!mPs3DlgNotice.empty() && mPs3DlgType == 2) {
                 ps3DlgHint(cancelCX, false, "Cancel", hintY, S, ap);

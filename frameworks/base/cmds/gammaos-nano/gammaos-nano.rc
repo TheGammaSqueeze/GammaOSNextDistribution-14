@@ -121,6 +121,21 @@ on property:sys.gammaos.minimal_boot=1 && property:persist.gammaos.nano.overlay_
 on property:sys.gammaos.nano.app_launched=1 && property:init.svc.gammaos-nano=stopped && property:persist.gammaos.nano.overlay=1 && property:sys.gammaos.minimal_boot=1
     start gammaos-nano-overlay
 
+# GammaOS Nano: hand off to the gammaos-ota flasher for a themed System Update. nano browses +
+# confirms the package itself (owning the DRM panel). On Install, nano sets
+# sys.gammaos.ota.theme/package/autoinstall and then sys.gammaos.ota.prestage=1, and STAYS UP on
+# a themed "Preparing update... X%" screen. This rule starts gammaos-ota WHILE nano is still alive
+# so the flasher can pre-stage itself to tmpfs in the background (the slow ~60s copy) with the panel
+# never going black. The flasher does not touch the display while staging; when it is staged it
+# sets sys.gammaos.ota.staged=1 and waits. nano then drops DRM master cleanly via drmStop()
+# (mirroring the proven app-launch handoff) and exits, so the still-running SurfaceFlinger
+# re-acquires the CRTC and the flasher's OtaMenu OFF->ON power transition presents the flash UI with
+# no black gap. We do NOT restart surfaceflinger (that cascaded a zygote/system_server restart via
+# surfaceflinger.rc onrestart, relaunching the nano home over the flasher). prestage is a volatile
+# prop, so it never persists a reboot. gammaos-ota is disabled + oneshot.
+on property:sys.gammaos.ota.prestage=1
+    start gammaos-ota
+
 # GammaOS Nano: respawn a crashed overlay-home. After the first app launch the overlay
 # is the SOLE home; if it dies (watchdog SIGABRT / SF death) the user would be left with
 # no UI. Gate on sys.gammaos.nano.overlay_ran, which the overlay sets ONLY after it has

@@ -237,7 +237,23 @@ bool XzDecompressor::decompressToFile(const std::string& xzPath,
     }
 
     struct stat st;
-    stat(outPath.c_str(), &st);
+    if (stat(outPath.c_str(), &st) != 0) {
+        ALOGE("Decompressed output missing after xz exit 0: %s (%s)",
+              outPath.c_str(), strerror(errno));
+        unlink(outPath.c_str());
+        return false;
+    }
+    // SAFETY: xz can exit 0 while producing a short/empty output (observed under device
+    // memory/IO pressure). Writing a truncated system image to a live partition would brick the
+    // device, so REQUIRE the decompressed size to match the manifest's uncompressed size before
+    // any block write is allowed. Turns a bad decompression into a clean, retryable failure.
+    if (expectedSize > 0 && (uint64_t)st.st_size != expectedSize) {
+        ALOGE("Decompressed size mismatch for %s: got %lld bytes, expected %llu "
+              "(truncated decompression - refusing to flash)",
+              outPath.c_str(), (long long)st.st_size, (unsigned long long)expectedSize);
+        unlink(outPath.c_str());
+        return false;
+    }
     ALOGI("Decompressed %s -> %s: %lld bytes", xzPath.c_str(), outPath.c_str(), (long long)st.st_size);
     return true;
 }
