@@ -1714,10 +1714,16 @@ void NanoMenu::renderNdsCarousel(float rx, float ry, float rw, float rh) {
           if (mNdsCamera <= 0.0f)   { mNdsCamera = 0.0f;   mNdsFlingVel = 0.0f; }
           if (mNdsCamera >= camMax) { mNdsCamera = camMax; mNdsFlingVel = 0.0f; }
           if (fabsf(mNdsFlingVel) < 0.02f) mNdsFlingVel = 0.0f;
-          if (mNdsFlingVel == 0.0f) {                                 // glide finished -> snap + commit
+          if (mNdsFlingVel == 0.0f) {                                 // glide finished -> commit the slot, then
+              // let the linear nav-slide ease the last fraction in. The web snap()
+              // (launcher.js 510-516) does NOT hard-set the camera: it sets selected +
+              // targetCamera = round(camera) and update()'s 7px/58px-slot slide walks the
+              // camera the remaining <0.5 slot smoothly. Hard-setting mNdsCamera here popped
+              // that fraction (up to ~29px) in one frame. Leave mNdsCamera fractional so the
+              // else-branch below eases it to the committed slot next frames, exactly as the web.
               int snap = (int)lroundf(mNdsCamera);
               if (snap < 0) snap = 0; if (snap > (int)camMax) snap = (int)camMax;
-              mNdsCamera = (float)snap; ndsCommitSelect(snap);
+              ndsCommitSelect(snap);
           }
       } else if (mNdsFastScroll) {
           // FAST momentum scroll (scrollbar blank-track press, launcher.scrollTo + update
