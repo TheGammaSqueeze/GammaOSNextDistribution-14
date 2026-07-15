@@ -32,12 +32,18 @@ PRODUCT_PACKAGES += \
     DualStackControl \
     GammaEQ \
     GammaScreenMapper \
+    DrasticSf \
     LaunchGuardControl \
     SecondaryDisplayControl \
     gammapad \
     gammapad_restore \
     gammaos-ota \
     gammaos-net
+
+# tinyalsa command-line tools (audio bring-up / debugging on the device)
+PRODUCT_PACKAGES += \
+    tinymix \
+    tinyplay
 
 PRODUCT_COPY_FILES += \
     device/gammaos/bluetooth/audio/config/sysbta_audio_policy_configuration.xml:$(TARGET_COPY_OUT_SYSTEM)/etc/sysbta_audio_policy_configuration.xml \

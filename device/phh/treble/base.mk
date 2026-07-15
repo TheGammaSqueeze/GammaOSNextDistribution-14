@@ -25,6 +25,11 @@ PRODUCT_PACKAGES += \
     gammaos-ota \
     gammaos-net
 
+# tinyalsa command-line tools (audio bring-up / debugging on the device)
+PRODUCT_PACKAGES += \
+    tinymix \
+    tinyplay
+
 PRODUCT_COPY_FILES += \
     device/phh/treble/bluetooth/audio/config/sysbta_audio_policy_configuration.xml:$(TARGET_COPY_OUT_SYSTEM)/etc/sysbta_audio_policy_configuration.xml \
     device/phh/treble/bluetooth/audio/config/sysbta_audio_policy_configuration_7_0.xml:$(TARGET_COPY_OUT_SYSTEM)/etc/sysbta_audio_policy_configuration_7_0.xml
