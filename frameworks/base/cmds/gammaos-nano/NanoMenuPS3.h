@@ -232,6 +232,54 @@ inline float baselineToTopY(float baselineDevY, float drawScale) {
     return baselineDevY - 0.8f * emPx(drawScale);
 }
 
+// Full-panel, aspect-independent layout for the media transport control grids (the on-screen
+// touch controls of the video, music and photo players). Unlike the XMB devX/devY/devS helpers
+// above, this does NOT letterbox through the virtual 1920x1080 frame: the control row spans the
+// FULL panel width and is sized to the panel's short side, so on ANY panel size/aspect (a square
+// 720x720, portrait, ultrawide, 480p..1080p) the finger targets stay proportional, evenly spaced,
+// and never run off-screen. The old letterboxed layout squeezed the grid into the pillarboxed
+// content frame and then multiplied it by a 2x-3x UI/touch scale, so on a square panel the icons
+// bloated and overran the edges. gxLo/gxHi are the min/max column indices in the caller's control
+// table, gyLo/gyHi the min/max row indices. Both the draw and the hit-test of each player call this
+// (via a shared per-player helper) so they can never drift apart.
+//   ox      : device px of column 0 (the grid is centred horizontally on the full panel)
+//   centerY : device px of the vertical centre of the row block (lower-middle of the panel);
+//             each caller offsets its own gy==0 anchor from this using its own cy formula
+//   cellX,cellY: column / row pitch (device px)
+//   icon    : glyph size (device px)
+struct MediaGrid { float ox, centerY, cellX, cellY, icon; };
+inline MediaGrid mediaGrid(int panelW, int panelH, float gxLo, float gxHi, float gyLo, float gyHi) {
+    MediaGrid g;
+    const float W = (float)panelW, H = (float)panelH;
+    const float shortSide = (W < H ? W : H);
+    const float cols = (gxHi > gxLo) ? (gxHi - gxLo) : 1.0f;
+    const float rows = (gyHi > gyLo) ? (gyHi - gyLo) : 1.0f;
+    // Column pitch: span ~88% of the panel width with a half-cell margin at each edge. On a
+    // square/narrow panel this uses the full width (the case the control panels were failing on);
+    // the icon then follows the pitch, capped to the short side so it stays a sane finger target.
+    float cellX = (W * 0.88f) / (cols + 1.0f);
+    float icon = cellX * 0.62f;
+    float iconCap = shortSide * 0.12f;
+    if (icon > iconCap) icon = iconCap;
+    // Wide/ultrawide panels: the short-side icon cap above would otherwise leave the columns
+    // spread edge-to-edge with big empty gaps between small icons. Cap the pitch to ~1.9x the
+    // icon so the grid stays a tight, centred cluster instead of stretching across the whole
+    // width. (No effect on square/narrow panels, where the pitch is already close to the icon.)
+    if (cellX > icon * 1.9f) cellX = icon * 1.9f;
+    float cellY = icon * 1.55f;
+    // Keep the whole row block within ~46% of the height so it never collides with the seek bar
+    // (near the bottom) or the title (near the top) on a short panel; shrink uniformly if needed.
+    float maxBlock = H * 0.46f;
+    if (rows * cellY > maxBlock) {
+        float sY = maxBlock / (rows * cellY);
+        cellY *= sY; icon *= sY; cellX *= sY;
+    }
+    g.cellX = cellX; g.cellY = cellY; g.icon = icon;
+    g.ox = W * 0.5f - (gxLo + gxHi) * 0.5f * cellX;   // centre the column span
+    g.centerY = H * 0.5f;                             // centre the row block on the panel
+    return g;
+}
+
 } // namespace ps3
 } // namespace android
 

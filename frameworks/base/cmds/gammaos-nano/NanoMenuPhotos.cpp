@@ -1606,31 +1606,19 @@ void NanoMenu::renderPhotoViewer() {
     if (mPvPanel && !mPvWpMode && !mPvTrimMode && !mPvPlChooserActive) {
         float pa = (mPvCpAnimStart >= 0.0f) ? fminf(1.0f, (mEffectTime - mPvCpAnimStart) / 0.2f) : 1.0f;
         float a = pa * et;
-        float afs = PFS(58.0f);
+        // Full-panel placement (matches pvTouchFrame's hit-test), sized to the short side.
+        float shortSide = (float)(mWidth < mHeight ? mWidth : mHeight);
+        float afs = (shortSide * 0.11f) / 16.0f;
         const char* arrow = "\xE2\x80\xB9";   // U+2039 single left angle quote (renders in Rodin; U+276E was tofu)
         float aw = measureText(arrow, afs);
-        float acx = PXD(0.052f), acy = PSZ(0.060f);
-        float ax = acx - aw * 0.5f, ay = ps3::baselineToTopY(acy + afs * 0.30f, afs);
-        float so = PSZ(0.0035f);
+        float acx = mWidth * 0.07f, acy = mHeight * 0.075f;
+        float ax = acx - aw * 0.5f, ay = ps3::baselineToTopY(acy + 16.0f * afs * 0.30f, afs);
+        float so = shortSide * 0.003f;
         drawText(arrow, ax + so, ay + so, afs, 0.0f, 0.0f, 0.0f, 0.55f * a);
         drawText(arrow, ax, ay, afs, 0.86f, 0.92f, 1.0f, 0.96f * a);
     }
 
-    // bottom-right auto-hiding help hint (two rows): Control Panel / Home Menu
-    float hintA = fmaxf(0.0f, fminf(1.0f, (mPvHintUntil - mEffectTime) / 0.6f)) * et;
-    if (hintA > 0.01f) {
-        float fs = PFS(20.0f);
-        std::string t1 = themeButtonText(trDyn("Triangle: Control Panel"));
-        std::string t2 = trDyn("PS: Home Menu");
-        float tw = fmaxf(measureText(t1.c_str(), fs), measureText(t2.c_str(), fs));
-        float padX = PSZ(0.012f), padY = PSZ(0.012f), lh = PSZ(0.034f);
-        float pillW = tw + padX * 2.0f, pillH = lh * 2.0f + padY * 2.0f - lh * 0.4f;
-        float px = (float)W - PXD(0.028f) - pillW, py = (float)H - PSZ(0.074f) - pillH;
-        drawQuad(px, py, pillW, pillH, 64/255.0f, 64/255.0f, 68/255.0f, 0.82f * hintA);
-        float y1 = py + padY, y2 = y1 + lh;
-        drawText(t1.c_str(), px + padX, ps3::baselineToTopY(y1 + fs * 0.0f + PSZ(0.018f), fs), fs, 1, 1, 1, 0.95f * hintA);
-        drawText(t2.c_str(), px + padX, ps3::baselineToTopY(y2 + fs * 0.0f + PSZ(0.018f), fs), fs, 1, 1, 1, 0.95f * hintA);
-    }
+    // (The bottom-right controller-button help hint was removed per user request.)
 
     if (mPvWpMode || mPvTrimMode) drawPvWallpaperSel();   // Set as Wallpaper / Trimming range selector
     if (mPvInfo) drawPvInfo();
@@ -1792,6 +1780,25 @@ static const int kPvSsCpCount = (int)(sizeof(kPvSsCp) / sizeof(kPvSsCp[0]));
 static const PvCp* pvCpTable(bool slideshow, int* count) {
     if (slideshow) { *count = kPvSsCpCount; return kPvSsCp; }
     *count = kPvCpCount; return kPvCp;
+}
+
+// Full-panel control-grid layout, shared by the draw (drawPvPanel) and the touch hit-test
+// (pvTouchFrame) so they can never drift. Spans the whole panel width and is sized to the short
+// side (see ps3::mediaGrid), adapting to any size/aspect instead of the letterboxed XMB frame.
+// Photos' cy = oy + (gy-1)*cellY, so oy is placed to centre the row block vertically on the panel.
+struct PvLayout { float ox, oy, cellX, cellY, ih, cx, labBaseY; };
+static PvLayout pvLayout(int W, int H, const PvCp* cp, int cnt) {
+    float gxLo = 1e9f, gxHi = -1e9f, gyLo = 1e9f, gyHi = -1e9f;
+    for (int i = 0; i < cnt; i++) {
+        if (cp[i].gx < gxLo) gxLo = cp[i].gx; if (cp[i].gx > gxHi) gxHi = cp[i].gx;
+        if (cp[i].gy < gyLo) gyLo = cp[i].gy; if (cp[i].gy > gyHi) gyHi = cp[i].gy;
+    }
+    ps3::MediaGrid g = ps3::mediaGrid(W, H, gxLo, gxHi, gyLo, gyHi);
+    PvLayout v;
+    v.cellX = g.cellX; v.cellY = g.cellY; v.ih = g.icon; v.ox = g.ox; v.cx = (float)W * 0.5f;
+    v.oy = g.centerY - ((gyLo + gyHi) * 0.5f - 1.0f) * g.cellY;   // centre the block (cy = oy + (gy-1)*cellY)
+    v.labBaseY = g.centerY + (gyHi - gyLo) * 0.5f * g.cellY + g.icon;   // below the bottom row
+    return v;
 }
 
 void NanoMenu::openPvPanel(bool byTouch) {
@@ -2020,26 +2027,27 @@ void NanoMenu::pvTouchFrame() {
     if (mPvPlChooserActive || mPvWpMode || mPvTrimMode) return;
 
     // Top-left back chevron (only while the panel is up): a generous corner zone -> exit.
+    // Full-panel placement (matches renderPhotoViewer), a comfortable finger target.
     if (tap && mPvPanel) {
-        float acx = PXD(0.052f), acy = PSZ(0.060f), r = PSZ(0.065f);
+        float acx = mWidth * 0.07f, acy = mHeight * 0.075f, r = fmaxf(mWidth, mHeight) * 0.055f;
         if (fabsf(px - acx) <= r && fabsf(py - acy) <= r) { closePhotoViewer(); return; }
     }
 
     if (mPvPanel) {
         if (!tap) return;
-        float ui = pvPanelUi();   // matches the enlarged touch panel
+        int cnt; const PvCp* cp = pvCpTable(mPvSlideshow, &cnt);
+        PvLayout vl = pvLayout(mWidth, mHeight, cp, cnt);   // SAME full-panel layout drawPvPanel renders
+        float ih = vl.ih;
         if (mPvCpSub) {
             // Change Effect / Slideshow Speed / Style submenu: tap a row to apply it
             // (same layout drawPvPanel renders under the label).
             if (!mPvCpSubOpts.empty()) {
-                float fs = PFS(24.0f * ui), lh = PSZ(0.045f * ui);
-                float ccx = PXP(0.273f);
+                float fs = (ih * 0.5f) / 16.0f, lh = ih * 1.15f, cx = vl.cx;
                 float mw = 0; for (auto& o : mPvCpSubOpts) mw = fmaxf(mw, measureText(o.c_str(), fs));
-                float sx = ccx - mw * 0.5f;
-                float sy = PYP(0.441f) + PSZ(0.061f * ui) + PSZ(0.110f * ui);
+                float sy = vl.labBaseY + vl.cellY * 0.7f;
                 for (int i = 0; i < (int)mPvCpSubOpts.size(); i++) {
                     float oy2 = sy + i * lh;
-                    if (px >= sx - fs * 0.5f && px <= sx + mw + fs * 0.5f &&
+                    if (px >= cx - mw * 0.5f - ih * 0.5f && px <= cx + mw * 0.5f + ih * 0.5f &&
                         py >= oy2 - lh * 0.5f && py <= oy2 + lh * 0.5f) {
                         mPvCpSubSel = i; pvPanelActivate(); return;   // applies + closes the submenu
                     }
@@ -2049,12 +2057,8 @@ void NanoMenu::pvTouchFrame() {
             return;
         }
         // Hit-test the control-panel cells (device space, nearest within a cell).
-        float cellX = PXD(0.033f * ui), cellY = PSZ(0.061f * ui);
-        int cnt; const PvCp* cp = pvCpTable(mPvSlideshow, &cnt);
-        float gmin = 1e9f, gmax = -1e9f;
-        for (int i = 0; i < cnt; i++) { gmin = fminf(gmin, cp[i].gx); gmax = fmaxf(gmax, cp[i].gx); }
-        float gcen = (gmin + gmax) * 0.5f;
-        float ox = PXP(0.273f) - gcen * cellX, oy = PYP(0.441f);
+        float cellX = vl.cellX, cellY = vl.cellY;
+        float ox = vl.ox, oy = vl.oy;
         int best = -1; float bestD = 1e9f;
         for (int i = 0; i < cnt; i++) {
             float cx = ox + cp[i].gx * cellX, cy = oy + (cp[i].gy - 1.0f) * cellY;
@@ -2082,18 +2086,13 @@ void NanoMenu::drawPvPanel(float closeT) {
     float t = (closeT >= 0.0f) ? closeT
             : (mPvCpAnimStart >= 0.0f ? fminf(1.0f, (mEffectTime - mPvCpAnimStart) / 0.2f) : 1.0f);
     if (t < 0) t = 0;
-    float ui = pvPanelUi();   // enlarged when opened by touch
-    // Same cell sizing + origin as drawMpOpt so the icons line up with the music
-    // panel: the grid's gx span is centred about the music origin (0.273) and the
-    // three rows are centred on oy (gy-1) the way music does (cy = oy - gy*cellY).
-    float cellX = PXD(0.033f * ui), cellY = PSZ(0.061f * ui), ih = PSZ(0.046f * ui);
     int cnt; const PvCp* cp = pvCpTable(mPvSlideshow, &cnt);
-    // grid horizontal extent (min/max gx) to centre the gx span on the music origin
-    float gmin = 1e9f, gmax = -1e9f;
-    for (int i = 0; i < cnt; i++) { gmin = fminf(gmin, cp[i].gx); gmax = fmaxf(gmax, cp[i].gx); }
-    float gcen = (gmin + gmax) * 0.5f;
-    float ox = PXP(0.273f) - gcen * cellX - (1.0f - t) * PSZ(0.018f * ui);   // music origin + slide-in
-    float oy = PYP(0.441f);
+    // Full-panel grid: spans the whole width, sized to the short side, centred (see ps3::mediaGrid
+    // + pvLayout). Replaces the letterboxed XMB-frame layout that squeezed the icons on a square panel.
+    PvLayout vl = pvLayout(mWidth, mHeight, cp, cnt);
+    float cellX = vl.cellX, cellY = vl.cellY, ih = vl.ih;
+    float ox = vl.ox - (1.0f - t) * vl.cellX * 0.5f;   // slide in from the left
+    float oy = vl.oy;
     float pulse = 0.5f + 0.5f * cosf(mEffectTime * 2.0f * 3.14159f / 1.5f);
     for (int i = 0; i < cnt; i++) {
         const PvCp& b = cp[i];
@@ -2118,15 +2117,27 @@ void NanoMenu::drawPvPanel(float closeT) {
             float hh = ih * ps, ww = hh * pvIconAR(arIdx);
             drawIconTex(tex, cx - ww * 0.5f + dx, cy - hh * 0.5f + dy, ww, hh, r, gg, bl, t * al);
         };
+        // Soft semi-transparent dark stroke (8-direction outline) so the silvery glyphs read on
+        // ANY backdrop (a bright photo as well as the dark wave), plus a slight drop shadow.
+        auto stroke = [&](GLuint tex, int arIdx, float al) {
+            float r = ih * 0.03f, d = r * 0.7071f;
+            glyph(tex, arIdx,  r, 0, 0, 0, 0, al); glyph(tex, arIdx, -r, 0, 0, 0, 0, al);
+            glyph(tex, arIdx, 0,  r, 0, 0, 0, al); glyph(tex, arIdx, 0, -r, 0, 0, 0, al);
+            glyph(tex, arIdx,  d, d, 0, 0, 0, al); glyph(tex, arIdx, -d, d, 0, 0, 0, al);
+            glyph(tex, arIdx,  d,-d, 0, 0, 0, al); glyph(tex, arIdx, -d,-d, 0, 0, 0, al);
+        };
         if (focus) {
+            stroke(g, icn, 0.22f);
+            glyph(g, icn, ih * 0.03f, ih * 0.05f, 0, 0, 0, 0.35f);   // drop shadow (depth)
             if (g) {
                 float hh = ih * ps * 1.18f, ww = hh * pvIconAR(icn);
                 drawIconTex(g, cx - ww * 0.5f, cy - hh * 0.5f, ww, hh, 0.86f, 0.92f, 1.0f, t * (0.18f + 0.16f * pulse));
             }
             glyph(g, icn, 0, 0, 1, 1, 1, 1.0f);
         } else {
-            glyph(g, icn, PSZ(0.0015f * ui), PSZ(0.0025f * ui), 0, 0, 0, 0.5f);
-            glyph(g, icn, 0, 0, 1, 1, 1, 0.85f);
+            stroke(g, icn, 0.22f);
+            glyph(g, icn, ih * 0.03f, ih * 0.05f, 0, 0, 0, 0.35f);   // drop shadow (depth)
+            glyph(g, icn, 0, 0, 1, 1, 1, 0.9f);
         }
         if (flash > 0.0f) glyph(g, icn, 0, 0, 1, 1, 1, flash);
     }
@@ -2137,46 +2148,25 @@ void NanoMenu::drawPvPanel(float closeT) {
     // only. (This differs from the music panel, where the web draws SELECT on every
     // control - so the music panel keeps its unconditional pill.)
     if (mPvCpSel >= 0 && mPvCpSel < cnt) {
+        // focused label, centred under the grid. (SELECT/START button-hint pills dropped per
+        // user request - meaningless on a touch panel.)
         const char* lab = (!strcmp(cp[mPvCpSel].act, "pause")) ? (mPvPaused ? "Play" : "Pause") : cp[mPvCpSel].label;
-        const char* pillTxt = (!strcmp(cp[mPvCpSel].act, "showinfo")) ? "SELECT"
-                            : (!strcmp(cp[mPvCpSel].act, "pause")) ? "START" : nullptr;
-        bool showPill = (!mPvCpSub && pillTxt);
-        float ls = PFS(20.0f * ui), lw = measureText(lab, ls);
-        float gap = PXD(0.008f * ui), pillW = PXD(0.050f * ui), pillH = PSZ(0.030f * ui);
-        float total = lw + (showPill ? (gap + pillW) : 0.0f);
-        float ccx = PXP(0.273f), sx = ccx - total * 0.5f;   // match the music label centre
-        float labBaseY = oy + cellY + PSZ(0.060f * ui);     // below the recentred bottom row, as music
-        drawText(lab, sx, ps3::baselineToTopY(labBaseY, ls), ls, 1.0f, 1.0f, 1.0f, 0.95f * t);
-        if (showPill) {
-            float px = sx + lw + gap;
-            float py = labBaseY - pillH * 0.78f;
-            float bw = 1.2f * ui;
-            auto pill = [&](float qx, float qy, float qw, float qh, float cr, float cg, float cb, float ca) {
-                float rr = qh * 0.5f;
-                drawQuad(qx + rr, qy, qw - 2.0f * rr, qh, cr, cg, cb, ca);
-                ps3FillCircle(qx + rr, qy + rr, rr, cr, cg, cb, ca);
-                ps3FillCircle(qx + qw - rr, qy + rr, rr, cr, cg, cb, ca);
-            };
-            pill(px - bw, py - bw, pillW + 2.0f * bw, pillH + 2.0f * bw, 225/255.0f, 225/255.0f, 225/255.0f, 0.7f * t);
-            pill(px, py, pillW, pillH, 150/255.0f, 150/255.0f, 150/255.0f, 0.55f * t);
-            float fs = PFS(15.0f * ui), fw = measureText(pillTxt, fs);
-            drawText(pillTxt, px + pillW * 0.5f - fw * 0.5f,
-                     ps3::baselineToTopY(py + pillH * 0.66f, fs), fs, 1, 1, 1, 0.95f * t);
-        }
+        float ls = (ih * 0.42f) / 16.0f, lw = measureText(lab, ls);
+        drawText(lab, vl.cx - lw * 0.5f, ps3::baselineToTopY(vl.labBaseY, ls), ls, 1.0f, 1.0f, 1.0f, 0.95f * t);
     }
-    // control submenu (Change Effect / Speed / Style) under the label
+    // control submenu (Change Effect / Speed / Style), centred under the label
     if (mPvCpSub && !mPvCpSubOpts.empty()) {
-        float fs = PFS(24.0f * ui), lh = PSZ(0.045f * ui);
-        float ccx = PXP(0.273f);   // match the music label centre
+        float fs = (ih * 0.5f) / 16.0f, lh = ih * 1.15f, cx = vl.cx;
+        float sy = vl.labBaseY + cellY * 0.7f;
         float mw = 0; for (auto& o : mPvCpSubOpts) mw = fmaxf(mw, measureText(o.c_str(), fs));
-        float sx = ccx - mw * 0.5f;
-        float sy = oy + cellY + PSZ(0.110f * ui);   // below the recentred label
-        drawQuad(sx - fs * 0.5f, sy - lh * 0.5f, mw + fs, lh * mPvCpSubOpts.size() + lh * 0.3f, 0, 0, 0, 0.55f * t);
+        float plateW = mw + ih;
+        drawQuad(cx - plateW * 0.5f, sy - lh * 0.5f, plateW, lh * mPvCpSubOpts.size() + lh * 0.3f, 0, 0, 0, 0.55f * t);
         for (int i = 0; i < (int)mPvCpSubOpts.size(); i++) {
             float oy2 = sy + i * lh;
             bool sel = (i == mPvCpSubSel);
-            if (sel) drawQuad(sx - fs * 0.35f, oy2 - lh * 0.42f, mw + fs * 0.7f, lh * 0.86f, 1, 1, 1, 0.20f * t);
-            drawText(mPvCpSubOpts[i].c_str(), sx, ps3::baselineToTopY(oy2 + lh * 0.18f, fs), fs,
+            if (sel) drawQuad(cx - plateW * 0.46f, oy2 - lh * 0.42f, plateW * 0.92f, lh * 0.86f, 1, 1, 1, 0.20f * t);
+            float ow = measureText(mPvCpSubOpts[i].c_str(), fs);
+            drawText(mPvCpSubOpts[i].c_str(), cx - ow * 0.5f, ps3::baselineToTopY(oy2 + lh * 0.18f, fs), fs,
                      sel ? 1.0f : 0.88f, sel ? 1.0f : 0.88f, sel ? 1.0f : 0.90f, 0.95f * t);
         }
     }

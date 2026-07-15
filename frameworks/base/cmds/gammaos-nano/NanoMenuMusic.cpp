@@ -1300,11 +1300,13 @@ void NanoMenu::renderMusicPlayer() {
     if (mMpCpOpen || mMpCpClosing) {
         float ca = enter * (mMpCpOpen ? 1.0f : fmaxf(0.0f, 1.0f - (mEffectTime - mMpCpCloseStart) / 0.2f));
         const char* arrow = "\xE2\x80\xB9";   // U+2039
-        float afs = FSZ(56.0f);
+        // Full-panel placement (matches mpTouchFrame's hit-test), sized to the short side.
+        float shortSide = (float)(mWidth < mHeight ? mWidth : mHeight);
+        float afs = (shortSide * 0.11f) / 16.0f;
         float aw = measureText(arrow, afs);
-        float acx = DXP(0.045f), acy = DYP(0.075f);
-        float ax = acx - aw * 0.5f, ay = ps3::baselineToTopY(acy + afs * 0.30f, afs);
-        float so = SZ(0.003f);
+        float acx = mWidth * 0.07f, acy = mHeight * 0.075f;
+        float ax = acx - aw * 0.5f, ay = ps3::baselineToTopY(acy + 16.0f * afs * 0.30f, afs);
+        float so = shortSide * 0.003f;
         drawText(arrow, ax + so, ay + so, afs, 0.0f, 0.0f, 0.0f, 0.55f * ca);
         drawText(arrow, ax, ay, afs, 0.86f, 0.92f, 1.0f, 0.96f * ca);
     }
@@ -1374,14 +1376,36 @@ void NanoMenu::drawMpStatusRow(float ax, float fade) {
     if (mMpShuffle) ico(9, 1.0f);                           // shuffle pill
 }
 
+// Full-panel control-grid layout, shared by the draw (drawMpOpt/drawMpVolMeter) and the touch
+// hit-test (mpTouchFrame) so they can never drift. The grid spans the whole panel width and is
+// sized to the panel's short side (see ps3::mediaGrid), so it adapts to any size/aspect (square
+// 720x720, portrait, ultrawide) instead of being squeezed into the letterboxed XMB frame and then
+// bloated by a 2x-3x UI/touch multiplier. Music's cy = oy - gy*cellY (gy grows upward), so oy is
+// the vertical centre of the row block (its gy==0 row).
+struct MpLayout { float ox, oy, cellX, cellY, ih, cx, labBaseY; };
+static MpLayout mpLayout(int W, int H) {
+    float gxLo = 1e9f, gxHi = -1e9f, gyLo = 1e9f, gyHi = -1e9f;
+    for (int i = 0; i < kMpCpCount; i++) {
+        const MpCp& b = kMpCp[i];
+        if (b.gx < gxLo) gxLo = b.gx; if (b.gx > gxHi) gxHi = b.gx;
+        if (b.gy < gyLo) gyLo = b.gy; if (b.gy > gyHi) gyHi = b.gy;
+    }
+    ps3::MediaGrid g = ps3::mediaGrid(W, H, gxLo, gxHi, gyLo, gyHi);
+    MpLayout m;
+    m.ox = g.ox; m.oy = g.centerY; m.cellX = g.cellX; m.cellY = g.cellY; m.ih = g.icon;
+    m.cx = (float)W * 0.5f;                          // grid is centred horizontally
+    m.labBaseY = m.oy + m.cellY + m.ih * 0.9f;       // below the bottom (gy==gyLo) row
+    return m;
+}
+
 void NanoMenu::drawMpOpt(float closeT) {
     float t = (closeT >= 0.0f) ? closeT
             : (mMpCpAnimStart >= 0.0f ? fminf(1.0f, (mEffectTime - mMpCpAnimStart) / 0.2f) : 1.0f);
     if (t < 0) t = 0;
-    float mpUi = mpPanelUi();   // enlarged when opened by touch
-    float ox = DXP(0.273f) - (1.0f - t) * SZ(0.018f * mpUi);   // slide in from the left
-    float oy = DYP(0.441f);
-    float cellX = DXD(0.033f * mpUi), cellY = SZ(0.061f * mpUi), ih = SZ(0.046f * mpUi);
+    MpLayout m = mpLayout(mWidth, mHeight);
+    float ox = m.ox - (1.0f - t) * m.cellX * 0.5f;   // slide in from the left
+    float oy = m.oy;
+    float cellX = m.cellX, cellY = m.cellY, ih = m.ih;
     float pulse = 0.5f + 0.5f * cosf(mEffectTime * 2.0f * 3.14159f / 1.5f);   // ~1.5s breathe
     for (int i = 0; i < kMpCpCount; i++) {
         const MpCp& b = kMpCp[i];
@@ -1409,7 +1433,20 @@ void NanoMenu::drawMpOpt(float closeT) {
             float hh = ih * ps, ww = hh * mpIconAR(arIdx);
             drawIconTex(tex, cx - ww * 0.5f + dx, cy - hh * 0.5f + dy, ww, hh, r, g, bl, t * al);
         };
+        // Soft semi-transparent dark stroke (8-direction outline) so the silvery glyphs read on
+        // ANY backdrop - a bright video/photo frame as well as the dark wave. On a dark backdrop
+        // it is nearly invisible; on a light one it draws a soft contrasting edge. Plus a slightly
+        // offset drop shadow for depth.
+        auto stroke = [&](GLuint tex, int arIdx, float al) {
+            float r = ih * 0.03f, d = r * 0.7071f;
+            glyph(tex, arIdx,  r, 0, 0, 0, 0, al); glyph(tex, arIdx, -r, 0, 0, 0, 0, al);
+            glyph(tex, arIdx, 0,  r, 0, 0, 0, al); glyph(tex, arIdx, 0, -r, 0, 0, 0, al);
+            glyph(tex, arIdx,  d, d, 0, 0, 0, al); glyph(tex, arIdx, -d, d, 0, 0, 0, al);
+            glyph(tex, arIdx,  d,-d, 0, 0, 0, al); glyph(tex, arIdx, -d,-d, 0, 0, 0, al);
+        };
         if (focus) {
+            stroke(gF, b.f, 0.22f);
+            glyph(gF, b.f, ih * 0.03f, ih * 0.05f, 0, 0, 0, 0.35f);   // drop shadow (depth)
             // breathing halo (faint enlarged focus glyph; no shadowBlur on GLES2) + crisp glyph
             if (gF) {
                 float hh = ih * ps * 1.18f, ww = hh * mpIconAR(b.f);
@@ -1417,61 +1454,38 @@ void NanoMenu::drawMpOpt(float closeT) {
             }
             glyph(gF, b.f, 0, 0, 1, 1, 1, 1.0f);
         } else {
-            glyph(gN, b.n, SZ(0.0015f * mpUi), SZ(0.0025f * mpUi), 0, 0, 0, 0.5f);   // drop shadow
-            glyph(gN, b.n, 0, 0, 1, 1, 1, 0.85f);                      // dimmed glyph
+            stroke(gN, b.n, 0.22f);
+            glyph(gN, b.n, ih * 0.03f, ih * 0.05f, 0, 0, 0, 0.35f);   // drop shadow (depth)
+            glyph(gN, b.n, 0, 0, 1, 1, 1, 0.9f);                       // dimmed glyph
         }
         if (flash > 0.0f) glyph(gF, b.f, 0, 0, 1, 1, 1, flash);        // activate brightness pop
     }
-    // focused-item label + the firmware "SELECT" button-hint pill, centred as a group
-    // at the grid origin (web drawMpOpt draws the label + drawMpPill('SELECT') for EVERY
-    // focused control). Suppressed while the Volume submeter is open (it draws its own
-    // "Volume Control" title at the same spot).
+    // focused-item label, centred under the grid. (The firmware "SELECT" button-hint pill was
+    // dropped per user request - it is meaningless on a touch panel.) Suppressed while the Volume
+    // submeter is open (it draws its own "Volume Control" title at the same spot). Icon-relative.
     if (mMpCpSel >= 0 && mMpCpSel < kMpCpCount && !mMpVolSub) {
         const char* lab = kMpCp[mMpCpSel].label;
-        float ls = FSZ(20.0f * mpUi), lw = measureText(lab, ls);
-        float gap = DXD(0.008f * mpUi), pillW = DXD(0.050f * mpUi), pillH = SZ(0.030f * mpUi);
-        float total = lw + gap + pillW;
-        float cx = DXP(0.273f), sx = cx - total * 0.5f;
-        // baseline below the (scaled) grid's bottom row
-        float labBaseY = oy + cellY + SZ(0.060f * mpUi);
-        drawText(lab, sx, ps3::baselineToTopY(labBaseY, ls), ls, 1.0f, 1.0f, 1.0f, 0.95f * t);
-        // SELECT pill: rounded rect (light border behind a grey fill) + centred glyph,
-        // built from a centre quad + two end caps since GLES2 has no rounded-rect path.
-        float px = sx + lw + gap;
-        float py = labBaseY - pillH * 0.78f;
-        float bw = 1.2f * mpUi;
-        auto pill = [&](float qx, float qy, float qw, float qh,
-                        float cr, float cg, float cb, float ca) {
-            float rr = qh * 0.5f;
-            drawQuad(qx + rr, qy, qw - 2.0f * rr, qh, cr, cg, cb, ca);
-            ps3FillCircle(qx + rr, qy + rr, rr, cr, cg, cb, ca);
-            ps3FillCircle(qx + qw - rr, qy + rr, rr, cr, cg, cb, ca);
-        };
-        pill(px - bw, py - bw, pillW + 2.0f * bw, pillH + 2.0f * bw,
-             225/255.0f, 225/255.0f, 225/255.0f, 0.7f * t);                          // border
-        pill(px, py, pillW, pillH, 150/255.0f, 150/255.0f, 150/255.0f, 0.55f * t);   // fill
-        float fs = FSZ(15.0f * mpUi), fw = measureText("SELECT", fs);
-        drawText("SELECT", px + pillW * 0.5f - fw * 0.5f,
-                 ps3::baselineToTopY(py + pillH * 0.66f, fs), fs, 1.0f, 1.0f, 1.0f, 0.95f * t);
+        float ls = (ih * 0.42f) / 16.0f, lw = measureText(lab, ls);
+        drawText(lab, m.cx - lw * 0.5f, ps3::baselineToTopY(m.labBaseY, ls), ls, 1.0f, 1.0f, 1.0f, 0.95f * t);
     }
     if (mMpVolSub) drawMpVolMeter(t);
 }
 
 void NanoMenu::drawMpVolMeter(float t) {
-    float mpUi = mpUiScale(mWidth, mHeight);
-    float cx = DXP(0.22f);
-    // Stack below the (scaled) panel grid so it never overlaps it.
-    float titleBaseY = DYP(0.441f) + SZ(0.061f * mpUi) + SZ(0.055f * mpUi);
-    float vts = FSZ(22.0f * mpUi);
+    MpLayout m = mpLayout(mWidth, mHeight);
+    float ih = m.ih, cx = m.cx;
+    // Stack below the panel grid so it never overlaps it.
+    float titleBaseY = m.labBaseY;
+    float vts = (ih * 0.46f) / 16.0f;
     const char* volTitle = trDyn("Volume Control");
     drawText(volTitle, cx - measureText(volTitle, vts) * 0.5f,
              ps3::baselineToTopY(titleBaseY, vts), vts, 1, 1, 1, t);
     int lvl = mMpVolLevel;
     char nm[16]; if (lvl == 0) snprintf(nm, sizeof(nm), "%s", trDyn("Normal")); else snprintf(nm, sizeof(nm), "%+d", lvl);
-    float nts = FSZ(18.0f * mpUi), nameBaseY = titleBaseY + SZ(0.040f * mpUi);
+    float nts = (ih * 0.38f) / 16.0f, nameBaseY = titleBaseY + ih * 0.5f;
     drawText(nm, cx - measureText(nm, nts) * 0.5f, ps3::baselineToTopY(nameBaseY, nts), nts, 1, 1, 1, 0.85f * t);
-    int segN = 9; float segW = SZ(0.020f * mpUi), gap = SZ(0.006f * mpUi), hh = SZ(0.024f * mpUi);
-    float my = nameBaseY + SZ(0.020f * mpUi);
+    int segN = 9; float segW = ih * 0.42f, gap = ih * 0.14f, hh = ih * 0.5f;
+    float my = nameBaseY + ih * 0.25f;
     float totalW = segN * segW + (segN - 1) * gap, x0 = cx - totalW * 0.5f;
     int filled = lvl + 5;
     for (int i = 0; i < segN; i++) {
@@ -1480,7 +1494,7 @@ void NanoMenu::drawMpVolMeter(float t) {
         else drawQuad(x, my, segW, hh, 1, 1, 1, 0.20f * t);
     }
     // "-" / "+" end glyphs flanking the bar
-    float es = FSZ(18.0f * mpUi), ey = ps3::baselineToTopY(my + hh * 0.9f, es), em = ps3::devS(10.0f * mpUi);
+    float es = (ih * 0.38f) / 16.0f, ey = ps3::baselineToTopY(my + hh * 0.9f, es), em = ih * 0.2f;
     drawText("-", x0 - em - measureText("-", es), ey, es, 1, 1, 1, t);
     drawText("+", x0 + totalW + em, ey, es, 1, 1, 1, t);
 }
@@ -1546,16 +1560,16 @@ void NanoMenu::mpTouchFrame() {
     if (!tap) return;
 
     // Top-left exit chevron (shown with the panel) -> minimize (audio keeps playing).
+    // Full-panel placement (matches renderMusicPlayer), a comfortable finger target.
     if (mMpCpOpen || mMpCpClosing) {
-        float acx = DXP(0.045f), acy = DYP(0.075f), r = SZ(0.06f);
+        float acx = mWidth * 0.07f, acy = mHeight * 0.075f, r = fmaxf(mWidth, mHeight) * 0.055f;
         if (fabsf(px - acx) <= r && fabsf(py - acy) <= r) { minimizeMusicPlayer(); return; }
     }
     if (mMpCpOpen) {
         if (mMpVolSub) { mMpVolSub = false; return; }   // tap exits the volume submenu
-        // Hit-test the control-panel cells (same layout drawMpOpt renders).
-        float mpUi = mpPanelUi();
-        float ox = DXP(0.273f), oy = DYP(0.441f);
-        float cellX = DXD(0.033f * mpUi), cellY = SZ(0.061f * mpUi);
+        // Hit-test the control-panel cells (SAME full-panel layout drawMpOpt renders).
+        MpLayout m = mpLayout(mWidth, mHeight);
+        float ox = m.ox, oy = m.oy, cellX = m.cellX, cellY = m.cellY;
         int best = -1; float bestD = 1e9f;
         for (int i = 0; i < kMpCpCount; i++) {
             float cx = ox + kMpCp[i].gx * cellX, cy = oy - kMpCp[i].gy * cellY;   // note: gy goes UP

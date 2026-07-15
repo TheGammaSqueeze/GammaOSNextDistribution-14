@@ -2562,20 +2562,8 @@ bool NanoMenu::renderVideoPlayer() {
                  fs, 1.0f, 1.0f, 1.0f, 0.95f * a);
     }
 
-    // Layer 8: help-hint pill (bottom-right) while the OSD bar shows and no panel is up.
-    if (hintA > 0.01f && !panelUp) {
-        float fs = ps3::fontScale(21.0f);
-        std::string l1 = themeButtonText(trDyn("Triangle: Control Panel"));
-        std::string l2 = themeButtonText(trDyn("Circle: Home Menu"));
-        float w1 = measureText(l1.c_str(), fs), w2 = measureText(l2.c_str(), fs);
-        float tw = fmaxf(w1, w2);
-        float padx = W * 0.018f;
-        float ph = H * 0.068f, pw = tw + padx * 2.0f;            // web pill height ~0.068*CH
-        float px = W - pw - W * 0.03f, py = H * 0.86f;           // web py = CH*0.86
-        drawQuad(px, py, pw, ph, 0.235f, 0.235f, 0.26f, 0.72f * hintA);
-        drawText(l1.c_str(), px + padx, ps3::baselineToTopY(py + H * 0.030f, fs), fs, 1.0f, 1.0f, 1.0f, 0.95f * hintA);
-        drawText(l2.c_str(), px + padx, ps3::baselineToTopY(py + H * 0.056f, fs), fs, 1.0f, 1.0f, 1.0f, 0.95f * hintA);
-    }
+    // Layer 8: (the bottom-right controller-button help-hint pill was removed per user request.)
+    (void)hintA;
 
     // Layer 9: the control panel (200ms open/close, web drawVideoPanel).
     if (mVidCpOpen) drawVideoPanel(-1.0f);
@@ -2605,36 +2593,61 @@ bool NanoMenu::renderVideoPlayer() {
 // panel (drawMpOpt) but the video grid layout, 1.5x focus, the videoplayer icons,
 // and the screen-mode / repeat / volume / AV-settings submenus.
 // ===========================================================================
-struct VidCp { const char* act; const char* label; int ic; int gx; int gy; };
+struct VidCp { const char* act; const char* label; int ic; float gx; int gy; };
+// 4-row balanced grid so the icons stay large on a narrow/square panel: options split across
+// two rows (5 + 4), transport across two rows (7 + 7). Every row is centred on gx 4 (the
+// options rows use gx 2..6 / 2.5..5.5, the transport rows gx 1..7) so the full-panel layout
+// (ps3::mediaGrid via vidLayout, gx span 1..7) centres and sizes the whole grid uniformly.
 static const VidCp kVidCp[] = {
-    {"scene",      "Scene Search",        18,  1, 0},
-    {"goto",       "Go To",               19,  2, 0},
-    {"audio",      "Audio Options",        3,  3, 0},
-    {"subtitle",   "Subtitle Options",    22,  4, 0},
-    {"volume",     "Volume Control",       2,  5, 0},
-    {"screenmode", "Screen Mode",          1,  6, 0},
-    {"chgicon",    "Change Icon",         24,  7, 0},
-    {"del",        "Delete",               4,  8, 0},
-    {"showinfo",   "Display",              0,  9, 0},
-    {"beginning",  "Return to Beginning",  9,  0, 1},
-    {"next",       "Next",                10,  1, 1},
-    {"frev",       "Fast Reverse",        11,  2, 1},
-    {"ffwd",       "Fast Forward",        12,  3, 1},
-    {"play",       "Play",                 6,  4, 1},
-    {"pause",      "Pause",                8,  5, 1},
-    {"stop",       "Stop",                 7,  6, 1},
-    {"flashr",     "Instant Replay",      15,  7, 1},
-    {"flashf",     "Instant Advance",     16,  8, 1},
-    {"srev",       "Slow (Reverse)",      20,  9, 1},
-    {"sfwd",       "Slow (Forward)",      13, 10, 1},
-    {"stepb",      "Frame Reverse",       21, 11, 1},
-    {"stepf",      "Frame Advance",       14, 12, 1},
-    {"repeat",     "Repeat",              17,  6, 2},
+    {"scene",      "Scene Search",        18,  2.0f, 0},
+    {"goto",       "Go To",               19,  3.0f, 0},
+    {"audio",      "Audio Options",        3,  4.0f, 0},
+    {"subtitle",   "Subtitle Options",    22,  5.0f, 0},
+    {"volume",     "Volume Control",       2,  6.0f, 0},
+    {"screenmode", "Screen Mode",          1,  2.5f, 1},
+    {"chgicon",    "Change Icon",         24,  3.5f, 1},
+    {"del",        "Delete",               4,  4.5f, 1},
+    {"showinfo",   "Display",              0,  5.5f, 1},
+    {"beginning",  "Return to Beginning",  9,  1.0f, 2},
+    {"next",       "Next",                10,  2.0f, 2},
+    {"frev",       "Fast Reverse",        11,  3.0f, 2},
+    {"ffwd",       "Fast Forward",        12,  4.0f, 2},
+    {"play",       "Play",                 6,  5.0f, 2},
+    {"pause",      "Pause",                8,  6.0f, 2},
+    {"stop",       "Stop",                 7,  7.0f, 2},
+    {"flashr",     "Instant Replay",      15,  1.0f, 3},
+    {"flashf",     "Instant Advance",     16,  2.0f, 3},
+    {"srev",       "Slow (Reverse)",      20,  3.0f, 3},
+    {"sfwd",       "Slow (Forward)",      13,  4.0f, 3},
+    {"stepb",      "Frame Reverse",       21,  5.0f, 3},
+    {"stepf",      "Frame Advance",       14,  6.0f, 3},
+    {"repeat",     "Repeat",              17,  7.0f, 3},
 };
 static const int kVidCpCount = (int)(sizeof(kVidCp) / sizeof(kVidCp[0]));
 static int vidCpDefault() {
     for (int i = 0; i < kVidCpCount; i++) if (!strcmp(kVidCp[i].act, "play")) return i;
     return 0;
+}
+
+// Full-panel control-grid layout, shared by the draw (drawVideoPanel) and the touch hit-test
+// (vidTouchFrame) so they can never drift. Spans the whole panel width and is sized to the short
+// side (see ps3::mediaGrid), adapting to any size/aspect instead of the letterboxed XMB frame.
+// Video's cy = y0 + gy*rowH (gy grows downward), so y0 is the top (gy==gyLo) row anchor placed so
+// the row block is centred vertically on the panel.
+struct VidLayout { float x0, y0, colW, rowH, sz, cx, labBaseY; };
+static VidLayout vidLayout(int W, int H) {
+    float gxLo = 1e9f, gxHi = -1e9f, gyLo = 1e9f, gyHi = -1e9f;
+    for (int i = 0; i < kVidCpCount; i++) {
+        const VidCp& b = kVidCp[i];
+        if (b.gx < gxLo) gxLo = b.gx; if (b.gx > gxHi) gxHi = b.gx;
+        if (b.gy < gyLo) gyLo = b.gy; if (b.gy > gyHi) gyHi = b.gy;
+    }
+    ps3::MediaGrid g = ps3::mediaGrid(W, H, gxLo, gxHi, gyLo, gyHi);
+    VidLayout v;
+    v.colW = g.cellX; v.rowH = g.cellY; v.sz = g.icon; v.x0 = g.ox; v.cx = (float)W * 0.5f;
+    v.y0 = g.centerY - (gyLo + gyHi) * 0.5f * g.cellY;   // centre the row block
+    v.labBaseY = v.y0 + (gyHi + 0.9f) * g.cellY;         // below the bottom (largest gy) row
+    return v;
 }
 static const char* kVidScreenModes[] = {"Normal", "Full Screen", "Original", "Zoom", "Double Scale"};
 static const char* kVidRepeatModes[] = {"Repeat Off", "Repeat On", "Title Repeat", "A-B Repeat", "Folder Repeat"};
@@ -2905,12 +2918,9 @@ void NanoMenu::vidTouchFrame() {
         // A submenu (Screen Mode / Repeat / Volume / AV) is drawn over the cells;
         // a tap backs out of it rather than mis-hitting a main cell underneath.
         if (mVidSubOpen) { mVidSubOpen = false; return; }
-        // Hit-test the control-panel cells (same layout drawVideoPanel renders).
-        float ui = vidPanelUi();
-        float x0 = ps3::devX(ps3::XCF(ps3::VW * 0.1589f));
-        float y0 = ps3::devY(ps3::VH * 0.4148f);
-        float colW = ps3::devS(ps3::XCF(ps3::VW * 0.03526f * ui));
-        float rowH = ps3::devS(ps3::VH * 0.061f * ui);
+        // Hit-test the control-panel cells (SAME full-panel layout drawVideoPanel renders).
+        VidLayout vl = vidLayout(mWidth, mHeight);
+        float x0 = vl.x0, y0 = vl.y0, colW = vl.colW, rowH = vl.rowH;
         int best = -1; float bestD = 1e9f;
         for (int i = 0; i < kVidCpCount; i++) {
             float cx = x0 + kVidCp[i].gx * colW, cy = y0 + kVidCp[i].gy * rowH;
@@ -2943,22 +2953,15 @@ float NanoMenu::vidPanelUi() {
 }
 
 void NanoMenu::drawVideoPanel(float closeT) {
-    int W = mWidth, H = mHeight;
+    int W = mWidth, H = mHeight; (void)W; (void)H;
     float t = (closeT >= 0.0f) ? closeT
             : (mVidCpAnimStart >= 0.0f ? fminf(1.0f, (mEffectTime - mVidCpAnimStart) / 0.2f) : 1.0f);
     if (t < 0) t = 0;
     float A = t * mVidEnterT;                              // overall panel alpha
-    // Map the panel through the ps3 layout (gScale/gOffX/gOffY), NOT raw device W/H:
-    // raw H doubles in portrait (1080->1920), which is why the icons inflated to ~115px
-    // and overlapped. This yields sz = 0.046*VH*gScale = 36px, identical to the audio
-    // (NanoMenuMusic drawMpOpt) and photo (NanoMenuPhotos drawPvPanel) control panels,
-    // keeping video's own 0.1589/0.4148 anchor mapped through the shared frame scale.
-    float ui = vidPanelUi();   // enlarged when opened by touch
-    float x0 = ps3::devX(ps3::XCF(ps3::VW * 0.1589f)) - (1.0f - t) * ps3::devS(ps3::VW * 0.012f);
-    float y0 = ps3::devY(ps3::VH * 0.4148f);
-    float colW = ps3::devS(ps3::XCF(ps3::VW * 0.03526f * ui));
-    float rowH = ps3::devS(ps3::VH * 0.061f * ui);
-    float sz   = ps3::devS(ps3::VH * 0.046f * ui);
+    VidLayout vl = vidLayout(mWidth, mHeight);
+    float x0 = vl.x0 - (1.0f - t) * vl.colW * 0.5f;       // slide in from the left
+    float y0 = vl.y0;
+    float colW = vl.colW, rowH = vl.rowH, sz = vl.sz;
     float pulse = 0.5f + 0.5f * sinf(mEffectTime * 2.0f * 3.14159265f / 1.5f);
 
     for (int i = 0; i < kVidCpCount; i++) {
@@ -2985,17 +2988,30 @@ void NanoMenu::drawVideoPanel(float closeT) {
             float hh = sz * scl, ww = hh * ar;
             drawIconTex(tex, cx - ww * 0.5f + dx, cy - hh * 0.5f + dy, ww, hh, r, g, bl, A * al);
         };
+        // Soft semi-transparent dark stroke (8-direction outline) so the silvery glyphs read on
+        // ANY backdrop (a bright video frame as well as the dark wave), plus a slight drop shadow.
+        auto stroke = [&](float al) {
+            float r = sz * 0.03f, d = r * 0.7071f;
+            glyph( r, 0, 0, 0, 0, al, ps); glyph(-r, 0, 0, 0, 0, al, ps);
+            glyph(0,  r, 0, 0, 0, al, ps); glyph(0, -r, 0, 0, 0, al, ps);
+            glyph( d, d, 0, 0, 0, al, ps); glyph(-d, d, 0, 0, 0, al, ps);
+            glyph( d,-d, 0, 0, 0, al, ps); glyph(-d,-d, 0, 0, 0, al, ps);
+        };
         if (focus) {
+            stroke(0.22f);
+            glyph(sz * 0.03f, sz * 0.05f, 0, 0, 0, 0.35f, ps);                             // drop shadow (depth)
             glyph(0, 0, 0.86f, 0.92f, 1.0f, (0.22f + 0.18f * pulse) * 0.6f, ps * 1.18f);  // breathing halo
             glyph(0, 0, 1, 1, 1, 1.0f, ps);                                               // crisp glyph
         } else {
-            glyph(sz * 0.03f, sz * 0.04f, 0, 0, 0, 0.5f, ps);   // drop shadow
-            glyph(0, 0, 1, 1, 1, 0.85f, ps);                    // dimmed glyph
+            stroke(0.22f);
+            glyph(sz * 0.03f, sz * 0.05f, 0, 0, 0, 0.35f, ps);   // drop shadow (depth)
+            glyph(0, 0, 1, 1, 1, 0.9f, ps);                      // dimmed glyph
         }
         if (flash > 0.0f) glyph(0, 0, 1, 1, 1, flash, ps);      // activate brightness pop
     }
 
-    // focused label (left-aligned) + the SELECT/START button-hint pills
+    // focused label, centred under the grid. (The firmware SELECT/START button-hint pills were
+    // dropped per user request - meaningless on a touch panel.)
     if (mVidCpSel >= 0 && mVidCpSel < kVidCpCount) {
         const VidCp& b = kVidCp[mVidCpSel];
         std::string lab = b.label;
@@ -3006,75 +3022,52 @@ void NanoMenu::drawVideoPanel(float closeT) {
         } else if (!strcmp(b.act, "beginning")) {
             lab = (mVideoTest && mVideoTest->position() > 2.0) ? "Return to Beginning" : "Previous";
         }
-        float lx = x0 + colW * 0.1f, ly = y0 + 2.9f * rowH;
-        float ls = ps3::fontScale(24.0f);
-        drawText(lab.c_str(), lx, ps3::baselineToTopY(ly, ls), ls, 0.96f, 0.96f, 0.96f, A);
-        if (!mVidSubOpen) {
-            const char* pill = nullptr;
-            if (!strcmp(b.act, "showinfo")) pill = "SELECT";
-            else if (!strcmp(b.act, "play")) pill = "START";
-            if (pill) {
-                float lw = measureText(lab.c_str(), ls);
-                float pillH = H * 0.030f, gap = W * 0.006f;
-                float pfs = ps3::fontScale(13.8f), pillTxtW = measureText(pill, pfs);
-                float pw = pillTxtW + W * 0.012f;
-                float px = lx + lw + gap, py = ly - pillH * 0.82f;
-                auto cap = [&](float qx, float qy, float qw, float qh, float r, float g, float bl, float a) {
-                    float rr = qh * 0.5f;
-                    drawQuad(qx + rr, qy, qw - 2.0f * rr, qh, r, g, bl, a);
-                    ps3FillCircle(qx + rr, qy + rr, rr, r, g, bl, a);
-                    ps3FillCircle(qx + qw - rr, qy + rr, rr, r, g, bl, a);
-                };
-                float bw = 1.2f;
-                cap(px - bw, py - bw, pw + 2.0f * bw, pillH + 2.0f * bw, 225/255.f, 225/255.f, 225/255.f, 0.7f * A);
-                cap(px, py, pw, pillH, 150/255.f, 150/255.f, 150/255.f, 0.55f * A);
-                drawText(pill, px + pw * 0.5f - pillTxtW * 0.5f, ps3::baselineToTopY(py + pillH * 0.56f, pfs),
-                         pfs, 1, 1, 1, 0.95f * A);
-            }
-        }
+        float ls = (sz * 0.42f) / 16.0f, lw = measureText(lab.c_str(), ls);
+        drawText(lab.c_str(), vl.cx - lw * 0.5f, ps3::baselineToTopY(vl.labBaseY, ls), ls, 0.96f, 0.96f, 0.96f, A);
     }
 
-    // Volume Control: the -4..+4 nine-segment live bar (web drawVideoPanel 12818-12834), mirroring
-    // the music player's drawMpVolMeter. Stepped by Left/Right (vidPanelMove), applied live.
+    // Volume Control: the -4..+4 nine-segment live bar, centred under the label. Stepped by
+    // Left/Right (vidPanelMove), applied live.
     if (mVidSubOpen && mVidSubKind == 2) {
-        float sx = x0 + colW * 0.1f, sy = y0 + 3.7f * rowH;
-        float fs = ps3::fontScale(26.0f), fpx = ps3::emPx(fs);   // web fs = round(CH*0.026)
+        float ih = sz, cx = vl.cx, ty = vl.labBaseY + rowH * 0.75f;
+        float fs = (ih * 0.42f) / 16.0f;
         int lvl = mVidVolLevel;
         char nm[8];
         if (lvl == 0)      snprintf(nm, sizeof(nm), "Normal");
         else if (lvl > 0)  snprintf(nm, sizeof(nm), "+%d", lvl);
         else               snprintf(nm, sizeof(nm), "%d", lvl);
-        drawQuad(sx - fpx * 0.6f, sy - fpx * 1.5f, W * 0.20f, fpx * 3.6f, 0, 0, 0, 0.55f * A);   // backplate
-        drawText(nm, sx, ps3::baselineToTopY(sy - fpx * 0.4f, fs), fs, 1, 1, 1, A);              // level name
-        float segW = W * 0.0095f, gp = W * 0.004f, hh = H * 0.028f;
-        float my = sy + fpx * 0.3f, x0s = sx + fpx * 0.9f;
-        float mw = measureText("-", fs);
-        drawText("-", x0s - W * 0.008f - mw, ps3::baselineToTopY(my + hh * 0.85f, fs), fs, 1, 1, 1, A);
+        drawText(nm, cx - measureText(nm, fs) * 0.5f, ps3::baselineToTopY(ty, fs), fs, 1, 1, 1, A);
+        float segW = ih * 0.42f, gp = ih * 0.14f, hh = ih * 0.5f;
+        float my = ty + ih * 0.25f;
+        float totalW = 9 * segW + 8 * gp, x0s = cx - totalW * 0.5f;
         int filled = lvl + 5;                                  // -4 -> 1 seg, 0 -> 5, +4 -> 9
         for (int i = 0; i < 9; i++) {
             float fx = x0s + i * (segW + gp);
             if (i < filled) drawQuad(fx, my, segW, hh, 0.470f, 0.882f, 1.0f, 0.95f * A);   // rgba(120,225,255)
             else            drawQuad(fx, my, segW, hh, 1.0f, 1.0f, 1.0f, 0.20f * A);
         }
-        drawText("+", x0s + 9 * (segW + gp) + W * 0.004f, ps3::baselineToTopY(my + hh * 0.85f, fs), fs, 1, 1, 1, A);
+        float es = (ih * 0.42f) / 16.0f, em = ih * 0.2f;
+        drawText("-", x0s - em - measureText("-", es), ps3::baselineToTopY(my + hh * 0.9f, es), es, 1, 1, 1, A);
+        drawText("+", x0s + totalW + em, ps3::baselineToTopY(my + hh * 0.9f, es), es, 1, 1, 1, A);
     }
 
-    // submenu plate + rows (web drawVideoPanel submenu, 12685-12701): plate is sized to the
-    // widest option, rows centred in their highlight band.
+    // submenu plate + rows: sized to the widest option, centred under the label.
     if (mVidSubOpen && !mVidSubOpts.empty()) {
-        float sx = x0 + colW * 0.1f, sy = y0 + 3.5f * rowH;
-        float lh = H * 0.045f, fs = ps3::fontScale(26.0f);
-        float fpx = ps3::emPx(fs);              // device-px font size (web 'fs' inset unit)
+        float ih = sz, cx = vl.cx, sy = vl.labBaseY + rowH * 0.75f;
+        float fs = (ih * 0.5f) / 16.0f, fpx = ps3::emPx(fs);
+        float lh = ih * 1.15f;
         int n = (int)mVidSubOpts.size();
         float mw = 0.0f;
         for (int i = 0; i < n; i++) { float w = measureText(mVidSubOpts[i].c_str(), fs); if (w > mw) mw = w; }
-        drawQuad(sx - fpx * 0.6f, sy - lh * 0.7f, mw + fpx * 1.6f, lh * n + lh * 0.3f, 0, 0, 0, 0.55f * A);
+        float plateW = mw + fpx * 1.6f;
+        drawQuad(cx - plateW * 0.5f, sy - lh * 0.5f, plateW, lh * n + lh * 0.3f, 0, 0, 0, 0.55f * A);
         for (int i = 0; i < n; i++) {
-            float oy = sy + i * lh + lh * 0.1f;  // row centre (web textBaseline='middle' at oy)
+            float oy = sy + i * lh + lh * 0.3f;   // row centre
             bool sel = (i == mVidSubSel);
-            if (sel) drawQuad(sx - fpx * 0.4f, oy - lh * 0.45f, mw + fpx * 0.8f, lh * 0.9f, 1, 1, 1, 0.20f * A);
+            if (sel) drawQuad(cx - plateW * 0.46f, oy - lh * 0.45f, plateW * 0.92f, lh * 0.9f, 1, 1, 1, 0.20f * A);
             float c = sel ? 1.0f : 0.88f;
-            drawText(mVidSubOpts[i].c_str(), sx, ps3::baselineToTopY(oy + fpx * 0.35f, fs),
+            float ow = measureText(mVidSubOpts[i].c_str(), fs);
+            drawText(mVidSubOpts[i].c_str(), cx - ow * 0.5f, ps3::baselineToTopY(oy + fpx * 0.35f, fs),
                      fs, c, c, c, (sel ? 1.0f : 0.85f) * A);
         }
     }
