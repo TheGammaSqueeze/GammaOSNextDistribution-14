@@ -23,6 +23,8 @@
 
 #include <gui/GLConsumer.h>
 #include <gui/Surface.h>
+#include <media/NdkImage.h>
+#include <media/NdkImageReader.h>
 #include <media/NdkMediaCodec.h>
 #include <media/NdkMediaDataSource.h>
 #include <media/NdkMediaExtractor.h>
@@ -201,9 +203,33 @@ private:
     android::sp<android::GLConsumer> mConsumer;
     android::sp<android::Surface> mSurface;
 
+    // Alternate GL output path (YUV) for GPUs whose EGL driver cannot import the vendor
+    // decoder's private YUV buffer as a GL_TEXTURE_EXTERNAL_OES image (Mali on Unisoc
+    // returns EGL_BAD_ALLOC creating the EGLImage, so the OES path stays black even though
+    // the decoder produces frames). Here the codec decodes into an AImageReader configured
+    // for the standard, always-supported AIMAGE_FORMAT_YUV_420_888; the render thread copies
+    // the Y/U/V planes into three plain GL_LUMINANCE textures and converts to RGB in a
+    // fragment shader. Guaranteed to work regardless of the vendor buffer format. Selected
+    // by nanoVideoUseYuvPath() (SoC gate) at openBegin.
+    bool mYuvMode = false;
+    AImageReader* mImageReader = nullptr;   // decoder output sink (YUV mode)
+    ANativeWindow* mCodecWindow = nullptr;  // window passed to AMediaCodec_configure (OES: mSurface; YUV: reader)
+    GLuint mTexY = 0, mTexU = 0, mTexV = 0; // Y, Cb, Cr planes (GL_LUMINANCE)
+    int mYuvW = 0, mYuvH = 0;               // uploaded (cropped) frame size
+    bool mYuvHasFrame = false;              // a frame has been uploaded to the Y/U/V textures
+    std::vector<uint8_t> mYbuf, mUbuf, mVbuf;  // tight-packed plane scratch (reused per frame)
+    ANativeWindow* outputWindow();          // the codec output window; lazily creates the reader in YUV mode
+    void uploadYuvImage(AImage* img);       // copy an acquired YUV_420_888 image into the 3 GL textures
+    bool ensureYuvProgram();                // lazily compile the YUV->RGB program
+
     // samplerExternalOES draw program (lazy).
     GLuint mProg = 0;
     GLint mLocPos = -1, mLocTex = -1, mLocST = -1, mLocAlpha = -1, mLocRot = -1;
+
+    // YUV->RGB draw program (lazy; YUV mode only).
+    GLuint mYuvProg = 0;
+    GLint mYuvLocPos = -1, mYuvLocTex = -1, mYuvLocAlpha = -1, mYuvLocRot = -1;
+    GLint mYuvLocY = -1, mYuvLocU = -1, mYuvLocV = -1, mYuvLocMat = -1, mYuvLocOff = -1;
 
     std::thread mWorker;
 

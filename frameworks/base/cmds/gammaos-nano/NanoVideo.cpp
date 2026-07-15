@@ -37,6 +37,29 @@ static int64_t monoNs() {
 // MPEG-TS descramble helpers (tsNeedsDescramble / tsMakeDataSource / tsFreeDataSource)
 // now live in NanoTsDescramble.{h,cpp}, shared with the audio path (NanoAudio).
 
+// True when the decoder output must be routed through the YUV_420_888 ImageReader path
+// instead of the GL_TEXTURE_EXTERNAL_OES/GLConsumer path. On Unisoc/Spreadtrum (Mali GPU)
+// the EGL driver cannot import the vendor decoder's private YUV buffer as an external
+// image (GLConsumer logs "error creating EGLImage: 0x3003" / EGL_BAD_ALLOC every frame),
+// so the OES path renders black even though the hardware decoder produces frames. The
+// YUV_420_888 output format is mandatory for every Android video decoder and is copied to
+// plain GL textures, sidestepping the vendor-format EGL import entirely. Overridable with
+// persist.gammaos.nano.vid.yuv (1 = force on, 0 = force off) for testing on any SoC.
+static bool nanoVideoUseYuvPath() {
+    static int cached = -1;
+    if (cached >= 0) return cached == 1;
+    char v[PROPERTY_VALUE_MAX] = {};
+    if (property_get("persist.gammaos.nano.vid.yuv", v, "") > 0 && (v[0] == '0' || v[0] == '1')) {
+        cached = (v[0] == '1') ? 1 : 0;
+        return cached == 1;
+    }
+    char platform[PROPERTY_VALUE_MAX] = {};
+    property_get("ro.board.platform", platform, "");
+    cached = (strstr(platform, "ums") || strstr(platform, "sc98") ||
+              strstr(platform, "sc99") || strstr(platform, "sharkl")) ? 1 : 0;
+    return cached == 1;
+}
+
 static std::string codecShortName(const char* mime) {
     if (!mime) return "";
     std::string m = mime;
@@ -158,6 +181,27 @@ bool NanoVideo::openBegin(int wHint, int hHint) {
     mWidth = wHint > 0 ? wHint : 1;
     mHeight = hHint > 0 ? hHint : 1;
 
+    mYuvMode = nanoVideoUseYuvPath();
+    if (mYuvMode) {
+        // Three plain 2D luminance textures (Y, Cb, Cr); the decoder writes into an
+        // AImageReader (created lazily in outputWindow(), once the real size is known),
+        // and updateFrame() copies the acquired planes into these. No BufferQueue/OES.
+        GLuint t[3] = {0, 0, 0};
+        glGenTextures(3, t);
+        mTexY = t[0]; mTexU = t[1]; mTexV = t[2];
+        if (!mTexY || !mTexU || !mTexV) { LOGE("openBegin: YUV glGenTextures failed"); return false; }
+        for (GLuint tex : {mTexY, mTexU, mTexV}) {
+            glBindTexture(GL_TEXTURE_2D, tex);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        }
+        glBindTexture(GL_TEXTURE_2D, 0);
+        mYuvHasFrame = false;
+        return true;
+    }
+
     glGenTextures(1, &mTexId);
     if (!mTexId) { LOGE("openBegin: glGenTextures failed"); return false; }
     glBindTexture(GL_TEXTURE_EXTERNAL_OES, mTexId);
@@ -174,7 +218,26 @@ bool NanoVideo::openBegin(int wHint, int hHint) {
     mConsumer->setName(android::String8("NanoVideo"));
     mConsumer->setDefaultBufferSize(mWidth, mHeight);
     mSurface = new Surface(producer);
+    mCodecWindow = mSurface.get();
     return true;
+}
+
+// The ANativeWindow the codec decodes into. OES path: the GLConsumer's producer Surface.
+// YUV path: the AImageReader's window, created lazily here at the current (real) frame size
+// so the reader's buffers match the decoder output (openBegin only has size hints; the real
+// dimensions are set on mWidth/mHeight from the extractor/format before configure).
+ANativeWindow* NanoVideo::outputWindow() {
+    if (!mYuvMode) return mSurface.get();
+    if (!mImageReader) {
+        int w = mWidth > 0 ? mWidth : 1, h = mHeight > 0 ? mHeight : 1;
+        // maxImages: give the HW decoder a healthy pool of output buffers (DPB + in-flight);
+        // updateFrame() acquires the latest and deletes it immediately, so we hold at most one.
+        media_status_t s = AImageReader_new(w, h, AIMAGE_FORMAT_YUV_420_888, 8, &mImageReader);
+        if (s != AMEDIA_OK || !mImageReader) { LOGE("AImageReader_new(%dx%d) failed (%d)", w, h, s); mImageReader = nullptr; return nullptr; }
+        s = AImageReader_getWindow(mImageReader, &mCodecWindow);
+        if (s != AMEDIA_OK || !mCodecWindow) { LOGE("AImageReader_getWindow failed (%d)", s); return nullptr; }
+    }
+    return mCodecWindow;
 }
 
 // WORKER THREAD: the blocking part of open() - extractor + codec - reusing the GL from
@@ -231,7 +294,7 @@ bool NanoVideo::openAsyncRun(const std::string& path) {
     mCodec = AMediaCodec_createDecoderByType(mimeStr.c_str());
     if (!mCodec) { LOGE("createDecoderByType(%s) failed", mimeStr.c_str()); AMediaFormat_delete(fmt); return false; }
     if (mCancel.load()) { AMediaFormat_delete(fmt); return false; }
-    media_status_t cs = AMediaCodec_configure(mCodec, fmt, mSurface.get(), nullptr, 0);
+    media_status_t cs = AMediaCodec_configure(mCodec, fmt, outputWindow(), nullptr, 0);
     AMediaFormat_delete(fmt);
     if (cs != AMEDIA_OK) { LOGE("codec configure failed (%d)", cs); return false; }
     if (mCancel.load()) return false;
@@ -333,7 +396,7 @@ bool NanoVideo::openAsyncRunUrl(const std::string& url) {
     mCodec = AMediaCodec_createDecoderByType(mimeStr.c_str());
     if (!mCodec) { LOGE("createDecoderByType(%s) failed", mimeStr.c_str()); AMediaFormat_delete(fmt); return false; }
     if (mCancel.load()) { AMediaFormat_delete(fmt); return false; }
-    media_status_t cs = AMediaCodec_configure(mCodec, fmt, mSurface.get(), nullptr, 0);
+    media_status_t cs = AMediaCodec_configure(mCodec, fmt, outputWindow(), nullptr, 0);
     AMediaFormat_delete(fmt);
     if (cs != AMEDIA_OK) { LOGE("url codec configure failed (%d)", cs); return false; }
     if (mCancel.load()) return false;
@@ -387,13 +450,13 @@ bool NanoVideo::openAsyncRunFed(const std::string& mime, int width, int height, 
     media_status_t cs;
     if (srcFmt) {
         AMediaFormat_setString(srcFmt, AMEDIAFORMAT_KEY_MIME, mime.c_str());
-        cs = AMediaCodec_configure(mCodec, srcFmt, mSurface.get(), nullptr, 0);
+        cs = AMediaCodec_configure(mCodec, srcFmt, outputWindow(), nullptr, 0);
     } else {
         AMediaFormat* fmt = AMediaFormat_new();
         AMediaFormat_setString(fmt, AMEDIAFORMAT_KEY_MIME, mime.c_str());
         AMediaFormat_setInt32(fmt, AMEDIAFORMAT_KEY_WIDTH, mWidth);
         AMediaFormat_setInt32(fmt, AMEDIAFORMAT_KEY_HEIGHT, mHeight);
-        cs = AMediaCodec_configure(mCodec, fmt, mSurface.get(), nullptr, 0);
+        cs = AMediaCodec_configure(mCodec, fmt, outputWindow(), nullptr, 0);
         AMediaFormat_delete(fmt);
     }
     if (cs != AMEDIA_OK) { LOGE("openFed configure failed (%d)", cs); AMediaCodec_delete(mCodec); mCodec = nullptr; mFed = false; return false; }
@@ -488,7 +551,7 @@ bool NanoVideo::recreateFedCodec() {
     AMediaFormat_setString(fmt, AMEDIAFORMAT_KEY_MIME, mFedMime.c_str());
     AMediaFormat_setInt32(fmt, AMEDIAFORMAT_KEY_WIDTH, mWidth);
     AMediaFormat_setInt32(fmt, AMEDIAFORMAT_KEY_HEIGHT, mHeight);
-    media_status_t cs = AMediaCodec_configure(mCodec, fmt, mSurface.get(), nullptr, 0);
+    media_status_t cs = AMediaCodec_configure(mCodec, fmt, outputWindow(), nullptr, 0);
     AMediaFormat_delete(fmt);
     if (cs != AMEDIA_OK || AMediaCodec_start(mCodec) != AMEDIA_OK) {
         if (mCodec) { AMediaCodec_delete(mCodec); mCodec = nullptr; }
@@ -529,7 +592,7 @@ bool NanoVideo::recreateExtractorCodec() {
     }
     if (!c && mime) c = AMediaCodec_createDecoderByType(mime);
     if (!c) { AMediaFormat_delete(fmt); return false; }
-    media_status_t cs = AMediaCodec_configure(c, fmt, mSurface.get(), nullptr, 0);
+    media_status_t cs = AMediaCodec_configure(c, fmt, outputWindow(), nullptr, 0);
     AMediaFormat_delete(fmt);
     if (cs != AMEDIA_OK || AMediaCodec_start(c) != AMEDIA_OK) { AMediaCodec_delete(c); return false; }
     mCodec = c;
@@ -901,10 +964,66 @@ bool NanoVideo::ensureProgram() {
     return true;
 }
 
+// YUV_420_888 -> RGB draw program (three GL_LUMINANCE samplers + a colour matrix uniform).
+// Used only on the YUV output path (Unisoc/Mali). The frame from AImageReader is upright
+// (top-left origin) so no uST transform is needed; uRotation still orients the quad for a
+// rotated panel exactly like the OES path.
+bool NanoVideo::ensureYuvProgram() {
+    if (mYuvProg) return true;
+    static const char* VS =
+        "attribute vec2 aPos;\n"
+        "attribute vec2 aTex;\n"
+        "uniform mat2 uRotation;\n"
+        "varying vec2 vTex;\n"
+        "void main(){ vTex = aTex; gl_Position = vec4(uRotation * aPos, 0.0, 1.0); }\n";
+    static const char* FS =
+        "precision mediump float;\n"
+        "uniform sampler2D uTexY;\n"
+        "uniform sampler2D uTexU;\n"
+        "uniform sampler2D uTexV;\n"
+        "uniform float uAlpha;\n"
+        "uniform mat3 uYuv2Rgb;\n"
+        "uniform vec3 uYuvOff;\n"
+        "varying vec2 vTex;\n"
+        "void main(){\n"
+        "  vec3 yuv = vec3(texture2D(uTexY, vTex).r, texture2D(uTexU, vTex).r, texture2D(uTexV, vTex).r);\n"
+        "  vec3 rgb = uYuv2Rgb * (yuv - uYuvOff);\n"
+        "  gl_FragColor = vec4(clamp(rgb, 0.0, 1.0), uAlpha);\n"
+        "}\n";
+    GLuint vs = compileShader(GL_VERTEX_SHADER, VS);
+    GLuint fs = compileShader(GL_FRAGMENT_SHADER, FS);
+    if (!vs || !fs) { if (vs) glDeleteShader(vs); if (fs) glDeleteShader(fs); return false; }
+    mYuvProg = glCreateProgram();
+    glAttachShader(mYuvProg, vs); glAttachShader(mYuvProg, fs);
+    glBindAttribLocation(mYuvProg, 0, "aPos");
+    glBindAttribLocation(mYuvProg, 1, "aTex");
+    glLinkProgram(mYuvProg);
+    glDeleteShader(vs); glDeleteShader(fs);
+    GLint ok = 0; glGetProgramiv(mYuvProg, GL_LINK_STATUS, &ok);
+    if (!ok) { char log[512]; glGetProgramInfoLog(mYuvProg, sizeof(log), nullptr, log); LOGE("yuv link: %s", log); glDeleteProgram(mYuvProg); mYuvProg = 0; return false; }
+    mYuvLocPos = 0; mYuvLocTex = 1;
+    mYuvLocRot = glGetUniformLocation(mYuvProg, "uRotation");
+    mYuvLocAlpha = glGetUniformLocation(mYuvProg, "uAlpha");
+    mYuvLocY = glGetUniformLocation(mYuvProg, "uTexY");
+    mYuvLocU = glGetUniformLocation(mYuvProg, "uTexU");
+    mYuvLocV = glGetUniformLocation(mYuvProg, "uTexV");
+    mYuvLocMat = glGetUniformLocation(mYuvProg, "uYuv2Rgb");
+    mYuvLocOff = glGetUniformLocation(mYuvProg, "uYuvOff");
+    static const float kIdentity[4] = {1.0f, 0.0f, 0.0f, 1.0f};
+    glUseProgram(mYuvProg);
+    if (mYuvLocY >= 0) glUniform1i(mYuvLocY, 0);
+    if (mYuvLocU >= 0) glUniform1i(mYuvLocU, 1);
+    if (mYuvLocV >= 0) glUniform1i(mYuvLocV, 2);
+    if (mYuvLocRot >= 0) glUniformMatrix2fv(mYuvLocRot, 1, GL_FALSE, kIdentity);
+    glUseProgram(0);
+    return true;
+}
+
 void NanoVideo::draw(int screenW, int screenH, float rx, float ry, float rw, float rh,
                      float alpha, int fitMode, const float* rotMat) {
-    if (!mOpen || !mTexId || mWidth <= 0 || mHeight <= 0 || alpha <= 0.001f) return;
-    if (!ensureProgram()) return;
+    if (!mOpen || mWidth <= 0 || mHeight <= 0 || alpha <= 0.001f) return;
+    if (mYuvMode) { if (!mYuvHasFrame || !ensureYuvProgram()) return; }
+    else          { if (!mTexId || !ensureProgram()) return; }
 
     // Screen Mode fit (web drawVideoPlayer 12712-12737), fitMode = screenMode index:
     //   0 Normal = contain (min), 1 Full Screen = cover (max), 2 Original = 1:1,
@@ -914,7 +1033,10 @@ void NanoVideo::draw(int screenW, int screenH, float rx, float ry, float rw, flo
     // frame is shown at its true shape (the web XMB relies on the browser to do this).
     // Keep the coded height and widen to the DAR; square-pixel content (dar == 0) is
     // unchanged, so the fit math is identical to before for it.
-    float vw = (float)mWidth, vh = (float)mHeight;
+    // YUV path: use the cropped display size (drops the codec's alignment padding, e.g.
+    // 1088->1080) so the aspect is exact; OES path uses the coded size as before.
+    float vw = (mYuvMode && mYuvW > 0) ? (float)mYuvW : (float)mWidth;
+    float vh = (mYuvMode && mYuvH > 0) ? (float)mYuvH : (float)mHeight;
     float dar = mDisplayAspect.load();
     float dispW = (dar > 0.0f) ? (vh * dar) : vw;
     float dispH = vh;
@@ -938,8 +1060,12 @@ void NanoVideo::draw(int screenW, int screenH, float rx, float ry, float rw, flo
     // vertically-symmetric content). v: TL=1, TR=1, BR=0, BL=0.
     float px[4] = { x0, x1, x1, x0 };
     float py[4] = { y0, y0, y1, y1 };
+    // OES path: the GLConsumer transform (uST) maps t' = 1 - t, so v is bottom-left origin
+    // (TL=1). YUV path: the AImageReader frame is upright, so v is top-left origin (TL=0).
     float u[4]  = { 0.0f, 1.0f, 1.0f, 0.0f };
-    float v[4]  = { 1.0f, 1.0f, 0.0f, 0.0f };
+    float v[4];
+    if (mYuvMode) { v[0] = 0.0f; v[1] = 0.0f; v[2] = 1.0f; v[3] = 1.0f; }
+    else          { v[0] = 1.0f; v[1] = 1.0f; v[2] = 0.0f; v[3] = 0.0f; }
     const int order[6] = {0, 1, 2, 0, 2, 3};
     GLfloat verts[12], uvs[12];
     for (int k = 0; k < 6; k++) {
@@ -947,14 +1073,53 @@ void NanoVideo::draw(int screenW, int screenH, float rx, float ry, float rw, flo
         verts[k * 2] = ndcX(px[c]); verts[k * 2 + 1] = ndcY(py[c]);
         uvs[k * 2] = u[c]; uvs[k * 2 + 1] = v[c];
     }
-    float st[16]; getTransform(st);
+    static const float kId[4] = {1.0f, 0.0f, 0.0f, 1.0f};
 
+    if (mYuvMode) {
+        // Limited-range YUV->RGB matrix (column-major mat3): BT.709 for HD (>=720 lines),
+        // BT.601 for SD, matching how the browser the web XMB mirrors decodes each.
+        const float a = 255.0f / 219.0f;    // luma gain (16..235)
+        const float c = 255.0f / 224.0f;    // chroma gain (16..240)
+        bool hd = (vh >= 720.0f);
+        float ur = hd ?  0.0f      :  0.0f;
+        float ug = hd ? -0.1873f   : -0.344136f;
+        float ub = hd ?  1.8556f   :  1.772f;
+        float vr = hd ?  1.5748f   :  1.402f;
+        float vg = hd ? -0.4681f   : -0.714136f;
+        float vb = hd ?  0.0f      :  0.0f;
+        const float mat[9] = { a, a, a,                 // col0: Yc -> (r,g,b)
+                               ur * c, ug * c, ub * c,  // col1: Uc -> (r,g,b)
+                               vr * c, vg * c, vb * c }; // col2: Vc -> (r,g,b)
+        const float off[3] = { 16.0f / 255.0f, 128.0f / 255.0f, 128.0f / 255.0f };
+        glUseProgram(mYuvProg);
+        if (mYuvLocRot >= 0)   glUniformMatrix2fv(mYuvLocRot, 1, GL_FALSE, rotMat ? rotMat : kId);
+        if (mYuvLocAlpha >= 0) glUniform1f(mYuvLocAlpha, alpha);
+        if (mYuvLocMat >= 0)   glUniformMatrix3fv(mYuvLocMat, 1, GL_FALSE, mat);
+        if (mYuvLocOff >= 0)   glUniform3fv(mYuvLocOff, 1, off);
+        glActiveTexture(GL_TEXTURE0); glBindTexture(GL_TEXTURE_2D, mTexY);
+        glActiveTexture(GL_TEXTURE1); glBindTexture(GL_TEXTURE_2D, mTexU);
+        glActiveTexture(GL_TEXTURE2); glBindTexture(GL_TEXTURE_2D, mTexV);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glVertexAttribPointer(mYuvLocPos, 2, GL_FLOAT, GL_FALSE, 0, verts);
+        glEnableVertexAttribArray(mYuvLocPos);
+        glVertexAttribPointer(mYuvLocTex, 2, GL_FLOAT, GL_FALSE, 0, uvs);
+        glEnableVertexAttribArray(mYuvLocTex);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+        glDisableVertexAttribArray(mYuvLocPos);
+        glDisableVertexAttribArray(mYuvLocTex);
+        glActiveTexture(GL_TEXTURE2); glBindTexture(GL_TEXTURE_2D, 0);
+        glActiveTexture(GL_TEXTURE1); glBindTexture(GL_TEXTURE_2D, 0);
+        glActiveTexture(GL_TEXTURE0); glBindTexture(GL_TEXTURE_2D, 0);
+        glUseProgram(0);
+        return;
+    }
+
+    float st[16]; getTransform(st);
     glUseProgram(mProg);
     glUniformMatrix4fv(mLocST, 1, GL_FALSE, st);
     // Upload the rotation every draw (not only at link): sDrmRotMat can
     // change at runtime (user flip props) and the program can be lazily
     // rebuilt after a GL context loss.
-    static const float kId[4] = {1.0f, 0.0f, 0.0f, 1.0f};
     if (mLocRot >= 0)
         glUniformMatrix2fv(mLocRot, 1, GL_FALSE, rotMat ? rotMat : kId);
     if (mLocAlpha >= 0) glUniform1f(mLocAlpha, alpha);
@@ -973,9 +1138,76 @@ void NanoVideo::draw(int screenW, int screenH, float rx, float ry, float rw, flo
 }
 
 bool NanoVideo::updateFrame() {
-    if (!mOpen || mConsumer == nullptr) return false;
+    if (!mOpen) return false;
+    if (mYuvMode) {
+        if (!mImageReader) return false;
+        AImage* img = nullptr;
+        // Latch the newest decoded frame; acquireLatestImage auto-releases any older ones.
+        media_status_t s = AImageReader_acquireLatestImage(mImageReader, &img);
+        if (s != AMEDIA_OK || !img) return false;
+        uploadYuvImage(img);          // copies the planes into the GL textures
+        AImage_delete(img);           // release the buffer straight back to the decoder
+        return true;
+    }
+    if (mConsumer == nullptr) return false;
     android::status_t r = mConsumer->updateTexImage();
     return r == android::OK;
+}
+
+// Copy an acquired YUV_420_888 image into the three GL_LUMINANCE textures (Y, Cb, Cr),
+// tightly repacking each plane to honour its row/pixel stride (Unisoc's decoder is
+// semi-planar: the chroma planes have pixelStride 2). Runs on the render thread (GL).
+void NanoVideo::uploadYuvImage(AImage* img) {
+    int32_t cw = 0, ch = 0;
+    AImageCropRect crop = {0, 0, 0, 0};
+    if (AImage_getCropRect(img, &crop) == AMEDIA_OK && crop.right > crop.left && crop.bottom > crop.top) {
+        cw = crop.right - crop.left;    // visible width (drops the codec's alignment padding, e.g. 1088->1080)
+        ch = crop.bottom - crop.top;
+    } else {
+        AImage_getWidth(img, &cw);
+        AImage_getHeight(img, &ch);
+        crop.left = crop.top = 0;
+    }
+    if (cw <= 0 || ch <= 0) return;
+    const int cW = (cw + 1) / 2, cH = (ch + 1) / 2;   // chroma is half-resolution (4:2:0)
+
+    uint8_t* data = nullptr; int len = 0, rs = 0, ps = 0;
+    auto pack = [&](int plane, std::vector<uint8_t>& dst, int ox, int oy, int w, int h) -> bool {
+        data = nullptr; len = 0; rs = 0; ps = 0;
+        if (AImage_getPlaneData(img, plane, &data, &len) != AMEDIA_OK || !data) return false;
+        AImage_getPlaneRowStride(img, plane, &rs);
+        AImage_getPlanePixelStride(img, plane, &ps);
+        if (rs <= 0) return false;
+        if (ps <= 0) ps = 1;
+        dst.resize((size_t)w * h);
+        uint8_t* out = dst.data();
+        for (int y = 0; y < h; y++) {
+            const uint8_t* src = data + (size_t)(oy + y) * rs + (size_t)ox * ps;
+            if (ps == 1) {
+                memcpy(out, src, (size_t)w);        // planar: contiguous row
+            } else {
+                for (int x = 0; x < w; x++) out[x] = src[(size_t)x * ps];   // semi-planar: strided
+            }
+            out += w;
+        }
+        return true;
+    };
+
+    // Plane 0 = Y (full res), 1 = Cb (U), 2 = Cr (V), each at half res with the same crop origin.
+    bool ok = pack(0, mYbuf, crop.left, crop.top, cw, ch) &&
+              pack(1, mUbuf, crop.left / 2, crop.top / 2, cW, cH) &&
+              pack(2, mVbuf, crop.left / 2, crop.top / 2, cW, cH);
+    if (!ok) return;
+
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    glBindTexture(GL_TEXTURE_2D, mTexY);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, cw, ch, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, mYbuf.data());
+    glBindTexture(GL_TEXTURE_2D, mTexU);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, cW, cH, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, mUbuf.data());
+    glBindTexture(GL_TEXTURE_2D, mTexV);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, cW, cH, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, mVbuf.data());
+    glBindTexture(GL_TEXTURE_2D, 0);
+    mYuvW = cw; mYuvH = ch; mYuvHasFrame = true;
 }
 
 void NanoVideo::getTransform(float m[16]) {
@@ -1018,9 +1250,14 @@ void NanoVideo::release() {
     if (mEx) { AMediaExtractor_delete(mEx); mEx = nullptr; }
     freeTsSource();           // after the extractor (it read through the data source)
     freeHls();                // after the extractor (HLS fetcher backed the custom source)
+    if (mImageReader) { AImageReader_delete(mImageReader); mImageReader = nullptr; }   // after the codec (its producer)
+    mCodecWindow = nullptr;
     mConsumer.clear();        // releases the GL texture image + consumer
     mSurface.clear();
     if (mTexId) { glDeleteTextures(1, &mTexId); mTexId = 0; }
+    if (mTexY || mTexU || mTexV) { GLuint t[3] = {mTexY, mTexU, mTexV}; glDeleteTextures(3, t); mTexY = mTexU = mTexV = 0; }
+    if (mYuvProg) { glDeleteProgram(mYuvProg); mYuvProg = 0; }
+    mYuvHasFrame = false; mYuvW = mYuvH = 0;
     mVideoTrack = -1; mWidth = mHeight = 0; mDurationSec = 0.0; mPosSec = 0.0;
     mSeekPending = false; mAsyncReleasing = false; mAsyncDone = false;
     mOpen = false;
@@ -1080,9 +1317,14 @@ void NanoVideo::releaseAsync() {
 // context) and clear all state. The owner deletes the object after this returns.
 void NanoVideo::finishRelease() {
     if (mReleaseThread.joinable()) mReleaseThread.join();   // done already -> instant
+    if (mImageReader) { AImageReader_delete(mImageReader); mImageReader = nullptr; }   // codec (its producer) freed on the bg thread above
+    mCodecWindow = nullptr;
     mConsumer.clear();
     mSurface.clear();
     if (mTexId) { glDeleteTextures(1, &mTexId); mTexId = 0; }
+    if (mTexY || mTexU || mTexV) { GLuint t[3] = {mTexY, mTexU, mTexV}; glDeleteTextures(3, t); mTexY = mTexU = mTexV = 0; }
+    if (mYuvProg) { glDeleteProgram(mYuvProg); mYuvProg = 0; }
+    mYuvHasFrame = false; mYuvW = mYuvH = 0;
     mVideoTrack = -1; mWidth = mHeight = 0; mDurationSec = 0.0; mPosSec = 0.0;
     mSeekPending = false; mAsyncReleasing = false;
 }
