@@ -72,6 +72,7 @@ cc_binary {
         "NanoMenuPS3Globe.cpp",
         "NanoMenuPS3Boot.cpp",
         "NanoBootChime.cpp",
+        "NanoHalChime.cpp",
         "NanoOtaCheck.cpp",
         "NanoMenuOta.cpp",
         "NanoMenuSetupWizard.cpp",
@@ -120,6 +121,8 @@ cc_binary {
         "jni_headers",
         "native_headers",   // <android/imagedecoder.h> + <android/bitmap.h> (photo viewer decode)
         "libgammargb_process_headers",   // shared GammaRGB colour pipeline (parity with SF sampler)
+        "libaudiohal_headers",   // media/audiohal/* (NanoHalChime: drive the vendor audio HAL directly)
+        "liberror_headers",      // error/Result.h pulled by the libaudiohal headers
     ],
 
     shared_libs: [
@@ -146,6 +149,8 @@ cc_binary {
         "libaaudio",    // GammaEQ audio preview + music player output (AAudio)
         "libmediandk",  // music player decode: AMediaExtractor + AMediaCodec -> PCM
         "libtinyalsa",  // RG DS boot chime: direct ALSA PCM write, bypasses AudioFlinger (NanoBootChime)
+        "libaudiohal",  // SPRD boot chime: drive the vendor audio HAL directly, bypass audioserver's ~11.7s AudioPolicyManager (NanoHalChime)
+        "libaudiofoundation",
         "libjnigraphics",  // photo viewer: AImageDecoder scaled-on-decode (JPEG/PNG/...)
     ],
 

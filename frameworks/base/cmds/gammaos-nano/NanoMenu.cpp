@@ -373,6 +373,23 @@ void NanoMenu::binderDied(const wp<IBinder>&) {
     kill(getpid(), SIGKILL);
     requestExit();
 }
+// GammaOS Nano: true when nano must run its home through SurfaceFlinger rather than
+// grabbing DRM master directly. On Unisoc/Spreadtrum SoCs (ums*/sc9*/sharkl*) the
+// vendor HWComposer relies on IMPLICIT DRM master and never calls drmSetMaster, so it
+// cannot reclaim master after a DRM-direct nano home drops it at the app handoff (the
+// panel then freezes on nano's last frame). nano must never take master there.
+// persist.gammaos.nano.force_sf=1 forces it on any SoC. Keyed on ro.board.platform so
+// it is available even before persist props load (main() uses the same rule).
+static bool nanoForceSfPath() {
+    if (property_get_bool("persist.gammaos.nano.force_sf", false)) return true;
+    char platform[PROPERTY_VALUE_MAX] = {};
+    property_get("ro.board.platform", platform, "");
+    return strstr(platform, "ums") != nullptr ||
+           strstr(platform, "sc98") != nullptr ||
+           strstr(platform, "sc99") != nullptr ||
+           strstr(platform, "sharkl") != nullptr;
+}
+
 status_t NanoMenu::readyToRun() {
     int64_t t0 = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL;
     auto tlog = [&](const char*) {
@@ -583,8 +600,9 @@ status_t NanoMenu::readyToRun() {
         property_get("sys.gammaos.nano.force_drm", forceDrm, "0");
         // Overlay mode never grabs DRM master: it coexists with SurfaceFlinger
         // and the running app as a translucent layer. Force the SF path.
-        if (mOverlayMode) {
-            ALOGI("NanoMenu: overlay mode, skipping DRM splash (SF path)");
+        if (mOverlayMode || nanoForceSfPath()) {
+            ALOGI("NanoMenu: %s, skipping DRM splash (SF path)",
+                  mOverlayMode ? "overlay mode" : "force-SF home");
         } else if (strcmp(bootDone, "1") != 0 || strcmp(forceDrm, "1") == 0) {
             if (strcmp(forceDrm, "1") == 0) {
                 ALOGW("NanoMenu: force_drm=1, grabbing DRM master "
@@ -982,7 +1000,7 @@ status_t NanoMenu::readyToRun() {
         // DRM-direct display and SF has not been needed yet). Wait for SF rather
         // than failing, so the overlay is ready by the time an app launches and
         // SF takes over the display.
-        if (mOverlayMode) {
+        if (mOverlayMode || nanoForceSfPath()) {
             sp<IServiceManager> sm = defaultServiceManager();
             const String16 sfName("SurfaceFlinger");
             int waited = 0;
@@ -998,7 +1016,7 @@ status_t NanoMenu::readyToRun() {
         tlog("SurfaceComposerClient ready");
 
         std::vector<PhysicalDisplayId> ids = SurfaceComposerClient::getPhysicalDisplayIds();
-        if (ids.empty() && mOverlayMode) {
+        if (ids.empty() && (mOverlayMode || nanoForceSfPath())) {
             // Displays not enumerated yet; poll until SF reports them.
             int waited = 0;
             while (ids.empty() && waited < 30000) {
@@ -1413,13 +1431,20 @@ bool NanoMenu::threadLoop() {
     // (persist.gammaos.nano.ps3boot_skip) skips it for fast iteration.
     if (mPs3Xmb && !sDrasticQrFastPath) {
         char bc[PROPERTY_VALUE_MAX] = {}, fd[PROPERTY_VALUE_MAX] = {};
-        char sd[PROPERTY_VALUE_MAX] = {}, mb[PROPERTY_VALUE_MAX] = {}, sk[PROPERTY_VALUE_MAX] = {};
+        char sd[PROPERTY_VALUE_MAX] = {}, sk[PROPERTY_VALUE_MAX] = {};
         property_get("sys.boot_completed", bc, "0");
         property_get("sys.gammaos.nano.force_drm", fd, "0");
-        property_get("sys.gammaos.minimal_boot", mb, "0");
         property_get("persist.gammaos.nano.setup_done", sd, "");
         property_get("persist.gammaos.nano.ps3boot_skip", sk, "0");
-        bool coldBoot = (strcmp(bc, "1") != 0 && strcmp(fd, "1") != 0 && strcmp(mb, "1") != 0);
+        // This arming runs on the render thread's first iteration. On the force-SF path
+        // (no DRM-direct home, e.g. Unisoc) nano cannot present until SurfaceFlinger is up,
+        // so this runs ~2s later than on the DRM-direct path -- by which point
+        // sys.gammaos.minimal_boot has already flipped to 1 (it is raised during every nano
+        // boot). So minimal_boot must NOT be part of the cold-boot test, or the themed intro
+        // (and its boot chime, fired from inside the intro) would never arm in force-SF.
+        // sys.boot_completed is the reliable "this is an app-return restart, skip the intro"
+        // signal (and stays 0 until long after nano's first frame on any path).
+        bool coldBoot = (strcmp(bc, "1") != 0 && strcmp(fd, "1") != 0);
         bool fresh = (strcmp(sd, "1") != 0);
         // Play the intro on a normal cold boot, AND always before the setup wizard
         // on a fresh device (fresh=true) even when this is a restart rather than a

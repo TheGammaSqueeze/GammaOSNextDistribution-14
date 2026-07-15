@@ -221,7 +221,8 @@ void directEnableSpeaker() {
             std::string nm = lc(raw);
             if (has(nm,"capture") || has(nm,"mic") || has(nm,"adc") || has(nm,"loopback") ||
                 has(nm,"bypass") || has(nm,"jack") || has(nm,"sidetone") || has(nm,"monitor") ||
-                has(nm,"detect")) continue;                                   // never touch input / detect paths
+                has(nm,"detect") || has(nm,"mute")) continue;                 // never touch input / detect / MUTE controls
+                                                                              // (a "*Mute" is active-high: setting it to 1 would MUTE the output)
             int type = mixer_ctl_get_type(c);
             unsigned nv = mixer_ctl_get_num_values(c);
             if (nv == 0) continue;
@@ -419,9 +420,35 @@ bool nanoBootChimeIsMtkDevice() {
     return cached == 1;
 }
 
+// Unisoc/Spreadtrum SPRD codec (e.g. sprdphone-sc2730 on a UMS512/SharkL5 board). The
+// playback path (VBC front-end -> internal DAC -> aw87xxx smart-PA) is pumped by the
+// SPRD audio DSP (AGDSP) through the vendor HAL's proprietary DSP IPC, NOT by the ALSA
+// PCM alone: a raw pcm_open(0,0) reaches state RUNNING but the DMA never drains (hw_ptr
+// stalls, dmesg spins on "agdsp_access_enable") so the direct-ALSA path is silent, and
+// there is no direct-DAC / non-DSP playback node to bypass it. Device-verified on an
+// UMS512 board. Detect it so early-boot audio takes the AAudio path instead, which
+// plays through the full vendor HAL (DSP + route + amp) once the audio server is up.
+bool nanoBootChimeIsSprdDevice() {
+    static int cached = -1;
+    if (cached >= 0) return cached == 1;
+    cached = 0;
+    FILE* f = fopen("/proc/asound/card0/id", "rb");
+    if (f) {
+        char id[64] = {};
+        size_t n = fread(id, 1, sizeof(id) - 1, f);
+        fclose(f);
+        for (size_t i = 0; i < n; i++) if (id[i] >= 'A' && id[i] <= 'Z') id[i] = (char)(id[i] + 32);
+        if (strstr(id, "sprdphone") || strstr(id, "sc2730") || strstr(id, "sc9863") ||
+            strstr(id, "ums512") || strstr(id, "sprd"))
+            cached = 1;
+    }
+    return cached == 1;
+}
+
 bool nanoDirectAudioUsable() {
     if (gEng.failed.load()) return false;              // a prior direct open failed -> AAudio only
     if (nanoBootChimeIsMtkDevice()) return false;      // no usable pre-HAL window here -> AAudio path (plays once the audio server is up)
+    if (nanoBootChimeIsSprdDevice()) return false;     // SPRD VBC/AGDSP: raw PCM DMA never drains without the vendor DSP protocol -> AAudio-late
     static int hasNode = -1;                           // card 0 playback PCM present? (cheap, cached)
     if (hasNode < 0) hasNode = (access("/dev/snd/pcmC0D0p", W_OK) == 0) ? 1 : 0;
     return hasNode == 1;

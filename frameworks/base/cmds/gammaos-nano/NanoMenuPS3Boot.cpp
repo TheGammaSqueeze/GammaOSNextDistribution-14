@@ -26,6 +26,7 @@
 #include "NanoI18n.h"      // trDyn() resource-file translations
 #include "NanoMenuShaders.h"   // FONT_CHAR_H (DSi font-scale idiom)
 #include "NanoBootChime.h"     // RG DS direct-ALSA boot chime (bypasses AudioFlinger)
+#include "NanoHalChime.h"      // SPRD boot chime: drive the vendor audio HAL directly (bypasses audioserver)
 
 #include <math.h>
 #include <string.h>
@@ -100,6 +101,7 @@ static inline float smooth01(float u) { return u * u * (3.0f - 2.0f * u); }
 // ---------------------------------------------------------------------------
 static std::string dsiAudioPath(const char* file);   // defined below (used by the pre-warm)
 static float dsiEarlyAudioGain(float master);        // defined below (used by the pre-warm volume)
+static bool dsiBootCompleted();                      // defined below (gates the pre-warm vs HAL chime)
 void NanoMenu::ps3BootReset(bool freshSetup) {
     mPs3BootElapsedMs = 0.0;
     mPs3BootActive = true;
@@ -115,7 +117,45 @@ void NanoMenu::ps3BootReset(bool freshSetup) {
     mDsiBootSeed = (float)((android::uptimeMillis() % 100000) * 0.001);   // vary the mini-logo scatter per boot
     mChimeReady = false; mChimePlayReq = false; mChimeStarted = false;
     mPs3ColdSoundPlayed = false;   // PS3 XMB cold-boot sound fires once per (re)boot / bootreplay
-    if (mNdsTheme) { mNdsIntroStart = 0; mSfxPlayer.init(); dsiPrewarmChime(); }
+    if (mNdsTheme) {
+        mNdsIntroStart = 0; mSfxPlayer.init();
+        // On a SoC whose loudspeaker only sounds through the vendor HAL/DSP (SPRD/Unisoc), the
+        // cold-boot chime is played by driving the vendor HAL directly at its mark (ps3BootUpdate).
+        // Pre-warming the AAudio stream here would hold mSfxOpening and BLOCK that HAL thread from
+        // spawning, so skip the pre-warm in exactly that case (matches the HAL-branch condition).
+        if (nanoDirectAudioUsable() || dsiBootCompleted()) dsiPrewarmChime();
+    }
+    else if (!nanoDirectAudioUsable()) {
+        // PS3 theme on a SoC where the direct-ALSA path is dead (e.g. SPRD/Unisoc, whose
+        // loudspeaker only sounds through the vendor HAL/DSP). The boot chime must come through
+        // AAudio, and in force-SF mode nano's render loop is CPU/SF-starved during the busy boot,
+        // so the render-clock 800ms chime mark lands ~12s late. DECOUPLE the chime from the render
+        // clock: play it from a dedicated thread the instant audioserver is up, so it lands ASAP
+        // (~the audioserver floor) regardless of how slowly the intro renders. Suppress the
+        // render-clock fire below (mPs3ColdSoundPlayed=true).
+        mPs3ColdSoundPlayed = true;
+        if (!mSfxOpening.exchange(true)) {
+            std::string path = dsiAudioPath("coldboot_stereo.wav");
+            std::thread([this, path]() {
+                float gain = dsiEarlyAudioGain(0.8f);
+                // FASTEST: drive the vendor audio HAL directly (bypasses audioserver's ~11.7s
+                // AudioPolicyManager, which blocks on ActivityManager) -> chime at the HAL floor
+                // ~8s instead of ~20s. Falls back to the AAudio-late path if the HAL is unreachable
+                // (that path waits for audioserver = the old ~20s behaviour).
+                if (!nanoHalChimePlay(path, gain)) {
+                    mSfxPlayer.init();
+                    for (int i = 0; i < 400; i++) {        // wait for audioserver (comes up ~7.8s+)
+                        char s[PROPERTY_VALUE_MAX] = {};
+                        property_get("init.svc.audioserver", s, "");
+                        if (strcmp(s, "running") == 0) break;
+                        usleep(25 * 1000);
+                    }
+                    if (mSfxPlayer.open(path)) { mSfxPlayer.setVolume(gain); mSfxPlayer.play(); }
+                }
+                mSfxOpening.store(false);
+            }).detach();
+        }
+    }
 }
 
 // Open the boot chime stream ASAP on a detached thread (no play yet). Kicking this at boot
@@ -478,6 +518,30 @@ bool NanoMenu::ps3BootUpdate(float dtSeconds) {
                         nanoDirectChimePlay(dsiAudioPath("boot_chime.wav"), 0, 0, dsiEarlyAudioGain(0.8f),
                                             &mDirectChimeInFlight);
                     mChimeStarted = true;
+                } else if (!nanoDirectAudioUsable() && !dsiBootCompleted()) {
+                    // SoC where the direct-ALSA path is dead (e.g. SPRD/Unisoc, whose loudspeaker only
+                    // sounds through the vendor HAL/DSP). Same as the PS3 cold-boot sound: drive the
+                    // vendor audio HAL directly from a dedicated thread (chime at the HAL floor ~8s,
+                    // not the ~20s audioserver floor), falling back to the AAudio-late path inside the
+                    // thread if the HAL is unreachable. Never blocks the render loop.
+                    if (!mSfxOpening.exchange(true)) {
+                        std::string path = dsiAudioPath("boot_chime.wav");
+                        float gain = dsiEarlyAudioGain(0.8f);
+                        std::thread([this, path, gain]() {
+                            if (!nanoHalChimePlay(path, gain)) {
+                                mSfxPlayer.init();
+                                for (int i = 0; i < 400; i++) {        // wait for audioserver (~7.8s+)
+                                    char s[PROPERTY_VALUE_MAX] = {};
+                                    property_get("init.svc.audioserver", s, "");
+                                    if (strcmp(s, "running") == 0) break;
+                                    usleep(25 * 1000);
+                                }
+                                if (mSfxPlayer.open(path)) { mSfxPlayer.setVolume(gain); mSfxPlayer.play(); }
+                            }
+                            mSfxOpening.store(false);
+                        }).detach();
+                    }
+                    mChimeStarted = true;
                 } else if (mChimeReady.load()) { mSfxPlayer.play(); mChimeStarted = true; }
                 else if (!mSfxOpening.load()) { dsiBootSound(DsiSfx::Chime); mChimeStarted = true; }  // pre-warm failed: async fallback
             }
@@ -515,10 +579,23 @@ bool NanoMenu::ps3BootUpdate(float dtSeconds) {
         mPs3ColdSoundPlayed = true;
         if (nanoDirectAudioUsable() && !dsiBootCompleted()) {
             nanoDirectPlayOneShot(dsiAudioPath("coldboot_stereo.wav"), dsiEarlyAudioGain(0.8f));
-        } else if (!mSfxOpening.exchange(true)) {          // AAudio fallback (plays once audio is up)
+        } else if (!mSfxOpening.exchange(true)) {          // AAudio fallback (plays reliably once the audio server is up)
             std::string path = dsiAudioPath("coldboot_stereo.wav");
             std::thread([this, path]() {
                 mSfxPlayer.init();
+                // On SoCs where the direct-ALSA path is disabled (e.g. SPRD/Unisoc, whose
+                // loudspeaker only sounds through the vendor audio HAL/DSP) this AAudio
+                // fallback is the ONLY boot chime path. AAudioStreamBuilder_openStream fails
+                // fast if the audio server is still mid-init, and coldboot_stereo.wav is raw
+                // PCM (no format-change reopen), so opening before the server is up silently
+                // DROPS the chime. Wait for audioserver to be running, then open+play once so
+                // the chime reliably sounds at the earliest audible instant.
+                for (int i = 0; i < 400; i++) {            // up to ~10s for audioserver to come up
+                    char s[PROPERTY_VALUE_MAX] = {};
+                    property_get("init.svc.audioserver", s, "");
+                    if (strcmp(s, "running") == 0) break;
+                    usleep(25 * 1000);
+                }
                 if (mSfxPlayer.open(path)) { mSfxPlayer.setVolume(dsiEarlyAudioGain(0.8f)); mSfxPlayer.play(); }   // volume-model scaled, matching the direct path (not a flat 0.8)
                 mSfxOpening.store(false);
             }).detach();

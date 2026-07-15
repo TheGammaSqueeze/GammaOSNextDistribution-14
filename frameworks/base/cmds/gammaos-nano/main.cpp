@@ -1007,6 +1007,21 @@ int main(int argc, char** argv) {
     {
         char platform[PROPERTY_VALUE_MAX] = {};
         property_get("ro.board.platform", platform, "");
+        // GammaOS Nano: force-SurfaceFlinger home. On SoCs whose HWComposer relies on
+        // IMPLICIT DRM master and never calls drmSetMaster (Unisoc/Spreadtrum
+        // ums*/sc9*/sharkl*), a DRM-direct nano home that grabs card0 master starves
+        // the composer's init modeset and, worse, the composer cannot RECLAIM master
+        // after nano drops it at the app handoff -> the panel freezes on nano's last
+        // frame. Run the whole nano home through SurfaceFlinger instead, so the
+        // composer always owns the panel and nano composites as an ordinary SF layer.
+        // persist.gammaos.nano.force_sf=1 is an explicit override; the SoC match is the
+        // default-on. (persist props are not loaded this early, so main() keys on the
+        // SoC string; the persist override is also honored later in readyToRun.)
+        bool forceSf = property_get_bool("persist.gammaos.nano.force_sf", false) ||
+                       strstr(platform, "ums") != nullptr ||
+                       strstr(platform, "sc98") != nullptr ||
+                       strstr(platform, "sc99") != nullptr ||
+                       strstr(platform, "sharkl") != nullptr;
         bool isQualcomm = (strstr(platform, "bengal") != nullptr ||
                            strstr(platform, "msm") != nullptr ||
                            strstr(platform, "sdm") != nullptr ||
@@ -1014,7 +1029,11 @@ int main(int argc, char** argv) {
                            strstr(platform, "lahaina") != nullptr ||
                            strstr(platform, "taro") != nullptr ||
                            strstr(platform, "kalama") != nullptr);
-        if (!isQualcomm) {
+        if (forceSf) {
+            ALOGI("GammaOS Nano: force-SF home (platform='%s'), NOT grabbing DRM "
+                  "master; SurfaceFlinger/HWComposer own the panel, nano composites "
+                  "via a SurfaceFlinger layer", platform);
+        } else if (!isQualcomm) {
             // Bounded wait for /dev/dri/card0. On render-only DRM nodes
             // (e.g. Allwinner A133 + PowerVR Rogue, where /dev/dri/card0
             // is the GPU device with NO KMS / no CRTCs and the display
