@@ -1547,7 +1547,15 @@ bool NanoMenu::threadLoop() {
                 "persist.gammaos.drastic_nano.backend", "auto");
         bool dnGate = (android::base::GetProperty(
                 "persist.gammaos.nano.drastic_nano", "0") == "1");
-        bool splashHandoff = dnGate && (dnBackend == "sf" || dnBackend == "auto");
+        // Force-SF devices (Unisoc/Spreadtrum) never own DRM master, so the in-process
+        // DRM-direct DrasticRunner preview in the else branch below cannot scan out (it
+        // renders solid red / garbled). Always take the SF route there: render the
+        // "Quick Resuming..." splash (drmFrameEnd falls back to eglSwapBuffers on the SF
+        // window) and hand off to the DrasticSf host activity, which renders the real
+        // preview through SurfaceFlinger. This does not depend on the (persist, factory-
+        // reset-clearable) backend/gate props being set. No effect on DRM-direct SoCs.
+        if (nanoForceSfPath()) dnBackend = "sf";
+        bool splashHandoff = nanoForceSfPath() || (dnGate && (dnBackend == "sf" || dnBackend == "auto"));
         void maybeNanoScreenshot();   // defined in NanoMenuRender.cpp
         if (splashHandoff) {
             ALOGW("drastic nano QR: backend=%s -- splash then binary handoff (slot 9)",

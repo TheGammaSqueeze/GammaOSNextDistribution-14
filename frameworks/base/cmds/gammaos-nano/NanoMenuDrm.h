@@ -232,6 +232,14 @@ void nanoRgbFollowSample();
 inline void drmFrameBegin() {
     if (sDrmActive && sDrmZeroCopy) {
         drmBindNextFbo();
+    } else if (!sDrmActive) {
+        // SurfaceFlinger path (force-SF, e.g. Unisoc/Spreadtrum): there is no AHB scanout
+        // FBO to bind - render straight to the default framebuffer (the EGL window surface)
+        // so drmFrameEnd's eglSwapBuffers presents it. Without this, callers that rely on
+        // drmFrameBegin to bind the present target (the quick-resume preview loops for both
+        // drastic and libretro, and the exit splash) would render into whatever FBO happened
+        // to be bound and eglSwapBuffers would present an untouched (black) window.
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 }
 inline void drmFrameEnd(EGLDisplay dpy, EGLSurface surf) {
