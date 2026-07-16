@@ -547,6 +547,8 @@ public class DisplayRotation {
      */
     boolean updateRotationUnchecked(boolean forceUpdate) {
         final int displayId = mDisplayContent.getDisplayId();
+        final boolean gRotForce = isDefaultDisplay
+                && SystemProperties.getBoolean("persist.gammaos.rotate.enabled", false);
         if (!forceUpdate) {
             if (mDeferredRotationPauseCount > 0) {
                 // Rotation updates have been paused temporarily. Defer the update until updates
@@ -585,11 +587,15 @@ public class DisplayRotation {
             }
         }
 
-        if (!mService.mDisplayEnabled) {
+        if (!mService.mDisplayEnabled && !gRotForce) {
             // No point choosing a rotation if the display is not enabled.
             ProtoLog.v(WM_DEBUG_ORIENTATION, "Deferring rotation, display is not enabled.");
             return false;
         }
+        // GammaOS hardware rotation key: on a nano/minimal-boot home (which owns the panel and
+        // leaves mDisplayEnabled false) the check above would drop the key's forced rotation.
+        // gRotForce is true only when the rotation feature is enabled on the default display, so
+        // we let the forced rotation through to actually apply.
 
         @Surface.Rotation
         final int oldRotation = mRotation;
@@ -1273,6 +1279,24 @@ public class DisplayRotation {
                 Surface.rotationToString(mUserRotation), mUserRotation,
                 mUserRotationMode == WindowManagerPolicy.USER_ROTATION_LOCKED
                         ? "USER_ROTATION_LOCKED" : "");
+
+        // GammaOS hardware rotation key: on a square panel the normal square-mode keeps the
+        // display natural (a square has an identical config at every rotation, so the sensor/app
+        // path never rotates it). When the rotation key has forced a state, honour its angle
+        // directly here so the physical rotation actually applies on the default display. This is
+        // the dedicated square-mode override for the key - it does not touch any other path.
+        if (isDefaultDisplay
+                && SystemProperties.getBoolean("persist.gammaos.rotate.enabled", false)) {
+            final int forced;
+            if ("1".equals(SystemProperties.get("sys.gammaos.rotate.state", "0"))) {
+                final int deg = SystemProperties.getInt("persist.gammaos.rotate.degrees", 90);
+                forced = (deg == 270) ? Surface.ROTATION_270
+                        : (deg == 180) ? Surface.ROTATION_180 : Surface.ROTATION_90;
+            } else {
+                forced = Surface.ROTATION_0;
+            }
+            return forced;
+        }
 
         // GammaOS Dual-Stack secondary display:
         // When dual-stack is enabled, keep non-default internal displays at their natural

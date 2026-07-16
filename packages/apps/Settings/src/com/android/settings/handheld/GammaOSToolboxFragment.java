@@ -68,6 +68,15 @@ public class GammaOSToolboxFragment extends SettingsPreferenceFragment {
         DEFAULTS.put("persist.gammaos.vsync_period_ns", "0");
         DEFAULTS.put("persist.gammaos.square.sticky_ms", "1200");
 
+        // Screen Rotation (hardware rotation key)
+        DEFAULTS.put("persist.gammaos.rotate.enabled", "false");
+        DEFAULTS.put("persist.gammaos.rotate.dev_name", "");
+        DEFAULTS.put("persist.gammaos.rotate.key_code", "88");
+        DEFAULTS.put("persist.gammaos.rotate.down_action", "rotate");
+        DEFAULTS.put("persist.gammaos.rotate.up_action", "natural");
+        DEFAULTS.put("persist.gammaos.rotate.degrees", "90");
+        DEFAULTS.put("persist.gammaos.rotate.launch_target", "");
+
         // BFI
         DEFAULTS.put("persist.gammaos.bfi.enable", "false");
         DEFAULTS.put("persist.gammaos.bfi.mode", "ctm");

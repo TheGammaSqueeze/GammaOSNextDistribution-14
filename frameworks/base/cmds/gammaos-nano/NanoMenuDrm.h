@@ -273,6 +273,9 @@ void drmStop();
 // exact same panel correction as the home menu instead of hard-coding one.
 // Column-major 2x2 NDC matrix written to out[4].
 void drmBuildInstallMatrix(float out[4], int degrees = -1);
+// Rotate nano's own SF-overlay rendering to follow the logical display rotation (0..3). No-op
+// DRM-direct. See the definition in NanoMenuDrm.cpp.
+void nanoSetOverlayRenderRotation(int rot);
 // Re-commit the modeset + reset flip bookkeeping after a kernel
 // suspend/resume cycle (resume re-enables the CRTCs with no planes; every
 // legacy page flip then EBUSYs forever). Call once at the wake point, on

@@ -1995,7 +1995,14 @@ void NanoMenu::pollInput() {
                     }
                     else if (mXmbMode) forceRescanAllSystems();
                 }
-                mSelectHeld = (ev.value != 0);
+                // Only a real press (1) or release (0) edge updates the held state; ignore
+                // key-repeat (2). A BTN_SELECT synthesized by the RetroArch back-override (written
+                // to the pad while the user holds BACK to exit) can be left stuck DOWN when the
+                // emulator eats its up, and the kernel then AUTO-REPEATS it forever. Treating those
+                // repeats as "held" re-armed mSelectHeld right after the app->menu raise cleared it,
+                // so a plain volume press kept adjusting brightness (and Power kept hitting the
+                // shader escape hatch). Ignoring repeats lets the raise-time clear stick.
+                if (ev.value != 2) mSelectHeld = (ev.value != 0);
             }
             if (ev.type == EV_KEY && ev.code == BTN_START) {
                 // Photo viewer: during a running slideshow, START toggles play/pause.

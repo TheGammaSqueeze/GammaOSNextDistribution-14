@@ -13092,6 +13092,24 @@
     <string name="gammaos_toolbox_square_sticky_title">Square sticky duration (ms)</string>
     <string name="gammaos_toolbox_square_sticky_summary">Time in milliseconds the display stays in a square aspect ratio after rotation before reverting. Default: 1200.</string>
 
+    <!-- GammaOS Toolbox: Screen Rotation (hardware rotation key) -->
+    <string name="gammaos_toolbox_category_rotate">Screen Rotation</string>
+    <string name="gammaos_toolbox_category_rotate_description">Rotate the display from a hardware key (for devices with a swivelling screen). The trigger is fully configurable so it can be ported to any device.</string>
+    <string name="gammaos_toolbox_rotate_enabled_title">Hardware rotation key</string>
+    <string name="gammaos_toolbox_rotate_enabled_summary">Rotate (or run an action) when the configured input key changes state. Works in every app and the launcher, even when auto-rotate is off.</string>
+    <string name="gammaos_toolbox_rotate_dev_name_title">Input device name</string>
+    <string name="gammaos_toolbox_rotate_dev_name_summary">Name of the input device that reports the key (e.g. gpio-keys). Leave blank to match any device.</string>
+    <string name="gammaos_toolbox_rotate_key_code_title">Key scancode</string>
+    <string name="gammaos_toolbox_rotate_key_code_summary">Linux evdev scancode of the key (e.g. 88 = KEY_F12).</string>
+    <string name="gammaos_toolbox_rotate_down_action_title">On key down</string>
+    <string name="gammaos_toolbox_rotate_down_action_summary">Action when the screen is rotated to its position (key pressed).</string>
+    <string name="gammaos_toolbox_rotate_up_action_title">On key up</string>
+    <string name="gammaos_toolbox_rotate_up_action_summary">Action when the screen returns to natural (key released).</string>
+    <string name="gammaos_toolbox_rotate_degrees_title">Rotation angle</string>
+    <string name="gammaos_toolbox_rotate_degrees_summary">Angle for the Rotate action.</string>
+    <string name="gammaos_toolbox_rotate_launch_target_title">Launch target</string>
+    <string name="gammaos_toolbox_rotate_launch_target_summary">For the Launch action: a package name, a package/activity component, or nano:&lt;mode&gt; to invoke a nano mode.</string>
+
     <!-- GammaOS Toolbox: BFI (Black Frame Insertion) -->
     <string name="gammaos_toolbox_category_bfi">Black Frame Insertion (BFI)</string>
     <string name="gammaos_toolbox_category_bfi_description">Inserts black or dimmed frames between content frames to reduce motion blur and simulate CRT-like motion clarity. Requires a high refresh rate display (120 Hz recommended). Two modes available: CTM (color transform matrix, hardware-accelerated) and RE (RenderEngine, software).</string>

@@ -912,6 +912,24 @@ void drmBuildInstallMatrix(float out[4], int degrees) {
     if (sDrmFlipV) { out[1] = -out[1]; out[3] = -out[3]; }
 }
 
+// GammaOS hardware rotation key (force-SF home): nano's own SurfaceFlinger layer is NOT turned
+// by the WMS display rotation (WMS rotates app windows, not nano's raw layer), and on a square
+// panel the logical size never changes so overlayUpdateSurfaceSize's re-land path doesn't run.
+// So rotate nano's OWN rendering to follow the logical display rotation. touchMapRaw already
+// un-rotates touch by the same mOverlayRotation, so render + touch stay in lockstep. rot is the
+// ui::Rotation from the display state: 0..3 = 0/90/180/270. Pure rotation - no PRIME Y-flip (the
+// SF window path is not the AHB scanout path). Only meaningful when nano is NOT DRM-direct.
+void nanoSetOverlayRenderRotation(int rot) {
+    if (sDrmActive) return;   // DRM-direct home bakes rotation into the install matrix already
+    switch (rot & 3) {
+    case 1:  sDrmRotMat[0] = 0.0f; sDrmRotMat[1] = -1.0f; sDrmRotMat[2] = 1.0f;  sDrmRotMat[3] = 0.0f;  break; // 90
+    case 2:  sDrmRotMat[0] = -1.0f; sDrmRotMat[1] = 0.0f; sDrmRotMat[2] = 0.0f;  sDrmRotMat[3] = -1.0f; break; // 180
+    case 3:  sDrmRotMat[0] = 0.0f; sDrmRotMat[1] = 1.0f;  sDrmRotMat[2] = -1.0f; sDrmRotMat[3] = 0.0f;  break; // 270
+    default: sDrmRotMat[0] = 1.0f; sDrmRotMat[1] = 0.0f;  sDrmRotMat[2] = 0.0f;  sDrmRotMat[3] = 1.0f;  break; // 0
+    }
+    sDrmGlRotation = (rot & 3) != 0;
+}
+
 // ---------------------------------------------------------------------------
 // Rendering helpers
 // ---------------------------------------------------------------------------

@@ -116,6 +116,67 @@
 
     </PreferenceCategory>
 
+    <!-- ==================== Screen Rotation ==================== -->
+    <PreferenceCategory
+        android:key="category_rotate"
+        android:title="@string/gammaos_toolbox_category_rotate">
+
+        <Preference
+            android:key="category_rotate_description"
+            android:selectable="false"
+            android:summary="@string/gammaos_toolbox_category_rotate_description" />
+
+        <SwitchPreference
+            android:key="persist.gammaos.rotate.enabled"
+            android:title="@string/gammaos_toolbox_rotate_enabled_title"
+            android:summary="@string/gammaos_toolbox_rotate_enabled_summary"
+            android:defaultValue="false" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.rotate.dev_name"
+            android:title="@string/gammaos_toolbox_rotate_dev_name_title"
+            android:summary="@string/gammaos_toolbox_rotate_dev_name_summary"
+            android:defaultValue="" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.rotate.key_code"
+            android:title="@string/gammaos_toolbox_rotate_key_code_title"
+            android:summary="@string/gammaos_toolbox_rotate_key_code_summary"
+            android:inputType="number"
+            android:defaultValue="88" />
+
+        <ListPreference
+            android:key="persist.gammaos.rotate.down_action"
+            android:title="@string/gammaos_toolbox_rotate_down_action_title"
+            android:summary="@string/gammaos_toolbox_rotate_down_action_summary"
+            android:entries="@array/gammaos_rotate_action_entries"
+            android:entryValues="@array/gammaos_rotate_action_values"
+            android:defaultValue="rotate" />
+
+        <ListPreference
+            android:key="persist.gammaos.rotate.up_action"
+            android:title="@string/gammaos_toolbox_rotate_up_action_title"
+            android:summary="@string/gammaos_toolbox_rotate_up_action_summary"
+            android:entries="@array/gammaos_rotate_action_entries"
+            android:entryValues="@array/gammaos_rotate_action_values"
+            android:defaultValue="natural" />
+
+        <ListPreference
+            android:key="persist.gammaos.rotate.degrees"
+            android:title="@string/gammaos_toolbox_rotate_degrees_title"
+            android:summary="@string/gammaos_toolbox_rotate_degrees_summary"
+            android:entries="@array/gammaos_rotate_degrees_entries"
+            android:entryValues="@array/gammaos_rotate_degrees_values"
+            android:defaultValue="90" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.rotate.launch_target"
+            android:title="@string/gammaos_toolbox_rotate_launch_target_title"
+            android:summary="@string/gammaos_toolbox_rotate_launch_target_summary"
+            android:defaultValue="" />
+
+    </PreferenceCategory>
+
     <!-- ==================== BFI ==================== -->
     <PreferenceCategory
         android:key="category_bfi"

@@ -1527,4 +1527,34 @@
         <item>re</item>
     </string-array>
 
+    <!-- GammaOS hardware rotation key: action for the DOWN/UP presses -->
+    <string-array name="gammaos_rotate_action_entries">
+        <item>Nothing</item>
+        <item>Rotate (to angle)</item>
+        <item>Natural orientation</item>
+        <item>Turn screen off</item>
+        <item>Wake screen</item>
+        <item>Launch target</item>
+    </string-array>
+    <string-array name="gammaos_rotate_action_values" translatable="false">
+        <item>none</item>
+        <item>rotate</item>
+        <item>natural</item>
+        <item>screenoff</item>
+        <item>wake</item>
+        <item>launch</item>
+    </string-array>
+
+    <!-- GammaOS hardware rotation key: rotate angle -->
+    <string-array name="gammaos_rotate_degrees_entries">
+        <item>90&#176;</item>
+        <item>180&#176;</item>
+        <item>270&#176;</item>
+    </string-array>
+    <string-array name="gammaos_rotate_degrees_values" translatable="false">
+        <item>90</item>
+        <item>180</item>
+        <item>270</item>
+    </string-array>
+
 </resources>

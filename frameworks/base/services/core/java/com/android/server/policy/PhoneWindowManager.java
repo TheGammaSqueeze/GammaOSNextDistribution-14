@@ -802,6 +802,15 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     // GammaOS Nano: tracks the gamepad Select button so Power+Select can act as a
     // hardware escape hatch that turns the system-wide display shader off.
     private boolean mNanoSelectHeld = false;
+    // GammaOS Nano: uptime (ms) of the last SELECT down. Held-modifier combos rely on the key-up
+    // arriving, but a foreground app that grabs the input device (RetroArch EVIOCGRAB) and then
+    // re-grabs it across a screen rotation / activity recreate can swallow the SELECT up, leaving
+    // mNanoSelectHeld stuck true forever - which then eats every Power press (escape hatch) and,
+    // for BACK, turns Volume into brightness. Stamp the down so a stale "held" self-heals.
+    private long mNanoSelectDownTime = 0;
+    // A physical combo presses the second key while the modifier is genuinely held; if the modifier
+    // has been "down" longer than this with no up, treat it as a lost up and release it.
+    private static final long GAMMA_STUCK_MODIFIER_MS = 6000;
 
     // Track injected BTN_SELECT state so we can guarantee key-up on app switches.
     private boolean mRetroarchSelectDown = false;
@@ -2582,6 +2591,23 @@ public class PhoneWindowManager implements WindowManagerPolicy {
      * When entering RetroArch, clear any synthetic state unless BACK is physically down.
      * When leaving RetroArch or disabling override, force a BTN_SELECT up if we previously sent one.
      */
+    // GammaOS Nano: a held-modifier combo (BACK+Volume brightness, Select+Power shader bailout) is
+    // only meaningful while a real app owns the foreground. When nano is foreground (overlay/home up
+    // or no app launched) there is no app to own a combo, so any held BACK / SELECT is stale (an
+    // EVIOCGRAB'ing emulator - RetroArch, DraStic - ate the key-up on exit) and must be cleared, or
+    // it eats Power (escape hatch) and turns Volume into brightness. MUST run on EVERY key event:
+    // it is deliberately NOT folded into ensureRetroarchEntryState(), which only runs on the first
+    // key from each device (consumedKeys==null) - that made the reset fire once and then never
+    // again, so the stuck state came back on the second exit.
+    private void gammaClearStaleCombosIfNanoForeground() {
+        if (!SystemProperties.getBoolean("sys.gammaos.minimal_boot", false)) return;
+        final boolean overlayUp = "1".equals(SystemProperties.get("sys.gammaos.nano.show_overlay", "0"));
+        final boolean appUp = "1".equals(SystemProperties.get("sys.gammaos.nano.app_launched", "0"));
+        if (overlayUp || !appUp) {
+            gammaResetStuckModifiers();
+        }
+    }
+
     private void ensureRetroarchEntryState() {
         if (SystemProperties.getInt("persist.gammaos.retroarchoverride.backbutton", 0) != 1) {
             // Override disabled — make sure no stuck select
@@ -2593,30 +2619,12 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             mLastFgApp = getForegroundAppPackageName();
            return;
         }
-        String fg = getForegroundAppPackageName();
-        boolean inRetro = fg != null && fg.toLowerCase().contains("retroarch");
-        boolean wasInRetro = mLastFgApp != null && mLastFgApp.toLowerCase().contains("retroarch");
-
-        if (inRetro && !wasInRetro) {
-            // Freshly entering RetroArch: never treat BACK as down unless we just saw it.
-            if (!mBackPressed) {
-                if (mRetroarchSelectDown && mRetroarchSelectDevicePath != null) {
-                    sendBtnSelectUp(mRetroarchSelectDevicePath);
-                }
-                mRetroarchSelectDown = false;
-                mRetroarchSelectDevicePath = null;
-            }
-            mBackPressed = false;
-            mBackLongPressActivated = false;
-            mBackDownTime = 0;
-        } else if (!inRetro && wasInRetro) {
-            if (mRetroarchSelectDown && mRetroarchSelectDevicePath != null) {
-                sendBtnSelectUp(mRetroarchSelectDevicePath);
-            }
-            mRetroarchSelectDown = false;
-            mRetroarchSelectDevicePath = null;
-        }
-        mLastFgApp = fg;
+        // (nano-foreground stale-combo reset handled at the top of this method.) The block below
+        // keeps the synthesized-SELECT bookkeeping accurate for the in-app override path. We cannot
+        // rely on a foreground-app *change* to clear a stuck modifier: getRunningTasks() returns the
+        // most-recent task, so after the app exits it still reports that package (it lingers in
+        // recents) - which is why the reset above keys off nano being foreground instead.
+        mLastFgApp = getForegroundAppPackageName();
     }
 
     /**
@@ -4434,6 +4442,11 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         final boolean down = event.getAction() == KeyEvent.ACTION_DOWN;
         final boolean longPress = (flags & KeyEvent.FLAG_LONG_PRESS) != 0;
 
+        // Release any stuck held-modifier state before evaluating the brightness combo below, on
+        // every key (not just the first per device), so a BACK/SELECT whose up was eaten by an
+        // exiting emulator cannot turn Volume into brightness once we are back in nano.
+        gammaClearStaleCombosIfNanoForeground();
+
         // Track BACK key state to enable combos and brightness adjustments.
         if (keyCode == KeyEvent.KEYCODE_BACK) {
             if (down) {
@@ -4475,6 +4488,18 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 mBackBrightnessMode = false;
             }
             return keyConsumed;
+        }
+
+        // Self-heal a stuck BACK (lost key-up, e.g. a foreground app re-grabbing the input device
+        // across a screen rotation): if BACK has been "held" longer than the combo window, release
+        // it so Volume behaves as Volume again instead of brightness.
+        if (mBackPressed && mBackDownTime != 0
+                && SystemClock.uptimeMillis() - mBackDownTime > GAMMA_STUCK_MODIFIER_MS) {
+            mBackPressed = false;
+            mBackLongPressActivated = false;
+            mBackBrightnessMode = false;
+            mBackDownTime = 0;
+            Slog.i(TAG, "GammaOS Nano: released stale BACK (lost up); Volume acts normally");
         }
 
         // Adjust brightness when holding BACK and pressing VOLUME keys (ignore long BACK press).
@@ -5983,6 +6008,147 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         mDefaultDisplayPolicy.setHdmiPlugged(plugged, true /* force */);
     }
 
+    // ---- GammaOS hardware screen-rotation key ----------------------------------------------
+    // A device with a swivelling/rotating screen reports a key (RG Rotate: gpio-keys KEY_F12)
+    // DOWN when rotated to its 90-degree position and UP when back to natural. Which input
+    // device (by name), which linux scancode, and the behaviour are all prop-defined so a new
+    // device is a pure config change:
+    //   persist.gammaos.rotate.enabled       0/1 master gate
+    //   persist.gammaos.rotate.dev_name      input device name to match (e.g. "gpio-keys")
+    //   persist.gammaos.rotate.key_code      linux evdev scancode (e.g. 88 = KEY_F12)
+    //   persist.gammaos.rotate.down_action   action on DOWN  (default "rotate")
+    //   persist.gammaos.rotate.up_action     action on UP    (default "natural")
+    //   persist.gammaos.rotate.degrees       90 | 180 | 270 (rotate action)
+    //   persist.gammaos.rotate.launch_target component / package / "nano:<mode>" (launch action)
+    // Each action is one of: none | rotate | natural | screenoff | wake | launch, so any pairing
+    // works (rotate/natural, screenoff/wake, launch/none, none/none, ...).
+    private boolean mGammaRotateDown = false;   // key currently in the DOWN (rotated) state
+
+    private boolean interceptGammaRotateKey(KeyEvent event) {
+        if (!android.os.SystemProperties.getBoolean("persist.gammaos.rotate.enabled", false)) {
+            return false;
+        }
+        final int wantCode = android.os.SystemProperties.getInt("persist.gammaos.rotate.key_code", 88);
+        if (event.getScanCode() != wantCode) {
+            return false;
+        }
+        final String wantDev = android.os.SystemProperties.get("persist.gammaos.rotate.dev_name", "");
+        if (!wantDev.isEmpty()) {
+            final android.view.InputDevice dev = event.getDevice();
+            if (dev == null || dev.getName() == null || !dev.getName().equals(wantDev)) {
+                return false;
+            }
+        }
+        // A physical rotation makes the foreground app (RetroArch) release and re-grab its input
+        // devices, which is exactly when a held SELECT/BACK loses its key-up and gets stuck. Clear
+        // those held-modifier flags on every rotate event so a rotation never carries a stuck
+        // modifier forward (which otherwise eats Power and turns Volume into brightness). The user
+        // is not mid-combo when swivelling the panel, so this is always safe here.
+        gammaResetStuckModifiers();
+        final int action = event.getAction();
+        if (action == KeyEvent.ACTION_DOWN) {
+            if (event.getRepeatCount() > 0 || mGammaRotateDown) {
+                return true; // ignore auto-repeat
+            }
+            mGammaRotateDown = true;
+            gammaRotateDo(android.os.SystemProperties.get(
+                    "persist.gammaos.rotate.down_action", "rotate"));
+        } else if (action == KeyEvent.ACTION_UP) {
+            mGammaRotateDown = false;
+            gammaRotateDo(android.os.SystemProperties.get(
+                    "persist.gammaos.rotate.up_action", "natural"));
+        }
+        return true; // consume the key either way
+    }
+
+    // Release any held-modifier combo state that may have been left stuck by a lost key-up.
+    // Called on rotate-key events (see interceptGammaRotateKey) and safe to call any time.
+    private void gammaResetStuckModifiers() {
+        if (mNanoSelectHeld) {
+            mNanoSelectHeld = false;
+            mNanoSelectDownTime = 0;
+        }
+        // mSelectPressed drives the SELECT+Volume=brightness combo in interceptKeyBeforeQueueing.
+        // The RetroArch back-override synthesizes a BTN_SELECT while BACK is held to exit; its up is
+        // eaten by the grabbing emulator, so mSelectPressed sticks true and every plain volume press
+        // then adjusts brightness. Clear it here too (was the actual "volume as well as brightness").
+        mSelectPressed = false;
+        // Release any BTN_SELECT that the RetroArch back-override synthesized, at the evdev level,
+        // so the app does not see SELECT stuck down either (mirrors the BACK-up release path).
+        if (mRetroarchSelectDown) {
+            int targetDeviceId = (mRetroarchComboDeviceId != -1) ? mRetroarchComboDeviceId : mBackDeviceId;
+            sendBtnSelectUp(getDevicePathForDeviceId(targetDeviceId));
+            mRetroarchSelectDown = false;
+            mRetroarchSelectDevicePath = null;
+            mRetroarchComboDeviceId = -1;
+        }
+        if (mBackPressed || mBackBrightnessMode) {
+            mBackPressed = false;
+            mBackLongPressActivated = false;
+            mBackBrightnessMode = false;
+            mBackDownTime = 0;
+        }
+    }
+
+    // Runs one configured rotation-key action. Both DOWN and UP map to one of these.
+    private void gammaRotateDo(String act) {
+        if ("rotate".equals(act)) {
+            gammaRotateApply(true);
+        } else if ("natural".equals(act)) {
+            gammaRotateApply(false);
+        } else if ("screenoff".equals(act)) {
+            mPowerManager.goToSleep(SystemClock.uptimeMillis(),
+                    android.os.PowerManager.GO_TO_SLEEP_REASON_SLEEP_BUTTON, 0);
+        } else if ("wake".equals(act)) {
+            mPowerManager.wakeUp(SystemClock.uptimeMillis(),
+                    android.os.PowerManager.WAKE_REASON_LID, "GammaRotateKey");
+        } else if ("launch".equals(act)) {
+            gammaRotateLaunch();
+        }
+        // "none" or anything unknown: do nothing.
+    }
+
+    private void gammaRotateApply(boolean rotated) {
+        // Publish the state and let DisplayRotation force the angle from it. We deliberately do NOT
+        // call freezeRotation()/setFixedToUserRotation() here: on this square swivel panel those go
+        // through the full display-freeze machinery, and repeated key toggles stack screen freezes
+        // that can wedge input (the "power button stops reacting" state). DisplayRotation's
+        // dedicated square-mode override reads sys.gammaos.rotate.state directly, so a plain
+        // updateRotation() re-evaluation is all that is needed and it applies without a freeze wedge.
+        // On a DRM-direct home nano rotates its own rendering off this same state prop.
+        android.os.SystemProperties.set("sys.gammaos.rotate.state", rotated ? "1" : "0");
+        updateRotation(true);
+    }
+
+    private void gammaRotateLaunch() {
+        final String target = android.os.SystemProperties.get("persist.gammaos.rotate.launch_target", "");
+        if (target.isEmpty()) {
+            return;
+        }
+        if (target.startsWith("nano:")) {
+            // Hand a mode string to nano (special-mode scaffold; nano decides what to do).
+            android.os.SystemProperties.set("sys.gammaos.nano.rotate_mode", target.substring(5));
+            return;
+        }
+        try {
+            final Intent intent;
+            if (target.contains("/")) {
+                intent = new Intent(Intent.ACTION_MAIN);
+                intent.addCategory(Intent.CATEGORY_LAUNCHER);
+                intent.setComponent(android.content.ComponentName.unflattenFromString(target));
+            } else {
+                intent = mContext.getPackageManager().getLaunchIntentForPackage(target);
+                if (intent == null) {
+                    return;
+                }
+            }
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivityAsUser(intent, UserHandle.CURRENT_OR_SELF);
+        } catch (Exception e) {
+            Slog.w(TAG, "GammaOS rotate: launch '" + target + "' failed", e);
+        }
+    }
+
     // TODO(b/117479243): handle it in InputPolicy
     /** {@inheritDoc} */
     @Override
@@ -5990,6 +6156,20 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         ensureRetroarchEntryState();
         final int keyCode = event.getKeyCode();
         final boolean down = event.getAction() == KeyEvent.ACTION_DOWN;
+
+        // GammaOS: hardware screen-rotation key (e.g. the RG Rotate's gpio-keys KEY_F12, which
+        // reports DOWN when the screen is swivelled to its rotated position and UP when it
+        // returns to natural). Fully prop-defined so a new device only sets the device name +
+        // linux scancode, no code change. Forces the whole display to rotate (cascades to every
+        // app) even when auto-rotate is off, or runs the configured screen-off / launch action.
+        if (interceptGammaRotateKey(event)) {
+            return 0; // consumed
+        }
+
+        // GammaOS Nano: release stuck held-modifier state on every key when nano is foreground, so a
+        // SELECT whose up was eaten by an exiting emulator can't keep triggering the escape hatch
+        // below (which would blank the shader + swallow Power on every press).
+        gammaClearStaleCombosIfNanoForeground();
 
         // GammaOS Nano: hardware escape hatch for the system-wide display shader.
         // A misbehaving custom shader can make the ENTIRE screen unreadable - not just
@@ -6000,10 +6180,24 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         if (android.os.SystemProperties.getBoolean("sys.gammaos.minimal_boot", false)) {
             if (keyCode == KeyEvent.KEYCODE_BUTTON_SELECT) {
                 mNanoSelectHeld = down;
-            } else if (keyCode == KeyEvent.KEYCODE_POWER && down && mNanoSelectHeld) {
-                android.os.SystemProperties.set("persist.gammaos.shader.enable", "0");
-                Slog.i(TAG, "GammaOS Nano: Power+Select -> display shader disabled (escape hatch)");
-                return 0; // consume; do not sleep/wake on this press
+                mNanoSelectDownTime = down ? SystemClock.uptimeMillis() : 0;
+            } else if (keyCode == KeyEvent.KEYCODE_POWER && down && mNanoSelectHeld
+                    && !mRetroarchSelectDown) {
+                // The escape hatch is for a REAL gamepad Select held with Power. Never fire it for
+                // the BTN_SELECT the RetroArch back-override synthesizes (mRetroarchSelectDown) -
+                // that select can get stuck when an emulator eats its up on exit, and firing the
+                // hatch off it blanks the display shader for no reason (the "blank overlay" bug).
+                // Self-heal a stuck SELECT (lost key-up): only honour the combo if SELECT is
+                // freshly held, otherwise release it and let Power act normally.
+                if (SystemClock.uptimeMillis() - mNanoSelectDownTime > GAMMA_STUCK_MODIFIER_MS) {
+                    mNanoSelectHeld = false;
+                    mNanoSelectDownTime = 0;
+                    Slog.i(TAG, "GammaOS Nano: released stale SELECT (lost up); Power acts normally");
+                } else {
+                    android.os.SystemProperties.set("persist.gammaos.shader.enable", "0");
+                    Slog.i(TAG, "GammaOS Nano: Power+Select -> display shader disabled (escape hatch)");
+                    return 0; // consume; do not sleep/wake on this press
+                }
             }
         }
 
@@ -6256,8 +6450,10 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             }
 
             case KeyEvent.KEYCODE_BUTTON_SELECT: {
-                // GammaOS Nano: track SELECT button for brightness combo
-                mSelectPressed = down;
+                // GammaOS Nano: track SELECT button for brightness combo. Only a real press (0) or
+                // release edge updates it - ignore auto-repeat (repeatCount>0) so a stuck synthesized
+                // SELECT that the kernel repeats cannot keep re-arming brightness after a clear.
+                if (!down || event.getRepeatCount() == 0) mSelectPressed = down;
                 break;
             }
 

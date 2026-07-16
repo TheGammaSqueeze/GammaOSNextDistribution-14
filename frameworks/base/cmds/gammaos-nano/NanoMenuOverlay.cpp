@@ -72,6 +72,7 @@ namespace android {
 // NanoMenuDrm.h, which drags in the DRM/NEON blit machinery) so the overlay
 // surface can be recreated at the same EGLConfig it was born with.
 EGLConfig getEglConfig(const EGLDisplay& display, bool wantAlpha);
+void nanoSetOverlayRenderRotation(int rot);
 
 // Records the PIDs frozen by the overlay so they can always be thawed if the
 // overlay dies (graceful stop, crash, or kill) - prevents a wedged device.
@@ -342,6 +343,15 @@ void NanoMenu::overlayShow() {
         return;
     }
 
+    // Clear any stale SELECT-held on the app->menu raise. Emulators (RetroArch/DraStic) EVIOCGRAB
+    // the pad and the RetroArch back-override synthesizes a BTN_SELECT (via sendevent) while the
+    // user holds BACK to exit; that write sets the kernel key bitmap, and when the app eats the
+    // key-up on exit the BTN_SELECT stays stuck DOWN. selectKeyHeld() reads that bitmap, so a plain
+    // volume press then adjusts brightness instead of volume. mSelectHeld is only set true by a
+    // real BTN_SELECT event, so forcing it false here means SELECT+volume=brightness can only fire
+    // after a genuine fresh Select press again - the stuck synthesized SELECT no longer hijacks it.
+    mSelectHeld = false;
+
     // We deliberately do NOT mlockall() here on raise. The overlay's pages were released
     // by munlockall() while it was parked behind a running app (see threadLoop) so the game
     // could use that ~122MB. Re-locking here called mlockall(MCL_CURRENT), which faulted all
@@ -399,6 +409,11 @@ void NanoMenu::overlayShow() {
         // app_launched=0 before show, so it correctly gets the wallpaper.
         bool appBehind = property_get_bool("sys.gammaos.nano.app_launched", false);
         mOverlayWallpaper = !appBehind;
+        // Raising the full launcher (no app behind) is the app-exit return. Clear any stale
+        // SELECT-held here too (not just in overlayShow, which early-returns when the overlay is
+        // already up over the app): the emulator ate the synthesized-SELECT up on exit, so drop
+        // the held flag so volume stays volume and Power stays Power on the home.
+        if (!appBehind) mSelectHeld = false;
         property_set("sys.gammaos.nano.overlay_wallpaper", "0");   // consume any hint
         ALOGI("overlay: show wallpaper=%d (app_launched=%d wp=%s paused=%s)",
               mOverlayWallpaper ? 1 : 0, appBehind ? 1 : 0, wp, mOverlayPausedPkg.c_str());
@@ -1442,6 +1457,24 @@ void NanoMenu::overlayUpdateSurfaceSize() {
     // reads mOverlayRotation to follow a forced-portrait rotation over a landscape
     // panel. (A 90<->270 flip keeps the logical size but still rotates the axes.)
     mOverlayRotation = (int)state.orientation;
+    // GammaOS hardware rotation key: compose the physical panel rotation on top of the SF
+    // display orientation. On a square panel SurfaceFlinger keeps the display at orientation 0
+    // regardless of the WMS logical rotation (a square has an identical output at every angle),
+    // so state.orientation stays 0 and nano would never rotate. Read the rotate state prop (the
+    // same one PhoneWindowManager/DisplayRotation drive) and add its quarter-turns so nano's own
+    // SF layer rotates to match. Both the render matrix AND touchMapRaw key off mOverlayRotation,
+    // so composing here keeps render and touch consistent by construction.
+    if (property_get_bool("persist.gammaos.rotate.enabled", false) &&
+        property_get_int32("sys.gammaos.rotate.state", 0) == 1) {
+        const int deg = property_get_int32("persist.gammaos.rotate.degrees", 90);
+        const int quarters = (deg == 270) ? 3 : (deg == 180) ? 2 : 1;
+        mOverlayRotation = (mOverlayRotation + quarters) & 3;
+    }
+    // Turn nano's own rendering to match. nano's raw SF layer is not rotated by WMS, and on a
+    // square panel the size never changes so the re-land path below is skipped - without this
+    // nano stays upright while its touch (which follows mOverlayRotation) rotates, so the two
+    // would mismatch.
+    nanoSetOverlayRenderRotation(mOverlayRotation);
     const int lw = (int)state.layerStackSpaceRect.getWidth();
     const int lh = (int)state.layerStackSpaceRect.getHeight();
     if (lw <= 0 || lh <= 0) return;
