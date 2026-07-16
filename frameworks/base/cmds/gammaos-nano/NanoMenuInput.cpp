@@ -1849,6 +1849,23 @@ void NanoMenu::pollInput() {
             // be kept alive by analog-stick noise (sticks go through navPress
             // which is edge-triggered past the deadzone).
             if (ev.type == EV_KEY) mLastInputMs = android::uptimeMillis();
+            // GammaOS hardware rotation key: while the overlay/home owns input (over a running app
+            // the framework drops it via drop_input, so PhoneWindowManager never sees the swivel
+            // switch), handle the rotate key here too. Setting sys.gammaos.rotate.state drives BOTH
+            // nano's own overlay render (overlayUpdateSurfaceSize reads it) and the app underneath
+            // (DisplayRotation forces the angle from the same prop via its poll). Ignore key-repeat.
+            if (ev.type == EV_KEY && ev.value != 2
+                && property_get_bool("persist.gammaos.rotate.enabled", false)
+                && ev.code == property_get_int32("persist.gammaos.rotate.key_code", 88)) {
+                char act[PROPERTY_VALUE_MAX] = {};
+                property_get(ev.value ? "persist.gammaos.rotate.down_action"
+                                      : "persist.gammaos.rotate.up_action",
+                             act, ev.value ? "rotate" : "natural");
+                if (!strcmp(act, "rotate"))       property_set("sys.gammaos.rotate.state", "1");
+                else if (!strcmp(act, "natural")) property_set("sys.gammaos.rotate.state", "0");
+                // screenoff/wake/launch/none are framework-side; nano only drives rotation here.
+                continue;   // swallow so the switch never navigates the menu
+            }
             // Cold-boot intro: any button press skips to the end of the sequence
             // and is CONSUMED here (so the same press does not also navigate or
             // launch once the XMB appears). All events are swallowed during boot.

@@ -1457,24 +1457,34 @@ void NanoMenu::overlayUpdateSurfaceSize() {
     // reads mOverlayRotation to follow a forced-portrait rotation over a landscape
     // panel. (A 90<->270 flip keeps the logical size but still rotates the axes.)
     mOverlayRotation = (int)state.orientation;
-    // GammaOS hardware rotation key: compose the physical panel rotation on top of the SF
-    // display orientation. On a square panel SurfaceFlinger keeps the display at orientation 0
-    // regardless of the WMS logical rotation (a square has an identical output at every angle),
-    // so state.orientation stays 0 and nano would never rotate. Read the rotate state prop (the
-    // same one PhoneWindowManager/DisplayRotation drive) and add its quarter-turns so nano's own
-    // SF layer rotates to match. Both the render matrix AND touchMapRaw key off mOverlayRotation,
-    // so composing here keeps render and touch consistent by construction.
-    if (property_get_bool("persist.gammaos.rotate.enabled", false) &&
-        property_get_int32("sys.gammaos.rotate.state", 0) == 1) {
-        const int deg = property_get_int32("persist.gammaos.rotate.degrees", 90);
-        const int quarters = (deg == 270) ? 3 : (deg == 180) ? 2 : 1;
-        mOverlayRotation = (mOverlayRotation + quarters) & 3;
+    // GammaOS hardware rotation key: on a swivel device the physical panel rotation is authoritative.
+    // SurfaceFlinger's reported display orientation is NOT reliable here: on a square panel it reads
+    // 0 on a clean boot, but after an app has driven the WMS logical rotation to 90 and exited it can
+    // report 1 - and composing the rotate prop ON TOP of that double-rotated the overlay (the "works
+    // on clean boot, breaks after app launch/exit" bug). So when the rotate feature is enabled we set
+    // the overlay rotation SOLELY from sys.gammaos.rotate.state (the same signal
+    // PhoneWindowManager/DisplayRotation use), ignoring state.orientation entirely. Both the render
+    // matrix and touchMapRaw key off mOverlayRotation, so render and touch stay consistent.
+    int renderSelfRot = mOverlayRotation;   // default: match SF orientation (non-rotate devices)
+    if (property_get_bool("persist.gammaos.rotate.enabled", false)) {
+        // Physical panel rotation from the authoritative rotate state prop.
+        int physical = 0;
+        if (property_get_int32("sys.gammaos.rotate.state", 0) == 1) {
+            const int deg = property_get_int32("persist.gammaos.rotate.degrees", 90);
+            physical = (deg == 270) ? 3 : (deg == 180) ? 2 : 1;
+        }
+        // Touch un-rotation follows the FULL physical rotation: nano reads raw evdev touch in panel
+        // coordinates and its content appears at the physical rotation on screen.
+        mOverlayRotation = physical;
+        // Render self-rotation must COMPENSATE for what SurfaceFlinger already applies. On the nano
+        // home (no app) SF keeps the display at orientation 0, so nano self-rotates the full amount.
+        // Over a rotated app SF applies its own display transform (state.orientation != 0) to every
+        // layer including nano's, so nano must self-rotate only the DIFFERENCE, or it double-rotates
+        // and the overlay goes blank/upside-down (the "overlay over the app is blank at 90" bug).
+        renderSelfRot = (physical - (int)state.orientation) & 3;
     }
-    // Turn nano's own rendering to match. nano's raw SF layer is not rotated by WMS, and on a
-    // square panel the size never changes so the re-land path below is skipped - without this
-    // nano stays upright while its touch (which follows mOverlayRotation) rotates, so the two
-    // would mismatch.
-    nanoSetOverlayRenderRotation(mOverlayRotation);
+    // Turn nano's own rendering to match, compensating for any SurfaceFlinger display transform.
+    nanoSetOverlayRenderRotation(renderSelfRot);
     const int lw = (int)state.layerStackSpaceRect.getWidth();
     const int lh = (int)state.layerStackSpaceRect.getHeight();
     if (lw <= 0 || lh <= 0) return;
