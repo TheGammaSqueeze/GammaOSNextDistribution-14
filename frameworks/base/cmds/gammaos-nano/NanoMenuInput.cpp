@@ -1963,6 +1963,17 @@ void NanoMenu::pollInput() {
                                      { if (ndsCurLevelIsList()) ndsSubmenuTouch();   // settings screens: DSi list touch
                                        else                     ndsTouchFrame(); }   // app/game levels: stacked carousel
                 else                 xmbTouchFrame();   // modals + XMB: option panel / dialog / self-guards
+                // GammaOS touch-launch handoff safety net. A launch triggered by a touch tap sets
+                // mWaitForRelease, but a touch has no physical select-key release, so the key-release
+                // handler below never stamps the launch fade - and the non-overlay home instance
+                // (mOverlayMode=false) then hangs ON TOP of the launched game, double-rotated and
+                // unresponsive (the "cold-boot touch-launch: nano stays foreground" bug). The finger
+                // is already up after a tap, so stamp the fade here for EVERY touch-launch path. Some
+                // per-handler sites already do this (the DSi carousel, dialogs); this is the catch-all
+                // for the rest (the PS3 XMB direct tap, the option-menu Start). The overlay instance
+                // hands off differently (overlayLaunchGame, no fade-then-exit), so it is exempt.
+                if (mWaitForRelease && !mOverlayMode && mLaunchFadeStart == 0)
+                    mLaunchFadeStart = uptimeMillis();
                 continue;
             }
             // Wait-for-release: after a launch is triggered, keep running

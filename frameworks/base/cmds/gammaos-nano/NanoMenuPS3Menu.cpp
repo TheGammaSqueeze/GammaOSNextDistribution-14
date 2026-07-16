@@ -8092,9 +8092,19 @@ bool NanoMenu::touchMapRaw(int rawX, int rawY, float& px, float& py) {
     // Follow a runtime display rotation (e.g. force_orientation=portrait over a
     // landscape-native panel) in the SF-composited overlay: the digitizer keeps
     // reporting panel-native axes while mWidth/mHeight become the rotated logical
-    // size, so undo the rotation here. DRM mode bakes rotation into sDrmRotMat +
-    // the osk_touch props and runs with mOverlayMode=false, so it stays identity.
-    if (mOverlayMode) {
+    // size, so undo the rotation here. DRM-direct mode bakes rotation into sDrmRotMat
+    // + the osk_touch props (sDrmActive), so it must stay identity here.
+    //
+    // GammaOS hardware rotate: the pre-first-app interactive home is served by the
+    // non-overlay `gammaos-nano` instance (mOverlayMode=false), but on a force-SF
+    // swivel device it STILL self-rotates its render via nanoSetOverlayRenderRotation()
+    // (sDrmRotMat, driven from sys.gammaos.rotate.state). Its touch must follow the same
+    // rotation or the digitizer stays panel-native while the render is turned - the
+    // "cold-boot-while-rotated: touch and output misaligned, fixed only after launching
+    // an app" bug (launching an app hands the home to the mOverlayMode=true overlay
+    // instance, which already un-rotated). So also un-rotate whenever nano is self-
+    // rotating in force-SF (sDrmGlRotation && !sDrmActive), not just in overlay mode.
+    if (mOverlayMode || (sDrmGlRotation && !sDrmActive)) {
         // Un-rotate the touch by the INVERSE of the current display rotation, exactly
         // like the framework's TouchInputMapper::computeInputTransforms() Step 3
         // (`toRotationFlags(-mViewport.orientation)`). mOverlayRotation is the LOGICAL

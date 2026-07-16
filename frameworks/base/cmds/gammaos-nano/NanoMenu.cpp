@@ -1615,8 +1615,11 @@ bool NanoMenu::threadLoop() {
                 // the AHB scanout FBO or the EGL window surface).
                 if (haveCore) previewDs->renderDsToOffscreen();
                 drmFrameBegin();
-                if (sDrmGlRotation) glViewport(0, 0, sAhbTarget.w, sAhbTarget.h);
-                else                glViewport(0, 0, mWidth, mHeight);
+                // sAhbTarget is only valid on the DRM zero-copy path; gate on sDrmZeroCopy
+                // so a force-SF self-rotate (sDrmGlRotation=true, no AHB) does not collapse
+                // the viewport to 0x0. See the note in NanoMenuRender.cpp render().
+                if (sDrmGlRotation && sDrmZeroCopy) glViewport(0, 0, sAhbTarget.w, sAhbTarget.h);
+                else                                glViewport(0, 0, mWidth, mHeight);
                 glClearColor(0.0f, 0.0f, 0.0f, 1.0f);   // black behind the DS
                 glClear(GL_COLOR_BUFFER_BIT);
                 bool showingGame = (haveCore && previewDs->isFrameReady());
@@ -2208,7 +2211,9 @@ bool NanoMenu::threadLoop() {
                 // needed for the side-by-side split below.
                 auto viewportDims = [&](const AhbRenderTarget& tgt,
                                         int* outW, int* outH) {
-                    if (sDrmGlRotation) {
+                    // Only the DRM zero-copy path has a valid AHB target; force-SF
+                    // self-rotate (sDrmGlRotation without an AHB) must use mWidth/mHeight.
+                    if (sDrmGlRotation && sDrmZeroCopy) {
                         *outW = tgt.w; *outH = tgt.h;
                     } else {
                         *outW = mWidth; *outH = mHeight;
@@ -3391,7 +3396,7 @@ if (sRingPrimedCount >= 2) {
                                 // Text overlay -- fades naturally as saturation
                                 // approaches 1.0 (textAlpha -> 0). Game is
                                 // always playable underneath.
-                                if (sDrmGlRotation) {
+                                if (sDrmGlRotation && sDrmZeroCopy) {
                                     glViewport(0, 0, sAhbTarget.w, sAhbTarget.h);
                                 } else {
                                     glViewport(0, 0, mWidth, mHeight);
@@ -3536,7 +3541,7 @@ if (sRingPrimedCount >= 2) {
                                 drmFrameBegin();
                                 glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
                                 glClear(GL_COLOR_BUFFER_BIT);
-                                if (sDrmGlRotation) {
+                                if (sDrmGlRotation && sDrmZeroCopy) {
                                     glViewport(0, 0, sAhbTarget.w, sAhbTarget.h);
                                 } else {
                                     glViewport(0, 0, mWidth, mHeight);
@@ -3608,6 +3613,39 @@ if (sRingPrimedCount >= 2) {
         // the screen-off park at ~3455 used to skip render() and freeze the heartbeat.)
         mRenderHeartbeat.fetch_add(1, std::memory_order_relaxed);
         if (!mWatchdogStarted) { mWatchdogStarted = true; startRenderWatchdog(); }
+
+        // GammaOS hardware-rotate (force-SF): SurfaceFlinger is pinned at ROTATION_0 for nano's
+        // layer (DisplayRotation forces the angle from sys.gammaos.rotate.state whenever nano is
+        // the top surface), so nano must render the FULL physical rotation itself. Apply it here,
+        // once per loop iteration, so EVERY nano render path is covered: the overlay wallpaper and
+        // the scrim-over-app (overlayUpdateSurfaceSize below re-applies the same value with an SF
+        // compensation that is a no-op while SF is pinned), AND the pre-first-app interactive home,
+        // which renders through the main path and otherwise never self-rotates - it used to rely on
+        // SurfaceFlinger rotating its layer, which the pin now prevents (the "fresh home stays
+        // upright / sideways after rotate" gap). Touch un-rotation (mOverlayRotation) is kept in
+        // lockstep. No-op on DRM-direct devices: the rotate feature is disabled there and
+        // nanoSetOverlayRenderRotation() early-returns when sDrmActive.
+        //
+        // CRUCIAL: only self-rotate while nano is the TOP surface, i.e. exactly when DisplayRotation
+        // pins SurfaceFlinger at 0 (nanoOnTop = no foreground app OR our overlay is raised). When a
+        // real app is foreground with no overlay, DisplayRotation does NOT pin SF - it lets SF rotate
+        // the display for the app - so nano must NOT also self-rotate or it DOUBLE-rotates (SF 90 +
+        // nano 90 = 180). That is the "touch-launch: game runs but nano is stuck on top rotated an
+        // extra 90" bug: while the home instance fades out to hand off, the app has already flipped
+        // SF, so nano's fade must render un-rotated (SF supplies the rotation) to stay single.
+        if (property_get_bool("persist.gammaos.rotate.enabled", false)) {
+            int physical = 0;
+            if (property_get_int32("sys.gammaos.rotate.state", 0) == 1) {
+                const int deg = property_get_int32("persist.gammaos.rotate.degrees", 90);
+                physical = (deg == 270) ? 3 : (deg == 180) ? 2 : 1;
+            }
+            const bool nanoOnTop =
+                    !property_get_bool("sys.gammaos.nano.app_launched", false)
+                    || property_get_bool("sys.gammaos.nano.show_overlay", false);
+            const int selfRot = nanoOnTop ? physical : 0;
+            mOverlayRotation = selfRot;
+            nanoSetOverlayRenderRotation(selfRot);
+        }
 
         // Overlay XMB: resident-hidden power-hold overlay. One-time blur/hide
         // setup, then each tick poll sys.gammaos.nano.show_overlay to raise or
@@ -4693,7 +4731,7 @@ if (sRingPrimedCount >= 2) {
                     while (read(fd, &drain_ev, sizeof(drain_ev)) == sizeof(drain_ev)) {}
                 }
                 drmFrameBegin();
-                if (sDrmGlRotation) {
+                if (sDrmGlRotation && sDrmZeroCopy) {
                     glViewport(0, 0, sAhbTarget.w, sAhbTarget.h);
                 } else {
                     glViewport(0, 0, mWidth, mHeight);

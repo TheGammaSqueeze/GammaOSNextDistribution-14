@@ -200,6 +200,31 @@ void NanoMenu::renderEffect() {
         return;
     }
 
+    // Fragment-space rotation for the fullscreen procedural effects (11-21). They sample
+    // gl_FragCoord (window space), which vertex transforms (sDrmRotMat / uRotation) do NOT affect,
+    // so they must rotate the fragment coordinate here to match the rest of the UI. The XMB
+    // wave/canyon/globe are unaffected because they rotate via sDrmRotMat vertices; these effects
+    // otherwise render at the panel-native orientation while the UI is turned - the "music
+    // visualizers face the wrong way after a hardware rotate" bug. DRM-direct keys off the fixed
+    // install angle (unchanged); force-SF keys off nano's runtime self-rotation (mOverlayRotation).
+    // 90/270 swap X/Y (uCoordSwap); 180/270 add the half-turn (both axis flips). These compose with
+    // the DRM PRIME Y-flip and the user panel flips (XOR: two negations cancel).
+    bool fxRotXFlip = false, fxRotYFlip = false;
+    float coordSwap;
+    if (sDrmActive) {
+        coordSwap = (sDrmRotationDeg == 90 || sDrmRotationDeg == 270) ? 1.0f : 0.0f;
+    } else {
+        // coordSwap alone rotates the sampling by -90 (device-verified: that renders the effect
+        // upside-down at the 90 self-rotation), so the +90 case (q==1) needs the extra half-turn
+        // (both flips); q==3 (270) is coordSwap with no flips, and q==2 (180) is the half-turn only.
+        const int q = sDrmGlRotation ? (mOverlayRotation & 3) : 0;
+        coordSwap  = (q == 1 || q == 3) ? 1.0f : 0.0f;
+        fxRotXFlip = (q == 1 || q == 2);
+        fxRotYFlip = (q == 1 || q == 2);
+    }
+    float yFlip = (sDrmYFlipForPrime ^ sDrmFlipV ^ fxRotYFlip) ? 1.0f : 0.0f;
+    float xFlip = (sDrmFlipH ^ fxRotXFlip) ? 1.0f : 0.0f;
+
     if (eff >= 1 && eff <= 10) {
         // Batched particle rendering: build one vertex+color buffer, single draw call
         static GLfloat pVerts[MAX_PARTICLES * 6 * 2];
@@ -236,24 +261,8 @@ void NanoMenu::renderEffect() {
             glDisableVertexAttribArray(mParticleLocColor);
         }
     } else if (eff >= 11 && eff <= 20) {
-        // Fullscreen procedural shader
+        // Fullscreen procedural shader. coordSwap/yFlip/xFlip computed above (shared with eff 21).
         GLfloat verts[] = { -1,-1, 1,-1, 1,1, 1,1, -1,1, -1,-1 };
-        // GammaOS: When GL rotation is active, gl_FragCoord is in panel-native
-        // pixel space but the shader effect should render in logical orientation.
-        // uCoordSwap=1.0 tells the fragment shader to swap gl_FragCoord.xy → .yx
-        // so the UV mapping matches the logical dimensions passed in uResolution.
-        float coordSwap = (sDrmActive && (sDrmRotationDeg == 90
-                           || sDrmRotationDeg == 270)) ? 1.0f : 0.0f;
-        // Fragment-space Y flip: the DRM PRIME path flips vertex Y via the
-        // uRotation matrix to compensate for AHB scanout memory ordering.
-        // gl_FragCoord is in window space and is NOT affected by vertex
-        // transforms, so effects that depend on screen Y (Fire's rising
-        // flames, Aurora's band position) render upside-down without this.
-        // User flip_v compounds with PRIME (XOR): two Y negations in vertex
-        // space cancel, so fragment Y should only flip when net-flipped.
-        bool netYFlip = sDrmYFlipForPrime ^ sDrmFlipV;
-        float yFlip = netYFlip ? 1.0f : 0.0f;
-        float xFlip = sDrmFlipH ? 1.0f : 0.0f;
         glUseProgram(mFxProgram);
         glUniform1f(mFxLocTime, mEffectTime);
         glUniform2f(mFxLocResolution, (float)mWidth, (float)mHeight);
@@ -269,12 +278,8 @@ void NanoMenu::renderEffect() {
         // Effect 21: the original procedural PS3-style volumetric ribbon. This
         // is also the not-ready fallback for the real wave (effect 22), so the
         // wallpaper is never blank while the wave assets load.
+        // coordSwap/yFlip/xFlip computed above (shared with eff 11-20).
         GLfloat verts[] = { -1,-1, 1,-1, 1,1, 1,1, -1,1, -1,-1 };
-        float coordSwap = (sDrmActive && (sDrmRotationDeg == 90
-                           || sDrmRotationDeg == 270)) ? 1.0f : 0.0f;
-        bool netYFlip = sDrmYFlipForPrime ^ sDrmFlipV;
-        float yFlip = netYFlip ? 1.0f : 0.0f;
-        float xFlip = sDrmFlipH ? 1.0f : 0.0f;
         glUseProgram(mXmbProgram);
         glUniform1f(mXmbLocTime, mEffectTime);
         glUniform2f(mXmbLocResolution, (float)mWidth, (float)mHeight);

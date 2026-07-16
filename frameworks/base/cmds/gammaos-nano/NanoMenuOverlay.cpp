@@ -1485,6 +1485,21 @@ void NanoMenu::overlayUpdateSurfaceSize() {
     }
     // Turn nano's own rendering to match, compensating for any SurfaceFlinger display transform.
     nanoSetOverlayRenderRotation(renderSelfRot);
+    // Instrumentation for the seamless-rotation work: log only on a change so the sequence during a
+    // rotate is readable (physical from the rotate prop, SF orientation from getDisplayState, and the
+    // resulting self-rotation nano applies). With SF pinned at 0 while the overlay is up this should
+    // read sf=0 and renderSelfRot==physical, matching the seamless cold-boot path.
+    {
+        static int sLastLoggedRot = -100;
+        const int packed = (mOverlayRotation << 8) | ((int)state.orientation << 4) | (renderSelfRot & 0xf);
+        if (packed != sLastLoggedRot) {
+            sLastLoggedRot = packed;
+            ALOGI("nano rotate: physical=%d sf_orient=%d renderSelfRot=%d (lw=%d lh=%d)",
+                  mOverlayRotation, (int)state.orientation, renderSelfRot,
+                  (int)state.layerStackSpaceRect.getWidth(),
+                  (int)state.layerStackSpaceRect.getHeight());
+        }
+    }
     const int lw = (int)state.layerStackSpaceRect.getWidth();
     const int lh = (int)state.layerStackSpaceRect.getHeight();
     if (lw <= 0 || lh <= 0) return;

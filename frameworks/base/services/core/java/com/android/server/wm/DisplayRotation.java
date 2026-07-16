@@ -1295,7 +1295,35 @@ public class DisplayRotation {
             } else {
                 forced = Surface.ROTATION_0;
             }
-            return forced;
+            // GammaOS seamless overlay rotation: when nano's overlay is the top surface, keep
+            // SurfaceFlinger pinned at ROTATION_0 and let nano self-rotate its own render. This
+            // reproduces the (already seamless) cold-boot condition: on cold boot SF never flips
+            // orientation, so this vendor SF never runs its 5-HWC-present-frame freeze ("Display
+            // orientation changed, skipping 5 HWC present frames") and there is no blip. nano's
+            // overlay is a raw SurfaceControl outside WMS's per-window rotation coordination, so an
+            // actual SF orientation flip freezes the panel underneath it and nano snaps a wrong frame
+            // = the post-app blip. Pinning SF here means nano's renderSelfRot = physical - 0 = full
+            // physical rotation (identical to cold boot), so it rotates smoothly with no SF freeze.
+            // When no overlay is up (a real app is foreground) we return the physical angle so the
+            // app rotates normally (apps ARE WMS windows and rotate seamlessly through the freeze).
+            // nano is the visible top surface when either no app is foreground (the default
+            // home/wallpaper - app_launched=0, which is also the whole pre-app / cold-boot life)
+            // OR its overlay is raised over a running app (show_overlay=1). Only when a real app
+            // owns the screen with no overlay (app_launched=1 AND show_overlay=0) do we let SF
+            // actually rotate, because that app is a WMS window and rotates seamlessly through the
+            // freeze. show_overlay alone is NOT enough: it is 0 in plain wallpaper mode, so keying
+            // on it left wallpaper rotations flipping SF and still blipping.
+            final boolean showOverlay =
+                    "1".equals(SystemProperties.get("sys.gammaos.nano.show_overlay", "0"));
+            final boolean appForeground =
+                    "1".equals(SystemProperties.get("sys.gammaos.nano.app_launched", "0"));
+            final boolean nanoOnTop = !appForeground || showOverlay;
+            final int result = nanoOnTop ? Surface.ROTATION_0 : forced;
+            Slog.d(TAG, "GammaOS rotate: nanoOnTop=" + nanoOnTop
+                    + " showOverlay=" + showOverlay + " appForeground=" + appForeground
+                    + " state=" + SystemProperties.get("sys.gammaos.rotate.state", "0")
+                    + " forced=" + forced + " -> return=" + result);
+            return result;
         }
 
         // GammaOS Dual-Stack secondary display:

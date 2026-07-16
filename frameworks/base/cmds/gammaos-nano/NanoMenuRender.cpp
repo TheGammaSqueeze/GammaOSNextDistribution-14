@@ -4344,10 +4344,18 @@ void NanoMenu::render() {
     if (sDrmActive && sDrmZeroCopy) {
         drmBindNextFbo();
     }
-    // GammaOS: When GL rotation is active, use the AHB (panel-native) dimensions
-    // for the viewport, not the logical mWidth/mHeight. The rotation matrix in the
-    // vertex shaders maps logical NDC to the panel-native viewport.
-    if (sDrmGlRotation) {
+    // GammaOS: When GL rotation is active AND we are rendering into the DRM zero-copy
+    // AHB, use the AHB (panel-native) dimensions for the viewport, not the logical
+    // mWidth/mHeight. The rotation matrix in the vertex shaders maps logical NDC to the
+    // panel-native viewport. CRUCIAL: sAhbTarget is sAhbRingPrimary[...], which is only
+    // allocated on the DRM zero-copy path; in force-SF overlay mode (drm_active=0) it is
+    // 0x0. The hardware-rotate feature sets sDrmGlRotation=true via
+    // nanoSetOverlayRenderRotation() even in force-SF mode, so gating the AHB viewport on
+    // sDrmGlRotation alone would collapse the viewport to glViewport(0,0,0,0) - every
+    // primitive clipped away while glClear still paints (the "wallpaper blanks to blue /
+    // overlay icons vanish but scrim stays" rotation bug). Require sDrmZeroCopy so the
+    // SF-overlay self-rotate renders into the full mWidth x mHeight surface.
+    if (sDrmGlRotation && sDrmZeroCopy) {
         glViewport(0, 0, sAhbTarget.w, sAhbTarget.h);
     } else {
         glViewport(0, 0, mWidth, mHeight);
