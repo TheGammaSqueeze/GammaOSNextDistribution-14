@@ -450,4 +450,35 @@
         <item>30</item>
         <item>40</item>
     </string-array>
+
+    <!-- GammaOS slide (swivel) key: actions for the down / up events. -->
+    <string-array name="slide_behavior_action_entries">
+        <item>@string/slide_behavior_action_none</item>
+        <item>@string/slide_behavior_action_rotate</item>
+        <item>@string/slide_behavior_action_natural</item>
+        <item>@string/slide_behavior_action_screenoff</item>
+        <item>@string/slide_behavior_action_wake</item>
+        <item>@string/slide_behavior_action_launch</item>
+        <item>@string/slide_behavior_action_clock</item>
+    </string-array>
+    <string-array name="slide_behavior_action_values" translatable="false">
+        <item>none</item>
+        <item>rotate</item>
+        <item>natural</item>
+        <item>screenoff</item>
+        <item>wake</item>
+        <item>launch</item>
+        <item>clock</item>
+    </string-array>
+
+    <string-array name="slide_behavior_degrees_entries">
+        <item>@string/slide_behavior_degrees_90</item>
+        <item>@string/slide_behavior_degrees_180</item>
+        <item>@string/slide_behavior_degrees_270</item>
+    </string-array>
+    <string-array name="slide_behavior_degrees_values" translatable="false">
+        <item>90</item>
+        <item>180</item>
+        <item>270</item>
+    </string-array>
 </resources>

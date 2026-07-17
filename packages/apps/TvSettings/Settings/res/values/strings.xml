@@ -3076,6 +3076,45 @@
     <!-- GammaOS Toolbox -->
     <string name="gammaos_toolbox_title">GammaOS Toolbox</string>
     <string name="gammaos_toolbox_summary">Advanced system property overrides</string>
+
+    <!-- GammaOS slide (swivel) key behaviour -->
+    <string name="slide_behavior_title">Slide behaviour</string>
+    <string name="slide_behavior_summary">Swivel / slide key: input device, button and actions</string>
+    <string name="slide_behavior_info">Configure the hardware slide (swivel) sensor: which input device and button to watch, and what happens when it slides down and back up. Defaults match this device.</string>
+    <string name="slide_behavior_input_category">Input to watch</string>
+    <string name="slide_behavior_enable_title">Enable slide control</string>
+    <string name="slide_behavior_enable_summary">React to the configured slide button</string>
+    <string name="slide_behavior_dev_name_title">Input device name</string>
+    <string name="slide_behavior_dev_name_summary">Input device to watch (e.g. gpio-keys). Leave blank to match any device.</string>
+    <string name="slide_behavior_key_code_title">Button scancode</string>
+    <string name="slide_behavior_key_code_summary">Linux evdev scancode of the slide button (88 = F12)</string>
+    <string name="slide_behavior_action_category">Slide actions</string>
+    <string name="slide_behavior_down_action_title">On slide down</string>
+    <string name="slide_behavior_down_action_summary">What to do when the button goes down (slid)</string>
+    <string name="slide_behavior_up_action_title">On slide up</string>
+    <string name="slide_behavior_up_action_summary">What to do when the button releases (returned)</string>
+    <string name="slide_behavior_degrees_title">Rotation angle</string>
+    <string name="slide_behavior_degrees_summary">Angle used by the Rotate action</string>
+    <string name="slide_behavior_launch_target_title">Launch target</string>
+    <string name="slide_behavior_launch_target_summary">For the Launch action: a package, a component (pkg/cls), or nano:&lt;mode&gt;</string>
+    <string name="slide_behavior_clock_category">PSP slide clock</string>
+    <string name="slide_behavior_clock_title">Show clock on slide</string>
+    <string name="slide_behavior_clock_summary">GammaOS Nano shows the PSP clock overlay while the button is slid (can run alongside the Rotate action)</string>
+    <string name="slide_behavior_clock_liveapp_title">Live game backdrop</string>
+    <string name="slide_behavior_clock_liveapp_summary">Refract and blur the running game behind the clock</string>
+    <string name="slide_behavior_clock_tiltcal_title">Parallax calibration</string>
+    <string name="slide_behavior_clock_tiltcal_summary">gain,rot,sx,sy - gyro parallax throw, orientation (x90deg) and per-axis sign</string>
+    <!-- slide action names -->
+    <string name="slide_behavior_action_none">Do nothing</string>
+    <string name="slide_behavior_action_rotate">Rotate screen</string>
+    <string name="slide_behavior_action_natural">Restore natural</string>
+    <string name="slide_behavior_action_screenoff">Sleep (screen off)</string>
+    <string name="slide_behavior_action_wake">Wake</string>
+    <string name="slide_behavior_action_launch">Launch app / overlay</string>
+    <string name="slide_behavior_action_clock">PSP clock (Nano)</string>
+    <string name="slide_behavior_degrees_90">90 degrees</string>
+    <string name="slide_behavior_degrees_180">180 degrees</string>
+    <string name="slide_behavior_degrees_270">270 degrees</string>
     <string name="gammaos_toolbox_warning">Warning: These settings modify low-level system properties. Some options may not be applicable to your device or hardware. Changing values incorrectly can cause display glitches, performance issues, or instability. Proceed at your own risk.</string>
     <string name="gammaos_toolbox_restore_default">Restore default</string>
     <string name="gammaos_toolbox_value_not_set">Not set</string>

@@ -28,6 +28,13 @@
         android:summary="@string/gammaos_toolbox_warning"
         android:icon="@android:drawable/ic_dialog_alert" />
 
+    <!-- Slide / swivel key behaviour (its own screen) -->
+    <Preference
+        android:key="slide_behavior"
+        android:title="@string/slide_behavior_title"
+        android:summary="@string/slide_behavior_summary"
+        android:fragment="com.android.tv.settings.gammaos.SlideBehaviorFragment" />
+
     <!-- ==================== Display ==================== -->
     <PreferenceCategory
         android:key="category_display"

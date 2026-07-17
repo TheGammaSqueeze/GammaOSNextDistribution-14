@@ -6020,8 +6020,10 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     //   persist.gammaos.rotate.up_action     action on UP    (default "natural")
     //   persist.gammaos.rotate.degrees       90 | 180 | 270 (rotate action)
     //   persist.gammaos.rotate.launch_target component / package / "nano:<mode>" (launch action)
-    // Each action is one of: none | rotate | natural | screenoff | wake | launch, so any pairing
-    // works (rotate/natural, screenoff/wake, launch/none, none/none, ...).
+    // Each action is one of: none | rotate | natural | screenoff | wake | launch | clock, so any
+    // pairing works (rotate/natural, screenoff/wake, launch/none, none/none, ...). "clock" opens
+    // the GammaOS Nano PSP slide clock; it is handled by nano's own evdev reader (which sees the
+    // key even over a fullscreen app, where the framework never does), so here it is a no-op.
     private boolean mGammaRotateDown = false;   // key currently in the DOWN (rotated) state
 
     private boolean interceptGammaRotateKey(KeyEvent event) {
@@ -6105,7 +6107,9 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         } else if ("launch".equals(act)) {
             gammaRotateLaunch();
         }
-        // "none" or anything unknown: do nothing.
+        // "clock" is handled entirely by GammaOS Nano's own evdev reader (it must open the PSP
+        // slide clock even over a fullscreen app, which the framework key path cannot reach), so
+        // there is nothing to do here. "none" or anything unknown: also do nothing.
     }
 
     private void gammaRotateApply(boolean rotated) {

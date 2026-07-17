@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  GammaOS: hardware slide / swivel key behaviour. Every key here maps 1:1 to a
+  persist.gammaos.* system property read by PhoneWindowManager and GammaOS Nano.
+-->
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:key="slide_behavior_screen"
+    android:title="@string/slide_behavior_title">
+
+    <Preference
+        android:key="slide_behavior_info"
+        android:selectable="false"
+        android:icon="@android:drawable/ic_dialog_info"
+        android:summary="@string/slide_behavior_info" />
+
+    <PreferenceCategory
+        android:key="slide_behavior_input_cat"
+        android:title="@string/slide_behavior_input_category">
+
+        <SwitchPreference
+            android:key="persist.gammaos.rotate.enabled"
+            android:title="@string/slide_behavior_enable_title"
+            android:summary="@string/slide_behavior_enable_summary"
+            android:defaultValue="false" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.rotate.dev_name"
+            android:title="@string/slide_behavior_dev_name_title"
+            android:summary="@string/slide_behavior_dev_name_summary"
+            android:dialogTitle="@string/slide_behavior_dev_name_title" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.rotate.key_code"
+            android:title="@string/slide_behavior_key_code_title"
+            android:summary="@string/slide_behavior_key_code_summary"
+            android:dialogTitle="@string/slide_behavior_key_code_title" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="slide_behavior_action_cat"
+        android:title="@string/slide_behavior_action_category">
+
+        <ListPreference
+            android:key="persist.gammaos.rotate.down_action"
+            android:title="@string/slide_behavior_down_action_title"
+            android:summary="@string/slide_behavior_down_action_summary"
+            android:entries="@array/slide_behavior_action_entries"
+            android:entryValues="@array/slide_behavior_action_values"
+            android:defaultValue="rotate" />
+
+        <ListPreference
+            android:key="persist.gammaos.rotate.up_action"
+            android:title="@string/slide_behavior_up_action_title"
+            android:summary="@string/slide_behavior_up_action_summary"
+            android:entries="@array/slide_behavior_action_entries"
+            android:entryValues="@array/slide_behavior_action_values"
+            android:defaultValue="natural" />
+
+        <ListPreference
+            android:key="persist.gammaos.rotate.degrees"
+            android:title="@string/slide_behavior_degrees_title"
+            android:summary="@string/slide_behavior_degrees_summary"
+            android:entries="@array/slide_behavior_degrees_entries"
+            android:entryValues="@array/slide_behavior_degrees_values"
+            android:defaultValue="90" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.rotate.launch_target"
+            android:title="@string/slide_behavior_launch_target_title"
+            android:summary="@string/slide_behavior_launch_target_summary"
+            android:dialogTitle="@string/slide_behavior_launch_target_title" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="slide_behavior_clock_cat"
+        android:title="@string/slide_behavior_clock_category">
+
+        <SwitchPreference
+            android:key="persist.gammaos.nano.pspclock"
+            android:title="@string/slide_behavior_clock_title"
+            android:summary="@string/slide_behavior_clock_summary"
+            android:defaultValue="false" />
+
+        <SwitchPreference
+            android:key="persist.gammaos.nano.pspclock.liveapp"
+            android:title="@string/slide_behavior_clock_liveapp_title"
+            android:summary="@string/slide_behavior_clock_liveapp_summary"
+            android:defaultValue="false" />
+
+        <EditTextPreference
+            android:key="persist.gammaos.nano.pspclock.tilt.cal"
+            android:title="@string/slide_behavior_clock_tiltcal_title"
+            android:summary="@string/slide_behavior_clock_tiltcal_summary"
+            android:dialogTitle="@string/slide_behavior_clock_tiltcal_title" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

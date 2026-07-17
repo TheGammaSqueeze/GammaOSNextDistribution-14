@@ -1858,9 +1858,21 @@ void NanoMenu::pollInput() {
             // same swivel key (KEY_F12) drives the full-screen PSP clock instead of the
             // display rotation - down = open, up = close (momentary, like closing a PSP
             // Go). Handled before the rotate branch so the clock gate takes precedence.
+            // Gate: respond to the slide with the clock when the pspclock overlay toggle is
+            // on (it can run alongside a rotate action, so it is its own toggle) OR the
+            // slide's own down-action is "clock" (the clock is the chosen slide behaviour,
+            // e.g. a plain button with no panel rotation). Computed only for the slide key.
+            bool pspClockSlide = false;
             if (ev.type == EV_KEY && ev.value != 2
-                && ev.code == property_get_int32("persist.gammaos.rotate.key_code", 88)
-                && property_get_bool("persist.gammaos.nano.pspclock", false)) {
+                && ev.code == property_get_int32("persist.gammaos.rotate.key_code", 88)) {
+                pspClockSlide = property_get_bool("persist.gammaos.nano.pspclock", false);
+                if (!pspClockSlide && property_get_bool("persist.gammaos.rotate.enabled", false)) {
+                    char da[PROPERTY_VALUE_MAX] = {};
+                    property_get("persist.gammaos.rotate.down_action", da, "rotate");
+                    pspClockSlide = (strcmp(da, "clock") == 0);
+                }
+            }
+            if (pspClockSlide) {
                 // Re-roll the entrance-avalanche seed on each fresh open (false->true)
                 // so the burst/icon stream differs per swivel, like the web's per-run
                 // hashIconRnd. Only on the down transition, not key-repeat/close.
