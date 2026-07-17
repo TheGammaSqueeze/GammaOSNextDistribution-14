@@ -102,6 +102,21 @@ void NanoMenu::drawPspClock(float dtMs) {
     // 5.6). Always set (0 when closed) so the surge is a clean no-op off-clock.
     ps3bg::setClockWaveSurge(mPspClockReveal);
 
+    // 60fps present mode. On the force-SF present path (SF window surface, NOT the
+    // overlay instance, which manages its own swap mode) eglSwapBuffers defaults to
+    // interval 1: a frame a hair over 16.7ms stalls to the next vsync = 33ms = 30fps
+    // (see the surface-setup pacing comment). The clock's passes exceed 16.7ms, so
+    // switch to interval 0 while it is open - SurfaceFlinger still latches at its own
+    // vsync, so no tearing - and restore interval 1 for the light static home. Only
+    // on transitions. Harmless on DRM-direct (present is the page flip, not the swap).
+    if (!mOverlayMode) {
+        int want = (mPspClockEnabled && (mPspClockOn || mPspClockReveal > 0.0f)) ? 0 : 1;
+        if (want != mPspPresentBoosted) {
+            eglSwapInterval(mDisplay, want);
+            mPspPresentBoosted = want;
+        }
+    }
+
     if (!mPspClockEnabled) {                 // feature off: park and bail
         if (mPspClockReveal != 0.0f || mPspClockOn) {
             mPspClockOn = false; mPspClockReveal = 0.0f;

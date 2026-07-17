@@ -1761,6 +1761,7 @@ private:
     float mPspGlow[3] = {150.0f, 232.0f, 255.0f};  // dominant-bg glow colour (fallback cyan)
     bool  mPspGlowValid = false;
     uint32_t mPspIconSeed = 0;        // per-open entrance-icon layout seed
+    int   mPspPresentBoosted = -1;    // force-SF swap interval while the clock is open: -1 unset, 0 boosted (interval 0), 1 restored
     float mPspGlyphBurst = 0.0f;      // ambient glyph speed/brightness kick
     float mPspTrail[120] = {0};       // second-hand comet-trail alphas
     GLuint mPspLensProgram = 0;       // radial-refraction glass shader (built lazily)
