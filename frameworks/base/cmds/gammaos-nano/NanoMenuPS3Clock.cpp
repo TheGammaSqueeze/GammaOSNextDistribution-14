@@ -265,15 +265,21 @@ void NanoMenu::pspClockBackdropBlur(float amt) {
     // 0 = plain rect, neutral tint, fade = amt so the defocus ramps in on open.
     drawFrostedGlass(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f,
                      1.0f, 1.0f, 1.0f, 0.0f, amt, /*waveSpace=*/true);
-    // Mild defocus darken (spec: rgba(0,0,0,0.30*amt)).
-    drawQuad(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f, 0.0f, 0.0f, 0.30f * amt);
+    // Defocus darken. The web uses rgba(0,0,0,0.30*amt); lifted a touch to 0.38 so
+    // the backdrop dim reads clearly as a transition on open and gives the crisp,
+    // now-more-zoomed disc a darker surround to stand out against (issue #2). Still a
+    // mild defocus - not a heavy scrim. Ramps with amt=clockReveal (0..1) so it fades
+    // in over the drop, same envelope as the blur and the lens.
+    drawQuad(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f, 0.0f, 0.0f, 0.38f * amt);
 }
 
 // -----------------------------------------------------------------------------
 // Stage 2: the glass refraction disc (spec 5.9). The web precomputes a radial
 // displacement map and JS-bilinear-refracts the bg+wave through it; here it is an
-// ANALYTIC fragment shader sampling ps3bg::workTex. The face is a gentle zoom-IN
-// (FACE_ZOOM 1.1) with an identity interior and only the outer ~2% bevel band
+// ANALYTIC fragment shader sampling ps3bg::workTex. The face is a zoom-IN
+// (FACE_ZOOM 1.35, deeper than the web's 1.1 so the disc reads as a clearly
+// magnified crisp window vs the blurred surround) with an identity interior and
+// only the outer ~2% bevel band
 // bending outward (M=1, BEVEL=0.98, EDGE=1.10, P=1.8). Drawn as a crisp opaque
 // stamp over the punched blur (no stencil needed, EGL has none). Plus a thin
 // bright bevel rim + a faint facet line.
@@ -296,7 +302,7 @@ static const char PSP_LENS_FS[] = R"(
     varying vec2 vTex;
     uniform vec2  uHalf;      // disc half-size in local px (R,R)
     uniform vec2  uCenter;    // disc centre in workTex UV
-    uniform float uZoom;      // FACE_ZOOM (1.1 = magnify in)
+    uniform float uZoom;      // FACE_ZOOM (>1 = magnify in; 1.35 here, deeper than web 1.1)
     uniform float uTonemap;   // exp2 tonemap of the LINEAR workTex
     uniform float uAlpha;     // lens opacity (fades in over the drop)
     uniform sampler2D uTex;
@@ -368,7 +374,16 @@ void NanoMenu::pspClockLens(float cr) {
     glUniformMatrix2fv(mPspLensLocRot, 1, GL_FALSE, sDrmRotMat);
     glUniform2f(mPspLensLocHalf, R, R);
     glUniform2f(mPspLensLocCenter, uCx, uCy);
-    glUniform1f(mPspLensLocZoom, 1.1f);
+    // FACE_ZOOM: the web uses 1.1 (a very gentle magnify). At 1.1 the disc interior
+    // is nearly 1:1 with the surround, so against the mildly-blurred backdrop the
+    // crisp face barely reads as a distinct refraction. Push the zoom well past the
+    // web so the disc is an obviously magnified window: it samples a ~74%-width patch
+    // of ps3bg::workTex (which already has the wave glitter particles baked in) and
+    // enlarges it into the disc, so the particles stay visible - just larger - and
+    // the crisp/zoomed face clearly contrasts the blurred, darkened surround. 1.35 is
+    // the sweet spot: markedly more zoom than 1.1 without over-magnifying to a
+    // near-uniform patch (too few distinct particles) or ballooning the glitter blurry.
+    glUniform1f(mPspLensLocZoom, 1.35f);
     glUniform1f(mPspLensLocTonemap, 1.6846f);
     glUniform1f(mPspLensLocAlpha, op);
     glActiveTexture(GL_TEXTURE0);
@@ -530,6 +545,59 @@ void NanoMenu::pspClockBakeGlyphs() {
                 if (ia < 0) ia = 0; if (ib > rw) ib = rw;
                 for (int rx = ia; rx < ib; rx++) cov[(size_t)ry*rw + rx] = 255; }
         }
+        // Soft-glow copy: separable box blur of the SS coverage (2 iterations ~=
+        // Gaussian), radius BR SS-px (= BR/SS final px). This is the diffuse halo the
+        // web gets from ctx.shadowBlur; a dilated copy of the SHARP tex only ever reads
+        // as an outline. PAD=9 glyph units of transparent margin holds the spread.
+        {
+            const int BR = SS * 3;                 // 9 SS px ~ 3 final px halo
+            std::vector<unsigned char> gcov = cov;
+            std::vector<unsigned char> tmp((size_t)rw*rh);
+            auto boxH = [&](std::vector<unsigned char>& src, std::vector<unsigned char>& dst){
+                int win = 2*BR + 1;
+                for (int y = 0; y < rh; y++) {
+                    const unsigned char* s = &src[(size_t)y*rw];
+                    unsigned char* d = &dst[(size_t)y*rw];
+                    int acc = 0;
+                    for (int x = -BR; x <= BR; x++) acc += s[x < 0 ? 0 : (x >= rw ? rw-1 : x)];
+                    for (int x = 0; x < rw; x++) {
+                        d[x] = (unsigned char)(acc / win);
+                        int xo = x - BR, xn = x + BR + 1;
+                        acc -= s[xo < 0 ? 0 : (xo >= rw ? rw-1 : xo)];
+                        acc += s[xn < 0 ? 0 : (xn >= rw ? rw-1 : xn)];
+                    }
+                }
+            };
+            auto boxV = [&](std::vector<unsigned char>& src, std::vector<unsigned char>& dst){
+                int win = 2*BR + 1;
+                for (int x = 0; x < rw; x++) {
+                    int acc = 0;
+                    for (int y = -BR; y <= BR; y++) { int yy = y<0?0:(y>=rh?rh-1:y); acc += src[(size_t)yy*rw + x]; }
+                    for (int y = 0; y < rh; y++) {
+                        dst[(size_t)y*rw + x] = (unsigned char)(acc / win);
+                        int yo = y - BR, yn = y + BR + 1;
+                        int ao = yo<0?0:(yo>=rh?rh-1:yo), an = yn<0?0:(yn>=rh?rh-1:yn);
+                        acc -= src[(size_t)ao*rw + x]; acc += src[(size_t)an*rw + x];
+                    }
+                }
+            };
+            boxH(gcov, tmp); boxV(tmp, gcov);   // pass 1
+            boxH(gcov, tmp); boxV(tmp, gcov);   // pass 2 (smoother falloff)
+            std::vector<unsigned char> gtex((size_t)W*H*4);
+            for (int y = 0; y < H; y++) for (int x = 0; x < W; x++) {
+                int sum = 0;
+                for (int sy = 0; sy < SS; sy++) for (int sx = 0; sx < SS; sx++)
+                    sum += gcov[(size_t)(y*SS+sy)*rw + (x*SS+sx)];
+                int a = sum / (SS*SS);
+                size_t idx = ((size_t)y*W + x)*4; gtex[idx]=255; gtex[idx+1]=255; gtex[idx+2]=255; gtex[idx+3]=(unsigned char)a; }
+            GLuint gt = 0; glGenTextures(1, &gt); glBindTexture(GL_TEXTURE_2D, gt);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, W, H, 0, GL_RGBA, GL_UNSIGNED_BYTE, gtex.data());
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+            mPspGlyphGlowTex[gi] = gt;
+        }
         std::vector<unsigned char> tex((size_t)W*H*4);
         for (int y = 0; y < H; y++) for (int x = 0; x < W; x++) {
             int sum = 0;
@@ -605,8 +673,12 @@ void NanoMenu::pspClockFace(float reveal, float /*floatY*/, float /*descentFrac*
                 drawTriangle(p0x,p0y,p2x,p2y,p3x,p3y, r,g,b,a);
             };
             float w = 3.0f * sc;                    // half-width (bar width 6)
-            bar(w + 2.5f*sc, gr, gg, gb, 0.5f*detail);   // glow
-            bar(w,            1.0f,1.0f,1.0f, detail);   // core
+            // Soft glow: 4 expanding copies, exponential alpha falloff (web shadowBlur 3)
+            // - a single wider bar reads as one hard outline; the stacked ramp is a halo.
+            static const float GG[4] = {1.0f, 2.0f, 3.5f, 5.0f};
+            for (int gpass = 0; gpass < 4; gpass++)
+                bar(w + GG[gpass]*sc, gr, gg, gb, 0.40f*expf(-0.42f*GG[gpass])*detail);
+            bar(w, 1.0f,1.0f,1.0f, detail);             // crisp white core
         }
     }
 
@@ -624,13 +696,23 @@ void NanoMenu::pspClockFace(float reveal, float /*floatY*/, float /*descentFrac*
             float cxd = dx(px), cyd = dy(py);
             float s = (NUM_H / 100.0f) * sc;
             float hw = mPspGlyphHXu[nm.gi] * s, hh = mPspGlyphHYu[nm.gi] * s;
-            auto stamp = [&](float grow, float r, float g, float b, float a){
+            GLuint gtex = mPspGlyphGlowTex[nm.gi];
+            auto stamp = [&](GLuint t, float grow, float r, float g, float b, float a){
                 float w = 2*hw + grow*2.0f, h = 2*hh + grow*2.0f;
-                drawIconTex(tex, cxd - w*0.5f, cyd - h*0.5f, w, h, r, g, b, a);
+                drawIconTex(t, cxd - w*0.5f, cyd - h*0.5f, w, h, r, g, b, a);
             };
-            stamp(6.0f*sc, gr, gg, gb, 0.5f);   // wide soft outer glow
-            stamp(3.0f*sc, gr, gg, gb, 0.5f);   // mid glow
-            stamp(0.0f,    1.0f,1.0f,1.0f, 1.0f);  // crisp white core
+            // Soft diffuse halo from the pre-blurred glyph (web shadowBlur 12 + 7),
+            // additive in the glow colour: a wide outer pass + a denser mid pass. The
+            // blurred texture already has a soft alpha ramp, so it reads as a halo, not
+            // an outline (the old dilated-sharp-copy problem).
+            if (gtex) {
+                stamp(gtex, 5.0f*sc, gr, gg, gb, 0.42f);  // wide soft outer glow
+                stamp(gtex, 1.5f*sc, gr, gg, gb, 0.55f);  // mid glow, denser near the edge
+            } else {
+                stamp(tex, 6.0f*sc, gr, gg, gb, 0.5f);    // fallback (no blur tex)
+                stamp(tex, 3.0f*sc, gr, gg, gb, 0.5f);
+            }
+            stamp(tex, 0.0f, 1.0f,1.0f,1.0f, 1.0f);       // crisp white core (sharp tex)
         }
     }
 
@@ -660,10 +742,17 @@ void NanoMenu::pspClockFace(float reveal, float /*floatY*/, float /*descentFrac*
             drawTriangle(ax,ay,bx,by,cxp,cyp, r,g,b,a);
             drawTriangle(ax,ay,cxp,cyp,ex,ey, r,g,b,a);
         };
-        // glow pass then crisp white (hour thickest)
-        hand(hourFrac,   86.0f,       11.0f, 3.6f, 2.4f, gr,gg,gb, 0.5f, 2.0f);
-        hand(minuteFrac, 141.0f-2.0f, 13.0f, 1.3f, 1.0f, gr,gg,gb, 0.5f, 2.0f);
-        hand(secFrac,    141.0f+2.0f, 20.0f, 0.7f, 0.55f, gr,gg,gb, 0.5f, 1.5f);
+        // Soft glow: 4 stacked expanding copies per hand, exponential alpha falloff
+        // (web shadowBlur 4 hour/minute, 2.5 second); gMax scales the spread per hand.
+        static const float HG[4] = {1.0f, 2.0f, 3.5f, 5.0f};
+        auto handGlow = [&](float frac, float len, float back, float wHub, float wTip, float gMax){
+            for (int gp = 0; gp < 4; gp++)
+                hand(frac, len, back, wHub, wTip, gr,gg,gb,
+                     0.40f*expf(-0.42f*HG[gp]), HG[gp]*sc*(gMax/4.0f));
+        };
+        handGlow(hourFrac,   86.0f,       11.0f, 3.6f, 2.4f,  4.0f);   // hour  (shadowBlur 4)
+        handGlow(minuteFrac, 141.0f-2.0f, 13.0f, 1.3f, 1.0f,  4.0f);   // minute(shadowBlur 4)
+        handGlow(secFrac,    141.0f+2.0f, 20.0f, 0.7f, 0.55f, 2.5f);   // second(shadowBlur 2.5)
         hand(hourFrac,   86.0f,       11.0f, 3.6f, 2.4f, 1,1,1, 1.0f, 0.0f);
         hand(minuteFrac, 141.0f-2.0f, 13.0f, 1.3f, 1.0f, 1,1,1, 1.0f, 0.0f);
         hand(secFrac,    141.0f+2.0f, 20.0f, 0.7f, 0.55f, 1,1,1, 1.0f, 0.0f);
@@ -680,7 +769,10 @@ void NanoMenu::pspClockFace(float reveal, float /*floatY*/, float /*descentFrac*
                 drawTriangle(cxd,cyd, px,py, nx,ny, r,g,b,a); px=nx; py=ny;
             }
         };
-        disc(5.5f + 2.0f, gr,gg,gb, 0.5f);       // glow
+        // Soft glow: 4 expanding rings, exponential falloff (web shadowBlur 6).
+        static const float DG[4] = {1.5f, 3.0f, 4.5f, 6.0f};
+        for (int gp = 0; gp < 4; gp++)
+            disc(5.5f + DG[gp], gr,gg,gb, 0.40f*expf(-0.42f*(DG[gp]/1.5f)));
         disc(5.5f, 0.92f,0.97f,1.0f, 1.0f);      // #eaf7ff
         disc(2.5f, 1.0f,1.0f,1.0f, 1.0f);        // white
     }
@@ -842,12 +934,12 @@ void NanoMenu::pspClockAmbientGlyphs(float dtMs) {
         unsigned int st=0x51ed270bu;
         auto R=[&](){ st^=st<<13; st^=st>>17; st^=st<<5; return (st&0xffffff)/(float)0x1000000; };
         for(int i=0;i<16;i++){ ag[i].x=R()*1.3f-0.15f; ag[i].y=0.18f+fmodf(i*0.05f,0.62f);
-            ag[i].v=0.028f+R()*0.05f; ag[i].size=9.0f+R()*11.0f; ag[i].type=i%4; ag[i].phase=R()*6.283f; }
+            ag[i].v=0.028f+R()*0.05f; ag[i].size=13.0f+R()*15.0f; ag[i].type=i%4; ag[i].phase=R()*6.283f; }
         agInit=true;
     }
     float sc = std::min(mWidth/480.0f, mHeight/272.0f);
     float ox=0, oy=(mHeight-272.0f*sc)*0.5f;
-    const float hw=0.8f;
+    const float hw=1.1f;   // #4: thicker stroke so the drifting glyphs read at the glow alpha
     auto line=[&](float x0,float y0,float x1,float y1,float r,float g,float b,float a){
         float ux=x1-x0,uy=y1-y0,L=sqrtf(ux*ux+uy*uy); if(L<1e-3f)return; float nx=-uy/L*hw,ny=ux/L*hw;
         drawTriangle(x0+nx,y0+ny,x1+nx,y1+ny,x1-nx,y1-ny,r,g,b,a); drawTriangle(x0+nx,y0+ny,x1-nx,y1-ny,x0-nx,y0-ny,r,g,b,a); };
@@ -859,7 +951,7 @@ void NanoMenu::pspClockAmbientGlyphs(float dtMs) {
         float gs=g.size*sc;
         pspLensBow(mPspLensValid, mPspLensCx, mPspLensCy, mPspLensR, px, py, gs);
         float cl=clamp01(g.x);
-        float a=(0.05f+mPspGlyphBurst*0.14f)*sinf(cl*(float)M_PI)*mPspDetailFade;
+        float a=(0.14f+mPspGlyphBurst*0.14f)*sinf(cl*(float)M_PI)*mPspDetailFade;   // #4: base 0.05->0.14 (clearly visible behind the settled clock)
         if(a<=0.008f) continue;
         const float R=205.0f/255.0f,G=238.0f/255.0f,B=255.0f/255.0f; float s=gs;
         if(g.type==0){ const int N=16; float pax=px+s*0.5f,pay=py; for(int k=1;k<=N;k++){ float an=(float)k/N*2*(float)M_PI; float qx=px+cosf(an)*s*0.5f,qy=py+sinf(an)*s*0.5f; line(pax,pay,qx,qy,R,G,B,a); pax=qx;pay=qy; } }

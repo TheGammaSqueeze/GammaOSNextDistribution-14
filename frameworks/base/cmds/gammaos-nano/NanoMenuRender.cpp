@@ -4382,7 +4382,20 @@ void NanoMenu::render() {
             if (sOvDim < 0.0f) sOvDim = 0.0f;
             if (sOvDim > 1.0f) sOvDim = 1.0f;
         }
-        glClearColor(0.0f, 0.0f, 0.0f, sOvDim);
+        // PSP clock (F12) over a live app: the clock draws its OWN backdrop darken
+        // (pspClockBackdropBlur, 0.38*reveal) which is meant to be the only dimming
+        // behind the clock. The overlay scrim is baked into this clear's alpha, so fade
+        // it out on the SAME reveal ramp the clock backdrop fades in on (clockReveal =
+        // clamp01((reveal-0.3)/0.7)) - a continuous handoff, no double-dim, no pop (user
+        // bug #8). PS3 XMB only (DSi untouched).
+        float ovScrim = sOvDim;
+        if (mPs3Xmb && mPspClockEnabled && mPspClockReveal > 0.0f) {
+            float clkReveal = (mPspClockReveal - 0.3f) / 0.7f;
+            if (clkReveal < 0.0f) clkReveal = 0.0f;
+            if (clkReveal > 1.0f) clkReveal = 1.0f;
+            ovScrim = sOvDim * (1.0f - clkReveal);
+        }
+        glClearColor(0.0f, 0.0f, 0.0f, ovScrim);
     } else {
         // Home XMB, overlay wallpaper/submenu mode, or drastic: OPAQUE clear
         // (alpha 1) so the layer fully covers whatever is behind it.

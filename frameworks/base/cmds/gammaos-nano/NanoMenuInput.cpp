@@ -1866,7 +1866,24 @@ void NanoMenu::pollInput() {
                 // hashIconRnd. Only on the down transition, not key-repeat/close.
                 if (ev.value == 1 && !mPspClockOn) mPspIconSeed += 17;
                 mPspClockOn = (ev.value == 1);
-                continue;   // swallow so the switch never navigates the menu or rotates
+                // Ambient-glyph brighten/speed surge just after a toggle (web
+                // index.html:16476 sets this on togglePspClock). 1.0 on open, 0.6 on close.
+                mPspGlyphBurst = mPspClockOn ? 1.0f : 0.6f;
+                // If hardware rotation is ALSO enabled, the swivel must STILL rotate:
+                // nano is the only latch-free writer of sys.gammaos.rotate.state while an
+                // app/overlay is up (the framework drops F12 in InputDispatcher when the
+                // app has focus, so the framework writer stops and rotation gets stuck -
+                // user bug #7). Drive the prop here before swallowing so a device with
+                // BOTH the PSP clock and the rotate feature keeps rotating in every mode.
+                if (property_get_bool("persist.gammaos.rotate.enabled", false)) {
+                    char act[PROPERTY_VALUE_MAX] = {};
+                    property_get(ev.value ? "persist.gammaos.rotate.down_action"
+                                          : "persist.gammaos.rotate.up_action",
+                                 act, ev.value ? "rotate" : "natural");
+                    if (!strcmp(act, "rotate"))       property_set("sys.gammaos.rotate.state", "1");
+                    else if (!strcmp(act, "natural")) property_set("sys.gammaos.rotate.state", "0");
+                }
+                continue;   // swallow so the switch never navigates the menu
             }
             if (ev.type == EV_KEY && ev.value != 2
                 && property_get_bool("persist.gammaos.rotate.enabled", false)

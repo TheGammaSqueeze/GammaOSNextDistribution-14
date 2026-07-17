@@ -1771,7 +1771,8 @@ private:
            mPspLensLocAlpha = -1;
     float  mPspLensCx = 0, mPspLensCy = 0, mPspLensR = 0;  // disc lens in device px
     bool   mPspLensValid = false;
-    GLuint mPspGlyphTex[4] = {0, 0, 0, 0};   // baked numeral alpha textures (12,3,6,9)
+    GLuint mPspGlyphTex[4] = {0, 0, 0, 0};   // baked numeral alpha textures (12,3,6,9) - SHARP core
+    GLuint mPspGlyphGlowTex[4] = {0, 0, 0, 0};  // pre-blurred soft-edged copies for the diffuse halo
     float  mPspGlyphHXu[4] = {0}, mPspGlyphHYu[4] = {0};  // half-extents in glyph units (incl pad)
     bool   mPspGlyphBaked = false;
     GLuint mPspGlowFbo = 0, mPspGlowTex = 0;   // 8x8 downsample of the wallpaper for the glow colour
