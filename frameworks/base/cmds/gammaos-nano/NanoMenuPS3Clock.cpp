@@ -48,6 +48,61 @@ void NanoMenu::pspClockPollInput() {
     mPspClockEnabled = property_get_bool("persist.gammaos.nano.pspclock", false);
 }
 
+// Gyro/accel parallax (user request): tilting the device shifts the background sampled
+// through the glass disc so you can "peek behind" it at the corners. Reads the
+// accelerometer via the ASensor NDK while the clock is up, low-passes the gravity vector
+// into a small UV offset (mPspTilt*), and disables the sensor when the clock closes so it
+// costs nothing at rest. persist.gammaos.nano.pspclock.tilt="x,y" overrides it for testing.
+void NanoMenu::pspClockPollTilt(bool active) {
+    // Debug override (UV units, already the final offset): bypasses the sensor entirely.
+    {
+        char buf[PROPERTY_VALUE_MAX] = {};
+        if (property_get("persist.gammaos.nano.pspclock.tilt", buf, "") > 0 && buf[0]) {
+            float tx = 0.0f, ty = 0.0f;
+            if (sscanf(buf, "%f,%f", &tx, &ty) == 2) { mPspTiltX = tx; mPspTiltY = ty; return; }
+        }
+    }
+    if (!active) {
+        if (mPspSensorEnabled && mPspSensorQueue && mPspAccelSensor) {
+            ASensorEventQueue_disableSensor(mPspSensorQueue, mPspAccelSensor);
+            mPspSensorEnabled = false;
+        }
+        mPspTiltX *= 0.90f; mPspTiltY *= 0.90f;   // ease back to centre
+        return;
+    }
+    if (mPspSensorMgr == nullptr) {
+        mPspSensorMgr = ASensorManager_getInstanceForPackage("com.gammaos.nano");
+        if (mPspSensorMgr == nullptr) mPspSensorMgr = ASensorManager_getInstance();
+        if (mPspSensorMgr) {
+            mPspAccelSensor = ASensorManager_getDefaultSensor(mPspSensorMgr, ASENSOR_TYPE_ACCELEROMETER);
+            ALooper* looper = ALooper_forThread();
+            if (looper == nullptr) looper = ALooper_prepare(ALOOPER_PREPARE_ALLOW_NON_CALLBACKS);
+            if (looper && mPspAccelSensor)
+                mPspSensorQueue = ASensorManager_createEventQueue(mPspSensorMgr, looper, 3, nullptr, nullptr);
+        }
+    }
+    if (mPspSensorQueue && mPspAccelSensor && !mPspSensorEnabled) {
+        ASensorEventQueue_enableSensor(mPspSensorQueue, mPspAccelSensor);
+        ASensorEventQueue_setEventRate(mPspSensorQueue, mPspAccelSensor, 16666);   // ~60Hz
+        mPspSensorEnabled = true;
+    }
+    if (!mPspSensorQueue) return;
+    ASensorEvent ev; float ax = 0.0f, ay = 0.0f; bool got = false;
+    while (ASensorEventQueue_getEvents(mPspSensorQueue, &ev, 1) > 0) {
+        ax = ev.acceleration.x; ay = ev.acceleration.y; got = true;   // keep the latest
+    }
+    if (got) {
+        // Gravity along the panel axes (~9.81 m/s^2 at full tilt) -> small UV parallax.
+        // Shift the sampled bg TOWARD the tilt so the far edge of the disc reveals more.
+        const float G = 9.81f, PARALLAX = 0.06f;
+        auto cl = [](float v){ return v < -1.0f ? -1.0f : (v > 1.0f ? 1.0f : v); };
+        float tgtX = cl(ax / G) * PARALLAX;
+        float tgtY = cl(-ay / G) * PARALLAX;   // accel +Y is up; UV +Y is down -> flip
+        mPspTiltX += (tgtX - mPspTiltX) * 0.15f;   // low-pass (glide, kill jitter)
+        mPspTiltY += (tgtY - mPspTiltY) * 0.15f;
+    }
+}
+
 // Smoothed XMB text-fade multiplier (spec 5.4). Consumers multiply their alpha.
 float NanoMenu::pspClockTextFade() const {
     return mPspClockReveal <= 0.0f ? 1.0f : mPspTextFadeSmooth;
@@ -98,6 +153,9 @@ bool NanoMenu::pspClockBlowItem(int i, float& xShift, float& yLift, float& rot) 
 void NanoMenu::drawPspClock(float dtMs) {
     if (!mPs3Xmb) return;                    // PS3 XMB mode only; never touch DSi
     pspClockPollInput();
+    // Gyro/accel parallax: sample the tilt while the clock is up (disables the sensor and
+    // eases the offset back to centre once it is fully closed).
+    pspClockPollTilt(mPspClockReveal > 0.001f || mPspClockOn);
     // Feed the reveal to the shared wave renderer for the transition surge (spec
     // 5.6). Always set (0 when closed) so the surge is a clean no-op off-clock.
     ps3bg::setClockWaveSurge(mPspClockReveal);
@@ -314,6 +372,7 @@ static const char PSP_LENS_FS[] = R"(
     uniform float uZoom;      // FACE_ZOOM (>1 = magnify in; 1.35 here, deeper than web 1.1)
     uniform float uTonemap;   // exp2 tonemap of the LINEAR workTex
     uniform float uAlpha;     // lens opacity (fades in over the drop)
+    uniform vec2  uTilt;      // gyro/accel parallax: UV shift of the sampled bg (peek behind)
     uniform sampler2D uTex;
     void main() {
         vec2 n = vLocal / uHalf;          // normalized disc coords, |n|=1 at rim
@@ -327,6 +386,10 @@ static const char PSP_LENS_FS[] = R"(
         float scale = (srcT / max(t, 1e-4)) / uZoom;
         // Refraction is radial, so scale the actual UV vector to this pixel.
         vec2 uv = uCenter + (vTex - uCenter) * scale;
+        // Gyro/accel parallax: tilt shifts the sampled background so the glass reads as a
+        // window over a bg plane BEHIND it - you "peek around" the disc rim toward the tilt.
+        // Scale up a touch toward the rim (mix 0.7..1.0 by t) so the corners move the most.
+        uv += uTilt * mix(0.7, 1.0, t);
         uv = clamp(uv, 0.0, 1.0);
         vec3 c = texture2D(uTex, uv).rgb;
         if (uTonemap > 0.0) c = vec3(1.0) - exp2(-c * uTonemap);
@@ -362,6 +425,7 @@ void NanoMenu::pspClockLens(float cr) {
         mPspLensLocTonemap = glGetUniformLocation(mPspLensProgram, "uTonemap");
         mPspLensLocAlpha   = glGetUniformLocation(mPspLensProgram, "uAlpha");
         mPspLensLocTexture = glGetUniformLocation(mPspLensProgram, "uTex");
+        mPspLensLocTilt    = glGetUniformLocation(mPspLensProgram, "uTilt");
     }
     const float cx = mPspLensCx, cy = mPspLensCy, R = mPspLensR;
     if (R < 4.0f) return;
@@ -401,6 +465,9 @@ void NanoMenu::pspClockLens(float cr) {
     glUniform1f(mPspLensLocZoom, 1.35f);
     glUniform1f(mPspLensLocTonemap, 1.6846f);
     glUniform1f(mPspLensLocAlpha, op);
+    // Gyro/accel parallax offset (smoothed device tilt -> UV shift). Fades in with the
+    // lens so the peek-behind only kicks in once the disc is present.
+    if (mPspLensLocTilt >= 0) glUniform2f(mPspLensLocTilt, mPspTiltX * op, mPspTiltY * op);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, ps3bg::workTex());
     glUniform1i(mPspLensLocTexture, 0);

@@ -46,6 +46,8 @@
 
 #include <EGL/egl.h>
 #include <GLES2/gl2.h>
+#include <android/sensor.h>   // ASensor NDK (PSP clock gyro/accel parallax)
+#include <android/looper.h>   // ALooper for the sensor event queue
 
 class NanoVideo;   // global; HW video decoder (NanoVideo.h). Forward-declared to keep gui/ headers out of NanoMenu.h.
 class NanoDvbSub;  // global; DVB bitmap subtitle decoder (NanoDvbSub.h).
@@ -1768,9 +1770,18 @@ private:
     GLint  mPspLensLocPos = -1, mPspLensLocLocal = -1, mPspLensLocTex = -1,
            mPspLensLocRot = -1, mPspLensLocHalf = -1, mPspLensLocCenter = -1,
            mPspLensLocTexture = -1, mPspLensLocTonemap = -1, mPspLensLocZoom = -1,
-           mPspLensLocAlpha = -1;
+           mPspLensLocAlpha = -1, mPspLensLocTilt = -1;
     float  mPspLensCx = 0, mPspLensCy = 0, mPspLensR = 0;  // disc lens in device px
     bool   mPspLensValid = false;
+    // Gyro/accel parallax: tilting the device shifts the background sampled through the
+    // glass disc (peek behind). Smoothed device tilt in UV units (mPspTilt*), driven by
+    // the accelerometer via the ASensor NDK (libandroid), lazily opened while the clock
+    // is up. persist.gammaos.nano.pspclock.tilt="x,y" overrides the sensor for testing.
+    float  mPspTiltX = 0.0f, mPspTiltY = 0.0f;   // smoothed, already scaled to UV offset
+    ASensorManager*    mPspSensorMgr = nullptr;
+    ASensorEventQueue* mPspSensorQueue = nullptr;
+    const ASensor*     mPspAccelSensor = nullptr;
+    bool   mPspSensorEnabled = false;
     GLuint mPspGlyphTex[4] = {0, 0, 0, 0};   // baked numeral alpha textures (12,3,6,9) - SHARP core
     GLuint mPspGlyphGlowTex[4] = {0, 0, 0, 0};  // pre-blurred soft-edged copies for the diffuse halo
     float  mPspGlyphHXu[4] = {0}, mPspGlyphHYu[4] = {0};  // half-extents in glyph units (incl pad)
@@ -3072,6 +3083,7 @@ private:
     // --- PSP Go slide clock (NanoMenuPS3Clock.cpp) --------------------------
     void  drawPspClock(float dtMs);            // per-frame orchestrator (advance + all passes)
     void  pspClockPollInput();                 // reads the F12 gate prop into mPspClockEnabled
+    void  pspClockPollTilt(bool active);       // accel -> smoothed mPspTilt* parallax (gyro peek)
     float pspClockTextFade() const;            // smoothed XMB-text alpha multiplier (5.4)
     float pspClockChromeFade() const;          // whole-canvas backstop opacity (5.5, window 0.58..0.72)
     bool  pspClockBlowCat(int i, float& bx, float& by, float& brot) const;  // category icon blow-away (5.5)
