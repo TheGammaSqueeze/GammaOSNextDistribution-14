@@ -180,10 +180,46 @@ void NanoMenu::pspClockPollTilt(bool active) {
     if (got) {
         // Gravity along the panel axes (~9.81 m/s^2 at full tilt) -> small UV parallax.
         // Shift the sampled bg TOWARD the tilt so the far edge of the disc reveals more.
-        const float G = 9.81f, PARALLAX = 0.15f;
+        //
+        // Device calibration, live-tunable so the parallax ORIENTATION + throw can be
+        // dialled in per device WITHOUT a rebuild:
+        //   persist.gammaos.nano.pspclock.tilt.cal = "gain,rot,sx,sy"
+        //     gain  parallax throw in UV units (default 0.10)
+        //     rot   base orientation: rotate the accel->UV axes by rot*90 deg (0/1/2/3).
+        //           The Sprd accel on the RG Rotate is mounted 90 deg vs the panel, so the
+        //           default 1 gives: at the closed position (sDrmRotMat = identity) tilt
+        //           DOWN peeks down and tilt RIGHT peeks right.
+        //     sx,sy per-axis sign (+1/-1) to flip either axis if the accel sign differs.
+        // The sDrmRotMat transform in pspClockLens then rotates this panel-native tilt into
+        // the CURRENT screen-rotation frame (composes on top of this base orientation).
+        static float sCalGain = 0.10f; static int sCalRot = 1;
+        static float sCalSx = 1.0f, sCalSy = 1.0f; static bool sCalInit = false;
+        static int sCalTick = 0;
+        if (!sCalInit || (++sCalTick % 60) == 0) {   // re-read ~1s so a live retune applies
+            sCalInit = true;
+            sCalGain = 0.10f; sCalRot = 1; sCalSx = 1.0f; sCalSy = 1.0f;
+            char cb[PROPERTY_VALUE_MAX] = {};
+            if (property_get("persist.gammaos.nano.pspclock.tilt.cal", cb, "") > 0 && cb[0]) {
+                float g = sCalGain, sx = sCalSx, sy = sCalSy; int rt = sCalRot;
+                int n = sscanf(cb, "%f,%d,%f,%f", &g, &rt, &sx, &sy);
+                if (n >= 1 && g >= 0.0f && g <= 1.0f) sCalGain = g;
+                if (n >= 2) sCalRot = ((rt % 4) + 4) % 4;
+                if (n >= 3) sCalSx = sx < 0.0f ? -1.0f : 1.0f;
+                if (n >= 4) sCalSy = sy < 0.0f ? -1.0f : 1.0f;
+            }
+        }
+        const float G = 9.81f;
         auto cl = [](float v){ return v < -1.0f ? -1.0f : (v > 1.0f ? 1.0f : v); };
-        float tgtX = cl(ax / G) * PARALLAX;
-        float tgtY = cl(-ay / G) * PARALLAX;   // accel +Y is up; UV +Y is down -> flip
+        // Base accel -> panel-native UV, rotated by rot*90 deg to correct the sensor mount.
+        float ux = ax / G, uy = ay / G, rx, ry;
+        switch (sCalRot) {
+            case 1:  rx = -uy; ry =  ux; break;   // 90
+            case 2:  rx = -ux; ry = -uy; break;   // 180
+            case 3:  rx =  uy; ry = -ux; break;   // 270
+            default: rx =  ux; ry =  uy; break;   // 0
+        }
+        float tgtX = cl(rx) * sCalSx * sCalGain;
+        float tgtY = cl(ry) * sCalSy * sCalGain;
         mPspTiltX += (tgtX - mPspTiltX) * 0.15f;   // low-pass (glide, kill jitter)
         mPspTiltY += (tgtY - mPspTiltY) * 0.15f;
     }
@@ -747,8 +783,9 @@ static const char PSP_LENS_FS[] = R"(
         vec2 uv = uCenter + (vTex - uCenter) * scale;
         // Gyro/accel parallax: tilt shifts the sampled background so the glass reads as a
         // window over a bg plane BEHIND it - you "peek around" the disc rim toward the tilt.
-        // Scale up a touch toward the rim (mix 0.7..1.0 by t) so the corners move the most.
-        uv += uTilt * mix(0.7, 1.0, t);
+        // Confine the shift to the RIM: zero at the centre, ramping in over the outer band
+        // (t^3) so the flat face stays STABLE (no centre warp) while the corners peek most.
+        uv += uTilt * (t * t * t);
         uv = clamp(uv, 0.0, 1.0);
         vec3 c = texture2D(uTex, uv).rgb;
         if (uTonemap > 0.0) c = vec3(1.0) - exp2(-c * uTonemap);
@@ -979,7 +1016,7 @@ void NanoMenu::pspClockSampleGlow() {
 // -----------------------------------------------------------------------------
 void NanoMenu::pspClockSampleAppDim() {
     if (mPspClockAppTex == 0 || mPspClockAppTexW < 8 || mPspClockAppTexH < 8) return;
-    const int GS = 8;
+    const int GS = 32;   // 32x32 = 1024 well-spread taps -> a low-variance full-frame mean
     if (mPspAppLumFbo == 0) {
         glGenTextures(1, &mPspAppLumTex);
         glBindTexture(GL_TEXTURE_2D, mPspAppLumTex);
@@ -999,9 +1036,11 @@ void NanoMenu::pspClockSampleAppDim() {
     glBindFramebuffer(GL_FRAMEBUFFER, mPspAppLumFbo);
     glViewport(0, 0, GS, GS);
     glDisable(GL_BLEND);
-    // Fullscreen blit of the captured app into 8x8 (mTextProgram, identity uv, LINEAR
-    // MIN filter averages each 8x8-of-app block). Identity rotation - we only want the
-    // mean, orientation is irrelevant.
+    // Fullscreen blit of the captured app into GSxGS (mTextProgram, identity uv). GL_LINEAR
+    // minification only box-filters a 2x2 footprint per output texel, NOT the whole block,
+    // so GS=32 gives 1024 well-spread stratified taps across the frame; the CPU mean below
+    // then averages them into an unbiased, low-variance full-frame luminance. Identity
+    // rotation - we only want the mean, orientation is irrelevant.
     static const float ident[4] = {1,0,0,1};
     glUseProgram(mTextProgram);
     if (mTextLocRotation >= 0) glUniformMatrix2fv(mTextLocRotation, 1, GL_FALSE, ident);
@@ -1034,9 +1073,9 @@ void NanoMenu::pspClockSampleAppDim() {
     // the white face + glow stay legible, and darkens the surround in step so the
     // blurred backdrop never overpowers the face. smoothstep so the tracking has no knee.
     auto sstep = [](float e0, float e1, float x){ float t = clamp01((x - e0) / (e1 - e0)); return t*t*(3.0f - 2.0f*t); };
-    float b = sstep(0.28f, 0.82f, lum);
-    float dimTarget  = 0.90f - 0.48f * b;   // 0.90 (dark game) .. 0.42 (bright game)
-    float darkTarget = 0.48f + 0.26f * b;   // 0.48 (dark game) .. 0.74 (bright game)
+    float b = sstep(0.16f, 0.62f, lum);      // lower/earlier ramp: normal bright gameplay pushes b -> 1, not ~0
+    float dimTarget  = 0.92f - 0.60f * b;    // 0.92 (dark game, near-no-dim) .. 0.32 (bright game, disc clearly dimmed)
+    float darkTarget = 0.46f + 0.34f * b;    // 0.46 (dark game) .. 0.80 (bright game) surround follows in step
     const float sm = 0.12f;
     mPspAppDim          += (dimTarget  - mPspAppDim)          * sm;
     mPspAppBackdropDark += (darkTarget - mPspAppBackdropDark) * sm;
