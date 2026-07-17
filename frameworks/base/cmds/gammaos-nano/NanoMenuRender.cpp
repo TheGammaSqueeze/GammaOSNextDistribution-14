@@ -3136,7 +3136,7 @@ void NanoMenu::scissorLogicalRect(float x, float y, float w, float h) {
 // same rect). texcoords are v-flipped because the FB snapshot is y-up.
 void NanoMenu::drawFrostedGlass(float x, float y, float w, float h, float radius,
                                 float tr, float tg, float tb, float tintA, float fade,
-                                bool waveSpace) {
+                                bool waveSpace, float tonemapOverride) {
     float x0 = (x / mWidth) * 2.0f - 1.0f;
     float y0 = 1.0f - ((y + h) / mHeight) * 2.0f;
     float x1 = ((x + w) / mWidth) * 2.0f - 1.0f;
@@ -3190,7 +3190,10 @@ void NanoMenu::drawFrostedGlass(float x, float y, float w, float h, float radius
     // waveSpace blur samples the LINEAR scene (ps3bg::workTex); tonemap it to
     // display space so the frosted backdrop matches the on-screen background.
     // 1.6846 = uExposure(1.05)/uWhiteLevel(0.899181) * LOG2E(1.442695).
-    if (mGlassLocTonemap >= 0) glUniform1f(mGlassLocTonemap, waveSpace ? 1.6846f : 0.0f);
+    // tonemapOverride >= 0 forces the exp2 tonemap amount (the live-app backdrop passes 0:
+    // the captured app is already display sRGB, so it must NOT be tonemapped like the LINEAR wave).
+    float glassTm = (tonemapOverride >= 0.0f) ? tonemapOverride : (waveSpace ? 1.6846f : 0.0f);
+    if (mGlassLocTonemap >= 0) glUniform1f(mGlassLocTonemap, glassTm);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, (mGlassBlurTex != 0) ? mGlassBlurTex : mGlassTex);
     glUniform1i(mGlassLocTexture, 0);

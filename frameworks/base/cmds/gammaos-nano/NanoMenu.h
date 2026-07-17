@@ -1770,7 +1770,7 @@ private:
     GLint  mPspLensLocPos = -1, mPspLensLocLocal = -1, mPspLensLocTex = -1,
            mPspLensLocRot = -1, mPspLensLocHalf = -1, mPspLensLocCenter = -1,
            mPspLensLocTexture = -1, mPspLensLocTonemap = -1, mPspLensLocZoom = -1,
-           mPspLensLocAlpha = -1, mPspLensLocTilt = -1;
+           mPspLensLocAlpha = -1, mPspLensLocTilt = -1, mPspLensLocAppSrc = -1;
     float  mPspLensCx = 0, mPspLensCy = 0, mPspLensR = 0;  // disc lens in device px
     bool   mPspLensValid = false;
     // Gyro/accel parallax: tilting the device shifts the background sampled through the
@@ -1811,6 +1811,11 @@ private:
     int    mPspClockAppTexH  = 0;
     bool   mPspClockAppTexValid = false;    // a frame has been uploaded at least once
     bool   mPspClockCaptureRunning = false; // worker started this open-cycle (render-thread bool)
+    // Dynamic darkening of the live-app disc + surround by the app's mean brightness, so a
+    // bright game does not wash out the clock face. Sampled ~7Hz (pspClockSampleAppDim), smoothed.
+    float  mPspAppDim = 0.72f;              // disc dim factor (smaller when the game is brighter)
+    float  mPspAppBackdropDark = 0.62f;     // surround darken over the blurred app
+    GLuint mPspAppLumFbo = 0, mPspAppLumTex = 0;   // 8x8 downsample FBO for the app mean brightness
     // Glass-icon resources (FS_ICON_GLASS). Normal maps are cached by xmb_icon
     // index (PS3 icons -> nmap_NNN.png) and by flat-icon texture id (console /
     // RetroArch icons -> a bevel normal generated from the alpha silhouette).
@@ -3125,6 +3130,7 @@ private:
     // --- live-app capture (#5) ---
     bool  pspClockLiveAppEnabled() const;      // master gate (persist prop, default OFF)
     bool  pspClockUseAppSource() const;        // lens should sample the captured app, not the wave
+    void  pspClockSampleAppDim();              // app mean brightness -> mPspAppDim / mPspAppBackdropDark
     void  pspClockAppCaptureTick();            // render-thread: start/stop worker + upload latest frame
     static void pspClockCaptureWorker();       // detached bg worker; touches ONLY file-static state
   public:
@@ -3582,7 +3588,7 @@ private:
     // first with the same rect). tint rgb darkens; tintA = panel opacity.
     void drawFrostedGlass(float x, float y, float w, float h, float radius,
                           float tr, float tg, float tb, float tintA, float fade,
-                          bool waveSpace = false);
+                          bool waveSpace = false, float tonemapOverride = -1.0f);
 
     // Setup wizard state
     bool mSetupWizardActive;

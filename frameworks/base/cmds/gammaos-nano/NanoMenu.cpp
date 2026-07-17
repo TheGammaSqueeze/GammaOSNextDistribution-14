@@ -4799,6 +4799,9 @@ if (sRingPrimedCount >= 2) {
     if (mPspClockAppTex) { glDeleteTextures(1, &mPspClockAppTex); mPspClockAppTex = 0; }
     mPspClockAppTexW = mPspClockAppTexH = 0;
     mPspClockAppTexValid = false;
+    // #5 dynamic-darken 8x8 luminance FBO (allocated lazily in pspClockSampleAppDim).
+    if (mPspAppLumTex) { glDeleteTextures(1, &mPspAppLumTex); mPspAppLumTex = 0; }
+    if (mPspAppLumFbo) { glDeleteFramebuffers(1, &mPspAppLumFbo); mPspAppLumFbo = 0; }
 
     eglMakeCurrent(mDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
     eglDestroyContext(mDisplay, mContext);

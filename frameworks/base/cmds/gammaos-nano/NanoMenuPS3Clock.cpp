@@ -180,7 +180,7 @@ void NanoMenu::pspClockPollTilt(bool active) {
     if (got) {
         // Gravity along the panel axes (~9.81 m/s^2 at full tilt) -> small UV parallax.
         // Shift the sampled bg TOWARD the tilt so the far edge of the disc reveals more.
-        const float G = 9.81f, PARALLAX = 0.06f;
+        const float G = 9.81f, PARALLAX = 0.15f;
         auto cl = [](float v){ return v < -1.0f ? -1.0f : (v > 1.0f ? 1.0f : v); };
         float tgtX = cl(ax / G) * PARALLAX;
         float tgtY = cl(-ay / G) * PARALLAX;   // accel +Y is up; UV +Y is down -> flip
@@ -336,14 +336,14 @@ void NanoMenu::pspClockCaptureWorker() {
                 std::lock_guard<std::mutex> lk(gPspCapMutex);
                 if (gPspCapStaging.size() != need) gPspCapStaging.resize(need);
                 const uint8_t* src = (const uint8_t*)base;
-                if (stride == w) {
-                    memcpy(gPspCapStaging.data(), src, need);
-                } else {
-                    // GLES2 has no GL_UNPACK_ROW_LENGTH; repack rows tightly.
-                    for (int y = 0; y < h; y++)
-                        memcpy(&gPspCapStaging[(size_t)y * w * 4],
-                               src + (size_t)y * stride * 4, (size_t)w * 4);
-                }
+                // Row-REVERSE (vertical flip) as we repack: the captured buffer's TOP row
+                // (display top) is written to the staging BOTTOM row, so after glTexImage2D
+                // the texture is UPRIGHT (display top at v=1). Then the lens disc AND the
+                // blurred backdrop both sample the app right-side up with no shader flip.
+                // (GLES2 has no GL_UNPACK_ROW_LENGTH so we repack tightly anyway.)
+                for (int y = 0; y < h; y++)
+                    memcpy(&gPspCapStaging[(size_t)(h - 1 - y) * w * 4],
+                           src + (size_t)y * stride * 4, (size_t)w * 4);
                 gPspCapW = w; gPspCapH = h;
                 gPspCapFrameReady = true;
             }
@@ -603,6 +603,9 @@ void NanoMenu::drawPspClock(float dtMs) {
     // before the visible passes so its FBO switch cannot flush the clock's tile.
     { static int sG = 0; if ((sG++ % 8) == 0) pspClockSampleGlow(); }
     pspClockAppCaptureTick();                 // #5: pump live-app capture -> mPspClockAppTex
+    // #5 dynamic darkening: sample the live-app mean brightness (~7Hz) so a bright
+    // game dims the disc + darkens the surround. Before the visible passes (FBO switch).
+    if (pspClockUseAppSource()) { static int sD = 0; if ((sD++ % 8) == 0) pspClockSampleAppDim(); }
     pspClockBackdropBlur(clockReveal);       // stage 1
     pspClockLens(clockReveal);               // stage 2
 
@@ -640,6 +643,28 @@ void NanoMenu::drawPspClock(float dtMs) {
 // -----------------------------------------------------------------------------
 void NanoMenu::pspClockBackdropBlur(float amt) {
     if (amt <= 0.0f) return;
+    // #5 live-app backdrop: when the disc is refracting the running app, the SURROUND
+    // (outside the disc) shows a BLURRED + DARKENED view of that same live app instead of
+    // the flat black scrim - a defocused peek at what is behind the glass. Blur the captured
+    // app (already stored UPRIGHT) and blit it full-screen untonemapped (it is display sRGB,
+    // not the LINEAR wave), then a dynamic darken over it (heavier when the game is bright).
+    if (pspClockUseAppSource() && mPspClockAppTex != 0
+        && mPspClockAppTexW >= 8 && mPspClockAppTexH >= 8) {
+        blurGlassChain(mPspClockAppTex, mPspClockAppTexW, mPspClockAppTexH, 3, 2);
+        // tintA = 1 (OPAQUE), NOT 0 like the home-clock wave path. In the overlay
+        // in-game path the framebuffer is cleared to a translucent scrim and blending
+        // is ON (NanoMenuRender ~L4401/4411), and SurfaceFlinger composites this layer
+        // over the live app by its ALPHA channel. A tintA=0 frost outputs alpha 0, so
+        // under blend it writes NOTHING (the app surround stayed black). tintA=1 makes
+        // the blurred app opaque (alpha = fade = amt), so SF shows OUR blurred+darkened
+        // app in the surround, not the raw live app / black. (The home wave path draws
+        // into an opaque FB with blend off, where the alpha is ignored - it keeps 0.)
+        drawFrostedGlass(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f,
+                         1.0f, 1.0f, 1.0f, 1.0f, amt, /*waveSpace=*/true, /*tonemapOverride=*/0.0f);
+        drawQuad(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f, 0.0f, 0.0f,
+                 mPspAppBackdropDark * amt);
+        return;
+    }
     // Capture the pre-composited gradient+wave (LINEAR) and blur it. This is the
     // same source the submenu frost uses; captureGlassFromWave leaves the result
     // in mGlassBlurTex for drawFrostedGlass to tent-upsample. THROTTLE the blur
@@ -706,6 +731,7 @@ static const char PSP_LENS_FS[] = R"(
     uniform float uTonemap;   // exp2 tonemap of the LINEAR workTex
     uniform float uAlpha;     // lens opacity (fades in over the drop)
     uniform vec2  uTilt;      // gyro/accel parallax: UV shift of the sampled bg (peek behind)
+    uniform float uAppSrc;    // #5: >0 = source is the captured LIVE app; carries the dim factor
     uniform sampler2D uTex;
     void main() {
         vec2 n = vLocal / uHalf;          // normalized disc coords, |n|=1 at rim
@@ -726,6 +752,11 @@ static const char PSP_LENS_FS[] = R"(
         uv = clamp(uv, 0.0, 1.0);
         vec3 c = texture2D(uTex, uv).rgb;
         if (uTonemap > 0.0) c = vec3(1.0) - exp2(-c * uTonemap);
+        // Dynamically dim the live app so the white clock face/hands stay readable over a
+        // bright game. uAppSrc carries the dim FACTOR: 0 = wave source (no dim), >0 = app
+        // shown at that fraction (smaller when the game is brighter). The app texture is
+        // stored upright (row-reversed at upload), so no flip here. The wave needs no dim.
+        if (uAppSrc > 0.001) c *= uAppSrc;
         // Frosted glass sheen (web body radial gradient, psp_clock.js draw sect 1):
         // the centre stays clear so the bg reads through, a soft WHITE haze builds
         // from ~0.5 outward to a light frost just inside the rim - the "frosted white
@@ -763,6 +794,7 @@ void NanoMenu::pspClockLens(float cr) {
         mPspLensLocAlpha   = glGetUniformLocation(mPspLensProgram, "uAlpha");
         mPspLensLocTexture = glGetUniformLocation(mPspLensProgram, "uTex");
         mPspLensLocTilt    = glGetUniformLocation(mPspLensProgram, "uTilt");
+        mPspLensLocAppSrc  = glGetUniformLocation(mPspLensProgram, "uAppSrc");
     }
     const float cx = mPspLensCx, cy = mPspLensCy, R = mPspLensR;
     if (R < 4.0f) return;
@@ -804,10 +836,22 @@ void NanoMenu::pspClockLens(float cr) {
     // frame is already display-space sRGB, so sample it with uTonemap 0 (the shader
     // skips the exp2 when uTonemap <= 0).
     glUniform1f(mPspLensLocTonemap, useApp ? 0.0f : 1.6846f);
+    if (mPspLensLocAppSrc >= 0) glUniform1f(mPspLensLocAppSrc, useApp ? mPspAppDim : 0.0f);
     glUniform1f(mPspLensLocAlpha, op);
     // Gyro/accel parallax offset (smoothed device tilt -> UV shift). Fades in with the
     // lens so the peek-behind only kicks in once the disc is present.
-    if (mPspLensLocTilt >= 0) glUniform2f(mPspLensLocTilt, mPspTiltX * op, mPspTiltY * op);
+    // Orientation-aware: the accelerometer reports gravity in the device's PHYSICAL
+    // frame, but the tilt is added in the LOGICAL (unrotated) UV frame the disc samples
+    // - the geometry is rotated to physical by sDrmRotMat (uRotation) while the UV is
+    // not (line ~826). So map the physical tilt into the logical frame with the INVERSE
+    // of sDrmRotMat (= its transpose, it is orthonormal). This keeps "tilt toward a
+    // screen edge peeks that way" correct under every panel rotation, matching what the
+    // user sees on the rotated screen. At 0deg (overlay = identity) it is a no-op.
+    if (mPspLensLocTilt >= 0) {
+        float tlx = sDrmRotMat[0] * mPspTiltX + sDrmRotMat[1] * mPspTiltY;
+        float tly = sDrmRotMat[2] * mPspTiltX + sDrmRotMat[3] * mPspTiltY;
+        glUniform2f(mPspLensLocTilt, tlx * op, tly * op);
+    }
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, srcTex);
     glUniform1i(mPspLensLocTexture, 0);
@@ -920,6 +964,82 @@ void NanoMenu::pspClockSampleGlow() {
     const float lift=0.12f; ar+=(255-ar)*lift; ag+=(255-ag)*lift; ab+=(255-ab)*lift;
     if (!mPspGlowValid) { mPspGlow[0]=ar; mPspGlow[1]=ag; mPspGlow[2]=ab; mPspGlowValid=true; }
     else { const float sm=0.06f; mPspGlow[0]+=(ar-mPspGlow[0])*sm; mPspGlow[1]+=(ag-mPspGlow[1])*sm; mPspGlow[2]+=(ab-mPspGlow[2])*sm; }
+}
+
+// -----------------------------------------------------------------------------
+// #5 dynamic darkening (user: "have the clock face dynamically darken the
+// background if needed if the content is too bright"). Sample the captured LIVE
+// app frame down to 8x8 and take its mean luminance, then ease two factors so a
+// bright game never washes out the clock: mPspAppDim (the disc-interior dim in the
+// lens shader) shrinks as the game gets brighter, and mPspAppBackdropDark (the
+// surround darken over the blurred app) grows. The app frame is display-space
+// sRGB, so NO tonemap (unlike the LINEAR wallpaper in pspClockSampleGlow). The FBO
+// switch happens before the visible passes so it cannot flush the clock's tile.
+// Throttled ~7Hz by the caller; both factors are low-passed for smooth tracking.
+// -----------------------------------------------------------------------------
+void NanoMenu::pspClockSampleAppDim() {
+    if (mPspClockAppTex == 0 || mPspClockAppTexW < 8 || mPspClockAppTexH < 8) return;
+    const int GS = 8;
+    if (mPspAppLumFbo == 0) {
+        glGenTextures(1, &mPspAppLumTex);
+        glBindTexture(GL_TEXTURE_2D, mPspAppLumTex);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, GS, GS, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glGenFramebuffers(1, &mPspAppLumFbo);
+        glBindFramebuffer(GL_FRAMEBUFFER, mPspAppLumFbo);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mPspAppLumTex, 0);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    }
+    GLint prevFbo = 0, prevVp[4];
+    glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prevFbo);
+    glGetIntegerv(GL_VIEWPORT, prevVp);
+    glBindFramebuffer(GL_FRAMEBUFFER, mPspAppLumFbo);
+    glViewport(0, 0, GS, GS);
+    glDisable(GL_BLEND);
+    // Fullscreen blit of the captured app into 8x8 (mTextProgram, identity uv, LINEAR
+    // MIN filter averages each 8x8-of-app block). Identity rotation - we only want the
+    // mean, orientation is irrelevant.
+    static const float ident[4] = {1,0,0,1};
+    glUseProgram(mTextProgram);
+    if (mTextLocRotation >= 0) glUniformMatrix2fv(mTextLocRotation, 1, GL_FALSE, ident);
+    if (mTextLocSharp >= 0) glUniform1f(mTextLocSharp, 0.0f);
+    glActiveTexture(GL_TEXTURE0); glBindTexture(GL_TEXTURE_2D, mPspClockAppTex);
+    glUniform1i(mTextLocTexture, 0); glBindBuffer(GL_ARRAY_BUFFER, 0);
+    GLfloat v[] = {-1,-1, 1,-1, 1,1, -1,-1, 1,1, -1,1};
+    GLfloat uv[] = {0,0, 1,0, 1,1, 0,0, 1,1, 0,1};
+    GLfloat col[6*4]; for (int k=0;k<6;k++){col[k*4]=1;col[k*4+1]=1;col[k*4+2]=1;col[k*4+3]=1;}
+    glVertexAttribPointer(mTextLocPosition,2,GL_FLOAT,GL_FALSE,0,v); glEnableVertexAttribArray(mTextLocPosition);
+    glVertexAttribPointer(mTextLocTexCoord,2,GL_FLOAT,GL_FALSE,0,uv); glEnableVertexAttribArray(mTextLocTexCoord);
+    glVertexAttribPointer(mTextLocColor,4,GL_FLOAT,GL_FALSE,0,col); glEnableVertexAttribArray(mTextLocColor);
+    glDrawArrays(GL_TRIANGLES,0,6);
+    glDisableVertexAttribArray(mTextLocPosition); glDisableVertexAttribArray(mTextLocTexCoord); glDisableVertexAttribArray(mTextLocColor);
+    unsigned char px[GS*GS*4];
+    glReadPixels(0, 0, GS, GS, GL_RGBA, GL_UNSIGNED_BYTE, px);
+    // restore
+    if (mTextLocRotation >= 0) glUniformMatrix2fv(mTextLocRotation, 1, GL_FALSE, sDrmRotMat);
+    glBindFramebuffer(GL_FRAMEBUFFER, prevFbo);
+    glViewport(prevVp[0], prevVp[1], prevVp[2], prevVp[3]);
+    glEnable(GL_BLEND);
+    // Mean Rec.601 luminance over all 64 texels (the app frame fills the whole texture,
+    // so unlike the glow sampler there is no dark background to skip). 0..1.
+    float lum = 0.0f;
+    for (int i = 0; i < GS*GS; i++)
+        lum += 0.299f*px[i*4] + 0.587f*px[i*4+1] + 0.114f*px[i*4+2];
+    lum /= (float)(GS*GS) * 255.0f;
+    // Brightness -> targets. A dark game barely dims the disc (keeps the refraction
+    // vivid) and darkens the surround only mildly; a bright game dims the disc hard so
+    // the white face + glow stay legible, and darkens the surround in step so the
+    // blurred backdrop never overpowers the face. smoothstep so the tracking has no knee.
+    auto sstep = [](float e0, float e1, float x){ float t = clamp01((x - e0) / (e1 - e0)); return t*t*(3.0f - 2.0f*t); };
+    float b = sstep(0.28f, 0.82f, lum);
+    float dimTarget  = 0.90f - 0.48f * b;   // 0.90 (dark game) .. 0.42 (bright game)
+    float darkTarget = 0.48f + 0.26f * b;   // 0.48 (dark game) .. 0.74 (bright game)
+    const float sm = 0.12f;
+    mPspAppDim          += (dimTarget  - mPspAppDim)          * sm;
+    mPspAppBackdropDark += (darkTarget - mPspAppBackdropDark) * sm;
 }
 
 // -----------------------------------------------------------------------------
