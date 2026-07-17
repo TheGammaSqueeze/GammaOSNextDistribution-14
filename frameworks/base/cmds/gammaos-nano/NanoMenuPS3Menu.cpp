@@ -4547,10 +4547,10 @@ void NanoMenu::renderPs3Xmb() {
             if (isActive) {
                 // Description fades in only when the active item is centred, so
                 // it does not flash two descriptions while the list is scrolling.
-                // Description is XMB chrome: it lingers through the open (unlike the
-                // row text, which fades by reveal 0.07) and is cleared by the
-                // whole-canvas backstop over reveal 0.58..0.72 (spec 5.5).
-                float descA = descBaseAlpha * pspClockChromeFade()
+                // On a clock open the subtitle fades out FAST in place, in lockstep
+                // with the item text (pspClockTextFade, gone by reveal 0.07) - the
+                // user wants it to leave with the row text, not linger on the backstop.
+                float descA = descBaseAlpha * pspClockTextFade()
                             * fmaxf(0.0f, 1.0f - 2.0f * fabsf(selPos - (float)activeIdx));
                 drawDesc(it.desc, tx, ps3::devY(y), descA);
             }
