@@ -1317,7 +1317,15 @@ public class DisplayRotation {
                     "1".equals(SystemProperties.get("sys.gammaos.nano.show_overlay", "0"));
             final boolean appForeground =
                     "1".equals(SystemProperties.get("sys.gammaos.nano.app_launched", "0"));
-            final boolean nanoOnTop = !appForeground || showOverlay;
+            // In SCRIM mode (overlay raised over a LIVE app, overlay_wallpaper=0) the app
+            // layer should still rotate with the panel - nano's overlay self-rotation
+            // compensates for the SF transform (NanoMenuOverlay renderSelfRot = physical -
+            // sf_orientation), so the app rotates while nano stays upright. Only pin SF at 0
+            // when nano truly owns the screen: no app foreground, OR the overlay is a full
+            // WALLPAPER/launcher (overlay_wallpaper=1), not a scrim over a running app.
+            final boolean overlayWallpaper =
+                    "1".equals(SystemProperties.get("sys.gammaos.nano.overlay_wallpaper", "0"));
+            final boolean nanoOnTop = !appForeground || (showOverlay && overlayWallpaper);
             final int result = nanoOnTop ? Surface.ROTATION_0 : forced;
             Slog.d(TAG, "GammaOS rotate: nanoOnTop=" + nanoOnTop
                     + " showOverlay=" + showOverlay + " appForeground=" + appForeground
