@@ -1,0 +1,892 @@
+// PSP Go XMB slide clock - 1:1 port of the web xmb PSP clock
+// (/work/ps3/xmb-app psp_clock.js + index.html sections 5.x) into nano GLES2.
+//
+// Full-screen procedural analog clock: a refractive glass disc over a blurred,
+// darkened background, a procedural entrance explosion, traced-vector numerals,
+// spring-snapped hands, a comet trail, a frosted date label and a dynamic glow
+// sampled from the wallpaper. Gated by persist.gammaos.nano.pspclock; shown while
+// KEY_F12 (the swivel) is DOWN, exited on UP. Everything is a pure function of
+// mPspClockReveal so an F12 flip mid-transition just reverses the scalar.
+//
+// This is built up in stages; see /work/ps3/xmb-app/PSP_CLOCK_SPEC.md.
+
+#define LOG_TAG "GammaOSNano"
+#include "NanoMenu.h"
+#include "NanoMenuPS3.h"
+#include "NanoMenuPS3Bg.h"
+#include "NanoMenuDrm.h"      // sDrmRotMat (auto-rotation) if ever needed directly
+#include "NanoMenuShaders.h"  // compileShader / linkProgram (namespace android)
+#include "NanoMenuPS3ClockGlyphs.h"  // baked numeral outline contours
+#include <cutils/properties.h>
+#include <vector>
+#include <utils/Log.h>
+#include <GLES2/gl2.h>
+#include <math.h>
+#include <time.h>
+#include <algorithm>
+
+namespace android {
+
+// ---- constants (PSP native, from psp_clock.js / spec section 4.1) -----------
+static const float PSP_W = 480.0f, PSP_H = 272.0f, CXf = 240.0f, CYf = 136.0f;
+static const float R_DISC = 141.0f;
+
+static inline float clamp01(float v) { return v < 0 ? 0 : (v > 1 ? 1 : v); }
+
+// Current time: the test hook prop "H:M:S" freezes it (to match the web
+// ?clocktime= validation), else live localtime with sub-second.
+static void pspNow(int& h, int& m, int& s, float& sub) {
+    char tv[PROPERTY_VALUE_MAX] = {};
+    property_get("persist.gammaos.nano.pspclock.time", tv, "");
+    if (tv[0]) { int a=0,b=0,c=0; sscanf(tv, "%d:%d:%d", &a,&b,&c); h=a; m=b; s=c; sub=0.0f; return; }
+    time_t now = time(nullptr); struct tm lt; localtime_r(&now, &lt);
+    struct timespec tsp; clock_gettime(CLOCK_REALTIME, &tsp);
+    h = lt.tm_hour; m = lt.tm_min; s = lt.tm_sec; sub = tsp.tv_nsec / 1e9f;
+}
+static const float PSP_DECAY = 0.98f, PSP_FRAME_MS = 50.0f;
+
+// Read the gate prop (cheap; per-frame is fine, it is a shared-memory read).
+// 0/unset = off; 1 = enabled (F12 down/up drives open/close); 2 = enabled AND
+// force-open (a test hook so a shot can be captured without a physical swivel /
+// an evdev inject, which is unreliable at fresh boot).
+void NanoMenu::pspClockPollInput() {
+    int v = property_get_int32("persist.gammaos.nano.pspclock", 0);
+    mPspClockEnabled = (v >= 1);
+    if (v == 2) mPspClockOn = true;
+}
+
+// Smoothed XMB text-fade multiplier (spec 5.4). Consumers multiply their alpha.
+float NanoMenu::pspClockTextFade() const {
+    return mPspClockReveal <= 0.0f ? 1.0f : mPspTextFadeSmooth;
+}
+
+// Category icon blow-away (spec 5.5): each icon flies off the RIGHT edge with an
+// upward gust + tumble, near-linear over a wide window, no fade. Offsets are in
+// device px (scaled to the panel; the web values were tuned at a 720 canvas).
+bool NanoMenu::pspClockBlowCat(int i, float& bx, float& by, float& brot) const {
+    if (mPspClockReveal <= 0.0f) { bx = by = brot = 0.0f; return false; }
+    float seed = ((i*53 + 7) % 17) / 17.0f;
+    float st = clamp01((mPspClockReveal - seed*0.03f) / 0.65f);
+    float bl = st * (1.15f - 0.15f*st);
+    float bsc = mWidth / 720.0f;
+    bx = bl * (1500.0f + i*240.0f + seed*500.0f) * bsc;
+    by = -bl * (90.0f + seed*220.0f) * bsc;
+    brot = bl * (seed - 0.5f) * 3.4f;
+    return true;
+}
+
+// Item icon blow-away (spec 5.5): icons slide off ~50% slower than the category
+// bar with an upward arc + tumble; the text fades separately (pspClockTextFade).
+bool NanoMenu::pspClockBlowItem(int i, float& xShift, float& yLift, float& rot) const {
+    if (mPspClockReveal <= 0.0f) { xShift = yLift = rot = 0.0f; return false; }
+    float seed = ((i*61 + 13) % 23) / 23.0f;
+    float st = clamp01((mPspClockReveal - i*0.02f - seed*0.03f) / 0.65f);
+    float e = st * (1.15f - 0.15f*st);
+    float bsc = mWidth / 720.0f;
+    xShift = e * (1950.0f + seed*1200.0f) * bsc;
+    yLift  = e * (70.0f + seed*240.0f) * bsc;
+    rot    = e * (seed - 0.5f) * 2.6f;
+    return true;
+}
+
+// -----------------------------------------------------------------------------
+// Per-frame orchestrator. Called at the tail of renderPs3Xmb() with dt in ms.
+// Advances the reveal scalar and runs the enabled passes.
+// -----------------------------------------------------------------------------
+void NanoMenu::drawPspClock(float dtMs) {
+    if (!mPs3Xmb) return;                    // PS3 XMB mode only; never touch DSi
+    pspClockPollInput();
+
+    if (!mPspClockEnabled) {                 // feature off: park and bail
+        if (mPspClockReveal != 0.0f || mPspClockOn) {
+            mPspClockOn = false; mPspClockReveal = 0.0f;
+            mPspDescent = -1.0f; mPspTextFadeSmooth = 1.0f; mPspDetailFade = 0.0f;
+        }
+        return;
+    }
+
+    if (!mPspClockOn && mPspClockReveal <= 0.0f) {
+        // Parked (closed): reset the smoothed followers for a clean next open.
+        mPspDescent = -1.0f; mPspTextFadeSmooth = 1.0f; mPspDetailFade = 0.0f;
+        return;
+    }
+
+    if (dtMs <= 0.0f) dtMs = 16.0f;
+
+    // Reveal advance: open 5000 ms, close 2700 ms (spec deviation D2). A test hook
+    // freezes the reveal (like the web ?reveal=) so a static shot can inspect the
+    // entrance mid-transition: persist.gammaos.nano.pspclock.reveal = 0..1.
+    {
+        char rv[PROPERTY_VALUE_MAX] = {}; property_get("persist.gammaos.nano.pspclock.reveal", rv, "");
+        if (rv[0]) { mPspClockReveal = clamp01((float)atof(rv)); }
+        else {
+            const float dur = mPspClockOn ? 5000.0f : 2700.0f;
+            const float step = dtMs / dur;
+            mPspClockReveal += mPspClockOn ? step : -step;
+            mPspClockReveal = clamp01(mPspClockReveal);
+        }
+    }
+
+    // Disc-drop window: reveal 0.30 .. 1.0 (spec deviation D3).
+    const float clockReveal = clamp01((mPspClockReveal - 0.3f) / 0.7f);
+
+    // Smoothed text-fade follower (spec 5.4). Target: on open gone by 0.07, on
+    // close back in over 0.16..0. 45 ms time constant so an F12 flip eases.
+    float textTarget;
+    if (mPspClockReveal <= 0.0f) textTarget = 1.0f;
+    else if (mPspClockOn) textTarget = std::max(0.0f, 1.0f - mPspClockReveal / 0.07f);
+    else textTarget = clamp01((0.16f - mPspClockReveal) / 0.16f);
+    const float kSmooth = 1.0f - expf(-dtMs / 45.0f);
+    mPspTextFadeSmooth += (textTarget - mPspTextFadeSmooth) * kSmooth;
+
+    // Idle float phase (amplitude 3 px, period 3.6 s; spec 5.13).
+    mPspFloatT += dtMs;
+
+    // Diagnostic (throttled): confirm the pass runs + watch the reveal ramp.
+    {
+        static int sDbg = 0;
+        if ((sDbg++ % 30) == 0)
+            ALOGI("PSPCLOCK on=%d reveal=%.3f clockReveal=%.3f dt=%.1f",
+                  mPspClockOn ? 1 : 0, mPspClockReveal, clockReveal, dtMs);
+    }
+
+    if (mPspClockReveal <= 0.0f) return;     // fully closed after this frame
+
+    // Disc geometry from the scale rule (spec 5.13/8): sc2 = min(H/272, W/288),
+    // W/288 = 2*141+6. Same rule the face uses so the glass and face land together.
+    const float W = (float)mWidth, H = (float)mHeight;
+    const float sc2 = std::min(H / 272.0f, W / 288.0f);
+    const float ox = (W - 480.0f * sc2) * 0.5f, oy = (H - 272.0f * sc2) * 0.5f;
+    const float floatY = 3.0f * sinf(mPspFloatT / 1000.0f * 2.0f * (float)M_PI / 3.6f);
+    // Descent: OPEN = buoyant easeOutBack-1 (c=1.4, sinks ~23px then bobs up),
+    // CLOSE = linear lift. Smoothed 45ms so an F12 flip eases (spec 5.12/5.13).
+    float descentTarget;
+    if (mPspClockOn) {
+        const float r = clockReveal;
+        if (r <= 0.0f) descentTarget = -1.0f;
+        else if (r >= 1.0f) descentTarget = 0.0f;
+        else { const float c = 1.4f, u = r - 1.0f; descentTarget = (c + 1.0f)*u*u*u + c*u*u; }
+    } else {
+        descentTarget = -(1.0f - clockReveal);
+    }
+    mPspDescent += (descentTarget - mPspDescent) * kSmooth;
+    const float descentPx = mPspDescent * (272.0f + 50.0f) * sc2;
+    mPspLensCx = ox + 240.0f * sc2;
+    mPspLensCy = oy + (136.0f + floatY) * sc2 + descentPx;
+    mPspLensR  = 141.0f * sc2;
+    mPspLensValid = (clockReveal > 0.0f);
+
+    // Detail fade: trail/ticks/ambient glyphs only once settled (in 320ms / out 140ms).
+    {
+        const bool settled = mPspClockOn && clockReveal > 0.9f;
+        const float rate = dtMs / (settled ? 320.0f : 140.0f);
+        mPspDetailFade = clamp01(mPspDetailFade + (settled ? rate : -rate));
+    }
+
+    // Second-hand comet trail (spec 1.3/4.5): decay 0.98 per 50ms; element sec*2
+    // forced 1.0, sec*2+1 forced 1.0 once >50ms in. When the test time is frozen,
+    // warm the fan (pre-fill 12 dots back) so a static shot shows the comet.
+    {
+        int h, m, s; float sub; pspNow(h, m, s, sub);
+        char tv[PROPERTY_VALUE_MAX] = {};
+        property_get("persist.gammaos.nano.pspclock.time", tv, "");
+        if (tv[0]) {
+            for (int i = 0; i < 120; i++) mPspTrail[i] = 0.0f;
+            for (int back = 0; back < 12; back++) {
+                int sec = (s - back + 60) % 60;
+                float v = powf(PSP_DECAY, back * 1000.0f / PSP_FRAME_MS);
+                if (v > 0.02f) { mPspTrail[sec*2] = v; mPspTrail[sec*2+1] = v; }
+            }
+        } else {
+            int i0 = s*2, i1 = s*2+1;
+            float f = powf(PSP_DECAY, dtMs / PSP_FRAME_MS);
+            float usf = sub * 1e6f;
+            for (int i = 0; i < 120; i++) {
+                if (i == i0) mPspTrail[i] = 1.0f;
+                else if (i == i1) { if (usf > 50000.0f) mPspTrail[i] = 1.0f; else mPspTrail[i] *= f; }
+                else mPspTrail[i] *= f;
+            }
+        }
+    }
+
+    // --- passes (built up stage by stage) ---
+    // Bake the numeral textures BEFORE the render passes (mid-frame texture
+    // allocation flushes/loses the Mali tile, which was erasing the blur+disc).
+    if (!mPspGlyphBaked) pspClockBakeGlyphs();
+    // Sample the dominant wallpaper colour for the glow (throttled ~7Hz). Done
+    // before the visible passes so its FBO switch cannot flush the clock's tile.
+    { static int sG = 0; if ((sG++ % 8) == 0) pspClockSampleGlow(); }
+    pspClockBackdropBlur(clockReveal);       // stage 1
+    pspClockLens(clockReveal);               // stage 2
+
+    // Stage 5: entrance explosion (after the lens so glyphs behind the disc get the
+    // lens bow; before the face). THREE staggered burst copies + TWO icon streams +
+    // ambient, all additive (spec 5.13). Envelope ends midway through the drop (0.65).
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+    {
+        const float BURST_P = 0.7f;
+        float burstEnv = clamp01((0.65f - mPspClockReveal) / 0.16f);
+        auto burstFed = [&](float delay){ float r = mPspClockReveal - delay; return r > 0 ? fmodf(r/BURST_P, 1.0f)*0.87f : 0.0f; };
+        pspClockEntrance(sc2, ox, oy, std::min(1.0f, burstFed(0.0f)),            0.0f,  burstEnv);
+        pspClockEntrance(sc2, ox, oy, std::min(1.0f, burstFed(BURST_P/3.0f)),    0.42f, burstEnv);
+        pspClockEntrance(sc2, ox, oy, std::min(1.0f, burstFed(2.0f*BURST_P/3.0f)),0.84f, burstEnv);
+        const float ICON_P = 0.62f;
+        float iconFedA = fmodf(mPspClockReveal, ICON_P) * 0.87f;
+        float rIB = mPspClockReveal - ICON_P/2.0f;
+        float iconFedB = rIB > 0 ? fmodf(rIB, ICON_P)*0.87f : 0.0f;
+        int iconCycleA = (int)(mPspClockReveal / ICON_P);
+        int iconCycleB = rIB > 0 ? (int)(rIB / ICON_P) : 0;
+        pspClockEntranceIcons(sc2, ox, oy, iconFedA, burstEnv, mPspIconSeed + iconCycleA*2);
+        pspClockEntranceIcons(sc2, ox, oy, iconFedB, burstEnv, mPspIconSeed + iconCycleB*2 + 1);
+        pspClockAmbientGlyphs(dtMs);
+    }
+    setUiBlend();
+
+    if (!property_get_bool("persist.gammaos.nano.pspclock.noface", false))
+        pspClockFace(clockReveal, floatY, descentPx);  // stage 3/4
+    {
+        GLenum e = glGetError();
+        static int sE = 0;
+        if (e != 0 && (sE++ % 30) == 0) ALOGI("PSPCLOCK glError=0x%x after face", e);
+    }
+}
+
+// -----------------------------------------------------------------------------
+// Stage 1: backdrop blur + darken outside the disc (spec 5.10 / deviation D9).
+// The SAME defocus as Settings submenu dialogs: blur the composited bg+wave and
+// blit it full-screen, then a mild darken. (The disc will be drawn as a crisp
+// opaque stamp on top in a later stage, which masks the hole - no stencil.)
+// -----------------------------------------------------------------------------
+void NanoMenu::pspClockBackdropBlur(float amt) {
+    if (amt <= 0.0f) return;
+    // Capture the pre-composited gradient+wave (LINEAR) and blur it. This is the
+    // same source the submenu frost uses; captureGlassFromWave leaves the result
+    // in mGlassBlurTex for drawFrostedGlass to tent-upsample. THROTTLE the blur
+    // recompute to ~15Hz (every 4th frame); mGlassBlurTex persists, so the blit
+    // still runs every frame - the defocus does not need per-frame freshness and
+    // the full-screen capture+downsample is the main cost (spec 8 perf note).
+    {
+        static int sBlurN = 0;
+        if ((sBlurN++ & 3) == 0 || mGlassBlurTex == 0) {
+            if (!captureGlassFromWave()) return;
+        }
+    }
+    // Full-screen frosted blit (waveSpace maps texcoords to the wave FBO). radius
+    // 0 = plain rect, neutral tint, fade = amt so the defocus ramps in on open.
+    drawFrostedGlass(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f,
+                     1.0f, 1.0f, 1.0f, 0.0f, amt, /*waveSpace=*/true);
+    // Mild defocus darken (spec: rgba(0,0,0,0.30*amt)).
+    drawQuad(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f, 0.0f, 0.0f, 0.30f * amt);
+}
+
+// -----------------------------------------------------------------------------
+// Stage 2: the glass refraction disc (spec 5.9). The web precomputes a radial
+// displacement map and JS-bilinear-refracts the bg+wave through it; here it is an
+// ANALYTIC fragment shader sampling ps3bg::workTex. The face is a gentle zoom-IN
+// (FACE_ZOOM 1.1) with an identity interior and only the outer ~2% bevel band
+// bending outward (M=1, BEVEL=0.98, EDGE=1.10, P=1.8). Drawn as a crisp opaque
+// stamp over the punched blur (no stencil needed, EGL has none). Plus a thin
+// bright bevel rim + a faint facet line.
+static const char PSP_LENS_VS[] = R"(
+    attribute vec2 aPosition;
+    attribute vec2 aLocal;
+    attribute vec2 aTexCoord;
+    uniform mat2 uRotation;
+    varying vec2 vLocal;
+    varying vec2 vTex;
+    void main() {
+        gl_Position = vec4(uRotation * aPosition, 0.0, 1.0);
+        vLocal = aLocal;
+        vTex = aTexCoord;
+    }
+)";
+static const char PSP_LENS_FS[] = R"(
+    precision mediump float;
+    varying vec2 vLocal;
+    varying vec2 vTex;
+    uniform vec2  uHalf;      // disc half-size in local px (R,R)
+    uniform vec2  uCenter;    // disc centre in workTex UV
+    uniform float uZoom;      // FACE_ZOOM (1.1 = magnify in)
+    uniform float uTonemap;   // exp2 tonemap of the LINEAR workTex
+    uniform float uAlpha;     // lens opacity (fades in over the drop)
+    uniform sampler2D uTex;
+    void main() {
+        vec2 n = vLocal / uHalf;          // normalized disc coords, |n|=1 at rim
+        float t = length(n);
+        if (t > 1.0) discard;             // outside the disc -> blur shows
+        const float BEVEL = 0.98, EDGE = 1.10, P = 1.8;
+        const float baseSrc = 0.98;       // BEVEL/M, M=1
+        float srcT;
+        if (t <= BEVEL) srcT = t;
+        else { float u = (t - BEVEL) / (1.0 - BEVEL); srcT = baseSrc + pow(u, P) * (EDGE - baseSrc); }
+        float scale = (srcT / max(t, 1e-4)) / uZoom;
+        // Refraction is radial, so scale the actual UV vector to this pixel.
+        vec2 uv = uCenter + (vTex - uCenter) * scale;
+        uv = clamp(uv, 0.0, 1.0);
+        vec3 c = texture2D(uTex, uv).rgb;
+        if (uTonemap > 0.0) c = vec3(1.0) - exp2(-c * uTonemap);
+        // Bevel rim: thin bright specular right at the edge (web body stops at
+        // (R-3)/R white 0.20). A broad faint inner highlight + a crisp edge glint.
+        float rim = smoothstep(0.955, 0.992, t) * (1.0 - smoothstep(0.992, 1.0, t));
+        c += vec3(1.0) * (0.18 * rim);
+        gl_FragColor = vec4(c, uAlpha);
+    }
+)";
+
+void NanoMenu::pspClockLens(float cr) {
+    if (cr <= 0.0f || !mPspLensValid) return;
+    if (ps3bg::workTex() == 0) return;
+    if (mPspLensProgram == 0) {
+        GLuint vs = compileShader(GL_VERTEX_SHADER, PSP_LENS_VS);
+        GLuint fs = compileShader(GL_FRAGMENT_SHADER, PSP_LENS_FS);
+        mPspLensProgram = linkProgram(vs, fs);
+        if (mPspLensProgram == 0) return;
+        mPspLensLocPos     = glGetAttribLocation(mPspLensProgram, "aPosition");
+        mPspLensLocLocal   = glGetAttribLocation(mPspLensProgram, "aLocal");
+        mPspLensLocTex     = glGetAttribLocation(mPspLensProgram, "aTexCoord");
+        mPspLensLocRot     = glGetUniformLocation(mPspLensProgram, "uRotation");
+        mPspLensLocHalf    = glGetUniformLocation(mPspLensProgram, "uHalf");
+        mPspLensLocCenter  = glGetUniformLocation(mPspLensProgram, "uCenter");
+        mPspLensLocZoom    = glGetUniformLocation(mPspLensProgram, "uZoom");
+        mPspLensLocTonemap = glGetUniformLocation(mPspLensProgram, "uTonemap");
+        mPspLensLocAlpha   = glGetUniformLocation(mPspLensProgram, "uAlpha");
+        mPspLensLocTexture = glGetUniformLocation(mPspLensProgram, "uTex");
+        ALOGI("PSPCLOCK lens program=%u pos=%d local=%d tex=%d center=%d",
+              mPspLensProgram, mPspLensLocPos, mPspLensLocLocal, mPspLensLocTex, mPspLensLocCenter);
+    }
+    const float cx = mPspLensCx, cy = mPspLensCy, R = mPspLensR;
+    {
+        static int sL = 0;
+        if ((sL++ % 30) == 0)
+            ALOGI("PSPCLOCK lens draw prog=%u wt=%u cx=%.0f cy=%.0f R=%.0f cr=%.2f",
+                  mPspLensProgram, ps3bg::workTex(), cx, cy, R, cr);
+    }
+    if (R < 4.0f) return;
+    // Quad over the disc bbox (device px -> NDC), matching drawFrostedGlass.
+    const float x = cx - R, y = cy - R, w = 2.0f * R, h = 2.0f * R;
+    float x0 = (x / mWidth) * 2.0f - 1.0f;
+    float y0 = 1.0f - ((y + h) / mHeight) * 2.0f;
+    float x1 = ((x + w) / mWidth) * 2.0f - 1.0f;
+    float y1 = 1.0f - (y / mHeight) * 2.0f;
+    GLfloat verts[] = { x0,y0, x1,y0, x1,y1, x1,y1, x0,y1, x0,y0 };
+    GLfloat local[] = { -R,R, R,R, R,-R, R,-R, -R,-R, -R,R };
+    // waveSpace texcoords: logical NDC straight to [0,1] (no rotation on the tex).
+    GLfloat tex[12] = { x0*0.5f+0.5f, y0*0.5f+0.5f,  x1*0.5f+0.5f, y0*0.5f+0.5f,
+                        x1*0.5f+0.5f, y1*0.5f+0.5f,  x1*0.5f+0.5f, y1*0.5f+0.5f,
+                        x0*0.5f+0.5f, y1*0.5f+0.5f,  x0*0.5f+0.5f, y0*0.5f+0.5f };
+    // Disc centre in workTex UV (waveSpace, logical, GL y-up).
+    float cx0 = (cx / mWidth) * 2.0f - 1.0f;
+    float cy0 = 1.0f - (cy / mHeight) * 2.0f;
+    float uCx = cx0 * 0.5f + 0.5f, uCy = cy0 * 0.5f + 0.5f;
+    const float op = std::min(1.0f, cr * 5.0f);   // lens fades in over the first 20% of the drop
+
+    setUiBlend();
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glUseProgram(mPspLensProgram);
+    glUniformMatrix2fv(mPspLensLocRot, 1, GL_FALSE, sDrmRotMat);
+    glUniform2f(mPspLensLocHalf, R, R);
+    glUniform2f(mPspLensLocCenter, uCx, uCy);
+    glUniform1f(mPspLensLocZoom, 1.1f);
+    glUniform1f(mPspLensLocTonemap, 1.6846f);
+    glUniform1f(mPspLensLocAlpha, op);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, ps3bg::workTex());
+    glUniform1i(mPspLensLocTexture, 0);
+    glVertexAttribPointer(mPspLensLocPos, 2, GL_FLOAT, GL_FALSE, 0, verts);
+    glEnableVertexAttribArray(mPspLensLocPos);
+    glVertexAttribPointer(mPspLensLocLocal, 2, GL_FLOAT, GL_FALSE, 0, local);
+    glEnableVertexAttribArray(mPspLensLocLocal);
+    glVertexAttribPointer(mPspLensLocTex, 2, GL_FLOAT, GL_FALSE, 0, tex);
+    glEnableVertexAttribArray(mPspLensLocTex);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    glDisableVertexAttribArray(mPspLensLocPos);
+    glDisableVertexAttribArray(mPspLensLocLocal);
+    glDisableVertexAttribArray(mPspLensLocTex);
+}
+
+// ---- entrance explosion (spec 5.11, index.html) ----------------------------
+struct PspEGlyph { float ang, Rmax, size1, peak, start, rot, wob, wobA; int type; };
+static PspEGlyph sEGlyphs[32];
+static bool sEGlyphInit = false;
+static void pspInitEGlyphs() {
+    if (sEGlyphInit) return;
+    // Fixed-seed RNG with the same DISTRIBUTION as ENTRANCE_GLYPHS (the web set is
+    // itself Math.random at load, i.e. varies per page load - a fixed seed here is
+    // the faithful port: a burst with the same weighting, ranges and hero/outlier mix).
+    unsigned int st = 0x1a2b3c4du;
+    auto R = [&](){ st ^= st<<13; st ^= st>>17; st ^= st<<5; return (st & 0xffffff) / (float)0x1000000; };
+    static const int typeW[11] = {0,0,0,0,1,1,1,3,3,2,4};
+    for (int i = 0; i < 32; i++) {
+        bool hero = i < 4, outlier = i >= 32 - 7;
+        PspEGlyph& g = sEGlyphs[i];
+        g.ang  = (float)(-M_PI/2) + (R()-0.5f)*(float)M_PI*1.9f;
+        g.Rmax = outlier ? (135.0f + R()*55.0f) : (55.0f + R()*75.0f);
+        g.type = typeW[(int)(R()*11.0f) % 11];
+        g.size1= hero ? (22.0f + R()*10.0f) : (11.0f + R()*7.0f);
+        g.peak = hero ? (0.55f + R()*0.28f) : (0.3f + R()*0.25f);
+        g.start= 0.02f + R()*0.12f;
+        g.rot  = (R()-0.5f)*1.1f;
+        g.wob  = R()*6.28f;
+        g.wobA = 3.0f + R()*6.0f;
+    }
+    sEGlyphInit = true;
+}
+static inline float e3(float t){ float u = 1.0f - t; return 1.0f - u*u*u; }
+
+// Current glow colour, 0..1 (dominant background, spec 4.2/5.9.4; fallback cyan).
+void NanoMenu::pspClockGlow(float& r, float& g, float& b) const {
+    r = mPspGlow[0] / 255.0f; g = mPspGlow[1] / 255.0f; b = mPspGlow[2] / 255.0f;
+}
+
+// Sample the composited wallpaper (ps3bg::workTex) down to 8x8 and take the
+// dominant colour, brightened to mid level with a small lift toward white, so all
+// the glows harmonize with the wallpaper (spec 5.9.4). Throttled by the caller.
+void NanoMenu::pspClockSampleGlow() {
+    GLuint wt = ps3bg::workTex();
+    if (wt == 0) return;
+    const int GS = 8;
+    if (mPspGlowFbo == 0) {
+        glGenTextures(1, &mPspGlowTex);
+        glBindTexture(GL_TEXTURE_2D, mPspGlowTex);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, GS, GS, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glGenFramebuffers(1, &mPspGlowFbo);
+        glBindFramebuffer(GL_FRAMEBUFFER, mPspGlowFbo);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mPspGlowTex, 0);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    }
+    GLint prevFbo = 0, prevVp[4];
+    glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prevFbo);
+    glGetIntegerv(GL_VIEWPORT, prevVp);
+    glBindFramebuffer(GL_FRAMEBUFFER, mPspGlowFbo);
+    glViewport(0, 0, GS, GS);
+    glDisable(GL_BLEND);
+    // Fullscreen quad sampling the whole wallpaper (mTextProgram; identity uv 0..1).
+    static const float ident[4] = {1,0,0,1};
+    glUseProgram(mTextProgram);
+    if (mTextLocRotation >= 0) glUniformMatrix2fv(mTextLocRotation, 1, GL_FALSE, ident);
+    if (mTextLocSharp >= 0) glUniform1f(mTextLocSharp, 0.0f);
+    glActiveTexture(GL_TEXTURE0); glBindTexture(GL_TEXTURE_2D, wt);
+    glUniform1i(mTextLocTexture, 0); glBindBuffer(GL_ARRAY_BUFFER, 0);
+    GLfloat v[] = {-1,-1, 1,-1, 1,1, -1,-1, 1,1, -1,1};
+    GLfloat uv[] = {0,0, 1,0, 1,1, 0,0, 1,1, 0,1};
+    GLfloat col[6*4]; for (int k=0;k<6;k++){col[k*4]=1;col[k*4+1]=1;col[k*4+2]=1;col[k*4+3]=1;}
+    glVertexAttribPointer(mTextLocPosition,2,GL_FLOAT,GL_FALSE,0,v); glEnableVertexAttribArray(mTextLocPosition);
+    glVertexAttribPointer(mTextLocTexCoord,2,GL_FLOAT,GL_FALSE,0,uv); glEnableVertexAttribArray(mTextLocTexCoord);
+    glVertexAttribPointer(mTextLocColor,4,GL_FLOAT,GL_FALSE,0,col); glEnableVertexAttribArray(mTextLocColor);
+    glDrawArrays(GL_TRIANGLES,0,6);
+    glDisableVertexAttribArray(mTextLocPosition); glDisableVertexAttribArray(mTextLocTexCoord); glDisableVertexAttribArray(mTextLocColor);
+    unsigned char px[GS*GS*4];
+    glReadPixels(0, 0, GS, GS, GL_RGBA, GL_UNSIGNED_BYTE, px);
+    // restore
+    if (mTextLocRotation >= 0) glUniformMatrix2fv(mTextLocRotation, 1, GL_FALSE, sDrmRotMat);
+    glBindFramebuffer(GL_FRAMEBUFFER, prevFbo);
+    glViewport(prevVp[0], prevVp[1], prevVp[2], prevVp[3]);
+    glEnable(GL_BLEND);
+    // average non-dark, tonemap linear->display, brighten to 185, lift 12% toward white
+    float rS=0,gS=0,bS=0; int cnt=0;
+    for (int i=0;i<GS*GS;i++){ int r=px[i*4],g=px[i*4+1],b=px[i*4+2];
+        if (r+g+b < 24) continue; rS+=r; gS+=g; bS+=b; cnt++; }
+    if (cnt == 0) return;
+    float ar=rS/cnt, ag=gS/cnt, ab=bS/cnt;
+    // tonemap (workTex is LINEAR) to display space, matching the lens/frost
+    ar = (1.0f - exp2f(-ar/255.0f*1.6846f))*255.0f;
+    ag = (1.0f - exp2f(-ag/255.0f*1.6846f))*255.0f;
+    ab = (1.0f - exp2f(-ab/255.0f*1.6846f))*255.0f;
+    float mxc = std::max(std::max(ar, ag), std::max(ab, 1.0f)), k = 185.0f/mxc;
+    ar*=k; ag*=k; ab*=k;
+    const float lift=0.12f; ar+=(255-ar)*lift; ag+=(255-ag)*lift; ab+=(255-ab)*lift;
+    if (!mPspGlowValid) { mPspGlow[0]=ar; mPspGlow[1]=ag; mPspGlow[2]=ab; mPspGlowValid=true; }
+    else { const float sm=0.06f; mPspGlow[0]+=(ar-mPspGlow[0])*sm; mPspGlow[1]+=(ag-mPspGlow[1])*sm; mPspGlow[2]+=(ab-mPspGlow[2])*sm; }
+}
+
+// -----------------------------------------------------------------------------
+// Bake the four numeral outlines (12/3/6/9) into white alpha textures (a=coverage)
+// once, via an even-odd scanline fill (handles the 6/9 counters). Drawn later with
+// the expanded-fill glow. The bumpy trace edges are hidden by that soft halo.
+// -----------------------------------------------------------------------------
+void NanoMenu::pspClockBakeGlyphs() {
+    if (mPspGlyphBaked) return;
+    const char* keys[4] = { "1", "3", "6", "9" };   // glyphFor keys on first char (1 -> "12")
+    for (int gi = 0; gi < 4; gi++) {
+        const pspglyph::GlyphMesh* gm = pspglyph::glyphFor(keys[gi]);
+        if (!gm) continue;
+        float minx = 1e9f, maxx = -1e9f, miny = 1e9f, maxy = -1e9f;
+        { int o = 0; for (int c = 0; c < gm->nc; c++) { int n = gm->c[c];
+            for (int k = 0; k < n; k++) { float x = gm->v[(o+k)*2], y = gm->v[(o+k)*2+1];
+                minx = std::min(minx, x); maxx = std::max(maxx, x);
+                miny = std::min(miny, y); maxy = std::max(maxy, y); } o += n; } }
+        const float PAD = 9.0f;
+        const float cx = (minx + maxx) * 0.5f, cy = (miny + maxy) * 0.5f;
+        const float hx = (maxx - minx) * 0.5f + PAD, hy = (maxy - miny) * 0.5f + PAD;
+        mPspGlyphHXu[gi] = hx; mPspGlyphHYu[gi] = hy;
+        const float PXU = 1.6f;              // final px per glyph unit
+        const int SS = 3;                    // supersample for AA
+        int W = (int)(2*hx*PXU + 0.5f), H = (int)(2*hy*PXU + 0.5f);
+        if (W < 4) W = 4; if (H < 4) H = 4;
+        int rw = W*SS, rh = H*SS;
+        std::vector<unsigned char> cov((size_t)rw*rh, 0);
+        std::vector<float> xs;
+        for (int ry = 0; ry < rh; ry++) {
+            float gy = (cy - hy) + ((ry + 0.5f) / rh) * 2*hy;
+            xs.clear();
+            int o = 0;
+            for (int c = 0; c < gm->nc; c++) { int n = gm->c[c];
+                for (int k = 0; k < n; k++) { int k2 = (k+1) % n;
+                    float ay = gm->v[(o+k)*2+1], by = gm->v[(o+k2)*2+1];
+                    if ((ay <= gy && by > gy) || (by <= gy && ay > gy)) {
+                        float ax = gm->v[(o+k)*2], bx = gm->v[(o+k2)*2];
+                        float t = (gy - ay) / (by - ay); xs.push_back(ax + t*(bx-ax)); } }
+                o += n; }
+            std::sort(xs.begin(), xs.end());
+            for (size_t p = 0; p + 1 < xs.size(); p += 2) {
+                int ia = (int)(((xs[p]   - (cx-hx)) / (2*hx)) * rw + 0.5f);
+                int ib = (int)(((xs[p+1] - (cx-hx)) / (2*hx)) * rw + 0.5f);
+                if (ia < 0) ia = 0; if (ib > rw) ib = rw;
+                for (int rx = ia; rx < ib; rx++) cov[(size_t)ry*rw + rx] = 255; }
+        }
+        std::vector<unsigned char> tex((size_t)W*H*4);
+        for (int y = 0; y < H; y++) for (int x = 0; x < W; x++) {
+            int sum = 0;
+            for (int sy = 0; sy < SS; sy++) for (int sx = 0; sx < SS; sx++)
+                sum += cov[(size_t)(y*SS+sy)*rw + (x*SS+sx)];
+            int a = sum / (SS*SS);
+            size_t idx = ((size_t)y*W + x)*4; tex[idx]=255; tex[idx+1]=255; tex[idx+2]=255; tex[idx+3]=(unsigned char)a; }
+        GLuint t = 0; glGenTextures(1, &t); glBindTexture(GL_TEXTURE_2D, t);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, W, H, 0, GL_RGBA, GL_UNSIGNED_BYTE, tex.data());
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        mPspGlyphTex[gi] = t;
+    }
+    mPspGlyphBaked = true;
+}
+
+// -----------------------------------------------------------------------------
+// Stage 3/4: the clock face (psp_clock.js draw(), sections 1-7). Positions are in
+// PSP coords (480x272, centre 240,136) transformed to device px relative to the
+// disc centre (mPspLensCx/Cy, which already carries the float + drop descent), so
+// the face rides the glass exactly. sc = mPspLensR / 141.
+// -----------------------------------------------------------------------------
+void NanoMenu::pspClockFace(float reveal, float /*floatY*/, float /*descentFrac*/) {
+    const float sc = mPspLensR / 141.0f;
+    const float CX = 240.0f, CY = 136.0f;
+    auto dx = [&](float px){ return mPspLensCx + (px - CX) * sc; };
+    auto dy = [&](float py){ return mPspLensCy + (py - CY) * sc; };
+    auto polar = [&](float frac, float R, float& ox, float& oy){
+        float th = (float)M_PI_2 - frac * 2.0f * (float)M_PI;
+        ox = CX + R * cosf(th); oy = CY - R * sinf(th);
+    };
+    float gr, gg, gb; pspClockGlow(gr, gg, gb);
+    const float detail = mPspDetailFade;
+
+    // Additive blend for all the glowing chrome (spec: composite 'lighter').
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+
+    // --- section 2: second-hand comet trail (120 short radial dashes at the rim) ---
+    if (detail > 0.002f) {
+        const float TR = 200.0f/255.0f, TG = 236.0f/255.0f, TB = 250.0f/255.0f;
+        for (int i = 0; i < 120; i++) {
+            float a = mPspTrail[i];
+            if (a < 0.02f) continue;
+            float fr = i / 120.0f;
+            float ax, ay, bx, by; polar(fr, 141.0f - 1.0f, ax, ay); polar(fr, 141.0f - 11.0f, bx, by);
+            float axd = dx(ax), ayd = dy(ay), bxd = dx(bx), byd = dy(by);
+            float ux = bxd-axd, uy = byd-ayd, L = sqrtf(ux*ux+uy*uy); if (L < 1e-3f) continue;
+            float nx = -uy/L, ny = ux/L;
+            float hw = (1.5f + a*0.9f) * 0.5f * sc;
+            float aa = a * 0.6f * detail;
+            float p0x=axd+nx*hw, p0y=ayd+ny*hw, p1x=bxd+nx*hw, p1y=byd+ny*hw;
+            float p2x=bxd-nx*hw, p2y=byd-ny*hw, p3x=axd-nx*hw, p3y=ayd-ny*hw;
+            drawTriangle(p0x,p0y,p1x,p1y,p2x,p2y, TR,TG,TB,aa);
+            drawTriangle(p0x,p0y,p2x,p2y,p3x,p3y, TR,TG,TB,aa);
+        }
+    }
+
+    // --- section 3: hour ticks (8 non-cardinal) - chunky white bars + glow ---
+    if (detail > 0.002f) {
+        static const int HT[8] = {1,2,4,5,7,8,10,11};
+        for (int k = 0; k < 8; k++) {
+            float fr = HT[k] / 12.0f;
+            float ax, ay, bx, by; polar(fr, 131.0f + 6.0f, ax, ay); polar(fr, 131.0f - 24.0f, bx, by);
+            float axd = dx(ax), ayd = dy(ay), bxd = dx(bx), byd = dy(by);
+            float ux = bxd-axd, uy = byd-ayd, L = sqrtf(ux*ux+uy*uy); if (L < 1e-3f) continue;
+            float nx = -uy/L, ny = ux/L;   // perpendicular
+            auto bar = [&](float halfw, float r, float g, float b, float a){
+                float p0x=axd+nx*halfw, p0y=ayd+ny*halfw, p1x=bxd+nx*halfw, p1y=byd+ny*halfw;
+                float p2x=bxd-nx*halfw, p2y=byd-ny*halfw, p3x=axd-nx*halfw, p3y=ayd-ny*halfw;
+                drawTriangle(p0x,p0y,p1x,p1y,p2x,p2y, r,g,b,a);
+                drawTriangle(p0x,p0y,p2x,p2y,p3x,p3y, r,g,b,a);
+            };
+            float w = 3.0f * sc;                    // half-width (bar width 6)
+            bar(w + 2.5f*sc, gr, gg, gb, 0.5f*detail);   // glow
+            bar(w,            1.0f,1.0f,1.0f, detail);   // core
+        }
+    }
+
+    // --- section 4: numerals 12/3/6/9 (baked textures) + expanded-fill glow ---
+    {
+        struct NmR { const char* s; float frac; float R; int gi; };
+        static const NmR NUMS[4] = {
+            {"12", 0.0f/12.0f, 116.0f, 0}, {"3", 3.0f/12.0f, 120.0f, 1},
+            {"6", 6.0f/12.0f, 113.0f, 2}, {"9", 9.0f/12.0f, 118.0f, 3} };
+        const float NUM_H = 41.0f;
+        for (int n = 0; n < 4; n++) {
+            const NmR& nm = NUMS[n];
+            GLuint tex = mPspGlyphTex[nm.gi]; if (tex == 0) continue;
+            float px, py; polar(nm.frac, nm.R, px, py);
+            float cxd = dx(px), cyd = dy(py);
+            float s = (NUM_H / 100.0f) * sc;
+            float hw = mPspGlyphHXu[nm.gi] * s, hh = mPspGlyphHYu[nm.gi] * s;
+            auto stamp = [&](float grow, float r, float g, float b, float a){
+                float w = 2*hw + grow*2.0f, h = 2*hh + grow*2.0f;
+                drawIconTex(tex, cxd - w*0.5f, cyd - h*0.5f, w, h, r, g, b, a);
+            };
+            stamp(6.0f*sc, gr, gg, gb, 0.5f);   // wide soft outer glow
+            stamp(3.0f*sc, gr, gg, gb, 0.5f);   // mid glow
+            stamp(0.0f,    1.0f,1.0f,1.0f, 1.0f);  // crisp white core
+        }
+    }
+
+    // --- section 6: hands (hour, minute, second) ---
+    {
+        int hh, mm, ss; float subsec; pspNow(hh, mm, ss, subsec);
+        int h = hh % 12;
+        float hourFrac = h/12.0f + mm/720.0f;
+        float minuteFrac = mm/60.0f + ss/3600.0f;
+        // second spring snap (spec 1.2)
+        float t = subsec; if (t<0) t=0; if (t>1) t=1;
+        float e = sqrtf(1.0f - (t-1.0f)*(t-1.0f));
+        float E = e + 1.2f*e*(1.0f-e); float fr = E*(2.0f-E);
+        float secFrac = (ss + fr) / 60.0f;
+        auto hand = [&](float frac, float len, float back, float wHub, float wTip,
+                        float r, float g, float b, float a, float grow){
+            float th = (float)M_PI_2 - frac*2.0f*(float)M_PI;
+            float ddx = cosf(th), ddy = -sinf(th);
+            float pxp = -ddy, pyp = ddx;
+            float tipX = CX + ddx*len, tipY = CY + ddy*len;
+            float backX = CX - ddx*back, backY = CY - ddy*back;
+            float wt = wTip + grow, wh = wHub + grow;
+            float ax=dx(tipX+pxp*wt), ay=dy(tipY+pyp*wt);
+            float bx=dx(tipX-pxp*wt), by=dy(tipY-pyp*wt);
+            float cxp=dx(backX-pxp*wh), cyp=dy(backY-pyp*wh);
+            float ex=dx(backX+pxp*wh), ey=dy(backY+pyp*wh);
+            drawTriangle(ax,ay,bx,by,cxp,cyp, r,g,b,a);
+            drawTriangle(ax,ay,cxp,cyp,ex,ey, r,g,b,a);
+        };
+        // glow pass then crisp white (hour thickest)
+        hand(hourFrac,   86.0f,       11.0f, 3.6f, 2.4f, gr,gg,gb, 0.5f, 2.0f);
+        hand(minuteFrac, 141.0f-2.0f, 13.0f, 1.3f, 1.0f, gr,gg,gb, 0.5f, 2.0f);
+        hand(secFrac,    141.0f+2.0f, 20.0f, 0.7f, 0.55f, gr,gg,gb, 0.5f, 1.5f);
+        hand(hourFrac,   86.0f,       11.0f, 3.6f, 2.4f, 1,1,1, 1.0f, 0.0f);
+        hand(minuteFrac, 141.0f-2.0f, 13.0f, 1.3f, 1.0f, 1,1,1, 1.0f, 0.0f);
+        hand(secFrac,    141.0f+2.0f, 20.0f, 0.7f, 0.55f, 1,1,1, 1.0f, 0.0f);
+    }
+
+    // --- section 7: hub (two filled circles + glow) ---
+    {
+        auto disc = [&](float rr, float r, float g, float b, float a){
+            const int SEG = 20; float cxd = dx(CX), cyd = dy(CY), rd = rr*sc;
+            float px = cxd + rd, py = cyd;
+            for (int i = 1; i <= SEG; i++) {
+                float ang = (float)i / SEG * 2.0f * (float)M_PI;
+                float nx = cxd + rd*cosf(ang), ny = cyd + rd*sinf(ang);
+                drawTriangle(cxd,cyd, px,py, nx,ny, r,g,b,a); px=nx; py=ny;
+            }
+        };
+        disc(5.5f + 2.0f, gr,gg,gb, 0.5f);       // glow
+        disc(5.5f, 0.92f,0.97f,1.0f, 1.0f);      // #eaf7ff
+        disc(2.5f, 1.0f,1.0f,1.0f, 1.0f);        // white
+    }
+
+    // Restore normal UI blend for whatever draws next (date text, dialogs).
+    setUiBlend();
+
+    // --- section 5: date "DDD D" below centre (frosted, additive) ---
+    {
+        time_t now = time(nullptr); struct tm lt; localtime_r(&now, &lt);
+        char tv[PROPERTY_VALUE_MAX] = {}; property_get("persist.gammaos.nano.pspclock.date", tv, "");
+        static const char* DAYS[7] = {"SUN","MON","TUE","WED","THU","FRI","SAT"};
+        char dtxt[24];
+        if (tv[0]) snprintf(dtxt, sizeof(dtxt), "%s", tv);
+        else snprintf(dtxt, sizeof(dtxt), "%s %d", DAYS[lt.tm_wday], lt.tm_mday);
+        float sizePx = 11.0f * sc;
+        float ts = sizePx / 32.0f;   // drawText scale is relative to a 32px base (ps3::fontScale style)
+        float tw = measureText(dtxt, ts);
+        float bx = dx(CX) - tw * 0.5f, by = dy(CY + 33.0f) - sizePx * 0.5f;
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+        drawText(dtxt, bx, by, ts, 0.88f, 0.93f, 0.97f, 0.42f);
+        setUiBlend();
+    }
+    (void)reveal;
+}
+
+// Bow + magnify a sprite behind the glass ball (spec 5.8).
+static inline void pspLensBow(bool valid, float lcx, float lcy, float lr,
+                              float& cx, float& cy, float& size) {
+    if (!valid) return;
+    float dxx = cx - lcx, dyy = cy - lcy, dist = sqrtf(dxx*dxx + dyy*dyy);
+    if (dist < lr) { float t = dist/lr, m = 1.0f + 0.42f*(1.0f - t*t);
+        cx = lcx + dxx*m; cy = lcy + dyy*m; size *= m; }
+}
+
+// One PS-button glyph as stroked shapes (device px, additive already set).
+void NanoMenu::pspClockEntrance(float sc, float ox, float oy, float reveal,
+                                float angOffset, float alphaMul) {
+    if (reveal <= 0.0f || reveal >= 0.995f || alphaMul <= 0.002f) return;
+    pspInitEGlyphs();
+    const float hw = 0.8f;   // half of the web's 1.6px stroke (canvas px == device px here)
+    auto line = [&](float x0,float y0,float x1,float y1, float r,float g,float b,float a){
+        float ux=x1-x0, uy=y1-y0, L=sqrtf(ux*ux+uy*uy); if (L<1e-3f) return;
+        float nx=-uy/L*hw, ny=ux/L*hw;
+        drawTriangle(x0+nx,y0+ny, x1+nx,y1+ny, x1-nx,y1-ny, r,g,b,a);
+        drawTriangle(x0+nx,y0+ny, x1-nx,y1-ny, x0-nx,y0-ny, r,g,b,a);
+    };
+    auto glyph = [&](float x,float y,float s,int type,float rot,float a){
+        const float R=205.0f/255.0f, G=238.0f/255.0f, B=255.0f/255.0f;
+        float cr=cosf(rot), sr=sinf(rot);
+        auto rp=[&](float px,float py,float&ox2,float&oy2){ ox2=x+px*cr-py*sr; oy2=y+px*sr+py*cr; };
+        if (type==0) {
+            const int N=18; float pax,pay; rp(s*0.5f,0,pax,pay);
+            for(int i=1;i<=N;i++){ float ang=(float)i/N*2*(float)M_PI; float qx,qy; rp(cosf(ang)*s*0.5f,sinf(ang)*s*0.5f,qx,qy); line(pax,pay,qx,qy,R,G,B,a); pax=qx;pay=qy; }
+        } else if (type==1) {
+            float a0x,a0y,a1x,a1y,b0x,b0y,b1x,b1y;
+            rp(-s*0.4f,-s*0.4f,a0x,a0y); rp(s*0.4f,s*0.4f,a1x,a1y);
+            rp(s*0.4f,-s*0.4f,b0x,b0y); rp(-s*0.4f,s*0.4f,b1x,b1y);
+            line(a0x,a0y,a1x,a1y,R,G,B,a); line(b0x,b0y,b1x,b1y,R,G,B,a);
+        } else if (type==2) {
+            float c0x,c0y,c1x,c1y,c2x,c2y,c3x,c3y;
+            rp(-s*0.4f,-s*0.4f,c0x,c0y); rp(s*0.4f,-s*0.4f,c1x,c1y);
+            rp(s*0.4f,s*0.4f,c2x,c2y); rp(-s*0.4f,s*0.4f,c3x,c3y);
+            line(c0x,c0y,c1x,c1y,R,G,B,a); line(c1x,c1y,c2x,c2y,R,G,B,a);
+            line(c2x,c2y,c3x,c3y,R,G,B,a); line(c3x,c3y,c0x,c0y,R,G,B,a);
+        } else {
+            float t0x,t0y,t1x,t1y,t2x,t2y;
+            rp(0,-s*0.5f,t0x,t0y); rp(s*0.46f,s*0.4f,t1x,t1y); rp(-s*0.46f,s*0.4f,t2x,t2y);
+            line(t0x,t0y,t1x,t1y,R,G,B,a); line(t1x,t1y,t2x,t2y,R,G,B,a); line(t2x,t2y,t0x,t0y,R,G,B,a);
+        }
+    };
+    for (int i = 0; i < 32; i++) {
+        const PspEGlyph& g = sEGlyphs[i];
+        float lt = (reveal - g.start) / (0.87f - g.start);
+        if (lt <= 0.0f) continue;
+        float t = std::min(1.0f, lt);
+        float dist = g.Rmax * e3(t);
+        float ang = g.ang + angOffset;
+        float gx = 240.0f + cosf(ang)*dist + sinf(g.wob + t*6.28f)*g.wobA*t;
+        float gy = 122.0f + sinf(ang)*dist;
+        float fade = std::min(1.0f, t/0.14f) * (t < 0.55f ? 1.0f : std::max(0.0f, 1.0f-(t-0.55f)/0.45f));
+        float a = g.peak * fade * alphaMul;
+        if (a <= 0.01f) continue;
+        float sz = (7.0f + (g.size1-7.0f)*std::min(1.0f, t*3.0f)) * sc;
+        float cx = ox + gx*sc, cy = oy + gy*sc;
+        pspLensBow(mPspLensValid, mPspLensCx, mPspLensCy, mPspLensR, cx, cy, sz);
+        glyph(cx, cy, sz, g.type, g.rot*t, a);
+    }
+}
+
+// The 6 tumbling XMB category icons along their bezier-ish paths (spec 5.11).
+void NanoMenu::pspClockEntranceIcons(float sc, float ox, float oy, float reveal,
+                                     float alphaMul, uint32_t seed) {
+    if (reveal <= 0.0f || alphaMul <= 0.002f) return;
+    struct EIcon { int id; float emit; float px[4]; float py[4]; float s0,s1,peak,spin; };
+    static const EIcon EI[6] = {
+        {1,0.03f,{240,172,130,95},{122,137,190,196},24,55,1.00f,-0.85f},
+        {2,0.04f,{240,300,360,432},{122,124,150,168},22,32,0.95f, 0.70f},
+        {3,0.11f,{244,290,360,430},{124,145,170,176},22,30,0.85f, 0.55f},
+        {4,0.17f,{240,224,204,198},{124,155,190,206},24,34,0.90f,-0.60f},
+        {6,0.23f,{250,272,330,400},{122,140,170,190},24,40,0.62f, 0.95f},
+        {5,0.28f,{254,268,300,316},{122,110,96,90},  28,46,0.68f,-0.45f},
+    };
+    const float ICON_LIFE = 0.26f;
+    for (int ii = 0; ii < 6; ii++) {
+        const EIcon& ic = EI[ii];
+        float lt = (reveal - ic.emit) / ICON_LIFE;
+        if (lt <= 0.0f || lt >= 1.0f) continue;
+        GLuint tex = iconTexForIcon(ic.id);
+        if (tex == 0) continue;
+        float e = e3(lt), seg = e * 3.0f;
+        int si = std::min(2, (int)seg); float sf = seg - si;
+        float px = ic.px[si] + (ic.px[si+1]-ic.px[si])*sf;
+        float py = ic.py[si] + (ic.py[si+1]-ic.py[si])*sf;
+        // hashIconRnd (integer avalanche), same as index.html.
+        uint32_t n = ((uint32_t)(seed) * 73856093u) ^ ((uint32_t)(ii+1) * 19349663u);
+        n = (n ^ (n>>13)) * 0x85ebca6bu; float ra = n / 4294967296.0f;
+        n = (n ^ (n>>16)) * 0xc2b2ae35u; float rb = n / 4294967296.0f;
+        float rang = ra * 2.0f * (float)M_PI, rdist = 0.78f + rb*0.55f;
+        float rct = cosf(rang), rst = sinf(rang);
+        float cx0 = ic.px[0], cy0 = ic.py[0];
+        float rx = (px-cx0)*rdist, ry = (py-cy0)*rdist;
+        px = cx0 + rx*rct - ry*rst; py = cy0 + rx*rst + ry*rct;
+        float sz = (ic.s0 + (ic.s1-ic.s0)*e) * sc;
+        float fade = std::min(1.0f, lt/0.18f) * (lt < 0.6f ? 1.0f : std::max(0.0f, 1.0f-(lt-0.6f)/0.4f));
+        float a = ic.peak * fade * alphaMul;
+        if (a <= 0.01f) continue;
+        float cx = ox + px*sc, cy = oy + py*sc, isz = sz;
+        pspLensBow(mPspLensValid, mPspLensCx, mPspLensCy, mPspLensR, cx, cy, isz);
+        float rot = ic.spin * e;
+        // rotated textured quad (mTextProgram), additive.
+        float hw = isz*0.5f, cr = cosf(rot), sr = sinf(rot);
+        auto rc = [&](float lx,float ly,float&Ox,float&Oy){ Ox=cx+lx*cr-ly*sr; Oy=cy+lx*sr+ly*cr; };
+        float ax,ay,bx,by,cx2,cy2,dxq,dyq;
+        rc(-hw,-hw,ax,ay); rc(hw,-hw,bx,by); rc(hw,hw,cx2,cy2); rc(-hw,hw,dxq,dyq);
+        auto toN=[&](float X,float Y,float&nx,float&ny){ nx=(X/mWidth)*2.0f-1.0f; ny=1.0f-(Y/mHeight)*2.0f; };
+        float n0x,n0y,n1x,n1y,n2x,n2y,n3x,n3y;
+        toN(ax,ay,n0x,n0y); toN(bx,by,n1x,n1y); toN(cx2,cy2,n2x,n2y); toN(dxq,dyq,n3x,n3y);
+        GLfloat verts[]={n0x,n0y,n1x,n1y,n2x,n2y, n0x,n0y,n2x,n2y,n3x,n3y};
+        GLfloat uvs[]={0,0, 1,0, 1,1, 0,0, 1,1, 0,1};
+        GLfloat col[6*4]; for(int k=0;k<6;k++){col[k*4]=1;col[k*4+1]=1;col[k*4+2]=1;col[k*4+3]=a;}
+        glUseProgram(mTextProgram);
+        if (mTextLocSharp >= 0) glUniform1f(mTextLocSharp, 0.0f);
+        glActiveTexture(GL_TEXTURE0); glBindTexture(GL_TEXTURE_2D, tex);
+        glUniform1i(mTextLocTexture, 0); glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glVertexAttribPointer(mTextLocPosition,2,GL_FLOAT,GL_FALSE,0,verts); glEnableVertexAttribArray(mTextLocPosition);
+        glVertexAttribPointer(mTextLocTexCoord,2,GL_FLOAT,GL_FALSE,0,uvs); glEnableVertexAttribArray(mTextLocTexCoord);
+        glVertexAttribPointer(mTextLocColor,4,GL_FLOAT,GL_FALSE,0,col); glEnableVertexAttribArray(mTextLocColor);
+        glDrawArrays(GL_TRIANGLES,0,6);
+        glDisableVertexAttribArray(mTextLocPosition); glDisableVertexAttribArray(mTextLocTexCoord); glDisableVertexAttribArray(mTextLocColor);
+    }
+}
+
+// 16 ambient PS glyphs drifting rightward, visible once settled (spec 5.7).
+void NanoMenu::pspClockAmbientGlyphs(float dtMs) {
+    mPspGlyphBurst *= 0.992f;
+    if (mPspDetailFade <= 0.002f) return;
+    struct AG { float x,y,v,size,phase; int type; };
+    static AG ag[16]; static bool agInit=false;
+    if (!agInit) {
+        unsigned int st=0x51ed270bu;
+        auto R=[&](){ st^=st<<13; st^=st>>17; st^=st<<5; return (st&0xffffff)/(float)0x1000000; };
+        for(int i=0;i<16;i++){ ag[i].x=R()*1.3f-0.15f; ag[i].y=0.18f+fmodf(i*0.05f,0.62f);
+            ag[i].v=0.028f+R()*0.05f; ag[i].size=9.0f+R()*11.0f; ag[i].type=i%4; ag[i].phase=R()*6.283f; }
+        agInit=true;
+    }
+    float sc = std::min(mWidth/480.0f, mHeight/272.0f);
+    float ox=0, oy=(mHeight-272.0f*sc)*0.5f;
+    const float hw=0.8f;
+    auto line=[&](float x0,float y0,float x1,float y1,float r,float g,float b,float a){
+        float ux=x1-x0,uy=y1-y0,L=sqrtf(ux*ux+uy*uy); if(L<1e-3f)return; float nx=-uy/L*hw,ny=ux/L*hw;
+        drawTriangle(x0+nx,y0+ny,x1+nx,y1+ny,x1-nx,y1-ny,r,g,b,a); drawTriangle(x0+nx,y0+ny,x1-nx,y1-ny,x0-nx,y0-ny,r,g,b,a); };
+    for(int i=0;i<16;i++){ AG& g=ag[i];
+        g.x += g.v*(dtMs/1000.0f)*(0.5f+mPspGlyphBurst*2.0f);
+        if(g.x>1.18f){ g.x=-0.18f; g.type=(g.type+1)%4; }
+        g.phase += dtMs*0.0012f;
+        float px=g.x*mWidth, py=(g.y*272.0f+sinf(g.phase)*6.0f)*sc+oy; (void)ox;
+        float gs=g.size*sc;
+        pspLensBow(mPspLensValid, mPspLensCx, mPspLensCy, mPspLensR, px, py, gs);
+        float cl=clamp01(g.x);
+        float a=(0.05f+mPspGlyphBurst*0.14f)*sinf(cl*(float)M_PI)*mPspDetailFade;
+        if(a<=0.008f) continue;
+        const float R=205.0f/255.0f,G=238.0f/255.0f,B=255.0f/255.0f; float s=gs;
+        if(g.type==0){ const int N=16; float pax=px+s*0.5f,pay=py; for(int k=1;k<=N;k++){ float an=(float)k/N*2*(float)M_PI; float qx=px+cosf(an)*s*0.5f,qy=py+sinf(an)*s*0.5f; line(pax,pay,qx,qy,R,G,B,a); pax=qx;pay=qy; } }
+        else if(g.type==1){ line(px-s*0.4f,py-s*0.4f,px+s*0.4f,py+s*0.4f,R,G,B,a); line(px+s*0.4f,py-s*0.4f,px-s*0.4f,py+s*0.4f,R,G,B,a); }
+        else if(g.type==2){ line(px-s*0.4f,py-s*0.4f,px+s*0.4f,py-s*0.4f,R,G,B,a); line(px+s*0.4f,py-s*0.4f,px+s*0.4f,py+s*0.4f,R,G,B,a); line(px+s*0.4f,py+s*0.4f,px-s*0.4f,py+s*0.4f,R,G,B,a); line(px-s*0.4f,py+s*0.4f,px-s*0.4f,py-s*0.4f,R,G,B,a); }
+        else { line(px,py-s*0.5f,px+s*0.46f,py+s*0.4f,R,G,B,a); line(px+s*0.46f,py+s*0.4f,px-s*0.46f,py+s*0.4f,R,G,B,a); line(px-s*0.46f,py+s*0.4f,px,py-s*0.5f,R,G,B,a); }
+    }
+}
+
+} // namespace android

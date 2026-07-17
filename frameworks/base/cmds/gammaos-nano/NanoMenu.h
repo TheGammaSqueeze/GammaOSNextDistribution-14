@@ -1745,6 +1745,35 @@ private:
     std::vector<Ps3Item> mPs3SubChildItems;    // child list snapshot (for the exit slide-out)
     GLuint mPs3CatTex[8] = {0, 0, 0, 0, 0, 0, 0, 0};  // PS3 category icons (flat)
     GLuint mPs3CatNmap[8] = {0, 0, 0, 0, 0, 0, 0, 0}; // PS3 category icons (glass nmap)
+
+    // --- PSP Go slide clock (NanoMenuPS3Clock.cpp) -----------------------------
+    // Full-screen procedural analog clock, a 1:1 port of the web xmb PSP clock
+    // (/work/ps3/xmb-app psp_clock.js + index.html sections 5.x). Gated by
+    // persist.gammaos.nano.pspclock; shown while KEY_F12 (the swivel) is DOWN,
+    // exited on UP. Everything is a pure function of mPspClockReveal (0..1).
+    bool  mPspClockEnabled = false;   // cached persist.gammaos.nano.pspclock
+    bool  mPspClockOn = false;        // F12 down = true (open), up = false (close)
+    float mPspClockReveal = 0.0f;     // 0..1 transition progress (open 5000ms / close 2700ms)
+    float mPspDescent = -1.0f;        // smoothed vertical fraction (-1 off-top, 0 rest)
+    float mPspDetailFade = 0.0f;      // trail/ticks/ambient-glyph gate (in once settled)
+    float mPspTextFadeSmooth = 1.0f;  // smoothed XMB text alpha multiplier
+    float mPspFloatT = 0.0f;          // idle-float phase accumulator (ms)
+    float mPspGlow[3] = {150.0f, 232.0f, 255.0f};  // dominant-bg glow colour (fallback cyan)
+    bool  mPspGlowValid = false;
+    uint32_t mPspIconSeed = 0;        // per-open entrance-icon layout seed
+    float mPspGlyphBurst = 0.0f;      // ambient glyph speed/brightness kick
+    float mPspTrail[120] = {0};       // second-hand comet-trail alphas
+    GLuint mPspLensProgram = 0;       // radial-refraction glass shader (built lazily)
+    GLint  mPspLensLocPos = -1, mPspLensLocLocal = -1, mPspLensLocTex = -1,
+           mPspLensLocRot = -1, mPspLensLocHalf = -1, mPspLensLocCenter = -1,
+           mPspLensLocTexture = -1, mPspLensLocTonemap = -1, mPspLensLocZoom = -1,
+           mPspLensLocAlpha = -1;
+    float  mPspLensCx = 0, mPspLensCy = 0, mPspLensR = 0;  // disc lens in device px
+    bool   mPspLensValid = false;
+    GLuint mPspGlyphTex[4] = {0, 0, 0, 0};   // baked numeral alpha textures (12,3,6,9)
+    float  mPspGlyphHXu[4] = {0}, mPspGlyphHYu[4] = {0};  // half-extents in glyph units (incl pad)
+    bool   mPspGlyphBaked = false;
+    GLuint mPspGlowFbo = 0, mPspGlowTex = 0;   // 8x8 downsample of the wallpaper for the glow colour
     // Glass-icon resources (FS_ICON_GLASS). Normal maps are cached by xmb_icon
     // index (PS3 icons -> nmap_NNN.png) and by flat-icon texture id (console /
     // RetroArch icons -> a bevel normal generated from the alpha silhouette).
@@ -3030,6 +3059,24 @@ private:
     int& ps3CurSel();
     void renderPs3Xmb();
     void drawPs3Clock(float fadeMul);   // U-frame + analog face + DD/M H:MM
+
+    // --- PSP Go slide clock (NanoMenuPS3Clock.cpp) --------------------------
+    void  drawPspClock(float dtMs);            // per-frame orchestrator (advance + all passes)
+    void  pspClockPollInput();                 // reads the F12 gate prop into mPspClockEnabled
+    float pspClockTextFade() const;            // smoothed XMB-text alpha multiplier (5.4)
+    bool  pspClockBlowCat(int i, float& bx, float& by, float& brot) const;  // category icon blow-away (5.5)
+    bool  pspClockBlowItem(int i, float& xShift, float& yLift, float& rot) const; // item icon blow-away (5.5)
+  private:
+    void  pspClockBackdropBlur(float amt);     // 5.10 (stage 1)
+    void  pspClockLens(float cr);              // 5.9 glass refraction disc (stage 2)
+    void  pspClockFace(float reveal, float floatY, float descentFrac);  // clock face (stage 3/4)
+    void  pspClockEntrance(float sc, float ox, float oy, float reveal, float angOff, float alphaMul); // 5.11
+    void  pspClockEntranceIcons(float sc, float ox, float oy, float reveal, float alphaMul, uint32_t seed);
+    void  pspClockAmbientGlyphs(float dtMs);   // 5.7
+    void  pspClockGlow(float& r, float& g, float& b) const;  // current glow colour 0..1
+    void  pspClockBakeGlyphs();                // rasterize numeral outlines -> alpha textures
+    void  pspClockSampleGlow();                // dominant wallpaper colour -> mPspGlow (5.9.4)
+  public:
     // Content-info hover background + description (web HOVER_BG/CINFO_DESC): dwell on a
     // mapped item ("Photo Gallery" is the only one reachable in nano) fades a full-frame
     // bg image + firmware title/description in over the wave, under the chrome.

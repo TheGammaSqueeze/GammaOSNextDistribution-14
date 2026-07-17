@@ -1854,6 +1854,16 @@ void NanoMenu::pollInput() {
             // switch), handle the rotate key here too. Setting sys.gammaos.rotate.state drives BOTH
             // nano's own overlay render (overlayUpdateSurfaceSize reads it) and the app underneath
             // (DisplayRotation forces the angle from the same prop via its poll). Ignore key-repeat.
+            // GammaOS PSP slide clock: when persist.gammaos.nano.pspclock is set, the
+            // same swivel key (KEY_F12) drives the full-screen PSP clock instead of the
+            // display rotation - down = open, up = close (momentary, like closing a PSP
+            // Go). Handled before the rotate branch so the clock gate takes precedence.
+            if (ev.type == EV_KEY && ev.value != 2
+                && ev.code == property_get_int32("persist.gammaos.rotate.key_code", 88)
+                && property_get_bool("persist.gammaos.nano.pspclock", false)) {
+                mPspClockOn = (ev.value == 1);
+                continue;   // swallow so the switch never navigates the menu or rotates
+            }
             if (ev.type == EV_KEY && ev.value != 2
                 && property_get_bool("persist.gammaos.rotate.enabled", false)
                 && ev.code == property_get_int32("persist.gammaos.rotate.key_code", 88)) {

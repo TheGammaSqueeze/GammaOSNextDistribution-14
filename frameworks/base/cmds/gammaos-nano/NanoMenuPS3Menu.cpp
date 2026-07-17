@@ -4733,6 +4733,12 @@ void NanoMenu::renderPs3Xmb() {
 
     drawPs3Clock(mPs3BootIconReveal);   // fades in with the cold-boot hand-off (1.0 otherwise)
 
+    // GammaOS PSP Go slide clock overlay: drawn over the finished XMB (wave + list +
+    // status clock) but before dialogs, so the wave FBO (ps3bg::workTex) is populated
+    // for the glass refraction/blur and the rotation matrix is already uploaded. dt in
+    // ms from the clamped per-frame delta. No-op unless the pspclock gate + F12 open it.
+    drawPspClock(mFrameDt * 1000.0f);
+
     // Dialogs/choosers (and any OSK over them) keep crisp GL_LINEAR text.
     setGlyphAtlasAA(false);
 
