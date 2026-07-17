@@ -187,17 +187,19 @@ void NanoMenu::pspClockPollTilt(bool active) {
         //     gain  parallax throw in UV units (default 0.06)
         //     rot   base orientation: rotate the accel->UV axes by rot*90 deg (0/1/2/3).
         //           The Sprd accel on the RG Rotate is mounted 90 deg vs the panel, so the
-        //           default 1 gives: at the closed position (sDrmRotMat = identity) tilt
-        //           DOWN peeks down and tilt RIGHT peeks right.
-        //     sx,sy per-axis sign (+1/-1) to flip either axis if the accel sign differs.
+        //           default is 1.
+        //     sx,sy per-axis sign (+1/-1) to flip either axis. The default is -1,-1: the
+        //           background pans OPPOSITE the tilt, which is the natural "peek behind the
+        //           glass" parallax (shift your viewpoint one way, the bg behind slides the
+        //           other way). Set +1 to move the bg toward the tilt instead.
         // The sDrmRotMat transform in pspClockLens then rotates this panel-native tilt into
         // the CURRENT screen-rotation frame (composes on top of this base orientation).
         static float sCalGain = 0.06f; static int sCalRot = 1;
-        static float sCalSx = 1.0f, sCalSy = 1.0f; static bool sCalInit = false;
+        static float sCalSx = -1.0f, sCalSy = -1.0f; static bool sCalInit = false;
         static int sCalTick = 0;
         if (!sCalInit || (++sCalTick % 60) == 0) {   // re-read ~1s so a live retune applies
             sCalInit = true;
-            sCalGain = 0.06f; sCalRot = 1; sCalSx = 1.0f; sCalSy = 1.0f;   // uniform pan moves the whole view -> lower default than the old rim-weighted
+            sCalGain = 0.06f; sCalRot = 1; sCalSx = -1.0f; sCalSy = -1.0f;   // -1,-1 = peek OPPOSITE the tilt; uniform pan -> low gain
             char cb[PROPERTY_VALUE_MAX] = {};
             if (property_get("persist.gammaos.nano.pspclock.tilt.cal", cb, "") > 0 && cb[0]) {
                 float g = sCalGain, sx = sCalSx, sy = sCalSy; int rt = sCalRot;
