@@ -59,7 +59,11 @@ void NanoMenu::pspClockPollTilt(bool active) {
         char buf[PROPERTY_VALUE_MAX] = {};
         if (property_get("persist.gammaos.nano.pspclock.tilt", buf, "") > 0 && buf[0]) {
             float tx = 0.0f, ty = 0.0f;
-            if (sscanf(buf, "%f,%f", &tx, &ty) == 2) { mPspTiltX = tx; mPspTiltY = ty; return; }
+            if (sscanf(buf, "%f,%f", &tx, &ty) == 2) {
+                mPspTiltX += (tx - mPspTiltX) * 0.15f;   // low-pass so externally-stepped test
+                mPspTiltY += (ty - mPspTiltY) * 0.15f;   // values glide (smooth parallax capture)
+                return;
+            }
         }
     }
     if (!active) {
@@ -603,7 +607,7 @@ void NanoMenu::pspClockBakeGlyphs() {
         const float hx = (maxx - minx) * 0.5f + PAD, hy = (maxy - miny) * 0.5f + PAD;
         mPspGlyphHXu[gi] = hx; mPspGlyphHYu[gi] = hy;
         const float PXU = 1.6f;              // final px per glyph unit
-        const int SS = 3;                    // supersample for AA
+        const int SS = 4;                    // supersample for AA (crisper glyph edges)
         int W = (int)(2*hx*PXU + 0.5f), H = (int)(2*hy*PXU + 0.5f);
         if (W < 4) W = 4; if (H < 4) H = 4;
         int rw = W*SS, rh = H*SS;
@@ -794,7 +798,8 @@ void NanoMenu::pspClockChromeGlowPass(
 // the face rides the glass exactly. sc = mPspLensR / 141.
 // -----------------------------------------------------------------------------
 void NanoMenu::pspClockFace(float reveal, float /*floatY*/, float /*descentFrac*/) {
-    const float sc = mPspLensR / 141.0f;
+    float sc = mPspLensR / 141.0f;   // NON-const: the AA supersample pass doubles it (with the
+                                     // lens centre) so dx()/dy() land the face on the 2x FBO.
     const float CX = 240.0f, CY = 136.0f;
     auto dx = [&](float px){ return mPspLensCx + (px - CX) * sc; };
     auto dy = [&](float py){ return mPspLensCy + (py - CY) * sc; };
@@ -916,6 +921,51 @@ void NanoMenu::pspClockFace(float reveal, float /*floatY*/, float /*descentFrac*
         },
         2, 1, gr, gg, gb, 0.90f * glowPulse);
 
+    // ---- 2x supersampled FACE target (AA the crisp cores + comet trail) -------------
+    // Render the sharp drawTriangle/drawIconTex geometry (ticks, hands, hub, numerals and
+    // the second-hand trail dashes) into a 2x offscreen texture, then composite it down
+    // through GL_LINEAR so the hard polygon edges box-filter into anti-aliased ones. The
+    // soft Gaussian glow above stays at 1x (needs no AA, and shares blurGlassChain which
+    // must not thrash resolution). Primitives map device-px via mWidth/mHeight and dx()/dy()
+    // via sc + mPspLensCx/Cy, so ALL of {mWidth,mHeight,sc,mPspLensCx/Cy/R} double for the
+    // FBO pass and are restored on resolve. Mirrors pspClockChromeGlowPass's FBO+composite.
+    bool  faceSS = (mTextProgram != 0);
+    GLint faceVp[4] = {0,0,0,0}, facePrevFbo = 0;
+    int   faceSavedW = mWidth, faceSavedH = mHeight;
+    float faceSavedSc = sc, faceSavedCx = mPspLensCx, faceSavedCy = mPspLensCy, faceSavedR = mPspLensR;
+    if (faceSS) {
+        glGetIntegerv(GL_VIEWPORT, faceVp);
+        int vw = faceVp[2], vh = faceVp[3];
+        if (vw < 16 || vh < 16) faceSS = false;
+        else {
+            int ssW = vw * 2, ssH = vh * 2;
+            glGetIntegerv(GL_FRAMEBUFFER_BINDING, &facePrevFbo);
+            if (mPspFaceTex == 0 || mPspFaceW != ssW || mPspFaceH != ssH) {
+                if (mPspFaceTex == 0) glGenTextures(1, &mPspFaceTex);
+                glBindTexture(GL_TEXTURE_2D, mPspFaceTex);
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, ssW, ssH, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+                mPspFaceW = ssW; mPspFaceH = ssH;
+            }
+            if (mPspFaceFbo == 0) glGenFramebuffers(1, &mPspFaceFbo);
+            glBindFramebuffer(GL_FRAMEBUFFER, mPspFaceFbo);
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mPspFaceTex, 0);
+            if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+                glBindFramebuffer(GL_FRAMEBUFFER, facePrevFbo);
+                faceSS = false;
+            } else {
+                glViewport(0, 0, ssW, ssH);
+                glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+                glClear(GL_COLOR_BUFFER_BIT);
+                mWidth = faceSavedW * 2; mHeight = faceSavedH * 2;
+                sc *= 2.0f; mPspLensCx *= 2.0f; mPspLensCy *= 2.0f; mPspLensR *= 2.0f;
+            }
+        }
+    }
+
     // Additive blend for the glowing chrome + trail (spec: composite 'lighter').
     glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
@@ -948,21 +998,80 @@ void NanoMenu::pspClockFace(float reveal, float /*floatY*/, float /*descentFrac*
     drawHubDisc(5.5f, 0.92f, 0.97f, 1.0f, 1.0f);    // hub #eaf7ff
     drawHubDisc(2.5f, 1.0f, 1.0f, 1.0f, 1.0f);      // hub white
 
+    // ---- resolve the 2x face target: restore scale, composite 1:1 additively with an
+    // IDENTITY rotation (the texture already baked in the scene rotation), GL_LINEAR
+    // downsampling its 2x edges into anti-aliased ones. Mirrors pspClockChromeGlowPass. ----
+    if (faceSS) {
+        mWidth = faceSavedW; mHeight = faceSavedH;
+        sc = faceSavedSc; mPspLensCx = faceSavedCx; mPspLensCy = faceSavedCy; mPspLensR = faceSavedR;
+        glBindFramebuffer(GL_FRAMEBUFFER, facePrevFbo);
+        glViewport(faceVp[0], faceVp[1], faceVp[2], faceVp[3]);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_ONE, GL_ONE);                 // additive ('lighter'), matches the cores
+        static const GLfloat q[]  = { -1,-1,  1,-1,  1,1,  1,1, -1,1, -1,-1 };
+        static const GLfloat qt[] = {  0, 0,  1, 0,  1,1,  1,1,  0,1,  0, 0 };
+        GLfloat cols[6*4];
+        for (int i = 0; i < 6; i++) { cols[i*4]=1.0f; cols[i*4+1]=1.0f; cols[i*4+2]=1.0f; cols[i*4+3]=1.0f; }
+        static const GLfloat ident[4] = { 1.0f, 0.0f, 0.0f, 1.0f };
+        glUseProgram(mTextProgram);
+        if (mTextLocSharp >= 0) glUniform1f(mTextLocSharp, 0.0f);
+        glUniformMatrix2fv(mTextLocRotation, 1, GL_FALSE, ident);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, mPspFaceTex);
+        glUniform1i(mTextLocTexture, 0);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glVertexAttribPointer(mTextLocPosition, 2, GL_FLOAT, GL_FALSE, 0, q);
+        glEnableVertexAttribArray(mTextLocPosition);
+        glVertexAttribPointer(mTextLocTexCoord, 2, GL_FLOAT, GL_FALSE, 0, qt);
+        glEnableVertexAttribArray(mTextLocTexCoord);
+        glVertexAttribPointer(mTextLocColor, 4, GL_FLOAT, GL_FALSE, 0, cols);
+        glEnableVertexAttribArray(mTextLocColor);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+        glDisableVertexAttribArray(mTextLocPosition);
+        glDisableVertexAttribArray(mTextLocTexCoord);
+        glDisableVertexAttribArray(mTextLocColor);
+        glUniformMatrix2fv(mTextLocRotation, 1, GL_FALSE, sDrmRotMat);   // restore scene rotation
+    }
+
     // Restore normal UI blend for whatever draws next (date text, dialogs).
     setUiBlend();
 
-    // --- section 5: date "DDD D" below centre (frosted, additive) ---
+    // --- section 5: date "DDD D" below centre (frosted-glass, additive) --------------
+    // Web (psp_clock.js): PS3/Arial-Narrow at sizePx, fill rgba(224,237,248,0.32), a faint
+    // white edge stroke rgba(255,255,255,0.28) width max(0.7, sizePx*0.064), composited
+    // 'lighter'. Nano bundles no condensed/Arial-Narrow face, so (as on the web) the visible
+    // weight comes from the additive fill + a synthesized white edge, not the typeface.
+    // NOTE: drawTextStroke() is a no-op on this path and drawText's built-in outline paints
+    // BLACK, so the white edge is drawn manually as four additive white offset copies under
+    // one additive coloured fill. The old code also used the WRONG scale base (/32 vs the
+    // real FONT_CHAR_H=16), rendering the date at HALF size - fixed here.
     {
         time_t now = time(nullptr); struct tm lt; localtime_r(&now, &lt);
         static const char* DAYS[7] = {"SUN","MON","TUE","WED","THU","FRI","SAT"};
         char dtxt[24];
         snprintf(dtxt, sizeof(dtxt), "%s %d", DAYS[lt.tm_wday], lt.tm_mday);
+        // Web max(11, round(11*sc/2)*2); round to an even device-px em so drawText rasterizes
+        // crisply at-size (grid snap) instead of a blurry fractional downscale of the master.
         float sizePx = 11.0f * sc;
-        float ts = sizePx / 32.0f;   // drawText scale is relative to a 32px base (ps3::fontScale style)
+        if (sizePx < 11.0f) sizePx = 11.0f;
+        sizePx = floorf(sizePx / 2.0f + 0.5f) * 2.0f;
+        float ts = sizePx / (float)FONT_CHAR_H;   // drawText scale (displayEm = FONT_CHAR_H*scale)
         float tw = measureText(dtxt, ts);
-        float bx = dx(CX) - tw * 0.5f, by = dy(CY + 33.0f) - sizePx * 0.5f;
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-        drawText(dtxt, bx, by, ts, 0.88f, 0.93f, 0.97f, 0.42f);
+        float bx = dx(CX) - tw * 0.5f;
+        float by = dy(CY + 33.0f) - sizePx * 0.5f;
+        float strokePx = fmaxf(0.7f, sizePx * 0.064f);   // web stroke width -> white-edge offset
+
+        const int prevOutline = mTextOutlineMode;
+        mTextOutlineMode = 2;                             // no built-in (black) outline
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE);               // additive ('lighter')
+        const float edgeA = 0.28f * 0.5f;                // 4 overlapping copies ~= web 0.28 edge
+        static const float ed[4][2] = {{-1,0},{1,0},{0,-1},{0,1}};
+        for (int e = 0; e < 4; e++)
+            drawText(dtxt, bx + ed[e][0]*strokePx, by + ed[e][1]*strokePx, ts, 1.0f, 1.0f, 1.0f, edgeA);
+        // Frosted-glass fill: exact web rgba(224,237,248) at ~web alpha (0.36, a hair over the
+        // web 0.32 to offset nano's thinner additive AA; keep <=0.40 or it clips to white).
+        drawText(dtxt, bx, by, ts, 0.878f, 0.929f, 0.973f, 0.36f);
+        mTextOutlineMode = prevOutline;
         setUiBlend();
     }
     (void)reveal;

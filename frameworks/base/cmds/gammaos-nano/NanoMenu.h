@@ -1794,6 +1794,12 @@ private:
     // that read as a hard stroke). Sized to the current viewport (panel-native).
     GLuint mPspChromeGlowFbo = 0, mPspChromeGlowTex = 0;
     int    mPspChromeGlowW = 0, mPspChromeGlowH = 0;
+    // 2x-supersampled clock-FACE target: the crisp cores + trail (raw drawTriangle geometry)
+    // render into this 2x offscreen texture and composite down through GL_LINEAR, box-filtering
+    // their hard polygon edges into clean anti-aliased ones. The soft Gaussian glow stays at 1x
+    // (needs no AA, and reuses blurGlassChain which must not thrash resolution between passes).
+    GLuint mPspFaceFbo = 0, mPspFaceTex = 0;
+    int    mPspFaceW = 0, mPspFaceH = 0;
     // Glass-icon resources (FS_ICON_GLASS). Normal maps are cached by xmb_icon
     // index (PS3 icons -> nmap_NNN.png) and by flat-icon texture id (console /
     // RetroArch icons -> a bevel normal generated from the alpha silhouette).
