@@ -280,13 +280,31 @@ static GLuint loadColorIconTexAbs(const char* absPath) {
 }
 
 void NanoMenu::drawIconTex(GLuint tex, float x, float y, float w, float h,
-                           float r, float g, float b, float a) {
+                           float r, float g, float b, float a, float rot) {
     if (tex == 0) return;
-    float x0 = (x / mWidth) * 2.0f - 1.0f;
-    float y0 = 1.0f - ((y + h) / mHeight) * 2.0f;
-    float x1 = ((x + w) / mWidth) * 2.0f - 1.0f;
-    float y1 = 1.0f - (y / mHeight) * 2.0f;
-    GLfloat verts[] = { x0,y0, x1,y0, x1,y1, x1,y1, x0,y1, x0,y0 };
+    GLfloat verts[12];
+    if (rot == 0.0f) {
+        float x0 = (x / mWidth) * 2.0f - 1.0f;
+        float y0 = 1.0f - ((y + h) / mHeight) * 2.0f;
+        float x1 = ((x + w) / mWidth) * 2.0f - 1.0f;
+        float y1 = 1.0f - (y / mHeight) * 2.0f;
+        GLfloat v[] = { x0,y0, x1,y0, x1,y1, x1,y1, x0,y1, x0,y0 };
+        for (int i = 0; i < 12; i++) verts[i] = v[i];
+    } else {
+        // Tumble about the icon centre (device space so the rotation is isotropic
+        // regardless of aspect), then to NDC. Corner order matches the UV list:
+        // BL(0,1) BR(1,1) TR(1,0) TR TL(0,0) BL. Used by the PSP-clock blow-away.
+        float cx = x + w * 0.5f, cy = y + h * 0.5f;
+        float co = cosf(rot), si = sinf(rot);
+        auto corner = [&](float lx, float ly, int slot) {
+            float rx = lx * co - ly * si, ry = lx * si + ly * co;
+            verts[slot*2]   = ((cx + rx) / mWidth) * 2.0f - 1.0f;
+            verts[slot*2+1] = 1.0f - ((cy + ry) / mHeight) * 2.0f;
+        };
+        const float hw = w * 0.5f, hh = h * 0.5f;   // device y-down: +hh = bottom
+        corner(-hw,  hh, 0); corner( hw,  hh, 1); corner( hw, -hh, 2);
+        corner( hw, -hh, 3); corner(-hw, -hh, 4); corner(-hw,  hh, 5);
+    }
     GLfloat uvs[]   = { 0,1, 1,1, 1,0, 1,0, 0,0, 0,1 };
     GLfloat colors[6 * 4];
     for (int i = 0; i < 6; i++) { colors[i*4]=r; colors[i*4+1]=g; colors[i*4+2]=b; colors[i*4+3]=a; }
@@ -4212,15 +4230,19 @@ void NanoMenu::renderPs3Xmb() {
         }
         float dsz = ps3::devS(sz);
         float ix = ps3::devX(ps3::XCL(x, sz * 0.5f)), iy = ps3::devY(y - sz * 0.5f) + catRise;
+        // PSP clock transition: category icons blow off the right edge with an upward
+        // gust + tumble (no fade). No-op when the clock is closed.
+        float _bcRot = 0.0f;
+        { float _bx, _by, _br; if (pspClockBlowCat(i, _bx, _by, _br)) { ix += _bx; iy += _by; _bcRot = _br; } }
         // Category icon drop shadow (panel-down), then the glass/flat icon.
         if (mPs3Cats[i].iconTex)
             drawIconStroke(mPs3Cats[i].iconTex, ix, iy, dsz, dsz, mPs3ShadowAlpha * 0.7f * alpha);
         if (mIconGlassReady && mPs3Cats[i].nmapTex && ps3bg::workTex())
-            drawGlassIcon(mPs3Cats[i].nmapTex, ix, iy, dsz, dsz, 1.0f, 1.0f, 1.0f, alpha);
+            drawGlassIcon(mPs3Cats[i].nmapTex, ix, iy, dsz, dsz, 1.0f, 1.0f, 1.0f, alpha, _bcRot);
         else
-            drawIconTex(mPs3Cats[i].iconTex, ix, iy, dsz, dsz, 1.0f, 1.0f, 1.0f, alpha);
+            drawIconTex(mPs3Cats[i].iconTex, ix, iy, dsz, dsz, 1.0f, 1.0f, 1.0f, alpha, _bcRot);
         if (isActive) {
-            float la = 0.9f * (1.0f - 0.55f * catT) * mPs3BootLabelReveal;
+            float la = 0.9f * (1.0f - 0.55f * catT) * mPs3BootLabelReveal * pspClockTextFade();
             float ls = ps3::fontScale(ps3::CAT_LABEL_SIZE);
             const char* nm = trDyn(mPs3Cats[i].name.c_str());
             float lw = measureText(nm, ls);
@@ -4342,6 +4364,11 @@ void NanoMenu::renderPs3Xmb() {
             float dsz = ps3::devS(isz);
             float ix = ps3::devX(ps3::XCL(ps3::ITEM_ICON_X + xShiftV, isz * 0.5f));
             float iy = ps3::devY(y - isz * 0.5f);
+            // PSP clock transition: the item ICON blows off the right edge with an
+            // upward arc + tumble (no fade); the text fades separately below. No-op
+            // when the clock is closed (pspClockReveal <= 0).
+            float _biRot = 0.0f;
+            { float _bx, _by, _br; if (pspClockBlowItem(i, _bx, _by, _br)) { ix += _bx; iy -= _by; _biRot = _br; } }
             // Now-playing glow: a soft pulsing halo behind the album AND the track
             // currently playing, drawn as concentric cyan discs (no glow shader on ES2).
             bool nowPlaying = npLive &&
@@ -4379,7 +4406,7 @@ void NanoMenu::renderPs3Xmb() {
                 if (boxAR >= 1.0f) bh = dsz / boxAR; else bw = dsz * boxAR;
                 float bx = ix + (dsz - bw) * 0.5f, by = iy + (dsz - bh) * 0.5f;
                 drawIconStroke(boxTex, bx, by, bw, bh, mPs3ShadowAlpha * 0.7f * alpha);
-                drawIconTex(boxTex, bx, by, bw, bh, 1.0f, 1.0f, 1.0f, alpha);
+                drawIconTex(boxTex, bx, by, bw, bh, 1.0f, 1.0f, 1.0f, alpha, _biRot);
             } else {
             // Icon outline silhouette behind the flat menu icons so they read over
             // the bright wave. RetroArch/console icons (isRetroIcon) are skipped:
@@ -4397,10 +4424,15 @@ void NanoMenu::renderPs3Xmb() {
             // a higher floor would pop the whole column flat mid-crossfade.
             if (mIconGlassReady && it.nmapTex && ps3bg::workTex()
                 && (alpha > 0.03f || !it.iconTex))
-                drawGlassIcon(it.nmapTex, ix, iy, dsz, dsz, it.iconR, it.iconG, it.iconB, alpha);
+                drawGlassIcon(it.nmapTex, ix, iy, dsz, dsz, it.iconR, it.iconG, it.iconB, alpha, _biRot);
             else if (it.iconTex)
-                drawIconTex(it.iconTex, ix, iy, dsz, dsz, it.iconR, it.iconG, it.iconB, alpha);
+                drawIconTex(it.iconTex, ix, iy, dsz, dsz, it.iconR, it.iconG, it.iconB, alpha, _biRot);
             }
+            // PSP clock transition: the row TEXT/value fades fast in place (the icon
+            // above already flew off at full alpha). The description (below) instead
+            // rides the whole-canvas backstop, so grab its pre-text-fade alpha first.
+            float descBaseAlpha = alpha;
+            alpha *= pspClockTextFade();
             float tSize = isActive ? ps3::ITEM_TEXT_ACTIVE_SIZE : ps3::ITEM_TEXT_SIZE;
             float ts = ps3::fontScale(tSize);
             float tx = ps3::devX(ps3::XCP(ps3::ITEM_TEXT_X + xShiftV));
@@ -4502,8 +4534,12 @@ void NanoMenu::renderPs3Xmb() {
                 // once and drawn in a single batch (no outline, == the old mode-2
                 // drawText loop). The dark even-outline non-active labels below keep
                 // mTextOutlineMode (==1) which drawTextGlow never touches.
+                // The glow halo uses alphaMul (the column crossfade), which does NOT
+                // carry the PSP-clock text fade the way `alpha` does - so fold it in
+                // here too, or the active label's halo lingers after the text is gone.
+                float glowFade = pspClockTextFade();
                 drawTextGlow(L, lx, ty, ts, oR, iR,
-                             outerA * alphaMul * 0.16f, innerA * alphaMul * 0.28f, alpha);
+                             outerA * alphaMul * 0.16f * glowFade, innerA * alphaMul * 0.28f * glowFade, alpha);
             } else {
                 drawText(L, lx, ty, ts, 0.92f, 0.92f, 0.92f, alpha);
             }
@@ -4511,7 +4547,11 @@ void NanoMenu::renderPs3Xmb() {
             if (isActive) {
                 // Description fades in only when the active item is centred, so
                 // it does not flash two descriptions while the list is scrolling.
-                float descA = alpha * fmaxf(0.0f, 1.0f - 2.0f * fabsf(selPos - (float)activeIdx));
+                // Description is XMB chrome: it lingers through the open (unlike the
+                // row text, which fades by reveal 0.07) and is cleared by the
+                // whole-canvas backstop over reveal 0.58..0.72 (spec 5.5).
+                float descA = descBaseAlpha * pspClockChromeFade()
+                            * fmaxf(0.0f, 1.0f - 2.0f * fabsf(selPos - (float)activeIdx));
                 drawDesc(it.desc, tx, ps3::devY(y), descA);
             }
             if (hasVal) {
@@ -4566,7 +4606,10 @@ void NanoMenu::renderPs3Xmb() {
             int dist = abs(i - pIdx);
             float fullA = sel ? ps3::ALPHA_FOCUS : ps3::ALPHA_INACTIVE;
             float setA = sel ? 0.92f : fmaxf(0.12f, 0.42f - (float)(dist - 1) * 0.05f);
-            float a = (fullA + (setA - fullA) * t) * aMul;
+            // PSP clock transition: the collapsed parent rail is XMB chrome with no
+            // blow hook, so it rides the whole-canvas backstop (spec 5.5) and clears
+            // by reveal 0.72. No-op when the clock is closed.
+            float a = (fullA + (setA - fullA) * t) * aMul * pspClockChromeFade();
             if (y < 40.0f)            a *= fmaxf(0.0f, y / 40.0f);
             if (y > ps3::VH - 20.0f)  a *= fmaxf(0.0f, (ps3::VH - y) / 20.0f);
             if (a <= 0.01f) continue;
@@ -4614,7 +4657,9 @@ void NanoMenu::renderPs3Xmb() {
             else if (it.iconTex)
                 drawIconTex(it.iconTex, ix, iy, dsz, dsz, it.iconR, it.iconG, it.iconB, a);
             }
-            float textA = (1.0f - t) * (sel ? ps3::ALPHA_FOCUS : ps3::ALPHA_INACTIVE) * aMul;
+            // Parent-rail text is XMB text: it fades out fast in place on open (spec
+            // 5.4, "all XMB text fades out"), the same as the main item labels.
+            float textA = (1.0f - t) * (sel ? ps3::ALPHA_FOCUS : ps3::ALPHA_INACTIVE) * aMul * pspClockTextFade();
             if (textA > 0.02f) {
                 float ts = ps3::fontScale(sel ? ps3::ITEM_TEXT_ACTIVE_SIZE : ps3::ITEM_TEXT_SIZE);
                 float textBase = fromChildCol
@@ -4731,7 +4776,7 @@ void NanoMenu::renderPs3Xmb() {
         }
     }
 
-    drawPs3Clock(mPs3BootIconReveal);   // fades in with the cold-boot hand-off (1.0 otherwise)
+    drawPs3Clock(mPs3BootIconReveal * pspClockTextFade());   // + PSP-clock text fade-out on open
 
     // GammaOS PSP Go slide clock overlay: drawn over the finished XMB (wave + list +
     // status clock) but before dialogs, so the wave FBO (ps3bg::workTex) is populated

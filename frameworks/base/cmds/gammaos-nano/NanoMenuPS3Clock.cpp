@@ -33,12 +33,9 @@ static const float R_DISC = 141.0f;
 
 static inline float clamp01(float v) { return v < 0 ? 0 : (v > 1 ? 1 : v); }
 
-// Current time: the test hook prop "H:M:S" freezes it (to match the web
-// ?clocktime= validation), else live localtime with sub-second.
+// Current time: live localtime with sub-second precision (drives the second-hand
+// spring + comet trail).
 static void pspNow(int& h, int& m, int& s, float& sub) {
-    char tv[PROPERTY_VALUE_MAX] = {};
-    property_get("persist.gammaos.nano.pspclock.time", tv, "");
-    if (tv[0]) { int a=0,b=0,c=0; sscanf(tv, "%d:%d:%d", &a,&b,&c); h=a; m=b; s=c; sub=0.0f; return; }
     time_t now = time(nullptr); struct tm lt; localtime_r(&now, &lt);
     struct timespec tsp; clock_gettime(CLOCK_REALTIME, &tsp);
     h = lt.tm_hour; m = lt.tm_min; s = lt.tm_sec; sub = tsp.tv_nsec / 1e9f;
@@ -46,18 +43,23 @@ static void pspNow(int& h, int& m, int& s, float& sub) {
 static const float PSP_DECAY = 0.98f, PSP_FRAME_MS = 50.0f;
 
 // Read the gate prop (cheap; per-frame is fine, it is a shared-memory read).
-// 0/unset = off; 1 = enabled (F12 down/up drives open/close); 2 = enabled AND
-// force-open (a test hook so a shot can be captured without a physical swivel /
-// an evdev inject, which is unreliable at fresh boot).
+// 0/unset = off; 1 = enabled (F12 down/up drives the open/close via NanoMenuInput).
 void NanoMenu::pspClockPollInput() {
-    int v = property_get_int32("persist.gammaos.nano.pspclock", 0);
-    mPspClockEnabled = (v >= 1);
-    if (v == 2) mPspClockOn = true;
+    mPspClockEnabled = property_get_bool("persist.gammaos.nano.pspclock", false);
 }
 
 // Smoothed XMB text-fade multiplier (spec 5.4). Consumers multiply their alpha.
 float NanoMenu::pspClockTextFade() const {
     return mPspClockReveal <= 0.0f ? 1.0f : mPspTextFadeSmooth;
+}
+
+// Whole-canvas opacity backstop (spec 5.5, applyClockTransition): clears any
+// remaining XMB chrome (descriptions and stray UI) AFTER the moving items have
+// left, over the window reveal 0.58..0.72 with a smoothstep. 1.0 = fully opaque.
+float NanoMenu::pspClockChromeFade() const {
+    if (mPspClockReveal <= 0.0f) return 1.0f;
+    float f = clamp01((mPspClockReveal - 0.58f) / 0.14f);
+    return 1.0f - f * f * (3.0f - 2.0f * f);
 }
 
 // Category icon blow-away (spec 5.5): each icon flies off the RIGHT edge with an
@@ -96,6 +98,9 @@ bool NanoMenu::pspClockBlowItem(int i, float& xShift, float& yLift, float& rot) 
 void NanoMenu::drawPspClock(float dtMs) {
     if (!mPs3Xmb) return;                    // PS3 XMB mode only; never touch DSi
     pspClockPollInput();
+    // Feed the reveal to the shared wave renderer for the transition surge (spec
+    // 5.6). Always set (0 when closed) so the surge is a clean no-op off-clock.
+    ps3bg::setClockWaveSurge(mPspClockReveal);
 
     if (!mPspClockEnabled) {                 // feature off: park and bail
         if (mPspClockReveal != 0.0f || mPspClockOn) {
@@ -113,18 +118,14 @@ void NanoMenu::drawPspClock(float dtMs) {
 
     if (dtMs <= 0.0f) dtMs = 16.0f;
 
-    // Reveal advance: open 5000 ms, close 2700 ms (spec deviation D2). A test hook
-    // freezes the reveal (like the web ?reveal=) so a static shot can inspect the
-    // entrance mid-transition: persist.gammaos.nano.pspclock.reveal = 0..1.
+    // Reveal advance: open 5000 ms, close 2700 ms (spec deviation D2). F12-down sets
+    // mPspClockOn (ramp up), F12-up clears it (ramp down); everything downstream is a
+    // pure function of this scalar so a mid-transition flip just reverses it.
     {
-        char rv[PROPERTY_VALUE_MAX] = {}; property_get("persist.gammaos.nano.pspclock.reveal", rv, "");
-        if (rv[0]) { mPspClockReveal = clamp01((float)atof(rv)); }
-        else {
-            const float dur = mPspClockOn ? 5000.0f : 2700.0f;
-            const float step = dtMs / dur;
-            mPspClockReveal += mPspClockOn ? step : -step;
-            mPspClockReveal = clamp01(mPspClockReveal);
-        }
+        const float dur = mPspClockOn ? 5000.0f : 2700.0f;
+        const float step = dtMs / dur;
+        mPspClockReveal += mPspClockOn ? step : -step;
+        mPspClockReveal = clamp01(mPspClockReveal);
     }
 
     // Disc-drop window: reveal 0.30 .. 1.0 (spec deviation D3).
@@ -141,14 +142,6 @@ void NanoMenu::drawPspClock(float dtMs) {
 
     // Idle float phase (amplitude 3 px, period 3.6 s; spec 5.13).
     mPspFloatT += dtMs;
-
-    // Diagnostic (throttled): confirm the pass runs + watch the reveal ramp.
-    {
-        static int sDbg = 0;
-        if ((sDbg++ % 30) == 0)
-            ALOGI("PSPCLOCK on=%d reveal=%.3f clockReveal=%.3f dt=%.1f",
-                  mPspClockOn ? 1 : 0, mPspClockReveal, clockReveal, dtMs);
-    }
 
     if (mPspClockReveal <= 0.0f) return;     // fully closed after this frame
 
@@ -184,28 +177,16 @@ void NanoMenu::drawPspClock(float dtMs) {
     }
 
     // Second-hand comet trail (spec 1.3/4.5): decay 0.98 per 50ms; element sec*2
-    // forced 1.0, sec*2+1 forced 1.0 once >50ms in. When the test time is frozen,
-    // warm the fan (pre-fill 12 dots back) so a static shot shows the comet.
+    // forced 1.0, sec*2+1 forced 1.0 once >50ms in.
     {
         int h, m, s; float sub; pspNow(h, m, s, sub);
-        char tv[PROPERTY_VALUE_MAX] = {};
-        property_get("persist.gammaos.nano.pspclock.time", tv, "");
-        if (tv[0]) {
-            for (int i = 0; i < 120; i++) mPspTrail[i] = 0.0f;
-            for (int back = 0; back < 12; back++) {
-                int sec = (s - back + 60) % 60;
-                float v = powf(PSP_DECAY, back * 1000.0f / PSP_FRAME_MS);
-                if (v > 0.02f) { mPspTrail[sec*2] = v; mPspTrail[sec*2+1] = v; }
-            }
-        } else {
-            int i0 = s*2, i1 = s*2+1;
-            float f = powf(PSP_DECAY, dtMs / PSP_FRAME_MS);
-            float usf = sub * 1e6f;
-            for (int i = 0; i < 120; i++) {
-                if (i == i0) mPspTrail[i] = 1.0f;
-                else if (i == i1) { if (usf > 50000.0f) mPspTrail[i] = 1.0f; else mPspTrail[i] *= f; }
-                else mPspTrail[i] *= f;
-            }
+        int i0 = s*2, i1 = s*2+1;
+        float f = powf(PSP_DECAY, dtMs / PSP_FRAME_MS);
+        float usf = sub * 1e6f;
+        for (int i = 0; i < 120; i++) {
+            if (i == i0) mPspTrail[i] = 1.0f;
+            else if (i == i1) { if (usf > 50000.0f) mPspTrail[i] = 1.0f; else mPspTrail[i] *= f; }
+            else mPspTrail[i] *= f;
         }
     }
 
@@ -242,13 +223,7 @@ void NanoMenu::drawPspClock(float dtMs) {
     }
     setUiBlend();
 
-    if (!property_get_bool("persist.gammaos.nano.pspclock.noface", false))
-        pspClockFace(clockReveal, floatY, descentPx);  // stage 3/4
-    {
-        GLenum e = glGetError();
-        static int sE = 0;
-        if (e != 0 && (sE++ % 30) == 0) ALOGI("PSPCLOCK glError=0x%x after face", e);
-    }
+    pspClockFace(clockReveal, floatY, descentPx);  // stage 3/4
 }
 
 // -----------------------------------------------------------------------------
@@ -351,16 +326,8 @@ void NanoMenu::pspClockLens(float cr) {
         mPspLensLocTonemap = glGetUniformLocation(mPspLensProgram, "uTonemap");
         mPspLensLocAlpha   = glGetUniformLocation(mPspLensProgram, "uAlpha");
         mPspLensLocTexture = glGetUniformLocation(mPspLensProgram, "uTex");
-        ALOGI("PSPCLOCK lens program=%u pos=%d local=%d tex=%d center=%d",
-              mPspLensProgram, mPspLensLocPos, mPspLensLocLocal, mPspLensLocTex, mPspLensLocCenter);
     }
     const float cx = mPspLensCx, cy = mPspLensCy, R = mPspLensR;
-    {
-        static int sL = 0;
-        if ((sL++ % 30) == 0)
-            ALOGI("PSPCLOCK lens draw prog=%u wt=%u cx=%.0f cy=%.0f R=%.0f cr=%.2f",
-                  mPspLensProgram, ps3bg::workTex(), cx, cy, R, cr);
-    }
     if (R < 4.0f) return;
     // Quad over the disc bbox (device px -> NDC), matching drawFrostedGlass.
     const float x = cx - R, y = cy - R, w = 2.0f * R, h = 2.0f * R;
@@ -709,11 +676,9 @@ void NanoMenu::pspClockFace(float reveal, float /*floatY*/, float /*descentFrac*
     // --- section 5: date "DDD D" below centre (frosted, additive) ---
     {
         time_t now = time(nullptr); struct tm lt; localtime_r(&now, &lt);
-        char tv[PROPERTY_VALUE_MAX] = {}; property_get("persist.gammaos.nano.pspclock.date", tv, "");
         static const char* DAYS[7] = {"SUN","MON","TUE","WED","THU","FRI","SAT"};
         char dtxt[24];
-        if (tv[0]) snprintf(dtxt, sizeof(dtxt), "%s", tv);
-        else snprintf(dtxt, sizeof(dtxt), "%s %d", DAYS[lt.tm_wday], lt.tm_mday);
+        snprintf(dtxt, sizeof(dtxt), "%s %d", DAYS[lt.tm_wday], lt.tm_mday);
         float sizePx = 11.0f * sc;
         float ts = sizePx / 32.0f;   // drawText scale is relative to a 32px base (ps3::fontScale style)
         float tw = measureText(dtxt, ts);

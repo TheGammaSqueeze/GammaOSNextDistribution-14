@@ -3064,6 +3064,7 @@ private:
     void  drawPspClock(float dtMs);            // per-frame orchestrator (advance + all passes)
     void  pspClockPollInput();                 // reads the F12 gate prop into mPspClockEnabled
     float pspClockTextFade() const;            // smoothed XMB-text alpha multiplier (5.4)
+    float pspClockChromeFade() const;          // whole-canvas backstop opacity (5.5, window 0.58..0.72)
     bool  pspClockBlowCat(int i, float& bx, float& by, float& brot) const;  // category icon blow-away (5.5)
     bool  pspClockBlowItem(int i, float& xShift, float& yLift, float& rot) const; // item icon blow-away (5.5)
   private:
@@ -3147,7 +3148,7 @@ private:
     // Draw an icon with the glass shader (device px coords, like drawIconTex).
     // Refraction samples the live wave (ps3bg work texture) behind the icon.
     void drawGlassIcon(GLuint nmapTex, float x, float y, float w, float h,
-                       float cr, float cg, float cb, float alpha);
+                       float cr, float cg, float cb, float alpha, float rot = 0.0f);
 
     // Background scan thread — scans ROM paths off the render thread
     struct BgScanResult {
@@ -3349,7 +3350,7 @@ private:
     // Draw an arbitrary GL texture handle (PS3 category icons live outside
     // mIconTextures[]). Supports a non-square w/h. (NanoMenuPS3Menu.cpp)
     void drawIconTex(GLuint tex, float x, float y, float w, float h,
-                     float r, float g, float b, float a);
+                     float r, float g, float b, float a, float rot = 0.0f);
     GLuint mIconTextures[19]; // 0-14=systems, 15=history, 16=generic game cartridge, 17=setting, 18=Applications app-grid
 
     // On-screen keyboard. mOskActive + mOskQuery are the keep-stable members

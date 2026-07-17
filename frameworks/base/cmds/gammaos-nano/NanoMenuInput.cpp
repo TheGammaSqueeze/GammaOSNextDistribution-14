@@ -1861,6 +1861,10 @@ void NanoMenu::pollInput() {
             if (ev.type == EV_KEY && ev.value != 2
                 && ev.code == property_get_int32("persist.gammaos.rotate.key_code", 88)
                 && property_get_bool("persist.gammaos.nano.pspclock", false)) {
+                // Re-roll the entrance-avalanche seed on each fresh open (false->true)
+                // so the burst/icon stream differs per swivel, like the web's per-run
+                // hashIconRnd. Only on the down transition, not key-repeat/close.
+                if (ev.value == 1 && !mPspClockOn) mPspIconSeed += 17;
                 mPspClockOn = (ev.value == 1);
                 continue;   // swallow so the switch never navigates the menu or rotates
             }

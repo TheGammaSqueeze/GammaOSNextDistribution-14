@@ -899,7 +899,7 @@ bool NanoMenu::decodeRetroIconRGBA(const std::string& name, std::vector<uint8_t>
 // draw one glass icon (device px coords, like drawIconTex)
 // ---------------------------------------------------------------------------
 void NanoMenu::drawGlassIcon(GLuint nmapTex, float x, float y, float w, float h,
-                             float cr, float cg, float cb, float alpha) {
+                             float cr, float cg, float cb, float alpha, float rot) {
     if (!mIconGlassReady || nmapTex == 0) return;
     GLuint bgTex = ps3bg::workTex();
     if (bgTex == 0) return;
@@ -909,6 +909,22 @@ void NanoMenu::drawGlassIcon(GLuint nmapTex, float x, float y, float w, float h,
     float y0 = 1.0f - ((y + h) / mHeight) * 2.0f;   // bottom (NDC up)
     float x1 = ((x + w) / mWidth) * 2.0f - 1.0f;    // right
     float y1 = 1.0f - (y / mHeight) * 2.0f;         // top (NDC up)
+    // Tumble corners about the icon centre (device space, isotropic) for the
+    // PSP-clock blow-away. rot==0 keeps the axis-aligned quad below untouched.
+    // BL=(x0,y0) BR=(x1,y0) TR=(x1,y1) TL=(x0,y1) in NDC.
+    float BLx=x0,BLy=y0, BRx=x1,BRy=y0, TRx=x1,TRy=y1, TLx=x0,TLy=y1;
+    if (rot != 0.0f) {
+        float cx = x + w * 0.5f, cy = y + h * 0.5f;
+        float co = cosf(rot), si = sinf(rot);
+        auto rc = [&](float lx, float ly, float& nx, float& ny) {
+            float rx = lx * co - ly * si, ry = lx * si + ly * co;
+            nx = ((cx + rx) / mWidth) * 2.0f - 1.0f;
+            ny = 1.0f - ((cy + ry) / mHeight) * 2.0f;
+        };
+        const float hw = w * 0.5f, hh = h * 0.5f;   // device y-down: +hh = bottom
+        rc(-hw,  hh, BLx, BLy); rc( hw,  hh, BRx, BRy);
+        rc( hw, -hh, TRx, TRy); rc(-hw, -hh, TLx, TLy);
+    }
 
     // device px -> work-texture UV. The work texture spans ps3::gFrame* with
     // texcoord (0,0) at the frame bottom-left (GL y-up).
@@ -920,8 +936,8 @@ void NanoMenu::drawGlassIcon(GLuint nmapTex, float x, float y, float w, float h,
     float bL = bgU(x), bR = bgU(x + w);
     float bTop = bgV(y), bBot = bgV(y + h);    // device-top -> larger V
 
-    // 6 verts (two triangles), order matching drawIconTex.
-    const GLfloat pos[] = { x0,y0,  x1,y0,  x1,y1,   x1,y1,  x0,y1,  x0,y0 };
+    // 6 verts (two triangles), order matching drawIconTex: BL BR TR TR TL BL.
+    const GLfloat pos[] = { BLx,BLy, BRx,BRy, TRx,TRy, TRx,TRy, TLx,TLy, BLx,BLy };
     const GLfloat iuv[] = { 0,1,    1,1,    1,0,     1,0,    0,0,    0,1 };
     const GLfloat buv[] = { bL,bBot, bR,bBot, bR,bTop,  bR,bTop, bL,bTop, bL,bBot };
 

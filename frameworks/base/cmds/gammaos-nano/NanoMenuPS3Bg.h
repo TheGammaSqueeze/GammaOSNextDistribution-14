@@ -101,6 +101,12 @@ void invalidateScrimWave();
 // byte-identical (no effect unless the boot intro is driving it).
 void setBootWaveBrightness(float b);
 
+// PSP-clock transition wave surge (spec 5.6): the host sets the clock reveal
+// scalar each frame; the wave crest swells with a half-sine over reveal
+// 0.001..0.40 (peak ~0.20), receding by 0.40, and replays in reverse on close.
+// 0 (default) = no surge, steady wave.
+void setClockWaveSurge(float reveal);
+
 // Theme Settings (set from the menu's Theme Settings choosers). setThemeColor
 // overrides the per-month background base colour with a user-chosen RGB; clear
 // reverts; setDayNightBlend forces the time-of-day lighting (<0 = auto). Each

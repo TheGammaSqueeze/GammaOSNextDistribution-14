@@ -776,6 +776,10 @@ void invalidateScrimWave() { sScrimEpoch++; }
 static float sBootWaveBrightness = 1.0f;
 void setBootWaveBrightness(float b) { sBootWaveBrightness = b; }
 
+// PSP-clock transition reveal scalar (spec 5.6 wave surge). 0 = no surge.
+static float sClockReveal = 0.0f;
+void setClockWaveSurge(float reveal) { sClockReveal = reveal; }
+
 // Theme Settings hooks. These set TARGETS only; render() cross-fades the live
 // state toward them each frame (web stepThemeFade). setThemeColor selects a
 // manual colour (strength target -> 1); clearThemeColor reverts to the per-month
@@ -1084,7 +1088,16 @@ void render(int panelW, int panelH, float dt, const float rotMat2[4], bool /*rot
         if (sWUV >= 0) { glEnableVertexAttribArray(sWUV); glVertexAttribPointer(sWUV, 2, GL_FLOAT, GL_FALSE, 20, (const void*)12); }
         float layoutFit = ps3::LAYOUT_FIT > 0.0f ? ps3::LAYOUT_FIT : 1.0f;
         glUniform1f(sWYFlip, 1.0f);
-        glUniform1f(sWScaleY, 0.8f);
+        // PSP-clock wave surge (spec 5.6): swell the crest amplitude with a half-sine
+        // over reveal 0.001..0.40 (peak ~0.20). The web adds 0.26 to the vertical wave
+        // velocity; nano's wave is a baked keyframe VBO, so the faithful analog is a
+        // 0.26 amplitude swell on uScaleY. Symmetric in reveal -> replays on close.
+        float wScaleY = 0.8f;
+        if (sClockReveal > 0.001f && sClockReveal < 0.40f) {
+            float s = sinf((float)M_PI * fminf(1.0f, sClockReveal / 0.40f));
+            wScaleY *= (1.0f + 0.26f * s);
+        }
+        glUniform1f(sWScaleY, wScaleY);
         glUniform1f(sWScaleX, 1.0f / layoutFit);
         // Music "XMB Waves" morph: the wave LIFTS into the visualizer position
         // (uOffset.y += 0.30*blend) and its emission is boosted (index.html 5544/5592).
