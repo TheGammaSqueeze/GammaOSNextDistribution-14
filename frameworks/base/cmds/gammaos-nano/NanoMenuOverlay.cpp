@@ -419,6 +419,21 @@ void NanoMenu::overlayShow() {
               mOverlayWallpaper ? 1 : 0, appBehind ? 1 : 0, wp, mOverlayPausedPkg.c_str());
     }
 
+    // PSP clock STANDALONE summon: the framework raised us (show_overlay=1) with
+    // pspclock_summon=1 to invoke the clock over a running app via the slide, without the
+    // user opening the overlay first. Force scrim-over-app (never the wave wallpaper) and
+    // open the clock directly - there is no XMB behind it, so the entrance goes straight to
+    // the exploding glyphs + disc drop (the blow-away producers no-op on mPspClockStandalone),
+    // and nano lowers the overlay again once the clock retracts (drawPspClock teardown).
+    if (property_get_bool("sys.gammaos.nano.pspclock_summon", false)) {
+        mOverlayWallpaper = false;             // scrim over the live app, not the wave
+        mPspClockStandalone = true;
+        mPspClockRaisedOverlay = true;
+        if (!mPspClockOn) mPspIconSeed += 17;  // fresh per-summon entrance avalanche
+        mPspClockOn = true;
+        mPspGlyphBurst = 1.0f;
+    }
+
     // Layer opacity + swap pacing for the chosen mode (shared helper: the
     // quit-to-launcher path flips wallpaper mode WITHOUT a hide+show cycle and
     // must apply the exact same state).
@@ -582,6 +597,11 @@ void NanoMenu::overlayHide() {
     mOverlayShown = false;
     mOverlayPendingShow = false;   // cancel any deferred show (hidden before 1st frame)
     mOverlayWallpaper = false;     // next in-game summon starts in scrim mode
+    // Clear any PSP-clock standalone summon so a stale prop cannot re-trigger the
+    // standalone path on an unrelated later raise (e.g. a power-hold quick-menu).
+    property_set("sys.gammaos.nano.pspclock_summon", "0");
+    mPspClockStandalone = false;
+    mPspClockRaisedOverlay = false;
     // Clear the overlay-foreground flag here so the tail orientationTick() below always
     // resolves the foreground APP's token (its per-app override or its own request),
     // instead of relying on every caller to have cleared it first. All current dismiss
@@ -1162,7 +1182,14 @@ void NanoMenu::overlayPoll() {
     if (want && !mOverlayShown) {
         overlayShow();   // snaps to the Quick Menu by default in scrim-over-app mode
     } else if (!want && mOverlayShown) {
-        overlayHide();
+        // Do NOT lower the overlay while a standalone clock summon is still retracting:
+        // let drawPspClock's teardown clear show_overlay once the clock reaches reveal 0,
+        // so the retract (glyphs implode + disc rise) plays fully instead of the layer
+        // snapping away mid-animation. (Belt-and-braces: on the normal path the framework
+        // leaves show_overlay=1 through the retract, so want stays true and we never reach here.)
+        if (!(mPspClockStandalone && mPspClockReveal > 0.0f)) {
+            overlayHide();
+        }
     }
     // No grab to reconcile: input isolation is the framework drop_input prop,
     // which overlayShow/overlayHide set/clear, and InputDispatcher self-clears a

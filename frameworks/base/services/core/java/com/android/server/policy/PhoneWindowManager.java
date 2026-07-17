@@ -6055,12 +6055,48 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             mGammaRotateDown = true;
             gammaRotateDo(android.os.SystemProperties.get(
                     "persist.gammaos.rotate.down_action", "rotate"));
+            gammaClockSummon(true);
         } else if (action == KeyEvent.ACTION_UP) {
             mGammaRotateDown = false;
             gammaRotateDo(android.os.SystemProperties.get(
                     "persist.gammaos.rotate.up_action", "natural"));
+            gammaClockSummon(false);
         }
         return true; // consume the key either way
+    }
+
+    // PSP slide clock over a running app. GammaOS Nano cannot read the swivel while it is
+    // parked behind a fullscreen app, so when the clock is wanted (persist.gammaos.nano.
+    // pspclock, or the slide's down_action is "clock") the framework raises the resident
+    // overlay and sets sys.gammaos.nano.pspclock_summon so nano opens the clock DIRECTLY on
+    // the slide - no need to open the overlay first. This runs alongside the normal rotate
+    // action. It is a NO-OP when the overlay is already up (nano's own evdev handler opens
+    // the clock there, with the XMB blow-away) or when no app is running (the home reads the
+    // swivel itself). On release, clear the summon so nano ramps the clock closed and lowers
+    // the overlay it raised (nano owns the lower, so the retract animation plays fully).
+    private void gammaClockSummon(boolean down) {
+        final boolean clockWanted =
+                android.os.SystemProperties.getBoolean("persist.gammaos.nano.pspclock", false)
+                || "clock".equals(android.os.SystemProperties.get(
+                        "persist.gammaos.rotate.down_action", "rotate"));
+        if (!clockWanted) {
+            return;
+        }
+        if (down) {
+            final boolean appRunning = android.os.SystemProperties.getBoolean(
+                    "sys.gammaos.nano.app_launched", false);
+            final boolean overlayUp = "1".equals(android.os.SystemProperties.get(
+                    "sys.gammaos.nano.show_overlay", "0"));
+            if (appRunning && !overlayUp) {
+                android.os.SystemProperties.set("sys.gammaos.nano.pspclock_summon", "1");
+                android.os.SystemProperties.set("sys.gammaos.nano.show_overlay", "1");
+            }
+        } else if ("1".equals(android.os.SystemProperties.get(
+                "sys.gammaos.nano.pspclock_summon", "0"))) {
+            // Release: nano sees the summon drop, ramps the clock closed, then clears
+            // show_overlay itself at reveal 0 so the retract animates fully.
+            android.os.SystemProperties.set("sys.gammaos.nano.pspclock_summon", "0");
+        }
     }
 
     // Release any held-modifier combo state that may have been left stuck by a lost key-up.

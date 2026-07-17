@@ -1755,6 +1755,12 @@ private:
     // exited on UP. Everything is a pure function of mPspClockReveal (0..1).
     bool  mPspClockEnabled = false;   // cached persist.gammaos.nano.pspclock
     bool  mPspClockOn = false;        // F12 down = true (open), up = false (close)
+    // Standalone summon: the clock was invoked over a running app with the overlay DOWN
+    // (the framework raised the overlay + set sys.gammaos.nano.pspclock_summon). There is
+    // no XMB behind it, so the icon blow-away is suppressed and nano self-lowers the
+    // overlay when the clock finishes retracting. mPspClockRaisedOverlay = we raised it.
+    bool  mPspClockStandalone = false;
+    bool  mPspClockRaisedOverlay = false;
     float mPspClockReveal = 0.0f;     // 0..1 transition progress (open 5000ms / close 2700ms)
     float mPspDescent = -1.0f;        // smoothed vertical fraction (-1 off-top, 0 rest)
     float mPspDetailFade = 0.0f;      // trail/ticks/ambient-glyph gate (in once settled)

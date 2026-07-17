@@ -128,6 +128,15 @@ static const float PSP_DECAY = 0.98f, PSP_FRAME_MS = 50.0f;
 // 0/unset = off; 1 = enabled (F12 down/up drives the open/close via NanoMenuInput).
 void NanoMenu::pspClockPollInput() {
     mPspClockEnabled = property_get_bool("persist.gammaos.nano.pspclock", false);
+    // Standalone summon: the framework raised the overlay + set pspclock_summon to invoke
+    // the clock over a running app (the swivel does not reach nano's evdev while it is parked
+    // behind an app). While standalone, mirror the summon prop into mPspClockOn so releasing
+    // the slide (framework clears the prop) ramps the clock closed; the fully-closed teardown
+    // in drawPspClock then lowers the overlay we raised.
+    if (mPspClockStandalone && mPspClockOn
+        && !property_get_bool("sys.gammaos.nano.pspclock_summon", false)) {
+        mPspClockOn = false;
+    }
 }
 
 // Gyro/accel parallax (user request): tilting the device shifts the background sampled
@@ -184,7 +193,7 @@ void NanoMenu::pspClockPollTilt(bool active) {
         // Device calibration, live-tunable so the parallax ORIENTATION + throw can be
         // dialled in per device WITHOUT a rebuild:
         //   persist.gammaos.nano.pspclock.tilt.cal = "gain,rot,sx,sy"
-        //     gain  parallax throw in UV units (default 0.06)
+        //     gain  parallax throw in UV units (default 0.12)
         //     rot   base orientation: rotate the accel->UV axes by rot*90 deg (0/1/2/3).
         //           The Sprd accel on the RG Rotate is mounted 90 deg vs the panel, so the
         //           default is 1.
@@ -194,12 +203,12 @@ void NanoMenu::pspClockPollTilt(bool active) {
         //           other way). Set +1 to move the bg toward the tilt instead.
         // The sDrmRotMat transform in pspClockLens then rotates this panel-native tilt into
         // the CURRENT screen-rotation frame (composes on top of this base orientation).
-        static float sCalGain = 0.06f; static int sCalRot = 1;
+        static float sCalGain = 0.12f; static int sCalRot = 1;
         static float sCalSx = -1.0f, sCalSy = -1.0f; static bool sCalInit = false;
         static int sCalTick = 0;
         if (!sCalInit || (++sCalTick % 60) == 0) {   // re-read ~1s so a live retune applies
             sCalInit = true;
-            sCalGain = 0.06f; sCalRot = 1; sCalSx = -1.0f; sCalSy = -1.0f;   // -1,-1 = peek OPPOSITE the tilt; uniform pan -> low gain
+            sCalGain = 0.12f; sCalRot = 1; sCalSx = -1.0f; sCalSy = -1.0f;   // -1,-1 = peek OPPOSITE the tilt; wider default range
             char cb[PROPERTY_VALUE_MAX] = {};
             if (property_get("persist.gammaos.nano.pspclock.tilt.cal", cb, "") > 0 && cb[0]) {
                 float g = sCalGain, sx = sCalSx, sy = sCalSy; int rt = sCalRot;
@@ -229,6 +238,7 @@ void NanoMenu::pspClockPollTilt(bool active) {
 
 // Smoothed XMB text-fade multiplier (spec 5.4). Consumers multiply their alpha.
 float NanoMenu::pspClockTextFade() const {
+    if (mPspClockStandalone) return 0.0f;   // summoned over an app: no XMB text shows at all
     return mPspClockReveal <= 0.0f ? 1.0f : mPspTextFadeSmooth;
 }
 
@@ -236,6 +246,7 @@ float NanoMenu::pspClockTextFade() const {
 // remaining XMB chrome (descriptions and stray UI) AFTER the moving items have
 // left, over the window reveal 0.58..0.72 with a smoothstep. 1.0 = fully opaque.
 float NanoMenu::pspClockChromeFade() const {
+    if (mPspClockStandalone) return 0.0f;   // summoned over an app: clear all XMB chrome (none should show)
     if (mPspClockReveal <= 0.0f) return 1.0f;
     float f = clamp01((mPspClockReveal - 0.58f) / 0.14f);
     return 1.0f - f * f * (3.0f - 2.0f * f);
@@ -245,7 +256,8 @@ float NanoMenu::pspClockChromeFade() const {
 // upward gust + tumble, near-linear over a wide window, no fade. Offsets are in
 // device px (scaled to the panel; the web values were tuned at a 720 canvas).
 bool NanoMenu::pspClockBlowCat(int i, float& bx, float& by, float& brot) const {
-    if (mPspClockReveal <= 0.0f) { bx = by = brot = 0.0f; return false; }
+    // Standalone (summoned over an app): there is no XMB category bar to blow away.
+    if (mPspClockStandalone || mPspClockReveal <= 0.0f) { bx = by = brot = 0.0f; return false; }
     float seed = ((i*53 + 7) % 17) / 17.0f;
     float st = clamp01((mPspClockReveal - seed*0.03f) / 0.65f);
     float bl = st * (1.15f - 0.15f*st);
@@ -259,7 +271,8 @@ bool NanoMenu::pspClockBlowCat(int i, float& bx, float& by, float& brot) const {
 // Item icon blow-away (spec 5.5): icons slide off ~50% slower than the category
 // bar with an upward arc + tumble; the text fades separately (pspClockTextFade).
 bool NanoMenu::pspClockBlowItem(int i, float& xShift, float& yLift, float& rot) const {
-    if (mPspClockReveal <= 0.0f) { xShift = yLift = rot = 0.0f; return false; }
+    // Standalone (summoned over an app): there is no XMB item list to blow away.
+    if (mPspClockStandalone || mPspClockReveal <= 0.0f) { xShift = yLift = rot = 0.0f; return false; }
     float seed = ((i*61 + 13) % 23) / 23.0f;
     float st = clamp01((mPspClockReveal - i*0.02f - seed*0.03f) / 0.65f);
     float e = st * (1.15f - 0.15f*st);
@@ -555,6 +568,17 @@ void NanoMenu::drawPspClock(float dtMs) {
         if (mPspClockCaptureRunning) {
             gPspCapRun.store(false, std::memory_order_release);
             mPspClockCaptureRunning = false;
+        }
+        // Standalone summon fully retracted: lower the overlay WE raised (the framework
+        // left show_overlay=1 through the retract so this animates fully first). Clearing
+        // standalone first lets overlayPoll's hide guard pass; it does the actual overlayHide.
+        if (mPspClockStandalone) {
+            mPspClockStandalone = false;
+            if (mPspClockRaisedOverlay) {
+                mPspClockRaisedOverlay = false;
+                property_set("sys.gammaos.nano.pspclock_summon", "0");
+                property_set("sys.gammaos.nano.show_overlay", "0");
+            }
         }
         return;
     }
@@ -888,8 +912,16 @@ void NanoMenu::pspClockLens(float cr) {
     // screen edge peeks that way" correct under every panel rotation, matching what the
     // user sees on the rotated screen. At 0deg (overlay = identity) it is a no-op.
     if (mPspLensLocTilt >= 0) {
-        float tlx = sDrmRotMat[0] * mPspTiltX + sDrmRotMat[1] * mPspTiltY;
-        float tly = sDrmRotMat[2] * mPspTiltX + sDrmRotMat[3] * mPspTiltY;
+        // Map by the CONTENT rotation only. sDrmRotMat also carries the DRM PRIME scanout
+        // Y-flip (row 1 negated) on the DRM-direct HOME instance; that flip is a physical
+        // panel-scanout property, NOT a content rotation, so it must not enter the accel->UV
+        // parallax mapping or it inverts the vertical pan (the "wrong in wallpaper mode, fine
+        // in app mode" bug - the force-SF overlay has no flip so this strip is a no-op there).
+        float r0 = sDrmRotMat[0], r1 = sDrmRotMat[1];
+        float r2 = sDrmRotMat[2], r3 = sDrmRotMat[3];
+        if (sDrmYFlipForPrime) { r1 = -r1; r3 = -r3; }   // undo the PRIME Y-flip for the tilt only
+        float tlx = r0 * mPspTiltX + r1 * mPspTiltY;
+        float tly = r2 * mPspTiltX + r3 * mPspTiltY;
         glUniform2f(mPspLensLocTilt, tlx * op, tly * op);
     }
     glActiveTexture(GL_TEXTURE0);

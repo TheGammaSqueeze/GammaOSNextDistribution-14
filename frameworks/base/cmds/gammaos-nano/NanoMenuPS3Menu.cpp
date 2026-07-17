@@ -3863,7 +3863,14 @@ void NanoMenu::renderPs3Xmb() {
     // see a huge frame-1-to-frame-2 gap and jump the eased reveal straight to 1.0,
     // skipping the animation. Clamping dt makes every rendered frame show a smooth
     // step regardless of a slow frame, so the transition plays even on first load.
-    if (mOverlayMode && mOverlayEnterStart <= -1.5f) {
+    if (mPspClockStandalone) {
+        // Standalone clock summon over a running app: the XMB "is not open", so keep the
+        // master chrome reveal at 0 for the whole summon - no category bar, item list,
+        // status clock or labels ever render; only the scrim + the clock transition show.
+        mPs3BootIconReveal = 0.0f;
+        mPs3BootLabelReveal = 0.0f;
+        mOverlayEnterStart = -1.0f;   // entrance considered done so it never fades chrome in
+    } else if (mOverlayMode && mOverlayEnterStart <= -1.5f) {
         // First rendered frame after the raise: begin the entrance, fully faded out.
         mOverlayEnterStart = 0.0f;       // active (>=0); see ps3Settled / 60fps gate
         mOverlayEnterElapsed = 0.0f;
