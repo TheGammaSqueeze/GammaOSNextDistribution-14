@@ -647,6 +647,14 @@ void NanoMenu::pspClockFace(float reveal, float /*floatY*/, float /*descentFrac*
     float gr, gg, gb; pspClockGlow(gr, gg, gb);
     const float detail = mPspDetailFade;
 
+    // Breathing glow pulse (spec: same slow in/out as the highlighted menu item,
+    // PULSE_PERIOD_MS): the face glow never fully fades, it just varies, so the
+    // numerals/ticks/hands read as a LIVING glow, not a static stroke. Multiplies
+    // every glow-halo alpha below (the crisp white cores are left steady).
+    float glowPhase = fmodf(mEffectTime, ps3::PULSE_PERIOD_MS / 1000.0f)
+                    / (ps3::PULSE_PERIOD_MS / 1000.0f);
+    float glowPulse = 0.68f + 0.60f * (0.5f * (1.0f - cosf(glowPhase * 2.0f * (float)M_PI)));  // 0.68..1.28
+
     // Additive blend for all the glowing chrome (spec: composite 'lighter').
     glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
@@ -684,13 +692,25 @@ void NanoMenu::pspClockFace(float reveal, float /*floatY*/, float /*descentFrac*
                 float p2x=bxd-nx*halfw, p2y=byd-ny*halfw, p3x=axd-nx*halfw, p3y=ayd-ny*halfw;
                 drawTriangle(p0x,p0y,p1x,p1y,p2x,p2y, r,g,b,a);
                 drawTriangle(p0x,p0y,p2x,p2y,p3x,p3y, r,g,b,a);
+                // ROUND caps at both ends (web lineCap='round'; the ticks were sharp
+                // rectangles) - a filled disc radius halfw at each endpoint.
+                const int SEG = 8;
+                auto cap = [&](float cxc, float cyc){
+                    float px = cxc + halfw, py = cyc;
+                    for (int i = 1; i <= SEG; i++) {
+                        float ang = (float)i/SEG * 2.0f*(float)M_PI;
+                        float qx = cxc + halfw*cosf(ang), qy = cyc + halfw*sinf(ang);
+                        drawTriangle(cxc,cyc, px,py, qx,qy, r,g,b,a); px=qx; py=qy;
+                    }
+                };
+                cap(axd,ayd); cap(bxd,byd);
             };
             float w = 3.0f * sc;                    // half-width (bar width 6)
             // Soft glow: 4 expanding copies, exponential alpha falloff (web shadowBlur 3)
             // - a single wider bar reads as one hard outline; the stacked ramp is a halo.
             static const float GG[4] = {1.0f, 2.0f, 3.5f, 5.0f};
             for (int gpass = 0; gpass < 4; gpass++)
-                bar(w + GG[gpass]*sc, gr, gg, gb, 0.24f*expf(-0.42f*GG[gpass])*detail);
+                bar(w + GG[gpass]*sc, gr, gg, gb, 0.24f*expf(-0.42f*GG[gpass])*detail*glowPulse);
             bar(w, 1.0f,1.0f,1.0f, detail);             // crisp white core
         }
     }
@@ -719,8 +739,8 @@ void NanoMenu::pspClockFace(float reveal, float /*floatY*/, float /*descentFrac*
             // blurred texture already has a soft alpha ramp, so it reads as a halo, not
             // an outline (the old dilated-sharp-copy problem).
             if (gtex) {
-                stamp(gtex, 5.0f*sc, gr, gg, gb, 0.26f);  // wide soft outer glow (toned down, tasteful)
-                stamp(gtex, 1.5f*sc, gr, gg, gb, 0.34f);  // mid glow, denser near the edge
+                stamp(gtex, 5.0f*sc, gr, gg, gb, 0.26f * glowPulse);  // wide soft outer glow, breathing
+                stamp(gtex, 1.5f*sc, gr, gg, gb, 0.34f * glowPulse);  // mid glow, denser near the edge
             } else {
                 stamp(tex, 6.0f*sc, gr, gg, gb, 0.5f);    // fallback (no blur tex)
                 stamp(tex, 3.0f*sc, gr, gg, gb, 0.5f);
@@ -761,7 +781,7 @@ void NanoMenu::pspClockFace(float reveal, float /*floatY*/, float /*descentFrac*
         auto handGlow = [&](float frac, float len, float back, float wHub, float wTip, float gMax){
             for (int gp = 0; gp < 4; gp++)
                 hand(frac, len, back, wHub, wTip, gr,gg,gb,
-                     0.18f*expf(-0.42f*HG[gp]), HG[gp]*sc*(gMax/4.0f));   // hands glow pulled way down (user: too much)
+                     0.18f*expf(-0.42f*HG[gp])*glowPulse, HG[gp]*sc*(gMax/4.0f));   // hands glow low + breathing
         };
         handGlow(hourFrac,   86.0f,       11.0f, 3.6f, 2.4f,  4.0f);   // hour  (shadowBlur 4)
         handGlow(minuteFrac, 141.0f-2.0f, 13.0f, 1.3f, 1.0f,  4.0f);   // minute(shadowBlur 4)
@@ -785,7 +805,7 @@ void NanoMenu::pspClockFace(float reveal, float /*floatY*/, float /*descentFrac*
         // Soft glow: 4 expanding rings, exponential falloff (web shadowBlur 6).
         static const float DG[4] = {1.5f, 3.0f, 4.5f, 6.0f};
         for (int gp = 0; gp < 4; gp++)
-            disc(5.5f + DG[gp], gr,gg,gb, 0.24f*expf(-0.42f*(DG[gp]/1.5f)));
+            disc(5.5f + DG[gp], gr,gg,gb, 0.24f*expf(-0.42f*(DG[gp]/1.5f))*glowPulse);
         disc(5.5f, 0.92f,0.97f,1.0f, 1.0f);      // #eaf7ff
         disc(2.5f, 1.0f,1.0f,1.0f, 1.0f);        // white
     }
