@@ -1776,6 +1776,13 @@ private:
     float  mPspGlyphHXu[4] = {0}, mPspGlyphHYu[4] = {0};  // half-extents in glyph units (incl pad)
     bool   mPspGlyphBaked = false;
     GLuint mPspGlowFbo = 0, mPspGlowTex = 0;   // 8x8 downsample of the wallpaper for the glow colour
+    // Clock-chrome glow: the numerals/ticks/hands/hub shapes are rendered white into
+    // this full-viewport FBO, then a real separable Gaussian (blurGlassChain) turns
+    // them into a soft halo composited additively in the glow colour - the faithful
+    // GLES2 equivalent of the web's canvas shadowBlur (was discrete expanding copies
+    // that read as a hard stroke). Sized to the current viewport (panel-native).
+    GLuint mPspChromeGlowFbo = 0, mPspChromeGlowTex = 0;
+    int    mPspChromeGlowW = 0, mPspChromeGlowH = 0;
     // Glass-icon resources (FS_ICON_GLASS). Normal maps are cached by xmb_icon
     // index (PS3 icons -> nmap_NNN.png) and by flat-icon texture id (console /
     // RetroArch icons -> a bevel normal generated from the alpha silhouette).
@@ -3073,6 +3080,13 @@ private:
     void  pspClockBackdropBlur(float amt);     // 5.10 (stage 1)
     void  pspClockLens(float cr);              // 5.9 glass refraction disc (stage 2)
     void  pspClockFace(float reveal, float floatY, float descentFrac);  // clock face (stage 3/4)
+    // Soft Gaussian glow for the clock chrome (numerals/ticks/hands/hub): render the
+    // shapes white into mPspChromeGlowFbo, blur with blurGlassChain, composite additively
+    // in the glow colour. drawShapes is a caller-supplied lambda that draws the shapes
+    // (in whatever colour/alpha it is handed); downLevels/gaussIters set the halo width.
+    void  pspClockChromeGlowPass(const std::function<void(float,float,float,float)>& drawShapes,
+                                 int downLevels, int gaussIters,
+                                 float gr, float gg, float gb, float alpha);
     void  pspClockEntrance(float sc, float ox, float oy, float reveal, float angOff, float alphaMul); // 5.11
     void  pspClockEntranceIcons(float sc, float ox, float oy, float reveal, float alphaMul, uint32_t seed);
     void  pspClockAmbientGlyphs(float dtMs);   // 5.7

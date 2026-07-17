@@ -256,18 +256,20 @@ void NanoMenu::pspClockBackdropBlur(float amt) {
     // still runs every frame - the defocus does not need per-frame freshness and
     // the full-screen capture+downsample is the main cost (spec 8 perf note).
     {
-        static int sBlurN = 0;
-        if ((sBlurN++ & 3) == 0 || mGlassBlurTex == 0) {
-            // Heavier blur than the shared submenu frost (captureGlassFromWave uses
-            // 2 down-levels/no Gaussian): the clock backdrop wants the wave collapsed
-            // into a soft defocus, so blur the wave FBO through 3 down-levels (1/8 res)
-            // + 2 separable Gaussian passes directly (user: "increase the blur further").
-            GLuint wt = ps3bg::workTex();
-            if (wt == 0) return;
-            int fw = (int)(ps3::gFrameW + 0.5f), fh = (int)(ps3::gFrameH + 0.5f);
-            if (fw < 8 || fh < 8) return;
-            blurGlassChain(wt, fw, fh, 3, 2);
-        }
+        // Recompute the wave defocus EVERY frame while the clock is open. It used to be
+        // throttled to ~15Hz relying on mGlassBlurTex persisting, but the clock-chrome
+        // soft glow (pspClockChromeGlowPass, later this frame) now reuses blurGlassChain
+        // and clobbers that shared blur state, so a stale throttle would blit the glow
+        // halo as the backdrop. The wave FBO downsample is cheap (foreground-only mode).
+        // Heavier blur than the shared submenu frost (captureGlassFromWave uses 2 down-
+        // levels/no Gaussian): the clock backdrop wants the wave collapsed into a soft
+        // defocus, so blur the wave FBO through 3 down-levels (1/8 res) + 2 separable
+        // Gaussian passes directly (user: "increase the blur further").
+        GLuint wt = ps3bg::workTex();
+        if (wt == 0) return;
+        int fw = (int)(ps3::gFrameW + 0.5f), fh = (int)(ps3::gFrameH + 0.5f);
+        if (fw < 8 || fh < 8) return;
+        blurGlassChain(wt, fw, fh, 3, 2);
     }
     // Full-screen frosted blit (waveSpace maps texcoords to the wave FBO). radius
     // 0 = plain rect, neutral tint, fade = amt so the defocus ramps in on open.
@@ -630,6 +632,95 @@ void NanoMenu::pspClockBakeGlyphs() {
 }
 
 // -----------------------------------------------------------------------------
+// Soft Gaussian glow for the clock chrome - the faithful GLES2 equivalent of the
+// web's canvas shadowBlur. drawShapes renders the elements (in the colour/alpha it
+// is handed) into an offscreen buffer; a real separable Gaussian (blurGlassChain)
+// turns that coverage into a soft halo, composited ADDITIVELY in the glow colour.
+// This replaces the old stacked expanding copies, which banded into a hard stroke.
+// downLevels/gaussIters set the halo width (more = wider/softer).
+// -----------------------------------------------------------------------------
+void NanoMenu::pspClockChromeGlowPass(
+        const std::function<void(float,float,float,float)>& drawShapes,
+        int downLevels, int gaussIters,
+        float gr, float gg, float gb, float alpha) {
+    if (alpha <= 0.002f) return;
+    if (mGlassDownProgram == 0) return;   // blur pipeline not ready -> skip (never a hard fill)
+
+    // Size the glow buffer to the CURRENT viewport (panel-native under rotation) so the
+    // shapes land at exactly the same pixels as the crisp pass, and the composite is a
+    // straight 1:1 copy that needs no rotation of its own.
+    GLint vp[4]; glGetIntegerv(GL_VIEWPORT, vp);
+    const int vw = vp[2], vh = vp[3];
+    if (vw < 16 || vh < 16) return;
+    GLint prevFbo = 0; glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prevFbo);
+
+    if (mPspChromeGlowTex == 0 || mPspChromeGlowW != vw || mPspChromeGlowH != vh) {
+        if (mPspChromeGlowTex == 0) glGenTextures(1, &mPspChromeGlowTex);
+        glBindTexture(GL_TEXTURE_2D, mPspChromeGlowTex);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, vw, vh, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        mPspChromeGlowW = vw; mPspChromeGlowH = vh;
+    }
+    if (mPspChromeGlowFbo == 0) glGenFramebuffers(1, &mPspChromeGlowFbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, mPspChromeGlowFbo);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+                           GL_TEXTURE_2D, mPspChromeGlowTex, 0);
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+        glBindFramebuffer(GL_FRAMEBUFFER, prevFbo);
+        return;
+    }
+    glViewport(0, 0, vw, vh);
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+    // Render the shapes in WHITE with normal alpha blending: over the cleared black the
+    // RGB channel holds shape coverage (1 in the solid body, the AA ramp at the edges),
+    // which is exactly what we blur into a halo.
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    drawShapes(1.0f, 1.0f, 1.0f, 1.0f);
+
+    // Blur the coverage into a soft Gaussian halo (restores the previous FBO+viewport).
+    blurGlassChain(mPspChromeGlowTex, vw, vh, downLevels, gaussIters);
+    GLuint blur = mGlassBlurTex;
+    if (blur == 0) { glBindFramebuffer(GL_FRAMEBUFFER, prevFbo); glViewport(vp[0],vp[1],vp[2],vp[3]); setUiBlend(); return; }
+
+    // Composite the blurred coverage additively in the glow colour, as a 1:1 full-screen
+    // copy with IDENTITY rotation: the buffer already carries the scene rotation (the
+    // shapes were drawn with the live uRotation), so re-applying it would double-rotate.
+    glBindFramebuffer(GL_FRAMEBUFFER, prevFbo);
+    glViewport(vp[0], vp[1], vp[2], vp[3]);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_ONE, GL_ONE);   // additive; colour * texel.rgb(=coverage) is the intensity
+    static const GLfloat q[]  = { -1,-1,  1,-1,  1,1,  1,1, -1,1, -1,-1 };
+    static const GLfloat qt[] = {  0, 0,  1, 0,  1,1,  1,1,  0,1,  0, 0 };
+    GLfloat cols[6*4];
+    for (int i = 0; i < 6; i++) { cols[i*4]=gr*alpha; cols[i*4+1]=gg*alpha; cols[i*4+2]=gb*alpha; cols[i*4+3]=1.0f; }
+    static const GLfloat ident[4] = { 1.0f, 0.0f, 0.0f, 1.0f };
+    glUseProgram(mTextProgram);
+    if (mTextLocSharp >= 0) glUniform1f(mTextLocSharp, 0.0f);
+    glUniformMatrix2fv(mTextLocRotation, 1, GL_FALSE, ident);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, blur);
+    glUniform1i(mTextLocTexture, 0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glVertexAttribPointer(mTextLocPosition, 2, GL_FLOAT, GL_FALSE, 0, q);
+    glEnableVertexAttribArray(mTextLocPosition);
+    glVertexAttribPointer(mTextLocTexCoord, 2, GL_FLOAT, GL_FALSE, 0, qt);
+    glEnableVertexAttribArray(mTextLocTexCoord);
+    glVertexAttribPointer(mTextLocColor, 4, GL_FLOAT, GL_FALSE, 0, cols);
+    glEnableVertexAttribArray(mTextLocColor);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    glDisableVertexAttribArray(mTextLocPosition);
+    glDisableVertexAttribArray(mTextLocTexCoord);
+    glDisableVertexAttribArray(mTextLocColor);
+    glUniformMatrix2fv(mTextLocRotation, 1, GL_FALSE, sDrmRotMat);   // restore scene rotation
+    setUiBlend();
+}
+
+// -----------------------------------------------------------------------------
 // Stage 3/4: the clock face (psp_clock.js draw(), sections 1-7). Positions are in
 // PSP coords (480x272, centre 240,136) transformed to device px relative to the
 // disc centre (mPspLensCx/Cy, which already carries the float + drop descent), so
@@ -653,9 +744,112 @@ void NanoMenu::pspClockFace(float reveal, float /*floatY*/, float /*descentFrac*
     // every glow-halo alpha below (the crisp white cores are left steady).
     float glowPhase = fmodf(mEffectTime, ps3::PULSE_PERIOD_MS / 1000.0f)
                     / (ps3::PULSE_PERIOD_MS / 1000.0f);
-    float glowPulse = 0.68f + 0.60f * (0.5f * (1.0f - cosf(glowPhase * 2.0f * (float)M_PI)));  // 0.68..1.28
+    float glowPulse = 0.85f + 0.30f * (0.5f * (1.0f - cosf(glowPhase * 2.0f * (float)M_PI)));  // 0.85..1.15 (gentle)
 
-    // Additive blend for all the glowing chrome (spec: composite 'lighter').
+    // ---- shape lambdas: draw each element in a given colour/alpha. Shared by the
+    // soft-glow pass (rendered white, then blurred) and the crisp cores on top. ----
+    // Hour ticks: 8 chunky round-capped bars (web lineWidth 6, lineCap 'round').
+    auto drawTicksShapes = [&](float r, float g, float b, float a){
+        if (a <= 0.002f) return;
+        static const int HT[8] = {1,2,4,5,7,8,10,11};
+        const float w = 3.0f * sc;                 // half-width (bar width 6)
+        for (int k = 0; k < 8; k++) {
+            float fr = HT[k] / 12.0f;
+            float ax, ay, bx, by; polar(fr, 131.0f + 6.0f, ax, ay); polar(fr, 131.0f - 24.0f, bx, by);
+            float axd = dx(ax), ayd = dy(ay), bxd = dx(bx), byd = dy(by);
+            float ux = bxd-axd, uy = byd-ayd, L = sqrtf(ux*ux+uy*uy); if (L < 1e-3f) continue;
+            float nx = -uy/L, ny = ux/L;
+            float p0x=axd+nx*w, p0y=ayd+ny*w, p1x=bxd+nx*w, p1y=byd+ny*w;
+            float p2x=bxd-nx*w, p2y=byd-ny*w, p3x=axd-nx*w, p3y=ayd-ny*w;
+            drawTriangle(p0x,p0y,p1x,p1y,p2x,p2y, r,g,b,a);
+            drawTriangle(p0x,p0y,p2x,p2y,p3x,p3y, r,g,b,a);
+            const int SEG = 8;
+            auto cap = [&](float cxc, float cyc){
+                float px = cxc + w, py = cyc;
+                for (int i = 1; i <= SEG; i++) {
+                    float ang = (float)i/SEG * 2.0f*(float)M_PI;
+                    float qx = cxc + w*cosf(ang), qy = cyc + w*sinf(ang);
+                    drawTriangle(cxc,cyc, px,py, qx,qy, r,g,b,a); px=qx; py=qy;
+                }
+            };
+            cap(axd,ayd); cap(bxd,byd);
+        }
+    };
+    // Numerals 12/3/6/9 from the baked sharp glyph textures.
+    struct NmR { float frac; float R; int gi; };
+    static const NmR NUMS[4] = {
+        {0.0f/12.0f, 116.0f, 0}, {3.0f/12.0f, 120.0f, 1},
+        {6.0f/12.0f, 113.0f, 2}, {9.0f/12.0f, 118.0f, 3} };
+    const float NUM_H = 41.0f;
+    auto drawNumeralGlyphs = [&](float r, float g, float b, float a){
+        for (int n = 0; n < 4; n++) {
+            const NmR& nm = NUMS[n];
+            GLuint tex = mPspGlyphTex[nm.gi]; if (tex == 0) continue;
+            float px, py; polar(nm.frac, nm.R, px, py);
+            float cxd = dx(px), cyd = dy(py);
+            float s = (NUM_H / 100.0f) * sc;
+            float hwn = mPspGlyphHXu[nm.gi] * s, hhn = mPspGlyphHYu[nm.gi] * s;
+            drawIconTex(tex, cxd - hwn, cyd - hhn, 2*hwn, 2*hhn, r, g, b, a);
+        }
+    };
+    // Hands (hour/minute/second) - the second hand spring-snaps (spec 1.2).
+    int hh, mm, ss; float subsec; pspNow(hh, mm, ss, subsec);
+    const int h12 = hh % 12;
+    const float hourFrac = h12/12.0f + mm/720.0f;
+    const float minFrac  = mm/60.0f + ss/3600.0f;
+    float secFrac;
+    {
+        float tsp = subsec; if (tsp<0) tsp=0; if (tsp>1) tsp=1;
+        float esp = sqrtf(1.0f - (tsp-1.0f)*(tsp-1.0f));
+        float Esp = esp + 1.2f*esp*(1.0f-esp); float frsp = Esp*(2.0f-Esp);
+        secFrac = (ss + frsp) / 60.0f;
+    }
+    auto handShape = [&](float frac, float len, float back, float wHub, float wTip,
+                         float r, float g, float b, float a){
+        float th = (float)M_PI_2 - frac*2.0f*(float)M_PI;
+        float ddx = cosf(th), ddy = -sinf(th);
+        float pxp = -ddy, pyp = ddx;
+        float tipX = CX + ddx*len, tipY = CY + ddy*len;
+        float backX = CX - ddx*back, backY = CY - ddy*back;
+        float ax=dx(tipX+pxp*wTip), ay=dy(tipY+pyp*wTip);
+        float bx=dx(tipX-pxp*wTip), by=dy(tipY-pyp*wTip);
+        float cxp=dx(backX-pxp*wHub), cyp=dy(backY-pyp*wHub);
+        float ex=dx(backX+pxp*wHub), ey=dy(backY+pyp*wHub);
+        drawTriangle(ax,ay,bx,by,cxp,cyp, r,g,b,a);
+        drawTriangle(ax,ay,cxp,cyp,ex,ey, r,g,b,a);
+    };
+    auto drawHandsShapes = [&](float r, float g, float b, float a){
+        handShape(hourFrac, 86.0f,       11.0f, 3.6f, 2.4f, r,g,b,a);   // hour
+        handShape(minFrac,  141.0f-2.0f, 13.0f, 1.3f, 1.0f, r,g,b,a);   // minute
+        handShape(secFrac,  141.0f+2.0f, 20.0f, 0.7f, 0.55f, r,g,b,a);  // second
+    };
+    // Hub filled circle (radius rr in PSP units).
+    auto drawHubDisc = [&](float rr, float r, float g, float b, float a){
+        const int SEG = 20; float cxd = dx(CX), cyd = dy(CY), rd = rr*sc;
+        float px = cxd + rd, py = cyd;
+        for (int i = 1; i <= SEG; i++) {
+            float ang = (float)i / SEG * 2.0f * (float)M_PI;
+            float nx = cxd + rd*cosf(ang), ny = cyd + rd*sinf(ang);
+            drawTriangle(cxd,cyd, px,py, nx,ny, r,g,b,a); px=nx; py=ny;
+        }
+    };
+
+    // ---- soft Gaussian glow (faithful to the web canvas shadowBlur) --------------
+    // Numerals get a WIDE halo (web shadowBlur 12+7); the ticks/hands/hub a TIGHTER
+    // one (web shadowBlur 3/4/6). The ticks are gated by detailFade so their glow
+    // fades in with the crisp bars. glowPulse breathes it gently.
+    pspClockChromeGlowPass(
+        [&](float r,float g,float b,float a){ drawNumeralGlyphs(r,g,b,a); },
+        2, 2, gr, gg, gb, 1.05f * glowPulse);
+    pspClockChromeGlowPass(
+        [&](float r,float g,float b,float a){
+            drawTicksShapes(r,g,b, a*detail);
+            drawHandsShapes(r,g,b,a);
+            drawHubDisc(5.5f, r,g,b,a);
+        },
+        2, 1, gr, gg, gb, 0.90f * glowPulse);
+
+    // Additive blend for the glowing chrome + trail (spec: composite 'lighter').
     glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
     // --- section 2: second-hand comet trail (120 short radial dashes at the rim) ---
@@ -678,137 +872,14 @@ void NanoMenu::pspClockFace(float reveal, float /*floatY*/, float /*descentFrac*
         }
     }
 
-    // --- section 3: hour ticks (8 non-cardinal) - chunky white bars + glow ---
-    if (detail > 0.002f) {
-        static const int HT[8] = {1,2,4,5,7,8,10,11};
-        for (int k = 0; k < 8; k++) {
-            float fr = HT[k] / 12.0f;
-            float ax, ay, bx, by; polar(fr, 131.0f + 6.0f, ax, ay); polar(fr, 131.0f - 24.0f, bx, by);
-            float axd = dx(ax), ayd = dy(ay), bxd = dx(bx), byd = dy(by);
-            float ux = bxd-axd, uy = byd-ayd, L = sqrtf(ux*ux+uy*uy); if (L < 1e-3f) continue;
-            float nx = -uy/L, ny = ux/L;   // perpendicular
-            auto bar = [&](float halfw, float r, float g, float b, float a){
-                float p0x=axd+nx*halfw, p0y=ayd+ny*halfw, p1x=bxd+nx*halfw, p1y=byd+ny*halfw;
-                float p2x=bxd-nx*halfw, p2y=byd-ny*halfw, p3x=axd-nx*halfw, p3y=ayd-ny*halfw;
-                drawTriangle(p0x,p0y,p1x,p1y,p2x,p2y, r,g,b,a);
-                drawTriangle(p0x,p0y,p2x,p2y,p3x,p3y, r,g,b,a);
-                // ROUND caps at both ends (web lineCap='round'; the ticks were sharp
-                // rectangles) - a filled disc radius halfw at each endpoint.
-                const int SEG = 8;
-                auto cap = [&](float cxc, float cyc){
-                    float px = cxc + halfw, py = cyc;
-                    for (int i = 1; i <= SEG; i++) {
-                        float ang = (float)i/SEG * 2.0f*(float)M_PI;
-                        float qx = cxc + halfw*cosf(ang), qy = cyc + halfw*sinf(ang);
-                        drawTriangle(cxc,cyc, px,py, qx,qy, r,g,b,a); px=qx; py=qy;
-                    }
-                };
-                cap(axd,ayd); cap(bxd,byd);
-            };
-            float w = 3.0f * sc;                    // half-width (bar width 6)
-            // Soft glow: 4 expanding copies, exponential alpha falloff (web shadowBlur 3)
-            // - a single wider bar reads as one hard outline; the stacked ramp is a halo.
-            static const float GG[4] = {1.0f, 2.0f, 3.5f, 5.0f};
-            for (int gpass = 0; gpass < 4; gpass++)
-                bar(w + GG[gpass]*sc, gr, gg, gb, 0.24f*expf(-0.42f*GG[gpass])*detail*glowPulse);
-            bar(w, 1.0f,1.0f,1.0f, detail);             // crisp white core
-        }
-    }
-
-    // --- section 4: numerals 12/3/6/9 (baked textures) + expanded-fill glow ---
-    {
-        struct NmR { const char* s; float frac; float R; int gi; };
-        static const NmR NUMS[4] = {
-            {"12", 0.0f/12.0f, 116.0f, 0}, {"3", 3.0f/12.0f, 120.0f, 1},
-            {"6", 6.0f/12.0f, 113.0f, 2}, {"9", 9.0f/12.0f, 118.0f, 3} };
-        const float NUM_H = 41.0f;
-        for (int n = 0; n < 4; n++) {
-            const NmR& nm = NUMS[n];
-            GLuint tex = mPspGlyphTex[nm.gi]; if (tex == 0) continue;
-            float px, py; polar(nm.frac, nm.R, px, py);
-            float cxd = dx(px), cyd = dy(py);
-            float s = (NUM_H / 100.0f) * sc;
-            float hw = mPspGlyphHXu[nm.gi] * s, hh = mPspGlyphHYu[nm.gi] * s;
-            GLuint gtex = mPspGlyphGlowTex[nm.gi];
-            auto stamp = [&](GLuint t, float grow, float r, float g, float b, float a){
-                float w = 2*hw + grow*2.0f, h = 2*hh + grow*2.0f;
-                drawIconTex(t, cxd - w*0.5f, cyd - h*0.5f, w, h, r, g, b, a);
-            };
-            // Soft diffuse halo from the pre-blurred glyph (web shadowBlur 12 + 7),
-            // additive in the glow colour: a wide outer pass + a denser mid pass. The
-            // blurred texture already has a soft alpha ramp, so it reads as a halo, not
-            // an outline (the old dilated-sharp-copy problem).
-            if (gtex) {
-                stamp(gtex, 5.0f*sc, gr, gg, gb, 0.26f * glowPulse);  // wide soft outer glow, breathing
-                stamp(gtex, 1.5f*sc, gr, gg, gb, 0.34f * glowPulse);  // mid glow, denser near the edge
-            } else {
-                stamp(tex, 6.0f*sc, gr, gg, gb, 0.5f);    // fallback (no blur tex)
-                stamp(tex, 3.0f*sc, gr, gg, gb, 0.5f);
-            }
-            stamp(tex, 0.0f, 1.0f,1.0f,1.0f, 1.0f);       // crisp white core (sharp tex)
-        }
-    }
-
-    // --- section 6: hands (hour, minute, second) ---
-    {
-        int hh, mm, ss; float subsec; pspNow(hh, mm, ss, subsec);
-        int h = hh % 12;
-        float hourFrac = h/12.0f + mm/720.0f;
-        float minuteFrac = mm/60.0f + ss/3600.0f;
-        // second spring snap (spec 1.2)
-        float t = subsec; if (t<0) t=0; if (t>1) t=1;
-        float e = sqrtf(1.0f - (t-1.0f)*(t-1.0f));
-        float E = e + 1.2f*e*(1.0f-e); float fr = E*(2.0f-E);
-        float secFrac = (ss + fr) / 60.0f;
-        auto hand = [&](float frac, float len, float back, float wHub, float wTip,
-                        float r, float g, float b, float a, float grow){
-            float th = (float)M_PI_2 - frac*2.0f*(float)M_PI;
-            float ddx = cosf(th), ddy = -sinf(th);
-            float pxp = -ddy, pyp = ddx;
-            float tipX = CX + ddx*len, tipY = CY + ddy*len;
-            float backX = CX - ddx*back, backY = CY - ddy*back;
-            float wt = wTip + grow, wh = wHub + grow;
-            float ax=dx(tipX+pxp*wt), ay=dy(tipY+pyp*wt);
-            float bx=dx(tipX-pxp*wt), by=dy(tipY-pyp*wt);
-            float cxp=dx(backX-pxp*wh), cyp=dy(backY-pyp*wh);
-            float ex=dx(backX+pxp*wh), ey=dy(backY+pyp*wh);
-            drawTriangle(ax,ay,bx,by,cxp,cyp, r,g,b,a);
-            drawTriangle(ax,ay,cxp,cyp,ex,ey, r,g,b,a);
-        };
-        // Soft glow: 4 stacked expanding copies per hand, exponential alpha falloff
-        // (web shadowBlur 4 hour/minute, 2.5 second); gMax scales the spread per hand.
-        static const float HG[4] = {1.0f, 2.0f, 3.5f, 5.0f};
-        auto handGlow = [&](float frac, float len, float back, float wHub, float wTip, float gMax){
-            for (int gp = 0; gp < 4; gp++)
-                hand(frac, len, back, wHub, wTip, gr,gg,gb,
-                     0.18f*expf(-0.42f*HG[gp])*glowPulse, HG[gp]*sc*(gMax/4.0f));   // hands glow low + breathing
-        };
-        handGlow(hourFrac,   86.0f,       11.0f, 3.6f, 2.4f,  4.0f);   // hour  (shadowBlur 4)
-        handGlow(minuteFrac, 141.0f-2.0f, 13.0f, 1.3f, 1.0f,  4.0f);   // minute(shadowBlur 4)
-        handGlow(secFrac,    141.0f+2.0f, 20.0f, 0.7f, 0.55f, 2.5f);   // second(shadowBlur 2.5)
-        hand(hourFrac,   86.0f,       11.0f, 3.6f, 2.4f, 1,1,1, 1.0f, 0.0f);
-        hand(minuteFrac, 141.0f-2.0f, 13.0f, 1.3f, 1.0f, 1,1,1, 1.0f, 0.0f);
-        hand(secFrac,    141.0f+2.0f, 20.0f, 0.7f, 0.55f, 1,1,1, 1.0f, 0.0f);
-    }
-
-    // --- section 7: hub (two filled circles + glow) ---
-    {
-        auto disc = [&](float rr, float r, float g, float b, float a){
-            const int SEG = 20; float cxd = dx(CX), cyd = dy(CY), rd = rr*sc;
-            float px = cxd + rd, py = cyd;
-            for (int i = 1; i <= SEG; i++) {
-                float ang = (float)i / SEG * 2.0f * (float)M_PI;
-                float nx = cxd + rd*cosf(ang), ny = cyd + rd*sinf(ang);
-                drawTriangle(cxd,cyd, px,py, nx,ny, r,g,b,a); px=nx; py=ny;
-            }
-        };
-        // Soft glow: 4 expanding rings, exponential falloff (web shadowBlur 6).
-        static const float DG[4] = {1.5f, 3.0f, 4.5f, 6.0f};
-        for (int gp = 0; gp < 4; gp++)
-            disc(5.5f + DG[gp], gr,gg,gb, 0.24f*expf(-0.42f*(DG[gp]/1.5f))*glowPulse);
-        disc(5.5f, 0.92f,0.97f,1.0f, 1.0f);      // #eaf7ff
-        disc(2.5f, 1.0f,1.0f,1.0f, 1.0f);        // white
-    }
+    // --- crisp white cores on top of the soft glow (additive 'lighter', web draw
+    // sections 3/4/6/7). The glow behind them is the Gaussian halo composited above;
+    // here we lay only the sharp cores, so nothing reads as a stacked-copy stroke. ---
+    drawTicksShapes(1.0f, 1.0f, 1.0f, detail);      // hour ticks (fade in with detail)
+    drawNumeralGlyphs(1.0f, 1.0f, 1.0f, 1.0f);      // numerals 12/3/6/9 (sharp cores)
+    drawHandsShapes(1.0f, 1.0f, 1.0f, 1.0f);        // hands hour/minute/second
+    drawHubDisc(5.5f, 0.92f, 0.97f, 1.0f, 1.0f);    // hub #eaf7ff
+    drawHubDisc(2.5f, 1.0f, 1.0f, 1.0f, 1.0f);      // hub white
 
     // Restore normal UI blend for whatever draws next (date text, dialogs).
     setUiBlend();
