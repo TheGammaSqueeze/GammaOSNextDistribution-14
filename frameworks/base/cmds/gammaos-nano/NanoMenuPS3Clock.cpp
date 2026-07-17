@@ -184,7 +184,7 @@ void NanoMenu::pspClockPollTilt(bool active) {
         // Device calibration, live-tunable so the parallax ORIENTATION + throw can be
         // dialled in per device WITHOUT a rebuild:
         //   persist.gammaos.nano.pspclock.tilt.cal = "gain,rot,sx,sy"
-        //     gain  parallax throw in UV units (default 0.10)
+        //     gain  parallax throw in UV units (default 0.06)
         //     rot   base orientation: rotate the accel->UV axes by rot*90 deg (0/1/2/3).
         //           The Sprd accel on the RG Rotate is mounted 90 deg vs the panel, so the
         //           default 1 gives: at the closed position (sDrmRotMat = identity) tilt
@@ -192,12 +192,12 @@ void NanoMenu::pspClockPollTilt(bool active) {
         //     sx,sy per-axis sign (+1/-1) to flip either axis if the accel sign differs.
         // The sDrmRotMat transform in pspClockLens then rotates this panel-native tilt into
         // the CURRENT screen-rotation frame (composes on top of this base orientation).
-        static float sCalGain = 0.10f; static int sCalRot = 1;
+        static float sCalGain = 0.06f; static int sCalRot = 1;
         static float sCalSx = 1.0f, sCalSy = 1.0f; static bool sCalInit = false;
         static int sCalTick = 0;
         if (!sCalInit || (++sCalTick % 60) == 0) {   // re-read ~1s so a live retune applies
             sCalInit = true;
-            sCalGain = 0.10f; sCalRot = 1; sCalSx = 1.0f; sCalSy = 1.0f;
+            sCalGain = 0.06f; sCalRot = 1; sCalSx = 1.0f; sCalSy = 1.0f;   // uniform pan moves the whole view -> lower default than the old rim-weighted
             char cb[PROPERTY_VALUE_MAX] = {};
             if (property_get("persist.gammaos.nano.pspclock.tilt.cal", cb, "") > 0 && cb[0]) {
                 float g = sCalGain, sx = sCalSx, sy = sCalSy; int rt = sCalRot;
@@ -781,11 +781,12 @@ static const char PSP_LENS_FS[] = R"(
         float scale = (srcT / max(t, 1e-4)) / uZoom;
         // Refraction is radial, so scale the actual UV vector to this pixel.
         vec2 uv = uCenter + (vTex - uCenter) * scale;
-        // Gyro/accel parallax: tilt shifts the sampled background so the glass reads as a
-        // window over a bg plane BEHIND it - you "peek around" the disc rim toward the tilt.
-        // Confine the shift to the RIM: zero at the centre, ramping in over the outer band
-        // (t^3) so the flat face stays STABLE (no centre warp) while the corners peek most.
-        uv += uTilt * (t * t * t);
+        // Gyro/accel parallax: tilt PANS the whole sampled background as one, so the glass
+        // reads as a window over a bg plane behind it and the view slides toward the tilt.
+        // The shift MUST be uniform (same offset at every t): a t-varying weight moves the
+        // rim more than the centre, which distorts/WARPS the view instead of moving it. So
+        // add uTilt flat - the interior translates cleanly, no warp.
+        uv += uTilt;
         uv = clamp(uv, 0.0, 1.0);
         vec3 c = texture2D(uTex, uv).rgb;
         if (uTonemap > 0.0) c = vec3(1.0) - exp2(-c * uTonemap);
