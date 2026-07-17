@@ -258,19 +258,26 @@ void NanoMenu::pspClockBackdropBlur(float amt) {
     {
         static int sBlurN = 0;
         if ((sBlurN++ & 3) == 0 || mGlassBlurTex == 0) {
-            if (!captureGlassFromWave()) return;
+            // Heavier blur than the shared submenu frost (captureGlassFromWave uses
+            // 2 down-levels/no Gaussian): the clock backdrop wants the wave collapsed
+            // into a soft defocus, so blur the wave FBO through 3 down-levels (1/8 res)
+            // + 2 separable Gaussian passes directly (user: "increase the blur further").
+            GLuint wt = ps3bg::workTex();
+            if (wt == 0) return;
+            int fw = (int)(ps3::gFrameW + 0.5f), fh = (int)(ps3::gFrameH + 0.5f);
+            if (fw < 8 || fh < 8) return;
+            blurGlassChain(wt, fw, fh, 3, 2);
         }
     }
     // Full-screen frosted blit (waveSpace maps texcoords to the wave FBO). radius
     // 0 = plain rect, neutral tint, fade = amt so the defocus ramps in on open.
     drawFrostedGlass(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f,
                      1.0f, 1.0f, 1.0f, 0.0f, amt, /*waveSpace=*/true);
-    // Defocus darken. The web uses rgba(0,0,0,0.30*amt); lifted a touch to 0.38 so
-    // the backdrop dim reads clearly as a transition on open and gives the crisp,
-    // now-more-zoomed disc a darker surround to stand out against (issue #2). Still a
-    // mild defocus - not a heavy scrim. Ramps with amt=clockReveal (0..1) so it fades
-    // in over the drop, same envelope as the blur and the lens.
-    drawQuad(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f, 0.0f, 0.0f, 0.38f * amt);
+    // Defocus darken. The web uses rgba(0,0,0,0.30*amt); lifted to 0.55 (user: "darken
+    // outside the clock face further") so the blurred surround reads clearly darker
+    // than the crisp zoomed disc. Ramps with amt=clockReveal (0..1) over the drop, same
+    // envelope as the blur and the lens.
+    drawQuad(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f, 0.0f, 0.0f, 0.55f * amt);
 }
 
 // -----------------------------------------------------------------------------
@@ -321,6 +328,12 @@ static const char PSP_LENS_FS[] = R"(
         uv = clamp(uv, 0.0, 1.0);
         vec3 c = texture2D(uTex, uv).rgb;
         if (uTonemap > 0.0) c = vec3(1.0) - exp2(-c * uTonemap);
+        // Frosted glass sheen (web body radial gradient, psp_clock.js draw sect 1):
+        // the centre stays clear so the bg reads through, a soft WHITE haze builds
+        // from ~0.5 outward to a light frost just inside the rim - the "frosted white
+        // sheen" the glass face has. Additive so the wallpaper colour tints it.
+        float haze = smoothstep(0.5, 0.95, t) * 0.09;
+        c += vec3(1.0) * haze;
         // Bevel rim: thin bright specular right at the edge (web body stops at
         // (R-3)/R white 0.20). A broad faint inner highlight + a crisp edge glint.
         float rim = smoothstep(0.955, 0.992, t) * (1.0 - smoothstep(0.992, 1.0, t));
@@ -677,7 +690,7 @@ void NanoMenu::pspClockFace(float reveal, float /*floatY*/, float /*descentFrac*
             // - a single wider bar reads as one hard outline; the stacked ramp is a halo.
             static const float GG[4] = {1.0f, 2.0f, 3.5f, 5.0f};
             for (int gpass = 0; gpass < 4; gpass++)
-                bar(w + GG[gpass]*sc, gr, gg, gb, 0.40f*expf(-0.42f*GG[gpass])*detail);
+                bar(w + GG[gpass]*sc, gr, gg, gb, 0.24f*expf(-0.42f*GG[gpass])*detail);
             bar(w, 1.0f,1.0f,1.0f, detail);             // crisp white core
         }
     }
@@ -706,8 +719,8 @@ void NanoMenu::pspClockFace(float reveal, float /*floatY*/, float /*descentFrac*
             // blurred texture already has a soft alpha ramp, so it reads as a halo, not
             // an outline (the old dilated-sharp-copy problem).
             if (gtex) {
-                stamp(gtex, 5.0f*sc, gr, gg, gb, 0.42f);  // wide soft outer glow
-                stamp(gtex, 1.5f*sc, gr, gg, gb, 0.55f);  // mid glow, denser near the edge
+                stamp(gtex, 5.0f*sc, gr, gg, gb, 0.26f);  // wide soft outer glow (toned down, tasteful)
+                stamp(gtex, 1.5f*sc, gr, gg, gb, 0.34f);  // mid glow, denser near the edge
             } else {
                 stamp(tex, 6.0f*sc, gr, gg, gb, 0.5f);    // fallback (no blur tex)
                 stamp(tex, 3.0f*sc, gr, gg, gb, 0.5f);
@@ -748,7 +761,7 @@ void NanoMenu::pspClockFace(float reveal, float /*floatY*/, float /*descentFrac*
         auto handGlow = [&](float frac, float len, float back, float wHub, float wTip, float gMax){
             for (int gp = 0; gp < 4; gp++)
                 hand(frac, len, back, wHub, wTip, gr,gg,gb,
-                     0.40f*expf(-0.42f*HG[gp]), HG[gp]*sc*(gMax/4.0f));
+                     0.18f*expf(-0.42f*HG[gp]), HG[gp]*sc*(gMax/4.0f));   // hands glow pulled way down (user: too much)
         };
         handGlow(hourFrac,   86.0f,       11.0f, 3.6f, 2.4f,  4.0f);   // hour  (shadowBlur 4)
         handGlow(minuteFrac, 141.0f-2.0f, 13.0f, 1.3f, 1.0f,  4.0f);   // minute(shadowBlur 4)
@@ -772,7 +785,7 @@ void NanoMenu::pspClockFace(float reveal, float /*floatY*/, float /*descentFrac*
         // Soft glow: 4 expanding rings, exponential falloff (web shadowBlur 6).
         static const float DG[4] = {1.5f, 3.0f, 4.5f, 6.0f};
         for (int gp = 0; gp < 4; gp++)
-            disc(5.5f + DG[gp], gr,gg,gb, 0.40f*expf(-0.42f*(DG[gp]/1.5f)));
+            disc(5.5f + DG[gp], gr,gg,gb, 0.24f*expf(-0.42f*(DG[gp]/1.5f)));
         disc(5.5f, 0.92f,0.97f,1.0f, 1.0f);      // #eaf7ff
         disc(2.5f, 1.0f,1.0f,1.0f, 1.0f);        // white
     }
