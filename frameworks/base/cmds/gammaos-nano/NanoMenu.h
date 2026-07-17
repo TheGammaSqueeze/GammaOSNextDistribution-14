@@ -1800,6 +1800,17 @@ private:
     // (needs no AA, and reuses blurGlassChain which must not thrash resolution between passes).
     GLuint mPspFaceFbo = 0, mPspFaceTex = 0;
     int    mPspFaceW = 0, mPspFaceH = 0;
+    // --- PSP clock live-app capture (#5). GL-side, render-thread-only state. ---
+    // The lens can sample the LIVE app behind the overlay scrim instead of the XMB
+    // wave. A detached background worker (see NanoMenuPS3Clock.cpp) does all the
+    // binder/capture/SW-lock work on file-static state; the render thread only
+    // uploads the latest CPU frame into this texture. Gated OFF by default via
+    // persist.gammaos.nano.pspclock.liveapp (strict no-op when unset).
+    GLuint mPspClockAppTex   = 0;     // RGBA tex holding the latest captured app frame
+    int    mPspClockAppTexW  = 0;     // dims currently allocated in mPspClockAppTex
+    int    mPspClockAppTexH  = 0;
+    bool   mPspClockAppTexValid = false;    // a frame has been uploaded at least once
+    bool   mPspClockCaptureRunning = false; // worker started this open-cycle (render-thread bool)
     // Glass-icon resources (FS_ICON_GLASS). Normal maps are cached by xmb_icon
     // index (PS3 icons -> nmap_NNN.png) and by flat-icon texture id (console /
     // RetroArch icons -> a bevel normal generated from the alpha silhouette).
@@ -3111,6 +3122,17 @@ private:
     void  pspClockGlow(float& r, float& g, float& b) const;  // current glow colour 0..1
     void  pspClockBakeGlyphs();                // rasterize numeral outlines -> alpha textures
     void  pspClockSampleGlow();                // dominant wallpaper colour -> mPspGlow (5.9.4)
+    // --- live-app capture (#5) ---
+    bool  pspClockLiveAppEnabled() const;      // master gate (persist prop, default OFF)
+    bool  pspClockUseAppSource() const;        // lens should sample the captured app, not the wave
+    void  pspClockAppCaptureTick();            // render-thread: start/stop worker + upload latest frame
+    static void pspClockCaptureWorker();       // detached bg worker; touches ONLY file-static state
+  public:
+    // Signal the detached capture worker to stop and (optionally) wait a bounded
+    // time for it to exit its loop. Safe to call from teardown; join-free (the worker
+    // is detached). Static because it only touches file-static worker state.
+    static void pspClockStopCaptureWorker(int drainMs);
+  private:
   public:
     // Content-info hover background + description (web HOVER_BG/CINFO_DESC): dwell on a
     // mapped item ("Photo Gallery" is the only one reachable in nano) fades a full-frame

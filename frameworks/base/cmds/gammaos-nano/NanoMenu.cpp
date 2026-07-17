@@ -322,6 +322,10 @@ NanoMenu::~NanoMenu() {
     // codec first so the wedged worker unblocks and the join finishes), so this only turns a
     // spurious abort into a clean, if slightly slow, exit; it is never reset (we are exiting).
     mVidTeardownExempt.store(true, std::memory_order_relaxed);
+    // Stop the PSP live-app capture worker (detached; join-free). Signal + bounded
+    // wait so it is out of its binder call before the rest of teardown / stopProcess.
+    // Bounded because the listener wait is bounded; can never deadlock.
+    pspClockStopCaptureWorker(300);
     // Stop the GammaEQ audio preview stream if it is still playing.
     stopEqPreview();
     // Stop the setup log tailer if running.
@@ -4786,6 +4790,16 @@ if (sRingPrimedCount >= 2) {
         mSecondaryWallpaperControls.clear();
     }
 
+    // Signal the PSP live-app capture worker to stop now (drained before stopProcess
+    // below). Then free its texture while the EGL context is still current. Freeing is
+    // safe on this (render) thread because the worker never touches GL - it only writes
+    // the CPU staging vector - and pspClockAppCaptureTick (the only GL uploader) runs on
+    // this same thread, which is here in teardown, not mid-upload. No-op if never used.
+    pspClockStopCaptureWorker(0);   // signal only; the bounded drain is before stopProcess
+    if (mPspClockAppTex) { glDeleteTextures(1, &mPspClockAppTex); mPspClockAppTex = 0; }
+    mPspClockAppTexW = mPspClockAppTexH = 0;
+    mPspClockAppTexValid = false;
+
     eglMakeCurrent(mDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
     eglDestroyContext(mDisplay, mContext);
     eglDestroySurface(mDisplay, mSurface);
@@ -4793,6 +4807,11 @@ if (sRingPrimedCount >= 2) {
     mFlingerSurfaceControl.clear();
     eglTerminate(mDisplay);
     eglReleaseThread();
+    // Ensure the PSP live-app capture worker is fully out of its binder call before
+    // we tear down the binder threadpool below (a live captureDisplay racing
+    // stopProcess() is the residual hazard). Bounded wait (listener wait is bounded);
+    // worst case covers one callback+fence timeout. No-op if the worker never ran.
+    pspClockStopCaptureWorker(1300);
     IPCThreadState::self()->stopProcess();
     return false;
 }

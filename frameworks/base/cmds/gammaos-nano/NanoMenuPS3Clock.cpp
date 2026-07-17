@@ -24,8 +24,90 @@
 #include <math.h>
 #include <time.h>
 #include <algorithm>
+// --- live-app capture (#5): binder screen-capture + worker/render-thread channel ---
+#include <mutex>
+#include <atomic>
+#include <thread>
+#include <chrono>
+#include <condition_variable>
+#include <cstring>
+#include <unistd.h>
+#include <android/gui/BnScreenCaptureListener.h>
+#include <gui/DisplayCaptureArgs.h>
+#include <gui/SurfaceComposerClient.h>
+#include <ui/GraphicBuffer.h>
+#include <ui/Fence.h>
 
 namespace android {
+
+// ============================================================================
+// PSP live-app capture (#5) - file-static worker <-> render-thread channel.
+//
+// The detached worker touches ONLY the state in this anonymous namespace plus
+// its own local sp<> copies of the display token / exclude handles. It NEVER
+// dereferences a NanoMenu* (safe across overlay teardown / process restart).
+// The render thread does the tiny GL upload from gPspCapStaging under a
+// microsecond-scale mutex. Everything here is dead unless the liveapp gate is on.
+// ============================================================================
+namespace {
+
+// ---- Bounded capture listener --------------------------------------------
+// SyncScreenCaptureListener::waitForResults() does resultsFuture.get() +
+// fence->waitForever() - BOTH unbounded. On a wedged SF/GPU (the MediaTek/Mali
+// force-SF failure modes) that hangs the worker forever, so it can never observe
+// the stop flag and the process-exit wait becomes a no-op. This listener instead
+// signals a condition_variable and the worker waits with a bounded timeout, and
+// waits the returned fence itself with a bounded fence->wait(ms). This is the
+// prerequisite that makes every "bounded / promptly-stoppable" property real.
+class NanoPspCaptureListener : public gui::BnScreenCaptureListener {
+public:
+    binder::Status onScreenCaptureCompleted(
+            const gui::ScreenCaptureResults& results) override {
+        {
+            std::lock_guard<std::mutex> lk(mMutex);
+            mResults = results;
+            mDone = true;
+        }
+        mCv.notify_one();
+        return binder::Status::ok();
+    }
+    // Returns true if the callback arrived within timeoutMs (out = results).
+    bool wait(int timeoutMs, gui::ScreenCaptureResults& out) {
+        std::unique_lock<std::mutex> lk(mMutex);
+        if (!mCv.wait_for(lk, std::chrono::milliseconds(timeoutMs),
+                          [this] { return mDone; }))
+            return false;
+        out = mResults;
+        return true;
+    }
+private:
+    std::mutex                 mMutex;
+    std::condition_variable    mCv;
+    bool                       mDone = false;
+    gui::ScreenCaptureResults  mResults;
+};
+
+std::mutex               gPspCapMutex;         // guards the staging vector + dims + ready flag
+std::vector<uint8_t>     gPspCapStaging;       // tightly-packed RGBA of the latest frame
+int                      gPspCapW = 0, gPspCapH = 0;
+bool                     gPspCapFrameReady = false;   // producer set, consumer clears
+std::atomic<bool>        gPspCapRun{false};    // worker run flag; render thread clears to stop
+std::atomic<bool>        gPspCapAlive{false};  // true while a worker thread exists (join-free guard)
+// Binder inputs, published by the render thread under gPspCapMutex before launch.
+sp<IBinder>              gPspCapDisplayToken;               // physical display token
+std::vector<sp<IBinder>> gPspCapExcludeHandles;            // ALL nano-owned layer handles
+uint32_t                 gPspCapWantW = 0, gPspCapWantH = 0; // capture size (0 = full display)
+
+// Capture cadence + timeouts. ~7Hz is the design ceiling; on a thin MediaTek/Mali
+// panel every capture is a fresh full-display gralloc alloc + an SF main-thread
+// fence.get(), so this is deliberately not fast. Timeouts are bounded so a wedged
+// SF/GPU skips a frame instead of pinning the worker.
+constexpr int kCapPeriodMs   = 140;   // ~7Hz
+constexpr int kCapSliceMs    = 10;    // wake this often to notice a stop request
+constexpr int kCapCbTimeout  = 700;   // max wait for onScreenCaptureCompleted
+constexpr int kCapFenceMs    = 500;   // max wait on the capture fence
+
+} // namespace
 
 // ---- constants (PSP native, from psp_clock.js / spec section 4.1) -----------
 static const float PSP_W = 480.0f, PSP_H = 272.0f, CXf = 240.0f, CYf = 136.0f;
@@ -150,6 +232,241 @@ bool NanoMenu::pspClockBlowItem(int i, float& xShift, float& yLift, float& rot) 
     return true;
 }
 
+// =============================================================================
+// PSP clock live-app capture (#5) - gate helpers, detached worker, render tick.
+// =============================================================================
+
+// Debug/force prop: capture the live app even in the home (non-overlay) instance.
+// Lets the feature be exercised on a device with no scrim overlay by opting in.
+static bool pspClockAppSrcDebug() {
+    return property_get_bool("persist.gammaos.nano.pspclock.appsrc", false)
+        || property_get_bool("sys.gammaos.nano.pspclock.appsrc", false);
+}
+
+// Master enable for live-app capture. Default OFF -> zero behaviour change: with
+// this false, want is always false, the worker never launches, and the lens uses
+// ps3bg::workTex() exactly as before.
+bool NanoMenu::pspClockLiveAppEnabled() const {
+    return property_get_bool("persist.gammaos.nano.pspclock.liveapp", false)
+        || pspClockAppSrcDebug();
+}
+
+// The lens should sample the captured app (not the wave) when there is a live app
+// behind us: overlay-instance scrim mode (mOverlayMode && !mOverlayWallpaper), OR
+// the debug appsrc prop is forcing it. Only once we actually hold a frame.
+bool NanoMenu::pspClockUseAppSource() const {
+    if (!pspClockLiveAppEnabled()) return false;
+    if (!mPspClockAppTexValid || mPspClockAppTex == 0) return false;
+    return (mOverlayMode && !mOverlayWallpaper) || pspClockAppSrcDebug();
+}
+
+// Detached capture worker. Runs entirely on file-static state + local sp<> copies.
+// Each iteration: ScreenshotClient::captureDisplay(args, listener) with a BOUNDED
+// listener wait -> bounded fence->wait -> lock(SW_READ) -> memcpy tightly into
+// gPspCapStaging under gPspCapMutex -> unlock -> DROP the sp<GraphicBuffer>.
+// The buffer never outlives one iteration, so gralloc reclaims it every frame
+// (kills the accumulation OOM). Exits promptly when gPspCapRun clears.
+void NanoMenu::pspClockCaptureWorker() {
+    gPspCapAlive.store(true, std::memory_order_release);
+
+    // Snapshot the binder inputs locally (sp<> copies keep the binders alive for
+    // the worker's lifetime independent of overlay/process teardown). Re-read each
+    // iteration under the mutex so a mid-run refresh (rotation/relaunch) is picked
+    // up and a stale exclude handle cannot silently start self-capturing.
+    while (gPspCapRun.load(std::memory_order_acquire)) {
+        // ~7Hz throttle; wake every kCapSliceMs to notice a stop request quickly.
+        for (int i = 0; i < kCapPeriodMs / kCapSliceMs &&
+                        gPspCapRun.load(std::memory_order_acquire); i++)
+            usleep(kCapSliceMs * 1000);
+        if (!gPspCapRun.load(std::memory_order_acquire)) break;
+
+        sp<IBinder>              token;
+        std::vector<sp<IBinder>> excludes;
+        uint32_t                 wantW = 0, wantH = 0;
+        {
+            std::lock_guard<std::mutex> lk(gPspCapMutex);
+            token    = gPspCapDisplayToken;
+            excludes = gPspCapExcludeHandles;
+            wantW    = gPspCapWantW;
+            wantH    = gPspCapWantH;
+        }
+        if (token == nullptr) continue;
+
+        gui::DisplayCaptureArgs args;
+        args.displayToken   = token;
+        args.width          = wantW;   // 0 -> full display resolution
+        args.height         = wantH;
+        args.pixelFormat    = ui::PixelFormat::RGBA_8888;
+        args.captureSecureLayers = false;   // secure surfaces render black - safe
+        args.allowProtected      = false;   // no protected content sampling; also skips
+                                            // SF's extra protected-layer main-thread round-trip
+        // Exclude EVERY nano-owned layer (primary overlay + secondary wallpapers) so
+        // the capture is the app underneath only - no self-recursion / white feedback,
+        // and SF never has to wait on our own (potentially blocked) layer.
+        for (const sp<IBinder>& h : excludes)
+            if (h != nullptr) args.excludeHandles.insert(h);
+
+        sp<NanoPspCaptureListener> listener = new NanoPspCaptureListener();
+        if (ScreenshotClient::captureDisplay(args, listener) != NO_ERROR)
+            continue;   // binder call failed (bad handle etc.) - no callback owed, skip
+
+        // BOUNDED wait for the callback. If SF never delivers (service death, drop),
+        // we skip rather than block forever, and stay responsive to gPspCapRun.
+        gui::ScreenCaptureResults res;
+        if (!listener->wait(kCapCbTimeout, res))
+            continue;
+        if (!res.fenceResult.ok() || res.buffer == nullptr)
+            continue;
+
+        // Bounded fence wait on the CPU before locking (our listener does NOT
+        // waitForever). A wedged fence just skips this frame.
+        {
+            sp<Fence> f = res.fenceResult.value_or(Fence::NO_FENCE);
+            if (f != nullptr && f != Fence::NO_FENCE) f->wait(kCapFenceMs);
+        }
+
+        sp<GraphicBuffer> buf = res.buffer;   // LOCAL sp<> - dropped at loop end.
+        void* base = nullptr;
+        if (buf->lock(GraphicBuffer::USAGE_SW_READ_OFTEN, &base) == NO_ERROR && base) {
+            const int w = (int)buf->getWidth();
+            const int h = (int)buf->getHeight();
+            const int stride = (int)buf->getStride();
+            if (w > 0 && h > 0 && w <= 8192 && h <= 8192) {
+                const size_t need = (size_t)w * h * 4;
+                std::lock_guard<std::mutex> lk(gPspCapMutex);
+                if (gPspCapStaging.size() != need) gPspCapStaging.resize(need);
+                const uint8_t* src = (const uint8_t*)base;
+                if (stride == w) {
+                    memcpy(gPspCapStaging.data(), src, need);
+                } else {
+                    // GLES2 has no GL_UNPACK_ROW_LENGTH; repack rows tightly.
+                    for (int y = 0; y < h; y++)
+                        memcpy(&gPspCapStaging[(size_t)y * w * 4],
+                               src + (size_t)y * stride * 4, (size_t)w * 4);
+                }
+                gPspCapW = w; gPspCapH = h;
+                gPspCapFrameReady = true;
+            }
+            buf->unlock();
+        }
+        // buf (and res.buffer's ref) drops here -> gralloc reclaims the buffer.
+        res = gui::ScreenCaptureResults();   // drop the results' buffer ref too
+    }
+    gPspCapAlive.store(false, std::memory_order_release);
+    // Detached: no join. The render thread waits on gPspCapAlive before relaunch.
+}
+
+// Stop the detached worker and give it a bounded chance to exit its loop. Called
+// from process teardown (~NanoMenu and the render threadLoop before stopProcess())
+// so the worker is provably out of its binder call before the binder threadpool is
+// torn down. This is only correct because NanoPspCaptureListener::wait() is bounded
+// (<= kCapCbTimeout) - the worker can never be parked forever, so drainMs of the
+// same order reliably lets it finish. Bounded busy-wait, not a join: cannot deadlock.
+void NanoMenu::pspClockStopCaptureWorker(int drainMs) {
+    gPspCapRun.store(false, std::memory_order_release);
+    const int slices = drainMs / 5;
+    for (int i = 0; i < slices && gPspCapAlive.load(std::memory_order_acquire); i++)
+        usleep(5000);
+}
+
+// Render-thread ONLY. Starts/stops the detached worker to match the gate, refreshes
+// the worker's binder inputs each frame (so a rotation/relaunch cannot leave a stale
+// exclude handle -> self-capture, or a stale display token), and uploads the latest
+// CPU frame into mPspClockAppTex. The mutex is held only for a pointer swap + scalars
+// (microseconds) - NEVER across a binder call, a GL call, or a SW buffer lock, so it
+// cannot stall the render thread into the ~8s watchdog.
+void NanoMenu::pspClockAppCaptureTick() {
+    const bool want = pspClockLiveAppEnabled()
+                   && ((mOverlayMode && !mOverlayWallpaper) || pspClockAppSrcDebug());
+
+    // ---- collect the current nano-owned layer handles (render thread) ----
+    // Exclude the primary overlay layer AND every secondary wallpaper control that
+    // may be on the captured display, so the capture is strictly the app underneath.
+    // Recomputed every frame -> survives layer recreation on rotation/display change.
+    auto collectExcludes = [&]() {
+        std::vector<sp<IBinder>> h;
+        if (mFlingerSurfaceControl != nullptr) {
+            sp<IBinder> ph = mFlingerSurfaceControl->getHandle();
+            if (ph != nullptr) h.push_back(ph);
+        }
+        for (const sp<SurfaceControl>& sc : mSecondaryWallpaperControls) {
+            if (sc != nullptr) {
+                sp<IBinder> sh = sc->getHandle();
+                if (sh != nullptr) h.push_back(sh);
+            }
+        }
+        return h;
+    };
+
+    // ---- lifecycle: start ----
+    if (want && !mPspClockCaptureRunning) {
+        // Only launch if no prior worker is still alive (join-free single-owner guard).
+        if (!gPspCapAlive.load(std::memory_order_acquire) && mDisplayToken != nullptr) {
+            std::vector<sp<IBinder>> excl = collectExcludes();
+            {
+                std::lock_guard<std::mutex> lk(gPspCapMutex);
+                gPspCapFrameReady    = false;          // discard any stale frame
+                gPspCapDisplayToken  = mDisplayToken;  // already the primary display token
+                gPspCapExcludeHandles = std::move(excl);
+                gPspCapWantW = 0; gPspCapWantH = 0;    // full display; lens samples a disc from it
+            }
+            gPspCapRun.store(true, std::memory_order_release);
+            std::thread(&NanoMenu::pspClockCaptureWorker).detach();
+            mPspClockCaptureRunning = true;
+        }
+    } else if (want && mPspClockCaptureRunning) {
+        // Running: refresh the exclude set + token in case the layer/display changed.
+        std::vector<sp<IBinder>> excl = collectExcludes();
+        std::lock_guard<std::mutex> lk(gPspCapMutex);
+        gPspCapDisplayToken   = mDisplayToken;
+        gPspCapExcludeHandles = std::move(excl);
+    }
+
+    // ---- lifecycle: stop (gate dropped) ----
+    if (!want && mPspClockCaptureRunning) {
+        gPspCapRun.store(false, std::memory_order_release);   // worker exits on its own
+        mPspClockCaptureRunning = false;
+        // Keep mPspClockAppTex (last frame) so a brief gate flicker does not flash the
+        // disc back to the wave; freed in pspClockReleaseGL / on process exit.
+    }
+
+    // ---- upload the newest CPU frame (if any) ----
+    // Retained render-thread scratch: we swap it with the staging vector under the
+    // mutex (O(1), no copy) and upload OUTSIDE the lock so the worker can produce the
+    // next frame in parallel. Swapping (not clearing) hands the worker back a buffer
+    // with capacity, avoiding a per-frame realloc on its side.
+    static std::vector<uint8_t> sUpload;
+    bool haveNew = false; int uw = 0, uh = 0;
+    {
+        std::lock_guard<std::mutex> lk(gPspCapMutex);
+        if (gPspCapFrameReady && gPspCapW > 0 && gPspCapH > 0) {
+            uw = gPspCapW; uh = gPspCapH;
+            sUpload.swap(gPspCapStaging);   // O(1) hand-off (staging keeps sUpload's capacity)
+            gPspCapFrameReady = false;
+            haveNew = true;
+        }
+    }   // mutex released BEFORE the GL upload
+
+    if (haveNew && (size_t)uw * uh * 4 <= sUpload.size()) {
+        if (mPspClockAppTex == 0) glGenTextures(1, &mPspClockAppTex);
+        glBindTexture(GL_TEXTURE_2D, mPspClockAppTex);
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+        if (uw != mPspClockAppTexW || uh != mPspClockAppTexH) {
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, uw, uh, 0,
+                         GL_RGBA, GL_UNSIGNED_BYTE, sUpload.data());
+            mPspClockAppTexW = uw; mPspClockAppTexH = uh;
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        } else {
+            glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, uw, uh,
+                            GL_RGBA, GL_UNSIGNED_BYTE, sUpload.data());
+        }
+        mPspClockAppTexValid = true;
+    }
+}
+
 // -----------------------------------------------------------------------------
 // Per-frame orchestrator. Called at the tail of renderPs3Xmb() with dt in ms.
 // Advances the reveal scalar and runs the enabled passes.
@@ -184,12 +501,23 @@ void NanoMenu::drawPspClock(float dtMs) {
             mPspClockOn = false; mPspClockReveal = 0.0f;
             mPspDescent = -1.0f; mPspTextFadeSmooth = 1.0f; mPspDetailFade = 0.0f;
         }
+        // Clock disabled entirely: make sure the live-app capture worker is stopped.
+        if (mPspClockCaptureRunning) {
+            gPspCapRun.store(false, std::memory_order_release);
+            mPspClockCaptureRunning = false;
+        }
         return;
     }
 
     if (!mPspClockOn && mPspClockReveal <= 0.0f) {
         // Parked (closed): reset the smoothed followers for a clean next open.
         mPspDescent = -1.0f; mPspTextFadeSmooth = 1.0f; mPspDetailFade = 0.0f;
+        // Fully closed: stop the live-app capture worker (we early-return here, so
+        // pspClockAppCaptureTick's gate-drop branch is never reached on the close).
+        if (mPspClockCaptureRunning) {
+            gPspCapRun.store(false, std::memory_order_release);
+            mPspClockCaptureRunning = false;
+        }
         return;
     }
 
@@ -274,6 +602,7 @@ void NanoMenu::drawPspClock(float dtMs) {
     // Sample the dominant wallpaper colour for the glow (throttled ~7Hz). Done
     // before the visible passes so its FBO switch cannot flush the clock's tile.
     { static int sG = 0; if ((sG++ % 8) == 0) pspClockSampleGlow(); }
+    pspClockAppCaptureTick();                 // #5: pump live-app capture -> mPspClockAppTex
     pspClockBackdropBlur(clockReveal);       // stage 1
     pspClockLens(clockReveal);               // stage 2
 
@@ -413,7 +742,11 @@ static const char PSP_LENS_FS[] = R"(
 
 void NanoMenu::pspClockLens(float cr) {
     if (cr <= 0.0f || !mPspLensValid) return;
-    if (ps3bg::workTex() == 0) return;
+    // Source select (#5): sample the captured LIVE app when there is one behind us
+    // (overlay scrim / debug appsrc) and we hold a frame; otherwise the XMB wave.
+    const bool useApp = pspClockUseAppSource();
+    const GLuint srcTex = useApp ? mPspClockAppTex : ps3bg::workTex();
+    if (srcTex == 0) return;
     if (mPspLensProgram == 0) {
         GLuint vs = compileShader(GL_VERTEX_SHADER, PSP_LENS_VS);
         GLuint fs = compileShader(GL_FRAGMENT_SHADER, PSP_LENS_FS);
@@ -467,13 +800,16 @@ void NanoMenu::pspClockLens(float cr) {
     // the sweet spot: markedly more zoom than 1.1 without over-magnifying to a
     // near-uniform patch (too few distinct particles) or ballooning the glitter blurry.
     glUniform1f(mPspLensLocZoom, 1.35f);
-    glUniform1f(mPspLensLocTonemap, 1.6846f);
+    // The wave (workTex) is LINEAR and needs the exp2 tonemap; the captured app
+    // frame is already display-space sRGB, so sample it with uTonemap 0 (the shader
+    // skips the exp2 when uTonemap <= 0).
+    glUniform1f(mPspLensLocTonemap, useApp ? 0.0f : 1.6846f);
     glUniform1f(mPspLensLocAlpha, op);
     // Gyro/accel parallax offset (smoothed device tilt -> UV shift). Fades in with the
     // lens so the peek-behind only kicks in once the disc is present.
     if (mPspLensLocTilt >= 0) glUniform2f(mPspLensLocTilt, mPspTiltX * op, mPspTiltY * op);
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, ps3bg::workTex());
+    glBindTexture(GL_TEXTURE_2D, srcTex);
     glUniform1i(mPspLensLocTexture, 0);
     glVertexAttribPointer(mPspLensLocPos, 2, GL_FLOAT, GL_FALSE, 0, verts);
     glEnableVertexAttribArray(mPspLensLocPos);
