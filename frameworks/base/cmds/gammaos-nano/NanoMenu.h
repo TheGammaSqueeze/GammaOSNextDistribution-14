@@ -58,6 +58,7 @@ namespace android {
 class Surface;
 class SurfaceComposerClient;
 class SurfaceControl;
+class GraphicBuffer;
 
 // Release/restore the Bluetooth bluesleep LPM wakelock around the framework-owned
 // (overlay / SurfaceFlinger) screen-off path so a held bluesleep does not block
@@ -3139,6 +3140,12 @@ private:
     void  pspClockSampleAppDim();              // app mean brightness -> mPspAppDim / mPspAppBackdropDark
     void  pspClockAppCaptureTick();            // render-thread: start/stop worker + upload latest frame
     static void pspClockCaptureWorker();       // detached bg worker; touches ONLY file-static state
+    // Continuous virtual-display mirror (live 60fps, zero-copy) - the preferred live-app
+    // backdrop source; supersedes the captureDisplay worker. All render-thread, no mutex.
+    bool  pspClockMirrorStart();               // stand up the mirror; false on failure (-> worker)
+    void  pspClockMirrorStop();                // tear down + un-flag the overlay layer
+    void  pspClockMirrorTick(bool want);       // lifecycle + per-frame newest-buffer pump
+    void  pspClockMirrorImportAndBlit(const sp<GraphicBuffer>& buf); // zero-copy import + V-flip
   public:
     // Signal the detached capture worker to stop and (optionally) wait a bounded
     // time for it to exit its loop. Safe to call from teardown; join-free (the worker

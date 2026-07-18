@@ -4392,7 +4392,15 @@ void NanoMenu::render() {
         // clamp01((reveal-0.3)/0.7)) - a continuous handoff, no double-dim, no pop (user
         // bug #8). PS3 XMB only (DSi untouched).
         float ovScrim = sOvDim;
-        if (mPs3Xmb && mPspClockEnabled && mPspClockReveal > 0.0f) {
+        if (mPspClockStandalone) {
+            // Summoned over an app with NO overlay open first: keep the scrim at 0 for the
+            // WHOLE summon INCLUDING reveal 0 (the first deferred-shown frame). The layer is
+            // shown only after this first frame composites, so if it were full black here the
+            // user sees a black flash before the clock drops. At 0 the game is fully visible
+            // and the clock's own backdrop-blur darken (ramps with clockReveal) fades the game
+            // gently into the scrim as the disc drops in (user: no black on summon).
+            ovScrim = 0.0f;
+        } else if (mPs3Xmb && mPspClockEnabled && mPspClockReveal > 0.0f) {
             float clkReveal = (mPspClockReveal - 0.3f) / 0.7f;
             if (clkReveal < 0.0f) clkReveal = 0.0f;
             if (clkReveal > 1.0f) clkReveal = 1.0f;

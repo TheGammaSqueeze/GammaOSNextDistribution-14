@@ -3980,6 +3980,13 @@ if (sRingPrimedCount >= 2) {
         // clears the animation flags, so there is no snap-back jank). Tunable
         // via persist.gammaos.nano.ps3xmb.idlefps (the rate used once the
         // minute elapses, default 30; set 60 to disable the drop entirely).
+        // The PSP slide clock is a continuous animation (spring second hand, gyro parallax,
+        // and a live 60fps mirrored app backdrop). While it is open or animating we are NOT
+        // settled: in the standalone over-app summon nano receives no input events, so the
+        // 60s idle timer would otherwise fire and pace the clock to 30fps - which reads as a
+        // choppy game-behind-the-glass even though the mirror feeds 60fps. Force 60fps here.
+        const bool pspClockActive = mPspClockEnabled
+                                 && (mPspClockOn || mPspClockReveal > 0.0f);
         bool ps3Settled = mPs3Xmb && !mPs3CatAnimActive
                        && mPs3ItemAnimStart < 0.0f && mPs3SubAnimStart < 0.0f
                        && mOverlayEnterStart < 0.0f
@@ -3987,6 +3994,7 @@ if (sRingPrimedCount >= 2) {
                        && !mPs3TzActive && !mShowBrightnessBar && !mShowVolumeBar
                        && mLaunchFadeStart == 0 && !mOverlayLaunchPending
                        && !mXmbItemFling && !mXmbTouchTracking
+                       && !pspClockActive
                        && !ps3bg::themeFading();
         int frameTimeUs;
         if (sDrmActive || xmbActive || mXmbMode || mPs3Xmb || proceduralFx) {
@@ -4796,6 +4804,7 @@ if (sRingPrimedCount >= 2) {
     // the CPU staging vector - and pspClockAppCaptureTick (the only GL uploader) runs on
     // this same thread, which is here in teardown, not mid-upload. No-op if never used.
     pspClockStopCaptureWorker(0);   // signal only; the bounded drain is before stopProcess
+    pspClockMirrorStop();           // tear down the virtual-display mirror + un-flag the overlay
     if (mPspClockAppTex) { glDeleteTextures(1, &mPspClockAppTex); mPspClockAppTex = 0; }
     mPspClockAppTexW = mPspClockAppTexH = 0;
     mPspClockAppTexValid = false;

@@ -31,12 +31,24 @@
 #include <chrono>
 #include <condition_variable>
 #include <cstring>
+#include <optional>
 #include <unistd.h>
 #include <android/gui/BnScreenCaptureListener.h>
 #include <gui/DisplayCaptureArgs.h>
 #include <gui/SurfaceComposerClient.h>
+#include <gui/BufferItemConsumer.h>       // continuous mirror consumer
+#include <gui/BufferItem.h>
+#include <gui/BufferQueue.h>
+#include <gui/LayerState.h>               // layer_state_t::eLayerSkipScreenshot
+#include <ui/DisplayState.h>              // ui::DisplayState (layerStack)
 #include <ui/GraphicBuffer.h>
 #include <ui/Fence.h>
+#include <ui/Rect.h>
+#include <ui/PixelFormat.h>
+#include <utils/String8.h>
+#include <EGL/egl.h>
+#include <EGL/eglext.h>
+#include <GLES2/gl2ext.h>
 
 namespace android {
 
@@ -98,14 +110,67 @@ sp<IBinder>              gPspCapDisplayToken;               // physical display 
 std::vector<sp<IBinder>> gPspCapExcludeHandles;            // ALL nano-owned layer handles
 uint32_t                 gPspCapWantW = 0, gPspCapWantH = 0; // capture size (0 = full display)
 
-// Capture cadence + timeouts. ~7Hz is the design ceiling; on a thin MediaTek/Mali
-// panel every capture is a fresh full-display gralloc alloc + an SF main-thread
-// fence.get(), so this is deliberately not fast. Timeouts are bounded so a wedged
-// SF/GPU skips a frame instead of pinning the worker.
-constexpr int kCapPeriodMs   = 140;   // ~7Hz
-constexpr int kCapSliceMs    = 10;    // wake this often to notice a stop request
+// Capture cadence + timeouts. The default cadence is live-tunable so the true SF
+// ceiling (fastest capture that keeps the app at a full 60fps) can be dialled in per
+// device WITHOUT a rebuild via persist.gammaos.nano.pspclock.capms. There is no point
+// capturing faster than the overlay composites (the backdrop is only shown on a nano
+// render), so the sweet spot is roughly the overlay's own frame rate. Timeouts are
+// bounded so a wedged SF/GPU skips a frame instead of pinning the worker.
+constexpr int kCapPeriodDefaultMs = 33;    // ~30Hz default (matches the overlay render rate)
+constexpr int kCapSliceMs    = 5;     // wake this often to notice a stop request
 constexpr int kCapCbTimeout  = 700;   // max wait for onScreenCaptureCompleted
 constexpr int kCapFenceMs    = 500;   // max wait on the capture fence
+
+// Live-tunable capture period (ms), clamped to a sane range. Read once per iteration.
+static inline int pspCapPeriodMs() {
+    int ms = (int)property_get_int32("persist.gammaos.nano.pspclock.capms", kCapPeriodDefaultMs);
+    if (ms < 8)   ms = 8;      // 125Hz hard ceiling - never busy-spin SF
+    if (ms > 500) ms = 500;    // 2Hz floor
+    return ms;
+}
+
+// ---------------------------------------------------------------------------
+// Continuous display mirror (zero-copy, render-thread only)
+// ---------------------------------------------------------------------------
+// The per-frame captureDisplay path (above) tops out at ~25Hz because each frame
+// is a synchronous SF screenshot + a CPU readback + a GL re-upload, so the live
+// app BEHIND the clock stutters. Instead, stand up a SurfaceFlinger VIRTUAL DISPLAY
+// that mirrors the primary's layer stack into a BufferQueue; SF fills it every
+// composite (a live 60fps feed) at ~zero extra cost. We consume the newest buffer
+// each render frame, import it straight to a GL texture as an EGLImage (NO copy),
+// and V-flip-blit it into mPspClockAppTex so the WHOLE downstream pipeline (blur,
+// lens refraction, parallax, darken) is byte-identical to the old capture path.
+// nano's own overlay layer is flagged skip-screenshot so the mirror excludes it
+// (no feedback) - this replaces the captureDisplay excludeHandles mechanism.
+// Everything here runs on the render thread (the only GL thread), so no mutex.
+sp<IBinder>            gMirDisplay;                 // virtual display token
+sp<SurfaceControl>     gMirLayer;                   // mirrorDisplay() clone (excludes skip-screenshot)
+sp<BufferItemConsumer> gMirConsumer;               // consumes the mirrored frames
+bool                   gMirActive = false;          // pipeline up
+// Dedicated layer stack for the mirror clone + virtual display (kept off the primary's
+// stack 0 so the clone is NEVER composited onto the real panel - no on-screen artifact).
+constexpr uint32_t     kMirLayerStack = 0x6E414D6F;  // 'nAMo' - unlikely to collide
+bool                   gMirFailed = false;          // start failed once -> fall back to worker
+GLuint                 gMirSrcTex = 0;              // GL_TEXTURE_2D bound to the acquired buffer
+EGLImageKHR            gMirImg = EGL_NO_IMAGE_KHR;  // current EGLImage (destroyed on swap)
+GLuint                 gMirFlipFbo = 0;             // FBO wrapping mPspClockAppTex for the flip blit
+BufferItem             gMirHeld;                    // buffer held for release next frame (GPU-read safety)
+bool                   gMirHasHeld = false;
+// Minimal V-flip copy program (mirror src -> mPspClockAppTex).
+GLuint gMirProg = 0; GLint gMirPos = -1, gMirUV = -1, gMirSamp = -1, gMirFlip = -1;
+// EGLImage entry points (loaded lazily; the overlay instance does not run the DRM init).
+PFNEGLCREATEIMAGEKHRPROC            pEglCreateImageKHR = nullptr;
+PFNEGLDESTROYIMAGEKHRPROC           pEglDestroyImageKHR = nullptr;
+PFNGLEGLIMAGETARGETTEXTURE2DOESPROC pGlEGLImageTargetTexture2DOES = nullptr;
+
+static const char MIR_BLIT_VS[] = R"(
+    attribute vec2 aPos; attribute vec2 aUV; varying vec2 vUV;
+    void main() { vUV = aUV; gl_Position = vec4(aPos, 0.0, 1.0); }
+)";
+static const char MIR_BLIT_FS[] = R"(
+    precision mediump float; varying vec2 vUV; uniform sampler2D uT; uniform float uFlip;
+    void main() { vec2 uv = vec2(vUV.x, mix(vUV.y, 1.0 - vUV.y, uFlip)); gl_FragColor = texture2D(uT, uv); }
+)";
 
 } // namespace
 
@@ -157,7 +222,10 @@ void NanoMenu::pspClockPollTilt(bool active) {
             }
         }
     }
-    if (!active) {
+    // Diagnostic kill-switch: force the accelerometer fully OFF (disable the HAL sensor and
+    // skip all polling) so we can A/B whether sensor activity is what stalls the game behind
+    // the clock. persist.gammaos.nano.pspclock.noaccel=1.
+    if (!active || property_get_bool("persist.gammaos.nano.pspclock.noaccel", false)) {
         if (mPspSensorEnabled && mPspSensorQueue && mPspAccelSensor) {
             ASensorEventQueue_disableSensor(mPspSensorQueue, mPspAccelSensor);
             mPspSensorEnabled = false;
@@ -325,8 +393,9 @@ void NanoMenu::pspClockCaptureWorker() {
     // iteration under the mutex so a mid-run refresh (rotation/relaunch) is picked
     // up and a stale exclude handle cannot silently start self-capturing.
     while (gPspCapRun.load(std::memory_order_acquire)) {
-        // ~7Hz throttle; wake every kCapSliceMs to notice a stop request quickly.
-        for (int i = 0; i < kCapPeriodMs / kCapSliceMs &&
+        // Live-tunable throttle; wake every kCapSliceMs to notice a stop request quickly.
+        const int periodMs = pspCapPeriodMs();
+        for (int i = 0; i < periodMs / kCapSliceMs &&
                         gPspCapRun.load(std::memory_order_acquire); i++)
             usleep(kCapSliceMs * 1000);
         if (!gPspCapRun.load(std::memory_order_acquire)) break;
@@ -420,6 +489,243 @@ void NanoMenu::pspClockStopCaptureWorker(int drainMs) {
         usleep(5000);
 }
 
+// Whether the continuous mirror should be used (default) vs the legacy captureDisplay
+// worker. persist.gammaos.nano.pspclock.nomirror=1 forces the worker (fallback / A-B).
+static inline bool pspClockMirrorEnabled() {
+    return !property_get_bool("persist.gammaos.nano.pspclock.nomirror", false);
+}
+
+// Render-thread. Stand up the virtual-display mirror pipeline. Returns false (and leaves
+// nothing allocated) on any failure, so the caller can fall back to the capture worker.
+bool NanoMenu::pspClockMirrorStart() {
+    if (gMirActive) return true;
+    if (mDisplayToken == nullptr || mFlingerSurfaceControl == nullptr) return false;
+    int w = mWidth, h = mHeight;
+    if (w < 8 || h < 8) return false;
+
+    // Lazy-load the EGLImage entry points (the overlay instance never runs the DRM init).
+    if (!pEglCreateImageKHR) {
+        pEglCreateImageKHR  = (PFNEGLCREATEIMAGEKHRPROC) eglGetProcAddress("eglCreateImageKHR");
+        pEglDestroyImageKHR = (PFNEGLDESTROYIMAGEKHRPROC)eglGetProcAddress("eglDestroyImageKHR");
+        pGlEGLImageTargetTexture2DOES =
+            (PFNGLEGLIMAGETARGETTEXTURE2DOESPROC)eglGetProcAddress("glEGLImageTargetTexture2DOES");
+    }
+    if (!pEglCreateImageKHR || !pEglDestroyImageKHR || !pGlEGLImageTargetTexture2DOES) {
+        ALOGW("psp mirror: EGLImage entry points unavailable");
+        return false;
+    }
+
+    // Producer/consumer pair. SF (the virtual display) is the producer; we consume as GPU texture.
+    sp<IGraphicBufferProducer> producer;
+    sp<IGraphicBufferConsumer> consumer;
+    BufferQueue::createBufferQueue(&producer, &consumer);
+    sp<BufferItemConsumer> bic = new BufferItemConsumer(
+        consumer, GraphicBuffer::USAGE_HW_TEXTURE, /*bufferCount=*/4, /*controlledByApp=*/false);
+    if (bic == nullptr) return false;
+    bic->setName(String8("nano-clock-mirror"));
+    bic->setDefaultBufferSize((uint32_t)w, (uint32_t)h);
+    bic->setDefaultBufferFormat(PIXEL_FORMAT_RGBA_8888);
+
+    // Flag OUR overlay skip-screenshot FIRST and apply, so the mirror clone built below
+    // excludes it (mirrorDisplay's clone loop skips isInternalDisplayOverlay layers). This
+    // is what prevents a recursive-clock feedback loop in the backdrop.
+    {
+        SurfaceComposerClient::Transaction sk;
+        sk.setFlags(mFlingerSurfaceControl, layer_state_t::eLayerSkipScreenshot,
+                    layer_state_t::eLayerSkipScreenshot);
+        sk.apply(/*synchronous=*/true);
+    }
+
+    // Resolve the physical display id backing our token (mirrorDisplay wants a DisplayId).
+    std::optional<PhysicalDisplayId> physId;
+    for (PhysicalDisplayId id : SurfaceComposerClient::getPhysicalDisplayIds()) {
+        if (SurfaceComposerClient::getPhysicalDisplayToken(id) == mDisplayToken) { physId = id; break; }
+    }
+    if (!physId) {
+        auto ids = SurfaceComposerClient::getPhysicalDisplayIds();
+        if (!ids.empty()) physId = ids.front();
+    }
+    if (!physId) { ALOGW("psp mirror: no physical display id"); return false; }
+
+    // A cloned mirror of the primary display's layers (EXCLUDES our skip-screenshot overlay
+    // and any secure layers) - this is the feed we route to the virtual display.
+    sp<SurfaceComposerClient> sess = session();
+    sp<SurfaceControl> mirror = (sess != nullptr) ? sess->mirrorDisplay(*physId) : nullptr;
+    if (mirror == nullptr) { ALOGW("psp mirror: mirrorDisplay failed"); return false; }
+
+    // Virtual display whose OWN dedicated layer stack holds only the mirror clone, so the
+    // clone is never composited onto the real panel.
+    sp<IBinder> disp = SurfaceComposerClient::createDisplay(String8("nano-clock-mirror"),
+                                                            /*secure=*/false);
+    if (disp == nullptr) {
+        SurfaceComposerClient::Transaction c; c.reparent(mirror, nullptr); c.apply();
+        ALOGW("psp mirror: createDisplay failed");
+        return false;
+    }
+
+    ui::LayerStack stack = ui::LayerStack::fromValue(kMirLayerStack);
+    SurfaceComposerClient::Transaction t;
+    t.setDisplaySurface(disp, producer);
+    t.setDisplayLayerStack(disp, stack);
+    t.setDisplayProjection(disp, ui::ROTATION_0, Rect(w, h), Rect(w, h));
+    t.setLayerStack(mirror, stack);      // move the clone onto the vdisplay-only stack
+    t.setLayer(mirror, 0x7fffffff);      // top of that stack
+    t.show(mirror);
+    t.apply();
+    gMirLayer = mirror;
+
+    // Minimal V-flip blit program (mirror src -> mPspClockAppTex, orientation-corrected).
+    if (gMirProg == 0) {
+        GLuint vs = compileShader(GL_VERTEX_SHADER, MIR_BLIT_VS);
+        GLuint fs = compileShader(GL_FRAGMENT_SHADER, MIR_BLIT_FS);
+        gMirProg = linkProgram(vs, fs);
+        if (vs) glDeleteShader(vs);
+        if (fs) glDeleteShader(fs);
+        if (gMirProg) {
+            gMirPos  = glGetAttribLocation(gMirProg, "aPos");
+            gMirUV   = glGetAttribLocation(gMirProg, "aUV");
+            gMirSamp = glGetUniformLocation(gMirProg, "uT");
+            gMirFlip = glGetUniformLocation(gMirProg, "uFlip");
+        }
+    }
+    if (gMirProg == 0) {
+        SurfaceComposerClient::Transaction c;
+        c.reparent(mirror, nullptr);
+        c.setFlags(mFlingerSurfaceControl, 0, layer_state_t::eLayerSkipScreenshot);
+        c.apply();
+        SurfaceComposerClient::destroyDisplay(disp);
+        ALOGW("psp mirror: blit program link failed");
+        return false;
+    }
+
+    gMirDisplay  = disp;
+    gMirConsumer = bic;
+    gMirActive   = true;
+    ALOGW("psp mirror: started (%dx%d, stack=0x%x)", w, h, kMirLayerStack);
+    return true;
+}
+
+// Render-thread. Tear the mirror down and un-flag the overlay layer. Safe to call twice.
+void NanoMenu::pspClockMirrorStop() {
+    if (gMirHasHeld && gMirConsumer != nullptr) {
+        gMirConsumer->releaseBuffer(gMirHeld, Fence::NO_FENCE);
+        gMirHasHeld = false;
+    }
+    if (gMirImg != EGL_NO_IMAGE_KHR && pEglDestroyImageKHR) {
+        pEglDestroyImageKHR(eglGetCurrentDisplay(), gMirImg);
+        gMirImg = EGL_NO_IMAGE_KHR;
+    }
+    if (gMirDisplay != nullptr || gMirLayer != nullptr) {
+        SurfaceComposerClient::Transaction t;
+        if (gMirLayer != nullptr) t.reparent(gMirLayer, nullptr);   // drop the mirror clone
+        if (mFlingerSurfaceControl != nullptr)
+            t.setFlags(mFlingerSurfaceControl, 0, layer_state_t::eLayerSkipScreenshot);
+        t.apply();
+        if (gMirDisplay != nullptr) { SurfaceComposerClient::destroyDisplay(gMirDisplay); gMirDisplay = nullptr; }
+        gMirLayer = nullptr;
+    }
+    if (gMirConsumer != nullptr) { gMirConsumer->abandon(); gMirConsumer = nullptr; }
+    if (gMirSrcTex)  { glDeleteTextures(1, &gMirSrcTex);   gMirSrcTex = 0; }
+    if (gMirFlipFbo) { glDeleteFramebuffers(1, &gMirFlipFbo); gMirFlipFbo = 0; }
+    gMirActive = false;
+}
+
+// Render-thread. Import a mirror GraphicBuffer straight to a GL texture (no copy) and
+// V-flip-blit it into mPspClockAppTex, which the rest of the clock samples unchanged.
+void NanoMenu::pspClockMirrorImportAndBlit(const sp<GraphicBuffer>& buf) {
+    if (buf == nullptr) return;
+    const int w = (int)buf->getWidth(), h = (int)buf->getHeight();
+    if (w < 8 || h < 8) return;
+    EGLDisplay dpy = eglGetCurrentDisplay();
+
+    // Rebuild the EGLImage for the new buffer (drop the previous one).
+    if (gMirImg != EGL_NO_IMAGE_KHR) { pEglDestroyImageKHR(dpy, gMirImg); gMirImg = EGL_NO_IMAGE_KHR; }
+    EGLint attrs[] = { EGL_IMAGE_PRESERVED_KHR, EGL_TRUE, EGL_NONE };
+    gMirImg = pEglCreateImageKHR(dpy, EGL_NO_CONTEXT, EGL_NATIVE_BUFFER_ANDROID,
+                                 (EGLClientBuffer)buf->getNativeBuffer(), attrs);
+    if (gMirImg == EGL_NO_IMAGE_KHR) return;
+    if (gMirSrcTex == 0) glGenTextures(1, &gMirSrcTex);
+    glBindTexture(GL_TEXTURE_2D, gMirSrcTex);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    pGlEGLImageTargetTexture2DOES(GL_TEXTURE_2D, (GLeglImageOES)gMirImg);
+    if (glGetError() != GL_NO_ERROR) return;
+
+    // (Re)allocate mPspClockAppTex to the buffer size and attach it to the flip FBO.
+    if (mPspClockAppTex == 0) glGenTextures(1, &mPspClockAppTex);
+    if (w != mPspClockAppTexW || h != mPspClockAppTexH) {
+        glBindTexture(GL_TEXTURE_2D, mPspClockAppTex);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        mPspClockAppTexW = w; mPspClockAppTexH = h;
+    }
+    GLint prevFbo = 0; glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prevFbo);
+    if (gMirFlipFbo == 0) glGenFramebuffers(1, &gMirFlipFbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, gMirFlipFbo);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mPspClockAppTex, 0);
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+        glBindFramebuffer(GL_FRAMEBUFFER, (GLuint)prevFbo);
+        return;
+    }
+    glViewport(0, 0, w, h);
+    glDisable(GL_BLEND);
+    glUseProgram(gMirProg);
+    // Fullscreen quad (triangle strip). Default flip=1 (SF buffer is display-top-first;
+    // downstream expects upright). Live-tunable so orientation can be corrected on-device.
+    static const GLfloat pos[] = { -1,-1,  1,-1, -1, 1,  1, 1 };
+    static const GLfloat uv[]  = {  0, 0,  1, 0,  0, 1,  1, 1 };
+    glVertexAttribPointer(gMirPos, 2, GL_FLOAT, GL_FALSE, 0, pos);
+    glEnableVertexAttribArray(gMirPos);
+    glVertexAttribPointer(gMirUV, 2, GL_FLOAT, GL_FALSE, 0, uv);
+    glEnableVertexAttribArray(gMirUV);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, gMirSrcTex);
+    glUniform1i(gMirSamp, 0);
+    glUniform1f(gMirFlip, property_get_bool("persist.gammaos.nano.pspclock.mirrorflip", true) ? 1.0f : 0.0f);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    glDisableVertexAttribArray(gMirPos);
+    glDisableVertexAttribArray(gMirUV);
+    glBindFramebuffer(GL_FRAMEBUFFER, (GLuint)prevFbo);
+    glViewport(0, 0, mWidth, mHeight);
+    mPspClockAppTexValid = true;
+}
+
+// Render-thread. Lifecycle + per-frame pump for the continuous mirror. Drains to the
+// NEWEST queued frame (dropping older ones), imports it zero-copy, holds it one frame for
+// GPU-read safety, then releases it on the next pump.
+void NanoMenu::pspClockMirrorTick(bool want) {
+    if (want && !gMirActive) {
+        if (!pspClockMirrorStart()) { gMirFailed = true; return; }
+        gMirFailed = false;
+    } else if (!want && gMirActive) {
+        pspClockMirrorStop();
+        return;
+    }
+    if (!gMirActive || gMirConsumer == nullptr) return;
+
+    // Release the buffer we held last frame (its GPU read has completed by now).
+    if (gMirHasHeld) {
+        gMirConsumer->releaseBuffer(gMirHeld, Fence::NO_FENCE);
+        gMirHasHeld = false;
+    }
+    // Drain to the newest available buffer (mirror runs at SF's 60fps; keep only the latest).
+    BufferItem item, newest; bool have = false;
+    while (gMirConsumer->acquireBuffer(&item, 0, /*waitForFence=*/false) == NO_ERROR) {
+        if (have) gMirConsumer->releaseBuffer(newest, Fence::NO_FENCE);
+        newest = item; have = true;
+    }
+    if (!have) return;                       // no new frame this tick; keep the last texture
+    if (newest.mFence != nullptr && newest.mFence != Fence::NO_FENCE)
+        newest.mFence->wait(kCapFenceMs);
+    pspClockMirrorImportAndBlit(newest.mGraphicBuffer);
+    gMirHeld = newest; gMirHasHeld = true;   // hold one frame for GPU-read safety
+}
+
 // Render-thread ONLY. Starts/stops the detached worker to match the gate, refreshes
 // the worker's binder inputs each frame (so a rotation/relaunch cannot leave a stale
 // exclude handle -> self-capture, or a stale display token), and uploads the latest
@@ -427,8 +733,26 @@ void NanoMenu::pspClockStopCaptureWorker(int drainMs) {
 // (microseconds) - NEVER across a binder call, a GL call, or a SW buffer lock, so it
 // cannot stall the render thread into the ~8s watchdog.
 void NanoMenu::pspClockAppCaptureTick() {
+    // Diagnostic kill-switch: force the live-app SF capture OFF to A/B whether the
+    // full-display captureDisplay is what stalls the game. persist.gammaos.nano.pspclock.nocap=1.
     const bool want = pspClockLiveAppEnabled()
+                   && !property_get_bool("persist.gammaos.nano.pspclock.nocap", false)
                    && ((mOverlayMode && !mOverlayWallpaper) || pspClockAppSrcDebug());
+
+    // Preferred path: the continuous virtual-display mirror (live 60fps, zero-copy). It
+    // supersedes the captureDisplay worker below. If the mirror fails to start once we
+    // fall through to the worker (never a hard black), and nomirror=1 forces the worker.
+    if (pspClockMirrorEnabled() && !gMirFailed) {
+        // The mirror owns live-app capture; make sure the legacy worker is fully stopped.
+        if (mPspClockCaptureRunning) {
+            gPspCapRun.store(false, std::memory_order_release);
+            mPspClockCaptureRunning = false;
+        }
+        pspClockMirrorTick(want);
+        return;   // mirror path handles the whole lifecycle for this frame
+    }
+    // Mirror disabled or failed to start: tear it down (if up) and run the worker path.
+    if (gMirActive) pspClockMirrorStop();
 
     // ---- collect the current nano-owned layer handles (render thread) ----
     // Exclude the primary overlay layer AND every secondary wallpaper control that
@@ -557,6 +881,7 @@ void NanoMenu::drawPspClock(float dtMs) {
             gPspCapRun.store(false, std::memory_order_release);
             mPspClockCaptureRunning = false;
         }
+        if (gMirActive) pspClockMirrorStop();   // and tear the mirror down
         return;
     }
 
@@ -569,6 +894,7 @@ void NanoMenu::drawPspClock(float dtMs) {
             gPspCapRun.store(false, std::memory_order_release);
             mPspClockCaptureRunning = false;
         }
+        if (gMirActive) pspClockMirrorStop();   // and tear the mirror down (release the vdisplay)
         // Standalone summon fully retracted: lower the overlay WE raised (the framework
         // left show_overlay=1 through the retract so this animates fully first). Clearing
         // standalone first lets overlayPoll's hide guard pass; it does the actual overlayHide.
