@@ -6083,11 +6083,17 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             return;
         }
         if (down) {
-            final boolean appRunning = android.os.SystemProperties.getBoolean(
-                    "sys.gammaos.nano.app_launched", false);
+            // Do NOT gate on sys.gammaos.nano.app_launched: over a fullscreen app the framework
+            // is the sole F12 handler (home mode EVIOCGRABs the evdev nodes so PWM never sees it),
+            // and the rotate action run just before this (updateRotation) is itself what triggers
+            // the nano relaunch that sets app_launched=1. So on the FIRST swivel app_launched still
+            // reads its pre-rotation 0 and the summon was dropped, needing a second press. nano's
+            // overlayShow opens the clock in scrim mode whenever pspclock_summon=1 regardless of
+            // app_launched, so the check only ever cost the first press. Keep the !overlayUp guard
+            // so we do not double-handle when the overlay is already up (nano's evdev owns it there).
             final boolean overlayUp = "1".equals(android.os.SystemProperties.get(
                     "sys.gammaos.nano.show_overlay", "0"));
-            if (appRunning && !overlayUp) {
+            if (!overlayUp) {
                 android.os.SystemProperties.set("sys.gammaos.nano.pspclock_summon", "1");
                 android.os.SystemProperties.set("sys.gammaos.nano.show_overlay", "1");
             }
