@@ -6026,6 +6026,13 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     // key even over a fullscreen app, where the framework never does), so here it is a no-op.
     private boolean mGammaRotateDown = false;   // key currently in the DOWN (rotated) state
     private Runnable mGammaSleepRunnable = null; // pending slide-to-sleep timeout (null = none armed)
+    // Gradual dim-before-sleep (persist.gammaos.rotate.sleep_dim): while the sleep countdown runs we
+    // ramp the default-display brightness from its start value down toward minimum, then sleep. The
+    // opposite slide (gammaCancelSleep) restores the saved brightness and drops the ramp callbacks.
+    private Runnable mGammaDimRunnable = null;   // pending dim-ramp step (null = none running)
+    private float mGammaDimSavedBrightness = Float.NaN; // brightness captured before the first step
+    private long mGammaDimStartMs = 0;           // uptime of the first dim step
+    private long mGammaDimDurationMs = 0;        // total ramp window in ms (= delaySec * 1000)
 
     private boolean interceptGammaRotateKey(KeyEvent event) {
         if (!android.os.SystemProperties.getBoolean("persist.gammaos.rotate.enabled", false)) {
@@ -6226,6 +6233,15 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             return;
         }
         gammaCancelSleep();
+        // With sleep_dim on (default) and the screen currently interactive, progressively dim the
+        // screen across the delay window and sleep at its end via the ramp itself. Otherwise fall
+        // back to the plain delayed goToSleep with no brightness change.
+        final boolean dim = android.os.SystemProperties.getBoolean(
+                "persist.gammaos.rotate.sleep_dim", true);
+        if (dim && mDisplayManager != null && mPowerManager.isInteractive()) {
+            gammaStartDimRamp(delaySec * 1000L);
+            return;
+        }
         mGammaSleepRunnable = new Runnable() {
             @Override public void run() {
                 mGammaSleepRunnable = null;
@@ -6236,11 +6252,73 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         mHandler.postDelayed(mGammaSleepRunnable, delaySec * 1000L);
     }
 
+    // Interval between dim-ramp steps. Small enough to look like a smooth fade, large enough not to
+    // spam the DisplayManager. The final step (progress >= 1) restores nothing, it sleeps.
+    private static final long GAMMA_DIM_STEP_MS = 200L;
+
+    // Start (or restart) the gradual dim-before-sleep ramp over durationMs. The very first step
+    // captures the starting brightness into mGammaDimSavedBrightness so gammaCancelSleep can restore
+    // it; each step interpolates from that value toward the display minimum by elapsed/duration, and
+    // the terminal step calls goToSleep.
+    private void gammaStartDimRamp(long durationMs) {
+        mGammaDimStartMs = SystemClock.uptimeMillis();
+        mGammaDimDurationMs = durationMs > 0 ? durationMs : GAMMA_DIM_STEP_MS;
+        // Capture the current brightness once, up front, so a restore always has a valid target even
+        // if the very first ramp step is where we would otherwise read it.
+        float start = mDisplayManager.getBrightness(DEFAULT_DISPLAY);
+        mGammaDimSavedBrightness = start;
+        mGammaDimRunnable = new Runnable() {
+            @Override public void run() {
+                // If cancelled between posts this runnable was removed; but guard anyway.
+                if (mGammaDimRunnable != this) {
+                    return;
+                }
+                final long now = SystemClock.uptimeMillis();
+                final float progress = mGammaDimDurationMs > 0
+                        ? (float) (now - mGammaDimStartMs) / (float) mGammaDimDurationMs
+                        : 1f;
+                if (progress >= 1f) {
+                    // End of the window: sleep. Do NOT restore brightness; the panel is going off and
+                    // the framework re-applies the user brightness on the next wake.
+                    mGammaDimRunnable = null;
+                    mGammaDimSavedBrightness = Float.NaN;
+                    mPowerManager.goToSleep(SystemClock.uptimeMillis(),
+                            android.os.PowerManager.GO_TO_SLEEP_REASON_SLEEP_BUTTON, 0);
+                    return;
+                }
+                final float minBrightness = mPowerManager.getBrightnessConstraint(
+                        PowerManager.BRIGHTNESS_CONSTRAINT_TYPE_MINIMUM);
+                final float from = Float.isNaN(mGammaDimSavedBrightness)
+                        ? mDisplayManager.getBrightness(DEFAULT_DISPLAY)
+                        : mGammaDimSavedBrightness;
+                // Only dim downward: if the captured start is already at/below min there is nothing to
+                // ramp, so just hold min. Interpolate from -> min linearly by progress.
+                float target = from + (minBrightness - from) * progress;
+                if (target < minBrightness) target = minBrightness;
+                if (target > from) target = from;
+                mDisplayManager.setBrightness(DEFAULT_DISPLAY, target);
+                mHandler.postDelayed(this, GAMMA_DIM_STEP_MS);
+            }
+        };
+        // Run the first step immediately so the dim starts the moment the slide is released.
+        mHandler.post(mGammaDimRunnable);
+    }
+
     private void gammaCancelSleep() {
         if (mGammaSleepRunnable != null) {
             mHandler.removeCallbacks(mGammaSleepRunnable);
             mGammaSleepRunnable = null;
         }
+        if (mGammaDimRunnable != null) {
+            mHandler.removeCallbacks(mGammaDimRunnable);
+            mGammaDimRunnable = null;
+            // Restore the brightness the ramp was dimming from, so the opposite slide cancels the
+            // dim cleanly. Guard the DisplayManager and the saved value (NaN = never captured).
+            if (mDisplayManager != null && !Float.isNaN(mGammaDimSavedBrightness)) {
+                mDisplayManager.setBrightness(DEFAULT_DISPLAY, mGammaDimSavedBrightness);
+            }
+        }
+        mGammaDimSavedBrightness = Float.NaN;
     }
 
     private void gammaRotateApply(boolean rotated) {
