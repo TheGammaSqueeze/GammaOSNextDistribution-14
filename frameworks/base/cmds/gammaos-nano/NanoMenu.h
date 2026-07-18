@@ -1762,10 +1762,17 @@ private:
     // overlay when the clock finishes retracting. mPspClockRaisedOverlay = we raised it.
     bool  mPspClockStandalone = false;
     bool  mPspClockRaisedOverlay = false;
-    // Swipe-to-dismiss: while the clock is up a touch swipe closes it WITHOUT touching the
-    // rotation, so the user can exit the clock but keep the device rotated. Tracks the touch-down
-    // point and the peak distance travelled; a release past the threshold dismisses.
+    // Swipe-to-dismiss: while the clock is up a touch swipe drags the WHOLE clock up with the
+    // finger and, past a threshold, flings it off the top + dismisses - all WITHOUT touching the
+    // rotation, so the user can exit the clock but keep the device rotated. Released short, it
+    // springs back. Tracks the touch-down point + peak travel, the live drag, and the smoothed
+    // spring/fling follower that is added to mPspLensCy so the clock moves as one rigid body.
     float mPspSwipeDownX = 0.0f, mPspSwipeDownY = 0.0f, mPspSwipeMoved = 0.0f;
+    float mPspSwipeRawPx = 0.0f;      // live finger drag in device px (negative = up); 0 when not dragging
+    float mPspSwipeOffset = 0.0f;     // smoothed follower actually added to the clock Y (spring/fling)
+    float mPspSwipeVel = 0.0f;        // px/frame velocity for the spring + fling
+    bool  mPspSwipeDragging = false;  // finger down and driving the drag
+    bool  mPspSwipeFling = false;     // released past threshold: coasting off the top + dismissing
     float mPspClockReveal = 0.0f;     // 0..1 transition progress (open 5000ms / close 2700ms)
     float mPspDescent = -1.0f;        // smoothed vertical fraction (-1 off-top, 0 rest)
     float mPspDetailFade = 0.0f;      // trail/ticks/ambient-glyph gate (in once settled)

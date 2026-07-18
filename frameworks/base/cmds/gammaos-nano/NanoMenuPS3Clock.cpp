@@ -303,20 +303,26 @@ void NanoMenu::pspClockTouchFrame() {
     float px, py; const bool mapped = touchMapRaw(mTouchRawX, mTouchRawY, px, py);
     if (downEdge && mapped) {
         mPspSwipeDownX = px; mPspSwipeDownY = py; mPspSwipeMoved = 0.0f;
+        mPspSwipeDragging = true; mPspSwipeRawPx = 0.0f; mPspSwipeFling = false;
     } else if (down && mapped) {
         const float dx = px - mPspSwipeDownX, dy = py - mPspSwipeDownY;
         const float d = sqrtf(dx * dx + dy * dy);
         if (d > mPspSwipeMoved) mPspSwipeMoved = d;
+        // Drag the whole clock with the finger (screen Y grows down, so up = negative). This is a
+        // swipe-UP-to-dismiss, so a downward drag is rubber-banded - the clock resists moving below
+        // its rest. drawPspClock's follower turns this into the applied offset each frame.
+        mPspSwipeRawPx = (dy < 0.0f) ? dy : dy * 0.25f;
     } else if (upEdge) {
+        // Clear UP swipe past the threshold = fling the clock off the top + dismiss (the follower
+        // in drawPspClock coasts the offset off-screen, THEN drops mPspClockOn). Released short, the
+        // clock is left open so the follower springs it back to rest. Same peak-travel threshold.
         const float thresh = 0.15f * (float)std::min(mWidth, mHeight);
-        // Only dismiss while the clock is genuinely open (not already closing), so one swipe = one
-        // dismiss. The eased-close on the home clock and the instant snap on the standalone clock
-        // are both driven by mPspClockOn going false (pspClockPollInput / the reveal machine).
-        if (mPspClockOn && mPspSwipeMoved >= thresh) {
-            mPspClockOn = false;
-            mPspGlyphBurst = 0.6f;
+        if (mPspClockOn && mPspSwipeMoved >= thresh && mPspSwipeRawPx < 0.0f) {
+            mPspSwipeFling = true;
+            if (mPspSwipeVel > -12.0f) mPspSwipeVel = -12.0f;   // ensure it keeps moving up
+            mPspGlyphBurst = 0.6f;                              // the existing blow-away kick
         }
-        mPspSwipeMoved = 0.0f;
+        mPspSwipeDragging = false; mPspSwipeRawPx = 0.0f; mPspSwipeMoved = 0.0f;
     }
     mTouchWasDown = mTouchDown;
 }
@@ -1044,6 +1050,9 @@ void NanoMenu::drawPspClock(float dtMs) {
     if (!mPspClockOn && mPspClockReveal <= 0.0f) {
         // Parked (closed): reset the smoothed followers for a clean next open.
         mPspDescent = -1.0f; mPspTextFadeSmooth = 1.0f; mPspDetailFade = 0.0f;
+        // Clear the swipe follower too, so a clock flung off-screen starts the next open at rest.
+        mPspSwipeOffset = 0.0f; mPspSwipeVel = 0.0f; mPspSwipeRawPx = 0.0f;
+        mPspSwipeDragging = false; mPspSwipeFling = false;
         // Fully closed: stop the live-app capture worker (we early-return here, so
         // pspClockAppCaptureTick's gate-drop branch is never reached on the close).
         if (mPspClockCaptureRunning) {
@@ -1122,8 +1131,31 @@ void NanoMenu::drawPspClock(float dtMs) {
     }
     mPspDescent += (descentTarget - mPspDescent) * kSmooth;
     const float descentPx = mPspDescent * (272.0f + 50.0f) * sc2;
+    // Swipe-to-dismiss follower: a damped spring that sticks to the finger 1:1 while dragging,
+    // springs back to rest when released short, and coasts off the top when flung, moving the WHOLE
+    // clock (disc + face + glow + entrance) as one rigid body via the single mPspLensCy anchor.
+    // Once the fling carries the clock off-screen, drop mPspClockOn so the reveal machine parks it
+    // (standalone: pspClockPollInput snaps the reveal; home: the eased retract runs off-screen).
+    {
+        const float target = mPspSwipeDragging ? mPspSwipeRawPx
+                           : mPspSwipeFling     ? -(H * 1.2f)
+                                                : 0.0f;
+        const float kS = 1.0f - expf(-dtMs / (mPspSwipeDragging ? 22.0f : 60.0f));
+        mPspSwipeVel += (target - mPspSwipeOffset) * kS;
+        mPspSwipeVel *= 0.72f;                      // damping
+        mPspSwipeOffset += mPspSwipeVel;
+        // Once the fling reaches off-screen, drop mPspClockOn to start the dismiss, but KEEP
+        // mPspSwipeFling set so the offset stays pinned off the top through the close (standalone
+        // snaps instantly; the home eased retract then runs invisibly - no spring-back into view).
+        // mPspSwipeFling is cleared only when fully parked (the closed-branch reset above). A normal
+        // swivel-back close never sets mPspSwipeFling, so it is unaffected (offset stays 0).
+        if (mPspSwipeFling && mPspClockOn && mPspSwipeOffset <= -H) {
+            mPspClockOn = false;
+        }
+    }
+    const float swipeOffsetPx = mPspSwipeOffset;
     mPspLensCx = ox + 240.0f * sc2;
-    mPspLensCy = oy + (136.0f + floatY) * sc2 + descentPx;
+    mPspLensCy = oy + (136.0f + floatY) * sc2 + descentPx + swipeOffsetPx;
     mPspLensR  = 141.0f * sc2;
     mPspLensValid = (clockReveal > 0.0f);
 
@@ -1187,19 +1219,22 @@ void NanoMenu::drawPspClock(float dtMs) {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE);
     {
         const float BURST_P = 0.7f;
+        // The entrance burst rides the same swipe offset so the clock stays a rigid body if a swipe
+        // starts mid-open (at rest swipeOffsetPx is 0, so this is byte-identical to before).
+        const float eoy = oy + swipeOffsetPx;
         float burstEnv = clamp01((0.65f - mPspClockReveal) / 0.16f);
         auto burstFed = [&](float delay){ float r = mPspClockReveal - delay; return r > 0 ? fmodf(r/BURST_P, 1.0f)*0.87f : 0.0f; };
-        pspClockEntrance(sc2, ox, oy, std::min(1.0f, burstFed(0.0f)),            0.0f,  burstEnv);
-        pspClockEntrance(sc2, ox, oy, std::min(1.0f, burstFed(BURST_P/3.0f)),    0.42f, burstEnv);
-        pspClockEntrance(sc2, ox, oy, std::min(1.0f, burstFed(2.0f*BURST_P/3.0f)),0.84f, burstEnv);
+        pspClockEntrance(sc2, ox, eoy, std::min(1.0f, burstFed(0.0f)),            0.0f,  burstEnv);
+        pspClockEntrance(sc2, ox, eoy, std::min(1.0f, burstFed(BURST_P/3.0f)),    0.42f, burstEnv);
+        pspClockEntrance(sc2, ox, eoy, std::min(1.0f, burstFed(2.0f*BURST_P/3.0f)),0.84f, burstEnv);
         const float ICON_P = 0.62f;
         float iconFedA = fmodf(mPspClockReveal, ICON_P) * 0.87f;
         float rIB = mPspClockReveal - ICON_P/2.0f;
         float iconFedB = rIB > 0 ? fmodf(rIB, ICON_P)*0.87f : 0.0f;
         int iconCycleA = (int)(mPspClockReveal / ICON_P);
         int iconCycleB = rIB > 0 ? (int)(rIB / ICON_P) : 0;
-        pspClockEntranceIcons(sc2, ox, oy, iconFedA, burstEnv, mPspIconSeed + iconCycleA*2);
-        pspClockEntranceIcons(sc2, ox, oy, iconFedB, burstEnv, mPspIconSeed + iconCycleB*2 + 1);
+        pspClockEntranceIcons(sc2, ox, eoy, iconFedA, burstEnv, mPspIconSeed + iconCycleA*2);
+        pspClockEntranceIcons(sc2, ox, eoy, iconFedB, burstEnv, mPspIconSeed + iconCycleB*2 + 1);
         pspClockAmbientGlyphs(dtMs);
     }
     setUiBlend();
