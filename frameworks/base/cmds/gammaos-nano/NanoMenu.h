@@ -1149,6 +1149,13 @@ private:
         float iconR = 1.0f, iconG = 1.0f, iconB = 1.0f;  // _ChangingColor tint
         int kind = 0;
         int a = 0, b = 0;
+        // Multi-select / toggle rows (Slide Up/Down actions, Passthrough Blacklist,
+        // Devices to Capture, App permissions) draw a real checkbox glyph at the left
+        // of the row instead of a "[Selected]"/"[Blocked]" text suffix or a right-side
+        // On/Off value. -1 = not a checkbox row (render exactly as a normal row, no
+        // layout change); 0 = unchecked box; 1 = checked box. Set at item build time by
+        // the toggle builders and refreshed whenever the level is rebuilt in place.
+        int checkState = -1;
         const Ps3DataItem* data = nullptr;  // static DATA node (children + meta)
         int action = 0;                     // 0 none, 1 dialog, 2 landing
         // Settings binding resolved ONCE at item build (makeDataItem) from the

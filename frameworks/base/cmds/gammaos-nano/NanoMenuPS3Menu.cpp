@@ -1962,7 +1962,11 @@ void NanoMenu::buildAppPermsLevel(Ps3Level& out) {
     for (auto& p : mAppInfoPerms) {
         Ps3Item it; it.kind = PS3_QUICK; it.a = QA_APP_PERM_TOGGLE;
         it.label      = p.label;                       // permission label (left)
-        it.value      = p.granted ? "Granted" : "Denied"; // state (right column)
+        // Real checkbox (checked = granted) instead of a right-side Granted/Denied
+        // value; the renderer suppresses the value for checkbox rows. it.value keeps
+        // the granted/denied text as a harmless fallback (never shown for a checkbox row).
+        it.value      = p.granted ? "Granted" : "Denied";
+        it.checkState = p.granted ? 1 : 0;
         it.payloadStr = p.perm;                        // raw permission (for the action)
         it.b          = p.granted ? 1 : 0;
         it.iconTex = iconTexForIcon(16); it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 1.0f;
@@ -2041,7 +2045,9 @@ void NanoMenu::buildDevicesSubmenu(Ps3Level& out) {
     for (auto& name : devs) {
         bool on = std::find(sel.begin(), sel.end(), name) != sel.end();
         Ps3Item it; it.kind = PS3_QUICK; it.a = QA_DEV_CAPTURE_TOGGLE; it.value = name;
-        it.label = name + (on ? "    [Captured]" : "");
+        // Real checkbox instead of a "    [Captured]" text suffix (checked = captured).
+        it.label = name;
+        it.checkState = on ? 1 : 0;
         it.iconTex = iconTexForIcon(16); it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 1.0f;
         out.items.push_back(it);
     }
@@ -2195,7 +2201,9 @@ void NanoMenu::buildBlacklistSubmenu(Ps3Level& out) {
     int n; const GpCode* t = gpTable(false, n);
     for (int i = 0; i < n; i++) {
         Ps3Item it; it.kind = PS3_QUICK; it.a = QA_BLACKLIST_TOGGLE; it.b = t[i].code;
-        it.label = std::string(t[i].name) + (has(t[i].code) ? "    [Blocked]" : "");
+        // Real checkbox instead of a "    [Blocked]" text suffix (checked = blocked).
+        it.label = t[i].name;
+        it.checkState = has(t[i].code) ? 1 : 0;
         it.iconTex = iconTexForIcon(16); it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 1.0f;
         out.items.push_back(it);
     }
@@ -2236,7 +2244,12 @@ void NanoMenu::buildSlideActionSubmenu(Ps3Level& out, bool up) {
     int qa = up ? QA_SLIDE_UP_TOGGLE : QA_SLIDE_DOWN_TOGGLE;
     for (const auto& a : kActs) {
         Ps3Item it; it.kind = PS3_QUICK; it.a = qa; it.value = a.name;
-        it.label = std::string(a.label) + (has(a.name) ? "    [Selected]" : "");
+        // Real checkbox instead of a "    [Selected]" text suffix: keep the plain
+        // action label and let the row renderer draw a checked/unchecked box at the
+        // left. it.value stays the action name for the toggle dispatch; the checkbox
+        // (not a right-side value) shows the membership state.
+        it.label = a.label;
+        it.checkState = has(a.name) ? 1 : 0;
         it.iconTex = iconTexForIcon(16); it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 1.0f;
         out.items.push_back(it);
     }
@@ -4696,6 +4709,24 @@ void NanoMenu::renderPs3Xmb() {
             float ts = ps3::fontScale(tSize);
             float tx = ps3::devX(ps3::XCP(ps3::ITEM_TEXT_X + xShiftV));
             float ty = ps3::baselineToTopY(ps3::devY(y), ts);
+            // Multi-select / toggle rows draw a real checkbox at the left of the row
+            // (it.checkState 0 = unchecked, 1 = checked). The box + a gap are carved
+            // out of the label's left edge: the label start (tx) shifts right by
+            // (box + gap) so the two never overlap, and the box is drawn in the
+            // vacated gutter, vertically centred on the row. Sized in virtual px
+            // (ps3::devS) so it tracks the layout scale like every other row element.
+            // checkState < 0 (normal rows) leaves tx untouched - identical layout to
+            // before. The box is deferred to just after the label is drawn (it shares
+            // the row alpha and the same solid-geometry path as the now-playing glow).
+            bool  isCheckRow = (it.checkState >= 0);
+            float ckBox = 0.0f, ckGap = 0.0f, ckX = 0.0f, ckY = 0.0f;
+            if (isCheckRow) {
+                ckBox = ps3::devS(24.0f);          // box side (virtual 24px)
+                ckGap = ps3::devS(14.0f);          // gap before the label
+                ckX   = tx;                        // box sits where the label used to start
+                ckY   = ps3::devY(y) - ckBox * 0.5f;  // centred on the row's vertical middle
+                tx   += ckBox + ckGap;             // push the label right past the box
+            }
             const char* L = trDyn(it.label.c_str());
             // Scissor a full-height X band [bx, bx+bw], mapped through the
             // composed rotation+flip matrix (see scissorLogicalRect; the old
@@ -4724,6 +4755,11 @@ void NanoMenu::renderPs3Xmb() {
                                     ? resolvePs3ItemValue(it)
                                     : trDyn(resolvePs3ItemValue(it).c_str());
             bool hasVal = !itVal.empty();
+            // Checkbox rows carry the membership state in the box glyph, not a
+            // right-side value (App permissions' "Granted"/"Denied", the slide
+            // actions' internal action name in it.value). Suppress the value so the
+            // row is a clean label + checkbox.
+            if (isCheckRow) hasVal = false;
             // Suppress the row value while a side-panel chooser is open OR fading
             // out (web sidePanelActive): the scrim panel owns that right gutter, and
             // the value being edited is shown inside the panel, so the row reverts to
@@ -4809,6 +4845,50 @@ void NanoMenu::renderPs3Xmb() {
                 drawText(L, lx, ty, ts, 0.92f, 0.92f, 0.92f, alpha);
             }
             if (scissorOn) glDisable(GL_SCISSOR_TEST);
+            // Real checkbox glyph at the left gutter (see the tx-shift above). Drawn
+            // with the same solid-geometry primitives (drawQuad borders + ps3ThickLine
+            // tick) and the row's text alpha, so it fades / crossfades with the row
+            // exactly like the label. An outlined square in the label grey; when
+            // checked, a soft inner fill plus a two-stroke check mark in a brighter
+            // tint. Deferred to here (after the label) so its geometry does not sit
+            // between the icon's glass pass and the text.
+            if (isCheckRow && alpha > 0.01f) {
+                float bw = ps3::devS(2.0f);        // border stroke width (virtual 2px)
+                float bx0 = ckX, by0 = ckY, bs = ckBox;
+                float bA = isActive ? alpha : alpha * 0.85f;   // brighter on the focused row
+                float gr = 0.85f, gg = 0.85f, gb = 0.90f;      // outline == chevron grey
+                // Drop shadow behind the box border so it reads over the bright wave,
+                // matching the label/value stroke convention (mPs3ShadowAlpha).
+                float sA = mPs3ShadowAlpha * alpha, so = ps3::devS(1.0f);
+                auto edge = [&](float x, float y, float w, float h, float r, float g, float b, float a) {
+                    drawQuad(x, y, w, h, r, g, b, a);
+                };
+                // shadow outline (offset down-right by 1 virtual px)
+                edge(bx0 + so,          by0 + so,          bs, bw, 0,0,0, sA);
+                edge(bx0 + so,          by0 + bs - bw + so, bs, bw, 0,0,0, sA);
+                edge(bx0 + so,          by0 + so,          bw, bs, 0,0,0, sA);
+                edge(bx0 + bs - bw + so, by0 + so,         bw, bs, 0,0,0, sA);
+                // the four border edges of the square
+                edge(bx0,          by0,           bs, bw, gr, gg, gb, bA);  // top
+                edge(bx0,          by0 + bs - bw, bs, bw, gr, gg, gb, bA);  // bottom
+                edge(bx0,          by0,           bw, bs, gr, gg, gb, bA);  // left
+                edge(bx0 + bs - bw, by0,          bw, bs, gr, gg, gb, bA);  // right
+                if (it.checkState == 1) {
+                    // Soft inner fill so the checked state reads at a glance even at
+                    // small sizes, then a crisp two-segment tick over it.
+                    float in = bw + ps3::devS(2.0f);
+                    drawQuad(bx0 + in, by0 + in, bs - 2.0f * in, bs - 2.0f * in,
+                             0.62f, 0.80f, 1.0f, bA * 0.45f);
+                    float tw = ps3::devS(3.0f);       // tick stroke width
+                    // Check mark inside the box: from lower-left, down to the
+                    // bottom-of-V, up to the upper-right (classic tick shape).
+                    float x1 = bx0 + bs * 0.24f, y1 = by0 + bs * 0.52f;
+                    float x2 = bx0 + bs * 0.44f, y2 = by0 + bs * 0.72f;
+                    float x3 = bx0 + bs * 0.78f, y3 = by0 + bs * 0.28f;
+                    ps3ThickLine(x1, y1, x2, y2, tw, 0.95f, 0.98f, 1.0f, bA);
+                    ps3ThickLine(x2, y2, x3, y3, tw, 0.95f, 0.98f, 1.0f, bA);
+                }
+            }
             if (isActive) {
                 // Description fades in only when the active item is centred, so
                 // it does not flash two descriptions while the list is scrolling.
