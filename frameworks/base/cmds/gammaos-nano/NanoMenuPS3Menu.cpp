@@ -5711,7 +5711,7 @@ static const Ps3SettingBinding kPs3Bindings[] = {
      "90:90 degrees,180:180 degrees,270:270 degrees"},
     {"Slide Launch Target", SettingSource::kProp, "persist.gammaos.rotate.launch_target", "", "@text"},
     {"Show Clock On Slide", SettingSource::kProp, "persist.gammaos.nano.pspclock", "0", "0:Off,1:On"},
-    {"Clock Live Backdrop", SettingSource::kProp, "persist.gammaos.nano.pspclock.liveapp", "0", "0:Off,1:On"},
+    {"Clock Live Backdrop", SettingSource::kProp, "persist.gammaos.nano.pspclock.liveapp", "1", "0:Off,1:On"},
     {"Parallax Calibration", SettingSource::kProp, "persist.gammaos.nano.pspclock.tilt.cal", "0.12,1,-1,-1", "@text"},
     // Developer Options
     {"USB Debugging", SettingSource::kGlobal, "adb_enabled", "0", "0:Off,1:On"},

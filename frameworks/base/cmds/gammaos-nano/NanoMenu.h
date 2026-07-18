@@ -3150,6 +3150,7 @@ private:
     void  pspClockSampleGlow();                // dominant wallpaper colour -> mPspGlow (5.9.4)
     // --- live-app capture (#5) ---
     bool  pspClockLiveAppEnabled() const;      // master gate (persist prop, default OFF)
+    bool  pspClockLiveBackdropOn() const;      // Clock Live Backdrop toggle: ON=live app, OFF=dark
     bool  pspClockUseAppSource() const;        // lens should sample the captured app, not the wave
     void  pspClockSampleAppDim();              // app mean brightness -> mPspAppDim / mPspAppBackdropDark
     void  pspClockAppCaptureTick();            // render-thread: start/stop worker + upload latest frame

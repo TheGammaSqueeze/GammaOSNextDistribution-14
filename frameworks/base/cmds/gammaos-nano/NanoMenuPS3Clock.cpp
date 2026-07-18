@@ -500,6 +500,18 @@ bool NanoMenu::pspClockLiveAppEnabled() const {
         || (mOverlayMode && !mOverlayWallpaper && mPspClockStandalone);
 }
 
+// User intent for the "Clock Live Backdrop" toggle (persist.gammaos.nano.pspclock.liveapp):
+// ON = show the live blurred app behind the glass; OFF = an opaque dark frosted backdrop (the game
+// is hidden, night-mode look). This is DISTINCT from pspClockLiveAppEnabled(), which force-keeps the
+// app CAPTURE running over an app so there are always opaque pixels to paint (the
+// eLayerSkipScreenshot surround must never be transparent) - this is only the compositing choice.
+bool NanoMenu::pspClockLiveBackdropOn() const {
+    // Default ON: the live game behind the glass is the effect the clock was built around, so an
+    // unset prop shows it; the toggle set to 0 switches to the dark night-mode backdrop.
+    return property_get_bool("persist.gammaos.nano.pspclock.liveapp", true)
+        || pspClockAppSrcDebug();
+}
+
 // The lens should sample the captured app (not the wave) when there is a live app
 // behind us: overlay-instance scrim mode (mOverlayMode && !mOverlayWallpaper), OR
 // the debug appsrc prop is forcing it. Only once we actually hold a frame.
@@ -1357,16 +1369,20 @@ void NanoMenu::pspClockBackdropBlur(float amt) {
         drawFrostedGlass(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f,
                          1.0f, 1.0f, 1.0f, 1.0f, /*fade=*/1.0f, /*waveSpace=*/true, /*tonemapOverride=*/0.0f,
                          mPspClockAppTex, mPspClockAppTexW, mPspClockAppTexH);
-        // 2) Blurred copy cross-faded over the sharp base, alpha = eased reveal - a continuous,
-        //    smooth defocus build with no quantized radius jump.
-        if (e > 0.001f)
+        // Clock Live Backdrop toggle. ON: cross-fade the live blurred game in with the reveal so it
+        // stays readable behind the glass. OFF: blit the blurred copy FULLY (fade=1) and darken
+        // hard, so the game is unreadable frost under an opaque dark cover (night-mode, game hidden)
+        // - still fully opaque, so the eLayerSkipScreenshot surround never falls through to black.
+        const bool liveBg = pspClockLiveBackdropOn();
+        // 2) Blurred copy over the sharp base.
+        const float blurFade = liveBg ? e : 1.0f;
+        if (blurFade > 0.001f)
             drawFrostedGlass(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f,
-                             1.0f, 1.0f, 1.0f, 1.0f, /*fade=*/e, /*waveSpace=*/true, /*tonemapOverride=*/0.0f,
+                             1.0f, 1.0f, 1.0f, 1.0f, /*fade=*/blurFade, /*waveSpace=*/true, /*tonemapOverride=*/0.0f,
                              useBackdropTex ? gBdBlurTex : 0, gBdBlurW, gBdBlurH);
-        // 3) Gentle darken over the blurred surround, ramping with the same eased reveal so the
-        //    crisp bright disc reads as the focal point. The disc is stamped opaque later, so its
-        //    face is never dimmed.
-        const float dark = DARK_MAX * darkE;
+        // 3) Darken. ON: a gentle dim that pulls focus to the disc. OFF: a heavy dim that, over the
+        //    full frost above, hides the game entirely. Both ramp with the reveal.
+        const float dark = liveBg ? (DARK_MAX * darkE) : (0.82f * darkE);
         if (dark > 0.001f)
             drawQuad(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f, 0.0f, 0.0f, dark);
         return;
@@ -1530,7 +1546,12 @@ void NanoMenu::pspClockLens(float cr) {
     // frame is already display-space sRGB, so sample it with uTonemap 0 (the shader
     // skips the exp2 when uTonemap <= 0).
     glUniform1f(mPspLensLocTonemap, useApp ? 0.0f : 1.6846f);
-    if (mPspLensLocAppSrc >= 0) glUniform1f(mPspLensLocAppSrc, useApp ? mPspAppDim : 0.0f);
+    // uAppSrc carries the disc dim factor for the live app. Clock Live Backdrop OFF: dim the disc
+    // hard too (0.16) so the game is not readable through the glass either - the whole clock reads
+    // as a dark night-mode piece, matching the darkened surround.
+    if (mPspLensLocAppSrc >= 0)
+        glUniform1f(mPspLensLocAppSrc,
+                    useApp ? (pspClockLiveBackdropOn() ? mPspAppDim : 0.16f) : 0.0f);
     glUniform1f(mPspLensLocAlpha, op);
     // Gyro/accel parallax offset (smoothed device tilt -> UV shift). Fades in with the
     // lens so the peek-behind only kicks in once the disc is present.
