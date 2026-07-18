@@ -58,21 +58,21 @@
         android:key="slide_behavior_action_cat"
         android:title="@string/slide_behavior_action_category">
 
-        <ListPreference
+        <androidx.preference.MultiSelectListPreference
             android:key="persist.gammaos.rotate.down_action"
             android:title="@string/slide_behavior_down_action_title"
             android:summary="@string/slide_behavior_down_action_summary"
             android:entries="@array/slide_behavior_action_entries"
             android:entryValues="@array/slide_behavior_action_values"
-            android:defaultValue="rotate" />
+            android:defaultValue="@array/slide_behavior_down_action_default" />
 
-        <ListPreference
+        <androidx.preference.MultiSelectListPreference
             android:key="persist.gammaos.rotate.up_action"
             android:title="@string/slide_behavior_up_action_title"
             android:summary="@string/slide_behavior_up_action_summary"
             android:entries="@array/slide_behavior_action_entries"
             android:entryValues="@array/slide_behavior_action_values"
-            android:defaultValue="natural" />
+            android:defaultValue="@array/slide_behavior_up_action_default" />
 
         <ListPreference
             android:key="persist.gammaos.rotate.degrees"
@@ -81,6 +81,14 @@
             android:entries="@array/slide_behavior_degrees_entries"
             android:entryValues="@array/slide_behavior_degrees_values"
             android:defaultValue="90" />
+
+        <ListPreference
+            android:key="persist.gammaos.rotate.sleep_delay"
+            android:title="@string/slide_behavior_sleep_delay_title"
+            android:summary="@string/slide_behavior_sleep_delay_summary"
+            android:entries="@array/slide_behavior_sleep_delay_entries"
+            android:entryValues="@array/slide_behavior_sleep_delay_values"
+            android:defaultValue="0" />
 
         <EditTextPreference
             android:key="persist.gammaos.rotate.launch_target"

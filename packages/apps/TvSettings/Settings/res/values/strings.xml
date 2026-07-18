@@ -3097,6 +3097,13 @@
     <string name="slide_behavior_degrees_summary">Angle used by the Rotate action</string>
     <string name="slide_behavior_launch_target_title">Launch target</string>
     <string name="slide_behavior_launch_target_summary">For the Launch action: a package, a component (pkg/cls), or nano:&lt;mode&gt;</string>
+    <string name="slide_behavior_sleep_delay_title">Sleep delay</string>
+    <string name="slide_behavior_sleep_delay_summary">How long to wait before the Sleep (screen off) action turns the screen off. 0 = immediate.</string>
+    <string name="slide_behavior_sleep_delay_0">Immediate</string>
+    <string name="slide_behavior_sleep_delay_5">5 seconds</string>
+    <string name="slide_behavior_sleep_delay_15">15 seconds</string>
+    <string name="slide_behavior_sleep_delay_30">30 seconds</string>
+    <string name="slide_behavior_sleep_delay_60">60 seconds</string>
     <string name="slide_behavior_clock_category">PSP slide clock</string>
     <string name="slide_behavior_clock_title">Show clock on slide</string>
     <string name="slide_behavior_clock_summary">GammaOS Nano shows the PSP clock overlay while the button is slid (can run alongside the Rotate action)</string>

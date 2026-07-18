@@ -1527,7 +1527,7 @@
         <item>re</item>
     </string-array>
 
-    <!-- GammaOS hardware rotation key: action for the DOWN/UP presses -->
+    <!-- GammaOS hardware rotation key: action for the DOWN/UP presses (multi-select) -->
     <string-array name="gammaos_rotate_action_entries">
         <item>Nothing</item>
         <item>Rotate (to angle)</item>
@@ -1535,6 +1535,7 @@
         <item>Turn screen off</item>
         <item>Wake screen</item>
         <item>Launch target</item>
+        <item>PSP clock (Nano)</item>
     </string-array>
     <string-array name="gammaos_rotate_action_values" translatable="false">
         <item>none</item>
@@ -1543,6 +1544,31 @@
         <item>screenoff</item>
         <item>wake</item>
         <item>launch</item>
+        <item>clock</item>
+    </string-array>
+
+    <!-- GammaOS hardware rotation key: multi-select action defaults (comma-joined by the fragment) -->
+    <string-array name="gammaos_rotate_down_action_default" translatable="false">
+        <item>rotate</item>
+    </string-array>
+    <string-array name="gammaos_rotate_up_action_default" translatable="false">
+        <item>natural</item>
+    </string-array>
+
+    <!-- GammaOS hardware rotation key: sleep delay before the screen-off action fires -->
+    <string-array name="gammaos_rotate_sleep_delay_entries">
+        <item>Immediate</item>
+        <item>5 seconds</item>
+        <item>15 seconds</item>
+        <item>30 seconds</item>
+        <item>60 seconds</item>
+    </string-array>
+    <string-array name="gammaos_rotate_sleep_delay_values" translatable="false">
+        <item>0</item>
+        <item>5</item>
+        <item>15</item>
+        <item>30</item>
+        <item>60</item>
     </string-array>
 
     <!-- GammaOS hardware rotation key: rotate angle -->

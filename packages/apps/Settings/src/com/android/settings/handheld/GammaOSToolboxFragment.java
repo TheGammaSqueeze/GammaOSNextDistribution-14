@@ -25,6 +25,7 @@ import android.view.InputDevice;
 
 import androidx.preference.EditTextPreference;
 import androidx.preference.ListPreference;
+import androidx.preference.MultiSelectListPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceGroup;
 import androidx.preference.PreferenceScreen;
@@ -37,8 +38,10 @@ import com.android.settingslib.search.SearchIndexable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * GammaOS Toolbox — surfaces all persist.gammaos.* system properties as
@@ -82,6 +85,7 @@ public class GammaOSToolboxFragment extends SettingsPreferenceFragment {
         DEFAULTS.put("persist.gammaos.rotate.down_action", "rotate");
         DEFAULTS.put("persist.gammaos.rotate.up_action", "natural");
         DEFAULTS.put("persist.gammaos.rotate.degrees", "90");
+        DEFAULTS.put("persist.gammaos.rotate.sleep_delay", "0");
         DEFAULTS.put("persist.gammaos.rotate.launch_target", "");
 
         // BFI
@@ -346,6 +350,8 @@ public class GammaOSToolboxFragment extends SettingsPreferenceFragment {
 
             if (pref instanceof SwitchPreference) {
                 bindSwitch((SwitchPreference) pref, key);
+            } else if (pref instanceof MultiSelectListPreference) {
+                bindMultiSelectList((MultiSelectListPreference) pref, key);
             } else if (pref instanceof ListPreference) {
                 bindList((ListPreference) pref, key);
             } else if (pref instanceof EditTextPreference) {
@@ -408,6 +414,87 @@ public class GammaOSToolboxFragment extends SettingsPreferenceFragment {
         if (idx >= 0) {
             lp.setSummary(lp.getEntries()[idx]);
         }
+    }
+
+    /* ------------------------------------------------------------------ */
+    /*  MultiSelectListPreference  →  comma-separated string property     */
+    /* ------------------------------------------------------------------ */
+
+    /**
+     * Bind a MultiSelectListPreference to a comma-separated system property (e.g. the slide
+     * down/up actions, which the framework reads as a comma list). The prop is read as "a,b,c",
+     * split into the checked value set; on change the selected set is re-joined with a plain comma
+     * (no spaces) in entryValues order and written back. Order does not matter to the framework;
+     * entryValues order just gives a stable, clean list.
+     */
+    private void bindMultiSelectList(MultiSelectListPreference mp, String key) {
+        String def = DEFAULTS.getOrDefault(key, "");
+        String current = SystemProperties.get(key, def);
+        Set<String> selected = splitToSet(current);
+        mp.setValues(selected);
+        updateMultiSelectSummary(mp, selected);
+
+        mp.setOnPreferenceChangeListener((p, newValue) -> {
+            @SuppressWarnings("unchecked")
+            Set<String> values = (Set<String>) newValue;
+            String joined = joinInEntryOrder(mp, values);
+            SystemProperties.set(key, joined);
+            updateMultiSelectSummary(mp, values);
+            return true;
+        });
+    }
+
+    /** Split a comma-separated prop value into a set of non-empty trimmed tokens. */
+    private Set<String> splitToSet(String value) {
+        Set<String> set = new LinkedHashSet<>();
+        if (value == null) return set;
+        for (String part : value.split(",")) {
+            String t = part.trim();
+            if (!t.isEmpty()) set.add(t);
+        }
+        return set;
+    }
+
+    /** Join the selected values in entryValues order into a clean comma list with no spaces. */
+    private String joinInEntryOrder(MultiSelectListPreference mp, Set<String> values) {
+        StringBuilder sb = new StringBuilder();
+        CharSequence[] order = mp.getEntryValues();
+        if (order != null) {
+            for (CharSequence ev : order) {
+                if (values.contains(ev.toString())) {
+                    if (sb.length() > 0) sb.append(',');
+                    sb.append(ev);
+                }
+            }
+        } else {
+            for (String v : values) {
+                if (sb.length() > 0) sb.append(',');
+                sb.append(v);
+            }
+        }
+        return sb.toString();
+    }
+
+    /** Summarise a multi-select as the joined human labels, in entryValues order. */
+    private void updateMultiSelectSummary(MultiSelectListPreference mp, Set<String> values) {
+        if (values == null || values.isEmpty()) {
+            mp.setSummary(getString(R.string.gammaos_toolbox_value_not_set));
+            return;
+        }
+        CharSequence[] entries = mp.getEntries();
+        CharSequence[] entryValues = mp.getEntryValues();
+        StringBuilder sb = new StringBuilder();
+        if (entries != null && entryValues != null) {
+            for (int i = 0; i < entryValues.length && i < entries.length; i++) {
+                if (values.contains(entryValues[i].toString())) {
+                    if (sb.length() > 0) sb.append(", ");
+                    sb.append(entries[i]);
+                }
+            }
+        }
+        mp.setSummary(sb.length() > 0
+                ? sb.toString()
+                : getString(R.string.gammaos_toolbox_value_not_set));
     }
 
     /* ------------------------------------------------------------------ */

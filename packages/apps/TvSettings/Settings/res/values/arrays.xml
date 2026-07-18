@@ -471,6 +471,30 @@
         <item>clock</item>
     </string-array>
 
+    <!-- GammaOS slide (swivel) key: multi-select action defaults (comma-joined by the fragment). -->
+    <string-array name="slide_behavior_down_action_default" translatable="false">
+        <item>rotate</item>
+    </string-array>
+    <string-array name="slide_behavior_up_action_default" translatable="false">
+        <item>natural</item>
+    </string-array>
+
+    <!-- GammaOS slide (swivel) key: sleep delay before the screen-off action fires. -->
+    <string-array name="slide_behavior_sleep_delay_entries">
+        <item>@string/slide_behavior_sleep_delay_0</item>
+        <item>@string/slide_behavior_sleep_delay_5</item>
+        <item>@string/slide_behavior_sleep_delay_15</item>
+        <item>@string/slide_behavior_sleep_delay_30</item>
+        <item>@string/slide_behavior_sleep_delay_60</item>
+    </string-array>
+    <string-array name="slide_behavior_sleep_delay_values" translatable="false">
+        <item>0</item>
+        <item>5</item>
+        <item>15</item>
+        <item>30</item>
+        <item>60</item>
+    </string-array>
+
     <string-array name="slide_behavior_degrees_entries">
         <item>@string/slide_behavior_degrees_90</item>
         <item>@string/slide_behavior_degrees_180</item>

@@ -29,6 +29,7 @@ import android.widget.FrameLayout;
 import androidx.annotation.Keep;
 import androidx.preference.EditTextPreference;
 import androidx.preference.ListPreference;
+import androidx.preference.MultiSelectListPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceGroup;
 import androidx.preference.SwitchPreference;
@@ -38,8 +39,10 @@ import com.android.tv.settings.SettingsPreferenceFragment;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Settings for the hardware "slide" (swivel) input: which input device and button to watch, and
@@ -59,10 +62,12 @@ public class SlideBehaviorFragment extends SettingsPreferenceFragment {
         DEFAULTS.put("persist.gammaos.rotate.dev_name", "gpio-keys");
         DEFAULTS.put("persist.gammaos.rotate.key_code", "88");
         DEFAULTS.put("persist.gammaos.rotate.key_active", "1");
-        // Slide down / up behaviour.
+        // Slide down / up behaviour. down_action / up_action are comma-separated lists of actions
+        // (the framework reads them as multi-action lists), bound via MultiSelectListPreference.
         DEFAULTS.put("persist.gammaos.rotate.down_action", "rotate");
         DEFAULTS.put("persist.gammaos.rotate.up_action", "natural");
         DEFAULTS.put("persist.gammaos.rotate.degrees", "90");
+        DEFAULTS.put("persist.gammaos.rotate.sleep_delay", "0");
         DEFAULTS.put("persist.gammaos.rotate.launch_target", "");
         // PSP slide clock overlay (an independent overlay that can show alongside the rotate
         // action, so it lives here as its own toggle rather than as an exclusive slide action).
@@ -157,6 +162,8 @@ public class SlideBehaviorFragment extends SettingsPreferenceFragment {
 
             if (pref instanceof SwitchPreference) {
                 bindSwitch((SwitchPreference) pref, key);
+            } else if (pref instanceof MultiSelectListPreference) {
+                bindMultiSelectList((MultiSelectListPreference) pref, key);
             } else if (pref instanceof ListPreference) {
                 bindList((ListPreference) pref, key);
             } else if (pref instanceof EditTextPreference) {
@@ -198,6 +205,82 @@ public class SlideBehaviorFragment extends SettingsPreferenceFragment {
         if (idx >= 0) {
             lp.setSummary(lp.getEntries()[idx]);
         }
+    }
+
+    /**
+     * Bind a MultiSelectListPreference to a comma-separated system property. The prop is read as a
+     * "a,b,c" string, split into the checked value set; on change the selected set is re-joined with
+     * a plain comma (no spaces) in entryValues order and written back. Order does not matter to the
+     * framework, but keeping entryValues order gives a stable, clean list.
+     */
+    private void bindMultiSelectList(MultiSelectListPreference mp, String key) {
+        String def = DEFAULTS.getOrDefault(key, "");
+        String current = SystemProperties.get(key, def);
+        Set<String> selected = splitToSet(current);
+        mp.setValues(selected);
+        updateMultiSelectSummary(mp, selected);
+
+        mp.setOnPreferenceChangeListener((p, newValue) -> {
+            @SuppressWarnings("unchecked")
+            Set<String> values = (Set<String>) newValue;
+            String joined = joinInEntryOrder(mp, values);
+            SystemProperties.set(key, joined);
+            updateMultiSelectSummary(mp, values);
+            return true;
+        });
+    }
+
+    /** Split a comma-separated prop value into a set of non-empty trimmed tokens. */
+    private Set<String> splitToSet(String value) {
+        Set<String> set = new LinkedHashSet<>();
+        if (value == null) return set;
+        for (String part : value.split(",")) {
+            String t = part.trim();
+            if (!t.isEmpty()) set.add(t);
+        }
+        return set;
+    }
+
+    /** Join the selected values in entryValues order into a clean comma list with no spaces. */
+    private String joinInEntryOrder(MultiSelectListPreference mp, Set<String> values) {
+        StringBuilder sb = new StringBuilder();
+        CharSequence[] order = mp.getEntryValues();
+        if (order != null) {
+            for (CharSequence ev : order) {
+                if (values.contains(ev.toString())) {
+                    if (sb.length() > 0) sb.append(',');
+                    sb.append(ev);
+                }
+            }
+        } else {
+            for (String v : values) {
+                if (sb.length() > 0) sb.append(',');
+                sb.append(v);
+            }
+        }
+        return sb.toString();
+    }
+
+    /** Summarise a multi-select as the joined human labels, in entryValues order. */
+    private void updateMultiSelectSummary(MultiSelectListPreference mp, Set<String> values) {
+        if (values == null || values.isEmpty()) {
+            mp.setSummary(getString(R.string.slide_behavior_action_none));
+            return;
+        }
+        CharSequence[] entries = mp.getEntries();
+        CharSequence[] entryValues = mp.getEntryValues();
+        StringBuilder sb = new StringBuilder();
+        if (entries != null && entryValues != null) {
+            for (int i = 0; i < entryValues.length && i < entries.length; i++) {
+                if (values.contains(entryValues[i].toString())) {
+                    if (sb.length() > 0) sb.append(", ");
+                    sb.append(entries[i]);
+                }
+            }
+        }
+        mp.setSummary(sb.length() > 0
+                ? sb.toString()
+                : getString(R.string.slide_behavior_action_none));
     }
 
     private void bindEditText(EditTextPreference etp, String key) {
