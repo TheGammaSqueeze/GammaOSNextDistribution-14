@@ -1557,4 +1557,24 @@
         <item>270</item>
     </string-array>
 
+    <!-- GammaOS hardware rotation key: slide trigger event type -->
+    <string-array name="gammaos_rotate_key_type_entries">
+        <item>Key (EV_KEY)</item>
+        <item>Switch (EV_SW)</item>
+    </string-array>
+    <string-array name="gammaos_rotate_key_type_values" translatable="false">
+        <item>1</item>
+        <item>5</item>
+    </string-array>
+
+    <!-- GammaOS hardware rotation key: slide trigger active value -->
+    <string-array name="gammaos_rotate_key_active_entries">
+        <item>High (1)</item>
+        <item>Low (0)</item>
+    </string-array>
+    <string-array name="gammaos_rotate_key_active_values" translatable="false">
+        <item>1</item>
+        <item>0</item>
+    </string-array>
+
 </resources>

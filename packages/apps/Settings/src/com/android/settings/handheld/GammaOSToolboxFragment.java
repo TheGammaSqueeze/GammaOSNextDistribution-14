@@ -16,9 +16,12 @@
 package com.android.settings.handheld;
 
 import android.app.settings.SettingsEnums;
+import android.content.Context;
+import android.hardware.input.InputManager;
 import android.os.Bundle;
 import android.os.SystemProperties;
 import android.text.TextUtils;
+import android.view.InputDevice;
 
 import androidx.preference.EditTextPreference;
 import androidx.preference.ListPreference;
@@ -32,7 +35,9 @@ import com.android.settings.SettingsPreferenceFragment;
 import com.android.settings.search.BaseSearchIndexProvider;
 import com.android.settingslib.search.SearchIndexable;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -72,6 +77,8 @@ public class GammaOSToolboxFragment extends SettingsPreferenceFragment {
         DEFAULTS.put("persist.gammaos.rotate.enabled", "false");
         DEFAULTS.put("persist.gammaos.rotate.dev_name", "");
         DEFAULTS.put("persist.gammaos.rotate.key_code", "88");
+        DEFAULTS.put("persist.gammaos.rotate.key_type", "1");
+        DEFAULTS.put("persist.gammaos.rotate.key_active", "1");
         DEFAULTS.put("persist.gammaos.rotate.down_action", "rotate");
         DEFAULTS.put("persist.gammaos.rotate.up_action", "natural");
         DEFAULTS.put("persist.gammaos.rotate.degrees", "90");
@@ -265,7 +272,62 @@ public class GammaOSToolboxFragment extends SettingsPreferenceFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.gammaos_toolbox);
+        // Populate the dynamic input-device list before the generic binder runs,
+        // so bindList() can preselect the current value and show its summary.
+        populateRotateDeviceList();
         bindAllPreferences(getPreferenceScreen());
+    }
+
+    /* ------------------------------------------------------------------ */
+    /*  Dynamic input-device list for the rotation trigger                */
+    /* ------------------------------------------------------------------ */
+
+    /**
+     * Fill the {@code persist.gammaos.rotate.dev_name} ListPreference with the
+     * names of every currently connected input device.  The first entry is
+     * "Any device" (empty value), matching the native consumer's "blank =
+     * match any device" behaviour.  The current persisted value is always
+     * included even if that device is not connected right now, so the picker
+     * can preselect it and render its summary.
+     */
+    private void populateRotateDeviceList() {
+        ListPreference lp = (ListPreference) findPreference("persist.gammaos.rotate.dev_name");
+        if (lp == null) return;
+
+        String current = SystemProperties.get("persist.gammaos.rotate.dev_name", "");
+
+        List<CharSequence> entries = new ArrayList<>();
+        List<CharSequence> values = new ArrayList<>();
+
+        // "Any device" always first, empty value.
+        entries.add(getString(R.string.gammaos_toolbox_rotate_dev_name_any));
+        values.add("");
+
+        Context ctx = getContext();
+        InputManager im = (ctx != null) ? ctx.getSystemService(InputManager.class) : null;
+        if (im != null) {
+            int[] ids = im.getInputDeviceIds();
+            if (ids != null) {
+                for (int id : ids) {
+                    InputDevice dev = im.getInputDevice(id);
+                    if (dev == null) continue;
+                    String name = dev.getName();
+                    if (TextUtils.isEmpty(name)) continue;
+                    if (values.contains(name)) continue;   // de-dupe identical names
+                    entries.add(name);
+                    values.add(name);
+                }
+            }
+        }
+
+        // Ensure the persisted value is selectable even when its device is offline.
+        if (!TextUtils.isEmpty(current) && !values.contains(current)) {
+            entries.add(current);
+            values.add(current);
+        }
+
+        lp.setEntries(entries.toArray(new CharSequence[0]));
+        lp.setEntryValues(values.toArray(new CharSequence[0]));
     }
 
     /* ------------------------------------------------------------------ */

@@ -13097,10 +13097,15 @@
     <string name="gammaos_toolbox_category_rotate_description">Rotate the display from a hardware key (for devices with a swivelling screen). The trigger is fully configurable so it can be ported to any device.</string>
     <string name="gammaos_toolbox_rotate_enabled_title">Hardware rotation key</string>
     <string name="gammaos_toolbox_rotate_enabled_summary">Rotate (or run an action) when the configured input key changes state. Works in every app and the launcher, even when auto-rotate is off.</string>
-    <string name="gammaos_toolbox_rotate_dev_name_title">Input device name</string>
-    <string name="gammaos_toolbox_rotate_dev_name_summary">Name of the input device that reports the key (e.g. gpio-keys). Leave blank to match any device.</string>
+    <string name="gammaos_toolbox_rotate_dev_name_title">Input device</string>
+    <string name="gammaos_toolbox_rotate_dev_name_summary">Input device that reports the slide key. Choose "Any device" to match any input device.</string>
+    <string name="gammaos_toolbox_rotate_dev_name_any">Any device</string>
     <string name="gammaos_toolbox_rotate_key_code_title">Key scancode</string>
     <string name="gammaos_toolbox_rotate_key_code_summary">Linux evdev scancode of the key (e.g. 88 = KEY_F12).</string>
+    <string name="gammaos_toolbox_rotate_key_type_title">Slide event type</string>
+    <string name="gammaos_toolbox_rotate_key_type_summary">Kind of evdev event the slide reports: a key (EV_KEY) or a switch (EV_SW).</string>
+    <string name="gammaos_toolbox_rotate_key_active_title">Slide active value</string>
+    <string name="gammaos_toolbox_rotate_key_active_summary">Event value that means the slide is engaged (its resting-open value).</string>
     <string name="gammaos_toolbox_rotate_down_action_title">On key down</string>
     <string name="gammaos_toolbox_rotate_down_action_summary">Action when the screen is rotated to its position (key pressed).</string>
     <string name="gammaos_toolbox_rotate_up_action_title">On key up</string>

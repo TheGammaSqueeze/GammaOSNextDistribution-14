@@ -1906,6 +1906,8 @@ private:
     void buildRemapTargetSubmenu(Ps3Level& out);          // target chooser for mRemapSrc
     void buildDevicesSubmenu(Ps3Level& out);              // capture-device multi-select
     void buildFfDeviceSubmenu(Ps3Level& out);             // vibration-device single-select
+    void buildSlideDeviceSubmenu(Ps3Level& out);          // Slide Behaviour: trigger-device single-select
+    void buildSlideEventSubmenu(Ps3Level& out);           // Slide Behaviour: trigger event/code single-select
     void buildBlacklistSubmenu(Ps3Level& out);            // passthrough-blacklist button multi-select
     void buildComboSubmenu(Ps3Level& out);                // combo_map list editor (add-flow state machine)
     void buildAxisBtnSubmenu(Ps3Level& out);              // axis_btn list editor

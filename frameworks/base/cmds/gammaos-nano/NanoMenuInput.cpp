@@ -1887,6 +1887,20 @@ void NanoMenu::pollInput() {
                 slideTrigger = true;
                 slideVal = (ev.value == trigActive) ? 1 : 0;
             }
+            // Device filter: when persist.gammaos.rotate.dev_name names a specific
+            // input device, only honour the slide from the fd whose EVIOCGNAME matches.
+            // This lets a device with several event nodes reporting the same code/type
+            // (e.g. a shared gpio-keys) pin the swivel to the intended one. Empty =
+            // any device. Cheap: only queried on the frames the trigger actually fired.
+            if (slideTrigger) {
+                char devName[PROPERTY_VALUE_MAX] = {};
+                property_get("persist.gammaos.rotate.dev_name", devName, "");
+                if (devName[0]) {
+                    char nm[256] = {0};
+                    if (ioctl(fd, EVIOCGNAME(sizeof(nm) - 1), nm) < 0 || strcmp(nm, devName) != 0)
+                        slideTrigger = false;
+                }
+            }
             bool pspClockSlide = false;
             if (slideTrigger) {
                 pspClockSlide = property_get_bool("persist.gammaos.nano.pspclock", false);

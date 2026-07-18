@@ -481,4 +481,24 @@
         <item>180</item>
         <item>270</item>
     </string-array>
+
+    <!-- GammaOS slide (swivel) key: evdev event type of the watched slide event. -->
+    <string-array name="slide_behavior_key_type_entries">
+        <item>@string/slide_behavior_key_type_key</item>
+        <item>@string/slide_behavior_key_type_sw</item>
+    </string-array>
+    <string-array name="slide_behavior_key_type_values" translatable="false">
+        <item>1</item>
+        <item>5</item>
+    </string-array>
+
+    <!-- GammaOS slide (swivel) key: active (asserted) value of the watched event. -->
+    <string-array name="slide_behavior_key_active_entries">
+        <item>@string/slide_behavior_key_active_high</item>
+        <item>@string/slide_behavior_key_active_low</item>
+    </string-array>
+    <string-array name="slide_behavior_key_active_values" translatable="false">
+        <item>1</item>
+        <item>0</item>
+    </string-array>
 </resources>

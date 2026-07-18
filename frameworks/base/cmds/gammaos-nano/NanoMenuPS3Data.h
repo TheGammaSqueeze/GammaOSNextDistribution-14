@@ -252,8 +252,10 @@ static const Ps3DataItem kGamepadCh[] = {
 // Mirrors the TvSettings "Slide behaviour" screen so the same config is in the XMB too.
 static const Ps3DataItem kSlideCh[] = {
   {"Slide Enable",70,"React to the configured slide button.","On",0,nullptr,0},
-  {"Slide Device",5,"Input device name to watch (e.g. gpio-keys).","gpio-keys",1,nullptr,0},
-  {"Slide Button Code",5,"Linux evdev scancode of the slide button (88 = F12).","88",1,nullptr,0},
+  {"Slide Device",5,"Choose the input device that reports the slide (drills into a picker).","gpio-keys",0,nullptr,0},
+  {"Slide Button Code",5,"Choose the slide event from the ones that device supports (drills into a picker).","88",0,nullptr,0},
+  {"Slide Event Type",70,"evdev event type of the slide trigger (Key or Switch).","Key (EV_KEY)",0,nullptr,0},
+  {"Slide Active Value",70,"Which event value means 'engaged' (High for most, Low for an inverted switch).","High (1)",0,nullptr,0},
   {"On Slide Down",70,"Action when the button goes down (slid).","Rotate",0,nullptr,0},
   {"On Slide Up",70,"Action when the button releases (returned).","Restore Natural",0,nullptr,0},
   {"Rotation Angle",70,"Angle used by the Rotate action.","90 degrees",0,nullptr,0},

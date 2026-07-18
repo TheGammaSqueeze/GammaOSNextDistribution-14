@@ -24,7 +24,15 @@
             android:summary="@string/slide_behavior_enable_summary"
             android:defaultValue="false" />
 
-        <EditTextPreference
+        <ListPreference
+            android:key="persist.gammaos.rotate.key_type"
+            android:title="@string/slide_behavior_key_type_title"
+            android:summary="@string/slide_behavior_key_type_summary"
+            android:entries="@array/slide_behavior_key_type_entries"
+            android:entryValues="@array/slide_behavior_key_type_values"
+            android:defaultValue="1" />
+
+        <ListPreference
             android:key="persist.gammaos.rotate.dev_name"
             android:title="@string/slide_behavior_dev_name_title"
             android:summary="@string/slide_behavior_dev_name_summary"
@@ -35,6 +43,14 @@
             android:title="@string/slide_behavior_key_code_title"
             android:summary="@string/slide_behavior_key_code_summary"
             android:dialogTitle="@string/slide_behavior_key_code_title" />
+
+        <ListPreference
+            android:key="persist.gammaos.rotate.key_active"
+            android:title="@string/slide_behavior_key_active_title"
+            android:summary="@string/slide_behavior_key_active_summary"
+            android:entries="@array/slide_behavior_key_active_entries"
+            android:entryValues="@array/slide_behavior_key_active_values"
+            android:defaultValue="1" />
 
     </PreferenceCategory>
 

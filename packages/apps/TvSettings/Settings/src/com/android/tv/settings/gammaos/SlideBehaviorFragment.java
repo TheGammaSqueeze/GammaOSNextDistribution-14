@@ -17,10 +17,12 @@ package com.android.tv.settings.gammaos;
 
 import android.app.AlertDialog;
 import android.app.tvsettings.TvSettingsEnums;
+import android.hardware.input.InputManager;
 import android.os.Bundle;
 import android.os.SystemProperties;
 import android.text.InputType;
 import android.text.TextUtils;
+import android.view.InputDevice;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 
@@ -34,7 +36,9 @@ import androidx.preference.SwitchPreference;
 import com.android.tv.settings.R;
 import com.android.tv.settings.SettingsPreferenceFragment;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -51,8 +55,10 @@ public class SlideBehaviorFragment extends SettingsPreferenceFragment {
     static {
         // Slide detection.
         DEFAULTS.put("persist.gammaos.rotate.enabled", "0");
+        DEFAULTS.put("persist.gammaos.rotate.key_type", "1");
         DEFAULTS.put("persist.gammaos.rotate.dev_name", "gpio-keys");
         DEFAULTS.put("persist.gammaos.rotate.key_code", "88");
+        DEFAULTS.put("persist.gammaos.rotate.key_active", "1");
         // Slide down / up behaviour.
         DEFAULTS.put("persist.gammaos.rotate.down_action", "rotate");
         DEFAULTS.put("persist.gammaos.rotate.up_action", "natural");
@@ -72,7 +78,53 @@ public class SlideBehaviorFragment extends SettingsPreferenceFragment {
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setPreferencesFromResource(R.xml.slide_behavior, null);
+        populateDeviceList();
         bindAllPreferences(getPreferenceScreen());
+    }
+
+    /**
+     * Fill the "Slide device" list from the currently attached input devices. The first choice is
+     * always "Any device" (empty value = match anything); the rest are the live device names from
+     * InputManager. Whatever value is currently persisted is added too if it is not among the live
+     * names, so a value pointing at an unplugged / boot-time device (e.g. "gpio-keys") still shows
+     * up and stays selected. Entries/values must be set here, before bindAllPreferences() runs, so
+     * that bindList() can resolve and pre-select the current value.
+     */
+    private void populateDeviceList() {
+        ListPreference lp = findPreference("persist.gammaos.rotate.dev_name");
+        if (lp == null) return;
+
+        List<CharSequence> entries = new ArrayList<>();
+        List<CharSequence> values = new ArrayList<>();
+        entries.add(getString(R.string.slide_behavior_dev_name_any));
+        values.add("");
+
+        String current = SystemProperties.get(
+                "persist.gammaos.rotate.dev_name",
+                DEFAULTS.getOrDefault("persist.gammaos.rotate.dev_name", ""));
+
+        InputManager im = getContext().getSystemService(InputManager.class);
+        if (im != null) {
+            for (int id : im.getInputDeviceIds()) {
+                InputDevice dev = im.getInputDevice(id);
+                if (dev == null) continue;
+                String name = dev.getName();
+                if (TextUtils.isEmpty(name)) continue;
+                if (!values.contains(name)) {
+                    entries.add(name);
+                    values.add(name);
+                }
+            }
+        }
+
+        // Make sure the current selection is representable so it stays selected.
+        if (!TextUtils.isEmpty(current) && !values.contains(current)) {
+            entries.add(current);
+            values.add(current);
+        }
+
+        lp.setEntries(entries.toArray(new CharSequence[0]));
+        lp.setEntryValues(values.toArray(new CharSequence[0]));
     }
 
     @Override

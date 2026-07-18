@@ -716,6 +716,10 @@ enum {
     QA_DEV_CAPTURE_TOGGLE,// toggle a device name in the capture list (it.value = name)
     QA_FF_DEVICE_MENU,   // open the vibration-device single chooser
     QA_FF_DEVICE_SET,    // set the vibration device (it.value = name, "" = auto)
+    QA_SLIDE_DEV_MENU,   // Slide Behaviour: open the slide-trigger device single chooser
+    QA_SLIDE_DEV_SET,    // set persist.gammaos.rotate.dev_name (it.value = name, "" = any)
+    QA_SLIDE_EVENT_MENU, // Slide Behaviour: open the slide-trigger event/code chooser
+    QA_SLIDE_EVENT_SET,  // set key_code (it.b) + key_type (it.value = "1"/"5")
     QA_BLACKLIST_MENU,   // open the passthrough-blacklist button multi-select
     QA_BLACKLIST_TOGGLE, // toggle a button code in blacklist_pass (it.b = code)
     QA_NOOP,             // non-selectable info row (does nothing on activate)
@@ -758,6 +762,7 @@ static bool ps3QaOpensSubmenu(int qa) {
         case QA_GP_CONTROLLERS: case QA_GP_STICKS:  case QA_GP_BUTTONS:
         case QA_GP_CALTEST:     case QA_GP_RUMBLE:  case QA_GP_MAPPING: case QA_GP_TOUCH:
         case QA_DEV_CAPTURE_MENU: case QA_FF_DEVICE_MENU:
+        case QA_SLIDE_DEV_MENU:   case QA_SLIDE_EVENT_MENU:
         case QA_REMAP_BTN_MENU: case QA_REMAP_AXIS_MENU: case QA_REMAP_SRC:
         case QA_COMBO_MENU:     case QA_AXISBTN_MENU:    case QA_BLACKLIST_MENU:
         case QA_APP_ORIENT_MENU: case QA_APP_STORAGE:    case QA_APP_PERMS:
@@ -2057,6 +2062,123 @@ void NanoMenu::buildFfDeviceSubmenu(Ps3Level& out) {
         row(name, name);
         if (name == cur) out.sel = (int)out.items.size() - 1;
     }
+}
+
+// --- Slide Behaviour trigger pickers ----------------------------------------
+namespace {
+// test_bit against an EVIOCGBIT long-array, the standard evdev recipe.
+inline bool slTestBit(int n, const unsigned long* arr) {
+    return (arr[n / (8 * sizeof(unsigned long))] >> (n % (8 * sizeof(unsigned long)))) & 1UL;
+}
+// Human name for an evdev (type,code). Covers the swivel/fold codes plus the common
+// keys a device might report the slide as; anything else falls back to "EV_KEY 305"
+// / "EV_SW 1" so an unmapped code is still selectable and unambiguous.
+std::string slEventName(int type, int code) {
+    if (type == EV_KEY) {
+        switch (code) {
+            case KEY_F12:        return "F12 (KEY_F12)";
+            case KEY_F11:        return "F11 (KEY_F11)";
+            case KEY_F13:        return "F13 (KEY_F13)";
+            case KEY_F14:        return "F14 (KEY_F14)";
+            case KEY_VOLUMEUP:   return "Volume Up";
+            case KEY_VOLUMEDOWN: return "Volume Down";
+            case KEY_POWER:      return "Power";
+            case KEY_MENU:       return "Menu";
+            case KEY_HOME:       return "Home";
+            case KEY_BACK:       return "Back";
+            default: break;
+        }
+        char b[32]; snprintf(b, sizeof(b), "EV_KEY %d", code); return std::string(b);
+    }
+    if (type == EV_SW) {
+        switch (code) {
+            case SW_TABLET_MODE:   return "Tablet Mode (SW_TABLET_MODE)";
+            case SW_LID:           return "Lid";
+            case SW_HEADPHONE_INSERT: return "Headphone Insert";
+            case SW_DOCK:          return "Dock";
+            default: break;
+        }
+        char b[32]; snprintf(b, sizeof(b), "EV_SW %d", code); return std::string(b);
+    }
+    char b[40]; snprintf(b, sizeof(b), "type %d code %d", type, code); return std::string(b);
+}
+// Open the /dev/input/eventN whose EVIOCGNAME equals devName; if devName is empty,
+// return the first openable node. Caller closes the returned fd (>=0 on success).
+int slOpenDeviceByName(const std::string& devName) {
+    DIR* d = opendir("/dev/input");
+    if (!d) return -1;
+    int found = -1;
+    struct dirent* e;
+    while ((e = readdir(d)) != nullptr) {
+        if (strncmp(e->d_name, "event", 5) != 0) continue;
+        char path[64]; snprintf(path, sizeof(path), "/dev/input/%s", e->d_name);
+        int fd = open(path, O_RDONLY | O_NONBLOCK | O_CLOEXEC);
+        if (fd < 0) continue;
+        if (devName.empty()) { found = fd; break; }
+        char nm[256] = {0};
+        if (ioctl(fd, EVIOCGNAME(sizeof(nm) - 1), nm) > 0 && devName == nm) { found = fd; break; }
+        close(fd);
+    }
+    closedir(d);
+    return found;
+}
+} // namespace
+
+// "Slide Device": single-select of detected input-device names (+ Any). Writes
+// persist.gammaos.rotate.dev_name; empty ("Any device") lets any node fire the slide.
+void NanoMenu::buildSlideDeviceSubmenu(Ps3Level& out) {
+    out.items.clear(); out.sel = 0; out.screenKind = 0; out.title = "Slide Device";
+    std::string cur = readSettingValue(SettingSource::kProp, "persist.gammaos.rotate.dev_name", "");
+    auto row = [&](const std::string& label, const std::string& val) {
+        Ps3Item it; it.kind = PS3_QUICK; it.a = QA_SLIDE_DEV_SET; it.value = val; it.label = label;
+        it.iconTex = iconTexForIcon(16); it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 1.0f;
+        out.items.push_back(it);
+    };
+    row("Any device", "");
+    if (cur.empty()) out.sel = 0;
+    for (auto& name : gpEnumInputDevices()) {
+        row(name, name);
+        if (name == cur) out.sel = (int)out.items.size() - 1;
+    }
+}
+
+// "Slide Button Code": single-select of the events the chosen Slide Device actually
+// supports. Resolves dev_name to an event node, reads its EV_KEY/EV_SW capability
+// bitmaps via EVIOCGBIT, and lists one row per supported code. Selecting a row writes
+// both the code (key_code) and its evdev type (key_type), so the reader matches exactly.
+void NanoMenu::buildSlideEventSubmenu(Ps3Level& out) {
+    out.items.clear(); out.sel = 0; out.screenKind = 0; out.title = "Slide Button Code";
+    std::string devName = readSettingValue(SettingSource::kProp, "persist.gammaos.rotate.dev_name", "");
+    int curCode = property_get_int32("persist.gammaos.rotate.key_code", 88);
+    int curType = property_get_int32("persist.gammaos.rotate.key_type", EV_KEY);
+    auto row = [&](int type, int code) {
+        Ps3Item it; it.kind = PS3_QUICK; it.a = QA_SLIDE_EVENT_SET;
+        it.b = code; it.value = std::to_string(type); it.label = slEventName(type, code);
+        it.iconTex = iconTexForIcon(16); it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 1.0f;
+        out.items.push_back(it);
+        // Preselect on BOTH type and code (a KEY and a SW can share a numeric code).
+        if (code == curCode && type == curType) out.sel = (int)out.items.size() - 1;
+    };
+    int fd = slOpenDeviceByName(devName);
+    if (fd >= 0) {
+        unsigned long evbit[(EV_MAX + 1) / (8 * sizeof(unsigned long)) + 1] = {0};
+        if (ioctl(fd, EVIOCGBIT(0, sizeof(evbit)), evbit) >= 0) {
+            if (slTestBit(EV_KEY, evbit)) {
+                unsigned long keybit[(KEY_MAX + 1) / (8 * sizeof(unsigned long)) + 1] = {0};
+                if (ioctl(fd, EVIOCGBIT(EV_KEY, sizeof(keybit)), keybit) >= 0)
+                    for (int c = 0; c <= KEY_MAX; ++c) if (slTestBit(c, keybit)) row(EV_KEY, c);
+            }
+            if (slTestBit(EV_SW, evbit)) {
+                unsigned long swbit[(SW_MAX + 1) / (8 * sizeof(unsigned long)) + 1] = {0};
+                if (ioctl(fd, EVIOCGBIT(EV_SW, sizeof(swbit)), swbit) >= 0)
+                    for (int c = 0; c <= SW_MAX; ++c) if (slTestBit(c, swbit)) row(EV_SW, c);
+            }
+        }
+        close(fd);
+    }
+    // If the device exposes nothing usable (or no device resolved), still offer the
+    // current code so the row is never empty and the choice stays visible.
+    if (out.items.empty()) row(curType, curCode);
 }
 
 // "Passthrough Blacklist": multi-select of buttons to suppress at runtime (comma list
@@ -3396,6 +3518,26 @@ void NanoMenu::ps3XmbSelect() {
             if (it.label == "Manage Bluetooth® Devices")      { startBtWizard(0); return; }
             if (it.label == "BD Remote Control Registration") { startBtWizard(1); return; }
             if (it.label == "Audio Device Settings")          { startBtWizard(2); return; }
+            // Slide Behaviour: the Slide Device / Slide Button Code rows drill into a
+            // pushed picker (device names, then that device's supported events) rather
+            // than the free-text OSK. Their kPs3Bindings entries remain so the current
+            // choice still resolves on the right (resolvePs3ItemValue @device/@event).
+            if (it.label == "Slide Device") {
+                std::vector<Ps3Item> ps = ps3CurItems(); int pSel = ps3CurSel();
+                Ps3Level lvl; buildSlideDeviceSubmenu(lvl); mPs3Stack.push_back(lvl);
+                mPs3SubParentItems = ps; mPs3SubParentIdx = pSel; mPs3SubChildItems = mPs3Stack.back().items;
+                mPs3SubDir = 1; mPs3SubAnimStart = mEffectTime; mPs3SubAnim = 0.0f;
+                mPs3AnimItem = 0.0f; mPs3ItemAnimStart = -1.0f;
+                return;
+            }
+            if (it.label == "Slide Button Code") {
+                std::vector<Ps3Item> ps = ps3CurItems(); int pSel = ps3CurSel();
+                Ps3Level lvl; buildSlideEventSubmenu(lvl); mPs3Stack.push_back(lvl);
+                mPs3SubParentItems = ps; mPs3SubParentIdx = pSel; mPs3SubChildItems = mPs3Stack.back().items;
+                mPs3SubDir = 1; mPs3SubAnimStart = mEffectTime; mPs3SubAnim = 0.0f;
+                mPs3AnimItem = 0.0f; mPs3ItemAnimStart = -1.0f;
+                return;
+            }
             // Data-driven settings leaf -> bound side chooser (real backing setting).
             if (it.label == "Scrape All Systems") { scrapeAllSystems(); return; }
             // Prefer the item's pre-resolved binding (Quick Settings leaves bind a
@@ -3487,6 +3629,31 @@ void NanoMenu::ps3XmbSelect() {
                         mPs3SubParentItems = ps3CurItems(); mPs3SubParentIdx = ps3CurSel();
                         mPs3SubDir = -1; mPs3SubAnimStart = mEffectTime; mPs3SubAnim = 1.0f;
                         mPs3AnimItem = (float)ps3CurSel(); mPs3ItemAnimStart = -1.0f;
+                    }
+                    mDisplayDirty = true; return;
+                }
+                case QA_SLIDE_DEV_SET: {
+                    // Pick the slide-trigger device. Rebuild the picker in place so the
+                    // selection dot moves to the chosen row, and drop the "Slide Device"
+                    // bind cache so its parent row re-reads the new dev_name. The reader
+                    // (NanoMenuInput) filters on this name the next time the slide fires.
+                    writeSettingValue(SettingSource::kProp, "persist.gammaos.rotate.dev_name", it.value);
+                    mPs3BindCache.erase("Slide Device");
+                    if (!mPs3Stack.empty()) {
+                        buildSlideDeviceSubmenu(mPs3Stack.back());
+                    }
+                    mDisplayDirty = true; return;
+                }
+                case QA_SLIDE_EVENT_SET: {
+                    // Pick the slide-trigger event: writes both the code and its evdev
+                    // type so the reader matches exactly. it.value carries the type as a
+                    // string ("1" = EV_KEY, "5" = EV_SW), it.b the code. Rebuild in place.
+                    writeSettingValue(SettingSource::kProp, "persist.gammaos.rotate.key_code", std::to_string(it.b));
+                    writeSettingValue(SettingSource::kProp, "persist.gammaos.rotate.key_type", it.value);
+                    mPs3BindCache.erase("Slide Button Code");
+                    mPs3BindCache.erase("Slide Event Type");
+                    if (!mPs3Stack.empty()) {
+                        buildSlideEventSubmenu(mPs3Stack.back());
                     }
                     mDisplayDirty = true; return;
                 }
@@ -4486,7 +4653,11 @@ void NanoMenu::renderPs3Xmb() {
             bool opensSub = (it.kind == PS3_DATA_SUBMENU || it.kind == PS3_SYSTEM ||
                              it.kind == PS3_RECENT_LIST || it.kind == PS3_APP_LIST ||
                              it.kind == PS3_GS_ROOT || it.kind == PS3_GS_SYSTEM_ROW ||
-                             (it.kind == PS3_QUICK && ps3QaOpensSubmenu(it.a)));
+                             (it.kind == PS3_QUICK && ps3QaOpensSubmenu(it.a)) ||
+                             // Slide Behaviour: these data-leaf rows drill into a pushed
+                             // picker (device list / event list) rather than a chooser.
+                             (it.kind == PS3_DATA_LEAF &&
+                              (it.label == "Slide Device" || it.label == "Slide Button Code")));
             if ((mPs3DlgActive || mPs3DlgClosing) && mPs3DlgKind == 1) opensSub = false;
             const char* kChevron = "\xE2\x80\xBA";   // > single right angle quotation mark
             float chFs = ps3::fontScale(ps3::ITEM_TEXT_SIZE);
@@ -5524,8 +5695,12 @@ static const Ps3SettingBinding kPs3Bindings[] = {
     // + pspclock props that PhoneWindowManager and nano already read; these bindings just let
     // the XMB settings screen edit them. Matches the TvSettings "Slide behaviour" screen.
     {"Slide Enable", SettingSource::kProp, "persist.gammaos.rotate.enabled", "0", "0:Off,1:On"},
-    {"Slide Device", SettingSource::kProp, "persist.gammaos.rotate.dev_name", "gpio-keys", "@text"},
-    {"Slide Button Code", SettingSource::kProp, "persist.gammaos.rotate.key_code", "88", "@text"},
+    {"Slide Device", SettingSource::kProp, "persist.gammaos.rotate.dev_name", "gpio-keys", "@device"},
+    {"Slide Button Code", SettingSource::kProp, "persist.gammaos.rotate.key_code", "88", "@event"},
+    {"Slide Event Type", SettingSource::kProp, "persist.gammaos.rotate.key_type", "1",
+     "1:Key (EV_KEY),5:Switch (EV_SW)"},
+    {"Slide Active Value", SettingSource::kProp, "persist.gammaos.rotate.key_active", "1",
+     "1:High (1),0:Low (0)"},
     {"On Slide Down", SettingSource::kProp, "persist.gammaos.rotate.down_action", "rotate",
      "none:Do Nothing,rotate:Rotate,natural:Restore Natural,screenoff:Sleep,wake:Wake,"
      "launch:Launch App,clock:PSP Clock"},
@@ -6042,6 +6217,26 @@ std::string NanoMenu::ps3BoundValue(const Ps3SettingBinding* b) {
 // Open the side-panel chooser for a settings-bound leaf, preselecting the option
 // that matches the current value. Commit/cancel run through closePs3Dialog.
 void NanoMenu::openBoundChooser(const Ps3SettingBinding* b) {
+    // Slide Behaviour trigger rows are pushed pickers, not side-panel choosers. They
+    // are normally intercepted by the label dispatch before this is reached; guard
+    // here too so any future route (e.g. a Square-press chooser) still drills in
+    // rather than opening an empty dialog with no options.
+    if (!strcmp(b->options, "@device")) {
+        std::vector<Ps3Item> ps = ps3CurItems(); int pSel = ps3CurSel();
+        Ps3Level lvl; buildSlideDeviceSubmenu(lvl); mPs3Stack.push_back(lvl);
+        mPs3SubParentItems = ps; mPs3SubParentIdx = pSel; mPs3SubChildItems = mPs3Stack.back().items;
+        mPs3SubDir = 1; mPs3SubAnimStart = mEffectTime; mPs3SubAnim = 0.0f;
+        mPs3AnimItem = 0.0f; mPs3ItemAnimStart = -1.0f;
+        return;
+    }
+    if (!strcmp(b->options, "@event")) {
+        std::vector<Ps3Item> ps = ps3CurItems(); int pSel = ps3CurSel();
+        Ps3Level lvl; buildSlideEventSubmenu(lvl); mPs3Stack.push_back(lvl);
+        mPs3SubParentItems = ps; mPs3SubParentIdx = pSel; mPs3SubChildItems = mPs3Stack.back().items;
+        mPs3SubDir = 1; mPs3SubAnimStart = mEffectTime; mPs3SubAnim = 0.0f;
+        mPs3AnimItem = 0.0f; mPs3ItemAnimStart = -1.0f;
+        return;
+    }
     mPs3DlgOptions.clear(); mPs3DlgSwatch.clear();
     mPs3DlgKind = 1; mPs3DlgThemeKey = 0; mPs3DlgBinding = b;
     mPs3DlgTitle = b->label; mPs3DlgBody.clear();
@@ -6177,6 +6372,19 @@ std::string NanoMenu::resolvePs3ItemValue(const Ps3Item& it) {
             if (cur.empty()) return std::string("-");
             int n = (int)cur.size(); if (n > 8) n = 8;   // never reveal the secret
             return std::string(n, '*');
+        }
+        // Slide Behaviour trigger-device row: show the chosen device name, or
+        // "Any device" when the filter is off (empty dev_name). The row drills
+        // into buildSlideDeviceSubmenu on activate.
+        if (!strcmp(b->options, "@device")) {
+            return cur.empty() ? std::string("Any device") : cur;
+        }
+        // Slide Behaviour trigger-event row: show the human name for the current
+        // (key_type,key_code) pair, matching the labels in buildSlideEventSubmenu.
+        if (!strcmp(b->options, "@event")) {
+            int code = cur.empty() ? 88 : (int)strtol(cur.c_str(), nullptr, 0);
+            int type = property_get_int32("persist.gammaos.rotate.key_type", EV_KEY);
+            return slEventName(type, code);
         }
         if (!strcmp(b->options, "@rgbeffect")) {
             // cur is gammargb.control; "off" wins, else map the rgb.effect code.

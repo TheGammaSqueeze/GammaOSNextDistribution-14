@@ -3115,6 +3115,15 @@
     <string name="slide_behavior_degrees_90">90 degrees</string>
     <string name="slide_behavior_degrees_180">180 degrees</string>
     <string name="slide_behavior_degrees_270">270 degrees</string>
+    <string name="slide_behavior_key_type_title">Slide event type</string>
+    <string name="slide_behavior_key_type_summary">Which evdev event type carries the slide signal</string>
+    <string name="slide_behavior_key_type_key">Key (EV_KEY)</string>
+    <string name="slide_behavior_key_type_sw">Switch (EV_SW)</string>
+    <string name="slide_behavior_key_active_title">Slide active value</string>
+    <string name="slide_behavior_key_active_summary">Event value that means the button is slid (asserted)</string>
+    <string name="slide_behavior_key_active_high">High (1)</string>
+    <string name="slide_behavior_key_active_low">Low (0)</string>
+    <string name="slide_behavior_dev_name_any">Any device</string>
     <string name="gammaos_toolbox_warning">Warning: These settings modify low-level system properties. Some options may not be applicable to your device or hardware. Changing values incorrectly can cause display glitches, performance issues, or instability. Proceed at your own risk.</string>
     <string name="gammaos_toolbox_restore_default">Restore default</string>
     <string name="gammaos_toolbox_value_not_set">Not set</string>
