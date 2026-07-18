@@ -6030,7 +6030,8 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     // ramp the default-display brightness from its start value down toward minimum, then sleep. The
     // opposite slide (gammaCancelSleep) restores the saved brightness and drops the ramp callbacks.
     private Runnable mGammaDimRunnable = null;   // pending dim-ramp step (null = none running)
-    private float mGammaDimSavedBrightness = Float.NaN; // brightness captured before the first step
+    private float mGammaDimSavedBrightness = Float.NaN; // float brightness captured before the ramp
+    private int mGammaDimSavedLegacy = -1;       // legacy int brightness captured before the ramp (-1 = none)
     private long mGammaDimStartMs = 0;           // uptime of the first dim step
     private long mGammaDimDurationMs = 0;        // total ramp window in ms (= delaySec * 1000)
 
@@ -6233,23 +6234,33 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             return;
         }
         gammaCancelSleep();
-        // With sleep_dim on (default) and the screen currently interactive, progressively dim the
-        // screen across the delay window and sleep at its end via the ramp itself. Otherwise fall
-        // back to the plain delayed goToSleep with no brightness change.
+        // The sleep at the end of the window is GUARANTEED by its own timer, independent of the dim.
+        // The dim is a best-effort visual on top; if the display uses a brightness the float API
+        // cannot read/set (e.g. legacy int brightness -> getBrightness returns NaN) the ramp simply
+        // no-ops and the sleep still fires. Decoupling them is what keeps a dim failure from ever
+        // eating the sleep (the earlier bug).
+        mGammaSleepRunnable = new Runnable() {
+            @Override public void run() {
+                mGammaSleepRunnable = null;
+                // Stop the dim ramp so it cannot re-dim after we restore below.
+                if (mGammaDimRunnable != null) {
+                    mHandler.removeCallbacks(mGammaDimRunnable);
+                    mGammaDimRunnable = null;
+                }
+                mPowerManager.goToSleep(SystemClock.uptimeMillis(),
+                        android.os.PowerManager.GO_TO_SLEEP_REASON_SLEEP_BUTTON, 0);
+                // Restore the pre-dim brightness AFTER sleeping so the next wake is at the user's
+                // level, not the dimmed value. The panel is already off, so there is no visible
+                // flash back to full brightness.
+                gammaRestoreDimBrightness();
+            }
+        };
+        mHandler.postDelayed(mGammaSleepRunnable, delaySec * 1000L);
         final boolean dim = android.os.SystemProperties.getBoolean(
                 "persist.gammaos.rotate.sleep_dim", true);
         if (dim && mDisplayManager != null && mPowerManager.isInteractive()) {
             gammaStartDimRamp(delaySec * 1000L);
-            return;
         }
-        mGammaSleepRunnable = new Runnable() {
-            @Override public void run() {
-                mGammaSleepRunnable = null;
-                mPowerManager.goToSleep(SystemClock.uptimeMillis(),
-                        android.os.PowerManager.GO_TO_SLEEP_REASON_SLEEP_BUTTON, 0);
-            }
-        };
-        mHandler.postDelayed(mGammaSleepRunnable, delaySec * 1000L);
     }
 
     // Interval between dim-ramp steps. Small enough to look like a smooth fade, large enough not to
@@ -6263,40 +6274,59 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     private void gammaStartDimRamp(long durationMs) {
         mGammaDimStartMs = SystemClock.uptimeMillis();
         mGammaDimDurationMs = durationMs > 0 ? durationMs : GAMMA_DIM_STEP_MS;
-        // Capture the current brightness once, up front, so a restore always has a valid target even
-        // if the very first ramp step is where we would otherwise read it.
+        // Capture the starting brightness. The float API may not know the current value on a device
+        // using legacy int brightness (getBrightness -> NaN); fall back to the legacy 0..255 setting
+        // mapped into the float [min,max] range so we still have a start to ramp from. If we cannot
+        // get any value, skip the dim entirely - the guaranteed sleep timer still fires.
+        mGammaDimSavedLegacy = -1;
         float start = mDisplayManager.getBrightness(DEFAULT_DISPLAY);
+        if (Float.isNaN(start)) {
+            try {
+                final int legacy = android.provider.Settings.System.getInt(
+                        mContext.getContentResolver(),
+                        android.provider.Settings.System.SCREEN_BRIGHTNESS, 128);
+                final float maxB = mPowerManager.getBrightnessConstraint(
+                        PowerManager.BRIGHTNESS_CONSTRAINT_TYPE_MAXIMUM);
+                final float minB = mPowerManager.getBrightnessConstraint(
+                        PowerManager.BRIGHTNESS_CONSTRAINT_TYPE_MINIMUM);
+                start = minB + (maxB - minB) * (Math.max(0, Math.min(255, legacy)) / 255f);
+                mGammaDimSavedLegacy = legacy; // remember the legacy value to restore it exactly
+            } catch (Exception e) {
+                start = Float.NaN;
+            }
+        }
+        if (Float.isNaN(start)) {
+            return; // cannot dim on this device; the sleep timer still handles sleeping
+        }
         mGammaDimSavedBrightness = start;
+        final float from = start;
         mGammaDimRunnable = new Runnable() {
             @Override public void run() {
-                // If cancelled between posts this runnable was removed; but guard anyway.
                 if (mGammaDimRunnable != this) {
-                    return;
+                    return; // cancelled / superseded
                 }
                 final long now = SystemClock.uptimeMillis();
                 final float progress = mGammaDimDurationMs > 0
                         ? (float) (now - mGammaDimStartMs) / (float) mGammaDimDurationMs
                         : 1f;
                 if (progress >= 1f) {
-                    // End of the window: sleep. Do NOT restore brightness; the panel is going off and
-                    // the framework re-applies the user brightness on the next wake.
-                    mGammaDimRunnable = null;
-                    mGammaDimSavedBrightness = Float.NaN;
-                    mPowerManager.goToSleep(SystemClock.uptimeMillis(),
-                            android.os.PowerManager.GO_TO_SLEEP_REASON_SLEEP_BUTTON, 0);
+                    mGammaDimRunnable = null; // done; the separate sleep timer fires the goToSleep
                     return;
                 }
-                final float minBrightness = mPowerManager.getBrightnessConstraint(
-                        PowerManager.BRIGHTNESS_CONSTRAINT_TYPE_MINIMUM);
-                final float from = Float.isNaN(mGammaDimSavedBrightness)
-                        ? mDisplayManager.getBrightness(DEFAULT_DISPLAY)
-                        : mGammaDimSavedBrightness;
-                // Only dim downward: if the captured start is already at/below min there is nothing to
-                // ramp, so just hold min. Interpolate from -> min linearly by progress.
-                float target = from + (minBrightness - from) * progress;
-                if (target < minBrightness) target = minBrightness;
-                if (target > from) target = from;
-                mDisplayManager.setBrightness(DEFAULT_DISPLAY, target);
+                try {
+                    final float minB = mPowerManager.getBrightnessConstraint(
+                            PowerManager.BRIGHTNESS_CONSTRAINT_TYPE_MINIMUM);
+                    float target = from + (minB - from) * progress;
+                    if (target < minB) target = minB;
+                    if (target > from) target = from;
+                    if (!Float.isNaN(target)) {
+                        mDisplayManager.setBrightness(DEFAULT_DISPLAY, target);
+                    }
+                } catch (Exception e) {
+                    // Brightness set is unsupported on this path: stop dimming (the sleep still fires).
+                    mGammaDimRunnable = null;
+                    return;
+                }
                 mHandler.postDelayed(this, GAMMA_DIM_STEP_MS);
             }
         };
@@ -6312,13 +6342,32 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         if (mGammaDimRunnable != null) {
             mHandler.removeCallbacks(mGammaDimRunnable);
             mGammaDimRunnable = null;
-            // Restore the brightness the ramp was dimming from, so the opposite slide cancels the
-            // dim cleanly. Guard the DisplayManager and the saved value (NaN = never captured).
+            // The opposite slide cancelled the countdown: undo the dim so the screen returns to the
+            // user's brightness immediately.
+            gammaRestoreDimBrightness();
+        } else {
+            mGammaDimSavedBrightness = Float.NaN;
+            mGammaDimSavedLegacy = -1;
+        }
+    }
+
+    // Restore the brightness captured before the dim ramp (both the cancel path and the after-sleep
+    // path use this). On a legacy int-brightness device the dim also moved Settings.System
+    // SCREEN_BRIGHTNESS, so restore that exact value; otherwise restore the float. Best-effort.
+    private void gammaRestoreDimBrightness() {
+        try {
+            if (mGammaDimSavedLegacy >= 0) {
+                android.provider.Settings.System.putInt(mContext.getContentResolver(),
+                        android.provider.Settings.System.SCREEN_BRIGHTNESS, mGammaDimSavedLegacy);
+            }
             if (mDisplayManager != null && !Float.isNaN(mGammaDimSavedBrightness)) {
                 mDisplayManager.setBrightness(DEFAULT_DISPLAY, mGammaDimSavedBrightness);
             }
+        } catch (Exception e) {
+            // ignore: brightness restore is best-effort
         }
         mGammaDimSavedBrightness = Float.NaN;
+        mGammaDimSavedLegacy = -1;
     }
 
     private void gammaRotateApply(boolean rotated) {
