@@ -925,6 +925,15 @@ public interface WindowManagerPolicy extends WindowManagerPolicyConstants {
     public void notifyCameraLensCoverSwitchChanged(long whenNanos, boolean lensCovered);
 
     /**
+     * Tell the policy that the tablet-mode switch (EV_SW SW_TABLET_MODE) has changed state.
+     * GammaOS uses this to drive the swivel rotate + PSP clock summon on switch panels. Default
+     * no-op so non-GammaOS policies need not implement it.
+     * @param whenNanos The time when the change occurred in uptime nanoseconds.
+     * @param inTabletMode True if the device is now in tablet mode.
+     */
+    default void notifyTabletModeChanged(long whenNanos, boolean inTabletMode) {}
+
+    /**
      * Tell the policy if anyone is requesting that keyguard not come on.
      *
      * @param enabled Whether keyguard can be on or not.  does not actually

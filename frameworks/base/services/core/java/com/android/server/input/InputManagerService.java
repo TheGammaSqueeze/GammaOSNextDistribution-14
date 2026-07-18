@@ -2445,10 +2445,15 @@ public class InputManagerService extends IInputManager.Stub
         }
 
         if ((switchMask & SW_TABLET_MODE_BIT) != 0) {
+            final boolean inTabletMode = (switchValues & SW_TABLET_MODE_BIT) != 0;
+            // GammaOS: also route the tablet-mode switch to the window policy so a switch-triggered
+            // swivel (EV_SW SW_TABLET_MODE) can drive the rotate + PSP clock summon, mirroring the
+            // camera-lens path above. The app-listener delivery below is kept unchanged.
+            mWindowManagerCallbacks.notifyTabletModeChanged(whenNanos, inTabletMode);
             SomeArgs args = SomeArgs.obtain();
             args.argi1 = (int) (whenNanos & 0xFFFFFFFF);
             args.argi2 = (int) (whenNanos >> 32);
-            args.arg1 = (switchValues & SW_TABLET_MODE_BIT) != 0;
+            args.arg1 = inTabletMode;
             mHandler.obtainMessage(MSG_DELIVER_TABLET_MODE_CHANGED,
                     args).sendToTarget();
         }
@@ -2910,6 +2915,15 @@ public class InputManagerService extends IInputManager.Stub
          * @param lensCovered true is the lens is covered
          */
         void notifyCameraLensCoverSwitchChanged(long whenNanos, boolean lensCovered);
+
+        /**
+         * This callback is invoked when the tablet-mode switch (EV_SW SW_TABLET_MODE) changes.
+         * GammaOS routes it to the window policy to drive the swivel rotate + PSP clock summon on
+         * switch panels. Default no-op so callbacks that do not need it are unaffected.
+         * @param whenNanos the time when the change occurred
+         * @param inTabletMode true if the device is now in tablet mode
+         */
+        default void notifyTabletModeChanged(long whenNanos, boolean inTabletMode) {}
 
         /**
          * This callback is invoked when an input channel is closed unexpectedly.

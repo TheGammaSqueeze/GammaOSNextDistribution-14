@@ -6030,6 +6030,12 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         if (!android.os.SystemProperties.getBoolean("persist.gammaos.rotate.enabled", false)) {
             return false;
         }
+        // The slide trigger is prop-configurable (see nano NanoMenuInput): key_type 1 = EV_KEY,
+        // 5 = EV_SW. This KEY path only handles EV_KEY devices; a switch (EV_SW SW_TABLET_MODE)
+        // device is driven by notifyTabletModeChanged below, so bail if not configured as a key.
+        if (android.os.SystemProperties.getInt("persist.gammaos.rotate.key_type", 1) != 1) {
+            return false;
+        }
         final int wantCode = android.os.SystemProperties.getInt("persist.gammaos.rotate.key_code", 88);
         if (event.getScanCode() != wantCode) {
             return false;
@@ -6047,6 +6053,10 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         // modifier forward (which otherwise eats Power and turns Volume into brightness). The user
         // is not mid-combo when swivelling the panel, so this is always safe here.
         gammaResetStuckModifiers();
+        // key_active is the value that means "engaged": 1 (default) = key DOWN engages; 0 inverts
+        // (a normally-closed switch wired as a key).
+        final boolean activeHigh =
+                android.os.SystemProperties.getInt("persist.gammaos.rotate.key_active", 1) != 0;
         final int action = event.getAction();
         if (action == KeyEvent.ACTION_DOWN) {
             // Ignore ONLY genuine auto-repeat (repeatCount>0). Do NOT also gate on
@@ -6060,17 +6070,41 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             if (event.getRepeatCount() > 0) {
                 return true; // ignore auto-repeat
             }
-            mGammaRotateDown = true;
-            gammaRotateDo(android.os.SystemProperties.get(
-                    "persist.gammaos.rotate.down_action", "rotate"));
-            gammaClockSummon(true);
+            applyGammaRotate(activeHigh);
         } else if (action == KeyEvent.ACTION_UP) {
-            mGammaRotateDown = false;
-            gammaRotateDo(android.os.SystemProperties.get(
-                    "persist.gammaos.rotate.up_action", "natural"));
-            gammaClockSummon(false);
+            applyGammaRotate(!activeHigh);
         }
         return true; // consume the key either way
+    }
+
+    // Shared body of a slide-trigger edge, used by BOTH the EV_KEY path (interceptGammaRotateKey)
+    // and the EV_SW switch path (notifyTabletModeChanged) so the two triggers can never drift.
+    // down = the slide is engaged (rotated / clock open); false = released (natural / clock closed).
+    private void applyGammaRotate(boolean down) {
+        mGammaRotateDown = down;
+        gammaRotateDo(android.os.SystemProperties.get(
+                down ? "persist.gammaos.rotate.down_action" : "persist.gammaos.rotate.up_action",
+                down ? "rotate" : "natural"));
+        gammaClockSummon(down);
+    }
+
+    // EV_SW SW_TABLET_MODE slide trigger (e.g. TrimUI): a tablet-mode switch arrives here as a
+    // switch notification (InputManagerService.notifySwitch -> WindowManagerPolicy), NOT as a
+    // KeyEvent, so interceptGammaRotateKey never sees it. Drive the SAME rotate + PSP clock summon
+    // as the KEY_F12 devices when the trigger is configured as a switch (key_type=5=EV_SW). The
+    // over-app clock summon then works on switch panels with no per-device code.
+    @Override
+    public void notifyTabletModeChanged(long whenNanos, boolean inTabletMode) {
+        if (!android.os.SystemProperties.getBoolean("persist.gammaos.rotate.enabled", false)) {
+            return;
+        }
+        if (android.os.SystemProperties.getInt("persist.gammaos.rotate.key_type", 1) != 5) {
+            return; // only when the trigger is configured as an EV_SW switch
+        }
+        final boolean activeHigh =
+                android.os.SystemProperties.getInt("persist.gammaos.rotate.key_active", 1) != 0;
+        gammaResetStuckModifiers();
+        applyGammaRotate(inTabletMode == activeHigh);
     }
 
     // PSP slide clock over a running app. GammaOS Nano cannot read the swivel while it is

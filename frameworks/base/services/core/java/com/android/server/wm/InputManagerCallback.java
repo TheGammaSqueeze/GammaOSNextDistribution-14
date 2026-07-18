@@ -156,6 +156,12 @@ final class InputManagerCallback implements InputManagerService.WindowManagerCal
         mService.mPolicy.notifyCameraLensCoverSwitchChanged(whenNanos, lensCovered);
     }
 
+    /** Notifies that the tablet-mode switch has changed (GammaOS swivel/clock on switch panels). */
+    @Override
+    public void notifyTabletModeChanged(long whenNanos, boolean inTabletMode) {
+        mService.mPolicy.notifyTabletModeChanged(whenNanos, inTabletMode);
+    }
+
     /**
      * Provides an opportunity for the window manager policy to intercept early key
      * processing as soon as the key has been read from the device.
