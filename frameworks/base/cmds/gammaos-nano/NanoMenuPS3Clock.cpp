@@ -703,7 +703,13 @@ void NanoMenu::pspClockMirrorImportAndBlit(const sp<GraphicBuffer>& buf) {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         mPspClockAppTexW = w; mPspClockAppTexH = h;
     }
+    // Snapshot the GL state this helper changes so it leaves it EXACTLY as found. The blit
+    // runs mid-frame before the backdrop/entrance passes; leaking a disabled blend makes the
+    // entrance icons/glyphs render opaque (white squares), and leaking a logical-sized viewport
+    // blanks the rotated surround. Restore all three on exit.
     GLint prevFbo = 0; glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prevFbo);
+    GLint prevVp[4]; glGetIntegerv(GL_VIEWPORT, prevVp);
+    GLboolean prevBlend = glIsEnabled(GL_BLEND);
     if (gMirFlipFbo == 0) glGenFramebuffers(1, &gMirFlipFbo);
     glBindFramebuffer(GL_FRAMEBUFFER, gMirFlipFbo);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mPspClockAppTex, 0);
@@ -730,7 +736,8 @@ void NanoMenu::pspClockMirrorImportAndBlit(const sp<GraphicBuffer>& buf) {
     glDisableVertexAttribArray(gMirPos);
     glDisableVertexAttribArray(gMirUV);
     glBindFramebuffer(GL_FRAMEBUFFER, (GLuint)prevFbo);
-    glViewport(0, 0, mWidth, mHeight);
+    glViewport(prevVp[0], prevVp[1], prevVp[2], prevVp[3]);
+    if (prevBlend) glEnable(GL_BLEND); else glDisable(GL_BLEND);
     mPspClockAppTexValid = true;
 }
 
@@ -1039,6 +1046,10 @@ void NanoMenu::drawPspClock(float dtMs) {
     // Stage 5: entrance explosion (after the lens so glyphs behind the disc get the
     // lens bow; before the face). THREE staggered burst copies + TWO icon streams +
     // ambient, all additive (spec 5.13). Envelope ends midway through the drop (0.65).
+    // glEnable is REQUIRED, not just glBlendFunc: on the mirror path pspClockLens early-returns
+    // during the entrance (before its setUiBlend) so blend can still be OFF here, which made
+    // the icon/glyph quads render opaque (white squares). Own the full blend state.
+    glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE);
     {
         const float BURST_P = 0.7f;
@@ -1085,7 +1096,12 @@ void NanoMenu::pspClockCopyBlurToBackdrop() {
         gBdBlurW = mGlassBlurW; gBdBlurH = mGlassBlurH;
     }
     if (gBdBlurFbo == 0) glGenFramebuffers(1, &gBdBlurFbo);
+    // Snapshot the state this helper changes and restore it exactly. Leaking a disabled blend
+    // makes the later darken drawQuad write OPAQUE black (blanking the surround); leaking a
+    // logical-sized viewport miscovers the rotated surround. Both showed as the backdrop flicker.
     GLint prevFbo = 0; glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prevFbo);
+    GLint prevVp[4]; glGetIntegerv(GL_VIEWPORT, prevVp);
+    GLboolean prevBlend = glIsEnabled(GL_BLEND);
     glBindFramebuffer(GL_FRAMEBUFFER, gBdBlurFbo);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gBdBlurTex, 0);
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE) {
@@ -1107,7 +1123,8 @@ void NanoMenu::pspClockCopyBlurToBackdrop() {
         glDisableVertexAttribArray(gMirUV);
     }
     glBindFramebuffer(GL_FRAMEBUFFER, (GLuint)prevFbo);
-    glViewport(0, 0, mWidth, mHeight);
+    glViewport(prevVp[0], prevVp[1], prevVp[2], prevVp[3]);
+    if (prevBlend) glEnable(GL_BLEND); else glDisable(GL_BLEND);
 }
 
 void NanoMenu::pspClockBackdropBlur(float amt) {
