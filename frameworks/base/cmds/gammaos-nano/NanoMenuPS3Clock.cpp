@@ -151,9 +151,13 @@ bool                   gMirActive = false;          // pipeline up
 // stack 0 so the clone is NEVER composited onto the real panel - no on-screen artifact).
 constexpr uint32_t     kMirLayerStack = 0x6E414D6F;  // 'nAMo' - unlikely to collide
 bool                   gMirFailed = false;          // start failed once -> fall back to worker
-GLuint                 gMirSrcTex = 0;              // GL_TEXTURE_2D bound to the acquired buffer
-EGLImageKHR            gMirImg = EGL_NO_IMAGE_KHR;  // current EGLImage (destroyed on swap)
 GLuint                 gMirFlipFbo = 0;             // FBO wrapping mPspClockAppTex for the flip blit
+// Per-buffer EGLImage+texture cache. The mirror BufferQueue only cycles a handful of
+// gralloc buffers, so import each ONCE (keyed by GraphicBuffer id) and reuse - recreating
+// the EGLImage + rebinding the texture every frame was ~0.4ms of pure overhead.
+struct MirTexEntry { uint64_t id; EGLImageKHR img; GLuint tex; };
+MirTexEntry            gMirCache[8];
+int                    gMirCacheN = 0;
 BufferItem             gMirHeld;                    // buffer held for release next frame (GPU-read safety)
 bool                   gMirHasHeld = false;
 // Minimal V-flip copy program (mirror src -> mPspClockAppTex).
@@ -611,9 +615,14 @@ void NanoMenu::pspClockMirrorStop() {
         gMirConsumer->releaseBuffer(gMirHeld, Fence::NO_FENCE);
         gMirHasHeld = false;
     }
-    if (gMirImg != EGL_NO_IMAGE_KHR && pEglDestroyImageKHR) {
-        pEglDestroyImageKHR(eglGetCurrentDisplay(), gMirImg);
-        gMirImg = EGL_NO_IMAGE_KHR;
+    if (gMirCacheN > 0) {
+        EGLDisplay dpy = eglGetCurrentDisplay();
+        for (int i = 0; i < gMirCacheN; i++) {
+            if (gMirCache[i].tex) glDeleteTextures(1, &gMirCache[i].tex);
+            if (gMirCache[i].img != EGL_NO_IMAGE_KHR && pEglDestroyImageKHR)
+                pEglDestroyImageKHR(dpy, gMirCache[i].img);
+        }
+        gMirCacheN = 0;
     }
     if (gMirDisplay != nullptr || gMirLayer != nullptr) {
         SurfaceComposerClient::Transaction t;
@@ -625,7 +634,6 @@ void NanoMenu::pspClockMirrorStop() {
         gMirLayer = nullptr;
     }
     if (gMirConsumer != nullptr) { gMirConsumer->abandon(); gMirConsumer = nullptr; }
-    if (gMirSrcTex)  { glDeleteTextures(1, &gMirSrcTex);   gMirSrcTex = 0; }
     if (gMirFlipFbo) { glDeleteFramebuffers(1, &gMirFlipFbo); gMirFlipFbo = 0; }
     gMirActive = false;
 }
@@ -638,20 +646,38 @@ void NanoMenu::pspClockMirrorImportAndBlit(const sp<GraphicBuffer>& buf) {
     if (w < 8 || h < 8) return;
     EGLDisplay dpy = eglGetCurrentDisplay();
 
-    // Rebuild the EGLImage for the new buffer (drop the previous one).
-    if (gMirImg != EGL_NO_IMAGE_KHR) { pEglDestroyImageKHR(dpy, gMirImg); gMirImg = EGL_NO_IMAGE_KHR; }
-    EGLint attrs[] = { EGL_IMAGE_PRESERVED_KHR, EGL_TRUE, EGL_NONE };
-    gMirImg = pEglCreateImageKHR(dpy, EGL_NO_CONTEXT, EGL_NATIVE_BUFFER_ANDROID,
-                                 (EGLClientBuffer)buf->getNativeBuffer(), attrs);
-    if (gMirImg == EGL_NO_IMAGE_KHR) return;
-    if (gMirSrcTex == 0) glGenTextures(1, &gMirSrcTex);
-    glBindTexture(GL_TEXTURE_2D, gMirSrcTex);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    pGlEGLImageTargetTexture2DOES(GL_TEXTURE_2D, (GLeglImageOES)gMirImg);
-    if (glGetError() != GL_NO_ERROR) return;
+    // Import this buffer ONCE (keyed by its id) and reuse the texture on later frames.
+    const uint64_t id = buf->getId();
+    GLuint srcTex = 0;
+    for (int i = 0; i < gMirCacheN; i++) if (gMirCache[i].id == id) { srcTex = gMirCache[i].tex; break; }
+    if (srcTex == 0) {
+        EGLint attrs[] = { EGL_IMAGE_PRESERVED_KHR, EGL_TRUE, EGL_NONE };
+        EGLImageKHR img = pEglCreateImageKHR(dpy, EGL_NO_CONTEXT, EGL_NATIVE_BUFFER_ANDROID,
+                                             (EGLClientBuffer)buf->getNativeBuffer(), attrs);
+        if (img == EGL_NO_IMAGE_KHR) return;
+        glGenTextures(1, &srcTex);
+        glBindTexture(GL_TEXTURE_2D, srcTex);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        pGlEGLImageTargetTexture2DOES(GL_TEXTURE_2D, (GLeglImageOES)img);
+        if (glGetError() != GL_NO_ERROR) {
+            glDeleteTextures(1, &srcTex);
+            pEglDestroyImageKHR(dpy, img);
+            return;
+        }
+        if (gMirCacheN >= (int)(sizeof(gMirCache) / sizeof(gMirCache[0]))) {
+            // Full (buffer set churned): evict the oldest entry.
+            glDeleteTextures(1, &gMirCache[0].tex);
+            pEglDestroyImageKHR(dpy, gMirCache[0].img);
+            for (int i = 1; i < gMirCacheN; i++) gMirCache[i - 1] = gMirCache[i];
+            gMirCacheN--;
+        }
+        gMirCache[gMirCacheN++] = { id, img, srcTex };
+    } else {
+        glBindTexture(GL_TEXTURE_2D, srcTex);
+    }
 
     // (Re)allocate mPspClockAppTex to the buffer size and attach it to the flip FBO.
     if (mPspClockAppTex == 0) glGenTextures(1, &mPspClockAppTex);
@@ -684,7 +710,7 @@ void NanoMenu::pspClockMirrorImportAndBlit(const sp<GraphicBuffer>& buf) {
     glVertexAttribPointer(gMirUV, 2, GL_FLOAT, GL_FALSE, 0, uv);
     glEnableVertexAttribArray(gMirUV);
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, gMirSrcTex);
+    glBindTexture(GL_TEXTURE_2D, srcTex);
     glUniform1i(gMirSamp, 0);
     glUniform1f(gMirFlip, property_get_bool("persist.gammaos.nano.pspclock.mirrorflip", true) ? 1.0f : 0.0f);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
