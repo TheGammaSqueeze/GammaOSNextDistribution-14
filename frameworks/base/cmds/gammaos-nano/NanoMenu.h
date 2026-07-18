@@ -1762,6 +1762,10 @@ private:
     // overlay when the clock finishes retracting. mPspClockRaisedOverlay = we raised it.
     bool  mPspClockStandalone = false;
     bool  mPspClockRaisedOverlay = false;
+    // Swipe-to-dismiss: while the clock is up a touch swipe closes it WITHOUT touching the
+    // rotation, so the user can exit the clock but keep the device rotated. Tracks the touch-down
+    // point and the peak distance travelled; a release past the threshold dismisses.
+    float mPspSwipeDownX = 0.0f, mPspSwipeDownY = 0.0f, mPspSwipeMoved = 0.0f;
     float mPspClockReveal = 0.0f;     // 0..1 transition progress (open 5000ms / close 2700ms)
     float mPspDescent = -1.0f;        // smoothed vertical fraction (-1 off-top, 0 rest)
     float mPspDetailFade = 0.0f;      // trail/ticks/ambient-glyph gate (in once settled)
@@ -3111,7 +3115,8 @@ private:
 
     // --- PSP Go slide clock (NanoMenuPS3Clock.cpp) --------------------------
     void  drawPspClock(float dtMs);            // per-frame orchestrator (advance + all passes)
-    void  pspClockPollInput();                 // reads the F12 gate prop into mPspClockEnabled
+    void  pspClockPollInput();
+    void  pspClockTouchFrame();                // swipe-to-dismiss + block menu touch while up                 // reads the F12 gate prop into mPspClockEnabled
     void  pspClockPollTilt(bool active);       // accel -> smoothed mPspTilt* parallax (gyro peek)
     float pspClockTextFade() const;            // smoothed XMB-text alpha multiplier (5.4)
     float pspClockChromeFade() const;          // whole-canvas backstop opacity (5.5, window 0.58..0.72)

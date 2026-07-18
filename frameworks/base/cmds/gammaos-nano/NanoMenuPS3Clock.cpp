@@ -272,10 +272,53 @@ void NanoMenu::pspClockPollInput() {
     // behind an app). While standalone, mirror the summon prop into mPspClockOn so releasing
     // the slide (framework clears the prop) ramps the clock closed; the fully-closed teardown
     // in drawPspClock then lowers the overlay we raised.
-    if (mPspClockStandalone && mPspClockOn
-        && !property_get_bool("sys.gammaos.nano.pspclock_summon", false)) {
-        mPspClockOn = false;
+    if (mPspClockStandalone) {
+        // The standalone (over-app) clock closes when the framework clears pspclock_summon on the
+        // slide release (swivel/switch back), OR when the overlay's own evdev slide handler set
+        // mPspClockOn=false, OR when a swipe-to-dismiss set it false. Mirror the summon drop into
+        // mPspClockOn so a framework-driven release still closes it.
+        if (mPspClockOn && !property_get_bool("sys.gammaos.nano.pspclock_summon", false))
+            mPspClockOn = false;
+        // In-app dismiss is IMMEDIATE, HOWEVER the close was triggered: snap the reveal to 0 so the
+        // overlay lowers at once (the teardown gate at the top of drawPspClock then fires this same
+        // frame) instead of the 2.7s eased retract - the user is mid-game and wants it gone now.
+        // Key-agnostic (state-based), so it works whatever event drove the close. Gated on
+        // mPspClockStandalone, so the wallpaper/home clock keeps its eased close untouched.
+        if (!mPspClockOn && mPspClockReveal > 0.0f)
+            mPspClockReveal = 0.0f;
     }
+}
+
+// Swipe-to-dismiss + input block while the clock is up. Called from the touch dispatch INSTEAD of
+// the normal XMB/menu touch handlers whenever the clock is showing, so it (a) swallows all touch so
+// the menu behind cannot be driven, and (b) closes the clock on a clear swipe. In the standalone
+// (over-app) case this is the way to exit the clock WITHOUT un-rotating: it only sets
+// mPspClockOn=false (pspClockPollInput then snaps the reveal shut) and never touches
+// sys.gammaos.rotate.state, so the device stays rotated. Any swipe direction counts; the gesture
+// just has to travel past ~15% of the shorter panel edge so a stray tap does not dismiss.
+void NanoMenu::pspClockTouchFrame() {
+    const bool down = mTouchDown;
+    const bool downEdge = down && !mTouchWasDown;
+    const bool upEdge   = !down && mTouchWasDown;
+    float px, py; const bool mapped = touchMapRaw(mTouchRawX, mTouchRawY, px, py);
+    if (downEdge && mapped) {
+        mPspSwipeDownX = px; mPspSwipeDownY = py; mPspSwipeMoved = 0.0f;
+    } else if (down && mapped) {
+        const float dx = px - mPspSwipeDownX, dy = py - mPspSwipeDownY;
+        const float d = sqrtf(dx * dx + dy * dy);
+        if (d > mPspSwipeMoved) mPspSwipeMoved = d;
+    } else if (upEdge) {
+        const float thresh = 0.15f * (float)std::min(mWidth, mHeight);
+        // Only dismiss while the clock is genuinely open (not already closing), so one swipe = one
+        // dismiss. The eased-close on the home clock and the instant snap on the standalone clock
+        // are both driven by mPspClockOn going false (pspClockPollInput / the reveal machine).
+        if (mPspClockOn && mPspSwipeMoved >= thresh) {
+            mPspClockOn = false;
+            mPspGlyphBurst = 0.6f;
+        }
+        mPspSwipeMoved = 0.0f;
+    }
+    mTouchWasDown = mTouchDown;
 }
 
 // Gyro/accel parallax (user request): tilting the device shifts the background sampled
@@ -440,8 +483,14 @@ static bool pspClockAppSrcDebug() {
 // this false, want is always false, the worker never launches, and the lens uses
 // ps3bg::workTex() exactly as before.
 bool NanoMenu::pspClockLiveAppEnabled() const {
+    // Force the live-app mirror ON whenever the clock is summoned standalone over a running app
+    // (scrim-over-app), regardless of the persist default: the surround backdrop now PAINTS the
+    // captured app opaque from reveal 0 (see pspClockBackdropBlur), so it must have an app
+    // texture to blit or the surround would fall back to the wave / stay black. Scoped to the
+    // overlay instance in scrim-over-app standalone mode, so the home and DSi paths are untouched.
     return property_get_bool("persist.gammaos.nano.pspclock.liveapp", false)
-        || pspClockAppSrcDebug();
+        || pspClockAppSrcDebug()
+        || (mOverlayMode && !mOverlayWallpaper && mPspClockStandalone);
 }
 
 // The lens should sample the captured app (not the wave) when there is a live app
@@ -1123,7 +1172,7 @@ void NanoMenu::drawPspClock(float dtMs) {
     static int64_t sPLastLog = 0;
     int64_t tBd0 = prof ? (glFinish(), profNs()) : 0;
 
-    pspClockBackdropBlur(clockReveal);       // stage 1
+    pspClockBackdropBlur(mPspClockReveal);   // stage 1: surround, opaque base + eased blur/darken cross-fade
     int64_t tLens0 = prof ? (glFinish(), profNs()) : 0;
     pspClockLens(clockReveal);               // stage 2
     int64_t tEnt0 = prof ? (glFinish(), profNs()) : 0;
@@ -1233,29 +1282,33 @@ void NanoMenu::pspClockCopyBlurToBackdrop() {
 
 void NanoMenu::pspClockBackdropBlur(float amt) {
     if (amt <= 0.0f) return;
-    // #5 live-app backdrop: when the disc is refracting the running app, the SURROUND
-    // (outside the disc) shows a BLURRED + DARKENED view of that same live app instead of
-    // the flat black scrim - a defocused peek at what is behind the glass. Blur the captured
-    // app (already stored UPRIGHT) and blit it full-screen untonemapped (it is display sRGB,
-    // not the LINEAR wave), then a dynamic darken over it (heavier when the game is bright).
+    // amt = pspClockReveal (0..1 over the 5000ms open / 2700ms close). The surround behind the
+    // glass disc eases from the crisp live background into a soft blurred + darkened defocus and
+    // back, tracking the reveal so it is fully settled exactly when the clock settles. The whole
+    // point: the ramp is a CONTINUOUS eased alpha cross-fade over a SINGLE fixed-strength blur,
+    // NOT a stepped blur radius (which jumped/juddered). The heavy blur is computed once and
+    // cached; each frame only issues a few cheap full-screen blits, so it holds a smooth 60fps on
+    // the Mali-G52. A gentle smoothstep gives the slow, unhurried build the user asked for.
+    float t = amt > 1.0f ? 1.0f : amt;
+    const float e = t * t * (3.0f - 2.0f * t);   // smoothstep: slow ease-in, slow settle (the blur)
+    // The DARKEN leads the blur: it ramps 3x faster (full by reveal ~1/3) so the surround dims
+    // quickly to pull focus onto the disc while the defocus keeps building gently behind it.
+    float td = t * 3.0f; if (td > 1.0f) td = 1.0f;
+    const float darkE = td * td * (3.0f - 2.0f * td);
+    const float DARK_MAX = 0.45f;                 // surround dim at full open (the disc stays crisp)
+
     if (pspClockUseAppSource() && mPspClockAppTex != 0
         && mPspClockAppTexW >= 8 && mPspClockAppTexH >= 8) {
-        // The surround defocus is the single most expensive pass, yet it is heavily blurred
-        // AND darkened AND has NO parallax (only the disc, which samples the app texture
-        // directly, moves with tilt). So recompute blurGlassChain only every Nth frame and
-        // copy it into a dedicated texture the frost blit reads every frame - 30Hz here is
-        // visually identical to 60Hz and frees the budget to keep the whole overlay at 60fps.
-        // The dedicated copy is what makes this safe: the chrome-glow pass later this frame
-        // reuses blurGlassChain and clobbers the shared mGlassBlurTex, so a skipped frame that
-        // re-read mGlassBlurTex would flash the glow halo (the old throttle's bug). div<=1
-        // disables it. Only throttle when the mirror is up (its blit program does the copy).
+        // One fixed-strength blurred copy of the live app (3 down-levels + 2 Gaussian, the settled
+        // frost), computed once and cached in the persistent gBdBlurTex. Because the strength is
+        // FIXED (only the cross-fade alpha ramps), the recompute can be throttled to ~30Hz at all
+        // times - the game content changes, the blur strength does not - which is what frees the
+        // budget for a locked 60. The dedicated copy keeps the later chrome-glow blurGlassChain
+        // from clobbering the shared mGlassBlurTex between the recompute and the blit.
         int div = (int)property_get_int32("persist.gammaos.nano.pspclock.blurdiv", 2);
         if (div < 1) div = 1; if (div > 4) div = 4;
-        const bool canThrottle = (div > 1) && (gMirProg != 0);
         bool useBackdropTex = false;
-        if (!canThrottle) {
-            blurGlassChain(mPspClockAppTex, mPspClockAppTexW, mPspClockAppTexH, 3, 2);
-        } else {
+        if (gMirProg != 0) {
             const bool recompute = !gBdValid || (gBdTick % div) == 0;
             gBdTick++;
             if (recompute) {
@@ -1266,53 +1319,49 @@ void NanoMenu::pspClockBackdropBlur(float amt) {
                 }
             }
             useBackdropTex = gBdValid;
+        } else {
+            // No copy program available: recompute into the shared mGlassBlurTex and blit it.
+            blurGlassChain(mPspClockAppTex, mPspClockAppTexW, mPspClockAppTexH, 3, 2);
         }
-        // tintA = 1 (OPAQUE), NOT 0 like the home-clock wave path. In the overlay
-        // in-game path the framebuffer is cleared to a translucent scrim and blending
-        // is ON (NanoMenuRender ~L4401/4411), and SurfaceFlinger composites this layer
-        // over the live app by its ALPHA channel. A tintA=0 frost outputs alpha 0, so
-        // under blend it writes NOTHING (the app surround stayed black). tintA=1 makes
-        // the blurred app opaque (alpha = fade = amt), so SF shows OUR blurred+darkened
-        // app in the surround, not the raw live app / black. (The home wave path draws
-        // into an opaque FB with blend off, where the alpha is ignored - it keeps 0.)
+        setUiBlend();   // the cross-fade + darken need the standard alpha blend
+        // 1) SHARP live-app base, OPAQUE: real app pixels at alpha 1 across the whole surround
+        //    every frame, so nano's eLayerSkipScreenshot overlay never leaves a transparent hole
+        //    (the T618 HWC reads such a hole as black). During the entrance this is the crisp game
+        //    the exploding glyphs play over.
         drawFrostedGlass(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f,
-                         1.0f, 1.0f, 1.0f, 1.0f, amt, /*waveSpace=*/true, /*tonemapOverride=*/0.0f,
-                         useBackdropTex ? gBdBlurTex : 0, gBdBlurW, gBdBlurH);
-        drawQuad(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f, 0.0f, 0.0f,
-                 mPspAppBackdropDark * amt);
+                         1.0f, 1.0f, 1.0f, 1.0f, /*fade=*/1.0f, /*waveSpace=*/true, /*tonemapOverride=*/0.0f,
+                         mPspClockAppTex, mPspClockAppTexW, mPspClockAppTexH);
+        // 2) Blurred copy cross-faded over the sharp base, alpha = eased reveal - a continuous,
+        //    smooth defocus build with no quantized radius jump.
+        if (e > 0.001f)
+            drawFrostedGlass(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f,
+                             1.0f, 1.0f, 1.0f, 1.0f, /*fade=*/e, /*waveSpace=*/true, /*tonemapOverride=*/0.0f,
+                             useBackdropTex ? gBdBlurTex : 0, gBdBlurW, gBdBlurH);
+        // 3) Gentle darken over the blurred surround, ramping with the same eased reveal so the
+        //    crisp bright disc reads as the focal point. The disc is stamped opaque later, so its
+        //    face is never dimmed.
+        const float dark = DARK_MAX * darkE;
+        if (dark > 0.001f)
+            drawQuad(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f, 0.0f, 0.0f, dark);
         return;
     }
-    // Capture the pre-composited gradient+wave (LINEAR) and blur it. This is the
-    // same source the submenu frost uses; captureGlassFromWave leaves the result
-    // in mGlassBlurTex for drawFrostedGlass to tent-upsample. THROTTLE the blur
-    // recompute to ~15Hz (every 4th frame); mGlassBlurTex persists, so the blit
-    // still runs every frame - the defocus does not need per-frame freshness and
-    // the full-screen capture+downsample is the main cost (spec 8 perf note).
+    // Wave path (home clock over the XMB wave): the sharp wave is already composited beneath, so
+    // just cross-fade a fixed-strength blurred copy over it plus the same darken, same eased ramp.
     {
-        // Recompute the wave defocus EVERY frame while the clock is open. It used to be
-        // throttled to ~15Hz relying on mGlassBlurTex persisting, but the clock-chrome
-        // soft glow (pspClockChromeGlowPass, later this frame) now reuses blurGlassChain
-        // and clobbers that shared blur state, so a stale throttle would blit the glow
-        // halo as the backdrop. The wave FBO downsample is cheap (foreground-only mode).
-        // Heavier blur than the shared submenu frost (captureGlassFromWave uses 2 down-
-        // levels/no Gaussian): the clock backdrop wants the wave collapsed into a soft
-        // defocus, so blur the wave FBO through 3 down-levels (1/8 res) + 2 separable
-        // Gaussian passes directly (user: "increase the blur further").
         GLuint wt = ps3bg::workTex();
         if (wt == 0) return;
         int fw = (int)(ps3::gFrameW + 0.5f), fh = (int)(ps3::gFrameH + 0.5f);
         if (fw < 8 || fh < 8) return;
         blurGlassChain(wt, fw, fh, 3, 2);
     }
-    // Full-screen frosted blit (waveSpace maps texcoords to the wave FBO). radius
-    // 0 = plain rect, neutral tint, fade = amt so the defocus ramps in on open.
-    drawFrostedGlass(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f,
-                     1.0f, 1.0f, 1.0f, 0.0f, amt, /*waveSpace=*/true);
-    // Defocus darken. The web uses rgba(0,0,0,0.30*amt); lifted to 0.55 (user: "darken
-    // outside the clock face further") so the blurred surround reads clearly darker
-    // than the crisp zoomed disc. Ramps with amt=clockReveal (0..1) over the drop, same
-    // envelope as the blur and the lens.
-    drawQuad(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f, 0.0f, 0.0f, 0.55f * amt);
+    // Full-screen frosted blit (waveSpace maps texcoords to the wave FBO); fade = eased reveal so
+    // the defocus cross-fades in over the crisp wave and back out on close.
+    if (e > 0.001f)
+        drawFrostedGlass(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f,
+                         1.0f, 1.0f, 1.0f, 0.0f, e, /*waveSpace=*/true);
+    const float dark = DARK_MAX * darkE;
+    if (dark > 0.001f)
+        drawQuad(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f, 0.0f, 0.0f, dark);
 }
 
 // -----------------------------------------------------------------------------
@@ -1467,17 +1516,16 @@ void NanoMenu::pspClockLens(float cr) {
     // screen edge peeks that way" correct under every panel rotation, matching what the
     // user sees on the rotated screen. At 0deg (overlay = identity) it is a no-op.
     if (mPspLensLocTilt >= 0) {
-        // Map by the CONTENT rotation only. sDrmRotMat also carries the DRM PRIME scanout
-        // Y-flip (row 1 negated) on the DRM-direct HOME instance; that flip is a physical
-        // panel-scanout property, NOT a content rotation, so it must not enter the accel->UV
-        // parallax mapping or it inverts the vertical pan (the "wrong in wallpaper mode, fine
-        // in app mode" bug - the force-SF overlay has no flip so this strip is a no-op there).
-        float r0 = sDrmRotMat[0], r1 = sDrmRotMat[1];
-        float r2 = sDrmRotMat[2], r3 = sDrmRotMat[3];
-        if (sDrmYFlipForPrime) { r1 = -r1; r3 = -r3; }   // undo the PRIME Y-flip for the tilt only
-        float tlx = r0 * mPspTiltX + r1 * mPspTiltY;
-        float tly = r2 * mPspTiltX + r3 * mPspTiltY;
-        glUniform2f(mPspLensLocTilt, tlx * op, tly * op);
+        // Apply the tilt STRAIGHT THROUGH, in the disc's LOGICAL sampling frame - do NOT re-rotate
+        // it by the render self-rotation (sDrmRotMat). The bg/app texture the disc samples is stored
+        // logically and the tilt shifts the UV there, so the sensor-mount correction done in
+        // pspClockPollTilt (the cal rot) is the ONLY rotation the parallax needs. Multiplying by
+        // sDrmRotMat was the "wrong in wallpaper/home, correct in-app" bug: over an app
+        // SurfaceFlinger rotates nano's whole layer so nano's own sDrmRotMat is identity and the pan
+        // came out right; on the home/wallpaper nano SELF-rotates its render (sDrmRotMat=90) and that
+        // extra spin threw the pan 90 deg off. Device-proven: home and in-app now yield the same tl
+        // for the same accel. Independent of any PRIME Y-flip (that only ever touched sDrmRotMat).
+        glUniform2f(mPspLensLocTilt, mPspTiltX * op, mPspTiltY * op);
     }
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, srcTex);

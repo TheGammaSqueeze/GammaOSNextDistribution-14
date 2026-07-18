@@ -325,6 +325,8 @@ void NanoMenu::handleBack() {
 }
 
 void NanoMenu::handleSelect() {
+    // Clock is up: block XMB/menu selection (launch/open) behind it - the clock owns the screen.
+    if (mPspClockOn || mPspClockReveal > 0.0f) return;
     // Boxart scraper modal: X closes the summary once the scrape has finished.
     if (mScrapeProgActive) {
         if (!mScrapeRunning) { mScrapeProgActive = false; mDisplayDirty = true; }
@@ -674,6 +676,10 @@ static constexpr int64_t kNdsNavCadenceMs      = 150;   // navRepeatCadence 9f @
 
 void NanoMenu::navPress(NavDir dir) {
     if (dir == NavDir::None) return;
+    // The PSP clock owns the screen while it is up (any reveal): do NOT drive the XMB/menu behind
+    // it. All nav sources (dpad, HAT, analog stick) route through here, so this one gate blocks the
+    // lot. The slide/swivel trigger and Power are handled upstream; the swipe-to-dismiss is touch.
+    if (mPspClockOn || mPspClockReveal > 0.0f) return;
     mPs3AutoScrollTarget = -1;   // any manual nav cancels an in-flight auto-scroll
     mLastInputMs = android::uptimeMillis();   // dpad/HAT/stick = user activity
     // Idempotent: if this direction is already the held one, don't re-fire.
@@ -1862,9 +1868,27 @@ void NanoMenu::pollInput() {
             // on (it can run alongside a rotate action, so it is its own toggle) OR the
             // slide's own down-action is "clock" (the clock is the chosen slide behaviour,
             // e.g. a plain button with no panel rotation). Computed only for the slide key.
+            // The physical slide/swivel/fold trigger is NOT the same event on every device, so it
+            // is fully prop-configurable (event type + code + active value):
+            //   persist.gammaos.rotate.key_type   evdev EV_* type: 1 = EV_KEY (default), 5 = EV_SW
+            //   persist.gammaos.rotate.key_code   evdev code:      88 = KEY_F12 (default), 1 = SW_TABLET_MODE
+            //   persist.gammaos.rotate.key_active ev.value meaning "engaged": 1 (default; set 0 for
+            //                                     an inverted switch)
+            // Most devices report the swivel as KEY_F12 (EV_KEY); some (e.g. the TrimUI) report a
+            // switch, EV_SW SW_TABLET_MODE. The defaults match the KEY_F12 devices exactly.
+            // slideVal: 1 = engaged (rotated / clock open), 0 = released. EV_KEY auto-repeat
+            // (value 2) is not a state change and is ignored; an EV_SW switch has no repeat.
+            const int trigType = property_get_int32("persist.gammaos.rotate.key_type", EV_KEY);
+            const int trigCode = property_get_int32("persist.gammaos.rotate.key_code", 88);
+            const int trigActive = property_get_int32("persist.gammaos.rotate.key_active", 1);
+            bool slideTrigger = false; int slideVal = 0;
+            if (ev.type == trigType && ev.code == trigCode
+                && !(trigType == EV_KEY && ev.value == 2)) {
+                slideTrigger = true;
+                slideVal = (ev.value == trigActive) ? 1 : 0;
+            }
             bool pspClockSlide = false;
-            if (ev.type == EV_KEY && ev.value != 2
-                && ev.code == property_get_int32("persist.gammaos.rotate.key_code", 88)) {
+            if (slideTrigger) {
                 pspClockSlide = property_get_bool("persist.gammaos.nano.pspclock", false);
                 if (!pspClockSlide && property_get_bool("persist.gammaos.rotate.enabled", false)) {
                     char da[PROPERTY_VALUE_MAX] = {};
@@ -1876,8 +1900,8 @@ void NanoMenu::pollInput() {
                 // Re-roll the entrance-avalanche seed on each fresh open (false->true)
                 // so the burst/icon stream differs per swivel, like the web's per-run
                 // hashIconRnd. Only on the down transition, not key-repeat/close.
-                if (ev.value == 1 && !mPspClockOn) mPspIconSeed += 17;
-                mPspClockOn = (ev.value == 1);
+                if (slideVal == 1 && !mPspClockOn) mPspIconSeed += 17;
+                mPspClockOn = (slideVal == 1);
                 // Ambient-glyph brighten/speed surge just after a toggle (web
                 // index.html:16476 sets this on togglePspClock). 1.0 on open, 0.6 on close.
                 mPspGlyphBurst = mPspClockOn ? 1.0f : 0.6f;
@@ -1889,21 +1913,20 @@ void NanoMenu::pollInput() {
                 // BOTH the PSP clock and the rotate feature keeps rotating in every mode.
                 if (property_get_bool("persist.gammaos.rotate.enabled", false)) {
                     char act[PROPERTY_VALUE_MAX] = {};
-                    property_get(ev.value ? "persist.gammaos.rotate.down_action"
+                    property_get(slideVal ? "persist.gammaos.rotate.down_action"
                                           : "persist.gammaos.rotate.up_action",
-                                 act, ev.value ? "rotate" : "natural");
+                                 act, slideVal ? "rotate" : "natural");
                     if (!strcmp(act, "rotate"))       property_set("sys.gammaos.rotate.state", "1");
                     else if (!strcmp(act, "natural")) property_set("sys.gammaos.rotate.state", "0");
                 }
                 continue;   // swallow so the switch never navigates the menu
             }
-            if (ev.type == EV_KEY && ev.value != 2
-                && property_get_bool("persist.gammaos.rotate.enabled", false)
-                && ev.code == property_get_int32("persist.gammaos.rotate.key_code", 88)) {
+            if (slideTrigger
+                && property_get_bool("persist.gammaos.rotate.enabled", false)) {
                 char act[PROPERTY_VALUE_MAX] = {};
-                property_get(ev.value ? "persist.gammaos.rotate.down_action"
+                property_get(slideVal ? "persist.gammaos.rotate.down_action"
                                       : "persist.gammaos.rotate.up_action",
-                             act, ev.value ? "rotate" : "natural");
+                             act, slideVal ? "rotate" : "natural");
                 if (!strcmp(act, "rotate"))       property_set("sys.gammaos.rotate.state", "1");
                 else if (!strcmp(act, "natural")) property_set("sys.gammaos.rotate.state", "0");
                 // screenoff/wake/launch/none are framework-side; nano only drives rotation here.
@@ -1978,7 +2001,11 @@ void NanoMenu::pollInput() {
                     mOskTouchFlipY = android::base::GetBoolProperty("persist.gammaos.nano.osk_touch_flipy", false);
                     mOskTouchTuneRead = true;
                 }
-                if (mOskActive)      oskTouchFrame();
+                // PSP clock up: route ALL touch to the clock's swipe-to-dismiss handler, which also
+                // swallows the touch so the XMB/menu behind cannot be driven (input block, #2).
+                if (mPspClockOn || mPspClockReveal > 0.0f)
+                                     pspClockTouchFrame();
+                else if (mOskActive) oskTouchFrame();
                 else if (mPvActive)  pvTouchFrame();    // photo viewer (Gallery-style touch)
                 else if (mVidActive) vidTouchFrame();   // video player (YouTube-style touch)
                 else if (mMpActive)  mpTouchFrame();    // music Now Playing touch
