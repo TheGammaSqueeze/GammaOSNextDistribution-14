@@ -18,6 +18,7 @@
 #include "NanoMenuShaders.h"  // compileShader / linkProgram (namespace android)
 #include "NanoMenuPS3ClockGlyphs.h"  // baked numeral outline contours
 #include <cutils/properties.h>
+#include <sys/system_properties.h>
 #include <vector>
 #include <utils/Log.h>
 #include <GLES2/gl2.h>
@@ -175,6 +176,62 @@ GLuint gMirProg = 0; GLint gMirPos = -1, gMirUV = -1, gMirSamp = -1, gMirFlip = 
 PFNEGLCREATEIMAGEKHRPROC            pEglCreateImageKHR = nullptr;
 PFNEGLDESTROYIMAGEKHRPROC           pEglDestroyImageKHR = nullptr;
 PFNGLEGLIMAGETARGETTEXTURE2DOESPROC pGlEGLImageTargetTexture2DOES = nullptr;
+
+// ---- MSAA render-to-texture for the crisp FACE (perf, arm64/tile-based GPUs) ---------
+// The face (ticks/hands/hub/numerals/comet trail) is anti-aliased by rendering it into an
+// offscreen buffer and downsampling. The historic path SUPERSAMPLES 2x2 = shades 4x the
+// screen pixel area, which on-device (TrimUI Brick, PowerVR Rogue GE8300) is the single
+// biggest GPU cost of the clock (the whole clock is GPU-bound, ~95% util). GL_EXT/IMG_
+// multisampled_render_to_texture lets a tile-based GPU take 4 coverage samples per pixel
+// and resolve them INSIDE tile memory - equal-or-better edge AA at ~1x fragment cost
+// instead of 4x. Loaded lazily; when the extension is absent (or the tuning prop is off)
+// pspClockFace falls back to the 2x2 supersampled path, so nothing regresses elsewhere.
+PFNGLFRAMEBUFFERTEXTURE2DMULTISAMPLEEXTPROC pGlFramebufferTexture2DMultisampleEXT = nullptr;
+static int  gPspFaceMsaaSamples = 0;    // 0 = unprobed, -1 = unavailable, >0 = sample count
+static bool gPspFaceMsaaProbed  = false;
+
+// True once the driver is confirmed to support MSAA-render-to-texture; caches the entry
+// point and the sample count (capped at 4 - GE8300 tops out there and 4x is plenty for
+// these thin polygons). Must run with a current GL context (called from pspClockFace).
+static bool pspFaceMsaaAvailable() {
+    if (!gPspFaceMsaaProbed) {
+        gPspFaceMsaaProbed = true;
+        const char* exts = (const char*)glGetString(GL_EXTENSIONS);
+        const bool has = exts && (strstr(exts, "GL_EXT_multisampled_render_to_texture") ||
+                                  strstr(exts, "GL_IMG_multisampled_render_to_texture"));
+        if (has) {
+            pGlFramebufferTexture2DMultisampleEXT =
+                (PFNGLFRAMEBUFFERTEXTURE2DMULTISAMPLEEXTPROC)
+                eglGetProcAddress("glFramebufferTexture2DMultisampleEXT");
+        }
+        if (pGlFramebufferTexture2DMultisampleEXT) {
+            GLint maxs = 0; glGetIntegerv(GL_MAX_SAMPLES_EXT, &maxs);
+            gPspFaceMsaaSamples = maxs >= 4 ? 4 : (maxs >= 2 ? 2 : -1);
+        } else {
+            gPspFaceMsaaSamples = -1;
+        }
+    }
+    return gPspFaceMsaaSamples > 0;
+}
+
+// Tuning gate for the MSAA face path (default ON). Serial-cached so a live toggle
+// (persist.gammaos.nano.pspclock.facemsaa 0/1) takes effect next frame for A/B compares
+// without a per-frame name lookup.
+static bool pspFaceMsaaEnabled() {
+    static const prop_info* pi = nullptr; static uint32_t ser = 0; static bool val = true;
+    if (!pi) pi = __system_property_find("persist.gammaos.nano.pspclock.facemsaa");
+    if (pi) { uint32_t s = __system_property_serial(pi); if (s != ser) { ser = s; val = property_get_bool("persist.gammaos.nano.pspclock.facemsaa", true); } }
+    return val;
+}
+
+// Per-pass GPU profiler gate (persist.gammaos.nano.pspclock.prof=1, default OFF). Serial-
+// cached; when off, drawPspClock issues no glFinish/timestamps so it is truly zero-cost.
+static bool pspClockProfEnabled() {
+    static const prop_info* pi = nullptr; static uint32_t ser = 0; static bool val = false;
+    if (!pi) pi = __system_property_find("persist.gammaos.nano.pspclock.prof");
+    if (pi) { uint32_t s = __system_property_serial(pi); if (s != ser) { ser = s; val = property_get_bool("persist.gammaos.nano.pspclock.prof", false); } }
+    return val;
+}
 
 static const char MIR_BLIT_VS[] = R"(
     attribute vec2 aPos; attribute vec2 aUV; varying vec2 vUV;
@@ -1049,8 +1106,23 @@ void NanoMenu::drawPspClock(float dtMs) {
     // #5 dynamic darkening: sample the live-app mean brightness (~7Hz) so a bright
     // game dims the disc + darkens the surround. Before the visible passes (FBO switch).
     if (pspClockUseAppSource()) { static int sD = 0; if ((sD++ % 8) == 0) pspClockSampleAppDim(); }
+    // Per-pass GPU profiling (persist.gammaos.nano.pspclock.prof=1). glFinish-brackets each
+    // stage so the accumulated us pinpoint where the GPU time goes; glFinish serializes the
+    // pipeline so absolute totals read a little high, but the RELATIVE split is what guides
+    // optimization. Averaged and logged ~once a second. No-op (no glFinish) when the prop is off.
+    const bool prof = pspClockProfEnabled();
+    auto profNs = []() -> int64_t {
+        struct timespec t; clock_gettime(CLOCK_MONOTONIC, &t);
+        return (int64_t)t.tv_sec * 1000000000LL + t.tv_nsec;
+    };
+    static double sPBd = 0, sPLens = 0, sPEnt = 0, sPFace = 0; static int sPN = 0;
+    static int64_t sPLastLog = 0;
+    int64_t tBd0 = prof ? (glFinish(), profNs()) : 0;
+
     pspClockBackdropBlur(clockReveal);       // stage 1
+    int64_t tLens0 = prof ? (glFinish(), profNs()) : 0;
     pspClockLens(clockReveal);               // stage 2
+    int64_t tEnt0 = prof ? (glFinish(), profNs()) : 0;
 
     // Stage 5: entrance explosion (after the lens so glyphs behind the disc get the
     // lens bow; before the face). THREE staggered burst copies + TWO icon streams +
@@ -1078,8 +1150,27 @@ void NanoMenu::drawPspClock(float dtMs) {
         pspClockAmbientGlyphs(dtMs);
     }
     setUiBlend();
+    int64_t tFace0 = prof ? (glFinish(), profNs()) : 0;
 
     pspClockFace(clockReveal, floatY, descentPx);  // stage 3/4
+
+    if (prof) {
+        int64_t tEnd = (glFinish(), profNs());
+        sPBd   += (tLens0 - tBd0)   / 1000.0;
+        sPLens += (tEnt0  - tLens0) / 1000.0;
+        sPEnt  += (tFace0 - tEnt0)  / 1000.0;
+        sPFace += (tEnd   - tFace0) / 1000.0;
+        sPN++;
+        if (sPLastLog == 0) sPLastLog = tEnd;
+        if (tEnd - sPLastLog > 1000000000LL && sPN > 0) {
+            double n = (double)sPN;
+            double bd = sPBd/n, ln = sPLens/n, en = sPEnt/n, fc = sPFace/n;
+            double tot = bd + ln + en + fc;
+            ALOGI("pspclock prof (us/frame, %d frm, reveal=%.2f): backdrop=%.0f lens=%.0f entrance=%.0f FACE=%.0f | sum=%.0f (%.1ffps if GPU-bound)",
+                  sPN, mPspClockReveal, bd, ln, en, fc, tot, tot > 0 ? 1e6/tot : 0.0);
+            sPBd = sPLens = sPEnt = sPFace = 0; sPN = 0; sPLastLog = tEnd;
+        }
+    }
 }
 
 // -----------------------------------------------------------------------------
@@ -1920,6 +2011,7 @@ void NanoMenu::pspClockFace(float reveal, float /*floatY*/, float /*descentFrac*
     // via sc + mPspLensCx/Cy, so ALL of {mWidth,mHeight,sc,mPspLensCx/Cy/R} double for the
     // FBO pass and are restored on resolve. Mirrors pspClockChromeGlowPass's FBO+composite.
     bool  faceSS = (mTextProgram != 0);
+    bool  faceMsaa = false;      // MSAA (native 1x + on-tile resolve) vs 2x2 supersample
     GLint faceVp[4] = {0,0,0,0}, facePrevFbo = 0;
     int   faceSavedW = mWidth, faceSavedH = mHeight;
     float faceSavedSc = sc, faceSavedCx = mPspLensCx, faceSavedCy = mPspLensCy, faceSavedR = mPspLensR;
@@ -1928,30 +2020,49 @@ void NanoMenu::pspClockFace(float reveal, float /*floatY*/, float /*descentFrac*
         int vw = faceVp[2], vh = faceVp[3];
         if (vw < 16 || vh < 16) faceSS = false;
         else {
-            int ssW = vw * 2, ssH = vh * 2;
+            // AA strategy: MSAA render-to-texture takes 4 coverage samples per pixel and
+            // resolves them in tile memory (~1x fragment cost, the whole point on the Brick's
+            // PowerVR), so the offscreen target is NATIVE 1x. When MSAA is unavailable or the
+            // tuning prop is off, fall back to the historic 2x2 SUPERSAMPLE (target = 2x device
+            // px, everything below double-shaded then box-downsampled). Equal-or-better edge AA
+            // either way; MSAA just gets there far cheaper. See pspFaceMsaaAvailable() at top.
+            faceMsaa = pspFaceMsaaEnabled() && pspFaceMsaaAvailable();
+            const int fbW = faceMsaa ? vw : vw * 2;
+            const int fbH = faceMsaa ? vh : vh * 2;
             glGetIntegerv(GL_FRAMEBUFFER_BINDING, &facePrevFbo);
-            if (mPspFaceTex == 0 || mPspFaceW != ssW || mPspFaceH != ssH) {
+            if (mPspFaceTex == 0 || mPspFaceW != fbW || mPspFaceH != fbH) {
                 if (mPspFaceTex == 0) glGenTextures(1, &mPspFaceTex);
                 glBindTexture(GL_TEXTURE_2D, mPspFaceTex);
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, ssW, ssH, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, fbW, fbH, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-                mPspFaceW = ssW; mPspFaceH = ssH;
+                mPspFaceW = fbW; mPspFaceH = fbH;
             }
             if (mPspFaceFbo == 0) glGenFramebuffers(1, &mPspFaceFbo);
             glBindFramebuffer(GL_FRAMEBUFFER, mPspFaceFbo);
-            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mPspFaceTex, 0);
+            // MSAA: attach the resolve texture with a sample count; the driver keeps the
+            // implicit multisample buffer and resolves into the texture on FBO unbind below.
+            if (faceMsaa)
+                pGlFramebufferTexture2DMultisampleEXT(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+                                                      GL_TEXTURE_2D, mPspFaceTex, 0, gPspFaceMsaaSamples);
+            else
+                glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mPspFaceTex, 0);
             if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
                 glBindFramebuffer(GL_FRAMEBUFFER, facePrevFbo);
                 faceSS = false;
             } else {
-                glViewport(0, 0, ssW, ssH);
+                glViewport(0, 0, fbW, fbH);
                 glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
                 glClear(GL_COLOR_BUFFER_BIT);
-                mWidth = faceSavedW * 2; mHeight = faceSavedH * 2;
-                sc *= 2.0f; mPspLensCx *= 2.0f; mPspLensCy *= 2.0f; mPspLensR *= 2.0f;
+                // Only the SUPERSAMPLE path renders at 2x device px (double every px-space
+                // mapper); MSAA renders at native 1x (multisampling is implicit) so it leaves
+                // mWidth/sc/lens untouched.
+                if (!faceMsaa) {
+                    mWidth = faceSavedW * 2; mHeight = faceSavedH * 2;
+                    sc *= 2.0f; mPspLensCx *= 2.0f; mPspLensCy *= 2.0f; mPspLensR *= 2.0f;
+                }
             }
         }
     }
@@ -1988,9 +2099,11 @@ void NanoMenu::pspClockFace(float reveal, float /*floatY*/, float /*descentFrac*
     drawHubDisc(5.5f, 0.92f, 0.97f, 1.0f, 1.0f);    // hub #eaf7ff
     drawHubDisc(2.5f, 1.0f, 1.0f, 1.0f, 1.0f);      // hub white
 
-    // ---- resolve the 2x face target: restore scale, composite 1:1 additively with an
-    // IDENTITY rotation (the texture already baked in the scene rotation), GL_LINEAR
-    // downsampling its 2x edges into anti-aliased ones. Mirrors pspClockChromeGlowPass. ----
+    // ---- resolve the face target: restore scale (a no-op on the MSAA path, which never
+    // doubled), rebind the previous FBO (this is where MSAA resolves its samples into the
+    // texture), then composite 1:1 additively with an IDENTITY rotation (the texture already
+    // baked in the scene rotation). On the supersample path GL_LINEAR box-filters its 2x edges;
+    // on the MSAA path the tile resolve already produced the AA. Mirrors pspClockChromeGlowPass. ----
     if (faceSS) {
         mWidth = faceSavedW; mHeight = faceSavedH;
         sc = faceSavedSc; mPspLensCx = faceSavedCx; mPspLensCy = faceSavedCy; mPspLensR = faceSavedR;
