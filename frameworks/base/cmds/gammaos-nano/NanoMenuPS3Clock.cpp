@@ -19,6 +19,10 @@
 #include "NanoMenuPS3ClockGlyphs.h"  // baked numeral outline contours
 #include <cutils/properties.h>
 #include <sys/system_properties.h>
+// __system_property_serial is exported by libc but declared only in the internal
+// <sys/_system_properties.h>; forward-declare it (as NanoMenu.cpp / NanoMenuInput.cpp do)
+// so the serial-cached prop gates below compile. prop_info comes from the header above.
+extern "C" uint32_t __system_property_serial(const prop_info* __pi);
 #include <vector>
 #include <utils/Log.h>
 #include <GLES2/gl2.h>
