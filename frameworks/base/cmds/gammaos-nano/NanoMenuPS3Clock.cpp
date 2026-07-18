@@ -313,14 +313,15 @@ void NanoMenu::pspClockTouchFrame() {
         // its rest. drawPspClock's follower turns this into the applied offset each frame.
         mPspSwipeRawPx = (dy < 0.0f) ? dy : dy * 0.25f;
     } else if (upEdge) {
-        // Clear UP swipe past the threshold = fling the clock off the top + dismiss (the follower
-        // in drawPspClock coasts the offset off-screen, THEN drops mPspClockOn). Released short, the
-        // clock is left open so the follower springs it back to rest. Same peak-travel threshold.
+        // Clear UP swipe past the threshold = exit the clock IMMEDIATELY - the drag itself is the
+        // visual gesture, but the exit is instant (no fling-off / no retract animation, per user):
+        // drop mPspClockOn and zero the offset so pspClockPollInput snaps the standalone clock shut
+        // this frame. Released short, the clock is left open so the follower springs it back to rest.
         const float thresh = 0.15f * (float)std::min(mWidth, mHeight);
         if (mPspClockOn && mPspSwipeMoved >= thresh && mPspSwipeRawPx < 0.0f) {
-            mPspSwipeFling = true;
-            if (mPspSwipeVel > -12.0f) mPspSwipeVel = -12.0f;   // ensure it keeps moving up
-            mPspGlyphBurst = 0.6f;                              // the existing blow-away kick
+            mPspClockOn = false;
+            mPspSwipeOffset = 0.0f; mPspSwipeVel = 0.0f;   // instant exit, no fling coast
+            mPspGlyphBurst = 0.6f;                         // the existing blow-away kick
         }
         mPspSwipeDragging = false; mPspSwipeRawPx = 0.0f; mPspSwipeMoved = 0.0f;
     }
@@ -1131,27 +1132,17 @@ void NanoMenu::drawPspClock(float dtMs) {
     }
     mPspDescent += (descentTarget - mPspDescent) * kSmooth;
     const float descentPx = mPspDescent * (272.0f + 50.0f) * sc2;
-    // Swipe-to-dismiss follower: a damped spring that sticks to the finger 1:1 while dragging,
-    // springs back to rest when released short, and coasts off the top when flung, moving the WHOLE
-    // clock (disc + face + glow + entrance) as one rigid body via the single mPspLensCy anchor.
-    // Once the fling carries the clock off-screen, drop mPspClockOn so the reveal machine parks it
-    // (standalone: pspClockPollInput snaps the reveal; home: the eased retract runs off-screen).
+    // Swipe-to-dismiss follower: a damped spring that sticks to the finger 1:1 while dragging the
+    // clock up, then springs it back to rest when released (a swipe past the threshold exits the
+    // clock IMMEDIATELY in pspClockTouchFrame - no fling animation - so the follower only ever
+    // tracks the live drag or eases back to 0). Moves the WHOLE clock (disc + face + glow +
+    // entrance) as one rigid body via the single mPspLensCy anchor.
     {
-        const float target = mPspSwipeDragging ? mPspSwipeRawPx
-                           : mPspSwipeFling     ? -(H * 1.2f)
-                                                : 0.0f;
+        const float target = mPspSwipeDragging ? mPspSwipeRawPx : 0.0f;
         const float kS = 1.0f - expf(-dtMs / (mPspSwipeDragging ? 22.0f : 60.0f));
         mPspSwipeVel += (target - mPspSwipeOffset) * kS;
         mPspSwipeVel *= 0.72f;                      // damping
         mPspSwipeOffset += mPspSwipeVel;
-        // Once the fling reaches off-screen, drop mPspClockOn to start the dismiss, but KEEP
-        // mPspSwipeFling set so the offset stays pinned off the top through the close (standalone
-        // snaps instantly; the home eased retract then runs invisibly - no spring-back into view).
-        // mPspSwipeFling is cleared only when fully parked (the closed-branch reset above). A normal
-        // swivel-back close never sets mPspSwipeFling, so it is unaffected (offset stays 0).
-        if (mPspSwipeFling && mPspClockOn && mPspSwipeOffset <= -H) {
-            mPspClockOn = false;
-        }
     }
     const float swipeOffsetPx = mPspSwipeOffset;
     mPspLensCx = ox + 240.0f * sc2;
