@@ -247,6 +247,21 @@ static const Ps3DataItem kGamepadCh[] = {
   {"D-Pad Threshold",22,"Set how far the stick must move to register as a D-Pad press.","50",1,nullptr,0},
   {"Screen Map",22,"Enable touchscreen mapping for controllers.","Off",1,nullptr,0},
 };
+// Slide Behaviour: the hardware swivel/slide sensor. Each leaf is a bound value row
+// (makeDataItem binds by label to kPs3Bindings); the OSK-editable ones use action=1.
+// Mirrors the TvSettings "Slide behaviour" screen so the same config is in the XMB too.
+static const Ps3DataItem kSlideCh[] = {
+  {"Slide Enable",70,"React to the configured slide button.","On",0,nullptr,0},
+  {"Slide Device",5,"Input device name to watch (e.g. gpio-keys).","gpio-keys",1,nullptr,0},
+  {"Slide Button Code",5,"Linux evdev scancode of the slide button (88 = F12).","88",1,nullptr,0},
+  {"On Slide Down",70,"Action when the button goes down (slid).","Rotate",0,nullptr,0},
+  {"On Slide Up",70,"Action when the button releases (returned).","Restore Natural",0,nullptr,0},
+  {"Rotation Angle",70,"Angle used by the Rotate action.","90 degrees",0,nullptr,0},
+  {"Slide Launch Target",74,"For the Launch action: a package, component, or nano:<mode>.",nullptr,1,nullptr,0},
+  {"Show Clock On Slide",73,"Show the PSP clock overlay while the button is slid.","On",0,nullptr,0},
+  {"Clock Live Backdrop",73,"Refract and blur the running game behind the clock.","On",0,nullptr,0},
+  {"Parallax Calibration",73,"gain,rot,sx,sy - gyro parallax throw, orientation and per-axis sign.",nullptr,1,nullptr,0},
+};
 // kMouseCh (data-driven Mouse Mode) is retired: Mouse Mode now opens the code-built
 // buildMouseSubmenu via QA_MOUSE_MENU under Gamepad Settings. Guard so it is not unused.
 #if !NANO_XMB_HIDE_LEGACY
@@ -386,6 +401,7 @@ static const Ps3DataItem kSettingsItems[] = {
   // Gamepad Settings opens the rich buildGamepadSubmenu (dispatch special-case in
   // ps3XmbSelect); Mouse Mode is now nested inside it, so the top-level entry is retired.
   {"Gamepad Settings",5,"Adjusts settings for game controllers.",nullptr,0,PS3CH(kGamepadCh)},
+  {"Slide Behaviour",70,"Configure the swivel/slide sensor: the input device and button to watch, and the slide down/up actions (rotate, sleep, wake, launch, or the PSP clock).",nullptr,0,PS3CH(kSlideCh)},
 #if !NANO_XMB_HIDE_LEGACY
   {"Mouse Mode",15,"Adjusts mouse-mode pointer settings for controllers.",nullptr,0,PS3CH(kMouseCh)},
 #endif

@@ -5520,6 +5520,24 @@ static const Ps3SettingBinding kPs3Bindings[] = {
     // per-app override (orientationTick applies it above the app branch). "normal" = off.
     {"Force Orientation", SettingSource::kProp, "persist.gammaos.nano.orient_mode", "normal",
      "normal:Off,force_landscape:Force Landscape,force_portrait:Force Portrait"},
+    // Slide Behaviour (the hardware swivel/slide sensor). All plain persist.gammaos.rotate.*
+    // + pspclock props that PhoneWindowManager and nano already read; these bindings just let
+    // the XMB settings screen edit them. Matches the TvSettings "Slide behaviour" screen.
+    {"Slide Enable", SettingSource::kProp, "persist.gammaos.rotate.enabled", "0", "0:Off,1:On"},
+    {"Slide Device", SettingSource::kProp, "persist.gammaos.rotate.dev_name", "gpio-keys", "@text"},
+    {"Slide Button Code", SettingSource::kProp, "persist.gammaos.rotate.key_code", "88", "@text"},
+    {"On Slide Down", SettingSource::kProp, "persist.gammaos.rotate.down_action", "rotate",
+     "none:Do Nothing,rotate:Rotate,natural:Restore Natural,screenoff:Sleep,wake:Wake,"
+     "launch:Launch App,clock:PSP Clock"},
+    {"On Slide Up", SettingSource::kProp, "persist.gammaos.rotate.up_action", "natural",
+     "none:Do Nothing,rotate:Rotate,natural:Restore Natural,screenoff:Sleep,wake:Wake,"
+     "launch:Launch App,clock:PSP Clock"},
+    {"Rotation Angle", SettingSource::kProp, "persist.gammaos.rotate.degrees", "90",
+     "90:90 degrees,180:180 degrees,270:270 degrees"},
+    {"Slide Launch Target", SettingSource::kProp, "persist.gammaos.rotate.launch_target", "", "@text"},
+    {"Show Clock On Slide", SettingSource::kProp, "persist.gammaos.nano.pspclock", "0", "0:Off,1:On"},
+    {"Clock Live Backdrop", SettingSource::kProp, "persist.gammaos.nano.pspclock.liveapp", "0", "0:Off,1:On"},
+    {"Parallax Calibration", SettingSource::kProp, "persist.gammaos.nano.pspclock.tilt.cal", "0.12,1,-1,-1", "@text"},
     // Developer Options
     {"USB Debugging", SettingSource::kGlobal, "adb_enabled", "0", "0:Off,1:On"},
     {"Stay Awake While Charging", SettingSource::kGlobal, "stay_on_while_plugged_in", "0", "0:Off,7:On"},
