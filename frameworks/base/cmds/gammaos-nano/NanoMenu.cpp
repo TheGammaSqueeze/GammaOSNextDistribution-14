@@ -3905,13 +3905,53 @@ if (sRingPrimedCount >= 2) {
         {
             static const prop_info* sAlPi = nullptr; static uint32_t sAlSer = 0; static bool sAlVal = false;
             static const prop_info* sSoPi = nullptr; static uint32_t sSoSer = 0; static bool sSoVal = false;
+            static const prop_info* sPcPi = nullptr; static uint32_t sPcSer = 0; static bool sPcVal = false;
             if (!sAlPi) sAlPi = __system_property_find("sys.gammaos.nano.app_launched");
             if (sAlPi) { uint32_t s = __system_property_serial(sAlPi); if (s != sAlSer) { sAlSer = s; sAlVal = property_get_bool("sys.gammaos.nano.app_launched", false); } }
             else sAlVal = false;
             if (!sSoPi) sSoPi = __system_property_find("sys.gammaos.nano.show_overlay");
             if (sSoPi) { uint32_t s = __system_property_serial(sSoPi); if (s != sSoSer) { sSoSer = s; sSoVal = property_get_bool("sys.gammaos.nano.show_overlay", false); } }
             else sSoVal = false;
-            if (!mOverlayMode && mLaunchFadeStart == 0 && !mWaitForRelease && (sAlVal || sSoVal)) {
+            // GammaOS PSP slide clock: do NOT self-park the non-overlay home when the only
+            // reason to park is a clock summon this instance itself must render.
+            //
+            // Background - two device topologies drive the clock:
+            //   * RG Rotate (and any DRM-direct device): TWO nano instances. A DRM-direct home
+            //     (mOverlayMode=false) owns the panel at the cold-boot menu and draws the clock
+            //     IN-PLACE off the raw swivel (show_overlay stays 0 there, so this park gate,
+            //     which keys off app_launched||show_overlay, never trips). Once an app launches,
+            //     the resident `gammaos-nano --overlay` instance (mOverlayMode=true) takes over
+            //     and draws the clock over the app via the show_overlay/pspclock_summon path.
+            //   * TrimUI Brick (and any SF-composited-home device, drm_active=0): only ONE
+            //     instance exists at the cold-boot menu - the non-overlay home, composited
+            //     through SurfaceFlinger. There is no resident overlay to hand the summon to.
+            //
+            // The freeze: PhoneWindowManager::gammaClockSummon raises sys.gammaos.nano.show_overlay
+            // on the swivel (its app_launched gate was dropped in e8d1246ef58 so a single swivel
+            // summons), intending the resident overlay to draw the clock. On the Brick there is no
+            // resident overlay, and this non-overlay home then saw show_overlay=1, concluded it was
+            // "occluded by a foreground app", and parked - render() skipped, the render thread
+            // wedged in the 33ms usleep below at 0% CPU. Nothing else drew the clock, so the screen
+            // froze on the last frame; and because drawPspClock (which ramps the reveal and clears
+            // the summon state) lives inside the skipped render(), releasing the swivel never
+            // recovered it. Device-confirmed: sys.gammaos.nano.shot was never consumed and
+            // NanoMenu::threadLoop() sat in usleep. Verified the exact same clock renders fine in
+            // the --overlay instance, so this is purely the instance/park interaction, not the GL.
+            //
+            // The fix: when no app is actually running (app_launched=0) but show_overlay is up and
+            // the pspclock feature is enabled, the raised overlay can ONLY be a clock summon that
+            // this home is the sole instance able to service - so keep rendering (drawPspClock runs
+            // in-place, exactly like the DRM-direct home does). A real app occlusion still sets
+            // app_launched=1 and parks as before, and on that path the --overlay instance (when one
+            // exists) handles the clock. pspclock is read serial-cached like the two props above so
+            // the added lookup stays a pointer-deref per frame. drawPspClock lowers show_overlay
+            // itself once the reveal fully retracts (see NanoMenuPS3Clock.cpp) so this does not latch.
+            if (!sPcPi) sPcPi = __system_property_find("persist.gammaos.nano.pspclock");
+            if (sPcPi) { uint32_t s = __system_property_serial(sPcPi); if (s != sPcSer) { sPcSer = s; sPcVal = property_get_bool("persist.gammaos.nano.pspclock", false); } }
+            else sPcVal = false;
+            const bool pspClockSummonHome = sSoVal && !sAlVal && sPcVal;
+            if (!mOverlayMode && mLaunchFadeStart == 0 && !mWaitForRelease
+                    && (sAlVal || sSoVal) && !pspClockSummonHome) {
                 // Parked (occluded by the foreground app): render() is skipped, so
                 // keep the watchdog heartbeat alive or it aborts this process after 8s.
                 mRenderHeartbeat.fetch_add(1, std::memory_order_relaxed);

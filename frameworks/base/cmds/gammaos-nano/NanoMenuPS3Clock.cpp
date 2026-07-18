@@ -951,6 +951,15 @@ void NanoMenu::drawPspClock(float dtMs) {
                 property_set("sys.gammaos.nano.pspclock_summon", "0");
                 property_set("sys.gammaos.nano.show_overlay", "0");
             }
+        } else if (!mOverlayMode) {
+            // Non-overlay home that serviced the summon IN-PLACE (no resident --overlay
+            // instance, e.g. the TrimUI Brick's SF-composited home - see the park-gate
+            // comment in NanoMenu.cpp threadLoop). The framework raised show_overlay for
+            // the summon and cleared pspclock_summon on release; lower show_overlay now
+            // that the clock has fully retracted so WindowManager stops treating this home
+            // as an active overlay and the park gate returns to its normal state. Idempotent
+            // and harmless on the DRM-direct home (show_overlay was never raised there).
+            property_set("sys.gammaos.nano.show_overlay", "0");
         }
         return;
     }
