@@ -1996,9 +1996,14 @@ void NanoMenu::pspClockFace(float reveal, float /*floatY*/, float /*descentFrac*
         2, 2, gr, gg, gb, 1.05f * glowPulse);
     pspClockChromeGlowPass(
         [&](float r,float g,float b,float a){
+            // All flat-colour: batch the ~170 tick/hand/hub triangles into one draw before
+            // the pass blurs the result (same verts/blend, byte-identical). Numerals glow in
+            // the SEPARATE pass above (textured), so no program interleave here.
+            beginSolidBatch();
             drawTicksShapes(r,g,b, a*detail);
             drawHandsShapes(r,g,b,a);
             drawHubDisc(5.5f, r,g,b,a);
+            endSolidBatch();
         },
         2, 1, gr, gg, gb, 0.90f * glowPulse);
 
@@ -2070,6 +2075,17 @@ void NanoMenu::pspClockFace(float reveal, float /*floatY*/, float /*descentFrac*
     // Additive blend for the glowing chrome + trail (spec: composite 'lighter').
     glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
+    // Sections 2/3/4/6/7 are all FLAT-COLOUR additive geometry (comet trail + ticks + hands
+    // + hub). Coalesce them through the solid batcher: drawTriangle already appends to it, so
+    // this collapses the ~430 separate glDrawArrays (up to 240 trail + 144 tick + 6 hand + 40
+    // hub) into a single draw - the face is draw-call bound on the Brick's PowerVR. The result
+    // is byte-identical (same verts, same colours, same additive blend; the batcher preserves
+    // the caller's glBlendFunc and per-frame uRotation). The numerals are TEXTURED (drawIconTex
+    // switches to mTextProgram, which the batcher cannot carry), so they are drawn AFTER the
+    // batch closes; additive blend is order-independent, so moving them out of the middle of
+    // the crisp run does not change a pixel.
+    beginSolidBatch();
+
     // --- section 2: second-hand comet trail (120 short radial dashes at the rim) ---
     if (detail > 0.002f) {
         const float TR = 200.0f/255.0f, TG = 236.0f/255.0f, TB = 250.0f/255.0f;
@@ -2094,10 +2110,12 @@ void NanoMenu::pspClockFace(float reveal, float /*floatY*/, float /*descentFrac*
     // sections 3/4/6/7). The glow behind them is the Gaussian halo composited above;
     // here we lay only the sharp cores, so nothing reads as a stacked-copy stroke. ---
     drawTicksShapes(1.0f, 1.0f, 1.0f, detail);      // hour ticks (fade in with detail)
-    drawNumeralGlyphs(1.0f, 1.0f, 1.0f, 1.0f);      // numerals 12/3/6/9 (sharp cores)
     drawHandsShapes(1.0f, 1.0f, 1.0f, 1.0f);        // hands hour/minute/second
     drawHubDisc(5.5f, 0.92f, 0.97f, 1.0f, 1.0f);    // hub #eaf7ff
     drawHubDisc(2.5f, 1.0f, 1.0f, 1.0f, 1.0f);      // hub white
+    endSolidBatch();
+
+    drawNumeralGlyphs(1.0f, 1.0f, 1.0f, 1.0f);      // numerals 12/3/6/9 (textured cores, post-batch)
 
     // ---- resolve the face target: restore scale (a no-op on the MSAA path, which never
     // doubled), rebind the previous FBO (this is where MSAA resolves its samples into the
@@ -2194,6 +2212,10 @@ void NanoMenu::pspClockEntrance(float sc, float ox, float oy, float reveal,
                                 float angOffset, float alphaMul) {
     if (reveal <= 0.0f || reveal >= 0.995f || alphaMul <= 0.002f) return;
     pspInitEGlyphs();
+    // 32 glyphs of flat-colour stroke triangles: batch the whole burst into one draw
+    // (each call issues hundreds of drawTriangle otherwise, three times per frame during
+    // the entrance). Byte-identical - same additive verts, batcher keeps the blend.
+    beginSolidBatch();
     const float hw = 0.8f;   // half of the web's 1.6px stroke (canvas px == device px here)
     auto line = [&](float x0,float y0,float x1,float y1, float r,float g,float b,float a){
         float ux=x1-x0, uy=y1-y0, L=sqrtf(ux*ux+uy*uy); if (L<1e-3f) return;
@@ -2242,6 +2264,7 @@ void NanoMenu::pspClockEntrance(float sc, float ox, float oy, float reveal,
         pspLensBow(mPspLensValid, mPspLensCx, mPspLensCy, mPspLensR, cx, cy, sz);
         glyph(cx, cy, sz, g.type, g.rot*t, a);
     }
+    endSolidBatch();
 }
 
 // The 6 tumbling XMB category icons along their bezier-ish paths (spec 5.11).
@@ -2326,6 +2349,7 @@ void NanoMenu::pspClockAmbientGlyphs(float dtMs) {
     auto line=[&](float x0,float y0,float x1,float y1,float r,float g,float b,float a){
         float ux=x1-x0,uy=y1-y0,L=sqrtf(ux*ux+uy*uy); if(L<1e-3f)return; float nx=-uy/L*hw,ny=ux/L*hw;
         drawTriangle(x0+nx,y0+ny,x1+nx,y1+ny,x1-nx,y1-ny,r,g,b,a); drawTriangle(x0+nx,y0+ny,x1-nx,y1-ny,x0-nx,y0-ny,r,g,b,a); };
+    beginSolidBatch();   // 16 flat-colour drifting glyphs -> one draw (byte-identical additive)
     for(int i=0;i<16;i++){ AG& g=ag[i];
         g.x += g.v*(dtMs/1000.0f)*(0.5f+mPspGlyphBurst*2.0f);
         if(g.x>1.18f){ g.x=-0.18f; g.type=(g.type+1)%4; }
@@ -2342,6 +2366,7 @@ void NanoMenu::pspClockAmbientGlyphs(float dtMs) {
         else if(g.type==2){ line(px-s*0.4f,py-s*0.4f,px+s*0.4f,py-s*0.4f,R,G,B,a); line(px+s*0.4f,py-s*0.4f,px+s*0.4f,py+s*0.4f,R,G,B,a); line(px+s*0.4f,py+s*0.4f,px-s*0.4f,py+s*0.4f,R,G,B,a); line(px-s*0.4f,py+s*0.4f,px-s*0.4f,py-s*0.4f,R,G,B,a); }
         else { line(px,py-s*0.5f,px+s*0.46f,py+s*0.4f,R,G,B,a); line(px+s*0.46f,py+s*0.4f,px-s*0.46f,py+s*0.4f,R,G,B,a); line(px-s*0.46f,py+s*0.4f,px,py-s*0.5f,R,G,B,a); }
     }
+    endSolidBatch();
 }
 
 } // namespace android
