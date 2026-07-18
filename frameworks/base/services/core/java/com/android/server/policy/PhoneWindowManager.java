@@ -6049,7 +6049,15 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         gammaResetStuckModifiers();
         final int action = event.getAction();
         if (action == KeyEvent.ACTION_DOWN) {
-            if (event.getRepeatCount() > 0 || mGammaRotateDown) {
+            // Ignore ONLY genuine auto-repeat (repeatCount>0). Do NOT also gate on
+            // mGammaRotateDown: a physical rotation makes the foreground app (RetroArch/DraStic)
+            // release and re-grab its input devices, and that re-grab can swallow the F12 key-UP
+            // of the swivel-back, leaving mGammaRotateDown stuck true. The next genuine
+            // swivel-to-open then arrives as a fresh ACTION_DOWN (repeatCount==0) but was rejected
+            // here as a "repeat", so the clock/rotate only fired on a SECOND swivel (the
+            // double-swivel). A repeatCount==0 ACTION_DOWN is always a real new press, so honour it
+            // regardless of the possibly-stale latch; mGammaRotateDown is still refreshed below.
+            if (event.getRepeatCount() > 0) {
                 return true; // ignore auto-repeat
             }
             mGammaRotateDown = true;
