@@ -722,6 +722,8 @@ enum {
     QA_SLIDE_EVENT_SET,  // set key_code (it.b) + key_type (it.value = "1"/"5")
     QA_BLACKLIST_MENU,   // open the passthrough-blacklist button multi-select
     QA_BLACKLIST_TOGGLE, // toggle a button code in blacklist_pass (it.b = code)
+    QA_SLIDE_DOWN_TOGGLE,// Slide Behaviour: toggle an action name in down_action (it.value = name)
+    QA_SLIDE_UP_TOGGLE,  // Slide Behaviour: toggle an action name in up_action (it.value = name)
     QA_NOOP,             // non-selectable info row (does nothing on activate)
     QA_COMBO_MENU,       // open the combo_map list editor
     QA_COMBO_ADD,        // start the add-combo flow (stage 1)
@@ -2199,6 +2201,47 @@ void NanoMenu::buildBlacklistSubmenu(Ps3Level& out) {
     }
 }
 
+// "On Slide Down" / "On Slide Up": multi-select of the actions to run when the
+// slide button engages / releases. The framework reads persist.gammaos.rotate.
+// down_action / up_action as a COMMA list of action names, so several actions can
+// fire at once (e.g. "rotate,clock"). Each row toggles one action name in the list;
+// an empty list means "do nothing" (there is no explicit "none" row - clearing all
+// selections is the do-nothing case). Store the action name in it.value (these are
+// names, not numeric codes). Mirrors buildBlacklistSubmenu.
+void NanoMenu::buildSlideActionSubmenu(Ps3Level& out, bool up) {
+    out.items.clear(); out.sel = 0; out.screenKind = 0;
+    out.title = up ? "On Slide Up" : "On Slide Down";
+    const char* label = up ? "On Slide Up" : "On Slide Down";
+    const char* key = up ? "persist.gammaos.rotate.up_action" : "persist.gammaos.rotate.down_action";
+    // Fall back to the binding default ("rotate"/"natural") when the prop is unset so
+    // the multi-select preselection agrees with the parent row's resolved display (a
+    // fresh device shows the framework default selected, not an empty do-nothing list).
+    const Ps3SettingBinding* b = ps3BindingFor(label);
+    std::string def = b ? b->def : "";
+    std::vector<std::string> sel = gpSplit(
+        readSettingValue(SettingSource::kProp, key, def), ',');
+    auto has = [&](const std::string& name){
+        for (auto& s : sel) if (s == name) return true; return false;
+    };
+    // Toggleable actions (NOT "none"): name + human label. Matches the action set the
+    // framework understands (down_action/up_action), minus the "none" sentinel.
+    static const struct { const char* name; const char* label; } kActs[] = {
+        {"rotate",   "Rotate"},
+        {"natural",  "Restore Natural"},
+        {"screenoff","Sleep"},
+        {"wake",     "Wake"},
+        {"launch",   "Launch App"},
+        {"clock",    "PSP Clock"},
+    };
+    int qa = up ? QA_SLIDE_UP_TOGGLE : QA_SLIDE_DOWN_TOGGLE;
+    for (const auto& a : kActs) {
+        Ps3Item it; it.kind = PS3_QUICK; it.a = qa; it.value = a.name;
+        it.label = std::string(a.label) + (has(a.name) ? "    [Selected]" : "");
+        it.iconTex = iconTexForIcon(16); it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 1.0f;
+        out.items.push_back(it);
+    }
+}
+
 // --- Combo map + axis-to-button list editors --------------------------------
 // Add/remove lists built as a single Ps3Level whose contents depend on an add-flow
 // stage (rebuilt in place, no nested push/pop). Stage 0 = list of entries + "Add..".
@@ -3538,6 +3581,19 @@ void NanoMenu::ps3XmbSelect() {
                 mPs3AnimItem = 0.0f; mPs3ItemAnimStart = -1.0f;
                 return;
             }
+            // "On Slide Down" / "On Slide Up" drill into a multi-select of actions
+            // (the framework reads down_action/up_action as comma lists), not the
+            // single-select side chooser. Their kPs3Bindings entries remain so the
+            // current comma value still resolves on the right (@slideaction).
+            if (it.label == "On Slide Down" || it.label == "On Slide Up") {
+                bool up = (it.label == "On Slide Up");
+                std::vector<Ps3Item> ps = ps3CurItems(); int pSel = ps3CurSel();
+                Ps3Level lvl; buildSlideActionSubmenu(lvl, up); mPs3Stack.push_back(lvl);
+                mPs3SubParentItems = ps; mPs3SubParentIdx = pSel; mPs3SubChildItems = mPs3Stack.back().items;
+                mPs3SubDir = 1; mPs3SubAnimStart = mEffectTime; mPs3SubAnim = 0.0f;
+                mPs3AnimItem = 0.0f; mPs3ItemAnimStart = -1.0f;
+                return;
+            }
             // Data-driven settings leaf -> bound side chooser (real backing setting).
             if (it.label == "Scrape All Systems") { scrapeAllSystems(); return; }
             // Prefer the item's pre-resolved binding (Quick Settings leaves bind a
@@ -3617,6 +3673,35 @@ void NanoMenu::ps3XmbSelect() {
                     if (!removed) nw.push_back(std::to_string(it.b));
                     writeSettingValue(SettingSource::kProp, "persist.gammaos.gamepad.blacklist_pass", gpJoin(nw, ','));
                     if (!mPs3Stack.empty()) { int s = mPs3Stack.back().sel; buildBlacklistSubmenu(mPs3Stack.back());
+                        if (s >= 0 && s < (int)mPs3Stack.back().items.size()) mPs3Stack.back().sel = s; }
+                    mDisplayDirty = true; return;
+                }
+                case QA_SLIDE_DOWN_TOGGLE:
+                case QA_SLIDE_UP_TOGGLE: {
+                    // Add/remove this action name in the slide-action comma list. The
+                    // framework reads down_action/up_action as a clean comma list of
+                    // names (no spaces, no leading/trailing comma), an empty list
+                    // meaning "do nothing". Then drop the parent bind cache so its row
+                    // re-reads the new value, and rebuild the level in place so the
+                    // [Selected] tag updates without collapsing the sub-level.
+                    bool up = (it.a == QA_SLIDE_UP_TOGGLE);
+                    const char* label = up ? "On Slide Up" : "On Slide Down";
+                    const char* key = up ? "persist.gammaos.rotate.up_action"
+                                         : "persist.gammaos.rotate.down_action";
+                    // Seed from the binding default when unset (matches the builder) so
+                    // the first toggle edits the shown default rather than an empty list.
+                    const Ps3SettingBinding* b = ps3BindingFor(label);
+                    std::vector<std::string> sel = gpSplit(
+                        readSettingValue(SettingSource::kProp, key, b ? b->def : ""), ',');
+                    std::vector<std::string> nw; bool removed = false;
+                    for (auto& s : sel) {
+                        if (s.empty()) continue;                 // skip blanks (clean list)
+                        if (s == it.value) removed = true; else nw.push_back(s);
+                    }
+                    if (!removed) nw.push_back(it.value);
+                    writeSettingValue(SettingSource::kProp, key, gpJoin(nw, ','));
+                    mPs3BindCache.erase(up ? "On Slide Up" : "On Slide Down");
+                    if (!mPs3Stack.empty()) { int s = mPs3Stack.back().sel; buildSlideActionSubmenu(mPs3Stack.back(), up);
                         if (s >= 0 && s < (int)mPs3Stack.back().items.size()) mPs3Stack.back().sel = s; }
                     mDisplayDirty = true; return;
                 }
@@ -4655,9 +4740,11 @@ void NanoMenu::renderPs3Xmb() {
                              it.kind == PS3_GS_ROOT || it.kind == PS3_GS_SYSTEM_ROW ||
                              (it.kind == PS3_QUICK && ps3QaOpensSubmenu(it.a)) ||
                              // Slide Behaviour: these data-leaf rows drill into a pushed
-                             // picker (device list / event list) rather than a chooser.
+                             // picker (device / event list, or the down/up action
+                             // multi-select) rather than a side chooser.
                              (it.kind == PS3_DATA_LEAF &&
-                              (it.label == "Slide Device" || it.label == "Slide Button Code")));
+                              (it.label == "Slide Device" || it.label == "Slide Button Code" ||
+                               it.label == "On Slide Down" || it.label == "On Slide Up")));
             if ((mPs3DlgActive || mPs3DlgClosing) && mPs3DlgKind == 1) opensSub = false;
             const char* kChevron = "\xE2\x80\xBA";   // > single right angle quotation mark
             float chFs = ps3::fontScale(ps3::ITEM_TEXT_SIZE);
@@ -5701,12 +5788,19 @@ static const Ps3SettingBinding kPs3Bindings[] = {
      "1:Key (EV_KEY),5:Switch (EV_SW)"},
     {"Slide Active Value", SettingSource::kProp, "persist.gammaos.rotate.key_active", "1",
      "1:High (1),0:Low (0)"},
+    // down_action / up_action are COMMA lists of action names (several actions can
+    // fire at once). The rows drill into buildSlideActionSubmenu (a multi-select);
+    // "@slideaction" tells resolvePs3ItemValue to show the joined action labels and
+    // keeps openBoundChooser from opening a single-select dialog. The option list is
+    // kept here only as the canonical name->label map for the resolve display.
     {"On Slide Down", SettingSource::kProp, "persist.gammaos.rotate.down_action", "rotate",
-     "none:Do Nothing,rotate:Rotate,natural:Restore Natural,screenoff:Sleep,wake:Wake,"
-     "launch:Launch App,clock:PSP Clock"},
+     "@slideaction"},
     {"On Slide Up", SettingSource::kProp, "persist.gammaos.rotate.up_action", "natural",
-     "none:Do Nothing,rotate:Rotate,natural:Restore Natural,screenoff:Sleep,wake:Wake,"
-     "launch:Launch App,clock:PSP Clock"},
+     "@slideaction"},
+    // Sleep Delay: how long (seconds) after a Sleep action before the screen turns
+    // off. Read by the framework as integer seconds. Plain single-select list.
+    {"Sleep Delay", SettingSource::kProp, "persist.gammaos.rotate.sleep_delay", "0",
+     "0:Immediate,5:5 seconds,15:15 seconds,30:30 seconds,60:60 seconds"},
     {"Rotation Angle", SettingSource::kProp, "persist.gammaos.rotate.degrees", "90",
      "90:90 degrees,180:180 degrees,270:270 degrees"},
     {"Slide Launch Target", SettingSource::kProp, "persist.gammaos.rotate.launch_target", "", "@text"},
@@ -6237,6 +6331,18 @@ void NanoMenu::openBoundChooser(const Ps3SettingBinding* b) {
         mPs3AnimItem = 0.0f; mPs3ItemAnimStart = -1.0f;
         return;
     }
+    // Slide action (down/up) is a multi-select pushed sub-level, not a side chooser.
+    // Normally intercepted by the "On Slide Down"/"On Slide Up" label dispatch; guard
+    // here too so any future route still drills in rather than opening an empty dialog.
+    if (!strcmp(b->options, "@slideaction")) {
+        bool up = (strstr(b->key, "up_action") != nullptr);
+        std::vector<Ps3Item> ps = ps3CurItems(); int pSel = ps3CurSel();
+        Ps3Level lvl; buildSlideActionSubmenu(lvl, up); mPs3Stack.push_back(lvl);
+        mPs3SubParentItems = ps; mPs3SubParentIdx = pSel; mPs3SubChildItems = mPs3Stack.back().items;
+        mPs3SubDir = 1; mPs3SubAnimStart = mEffectTime; mPs3SubAnim = 0.0f;
+        mPs3AnimItem = 0.0f; mPs3ItemAnimStart = -1.0f;
+        return;
+    }
     mPs3DlgOptions.clear(); mPs3DlgSwatch.clear();
     mPs3DlgKind = 1; mPs3DlgThemeKey = 0; mPs3DlgBinding = b;
     mPs3DlgTitle = b->label; mPs3DlgBody.clear();
@@ -6385,6 +6491,24 @@ std::string NanoMenu::resolvePs3ItemValue(const Ps3Item& it) {
             int code = cur.empty() ? 88 : (int)strtol(cur.c_str(), nullptr, 0);
             int type = property_get_int32("persist.gammaos.rotate.key_type", EV_KEY);
             return slEventName(type, code);
+        }
+        // Slide action (down/up) row: the setting is a comma list of action names;
+        // show the joined human labels (e.g. "Rotate, PSP Clock"), or "Do Nothing"
+        // when empty. Maps each name via the same table buildSlideActionSubmenu uses.
+        if (!strcmp(b->options, "@slideaction")) {
+            static const struct { const char* name; const char* label; } kActLbl[] = {
+                {"rotate", "Rotate"}, {"natural", "Restore Natural"}, {"screenoff", "Sleep"},
+                {"wake", "Wake"}, {"launch", "Launch App"}, {"clock", "PSP Clock"},
+            };
+            std::string out;
+            for (auto& s : gpSplit(cur, ',')) {
+                if (s.empty() || s == "none") continue;
+                const char* lbl = s.c_str();
+                for (auto& a : kActLbl) if (s == a.name) { lbl = a.label; break; }
+                if (!out.empty()) out += ", ";
+                out += trDyn(lbl);
+            }
+            return out.empty() ? std::string(trDyn("Do Nothing")) : out;
         }
         if (!strcmp(b->options, "@rgbeffect")) {
             // cur is gammargb.control; "off" wins, else map the rgb.effect code.
