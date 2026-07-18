@@ -3136,7 +3136,8 @@ void NanoMenu::scissorLogicalRect(float x, float y, float w, float h) {
 // same rect). texcoords are v-flipped because the FB snapshot is y-up.
 void NanoMenu::drawFrostedGlass(float x, float y, float w, float h, float radius,
                                 float tr, float tg, float tb, float tintA, float fade,
-                                bool waveSpace, float tonemapOverride) {
+                                bool waveSpace, float tonemapOverride,
+                                GLuint srcTexOverride, int srcOverrideW, int srcOverrideH) {
     float x0 = (x / mWidth) * 2.0f - 1.0f;
     float y0 = 1.0f - ((y + h) / mHeight) * 2.0f;
     float x1 = ((x + w) / mWidth) * 2.0f - 1.0f;
@@ -3175,8 +3176,11 @@ void NanoMenu::drawFrostedGlass(float x, float y, float w, float h, float radius
     // The heavy frost already comes from the 1/8 downsample + separable Gaussian;
     // this is just a ~1-texel tent for smooth bilinear magnification without
     // over-spreading past the rounded panel edge.
-    int   bw = (mGlassBlurW > 0) ? mGlassBlurW : mGlassTexW;
-    int   bh = (mGlassBlurH > 0) ? mGlassBlurH : mGlassTexH;
+    // srcTexOverride lets a caller sample its OWN persistent blur texture instead of the
+    // shared mGlassBlurTex (used by the clock backdrop, whose 30Hz-throttled blur must not
+    // be clobbered by the later chrome-glow blurGlassChain). 0 = the usual shared source.
+    int   bw = srcTexOverride ? srcOverrideW : ((mGlassBlurW > 0) ? mGlassBlurW : mGlassTexW);
+    int   bh = srcTexOverride ? srcOverrideH : ((mGlassBlurH > 0) ? mGlassBlurH : mGlassTexH);
     float texelX = (bw > 0) ? 1.0f / (float)bw : 0.02f;
     float texelY = (bh > 0) ? 1.0f / (float)bh : 0.02f;
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -3195,7 +3199,8 @@ void NanoMenu::drawFrostedGlass(float x, float y, float w, float h, float radius
     float glassTm = (tonemapOverride >= 0.0f) ? tonemapOverride : (waveSpace ? 1.6846f : 0.0f);
     if (mGlassLocTonemap >= 0) glUniform1f(mGlassLocTonemap, glassTm);
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, (mGlassBlurTex != 0) ? mGlassBlurTex : mGlassTex);
+    glBindTexture(GL_TEXTURE_2D, srcTexOverride ? srcTexOverride
+                                                : ((mGlassBlurTex != 0) ? mGlassBlurTex : mGlassTex));
     glUniform1i(mGlassLocTexture, 0);
     glVertexAttribPointer(mGlassLocPosition, 2, GL_FLOAT, GL_FALSE, 0, verts);
     glEnableVertexAttribArray(mGlassLocPosition);

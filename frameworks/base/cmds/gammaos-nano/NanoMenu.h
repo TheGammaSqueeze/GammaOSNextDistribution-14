@@ -3146,6 +3146,7 @@ private:
     void  pspClockMirrorStop();                // tear down + un-flag the overlay layer
     void  pspClockMirrorTick(bool want);       // lifecycle + per-frame newest-buffer pump
     void  pspClockMirrorImportAndBlit(const sp<GraphicBuffer>& buf); // zero-copy import + V-flip
+    void  pspClockCopyBlurToBackdrop();        // mGlassBlurTex -> persistent gBdBlurTex (30Hz throttle)
   public:
     // Signal the detached capture worker to stop and (optionally) wait a bounded
     // time for it to exit its loop. Safe to call from teardown; join-free (the worker
@@ -3601,7 +3602,8 @@ private:
     // first with the same rect). tint rgb darkens; tintA = panel opacity.
     void drawFrostedGlass(float x, float y, float w, float h, float radius,
                           float tr, float tg, float tb, float tintA, float fade,
-                          bool waveSpace = false, float tonemapOverride = -1.0f);
+                          bool waveSpace = false, float tonemapOverride = -1.0f,
+                          GLuint srcTexOverride = 0, int srcOverrideW = 0, int srcOverrideH = 0);
 
     // Setup wizard state
     bool mSetupWizardActive;

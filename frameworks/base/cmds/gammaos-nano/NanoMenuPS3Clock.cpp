@@ -158,6 +158,15 @@ GLuint                 gMirFlipFbo = 0;             // FBO wrapping mPspClockApp
 struct MirTexEntry { uint64_t id; EGLImageKHR img; GLuint tex; };
 MirTexEntry            gMirCache[8];
 int                    gMirCacheN = 0;
+// Dedicated persistent copy of the app backdrop blur. The heavy blurGlassChain that
+// defocuses the surround is recomputed only every Nth frame (the surround is blurred +
+// darkened and has NO parallax, so 30Hz is visually identical to 60Hz) and copied here;
+// the frost blit then reads THIS every frame, immune to the chrome-glow pass clobbering
+// the shared mGlassBlurTex. gBdValid gates the first-frame recompute.
+GLuint                 gBdBlurTex = 0, gBdBlurFbo = 0;
+int                    gBdBlurW = 0, gBdBlurH = 0;
+bool                   gBdValid = false;
+int                    gBdTick = 0;
 BufferItem             gMirHeld;                    // buffer held for release next frame (GPU-read safety)
 bool                   gMirHasHeld = false;
 // Minimal V-flip copy program (mirror src -> mPspClockAppTex).
@@ -635,6 +644,10 @@ void NanoMenu::pspClockMirrorStop() {
     }
     if (gMirConsumer != nullptr) { gMirConsumer->abandon(); gMirConsumer = nullptr; }
     if (gMirFlipFbo) { glDeleteFramebuffers(1, &gMirFlipFbo); gMirFlipFbo = 0; }
+    // Throttled backdrop-blur copy: drop it so the next summon recomputes from frame 0.
+    if (gBdBlurTex) { glDeleteTextures(1, &gBdBlurTex); gBdBlurTex = 0; }
+    if (gBdBlurFbo) { glDeleteFramebuffers(1, &gBdBlurFbo); gBdBlurFbo = 0; }
+    gBdBlurW = gBdBlurH = 0; gBdValid = false; gBdTick = 0;
     gMirActive = false;
 }
 
@@ -1055,6 +1068,48 @@ void NanoMenu::drawPspClock(float dtMs) {
 // blit it full-screen, then a mild darken. (The disc will be drawn as a crisp
 // opaque stamp on top in a later stage, which masks the hole - no stencil.)
 // -----------------------------------------------------------------------------
+// Render-thread. Copy the freshly-computed mGlassBlurTex into the persistent gBdBlurTex
+// (reusing the mirror's straight-copy program, uFlip=0) so the throttled frost blit can
+// re-read it on skipped frames without the chrome glow having clobbered mGlassBlurTex.
+void NanoMenu::pspClockCopyBlurToBackdrop() {
+    if (gMirProg == 0 || mGlassBlurTex == 0 || mGlassBlurW <= 0 || mGlassBlurH <= 0) return;
+    if (gBdBlurTex == 0 || gBdBlurW != mGlassBlurW || gBdBlurH != mGlassBlurH) {
+        if (gBdBlurTex == 0) glGenTextures(1, &gBdBlurTex);
+        glBindTexture(GL_TEXTURE_2D, gBdBlurTex);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, mGlassBlurW, mGlassBlurH, 0,
+                     GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        gBdBlurW = mGlassBlurW; gBdBlurH = mGlassBlurH;
+    }
+    if (gBdBlurFbo == 0) glGenFramebuffers(1, &gBdBlurFbo);
+    GLint prevFbo = 0; glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prevFbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, gBdBlurFbo);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gBdBlurTex, 0);
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE) {
+        glViewport(0, 0, mGlassBlurW, mGlassBlurH);
+        glDisable(GL_BLEND);
+        glUseProgram(gMirProg);
+        static const GLfloat pos[] = { -1,-1,  1,-1, -1, 1,  1, 1 };
+        static const GLfloat uv[]  = {  0, 0,  1, 0,  0, 1,  1, 1 };
+        glVertexAttribPointer(gMirPos, 2, GL_FLOAT, GL_FALSE, 0, pos);
+        glEnableVertexAttribArray(gMirPos);
+        glVertexAttribPointer(gMirUV, 2, GL_FLOAT, GL_FALSE, 0, uv);
+        glEnableVertexAttribArray(gMirUV);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, mGlassBlurTex);
+        glUniform1i(gMirSamp, 0);
+        glUniform1f(gMirFlip, 0.0f);   // straight copy, no V-flip
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+        glDisableVertexAttribArray(gMirPos);
+        glDisableVertexAttribArray(gMirUV);
+    }
+    glBindFramebuffer(GL_FRAMEBUFFER, (GLuint)prevFbo);
+    glViewport(0, 0, mWidth, mHeight);
+}
+
 void NanoMenu::pspClockBackdropBlur(float amt) {
     if (amt <= 0.0f) return;
     // #5 live-app backdrop: when the disc is refracting the running app, the SURROUND
@@ -1064,7 +1119,33 @@ void NanoMenu::pspClockBackdropBlur(float amt) {
     // not the LINEAR wave), then a dynamic darken over it (heavier when the game is bright).
     if (pspClockUseAppSource() && mPspClockAppTex != 0
         && mPspClockAppTexW >= 8 && mPspClockAppTexH >= 8) {
-        blurGlassChain(mPspClockAppTex, mPspClockAppTexW, mPspClockAppTexH, 3, 2);
+        // The surround defocus is the single most expensive pass, yet it is heavily blurred
+        // AND darkened AND has NO parallax (only the disc, which samples the app texture
+        // directly, moves with tilt). So recompute blurGlassChain only every Nth frame and
+        // copy it into a dedicated texture the frost blit reads every frame - 30Hz here is
+        // visually identical to 60Hz and frees the budget to keep the whole overlay at 60fps.
+        // The dedicated copy is what makes this safe: the chrome-glow pass later this frame
+        // reuses blurGlassChain and clobbers the shared mGlassBlurTex, so a skipped frame that
+        // re-read mGlassBlurTex would flash the glow halo (the old throttle's bug). div<=1
+        // disables it. Only throttle when the mirror is up (its blit program does the copy).
+        int div = (int)property_get_int32("persist.gammaos.nano.pspclock.blurdiv", 2);
+        if (div < 1) div = 1; if (div > 4) div = 4;
+        const bool canThrottle = (div > 1) && (gMirProg != 0);
+        bool useBackdropTex = false;
+        if (!canThrottle) {
+            blurGlassChain(mPspClockAppTex, mPspClockAppTexW, mPspClockAppTexH, 3, 2);
+        } else {
+            const bool recompute = !gBdValid || (gBdTick % div) == 0;
+            gBdTick++;
+            if (recompute) {
+                blurGlassChain(mPspClockAppTex, mPspClockAppTexW, mPspClockAppTexH, 3, 2);
+                if (mGlassBlurTex != 0 && mGlassBlurW > 0 && mGlassBlurH > 0) {
+                    pspClockCopyBlurToBackdrop();   // mGlassBlurTex -> gBdBlurTex (persistent)
+                    gBdValid = true;
+                }
+            }
+            useBackdropTex = gBdValid;
+        }
         // tintA = 1 (OPAQUE), NOT 0 like the home-clock wave path. In the overlay
         // in-game path the framebuffer is cleared to a translucent scrim and blending
         // is ON (NanoMenuRender ~L4401/4411), and SurfaceFlinger composites this layer
@@ -1074,7 +1155,8 @@ void NanoMenu::pspClockBackdropBlur(float amt) {
         // app in the surround, not the raw live app / black. (The home wave path draws
         // into an opaque FB with blend off, where the alpha is ignored - it keeps 0.)
         drawFrostedGlass(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f,
-                         1.0f, 1.0f, 1.0f, 1.0f, amt, /*waveSpace=*/true, /*tonemapOverride=*/0.0f);
+                         1.0f, 1.0f, 1.0f, 1.0f, amt, /*waveSpace=*/true, /*tonemapOverride=*/0.0f,
+                         useBackdropTex ? gBdBlurTex : 0, gBdBlurW, gBdBlurH);
         drawQuad(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f, 0.0f, 0.0f,
                  mPspAppBackdropDark * amt);
         return;
