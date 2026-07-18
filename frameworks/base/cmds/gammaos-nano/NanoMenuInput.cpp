@@ -1642,6 +1642,24 @@ void NanoMenu::ndsDialogTouch() {
     mTouchWasDown = mTouchDown;
 }
 
+// True if a comma-separated slide-action list (persist.gammaos.rotate.down_action/up_action)
+// contains the given action. down_action/up_action are now multi-action lists (e.g. "rotate,clock"),
+// so nano scans the list for the actions it owns (rotate/natural drive sys.gammaos.rotate.state, and
+// "clock" opens the PSP clock); the framework owns screenoff/wake/launch on its own key path.
+static bool slideActionHas(const char* list, const char* act) {
+    if (!list || !*list || !act) return false;
+    const size_t alen = strlen(act);
+    for (const char* p = list; *p; ) {
+        while (*p == ' ' || *p == ',') ++p;
+        const char* s = p;
+        while (*p && *p != ',') ++p;
+        const char* e = p;
+        while (e > s && e[-1] == ' ') --e;
+        if ((size_t)(e - s) == alen && strncmp(s, act, alen) == 0) return true;
+    }
+    return false;
+}
+
 void NanoMenu::pollInput() {
     // Overlay launch transition: while a launch is pending (the overlay is held up
     // until the new app resumes), FREEZE the XMB - drain and ignore all input so the
@@ -1907,7 +1925,7 @@ void NanoMenu::pollInput() {
                 if (!pspClockSlide && property_get_bool("persist.gammaos.rotate.enabled", false)) {
                     char da[PROPERTY_VALUE_MAX] = {};
                     property_get("persist.gammaos.rotate.down_action", da, "rotate");
-                    pspClockSlide = (strcmp(da, "clock") == 0);
+                    pspClockSlide = slideActionHas(da, "clock");
                 }
             }
             if (pspClockSlide) {
@@ -1930,8 +1948,8 @@ void NanoMenu::pollInput() {
                     property_get(slideVal ? "persist.gammaos.rotate.down_action"
                                           : "persist.gammaos.rotate.up_action",
                                  act, slideVal ? "rotate" : "natural");
-                    if (!strcmp(act, "rotate"))       property_set("sys.gammaos.rotate.state", "1");
-                    else if (!strcmp(act, "natural")) property_set("sys.gammaos.rotate.state", "0");
+                    if (slideActionHas(act, "rotate"))       property_set("sys.gammaos.rotate.state", "1");
+                    else if (slideActionHas(act, "natural")) property_set("sys.gammaos.rotate.state", "0");
                 }
                 continue;   // swallow so the switch never navigates the menu
             }

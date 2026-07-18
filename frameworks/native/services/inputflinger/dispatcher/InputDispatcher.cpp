@@ -4484,7 +4484,19 @@ void InputDispatcher::notifyKey(const NotifyKeyArgs& args) {
     //    Dropping these here left the overlay/wallpaper-home XMB unable to change the
     //    real output volume (the nano slider moved but the speaker did not). PWM eats
     //    them (clears ACTION_PASS_TO_USER) so the app behind never sees them.
+    // GammaOS swivel/slide trigger: let the configured slide KEY reach interceptKeyBeforeQueueing
+    // even while nano owns input, so PhoneWindowManager can run its framework-owned slide actions
+    // (screenoff/wake/launch). Rotate and the PSP clock are driven by nano's own evdev reader; the
+    // framework consumes this key (interceptGammaRotateKey returns 0) so it never leaks to the app
+    // behind. Prop-driven (only when the trigger is an EV_KEY with the matching scancode) so it
+    // does not accidentally pass through unrelated keys, and switch (EV_SW) devices are unaffected
+    // (switches arrive via notifySwitch, which this gate does not touch).
+    const bool gammaSlideKey =
+            android::base::GetBoolProperty("persist.gammaos.rotate.enabled", false)
+            && android::base::GetIntProperty("persist.gammaos.rotate.key_type", 1) == 1 /* EV_KEY */
+            && args.scanCode == android::base::GetIntProperty("persist.gammaos.rotate.key_code", 88);
     if (android::base::GetBoolProperty("sys.gammaos.nano.drop_input", false)
+            && !gammaSlideKey
             && args.keyCode != 4 /* AKEYCODE_BACK */
             && args.keyCode != 26 /* AKEYCODE_POWER */
             && args.keyCode != 24 /* AKEYCODE_VOLUME_UP */

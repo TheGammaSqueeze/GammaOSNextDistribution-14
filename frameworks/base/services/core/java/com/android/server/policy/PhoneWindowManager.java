@@ -6025,6 +6025,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     // the GammaOS Nano PSP slide clock; it is handled by nano's own evdev reader (which sees the
     // key even over a fullscreen app, where the framework never does), so here it is a no-op.
     private boolean mGammaRotateDown = false;   // key currently in the DOWN (rotated) state
+    private Runnable mGammaSleepRunnable = null; // pending slide-to-sleep timeout (null = none armed)
 
     private boolean interceptGammaRotateKey(KeyEvent event) {
         if (!android.os.SystemProperties.getBoolean("persist.gammaos.rotate.enabled", false)) {
@@ -6082,10 +6083,26 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     // down = the slide is engaged (rotated / clock open); false = released (natural / clock closed).
     private void applyGammaRotate(boolean down) {
         mGammaRotateDown = down;
-        gammaRotateDo(android.os.SystemProperties.get(
+        final String list = android.os.SystemProperties.get(
                 down ? "persist.gammaos.rotate.down_action" : "persist.gammaos.rotate.up_action",
-                down ? "rotate" : "natural"));
+                down ? "rotate" : "natural");
+        gammaRotateDoList(list, down);
         gammaClockSummon(down);
+    }
+
+    // Run a COMMA-SEPARATED list of slide actions so a single slide position can do several things
+    // at once (e.g. "rotate,screenoff"). Each token runs through the single-action gammaRotateDo, so
+    // the per-action semantics live in one place. Any pending sleep-timeout is cancelled first, so
+    // the opposite slide (or any slide that does not re-arm screenoff) cancels a running countdown.
+    private void gammaRotateDoList(String list, boolean down) {
+        gammaCancelSleep();
+        if (list == null || list.isEmpty()) list = down ? "rotate" : "natural";
+        for (String raw : list.split(",")) {
+            final String act = raw.trim();
+            if (!act.isEmpty()) {
+                gammaRotateDo(act);
+            }
+        }
     }
 
     // EV_SW SW_TABLET_MODE slide trigger (e.g. TrimUI): a tablet-mode switch arrives here as a
@@ -6183,8 +6200,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         } else if ("natural".equals(act)) {
             gammaRotateApply(false);
         } else if ("screenoff".equals(act)) {
-            mPowerManager.goToSleep(SystemClock.uptimeMillis(),
-                    android.os.PowerManager.GO_TO_SLEEP_REASON_SLEEP_BUTTON, 0);
+            gammaArmSleep();
         } else if ("wake".equals(act)) {
             mPowerManager.wakeUp(SystemClock.uptimeMillis(),
                     android.os.PowerManager.WAKE_REASON_LID, "GammaRotateKey");
@@ -6194,6 +6210,37 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         // "clock" is handled entirely by GammaOS Nano's own evdev reader (it must open the PSP
         // slide clock even over a fullscreen app, which the framework key path cannot reach), so
         // there is nothing to do here. "none" or anything unknown: also do nothing.
+    }
+
+    // Slide-to-sleep with an optional timeout: persist.gammaos.rotate.sleep_delay seconds to wait
+    // before sleeping (0 = immediate, the classic behaviour). Lets a user slide to a closed position,
+    // keep the clock up a while, then have the device sleep on its own. Cancelled by the opposite
+    // slide (gammaRotateDoList calls gammaCancelSleep on every edge). Pure framework mechanism so it
+    // works in normal Android, independent of nano.
+    private void gammaArmSleep() {
+        final int delaySec = android.os.SystemProperties.getInt(
+                "persist.gammaos.rotate.sleep_delay", 0);
+        if (delaySec <= 0) {
+            mPowerManager.goToSleep(SystemClock.uptimeMillis(),
+                    android.os.PowerManager.GO_TO_SLEEP_REASON_SLEEP_BUTTON, 0);
+            return;
+        }
+        gammaCancelSleep();
+        mGammaSleepRunnable = new Runnable() {
+            @Override public void run() {
+                mGammaSleepRunnable = null;
+                mPowerManager.goToSleep(SystemClock.uptimeMillis(),
+                        android.os.PowerManager.GO_TO_SLEEP_REASON_SLEEP_BUTTON, 0);
+            }
+        };
+        mHandler.postDelayed(mGammaSleepRunnable, delaySec * 1000L);
+    }
+
+    private void gammaCancelSleep() {
+        if (mGammaSleepRunnable != null) {
+            mHandler.removeCallbacks(mGammaSleepRunnable);
+            mGammaSleepRunnable = null;
+        }
     }
 
     private void gammaRotateApply(boolean rotated) {
