@@ -3987,7 +3987,14 @@ void NanoMenu::setupSecondaryEglSurfaces() {
         // overrides bootanim (which uses STRATUM_BOOT_PROGRESS layers).
         SurfaceComposerClient::Transaction t;
         Rect bounds(0, 0, res.width, res.height);
-        t.setDisplayProjection(token, ui::ROTATION_0, bounds, bounds);
+        // Do NOT reset this port's projection to the physical size while a Dual-Stack app has
+        // forced it to a TALL logical canvas (640x960): that clobbers DualStackController's tall
+        // projection (the documented WM/SF desync), which then flips layerStackSpaceRect back to
+        // 640x480 and defeats the Dual-Stack coverage stretch below (carousel drops to half). Let
+        // DualStack own the projection while it is active; the coverage stretch fills the canvas.
+        if (!property_get_bool("sys.gammaos.dualstack.active", false)) {
+            t.setDisplayProjection(token, ui::ROTATION_0, bounds, bounds);
+        }
         t.setLayer(sc, 0x40000001);
         t.setLayerStack(sc, stack);
         t.show(sc);
@@ -4021,6 +4028,8 @@ void NanoMenu::setupSecondaryEglSurfaces() {
         mSecondarySurfaces.push_back(s);
         mSecondaryEglSurfaces.push_back(eglSurf);
         mSecondaryAppliedLayerStacks.push_back(stack.id);
+        mSecondaryCreatedSize.push_back({res.width, res.height});
+        mSecondaryAppliedLssH.push_back(-1);   // stretch not yet applied (Dual-Stack coverage)
 
         int64_t now = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL;
         ALOGI("NanoMenu: secondary EGL surface ready: port=%d layerStack=%u %dx%d at T+%lldms",
@@ -5155,6 +5164,47 @@ if (sRingPrimedCount >= 2) {
             mNdsSecondaryShown = wantShown;
         }
     }
+    // Dual-Stack coverage: when a dualstack app forces the carousel's display (port 0) to a TALL
+    // logical canvas (e.g. 640x960), the carousel surface - created at the physical mode size
+    // (640x480) - covers only the TOP HALF of that canvas, leaving the app visible in the bottom
+    // half (user: over a dualstack app "the bottom screen is only half covered"). SF projects the
+    // tall canvas back down onto the physical panel, so scaling the carousel LAYER to fill the full
+    // logical canvas makes the panel show the whole carousel with no app bleed - and the panel's
+    // own down-projection cancels the stretch, so the carousel still reads at its normal size. The
+    // scale is a pure function of the display's current logical size vs the created buffer size, so
+    // it self-adjusts: identity (1x) on a normal 640x480 canvas, 2x under a 640x960 dualstack canvas,
+    // and reverts automatically when dualstack ends. Re-issue the transaction only when the logical
+    // height changes; poll cheaply (~every 15 frames) since the tall size only toggles on app changes.
+    if (mOverlayMode && !mSecondaryWallpaperControls.empty()) {
+        static int sDsCoverCtr = 0;
+        if ((sDsCoverCtr++ % 15) == 0) {
+            for (size_t i = 0; i < mSecondaryWallpaperControls.size()
+                            && i < mSecondaryDisplayTokens.size()
+                            && i < mSecondaryCreatedSize.size()
+                            && i < mSecondaryAppliedLssH.size(); i++) {
+                if (mSecondaryWallpaperControls[i] == nullptr
+                        || mSecondaryDisplayTokens[i] == nullptr) continue;
+                ui::DisplayState st;
+                if (SurfaceComposerClient::getDisplayState(mSecondaryDisplayTokens[i], &st) != NO_ERROR)
+                    continue;
+                const int lssW = (int)st.layerStackSpaceRect.getWidth();
+                const int lssH = (int)st.layerStackSpaceRect.getHeight();
+                const int cw = mSecondaryCreatedSize[i].first;
+                const int ch = mSecondaryCreatedSize[i].second;
+                if (lssW <= 0 || lssH <= 0 || cw <= 0 || ch <= 0) continue;
+                if (lssH == mSecondaryAppliedLssH[i]) continue;   // logical size unchanged
+                const float sx = (float)lssW / (float)cw;
+                const float sy = (float)lssH / (float)ch;
+                SurfaceComposerClient::Transaction t;
+                t.setMatrix(mSecondaryWallpaperControls[i], sx, 0.0f, 0.0f, sy);
+                t.apply();
+                mSecondaryAppliedLssH[i] = lssH;
+                ALOGI("nano ds-cover: secondary %zu stretch buf %dx%d -> canvas %dx%d (sx=%.2f sy=%.2f)",
+                      i, cw, ch, lssW, lssH, sx, sy);
+            }
+        }
+    }
+
     // Skip the secondary render only while the overlay is DISMISSED (show_overlay=0) so the
     // running game owns its bottom screen; while the overlay is displayed, render the carousel
     // on the secondary (the in-game scrim path in renderNdsCarousel dims the live app behind it).

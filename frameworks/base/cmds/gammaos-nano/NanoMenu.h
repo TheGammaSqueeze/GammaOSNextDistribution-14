@@ -860,6 +860,8 @@ private:
     std::vector<EGLSurface> mSecondaryEglSurfaces; // GammaOS: EGL surfaces for secondary wallpaper
     std::vector<sp<Surface>> mSecondarySurfaces; // GammaOS: keep refs alive
     std::vector<uint32_t> mSecondaryAppliedLayerStacks; // GammaOS: last layer stack applied to each secondary wallpaper SC
+    std::vector<std::pair<int,int>> mSecondaryCreatedSize; // GammaOS: each secondary wallpaper SC's buffer size (physical mode res)
+    std::vector<int> mSecondaryAppliedLssH;  // GammaOS: last logical-canvas height each secondary was stretched to (-1 = unset); see the Dual-Stack coverage stretch
     bool mNdsSecondaryShown = true; // GammaOS DSi overlay: is the secondary panel SC currently shown (hidden during a translucent in-game overlay so the app's bottom screen is not covered)
     sp<SurfaceControl> mFlingerSurfaceControl;
     sp<Surface> mFlingerSurface;

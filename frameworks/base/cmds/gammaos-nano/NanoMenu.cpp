@@ -356,6 +356,8 @@ NanoMenu::~NanoMenu() {
     }
     mSecondaryDisplayTokens.clear();
     mSecondaryAppliedLayerStacks.clear();
+    mSecondaryCreatedSize.clear();
+    mSecondaryAppliedLssH.clear();
     for (int fd : mInputFds) {
         ioctl(fd, EVIOCGRAB, 0); // release grab (always, in case exit-grab was applied)
         close(fd);
@@ -4837,6 +4839,8 @@ if (sRingPrimedCount >= 2) {
         t.apply();
         mSecondaryWallpaperControls.clear();
     }
+    mSecondaryCreatedSize.clear();
+    mSecondaryAppliedLssH.clear();
 
     // Signal the PSP live-app capture worker to stop now (drained before stopProcess
     // below). Then free its texture while the EGL context is still current. Freeing is
