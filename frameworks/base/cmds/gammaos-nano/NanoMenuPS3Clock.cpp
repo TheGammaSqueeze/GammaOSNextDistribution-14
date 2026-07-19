@@ -1203,6 +1203,21 @@ void NanoMenu::drawPspClock(float dtMs) {
         struct timespec t; clock_gettime(CLOCK_MONOTONIC, &t);
         return (int64_t)t.tv_sec * 1000000000LL + t.tv_nsec;
     };
+    // Clean frame-rate log (persist.gammaos.nano.pspclock.fpslog=1, default OFF): counts real
+    // rendered frames per wall-second with NO glFinish, so it reports the TRUE framerate the per
+    // pass profiler cannot (its glFinish serialization caps throughput, and the GPU runs unthrottled
+    // here so /sys pvr utilisation pins near 100% regardless of load). Independent of prof.
+    if (property_get_bool("persist.gammaos.nano.pspclock.fpslog", false)) {
+        static int fpsN = 0; static int64_t fpsLast = 0;
+        int64_t now = profNs(); fpsN++;
+        if (fpsLast == 0) fpsLast = now;
+        int64_t dt = now - fpsLast;
+        if (dt > 1000000000LL) {
+            ALOGI("pspclock fps: %.1f (%d frames in %.2fs, reveal=%.2f)",
+                  fpsN * 1e9 / (double)dt, fpsN, dt / 1e9, mPspClockReveal);
+            fpsN = 0; fpsLast = now;
+        }
+    }
     static double sPBd = 0, sPLens = 0, sPEnt = 0, sPFace = 0; static int sPN = 0;
     static int64_t sPLastLog = 0;
     int64_t tBd0 = prof ? (glFinish(), profNs()) : 0;
@@ -1554,10 +1569,54 @@ void NanoMenu::pspClockLens(float cr) {
     float uCx = cx0 * 0.5f + 0.5f, uCy = cy0 * 0.5f + 0.5f;
     const float op = std::min(1.0f, cr * 5.0f);   // lens fades in over the first 20% of the drop
 
-    setUiBlend();
+    // Reduced-resolution lens (perf): render the heavy refraction shader into a fraction-res FBO
+    // (axis-aligned, identity rotation) and upscale it over the disc. The composite below carries
+    // the SAME sDrmRotMat the direct draw applies to the disc geometry, so the disc lands exactly
+    // where it would and this is correct under every panel rotation AND the PRIME scanout flip -
+    // the FBO only holds the disc's logical refraction, per-vertex mapped just like the direct
+    // draw. persist.gammaos.nano.pspclock.lensres = percent (default 100 = direct).
+    float lensScale = (float)property_get_int32("persist.gammaos.nano.pspclock.lensres", 100) / 100.0f;
+    if (lensScale < 0.5f) lensScale = 0.5f; if (lensScale > 1.0f) lensScale = 1.0f;
+    bool useRedLens = (lensScale < 0.999f) && (mTextProgram != 0);
+    GLint lensPrevFbo = 0, lensPrevVp[4] = {0,0,0,0};
+    if (useRedLens) {
+        int lw = (int)lrintf(2.0f * R * lensScale); if (lw < 16) lw = 16;
+        int lh = lw;
+        glGetIntegerv(GL_FRAMEBUFFER_BINDING, &lensPrevFbo);
+        glGetIntegerv(GL_VIEWPORT, lensPrevVp);
+        if (mPspLensRedTex == 0 || mPspLensRedW != lw || mPspLensRedH != lh) {
+            if (mPspLensRedTex == 0) glGenTextures(1, &mPspLensRedTex);
+            glBindTexture(GL_TEXTURE_2D, mPspLensRedTex);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, lw, lh, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+            mPspLensRedW = lw; mPspLensRedH = lh;
+        }
+        if (mPspLensRedFbo == 0) glGenFramebuffers(1, &mPspLensRedFbo);
+        glBindFramebuffer(GL_FRAMEBUFFER, mPspLensRedFbo);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mPspLensRedTex, 0);
+        if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+            glBindFramebuffer(GL_FRAMEBUFFER, (GLuint)lensPrevFbo); // fall back to direct on FBO failure
+            glViewport(lensPrevVp[0], lensPrevVp[1], lensPrevVp[2], lensPrevVp[3]);
+            useRedLens = false;
+        }
+    }
+    if (useRedLens) {
+        glViewport(0, 0, mPspLensRedW, mPspLensRedH);
+        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+        glDisable(GL_BLEND);                    // straight write of the lens output (colour + alpha)
+    } else {
+        setUiBlend();
+    }
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glUseProgram(mPspLensProgram);
-    glUniformMatrix2fv(mPspLensLocRot, 1, GL_FALSE, sDrmRotMat);
+    // Direct: rotate the disc geometry to physical. Reduced-res FBO: draw axis-aligned (identity),
+    // the composite below places it on the (identity) disc bbox.
+    static const GLfloat lensIdent[4] = { 1.0f, 0.0f, 0.0f, 1.0f };
+    glUniformMatrix2fv(mPspLensLocRot, 1, GL_FALSE, useRedLens ? lensIdent : sDrmRotMat);
     glUniform2f(mPspLensLocHalf, R, R);
     glUniform2f(mPspLensLocCenter, uCx, uCy);
     // FACE_ZOOM: the web uses 1.1 (a very gentle magnify). At 1.1 the disc interior
@@ -1605,7 +1664,10 @@ void NanoMenu::pspClockLens(float cr) {
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, srcTex);
     glUniform1i(mPspLensLocTexture, 0);
-    glVertexAttribPointer(mPspLensLocPos, 2, GL_FLOAT, GL_FALSE, 0, verts);
+    // Direct: draw the disc-bbox NDC quad. Reduced-res: draw a full-FBO quad ([-1,1]) so the same
+    // disc (aLocal/aTexCoord unchanged, so the refraction is byte-identical) fills the small FBO.
+    static const GLfloat lensFullQuad[] = { -1,-1,  1,-1,  1,1,  1,1, -1,1, -1,-1 };
+    glVertexAttribPointer(mPspLensLocPos, 2, GL_FLOAT, GL_FALSE, 0, useRedLens ? lensFullQuad : verts);
     glEnableVertexAttribArray(mPspLensLocPos);
     glVertexAttribPointer(mPspLensLocLocal, 2, GL_FLOAT, GL_FALSE, 0, local);
     glEnableVertexAttribArray(mPspLensLocLocal);
@@ -1615,6 +1677,37 @@ void NanoMenu::pspClockLens(float cr) {
     glDisableVertexAttribArray(mPspLensLocPos);
     glDisableVertexAttribArray(mPspLensLocLocal);
     glDisableVertexAttribArray(mPspLensLocTex);
+
+    // Reduced-res: composite the FBO back over the disc bbox on screen (GL_LINEAR upscale). The
+    // FBO holds the lens output (colour, alpha) written straight, so an SRC_ALPHA over-blend of it
+    // reproduces the direct lens exactly, just softened by the upscale (imperceptible on the frosted
+    // background). The composite carries the live sDrmRotMat on the bbox verts, exactly like the
+    // direct draw, so it is correct under every rotation/flip; the fullquad UV order matches the FBO
+    // fullquad so each disc-local vertex lands where the direct draw would have put it.
+    if (useRedLens) {
+        glBindFramebuffer(GL_FRAMEBUFFER, (GLuint)lensPrevFbo);
+        glViewport(lensPrevVp[0], lensPrevVp[1], lensPrevVp[2], lensPrevVp[3]);
+        setUiBlend();   // SRC_ALPHA, ONE_MINUS_SRC_ALPHA
+        static const GLfloat lensCompUV[] = { 0,0,  1,0,  1,1,  1,1,  0,1,  0,0 };
+        static const GLfloat lensCompWhite[6*4] = { 1,1,1,1, 1,1,1,1, 1,1,1,1, 1,1,1,1, 1,1,1,1, 1,1,1,1 };
+        glUseProgram(mTextProgram);
+        if (mTextLocSharp >= 0) glUniform1f(mTextLocSharp, 0.0f);
+        glUniformMatrix2fv(mTextLocRotation, 1, GL_FALSE, sDrmRotMat);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, mPspLensRedTex);
+        glUniform1i(mTextLocTexture, 0);
+        glVertexAttribPointer(mTextLocPosition, 2, GL_FLOAT, GL_FALSE, 0, verts);
+        glEnableVertexAttribArray(mTextLocPosition);
+        glVertexAttribPointer(mTextLocTexCoord, 2, GL_FLOAT, GL_FALSE, 0, lensCompUV);
+        glEnableVertexAttribArray(mTextLocTexCoord);
+        glVertexAttribPointer(mTextLocColor, 4, GL_FLOAT, GL_FALSE, 0, lensCompWhite);
+        glEnableVertexAttribArray(mTextLocColor);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+        glDisableVertexAttribArray(mTextLocPosition);
+        glDisableVertexAttribArray(mTextLocTexCoord);
+        glDisableVertexAttribArray(mTextLocColor);
+        glUniformMatrix2fv(mTextLocRotation, 1, GL_FALSE, sDrmRotMat);   // restore scene rotation
+    }
 }
 
 // ---- entrance explosion (spec 5.11, index.html) ----------------------------

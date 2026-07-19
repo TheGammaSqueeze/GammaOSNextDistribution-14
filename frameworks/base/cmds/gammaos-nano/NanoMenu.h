@@ -1834,6 +1834,15 @@ private:
     float  mPspGlowCacheCx[2] = {0.0f, 0.0f};   // baked disc centre X (constant; guards resize)
     float  mPspGlowCacheCy[2] = {0.0f, 0.0f};   // baked disc centre Y (the bob anchor)
     bool   mPspGlowCacheValid[2] = {false, false};
+    // Reduced-resolution glass-lens target (perf): the disc refraction magnifies an already
+    // low-frequency, frosted background, so rendering the heavy lens shader into a fraction-res
+    // FBO and upscaling it over the disc is imperceptible while cutting that fill by ~1/scale^2.
+    // The FBO holds the disc's logical refraction axis-aligned; the composite carries the live
+    // sDrmRotMat on the disc bbox exactly like the direct draw, so it is correct under every panel
+    // rotation and the PRIME scanout flip. persist.gammaos.nano.pspclock.lensres = percent
+    // (default 100 = direct draw; 50..99 = reduced-res FBO path).
+    GLuint mPspLensRedFbo = 0, mPspLensRedTex = 0;
+    int    mPspLensRedW = 0, mPspLensRedH = 0;
     // 2x-supersampled clock-FACE target: the crisp cores + trail (raw drawTriangle geometry)
     // render into this 2x offscreen texture and composite down through GL_LINEAR, box-filtering
     // their hard polygon edges into clean anti-aliased ones. The soft Gaussian glow stays at 1x
