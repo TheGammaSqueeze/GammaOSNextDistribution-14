@@ -1350,11 +1350,14 @@ void NanoMenu::pspClockBackdropBlur(float amt) {
     const float darkE = td * td * (3.0f - 2.0f * td);
     const float DARK_MAX = 0.45f;                 // surround dim at full open (the disc stays crisp)
 
-    // Lite backdrop (perf, persist.gammaos.nano.pspclock.blackbg): the blurred surround is the
-    // second-biggest clock cost (a full-screen blur pyramid + composite every frame). On low-end
-    // GPUs, drop it and transition the SURROUND to opaque BLACK instead; the disc/face keeps
-    // refracting the live app or the nano wallpaper, so only the out-of-disc background changes.
-    const bool blackBg = property_get_bool("persist.gammaos.nano.pspclock.blackbg", false);
+    // Backdrop mode (persist.gammaos.nano.pspclock.blackbg, DEFAULT ON): the blurred surround is
+    // the second-biggest clock cost - a full-screen blur pyramid + composite EVERY frame, which on
+    // the target low-end GPUs (PowerVR GE8300 etc.) alone drops the clock from ~60fps to ~27. So by
+    // default the SURROUND transitions to opaque BLACK instead; the disc/face still refracts the
+    // live app or the nano wallpaper, so only the out-of-disc background changes (the one accepted
+    // visible trade for a locked 60). Set the prop to 0 on a GPU that can afford the full-res
+    // blurred defocus to restore the 1:1 surround.
+    const bool blackBg = property_get_bool("persist.gammaos.nano.pspclock.blackbg", true);
 
     if (pspClockUseAppSource() && mPspClockAppTex != 0
         && mPspClockAppTexW >= 8 && mPspClockAppTexH >= 8) {
