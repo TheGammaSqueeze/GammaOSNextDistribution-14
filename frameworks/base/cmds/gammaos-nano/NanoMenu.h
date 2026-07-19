@@ -760,6 +760,15 @@ private:
     void appOrientSet(const std::string& pkg, const std::string& value);
     void appOrientLoad();
     void appOrientSave();
+
+    // Dual-Stack per-app allowlist (persist.gammaos.dualstack.pkgs [+ .pkgs_1, .pkgs_2 ...],
+    // comma-separated, split across props to beat the ~91-char sysprop value cap; the framework
+    // DualStackController reads them via DualStackPropertyUtils). Offered as a per-app context-menu
+    // toggle on dual-screen devices (see openXmbOpt), mirroring the per-app Screen Orientation.
+    bool dualstackHas(const std::string& pkg);
+    void dualstackSet(const std::string& pkg, bool enable);
+    // True on a physical dual-screen device (e.g. RG DS): physical display count > 1, cached.
+    bool hasSecondaryDisplay();
     std::string mLastOrientToken;                 // last force_orientation we wrote
     std::map<std::string,std::string> mAppOrient; // package -> orientation override
     bool mAppOrientLoaded = false;
@@ -846,6 +855,7 @@ private:
     int mOverlayRotation = 0;
     uint32_t mAppliedLayerStack; // GammaOS: last layer stack applied to the nano surface
     std::vector<sp<IBinder>> mSecondaryDisplayTokens; // GammaOS: secondary display tokens
+    int mDualScreenCache = -1;                         // -1 unknown, 0 single, 1 dual (physical display count > 1)
     std::vector<sp<SurfaceControl>> mSecondaryWallpaperControls; // GammaOS: wallpaper on secondaries
     std::vector<EGLSurface> mSecondaryEglSurfaces; // GammaOS: EGL surfaces for secondary wallpaper
     std::vector<sp<Surface>> mSecondarySurfaces; // GammaOS: keep refs alive
@@ -1451,12 +1461,13 @@ private:
     // level only. The vectors are populated only while the menu is open (no idle cost).
     struct Ps3OptSub {
         std::string label;
-        int kind = 0;      // 0 = sort, 1 = group content, 2 = slideshow style, 3 = per-app orientation
+        int kind = 0;      // 0 = sort, 1 = group content, 2 = slideshow style, 3 = per-app orientation, 4 = dual-stack
         int field = 0;     // sort: 0 = film date, 1 = import date, 2 = name
         int dir = 1;       // sort: 0 = desc, 1 = asc
         int groupIdx = 0;  // group-content mode index
         int sstyle = 0;    // slideshow style 0..4
         std::string orient; // per-app orientation value ("" = default/none, else landscape/portrait/rev_*)
+        bool dsEnable = false; // dual-stack toggle: true = add the package to the whitelist, false = remove
     };
     std::vector<char> mPs3OptSep;                       // parallel: 1 = separator row (skipped in nav)
     std::vector<char> mPs3OptHasSub;                    // parallel: 1 = row opens a submenu

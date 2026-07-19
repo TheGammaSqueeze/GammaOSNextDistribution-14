@@ -8283,6 +8283,91 @@ void NanoMenu::closePs3Dialog(bool apply) {
 // short list of real per-item actions over the focused column item. A separate
 // modal from the theme chooser so Information can open a dialog cleanly.
 // ---------------------------------------------------------------------------
+// -- Dual-Stack per-app allowlist helpers ------------------------------------------------
+// The framework DualStackController reads persist.gammaos.dualstack.pkgs plus any sequential
+// .pkgs_1/.pkgs_2/... continuations (comma-separated, split to beat the ~91-char sysprop value
+// cap; see DualStackPropertyUtils.java). These read/write that exact format so nano can toggle a
+// package in or out of the allowlist from the XMB option menu.
+static std::vector<std::string> dualstackReadPkgs() {
+    std::vector<std::string> out;
+    auto addFrom = [&](const char* raw) {
+        std::string s(raw);
+        size_t start = 0;
+        while (start <= s.size()) {
+            size_t comma = s.find(',', start);
+            size_t end = (comma == std::string::npos) ? s.size() : comma;
+            std::string tok = s.substr(start, end - start);
+            size_t a = tok.find_first_not_of(" \t");
+            size_t b = tok.find_last_not_of(" \t");
+            if (a != std::string::npos) {
+                tok = tok.substr(a, b - a + 1);
+                if (!tok.empty()) out.push_back(tok);
+            }
+            if (comma == std::string::npos) break;
+            start = comma + 1;
+        }
+    };
+    char v[PROPERTY_VALUE_MAX];
+    property_get("persist.gammaos.dualstack.pkgs", v, "");
+    addFrom(v);
+    for (int i = 1; ; i++) {
+        char key[64];
+        snprintf(key, sizeof key, "persist.gammaos.dualstack.pkgs_%d", i);
+        property_get(key, v, "");
+        if (v[0] == '\0') break;   // first empty continuation ends the list (matches the framework reader)
+        addFrom(v);
+    }
+    return out;
+}
+
+bool NanoMenu::dualstackHas(const std::string& pkg) {
+    if (pkg.empty()) return false;
+    for (const auto& p : dualstackReadPkgs())
+        if (p == pkg) return true;
+    return false;
+}
+
+void NanoMenu::dualstackSet(const std::string& pkg, bool enable) {
+    if (pkg.empty()) return;
+    std::vector<std::string> pkgs = dualstackReadPkgs();
+    bool present = false;
+    for (const auto& p : pkgs)
+        if (p == pkg) { present = true; break; }
+    if (enable == present) return;   // already in the desired state -> no write
+    if (enable) pkgs.push_back(pkg);
+    else pkgs.erase(std::remove(pkgs.begin(), pkgs.end(), pkg), pkgs.end());
+
+    // Re-pack the list comma-joined into the base prop + .pkgs_1/.pkgs_2/..., keeping each value
+    // within the sysprop cap (PROPERTY_VALUE_MAX counts the NUL, so 91 usable chars).
+    const size_t kCap = PROPERTY_VALUE_MAX - 1;
+    std::vector<std::string> chunks;
+    std::string cur;
+    for (const auto& p : pkgs) {
+        size_t addLen = cur.empty() ? p.size() : p.size() + 1;   // +1 for the joining comma
+        if (!cur.empty() && cur.size() + addLen > kCap) { chunks.push_back(cur); cur.clear(); }
+        if (!cur.empty()) cur += ",";
+        cur += p;
+    }
+    if (!cur.empty()) chunks.push_back(cur);
+
+    property_set("persist.gammaos.dualstack.pkgs", chunks.empty() ? "" : chunks[0].c_str());
+    int idx = 1;
+    for (; idx < (int)chunks.size(); idx++) {
+        char key[64];
+        snprintf(key, sizeof key, "persist.gammaos.dualstack.pkgs_%d", idx);
+        property_set(key, chunks[idx].c_str());
+    }
+    // Clear any leftover continuation props left behind by a previously longer list.
+    for (; ; idx++) {
+        char key[64];
+        snprintf(key, sizeof key, "persist.gammaos.dualstack.pkgs_%d", idx);
+        char v[PROPERTY_VALUE_MAX];
+        property_get(key, v, "");
+        if (v[0] == '\0') break;
+        property_set(key, "");
+    }
+}
+
 void NanoMenu::openXmbOpt() {
     if (mPs3OptActive) return;
     // Only over the live home column - never while another modal owns input, and
@@ -8317,6 +8402,18 @@ void NanoMenu::openXmbOpt() {
         mPs3OptLabels.push_back(label); mPs3OptActs.push_back("");
         mPs3OptStart.push_back(start ? 1 : 0); mPs3OptSep.push_back(0); mPs3OptHasSub.push_back(1);
         mPs3OptSubDef.push_back(subDef); mPs3OptSubRows.push_back(sub);
+    };
+    // Per-app Dual-Stack Display allowlist toggle. Dual-screen devices only (e.g. RG DS); no-op and
+    // hidden elsewhere. Mirrors the per-app Screen Orientation submenu: Enabled adds the package to
+    // persist.gammaos.dualstack.pkgs so the framework DualStackController drives it across both
+    // panels, Disabled removes it. Default focus tracks the current whitelist membership.
+    auto addDualStack = [&](const std::string& pkg) {
+        if (pkg.empty() || !hasSecondaryDisplay()) return;
+        std::vector<Ps3OptSub> dsub;
+        auto D = [](const char* l, bool en) { Ps3OptSub s; s.label = l; s.kind = 4; s.dsEnable = en; return s; };
+        dsub.push_back(D("Disabled", false));
+        dsub.push_back(D("Enabled",  true));
+        addSub("Dual-Stack Display", false, dsub, dualstackHas(pkg) ? 1 : 0);
     };
     // Photo Sort By submenu (web photoSortBy, 5 firmware options). Default focus tracks
     // the live sort. Film/Import Date desc/asc + Image Name.
@@ -8408,6 +8505,7 @@ void NanoMenu::openXmbOpt() {
                     if (osub[i].orient == cur) { odef = (int)i; break; }
                 addSub("Screen Orientation", false, osub, odef);
             }
+            addDualStack(p);   // per-app Dual-Stack allowlist toggle (dual-screen devices only)
             // Uninstall is offered only for real user apps - never the launcher-shortcut
             // kind, and never the same excluded packages the Applications loader hides
             // (NanoMenuState.cpp): those are system/protected and must not be removed.
@@ -8421,7 +8519,9 @@ void NanoMenu::openXmbOpt() {
             break;
         }
         case PS3_LAUNCH_PKG:
-            add("Start", "start", true); add("Information", "info", false); break;
+            add("Start", "start", true); add("Information", "info", false);
+            addDualStack(it.payloadStr);   // per-app Dual-Stack allowlist toggle (dual-screen devices only)
+            break;
         case PS3_MUSIC_ALBUM:
             add("Play", "playalbum", true); add("Information", "info", false); break;
         case PS3_MUSIC_TRACK:
@@ -9190,6 +9290,9 @@ void NanoMenu::xmbOptApplySub(const Ps3OptSub& sr) {
         }
     } else if (sr.kind == 3) {     // Per-app orientation override (mPs3OptCtxPayload = package)
         appOrientSet(mPs3OptCtxPayload, sr.orient);
+        closeXmbOpt();
+    } else if (sr.kind == 4) {     // Per-app Dual-Stack allowlist toggle (mPs3OptCtxPayload = package)
+        dualstackSet(mPs3OptCtxPayload, sr.dsEnable);
         closeXmbOpt();
     }
 }

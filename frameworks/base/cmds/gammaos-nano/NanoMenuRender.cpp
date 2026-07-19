@@ -3887,6 +3887,17 @@ void NanoMenu::drawTextGlow(const char* str, float px, float py, float scale,
 // Secondary display setup (post-boot)
 // ---------------------------------------------------------------------------
 
+// True when this is a physical dual-screen device (e.g. the RG DS: dual DSI). Used to gate
+// dual-screen-only UI such as the per-app Dual-Stack allowlist toggle in the XMB option menu.
+// The physical display set does not change at runtime here, so cache the first query (a binder
+// call to SurfaceFlinger) and reuse it.
+bool NanoMenu::hasSecondaryDisplay() {
+    if (mDualScreenCache < 0)
+        mDualScreenCache =
+                (SurfaceComposerClient::getPhysicalDisplayIds().size() > 1) ? 1 : 0;
+    return mDualScreenCache == 1;
+}
+
 // Create EGL window surfaces for every non-primary physical display so the
 // existing post-HWC render loop can drive wallpaper rendering on those panels.
 // Called once after drmStop() — before that point the DRM-direct path's
