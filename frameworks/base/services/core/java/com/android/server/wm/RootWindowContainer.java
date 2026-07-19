@@ -1745,9 +1745,23 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
             //     layer ("nothing to draw"), yielding a black screen.
             // Launch the app only after NanoMenu actually fires handoff
             // (handoff_fired=1) or after bootanim has explicitly exited.
+            // GammaOS Nano: this "nano menu is active" skip is a BOOT-window guard (nano is the
+            // home and has not handed off yet). But service.bootanim.exit stays 0 post-boot (nano
+            // reuses it as its own signal) and handoff_fired is only set for Quick Resume, so for a
+            // normally-launched app it also matched on EXIT. An app that finishes its own top
+            // activity (e.g. Mixplorer via its B button) while keeping its process alive is NOT
+            // caught by the AMS process-death hook, so skipping the home launch here stranded it on
+            // a black screen. Once an app has been launched AND boot is complete, treat this as a
+            // post-launch exit and fall through to the appWasLaunched handling below, which detects
+            // the finished activity (processAlive && allFinishing) and raises the overlay-home.
+            final boolean nanoAppLaunchedNow = "1".equals(android.os.SystemProperties.get(
+                    "sys.gammaos.nano.app_launched", "0"));
+            final boolean bootCompletedNow = "1".equals(android.os.SystemProperties.get(
+                    "sys.boot_completed", "0"));
             if (!"1".equals(android.os.SystemProperties.get("service.bootanim.exit", "0"))
                     && !"1".equals(android.os.SystemProperties.get(
-                            "sys.gammaos.nano.handoff_fired", "0"))) {
+                            "sys.gammaos.nano.handoff_fired", "0"))
+                    && !(nanoAppLaunchedNow && bootCompletedNow)) {
                 Slog.i(TAG, "GammaOS Nano: nano menu is active, skipping home launch");
                 return true;
             }
