@@ -1433,12 +1433,18 @@ static const char PSP_LENS_FS[] = R"(
         // add uTilt flat - the interior translates cleanly, no warp.
         uv += uTilt;
         uv = clamp(uv, 0.0, 1.0);
-        vec3 c = texture2D(uTex, uv).rgb;
+        // The live-app texture (mPspClockAppTex) is stored y-DOWN - the surround's drawIconTex
+        // convention, which draws it upright - but this lens samples in the y-UP waveSpace tuned
+        // for workTex, so the app reads vertically FLIPPED in the disc while the wave reads upright.
+        // Flip Y for the app source only so the disc magnifies the app upright and aligned with the
+        // surround behind it. (The mirror blit defaults to no-flip so the surround is upright; this
+        // compensates the lens's opposite convention for the same texture.)
+        vec2 suv = (uAppSrc > 0.001) ? vec2(uv.x, 1.0 - uv.y) : uv;
+        vec3 c = texture2D(uTex, suv).rgb;
         if (uTonemap > 0.0) c = vec3(1.0) - exp2(-c * uTonemap);
         // Dynamically dim the live app so the white clock face/hands stay readable over a
         // bright game. uAppSrc carries the dim FACTOR: 0 = wave source (no dim), >0 = app
-        // shown at that fraction (smaller when the game is brighter). The app texture is
-        // stored upright (row-reversed at upload), so no flip here. The wave needs no dim.
+        // shown at that fraction (smaller when the game is brighter). The wave needs no dim.
         if (uAppSrc > 0.001) c *= uAppSrc;
         // Frosted glass sheen (web body radial gradient, psp_clock.js draw sect 1):
         // the centre stays clear so the bg reads through, a soft WHITE haze builds
