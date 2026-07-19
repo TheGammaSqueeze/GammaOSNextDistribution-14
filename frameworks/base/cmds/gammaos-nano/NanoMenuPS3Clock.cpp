@@ -635,6 +635,15 @@ bool NanoMenu::pspClockMirrorStart() {
     if (mDisplayToken == nullptr || mFlingerSurfaceControl == nullptr) return false;
     int w = mWidth, h = mHeight;
     if (w < 8 || h < 8) return false;
+    // Capture the game into a REDUCED-resolution virtual display: the over-app clock is CPU/mirror
+    // bound (SF composites + scans out the mirror every frame, and both the dark-scrimmed surround
+    // base and the frosted disc sample the captured tex), so shrinking the mirror shrinks SF's cost
+    // AND every fetch - ~1/mr^2 fewer pixels - while staying fully LIVE (SF still fills it at 60Hz,
+    // only the resolution changes). Imperceptible under the 25%-appdim + 70-scrim + frosted disc.
+    // persist.gammaos.nano.pspclock.mirrorres = percent (default 50; clamp 40..100 = full res).
+    float mr = (float)property_get_int32("persist.gammaos.nano.pspclock.mirrorres", 50) / 100.0f;
+    if (mr < 0.40f) mr = 0.40f; if (mr > 1.0f) mr = 1.0f;
+    int mw = std::max(8, (int)lrintf(w * mr)), mh = std::max(8, (int)lrintf(h * mr));
 
     // Lazy-load the EGLImage entry points (the overlay instance never runs the DRM init).
     if (!pEglCreateImageKHR) {
@@ -656,7 +665,7 @@ bool NanoMenu::pspClockMirrorStart() {
         consumer, GraphicBuffer::USAGE_HW_TEXTURE, /*bufferCount=*/4, /*controlledByApp=*/false);
     if (bic == nullptr) return false;
     bic->setName(String8("nano-clock-mirror"));
-    bic->setDefaultBufferSize((uint32_t)w, (uint32_t)h);
+    bic->setDefaultBufferSize((uint32_t)mw, (uint32_t)mh);   // reduced-res capture (see mirrorres)
     bic->setDefaultBufferFormat(PIXEL_FORMAT_RGBA_8888);
 
     // Flag OUR overlay skip-screenshot FIRST and apply, so the mirror clone built below
@@ -700,7 +709,10 @@ bool NanoMenu::pspClockMirrorStart() {
     SurfaceComposerClient::Transaction t;
     t.setDisplaySurface(disp, producer);
     t.setDisplayLayerStack(disp, stack);
-    t.setDisplayProjection(disp, ui::ROTATION_0, Rect(w, h), Rect(w, h));
+    // SOURCE = full primary layer stack (w,h); DEST = the reduced-res buffer (mw,mh). SF
+    // hardware-downscales the full composite into the smaller buffer (no crop/letterbox; aspect
+    // preserved since mw/mh scale by the same mr).
+    t.setDisplayProjection(disp, ui::ROTATION_0, Rect(w, h), Rect(mw, mh));
     t.setLayerStack(mirror, stack);      // move the clone onto the vdisplay-only stack
     t.setLayer(mirror, 0x7fffffff);      // top of that stack
     t.show(mirror);
@@ -1227,11 +1239,15 @@ void NanoMenu::drawPspClock(float dtMs) {
         // The entrance burst rides the same swipe offset so the clock stays a rigid body if a swipe
         // starts mid-open (at rest swipeOffsetPx is 0, so this is byte-identical to before).
         const float eoy = oy + swipeOffsetPx;
-        float burstEnv = clamp01((0.65f - mPspClockReveal) / 0.16f);
+        // Entrance is a pure transient (envelope ends by reveal 0.58); it is heavy because it stacks
+        // near-identical additive burst copies. Two rotated fuzzy shells read the same as three during
+        // a sub-3s drop, so drop the third copy and lift the two survivors' weight ~15% - halves the
+        // extra additive overdraw with no visible thinning. Tighter 0.58 window shortens it further.
+        float burstEnv = clamp01((0.58f - mPspClockReveal) / 0.16f);
+        const float burstA = std::min(1.0f, burstEnv * 1.15f);
         auto burstFed = [&](float delay){ float r = mPspClockReveal - delay; return r > 0 ? fmodf(r/BURST_P, 1.0f)*0.87f : 0.0f; };
-        pspClockEntrance(sc2, ox, eoy, std::min(1.0f, burstFed(0.0f)),            0.0f,  burstEnv);
-        pspClockEntrance(sc2, ox, eoy, std::min(1.0f, burstFed(BURST_P/3.0f)),    0.42f, burstEnv);
-        pspClockEntrance(sc2, ox, eoy, std::min(1.0f, burstFed(2.0f*BURST_P/3.0f)),0.84f, burstEnv);
+        pspClockEntrance(sc2, ox, eoy, std::min(1.0f, burstFed(0.0f)),         0.0f,  burstA);
+        pspClockEntrance(sc2, ox, eoy, std::min(1.0f, burstFed(BURST_P/3.0f)), 0.42f, burstA);
         const float ICON_P = 0.62f;
         float iconFedA = fmodf(mPspClockReveal, ICON_P) * 0.87f;
         float rIB = mPspClockReveal - ICON_P/2.0f;
@@ -1295,11 +1311,19 @@ void NanoMenu::pspClockBackdropBlur(float amt) {
         && mPspClockAppTexW >= 8 && mPspClockAppTexH >= 8) {
         // Live-app surround: redraw the LIVE captured app opaque every frame (so nano's
         // eLayerSkipScreenshot overlay never leaves a transparent hole - some HWCs read a hole as
-        // black), then dim it with the dark scrim. No blur, no cache: it tracks the live game.
+        // black), then dim it with the dark scrim. Two changes vs the wave path:
+        //  (1) DIM the base by appdim first, because a bright game shown at the scrim's alpha still
+        //      reads too light (the dim wave at the same scrim is dark). appdim knocks a bright game
+        //      down to roughly the wave's brightness so the scrim then lands equally dark on both.
+        //  (2) draw it with a cheap 1-tap textured quad (drawIconTex) rather than the 4-tap frosted
+        //      blit - the surround is dark, needs no frost, and the app-tex fetch is the dominant
+        //      in-app cost, so quartering the taps is the biggest in-app fps lever. The app tex is
+        //      sRGB (no tonemap) and stored upright. persist.gammaos.nano.pspclock.appdim = percent.
+        float appdim = (float)property_get_int32("persist.gammaos.nano.pspclock.appdim", 25) / 100.0f;
+        if (appdim < 0.0f) appdim = 0.0f; if (appdim > 1.0f) appdim = 1.0f;
         setUiBlend();
-        drawFrostedGlass(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f,
-                         1.0f, 1.0f, 1.0f, 1.0f, /*fade=*/1.0f, /*waveSpace=*/true, /*tonemapOverride=*/0.0f,
-                         mPspClockAppTex, mPspClockAppTexW, mPspClockAppTexH);
+        drawIconTex(mPspClockAppTex, 0.0f, 0.0f, (float)mWidth, (float)mHeight,
+                    appdim, appdim, appdim, 1.0f);
         if (scrimA > 0.001f)
             drawQuad(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f, 0.0f, 0.0f, scrimA);
         return;
@@ -1616,7 +1640,13 @@ void NanoMenu::pspClockGlow(float& r, float& g, float& b) const {
 // dominant colour, brightened to mid level with a small lift toward white, so all
 // the glows harmonize with the wallpaper (spec 5.9.4). Throttled by the caller.
 void NanoMenu::pspClockSampleGlow() {
-    GLuint wt = ps3bg::workTex();
+    // Sample the LIVE background behind the clock so the glow takes its dominant colour: the captured
+    // app when a game is running behind us, otherwise the XMB wave. (Was always the wave, so the glow
+    // stayed green over a game.) The app tex is display sRGB (skip the exp2 tonemap below); the wave
+    // is LINEAR (keep it). Skip a not-yet-allocated app tex so we hold the last colour, not garbage.
+    const bool useApp = pspClockUseAppSource();
+    if (useApp && (mPspClockAppTexW < 8 || mPspClockAppTexH < 8)) return;
+    GLuint wt = useApp ? mPspClockAppTex : ps3bg::workTex();
     if (wt == 0) return;
     const int GS = 8;
     if (mPspGlowFbo == 0) {
@@ -1666,10 +1696,13 @@ void NanoMenu::pspClockSampleGlow() {
         if (r+g+b < 24) continue; rS+=r; gS+=g; bS+=b; cnt++; }
     if (cnt == 0) return;
     float ar=rS/cnt, ag=gS/cnt, ab=bS/cnt;
-    // tonemap (workTex is LINEAR) to display space, matching the lens/frost
-    ar = (1.0f - exp2f(-ar/255.0f*1.6846f))*255.0f;
-    ag = (1.0f - exp2f(-ag/255.0f*1.6846f))*255.0f;
-    ab = (1.0f - exp2f(-ab/255.0f*1.6846f))*255.0f;
+    // tonemap (the wave workTex is LINEAR) to display space, matching the lens/frost. The app tex is
+    // already display sRGB, so skip it there (double-tonemapping would wash the game colour out).
+    if (!useApp) {
+        ar = (1.0f - exp2f(-ar/255.0f*1.6846f))*255.0f;
+        ag = (1.0f - exp2f(-ag/255.0f*1.6846f))*255.0f;
+        ab = (1.0f - exp2f(-ab/255.0f*1.6846f))*255.0f;
+    }
     float mxc = std::max(std::max(ar, ag), std::max(ab, 1.0f)), k = 185.0f/mxc;
     ar*=k; ag*=k; ab*=k;
     const float lift=0.12f; ar+=(255-ar)*lift; ag+=(255-ag)*lift; ab+=(255-ab)*lift;
@@ -1968,6 +2001,23 @@ void NanoMenu::pspClockChromeGlowPass(
     const int preOct = (int)lrintf(log2f(1.0f / glowScale));   // octaves supplied by the pre-scale
     int dl = downLevels - preOct; if (dl < 0) dl = 0;           // keep the screen-space blur radius
 
+    // Halo MARGIN (fixes the 6/12 numeral glow being hard-cut at the panel edge): the disc is
+    // slightly taller than the panel, so the top/bottom numerals sit at the edge and their Gaussian
+    // halo clamps at the glow buffer's edge. Grow the buffer by a fixed SCREEN-space margin, render
+    // the shapes into its INTERIOR sub-rect, and blur into the margin ring so the halo feathers off
+    // the panel instead of clamping. ONLY for the cacheable pass (numerals, cacheSlot>=0): it is
+    // baked once at rest so the larger buffer never touches the locked-60fps steady state; the
+    // per-frame ticks/hands/hub pass (cacheSlot<0) keeps the exact panel size (no cost, and it has
+    // no 6/12 shapes to spill). iw/ih = the pre-margin interior; gw/gh become the margined buffer so
+    // every size guard, blurGlassChain and the snapshot stay coherent automatically.
+    int iw = gw, ih = gh, mgx = 0, mgy = 0;
+    if (cacheSlot >= 0) {
+        int gm = (int)property_get_int32("persist.gammaos.nano.pspclock.glowmargin", 64);
+        if (gm < 0) gm = 0; if (gm > 256) gm = 256;
+        mgx = (int)lrintf((float)gm * glowScale); mgy = mgx;
+        gw = iw + 2*mgx; gh = ih + 2*mgy;
+    }
+
     // Static glow cache lookup: this pass's shape COVERAGE is frame-invariant (only the whole
     // clock's Y bobs), so on a valid hit skip the shape-render + Gaussian pyramid entirely and
     // re-composite the cached blurred halo, shifted by the live bob delta below. Invalidate on a
@@ -2005,8 +2055,11 @@ void NanoMenu::pspClockChromeGlowPass(
             return;
         }
         // The shapes are drawn in device->NDC space (viewport-independent), so a smaller viewport
-        // just renders the same disc into fewer pixels - no per-shape coordinate change needed.
-        glViewport(0, 0, gw, gh);
+        // just renders the same disc into fewer pixels - no per-shape coordinate change needed. The
+        // margin (numeral pass only; mgx=mgy=0 otherwise) renders the shapes into the INTERIOR
+        // sub-rect so the surrounding ring can hold the spilled halo. glClear ignores the viewport
+        // (scissor off) so it still clears the FULL buffer to transparent black, margin included.
+        glViewport(mgx, mgy, iw, ih);
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         // Render the shapes in WHITE with normal alpha blending: over the cleared black the
@@ -2057,8 +2110,12 @@ void NanoMenu::pspClockChromeGlowPass(
         shx = sDrmRotMat[0] * dNdcX + sDrmRotMat[2] * dNdcY; // physical = sDrmRotMat * logical
         shy = sDrmRotMat[1] * dNdcX + sDrmRotMat[3] * dNdcY;
     }
-    const GLfloat q[]  = { -1+shx,-1+shy,  1+shx,-1+shy,  1+shx,1+shy,
-                            1+shx, 1+shy, -1+shx, 1+shy, -1+shx,-1+shy };
+    // Map the buffer INTERIOR (where the shapes rendered) onto panel NDC [-1,1] while the margin ring
+    // extends past |1| and is auto-clipped by the panel FBO. sx=sy=1 when there is no margin (ticks
+    // pass), so it composites exactly as before. qt stays 0..1 over the full (margined) buffer.
+    const float sx = (float)gw / (float)iw, sy = (float)gh / (float)ih;
+    const GLfloat q[]  = { -sx+shx,-sy+shy,  sx+shx,-sy+shy,  sx+shx,sy+shy,
+                            sx+shx, sy+shy, -sx+shx, sy+shy, -sx+shx,-sy+shy };
     static const GLfloat qt[] = {  0, 0,  1, 0,  1,1,  1,1,  0,1,  0, 0 };
     GLfloat cols[6*4];
     for (int i = 0; i < 6; i++) { cols[i*4]=gr*alpha; cols[i*4+1]=gg*alpha; cols[i*4+2]=gb*alpha; cols[i*4+3]=1.0f; }
@@ -2471,7 +2528,7 @@ void NanoMenu::pspClockEntrance(float sc, float ox, float oy, float reveal,
         float cr=cosf(rot), sr=sinf(rot);
         auto rp=[&](float px,float py,float&ox2,float&oy2){ ox2=x+px*cr-py*sr; oy2=y+px*sr+py*cr; };
         if (type==0) {
-            const int N=18; float pax,pay; rp(s*0.5f,0,pax,pay);
+            const int N=12; float pax,pay; rp(s*0.5f,0,pax,pay);   // 12-gon reads identical to 18 at burst sizes/alphas
             for(int i=1;i<=N;i++){ float ang=(float)i/N*2*(float)M_PI; float qx,qy; rp(cosf(ang)*s*0.5f,sinf(ang)*s*0.5f,qx,qy); line(pax,pay,qx,qy,R,G,B,a); pax=qx;pay=qy; }
         } else if (type==1) {
             float a0x,a0y,a1x,a1y,b0x,b0y,b1x,b1y;
@@ -2592,8 +2649,13 @@ void NanoMenu::pspClockAmbientGlyphs(float dtMs) {
     auto line=[&](float x0,float y0,float x1,float y1,float r,float g,float b,float a){
         float ux=x1-x0,uy=y1-y0,L=sqrtf(ux*ux+uy*uy); if(L<1e-3f)return; float nx=-uy/L*hw,ny=ux/L*hw;
         drawTriangle(x0+nx,y0+ny,x1+nx,y1+ny,x1-nx,y1-ny,r,g,b,a); drawTriangle(x0+nx,y0+ny,x1-nx,y1-ny,x0-nx,y0-ny,r,g,b,a); };
-    beginSolidBatch();   // 16 flat-colour drifting glyphs -> one draw (byte-identical additive)
-    for(int i=0;i<16;i++){ AG& g=ag[i];
+    // Over a game (P4: over-app is CPU/mirror-bound) halve the drifting-glyph count and alpha so the
+    // one permanent settled-frame batch is lighter; the wallpaper path keeps all 16 at full alpha
+    // (byte-identical) so the home look is unchanged.
+    const bool agApp = pspClockUseAppSource();
+    const int  agN   = agApp ? 8 : 16;
+    beginSolidBatch();   // flat-colour drifting glyphs -> one draw (byte-identical additive)
+    for(int i=0;i<agN;i++){ AG& g=ag[i];
         g.x += g.v*(dtMs/1000.0f)*(0.5f+mPspGlyphBurst*2.0f);
         if(g.x>1.18f){ g.x=-0.18f; g.type=(g.type+1)%4; }
         g.phase += dtMs*0.0012f;
@@ -2601,7 +2663,7 @@ void NanoMenu::pspClockAmbientGlyphs(float dtMs) {
         float gs=g.size*sc;
         pspLensBow(mPspLensValid, mPspLensCx, mPspLensCy, mPspLensR, px, py, gs);
         float cl=clamp01(g.x);
-        float a=(0.14f+mPspGlyphBurst*0.14f)*sinf(cl*(float)M_PI)*mPspDetailFade;   // #4: base 0.05->0.14 (clearly visible behind the settled clock)
+        float a=(0.14f+mPspGlyphBurst*0.14f)*sinf(cl*(float)M_PI)*mPspDetailFade*(agApp?0.5f:1.0f);   // #4: base 0.05->0.14 (clearly visible behind the settled clock); halved over-app
         if(a<=0.008f) continue;
         const float R=205.0f/255.0f,G=238.0f/255.0f,B=255.0f/255.0f; float s=gs;
         if(g.type==0){ const int N=16; float pax=px+s*0.5f,pay=py; for(int k=1;k<=N;k++){ float an=(float)k/N*2*(float)M_PI; float qx=px+cosf(an)*s*0.5f,qy=py+sinf(an)*s*0.5f; line(pax,pay,qx,qy,R,G,B,a); pax=qx;pay=qy; } }
