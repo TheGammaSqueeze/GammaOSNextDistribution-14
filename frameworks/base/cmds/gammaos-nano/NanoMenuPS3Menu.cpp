@@ -4724,7 +4724,11 @@ void NanoMenu::renderPs3Xmb() {
                 ckBox = ps3::devS(24.0f);          // box side (virtual 24px)
                 ckGap = ps3::devS(14.0f);          // gap before the label
                 ckX   = tx;                        // box sits where the label used to start
-                ckY   = ps3::devY(y) - ckBox * 0.5f;  // centred on the row's vertical middle
+                // Centre the box on the LABEL's cap middle, not the row baseline: the label draws
+                // from its top ty up to the baseline devY(y), so its visual centre is the midpoint
+                // of those two. Centring on the baseline alone left the box sitting lower than the
+                // text (the "text higher than the checkbox" misalignment).
+                ckY   = (ty + ps3::devY(y)) * 0.5f - ckBox * 0.5f;
                 tx   += ckBox + ckGap;             // push the label right past the box
             }
             const char* L = trDyn(it.label.c_str());
