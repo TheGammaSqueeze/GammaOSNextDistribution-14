@@ -1335,8 +1335,25 @@ void NanoMenu::pspClockBackdropBlur(float amt) {
     const float darkE = td * td * (3.0f - 2.0f * td);
     const float DARK_MAX = 0.45f;                 // surround dim at full open (the disc stays crisp)
 
+    // Lite backdrop (perf, persist.gammaos.nano.pspclock.blackbg): the blurred surround is the
+    // second-biggest clock cost (a full-screen blur pyramid + composite every frame). On low-end
+    // GPUs, drop it and transition the SURROUND to opaque BLACK instead; the disc/face keeps
+    // refracting the live app or the nano wallpaper, so only the out-of-disc background changes.
+    const bool blackBg = property_get_bool("persist.gammaos.nano.pspclock.blackbg", false);
+
     if (pspClockUseAppSource() && mPspClockAppTex != 0
         && mPspClockAppTexW >= 8 && mPspClockAppTexH >= 8) {
+        if (blackBg) {
+            // Keep an opaque sharp app base so the surround fades FROM the game and never leaves a
+            // transparent hole, then fade it to opaque black - NO blurGlassChain (the expensive part).
+            setUiBlend();
+            drawFrostedGlass(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f,
+                             1.0f, 1.0f, 1.0f, 1.0f, /*fade=*/1.0f, /*waveSpace=*/true, /*tonemapOverride=*/0.0f,
+                             mPspClockAppTex, mPspClockAppTexW, mPspClockAppTexH);
+            if (e > 0.001f)
+                drawQuad(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f, 0.0f, 0.0f, e);
+            return;
+        }
         // One fixed-strength blurred copy of the live app (3 down-levels + 2 Gaussian, the settled
         // frost), computed once and cached in the persistent gBdBlurTex. Because the strength is
         // FIXED (only the cross-fade alpha ramps), the recompute can be throttled to ~30Hz at all
@@ -1389,6 +1406,13 @@ void NanoMenu::pspClockBackdropBlur(float amt) {
     }
     // Wave path (home clock over the XMB wave): the sharp wave is already composited beneath, so
     // just cross-fade a fixed-strength blurred copy over it plus the same darken, same eased ramp.
+    if (blackBg) {
+        // Lite mode: fade the surround to black over the already-composited wave - no blur pyramid.
+        // The disc still refracts the live wave (ps3bg::workTex), so only the out-of-disc bg changes.
+        if (e > 0.001f)
+            drawQuad(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f, 0.0f, 0.0f, e);
+        return;
+    }
     {
         GLuint wt = ps3bg::workTex();
         if (wt == 0) return;
@@ -1905,15 +1929,28 @@ void NanoMenu::pspClockChromeGlowPass(
     if (vw < 16 || vh < 16) return;
     GLint prevFbo = 0; glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prevFbo);
 
-    if (mPspChromeGlowTex == 0 || mPspChromeGlowW != vw || mPspChromeGlowH != vh) {
+    // Reduced-resolution glow (perf): the glow is a heavily-blurred halo with no high-frequency
+    // detail, so rendering the shape coverage + blur pyramid at a FRACTION of the panel resolution
+    // is imperceptible after the Gaussian and cuts this pass - the dominant clock cost on low-end
+    // GPUs - by ~1/scale^2. The composite upsamples with GL_LINEAR. The blur radius in SCREEN space
+    // is preserved by dropping the blur pyramid's downLevels by the octaves the pre-scale already
+    // supplies. persist.gammaos.nano.pspclock.glowres = percent (default 50; clamped 25..100).
+    float glowScale = (float)property_get_int32("persist.gammaos.nano.pspclock.glowres", 50) / 100.0f;
+    if (glowScale < 0.25f) glowScale = 0.25f; if (glowScale > 1.0f) glowScale = 1.0f;
+    int gw = (int)lrintf((float)vw * glowScale); if (gw < 16) gw = 16;
+    int gh = (int)lrintf((float)vh * glowScale); if (gh < 16) gh = 16;
+    const int preOct = (int)lrintf(log2f(1.0f / glowScale));   // octaves supplied by the pre-scale
+    int dl = downLevels - preOct; if (dl < 0) dl = 0;           // keep the screen-space blur radius
+
+    if (mPspChromeGlowTex == 0 || mPspChromeGlowW != gw || mPspChromeGlowH != gh) {
         if (mPspChromeGlowTex == 0) glGenTextures(1, &mPspChromeGlowTex);
         glBindTexture(GL_TEXTURE_2D, mPspChromeGlowTex);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, vw, vh, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, gw, gh, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        mPspChromeGlowW = vw; mPspChromeGlowH = vh;
+        mPspChromeGlowW = gw; mPspChromeGlowH = gh;
     }
     if (mPspChromeGlowFbo == 0) glGenFramebuffers(1, &mPspChromeGlowFbo);
     glBindFramebuffer(GL_FRAMEBUFFER, mPspChromeGlowFbo);
@@ -1923,7 +1960,9 @@ void NanoMenu::pspClockChromeGlowPass(
         glBindFramebuffer(GL_FRAMEBUFFER, prevFbo);
         return;
     }
-    glViewport(0, 0, vw, vh);
+    // The shapes are drawn in device->NDC space (viewport-independent), so a smaller viewport just
+    // renders the same disc into fewer pixels - no per-shape coordinate change needed.
+    glViewport(0, 0, gw, gh);
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT);
     // Render the shapes in WHITE with normal alpha blending: over the cleared black the
@@ -1934,7 +1973,7 @@ void NanoMenu::pspClockChromeGlowPass(
     drawShapes(1.0f, 1.0f, 1.0f, 1.0f);
 
     // Blur the coverage into a soft Gaussian halo (restores the previous FBO+viewport).
-    blurGlassChain(mPspChromeGlowTex, vw, vh, downLevels, gaussIters);
+    blurGlassChain(mPspChromeGlowTex, gw, gh, dl, gaussIters);
     GLuint blur = mGlassBlurTex;
     if (blur == 0) { glBindFramebuffer(GL_FRAMEBUFFER, prevFbo); glViewport(vp[0],vp[1],vp[2],vp[3]); setUiBlend(); return; }
 
