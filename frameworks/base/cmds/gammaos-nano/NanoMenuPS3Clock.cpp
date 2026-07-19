@@ -163,15 +163,6 @@ GLuint                 gMirFlipFbo = 0;             // FBO wrapping mPspClockApp
 struct MirTexEntry { uint64_t id; EGLImageKHR img; GLuint tex; };
 MirTexEntry            gMirCache[8];
 int                    gMirCacheN = 0;
-// Dedicated persistent copy of the app backdrop blur. The heavy blurGlassChain that
-// defocuses the surround is recomputed only every Nth frame (the surround is blurred +
-// darkened and has NO parallax, so 30Hz is visually identical to 60Hz) and copied here;
-// the frost blit then reads THIS every frame, immune to the chrome-glow pass clobbering
-// the shared mGlassBlurTex. gBdValid gates the first-frame recompute.
-GLuint                 gBdBlurTex = 0, gBdBlurFbo = 0;
-int                    gBdBlurW = 0, gBdBlurH = 0;
-bool                   gBdValid = false;
-int                    gBdTick = 0;
 BufferItem             gMirHeld;                    // buffer held for release next frame (GPU-read safety)
 bool                   gMirHasHeld = false;
 // Minimal V-flip copy program (mirror src -> mPspClockAppTex).
@@ -773,10 +764,6 @@ void NanoMenu::pspClockMirrorStop() {
     }
     if (gMirConsumer != nullptr) { gMirConsumer->abandon(); gMirConsumer = nullptr; }
     if (gMirFlipFbo) { glDeleteFramebuffers(1, &gMirFlipFbo); gMirFlipFbo = 0; }
-    // Throttled backdrop-blur copy: drop it so the next summon recomputes from frame 0.
-    if (gBdBlurTex) { glDeleteTextures(1, &gBdBlurTex); gBdBlurTex = 0; }
-    if (gBdBlurFbo) { glDeleteFramebuffers(1, &gBdBlurFbo); gBdBlurFbo = 0; }
-    gBdBlurW = gBdBlurH = 0; gBdValid = false; gBdTick = 0;
     gMirActive = false;
 }
 
@@ -1285,167 +1272,43 @@ void NanoMenu::drawPspClock(float dtMs) {
 // blit it full-screen, then a mild darken. (The disc will be drawn as a crisp
 // opaque stamp on top in a later stage, which masks the hole - no stencil.)
 // -----------------------------------------------------------------------------
-// Render-thread. Copy the freshly-computed mGlassBlurTex into the persistent gBdBlurTex
-// (reusing the mirror's straight-copy program, uFlip=0) so the throttled frost blit can
-// re-read it on skipped frames without the chrome glow having clobbered mGlassBlurTex.
-void NanoMenu::pspClockCopyBlurToBackdrop() {
-    if (gMirProg == 0 || mGlassBlurTex == 0 || mGlassBlurW <= 0 || mGlassBlurH <= 0) return;
-    if (gBdBlurTex == 0 || gBdBlurW != mGlassBlurW || gBdBlurH != mGlassBlurH) {
-        if (gBdBlurTex == 0) glGenTextures(1, &gBdBlurTex);
-        glBindTexture(GL_TEXTURE_2D, gBdBlurTex);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, mGlassBlurW, mGlassBlurH, 0,
-                     GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        gBdBlurW = mGlassBlurW; gBdBlurH = mGlassBlurH;
-    }
-    if (gBdBlurFbo == 0) glGenFramebuffers(1, &gBdBlurFbo);
-    // Snapshot the state this helper changes and restore it exactly. Leaking a disabled blend
-    // makes the later darken drawQuad write OPAQUE black (blanking the surround); leaking a
-    // logical-sized viewport miscovers the rotated surround. Both showed as the backdrop flicker.
-    GLint prevFbo = 0; glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prevFbo);
-    GLint prevVp[4]; glGetIntegerv(GL_VIEWPORT, prevVp);
-    GLboolean prevBlend = glIsEnabled(GL_BLEND);
-    glBindFramebuffer(GL_FRAMEBUFFER, gBdBlurFbo);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gBdBlurTex, 0);
-    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE) {
-        glViewport(0, 0, mGlassBlurW, mGlassBlurH);
-        glDisable(GL_BLEND);
-        glUseProgram(gMirProg);
-        static const GLfloat pos[] = { -1,-1,  1,-1, -1, 1,  1, 1 };
-        static const GLfloat uv[]  = {  0, 0,  1, 0,  0, 1,  1, 1 };
-        glVertexAttribPointer(gMirPos, 2, GL_FLOAT, GL_FALSE, 0, pos);
-        glEnableVertexAttribArray(gMirPos);
-        glVertexAttribPointer(gMirUV, 2, GL_FLOAT, GL_FALSE, 0, uv);
-        glEnableVertexAttribArray(gMirUV);
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, mGlassBlurTex);
-        glUniform1i(gMirSamp, 0);
-        glUniform1f(gMirFlip, 0.0f);   // straight copy, no V-flip
-        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-        glDisableVertexAttribArray(gMirPos);
-        glDisableVertexAttribArray(gMirUV);
-    }
-    glBindFramebuffer(GL_FRAMEBUFFER, (GLuint)prevFbo);
-    glViewport(prevVp[0], prevVp[1], prevVp[2], prevVp[3]);
-    if (prevBlend) glEnable(GL_BLEND); else glDisable(GL_BLEND);
-}
-
+// Stage 1: the surround OUTSIDE the glass disc - a dark live scrim (see below).
+// -----------------------------------------------------------------------------
 void NanoMenu::pspClockBackdropBlur(float amt) {
     if (amt <= 0.0f) return;
-    // amt = pspClockReveal (0..1 over the 5000ms open / 2700ms close). The surround behind the
-    // glass disc eases from the crisp live background into a soft blurred + darkened defocus and
-    // back, tracking the reveal so it is fully settled exactly when the clock settles. The whole
-    // point: the ramp is a CONTINUOUS eased alpha cross-fade over a SINGLE fixed-strength blur,
-    // NOT a stepped blur radius (which jumped/juddered). The heavy blur is computed once and
-    // cached; each frame only issues a few cheap full-screen blits, so it holds a smooth 60fps on
-    // the Mali-G52. A gentle smoothstep gives the slow, unhurried build the user asked for.
+    // amt = pspClockReveal (0..1 over the 5000ms open / 2700ms close). The area OUTSIDE the glass
+    // disc keeps the LIVE moving background - the composited XMB wave, or the live-app capture - and
+    // is simply dimmed by a dark near-black scrim that eases in with the reveal. NO blur pyramid and
+    // NO frozen snapshot: the surround stays fully live and costs only a couple of full-screen quads,
+    // so it holds a locked 60fps on low-end GPUs (PowerVR GE8300) while the moving background still
+    // reads through. The disc/face still refract the live wave/app, unchanged.
+    // persist.gammaos.nano.pspclock.scrim = percent black at full open (default 70 -> the surround
+    // dims to ~30% brightness, dark but with the live motion clearly reading through; 100 = fully
+    // opaque black). The eased 'e' ramps the scrim in over the reveal.
     float t = amt > 1.0f ? 1.0f : amt;
-    const float e = t * t * (3.0f - 2.0f * t);   // smoothstep: slow ease-in, slow settle (the blur)
-    // The DARKEN leads the blur: it ramps 3x faster (full by reveal ~1/3) so the surround dims
-    // quickly to pull focus onto the disc while the defocus keeps building gently behind it.
-    float td = t * 3.0f; if (td > 1.0f) td = 1.0f;
-    const float darkE = td * td * (3.0f - 2.0f * td);
-    const float DARK_MAX = 0.45f;                 // surround dim at full open (the disc stays crisp)
-
-    // Backdrop mode (persist.gammaos.nano.pspclock.blackbg, DEFAULT ON): the blurred surround is
-    // the second-biggest clock cost - a full-screen blur pyramid + composite EVERY frame, which on
-    // the target low-end GPUs (PowerVR GE8300 etc.) alone drops the clock from ~60fps to ~27. So by
-    // default the SURROUND transitions to opaque BLACK instead; the disc/face still refracts the
-    // live app or the nano wallpaper, so only the out-of-disc background changes (the one accepted
-    // visible trade for a locked 60). Set the prop to 0 on a GPU that can afford the full-res
-    // blurred defocus to restore the 1:1 surround.
-    const bool blackBg = property_get_bool("persist.gammaos.nano.pspclock.blackbg", true);
+    const float e = t * t * (3.0f - 2.0f * t);   // smoothstep: slow, unhurried ease-in of the scrim
+    float scrim = (float)property_get_int32("persist.gammaos.nano.pspclock.scrim", 70) / 100.0f;
+    if (scrim < 0.0f) scrim = 0.0f; if (scrim > 1.0f) scrim = 1.0f;
+    const float scrimA = e * scrim;
 
     if (pspClockUseAppSource() && mPspClockAppTex != 0
         && mPspClockAppTexW >= 8 && mPspClockAppTexH >= 8) {
-        if (blackBg) {
-            // Keep an opaque sharp app base so the surround fades FROM the game and never leaves a
-            // transparent hole, then fade it to opaque black - NO blurGlassChain (the expensive part).
-            setUiBlend();
-            drawFrostedGlass(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f,
-                             1.0f, 1.0f, 1.0f, 1.0f, /*fade=*/1.0f, /*waveSpace=*/true, /*tonemapOverride=*/0.0f,
-                             mPspClockAppTex, mPspClockAppTexW, mPspClockAppTexH);
-            if (e > 0.001f)
-                drawQuad(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f, 0.0f, 0.0f, e);
-            return;
-        }
-        // One fixed-strength blurred copy of the live app (3 down-levels + 2 Gaussian, the settled
-        // frost), computed once and cached in the persistent gBdBlurTex. Because the strength is
-        // FIXED (only the cross-fade alpha ramps), the recompute can be throttled to ~30Hz at all
-        // times - the game content changes, the blur strength does not - which is what frees the
-        // budget for a locked 60. The dedicated copy keeps the later chrome-glow blurGlassChain
-        // from clobbering the shared mGlassBlurTex between the recompute and the blit.
-        int div = (int)property_get_int32("persist.gammaos.nano.pspclock.blurdiv", 2);
-        if (div < 1) div = 1; if (div > 4) div = 4;
-        bool useBackdropTex = false;
-        if (gMirProg != 0) {
-            const bool recompute = !gBdValid || (gBdTick % div) == 0;
-            gBdTick++;
-            if (recompute) {
-                blurGlassChain(mPspClockAppTex, mPspClockAppTexW, mPspClockAppTexH, 3, 2);
-                if (mGlassBlurTex != 0 && mGlassBlurW > 0 && mGlassBlurH > 0) {
-                    pspClockCopyBlurToBackdrop();   // mGlassBlurTex -> gBdBlurTex (persistent)
-                    gBdValid = true;
-                }
-            }
-            useBackdropTex = gBdValid;
-        } else {
-            // No copy program available: recompute into the shared mGlassBlurTex and blit it.
-            blurGlassChain(mPspClockAppTex, mPspClockAppTexW, mPspClockAppTexH, 3, 2);
-        }
-        setUiBlend();   // the cross-fade + darken need the standard alpha blend
-        // 1) SHARP live-app base, OPAQUE: real app pixels at alpha 1 across the whole surround
-        //    every frame, so nano's eLayerSkipScreenshot overlay never leaves a transparent hole
-        //    (the T618 HWC reads such a hole as black). During the entrance this is the crisp game
-        //    the exploding glyphs play over.
+        // Live-app surround: redraw the LIVE captured app opaque every frame (so nano's
+        // eLayerSkipScreenshot overlay never leaves a transparent hole - some HWCs read a hole as
+        // black), then dim it with the dark scrim. No blur, no cache: it tracks the live game.
+        setUiBlend();
         drawFrostedGlass(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f,
                          1.0f, 1.0f, 1.0f, 1.0f, /*fade=*/1.0f, /*waveSpace=*/true, /*tonemapOverride=*/0.0f,
                          mPspClockAppTex, mPspClockAppTexW, mPspClockAppTexH);
-        // Clock Live Backdrop toggle. ON: cross-fade the live blurred game in with the reveal so it
-        // stays readable behind the glass. OFF: blit the blurred copy FULLY (fade=1) and darken
-        // hard, so the game is unreadable frost under an opaque dark cover (night-mode, game hidden)
-        // - still fully opaque, so the eLayerSkipScreenshot surround never falls through to black.
-        const bool liveBg = pspClockLiveBackdropOn();
-        // 2) Blurred copy over the sharp base.
-        const float blurFade = liveBg ? e : 1.0f;
-        if (blurFade > 0.001f)
-            drawFrostedGlass(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f,
-                             1.0f, 1.0f, 1.0f, 1.0f, /*fade=*/blurFade, /*waveSpace=*/true, /*tonemapOverride=*/0.0f,
-                             useBackdropTex ? gBdBlurTex : 0, gBdBlurW, gBdBlurH);
-        // 3) Darken. ON: a gentle dim that pulls focus to the disc. OFF: a heavy dim that, over the
-        //    full frost above, hides the game entirely. Both ramp with the reveal.
-        const float dark = liveBg ? (DARK_MAX * darkE) : (0.82f * darkE);
-        if (dark > 0.001f)
-            drawQuad(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f, 0.0f, 0.0f, dark);
+        if (scrimA > 0.001f)
+            drawQuad(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f, 0.0f, 0.0f, scrimA);
         return;
     }
-    // Wave path (home clock over the XMB wave): the sharp wave is already composited beneath, so
-    // just cross-fade a fixed-strength blurred copy over it plus the same darken, same eased ramp.
-    if (blackBg) {
-        // Lite mode: fade the surround to black over the already-composited wave - no blur pyramid.
-        // The disc still refracts the live wave (ps3bg::workTex), so only the out-of-disc bg changes.
-        if (e > 0.001f)
-            drawQuad(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f, 0.0f, 0.0f, e);
-        return;
-    }
-    {
-        GLuint wt = ps3bg::workTex();
-        if (wt == 0) return;
-        int fw = (int)(ps3::gFrameW + 0.5f), fh = (int)(ps3::gFrameH + 0.5f);
-        if (fw < 8 || fh < 8) return;
-        blurGlassChain(wt, fw, fh, 3, 2);
-    }
-    // Full-screen frosted blit (waveSpace maps texcoords to the wave FBO); fade = eased reveal so
-    // the defocus cross-fades in over the crisp wave and back out on close.
-    if (e > 0.001f)
-        drawFrostedGlass(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f,
-                         1.0f, 1.0f, 1.0f, 0.0f, e, /*waveSpace=*/true);
-    const float dark = DARK_MAX * darkE;
-    if (dark > 0.001f)
-        drawQuad(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f, 0.0f, 0.0f, dark);
+    // Wave path (home clock over the XMB wave): the LIVE wave is already composited beneath, so just
+    // dim it with the scrim - nothing else to draw, fully live and cheap.
+    setUiBlend();
+    if (scrimA > 0.001f)
+        drawQuad(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f, 0.0f, 0.0f, scrimA);
 }
 
 // -----------------------------------------------------------------------------
@@ -1577,8 +1440,10 @@ void NanoMenu::pspClockLens(float cr) {
     // the SAME sDrmRotMat the direct draw applies to the disc geometry, so the disc lands exactly
     // where it would and this is correct under every panel rotation AND the PRIME scanout flip -
     // the FBO only holds the disc's logical refraction, per-vertex mapped just like the direct
-    // draw. persist.gammaos.nano.pspclock.lensres = percent (default 100 = direct).
-    float lensScale = (float)property_get_int32("persist.gammaos.nano.pspclock.lensres", 100) / 100.0f;
+    // draw. persist.gammaos.nano.pspclock.lensres = percent (default 50: the disc background is a
+    // magnified, frosted, low-frequency view, so a half-res render is imperceptible and this is the
+    // biggest single fps lever on the GPU-bound low-end panel; 100 = full-res direct draw).
+    float lensScale = (float)property_get_int32("persist.gammaos.nano.pspclock.lensres", 50) / 100.0f;
     if (lensScale < 0.5f) lensScale = 0.5f; if (lensScale > 1.0f) lensScale = 1.0f;
     bool useRedLens = (lensScale < 0.999f) && (mTextProgram != 0);
     GLint lensPrevFbo = 0, lensPrevVp[4] = {0,0,0,0};
@@ -2095,8 +1960,8 @@ void NanoMenu::pspClockChromeGlowPass(
     // is imperceptible after the Gaussian and cuts this pass - the dominant clock cost on low-end
     // GPUs - by ~1/scale^2. The composite upsamples with GL_LINEAR. The blur radius in SCREEN space
     // is preserved by dropping the blur pyramid's downLevels by the octaves the pre-scale already
-    // supplies. persist.gammaos.nano.pspclock.glowres = percent (default 50; clamped 25..100).
-    float glowScale = (float)property_get_int32("persist.gammaos.nano.pspclock.glowres", 50) / 100.0f;
+    // supplies. persist.gammaos.nano.pspclock.glowres = percent (default 40; clamped 25..100).
+    float glowScale = (float)property_get_int32("persist.gammaos.nano.pspclock.glowres", 40) / 100.0f;
     if (glowScale < 0.25f) glowScale = 0.25f; if (glowScale > 1.0f) glowScale = 1.0f;
     int gw = (int)lrintf((float)vw * glowScale); if (gw < 16) gw = 16;
     int gh = (int)lrintf((float)vh * glowScale); if (gh < 16) gh = 16;
@@ -2346,12 +2211,21 @@ void NanoMenu::pspClockFace(float reveal, float /*floatY*/, float /*descentFrac*
                                  return (int64_t)t.tv_sec * 1000000000LL + t.tv_nsec; };
     static double sFA = 0, sFB = 0; static int sFN = 0; static int64_t sFLast = 0;
     int64_t fA0 = fprof ? (glFinish(), fNs()) : 0;
-    // Numerals: cacheable (slot 0). Their coverage never changes - only the whole clock bobs -
-    // so the wide halo is baked once and re-composited at the live bob offset, skipping the
-    // per-frame shape-render + widest Gaussian pyramid (the single biggest steady-state FACE cost).
+    // Numerals: cacheable (slot 0). Their coverage never changes - only the whole clock bobs - so
+    // the wide halo is baked once and re-composited at the live bob offset, skipping the per-frame
+    // shape-render + widest Gaussian pyramid (the single biggest steady-state FACE cost). CRUCIAL:
+    // only cache once the clock is SETTLED. During the entrance the disc descends ~870px into its
+    // rest slot; baking mid-descent then tracking it with that huge shift pushes the composite
+    // off-screen, so the numeral glow vanishes (the reported regression). But the gate must also
+    // sit WELL BELOW where reveal settles: `reveal` here is clockReveal = (mPspClockReveal-0.3)/0.7,
+    // which lands right at ~0.999, so a 0.999 gate FLICKERS true/false at rest and the cache only
+    // hits ~2/3 of frames (glowA measured 3.3ms vs the 1.3ms cached, costing ~6fps). Gating at 0.9
+    // is stably true at rest (the disc is within ~5px of its slot by then, so the shift stays tiny
+    // and the halo stays locked) while the entrance still renders the glow live.
     pspClockChromeGlowPass(
         [&](float r,float g,float b,float a){ drawNumeralGlyphs(r,g,b,a); },
-        2, 2, gr, gg, gb, 1.05f * glowPulse, /*cacheSlot*/0, /*cacheable*/mPspGlyphBaked);
+        2, 2, gr, gg, gb, 1.05f * glowPulse,
+        /*cacheSlot*/0, /*cacheable*/(mPspGlyphBaked && reveal >= 0.9f));
     int64_t fB0 = fprof ? (glFinish(), fNs()) : 0;
     pspClockChromeGlowPass(
         [&](float r,float g,float b,float a){
