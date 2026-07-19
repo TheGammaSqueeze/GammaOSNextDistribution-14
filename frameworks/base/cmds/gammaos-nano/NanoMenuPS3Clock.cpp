@@ -1468,7 +1468,11 @@ static const char PSP_LENS_FS[] = R"(
     void main() {
         vec2 n = vLocal / uHalf;          // normalized disc coords, |n|=1 at rim
         float t = length(n);
-        if (t > 1.0) discard;             // outside the disc -> blur shows
+        // Outside the disc: emit a fully-transparent fragment instead of discard. Under the lens's
+        // SRC_ALPHA/ONE_MINUS_SRC_ALPHA blend, alpha 0 leaves the backdrop untouched - visually
+        // identical to discard - but avoids the punch-through path that makes discard costly on the
+        // Brick's PowerVR TBDR, and early-outs before the refraction math + texture fetch.
+        if (t > 1.0) { gl_FragColor = vec4(0.0); return; }
         const float BEVEL = 0.98, EDGE = 1.10, P = 1.8;
         const float baseSrc = 0.98;       // BEVEL/M, M=1
         float srcT;
@@ -1914,10 +1918,71 @@ void NanoMenu::pspClockBakeGlyphs() {
 // This replaces the old stacked expanding copies, which banded into a hard stroke.
 // downLevels/gaussIters set the halo width (more = wider/softer).
 // -----------------------------------------------------------------------------
+// Snapshot the freshly-blurred mGlassBlurTex into the persistent per-slot glow cache so a later
+// frame can re-composite it without re-rendering the shapes + re-running the Gaussian pyramid. A
+// straight identity-rotation copy through mTextProgram (the same program the composite uses right
+// after, so it is available in BOTH wallpaper and over-app modes - gMirProg only exists once the
+// app mirror is set up). Saves+restores the FBO/viewport/blend it touches (a leaked disabled-blend
+// would blank the next additive draw). Leaves mPspGlowCacheTex[slot]==0 if it cannot copy, so the
+// caller falls back to the live blur that frame.
+void NanoMenu::pspClockSnapshotGlow(int slot) {
+    if (slot < 0 || slot >= 2) return;
+    if (mTextProgram == 0 || mGlassBlurTex == 0 || mGlassBlurW <= 0 || mGlassBlurH <= 0) return;
+    if (mPspGlowCacheTex[slot] == 0 ||
+        mPspGlowCacheW[slot] != mGlassBlurW || mPspGlowCacheH[slot] != mGlassBlurH) {
+        if (mPspGlowCacheTex[slot] == 0) glGenTextures(1, &mPspGlowCacheTex[slot]);
+        glBindTexture(GL_TEXTURE_2D, mPspGlowCacheTex[slot]);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, mGlassBlurW, mGlassBlurH, 0,
+                     GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        mPspGlowCacheW[slot] = mGlassBlurW; mPspGlowCacheH[slot] = mGlassBlurH;
+    }
+    if (mPspGlowCacheFbo[slot] == 0) glGenFramebuffers(1, &mPspGlowCacheFbo[slot]);
+    GLint prevFbo = 0; glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prevFbo);
+    GLint prevVp[4]; glGetIntegerv(GL_VIEWPORT, prevVp);
+    GLboolean prevBlend = glIsEnabled(GL_BLEND);
+    glBindFramebuffer(GL_FRAMEBUFFER, mPspGlowCacheFbo[slot]);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
+                           mPspGlowCacheTex[slot], 0);
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE) {
+        glViewport(0, 0, mGlassBlurW, mGlassBlurH);
+        glDisable(GL_BLEND);
+        static const GLfloat q[]  = { -1,-1,  1,-1,  1,1,  1,1, -1,1, -1,-1 };
+        static const GLfloat qt[] = {  0, 0,  1, 0,  1,1,  1,1,  0,1,  0, 0 };
+        static const GLfloat white[6*4] = { 1,1,1,1, 1,1,1,1, 1,1,1,1, 1,1,1,1, 1,1,1,1, 1,1,1,1 };
+        static const GLfloat ident[4] = { 1.0f, 0.0f, 0.0f, 1.0f };
+        glUseProgram(mTextProgram);
+        if (mTextLocSharp >= 0) glUniform1f(mTextLocSharp, 0.0f);
+        glUniformMatrix2fv(mTextLocRotation, 1, GL_FALSE, ident);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, mGlassBlurTex);
+        glUniform1i(mTextLocTexture, 0);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glVertexAttribPointer(mTextLocPosition, 2, GL_FLOAT, GL_FALSE, 0, q);
+        glEnableVertexAttribArray(mTextLocPosition);
+        glVertexAttribPointer(mTextLocTexCoord, 2, GL_FLOAT, GL_FALSE, 0, qt);
+        glEnableVertexAttribArray(mTextLocTexCoord);
+        glVertexAttribPointer(mTextLocColor, 4, GL_FLOAT, GL_FALSE, 0, white);
+        glEnableVertexAttribArray(mTextLocColor);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+        glDisableVertexAttribArray(mTextLocPosition);
+        glDisableVertexAttribArray(mTextLocTexCoord);
+        glDisableVertexAttribArray(mTextLocColor);
+        glUniformMatrix2fv(mTextLocRotation, 1, GL_FALSE, sDrmRotMat);   // restore scene rotation
+    }
+    glBindFramebuffer(GL_FRAMEBUFFER, (GLuint)prevFbo);
+    glViewport(prevVp[0], prevVp[1], prevVp[2], prevVp[3]);
+    if (prevBlend) glEnable(GL_BLEND); else glDisable(GL_BLEND);
+}
+
 void NanoMenu::pspClockChromeGlowPass(
         const std::function<void(float,float,float,float)>& drawShapes,
         int downLevels, int gaussIters,
-        float gr, float gg, float gb, float alpha) {
+        float gr, float gg, float gb, float alpha,
+        int cacheSlot, bool cacheable) {
     if (alpha <= 0.002f) return;
     if (mGlassDownProgram == 0) return;   // blur pipeline not ready -> skip (never a hard fill)
 
@@ -1942,40 +2007,72 @@ void NanoMenu::pspClockChromeGlowPass(
     const int preOct = (int)lrintf(log2f(1.0f / glowScale));   // octaves supplied by the pre-scale
     int dl = downLevels - preOct; if (dl < 0) dl = 0;           // keep the screen-space blur radius
 
-    if (mPspChromeGlowTex == 0 || mPspChromeGlowW != gw || mPspChromeGlowH != gh) {
-        if (mPspChromeGlowTex == 0) glGenTextures(1, &mPspChromeGlowTex);
-        glBindTexture(GL_TEXTURE_2D, mPspChromeGlowTex);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, gw, gh, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        mPspChromeGlowW = gw; mPspChromeGlowH = gh;
-    }
-    if (mPspChromeGlowFbo == 0) glGenFramebuffers(1, &mPspChromeGlowFbo);
-    glBindFramebuffer(GL_FRAMEBUFFER, mPspChromeGlowFbo);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
-                           GL_TEXTURE_2D, mPspChromeGlowTex, 0);
-    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-        glBindFramebuffer(GL_FRAMEBUFFER, prevFbo);
-        return;
-    }
-    // The shapes are drawn in device->NDC space (viewport-independent), so a smaller viewport just
-    // renders the same disc into fewer pixels - no per-shape coordinate change needed.
-    glViewport(0, 0, gw, gh);
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
-    // Render the shapes in WHITE with normal alpha blending: over the cleared black the
-    // RGB channel holds shape coverage (1 in the solid body, the AA ramp at the edges),
-    // which is exactly what we blur into a halo.
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    drawShapes(1.0f, 1.0f, 1.0f, 1.0f);
+    // Static glow cache lookup: this pass's shape COVERAGE is frame-invariant (only the whole
+    // clock's Y bobs), so on a valid hit skip the shape-render + Gaussian pyramid entirely and
+    // re-composite the cached blurred halo, shifted by the live bob delta below. Invalidate on a
+    // resolution or disc-size/centre change (resize / rotate / glowres / entrance re-scale).
+    const bool cacheEnabled = (cacheSlot >= 0 && cacheSlot < 2 &&
+                               property_get_bool("persist.gammaos.nano.pspclock.glowcache", true));
+    if (cacheEnabled && (mPspGlowCacheW[cacheSlot] != gw || mPspGlowCacheH[cacheSlot] != gh ||
+                         fabsf(mPspGlowCacheR[cacheSlot]  - mPspLensR)  > 0.5f ||
+                         fabsf(mPspGlowCacheCx[cacheSlot] - mPspLensCx) > 0.5f))
+        mPspGlowCacheValid[cacheSlot] = false;
 
-    // Blur the coverage into a soft Gaussian halo (restores the previous FBO+viewport).
-    blurGlassChain(mPspChromeGlowTex, gw, gh, dl, gaussIters);
-    GLuint blur = mGlassBlurTex;
-    if (blur == 0) { glBindFramebuffer(GL_FRAMEBUFFER, prevFbo); glViewport(vp[0],vp[1],vp[2],vp[3]); setUiBlend(); return; }
+    GLuint blur = 0;
+    bool   usingCache = false;
+    if (cacheEnabled && cacheable && mPspGlowCacheValid[cacheSlot] &&
+        mPspGlowCacheTex[cacheSlot] != 0) {
+        blur = mPspGlowCacheTex[cacheSlot];   // HIT: no render, no blur - straight to composite
+        usingCache = true;
+    } else {
+        if (mPspChromeGlowTex == 0 || mPspChromeGlowW != gw || mPspChromeGlowH != gh) {
+            if (mPspChromeGlowTex == 0) glGenTextures(1, &mPspChromeGlowTex);
+            glBindTexture(GL_TEXTURE_2D, mPspChromeGlowTex);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, gw, gh, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+            mPspChromeGlowW = gw; mPspChromeGlowH = gh;
+        }
+        if (mPspChromeGlowFbo == 0) glGenFramebuffers(1, &mPspChromeGlowFbo);
+        glBindFramebuffer(GL_FRAMEBUFFER, mPspChromeGlowFbo);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+                               GL_TEXTURE_2D, mPspChromeGlowTex, 0);
+        if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+            glBindFramebuffer(GL_FRAMEBUFFER, prevFbo);
+            return;
+        }
+        // The shapes are drawn in device->NDC space (viewport-independent), so a smaller viewport
+        // just renders the same disc into fewer pixels - no per-shape coordinate change needed.
+        glViewport(0, 0, gw, gh);
+        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+        // Render the shapes in WHITE with normal alpha blending: over the cleared black the
+        // RGB channel holds shape coverage (1 in the solid body, the AA ramp at the edges),
+        // which is exactly what we blur into a halo.
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        drawShapes(1.0f, 1.0f, 1.0f, 1.0f);
+
+        // Blur the coverage into a soft Gaussian halo (restores the previous FBO+viewport).
+        blurGlassChain(mPspChromeGlowTex, gw, gh, dl, gaussIters);
+        blur = mGlassBlurTex;
+        if (blur == 0) { glBindFramebuffer(GL_FRAMEBUFFER, prevFbo); glViewport(vp[0],vp[1],vp[2],vp[3]); setUiBlend(); return; }
+
+        // Populate the cache from this fresh blur so subsequent frames skip render+blur. Anchor the
+        // bob at the position it was baked (mPspLensCy) so the composite shift is 0 this frame.
+        if (cacheEnabled && cacheable) {
+            pspClockSnapshotGlow(cacheSlot);
+            if (mPspGlowCacheTex[cacheSlot] != 0) {
+                blur = mPspGlowCacheTex[cacheSlot];
+                mPspGlowCacheW[cacheSlot]  = gw;         mPspGlowCacheH[cacheSlot]  = gh;
+                mPspGlowCacheR[cacheSlot]  = mPspLensR;  mPspGlowCacheCx[cacheSlot] = mPspLensCx;
+                mPspGlowCacheCy[cacheSlot] = mPspLensCy; mPspGlowCacheValid[cacheSlot] = true;
+                usingCache = true;
+            }
+        }
+    }
 
     // Composite the blurred coverage additively in the glow colour, as a 1:1 full-screen
     // copy with IDENTITY rotation: the buffer already carries the scene rotation (the
@@ -1984,7 +2081,23 @@ void NanoMenu::pspClockChromeGlowPass(
     glViewport(vp[0], vp[1], vp[2], vp[3]);
     glEnable(GL_BLEND);
     glBlendFunc(GL_ONE, GL_ONE);   // additive; colour * texel.rgb(=coverage) is the intensity
-    static const GLfloat q[]  = { -1,-1,  1,-1,  1,1,  1,1, -1,1, -1,-1 };
+    // Bob tracking: the cached halo was baked at mPspGlowCacheCy; slide the full-screen composite
+    // quad by the live centre delta so the cached numerals ride the idle float/descent/swipe exactly
+    // as the crisp cores do (a rigid-body shift). The delta is a LOGICAL device-px offset (mPspLensCx
+    // constant, Cy bobs); map it to physical NDC through sDrmRotMat so it stays correct under any
+    // panel rotation (identity on the Brick -> a straight Y slide). Zero on the bake frame and for
+    // the live (non-cached) passes, so those composite exactly as before.
+    float shx = 0.0f, shy = 0.0f;
+    if (usingCache) {
+        const float dXpx = mPspLensCx - mPspGlowCacheCx[cacheSlot];
+        const float dYpx = mPspLensCy - mPspGlowCacheCy[cacheSlot];
+        const float dNdcX =  2.0f * dXpx / (float)mWidth;    // screen +x in NDC
+        const float dNdcY = -2.0f * dYpx / (float)mHeight;   // device y-down -> NDC y-up
+        shx = sDrmRotMat[0] * dNdcX + sDrmRotMat[2] * dNdcY; // physical = sDrmRotMat * logical
+        shy = sDrmRotMat[1] * dNdcX + sDrmRotMat[3] * dNdcY;
+    }
+    const GLfloat q[]  = { -1+shx,-1+shy,  1+shx,-1+shy,  1+shx,1+shy,
+                            1+shx, 1+shy, -1+shx, 1+shy, -1+shx,-1+shy };
     static const GLfloat qt[] = {  0, 0,  1, 0,  1,1,  1,1,  0,1,  0, 0 };
     GLfloat cols[6*4];
     for (int i = 0; i < 6; i++) { cols[i*4]=gr*alpha; cols[i*4+1]=gg*alpha; cols[i*4+2]=gb*alpha; cols[i*4+3]=1.0f; }
@@ -2129,9 +2242,21 @@ void NanoMenu::pspClockFace(float reveal, float /*floatY*/, float /*descentFrac*
     // Numerals get a WIDE halo (web shadowBlur 12+7); the ticks/hands/hub a TIGHTER
     // one (web shadowBlur 3/4/6). The ticks are gated by detailFade so their glow
     // fades in with the crisp bars. glowPulse breathes it gently.
+    // FACE sub-profiler (persist.gammaos.nano.pspclock.faceprof=1, default OFF): glFinish-bracket
+    // the numeral vs ticks/hands/hub glow passes to split the FACE cost (glow-A / glow-B / crisp).
+    // Separate prop so it never perturbs the main per-pass profiler; on only when tuning the FACE.
+    const bool fprof = property_get_bool("persist.gammaos.nano.pspclock.faceprof", false);
+    auto fNs = []() -> int64_t { struct timespec t; clock_gettime(CLOCK_MONOTONIC, &t);
+                                 return (int64_t)t.tv_sec * 1000000000LL + t.tv_nsec; };
+    static double sFA = 0, sFB = 0; static int sFN = 0; static int64_t sFLast = 0;
+    int64_t fA0 = fprof ? (glFinish(), fNs()) : 0;
+    // Numerals: cacheable (slot 0). Their coverage never changes - only the whole clock bobs -
+    // so the wide halo is baked once and re-composited at the live bob offset, skipping the
+    // per-frame shape-render + widest Gaussian pyramid (the single biggest steady-state FACE cost).
     pspClockChromeGlowPass(
         [&](float r,float g,float b,float a){ drawNumeralGlyphs(r,g,b,a); },
-        2, 2, gr, gg, gb, 1.05f * glowPulse);
+        2, 2, gr, gg, gb, 1.05f * glowPulse, /*cacheSlot*/0, /*cacheable*/mPspGlyphBaked);
+    int64_t fB0 = fprof ? (glFinish(), fNs()) : 0;
     pspClockChromeGlowPass(
         [&](float r,float g,float b,float a){
             // All flat-colour: batch the ~170 tick/hand/hub triangles into one draw before
@@ -2144,6 +2269,16 @@ void NanoMenu::pspClockFace(float reveal, float /*floatY*/, float /*descentFrac*
             endSolidBatch();
         },
         2, 1, gr, gg, gb, 0.90f * glowPulse);
+    if (fprof) {
+        int64_t fB1 = (glFinish(), fNs());
+        sFA += (fB0 - fA0) / 1000.0; sFB += (fB1 - fB0) / 1000.0; sFN++;
+        if (sFLast == 0) sFLast = fB1;
+        if (fB1 - sFLast > 1000000000LL && sFN > 0) {
+            ALOGI("pspclock faceprof (us/frame, %d frm): glowA(numerals)=%.0f glowB(ticks/hands/hub)=%.0f",
+                  sFN, sFA / sFN, sFB / sFN);
+            sFA = sFB = 0; sFN = 0; sFLast = fB1;
+        }
+    }
 
     // ---- 2x supersampled FACE target (AA the crisp cores + comet trail) -------------
     // Render the sharp drawTriangle/drawIconTex geometry (ticks, hands, hub, numerals and

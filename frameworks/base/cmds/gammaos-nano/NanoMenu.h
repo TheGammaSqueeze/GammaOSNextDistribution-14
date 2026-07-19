@@ -1819,6 +1819,21 @@ private:
     // that read as a hard stroke). Sized to the current viewport (panel-native).
     GLuint mPspChromeGlowFbo = 0, mPspChromeGlowTex = 0;
     int    mPspChromeGlowW = 0, mPspChromeGlowH = 0;
+    // Static glow cache (perf): the NUMERAL glow coverage is frame-invariant (the 12/3/6/9
+    // glyph textures at fixed disc-relative positions and size - only the whole clock's Y
+    // BOBS via mPspLensCy). So bake its blurred halo ONCE and, on later frames, skip the
+    // shape-render + Gaussian pyramid entirely and re-composite the cached texture shifted
+    // by the live bob delta (mPspLensCy - baked). The glow COLOUR + pulse alpha are applied
+    // fresh at composite each frame, so day/night + breathing stay live. Invalidated when the
+    // disc size (mPspLensR) or the glow buffer resolution changes (resize/rotate/glowres). Slot
+    // 0 = numerals; slot 1 reserved. See pspClockChromeGlowPass / pspClockSnapshotGlow.
+    GLuint mPspGlowCacheTex[2] = {0, 0};
+    GLuint mPspGlowCacheFbo[2] = {0, 0};
+    int    mPspGlowCacheW[2] = {0, 0}, mPspGlowCacheH[2] = {0, 0};
+    float  mPspGlowCacheR[2] = {0.0f, 0.0f};    // baked mPspLensR (disc size at bake time)
+    float  mPspGlowCacheCx[2] = {0.0f, 0.0f};   // baked disc centre X (constant; guards resize)
+    float  mPspGlowCacheCy[2] = {0.0f, 0.0f};   // baked disc centre Y (the bob anchor)
+    bool   mPspGlowCacheValid[2] = {false, false};
     // 2x-supersampled clock-FACE target: the crisp cores + trail (raw drawTriangle geometry)
     // render into this 2x offscreen texture and composite down through GL_LINEAR, box-filtering
     // their hard polygon edges into clean anti-aliased ones. The soft Gaussian glow stays at 1x
@@ -3149,7 +3164,9 @@ private:
     // (in whatever colour/alpha it is handed); downLevels/gaussIters set the halo width.
     void  pspClockChromeGlowPass(const std::function<void(float,float,float,float)>& drawShapes,
                                  int downLevels, int gaussIters,
-                                 float gr, float gg, float gb, float alpha);
+                                 float gr, float gg, float gb, float alpha,
+                                 int cacheSlot = -1, bool cacheable = false);
+    void  pspClockSnapshotGlow(int slot);      // copy mGlassBlurTex into the persistent glow cache
     void  pspClockEntrance(float sc, float ox, float oy, float reveal, float angOff, float alphaMul); // 5.11
     void  pspClockEntranceIcons(float sc, float ox, float oy, float reveal, float alphaMul, uint32_t seed);
     void  pspClockAmbientGlyphs(float dtMs);   // 5.7
