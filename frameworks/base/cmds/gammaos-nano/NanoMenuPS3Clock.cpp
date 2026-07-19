@@ -848,8 +848,14 @@ void NanoMenu::pspClockMirrorImportAndBlit(const sp<GraphicBuffer>& buf) {
     glViewport(0, 0, w, h);
     glDisable(GL_BLEND);
     glUseProgram(gMirProg);
-    // Fullscreen quad (triangle strip). Default flip=1 (SF buffer is display-top-first;
-    // downstream expects upright). Live-tunable so orientation can be corrected on-device.
+    // Fullscreen quad (triangle strip). Default flip=0 (NO Y-flip): the mirror buffer imported
+    // as an EGLImage already lands upright in mPspClockAppTex for the downstream consumers - the
+    // surround drawIconTex, the glass lens, and the colour/dim samplers all read it directly.
+    // The old flip=1 default inverted it: it was invisible while the surround was black (the app
+    // only showed through the small refracting disc, where an upside-down game does not read as
+    // wrong), but once the live app filled the whole scrimmed surround the inversion was obvious
+    // (reported as "the background is flipped"). Device-verified upright at flip=0, both surround
+    // and lens coherent. Live-tunable via the prop in case a panel needs the opposite convention.
     static const GLfloat pos[] = { -1,-1,  1,-1, -1, 1,  1, 1 };
     static const GLfloat uv[]  = {  0, 0,  1, 0,  0, 1,  1, 1 };
     glVertexAttribPointer(gMirPos, 2, GL_FLOAT, GL_FALSE, 0, pos);
@@ -859,7 +865,7 @@ void NanoMenu::pspClockMirrorImportAndBlit(const sp<GraphicBuffer>& buf) {
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, srcTex);
     glUniform1i(gMirSamp, 0);
-    glUniform1f(gMirFlip, property_get_bool("persist.gammaos.nano.pspclock.mirrorflip", true) ? 1.0f : 0.0f);
+    glUniform1f(gMirFlip, property_get_bool("persist.gammaos.nano.pspclock.mirrorflip", false) ? 1.0f : 0.0f);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     glDisableVertexAttribArray(gMirPos);
     glDisableVertexAttribArray(gMirUV);
@@ -894,6 +900,29 @@ void NanoMenu::pspClockMirrorTick(bool want) {
         newest = item; have = true;
     }
     if (!have) return;                       // no new frame this tick; keep the last texture
+
+    // Import-rate throttle. The BufferQueue is ALWAYS drained above (so SF never
+    // back-pressures the virtual display into the watchdog, and the surround stays LIVE
+    // - it just updates at mirrorhz instead of 60). The expensive work - the game render
+    // fence wait + the EGLImage import + the FBO blit - only runs at mirrorhz. When the
+    // game is the bottleneck this is the biggest in-app fps lever: the fence wait blocks
+    // the clock's render thread on the game's GPU frame, and importing at 30 instead of 60
+    // lets the clock keep pace while the surround stays live at 30. Default 60 = full rate
+    // (effectively every frame, since the in-app render loop sits below 60fps), which is the
+    // standard; drop to 30 via the prop if the game is heavy enough to need the headroom.
+    int mhz = property_get_int32("persist.gammaos.nano.pspclock.mirrorhz", 60);
+    if (mhz > 0) {
+        struct timespec t; clock_gettime(CLOCK_MONOTONIC, &t);
+        int64_t nowNs = (int64_t)t.tv_sec * 1000000000LL + t.tv_nsec;
+        static int64_t sLastImportNs = 0;
+        const int64_t minNs = 1000000000LL / mhz;
+        if (sLastImportNs != 0 && (nowNs - sLastImportNs) < minNs) {
+            gMirConsumer->releaseBuffer(newest, Fence::NO_FENCE);  // drop, keep last texture
+            return;
+        }
+        sLastImportNs = nowNs;
+    }
+
     if (newest.mFence != nullptr && newest.mFence != Fence::NO_FENCE)
         newest.mFence->wait(kCapFenceMs);
     pspClockMirrorImportAndBlit(newest.mGraphicBuffer);
@@ -1186,13 +1215,24 @@ void NanoMenu::drawPspClock(float dtMs) {
     // Bake the numeral textures BEFORE the render passes (mid-frame texture
     // allocation flushes/loses the Mali tile, which was erasing the blur+disc).
     if (!mPspGlyphBaked) pspClockBakeGlyphs();
-    // Sample the dominant wallpaper colour for the glow (throttled ~7Hz). Done
-    // before the visible passes so its FBO switch cannot flush the clock's tile.
-    { static int sG = 0; if ((sG++ % 8) == 0) pspClockSampleGlow(); }
+    // Colour/dim sampling cadence. Each sample is a small FBO render + glReadPixels, and
+    // glReadPixels is a hard pipeline flush on the Brick's tile-based PowerVR - the biggest
+    // reason the in-app clock trails the wallpaper clock (wallpaper samples the glow only;
+    // in-app ALSO samples the app dim). Two levers: (1) sampleiv widens the interval (the
+    // dominant colour + mean brightness of a game scene drift slowly, so ~3.5Hz at iv=16 is
+    // still imperceptible while halving the flush rate); (2) the two readbacks are STAGGERED
+    // half an interval apart so they never share a frame - one flush per frame, not two,
+    // smoothing the frame time. Default 8 (unchanged cadence), safe to raise to 16 via prop.
+    int sampleiv = property_get_int32("persist.gammaos.nano.pspclock.sampleiv", 8);
+    if (sampleiv < 1) sampleiv = 1;
+    // Sample the dominant wallpaper colour for the glow. Done before the visible passes so
+    // its FBO switch cannot flush the clock's tile. Phase 0.
+    { static int sG = 0; if ((sG++ % sampleiv) == 0) pspClockSampleGlow(); }
     pspClockAppCaptureTick();                 // #5: pump live-app capture -> mPspClockAppTex
-    // #5 dynamic darkening: sample the live-app mean brightness (~7Hz) so a bright
-    // game dims the disc + darkens the surround. Before the visible passes (FBO switch).
-    if (pspClockUseAppSource()) { static int sD = 0; if ((sD++ % 8) == 0) pspClockSampleAppDim(); }
+    // #5 dynamic darkening: sample the live-app mean brightness so a bright game dims the
+    // disc + darkens the surround. Before the visible passes (FBO switch). Phase iv/2 so its
+    // glReadPixels flush lands on a DIFFERENT frame than the glow sample above.
+    if (pspClockUseAppSource()) { static int sD = 0; if ((sD++ % sampleiv) == sampleiv / 2) pspClockSampleAppDim(); }
     // Per-pass GPU profiling (persist.gammaos.nano.pspclock.prof=1). glFinish-brackets each
     // stage so the accumulated us pinpoint where the GPU time goes; glFinish serializes the
     // pipeline so absolute totals read a little high, but the RELATIVE split is what guides
