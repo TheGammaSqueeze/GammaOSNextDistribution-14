@@ -1201,6 +1201,17 @@ private:
     float mPspBottomReveal   = 0.0f;
     int   mPspBottomBootPhase = 0;   // 0 unseen, 1 booting, 2 post-boot settle, 3 revealing, 4 done/static
     float mPspBottomHoldMs   = 0.0f; // settle hold accumulator (phase 2)
+    // Bottom clock's OWN second-hand comet trail (persistent, accumulates across frames). The F12
+    // summon's mPspTrail is save/restored inside renderPspClockSecondary and must never accumulate
+    // the bottom clock's history, so the bottom clock keeps its own; advanced every frame (even the
+    // 30fps-cap skip frames) so it stays smooth and correctly timed.
+    float mPspBottomTrail[120] = {0};
+    int   mPspBottomFrameCtr = 0;    // per-frame counter for the 30fps render cap
+    // 30fps cap cache: the full composited secondary (wave + clock, panel-native) snapshotted on a
+    // render frame and re-presented on the next skip frame, so the heavy clock passes run at 30fps.
+    unsigned int mPspBottomCacheTex = 0;
+    int   mPspBottomCacheW = 0, mPspBottomCacheH = 0;
+    bool  mPspBottomCacheValid = false;
     // ---- DSi System Menu theme (NanoMenuNds; 1:1 port of /work/nds launcher) ----
     // Aspect-adaptive: the 256x192 DSi design letterboxes into any panel. On the dual-screen
     // RG DS the carousel goes to the bottom panel and the DSi top screen to the top; single
@@ -3178,6 +3189,9 @@ private:
     // --- PSP Go slide clock (NanoMenuPS3Clock.cpp) --------------------------
     void  drawPspClock(float dtMs);            // per-frame orchestrator (advance + all passes)
     void  renderPspClockSecondary();           // reveal-driven PSP clock on the secondary (bottom) panel
+    void  advanceBottomTrail(float dtMs);      // advance the bottom clock's own comet trail (every frame)
+    void  bottomClockCacheSnapshot(int w, int h); // snapshot the composited secondary for the 30fps cap
+    void  bottomClockCacheBlit();              // re-present the cached secondary frame (30fps skip frame)
     // True while the bottom clock's glow is actively overwriting the shared mGlassBlurTex each frame,
     // so every primary frost consumer (submenu backdrop, dialogs, System Update) must re-capture the
     // wave rather than reuse a stale cache (else the clock's halo bleeds into the frost = flicker).

@@ -1393,18 +1393,12 @@ void NanoMenu::renderPspClockSecondary() {
     mPspLensValid   = (clockReveal > 0.0f);
     mPspDetailFade  = std::min(1.0f, std::max(0.0f, (r - 0.8f) / 0.2f));   // ticks + trail fade in late
 
-    // Live second-hand comet trail: replicate the primary's per-frame decay.
-    {
-        int h, m, s; float sub; pspNow(h, m, s, sub);
-        const int i0 = s * 2, i1 = s * 2 + 1;
-        const float f = powf(PSP_DECAY, (mFrameDt * 1000.0f) / PSP_FRAME_MS);
-        const float usf = sub * 1e6f;
-        for (int i = 0; i < 120; i++) {
-            if (i == i0)                mPspTrail[i] = 1.0f;
-            else if (i == i1)           mPspTrail[i] = (usf > 50000.0f) ? 1.0f : mPspTrail[i] * f;
-            else                        mPspTrail[i] *= f;
-        }
-    }
+    // Second-hand comet trail: use the bottom clock's OWN persistent buffer (accumulated across
+    // frames in advanceBottomTrail, called every frame from render()). mPspTrail is the F12 summon's
+    // - it was saved above and is restored below, so copying into it here does not corrupt it. If we
+    // advanced the trail in place each frame here it would be wiped by the save/restore, leaving only
+    // the current second's tick and no trailing comet (the reported "missing trailing ticks").
+    memcpy(mPspTrail, mPspBottomTrail, sizeof(mPspTrail));
 
     const float dtMs = (mFrameDt > 0.0f) ? mFrameDt * 1000.0f : 16.0f;
 
@@ -1453,6 +1447,71 @@ void NanoMenu::renderPspClockSecondary() {
     mPspGlyphBurst  = savedGlyphBurst;
     mPspLensCx = savedCx; mPspLensCy = savedCy; mPspLensR = savedR; mPspLensValid = savedValid;
     memcpy(mPspTrail, savedTrail, sizeof(mPspTrail));
+}
+
+// Advance the bottom clock's OWN comet trail (mPspBottomTrail), decayed by the real elapsed time so
+// it stays smooth and correctly timed even when the heavy render is capped to 30fps (this runs every
+// frame from render(), the render itself only every 2nd frame). Same decay math as drawPspClock.
+void NanoMenu::advanceBottomTrail(float dtMs) {
+    if (dtMs <= 0.0f) dtMs = 16.0f;
+    int h, m, s; float sub; pspNow(h, m, s, sub);
+    const int i0 = s * 2, i1 = s * 2 + 1;
+    const float f = powf(PSP_DECAY, dtMs / PSP_FRAME_MS);
+    const float usf = sub * 1e6f;
+    for (int i = 0; i < 120; i++) {
+        if (i == i0)                mPspBottomTrail[i] = 1.0f;
+        else if (i == i1)           mPspBottomTrail[i] = (usf > 50000.0f) ? 1.0f : mPspBottomTrail[i] * f;
+        else                        mPspBottomTrail[i] *= f;
+    }
+}
+
+// 30fps cap (RG DS load): snapshot the just-composited secondary panel (wave + clock, panel-native)
+// into a cache texture so the next skip frame can re-present it with a single quad instead of
+// re-running the heavy clock passes. Call with the secondary FBO bound, right after the clock draw.
+void NanoMenu::bottomClockCacheSnapshot(int w, int h) {
+    if (w < 8 || h < 8) return;
+    if (mPspBottomCacheTex == 0 || mPspBottomCacheW != w || mPspBottomCacheH != h) {
+        if (mPspBottomCacheTex == 0) glGenTextures(1, &mPspBottomCacheTex);
+        glBindTexture(GL_TEXTURE_2D, mPspBottomCacheTex);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        mPspBottomCacheW = w; mPspBottomCacheH = h;
+    } else {
+        glBindTexture(GL_TEXTURE_2D, mPspBottomCacheTex);
+    }
+    // Copy the bound read framebuffer (the secondary AHB FBO) into the cache texture 1:1. Texel (x,y)
+    // maps to FBO pixel (x,y), so the straight quad in bottomClockCacheBlit reproduces it with no flip.
+    glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, w, h);
+    mPspBottomCacheValid = true;
+}
+
+// Re-present the cached secondary frame: a straight full-viewport copy (identity rotation, UV == NDC,
+// no blend) into the bound secondary FBO. Reproduces the snapshot pixel-for-pixel (panel-native).
+void NanoMenu::bottomClockCacheBlit() {
+    if (!mPspBottomCacheValid || mPspBottomCacheTex == 0 || mTextProgram == 0) return;
+    static const GLfloat pos[12] = { -1,-1,  1,-1,  1,1,   1,1,  -1,1,  -1,-1 };
+    static const GLfloat uv[12]  = {  0, 0,  1, 0,  1,1,   1,1,   0,1,   0, 0 };
+    static const GLfloat col[24] = { 1,1,1,1, 1,1,1,1, 1,1,1,1, 1,1,1,1, 1,1,1,1, 1,1,1,1 };
+    static const GLfloat ident[4] = { 1,0,0,1 };
+    glDisable(GL_BLEND);
+    glUseProgram(mTextProgram);
+    if (mTextLocSharp >= 0) glUniform1f(mTextLocSharp, 0.0f);
+    glUniformMatrix2fv(mTextLocRotation, 1, GL_FALSE, ident);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, mPspBottomCacheTex);
+    glUniform1i(mTextLocTexture, 0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glVertexAttribPointer(mTextLocPosition, 2, GL_FLOAT, GL_FALSE, 0, pos); glEnableVertexAttribArray(mTextLocPosition);
+    glVertexAttribPointer(mTextLocTexCoord, 2, GL_FLOAT, GL_FALSE, 0, uv);  glEnableVertexAttribArray(mTextLocTexCoord);
+    glVertexAttribPointer(mTextLocColor, 4, GL_FLOAT, GL_FALSE, 0, col);    glEnableVertexAttribArray(mTextLocColor);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    glDisableVertexAttribArray(mTextLocPosition);
+    glDisableVertexAttribArray(mTextLocTexCoord);
+    glDisableVertexAttribArray(mTextLocColor);
+    glUniformMatrix2fv(mTextLocRotation, 1, GL_FALSE, sDrmRotMat);   // restore the scene rotation
 }
 
 // -----------------------------------------------------------------------------

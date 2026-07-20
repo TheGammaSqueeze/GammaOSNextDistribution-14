@@ -4304,6 +4304,7 @@ void NanoMenu::render() {
     // clears ~as the icons finish, then a short settle hold); on a plain home / app-return (no boot
     // sequence was ever seen) it snaps to fully revealed so it is just statically present.
     if (mPs3BottomClock && !mNdsTheme) {
+        mPspBottomFrameCtr++;
         const float dtMs = (mFrameDt > 0.0f) ? mFrameDt * 1000.0f : 16.0f;
         if (mPs3BootActive) {
             mPspBottomReveal = 0.0f; mPspBottomBootPhase = 1; mPspBottomHoldMs = 0.0f;
@@ -4318,6 +4319,12 @@ void NanoMenu::render() {
             mPspBottomReveal += dtMs / 5000.0f;                   // open over ~5s, matching the F12 summon
             if (mPspBottomReveal >= 1.0f) { mPspBottomReveal = 1.0f; mPspBottomBootPhase = 4; }
         }
+        // Advance the comet trail EVERY frame (even 30fps-cap skip frames) so it stays smooth and
+        // correctly timed independent of the render cadence. renderPspClockSecondary just reads it.
+        if (mPspBottomReveal > 0.0f) advanceBottomTrail(dtMs);
+        // Invalidate the 30fps cache while not fully revealed (boot reveal / disabled) so the first
+        // static frame re-snapshots fresh instead of ever blitting a stale cache.
+        if (mPspBottomReveal < 0.999f) mPspBottomCacheValid = false;
     }
 
     // GammaOS: Secondary display pass — wallpaper only, no menu/icons/text.
@@ -4374,23 +4381,39 @@ void NanoMenu::render() {
         } else {
             glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            renderEffect();
-            // PS3 XMB cold boot: match the primary panel's fade-in + frosted-wave blur on the SECONDARY
-            // panel too (user: it was showing the unfiltered wave). primary=false skips the logo + text.
-            if (!mNdsTheme && mPs3BootActive) {
-                int sw = mWidth, sh = mHeight;
-                mWidth = sAhbTargetSecondary.w; mHeight = sAhbTargetSecondary.h;
-                renderPs3BootOverlay(/*primary=*/false);
-                mWidth = sw; mHeight = sh;
-            }
-            // Dual-screen XMB: static PSP clock on the bottom panel (opt-in), over the wave, not
-            // during cold boot. The clock projects px->NDC via mWidth/mHeight, so remap to the
-            // secondary AHB dims for this pass (same wrapper as the boot overlay above).
-            if (mPs3BottomClock && !mPs3BootActive && (!mOverlayMode || mOverlayWallpaper)) {
-                int sw = mWidth, sh = mHeight;
-                mWidth = sAhbTargetSecondary.w; mHeight = sAhbTargetSecondary.h;
-                renderPspClockSecondary();
-                mWidth = sw; mHeight = sh;
+            const bool bottomClock = mPs3BottomClock && !mPs3BootActive &&
+                                     (!mOverlayMode || mOverlayWallpaper);
+            // 30fps cap (RG DS load): once the clock is fully revealed, render the heavy passes only
+            // every 2nd frame and re-present the cached last frame in between (prop .fps: 30 default,
+            // 60 = off). Never cap during the boot reveal so the entrance stays smooth. The secondary
+            // ring rotates, so we write the CURRENT slot every frame (fresh or cached) - no stale slot.
+            const bool bcCap = bottomClock && mPspBottomReveal >= 0.999f &&
+                property_get_int32("persist.gammaos.nano.ps3xmb.bottomclock.fps", 30) <= 45;
+            const bool bcSkip = bcCap && (mPspBottomFrameCtr & 1) && mPspBottomCacheValid &&
+                mPspBottomCacheW == sAhbTargetSecondary.w && mPspBottomCacheH == sAhbTargetSecondary.h;
+            if (bcSkip) {
+                bottomClockCacheBlit();   // re-present the cached wave+clock (skips renderEffect + clock)
+            } else {
+                renderEffect();
+                // PS3 XMB cold boot: match the primary panel's fade-in + frosted-wave blur on the
+                // SECONDARY panel too (user: it was showing the unfiltered wave). primary=false skips
+                // the logo + text.
+                if (!mNdsTheme && mPs3BootActive) {
+                    int sw = mWidth, sh = mHeight;
+                    mWidth = sAhbTargetSecondary.w; mHeight = sAhbTargetSecondary.h;
+                    renderPs3BootOverlay(/*primary=*/false);
+                    mWidth = sw; mHeight = sh;
+                }
+                // Dual-screen XMB: PSP clock on the bottom panel (opt-in), over the wave, not during
+                // cold boot. Remap mWidth/mHeight to the secondary AHB dims for the px->NDC projection.
+                if (bottomClock) {
+                    int sw = mWidth, sh = mHeight;
+                    mWidth = sAhbTargetSecondary.w; mHeight = sAhbTargetSecondary.h;
+                    renderPspClockSecondary();
+                    // Snapshot the composited panel for the next 30fps skip frame (FBO still bound).
+                    if (bcCap) bottomClockCacheSnapshot(sAhbTargetSecondary.w, sAhbTargetSecondary.h);
+                    mWidth = sw; mHeight = sh;
+                }
             }
             glDisable(GL_BLEND);
         }

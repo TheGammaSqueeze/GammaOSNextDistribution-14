@@ -5890,6 +5890,7 @@ static const Ps3SettingBinding kPs3Bindings[] = {
     {"Slide Launch Target", SettingSource::kProp, "persist.gammaos.rotate.launch_target", "", "@text"},
     {"Show Clock On Slide", SettingSource::kProp, "persist.gammaos.nano.pspclock", "0", "0:Off,1:On"},
     {"Clock On Bottom Screen", SettingSource::kProp, "persist.gammaos.nano.ps3xmb.bottomclock", "0", "0:Off,1:On"},
+    {"Bottom Clock Frame Rate", SettingSource::kProp, "persist.gammaos.nano.ps3xmb.bottomclock.fps", "30", "30:30 FPS,60:60 FPS"},
     {"Clock Live Backdrop", SettingSource::kProp, "persist.gammaos.nano.pspclock.liveapp", "1", "0:Off,1:On"},
     {"Parallax Calibration", SettingSource::kProp, "persist.gammaos.nano.pspclock.tilt.cal", "0.12,1,-1,-1", "@text"},
     // Developer Options
