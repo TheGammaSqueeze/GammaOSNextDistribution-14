@@ -1293,7 +1293,7 @@ void NanoMenu::gpDialogBackdrop(float ap) {
     const bool frostHome = !mOverlayMode || mOverlayWallpaper;
     const bool waveSpace = (mCurrentEffect == 22);
     float blurCad = ps3bg::themeFading() ? 0.0f : 0.0667f;
-    bool due = !mPs3DlgBlurValid || (waveSpace && (mEffectTime - mPs3DlgBlurT) >= blurCad);
+    bool due = frostBufferSharedWithClock() || !mPs3DlgBlurValid || (waveSpace && (mEffectTime - mPs3DlgBlurT) >= blurCad);
     if (due && frostHome) {
         bool got = waveSpace ? captureGlassFromWave()
                              : captureGlass(0.0f, 0.0f, (float)mWidth, (float)mHeight);
@@ -4415,7 +4415,7 @@ void NanoMenu::renderPs3Xmb() {
         // frost draw, and a re-blur of a crossfading backdrop is invisible -
         // the transition was the last spot still missing 60fps on the overlay.
         float blurCad = (ps3bg::themeFading() || mPs3DlgKind == 1) ? 0.0f : 0.0667f;
-        bool due = !mPs3GlassValid
+        bool due = frostBufferSharedWithClock() || !mPs3GlassValid
                 || (!subAnimating && (mEffectTime - mPs3GlassBlurT) >= blurCad);
         // The frosted backdrop is the blurred WAVE (captureGlassFromWave reads
         // ps3bg::workTex), so it only matches when the wave is the visible background.
@@ -5889,6 +5889,7 @@ static const Ps3SettingBinding kPs3Bindings[] = {
      "90:90 degrees,180:180 degrees,270:270 degrees"},
     {"Slide Launch Target", SettingSource::kProp, "persist.gammaos.rotate.launch_target", "", "@text"},
     {"Show Clock On Slide", SettingSource::kProp, "persist.gammaos.nano.pspclock", "0", "0:Off,1:On"},
+    {"Clock On Bottom Screen", SettingSource::kProp, "persist.gammaos.nano.ps3xmb.bottomclock", "0", "0:Off,1:On"},
     {"Clock Live Backdrop", SettingSource::kProp, "persist.gammaos.nano.pspclock.liveapp", "1", "0:Off,1:On"},
     {"Parallax Calibration", SettingSource::kProp, "persist.gammaos.nano.pspclock.tilt.cal", "0.12,1,-1,-1", "@text"},
     // Developer Options
@@ -9772,7 +9773,7 @@ void NanoMenu::renderXmbOpt() {
     if (!fanartBg) {
         const bool frost = mCurrentEffect == 22 && (!mOverlayMode || mOverlayWallpaper);
         if (frost) {
-            bool due = !mPs3OptBlurValid || (mEffectTime - mPs3OptBlurT) >= 0.0667f;
+            bool due = frostBufferSharedWithClock() || !mPs3OptBlurValid || (mEffectTime - mPs3OptBlurT) >= 0.0667f;
             if (due && captureGlassFromWave()) { mPs3OptBlurValid = true; mPs3OptBlurT = mEffectTime; }
             if (mPs3OptBlurValid)
                 drawFrostedGlass(pLeftDev, pTopDev, pWDev, pHDev, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, ap, /*waveSpace=*/true);
@@ -9915,7 +9916,7 @@ void NanoMenu::renderPs3Dialog() {
         // still drawn inside the page body below.
         const bool waveSpace = (mCurrentEffect == 22);
         float blurCad = ps3bg::themeFading() ? 0.0f : 0.0667f;
-        bool due = !mPs3DlgBlurValid || (waveSpace && (mEffectTime - mPs3DlgBlurT) >= blurCad);
+        bool due = frostBufferSharedWithClock() || !mPs3DlgBlurValid || (waveSpace && (mEffectTime - mPs3DlgBlurT) >= blurCad);
         if (due && frostHome) {
             bool got = waveSpace ? captureGlassFromWave()
                                  : captureGlass(0.0f, 0.0f, (float)mWidth, (float)mHeight);
@@ -9975,7 +9976,7 @@ void NanoMenu::renderPs3Dialog() {
         {
             const bool spFrost = mCurrentEffect == 22 && (!mOverlayMode || mOverlayWallpaper);
             if (spFrost) {
-                bool due = !mPs3DlgBlurValid || (mEffectTime - mPs3DlgBlurT) >= 0.0667f;
+                bool due = frostBufferSharedWithClock() || !mPs3DlgBlurValid || (mEffectTime - mPs3DlgBlurT) >= 0.0667f;
                 if (due && captureGlassFromWave()) { mPs3DlgBlurValid = true; mPs3DlgBlurT = mEffectTime; }
                 if (mPs3DlgBlurValid)
                     drawFrostedGlass(pLeftDev, pTopDev, pWDev, pHDev, 0.0f,
@@ -11352,7 +11353,7 @@ void NanoMenu::renderNetWizard() {
         // alternate with the wave blur -> visible background flicker. Refreshing
         // from the wave each frame keeps the backdrop correct and smooth.
         float blurCad = 0.0667f;
-        bool due = !mPs3DlgBlurValid || oskUp || (mEffectTime - mPs3DlgBlurT) >= blurCad;
+        bool due = frostBufferSharedWithClock() || !mPs3DlgBlurValid || oskUp || (mEffectTime - mPs3DlgBlurT) >= blurCad;
         if (due && captureGlassFromWave()) { mPs3DlgBlurValid = true; mPs3DlgBlurT = mEffectTime; }
         // The frosted-WAVE backdrop only matches the wave: home XMB always; overlay
         // WALLPAPER/launcher only when the wallpaper IS the wave (mCurrentEffect==22).
@@ -12337,7 +12338,7 @@ void NanoMenu::renderLanguagePicker() {
       lp.uiScale = mPs3UiScale; ps3::layoutCompute(lp); }
     // Frosted-wave backdrop, re-captured each frame, fading in with the panel.
     float blurCad = ps3bg::themeFading() ? 0.0f : 0.0667f;
-    bool due = !mPs3DlgBlurValid || (mEffectTime - mPs3DlgBlurT) >= blurCad;
+    bool due = frostBufferSharedWithClock() || !mPs3DlgBlurValid || (mEffectTime - mPs3DlgBlurT) >= blurCad;
     const bool frostBg = mCurrentEffect == 22 && (!mOverlayMode || mOverlayWallpaper);
     if (due && frostBg && captureGlassFromWave()) { mPs3DlgBlurValid = true; mPs3DlgBlurT = mEffectTime; }
     if (mPs3DlgBlurValid && frostBg)

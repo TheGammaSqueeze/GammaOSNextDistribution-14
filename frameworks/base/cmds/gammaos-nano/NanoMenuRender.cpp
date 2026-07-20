@@ -4298,6 +4298,28 @@ void NanoMenu::render() {
                   : !mNdsHadSecondary;   // auto: stack only when there is no secondary panel
     }
 
+    // Dual-screen bottom PSP clock: drive its own reveal (mPspBottomReveal), independent of the F12
+    // summon. Runs every frame (during + after cold boot) so it can observe the boot->done edge. On
+    // cold boot the clock plays its drop-in transition AFTER the XMB icons float in (mPs3BootActive
+    // clears ~as the icons finish, then a short settle hold); on a plain home / app-return (no boot
+    // sequence was ever seen) it snaps to fully revealed so it is just statically present.
+    if (mPs3BottomClock && !mNdsTheme) {
+        const float dtMs = (mFrameDt > 0.0f) ? mFrameDt * 1000.0f : 16.0f;
+        if (mPs3BootActive) {
+            mPspBottomReveal = 0.0f; mPspBottomBootPhase = 1; mPspBottomHoldMs = 0.0f;
+        } else if (mPspBottomBootPhase == 0) {
+            mPspBottomReveal = 1.0f; mPspBottomBootPhase = 4;      // never saw boot: static, no transition
+        } else if (mPspBottomBootPhase == 1) {
+            mPspBottomBootPhase = 2; mPspBottomHoldMs = 0.0f;      // boot just cleared: begin settle hold
+        } else if (mPspBottomBootPhase == 2) {
+            mPspBottomHoldMs += dtMs;
+            if (mPspBottomHoldMs >= 500.0f) mPspBottomBootPhase = 3;   // icons settled -> start the reveal
+        } else if (mPspBottomBootPhase == 3) {
+            mPspBottomReveal += dtMs / 5000.0f;                   // open over ~5s, matching the F12 summon
+            if (mPspBottomReveal >= 1.0f) { mPspBottomReveal = 1.0f; mPspBottomBootPhase = 4; }
+        }
+    }
+
     // GammaOS: Secondary display pass — wallpaper only, no menu/icons/text.
     // Runs only in DRM direct mode when a secondary AHB was allocated.
     // Renders into sAhbTargetSecondary which drmFlipAll() will blit to every
@@ -4359,6 +4381,15 @@ void NanoMenu::render() {
                 int sw = mWidth, sh = mHeight;
                 mWidth = sAhbTargetSecondary.w; mHeight = sAhbTargetSecondary.h;
                 renderPs3BootOverlay(/*primary=*/false);
+                mWidth = sw; mHeight = sh;
+            }
+            // Dual-screen XMB: static PSP clock on the bottom panel (opt-in), over the wave, not
+            // during cold boot. The clock projects px->NDC via mWidth/mHeight, so remap to the
+            // secondary AHB dims for this pass (same wrapper as the boot overlay above).
+            if (mPs3BottomClock && !mPs3BootActive && (!mOverlayMode || mOverlayWallpaper)) {
+                int sw = mWidth, sh = mHeight;
+                mWidth = sAhbTargetSecondary.w; mHeight = sAhbTargetSecondary.h;
+                renderPspClockSecondary();
                 mWidth = sw; mHeight = sh;
             }
             glDisable(GL_BLEND);
@@ -5143,7 +5174,16 @@ if (sRingPrimedCount >= 2) {
         // device (no secondary port). The visibility toggle below hides it again on dismiss.
         const bool ndsOverlayLauncher = mNdsTheme && mNdsStackMode != 1 &&
             property_get_bool("sys.gammaos.nano.show_overlay", false);
-        if (mSecondaryEglSurfaces.empty() && (!mOverlayMode || ndsOverlayLauncher)) {
+        // Dual-screen XMB bottom clock: the nds gate above only sets up the SF secondary in the DSi
+        // theme, but the overlay-home also needs a secondary surface in PURE XMB to render the PSP
+        // clock on the bottom panel. Gate on show_overlay so it only sets up while the overlay-home
+        // is displayed, and on wallpaper mode so it is NOT set up over a live app (the clock is a
+        // wallpaper-only feature; over an app the app/dual-stack owns the bottom panel). No-op on a
+        // genuine 1-panel device (no secondary port).
+        const bool xmbBottomClockLauncher = mPs3BottomClock && !mNdsTheme && mOverlayWallpaper &&
+            property_get_bool("sys.gammaos.nano.show_overlay", false);
+        if (mSecondaryEglSurfaces.empty()
+                && (!mOverlayMode || ndsOverlayLauncher || xmbBottomClockLauncher)) {
             setupSecondaryEglSurfaces();
         }
     }
@@ -5237,6 +5277,10 @@ if (sRingPrimedCount >= 2) {
             if (i == 0) renderOsk();   // DSi keyboard/OSK on the bottom touch panel (self-gates on mOskActive)
         } else {
             renderEffect();
+            // Dual-screen XMB: static PSP clock on the bottom panel (opt-in), over the wave. No
+            // mWidth/mHeight remap here - on the SF path they already equal the secondary dims.
+            if (mPs3BottomClock && i == 0 && !mPs3BootActive && (!mOverlayMode || mOverlayWallpaper))
+                renderPspClockSecondary();
         }
         if (i == 0) maybeNanoScreenshotSecondary();   // debug capture of the bottom DS panel
         eglSwapBuffers(mDisplay, mSecondaryEglSurfaces[i]);

@@ -1428,6 +1428,11 @@ bool NanoMenu::threadLoop() {
     mNdsTheme = android::base::GetBoolProperty(
             "persist.gammaos.nano.ndstheme", false);
     if (mNdsTheme) mPs3Xmb = true;   // reuse the PS3 XMB home infrastructure (boot, input, overlay), swap the render
+    // Dual-screen XMB: render a static PSP clock on the bottom panel instead of a second wave.
+    // Cached once (read on the render hot path otherwise); only meaningful in pure XMB (!mNdsTheme)
+    // on a device with a secondary panel (the render call sites are gated accordingly).
+    mPs3BottomClock = android::base::GetBoolProperty(
+            "persist.gammaos.nano.ps3xmb.bottomclock", false);
     ALOGI("NanoMenu: persist read quick_resume=%d xmb_mode=%d ps3xmb=%d nds=%d",
           mQuickResumeEnabled ? 1 : 0, mXmbMode ? 1 : 0, mPs3Xmb ? 1 : 0, mNdsTheme ? 1 : 0);
     // PS3 cold-boot intro: play the full intro (wave/gradient reveal from black,

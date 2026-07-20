@@ -1193,6 +1193,14 @@ private:
     };
     bool mPs3Xmb = false;         // persist.gammaos.nano.ps3xmb
     bool mNdsTheme = false;       // persist.gammaos.nano.ndstheme (DSi System Menu theme, takes priority)
+    bool mPs3BottomClock = false; // persist.gammaos.nano.ps3xmb.bottomclock (PSP clock on the bottom panel, dual-screen XMB)
+    // Bottom-panel PSP clock reveal (own scalar, independent of the F12 summon mPspClockReveal).
+    // 0..1: on cold boot it ramps 0 -> 1 after the XMB icons float in so the clock plays its drop-in
+    // transition on the bottom panel; on a plain home / app-return (no boot sequence) it snaps to 1
+    // (statically present). Advanced once per frame in render(); consumed by renderPspClockSecondary.
+    float mPspBottomReveal   = 0.0f;
+    int   mPspBottomBootPhase = 0;   // 0 unseen, 1 booting, 2 post-boot settle, 3 revealing, 4 done/static
+    float mPspBottomHoldMs   = 0.0f; // settle hold accumulator (phase 2)
     // ---- DSi System Menu theme (NanoMenuNds; 1:1 port of /work/nds launcher) ----
     // Aspect-adaptive: the 256x192 DSi design letterboxes into any panel. On the dual-screen
     // RG DS the carousel goes to the bottom panel and the DSi top screen to the top; single
@@ -3169,6 +3177,11 @@ private:
 
     // --- PSP Go slide clock (NanoMenuPS3Clock.cpp) --------------------------
     void  drawPspClock(float dtMs);            // per-frame orchestrator (advance + all passes)
+    void  renderPspClockSecondary();           // reveal-driven PSP clock on the secondary (bottom) panel
+    // True while the bottom clock's glow is actively overwriting the shared mGlassBlurTex each frame,
+    // so every primary frost consumer (submenu backdrop, dialogs, System Update) must re-capture the
+    // wave rather than reuse a stale cache (else the clock's halo bleeds into the frost = flicker).
+    bool  frostBufferSharedWithClock() const;
     void  pspClockPollInput();
     void  pspClockTouchFrame();                // swipe-to-dismiss + block menu touch while up                 // reads the F12 gate prop into mPspClockEnabled
     void  pspClockPollTilt(bool active);       // accel -> smoothed mPspTilt* parallax (gyro peek)

@@ -1323,6 +1323,139 @@ void NanoMenu::drawPspClock(float dtMs) {
 }
 
 // -----------------------------------------------------------------------------
+// Static, always-open PSP clock for the SECONDARY (bottom) panel in the XMB theme
+// (persist.gammaos.nano.ps3xmb.bottomclock). Renders the glass disc + analog face at
+// full reveal with NO surround scrim and NO entrance transition. Called from the
+// secondary render pass on both the DRM-AHB and SF-EGL paths.
+//
+// State safety: this never writes the summon state machine (mPspClockReveal / mPspClockOn),
+// so the F12/slide summon on the primary is untouched. It sets the disc geometry
+// (mPspLensCx/Cy/R/Valid), which the primary drawPspClock recomputes from mPspClockReveal
+// every frame (NanoMenuPS3Clock.cpp:1188-1191), so those are safe to leave dirty. It DOES
+// overwrite two summon followers the face/lens read - mPspDetailFade (else ticks + trail
+// are hidden when the summon is parked at 0) and mPspTrail - so those are saved/restored.
+// Caller must have made the secondary GL target current and set mWidth/mHeight to that
+// panel's dims (the DRM-AHB path needs the sAhbTargetSecondary remap; the SF path already
+// has mWidth/mHeight equal to the secondary dims).
+// True while the bottom clock's glow is actively overwriting the shared mGlassBlurTex each frame.
+// (See the NanoMenu.h note.) mPspBottomReveal > 0 == the clock is actually drawing this frame.
+bool NanoMenu::frostBufferSharedWithClock() const {
+    return mPs3BottomClock && !mPs3BootActive && mPspBottomReveal > 0.0f &&
+           (!mOverlayMode || mOverlayWallpaper);
+}
+
+void NanoMenu::renderPspClockSecondary() {
+    if (!mPs3Xmb) return;                 // XMB-theme only; DSi drives its own secondary
+    if (mWidth < 8 || mHeight < 8) return;
+    // Numerals: idempotent lazy bake (mirrors drawPspClock). On frame 0 the primary may not
+    // have baked them yet, so bake defensively.
+    if (!mPspGlyphBaked) pspClockBakeGlyphs();
+
+    // The bottom clock has its OWN reveal (mPspBottomReveal), advanced once per frame in render():
+    // 1.0 at rest (static), and on cold boot it ramps 0 -> 1 after the XMB icons float in so the
+    // clock plays its drop-in + entrance transition on the bottom panel. Everything below is a pure
+    // function of that scalar, mirroring drawPspClock's pass block (minus the full-screen scrim).
+    const float r = std::min(1.0f, std::max(0.0f, mPspBottomReveal));
+    if (r <= 0.0f) return;                                   // still booting: draw nothing yet
+    const float clockReveal = std::min(1.0f, std::max(0.0f, (r - 0.3f) / 0.7f));
+
+    // Save every summon member the shared passes read/drive, so the parked primary F12 summon stays
+    // byte-identical after this secondary render (we NEVER change the summon state machine itself).
+    const float savedReveal = mPspClockReveal;
+    const bool  savedOn     = mPspClockOn;
+    const float savedDetail = mPspDetailFade;
+    const float savedCx = mPspLensCx, savedCy = mPspLensCy, savedR = mPspLensR;
+    const bool  savedValid = mPspLensValid;
+    const float savedGlyphBurst = mPspGlyphBurst;   // pspClockAmbientGlyphs decays this member
+    float savedTrail[120];
+    memcpy(savedTrail, mPspTrail, sizeof(mPspTrail));
+
+    // Centred disc geometry (drawPspClock scale rule: ox+240*sc2 == W/2, oy+136*sc2 == H/2), with the
+    // buoyant easeOutBack drop-in during the reveal. floatY = 0 (no idle bob on the static panel).
+    const float W = (float)mWidth, H = (float)mHeight;
+    const float sc2 = std::min(H / 272.0f, W / 288.0f);
+    const float ox  = (W - 480.0f * sc2) * 0.5f, oy = (H - 272.0f * sc2) * 0.5f;
+    const float floatY = 0.0f;
+    float descentPx;
+    {
+        const float rr = clockReveal;
+        float d;
+        if (rr <= 0.0f)      d = -1.0f;
+        else if (rr >= 1.0f) d = 0.0f;
+        else { const float c = 1.4f, u = rr - 1.0f; d = (c + 1.0f) * u * u * u + c * u * u; }
+        descentPx = d * (272.0f + 50.0f) * sc2;
+    }
+    mPspClockReveal = r;                       // entrance envelopes below read this scalar
+    mPspClockOn     = true;
+    mPspLensCx      = ox + 240.0f * sc2;
+    mPspLensCy      = oy + (136.0f + floatY) * sc2 + descentPx;
+    mPspLensR       = 141.0f * sc2;
+    mPspLensValid   = (clockReveal > 0.0f);
+    mPspDetailFade  = std::min(1.0f, std::max(0.0f, (r - 0.8f) / 0.2f));   // ticks + trail fade in late
+
+    // Live second-hand comet trail: replicate the primary's per-frame decay.
+    {
+        int h, m, s; float sub; pspNow(h, m, s, sub);
+        const int i0 = s * 2, i1 = s * 2 + 1;
+        const float f = powf(PSP_DECAY, (mFrameDt * 1000.0f) / PSP_FRAME_MS);
+        const float usf = sub * 1e6f;
+        for (int i = 0; i < 120; i++) {
+            if (i == i0)                mPspTrail[i] = 1.0f;
+            else if (i == i1)           mPspTrail[i] = (usf > 50000.0f) ? 1.0f : mPspTrail[i] * f;
+            else                        mPspTrail[i] *= f;
+        }
+    }
+
+    const float dtMs = (mFrameDt > 0.0f) ? mFrameDt * 1000.0f : 16.0f;
+
+    // Harmonize the glow with the wallpaper (spec 5.9.4): sample the dominant wave colour at ~4Hz.
+    // Without this the bottom clock would keep the fallback cyan glow whenever the F12 summon is not
+    // open, since mPspGlow is otherwise only sampled inside drawPspClock's open path. Done before the
+    // visible passes so its FBO switch / glReadPixels flush cannot lose the clock's Mali tile.
+    { static int sBottomGlow = 0; if ((sBottomGlow++ % 16) == 0) pspClockSampleGlow(); }
+
+    // Passes: NO backdrop-blur scrim (keep the wave visible behind the disc), then glass lens, the
+    // entrance explosion during the reveal transient, then the face. Same order + envelope math as
+    // drawPspClock's pass block, minus stage 1. The entrance helpers only touch their own baked
+    // textures / statics, so they are safe to drive here without corrupting the F12 summon.
+    setUiBlend();
+    pspClockLens(clockReveal);
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+    {
+        const float BURST_P = 0.7f;
+        const float eoy = oy;                   // swipe offset is always 0 on the bottom clock
+        float burstEnv = std::min(1.0f, std::max(0.0f, (0.58f - mPspClockReveal) / 0.16f));
+        const float burstA = std::min(1.0f, burstEnv * 1.15f);
+        auto burstFed = [&](float delay){ float rr = mPspClockReveal - delay; return rr > 0 ? fmodf(rr / BURST_P, 1.0f) * 0.87f : 0.0f; };
+        pspClockEntrance(sc2, ox, eoy, std::min(1.0f, burstFed(0.0f)),         0.0f,  burstA);
+        pspClockEntrance(sc2, ox, eoy, std::min(1.0f, burstFed(BURST_P / 3.0f)), 0.42f, burstA);
+        const float ICON_P = 0.62f;
+        float iconFedA = fmodf(mPspClockReveal, ICON_P) * 0.87f;
+        float rIB = mPspClockReveal - ICON_P / 2.0f;
+        float iconFedB = rIB > 0 ? fmodf(rIB, ICON_P) * 0.87f : 0.0f;
+        int iconCycleA = (int)(mPspClockReveal / ICON_P);
+        int iconCycleB = rIB > 0 ? (int)(rIB / ICON_P) : 0;
+        pspClockEntranceIcons(sc2, ox, eoy, iconFedA, burstEnv, mPspIconSeed + iconCycleA * 2);
+        pspClockEntranceIcons(sc2, ox, eoy, iconFedB, burstEnv, mPspIconSeed + iconCycleB * 2 + 1);
+        pspClockAmbientGlyphs(dtMs);
+    }
+
+    pspClockFace(clockReveal, floatY, descentPx);
+
+    setUiBlend();                              // leave standard alpha blending for the caller
+
+    // Restore the summon state we drove (leave nothing dirty for the parked primary summon).
+    mPspClockReveal = savedReveal;
+    mPspClockOn     = savedOn;
+    mPspDetailFade  = savedDetail;
+    mPspGlyphBurst  = savedGlyphBurst;
+    mPspLensCx = savedCx; mPspLensCy = savedCy; mPspLensR = savedR; mPspLensValid = savedValid;
+    memcpy(mPspTrail, savedTrail, sizeof(mPspTrail));
+}
+
+// -----------------------------------------------------------------------------
 // Stage 1: backdrop blur + darken outside the disc (spec 5.10 / deviation D9).
 // The SAME defocus as Settings submenu dialogs: blur the composited bg+wave and
 // blit it full-screen, then a mild darken. (The disc will be drawn as a crisp
