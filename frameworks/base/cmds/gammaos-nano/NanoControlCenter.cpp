@@ -1020,13 +1020,14 @@ void NanoMenu::ccUpdateSleep() {
 }
 
 // The control center shows while: the feature prop is on, this is the resident overlay instance,
-// the overlay menu is NOT up (that takes the whole screen), an app IS launched, the theme is XMB
-// (DSi drives its own bottom carousel), the device is dual-screen, and the launched app is NOT a
-// dual-stack app (those already use the bottom panel themselves).
+// the overlay menu is NOT up (that takes the whole screen), an app IS launched, the device is
+// dual-screen, and the launched app is NOT a dual-stack app (those already use the bottom panel
+// themselves). Works in BOTH the XMB and the DSi themes: the DSi bottom carousel only shows while
+// the overlay is up (show_overlay=1), which the show_overlay gate below already excludes, so the
+// bottom panel is free for the dashboard during app play in either theme.
 bool NanoMenu::controlCenterActive() {
     if (!mControlCenterEnabled) return false;
     if (!mOverlayMode) return false;
-    if (mNdsTheme) return false;
     if (property_get_bool("sys.gammaos.nano.show_overlay", false)) return false;
     if (!property_get_bool("sys.gammaos.nano.app_launched", false)) return false;
     if (!hasSecondaryDisplay()) return false;
