@@ -913,6 +913,8 @@ private:
     // Input device fds
     std::vector<int> mInputFds;
     std::set<std::string> mOpenedDevices;
+    std::map<int, std::string> mInputFdNames;  // fd -> EVIOCGNAME (Control Center bottom-touch routing)
+    int mCurrentInputFd = -1;                  // fd of the event currently being dispatched
     // fds in mInputFds that are the POWER key node (axp2202-pek / KEY_POWER). The
     // overlay must NEVER EVIOCGRAB these: grabbing the power node blocks Android
     // EventHub from seeing the summon's power UP, which strands PhoneWindowManager's
@@ -1194,6 +1196,7 @@ private:
     bool mPs3Xmb = false;         // persist.gammaos.nano.ps3xmb
     bool mNdsTheme = false;       // persist.gammaos.nano.ndstheme (DSi System Menu theme, takes priority)
     bool mPs3BottomClock = false; // persist.gammaos.nano.ps3xmb.bottomclock (PSP clock on the bottom panel, dual-screen XMB)
+    bool mControlCenterEnabled = false; // persist.gammaos.nano.ps3xmb.controlcenter (bottom-screen dashboard over a single-screen app)
     // Bottom-panel PSP clock reveal (own scalar, independent of the F12 summon mPspClockReveal).
     // 0..1: on cold boot it ramps 0 -> 1 after the XMB icons float in so the clock plays its drop-in
     // transition on the bottom panel; on a plain home / app-return (no boot sequence) it snaps to 1
@@ -3196,6 +3199,63 @@ private:
     // so every primary frost consumer (submenu backdrop, dialogs, System Update) must re-capture the
     // wave rather than reuse a stale cache (else the clock's halo bleeds into the frost = flicker).
     bool  frostBufferSharedWithClock() const;
+
+    // --- bottom-screen Control Center (NanoControlCenter.cpp) -----------------
+    // Live dashboard on the bottom panel while a single-screen (non-dual-stack) app runs on top.
+    bool  controlCenterActive();           // prop + overlay + app-launched + single-screen + dual-screen gate
+    void  renderControlCenterFrame();      // EGL: set up + present the CC on the secondary panel
+    void  hideControlCenterLayer();        // hide the CC secondary layer on teardown
+    void  renderControlCenterUI();         // all-immediate dashboard (fallback if the static cache fails)
+    void  renderCcPass(int pass);          // shared body; draws the STATIC and/or DYNAMIC layers by mask
+    void  renderCcStatic();                // bake pass: frame-invariant layers only
+    void  renderCcDynamic();               // per-frame pass: live layers only, over the composited cache
+    void  pollControlCenterStats();        // refresh live sysfs stats (throttled)
+    void  ccPollTouch();                   // read the BOTTOM digitizer + dispatch (called in the park loop)
+    void  ccTouchFrame();                  // decode one touch frame -> tap / wake
+    void  ccOnTap(float px, float py);     // hit-test tiles -> toggle actions
+    int   ccSliderAt(float px, float py);  // which left-card slider is under a press (-1 = none)
+    void  ccApplySlider(int i, float py);  // set a grabbed slider's value from the touch Y (grab + drag)
+    void  ccUpdateSleep();                 // graceful bottom-screen dim-to-off / wake ramp (per frame)
+    void  ccBeginSleep();                  // start the graceful dim-to-off (Sleep tile tap AND 30s idle auto-sleep)
+    void  ccRestoreBacklightIfSlept();     // on CC teardown, restore the bottom backlight if it was slept/dimming
+    void  ccSendVolume(int v);             // issue the media_session --set (forks a shell); debounced by callers
+    // CC touch + interactive state (render-thread only; no mutex).
+    int   mCcRawX = 0, mCcRawY = 0;        // last bottom-digitizer raw coords (0..640 x 0..480)
+    bool  mCcTouchDownRaw = false;         // BTN_TOUCH state
+    bool  mCcTouchWas = false;             // previous-frame down (edge detect)
+    float mCcDownX = -1.0f, mCcDownY = -1.0f;  // press position (tap detection)
+    int   mCcHeldSlider = -1;              // slider grabbed by the current touch (-1 = none), for drag
+    int   mCcVolLastSet = -1;              // last volume value actually pushed via media_session --set
+    int64_t mCcVolLastSetMs = 0;           // when it was pushed (debounce the fork during a drag)
+    bool  mCcSleeping = false;             // bottom screen slept (backlight1 ramping / at 0)
+    int   mCcSleepFromBri = 128;           // backlight1 value to restore on wake
+    float mCcSleepRamp = 1.0f;             // 1 = full brightness, 0 = off (eased)
+    int   mCcSleepDir = 0;                 // -1 dimming to off, +1 ramping back up, 0 idle
+    int64_t mCcLastTouchMs = 0;            // monotonic ms of the last bottom-touch activity (30s idle auto-sleep)
+    bool  mCcActiveSeeded = false;         // false until the CC-active edge seeds mCcLastTouchMs (re-arms per activation)
+    float mCcFadeIn = 1.0f;                // 0 = full black, 1 = fully revealed; reset to 0 each time the CC comes up
+    // CC static-layer cache: the frame-invariant dashboard (background, card bodies, headers, slider
+    // TRACKS, speaker/sun icons, clock face + ticks, gauge TRACK rings, fixed labels, and every tile
+    // icon/label/background) is baked once into mCcStaticTex, then composited as one full-panel quad each
+    // frame; only the live elements redraw over it. Rebuilt only when the signature changes (tile 0/1/2
+    // states, date, panel size). Lives on the SECONDARY EGL context; freed in hideControlCenterLayer.
+    struct CcStaticSig {
+        int   w = -1, h = -1;         // panel size -> layout scale (resize forces a rebuild)
+        uint8_t tile[8] = {0};        // per-tile ccActState() 0/1/2 (bg + icon colour + shape + perf label)
+        int   wday = -1, mday = -1;   // clock date "MON 20"
+        bool operator==(const CcStaticSig& o) const {
+            if (w != o.w || h != o.h || wday != o.wday || mday != o.mday) return false;
+            for (int i = 0; i < 8; i++) if (tile[i] != o.tile[i]) return false;
+            return true;
+        }
+    };
+    CcStaticSig ccStaticSignature() const; // capture the current static-state signature
+    CcStaticSig mCcStaticSig;              // signature the current mCcStaticTex was baked with
+    bool   mCcStaticValid = false;         // a valid bake exists for mCcStaticSig
+    GLuint mCcStaticTex = 0;               // RGBA8 cache, mWidth x mHeight (0 = not created)
+    GLuint mCcStaticFbo = 0;               // FBO wrapping mCcStaticTex (0 = not created)
+    void   ccEnsureStaticCache();          // (re)bake the static layers when the signature changes
+    void   ccFreeStaticCache();            // delete the FBO + texture (teardown / GPU failure)
     void  pspClockPollInput();
     void  pspClockTouchFrame();                // swipe-to-dismiss + block menu touch while up                 // reads the F12 gate prop into mPspClockEnabled
     void  pspClockPollTilt(bool active);       // accel -> smoothed mPspTilt* parallax (gyro peek)
@@ -3514,7 +3574,7 @@ private:
     // Draw an arbitrary GL texture handle (PS3 category icons live outside
     // mIconTextures[]). Supports a non-square w/h. (NanoMenuPS3Menu.cpp)
     void drawIconTex(GLuint tex, float x, float y, float w, float h,
-                     float r, float g, float b, float a, float rot = 0.0f);
+                     float r, float g, float b, float a, float rot = 0.0f, bool flipV = false);
     GLuint mIconTextures[19]; // 0-14=systems, 15=history, 16=generic game cartridge, 17=setting, 18=Applications app-grid
 
     // On-screen keyboard. mOskActive + mOskQuery are the keep-stable members

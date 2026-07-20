@@ -1431,8 +1431,15 @@ bool NanoMenu::threadLoop() {
     // Dual-screen XMB: render a static PSP clock on the bottom panel instead of a second wave.
     // Cached once (read on the render hot path otherwise); only meaningful in pure XMB (!mNdsTheme)
     // on a device with a secondary panel (the render call sites are gated accordingly).
+    // Enabled by DEFAULT (the RG DS bottom-screen PSP clock; toggle under Settings > Theme Settings
+    // > Bottom Clock). No-op on a single-screen device: the render sites are gated on a secondary
+    // panel, so defaulting on is inert there and only lights up the RG DS's bottom panel.
     mPs3BottomClock = android::base::GetBoolProperty(
-            "persist.gammaos.nano.ps3xmb.bottomclock", false);
+            "persist.gammaos.nano.ps3xmb.bottomclock", true);
+    // Bottom-screen Control Center: live dashboard on the bottom panel while a single-screen
+    // (non-dual-stack) app runs on top. Dual-screen XMB only; the render gate re-checks context.
+    mControlCenterEnabled = android::base::GetBoolProperty(
+            "persist.gammaos.nano.ps3xmb.controlcenter", false);
     ALOGI("NanoMenu: persist read quick_resume=%d xmb_mode=%d ps3xmb=%d nds=%d",
           mQuickResumeEnabled ? 1 : 0, mXmbMode ? 1 : 0, mPs3Xmb ? 1 : 0, mNdsTheme ? 1 : 0);
     // PS3 cold-boot intro: play the full intro (wave/gradient reveal from black,
@@ -3666,6 +3673,11 @@ if (sRingPrimedCount >= 2) {
         if (mOverlayMode) {
             if (!mOverlayInited) overlayInitLayer();
             overlayPoll();
+            // A power-hold raises the overlay via overlayPoll() above (mOverlayShown -> true) BEFORE the
+            // !mOverlayShown block below, so the CC teardown inside it is skipped. If the CC had slept the
+            // bottom panel, restore its backlight here so the raised overlay is not left on a dark panel;
+            // idempotent (ccRestoreBacklightIfSlept early-returns once settled), and re-arm the idle timer.
+            if (mOverlayShown) { ccRestoreBacklightIfSlept(); mCcActiveSeeded = false; }
             if (!mOverlayShown) {
                 // Parked behind a foreground app: the overlay renders nothing here, so
                 // release its mlockall pin (~122MB) and let those idle pages swap to zram
@@ -3690,6 +3702,81 @@ if (sRingPrimedCount >= 2) {
                     if (mOverlayBgTex) { glDeleteTextures(1, &mOverlayBgTex); mOverlayBgTex = 0; }
                     freeGlassScratch();
                 }
+                // Bottom-screen Control Center: while a single-screen (non-dual-stack) app is
+                // fullscreen on top, render the live dashboard on the BOTTOM panel instead of fully
+                // parking. The munlockall above already handed the game its RAM; the dashboard's small
+                // working set (glyph atlas, shaders, the secondary surface) faults back in on demand.
+                // Rate-capped so the game keeps the SoC, and a power-hold still raises the overlay
+                // promptly (the next iteration sees show_overlay=1 and falls through to the full path).
+                if (controlCenterActive()) {
+                    int64_t ccT0 = systemTime(SYSTEM_TIME_MONOTONIC);
+                    int64_t ccNowMs = ccT0 / 1000000;   // monotonic ms (nowMs() is file-static to NanoControlCenter.cpp)
+                    // Real elapsed time since the previous CC park frame. The main loop's mFrameDt
+                    // update lives AFTER this branch's continue, so on the CC path mFrameDt would
+                    // otherwise be stale; feed the measured delta in so ccUpdateSleep's 0.6s dim/wake
+                    // ramp is paced by wall-clock (at 20fps a stale ~16ms dt would run the ramp ~3x slow).
+                    {
+                        static int64_t sCcLastNs = 0;
+                        if (sCcLastNs > 0) {
+                            float dt = (float)(ccT0 - sCcLastNs) / 1e9f;
+                            if (dt < 0.001f) dt = 0.001f;
+                            if (dt > 0.1f)   dt = 0.1f;
+                            mFrameDt = dt;
+                        }
+                        sCcLastNs = ccT0;
+                    }
+                    // Seed the idle timer on the activation edge so a freshly shown CC does not instantly
+                    // auto-sleep. mCcActiveSeeded is cleared on teardown, so it re-arms per activation.
+                    if (!mCcActiveSeeded) { mCcLastTouchMs = ccNowMs; mCcActiveSeeded = true; mCcFadeIn = 0.0f; }
+                    ccPollTouch();     // read the bottom digitizer (tiles / sliders / wake); refreshes mCcLastTouchMs on touch
+                    // A finger held motionless stops emitting SYN frames (the gt9xx only reports on
+                    // change), so ccTouchFrame would not refresh the timer and auto-sleep could dim the
+                    // panel under a resting finger. Keep the 30s window open on the durable down state;
+                    // lift-off then starts the countdown.
+                    if (mCcTouchDownRaw || mCcHeldSlider >= 0) mCcLastTouchMs = ccNowMs;
+                    ccUpdateSleep();   // advance the graceful bottom-screen dim/wake ramp
+                    static unsigned sCcOrientCtr = 0;
+                    // Fully slept: pause the control center completely. Skip render AND the live stats poll
+                    // (the expensive parts) so the game keeps the SoC and temps drop; only the light touch
+                    // drain + ramp above keep running so a tap still wakes it. Paced at 50ms (~20Hz) so wake
+                    // still feels immediate while the parked panel costs almost nothing.
+                    bool ccSlept = (mCcSleeping && mCcSleepDir == 0 && mCcSleepRamp <= 0.0f);
+                    if (ccSlept) {
+                        mRenderHeartbeat.fetch_add(1, std::memory_order_relaxed);
+                        int64_t spentUs = (systemTime(SYSTEM_TIME_MONOTONIC) - ccT0) / 1000;
+                        int64_t restUs  = 50000 - spentUs;
+                        if (restUs > 500) usleep((useconds_t)restUs);
+                        if ((sCcOrientCtr++ % 20) == 0) orientationTick();
+                        continue;
+                    }
+                    // Awake: auto-sleep once 30s pass with nothing touching the bottom screen, using the
+                    // SAME graceful ramp as the Sleep tile. A manual wake tap is a touch, so it refreshes
+                    // mCcLastTouchMs and restarts this window; the awake gate stops it re-firing while
+                    // dimming or slept until a touch re-arms it.
+                    if (!mCcSleeping && mCcSleepDir >= 0 && (ccNowMs - mCcLastTouchMs) >= 30000) {
+                        ccBeginSleep();
+                    }
+                    renderControlCenterFrame();
+                    mRenderHeartbeat.fetch_add(1, std::memory_order_relaxed);
+                    // Pace for low heat: 20fps (50ms) at rest so the game keeps the SoC and temps stay
+                    // down. While a finger or a grabbed slider is live, step up to ~30fps (33ms) so a drag
+                    // tracks without visible lag (touch is drained at the top of every iteration regardless
+                    // of the render budget, so the value applies within one poll either way; the bump just
+                    // keeps the on-screen fill smooth). Heavy sysfs/popen reads are wall-clock throttled
+                    // inside the draw, so the slower rate also cuts poll frequency, not just render frequency.
+                    bool ccTouchActive = (mCcTouchDownRaw || mCcHeldSlider >= 0);
+                    int64_t budgetUs = ccTouchActive ? 33333 : 50000;
+                    int64_t spentUs  = (systemTime(SYSTEM_TIME_MONOTONIC) - ccT0) / 1000;
+                    int64_t restUs   = budgetUs - spentUs;
+                    if (restUs > 500) usleep((useconds_t)restUs);
+                    if ((sCcOrientCtr++ % 20) == 0) orientationTick();
+                    continue;
+                }
+                // Not showing the control center: hide its secondary layer if we had raised it, so the
+                // running app owns its bottom screen again (no stale nano surface over the game).
+                ccRestoreBacklightIfSlept();  // don't leave the bottom panel dark if the CC tore down while slept
+                mCcActiveSeeded = false;      // re-seed the 30s idle timer on the next CC activation
+                hideControlCenterLayer();
                 // Hidden overlay: block on the show_overlay trigger instead of
                 // spin-polling at 30Hz. A spin-poll wakes this thread 30x/sec
                 // even with nothing to do, and while a 3D game is foreground

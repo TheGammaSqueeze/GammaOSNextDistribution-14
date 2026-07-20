@@ -89,6 +89,10 @@ void NanoMenu::openInputDevices() {
             }
             mInputFds.push_back(fd);
             mOpenedDevices.insert(entry->d_name);
+            // Cache the device name per-fd so the Control Center can route the BOTTOM touch
+            // digitizer (RG DS: gt9xx-0 = secondary/bottom panel) distinctly from the top.
+            char nm[128] = {0};
+            if (ioctl(fd, EVIOCGNAME(sizeof(nm) - 1), nm) >= 0) mInputFdNames[fd] = nm;
         }
     }
     closedir(dir);
@@ -1868,6 +1872,7 @@ void NanoMenu::pollInput() {
     struct input_event ev;
     for (int fd : mInputFds) {
         while (read(fd, &ev, sizeof(ev)) == sizeof(ev)) {
+            mCurrentInputFd = fd;   // which device this event came from (Control Center touch routing)
             // Any button edge counts as user activity for the idle frame-rate
             // timer. EV_KEY only fires on real state changes, so this cannot
             // be kept alive by analog-stick noise (sticks go through navPress
@@ -2033,9 +2038,14 @@ void NanoMenu::pollInput() {
                     mOskTouchFlipY = android::base::GetBoolProperty("persist.gammaos.nano.osk_touch_flipy", false);
                     mOskTouchTuneRead = true;
                 }
+                // Bottom-screen Control Center (over a single-screen app): the CC owns touch on the
+                // BOTTOM digitizer (tiles / sliders / wake-from-sleep). ccTouchFrame self-gates on the
+                // bottom device fd, so top-panel touches fall through (harmless; the app is isolated).
+                if (controlCenterActive())
+                                     ccTouchFrame();
                 // PSP clock up: route ALL touch to the clock's swipe-to-dismiss handler, which also
                 // swallows the touch so the XMB/menu behind cannot be driven (input block, #2).
-                if (mPspClockOn || mPspClockReveal > 0.0f)
+                else if (mPspClockOn || mPspClockReveal > 0.0f)
                                      pspClockTouchFrame();
                 else if (mOskActive) oskTouchFrame();
                 else if (mPvActive)  pvTouchFrame();    // photo viewer (Gallery-style touch)

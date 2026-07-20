@@ -126,6 +126,8 @@ static const Ps3DataItem kThemeSettingsCh[] = {
   {"Font",22,"Sets the font displayed on the home screen.",nullptr,1,nullptr,0},
   {"Day/Night",22,"Sets the time-of-day lighting (day, dusk, night or automatic).",nullptr,1,nullptr,0},
   {"Home Theme",22,"Switches the home screen between the GammaOS XMB and the DSi Menu. Applying restarts the home screen.","GammaOS XMB",1,nullptr,0},
+  {"Bottom Clock",73,"Shows a PSP-style analog clock on the bottom screen. Dual-screen devices only (e.g. the RG DS); no effect on a single-screen device.","On",1,nullptr,0},
+  {"Bottom Clock FPS",73,"Frame rate of the bottom-screen clock. 30 FPS saves power; 60 FPS is smoother.","30 FPS",1,nullptr,0},
 };
 static const Ps3DataItem kDateTimeCh[] = {
   {"Date and Time",22,"Sets the date and time for this system.",nullptr,1,nullptr,0},

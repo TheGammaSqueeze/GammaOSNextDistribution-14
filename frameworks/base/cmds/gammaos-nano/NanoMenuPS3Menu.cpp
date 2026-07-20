@@ -280,7 +280,7 @@ static GLuint loadColorIconTexAbs(const char* absPath) {
 }
 
 void NanoMenu::drawIconTex(GLuint tex, float x, float y, float w, float h,
-                           float r, float g, float b, float a, float rot) {
+                           float r, float g, float b, float a, float rot, bool flipV) {
     if (tex == 0) return;
     GLfloat verts[12];
     if (rot == 0.0f) {
@@ -305,7 +305,10 @@ void NanoMenu::drawIconTex(GLuint tex, float x, float y, float w, float h,
         corner(-hw,  hh, 0); corner( hw,  hh, 1); corner( hw, -hh, 2);
         corner( hw, -hh, 3); corner(-hw, -hh, 4); corner(-hw,  hh, 5);
     }
+    // PNG textures load row 0 = top, so v=0 maps to the quad's top (default). An FBO/render-to-texture
+    // has the GL bottom-left origin (row 0 = bottom), so it must be sampled V-flipped to appear upright.
     GLfloat uvs[]   = { 0,1, 1,1, 1,0, 1,0, 0,0, 0,1 };
+    if (flipV) { GLfloat f[] = { 0,0, 1,0, 1,1, 1,1, 0,1, 0,0 }; for (int i = 0; i < 12; i++) uvs[i] = f[i]; }
     GLfloat colors[6 * 4];
     for (int i = 0; i < 6; i++) { colors[i*4]=r; colors[i*4+1]=g; colors[i*4+2]=b; colors[i*4+3]=a; }
     glUseProgram(mTextProgram);
@@ -5889,8 +5892,8 @@ static const Ps3SettingBinding kPs3Bindings[] = {
      "90:90 degrees,180:180 degrees,270:270 degrees"},
     {"Slide Launch Target", SettingSource::kProp, "persist.gammaos.rotate.launch_target", "", "@text"},
     {"Show Clock On Slide", SettingSource::kProp, "persist.gammaos.nano.pspclock", "0", "0:Off,1:On"},
-    {"Clock On Bottom Screen", SettingSource::kProp, "persist.gammaos.nano.ps3xmb.bottomclock", "0", "0:Off,1:On"},
-    {"Bottom Clock Frame Rate", SettingSource::kProp, "persist.gammaos.nano.ps3xmb.bottomclock.fps", "30", "30:30 FPS,60:60 FPS"},
+    {"Bottom Clock", SettingSource::kProp, "persist.gammaos.nano.ps3xmb.bottomclock", "1", "0:Off,1:On"},
+    {"Bottom Clock FPS", SettingSource::kProp, "persist.gammaos.nano.ps3xmb.bottomclock.fps", "30", "30:30 FPS,60:60 FPS"},
     {"Clock Live Backdrop", SettingSource::kProp, "persist.gammaos.nano.pspclock.liveapp", "1", "0:Off,1:On"},
     {"Parallax Calibration", SettingSource::kProp, "persist.gammaos.nano.pspclock.tilt.cal", "0.12,1,-1,-1", "@text"},
     // Developer Options

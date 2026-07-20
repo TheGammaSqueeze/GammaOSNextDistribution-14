@@ -554,7 +554,7 @@ void NanoMenu::setUiBlend() {
 // through mParticleProgram (per-vertex colour, same uRotation as mShaderProgram,
 // uploaded once per frame). Same vertices, same submission order, same blend, so
 // the composited result is byte-identical to the immediate path.
-static const int SOLID_BATCH_MAX_VERTS = 4096;
+static const int SOLID_BATCH_MAX_VERTS = 8192;
 static GLfloat sSolidPos[SOLID_BATCH_MAX_VERTS * 2];
 static GLfloat sSolidCol[SOLID_BATCH_MAX_VERTS * 4];
 static int     sSolidN = 0;
@@ -623,6 +623,7 @@ void NanoMenu::drawQuad(float x, float y, float w, float h,
 // coordinate so the SDF abs() handles all four corners symmetrically.
 void NanoMenu::drawRoundedRect(float x, float y, float w, float h, float radius,
                                float r, float g, float b, float a) {
+    flushSolidBatch();   // submit any pending batched solids first so this SDF rect keeps painter order
     float x0 = (x / mWidth) * 2.0f - 1.0f;
     float y0 = 1.0f - ((y + h) / mHeight) * 2.0f;
     float x1 = ((x + w) / mWidth) * 2.0f - 1.0f;
@@ -3642,6 +3643,7 @@ static inline void emitGlyph(int n, float x0, float y0, float x1, float y1,
 void NanoMenu::drawText(const char* str, float px, float py, float scale,
                         float r, float g, float b, float a) {
     if (!str || !*str || mFtNumFaces == 0) return;
+    flushSolidBatch();   // submit any pending batched solids first so this glyph pass keeps painter order
     // Per-size: rasterize glyphs at the integer display pixel size and blit them
     // 1:1 (for mono text at/below the master) so strokes are crisp and evenly
     // scaled instead of a fractional downscale of the 64px master atlas.
@@ -4047,6 +4049,96 @@ void NanoMenu::setupSecondaryEglSurfaces() {
         int64_t now = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL;
         ALOGI("NanoMenu: secondary wallpaper setup complete (%zu surfaces, %lldms)",
               mSecondaryEglSurfaces.size(), now - t0);
+    }
+}
+
+// Control Center present: render the bottom-screen dashboard on the SECONDARY panel while a
+// single-screen app owns the top. Called from the overlay park branch (NanoMenu.cpp threadLoop)
+// instead of fully parking, so it must be self-contained: set up the secondary EGL surface once,
+// show its layer (hidden by default during app play), render the dashboard, present, and restore
+// the primary surface current. Kept lightweight (small GL footprint, capped rate by the caller).
+void NanoMenu::renderControlCenterFrame() {
+    if (mSecondaryEglSurfaces.empty()) {
+        setupSecondaryEglSurfaces();
+        if (mSecondaryEglSurfaces.empty()) return;   // genuine single-screen / setup failed
+    }
+    // Make the secondary layer visible so the dashboard covers the bottom panel (the running
+    // single-screen app does not draw there). Hidden again on teardown (see the park branch).
+    if (!mSecondaryWallpaperControls.empty() && !mNdsSecondaryShown) {
+        SurfaceComposerClient::Transaction t;
+        for (const auto& sc : mSecondaryWallpaperControls) if (sc != nullptr) t.show(sc);
+        t.apply();
+        mNdsSecondaryShown = true;
+    }
+    eglMakeCurrent(mDisplay, mSecondaryEglSurfaces[0], mSecondaryEglSurfaces[0], mContext);
+    glViewport(0, 0, mWidth, mHeight);   // secondary is the same resolution as the primary
+    // Upload the (overlay = identity) panel rotation to the draw programs so drawText/quads land
+    // right on the secondary (render()'s uploadRotationMatrices lambda is out of scope here).
+    {
+        const GLuint progs[] = {mShaderProgram, mTextProgram, mParticleProgram, mFxProgram, mXmbProgram};
+        const GLint  locs[]  = {mLocRotation, mTextLocRotation, mParticleLocRotation, mFxLocRotation, mXmbLocRotation};
+        for (int i = 0; i < 5; i++) { glUseProgram(progs[i]); glUniformMatrix2fv(locs[i], 1, GL_FALSE, sDrmRotMat); }
+    }
+    pollControlCenterStats();   // once per frame here (renderCcPass no longer polls) so the cache
+                                // signature and the dynamic numbers both read the same fresh sCc.
+    // Static-layer cache: bake the frame-invariant dashboard into mCcStaticTex (only when its signature
+    // changes), composite it as one opaque full-panel quad, then redraw just the live elements over it.
+    // Gate/fallback: persist.gammaos.nano.cc.cache=0 or an FBO-incomplete GPU uses the all-immediate path
+    // (pixel-identical by construction). Read the gate once.
+    static int sCcCacheOn = -1;
+    if (sCcCacheOn < 0) sCcCacheOn = property_get_bool("persist.gammaos.nano.cc.cache", true) ? 1 : 0;
+    if (sCcCacheOn) {
+        ccEnsureStaticCache();
+        glViewport(0, 0, mWidth, mHeight);   // ccEnsureStaticCache restored the caller viewport; re-assert
+    }
+    if (sCcCacheOn && mCcStaticValid && mCcStaticTex) {
+        glDisable(GL_BLEND);   // opaque 1:1 composite of the cache (texel.a irrelevant)
+        // flipV: the cache is an FBO render (GL bottom-left origin), so sample it V-flipped to stay upright.
+        drawIconTex(mCcStaticTex, 0.0f, 0.0f, (float)mWidth, (float)mHeight, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, true);
+        renderCcDynamic();     // re-issues setUiBlend(); draws hands/arcs/numbers/fills/status/date over the cache
+    } else {
+        glClearColor(0.03f, 0.03f, 0.04f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+        renderControlCenterUI();   // all-immediate fallback (polls skipped: the frame polled above)
+    }
+    // Fade the dashboard in from black each time the CC comes up (reset on the activation edge in the
+    // park branch). A shrinking full-panel black quad over the composited frame; smoothstep for a soft
+    // ease. ~0.45s. Costs nothing once done (mCcFadeIn latches at 1 -> the quad is skipped).
+    if (mCcFadeIn < 1.0f) {
+        mCcFadeIn += (mFrameDt > 0.0f ? mFrameDt : 0.016f) / 0.45f;
+        if (mCcFadeIn > 1.0f) mCcFadeIn = 1.0f;
+        float e = mCcFadeIn * mCcFadeIn * (3.0f - 2.0f * mCcFadeIn);   // smoothstep reveal
+        float black = 1.0f - e;
+        if (black > 0.001f) {
+            setUiBlend();
+            drawQuad(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f, 0.0f, 0.0f, black);
+        }
+    }
+    eglSwapBuffers(mDisplay, mSecondaryEglSurfaces[0]);
+    eglMakeCurrent(mDisplay, mSurface, mSurface, mContext);   // restore the primary current
+}
+
+// Hide the control-center secondary layer again (on teardown: app exit / overlay raised / feature
+// off) so a subsequent game's bottom screen is not covered by a stale nano surface.
+void NanoMenu::hideControlCenterLayer() {
+    if (!mSecondaryWallpaperControls.empty() && mNdsSecondaryShown) {
+        SurfaceComposerClient::Transaction t;
+        for (const auto& sc : mSecondaryWallpaperControls) if (sc != nullptr) t.hide(sc);
+        t.apply();
+        mNdsSecondaryShown = false;
+    }
+    // Free the static-layer cache so a later CC activation re-bakes at the then-current size/state and we
+    // do not leak an FBO + full-panel RGBA8 texture while hidden. This runs from the park loop's NOT-showing
+    // branch with the PRIMARY surface current, but the GL objects live on the shared mContext, so make a
+    // secondary surface current to delete them, then restore the previous surface/context.
+    if ((mCcStaticFbo || mCcStaticTex) && !mSecondaryEglSurfaces.empty()) {
+        EGLSurface prevDraw = eglGetCurrentSurface(EGL_DRAW);
+        EGLSurface prevRead = eglGetCurrentSurface(EGL_READ);
+        EGLContext prevCtx  = eglGetCurrentContext();
+        if (eglMakeCurrent(mDisplay, mSecondaryEglSurfaces[0], mSecondaryEglSurfaces[0], mContext) == EGL_TRUE) {
+            ccFreeStaticCache();
+            eglMakeCurrent(mDisplay, prevDraw, prevRead, prevCtx);
+        }
     }
 }
 
