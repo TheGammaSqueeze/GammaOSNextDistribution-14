@@ -4678,6 +4678,16 @@ void NanoMenu::render() {
                     mWidth = sw; mHeight = sh;
                 }
             }
+            // Dual-screen XMB: the search / Wi-Fi password / System Name keyboard belongs on the BOTTOM
+            // touch panel too (like the DSi theme above). Remap to the secondary AHB dims so the OSK layout
+            // scales to the bottom panel; drawn after the bcSkip/else converge so it sits on top of the
+            // wave/clock in both the cached and fresh frames. Self-gates on mOskActive.
+            {
+                int sw = mWidth, sh = mHeight;
+                mWidth = sAhbTargetSecondary.w; mHeight = sAhbTargetSecondary.h;
+                renderOsk();
+                mWidth = sw; mHeight = sh;
+            }
             glDisable(GL_BLEND);
         }
         mRenderingPanel = 0;   // back to the primary/top panel for the main pass below
@@ -4845,18 +4855,27 @@ void NanoMenu::render() {
         }
     }
 
+    // Dual-screen (RG DS): the nano OSK belongs on the BOTTOM touch panel, not the untouchable TOP one, in
+    // EVERY state that draws it (setup wizard, over-app, home). Compute the routing ONCE and gate all three
+    // primary (top) draws with it; the secondary (bottom) passes draw the OSK when this is true, so it is
+    // never drawn on both panels. mPs3Xmb covers the XMB and DSi themes; a single-panel device has no
+    // secondary target so this stays false and the OSK still draws on the only (primary) panel.
+    const bool oskOnSecondary = mPs3Xmb &&
+        (sAhbTargetSecondary.glFbo != 0 || !mSecondaryEglSurfaces.empty());
+
     if (mSetupWizardActive && !mPs3BootActive) {
         // During a PS3 cold boot the wizard is held back so the full intro
         // (anim -> epilepsy warning) plays first; it cuts in once the intro ends.
         renderSetupWizard();
-        renderOsk();
+        if (!oskOnSecondary) renderOsk();   // dual-screen: keyboard on the bottom (secondary pass)
     } else if (mPs3Xmb && mOskOverApp) {
         // OSK-only over a live app (an app requested text entry; see overlayOskPoll).
         // The app shows through the translucent overlay layer - dim it with a scrim
-        // and draw just the keyboard, no Quick Menu behind it.
+        // and draw just the keyboard, no Quick Menu behind it. The scrim stays on the
+        // top (over the app); the keyboard itself moves to the bottom on dual-screen.
         setUiBlend();
         drawQuad(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f, 0.0f, 0.0f, 0.55f);
-        renderOsk();
+        if (!oskOnSecondary) renderOsk();   // dual-screen: keyboard on the bottom (secondary pass)
     } else if (mPs3Xmb) {
         // PS3 XMB layout (NanoMenuPS3Menu.cpp). renderPs3Xmb() draws the Wi-Fi /
         // Bluetooth sub-screens itself when mMenuState is MENU_WIFI / MENU_BT, and
@@ -4916,13 +4935,10 @@ void NanoMenu::render() {
         if (mGpTestActive) renderGamepadTest();
         else if (mGpCalibActive) renderGamepadCalib();
         renderScrapeProgress();   // boxart-scraper progress / result modal, over the XMB
-        // DSi dual-screen (RG DS): the OSK keyboard belongs on the BOTTOM touch panel, not the
-        // untouchable TOP one. On a device with a live secondary panel it is drawn in the secondary
-        // (bottom) pass instead (search / Wi-Fi password / System Name were appearing on the top,
-        // where touch does nothing). A single-panel device keeps drawing it here.
-        bool ndsOskOnSecondary = mNdsTheme &&
-            (sAhbTargetSecondary.glFbo != 0 || !mSecondaryEglSurfaces.empty());
-        if (!ndsOskOnSecondary) renderOsk();
+        // Dual-screen: the home OSK (search / Wi-Fi password / System Name) draws on the BOTTOM touch
+        // panel via the secondary pass (oskOnSecondary hoisted above the setup-wizard branch); a
+        // single-panel device draws it here on the only panel.
+        if (!oskOnSecondary) renderOsk();
         // Overlay launch transition: fade the whole XMB to black over ~300ms so the
         // app's own cold start is covered by a clean fade-out instead of a frozen,
         // still-navigable menu. The black holds (the input-freeze in pollInput keeps
@@ -5576,6 +5592,9 @@ if (sRingPrimedCount >= 2) {
             // mWidth/mHeight remap here - on the SF path they already equal the secondary dims.
             if (mPs3BottomClock && i == 0 && !mPs3BootActive && (!mOverlayMode || mOverlayWallpaper))
                 renderPspClockSecondary();
+            // XMB search / Wi-Fi password / System Name keyboard on the BOTTOM touch panel (like the DSi
+            // branch above). No remap needed - both panels are 640x480 on the SF path. Self-gates on mOskActive.
+            if (i == 0) renderOsk();
         }
         if (i == 0) maybeNanoScreenshotSecondary();   // debug capture of the bottom DS panel
         eglSwapBuffers(mDisplay, mSecondaryEglSurfaces[i]);
