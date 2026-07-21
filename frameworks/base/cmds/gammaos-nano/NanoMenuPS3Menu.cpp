@@ -239,7 +239,7 @@ static GLuint loadPs3IconTex(const char* file, int maxSize = 0) {
 // real APK icons cached at /data/system/nano_app_icons/<pkg>.png. Same as
 // loadPs3IconTex but keeps the original RGB (no silvery-white force) and takes an
 // absolute path. Returns 0 on any failure (missing file / decode error).
-static GLuint loadColorIconTexAbs(const char* absPath) {
+GLuint NanoMenu::loadColorIconTexAbs(const char* absPath) {
     FILE* fp = fopen(absPath, "rb");
     if (!fp) return 0;
     png_structp png = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);

@@ -4087,19 +4087,34 @@ void NanoMenu::renderControlCenterFrame() {
     // (pixel-identical by construction). Read the gate once.
     static int sCcCacheOn = -1;
     if (sCcCacheOn < 0) sCcCacheOn = property_get_bool("persist.gammaos.nano.cc.cache", true) ? 1 : 0;
-    if (sCcCacheOn) {
+    // Page slide: ease mCcPageOffset toward the target page (0 = dashboard, 1 = app grid) over ~0.28s.
+    float pgTarget = (float)mCcPage;
+    if (mCcPageOffset != pgTarget) {
+        float step = (mFrameDt > 0.0f ? mFrameDt : 0.016f) / 0.28f;
+        if (mCcPageOffset < pgTarget) { mCcPageOffset += step; if (mCcPageOffset > pgTarget) mCcPageOffset = pgTarget; }
+        else                          { mCcPageOffset -= step; if (mCcPageOffset < pgTarget) mCcPageOffset = pgTarget; }
+    }
+    const bool onDashboard = (mCcPageOffset <= 0.001f);
+    mCcPassXoff = 0.0f;
+    if (onDashboard && sCcCacheOn) {
         ccEnsureStaticCache();
         glViewport(0, 0, mWidth, mHeight);   // ccEnsureStaticCache restored the caller viewport; re-assert
     }
-    if (sCcCacheOn && mCcStaticValid && mCcStaticTex) {
+    if (onDashboard && sCcCacheOn && mCcStaticValid && mCcStaticTex) {
+        // Dashboard settled: composite the static cache + dynamic overlay (the cheap steady-state path).
         glDisable(GL_BLEND);   // opaque 1:1 composite of the cache (texel.a irrelevant)
         // flipV: the cache is an FBO render (GL bottom-left origin), so sample it V-flipped to stay upright.
         drawIconTex(mCcStaticTex, 0.0f, 0.0f, (float)mWidth, (float)mHeight, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, true);
         renderCcDynamic();     // re-issues setUiBlend(); draws hands/arcs/numbers/fills/status/date over the cache
     } else {
-        glClearColor(0.03f, 0.03f, 0.04f, 1.0f);
+        // Mid-slide or on the app page (or cache disabled): render immediate, each page translated by the
+        // eased offset so the dashboard slides left as the app grid slides in from the right.
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
-        renderControlCenterUI();   // all-immediate fallback (polls skipped: the frame polled above)
+        float e = mCcPageOffset * mCcPageOffset * (3.0f - 2.0f * mCcPageOffset);   // smoothstep slide
+        if (e < 0.999f) { mCcPassXoff = -e * (float)mWidth;          renderControlCenterUI(); }  // dashboard
+        if (e > 0.001f) { mCcPassXoff = (1.0f - e) * (float)mWidth;  renderCcApps(true, true); } // app grid
+        mCcPassXoff = 0.0f;
     }
     // Fade the dashboard in from black each time the CC comes up (reset on the activation edge in the
     // park branch). A shrinking full-panel black quad over the composited frame; smoothstep for a soft

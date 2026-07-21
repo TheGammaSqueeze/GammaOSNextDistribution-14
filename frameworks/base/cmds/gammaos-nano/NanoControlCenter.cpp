@@ -357,7 +357,7 @@ void NanoMenu::renderCcPass(int pass) {
     const float u  = fminf((float)mWidth / DW, (float)mHeight / DH);
     const float ox = ((float)mWidth  - DW * u) * 0.5f;
     const float oy = ((float)mHeight - DH * u) * 0.5f;
-    auto X  = [&](float x){ return ox + x * u; };
+    auto X  = [&](float x){ return ox + x * u + mCcPassXoff; };   // mCcPassXoff = page-slide translation
     auto Y  = [&](float y){ return oy + y * u; };
     auto S  = [&](float s){ return s * u; };
     auto TS = [&](float px){ return (px * u) / (float)FONT_CHAR_H; };
@@ -770,6 +770,73 @@ void NanoMenu::ccFreeStaticCache() {
     mCcStaticSig = CcStaticSig{};   // sentinel -> next activation always rebuilds
 }
 
+// Load the installed-app list for the launcher page, gated on the framework's apps_generation counter
+// (bumped when a package is added/removed, at which point the label + icon caches on disk are refreshed).
+void NanoMenu::ccEnsureAppList() {
+    static int sLastGen = -1;
+    int gen = property_get_int32("sys.gammaos.nano.apps_generation", 0);
+    if (!mAppsLoaded || gen != sLastGen) {
+        loadInstalledApps();     // fills mAppEntries (pkg + label) from /data/system/packages.list + labels.txt
+        sLastGen = gen;
+    }
+}
+
+// Page 1: the app-launcher grid. Real APK icons come from /data/system/nano_app_icons/<pkg>.png (written by
+// SystemServer), loaded once per package into the shared mPs3AppIcons cache. Drawn immediate (not in the static
+// cache) - it is icons + labels, cheap at 20fps, and only visible on page 1 / during a slide. mCcPassXoff (set
+// by the caller) slides the whole page horizontally for the page transition.
+void NanoMenu::renderCcApps(bool /*st*/, bool /*dy*/) {
+    const float DW = 640.0f, DH = 480.0f;
+    const float u  = fminf((float)mWidth / DW, (float)mHeight / DH);
+    const float ox = ((float)mWidth  - DW * u) * 0.5f + mCcPassXoff;
+    const float oy = ((float)mHeight - DH * u) * 0.5f;
+    auto X  = [&](float x){ return ox + x * u; };
+    auto Y  = [&](float y){ return oy + y * u; };
+    auto S  = [&](float s){ return s * u; };
+    auto TS = [&](float px){ return (px * u) / (float)FONT_CHAR_H; };
+    auto textC = [&](const char* s, float cx, float topY, float px, float r, float g, float b, float a){
+        float sc = TS(px); drawText(s, X(cx) - measureText(s, sc) * 0.5f, Y(topY), sc, r, g, b, a);
+    };
+
+    setUiBlend();
+    drawQuad(X(0), Y(0), S(DW), S(DH), 0.015f, 0.017f, 0.028f, 1.0f);   // page background (opaque during slide)
+
+    // header (tiny dim letter-spaced caps, matching the dashboard)
+    { const char* h = "APPLICATIONS"; float sc = TS(11.0f), cx = X(10);
+      for (const char* p = h; *p; ++p) { char c[2] = { *p, 0 };
+          drawText(c, cx, Y(8), sc, 0.46f, 0.52f, 0.64f, 1.0f); cx += measureText(c, sc) + S(2.2f); } }
+
+    ccEnsureAppList();
+    const int   cols = 5, visRows = 4;
+    const float cellW = 128.0f, rowH = 104.0f, iconSz = 56.0f, gridTop = 54.0f;
+    int n = (int)mAppEntries.size();
+    for (int i = 0; i < n; i++) {
+        int col = i % cols, row = i / cols - mCcAppScroll;
+        if (row < 0 || row >= visRows) continue;
+        float cellX = (float)col * cellW, cellY = gridTop + (float)row * rowH;
+        float icx = cellX + cellW * 0.5f;
+        // cell body
+        drawRoundedRect(X(cellX + 8), Y(cellY + 2), S(cellW - 16), S(rowH - 12), S(12.0f), 0.075f, 0.082f, 0.11f, 0.9f);
+        // real APK icon (lazy-loaded + cached)
+        const std::string& pkg = mAppEntries[i].packageName;
+        GLuint tex = 0;
+        auto it = mPs3AppIcons.find(pkg);
+        if (it != mPs3AppIcons.end()) tex = it->second;
+        else { std::string path = "/data/system/nano_app_icons/" + pkg + ".png";
+               tex = loadColorIconTexAbs(path.c_str()); if (tex) mPs3AppIcons[pkg] = tex; }
+        if (tex) drawIconTex(tex, X(icx - iconSz * 0.5f), Y(cellY + 8), S(iconSz), S(iconSz), 1.0f, 1.0f, 1.0f, 1.0f);
+        else     drawRoundedRect(X(icx - iconSz * 0.5f), Y(cellY + 8), S(iconSz), S(iconSz), S(12.0f), 0.2f, 0.22f, 0.28f, 1.0f);
+        // label (centred, truncated with an ellipsis to the cell width)
+        std::string lbl = mAppEntries[i].label;
+        float sc = TS(11.0f), maxw = S(cellW - 18);
+        if (measureText(lbl.c_str(), sc) > maxw) {
+            while (lbl.size() > 1 && measureText((lbl + "..").c_str(), sc) > maxw) lbl.pop_back();
+            lbl += "..";
+        }
+        textC(lbl.c_str(), icx, cellY + 72, 11.0f, 0.82f, 0.85f, 0.92f, 1.0f);
+    }
+}
+
 // ---------------------------------------------------------------------------
 // Interactivity: bottom-panel touch, tile actions, and the graceful sleep ramp.
 // ---------------------------------------------------------------------------
@@ -837,7 +904,8 @@ void NanoMenu::ccTouchFrame() {
             mCcHeldSlider = -1;
         } else {
             sWokeThisTouch = false;
-            mCcHeldSlider = ccSliderAt(px, py);          // grab a slider if the press landed on one
+            // sliders live on the dashboard (page 0) only; on the app page a press starts a swipe/tap.
+            mCcHeldSlider = (mCcPage == 0 && mCcPageOffset <= 0.001f) ? ccSliderAt(px, py) : -1;
             if (mCcHeldSlider >= 0) ccApplySlider(mCcHeldSlider, py);
         }
     } else if (down) {
@@ -845,11 +913,17 @@ void NanoMenu::ccTouchFrame() {
         // held: drag a grabbed slider live (track Y only, so the finger can drift horizontally)
         if (mCcHeldSlider >= 0 && !sWokeThisTouch) ccApplySlider(mCcHeldSlider, py);
     } else if (upEdge) {
-        // release: a short, non-drag press on a tile is a tap; a slider drag is not a tap.
-        if (!sWokeThisTouch && mCcHeldSlider < 0) {
-            float ddx = px - mCcDownX, ddy = py - mCcDownY;
-            if (ddx*ddx + ddy*ddy < 400.0f) ccOnTap(mCcDownX, mCcDownY);   // < ~20px = a tap
+        float ddx = px - mCcDownX, ddy = py - mCcDownY;
+        bool swiped = false;
+        // A big mostly-horizontal drag with no slider grabbed pages between the dashboard (0) and the app
+        // grid (1). Left swipe -> next page, right swipe -> previous. The offset eases in the render.
+        if (!sWokeThisTouch && mCcHeldSlider < 0 && fabsf(ddx) > 120.0f && fabsf(ddx) > 2.0f * fabsf(ddy)) {
+            if      (ddx < 0 && mCcPage < 1) { mCcPage = 1; swiped = true; }   // swipe left -> apps
+            else if (ddx > 0 && mCcPage > 0) { mCcPage = 0; swiped = true; }   // swipe right -> dashboard
         }
+        // Otherwise a short press is a tap. Page 0 hits tiles/sliders; page 1 app taps come in Stage 2.
+        if (!swiped && !sWokeThisTouch && mCcHeldSlider < 0 && ddx*ddx + ddy*ddy < 400.0f && mCcPage == 0)
+            ccOnTap(mCcDownX, mCcDownY);   // < ~20px = a tap
         // Flush the final volume: the drag debounced the intermediate --set calls, so commit the value
         // the finger ended on (guarded so it is skipped when the last debounced set already sent it).
         if (mCcHeldSlider == 0 && sCc.volCur != mCcVolLastSet) ccSendVolume(sCc.volCur);

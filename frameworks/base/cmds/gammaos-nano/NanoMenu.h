@@ -3234,6 +3234,16 @@ private:
     int64_t mCcLastTouchMs = 0;            // monotonic ms of the last bottom-touch activity (30s idle auto-sleep)
     bool  mCcActiveSeeded = false;         // false until the CC-active edge seeds mCcLastTouchMs (re-arms per activation)
     float mCcFadeIn = 1.0f;                // 0 = full black, 1 = fully revealed; reset to 0 each time the CC comes up
+    // CC paging: page 0 = the dashboard, page 1 = the app-launcher grid. mCcPage is the target; mCcPageOffset
+    // eases toward it (0 = dashboard, 1 = app grid) for the horizontal slide. mCcPassXoff is the device-px
+    // horizontal translation the render adds to X() so a pass can be drawn shifted for the transition.
+    int   mCcPage = 0;
+    float mCcPageOffset = 0.0f;
+    float mCcPassXoff = 0.0f;
+    int   mCcAppScroll = 0;                // first app row shown in the grid (vertical scroll)
+    void   renderCcApps(bool st, bool dy); // the app-launcher grid page (icons + labels)
+    void   ccEnsureAppList();              // (re)load the installed-app list + apps_generation gate
+    GLuint loadColorIconTexAbs(const char* absPath);  // full-colour PNG -> GL texture (real APK icons)
     // CC static-layer cache: the frame-invariant dashboard (background, card bodies, headers, slider
     // TRACKS, speaker/sun icons, clock face + ticks, gauge TRACK rings, fixed labels, and every tile
     // icon/label/background) is baked once into mCcStaticTex, then composited as one full-panel quad each
