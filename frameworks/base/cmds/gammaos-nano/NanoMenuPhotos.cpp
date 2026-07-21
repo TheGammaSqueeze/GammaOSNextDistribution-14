@@ -1064,6 +1064,9 @@ void NanoMenu::photoGridNav(int dx, int dy) {
 void NanoMenu::photoGridSelect() {
     if (mPhotoGridCursor < 0 || mPhotoGridCursor >= (int)mPhotoGridList.size()) return;
     openPhotoViewer(mPhotoGridList, mPhotoGridCursor);
+    // Wallpaper picker: skip the photo-viewer options and drop straight into the crop/confirm frame
+    // (mirrors the pvOpen "wallpaper" action), so the flow is browse -> pick -> crop -> set.
+    if (mWpPickTarget >= 0) { mPvPanel = false; mPvWpMode = true; mPvWpZoom = 1.0f; mPvHintUntil = 0.0f; }
 }
 
 // ---- Photo grid touch (tap a thumbnail to open, drag to scroll) ----
@@ -2257,9 +2260,65 @@ void NanoMenu::pvWallpaperConfirm() {
     mPvWpMode = false;
     if (mPvIdx >= 0 && mPvIdx < (int)mPvList.size()) {
         const std::string& f = mPhotos[mPvList[mPvIdx]].file;
-        property_set("persist.gammaos.nano.photo_wallpaper", f.c_str());
+        wallpaperApplyPick(f);
     }
     pvShowMsg(trDyn("The wallpaper has been set."), 1100.0f);
+    // Launched from Theme Settings (picker mode): close the viewer + grid and drop back to the menu so the
+    // chosen wallpaper is visible at once. Otherwise (the in-Photos "Set as Wallpaper" action) stay put.
+    if (mWpPickTarget >= 0) {
+        mWpPickTarget = -1;
+        mPvActive = false;
+        if (!mPs3Stack.empty() && mPs3Stack.back().screenKind == PHOTO_GRID) { closePhotoGrid(); mPs3Stack.pop_back(); }
+    }
+}
+
+// Write the chosen image file to the wallpaper prop for the active theme (XMB vs DSi) and target screen
+// (0 top, 1 bottom), decode it into the render slot, and apply live. Setting an XMB wallpaper turns the
+// wave off by default (materialize the prop so the Theme Settings row agrees). Render-thread only.
+void NanoMenu::wallpaperApplyPick(const std::string& file) {
+    int tgt = (mWpPickTarget >= 0) ? mWpPickTarget : 0;
+    const bool dsi = mNdsTheme;
+    const char* prop = dsi ? (tgt == 1 ? "persist.gammaos.nano.wp.dsi.bottom" : "persist.gammaos.nano.wp.dsi.top")
+                           : (tgt == 1 ? "persist.gammaos.nano.wp.xmb.bottom" : "persist.gammaos.nano.wp.xmb.top");
+    property_set(prop, file.c_str());
+    if (!dsi) { property_set("persist.gammaos.nano.ps3xmb.wave", "0"); mXmbWave = false; }
+    // Decode the chosen file straight into the target slot. Do NOT go through loadWallpaperTextures(): it
+    // re-reads the prop we just set, and property_set may not have propagated to this process's read cache
+    // yet (a socket round-trip to property_service), so it would read the stale value and the live apply
+    // would not show until the next restart.
+    GLuint& tex  = (tgt == 1) ? mWpTexBottom : mWpTexTop;
+    int&    w    = (tgt == 1) ? mWpBottomW   : mWpTopW;
+    int&    h    = (tgt == 1) ? mWpBottomH   : mWpTopH;
+    std::string& path = (tgt == 1) ? mWpPathBottom : mWpPathTop;
+    if (tex) { glDeleteTextures(1, &tex); tex = 0; }
+    w = 0; h = 0; path = file;
+    tex = photoDecodeTex(file, 2048, &w, &h);
+    if (!tex) path.clear();   // decode failed: fall back to the wave / field
+    mDisplayDirty = true;
+}
+
+// Theme Settings -> open the Photos album grid to pick a wallpaper for the given target (0 top, 1 bottom).
+// Reuses the whole Photos previewer: browse the thumbnail grid, pick a photo, crop, confirm.
+void NanoMenu::openWallpaperPicker(int target) {
+    mWpPickTarget = target;
+    photoEnsureLoaded();
+    std::vector<int> all;
+    all.reserve(mPhotos.size());
+    for (size_t i = 0; i < mPhotos.size(); i++) all.push_back((int)i);
+    openPhotoGrid(all, trDyn("Select Wallpaper"), -1);
+}
+
+// Clear the active theme's wallpaper on both screens and bring the wave back (Theme Settings leaf action).
+void NanoMenu::clearWallpaper() {
+    const bool dsi = mNdsTheme;
+    property_set(dsi ? "persist.gammaos.nano.wp.dsi.top"    : "persist.gammaos.nano.wp.xmb.top",    "");
+    property_set(dsi ? "persist.gammaos.nano.wp.dsi.bottom" : "persist.gammaos.nano.wp.xmb.bottom", "");
+    if (!dsi) { property_set("persist.gammaos.nano.ps3xmb.wave", "1"); mXmbWave = true; }
+    // Free the textures directly (the just-cleared props may not have propagated to this process's read
+    // cache yet, so re-reading them could keep the old wallpaper alive).
+    if (mWpTexTop)    { glDeleteTextures(1, &mWpTexTop);    mWpTexTop = 0; }    mWpTopW = 0; mWpTopH = 0; mWpPathTop.clear();
+    if (mWpTexBottom) { glDeleteTextures(1, &mWpTexBottom); mWpTexBottom = 0; } mWpBottomW = 0; mWpBottomH = 0; mWpPathBottom.clear();
+    mDisplayDirty = true;
 }
 
 // ---------------------------------------------------------------------------

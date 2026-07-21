@@ -1666,6 +1666,10 @@ private:
     void   loadWallpaperTextures();               // (re)decode the wallpaper stills from the props (frees old)
     void   drawWallpaperFill(int panel);          // cover-fit blit of the panel's wallpaper over the full panel
     bool   wallpaperActive(int panel) const;      // true if this panel has a still (or video) wallpaper set
+    int    mWpPickTarget = -1;                    // wallpaper picker in progress: -1 none, 0 top, 1 bottom
+    void   openWallpaperPicker(int target);       // Theme Settings -> the Photos album grid in wallpaper-pick mode
+    void   wallpaperApplyPick(const std::string& file);  // write the chosen file to the target prop + reload + live
+    void   clearWallpaper();                      // clear the active theme's wallpaper (both screens) + wave back on
     // Date and Time settings (functional). Date Format / Time Format are nano-
     // local display choices the clock honours; Daylight Saving reflects the real
     // current DST state (tm_isdst, refreshed each frame in drawPs3Clock) and the

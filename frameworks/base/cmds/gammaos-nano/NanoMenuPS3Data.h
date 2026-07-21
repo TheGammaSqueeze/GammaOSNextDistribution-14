@@ -123,6 +123,8 @@ static const Ps3DataItem kThemeSettingsCh[] = {
   {"Colour",22,"Sets the colour of the background and options menu.",nullptr,1,nullptr,0},
   {"Background",22,"Sets the background of the home screen.",nullptr,1,nullptr,0},
   {"Wallpaper",22,"Sets the moving background effect (wave, particles and others) shown behind the home screen.",nullptr,1,nullptr,0},
+  {"Wallpaper Image",22,"Choose a photo from your device to use as the home background. Browse and pick from your images.",nullptr,1,nullptr,0},
+  {"Clear Wallpaper",22,"Removes the custom wallpaper and brings the moving wave back.",nullptr,1,nullptr,0},
   {"XMB Wave",22,"Shows the moving PS3 wave behind the home screen. Off by default when a custom wallpaper is set.","On",1,nullptr,0},
   {"Font",22,"Sets the font displayed on the home screen.",nullptr,1,nullptr,0},
   {"Day/Night",22,"Sets the time-of-day lighting (day, dusk, night or automatic).",nullptr,1,nullptr,0},
