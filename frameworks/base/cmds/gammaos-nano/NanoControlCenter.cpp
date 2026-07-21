@@ -917,6 +917,62 @@ void NanoMenu::ccLaunchBottomApp(const std::string& pkg) {
         }).detach();
         return;
     }
+    // Current foreground is a DUAL-STACK app (it spans BOTH panels: DualStackController has forced
+    // display 0 to the tall 640x960 stacked canvas and mirrors its top half onto the top panel), and
+    // the user picked a NON-dual-stack app from the grid. A non-dual-stack app cannot share that layout:
+    // taking the single-panel bottom path here would `am start --display 0` onto the still-tall display,
+    // orphan the dual-stack process, and leave the top panel blank (its only content was the mirror,
+    // which DualStackController tears down the moment a non-whitelisted app becomes foreground on
+    // display 0). Instead EXIT dual-stack mode and launch the new app as an ordinary single top app:
+    //   1. force-stop the dual-stack app -> its package leaves the foreground on display 0, so
+    //      DualStackController drops both mirrors and deferred-clears the forced tall size back to
+    //      640x480 (updateMirroringIfNeeded / scheduleDeferredForcedTallSizeClearLocked). We do not
+    //      touch persist.gammaos.dualstack.enabled: the allowlist stays intact so the dual-stack app
+    //      works normally next time it is launched.
+    //   2. launch the new app on the TOP panel (cc.topdisplay = display 2, a stable 640x480 panel) so
+    //      it is never born on display 0's tall canvas and cannot race the tall-size clear.
+    //   3. leave the CC on the BOTTOM (display 0, now reverting to 640x480). launch_app is rewritten to
+    //      the new (non-dual-stack) package so controlCenterActive() stays true and the park loop keeps
+    //      the CC on the bottom while the new app owns the top - exactly the normal single-top-app state.
+    // mCcBottomApp stays EMPTY: the app is on top, watched by the framework the normal way, not by the
+    // bottom-app exit poller. This mirrors the dual-stack LAUNCH branch above (force-stop old + relaunch
+    // under the killing guard), only the target display and launch_app differ.
+    {
+        char curTop[PROPERTY_VALUE_MAX] = {};
+        property_get("sys.gammaos.nano.launch_app", curTop, "");
+        std::string cur(curTop);
+        if (!cur.empty() && dualstackHas(cur) && cur != pkg) {
+            ccEndBottomApp(true);          // tear down any stray bottom-app state (no-op if none), force-stop it
+            mCcForceVisible = false;       // launching dismisses the KEY_ALL_APPLICATIONS overlay
+            int td = property_get_int32("persist.gammaos.nano.cc.topdisplay", 2);   // top panel = display 2 (RG DS)
+            property_set("sys.gammaos.nano.launch_app", pkg.c_str());
+            property_set("sys.gammaos.nano.launched_pkg", pkg.c_str());
+            property_set("sys.gammaos.nano.app_launched", "1");
+            property_set("sys.gammaos.nano.cc.bottomapp", "");
+            property_set("sys.gammaos.nano.drop_input", "0");   // let touch reach the new top app + the CC's bottom digitizer
+            ccSetFocusDisplay(td);         // hand the controller to the app now on the top panel
+            (void)ccPollTopTapDown();      // flush the top digitizer's backlog so a stale touch does not bounce focus
+            mCcPage = 0;                   // when the CC settles it shows the dashboard, not the app grid
+            NanoMenu* self = this;
+            std::thread([self, cur, pkg, td]() {
+                // Guard the exit+launch transition like the dual-stack branch/overlayLaunchCommand:
+                // RootWindowContainer skips its startHome handling while killing=1, so force-stopping the
+                // dual-stack app cannot make the framework raise home in the gap before the new app
+                // registers. Cleared once the new app is the resolved foreground.
+                property_set("sys.gammaos.nano.killing", "1");
+                std::string c = "am force-stop '" + cur + "' 2>/dev/null; ";
+                c += "ACT=$(cmd package resolve-activity --brief -a android.intent.action.MAIN "
+                     "-c android.intent.category.LAUNCHER '" + pkg + "' 2>/dev/null | tail -1); ";
+                char amc[160];
+                snprintf(amc, sizeof(amc), "case \"$ACT\" in */*) am start --display %d -n \"$ACT\" 2>/dev/null;; esac", td);
+                c += amc;
+                (void)system(c.c_str());
+                for (int i = 0; i < 60; i++) { usleep(100000); if (self->overlayResolveForegroundPkg() == pkg) break; }
+                property_set("sys.gammaos.nano.killing", "0");
+            }).detach();
+            return;
+        }
+    }
     int bd = property_get_int32("persist.gammaos.nano.cc.bottomdisplay", 0);   // bottom = display 0 (RG DS)
     mCcForceVisible = false;   // launching an app dismisses the KEY_ALL_APPLICATIONS overlay (app owns bottom)
     std::string prev = mCcBottomApp;
