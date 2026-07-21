@@ -118,6 +118,7 @@ static const char* FS_GLASS =
     "uniform vec2  uAttnDiffEnv;\n"
     "uniform vec4  uChangingColor;\n"
     "uniform float uBgExposure;\n"
+    "uniform float uWallpaperLift;\n"   // 0 wave / 1 custom wallpaper: make the glass icons more opaque + lighter
     "void main(){\n"
     "  vec4 nm = texture2D(uNormalMap, vUV);\n"
     "  if (nm.a < 1.0/255.0) discard;\n"
@@ -159,8 +160,12 @@ static const char* FS_GLASS =
     "  vec3 surface = vec3(1.0) - exp(-totalColor * 0.95);\n"
     "  surface = surface * 1.08;\n"
     "  float fresAlpha = 0.72 + 0.28 * fres;\n"   // slightly more opaque than web 0.55
+    // Custom wallpaper (esp. a busy video): the semi-transparent glass reads poorly over it, so raise the
+    // opacity floor (mostly solid, keeping a touch of fresnel life) and lift the shade toward white.
+    "  fresAlpha = mix(fresAlpha, 0.92 + 0.08 * fres, uWallpaperLift);\n"
     "  float alpha = nm.a * fresAlpha * uChangingColor.a;\n"
     "  surface = surface * uChangingColor.rgb;\n"
+    "  surface = mix(surface, min(surface * 1.35 + 0.10, vec3(1.0)), uWallpaperLift);\n"   // lighter shade
     "  gl_FragColor = vec4(surface * alpha, alpha);\n"   // premultiplied
     "}\n";
 
@@ -302,6 +307,7 @@ void NanoMenu::initGlassIcons() {
     mIconGlassLocAttn     = glGetUniformLocation(mIconGlassProgram, "uAttnDiffEnv");
     mIconGlassLocChanging = glGetUniformLocation(mIconGlassProgram, "uChangingColor");
     mIconGlassLocBgExp    = glGetUniformLocation(mIconGlassProgram, "uBgExposure");
+    mIconGlassLocWpLift   = glGetUniformLocation(mIconGlassProgram, "uWallpaperLift");
     mIconGlassLocBgRad    = glGetUniformLocation(mIconGlassProgram, "uBgRadiusUV");
 
     // ambient ramp + matcap (preserve colours - these are not silhouettes)
@@ -982,6 +988,10 @@ void NanoMenu::drawGlassIcon(GLuint nmapTex, float x, float y, float w, float h,
     // Per-icon uniforms: the tint/alpha and the work-texture radius (icon size).
     glUniform4f(mIconGlassLocChanging, cr, cg, cb, alpha);
     glUniform2f(mIconGlassLocBgRad, (w * 0.5f) / fw, (h * 0.5f) / fh);
+    // Wallpaper mode (still or video, wave off): make the glass icons more opaque + lighter so they read
+    // over a busy custom background instead of half-dissolving into it.
+    glUniform1f(mIconGlassLocWpLift,
+                (wallpaperActive(mRenderingPanel) && !mXmbWave) ? 1.0f : 0.0f);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glVertexAttribPointer(mIconGlassLocPos, 2, GL_FLOAT, GL_FALSE, 0, pos);

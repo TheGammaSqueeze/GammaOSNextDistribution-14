@@ -1961,6 +1961,7 @@ private:
     GLint  mIconGlassLocSpec = -1, mIconGlassLocRefr = -1, mIconGlassLocRefrScl = -1;
     GLint  mIconGlassLocAttn = -1, mIconGlassLocChanging = -1, mIconGlassLocBgExp = -1;
     GLint  mIconGlassLocBgRad = -1;
+    GLint  mIconGlassLocWpLift = -1;   // uWallpaperLift: opacity/lightness boost for glass icons in wallpaper mode
     GLuint mIconGlassAmbTex = 0;     // icon_amb.png 16x12 ambient ramp
     GLuint mIconGlassEnvTex = 0;     // texenv.png 64x64 silver matcap
     bool   mIconGlassReady = false;
