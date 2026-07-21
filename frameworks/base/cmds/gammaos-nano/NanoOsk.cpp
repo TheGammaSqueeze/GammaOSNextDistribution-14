@@ -1119,7 +1119,19 @@ void NanoMenu::renderOsk() {
     // never refreshes that blur, so reusing it shows a green frost over a purple screen.
     // Exclude mMpActive so the player's OSK captures the current (purple) framebuffer
     // via the capture path below instead.
-    if (((mPs3WizActive && mPs3DlgBlurValid) || (mPs3Xmb && mPs3GlassValid)) && !mMpActive) {
+    if (frostBufferSharedWithClock()) {
+        // Dual-screen BOTTOM panel with the PSP clock: the clock owns the shared mGlassBlurTex (it writes
+        // its glow there each frame just before the OSK draws) and the visible panel scene includes the
+        // clock itself, so neither reusing the blur nor a framebuffer capture yields a clean, stable
+        // backdrop - both showed the clock's glow through the keys and flickered with the clock's cache.
+        // Capture the WAVE directly so the OSK frosts the wallpaper/wave behind it (not the clock), fresh
+        // and identical every frame. The clock cache is disabled while the OSK is up (see bcCap), so the
+        // wave work texture is rebuilt every frame here.
+        captureGlassFromWave();
+        drawFrostedGlass(b.panelX, b.panelY, b.panelW, b.panelH, panelRad,
+                         0.50f, 0.54f, 0.64f, 1.0f, fade, true);
+        drewGlass = true;
+    } else if (((mPs3WizActive && mPs3DlgBlurValid) || (mPs3Xmb && mPs3GlassValid)) && !mMpActive) {
         // Wizard fields hold a fresh dialog blur; every other PS3-path OSK
         // (the Game Systems editor) opens over a submenu, whose full-screen
         // frost refreshes the same wave-space blur each frame. Reusing it is

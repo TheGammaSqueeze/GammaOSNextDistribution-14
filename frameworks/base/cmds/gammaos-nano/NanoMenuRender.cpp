@@ -4650,7 +4650,10 @@ void NanoMenu::render() {
             // every 2nd frame and re-present the cached last frame in between (prop .fps: 30 default,
             // 60 = off). Never cap during the boot reveal so the entrance stays smooth. The secondary
             // ring rotates, so we write the CURRENT slot every frame (fresh or cached) - no stale slot.
-            const bool bcCap = bottomClock && mPspBottomReveal >= 0.999f &&
+            // While the OSK is up on this panel, DISABLE the 30fps cache: the cached-frame blit alternates
+            // with fresh frames and re-presents a snapshot taken BEFORE the keyboard, so the OSK backdrop
+            // (and its glyphs) flicker between the two. Rendering fresh every frame keeps the scene stable.
+            const bool bcCap = bottomClock && mPspBottomReveal >= 0.999f && !mOskActive &&
                 property_get_int32("persist.gammaos.nano.ps3xmb.bottomclock.fps", 30) <= 45;
             const bool bcSkip = bcCap && (mPspBottomFrameCtr & 1) && mPspBottomCacheValid &&
                 mPspBottomCacheW == sAhbTargetSecondary.w && mPspBottomCacheH == sAhbTargetSecondary.h;
