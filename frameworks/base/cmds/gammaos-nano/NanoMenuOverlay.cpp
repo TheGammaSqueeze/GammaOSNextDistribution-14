@@ -342,6 +342,10 @@ void NanoMenu::overlayShow() {
         property_set("sys.gammaos.nano.show_overlay", "0");
         return;
     }
+    // The power-button overlay is taking over the top layer: cancel any in-flight focus-ring pulse and
+    // hand ownership of mFlingerSurfaceControl to the overlay (do NOT let the ring hide it underneath).
+    mCcRingDisp = -1;
+    mTopRingShown = false;
 
     // Clear any stale SELECT-held on the app->menu raise. Emulators (RetroArch/DraStic) EVIOCGRAB
     // the pad and the RetroArch back-override synthesizes a BTN_SELECT (via sendevent) while the
@@ -593,6 +597,7 @@ void NanoMenu::overlayHide() {
         for (const auto& sc : mSecondaryWallpaperControls) t.hide(sc);
         t.apply();
         mNdsSecondaryShown = false;   // re-show on the next summon
+        mTopRingShown = false;        // this hide also covers any focus-ring layer state
     }
     mOverlayShown = false;
     mOverlayPendingShow = false;   // cancel any deferred show (hidden before 1st frame)

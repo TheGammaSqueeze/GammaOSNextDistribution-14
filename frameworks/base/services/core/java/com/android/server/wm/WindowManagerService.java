@@ -5677,6 +5677,22 @@ public class WindowManagerService extends IWindowManager.Stub
                         }
                     }
                     mLastNanoForceOrientation = v;
+
+                    // GammaOS Control Center: apply nano's controller-focus pin the moment it
+                    // changes. nano sets sys.gammaos.nano.focus.display from a different process
+                    // (native libcutils), so like the orientation token it is polled here rather
+                    // than via addChangeCallback. On change, re-run focus selection so the pin
+                    // (e.g. return focus to the top panel after a bottom-panel app exits, or
+                    // switch to the tapped panel) takes effect without waiting for a window event.
+                    final String fv = SystemProperties.get("sys.gammaos.nano.focus.display", "-1");
+                    if (!fv.equals(mLastNanoFocusDisplay)) {
+                        mLastNanoFocusDisplay = fv;
+                        synchronized (mGlobalLock) {
+                            updateFocusedWindowLocked(UPDATE_FOCUS_NORMAL,
+                                    true /*updateInputWindows*/);
+                        }
+                    }
+
                     mH.postDelayed(this, 200);
                 }
             };
@@ -5687,6 +5703,10 @@ public class WindowManagerService extends IWindowManager.Stub
     // GammaOS Nano: last seen value of sys.gammaos.nano.force_orientation, so the
     // orientation poll only re-applies when the nano token actually changes.
     private volatile String mLastNanoForceOrientation = "";
+
+    // GammaOS Control Center: last seen value of sys.gammaos.nano.focus.display, so the
+    // same nano poll only re-runs focus selection when the controller-focus pin changes.
+    private volatile String mLastNanoFocusDisplay = "-1";
 
     // GammaOS Nano: map a force_orientation token to a fixed screen orientation, or
     // SCREEN_ORIENTATION_UNSPECIFIED for "none"/"auto"/unset (follow the app).

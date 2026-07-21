@@ -3242,13 +3242,33 @@ private:
     float mCcPassXoff = 0.0f;
     int   mCcAppScroll = 0;                // first app row shown in the grid (vertical scroll)
     void   renderCcApps(bool st, bool dy); // the app-launcher grid page (icons + labels)
+    void   renderCcPageDots();             // pagination dots (dashboard <-> apps) at the CC bottom edge
     void   ccEnsureAppList();              // (re)load the installed-app list + apps_generation gate
     GLuint loadColorIconTexAbs(const char* absPath);  // full-colour PNG -> GL texture (real APK icons)
     int    ccAppAt(float px, float py);    // app-grid hit-test (design space) -> app index or -1
     void   ccLaunchBottomApp(const std::string& pkg);  // launch on the bottom panel (or dual-stack branch)
     void   ccPollBottomAppExit();          // watch the launched bottom app; clear + return to CC on exit
     void   ccEndBottomApp(bool stopApp);   // tear down bottom-app state (force-stop optional), restore drop_input
-    void   ccDrainBottomTouch();           // read+discard the bottom digitizer while a bottom app owns the panel
+    bool   ccDrainBottomTouch();           // drain the BOTTOM digitizer; true if a touch-DOWN occurred this poll
+    bool   ccPollTopTapDown();             // drain the TOP digitizer (gt9xx-1); true if a touch-DOWN occurred
+    // Controller-focus pin: point sys.gammaos.nano.focus.display at the panel that should own the gamepad.
+    // The Control Center itself never takes focus (it is touch-only); the pin is the top panel whenever the
+    // CC is up with no bottom app, the bottom panel while a bottom app runs, and cleared (-1) when the CC is
+    // not active. The framework (RootWindowContainer) honours the pin only if that display has a focused app.
+    void   ccSetFocusDisplay(int disp);
+    int    mCcFocusDisplay = -1;           // last value written to sys.gammaos.nano.focus.display
+    // Focus RING: a ~1s glowing edge pulse on the screen that just took the controller (SF/app mode
+    // only). Stamped in ccSetFocusDisplay on a real focus change; driven by uptimeMillis() so it is
+    // independent of which park branch renders (mFrameDt is not refreshed on the bottom-app branch).
+    int     mCcRingDisp    = -1;           // display id whose ring is pulsing (-1 none; 0 bottom / 2 top)
+    int64_t mCcRingStartMs = 0;            // uptimeMillis() the pulse began
+    bool    mTopRingShown  = false;        // the top overlay layer was t.show()n for a ring pulse
+    bool    ccRingActive();                // a pulse is running (< ~1s since the stamp)
+    float   ccRingT();                     // pulse progress 0..1
+    void    drawFocusRing(float t01);      // draw the glowing edge frame (transparent centre) at progress t01
+    void    renderTopFocusRing();          // present a ring frame on the TOP overlay surface (mSurface)
+    void    renderBottomFocusRing();       // present a ring frame on the BOTTOM secondary surface
+    void    hideTopFocusRing();            // hide the top overlay layer after a top-ring pulse (guarded)
     // A bottom-screen app launched from the app grid. While set: the CC is hidden (the app owns the bottom
     // panel) and a watcher polls for its exit to re-show the CC. Written only by the render thread.
     std::string mCcBottomApp;              // launched bottom-app package ("" = none, CC visible)

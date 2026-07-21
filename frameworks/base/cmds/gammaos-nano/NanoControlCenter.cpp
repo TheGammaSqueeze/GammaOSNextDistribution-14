@@ -874,6 +874,8 @@ void NanoMenu::ccLaunchBottomApp(const std::string& pkg) {
     // (gt9xx-0 -> display 0) should reach the bottom app and the top digitizer the top app. drop_input=1
     // (set when the overlay came up to isolate the top app from CC touches) would swallow both, so clear it.
     property_set("sys.gammaos.nano.drop_input", "0");
+    ccSetFocusDisplay(bd);      // hand the controller to the app now on the bottom panel
+    (void)ccPollTopTapDown();   // flush the top digitizer's backlog so a stale touch does not bounce focus up
     mCcPage = 0;   // when the CC returns it shows the dashboard, not the app grid
 
     std::string c;
@@ -965,15 +967,103 @@ void NanoMenu::ccEndBottomApp(bool stopApp) {
 // park loop skips ccPollTouch() during an app session, so without this the evdev fd backlog (each open
 // fd has its own kernel buffer) would accumulate for the whole session and replay through ccTouchFrame
 // on CC return, firing a spurious tap/slider from a long-stale position. Non-blocking; drains to empty.
-void NanoMenu::ccDrainBottomTouch() {
+bool NanoMenu::ccDrainBottomTouch() {
     char dev[PROPERTY_VALUE_MAX] = {};
     property_get("persist.gammaos.nano.cc.touchdev", dev, "gt9xx-0");
     int bfd = -1;
     for (const auto& kv : mInputFdNames) if (kv.second == dev) { bfd = kv.first; break; }
-    if (bfd < 0) return;
+    if (bfd < 0) return false;
+    bool down = false;
     struct input_event ev;
-    while (read(bfd, &ev, sizeof(ev)) == sizeof(ev)) { /* discard */ }
+    while (read(bfd, &ev, sizeof(ev)) == sizeof(ev)) {
+        if ((ev.type == EV_KEY && ev.code == BTN_TOUCH && ev.value == 1) ||
+            (ev.type == EV_ABS && ev.code == ABS_MT_TRACKING_ID && ev.value >= 0)) down = true;
+    }
+    return down;
 }
+
+// Drain the TOP digitizer (gt9xx-1 by default; override persist.gammaos.nano.cc.topdev) and report a
+// touch-DOWN. Used only while a bottom app runs, to switch controller focus to the top app when the user
+// taps the top screen. nano and the framework each hold their own fd, so this peek does not steal the
+// top app's touches. The caller flushes any state-1 backlog once at launch (a stale down must not switch
+// focus the instant a bottom app comes up).
+bool NanoMenu::ccPollTopTapDown() {
+    char dev[PROPERTY_VALUE_MAX] = {};
+    property_get("persist.gammaos.nano.cc.topdev", dev, "gt9xx-1");
+    int tfd = -1;
+    for (const auto& kv : mInputFdNames) if (kv.second == dev) { tfd = kv.first; break; }
+    if (tfd < 0) return false;
+    bool down = false;
+    struct input_event ev;
+    while (read(tfd, &ev, sizeof(ev)) == sizeof(ev)) {
+        if ((ev.type == EV_KEY && ev.code == BTN_TOUCH && ev.value == 1) ||
+            (ev.type == EV_ABS && ev.code == ABS_MT_TRACKING_ID && ev.value >= 0)) down = true;
+    }
+    return down;
+}
+
+// Pin the controller-focused panel. Writes sys.gammaos.nano.focus.display (top display id, bottom
+// display id, or -1 to clear) only when it changes; the framework's WM poll picks it up within ~200ms
+// and RootWindowContainer forces focus to that display (if it has a focused app). The Control Center
+// never takes focus itself - callers only ever pass the top display when the CC is up with no bottom
+// app, the bottom display while a bottom app runs, or -1 when the CC is not active.
+void NanoMenu::ccSetFocusDisplay(int disp) {
+    if (disp == mCcFocusDisplay) return;
+    mCcFocusDisplay = disp;
+    // Pulse a focus ring on the screen that just took the controller. Only for a real panel (>=0), so
+    // releasing the pin (-1, CC not active) does not flash a ring. Gated so it can be turned off.
+    if (disp >= 0 && property_get_bool("persist.gammaos.nano.focusring", true)) {
+        mCcRingDisp    = disp;
+        mCcRingStartMs = nowMs();
+    }
+    char v[16];
+    snprintf(v, sizeof(v), "%d", disp);
+    property_set("sys.gammaos.nano.focus.display", v);
+}
+
+// --- Focus ring: a ~1s glowing edge frame on the panel that just took the controller. -----------
+static const int64_t kCcRingMs = 1000;
+
+bool NanoMenu::ccRingActive() {
+    return mCcRingDisp >= 0 && (nowMs() - mCcRingStartMs) < kCcRingMs;
+}
+float NanoMenu::ccRingT() {
+    float t = (float)(nowMs() - mCcRingStartMs) / (float)kCcRingMs;
+    return t < 0.0f ? 0.0f : (t > 1.0f ? 1.0f : t);
+}
+
+// Draw a glowing hollow edge frame (transparent centre so the app/CC shows through). Several nested
+// edge bands with a quadratic alpha falloff give the bloom; a rise/hold/ease envelope + a gentle
+// breathe animate the brightness over the ~1s pulse. Device-pixel + edge-relative so it adapts to any
+// panel size/orientation. Assumes the framebuffer was cleared to alpha 0 and setUiBlend() is desired.
+void NanoMenu::drawFocusRing(float t01) {
+    setUiBlend();
+    float env = (t01 < 0.15f) ? (t01 / 0.15f)
+              : (t01 > 0.55f) ? (1.0f - (t01 - 0.55f) / 0.45f) : 1.0f;
+    if (env < 0.0f) env = 0.0f;
+    float breathe = 0.85f + 0.15f * sinf(t01 * 6.2831853f * 2.0f);
+    float a = env * breathe;
+    if (a <= 0.003f) return;
+    const float W = (float)mWidth, H = (float)mHeight;
+    const int   BANDS = 6;
+    const float MAXW  = (H < W ? H : W) * 0.055f;   // outer band thickness ~ 5.5% of the short side
+    const float cr = 0.55f, cg = 0.85f, cb = 1.0f;  // XMB focus cyan-white
+    beginSolidBatch();
+    for (int i = 0; i < BANDS; i++) {
+        float f  = (float)i / (float)(BANDS - 1);   // 0 outer .. 1 inner
+        float th = MAXW * (1.0f - f * 0.72f);
+        float ba = a * (1.0f - f) * (1.0f - f);      // quadratic falloff -> glow
+        if (ba <= 0.003f) continue;
+        float o = f * (MAXW * 0.32f);                // inset each band slightly
+        drawQuad(o,          o,          W - 2.0f * o, th,            cr, cg, cb, ba);  // top
+        drawQuad(o,          H - o - th, W - 2.0f * o, th,            cr, cg, cb, ba);  // bottom
+        drawQuad(o,          o,          th,           H - 2.0f * o,  cr, cg, cb, ba);  // left
+        drawQuad(W - o - th, o,          th,           H - 2.0f * o,  cr, cg, cb, ba);  // right
+    }
+    endSolidBatch();
+}
+// renderTopFocusRing / renderBottomFocusRing / hideTopFocusRing live in NanoMenuRender.cpp (they need
+// SurfaceComposerClient + the file-static sDrmRotMat, which are not visible in this translation unit).
 
 // ---------------------------------------------------------------------------
 // Interactivity: bottom-panel touch, tile actions, and the graceful sleep ramp.

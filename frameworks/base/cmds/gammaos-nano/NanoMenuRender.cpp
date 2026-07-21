@@ -3935,7 +3935,9 @@ void NanoMenu::setupSecondaryEglSurfaces() {
         primaryPort = atoi(p);
     }
 
-    EGLConfig config = getEglConfig(mDisplay);
+    // wantAlpha=true: the secondary layer is RGBA now (focus ring shows a bottom app through its
+    // transparent centre, and the CC dashboard alpha-force needs a writable alpha plane).
+    EGLConfig config = getEglConfig(mDisplay, true);
     if (config == nullptr) {
         ALOGW("NanoMenu: secondary setup failed — no EGL config");
         return;
@@ -3976,10 +3978,15 @@ void NanoMenu::setupSecondaryEglSurfaces() {
         }
 
         ui::Size res = mode.resolution;
+        // TRANSLUCENT (RGBA, no eOpaque), mirroring the top overlay layer (NanoMenu.cpp:1070): the CC
+        // frames still fill the panel opaquely (they clear alpha=1 and force alpha=1 before the swap),
+        // but this lets the focus-ring frame clear to alpha 0 so a bottom app shows through the ring's
+        // transparent centre. With nothing behind the CC on this display, opaque vs translucent looks
+        // identical for the dashboard.
         sp<SurfaceControl> sc = session()->createSurface(
                 String8("GammaOSNanoWallpaper"),
                 res.getWidth(), res.getHeight(),
-                PIXEL_FORMAT_RGBX_8888, ISurfaceComposerClient::eOpaque);
+                PIXEL_FORMAT_RGBA_8888, 0u);
         if (sc == nullptr || !sc->isValid()) {
             ALOGW("NanoMenu: secondary port %d createSurface failed", port);
             continue;
@@ -4057,6 +4064,91 @@ void NanoMenu::setupSecondaryEglSurfaces() {
 // instead of fully parking, so it must be self-contained: set up the secondary EGL surface once,
 // show its layer (hidden by default during app play), render the dashboard, present, and restore
 // the primary surface current. Kept lightweight (small GL footprint, capped rate by the caller).
+// Pagination dots along the CC bottom edge: two pills (dashboard, apps). The active page's pill is
+// bright and elongated, the other a dim dot; both cross-fade with mCcPageOffset so the indicator
+// tracks the horizontal slide 1:1. Device-pixel sized so it adapts to any panel resolution.
+void NanoMenu::renderCcPageDots() {
+    const int nPages = 2;
+    float dotR = (float)mHeight * 0.0105f;          // ~5px tall at 480; scales with the panel
+    if (dotR < 2.0f) dotR = 2.0f;
+    float gap  = dotR * 3.6f;                        // centre-to-centre spacing
+    float cy   = (float)mHeight - dotR * 3.4f;       // just above the bottom edge
+    float x0   = (float)mWidth * 0.5f - gap * (float)(nPages - 1) * 0.5f;
+    setUiBlend();
+    for (int i = 0; i < nPages; i++) {
+        float act = (i == 0) ? (1.0f - mCcPageOffset) : mCcPageOffset;   // two-page cross-fade
+        if (act < 0.0f) act = 0.0f; else if (act > 1.0f) act = 1.0f;
+        float cx    = x0 + gap * (float)i;
+        float br    = 0.30f + 0.62f * act;           // dim grey -> bright white
+        float halfW = dotR * (1.0f + 1.4f * act);    // dot -> short pill as it becomes active
+        // subtle shadow so the dots read on a light dashboard card as well as the dark app grid
+        drawRoundedRect(cx - halfW, cy - dotR + 1.0f, halfW * 2.0f, dotR * 2.0f, dotR, 0.0f, 0.0f, 0.0f, 0.35f);
+        drawRoundedRect(cx - halfW, cy - dotR,        halfW * 2.0f, dotR * 2.0f, dotR, br,   br,   br,   0.92f);
+    }
+}
+
+// Present one focus-ring frame on the TOP overlay surface (mSurface / mFlingerSurfaceControl). That
+// layer is a resident, translucent (RGBA), top-z overlay created hidden; render only the ring over the
+// fully-visible app (clear alpha 0) then reveal it once (deferred, like overlayShow, so no opaque flash).
+// Never touched while the power-button overlay owns the layer (guarded by !mOverlayShown + the caller).
+void NanoMenu::renderTopFocusRing() {
+    if (mFlingerSurfaceControl == nullptr || mSurface == EGL_NO_SURFACE) return;
+    eglMakeCurrent(mDisplay, mSurface, mSurface, mContext);
+    glViewport(0, 0, mWidth, mHeight);
+    {   // upload the overlay (identity) rotation to the draw programs so the ring lands upright
+        const GLuint progs[] = {mShaderProgram, mTextProgram, mParticleProgram, mFxProgram, mXmbProgram};
+        const GLint  locs[]  = {mLocRotation, mTextLocRotation, mParticleLocRotation, mFxLocRotation, mXmbLocRotation};
+        for (int i = 0; i < 5; i++) { if (progs[i]) { glUseProgram(progs[i]); glUniformMatrix2fv(locs[i], 1, GL_FALSE, sDrmRotMat); } }
+    }
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);   // transparent: the app shows through everywhere but the ring
+    glClear(GL_COLOR_BUFFER_BIT);
+    drawFocusRing(ccRingT());
+    eglSwapBuffers(mDisplay, mSurface);
+    if (!mTopRingShown) {                    // reveal AFTER the first transparent+ring frame is composited
+        SurfaceComposerClient::Transaction t;
+        t.show(mFlingerSurfaceControl);
+        t.apply();
+        mTopRingShown = true;
+    }
+}
+
+void NanoMenu::hideTopFocusRing() {
+    if (!mTopRingShown) return;
+    if (mOverlayShown) { mTopRingShown = false; return; }   // never hide a layer the real overlay owns
+    SurfaceComposerClient::Transaction t;
+    t.hide(mFlingerSurfaceControl);
+    t.apply();
+    mTopRingShown = false;
+}
+
+// Present one focus-ring frame on the BOTTOM secondary surface. Reused over the CC dashboard (already
+// shown) and over a bottom app (shown here; the secondary is translucent so the alpha-0 clear lets the
+// app through the ring's centre). Restores the primary current after.
+void NanoMenu::renderBottomFocusRing() {
+    if (mSecondaryEglSurfaces.empty()) return;
+    eglMakeCurrent(mDisplay, mSecondaryEglSurfaces[0], mSecondaryEglSurfaces[0], mContext);
+    glViewport(0, 0, mWidth, mHeight);
+    {
+        const GLuint progs[] = {mShaderProgram, mTextProgram, mParticleProgram, mFxProgram, mXmbProgram};
+        const GLint  locs[]  = {mLocRotation, mTextLocRotation, mParticleLocRotation, mFxLocRotation, mXmbLocRotation};
+        for (int i = 0; i < 5; i++) { if (progs[i]) { glUseProgram(progs[i]); glUniformMatrix2fv(locs[i], 1, GL_FALSE, sDrmRotMat); } }
+    }
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+    drawFocusRing(ccRingT());
+    eglSwapBuffers(mDisplay, mSecondaryEglSurfaces[0]);
+    // Reveal AFTER the transparent ring frame is queued (deferred, like the top path): otherwise the
+    // secondary's last opaque dashboard buffer (from before the bottom app hid it) would flash over the
+    // app for one frame on show.
+    if (!mSecondaryWallpaperControls.empty() && !mNdsSecondaryShown) {
+        SurfaceComposerClient::Transaction t;
+        for (const auto& sc : mSecondaryWallpaperControls) if (sc != nullptr) t.show(sc);
+        t.apply();
+        mNdsSecondaryShown = true;
+    }
+    eglMakeCurrent(mDisplay, mSurface, mSurface, mContext);   // restore primary current
+}
+
 void NanoMenu::renderControlCenterFrame() {
     if (mSecondaryEglSurfaces.empty()) {
         setupSecondaryEglSurfaces();
@@ -4116,6 +4208,9 @@ void NanoMenu::renderControlCenterFrame() {
         if (e > 0.001f) { mCcPassXoff = (1.0f - e) * (float)mWidth;  renderCcApps(true, true); } // app grid
         mCcPassXoff = 0.0f;
     }
+    // Pagination dots: which CC page is showing (dashboard <-> apps). Drawn after both pages so they
+    // sit fixed at the bottom edge (they do not slide with the pages) and animate with mCcPageOffset.
+    renderCcPageDots();
     // Fade the dashboard in from black each time the CC comes up (reset on the activation edge in the
     // park branch). A shrinking full-panel black quad over the composited frame; smoothstep for a soft
     // ease. ~0.45s. Costs nothing once done (mCcFadeIn latches at 1 -> the quad is skipped).
@@ -4129,6 +4224,17 @@ void NanoMenu::renderControlCenterFrame() {
             drawQuad(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f, 0.0f, 0.0f, black);
         }
     }
+    // Focus ring over the CC dashboard (bottom took the controller). Drawn opaquely over the CC (the
+    // app is not behind the CC on this display), so no transparency is needed here.
+    if (ccRingActive() && mCcRingDisp == property_get_int32("persist.gammaos.nano.cc.bottomdisplay", 0))
+        drawFocusRing(ccRingT());
+    // The secondary layer is RGBA (translucent) now so the bottom-app ring can show the app through.
+    // The dashboard must stay opaque though: force the whole panel's alpha to 1 (RGB untouched) so any
+    // drawn alpha<1 never becomes a see-through hole on the dashboard.
+    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_TRUE);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
     eglSwapBuffers(mDisplay, mSecondaryEglSurfaces[0]);
     eglMakeCurrent(mDisplay, mSurface, mSurface, mContext);   // restore the primary current
 }

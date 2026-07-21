@@ -3725,6 +3725,39 @@ if (sRingPrimedCount >= 2) {
                         }
                         sCcLastNs = ccT0;
                     }
+                    // Device sleep/wake: the framework blanks both panels on power-off (sys.screen.state=off)
+                    // without nano ever seeing a power-press. Pause the CC (skip render + polls) while the
+                    // screen is off, and WAKE the CC on the transition back to on - ramp the bottom backlight
+                    // back up and reset the idle timer - so the bottom panel returns together with the top
+                    // instead of staying dark until the user touches it.
+                    {
+                        char ss[PROPERTY_VALUE_MAX] = {};
+                        property_get("sys.screen.state", ss, "on");
+                        bool scrOff = (strcmp(ss, "off") == 0);
+                        static bool sCcScrWasOff = false;
+                        if (scrOff) {
+                            sCcScrWasOff = true;
+                            // Drop any in-flight focus ring so it is not left composited over the panel the
+                            // framework is blanking (nowMs() does not advance across suspend, so the pulse
+                            // cannot self-expire). mOverlayShown is false here, so this does the real hide.
+                            mCcRingDisp = -1;
+                            if (mTopRingShown) hideTopFocusRing();
+                            mRenderHeartbeat.fetch_add(1, std::memory_order_relaxed);
+                            int64_t restUs = 100000 - (systemTime(SYSTEM_TIME_MONOTONIC) - ccT0) / 1000;
+                            if (restUs > 500) usleep((useconds_t)restUs);
+                            continue;
+                        }
+                        if (sCcScrWasOff) {
+                            sCcScrWasOff = false;
+                            // Wake: only arm the ramp if the CC itself dimmed the panel; otherwise
+                            // ccUpdateSleep would write a stale mCcSleepFromBri and fight the framework's
+                            // own wake-brightness restore. Always reset the idle window.
+                            if (mCcSleeping || mCcSleepDir != 0 || mCcSleepRamp < 1.0f) {
+                                mCcSleeping = false; mCcSleepDir = +1;
+                            }
+                            mCcLastTouchMs = ccNowMs;
+                        }
+                    }
                     // The exit watcher (off-thread) flagged that the bottom app the user launched has closed:
                     // clear it and re-seed so the CC fades back in on the bottom panel.
                     if (mCcBottomAppGone.load(std::memory_order_acquire)) {
@@ -3736,19 +3769,47 @@ if (sRingPrimedCount >= 2) {
                     // and discard the bottom digitizer so a session-long evdev backlog cannot replay a stale
                     // tap when the CC returns. Loosely paced (~10Hz) so the game keeps the SoC.
                     if (!mCcBottomApp.empty()) {
-                        hideControlCenterLayer();
-                        ccDrainBottomTouch();
+                        // Tap-to-switch controller focus between the two running apps: a touch-down on the
+                        // bottom app hands it the gamepad, a touch-down on the top screen hands it back to
+                        // the top app. (Draining both digitizers here also keeps their backlogs clear so no
+                        // stale event replays a CC action on return.)
+                        if (ccDrainBottomTouch())
+                            ccSetFocusDisplay(property_get_int32("persist.gammaos.nano.cc.bottomdisplay", 0));
+                        if (ccPollTopTapDown())
+                            ccSetFocusDisplay(property_get_int32("persist.gammaos.nano.cc.topdisplay", 2));
                         ccPollBottomAppExit();
+                        int64_t budgetUs;
+                        if (ccRingActive()) {
+                            // Pulse the focus ring over the app that just took the controller.
+                            if (mCcRingDisp == property_get_int32("persist.gammaos.nano.cc.topdisplay", 2)) {
+                                hideControlCenterLayer();   // the bottom app owns the bottom panel
+                                renderTopFocusRing();       // ring over the top app (translucent overlay)
+                            } else {
+                                if (mTopRingShown) hideTopFocusRing();   // retargeted top->bottom: drop the top ring
+                                renderBottomFocusRing();    // ring over the bottom app (translucent secondary)
+                            }
+                            budgetUs = 33333;               // ~30fps for a smooth pulse
+                        } else {
+                            if (mTopRingShown) hideTopFocusRing();
+                            hideControlCenterLayer();        // pulse over: both apps own their panels again
+                            budgetUs = 100000;               // ~10Hz at rest
+                        }
                         mRenderHeartbeat.fetch_add(1, std::memory_order_relaxed);
                         int64_t spentUs = (systemTime(SYSTEM_TIME_MONOTONIC) - ccT0) / 1000;
-                        int64_t restUs = 100000 - spentUs;
+                        int64_t restUs = budgetUs - spentUs;
                         if (restUs > 500) usleep((useconds_t)restUs);
                         continue;
                     }
+                    // Control Center up with no bottom app: the controller belongs to the TOP panel
+                    // (the app the CC accompanies). The CC is touch-only and must never take focus, so
+                    // pin the top display; the framework returns the gamepad there (this is what fixes
+                    // focus being stranded on the bottom after a bottom app exits).
+                    ccSetFocusDisplay(property_get_int32("persist.gammaos.nano.cc.topdisplay", 2));
                     // Seed the idle timer on the activation edge so a freshly shown CC does not instantly
                     // auto-sleep. mCcActiveSeeded is cleared on teardown, so it re-arms per activation.
                     if (!mCcActiveSeeded) { mCcLastTouchMs = ccNowMs; mCcActiveSeeded = true; mCcFadeIn = 0.0f; }
                     ccPollTouch();     // read the bottom digitizer (tiles / sliders / wake); refreshes mCcLastTouchMs on touch
+                    (void)ccPollTopTapDown();   // keep the top digitizer drained so its fd does not fill (SYN_DROPPED) this session
                     // A finger held motionless stops emitting SYN frames (the gt9xx only reports on
                     // change), so ccTouchFrame would not refresh the timer and auto-sleep could dim the
                     // panel under a resting finger. Keep the 30s window open on the durable down state;
@@ -3777,6 +3838,13 @@ if (sRingPrimedCount >= 2) {
                         ccBeginSleep();
                     }
                     renderControlCenterFrame();
+                    // Focus ring over the TOP app: here the CC pins the controller to the top, so a focus
+                    // change fires a top-panel ring. The CC just rendered the bottom; present the ring on
+                    // the top overlay surface (renderControlCenterFrame restored the primary current). Hide
+                    // it once the pulse ends.
+                    if (ccRingActive() && mCcRingDisp == property_get_int32("persist.gammaos.nano.cc.topdisplay", 2))
+                        renderTopFocusRing();
+                    else if (mTopRingShown) hideTopFocusRing();
                     mRenderHeartbeat.fetch_add(1, std::memory_order_relaxed);
                     // Pace for low heat: 20fps (50ms) at rest so the game keeps the SoC and temps stay
                     // down. While a finger or a grabbed slider is live, step up to ~30fps (33ms) so a drag
@@ -3785,7 +3853,7 @@ if (sRingPrimedCount >= 2) {
                     // keeps the on-screen fill smooth). Heavy sysfs/popen reads are wall-clock throttled
                     // inside the draw, so the slower rate also cuts poll frequency, not just render frequency.
                     bool ccTouchActive = (mCcTouchDownRaw || mCcHeldSlider >= 0);
-                    int64_t budgetUs = ccTouchActive ? 33333 : 50000;
+                    int64_t budgetUs = (ccTouchActive || ccRingActive()) ? 33333 : 50000;
                     int64_t spentUs  = (systemTime(SYSTEM_TIME_MONOTONIC) - ccT0) / 1000;
                     int64_t restUs   = budgetUs - spentUs;
                     if (restUs > 500) usleep((useconds_t)restUs);
@@ -3800,6 +3868,9 @@ if (sRingPrimedCount >= 2) {
                 // and the next CC session would immediately hide behind the stale package. Force-stop here
                 // is off-thread and idempotent.
                 ccEndBottomApp(true);
+                ccSetFocusDisplay(-1);        // CC not active: release the focus pin, normal focus resumes
+                mCcRingDisp = -1;             // cancel any in-flight focus-ring pulse
+                if (mTopRingShown) hideTopFocusRing();
                 ccRestoreBacklightIfSlept();  // don't leave the bottom panel dark if the CC tore down while slept
                 mCcActiveSeeded = false;      // re-seed the 30s idle timer on the next CC activation
                 hideControlCenterLayer();

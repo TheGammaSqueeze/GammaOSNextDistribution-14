@@ -611,33 +611,55 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                 SystemProperties.getBoolean("sys.gammaos.dualstack.active", false);
         final boolean forceDefaultFocus = dualStackActive && !mWmService.mPerDisplayFocusEnabled;
 
+        // GammaOS: which display, if any, has controller focus FORCED this pass.
+        //  - Dual-stack forces the default display (existing behaviour, takes precedence and is
+        //    unconditional so a not-yet-ready app still holds focus).
+        //  - Otherwise the Control Center may pin the controller-focused panel via
+        //    sys.gammaos.nano.focus.display (keep the top panel focused after a bottom-panel app
+        //    exits, or switch to the panel the user tapped). -1 = no pin. The nano pin is only
+        //    honoured when the target display actually has a focused app, so a stale pin can never
+        //    strand input on an empty display; when the prop is unset focus behaviour is unchanged.
+        int forcedFocusDisplayId = INVALID_DISPLAY;
         if (forceDefaultFocus) {
-            final DisplayContent defaultDc = getDisplayContent(DEFAULT_DISPLAY);
-            if (defaultDc != null) {
-                changed |= defaultDc.updateFocusedWindowLocked(mode, updateInputWindows,
+            forcedFocusDisplayId = DEFAULT_DISPLAY;
+        } else {
+            final int nanoPin = SystemProperties.getInt("sys.gammaos.nano.focus.display", -1);
+            if (nanoPin >= 0) {
+                final DisplayContent pinDc = getDisplayContent(nanoPin);
+                if (pinDc != null && pinDc.mFocusedApp != null) {
+                    forcedFocusDisplayId = nanoPin;
+                }
+            }
+        }
+
+        if (forcedFocusDisplayId != INVALID_DISPLAY) {
+            final DisplayContent forcedDc = getDisplayContent(forcedFocusDisplayId);
+            if (forcedDc != null) {
+                changed |= forcedDc.updateFocusedWindowLocked(mode, updateInputWindows,
                         INVALID_DISPLAY /* topFocusedDisplayId */);
-                final WindowState newFocus = defaultDc.mCurrentFocus;
+                final WindowState newFocus = forcedDc.mCurrentFocus;
                 if (newFocus != null) {
                     final int pidOfNewFocus = newFocus.mSession.mPid;
                     if (mTopFocusedAppByProcess.get(pidOfNewFocus) == null) {
                         mTopFocusedAppByProcess.put(pidOfNewFocus, newFocus.mActivityRecord);
                     }
-                    topFocusedDisplayId = DEFAULT_DISPLAY;
-                } else if (defaultDc.mFocusedApp != null) {
-                    // Even if no focusable window yet, treat the default display as top focused
-                    // while dual-stack is active.
-                    topFocusedDisplayId = DEFAULT_DISPLAY;
+                    topFocusedDisplayId = forcedFocusDisplayId;
+                } else if (forcedDc.mFocusedApp != null) {
+                    // Even if no focusable window yet, treat the forced display as top focused.
+                    topFocusedDisplayId = forcedFocusDisplayId;
                 }
             } else {
-                // Defensive: if the default display is missing, fall back to normal logic below.
+                // Defensive: forced display missing; fall back to normal logic below.
+                forcedFocusDisplayId = INVALID_DISPLAY;
             }
         }
 
         // Go through the children in z-order starting at the top-most
         for (int i = mChildren.size() - 1; i >= 0; --i) {
             final DisplayContent dc = mChildren.get(i);
-            if (forceDefaultFocus && dc.getDisplayId() == DEFAULT_DISPLAY) {
-                // Already processed the default display first.
+            if (forcedFocusDisplayId != INVALID_DISPLAY
+                    && dc.getDisplayId() == forcedFocusDisplayId) {
+                // Already processed the forced-focus display first.
                 continue;
             }
             changed |= dc.updateFocusedWindowLocked(mode, updateInputWindows, topFocusedDisplayId);
@@ -664,10 +686,10 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
             }
         }
 
-        // If dual-stack is active and we are forcing default focus, do not allow display-2 (or any
-        // non-default display) to become top-focused.
-        if (forceDefaultFocus) {
-            topFocusedDisplayId = DEFAULT_DISPLAY;
+        // When a display is force-focused (dual-stack default-display forcing, or a Control Center
+        // nano pin), do not allow the z-order scan above to hand top focus to any other display.
+        if (forcedFocusDisplayId != INVALID_DISPLAY) {
+            topFocusedDisplayId = forcedFocusDisplayId;
         }
 
         if (topFocusedDisplayId == INVALID_DISPLAY) {
