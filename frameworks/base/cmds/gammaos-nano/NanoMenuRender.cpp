@@ -4174,6 +4174,37 @@ void NanoMenu::renderControlCenterFrame() {
         t.apply();
         mNdsSecondaryShown = true;
     }
+    // Stacked-canvas coverage for the Control Center (RG DS): the CC's secondary display (port 0,
+    // the bottom panel) presents a TALL logical canvas (640x960 - top+bottom stacked into one
+    // display), but the CC surface is created at the PHYSICAL mode size (640x480). With the surface
+    // matrix at identity it maps to only the top 640x480 of the 640x960 canvas; SF down-projects the
+    // full canvas onto the 640x480 physical panel, so the CC reads squished into the top half ("like
+    // dualstack mode"). Stretching the CC LAYER by sy=canvasH/createdH fills the tall canvas, and the
+    // panel's own down-projection cancels the stretch so the CC reads at its natural size. This is the
+    // SAME transform as the overlay ds-cover block in the main secondary loop, but that block lives
+    // PAST the CC park-branch `continue`, so it never runs while the CC renders over an app - the CC
+    // path must (re)assert it here. A display reconfigure on app launch resets the layer transform back
+    // to identity while the logical size is unchanged, so re-apply every CC frame; setMatrix is a cheap
+    // idempotent transaction at the CC's ~20fps and only the port-0 (index 0) surface is the CC's.
+    if (!mSecondaryWallpaperControls.empty()
+            && !mSecondaryDisplayTokens.empty()
+            && !mSecondaryCreatedSize.empty()
+            && mSecondaryWallpaperControls[0] != nullptr
+            && mSecondaryDisplayTokens[0] != nullptr) {
+        ui::DisplayState st;
+        if (SurfaceComposerClient::getDisplayState(mSecondaryDisplayTokens[0], &st) == NO_ERROR) {
+            const int lssW = (int)st.layerStackSpaceRect.getWidth();
+            const int lssH = (int)st.layerStackSpaceRect.getHeight();
+            const int cw = mSecondaryCreatedSize[0].first;
+            const int ch = mSecondaryCreatedSize[0].second;
+            if (lssW > 0 && lssH > 0 && cw > 0 && ch > 0) {
+                SurfaceComposerClient::Transaction t;
+                t.setMatrix(mSecondaryWallpaperControls[0],
+                            (float)lssW / (float)cw, 0.0f, 0.0f, (float)lssH / (float)ch);
+                t.apply();
+            }
+        }
+    }
     eglMakeCurrent(mDisplay, mSecondaryEglSurfaces[0], mSecondaryEglSurfaces[0], mContext);
     glViewport(0, 0, mWidth, mHeight);   // secondary is the same resolution as the primary
     // Upload the (overlay = identity) panel rotation to the draw programs so drawText/quads land
