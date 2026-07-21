@@ -1353,6 +1353,24 @@ bool NanoMenu::threadLoop() {
     // ROTATION_0 (the render loop re-asserts it while the CC is actually up).
     property_set("sys.gammaos.nano.cc.active", "0");
 
+    // RG DS (dual-screen): host the system soft keyboard on the bottom touch panel (display 0). The top
+    // panel (display 2) is a trusted own-display-group presentation display with no system decorations,
+    // so its IME policy resolves to FALLBACK_DISPLAY but there is no valid IME host for a cross-group app
+    // on display 0, and NO keyboard ever appears when a top-screen app focuses a text field (bottom-screen
+    // apps work because display 0 is the default LOCAL-IME display). GammaOS ships a fully-wired IME-pin
+    // subsystem (persist.gammaos.ime.pin.*, read live by IMMS/WMS) that routes the IME to a chosen display;
+    // materialize its default ON -> display 0 here for the dual-screen device so the keyboard shows on the
+    // bottom touch panel. Only when unset, so the Settings "Pin IME to Display" toggle keeps the final say;
+    // single-panel devices (the shared GSI also serves the Brick) are left untouched.
+    if (hasSecondaryDisplay()) {
+        char imePin[PROPERTY_VALUE_MAX] = {};
+        property_get("persist.gammaos.ime.pin.enabled", imePin, "");
+        if (imePin[0] == '\0') {
+            property_set("persist.gammaos.ime.pin.enabled", "1");
+            property_set("persist.gammaos.ime.pin.display_id", "0");
+        }
+    }
+
     // readyToRun() sets service.bootanim.exit=1 to kill the vendor bootanim.
     // Reset it here so our own exit check (further below) doesn't immediately
     // terminate the menu on restarts.
