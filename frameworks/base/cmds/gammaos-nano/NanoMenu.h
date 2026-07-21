@@ -3244,6 +3244,20 @@ private:
     void   renderCcApps(bool st, bool dy); // the app-launcher grid page (icons + labels)
     void   ccEnsureAppList();              // (re)load the installed-app list + apps_generation gate
     GLuint loadColorIconTexAbs(const char* absPath);  // full-colour PNG -> GL texture (real APK icons)
+    int    ccAppAt(float px, float py);    // app-grid hit-test (design space) -> app index or -1
+    void   ccLaunchBottomApp(const std::string& pkg);  // launch on the bottom panel (or dual-stack branch)
+    void   ccPollBottomAppExit();          // watch the launched bottom app; clear + return to CC on exit
+    void   ccEndBottomApp(bool stopApp);   // tear down bottom-app state (force-stop optional), restore drop_input
+    void   ccDrainBottomTouch();           // read+discard the bottom digitizer while a bottom app owns the panel
+    // A bottom-screen app launched from the app grid. While set: the CC is hidden (the app owns the bottom
+    // panel) and a watcher polls for its exit to re-show the CC. Written only by the render thread.
+    std::string mCcBottomApp;              // launched bottom-app package ("" = none, CC visible)
+    std::atomic<bool> mCcBottomAppGone{false};  // exit watcher -> render thread: the bottom app exited
+    std::atomic<int>  mCcBottomGoneStreak{0};   // consecutive "gone" polls (debounce transient backgrounding)
+    std::atomic<uint32_t> mCcBottomGen{0};      // bumped on every launch/teardown; a poll result from a stale
+                                                // generation is dropped (no cross-relaunch streak corruption)
+    std::atomic<bool> mCcBottomPollBusy{false}; // an exit-watcher poll thread is in flight (serialize polls)
+    int64_t mCcBottomWatchMs = 0;          // last exit-watcher poll (throttle)
     // CC static-layer cache: the frame-invariant dashboard (background, card bodies, headers, slider
     // TRACKS, speaker/sun icons, clock face + ticks, gauge TRACK rings, fixed labels, and every tile
     // icon/label/background) is baked once into mCcStaticTex, then composited as one full-panel quad each

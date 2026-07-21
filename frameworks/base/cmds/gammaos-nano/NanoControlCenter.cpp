@@ -837,6 +837,144 @@ void NanoMenu::renderCcApps(bool /*st*/, bool /*dy*/) {
     }
 }
 
+// Which app cell (design space) is under a press on the app grid? Mirrors renderCcApps' layout exactly.
+int NanoMenu::ccAppAt(float px, float py) {
+    ccEnsureAppList();
+    const int cols = 5, visRows = 4;
+    const float cellW = 128.0f, rowH = 104.0f, gridTop = 54.0f;
+    int n = (int)mAppEntries.size();
+    for (int i = 0; i < n; i++) {
+        int col = i % cols, row = i / cols - mCcAppScroll;
+        if (row < 0 || row >= visRows) continue;
+        float cx = (float)col * cellW, cy = gridTop + (float)row * rowH;
+        if (px >= cx && px <= cx + cellW && py >= cy && py <= cy + rowH) return i;
+    }
+    return -1;
+}
+
+// Launch a chosen app on the BOTTOM panel (its own display), hiding the CC so the app owns the screen.
+// A dual-stack app instead takes the full-screen both-panels path (Stage 3). Launching another bottom app
+// closes the current one first. All the shell work runs off the render thread.
+void NanoMenu::ccLaunchBottomApp(const std::string& pkg) {
+    if (pkg.empty()) return;
+    if (dualstackHas(pkg)) {
+        // Dual-stack apps span BOTH panels and go through the normal full-screen launch; handled in Stage 3.
+        // Until then, do not mis-launch one as a single-panel bottom app.
+        return;
+    }
+    int bd = property_get_int32("persist.gammaos.nano.cc.bottomdisplay", 0);   // bottom = display 0 (RG DS)
+    std::string prev = mCcBottomApp;
+    mCcBottomApp = pkg;
+    mCcBottomGen.fetch_add(1, std::memory_order_acq_rel);   // invalidate any in-flight poll from a prior instance
+    mCcBottomAppGone.store(false, std::memory_order_release);
+    mCcBottomGoneStreak.store(0, std::memory_order_release);
+    mCcBottomWatchMs = nowMs() + 2500;   // grace: first poll lands ~1s later (launch+3.5s), after the app is up
+    property_set("sys.gammaos.nano.cc.bottomapp", pkg.c_str());
+    // Let InputDispatcher deliver motion to the apps again: with the CC hidden, the bottom digitizer
+    // (gt9xx-0 -> display 0) should reach the bottom app and the top digitizer the top app. drop_input=1
+    // (set when the overlay came up to isolate the top app from CC touches) would swallow both, so clear it.
+    property_set("sys.gammaos.nano.drop_input", "0");
+    mCcPage = 0;   // when the CC returns it shows the dashboard, not the app grid
+
+    std::string c;
+    if (!prev.empty() && prev != pkg) c += "am force-stop '" + prev + "' 2>/dev/null; ";   // close the old one
+    c += "ACT=$(cmd package resolve-activity --brief -a android.intent.action.MAIN "
+         "-c android.intent.category.LAUNCHER '" + pkg + "' 2>/dev/null | tail -1); ";
+    char amc[160];
+    snprintf(amc, sizeof(amc), "case \"$ACT\" in */*) am start --display %d -n \"$ACT\" 2>/dev/null;; esac", bd);
+    c += amc;
+    std::thread([c]{ system(c.c_str()); }).detach();
+}
+
+// Detached ~1s poll: is the launched bottom app still present (a visible task OR the resumed activity on
+// its display)? When the user exits it (back -> activity finishes) it stops being present -> after a few
+// consecutive "gone" polls the gone flag is set; the park loop clears mCcBottomApp and re-shows the CC.
+// Robustness:
+//  - Two independent presence signals, OR'd, so a single fragile field can't cause a false exit:
+//      (a) a visible standard task carrying the package as its affinity  (A=<uid>:<pkg> ... visible=true),
+//      (b) the package appearing as a resumed activity (component form  <pkg>/<activity>) - this covers
+//          apps whose taskAffinity is custom or empty, where signal (a) never matches (the old single
+//          affinity grep flagged those as "gone" on the very first poll).
+//  - DEBOUNCE: a transient background/relayout can momentarily drop both signals; require several
+//    consecutive gone polls (~3s) before declaring exit so the CC never pops back over a live app.
+// Captures the package by value and the flags by pointer so it never races the render thread's writes.
+void NanoMenu::ccPollBottomAppExit() {
+    if (mCcBottomApp.empty()) return;
+    int64_t t = nowMs();
+    if (t - mCcBottomWatchMs < 1000) return;
+    // Serialize: never run two poll threads at once. dumpsys can take >1s under a foreground game, so
+    // without this the 1Hz throttle would still let polls overlap - concurrent fetch_add's break the
+    // "consecutive" debounce, and a poll that outlives its app instance could corrupt the next app's
+    // streak. One in flight at a time + a generation token make each result belong to one launch.
+    bool expected = false;
+    if (!mCcBottomPollBusy.compare_exchange_strong(expected, true, std::memory_order_acq_rel)) return;
+    mCcBottomWatchMs = t;
+    std::string pkg = mCcBottomApp;
+    uint32_t gen = mCcBottomGen.load(std::memory_order_acquire);
+    NanoMenu* self = this;
+    std::thread([self, pkg, gen]{
+        // One dumpsys, two greps; exit 0 == still present, non-zero == gone this poll.
+        std::string cmd =
+            "D=$(dumpsys activity activities 2>/dev/null); "
+            "echo \"$D\" | grep -F ':" + pkg + " ' | grep -q 'visible=true' && exit 0; "
+            "echo \"$D\" | grep -E 'ResumedActivity|topResumedActivity|Resumed:' | grep -qF ' " + pkg + "/' && exit 0; "
+            "exit 1";
+        int rc = system(cmd.c_str());
+        // Drop the result if the launch instance changed while we were polling (app was torn down and/or
+        // a different app relaunched) - otherwise a stale "gone" would fire on a live app.
+        if (self->mCcBottomGen.load(std::memory_order_acquire) == gen) {
+            if (rc == 0) {
+                self->mCcBottomGoneStreak.store(0, std::memory_order_release);   // present -> reset debounce
+            } else {
+                int s = self->mCcBottomGoneStreak.fetch_add(1, std::memory_order_acq_rel) + 1;
+                if (s >= 3) self->mCcBottomAppGone.store(true, std::memory_order_release);   // ~3 consecutive -> exited
+            }
+        }
+        self->mCcBottomPollBusy.store(false, std::memory_order_release);
+    }).detach();
+}
+
+// Tear down an outstanding bottom-screen app: optionally force-stop it (off-thread), clear the state +
+// prop, and restore drop_input=1 so the top app is isolated from CC touches again. Idempotent. Called
+// both on the normal exit path (bottom app closed by the user) and when the CC leaves the active state
+// with a bottom app still outstanding (e.g. the TOP app was quit, so controlCenterActive() went false -
+// without this the app would run orphaned and drop_input would stay stuck at 0, killing CC touch for the
+// next session). Render-thread only.
+void NanoMenu::ccEndBottomApp(bool stopApp) {
+    if (mCcBottomApp.empty()) {
+        // Nothing outstanding, but make sure the input isolation prop is not left cleared.
+        return;
+    }
+    if (stopApp) {
+        std::string bp = mCcBottomApp;
+        std::thread([bp]{ std::string c = "am force-stop '" + bp + "' 2>/dev/null"; (void)system(c.c_str()); }).detach();
+    }
+    mCcBottomApp.clear();
+    mCcBottomGen.fetch_add(1, std::memory_order_acq_rel);   // any in-flight poll for this instance is now stale
+    property_set("sys.gammaos.nano.cc.bottomapp", "");
+    property_set("sys.gammaos.nano.drop_input", "1");
+    mCcBottomAppGone.store(false, std::memory_order_release);
+    mCcBottomGoneStreak.store(0, std::memory_order_release);
+    // A finger may have been down/queued while the app owned the panel; flush any residual evdev events
+    // and start the returning CC from a clean touch state so no stale edge fires a tile/slider back.
+    ccDrainBottomTouch();
+    mCcTouchDownRaw = false; mCcTouchWas = false; mCcHeldSlider = -1;
+}
+
+// Read and DISCARD everything pending on the bottom digitizer while a bottom app owns the panel. The
+// park loop skips ccPollTouch() during an app session, so without this the evdev fd backlog (each open
+// fd has its own kernel buffer) would accumulate for the whole session and replay through ccTouchFrame
+// on CC return, firing a spurious tap/slider from a long-stale position. Non-blocking; drains to empty.
+void NanoMenu::ccDrainBottomTouch() {
+    char dev[PROPERTY_VALUE_MAX] = {};
+    property_get("persist.gammaos.nano.cc.touchdev", dev, "gt9xx-0");
+    int bfd = -1;
+    for (const auto& kv : mInputFdNames) if (kv.second == dev) { bfd = kv.first; break; }
+    if (bfd < 0) return;
+    struct input_event ev;
+    while (read(bfd, &ev, sizeof(ev)) == sizeof(ev)) { /* discard */ }
+}
+
 // ---------------------------------------------------------------------------
 // Interactivity: bottom-panel touch, tile actions, and the graceful sleep ramp.
 // ---------------------------------------------------------------------------
@@ -921,9 +1059,15 @@ void NanoMenu::ccTouchFrame() {
             if      (ddx < 0 && mCcPage < 1) { mCcPage = 1; swiped = true; }   // swipe left -> apps
             else if (ddx > 0 && mCcPage > 0) { mCcPage = 0; swiped = true; }   // swipe right -> dashboard
         }
-        // Otherwise a short press is a tap. Page 0 hits tiles/sliders; page 1 app taps come in Stage 2.
-        if (!swiped && !sWokeThisTouch && mCcHeldSlider < 0 && ddx*ddx + ddy*ddy < 400.0f && mCcPage == 0)
-            ccOnTap(mCcDownX, mCcDownY);   // < ~20px = a tap
+        // Otherwise a short press is a tap. Page 0 hits tiles/sliders; page 1 launches the app under it.
+        if (!swiped && !sWokeThisTouch && mCcHeldSlider < 0 && ddx*ddx + ddy*ddy < 400.0f
+                && mCcPageOffset >= 0.999f * (float)mCcPage && mCcPageOffset <= (float)mCcPage + 0.001f) {
+            if (mCcPage == 0) ccOnTap(mCcDownX, mCcDownY);
+            else if (mCcPage == 1) {
+                int ai = ccAppAt(mCcDownX, mCcDownY);
+                if (ai >= 0 && ai < (int)mAppEntries.size()) ccLaunchBottomApp(mAppEntries[ai].packageName);
+            }
+        }
         // Flush the final volume: the drag debounced the intermediate --set calls, so commit the value
         // the finger ended on (guarded so it is skipped when the last debounced set already sent it).
         if (mCcHeldSlider == 0 && sCc.volCur != mCcVolLastSet) ccSendVolume(sCc.volCur);

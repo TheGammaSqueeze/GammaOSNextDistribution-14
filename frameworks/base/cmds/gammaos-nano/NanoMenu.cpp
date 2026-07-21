@@ -3725,6 +3725,26 @@ if (sRingPrimedCount >= 2) {
                         }
                         sCcLastNs = ccT0;
                     }
+                    // The exit watcher (off-thread) flagged that the bottom app the user launched has closed:
+                    // clear it and re-seed so the CC fades back in on the bottom panel.
+                    if (mCcBottomAppGone.load(std::memory_order_acquire)) {
+                        ccEndBottomApp(false);       // app already exited: clear state + restore drop_input (no force-stop)
+                        mCcActiveSeeded = false;     // re-seed the idle timer + fade the CC back in
+                    }
+                    // A bottom-screen app launched from the app grid owns the bottom panel: hide the CC so it
+                    // does not occlude the app, and just watch for the app to exit (no CC touch/render). Drain
+                    // and discard the bottom digitizer so a session-long evdev backlog cannot replay a stale
+                    // tap when the CC returns. Loosely paced (~10Hz) so the game keeps the SoC.
+                    if (!mCcBottomApp.empty()) {
+                        hideControlCenterLayer();
+                        ccDrainBottomTouch();
+                        ccPollBottomAppExit();
+                        mRenderHeartbeat.fetch_add(1, std::memory_order_relaxed);
+                        int64_t spentUs = (systemTime(SYSTEM_TIME_MONOTONIC) - ccT0) / 1000;
+                        int64_t restUs = 100000 - spentUs;
+                        if (restUs > 500) usleep((useconds_t)restUs);
+                        continue;
+                    }
                     // Seed the idle timer on the activation edge so a freshly shown CC does not instantly
                     // auto-sleep. mCcActiveSeeded is cleared on teardown, so it re-arms per activation.
                     if (!mCcActiveSeeded) { mCcLastTouchMs = ccNowMs; mCcActiveSeeded = true; mCcFadeIn = 0.0f; }
@@ -3774,6 +3794,12 @@ if (sRingPrimedCount >= 2) {
                 }
                 // Not showing the control center: hide its secondary layer if we had raised it, so the
                 // running app owns its bottom screen again (no stale nano surface over the game).
+                // If a bottom-screen app was still outstanding when the CC left the active state (e.g. the
+                // TOP app was quit so controlCenterActive() went false), tear it down: force-stop it and
+                // restore drop_input=1. Otherwise it would run orphaned with input isolation stuck off,
+                // and the next CC session would immediately hide behind the stale package. Force-stop here
+                // is off-thread and idempotent.
+                ccEndBottomApp(true);
                 ccRestoreBacklightIfSlept();  // don't leave the bottom panel dark if the CC tore down while slept
                 mCcActiveSeeded = false;      // re-seed the 30s idle timer on the next CC activation
                 hideControlCenterLayer();
