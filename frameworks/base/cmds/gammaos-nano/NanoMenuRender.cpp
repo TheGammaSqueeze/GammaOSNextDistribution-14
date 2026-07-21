@@ -1640,12 +1640,17 @@ void NanoMenu::renderNdsCarousel(float rx, float ry, float rw, float rh) {
     // like the PS3 XMB in-game overlay) instead of the DSi stripe bg covering it (user request).
     const bool ndsInGameScrim = mOverlayMode && !mOverlayWallpaper;
     if (!ndsInGameScrim) {
-        drawQuad(rx, ry, rw, rh, 0.953f, 0.953f, 0.953f, 1.0f);
-        { float dl = S(2.0f); if (dl < 2.0f) dl = 2.0f;
-          for (float y = ry; y < ry + rh; y += dl) drawQuad(rx, y, rw, fmaxf(1.0f, S(1.0f)), 0.922f, 0.922f, 0.922f, 1.0f); }
-        float ec = fmaxf(1.0f, S(1.0f));
-        drawQuad(rx, ry, ec, rh, 0.859f, 0.859f, 0.859f, 1.0f);
-        drawQuad(rx + rw - ec, ry, ec, rh, 0.859f, 0.859f, 0.859f, 1.0f);
+        if (wallpaperActive(mRenderingPanel)) {
+            // Custom wallpaper fills the whole DSi bottom screen behind the carousel chrome.
+            drawWallpaperFill(mRenderingPanel);
+        } else {
+            drawQuad(rx, ry, rw, rh, 0.953f, 0.953f, 0.953f, 1.0f);
+            { float dl = S(2.0f); if (dl < 2.0f) dl = 2.0f;
+              for (float y = ry; y < ry + rh; y += dl) drawQuad(rx, y, rw, fmaxf(1.0f, S(1.0f)), 0.922f, 0.922f, 0.922f, 1.0f); }
+            float ec = fmaxf(1.0f, S(1.0f));
+            drawQuad(rx, ry, ec, rh, 0.859f, 0.859f, 0.859f, 1.0f);
+            drawQuad(rx + rw - ec, ry, ec, rh, 0.859f, 0.859f, 0.859f, 1.0f);
+        }
     }
 
     // ---- carousel content from the XMB hierarchy. At the top level it is the current
@@ -2440,10 +2445,16 @@ void NanoMenu::renderNdsTop(float rx, float ry, float rw, float rh) {
     // like the PS3 XMB overlay (user request); the opaque post-game launcher + home keep it.
     const bool ndsTopScrim = mOverlayMode && !mOverlayWallpaper;
     if (!ndsTopScrim) {
-        drawQuad(rx, ry, rw, rh, 0.965f, 0.965f, 0.965f, 1.0f);
-        float ec = fmaxf(1.0f, S(1.0f));
-        drawQuad(X(0.0f), ry, ec, rh, 0.859f, 0.859f, 0.859f, 1.0f);
-        drawQuad(X(255.0f), ry, ec, rh, 0.859f, 0.859f, 0.859f, 1.0f);
+        if (wallpaperActive(mRenderingPanel)) {
+            // Custom wallpaper fills the whole DSi top screen behind all the chrome, replacing the flat
+            // light field. The carousel/photo panel and menu still draw over it.
+            drawWallpaperFill(mRenderingPanel);
+        } else {
+            drawQuad(rx, ry, rw, rh, 0.965f, 0.965f, 0.965f, 1.0f);
+            float ec = fmaxf(1.0f, S(1.0f));
+            drawQuad(X(0.0f), ry, ec, rh, 0.859f, 0.859f, 0.859f, 1.0f);
+            drawQuad(X(255.0f), ry, ec, rh, 0.859f, 0.859f, 0.859f, 1.0f);
+        }
     }
 
     // ---- photo panel (DSi bg_photo_u, topscreen.js:58): the REAL firmware panel - a
@@ -5497,6 +5508,7 @@ if (sRingPrimedCount >= 2) {
         glViewport(0, 0, mWidth, mHeight); // secondary has same resolution
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
+        mRenderingPanel = 1;   // secondary/bottom panel: pick its own wallpaper (empty -> normal bg)
         if (drasticActive) {
             // Secondary display -> bottom DS screen fullscreen.
             drastic->renderBottomScreen(sDrasticSaturation, sDrasticGradient);
@@ -5523,6 +5535,7 @@ if (sRingPrimedCount >= 2) {
         if (i == 0) maybeNanoScreenshotSecondary();   // debug capture of the bottom DS panel
         eglSwapBuffers(mDisplay, mSecondaryEglSurfaces[i]);
     }
+    mRenderingPanel = 0;   // back to the primary/top panel
     // Switch back to primary
     if (!mSecondaryEglSurfaces.empty()) {
         eglMakeCurrent(mDisplay, mSurface, mSurface, mContext);
