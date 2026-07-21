@@ -1353,6 +1353,18 @@ public class DisplayRotation {
             return Surface.ROTATION_0;
         }
 
+        // GammaOS Control Center: while the bottom-screen Control Center is rendering on its panel
+        // (nano sets sys.gammaos.nano.cc.active), keep that panel at its natural rotation. Otherwise, once
+        // an app on the top panel makes the DEFAULT display's orientation resolve to landscape, stock AOSP
+        // rotates this bottom panel to a 960x640 rotation-90 canvas and the fixed-640x480 Control Center
+        // lands rotated + squished in a corner. Keyed to the CC's own bottom display id so the game panel
+        // is untouched. Mirrors the dual-stack natural-rotation pin above.
+        if (mDisplayContent.getDisplayId()
+                    == android.os.SystemProperties.getInt("persist.gammaos.nano.cc.bottomdisplay", 0)
+                && android.os.SystemProperties.getBoolean("sys.gammaos.nano.cc.active", false)) {
+            return Surface.ROTATION_0;
+        }
+
         if (isFixedToUserRotation()) {
             return mUserRotation;
         }

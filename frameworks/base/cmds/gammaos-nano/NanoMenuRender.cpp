@@ -5488,15 +5488,22 @@ if (sRingPrimedCount >= 2) {
                 const int cw = mSecondaryCreatedSize[i].first;
                 const int ch = mSecondaryCreatedSize[i].second;
                 if (lssW <= 0 || lssH <= 0 || cw <= 0 || ch <= 0) continue;
-                if (lssH == mSecondaryAppliedLssH[i]) continue;   // logical size unchanged
                 const float sx = (float)lssW / (float)cw;
                 const float sy = (float)lssH / (float)ch;
+                // REASSERT the stretch every tick, not just when lssH changes. A display reconfigure
+                // (an app taking display 0 on launch, or a resume from sleep) resets the secondary
+                // surface's transform back to identity while its logical size is UNCHANGED; the old
+                // skip-if-unchanged then never re-applied, leaving the Control Center squished into the
+                // top half of the panel (user: "stretched/squished, like dualstack mode"). setMatrix is a
+                // cheap idempotent ~4Hz transaction, so reassert unconditionally and only log on a real move.
                 SurfaceComposerClient::Transaction t;
                 t.setMatrix(mSecondaryWallpaperControls[i], sx, 0.0f, 0.0f, sy);
                 t.apply();
-                mSecondaryAppliedLssH[i] = lssH;
-                ALOGI("nano ds-cover: secondary %zu stretch buf %dx%d -> canvas %dx%d (sx=%.2f sy=%.2f)",
-                      i, cw, ch, lssW, lssH, sx, sy);
+                if (lssH != mSecondaryAppliedLssH[i]) {
+                    mSecondaryAppliedLssH[i] = lssH;
+                    ALOGI("nano ds-cover: secondary %zu stretch buf %dx%d -> canvas %dx%d (sx=%.2f sy=%.2f)",
+                          i, cw, ch, lssW, lssH, sx, sy);
+                }
             }
         }
     }

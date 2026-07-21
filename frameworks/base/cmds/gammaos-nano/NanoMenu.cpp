@@ -1349,6 +1349,9 @@ bool NanoMenu::threadLoop() {
     // Clear any stale drop_input/fence from a previous instance.
     property_set("sys.gammaos.nano.drop_input", "0");
     property_set("sys.gammaos.nano.drop_fence_ns", "0");
+    // Clear the CC display-0 rotation pin too, so a crash/restart never strands display 0 locked to
+    // ROTATION_0 (the render loop re-asserts it while the CC is actually up).
+    property_set("sys.gammaos.nano.cc.active", "0");
 
     // readyToRun() sets service.bootanim.exit=1 to kill the vendor bootanim.
     // Reset it here so our own exit check (further below) doesn't immediately
@@ -3762,6 +3765,10 @@ if (sRingPrimedCount >= 2) {
                         static bool sCcScrWasOff = false;
                         if (scrOff) {
                             sCcScrWasOff = true;
+                            // Release the display-0 rotation pin while the panel is blanked (the CC is not
+                            // rendering); it re-arms on the next active frame after wake.
+                            if (property_get_int32("sys.gammaos.nano.cc.active", 0) != 0)
+                                property_set("sys.gammaos.nano.cc.active", "0");
                             // Drop any in-flight focus ring so it is not left composited over the panel the
                             // framework is blanking (nowMs() does not advance across suspend, so the pulse
                             // cannot self-expire). mOverlayShown is false here, so this does the real hide.
@@ -3814,6 +3821,10 @@ if (sRingPrimedCount >= 2) {
                         // Re-assert only on drift so a stray drop_input=1 cannot strand the bottom app's touch.
                         if (property_get_int32("sys.gammaos.nano.drop_input", 0) != 0)
                             property_set("sys.gammaos.nano.drop_input", "0");
+                        // The bottom app owns display 0 (the CC is hidden): release the rotation pin so the app
+                        // controls its own orientation.
+                        if (property_get_int32("sys.gammaos.nano.cc.active", 0) != 0)
+                            property_set("sys.gammaos.nano.cc.active", "0");
                         int64_t budgetUs;
                         if (ccRingActive()) {
                             // Pulse the focus ring over the app that just took the controller.
@@ -3844,14 +3855,41 @@ if (sRingPrimedCount >= 2) {
                     // pin the top display; the framework returns the gamepad there (this is what fixes
                     // focus being stranded on the bottom after a bottom app exits).
                     ccSetFocusDisplay(property_get_int32("persist.gammaos.nano.cc.topdisplay", 2));
-                    // Re-assert input isolation every iteration while the CC occludes the bottom panel: the
-                    // toggle/launch writes drop_input once, but the framework clears it to 0 on some transitions
-                    // (app focus changes - which the focus pin above can provoke - home/overlay handoffs), and
-                    // without re-asserting, a force-visible CC over an app would silently leak every tap to the
-                    // app underneath (drop_input=0 lets InputDispatcher deliver it while the CC also reads its own
-                    // evdev fd). Reads the live value first (cheap shared-memory read) so it writes only on drift.
-                    if (property_get_int32("sys.gammaos.nano.drop_input", 0) != 1)
-                        property_set("sys.gammaos.nano.drop_input", "1");
+                    // Input isolation, reconciled every iteration (the framework clears drop_input to 0 on some
+                    // transitions - app focus changes, which the focus pin above can provoke, and home/overlay
+                    // handoffs). drop_input is a GLOBAL drop of keys+motion, so it must be raised ONLY when the CC
+                    // actually occludes an app on the bottom panel it reads touch from:
+                    //  - Force-visible CC OVER a grid-launched bottom app (mCcBottomApp set, reached via the
+                    //    fall-through above): the bottom digitizer would reach that bottom app on display 0, so
+                    //    drop_input=1 blocks the CC's taps from leaking to it. The gamepad is not needed by the
+                    //    hidden bottom app while the CC is up, and the top app is paused behind the force-visible CC.
+                    //  - Force-visible CC OVER a dual-stack app (mCcForceVisible + launch_app is dual-stack): that
+                    //    app spans BOTH panels, so it has a window on the bottom (display 0) too - the bottom
+                    //    digitizer would reach it. drop_input=1 blocks the CC's taps from leaking to the bottom
+                    //    window; the app is paused behind the summoned CC so it needs no input meanwhile.
+                    //  - Plain single-app CC (no bottom app, top app not dual-stack): the ONE app is fullscreen on
+                    //    the TOP panel (display 2) and the CC's bottom digitizer targets display 0, which has no app
+                    //    window. Per-display input already isolates the top app from bottom touches (same as the
+                    //    two-app branch above uses drop_input=0), so drop_input=1 is NOT needed here - and because it
+                    //    is a global drop it also swallows the gamepad (BTN_A/dpad etc.) that must reach the top game.
+                    //    Keep it 0.
+                    bool ccOccludesBottomApp = !mCcBottomApp.empty();   // force-visible CC over a grid-launched app
+                    if (!ccOccludesBottomApp && mCcForceVisible) {
+                        // Force-visible over a running app with no grid-launched bottom app: only a DUAL-STACK app
+                        // has a bottom-panel window to isolate; a top-only single app does not.
+                        char la[PROPERTY_VALUE_MAX] = {};
+                        property_get("sys.gammaos.nano.launch_app", la, "");
+                        if (la[0] && dualstackHas(la)) ccOccludesBottomApp = true;
+                    }
+                    int wantDrop = ccOccludesBottomApp ? 1 : 0;
+                    if (property_get_int32("sys.gammaos.nano.drop_input", 0) != wantDrop)
+                        property_set("sys.gammaos.nano.drop_input", wantDrop ? "1" : "0");
+                    // Pin the CC's bottom panel (display cc.bottomdisplay) to its natural rotation while the CC
+                    // renders on it: DisplayRotation honours sys.gammaos.nano.cc.active. Without this, launching an
+                    // app lets stock AOSP rotate the default display to landscape (960x640 rotation-90) and the CC,
+                    // which draws 640x480, lands rotated + squished in a corner. Drift-checked (write only on change).
+                    if (property_get_int32("sys.gammaos.nano.cc.active", 0) != 1)
+                        property_set("sys.gammaos.nano.cc.active", "1");
                     // Seed the idle timer on the activation edge so a freshly shown CC does not instantly
                     // auto-sleep. mCcActiveSeeded is cleared on teardown, so it re-arms per activation.
                     if (!mCcActiveSeeded) { mCcLastTouchMs = ccNowMs; mCcActiveSeeded = true; mCcFadeIn = 0.0f; }
@@ -3916,6 +3954,8 @@ if (sRingPrimedCount >= 2) {
                 // is off-thread and idempotent.
                 ccEndBottomApp(true);
                 ccSetFocusDisplay(-1);        // CC not active: release the focus pin, normal focus resumes
+                if (property_get_int32("sys.gammaos.nano.cc.active", 0) != 0)
+                    property_set("sys.gammaos.nano.cc.active", "0");   // release the display-0 rotation pin
                 mCcRingDisp = -1;             // cancel any in-flight focus-ring pulse
                 if (mTopRingShown) hideTopFocusRing();
                 ccRestoreBacklightIfSlept();  // don't leave the bottom panel dark if the CC tore down while slept
