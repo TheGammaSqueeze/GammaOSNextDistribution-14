@@ -3702,6 +3702,27 @@ if (sRingPrimedCount >= 2) {
                     if (mOverlayBgTex) { glDeleteTextures(1, &mOverlayBgTex); mOverlayBgTex = 0; }
                     freeGlassScratch();
                 }
+                // KEY_ALL_APPLICATIONS: toggle the Control Center visible over ANY running app. Drained here
+                // (before the controlCenterActive() gate) so it works from every park sub-case, including a
+                // dual-stack app where the CC is otherwise inactive - toggling it on flips controlCenterActive()
+                // true on this same iteration so the CC comes up at once. On a real down-edge, flip the override
+                // and set drop_input to match who now owns the bottom digitizer: the CC (grab) when summoned, or
+                // the running app when dismissed (a dual-stack app or a grid-launched bottom app both want touch).
+                if (ccPollAllAppsKey()) {
+                    mCcForceVisible = !mCcForceVisible;
+                    if (mCcForceVisible) {
+                        property_set("sys.gammaos.nano.drop_input", "1");   // CC grabs the bottom digitizer
+                        mCcActiveSeeded = false;   // re-seed the idle timer so the summoned CC does not auto-sleep at once
+                    } else {
+                        char la[PROPERTY_VALUE_MAX] = {};
+                        property_get("sys.gammaos.nano.launch_app", la, "");
+                        bool appOwnsBottom = !mCcBottomApp.empty() || (la[0] && dualstackHas(la));
+                        property_set("sys.gammaos.nano.drop_input", appOwnsBottom ? "0" : "1");
+                        // If the force-visible CC had dimmed/slept the bottom panel, restore its backlight so
+                        // the app it hands the panel back to is not left dark. Idempotent when already awake.
+                        if (appOwnsBottom) ccRestoreBacklightIfSlept();
+                    }
+                }
                 // Bottom-screen Control Center: while a single-screen (non-dual-stack) app is
                 // fullscreen on top, render the live dashboard on the BOTTOM panel instead of fully
                 // parking. The munlockall above already handed the game its RAM; the dashboard's small
@@ -3769,6 +3790,14 @@ if (sRingPrimedCount >= 2) {
                     // and discard the bottom digitizer so a session-long evdev backlog cannot replay a stale
                     // tap when the CC returns. Loosely paced (~10Hz) so the game keeps the SoC.
                     if (!mCcBottomApp.empty()) {
+                        // Always keep watching for the bottom app's exit, whether the CC is hidden behind it
+                        // or (force-visible) shown over it.
+                        ccPollBottomAppExit();
+                        // KEY_ALL_APPLICATIONS summoned the CC over the running bottom app: render it (the
+                        // "Close App" tile is now live) by falling through to the normal CC render path below,
+                        // instead of hiding. drop_input was set to 1 at the toggle so CC touches do not reach
+                        // the occluded app; the close-app tile force-stops it and returns to the plain CC.
+                        if (!mCcForceVisible) {
                         // Tap-to-switch controller focus between the two running apps: a touch-down on the
                         // bottom app hands it the gamepad, a touch-down on the top screen hands it back to
                         // the top app. (Draining both digitizers here also keeps their backlogs clear so no
@@ -3777,7 +3806,10 @@ if (sRingPrimedCount >= 2) {
                             ccSetFocusDisplay(property_get_int32("persist.gammaos.nano.cc.bottomdisplay", 0));
                         if (ccPollTopTapDown())
                             ccSetFocusDisplay(property_get_int32("persist.gammaos.nano.cc.topdisplay", 2));
-                        ccPollBottomAppExit();
+                        // The bottom app owns the panel here (CC hidden): keep input flowing to both apps.
+                        // Re-assert only on drift so a stray drop_input=1 cannot strand the bottom app's touch.
+                        if (property_get_int32("sys.gammaos.nano.drop_input", 0) != 0)
+                            property_set("sys.gammaos.nano.drop_input", "0");
                         int64_t budgetUs;
                         if (ccRingActive()) {
                             // Pulse the focus ring over the app that just took the controller.
@@ -3799,12 +3831,23 @@ if (sRingPrimedCount >= 2) {
                         int64_t restUs = budgetUs - spentUs;
                         if (restUs > 500) usleep((useconds_t)restUs);
                         continue;
+                        }   // end !mCcForceVisible: CC hidden behind the bottom app
+                        // force-visible: fall through to render the CC over the bottom app.
                     }
-                    // Control Center up with no bottom app: the controller belongs to the TOP panel
+                    // Control Center up (no bottom app, or force-visible over one): the controller belongs to
+                    // the TOP panel
                     // (the app the CC accompanies). The CC is touch-only and must never take focus, so
                     // pin the top display; the framework returns the gamepad there (this is what fixes
                     // focus being stranded on the bottom after a bottom app exits).
                     ccSetFocusDisplay(property_get_int32("persist.gammaos.nano.cc.topdisplay", 2));
+                    // Re-assert input isolation every iteration while the CC occludes the bottom panel: the
+                    // toggle/launch writes drop_input once, but the framework clears it to 0 on some transitions
+                    // (app focus changes - which the focus pin above can provoke - home/overlay handoffs), and
+                    // without re-asserting, a force-visible CC over an app would silently leak every tap to the
+                    // app underneath (drop_input=0 lets InputDispatcher deliver it while the CC also reads its own
+                    // evdev fd). Reads the live value first (cheap shared-memory read) so it writes only on drift.
+                    if (property_get_int32("sys.gammaos.nano.drop_input", 0) != 1)
+                        property_set("sys.gammaos.nano.drop_input", "1");
                     // Seed the idle timer on the activation edge so a freshly shown CC does not instantly
                     // auto-sleep. mCcActiveSeeded is cleared on teardown, so it re-arms per activation.
                     if (!mCcActiveSeeded) { mCcLastTouchMs = ccNowMs; mCcActiveSeeded = true; mCcFadeIn = 0.0f; }
@@ -3873,6 +3916,11 @@ if (sRingPrimedCount >= 2) {
                 if (mTopRingShown) hideTopFocusRing();
                 ccRestoreBacklightIfSlept();  // don't leave the bottom panel dark if the CC tore down while slept
                 mCcActiveSeeded = false;      // re-seed the 30s idle timer on the next CC activation
+                mCcForceVisible = false;      // the KEY_ALL_APPLICATIONS override is per-session: drop it when the
+                                              // CC deactivates (app exited), so it cannot leak onto the next app
+                                              // (e.g. force-showing the CC over a dual-stack app it was never
+                                              // summoned over). Reached only when a higher-priority gate in
+                                              // controlCenterActive() (app_launched=0) trips, never mid-session.
                 hideControlCenterLayer();
                 // Hidden overlay: block on the show_overlay trigger instead of
                 // spin-polling at 30Hz. A spin-poll wakes this thread 30x/sec

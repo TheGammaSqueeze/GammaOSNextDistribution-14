@@ -530,6 +530,22 @@ void NanoMenu::renderCcPass(int pass) {
         disc(CX - o, CY, br, R, G, B, A);     // left (X)
         disc(CX + o, CY, br, R, G, B, A);     // right (B)
     };
+    // close: an X of two thick diagonal bars (the "Close App" tile while a bottom app runs).
+    auto icoClose = [&](float cx, float cy, float r, float R, float G, float B, float A){
+        float CX = X(cx), CY = Y(cy), rr = S(r)*0.82f, t = S(2.2f);
+        const float ends[2][4] = {
+            { CX - rr, CY - rr, CX + rr, CY + rr },   // top-left -> bottom-right
+            { CX + rr, CY - rr, CX - rr, CY + rr },   // top-right -> bottom-left
+        };
+        for (int k = 0; k < 2; k++) {
+            float ax = ends[k][0], ay = ends[k][1], bx = ends[k][2], by = ends[k][3];
+            float dx = bx - ax, dy2 = by - ay, len = sqrtf(dx*dx + dy2*dy2);
+            if (len < 1e-3f) continue;
+            float nx = -dy2 / len * t, ny = dx / len * t;   // perpendicular half-thickness
+            drawTriangle(ax+nx, ay+ny, ax-nx, ay-ny, bx-nx, by-ny, R, G, B, A);
+            drawTriangle(ax+nx, ay+ny, bx-nx, by-ny, bx+nx, by+ny, R, G, B, A);
+        }
+    };
 
     char buf[80];
 
@@ -573,15 +589,22 @@ void NanoMenu::renderCcPass(int pass) {
     if (st) card(166, 30, 466, 202);
     if (st) {
         header("CONTROLS", 180, 40);
+        // The Screenshot tile becomes a "Close App" button (red, X icon) while a grid-launched bottom app
+        // runs. Folded into the static-cache signature (ccStaticSignature stamps tile[6]) so the baked layer
+        // refreshes when the bottom-app state changes.
+        bool closeTile = !mCcBottomApp.empty();
         for (int i = 0; i < 8; i++) {
             const CcTileDef& t = CC_TILE[i];
             int st = ccActState(t.act, mCcSleeping);   // 0 off, 1 on / perf=powersave, 2 perf=max
-            bool on = st > 0;
+            bool isClose = (t.act == A_SHOT && closeTile);
+            bool on = st > 0 || isClose;
             float x, y; ccTileXY(i, x, y);
-            drawRoundedRect(X(x), Y(y), S(CC_TW), S(CC_TH), S(11.0f),
-                            on ? 0.34f : 0.11f, on ? 0.16f : 0.12f, on ? 0.52f : 0.155f, 1.0f);
+            float bgR = on ? 0.34f : 0.11f, bgG = on ? 0.16f : 0.12f, bgB = on ? 0.52f : 0.155f;
+            if (isClose) { bgR = 0.52f; bgG = 0.16f; bgB = 0.18f; }   // destructive red
+            drawRoundedRect(X(x), Y(y), S(CC_TW), S(CC_TH), S(11.0f), bgR, bgG, bgB, 1.0f);
             float icx = x + CC_TW*0.5f, icy = y + 24;
             float ir = on ? 0.99f : 0.82f, ig = on ? 0.92f : 0.86f, ib = on ? 1.0f : 0.94f;
+            if (isClose) { ir = 1.0f; ig = 0.86f; ib = 0.86f; }
             switch (t.act) {
                 case A_SLEEP:    icoMoon(icx, icy, 10, ir,ig,ib,1); break;
                 case A_PERF:     icoGauge(icx, icy, 11, ir,ig,ib,1); break;
@@ -589,12 +612,14 @@ void NanoMenu::renderCcPass(int pass) {
                 case A_SHADER:   icoShader(icx, icy, 9,  ir,ig,ib,1); break;
                 case A_EQ:       icoMusic(icx, icy, 11, ir,ig,ib,1); break;
                 case A_ABXY:     icoAbxy(icx, icy, 11, ir,ig,ib,1); break;
-                case A_SHOT:     icoCamera(icx, icy, 11, ir,ig,ib,1); break;
+                case A_SHOT:     if (isClose) icoClose(icx, icy, 11, ir,ig,ib,1);
+                                 else         icoCamera(icx, icy, 11, ir,ig,ib,1); break;
                 case A_WIFI:     icoWifi(icx, icy, 10, ir,ig,ib,1); break;
             }
-            // Performance shows its mode name; others the plain label.
+            // Performance shows its mode name; the Screenshot tile shows "Close App" while a bottom app runs.
             const char* lbl = t.label;
-            if (t.act == A_PERF) lbl = (st == 2) ? "Max" : (st == 1) ? "Powersave" : "Stock";
+            if (t.act == A_PERF)   lbl = (st == 2) ? "Max" : (st == 1) ? "Powersave" : "Stock";
+            else if (isClose)      lbl = "Close App";
             textC(lbl, icx, y + CC_TH - 20, 11.0f, 0.82f, 0.85f, 0.92f, 1.0f);
         }
     }
@@ -710,6 +735,9 @@ NanoMenu::CcStaticSig NanoMenu::ccStaticSignature() const {
     s.h = mHeight;
     for (int i = 0; i < 8; i++)
         s.tile[i] = (uint8_t)ccActState(CC_TILE[i].act, mCcSleeping);
+    // The A_SHOT tile (index 6) is baked as "Close App" while a grid-launched bottom app runs; give it a
+    // distinct signature value so the cache re-bakes when that state flips (ccActState(A_SHOT) is always 0).
+    if (!mCcBottomApp.empty()) s.tile[6] = 3;
     time_t t = time(nullptr);
     struct tm lt;
     if (localtime_r(&t, &lt)) { s.wday = lt.tm_wday % 7; s.mday = lt.tm_mday; }
@@ -865,6 +893,7 @@ void NanoMenu::ccLaunchBottomApp(const std::string& pkg) {
         // pin - the dual-stack app owns both panels and controlCenterActive() excludes it, so the CC tears
         // down on the next park iteration.
         ccEndBottomApp(true);                                   // force-stop + tear down any bottom app
+        mCcForceVisible = false;                                // launching dismisses the KEY_ALL_APPLICATIONS overlay
         property_set("sys.gammaos.dualstack.enabled", "true");  // ensure dual-stack is on (default already is)
         char topApp[PROPERTY_VALUE_MAX] = {};
         property_get("sys.gammaos.nano.launch_app", topApp, "");
@@ -889,6 +918,7 @@ void NanoMenu::ccLaunchBottomApp(const std::string& pkg) {
         return;
     }
     int bd = property_get_int32("persist.gammaos.nano.cc.bottomdisplay", 0);   // bottom = display 0 (RG DS)
+    mCcForceVisible = false;   // launching an app dismisses the KEY_ALL_APPLICATIONS overlay (app owns bottom)
     std::string prev = mCcBottomApp;
     mCcBottomApp = pkg;
     mCcBottomGen.fetch_add(1, std::memory_order_acq_rel);   // invalidate any in-flight poll from a prior instance
@@ -1028,6 +1058,27 @@ bool NanoMenu::ccPollTopTapDown() {
     return down;
 }
 
+// Drain the gamepad key device (RG DS: "Xbox Wireless Controller"; override persist.gammaos.nano.cc.keydev)
+// and report whether KEY_ALL_APPLICATIONS was pressed this poll. The park loop toggles mCcForceVisible on a
+// down-edge to summon/dismiss the Control Center over any running app (a dual-stack app or a grid-launched
+// bottom app). nano holds its own un-grabbed fd, so this peek does not steal the key from the framework -
+// and code 204 is unmapped in the keylayouts, so the framework does nothing with it regardless. Non-blocking;
+// drains the fd to empty each call so a session-long backlog cannot replay a stale press.
+bool NanoMenu::ccPollAllAppsKey() {
+    char dev[PROPERTY_VALUE_MAX] = {};
+    property_get("persist.gammaos.nano.cc.keydev", dev, "Xbox Wireless Controller");
+    int kfd = -1;
+    for (const auto& kv : mInputFdNames) if (kv.second == dev) { kfd = kv.first; break; }
+    if (kfd < 0) return false;
+    static const int kAllApps = 204;   // KEY_ALL_APPLICATIONS (may be absent from older input headers)
+    bool pressed = false;
+    struct input_event ev;
+    while (read(kfd, &ev, sizeof(ev)) == sizeof(ev)) {
+        if (ev.type == EV_KEY && ev.code == kAllApps && ev.value == 1) pressed = true;
+    }
+    return pressed;
+}
+
 // Pin the controller-focused panel. Writes sys.gammaos.nano.focus.display (top display id, bottom
 // display id, or -1 to clear) only when it changes; the framework's WM poll picks it up within ~200ms
 // and RootWindowContainer forces focus to that display (if it has a focused app). The Control Center
@@ -1063,28 +1114,41 @@ float NanoMenu::ccRingT() {
 // breathe animate the brightness over the ~1s pulse. Device-pixel + edge-relative so it adapts to any
 // panel size/orientation. Assumes the framebuffer was cleared to alpha 0 and setUiBlend() is desired.
 void NanoMenu::drawFocusRing(float t01) {
+    // A thin GOLD stripe that sweeps once around the panel edge and fades out over ~1s. Tasteful: a
+    // dim gold hairline as the base frame, and a brighter gold highlight (comet-style, soft trail)
+    // travelling the perimeter. Transparent centre - only the ~4px edge band is ever painted, so the
+    // app/CC shows through everywhere else.
     setUiBlend();
-    float env = (t01 < 0.15f) ? (t01 / 0.15f)
-              : (t01 > 0.55f) ? (1.0f - (t01 - 0.55f) / 0.45f) : 1.0f;
-    if (env < 0.0f) env = 0.0f;
-    float breathe = 0.85f + 0.15f * sinf(t01 * 6.2831853f * 2.0f);
-    float a = env * breathe;
-    if (a <= 0.003f) return;
+    float env = (t01 < 0.12f) ? (t01 / 0.12f)
+              : (t01 > 0.70f) ? (1.0f - (t01 - 0.70f) / 0.30f) : 1.0f;   // ease in / hold / ease out
+    if (env <= 0.0f) return;
     const float W = (float)mWidth, H = (float)mHeight;
-    const int   BANDS = 6;
-    const float MAXW  = (H < W ? H : W) * 0.055f;   // outer band thickness ~ 5.5% of the short side
-    const float cr = 0.55f, cg = 0.85f, cb = 1.0f;  // XMB focus cyan-white
+    const float TH = (H < W ? H : W) * 0.008f;        // hairline thickness (~4px at 480), scales with panel
+    const float gr = 1.0f, gg = 0.80f, gb = 0.30f;    // warm gold
     beginSolidBatch();
-    for (int i = 0; i < BANDS; i++) {
-        float f  = (float)i / (float)(BANDS - 1);   // 0 outer .. 1 inner
-        float th = MAXW * (1.0f - f * 0.72f);
-        float ba = a * (1.0f - f) * (1.0f - f);      // quadratic falloff -> glow
-        if (ba <= 0.003f) continue;
-        float o = f * (MAXW * 0.32f);                // inset each band slightly
-        drawQuad(o,          o,          W - 2.0f * o, th,            cr, cg, cb, ba);  // top
-        drawQuad(o,          H - o - th, W - 2.0f * o, th,            cr, cg, cb, ba);  // bottom
-        drawQuad(o,          o,          th,           H - 2.0f * o,  cr, cg, cb, ba);  // left
-        drawQuad(W - o - th, o,          th,           H - 2.0f * o,  cr, cg, cb, ba);  // right
+    // dim gold base frame (the full perimeter)
+    float base = 0.20f * env;
+    drawQuad(0.0f,    0.0f,   W,   TH,  gr, gg, gb, base);   // top
+    drawQuad(0.0f,    H - TH, W,   TH,  gr, gg, gb, base);   // bottom
+    drawQuad(0.0f,    0.0f,   TH,  H,   gr, gg, gb, base);   // left
+    drawQuad(W - TH,  0.0f,   TH,  H,   gr, gg, gb, base);   // right
+    // bright gold highlight sweeping the perimeter (the animated stripe), with a comet trail
+    const float perim = 2.0f * (W + H);
+    const float head  = fmodf(t01 * 1.15f, 1.0f) * perim;   // ~one clean lap across the pulse
+    const float tail  = perim * 0.15f;                       // stripe length ~15% of the perimeter
+    const int   N     = 24;
+    const float sub   = tail / (float)N + 1.2f;              // sub-segment length (slight overlap)
+    for (int i = 0; i < N; i++) {
+        float f  = (float)i / (float)(N - 1);               // 0 = head (brightest) .. 1 = tail
+        float aa = env * (1.0f - f) * (1.0f - f);
+        if (aa <= 0.01f) continue;
+        float p = fmodf(head - f * tail + perim, perim);
+        float x, y, w, h;
+        if      (p < W)              { x = p;                          y = 0.0f;     w = sub; h = TH; }
+        else if (p < W + H)          { x = W - TH;                     y = p - W;    w = TH;  h = sub; }
+        else if (p < 2.0f * W + H)   { x = W - (p - (W + H)) - sub;    y = H - TH;   w = sub; h = TH; }
+        else                         { x = 0.0f;  y = H - (p - (2.0f * W + H)) - sub; w = TH; h = sub; }
+        drawQuad(x, y, w, h, gr, gg, gb, aa);
     }
     endSolidBatch();
 }
@@ -1259,8 +1323,16 @@ void NanoMenu::ccOnTap(float px, float py) {
                     break;
                 }
                 case A_SHOT:
-                    shellCmd("mkdir -p /sdcard/Pictures/Screenshots 2>/dev/null; "
-                             "screencap -p /sdcard/Pictures/Screenshots/CC_$(date +%Y%m%d_%H%M%S).png 2>/dev/null");
+                    // Contextual tile: while a grid-launched bottom app runs this is the "Close App" button
+                    // (force-stop it + return the panel to the CC); otherwise it takes a screenshot. The exit
+                    // watcher would also catch the close, but tearing it down here is immediate and idempotent.
+                    if (!mCcBottomApp.empty()) {
+                        ccEndBottomApp(true);        // force-stop the bottom app + restore drop_input=1
+                        mCcActiveSeeded = false;     // re-seed the idle timer so the returning CC does not auto-sleep
+                    } else {
+                        shellCmd("mkdir -p /sdcard/Pictures/Screenshots 2>/dev/null; "
+                                 "screencap -p /sdcard/Pictures/Screenshots/CC_$(date +%Y%m%d_%H%M%S).png 2>/dev/null");
+                    }
                     break;
                 case A_WIFI:
                     shellCmd(sCc.wifiOn ? "svc wifi disable" : "svc wifi enable");
@@ -1365,6 +1437,10 @@ bool NanoMenu::controlCenterActive() {
     if (property_get_bool("sys.gammaos.nano.show_overlay", false)) return false;
     if (!property_get_bool("sys.gammaos.nano.app_launched", false)) return false;
     if (!hasSecondaryDisplay()) return false;
+    // KEY_ALL_APPLICATIONS override: the user asked to see the CC over whatever is running, so keep it
+    // active even for a dual-stack app (excluded below). Checked before the dual-stack gate for exactly
+    // that reason; a grid-launched bottom app is handled in the park loop (the CC renders over it).
+    if (mCcForceVisible) return true;
     char pkg[PROPERTY_VALUE_MAX] = {};
     property_get("sys.gammaos.nano.launch_app", pkg, "");
     if (pkg[0] && dualstackHas(pkg)) return false;

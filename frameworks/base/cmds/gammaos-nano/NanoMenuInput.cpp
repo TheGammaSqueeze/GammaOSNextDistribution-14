@@ -149,6 +149,9 @@ void NanoMenu::checkInputHotplug() {
                                         (fdPath[wantLen] == '\0' ||
                                          fdPath[wantLen] == ' ')) {
                                     ioctl(*it, EVIOCGRAB, 0);
+                                    mInputFdNames.erase(*it);   // drop the fd->name entry so CC pollers
+                                                                // (key / top / bottom digitizer) never match
+                                                                // a stale closed fd after a device re-seize
                                     close(*it);
                                     mInputFds.erase(it);
                                     break;
@@ -175,6 +178,8 @@ void NanoMenu::checkInputHotplug() {
                         }
                         mInputFds.push_back(fd);
                         mOpenedDevices.insert(ev->name);
+                        char nm[128] = {0};   // re-cache the device name so CC pollers keep routing by name
+                        if (ioctl(fd, EVIOCGNAME(sizeof(nm) - 1), nm) >= 0) mInputFdNames[fd] = nm;
                         ALOGI("Hotplugged + grabbed input device: %s", path);
                     }
                 }
@@ -221,6 +226,7 @@ void NanoMenu::checkInputHotplug() {
                     ALOGI("Sweep: dropped stale fd %s", fdPath);
                 }
                 ioctl(*it, EVIOCGRAB, 0);
+                mInputFdNames.erase(*it);   // keep the fd->name map free of stale closed fds (CC pollers)
                 close(*it);
                 it = mInputFds.erase(it);
                 continue;
@@ -248,6 +254,8 @@ void NanoMenu::checkInputHotplug() {
             }
             mInputFds.push_back(fd);
             mOpenedDevices.insert(entry->d_name);
+            char nm[128] = {0};   // re-cache the device name so CC pollers keep routing by name
+            if (ioctl(fd, EVIOCGNAME(sizeof(nm) - 1), nm) >= 0) mInputFdNames[fd] = nm;
             ALOGI("Sweep: opened previously-missed input device %s", path);
         }
     }

@@ -346,6 +346,9 @@ void NanoMenu::overlayShow() {
     // hand ownership of mFlingerSurfaceControl to the overlay (do NOT let the ring hide it underneath).
     mCcRingDisp = -1;
     mTopRingShown = false;
+    // Raising the full XMB/overlay ends any KEY_ALL_APPLICATIONS force-visible CC session: dropping back to
+    // the app should not silently re-show the CC over it (the override is per-summon, not sticky).
+    mCcForceVisible = false;
 
     // Clear any stale SELECT-held on the app->menu raise. Emulators (RetroArch/DraStic) EVIOCGRAB
     // the pad and the RetroArch back-override synthesizes a BTN_SELECT (via sendevent) while the

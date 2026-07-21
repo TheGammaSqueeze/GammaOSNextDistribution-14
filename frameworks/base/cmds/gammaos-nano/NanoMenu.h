@@ -3278,6 +3278,12 @@ private:
                                                 // generation is dropped (no cross-relaunch streak corruption)
     std::atomic<bool> mCcBottomPollBusy{false}; // an exit-watcher poll thread is in flight (serialize polls)
     int64_t mCcBottomWatchMs = 0;          // last exit-watcher poll (throttle)
+    // KEY_ALL_APPLICATIONS force-show: a hardware button toggles the Control Center visible on the bottom
+    // panel over ANY running app, including a dual-stack app (which controlCenterActive() normally excludes)
+    // or a grid-launched bottom app (which normally hides the CC). Toggled by ccPollAllAppsKey() draining the
+    // gamepad key device in the park loop; folded into controlCenterActive() and the bottom-app park branch.
+    bool   mCcForceVisible = false;        // KEY_ALL_APPLICATIONS override: keep the CC shown over an app
+    bool   ccPollAllAppsKey();             // drain the key device; true on a KEY_ALL_APPLICATIONS down-edge
     // CC static-layer cache: the frame-invariant dashboard (background, card bodies, headers, slider
     // TRACKS, speaker/sun icons, clock face + ticks, gauge TRACK rings, fixed labels, and every tile
     // icon/label/background) is baked once into mCcStaticTex, then composited as one full-panel quad each
