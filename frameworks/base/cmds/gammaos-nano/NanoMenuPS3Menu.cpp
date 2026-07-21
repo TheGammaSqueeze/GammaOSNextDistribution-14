@@ -5834,10 +5834,19 @@ void NanoMenu::loadPs3ThemeSettings() {
     // XMB wave default (off when a wallpaper is set, unless the user set the toggle explicitly).
     loadWallpaperTextures();
     {
+        // XMB wave on/off. Default: on with no wallpaper, OFF when a wallpaper is set (so the image shows
+        // cleanly). Materialize the derived default into the prop the first time it is unset, so the Theme
+        // Settings menu (which reads the raw prop) shows the same state the home renders. Once set (here, by
+        // the wallpaper picker, or by the user toggling), honour the prop verbatim.
         char wb[PROPERTY_VALUE_MAX] = {};
         int n = property_get("persist.gammaos.nano.ps3xmb.wave", wb, "");
-        mXmbWaveExplicit = (n > 0);
-        mXmbWave = mXmbWaveExplicit ? (atoi(wb) != 0) : mWpPathTop.empty();
+        if (n <= 0) {
+            bool def = mWpPathTop.empty();
+            mXmbWave = def;
+            property_set("persist.gammaos.nano.ps3xmb.wave", def ? "1" : "0");
+        } else {
+            mXmbWave = (atoi(wb) != 0);
+        }
     }
 }
 
@@ -5949,6 +5958,7 @@ static const Ps3SettingBinding kPs3Bindings[] = {
      "90:90 degrees,180:180 degrees,270:270 degrees"},
     {"Slide Launch Target", SettingSource::kProp, "persist.gammaos.rotate.launch_target", "", "@text"},
     {"Show Clock On Slide", SettingSource::kProp, "persist.gammaos.nano.pspclock", "0", "0:Off,1:On"},
+    {"XMB Wave", SettingSource::kProp, "persist.gammaos.nano.ps3xmb.wave", "1", "0:Off,1:On"},
     {"Bottom Clock", SettingSource::kProp, "persist.gammaos.nano.ps3xmb.bottomclock", "1", "0:Off,1:On"},
     {"Bottom Clock FPS", SettingSource::kProp, "persist.gammaos.nano.ps3xmb.bottomclock.fps", "30", "30:30 FPS,60:60 FPS"},
     {"Clock Live Backdrop", SettingSource::kProp, "persist.gammaos.nano.pspclock.liveapp", "1", "0:Off,1:On"},
@@ -8251,6 +8261,11 @@ void NanoMenu::closePs3Dialog(bool apply) {
                             mPs3CatAnimActive = false; mPs3CatT = 1.0f; mPs3SubAnim = 0.0f;
                         }
                     }
+                    // XMB Wave on/off: apply live (the home is the resident overlay on the RG DS, so a
+                    // property_set alone would not repaint). renderEffect reads mXmbWave every frame;
+                    // mDisplayDirty above forces the repaint.
+                    if (!strcmp(b->label, "XMB Wave"))
+                        mXmbWave = (v == "1" || v == "true");
                     // Quick Settings "DPAD/Analog Swap" tile writes BOTH transform
                     // props to the same value (the standalone Settings rows above
                     // stay independent, so key on the label not the prop).

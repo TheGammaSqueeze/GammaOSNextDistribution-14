@@ -119,6 +119,10 @@ void setDayNightBlend(float b);
 // the particles; false hides them (Theme Settings -> Background -> Classic).
 void setParticlesEnabled(bool enabled);
 
+// XMB Wave on/off (Theme Settings). When off, render() composites only the per-month gradient (no cloth
+// wave, no glitter) - the clean base a custom wallpaper draws over, or a calm plain background. Default on.
+void setWaveEnabled(bool enabled);
+
 // Music "XMB Waves" visualizer morph: the host calls setMusicVisTarget(1) while the
 // Now-Playing player is open on the Waves visualizer and 0 otherwise; render() ramps
 // the blend internally over ~1s (so the leave transition still plays after the player

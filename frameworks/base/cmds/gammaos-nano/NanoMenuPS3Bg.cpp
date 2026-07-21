@@ -108,6 +108,9 @@ static bool  sThemeFadeInit = false; // first frame snaps (no fade-from-zero)
 static bool  sThemeFadingNow = false; // a colour/day-night cross-fade is in flight
 // Background == Classic removes the glitter particle field (Theme Settings).
 static bool  sParticlesEnabled = true;
+// XMB Wave on/off (Theme Settings). When off, the cloth wave (and its glitter) are skipped so only the
+// per-month gradient composites - the clean base a custom wallpaper sits over, or a calm plain background.
+static bool  sWaveEnabled = true;
 static void rgbToHsv(const float* c, float* h, float* s, float* v) {
     float r = c[0], g = c[1], b = c[2];
     float mx = fmaxf(r, fmaxf(g, b)), mn = fminf(r, fminf(g, b));
@@ -791,6 +794,7 @@ void setThemeColor(float r, float g, float b) {
 void clearThemeColor() { sThemeStrTgt = 0.0f; sScrimEpoch++; }
 void setDayNightBlend(float b) { sDayNightTgt = b; sScrimEpoch++; }
 void setParticlesEnabled(bool e) { sParticlesEnabled = e; }
+void setWaveEnabled(bool e) { sWaveEnabled = e; }
 float backgroundLuma() { return sBgLumaEst; }
 bool themeFading() { return sThemeFadingNow; }
 
@@ -1126,7 +1130,8 @@ void render(int panelW, int panelH, float dt, const float rotMat2[4], bool /*rot
         glUniform1f(sWSpecExp, 44.8563f);
         glUniform2f(sWYFade, 10.0f, 11.0f);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, sWaveIBO);
-        glDrawElements(GL_TRIANGLES, sWaveIndexCount, GL_UNSIGNED_SHORT, (const void*)0);
+        if (sWaveEnabled)   // wave off (Theme Settings): leave the work texture as the bare gradient
+            glDrawElements(GL_TRIANGLES, sWaveIndexCount, GL_UNSIGNED_SHORT, (const void*)0);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     }
@@ -1206,7 +1211,7 @@ void render(int panelW, int panelH, float dt, const float rotMat2[4], bool /*rot
     // authored to land on the crest directly), so re-applying the wave's 0.8
     // double-compresses the band toward centre and lifts it off the wave.
     // ps3part restores the standard blend when done.
-    if (sParticlesEnabled) {
+    if (sParticlesEnabled && sWaveEnabled) {   // glitter belongs to the wave: hidden when the wave is off
         float layoutFit = ps3::LAYOUT_FIT > 0.0f ? ps3::LAYOUT_FIT : 1.0f;
         const float frameNdc[4] = { nx0, ny1, nx1, ny0 };
         // Music "XMB Waves" morph: the doubled particle pool fades in with the blend.
