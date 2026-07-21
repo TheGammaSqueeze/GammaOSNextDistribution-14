@@ -304,6 +304,10 @@ void NanoMenu::renderEffect() {
                 drawWallpaperFill(mRenderingPanel);
             ps3bg::render(mWidth, mHeight, mFrameDt, sDrmRotMat,
                           sDrmActive && sDrmGlRotation, false);
+            // ps3bg built the work texture as the bare gradient (the wave is off with a wallpaper). Paint the
+            // wallpaper into it so the glass icons, the frosted submenu/dialog backdrops and the PSP clock
+            // lens + glow all sample the wallpaper instead of the gradient (matches what is on the panel).
+            compositeWallpaperIntoWorkTex(mRenderingPanel);
         } else {
             // Wave on -> the cloth wave composites (over any wallpaper, which stays hidden until the wave is
             // turned off). Wave off with no wallpaper -> just the calm per-month gradient.

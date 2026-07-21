@@ -1675,9 +1675,16 @@ private:
     void   wpVideoTick();                          // per-frame: adopt a finished open, loop on end
     bool   drawTopVideoWallpaper();                // draw the current video frame cover-fit; true if it drew
     void   loadWallpaperTextures();               // (re)decode the wallpaper stills from the props (frees old)
+    void   wallpaperRetryIfNeeded();              // retry the wallpaper load until it succeeds (cold-boot storage race)
+    int64_t mWpRetryLastMs = 0;                   // throttle stamp for wallpaperRetryIfNeeded
     void   drawWallpaperFill(int panel);          // cover-fit blit of the panel's wallpaper over the full panel
+    void   compositeWallpaperIntoWorkTex(int panel);  // paint the panel's wallpaper into ps3bg's work texture so
+                                                  // the frost backdrops, glass icons + PSP clock sample it, not the gradient
     bool   wallpaperActive(int panel) const;      // true if this panel has a still (or video) wallpaper set
     int    mWpPickTarget = -1;                    // wallpaper picker in progress: -1 none, 0 top, 1 bottom
+    void   openVideoWallpaperPicker();            // Theme Settings -> the video library as a wallpaper picker (top only)
+    bool   mWpVideoPick = false;                  // the wallpaper grid is picking a VIDEO (film-badge cells; select short-circuits)
+    std::vector<int> mWpPickVidList;              // when mWpVideoPick: mVideos indices, parallel to mPhotoGridList
     void   openWallpaperPicker(int target);       // Theme Settings -> the Photos album grid in wallpaper-pick mode
     void   wallpaperApplyPick(const std::string& file);  // write the chosen file to the target prop + reload + live
     void   clearWallpaper();                      // clear the active theme's wallpaper (both screens) + wave back on

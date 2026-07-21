@@ -3496,6 +3496,7 @@ void NanoMenu::ps3XmbSelect() {
             // Theme Settings: pick a custom wallpaper from the Photos album grid (top / bottom), or clear it.
             if (it.label == "Wallpaper Image")   { openWallpaperPicker(0); return; }
             if (it.label == "Bottom Wallpaper")  { openWallpaperPicker(1); return; }
+            if (it.label == "Video Wallpaper")   { openVideoWallpaperPicker(); return; }
             if (it.label == "Clear Wallpaper")   { clearWallpaper(); return; }
             // Music category: "Search for Media Servers" manages the imported music
             // folders (reusing the Game Systems folder picker); "Playlists" opens the
@@ -5892,6 +5893,30 @@ void NanoMenu::loadWallpaperTextures() {
     reload(botProp, mWpPathBottom, mWpTexBottom, mWpBottomW, mWpBottomH);   // bottom: still only in v1
 }
 
+// Cold boot runs loadPs3ThemeSettings -> loadWallpaperTextures once, early - potentially BEFORE the user's
+// media under /storage/emulated/0 is accessible (FBE unlock / MediaProvider not up yet). The still decode
+// then fails (texture stays 0) and the video-wallpaper open fails (mWpTopIsVideo gets cleared by wpVideoTick),
+// and nothing retries, so the home is stuck on the wave/gradient until the user re-enters Theme Settings.
+// Re-run loadWallpaperTextures on a slow throttle while a wallpaper prop is set but its texture/video has not
+// come up, so the wallpaper appears on its own the moment storage is ready. Idempotent and self-limiting: once
+// everything set is loaded (or nothing is set) this does no work. Called once per frame from render().
+void NanoMenu::wallpaperRetryIfNeeded() {
+    int64_t now = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000;
+    if (mWpRetryLastMs != 0 && now - mWpRetryLastMs < 2000) return;   // ~every 2s
+    mWpRetryLastMs = now;
+    const bool dsi = mNdsTheme;
+    const char* topProp = dsi ? "persist.gammaos.nano.wp.dsi.top"    : "persist.gammaos.nano.wp.xmb.top";
+    const char* botProp = dsi ? "persist.gammaos.nano.wp.dsi.bottom" : "persist.gammaos.nano.wp.xmb.bottom";
+    char t[PROPERTY_VALUE_MAX] = {}, b[PROPERTY_VALUE_MAX] = {};
+    property_get(topProp, t, "");
+    property_get(botProp, b, "");
+    bool topNeeds = false;
+    if (t[0]) topNeeds = wpIsVideoPath(t) ? !mWpTopIsVideo    // video: open failed / was given up
+                                          : (mWpTexTop == 0); // still: not decoded
+    const bool botNeeds = (b[0] && mWpTexBottom == 0);
+    if (topNeeds || botNeeds) loadWallpaperTextures();   // idempotent path-compare retry
+}
+
 // True when the given panel (0 top, 1 bottom) has a custom wallpaper to draw.
 bool NanoMenu::wallpaperActive(int panel) const {
     if (panel == 1) return mWpTexBottom != 0;
@@ -5914,6 +5939,75 @@ void NanoMenu::drawWallpaperFill(int panel) {
     GLboolean wasBlend = glIsEnabled(GL_BLEND);
     glDisable(GL_BLEND);
     drawIconTex(tex, dx, dy, dw, dh, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, false);
+    if (wasBlend) glEnable(GL_BLEND);
+}
+
+// Paint the active panel's custom wallpaper INTO ps3bg's work texture. The work texture is the LINEAR
+// "scene" the glass category/console icons refract, the frosted submenu/dialog backdrops blur, and the
+// PSP clock lens (zoom) + dominant-colour glow sample. ps3bg builds it as the bare per-month gradient
+// (the wave is off when a wallpaper is set), so without this every frost backdrop and the clock face show
+// the gradient, not the wallpaper the user chose. Called each frame right after ps3bg::render(..., false),
+// with the wallpaper already drawn to the panel separately. The work texture is LOGICAL (un-rotated) and
+// GL y-up ((0,0)=frame bottom-left), so we draw a full-FBO quad in that space and let each consumer keep
+// its existing waveSpace sampling. Saves/restores FBO, viewport and blend so nothing leaks into the icon
+// passes that follow.
+void NanoMenu::compositeWallpaperIntoWorkTex(int panel) {
+    if (!wallpaperActive(panel)) return;
+    GLuint fbo = ps3bg::workFbo();
+    int fw = 0, fh = 0; ps3bg::workTexSize(&fw, &fh);
+    if (fbo == 0 || fw < 2 || fh < 2) return;
+
+    GLint prevFbo = 0; glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prevFbo);
+    GLint vp[4]; glGetIntegerv(GL_VIEWPORT, vp);
+    GLboolean wasBlend = glIsEnabled(GL_BLEND);
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+    glViewport(0, 0, fw, fh);
+    glDisable(GL_BLEND);   // opaque: fully overwrite the gradient the frost/icons/clock would otherwise see
+
+    if (panel == 0 && mWpTopIsVideo && mWpVideoTop && mWpVideoAdopted && mWpVideoTop->firstFrameReady()) {
+        // Video wallpaper (top panel): render the current frame cover-fit into the work texture. Identity
+        // rotation because the work texture is LOGICAL - the DRM/panel rotation is applied only when the
+        // scene is later composited to the physical panel, never to this offscreen source.
+        static const float kId[4] = {1.0f, 0.0f, 0.0f, 1.0f};
+        mWpVideoTop->draw(fw, fh, 0.0f, 0.0f, (float)fw, (float)fh, 1.0f, /*fitMode cover=*/1, kId);
+    } else {
+        GLuint tex = (panel == 1) ? mWpTexBottom : mWpTexTop;
+        int iw = (panel == 1) ? mWpBottomW : mWpTopW;
+        int ih = (panel == 1) ? mWpBottomH : mWpTopH;
+        if (tex && iw > 0 && ih > 0) {
+            // cover-fit UV window: centre-crop the overflow axis so the still fills the whole frame with no
+            // bars (matches drawWallpaperFill's on-screen cover). PNG stills are row0=top, so the quad's TOP
+            // corner samples v=vT (the crop's top), exactly like drawIconTex's default (non-flipped) UVs.
+            float ia = (float)iw / (float)ih, fa = (float)fw / (float)fh;
+            float us = 1.0f, vs = 1.0f, uo = 0.0f, vo = 0.0f;
+            if (ia > fa) { us = fa / ia; uo = (1.0f - us) * 0.5f; }   // image wider: crop left/right
+            else         { vs = ia / fa; vo = (1.0f - vs) * 0.5f; }   // image taller: crop top/bottom
+            const float uL = uo, uR = uo + us, vT = vo, vB = vo + vs;
+            // full-FBO NDC quad: BL, BR, TR, TR, TL, BL
+            GLfloat verts[] = { -1.f,-1.f,  1.f,-1.f,  1.f,1.f,  1.f,1.f,  -1.f,1.f,  -1.f,-1.f };
+            GLfloat uvs[]   = {  uL,vB,      uR,vB,     uR,vT,    uR,vT,    uL,vT,     uL,vB };
+            GLfloat cols[24]; for (int i = 0; i < 6; i++) { cols[i*4]=1.f; cols[i*4+1]=1.f; cols[i*4+2]=1.f; cols[i*4+3]=1.f; }
+            glUseProgram(mTextProgram);
+            if (mTextLocSharp >= 0) glUniform1f(mTextLocSharp, 0.0f);
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, tex);
+            glUniform1i(mTextLocTexture, 0);
+            glBindBuffer(GL_ARRAY_BUFFER, 0);
+            glVertexAttribPointer(mTextLocPosition, 2, GL_FLOAT, GL_FALSE, 0, verts);
+            glEnableVertexAttribArray(mTextLocPosition);
+            glVertexAttribPointer(mTextLocTexCoord, 2, GL_FLOAT, GL_FALSE, 0, uvs);
+            glEnableVertexAttribArray(mTextLocTexCoord);
+            glVertexAttribPointer(mTextLocColor, 4, GL_FLOAT, GL_FALSE, 0, cols);
+            glEnableVertexAttribArray(mTextLocColor);
+            glDrawArrays(GL_TRIANGLES, 0, 6);
+            glDisableVertexAttribArray(mTextLocPosition);
+            glDisableVertexAttribArray(mTextLocTexCoord);
+            glDisableVertexAttribArray(mTextLocColor);
+        }
+    }
+
+    glBindFramebuffer(GL_FRAMEBUFFER, (GLuint)prevFbo);
+    glViewport(vp[0], vp[1], vp[2], vp[3]);
     if (wasBlend) glEnable(GL_BLEND);
 }
 

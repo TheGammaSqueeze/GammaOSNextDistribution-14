@@ -84,6 +84,13 @@ void invalidateGradient();
 // texcoord (0,0) = frame bottom-left, (1,1) = frame top-right (GL y-up).
 GLuint workTex();
 
+// The FBO that workTex() is attached to, and its pixel size (== ps3::gFrame*). Lets a caller composite
+// a custom wallpaper OVER the freshly built gradient/wave scene so every consumer of workTex() (the glass
+// icons, the frosted submenu/dialog backdrops and the PSP clock lens + dominant-colour glow) samples the
+// wallpaper instead of the bare gradient. 0 until render() has allocated the FBO.
+GLuint workFbo();
+void   workTexSize(int* w, int* h);
+
 // In-game overlay only: FREEZE the offscreen-only wave (the glass-icon refraction
 // source, never composited). setScrimWaveFreeze(true) makes render() build the
 // work-texture ONCE and reuse it every frame - the wave's animation is imperceptible

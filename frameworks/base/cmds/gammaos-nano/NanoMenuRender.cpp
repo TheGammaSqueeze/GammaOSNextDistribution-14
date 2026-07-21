@@ -4417,6 +4417,7 @@ void NanoMenu::render() {
     // mVidPrevCodecFreed stuck false, so the wallpaper never re-opens and the decoder leaks. Idempotent.
     vidReapDying();
     wpVideoTick();   // video wallpaper: adopt a finished open + loop / re-open, once per frame (both themes)
+    wallpaperRetryIfNeeded();   // cold boot may run the theme load before /storage is ready; retry until it loads
 
     // GammaOS: Helper lambda that uploads the DRM rotation matrix to all
     // shader programs. Called at the start of each render pass since the

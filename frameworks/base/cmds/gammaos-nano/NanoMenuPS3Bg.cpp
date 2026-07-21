@@ -759,6 +759,8 @@ bool init() {
 bool ready() { return sReady; }
 
 GLuint workTex() { return sWorkTex; }
+GLuint workFbo() { return sWorkFbo; }
+void workTexSize(int* w, int* h) { if (w) *w = sFbW; if (h) *h = sFbH; }
 void setScrimWaveFreeze(bool on) { sScrimFreeze = on; sScrimEpoch++; }
 
 // Free ONLY the 21MB keyframe VBO (sWaveSeqVBO) and mark the sequence not-ready,

@@ -125,6 +125,7 @@ static const Ps3DataItem kThemeSettingsCh[] = {
   {"Wallpaper",22,"Sets the moving background effect (wave, particles and others) shown behind the home screen.",nullptr,1,nullptr,0},
   {"Wallpaper Image",22,"Choose a photo from your device to use as the home background. Browse and pick from your images.",nullptr,1,nullptr,0},
   {"Bottom Wallpaper",22,"Choose a separate wallpaper for the bottom screen. Dual-screen devices only (e.g. the RG DS); no effect on a single-screen device.",nullptr,1,nullptr,0},
+  {"Video Wallpaper",22,"Choose a video from your device to play as a live background on the top screen. Browse and pick from your videos.",nullptr,1,nullptr,0},
   {"Clear Wallpaper",22,"Removes the custom wallpaper (both screens) and brings the moving wave back.",nullptr,1,nullptr,0},
   {"XMB Wave",22,"Shows the moving PS3 wave behind the home screen. Off by default when a custom wallpaper is set.","On",1,nullptr,0},
   {"Font",22,"Sets the font displayed on the home screen.",nullptr,1,nullptr,0},

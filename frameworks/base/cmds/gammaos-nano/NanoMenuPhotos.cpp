@@ -1001,6 +1001,7 @@ void NanoMenu::drawFolderIcon(float ix, float iy, float dsz, float alpha, GLuint
 }
 
 void NanoMenu::openPhotoGrid(const std::vector<int>& list, const std::string& title, int fromPl) {
+    mWpVideoPick = false;   // default to photo mode; openVideoWallpaperPicker re-sets it after this call
     mPhotoGridList = list;
     mPhotoGridCursor = 0;
     mPhotoGridTop = 0;
@@ -1020,6 +1021,7 @@ void NanoMenu::openPhotoGrid(const std::vector<int>& list, const std::string& ti
 
 void NanoMenu::closePhotoGrid() {
     photoFreeThumbs();
+    mWpVideoPick = false;   // a back/abort out of the video picker leaves no dangling flag
 }
 
 void NanoMenu::photoGridNav(int dx, int dy) {
@@ -1063,6 +1065,17 @@ void NanoMenu::photoGridNav(int dx, int dy) {
 
 void NanoMenu::photoGridSelect() {
     if (mPhotoGridCursor < 0 || mPhotoGridCursor >= (int)mPhotoGridList.size()) return;
+    // Video wallpaper picker: no still viewer/crop - apply the chosen video straight away (wallpaperApplyPick
+    // detects the video path and starts the looping decoder), then close the grid back to the menu.
+    if (mWpVideoPick) {
+        int vi = (mPhotoGridCursor >= 0 && mPhotoGridCursor < (int)mWpPickVidList.size())
+                     ? mWpPickVidList[mPhotoGridCursor] : -1;
+        if (vi >= 0 && vi < (int)mVideos.size()) wallpaperApplyPick(mVideos[vi].file);
+        mWpVideoPick = false; mWpPickTarget = -1;
+        closePhotoGrid();
+        if (!mPs3Stack.empty() && mPs3Stack.back().screenKind == PHOTO_GRID) mPs3Stack.pop_back();
+        return;
+    }
     openPhotoViewer(mPhotoGridList, mPhotoGridCursor);
     // Wallpaper picker: skip the photo-viewer options and drop straight into the crop/confirm frame
     // (mirrors the pvOpen "wallpaper" action), so the flow is browse -> pick -> crop -> set.
@@ -1165,8 +1178,9 @@ void NanoMenu::renderPhotoGrid() {
     float titleX = margin + chW + 20.0f * ts;
     drawText(mPhotoGridTitle.c_str(), titleX, 34.0f * ts + slide, 1.7f * ts, 1.0f, 1.0f, 1.0f, a);
     char info[64];
-    snprintf(info, sizeof(info), "%zu %s", mPhotoGridList.size(),
-             mPhotoGridList.size() == 1 ? "image" : "images");
+    const char* unit = mWpVideoPick ? (mPhotoGridList.size() == 1 ? "video" : "videos")
+                                    : (mPhotoGridList.size() == 1 ? "image" : "images");
+    snprintf(info, sizeof(info), "%zu %s", mPhotoGridList.size(), unit);
     drawText(info, titleX, 84.0f * ts + slide, 1.0f * ts, 0.75f, 0.85f, 0.95f, a);
 
     // focus grow tween (1.0 -> 1.36, easeOutCubic, mirrors the web drawPhotoGrid).
@@ -1207,13 +1221,20 @@ void NanoMenu::renderPhotoGrid() {
         float x = ccx - w * 0.5f, y = ccy - h * 0.5f;
         int pIdx = mPhotoGridList[idx];
         GLuint tex = 0;
-        auto cit = mPhotoThumbCache.find(pIdx);
-        if (cit != mPhotoThumbCache.end()) tex = cit->second;
-        else need.push_back(pIdx);
+        if (!mWpVideoPick) {   // video cells have no photo thumbnail: skip the cache lookup + decode queue
+            auto cit = mPhotoThumbCache.find(pIdx);
+            if (cit != mPhotoThumbCache.end()) tex = cit->second;
+            else need.push_back(pIdx);
+        }
         // opaque base (drop-shadow substitute): a dark card behind the thumb
         drawQuad(x - 2, y - 2, w + 4, h + 4, 0.0f, 0.0f, 0.0f, (sel ? 0.8f : 0.6f) * a);
         if (tex) drawIconTex(tex, x, y, w, h, 1.0f, 1.0f, 1.0f, (sel ? 1.0f : 0.92f) * a);
-        else     drawQuad(x, y, w, h, 0.10f, 0.11f, 0.13f, 0.9f * a);   // placeholder until decoded
+        else     drawQuad(x, y, w, h, 0.10f, 0.11f, 0.13f, 0.9f * a);   // placeholder / video card base
+        if (mWpVideoPick) {   // film badge: a centred play triangle marks a video cell
+            float cxp = x + w * 0.5f, cyp = y + h * 0.5f, tr = fminf(w, h) * 0.20f;
+            drawTriangle(cxp - tr * 0.55f, cyp - tr, cxp - tr * 0.55f, cyp + tr, cxp + tr, cyp,
+                         1.0f, 1.0f, 1.0f, (sel ? 0.95f : 0.8f) * a);
+        }
         if (sel) {
             // crisp white frame + a soft breathing outline (two faint expanded frames)
             float ow = fmaxf(2.0f, 3.0f * ts);
@@ -1246,16 +1267,22 @@ void NanoMenu::renderPhotoGrid() {
         photoThumbEvict();
     }
 
-    // focused caption (filename + date) under the grid
+    // focused caption (name + date/codec) under the grid
     if (mPhotoGridCursor >= 0 && mPhotoGridCursor < n) {
-        const PhotoItem& p = mPhotos[mPhotoGridList[mPhotoGridCursor]];
+        std::string capName, capSub;
+        if (mWpVideoPick) {
+            int vi = (mPhotoGridCursor < (int)mWpPickVidList.size()) ? mWpPickVidList[mPhotoGridCursor] : -1;
+            if (vi >= 0 && vi < (int)mVideos.size()) { capName = mVideos[vi].name; capSub = mVideos[vi].vcodec; }
+        } else {
+            const PhotoItem& p = mPhotos[mPhotoGridList[mPhotoGridCursor]];
+            capName = p.name; capSub = fmtPhotoDate(p.date);
+        }
         float ns = 1.25f * ts;
-        float nw = measureText(p.name.c_str(), ns);
-        drawText(p.name.c_str(), (W - nw) * 0.5f, (float)H - 60.0f * ts, ns, 1.0f, 1.0f, 1.0f, a);
-        std::string dt = fmtPhotoDate(p.date);
+        float nw = measureText(capName.c_str(), ns);
+        drawText(capName.c_str(), (W - nw) * 0.5f, (float)H - 60.0f * ts, ns, 1.0f, 1.0f, 1.0f, a);
         float ds = 0.95f * ts;
-        float dw = measureText(dt.c_str(), ds);
-        drawText(dt.c_str(), (W - dw) * 0.5f, (float)H - 32.0f * ts, ds, 0.8f, 0.85f, 0.92f, a);
+        float dw = measureText(capSub.c_str(), ds);
+        drawText(capSub.c_str(), (W - dw) * 0.5f, (float)H - 32.0f * ts, ds, 0.8f, 0.85f, 0.92f, a);
     }
 
     // Scroll indicator on the right edge when the grid overflows (a scrollable hint,
@@ -2316,7 +2343,20 @@ void NanoMenu::openWallpaperPicker(int target) {
     std::vector<int> all;
     all.reserve(mPhotos.size());
     for (size_t i = 0; i < mPhotos.size(); i++) all.push_back((int)i);
-    openPhotoGrid(all, trDyn("Select Wallpaper"), -1);
+    openPhotoGrid(all, trDyn("Select Wallpaper"), -1);   // openPhotoGrid clears mWpVideoPick (photo mode)
+}
+
+// Theme Settings -> open the same album grid but listing the VIDEO library, to pick a video wallpaper for
+// the TOP screen (single HW decoder -> top only). Cells are film badges (no offline video thumbnails);
+// selecting one short-circuits straight into wallpaperApplyPick -> wpVideoStart (no crop/still viewer).
+void NanoMenu::openVideoWallpaperPicker() {
+    mWpPickTarget = 0;   // video is top-only
+    videoEnsureLoaded();
+    std::vector<int> all;                 // grid list = 0..N-1 (grid indices)
+    mWpPickVidList.clear();               // parallel: grid index -> mVideos index
+    for (size_t i = 0; i < mVideos.size(); i++) { all.push_back((int)mWpPickVidList.size()); mWpPickVidList.push_back((int)i); }
+    openPhotoGrid(all, trDyn("Select Video Wallpaper"), -1);   // clears mWpVideoPick; set it AFTER
+    mWpVideoPick = true;
 }
 
 // Clear the active theme's wallpaper on both screens and bring the wave back (Theme Settings leaf action).
