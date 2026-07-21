@@ -858,8 +858,34 @@ int NanoMenu::ccAppAt(float px, float py) {
 void NanoMenu::ccLaunchBottomApp(const std::string& pkg) {
     if (pkg.empty()) return;
     if (dualstackHas(pkg)) {
-        // Dual-stack apps span BOTH panels and go through the normal full-screen launch; handled in Stage 3.
-        // Until then, do not mis-launch one as a single-panel bottom app.
+        // Dual-stack app: it spans BOTH panels (the framework DualStackController drives it because the
+        // package is in persist.gammaos.dualstack.pkgs and dual-stack is enabled). Unlike a single-panel
+        // bottom app it REPLACES whatever is running, so exit any bottom app and the current top app, then
+        // launch it full-screen on the default display via the normal launch path. Release the CC focus
+        // pin - the dual-stack app owns both panels and controlCenterActive() excludes it, so the CC tears
+        // down on the next park iteration.
+        ccEndBottomApp(true);                                   // force-stop + tear down any bottom app
+        property_set("sys.gammaos.dualstack.enabled", "true");  // ensure dual-stack is on (default already is)
+        char topApp[PROPERTY_VALUE_MAX] = {};
+        property_get("sys.gammaos.nano.launch_app", topApp, "");
+        std::string cur(topApp);
+        property_set("sys.gammaos.nano.launch_app", pkg.c_str());
+        property_set("sys.gammaos.nano.app_launched", "1");
+        ccSetFocusDisplay(-1);
+        mCcPage = 0;
+        NanoMenu* self = this;
+        std::thread([self, cur, pkg]() {
+            // Guard the exit+launch transition (same as overlayLaunchCommand): RootWindowContainer skips
+            // its startHome handling while killing=1, so force-stopping the old app cannot make it raise
+            // the home in the gap before the dual-stack app registers. Cleared once it is foreground.
+            property_set("sys.gammaos.nano.killing", "1");
+            std::string c;
+            if (!cur.empty() && cur != pkg) c += "am force-stop '" + cur + "' 2>/dev/null; ";
+            c += "monkey -p '" + pkg + "' -c android.intent.category.LAUNCHER 1 2>/dev/null";
+            (void)system(c.c_str());
+            for (int i = 0; i < 60; i++) { usleep(100000); if (self->overlayResolveForegroundPkg() == pkg) break; }
+            property_set("sys.gammaos.nano.killing", "0");
+        }).detach();
         return;
     }
     int bd = property_get_int32("persist.gammaos.nano.cc.bottomdisplay", 0);   // bottom = display 0 (RG DS)
