@@ -5567,6 +5567,11 @@ public class WindowManagerService extends IWindowManager.Stub
                 });
             }
             applyForcedPropertiesForDefaultDisplay();
+            // GammaOS DualStack: display 0 (the RG DS bottom panel) must boot at its native size.
+            // A dual-stack app persists DISPLAY_SIZE_FORCED=640,960, which the call above just
+            // restored; clear it back to native unless a whitelisted dual-stack app is genuinely
+            // the resumed foreground right now, so the home / Control Center never boot squished.
+            mDualStackController.clearForcedTallSizeAtBootIfNoDualStackApp();
             mAnimator.ready();
             mDisplayReady = true;
             mHasWideColorGamutSupport = queryWideColorGamutSupport();

@@ -1106,7 +1106,10 @@ final class DualStackController {
     }
 
     private void scheduleDeferredForcedTallSizeClearLocked() {
-        if (!mForcedTallSizeApplied) return;
+        // Schedule when we applied the tall size OR when the real base size is tall (a persisted
+        // 640x960 restored after a reboot / process restart, where the flag is still false) - so
+        // the non-whitelisted-foreground path self-heals a stuck 640x960 instead of no-op'ing.
+        if (!mForcedTallSizeApplied && !isBaseDisplaySizeTall()) return;
         if (mDeferredClearScheduled) return;
         mDeferredClearScheduled = true;
         mDeferredClearStartUptimeMs = SystemClock.uptimeMillis();
@@ -1542,13 +1545,40 @@ final class DualStackController {
     }
 
     /**
-     * Reverts any forced tall size applied in {@link #applyForcedTallSizeIfNeeded()}.
-     * This uses the same clearForcedDisplaySize path as `adb shell wm size reset`.
+     * True when display 0's ACTUAL base size is the dual-stack tall canvas, regardless of
+     * whether THIS process is the one that applied it. setForcedDisplaySize(640x960) persists
+     * to Settings.Global.DISPLAY_SIZE_FORCED, and after a reboot / system_server restart WMS
+     * restores it in applyForcedPropertiesForDefaultDisplay() WITHOUT setting
+     * mForcedTallSizeApplied. So the size can be live at 640x960 while the flag is false.
+     * Checking the real base size lets the clear paths self-heal, mirroring the self-heal
+     * that applyForcedTallSizeIfNeeded() already does at the top of that method.
+     */
+    private boolean isBaseDisplaySizeTall() {
+        final DisplayContent primary = mWm.mRoot.getDisplayContent(DEFAULT_DISPLAY);
+        if (primary == null) {
+            return false;
+        }
+        return primary.mBaseDisplayWidth == DUALSTACK_TALL_WIDTH
+                && primary.mBaseDisplayHeight == DUALSTACK_TALL_HEIGHT;
+    }
+
+    /**
+     * Reverts any forced tall size to the display's native size, via the same
+     * clearForcedDisplaySize path as `adb shell wm size reset` (which also wipes the
+     * persisted Settings.Global.DISPLAY_SIZE_FORCED for the default display).
      */
     private void clearForcedTallSizeIfNeeded() {
-        // Only clear once, and avoid re-entrancy via clearForcedDisplaySize()
-        // triggering reconfigureDisplayLocked() which calls back into us.
-        if (!mForcedTallSizeApplied || mClearingTallSize) {
+        // Avoid re-entrancy via clearForcedDisplaySize() triggering
+        // reconfigureDisplayLocked() which calls back into us.
+        if (mClearingTallSize) {
+            return;
+        }
+        // Clear when EITHER our own flag says we applied the tall size, OR the actual base
+        // display size is 640x960 restored from persisted settings after a reboot / process
+        // restart (where the flag is false but 640x960 is live). Without the size check every
+        // clear path is a no-op after boot and display 0 stays squished until a manual
+        // `wm size reset`.
+        if (!mForcedTallSizeApplied && !isBaseDisplaySizeTall()) {
             return;
         }
 
@@ -1563,6 +1593,31 @@ final class DualStackController {
             // enable/disable cycles can clear again safely.
             mForcedTallSizeApplied = false;
             mClearingTallSize = false;
+        }
+    }
+
+    /**
+     * One-shot boot-time reconciliation, called from WindowManagerService.displayReady() right
+     * after applyForcedPropertiesForDefaultDisplay() (which re-applies a persisted 640x960 tall
+     * size outside this controller). The RG DS bottom panel (display 0) must boot at its native
+     * size: if no whitelisted dual-stack app is genuinely the resumed foreground on display 0
+     * right now, revert display 0 to native. A whitelisted app legitimately foreground at boot
+     * keeps 640x960 (and we adopt the flag so the normal clear/re-apply cycle behaves). Runs
+     * under mGlobalLock (held by displayReady()).
+     */
+    void clearForcedTallSizeAtBootIfNoDualStackApp() {
+        reloadProperties();
+        if (mEnabled && isWhitelistedPackageInForegroundOnDefaultDisplay()
+                && isBaseDisplaySizeTall()) {
+            mForcedTallSizeApplied = true;
+            Slog.d(TAG, "DualStack: boot with a whitelisted app foreground, keeping tall size");
+            return;
+        }
+        // Nothing legitimately wants the tall canvas: if it is live (persisted + restored at
+        // boot), route through the same self-healing clear (wipes DISPLAY_SIZE_FORCED). The
+        // reconfigure that displayReady() runs right after this then uses the native size.
+        if (isBaseDisplaySizeTall()) {
+            clearForcedTallSizeIfNeeded();
         }
     }
 
