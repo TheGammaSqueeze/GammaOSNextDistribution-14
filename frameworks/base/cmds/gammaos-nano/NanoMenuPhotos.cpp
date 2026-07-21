@@ -2281,6 +2281,8 @@ void NanoMenu::wallpaperApplyPick(const std::string& file) {
     const char* prop = dsi ? (tgt == 1 ? "persist.gammaos.nano.wp.dsi.bottom" : "persist.gammaos.nano.wp.dsi.top")
                            : (tgt == 1 ? "persist.gammaos.nano.wp.xmb.bottom" : "persist.gammaos.nano.wp.xmb.top");
     property_set(prop, file.c_str());
+    // Any XMB wallpaper (top or bottom) turns the wave off: the wave toggle is global and a wallpaper only
+    // shows on its panel while the wave is off, so a bottom-only wallpaper would otherwise stay hidden.
     if (!dsi) { property_set("persist.gammaos.nano.ps3xmb.wave", "0"); mXmbWave = false; }
     // Decode the chosen file straight into the target slot. Do NOT go through loadWallpaperTextures(): it
     // re-reads the prop we just set, and property_set may not have propagated to this process's read cache

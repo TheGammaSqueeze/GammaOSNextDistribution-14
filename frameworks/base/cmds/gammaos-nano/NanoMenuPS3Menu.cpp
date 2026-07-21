@@ -3493,9 +3493,10 @@ void NanoMenu::ps3XmbSelect() {
         case PS3_DATA_LEAF: {
             // Settings: "File Explorer" opens the controller-first file manager.
             if (it.label == "File Explorer") { feOpen(); return; }
-            // Theme Settings: pick a custom wallpaper from the Photos album grid, or clear it.
-            if (it.label == "Wallpaper Image") { openWallpaperPicker(0); return; }
-            if (it.label == "Clear Wallpaper") { clearWallpaper(); return; }
+            // Theme Settings: pick a custom wallpaper from the Photos album grid (top / bottom), or clear it.
+            if (it.label == "Wallpaper Image")   { openWallpaperPicker(0); return; }
+            if (it.label == "Bottom Wallpaper")  { openWallpaperPicker(1); return; }
+            if (it.label == "Clear Wallpaper")   { clearWallpaper(); return; }
             // Music category: "Search for Media Servers" manages the imported music
             // folders (reusing the Game Systems folder picker); "Playlists" opens the
             // playlists screen. Gated to the Music column so Photo/Video keep their
