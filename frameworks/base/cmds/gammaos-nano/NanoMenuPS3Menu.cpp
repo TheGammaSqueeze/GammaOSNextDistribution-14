@@ -8380,6 +8380,52 @@ void NanoMenu::closePs3Dialog(bool apply) {
                     // mDisplayDirty above forces the repaint.
                     if (!strcmp(b->label, "XMB Wave"))
                         mXmbWave = (v == "1" || v == "true");
+                    // Bottom Clock on/off: apply live. mPs3BottomClock is cached once at startup
+                    // (NanoMenu.cpp constructor) and every render/reveal gate reads the MEMBER, not the
+                    // prop, so writeSettingValue alone would not take effect until reboot. Flip the member
+                    // here so the bottom PSP clock turns on/off on the next frame. Turning it ON snaps the
+                    // reveal to its finished static state (skip the cold-boot drop-in, we are past boot) and
+                    // invalidates the 30fps cache so no stale panel is re-presented; turning it OFF parks the
+                    // reveal so a later re-enable starts clean. On the own-layer SF present path a runtime
+                    // enable also needs a secondary EGL surface to draw into: create it on demand, but ONLY
+                    // on that SF path (guarded by !sDrmActive below - the DRM-direct home feeds the bottom
+                    // panel via a separate AHB and must not have a competing SF surface created under it).
+                    // Never tear the surface down on OFF - it is shared with the wallpaper / DSi carousel /
+                    // Control Center and owned by the overlay park lifecycle; just stop drawing (reveal 0
+                    // makes renderPspClockSecondary bail).
+                    if (!strcmp(b->label, "Bottom Clock")) {
+                        bool wantClock = (v == "1" || v == "true");
+                        if (wantClock != mPs3BottomClock) {
+                            mPs3BottomClock = wantClock;
+                            if (wantClock) {
+                                mPspBottomBootPhase  = 4;      // done/static (no boot ramp for a settings toggle)
+                                mPspBottomReveal     = 1.0f;
+                                mPspBottomHoldMs     = 0.0f;
+                                mPspBottomCacheValid = false;  // force a fresh 30fps-cache snapshot
+                                // Only create the SF secondary EGL surface on the SF own-layer present
+                                // path. On the DRM-direct home (the RG DS cold-boot XMB: sDrmActive=true,
+                                // nano is still DRM master of the bottom panel) mSecondaryEglSurfaces is
+                                // empty because that path feeds the bottom via the SEPARATE
+                                // sAhbTargetSecondary AHB, so .empty() alone does NOT protect it - without
+                                // !sDrmActive this would run setDisplayPowerMode / createSurface /
+                                // setDisplayProjection / eglCreateWindowSurface on a display nano is
+                                // scanning out via DRM, spawning a competing top-z SF layer and poisoning
+                                // the vector so the proper post-drmStop setup (NanoMenu.cpp app launch)
+                                // early-returns on the non-empty vector. On DRM the live mPs3BottomClock
+                                // flip alone is enough: the DRM AHB pass draws the clock the next frame.
+                                if (mSecondaryEglSurfaces.empty() && !mNdsTheme && !sDrmActive
+                                        && (!mOverlayMode || mOverlayWallpaper))
+                                    setupSecondaryEglSurfaces();   // self-guards; no-op if already set up
+                            } else {
+                                mPspBottomReveal     = 0.0f;
+                                mPspBottomBootPhase  = 0;
+                                mPspBottomCacheValid = false;
+                            }
+                        }
+                    }
+                    // Bottom Clock FPS: no member to update - the DRM present path reads
+                    // persist.gammaos.nano.ps3xmb.bottomclock.fps live every frame, so once the on/off member
+                    // above is honoured live the FPS change applies on the next frame (mDisplayDirty below).
                     // Quick Settings "DPAD/Analog Swap" tile writes BOTH transform
                     // props to the same value (the standalone Settings rows above
                     // stay independent, so key on the label not the prop).
