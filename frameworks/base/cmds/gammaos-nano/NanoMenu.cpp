@@ -3938,7 +3938,15 @@ if (sRingPrimedCount >= 2) {
                     // keeps the on-screen fill smooth). Heavy sysfs/popen reads are wall-clock throttled
                     // inside the draw, so the slower rate also cuts poll frequency, not just render frequency.
                     bool ccTouchActive = (mCcTouchDownRaw || mCcHeldSlider >= 0);
-                    int64_t budgetUs = (ccTouchActive || ccRingActive()) ? 33333 : 50000;
+                    // The page-swipe slide (dashboard <-> app grid) eases mCcPageOffset toward mCcPage over
+                    // ~0.28s AFTER the finger lifts, so with no finger down it would run at the 20fps rest
+                    // budget and look choppy. Render the slide at 60fps (16.6ms) while it is in flight - the
+                    // tween is dt-normalized so the duration is unchanged, only smoother. The offset snaps
+                    // exactly to (float)mCcPage when settled, so the exact compare cleanly ends the bump. The
+                    // at-rest / touch / ring pacing is untouched (the CC without swipes stays as it is).
+                    bool ccPageAnimating = (mCcPageOffset != (float)mCcPage);
+                    int64_t budgetUs = ccPageAnimating ? 16666
+                                     : (ccTouchActive || ccRingActive()) ? 33333 : 50000;
                     int64_t spentUs  = (systemTime(SYSTEM_TIME_MONOTONIC) - ccT0) / 1000;
                     int64_t restUs   = budgetUs - spentUs;
                     if (restUs > 500) usleep((useconds_t)restUs);
