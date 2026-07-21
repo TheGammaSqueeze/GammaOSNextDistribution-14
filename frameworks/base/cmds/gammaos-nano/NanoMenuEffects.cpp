@@ -295,8 +295,17 @@ void NanoMenu::renderEffect() {
         // the per-month gradient (NanoMenuPS3Bg). The default wallpaper. The
         // original procedural ribbon (effect 21) is kept as a separate option.
         ps3::layoutComputeNative(mWidth, mHeight);
-        ps3bg::render(mWidth, mHeight, mFrameDt, sDrmRotMat,
-                      sDrmActive && sDrmGlRotation);
+        if (wallpaperActive(mRenderingPanel)) {
+            // A user still-image wallpaper replaces the visible wave on this panel. Paint it cover-fit,
+            // then still update the ps3bg work texture OFFSCREEN (compositeToScreen=false) so the glass
+            // category/console icons and every frost backdrop keep a valid scene to refract/blur.
+            drawWallpaperFill(mRenderingPanel);
+            ps3bg::render(mWidth, mHeight, mFrameDt, sDrmRotMat,
+                          sDrmActive && sDrmGlRotation, false);
+        } else {
+            ps3bg::render(mWidth, mHeight, mFrameDt, sDrmRotMat,
+                          sDrmActive && sDrmGlRotation);
+        }
     }
 }
 

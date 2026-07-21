@@ -4555,6 +4555,7 @@ void NanoMenu::render() {
         uploadRotationMatrices();
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
+        mRenderingPanel = 1;   // this whole pass targets the BOTTOM panel: pick the bottom wallpaper
         if (drasticActive) {
             // Secondary display -> BOTTOM DS screen fullscreen.
             drastic->renderBottomScreen(sDrasticSaturation, sDrasticGradient);
@@ -4630,6 +4631,7 @@ void NanoMenu::render() {
             }
             glDisable(GL_BLEND);
         }
+        mRenderingPanel = 0;   // back to the primary/top panel for the main pass below
         maybeNanoScreenshotSecondary();   // debug capture of the DRM bottom (AHB) panel
     }
 

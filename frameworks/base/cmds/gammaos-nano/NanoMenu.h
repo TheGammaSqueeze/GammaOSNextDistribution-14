@@ -1649,6 +1649,23 @@ private:
     int    mPs3BgIdx = 0;
     int    mPs3FontIdx = 0;
     int    mPs3DayNightIdx = 5;   // default: Night (kPs3DayNightOpts index 5)
+    // --- Custom wallpapers (user image/video behind the XMB + DSi menus) -----------------------------
+    // A user-chosen still or video fills the home background per screen; the XMB wave defaults off when a
+    // wallpaper is set. Textures are decoded once on load (photoDecodeTex) and drawn cover-fit by
+    // drawWallpaperFill(); wallpaperActive(panel) gates the draw. Per-screen: 0 = primary/top, 1 = bottom
+    // secondary (RG DS). All members declared up front so later stages need no NanoMenu.h recompile.
+    GLuint mWpTexTop = 0, mWpTexBottom = 0;      // decoded still-image textures (0 = none)
+    int    mWpTopW = 0, mWpTopH = 0, mWpBottomW = 0, mWpBottomH = 0;   // source px (for cover-fit)
+    std::string mWpPathTop, mWpPathBottom;       // XMB wallpaper file paths (empty = use the wave)
+    std::string mWpPathDsiTop, mWpPathDsiBottom; // DSi wallpaper file paths (empty = the two-tone field)
+    bool   mXmbWave = true;                       // XMB wave visible (default derived: off when a wallpaper is set)
+    bool   mXmbWaveExplicit = false;              // the user set the wave toggle explicitly (honour it verbatim)
+    int    mRenderingPanel = 0;                   // which panel the current render pass targets (0 top, 1 bottom)
+    NanoVideo* mWpVideoTop = nullptr;             // video-wallpaper decoders (Stage 6; declared now to avoid a recompile)
+    NanoVideo* mWpVideoBottom = nullptr;
+    void   loadWallpaperTextures();               // (re)decode the wallpaper stills from the props (frees old)
+    void   drawWallpaperFill(int panel);          // cover-fit blit of the panel's wallpaper over the full panel
+    bool   wallpaperActive(int panel) const;      // true if this panel has a still (or video) wallpaper set
     // Date and Time settings (functional). Date Format / Time Format are nano-
     // local display choices the clock honours; Daylight Saving reflects the real
     // current DST state (tm_isdst, refreshed each frame in drawPs3Clock) and the

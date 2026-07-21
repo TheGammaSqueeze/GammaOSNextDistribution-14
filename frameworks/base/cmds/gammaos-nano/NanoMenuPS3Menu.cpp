@@ -5829,6 +5829,63 @@ void NanoMenu::loadPs3ThemeSettings() {
     // time now so the menu row reads correctly before the first clock frame;
     // drawPs3Clock refreshes it every frame thereafter.
     { time_t tt = time(nullptr); struct tm lt; localtime_r(&tt, &lt); mPs3DstNow = (lt.tm_isdst > 0); }
+
+    // Custom wallpaper: decode the user-chosen stills for the active theme's screens, and derive the
+    // XMB wave default (off when a wallpaper is set, unless the user set the toggle explicitly).
+    loadWallpaperTextures();
+    {
+        char wb[PROPERTY_VALUE_MAX] = {};
+        int n = property_get("persist.gammaos.nano.ps3xmb.wave", wb, "");
+        mXmbWaveExplicit = (n > 0);
+        mXmbWave = mXmbWaveExplicit ? (atoi(wb) != 0) : mWpPathTop.empty();
+    }
+}
+
+// (Re)decode the per-screen wallpaper stills for the ACTIVE theme (XMB vs DSi props) into the shared
+// top/bottom texture slots; only one theme renders at a time so one pair covers both. Frees the old
+// texture on a path change; a decode failure clears the path so the wave/field shows instead. Runs on
+// the GL thread (loadPs3ThemeSettings / apply). Cheap when nothing changed (path compare, no re-decode).
+void NanoMenu::loadWallpaperTextures() {
+    const bool dsi = mNdsTheme;
+    const char* topProp = dsi ? "persist.gammaos.nano.wp.dsi.top"    : "persist.gammaos.nano.wp.xmb.top";
+    const char* botProp = dsi ? "persist.gammaos.nano.wp.dsi.bottom" : "persist.gammaos.nano.wp.xmb.bottom";
+    auto reload = [&](const char* prop, std::string& curPath, GLuint& tex, int& w, int& h) {
+        char b[PROPERTY_VALUE_MAX] = {};
+        property_get(prop, b, "");
+        std::string np(b);
+        if (np == curPath && (np.empty() || tex != 0)) return;   // unchanged + consistent -> keep
+        if (tex) { glDeleteTextures(1, &tex); tex = 0; }
+        w = 0; h = 0; curPath = np;
+        if (!np.empty()) {
+            tex = photoDecodeTex(np, 2048, &w, &h);
+            if (!tex) curPath.clear();   // decode failed: fall back to the wave / DSi field
+        }
+    };
+    reload(topProp, mWpPathTop,    mWpTexTop,    mWpTopW,    mWpTopH);
+    reload(botProp, mWpPathBottom, mWpTexBottom, mWpBottomW, mWpBottomH);
+}
+
+// True when the given panel (0 top, 1 bottom) has a custom wallpaper to draw.
+bool NanoMenu::wallpaperActive(int panel) const {
+    return (panel == 1) ? (mWpTexBottom != 0) : (mWpTexTop != 0);
+}
+
+// Cover-fit blit of the panel's wallpaper still over the WHOLE panel (scale to cover, centre-crop the
+// overflow), drawn opaque. Save/restore GL_BLEND so the fill can never leak state into the icon/frost
+// passes that follow (a leaked glDisable(GL_BLEND) previously caused white-square icons - see memory).
+void NanoMenu::drawWallpaperFill(int panel) {
+    GLuint tex = (panel == 1) ? mWpTexBottom : mWpTexTop;
+    int iw = (panel == 1) ? mWpBottomW : mWpTopW;
+    int ih = (panel == 1) ? mWpBottomH : mWpTopH;
+    if (!tex || iw <= 0 || ih <= 0 || mWidth <= 0 || mHeight <= 0) return;
+    float pw = (float)mWidth, ph = (float)mHeight;
+    float scale = fmaxf(pw / (float)iw, ph / (float)ih);   // cover
+    float dw = (float)iw * scale, dh = (float)ih * scale;
+    float dx = (pw - dw) * 0.5f, dy = (ph - dh) * 0.5f;
+    GLboolean wasBlend = glIsEnabled(GL_BLEND);
+    glDisable(GL_BLEND);
+    drawIconTex(tex, dx, dy, dw, dh, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, false);
+    if (wasBlend) glEnable(GL_BLEND);
 }
 
 // ---- Settings binding: data-driven leaf -> real backing setting -------------
