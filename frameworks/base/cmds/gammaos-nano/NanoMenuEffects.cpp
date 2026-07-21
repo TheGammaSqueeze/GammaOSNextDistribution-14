@@ -297,10 +297,11 @@ void NanoMenu::renderEffect() {
         ps3::layoutComputeNative(mWidth, mHeight);
         ps3bg::setWaveEnabled(mXmbWave);
         if (wallpaperActive(mRenderingPanel) && !mXmbWave) {
-            // A user still-image wallpaper is visible (wave toggled off). Paint it cover-fit, then still
-            // update the ps3bg work texture OFFSCREEN (compositeToScreen=false, gradient only) so the glass
-            // category/console icons and every frost backdrop keep a valid scene to refract/blur.
-            drawWallpaperFill(mRenderingPanel);
+            // A user wallpaper is visible (wave toggled off): a looping video on the top panel, else a still.
+            // Paint it cover-fit, then still update the ps3bg work texture OFFSCREEN (compositeToScreen=false,
+            // gradient only) so the glass category/console icons and every frost backdrop keep a valid scene.
+            if (!(mRenderingPanel == 0 && drawTopVideoWallpaper()))
+                drawWallpaperFill(mRenderingPanel);
             ps3bg::render(mWidth, mHeight, mFrameDt, sDrmRotMat,
                           sDrmActive && sDrmGlRotation, false);
         } else {

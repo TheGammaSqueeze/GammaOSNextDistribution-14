@@ -337,6 +337,10 @@ NanoMenu::~NanoMenu() {
     pvStopDecodeWorker();
     // Stop the scraper-art async decode worker (join the thread; no GL in dtor).
     saStopArtWorker();
+    // Tear down the video WALLPAPER first (joins its open worker; a joinable std::thread member would
+    // otherwise std::terminate at destruction). It async-frees into mVidDying, which the synchronous
+    // videoHardFree(true) below then drains. Watchdog already exempt above.
+    if (mWpVideoTop || mWpVideoThread.joinable()) wpVideoStop();
     // Tear down the video decoder (joins its worker, frees codec/extractor/surface/texture).
     videoHardFree(true);   // dtor: synchronous (no render loop left to reap an async teardown)
 
@@ -4964,6 +4968,10 @@ if (sRingPrimedCount >= 2) {
     // bootanim.exit "die quietly" path at the start of threadLoop also
     // exits cleanly without disturbing DRM state.
     if (mExitRequested && sDrmActive) {
+        // Launching an app parks the home: hand the single HW video decoder back from the video
+        // wallpaper so the app (or a later video clip) can use it, and stop burning power decoding a
+        // background the user cannot see.
+        if (mWpVideoTop) wpVideoStop();
         drmStop();
         if (!mDrmBootPath) {
             setupSecondaryEglSurfaces();

@@ -2284,7 +2284,16 @@ void NanoMenu::wallpaperApplyPick(const std::string& file) {
     // Any XMB wallpaper (top or bottom) turns the wave off: the wave toggle is global and a wallpaper only
     // shows on its panel while the wave is off, so a bottom-only wallpaper would otherwise stay hidden.
     if (!dsi) { property_set("persist.gammaos.nano.ps3xmb.wave", "0"); mXmbWave = false; }
-    // Decode the chosen file straight into the target slot. Do NOT go through loadWallpaperTextures(): it
+    // A video file on the TOP panel drives the single video decoder instead of a still.
+    if (tgt == 0 && wpIsVideoPath(file)) {
+        if (mWpTexTop) { glDeleteTextures(1, &mWpTexTop); mWpTexTop = 0; } mWpTopW = 0; mWpTopH = 0; mWpPathTop = file;
+        mWpTopIsVideo = true;
+        wpVideoStart(file);
+        mDisplayDirty = true;
+        return;
+    }
+    if (tgt == 0 && mWpTopIsVideo) { wpVideoStop(); mWpTopIsVideo = false; }
+    // Decode the chosen still straight into the target slot. Do NOT go through loadWallpaperTextures(): it
     // re-reads the prop we just set, and property_set may not have propagated to this process's read cache
     // yet (a socket round-trip to property_service), so it would read the stale value and the live apply
     // would not show until the next restart.
@@ -2318,6 +2327,7 @@ void NanoMenu::clearWallpaper() {
     if (!dsi) { property_set("persist.gammaos.nano.ps3xmb.wave", "1"); mXmbWave = true; }
     // Free the textures directly (the just-cleared props may not have propagated to this process's read
     // cache yet, so re-reading them could keep the old wallpaper alive).
+    if (mWpTopIsVideo) { wpVideoStop(); mWpTopIsVideo = false; }
     if (mWpTexTop)    { glDeleteTextures(1, &mWpTexTop);    mWpTexTop = 0; }    mWpTopW = 0; mWpTopH = 0; mWpPathTop.clear();
     if (mWpTexBottom) { glDeleteTextures(1, &mWpTexBottom); mWpTexBottom = 0; } mWpBottomW = 0; mWpBottomH = 0; mWpPathBottom.clear();
     mDisplayDirty = true;

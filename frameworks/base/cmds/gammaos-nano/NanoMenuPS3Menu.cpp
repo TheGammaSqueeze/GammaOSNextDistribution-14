@@ -5874,13 +5874,29 @@ void NanoMenu::loadWallpaperTextures() {
             if (!tex) curPath.clear();   // decode failed: fall back to the wave / DSi field
         }
     };
-    reload(topProp, mWpPathTop,    mWpTexTop,    mWpTopW,    mWpTopH);
-    reload(botProp, mWpPathBottom, mWpTexBottom, mWpBottomW, mWpBottomH);
+    // TOP panel: a video path drives the single video decoder instead of a still; anything else is a still.
+    {
+        char b[PROPERTY_VALUE_MAX] = {};
+        property_get(topProp, b, "");
+        std::string np(b);
+        if (!np.empty() && wpIsVideoPath(np)) {
+            if (mWpTexTop) { glDeleteTextures(1, &mWpTexTop); mWpTexTop = 0; }
+            mWpTopW = 0; mWpTopH = 0; mWpPathTop = np;
+            mWpTopIsVideo = true;
+            if (mWpVideoPath != np) wpVideoStart(np);   // (re)open only on a real change
+        } else {
+            if (mWpTopIsVideo) { wpVideoStop(); mWpTopIsVideo = false; }
+            reload(topProp, mWpPathTop, mWpTexTop, mWpTopW, mWpTopH);
+        }
+    }
+    reload(botProp, mWpPathBottom, mWpTexBottom, mWpBottomW, mWpBottomH);   // bottom: still only in v1
 }
 
 // True when the given panel (0 top, 1 bottom) has a custom wallpaper to draw.
 bool NanoMenu::wallpaperActive(int panel) const {
-    return (panel == 1) ? (mWpTexBottom != 0) : (mWpTexTop != 0);
+    if (panel == 1) return mWpTexBottom != 0;
+    if (mWpTopIsVideo) return mWpVideoTop != nullptr && mWpVideoAdopted && mWpVideoTop->firstFrameReady();
+    return mWpTexTop != 0;
 }
 
 // Cover-fit blit of the panel's wallpaper still over the WHOLE panel (scale to cover, centre-crop the

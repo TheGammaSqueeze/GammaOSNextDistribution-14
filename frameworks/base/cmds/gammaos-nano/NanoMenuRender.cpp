@@ -2447,8 +2447,9 @@ void NanoMenu::renderNdsTop(float rx, float ry, float rw, float rh) {
     if (!ndsTopScrim) {
         if (wallpaperActive(mRenderingPanel)) {
             // Custom wallpaper fills the whole DSi top screen behind all the chrome, replacing the flat
-            // light field. The carousel/photo panel and menu still draw over it.
-            drawWallpaperFill(mRenderingPanel);
+            // light field: a looping video on the top panel, else a still. The chrome still draws over it.
+            if (!(mRenderingPanel == 0 && drawTopVideoWallpaper()))
+                drawWallpaperFill(mRenderingPanel);
         } else {
             drawQuad(rx, ry, rw, rh, 0.965f, 0.965f, 0.965f, 1.0f);
             float ec = fmaxf(1.0f, S(1.0f));
@@ -4411,6 +4412,11 @@ void NanoMenu::render() {
     // composite that same texture (identical state on every panel, single
     // wave build per frame).
     ps3bg::newFrame();
+    // Reap async-freed decoders every frame on BOTH themes (renderPs3Xmb reaps only on the XMB path; the
+    // DSi carousel home never calls it). Without this, a video-wallpaper teardown on the DSi theme leaves
+    // mVidPrevCodecFreed stuck false, so the wallpaper never re-opens and the decoder leaks. Idempotent.
+    vidReapDying();
+    wpVideoTick();   // video wallpaper: adopt a finished open + loop / re-open, once per frame (both themes)
 
     // GammaOS: Helper lambda that uploads the DRM rotation matrix to all
     // shader programs. Called at the start of each render pass since the

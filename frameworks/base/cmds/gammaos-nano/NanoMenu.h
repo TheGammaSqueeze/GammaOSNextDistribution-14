@@ -1661,8 +1661,19 @@ private:
     bool   mXmbWave = true;                       // XMB wave visible (default derived: off when a wallpaper is set)
     bool   mXmbWaveExplicit = false;              // the user set the wave toggle explicitly (honour it verbatim)
     int    mRenderingPanel = 0;                   // which panel the current render pass targets (0 top, 1 bottom)
-    NanoVideo* mWpVideoTop = nullptr;             // video-wallpaper decoders (Stage 6; declared now to avoid a recompile)
-    NanoVideo* mWpVideoBottom = nullptr;
+    NanoVideo* mWpVideoTop = nullptr;             // the single video-wallpaper decoder (top/primary panel, v1)
+    NanoVideo* mWpVideoBottom = nullptr;          // reserved (single HW decoder -> only the top plays video in v1)
+    bool   mWpTopIsVideo = false;                 // the top wallpaper path is a video (play it instead of a still)
+    std::string mWpVideoPath;                     // the video file currently loaded as the wallpaper
+    std::thread mWpVideoThread;                   // async open worker (openAsyncRun off the render thread)
+    std::atomic<bool> mWpVideoOpenDone{false};    // worker finished (release); render thread reads (acquire)
+    std::atomic<bool> mWpVideoOpenOk{false};      // worker result (stored before mWpVideoOpenDone)
+    bool   mWpVideoAdopted = false;               // open succeeded + play() started
+    bool   wpIsVideoPath(const std::string& p) const;  // true if the path looks like a video file (by extension)
+    void   wpVideoStart(const std::string& path); // begin an async open of a video wallpaper (render thread)
+    void   wpVideoStop();                          // tear the video wallpaper down (join worker, free decoder)
+    void   wpVideoTick();                          // per-frame: adopt a finished open, loop on end
+    bool   drawTopVideoWallpaper();                // draw the current video frame cover-fit; true if it drew
     void   loadWallpaperTextures();               // (re)decode the wallpaper stills from the props (frees old)
     void   drawWallpaperFill(int panel);          // cover-fit blit of the panel's wallpaper over the full panel
     bool   wallpaperActive(int panel) const;      // true if this panel has a still (or video) wallpaper set

@@ -1599,6 +1599,10 @@ void NanoMenu::openVideoPlayer(const std::vector<Ps3Item>& list, int listSel, in
 // player to its fresh on-open state, and spawn the blocking open worker. The spinner shows
 // immediately; videoTick adopts/aborts/cancels the open. No blocking work happens here.
 void NanoMenu::vidBeginOpen(const VidPending& p) {
+    // Single HW decoder: hand it back from the video wallpaper before the player takes it. wpVideoStop
+    // async-frees through the same mVidDying path, so the player's codec create (spawned only once
+    // mVidPrevCodecFreed) naturally waits for the wallpaper decoder to finish releasing.
+    if (mWpVideoTop) wpVideoStop();
     // Supersede any in-flight open: cancel its worker so this join is fast (a still-running worker
     // would otherwise block the render thread here), and drop any pending deferred open. Never
     // move-assign a joinable thread.
@@ -1925,6 +1929,93 @@ void NanoMenu::vidReapDying() {
     // All pending teardowns reaped -> the (single) HW decoder is free for the next title's codec.
     // Release-store pairs with the deferred-open spawn check (acquire) in videoTick.
     mVidPrevCodecFreed.store(mVidDying.empty(), std::memory_order_release);
+}
+
+// ---------------------------------------------------------------------------
+// Video wallpaper: a single muted, looping decoder behind the home. v1 = the top/primary panel only
+// (the SoC has one hardware video decoder, shared with the video player and games), torn down the moment
+// anything else needs the decoder. Any failure falls back to the still / wave.
+// ---------------------------------------------------------------------------
+bool NanoMenu::wpIsVideoPath(const std::string& p) const {
+    std::string lower = p;
+    for (auto& c : lower) c = (char)tolower((unsigned char)c);
+    return isVideoExt(lower);
+}
+
+// Begin an async open of a video wallpaper (render thread, EGL current). GL allocation happens now
+// (openBegin); the blocking codec/extractor build runs on a worker so the render thread never stalls.
+void NanoMenu::wpVideoStart(const std::string& path) {
+    wpVideoStop();
+    if (path.empty()) return;
+    NanoVideo::Meta m;
+    int wHint = 0, hHint = 0;
+    if (NanoVideo::probe(path, m)) { wHint = m.width; hHint = m.height; }
+    NanoVideo* v = new NanoVideo();
+    if (!v->openBegin(wHint, hHint)) {   // GL alloc failed: give up on the video (avoid a per-frame retry
+        delete v; mWpTopIsVideo = false; return;   // spin from wpVideoTick) and fall back to the wave/still
+    }
+    mWpVideoTop = v;
+    mWpVideoPath = path;
+    mWpVideoAdopted = false;
+    mWpVideoOpenDone.store(false, std::memory_order_relaxed);
+    mWpVideoOpenOk.store(false, std::memory_order_relaxed);
+    mWpVideoThread = std::thread([this, v, path] {
+        bool ok = v->openAsyncRun(path);   // blocking; muted (no NanoAudioPlayer is created)
+        mWpVideoOpenOk.store(ok, std::memory_order_relaxed);
+        mWpVideoOpenDone.store(true, std::memory_order_release);
+    });
+}
+
+// Tear the video wallpaper down: cancel + join the open worker, then async-free the decoder through the
+// same mVidDying path the player uses so the single HW decoder is handed back cleanly (mVidPrevCodecFreed).
+void NanoMenu::wpVideoStop() {
+    if (mWpVideoThread.joinable()) {
+        if (mWpVideoTop) mWpVideoTop->requestOpenCancel();
+        // requestOpenCancel only unblocks BETWEEN steps; an in-flight AMediaCodec create/configure/start
+        // on a contended/cold HW decoder can hold this join past the ~8s render watchdog. Exempt it (this
+        // runs on the render thread, incl. from vidBeginOpen the instant the player grabs the same decoder).
+        bool prevExempt = mVidTeardownExempt.exchange(true, std::memory_order_relaxed);
+        mWpVideoThread.join();
+        mVidTeardownExempt.store(prevExempt, std::memory_order_relaxed);
+    }
+    if (mWpVideoTop) { vidAsyncFree(mWpVideoTop); mWpVideoTop = nullptr; }
+    mWpVideoAdopted = false;
+    mWpVideoOpenDone.store(false, std::memory_order_relaxed);
+    mWpVideoOpenOk.store(false, std::memory_order_relaxed);
+    mWpVideoPath.clear();
+}
+
+// Per-frame: adopt a finished open (start playback), loop at end of stream, and re-open after the decoder
+// was handed to the video player / an app and has since come free. Called once per home frame (both themes).
+void NanoMenu::wpVideoTick() {
+    if (!mWpVideoTop) {
+        // Re-open a video wallpaper that was torn down for the single HW decoder, once the home is showing
+        // and the decoder is free again (player closed, its codec reaped). The wave gate is XMB-only (the DSi
+        // theme has no wave); on the XMB theme skip the re-open while the wave is on (nothing would draw it).
+        if (mWpTopIsVideo && !mWpPathTop.empty() && (mNdsTheme || !mXmbWave) && !mVidActive
+                && mVidPrevCodecFreed.load(std::memory_order_acquire))
+            wpVideoStart(mWpPathTop);
+        return;
+    }
+    if (!mWpVideoAdopted) {
+        if (mWpVideoOpenDone.load(std::memory_order_acquire)) {
+            if (mWpVideoThread.joinable()) mWpVideoThread.join();
+            if (mWpVideoOpenOk.load(std::memory_order_relaxed)) { mWpVideoTop->play(); mWpVideoAdopted = true; }
+            else { wpVideoStop(); mWpTopIsVideo = false; }   // undecodable: give up -> wave (no retry loop)
+        }
+        return;
+    }
+    if (mWpVideoTop->ended()) { mWpVideoTop->seek(0.0); mWpVideoTop->play(); }   // seamless loop
+}
+
+// Draw the current video-wallpaper frame cover-fit over the panel. Returns false (draw nothing) until the
+// decoder has a first frame, so the wave/still shows during warmup. Render thread, EGL current.
+bool NanoMenu::drawTopVideoWallpaper() {
+    if (!mWpTopIsVideo || !mWpVideoTop || !mWpVideoAdopted) return false;
+    if (!mWpVideoTop->firstFrameReady()) return false;
+    mWpVideoTop->updateFrame();
+    mWpVideoTop->draw(mWidth, mHeight, 0.0f, 0.0f, (float)mWidth, (float)mHeight, 1.0f, /*cover=*/1, sDrmRotMat);
+    return true;
 }
 
 void NanoMenu::videoHardFree(bool sync) {
