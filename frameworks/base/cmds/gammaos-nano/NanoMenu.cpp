@@ -1643,18 +1643,131 @@ bool NanoMenu::threadLoop() {
                 previewDs->initSurface(mWidth, mHeight, /*dualDisplay=*/splashDual);
                 previewDs->setRotationMatrix(sDrmRotMat);
             }
-            float dsSat = 0.15f, dsGrad = 1.0f;   // desaturated -> full color ramp
+            float dsSat = 0.15f, dsGrad = 1.0f;   // desaturated + gradient scrim, HELD until handoff
+            bool handoffFade = false;             // once ready, fade to full colour then hand off
             // Show the splash until the framework can launch an activity (user
             // unlock -> home_launching) AND the ROM's storage is mounted, then hand
             // off. Drain input so a held button does not leak into the game. Bump
             // the render heartbeat each frame so the watchdog does not abort a slow
             // cold boot.
+            // Preview input: forward gamepad buttons + the bottom-panel touch to the
+            // live in-process DS core (previewDs) so the resumed game is actually
+            // playable during the "Quick Resuming..." wait -- the finger drives the DS
+            // touchscreen. Earlier this loop just DRAINED input; now every button and
+            // the touch reach the game shown on the panels until the binary handoff.
+            int  dsBtnMask   = 0;
+            int  dsTouchX    = 128, dsTouchY = 96;   // last stylus pos, DS coords
+            bool dsTouchHeld = false;
+            int  dsRawX = -1, dsRawY = -1;           // latest raw digitizer sample
+            int  dsTouchMinX = -1, dsTouchMaxX = -1; // ABS range (lazy EVIOCGABS)
+            int  dsTouchMinY = -1, dsTouchMaxY = -1;
+            // The bottom-panel digitizer (RG DS: gt9xx-0) is the DS touchscreen; reuse
+            // the Control Center's device name + axis calibration so the touch lines up
+            // with what already works on this panel.
+            char touchDev[PROPERTY_VALUE_MAX] = {};
+            property_get("persist.gammaos.nano.cc.touchdev", touchDev, "gt9xx-0");
+            const bool tsSwap  = android::base::GetBoolProperty("persist.gammaos.nano.cc.touch_swap",  false);
+            const bool tsFlipX = android::base::GetBoolProperty("persist.gammaos.nano.cc.touch_flipx", false);
+            const bool tsFlipY = android::base::GetBoolProperty("persist.gammaos.nano.cc.touch_flipy", false);
             // Hoisted out of the loop: the resume ROM path is stable for the whole
             // wait, so read it once instead of per frame.
             std::string goRom = getQrRomPath();
             for (int wait = 0; wait < 2400; wait++) {   // up to ~40s (covers the CE-ROM unlock wait)
+                // Read gamepad + the bottom-panel touch and forward both to the DS
+                // core. A touch frame closes on SYN_REPORT; recompute the stylus
+                // position then. Gamepad buttons accumulate into a sticky mask.
+                bool dsTouchNewFrame = false;
                 for (int fd : mInputFds) {
-                    while (read(fd, &drain_ev, sizeof(drain_ev)) == sizeof(drain_ev)) {}
+                    auto itn = mInputFdNames.find(fd);
+                    const bool isTouch = (itn != mInputFdNames.end()
+                                          && itn->second == touchDev);
+                    while (read(fd, &drain_ev, sizeof(drain_ev)) == sizeof(drain_ev)) {
+                        const struct input_event& ie = drain_ev;
+                        if (isTouch) {
+                            // Bottom digitizer -> DS touchscreen.
+                            if (ie.type == EV_ABS) {
+                                if (ie.code == ABS_MT_POSITION_X || ie.code == ABS_X) {
+                                    dsRawX = ie.value;
+                                    if (dsTouchMaxX < 0) {
+                                        struct input_absinfo a;
+                                        if (ioctl(fd, EVIOCGABS(ie.code), &a) == 0
+                                                && a.maximum > a.minimum) {
+                                            dsTouchMinX = a.minimum; dsTouchMaxX = a.maximum;
+                                        } else { dsTouchMinX = 0; dsTouchMaxX = 640; }
+                                    }
+                                } else if (ie.code == ABS_MT_POSITION_Y || ie.code == ABS_Y) {
+                                    dsRawY = ie.value;
+                                    if (dsTouchMaxY < 0) {
+                                        struct input_absinfo a;
+                                        if (ioctl(fd, EVIOCGABS(ie.code), &a) == 0
+                                                && a.maximum > a.minimum) {
+                                            dsTouchMinY = a.minimum; dsTouchMaxY = a.maximum;
+                                        } else { dsTouchMinY = 0; dsTouchMaxY = 480; }
+                                    }
+                                } else if (ie.code == ABS_MT_TRACKING_ID) {
+                                    dsTouchHeld = (ie.value >= 0);
+                                }
+                            } else if (ie.type == EV_KEY && ie.code == BTN_TOUCH) {
+                                dsTouchHeld = (ie.value != 0);
+                            } else if (ie.type == EV_SYN && ie.code == SYN_REPORT) {
+                                dsTouchNewFrame = true;
+                            }
+                            continue;
+                        }
+                        // Gamepad -> DS buttons (Nintendo face layout, same mapping as
+                        // the playable-preview else-branch: BTN_SOUTH=A, BTN_EAST=B).
+                        if (ie.type == EV_KEY) {
+                            const bool pressed = (ie.value != 0);
+                            auto bit = [&](int mask) {
+                                if (pressed) dsBtnMask |=  mask;
+                                else         dsBtnMask &= ~mask;
+                            };
+                            switch (ie.code) {
+                            case BTN_SOUTH:  bit(DrasticRunner::kDsBtnA);      break;
+                            case BTN_EAST:   bit(DrasticRunner::kDsBtnB);      break;
+                            case BTN_NORTH:  bit(DrasticRunner::kDsBtnX);      break;
+                            case BTN_WEST:   bit(DrasticRunner::kDsBtnY);      break;
+                            case BTN_TL:
+                            case KEY_L:      bit(DrasticRunner::kDsBtnL);      break;
+                            case BTN_TR:
+                            case KEY_R:      bit(DrasticRunner::kDsBtnR);      break;
+                            case BTN_START:  bit(DrasticRunner::kDsBtnStart);  break;
+                            case BTN_SELECT: bit(DrasticRunner::kDsBtnSelect); break;
+                            case KEY_UP:     bit(DrasticRunner::kDsBtnUp);     break;
+                            case KEY_DOWN:   bit(DrasticRunner::kDsBtnDown);   break;
+                            case KEY_LEFT:   bit(DrasticRunner::kDsBtnLeft);   break;
+                            case KEY_RIGHT:  bit(DrasticRunner::kDsBtnRight);  break;
+                            default: break;
+                            }
+                        } else if (ie.type == EV_ABS) {
+                            if (ie.code == ABS_HAT0X) {
+                                dsBtnMask &= ~(DrasticRunner::kDsBtnLeft |
+                                               DrasticRunner::kDsBtnRight);
+                                if (ie.value < 0) dsBtnMask |= DrasticRunner::kDsBtnLeft;
+                                if (ie.value > 0) dsBtnMask |= DrasticRunner::kDsBtnRight;
+                            } else if (ie.code == ABS_HAT0Y) {
+                                dsBtnMask &= ~(DrasticRunner::kDsBtnUp |
+                                               DrasticRunner::kDsBtnDown);
+                                if (ie.value < 0) dsBtnMask |= DrasticRunner::kDsBtnUp;
+                                if (ie.value > 0) dsBtnMask |= DrasticRunner::kDsBtnDown;
+                            }
+                        }
+                    }
+                }
+                // Recompute the DS stylus position when a touch frame closed. Map the
+                // raw digitizer (its real ABS range) to DS coords 0..255 x 0..191,
+                // applying the CC's per-panel swap/flip calibration.
+                if (dsTouchNewFrame && dsRawX >= 0 && dsRawY >= 0
+                        && dsTouchMaxX > dsTouchMinX && dsTouchMaxY > dsTouchMinY) {
+                    float nx = (float)(dsRawX - dsTouchMinX) / (float)(dsTouchMaxX - dsTouchMinX);
+                    float ny = (float)(dsRawY - dsTouchMinY) / (float)(dsTouchMaxY - dsTouchMinY);
+                    if (tsSwap)  { float t = nx; nx = ny; ny = t; }
+                    if (tsFlipX) nx = 1.0f - nx;
+                    if (tsFlipY) ny = 1.0f - ny;
+                    if (nx < 0.0f) nx = 0.0f; else if (nx > 1.0f) nx = 1.0f;
+                    if (ny < 0.0f) ny = 0.0f; else if (ny > 1.0f) ny = 1.0f;
+                    dsTouchX = (int)(nx * 255.0f + 0.5f);
+                    dsTouchY = (int)(ny * 191.0f + 0.5f);
                 }
                 char val[PROPERTY_VALUE_MAX] = {};
                 property_get("sys.gammaos.nano.home_launching", val, "");
@@ -1671,6 +1784,14 @@ bool NanoMenu::threadLoop() {
                 // the ROM immediately after handoff.
                 bool go = ready && isQrRomStorageReady()
                         && (goRom.empty() || access(goRom.c_str(), R_OK) == 0);
+                // Keep the scrim + caption up for the whole "Quick Resuming..." wait;
+                // only start the fade-to-full-colour once we are ready to hand off.
+                if (go) handoffFade = true;
+                // Push the accumulated pad + touch state into the live DS core so the
+                // preview responds this frame. setInputWithTouch sets the pointer-down
+                // bit from dsTouchHeld internally, so dsBtnMask never carries bit 31.
+                if (haveCore)
+                    previewDs->setInputWithTouch(dsBtnMask, dsTouchX, dsTouchY, dsTouchHeld);
                 // Advance one DS frame into the offscreen texture BEFORE binding the
                 // present target (renderDsToOffscreen leaves FBO 0 bound); then
                 // drmFrameBegin binds the real present FBO so the DS quad + the text
@@ -1678,10 +1799,10 @@ bool NanoMenu::threadLoop() {
                 // the AHB scanout FBO or the EGL window surface).
                 if (haveCore) previewDs->renderDsToOffscreen();
                 bool showingGame = (haveCore && previewDs->isFrameReady());
-                // Caption alpha: over the game (bottom) once it is showing, fading as
-                // the game reaches full colour; else full over the black splash. Same
-                // value for both panels so it stays in sync.
-                float capA = showingGame ? fmaxf(1.15f - dsSat, 0.35f) : 1.0f;
+                // Caption follows the scrim: full while dsGrad is up (the whole wait),
+                // fading out with it during the handoff transition. Same value for both
+                // panels so it stays in sync.
+                float capA = dsGrad;
                 // "Quick Resuming..." + ROM name + system line into the currently-bound
                 // FBO. drawText uses mWidth/mHeight for pixel->NDC and the text shader's
                 // uRotation maps to the panel, so the same call is correct for either
@@ -1727,10 +1848,6 @@ bool NanoMenu::threadLoop() {
                     glClear(GL_COLOR_BUFFER_BIT);
                     if (showingGame) previewDs->renderTopScreen(dsSat, dsGrad);
                     drawSplashOverlay();
-                    if (showingGame) {
-                        dsSat = fminf(dsSat + 0.01f, 1.0f);
-                        dsGrad = fmaxf(dsGrad - 0.01f, 0.0f);
-                    }
                 } else {
                     // Single panel (force-SF, or single-screen DRM): unchanged path.
                     drmFrameBegin();
@@ -1743,10 +1860,15 @@ bool NanoMenu::threadLoop() {
                     glClear(GL_COLOR_BUFFER_BIT);
                     if (showingGame) {
                         previewDs->renderBothScreens(dsSat, dsGrad);   // DS quad -> present FBO
-                        dsSat = fminf(dsSat + 0.01f, 1.0f);
-                        dsGrad = fmaxf(dsGrad - 0.01f, 0.0f);
                     }
                     drawSplashOverlay();
+                }
+                // Advance the handoff fade (scrim off, full colour) only once we are
+                // handing off; the scrim + caption stay at full strength for the whole
+                // "Quick Resuming..." wait, then fade out here as the game takes over.
+                if (handoffFade) {
+                    dsSat = fminf(dsSat + 0.05f, 1.0f);
+                    dsGrad = fmaxf(dsGrad - 0.05f, 0.0f);
                 }
                 // Capture the composited splash+preview frame before the flip
                 // (glReadPixels needs the content still bound); no-op unless
@@ -1755,7 +1877,9 @@ bool NanoMenu::threadLoop() {
                 maybeNanoScreenshot();
                 drmFrameEnd(mDisplay, mSurface);
                 mRenderHeartbeat.fetch_add(1, std::memory_order_relaxed);
-                if (go) break;
+                // Hand off once the fade-out has fully played (scrim gone), so the
+                // drastic-nano game appears right as the preview reaches full colour.
+                if (handoffFade && dsGrad <= 0.0f) break;
                 usleep(16666);
             }
             // Hand off to the binary. setDrasticNanoRomPath writes the ROM it reads;
@@ -3245,6 +3369,10 @@ if (sRingPrimedCount >= 2) {
                             // over, the game is already running — seamless handoff.
                             float saturation = 0.15f;  // start slightly colorized
                             float gradient = 1.0f;     // strong gradient (full black at bottom)
+                            // Once the ROM storage is ready, fade the scrim out then hand
+                            // off. Held false for the whole "Quick Resuming..." wait so the
+                            // scrim stays up until the real handoff (not during boot).
+                            bool handoffFade = false;
                             // Extract ROM display name (strip path + extension)
                             std::string romName = romFile;
                             size_t sl = romName.rfind('/');
@@ -3252,7 +3380,6 @@ if (sRingPrimedCount >= 2) {
                             size_t dot = romName.rfind('.');
                             if (dot != std::string::npos) romName = romName.substr(0, dot);
                             bool bootComplete = false;
-                            int64_t bootCompleteTime = 0;
                             // Storage-gate wait start (0 = ramp not done
                             // yet). Caps the isQrRomStorageReady() wait so
                             // a framework that never publishes the storage
@@ -3386,31 +3513,26 @@ if (sRingPrimedCount >= 2) {
                                     }
                                     if (ready) {
                                         bootComplete = true;
-                                        bootCompleteTime = elapsedRealtime();
                                         ALOGI("Quick Resume: user ready, "
-                                              "transitioning to full color");
-                                    } else if (!handoffPaused) {
-                                        // Slow creep toward color during boot
-                                        saturation = fminf(saturation + 0.0003f, 0.35f);
-                                        gradient = fmaxf(gradient - 0.0002f, 0.7f);
+                                              "waiting for ROM storage before handoff");
                                     }
+                                    // No creep: hold the scrim (saturation 0.15,
+                                    // gradient 1.0) for the whole "Quick Resuming..."
+                                    // wait; it only fades once we actually hand off.
                                 }
 
                                 if (bootComplete && !handoffPaused) {
-                                    // Ramp to full color over ~0.8s (ease-out)
-                                    int64_t elapsed = elapsedRealtime() - bootCompleteTime;
-                                    float t = fminf((float)elapsed / 800.0f, 1.0f);
-                                    t = 1.0f - (1.0f - t) * (1.0f - t);
-                                    saturation = 0.35f + t * 0.65f;
-                                    gradient = 0.7f * (1.0f - t);
-
-                                    bool handoffStorageOk = false;
-                                    if (t >= 1.0f) {
+                                    // Hold the scrim up until the ROM's backing storage is
+                                    // actually mounted, then fade it out and hand off. The
+                                    // fade plays only at the real handoff, not during the
+                                    // (possibly long) storage wait, so the "Quick Resuming..."
+                                    // scrim stays up the whole time (matches the drastic path).
+                                    if (!handoffFade) {
                                         if (handoffStorageWaitMs == 0)
                                             handoffStorageWaitMs = elapsedRealtime();
-                                        handoffStorageOk = isQrRomStorageReady();
+                                        bool handoffStorageOk = isQrRomStorageReady();
                                         // Bounded: after 30s of storage never
-                                        // reporting ready, hand off anyway. The
+                                        // reporting ready, fade + hand off anyway. The
                                         // relaunch monitor in SystemServer holds
                                         // the actual app start on its own
                                         // storage gate, so this only stops the
@@ -3424,8 +3546,15 @@ if (sRingPrimedCount >= 2) {
                                                   "off anyway");
                                             handoffStorageOk = true;
                                         }
+                                        if (handoffStorageOk) handoffFade = true;
                                     }
-                                    if (t >= 1.0f && handoffStorageOk) {
+                                    if (handoffFade) {
+                                        // Fade the scrim out (~0.8s, 5%/frame at 60fps):
+                                        // desaturate up to full colour and lift the gradient.
+                                        saturation = fminf(saturation + 0.05f, 1.0f);
+                                        gradient = fmaxf(gradient - 0.05f, 0.0f);
+                                    }
+                                    if (handoffFade && gradient <= 0.0f) {
                                         // Fully saturated AND the ROM's backing
                                         // storage is mounted. On cold boot, vold
                                         // defers external SD mounting until after
