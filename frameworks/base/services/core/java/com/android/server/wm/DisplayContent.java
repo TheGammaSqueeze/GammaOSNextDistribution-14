@@ -4425,6 +4425,22 @@ class DisplayContent extends RootDisplayArea implements WindowManagerPolicy.Disp
         if (!isTrusted()) {
             return DISPLAY_IME_POLICY_FALLBACK_DISPLAY;
         }
+        // GammaOS: On a device with a second built-in panel (the RG DS) each panel is its own
+        // display. While an app runs on the non-default panel it is SurfaceFlinger-composited on
+        // that panel, but the nano launcher renders the OTHER panel DRM-direct. The stock
+        // FALLBACK_DISPLAY policy routes that app's keyboard to the default (bottom) display, where
+        // nano's DRM output occludes any SurfaceFlinger IME window, so no keyboard is ever seen.
+        // When nano is the active launcher it opts in (persist.gammaos.ime.localdisplay, set by
+        // gammaos-nano at startup on a dual-screen device) and we force LOCAL for every trusted
+        // built-in secondary display so each panel hosts its own IME over its own app, exactly like
+        // the default display. DEFAULT OFF so stock Android and non-nano contexts are unaffected;
+        // only internal displays qualify, so virtual (mirror/CC) and external (HDMI/cast) displays
+        // always keep the normal fallback routing.
+        if (mDisplayId != DEFAULT_DISPLAY
+                && getDisplayInfo().type == Display.TYPE_INTERNAL
+                && SystemProperties.getBoolean("persist.gammaos.ime.localdisplay", false)) {
+            return DISPLAY_IME_POLICY_LOCAL;
+        }
         final int imePolicy = mWmService.mDisplayWindowSettings.getImePolicyLocked(this);
         if (imePolicy == DISPLAY_IME_POLICY_FALLBACK_DISPLAY && forceDesktopMode()) {
             // If the display has not explicitly requested for the IME to be hidden then it shall
