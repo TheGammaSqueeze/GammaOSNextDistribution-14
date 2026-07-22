@@ -317,7 +317,32 @@ final class ImeInsetsSourceProvider extends InsetsSourceProvider {
         // TODO(b/139861270): Remove the child & sublayer check once IMMS is aware of
         //  actual IME target.
         final InsetsControlTarget dcTarget = mDisplayContent.getImeTarget(IME_TARGET_LAYERING);
-        if (dcTarget == null || mImeRequester == null) {
+        if (mImeRequester == null) {
+            return false;
+        }
+        if (dcTarget == null) {
+            // GammaOS: when the IME is pinned to THIS display (persist.gammaos.ime.pin.enabled) but the
+            // focused editor lives on ANOTHER display, this display has no local IME LAYERING target
+            // (computeImeTarget walks only this display's windows and finds no editor), so the stock guard
+            // bails here and the pinned IME never shows even though its input target, control target and
+            // parent are all correctly pinned to this display. Evaluate only the layering-independent
+            // readiness branches so the show can proceed - it passes via sameAsImeControlTarget() (the pin
+            // set the control target = mImeRequester). Control / z-order / parent are handled by the pin
+            // hooks in DisplayContent, so no layering target is created here. Strictly gated: pin on, no
+            // local layering target, and the input target on a different display than this provider's.
+            final InputTarget pinnedInput = mDisplayContent.getImeInputTarget();
+            if (mDisplayContent.mWmService.gammaosIsImeDisplayPinnedLocked()
+                    && pinnedInput != null
+                    && pinnedInput.getDisplayContent() != mDisplayContent) {
+                final InsetsControlTarget pinControl =
+                        mDisplayContent.getImeTarget(IME_TARGET_CONTROL);
+                if (pinControl == null) {
+                    return false;
+                }
+                return isImeFallbackTarget(mImeRequester)
+                        || isImeInputTarget(mImeRequester)
+                        || sameAsImeControlTarget();
+            }
             return false;
         }
         // Not ready to show if there is no IME control target.
