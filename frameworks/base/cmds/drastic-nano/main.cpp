@@ -2716,6 +2716,26 @@ int main(int argc, char** argv) {
             "/data/user/0/com.dsemu.drastic/shared_prefs/"
             "_Dra$t1c_Pref$_.xml");
     android::drastic_prefs::Prefs prefs;
+    // GammaOS: on a dual-screen device default DraStic to Frame Sync ON (phase-lock
+    // the two DSI panels so the top and bottom show the same wall-clock frame),
+    // plus Hi-Res 3D and Threaded 3D ON and 3D Edge Marking OFF, so the dual-screen
+    // presentation and 3D look their best out of the box. These are DEFAULTS only:
+    // readPrefs() below overrides any of these keys the user has explicitly set in
+    // DraStic's own settings, so a deliberate user choice always wins. Single-screen
+    // devices are untouched (Frame Sync is a no-op there and the other three already
+    // default on). _FrameSync is a nano-only key absent from the shipped seed, so a
+    // fresh dual-screen device keeps this default until the user toggles it.
+    {
+        const bool dualScreen =
+                (android::sDrmActive && android::sDrmDisplays.size() > 1)
+                || (sfBackend && sfBackend->hasSecondary());
+        if (dualScreen) {
+            prefs.frameSync   = true;
+            prefs.hires3d     = true;
+            prefs.threaded3d  = true;
+            prefs.disableEdge = true;   // edge marking OFF
+        }
+    }
     android::drastic_prefs::readPrefs(prefsPath, &prefs);
     // Force frameskip off for the drastic-nano session. The real drastic
     // app's _FrameskipType may be 1 (auto) or a fixed value > 0; neither
