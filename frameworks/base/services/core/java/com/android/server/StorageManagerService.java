@@ -1249,6 +1249,32 @@ class StorageManagerService extends IStorageManager.Stub
 
         mHandler.obtainMessage(H_COMPLETE_UNLOCK_USER, userId, /* arg2 (unusued) */ 0)
                 .sendToTarget();
+
+        // GammaOS Nano: cold-boot QR FUSE acceleration, phase 2.
+        // The qr_prepared pre-bind (see the "cold-boot QR FUSE acceleration"
+        // thread in resetIfBootedAndConnected) fires vold.onUserStarted(0)
+        // before user 0 is CE-unlocked, so the first emulated;0 mount binds
+        // MediaProvider's ExternalStorageServiceImpl too early and fails
+        // "not found"; mount() then only retries via H_RESET after
+        // FAILED_MOUNT_RESET_TIMEOUT_SECONDS (10s), pinning the successful
+        // mount ~10s past this point (and with it ext_storage_ready and the
+        // Quick Resume handoff). User 0 is now unlocked and the CE
+        // MediaProvider service is startable, so re-drive the existing,
+        // idempotent mount path immediately instead of waiting for that
+        // incidental timer. H_RESET -> resetIfBootedAndConnected re-emits
+        // onVolumeCreated(emulated;0) -> mount(); already-unlocked user
+        // storage survives the reset. Gated to the QR path and skipped once
+        // storage is already mounted, so stock/non-QR boot is unaffected.
+        if (userId == UserHandle.USER_SYSTEM
+                && "1".equals(SystemProperties.get(
+                        "persist.gammaos.nano.qr_prepared", "0"))
+                && !SystemProperties.getBoolean(
+                        "sys.gammaos.nano.ext_storage_ready", false)) {
+            Slog.i(TAG, "GammaOS Nano: user 0 unlocked, re-driving FUSE mount now");
+            mHandler.removeMessages(H_RESET);
+            mHandler.obtainMessage(H_RESET).sendToTarget();
+        }
+
         if (mRemountCurrentUserVolumesOnUnlock && userId == mCurrentUserId) {
             maybeRemountVolumes(userId);
             mRemountCurrentUserVolumesOnUnlock = false;
