@@ -282,12 +282,11 @@ PRODUCT_PACKAGES_REMOVE += \
 # GKI android12+, e.g. the RG DS 6.1) run uffd/CMC, older kernels (<=4.14, e.g. ceres
 # 4.9) run read-barrier CC. One boot image can only be one GC, and this GSI ships to
 # both, so we build TWO variants:
-#   default            -> uffd/CMC image, for modern kernels (the optimized path).
-#   GAMMAOS_BOOT_GC=cc -> CC image, for old kernels (they match CC natively).
-# buildtv.sh's "cc" mode exports GAMMAOS_BOOT_GC=cc. Do NOT try to unify these with a
-# runtime override: dalvik.vm.gctype=CC crashed the 6.1 device, and the device_config
-# force_disable_uffd_gc flag is read from an odrefresh cache-info that is not generated
-# here, so it is silently ignored.
+#   buildtv.sh    (default)          -> uffd/CMC image, for modern kernels (optimized).
+#   buildtv_cc.sh (GAMMAOS_BOOT_GC=cc) -> CC image, for old kernels (they match CC natively).
+# Do NOT try to unify these with a runtime override: dalvik.vm.gctype=CC crashed the 6.1
+# device, and the device_config force_disable_uffd_gc flag is read from an odrefresh
+# cache-info that is not generated here, so it is silently ignored.
 ifeq ($(GAMMAOS_BOOT_GC),cc)
 PRODUCT_ENABLE_UFFD_GC := false
 else

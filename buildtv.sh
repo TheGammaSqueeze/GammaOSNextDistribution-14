@@ -12,25 +12,15 @@
 # Pass `sync` as the first arg if you want repo sync + patch apply
 # before the build runs. Default is nosync (current local tree).
 #
-# GC / boot-image variant:
-#   buildtv.sh            -> uffd/CMC boot image (DEFAULT), for modern (>=5.7 / GKI
-#                            android12+) kernels like the RG DS (6.1). Optimized path.
-#   buildtv.sh cc         -> read-barrier CC boot image, for old (<=4.14, non-uffd)
-#                            kernels like ceres (4.9), which run CC natively and would
-#                            otherwise recompile the whole boot classpath every boot.
-# The two variants share the same lunch product + out/ dir, so switching between them
-# rebuilds the boot image. See the GAMMAOS_BOOT_GC block in
-# device/phh/treble/lineage_tv_arm64_bvN.mk. `cc` combines with sync/nosync, e.g.
-# `buildtv.sh cc sync`.
+# GC / boot-image variant: this default script builds the uffd/CMC boot image for
+# MODERN kernels (>=5.7 / GKI android12+, e.g. the RG DS on 6.1) - the optimized path.
+# For OLD (<=4.14, non-uffd) kernels (e.g. ceres on 4.9) use buildtv_cc.sh instead,
+# which builds a read-barrier CC boot image; flashing this uffd image to an old-kernel
+# device makes it recompile the whole boot classpath (~15s) on every boot. Both scripts
+# share the same lunch product + out/ dir (see the GAMMAOS_BOOT_GC block in
+# device/phh/treble/lineage_tv_arm64_bvN.mk), so alternating them rebuilds the boot image.
 
 set -e
-
-# CC variant selector (must come before the sync/nosync mode arg).
-if [ "$1" = "cc" ]; then
-    export GAMMAOS_BOOT_GC=cc
-    echo "buildtv.sh: building the CC (read-barrier) boot image for old-kernel devices"
-    shift
-fi
 
 MODE="${1:-nosync}"
 
