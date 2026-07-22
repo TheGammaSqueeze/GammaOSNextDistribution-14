@@ -15,13 +15,16 @@
  */
 package com.android.settings.handheld;
 
+import android.app.AlertDialog;
 import android.app.settings.SettingsEnums;
 import android.content.Context;
 import android.hardware.input.InputManager;
 import android.os.Bundle;
 import android.os.SystemProperties;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.view.InputDevice;
+import android.widget.EditText;
 
 import androidx.preference.EditTextPreference;
 import androidx.preference.ListPreference;
@@ -252,6 +255,9 @@ public class GammaOSToolboxFragment extends SettingsPreferenceFragment {
         DEFAULTS.put("persist.gammaos.fan_mode", "");
         DEFAULTS.put("persist.gammaos.ultra_low_power_saving_mode", "false");
         DEFAULTS.put("persist.gammaos.ultra_low_power_saving_freeze_exclude_packages", "");
+        // Virtual memory (swap) size in MB; 0 = off. Integer default so a custom
+        // value is validated numerically. gammaos-swap.sh applies it at boot.
+        DEFAULTS.put("persist.gammaos.swap.size_mb", "0");
 
         // RetroArch
         DEFAULTS.put("persist.gammaos.retroarchoverride.backbutton", "0");
@@ -280,6 +286,104 @@ public class GammaOSToolboxFragment extends SettingsPreferenceFragment {
         // so bindList() can preselect the current value and show its summary.
         populateRotateDeviceList();
         bindAllPreferences(getPreferenceScreen());
+        // Swap size needs custom handling (a "Custom..." entry that types any size),
+        // so bind it after the generic binder to override its listener.
+        bindSwapSize();
+    }
+
+    /* ------------------------------------------------------------------ */
+    /*  Virtual memory (swap): preset list + a "Custom..." numeric entry  */
+    /* ------------------------------------------------------------------ */
+
+    private static final String SWAP_KEY = "persist.gammaos.swap.size_mb";
+    // Never let a typo request a swap file bigger than the storage can hold.
+    private static final int SWAP_MAX_MB = 16384;
+
+    private void bindSwapSize() {
+        ListPreference lp = (ListPreference) findPreference(SWAP_KEY);
+        if (lp == null) return;
+        String current = SystemProperties.get(SWAP_KEY, "0");
+        addCustomSwapEntryIfNeeded(lp, current);
+        lp.setValue(current);
+        updateListSummary(lp, current);
+        lp.setOnPreferenceChangeListener((p, newValue) -> {
+            String val = (String) newValue;
+            if ("custom".equals(val)) {
+                showSwapCustomDialog(lp);
+                return false;   // the dialog persists the chosen size itself
+            }
+            SystemProperties.set(SWAP_KEY, val);
+            updateListSummary(lp, val);
+            return true;
+        });
+    }
+
+    /**
+     * If the persisted swap size is a positive number that is not one of the
+     * presets, splice it into the list (just before the trailing "Custom..." row)
+     * so the picker can preselect it and show its label.
+     */
+    private void addCustomSwapEntryIfNeeded(ListPreference lp, String value) {
+        if (TextUtils.isEmpty(value)) return;
+        int n;
+        try {
+            n = Integer.parseInt(value.trim());
+        } catch (NumberFormatException e) {
+            return;
+        }
+        if (n <= 0) return;
+        CharSequence[] curVals = lp.getEntryValues();
+        CharSequence[] curEntries = lp.getEntries();
+        if (curVals == null || curEntries == null) return;
+        for (CharSequence v : curVals) {
+            if (value.equals(v.toString())) return;   // already a preset (or already added)
+        }
+        List<CharSequence> entries = new ArrayList<>();
+        List<CharSequence> values = new ArrayList<>();
+        for (int i = 0; i < curVals.length && i < curEntries.length; i++) {
+            if ("custom".equals(curVals[i].toString())) {
+                entries.add(getString(R.string.gammaos_toolbox_swap_size_mb_fmt, n));
+                values.add(value);
+            }
+            entries.add(curEntries[i]);
+            values.add(curVals[i]);
+        }
+        lp.setEntries(entries.toArray(new CharSequence[0]));
+        lp.setEntryValues(values.toArray(new CharSequence[0]));
+    }
+
+    private void showSwapCustomDialog(final ListPreference lp) {
+        Context ctx = getContext();
+        if (ctx == null) return;
+        final EditText input = new EditText(ctx);
+        input.setInputType(InputType.TYPE_CLASS_NUMBER);
+        input.setHint(R.string.gammaos_toolbox_swap_size_custom_hint);
+        String cur = SystemProperties.get(SWAP_KEY, "0");
+        try {
+            if (Integer.parseInt(cur) > 0) input.setText(cur);
+        } catch (NumberFormatException ignored) {
+        }
+        new AlertDialog.Builder(ctx)
+                .setTitle(R.string.gammaos_toolbox_swap_size_custom_title)
+                .setMessage(R.string.gammaos_toolbox_swap_size_custom_msg)
+                .setView(input)
+                .setPositiveButton(android.R.string.ok, (d, w) -> {
+                    int n;
+                    try {
+                        n = Integer.parseInt(input.getText().toString().trim());
+                    } catch (NumberFormatException e) {
+                        n = 0;
+                    }
+                    if (n < 0) n = 0;
+                    if (n > SWAP_MAX_MB) n = SWAP_MAX_MB;
+                    String val = String.valueOf(n);
+                    SystemProperties.set(SWAP_KEY, val);
+                    addCustomSwapEntryIfNeeded(lp, val);
+                    lp.setValue(val);
+                    updateListSummary(lp, val);
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
     }
 
     /* ------------------------------------------------------------------ */

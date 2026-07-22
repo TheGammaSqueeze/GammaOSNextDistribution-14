@@ -1166,6 +1166,14 @@
             android:summary="@string/gammaos_toolbox_ultra_low_power_exclude_summary"
             android:defaultValue="" />
 
+        <ListPreference
+            android:key="persist.gammaos.swap.size_mb"
+            android:title="@string/gammaos_toolbox_swap_size_title"
+            android:summary="@string/gammaos_toolbox_swap_size_summary"
+            android:entries="@array/gammaos_swap_size_entries"
+            android:entryValues="@array/gammaos_swap_size_values"
+            android:defaultValue="0" />
+
     </PreferenceCategory>
 
     <!-- ==================== RetroArch & Emulation ==================== -->

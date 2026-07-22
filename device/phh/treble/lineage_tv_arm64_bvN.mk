@@ -102,6 +102,7 @@ PRODUCT_COPY_FILES += \
     gammaos/retroarch/roms.tar.xz:system/etc/roms.tar.xz \
     gammaos/setup.sh:system/bin/setup.sh \
     gammaos/nano_cache.sh:system/bin/nano_cache.sh \
+    gammaos/gammaos-swap.sh:system/bin/gammaos-swap.sh \
     gammaos/launcher/MiXplorer_v6.64.3-API29_B23090720.apk:system/etc/MiXplorer_v6.64.3-API29_B23090720.apk \
     gammaos/launcher/AuroraStore_4.6.2.apk:system/etc/AuroraStore_4.6.2.apk \
     gammaos/launcher/aurorastore.tar.gz:system/etc/aurorastore.tar.gz \

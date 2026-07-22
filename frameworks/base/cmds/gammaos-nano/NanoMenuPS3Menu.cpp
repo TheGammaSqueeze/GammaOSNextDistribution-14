@@ -6167,6 +6167,11 @@ static const Ps3SettingBinding kPs3Bindings[] = {
     {"Desktop Fullscreen", SettingSource::kProp, "persist.gammaos.desktop.fullscreen", "false", "false:Off,true:On"},
     {"Multi-Volume", SettingSource::kProp, "persist.gammaos.audio.multivolume", "false", "false:Off,true:On"},
     {"Ultra Low Power Saving", SettingSource::kProp, "persist.gammaos.ultra_low_power_saving_mode", "false", "false:Off,true:On"},
+    // Virtual memory / swap. Stores the swap file size in MB (0 = off); gammaos-swap.sh
+    // (init service) reads persist.gammaos.swap.size_mb and applies it. Presets here; the
+    // Settings / TV Settings toolbox also allow a custom typed size.
+    {"Virtual Memory", SettingSource::kProp, "persist.gammaos.swap.size_mb", "0",
+     "0:Off,256:256 MB,512:512 MB,1024:1 GB,2048:2 GB,3072:3 GB,4096:4 GB,6144:6 GB,8192:8 GB"},
     {"RetroArch Back Button Override", SettingSource::kProp, "persist.gammaos.retroarchoverride.backbutton", "0", "0:Off,1:On"},
     // The RG477V tile reads startselectled via getInt, so store 0/1 (a "false"/"true"
     // string parses to 0 = the LED never turns on). Label kept for the Settings leaf.

@@ -1716,3 +1716,26 @@ on property:sys.boot_completed=1 && property:persist.gammaos.dcdimmingemulation=
 on property:sys.boot_completed=1 && property:persist.gammaos.dcdimmingemulation=0
   start gammaosdcdimming_disable
 
+# GammaOS: user-configurable virtual memory (swap file). gammaos-swap.sh reads
+# persist.gammaos.swap.size_mb (an integer number of MB; 0 or unset means off) and
+# creates / resizes / removes a swap file under /data (a Device-Encrypted area, so
+# it is reachable on every boot before the user unlocks). The script is idempotent,
+# so running it more than once per boot is harmless.
+service gammaos_swap /system/bin/sh /system/bin/gammaos-swap.sh
+    class main
+    user root
+    group root system
+    seclabel u:r:gammaoscustomization:s0
+    oneshot
+    disabled
+
+# Apply the configured swap size as soon as the persisted property is loaded during
+# boot, and re-apply immediately whenever a settings UI changes it (no reboot needed).
+on property:persist.gammaos.swap.size_mb=*
+    restart gammaos_swap
+
+# Belt and braces: make sure swap is applied once per boot even if the property was
+# already at its persisted value before the trigger above was armed.
+on property:sys.boot_completed=1
+  start gammaos_swap
+

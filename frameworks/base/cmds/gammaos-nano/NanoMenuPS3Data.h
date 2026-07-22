@@ -290,6 +290,7 @@ static const Ps3DataItem kToolboxCh[] = {
   {"Desktop Fullscreen",22,"Run desktop applications in fullscreen.","Off",1,nullptr,0},
   {"Multi-Volume",22,"Use independent volume control per audio output.","Off",1,nullptr,0},
   {"Ultra Low Power Saving",22,"Aggressively reduce power usage to extend battery life.","Off",1,nullptr,0},
+  {"Virtual Memory",22,"Set the swap file size used to extend RAM. Larger values let more apps stay open but use more storage.","Off",1,nullptr,0},
   {"RetroArch Back Button Override",22,"Override the back button behaviour inside RetroArch.","Off",1,nullptr,0},
   {"Start+Select LED",22,"Flash the LED when Start and Select are pressed together.","Off",1,nullptr,0},
   {"USB Controller Switch",22,"Switch the USB port between host and device mode for controllers.","Off",1,nullptr,0},

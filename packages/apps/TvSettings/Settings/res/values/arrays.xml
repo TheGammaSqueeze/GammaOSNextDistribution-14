@@ -525,4 +525,29 @@
         <item>1</item>
         <item>0</item>
     </string-array>
+
+    <!-- GammaOS virtual memory (swap) size presets. The final entry opens a
+         dialog to type a custom size in MB. -->
+    <string-array name="gammaos_swap_size_entries">
+        <item>@string/gammaos_toolbox_swap_size_off</item>
+        <item>512 MB</item>
+        <item>1 GB</item>
+        <item>2 GB</item>
+        <item>3 GB</item>
+        <item>4 GB</item>
+        <item>6 GB</item>
+        <item>8 GB</item>
+        <item>@string/gammaos_toolbox_swap_size_custom_entry</item>
+    </string-array>
+    <string-array name="gammaos_swap_size_values" translatable="false">
+        <item>0</item>
+        <item>512</item>
+        <item>1024</item>
+        <item>2048</item>
+        <item>3072</item>
+        <item>4096</item>
+        <item>6144</item>
+        <item>8192</item>
+        <item>custom</item>
+    </string-array>
 </resources>

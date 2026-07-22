@@ -13444,6 +13444,15 @@
     <string name="gammaos_toolbox_ultra_low_power_summary">Enable deep sleep / ultra-low-power saving mode. Aggressively freezes background apps.</string>
     <string name="gammaos_toolbox_ultra_low_power_exclude_title">Low power freeze exclusions</string>
     <string name="gammaos_toolbox_ultra_low_power_exclude_summary">Comma-separated package names to exclude from process freezing in ultra low power mode.</string>
+    <string name="gammaos_toolbox_swap_size_title">Virtual memory (swap)</string>
+    <string name="gammaos_toolbox_swap_size_summary">Use a swap file on storage to extend available RAM. Larger sizes let more apps stay open but use more storage and can slow the device.</string>
+    <string name="gammaos_toolbox_swap_size_off">Off</string>
+    <string name="gammaos_toolbox_swap_size_custom_entry">Custom…</string>
+    <!-- %1$d is a number of megabytes, e.g. "1536 MB" -->
+    <string name="gammaos_toolbox_swap_size_mb_fmt">%1$d MB</string>
+    <string name="gammaos_toolbox_swap_size_custom_title">Custom swap size</string>
+    <string name="gammaos_toolbox_swap_size_custom_msg">Enter the swap file size in megabytes. Use 0 to turn swap off.</string>
+    <string name="gammaos_toolbox_swap_size_custom_hint">MB</string>
 
     <!-- GammaOS Toolbox: RetroArch & Emulation -->
     <string name="gammaos_toolbox_category_retro">RetroArch &amp; Emulation</string>
