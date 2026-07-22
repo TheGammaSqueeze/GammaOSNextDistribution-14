@@ -2560,8 +2560,12 @@ int main(int argc, char** argv) {
     // auto-mount delay on boot-time launches).
     if (access(romPath.c_str(), R_OK) != 0) {
         ALOGI("drastic-nano: waiting for ROM %s", romPath.c_str());
+        // Boot-time QR resumes hand off before user 0 unlocks the CE storage the
+        // ROM lives on (/sdcard = /storage/emulated/0), so allow well past the
+        // typical unlock time. gammaos-nano now holds its resume splash until the
+        // ROM is readable, so this is a safety net for the rare slow unlock.
         int waited = 0;
-        while (waited < 15000 && access(romPath.c_str(), R_OK) != 0) {
+        while (waited < 45000 && access(romPath.c_str(), R_OK) != 0) {
             usleep(100 * 1000);
             waited += 100;
         }

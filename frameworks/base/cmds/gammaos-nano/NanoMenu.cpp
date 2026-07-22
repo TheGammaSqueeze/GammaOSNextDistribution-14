@@ -1649,7 +1649,10 @@ bool NanoMenu::threadLoop() {
             // off. Drain input so a held button does not leak into the game. Bump
             // the render heartbeat each frame so the watchdog does not abort a slow
             // cold boot.
-            for (int wait = 0; wait < 900; wait++) {   // up to ~15s
+            // Hoisted out of the loop: the resume ROM path is stable for the whole
+            // wait, so read it once instead of per frame.
+            std::string goRom = getQrRomPath();
+            for (int wait = 0; wait < 2400; wait++) {   // up to ~40s (covers the CE-ROM unlock wait)
                 for (int fd : mInputFds) {
                     while (read(fd, &drain_ev, sizeof(drain_ev)) == sizeof(drain_ev)) {}
                 }
@@ -1658,7 +1661,16 @@ bool NanoMenu::threadLoop() {
                 bool ready = (strcmp(val, "1") == 0);
                 if (!ready) { property_get("sys.boot_completed", val, "0");
                               ready = (strcmp(val, "1") == 0); }
-                bool go = ready && isQrRomStorageReady();
+                // Also require the resume ROM to be actually READABLE before handing
+                // off. On a boot-time QR resume the ROM lives on CE storage (/sdcard =
+                // /storage/emulated/0) that is not accessible until user 0 unlocks;
+                // handing off before then makes the drastic-nano binary time out
+                // waiting for the ROM and exit, leaving a frozen splash and no game.
+                // Holding the splash until the ROM is readable keeps the caption +
+                // gradient animating through the unlock wait and lets the binary load
+                // the ROM immediately after handoff.
+                bool go = ready && isQrRomStorageReady()
+                        && (goRom.empty() || access(goRom.c_str(), R_OK) == 0);
                 // Advance one DS frame into the offscreen texture BEFORE binding the
                 // present target (renderDsToOffscreen leaves FBO 0 bound); then
                 // drmFrameBegin binds the real present FBO so the DS quad + the text
