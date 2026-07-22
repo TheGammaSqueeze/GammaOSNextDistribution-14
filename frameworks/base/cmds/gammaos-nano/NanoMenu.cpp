@@ -1631,9 +1631,16 @@ bool NanoMenu::threadLoop() {
             // back to the text-only splash when the core is not initialized/ready.
             DrasticRunner* previewDs = DrasticRunner::getInstance();
             bool haveCore = (previewDs && previewDs->isInitialized());
+            // RG DS: when a second DRM panel is present, render the resume splash
+            // (preview + "Quick Resuming..." overlay + scrim) to BOTH panels. The old
+            // single-panel splash only filled the primary AHB, so the secondary panel
+            // stayed stale and the overlay + scrim never appeared on the dual-screen
+            // resume (the panel scanned out drastic-nano's game at full colour with no
+            // caption). Mirrors the in-process DRM preview's dual-panel split.
+            bool splashDual = (sDrmActive && sDrmZeroCopy && sAhbTargetSecondary.glFbo != 0);
             if (haveCore) {
                 system("/vendor/bin/setclock_max.sh");
-                previewDs->initSurface(mWidth, mHeight, /*dualDisplay=*/false);
+                previewDs->initSurface(mWidth, mHeight, /*dualDisplay=*/splashDual);
                 previewDs->setRotationMatrix(sDrmRotMat);
             }
             float dsSat = 0.15f, dsGrad = 1.0f;   // desaturated -> full color ramp
@@ -1658,46 +1665,77 @@ bool NanoMenu::threadLoop() {
                 // both land in what actually gets presented (works whether that is
                 // the AHB scanout FBO or the EGL window surface).
                 if (haveCore) previewDs->renderDsToOffscreen();
-                drmFrameBegin();
-                // sAhbTarget is only valid on the DRM zero-copy path; gate on sDrmZeroCopy
-                // so a force-SF self-rotate (sDrmGlRotation=true, no AHB) does not collapse
-                // the viewport to 0x0. See the note in NanoMenuRender.cpp render().
-                if (sDrmGlRotation && sDrmZeroCopy) glViewport(0, 0, sAhbTarget.w, sAhbTarget.h);
-                else                                glViewport(0, 0, mWidth, mHeight);
-                glClearColor(0.0f, 0.0f, 0.0f, 1.0f);   // black behind the DS
-                glClear(GL_COLOR_BUFFER_BIT);
                 bool showingGame = (haveCore && previewDs->isFrameReady());
-                if (showingGame) {
-                    previewDs->renderBothScreens(dsSat, dsGrad);   // DS quad -> present FBO
-                    dsSat = fminf(dsSat + 0.01f, 1.0f);
-                    dsGrad = fmaxf(dsGrad - 0.01f, 0.0f);
-                }
-                glEnable(GL_BLEND);
-                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-                // Caption: over the game (bottom) once it is showing, fading as the
-                // game reaches full color; else centered on the black splash.
+                // Caption alpha: over the game (bottom) once it is showing, fading as
+                // the game reaches full colour; else full over the black splash. Same
+                // value for both panels so it stays in sync.
                 float capA = showingGame ? fmaxf(1.15f - dsSat, 0.35f) : 1.0f;
-                const char* msg = trDyn("Quick Resuming...");
-                float msgW = measureText(msg, loadScale);
-                float msgY = showingGame ? mHeight * 0.80f : mHeight * 0.42f;
-                drawText(msg, (mWidth - msgW) / 2.0f, msgY, loadScale, 1.0f, 1.0f, 1.0f, capA);
-                float nameScale = loadScale * 0.5f;
-                float nameY = msgY + FONT_CHAR_H * loadScale + 12.0f * sfS;
-                if (!romName.empty()) {
-                    float nameW = measureText(romName.c_str(), nameScale);
-                    drawText(romName.c_str(), (mWidth - nameW) / 2.0f, nameY,
-                             nameScale, 0.85f, 0.85f, 0.95f, capA);
-                }
-                // System line (this fast-path is the drastic core -> Nintendo DS).
-                {
+                // "Quick Resuming..." + ROM name + system line into the currently-bound
+                // FBO. drawText uses mWidth/mHeight for pixel->NDC and the text shader's
+                // uRotation maps to the panel, so the same call is correct for either
+                // panel (matches the in-process preview's drawOverlay).
+                auto drawSplashOverlay = [&]() {
+                    glEnable(GL_BLEND);
+                    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                    const char* msg = trDyn("Quick Resuming...");
+                    float msgW = measureText(msg, loadScale);
+                    float msgY = showingGame ? mHeight * 0.80f : mHeight * 0.42f;
+                    drawText(msg, (mWidth - msgW) / 2.0f, msgY, loadScale, 1.0f, 1.0f, 1.0f, capA);
+                    float nameScale = loadScale * 0.5f;
+                    float nameY = msgY + FONT_CHAR_H * loadScale + 12.0f * sfS;
+                    if (!romName.empty()) {
+                        float nameW = measureText(romName.c_str(), nameScale);
+                        drawText(romName.c_str(), (mWidth - nameW) / 2.0f, nameY,
+                                 nameScale, 0.85f, 0.85f, 0.95f, capA);
+                    }
+                    // System line (this fast-path is the drastic core -> Nintendo DS).
                     const char* sysL = trDyn("Nintendo DS");
                     float sysScale = loadScale * 0.4f;
                     float sysW = measureText(sysL, sysScale);
                     drawText(sysL, (mWidth - sysW) / 2.0f,
                              nameY + FONT_CHAR_H * nameScale + 8.0f * sfS,
                              sysScale, 0.6f, 0.65f, 0.75f, capA);
+                    glDisable(GL_BLEND);
+                };
+                if (splashDual) {
+                    // Pass 1: secondary panel (bottom DS screen). drmFrameEnd ->
+                    // drmFlipAll presents sAhbTargetSecondary; without rendering here it
+                    // stayed stale and the overlay never showed on the RG DS.
+                    glBindFramebuffer(GL_FRAMEBUFFER, sAhbTargetSecondary.glFbo);
+                    glViewport(0, 0, sAhbTargetSecondary.w, sAhbTargetSecondary.h);
+                    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+                    glClear(GL_COLOR_BUFFER_BIT);
+                    if (showingGame) previewDs->renderBottomScreen(dsSat, dsGrad);
+                    drawSplashOverlay();
+                    // Pass 2: primary panel (top DS screen).
+                    drmFrameBegin();
+                    if (sDrmGlRotation && sDrmZeroCopy) glViewport(0, 0, sAhbTarget.w, sAhbTarget.h);
+                    else                                glViewport(0, 0, mWidth, mHeight);
+                    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+                    glClear(GL_COLOR_BUFFER_BIT);
+                    if (showingGame) previewDs->renderTopScreen(dsSat, dsGrad);
+                    drawSplashOverlay();
+                    if (showingGame) {
+                        dsSat = fminf(dsSat + 0.01f, 1.0f);
+                        dsGrad = fmaxf(dsGrad - 0.01f, 0.0f);
+                    }
+                } else {
+                    // Single panel (force-SF, or single-screen DRM): unchanged path.
+                    drmFrameBegin();
+                    // sAhbTarget is only valid on the DRM zero-copy path; gate on sDrmZeroCopy
+                    // so a force-SF self-rotate (sDrmGlRotation=true, no AHB) does not collapse
+                    // the viewport to 0x0. See the note in NanoMenuRender.cpp render().
+                    if (sDrmGlRotation && sDrmZeroCopy) glViewport(0, 0, sAhbTarget.w, sAhbTarget.h);
+                    else                                glViewport(0, 0, mWidth, mHeight);
+                    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);   // black behind the DS
+                    glClear(GL_COLOR_BUFFER_BIT);
+                    if (showingGame) {
+                        previewDs->renderBothScreens(dsSat, dsGrad);   // DS quad -> present FBO
+                        dsSat = fminf(dsSat + 0.01f, 1.0f);
+                        dsGrad = fmaxf(dsGrad - 0.01f, 0.0f);
+                    }
+                    drawSplashOverlay();
                 }
-                glDisable(GL_BLEND);
                 // Capture the composited splash+preview frame before the flip
                 // (glReadPixels needs the content still bound); no-op unless
                 // sys.gammaos.nano.shot is set. This is the only way to snapshot
