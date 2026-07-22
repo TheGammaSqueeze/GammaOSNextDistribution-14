@@ -1216,14 +1216,14 @@ class ActivityMetricsLogger {
         Log.i(TAG, sb.toString());
 
         // GammaOS Nano: signal that the user-facing game activity has
-        // drawn its first frame. NanoMenu's drastic QR loop watches for
-        // this so it can keep rendering the preview until drastic is
-        // actually drawing, eliminating the visible gap between preview
+        // drawn its first frame. NanoMenu's Quick-Resume preview loops watch
+        // for this so they can keep rendering the live preview until the game
+        // is actually drawing, eliminating the visible gap between preview
         // exit and game first frame. We only fire for the inner game
-        // activity (DraSticEmuActivity), NOT the file-picker launcher
-        // (DraSticActivity) -- the launcher shows up before drastic
-        // loads the ROM, and exiting NanoMenu at that point would
-        // expose drastic's home menu through the gap.
+        // activity: DraSticEmuActivity for the drastic path (NOT the
+        // file-picker launcher DraSticActivity, which shows up before drastic
+        // loads the ROM), and RetroActivityFuture for the RetroArch path (the
+        // front-end that loads the core + content on a direct QR launch).
         String comp = info.launchedActivityShortComponentName;
         if (comp != null) {
             if (comp.endsWith("/.DraSticEmuActivity")
@@ -1231,6 +1231,12 @@ class ActivityMetricsLogger {
                 android.os.SystemProperties.set(
                         "sys.gammaos.nano.app_drawn", "1");
                 Log.i(TAG, "GammaOS Nano: drastic game window drawn ("
+                        + comp + ")");
+            } else if (comp.endsWith("RetroActivityFuture")
+                    || comp.endsWith("RetroActivity")) {
+                android.os.SystemProperties.set(
+                        "sys.gammaos.nano.app_drawn", "1");
+                Log.i(TAG, "GammaOS Nano: RetroArch game window drawn ("
                         + comp + ")");
             }
         }

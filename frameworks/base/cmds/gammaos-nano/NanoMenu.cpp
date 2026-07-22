@@ -1672,7 +1672,19 @@ bool NanoMenu::threadLoop() {
             // Hoisted out of the loop: the resume ROM path is stable for the whole
             // wait, so read it once instead of per frame.
             std::string goRom = getQrRomPath();
+            // Late-enumerating pad: the retrogame_joypad / Xbox controller on the RG DS
+            // can appear after openInputDevices() ran (~T+7s), so rescan for it here or
+            // every button is lost for the whole resume wait (the other two QR loops do
+            // the same). Without this the gamepad fd is never added to mInputFds.
+            int hotplugCounter = 0;
             for (int wait = 0; wait < 2400; wait++) {   // up to ~40s (covers the CE-ROM unlock wait)
+                // Pick up a pad (or the touch digitizer) that enumerated after
+                // openInputDevices(); ~0.5s cadence. mInputFds/mInputFdNames update in
+                // place, so the button read + touch-name match below start the same frame.
+                if (++hotplugCounter >= 30) {
+                    hotplugCounter = 0;
+                    checkInputHotplug();
+                }
                 // Read gamepad + the bottom-panel touch and forward both to the DS
                 // core. A touch frame closes on SYN_REPORT; recompute the stylus
                 // position then. Gamepad buttons accumulate into a sticky mask.
@@ -3373,6 +3385,16 @@ if (sRingPrimedCount >= 2) {
                             // off. Held false for the whole "Quick Resuming..." wait so the
                             // scrim stays up until the real handoff (not during boot).
                             bool handoffFade = false;
+                            // Handoff hold: once the launch is fired, keep rendering the LIVE
+                            // preview until RetroArch has actually drawn its first frame
+                            // (sys.gammaos.nano.app_drawn=1, set by ActivityMetricsLogger for
+                            // RetroActivityFuture) or a safety timeout. Without this the core
+                            // is torn down at handoff and the panel freezes on a still through
+                            // the whole cold RetroArch start (the drastic path already holds
+                            // like this, which is why it feels seamless by comparison).
+                            bool handoffFired = false;
+                            int64_t handoffFiredAtMs = 0;
+                            const int64_t kQrHandoffAppDrawnTimeoutMs = 10000;
                             // Extract ROM display name (strip path + extension)
                             std::string romName = romFile;
                             size_t sl = romName.rfind('/');
@@ -3480,8 +3502,11 @@ if (sRingPrimedCount >= 2) {
                                     if (qrCancelled) break;
                                 }
 
-                                // Long-press BACK (3s) exits to XMB.
-                                if (backPressStartMs > 0) {
+                                // Long-press BACK (3s) exits to XMB -- but only before the
+                                // handoff has fired. Once do_launch is out and RetroArch is
+                                // starting, a late BACK-hold must not divert to XMB (we are
+                                // committed; the app_drawn hold below owns the exit).
+                                if (backPressStartMs > 0 && !handoffFired) {
                                     int64_t held = elapsedRealtime()
                                             - backPressStartMs;
                                     if (held >= kBackHoldMs) {
@@ -3523,16 +3548,19 @@ if (sRingPrimedCount >= 2) {
 
                                 if (bootComplete && !handoffPaused) {
                                     // Hold the scrim up until the ROM's backing storage is
-                                    // actually mounted, then fade it out and hand off. The
-                                    // fade plays only at the real handoff, not during the
-                                    // (possibly long) storage wait, so the "Quick Resuming..."
-                                    // scrim stays up the whole time (matches the drastic path).
-                                    if (!handoffFade) {
+                                    // actually mounted, then FIRE the handoff and start fading
+                                    // the scrim. The launch fires the moment storage is ready
+                                    // (start of the fade) so the RetroArch cold start overlaps
+                                    // the fade + the app_drawn hold below, and the live preview
+                                    // keeps rendering until RetroArch has actually drawn -- so
+                                    // the cold APK start does not freeze a still (matches the
+                                    // seamless drastic handoff).
+                                    if (!handoffFired) {
                                         if (handoffStorageWaitMs == 0)
                                             handoffStorageWaitMs = elapsedRealtime();
                                         bool handoffStorageOk = isQrRomStorageReady();
                                         // Bounded: after 30s of storage never
-                                        // reporting ready, fade + hand off anyway. The
+                                        // reporting ready, hand off anyway. The
                                         // relaunch monitor in SystemServer holds
                                         // the actual app start on its own
                                         // storage gate, so this only stops the
@@ -3546,62 +3574,75 @@ if (sRingPrimedCount >= 2) {
                                                   "off anyway");
                                             handoffStorageOk = true;
                                         }
-                                        if (handoffStorageOk) handoffFade = true;
+                                        if (handoffStorageOk) {
+                                            // On cold boot, vold defers external SD mounting
+                                            // until after keyguard, so /storage/<UUID>/ may not
+                                            // exist yet; the storage gate above guards that,
+                                            // else RetroArch gets a ROM path it cannot open.
+                                            // Fire do_launch FIRST so NanoRelaunchMonitor starts
+                                            // the activity in parallel while we save state, and
+                                            // bypass the slow init property-trigger chain.
+                                            ALOGI("Quick Resume: handoff to RetroArch, "
+                                                  "holding preview until app_drawn");
+                                            handoffFade = true;
+                                            // Clear app_drawn so a stale =1 from a previous boot
+                                            // cannot make us exit before RetroArch actually draws.
+                                            property_set("sys.gammaos.nano.app_drawn", "0");
+                                            // Mark handoff done so respawned NanoMenu instances
+                                            // skip QR (sys prop: auto-clears on reboot, survives
+                                            // respawn) and open the startHomeOnTaskDisplayArea gate.
+                                            property_set("sys.gammaos.nano.handoff_fired", "1");
+                                            // Clear pending_exit defensively so the relaunch
+                                            // monitor does not take the force-stop cleanup branch
+                                            // (which would kill the launching RetroArch -> black).
+                                            property_set("sys.gammaos.nano.pending_exit", "0");
+                                            { char buf[32];
+                                              snprintf(buf, sizeof(buf), "%d", returnSysIdx);
+                                              property_set("sys.gammaos.nano.xmb_return_sys", buf);
+                                              snprintf(buf, sizeof(buf), "%d", returnGameIdx);
+                                              property_set("sys.gammaos.nano.xmb_return_game", buf);
+                                            }
+                                            property_set("sys.gammaos.nano.return_recent", "0");
+                                            property_set("sys.gammaos.nano.drop_input", "1");
+                                            // Direct: trigger the relaunch monitor immediately.
+                                            property_set("sys.gammaos.nano.do_launch", "1");
+                                            // Also set legacy nano_retroarch for init side-effects
+                                            // (service.bootanim.exit, etc) but don't depend on it.
+                                            property_set("service.bootanim.nano_retroarch", "1");
+                                            // Snapshot state + SRAM NOW so RetroArch resumes from
+                                            // the correct auto-state; the in-process core keeps
+                                            // running (not shut down) so the preview stays live.
+                                            runner.saveState(cacheDir + "/states/" + romBase + ".state.auto");
+                                            runner.saveSRAM(cacheDir + "/saves/" + romBase + ".srm");
+                                            handoffFired = true;
+                                            handoffFiredAtMs = elapsedRealtime();
+                                        }
                                     }
                                     if (handoffFade) {
-                                        // Fade the scrim out (~0.8s, 5%/frame at 60fps):
+                                        // Fade the scrim out (~0.33s, 5%/frame at 60fps):
                                         // desaturate up to full colour and lift the gradient.
                                         saturation = fminf(saturation + 0.05f, 1.0f);
                                         gradient = fmaxf(gradient - 0.05f, 0.0f);
                                     }
-                                    if (handoffFade && gradient <= 0.0f) {
-                                        // Fully saturated AND the ROM's backing
-                                        // storage is mounted. On cold boot, vold
-                                        // defers external SD mounting until after
-                                        // keyguard, so /storage/<UUID>/ may not
-                                        // exist yet. Without this gate, RetroArch
-                                        // gets a ROM path it cannot open and hangs.
-                                        // Fire do_launch FIRST so NanoRelaunchMonitor can start
-                                        // the home activity in parallel while we save state.
-                                        // This also bypasses the slow init property trigger
-                                        // chain (service.bootanim.nano_retroarch → do_launch
-                                        // via init.rc action, which can queue behind boot_completed
-                                        // actions for several seconds).
-                                        ALOGI("Quick Resume: handoff to RetroArch");
-                                        // Mark handoff as done so respawned
-                                        // NanoMenu instances skip QR. Uses
-                                        // a sys property so it auto-clears
-                                        // on reboot while surviving respawn.
-                                        property_set("sys.gammaos.nano.handoff_fired", "1");
-                                        // Clear pending_exit defensively.
-                                        // If the user pressed BACK during QR
-                                        // to pause, some code path still sets
-                                        // pending_exit=1 and the relaunch
-                                        // monitor would then take the
-                                        // "immediate cleanup" branch --
-                                        // force-stopping the preloaded
-                                        // RetroArch and leaving a black
-                                        // screen. Clearing it here makes the
-                                        // handoff robust regardless of prior
-                                        // pause/unpause state.
-                                        property_set("sys.gammaos.nano.pending_exit", "0");
-                                        { char buf[32];
-                                          snprintf(buf, sizeof(buf), "%d", returnSysIdx);
-                                          property_set("sys.gammaos.nano.xmb_return_sys", buf);
-                                          snprintf(buf, sizeof(buf), "%d", returnGameIdx);
-                                          property_set("sys.gammaos.nano.xmb_return_game", buf);
-                                        }
-                                        property_set("sys.gammaos.nano.return_recent", "0");
-                                        property_set("sys.gammaos.nano.drop_input", "1");
-                                        // Direct: trigger the relaunch monitor immediately.
-                                        property_set("sys.gammaos.nano.do_launch", "1");
-                                        // Also set legacy nano_retroarch for init side-effects
-                                        // (service.bootanim.exit, etc) but don't depend on it.
-                                        property_set("service.bootanim.nano_retroarch", "1");
-
-                                        // Now save state + SRAM in parallel with RetroArch launch
-                                        runner.saveState(cacheDir + "/states/" + romBase + ".state.auto");
-                                        runner.saveSRAM(cacheDir + "/saves/" + romBase + ".srm");
+                                }
+                                // Keep rendering the LIVE preview until RetroArch has drawn its
+                                // first frame (app_drawn=1, set by ActivityMetricsLogger for
+                                // RetroActivityFuture) or the safety timeout, THEN tear the core
+                                // down and exit so SurfaceFlinger scans out RetroArch's ready
+                                // frame with no frozen-still gap. Runs regardless of handoffPaused
+                                // so a stray BACK-pause after the handoff fired cannot strand the
+                                // preview holding DRM while RetroArch waits to be shown.
+                                if (handoffFired) {
+                                    char drawn[PROPERTY_VALUE_MAX] = {};
+                                    property_get("sys.gammaos.nano.app_drawn", drawn, "0");
+                                    int64_t postHandoff = elapsedRealtime() - handoffFiredAtMs;
+                                    if (!strcmp(drawn, "1")
+                                            || postHandoff > kQrHandoffAppDrawnTimeoutMs) {
+                                        ALOGI("Quick Resume: %s after %lldms -- "
+                                              "exiting preview to RetroArch",
+                                              !strcmp(drawn, "1") ? "app_drawn=1"
+                                                                  : "app_drawn timeout",
+                                              (long long)postHandoff);
                                         runner.shutdown();
                                         mExitRequested = true;
                                         break;
