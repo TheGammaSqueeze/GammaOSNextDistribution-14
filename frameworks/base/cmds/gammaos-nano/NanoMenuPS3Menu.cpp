@@ -6166,7 +6166,7 @@ static const Ps3SettingBinding kPs3Bindings[] = {
     {"Force Client Composition", SettingSource::kProp, "persist.gammaos.force_client_comp", "false", "false:Off,true:On"},
     {"Desktop Fullscreen", SettingSource::kProp, "persist.gammaos.desktop.fullscreen", "false", "false:Off,true:On"},
     {"Multi-Volume", SettingSource::kProp, "persist.gammaos.audio.multivolume", "false", "false:Off,true:On"},
-    {"Ultra Low Power Saving", SettingSource::kProp, "persist.gammaos.ultra_low_power_saving_mode", "false", "false:Off,true:On"},
+    {"Ultra Low Power Saving", SettingSource::kProp, "persist.gammaos.ultra_low_power_saving_mode", "0", "0:Off,1:On"},
     // Virtual memory / swap. Stores the swap file size in MB (0 = off); gammaos-swap.sh
     // (init service) reads persist.gammaos.swap.size_mb and applies it. Presets here; the
     // Settings / TV Settings toolbox also allow a custom typed size.

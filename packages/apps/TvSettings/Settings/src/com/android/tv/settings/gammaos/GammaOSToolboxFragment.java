@@ -181,7 +181,11 @@ public class GammaOSToolboxFragment extends SettingsPreferenceFragment {
         DEFAULTS.put("persist.gammaos.performance_mode", "stock");
         DEFAULTS.put("persist.gammaos.qs.override_default_tiles", "");
         DEFAULTS.put("persist.gammaos.fan_mode", "");
-        DEFAULTS.put("persist.gammaos.ultra_low_power_saving_mode", "false");
+        // 0/1, not true/false: the vendor init.gammaos_power.rc force_sleep trigger does
+        // an exact "=1" match, and bindSwitch only writes 0/1 when the default is 0/1
+        // (usesIntStyle). A boolean default made this switch write "true", which never
+        // matched, leaving deep sleep + the charging-LED heartbeat disabled.
+        DEFAULTS.put("persist.gammaos.ultra_low_power_saving_mode", "0");
         DEFAULTS.put("persist.gammaos.ultra_low_power_saving_freeze_exclude_packages", "");
         // Virtual memory (swap) size in MB; 0 = off. gammaos-swap.sh applies it at boot.
         DEFAULTS.put("persist.gammaos.swap.size_mb", "0");

@@ -644,7 +644,7 @@ void NanoMenu::buildSettingsTree() {
         b.text("fan_mode", "Fan Mode",
                SettingSource::kProp, "persist.gammaos.fan_mode", "");
         b.toggle("ultra_low_power", "Ultra Low Power Saving",
-                 SettingSource::kProp, "persist.gammaos.ultra_low_power_saving_mode", "false");
+                 SettingSource::kProp, "persist.gammaos.ultra_low_power_saving_mode", "0");
         b.text("ulp_exclude", "Exclude Packages",
                SettingSource::kProp, "persist.gammaos.ultra_low_power_saving_freeze_exclude_packages", "");
       b.endCategory();

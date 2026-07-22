@@ -253,7 +253,9 @@ public class GammaOSToolboxFragment extends SettingsPreferenceFragment {
 
         // Power & Performance
         DEFAULTS.put("persist.gammaos.fan_mode", "");
-        DEFAULTS.put("persist.gammaos.ultra_low_power_saving_mode", "false");
+        // 0/1, not true/false: the vendor init.gammaos_power.rc force_sleep trigger does
+        // an exact "=1" match; a boolean value here never matched and left deep sleep off.
+        DEFAULTS.put("persist.gammaos.ultra_low_power_saving_mode", "0");
         DEFAULTS.put("persist.gammaos.ultra_low_power_saving_freeze_exclude_packages", "");
         // Virtual memory (swap) size in MB; 0 = off. Integer default so a custom
         // value is validated numerically. gammaos-swap.sh applies it at boot.

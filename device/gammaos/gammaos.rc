@@ -53,6 +53,19 @@ on property:ro.hardware=mt8766
 on property:ro.hardware=mt8768
     setprop debug.sf.disable_hwc_overlays 1
 
+# Normalize the ultra-low-power (deep sleep) toggle to the 0/1 the vendor
+# init.gammaos_power.rc force_sleep trigger matches (exact "=1"). Older settings
+# UIs wrote the boolean "true"/"false", which never matched, so deep sleep + the
+# charging-LED heartbeat stayed off. This maps any legacy boolean value back to 0/1
+# both at boot (when persist props load) and on any runtime write, so a device that
+# already has "true" persisted self-heals on update without re-toggling. Not a loop:
+# writing 1/0 does not re-match the true/false triggers.
+on property:persist.gammaos.ultra_low_power_saving_mode=true
+    setprop persist.gammaos.ultra_low_power_saving_mode 1
+
+on property:persist.gammaos.ultra_low_power_saving_mode=false
+    setprop persist.gammaos.ultra_low_power_saving_mode 0
+
 service watchdogd-gsi /system/bin/watchdogd 10 20
     class core
     oneshot
