@@ -275,11 +275,21 @@ PRODUCT_PACKAGES_REMOVE += \
     com.android.uwb \
     com.android.virt
 
-# Match the shipped boot image to the GC the runtime actually uses. On Android 14
-# with a userfaultfd-capable kernel the ART runtime always selects the CMC (uffd)
-# collector, which is NOT a read-barrier collector. A read-barrier boot.art (what
-# := false produces) is therefore rejected by ValidateOatFile at every boot
-# ("read barrier state mismatch"), forcing zygote to recompile the whole boot
-# classpath in-process with dex2oat (~15s) on every single boot, and the result is
-# never cached. Building the image for uffd/CMC makes it match so it loads from disk.
+# Boot-image GC selection. The boot.art must be built for the SAME collector the
+# device's runtime uses, or ValidateOatFile rejects it and zygote recompiles the whole
+# boot classpath (~15s) on every boot (odrefresh caching is off here so it never sticks).
+# The runtime's collector is decided by the KERNEL: userfaultfd-capable kernels (>=5.7 /
+# GKI android12+, e.g. the RG DS 6.1) run uffd/CMC, older kernels (<=4.14, e.g. ceres
+# 4.9) run read-barrier CC. One boot image can only be one GC, and this GSI ships to
+# both, so we build TWO variants:
+#   default            -> uffd/CMC image, for modern kernels (the optimized path).
+#   GAMMAOS_BOOT_GC=cc -> CC image, for old kernels (they match CC natively).
+# buildtv.sh's "cc" mode exports GAMMAOS_BOOT_GC=cc. Do NOT try to unify these with a
+# runtime override: dalvik.vm.gctype=CC crashed the 6.1 device, and the device_config
+# force_disable_uffd_gc flag is read from an odrefresh cache-info that is not generated
+# here, so it is silently ignored.
+ifeq ($(GAMMAOS_BOOT_GC),cc)
+PRODUCT_ENABLE_UFFD_GC := false
+else
 PRODUCT_ENABLE_UFFD_GC := true
+endif
