@@ -275,5 +275,11 @@ PRODUCT_PACKAGES_REMOVE += \
     com.android.uwb \
     com.android.virt
 
-# Force CC with read barriers so dex2oat emits matching boot.art
-PRODUCT_ENABLE_UFFD_GC := false
+# Match the shipped boot image to the GC the runtime actually uses. On Android 14
+# with a userfaultfd-capable kernel the ART runtime always selects the CMC (uffd)
+# collector, which is NOT a read-barrier collector. A read-barrier boot.art (what
+# := false produces) is therefore rejected by ValidateOatFile at every boot
+# ("read barrier state mismatch"), forcing zygote to recompile the whole boot
+# classpath in-process with dex2oat (~15s) on every single boot, and the result is
+# never cached. Building the image for uffd/CMC makes it match so it loads from disk.
+PRODUCT_ENABLE_UFFD_GC := true
