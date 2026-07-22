@@ -4161,6 +4161,19 @@ void NanoMenu::renderBottomFocusRing() {
     eglMakeCurrent(mDisplay, mSurface, mSurface, mContext);   // restore primary current
 }
 
+// Hide the Control Center's secondary layer so the pinned bottom-panel IME (system soft keyboard, routed
+// to display 0 on a dual-screen device) shows through and receives the bottom digitizer. The CC surface is
+// a high-layer SF layer over display 0 that visually occludes the IME window beneath it; hiding it reveals
+// the keyboard. Idempotent - the next renderControlCenterFrame re-shows it via its !mNdsSecondaryShown
+// t.show once the IME hides. Called from the park loop when sys.gammaos.nano.ime_visible=1.
+void NanoMenu::ccHideForIme() {
+    if (!mNdsSecondaryShown || mSecondaryWallpaperControls.empty()) return;
+    SurfaceComposerClient::Transaction t;
+    for (const auto& sc : mSecondaryWallpaperControls) if (sc != nullptr) t.hide(sc);
+    t.apply();
+    mNdsSecondaryShown = false;
+}
+
 void NanoMenu::renderControlCenterFrame() {
     if (mSecondaryEglSurfaces.empty()) {
         setupSecondaryEglSurfaces();

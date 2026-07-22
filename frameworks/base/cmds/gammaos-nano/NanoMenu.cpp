@@ -3911,6 +3911,26 @@ if (sRingPrimedCount >= 2) {
                     // Seed the idle timer on the activation edge so a freshly shown CC does not instantly
                     // auto-sleep. mCcActiveSeeded is cleared on teardown, so it re-arms per activation.
                     if (!mCcActiveSeeded) { mCcLastTouchMs = ccNowMs; mCcActiveSeeded = true; mCcFadeIn = 0.0f; }
+                    // System IME up on the bottom panel: on a dual-screen device the soft keyboard is pinned
+                    // to display 0, exactly where the CC renders, so the CC occludes it. HIDE the CC and stop
+                    // rendering it while the keyboard is shown so it appears and is touchable (drop_input is
+                    // already 0 for the single-app CC, so the bottom digitizer reaches the keyboard; cc.active
+                    // stays 1 so DisplayRotation keeps the panel upright for it). Drain + discard the bottom
+                    // digitizer so its fd does not backlog and the hidden CC does not act on taps meant for
+                    // the keyboard. The first frame after the IME hides re-shows + re-renders the CC.
+                    if (property_get_int32("sys.gammaos.nano.ime_visible", 0) == 1) {
+                        ccHideForIme();
+                        // The keyboard being up means the user is on the bottom panel: keep the 30s idle
+                        // window fresh so the CC does not auto-sleep/dim the instant the keyboard closes.
+                        mCcLastTouchMs = ccNowMs;
+                        (void)ccDrainBottomTouch();
+                        (void)ccPollTopTapDown();
+                        if (mTopRingShown) hideTopFocusRing();
+                        mRenderHeartbeat.fetch_add(1, std::memory_order_relaxed);
+                        int64_t restUs = 50000 - (systemTime(SYSTEM_TIME_MONOTONIC) - ccT0) / 1000;
+                        if (restUs > 500) usleep((useconds_t)restUs);
+                        continue;
+                    }
                     ccPollTouch();     // read the bottom digitizer (tiles / sliders / wake); refreshes mCcLastTouchMs on touch
                     (void)ccPollTopTapDown();   // keep the top digitizer drained so its fd does not fill (SYN_DROPPED) this session
                     // A finger held motionless stops emitting SYN frames (the gt9xx only reports on

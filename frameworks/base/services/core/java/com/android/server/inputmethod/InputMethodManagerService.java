@@ -3249,6 +3249,17 @@ public final class InputMethodManagerService extends IInputMethodManager.Stub
     // Caution! This method is called in this class. Handle multi-user carefully
     @GuardedBy("ImfLock.class")
     private void updateSystemUiLocked(int vis, int backDisposition) {
+        // GammaOS: on a dual-screen device the soft keyboard is pinned to the bottom panel (display 0),
+        // which is exactly where nano renders the Control Center. Publish whether the IME is visible so
+        // nano can hide the Control Center and let the keyboard show through and receive touch. Every IME
+        // visibility change funnels through updateSystemUiLocked (show via setImeWindowStatus, hide via
+        // resetSystemUiLocked / updateImeWindowStatus), and this runs before the getCurTokenLocked() early
+        // return so a hide-on-unbind still clears it. Only when the IME pin is on (single-screen keeps the
+        // IME on the default display with no Control Center to occlude it).
+        if (gammaosImePrimaryOnlyEnabled()) {
+            SystemProperties.set("sys.gammaos.nano.ime_visible",
+                    ((vis & InputMethodService.IME_VISIBLE) != 0) ? "1" : "0");
+        }
         if (getCurTokenLocked() == null) {
             return;
         }

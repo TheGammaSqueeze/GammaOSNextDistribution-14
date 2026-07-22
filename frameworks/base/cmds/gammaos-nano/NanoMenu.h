@@ -3244,6 +3244,7 @@ private:
     // Live dashboard on the bottom panel while a single-screen (non-dual-stack) app runs on top.
     bool  controlCenterActive();           // prop + overlay + app-launched + single-screen + dual-screen gate
     void  renderControlCenterFrame();      // EGL: set up + present the CC on the secondary panel
+    void  ccHideForIme();                  // hide the CC secondary layer so the pinned bottom-panel IME shows
     void  hideControlCenterLayer();        // hide the CC secondary layer on teardown
     void  renderControlCenterUI();         // all-immediate dashboard (fallback if the static cache fails)
     void  renderCcPass(int pass);          // shared body; draws the STATIC and/or DYNAMIC layers by mask
