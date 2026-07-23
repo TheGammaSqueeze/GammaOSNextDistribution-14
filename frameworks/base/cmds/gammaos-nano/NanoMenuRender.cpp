@@ -4391,13 +4391,28 @@ void NanoMenu::startRenderWatchdog() {
             // Aborting then kills the oneshot home process: the panel never
             // relights, the power button looks dead, and background music dies.
             // Skip the stall check while parked.
+            //
+            // A foreground app owns the whole screen (sys.gammaos.nano.app_launched=1):
+            // nano is parked behind it (render() skipped) and its teardown/idle path makes
+            // GL/EGL calls (videoHardFree/freeMusicVisGl in the park loop, or the overlay
+            // instance drawing the clock/CC over the app). Those calls SHARE the one Mali
+            // GPU with the app. When the app's own RenderThread faults on this GPU/driver
+            // (e.g. the streaming players' 960x544 hwui AHardwareBuffer-import abort), the
+            // shared GPU/driver wedges and nano's next GL call blocks indefinitely - the
+            // heartbeat freezes and this watchdog would abort nano too, leaving BOTH dead
+            // (a black "limbo" panel) instead of just the app crashing. nano renders
+            // nothing useful while an app is foreground, so do NOT self-kill on an external
+            // GPU wedge: skip the stall check while an app is up. On app exit app_launched
+            // clears, the exemption lifts, and a still-stalled nano recovers normally.
             if (mInDrmSleep.load(std::memory_order_relaxed)
-                || mVidTeardownExempt.load(std::memory_order_relaxed)) {
-                // Parked for sleep, or joining a wedged video-open worker during a forced
-                // teardown (sleep/occlusion): the heartbeat legitimately stalls; don't abort.
-                // NOTE: a NORMAL video open no longer exempts the watchdog - the render thread
-                // stays responsive (it spins the loading spinner); only this rare blocking
-                // teardown join is exempt.
+                || mVidTeardownExempt.load(std::memory_order_relaxed)
+                || property_get_bool("sys.gammaos.nano.app_launched", false)) {
+                // Parked for sleep, joining a wedged video-open worker during a forced
+                // teardown (sleep/occlusion), or parked behind a foreground app whose crash
+                // may have wedged the shared GPU: the heartbeat legitimately stalls; don't
+                // abort. NOTE: a NORMAL video open no longer exempts the watchdog - the
+                // render thread stays responsive (it spins the loading spinner); only this
+                // rare blocking teardown join is exempt.
                 stuck = 0;
                 last = mRenderHeartbeat.load(std::memory_order_relaxed);
                 continue;

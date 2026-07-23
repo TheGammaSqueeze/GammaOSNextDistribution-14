@@ -73,14 +73,29 @@ AutoBackendTextureRelease::AutoBackendTextureRelease(GrDirectContext* context,
     } else {
         LOG_ALWAYS_FATAL("Unexpected backend %d", backend);
     }
-    LOG_ALWAYS_FATAL_IF(!backendFormat.isValid(),
-                        __FILE__ " Invalid GrBackendFormat. GrBackendApi==%" PRIu32
-                                 ", AHardwareBuffer_Format==%" PRIu32 ".",
-                        static_cast<int>(context->backend()), desc.format);
-    LOG_ALWAYS_FATAL_IF(!mBackendTexture.isValid(),
-                        __FILE__ " Invalid GrBackendTexture. Width==%" PRIu32 ", height==%" PRIu32
-                                 ", protected==%d",
-                        desc.width, desc.height, createProtectedImage);
+    // GammaOS: do NOT LOG_ALWAYS_FATAL when a buffer cannot be imported. This runs in
+    // the app's own RenderThread; aborting here kills the whole app. On this GSI the
+    // vendor GLES driver (Mali) rejects the import of some decoded-video AHardwareBuffers
+    // (e.g. a 960x544 YCbCr frame from the Unisoc VP9 decoder fed through a TextureView),
+    // producing an invalid GrBackendFormat/GrBackendTexture. Upstream that is a hard
+    // abort, so streaming apps (BBC iPlayer, Disney+) SIGABRT mid-playback. Instead leave
+    // mBackendTexture default-invalid and return: DeferredLayerUpdater::makeImage() then
+    // gets a null SkImage from SkImages::BorrowTextureFrom and the TextureView layer draws
+    // nothing for that buffer (a dropped frame) rather than crashing. Refcounts stay
+    // balanced - unref() skips mDeleteProc while the texture is invalid. Throttle the log
+    // (a failing video slot re-imports a fresh buffer every frame) so logd is not flooded.
+    if (!backendFormat.isValid() || !mBackendTexture.isValid()) {
+        static uint32_t sImportFailLog = 0;
+        if ((sImportFailLog++ % 300) == 0) {
+            ALOGW("AHardwareBuffer import failed on this GLES/Vulkan driver: %" PRIu32 "x%" PRIu32
+                  " format=%" PRIu32 " protected=%d (backendFormatValid=%d textureValid=%d) - "
+                  "dropping this buffer instead of aborting the process",
+                  desc.width, desc.height, desc.format, createProtectedImage,
+                  backendFormat.isValid(), mBackendTexture.isValid());
+        }
+        mBackendTexture = {};
+        return;
+    }
 }
 
 void AutoBackendTextureRelease::unref(bool releaseImage) {

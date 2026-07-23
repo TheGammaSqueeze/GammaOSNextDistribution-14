@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- GammaOS: features to un-declare on the nano/XMB build.
+
+     Picture-in-Picture: the nano launcher runs single-app fullscreen with multi-window
+     disabled, so ActivityTaskManager computes mSupportsPictureInPicture=false. But the
+     Unisoc handheld vendor ships /vendor/etc/permissions/handheld_core_hardware.xml which
+     declares android.software.picture_in_picture, so streaming apps (Disney+, BBC iPlayer)
+     trust the feature, call Activity.setPictureInPictureParams during playback, and crash
+     with "Current activity does not support picture-in-picture". Undeclare the feature so
+     those apps skip PiP entirely. SystemConfig applies <unavailable-feature> after every
+     partition is read (the mUnavailableFeatures loop at the end of readAllPermissions), so
+     this reliably overrides the vendor <feature> declaration regardless of read order. -->
+<permissions>
+    <unavailable-feature name="android.software.picture_in_picture" />
+</permissions>
