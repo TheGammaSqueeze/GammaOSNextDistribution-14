@@ -1936,7 +1936,13 @@ public final class SystemServer implements Dumpable {
         mSystemServiceManager.startService(UiModeManagerService.class);
         t.traceEnd();
 
-        if (!minimalBoot) {
+        // LocaleManagerService + GrammaticalInflectionService must start even in nano
+        // boot (like UiModeManager above). Apps resolve getSystemService(LocaleManager.class)
+        // / GrammaticalInflectionManager and crash if the service is not published: Disney+
+        // does a Kotlin non-null cast on LocaleManager and dies with a NullPointerException
+        // ("null cannot be cast to non-null type android.app.LocaleManager") on minimal boot.
+        // Both are lightweight per-app-language framework services (a binder publish plus a
+        // package monitor), so starting them adds negligible boot time.
         t.traceBegin("StartLocaleManagerService");
         try {
             mSystemServiceManager.startService(LocaleManagerService.class);
@@ -1953,6 +1959,7 @@ public final class SystemServer implements Dumpable {
         }
         t.traceEnd();
 
+        if (!minimalBoot) {
         t.traceBegin("StartAppHibernationService");
         mSystemServiceManager.startService(APP_HIBERNATION_SERVICE_CLASS);
         t.traceEnd();
@@ -2810,6 +2817,20 @@ public final class SystemServer implements Dumpable {
                     Slog.i(TAG, "GammaOS Nano: MediaSessionService ready");
                 } catch (Throwable e) {
                     Slog.e(TAG, "GammaOS Nano: MediaSessionService failed", e);
+                }
+                // MediaRouterService: apps that resolve getSystemService(MEDIA_ROUTER_SERVICE)
+                // (Disney+ does during startup, for cast/route selection) crash inside
+                // MediaRouter's constructor with a NullPointerException on IMediaRouterService
+                // when the media_router service is not registered. Start it in nano boot too
+                // (full boot starts it below in the !minimalBoot block); assigning mediaRouter
+                // here keeps the later MakeMediaRouterServiceReady/systemRunning call valid.
+                try {
+                    Slog.i(TAG, "GammaOS Nano: starting MediaRouterService");
+                    mediaRouter = new MediaRouterService(context);
+                    ServiceManager.addService(Context.MEDIA_ROUTER_SERVICE, mediaRouter);
+                    Slog.i(TAG, "GammaOS Nano: MediaRouterService ready");
+                } catch (Throwable e) {
+                    Slog.e(TAG, "GammaOS Nano: MediaRouterService failed", e);
                 }
                 try {
                     if (context.getPackageManager().hasSystemFeature(
