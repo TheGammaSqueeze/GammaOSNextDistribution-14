@@ -161,9 +161,18 @@ PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
     persist.sys.fflag.override.settings_provider_model=false \
     ro.setupwizard.mode=OPTIONAL
 
+# Bluetooth: the handheld BT controllers (Unisoc/MediaTek) advertise APCF hardware
+# scan filtering (LE_ADV_FILTER, opcode 0xfd57) but mishandle the extended-features
+# read at scanner init: the firmware answers the read with UNKNOWN_HCI_COMMAND and
+# then sends a spurious COMMAND_STATUS for the same opcode, which trips the GD
+# HciLayer 'op_code == OpCode::NONE' assertion and aborts com.android.bluetooth in a
+# ~3s crash-loop (churns tombstones + starves the little cores). Skipping just the
+# extended-features read avoids poking the broken vendor command; base scan filtering
+# still works. See packages/modules/Bluetooth/.../le_scanning_manager.cc:223.
 PRODUCT_PRODUCT_PROPERTIES += \
     ro.setupwizard.mode=OPTIONAL \
-    ro.control_privapp_permissions=log
+    ro.control_privapp_permissions=log \
+    bluetooth.le.disable_apcf_extended_features=1
 
 PRODUCT_PACKAGES += \
     NavigationBarMode2ButtonOverlay
