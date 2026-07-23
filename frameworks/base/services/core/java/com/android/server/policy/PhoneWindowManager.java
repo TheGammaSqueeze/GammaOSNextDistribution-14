@@ -6027,6 +6027,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     private boolean mGammaRotateDown = false;   // key currently in the DOWN (rotated) state
     private boolean mGammaSlideInit = false;    // have we established a baseline slide level yet?
     private Runnable mGammaWakeRunnable = null;  // pending debounced slide-up wake (null = none armed)
+    private PowerManager.WakeLock mGammaWakeLock = null; // holds the CPU awake across the wake debounce
     private Runnable mGammaSleepRunnable = null; // pending slide-to-sleep timeout (null = none armed)
     // Post-wake replay guard: applyGammaRotate re-tracks the slide level but runs NO slide action
     // (screenoff/wake) until this uptime. Armed in startedWakingUp on a wake the slide did not
@@ -6406,6 +6407,17 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                     android.os.PowerManager.WAKE_REASON_LID, "GammaRotateKey");
             return;
         }
+        // The hall slide can wake from deep sleep (its EIC IRQ pulls the SoC out of
+        // suspend), but nothing then holds the device awake, so opportunistic suspend
+        // re-enters deep sleep within ~100ms and freezes this handler before the
+        // debounce timer fires - a plain postDelayed wakeUp is simply lost. Hold a
+        // partial wakelock (CPU on, screen still OFF) across the debounce window so
+        // the timer actually runs, then wake the screen only if the slider is still
+        // up. A slide back down within the window cancels the timer and drops the
+        // wakelock (the screen never lights), which is exactly the transient-reject
+        // behaviour the debounce is for. The acquire timeout is a safety net so the
+        // lock can never leak if a callback is somehow missed.
+        gammaAcquireWakeLock(delay + 1000L);
         mGammaWakeRunnable = new Runnable() {
             @Override public void run() {
                 mGammaWakeRunnable = null;
@@ -6415,9 +6427,25 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                     mPowerManager.wakeUp(SystemClock.uptimeMillis(),
                             android.os.PowerManager.WAKE_REASON_LID, "GammaRotateKey");
                 }
+                gammaReleaseWakeLock();
             }
         };
         mHandler.postDelayed(mGammaWakeRunnable, delay);
+    }
+
+    private void gammaAcquireWakeLock(long timeoutMs) {
+        if (mGammaWakeLock == null) {
+            mGammaWakeLock = mPowerManager.newWakeLock(
+                    PowerManager.PARTIAL_WAKE_LOCK, "gammaos:RotateWakeDebounce");
+            mGammaWakeLock.setReferenceCounted(false);
+        }
+        mGammaWakeLock.acquire(timeoutMs);
+    }
+
+    private void gammaReleaseWakeLock() {
+        if (mGammaWakeLock != null && mGammaWakeLock.isHeld()) {
+            mGammaWakeLock.release();
+        }
     }
 
     private void gammaCancelWake() {
@@ -6425,6 +6453,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             mHandler.removeCallbacks(mGammaWakeRunnable);
             mGammaWakeRunnable = null;
         }
+        gammaReleaseWakeLock();
     }
 
     // Restore the brightness captured before the dim ramp (both the cancel path and the after-sleep
