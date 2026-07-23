@@ -868,6 +868,10 @@ void nanoBtLpmSuspendGate(bool screenOff, bool& disabled) {
 // Event loop: drain every input fd, dispatch to navigation / power / OSK.
 // ---------------------------------------------------------------------------
 
+// Defined later in this file; forward-declared so the DRM sleep wait loop can honour
+// a slide-open "wake" action.
+static bool slideActionHas(const char* list, const char* act);
+
 bool NanoMenu::enterDrmSleep() {
     // The render thread is about to block in the wait loop below, so the render
     // heartbeat stops. Tell the watchdog this is intentional: otherwise it aborts
@@ -970,6 +974,22 @@ bool NanoMenu::enterDrmSleep() {
         if (wl >= 0) { ssize_t n = write(wl, "nano_wake", 9); (void)n; close(wl); }
         wokeWakelock = true;
     };
+    // Slide/hall wake: on devices whose swivel/lid trigger is a KEY (e.g. the RG Rotate's
+    // gpio-keys KEY_F12), opening it must also wake here, or nano stays parked in this loop
+    // and its DSI command-mode panel is never re-committed - the backlight relights but the
+    // display stays blank until a power press. The trigger is the same prop-configured event
+    // as the slide handler (key_type/key_code/key_active); "open" is the key leaving its
+    // engaged value. Gated on the slide up-action including "wake" so a device that does not
+    // want wake-on-open is unaffected. EV_SW SW_LID is already handled below.
+    const int slideKeyType   = property_get_int32("persist.gammaos.rotate.key_type", EV_KEY);
+    const int slideKeyCode   = property_get_int32("persist.gammaos.rotate.key_code", 88);
+    const int slideKeyActive = property_get_int32("persist.gammaos.rotate.key_active", 1);
+    bool slideWakeOnOpen = false;
+    if (property_get_bool("persist.gammaos.rotate.enabled", false)) {
+        char upAct[PROPERTY_VALUE_MAX] = {};
+        property_get("persist.gammaos.rotate.up_action", upAct, "");
+        slideWakeOnOpen = slideActionHas(upAct, "wake");
+    }
     // Wait for the wake source with EPOLLWAKEUP. The framework EventHub reads
     // input exactly this way, which is WHY in-app wake is reliable on the first
     // press: with EPOLLWAKEUP the kernel holds a wakeup source from the instant
@@ -1039,6 +1059,12 @@ bool NanoMenu::enterDrmSleep() {
                     mLastInputMs = android::uptimeMillis();
                 } else if (wake.type == EV_SW && wake.code == SW_LID
                            && wake.value == 0) {
+                    asleep = false;
+                    mLastInputMs = android::uptimeMillis();
+                } else if (slideWakeOnOpen
+                           && wake.type == slideKeyType && wake.code == slideKeyCode
+                           && wake.value != 2                    // ignore EV_KEY auto-repeat
+                           && wake.value != slideKeyActive) {     // trigger left its engaged value = opened
                     asleep = false;
                     mLastInputMs = android::uptimeMillis();
                 }

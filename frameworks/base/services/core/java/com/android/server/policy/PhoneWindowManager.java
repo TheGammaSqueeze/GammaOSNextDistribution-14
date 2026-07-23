@@ -6025,6 +6025,8 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     // the GammaOS Nano PSP slide clock; it is handled by nano's own evdev reader (which sees the
     // key even over a fullscreen app, where the framework never does), so here it is a no-op.
     private boolean mGammaRotateDown = false;   // key currently in the DOWN (rotated) state
+    private boolean mGammaSlideInit = false;    // have we established a baseline slide level yet?
+    private Runnable mGammaWakeRunnable = null;  // pending debounced slide-up wake (null = none armed)
     private Runnable mGammaSleepRunnable = null; // pending slide-to-sleep timeout (null = none armed)
     // Gradual dim-before-sleep (persist.gammaos.rotate.sleep_dim): while the sleep countdown runs we
     // ramp the default-display brightness from its start value down toward minimum, then sleep. The
@@ -6090,11 +6092,25 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     // and the EV_SW switch path (notifyTabletModeChanged) so the two triggers can never drift.
     // down = the slide is engaged (rotated / clock open); false = released (natural / clock closed).
     private void applyGammaRotate(boolean down) {
+        // Only apply the sleep/wake slide actions on a GENUINE level transition. The hall/
+        // lid key is a level (held while engaged): it re-delivers the same state via key
+        // auto-repeat, a gpio_keys resume-simulated press after suspend, or a hall glitch on
+        // deep-suspend entry. Re-running the action on a settled slider caused two bugs -
+        // a still-closed lid re-armed "screenoff" and immediately re-slept a power-button
+        // wake ("won't wake while closed"), and a spurious event re-fired "wake" ("wakes on
+        // its own"). rotate/clock/launch intentionally still run on every event so the
+        // app-rotation double-swivel fix in interceptGammaRotateKey is not regressed.
+        final boolean transition = !mGammaSlideInit || (down != mGammaRotateDown);
+        mGammaSlideInit = true;
         mGammaRotateDown = down;
+        // Any move back to the DOWN (settled/closed) position cancels a pending debounced
+        // wake: a transient slide-up that does not stay up for the debounce window is a
+        // glitch, not a real open.
+        if (down) gammaCancelWake();
         final String list = android.os.SystemProperties.get(
                 down ? "persist.gammaos.rotate.down_action" : "persist.gammaos.rotate.up_action",
                 down ? "rotate" : "natural");
-        gammaRotateDoList(list, down);
+        gammaRotateDoList(list, down, transition);
         gammaClockSummon(down);
     }
 
@@ -6102,13 +6118,15 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     // at once (e.g. "rotate,screenoff"). Each token runs through the single-action gammaRotateDo, so
     // the per-action semantics live in one place. Any pending sleep-timeout is cancelled first, so
     // the opposite slide (or any slide that does not re-arm screenoff) cancels a running countdown.
-    private void gammaRotateDoList(String list, boolean down) {
-        gammaCancelSleep();
+    private void gammaRotateDoList(String list, boolean down, boolean transition) {
+        // Only cancel a pending sleep countdown on a real transition; a spurious settled-
+        // slider event (glitch / resume-simulated press) must not cancel an armed sleep.
+        if (transition) gammaCancelSleep();
         if (list == null || list.isEmpty()) list = down ? "rotate" : "natural";
         for (String raw : list.split(",")) {
             final String act = raw.trim();
             if (!act.isEmpty()) {
-                gammaRotateDo(act);
+                gammaRotateDo(act, transition);
             }
         }
     }
@@ -6202,16 +6220,15 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     }
 
     // Runs one configured rotation-key action. Both DOWN and UP map to one of these.
-    private void gammaRotateDo(String act) {
+    private void gammaRotateDo(String act, boolean transition) {
         if ("rotate".equals(act)) {
             gammaRotateApply(true);
         } else if ("natural".equals(act)) {
             gammaRotateApply(false);
         } else if ("screenoff".equals(act)) {
-            gammaArmSleep();
+            if (transition) gammaArmSleep();   // sleep only on a genuine slide-down transition
         } else if ("wake".equals(act)) {
-            mPowerManager.wakeUp(SystemClock.uptimeMillis(),
-                    android.os.PowerManager.WAKE_REASON_LID, "GammaRotateKey");
+            if (transition) gammaArmWake();     // wake only on a genuine slide-up, after a steady-state debounce
         } else if ("launch".equals(act)) {
             gammaRotateLaunch();
         }
@@ -6348,6 +6365,42 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         } else {
             mGammaDimSavedBrightness = Float.NaN;
             mGammaDimSavedLegacy = -1;
+        }
+    }
+
+    // Debounced slide-up "wake": the slider must stay steadily in the UP (open) position for
+    // persist.gammaos.rotate.wake_debounce_ms (default 1000ms) before the device actually wakes.
+    // A hall glitch on deep-suspend entry, or a transient slide-up that snaps back down within
+    // the window, is cancelled by gammaCancelWake (invoked from applyGammaRotate on any move
+    // back to DOWN), so a settled slider can never wake the device on its own. Set the prop to
+    // 0 to wake immediately (no debounce).
+    private void gammaArmWake() {
+        gammaCancelWake();
+        final int delay = android.os.SystemProperties.getInt(
+                "persist.gammaos.rotate.wake_debounce_ms", 1000);
+        if (delay <= 0) {
+            mPowerManager.wakeUp(SystemClock.uptimeMillis(),
+                    android.os.PowerManager.WAKE_REASON_LID, "GammaRotateKey");
+            return;
+        }
+        mGammaWakeRunnable = new Runnable() {
+            @Override public void run() {
+                mGammaWakeRunnable = null;
+                // A move back to DOWN would have removed this callback, so reaching here means the
+                // slider held UP for the whole window = a real open. Guard on the level anyway.
+                if (!mGammaRotateDown) {
+                    mPowerManager.wakeUp(SystemClock.uptimeMillis(),
+                            android.os.PowerManager.WAKE_REASON_LID, "GammaRotateKey");
+                }
+            }
+        };
+        mHandler.postDelayed(mGammaWakeRunnable, delay);
+    }
+
+    private void gammaCancelWake() {
+        if (mGammaWakeRunnable != null) {
+            mHandler.removeCallbacks(mGammaWakeRunnable);
+            mGammaWakeRunnable = null;
         }
     }
 
