@@ -6028,6 +6028,11 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     private boolean mGammaSlideInit = false;    // have we established a baseline slide level yet?
     private Runnable mGammaWakeRunnable = null;  // pending debounced slide-up wake (null = none armed)
     private Runnable mGammaSleepRunnable = null; // pending slide-to-sleep timeout (null = none armed)
+    // Post-wake replay guard: applyGammaRotate re-tracks the slide level but runs NO slide action
+    // (screenoff/wake) until this uptime. Armed in startedWakingUp on a wake the slide did not
+    // cause, so a phantom hall replay on resume cannot re-run an action. Volatile: written on the
+    // PowerManager Notifier thread, read on the input thread.
+    private volatile long mGammaSlideResyncUntil = 0L;
     // Gradual dim-before-sleep (persist.gammaos.rotate.sleep_dim): while the sleep countdown runs we
     // ramp the default-display brightness from its start value down toward minimum, then sleep. The
     // opposite slide (gammaCancelSleep) restores the saved brightness and drops the ramp callbacks.
@@ -6100,6 +6105,24 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         // wake ("won't wake while closed"), and a spurious event re-fired "wake" ("wakes on
         // its own"). rotate/clock/launch intentionally still run on every event so the
         // app-rotation double-swivel fix in interceptGammaRotateKey is not regressed.
+        //
+        // Post-wake replay guard. On a wake the slide did NOT cause (typically a power-button wake
+        // while the lid is still closed), the input stack replays the held hall level as a phantom
+        // UP+DOWN pair on resume: KeyboardInputMapper's device reset cancels the held key (a
+        // synthesized, CANCELED ACTION_UP), then gpio_keys re-asserts the still-engaged pad as a
+        // fresh ACTION_DOWN. That pair reads as TWO genuine transitions, so the level gate below
+        // cannot suppress it and it re-runs screenoff/wake with no physical slide (the "power-wake
+        // bounces straight back to sleep" bug). While the resync window (armed in startedWakingUp)
+        // is open, only re-track the level and run no slide action, so the replay is a no-op. A
+        // real slide-up wake never arms the window (it wakes with WAKE_REASON_LID). An EV_SW switch
+        // (SW_TABLET_MODE) does not produce the phantom pair at all - it re-syncs as one absolute
+        // level on resume - so on switch panels this guard is redundant, never harmful.
+        if (SystemClock.uptimeMillis() < mGammaSlideResyncUntil) {
+            mGammaSlideInit = true;
+            mGammaRotateDown = down;
+            if (down) gammaCancelWake();
+            return;
+        }
         final boolean transition = !mGammaSlideInit || (down != mGammaRotateDown);
         mGammaSlideInit = true;
         mGammaRotateDown = down;
@@ -7955,6 +7978,17 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         }
         EventLogTags.writeScreenToggled(1);
 
+        // Slide-trigger post-wake resync window (see applyGammaRotate). Open it on any wake the
+        // slide did not cause, so a phantom hall replay on resume cannot bounce a power-wake-while-
+        // closed straight back to sleep. A genuine slide-up wakes with WAKE_REASON_LID and must not
+        // arm this, or it would suppress its own follow-on actions. Cheap (a couple of prop reads),
+        // and a no-op unless the slide feature is enabled.
+        if (android.os.SystemProperties.getBoolean("persist.gammaos.rotate.enabled", false)
+                && pmWakeReason != android.os.PowerManager.WAKE_REASON_LID) {
+            final int win = android.os.SystemProperties.getInt(
+                    "persist.gammaos.rotate.wake_resync_ms", 1200);
+            mGammaSlideResyncUntil = win > 0 ? (SystemClock.uptimeMillis() + win) : 0L;
+        }
 
         mDefaultDisplayPolicy.setAwake(true);
 
