@@ -5384,6 +5384,11 @@
   <java-symbol type="string" name="gammaos_kill_app" />
   <java-symbol type="drawable" name="ic_gammaos_brightness" />
   <java-symbol type="drawable" name="ic_gammaos_performance" />
+  <java-symbol type="drawable" name="ic_gammaos_controller" />
+  <java-symbol type="string" name="gammaos_ctrl_abxy_swap" />
+  <java-symbol type="string" name="gammaos_ctrl_dpad_analog_swap" />
+  <java-symbol type="string" name="gammaos_ctrl_invert_left" />
+  <java-symbol type="string" name="gammaos_ctrl_invert_right" />
   <java-symbol type="string" name="gammaos_kill_all_background_apps" />
   <java-symbol type="string" name="gammaos_kill_all_apps" />
   <java-symbol type="string" name="gammaos_boot_nano" />

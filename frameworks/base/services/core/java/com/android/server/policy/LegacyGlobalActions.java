@@ -575,13 +575,25 @@ class LegacyGlobalActions implements DialogInterface.OnDismissListener, DialogIn
 
         // GammaOS - Add our own shortcuts
         boolean isNanoMode = "1".equals(SystemProperties.get("sys.gammaos.minimal_boot", "0"));
-        if (isNanoMode) {
+        // On ATV builds surface the brightness slider + performance + controller shortcuts in the
+        // power menu regardless of nano mode (these used to be nano-only). The controller entry
+        // drives the same persist.gammaos.gamepad.* props as the quick settings tiles.
+        // NOTE: FEATURE_LEANBACK reads false in system_server on this GammaOS ATV GSI (it is listed
+        // by pm but hasSystemFeature returns false), so gate on the TV build identity
+        // (ro.build.characteristics=tv) with the still-working television feature as a fallback.
+        boolean isAtv = SystemProperties.get("ro.build.characteristics", "").contains("tv")
+                || mContext.getPackageManager().hasSystemFeature(PackageManager.FEATURE_TELEVISION);
+        if (isAtv) {
             mItems.add(0, getBrightnessAction());
             mBrightnessItemPosition = 0;
             mItems.add(getPerformanceAction());
-            mItems.add(getKillForegroundAppAction());
+            mItems.add(getControllerAction());
         } else {
             mBrightnessItemPosition = -1;
+        }
+        if (isNanoMode) {
+            mItems.add(getKillForegroundAppAction());
+        } else {
             mItems.add(getKillForegroundAppAction());
             mItems.add(getSettingsAction());
             mItems.add(getKillBackgroundAppsAction());
@@ -649,7 +661,7 @@ class LegacyGlobalActions implements DialogInterface.OnDismissListener, DialogIn
         listView.setSelector(selector);
         // GammaOS Nano: store ListView ref and intercept DPAD left/right on brightness slider row
         mBrightnessListView = listView;
-        if (isNanoMode) {
+        if (mBrightnessItemPosition == 0) {
             dialog.setOnKeyListener((dlg, keyCode, event) -> {
                 if (event.getAction() != android.view.KeyEvent.ACTION_DOWN) return false;
                 int sel = listView.getSelectedItemPosition();
@@ -1027,6 +1039,100 @@ class LegacyGlobalActions implements DialogInterface.OnDismissListener, DialogIn
                 }
             });
         }
+    }
+
+    private Action getControllerAction() {
+        return new SinglePressAction(R.drawable.ic_gammaos_controller,
+                R.string.gammaos_controller_options) {
+
+            @Override
+            public void onPress() {
+                if (mDialog != null && mDialog.isShowing()) {
+                    mDialog.dismiss();
+                }
+                mHandler.post(() -> showControllerDialog());
+            }
+
+            @Override
+            public boolean showDuringKeyguard() {
+                return true;
+            }
+
+            @Override
+            public boolean showBeforeProvisioning() {
+                return true;
+            }
+        };
+    }
+
+    // GammaPad controller toggles. Each row drives the SAME persist.gammaos.gamepad.* prop as its
+    // quick settings tile, and a change bumps config_version so GammaPad reloads the mapping live.
+    private void showControllerDialog() {
+        final String[] labels = {
+                mContext.getString(R.string.gammaos_ctrl_abxy_swap),
+                mContext.getString(R.string.gammaos_ctrl_dpad_analog_swap),
+                mContext.getString(R.string.gammaos_ctrl_invert_left),
+                mContext.getString(R.string.gammaos_ctrl_invert_right),
+        };
+        final boolean[] checked = {
+                SystemProperties.getInt("persist.gammaos.gamepad.abxy_swap", 0) != 0,
+                SystemProperties.getInt("persist.gammaos.gamepad.analog_to_dpad", 0) != 0,
+                SystemProperties.getInt("persist.gammaos.gamepad.invert_left", 0) != 0,
+                SystemProperties.getInt("persist.gammaos.gamepad.invert_right", 0) != 0,
+        };
+
+        AlertDialog dialog = new AlertDialog.Builder(mContext, android.R.style.Theme_Material_Dialog)
+                .setTitle(R.string.gammaos_controller_options)
+                .setMultiChoiceItems(labels, checked, (dlg, which, isChecked) -> {
+                    final String val = isChecked ? "1" : "0";
+                    final long token = Binder.clearCallingIdentity();
+                    try {
+                        switch (which) {
+                            case 0:
+                                SystemProperties.set("persist.gammaos.gamepad.abxy_swap", val);
+                                break;
+                            case 1:
+                                // Mirror DpadAnalogToggleTile: both directions move together.
+                                SystemProperties.set("persist.gammaos.gamepad.analog_to_dpad", val);
+                                SystemProperties.set("persist.gammaos.gamepad.dpad_to_analog", val);
+                                break;
+                            case 2:
+                                SystemProperties.set("persist.gammaos.gamepad.invert_left", val);
+                                break;
+                            case 3:
+                                SystemProperties.set("persist.gammaos.gamepad.invert_right", val);
+                                break;
+                        }
+                        bumpGamepadConfigVersion();
+                    } finally {
+                        Binder.restoreCallingIdentity(token);
+                    }
+                })
+                .setPositiveButton(android.R.string.ok, null)
+                .create();
+
+        dialog.getWindow().setType(WindowManager.LayoutParams.TYPE_KEYGUARD_DIALOG);
+        dialog.show();
+        applyDarkDialogTheme(dialog);
+        ListView lv = dialog.getListView();
+        if (lv != null) {
+            lv.setBackgroundColor(Color.TRANSPARENT);
+            final Runnable whiten = () -> {
+                for (int i = 0; i < lv.getChildCount(); i++) {
+                    View child = lv.getChildAt(i);
+                    if (child instanceof android.widget.CheckedTextView) {
+                        ((android.widget.CheckedTextView) child).setTextColor(Color.WHITE);
+                    }
+                }
+            };
+            whiten.run();
+            lv.post(whiten);
+        }
+    }
+
+    private void bumpGamepadConfigVersion() {
+        int ver = SystemProperties.getInt("persist.gammaos.gamepad.config_version", 0);
+        SystemProperties.set("persist.gammaos.gamepad.config_version", Integer.toString(ver + 1));
     }
 
     private Action getKillForegroundAppAction() {
