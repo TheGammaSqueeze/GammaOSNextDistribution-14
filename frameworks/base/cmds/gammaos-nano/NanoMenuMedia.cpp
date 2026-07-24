@@ -205,6 +205,14 @@ void NanoMenu::nanoPublishMediaState() {
 
     setPropIfChanged(mMediaLastState, "sys.gammaos.nano.media.state", state);
     setPropIfChanged(mMediaLastKind,  "sys.gammaos.nano.media.kind",  kind);
+    // GammaOS Nano: pin the display on while the in-process video / stream player is
+    // actively playing. The player has no framework window and gets no input during a
+    // clip, so without this the home would idle off mid-video (PowerManagerService
+    // .isNanoDisplayForcedOn reads this flag). Music is audio-only and is deliberately
+    // allowed to keep playing with the screen off, so it does NOT set the flag.
+    bool videoPlaying = mVidActive && mVideoTest && mVidPlaying && !mVidStopped;
+    setPropIfChanged(mMediaLastPlaying, "sys.gammaos.nano.media_playing",
+                     videoPlaying ? "1" : "0");
     char buf[24];
     snprintf(buf, sizeof buf, "%d", (int)(pos + 0.5));
     setPropIfChanged(mMediaLastPos, "sys.gammaos.nano.media.pos", buf);

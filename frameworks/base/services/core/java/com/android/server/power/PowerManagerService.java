@@ -3473,12 +3473,11 @@ public final class PowerManagerService extends SystemService
                     groupNextTimeout = -1;
                 }
 
-                // GammaOS Nano: keep display always bright only while the nano boot
-                // menu grabs all input devices exclusively (see isNanoInputGrabbed),
-                // because then no user activity ever reaches the framework.  When nano
-                // does not grab input the framework still sees the gamepad, so the
-                // normal user-activity timeout applies and the display idles off.
-                if (isNanoInputGrabbed()
+                // GammaOS Nano: keep display always bright while nano forces it on
+                // (see isNanoDisplayForcedOn): a grab-input DRM home, a running app, or
+                // nano playing media.  The nano home otherwise idles off normally
+                // (PhoneWindowManager pokes user activity for home navigation).
+                if (isNanoDisplayForcedOn()
                         && wakefulness == WAKEFULNESS_AWAKE) {
                     groupUserActivitySummary = USER_ACTIVITY_SCREEN_BRIGHT;
                     groupNextTimeout = Long.MAX_VALUE;
@@ -3668,24 +3667,35 @@ public final class PowerManagerService extends SystemService
         return Math.max(timeout, mMinimumScreenOffTimeoutConfig);
     }
 
-    // GammaOS Nano: the nano boot menu only needs the display-always-on override
-    // when it grabs every input device exclusively (persist.gammaos.nano.grab_input).
-    // In that mode no user activity ever reaches the framework, so the normal
-    // screen-off timeout would fire during active use and the display must be
-    // pinned bright.  When nano does NOT grab input (for example the overlay home on
-    // the TV builds, where the framework InputReader still sees the gamepad) the
-    // normal screen-off timeout must apply so the display idles off as configured.
-    private static boolean isNanoInputGrabbed() {
-        return SystemProperties.getBoolean("sys.gammaos.minimal_boot", false)
-                && SystemProperties.getBoolean("persist.gammaos.nano.grab_input", false);
+    // GammaOS Nano: when to pin the display bright in nano mode, overriding the normal
+    // screen-off timeout. Two cases:
+    //  (a) A DRM-direct home that grabs every input device exclusively
+    //      (persist.gammaos.nano.grab_input): the framework never sees nano's input, so
+    //      the timeout would fire during active use and the display must be pinned.
+    //  (b) A launched app (sys.gammaos.nano.app_launched): on a game handheld a running
+    //      app (emulator, game, incl. 32-bit titles like AM2R) must not idle off even
+    //      with no input pressed; these relied on the blanket nano override before it was
+    //      scoped to grab_input, and some do not hold FLAG_KEEP_SCREEN_ON of their own.
+    //  (c) nano is playing media itself (sys.gammaos.nano.media_playing): the in-process
+    //      video / stream player has no framework window and receives no input while a
+    //      clip plays, so it must pin the display or the home would idle off mid-video.
+    // The nano HOME on a non-grabbing build is otherwise NOT pinned here:
+    // PhoneWindowManager pokes user activity for home navigation, so the home stays lit
+    // while navigated and still idles off after the configured timeout when untouched.
+    private static boolean isNanoDisplayForcedOn() {
+        if (!SystemProperties.getBoolean("sys.gammaos.minimal_boot", false)) return false;
+        if (SystemProperties.getBoolean("persist.gammaos.nano.grab_input", false)) return true;
+        if ("1".equals(SystemProperties.get("sys.gammaos.nano.app_launched", "0"))) return true;
+        if ("1".equals(SystemProperties.get("sys.gammaos.nano.media_playing", "0"))) return true;
+        return false;
     }
 
     @GuardedBy("mLock")
     private long getScreenOffTimeoutLocked(long sleepTimeout, long attentiveTimeout) {
-        // GammaOS Nano: keep the display always on only while the nano menu grabs all
-        // input exclusively (see isNanoInputGrabbed).  Otherwise fall through to the
+        // GammaOS Nano: keep the display always on while a nano DRM home grabs input or a
+        // nano app is running (see isNanoDisplayForcedOn).  Otherwise fall through to the
         // configured screen-off timeout so the display idles off normally.
-        if (isNanoInputGrabbed()) {
+        if (isNanoDisplayForcedOn()) {
             return Long.MAX_VALUE;
         }
         long timeout = mScreenOffTimeoutSetting;

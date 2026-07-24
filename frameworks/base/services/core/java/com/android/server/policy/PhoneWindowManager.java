@@ -6538,6 +6538,22 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         // below (which would blank the shader + swallow Power on every press).
         gammaClearStaleCombosIfNanoForeground();
 
+        // GammaOS Nano: the overlay / SurfaceFlinger home reads input directly and may
+        // have no framework-focused window, so gamepad / d-pad navigation would not
+        // otherwise reset the display timeout and the home could sleep mid-navigation
+        // (regression from scoping the always-on override to grab_input). Poke user
+        // activity for a real key-down while the nano home is up (no app launched) and
+        // the display is awake, so the home stays lit while navigated yet still idles off
+        // when left untouched. Power is excluded (it drives sleep/wake itself); a launched
+        // app / playing media are pinned by PowerManagerService.isNanoDisplayForcedOn.
+        if (down && keyCode != KeyEvent.KEYCODE_POWER
+                && android.os.SystemProperties.getBoolean("sys.gammaos.minimal_boot", false)
+                && !"1".equals(android.os.SystemProperties.get(
+                        "sys.gammaos.nano.app_launched", "0"))
+                && mDefaultDisplayPolicy.isAwake()) {
+            mPowerManager.userActivity(SystemClock.uptimeMillis(), false);
+        }
+
         // GammaOS Nano: hardware escape hatch for the system-wide display shader.
         // A misbehaving custom shader can make the ENTIRE screen unreadable - not just
         // the home menu but any running game/app - so holding the gamepad Select and

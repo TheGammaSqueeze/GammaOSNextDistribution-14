@@ -2819,6 +2819,7 @@ private:
                             const std::string& album, const char* kind, double dur);
     std::string mMediaLastState;               // last-published playback state (change-gated)
     std::string mMediaLastKind;                // last-published source kind
+    std::string mMediaLastPlaying;             // last-published media_playing screen-keepalive flag
     std::string mMediaLastPos;                 // last-published whole-second position
     std::string mMediaLastDur;                 // last-published whole-second duration
     std::string mMediaMetaSig;                 // last-published title/artist/album/kind signature
