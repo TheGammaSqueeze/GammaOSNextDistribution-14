@@ -1367,8 +1367,10 @@ void NanoMenu::handleRight() {
         // DSi game Information page / paginated info dialog: RIGHT turns to the next page.
         if (mNdsTheme && mPs3Xmb && (ndsGameInfoActive() || ndsDlgInfoPaged())) { ndsInfoPage(+1); return; }
         // DSi stacked carousel: RIGHT cycles the focused carousel forward one card.
-        // A settings LIST level: RIGHT opens/drills the focused row (like A); a carousel cycles forward.
-        if (mNdsTheme && mPs3Xmb && !ndsInModal()) { if (ndsCurLevelIsList()) ndsNavSelect(false); else ndsNavHoriz(+1); }
+        // A settings LIST level: RIGHT drills the focused row ONLY when it opens a submenu
+        // (the ">" chevron rows); on a leaf (toggle / action) RIGHT does NOTHING, so a
+        // drifting stick / temperamental d-pad diagonal cannot confirm it (confirm is X/A).
+        if (mNdsTheme && mPs3Xmb && !ndsInModal()) { if (ndsCurLevelIsList()) { if (ps3FocusOpensSubmenu()) ndsNavSelect(false); } else ndsNavHoriz(+1); }
         else ps3XmbRight();
         return;
     }

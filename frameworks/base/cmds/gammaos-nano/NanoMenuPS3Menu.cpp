@@ -777,6 +777,32 @@ static bool ps3QaOpensSubmenu(int qa) {
     }
 }
 
+// True when the item drills into a deeper submenu list. This is the single source of
+// truth for BOTH the right-edge ">" chevron (renderPs3Xmb) and the directional drill:
+// a d-pad RIGHT (XMB) or DOWN / RIGHT (DSi) opens a submenu only for these rows and
+// does NOTHING on a leaf, so a drifting stick or a temperamental d-pad diagonal can no
+// longer confirm/activate a leaf selection (e.g. Quick Menu > Power > Reboot). Confirm
+// / launch stays on X/A (and touch). If a row shows a chevron, RIGHT drills it; if not,
+// RIGHT is inert.
+bool NanoMenu::ps3ItemOpensSubmenu(const Ps3Item& it) const {
+    return it.kind == PS3_DATA_SUBMENU || it.kind == PS3_SYSTEM ||
+           it.kind == PS3_RECENT_LIST || it.kind == PS3_APP_LIST ||
+           it.kind == PS3_GS_ROOT || it.kind == PS3_GS_SYSTEM_ROW ||
+           (it.kind == PS3_QUICK && ps3QaOpensSubmenu(it.a)) ||
+           // Slide Behaviour: these data-leaf rows drill into a pushed picker (device /
+           // event list, or the down/up action multi-select) rather than a side chooser.
+           (it.kind == PS3_DATA_LEAF &&
+            (it.label == "Slide Device" || it.label == "Slide Button Code" ||
+             it.label == "On Slide Down" || it.label == "On Slide Up"));
+}
+
+// The currently-focused row (current level's selection) opens a submenu.
+bool NanoMenu::ps3FocusOpensSubmenu() {
+    std::vector<Ps3Item>& items = ps3CurItems();
+    int sel = ps3CurSel();
+    return sel >= 0 && sel < (int)items.size() && ps3ItemOpensSubmenu(items[sel]);
+}
+
 void NanoMenu::buildPs3Cats() {
     mPs3Cats.clear();
     int gameCatRuntimeIdx = -1;
@@ -2986,7 +3012,11 @@ void NanoMenu::ps3XmbRight() {
     if (mPs3LangActive) return; // language list is vertical only
     if (mPs3WizActive) { wizNav(+1, true); return; }
     if (mPs3DlgActive) { ps3DlgNav(+1, true); return; }   // chooser scroll / confirm toggle
-    if (!mPs3Stack.empty()) { ps3XmbSelect(); return; }
+    // In a submenu, RIGHT drills into a row ONLY if that row opens a deeper submenu
+    // (the ">" chevron rows); on a leaf (a toggle, a chooser, or an action like
+    // Quick Menu > Power > Reboot) RIGHT does NOTHING. Confirm/activate stays on X/A,
+    // so a drifting stick or a temperamental d-pad diagonal can no longer trigger it.
+    if (!mPs3Stack.empty()) { if (ps3FocusOpensSubmenu()) ps3XmbSelect(); return; }
     if (mPs3Cats.empty() || mPs3CatIdx >= (int)mPs3Cats.size() - 1) return;
     ps3NavSound();
     float live = ps3CatOffset(mPs3CatAnimActive, mPs3CatT, mPs3CatFromOffset);
@@ -4783,16 +4813,7 @@ void NanoMenu::renderPs3Xmb() {
             // Sub-menu indicator: rows that open a deeper list get a right-edge
             // chevron. If the row also shows a value (e.g. a module's On/Off) the
             // value sits to the chevron's left. Suppressed under the side panel.
-            bool opensSub = (it.kind == PS3_DATA_SUBMENU || it.kind == PS3_SYSTEM ||
-                             it.kind == PS3_RECENT_LIST || it.kind == PS3_APP_LIST ||
-                             it.kind == PS3_GS_ROOT || it.kind == PS3_GS_SYSTEM_ROW ||
-                             (it.kind == PS3_QUICK && ps3QaOpensSubmenu(it.a)) ||
-                             // Slide Behaviour: these data-leaf rows drill into a pushed
-                             // picker (device / event list, or the down/up action
-                             // multi-select) rather than a side chooser.
-                             (it.kind == PS3_DATA_LEAF &&
-                              (it.label == "Slide Device" || it.label == "Slide Button Code" ||
-                               it.label == "On Slide Down" || it.label == "On Slide Up")));
+            bool opensSub = ps3ItemOpensSubmenu(it);
             if ((mPs3DlgActive || mPs3DlgClosing) && mPs3DlgKind == 1) opensSub = false;
             const char* kChevron = "\xE2\x80\xBA";   // > single right angle quotation mark
             float chFs = ps3::fontScale(ps3::ITEM_TEXT_SIZE);

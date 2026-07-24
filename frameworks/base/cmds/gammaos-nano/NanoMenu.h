@@ -3226,6 +3226,12 @@ private:
 
     std::vector<Ps3Item>& ps3CurItems();   // current visible item list (top or submenu)
     int& ps3CurSel();
+    // True when the row drills into a deeper submenu list (the same predicate that
+    // draws the right-edge ">" chevron). A directional drill (XMB RIGHT, DSi DOWN/
+    // RIGHT) only fires for these rows; a leaf (toggle / action like Reboot) stays
+    // X/A-only so a drifting stick or temperamental d-pad diagonal cannot confirm it.
+    bool ps3ItemOpensSubmenu(const Ps3Item& it) const;
+    bool ps3FocusOpensSubmenu();           // the current selection opens a submenu
     void renderPs3Xmb();
     void drawPs3Clock(float fadeMul);   // U-frame + analog face + DD/M H:MM
 

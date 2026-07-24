@@ -595,10 +595,15 @@ void NanoMenu::handleDown() {
     if (mMenuState == MENU_BT)       { handleBtScreenDown();       return; }
     if (mMenuState == MENU_SETTINGS) { handleSettingsTreeDown();    return; }
     if (mPs3Xmb || mPs3WizActive) {
-        // DSi stacked carousel: DOWN drills into the focused card (the child carousel comes
-        // into focus below). A modal keeps normal vertical list nav.
-        // A settings LIST level moves the selection down a row; a carousel level drills the focused card.
-        if (mNdsTheme && mPs3Xmb && !ndsInModal()) { if (ndsCurLevelIsList()) ndsNavHoriz(+1); else ndsNavSelect(false); }   // launch is touch-only
+        // DSi: a settings LIST level moves the selection down a row. Otherwise DOWN enters
+        // the focused card: at the categories root it opens the selected category; deeper, a
+        // stacked carousel card is drilled ONLY when it opens a submenu (the same ">" chevron
+        // rows). A leaf card is NOT confirmed/launched on DOWN (launch is touch-only anyway),
+        // so a drifting stick / temperamental d-pad diagonal cannot activate a selection.
+        if (mNdsTheme && mPs3Xmb && !ndsInModal()) {
+            if (ndsCurLevelIsList()) ndsNavHoriz(+1);
+            else if (mNdsAtRoot || ps3FocusOpensSubmenu()) ndsNavSelect(false);
+        }
         else ps3XmbDown();
         return;
     }
