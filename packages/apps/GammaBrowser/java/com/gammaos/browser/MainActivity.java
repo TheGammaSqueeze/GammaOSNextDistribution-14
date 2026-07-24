@@ -206,6 +206,22 @@ public class MainActivity extends Activity {
         mStar.setOnClickListener(v -> toggleBookmark());
         mMenu.setOnClickListener(v -> openPanel());
 
+        // Touch: tapping the address bar raises nano's OSK to edit the URL, exactly
+        // like the gamepad X / Start buttons do (focusAddress). Without this a tap did
+        // nothing, because the window suppresses the framework IME (FLAG_ALT_FOCUSABLE_IM)
+        // and the address field is edited through the nano OSK, not by direct typing.
+        // Use an OnTouchListener (not OnClickListener): the browser starts with the
+        // WebView focused, so the first tap on the unfocused EditText would otherwise
+        // only move focus (onClick needs a second tap). Fire on ACTION_UP and swallow the
+        // raw touch, since the field is never typed into directly.
+        mAddress.setOnTouchListener((v, ev) -> {
+            if (ev.getActionMasked() == MotionEvent.ACTION_UP
+                    && !mNanoOskActive && !mPanelOpen && !mImeUp) {
+                focusAddress();
+            }
+            return true;
+        });
+
         mAddress.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_GO || actionId == EditorInfo.IME_ACTION_DONE
                     || (event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER
